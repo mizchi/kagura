@@ -8,8 +8,8 @@
 
 ## 実装状況スナップショット (2026-02-19)
 
-- `moon test --target native`: 95 passed / 0 failed
-- `moon test --target js`: 87 passed / 0 failed
+- `moon test --target native`: 120 passed / 0 failed
+- `moon test --target js`: 112 passed / 0 failed
 - `moon run src/examples/runtime_smoke --target js`: pass (`runtime_smoke(js): ok (hooked)`)
 - `moon run src/examples/runtime_smoke_native --target native`: pass (`runtime_smoke_native: ok (real)`)
 - `pnpm e2e:smoke` (Playwright wasm/wasm-gc): 2 passed / 0 failed
@@ -64,7 +64,12 @@
    - runtime/native/web hooks に atlas page dirty binding 同期 API を追加済み（native 実 backend の smoke で検証）。
    - `asset.get_atlas_draw_source`（page id + uv）を追加し、`runtime_smoke_native` の draw command は atlas page ID 経由へ切替済み。
    - `draw2d` パッケージを追加し、atlas 前提の quad draw command builder を導入済み。
-   - 残タスク: sprite/tilemap 実装時の描画コマンド組み立てを `draw2d` + atlas draw source へ統一する。
+   - `sprite2d` パッケージを追加し、`atlas key -> DrawTrianglesCommand` の高レベル builder を導入済み。
+   - `tilemap2d` パッケージを追加し、複数 tile spec から draw command 群を組み立てる builder を導入済み。
+   - `tilemap2d` に tile index -> atlas key 解決テーブル、chunk 範囲更新、page 単位 batched command 構築 API を追加済み。
+   - `tilemap2d` に可視範囲 culling（`estimate_visible_tile_chunk` / `clip_tile_chunks_to_visible`）と visible-aware dirty chunk 差分（`diff_visible_tile_index_chunks`）を追加済み。
+   - `runtime_smoke`（js/native）と `runtime_smoke_native` の両方で `diff -> culling -> append_tile_indexed_dirty_chunk_batched_draw_commands` 経路を検証済み。
+   - `runtime_smoke/draw_plan` を追加し、js/native で共有する draw command 構築ロジックを 1 箇所化。whitebox test で payload 形状を固定済み。
 2. WebGPU 実装を `WebCanvasPlatform`/`gfx` hook 経由で接続する  
    - JS 側で canvas/context 取得、surface token 生成、begin/end/draw を本実装化。
 3. WebGL2 フォールバック backend を追加する  

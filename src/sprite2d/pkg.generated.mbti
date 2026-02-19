@@ -1,0 +1,21 @@
+// Generated using `moon info`, DON'T EDIT IT
+package "mizchi/game_engine/sprite2d"
+
+import {
+  "mizchi/game_engine/asset",
+  "mizchi/game_engine/gfx",
+}
+
+// Values
+pub fn append_atlas_sprite_draw_command(Array[@gfx.DrawTrianglesCommand], @asset.SimpleAtlasImageRepository, @asset.AssetKey, @gfx.ImageHandle, @gfx.ShaderHandle, @gfx.DstRegion, Int, Int, Int, @gfx.BlendMode, Double, Double, Double, Double, Array[Int]) -> Bool
+
+pub fn new_atlas_sprite_draw_command(@asset.SimpleAtlasImageRepository, @asset.AssetKey, @gfx.ImageHandle, @gfx.ShaderHandle, @gfx.DstRegion, Int, Int, Int, @gfx.BlendMode, Double, Double, Double, Double, Array[Int]) -> @gfx.DrawTrianglesCommand?
+
+// Errors
+
+// Types and methods
+
+// Type aliases
+
+// Traits
+

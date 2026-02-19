@@ -96,27 +96,48 @@ fn[T : @gfx.GraphicsDriver] run_draw_payload_probe(graphics : T) -> Int raise {
   if atlas_dirty_synced != 1 {
     panic()
   }
-  let atlas_draw_source = match
-    @asset.get_atlas_draw_source(atlas_repository, atlas_key) {
-    Some(value) => value
-    None => panic()
-  }
   let shader = graphics.new_shader("runtime_smoke_native_payload_probe")
-  let command = @draw2d.new_atlas_quad_draw_command(
+  let tile_table = @tilemap2d.new_tile_atlas_table([
+    @tilemap2d.new_tile_atlas_entry(1, atlas_key),
+  ])
+  let previous_tiles = [0, 0, 0, 0]
+  let next_tiles = [0, 1, 0, 0]
+  let visible_chunk = @tilemap2d.estimate_visible_tile_chunk(
+    2, 2, -0.5, -0.5, 0.5, 0.5, -0.5, -0.5, 0.5, 0.5, 0,
+  )
+  let dirty_chunks = @tilemap2d.diff_visible_tile_index_chunks(
+    previous_tiles, next_tiles, 2, 1, visible_chunk,
+  )
+  if dirty_chunks.length() != 1 {
+    panic()
+  }
+  let tile_commands : Array[@gfx.DrawTrianglesCommand] = []
+  let appended = @tilemap2d.append_tile_indexed_dirty_chunk_batched_draw_commands(
+    tile_commands,
+    dirty_chunks,
+    tile_table,
+    atlas_repository,
     dst,
     shader,
-    @gfx.new_dst_region(0, 0, 64, 64, 6),
-    0,
     7,
     11,
     @gfx.blend_mode_from_int(1),
-    atlas_draw_source,
+    @gfx.new_dst_region(0, 0, 64, 64, 6),
+    next_tiles,
+    2,
     -0.5,
     -0.5,
     0.5,
     0.5,
     [1, 2, 3, 4],
   )
+  if appended != 1 {
+    panic()
+  }
+  if tile_commands.length() != 1 {
+    panic()
+  }
+  let command = tile_commands[0]
   graphics.begin(pass)
   graphics.draw_triangles(command)
   graphics.end(true)

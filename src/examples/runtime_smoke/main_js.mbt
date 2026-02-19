@@ -3,23 +3,21 @@ fn[T : @gfx.GraphicsDriver] run_draw_payload_probe(graphics : T) -> Unit raise {
   graphics.initialize()
   let pass = @gfx.new_render_pass_desc(@gfx.new_color(0.0, 0.0, 0.0, 1.0), true)
   let dst = graphics.new_image(64, 64)
-  let source = @asset.new_unmanaged_atlas_draw_source(dst.id)
   let shader = graphics.new_shader("runtime_smoke_payload_probe")
-  let command = @draw2d.new_atlas_quad_draw_command(
-    dst,
-    shader,
-    @gfx.new_dst_region(0, 0, 64, 64, 6),
-    0,
-    7,
-    11,
-    @gfx.blend_mode_from_int(1),
-    source,
-    -0.5,
-    -0.5,
-    0.5,
-    0.5,
-    [1, 2, 3, 4],
+  let plan = build_runtime_smoke_tile_draw_plan(dst, shader)
+  let synced = @web_hooks.sync_dirty_atlas_pages_from_repository(
+    plan.atlas_repository,
   )
+  if synced != 1 {
+    panic()
+  }
+  let resynced = @web_hooks.sync_dirty_atlas_pages_from_repository(
+    plan.atlas_repository,
+  )
+  if resynced != 0 {
+    panic()
+  }
+  let command = plan.commands[0]
   graphics.begin(pass)
   graphics.draw_triangles(command)
   graphics.end(true)

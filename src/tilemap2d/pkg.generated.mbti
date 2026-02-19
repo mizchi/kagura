@@ -1,0 +1,86 @@
+// Generated using `moon info`, DON'T EDIT IT
+package "mizchi/game_engine/tilemap2d"
+
+import {
+  "mizchi/game_engine/asset",
+  "mizchi/game_engine/gfx",
+}
+
+// Values
+pub fn append_atlas_tilemap_draw_commands(Array[@gfx.DrawTrianglesCommand], @asset.SimpleAtlasImageRepository, @gfx.ImageHandle, @gfx.ShaderHandle, Int, Int, @gfx.BlendMode, Array[AtlasTileDrawSpec]) -> Int
+
+pub fn append_tile_indexed_chunk_batched_draw_commands(Array[@gfx.DrawTrianglesCommand], TileAtlasTable, @asset.SimpleAtlasImageRepository, @gfx.ImageHandle, @gfx.ShaderHandle, Int, Int, @gfx.BlendMode, @gfx.DstRegion, Array[Int], Int, Int, Int, Int, Int, Double, Double, Double, Double, Array[Int]) -> Int
+
+pub fn append_tile_indexed_chunk_draw_commands(Array[@gfx.DrawTrianglesCommand], TileAtlasTable, @asset.SimpleAtlasImageRepository, @gfx.ImageHandle, @gfx.ShaderHandle, Int, Int, @gfx.BlendMode, @gfx.DstRegion, Array[Int], Int, Int, Int, Int, Int, Double, Double, Double, Double, Array[Int]) -> Int
+
+pub fn append_tile_indexed_dirty_chunk_batched_draw_commands(Array[@gfx.DrawTrianglesCommand], Array[TileChunkRect], TileAtlasTable, @asset.SimpleAtlasImageRepository, @gfx.ImageHandle, @gfx.ShaderHandle, Int, Int, @gfx.BlendMode, @gfx.DstRegion, Array[Int], Int, Double, Double, Double, Double, Array[Int]) -> Int
+
+pub fn append_tile_indexed_draw_commands(Array[@gfx.DrawTrianglesCommand], TileAtlasTable, @asset.SimpleAtlasImageRepository, @gfx.ImageHandle, @gfx.ShaderHandle, Int, Int, @gfx.BlendMode, @gfx.DstRegion, Array[Int], Int, Double, Double, Double, Double, Array[Int]) -> Int
+
+pub fn atlas_tilemap_draw_commands(@asset.SimpleAtlasImageRepository, @gfx.ImageHandle, @gfx.ShaderHandle, Int, Int, @gfx.BlendMode, Array[AtlasTileDrawSpec]) -> Array[@gfx.DrawTrianglesCommand]
+
+pub fn clip_tile_chunks_to_visible(Array[TileChunkRect], TileChunkRect) -> Array[TileChunkRect]
+
+pub fn diff_tile_index_chunks(Array[Int], Array[Int], Int, Int) -> Array[TileChunkRect]
+
+pub fn diff_visible_tile_index_chunks(Array[Int], Array[Int], Int, Int, TileChunkRect) -> Array[TileChunkRect]
+
+pub fn estimate_visible_tile_chunk(Int, Int, Double, Double, Double, Double, Double, Double, Double, Double, Int) -> TileChunkRect
+
+pub fn new_atlas_tile_draw_spec(@asset.AssetKey, @gfx.DstRegion, Double, Double, Double, Double, Array[Int]) -> AtlasTileDrawSpec
+
+pub fn new_tile_atlas_entry(Int, @asset.AssetKey) -> TileAtlasEntry
+
+pub fn new_tile_atlas_table(Array[TileAtlasEntry]) -> TileAtlasTable
+
+pub fn new_tile_chunk_rect(Int, Int, Int, Int) -> TileChunkRect
+
+pub fn resolve_tile_atlas_key(TileAtlasTable, Int) -> @asset.AssetKey?
+
+pub fn tile_indexed_chunk_batched_draw_commands(TileAtlasTable, @asset.SimpleAtlasImageRepository, @gfx.ImageHandle, @gfx.ShaderHandle, Int, Int, @gfx.BlendMode, @gfx.DstRegion, Array[Int], Int, Int, Int, Int, Int, Double, Double, Double, Double, Array[Int]) -> Array[@gfx.DrawTrianglesCommand]
+
+pub fn tile_indexed_chunk_draw_commands(TileAtlasTable, @asset.SimpleAtlasImageRepository, @gfx.ImageHandle, @gfx.ShaderHandle, Int, Int, @gfx.BlendMode, @gfx.DstRegion, Array[Int], Int, Int, Int, Int, Int, Double, Double, Double, Double, Array[Int]) -> Array[@gfx.DrawTrianglesCommand]
+
+// Errors
+
+// Types and methods
+pub struct AtlasTileDrawSpec {
+  atlas_key : @asset.AssetKey
+  dst_region : @gfx.DstRegion
+  left : Double
+  top : Double
+  right : Double
+  bottom : Double
+  uniform_dwords : Array[Int]
+}
+pub impl Show for AtlasTileDrawSpec
+
+type ResolvedTileQuad
+pub impl Show for ResolvedTileQuad
+
+pub struct TileAtlasEntry {
+  tile_index : Int
+  atlas_key : @asset.AssetKey
+}
+pub impl Show for TileAtlasEntry
+
+pub struct TileAtlasTable {
+  entries : Array[TileAtlasEntry]
+}
+pub impl Show for TileAtlasTable
+
+type TileChunkOrigin
+pub impl Show for TileChunkOrigin
+
+pub struct TileChunkRect {
+  tile_x : Int
+  tile_y : Int
+  tile_width : Int
+  tile_height : Int
+}
+pub impl Show for TileChunkRect
+
+// Type aliases
+
+// Traits
+

@@ -99,6 +99,24 @@ extern "wasm" fn host_gfx_draw(
   index_count : Int,
   src_image_count : Int,
   uniform_dword_count : Int,
+  payload_has_triangle : Int,
+  payload_ax : Double,
+  payload_ay : Double,
+  payload_bx : Double,
+  payload_by : Double,
+  payload_cx : Double,
+  payload_cy : Double,
+  payload_au : Double,
+  payload_av : Double,
+  payload_bu : Double,
+  payload_bv : Double,
+  payload_cu : Double,
+  payload_cv : Double,
+  payload_uniform_r : Double,
+  payload_uniform_g : Double,
+  payload_uniform_b : Double,
+  payload_uniform_a : Double,
+  payload_texture_seed : Int,
 ) -> Unit = "game_engine_web" "gfx_draw"
 
 ///|
@@ -331,6 +349,13 @@ fn bridge_web_gfx_on_draw(
 ) -> Unit {
   if active {
     let dispatch = @gfx.build_draw_command_dispatch(command)
+    let payload = @payload2d.decode_triangle_payload(
+      command.vertex_data,
+      command.indices,
+      command.uniform_dwords,
+      command.src_image_ids,
+    )
+    let payload_has_triangle = if payload.has_payload { 1 } else { 0 }
     host_gfx_draw(
       backend_kind_to_int(kind),
       dispatch.draw_calls,
@@ -346,6 +371,24 @@ fn bridge_web_gfx_on_draw(
       dispatch.index_count,
       dispatch.src_image_count,
       dispatch.uniform_dword_count,
+      payload_has_triangle,
+      payload.ax,
+      payload.ay,
+      payload.bx,
+      payload.by,
+      payload.cx,
+      payload.cy,
+      payload.au,
+      payload.av,
+      payload.bu,
+      payload.bv,
+      payload.cu,
+      payload.cv,
+      payload.uniform_r,
+      payload.uniform_g,
+      payload.uniform_b,
+      payload.uniform_a,
+      payload.texture_seed,
     )
   }
 }

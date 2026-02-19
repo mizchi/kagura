@@ -1148,8 +1148,26 @@ extern "js" fn js_webgpu_record_draw(
   index_count : Int,
   src_image_count : Int,
   uniform_dword_count : Int,
+  payload_has_triangle : Int,
+  payload_ax : Double,
+  payload_ay : Double,
+  payload_bx : Double,
+  payload_by : Double,
+  payload_cx : Double,
+  payload_cy : Double,
+  payload_au : Double,
+  payload_av : Double,
+  payload_bu : Double,
+  payload_bv : Double,
+  payload_cu : Double,
+  payload_cv : Double,
+  payload_uniform_r : Double,
+  payload_uniform_g : Double,
+  payload_uniform_b : Double,
+  payload_uniform_a : Double,
+  payload_texture_seed : Int,
 ) -> Unit =
-  #| (drawCalls, pipelineId, uniformHash, blendMode, dstImageId, shaderId, indexOffset, regionCount, totalIndexCount, vertexFloatCount, indexCount, srcImageCount, uniformDwordCount) => {
+  #| (drawCalls, pipelineId, uniformHash, blendMode, dstImageId, shaderId, indexOffset, regionCount, totalIndexCount, vertexFloatCount, indexCount, srcImageCount, uniformDwordCount, payloadHasTriangle, payloadAx, payloadAy, payloadBx, payloadBy, payloadCx, payloadCy, payloadAu, payloadAv, payloadBu, payloadBv, payloadCu, payloadCv, payloadUniformR, payloadUniformG, payloadUniformB, payloadUniformA, payloadTextureSeed) => {
   #|   const state = globalThis.__gameEngineWebRuntime;
   #|   if (state == null) return;
   #|   const gpu = state.webgpu;
@@ -1170,6 +1188,24 @@ extern "js" fn js_webgpu_record_draw(
   #|   gpu.lastIndexCount = Number(indexCount ?? 0) | 0;
   #|   gpu.lastSrcImageCount = Number(srcImageCount ?? 0) | 0;
   #|   gpu.lastUniformDwordCount = Number(uniformDwordCount ?? 0) | 0;
+  #|   gpu.lastPayloadHasTriangle = (Number(payloadHasTriangle ?? 0) | 0) !== 0;
+  #|   gpu.lastPayloadAx = Number(payloadAx ?? 0);
+  #|   gpu.lastPayloadAy = Number(payloadAy ?? 0);
+  #|   gpu.lastPayloadBx = Number(payloadBx ?? 0);
+  #|   gpu.lastPayloadBy = Number(payloadBy ?? 0);
+  #|   gpu.lastPayloadCx = Number(payloadCx ?? 0);
+  #|   gpu.lastPayloadCy = Number(payloadCy ?? 0);
+  #|   gpu.lastPayloadAu = Number(payloadAu ?? 0);
+  #|   gpu.lastPayloadAv = Number(payloadAv ?? 0);
+  #|   gpu.lastPayloadBu = Number(payloadBu ?? 0);
+  #|   gpu.lastPayloadBv = Number(payloadBv ?? 0);
+  #|   gpu.lastPayloadCu = Number(payloadCu ?? 0);
+  #|   gpu.lastPayloadCv = Number(payloadCv ?? 0);
+  #|   gpu.lastPayloadUniformR = Number(payloadUniformR ?? 1);
+  #|   gpu.lastPayloadUniformG = Number(payloadUniformG ?? 1);
+  #|   gpu.lastPayloadUniformB = Number(payloadUniformB ?? 1);
+  #|   gpu.lastPayloadUniformA = Number(payloadUniformA ?? 1);
+  #|   gpu.lastPayloadTextureSeed = Number(payloadTextureSeed ?? 0) | 0;
   #| }
 
 ///|
@@ -1226,19 +1262,42 @@ extern "js" fn js_webgpu_present() -> Bool =
   #|     });
   #|     const drawCalls = Number(currentGpu.drawCalls ?? 0) | 0;
   #|     if (drawCalls > 0) {
-  #|       const needsPipeline = currentGpu.pipeline == null || currentGpu.pipelineFormat !== format;
+  #|       const payloadHasTriangle = !!currentGpu.lastPayloadHasTriangle;
+  #|       const ax = payloadHasTriangle ? Number(currentGpu.lastPayloadAx ?? 0.0) : 0.0;
+  #|       const ay = payloadHasTriangle ? Number(currentGpu.lastPayloadAy ?? 0.5) : 0.5;
+  #|       const bx = payloadHasTriangle ? Number(currentGpu.lastPayloadBx ?? -0.5) : -0.5;
+  #|       const by = payloadHasTriangle ? Number(currentGpu.lastPayloadBy ?? -0.5) : -0.5;
+  #|       const cx = payloadHasTriangle ? Number(currentGpu.lastPayloadCx ?? 0.5) : 0.5;
+  #|       const cy = payloadHasTriangle ? Number(currentGpu.lastPayloadCy ?? -0.5) : -0.5;
+  #|       const uniformR = Number(currentGpu.lastPayloadUniformR ?? 1.0);
+  #|       const uniformG = Number(currentGpu.lastPayloadUniformG ?? 0.0);
+  #|       const uniformB = Number(currentGpu.lastPayloadUniformB ?? 0.0);
+  #|       const uniformA = Number(currentGpu.lastPayloadUniformA ?? 1.0);
+  #|       const shaderKey = [
+  #|         format,
+  #|         ax.toFixed(6), ay.toFixed(6), bx.toFixed(6), by.toFixed(6), cx.toFixed(6), cy.toFixed(6),
+  #|         uniformR.toFixed(6), uniformG.toFixed(6), uniformB.toFixed(6), uniformA.toFixed(6),
+  #|       ].join("|");
+  #|       const needsPipeline = currentGpu.pipeline == null ||
+  #|         currentGpu.pipelineFormat !== format ||
+  #|         currentGpu.pipelineKey !== shaderKey;
   #|       if (needsPipeline && typeof currentDevice.createShaderModule === "function" && typeof currentDevice.createRenderPipeline === "function") {
-  #|         const shaderModule = currentDevice.createShaderModule({
-  #|           code: `@vertex
+  #|         const shaderSource = `@vertex
   #| fn vs_main(@builtin(vertex_index) idx : u32) -> @builtin(position) vec4f {
-  #|   var pos = array<vec2f, 3>(vec2f(0.0, 0.5), vec2f(-0.5, -0.5), vec2f(0.5, -0.5));
+  #|   var pos = array<vec2f, 3>(
+  #|     vec2f(${ax}, ${ay}),
+  #|     vec2f(${bx}, ${by}),
+  #|     vec2f(${cx}, ${cy}),
+  #|   );
   #|   return vec4f(pos[idx], 0.0, 1.0);
   #| }
   #| 
   #| @fragment
   #| fn fs_main() -> @location(0) vec4f {
-  #|   return vec4f(1.0, 0.0, 0.0, 1.0);
-  #| }`,
+  #|   return vec4f(${uniformR}, ${uniformG}, ${uniformB}, ${uniformA});
+  #| }`;
+  #|         const shaderModule = currentDevice.createShaderModule({
+  #|           code: shaderSource,
   #|         });
   #|         currentGpu.pipeline = currentDevice.createRenderPipeline({
   #|           layout: "auto",
@@ -1257,6 +1316,8 @@ extern "js" fn js_webgpu_present() -> Bool =
   #|           },
   #|         });
   #|         currentGpu.pipelineFormat = format;
+  #|         currentGpu.pipelineKey = shaderKey;
+  #|         currentGpu.lastShaderSource = shaderSource;
   #|       }
   #|       if (currentGpu.pipeline != null && typeof pass.setPipeline === "function" && typeof pass.draw === "function") {
   #|         pass.setPipeline(currentGpu.pipeline);
@@ -1344,8 +1405,26 @@ extern "js" fn js_webgl2_record_draw(
   index_count : Int,
   src_image_count : Int,
   uniform_dword_count : Int,
+  payload_has_triangle : Int,
+  payload_ax : Double,
+  payload_ay : Double,
+  payload_bx : Double,
+  payload_by : Double,
+  payload_cx : Double,
+  payload_cy : Double,
+  payload_au : Double,
+  payload_av : Double,
+  payload_bu : Double,
+  payload_bv : Double,
+  payload_cu : Double,
+  payload_cv : Double,
+  payload_uniform_r : Double,
+  payload_uniform_g : Double,
+  payload_uniform_b : Double,
+  payload_uniform_a : Double,
+  payload_texture_seed : Int,
 ) -> Unit =
-  #| (drawCalls, pipelineId, uniformHash, blendMode, dstImageId, shaderId, indexOffset, regionCount, totalIndexCount, vertexFloatCount, indexCount, srcImageCount, uniformDwordCount) => {
+  #| (drawCalls, pipelineId, uniformHash, blendMode, dstImageId, shaderId, indexOffset, regionCount, totalIndexCount, vertexFloatCount, indexCount, srcImageCount, uniformDwordCount, payloadHasTriangle, payloadAx, payloadAy, payloadBx, payloadBy, payloadCx, payloadCy, payloadAu, payloadAv, payloadBu, payloadBv, payloadCu, payloadCv, payloadUniformR, payloadUniformG, payloadUniformB, payloadUniformA, payloadTextureSeed) => {
   #|   const state = globalThis.__gameEngineWebRuntime;
   #|   if (state == null) return;
   #|   const webgl2 = state.webgl2;
@@ -1366,6 +1445,24 @@ extern "js" fn js_webgl2_record_draw(
   #|   webgl2.lastIndexCount = Number(indexCount ?? 0) | 0;
   #|   webgl2.lastSrcImageCount = Number(srcImageCount ?? 0) | 0;
   #|   webgl2.lastUniformDwordCount = Number(uniformDwordCount ?? 0) | 0;
+  #|   webgl2.lastPayloadHasTriangle = (Number(payloadHasTriangle ?? 0) | 0) !== 0;
+  #|   webgl2.lastPayloadAx = Number(payloadAx ?? 0);
+  #|   webgl2.lastPayloadAy = Number(payloadAy ?? 0);
+  #|   webgl2.lastPayloadBx = Number(payloadBx ?? 0);
+  #|   webgl2.lastPayloadBy = Number(payloadBy ?? 0);
+  #|   webgl2.lastPayloadCx = Number(payloadCx ?? 0);
+  #|   webgl2.lastPayloadCy = Number(payloadCy ?? 0);
+  #|   webgl2.lastPayloadAu = Number(payloadAu ?? 0);
+  #|   webgl2.lastPayloadAv = Number(payloadAv ?? 0);
+  #|   webgl2.lastPayloadBu = Number(payloadBu ?? 0);
+  #|   webgl2.lastPayloadBv = Number(payloadBv ?? 0);
+  #|   webgl2.lastPayloadCu = Number(payloadCu ?? 0);
+  #|   webgl2.lastPayloadCv = Number(payloadCv ?? 0);
+  #|   webgl2.lastPayloadUniformR = Number(payloadUniformR ?? 1);
+  #|   webgl2.lastPayloadUniformG = Number(payloadUniformG ?? 1);
+  #|   webgl2.lastPayloadUniformB = Number(payloadUniformB ?? 1);
+  #|   webgl2.lastPayloadUniformA = Number(payloadUniformA ?? 1);
+  #|   webgl2.lastPayloadTextureSeed = Number(payloadTextureSeed ?? 0) | 0;
   #| }
 
 ///|
@@ -1404,7 +1501,27 @@ extern "js" fn js_webgl2_present() -> Bool =
   #|     if (drawCalls > 0) {
   #|       let program = currentWebgl2.program;
   #|       let vao = currentWebgl2.vao;
-  #|       if (program == null && typeof currentGl.createShader === "function" && typeof currentGl.createProgram === "function") {
+  #|       const payloadHasTriangle = !!currentWebgl2.lastPayloadHasTriangle;
+  #|       const ax = payloadHasTriangle ? Number(currentWebgl2.lastPayloadAx ?? 0.0) : 0.0;
+  #|       const ay = payloadHasTriangle ? Number(currentWebgl2.lastPayloadAy ?? 0.5) : 0.5;
+  #|       const bx = payloadHasTriangle ? Number(currentWebgl2.lastPayloadBx ?? -0.5) : -0.5;
+  #|       const by = payloadHasTriangle ? Number(currentWebgl2.lastPayloadBy ?? -0.5) : -0.5;
+  #|       const cx = payloadHasTriangle ? Number(currentWebgl2.lastPayloadCx ?? 0.5) : 0.5;
+  #|       const cy = payloadHasTriangle ? Number(currentWebgl2.lastPayloadCy ?? -0.5) : -0.5;
+  #|       const uniformR = Number(currentWebgl2.lastPayloadUniformR ?? 1.0);
+  #|       const uniformG = Number(currentWebgl2.lastPayloadUniformG ?? 0.0);
+  #|       const uniformB = Number(currentWebgl2.lastPayloadUniformB ?? 0.0);
+  #|       const uniformA = Number(currentWebgl2.lastPayloadUniformA ?? 1.0);
+  #|       const shaderKey = [
+  #|         ax.toFixed(6), ay.toFixed(6), bx.toFixed(6), by.toFixed(6), cx.toFixed(6), cy.toFixed(6),
+  #|         uniformR.toFixed(6), uniformG.toFixed(6), uniformB.toFixed(6), uniformA.toFixed(6),
+  #|       ].join("|");
+  #|       const needsProgram = program == null || currentWebgl2.programKey !== shaderKey;
+  #|       if (needsProgram && typeof currentGl.createShader === "function" && typeof currentGl.createProgram === "function") {
+  #|         if (program != null && typeof currentGl.deleteProgram === "function") {
+  #|           currentGl.deleteProgram(program);
+  #|           program = null;
+  #|         }
   #|         const compile = (type, source) => {
   #|           const shader = currentGl.createShader(type);
   #|           if (shader == null) return null;
@@ -1419,23 +1536,29 @@ extern "js" fn js_webgl2_present() -> Bool =
   #|           }
   #|           return shader;
   #|         };
-  #|         const vs = compile(
-  #|           currentGl.VERTEX_SHADER,
-  #|           `#version 300 es
+  #|         const vertexShaderSource = `#version 300 es
   #| precision highp float;
-  #| const vec2 POS[3] = vec2[3](vec2(0.0, 0.5), vec2(-0.5, -0.5), vec2(0.5, -0.5));
+  #| const vec2 POS[3] = vec2[3](
+  #|   vec2(${ax}, ${ay}),
+  #|   vec2(${bx}, ${by}),
+  #|   vec2(${cx}, ${cy})
+  #| );
   #| void main() {
   #|   gl_Position = vec4(POS[gl_VertexID], 0.0, 1.0);
-  #| }`,
-  #|         );
-  #|         const fs = compile(
-  #|           currentGl.FRAGMENT_SHADER,
-  #|           `#version 300 es
+  #| }`;
+  #|         const fragmentShaderSource = `#version 300 es
   #| precision highp float;
   #| out vec4 outColor;
   #| void main() {
-  #|   outColor = vec4(1.0, 0.0, 0.0, 1.0);
-  #| }`,
+  #|   outColor = vec4(${uniformR}, ${uniformG}, ${uniformB}, ${uniformA});
+  #| }`;
+  #|         const vs = compile(
+  #|           currentGl.VERTEX_SHADER,
+  #|           vertexShaderSource,
+  #|         );
+  #|         const fs = compile(
+  #|           currentGl.FRAGMENT_SHADER,
+  #|           fragmentShaderSource,
   #|         );
   #|         if (vs != null && fs != null) {
   #|           program = currentGl.createProgram();
@@ -1458,6 +1581,9 @@ extern "js" fn js_webgl2_present() -> Bool =
   #|             }
   #|             currentWebgl2.program = program;
   #|             currentWebgl2.vao = vao;
+  #|             currentWebgl2.programKey = shaderKey;
+  #|             currentWebgl2.lastVertexShaderSource = vertexShaderSource;
+  #|             currentWebgl2.lastFragmentShaderSource = fragmentShaderSource;
   #|           }
   #|           if (typeof currentGl.deleteShader === "function") {
   #|             currentGl.deleteShader(vs);
@@ -1530,7 +1656,14 @@ extern "js" fn test_setup_present_state(
   #|   } else {
   #|     root.requestAnimationFrame = root.__gameEnginePresentTestOriginalRAF;
   #|   }
-  #|   const stats = { submits: 0, clears: 0, draws: 0 };
+  #|   const stats = {
+  #|     submits: 0,
+  #|     clears: 0,
+  #|     draws: 0,
+  #|     lastWebGpuShaderCode: "",
+  #|     lastWebgl2VertexShaderSource: "",
+  #|     lastWebgl2FragmentShaderSource: "",
+  #|   };
   #|   const webgpuContext = {
   #|     configure: () => {},
   #|     getCurrentTexture: () => ({ createView: () => ({}) }),
@@ -1546,7 +1679,12 @@ extern "js" fn test_setup_present_state(
   #|       }),
   #|       finish: () => ({}),
   #|     }),
-  #|     createShaderModule: () => ({}),
+  #|     createShaderModule: (descriptor) => {
+  #|       stats.lastWebGpuShaderCode = descriptor == null
+  #|         ? ""
+  #|         : String(descriptor.code ?? "");
+  #|       return {};
+  #|     },
   #|     createRenderPipeline: () => ({}),
   #|     queue: {
   #|       submit: () => {
@@ -1564,8 +1702,15 @@ extern "js" fn test_setup_present_state(
   #|     drawArrays: () => {
   #|       stats.draws += 1;
   #|     },
-  #|     createShader: () => ({}),
-  #|     shaderSource: () => {},
+  #|     createShader: (type) => ({ __shaderType: Number(type) | 0 }),
+  #|     shaderSource: (shader, source) => {
+  #|       const shaderType = shader == null ? 0 : (Number(shader.__shaderType ?? 0) | 0);
+  #|       if (shaderType === 0x8B31) {
+  #|         stats.lastWebgl2VertexShaderSource = String(source ?? "");
+  #|       } else if (shaderType === 0x8B30) {
+  #|         stats.lastWebgl2FragmentShaderSource = String(source ?? "");
+  #|       }
+  #|     },
   #|     compileShader: () => {},
   #|     getShaderParameter: () => true,
   #|     getShaderInfoLog: () => "",
@@ -1691,6 +1836,30 @@ extern "js" fn test_present_draw_count() -> Int =
   #| }
 
 ///|
+extern "js" fn test_last_webgpu_shader_source() -> String =
+  #| () => {
+  #|   const stats = globalThis.__gameEnginePresentTestStats;
+  #|   if (stats == null) return "";
+  #|   return String(stats.lastWebGpuShaderCode ?? "");
+  #| }
+
+///|
+extern "js" fn test_last_webgl2_vertex_shader_source() -> String =
+  #| () => {
+  #|   const stats = globalThis.__gameEnginePresentTestStats;
+  #|   if (stats == null) return "";
+  #|   return String(stats.lastWebgl2VertexShaderSource ?? "");
+  #| }
+
+///|
+extern "js" fn test_last_webgl2_fragment_shader_source() -> String =
+  #| () => {
+  #|   const stats = globalThis.__gameEnginePresentTestStats;
+  #|   if (stats == null) return "";
+  #|   return String(stats.lastWebgl2FragmentShaderSource ?? "");
+  #| }
+
+///|
 extern "js" fn test_last_pipeline_id(use_webgpu : Bool) -> Int =
   #| (useWebGpu) => {
   #|   const state = globalThis.__gameEngineWebRuntime;
@@ -1808,6 +1977,46 @@ extern "js" fn test_last_uniform_dword_count(use_webgpu : Bool) -> Int =
   #|   const target = useWebGpu ? state.webgpu : state.webgl2;
   #|   if (target == null) return 0;
   #|   return Number(target.lastUniformDwordCount ?? 0) | 0;
+  #| }
+
+///|
+extern "js" fn test_last_payload_has_triangle(use_webgpu : Bool) -> Int =
+  #| (useWebGpu) => {
+  #|   const state = globalThis.__gameEngineWebRuntime;
+  #|   if (state == null) return 0;
+  #|   const target = useWebGpu ? state.webgpu : state.webgl2;
+  #|   if (target == null) return 0;
+  #|   return target.lastPayloadHasTriangle ? 1 : 0;
+  #| }
+
+///|
+extern "js" fn test_last_payload_ax(use_webgpu : Bool) -> Double =
+  #| (useWebGpu) => {
+  #|   const state = globalThis.__gameEngineWebRuntime;
+  #|   if (state == null) return 0;
+  #|   const target = useWebGpu ? state.webgpu : state.webgl2;
+  #|   if (target == null) return 0;
+  #|   return Number(target.lastPayloadAx ?? 0);
+  #| }
+
+///|
+extern "js" fn test_last_payload_uniform_r(use_webgpu : Bool) -> Double =
+  #| (useWebGpu) => {
+  #|   const state = globalThis.__gameEngineWebRuntime;
+  #|   if (state == null) return 1;
+  #|   const target = useWebGpu ? state.webgpu : state.webgl2;
+  #|   if (target == null) return 1;
+  #|   return Number(target.lastPayloadUniformR ?? 1);
+  #| }
+
+///|
+extern "js" fn test_last_payload_texture_seed(use_webgpu : Bool) -> Int =
+  #| (useWebGpu) => {
+  #|   const state = globalThis.__gameEngineWebRuntime;
+  #|   if (state == null) return 0;
+  #|   const target = useWebGpu ? state.webgpu : state.webgl2;
+  #|   if (target == null) return 0;
+  #|   return Number(target.lastPayloadTextureSeed ?? 0) | 0;
   #| }
 
 ///|
@@ -2002,7 +2211,10 @@ test "js_webgl2_present schedules once when vsync is enabled" {
 test "js_webgpu_present emits draw calls from recorded count" {
   test_setup_present_state(true, false, false)
   js_webgpu_begin(0.0, 0.0, 0.0, 1.0)
-  js_webgpu_record_draw(3, 7, 11, 2, 100, 200, 4, 2, 9, 16, 6, 2, 3)
+  js_webgpu_record_draw(
+    3, 7, 11, 2, 100, 200, 4, 2, 9, 16, 6, 2, 3, 1, -0.8, 0.7, -0.2, -0.6, 0.9, -0.3,
+    0.0, 0.0, 1.0, 0.0, 1.0, 1.0, 0.2, 0.4, 0.9, 1.0, 5,
+  )
   let presented = js_webgpu_present()
   assert_true(presented)
   assert_eq(test_present_draw_count(), 3)
@@ -2018,6 +2230,12 @@ test "js_webgpu_present emits draw calls from recorded count" {
   assert_eq(test_last_index_count(true), 6)
   assert_eq(test_last_src_image_count(true), 2)
   assert_eq(test_last_uniform_dword_count(true), 3)
+  assert_eq(test_last_payload_has_triangle(true), 1)
+  assert_true(test_last_payload_ax(true) < -0.7)
+  assert_true(test_last_payload_uniform_r(true) > 0.19)
+  assert_eq(test_last_payload_texture_seed(true), 5)
+  assert_true(test_last_webgpu_shader_source().contains("vec2f(-0.8, 0.7)"))
+  assert_true(test_last_webgpu_shader_source().contains("vec4f(0.2, 0.4, 0.9"))
   test_teardown_present_state()
 }
 
@@ -2025,7 +2243,10 @@ test "js_webgpu_present emits draw calls from recorded count" {
 test "js_webgl2_present emits draw calls from recorded count" {
   test_setup_present_state(false, false, false)
   js_webgl2_begin(0.0, 0.0, 0.0, 1.0)
-  js_webgl2_record_draw(4, 9, 13, 3, 101, 201, 8, 1, 3, 12, 3, 1, 4)
+  js_webgl2_record_draw(
+    4, 9, 13, 3, 101, 201, 8, 1, 3, 12, 3, 1, 4, 1, -0.7, 0.6, -0.1, -0.5, 0.8, -0.4,
+    0.0, 0.0, 1.0, 0.0, 1.0, 1.0, 0.3, 0.5, 0.8, 1.0, 8,
+  )
   let presented = js_webgl2_present()
   assert_true(presented)
   assert_eq(test_present_draw_count(), 4)
@@ -2041,6 +2262,16 @@ test "js_webgl2_present emits draw calls from recorded count" {
   assert_eq(test_last_index_count(false), 3)
   assert_eq(test_last_src_image_count(false), 1)
   assert_eq(test_last_uniform_dword_count(false), 4)
+  assert_eq(test_last_payload_has_triangle(false), 1)
+  assert_true(test_last_payload_ax(false) < -0.6)
+  assert_true(test_last_payload_uniform_r(false) > 0.29)
+  assert_eq(test_last_payload_texture_seed(false), 8)
+  assert_true(
+    test_last_webgl2_vertex_shader_source().contains("vec2(-0.7, 0.6)"),
+  )
+  assert_true(
+    test_last_webgl2_fragment_shader_source().contains("vec4(0.3, 0.5, 0.8"),
+  )
   test_teardown_present_state()
 }
 
@@ -2270,6 +2501,13 @@ fn bridge_web_gfx_on_draw(
 ) -> Unit {
   if active {
     let dispatch = @gfx.build_draw_command_dispatch(command)
+    let payload = @payload2d.decode_triangle_payload(
+      command.vertex_data,
+      command.indices,
+      command.uniform_dwords,
+      command.src_image_ids,
+    )
+    let payload_has_triangle = if payload.has_payload { 1 } else { 0 }
     match kind {
       @gfx.GraphicsBackendKind::WebGpu =>
         if web_fallback_to_webgl.val {
@@ -2287,6 +2525,24 @@ fn bridge_web_gfx_on_draw(
             dispatch.index_count,
             dispatch.src_image_count,
             dispatch.uniform_dword_count,
+            payload_has_triangle,
+            payload.ax,
+            payload.ay,
+            payload.bx,
+            payload.by,
+            payload.cx,
+            payload.cy,
+            payload.au,
+            payload.av,
+            payload.bu,
+            payload.bv,
+            payload.cu,
+            payload.cv,
+            payload.uniform_r,
+            payload.uniform_g,
+            payload.uniform_b,
+            payload.uniform_a,
+            payload.texture_seed,
           )
         } else {
           js_webgpu_record_draw(
@@ -2303,6 +2559,24 @@ fn bridge_web_gfx_on_draw(
             dispatch.index_count,
             dispatch.src_image_count,
             dispatch.uniform_dword_count,
+            payload_has_triangle,
+            payload.ax,
+            payload.ay,
+            payload.bx,
+            payload.by,
+            payload.cx,
+            payload.cy,
+            payload.au,
+            payload.av,
+            payload.bu,
+            payload.bv,
+            payload.cu,
+            payload.cv,
+            payload.uniform_r,
+            payload.uniform_g,
+            payload.uniform_b,
+            payload.uniform_a,
+            payload.texture_seed,
           )
         }
       @gfx.GraphicsBackendKind::WebGl2 =>
@@ -2320,6 +2594,24 @@ fn bridge_web_gfx_on_draw(
           dispatch.index_count,
           dispatch.src_image_count,
           dispatch.uniform_dword_count,
+          payload_has_triangle,
+          payload.ax,
+          payload.ay,
+          payload.bx,
+          payload.by,
+          payload.cx,
+          payload.cy,
+          payload.au,
+          payload.av,
+          payload.bu,
+          payload.bv,
+          payload.cu,
+          payload.cv,
+          payload.uniform_r,
+          payload.uniform_g,
+          payload.uniform_b,
+          payload.uniform_a,
+          payload.texture_seed,
         )
       _ => ()
     }

@@ -52,6 +52,18 @@ const webState = {
         lastIndexCount: 0,
         lastSrcImageCount: 0,
         lastUniformDwordCount: 0,
+        payloadHasTriangle: false,
+        payloadAx: 0,
+        payloadAy: 0.5,
+        payloadBx: -0.5,
+        payloadBy: -0.5,
+        payloadCx: 0.5,
+        payloadCy: -0.5,
+        payloadUniformR: 1,
+        payloadUniformG: 1,
+        payloadUniformB: 1,
+        payloadUniformA: 1,
+        payloadTextureSeed: 0,
         presentedFrames: 0,
       },
 };
@@ -281,6 +293,24 @@ const run = async () => {
         indexCount,
         srcImageCount,
         uniformDwordCount,
+        payloadHasTriangle,
+        payloadAx,
+        payloadAy,
+        payloadBx,
+        payloadBy,
+        payloadCx,
+        payloadCy,
+        _payloadAu,
+        _payloadAv,
+        _payloadBu,
+        _payloadBv,
+        _payloadCu,
+        _payloadCv,
+        payloadUniformR,
+        payloadUniformG,
+        payloadUniformB,
+        payloadUniformA,
+        payloadTextureSeed,
       ) => {
         const n = Number(drawCalls) | 0;
         webState.frame.drawCalls += n <= 0 ? 1 : n;
@@ -298,6 +328,18 @@ const run = async () => {
         webState.frame.lastIndexCount = Number(indexCount) | 0;
         webState.frame.lastSrcImageCount = Number(srcImageCount) | 0;
         webState.frame.lastUniformDwordCount = Number(uniformDwordCount) | 0;
+        webState.frame.payloadHasTriangle = (Number(payloadHasTriangle) | 0) !== 0;
+        webState.frame.payloadAx = Number(payloadAx) || 0;
+        webState.frame.payloadAy = Number(payloadAy) || 0;
+        webState.frame.payloadBx = Number(payloadBx) || 0;
+        webState.frame.payloadBy = Number(payloadBy) || 0;
+        webState.frame.payloadCx = Number(payloadCx) || 0;
+        webState.frame.payloadCy = Number(payloadCy) || 0;
+        webState.frame.payloadUniformR = Number(payloadUniformR) || 0;
+        webState.frame.payloadUniformG = Number(payloadUniformG) || 0;
+        webState.frame.payloadUniformB = Number(payloadUniformB) || 0;
+        webState.frame.payloadUniformA = Number(payloadUniformA) || 0;
+        webState.frame.payloadTextureSeed = Number(payloadTextureSeed) | 0;
       },
       gfx_end: (_kind, present) => {
         if ((Number(present) | 0) === 0) {

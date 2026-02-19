@@ -8,8 +8,8 @@
 
 ## 実装状況スナップショット (2026-02-19)
 
-- `moon test --target native`: 67 passed / 0 failed
-- `moon test --target js`: 70 passed / 0 failed
+- `moon test --target native`: 68 passed / 0 failed
+- `moon test --target js`: 71 passed / 0 failed
 - `moon run src/examples/runtime_smoke --target js`: pass (`runtime_smoke(js): ok (hooked)`)
 - `moon run src/examples/runtime_smoke_native --target native`: pass (`runtime_smoke_native: ok (real)`)
 - `pnpm e2e:smoke` (Playwright wasm/wasm-gc): 2 passed / 0 failed
@@ -32,14 +32,14 @@
 | Platform-Gfx 境界 (SurfaceToken) | `ui_glfw.go`, `ui_js.go` | `src/platform/surface_contracts.mbt` で token 化済み | 部分 |
 | GraphicsDriver 抽象 | `internal/graphicsdriver/graphics.go` | begin/end/new_image/new_shader/draw_triangles 契約 + stub 実装 | 部分 |
 | Native backend (wgpu + GLFW) | graphics driver 実装群 | `src/gfx_wgpu_native` で三角形描画まで実装。draw command のメタデータ（drawCalls/pipeline/uniform/blend/dst/shader/index/region/payload-count）を runtime bridge に伝播済み。先頭三角形について position/UV + uniform + src_image_id を dynamic WGSL pipeline へ反映する最小経路を追加。`runtime_smoke_native` で実行確認 | 部分 |
-| Web backend (WebGPU/WebGL) | JS backend 群 | hook 経由で canvas/context 初期化 + clear pass + drawCalls 分の三角形描画 + WebGPU→WebGL2 fallback まで接続。draw command のメタデータ（pipeline/uniform/blend/dst/shader/index/region/payload-count）伝播済み。`runtime_smoke` wasm e2e で payload-count 経路を確認。頂点/UV/texture/uniform を使う実 draw path は未実装 | 部分 |
+| Web backend (WebGPU/WebGL) | JS backend 群 | hook 経由で canvas/context 初期化 + clear pass + drawCalls 分の三角形描画 + WebGPU→WebGL2 fallback まで接続。draw command のメタデータ（pipeline/uniform/blend/dst/shader/index/region/payload-count）に加えて、先頭三角形 payload（position/UV/uniform/src_image_id）を js/wasm host へ伝播済み。`runtime_smoke` wasm e2e で経路確認。頂点/UV/texture/uniform を使う GPU 実 draw path は未実装 | 部分 |
 | CommandQueue 集約/flush | `internal/graphicscommand/commandqueue.go` | `SimpleCommandQueue` で pipeline/texture(blit先)/blend/uniform/index 条件の merge を実装 | 部分 |
 | Image/Atlas 管理 | `internal/atlas/image.go` | `SimpleImageRepository`/`SimpleShaderRepository`/`SimpleMaterialRepository` と `SimpleAtlasAllocator` の最小実装を追加（高度な管理戦略は未実装） | 部分 |
 | Shader Frontend/Hash | `internal/graphics/shader.go`, `internal/shader/shader.go` | source 前処理 + entrypoint/unit/src-image 含む hash を実装。`//kage:unit` directive（pixels/texels）の解釈を追加（Kage本体は未実装） | 部分 |
 | Uniform 正規化 | `internal/ui/shader.go`, `internal/shaderir/program.go` | layout 長（preserved/user）正規化 + source の識別子境界に基づく unused uniform 0化を実装 | 部分 |
 | Builtin shader source | `internal/builtinshader/shader.go` | filter/address/color_m 差分の WGSL source 生成 + lazy cache + clear/evict を実装 | 部分 |
 | Input snapshot 一貫性 | `internal/inputstate/inputstate.go` | Platform hook から tick ごとに取得する経路を追加。Web(JS hooks) は cursor/wheel/pressed_keys/mouse buttons/touches/gamepads の最小実装、Native(GLFW hooks) は cursor/wheel/pressed_keys/mouse buttons + gamepads + Cocoa touch 取得（touch 無効環境では left-click fallback）まで接続済み | 部分 |
-| 共通 2D payload decoder | `internal/graphicscommand/command.go` | `src/payload2d` に頂点/indices/uniform/src_image_id の decode 契約を分離。native hook で利用開始（後で独立 repo へ切り出し可能） | 部分 |
+| 共通 2D payload decoder | `internal/graphicscommand/command.go` | `src/payload2d` に頂点/indices/uniform/src_image_id の decode 契約を分離。native hook に加え web/js/wasm hooks でも利用開始（後で独立 repo へ切り出し可能） | 部分 |
 | Text rendering | `text/v2` | `src/text/contracts.mbt` 契約のみ | 未着手 |
 | UI レイアウト統合 | Ebiten外 (拡張) | `src/ui/contracts.mbt` 契約のみ | 未着手 |
 | AI tick 実行基盤 | Ebiten外 (拡張) | `run_ai_tick` とテストあり (`src/ai/contracts*.mbt`) | 部分 |

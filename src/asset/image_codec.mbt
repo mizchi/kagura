@@ -10,6 +10,13 @@ pub enum RasterResizeMethod {
 } derive(Show)
 
 ///|
+pub enum RasterImageFormat {
+  Png
+  Jpeg
+  Bmp
+} derive(Show, Eq)
+
+///|
 fn clamp_u8_channel_for_bytes(channel : Int) -> Int {
   if channel < 0 {
     0
@@ -85,6 +92,33 @@ fn to_image_resize_method(
 }
 
 ///|
+fn bytes_has_prefix(bytes : Bytes, prefix : Array[Int]) -> Bool {
+  if bytes.length() < prefix.length() {
+    return false
+  }
+  for i in 0..<prefix.length() {
+    if bytes[i].to_int() != prefix[i] {
+      return false
+    }
+  }
+  true
+}
+
+///|
+pub fn detect_raster_image_format(bytes : Bytes) -> RasterImageFormat? {
+  if bytes_has_prefix(bytes, [137, 80, 78, 71, 13, 10, 26, 10]) {
+    return Some(RasterImageFormat::Png)
+  }
+  if bytes_has_prefix(bytes, [255, 216, 255]) {
+    return Some(RasterImageFormat::Jpeg)
+  }
+  if bytes_has_prefix(bytes, [66, 77]) {
+    return Some(RasterImageFormat::Bmp)
+  }
+  None
+}
+
+///|
 pub fn decode_png_image_spec(
   bytes : Bytes,
 ) -> ImageSpec raise @image.DecodeError {
@@ -103,6 +137,76 @@ pub fn decode_bmp_image_spec(
   bytes : Bytes,
 ) -> ImageSpec raise @image.DecodeError {
   image_data_to_image_spec(@image.decode_bmp(bytes))
+}
+
+///|
+pub fn decode_image_spec(
+  bytes : Bytes,
+  format : RasterImageFormat,
+) -> ImageSpec raise @image.DecodeError {
+  match format {
+    RasterImageFormat::Png => decode_png_image_spec(bytes)
+    RasterImageFormat::Jpeg => decode_jpeg_image_spec(bytes)
+    RasterImageFormat::Bmp => decode_bmp_image_spec(bytes)
+  }
+}
+
+///|
+pub fn decode_image_spec_auto(
+  bytes : Bytes,
+) -> ImageSpec? raise @image.DecodeError {
+  match detect_raster_image_format(bytes) {
+    Some(format) => Some(decode_image_spec(bytes, format))
+    None => None
+  }
+}
+
+///|
+pub fn create_image_from_raster_bytes(
+  repository : SimpleImageRepository,
+  key : AssetKey,
+  bytes : Bytes,
+) -> @gfx.ImageHandle? raise {
+  match decode_image_spec_auto(bytes) {
+    Some(spec) => Some(repository.create_image(key, spec))
+    None => None
+  }
+}
+
+///|
+pub fn update_image_from_raster_bytes(
+  repository : SimpleImageRepository,
+  key : AssetKey,
+  bytes : Bytes,
+) -> @gfx.ImageHandle? raise {
+  match decode_image_spec_auto(bytes) {
+    Some(spec) => update_image_spec(repository, key, spec)
+    None => None
+  }
+}
+
+///|
+pub fn create_atlas_image_from_raster_bytes(
+  repository : SimpleAtlasImageRepository,
+  key : AssetKey,
+  bytes : Bytes,
+) -> @gfx.ImageHandle? raise {
+  match decode_image_spec_auto(bytes) {
+    Some(spec) => create_atlas_image(repository, key, spec)
+    None => None
+  }
+}
+
+///|
+pub fn update_atlas_image_from_raster_bytes(
+  repository : SimpleAtlasImageRepository,
+  key : AssetKey,
+  bytes : Bytes,
+) -> @gfx.ImageHandle? raise {
+  match decode_image_spec_auto(bytes) {
+    Some(spec) => update_atlas_image_spec(repository, key, spec)
+    None => None
+  }
 }
 
 ///|
@@ -125,6 +229,18 @@ pub fn encode_bmp_image_spec(
   spec : ImageSpec,
 ) -> Bytes raise @image.EncodeError {
   @image.encode_bmp(image_spec_to_image_data(spec))
+}
+
+///|
+pub fn encode_image_spec(
+  spec : ImageSpec,
+  format : RasterImageFormat,
+) -> Bytes raise @image.EncodeError {
+  match format {
+    RasterImageFormat::Png => encode_png_image_spec(spec)
+    RasterImageFormat::Jpeg => encode_jpeg_image_spec(spec, quality=95)
+    RasterImageFormat::Bmp => encode_bmp_image_spec(spec)
+  }
 }
 
 ///|

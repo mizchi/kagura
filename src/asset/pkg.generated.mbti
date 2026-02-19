@@ -14,7 +14,15 @@ pub fn clear_source_image_dirty_flags(SimpleImageRepository) -> Int
 
 pub fn create_atlas_image(SimpleAtlasImageRepository, AssetKey, ImageSpec) -> @gfx.ImageHandle?
 
+pub fn create_atlas_image_from_raster_bytes(SimpleAtlasImageRepository, AssetKey, Bytes) -> @gfx.ImageHandle? raise
+
+pub fn create_image_from_raster_bytes(SimpleImageRepository, AssetKey, Bytes) -> @gfx.ImageHandle? raise
+
 pub fn decode_bmp_image_spec(Bytes) -> ImageSpec raise @image.DecodeError
+
+pub fn decode_image_spec(Bytes, RasterImageFormat) -> ImageSpec raise @image.DecodeError
+
+pub fn decode_image_spec_auto(Bytes) -> ImageSpec? raise @image.DecodeError
 
 pub fn decode_jpeg_image_spec(Bytes) -> ImageSpec raise @image.DecodeError
 
@@ -22,7 +30,11 @@ pub fn decode_png_image_spec(Bytes) -> ImageSpec raise @image.DecodeError
 
 pub fn default_image_spec(Int, Int) -> ImageSpec
 
+pub fn detect_raster_image_format(Bytes) -> RasterImageFormat?
+
 pub fn encode_bmp_image_spec(ImageSpec) -> Bytes raise @image.EncodeError
+
+pub fn encode_image_spec(ImageSpec, RasterImageFormat) -> Bytes raise @image.EncodeError
 
 pub fn encode_jpeg_image_spec(ImageSpec, quality? : Int) -> Bytes raise @image.EncodeError
 
@@ -68,7 +80,11 @@ pub fn remove_atlas_image(SimpleAtlasImageRepository, AssetKey) -> Unit
 
 pub fn resize_image_spec(ImageSpec, Int, Int, RasterResizeMethod) -> ImageSpec raise @image.EncodeError
 
+pub fn update_atlas_image_from_raster_bytes(SimpleAtlasImageRepository, AssetKey, Bytes) -> @gfx.ImageHandle? raise
+
 pub fn update_atlas_image_spec(SimpleAtlasImageRepository, AssetKey, ImageSpec) -> @gfx.ImageHandle?
+
+pub fn update_image_from_raster_bytes(SimpleImageRepository, AssetKey, Bytes) -> @gfx.ImageHandle? raise
 
 pub fn update_image_spec(SimpleImageRepository, AssetKey, ImageSpec) -> @gfx.ImageHandle?
 
@@ -121,6 +137,14 @@ pub struct MaterialSpec {
   uniform_keys : Array[String]
 }
 pub impl Show for MaterialSpec
+
+pub enum RasterImageFormat {
+  Png
+  Jpeg
+  Bmp
+}
+pub impl Eq for RasterImageFormat
+pub impl Show for RasterImageFormat
 
 pub enum RasterResizeMethod {
   Nearest

@@ -19,6 +19,28 @@ pub struct FramePlan {
 } derive(Show)
 
 ///|
+pub struct RuntimeHooks {
+  on_input_captured : (Int, @core.InputSnapshot) -> Unit
+}
+
+///|
+pub fn new_runtime_hooks(
+  on_input_captured : (Int, @core.InputSnapshot) -> Unit,
+) -> RuntimeHooks {
+  { on_input_captured, }
+}
+
+///|
+fn default_on_input_captured(_tick : Int, _input : @core.InputSnapshot) -> Unit {
+  ()
+}
+
+///|
+pub fn default_runtime_hooks() -> RuntimeHooks {
+  new_runtime_hooks(default_on_input_captured)
+}
+
+///|
 pub fn default_runtime_config() -> RuntimeConfig {
   { max_skip_frames: 5, enable_vsync: true, clear_screen_every_frame: true }
 }
@@ -32,12 +54,13 @@ pub fn plan_frame(fixed : @core.StepResult, max_skip_frames : Int) -> FramePlan 
 }
 
 ///|
-pub fn[G : @core.Game, P : @platform.PlatformDriver, R : @gfx.GraphicsDriver] run_loop(
+pub fn[G : @core.Game, P : @platform.PlatformDriver, R : @gfx.GraphicsDriver] run_loop_with_hooks(
   game : G,
   platform : P,
   graphics : R,
   run_options : @core.RunOptions,
   runtime_config : RuntimeConfig,
+  runtime_hooks : RuntimeHooks,
 ) -> Unit raise {
   let _ = run_options.init_unfocused
   let _ = run_options.screen_cleared_every_frame
@@ -68,6 +91,7 @@ pub fn[G : @core.Game, P : @platform.PlatformDriver, R : @gfx.GraphicsDriver] ru
 
     for _ in 0..<frame_plan.updates {
       let input = platform.capture_input(fixed_state.tick)
+      (runtime_hooks.on_input_captured)(fixed_state.tick, input)
       match game.update(input) {
         Some(@core.EngineTermination::RegularTermination) => should_stop = true
         Some(@core.EngineTermination::Fatal(_)) => should_stop = true
@@ -87,4 +111,22 @@ pub fn[G : @core.Game, P : @platform.PlatformDriver, R : @gfx.GraphicsDriver] ru
       graphics.end(true)
     }
   }
+}
+
+///|
+pub fn[G : @core.Game, P : @platform.PlatformDriver, R : @gfx.GraphicsDriver] run_loop(
+  game : G,
+  platform : P,
+  graphics : R,
+  run_options : @core.RunOptions,
+  runtime_config : RuntimeConfig,
+) -> Unit raise {
+  run_loop_with_hooks(
+    game,
+    platform,
+    graphics,
+    run_options,
+    runtime_config,
+    default_runtime_hooks(),
+  )
 }

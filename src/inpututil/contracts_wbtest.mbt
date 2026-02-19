@@ -11,6 +11,20 @@ fn snapshot_with_pressed_mouse_buttons(
 }
 
 ///|
+fn snapshot_with_touches(
+  touches : Array[@core.TouchPoint],
+) -> @core.InputSnapshot {
+  @core.new_input_snapshot_full(0.0, 0.0, 0.0, 0.0, [], [], touches, [])
+}
+
+///|
+fn snapshot_with_gamepads(
+  gamepads : Array[@core.GamepadSnapshot],
+) -> @core.InputSnapshot {
+  @core.new_input_snapshot_full(0.0, 0.0, 0.0, 0.0, [], [], [], gamepads)
+}
+
+///|
 test "inpututil tracks just pressed released and duration" {
   let state = new_key_input_state()
 
@@ -111,4 +125,91 @@ test "inpututil append mouse button APIs return deduplicated sets" {
   assert_eq(just_pressed2[0], 1)
   assert_eq(just_released2.length(), 1)
   assert_eq(just_released2[0], 0)
+}
+
+///|
+test "inpututil tracks touch ids and durations" {
+  let state = new_touch_input_state()
+
+  update_touch_input_state(
+    state,
+    snapshot_with_touches([
+      @core.new_touch_point(10, 1.0, 2.0),
+      @core.new_touch_point(10, 3.0, 4.0),
+      @core.new_touch_point(11, 5.0, 6.0),
+    ]),
+  )
+  assert_true(is_touch_pressed(state, 10))
+  assert_true(is_touch_just_pressed(state, 10))
+  assert_true(!is_touch_just_released(state, 10))
+  assert_eq(touch_press_duration(state, 10), 1)
+  let touch_ids = append_touch_ids(state, [99])
+  let just_pressed = append_just_pressed_touch_ids(state, [])
+  assert_eq(touch_ids.length(), 3)
+  assert_eq(touch_ids[0], 99)
+  assert_eq(touch_ids[1], 10)
+  assert_eq(touch_ids[2], 11)
+  assert_eq(just_pressed.length(), 2)
+  assert_eq(just_pressed[0], 10)
+  assert_eq(just_pressed[1], 11)
+
+  update_touch_input_state(
+    state,
+    snapshot_with_touches([@core.new_touch_point(11, 7.0, 8.0)]),
+  )
+  assert_true(!is_touch_pressed(state, 10))
+  assert_true(is_touch_just_released(state, 10))
+  assert_true(is_touch_pressed(state, 11))
+  assert_eq(touch_press_duration(state, 11), 2)
+  let just_released = append_just_released_touch_ids(state, [])
+  assert_eq(just_released.length(), 1)
+  assert_eq(just_released[0], 10)
+}
+
+///|
+test "inpututil tracks gamepad connection and button edges" {
+  let state = new_gamepad_input_state()
+
+  update_gamepad_input_state(
+    state,
+    snapshot_with_gamepads([@core.new_gamepad_snapshot(7, [], [1, 1, 3])]),
+  )
+  assert_true(is_gamepad_connected(state, 7))
+  assert_true(is_gamepad_just_connected(state, 7))
+  assert_true(!is_gamepad_just_disconnected(state, 7))
+  assert_eq(gamepad_connection_duration(state, 7), 1)
+  assert_true(is_gamepad_button_pressed(state, 7, 1))
+  assert_true(is_gamepad_button_just_pressed(state, 7, 1))
+  assert_true(!is_gamepad_button_just_released(state, 7, 1))
+  assert_eq(gamepad_button_press_duration(state, 7, 1), 1)
+  let connected = append_connected_gamepad_ids(state, [99])
+  let just_connected = append_just_connected_gamepad_ids(state, [])
+  assert_eq(connected.length(), 2)
+  assert_eq(connected[0], 99)
+  assert_eq(connected[1], 7)
+  assert_eq(just_connected.length(), 1)
+  assert_eq(just_connected[0], 7)
+
+  update_gamepad_input_state(
+    state,
+    snapshot_with_gamepads([@core.new_gamepad_snapshot(7, [], [3])]),
+  )
+  assert_true(is_gamepad_connected(state, 7))
+  assert_true(!is_gamepad_just_connected(state, 7))
+  assert_true(!is_gamepad_just_disconnected(state, 7))
+  assert_eq(gamepad_connection_duration(state, 7), 2)
+  assert_true(!is_gamepad_button_pressed(state, 7, 1))
+  assert_true(is_gamepad_button_just_released(state, 7, 1))
+  assert_true(is_gamepad_button_pressed(state, 7, 3))
+  assert_eq(gamepad_button_press_duration(state, 7, 3), 2)
+
+  update_gamepad_input_state(state, snapshot_with_gamepads([]))
+  assert_true(!is_gamepad_connected(state, 7))
+  assert_true(is_gamepad_just_disconnected(state, 7))
+  assert_true(is_gamepad_button_just_released(state, 7, 3))
+  assert_eq(gamepad_connection_duration(state, 7), 0)
+  assert_eq(gamepad_button_press_duration(state, 7, 3), 0)
+  let just_disconnected = append_just_disconnected_gamepad_ids(state, [])
+  assert_eq(just_disconnected.length(), 1)
+  assert_eq(just_disconnected[0], 7)
 }

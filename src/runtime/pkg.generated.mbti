@@ -4,15 +4,32 @@ package "mizchi/game_engine/runtime"
 import {
   "mizchi/game_engine/core",
   "mizchi/game_engine/gfx",
+  "mizchi/game_engine/inpututil",
   "mizchi/game_engine/platform",
 }
 
 // Values
+pub fn append_input_edge_history(InputEdgeObserverState, Array[InputEdgeSummary]) -> Array[InputEdgeSummary]
+
+pub fn clear_input_edge_history(InputEdgeObserverState) -> Unit
+
 pub fn default_runtime_config() -> RuntimeConfig
+
+pub fn default_runtime_hooks() -> RuntimeHooks
+
+pub fn new_input_edge_observer_state(Int) -> InputEdgeObserverState
+
+pub fn new_input_edge_runtime_hooks(InputEdgeObserverState) -> RuntimeHooks
+
+pub fn new_runtime_hooks((Int, @core.InputSnapshot) -> Unit) -> RuntimeHooks
+
+pub fn observe_input_edge(InputEdgeObserverState, Int, @core.InputSnapshot) -> InputEdgeSummary
 
 pub fn plan_frame(@core.StepResult, Int) -> FramePlan
 
 pub fn[G : @core.Game, P : @platform.PlatformDriver, R : @gfx.GraphicsDriver] run_loop(G, P, R, @core.RunOptions, RuntimeConfig) -> Unit raise
+
+pub fn[G : @core.Game, P : @platform.PlatformDriver, R : @gfx.GraphicsDriver] run_loop_with_hooks(G, P, R, @core.RunOptions, RuntimeConfig, RuntimeHooks) -> Unit raise
 
 // Errors
 
@@ -23,12 +40,40 @@ pub struct FramePlan {
 }
 pub impl Show for FramePlan
 
+pub struct InputEdgeObserverState {
+  key_state : @inpututil.KeyInputState
+  mouse_state : @inpututil.MouseButtonInputState
+  touch_state : @inpututil.TouchInputState
+  gamepad_state : @inpututil.GamepadInputState
+  mut history : Array[InputEdgeSummary]
+  history_limit : Int
+}
+
+pub struct InputEdgeSummary {
+  tick : Int
+  just_pressed_key_count : Int
+  just_released_key_count : Int
+  just_pressed_mouse_button_count : Int
+  just_released_mouse_button_count : Int
+  just_pressed_touch_count : Int
+  just_released_touch_count : Int
+  just_connected_gamepad_count : Int
+  just_disconnected_gamepad_count : Int
+  just_pressed_gamepad_button_count : Int
+  just_released_gamepad_button_count : Int
+}
+pub impl Show for InputEdgeSummary
+
 pub struct RuntimeConfig {
   max_skip_frames : Int
   enable_vsync : Bool
   clear_screen_every_frame : Bool
 }
 pub impl Show for RuntimeConfig
+
+pub struct RuntimeHooks {
+  on_input_captured : (Int, @core.InputSnapshot) -> Unit
+}
 
 // Type aliases
 

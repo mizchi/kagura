@@ -8,8 +8,8 @@
 
 ## 実装状況スナップショット (2026-02-19)
 
-- `moon test --target native`: 62 passed / 0 failed
-- `moon test --target js`: 65 passed / 0 failed
+- `moon test --target native`: 67 passed / 0 failed
+- `moon test --target js`: 70 passed / 0 failed
 - `moon run src/examples/runtime_smoke --target js`: pass (`runtime_smoke(js): ok (hooked)`)
 - `moon run src/examples/runtime_smoke_native --target native`: pass (`runtime_smoke_native: ok (real)`)
 - `pnpm e2e:smoke` (Playwright wasm/wasm-gc): 2 passed / 0 failed
@@ -24,7 +24,7 @@
 
 | 機能領域 | Ebiten 参照 | 現状 | 判定 |
 |---|---|---|---|
-| Game ループ契約 (`Game/Layout/Update/Draw`) | `run.go`, `gameforui.go` | `src/core/contracts.mbt`, `src/runtime/contracts.mbt` に契約と最小ループあり | 部分 |
+| Game ループ契約 (`Game/Layout/Update/Draw`) | `run.go`, `gameforui.go` | `src/core/contracts.mbt`, `src/runtime/contracts.mbt` に契約と最小ループあり。`run_loop_with_hooks` で input 観測 callback を注入可能にし、web/native で観測 tick 一致テストを追加 | 部分 |
 | 固定 timestep 計画 | `internal/clock/clock.go`, `internal/ui/context.go` | `step_fixed_timestep` 実装 + 単体テストあり (`src/core/fixed_timestep*.mbt`) | 完了 |
 | Platform 抽象 (Desktop) | `internal/ui/ui_glfw.go` | `DesktopGlfwPlatform` + hook 注入 (`src/platform/contracts.mbt`) | 部分 |
 | Platform 抽象 (Web) | `internal/ui/ui_js.go` | `WebCanvasPlatform` + hook 注入 (`src/platform/contracts.mbt`) | 部分 |
@@ -45,7 +45,7 @@
 | AI tick 実行基盤 | Ebiten外 (拡張) | `run_ai_tick` とテストあり (`src/ai/contracts*.mbt`) | 部分 |
 | Audio | `audio/*` | 対応モジュールなし | 未着手 |
 | Mobile ターゲット | `mobile/*` | ターゲット/実装とも未着手 | 未着手 |
-| Utility 系 (`vector`, `colorm`, `ebitenutil`, `inpututil`) | 各 package | `inpututil` 相当で key + mouse button の JustPressed/JustReleased/Duration/Append を実装。他は未着手 | 部分 |
+| Utility 系 (`vector`, `colorm`, `ebitenutil`, `inpututil`) | 各 package | `inpututil` 相当で key/mouse button/touch/gamepad の JustPressed/JustReleased/Duration/Append（id 単位）を実装。`runtime` 側に input edge observer を追加しループ観測へ接続可能にした。他は未着手 | 部分 |
 
 ## 優先 TODO (実装順)
 
@@ -82,8 +82,9 @@
    - keyboard/cursor/wheel/mouse buttons は Web + Native で最小接続済み。gamepad は Web + Native で最小接続済み。  
    - native touch は Cocoa event からの取得を追加済み。gesture/trackpad 以外の環境では left-click fallback が残るため、実機差分を詰める。
 12. `inpututil` 相当 API を追加する  
-   - key + mouse button の差分 API は実装済み。  
-   - touch/gamepad 向けの差分 API を追加する。
+   - key/mouse button/touch/gamepad の差分 API は実装済み。  
+   - runtime ループ側の利用導線（`run_loop_with_hooks` + input edge observer + 履歴保持）は追加済み。  
+   - UI/デバッグ表示への接続は未実装。
 13. window/system API を本実装レベルに引き上げる  
    - fullscreen, cursor, monitor, deviceScale, vsync, close/requestAttention は契約 + 部分実装まで完了。  
    - GLFW / browser での edge-case（非同期 fullscreen 反映、pointer lock 状態同期、vsync 実反映）を詰める。

@@ -6,17 +6,51 @@ import {
 }
 
 // Values
+pub fn append_connected_gamepad_ids(GamepadInputState, Array[Int]) -> Array[Int]
+
+pub fn append_just_connected_gamepad_ids(GamepadInputState, Array[Int]) -> Array[Int]
+
+pub fn append_just_disconnected_gamepad_ids(GamepadInputState, Array[Int]) -> Array[Int]
+
 pub fn append_just_pressed_keys(KeyInputState, Array[Int]) -> Array[Int]
 
 pub fn append_just_pressed_mouse_buttons(MouseButtonInputState, Array[Int]) -> Array[Int]
+
+pub fn append_just_pressed_touch_ids(TouchInputState, Array[Int]) -> Array[Int]
 
 pub fn append_just_released_keys(KeyInputState, Array[Int]) -> Array[Int]
 
 pub fn append_just_released_mouse_buttons(MouseButtonInputState, Array[Int]) -> Array[Int]
 
+pub fn append_just_released_touch_ids(TouchInputState, Array[Int]) -> Array[Int]
+
 pub fn append_pressed_keys(KeyInputState, Array[Int]) -> Array[Int]
 
 pub fn append_pressed_mouse_buttons(MouseButtonInputState, Array[Int]) -> Array[Int]
+
+pub fn append_touch_ids(TouchInputState, Array[Int]) -> Array[Int]
+
+pub fn gamepad_button_press_duration(GamepadInputState, Int, Int) -> Int
+
+pub fn gamepad_connection_duration(GamepadInputState, Int) -> Int
+
+pub fn gamepad_just_pressed_button_count(GamepadInputState) -> Int
+
+pub fn gamepad_just_released_button_count(GamepadInputState) -> Int
+
+pub fn gamepad_pressed_button_count(GamepadInputState) -> Int
+
+pub fn is_gamepad_button_just_pressed(GamepadInputState, Int, Int) -> Bool
+
+pub fn is_gamepad_button_just_released(GamepadInputState, Int, Int) -> Bool
+
+pub fn is_gamepad_button_pressed(GamepadInputState, Int, Int) -> Bool
+
+pub fn is_gamepad_connected(GamepadInputState, Int) -> Bool
+
+pub fn is_gamepad_just_connected(GamepadInputState, Int) -> Bool
+
+pub fn is_gamepad_just_disconnected(GamepadInputState, Int) -> Bool
 
 pub fn is_key_just_pressed(KeyInputState, Int) -> Bool
 
@@ -30,21 +64,59 @@ pub fn is_mouse_button_just_released(MouseButtonInputState, Int) -> Bool
 
 pub fn is_mouse_button_pressed(MouseButtonInputState, Int) -> Bool
 
+pub fn is_touch_just_pressed(TouchInputState, Int) -> Bool
+
+pub fn is_touch_just_released(TouchInputState, Int) -> Bool
+
+pub fn is_touch_pressed(TouchInputState, Int) -> Bool
+
 pub fn key_press_duration(KeyInputState, Int) -> Int
 
 pub fn mouse_button_press_duration(MouseButtonInputState, Int) -> Int
+
+pub fn new_gamepad_input_state() -> GamepadInputState
 
 pub fn new_key_input_state() -> KeyInputState
 
 pub fn new_mouse_input_state() -> MouseButtonInputState
 
+pub fn new_touch_input_state() -> TouchInputState
+
+pub fn touch_press_duration(TouchInputState, Int) -> Int
+
+pub fn update_gamepad_input_state(GamepadInputState, @core.InputSnapshot) -> Unit
+
 pub fn update_key_input_state(KeyInputState, @core.InputSnapshot) -> Unit
 
 pub fn update_mouse_input_state(MouseButtonInputState, @core.InputSnapshot) -> Unit
 
+pub fn update_touch_input_state(TouchInputState, @core.InputSnapshot) -> Unit
+
 // Errors
 
 // Types and methods
+type GamepadButtonDurationEntry
+pub impl Show for GamepadButtonDurationEntry
+
+type GamepadButtonKey
+pub impl Show for GamepadButtonKey
+
+type GamepadDurationEntry
+pub impl Show for GamepadDurationEntry
+
+pub struct GamepadInputState {
+  mut prev_gamepad_ids : Array[Int]
+  mut gamepad_ids : Array[Int]
+  mut just_connected_gamepad_ids : Array[Int]
+  mut just_disconnected_gamepad_ids : Array[Int]
+  mut durations : Array[GamepadDurationEntry]
+  mut prev_pressed_buttons : Array[GamepadButtonKey]
+  mut pressed_buttons : Array[GamepadButtonKey]
+  mut just_pressed_buttons : Array[GamepadButtonKey]
+  mut just_released_buttons : Array[GamepadButtonKey]
+  mut button_durations : Array[GamepadButtonDurationEntry]
+}
+
 type KeyDurationEntry
 pub impl Show for KeyDurationEntry
 
@@ -65,6 +137,17 @@ pub struct MouseButtonInputState {
   mut just_pressed_buttons : Array[Int]
   mut just_released_buttons : Array[Int]
   mut durations : Array[MouseButtonDurationEntry]
+}
+
+type TouchDurationEntry
+pub impl Show for TouchDurationEntry
+
+pub struct TouchInputState {
+  mut prev_touch_ids : Array[Int]
+  mut touch_ids : Array[Int]
+  mut just_pressed_touch_ids : Array[Int]
+  mut just_released_touch_ids : Array[Int]
+  mut durations : Array[TouchDurationEntry]
 }
 
 // Type aliases

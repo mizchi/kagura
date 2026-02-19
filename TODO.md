@@ -8,8 +8,8 @@
 
 ## 実装状況スナップショット (2026-02-19)
 
-- `moon test --target native`: 68 passed / 0 failed
-- `moon test --target js`: 72 passed / 0 failed
+- `moon test --target native`: 69 passed / 0 failed
+- `moon test --target js`: 73 passed / 0 failed
 - `moon run src/examples/runtime_smoke --target js`: pass (`runtime_smoke(js): ok (hooked)`)
 - `moon run src/examples/runtime_smoke_native --target native`: pass (`runtime_smoke_native: ok (real)`)
 - `pnpm e2e:smoke` (Playwright wasm/wasm-gc): 2 passed / 0 failed
@@ -24,14 +24,14 @@
 
 | 機能領域 | Ebiten 参照 | 現状 | 判定 |
 |---|---|---|---|
-| Game ループ契約 (`Game/Layout/Update/Draw`) | `run.go`, `gameforui.go` | `src/core/contracts.mbt`, `src/runtime/contracts.mbt` に契約と最小ループあり。`run_loop_with_hooks` で input 観測 callback を注入可能にし、web/native で観測 tick 一致テストを追加 | 部分 |
+| Game ループ契約 (`Game/Layout/Update/Draw`) | `run.go`, `gameforui.go` | `src/core/contracts.mbt`, `src/runtime/contracts.mbt` に契約と最小ループあり。`run_loop_with_hooks` で input 観測 callback を注入可能にし、web/native で観測 tick 一致テストを追加。`outside_size` 変化時に `GraphicsDriver.resize` を呼ぶ導線を追加 | 部分 |
 | 固定 timestep 計画 | `internal/clock/clock.go`, `internal/ui/context.go` | `step_fixed_timestep` 実装 + 単体テストあり (`src/core/fixed_timestep*.mbt`) | 完了 |
 | Platform 抽象 (Desktop) | `internal/ui/ui_glfw.go` | `DesktopGlfwPlatform` + hook 注入 (`src/platform/contracts.mbt`) | 部分 |
 | Platform 抽象 (Web) | `internal/ui/ui_js.go` | `WebCanvasPlatform` + hook 注入 (`src/platform/contracts.mbt`) | 部分 |
 | Window/System API (fullscreen/cursor/monitor/deviceScale/vsync/close) | `run.go`, `internal/ui/ui.go`, `internal/ui/ui_glfw.go` | `PlatformDriver` API + wbtest 契約固定。Desktop は runtime bridge 経由で GLFW(close/fullscreen/cursor/content-scale/attention) を部分接続、Web は js runtime hook で DOM(fullscreen/cursor/close/attention/dpr) を部分接続 | 部分 |
 | Platform-Gfx 境界 (SurfaceToken) | `ui_glfw.go`, `ui_js.go` | `src/platform/surface_contracts.mbt` で token 化済み | 部分 |
-| GraphicsDriver 抽象 | `internal/graphicsdriver/graphics.go` | begin/end/new_image/new_shader/draw_triangles 契約 + stub 実装 | 部分 |
-| Native backend (wgpu + GLFW) | graphics driver 実装群 | `src/gfx_wgpu_native` で三角形描画まで実装。draw command のメタデータ（drawCalls/pipeline/uniform/blend/dst/shader/index/region/payload-count）を runtime bridge に伝播済み。先頭三角形について position/UV + uniform + src_image_id を dynamic WGSL pipeline へ反映する最小経路を追加。`runtime_smoke_native` で実行確認 | 部分 |
+| GraphicsDriver 抽象 | `internal/graphicsdriver/graphics.go` | begin/end/new_image/new_shader/draw_triangles に加えて resize 契約を追加。native/web hook へ resize 伝播を接続 | 部分 |
+| Native backend (wgpu + GLFW) | graphics driver 実装群 | `src/gfx_wgpu_native` で三角形描画まで実装。draw command のメタデータ（drawCalls/pipeline/uniform/blend/dst/shader/index/region/payload-count）を runtime bridge に伝播済み。先頭三角形について position/UV + uniform + src_image_id を dynamic WGSL pipeline へ反映する最小経路を追加。`runtime_resize_surface` を追加し resize hook から surface 再構成できるようにした。`runtime_smoke_native` で実行確認 | 部分 |
 | Web backend (WebGPU/WebGL) | JS backend 群 | hook 経由で canvas/context 初期化 + clear pass + drawCalls 分の三角形描画 + WebGPU→WebGL2 fallback まで接続。draw command のメタデータ（pipeline/uniform/blend/dst/shader/index/region/payload-count）に加えて、先頭三角形 payload（position/UV/uniform/src_image_id）を js/wasm host へ伝播済み。js 側の present では payload の position/uniform 色を shader source に反映する最小描画経路を追加（texture sample/複数コマンド最適化は未実装）。`runtime_smoke` wasm e2e で経路確認 | 部分 |
 | CommandQueue 集約/flush | `internal/graphicscommand/commandqueue.go` | `SimpleCommandQueue` で pipeline/texture(blit先)/blend/uniform/index 条件の merge を実装 | 部分 |
 | Image/Atlas 管理 | `internal/atlas/image.go` | `SimpleImageRepository`/`SimpleShaderRepository`/`SimpleMaterialRepository` と `SimpleAtlasAllocator` の最小実装を追加（高度な管理戦略は未実装） | 部分 |
@@ -59,7 +59,9 @@
 3. WebGL2 フォールバック backend を追加する  
    - WebGPU 非対応環境向けに最低限の draw path を用意。
 4. backend 共通の resize/reconfigure を追加する  
-   - window/canvas サイズ変化時の surface 再構成を定義。
+   - `GraphicsDriver.resize` + runtime からの呼び出し導線は追加済み。  
+   - window/canvas サイズ変化時の surface 再構成は native/web の基礎 hook を接続済み。  
+   - 実 backend ごとの最適化（不要 reconfigure 抑制・再作成コスト計測）は未実装。
 5. 同一ロジックの cross-backend 検証テストを追加する  
    - js/native で tick 数、終了条件、最小描画結果が一致することを確認。
 

@@ -394,6 +394,19 @@ fn bridge_web_gfx_on_draw(
 }
 
 ///|
+fn bridge_web_gfx_on_resize(
+  active : Bool,
+  kind : @gfx.GraphicsBackendKind,
+  width : Int,
+  height : Int,
+) -> Unit {
+  if active {
+    let _ = kind
+    let _ = host_prepare_surface(width, height)
+  }
+}
+
+///|
 pub fn install(canvas_selector : String) -> Unit {
   web_canvas_selector.val = canvas_selector
   web_hooks_installed.val = true
@@ -415,7 +428,7 @@ pub fn install(canvas_selector : String) -> Unit {
   @gfx.set_web_graphics_hooks(
     @gfx.new_web_graphics_hooks(
       bridge_web_gfx_try_initialize, bridge_web_gfx_on_begin, bridge_web_gfx_on_end,
-      bridge_web_gfx_on_draw,
+      bridge_web_gfx_on_draw, bridge_web_gfx_on_resize,
     ),
   )
 }

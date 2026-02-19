@@ -2668,6 +2668,51 @@ fn bridge_web_gfx_on_draw(
 }
 
 ///|
+fn bridge_web_gfx_on_resize(
+  active : Bool,
+  kind : @gfx.GraphicsBackendKind,
+  width : Int,
+  height : Int,
+) -> Unit {
+  if active {
+    let _ = js_prepare_surface(web_canvas_selector.val, width, height)
+    match kind {
+      @gfx.GraphicsBackendKind::WebGpu =>
+        if web_fallback_to_webgl.val {
+          let _ = js_try_initialize_webgl2(
+            web_canvas_selector.val,
+            width,
+            height,
+          )
+        } else {
+          let webgpu_ready = js_try_initialize_webgpu(
+            web_canvas_selector.val,
+            width,
+            height,
+          )
+          if !webgpu_ready {
+            let webgl_ready = js_try_initialize_webgl2(
+              web_canvas_selector.val,
+              width,
+              height,
+            )
+            web_fallback_to_webgl.val = webgl_ready
+          }
+        }
+      @gfx.GraphicsBackendKind::WebGl2 => {
+        let webgl_ready = js_try_initialize_webgl2(
+          web_canvas_selector.val,
+          width,
+          height,
+        )
+        web_fallback_to_webgl.val = webgl_ready
+      }
+      _ => ()
+    }
+  }
+}
+
+///|
 fn bridge_web_capture_input(active : Bool, _tick : Int) -> @core.InputSnapshot {
   if active {
     js_ensure_window_state(web_canvas_selector.val)
@@ -2906,7 +2951,7 @@ pub fn install(canvas_selector : String) -> Unit {
   @gfx.set_web_graphics_hooks(
     @gfx.new_web_graphics_hooks(
       bridge_web_gfx_try_initialize, bridge_web_gfx_on_begin, bridge_web_gfx_on_end,
-      bridge_web_gfx_on_draw,
+      bridge_web_gfx_on_draw, bridge_web_gfx_on_resize,
     ),
   )
 }

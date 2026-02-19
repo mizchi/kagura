@@ -4,6 +4,7 @@ pub struct WebGraphicsHooks {
   on_begin : (Bool, GraphicsBackendKind, RenderPassDesc) -> Unit
   on_end : (Bool, GraphicsBackendKind, Bool) -> Unit
   on_draw : (Bool, GraphicsBackendKind, DrawTrianglesCommand) -> Unit
+  on_resize : (Bool, GraphicsBackendKind, Int, Int) -> Unit
 }
 
 ///|
@@ -12,8 +13,9 @@ pub fn new_web_graphics_hooks(
   on_begin : (Bool, GraphicsBackendKind, RenderPassDesc) -> Unit,
   on_end : (Bool, GraphicsBackendKind, Bool) -> Unit,
   on_draw : (Bool, GraphicsBackendKind, DrawTrianglesCommand) -> Unit,
+  on_resize : (Bool, GraphicsBackendKind, Int, Int) -> Unit,
 ) -> WebGraphicsHooks {
-  { try_initialize, on_begin, on_end, on_draw }
+  { try_initialize, on_begin, on_end, on_draw, on_resize }
 }
 
 ///|
@@ -53,9 +55,20 @@ fn default_web_on_draw(
 }
 
 ///|
+fn default_web_on_resize(
+  _active : Bool,
+  _kind : GraphicsBackendKind,
+  _width : Int,
+  _height : Int,
+) -> Unit {
+  ()
+}
+
+///|
 fn default_web_graphics_hooks() -> WebGraphicsHooks {
   new_web_graphics_hooks(
     default_web_try_initialize, default_web_on_begin, default_web_on_end, default_web_on_draw,
+    default_web_on_resize,
   )
 }
 
@@ -108,4 +121,14 @@ fn web_graphics_on_draw(
   command : DrawTrianglesCommand,
 ) -> Unit {
   (web_graphics_hooks.val.on_draw)(active, kind, command)
+}
+
+///|
+fn web_graphics_on_resize(
+  active : Bool,
+  kind : GraphicsBackendKind,
+  width : Int,
+  height : Int,
+) -> Unit {
+  (web_graphics_hooks.val.on_resize)(active, kind, width, height)
 }

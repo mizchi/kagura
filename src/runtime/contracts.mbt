@@ -67,6 +67,8 @@ pub fn[G : @core.Game, P : @platform.PlatformDriver, R : @gfx.GraphicsDriver] ru
   let fixed_cfg = @core.default_fixed_step_config()
   let mut fixed_state = @core.initial_fixed_step_state()
   let mut should_stop = false
+  let mut configured_width = 0
+  let mut configured_height = 0
 
   let window_options = @platform.new_window_options(
     "game_engine",
@@ -84,6 +86,21 @@ pub fn[G : @core.Game, P : @platform.PlatformDriver, R : @gfx.GraphicsDriver] ru
 
     let outside = platform.outside_size()
     let _ = game.layout(outside)
+    let next_width = if outside.width.to_int() <= 0 {
+      1
+    } else {
+      outside.width.to_int()
+    }
+    let next_height = if outside.height.to_int() <= 0 {
+      1
+    } else {
+      outside.height.to_int()
+    }
+    if configured_width != next_width || configured_height != next_height {
+      graphics.resize(next_width, next_height)
+      configured_width = next_width
+      configured_height = next_height
+    }
 
     let step = @core.step_fixed_timestep(fixed_state, 16.6667, fixed_cfg)
     fixed_state = step.next_state

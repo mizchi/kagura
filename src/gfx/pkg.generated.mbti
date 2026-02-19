@@ -62,7 +62,7 @@ pub fn new_dst_region(Int, Int, Int, Int, Int) -> DstRegion
 
 pub fn new_image_handle(Int, Int, Int) -> ImageHandle
 
-pub fn new_native_graphics_hooks((Int, Int) -> Bool, (Bool, RenderPassDesc) -> Unit, (Bool, Bool) -> Unit, (Bool, DrawTrianglesCommand) -> Unit) -> NativeGraphicsHooks
+pub fn new_native_graphics_hooks((Int, Int) -> Bool, (Bool, RenderPassDesc) -> Unit, (Bool, Bool) -> Unit, (Bool, DrawTrianglesCommand) -> Unit, (Bool, Int, Int) -> Unit) -> NativeGraphicsHooks
 
 pub fn new_pipeline_handle(Int) -> PipelineHandle
 
@@ -72,7 +72,7 @@ pub fn new_shader_handle(Int, String) -> ShaderHandle
 
 pub fn new_simple_command_queue() -> SimpleCommandQueue
 
-pub fn new_web_graphics_hooks((GraphicsBackendKind, Int, Int) -> Bool, (Bool, GraphicsBackendKind, RenderPassDesc) -> Unit, (Bool, GraphicsBackendKind, Bool) -> Unit, (Bool, GraphicsBackendKind, DrawTrianglesCommand) -> Unit) -> WebGraphicsHooks
+pub fn new_web_graphics_hooks((GraphicsBackendKind, Int, Int) -> Bool, (Bool, GraphicsBackendKind, RenderPassDesc) -> Unit, (Bool, GraphicsBackendKind, Bool) -> Unit, (Bool, GraphicsBackendKind, DrawTrianglesCommand) -> Unit, (Bool, GraphicsBackendKind, Int, Int) -> Unit) -> WebGraphicsHooks
 
 pub fn reset_native_graphics_hooks() -> Unit
 
@@ -233,6 +233,7 @@ pub struct NativeGraphicsHooks {
   on_begin : (Bool, RenderPassDesc) -> Unit
   on_end : (Bool, Bool) -> Unit
   on_draw : (Bool, DrawTrianglesCommand) -> Unit
+  on_resize : (Bool, Int, Int) -> Unit
 }
 
 pub struct PackedUniforms {
@@ -312,8 +313,8 @@ pub impl CommandQueue for SimpleCommandQueue
 #alias(WebGpuGraphicsDriver)
 pub struct StubGraphicsDriver {
   backend : GraphicsBackendKind
-  width : Int
-  height : Int
+  mut width : Int
+  mut height : Int
   mut initialized : Bool
   mut native_active : Bool
   mut web_active : Bool
@@ -346,6 +347,7 @@ pub struct WebGraphicsHooks {
   on_begin : (Bool, GraphicsBackendKind, RenderPassDesc) -> Unit
   on_end : (Bool, GraphicsBackendKind, Bool) -> Unit
   on_draw : (Bool, GraphicsBackendKind, DrawTrianglesCommand) -> Unit
+  on_resize : (Bool, GraphicsBackendKind, Int, Int) -> Unit
 }
 
 // Type aliases
@@ -368,6 +370,7 @@ pub trait GraphicsDriver {
   initialize(Self) -> Unit raise
   begin(Self, RenderPassDesc) -> Unit raise
   end(Self, Bool) -> Unit raise
+  resize(Self, Int, Int) -> Unit raise
   new_image(Self, Int, Int) -> ImageHandle raise
   new_shader(Self, String) -> ShaderHandle raise
   draw_triangles(Self, DrawTrianglesCommand) -> Unit raise

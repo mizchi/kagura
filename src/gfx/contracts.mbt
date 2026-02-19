@@ -282,6 +282,8 @@ pub trait GraphicsDriver {
   initialize(Self) -> Unit raise
   begin(Self, pass : RenderPassDesc) -> Unit raise
   end(Self, present : Bool) -> Unit raise
+  /// Ebiten ref: surface resize / reconfigure paths
+  resize(Self, width : Int, height : Int) -> Unit raise
 
   /// Ebiten ref: Graphics.NewImage/NewShader
   new_image(Self, width : Int, height : Int) -> ImageHandle raise

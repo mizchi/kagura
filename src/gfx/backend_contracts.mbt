@@ -23,8 +23,8 @@ pub struct GraphicsBackendOptions {
 ///|
 pub struct StubGraphicsDriver {
   backend : GraphicsBackendKind
-  width : Int
-  height : Int
+  mut width : Int
+  mut height : Int
   mut initialized : Bool
   mut native_active : Bool
   mut web_active : Bool
@@ -169,6 +169,23 @@ pub impl GraphicsDriver for StubGraphicsDriver with end(self, present) {
     self.end_count = self.end_count + 1
     native_on_end(self.native_active, present)
     web_graphics_on_end(self.web_active, self.backend, present)
+  }
+}
+
+///|
+pub impl GraphicsDriver for StubGraphicsDriver with resize(self, width, height) {
+  let next_width = if width <= 0 { 1 } else { width }
+  let next_height = if height <= 0 { 1 } else { height }
+  self.width = next_width
+  self.height = next_height
+  if self.initialized {
+    native_on_resize(self.native_active, next_width, next_height)
+    web_graphics_on_resize(
+      self.web_active,
+      self.backend,
+      next_width,
+      next_height,
+    )
   }
 }
 

@@ -296,6 +296,13 @@ fn bridge_gfx_on_draw(
 }
 
 ///|
+fn bridge_gfx_on_resize(active : Bool, width : Int, height : Int) -> Unit {
+  if active {
+    let _ = @wgpu_native.runtime_resize_surface(width, height)
+  }
+}
+
+///|
 pub fn install(title : String) -> Unit {
   runtime_title.val = title
   @platform.set_desktop_native_hooks(
@@ -311,6 +318,7 @@ pub fn install(title : String) -> Unit {
   @gfx.set_native_graphics_hooks(
     @gfx.new_native_graphics_hooks(
       bridge_gfx_try_initialize, bridge_gfx_on_begin, bridge_gfx_on_end, bridge_gfx_on_draw,
+      bridge_gfx_on_resize,
     ),
   )
 }

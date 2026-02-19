@@ -11,6 +11,15 @@ let test_native_gfx_end_calls : Ref[Int] = Ref::new(0)
 let test_native_gfx_draw_calls : Ref[Int] = Ref::new(0)
 
 ///|
+let test_native_gfx_resize_calls : Ref[Int] = Ref::new(0)
+
+///|
+let test_native_gfx_last_resize_width : Ref[Int] = Ref::new(0)
+
+///|
+let test_native_gfx_last_resize_height : Ref[Int] = Ref::new(0)
+
+///|
 fn test_native_gfx_try_initialize(_width : Int, _height : Int) -> Bool {
   test_native_gfx_init_calls.val = test_native_gfx_init_calls.val + 1
   true
@@ -41,6 +50,15 @@ fn test_native_gfx_on_draw(
 }
 
 ///|
+fn test_native_gfx_on_resize(active : Bool, width : Int, height : Int) -> Unit {
+  if active {
+    test_native_gfx_resize_calls.val = test_native_gfx_resize_calls.val + 1
+    test_native_gfx_last_resize_width.val = width
+    test_native_gfx_last_resize_height.val = height
+  }
+}
+
+///|
 let test_web_gfx_init_calls : Ref[Int] = Ref::new(0)
 
 ///|
@@ -51,6 +69,15 @@ let test_web_gfx_end_calls : Ref[Int] = Ref::new(0)
 
 ///|
 let test_web_gfx_draw_calls : Ref[Int] = Ref::new(0)
+
+///|
+let test_web_gfx_resize_calls : Ref[Int] = Ref::new(0)
+
+///|
+let test_web_gfx_last_resize_width : Ref[Int] = Ref::new(0)
+
+///|
+let test_web_gfx_last_resize_height : Ref[Int] = Ref::new(0)
 
 ///|
 fn test_web_gfx_try_initialize(
@@ -112,6 +139,25 @@ fn test_web_gfx_on_draw(
 }
 
 ///|
+fn test_web_gfx_on_resize(
+  active : Bool,
+  kind : GraphicsBackendKind,
+  width : Int,
+  height : Int,
+) -> Unit {
+  if active {
+    match kind {
+      GraphicsBackendKind::WebGpu | GraphicsBackendKind::WebGl2 => {
+        test_web_gfx_resize_calls.val = test_web_gfx_resize_calls.val + 1
+        test_web_gfx_last_resize_width.val = width
+        test_web_gfx_last_resize_height.val = height
+      }
+      _ => ()
+    }
+  }
+}
+
+///|
 fn queue_test_command(
   dst_id : Int,
   shader_id : Int,
@@ -143,11 +189,14 @@ test "native graphics hooks can be overridden and reset" {
   test_native_gfx_begin_calls.val = 0
   test_native_gfx_end_calls.val = 0
   test_native_gfx_draw_calls.val = 0
+  test_native_gfx_resize_calls.val = 0
+  test_native_gfx_last_resize_width.val = 0
+  test_native_gfx_last_resize_height.val = 0
 
   set_native_graphics_hooks(
     new_native_graphics_hooks(
       test_native_gfx_try_initialize, test_native_gfx_on_begin, test_native_gfx_on_end,
-      test_native_gfx_on_draw,
+      test_native_gfx_on_draw, test_native_gfx_on_resize,
     ),
   )
 
@@ -176,11 +225,17 @@ test "native graphics hooks can be overridden and reset" {
   driver.begin(pass)
   driver.draw_triangles(command)
   driver.end(true)
+  driver.resize(640, 360)
 
   assert_eq(test_native_gfx_init_calls.val, 1)
   assert_eq(test_native_gfx_begin_calls.val, 1)
   assert_eq(test_native_gfx_end_calls.val, 1)
   assert_eq(test_native_gfx_draw_calls.val, 1)
+  assert_eq(test_native_gfx_resize_calls.val, 1)
+  assert_eq(test_native_gfx_last_resize_width.val, 640)
+  assert_eq(test_native_gfx_last_resize_height.val, 360)
+  assert_eq(driver.width, 640)
+  assert_eq(driver.height, 360)
 
   reset_native_graphics_hooks()
 
@@ -188,6 +243,7 @@ test "native graphics hooks can be overridden and reset" {
   let before_begin_calls = test_native_gfx_begin_calls.val
   let before_end_calls = test_native_gfx_end_calls.val
   let before_draw_calls = test_native_gfx_draw_calls.val
+  let before_resize_calls = test_native_gfx_resize_calls.val
   let driver2 = create_wgpu_native_graphics(surface, options)
   driver2.initialize()
 
@@ -208,12 +264,16 @@ test "native graphics hooks can be overridden and reset" {
     uniform_dwords: [],
   })
   driver2.end(true)
+  driver2.resize(320, 200)
 
   assert_true(!driver2.native_active)
   assert_eq(test_native_gfx_init_calls.val, before_init_calls)
   assert_eq(test_native_gfx_begin_calls.val, before_begin_calls)
   assert_eq(test_native_gfx_end_calls.val, before_end_calls)
   assert_eq(test_native_gfx_draw_calls.val, before_draw_calls)
+  assert_eq(test_native_gfx_resize_calls.val, before_resize_calls)
+  assert_eq(driver2.width, 320)
+  assert_eq(driver2.height, 200)
 }
 
 ///|
@@ -223,10 +283,14 @@ test "web graphics hooks can be overridden and reset" {
   test_web_gfx_begin_calls.val = 0
   test_web_gfx_end_calls.val = 0
   test_web_gfx_draw_calls.val = 0
+  test_web_gfx_resize_calls.val = 0
+  test_web_gfx_last_resize_width.val = 0
+  test_web_gfx_last_resize_height.val = 0
 
   set_web_graphics_hooks(
     new_web_graphics_hooks(
       test_web_gfx_try_initialize, test_web_gfx_on_begin, test_web_gfx_on_end, test_web_gfx_on_draw,
+      test_web_gfx_on_resize,
     ),
   )
 
@@ -255,11 +319,17 @@ test "web graphics hooks can be overridden and reset" {
   driver.begin(pass)
   driver.draw_triangles(command)
   driver.end(true)
+  driver.resize(800, 450)
 
   assert_eq(test_web_gfx_init_calls.val, 1)
   assert_eq(test_web_gfx_begin_calls.val, 1)
   assert_eq(test_web_gfx_end_calls.val, 1)
   assert_eq(test_web_gfx_draw_calls.val, 1)
+  assert_eq(test_web_gfx_resize_calls.val, 1)
+  assert_eq(test_web_gfx_last_resize_width.val, 800)
+  assert_eq(test_web_gfx_last_resize_height.val, 450)
+  assert_eq(driver.width, 800)
+  assert_eq(driver.height, 450)
 
   reset_web_graphics_hooks()
 
@@ -267,6 +337,7 @@ test "web graphics hooks can be overridden and reset" {
   let before_begin_calls = test_web_gfx_begin_calls.val
   let before_end_calls = test_web_gfx_end_calls.val
   let before_draw_calls = test_web_gfx_draw_calls.val
+  let before_resize_calls = test_web_gfx_resize_calls.val
   let driver2 = create_webgpu_graphics(surface, options)
   driver2.initialize()
 
@@ -287,11 +358,15 @@ test "web graphics hooks can be overridden and reset" {
     uniform_dwords: [],
   })
   driver2.end(true)
+  driver2.resize(400, 225)
 
   assert_eq(test_web_gfx_init_calls.val, before_init_calls)
   assert_eq(test_web_gfx_begin_calls.val, before_begin_calls)
   assert_eq(test_web_gfx_end_calls.val, before_end_calls)
   assert_eq(test_web_gfx_draw_calls.val, before_draw_calls)
+  assert_eq(test_web_gfx_resize_calls.val, before_resize_calls)
+  assert_eq(driver2.width, 400)
+  assert_eq(driver2.height, 225)
 }
 
 ///|

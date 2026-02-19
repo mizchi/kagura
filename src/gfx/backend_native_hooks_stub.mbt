@@ -4,6 +4,7 @@ pub struct NativeGraphicsHooks {
   on_begin : (Bool, RenderPassDesc) -> Unit
   on_end : (Bool, Bool) -> Unit
   on_draw : (Bool, DrawTrianglesCommand) -> Unit
+  on_resize : (Bool, Int, Int) -> Unit
 }
 
 ///|
@@ -12,8 +13,9 @@ pub fn new_native_graphics_hooks(
   on_begin : (Bool, RenderPassDesc) -> Unit,
   on_end : (Bool, Bool) -> Unit,
   on_draw : (Bool, DrawTrianglesCommand) -> Unit,
+  on_resize : (Bool, Int, Int) -> Unit,
 ) -> NativeGraphicsHooks {
-  { try_initialize, on_begin, on_end, on_draw }
+  { try_initialize, on_begin, on_end, on_draw, on_resize }
 }
 
 ///|
@@ -40,10 +42,19 @@ fn default_native_on_draw(
 }
 
 ///|
+fn default_native_on_resize(
+  _active : Bool,
+  _width : Int,
+  _height : Int,
+) -> Unit {
+  ()
+}
+
+///|
 fn default_native_graphics_hooks() -> NativeGraphicsHooks {
   new_native_graphics_hooks(
     default_native_try_initialize, default_native_on_begin, default_native_on_end,
-    default_native_on_draw,
+    default_native_on_draw, default_native_on_resize,
   )
 }
 
@@ -80,4 +91,9 @@ fn native_on_end(active : Bool, present : Bool) -> Unit {
 ///|
 fn native_on_draw(active : Bool, command : DrawTrianglesCommand) -> Unit {
   (native_graphics_hooks.val.on_draw)(active, command)
+}
+
+///|
+fn native_on_resize(active : Bool, width : Int, height : Int) -> Unit {
+  (native_graphics_hooks.val.on_resize)(active, width, height)
 }

@@ -219,6 +219,14 @@ pub fn runtime_window_size(
 }
 
 ///|
+pub fn runtime_resize_surface(width : Int, height : Int) -> WindowSize {
+  match runtime_context.val {
+    Some(ctx) => ensure_runtime_surface_size(ctx, width, height)
+    None => clamp_runtime_render_size(width, height)
+  }
+}
+
+///|
 pub fn runtime_set_fullscreen(enabled : Bool) -> Bool {
   match runtime_context.val {
     Some(ctx) => set_fullscreen(ctx.window, enabled)

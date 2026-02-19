@@ -2,6 +2,38 @@ const statusElement = document.getElementById("status");
 const outputElement = document.getElementById("output");
 const wasmPath = document.documentElement.getAttribute("data-wasm-path");
 const canvasSelector = document.documentElement.getAttribute("data-canvas-selector") ?? "#app";
+const forceWebGl = document.documentElement.getAttribute("data-force-webgl") === "1";
+
+const createInitialFrameState = () => ({
+  clear: [0, 0, 0, 1],
+  drawCalls: 0,
+  commandCount: 0,
+  lastPipelineId: 0,
+  lastUniformHash: 0,
+  lastBlendMode: 1,
+  lastDstImageId: 0,
+  lastShaderId: 0,
+  lastIndexOffset: 0,
+  lastRegionCount: 0,
+  lastTotalIndexCount: 0,
+  lastVertexFloatCount: 0,
+  lastIndexCount: 0,
+  lastSrcImageCount: 0,
+  lastUniformDwordCount: 0,
+  payloadHasTriangle: false,
+  payloadAx: 0,
+  payloadAy: 0.5,
+  payloadBx: -0.5,
+  payloadBy: -0.5,
+  payloadCx: 0.5,
+  payloadCy: -0.5,
+  payloadUniformR: 1,
+  payloadUniformG: 1,
+  payloadUniformB: 1,
+  payloadUniformA: 1,
+  payloadTextureSeed: 0,
+  presentedFrames: 0,
+});
 
 const setStatus = (status) => {
   if (statusElement == null) {
@@ -36,36 +68,7 @@ const webState = {
   webgl2: {
     context: null,
   },
-      frame: {
-        clear: [0, 0, 0, 1],
-        drawCalls: 0,
-        commandCount: 0,
-        lastPipelineId: 0,
-        lastUniformHash: 0,
-        lastBlendMode: 1,
-        lastDstImageId: 0,
-        lastShaderId: 0,
-        lastIndexOffset: 0,
-        lastRegionCount: 0,
-        lastTotalIndexCount: 0,
-        lastVertexFloatCount: 0,
-        lastIndexCount: 0,
-        lastSrcImageCount: 0,
-        lastUniformDwordCount: 0,
-        payloadHasTriangle: false,
-        payloadAx: 0,
-        payloadAy: 0.5,
-        payloadBx: -0.5,
-        payloadBy: -0.5,
-        payloadCx: 0.5,
-        payloadCy: -0.5,
-        payloadUniformR: 1,
-        payloadUniformG: 1,
-        payloadUniformB: 1,
-        payloadUniformA: 1,
-        payloadTextureSeed: 0,
-        presentedFrames: 0,
-      },
+  frame: createInitialFrameState(),
 };
 
 const toInt = (value) => (value ? 1 : 0);
@@ -219,6 +222,12 @@ const run = async () => {
   if (wasmPath == null || wasmPath.length === 0) {
     throw new Error("data-wasm-path is required");
   }
+  webState.backendMode = forceWebGl ? "webgl2" : "webgpu";
+  webState.webgpu.context = null;
+  webState.webgpu.device = null;
+  webState.webgpu.pending = null;
+  webState.webgl2.context = null;
+  webState.frame = createInitialFrameState();
   let output = "";
   const imports = {
     spectest: {
@@ -249,7 +258,7 @@ const run = async () => {
         }
         const backendKind = Number(kind) | 0;
         if (backendKind === 1) {
-          if (ensureWebGpu()) {
+          if (!forceWebGl && ensureWebGpu()) {
             webState.backendMode = "webgpu";
             return 1;
           }
@@ -384,6 +393,7 @@ const run = async () => {
   window.__wasmSmoke = {
     status: "ok",
     output,
+    forceWebGl,
     backendMode: webState.backendMode,
     presentedFrames: webState.frame.presentedFrames,
     lastRegionCount: webState.frame.lastRegionCount,

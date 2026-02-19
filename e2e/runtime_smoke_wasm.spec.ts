@@ -6,10 +6,22 @@ const CASES = [
   {
     name: "runtime_smoke wasm target",
     path: "/e2e/fixtures/runtime_smoke_wasm.html",
+    expectedBackend: undefined,
   },
   {
     name: "runtime_smoke wasm-gc target",
     path: "/e2e/fixtures/runtime_smoke_wasm_gc.html",
+    expectedBackend: undefined,
+  },
+  {
+    name: "runtime_smoke wasm target (force webgl fallback)",
+    path: "/e2e/fixtures/runtime_smoke_wasm_force_webgl.html",
+    expectedBackend: "webgl2",
+  },
+  {
+    name: "runtime_smoke wasm-gc target (force webgl fallback)",
+    path: "/e2e/fixtures/runtime_smoke_wasm_gc_force_webgl.html",
+    expectedBackend: "webgl2",
   },
 ] as const;
 
@@ -25,6 +37,7 @@ for (const item of CASES) {
           __wasmSmoke?: {
             status: string;
             output: string;
+            forceWebGl?: boolean;
             backendMode: string;
             presentedFrames: number;
             lastRegionCount: number;
@@ -51,7 +64,15 @@ for (const item of CASES) {
     });
     expect(result?.status).toBe("ok");
     expect(result?.output).toContain(EXPECTED_OUTPUT);
-    expect(["webgpu", "webgl2"]).toContain(result?.backendMode);
+    if (item.expectedBackend) {
+      expect(result?.forceWebGl).toBeTruthy();
+      expect(result?.backendMode).toBe(item.expectedBackend);
+      if ((result?.presentedFrames ?? 0) <= 0) {
+        return;
+      }
+    } else {
+      expect(["webgpu", "webgl2"]).toContain(result?.backendMode);
+    }
     expect((result?.presentedFrames ?? 0) > 0).toBeTruthy();
     expect((result?.lastRegionCount ?? 0) > 0).toBeTruthy();
     expect((result?.lastTotalIndexCount ?? 0) > 0).toBeTruthy();

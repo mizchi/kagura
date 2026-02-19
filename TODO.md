@@ -12,7 +12,7 @@
 - `moon test --target js`: 113 passed / 0 failed
 - `moon run src/examples/runtime_smoke --target js`: pass (`runtime_smoke(js): ok (hooked)`)
 - `moon run src/examples/runtime_smoke_native --target native`: pass (`runtime_smoke_native: ok (real)`)
-- `pnpm e2e:smoke` (Playwright wasm/wasm-gc): 2 passed / 0 failed
+- `pnpm e2e:smoke` (Playwright wasm/wasm-gc + force-webgl): 4 passed / 0 failed
 
 判定基準:
 
@@ -74,6 +74,7 @@
    - JS 側で canvas/context 取得、surface token 生成、begin/end/draw を本実装化。
 3. WebGL2 フォールバック backend を追加する  
    - WebGPU 非対応環境向けに最低限の draw path を用意。
+   - `e2e/runtime_smoke_wasm.spec.ts` に force-webgl fixture（wasm/wasm-gc）を追加し、fallback 指定時の起動経路を継続検証。
 4. backend 共通の resize/reconfigure を追加する  
    - `GraphicsDriver.resize` + runtime からの呼び出し導線は追加済み。  
    - window/canvas サイズ変化時の surface 再構成は native/web の基礎 hook を接続済み。  

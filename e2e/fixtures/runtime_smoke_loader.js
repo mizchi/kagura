@@ -4,6 +4,9 @@ const wasmPath = document.documentElement.getAttribute("data-wasm-path");
 const canvasSelector = document.documentElement.getAttribute("data-canvas-selector") ?? "#app";
 const forceWebGl = document.documentElement.getAttribute("data-force-webgl") === "1";
 
+const SAMPLE_WIDTH = 64;
+const SAMPLE_HEIGHT = 64;
+
 const createInitialFrameState = () => ({
   clear: [0, 0, 0, 1],
   drawCalls: 0,
@@ -33,6 +36,10 @@ const createInitialFrameState = () => ({
   payloadUniformA: 1,
   payloadTextureSeed: 0,
   presentedFrames: 0,
+  sampleWidth: 0,
+  sampleHeight: 0,
+  samplePixels: [],
+  lastPresentedBackend: "none",
 });
 
 const setStatus = (status) => {
@@ -64,14 +71,106 @@ const webState = {
     device: null,
     format: "bgra8unorm",
     pending: null,
+    pipeline: null,
+    pipelineFormat: "",
+    vertexBuffer: null,
+    uniformBuffer: null,
+    bindGroup: null,
   },
   webgl2: {
+    context: null,
+    program: null,
+    vertexBuffer: null,
+    positionLocation: -1,
+    colorLocation: null,
+  },
+  sample: {
+    canvas: null,
     context: null,
   },
   frame: createInitialFrameState(),
 };
 
 const toInt = (value) => (value ? 1 : 0);
+
+const clampUnit = (value) => {
+  if (!Number.isFinite(value)) {
+    return 0;
+  }
+  if (value < 0) {
+    return 0;
+  }
+  if (value > 1) {
+    return 1;
+  }
+  return value;
+};
+
+const normalizedTriangleVertices = () => {
+  if (!webState.frame.payloadHasTriangle) {
+    return new Float32Array([0.0, 0.6, -0.6, -0.6, 0.6, -0.6]);
+  }
+  return new Float32Array([
+    Number(webState.frame.payloadAx) || 0,
+    Number(webState.frame.payloadAy) || 0,
+    Number(webState.frame.payloadBx) || 0,
+    Number(webState.frame.payloadBy) || 0,
+    Number(webState.frame.payloadCx) || 0,
+    Number(webState.frame.payloadCy) || 0,
+  ]);
+};
+
+const normalizedTriangleColor = () => {
+  let r = clampUnit(Number(webState.frame.payloadUniformR));
+  let g = clampUnit(Number(webState.frame.payloadUniformG));
+  let b = clampUnit(Number(webState.frame.payloadUniformB));
+  let a = clampUnit(Number(webState.frame.payloadUniformA));
+  if (r + g + b < 0.12) {
+    const seed = Math.abs(Number(webState.frame.payloadTextureSeed) | 0);
+    r = ((seed >> 0) & 0xff) / 255;
+    g = ((seed >> 8) & 0xff) / 255;
+    b = ((seed >> 16) & 0xff) / 255;
+    if (r + g + b < 0.3) {
+      r = 0.92;
+      g = 0.26;
+      b = 0.18;
+    }
+  }
+  if (a < 0.2) {
+    a = 1;
+  }
+  return [r, g, b, a];
+};
+
+const captureCanvasSample = () => {
+  const sourceCanvas = webState.canvas;
+  const doc = typeof document === "undefined" ? null : document;
+  if (sourceCanvas == null || doc == null) {
+    return null;
+  }
+  if (webState.sample.canvas == null) {
+    const sampleCanvas = doc.createElement("canvas");
+    sampleCanvas.width = SAMPLE_WIDTH;
+    sampleCanvas.height = SAMPLE_HEIGHT;
+    webState.sample.canvas = sampleCanvas;
+    webState.sample.context = sampleCanvas.getContext("2d", { willReadFrequently: true });
+  }
+  const sampleCanvas = webState.sample.canvas;
+  const sampleContext = webState.sample.context;
+  if (sampleCanvas == null || sampleContext == null) {
+    return null;
+  }
+  try {
+    sampleContext.clearRect(0, 0, SAMPLE_WIDTH, SAMPLE_HEIGHT);
+    sampleContext.drawImage(sourceCanvas, 0, 0, SAMPLE_WIDTH, SAMPLE_HEIGHT);
+    const imageData = sampleContext.getImageData(0, 0, SAMPLE_WIDTH, SAMPLE_HEIGHT);
+    const out = new Uint8Array(imageData.data.length);
+    out.set(imageData.data);
+    return out;
+  } catch (_) {
+    return null;
+  }
+};
 
 const ensureCanvas = (fallbackWidth, fallbackHeight) => {
   const doc = typeof document === "undefined" ? null : document;
@@ -146,7 +245,97 @@ const ensureWebGpu = () => {
         webState.webgpu.pending = null;
       });
   }
-  return true;
+  return webState.webgpu.device != null;
+};
+
+const ensureWebGpuPipeline = (device, format) => {
+  if (
+    webState.webgpu.pipeline != null &&
+    webState.webgpu.pipelineFormat === format &&
+    webState.webgpu.vertexBuffer != null &&
+    webState.webgpu.uniformBuffer != null &&
+    webState.webgpu.bindGroup != null
+  ) {
+    return true;
+  }
+  try {
+    const shaderModule = device.createShaderModule({
+      code: `
+struct ColorUniform {
+  value: vec4f,
+}
+
+@group(0) @binding(0) var<uniform> color_uniform: ColorUniform;
+
+struct VertexOutput {
+  @builtin(position) position: vec4f,
+}
+
+@vertex
+fn vs_main(@location(0) position: vec2f) -> VertexOutput {
+  var out: VertexOutput;
+  out.position = vec4f(position, 0.0, 1.0);
+  return out;
+}
+
+@fragment
+fn fs_main() -> @location(0) vec4f {
+  return color_uniform.value;
+}
+`,
+    });
+    const pipeline = device.createRenderPipeline({
+      layout: "auto",
+      vertex: {
+        module: shaderModule,
+        entryPoint: "vs_main",
+        buffers: [{
+          arrayStride: 8,
+          attributes: [{
+            shaderLocation: 0,
+            offset: 0,
+            format: "float32x2",
+          }],
+        }],
+      },
+      fragment: {
+        module: shaderModule,
+        entryPoint: "fs_main",
+        targets: [{ format }],
+      },
+      primitive: {
+        topology: "triangle-list",
+      },
+    });
+    const vertexBuffer = device.createBuffer({
+      size: 6 * Float32Array.BYTES_PER_ELEMENT,
+      usage: GPUBufferUsage.VERTEX | GPUBufferUsage.COPY_DST,
+    });
+    const uniformBuffer = device.createBuffer({
+      size: 4 * Float32Array.BYTES_PER_ELEMENT,
+      usage: GPUBufferUsage.UNIFORM | GPUBufferUsage.COPY_DST,
+    });
+    const bindGroup = device.createBindGroup({
+      layout: pipeline.getBindGroupLayout(0),
+      entries: [{
+        binding: 0,
+        resource: { buffer: uniformBuffer },
+      }],
+    });
+    webState.webgpu.pipeline = pipeline;
+    webState.webgpu.pipelineFormat = format;
+    webState.webgpu.vertexBuffer = vertexBuffer;
+    webState.webgpu.uniformBuffer = uniformBuffer;
+    webState.webgpu.bindGroup = bindGroup;
+    return true;
+  } catch (_) {
+    webState.webgpu.pipeline = null;
+    webState.webgpu.pipelineFormat = "";
+    webState.webgpu.vertexBuffer = null;
+    webState.webgpu.uniformBuffer = null;
+    webState.webgpu.bindGroup = null;
+    return false;
+  }
 };
 
 const ensureWebGl2 = () => {
@@ -167,6 +356,94 @@ const ensureWebGl2 = () => {
   return true;
 };
 
+const compileWebGlShader = (gl, type, source) => {
+  const shader = gl.createShader(type);
+  if (shader == null) {
+    return null;
+  }
+  gl.shaderSource(shader, source);
+  gl.compileShader(shader);
+  const ok = gl.getShaderParameter(shader, gl.COMPILE_STATUS);
+  if (!ok) {
+    gl.deleteShader(shader);
+    return null;
+  }
+  return shader;
+};
+
+const ensureWebGl2Program = (gl) => {
+  if (
+    webState.webgl2.program != null &&
+    webState.webgl2.vertexBuffer != null &&
+    webState.webgl2.positionLocation >= 0 &&
+    webState.webgl2.colorLocation != null
+  ) {
+    return true;
+  }
+  const vertexShader = compileWebGlShader(
+    gl,
+    gl.VERTEX_SHADER,
+    `#version 300 es
+in vec2 a_position;
+void main() {
+  gl_Position = vec4(a_position, 0.0, 1.0);
+}
+`,
+  );
+  const fragmentShader = compileWebGlShader(
+    gl,
+    gl.FRAGMENT_SHADER,
+    `#version 300 es
+precision highp float;
+uniform vec4 u_color;
+out vec4 out_color;
+void main() {
+  out_color = u_color;
+}
+`,
+  );
+  if (vertexShader == null || fragmentShader == null) {
+    if (vertexShader != null) {
+      gl.deleteShader(vertexShader);
+    }
+    if (fragmentShader != null) {
+      gl.deleteShader(fragmentShader);
+    }
+    return false;
+  }
+  const program = gl.createProgram();
+  if (program == null) {
+    gl.deleteShader(vertexShader);
+    gl.deleteShader(fragmentShader);
+    return false;
+  }
+  gl.attachShader(program, vertexShader);
+  gl.attachShader(program, fragmentShader);
+  gl.linkProgram(program);
+  gl.deleteShader(vertexShader);
+  gl.deleteShader(fragmentShader);
+  const linked = gl.getProgramParameter(program, gl.LINK_STATUS);
+  if (!linked) {
+    gl.deleteProgram(program);
+    return false;
+  }
+  const positionLocation = gl.getAttribLocation(program, "a_position");
+  const colorLocation = gl.getUniformLocation(program, "u_color");
+  const vertexBuffer = gl.createBuffer();
+  if (positionLocation < 0 || colorLocation == null || vertexBuffer == null) {
+    gl.deleteProgram(program);
+    if (vertexBuffer != null) {
+      gl.deleteBuffer(vertexBuffer);
+    }
+    return false;
+  }
+  webState.webgl2.program = program;
+  webState.webgl2.positionLocation = positionLocation;
+  webState.webgl2.colorLocation = colorLocation;
+  webState.webgl2.vertexBuffer = vertexBuffer;
+  return true;
+};
+
 const renderWebGpu = () => {
   const device = webState.webgpu.device;
   const context = webState.webgpu.context;
@@ -177,6 +454,17 @@ const renderWebGpu = () => {
     const format = typeof webState.webgpu.format === "string"
       ? webState.webgpu.format
       : "bgra8unorm";
+    if (!ensureWebGpuPipeline(device, format)) {
+      return false;
+    }
+    const vertices = normalizedTriangleVertices();
+    const [colorR, colorG, colorB, colorA] = normalizedTriangleColor();
+    device.queue.writeBuffer(webState.webgpu.vertexBuffer, 0, vertices);
+    device.queue.writeBuffer(
+      webState.webgpu.uniformBuffer,
+      0,
+      new Float32Array([colorR, colorG, colorB, colorA]),
+    );
     context.configure({
       device,
       format,
@@ -194,6 +482,12 @@ const renderWebGpu = () => {
         storeOp: "store",
       }],
     });
+    if (webState.frame.payloadHasTriangle) {
+      pass.setPipeline(webState.webgpu.pipeline);
+      pass.setBindGroup(0, webState.webgpu.bindGroup);
+      pass.setVertexBuffer(0, webState.webgpu.vertexBuffer);
+      pass.draw(3, 1, 0, 0);
+    }
     pass.end();
     device.queue.submit([encoder.finish()]);
     return true;
@@ -212,6 +506,28 @@ const renderWebGl2 = () => {
     const [r, g, b, a] = webState.frame.clear;
     gl.clearColor(r, g, b, a);
     gl.clear(gl.COLOR_BUFFER_BIT);
+    if (!webState.frame.payloadHasTriangle) {
+      return true;
+    }
+    if (!ensureWebGl2Program(gl)) {
+      return false;
+    }
+    const [colorR, colorG, colorB, colorA] = normalizedTriangleColor();
+    const vertices = normalizedTriangleVertices();
+    gl.useProgram(webState.webgl2.program);
+    gl.bindBuffer(gl.ARRAY_BUFFER, webState.webgl2.vertexBuffer);
+    gl.bufferData(gl.ARRAY_BUFFER, vertices, gl.DYNAMIC_DRAW);
+    gl.enableVertexAttribArray(webState.webgl2.positionLocation);
+    gl.vertexAttribPointer(
+      webState.webgl2.positionLocation,
+      2,
+      gl.FLOAT,
+      false,
+      0,
+      0,
+    );
+    gl.uniform4f(webState.webgl2.colorLocation, colorR, colorG, colorB, colorA);
+    gl.drawArrays(gl.TRIANGLES, 0, 3);
     return true;
   } catch (_) {
     return false;
@@ -226,7 +542,18 @@ const run = async () => {
   webState.webgpu.context = null;
   webState.webgpu.device = null;
   webState.webgpu.pending = null;
+  webState.webgpu.pipeline = null;
+  webState.webgpu.pipelineFormat = "";
+  webState.webgpu.vertexBuffer = null;
+  webState.webgpu.uniformBuffer = null;
+  webState.webgpu.bindGroup = null;
   webState.webgl2.context = null;
+  webState.webgl2.program = null;
+  webState.webgl2.vertexBuffer = null;
+  webState.webgl2.positionLocation = -1;
+  webState.webgl2.colorLocation = null;
+  webState.sample.canvas = null;
+  webState.sample.context = null;
   webState.frame = createInitialFrameState();
   let output = "";
   const imports = {
@@ -355,13 +682,27 @@ const run = async () => {
           return;
         }
         ensureCanvas(webState.width, webState.height);
+        let renderedBackend = "none";
         if (webState.backendMode === "webgpu") {
-          if (!renderWebGpu()) {
-            renderWebGl2();
+          if (renderWebGpu()) {
+            renderedBackend = "webgpu";
+          } else if (ensureWebGl2() && renderWebGl2()) {
+            renderedBackend = "webgl2-fallback";
           }
-        } else {
-          renderWebGl2();
+        } else if (renderWebGl2()) {
+          renderedBackend = "webgl2";
         }
+        const samplePixels = captureCanvasSample();
+        if (samplePixels != null) {
+          webState.frame.sampleWidth = SAMPLE_WIDTH;
+          webState.frame.sampleHeight = SAMPLE_HEIGHT;
+          webState.frame.samplePixels = Array.from(samplePixels);
+        } else {
+          webState.frame.sampleWidth = 0;
+          webState.frame.sampleHeight = 0;
+          webState.frame.samplePixels = [];
+        }
+        webState.frame.lastPresentedBackend = renderedBackend;
         webState.frame.presentedFrames += 1;
         webState.frame.drawCalls = 0;
         webState.frame.commandCount = 0;
@@ -369,7 +710,18 @@ const run = async () => {
       shutdown: () => {
         webState.webgpu.context = null;
         webState.webgpu.device = null;
+        webState.webgpu.pipeline = null;
+        webState.webgpu.pipelineFormat = "";
+        webState.webgpu.vertexBuffer = null;
+        webState.webgpu.uniformBuffer = null;
+        webState.webgpu.bindGroup = null;
         webState.webgl2.context = null;
+        webState.webgl2.program = null;
+        webState.webgl2.vertexBuffer = null;
+        webState.webgl2.positionLocation = -1;
+        webState.webgl2.colorLocation = null;
+        webState.sample.canvas = null;
+        webState.sample.context = null;
       },
     },
   };
@@ -389,6 +741,13 @@ const run = async () => {
     throw new Error("wasm export _start not found");
   }
   start();
+  await new Promise((resolve) => setTimeout(resolve, 0));
+  const finalSample = captureCanvasSample();
+  if (finalSample != null) {
+    webState.frame.sampleWidth = SAMPLE_WIDTH;
+    webState.frame.sampleHeight = SAMPLE_HEIGHT;
+    webState.frame.samplePixels = Array.from(finalSample);
+  }
   setStatus("ok");
   window.__wasmSmoke = {
     status: "ok",
@@ -414,6 +773,10 @@ const run = async () => {
     payloadUniformB: webState.frame.payloadUniformB,
     payloadUniformA: webState.frame.payloadUniformA,
     payloadTextureSeed: webState.frame.payloadTextureSeed,
+    sampleWidth: webState.frame.sampleWidth,
+    sampleHeight: webState.frame.sampleHeight,
+    samplePixels: webState.frame.samplePixels,
+    lastPresentedBackend: webState.frame.lastPresentedBackend,
   };
 };
 

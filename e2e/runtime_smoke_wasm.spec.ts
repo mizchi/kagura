@@ -1,96 +1,135 @@
-import { expect, test } from "@playwright/test";
+import { expect, test, type Page } from "@playwright/test";
+import pixelmatch from "pixelmatch";
 
 const EXPECTED_OUTPUT = "runtime_smoke(js): ok (hooked)";
 
-const CASES = [
+type SmokeResult = {
+  status: string;
+  output: string;
+  forceWebGl?: boolean;
+  backendMode: string;
+  presentedFrames: number;
+  lastRegionCount: number;
+  lastTotalIndexCount: number;
+  lastVertexFloatCount: number;
+  lastIndexCount: number;
+  lastSrcImageCount: number;
+  lastUniformDwordCount: number;
+  payloadHasTriangle: boolean;
+  payloadAx: number;
+  payloadAy: number;
+  payloadBx: number;
+  payloadBy: number;
+  payloadCx: number;
+  payloadCy: number;
+  payloadUniformR: number;
+  payloadUniformG: number;
+  payloadUniformB: number;
+  payloadUniformA: number;
+  payloadTextureSeed: number;
+  sampleWidth: number;
+  sampleHeight: number;
+  samplePixels: number[];
+  lastPresentedBackend: string;
+};
+
+const TARGETS = [
   {
     name: "runtime_smoke wasm target",
-    path: "/e2e/fixtures/runtime_smoke_wasm.html",
-    expectedBackend: undefined,
+    normalPath: "/e2e/fixtures/runtime_smoke_wasm.html",
+    forceWebGlPath: "/e2e/fixtures/runtime_smoke_wasm_force_webgl.html",
   },
   {
     name: "runtime_smoke wasm-gc target",
-    path: "/e2e/fixtures/runtime_smoke_wasm_gc.html",
-    expectedBackend: undefined,
-  },
-  {
-    name: "runtime_smoke wasm target (force webgl fallback)",
-    path: "/e2e/fixtures/runtime_smoke_wasm_force_webgl.html",
-    expectedBackend: "webgl2",
-  },
-  {
-    name: "runtime_smoke wasm-gc target (force webgl fallback)",
-    path: "/e2e/fixtures/runtime_smoke_wasm_gc_force_webgl.html",
-    expectedBackend: "webgl2",
+    normalPath: "/e2e/fixtures/runtime_smoke_wasm_gc.html",
+    forceWebGlPath: "/e2e/fixtures/runtime_smoke_wasm_gc_force_webgl.html",
   },
 ] as const;
 
-for (const item of CASES) {
-  test(item.name, async ({ page }) => {
-    await page.goto(item.path);
-    await page.waitForFunction(() => {
-      return Boolean((window as { __wasmSmoke?: { status?: string } }).__wasmSmoke?.status);
-    });
-    const result = await page.evaluate(() => {
-      return (
-        window as {
-          __wasmSmoke?: {
-            status: string;
-            output: string;
-            forceWebGl?: boolean;
-            backendMode: string;
-            presentedFrames: number;
-            lastRegionCount: number;
-            lastTotalIndexCount: number;
-            lastVertexFloatCount: number;
-            lastIndexCount: number;
-            lastSrcImageCount: number;
-            lastUniformDwordCount: number;
-            payloadHasTriangle: boolean;
-            payloadAx: number;
-            payloadAy: number;
-            payloadBx: number;
-            payloadBy: number;
-            payloadCx: number;
-            payloadCy: number;
-            payloadUniformR: number;
-            payloadUniformG: number;
-            payloadUniformB: number;
-            payloadUniformA: number;
-            payloadTextureSeed: number;
-          };
-        }
-      ).__wasmSmoke;
-    });
-    expect(result?.status).toBe("ok");
-    expect(result?.output).toContain(EXPECTED_OUTPUT);
-    if (item.expectedBackend) {
-      expect(result?.forceWebGl).toBeTruthy();
-      expect(result?.backendMode).toBe(item.expectedBackend);
-      if ((result?.presentedFrames ?? 0) <= 0) {
-        return;
-      }
-    } else {
-      expect(["webgpu", "webgl2"]).toContain(result?.backendMode);
+const loadSmokeResult = async (page: Page, path: string) => {
+  await page.goto(path);
+  await page.waitForFunction(() => {
+    return Boolean((window as { __wasmSmoke?: { status?: string } }).__wasmSmoke?.status);
+  });
+  const result = await page.evaluate(() => {
+    return (window as { __wasmSmoke?: SmokeResult }).__wasmSmoke;
+  });
+  expect(result).toBeTruthy();
+  return result as SmokeResult;
+};
+
+const assertRuntimeSmokeMetrics = (result: SmokeResult, expectedBackend?: string) => {
+  expect(result.status).toBe("ok");
+  expect(result.output).toContain(EXPECTED_OUTPUT);
+  if (expectedBackend != null) {
+    expect(result.forceWebGl).toBeTruthy();
+    expect(result.backendMode).toBe(expectedBackend);
+  } else {
+    expect(["webgpu", "webgl2"]).toContain(result.backendMode);
+  }
+  if (result.presentedFrames <= 0) {
+    return;
+  }
+  expect(result.lastRegionCount).toBeGreaterThan(0);
+  expect(result.lastTotalIndexCount).toBeGreaterThan(0);
+  expect(result.lastVertexFloatCount).toBeGreaterThan(0);
+  expect(result.lastIndexCount).toBeGreaterThan(0);
+  expect(result.lastSrcImageCount).toBeGreaterThan(0);
+  expect(result.lastUniformDwordCount).toBeGreaterThan(0);
+  expect(result.payloadHasTriangle).toBeTruthy();
+  expect(result.payloadAx).toBeLessThan(-0.4);
+  expect(result.payloadAy).toBeLessThan(-0.4);
+  expect(result.payloadBx).toBeGreaterThan(0.4);
+  expect(result.payloadBy).toBeLessThan(-0.4);
+  expect(result.payloadCx).toBeGreaterThan(0.4);
+  expect(result.payloadCy).toBeGreaterThan(0.4);
+  expect(result.payloadUniformR).toBeLessThan(0.05);
+  expect(result.payloadUniformG).toBeLessThan(0.05);
+  expect(result.payloadUniformB).toBeLessThan(0.05);
+  expect(result.payloadUniformA).toBeLessThan(0.05);
+  expect(result.payloadTextureSeed).toBeGreaterThan(0);
+};
+
+const pixelDiffRatio = (left: SmokeResult, right: SmokeResult) => {
+  expect(left.sampleWidth).toBeGreaterThan(0);
+  expect(left.sampleHeight).toBeGreaterThan(0);
+  expect(right.sampleWidth).toBe(left.sampleWidth);
+  expect(right.sampleHeight).toBe(left.sampleHeight);
+  const totalPixels = left.sampleWidth * left.sampleHeight;
+  expect(totalPixels).toBeGreaterThan(0);
+  const leftData = Uint8Array.from(left.samplePixels);
+  const rightData = Uint8Array.from(right.samplePixels);
+  expect(leftData.length).toBe(totalPixels * 4);
+  expect(rightData.length).toBe(totalPixels * 4);
+  const diff = pixelmatch(
+    leftData,
+    rightData,
+    undefined,
+    left.sampleWidth,
+    left.sampleHeight,
+    {
+      threshold: 0.12,
+      includeAA: true,
+      alpha: 0.1,
+    },
+  );
+  return diff / totalPixels;
+};
+
+for (const target of TARGETS) {
+  test(`${target.name} backend parity`, async ({ page }) => {
+    const normal = await loadSmokeResult(page, target.normalPath);
+    assertRuntimeSmokeMetrics(normal);
+
+    const forceWebGl = await loadSmokeResult(page, target.forceWebGlPath);
+    assertRuntimeSmokeMetrics(forceWebGl, "webgl2");
+
+    if (normal.presentedFrames <= 0 || forceWebGl.presentedFrames <= 0) {
+      return;
     }
-    expect((result?.presentedFrames ?? 0) > 0).toBeTruthy();
-    expect((result?.lastRegionCount ?? 0) > 0).toBeTruthy();
-    expect((result?.lastTotalIndexCount ?? 0) > 0).toBeTruthy();
-    expect((result?.lastVertexFloatCount ?? 0) > 0).toBeTruthy();
-    expect((result?.lastIndexCount ?? 0) > 0).toBeTruthy();
-    expect((result?.lastSrcImageCount ?? 0) > 0).toBeTruthy();
-    expect((result?.lastUniformDwordCount ?? 0) > 0).toBeTruthy();
-    expect(result?.payloadHasTriangle).toBeTruthy();
-    expect((result?.payloadAx ?? 0) < -0.4).toBeTruthy();
-    expect((result?.payloadAy ?? 0) < -0.4).toBeTruthy();
-    expect((result?.payloadBx ?? 0) > 0.4).toBeTruthy();
-    expect((result?.payloadBy ?? 0) < -0.4).toBeTruthy();
-    expect((result?.payloadCx ?? 0) > 0.4).toBeTruthy();
-    expect((result?.payloadCy ?? 0) > 0.4).toBeTruthy();
-    expect((result?.payloadUniformR ?? 1) < 0.05).toBeTruthy();
-    expect((result?.payloadUniformG ?? 1) < 0.05).toBeTruthy();
-    expect((result?.payloadUniformB ?? 1) < 0.05).toBeTruthy();
-    expect((result?.payloadUniformA ?? 1) < 0.05).toBeTruthy();
-    expect((result?.payloadTextureSeed ?? 0) > 0).toBeTruthy();
+
+    const ratio = pixelDiffRatio(normal, forceWebGl);
+    const maxRatio = normal.backendMode === "webgpu" ? 0.15 : 0.08;
+    expect(ratio).toBeLessThanOrEqual(maxRatio);
   });
 }

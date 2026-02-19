@@ -1,0 +1,35 @@
+// Generated using `moon info`, DON'T EDIT IT
+package "mizchi/game_engine"
+
+import {
+  "mizchi/game_engine/core",
+  "mizchi/game_engine/gfx",
+  "mizchi/game_engine/platform",
+}
+
+// Values
+pub fn plan_fixed_updates(@core.FixedStepState, Double, @core.FixedStepConfig) -> @core.StepResult
+
+pub fn[G : @core.Game, P : @platform.PlatformDriver, R : @gfx.GraphicsDriver] run_loop(G, P, R, @core.RunOptions) -> Unit raise
+
+// Errors
+
+// Types and methods
+
+// Type aliases
+pub using @core {type EngineTermination}
+
+pub using @core {type FixedStepConfig}
+
+pub using @core {type FixedStepState}
+
+pub using @gfx {type RenderPassDesc}
+
+pub using @core {type RunOptions}
+
+pub using @core {type StepResult}
+
+pub using @platform {type WindowOptions}
+
+// Traits
+

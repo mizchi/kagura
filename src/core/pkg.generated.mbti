@@ -1,0 +1,108 @@
+// Generated using `moon info`, DON'T EDIT IT
+package "mizchi/game_engine/core"
+
+// Values
+pub fn default_fixed_step_config() -> FixedStepConfig
+
+pub fn default_run_options() -> RunOptions
+
+pub fn empty_input_snapshot() -> InputSnapshot
+
+pub fn initial_fixed_step_state() -> FixedStepState
+
+pub fn new_fixed_step_config(Int, Int) -> FixedStepConfig
+
+pub fn new_frame_budget(Int, Double, Int) -> FrameBudget
+
+pub fn new_input_snapshot(Double, Double, Double, Double, Array[Int]) -> InputSnapshot
+
+pub fn new_noop_game(Int, Int) -> NoopGame
+
+pub fn new_outside_size(Double, Double) -> OutsideSize
+
+pub fn[T : Game] run_game(T, RunOptions) -> Unit
+
+pub fn step_fixed_timestep(FixedStepState, Double, FixedStepConfig) -> StepResult
+
+// Errors
+
+// Types and methods
+pub enum EngineTermination {
+  RegularTermination
+  Fatal(String)
+}
+pub impl Show for EngineTermination
+
+pub struct FixedStepConfig {
+  tps : Int
+  max_updates_per_frame : Int
+}
+pub impl Show for FixedStepConfig
+
+pub struct FixedStepState {
+  accumulator_ms : Double
+  tick : Int
+}
+pub impl Show for FixedStepState
+
+pub struct FrameBudget {
+  updates : Int
+  alpha : Double
+  tick : Int
+}
+pub impl Show for FrameBudget
+
+pub struct InputSnapshot {
+  cursor_x : Double
+  cursor_y : Double
+  wheel_x : Double
+  wheel_y : Double
+  pressed_keys : Array[Int]
+}
+pub impl Show for InputSnapshot
+
+pub struct LogicalSize {
+  width : Int
+  height : Int
+}
+pub impl Show for LogicalSize
+
+pub struct NoopGame {
+  logical_width : Int
+  logical_height : Int
+}
+pub impl Game for NoopGame
+
+pub struct OutsideSize {
+  width : Double
+  height : Double
+}
+pub impl Show for OutsideSize
+
+pub struct RunOptions {
+  init_unfocused : Bool
+  screen_transparent : Bool
+  screen_cleared_every_frame : Bool
+}
+pub impl Show for RunOptions
+
+pub struct StepResult {
+  updates : Int
+  alpha : Double
+  next_state : FixedStepState
+}
+pub impl Show for StepResult
+
+// Type aliases
+
+// Traits
+pub trait FinalScreenDrawer {
+  draw_final_screen(Self, FrameBudget) -> Unit
+}
+
+pub trait Game {
+  layout(Self, OutsideSize) -> LogicalSize
+  update(Self, InputSnapshot) -> EngineTermination?
+  draw(Self, FrameBudget) -> Unit
+}
+

@@ -1,0 +1,66 @@
+// Generated using `moon info`, DON'T EDIT IT
+package "mizchi/game_engine/ui"
+
+import {
+  "mizchi/game_engine/core",
+  "mizchi/game_engine/gfx",
+}
+
+// Values
+pub fn default_layout_constraint(Double, Double) -> LayoutConstraint
+
+// Errors
+
+// Types and methods
+pub struct LayoutConstraint {
+  min_width : Double
+  min_height : Double
+  max_width : Double
+  max_height : Double
+}
+pub impl Show for LayoutConstraint
+
+pub struct LayoutRect {
+  x : Double
+  y : Double
+  width : Double
+  height : Double
+}
+pub impl Show for LayoutRect
+
+pub struct LayoutResult {
+  node_id : UINodeId
+  rect : LayoutRect
+}
+pub impl Show for LayoutResult
+
+pub enum UIEvent {
+  PointerDown(Double, Double)
+  PointerUp(Double, Double)
+  PointerMove(Double, Double)
+  Scroll(Double, Double)
+  KeyDown(Int)
+  KeyUp(Int)
+}
+pub impl Show for UIEvent
+
+pub struct UINodeId {
+  value : Int
+}
+pub impl Show for UINodeId
+
+// Type aliases
+
+// Traits
+pub trait LayoutEngine {
+  compute_layout(Self, UINodeId, LayoutConstraint) -> Array[LayoutResult] raise
+}
+
+pub trait UIInputAdapter {
+  from_input_snapshot(Self, @core.InputSnapshot) -> Array[UIEvent]
+}
+
+pub trait UIRenderAdapter {
+  build_draw_commands(Self, @core.FrameBudget, Array[LayoutResult], @gfx.ImageHandle) -> Array[@gfx.DrawTrianglesCommand] raise
+}
+

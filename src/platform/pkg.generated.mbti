@@ -1,0 +1,122 @@
+// Generated using `moon info`, DON'T EDIT IT
+package "mizchi/game_engine/platform"
+
+import {
+  "mizchi/game_engine/core",
+}
+
+// Values
+pub fn create_desktop_glfw_platform() -> DesktopGlfwPlatform
+
+pub fn create_offscreen_surface_token(Int, Int) -> SurfaceToken
+
+pub fn create_web_canvas_platform(String) -> WebCanvasPlatform
+
+pub fn create_webgl_surface_token(Int, Int, Int, Double) -> SurfaceToken
+
+pub fn create_webgpu_surface_token(Int, Int, Int, Double) -> SurfaceToken
+
+pub fn new_desktop_native_hooks((WindowOptions) -> Bool, (Bool) -> Unit, () -> Bool, (Int, Int) -> @core.OutsideSize) -> DesktopNativeHooks
+
+pub fn new_web_canvas_hooks((String, WindowOptions) -> Bool, (Bool) -> Unit, () -> Bool, (Int, Int) -> @core.OutsideSize, (String, WindowOptions) -> SurfaceToken) -> WebCanvasHooks
+
+pub fn new_window_options(String, Int, Int, Bool, Bool) -> WindowOptions
+
+pub fn reset_desktop_native_hooks() -> Unit
+
+pub fn reset_web_canvas_hooks() -> Unit
+
+pub fn set_desktop_native_hooks(DesktopNativeHooks) -> Unit
+
+pub fn set_web_canvas_hooks(WebCanvasHooks) -> Unit
+
+// Errors
+
+// Types and methods
+pub struct DesktopGlfwPlatform {
+  mut initialized : Bool
+  mut poll_count : Int
+  close_after_polls : Int
+  mut native_active : Bool
+  mut options : WindowOptions
+  current_input : @core.InputSnapshot
+}
+pub impl PlatformDriver for DesktopGlfwPlatform
+pub impl SurfaceProvider for DesktopGlfwPlatform
+
+pub struct DesktopNativeHooks {
+  try_initialize : (WindowOptions) -> Bool
+  poll : (Bool) -> Unit
+  should_close : () -> Bool
+  outside_size : (Int, Int) -> @core.OutsideSize
+}
+
+pub struct MonitorInfo {
+  width : Int
+  height : Int
+  device_scale_factor : Double
+}
+pub impl Show for MonitorInfo
+
+pub enum SurfaceKind {
+  MetalLayer
+  WebGpuCanvasContext
+  WebGlCanvasContext
+  OffscreenBuffer
+}
+pub impl Show for SurfaceKind
+
+pub struct SurfaceToken {
+  kind : SurfaceKind
+  opaque_id : Int
+  width : Int
+  height : Int
+  device_scale_factor : Double
+}
+pub impl Show for SurfaceToken
+
+pub struct WebCanvasHooks {
+  try_initialize : (String, WindowOptions) -> Bool
+  poll : (Bool) -> Unit
+  should_close : () -> Bool
+  outside_size : (Int, Int) -> @core.OutsideSize
+  current_surface : (String, WindowOptions) -> SurfaceToken
+}
+
+pub struct WebCanvasPlatform {
+  canvas_selector : String
+  mut initialized : Bool
+  mut poll_count : Int
+  close_after_polls : Int
+  mut web_active : Bool
+  mut options : WindowOptions
+  current_input : @core.InputSnapshot
+}
+pub impl PlatformDriver for WebCanvasPlatform
+pub impl SurfaceProvider for WebCanvasPlatform
+
+pub struct WindowOptions {
+  title : String
+  width : Int
+  height : Int
+  transparent : Bool
+  resizable : Bool
+}
+pub impl Show for WindowOptions
+
+// Type aliases
+
+// Traits
+pub trait PlatformDriver {
+  initialize(Self, WindowOptions) -> Unit raise
+  poll_events(Self) -> Unit
+  should_close(Self) -> Bool
+  outside_size(Self) -> @core.OutsideSize
+  capture_input(Self, Int) -> @core.InputSnapshot
+  monitor_info(Self) -> MonitorInfo
+}
+
+pub trait SurfaceProvider {
+  current_surface(Self) -> SurfaceToken raise
+}
+

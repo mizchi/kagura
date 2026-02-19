@@ -1,0 +1,14 @@
+import {
+  "mizchi/game_engine/core" @core,
+  "mizchi/game_engine/gfx" @gfx,
+  "mizchi/game_engine/platform" @platform,
+}
+
+warnings = "-29"
+
+options(
+  targets: {
+    "hooks_js.mbt": [ "js", "wasm", "wasm-gc", "llvm" ],
+    "hooks_stub.mbt": [ "native" ],
+  },
+)

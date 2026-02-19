@@ -1,0 +1,6 @@
+_build
+target
+.mooncakes
+node_modules
+test-results
+playwright-report

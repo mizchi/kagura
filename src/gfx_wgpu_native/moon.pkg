@@ -1,0 +1,17 @@
+options(
+  link: {
+    "native": {
+      "cc": "clang",
+      "cc-flags": "-Ideps/wgpu-macos/include -I/usr/local/include",
+      "cc-link-flags": "-Ldeps/wgpu-macos/lib -L/usr/local/lib -L/Users/mz/brew/lib -lwgpu_native -lglfw -Wl,-rpath,deps/wgpu-macos/lib -Wl,-rpath,/usr/local/lib -Wl,-rpath,/Users/mz/brew/lib -framework Metal -framework QuartzCore -framework IOKit -framework CoreFoundation -framework Cocoa",
+    },
+  },
+  "native-stub": [ "wgpu_native_stub.m" ],
+  "supported-targets": [ "native" ],
+  targets: {
+    "backend.mbt": [ "native" ],
+    "glfw_bindings.mbt": [ "native" ],
+    "runtime_bridge.mbt": [ "native" ],
+    "wgpu_bindings.mbt": [ "native" ],
+  },
+)

@@ -1,0 +1,6 @@
+import {
+  "mizchi/game_engine/core" @core,
+  "mizchi/game_engine/gfx" @gfx,
+  "mizchi/game_engine/platform" @platform,
+  "mizchi/game_engine/runtime" @runtime,
+}

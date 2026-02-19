@@ -1,0 +1,73 @@
+// Generated using `moon info`, DON'T EDIT IT
+package "mizchi/game_engine/asset"
+
+import {
+  "mizchi/game_engine/gfx",
+}
+
+// Values
+pub fn default_image_spec(Int, Int) -> ImageSpec
+
+// Errors
+
+// Types and methods
+pub struct AssetKey {
+  value : String
+}
+pub impl Show for AssetKey
+
+pub struct AtlasRegion {
+  x : Int
+  y : Int
+  width : Int
+  height : Int
+  atlas_id : Int
+}
+pub impl Show for AtlasRegion
+
+pub struct ImageSpec {
+  width : Int
+  height : Int
+  format : String
+}
+pub impl Show for ImageSpec
+
+pub struct MaterialSpec {
+  shader : AssetKey
+  blend : @gfx.BlendMode
+  filter : @gfx.FilterMode
+  uniform_keys : Array[String]
+}
+pub impl Show for MaterialSpec
+
+pub struct ShaderSpec {
+  debug_name : String
+  source : String
+}
+pub impl Show for ShaderSpec
+
+// Type aliases
+
+// Traits
+pub trait AtlasAllocator {
+  allocate(Self, Int, Int) -> AtlasRegion?
+  release(Self, AtlasRegion) -> Unit
+}
+
+pub trait ImageRepository {
+  create_image(Self, AssetKey, ImageSpec) -> @gfx.ImageHandle raise
+  get_image(Self, AssetKey) -> @gfx.ImageHandle?
+  remove_image(Self, AssetKey) -> Unit raise
+}
+
+pub trait MaterialRepository {
+  register_material(Self, AssetKey, MaterialSpec) -> Unit raise
+  get_material(Self, AssetKey) -> MaterialSpec?
+}
+
+pub trait ShaderRepository {
+  create_shader(Self, AssetKey, ShaderSpec) -> @gfx.ShaderHandle raise
+  get_shader(Self, AssetKey) -> @gfx.ShaderHandle?
+  remove_shader(Self, AssetKey) -> Unit raise
+}
+

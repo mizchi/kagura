@@ -1,0 +1,330 @@
+// Generated using `moon info`, DON'T EDIT IT
+package "mizchi/game_engine/gfx"
+
+import {
+  "mizchi/game_engine/platform",
+}
+
+// Values
+pub fn[T : UniformCanonicalizer] build_canonical_uniforms(T, UniformLayout, Array[NamedUniform], PreservedUniformContext, ShaderIR) -> PackedUniforms raise
+
+pub fn[T : ShaderFrontend] calc_shader_source_hash(T, ShaderCompileRequest) -> ShaderSourceHash raise
+
+pub fn[T : GraphicsDriver] clear_screen(T, Color) -> Unit raise
+
+pub fn[T : ShaderFrontend] compile_shader_ir(T, ShaderCompileRequest) -> ShaderIR raise
+
+pub fn create_null_graphics(Int, Int) -> StubGraphicsDriver
+
+pub fn create_webgl_graphics(@platform.SurfaceToken, GraphicsBackendOptions) -> StubGraphicsDriver
+
+pub fn create_webgpu_graphics(@platform.SurfaceToken, GraphicsBackendOptions) -> StubGraphicsDriver
+
+pub fn create_wgpu_native_graphics(@platform.SurfaceToken, GraphicsBackendOptions) -> StubGraphicsDriver
+
+pub fn default_graphics_backend_options() -> GraphicsBackendOptions
+
+pub fn[T : GraphicsDriver, Q : CommandQueue] flush_commands(T, Q, Bool) -> Unit raise
+
+pub fn new_basic_builtin_shader_source_repo() -> BasicBuiltinShaderSourceRepo
+
+pub fn new_basic_shader_frontend() -> BasicShaderFrontend
+
+pub fn new_basic_uniform_canonicalizer() -> BasicUniformCanonicalizer
+
+pub fn new_color(Double, Double, Double, Double) -> Color
+
+pub fn[T : CommandQueue] new_command_queue() -> T
+
+pub fn new_native_graphics_hooks((Int, Int) -> Bool, (Bool, RenderPassDesc) -> Unit, (Bool, Bool) -> Unit, (Bool, DrawTrianglesCommand) -> Unit) -> NativeGraphicsHooks
+
+pub fn new_pipeline_handle(Int) -> PipelineHandle
+
+pub fn new_render_pass_desc(Color, Bool) -> RenderPassDesc
+
+pub fn new_simple_command_queue() -> SimpleCommandQueue
+
+pub fn new_web_graphics_hooks((GraphicsBackendKind, Int, Int) -> Bool, (Bool, GraphicsBackendKind, RenderPassDesc) -> Unit, (Bool, GraphicsBackendKind, Bool) -> Unit, (Bool, GraphicsBackendKind, DrawTrianglesCommand) -> Unit) -> WebGraphicsHooks
+
+pub fn reset_native_graphics_hooks() -> Unit
+
+pub fn reset_web_graphics_hooks() -> Unit
+
+pub fn set_native_graphics_hooks(NativeGraphicsHooks) -> Unit
+
+pub fn set_web_graphics_hooks(WebGraphicsHooks) -> Unit
+
+// Errors
+
+// Types and methods
+pub struct BasicBuiltinShaderSourceRepo {
+}
+pub impl BuiltinShaderSourceRepo for BasicBuiltinShaderSourceRepo
+
+pub struct BasicShaderFrontend {
+}
+pub impl ShaderFrontend for BasicShaderFrontend
+
+pub struct BasicUniformCanonicalizer {
+}
+pub impl UniformCanonicalizer for BasicUniformCanonicalizer
+
+pub enum BlendMode {
+  Copy
+  Alpha
+  Add
+  Multiply
+}
+pub impl Show for BlendMode
+
+pub enum BuiltinShaderAddress {
+  Unsafe
+  ClampToZero
+  Repeat
+}
+pub impl Show for BuiltinShaderAddress
+
+pub enum BuiltinShaderFilter {
+  Nearest
+  Linear
+  Pixelated
+}
+pub impl Show for BuiltinShaderFilter
+
+pub struct BuiltinShaderKey {
+  filter : BuiltinShaderFilter
+  address : BuiltinShaderAddress
+  use_color_m : Bool
+}
+pub impl Show for BuiltinShaderKey
+
+pub struct Color {
+  r : Double
+  g : Double
+  b : Double
+  a : Double
+}
+pub impl Show for Color
+
+pub struct DrawTrianglesCommand {
+  dst : ImageHandle
+  shader : ShaderHandle
+  dst_regions : Array[DstRegion]
+  index_offset : Int
+  blend : BlendMode
+}
+
+pub struct DstRegion {
+  x : Int
+  y : Int
+  width : Int
+  height : Int
+  index_count : Int
+}
+pub impl Show for DstRegion
+
+pub enum FilterMode {
+  Nearest
+  Linear
+  Pixelated
+}
+pub impl Show for FilterMode
+
+pub struct FloatRect {
+  x : Double
+  y : Double
+  width : Double
+  height : Double
+}
+pub impl Show for FloatRect
+
+pub enum GraphicsBackendKind {
+  WgpuNative
+  WebGpu
+  WebGl2
+  Null
+}
+pub impl Show for GraphicsBackendKind
+
+pub struct GraphicsBackendOptions {
+  enable_validation : Bool
+  prefer_low_power : Bool
+  enable_vsync : Bool
+}
+pub impl Show for GraphicsBackendOptions
+
+pub struct ImageHandle {
+  id : Int
+  width : Int
+  height : Int
+}
+pub impl Show for ImageHandle
+
+pub struct IntSize {
+  width : Int
+  height : Int
+}
+pub impl Show for IntSize
+
+pub struct NamedUniform {
+  name : String
+  value : UniformValue
+}
+pub impl Show for NamedUniform
+
+pub struct NativeGraphicsHooks {
+  try_initialize : (Int, Int) -> Bool
+  on_begin : (Bool, RenderPassDesc) -> Unit
+  on_end : (Bool, Bool) -> Unit
+  on_draw : (Bool, DrawTrianglesCommand) -> Unit
+}
+
+pub struct PackedUniforms {
+  dwords : Array[Int]
+}
+pub impl Show for PackedUniforms
+
+pub struct PipelineHandle {
+  id : Int
+}
+pub impl Show for PipelineHandle
+
+pub struct PreservedUniformContext {
+  dst_texture_size : IntSize
+  dst_region : FloatRect
+  src_texture_sizes : Array[IntSize]
+  src_regions : Array[FloatRect]
+}
+pub impl Show for PreservedUniformContext
+
+pub struct RenderPassDesc {
+  clear_color : Color
+  present : Bool
+}
+pub impl Show for RenderPassDesc
+
+pub struct ShaderCompileRequest {
+  source : String
+  unit_hint : ShaderUnit?
+  src_image_count : Int
+  entrypoints : ShaderEntrypoints
+  debug_name : String
+}
+pub impl Show for ShaderCompileRequest
+
+pub struct ShaderEntrypoints {
+  vertex : String
+  fragment : String
+}
+pub impl Show for ShaderEntrypoints
+
+pub struct ShaderHandle {
+  id : Int
+  source : String
+}
+pub impl Show for ShaderHandle
+
+pub struct ShaderIR {
+  source : String
+  unit : ShaderUnit
+  src_image_count : Int
+  entrypoints : ShaderEntrypoints
+  debug_name : String
+  source_hash : ShaderSourceHash
+}
+pub impl Show for ShaderIR
+
+pub struct ShaderSourceHash {
+  value : String
+}
+pub impl Show for ShaderSourceHash
+
+pub enum ShaderUnit {
+  Pixels
+  Texels
+}
+pub impl Show for ShaderUnit
+
+pub struct SimpleCommandQueue {
+  mut commands : Array[DrawTrianglesCommand]
+}
+pub impl CommandQueue for SimpleCommandQueue
+
+#alias(NativeGraphicsDriver)
+#alias(NullGraphicsDriver)
+#alias(WebGlGraphicsDriver)
+#alias(WebGpuGraphicsDriver)
+pub struct StubGraphicsDriver {
+  backend : GraphicsBackendKind
+  width : Int
+  height : Int
+  mut initialized : Bool
+  mut native_active : Bool
+  mut web_active : Bool
+  mut next_id : Int
+  mut begin_count : Int
+  mut end_count : Int
+  mut draw_count : Int
+}
+pub impl GraphicsDriver for StubGraphicsDriver
+
+pub struct UniformLayout {
+  names : Array[String]
+  dword_counts : Array[Int]
+  preserved_prefix_dwords : Int
+}
+pub impl Show for UniformLayout
+
+pub enum UniformValue {
+  Bool(Bool)
+  Int(Int)
+  Float(Double)
+  Bools(Array[Bool])
+  Ints(Array[Int])
+  Floats(Array[Double])
+}
+pub impl Show for UniformValue
+
+pub struct WebGraphicsHooks {
+  try_initialize : (GraphicsBackendKind, Int, Int) -> Bool
+  on_begin : (Bool, GraphicsBackendKind, RenderPassDesc) -> Unit
+  on_end : (Bool, GraphicsBackendKind, Bool) -> Unit
+  on_draw : (Bool, GraphicsBackendKind, DrawTrianglesCommand) -> Unit
+}
+
+// Type aliases
+
+// Traits
+pub trait BuiltinShaderSourceRepo {
+  shader_source(Self, BuiltinShaderKey) -> String
+}
+
+pub trait CommandQueue {
+  enqueue_draw_triangles(Self, DrawTrianglesCommand) -> Unit
+  flush(Self) -> Array[DrawTrianglesCommand]
+}
+
+pub trait GraphicsBackendFactory {
+  create(Self, GraphicsBackendKind, @platform.SurfaceToken, GraphicsBackendOptions) -> Unit raise
+}
+
+pub trait GraphicsDriver {
+  initialize(Self) -> Unit raise
+  begin(Self, RenderPassDesc) -> Unit raise
+  end(Self, Bool) -> Unit raise
+  new_image(Self, Int, Int) -> ImageHandle raise
+  new_shader(Self, String) -> ShaderHandle raise
+  draw_triangles(Self, DrawTrianglesCommand) -> Unit raise
+}
+
+pub trait ShaderFrontend {
+  compile_ir(Self, ShaderCompileRequest) -> ShaderIR raise
+  calc_source_hash(Self, ShaderCompileRequest) -> ShaderSourceHash raise
+}
+
+pub trait UniformCanonicalizer {
+  append_user_uniforms(Self, UniformLayout, Array[NamedUniform]) -> PackedUniforms raise
+  prepend_preserved_uniforms(Self, PackedUniforms, PreservedUniformContext) -> PackedUniforms
+  filter_unused_uniforms(Self, ShaderIR, PackedUniforms) -> PackedUniforms
+}
+

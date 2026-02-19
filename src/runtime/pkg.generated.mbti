@@ -1,0 +1,36 @@
+// Generated using `moon info`, DON'T EDIT IT
+package "mizchi/game_engine/runtime"
+
+import {
+  "mizchi/game_engine/core",
+  "mizchi/game_engine/gfx",
+  "mizchi/game_engine/platform",
+}
+
+// Values
+pub fn default_runtime_config() -> RuntimeConfig
+
+pub fn plan_frame(@core.StepResult, Int) -> FramePlan
+
+pub fn[G : @core.Game, P : @platform.PlatformDriver, R : @gfx.GraphicsDriver] run_loop(G, P, R, @core.RunOptions, RuntimeConfig) -> Unit raise
+
+// Errors
+
+// Types and methods
+pub struct FramePlan {
+  updates : Int
+  should_draw : Bool
+}
+pub impl Show for FramePlan
+
+pub struct RuntimeConfig {
+  max_skip_frames : Int
+  enable_vsync : Bool
+  clear_screen_every_frame : Bool
+}
+pub impl Show for RuntimeConfig
+
+// Type aliases
+
+// Traits
+

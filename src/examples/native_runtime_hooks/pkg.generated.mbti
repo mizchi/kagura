@@ -1,0 +1,30 @@
+// Generated using `moon info`, DON'T EDIT IT
+package "mizchi/game_engine/examples/native_runtime_hooks"
+
+// Values
+pub fn initialize_context(Int, Int, String) -> Bool
+
+pub fn install(String) -> Unit
+
+pub fn is_ready() -> Bool
+
+pub fn poll_events() -> Unit
+
+pub fn render_frame() -> Bool
+
+pub fn should_close() -> Bool
+
+pub fn shutdown() -> Unit
+
+pub fn shutdown_context() -> Unit
+
+pub fn uninstall() -> Unit
+
+// Errors
+
+// Types and methods
+
+// Type aliases
+
+// Traits
+

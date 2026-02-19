@@ -1,0 +1,66 @@
+// Generated using `moon info`, DON'T EDIT IT
+package "mizchi/game_engine/text"
+
+import {
+  "mizchi/game_engine/gfx",
+}
+
+// Values
+pub fn default_text_style(String, Double) -> TextStyle
+
+// Errors
+
+// Types and methods
+pub struct FontKey {
+  family : String
+  weight : Int
+  italic : Bool
+}
+pub impl Show for FontKey
+
+pub struct GlyphQuad {
+  glyph_id : Int
+  atlas_x : Double
+  atlas_y : Double
+  atlas_w : Double
+  atlas_h : Double
+  dst_x : Double
+  dst_y : Double
+  dst_w : Double
+  dst_h : Double
+}
+pub impl Show for GlyphQuad
+
+pub struct TextMetrics {
+  width : Double
+  height : Double
+  baseline : Double
+}
+pub impl Show for TextMetrics
+
+pub struct TextRun {
+  text : String
+  style : TextStyle
+}
+pub impl Show for TextRun
+
+pub struct TextStyle {
+  font : FontKey
+  size_px : Double
+  line_height : Double
+  letter_spacing : Double
+}
+pub impl Show for TextStyle
+
+// Type aliases
+
+// Traits
+pub trait FontEngine {
+  measure(Self, TextRun) -> TextMetrics
+  shape(Self, TextRun) -> Array[GlyphQuad] raise
+}
+
+pub trait TextBatchBuilder {
+  build_draw_commands(Self, @gfx.ImageHandle, Array[GlyphQuad], @gfx.ShaderHandle) -> Array[@gfx.DrawTrianglesCommand] raise
+}
+

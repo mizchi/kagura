@@ -1,0 +1,57 @@
+name: ci
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+
+jobs:
+  js:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: hustcer/setup-moonbit@v1
+        with:
+          moonbit-version: "1.19.0"
+      - uses: actions/setup-node@v4
+        with:
+          node-version: "24"
+          cache: "pnpm"
+      - name: Setup pnpm
+        run: corepack enable
+      - name: Install E2E deps
+        run: pnpm install --frozen-lockfile
+      - name: Format
+        run: |
+          moon fmt
+          git diff --exit-code
+      - name: Check
+        run: moon check --deny-warn --target js
+      - name: Test
+        run: moon test --target js
+      - name: Runtime Smoke (JS)
+        run: moon run src/examples/runtime_smoke --target js
+      - name: Install Playwright Browser
+        run: pnpm exec playwright install --with-deps chromium
+      - name: Runtime Smoke E2E (wasm/wasm-gc)
+        run: pnpm e2e:smoke
+      - name: API Info
+        run: moon info
+
+  native-macos:
+    runs-on: macos-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: hustcer/setup-moonbit@v1
+        with:
+          moonbit-version: "1.19.0"
+      - name: Install native deps
+        run: brew install glfw
+      - name: Check
+        run: moon check --target native
+      - name: Test
+        run: moon test --target native
+      - name: Runtime Smoke (Native)
+        run: moon run src/examples/runtime_smoke_native --target native
+      - name: Build Native Triangle
+        run: moon build src/examples/native_triangle --target native

@@ -1,0 +1,100 @@
+// Generated using `moon info`, DON'T EDIT IT
+package "mizchi/game_engine/ai"
+
+import {
+  "mizchi/game_engine/core",
+}
+
+// Values
+pub fn default_ai_budget() -> AIBudget
+
+pub fn[P : AIPolicy, S : SensorBridge, A : ActuatorBridge, C : AIScheduler] run_ai_tick(P, S, A, C, @core.FrameBudget, Int, BlackboardSnapshot) -> BlackboardSnapshot raise
+
+// Errors
+
+// Types and methods
+pub struct AIBudget {
+  max_decision_ms : Int
+  max_nodes : Int
+  max_model_tokens : Int
+}
+pub impl Show for AIBudget
+
+pub enum ActionIntent {
+  Idle
+  Move(Double, Double)
+  Aim(Double, Double)
+  Trigger(String)
+  EmitEvent(String)
+}
+pub impl Show for ActionIntent
+
+pub struct AgentId {
+  value : Int
+}
+pub impl Show for AgentId
+
+pub struct BlackboardEntry {
+  key : String
+  value : String
+}
+pub impl Show for BlackboardEntry
+
+pub struct BlackboardSnapshot {
+  entries : Array[BlackboardEntry]
+}
+pub impl Show for BlackboardSnapshot
+
+pub struct DecisionContext {
+  tick : Int
+  frame : @core.FrameBudget
+  deterministic_seed : Int
+  budget : AIBudget
+  perception : SensorSnapshot
+  blackboard : BlackboardSnapshot
+}
+pub impl Show for DecisionContext
+
+pub struct DecisionResult {
+  actions : Array[ActionIntent]
+  next_blackboard : BlackboardSnapshot
+  trace : Array[DecisionTrace]
+}
+pub impl Show for DecisionResult
+
+pub struct DecisionTrace {
+  stage : String
+  score : Double
+  note : String
+}
+pub impl Show for DecisionTrace
+
+pub struct SensorSnapshot {
+  self_x : Double
+  self_y : Double
+  health : Double
+  visible_entities : Array[Int]
+  tags : Array[String]
+}
+pub impl Show for SensorSnapshot
+
+// Type aliases
+
+// Traits
+pub trait AIPolicy {
+  decide(Self, DecisionContext) -> DecisionResult raise
+}
+
+pub trait AIScheduler {
+  select_agents(Self, Int) -> Array[AgentId]
+  budget_for(Self, AgentId) -> AIBudget
+}
+
+pub trait ActuatorBridge {
+  apply(Self, AgentId, Array[ActionIntent]) -> Unit raise
+}
+
+pub trait SensorBridge {
+  capture(Self, AgentId, Int) -> SensorSnapshot
+}
+

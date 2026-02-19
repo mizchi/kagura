@@ -17,6 +17,36 @@ pub enum RasterImageFormat {
 } derive(Show, Eq)
 
 ///|
+pub fn raster_resize_nearest() -> RasterResizeMethod {
+  Nearest
+}
+
+///|
+pub fn raster_resize_bilinear() -> RasterResizeMethod {
+  Bilinear
+}
+
+///|
+pub fn raster_resize_bicubic() -> RasterResizeMethod {
+  Bicubic
+}
+
+///|
+pub fn raster_image_format_png() -> RasterImageFormat {
+  RasterImageFormat::Png
+}
+
+///|
+pub fn raster_image_format_jpeg() -> RasterImageFormat {
+  RasterImageFormat::Jpeg
+}
+
+///|
+pub fn raster_image_format_bmp() -> RasterImageFormat {
+  RasterImageFormat::Bmp
+}
+
+///|
 fn clamp_u8_channel_for_bytes(channel : Int) -> Int {
   if channel < 0 {
     0

@@ -1,0 +1,7 @@
+import {
+  "mizchi/game_engine/asset" @asset,
+}
+
+options(
+  "is-main": true,
+)

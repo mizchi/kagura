@@ -76,6 +76,18 @@ pub fn new_simple_shader_repository() -> SimpleShaderRepository
 
 pub fn new_unmanaged_atlas_draw_source(Int) -> AtlasDrawSource
 
+pub fn raster_image_format_bmp() -> RasterImageFormat
+
+pub fn raster_image_format_jpeg() -> RasterImageFormat
+
+pub fn raster_image_format_png() -> RasterImageFormat
+
+pub fn raster_resize_bicubic() -> RasterResizeMethod
+
+pub fn raster_resize_bilinear() -> RasterResizeMethod
+
+pub fn raster_resize_nearest() -> RasterResizeMethod
+
 pub fn remove_atlas_image(SimpleAtlasImageRepository, AssetKey) -> Unit
 
 pub fn resize_image_spec(ImageSpec, Int, Int, RasterResizeMethod) -> ImageSpec raise @image.EncodeError

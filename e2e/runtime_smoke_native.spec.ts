@@ -40,7 +40,7 @@ test.describe("runtime smoke native", () => {
     if (probe == null) {
       return;
     }
-    expect(Number(probe[1])).toBe(901);
+    expect(Number(probe[1])).toBe(801);
     expect(Number(probe[2])).toBe(2);
     expect(Number(probe[3])).toBe(2);
     expect(Number(probe[4])).toBe(42);

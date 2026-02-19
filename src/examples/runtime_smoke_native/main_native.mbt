@@ -1,5 +1,172 @@
 ///|
-let runtime_smoke_atlas_page_id : Int = 901
+let runtime_smoke_atlas_page_id : Int = 801
+
+///|
+fn clamp_unit(value : Double) -> Double {
+  if value < 0.0 {
+    0.0
+  } else if value > 1.0 {
+    1.0
+  } else {
+    value
+  }
+}
+
+///|
+fn clamp_u8(value : Int) -> Int {
+  if value < 0 {
+    0
+  } else if value > 255 {
+    255
+  } else {
+    value
+  }
+}
+
+///|
+fn clamp_sample_coord(value : Int) -> Int {
+  if value < 0 {
+    0
+  } else if value >= 64 {
+    63
+  } else {
+    value
+  }
+}
+
+///|
+fn sample_pixel_x_from_ndc(x_ndc : Double) -> Int {
+  let x = (((x_ndc + 1.0) * 0.5) * 64.0).to_int()
+  clamp_sample_coord(x)
+}
+
+///|
+fn sample_pixel_y_from_ndc(y_ndc : Double) -> Int {
+  let y = (((1.0 - y_ndc) * 0.5) * 64.0).to_int()
+  clamp_sample_coord(y)
+}
+
+///|
+fn normalized_payload_color(
+  payload_uniform_r : Double,
+  payload_uniform_g : Double,
+  payload_uniform_b : Double,
+  payload_uniform_a : Double,
+  payload_texture_seed : Int,
+) -> Array[Double] {
+  let mut r = clamp_unit(payload_uniform_r)
+  let mut g = clamp_unit(payload_uniform_g)
+  let mut b = clamp_unit(payload_uniform_b)
+  let mut a = clamp_unit(payload_uniform_a)
+  if r + g + b < 0.12 {
+    let seed = if payload_texture_seed < 0 {
+      -payload_texture_seed
+    } else {
+      payload_texture_seed
+    }
+    r = (seed % 256).to_double() / 255.0
+    g = ((seed / 256) % 256).to_double() / 255.0
+    b = ((seed / 65536) % 256).to_double() / 255.0
+    if r + g + b < 0.3 {
+      r = 0.92
+      g = 0.26
+      b = 0.18
+    }
+  }
+  if a < 0.2 {
+    a = 1.0
+  }
+  [r, g, b, a]
+}
+
+///|
+fn edge(
+  ax : Double,
+  ay : Double,
+  bx : Double,
+  by : Double,
+  px : Double,
+  py : Double,
+) -> Double {
+  (px - ax) * (by - ay) - (py - ay) * (bx - ax)
+}
+
+///|
+fn sample_predicted_web_pixel_rgba(
+  payload_ax : Double,
+  payload_ay : Double,
+  payload_bx : Double,
+  payload_by : Double,
+  payload_cx : Double,
+  payload_cy : Double,
+  payload_uniform_r : Double,
+  payload_uniform_g : Double,
+  payload_uniform_b : Double,
+  payload_uniform_a : Double,
+  payload_texture_seed : Int,
+  px : Int,
+  py : Int,
+) -> Array[Int] {
+  let sample_w = 64
+  let sample_h = 64
+  let x_ndc = (px.to_double() + 0.5) / sample_w.to_double() * 2.0 - 1.0
+  let y_ndc = 1.0 - (py.to_double() + 0.5) / sample_h.to_double() * 2.0
+  let area = edge(
+    payload_ax,
+    payload_ay,
+    payload_bx,
+    payload_by,
+    payload_cx,
+    payload_cy,
+  )
+  if area.abs() < 0.000001 {
+    return [0, 0, 0, 255]
+  }
+  let e0 = edge(
+    payload_bx,
+    payload_by,
+    payload_cx,
+    payload_cy,
+    x_ndc,
+    y_ndc,
+  )
+  let e1 = edge(
+    payload_cx,
+    payload_cy,
+    payload_ax,
+    payload_ay,
+    x_ndc,
+    y_ndc,
+  )
+  let e2 = edge(
+    payload_ax,
+    payload_ay,
+    payload_bx,
+    payload_by,
+    x_ndc,
+    y_ndc,
+  )
+  let inside = if area > 0.0 {
+    e0 >= 0.0 && e1 >= 0.0 && e2 >= 0.0
+  } else {
+    e0 <= 0.0 && e1 <= 0.0 && e2 <= 0.0
+  }
+  if !inside {
+    return [0, 0, 0, 255]
+  }
+  let color = normalized_payload_color(
+    payload_uniform_r,
+    payload_uniform_g,
+    payload_uniform_b,
+    payload_uniform_a,
+    payload_texture_seed,
+  )
+  let r = clamp_u8((color[0] * 255.0).to_int())
+  let g = clamp_u8((color[1] * 255.0).to_int())
+  let b = clamp_u8((color[2] * 255.0).to_int())
+  let a = clamp_u8((color[3] * 255.0).to_int())
+  [r, g, b, a]
+}
 
 ///|
 fn[T : @gfx.GraphicsDriver] run_draw_payload_probe(graphics : T) -> Int raise {
@@ -327,8 +494,65 @@ fn run_with_real_native_hooks() -> Bool {
   if !atlas_page_synced {
     return false
   }
+  let sample0_x_ndc = payload_ax * 0.34 + payload_bx * 0.33 + payload_cx * 0.33
+  let sample0_y_ndc = payload_ay * 0.34 + payload_by * 0.33 + payload_cy * 0.33
+  let sample0_x = sample_pixel_x_from_ndc(sample0_x_ndc)
+  let sample0_y = sample_pixel_y_from_ndc(sample0_y_ndc)
+  let sample0 = sample_predicted_web_pixel_rgba(
+    payload_ax,
+    payload_ay,
+    payload_bx,
+    payload_by,
+    payload_cx,
+    payload_cy,
+    payload_uniform_r,
+    payload_uniform_g,
+    payload_uniform_b,
+    payload_uniform_a,
+    payload_texture_seed,
+    sample0_x,
+    sample0_y,
+  )
+  let sample1_x_ndc = payload_ax * 0.2 + payload_bx * 0.6 + payload_cx * 0.2
+  let sample1_y_ndc = payload_ay * 0.2 + payload_by * 0.6 + payload_cy * 0.2
+  let sample1_x = sample_pixel_x_from_ndc(sample1_x_ndc)
+  let sample1_y = sample_pixel_y_from_ndc(sample1_y_ndc)
+  let sample1 = sample_predicted_web_pixel_rgba(
+    payload_ax,
+    payload_ay,
+    payload_bx,
+    payload_by,
+    payload_cx,
+    payload_cy,
+    payload_uniform_r,
+    payload_uniform_g,
+    payload_uniform_b,
+    payload_uniform_a,
+    payload_texture_seed,
+    sample1_x,
+    sample1_y,
+  )
+  let sample2_x_ndc = payload_ax * 0.2 + payload_bx * 0.2 + payload_cx * 0.6
+  let sample2_y_ndc = payload_ay * 0.2 + payload_by * 0.2 + payload_cy * 0.6
+  let sample2_x = sample_pixel_x_from_ndc(sample2_x_ndc)
+  let sample2_y = sample_pixel_y_from_ndc(sample2_y_ndc)
+  let sample2 = sample_predicted_web_pixel_rgba(
+    payload_ax,
+    payload_ay,
+    payload_bx,
+    payload_by,
+    payload_cx,
+    payload_cy,
+    payload_uniform_r,
+    payload_uniform_g,
+    payload_uniform_b,
+    payload_uniform_a,
+    payload_texture_seed,
+    sample2_x,
+    sample2_y,
+  )
   println(
-    "runtime_smoke_native_probe: tex_seed=\{payload_texture_seed} source_gen=\{source_generation} atlas_gen=\{atlas_generation} atlas_rgb=\{atlas_pixel_r},\{atlas_pixel_g},\{atlas_pixel_b}",
+    "runtime_smoke_native_probe: tex_seed=\{payload_texture_seed} source_gen=\{source_generation} atlas_gen=\{atlas_generation} atlas_rgb=\{atlas_pixel_r},\{atlas_pixel_g},\{atlas_pixel_b} sample0=\{sample0_x},\{sample0_y},\{sample0[0]},\{sample0[1]},\{sample0[2]},\{sample0[3]} sample1=\{sample1_x},\{sample1_y},\{sample1[0]},\{sample1[1]},\{sample1[2]},\{sample1[3]} sample2=\{sample2_x},\{sample2_y},\{sample2[0]},\{sample2[1]},\{sample2[2]},\{sample2[3]}",
   )
   true
 }

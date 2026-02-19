@@ -176,6 +176,9 @@ pub impl GraphicsDriver for StubGraphicsDriver with end(self, present) {
 pub impl GraphicsDriver for StubGraphicsDriver with resize(self, width, height) {
   let next_width = if width <= 0 { 1 } else { width }
   let next_height = if height <= 0 { 1 } else { height }
+  if self.width == next_width && self.height == next_height {
+    return ()
+  }
   self.width = next_width
   self.height = next_height
   if self.initialized {

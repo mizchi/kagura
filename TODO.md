@@ -79,12 +79,13 @@
 4. backend 共通の resize/reconfigure を追加する  
    - `GraphicsDriver.resize` + runtime からの呼び出し導線は追加済み。  
    - window/canvas サイズ変化時の surface 再構成は native/web の基礎 hook を接続済み。  
-   - 実 backend ごとの最適化（不要 reconfigure 抑制・再作成コスト計測）は未実装。
+   - 同一サイズ `resize` の no-op 抑制を `GraphicsDriver` で追加し、wbtest で native/web hook の再呼び出しが起きないことを固定。  
+   - 実 backend ごとの再作成コスト計測（reconfigure 回数/時間の可視化）は未実装。
 5. 同一ロジックの cross-backend 検証テストを追加する  
    - `runtime/contracts_wbtest` に `run_loop termination and minimal render summary match between native and webgpu` を追加済み。`should_close` による終了条件、`run_loop_with_hooks` の tick 観測数、render pass の clear 有無・clear 色、`graphics.end(true)` の present が一致することを検証。
    - Playwright e2e に backend ピクセル比較（webgpu/webgl2, pixelmatch 許容差分）を追加済み。
    - Playwright e2e から `moon run ... --target native` を実行する native smoke を追加済み。`runtime_smoke_native_probe` 行で `tex_seed/source_gen/atlas_gen/atlas_rgb` の検証を追加。
-   - `runtime_smoke`(web) の `runtime_smoke_web_probe` と `runtime_smoke_native_probe` を照合する cross-backend parity e2e を追加（atlas generation/rgb 一致を検証）。
+   - `runtime_smoke`(web) の `runtime_smoke_web_probe` と `runtime_smoke_native_probe` を照合する cross-backend parity e2e を追加。`atlas generation/rgb` に加えて、triangle 内部サンプル（`sample0/1/2`）の予測 RGBA 一致と、サンプル座標差分（<= 12px）を検証。
    - 残タスク: 実 backend（native vs web）間の直接ピクセル同値比較を自動化する。
 
 ### P1: Ebiten の中核描画機能へ寄せる

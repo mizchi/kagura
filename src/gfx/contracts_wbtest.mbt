@@ -279,6 +279,7 @@ test "native graphics hooks can be overridden and reset" {
   driver.draw_triangles(command)
   driver.end(true)
   driver.resize(640, 360)
+  driver.resize(640, 360)
 
   assert_eq(test_native_gfx_init_calls.val, 1)
   assert_eq(test_native_gfx_begin_calls.val, 1)
@@ -372,6 +373,7 @@ test "web graphics hooks can be overridden and reset" {
   driver.begin(pass)
   driver.draw_triangles(command)
   driver.end(true)
+  driver.resize(800, 450)
   driver.resize(800, 450)
 
   assert_eq(test_web_gfx_init_calls.val, 1)

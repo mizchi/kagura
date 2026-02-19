@@ -12,7 +12,7 @@
 - `moon test --target js`: 130 passed / 0 failed
 - `moon run src/examples/runtime_smoke --target js`: pass (`runtime_smoke(js): ok (hooked)`)
 - `moon run src/examples/runtime_smoke_native --target native`: pass (`runtime_smoke_native: ok (real)`)
-- `pnpm e2e:smoke` (Playwright wasm/wasm-gc parity + native runtime smoke): 4 passed / 0 failed
+- `pnpm e2e:smoke` (Playwright wasm/wasm-gc parity + native runtime smoke + cross-backend probe parity): 5 passed / 0 failed
 
 判定基準:
 
@@ -84,6 +84,7 @@
    - `runtime/contracts_wbtest` に `run_loop termination and minimal render summary match between native and webgpu` を追加済み。`should_close` による終了条件、`run_loop_with_hooks` の tick 観測数、render pass の clear 有無・clear 色、`graphics.end(true)` の present が一致することを検証。
    - Playwright e2e に backend ピクセル比較（webgpu/webgl2, pixelmatch 許容差分）を追加済み。
    - Playwright e2e から `moon run ... --target native` を実行する native smoke を追加済み。`runtime_smoke_native_probe` 行で `tex_seed/source_gen/atlas_gen/atlas_rgb` の検証を追加。
+   - `runtime_smoke`(web) の `runtime_smoke_web_probe` と `runtime_smoke_native_probe` を照合する cross-backend parity e2e を追加（atlas generation/rgb 一致を検証）。
    - 残タスク: 実 backend（native vs web）間の直接ピクセル同値比較を自動化する。
 
 ### P1: Ebiten の中核描画機能へ寄せる

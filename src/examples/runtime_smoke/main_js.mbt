@@ -31,9 +31,20 @@ fn[T : @gfx.GraphicsDriver] run_draw_payload_probe(graphics : T) -> Unit raise {
     panic()
   }
   let command = plan.commands[0]
+  if command.src_image_ids.length() <= 0 {
+    panic()
+  }
+  let payload_texture_seed = command.src_image_ids[0]
+  let atlas_generation = @web_hooks.source_image_generation(atlas_page_id)
+  let atlas_pixel_r = @web_hooks.source_image_pixel_channel(atlas_page_id, 1, 0, 0)
+  let atlas_pixel_g = @web_hooks.source_image_pixel_channel(atlas_page_id, 1, 0, 1)
+  let atlas_pixel_b = @web_hooks.source_image_pixel_channel(atlas_page_id, 1, 0, 2)
   graphics.begin(pass)
   graphics.draw_triangles(command)
   graphics.end(true)
+  println(
+    "runtime_smoke_web_probe: tex_seed=\{payload_texture_seed} atlas_gen=\{atlas_generation} atlas_rgb=\{atlas_pixel_r},\{atlas_pixel_g},\{atlas_pixel_b}",
+  )
 }
 
 ///|

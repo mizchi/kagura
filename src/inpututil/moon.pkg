@@ -1,0 +1,3 @@
+import {
+  "mizchi/game_engine/core" @core,
+}

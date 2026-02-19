@@ -29,28 +29,164 @@ fn bridge_desktop_outside_size(width : Int, height : Int) -> @core.OutsideSize {
 }
 
 ///|
+fn bridge_desktop_capture_input(
+  _active : Bool,
+  _tick : Int,
+) -> @core.InputSnapshot {
+  @core.empty_input_snapshot()
+}
+
+///|
+fn bridge_desktop_set_fullscreen(active : Bool, enabled : Bool) -> Bool {
+  if active {
+    @wgpu_native.runtime_set_fullscreen(enabled)
+  } else {
+    enabled
+  }
+}
+
+///|
+fn bridge_desktop_is_fullscreen(active : Bool, current : Bool) -> Bool {
+  if active {
+    @wgpu_native.runtime_is_fullscreen()
+  } else {
+    current
+  }
+}
+
+///|
+fn bridge_desktop_set_cursor_mode(
+  active : Bool,
+  mode : @platform.CursorMode,
+) -> @platform.CursorMode {
+  if active {
+    @platform.cursor_mode_from_int(
+      @wgpu_native.runtime_set_cursor_mode(@platform.cursor_mode_to_int(mode)),
+    )
+  } else {
+    mode
+  }
+}
+
+///|
+fn bridge_desktop_cursor_mode(
+  active : Bool,
+  current : @platform.CursorMode,
+) -> @platform.CursorMode {
+  if active {
+    @platform.cursor_mode_from_int(@wgpu_native.runtime_cursor_mode())
+  } else {
+    current
+  }
+}
+
+///|
+fn bridge_desktop_set_device_scale_factor(
+  active : Bool,
+  scale : Double,
+) -> Double {
+  if active {
+    @wgpu_native.runtime_set_device_scale_factor(scale)
+  } else if scale <= 0.0 {
+    1.0
+  } else {
+    scale
+  }
+}
+
+///|
+fn bridge_desktop_device_scale_factor(
+  active : Bool,
+  current : Double,
+) -> Double {
+  if active {
+    @wgpu_native.runtime_device_scale_factor(current)
+  } else if current <= 0.0 {
+    1.0
+  } else {
+    current
+  }
+}
+
+///|
+fn bridge_desktop_set_vsync_enabled(active : Bool, enabled : Bool) -> Bool {
+  if active {
+    @wgpu_native.runtime_set_vsync_enabled(enabled)
+  } else {
+    enabled
+  }
+}
+
+///|
+fn bridge_desktop_is_vsync_enabled(active : Bool, current : Bool) -> Bool {
+  if active {
+    @wgpu_native.runtime_is_vsync_enabled()
+  } else {
+    current
+  }
+}
+
+///|
+fn bridge_desktop_close_window(active : Bool) -> Unit {
+  if active {
+    @wgpu_native.runtime_request_close()
+  }
+}
+
+///|
+fn bridge_desktop_request_attention(active : Bool) -> Unit {
+  if active {
+    @wgpu_native.runtime_request_attention()
+  }
+}
+
+///|
 fn bridge_gfx_try_initialize(width : Int, height : Int) -> Bool {
   @wgpu_native.ensure_runtime_context(width, height, runtime_title.val)
 }
 
 ///|
-fn bridge_gfx_on_begin(_active : Bool, _pass : @gfx.RenderPassDesc) -> Unit {
-  ()
+fn bridge_gfx_on_begin(active : Bool, pass : @gfx.RenderPassDesc) -> Unit {
+  if active {
+    @wgpu_native.runtime_begin_frame(
+      pass.clear_color.r,
+      pass.clear_color.g,
+      pass.clear_color.b,
+      pass.clear_color.a,
+    )
+  }
 }
 
 ///|
 fn bridge_gfx_on_end(active : Bool, present : Bool) -> Unit {
   if active && present {
-    let _ = @wgpu_native.runtime_render_frame()
+    let _ = @wgpu_native.runtime_present_planned_frame()
   }
 }
 
 ///|
 fn bridge_gfx_on_draw(
-  _active : Bool,
-  _command : @gfx.DrawTrianglesCommand,
+  active : Bool,
+  command : @gfx.DrawTrianglesCommand,
 ) -> Unit {
-  ()
+  if active {
+    let dispatch = @gfx.build_draw_command_dispatch(command)
+    @wgpu_native.runtime_record_draw_command(
+      dispatch.draw_calls,
+      dispatch.pipeline_id,
+      dispatch.uniform_hash,
+      dispatch.blend_mode,
+      dispatch.dst_image_id,
+      dispatch.shader_id,
+      dispatch.index_offset,
+      dispatch.region_count,
+      dispatch.total_index_count,
+      dispatch.vertex_float_count,
+      dispatch.index_count,
+      dispatch.src_image_count,
+      dispatch.uniform_dword_count,
+    )
+  }
 }
 
 ///|
@@ -59,7 +195,11 @@ pub fn install(title : String) -> Unit {
   @platform.set_desktop_native_hooks(
     @platform.new_desktop_native_hooks(
       bridge_desktop_try_initialize, bridge_desktop_poll, bridge_desktop_should_close,
-      bridge_desktop_outside_size,
+      bridge_desktop_outside_size, bridge_desktop_capture_input, bridge_desktop_set_fullscreen,
+      bridge_desktop_is_fullscreen, bridge_desktop_set_cursor_mode, bridge_desktop_cursor_mode,
+      bridge_desktop_set_device_scale_factor, bridge_desktop_device_scale_factor,
+      bridge_desktop_set_vsync_enabled, bridge_desktop_is_vsync_enabled, bridge_desktop_close_window,
+      bridge_desktop_request_attention,
     ),
   )
   @gfx.set_native_graphics_hooks(

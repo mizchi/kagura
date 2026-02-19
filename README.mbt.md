@@ -1,5 +1,7 @@
 # mizchi/game_engine
 
+仮
+
 MoonBit 向け 2D(将来 3D) ゲームエンジン。
 
 - API/実装の責務を分離

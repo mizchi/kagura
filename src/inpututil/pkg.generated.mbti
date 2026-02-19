@@ -1,0 +1,44 @@
+// Generated using `moon info`, DON'T EDIT IT
+package "mizchi/game_engine/inpututil"
+
+import {
+  "mizchi/game_engine/core",
+}
+
+// Values
+pub fn append_just_pressed_keys(KeyInputState, Array[Int]) -> Array[Int]
+
+pub fn append_just_released_keys(KeyInputState, Array[Int]) -> Array[Int]
+
+pub fn append_pressed_keys(KeyInputState, Array[Int]) -> Array[Int]
+
+pub fn is_key_just_pressed(KeyInputState, Int) -> Bool
+
+pub fn is_key_just_released(KeyInputState, Int) -> Bool
+
+pub fn is_key_pressed(KeyInputState, Int) -> Bool
+
+pub fn key_press_duration(KeyInputState, Int) -> Int
+
+pub fn new_key_input_state() -> KeyInputState
+
+pub fn update_key_input_state(KeyInputState, @core.InputSnapshot) -> Unit
+
+// Errors
+
+// Types and methods
+type KeyDurationEntry
+pub impl Show for KeyDurationEntry
+
+pub struct KeyInputState {
+  mut prev_pressed_keys : Array[Int]
+  mut pressed_keys : Array[Int]
+  mut just_pressed_keys : Array[Int]
+  mut just_released_keys : Array[Int]
+  mut durations : Array[KeyDurationEntry]
+}
+
+// Type aliases
+
+// Traits
+

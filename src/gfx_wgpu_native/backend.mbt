@@ -76,6 +76,46 @@ pub fn render_triangle_frame(ctx : TriangleContext) -> Unit {
 }
 
 ///|
+pub fn render_triangle_frame_with_plan(
+  ctx : TriangleContext,
+  clear_r : Double,
+  clear_g : Double,
+  clear_b : Double,
+  clear_a : Double,
+  draw_calls : Int,
+) -> Unit {
+  let safe_draw_calls = if draw_calls < 0 { 0 } else { draw_calls }
+  render_frame_with_plan(
+    ctx.surface,
+    ctx.device,
+    ctx.queue,
+    ctx.pipeline,
+    clear_r,
+    clear_g,
+    clear_b,
+    clear_a,
+    safe_draw_calls,
+  )
+}
+
+///|
+pub fn reconfigure_triangle_surface(
+  ctx : TriangleContext,
+  width : Int,
+  height : Int,
+) -> Unit {
+  let safe_width = if width <= 0 { 1 } else { width }
+  let safe_height = if height <= 0 { 1 } else { height }
+  configure_surface(
+    ctx.surface,
+    ctx.device,
+    ctx.adapter,
+    safe_width,
+    safe_height,
+  )
+}
+
+///|
 pub fn should_continue(ctx : TriangleContext) -> Bool {
   !window_should_close(ctx.window)
 }

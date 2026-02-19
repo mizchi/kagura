@@ -58,11 +58,42 @@ extern "C" fn glfwSetWindowShouldClose(
 extern "C" fn glfwSwapBuffers(window : GLFWwindow) -> Unit = "glfwSwapBuffers"
 
 ///|
+extern "C" fn glfwSwapInterval(interval : Int) -> Unit = "glfwSwapInterval"
+
+///|
 // ウィンドウサイズ取得（分割版）
 extern "C" fn glfwGetWindowWidth(window : GLFWwindow) -> Int = "moonbit_glfw_get_window_width"
 
 ///|
 extern "C" fn glfwGetWindowHeight(window : GLFWwindow) -> Int = "moonbit_glfw_get_window_height"
+
+///|
+extern "C" fn moonbit_glfw_set_fullscreen(
+  window : GLFWwindow,
+  enabled : Int,
+) -> Int = "moonbit_glfw_set_fullscreen"
+
+///|
+extern "C" fn moonbit_glfw_is_fullscreen(window : GLFWwindow) -> Int = "moonbit_glfw_is_fullscreen"
+
+///|
+extern "C" fn moonbit_glfw_set_cursor_mode(
+  window : GLFWwindow,
+  mode : Int,
+) -> Int = "moonbit_glfw_set_cursor_mode"
+
+///|
+extern "C" fn moonbit_glfw_get_cursor_mode(window : GLFWwindow) -> Int = "moonbit_glfw_get_cursor_mode"
+
+///|
+extern "C" fn moonbit_glfw_get_window_content_scale(
+  window : GLFWwindow,
+) -> Double = "moonbit_glfw_get_window_content_scale"
+
+///|
+extern "C" fn moonbit_glfw_request_window_attention_safe(
+  window : GLFWwindow,
+) -> Unit = "moonbit_glfw_request_window_attention_safe"
 
 ///|
 // ===============================
@@ -113,6 +144,11 @@ pub fn swap_buffers(window : GLFWwindow) -> Unit {
 }
 
 ///|
+pub fn set_swap_interval(enabled : Bool) -> Unit {
+  glfwSwapInterval(if enabled { 1 } else { 0 })
+}
+
+///|
 pub fn get_window_size(window : GLFWwindow) -> WindowSize {
   // moonbit_glfw_get_window_size_struct(window)  // 構造体返却版（クラッシュ）
   // 代わりに分割版を使用
@@ -127,4 +163,39 @@ pub fn get_window_width(window : GLFWwindow) -> Int {
 ///|
 pub fn get_window_height(window : GLFWwindow) -> Int {
   glfwGetWindowHeight(window)
+}
+
+///|
+pub fn set_fullscreen(window : GLFWwindow, enabled : Bool) -> Bool {
+  moonbit_glfw_set_fullscreen(window, if enabled { 1 } else { 0 }) != 0
+}
+
+///|
+pub fn is_fullscreen(window : GLFWwindow) -> Bool {
+  moonbit_glfw_is_fullscreen(window) != 0
+}
+
+///|
+pub fn set_cursor_mode(window : GLFWwindow, mode : Int) -> Int {
+  moonbit_glfw_set_cursor_mode(window, mode)
+}
+
+///|
+pub fn get_cursor_mode(window : GLFWwindow) -> Int {
+  moonbit_glfw_get_cursor_mode(window)
+}
+
+///|
+pub fn get_window_content_scale(window : GLFWwindow) -> Double {
+  let scale = moonbit_glfw_get_window_content_scale(window)
+  if scale <= 0.0 {
+    1.0
+  } else {
+    scale
+  }
+}
+
+///|
+pub fn request_window_attention(window : GLFWwindow) -> Unit {
+  moonbit_glfw_request_window_attention_safe(window)
 }

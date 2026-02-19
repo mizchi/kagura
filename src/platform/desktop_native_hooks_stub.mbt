@@ -4,6 +4,17 @@ pub struct DesktopNativeHooks {
   poll : (Bool) -> Unit
   should_close : () -> Bool
   outside_size : (Int, Int) -> @core.OutsideSize
+  capture_input : (Bool, Int) -> @core.InputSnapshot
+  set_fullscreen : (Bool, Bool) -> Bool
+  is_fullscreen : (Bool, Bool) -> Bool
+  set_cursor_mode : (Bool, CursorMode) -> CursorMode
+  cursor_mode : (Bool, CursorMode) -> CursorMode
+  set_device_scale_factor : (Bool, Double) -> Double
+  device_scale_factor : (Bool, Double) -> Double
+  set_vsync_enabled : (Bool, Bool) -> Bool
+  is_vsync_enabled : (Bool, Bool) -> Bool
+  close_window : (Bool) -> Unit
+  request_attention : (Bool) -> Unit
 }
 
 ///|
@@ -12,8 +23,35 @@ pub fn new_desktop_native_hooks(
   poll : (Bool) -> Unit,
   should_close : () -> Bool,
   outside_size : (Int, Int) -> @core.OutsideSize,
+  capture_input : (Bool, Int) -> @core.InputSnapshot,
+  set_fullscreen : (Bool, Bool) -> Bool,
+  is_fullscreen : (Bool, Bool) -> Bool,
+  set_cursor_mode : (Bool, CursorMode) -> CursorMode,
+  cursor_mode : (Bool, CursorMode) -> CursorMode,
+  set_device_scale_factor : (Bool, Double) -> Double,
+  device_scale_factor : (Bool, Double) -> Double,
+  set_vsync_enabled : (Bool, Bool) -> Bool,
+  is_vsync_enabled : (Bool, Bool) -> Bool,
+  close_window : (Bool) -> Unit,
+  request_attention : (Bool) -> Unit,
 ) -> DesktopNativeHooks {
-  { try_initialize, poll, should_close, outside_size }
+  {
+    try_initialize,
+    poll,
+    should_close,
+    outside_size,
+    capture_input,
+    set_fullscreen,
+    is_fullscreen,
+    set_cursor_mode,
+    cursor_mode,
+    set_device_scale_factor,
+    device_scale_factor,
+    set_vsync_enabled,
+    is_vsync_enabled,
+    close_window,
+    request_attention,
+  }
 }
 
 ///|
@@ -37,10 +75,92 @@ fn default_desktop_outside_size(width : Int, height : Int) -> @core.OutsideSize 
 }
 
 ///|
+fn default_desktop_capture_input(
+  _active : Bool,
+  _tick : Int,
+) -> @core.InputSnapshot {
+  @core.empty_input_snapshot()
+}
+
+///|
+fn default_desktop_set_fullscreen(_active : Bool, enabled : Bool) -> Bool {
+  enabled
+}
+
+///|
+fn default_desktop_is_fullscreen(_active : Bool, current : Bool) -> Bool {
+  current
+}
+
+///|
+fn default_desktop_set_cursor_mode(
+  _active : Bool,
+  mode : CursorMode,
+) -> CursorMode {
+  mode
+}
+
+///|
+fn default_desktop_cursor_mode(
+  _active : Bool,
+  current : CursorMode,
+) -> CursorMode {
+  current
+}
+
+///|
+fn default_desktop_set_device_scale_factor(
+  _active : Bool,
+  scale : Double,
+) -> Double {
+  if scale <= 0.0 {
+    1.0
+  } else {
+    scale
+  }
+}
+
+///|
+fn default_desktop_device_scale_factor(
+  _active : Bool,
+  current : Double,
+) -> Double {
+  if current <= 0.0 {
+    1.0
+  } else {
+    current
+  }
+}
+
+///|
+fn default_desktop_set_vsync_enabled(_active : Bool, enabled : Bool) -> Bool {
+  enabled
+}
+
+///|
+fn default_desktop_is_vsync_enabled(_active : Bool, current : Bool) -> Bool {
+  current
+}
+
+///|
+fn default_desktop_close_window(_active : Bool) -> Unit {
+  ()
+}
+
+///|
+fn default_desktop_request_attention(_active : Bool) -> Unit {
+  ()
+}
+
+///|
 fn default_desktop_native_hooks() -> DesktopNativeHooks {
   new_desktop_native_hooks(
     default_desktop_try_initialize, default_desktop_poll, default_desktop_should_close,
-    default_desktop_outside_size,
+    default_desktop_outside_size, default_desktop_capture_input, default_desktop_set_fullscreen,
+    default_desktop_is_fullscreen, default_desktop_set_cursor_mode, default_desktop_cursor_mode,
+    default_desktop_set_device_scale_factor, default_desktop_device_scale_factor,
+    default_desktop_set_vsync_enabled, default_desktop_is_vsync_enabled, default_desktop_close_window,
+    default_desktop_request_attention,
   )
 }
 
@@ -77,4 +197,74 @@ fn desktop_native_should_close() -> Bool {
 ///|
 fn desktop_native_outside_size(width : Int, height : Int) -> @core.OutsideSize {
   (desktop_native_hooks.val.outside_size)(width, height)
+}
+
+///|
+fn desktop_native_capture_input(
+  active : Bool,
+  tick : Int,
+) -> @core.InputSnapshot {
+  (desktop_native_hooks.val.capture_input)(active, tick)
+}
+
+///|
+fn desktop_native_set_fullscreen(active : Bool, enabled : Bool) -> Bool {
+  (desktop_native_hooks.val.set_fullscreen)(active, enabled)
+}
+
+///|
+fn desktop_native_is_fullscreen(active : Bool, current : Bool) -> Bool {
+  (desktop_native_hooks.val.is_fullscreen)(active, current)
+}
+
+///|
+fn desktop_native_set_cursor_mode(
+  active : Bool,
+  mode : CursorMode,
+) -> CursorMode {
+  (desktop_native_hooks.val.set_cursor_mode)(active, mode)
+}
+
+///|
+fn desktop_native_cursor_mode(
+  active : Bool,
+  current : CursorMode,
+) -> CursorMode {
+  (desktop_native_hooks.val.cursor_mode)(active, current)
+}
+
+///|
+fn desktop_native_set_device_scale_factor(
+  active : Bool,
+  scale : Double,
+) -> Double {
+  (desktop_native_hooks.val.set_device_scale_factor)(active, scale)
+}
+
+///|
+fn desktop_native_device_scale_factor(
+  active : Bool,
+  current : Double,
+) -> Double {
+  (desktop_native_hooks.val.device_scale_factor)(active, current)
+}
+
+///|
+fn desktop_native_set_vsync_enabled(active : Bool, enabled : Bool) -> Bool {
+  (desktop_native_hooks.val.set_vsync_enabled)(active, enabled)
+}
+
+///|
+fn desktop_native_is_vsync_enabled(active : Bool, current : Bool) -> Bool {
+  (desktop_native_hooks.val.is_vsync_enabled)(active, current)
+}
+
+///|
+fn desktop_native_close_window(active : Bool) -> Unit {
+  (desktop_native_hooks.val.close_window)(active)
+}
+
+///|
+fn desktop_native_request_attention(active : Bool) -> Unit {
+  (desktop_native_hooks.val.request_attention)(active)
 }

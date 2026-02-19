@@ -5,6 +5,17 @@ pub struct WebCanvasHooks {
   should_close : () -> Bool
   outside_size : (Int, Int) -> @core.OutsideSize
   current_surface : (String, WindowOptions) -> SurfaceToken
+  capture_input : (Bool, Int) -> @core.InputSnapshot
+  set_fullscreen : (String, Bool, Bool) -> Bool
+  is_fullscreen : (String, Bool, Bool) -> Bool
+  set_cursor_mode : (String, Bool, CursorMode) -> CursorMode
+  cursor_mode : (String, Bool, CursorMode) -> CursorMode
+  set_device_scale_factor : (String, Bool, Double) -> Double
+  device_scale_factor : (String, Bool, Double) -> Double
+  set_vsync_enabled : (String, Bool, Bool) -> Bool
+  is_vsync_enabled : (String, Bool, Bool) -> Bool
+  close_window : (String, Bool) -> Unit
+  request_attention : (String, Bool) -> Unit
 }
 
 ///|
@@ -14,8 +25,36 @@ pub fn new_web_canvas_hooks(
   should_close : () -> Bool,
   outside_size : (Int, Int) -> @core.OutsideSize,
   current_surface : (String, WindowOptions) -> SurfaceToken,
+  capture_input : (Bool, Int) -> @core.InputSnapshot,
+  set_fullscreen : (String, Bool, Bool) -> Bool,
+  is_fullscreen : (String, Bool, Bool) -> Bool,
+  set_cursor_mode : (String, Bool, CursorMode) -> CursorMode,
+  cursor_mode : (String, Bool, CursorMode) -> CursorMode,
+  set_device_scale_factor : (String, Bool, Double) -> Double,
+  device_scale_factor : (String, Bool, Double) -> Double,
+  set_vsync_enabled : (String, Bool, Bool) -> Bool,
+  is_vsync_enabled : (String, Bool, Bool) -> Bool,
+  close_window : (String, Bool) -> Unit,
+  request_attention : (String, Bool) -> Unit,
 ) -> WebCanvasHooks {
-  { try_initialize, poll, should_close, outside_size, current_surface }
+  {
+    try_initialize,
+    poll,
+    should_close,
+    outside_size,
+    current_surface,
+    capture_input,
+    set_fullscreen,
+    is_fullscreen,
+    set_cursor_mode,
+    cursor_mode,
+    set_device_scale_factor,
+    device_scale_factor,
+    set_vsync_enabled,
+    is_vsync_enabled,
+    close_window,
+    request_attention,
+  }
 }
 
 ///|
@@ -56,10 +95,114 @@ fn default_web_current_surface(
 }
 
 ///|
+fn default_web_capture_input(
+  _active : Bool,
+  _tick : Int,
+) -> @core.InputSnapshot {
+  @core.empty_input_snapshot()
+}
+
+///|
+fn default_web_set_fullscreen(
+  _canvas_selector : String,
+  _active : Bool,
+  enabled : Bool,
+) -> Bool {
+  enabled
+}
+
+///|
+fn default_web_is_fullscreen(
+  _canvas_selector : String,
+  _active : Bool,
+  current : Bool,
+) -> Bool {
+  current
+}
+
+///|
+fn default_web_set_cursor_mode(
+  _canvas_selector : String,
+  _active : Bool,
+  mode : CursorMode,
+) -> CursorMode {
+  mode
+}
+
+///|
+fn default_web_cursor_mode(
+  _canvas_selector : String,
+  _active : Bool,
+  current : CursorMode,
+) -> CursorMode {
+  current
+}
+
+///|
+fn default_web_set_device_scale_factor(
+  _canvas_selector : String,
+  _active : Bool,
+  scale : Double,
+) -> Double {
+  if scale <= 0.0 {
+    1.0
+  } else {
+    scale
+  }
+}
+
+///|
+fn default_web_device_scale_factor(
+  _canvas_selector : String,
+  _active : Bool,
+  current : Double,
+) -> Double {
+  if current <= 0.0 {
+    1.0
+  } else {
+    current
+  }
+}
+
+///|
+fn default_web_set_vsync_enabled(
+  _canvas_selector : String,
+  _active : Bool,
+  enabled : Bool,
+) -> Bool {
+  enabled
+}
+
+///|
+fn default_web_is_vsync_enabled(
+  _canvas_selector : String,
+  _active : Bool,
+  current : Bool,
+) -> Bool {
+  current
+}
+
+///|
+fn default_web_close_window(_canvas_selector : String, _active : Bool) -> Unit {
+  ()
+}
+
+///|
+fn default_web_request_attention(
+  _canvas_selector : String,
+  _active : Bool,
+) -> Unit {
+  ()
+}
+
+///|
 fn default_web_canvas_hooks() -> WebCanvasHooks {
   new_web_canvas_hooks(
     default_web_try_initialize, default_web_poll, default_web_should_close, default_web_outside_size,
-    default_web_current_surface,
+    default_web_current_surface, default_web_capture_input, default_web_set_fullscreen,
+    default_web_is_fullscreen, default_web_set_cursor_mode, default_web_cursor_mode,
+    default_web_set_device_scale_factor, default_web_device_scale_factor, default_web_set_vsync_enabled,
+    default_web_is_vsync_enabled, default_web_close_window, default_web_request_attention,
   )
 }
 
@@ -107,4 +250,91 @@ fn web_current_surface(
   options : WindowOptions,
 ) -> SurfaceToken {
   (web_canvas_hooks.val.current_surface)(canvas_selector, options)
+}
+
+///|
+fn web_capture_input(active : Bool, tick : Int) -> @core.InputSnapshot {
+  (web_canvas_hooks.val.capture_input)(active, tick)
+}
+
+///|
+fn web_set_fullscreen(
+  canvas_selector : String,
+  active : Bool,
+  enabled : Bool,
+) -> Bool {
+  (web_canvas_hooks.val.set_fullscreen)(canvas_selector, active, enabled)
+}
+
+///|
+fn web_is_fullscreen(
+  canvas_selector : String,
+  active : Bool,
+  current : Bool,
+) -> Bool {
+  (web_canvas_hooks.val.is_fullscreen)(canvas_selector, active, current)
+}
+
+///|
+fn web_set_cursor_mode(
+  canvas_selector : String,
+  active : Bool,
+  mode : CursorMode,
+) -> CursorMode {
+  (web_canvas_hooks.val.set_cursor_mode)(canvas_selector, active, mode)
+}
+
+///|
+fn web_cursor_mode(
+  canvas_selector : String,
+  active : Bool,
+  current : CursorMode,
+) -> CursorMode {
+  (web_canvas_hooks.val.cursor_mode)(canvas_selector, active, current)
+}
+
+///|
+fn web_set_device_scale_factor(
+  canvas_selector : String,
+  active : Bool,
+  scale : Double,
+) -> Double {
+  (web_canvas_hooks.val.set_device_scale_factor)(canvas_selector, active, scale)
+}
+
+///|
+fn web_device_scale_factor(
+  canvas_selector : String,
+  active : Bool,
+  current : Double,
+) -> Double {
+  (web_canvas_hooks.val.device_scale_factor)(canvas_selector, active, current)
+}
+
+///|
+fn web_set_vsync_enabled(
+  canvas_selector : String,
+  active : Bool,
+  enabled : Bool,
+) -> Bool {
+  (web_canvas_hooks.val.set_vsync_enabled)(canvas_selector, active, enabled)
+}
+
+///|
+fn web_is_vsync_enabled(
+  canvas_selector : String,
+  active : Bool,
+  current : Bool,
+) -> Bool {
+  (web_canvas_hooks.val.is_vsync_enabled)(canvas_selector, active, current)
+}
+
+///|
+fn web_close_window(canvas_selector : String, active : Bool) -> Unit {
+  (web_canvas_hooks.val.close_window)(canvas_selector, active)
+}
+
+///|
+fn web_request_attention(canvas_selector : String, active : Bool) -> Unit {
+  (web_canvas_hooks.val.request_attention)(canvas_selector, active)
 }

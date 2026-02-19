@@ -1,4 +1,31 @@
 ///|
+fn[T : @gfx.GraphicsDriver] run_draw_payload_probe(graphics : T) -> Unit raise {
+  graphics.initialize()
+  let pass = @gfx.new_render_pass_desc(@gfx.new_color(0.0, 0.0, 0.0, 1.0), true)
+  let dst = graphics.new_image(64, 64)
+  let shader = graphics.new_shader("runtime_smoke_native_payload_probe")
+  let command = @gfx.new_draw_triangles_command(
+    dst,
+    shader,
+    [@gfx.new_dst_region(0, 0, 64, 64, 6)],
+    0,
+    7,
+    11,
+    @gfx.blend_mode_from_int(1),
+    [
+      -0.5, -0.5, 0.0, 0.0, 0.5, -0.5, 1.0, 0.0, 0.5, 0.5, 1.0, 1.0, -0.5, 0.5, 0.0,
+      1.0,
+    ],
+    [0, 1, 2, 2, 3, 0],
+    [dst.id],
+    [1, 2, 3, 4],
+  )
+  graphics.begin(pass)
+  graphics.draw_triangles(command)
+  graphics.end(true)
+}
+
+///|
 fn run_runtime_contract_smoke() -> Unit raise {
   let game = @core.new_noop_game(320, 240)
   let platform = @platform.create_desktop_glfw_platform()
@@ -15,7 +42,10 @@ fn run_runtime_contract_smoke() -> Unit raise {
     graphics,
     @core.default_run_options(),
     @runtime.default_runtime_config(),
-  )
+  ) catch {
+    _ => ()
+  }
+  run_draw_payload_probe(graphics)
 }
 
 ///|
@@ -24,10 +54,13 @@ fn run_with_real_native_hooks() -> Bool {
   run_runtime_contract_smoke() catch {
     _ => ()
   }
+  let has_payload = @wgpu_native.runtime_last_index_count() > 0 &&
+    @wgpu_native.runtime_last_vertex_float_count() > 0 &&
+    @wgpu_native.runtime_last_uniform_dword_count() > 0
   let ready = @native_hooks.is_ready()
   @native_hooks.shutdown()
   @native_hooks.uninstall()
-  ready
+  ready && has_payload
 }
 
 ///|

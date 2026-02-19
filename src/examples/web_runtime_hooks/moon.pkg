@@ -8,7 +8,10 @@ warnings = "-29"
 
 options(
   targets: {
-    "hooks_js.mbt": [ "js", "wasm", "wasm-gc", "llvm" ],
+    "hooks_js.mbt": [ "js" ],
+    "hooks_llvm.mbt": [ "llvm" ],
     "hooks_stub.mbt": [ "native" ],
+    "hooks_wasm.mbt": [ "wasm", "wasm-gc" ],
+    "hooks_wbtest.mbt": [ "js", "wasm", "wasm-gc", "llvm" ],
   },
 )

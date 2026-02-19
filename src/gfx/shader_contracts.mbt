@@ -143,7 +143,12 @@ pub trait UniformCanonicalizer {
   ) -> PackedUniforms
 
   /// Ebiten ref: internal/shaderir/program.go (FilterUniformVariables)
-  filter_unused_uniforms(Self, ir : ShaderIR, uniforms : PackedUniforms) -> PackedUniforms
+  filter_unused_uniforms(
+    Self,
+    ir : ShaderIR,
+    layout : UniformLayout,
+    uniforms : PackedUniforms,
+  ) -> PackedUniforms
 }
 
 ///|
@@ -178,7 +183,8 @@ pub fn[T : UniformCanonicalizer] build_canonical_uniforms(
 ) -> PackedUniforms raise {
   let user = canonicalizer.append_user_uniforms(layout, user_uniforms)
   let preserved = canonicalizer.prepend_preserved_uniforms(user, context)
-  canonicalizer.filter_unused_uniforms(ir, preserved)
+  let filtered = canonicalizer.filter_unused_uniforms(ir, layout, preserved)
+  normalize_uniform_length(layout, filtered)
 }
 
 ///|
@@ -188,7 +194,18 @@ pub struct BasicShaderFrontend {}
 pub struct BasicUniformCanonicalizer {}
 
 ///|
-pub struct BasicBuiltinShaderSourceRepo {}
+struct BuiltinShaderSourceCacheEntry {
+  key : BuiltinShaderKey
+  source : String
+  last_used_tick : Int
+}
+
+///|
+pub struct BasicBuiltinShaderSourceRepo {
+  mut cache : Array[BuiltinShaderSourceCacheEntry]
+  mut tick : Int
+  max_cache_entries : Int
+}
 
 ///|
 pub fn new_basic_shader_frontend() -> BasicShaderFrontend {
@@ -202,7 +219,28 @@ pub fn new_basic_uniform_canonicalizer() -> BasicUniformCanonicalizer {
 
 ///|
 pub fn new_basic_builtin_shader_source_repo() -> BasicBuiltinShaderSourceRepo {
-  BasicBuiltinShaderSourceRepo::{  }
+  { cache: [], tick: 0, max_cache_entries: 8 }
+}
+
+///|
+pub fn builtin_shader_source_cache_size(
+  repo : BasicBuiltinShaderSourceRepo,
+) -> Int {
+  repo.cache.length()
+}
+
+///|
+pub fn builtin_shader_source_cache_limit(
+  repo : BasicBuiltinShaderSourceRepo,
+) -> Int {
+  repo.max_cache_entries
+}
+
+///|
+pub fn clear_builtin_shader_source_cache(
+  repo : BasicBuiltinShaderSourceRepo,
+) -> Unit {
+  repo.cache = []
 }
 
 ///|
@@ -231,32 +269,274 @@ fn find_named_uniform(
 }
 
 ///|
-fn simple_hash_value(
+fn normalized_src_image_count(src_image_count : Int) -> Int {
+  if src_image_count < 0 {
+    0
+  } else {
+    src_image_count
+  }
+}
+
+///|
+fn shader_unit_tag(unit : ShaderUnit) -> String {
+  match unit {
+    ShaderUnit::Pixels => "pixels"
+    ShaderUnit::Texels => "texels"
+  }
+}
+
+///|
+fn is_space_like(ch : Char) -> Bool {
+  ch == ' ' || ch == '\t'
+}
+
+///|
+fn char_array_starts_with(
+  chars : Array[Char],
+  offset : Int,
+  prefix : Array[Char],
+) -> Bool {
+  if offset < 0 || offset + prefix.length() > chars.length() {
+    false
+  } else {
+    for i in 0..<prefix.length() {
+      if chars[offset + i] != prefix[i] {
+        return false
+      }
+    }
+    true
+  }
+}
+
+///|
+fn parse_kage_unit_directive(source : String) -> ShaderUnit? {
+  let chars = source.to_array()
+  let directive = "//kage:unit".to_array()
+  let pixels = "pixels".to_array()
+  let texels = "texels".to_array()
+  let chars_len = chars.length()
+  let directive_len = directive.length()
+  if chars_len < directive_len {
+    None
+  } else {
+    for i in 0..<(chars_len - directive_len + 1) {
+      if !char_array_starts_with(chars, i, directive) {
+        continue
+      }
+      let mut cursor = i + directive_len
+      while cursor < chars_len && is_space_like(chars[cursor]) {
+        cursor = cursor + 1
+      }
+      if char_array_starts_with(chars, cursor, texels) {
+        let right = cursor + texels.length()
+        if right >= chars_len || !is_identifier_char(chars[right]) {
+          return Some(ShaderUnit::Texels)
+        }
+      }
+      if char_array_starts_with(chars, cursor, pixels) {
+        let right = cursor + pixels.length()
+        if right >= chars_len || !is_identifier_char(chars[right]) {
+          return Some(ShaderUnit::Pixels)
+        }
+      }
+    }
+    None
+  }
+}
+
+///|
+fn resolve_shader_unit(request : ShaderCompileRequest) -> ShaderUnit {
+  match parse_kage_unit_directive(request.source) {
+    Some(unit) => unit
+    None =>
+      match request.unit_hint {
+        Some(unit) => unit
+        None => ShaderUnit::Pixels
+      }
+  }
+}
+
+///|
+fn preprocess_shader_source(
   source : String,
+  unit : ShaderUnit,
+  entrypoints : ShaderEntrypoints,
+  debug_name : String,
+) -> String {
+  let normalized = source
+    .replace_all(old="\r\n", new="\n")
+    .replace_all(old="\r", new="\n")
+  "// game_engine:shader\n// debug:\{debug_name}\n// unit:\{shader_unit_tag(unit)}\n// vertex:\{entrypoints.vertex}\n// fragment:\{entrypoints.fragment}\n\{normalized}"
+}
+
+///|
+fn mix_hash(seed : Int, value : Int) -> Int {
+  seed * 16777619 + value + 31
+}
+
+///|
+fn calc_request_hash_value(
+  preprocessed_source : String,
   debug_name : String,
   src_image_count : Int,
+  entrypoints : ShaderEntrypoints,
+  unit : ShaderUnit,
 ) -> String {
-  let seed = source.length() * 131 + debug_name.length() * 17 + src_image_count
+  let mut seed = 146959810
+  seed = mix_hash(seed, preprocessed_source.hash())
+  seed = mix_hash(seed, debug_name.hash())
+  seed = mix_hash(seed, entrypoints.vertex.hash())
+  seed = mix_hash(seed, entrypoints.fragment.hash())
+  seed = mix_hash(seed, src_image_count)
+  seed = mix_hash(
+    seed,
+    match unit {
+      ShaderUnit::Pixels => 1
+      ShaderUnit::Texels => 2
+    },
+  )
   seed.to_string()
 }
 
 ///|
-pub impl ShaderFrontend for BasicShaderFrontend with compile_ir(_self, request) {
-  let unit = match request.unit_hint {
-    Some(unit) => unit
-    None => ShaderUnit::Pixels
+fn normalized_dword_count(value : Int) -> Int {
+  if value <= 0 {
+    0
+  } else {
+    value
   }
+}
+
+///|
+fn layout_entry_count(layout : UniformLayout) -> Int {
+  let names_len = layout.names.length()
+  let counts_len = layout.dword_counts.length()
+  if names_len <= counts_len {
+    names_len
+  } else {
+    counts_len
+  }
+}
+
+///|
+fn normalized_preserved_prefix_dwords(layout : UniformLayout) -> Int {
+  if layout.preserved_prefix_dwords <= 0 {
+    0
+  } else {
+    layout.preserved_prefix_dwords
+  }
+}
+
+///|
+fn expected_user_uniform_dwords(layout : UniformLayout) -> Int {
+  let mut total = 0
+  let entry_count = layout_entry_count(layout)
+  for i in 0..<entry_count {
+    total = total + normalized_dword_count(layout.dword_counts[i])
+  }
+  total
+}
+
+///|
+fn normalize_uniform_length(
+  layout : UniformLayout,
+  uniforms : PackedUniforms,
+) -> PackedUniforms {
+  let expected_preserved = normalized_preserved_prefix_dwords(layout)
+  let expected_user = expected_user_uniform_dwords(layout)
+  let dwords : Array[Int] = []
+  for i in 0..<expected_preserved {
+    if i < uniforms.dwords.length() {
+      dwords.push(uniforms.dwords[i])
+    } else {
+      dwords.push(0)
+    }
+  }
+  let user_start = if uniforms.dwords.length() > expected_user {
+    uniforms.dwords.length() - expected_user
+  } else {
+    0
+  }
+  for i in 0..<expected_user {
+    let index = user_start + i
+    if index < uniforms.dwords.length() {
+      dwords.push(uniforms.dwords[index])
+    } else {
+      dwords.push(0)
+    }
+  }
+  { dwords, }
+}
+
+///|
+fn is_identifier_char(ch : Char) -> Bool {
+  (ch >= 'a' && ch <= 'z') ||
+  (ch >= 'A' && ch <= 'Z') ||
+  (ch >= '0' && ch <= '9') ||
+  ch == '_'
+}
+
+///|
+fn contains_uniform_identifier(source : String, name : String) -> Bool {
+  let source_chars = source.to_array()
+  let name_chars = name.to_array()
+  let source_len = source_chars.length()
+  let name_len = name_chars.length()
+  if name_len == 0 || source_len < name_len {
+    false
+  } else {
+    for i in 0..<(source_len - name_len + 1) {
+      let mut matched = true
+      for j in 0..<name_len {
+        if source_chars[i + j] != name_chars[j] {
+          matched = false
+          break
+        }
+      }
+      if matched {
+        let left_ok = if i == 0 {
+          true
+        } else {
+          !is_identifier_char(source_chars[i - 1])
+        }
+        let right_index = i + name_len
+        let right_ok = if right_index >= source_len {
+          true
+        } else {
+          !is_identifier_char(source_chars[right_index])
+        }
+        if left_ok && right_ok {
+          return true
+        }
+      }
+    }
+    false
+  }
+}
+
+///|
+pub impl ShaderFrontend for BasicShaderFrontend with compile_ir(_self, request) {
+  let src_image_count = normalized_src_image_count(request.src_image_count)
+  let unit = resolve_shader_unit(request)
+  let source = preprocess_shader_source(
+    request.source,
+    unit,
+    request.entrypoints,
+    request.debug_name,
+  )
   let hash = {
-    value: simple_hash_value(
-      request.source,
+    value: calc_request_hash_value(
+      source,
       request.debug_name,
-      request.src_image_count,
+      src_image_count,
+      request.entrypoints,
+      unit,
     ),
   }
   {
-    source: request.source,
+    source,
     unit,
-    src_image_count: request.src_image_count,
+    src_image_count,
     entrypoints: request.entrypoints,
     debug_name: request.debug_name,
     source_hash: hash,
@@ -268,11 +548,21 @@ pub impl ShaderFrontend for BasicShaderFrontend with calc_source_hash(
   _self,
   request,
 ) {
+  let src_image_count = normalized_src_image_count(request.src_image_count)
+  let unit = resolve_shader_unit(request)
+  let source = preprocess_shader_source(
+    request.source,
+    unit,
+    request.entrypoints,
+    request.debug_name,
+  )
   {
-    value: simple_hash_value(
-      request.source,
+    value: calc_request_hash_value(
+      source,
       request.debug_name,
-      request.src_image_count,
+      src_image_count,
+      request.entrypoints,
+      unit,
     ),
   }
 }
@@ -284,9 +574,10 @@ pub impl UniformCanonicalizer for BasicUniformCanonicalizer with append_user_uni
   uniforms,
 ) {
   let dwords : Array[Int] = []
-  for i in 0..<layout.names.length() {
+  let entry_count = layout_entry_count(layout)
+  for i in 0..<entry_count {
     let name = layout.names[i]
-    let expected = layout.dword_counts[i]
+    let expected = normalized_dword_count(layout.dword_counts[i])
     match find_named_uniform(uniforms, name) {
       Some(value) => {
         let encoded = uniform_to_dwords(value)
@@ -346,22 +637,239 @@ pub impl UniformCanonicalizer for BasicUniformCanonicalizer with prepend_preserv
 ///|
 pub impl UniformCanonicalizer for BasicUniformCanonicalizer with filter_unused_uniforms(
   _self,
-  _ir,
+  ir,
+  layout,
   uniforms,
 ) {
-  uniforms
+  let expected_user = expected_user_uniform_dwords(layout)
+  let entry_count = layout_entry_count(layout)
+  let user_start = if uniforms.dwords.length() > expected_user {
+    uniforms.dwords.length() - expected_user
+  } else {
+    0
+  }
+  let out : Array[Int] = []
+  for value in uniforms.dwords {
+    out.push(value)
+  }
+  let mut cursor = 0
+  for i in 0..<entry_count {
+    let dword_count = normalized_dword_count(layout.dword_counts[i])
+    let name = layout.names[i]
+    if !contains_uniform_identifier(ir.source, name) {
+      for j in 0..<dword_count {
+        let index = user_start + cursor + j
+        if index < out.length() {
+          out[index] = 0
+        }
+      }
+    }
+    cursor = cursor + dword_count
+  }
+  { dwords: out }
+}
+
+///|
+fn builtin_filter_eq(
+  lhs : BuiltinShaderFilter,
+  rhs : BuiltinShaderFilter,
+) -> Bool {
+  match lhs {
+    BuiltinShaderFilter::Nearest =>
+      match rhs {
+        BuiltinShaderFilter::Nearest => true
+        _ => false
+      }
+    BuiltinShaderFilter::Linear =>
+      match rhs {
+        BuiltinShaderFilter::Linear => true
+        _ => false
+      }
+    BuiltinShaderFilter::Pixelated =>
+      match rhs {
+        BuiltinShaderFilter::Pixelated => true
+        _ => false
+      }
+  }
+}
+
+///|
+fn builtin_address_eq(
+  lhs : BuiltinShaderAddress,
+  rhs : BuiltinShaderAddress,
+) -> Bool {
+  match lhs {
+    BuiltinShaderAddress::Unsafe =>
+      match rhs {
+        BuiltinShaderAddress::Unsafe => true
+        _ => false
+      }
+    BuiltinShaderAddress::ClampToZero =>
+      match rhs {
+        BuiltinShaderAddress::ClampToZero => true
+        _ => false
+      }
+    BuiltinShaderAddress::Repeat =>
+      match rhs {
+        BuiltinShaderAddress::Repeat => true
+        _ => false
+      }
+  }
+}
+
+///|
+fn builtin_shader_key_eq(
+  lhs : BuiltinShaderKey,
+  rhs : BuiltinShaderKey,
+) -> Bool {
+  builtin_filter_eq(lhs.filter, rhs.filter) &&
+  builtin_address_eq(lhs.address, rhs.address) &&
+  lhs.use_color_m == rhs.use_color_m
+}
+
+///|
+fn find_builtin_shader_cache_index(
+  cache : Array[BuiltinShaderSourceCacheEntry],
+  key : BuiltinShaderKey,
+) -> Int? {
+  for i in 0..<cache.length() {
+    if builtin_shader_key_eq(cache[i].key, key) {
+      return Some(i)
+    }
+  }
+  None
+}
+
+///|
+fn trim_builtin_shader_cache(repo : BasicBuiltinShaderSourceRepo) -> Unit {
+  if repo.max_cache_entries <= 0 {
+    repo.cache = []
+  } else {
+    while repo.cache.length() > repo.max_cache_entries {
+      let mut oldest_index = 0
+      let mut oldest_tick = repo.cache[0].last_used_tick
+      for i in 1..<repo.cache.length() {
+        if repo.cache[i].last_used_tick < oldest_tick {
+          oldest_tick = repo.cache[i].last_used_tick
+          oldest_index = i
+        }
+      }
+      let next : Array[BuiltinShaderSourceCacheEntry] = []
+      for i in 0..<repo.cache.length() {
+        if i != oldest_index {
+          next.push(repo.cache[i])
+        }
+      }
+      repo.cache = next
+    }
+  }
+}
+
+///|
+fn builtin_filter_tag(filter : BuiltinShaderFilter) -> String {
+  match filter {
+    BuiltinShaderFilter::Nearest => "nearest"
+    BuiltinShaderFilter::Linear => "linear"
+    BuiltinShaderFilter::Pixelated => "pixelated"
+  }
+}
+
+///|
+fn builtin_address_tag(address : BuiltinShaderAddress) -> String {
+  match address {
+    BuiltinShaderAddress::Unsafe => "unsafe"
+    BuiltinShaderAddress::ClampToZero => "clamp_to_zero"
+    BuiltinShaderAddress::Repeat => "repeat"
+  }
+}
+
+///|
+fn builtin_address_snippet(address : BuiltinShaderAddress) -> String {
+  match address {
+    BuiltinShaderAddress::Unsafe => "// address: unsafe\n  let sample_uv = uv;"
+    BuiltinShaderAddress::ClampToZero =>
+      "if uv.x < 0.0 || uv.x > 1.0 || uv.y < 0.0 || uv.y > 1.0 {\n    return vec4f(0.0, 0.0, 0.0, 0.0);\n  }\n  let sample_uv = uv;"
+    BuiltinShaderAddress::Repeat =>
+      "// address: repeat\n  let sample_uv = fract(uv);"
+  }
+}
+
+///|
+fn builtin_sample_snippet(filter : BuiltinShaderFilter) -> String {
+  match filter {
+    BuiltinShaderFilter::Nearest =>
+      "textureSampleLevel(tex, nearest_sampler, sample_uv, 0.0)"
+    BuiltinShaderFilter::Linear =>
+      "textureSample(tex, linear_sampler, sample_uv)"
+    BuiltinShaderFilter::Pixelated =>
+      "textureSampleLevel(tex, nearest_sampler, floor(sample_uv * vec2f(256.0, 256.0)) / vec2f(256.0, 256.0), 0.0)"
+  }
+}
+
+///|
+fn builtin_color_m_snippet(use_color_m : Bool) -> String {
+  if use_color_m {
+    "let color_m = mat4x4f(\n" +
+    "    vec4f(1.0, 0.0, 0.0, 0.0),\n" +
+    "    vec4f(0.0, 1.0, 0.0, 0.0),\n" +
+    "    vec4f(0.0, 0.0, 1.0, 0.0),\n" +
+    "    vec4f(0.0, 0.0, 0.0, 1.0),\n" +
+    "  );\n" +
+    "  color = color_m * color;"
+  } else {
+    "// color matrix disabled"
+  }
+}
+
+///|
+fn build_builtin_shader_source(key : BuiltinShaderKey) -> String {
+  let address_snippet = builtin_address_snippet(key.address)
+  let sample_snippet = builtin_sample_snippet(key.filter)
+  let color_m_snippet = builtin_color_m_snippet(key.use_color_m)
+  let color_m_tag = if key.use_color_m { "on" } else { "off" }
+  let header = "// game_engine builtin shader\n" +
+    "// filter:\{builtin_filter_tag(key.filter)}\n" +
+    "// address:\{builtin_address_tag(key.address)}\n" +
+    "// color_m:\{color_m_tag}\n"
+  let bindings = "@group(0) @binding(0) var tex: texture_2d<f32>;\n" +
+    "@group(0) @binding(1) var nearest_sampler: sampler;\n" +
+    "@group(0) @binding(2) var linear_sampler: sampler;\n\n"
+  let structs = "struct VertexOutput {\n" +
+    "  @builtin(position) pos: vec4f,\n" +
+    "  @location(0) uv: vec2f,\n" +
+    "};\n\n"
+  let body = "@fragment\n" +
+    "fn fs_main(in: VertexOutput) -> @location(0) vec4f {\n" +
+    "  let uv = in.uv;\n" +
+    "  \{address_snippet}\n" +
+    "  var color = \{sample_snippet};\n" +
+    "  \{color_m_snippet}\n" +
+    "  return color;\n" +
+    "}\n"
+  header + bindings + structs + body
 }
 
 ///|
 pub impl BuiltinShaderSourceRepo for BasicBuiltinShaderSourceRepo with shader_source(
-  _self,
+  self,
   key,
 ) {
-  let _ = key.address
-  let _ = key.use_color_m
-  match key.filter {
-    Nearest => "builtin:nearest"
-    Linear => "builtin:linear"
-    Pixelated => "builtin:pixelated"
+  self.tick = self.tick + 1
+  match find_builtin_shader_cache_index(self.cache, key) {
+    Some(index) => {
+      let entry = self.cache[index]
+      self.cache[index] = {
+        key: entry.key,
+        source: entry.source,
+        last_used_tick: self.tick,
+      }
+      entry.source
+    }
+    None => {
+      let source = build_builtin_shader_source(key)
+      self.cache.push({ key, source, last_used_tick: self.tick })
+      trim_builtin_shader_cache(self)
+      source
+    }
   }
 }

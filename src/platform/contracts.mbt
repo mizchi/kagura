@@ -23,6 +23,31 @@ pub struct MonitorInfo {
 } derive(Show)
 
 ///|
+pub enum CursorMode {
+  Visible
+  Hidden
+  Captured
+} derive(Show)
+
+///|
+pub fn cursor_mode_to_int(mode : CursorMode) -> Int {
+  match mode {
+    CursorMode::Visible => 0
+    CursorMode::Hidden => 1
+    CursorMode::Captured => 2
+  }
+}
+
+///|
+pub fn cursor_mode_from_int(mode : Int) -> CursorMode {
+  match mode {
+    1 => CursorMode::Hidden
+    2 => CursorMode::Captured
+    _ => CursorMode::Visible
+  }
+}
+
+///|
 pub fn new_window_options(
   title : String,
   width : Int,
@@ -52,6 +77,26 @@ pub trait PlatformDriver {
 
   /// Ebiten ref: device scale factor paths in ui/context
   monitor_info(Self) -> MonitorInfo
+
+  /// Ebiten ref: SetFullscreen/IsFullscreen
+  set_fullscreen(Self, enabled : Bool) -> Unit
+  is_fullscreen(Self) -> Bool
+
+  /// Ebiten ref: SetCursorMode/CursorMode
+  set_cursor_mode(Self, mode : CursorMode) -> Unit
+  cursor_mode(Self) -> CursorMode
+
+  /// Ebiten ref: DeviceScaleFactor
+  set_device_scale_factor(Self, scale : Double) -> Unit
+  device_scale_factor(Self) -> Double
+
+  /// Ebiten ref: SetVsyncEnabled/IsVsyncEnabled
+  set_vsync_enabled(Self, enabled : Bool) -> Unit
+  is_vsync_enabled(Self) -> Bool
+
+  /// Ebiten ref: window close/requestAttention
+  close_window(Self) -> Unit
+  request_attention(Self) -> Unit
 }
 
 ///|
@@ -61,7 +106,13 @@ pub struct DesktopGlfwPlatform {
   close_after_polls : Int
   mut native_active : Bool
   mut options : WindowOptions
-  current_input : @core.InputSnapshot
+  mut current_input : @core.InputSnapshot
+  mut fullscreen : Bool
+  mut cursor_mode : CursorMode
+  mut device_scale_factor : Double
+  mut vsync_enabled : Bool
+  mut close_requested : Bool
+  mut attention_requests : Int
 }
 
 ///|
@@ -72,7 +123,13 @@ pub struct WebCanvasPlatform {
   close_after_polls : Int
   mut web_active : Bool
   mut options : WindowOptions
-  current_input : @core.InputSnapshot
+  mut current_input : @core.InputSnapshot
+  mut fullscreen : Bool
+  mut cursor_mode : CursorMode
+  mut device_scale_factor : Double
+  mut vsync_enabled : Bool
+  mut close_requested : Bool
+  mut attention_requests : Int
 }
 
 ///|
@@ -90,6 +147,12 @@ pub fn create_desktop_glfw_platform() -> DesktopGlfwPlatform {
       resizable: true,
     },
     current_input: @core.empty_input_snapshot(),
+    fullscreen: false,
+    cursor_mode: CursorMode::Visible,
+    device_scale_factor: 1.0,
+    vsync_enabled: true,
+    close_requested: false,
+    attention_requests: 0,
   }
 }
 
@@ -111,6 +174,12 @@ pub fn create_web_canvas_platform(
       resizable: true,
     },
     current_input: @core.empty_input_snapshot(),
+    fullscreen: false,
+    cursor_mode: CursorMode::Visible,
+    device_scale_factor: 1.0,
+    vsync_enabled: true,
+    close_requested: false,
+    attention_requests: 0,
   }
 }
 
@@ -120,6 +189,24 @@ pub impl PlatformDriver for DesktopGlfwPlatform with initialize(self, options) {
   self.native_active = desktop_try_native_initialize(options)
   self.initialized = true
   self.poll_count = 0
+  self.close_requested = false
+  self.attention_requests = 0
+  self.fullscreen = desktop_native_is_fullscreen(
+    self.native_active,
+    self.fullscreen,
+  )
+  self.cursor_mode = desktop_native_cursor_mode(
+    self.native_active,
+    self.cursor_mode,
+  )
+  self.device_scale_factor = desktop_native_device_scale_factor(
+    self.native_active,
+    self.device_scale_factor,
+  )
+  self.vsync_enabled = desktop_native_is_vsync_enabled(
+    self.native_active,
+    self.vsync_enabled,
+  )
 }
 
 ///|
@@ -132,7 +219,9 @@ pub impl PlatformDriver for DesktopGlfwPlatform with poll_events(self) {
 
 ///|
 pub impl PlatformDriver for DesktopGlfwPlatform with should_close(self) {
-  if self.native_active {
+  if self.close_requested {
+    true
+  } else if self.native_active {
     self.initialized &&
     (desktop_native_should_close() || self.poll_count >= self.close_after_polls)
   } else {
@@ -154,18 +243,115 @@ pub impl PlatformDriver for DesktopGlfwPlatform with outside_size(self) {
 
 ///|
 pub impl PlatformDriver for DesktopGlfwPlatform with capture_input(self, tick) {
-  let _ = tick
+  self.current_input = desktop_native_capture_input(self.native_active, tick)
   self.current_input
 }
 
 ///|
 pub impl PlatformDriver for DesktopGlfwPlatform with monitor_info(self) {
   let outside = self.outside_size()
+  self.device_scale_factor = desktop_native_device_scale_factor(
+    self.native_active,
+    self.device_scale_factor,
+  )
+  if self.device_scale_factor <= 0.0 {
+    self.device_scale_factor = 1.0
+  }
   {
     width: outside.width.to_int(),
     height: outside.height.to_int(),
-    device_scale_factor: 1.0,
+    device_scale_factor: self.device_scale_factor,
   }
+}
+
+///|
+pub impl PlatformDriver for DesktopGlfwPlatform with set_fullscreen(
+  self,
+  enabled,
+) {
+  self.fullscreen = desktop_native_set_fullscreen(self.native_active, enabled)
+}
+
+///|
+pub impl PlatformDriver for DesktopGlfwPlatform with is_fullscreen(self) {
+  self.fullscreen = desktop_native_is_fullscreen(
+    self.native_active,
+    self.fullscreen,
+  )
+  self.fullscreen
+}
+
+///|
+pub impl PlatformDriver for DesktopGlfwPlatform with set_cursor_mode(self, mode) {
+  self.cursor_mode = desktop_native_set_cursor_mode(self.native_active, mode)
+}
+
+///|
+pub impl PlatformDriver for DesktopGlfwPlatform with cursor_mode(self) {
+  self.cursor_mode = desktop_native_cursor_mode(
+    self.native_active,
+    self.cursor_mode,
+  )
+  self.cursor_mode
+}
+
+///|
+pub impl PlatformDriver for DesktopGlfwPlatform with set_device_scale_factor(
+  self,
+  scale,
+) {
+  let requested_scale = if scale <= 0.0 { 1.0 } else { scale }
+  self.device_scale_factor = desktop_native_set_device_scale_factor(
+    self.native_active,
+    requested_scale,
+  )
+  if self.device_scale_factor <= 0.0 {
+    self.device_scale_factor = 1.0
+  }
+}
+
+///|
+pub impl PlatformDriver for DesktopGlfwPlatform with device_scale_factor(self) {
+  self.device_scale_factor = desktop_native_device_scale_factor(
+    self.native_active,
+    self.device_scale_factor,
+  )
+  if self.device_scale_factor <= 0.0 {
+    self.device_scale_factor = 1.0
+  }
+  self.device_scale_factor
+}
+
+///|
+pub impl PlatformDriver for DesktopGlfwPlatform with set_vsync_enabled(
+  self,
+  enabled,
+) {
+  self.vsync_enabled = desktop_native_set_vsync_enabled(
+    self.native_active,
+    enabled,
+  )
+}
+
+///|
+pub impl PlatformDriver for DesktopGlfwPlatform with is_vsync_enabled(self) {
+  self.vsync_enabled = desktop_native_is_vsync_enabled(
+    self.native_active,
+    self.vsync_enabled,
+  )
+  self.vsync_enabled
+}
+
+///|
+pub impl PlatformDriver for DesktopGlfwPlatform with close_window(self) {
+  self.close_requested = true
+  desktop_native_close_window(self.native_active)
+}
+
+///|
+pub impl PlatformDriver for DesktopGlfwPlatform with request_attention(self) {
+  self.attention_requests = self.attention_requests + 1
+  desktop_native_request_attention(self.native_active)
 }
 
 ///|
@@ -174,6 +360,28 @@ pub impl PlatformDriver for WebCanvasPlatform with initialize(self, options) {
   self.web_active = web_try_initialize(self.canvas_selector, options)
   self.initialized = true
   self.poll_count = 0
+  self.close_requested = false
+  self.attention_requests = 0
+  self.fullscreen = web_is_fullscreen(
+    self.canvas_selector,
+    self.web_active,
+    self.fullscreen,
+  )
+  self.cursor_mode = web_cursor_mode(
+    self.canvas_selector,
+    self.web_active,
+    self.cursor_mode,
+  )
+  self.device_scale_factor = web_device_scale_factor(
+    self.canvas_selector,
+    self.web_active,
+    self.device_scale_factor,
+  )
+  self.vsync_enabled = web_is_vsync_enabled(
+    self.canvas_selector,
+    self.web_active,
+    self.vsync_enabled,
+  )
 }
 
 ///|
@@ -186,7 +394,9 @@ pub impl PlatformDriver for WebCanvasPlatform with poll_events(self) {
 
 ///|
 pub impl PlatformDriver for WebCanvasPlatform with should_close(self) {
-  if self.web_active {
+  if self.close_requested {
+    true
+  } else if self.web_active {
     self.initialized &&
     (web_should_close() || self.poll_count >= self.close_after_polls)
   } else {
@@ -208,15 +418,124 @@ pub impl PlatformDriver for WebCanvasPlatform with outside_size(self) {
 
 ///|
 pub impl PlatformDriver for WebCanvasPlatform with capture_input(self, tick) {
-  let _ = tick
+  self.current_input = web_capture_input(self.web_active, tick)
   self.current_input
 }
 
 ///|
 pub impl PlatformDriver for WebCanvasPlatform with monitor_info(self) {
+  self.device_scale_factor = web_device_scale_factor(
+    self.canvas_selector,
+    self.web_active,
+    self.device_scale_factor,
+  )
+  if self.device_scale_factor <= 0.0 {
+    self.device_scale_factor = 1.0
+  }
   {
     width: self.options.width,
     height: self.options.height,
-    device_scale_factor: 1.0,
+    device_scale_factor: self.device_scale_factor,
   }
+}
+
+///|
+pub impl PlatformDriver for WebCanvasPlatform with set_fullscreen(self, enabled) {
+  self.fullscreen = web_set_fullscreen(
+    self.canvas_selector,
+    self.web_active,
+    enabled,
+  )
+}
+
+///|
+pub impl PlatformDriver for WebCanvasPlatform with is_fullscreen(self) {
+  self.fullscreen = web_is_fullscreen(
+    self.canvas_selector,
+    self.web_active,
+    self.fullscreen,
+  )
+  self.fullscreen
+}
+
+///|
+pub impl PlatformDriver for WebCanvasPlatform with set_cursor_mode(self, mode) {
+  self.cursor_mode = web_set_cursor_mode(
+    self.canvas_selector,
+    self.web_active,
+    mode,
+  )
+}
+
+///|
+pub impl PlatformDriver for WebCanvasPlatform with cursor_mode(self) {
+  self.cursor_mode = web_cursor_mode(
+    self.canvas_selector,
+    self.web_active,
+    self.cursor_mode,
+  )
+  self.cursor_mode
+}
+
+///|
+pub impl PlatformDriver for WebCanvasPlatform with set_device_scale_factor(
+  self,
+  scale,
+) {
+  let requested_scale = if scale <= 0.0 { 1.0 } else { scale }
+  self.device_scale_factor = web_set_device_scale_factor(
+    self.canvas_selector,
+    self.web_active,
+    requested_scale,
+  )
+  if self.device_scale_factor <= 0.0 {
+    self.device_scale_factor = 1.0
+  }
+}
+
+///|
+pub impl PlatformDriver for WebCanvasPlatform with device_scale_factor(self) {
+  self.device_scale_factor = web_device_scale_factor(
+    self.canvas_selector,
+    self.web_active,
+    self.device_scale_factor,
+  )
+  if self.device_scale_factor <= 0.0 {
+    self.device_scale_factor = 1.0
+  }
+  self.device_scale_factor
+}
+
+///|
+pub impl PlatformDriver for WebCanvasPlatform with set_vsync_enabled(
+  self,
+  enabled,
+) {
+  self.vsync_enabled = web_set_vsync_enabled(
+    self.canvas_selector,
+    self.web_active,
+    enabled,
+  )
+}
+
+///|
+pub impl PlatformDriver for WebCanvasPlatform with is_vsync_enabled(self) {
+  self.vsync_enabled = web_is_vsync_enabled(
+    self.canvas_selector,
+    self.web_active,
+    self.vsync_enabled,
+  )
+  self.vsync_enabled
+}
+
+///|
+pub impl PlatformDriver for WebCanvasPlatform with close_window(self) {
+  self.close_requested = true
+  web_close_window(self.canvas_selector, self.web_active)
+}
+
+///|
+pub impl PlatformDriver for WebCanvasPlatform with request_attention(self) {
+  self.attention_requests = self.attention_requests + 1
+  web_request_attention(self.canvas_selector, self.web_active)
 }

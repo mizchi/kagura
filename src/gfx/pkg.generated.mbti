@@ -6,9 +6,21 @@ import {
 }
 
 // Values
+pub fn blend_mode_from_int(Int) -> BlendMode
+
+pub fn blend_mode_to_int(BlendMode) -> Int
+
 pub fn[T : UniformCanonicalizer] build_canonical_uniforms(T, UniformLayout, Array[NamedUniform], PreservedUniformContext, ShaderIR) -> PackedUniforms raise
 
+pub fn build_draw_command_dispatch(DrawTrianglesCommand) -> DrawCommandDispatch
+
+pub fn builtin_shader_source_cache_limit(BasicBuiltinShaderSourceRepo) -> Int
+
+pub fn builtin_shader_source_cache_size(BasicBuiltinShaderSourceRepo) -> Int
+
 pub fn[T : ShaderFrontend] calc_shader_source_hash(T, ShaderCompileRequest) -> ShaderSourceHash raise
+
+pub fn clear_builtin_shader_source_cache(BasicBuiltinShaderSourceRepo) -> Unit
 
 pub fn[T : GraphicsDriver] clear_screen(T, Color) -> Unit raise
 
@@ -24,6 +36,14 @@ pub fn create_wgpu_native_graphics(@platform.SurfaceToken, GraphicsBackendOption
 
 pub fn default_graphics_backend_options() -> GraphicsBackendOptions
 
+pub fn estimated_draw_call_count(DrawTrianglesCommand) -> Int
+
+pub fn estimated_total_index_count(DrawTrianglesCommand) -> Int
+
+pub fn filter_mode_from_int(Int) -> FilterMode
+
+pub fn filter_mode_to_int(FilterMode) -> Int
+
 pub fn[T : GraphicsDriver, Q : CommandQueue] flush_commands(T, Q, Bool) -> Unit raise
 
 pub fn new_basic_builtin_shader_source_repo() -> BasicBuiltinShaderSourceRepo
@@ -36,11 +56,19 @@ pub fn new_color(Double, Double, Double, Double) -> Color
 
 pub fn[T : CommandQueue] new_command_queue() -> T
 
+pub fn new_draw_triangles_command(ImageHandle, ShaderHandle, Array[DstRegion], Int, Int, Int, BlendMode, Array[Double], Array[Int], Array[Int], Array[Int]) -> DrawTrianglesCommand
+
+pub fn new_dst_region(Int, Int, Int, Int, Int) -> DstRegion
+
+pub fn new_image_handle(Int, Int, Int) -> ImageHandle
+
 pub fn new_native_graphics_hooks((Int, Int) -> Bool, (Bool, RenderPassDesc) -> Unit, (Bool, Bool) -> Unit, (Bool, DrawTrianglesCommand) -> Unit) -> NativeGraphicsHooks
 
 pub fn new_pipeline_handle(Int) -> PipelineHandle
 
 pub fn new_render_pass_desc(Color, Bool) -> RenderPassDesc
+
+pub fn new_shader_handle(Int, String) -> ShaderHandle
 
 pub fn new_simple_command_queue() -> SimpleCommandQueue
 
@@ -58,6 +86,9 @@ pub fn set_web_graphics_hooks(WebGraphicsHooks) -> Unit
 
 // Types and methods
 pub struct BasicBuiltinShaderSourceRepo {
+  mut cache : Array[BuiltinShaderSourceCacheEntry]
+  mut tick : Int
+  max_cache_entries : Int
 }
 pub impl BuiltinShaderSourceRepo for BasicBuiltinShaderSourceRepo
 
@@ -98,6 +129,8 @@ pub struct BuiltinShaderKey {
 }
 pub impl Show for BuiltinShaderKey
 
+type BuiltinShaderSourceCacheEntry
+
 pub struct Color {
   r : Double
   g : Double
@@ -106,12 +139,35 @@ pub struct Color {
 }
 pub impl Show for Color
 
+pub struct DrawCommandDispatch {
+  draw_calls : Int
+  pipeline_id : Int
+  uniform_hash : Int
+  blend_mode : Int
+  dst_image_id : Int
+  shader_id : Int
+  index_offset : Int
+  region_count : Int
+  total_index_count : Int
+  vertex_float_count : Int
+  index_count : Int
+  src_image_count : Int
+  uniform_dword_count : Int
+}
+pub impl Show for DrawCommandDispatch
+
 pub struct DrawTrianglesCommand {
   dst : ImageHandle
   shader : ShaderHandle
   dst_regions : Array[DstRegion]
   index_offset : Int
+  pipeline_id : Int
+  uniform_hash : Int
   blend : BlendMode
+  vertex_data : Array[Double]
+  indices : Array[Int]
+  src_image_ids : Array[Int]
+  uniform_dwords : Array[Int]
 }
 
 pub struct DstRegion {
@@ -325,6 +381,6 @@ pub trait ShaderFrontend {
 pub trait UniformCanonicalizer {
   append_user_uniforms(Self, UniformLayout, Array[NamedUniform]) -> PackedUniforms raise
   prepend_preserved_uniforms(Self, PackedUniforms, PreservedUniformContext) -> PackedUniforms
-  filter_unused_uniforms(Self, ShaderIR, PackedUniforms) -> PackedUniforms
+  filter_unused_uniforms(Self, ShaderIR, UniformLayout, PackedUniforms) -> PackedUniforms
 }
 

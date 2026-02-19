@@ -16,9 +16,13 @@ pub fn create_webgl_surface_token(Int, Int, Int, Double) -> SurfaceToken
 
 pub fn create_webgpu_surface_token(Int, Int, Int, Double) -> SurfaceToken
 
-pub fn new_desktop_native_hooks((WindowOptions) -> Bool, (Bool) -> Unit, () -> Bool, (Int, Int) -> @core.OutsideSize) -> DesktopNativeHooks
+pub fn cursor_mode_from_int(Int) -> CursorMode
 
-pub fn new_web_canvas_hooks((String, WindowOptions) -> Bool, (Bool) -> Unit, () -> Bool, (Int, Int) -> @core.OutsideSize, (String, WindowOptions) -> SurfaceToken) -> WebCanvasHooks
+pub fn cursor_mode_to_int(CursorMode) -> Int
+
+pub fn new_desktop_native_hooks((WindowOptions) -> Bool, (Bool) -> Unit, () -> Bool, (Int, Int) -> @core.OutsideSize, (Bool, Int) -> @core.InputSnapshot, (Bool, Bool) -> Bool, (Bool, Bool) -> Bool, (Bool, CursorMode) -> CursorMode, (Bool, CursorMode) -> CursorMode, (Bool, Double) -> Double, (Bool, Double) -> Double, (Bool, Bool) -> Bool, (Bool, Bool) -> Bool, (Bool) -> Unit, (Bool) -> Unit) -> DesktopNativeHooks
+
+pub fn new_web_canvas_hooks((String, WindowOptions) -> Bool, (Bool) -> Unit, () -> Bool, (Int, Int) -> @core.OutsideSize, (String, WindowOptions) -> SurfaceToken, (Bool, Int) -> @core.InputSnapshot, (String, Bool, Bool) -> Bool, (String, Bool, Bool) -> Bool, (String, Bool, CursorMode) -> CursorMode, (String, Bool, CursorMode) -> CursorMode, (String, Bool, Double) -> Double, (String, Bool, Double) -> Double, (String, Bool, Bool) -> Bool, (String, Bool, Bool) -> Bool, (String, Bool) -> Unit, (String, Bool) -> Unit) -> WebCanvasHooks
 
 pub fn new_window_options(String, Int, Int, Bool, Bool) -> WindowOptions
 
@@ -33,13 +37,26 @@ pub fn set_web_canvas_hooks(WebCanvasHooks) -> Unit
 // Errors
 
 // Types and methods
+pub enum CursorMode {
+  Visible
+  Hidden
+  Captured
+}
+pub impl Show for CursorMode
+
 pub struct DesktopGlfwPlatform {
   mut initialized : Bool
   mut poll_count : Int
   close_after_polls : Int
   mut native_active : Bool
   mut options : WindowOptions
-  current_input : @core.InputSnapshot
+  mut current_input : @core.InputSnapshot
+  mut fullscreen : Bool
+  mut cursor_mode : CursorMode
+  mut device_scale_factor : Double
+  mut vsync_enabled : Bool
+  mut close_requested : Bool
+  mut attention_requests : Int
 }
 pub impl PlatformDriver for DesktopGlfwPlatform
 pub impl SurfaceProvider for DesktopGlfwPlatform
@@ -49,6 +66,17 @@ pub struct DesktopNativeHooks {
   poll : (Bool) -> Unit
   should_close : () -> Bool
   outside_size : (Int, Int) -> @core.OutsideSize
+  capture_input : (Bool, Int) -> @core.InputSnapshot
+  set_fullscreen : (Bool, Bool) -> Bool
+  is_fullscreen : (Bool, Bool) -> Bool
+  set_cursor_mode : (Bool, CursorMode) -> CursorMode
+  cursor_mode : (Bool, CursorMode) -> CursorMode
+  set_device_scale_factor : (Bool, Double) -> Double
+  device_scale_factor : (Bool, Double) -> Double
+  set_vsync_enabled : (Bool, Bool) -> Bool
+  is_vsync_enabled : (Bool, Bool) -> Bool
+  close_window : (Bool) -> Unit
+  request_attention : (Bool) -> Unit
 }
 
 pub struct MonitorInfo {
@@ -81,6 +109,17 @@ pub struct WebCanvasHooks {
   should_close : () -> Bool
   outside_size : (Int, Int) -> @core.OutsideSize
   current_surface : (String, WindowOptions) -> SurfaceToken
+  capture_input : (Bool, Int) -> @core.InputSnapshot
+  set_fullscreen : (String, Bool, Bool) -> Bool
+  is_fullscreen : (String, Bool, Bool) -> Bool
+  set_cursor_mode : (String, Bool, CursorMode) -> CursorMode
+  cursor_mode : (String, Bool, CursorMode) -> CursorMode
+  set_device_scale_factor : (String, Bool, Double) -> Double
+  device_scale_factor : (String, Bool, Double) -> Double
+  set_vsync_enabled : (String, Bool, Bool) -> Bool
+  is_vsync_enabled : (String, Bool, Bool) -> Bool
+  close_window : (String, Bool) -> Unit
+  request_attention : (String, Bool) -> Unit
 }
 
 pub struct WebCanvasPlatform {
@@ -90,7 +129,13 @@ pub struct WebCanvasPlatform {
   close_after_polls : Int
   mut web_active : Bool
   mut options : WindowOptions
-  current_input : @core.InputSnapshot
+  mut current_input : @core.InputSnapshot
+  mut fullscreen : Bool
+  mut cursor_mode : CursorMode
+  mut device_scale_factor : Double
+  mut vsync_enabled : Bool
+  mut close_requested : Bool
+  mut attention_requests : Int
 }
 pub impl PlatformDriver for WebCanvasPlatform
 pub impl SurfaceProvider for WebCanvasPlatform
@@ -114,6 +159,16 @@ pub trait PlatformDriver {
   outside_size(Self) -> @core.OutsideSize
   capture_input(Self, Int) -> @core.InputSnapshot
   monitor_info(Self) -> MonitorInfo
+  set_fullscreen(Self, Bool) -> Unit
+  is_fullscreen(Self) -> Bool
+  set_cursor_mode(Self, CursorMode) -> Unit
+  cursor_mode(Self) -> CursorMode
+  set_device_scale_factor(Self, Double) -> Unit
+  device_scale_factor(Self) -> Double
+  set_vsync_enabled(Self, Bool) -> Unit
+  is_vsync_enabled(Self) -> Bool
+  close_window(Self) -> Unit
+  request_attention(Self) -> Unit
 }
 
 pub trait SurfaceProvider {

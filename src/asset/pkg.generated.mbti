@@ -8,6 +8,14 @@ import {
 // Values
 pub fn default_image_spec(Int, Int) -> ImageSpec
 
+pub fn new_simple_atlas_allocator(Int, Int, Int) -> SimpleAtlasAllocator
+
+pub fn new_simple_image_repository() -> SimpleImageRepository
+
+pub fn new_simple_material_repository() -> SimpleMaterialRepository
+
+pub fn new_simple_shader_repository() -> SimpleShaderRepository
+
 // Errors
 
 // Types and methods
@@ -45,6 +53,43 @@ pub struct ShaderSpec {
   source : String
 }
 pub impl Show for ShaderSpec
+
+pub struct SimpleAtlasAllocator {
+  atlas_width : Int
+  atlas_height : Int
+  atlas_id : Int
+  mut cursor_x : Int
+  mut cursor_y : Int
+  mut row_height : Int
+  mut allocated : Array[AtlasRegion]
+}
+pub impl AtlasAllocator for SimpleAtlasAllocator
+
+type SimpleImageEntry
+pub impl Show for SimpleImageEntry
+
+pub struct SimpleImageRepository {
+  mut next_image_id : Int
+  mut images : Array[SimpleImageEntry]
+}
+pub impl ImageRepository for SimpleImageRepository
+
+type SimpleMaterialEntry
+pub impl Show for SimpleMaterialEntry
+
+pub struct SimpleMaterialRepository {
+  mut materials : Array[SimpleMaterialEntry]
+}
+pub impl MaterialRepository for SimpleMaterialRepository
+
+type SimpleShaderEntry
+pub impl Show for SimpleShaderEntry
+
+pub struct SimpleShaderRepository {
+  mut next_shader_id : Int
+  mut shaders : Array[SimpleShaderEntry]
+}
+pub impl ShaderRepository for SimpleShaderRepository
 
 // Type aliases
 

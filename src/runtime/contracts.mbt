@@ -41,7 +41,6 @@ pub fn[G : @core.Game, P : @platform.PlatformDriver, R : @gfx.GraphicsDriver] ru
 ) -> Unit raise {
   let _ = run_options.init_unfocused
   let _ = run_options.screen_cleared_every_frame
-  let _ = runtime_config.enable_vsync
   let fixed_cfg = @core.default_fixed_step_config()
   let mut fixed_state = @core.initial_fixed_step_state()
   let mut should_stop = false
@@ -54,6 +53,7 @@ pub fn[G : @core.Game, P : @platform.PlatformDriver, R : @gfx.GraphicsDriver] ru
     true,
   )
   platform.initialize(window_options)
+  platform.set_vsync_enabled(runtime_config.enable_vsync)
   graphics.initialize()
 
   while !platform.should_close() && !should_stop {

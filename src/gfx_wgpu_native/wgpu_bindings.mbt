@@ -277,3 +277,33 @@ pub fn render_frame(
 ) -> Unit {
   moonbit_render_frame(surface, device, queue, pipeline)
 }
+
+///|
+extern "C" fn moonbit_render_frame_with_plan(
+  surface : WGPUSurface,
+  device : WGPUDevice,
+  queue : WGPUQueue,
+  pipeline : WGPURenderPipeline,
+  clear_r : Double,
+  clear_g : Double,
+  clear_b : Double,
+  clear_a : Double,
+  draw_calls : Int,
+) -> Unit = "moonbit_render_frame_with_plan"
+
+///|
+pub fn render_frame_with_plan(
+  surface : WGPUSurface,
+  device : WGPUDevice,
+  queue : WGPUQueue,
+  pipeline : WGPURenderPipeline,
+  clear_r : Double,
+  clear_g : Double,
+  clear_b : Double,
+  clear_a : Double,
+  draw_calls : Int,
+) -> Unit {
+  moonbit_render_frame_with_plan(
+    surface, device, queue, pipeline, clear_r, clear_g, clear_b, clear_a, draw_calls,
+  )
+}

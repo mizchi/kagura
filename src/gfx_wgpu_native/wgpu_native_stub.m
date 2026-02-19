@@ -81,6 +81,130 @@ int32_t moonbit_glfw_get_window_height(GLFWwindow* window) {
   return height;
 }
 
+static int g_windowed_x = 100;
+static int g_windowed_y = 100;
+static int g_windowed_width = 800;
+static int g_windowed_height = 600;
+
+int32_t moonbit_glfw_is_fullscreen(GLFWwindow* window) {
+  if (window == NULL) {
+    return 0;
+  }
+  return glfwGetWindowMonitor(window) != NULL ? 1 : 0;
+}
+
+int32_t moonbit_glfw_set_fullscreen(GLFWwindow* window, int32_t enabled) {
+  if (window == NULL) {
+    return 0;
+  }
+
+  const int is_fullscreen = moonbit_glfw_is_fullscreen(window);
+  if (enabled != 0) {
+    if (is_fullscreen) {
+      return 1;
+    }
+    GLFWmonitor* monitor = glfwGetPrimaryMonitor();
+    if (monitor == NULL) {
+      return 0;
+    }
+    const GLFWvidmode* mode = glfwGetVideoMode(monitor);
+    if (mode == NULL) {
+      return 0;
+    }
+    glfwGetWindowPos(window, &g_windowed_x, &g_windowed_y);
+    glfwGetWindowSize(window, &g_windowed_width, &g_windowed_height);
+    glfwSetWindowMonitor(
+      window,
+      monitor,
+      0,
+      0,
+      mode->width,
+      mode->height,
+      mode->refreshRate
+    );
+    return moonbit_glfw_is_fullscreen(window);
+  }
+
+  if (!is_fullscreen) {
+    return 0;
+  }
+  const int restore_width = g_windowed_width <= 0 ? 800 : g_windowed_width;
+  const int restore_height = g_windowed_height <= 0 ? 600 : g_windowed_height;
+  glfwSetWindowMonitor(
+    window,
+    NULL,
+    g_windowed_x,
+    g_windowed_y,
+    restore_width,
+    restore_height,
+    0
+  );
+  return moonbit_glfw_is_fullscreen(window);
+}
+
+static int32_t moonbit_cursor_mode_from_glfw(int glfw_mode) {
+  switch (glfw_mode) {
+    case GLFW_CURSOR_HIDDEN:
+      return 1;
+    case GLFW_CURSOR_DISABLED:
+      return 2;
+    case GLFW_CURSOR_NORMAL:
+    default:
+      return 0;
+  }
+}
+
+static int moonbit_cursor_mode_to_glfw(int32_t cursor_mode) {
+  switch (cursor_mode) {
+    case 1:
+      return GLFW_CURSOR_HIDDEN;
+    case 2:
+      return GLFW_CURSOR_DISABLED;
+    case 0:
+    default:
+      return GLFW_CURSOR_NORMAL;
+  }
+}
+
+int32_t moonbit_glfw_set_cursor_mode(GLFWwindow* window, int32_t cursor_mode) {
+  if (window == NULL) {
+    return 0;
+  }
+  glfwSetInputMode(window, GLFW_CURSOR, moonbit_cursor_mode_to_glfw(cursor_mode));
+  const int current = glfwGetInputMode(window, GLFW_CURSOR);
+  return moonbit_cursor_mode_from_glfw(current);
+}
+
+int32_t moonbit_glfw_get_cursor_mode(GLFWwindow* window) {
+  if (window == NULL) {
+    return 0;
+  }
+  const int current = glfwGetInputMode(window, GLFW_CURSOR);
+  return moonbit_cursor_mode_from_glfw(current);
+}
+
+double moonbit_glfw_get_window_content_scale(GLFWwindow* window) {
+  if (window == NULL) {
+    return 1.0;
+  }
+  float xscale = 1.0f;
+  float yscale = 1.0f;
+  glfwGetWindowContentScale(window, &xscale, &yscale);
+  if (xscale <= 0.0f) {
+    return 1.0;
+  }
+  return (double)xscale;
+}
+
+void moonbit_glfw_request_window_attention_safe(GLFWwindow* window) {
+  if (window == NULL) {
+    return;
+  }
+#if defined(GLFW_VERSION_MAJOR) && (GLFW_VERSION_MAJOR > 3 || (GLFW_VERSION_MAJOR == 3 && GLFW_VERSION_MINOR >= 3))
+  glfwRequestWindowAttention(window);
+#endif
+}
+
 // MoonBit String から安全にウィンドウを作成
 // MoonBit の String は UTF-16 エンコード (uint16_t*)
 GLFWwindow* moonbit_glfw_create_window_safe(int32_t width, int32_t height, uint16_t* title_utf16) {
@@ -561,13 +685,21 @@ void* moonbit_create_render_pipeline(
 // Rendering
 // ===============================
 
-// 1フレーム描画（MoonBit から呼び出し）
-void moonbit_render_frame(
+static void moonbit_render_frame_impl(
     WGPUSurface surface,
     WGPUDevice device,
     WGPUQueue queue,
-    WGPURenderPipeline pipeline
+    WGPURenderPipeline pipeline,
+    double clear_r,
+    double clear_g,
+    double clear_b,
+    double clear_a,
+    int32_t draw_calls
 ) {
+  if (draw_calls < 0) {
+    draw_calls = 0;
+  }
+
   // Surface から現在のテクスチャを取得
   WGPUSurfaceTexture surfaceTexture;
   wgpuSurfaceGetCurrentTexture(surface, &surfaceTexture);
@@ -607,7 +739,7 @@ void moonbit_render_frame(
     .resolveTarget = NULL,
     .loadOp = WGPULoadOp_Clear,
     .storeOp = WGPUStoreOp_Store,
-    .clearValue = {0.1, 0.2, 0.3, 1.0}  // Dark blue background
+    .clearValue = {(float)clear_r, (float)clear_g, (float)clear_b, (float)clear_a}
   };
 
   WGPURenderPassDescriptor renderPassDesc = {
@@ -622,9 +754,13 @@ void moonbit_render_frame(
 
   WGPURenderPassEncoder pass = wgpuCommandEncoderBeginRenderPass(encoder, &renderPassDesc);
 
-  // Pipeline を設定して三角形を描画
-  wgpuRenderPassEncoderSetPipeline(pass, pipeline);
-  wgpuRenderPassEncoderDraw(pass, 3, 1, 0, 0);  // 3 vertices
+  if (draw_calls > 0) {
+    // Pipeline を設定して三角形を描画
+    wgpuRenderPassEncoderSetPipeline(pass, pipeline);
+    for (int32_t i = 0; i < draw_calls; i++) {
+      wgpuRenderPassEncoderDraw(pass, 3, 1, 0, 0);  // 3 vertices
+    }
+  }
 
   // RenderPass を終了
   wgpuRenderPassEncoderEnd(pass);
@@ -648,4 +784,39 @@ void moonbit_render_frame(
 
   // Texture を解放
   wgpuTextureRelease(surfaceTexture.texture);
+}
+
+// 1フレーム描画（後方互換 API）
+void moonbit_render_frame(
+    WGPUSurface surface,
+    WGPUDevice device,
+    WGPUQueue queue,
+    WGPURenderPipeline pipeline
+) {
+  moonbit_render_frame_impl(surface, device, queue, pipeline, 0.1, 0.2, 0.3, 1.0, 1);
+}
+
+// 1フレーム描画（clear 色・draw 回数を指定）
+void moonbit_render_frame_with_plan(
+    WGPUSurface surface,
+    WGPUDevice device,
+    WGPUQueue queue,
+    WGPURenderPipeline pipeline,
+    double clear_r,
+    double clear_g,
+    double clear_b,
+    double clear_a,
+    int32_t draw_calls
+) {
+  moonbit_render_frame_impl(
+    surface,
+    device,
+    queue,
+    pipeline,
+    clear_r,
+    clear_g,
+    clear_b,
+    clear_a,
+    draw_calls
+  );
 }

@@ -112,6 +112,31 @@ fn test_web_gfx_on_draw(
 }
 
 ///|
+fn queue_test_command(
+  dst_id : Int,
+  shader_id : Int,
+  blend : BlendMode,
+  index_offset : Int,
+  pipeline_id : Int,
+  uniform_hash : Int,
+  region_x : Int,
+) -> DrawTrianglesCommand {
+  {
+    dst: { id: dst_id, width: 64, height: 64 },
+    shader: { id: shader_id, source: "shader-\{shader_id}" },
+    dst_regions: [{ x: region_x, y: 0, width: 32, height: 32, index_count: 3 }],
+    index_offset,
+    pipeline_id,
+    uniform_hash,
+    blend,
+    vertex_data: [],
+    indices: [],
+    src_image_ids: [],
+    uniform_dwords: [],
+  }
+}
+
+///|
 test "native graphics hooks can be overridden and reset" {
   reset_native_graphics_hooks()
   test_native_gfx_init_calls.val = 0
@@ -138,7 +163,13 @@ test "native graphics hooks can be overridden and reset" {
     shader,
     dst_regions: [{ x: 0, y: 0, width: 64, height: 64, index_count: 3 }],
     index_offset: 0,
+    pipeline_id: 1,
+    uniform_hash: 1,
     blend: BlendMode::Alpha,
+    vertex_data: [],
+    indices: [],
+    src_image_ids: [],
+    uniform_dwords: [],
   }
   let pass = new_render_pass_desc(new_color(0.0, 0.0, 0.0, 1.0), true)
 
@@ -168,7 +199,13 @@ test "native graphics hooks can be overridden and reset" {
     shader: shader2,
     dst_regions: [{ x: 0, y: 0, width: 64, height: 64, index_count: 3 }],
     index_offset: 0,
+    pipeline_id: 1,
+    uniform_hash: 1,
     blend: BlendMode::Alpha,
+    vertex_data: [],
+    indices: [],
+    src_image_ids: [],
+    uniform_dwords: [],
   })
   driver2.end(true)
 
@@ -205,7 +242,13 @@ test "web graphics hooks can be overridden and reset" {
     shader,
     dst_regions: [{ x: 0, y: 0, width: 64, height: 64, index_count: 3 }],
     index_offset: 0,
+    pipeline_id: 1,
+    uniform_hash: 1,
     blend: BlendMode::Alpha,
+    vertex_data: [],
+    indices: [],
+    src_image_ids: [],
+    uniform_dwords: [],
   }
   let pass = new_render_pass_desc(new_color(0.0, 0.0, 0.0, 1.0), true)
 
@@ -235,7 +278,13 @@ test "web graphics hooks can be overridden and reset" {
     shader: shader2,
     dst_regions: [{ x: 0, y: 0, width: 64, height: 64, index_count: 3 }],
     index_offset: 0,
+    pipeline_id: 1,
+    uniform_hash: 1,
     blend: BlendMode::Alpha,
+    vertex_data: [],
+    indices: [],
+    src_image_ids: [],
+    uniform_dwords: [],
   })
   driver2.end(true)
 
@@ -258,7 +307,13 @@ test "command queue flush calls driver draw" {
     shader,
     dst_regions: [{ x: 0, y: 0, width: 64, height: 64, index_count: 3 }],
     index_offset: 0,
+    pipeline_id: 1,
+    uniform_hash: 1,
     blend: BlendMode::Alpha,
+    vertex_data: [],
+    indices: [],
+    src_image_ids: [],
+    uniform_dwords: [],
   })
 
   flush_commands(driver, queue, true)
@@ -266,6 +321,214 @@ test "command queue flush calls driver draw" {
   assert_eq(driver.draw_count, 1)
   assert_eq(driver.begin_count, 1)
   assert_eq(driver.end_count, 1)
+}
+
+///|
+test "command queue merges consecutive compatible draw commands" {
+  let queue = new_simple_command_queue()
+  queue.enqueue_draw_triangles(
+    queue_test_command(1, 1, BlendMode::Alpha, 0, 1, 7, 0),
+  )
+  queue.enqueue_draw_triangles(
+    queue_test_command(1, 1, BlendMode::Alpha, 0, 1, 7, 32),
+  )
+
+  let commands = queue.flush()
+  assert_eq(commands.length(), 1)
+  assert_eq(commands[0].dst_regions.length(), 2)
+}
+
+///|
+test "command queue does not merge when blend mode differs" {
+  let queue = new_simple_command_queue()
+  queue.enqueue_draw_triangles(
+    queue_test_command(1, 1, BlendMode::Alpha, 0, 1, 7, 0),
+  )
+  queue.enqueue_draw_triangles(
+    queue_test_command(1, 1, BlendMode::Add, 0, 1, 7, 32),
+  )
+
+  let commands = queue.flush()
+  assert_eq(commands.length(), 2)
+}
+
+///|
+test "command queue does not merge when index_offset differs" {
+  let queue = new_simple_command_queue()
+  queue.enqueue_draw_triangles(
+    queue_test_command(1, 1, BlendMode::Alpha, 0, 1, 7, 0),
+  )
+  queue.enqueue_draw_triangles(
+    queue_test_command(1, 1, BlendMode::Alpha, 3, 1, 7, 32),
+  )
+
+  let commands = queue.flush()
+  assert_eq(commands.length(), 2)
+}
+
+///|
+test "command queue does not merge when pipeline differs" {
+  let queue = new_simple_command_queue()
+  queue.enqueue_draw_triangles(
+    queue_test_command(1, 1, BlendMode::Alpha, 0, 1, 7, 0),
+  )
+  queue.enqueue_draw_triangles(
+    queue_test_command(1, 1, BlendMode::Alpha, 0, 2, 7, 32),
+  )
+
+  let commands = queue.flush()
+  assert_eq(commands.length(), 2)
+}
+
+///|
+test "command queue does not merge when uniform hash differs" {
+  let queue = new_simple_command_queue()
+  queue.enqueue_draw_triangles(
+    queue_test_command(1, 1, BlendMode::Alpha, 0, 1, 7, 0),
+  )
+  queue.enqueue_draw_triangles(
+    queue_test_command(1, 1, BlendMode::Alpha, 0, 1, 8, 32),
+  )
+
+  let commands = queue.flush()
+  assert_eq(commands.length(), 2)
+}
+
+///|
+test "estimated_draw_call_count uses region index_count as triangle budget" {
+  let command : DrawTrianglesCommand = {
+    dst: { id: 1, width: 64, height: 64 },
+    shader: { id: 1, source: "shader-1" },
+    dst_regions: [
+      { x: 0, y: 0, width: 32, height: 32, index_count: 6 },
+      { x: 32, y: 0, width: 32, height: 32, index_count: 3 },
+      { x: 0, y: 32, width: 32, height: 32, index_count: 4 },
+      { x: 32, y: 32, width: 32, height: 32, index_count: 0 },
+      { x: 0, y: 64, width: 32, height: 32, index_count: -1 },
+    ],
+    index_offset: 0,
+    pipeline_id: 1,
+    uniform_hash: 1,
+    blend: BlendMode::Alpha,
+    vertex_data: [],
+    indices: [],
+    src_image_ids: [],
+    uniform_dwords: [],
+  }
+
+  assert_eq(estimated_draw_call_count(command), 6)
+}
+
+///|
+test "estimated_draw_call_count is zero for empty regions" {
+  let command : DrawTrianglesCommand = {
+    dst: { id: 1, width: 64, height: 64 },
+    shader: { id: 1, source: "shader-1" },
+    dst_regions: [],
+    index_offset: 0,
+    pipeline_id: 1,
+    uniform_hash: 1,
+    blend: BlendMode::Alpha,
+    vertex_data: [],
+    indices: [],
+    src_image_ids: [],
+    uniform_dwords: [],
+  }
+
+  assert_eq(estimated_draw_call_count(command), 0)
+}
+
+///|
+test "blend mode int conversion roundtrip" {
+  assert_eq(blend_mode_to_int(BlendMode::Copy), 0)
+  assert_eq(blend_mode_to_int(BlendMode::Alpha), 1)
+  assert_eq(blend_mode_to_int(BlendMode::Add), 2)
+  assert_eq(blend_mode_to_int(BlendMode::Multiply), 3)
+
+  assert_eq(blend_mode_to_int(blend_mode_from_int(0)), 0)
+  assert_eq(blend_mode_to_int(blend_mode_from_int(1)), 1)
+  assert_eq(blend_mode_to_int(blend_mode_from_int(2)), 2)
+  assert_eq(blend_mode_to_int(blend_mode_from_int(3)), 3)
+  assert_eq(blend_mode_to_int(blend_mode_from_int(-1)), 1)
+  assert_eq(blend_mode_to_int(blend_mode_from_int(99)), 1)
+}
+
+///|
+test "filter mode int conversion roundtrip" {
+  assert_eq(filter_mode_to_int(FilterMode::Nearest), 0)
+  assert_eq(filter_mode_to_int(FilterMode::Linear), 1)
+  assert_eq(filter_mode_to_int(FilterMode::Pixelated), 2)
+
+  assert_eq(filter_mode_to_int(filter_mode_from_int(0)), 0)
+  assert_eq(filter_mode_to_int(filter_mode_from_int(1)), 1)
+  assert_eq(filter_mode_to_int(filter_mode_from_int(2)), 2)
+  assert_eq(filter_mode_to_int(filter_mode_from_int(-1)), 0)
+  assert_eq(filter_mode_to_int(filter_mode_from_int(99)), 0)
+}
+
+///|
+test "draw command dispatch captures backend boundary payload" {
+  let command : DrawTrianglesCommand = {
+    dst: { id: 10, width: 64, height: 64 },
+    shader: { id: 20, source: "shader-20" },
+    dst_regions: [
+      { x: 0, y: 0, width: 32, height: 32, index_count: 6 },
+      { x: 32, y: 0, width: 32, height: 32, index_count: 3 },
+    ],
+    index_offset: 0,
+    pipeline_id: 7,
+    uniform_hash: 11,
+    blend: BlendMode::Add,
+    vertex_data: [
+      -0.5, -0.5, 0.0, 0.0, 0.5, -0.5, 1.0, 0.0, 0.5, 0.5, 1.0, 1.0, -0.5, 0.5, 0.0,
+      1.0,
+    ],
+    indices: [0, 1, 2, 2, 3, 0],
+    src_image_ids: [30, 31],
+    uniform_dwords: [1, 2, 3],
+  }
+
+  let dispatch = build_draw_command_dispatch(command)
+  assert_eq(dispatch.draw_calls, 3)
+  assert_eq(dispatch.pipeline_id, 7)
+  assert_eq(dispatch.uniform_hash, 11)
+  assert_eq(dispatch.blend_mode, 2)
+  assert_eq(dispatch.dst_image_id, 10)
+  assert_eq(dispatch.shader_id, 20)
+  assert_eq(dispatch.index_offset, 0)
+  assert_eq(dispatch.region_count, 2)
+  assert_eq(dispatch.total_index_count, 9)
+  assert_eq(dispatch.vertex_float_count, 16)
+  assert_eq(dispatch.index_count, 6)
+  assert_eq(dispatch.src_image_count, 2)
+  assert_eq(dispatch.uniform_dword_count, 3)
+}
+
+///|
+test "draw command dispatch falls back index count to region totals" {
+  let command : DrawTrianglesCommand = {
+    dst: { id: 1, width: 64, height: 64 },
+    shader: { id: 2, source: "shader-2" },
+    dst_regions: [
+      { x: 0, y: 0, width: 32, height: 32, index_count: 6 },
+      { x: 32, y: 0, width: 32, height: 32, index_count: 3 },
+    ],
+    index_offset: 0,
+    pipeline_id: 3,
+    uniform_hash: 4,
+    blend: BlendMode::Alpha,
+    vertex_data: [],
+    indices: [],
+    src_image_ids: [],
+    uniform_dwords: [],
+  }
+
+  let dispatch = build_draw_command_dispatch(command)
+  assert_eq(dispatch.total_index_count, 9)
+  assert_eq(dispatch.index_count, 9)
+  assert_eq(dispatch.vertex_float_count, 0)
+  assert_eq(dispatch.src_image_count, 0)
+  assert_eq(dispatch.uniform_dword_count, 0)
 }
 
 ///|

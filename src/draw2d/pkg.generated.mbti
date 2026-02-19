@@ -1,0 +1,23 @@
+// Generated using `moon info`, DON'T EDIT IT
+package "mizchi/game_engine/draw2d"
+
+import {
+  "mizchi/game_engine/asset",
+  "mizchi/game_engine/gfx",
+}
+
+// Values
+pub fn atlas_quad_indices() -> Array[Int]
+
+pub fn atlas_quad_vertex_data(@asset.AtlasDrawSource, Double, Double, Double, Double) -> Array[Double]
+
+pub fn new_atlas_quad_draw_command(@gfx.ImageHandle, @gfx.ShaderHandle, @gfx.DstRegion, Int, Int, Int, @gfx.BlendMode, @asset.AtlasDrawSource, Double, Double, Double, Double, Array[Int]) -> @gfx.DrawTrianglesCommand
+
+// Errors
+
+// Types and methods
+
+// Type aliases
+
+// Traits
+

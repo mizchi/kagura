@@ -3,18 +3,59 @@ package "mizchi/game_engine/asset"
 
 import {
   "mizchi/game_engine/gfx",
+  "mizchi/game_engine/image_palette",
 }
 
 // Values
+pub fn clear_dirty_atlas_page_flags(SimpleAtlasImageRepository) -> Int
+
+pub fn clear_source_image_dirty_flags(SimpleImageRepository) -> Int
+
+pub fn create_atlas_image(SimpleAtlasImageRepository, AssetKey, ImageSpec) -> @gfx.ImageHandle?
+
 pub fn default_image_spec(Int, Int) -> ImageSpec
 
+pub fn get_atlas_draw_source(SimpleAtlasImageRepository, AssetKey) -> AtlasDrawSource?
+
+pub fn get_atlas_image_region(SimpleAtlasImageRepository, AssetKey) -> AtlasRegion?
+
+pub fn get_image_generation_by_id(SimpleImageRepository, Int) -> Int
+
+pub fn get_image_palette_by_id(SimpleImageRepository, Int) -> @image_palette.ImagePalette2x2?
+
+pub fn get_image_pixels_by_id(SimpleImageRepository, Int) -> Array[Int]?
+
+pub fn image_spec_with_palette(Int, Int, @image_palette.ImagePalette2x2) -> ImageSpec
+
+pub fn image_spec_with_rgba8(Int, Int, Array[Int]) -> ImageSpec
+
+pub fn list_dirty_atlas_page_bindings(SimpleAtlasImageRepository) -> Array[SourceImageBinding]
+
+pub fn list_dirty_source_image_bindings(SimpleImageRepository) -> Array[SourceImageBinding]
+
+pub fn list_image_palette_bindings(SimpleImageRepository) -> Array[ImagePaletteBinding]
+
+pub fn list_source_image_bindings(SimpleImageRepository) -> Array[SourceImageBinding]
+
+pub fn new_asset_key(String) -> AssetKey
+
 pub fn new_simple_atlas_allocator(Int, Int, Int) -> SimpleAtlasAllocator
+
+pub fn new_simple_atlas_image_repository(Int, Int, Int) -> SimpleAtlasImageRepository
 
 pub fn new_simple_image_repository() -> SimpleImageRepository
 
 pub fn new_simple_material_repository() -> SimpleMaterialRepository
 
 pub fn new_simple_shader_repository() -> SimpleShaderRepository
+
+pub fn new_unmanaged_atlas_draw_source(Int) -> AtlasDrawSource
+
+pub fn remove_atlas_image(SimpleAtlasImageRepository, AssetKey) -> Unit
+
+pub fn update_atlas_image_spec(SimpleAtlasImageRepository, AssetKey, ImageSpec) -> @gfx.ImageHandle?
+
+pub fn update_image_spec(SimpleImageRepository, AssetKey, ImageSpec) -> @gfx.ImageHandle?
 
 // Errors
 
@@ -23,6 +64,16 @@ pub struct AssetKey {
   value : String
 }
 pub impl Show for AssetKey
+
+pub struct AtlasDrawSource {
+  page_image_id : Int
+  region : AtlasRegion
+  u0 : Double
+  v0 : Double
+  u1 : Double
+  v1 : Double
+}
+pub impl Show for AtlasDrawSource
 
 pub struct AtlasRegion {
   x : Int
@@ -33,10 +84,18 @@ pub struct AtlasRegion {
 }
 pub impl Show for AtlasRegion
 
+pub struct ImagePaletteBinding {
+  image_id : Int
+  palette : @image_palette.ImagePalette2x2
+}
+pub impl Show for ImagePaletteBinding
+
 pub struct ImageSpec {
   width : Int
   height : Int
   format : String
+  palette : @image_palette.ImagePalette2x2
+  pixels_rgba8 : Array[Int]
 }
 pub impl Show for ImageSpec
 
@@ -65,6 +124,20 @@ pub struct SimpleAtlasAllocator {
 }
 pub impl AtlasAllocator for SimpleAtlasAllocator
 
+type SimpleAtlasImageEntry
+pub impl Show for SimpleAtlasImageEntry
+
+pub struct SimpleAtlasImageRepository {
+  atlas_width : Int
+  atlas_height : Int
+  atlas_id : Int
+  mut next_image_id : Int
+  allocator : SimpleAtlasAllocator
+  mut images : Array[SimpleAtlasImageEntry]
+  mut page_generation : Int
+  mut page_dirty_rect : SourceImageDirtyRect?
+}
+
 type SimpleImageEntry
 pub impl Show for SimpleImageEntry
 
@@ -90,6 +163,25 @@ pub struct SimpleShaderRepository {
   mut shaders : Array[SimpleShaderEntry]
 }
 pub impl ShaderRepository for SimpleShaderRepository
+
+pub struct SourceImageBinding {
+  image_id : Int
+  width : Int
+  height : Int
+  generation : Int
+  dirty_rect : SourceImageDirtyRect?
+  palette : @image_palette.ImagePalette2x2
+  pixels_rgba8 : Array[Int]
+}
+pub impl Show for SourceImageBinding
+
+pub struct SourceImageDirtyRect {
+  x : Int
+  y : Int
+  width : Int
+  height : Int
+}
+pub impl Show for SourceImageDirtyRect
 
 // Type aliases
 

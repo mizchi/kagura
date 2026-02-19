@@ -309,6 +309,326 @@ pub fn render_frame_with_plan(
 }
 
 ///|
+extern "C" fn moonbit_reset_planned_draw_queue() -> Unit = "moonbit_reset_planned_draw_queue"
+
+///|
+pub fn reset_planned_draw_queue() -> Unit {
+  moonbit_reset_planned_draw_queue()
+}
+
+///|
+extern "C" fn moonbit_clear_planned_pipeline_cache() -> Unit = "moonbit_clear_planned_pipeline_cache"
+
+///|
+pub fn clear_planned_pipeline_cache() -> Unit {
+  moonbit_clear_planned_pipeline_cache()
+}
+
+///|
+extern "C" fn moonbit_clear_planned_texture_cache() -> Unit = "moonbit_clear_planned_texture_cache"
+
+///|
+pub fn clear_planned_texture_cache() -> Unit {
+  moonbit_clear_planned_texture_cache()
+}
+
+///|
+extern "C" fn moonbit_clear_planned_bind_group_cache() -> Unit = "moonbit_clear_planned_bind_group_cache"
+
+///|
+pub fn clear_planned_bind_group_cache() -> Unit {
+  moonbit_clear_planned_bind_group_cache()
+}
+
+///|
+extern "C" fn moonbit_clear_planned_image_palette_registry() -> Unit = "moonbit_clear_planned_image_palette_registry"
+
+///|
+pub fn clear_planned_image_palette_registry() -> Unit {
+  moonbit_clear_planned_image_palette_registry()
+}
+
+///|
+extern "C" fn moonbit_register_planned_image_palette(
+  image_id : Int,
+  p00_r : Int,
+  p00_g : Int,
+  p00_b : Int,
+  p00_a : Int,
+  p10_r : Int,
+  p10_g : Int,
+  p10_b : Int,
+  p10_a : Int,
+  p01_r : Int,
+  p01_g : Int,
+  p01_b : Int,
+  p01_a : Int,
+  p11_r : Int,
+  p11_g : Int,
+  p11_b : Int,
+  p11_a : Int,
+) -> Unit = "moonbit_register_planned_image_palette"
+
+///|
+pub fn register_planned_image_palette(
+  image_id : Int,
+  p00_r : Int,
+  p00_g : Int,
+  p00_b : Int,
+  p00_a : Int,
+  p10_r : Int,
+  p10_g : Int,
+  p10_b : Int,
+  p10_a : Int,
+  p01_r : Int,
+  p01_g : Int,
+  p01_b : Int,
+  p01_a : Int,
+  p11_r : Int,
+  p11_g : Int,
+  p11_b : Int,
+  p11_a : Int,
+) -> Unit {
+  moonbit_register_planned_image_palette(
+    image_id, p00_r, p00_g, p00_b, p00_a, p10_r, p10_g, p10_b, p10_a, p01_r, p01_g,
+    p01_b, p01_a, p11_r, p11_g, p11_b, p11_a,
+  )
+}
+
+///|
+extern "C" fn moonbit_planned_image_palette_registry_count() -> Int = "moonbit_planned_image_palette_registry_count"
+
+///|
+pub fn planned_image_palette_registry_count() -> Int {
+  moonbit_planned_image_palette_registry_count()
+}
+
+///|
+extern "C" fn moonbit_planned_image_palette_channel(
+  image_id : Int,
+  pixel_index : Int,
+  channel_index : Int,
+) -> Int = "moonbit_planned_image_palette_channel"
+
+///|
+pub fn planned_image_palette_channel(
+  image_id : Int,
+  pixel_index : Int,
+  channel_index : Int,
+) -> Int {
+  moonbit_planned_image_palette_channel(image_id, pixel_index, channel_index)
+}
+
+///|
+extern "C" fn moonbit_planned_image_palette_generation(image_id : Int) -> Int = "moonbit_planned_image_palette_generation"
+
+///|
+pub fn planned_image_palette_generation(image_id : Int) -> Int {
+  moonbit_planned_image_palette_generation(image_id)
+}
+
+///|
+extern "C" fn moonbit_clear_planned_source_image_registry() -> Unit = "moonbit_clear_planned_source_image_registry"
+
+///|
+pub fn clear_planned_source_image_registry() -> Unit {
+  moonbit_clear_planned_source_image_registry()
+}
+
+///|
+extern "C" fn moonbit_begin_planned_source_image_upload(
+  image_id : Int,
+  width : Int,
+  height : Int,
+) -> Unit = "moonbit_begin_planned_source_image_upload"
+
+///|
+pub fn begin_planned_source_image_upload(
+  image_id : Int,
+  width : Int,
+  height : Int,
+) -> Unit {
+  moonbit_begin_planned_source_image_upload(image_id, width, height)
+}
+
+///|
+extern "C" fn moonbit_begin_planned_source_image_patch(image_id : Int) -> Int = "moonbit_begin_planned_source_image_patch"
+
+///|
+pub fn begin_planned_source_image_patch(image_id : Int) -> Bool {
+  moonbit_begin_planned_source_image_patch(image_id) != 0
+}
+
+///|
+extern "C" fn moonbit_set_planned_source_image_pixel(
+  image_id : Int,
+  x : Int,
+  y : Int,
+  r : Int,
+  g : Int,
+  b : Int,
+  a : Int,
+) -> Unit = "moonbit_set_planned_source_image_pixel"
+
+///|
+pub fn set_planned_source_image_pixel(
+  image_id : Int,
+  x : Int,
+  y : Int,
+  r : Int,
+  g : Int,
+  b : Int,
+  a : Int,
+) -> Unit {
+  moonbit_set_planned_source_image_pixel(image_id, x, y, r, g, b, a)
+}
+
+///|
+extern "C" fn moonbit_end_planned_source_image_upload(image_id : Int) -> Unit = "moonbit_end_planned_source_image_upload"
+
+///|
+pub fn end_planned_source_image_upload(image_id : Int) -> Unit {
+  moonbit_end_planned_source_image_upload(image_id)
+}
+
+///|
+extern "C" fn moonbit_end_planned_source_image_patch(image_id : Int) -> Int = "moonbit_end_planned_source_image_patch"
+
+///|
+pub fn end_planned_source_image_patch(image_id : Int) -> Bool {
+  moonbit_end_planned_source_image_patch(image_id) != 0
+}
+
+///|
+extern "C" fn moonbit_planned_source_image_registry_count() -> Int = "moonbit_planned_source_image_registry_count"
+
+///|
+pub fn planned_source_image_registry_count() -> Int {
+  moonbit_planned_source_image_registry_count()
+}
+
+///|
+extern "C" fn moonbit_planned_source_image_width(image_id : Int) -> Int = "moonbit_planned_source_image_width"
+
+///|
+pub fn planned_source_image_width(image_id : Int) -> Int {
+  moonbit_planned_source_image_width(image_id)
+}
+
+///|
+extern "C" fn moonbit_planned_source_image_height(image_id : Int) -> Int = "moonbit_planned_source_image_height"
+
+///|
+pub fn planned_source_image_height(image_id : Int) -> Int {
+  moonbit_planned_source_image_height(image_id)
+}
+
+///|
+extern "C" fn moonbit_planned_source_image_generation(image_id : Int) -> Int = "moonbit_planned_source_image_generation"
+
+///|
+pub fn planned_source_image_generation(image_id : Int) -> Int {
+  moonbit_planned_source_image_generation(image_id)
+}
+
+///|
+extern "C" fn moonbit_planned_source_image_pixel_channel(
+  image_id : Int,
+  x : Int,
+  y : Int,
+  channel_index : Int,
+) -> Int = "moonbit_planned_source_image_pixel_channel"
+
+///|
+pub fn planned_source_image_pixel_channel(
+  image_id : Int,
+  x : Int,
+  y : Int,
+  channel_index : Int,
+) -> Int {
+  moonbit_planned_source_image_pixel_channel(image_id, x, y, channel_index)
+}
+
+///|
+extern "C" fn moonbit_push_planned_draw_command(
+  draw_calls : Int,
+  has_triangle_payload : Int,
+  ax : Double,
+  ay : Double,
+  bx : Double,
+  by : Double,
+  cx : Double,
+  cy : Double,
+  au : Double,
+  av : Double,
+  bu : Double,
+  bv : Double,
+  cu : Double,
+  cv : Double,
+  uniform_r : Double,
+  uniform_g : Double,
+  uniform_b : Double,
+  uniform_a : Double,
+  texture_seed : Int,
+) -> Unit = "moonbit_push_planned_draw_command"
+
+///|
+pub fn push_planned_draw_command(
+  draw_calls : Int,
+  has_triangle_payload : Int,
+  ax : Double,
+  ay : Double,
+  bx : Double,
+  by : Double,
+  cx : Double,
+  cy : Double,
+  au : Double,
+  av : Double,
+  bu : Double,
+  bv : Double,
+  cu : Double,
+  cv : Double,
+  uniform_r : Double,
+  uniform_g : Double,
+  uniform_b : Double,
+  uniform_a : Double,
+  texture_seed : Int,
+) -> Unit {
+  moonbit_push_planned_draw_command(
+    draw_calls, has_triangle_payload, ax, ay, bx, by, cx, cy, au, av, bu, bv, cu,
+    cv, uniform_r, uniform_g, uniform_b, uniform_a, texture_seed,
+  )
+}
+
+///|
+extern "C" fn moonbit_render_frame_with_staged_plan(
+  surface : WGPUSurface,
+  device : WGPUDevice,
+  queue : WGPUQueue,
+  pipeline : WGPURenderPipeline,
+  clear_r : Double,
+  clear_g : Double,
+  clear_b : Double,
+  clear_a : Double,
+) -> Unit = "moonbit_render_frame_with_staged_plan"
+
+///|
+pub fn render_frame_with_staged_plan(
+  surface : WGPUSurface,
+  device : WGPUDevice,
+  queue : WGPUQueue,
+  pipeline : WGPURenderPipeline,
+  clear_r : Double,
+  clear_g : Double,
+  clear_b : Double,
+  clear_a : Double,
+) -> Unit {
+  moonbit_render_frame_with_staged_plan(
+    surface, device, queue, pipeline, clear_r, clear_g, clear_b, clear_a,
+  )
+}
+
+///|
 extern "C" fn moonbit_render_frame_with_plan_payload(
   surface : WGPUSurface,
   device : WGPUDevice,

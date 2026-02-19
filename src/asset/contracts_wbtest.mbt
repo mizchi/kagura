@@ -61,6 +61,269 @@ test "simple image repository reuses handle for duplicate keys" {
 }
 
 ///|
+test "image spec with palette is retained in simple image repository" {
+  let repo = new_simple_image_repository()
+  let key : AssetKey = { value: "ui/button" }
+  let palette = @image_palette.new_solid_palette(
+    @image_palette.new_rgba(12, 34, 56, 255),
+  )
+  let spec = image_spec_with_palette(8, 8, palette)
+  let handle = repo.create_image(key, spec)
+
+  let stored = match get_image_palette_by_id(repo, handle.id) {
+    Some(value) => value
+    None => panic()
+  }
+  for pixel_index in 0..<4 {
+    assert_eq(@image_palette.palette_channel(stored, pixel_index, 0), 12)
+    assert_eq(@image_palette.palette_channel(stored, pixel_index, 1), 34)
+    assert_eq(@image_palette.palette_channel(stored, pixel_index, 2), 56)
+    assert_eq(@image_palette.palette_channel(stored, pixel_index, 3), 255)
+  }
+}
+
+///|
+test "list_image_palette_bindings exports all current images" {
+  let repo = new_simple_image_repository()
+  let key_a : AssetKey = { value: "a" }
+  let key_b : AssetKey = { value: "b" }
+  let handle_a = repo.create_image(
+    key_a,
+    image_spec_with_palette(
+      4,
+      4,
+      @image_palette.new_solid_palette(@image_palette.new_rgba(1, 2, 3, 4)),
+    ),
+  )
+  let handle_b = repo.create_image(
+    key_b,
+    image_spec_with_palette(
+      4,
+      4,
+      @image_palette.new_solid_palette(@image_palette.new_rgba(9, 8, 7, 6)),
+    ),
+  )
+
+  let bindings = list_image_palette_bindings(repo)
+  assert_eq(bindings.length(), 2)
+
+  let mut found_a = false
+  let mut found_b = false
+  for binding in bindings {
+    if binding.image_id == handle_a.id {
+      found_a = true
+      assert_eq(@image_palette.palette_channel(binding.palette, 0, 0), 1)
+      assert_eq(@image_palette.palette_channel(binding.palette, 0, 1), 2)
+      assert_eq(@image_palette.palette_channel(binding.palette, 0, 2), 3)
+      assert_eq(@image_palette.palette_channel(binding.palette, 0, 3), 4)
+    }
+    if binding.image_id == handle_b.id {
+      found_b = true
+      assert_eq(@image_palette.palette_channel(binding.palette, 0, 0), 9)
+      assert_eq(@image_palette.palette_channel(binding.palette, 0, 1), 8)
+      assert_eq(@image_palette.palette_channel(binding.palette, 0, 2), 7)
+      assert_eq(@image_palette.palette_channel(binding.palette, 0, 3), 6)
+    }
+  }
+  assert_true(found_a)
+  assert_true(found_b)
+}
+
+///|
+test "image_spec_with_rgba8 keeps channels and derives corner palette" {
+  let spec = image_spec_with_rgba8(2, 2, [
+    1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16,
+  ])
+  assert_eq(spec.pixels_rgba8.length(), 16)
+  assert_eq(@image_palette.palette_channel(spec.palette, 0, 0), 1)
+  assert_eq(@image_palette.palette_channel(spec.palette, 0, 1), 2)
+  assert_eq(@image_palette.palette_channel(spec.palette, 0, 2), 3)
+  assert_eq(@image_palette.palette_channel(spec.palette, 0, 3), 4)
+  assert_eq(@image_palette.palette_channel(spec.palette, 3, 0), 13)
+  assert_eq(@image_palette.palette_channel(spec.palette, 3, 1), 14)
+  assert_eq(@image_palette.palette_channel(spec.palette, 3, 2), 15)
+  assert_eq(@image_palette.palette_channel(spec.palette, 3, 3), 16)
+}
+
+///|
+test "list_source_image_bindings exports rgba8 payload when available" {
+  let repo = new_simple_image_repository()
+  let key : AssetKey = { value: "tilemap" }
+  let handle = repo.create_image(
+    key,
+    image_spec_with_rgba8(2, 2, [
+      1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16,
+    ]),
+  )
+
+  let bindings = list_source_image_bindings(repo)
+  assert_eq(bindings.length(), 1)
+  let binding = bindings[0]
+  assert_eq(binding.image_id, handle.id)
+  assert_eq(binding.width, 2)
+  assert_eq(binding.height, 2)
+  assert_eq(binding.generation, 1)
+  assert_eq(binding.pixels_rgba8.length(), 16)
+  assert_eq(binding.pixels_rgba8[0], 1)
+  assert_eq(binding.pixels_rgba8[15], 16)
+
+  let pixels = match get_image_pixels_by_id(repo, handle.id) {
+    Some(value) => value
+    None => panic()
+  }
+  assert_eq(pixels.length(), 16)
+  assert_eq(pixels[0], 1)
+  assert_eq(pixels[15], 16)
+}
+
+///|
+test "update_image_spec increments generation while keeping handle id" {
+  let repo = new_simple_image_repository()
+  let key = new_asset_key("tilemap/update")
+  let handle = repo.create_image(
+    key,
+    image_spec_with_rgba8(2, 2, [
+      1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16,
+    ]),
+  )
+  assert_eq(get_image_generation_by_id(repo, handle.id), 1)
+
+  let updated = update_image_spec(
+    repo,
+    key,
+    image_spec_with_rgba8(2, 2, [
+      16, 15, 14, 13, 12, 11, 10, 9, 8, 7, 6, 5, 4, 3, 2, 1,
+    ]),
+  )
+  match updated {
+    Some(handle2) => {
+      assert_eq(handle2.id, handle.id)
+      assert_eq(handle2.width, 2)
+      assert_eq(handle2.height, 2)
+    }
+    None => panic()
+  }
+
+  let bindings = list_source_image_bindings(repo)
+  assert_eq(bindings.length(), 1)
+  assert_eq(bindings[0].generation, 2)
+  assert_eq(bindings[0].pixels_rgba8[0], 16)
+  assert_eq(bindings[0].pixels_rgba8[15], 1)
+  assert_eq(get_image_generation_by_id(repo, handle.id), 2)
+}
+
+///|
+test "update_image_spec rejects size mismatch and keeps generation" {
+  let repo = new_simple_image_repository()
+  let key = new_asset_key("tilemap/size_guard")
+  let handle = repo.create_image(
+    key,
+    image_spec_with_rgba8(2, 2, [
+      1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16,
+    ]),
+  )
+  let updated = update_image_spec(
+    repo,
+    key,
+    image_spec_with_rgba8(1, 1, [9, 8, 7, 6]),
+  )
+  match updated {
+    Some(_) => panic()
+    None => ()
+  }
+  assert_eq(get_image_generation_by_id(repo, handle.id), 1)
+}
+
+///|
+test "new image starts dirty and clear_source_image_dirty_flags resets it" {
+  let repo = new_simple_image_repository()
+  let key = new_asset_key("dirty/new")
+  let handle = repo.create_image(
+    key,
+    image_spec_with_rgba8(2, 2, [
+      1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16,
+    ]),
+  )
+
+  let dirty_bindings = list_dirty_source_image_bindings(repo)
+  assert_eq(dirty_bindings.length(), 1)
+  assert_eq(dirty_bindings[0].image_id, handle.id)
+  match dirty_bindings[0].dirty_rect {
+    Some(rect) => {
+      assert_eq(rect.x, 0)
+      assert_eq(rect.y, 0)
+      assert_eq(rect.width, 2)
+      assert_eq(rect.height, 2)
+    }
+    None => panic()
+  }
+
+  let cleared = clear_source_image_dirty_flags(repo)
+  assert_eq(cleared, 1)
+  assert_eq(list_dirty_source_image_bindings(repo).length(), 0)
+}
+
+///|
+test "update_image_spec calculates minimal dirty rect from rgba8 diff" {
+  let repo = new_simple_image_repository()
+  let key = new_asset_key("dirty/update_rect")
+  let _ = repo.create_image(
+    key,
+    image_spec_with_rgba8(3, 2, [
+      1, 1, 1, 255, 2, 2, 2, 255, 3, 3, 3, 255, 4, 4, 4, 255, 5, 5, 5, 255, 6, 6,
+      6, 255,
+    ]),
+  )
+  let _ = clear_source_image_dirty_flags(repo)
+
+  let _ = update_image_spec(
+    repo,
+    key,
+    image_spec_with_rgba8(3, 2, [
+      1, 1, 1, 255, 2, 2, 2, 255, 9, 9, 9, 255, 4, 4, 4, 255, 8, 8, 8, 255, 6, 6,
+      6, 255,
+    ]),
+  )
+
+  let dirty_bindings = list_dirty_source_image_bindings(repo)
+  assert_eq(dirty_bindings.length(), 1)
+  match dirty_bindings[0].dirty_rect {
+    Some(rect) => {
+      assert_eq(rect.x, 1)
+      assert_eq(rect.y, 0)
+      assert_eq(rect.width, 2)
+      assert_eq(rect.height, 2)
+    }
+    None => panic()
+  }
+}
+
+///|
+test "update_image_spec with same pixels does not advance generation" {
+  let repo = new_simple_image_repository()
+  let key = new_asset_key("dirty/noop")
+  let handle = repo.create_image(
+    key,
+    image_spec_with_rgba8(2, 1, [1, 2, 3, 4, 5, 6, 7, 8]),
+  )
+  let _ = clear_source_image_dirty_flags(repo)
+  assert_eq(get_image_generation_by_id(repo, handle.id), 1)
+
+  let updated = update_image_spec(
+    repo,
+    key,
+    image_spec_with_rgba8(2, 1, [1, 2, 3, 4, 5, 6, 7, 8]),
+  )
+  match updated {
+    Some(h) => assert_eq(h.id, handle.id)
+    None => panic()
+  }
+
+  assert_eq(get_image_generation_by_id(repo, handle.id), 1)
+  assert_eq(list_dirty_source_image_bindings(repo).length(), 0)
+}
+
+///|
 test "simple atlas allocator places regions with row wrap" {
   let allocator = new_simple_atlas_allocator(8, 8, 1)
 
@@ -107,6 +370,208 @@ test "simple atlas allocator returns none when out of capacity" {
 
   allocator.release(whole)
   assert_eq(allocator.allocated.length(), 0)
+}
+
+///|
+test "simple atlas image repository creates image and marks full page dirty" {
+  let repo = new_simple_atlas_image_repository(8, 8, 100)
+  let key = new_asset_key("atlas/player")
+  let handle = match
+    create_atlas_image(
+      repo,
+      key,
+      image_spec_with_rgba8(2, 2, [
+        1, 2, 3, 255, 4, 5, 6, 255, 7, 8, 9, 255, 10, 11, 12, 255,
+      ]),
+    ) {
+    Some(value) => value
+    None => panic()
+  }
+  assert_eq(handle.id, 1)
+  let region = match get_atlas_image_region(repo, key) {
+    Some(value) => value
+    None => panic()
+  }
+  assert_eq(region.x, 0)
+  assert_eq(region.y, 0)
+  assert_eq(region.width, 2)
+  assert_eq(region.height, 2)
+  assert_eq(region.atlas_id, 100)
+
+  let dirty_pages = list_dirty_atlas_page_bindings(repo)
+  assert_eq(dirty_pages.length(), 1)
+  assert_eq(dirty_pages[0].image_id, 100)
+  assert_eq(dirty_pages[0].generation, 1)
+  match dirty_pages[0].dirty_rect {
+    Some(rect) => {
+      assert_eq(rect.x, 0)
+      assert_eq(rect.y, 0)
+      assert_eq(rect.width, 2)
+      assert_eq(rect.height, 2)
+    }
+    None => panic()
+  }
+}
+
+///|
+test "simple atlas image repository update computes atlas-space dirty rect" {
+  let repo = new_simple_atlas_image_repository(8, 8, 200)
+  let key = new_asset_key("atlas/tile")
+  let _ = create_atlas_image(
+    repo,
+    key,
+    image_spec_with_rgba8(2, 2, [
+      1, 1, 1, 255, 2, 2, 2, 255, 3, 3, 3, 255, 4, 4, 4, 255,
+    ]),
+  )
+  let _ = clear_dirty_atlas_page_flags(repo)
+
+  let updated = update_atlas_image_spec(
+    repo,
+    key,
+    image_spec_with_rgba8(2, 2, [
+      1, 1, 1, 255, 99, 99, 99, 255, 3, 3, 3, 255, 4, 4, 4, 255,
+    ]),
+  )
+  match updated {
+    Some(_) => ()
+    None => panic()
+  }
+
+  let dirty_pages = list_dirty_atlas_page_bindings(repo)
+  assert_eq(dirty_pages.length(), 1)
+  assert_eq(dirty_pages[0].generation, 2)
+  match dirty_pages[0].dirty_rect {
+    Some(rect) => {
+      assert_eq(rect.x, 1)
+      assert_eq(rect.y, 0)
+      assert_eq(rect.width, 1)
+      assert_eq(rect.height, 1)
+    }
+    None => panic()
+  }
+}
+
+///|
+test "simple atlas image repository clears page dirty flags" {
+  let repo = new_simple_atlas_image_repository(8, 8, 300)
+  let _ = create_atlas_image(
+    repo,
+    new_asset_key("atlas/a"),
+    image_spec_with_rgba8(2, 2, [
+      1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16,
+    ]),
+  )
+  assert_eq(list_dirty_atlas_page_bindings(repo).length(), 1)
+  assert_eq(clear_dirty_atlas_page_flags(repo), 1)
+  assert_eq(list_dirty_atlas_page_bindings(repo).length(), 0)
+}
+
+///|
+test "simple atlas image repository remove marks released area dirty" {
+  let repo = new_simple_atlas_image_repository(8, 8, 400)
+  let key = new_asset_key("atlas/remove")
+  let _ = create_atlas_image(
+    repo,
+    key,
+    image_spec_with_rgba8(2, 2, [
+      10, 20, 30, 255, 11, 21, 31, 255, 12, 22, 32, 255, 13, 23, 33, 255,
+    ]),
+  )
+  let _ = clear_dirty_atlas_page_flags(repo)
+  remove_atlas_image(repo, key)
+  let dirty_pages = list_dirty_atlas_page_bindings(repo)
+  assert_eq(dirty_pages.length(), 1)
+  match dirty_pages[0].dirty_rect {
+    Some(rect) => {
+      assert_eq(rect.x, 0)
+      assert_eq(rect.y, 0)
+      assert_eq(rect.width, 2)
+      assert_eq(rect.height, 2)
+    }
+    None => panic()
+  }
+}
+
+///|
+test "simple atlas image repository dirty page binding includes composed rgba8" {
+  let repo = new_simple_atlas_image_repository(4, 4, 500)
+  let _ = create_atlas_image(
+    repo,
+    new_asset_key("atlas/rgba8"),
+    image_spec_with_rgba8(2, 2, [
+      1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16,
+    ]),
+  )
+  let dirty_pages = list_dirty_atlas_page_bindings(repo)
+  assert_eq(dirty_pages.length(), 1)
+  assert_eq(dirty_pages[0].width, 4)
+  assert_eq(dirty_pages[0].height, 4)
+  assert_eq(dirty_pages[0].pixels_rgba8.length(), 4 * 4 * 4)
+  assert_eq(dirty_pages[0].pixels_rgba8[0], 1)
+  assert_eq(dirty_pages[0].pixels_rgba8[1], 2)
+  assert_eq(dirty_pages[0].pixels_rgba8[2], 3)
+  assert_eq(dirty_pages[0].pixels_rgba8[3], 4)
+  let far = (3 * 4 + 3) * 4
+  assert_eq(dirty_pages[0].pixels_rgba8[far], 0)
+  assert_eq(dirty_pages[0].pixels_rgba8[far + 1], 0)
+  assert_eq(dirty_pages[0].pixels_rgba8[far + 2], 0)
+  assert_eq(dirty_pages[0].pixels_rgba8[far + 3], 0)
+}
+
+///|
+test "atlas draw source resolves page image id and uv from key" {
+  let repo = new_simple_atlas_image_repository(8, 8, 777)
+  let key_a = new_asset_key("atlas/draw/a")
+  let key_b = new_asset_key("atlas/draw/b")
+  let _ = create_atlas_image(repo, key_a, default_image_spec(2, 2))
+  let _ = create_atlas_image(repo, key_b, default_image_spec(2, 2))
+
+  let binding_a = match get_atlas_draw_source(repo, key_a) {
+    Some(value) => value
+    None => panic()
+  }
+  assert_eq(binding_a.page_image_id, 777)
+  assert_eq(binding_a.region.x, 0)
+  assert_eq(binding_a.region.y, 0)
+  assert_eq(binding_a.region.width, 2)
+  assert_eq(binding_a.region.height, 2)
+  assert_eq(binding_a.u0, 0.0)
+  assert_eq(binding_a.v0, 0.0)
+  assert_eq(binding_a.u1, 0.25)
+  assert_eq(binding_a.v1, 0.25)
+
+  let binding_b = match get_atlas_draw_source(repo, key_b) {
+    Some(value) => value
+    None => panic()
+  }
+  assert_eq(binding_b.page_image_id, 777)
+  assert_eq(binding_b.region.x, 2)
+  assert_eq(binding_b.region.y, 0)
+  assert_eq(binding_b.u0, 0.25)
+  assert_eq(binding_b.v0, 0.0)
+  assert_eq(binding_b.u1, 0.5)
+  assert_eq(binding_b.v1, 0.25)
+}
+
+///|
+test "atlas draw source returns none for missing key" {
+  let repo = new_simple_atlas_image_repository(8, 8, 123)
+  match get_atlas_draw_source(repo, new_asset_key("atlas/missing")) {
+    Some(_) => panic()
+    None => ()
+  }
+}
+
+///|
+test "new_unmanaged_atlas_draw_source uses full uv and clamps id" {
+  let source = new_unmanaged_atlas_draw_source(-5)
+  assert_eq(source.page_image_id, 0)
+  assert_eq(source.region.atlas_id, 0)
+  assert_eq(source.u0, 0.0)
+  assert_eq(source.v0, 0.0)
+  assert_eq(source.u1, 1.0)
+  assert_eq(source.v1, 1.0)
 }
 
 ///|

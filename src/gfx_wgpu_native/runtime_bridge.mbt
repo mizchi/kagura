@@ -117,6 +117,70 @@ let planned_uniform_a : Ref[Double] = Ref::new(1.0)
 let planned_texture_seed : Ref[Int] = Ref::new(0)
 
 ///|
+priv struct PlannedDrawCommand {
+  draw_calls : Int
+  has_triangle_payload : Bool
+  ax : Double
+  ay : Double
+  bx : Double
+  by : Double
+  cx : Double
+  cy : Double
+  au : Double
+  av : Double
+  bu : Double
+  bv : Double
+  cu : Double
+  cv : Double
+  uniform_r : Double
+  uniform_g : Double
+  uniform_b : Double
+  uniform_a : Double
+  texture_seed : Int
+}
+
+///|
+fn default_planned_draw_command(draw_calls : Int) -> PlannedDrawCommand {
+  {
+    draw_calls: if draw_calls <= 0 {
+      1
+    } else {
+      draw_calls
+    },
+    has_triangle_payload: false,
+    ax: 0.0,
+    ay: 0.5,
+    bx: -0.5,
+    by: -0.5,
+    cx: 0.5,
+    cy: -0.5,
+    au: 0.0,
+    av: 0.0,
+    bu: 1.0,
+    bv: 0.0,
+    cu: 1.0,
+    cv: 1.0,
+    uniform_r: 1.0,
+    uniform_g: 1.0,
+    uniform_b: 1.0,
+    uniform_a: 1.0,
+    texture_seed: 0,
+  }
+}
+
+///|
+fn planned_draw_command_at(index : Int) -> PlannedDrawCommand? {
+  if index < 0 || index >= planned_draw_commands.val.length() {
+    None
+  } else {
+    Some(planned_draw_commands.val[index])
+  }
+}
+
+///|
+let planned_draw_commands : Ref[Array[PlannedDrawCommand]] = Ref::new([])
+
+///|
 let configured_surface_width : Ref[Int] = Ref::new(0)
 
 ///|
@@ -558,6 +622,7 @@ pub fn runtime_begin_frame(
   planned_uniform_b.val = 1.0
   planned_uniform_a.val = 1.0
   planned_texture_seed.val = 0
+  planned_draw_commands.val = []
 }
 
 ///|
@@ -622,6 +687,7 @@ pub fn runtime_record_draw_command(
   planned_last_index_count.val = safe_index_count
   planned_last_src_image_count.val = safe_src_image_count
   planned_last_uniform_dword_count.val = safe_uniform_dword_count
+  planned_draw_commands.val.push(default_planned_draw_command(count))
 }
 
 ///|
@@ -664,6 +730,7 @@ pub fn runtime_record_draw_triangle_payload(
   uniform_a : Double,
   texture_seed : Int,
 ) -> Unit {
+  let safe_texture_seed = if texture_seed < 0 { 0 } else { texture_seed }
   planned_has_triangle_payload.val = true
   planned_triangle_ax.val = ax
   planned_triangle_ay.val = ay
@@ -681,7 +748,253 @@ pub fn runtime_record_draw_triangle_payload(
   planned_uniform_g.val = uniform_g
   planned_uniform_b.val = uniform_b
   planned_uniform_a.val = uniform_a
-  planned_texture_seed.val = if texture_seed < 0 { 0 } else { texture_seed }
+  planned_texture_seed.val = safe_texture_seed
+
+  let len = planned_draw_commands.val.length()
+  if len > 0 {
+    let last_index = len - 1
+    let last = planned_draw_commands.val[last_index]
+    planned_draw_commands.val[last_index] = {
+      draw_calls: last.draw_calls,
+      has_triangle_payload: true,
+      ax,
+      ay,
+      bx,
+      by,
+      cx,
+      cy,
+      au,
+      av,
+      bu,
+      bv,
+      cu,
+      cv,
+      uniform_r,
+      uniform_g,
+      uniform_b,
+      uniform_a,
+      texture_seed: safe_texture_seed,
+    }
+  }
+}
+
+///|
+fn clamp_palette_channel(channel : Int) -> Int {
+  if channel < 0 {
+    0
+  } else if channel > 255 {
+    255
+  } else {
+    channel
+  }
+}
+
+///|
+pub fn runtime_register_source_image_palette(
+  source_image_id : Int,
+  p00_r : Int,
+  p00_g : Int,
+  p00_b : Int,
+  p00_a : Int,
+  p10_r : Int,
+  p10_g : Int,
+  p10_b : Int,
+  p10_a : Int,
+  p01_r : Int,
+  p01_g : Int,
+  p01_b : Int,
+  p01_a : Int,
+  p11_r : Int,
+  p11_g : Int,
+  p11_b : Int,
+  p11_a : Int,
+) -> Unit {
+  if source_image_id >= 0 {
+    register_planned_image_palette(
+      source_image_id,
+      clamp_palette_channel(p00_r),
+      clamp_palette_channel(p00_g),
+      clamp_palette_channel(p00_b),
+      clamp_palette_channel(p00_a),
+      clamp_palette_channel(p10_r),
+      clamp_palette_channel(p10_g),
+      clamp_palette_channel(p10_b),
+      clamp_palette_channel(p10_a),
+      clamp_palette_channel(p01_r),
+      clamp_palette_channel(p01_g),
+      clamp_palette_channel(p01_b),
+      clamp_palette_channel(p01_a),
+      clamp_palette_channel(p11_r),
+      clamp_palette_channel(p11_g),
+      clamp_palette_channel(p11_b),
+      clamp_palette_channel(p11_a),
+    )
+  }
+}
+
+///|
+pub fn runtime_register_source_image_solid_color(
+  source_image_id : Int,
+  r : Int,
+  g : Int,
+  b : Int,
+  a : Int,
+) -> Unit {
+  runtime_register_source_image_palette(
+    source_image_id, r, g, b, a, r, g, b, a, r, g, b, a, r, g, b, a,
+  )
+}
+
+///|
+pub fn runtime_register_source_image_rgba8(
+  source_image_id : Int,
+  width : Int,
+  height : Int,
+  rgba8_channels : Array[Int],
+) -> Unit {
+  if source_image_id < 0 {
+    return
+  }
+  let safe_width = if width <= 0 { 1 } else { width }
+  let safe_height = if height <= 0 { 1 } else { height }
+  let pixel_count = safe_width * safe_height
+  let required_channels = pixel_count * 4
+  if required_channels <= 0 || rgba8_channels.length() < required_channels {
+    return
+  }
+
+  begin_planned_source_image_upload(source_image_id, safe_width, safe_height)
+  for y in 0..<safe_height {
+    for x in 0..<safe_width {
+      let base = (y * safe_width + x) * 4
+      set_planned_source_image_pixel(
+        source_image_id,
+        x,
+        y,
+        clamp_palette_channel(rgba8_channels[base]),
+        clamp_palette_channel(rgba8_channels[base + 1]),
+        clamp_palette_channel(rgba8_channels[base + 2]),
+        clamp_palette_channel(rgba8_channels[base + 3]),
+      )
+    }
+  }
+  end_planned_source_image_upload(source_image_id)
+}
+
+///|
+pub fn runtime_patch_source_image_rgba8(
+  source_image_id : Int,
+  width : Int,
+  height : Int,
+  dirty_x : Int,
+  dirty_y : Int,
+  dirty_width : Int,
+  dirty_height : Int,
+  rgba8_channels : Array[Int],
+) -> Bool {
+  if source_image_id < 0 {
+    return false
+  }
+  let safe_width = if width <= 0 { 1 } else { width }
+  let safe_height = if height <= 0 { 1 } else { height }
+  let pixel_count = safe_width * safe_height
+  let required_channels = pixel_count * 4
+  if required_channels <= 0 || rgba8_channels.length() < required_channels {
+    return false
+  }
+  let current_width = planned_source_image_width(source_image_id)
+  let current_height = planned_source_image_height(source_image_id)
+  if current_width != safe_width || current_height != safe_height {
+    return false
+  }
+  let rect_x = if dirty_x < 0 { 0 } else { dirty_x }
+  let rect_y = if dirty_y < 0 { 0 } else { dirty_y }
+  let clipped_width = if rect_x >= safe_width || dirty_width <= 0 {
+    0
+  } else if rect_x + dirty_width > safe_width {
+    safe_width - rect_x
+  } else {
+    dirty_width
+  }
+  let clipped_height = if rect_y >= safe_height || dirty_height <= 0 {
+    0
+  } else if rect_y + dirty_height > safe_height {
+    safe_height - rect_y
+  } else {
+    dirty_height
+  }
+  if clipped_width <= 0 || clipped_height <= 0 {
+    return false
+  }
+  if !begin_planned_source_image_patch(source_image_id) {
+    return false
+  }
+  for y in rect_y..<(rect_y + clipped_height) {
+    for x in rect_x..<(rect_x + clipped_width) {
+      let base = (y * safe_width + x) * 4
+      set_planned_source_image_pixel(
+        source_image_id,
+        x,
+        y,
+        clamp_palette_channel(rgba8_channels[base]),
+        clamp_palette_channel(rgba8_channels[base + 1]),
+        clamp_palette_channel(rgba8_channels[base + 2]),
+        clamp_palette_channel(rgba8_channels[base + 3]),
+      )
+    }
+  }
+  end_planned_source_image_patch(source_image_id)
+}
+
+///|
+pub fn runtime_clear_source_image_palette_registry() -> Unit {
+  clear_planned_image_palette_registry()
+}
+
+///|
+pub fn runtime_clear_source_image_registry() -> Unit {
+  clear_planned_source_image_registry()
+  clear_planned_image_palette_registry()
+}
+
+///|
+pub fn runtime_source_image_palette_count() -> Int {
+  planned_image_palette_registry_count()
+}
+
+///|
+pub fn runtime_source_image_palette_generation(image_id : Int) -> Int {
+  planned_image_palette_generation(image_id)
+}
+
+///|
+pub fn runtime_source_image_upload_count() -> Int {
+  planned_source_image_registry_count()
+}
+
+///|
+pub fn runtime_source_image_width(image_id : Int) -> Int {
+  planned_source_image_width(image_id)
+}
+
+///|
+pub fn runtime_source_image_height(image_id : Int) -> Int {
+  planned_source_image_height(image_id)
+}
+
+///|
+pub fn runtime_source_image_generation(image_id : Int) -> Int {
+  planned_source_image_generation(image_id)
+}
+
+///|
+pub fn runtime_source_image_pixel_channel(
+  image_id : Int,
+  x : Int,
+  y : Int,
+  channel_index : Int,
+) -> Int {
+  planned_source_image_pixel_channel(image_id, x, y, channel_index)
 }
 
 ///|
@@ -785,6 +1098,22 @@ pub fn runtime_pending_command_count() -> Int {
 }
 
 ///|
+pub fn runtime_command_has_triangle_payload_at(index : Int) -> Bool {
+  match planned_draw_command_at(index) {
+    Some(command) => command.has_triangle_payload
+    None => false
+  }
+}
+
+///|
+pub fn runtime_command_payload_texture_seed_at(index : Int) -> Int {
+  match planned_draw_command_at(index) {
+    Some(command) => command.texture_seed
+    None => 0
+  }
+}
+
+///|
 pub fn runtime_last_pipeline_id() -> Int {
   planned_last_pipeline_id.val
 }
@@ -863,33 +1192,39 @@ pub fn runtime_present_planned_frame() -> Bool {
     Some(ctx) => {
       let size = get_window_size(ctx.window)
       let _ = ensure_runtime_surface_size(ctx, size.width, size.height)
-      render_triangle_frame_with_plan_payload(
+      reset_triangle_draw_plan_queue()
+      for command in planned_draw_commands.val {
+        stage_triangle_draw_plan_command(
+          command.draw_calls,
+          command.has_triangle_payload,
+          command.ax,
+          command.ay,
+          command.bx,
+          command.by,
+          command.cx,
+          command.cy,
+          command.au,
+          command.av,
+          command.bu,
+          command.bv,
+          command.cu,
+          command.cv,
+          command.uniform_r,
+          command.uniform_g,
+          command.uniform_b,
+          command.uniform_a,
+          command.texture_seed,
+        )
+      }
+      render_triangle_frame_with_staged_plan(
         ctx,
         planned_clear_r.val,
         planned_clear_g.val,
         planned_clear_b.val,
         planned_clear_a.val,
-        planned_draw_calls.val,
-        planned_has_triangle_payload.val,
-        planned_triangle_ax.val,
-        planned_triangle_ay.val,
-        planned_triangle_bx.val,
-        planned_triangle_by.val,
-        planned_triangle_cx.val,
-        planned_triangle_cy.val,
-        planned_uv_au.val,
-        planned_uv_av.val,
-        planned_uv_bu.val,
-        planned_uv_bv.val,
-        planned_uv_cu.val,
-        planned_uv_cv.val,
-        planned_uniform_r.val,
-        planned_uniform_g.val,
-        planned_uniform_b.val,
-        planned_uniform_a.val,
-        planned_texture_seed.val,
       )
       planned_draw_calls.val = 0
+      planned_draw_commands.val = []
       true
     }
     None => false

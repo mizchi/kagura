@@ -8,8 +8,8 @@
 
 ## 実装状況スナップショット (2026-02-19)
 
-- `moon test --target native`: 69 passed / 0 failed
-- `moon test --target js`: 73 passed / 0 failed
+- `moon test --target native`: 95 passed / 0 failed
+- `moon test --target js`: 87 passed / 0 failed
 - `moon run src/examples/runtime_smoke --target js`: pass (`runtime_smoke(js): ok (hooked)`)
 - `moon run src/examples/runtime_smoke_native --target native`: pass (`runtime_smoke_native: ok (real)`)
 - `pnpm e2e:smoke` (Playwright wasm/wasm-gc): 2 passed / 0 failed
@@ -31,10 +31,10 @@
 | Window/System API (fullscreen/cursor/monitor/deviceScale/vsync/close) | `run.go`, `internal/ui/ui.go`, `internal/ui/ui_glfw.go` | `PlatformDriver` API + wbtest 契約固定。Desktop は runtime bridge 経由で GLFW(close/fullscreen/cursor/content-scale/attention) を部分接続、Web は js runtime hook で DOM(fullscreen/cursor/close/attention/dpr) を部分接続 | 部分 |
 | Platform-Gfx 境界 (SurfaceToken) | `ui_glfw.go`, `ui_js.go` | `src/platform/surface_contracts.mbt` で token 化済み | 部分 |
 | GraphicsDriver 抽象 | `internal/graphicsdriver/graphics.go` | begin/end/new_image/new_shader/draw_triangles に加えて resize 契約を追加。native/web hook へ resize 伝播を接続 | 部分 |
-| Native backend (wgpu + GLFW) | graphics driver 実装群 | `src/gfx_wgpu_native` で三角形描画まで実装。draw command のメタデータ（drawCalls/pipeline/uniform/blend/dst/shader/index/region/payload-count）を runtime bridge に伝播済み。先頭三角形について position/UV + uniform + src_image_id を dynamic WGSL pipeline へ反映する最小経路を追加。`runtime_resize_surface` を追加し resize hook から surface 再構成できるようにした。`runtime_smoke_native` で実行確認 | 部分 |
-| Web backend (WebGPU/WebGL) | JS backend 群 | hook 経由で canvas/context 初期化 + clear pass + drawCalls 分の三角形描画 + WebGPU→WebGL2 fallback まで接続。draw command のメタデータ（pipeline/uniform/blend/dst/shader/index/region/payload-count）に加えて、先頭三角形 payload（position/UV/uniform/src_image_id）を js/wasm host へ伝播済み。js 側の present では payload の position/uniform 色を shader source に反映する最小描画経路を追加（texture sample/複数コマンド最適化は未実装）。`runtime_smoke` wasm e2e で経路確認 | 部分 |
+| Native backend (wgpu + GLFW) | graphics driver 実装群 | `src/gfx_wgpu_native` で三角形描画まで実装。draw command のメタデータ（drawCalls/pipeline/uniform/blend/dst/shader/index/region/payload-count）を runtime bridge に伝播済み。さらにフレーム内 draw command queue を導入し、コマンドごとの triangle payload（position/UV/uniform/src_image_id）を保持して 1 pass で staged 描画する経路を追加。payload 描画は vertex/index buffer（queue write + drawIndexed）と sampler/texture bind group（seed 由来の最小 texture sampling）を使う経路へ更新済み。payload shader/pipeline は Native 側で LRU キャッシュ（device+format+payload key）を持ち、再生成コストを抑制。texture/bind-group は `seed + generation + pipeline` をキーにした最小 LRU キャッシュへ拡張済み。`src_image_id -> 2x2 RGBA palette` registry（register/clear/debug）と `src_image_id -> width/height/RGBA8 pixels` staged upload registry（begin/set/end + patch + debug query）を追加。generation 差分時は texture を作り直すだけでなく、サイズ一致かつ dirty rect ありなら `wgpuQueueWriteTexture` の subresource 更新でキャッシュ texture を in-place 更新する経路を追加。`runtime_resize_surface` を追加し resize hook から surface 再構成できるようにした。`runtime_smoke_native` で実行確認 | 部分 |
+| Web backend (WebGPU/WebGL) | JS backend 群 | hook 経由で canvas/context 初期化 + clear pass + drawCalls 分の三角形描画 + WebGPU→WebGL2 fallback まで接続。draw command のメタデータ（pipeline/uniform/blend/dst/shader/index/region/payload-count）に加えて、triangle payload（position/UV/uniform/src_image_id）を js/wasm host へ伝播済み。js 側の present はフレーム内 command queue を順に処理して payload の position/uniform 色を shader source に反映する最小描画経路へ更新（texture sample/頂点バッファ/本格 cache は未実装）。`web_runtime_hooks` には native と同名の source image 同期 API を追加済み（現状は契約合わせの no-op）。`runtime_smoke` wasm e2e で経路確認 | 部分 |
 | CommandQueue 集約/flush | `internal/graphicscommand/commandqueue.go` | `SimpleCommandQueue` で pipeline/texture(blit先)/blend/uniform/index 条件の merge を実装 | 部分 |
-| Image/Atlas 管理 | `internal/atlas/image.go` | `SimpleImageRepository`/`SimpleShaderRepository`/`SimpleMaterialRepository` と `SimpleAtlasAllocator` の最小実装を追加（高度な管理戦略は未実装） | 部分 |
+| Image/Atlas 管理 | `internal/atlas/image.go` | `SimpleImageRepository`/`SimpleShaderRepository`/`SimpleMaterialRepository` と `SimpleAtlasAllocator` の最小実装を追加（高度な管理戦略は未実装）。image spec に 2x2 RGBA palette と任意 RGBA8 配列を保持できるよう拡張し、`image_id -> palette/pixels/generation` の export API (`SourceImageBinding`) を追加。`update_image_spec` で同サイズ更新時に generation を進め、RGBA8 差分から dirty rect を計算できるようにした。`list_dirty_source_image_bindings`/`clear_source_image_dirty_flags` を追加し、native/web hooks には `sync_dirty_source_images_from_repository` を追加。native は dirty rect が full でない更新で patch API を使うよう接続済み（web は契約のみ） | 部分 |
 | Shader Frontend/Hash | `internal/graphics/shader.go`, `internal/shader/shader.go` | source 前処理 + entrypoint/unit/src-image 含む hash を実装。`//kage:unit` directive（pixels/texels）の解釈を追加（Kage本体は未実装） | 部分 |
 | Uniform 正規化 | `internal/ui/shader.go`, `internal/shaderir/program.go` | layout 長（preserved/user）正規化 + source の識別子境界に基づく unused uniform 0化を実装 | 部分 |
 | Builtin shader source | `internal/builtinshader/shader.go` | filter/address/color_m 差分の WGSL source 生成 + lazy cache + clear/evict を実装 | 部分 |
@@ -52,8 +52,19 @@
 ### P0: まず「Web と Native 両方で実ゲーム描画」を成立させる
 
 1. `gfx` draw command を Native 実 backend に接続する  
-   - 現在は Native hook が `end(present)` 時に固定三角形を描くのみ。  
-   - `DrawTrianglesCommand` を実際に反映する経路へ置き換える。
+   - draw command メタデータ伝播 + triangle payload の staged 描画経路（複数 command/フレーム）までは接続済み。
+   - payload 用の pipeline cache、vertex/index buffer 転送、最小 texture sampling + bind group は導入済み。
+   - bind group の寿命管理と再利用戦略（LRU + clear 連動）は導入済み。  
+   - `src_image_id` ごとの palette registry（2x2 RGBA）経由で texture を解決する最小 API は導入済み。  
+   - `src_image_id` ごとの RGBA8 staged upload registry（width/height/pixels）経由で texture を解決する API は導入済み。  
+   - `asset` 側の palette/rgba8 情報を native hook から registry へ同期する導線（bindings/repository）は導入済み。  
+   - texture/bind-group cache key の更新世代対応と、Repository generation を使った native 同期の差分反映は導入済み。  
+   - dirty rect を backend の subresource 更新へ接続済み（source image registry 経由、サイズ一致時）。
+   - `asset` 層で Atlas allocator 統合 + atlas page 単位 dirty rect 管理を実装済み（`SimpleAtlasImageRepository`）。
+   - runtime/native/web hooks に atlas page dirty binding 同期 API を追加済み（native 実 backend の smoke で検証）。
+   - `asset.get_atlas_draw_source`（page id + uv）を追加し、`runtime_smoke_native` の draw command は atlas page ID 経由へ切替済み。
+   - `draw2d` パッケージを追加し、atlas 前提の quad draw command builder を導入済み。
+   - 残タスク: sprite/tilemap 実装時の描画コマンド組み立てを `draw2d` + atlas draw source へ統一する。
 2. WebGPU 実装を `WebCanvasPlatform`/`gfx` hook 経由で接続する  
    - JS 側で canvas/context 取得、surface token 生成、begin/end/draw を本実装化。
 3. WebGL2 フォールバック backend を追加する  

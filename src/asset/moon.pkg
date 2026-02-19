@@ -1,3 +1,4 @@
 import {
   "mizchi/game_engine/gfx" @gfx,
+  "mizchi/game_engine/image_palette" @image_palette,
 }

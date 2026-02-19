@@ -1131,6 +1131,7 @@ extern "js" fn js_webgpu_begin(
   #|   gpu.lastIndexCount = 0;
   #|   gpu.lastSrcImageCount = 0;
   #|   gpu.lastUniformDwordCount = 0;
+  #|   gpu.commands = [];
   #| }
 
 ///|
@@ -1206,6 +1207,21 @@ extern "js" fn js_webgpu_record_draw(
   #|   gpu.lastPayloadUniformB = Number(payloadUniformB ?? 1);
   #|   gpu.lastPayloadUniformA = Number(payloadUniformA ?? 1);
   #|   gpu.lastPayloadTextureSeed = Number(payloadTextureSeed ?? 0) | 0;
+  #|   if (!Array.isArray(gpu.commands)) gpu.commands = [];
+  #|   gpu.commands.push({
+  #|     drawCalls: drawCalls <= 0 ? 1 : (Number(drawCalls) | 0),
+  #|     payloadHasTriangle: (Number(payloadHasTriangle ?? 0) | 0) !== 0,
+  #|     ax: Number(payloadAx ?? 0),
+  #|     ay: Number(payloadAy ?? 0.5),
+  #|     bx: Number(payloadBx ?? -0.5),
+  #|     by: Number(payloadBy ?? -0.5),
+  #|     cx: Number(payloadCx ?? 0.5),
+  #|     cy: Number(payloadCy ?? -0.5),
+  #|     uniformR: Number(payloadUniformR ?? 1),
+  #|     uniformG: Number(payloadUniformG ?? 1),
+  #|     uniformB: Number(payloadUniformB ?? 1),
+  #|     uniformA: Number(payloadUniformA ?? 1),
+  #|   });
   #| }
 
 ///|
@@ -1260,19 +1276,42 @@ extern "js" fn js_webgpu_present() -> Bool =
   #|         storeOp: "store",
   #|       }],
   #|     });
-  #|     const drawCalls = Number(currentGpu.drawCalls ?? 0) | 0;
-  #|     if (drawCalls > 0) {
-  #|       const payloadHasTriangle = !!currentGpu.lastPayloadHasTriangle;
-  #|       const ax = payloadHasTriangle ? Number(currentGpu.lastPayloadAx ?? 0.0) : 0.0;
-  #|       const ay = payloadHasTriangle ? Number(currentGpu.lastPayloadAy ?? 0.5) : 0.5;
-  #|       const bx = payloadHasTriangle ? Number(currentGpu.lastPayloadBx ?? -0.5) : -0.5;
-  #|       const by = payloadHasTriangle ? Number(currentGpu.lastPayloadBy ?? -0.5) : -0.5;
-  #|       const cx = payloadHasTriangle ? Number(currentGpu.lastPayloadCx ?? 0.5) : 0.5;
-  #|       const cy = payloadHasTriangle ? Number(currentGpu.lastPayloadCy ?? -0.5) : -0.5;
-  #|       const uniformR = Number(currentGpu.lastPayloadUniformR ?? 1.0);
-  #|       const uniformG = Number(currentGpu.lastPayloadUniformG ?? 0.0);
-  #|       const uniformB = Number(currentGpu.lastPayloadUniformB ?? 0.0);
-  #|       const uniformA = Number(currentGpu.lastPayloadUniformA ?? 1.0);
+  #|     const drawCommands = Array.isArray(currentGpu.commands)
+  #|       ? currentGpu.commands.slice()
+  #|       : [];
+  #|     if (drawCommands.length === 0) {
+  #|       const fallbackDrawCalls = Number(currentGpu.drawCalls ?? 0) | 0;
+  #|       if (fallbackDrawCalls > 0) {
+  #|         drawCommands.push({
+  #|           drawCalls: fallbackDrawCalls,
+  #|           payloadHasTriangle: !!currentGpu.lastPayloadHasTriangle,
+  #|           ax: Number(currentGpu.lastPayloadAx ?? 0.0),
+  #|           ay: Number(currentGpu.lastPayloadAy ?? 0.5),
+  #|           bx: Number(currentGpu.lastPayloadBx ?? -0.5),
+  #|           by: Number(currentGpu.lastPayloadBy ?? -0.5),
+  #|           cx: Number(currentGpu.lastPayloadCx ?? 0.5),
+  #|           cy: Number(currentGpu.lastPayloadCy ?? -0.5),
+  #|           uniformR: Number(currentGpu.lastPayloadUniformR ?? 1.0),
+  #|           uniformG: Number(currentGpu.lastPayloadUniformG ?? 0.0),
+  #|           uniformB: Number(currentGpu.lastPayloadUniformB ?? 0.0),
+  #|           uniformA: Number(currentGpu.lastPayloadUniformA ?? 1.0),
+  #|         });
+  #|       }
+  #|     }
+  #|     for (const drawCommand of drawCommands) {
+  #|       const drawCalls = Number(drawCommand.drawCalls ?? 0) | 0;
+  #|       if (drawCalls <= 0) continue;
+  #|       const payloadHasTriangle = !!drawCommand.payloadHasTriangle;
+  #|       const ax = payloadHasTriangle ? Number(drawCommand.ax ?? 0.0) : 0.0;
+  #|       const ay = payloadHasTriangle ? Number(drawCommand.ay ?? 0.5) : 0.5;
+  #|       const bx = payloadHasTriangle ? Number(drawCommand.bx ?? -0.5) : -0.5;
+  #|       const by = payloadHasTriangle ? Number(drawCommand.by ?? -0.5) : -0.5;
+  #|       const cx = payloadHasTriangle ? Number(drawCommand.cx ?? 0.5) : 0.5;
+  #|       const cy = payloadHasTriangle ? Number(drawCommand.cy ?? -0.5) : -0.5;
+  #|       const uniformR = Number(drawCommand.uniformR ?? 1.0);
+  #|       const uniformG = Number(drawCommand.uniformG ?? 0.0);
+  #|       const uniformB = Number(drawCommand.uniformB ?? 0.0);
+  #|       const uniformA = Number(drawCommand.uniformA ?? 1.0);
   #|       const shaderKey = [
   #|         format,
   #|         ax.toFixed(6), ay.toFixed(6), bx.toFixed(6), by.toFixed(6), cx.toFixed(6), cy.toFixed(6),
@@ -1329,6 +1368,7 @@ extern "js" fn js_webgpu_present() -> Bool =
   #|     pass.end();
   #|     currentDevice.queue.submit([encoder.finish()]);
   #|     currentGpu.drawCalls = 0;
+  #|     currentGpu.commands = [];
   #|     return true;
   #|   };
   #|   const scheduleVsync = !!state.vsyncEnabled && typeof globalThis.requestAnimationFrame === "function";
@@ -1388,6 +1428,7 @@ extern "js" fn js_webgl2_begin(
   #|   webgl2.lastIndexCount = 0;
   #|   webgl2.lastSrcImageCount = 0;
   #|   webgl2.lastUniformDwordCount = 0;
+  #|   webgl2.commands = [];
   #| }
 
 ///|
@@ -1463,6 +1504,21 @@ extern "js" fn js_webgl2_record_draw(
   #|   webgl2.lastPayloadUniformB = Number(payloadUniformB ?? 1);
   #|   webgl2.lastPayloadUniformA = Number(payloadUniformA ?? 1);
   #|   webgl2.lastPayloadTextureSeed = Number(payloadTextureSeed ?? 0) | 0;
+  #|   if (!Array.isArray(webgl2.commands)) webgl2.commands = [];
+  #|   webgl2.commands.push({
+  #|     drawCalls: drawCalls <= 0 ? 1 : (Number(drawCalls) | 0),
+  #|     payloadHasTriangle: (Number(payloadHasTriangle ?? 0) | 0) !== 0,
+  #|     ax: Number(payloadAx ?? 0),
+  #|     ay: Number(payloadAy ?? 0.5),
+  #|     bx: Number(payloadBx ?? -0.5),
+  #|     by: Number(payloadBy ?? -0.5),
+  #|     cx: Number(payloadCx ?? 0.5),
+  #|     cy: Number(payloadCy ?? -0.5),
+  #|     uniformR: Number(payloadUniformR ?? 1),
+  #|     uniformG: Number(payloadUniformG ?? 1),
+  #|     uniformB: Number(payloadUniformB ?? 1),
+  #|     uniformA: Number(payloadUniformA ?? 1),
+  #|   });
   #| }
 
 ///|
@@ -1497,21 +1553,44 @@ extern "js" fn js_webgl2_present() -> Bool =
   #|     const [r, g, b, a] = currentWebgl2.clear;
   #|     currentGl.clearColor(r, g, b, a);
   #|     currentGl.clear(currentGl.COLOR_BUFFER_BIT);
-  #|     const drawCalls = Number(currentWebgl2.drawCalls ?? 0) | 0;
-  #|     if (drawCalls > 0) {
+  #|     const drawCommands = Array.isArray(currentWebgl2.commands)
+  #|       ? currentWebgl2.commands.slice()
+  #|       : [];
+  #|     if (drawCommands.length === 0) {
+  #|       const fallbackDrawCalls = Number(currentWebgl2.drawCalls ?? 0) | 0;
+  #|       if (fallbackDrawCalls > 0) {
+  #|         drawCommands.push({
+  #|           drawCalls: fallbackDrawCalls,
+  #|           payloadHasTriangle: !!currentWebgl2.lastPayloadHasTriangle,
+  #|           ax: Number(currentWebgl2.lastPayloadAx ?? 0.0),
+  #|           ay: Number(currentWebgl2.lastPayloadAy ?? 0.5),
+  #|           bx: Number(currentWebgl2.lastPayloadBx ?? -0.5),
+  #|           by: Number(currentWebgl2.lastPayloadBy ?? -0.5),
+  #|           cx: Number(currentWebgl2.lastPayloadCx ?? 0.5),
+  #|           cy: Number(currentWebgl2.lastPayloadCy ?? -0.5),
+  #|           uniformR: Number(currentWebgl2.lastPayloadUniformR ?? 1.0),
+  #|           uniformG: Number(currentWebgl2.lastPayloadUniformG ?? 0.0),
+  #|           uniformB: Number(currentWebgl2.lastPayloadUniformB ?? 0.0),
+  #|           uniformA: Number(currentWebgl2.lastPayloadUniformA ?? 1.0),
+  #|         });
+  #|       }
+  #|     }
+  #|     for (const drawCommand of drawCommands) {
+  #|       const drawCalls = Number(drawCommand.drawCalls ?? 0) | 0;
+  #|       if (drawCalls <= 0) continue;
   #|       let program = currentWebgl2.program;
   #|       let vao = currentWebgl2.vao;
-  #|       const payloadHasTriangle = !!currentWebgl2.lastPayloadHasTriangle;
-  #|       const ax = payloadHasTriangle ? Number(currentWebgl2.lastPayloadAx ?? 0.0) : 0.0;
-  #|       const ay = payloadHasTriangle ? Number(currentWebgl2.lastPayloadAy ?? 0.5) : 0.5;
-  #|       const bx = payloadHasTriangle ? Number(currentWebgl2.lastPayloadBx ?? -0.5) : -0.5;
-  #|       const by = payloadHasTriangle ? Number(currentWebgl2.lastPayloadBy ?? -0.5) : -0.5;
-  #|       const cx = payloadHasTriangle ? Number(currentWebgl2.lastPayloadCx ?? 0.5) : 0.5;
-  #|       const cy = payloadHasTriangle ? Number(currentWebgl2.lastPayloadCy ?? -0.5) : -0.5;
-  #|       const uniformR = Number(currentWebgl2.lastPayloadUniformR ?? 1.0);
-  #|       const uniformG = Number(currentWebgl2.lastPayloadUniformG ?? 0.0);
-  #|       const uniformB = Number(currentWebgl2.lastPayloadUniformB ?? 0.0);
-  #|       const uniformA = Number(currentWebgl2.lastPayloadUniformA ?? 1.0);
+  #|       const payloadHasTriangle = !!drawCommand.payloadHasTriangle;
+  #|       const ax = payloadHasTriangle ? Number(drawCommand.ax ?? 0.0) : 0.0;
+  #|       const ay = payloadHasTriangle ? Number(drawCommand.ay ?? 0.5) : 0.5;
+  #|       const bx = payloadHasTriangle ? Number(drawCommand.bx ?? -0.5) : -0.5;
+  #|       const by = payloadHasTriangle ? Number(drawCommand.by ?? -0.5) : -0.5;
+  #|       const cx = payloadHasTriangle ? Number(drawCommand.cx ?? 0.5) : 0.5;
+  #|       const cy = payloadHasTriangle ? Number(drawCommand.cy ?? -0.5) : -0.5;
+  #|       const uniformR = Number(drawCommand.uniformR ?? 1.0);
+  #|       const uniformG = Number(drawCommand.uniformG ?? 0.0);
+  #|       const uniformB = Number(drawCommand.uniformB ?? 0.0);
+  #|       const uniformA = Number(drawCommand.uniformA ?? 1.0);
   #|       const shaderKey = [
   #|         ax.toFixed(6), ay.toFixed(6), bx.toFixed(6), by.toFixed(6), cx.toFixed(6), cy.toFixed(6),
   #|         uniformR.toFixed(6), uniformG.toFixed(6), uniformB.toFixed(6), uniformA.toFixed(6),
@@ -1607,6 +1686,7 @@ extern "js" fn js_webgl2_present() -> Bool =
   #|       }
   #|     }
   #|     currentWebgl2.drawCalls = 0;
+  #|     currentWebgl2.commands = [];
   #|     return true;
   #|   };
   #|   const scheduleVsync = !!state.vsyncEnabled && typeof globalThis.requestAnimationFrame === "function";
@@ -2257,6 +2337,28 @@ test "js_webgpu_present emits draw calls from recorded count" {
 }
 
 ///|
+test "js_webgpu_present renders queued draw commands in order" {
+  test_setup_present_state(true, false, false)
+  js_webgpu_begin(0.0, 0.0, 0.0, 1.0)
+  js_webgpu_record_draw(
+    2, 7, 11, 2, 100, 200, 4, 2, 9, 16, 6, 2, 3, 1, -0.8, 0.7, -0.2, -0.6, 0.9, -0.3,
+    0.0, 0.0, 1.0, 0.0, 1.0, 1.0, 0.2, 0.4, 0.9, 1.0, 5,
+  )
+  js_webgpu_record_draw(
+    1, 8, 12, 1, 101, 201, 6, 1, 3, 12, 3, 1, 4, 1, -0.6, 0.5, -0.1, -0.7, 0.7, -0.2,
+    0.0, 0.0, 1.0, 0.0, 1.0, 1.0, 0.3, 0.6, 0.8, 1.0, 9,
+  )
+  let presented = js_webgpu_present()
+  assert_true(presented)
+  assert_eq(test_present_draw_count(), 3)
+  assert_eq(test_last_pipeline_id(true), 8)
+  assert_eq(test_last_payload_texture_seed(true), 9)
+  assert_true(test_last_webgpu_shader_source().contains("vec2f(-0.6, 0.5)"))
+  assert_true(test_last_webgpu_shader_source().contains("vec4f(0.3, 0.6, 0.8"))
+  test_teardown_present_state()
+}
+
+///|
 test "js_webgl2_present emits draw calls from recorded count" {
   test_setup_present_state(false, false, false)
   js_webgl2_begin(0.0, 0.0, 0.0, 1.0)
@@ -2288,6 +2390,32 @@ test "js_webgl2_present emits draw calls from recorded count" {
   )
   assert_true(
     test_last_webgl2_fragment_shader_source().contains("vec4(0.3, 0.5, 0.8"),
+  )
+  test_teardown_present_state()
+}
+
+///|
+test "js_webgl2_present renders queued draw commands in order" {
+  test_setup_present_state(false, false, false)
+  js_webgl2_begin(0.0, 0.0, 0.0, 1.0)
+  js_webgl2_record_draw(
+    2, 9, 13, 3, 101, 201, 8, 1, 3, 12, 3, 1, 4, 1, -0.7, 0.6, -0.1, -0.5, 0.8, -0.4,
+    0.0, 0.0, 1.0, 0.0, 1.0, 1.0, 0.3, 0.5, 0.8, 1.0, 8,
+  )
+  js_webgl2_record_draw(
+    3, 10, 15, 1, 102, 202, 10, 2, 6, 16, 6, 2, 5, 1, -0.5, 0.4, -0.2, -0.6, 0.6,
+    -0.3, 0.0, 0.0, 1.0, 0.0, 1.0, 1.0, 0.4, 0.7, 0.9, 1.0, 6,
+  )
+  let presented = js_webgl2_present()
+  assert_true(presented)
+  assert_eq(test_present_draw_count(), 5)
+  assert_eq(test_last_pipeline_id(false), 10)
+  assert_eq(test_last_payload_texture_seed(false), 6)
+  assert_true(
+    test_last_webgl2_vertex_shader_source().contains("vec2(-0.5, 0.4)"),
+  )
+  assert_true(
+    test_last_webgl2_fragment_shader_source().contains("vec4(0.4, 0.7, 0.9"),
   )
   test_teardown_present_state()
 }
@@ -2974,4 +3102,93 @@ pub fn is_ready() -> Bool {
 ///|
 pub fn shutdown() -> Unit {
   uninstall()
+}
+
+///|
+pub fn register_source_image_palette(
+  _source_image_id : Int,
+  _palette : @image_palette.ImagePalette2x2,
+) -> Unit {
+  ()
+}
+
+///|
+pub fn register_source_image_solid_color(
+  _source_image_id : Int,
+  _color : @image_palette.Rgba,
+) -> Unit {
+  ()
+}
+
+///|
+pub fn register_source_image_rgba8(
+  _source_image_id : Int,
+  _width : Int,
+  _height : Int,
+  _rgba8_channels : Array[Int],
+) -> Unit {
+  ()
+}
+
+///|
+pub fn patch_source_image_rgba8(
+  _source_image_id : Int,
+  _width : Int,
+  _height : Int,
+  _dirty_x : Int,
+  _dirty_y : Int,
+  _dirty_width : Int,
+  _dirty_height : Int,
+  _rgba8_channels : Array[Int],
+) -> Bool {
+  false
+}
+
+///|
+pub fn clear_source_image_palettes() -> Unit {
+  ()
+}
+
+///|
+pub fn sync_source_image_palettes(
+  bindings : Array[@asset.ImagePaletteBinding],
+) -> Int {
+  bindings.length()
+}
+
+///|
+pub fn sync_source_image_palettes_from_repository(
+  repository : @asset.SimpleImageRepository,
+) -> Int {
+  @asset.list_image_palette_bindings(repository).length()
+}
+
+///|
+pub fn sync_source_images(bindings : Array[@asset.SourceImageBinding]) -> Int {
+  bindings.length()
+}
+
+///|
+pub fn sync_source_images_from_repository(
+  repository : @asset.SimpleImageRepository,
+) -> Int {
+  @asset.list_source_image_bindings(repository).length()
+}
+
+///|
+pub fn sync_dirty_source_images_from_repository(
+  repository : @asset.SimpleImageRepository,
+) -> Int {
+  let count = @asset.list_dirty_source_image_bindings(repository).length()
+  let _ = @asset.clear_source_image_dirty_flags(repository)
+  count
+}
+
+///|
+pub fn sync_dirty_atlas_pages_from_repository(
+  repository : @asset.SimpleAtlasImageRepository,
+) -> Int {
+  let count = @asset.list_dirty_atlas_page_bindings(repository).length()
+  let _ = @asset.clear_dirty_atlas_page_flags(repository)
+  count
 }

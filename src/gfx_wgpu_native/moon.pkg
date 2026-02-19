@@ -14,5 +14,6 @@ options(
     "runtime_bridge.mbt": [ "native" ],
     "runtime_bridge_wbtest.mbt": [ "native" ],
     "wgpu_bindings.mbt": [ "native" ],
+    "wgpu_bindings_wbtest.mbt": [ "native" ],
   },
 )

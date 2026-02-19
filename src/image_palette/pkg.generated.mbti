@@ -1,0 +1,39 @@
+// Generated using `moon info`, DON'T EDIT IT
+package "mizchi/game_engine/image_palette"
+
+// Values
+pub fn checker_palette_from_seed(Int) -> ImagePalette2x2
+
+pub fn clamp_channel(Int) -> Int
+
+pub fn new_image_palette_2x2(Rgba, Rgba, Rgba, Rgba) -> ImagePalette2x2
+
+pub fn new_rgba(Int, Int, Int, Int) -> Rgba
+
+pub fn new_solid_palette(Rgba) -> ImagePalette2x2
+
+pub fn palette_channel(ImagePalette2x2, Int, Int) -> Int
+
+// Errors
+
+// Types and methods
+pub struct ImagePalette2x2 {
+  p00 : Rgba
+  p10 : Rgba
+  p01 : Rgba
+  p11 : Rgba
+}
+pub impl Show for ImagePalette2x2
+
+pub struct Rgba {
+  r : Int
+  g : Int
+  b : Int
+  a : Int
+}
+pub impl Show for Rgba
+
+// Type aliases
+
+// Traits
+

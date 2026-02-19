@@ -162,6 +162,80 @@ pub fn render_triangle_frame_with_plan_payload(
 }
 
 ///|
+pub fn reset_triangle_draw_plan_queue() -> Unit {
+  reset_planned_draw_queue()
+}
+
+///|
+pub fn stage_triangle_draw_plan_command(
+  draw_calls : Int,
+  has_triangle_payload : Bool,
+  ax : Double,
+  ay : Double,
+  bx : Double,
+  by : Double,
+  cx : Double,
+  cy : Double,
+  au : Double,
+  av : Double,
+  bu : Double,
+  bv : Double,
+  cu : Double,
+  cv : Double,
+  uniform_r : Double,
+  uniform_g : Double,
+  uniform_b : Double,
+  uniform_a : Double,
+  texture_seed : Int,
+) -> Unit {
+  push_planned_draw_command(
+    draw_calls,
+    if has_triangle_payload {
+      1
+    } else {
+      0
+    },
+    ax,
+    ay,
+    bx,
+    by,
+    cx,
+    cy,
+    au,
+    av,
+    bu,
+    bv,
+    cu,
+    cv,
+    uniform_r,
+    uniform_g,
+    uniform_b,
+    uniform_a,
+    texture_seed,
+  )
+}
+
+///|
+pub fn render_triangle_frame_with_staged_plan(
+  ctx : TriangleContext,
+  clear_r : Double,
+  clear_g : Double,
+  clear_b : Double,
+  clear_a : Double,
+) -> Unit {
+  render_frame_with_staged_plan(
+    ctx.surface,
+    ctx.device,
+    ctx.queue,
+    ctx.pipeline,
+    clear_r,
+    clear_g,
+    clear_b,
+    clear_a,
+  )
+}
+
+///|
 pub fn reconfigure_triangle_surface(
   ctx : TriangleContext,
   width : Int,
@@ -191,6 +265,11 @@ pub fn poll(ctx : TriangleContext) -> Unit {
 
 ///|
 pub fn shutdown_triangle_context(ctx : TriangleContext) -> Unit {
+  clear_planned_source_image_registry()
+  clear_planned_image_palette_registry()
+  clear_planned_bind_group_cache()
+  clear_planned_pipeline_cache()
+  clear_planned_texture_cache()
   render_pipeline_release(ctx.pipeline)
   shader_module_release(ctx.shader)
   queue_release(ctx.queue)

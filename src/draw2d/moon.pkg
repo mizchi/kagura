@@ -1,0 +1,4 @@
+import {
+  "mizchi/game_engine/asset" @asset,
+  "mizchi/game_engine/gfx" @gfx,
+}

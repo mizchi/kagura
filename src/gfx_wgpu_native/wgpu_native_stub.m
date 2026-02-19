@@ -5,6 +5,7 @@
 #include <stdlib.h>
 #include <string.h>
 #include <stdio.h>
+#include <stdint.h>
 
 // WebGPU と GLFW の macOS 固有ヘッダー
 #if __has_include("../../deps/wgpu-macos/include/webgpu/webgpu.h")
@@ -97,6 +98,118 @@ typedef struct {
 static moonbit_touch_state g_touches[MOONBIT_MAX_TOUCHES];
 static int32_t g_touch_count = 0;
 static WGPUTextureFormat g_configured_surface_format = WGPUTextureFormat_BGRA8Unorm;
+
+#define MOONBIT_MAX_PLANNED_DRAW_COMMANDS 4096
+typedef struct {
+  int32_t draw_calls;
+  int32_t has_triangle_payload;
+  double ax;
+  double ay;
+  double bx;
+  double by;
+  double cx;
+  double cy;
+  double au;
+  double av;
+  double bu;
+  double bv;
+  double cu;
+  double cv;
+  double uniform_r;
+  double uniform_g;
+  double uniform_b;
+  double uniform_a;
+  int32_t texture_seed;
+} moonbit_planned_draw_command;
+static moonbit_planned_draw_command g_planned_draw_commands[MOONBIT_MAX_PLANNED_DRAW_COMMANDS];
+static int32_t g_planned_draw_command_count = 0;
+
+typedef struct {
+  float x;
+  float y;
+  float u;
+  float v;
+} moonbit_payload_vertex;
+
+#define MOONBIT_MAX_PLANNED_PIPELINE_CACHE_ENTRIES 128
+typedef struct {
+  int32_t used;
+  uintptr_t device_key;
+  WGPUTextureFormat format;
+  char shader_key[512];
+  WGPUShaderModule shader;
+  WGPURenderPipeline pipeline;
+  uint64_t stamp;
+} moonbit_planned_pipeline_cache_entry;
+static moonbit_planned_pipeline_cache_entry g_planned_pipeline_cache[MOONBIT_MAX_PLANNED_PIPELINE_CACHE_ENTRIES];
+static uint64_t g_planned_pipeline_cache_stamp = 1;
+
+#define MOONBIT_MAX_PLANNED_TEXTURE_CACHE_ENTRIES 256
+typedef struct {
+  int32_t used;
+  uintptr_t device_key;
+  int32_t texture_seed;
+  uint32_t texture_generation;
+  uint32_t texture_width;
+  uint32_t texture_height;
+  WGPUTexture texture;
+  WGPUTextureView texture_view;
+  WGPUSampler sampler;
+  uint64_t stamp;
+} moonbit_planned_texture_cache_entry;
+static moonbit_planned_texture_cache_entry g_planned_texture_cache[MOONBIT_MAX_PLANNED_TEXTURE_CACHE_ENTRIES];
+static uint64_t g_planned_texture_cache_stamp = 1;
+
+#define MOONBIT_MAX_PLANNED_BIND_GROUP_CACHE_ENTRIES 256
+typedef struct {
+  int32_t used;
+  uintptr_t device_key;
+  uintptr_t pipeline_key;
+  int32_t texture_seed;
+  uint32_t texture_generation;
+  WGPUBindGroup bind_group;
+  uint64_t stamp;
+} moonbit_planned_bind_group_cache_entry;
+static moonbit_planned_bind_group_cache_entry g_planned_bind_group_cache[MOONBIT_MAX_PLANNED_BIND_GROUP_CACHE_ENTRIES];
+static uint64_t g_planned_bind_group_cache_stamp = 1;
+
+#define MOONBIT_MAX_PLANNED_IMAGE_PALETTE_ENTRIES 512
+typedef struct {
+  int32_t used;
+  int32_t image_id;
+  uint32_t generation;
+  uint8_t pixels[16];
+  uint64_t stamp;
+} moonbit_planned_image_palette_entry;
+static moonbit_planned_image_palette_entry g_planned_image_palette[MOONBIT_MAX_PLANNED_IMAGE_PALETTE_ENTRIES];
+static uint64_t g_planned_image_palette_stamp = 1;
+
+#define MOONBIT_MAX_PLANNED_SOURCE_IMAGE_ENTRIES 256
+typedef struct {
+  int32_t used;
+  int32_t image_id;
+  uint32_t width;
+  uint32_t height;
+  uint32_t generation;
+  int32_t upload_mode; // 0: none, 1: full, 2: patch
+  int32_t touched_any;
+  uint32_t touched_min_x;
+  uint32_t touched_min_y;
+  uint32_t touched_max_x;
+  uint32_t touched_max_y;
+  int32_t dirty_has_rect;
+  uint32_t dirty_x;
+  uint32_t dirty_y;
+  uint32_t dirty_width;
+  uint32_t dirty_height;
+  uint8_t* pixels;
+  size_t pixel_length;
+  uint64_t stamp;
+} moonbit_planned_source_image_entry;
+static moonbit_planned_source_image_entry g_planned_source_images[MOONBIT_MAX_PLANNED_SOURCE_IMAGE_ENTRIES];
+static uint64_t g_planned_source_image_stamp = 1;
+
+void moonbit_clear_planned_bind_group_cache(void);
 
 static void moonbit_glfw_scroll_callback(GLFWwindow* window, double xoffset, double yoffset) {
   if (window == NULL || window != g_input_window) {
@@ -1094,9 +1207,1590 @@ void* moonbit_create_render_pipeline(
   return pipeline;
 }
 
+static uint64_t moonbit_next_planned_pipeline_cache_stamp(void) {
+  uint64_t stamp = g_planned_pipeline_cache_stamp;
+  g_planned_pipeline_cache_stamp += 1;
+  if (g_planned_pipeline_cache_stamp == 0) {
+    g_planned_pipeline_cache_stamp = 1;
+  }
+  return stamp;
+}
+
+static void moonbit_release_planned_pipeline_cache_entry(
+    moonbit_planned_pipeline_cache_entry* entry
+) {
+  if (entry == NULL || entry->used == 0) {
+    return;
+  }
+  if (entry->pipeline != NULL) {
+    wgpuRenderPipelineRelease(entry->pipeline);
+  }
+  if (entry->shader != NULL) {
+    wgpuShaderModuleRelease(entry->shader);
+  }
+  entry->used = 0;
+  entry->device_key = 0;
+  entry->format = WGPUTextureFormat_Undefined;
+  entry->shader_key[0] = '\0';
+  entry->shader = NULL;
+  entry->pipeline = NULL;
+  entry->stamp = 0;
+}
+
+void moonbit_clear_planned_pipeline_cache(void) {
+  moonbit_clear_planned_bind_group_cache();
+  for (int i = 0; i < MOONBIT_MAX_PLANNED_PIPELINE_CACHE_ENTRIES; i++) {
+    moonbit_release_planned_pipeline_cache_entry(&g_planned_pipeline_cache[i]);
+  }
+  g_planned_pipeline_cache_stamp = 1;
+}
+
+static uint64_t moonbit_next_planned_texture_cache_stamp(void) {
+  uint64_t stamp = g_planned_texture_cache_stamp;
+  g_planned_texture_cache_stamp += 1;
+  if (g_planned_texture_cache_stamp == 0) {
+    g_planned_texture_cache_stamp = 1;
+  }
+  return stamp;
+}
+
+static void moonbit_release_planned_texture_cache_entry(
+    moonbit_planned_texture_cache_entry* entry
+) {
+  if (entry == NULL || entry->used == 0) {
+    return;
+  }
+  if (entry->sampler != NULL) {
+    wgpuSamplerRelease(entry->sampler);
+  }
+  if (entry->texture_view != NULL) {
+    wgpuTextureViewRelease(entry->texture_view);
+  }
+  if (entry->texture != NULL) {
+    wgpuTextureRelease(entry->texture);
+  }
+  entry->used = 0;
+  entry->device_key = 0;
+  entry->texture_seed = 0;
+  entry->texture_generation = 0;
+  entry->texture_width = 0;
+  entry->texture_height = 0;
+  entry->texture = NULL;
+  entry->texture_view = NULL;
+  entry->sampler = NULL;
+  entry->stamp = 0;
+}
+
+void moonbit_clear_planned_texture_cache(void) {
+  moonbit_clear_planned_bind_group_cache();
+  for (int i = 0; i < MOONBIT_MAX_PLANNED_TEXTURE_CACHE_ENTRIES; i++) {
+    moonbit_release_planned_texture_cache_entry(&g_planned_texture_cache[i]);
+  }
+  g_planned_texture_cache_stamp = 1;
+}
+
+static uint64_t moonbit_next_planned_bind_group_cache_stamp(void) {
+  uint64_t stamp = g_planned_bind_group_cache_stamp;
+  g_planned_bind_group_cache_stamp += 1;
+  if (g_planned_bind_group_cache_stamp == 0) {
+    g_planned_bind_group_cache_stamp = 1;
+  }
+  return stamp;
+}
+
+static void moonbit_release_planned_bind_group_cache_entry(
+    moonbit_planned_bind_group_cache_entry* entry
+) {
+  if (entry == NULL || entry->used == 0) {
+    return;
+  }
+  if (entry->bind_group != NULL) {
+    wgpuBindGroupRelease(entry->bind_group);
+  }
+  entry->used = 0;
+  entry->device_key = 0;
+  entry->pipeline_key = 0;
+  entry->texture_seed = 0;
+  entry->texture_generation = 0;
+  entry->bind_group = NULL;
+  entry->stamp = 0;
+}
+
+void moonbit_clear_planned_bind_group_cache(void) {
+  for (int i = 0; i < MOONBIT_MAX_PLANNED_BIND_GROUP_CACHE_ENTRIES; i++) {
+    moonbit_release_planned_bind_group_cache_entry(&g_planned_bind_group_cache[i]);
+  }
+  g_planned_bind_group_cache_stamp = 1;
+}
+
+static uint8_t moonbit_clamp_u8_channel(int32_t value) {
+  if (value < 0) {
+    return 0;
+  }
+  if (value > 255) {
+    return 255;
+  }
+  return (uint8_t)value;
+}
+
+static uint32_t moonbit_next_resource_generation(uint32_t current) {
+  if (current == UINT32_MAX) {
+    return 1U;
+  }
+  if (current == 0U) {
+    return 1U;
+  }
+  return current + 1U;
+}
+
+static uint64_t moonbit_next_planned_image_palette_stamp(void) {
+  uint64_t stamp = g_planned_image_palette_stamp;
+  g_planned_image_palette_stamp += 1;
+  if (g_planned_image_palette_stamp == 0) {
+    g_planned_image_palette_stamp = 1;
+  }
+  return stamp;
+}
+
+static moonbit_planned_image_palette_entry* moonbit_lookup_planned_image_palette_entry(
+    int32_t image_id,
+    int touch_stamp
+) {
+  if (image_id < 0) {
+    return NULL;
+  }
+  for (int i = 0; i < MOONBIT_MAX_PLANNED_IMAGE_PALETTE_ENTRIES; i++) {
+    moonbit_planned_image_palette_entry* entry = &g_planned_image_palette[i];
+    if (entry->used != 0 && entry->image_id == image_id) {
+      if (touch_stamp != 0) {
+        entry->stamp = moonbit_next_planned_image_palette_stamp();
+      }
+      return entry;
+    }
+  }
+  return NULL;
+}
+
+void moonbit_clear_planned_image_palette_registry(void) {
+  for (int i = 0; i < MOONBIT_MAX_PLANNED_IMAGE_PALETTE_ENTRIES; i++) {
+    g_planned_image_palette[i].used = 0;
+    g_planned_image_palette[i].image_id = 0;
+    g_planned_image_palette[i].generation = 0;
+    memset(g_planned_image_palette[i].pixels, 0, sizeof(g_planned_image_palette[i].pixels));
+    g_planned_image_palette[i].stamp = 0;
+  }
+  g_planned_image_palette_stamp = 1;
+  moonbit_clear_planned_texture_cache();
+}
+
+void moonbit_register_planned_image_palette(
+    int32_t image_id,
+    int32_t p00_r,
+    int32_t p00_g,
+    int32_t p00_b,
+    int32_t p00_a,
+    int32_t p10_r,
+    int32_t p10_g,
+    int32_t p10_b,
+    int32_t p10_a,
+    int32_t p01_r,
+    int32_t p01_g,
+    int32_t p01_b,
+    int32_t p01_a,
+    int32_t p11_r,
+    int32_t p11_g,
+    int32_t p11_b,
+    int32_t p11_a
+) {
+  if (image_id < 0) {
+    return;
+  }
+
+  moonbit_planned_image_palette_entry* entry = moonbit_lookup_planned_image_palette_entry(
+    image_id,
+    0
+  );
+  if (entry == NULL) {
+    int empty_index = -1;
+    int lru_index = 0;
+    uint64_t lru_stamp = UINT64_MAX;
+    for (int i = 0; i < MOONBIT_MAX_PLANNED_IMAGE_PALETTE_ENTRIES; i++) {
+      moonbit_planned_image_palette_entry* cursor = &g_planned_image_palette[i];
+      if (cursor->used == 0) {
+        if (empty_index < 0) {
+          empty_index = i;
+        }
+        continue;
+      }
+      if (cursor->stamp < lru_stamp) {
+        lru_stamp = cursor->stamp;
+        lru_index = i;
+      }
+    }
+    const int chosen_index = empty_index >= 0 ? empty_index : lru_index;
+    entry = &g_planned_image_palette[chosen_index];
+    if (entry->used != 0 && entry->image_id != image_id) {
+      entry->generation = 0;
+    }
+  }
+
+  entry->used = 1;
+  entry->image_id = image_id;
+  entry->pixels[0] = moonbit_clamp_u8_channel(p00_r);
+  entry->pixels[1] = moonbit_clamp_u8_channel(p00_g);
+  entry->pixels[2] = moonbit_clamp_u8_channel(p00_b);
+  entry->pixels[3] = moonbit_clamp_u8_channel(p00_a);
+  entry->pixels[4] = moonbit_clamp_u8_channel(p10_r);
+  entry->pixels[5] = moonbit_clamp_u8_channel(p10_g);
+  entry->pixels[6] = moonbit_clamp_u8_channel(p10_b);
+  entry->pixels[7] = moonbit_clamp_u8_channel(p10_a);
+  entry->pixels[8] = moonbit_clamp_u8_channel(p01_r);
+  entry->pixels[9] = moonbit_clamp_u8_channel(p01_g);
+  entry->pixels[10] = moonbit_clamp_u8_channel(p01_b);
+  entry->pixels[11] = moonbit_clamp_u8_channel(p01_a);
+  entry->pixels[12] = moonbit_clamp_u8_channel(p11_r);
+  entry->pixels[13] = moonbit_clamp_u8_channel(p11_g);
+  entry->pixels[14] = moonbit_clamp_u8_channel(p11_b);
+  entry->pixels[15] = moonbit_clamp_u8_channel(p11_a);
+  entry->generation = moonbit_next_resource_generation(entry->generation);
+  entry->stamp = moonbit_next_planned_image_palette_stamp();
+}
+
+int32_t moonbit_planned_image_palette_registry_count(void) {
+  int32_t count = 0;
+  for (int i = 0; i < MOONBIT_MAX_PLANNED_IMAGE_PALETTE_ENTRIES; i++) {
+    if (g_planned_image_palette[i].used != 0) {
+      count += 1;
+    }
+  }
+  return count;
+}
+
+int32_t moonbit_planned_image_palette_channel(
+    int32_t image_id,
+    int32_t pixel_index,
+    int32_t channel_index
+) {
+  if (pixel_index < 0 || pixel_index >= 4) {
+    return -1;
+  }
+  if (channel_index < 0 || channel_index >= 4) {
+    return -1;
+  }
+  moonbit_planned_image_palette_entry* entry = moonbit_lookup_planned_image_palette_entry(
+    image_id,
+    0
+  );
+  if (entry == NULL) {
+    return -1;
+  }
+  const int offset = pixel_index * 4 + channel_index;
+  return (int32_t)entry->pixels[offset];
+}
+
+int32_t moonbit_planned_image_palette_generation(int32_t image_id) {
+  moonbit_planned_image_palette_entry* entry = moonbit_lookup_planned_image_palette_entry(
+    image_id,
+    0
+  );
+  if (entry == NULL) {
+    return -1;
+  }
+  return (int32_t)entry->generation;
+}
+
+static uint64_t moonbit_next_planned_source_image_stamp(void) {
+  uint64_t stamp = g_planned_source_image_stamp;
+  g_planned_source_image_stamp += 1;
+  if (g_planned_source_image_stamp == 0) {
+    g_planned_source_image_stamp = 1;
+  }
+  return stamp;
+}
+
+static void moonbit_release_planned_source_image_entry(
+    moonbit_planned_source_image_entry* entry
+) {
+  if (entry == NULL || entry->used == 0) {
+    return;
+  }
+  if (entry->pixels != NULL) {
+    free(entry->pixels);
+  }
+  entry->used = 0;
+  entry->image_id = 0;
+  entry->width = 0;
+  entry->height = 0;
+  entry->generation = 0;
+  entry->upload_mode = 0;
+  entry->touched_any = 0;
+  entry->touched_min_x = 0;
+  entry->touched_min_y = 0;
+  entry->touched_max_x = 0;
+  entry->touched_max_y = 0;
+  entry->dirty_has_rect = 0;
+  entry->dirty_x = 0;
+  entry->dirty_y = 0;
+  entry->dirty_width = 0;
+  entry->dirty_height = 0;
+  entry->pixels = NULL;
+  entry->pixel_length = 0;
+  entry->stamp = 0;
+}
+
+static moonbit_planned_source_image_entry* moonbit_lookup_planned_source_image_entry(
+    int32_t image_id,
+    int touch_stamp
+) {
+  if (image_id < 0) {
+    return NULL;
+  }
+  for (int i = 0; i < MOONBIT_MAX_PLANNED_SOURCE_IMAGE_ENTRIES; i++) {
+    moonbit_planned_source_image_entry* entry = &g_planned_source_images[i];
+    if (entry->used != 0 && entry->image_id == image_id) {
+      if (touch_stamp != 0) {
+        entry->stamp = moonbit_next_planned_source_image_stamp();
+      }
+      return entry;
+    }
+  }
+  return NULL;
+}
+
+static void moonbit_reset_source_image_upload_state(
+    moonbit_planned_source_image_entry* entry,
+    int32_t upload_mode
+) {
+  if (entry == NULL) {
+    return;
+  }
+  entry->upload_mode = upload_mode;
+  entry->touched_any = 0;
+  entry->touched_min_x = 0;
+  entry->touched_min_y = 0;
+  entry->touched_max_x = 0;
+  entry->touched_max_y = 0;
+}
+
+static void moonbit_mark_source_image_touched(
+    moonbit_planned_source_image_entry* entry,
+    uint32_t x,
+    uint32_t y
+) {
+  if (entry == NULL) {
+    return;
+  }
+  if (entry->touched_any == 0) {
+    entry->touched_any = 1;
+    entry->touched_min_x = x;
+    entry->touched_max_x = x;
+    entry->touched_min_y = y;
+    entry->touched_max_y = y;
+    return;
+  }
+  if (x < entry->touched_min_x) {
+    entry->touched_min_x = x;
+  }
+  if (x > entry->touched_max_x) {
+    entry->touched_max_x = x;
+  }
+  if (y < entry->touched_min_y) {
+    entry->touched_min_y = y;
+  }
+  if (y > entry->touched_max_y) {
+    entry->touched_max_y = y;
+  }
+}
+
+void moonbit_clear_planned_source_image_registry(void) {
+  for (int i = 0; i < MOONBIT_MAX_PLANNED_SOURCE_IMAGE_ENTRIES; i++) {
+    moonbit_release_planned_source_image_entry(&g_planned_source_images[i]);
+  }
+  g_planned_source_image_stamp = 1;
+  moonbit_clear_planned_texture_cache();
+}
+
+void moonbit_begin_planned_source_image_upload(
+    int32_t image_id,
+    int32_t width,
+    int32_t height
+) {
+  if (image_id < 0) {
+    return;
+  }
+  const uint32_t safe_width = width <= 0 ? 1U : (uint32_t)width;
+  const uint32_t safe_height = height <= 0 ? 1U : (uint32_t)height;
+  const size_t pixel_length = (size_t)safe_width * (size_t)safe_height * 4U;
+  if (pixel_length == 0) {
+    return;
+  }
+
+  moonbit_planned_source_image_entry* entry = moonbit_lookup_planned_source_image_entry(
+    image_id,
+    0
+  );
+  if (entry == NULL) {
+    int empty_index = -1;
+    int lru_index = 0;
+    uint64_t lru_stamp = UINT64_MAX;
+    for (int i = 0; i < MOONBIT_MAX_PLANNED_SOURCE_IMAGE_ENTRIES; i++) {
+      moonbit_planned_source_image_entry* cursor = &g_planned_source_images[i];
+      if (cursor->used == 0) {
+        if (empty_index < 0) {
+          empty_index = i;
+        }
+        continue;
+      }
+      if (cursor->stamp < lru_stamp) {
+        lru_stamp = cursor->stamp;
+        lru_index = i;
+      }
+    }
+    const int chosen_index = empty_index >= 0 ? empty_index : lru_index;
+    entry = &g_planned_source_images[chosen_index];
+    if (entry->used != 0) {
+      moonbit_release_planned_source_image_entry(entry);
+    }
+  } else if (entry->pixels != NULL) {
+    free(entry->pixels);
+    entry->pixels = NULL;
+  }
+
+  uint8_t* pixels = (uint8_t*)malloc(pixel_length);
+  if (pixels == NULL) {
+    moonbit_release_planned_source_image_entry(entry);
+    return;
+  }
+  memset(pixels, 0, pixel_length);
+  entry->used = 1;
+  entry->image_id = image_id;
+  entry->width = safe_width;
+  entry->height = safe_height;
+  entry->pixels = pixels;
+  entry->pixel_length = pixel_length;
+  entry->dirty_has_rect = 0;
+  entry->dirty_x = 0;
+  entry->dirty_y = 0;
+  entry->dirty_width = 0;
+  entry->dirty_height = 0;
+  moonbit_reset_source_image_upload_state(entry, 1);
+  entry->stamp = moonbit_next_planned_source_image_stamp();
+}
+
+int32_t moonbit_begin_planned_source_image_patch(int32_t image_id) {
+  moonbit_planned_source_image_entry* entry = moonbit_lookup_planned_source_image_entry(
+    image_id,
+    0
+  );
+  if (entry == NULL || entry->pixels == NULL || entry->width == 0 || entry->height == 0) {
+    return 0;
+  }
+  moonbit_reset_source_image_upload_state(entry, 2);
+  return 1;
+}
+
+void moonbit_set_planned_source_image_pixel(
+    int32_t image_id,
+    int32_t x,
+    int32_t y,
+    int32_t r,
+    int32_t g,
+    int32_t b,
+    int32_t a
+) {
+  moonbit_planned_source_image_entry* entry = moonbit_lookup_planned_source_image_entry(
+    image_id,
+    0
+  );
+  if (entry == NULL || entry->pixels == NULL) {
+    return;
+  }
+  if (x < 0 || y < 0) {
+    return;
+  }
+  const uint32_t ux = (uint32_t)x;
+  const uint32_t uy = (uint32_t)y;
+  if (ux >= entry->width || uy >= entry->height) {
+    return;
+  }
+  const size_t offset = ((size_t)uy * (size_t)entry->width + (size_t)ux) * 4U;
+  if (offset + 3 >= entry->pixel_length) {
+    return;
+  }
+  entry->pixels[offset + 0] = moonbit_clamp_u8_channel(r);
+  entry->pixels[offset + 1] = moonbit_clamp_u8_channel(g);
+  entry->pixels[offset + 2] = moonbit_clamp_u8_channel(b);
+  entry->pixels[offset + 3] = moonbit_clamp_u8_channel(a);
+  moonbit_mark_source_image_touched(entry, ux, uy);
+  entry->stamp = moonbit_next_planned_source_image_stamp();
+}
+
+void moonbit_end_planned_source_image_upload(int32_t image_id) {
+  moonbit_planned_source_image_entry* entry = moonbit_lookup_planned_source_image_entry(
+    image_id,
+    0
+  );
+  if (entry == NULL) {
+    return;
+  }
+  if (entry->upload_mode == 1) {
+    entry->dirty_has_rect = 1;
+    entry->dirty_x = 0;
+    entry->dirty_y = 0;
+    entry->dirty_width = entry->width;
+    entry->dirty_height = entry->height;
+  } else if (entry->upload_mode == 2 && entry->touched_any != 0) {
+    entry->dirty_has_rect = 1;
+    entry->dirty_x = entry->touched_min_x;
+    entry->dirty_y = entry->touched_min_y;
+    entry->dirty_width = entry->touched_max_x - entry->touched_min_x + 1U;
+    entry->dirty_height = entry->touched_max_y - entry->touched_min_y + 1U;
+  }
+  entry->generation = moonbit_next_resource_generation(entry->generation);
+  moonbit_reset_source_image_upload_state(entry, 0);
+  entry->stamp = moonbit_next_planned_source_image_stamp();
+}
+
+int32_t moonbit_end_planned_source_image_patch(int32_t image_id) {
+  moonbit_planned_source_image_entry* entry = moonbit_lookup_planned_source_image_entry(
+    image_id,
+    0
+  );
+  if (entry == NULL || entry->upload_mode != 2) {
+    return 0;
+  }
+  if (entry->touched_any == 0) {
+    moonbit_reset_source_image_upload_state(entry, 0);
+    return 0;
+  }
+  entry->dirty_has_rect = 1;
+  entry->dirty_x = entry->touched_min_x;
+  entry->dirty_y = entry->touched_min_y;
+  entry->dirty_width = entry->touched_max_x - entry->touched_min_x + 1U;
+  entry->dirty_height = entry->touched_max_y - entry->touched_min_y + 1U;
+  entry->generation = moonbit_next_resource_generation(entry->generation);
+  moonbit_reset_source_image_upload_state(entry, 0);
+  entry->stamp = moonbit_next_planned_source_image_stamp();
+  return 1;
+}
+
+int32_t moonbit_planned_source_image_registry_count(void) {
+  int32_t count = 0;
+  for (int i = 0; i < MOONBIT_MAX_PLANNED_SOURCE_IMAGE_ENTRIES; i++) {
+    if (g_planned_source_images[i].used != 0) {
+      count += 1;
+    }
+  }
+  return count;
+}
+
+int32_t moonbit_planned_source_image_width(int32_t image_id) {
+  moonbit_planned_source_image_entry* entry = moonbit_lookup_planned_source_image_entry(
+    image_id,
+    0
+  );
+  if (entry == NULL) {
+    return -1;
+  }
+  return (int32_t)entry->width;
+}
+
+int32_t moonbit_planned_source_image_height(int32_t image_id) {
+  moonbit_planned_source_image_entry* entry = moonbit_lookup_planned_source_image_entry(
+    image_id,
+    0
+  );
+  if (entry == NULL) {
+    return -1;
+  }
+  return (int32_t)entry->height;
+}
+
+int32_t moonbit_planned_source_image_generation(int32_t image_id) {
+  moonbit_planned_source_image_entry* entry = moonbit_lookup_planned_source_image_entry(
+    image_id,
+    0
+  );
+  if (entry == NULL) {
+    return -1;
+  }
+  return (int32_t)entry->generation;
+}
+
+int32_t moonbit_planned_source_image_pixel_channel(
+    int32_t image_id,
+    int32_t x,
+    int32_t y,
+    int32_t channel_index
+) {
+  if (channel_index < 0 || channel_index > 3) {
+    return -1;
+  }
+  moonbit_planned_source_image_entry* entry = moonbit_lookup_planned_source_image_entry(
+    image_id,
+    0
+  );
+  if (entry == NULL || entry->pixels == NULL || x < 0 || y < 0) {
+    return -1;
+  }
+  const uint32_t ux = (uint32_t)x;
+  const uint32_t uy = (uint32_t)y;
+  if (ux >= entry->width || uy >= entry->height) {
+    return -1;
+  }
+  const size_t offset =
+    ((size_t)uy * (size_t)entry->width + (size_t)ux) * 4U + (size_t)channel_index;
+  if (offset >= entry->pixel_length) {
+    return -1;
+  }
+  return (int32_t)entry->pixels[offset];
+}
+
+static uint32_t moonbit_fill_seed_texture_pixels(int32_t texture_seed, uint8_t out_pixels[16]) {
+  if (out_pixels == NULL) {
+    return 0U;
+  }
+  moonbit_planned_image_palette_entry* entry = moonbit_lookup_planned_image_palette_entry(
+    texture_seed,
+    1
+  );
+  if (entry != NULL) {
+    memcpy(out_pixels, entry->pixels, sizeof(entry->pixels));
+    return entry->generation;
+  }
+  const uint8_t seed0 = (uint8_t)((texture_seed * 53 + 17) & 0xFF);
+  const uint8_t seed1 = (uint8_t)((texture_seed * 97 + 73) & 0xFF);
+  const uint8_t seed2 = (uint8_t)((texture_seed * 193 + 151) & 0xFF);
+  const uint8_t inv0 = (uint8_t)(255 - seed0);
+  const uint8_t inv1 = (uint8_t)(255 - seed1);
+  const uint8_t inv2 = (uint8_t)(255 - seed2);
+  out_pixels[0] = seed0;
+  out_pixels[1] = seed1;
+  out_pixels[2] = seed2;
+  out_pixels[3] = 255;
+  out_pixels[4] = inv0;
+  out_pixels[5] = inv1;
+  out_pixels[6] = inv2;
+  out_pixels[7] = 255;
+  out_pixels[8] = inv0;
+  out_pixels[9] = seed1;
+  out_pixels[10] = seed2;
+  out_pixels[11] = 255;
+  out_pixels[12] = seed0;
+  out_pixels[13] = inv1;
+  out_pixels[14] = inv2;
+  out_pixels[15] = 255;
+  return 0U;
+}
+
+static int moonbit_create_seed_texture_resources(
+    WGPUDevice device,
+    WGPUQueue queue,
+    int32_t texture_seed,
+    WGPUTexture* out_texture,
+    WGPUTextureView* out_texture_view,
+    WGPUSampler* out_sampler,
+    uint32_t* out_texture_generation,
+    uint32_t* out_texture_width,
+    uint32_t* out_texture_height
+) {
+  if (device == NULL || queue == NULL ||
+      out_texture == NULL || out_texture_view == NULL || out_sampler == NULL ||
+      out_texture_generation == NULL || out_texture_width == NULL ||
+      out_texture_height == NULL) {
+    return 0;
+  }
+  *out_texture = NULL;
+  *out_texture_view = NULL;
+  *out_sampler = NULL;
+  *out_texture_generation = 0U;
+  *out_texture_width = 0U;
+  *out_texture_height = 0U;
+
+  uint8_t fallback_pixels[16];
+  const uint8_t* pixel_data = fallback_pixels;
+  size_t pixel_data_size = sizeof(fallback_pixels);
+  uint32_t texture_width = 2;
+  uint32_t texture_height = 2;
+  uint32_t resolved_generation = 0U;
+  moonbit_planned_source_image_entry* source_image =
+    moonbit_lookup_planned_source_image_entry(texture_seed, 1);
+  if (source_image != NULL &&
+      source_image->pixels != NULL &&
+      source_image->width > 0 &&
+      source_image->height > 0 &&
+      source_image->pixel_length >= (size_t)source_image->width * (size_t)source_image->height * 4U) {
+    pixel_data = source_image->pixels;
+    pixel_data_size = source_image->pixel_length;
+    texture_width = source_image->width;
+    texture_height = source_image->height;
+    resolved_generation = source_image->generation;
+  } else {
+    resolved_generation = moonbit_fill_seed_texture_pixels(texture_seed, fallback_pixels);
+  }
+
+  WGPUTextureDescriptor texture_desc = {
+    .nextInChain = NULL,
+    .label = "Payload Texture",
+    .usage = WGPUTextureUsage_TextureBinding | WGPUTextureUsage_CopyDst,
+    .dimension = WGPUTextureDimension_2D,
+    .size = {
+      .width = texture_width,
+      .height = texture_height,
+      .depthOrArrayLayers = 1
+    },
+    .format = WGPUTextureFormat_RGBA8Unorm,
+    .mipLevelCount = 1,
+    .sampleCount = 1,
+    .viewFormatCount = 0,
+    .viewFormats = NULL
+  };
+  WGPUTexture texture = wgpuDeviceCreateTexture(device, &texture_desc);
+  if (texture == NULL) {
+    return 0;
+  }
+
+  WGPUTexelCopyTextureInfo dst = {
+    .texture = texture,
+    .mipLevel = 0,
+    .origin = { .x = 0, .y = 0, .z = 0 },
+    .aspect = WGPUTextureAspect_All
+  };
+  WGPUTexelCopyBufferLayout layout = {
+    .offset = 0,
+    .bytesPerRow = texture_width * 4,
+    .rowsPerImage = texture_height
+  };
+  WGPUExtent3D write_size = {
+    .width = texture_width,
+    .height = texture_height,
+    .depthOrArrayLayers = 1
+  };
+  wgpuQueueWriteTexture(
+    queue,
+    &dst,
+    pixel_data,
+    pixel_data_size,
+    &layout,
+    &write_size
+  );
+
+  WGPUTextureViewDescriptor texture_view_desc = {
+    .nextInChain = NULL,
+    .label = "Payload Texture View",
+    .format = WGPUTextureFormat_RGBA8Unorm,
+    .dimension = WGPUTextureViewDimension_2D,
+    .baseMipLevel = 0,
+    .mipLevelCount = 1,
+    .baseArrayLayer = 0,
+    .arrayLayerCount = 1,
+    .aspect = WGPUTextureAspect_All
+  };
+  WGPUTextureView texture_view = wgpuTextureCreateView(texture, &texture_view_desc);
+  if (texture_view == NULL) {
+    wgpuTextureRelease(texture);
+    return 0;
+  }
+
+  WGPUSamplerDescriptor sampler_desc = {
+    .nextInChain = NULL,
+    .label = "Payload Sampler",
+    .addressModeU = WGPUAddressMode_Repeat,
+    .addressModeV = WGPUAddressMode_Repeat,
+    .addressModeW = WGPUAddressMode_Repeat,
+    .magFilter = WGPUFilterMode_Linear,
+    .minFilter = WGPUFilterMode_Linear,
+    .mipmapFilter = WGPUMipmapFilterMode_Linear,
+    .lodMinClamp = 0.0f,
+    .lodMaxClamp = 32.0f,
+    .compare = WGPUCompareFunction_Undefined,
+    .maxAnisotropy = 1
+  };
+  WGPUSampler sampler = wgpuDeviceCreateSampler(device, &sampler_desc);
+  if (sampler == NULL) {
+    wgpuTextureViewRelease(texture_view);
+    wgpuTextureRelease(texture);
+    return 0;
+  }
+
+  *out_texture = texture;
+  *out_texture_view = texture_view;
+  *out_sampler = sampler;
+  *out_texture_generation = resolved_generation;
+  *out_texture_width = texture_width;
+  *out_texture_height = texture_height;
+  return 1;
+}
+
+static uint32_t moonbit_resolve_texture_generation(int32_t texture_seed) {
+  moonbit_planned_source_image_entry* source_image =
+    moonbit_lookup_planned_source_image_entry(texture_seed, 1);
+  if (source_image != NULL &&
+      source_image->pixels != NULL &&
+      source_image->width > 0 &&
+      source_image->height > 0 &&
+      source_image->pixel_length >= (size_t)source_image->width * (size_t)source_image->height * 4U) {
+    return source_image->generation;
+  }
+  moonbit_planned_image_palette_entry* palette_entry =
+    moonbit_lookup_planned_image_palette_entry(texture_seed, 1);
+  if (palette_entry != NULL) {
+    return palette_entry->generation;
+  }
+  return 0U;
+}
+
+static size_t moonbit_required_write_data_size(
+    uint32_t bytes_per_row,
+    uint32_t write_width,
+    uint32_t write_height
+) {
+  if (write_width == 0 || write_height == 0) {
+    return 0;
+  }
+  if (write_height == 1) {
+    return (size_t)write_width * 4U;
+  }
+  return ((size_t)write_height - 1U) * (size_t)bytes_per_row + (size_t)write_width * 4U;
+}
+
+static int moonbit_write_texture_region(
+    WGPUQueue queue,
+    WGPUTexture texture,
+    const uint8_t* pixel_data,
+    size_t pixel_data_size,
+    uint32_t texture_width,
+    uint32_t texture_height,
+    uint32_t write_x,
+    uint32_t write_y,
+    uint32_t write_width,
+    uint32_t write_height
+) {
+  if (queue == NULL || texture == NULL || pixel_data == NULL) {
+    return 0;
+  }
+  if (texture_width == 0 || texture_height == 0 || write_width == 0 || write_height == 0) {
+    return 0;
+  }
+  if (write_x + write_width > texture_width || write_y + write_height > texture_height) {
+    return 0;
+  }
+  const uint32_t bytes_per_row = texture_width * 4U;
+  const size_t required_size = moonbit_required_write_data_size(
+    bytes_per_row,
+    write_width,
+    write_height
+  );
+  if (required_size == 0 || pixel_data_size < required_size) {
+    return 0;
+  }
+
+  WGPUTexelCopyTextureInfo dst = {
+    .texture = texture,
+    .mipLevel = 0,
+    .origin = { .x = write_x, .y = write_y, .z = 0 },
+    .aspect = WGPUTextureAspect_All
+  };
+  WGPUTexelCopyBufferLayout layout = {
+    .offset = 0,
+    .bytesPerRow = bytes_per_row,
+    .rowsPerImage = texture_height
+  };
+  WGPUExtent3D write_size = {
+    .width = write_width,
+    .height = write_height,
+    .depthOrArrayLayers = 1
+  };
+  wgpuQueueWriteTexture(
+    queue,
+    &dst,
+    pixel_data,
+    required_size,
+    &layout,
+    &write_size
+  );
+  return 1;
+}
+
+static int moonbit_try_update_cached_seed_texture_resources(
+    moonbit_planned_texture_cache_entry* cache_entry,
+    WGPUQueue queue,
+    int32_t texture_seed,
+    uint32_t target_generation
+) {
+  if (cache_entry == NULL || cache_entry->used == 0 ||
+      queue == NULL || cache_entry->texture == NULL ||
+      cache_entry->texture_width == 0 || cache_entry->texture_height == 0) {
+    return 0;
+  }
+
+  moonbit_planned_source_image_entry* source_image =
+    moonbit_lookup_planned_source_image_entry(texture_seed, 1);
+  if (source_image != NULL &&
+      source_image->generation == target_generation &&
+      source_image->pixels != NULL &&
+      source_image->width > 0 &&
+      source_image->height > 0 &&
+      source_image->pixel_length >= (size_t)source_image->width * (size_t)source_image->height * 4U &&
+      cache_entry->texture_width == source_image->width &&
+      cache_entry->texture_height == source_image->height) {
+    uint32_t write_x = 0U;
+    uint32_t write_y = 0U;
+    uint32_t write_width = source_image->width;
+    uint32_t write_height = source_image->height;
+    const uint8_t* pixel_data = source_image->pixels;
+    size_t pixel_data_size = source_image->pixel_length;
+    if (source_image->dirty_has_rect != 0 &&
+        source_image->dirty_width > 0 &&
+        source_image->dirty_height > 0 &&
+        source_image->dirty_x + source_image->dirty_width <= source_image->width &&
+        source_image->dirty_y + source_image->dirty_height <= source_image->height) {
+      write_x = source_image->dirty_x;
+      write_y = source_image->dirty_y;
+      write_width = source_image->dirty_width;
+      write_height = source_image->dirty_height;
+      const size_t offset =
+        ((size_t)write_y * (size_t)source_image->width + (size_t)write_x) * 4U;
+      if (offset >= source_image->pixel_length) {
+        return 0;
+      }
+      pixel_data = source_image->pixels + offset;
+      pixel_data_size = source_image->pixel_length - offset;
+    }
+    if (!moonbit_write_texture_region(
+          queue,
+          cache_entry->texture,
+          pixel_data,
+          pixel_data_size,
+          source_image->width,
+          source_image->height,
+          write_x,
+          write_y,
+          write_width,
+          write_height
+        )) {
+      return 0;
+    }
+    cache_entry->texture_generation = target_generation;
+    cache_entry->stamp = moonbit_next_planned_texture_cache_stamp();
+    return 1;
+  }
+
+  moonbit_planned_image_palette_entry* palette_entry =
+    moonbit_lookup_planned_image_palette_entry(texture_seed, 1);
+  if (palette_entry != NULL &&
+      palette_entry->generation == target_generation &&
+      cache_entry->texture_width == 2U &&
+      cache_entry->texture_height == 2U) {
+    if (!moonbit_write_texture_region(
+          queue,
+          cache_entry->texture,
+          palette_entry->pixels,
+          sizeof(palette_entry->pixels),
+          2U,
+          2U,
+          0U,
+          0U,
+          2U,
+          2U
+        )) {
+      return 0;
+    }
+    cache_entry->texture_generation = target_generation;
+    cache_entry->stamp = moonbit_next_planned_texture_cache_stamp();
+    return 1;
+  }
+
+  return 0;
+}
+
+static int moonbit_get_or_create_seed_texture_resources(
+    WGPUDevice device,
+    WGPUQueue queue,
+    int32_t texture_seed,
+    WGPUTextureView* out_texture_view,
+    WGPUSampler* out_sampler,
+    uint32_t* out_texture_generation
+) {
+  if (device == NULL || queue == NULL || out_texture_view == NULL ||
+      out_sampler == NULL || out_texture_generation == NULL) {
+    return 0;
+  }
+  *out_texture_view = NULL;
+  *out_sampler = NULL;
+  *out_texture_generation = 0U;
+
+  const uintptr_t device_key = (uintptr_t)device;
+  const int32_t safe_seed = texture_seed < 0 ? 0 : texture_seed;
+  const uint32_t safe_generation = moonbit_resolve_texture_generation(safe_seed);
+  int empty_index = -1;
+  int lru_index = 0;
+  uint64_t lru_stamp = UINT64_MAX;
+  for (int i = 0; i < MOONBIT_MAX_PLANNED_TEXTURE_CACHE_ENTRIES; i++) {
+    moonbit_planned_texture_cache_entry* entry = &g_planned_texture_cache[i];
+    if (entry->used == 0) {
+      if (empty_index < 0) {
+        empty_index = i;
+      }
+      continue;
+    }
+    if (entry->stamp < lru_stamp) {
+      lru_stamp = entry->stamp;
+      lru_index = i;
+    }
+    if (entry->device_key == device_key &&
+        entry->texture_seed == safe_seed &&
+        entry->texture_generation == safe_generation) {
+      entry->stamp = moonbit_next_planned_texture_cache_stamp();
+      *out_texture_view = entry->texture_view;
+      *out_sampler = entry->sampler;
+      *out_texture_generation = entry->texture_generation;
+      return 1;
+    }
+    if (entry->device_key == device_key &&
+        entry->texture_seed == safe_seed &&
+        entry->texture_generation != safe_generation) {
+      if (moonbit_try_update_cached_seed_texture_resources(
+            entry,
+            queue,
+            safe_seed,
+            safe_generation
+          )) {
+        *out_texture_view = entry->texture_view;
+        *out_sampler = entry->sampler;
+        *out_texture_generation = entry->texture_generation;
+        return 1;
+      }
+    }
+  }
+
+  WGPUTexture texture = NULL;
+  WGPUTextureView texture_view = NULL;
+  WGPUSampler sampler = NULL;
+  uint32_t texture_generation = 0U;
+  uint32_t texture_width = 0U;
+  uint32_t texture_height = 0U;
+  if (!moonbit_create_seed_texture_resources(
+        device,
+        queue,
+        safe_seed,
+        &texture,
+        &texture_view,
+        &sampler,
+        &texture_generation,
+        &texture_width,
+        &texture_height
+      )) {
+    return 0;
+  }
+
+  const int cache_index = empty_index >= 0 ? empty_index : lru_index;
+  moonbit_planned_texture_cache_entry* target = &g_planned_texture_cache[cache_index];
+  if (target->used != 0) {
+    moonbit_clear_planned_bind_group_cache();
+    moonbit_release_planned_texture_cache_entry(target);
+  }
+  target->used = 1;
+  target->device_key = device_key;
+  target->texture_seed = safe_seed;
+  target->texture_generation = texture_generation;
+  target->texture_width = texture_width;
+  target->texture_height = texture_height;
+  target->texture = texture;
+  target->texture_view = texture_view;
+  target->sampler = sampler;
+  target->stamp = moonbit_next_planned_texture_cache_stamp();
+  *out_texture_view = target->texture_view;
+  *out_sampler = target->sampler;
+  *out_texture_generation = target->texture_generation;
+  return 1;
+}
+
+static WGPUBindGroup moonbit_get_or_create_planned_payload_bind_group(
+    WGPUDevice device,
+    WGPURenderPipeline pipeline,
+    int32_t texture_seed,
+    uint32_t texture_generation,
+    WGPUTextureView texture_view,
+    WGPUSampler sampler
+) {
+  if (device == NULL || pipeline == NULL || texture_view == NULL || sampler == NULL) {
+    return NULL;
+  }
+
+  const uintptr_t device_key = (uintptr_t)device;
+  const uintptr_t pipeline_key = (uintptr_t)pipeline;
+  const int32_t safe_seed = texture_seed < 0 ? 0 : texture_seed;
+  const uint32_t safe_generation = texture_generation;
+  int empty_index = -1;
+  int lru_index = 0;
+  uint64_t lru_stamp = UINT64_MAX;
+  for (int i = 0; i < MOONBIT_MAX_PLANNED_BIND_GROUP_CACHE_ENTRIES; i++) {
+    moonbit_planned_bind_group_cache_entry* entry = &g_planned_bind_group_cache[i];
+    if (entry->used == 0) {
+      if (empty_index < 0) {
+        empty_index = i;
+      }
+      continue;
+    }
+    if (entry->stamp < lru_stamp) {
+      lru_stamp = entry->stamp;
+      lru_index = i;
+    }
+    if (entry->device_key == device_key &&
+        entry->pipeline_key == pipeline_key &&
+        entry->texture_seed == safe_seed &&
+        entry->texture_generation == safe_generation) {
+      entry->stamp = moonbit_next_planned_bind_group_cache_stamp();
+      return entry->bind_group;
+    }
+  }
+
+  WGPUBindGroupLayout bind_group_layout = wgpuRenderPipelineGetBindGroupLayout(
+    pipeline,
+    0
+  );
+  if (bind_group_layout == NULL) {
+    return NULL;
+  }
+
+  WGPUBindGroupEntry entries[2] = {
+    {
+      .nextInChain = NULL,
+      .binding = 0,
+      .buffer = NULL,
+      .offset = 0,
+      .size = 0,
+      .sampler = sampler,
+      .textureView = NULL
+    },
+    {
+      .nextInChain = NULL,
+      .binding = 1,
+      .buffer = NULL,
+      .offset = 0,
+      .size = 0,
+      .sampler = NULL,
+      .textureView = texture_view
+    }
+  };
+  WGPUBindGroupDescriptor bind_group_desc = {
+    .nextInChain = NULL,
+    .label = "Payload Bind Group",
+    .layout = bind_group_layout,
+    .entryCount = 2,
+    .entries = entries
+  };
+  WGPUBindGroup bind_group = wgpuDeviceCreateBindGroup(device, &bind_group_desc);
+  wgpuBindGroupLayoutRelease(bind_group_layout);
+  if (bind_group == NULL) {
+    return NULL;
+  }
+
+  const int cache_index = empty_index >= 0 ? empty_index : lru_index;
+  moonbit_planned_bind_group_cache_entry* target = &g_planned_bind_group_cache[cache_index];
+  if (target->used != 0) {
+    moonbit_release_planned_bind_group_cache_entry(target);
+  }
+  target->used = 1;
+  target->device_key = device_key;
+  target->pipeline_key = pipeline_key;
+  target->texture_seed = safe_seed;
+  target->texture_generation = safe_generation;
+  target->bind_group = bind_group;
+  target->stamp = moonbit_next_planned_bind_group_cache_stamp();
+  return target->bind_group;
+}
+
+static int moonbit_build_payload_shader_key(
+    char* key_buffer,
+    size_t key_buffer_size,
+    WGPUTextureFormat format,
+    const moonbit_planned_draw_command* command
+) {
+  if (key_buffer == NULL || key_buffer_size == 0 || command == NULL) {
+    return 0;
+  }
+  const int n = snprintf(
+    key_buffer,
+    key_buffer_size,
+    "%d|%.6f|%.6f|%.6f|%.6f|%d",
+    (int)format,
+    command->uniform_r,
+    command->uniform_g,
+    command->uniform_b,
+    command->uniform_a,
+    command->texture_seed
+  );
+  return n > 0 && (size_t)n < key_buffer_size;
+}
+
+static int moonbit_build_payload_wgsl(
+    char* wgsl_buffer,
+    size_t wgsl_buffer_size,
+    const moonbit_planned_draw_command* command
+) {
+  if (wgsl_buffer == NULL || wgsl_buffer_size == 0 || command == NULL) {
+    return 0;
+  }
+  const double texture_frequency = (double)((command->texture_seed % 11) + 1);
+  const int n = snprintf(
+    wgsl_buffer,
+    wgsl_buffer_size,
+    "struct VsIn {\n"
+    "  @location(0) position: vec2f,\n"
+    "  @location(1) uv: vec2f,\n"
+    "};\n\n"
+    "struct VsOut {\n"
+    "  @builtin(position) position: vec4f,\n"
+    "  @location(0) uv: vec2f,\n"
+    "};\n\n"
+    "@group(0) @binding(0) var tex_sampler: sampler;\n"
+    "@group(0) @binding(1) var tex: texture_2d<f32>;\n\n"
+    "@vertex\n"
+    "fn vs_main(in: VsIn) -> VsOut {\n"
+    "  var out : VsOut;\n"
+    "  out.position = vec4f(in.position, 0.0, 1.0);\n"
+    "  out.uv = in.uv;\n"
+    "  return out;\n"
+    "}\n\n"
+    "@fragment\n"
+    "fn fs_main(@location(0) in_uv: vec2f) -> @location(0) vec4f {\n"
+    "  let fu = floor(in_uv.x * %f);\n"
+    "  let fv = floor(in_uv.y * %f);\n"
+    "  let checker = step(0.5, fract((fu + fv) * 0.5));\n"
+    "  let sampled = textureSample(tex, tex_sampler, in_uv);\n"
+    "  let tex_rgb = sampled.rgb * (0.35 + checker * 0.65);\n"
+    "  let tint = vec3f(%f, %f, %f);\n"
+    "  return vec4f(tex_rgb * tint, sampled.a * %f);\n"
+    "}\n",
+    texture_frequency,
+    texture_frequency,
+    command->uniform_r,
+    command->uniform_g,
+    command->uniform_b,
+    command->uniform_a
+  );
+  return n > 0 && (size_t)n < wgsl_buffer_size;
+}
+
+static WGPURenderPipeline moonbit_create_payload_render_pipeline(
+    WGPUDevice device,
+    WGPUShaderModule shaderModule,
+    uint32_t format
+) {
+  WGPUVertexAttribute attributes[2] = {
+    {
+      .format = WGPUVertexFormat_Float32x2,
+      .offset = 0,
+      .shaderLocation = 0
+    },
+    {
+      .format = WGPUVertexFormat_Float32x2,
+      .offset = sizeof(float) * 2,
+      .shaderLocation = 1
+    }
+  };
+  WGPUVertexBufferLayout buffers[1] = {
+    {
+      .arrayStride = sizeof(moonbit_payload_vertex),
+      .stepMode = WGPUVertexStepMode_Vertex,
+      .attributeCount = 2,
+      .attributes = attributes
+    }
+  };
+
+  WGPUVertexState vertexState = {
+    .module = shaderModule,
+    .entryPoint = {.data = "vs_main", .length = 7},
+    .constantCount = 0,
+    .constants = NULL,
+    .bufferCount = 1,
+    .buffers = buffers
+  };
+
+  WGPUColorTargetState colorTarget = {
+    .format = format,
+    .blend = NULL,
+    .writeMask = WGPUColorWriteMask_All
+  };
+
+  WGPUFragmentState fragmentState = {
+    .module = shaderModule,
+    .entryPoint = {.data = "fs_main", .length = 7},
+    .constantCount = 0,
+    .constants = NULL,
+    .targetCount = 1,
+    .targets = &colorTarget
+  };
+
+  WGPURenderPipelineDescriptor descriptor = {
+    .nextInChain = NULL,
+    .label = "Payload Triangle Pipeline",
+    .layout = NULL,
+    .vertex = vertexState,
+    .primitive = {
+      .topology = WGPUPrimitiveTopology_TriangleList,
+      .stripIndexFormat = WGPUIndexFormat_Undefined,
+      .frontFace = WGPUFrontFace_CCW,
+      .cullMode = WGPUCullMode_None
+    },
+    .depthStencil = NULL,
+    .multisample = {
+      .count = 1,
+      .mask = 0xFFFFFFFF,
+      .alphaToCoverageEnabled = 0
+    },
+    .fragment = &fragmentState
+  };
+
+  return wgpuDeviceCreateRenderPipeline(device, &descriptor);
+}
+
+static WGPURenderPipeline moonbit_get_or_create_planned_payload_pipeline(
+    WGPUDevice device,
+    WGPUTextureFormat format,
+    const moonbit_planned_draw_command* command
+) {
+  if (device == NULL || command == NULL) {
+    return NULL;
+  }
+
+  char shader_key[512];
+  if (!moonbit_build_payload_shader_key(shader_key, sizeof(shader_key), format, command)) {
+    return NULL;
+  }
+
+  const uintptr_t device_key = (uintptr_t)device;
+  int empty_index = -1;
+  int lru_index = 0;
+  uint64_t lru_stamp = UINT64_MAX;
+  for (int i = 0; i < MOONBIT_MAX_PLANNED_PIPELINE_CACHE_ENTRIES; i++) {
+    moonbit_planned_pipeline_cache_entry* entry = &g_planned_pipeline_cache[i];
+    if (entry->used == 0) {
+      if (empty_index < 0) {
+        empty_index = i;
+      }
+      continue;
+    }
+    if (entry->stamp < lru_stamp) {
+      lru_stamp = entry->stamp;
+      lru_index = i;
+    }
+    if (entry->device_key == device_key &&
+        entry->format == format &&
+        strcmp(entry->shader_key, shader_key) == 0) {
+      entry->stamp = moonbit_next_planned_pipeline_cache_stamp();
+      return entry->pipeline;
+    }
+  }
+
+  char wgsl[2048];
+  if (!moonbit_build_payload_wgsl(wgsl, sizeof(wgsl), command)) {
+    return NULL;
+  }
+
+  WGPUShaderModule shader = moonbit_create_shader_module_from_utf8(device, wgsl);
+  if (shader == NULL) {
+    return NULL;
+  }
+  WGPURenderPipeline pipeline = moonbit_create_payload_render_pipeline(
+    device,
+    shader,
+    format
+  );
+  if (pipeline == NULL) {
+    wgpuShaderModuleRelease(shader);
+    return NULL;
+  }
+
+  const int cache_index = empty_index >= 0 ? empty_index : lru_index;
+  moonbit_planned_pipeline_cache_entry* target = &g_planned_pipeline_cache[cache_index];
+  if (target->used != 0) {
+    moonbit_clear_planned_bind_group_cache();
+    moonbit_release_planned_pipeline_cache_entry(target);
+  }
+  target->used = 1;
+  target->device_key = device_key;
+  target->format = format;
+  strncpy(target->shader_key, shader_key, sizeof(target->shader_key) - 1);
+  target->shader_key[sizeof(target->shader_key) - 1] = '\0';
+  target->shader = shader;
+  target->pipeline = pipeline;
+  target->stamp = moonbit_next_planned_pipeline_cache_stamp();
+  return target->pipeline;
+}
+
 // ===============================
 // Rendering
 // ===============================
+
+void moonbit_reset_planned_draw_queue(void) {
+  g_planned_draw_command_count = 0;
+}
+
+void moonbit_push_planned_draw_command(
+    int32_t draw_calls,
+    int32_t has_triangle_payload,
+    double ax,
+    double ay,
+    double bx,
+    double by,
+    double cx,
+    double cy,
+    double au,
+    double av,
+    double bu,
+    double bv,
+    double cu,
+    double cv,
+    double uniform_r,
+    double uniform_g,
+    double uniform_b,
+    double uniform_a,
+    int32_t texture_seed
+) {
+  if (g_planned_draw_command_count >= MOONBIT_MAX_PLANNED_DRAW_COMMANDS) {
+    return;
+  }
+  moonbit_planned_draw_command* command = &g_planned_draw_commands[g_planned_draw_command_count++];
+  command->draw_calls = draw_calls <= 0 ? 1 : draw_calls;
+  command->has_triangle_payload = has_triangle_payload != 0 ? 1 : 0;
+  command->ax = ax;
+  command->ay = ay;
+  command->bx = bx;
+  command->by = by;
+  command->cx = cx;
+  command->cy = cy;
+  command->au = au;
+  command->av = av;
+  command->bu = bu;
+  command->bv = bv;
+  command->cu = cu;
+  command->cv = cv;
+  command->uniform_r = uniform_r;
+  command->uniform_g = uniform_g;
+  command->uniform_b = uniform_b;
+  command->uniform_a = uniform_a;
+  command->texture_seed = texture_seed < 0 ? 0 : texture_seed;
+}
+
+static void moonbit_fill_payload_vertices(
+    const moonbit_planned_draw_command* command,
+    moonbit_payload_vertex out_vertices[3]
+) {
+  if (command == NULL || out_vertices == NULL) {
+    return;
+  }
+  out_vertices[0].x = (float)command->ax;
+  out_vertices[0].y = (float)command->ay;
+  out_vertices[0].u = (float)command->au;
+  out_vertices[0].v = (float)command->av;
+  out_vertices[1].x = (float)command->bx;
+  out_vertices[1].y = (float)command->by;
+  out_vertices[1].u = (float)command->bu;
+  out_vertices[1].v = (float)command->bv;
+  out_vertices[2].x = (float)command->cx;
+  out_vertices[2].y = (float)command->cy;
+  out_vertices[2].u = (float)command->cu;
+  out_vertices[2].v = (float)command->cv;
+}
+
+static int moonbit_draw_payload_with_vertex_index_buffers(
+    WGPUDevice device,
+    WGPUQueue queue,
+    WGPURenderPassEncoder pass,
+    WGPURenderPipeline pipeline,
+    const moonbit_planned_draw_command* command,
+    int32_t draw_calls
+) {
+  if (device == NULL || queue == NULL || pass == NULL || pipeline == NULL || command == NULL) {
+    return 0;
+  }
+  if (draw_calls <= 0) {
+    return 1;
+  }
+
+  moonbit_payload_vertex vertices[3];
+  moonbit_fill_payload_vertices(command, vertices);
+  uint32_t indices[3] = {0, 1, 2};
+
+  WGPUBufferDescriptor vertex_buffer_desc = {
+    .nextInChain = NULL,
+    .label = "Payload Vertex Buffer",
+    .usage = WGPUBufferUsage_Vertex | WGPUBufferUsage_CopyDst,
+    .size = sizeof(vertices),
+    .mappedAtCreation = 0
+  };
+  WGPUBuffer vertex_buffer = wgpuDeviceCreateBuffer(device, &vertex_buffer_desc);
+  if (vertex_buffer == NULL) {
+    return 0;
+  }
+
+  WGPUBufferDescriptor index_buffer_desc = {
+    .nextInChain = NULL,
+    .label = "Payload Index Buffer",
+    .usage = WGPUBufferUsage_Index | WGPUBufferUsage_CopyDst,
+    .size = sizeof(indices),
+    .mappedAtCreation = 0
+  };
+  WGPUBuffer index_buffer = wgpuDeviceCreateBuffer(device, &index_buffer_desc);
+  if (index_buffer == NULL) {
+    wgpuBufferRelease(vertex_buffer);
+    return 0;
+  }
+
+  wgpuQueueWriteBuffer(queue, vertex_buffer, 0, vertices, sizeof(vertices));
+  wgpuQueueWriteBuffer(queue, index_buffer, 0, indices, sizeof(indices));
+
+  WGPUTextureView texture_view = NULL;
+  WGPUSampler sampler = NULL;
+  uint32_t texture_generation = 0U;
+  if (!moonbit_get_or_create_seed_texture_resources(
+        device,
+        queue,
+        command->texture_seed,
+        &texture_view,
+        &sampler,
+        &texture_generation
+      )) {
+    wgpuBufferRelease(index_buffer);
+    wgpuBufferRelease(vertex_buffer);
+    return 0;
+  }
+
+  WGPUBindGroup bind_group = moonbit_get_or_create_planned_payload_bind_group(
+    device,
+    pipeline,
+    command->texture_seed,
+    texture_generation,
+    texture_view,
+    sampler
+  );
+  if (bind_group == NULL) {
+    wgpuBufferRelease(index_buffer);
+    wgpuBufferRelease(vertex_buffer);
+    return 0;
+  }
+
+  wgpuRenderPassEncoderSetPipeline(pass, pipeline);
+  wgpuRenderPassEncoderSetBindGroup(pass, 0, bind_group, 0, NULL);
+  wgpuRenderPassEncoderSetVertexBuffer(pass, 0, vertex_buffer, 0, WGPU_WHOLE_SIZE);
+  wgpuRenderPassEncoderSetIndexBuffer(
+    pass,
+    index_buffer,
+    WGPUIndexFormat_Uint32,
+    0,
+    WGPU_WHOLE_SIZE
+  );
+  for (int32_t i = 0; i < draw_calls; i++) {
+    wgpuRenderPassEncoderDrawIndexed(pass, 3, 1, 0, 0, 0);
+  }
+
+  wgpuBufferRelease(index_buffer);
+  wgpuBufferRelease(vertex_buffer);
+  return 1;
+}
 
 static void moonbit_render_frame_impl(
     WGPUSurface surface,
@@ -1184,78 +2878,54 @@ static void moonbit_render_frame_impl(
   };
 
   WGPURenderPassEncoder pass = wgpuCommandEncoderBeginRenderPass(encoder, &renderPassDesc);
-  WGPUShaderModule payload_shader = NULL;
-  WGPURenderPipeline payload_pipeline = NULL;
-  WGPURenderPipeline active_pipeline = pipeline;
 
   if (draw_calls > 0) {
+    int used_payload_buffer_draw = 0;
     if (has_triangle_payload != 0) {
-      const double texture_frequency = (double)((texture_seed % 11) + 1);
-      char wgsl[2048];
-      const int n = snprintf(
-        wgsl,
-        sizeof(wgsl),
-        "struct VsOut {\n"
-        "  @builtin(position) position: vec4f,\n"
-        "  @location(0) uv: vec2f,\n"
-        "};\n\n"
-        "@vertex\n"
-        "fn vs_main(@builtin(vertex_index) idx: u32) -> VsOut {\n"
-        "  let i = idx %% 3u;\n"
-        "  var pos = array<vec2f, 3>(vec2f(%f, %f), vec2f(%f, %f), vec2f(%f, %f));\n"
-        "  var uv = array<vec2f, 3>(vec2f(%f, %f), vec2f(%f, %f), vec2f(%f, %f));\n"
-        "  var out : VsOut;\n"
-        "  out.position = vec4f(pos[i], 0.0, 1.0);\n"
-        "  out.uv = uv[i];\n"
-        "  return out;\n"
-        "}\n\n"
-        "@fragment\n"
-        "fn fs_main(@location(0) in_uv: vec2f) -> @location(0) vec4f {\n"
-        "  let fu = floor(in_uv.x * %f);\n"
-        "  let fv = floor(in_uv.y * %f);\n"
-        "  let checker = step(0.5, fract((fu + fv) * 0.5));\n"
-        "  let tex = vec3f(0.15 + checker * 0.85, 0.2 + checker * 0.8, 0.25 + checker * 0.75);\n"
-        "  let tint = vec3f(%f, %f, %f);\n"
-        "  return vec4f(tex * tint, %f);\n"
-        "}\n",
-        ax,
-        ay,
-        bx,
-        by,
-        cx,
-        cy,
-        au,
-        av,
-        bu,
-        bv,
-        cu,
-        cv,
-        texture_frequency,
-        texture_frequency,
-        uniform_r,
-        uniform_g,
-        uniform_b,
-        uniform_a
-      );
-      if (n > 0 && (size_t)n < sizeof(wgsl)) {
-        payload_shader = moonbit_create_shader_module_from_utf8(device, wgsl);
-        if (payload_shader != NULL) {
-          payload_pipeline = moonbit_create_render_pipeline(
-            device,
-            payload_shader,
-            g_configured_surface_format
-          );
-          if (payload_pipeline != NULL) {
-            active_pipeline = payload_pipeline;
-          }
-        }
+      moonbit_planned_draw_command payload_command;
+      payload_command.draw_calls = draw_calls;
+      payload_command.has_triangle_payload = has_triangle_payload != 0 ? 1 : 0;
+      payload_command.ax = ax;
+      payload_command.ay = ay;
+      payload_command.bx = bx;
+      payload_command.by = by;
+      payload_command.cx = cx;
+      payload_command.cy = cy;
+      payload_command.au = au;
+      payload_command.av = av;
+      payload_command.bu = bu;
+      payload_command.bv = bv;
+      payload_command.cu = cu;
+      payload_command.cv = cv;
+      payload_command.uniform_r = uniform_r;
+      payload_command.uniform_g = uniform_g;
+      payload_command.uniform_b = uniform_b;
+      payload_command.uniform_a = uniform_a;
+      payload_command.texture_seed = texture_seed < 0 ? 0 : texture_seed;
+      WGPURenderPipeline cached_payload_pipeline =
+        moonbit_get_or_create_planned_payload_pipeline(
+          device,
+          g_configured_surface_format,
+          &payload_command
+        );
+      if (cached_payload_pipeline != NULL) {
+        used_payload_buffer_draw = moonbit_draw_payload_with_vertex_index_buffers(
+          device,
+          queue,
+          pass,
+          cached_payload_pipeline,
+          &payload_command,
+          draw_calls
+        );
       }
     }
 
-    // Pipeline を設定して三角形を描画
-    wgpuRenderPassEncoderSetPipeline(pass, active_pipeline);
-    for (int32_t i = 0; i < draw_calls; i++) {
-      wgpuRenderPassEncoderDraw(pass, 3, 1, 0, 0);  // 3 vertices
+    if (!used_payload_buffer_draw) {
+      // Fallback: no payload path, keep fixed triangle pipeline.
+      wgpuRenderPassEncoderSetPipeline(pass, pipeline);
+      for (int32_t i = 0; i < draw_calls; i++) {
+        wgpuRenderPassEncoderDraw(pass, 3, 1, 0, 0);  // 3 vertices
+      }
     }
   }
 
@@ -1281,12 +2951,6 @@ static void moonbit_render_frame_impl(
 
   // Texture を解放
   wgpuTextureRelease(surfaceTexture.texture);
-  if (payload_pipeline != NULL) {
-    wgpuRenderPipelineRelease(payload_pipeline);
-  }
-  if (payload_shader != NULL) {
-    wgpuShaderModuleRelease(payload_shader);
-  }
 }
 
 // 1フレーム描画（後方互換 API）
@@ -1428,4 +3092,115 @@ void moonbit_render_frame_with_plan_payload(
     uniform_a,
     texture_seed
   );
+}
+
+void moonbit_render_frame_with_staged_plan(
+    WGPUSurface surface,
+    WGPUDevice device,
+    WGPUQueue queue,
+    WGPURenderPipeline pipeline,
+    double clear_r,
+    double clear_g,
+    double clear_b,
+    double clear_a
+) {
+  WGPUSurfaceTexture surfaceTexture;
+  wgpuSurfaceGetCurrentTexture(surface, &surfaceTexture);
+
+  if (surfaceTexture.status != WGPUSurfaceGetCurrentTextureStatus_SuccessOptimal &&
+      surfaceTexture.status != WGPUSurfaceGetCurrentTextureStatus_SuccessSuboptimal) {
+    printf("[ERROR] Failed to get surface texture: status=%d\n", surfaceTexture.status);
+    g_planned_draw_command_count = 0;
+    return;
+  }
+
+  WGPUTextureViewDescriptor viewDesc = {
+    .nextInChain = NULL,
+    .label = "Surface Texture View",
+    .format = WGPUTextureFormat_Undefined,
+    .dimension = WGPUTextureViewDimension_2D,
+    .baseMipLevel = 0,
+    .mipLevelCount = 1,
+    .baseArrayLayer = 0,
+    .arrayLayerCount = 1,
+    .aspect = WGPUTextureAspect_All
+  };
+
+  WGPUTextureView view = wgpuTextureCreateView(surfaceTexture.texture, &viewDesc);
+
+  WGPUCommandEncoderDescriptor encoderDesc = {
+    .nextInChain = NULL,
+    .label = "Command Encoder"
+  };
+  WGPUCommandEncoder encoder = wgpuDeviceCreateCommandEncoder(device, &encoderDesc);
+
+  WGPURenderPassColorAttachment colorAttachment = {
+    .view = view,
+    .depthSlice = WGPU_DEPTH_SLICE_UNDEFINED,
+    .resolveTarget = NULL,
+    .loadOp = WGPULoadOp_Clear,
+    .storeOp = WGPUStoreOp_Store,
+    .clearValue = {(float)clear_r, (float)clear_g, (float)clear_b, (float)clear_a}
+  };
+
+  WGPURenderPassDescriptor renderPassDesc = {
+    .nextInChain = NULL,
+    .label = "Render Pass",
+    .colorAttachmentCount = 1,
+    .colorAttachments = &colorAttachment,
+    .depthStencilAttachment = NULL,
+    .occlusionQuerySet = NULL,
+    .timestampWrites = NULL
+  };
+
+  WGPURenderPassEncoder pass = wgpuCommandEncoderBeginRenderPass(encoder, &renderPassDesc);
+
+  for (int32_t command_index = 0; command_index < g_planned_draw_command_count; command_index++) {
+    moonbit_planned_draw_command command = g_planned_draw_commands[command_index];
+    int32_t draw_calls = command.draw_calls <= 0 ? 1 : command.draw_calls;
+    int used_payload_buffer_draw = 0;
+    if (command.has_triangle_payload != 0) {
+      WGPURenderPipeline cached_payload_pipeline =
+        moonbit_get_or_create_planned_payload_pipeline(
+          device,
+          g_configured_surface_format,
+          &command
+        );
+      if (cached_payload_pipeline != NULL) {
+        used_payload_buffer_draw = moonbit_draw_payload_with_vertex_index_buffers(
+          device,
+          queue,
+          pass,
+          cached_payload_pipeline,
+          &command,
+          draw_calls
+        );
+      }
+    }
+
+    if (!used_payload_buffer_draw) {
+      wgpuRenderPassEncoderSetPipeline(pass, pipeline);
+      for (int32_t i = 0; i < draw_calls; i++) {
+        wgpuRenderPassEncoderDraw(pass, 3, 1, 0, 0);
+      }
+    }
+  }
+
+  wgpuRenderPassEncoderEnd(pass);
+  wgpuRenderPassEncoderRelease(pass);
+
+  WGPUCommandBufferDescriptor cmdBufferDesc = {
+    .nextInChain = NULL,
+    .label = "Command Buffer"
+  };
+  WGPUCommandBuffer cmdBuffer = wgpuCommandEncoderFinish(encoder, &cmdBufferDesc);
+  wgpuQueueSubmit(queue, 1, &cmdBuffer);
+
+  wgpuCommandBufferRelease(cmdBuffer);
+  wgpuCommandEncoderRelease(encoder);
+  wgpuTextureViewRelease(view);
+
+  wgpuSurfacePresent(surface);
+  wgpuTextureRelease(surfaceTexture.texture);
+  g_planned_draw_command_count = 0;
 }

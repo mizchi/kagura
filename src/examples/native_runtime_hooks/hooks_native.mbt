@@ -2,6 +2,70 @@
 let runtime_title : Ref[String] = Ref::new("game_engine")
 
 ///|
+priv struct SyncedSourceGeneration {
+  image_id : Int
+  generation : Int
+}
+
+///|
+let synced_source_generations : Ref[Array[SyncedSourceGeneration]] = Ref::new([])
+
+///|
+fn normalized_source_generation(generation : Int) -> Int {
+  if generation <= 0 {
+    1
+  } else {
+    generation
+  }
+}
+
+///|
+fn synced_source_generation_at(image_id : Int) -> Int {
+  let mut generation = 0
+  for entry in synced_source_generations.val {
+    if entry.image_id == image_id {
+      generation = entry.generation
+    }
+  }
+  generation
+}
+
+///|
+fn set_synced_source_generation(image_id : Int, generation : Int) -> Unit {
+  let next : Array[SyncedSourceGeneration] = []
+  let mut replaced = false
+  let safe_generation = normalized_source_generation(generation)
+  for entry in synced_source_generations.val {
+    if entry.image_id == image_id {
+      next.push({ image_id, generation: safe_generation })
+      replaced = true
+    } else {
+      next.push(entry)
+    }
+  }
+  if !replaced {
+    next.push({ image_id, generation: safe_generation })
+  }
+  synced_source_generations.val = next
+}
+
+///|
+fn clear_synced_source_generations() -> Unit {
+  synced_source_generations.val = []
+}
+
+///|
+fn drop_synced_source_generation(image_id : Int) -> Unit {
+  let next : Array[SyncedSourceGeneration] = []
+  for entry in synced_source_generations.val {
+    if entry.image_id != image_id {
+      next.push(entry)
+    }
+  }
+  synced_source_generations.val = next
+}
+
+///|
 fn bridge_desktop_try_initialize(options : @platform.WindowOptions) -> Bool {
   @wgpu_native.ensure_runtime_context(
     options.width,
@@ -303,8 +367,204 @@ fn bridge_gfx_on_resize(active : Bool, width : Int, height : Int) -> Unit {
 }
 
 ///|
+fn palette_channel_or_zero(
+  palette : @image_palette.ImagePalette2x2,
+  pixel_index : Int,
+  channel_index : Int,
+) -> Int {
+  let value = @image_palette.palette_channel(
+    palette, pixel_index, channel_index,
+  )
+  if value < 0 {
+    0
+  } else {
+    value
+  }
+}
+
+///|
+pub fn register_source_image_palette(
+  source_image_id : Int,
+  palette : @image_palette.ImagePalette2x2,
+) -> Unit {
+  @wgpu_native.runtime_register_source_image_palette(
+    source_image_id,
+    palette_channel_or_zero(palette, 0, 0),
+    palette_channel_or_zero(palette, 0, 1),
+    palette_channel_or_zero(palette, 0, 2),
+    palette_channel_or_zero(palette, 0, 3),
+    palette_channel_or_zero(palette, 1, 0),
+    palette_channel_or_zero(palette, 1, 1),
+    palette_channel_or_zero(palette, 1, 2),
+    palette_channel_or_zero(palette, 1, 3),
+    palette_channel_or_zero(palette, 2, 0),
+    palette_channel_or_zero(palette, 2, 1),
+    palette_channel_or_zero(palette, 2, 2),
+    palette_channel_or_zero(palette, 2, 3),
+    palette_channel_or_zero(palette, 3, 0),
+    palette_channel_or_zero(palette, 3, 1),
+    palette_channel_or_zero(palette, 3, 2),
+    palette_channel_or_zero(palette, 3, 3),
+  )
+  if source_image_id >= 0 {
+    drop_synced_source_generation(source_image_id)
+  }
+}
+
+///|
+pub fn register_source_image_solid_color(
+  source_image_id : Int,
+  color : @image_palette.Rgba,
+) -> Unit {
+  register_source_image_palette(
+    source_image_id,
+    @image_palette.new_solid_palette(color),
+  )
+}
+
+///|
+pub fn register_source_image_rgba8(
+  source_image_id : Int,
+  width : Int,
+  height : Int,
+  rgba8_channels : Array[Int],
+) -> Unit {
+  @wgpu_native.runtime_register_source_image_rgba8(
+    source_image_id, width, height, rgba8_channels,
+  )
+  if source_image_id >= 0 {
+    drop_synced_source_generation(source_image_id)
+  }
+}
+
+///|
+pub fn patch_source_image_rgba8(
+  source_image_id : Int,
+  width : Int,
+  height : Int,
+  dirty_x : Int,
+  dirty_y : Int,
+  dirty_width : Int,
+  dirty_height : Int,
+  rgba8_channels : Array[Int],
+) -> Bool {
+  @wgpu_native.runtime_patch_source_image_rgba8(
+    source_image_id, width, height, dirty_x, dirty_y, dirty_width, dirty_height,
+    rgba8_channels,
+  )
+}
+
+///|
+pub fn clear_source_image_palettes() -> Unit {
+  @wgpu_native.runtime_clear_source_image_registry()
+  clear_synced_source_generations()
+}
+
+///|
+pub fn sync_source_image_palettes(
+  bindings : Array[@asset.ImagePaletteBinding],
+) -> Int {
+  let mut count = 0
+  for binding in bindings {
+    register_source_image_palette(binding.image_id, binding.palette)
+    count = count + 1
+  }
+  count
+}
+
+///|
+pub fn sync_source_image_palettes_from_repository(
+  repository : @asset.SimpleImageRepository,
+) -> Int {
+  sync_source_image_palettes(@asset.list_image_palette_bindings(repository))
+}
+
+///|
+pub fn sync_source_images(bindings : Array[@asset.SourceImageBinding]) -> Int {
+  let mut count = 0
+  for binding in bindings {
+    if binding.image_id < 0 {
+      continue
+    }
+    let generation = normalized_source_generation(binding.generation)
+    if synced_source_generation_at(binding.image_id) == generation {
+      continue
+    }
+    let required_channels = binding.width * binding.height * 4
+    if required_channels > 0 &&
+      binding.pixels_rgba8.length() >= required_channels {
+      let mut patched = false
+      match binding.dirty_rect {
+        Some(rect) => {
+          let full_rect = rect.x <= 0 &&
+            rect.y <= 0 &&
+            rect.width >= binding.width &&
+            rect.height >= binding.height
+          if !full_rect {
+            patched = patch_source_image_rgba8(
+              binding.image_id,
+              binding.width,
+              binding.height,
+              rect.x,
+              rect.y,
+              rect.width,
+              rect.height,
+              binding.pixels_rgba8,
+            )
+          }
+        }
+        None => ()
+      }
+      if !patched {
+        register_source_image_rgba8(
+          binding.image_id,
+          binding.width,
+          binding.height,
+          binding.pixels_rgba8,
+        )
+      }
+    } else {
+      register_source_image_palette(binding.image_id, binding.palette)
+    }
+    set_synced_source_generation(binding.image_id, generation)
+    count = count + 1
+  }
+  count
+}
+
+///|
+pub fn sync_source_images_from_repository(
+  repository : @asset.SimpleImageRepository,
+) -> Int {
+  sync_source_images(@asset.list_source_image_bindings(repository))
+}
+
+///|
+pub fn sync_dirty_source_images_from_repository(
+  repository : @asset.SimpleImageRepository,
+) -> Int {
+  let synced = sync_source_images(
+    @asset.list_dirty_source_image_bindings(repository),
+  )
+  let _ = @asset.clear_source_image_dirty_flags(repository)
+  synced
+}
+
+///|
+pub fn sync_dirty_atlas_pages_from_repository(
+  repository : @asset.SimpleAtlasImageRepository,
+) -> Int {
+  let synced = sync_source_images(
+    @asset.list_dirty_atlas_page_bindings(repository),
+  )
+  let _ = @asset.clear_dirty_atlas_page_flags(repository)
+  synced
+}
+
+///|
 pub fn install(title : String) -> Unit {
   runtime_title.val = title
+  clear_synced_source_generations()
   @platform.set_desktop_native_hooks(
     @platform.new_desktop_native_hooks(
       bridge_desktop_try_initialize, bridge_desktop_poll, bridge_desktop_should_close,
@@ -325,6 +585,7 @@ pub fn install(title : String) -> Unit {
 
 ///|
 pub fn uninstall() -> Unit {
+  clear_synced_source_generations()
   @gfx.reset_native_graphics_hooks()
   @platform.reset_desktop_native_hooks()
 }

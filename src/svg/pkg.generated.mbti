@@ -1,0 +1,32 @@
+// Generated using `moon info`, DON'T EDIT IT
+package "mizchi/game_engine/svg"
+
+import {
+  "mizchi/game_engine/vector",
+}
+
+// Values
+pub fn render_svg(String, Int, Int) -> SVGRenderResult?
+
+pub fn render_svg_to_rgba(String, Int, Int) -> (Int, Int, Array[Int])?
+
+pub fn svg_path_to_fill_vertices(String, Double) -> (Array[Double], Array[Int])
+
+pub fn svg_path_to_stroke_vertices(String, Double, Double) -> (Array[Double], Array[Int])
+
+pub fn svg_path_to_vector_path(String) -> @vector.Path
+
+// Errors
+
+// Types and methods
+pub struct SVGRenderResult {
+  width : Int
+  height : Int
+  pixels : Array[Int]
+}
+pub impl Show for SVGRenderResult
+
+// Type aliases
+
+// Traits
+

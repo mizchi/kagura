@@ -301,6 +301,34 @@ test "clip_tile_chunks_to_visible intersects chunks with view" {
 }
 
 ///|
+test "tile_atlas_table empty has no entries" {
+  let table = new_tile_atlas_table([])
+  match resolve_tile_atlas_key(table, 0) {
+    Some(_) => panic()
+    None => ()
+  }
+}
+
+///|
+test "estimate_visible_tile_chunk full map when view covers all" {
+  // 4 cols x 3 rows, tile size 1.0x1.0, view covers 0..4 x 0..3
+  let chunk = estimate_visible_tile_chunk(
+    4, 3, 0.0, 0.0, 1.0, 1.0, 0.0, 0.0, 4.0, 3.0, 0,
+  )
+  assert_eq(chunk.tile_x, 0)
+  assert_eq(chunk.tile_y, 0)
+  assert_eq(chunk.tile_width, 4)
+  assert_eq(chunk.tile_height, 3)
+}
+
+///|
+test "diff_tile_index_chunks no changes returns empty" {
+  let tiles = [1, 2, 3, 4]
+  let chunks = diff_tile_index_chunks(tiles, tiles, 2, 2)
+  assert_eq(chunks.length(), 0)
+}
+
+///|
 test "diff_visible_tile_index_chunks filters changed chunks by visibility" {
   let previous = [1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1]
   let next = [1, 1, 1, 1, 1, 2, 1, 1, 1, 1, 1, 1, 1, 1, 1, 3]

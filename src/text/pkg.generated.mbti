@@ -2,11 +2,14 @@
 package "mizchi/game_engine/text"
 
 import {
+  "mizchi/font",
   "mizchi/game_engine/gfx",
 }
 
 // Values
 pub fn default_text_style(String, Double) -> TextStyle
+
+pub fn rasterize_glyph(@font.TTFont, Int, Double) -> GlyphBitmap?
 
 // Errors
 
@@ -17,6 +20,50 @@ pub struct FontKey {
   italic : Bool
 }
 pub impl Show for FontKey
+
+pub struct GlyphAtlas {
+  cache : GlyphCache
+  width : Int
+  height : Int
+  pixels : Array[Int]
+}
+pub fn GlyphAtlas::get_cache(Self) -> GlyphCache
+pub fn GlyphAtlas::get_pixels(Self) -> Array[Int]
+pub fn GlyphAtlas::new(Int, Int, Int) -> Self
+pub fn GlyphAtlas::rasterize_glyph(Self, @font.TTFont, Int, Double) -> GlyphCacheEntry?
+pub fn GlyphAtlas::rasterize_text(Self, @font.TTFont, String, Double) -> Array[GlyphQuad]
+
+pub struct GlyphBitmap {
+  width : Int
+  height : Int
+  pixels : Array[Int]
+}
+pub impl Show for GlyphBitmap
+
+pub struct GlyphCache {
+  entries : Map[Int, GlyphCacheEntry]
+  mut next_x : Double
+  mut next_y : Double
+  mut row_height : Double
+  atlas_width : Double
+  atlas_height : Double
+  atlas_page_id : Int
+}
+pub fn GlyphCache::allocate(Self, Int, Double, Double) -> GlyphCacheEntry?
+pub fn GlyphCache::clear(Self) -> Unit
+pub fn GlyphCache::entry_count(Self) -> Int
+pub fn GlyphCache::get(Self, Int) -> GlyphCacheEntry?
+pub fn GlyphCache::new(Double, Double, Int) -> Self
+
+pub struct GlyphCacheEntry {
+  glyph_id : Int
+  atlas_x : Double
+  atlas_y : Double
+  atlas_w : Double
+  atlas_h : Double
+  atlas_page_id : Int
+}
+pub impl Show for GlyphCacheEntry
 
 pub struct GlyphQuad {
   glyph_id : Int
@@ -30,6 +77,19 @@ pub struct GlyphQuad {
   dst_h : Double
 }
 pub impl Show for GlyphQuad
+
+pub struct SimpleFontEngine {
+  font : @font.TTFont
+}
+pub fn SimpleFontEngine::new(@font.TTFont) -> Self
+pub impl FontEngine for SimpleFontEngine
+
+pub struct SimpleTextBatchBuilder {
+  cache : GlyphCache
+  pipeline_id : Int
+}
+pub fn SimpleTextBatchBuilder::new(GlyphCache, Int) -> Self
+pub impl TextBatchBuilder for SimpleTextBatchBuilder
 
 pub struct TextMetrics {
   width : Double

@@ -289,6 +289,460 @@ test "builtin shader source repo caches entries and can clear cache" {
 }
 
 ///|
+test "MirrorRepeat address tag and snippet" {
+  let tag = builtin_address_tag(BuiltinShaderAddress::MirrorRepeat)
+  assert_eq(tag, "mirror_repeat")
+  let snippet = builtin_address_snippet(BuiltinShaderAddress::MirrorRepeat)
+  assert_true(snippet.contains("mirror_repeat"))
+  assert_true(snippet.contains("fract"))
+  assert_true(snippet.contains("abs"))
+}
+
+///|
+test "default_sampler_spec returns unsafe nearest" {
+  let spec = default_sampler_spec()
+  assert_true(builtin_filter_eq(spec.filter, BuiltinShaderFilter::Nearest))
+  assert_true(builtin_address_eq(spec.address_u, BuiltinShaderAddress::Unsafe))
+  assert_true(builtin_address_eq(spec.address_v, BuiltinShaderAddress::Unsafe))
+}
+
+///|
+test "sampler_spec sets both axes" {
+  let spec = sampler_spec(
+    BuiltinShaderFilter::Linear,
+    BuiltinShaderAddress::Repeat,
+  )
+  assert_true(builtin_filter_eq(spec.filter, BuiltinShaderFilter::Linear))
+  assert_true(builtin_address_eq(spec.address_u, BuiltinShaderAddress::Repeat))
+  assert_true(builtin_address_eq(spec.address_v, BuiltinShaderAddress::Repeat))
+}
+
+///|
+test "builtin_key_to_ex converts classic to extended" {
+  let key : BuiltinShaderKey = {
+    filter: BuiltinShaderFilter::Linear,
+    address: BuiltinShaderAddress::ClampToZero,
+    use_color_m: true,
+  }
+  let ex = builtin_key_to_ex(key)
+  assert_true(
+    builtin_filter_eq(ex.sampler.filter, BuiltinShaderFilter::Linear),
+  )
+  assert_true(
+    builtin_address_eq(
+      ex.sampler.address_u, BuiltinShaderAddress::ClampToZero,
+    ),
+  )
+  assert_true(
+    builtin_address_eq(
+      ex.sampler.address_v, BuiltinShaderAddress::ClampToZero,
+    ),
+  )
+  assert_eq(ex.use_color_m, true)
+}
+
+///|
+test "per-axis address snippet same axes uses shared snippet" {
+  let spec = sampler_spec(
+    BuiltinShaderFilter::Nearest,
+    BuiltinShaderAddress::Repeat,
+  )
+  let snippet = builtin_address_snippet_per_axis(spec)
+  // Same axes: should use the shared snippet
+  assert_true(snippet.contains("fract"))
+  assert_true(snippet.contains("sample_uv"))
+}
+
+///|
+test "per-axis address snippet different axes" {
+  let spec : SamplerSpec = {
+    filter: BuiltinShaderFilter::Nearest,
+    address_u: BuiltinShaderAddress::Repeat,
+    address_v: BuiltinShaderAddress::MirrorRepeat,
+  }
+  let snippet = builtin_address_snippet_per_axis(spec)
+  // Different axes: should generate per-axis vec2f
+  assert_true(snippet.contains("vec2f"))
+  assert_true(snippet.contains("fract(uv.x)"))
+  assert_true(snippet.contains("abs(fract(uv.y"))
+}
+
+///|
+test "build_builtin_shader_source_ex with same axes matches classic" {
+  let key : BuiltinShaderKey = {
+    filter: BuiltinShaderFilter::Nearest,
+    address: BuiltinShaderAddress::Repeat,
+    use_color_m: false,
+  }
+  let ex = builtin_key_to_ex(key)
+  let source_ex = build_builtin_shader_source_ex(ex)
+  // Extended uses address_u/address_v header instead of single address
+  assert_true(source_ex.contains("address_u:repeat"))
+  assert_true(source_ex.contains("address_v:repeat"))
+  assert_true(source_ex.contains("fract"))
+  assert_true(source_ex.contains("fs_main"))
+}
+
+///|
+test "build_builtin_shader_source_ex per-axis different" {
+  let ex : BuiltinShaderKeyEx = {
+    sampler: {
+      filter: BuiltinShaderFilter::Linear,
+      address_u: BuiltinShaderAddress::ClampToZero,
+      address_v: BuiltinShaderAddress::MirrorRepeat,
+    },
+    use_color_m: true,
+  }
+  let source = build_builtin_shader_source_ex(ex)
+  assert_true(source.contains("address_u:clamp_to_zero"))
+  assert_true(source.contains("address_v:mirror_repeat"))
+  assert_true(source.contains("vec2f"))
+  assert_true(source.contains("color_m:on"))
+  assert_true(source.contains("color_m * color"))
+}
+
+///|
+test "builtin shader source with MirrorRepeat via repo" {
+  let repo = new_basic_builtin_shader_source_repo()
+  let source = repo.shader_source({
+    filter: BuiltinShaderFilter::Nearest,
+    address: BuiltinShaderAddress::MirrorRepeat,
+    use_color_m: false,
+  })
+  assert_true(source.contains("mirror_repeat"))
+  assert_true(source.contains("abs"))
+  assert_true(source.contains("fract"))
+}
+
+///|
+test "validate_shader_compile_request rejects empty source" {
+  let request : ShaderCompileRequest = {
+    source: "",
+    unit_hint: None,
+    src_image_count: 0,
+    entrypoints: { vertex: "vs", fragment: "fs" },
+    debug_name: "empty",
+  }
+  match validate_shader_compile_request(request) {
+    Some(msg) => assert_true(msg.contains("source"))
+    None => panic()
+  }
+}
+
+///|
+test "validate_shader_compile_request rejects empty vertex entrypoint" {
+  let request : ShaderCompileRequest = {
+    source: "fn main() {}",
+    unit_hint: None,
+    src_image_count: 0,
+    entrypoints: { vertex: "", fragment: "fs" },
+    debug_name: "no_vs",
+  }
+  match validate_shader_compile_request(request) {
+    Some(msg) => assert_true(msg.contains("vertex"))
+    None => panic()
+  }
+}
+
+///|
+test "validate_shader_compile_request rejects empty fragment entrypoint" {
+  let request : ShaderCompileRequest = {
+    source: "fn main() {}",
+    unit_hint: None,
+    src_image_count: 0,
+    entrypoints: { vertex: "vs", fragment: "" },
+    debug_name: "no_fs",
+  }
+  match validate_shader_compile_request(request) {
+    Some(msg) => assert_true(msg.contains("fragment"))
+    None => panic()
+  }
+}
+
+///|
+test "validate_shader_compile_request rejects negative src_image_count" {
+  let request : ShaderCompileRequest = {
+    source: "fn main() {}",
+    unit_hint: None,
+    src_image_count: -1,
+    entrypoints: { vertex: "vs", fragment: "fs" },
+    debug_name: "neg",
+  }
+  match validate_shader_compile_request(request) {
+    Some(msg) => assert_true(msg.contains("negative"))
+    None => panic()
+  }
+}
+
+///|
+test "validate_shader_compile_request accepts valid request" {
+  let request : ShaderCompileRequest = {
+    source: "fn main() { }",
+    unit_hint: Some(ShaderUnit::Pixels),
+    src_image_count: 1,
+    entrypoints: { vertex: "vs_main", fragment: "fs_main" },
+    debug_name: "valid",
+  }
+  match validate_shader_compile_request(request) {
+    Some(_) => panic()
+    None => ()
+  }
+}
+
+///|
+test "shader_unit_eq compares units" {
+  assert_true(shader_unit_eq(ShaderUnit::Pixels, ShaderUnit::Pixels))
+  assert_true(shader_unit_eq(ShaderUnit::Texels, ShaderUnit::Texels))
+  assert_true(!shader_unit_eq(ShaderUnit::Pixels, ShaderUnit::Texels))
+  assert_true(!shader_unit_eq(ShaderUnit::Texels, ShaderUnit::Pixels))
+}
+
+///|
+test "shader_hash_eq compares hash values" {
+  assert_true(shader_hash_eq({ value: "abc" }, { value: "abc" }))
+  assert_true(!shader_hash_eq({ value: "abc" }, { value: "def" }))
+}
+
+///|
+test "validate_uniform_layout rejects mismatched lengths" {
+  match validate_uniform_layout({
+    names: ["a", "b"],
+    dword_counts: [1],
+    preserved_prefix_dwords: 0,
+  }) {
+    Some(msg) => assert_true(msg.contains("length"))
+    None => panic()
+  }
+}
+
+///|
+test "validate_uniform_layout rejects duplicate names" {
+  match validate_uniform_layout({
+    names: ["u_a", "u_b", "u_a"],
+    dword_counts: [1, 1, 1],
+    preserved_prefix_dwords: 0,
+  }) {
+    Some(msg) => assert_true(msg.contains("duplicate"))
+    None => panic()
+  }
+}
+
+///|
+test "validate_uniform_layout rejects negative dword_counts" {
+  match validate_uniform_layout({
+    names: ["u_a"],
+    dword_counts: [-2],
+    preserved_prefix_dwords: 0,
+  }) {
+    Some(msg) => assert_true(msg.contains("negative"))
+    None => panic()
+  }
+}
+
+///|
+test "validate_uniform_layout rejects negative preserved_prefix_dwords" {
+  match validate_uniform_layout({
+    names: [],
+    dword_counts: [],
+    preserved_prefix_dwords: -1,
+  }) {
+    Some(msg) => assert_true(msg.contains("negative"))
+    None => panic()
+  }
+}
+
+///|
+test "validate_uniform_layout accepts valid layout" {
+  match validate_uniform_layout({
+    names: ["u_a", "u_b"],
+    dword_counts: [1, 4],
+    preserved_prefix_dwords: 6,
+  }) {
+    Some(_) => panic()
+    None => ()
+  }
+}
+
+///|
+test "compute_expected_preserved_dwords matches context" {
+  // dst_size(2) + dst_region(4) + 0 src = 6
+  let ctx0 : PreservedUniformContext = {
+    dst_texture_size: { width: 320, height: 240 },
+    dst_region: { x: 0.0, y: 0.0, width: 320.0, height: 240.0 },
+    src_texture_sizes: [],
+    src_regions: [],
+  }
+  assert_eq(compute_expected_preserved_dwords(ctx0), 6)
+  // dst(6) + 2 src * 6 = 18
+  let ctx2 : PreservedUniformContext = {
+    dst_texture_size: { width: 64, height: 64 },
+    dst_region: { x: 0.0, y: 0.0, width: 64.0, height: 64.0 },
+    src_texture_sizes: [
+      { width: 32, height: 32 },
+      { width: 16, height: 16 },
+    ],
+    src_regions: [
+      { x: 0.0, y: 0.0, width: 32.0, height: 32.0 },
+      { x: 0.0, y: 0.0, width: 16.0, height: 16.0 },
+    ],
+  }
+  assert_eq(compute_expected_preserved_dwords(ctx2), 18)
+}
+
+///|
+test "validate_preserved_uniform_context rejects mismatched src arrays" {
+  let ctx : PreservedUniformContext = {
+    dst_texture_size: { width: 64, height: 64 },
+    dst_region: { x: 0.0, y: 0.0, width: 64.0, height: 64.0 },
+    src_texture_sizes: [{ width: 32, height: 32 }],
+    src_regions: [],
+  }
+  match validate_preserved_uniform_context(ctx) {
+    Some(msg) => assert_true(msg.contains("length"))
+    None => panic()
+  }
+}
+
+///|
+test "validate_preserved_uniform_context rejects zero dst size" {
+  let ctx : PreservedUniformContext = {
+    dst_texture_size: { width: 0, height: 64 },
+    dst_region: { x: 0.0, y: 0.0, width: 64.0, height: 64.0 },
+    src_texture_sizes: [],
+    src_regions: [],
+  }
+  match validate_preserved_uniform_context(ctx) {
+    Some(msg) => assert_true(msg.contains("positive"))
+    None => panic()
+  }
+}
+
+///|
+test "validate_preserved_uniform_context accepts valid context" {
+  let ctx : PreservedUniformContext = {
+    dst_texture_size: { width: 128, height: 128 },
+    dst_region: { x: 0.0, y: 0.0, width: 128.0, height: 128.0 },
+    src_texture_sizes: [{ width: 64, height: 64 }],
+    src_regions: [{ x: 0.0, y: 0.0, width: 64.0, height: 64.0 }],
+  }
+  match validate_preserved_uniform_context(ctx) {
+    Some(_) => panic()
+    None => ()
+  }
+}
+
+///|
+test "shader_source_ex caches extended key and returns same source" {
+  let repo = new_basic_builtin_shader_source_repo()
+  let key : BuiltinShaderKeyEx = {
+    sampler: {
+      filter: BuiltinShaderFilter::Linear,
+      address_u: BuiltinShaderAddress::Repeat,
+      address_v: BuiltinShaderAddress::MirrorRepeat,
+    },
+    use_color_m: false,
+  }
+  let source1 = repo.shader_source_ex(key)
+  let source2 = repo.shader_source_ex(key)
+  assert_eq(source1, source2)
+  assert_true(source1.contains("address_u:repeat"))
+  assert_true(source1.contains("address_v:mirror_repeat"))
+}
+
+///|
+test "shader_source_ex cache hit increments hit_count" {
+  let repo = new_basic_builtin_shader_source_repo()
+  let key : BuiltinShaderKeyEx = {
+    sampler: default_sampler_spec(),
+    use_color_m: false,
+  }
+  let _ = repo.shader_source_ex(key)
+  let stats1 = builtin_shader_cache_stats(repo)
+  assert_eq(stats1.miss_count, 1)
+  assert_eq(stats1.hit_count, 0)
+  let _ = repo.shader_source_ex(key)
+  let stats2 = builtin_shader_cache_stats(repo)
+  assert_eq(stats2.miss_count, 1)
+  assert_eq(stats2.hit_count, 1)
+}
+
+///|
+test "shader_source classic hit also increments hit_count" {
+  let repo = new_basic_builtin_shader_source_repo()
+  let key : BuiltinShaderKey = {
+    filter: BuiltinShaderFilter::Nearest,
+    address: BuiltinShaderAddress::Unsafe,
+    use_color_m: false,
+  }
+  let _ = repo.shader_source(key)
+  let _ = repo.shader_source(key)
+  let stats = builtin_shader_cache_stats(repo)
+  assert_eq(stats.miss_count, 1)
+  assert_eq(stats.hit_count, 1)
+}
+
+///|
+test "clear_builtin_shader_source_cache resets stats" {
+  let repo = new_basic_builtin_shader_source_repo()
+  let key : BuiltinShaderKeyEx = {
+    sampler: default_sampler_spec(),
+    use_color_m: false,
+  }
+  let _ = repo.shader_source_ex(key)
+  let _ = repo.shader_source_ex(key)
+  clear_builtin_shader_source_cache(repo)
+  let stats = builtin_shader_cache_stats(repo)
+  assert_eq(stats.hit_count, 0)
+  assert_eq(stats.miss_count, 0)
+  assert_eq(builtin_shader_source_cache_size(repo), 0)
+}
+
+///|
+test "mixed classic and extended cache shares eviction pool" {
+  let repo = new_basic_builtin_shader_source_repo()
+  // Fill 4 classic entries
+  for i in 0..<4 {
+    let key : BuiltinShaderKey = {
+      filter: if i % 2 == 0 {
+        BuiltinShaderFilter::Nearest
+      } else {
+        BuiltinShaderFilter::Linear
+      },
+      address: if i < 2 {
+        BuiltinShaderAddress::Unsafe
+      } else {
+        BuiltinShaderAddress::ClampToZero
+      },
+      use_color_m: false,
+    }
+    let _ = repo.shader_source(key)
+  }
+  // Fill 5 extended entries (total 9 > limit 8)
+  let addresses = [
+    BuiltinShaderAddress::Unsafe,
+    BuiltinShaderAddress::ClampToZero,
+    BuiltinShaderAddress::Repeat,
+    BuiltinShaderAddress::MirrorRepeat,
+    BuiltinShaderAddress::Unsafe,
+  ]
+  for i in 0..<5 {
+    let key : BuiltinShaderKeyEx = {
+      sampler: {
+        filter: BuiltinShaderFilter::Pixelated,
+        address_u: addresses[i],
+        address_v: BuiltinShaderAddress::Repeat,
+      },
+      use_color_m: i == 4,
+    }
+    let _ = repo.shader_source_ex(key)
+  }
+  assert_true(
+    builtin_shader_source_cache_size(repo) <=
+    builtin_shader_source_cache_limit(repo),
+  )
+}
+
+///|
 test "builtin shader source repo evicts old entries over cache limit" {
   let repo = new_basic_builtin_shader_source_repo()
   let keys : Array[BuiltinShaderKey] = [

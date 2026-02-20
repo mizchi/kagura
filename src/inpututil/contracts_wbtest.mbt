@@ -167,6 +167,200 @@ test "inpututil tracks touch ids and durations" {
 }
 
 ///|
+test "key input state initial is empty" {
+  let state = new_key_input_state()
+  assert_true(!is_key_pressed(state, 0))
+  assert_true(!is_key_just_pressed(state, 0))
+  assert_true(!is_key_just_released(state, 0))
+  assert_eq(key_press_duration(state, 0), 0)
+  assert_eq(append_pressed_keys(state, []).length(), 0)
+}
+
+///|
+test "mouse input state initial is empty" {
+  let state = new_mouse_input_state()
+  assert_true(!is_mouse_button_pressed(state, 0))
+  assert_true(!is_mouse_button_just_pressed(state, 0))
+  assert_true(!is_mouse_button_just_released(state, 0))
+  assert_eq(mouse_button_press_duration(state, 0), 0)
+  assert_eq(append_pressed_mouse_buttons(state, []).length(), 0)
+}
+
+///|
+test "key duration resets after release and re-press" {
+  let state = new_key_input_state()
+  update_key_input_state(state, snapshot_with_pressed_keys([5]))
+  update_key_input_state(state, snapshot_with_pressed_keys([5]))
+  update_key_input_state(state, snapshot_with_pressed_keys([5]))
+  assert_eq(key_press_duration(state, 5), 3)
+  update_key_input_state(state, snapshot_with_pressed_keys([]))
+  assert_eq(key_press_duration(state, 5), 0)
+  update_key_input_state(state, snapshot_with_pressed_keys([5]))
+  assert_eq(key_press_duration(state, 5), 1)
+  assert_true(is_key_just_pressed(state, 5))
+}
+
+///|
+test "simultaneous key presses are tracked independently" {
+  let state = new_key_input_state()
+  update_key_input_state(state, snapshot_with_pressed_keys([1, 2, 3]))
+  assert_true(is_key_pressed(state, 1))
+  assert_true(is_key_pressed(state, 2))
+  assert_true(is_key_pressed(state, 3))
+  assert_true(is_key_just_pressed(state, 1))
+  assert_true(is_key_just_pressed(state, 2))
+  assert_true(is_key_just_pressed(state, 3))
+  update_key_input_state(state, snapshot_with_pressed_keys([2]))
+  assert_true(!is_key_pressed(state, 1))
+  assert_true(is_key_pressed(state, 2))
+  assert_true(!is_key_pressed(state, 3))
+  assert_true(is_key_just_released(state, 1))
+  assert_true(is_key_just_released(state, 3))
+  assert_true(!is_key_just_released(state, 2))
+}
+
+///|
+test "mouse button duration accumulates correctly" {
+  let state = new_mouse_input_state()
+  update_mouse_input_state(state, snapshot_with_pressed_mouse_buttons([0]))
+  assert_eq(mouse_button_press_duration(state, 0), 1)
+  update_mouse_input_state(state, snapshot_with_pressed_mouse_buttons([0]))
+  assert_eq(mouse_button_press_duration(state, 0), 2)
+  update_mouse_input_state(state, snapshot_with_pressed_mouse_buttons([0]))
+  assert_eq(mouse_button_press_duration(state, 0), 3)
+  update_mouse_input_state(state, snapshot_with_pressed_mouse_buttons([]))
+  assert_eq(mouse_button_press_duration(state, 0), 0)
+}
+
+///|
+test "empty snapshot clears all pressed keys" {
+  let state = new_key_input_state()
+  update_key_input_state(state, snapshot_with_pressed_keys([10, 20, 30]))
+  assert_eq(append_pressed_keys(state, []).length(), 3)
+  update_key_input_state(state, snapshot_with_pressed_keys([]))
+  assert_eq(append_pressed_keys(state, []).length(), 0)
+  let released = append_just_released_keys(state, [])
+  assert_eq(released.length(), 3)
+}
+
+///|
+test "touch input with boundary id zero" {
+  let state = new_touch_input_state()
+  update_touch_input_state(
+    state,
+    snapshot_with_touches([@core.new_touch_point(0, 0.0, 0.0)]),
+  )
+  assert_true(is_touch_pressed(state, 0))
+  assert_true(is_touch_just_pressed(state, 0))
+  assert_eq(touch_press_duration(state, 0), 1)
+  update_touch_input_state(state, snapshot_with_touches([]))
+  assert_true(is_touch_just_released(state, 0))
+  assert_eq(touch_press_duration(state, 0), 0)
+}
+
+///|
+test "touch input with many duplicate ids deduplicates" {
+  let state = new_touch_input_state()
+  let touches : Array[@core.TouchPoint] = []
+  for i in 0..<8 {
+    touches.push(@core.new_touch_point(42, i.to_double(), 0.0))
+  }
+  update_touch_input_state(state, snapshot_with_touches(touches))
+  let ids = append_touch_ids(state, [])
+  assert_eq(ids.length(), 1)
+  assert_eq(ids[0], 42)
+  assert_eq(touch_press_duration(state, 42), 1)
+}
+
+///|
+test "touch rapid press release repress tracks correctly" {
+  let state = new_touch_input_state()
+  update_touch_input_state(
+    state,
+    snapshot_with_touches([@core.new_touch_point(5, 0.0, 0.0)]),
+  )
+  assert_eq(touch_press_duration(state, 5), 1)
+  update_touch_input_state(state, snapshot_with_touches([]))
+  assert_true(is_touch_just_released(state, 5))
+  assert_eq(touch_press_duration(state, 5), 0)
+  update_touch_input_state(
+    state,
+    snapshot_with_touches([@core.new_touch_point(5, 1.0, 1.0)]),
+  )
+  assert_true(is_touch_just_pressed(state, 5))
+  assert_eq(touch_press_duration(state, 5), 1)
+}
+
+///|
+test "multiple gamepads tracked independently" {
+  let state = new_gamepad_input_state()
+  update_gamepad_input_state(
+    state,
+    snapshot_with_gamepads([
+      @core.new_gamepad_snapshot(0, [0.5], [1]),
+      @core.new_gamepad_snapshot(1, [-0.5], [2]),
+      @core.new_gamepad_snapshot(2, [], [3]),
+    ]),
+  )
+  assert_true(is_gamepad_connected(state, 0))
+  assert_true(is_gamepad_connected(state, 1))
+  assert_true(is_gamepad_connected(state, 2))
+  assert_true(is_gamepad_button_pressed(state, 0, 1))
+  assert_true(is_gamepad_button_pressed(state, 1, 2))
+  assert_true(is_gamepad_button_pressed(state, 2, 3))
+  assert_true(!is_gamepad_button_pressed(state, 0, 2))
+  assert_true(!is_gamepad_button_pressed(state, 1, 1))
+  // Disconnect gamepad 1, keep 0 and 2
+  update_gamepad_input_state(
+    state,
+    snapshot_with_gamepads([
+      @core.new_gamepad_snapshot(0, [0.5], [1]),
+      @core.new_gamepad_snapshot(2, [], [3]),
+    ]),
+  )
+  assert_true(is_gamepad_connected(state, 0))
+  assert_true(!is_gamepad_connected(state, 1))
+  assert_true(is_gamepad_connected(state, 2))
+  assert_true(is_gamepad_just_disconnected(state, 1))
+  assert_true(is_gamepad_button_just_released(state, 1, 2))
+  assert_eq(gamepad_connection_duration(state, 0), 2)
+  assert_eq(gamepad_connection_duration(state, 1), 0)
+}
+
+///|
+test "gamepad button count APIs" {
+  let state = new_gamepad_input_state()
+  update_gamepad_input_state(
+    state,
+    snapshot_with_gamepads([
+      @core.new_gamepad_snapshot(0, [], [1, 2, 3, 4, 5]),
+    ]),
+  )
+  assert_eq(gamepad_pressed_button_count(state), 5)
+  assert_eq(gamepad_just_pressed_button_count(state), 5)
+  assert_eq(gamepad_just_released_button_count(state), 0)
+  update_gamepad_input_state(
+    state,
+    snapshot_with_gamepads([@core.new_gamepad_snapshot(0, [], [1, 3])]),
+  )
+  assert_eq(gamepad_pressed_button_count(state), 2)
+  assert_eq(gamepad_just_released_button_count(state), 3)
+}
+
+///|
+test "gamepad with id zero works" {
+  let state = new_gamepad_input_state()
+  update_gamepad_input_state(
+    state,
+    snapshot_with_gamepads([@core.new_gamepad_snapshot(0, [1.0, -1.0], [0])]),
+  )
+  assert_true(is_gamepad_connected(state, 0))
+  assert_true(is_gamepad_button_pressed(state, 0, 0))
+  assert_eq(gamepad_connection_duration(state, 0), 1)
+  assert_eq(gamepad_button_press_duration(state, 0, 0), 1)
+}
+
+///|
 test "inpututil tracks gamepad connection and button edges" {
   let state = new_gamepad_input_state()
 

@@ -6,7 +6,11 @@ import {
 }
 
 // Values
+pub fn[P : AIPolicy, S : SensorBridge, A : ActuatorBridge, C : AIScheduler] create_ai_post_update_hook(P, S, A, C, AIRuntimeState) -> (Int, @core.FrameBudget) -> Unit
+
 pub fn default_ai_budget() -> AIBudget
+
+pub fn default_ai_runtime_config() -> AIRuntimeConfig
 
 pub fn[P : AIPolicy, S : SensorBridge, A : ActuatorBridge, C : AIScheduler] run_ai_tick(P, S, A, C, @core.FrameBudget, Int, BlackboardSnapshot) -> BlackboardSnapshot raise
 
@@ -19,6 +23,42 @@ pub struct AIBudget {
   max_model_tokens : Int
 }
 pub impl Show for AIBudget
+
+pub struct AIRuntimeConfig {
+  mut enabled : Bool
+  mut global_budget : AIBudget?
+  mut base_seed : Int
+  mut trace_enabled : Bool
+  max_trace_history : Int
+}
+pub impl Show for AIRuntimeConfig
+
+pub struct AIRuntimeState {
+  mut blackboard : BlackboardSnapshot
+  mut traces : Array[Array[DecisionTrace]]
+  mut tick_traces : Map[Int, Array[DecisionTrace]]
+  mut total_decisions : Int
+  mut total_ticks : Int
+  mut last_tick_decision_count : Int
+  config : AIRuntimeConfig
+}
+pub fn AIRuntimeState::clear_budget_override(Self) -> Unit
+pub fn AIRuntimeState::clear_traces(Self) -> Unit
+pub fn AIRuntimeState::current_blackboard(Self) -> BlackboardSnapshot
+pub fn AIRuntimeState::get_config(Self) -> AIRuntimeConfig
+pub fn AIRuntimeState::get_recent_trace_ticks(Self, Int) -> Array[Int]
+pub fn AIRuntimeState::get_traces_for_tick(Self, Int) -> Array[DecisionTrace]
+pub fn AIRuntimeState::last_tick_decision_count(Self) -> Int
+pub fn AIRuntimeState::new() -> Self
+pub fn AIRuntimeState::new_with_blackboard(BlackboardSnapshot) -> Self
+pub fn AIRuntimeState::new_with_config(AIRuntimeConfig) -> Self
+pub fn AIRuntimeState::set_budget(Self, AIBudget) -> Unit
+pub fn AIRuntimeState::set_enabled(Self, Bool) -> Unit
+pub fn AIRuntimeState::set_seed(Self, Int) -> Unit
+pub fn AIRuntimeState::set_trace_enabled(Self, Bool) -> Unit
+pub fn AIRuntimeState::total_decisions(Self) -> Int
+pub fn AIRuntimeState::total_ticks(Self) -> Int
+pub fn AIRuntimeState::trace_count(Self) -> Int
 
 pub enum ActionIntent {
   Idle

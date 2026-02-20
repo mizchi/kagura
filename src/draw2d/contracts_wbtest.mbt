@@ -37,6 +37,30 @@ test "atlas_quad_vertex_data encodes xyuv with atlas uv bounds" {
 }
 
 ///|
+test "atlas_quad_indices returns standard quad pattern" {
+  let idx = atlas_quad_indices()
+  assert_eq(idx.length(), 6)
+  assert_eq(idx[0], 0)
+  assert_eq(idx[1], 1)
+  assert_eq(idx[2], 2)
+  assert_eq(idx[3], 2)
+  assert_eq(idx[4], 3)
+  assert_eq(idx[5], 0)
+}
+
+///|
+test "atlas_quad_vertex_data zero-size quad" {
+  let source = test_atlas_draw_source(100)
+  let vertex = atlas_quad_vertex_data(source, 0.0, 0.0, 0.0, 0.0)
+  assert_eq(vertex.length(), 16)
+  // All position coords should be 0
+  assert_eq(vertex[0], 0.0)
+  assert_eq(vertex[1], 0.0)
+  assert_eq(vertex[4], 0.0)
+  assert_eq(vertex[5], 0.0)
+}
+
+///|
 test "new_atlas_quad_draw_command uses atlas page id as src image" {
   let source = test_atlas_draw_source(901)
   let command = new_atlas_quad_draw_command(
@@ -65,4 +89,102 @@ test "new_atlas_quad_draw_command uses atlas page id as src image" {
   assert_eq(command.vertex_data[10], 0.5)
   assert_eq(command.vertex_data[11], 0.25)
   assert_eq(command.uniform_dwords.length(), 4)
+}
+
+///|
+test "new_atlas_quad_draw_command empty uniform_dwords" {
+  let source = test_atlas_draw_source(500)
+  let command = new_atlas_quad_draw_command(
+    @gfx.new_image_handle(1, 32, 32),
+    @gfx.new_shader_handle(2, "s"),
+    @gfx.new_dst_region(0, 0, 32, 32, 6),
+    0,
+    1,
+    1,
+    @gfx.blend_mode_from_int(0),
+    source,
+    0.0,
+    0.0,
+    1.0,
+    1.0,
+    [],
+  )
+  assert_eq(command.uniform_dwords.length(), 0)
+  assert_eq(command.src_image_ids[0], 500)
+}
+
+///|
+test "new_atlas_quad_draw_command preserves pipeline and blend" {
+  let source = test_atlas_draw_source(600)
+  let command = new_atlas_quad_draw_command(
+    @gfx.new_image_handle(5, 128, 128),
+    @gfx.new_shader_handle(10, "blend_test"),
+    @gfx.new_dst_region(0, 0, 128, 128, 6),
+    42,
+    99,
+    77,
+    @gfx.blend_mode_from_int(2),
+    source,
+    -1.0,
+    -1.0,
+    1.0,
+    1.0,
+    [100, 200],
+  )
+  assert_eq(command.pipeline_id, 99)
+  assert_eq(command.uniform_hash, 77)
+  assert_eq(command.index_offset, 42)
+  assert_eq(command.uniform_dwords.length(), 2)
+  assert_eq(command.uniform_dwords[0], 100)
+  assert_eq(command.uniform_dwords[1], 200)
+}
+
+///|
+test "atlas_quad_vertex_data large coordinates" {
+  let source = test_atlas_draw_source(300)
+  let vertex = atlas_quad_vertex_data(source, -1000.0, -2000.0, 3000.0, 4000.0)
+  assert_eq(vertex.length(), 16)
+  assert_eq(vertex[0], -1000.0)
+  assert_eq(vertex[1], -2000.0)
+  assert_eq(vertex[4], 3000.0)
+  assert_eq(vertex[5], -2000.0)
+  assert_eq(vertex[8], 3000.0)
+  assert_eq(vertex[9], 4000.0)
+  assert_eq(vertex[12], -1000.0)
+  assert_eq(vertex[13], 4000.0)
+}
+
+///|
+test "atlas_quad_vertex_data inverted bounds" {
+  // right < left, bottom < top (inverted quad)
+  let source = test_atlas_draw_source(400)
+  let vertex = atlas_quad_vertex_data(source, 1.0, 1.0, -1.0, -1.0)
+  assert_eq(vertex.length(), 16)
+  // TL: (1, 1)
+  assert_eq(vertex[0], 1.0)
+  assert_eq(vertex[1], 1.0)
+  // TR: (-1, 1)
+  assert_eq(vertex[4], -1.0)
+  assert_eq(vertex[5], 1.0)
+  // BR: (-1, -1)
+  assert_eq(vertex[8], -1.0)
+  assert_eq(vertex[9], -1.0)
+}
+
+///|
+test "atlas_quad_vertex_data negative coords" {
+  let source = test_atlas_draw_source(200)
+  let vertex = atlas_quad_vertex_data(source, -1.0, -1.0, -0.5, -0.5)
+  // TL
+  assert_eq(vertex[0], -1.0)
+  assert_eq(vertex[1], -1.0)
+  // TR
+  assert_eq(vertex[4], -0.5)
+  assert_eq(vertex[5], -1.0)
+  // BR
+  assert_eq(vertex[8], -0.5)
+  assert_eq(vertex[9], -0.5)
+  // BL
+  assert_eq(vertex[12], -1.0)
+  assert_eq(vertex[13], -0.5)
 }

@@ -646,3 +646,148 @@ test "simple material repository registers and overwrites material specs" {
     None => panic()
   }
 }
+
+///|
+test "multi page atlas creates first page on demand" {
+  let repo = new_multi_page_atlas_repository(64, 64)
+  assert_eq(multi_page_count(repo), 0)
+  let key = new_asset_key("img1")
+  let spec = default_image_spec(8, 8)
+  let handle = multi_page_create_image(repo, key, spec)
+  assert_true(handle is Some(_))
+  assert_eq(multi_page_count(repo), 1)
+  assert_eq(multi_page_image_count(repo), 1)
+}
+
+///|
+test "multi page atlas overflow creates new page" {
+  // 16x16 atlas with 8x8 images: fits 4 per page (2x2 rows)
+  let repo = new_multi_page_atlas_repository(16, 16)
+  let specs : Array[(String, ImageSpec)] = []
+  for i in 0..<5 {
+    specs.push(("img\{i}", default_image_spec(8, 8)))
+  }
+  for entry in specs {
+    let _ = multi_page_create_image(repo, new_asset_key(entry.0), entry.1)
+  }
+  // 4 images fit on page 1, 5th should overflow to page 2
+  assert_eq(multi_page_count(repo), 2)
+  assert_eq(multi_page_image_count(repo), 5)
+}
+
+///|
+test "multi page atlas deduplicates keys" {
+  let repo = new_multi_page_atlas_repository(64, 64)
+  let key = new_asset_key("dup")
+  let spec = default_image_spec(4, 4)
+  let h1 = multi_page_create_image(repo, key, spec)
+  let h2 = multi_page_create_image(repo, key, spec)
+  assert_true(h1 is Some(_))
+  assert_true(h2 is Some(_))
+  assert_eq(multi_page_image_count(repo), 1)
+}
+
+///|
+test "multi page atlas get_draw_source resolves across pages" {
+  let repo = new_multi_page_atlas_repository(8, 8)
+  // First image fills page 1
+  let key1 = new_asset_key("a")
+  let _ = multi_page_create_image(repo, key1, default_image_spec(8, 8))
+  // Second image must go to page 2
+  let key2 = new_asset_key("b")
+  let _ = multi_page_create_image(repo, key2, default_image_spec(8, 8))
+  assert_eq(multi_page_count(repo), 2)
+  let src1 = multi_page_get_draw_source(repo, key1)
+  let src2 = multi_page_get_draw_source(repo, key2)
+  assert_true(src1 is Some(_))
+  assert_true(src2 is Some(_))
+  // Different pages should have different page_image_ids
+  match (src1, src2) {
+    (Some(s1), Some(s2)) => assert_true(s1.page_image_id != s2.page_image_id)
+    _ => panic()
+  }
+}
+
+///|
+test "multi page atlas get_region returns correct region" {
+  let repo = new_multi_page_atlas_repository(64, 64)
+  let key = new_asset_key("r1")
+  let _ = multi_page_create_image(repo, key, default_image_spec(10, 12))
+  match multi_page_get_region(repo, key) {
+    Some(region) => {
+      assert_eq(region.width, 10)
+      assert_eq(region.height, 12)
+    }
+    None => panic()
+  }
+}
+
+///|
+test "multi page atlas missing key returns None" {
+  let repo = new_multi_page_atlas_repository(64, 64)
+  let missing = new_asset_key("missing")
+  assert_true(multi_page_get_draw_source(repo, missing) is None)
+  assert_true(multi_page_get_region(repo, missing) is None)
+  assert_true(multi_page_update_image_spec(repo, missing, default_image_spec(1, 1)) is None)
+}
+
+///|
+test "multi page atlas update forwards to correct page" {
+  let repo = new_multi_page_atlas_repository(64, 64)
+  let key = new_asset_key("upd")
+  let pixels = [255, 0, 0, 255]
+  let spec = image_spec_with_rgba8(1, 1, pixels)
+  let _ = multi_page_create_image(repo, key, spec)
+  let new_pixels = [0, 255, 0, 255]
+  let new_spec = image_spec_with_rgba8(1, 1, new_pixels)
+  let updated = multi_page_update_image_spec(repo, key, new_spec)
+  assert_true(updated is Some(_))
+}
+
+///|
+test "multi page atlas remove and dirty tracking" {
+  let repo = new_multi_page_atlas_repository(64, 64)
+  let key = new_asset_key("rm")
+  let _ = multi_page_create_image(repo, key, default_image_spec(4, 4))
+  // Clear initial dirty flags
+  let _ = multi_page_clear_dirty_flags(repo)
+  // Remove triggers dirty
+  multi_page_remove_image(repo, key)
+  assert_eq(multi_page_image_count(repo), 0)
+  let dirty = multi_page_list_dirty_bindings(repo)
+  assert_true(dirty.length() > 0)
+}
+
+///|
+test "multi page atlas dirty bindings across pages" {
+  let repo = new_multi_page_atlas_repository(8, 8)
+  let _ = multi_page_create_image(repo, new_asset_key("p1"), default_image_spec(8, 8))
+  let _ = multi_page_create_image(repo, new_asset_key("p2"), default_image_spec(8, 8))
+  let dirty = multi_page_list_dirty_bindings(repo)
+  // Both pages should be dirty
+  assert_eq(dirty.length(), 2)
+  let cleared = multi_page_clear_dirty_flags(repo)
+  assert_eq(cleared, 2)
+  // After clear, no dirty
+  assert_eq(multi_page_list_dirty_bindings(repo).length(), 0)
+}
+
+///|
+test "multi page atlas get_page_ids" {
+  let repo = new_multi_page_atlas_repository(8, 8)
+  let _ = multi_page_create_image(repo, new_asset_key("x"), default_image_spec(8, 8))
+  let _ = multi_page_create_image(repo, new_asset_key("y"), default_image_spec(8, 8))
+  let ids = multi_page_get_page_ids(repo)
+  assert_eq(ids.length(), 2)
+  assert_true(ids[0] != ids[1])
+}
+
+///|
+test "multi page atlas image too large returns None" {
+  let repo = new_multi_page_atlas_repository(8, 8)
+  // Image larger than page
+  let result = multi_page_create_image(
+    repo, new_asset_key("big"), default_image_spec(16, 16),
+  )
+  assert_true(result is None)
+}

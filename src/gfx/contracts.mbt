@@ -53,11 +53,51 @@ pub fn new_render_pass_desc(
 }
 
 ///|
+/// Blend factor for custom blend equations.
+///
+/// Ebiten refs:
+/// - internal/graphicsdriver/blend.go
+pub enum BlendFactor {
+  Zero
+  One
+  SrcAlpha
+  OneMinusSrcAlpha
+  DstAlpha
+  OneMinusDstAlpha
+  SrcColor
+  OneMinusSrcColor
+  DstColor
+  OneMinusDstColor
+} derive(Show)
+
+///|
+/// Blend operation for custom blend equations.
+pub enum BlendOperation {
+  Add
+  Subtract
+  ReverseSubtract
+  Min
+  Max
+} derive(Show)
+
+///|
+/// Custom blend equation with separate RGB and Alpha channels.
+pub struct BlendEquation {
+  src_factor_rgb : BlendFactor
+  dst_factor_rgb : BlendFactor
+  op_rgb : BlendOperation
+  src_factor_alpha : BlendFactor
+  dst_factor_alpha : BlendFactor
+  op_alpha : BlendOperation
+} derive(Show)
+
+///|
 pub enum BlendMode {
   Copy
   Alpha
   Add
   Multiply
+  Custom(BlendEquation)
 } derive(Show)
 
 ///|
@@ -67,6 +107,7 @@ pub fn blend_mode_to_int(mode : BlendMode) -> Int {
     BlendMode::Alpha => 1
     BlendMode::Add => 2
     BlendMode::Multiply => 3
+    BlendMode::Custom(_) => 4
   }
 }
 
@@ -78,6 +119,102 @@ pub fn blend_mode_from_int(mode : Int) -> BlendMode {
     2 => BlendMode::Add
     3 => BlendMode::Multiply
     _ => BlendMode::Alpha
+  }
+}
+
+///|
+/// Get the blend equation for any BlendMode including presets.
+pub fn blend_mode_to_equation(mode : BlendMode) -> BlendEquation {
+  match mode {
+    BlendMode::Copy => {
+      src_factor_rgb: BlendFactor::One,
+      dst_factor_rgb: BlendFactor::Zero,
+      op_rgb: BlendOperation::Add,
+      src_factor_alpha: BlendFactor::One,
+      dst_factor_alpha: BlendFactor::Zero,
+      op_alpha: BlendOperation::Add,
+    }
+    BlendMode::Alpha => {
+      src_factor_rgb: BlendFactor::SrcAlpha,
+      dst_factor_rgb: BlendFactor::OneMinusSrcAlpha,
+      op_rgb: BlendOperation::Add,
+      src_factor_alpha: BlendFactor::One,
+      dst_factor_alpha: BlendFactor::OneMinusSrcAlpha,
+      op_alpha: BlendOperation::Add,
+    }
+    BlendMode::Add => {
+      src_factor_rgb: BlendFactor::SrcAlpha,
+      dst_factor_rgb: BlendFactor::One,
+      op_rgb: BlendOperation::Add,
+      src_factor_alpha: BlendFactor::One,
+      dst_factor_alpha: BlendFactor::One,
+      op_alpha: BlendOperation::Add,
+    }
+    BlendMode::Multiply => {
+      src_factor_rgb: BlendFactor::DstColor,
+      dst_factor_rgb: BlendFactor::Zero,
+      op_rgb: BlendOperation::Add,
+      src_factor_alpha: BlendFactor::DstAlpha,
+      dst_factor_alpha: BlendFactor::Zero,
+      op_alpha: BlendOperation::Add,
+    }
+    BlendMode::Custom(eq) => eq
+  }
+}
+
+///|
+pub fn blend_factor_to_int(factor : BlendFactor) -> Int {
+  match factor {
+    BlendFactor::Zero => 0
+    BlendFactor::One => 1
+    BlendFactor::SrcAlpha => 2
+    BlendFactor::OneMinusSrcAlpha => 3
+    BlendFactor::DstAlpha => 4
+    BlendFactor::OneMinusDstAlpha => 5
+    BlendFactor::SrcColor => 6
+    BlendFactor::OneMinusSrcColor => 7
+    BlendFactor::DstColor => 8
+    BlendFactor::OneMinusDstColor => 9
+  }
+}
+
+///|
+pub fn blend_factor_from_int(value : Int) -> BlendFactor {
+  match value {
+    0 => BlendFactor::Zero
+    1 => BlendFactor::One
+    2 => BlendFactor::SrcAlpha
+    3 => BlendFactor::OneMinusSrcAlpha
+    4 => BlendFactor::DstAlpha
+    5 => BlendFactor::OneMinusDstAlpha
+    6 => BlendFactor::SrcColor
+    7 => BlendFactor::OneMinusSrcColor
+    8 => BlendFactor::DstColor
+    9 => BlendFactor::OneMinusDstColor
+    _ => BlendFactor::One
+  }
+}
+
+///|
+pub fn blend_operation_to_int(op : BlendOperation) -> Int {
+  match op {
+    BlendOperation::Add => 0
+    BlendOperation::Subtract => 1
+    BlendOperation::ReverseSubtract => 2
+    BlendOperation::Min => 3
+    BlendOperation::Max => 4
+  }
+}
+
+///|
+pub fn blend_operation_from_int(value : Int) -> BlendOperation {
+  match value {
+    0 => BlendOperation::Add
+    1 => BlendOperation::Subtract
+    2 => BlendOperation::ReverseSubtract
+    3 => BlendOperation::Min
+    4 => BlendOperation::Max
+    _ => BlendOperation::Add
   }
 }
 
@@ -291,6 +428,88 @@ pub trait GraphicsDriver {
 
   /// Ebiten ref: Graphics.DrawTriangles
   draw_triangles(Self, command : DrawTrianglesCommand) -> Unit raise
+
+  /// Read back framebuffer pixels as flat RGBA8 array.
+  /// Returns None if readback is not supported by the backend.
+  read_pixels(Self, x : Int, y : Int, width : Int, height : Int) -> Array[Int]? raise
+}
+
+///|
+pub struct FramebufferSnapshot {
+  x : Int
+  y : Int
+  width : Int
+  height : Int
+  pixels : Array[Int]
+} derive(Show)
+
+///|
+pub fn create_framebuffer_snapshot(
+  driver : &GraphicsDriver,
+  x : Int,
+  y : Int,
+  width : Int,
+  height : Int,
+) -> FramebufferSnapshot? raise {
+  match driver.read_pixels(x, y, width, height) {
+    Some(pixels) => Some({ x, y, width, height, pixels })
+    None => None
+  }
+}
+
+///|
+pub struct PixelDiffResult {
+  total_pixels : Int
+  diff_pixels : Int
+  max_channel_diff : Int
+} derive(Show)
+
+///|
+pub fn compare_framebuffer_snapshots(
+  a : FramebufferSnapshot,
+  b : FramebufferSnapshot,
+  threshold : Int,
+) -> PixelDiffResult {
+  let total = a.width * a.height
+  if a.width != b.width || a.height != b.height {
+    return { total_pixels: total, diff_pixels: total, max_channel_diff: 255 }
+  }
+  let pixel_count = a.width * a.height
+  let mut diff_pixels = 0
+  let mut max_diff = 0
+  for i = 0; i < pixel_count; i = i + 1 {
+    let base = i * 4
+    if base + 3 < a.pixels.length() && base + 3 < b.pixels.length() {
+      let dr = abs_int(a.pixels[base] - b.pixels[base])
+      let dg = abs_int(a.pixels[base + 1] - b.pixels[base + 1])
+      let db = abs_int(a.pixels[base + 2] - b.pixels[base + 2])
+      let da = abs_int(a.pixels[base + 3] - b.pixels[base + 3])
+      let channel_max = @cmp.maximum(
+        @cmp.maximum(dr, dg),
+        @cmp.maximum(db, da),
+      )
+      if channel_max > max_diff {
+        max_diff = channel_max
+      }
+      if channel_max > threshold {
+        diff_pixels = diff_pixels + 1
+      }
+    }
+  }
+  { total_pixels: pixel_count, diff_pixels, max_channel_diff: max_diff }
+}
+
+///|
+fn abs_int(x : Int) -> Int {
+  if x < 0 { -x } else { x }
+}
+
+///|
+pub fn pixel_diff_ratio(result : PixelDiffResult) -> Double {
+  if result.total_pixels == 0 {
+    return 0.0
+  }
+  result.diff_pixels.to_double() / result.total_pixels.to_double()
 }
 
 ///|
@@ -305,6 +524,26 @@ pub trait CommandQueue {
 ///|
 pub struct SimpleCommandQueue {
   mut commands : Array[DrawTrianglesCommand]
+}
+
+///|
+fn blend_factor_eq(lhs : BlendFactor, rhs : BlendFactor) -> Bool {
+  blend_factor_to_int(lhs) == blend_factor_to_int(rhs)
+}
+
+///|
+fn blend_operation_eq(lhs : BlendOperation, rhs : BlendOperation) -> Bool {
+  blend_operation_to_int(lhs) == blend_operation_to_int(rhs)
+}
+
+///|
+fn blend_equation_eq(lhs : BlendEquation, rhs : BlendEquation) -> Bool {
+  blend_factor_eq(lhs.src_factor_rgb, rhs.src_factor_rgb) &&
+  blend_factor_eq(lhs.dst_factor_rgb, rhs.dst_factor_rgb) &&
+  blend_operation_eq(lhs.op_rgb, rhs.op_rgb) &&
+  blend_factor_eq(lhs.src_factor_alpha, rhs.src_factor_alpha) &&
+  blend_factor_eq(lhs.dst_factor_alpha, rhs.dst_factor_alpha) &&
+  blend_operation_eq(lhs.op_alpha, rhs.op_alpha)
 }
 
 ///|
@@ -328,6 +567,11 @@ fn blend_mode_eq(lhs : BlendMode, rhs : BlendMode) -> Bool {
     BlendMode::Multiply =>
       match rhs {
         BlendMode::Multiply => true
+        _ => false
+      }
+    BlendMode::Custom(eq_l) =>
+      match rhs {
+        BlendMode::Custom(eq_r) => blend_equation_eq(eq_l, eq_r)
         _ => false
       }
   }

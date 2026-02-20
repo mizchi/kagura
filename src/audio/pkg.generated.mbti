@@ -1,0 +1,140 @@
+// Generated using `moon info`, DON'T EDIT IT
+package "mizchi/game_engine/audio"
+
+// Values
+pub fn audio_buffer_to_clip(@mizchi/audio.AudioBuffer, Bool) -> AudioClip
+
+pub fn bytes_per_sample(AudioFormat) -> Int
+
+pub fn bytes_to_samples(AudioFormat, Int) -> Int
+
+pub fn cd_quality_format() -> AudioFormat
+
+pub fn clip_duration(AudioClip) -> Double
+
+pub fn clip_sample_count(AudioClip) -> Int
+
+pub fn clip_to_audio_buffer(AudioClip) -> @mizchi/audio.AudioBuffer
+
+pub fn decode_audio_clip_auto(Bytes, Bool) -> AudioClip? raise @mizchi/audio.AudioError
+
+pub fn decode_ogg_clip(Bytes, Bool) -> AudioClip raise @mizchi/audio.AudioError
+
+pub fn decode_wav_clip(Bytes, Bool) -> AudioClip raise @mizchi/audio.AudioError
+
+pub fn default_audio_format() -> AudioFormat
+
+pub fn detect_audio_format(Bytes) -> String
+
+pub fn duration_to_samples(AudioFormat, Double) -> Int
+
+pub fn mono_format(Int) -> AudioFormat
+
+pub fn new_audio_clip(AudioFormat, Bytes, Bool) -> AudioClip
+
+pub fn samples_to_bytes(AudioFormat, Int) -> Int
+
+pub fn samples_to_duration(AudioFormat, Int) -> Double
+
+// Errors
+
+// Types and methods
+pub struct AudioClip {
+  format : AudioFormat
+  data : Bytes
+  loop_ : Bool
+}
+pub impl Show for AudioClip
+
+pub struct AudioClipStream {
+  clip : AudioClip
+  mut position : Int
+}
+pub fn AudioClipStream::new(AudioClip) -> Self
+pub fn AudioClipStream::remaining(Self) -> Int
+pub fn AudioClipStream::reset(Self) -> Unit
+pub impl AudioStream for AudioClipStream
+
+pub struct AudioFormat {
+  sample_rate : Int
+  channels : Int
+  bits_per_sample : Int
+}
+pub impl Show for AudioFormat
+
+pub struct BufferedAudioStream {
+  chunks : Array[Bytes]
+  mut total_bytes : Int
+  mut read_chunk_idx : Int
+  mut read_byte_idx : Int
+  mut finalized : Bool
+  mut final_length : Int
+}
+pub fn BufferedAudioStream::buffered_bytes(Self) -> Int
+pub fn BufferedAudioStream::finalize(Self) -> Unit
+pub fn BufferedAudioStream::has_data(Self) -> Bool
+pub fn BufferedAudioStream::is_finalized(Self) -> Bool
+pub fn BufferedAudioStream::new() -> Self
+pub fn BufferedAudioStream::push_chunk(Self, Bytes) -> Unit
+pub fn BufferedAudioStream::reset(Self) -> Unit
+pub impl AudioStream for BufferedAudioStream
+
+pub struct MixerAudioContext {
+  mixer : @mizchi/audio.Mixer
+  mut player_map : Array[(PlayerId, @mizchi/audio.VoiceId)]
+  mut next_id : Int
+}
+pub fn MixerAudioContext::new(Int) -> Self
+pub fn MixerAudioContext::render(Self, Int, FixedArray[Float]) -> Unit
+pub impl AudioContext for MixerAudioContext
+
+pub struct PlayerId {
+  value : Int
+}
+pub impl Show for PlayerId
+
+pub enum PlayerState {
+  Stopped
+  Playing
+  Paused
+}
+pub impl Show for PlayerState
+
+pub struct SimpleAudioContext {
+  mut players : Array[SimpleAudioPlayer]
+  mut next_id : Int
+  format : AudioFormat
+}
+pub fn SimpleAudioContext::new(AudioFormat) -> Self
+pub fn SimpleAudioContext::player_count(Self) -> Int
+pub fn SimpleAudioContext::tick(Self, Int) -> Unit
+pub impl AudioContext for SimpleAudioContext
+
+pub struct SimpleAudioPlayer {
+  id : PlayerId
+  clip : AudioClip
+  mut state : PlayerState
+  mut volume : Double
+  mut position_samples : Int
+}
+
+// Type aliases
+
+// Traits
+pub trait AudioContext {
+  create_player(Self, AudioClip) -> PlayerId raise
+  play(Self, PlayerId) -> Unit raise
+  pause(Self, PlayerId) -> Unit raise
+  stop(Self, PlayerId) -> Unit raise
+  state(Self, PlayerId) -> PlayerState
+  set_volume(Self, PlayerId, Double) -> Unit
+  current_position(Self, PlayerId) -> Double
+  seek(Self, PlayerId, Double) -> Unit raise
+  dispose(Self, PlayerId) -> Unit
+}
+
+pub trait AudioStream {
+  read(Self, FixedArray[Byte], Int) -> Int
+  content_length(Self) -> Int
+}
+

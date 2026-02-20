@@ -385,6 +385,154 @@ pub fn clip_to_audio_buffer(clip : AudioClip) -> @ma.AudioBuffer {
 }
 
 ///|
+/// Stream that reads sequentially from an AudioClip.
+pub struct AudioClipStream {
+  clip : AudioClip
+  mut position : Int
+}
+
+///|
+pub fn AudioClipStream::new(clip : AudioClip) -> AudioClipStream {
+  { clip, position: 0 }
+}
+
+///|
+pub fn AudioClipStream::reset(self : AudioClipStream) -> Unit {
+  self.position = 0
+}
+
+///|
+pub fn AudioClipStream::remaining(self : AudioClipStream) -> Int {
+  self.clip.data.length() - self.position
+}
+
+///|
+pub impl AudioStream for AudioClipStream with read(self, buf, length) {
+  let available = self.clip.data.length() - self.position
+  let to_read = if length < available { length } else { available }
+  if to_read > buf.length() {
+    let actual = buf.length()
+    for i = 0; i < actual; i = i + 1 {
+      buf[i] = self.clip.data[self.position + i]
+    }
+    self.position = self.position + actual
+    return actual
+  }
+  for i = 0; i < to_read; i = i + 1 {
+    buf[i] = self.clip.data[self.position + i]
+  }
+  self.position = self.position + to_read
+  to_read
+}
+
+///|
+pub impl AudioStream for AudioClipStream with content_length(self) {
+  self.clip.data.length()
+}
+
+///|
+/// Buffered stream that accumulates audio data chunks progressively.
+/// Useful for network streaming or progressive decoding.
+pub struct BufferedAudioStream {
+  chunks : Array[Bytes]
+  mut total_bytes : Int
+  mut read_chunk_idx : Int
+  mut read_byte_idx : Int
+  mut finalized : Bool
+  mut final_length : Int
+}
+
+///|
+pub fn BufferedAudioStream::new() -> BufferedAudioStream {
+  {
+    chunks: [],
+    total_bytes: 0,
+    read_chunk_idx: 0,
+    read_byte_idx: 0,
+    finalized: false,
+    final_length: -1,
+  }
+}
+
+///|
+/// Append a data chunk to the stream buffer.
+pub fn BufferedAudioStream::push_chunk(
+  self : BufferedAudioStream,
+  data : Bytes,
+) -> Unit {
+  self.total_bytes = self.total_bytes + data.length()
+  self.chunks.push(data)
+}
+
+///|
+/// Mark the stream as complete with known total length.
+pub fn BufferedAudioStream::finalize(self : BufferedAudioStream) -> Unit {
+  self.finalized = true
+  self.final_length = self.total_bytes
+}
+
+///|
+/// Check if more data is available to read.
+pub fn BufferedAudioStream::has_data(self : BufferedAudioStream) -> Bool {
+  self.buffered_bytes() > 0
+}
+
+///|
+/// Get the number of bytes available for reading.
+pub fn BufferedAudioStream::buffered_bytes(self : BufferedAudioStream) -> Int {
+  let mut read_pos = 0
+  for i = 0; i < self.read_chunk_idx; i = i + 1 {
+    read_pos = read_pos + self.chunks[i].length()
+  }
+  read_pos = read_pos + self.read_byte_idx
+  self.total_bytes - read_pos
+}
+
+///|
+pub fn BufferedAudioStream::is_finalized(
+  self : BufferedAudioStream,
+) -> Bool {
+  self.finalized
+}
+
+///|
+pub fn BufferedAudioStream::reset(self : BufferedAudioStream) -> Unit {
+  self.read_chunk_idx = 0
+  self.read_byte_idx = 0
+}
+
+///|
+pub impl AudioStream for BufferedAudioStream with read(self, buf, length) {
+  let mut written = 0
+  let to_read = if length < buf.length() { length } else { buf.length() }
+  while written < to_read && self.read_chunk_idx < self.chunks.length() {
+    let chunk = self.chunks[self.read_chunk_idx]
+    let chunk_remaining = chunk.length() - self.read_byte_idx
+    let need = to_read - written
+    let take = if need < chunk_remaining { need } else { chunk_remaining }
+    for i = 0; i < take; i = i + 1 {
+      buf[written + i] = chunk[self.read_byte_idx + i]
+    }
+    written = written + take
+    self.read_byte_idx = self.read_byte_idx + take
+    if self.read_byte_idx >= chunk.length() {
+      self.read_chunk_idx = self.read_chunk_idx + 1
+      self.read_byte_idx = 0
+    }
+  }
+  written
+}
+
+///|
+pub impl AudioStream for BufferedAudioStream with content_length(self) {
+  if self.finalized {
+    self.final_length
+  } else {
+    -1
+  }
+}
+
+///|
 /// MixerAudioContext wraps mizchi/audio's Mixer to implement AudioContext.
 pub struct MixerAudioContext {
   mixer : @ma.Mixer
@@ -545,3 +693,137 @@ pub fn MixerAudioContext::render(
   @ma.tick(self.mixer, frames, output)
   @ma.collect_stopped(self.mixer)
 }
+
+///|
+/// Audio output hooks for backend integration (Web Audio API / native audio).
+pub struct AudioOutputHooks {
+  /// Initialize the audio output device with the given format. Returns true on success.
+  try_initialize : (AudioFormat) -> Bool
+  /// Write PCM frames to the output device. Returns number of frames written.
+  write_frames : (FixedArray[Float], Int) -> Int
+  /// Suspend audio output (e.g., tab hidden, app backgrounded).
+  suspend : () -> Unit
+  /// Resume audio output after suspend.
+  resume : () -> Unit
+  /// Close the audio output device and release resources.
+  close : () -> Unit
+  /// Query the actual output latency in seconds. Returns 0.0 if unknown.
+  output_latency : () -> Double
+}
+
+///|
+pub fn new_audio_output_hooks(
+  try_initialize : (AudioFormat) -> Bool,
+  write_frames : (FixedArray[Float], Int) -> Int,
+  suspend : () -> Unit,
+  resume : () -> Unit,
+  close : () -> Unit,
+) -> AudioOutputHooks {
+  {
+    try_initialize,
+    write_frames,
+    suspend,
+    resume,
+    close,
+    output_latency: default_audio_output_latency,
+  }
+}
+
+///|
+fn default_audio_try_initialize(_format : AudioFormat) -> Bool {
+  false
+}
+
+///|
+fn default_audio_write_frames(
+  _output : FixedArray[Float],
+  _frames : Int,
+) -> Int {
+  0
+}
+
+///|
+fn default_audio_suspend() -> Unit {
+  ()
+}
+
+///|
+fn default_audio_resume() -> Unit {
+  ()
+}
+
+///|
+fn default_audio_close() -> Unit {
+  ()
+}
+
+///|
+fn default_audio_output_latency() -> Double {
+  0.0
+}
+
+///|
+fn default_audio_output_hooks() -> AudioOutputHooks {
+  new_audio_output_hooks(
+    default_audio_try_initialize,
+    default_audio_write_frames,
+    default_audio_suspend,
+    default_audio_resume,
+    default_audio_close,
+  )
+}
+
+///|
+let audio_output_hooks : Ref[AudioOutputHooks] = Ref::new(
+  default_audio_output_hooks(),
+)
+
+///|
+pub fn set_audio_output_hooks(hooks : AudioOutputHooks) -> Unit {
+  audio_output_hooks.val = hooks
+}
+
+///|
+pub fn reset_audio_output_hooks() -> Unit {
+  audio_output_hooks.val = default_audio_output_hooks()
+}
+
+///|
+pub fn audio_try_initialize(format : AudioFormat) -> Bool {
+  (audio_output_hooks.val.try_initialize)(format)
+}
+
+///|
+pub fn audio_write_frames(
+  output : FixedArray[Float],
+  frames : Int,
+) -> Int {
+  (audio_output_hooks.val.write_frames)(output, frames)
+}
+
+///|
+pub fn audio_suspend() -> Unit {
+  (audio_output_hooks.val.suspend)()
+}
+
+///|
+pub fn audio_resume() -> Unit {
+  (audio_output_hooks.val.resume)()
+}
+
+///|
+pub fn audio_close() -> Unit {
+  (audio_output_hooks.val.close)()
+}
+
+///|
+pub fn audio_output_latency() -> Double {
+  (audio_output_hooks.val.output_latency)()
+}
+
+///|
+pub struct AudioOutputStats {
+  initialized : Bool
+  frames_written : Int
+  suspended : Bool
+} derive(Show)

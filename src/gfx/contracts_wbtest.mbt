@@ -799,10 +799,591 @@ test "draw command dispatch falls back index count to region totals" {
 }
 
 ///|
+test "blend factor int conversion roundtrip" {
+  let factors : Array[BlendFactor] = [
+    BlendFactor::Zero,
+    BlendFactor::One,
+    BlendFactor::SrcAlpha,
+    BlendFactor::OneMinusSrcAlpha,
+    BlendFactor::DstAlpha,
+    BlendFactor::OneMinusDstAlpha,
+    BlendFactor::SrcColor,
+    BlendFactor::OneMinusSrcColor,
+    BlendFactor::DstColor,
+    BlendFactor::OneMinusDstColor,
+  ]
+  for factor in factors {
+    let i = blend_factor_to_int(factor)
+    let rt = blend_factor_from_int(i)
+    assert_eq(blend_factor_to_int(rt), i)
+  }
+  // Invalid defaults to One
+  assert_eq(blend_factor_to_int(blend_factor_from_int(99)), 1)
+}
+
+///|
+test "blend operation int conversion roundtrip" {
+  let ops : Array[BlendOperation] = [
+    BlendOperation::Add,
+    BlendOperation::Subtract,
+    BlendOperation::ReverseSubtract,
+    BlendOperation::Min,
+    BlendOperation::Max,
+  ]
+  for op in ops {
+    let i = blend_operation_to_int(op)
+    let rt = blend_operation_from_int(i)
+    assert_eq(blend_operation_to_int(rt), i)
+  }
+  // Invalid defaults to Add
+  assert_eq(blend_operation_to_int(blend_operation_from_int(99)), 0)
+}
+
+///|
+test "blend_mode_to_equation preset Copy" {
+  let eq = blend_mode_to_equation(BlendMode::Copy)
+  assert_eq(blend_factor_to_int(eq.src_factor_rgb), blend_factor_to_int(BlendFactor::One))
+  assert_eq(blend_factor_to_int(eq.dst_factor_rgb), blend_factor_to_int(BlendFactor::Zero))
+  assert_eq(blend_operation_to_int(eq.op_rgb), blend_operation_to_int(BlendOperation::Add))
+}
+
+///|
+test "blend_mode_to_equation preset Alpha" {
+  let eq = blend_mode_to_equation(BlendMode::Alpha)
+  assert_eq(blend_factor_to_int(eq.src_factor_rgb), blend_factor_to_int(BlendFactor::SrcAlpha))
+  assert_eq(
+    blend_factor_to_int(eq.dst_factor_rgb),
+    blend_factor_to_int(BlendFactor::OneMinusSrcAlpha),
+  )
+}
+
+///|
+test "blend_mode_to_equation preset Add" {
+  let eq = blend_mode_to_equation(BlendMode::Add)
+  assert_eq(blend_factor_to_int(eq.src_factor_rgb), blend_factor_to_int(BlendFactor::SrcAlpha))
+  assert_eq(blend_factor_to_int(eq.dst_factor_rgb), blend_factor_to_int(BlendFactor::One))
+}
+
+///|
+test "blend_mode_to_equation preset Multiply" {
+  let eq = blend_mode_to_equation(BlendMode::Multiply)
+  assert_eq(blend_factor_to_int(eq.src_factor_rgb), blend_factor_to_int(BlendFactor::DstColor))
+  assert_eq(blend_factor_to_int(eq.dst_factor_rgb), blend_factor_to_int(BlendFactor::Zero))
+}
+
+///|
+test "Custom blend mode equality" {
+  let eq1 : BlendEquation = {
+    src_factor_rgb: BlendFactor::SrcAlpha,
+    dst_factor_rgb: BlendFactor::One,
+    op_rgb: BlendOperation::Add,
+    src_factor_alpha: BlendFactor::One,
+    dst_factor_alpha: BlendFactor::One,
+    op_alpha: BlendOperation::Add,
+  }
+  let eq2 : BlendEquation = {
+    src_factor_rgb: BlendFactor::SrcAlpha,
+    dst_factor_rgb: BlendFactor::One,
+    op_rgb: BlendOperation::Add,
+    src_factor_alpha: BlendFactor::One,
+    dst_factor_alpha: BlendFactor::One,
+    op_alpha: BlendOperation::Add,
+  }
+  let eq3 : BlendEquation = {
+    src_factor_rgb: BlendFactor::Zero,
+    dst_factor_rgb: BlendFactor::One,
+    op_rgb: BlendOperation::Add,
+    src_factor_alpha: BlendFactor::One,
+    dst_factor_alpha: BlendFactor::One,
+    op_alpha: BlendOperation::Add,
+  }
+  assert_true(blend_mode_eq(BlendMode::Custom(eq1), BlendMode::Custom(eq2)))
+  assert_true(!blend_mode_eq(BlendMode::Custom(eq1), BlendMode::Custom(eq3)))
+  assert_true(!blend_mode_eq(BlendMode::Custom(eq1), BlendMode::Alpha))
+  assert_true(!blend_mode_eq(BlendMode::Alpha, BlendMode::Custom(eq1)))
+}
+
+///|
+test "Custom blend mode to_int returns 4" {
+  let eq : BlendEquation = {
+    src_factor_rgb: BlendFactor::One,
+    dst_factor_rgb: BlendFactor::Zero,
+    op_rgb: BlendOperation::Add,
+    src_factor_alpha: BlendFactor::One,
+    dst_factor_alpha: BlendFactor::Zero,
+    op_alpha: BlendOperation::Add,
+  }
+  assert_eq(blend_mode_to_int(BlendMode::Custom(eq)), 4)
+}
+
+///|
+test "Custom blend mode to_equation roundtrip" {
+  let eq : BlendEquation = {
+    src_factor_rgb: BlendFactor::DstColor,
+    dst_factor_rgb: BlendFactor::OneMinusSrcAlpha,
+    op_rgb: BlendOperation::Subtract,
+    src_factor_alpha: BlendFactor::SrcAlpha,
+    dst_factor_alpha: BlendFactor::DstAlpha,
+    op_alpha: BlendOperation::Max,
+  }
+  let mode = BlendMode::Custom(eq)
+  let eq_out = blend_mode_to_equation(mode)
+  assert_true(blend_equation_eq(eq, eq_out))
+}
+
+///|
+test "command queue does not merge when custom blend differs" {
+  let queue = new_simple_command_queue()
+  let eq1 : BlendEquation = {
+    src_factor_rgb: BlendFactor::SrcAlpha,
+    dst_factor_rgb: BlendFactor::One,
+    op_rgb: BlendOperation::Add,
+    src_factor_alpha: BlendFactor::One,
+    dst_factor_alpha: BlendFactor::One,
+    op_alpha: BlendOperation::Add,
+  }
+  let eq2 : BlendEquation = {
+    src_factor_rgb: BlendFactor::Zero,
+    dst_factor_rgb: BlendFactor::SrcColor,
+    op_rgb: BlendOperation::Add,
+    src_factor_alpha: BlendFactor::One,
+    dst_factor_alpha: BlendFactor::One,
+    op_alpha: BlendOperation::Add,
+  }
+  let base = {
+    dst: { id: 1, width: 10, height: 10 },
+    shader: { id: 1, source: "s" },
+    dst_regions: [{ x: 0, y: 0, width: 10, height: 10, index_count: 3 }],
+    index_offset: 0,
+    pipeline_id: 1,
+    uniform_hash: 0,
+    blend: BlendMode::Custom(eq1),
+    vertex_data: [],
+    indices: [],
+    src_image_ids: [],
+    uniform_dwords: [],
+  }
+  queue.enqueue_draw_triangles(base)
+  queue.enqueue_draw_triangles({
+    ..base,
+    blend: BlendMode::Custom(eq2),
+  })
+  let flushed = queue.flush()
+  assert_eq(flushed.length(), 2)
+}
+
+///|
 test "null graphics backend constructors are available" {
   let surface = @platform.create_offscreen_surface_token(320, 240)
   let options = default_graphics_backend_options()
   let _ = create_webgpu_graphics(surface, options)
   let _ = create_webgl_graphics(surface, options)
   let _ = create_wgpu_native_graphics(surface, options)
+}
+
+///|
+test "graphics_resize_stats tracks resize and suppressed counts" {
+  let driver = create_null_graphics(640, 480)
+  driver.initialize()
+  let stats0 = graphics_resize_stats(driver)
+  assert_eq(stats0.resize_count, 0)
+  assert_eq(stats0.suppressed_count, 0)
+  assert_eq(stats0.current_width, 640)
+  assert_eq(stats0.current_height, 480)
+
+  // Actual resize
+  driver.resize(800, 600)
+  let stats1 = graphics_resize_stats(driver)
+  assert_eq(stats1.resize_count, 1)
+  assert_eq(stats1.suppressed_count, 0)
+  assert_eq(stats1.current_width, 800)
+  assert_eq(stats1.current_height, 600)
+
+  // Suppressed (same dimensions)
+  driver.resize(800, 600)
+  let stats2 = graphics_resize_stats(driver)
+  assert_eq(stats2.resize_count, 1)
+  assert_eq(stats2.suppressed_count, 1)
+
+  // Another actual resize
+  driver.resize(1024, 768)
+  let stats3 = graphics_resize_stats(driver)
+  assert_eq(stats3.resize_count, 2)
+  assert_eq(stats3.suppressed_count, 1)
+  assert_eq(stats3.current_width, 1024)
+  assert_eq(stats3.current_height, 768)
+}
+
+///|
+test "graphics_resize_stats multiple suppressions" {
+  let driver = create_null_graphics(320, 240)
+  driver.initialize()
+
+  // Resize once
+  driver.resize(640, 480)
+  // Five suppressed calls
+  driver.resize(640, 480)
+  driver.resize(640, 480)
+  driver.resize(640, 480)
+  driver.resize(640, 480)
+  driver.resize(640, 480)
+
+  let stats = graphics_resize_stats(driver)
+  assert_eq(stats.resize_count, 1)
+  assert_eq(stats.suppressed_count, 5)
+}
+
+///|
+test "graphics_resize_stats zero and negative dimensions normalize" {
+  let driver = create_null_graphics(100, 100)
+  driver.initialize()
+
+  // Resize to 0x0 → normalized to 1x1
+  driver.resize(0, 0)
+  let stats1 = graphics_resize_stats(driver)
+  assert_eq(stats1.resize_count, 1)
+  assert_eq(stats1.current_width, 1)
+  assert_eq(stats1.current_height, 1)
+
+  // Resize with negative → still 1x1, suppressed
+  driver.resize(-10, -20)
+  let stats2 = graphics_resize_stats(driver)
+  assert_eq(stats2.resize_count, 1)
+  assert_eq(stats2.suppressed_count, 1)
+  assert_eq(stats2.current_width, 1)
+  assert_eq(stats2.current_height, 1)
+}
+
+///|
+test "read_pixels returns None when not initialized" {
+  let driver = create_null_graphics(64, 64)
+  let result = driver.read_pixels(0, 0, 32, 32)
+  assert_true(result is None)
+}
+
+///|
+test "read_pixels returns None for out-of-bounds region" {
+  let driver = create_null_graphics(64, 64)
+  driver.initialize()
+  // Completely outside
+  let result = driver.read_pixels(100, 100, 32, 32)
+  assert_true(result is None)
+}
+
+///|
+test "read_pixels clamps to framebuffer bounds" {
+  let read_pixels_width : Ref[Int] = Ref::new(0)
+  let read_pixels_height : Ref[Int] = Ref::new(0)
+  set_native_graphics_hooks({
+    try_initialize: fn(_w, _h) { true },
+    on_begin: fn(_a, _p) {},
+    on_end: fn(_a, _pr) {},
+    on_draw: fn(_a, _c) {},
+    on_resize: fn(_a, _w, _h) {},
+    on_read_pixels: fn(active, _x, _y, w, h) -> Array[Int]? {
+      if active {
+        read_pixels_width.val = w
+        read_pixels_height.val = h
+        Some([])
+      } else {
+        None
+      }
+    },
+  })
+  let surface = @platform.create_offscreen_surface_token(64, 64)
+  let options = default_graphics_backend_options()
+  let driver = create_wgpu_native_graphics(surface, options)
+  driver.initialize()
+  // Read region extends beyond right/bottom edge
+  let _ = driver.read_pixels(48, 48, 32, 32)
+  assert_eq(read_pixels_width.val, 16)
+  assert_eq(read_pixels_height.val, 16)
+  reset_native_graphics_hooks()
+}
+
+///|
+test "read_pixels delegates to native hook and returns pixels" {
+  set_native_graphics_hooks({
+    try_initialize: fn(_w, _h) { true },
+    on_begin: fn(_a, _p) {},
+    on_end: fn(_a, _pr) {},
+    on_draw: fn(_a, _c) {},
+    on_resize: fn(_a, _w, _h) {},
+    on_read_pixels: fn(active, _x, _y, _w, _h) -> Array[Int]? {
+      if active {
+        Some([255, 0, 0, 255])
+      } else {
+        None
+      }
+    },
+  })
+  let surface = @platform.create_offscreen_surface_token(64, 64)
+  let options = default_graphics_backend_options()
+  let driver = create_wgpu_native_graphics(surface, options)
+  driver.initialize()
+  let result = driver.read_pixels(0, 0, 1, 1)
+  match result {
+    Some(pixels) => {
+      assert_eq(pixels.length(), 4)
+      assert_eq(pixels[0], 255)
+    }
+    None => fail("expected Some pixels")
+  }
+  reset_native_graphics_hooks()
+}
+
+///|
+test "read_pixels delegates to web hook when native returns None" {
+  reset_native_graphics_hooks()
+  set_web_graphics_hooks({
+    try_initialize: fn(_k, _w, _h) { true },
+    on_begin: fn(_a, _k, _p) {},
+    on_end: fn(_a, _k, _pr) {},
+    on_draw: fn(_a, _k, _c) {},
+    on_resize: fn(_a, _k, _w, _h) {},
+    on_read_pixels: fn(active, _k, _x, _y, _w, _h) -> Array[Int]? {
+      if active {
+        Some([0, 255, 0, 255])
+      } else {
+        None
+      }
+    },
+  })
+  let surface = @platform.create_offscreen_surface_token(64, 64)
+  let options = default_graphics_backend_options()
+  let driver = create_webgpu_graphics(surface, options)
+  driver.initialize()
+  let result = driver.read_pixels(0, 0, 1, 1)
+  match result {
+    Some(pixels) => {
+      assert_eq(pixels.length(), 4)
+      assert_eq(pixels[1], 255)
+    }
+    None => fail("expected Some pixels from web hook")
+  }
+  reset_web_graphics_hooks()
+}
+
+///|
+test "graphics_resize_stats initial state is zero" {
+  let surface = @platform.create_offscreen_surface_token(320, 240)
+  let options = default_graphics_backend_options()
+  let native_driver = create_wgpu_native_graphics(surface, options)
+  let native_stats = graphics_resize_stats(native_driver)
+  assert_eq(native_stats.resize_count, 0)
+  assert_eq(native_stats.suppressed_count, 0)
+  assert_eq(native_stats.last_resize_duration_ms, 0.0)
+  assert_eq(native_stats.total_resize_duration_ms, 0.0)
+
+  let web_driver = create_webgpu_graphics(surface, options)
+  let web_stats = graphics_resize_stats(web_driver)
+  assert_eq(web_stats.resize_count, 0)
+  assert_eq(web_stats.suppressed_count, 0)
+  assert_eq(web_stats.last_resize_duration_ms, 0.0)
+  assert_eq(web_stats.total_resize_duration_ms, 0.0)
+}
+
+///|
+test "graphics_resize_stats measures resize duration with clock provider" {
+  let clock_time : Ref[Double] = Ref::new(0.0)
+  set_graphics_clock_provider(fn() { clock_time.val })
+  let driver = create_null_graphics(640, 480)
+  driver.initialize()
+
+  // First resize: simulate 2.5ms duration
+  clock_time.val = 100.0
+  // The clock will return 100.0 for t0, then we need it to return 102.5 for t1
+  // Since the clock is called twice per resize, we use a counter
+  let call_count : Ref[Int] = Ref::new(0)
+  set_graphics_clock_provider(fn() {
+    call_count.val = call_count.val + 1
+    if call_count.val % 2 == 1 {
+      100.0
+    } else {
+      102.5
+    }
+  })
+  driver.resize(800, 600)
+  let stats1 = graphics_resize_stats(driver)
+  assert_eq(stats1.last_resize_duration_ms, 2.5)
+  assert_eq(stats1.total_resize_duration_ms, 2.5)
+
+  // Second resize: simulate 1.0ms duration
+  call_count.val = 0
+  set_graphics_clock_provider(fn() {
+    call_count.val = call_count.val + 1
+    if call_count.val % 2 == 1 {
+      200.0
+    } else {
+      201.0
+    }
+  })
+  driver.resize(1024, 768)
+  let stats2 = graphics_resize_stats(driver)
+  assert_eq(stats2.last_resize_duration_ms, 1.0)
+  assert_eq(stats2.total_resize_duration_ms, 3.5)
+
+  reset_graphics_clock_provider()
+}
+
+///|
+test "graphics_resize_stats suppressed resize does not affect timing" {
+  let call_count : Ref[Int] = Ref::new(0)
+  set_graphics_clock_provider(fn() {
+    call_count.val = call_count.val + 1
+    if call_count.val % 2 == 1 {
+      50.0
+    } else {
+      55.0
+    }
+  })
+  let driver = create_null_graphics(640, 480)
+  driver.initialize()
+
+  // Actual resize
+  driver.resize(800, 600)
+  let stats1 = graphics_resize_stats(driver)
+  assert_eq(stats1.last_resize_duration_ms, 5.0)
+  assert_eq(stats1.total_resize_duration_ms, 5.0)
+
+  // Suppressed resize: timing should not change
+  driver.resize(800, 600)
+  let stats2 = graphics_resize_stats(driver)
+  assert_eq(stats2.last_resize_duration_ms, 5.0)
+  assert_eq(stats2.total_resize_duration_ms, 5.0)
+  assert_eq(stats2.suppressed_count, 1)
+
+  reset_graphics_clock_provider()
+}
+
+///|
+test "graphics_resize_stats default clock returns zero duration" {
+  reset_graphics_clock_provider()
+  let driver = create_null_graphics(100, 100)
+  driver.initialize()
+  driver.resize(200, 200)
+  let stats = graphics_resize_stats(driver)
+  assert_eq(stats.last_resize_duration_ms, 0.0)
+  assert_eq(stats.total_resize_duration_ms, 0.0)
+}
+
+///|
+test "create_framebuffer_snapshot wraps read_pixels result" {
+  set_native_graphics_hooks({
+    try_initialize: fn(_w, _h) { true },
+    on_begin: fn(_a, _p) {},
+    on_end: fn(_a, _pr) {},
+    on_draw: fn(_a, _c) {},
+    on_resize: fn(_a, _w, _h) {},
+    on_read_pixels: fn(active, _x, _y, _w, _h) -> Array[Int]? {
+      if active {
+        Some([255, 128, 64, 255])
+      } else {
+        None
+      }
+    },
+  })
+  let surface = @platform.create_offscreen_surface_token(64, 64)
+  let options = default_graphics_backend_options()
+  let driver = create_wgpu_native_graphics(surface, options)
+  driver.initialize()
+  let snap = create_framebuffer_snapshot(driver, 10, 20, 1, 1)
+  match snap {
+    Some(s) => {
+      assert_eq(s.x, 10)
+      assert_eq(s.y, 20)
+      assert_eq(s.width, 1)
+      assert_eq(s.height, 1)
+      assert_eq(s.pixels[0], 255)
+      assert_eq(s.pixels[2], 64)
+    }
+    None => fail("expected snapshot")
+  }
+  reset_native_graphics_hooks()
+}
+
+///|
+test "create_framebuffer_snapshot returns None when not initialized" {
+  let driver = create_null_graphics(64, 64)
+  let snap = create_framebuffer_snapshot(driver, 0, 0, 32, 32)
+  assert_true(snap is None)
+}
+
+///|
+test "compare_framebuffer_snapshots identical pixels" {
+  let pixels : Array[Int] = [255, 0, 0, 255, 0, 255, 0, 255]
+  let a : FramebufferSnapshot = { x: 0, y: 0, width: 2, height: 1, pixels }
+  let b : FramebufferSnapshot = {
+    x: 0,
+    y: 0,
+    width: 2,
+    height: 1,
+    pixels: [255, 0, 0, 255, 0, 255, 0, 255],
+  }
+  let result = compare_framebuffer_snapshots(a, b, 0)
+  assert_eq(result.diff_pixels, 0)
+  assert_eq(result.max_channel_diff, 0)
+  assert_eq(result.total_pixels, 2)
+}
+
+///|
+test "compare_framebuffer_snapshots with threshold" {
+  let a : FramebufferSnapshot = {
+    x: 0,
+    y: 0,
+    width: 2,
+    height: 1,
+    pixels: [100, 100, 100, 255, 200, 200, 200, 255],
+  }
+  let b : FramebufferSnapshot = {
+    x: 0,
+    y: 0,
+    width: 2,
+    height: 1,
+    pixels: [102, 100, 100, 255, 220, 200, 200, 255],
+  }
+  // threshold=5: first pixel diff=2 (within), second pixel diff=20 (exceeds)
+  let result = compare_framebuffer_snapshots(a, b, 5)
+  assert_eq(result.diff_pixels, 1)
+  assert_eq(result.max_channel_diff, 20)
+  assert_eq(result.total_pixels, 2)
+}
+
+///|
+test "compare_framebuffer_snapshots mismatched dimensions" {
+  let a : FramebufferSnapshot = {
+    x: 0,
+    y: 0,
+    width: 2,
+    height: 2,
+    pixels: [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0],
+  }
+  let b : FramebufferSnapshot = {
+    x: 0,
+    y: 0,
+    width: 3,
+    height: 2,
+    pixels: [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0],
+  }
+  let result = compare_framebuffer_snapshots(a, b, 0)
+  assert_eq(result.diff_pixels, 4)
+  assert_eq(result.max_channel_diff, 255)
+}
+
+///|
+test "pixel_diff_ratio calculates correctly" {
+  let result : PixelDiffResult = {
+    total_pixels: 100,
+    diff_pixels: 25,
+    max_channel_diff: 10,
+  }
+  assert_true(pixel_diff_ratio(result) > 0.24)
+  assert_true(pixel_diff_ratio(result) < 0.26)
+
+  let empty : PixelDiffResult = {
+    total_pixels: 0,
+    diff_pixels: 0,
+    max_channel_diff: 0,
+  }
+  assert_eq(pixel_diff_ratio(empty), 0.0)
 }

@@ -160,3 +160,52 @@ test "Vec2 reflect" {
   assert_true!(approx(r.x, 1.0))
   assert_true!(approx(r.y, 1.0))
 }
+
+///|
+test "Vec2 div" {
+  let a = Vec2::new(6.0, 8.0)
+  let b = Vec2::new(2.0, 4.0)
+  let result = a.div(b)
+  assert_true!(approx(result.x, 3.0))
+  assert_true!(approx(result.y, 2.0))
+}
+
+///|
+test "Vec2 perpendicular is orthogonal" {
+  let v = Vec2::new(3.0, 7.0)
+  let p = v.perpendicular()
+  assert_true!(approx(v.dot(p), 0.0))
+}
+
+///|
+test "Vec2 normalize preserves direction" {
+  let v = Vec2::new(100.0, 0.0)
+  let n = v.normalize()
+  assert_true!(approx(n.x, 1.0))
+  assert_true!(approx(n.y, 0.0))
+  let v2 = Vec2::new(-3.0, -4.0)
+  let n2 = v2.normalize()
+  assert_true!(approx(n2.length(), 1.0))
+  assert_true!(n2.x < 0.0)
+  assert_true!(n2.y < 0.0)
+}
+
+///|
+test "Vec2 reflect preserves incident angle" {
+  let v = Vec2::new(1.0, -1.0).normalize()
+  let n = Vec2::new(0.0, 1.0)
+  let r = v.reflect(n)
+  // |incident angle| should equal |reflected angle| relative to normal
+  let incident_cos = v.negate().dot(n).abs()
+  let reflected_cos = r.dot(n).abs()
+  assert_true!(approx(incident_cos, reflected_cos))
+}
+
+///|
+test "Vec2 rotate 360 degrees returns original" {
+  let pi = 3.14159265358979323846
+  let v = Vec2::new(3.0, 4.0)
+  let rotated = v.rotate(pi * 2.0)
+  assert_true!(approx(rotated.x, v.x))
+  assert_true!(approx(rotated.y, v.y))
+}

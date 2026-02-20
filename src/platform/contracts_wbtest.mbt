@@ -680,6 +680,110 @@ test "web platform stub has surface token" {
 }
 
 ///|
+test "desktop platform close then reinitialize resets close and attention" {
+  let p = create_desktop_glfw_platform()
+  p.initialize(default_window_options_for_test())
+  p.close_window()
+  assert_true(p.should_close())
+  p.request_attention()
+  p.request_attention()
+  assert_eq(p.attention_requests, 2)
+  p.initialize(default_window_options_for_test())
+  assert_true(!p.close_requested)
+  assert_eq(p.attention_requests, 0)
+}
+
+///|
+test "web platform close then reinitialize resets close and attention" {
+  let p = create_web_canvas_platform("#reset")
+  p.initialize(default_window_options_for_test())
+  p.close_window()
+  assert_true(p.should_close())
+  p.request_attention()
+  assert_eq(p.attention_requests, 1)
+  p.initialize(default_window_options_for_test())
+  assert_true(!p.close_requested)
+  assert_eq(p.attention_requests, 0)
+}
+
+///|
+test "desktop device scale factor normalizes non-positive to 1.0" {
+  let p = create_desktop_glfw_platform()
+  p.set_device_scale_factor(-5.0)
+  assert_eq(p.device_scale_factor(), 1.0)
+  p.set_device_scale_factor(0.0)
+  assert_eq(p.device_scale_factor(), 1.0)
+  p.set_device_scale_factor(3.0)
+  assert_eq(p.device_scale_factor(), 3.0)
+}
+
+///|
+test "desktop fullscreen toggle cycle" {
+  let p = create_desktop_glfw_platform()
+  assert_true(!p.is_fullscreen())
+  p.set_fullscreen(true)
+  assert_true(p.is_fullscreen())
+  p.set_fullscreen(true)
+  assert_true(p.is_fullscreen())
+  p.set_fullscreen(false)
+  assert_true(!p.is_fullscreen())
+  p.set_fullscreen(false)
+  assert_true(!p.is_fullscreen())
+}
+
+///|
+test "desktop cursor mode all transitions" {
+  let p = create_desktop_glfw_platform()
+  // Visible -> Hidden -> Captured -> Visible
+  assert_true(is_cursor_visible(p.cursor_mode()))
+  p.set_cursor_mode(CursorMode::Hidden)
+  assert_true(is_cursor_hidden(p.cursor_mode()))
+  p.set_cursor_mode(CursorMode::Captured)
+  assert_true(is_cursor_captured(p.cursor_mode()))
+  p.set_cursor_mode(CursorMode::Visible)
+  assert_true(is_cursor_visible(p.cursor_mode()))
+  // Visible -> Captured -> Hidden
+  p.set_cursor_mode(CursorMode::Captured)
+  assert_true(is_cursor_captured(p.cursor_mode()))
+  p.set_cursor_mode(CursorMode::Hidden)
+  assert_true(is_cursor_hidden(p.cursor_mode()))
+}
+
+///|
+test "desktop multiple capture_input ticks are independent" {
+  let p = create_desktop_glfw_platform()
+  p.initialize(default_window_options_for_test())
+  let i1 = p.capture_input(0)
+  let i2 = p.capture_input(1)
+  let i3 = p.capture_input(100)
+  // Stub returns empty input for all ticks
+  assert_eq(i1.pressed_keys.length(), 0)
+  assert_eq(i2.pressed_keys.length(), 0)
+  assert_eq(i3.pressed_keys.length(), 0)
+}
+
+///|
+test "web device scale factor edge cases" {
+  let p = create_web_canvas_platform("#scale")
+  p.set_device_scale_factor(-100.0)
+  assert_eq(p.device_scale_factor(), 1.0)
+  p.set_device_scale_factor(0.001)
+  assert_eq(p.device_scale_factor(), 0.001)
+  p.set_device_scale_factor(10.0)
+  assert_eq(p.device_scale_factor(), 10.0)
+}
+
+///|
+test "web surface token after initialization" {
+  let p = create_web_canvas_platform("#surface")
+  p.initialize(default_window_options_for_test())
+  let token = p.current_surface()
+  assert_eq(token.width, 320)
+  assert_eq(token.height, 240)
+  assert_true(token.device_scale_factor >= 1.0)
+}
+
+///|
 test "cursor mode int conversion roundtrip" {
   assert_true(is_cursor_visible(cursor_mode_from_int(0)))
   assert_true(is_cursor_hidden(cursor_mode_from_int(1)))
@@ -689,4 +793,48 @@ test "cursor mode int conversion roundtrip" {
   assert_eq(cursor_mode_to_int(CursorMode::Visible), 0)
   assert_eq(cursor_mode_to_int(CursorMode::Hidden), 1)
   assert_eq(cursor_mode_to_int(CursorMode::Captured), 2)
+}
+
+///|
+test "fullscreen mode int conversion roundtrip" {
+  assert_eq(fullscreen_mode_to_int(FullscreenMode::Windowed), 0)
+  assert_eq(fullscreen_mode_to_int(FullscreenMode::Borderless), 1)
+  assert_eq(fullscreen_mode_to_int(FullscreenMode::Exclusive), 2)
+  assert_eq(
+    fullscreen_mode_to_int(fullscreen_mode_from_int(0)),
+    0,
+  )
+  assert_eq(
+    fullscreen_mode_to_int(fullscreen_mode_from_int(1)),
+    1,
+  )
+  assert_eq(
+    fullscreen_mode_to_int(fullscreen_mode_from_int(2)),
+    2,
+  )
+  // Invalid defaults to Windowed
+  assert_eq(
+    fullscreen_mode_to_int(fullscreen_mode_from_int(-1)),
+    0,
+  )
+  assert_eq(
+    fullscreen_mode_to_int(fullscreen_mode_from_int(99)),
+    0,
+  )
+}
+
+///|
+test "monitor info includes refresh rate" {
+  let p = create_desktop_glfw_platform()
+  p.initialize(default_window_options_for_test())
+  let monitor = p.monitor_info()
+  assert_eq(monitor.refresh_rate_hz, 60)
+}
+
+///|
+test "web monitor info includes refresh rate" {
+  let p = create_web_canvas_platform("#app")
+  p.initialize(default_window_options_for_test())
+  let monitor = p.monitor_info()
+  assert_eq(monitor.refresh_rate_hz, 60)
 }

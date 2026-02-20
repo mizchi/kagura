@@ -1,0 +1,74 @@
+// Generated using `moon info`, DON'T EDIT IT
+package "mizchi/game_engine/vector"
+
+// Values
+pub fn fill_path(Array[Vec2]) -> (Array[Double], Array[Int])
+
+pub fn stroke_path(Array[Vec2], Double) -> (Array[Double], Array[Int])
+
+// Errors
+
+// Types and methods
+pub struct Path {
+  commands : Array[PathCommand]
+  mut current_x : Double
+  mut current_y : Double
+  mut start_x : Double
+  mut start_y : Double
+}
+pub fn Path::arc_to(Self, Double, Double, Double, Double, Double, Int) -> Unit
+pub fn Path::close(Self) -> Unit
+pub fn Path::command_count(Self) -> Int
+pub fn Path::cubic_to(Self, Double, Double, Double, Double, Double, Double) -> Unit
+pub fn Path::flatten(Self, Double) -> Array[Vec2]
+pub fn Path::line_to(Self, Double, Double) -> Unit
+pub fn Path::move_to(Self, Double, Double) -> Unit
+pub fn Path::new() -> Self
+pub fn Path::quad_to(Self, Double, Double, Double, Double) -> Unit
+
+pub(all) enum PathCommand {
+  MoveTo(Double, Double)
+  LineTo(Double, Double)
+  QuadTo(Double, Double, Double, Double)
+  CubicTo(Double, Double, Double, Double, Double, Double)
+  Close
+}
+
+pub struct Vec2 {
+  x : Double
+  y : Double
+}
+pub fn Vec2::add(Self, Self) -> Self
+pub fn Vec2::angle(Self) -> Double
+pub fn Vec2::angle_between(Self, Self) -> Double
+pub fn Vec2::approx_eq(Self, Self, Double) -> Bool
+pub fn Vec2::clamp(Self, Self, Self) -> Self
+pub fn Vec2::cross(Self, Self) -> Double
+pub fn Vec2::distance(Self, Self) -> Double
+pub fn Vec2::distance_squared(Self, Self) -> Double
+pub fn Vec2::div(Self, Self) -> Self
+pub fn Vec2::dot(Self, Self) -> Double
+pub fn Vec2::length(Self) -> Double
+pub fn Vec2::length_squared(Self) -> Double
+pub fn Vec2::lerp(Self, Self, Double) -> Self
+pub fn Vec2::max(Self, Self) -> Self
+pub fn Vec2::min(Self, Self) -> Self
+pub fn Vec2::mul(Self, Self) -> Self
+pub fn Vec2::negate(Self) -> Self
+pub fn Vec2::new(Double, Double) -> Self
+pub fn Vec2::normalize(Self) -> Self
+pub fn Vec2::one() -> Self
+pub fn Vec2::perpendicular(Self) -> Self
+pub fn Vec2::reflect(Self, Self) -> Self
+pub fn Vec2::rotate(Self, Double) -> Self
+pub fn Vec2::scale(Self, Double) -> Self
+pub fn Vec2::sub(Self, Self) -> Self
+pub fn Vec2::unit_x() -> Self
+pub fn Vec2::unit_y() -> Self
+pub fn Vec2::zero() -> Self
+pub impl Show for Vec2
+
+// Type aliases
+
+// Traits
+

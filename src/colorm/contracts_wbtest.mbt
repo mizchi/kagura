@@ -126,3 +126,66 @@ test "ColorM is_identity false after scale" {
   let m = ColorM::identity().scale(0.5, 1.0, 1.0, 1.0)
   assert_true!(not(m.is_identity()))
 }
+
+///|
+test "ColorM concat associativity" {
+  let a = ColorM::identity().scale(2.0, 1.0, 1.0, 1.0)
+  let b = ColorM::identity().translate(0.1, 0.0, 0.0, 0.0)
+  let c = ColorM::identity().scale(1.0, 0.5, 1.0, 1.0)
+  // (a concat b) concat c == a concat (b concat c)
+  let ab_c = c.concat(b.concat(a))
+  let a_bc = c.concat(b).concat(a)
+  let (r1, g1, b1, a1) = ab_c.apply(0.3, 0.4, 0.5, 1.0)
+  let (r2, g2, b2, a2) = a_bc.apply(0.3, 0.4, 0.5, 1.0)
+  assert_true!(approx(r1, r2))
+  assert_true!(approx(g1, g2))
+  assert_true!(approx(b1, b2))
+  assert_true!(approx(a1, a2))
+}
+
+///|
+test "ColorM double invert is identity" {
+  let m = ColorM::identity().invert().invert()
+  let (r, g, b, a) = m.apply(0.3, 0.5, 0.7, 0.9)
+  assert_true!(approx(r, 0.3))
+  assert_true!(approx(g, 0.5))
+  assert_true!(approx(b, 0.7))
+  assert_true!(approx(a, 0.9))
+}
+
+///|
+test "ColorM scale by zero makes channel zero" {
+  let m = ColorM::identity().scale(0.0, 0.0, 0.0, 1.0)
+  let (r, g, b, a) = m.apply(0.8, 0.6, 0.4, 1.0)
+  assert_true!(approx(r, 0.0))
+  assert_true!(approx(g, 0.0))
+  assert_true!(approx(b, 0.0))
+  assert_true!(approx(a, 1.0))
+}
+
+///|
+test "ColorM apply_clamped extreme translate" {
+  let m = ColorM::identity().translate(10.0, -10.0, 0.5, 0.0)
+  let (r, g, b, _a) = m.apply_clamped(0.5, 0.5, 0.5, 1.0)
+  assert_true!(approx(r, 1.0)) // clamped at 1.0
+  assert_true!(approx(g, 0.0)) // clamped at 0.0
+  assert_true!(approx(b, 1.0)) // 0.5 + 0.5 = 1.0
+}
+
+///|
+test "ColorM is_identity true for fresh identity" {
+  assert_true!(ColorM::identity().is_identity())
+  // After no-op operations
+  let m = ColorM::identity().scale(1.0, 1.0, 1.0, 1.0)
+  assert_true!(m.is_identity())
+}
+
+///|
+test "ColorM monochrome then invert" {
+  let m = ColorM::identity().monochrome().invert()
+  let (r, g, b, _a) = m.apply(1.0, 0.0, 0.0, 1.0)
+  // Red -> monochrome(0.2126) -> inverted(0.7874)
+  assert_true!(approx(r, 1.0 - 0.2126))
+  assert_true!(approx(g, 1.0 - 0.2126))
+  assert_true!(approx(b, 1.0 - 0.2126))
+}

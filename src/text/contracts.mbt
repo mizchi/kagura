@@ -70,3 +70,285 @@ pub fn default_text_style(family : String, size_px : Double) -> TextStyle {
     letter_spacing: 0.0,
   }
 }
+
+///|
+/// Rasterized glyph pixel data (RGBA8 flat array).
+pub struct GlyphBitmap {
+  width : Int
+  height : Int
+  pixels : Array[Int]
+} derive(Show)
+
+///|
+/// Atlas that combines region tracking (GlyphCache) with pixel storage.
+pub struct GlyphAtlas {
+  cache : GlyphCache
+  width : Int
+  height : Int
+  pixels : Array[Int]
+}
+
+///|
+pub fn GlyphAtlas::new(
+  width : Int,
+  height : Int,
+  page_id : Int,
+) -> GlyphAtlas {
+  let total = width * height * 4
+  let pixels : Array[Int] = Array::make(total, 0)
+  {
+    cache: GlyphCache::new(width.to_double(), height.to_double(), page_id),
+    width,
+    height,
+    pixels,
+  }
+}
+
+///|
+pub fn GlyphAtlas::get_cache(self : GlyphAtlas) -> GlyphCache {
+  self.cache
+}
+
+///|
+pub fn GlyphAtlas::get_pixels(self : GlyphAtlas) -> Array[Int] {
+  self.pixels
+}
+
+///|
+/// Convert font outline PathCommands to SVG path `d` attribute string.
+fn path_commands_to_svg_d(commands : Array[@msvg.PathCommand]) -> String {
+  let parts : Array[String] = []
+  for cmd in commands {
+    match cmd {
+      @msvg.PathCommand::MoveTo(x, y) =>
+        parts.push("M " + x.to_string() + " " + y.to_string())
+      @msvg.PathCommand::LineTo(x, y) =>
+        parts.push("L " + x.to_string() + " " + y.to_string())
+      @msvg.PathCommand::QuadraticCurveTo(cx, cy, x, y) =>
+        parts.push(
+          "Q " + cx.to_string() + " " + cy.to_string() + " " + x.to_string() +
+          " " +
+          y.to_string(),
+        )
+      @msvg.PathCommand::CurveTo(cx1, cy1, cx2, cy2, x, y) =>
+        parts.push(
+          "C " + cx1.to_string() + " " + cy1.to_string() + " " +
+          cx2.to_string() +
+          " " +
+          cy2.to_string() +
+          " " +
+          x.to_string() +
+          " " +
+          y.to_string(),
+        )
+      @msvg.PathCommand::ClosePath => parts.push("Z")
+      _ => ()
+    }
+  }
+  let mut result = ""
+  for i, p in parts {
+    if i > 0 {
+      result = result + " "
+    }
+    result = result + p
+  }
+  result
+}
+
+///|
+/// Compute bounding box from outline path commands.
+fn outline_bbox(
+  commands : Array[@msvg.PathCommand],
+) -> (Double, Double, Double, Double) {
+  let mut x_min = 1.0e10
+  let mut y_min = 1.0e10
+  let mut x_max = -1.0e10
+  let mut y_max = -1.0e10
+  for cmd in commands {
+    let points : Array[(Double, Double)] = match cmd {
+      @msvg.PathCommand::MoveTo(x, y) => [(x, y)]
+      @msvg.PathCommand::LineTo(x, y) => [(x, y)]
+      @msvg.PathCommand::QuadraticCurveTo(cx, cy, x, y) => [(cx, cy), (x, y)]
+      @msvg.PathCommand::CurveTo(cx1, cy1, cx2, cy2, x, y) =>
+        [(cx1, cy1), (cx2, cy2), (x, y)]
+      _ => []
+    }
+    for pt in points {
+      let (px, py) = pt
+      if px < x_min {
+        x_min = px
+      }
+      if py < y_min {
+        y_min = py
+      }
+      if px > x_max {
+        x_max = px
+      }
+      if py > y_max {
+        y_max = py
+      }
+    }
+  }
+  (x_min, y_min, x_max, y_max)
+}
+
+///|
+/// Rasterize a glyph outline to a pixel bitmap using SVG rendering.
+pub fn rasterize_glyph(
+  font : @font.TTFont,
+  codepoint : Int,
+  size_px : Double,
+) -> GlyphBitmap? {
+  let outline = font.scaled_outline(codepoint, size_px)
+  if outline.length() == 0 {
+    return None
+  }
+  let (x_min, _y_min, x_max, y_max) = outline_bbox(outline)
+  if x_max <= x_min || y_max <= _y_min {
+    return None
+  }
+  let pad = 1.0
+  let w = (x_max - x_min + pad * 2.0).ceil().to_int()
+  let h = (y_max - _y_min + pad * 2.0).ceil().to_int()
+  if w <= 0 || h <= 0 {
+    return None
+  }
+  let d = path_commands_to_svg_d(outline)
+  // SVG with y-flip transform: font coords (y-up) → SVG coords (y-down)
+  let tx = (-x_min + pad).to_string()
+  let ty = (y_max + pad).to_string()
+  let svg =
+    "<svg xmlns=\"http://www.w3.org/2000/svg\" width=\"" +
+    w.to_string() +
+    "\" height=\"" +
+    h.to_string() +
+    "\"><g transform=\"translate(" +
+    tx +
+    ", " +
+    ty +
+    ") scale(1, -1)\"><path d=\"" +
+    d +
+    "\" fill=\"white\"/></g></svg>"
+  match @msvg.render_svg_to_image(svg, w, h) {
+    Some(img) => {
+      let pixels : Array[Int] = []
+      for i = 0; i < img.pixels.length(); i = i + 1 {
+        let color = img.pixels[i]
+        pixels.push(color.r)
+        pixels.push(color.g)
+        pixels.push(color.b)
+        pixels.push(color.a)
+      }
+      Some({ width: img.width, height: img.height, pixels })
+    }
+    None => None
+  }
+}
+
+///|
+/// Copy a glyph bitmap into the atlas pixel buffer at the given position.
+fn blit_to_atlas(
+  atlas_pixels : Array[Int],
+  atlas_width : Int,
+  src : GlyphBitmap,
+  dst_x : Int,
+  dst_y : Int,
+) -> Unit {
+  for row = 0; row < src.height; row = row + 1 {
+    let src_offset = row * src.width * 4
+    let dst_offset = ((dst_y + row) * atlas_width + dst_x) * 4
+    for col = 0; col < src.width; col = col + 1 {
+      let si = src_offset + col * 4
+      let di = dst_offset + col * 4
+      if di + 3 < atlas_pixels.length() && si + 3 < src.pixels.length() {
+        atlas_pixels[di] = src.pixels[si]
+        atlas_pixels[di + 1] = src.pixels[si + 1]
+        atlas_pixels[di + 2] = src.pixels[si + 2]
+        atlas_pixels[di + 3] = src.pixels[si + 3]
+      }
+    }
+  }
+}
+
+///|
+/// Rasterize a glyph and place it into the atlas.
+/// Returns the cache entry with atlas coordinates, or None if failed.
+pub fn GlyphAtlas::rasterize_glyph(
+  self : GlyphAtlas,
+  font : @font.TTFont,
+  codepoint : Int,
+  size_px : Double,
+) -> GlyphCacheEntry? {
+  let glyph_id = font.glyph_index(codepoint)
+  // Return existing if already cached
+  match self.cache.get(glyph_id) {
+    Some(entry) => return Some(entry)
+    None => ()
+  }
+  // Rasterize the glyph
+  match rasterize_glyph(font, codepoint, size_px) {
+    None => None
+    Some(bitmap) => {
+      // Allocate space in atlas
+      match self.cache.allocate(
+        glyph_id, bitmap.width.to_double(), bitmap.height.to_double(),
+      ) {
+        None => None
+        Some(entry) => {
+          // Copy pixels into atlas
+          blit_to_atlas(
+            self.pixels,
+            self.width,
+            bitmap,
+            entry.atlas_x.to_int(),
+            entry.atlas_y.to_int(),
+          )
+          Some(entry)
+        }
+      }
+    }
+  }
+}
+
+///|
+/// Rasterize a string of text into the atlas and return glyph quads.
+pub fn GlyphAtlas::rasterize_text(
+  self : GlyphAtlas,
+  font : @font.TTFont,
+  text : String,
+  size_px : Double,
+) -> Array[GlyphQuad] {
+  let quads : Array[GlyphQuad] = []
+  let scale = size_px / font.units_per_em.to_double()
+  let positions = font.layout_text(text, size_px)
+  for pos in positions {
+    if pos.glyph_id == 0 {
+      continue
+    }
+    let codepoint = pos.codepoint
+    match self.rasterize_glyph(font, codepoint, size_px) {
+      None => continue
+      Some(entry) => {
+        let metrics = font.glyph_metrics(pos.glyph_id)
+        let bbox = metrics.bbox
+        let dst_x = pos.x_offset +
+          metrics.left_side_bearing.to_double() * scale
+        let dst_y = -(bbox.y_max.to_double() * scale)
+        quads.push(
+          {
+            glyph_id: pos.glyph_id,
+            atlas_x: entry.atlas_x,
+            atlas_y: entry.atlas_y,
+            atlas_w: entry.atlas_w,
+            atlas_h: entry.atlas_h,
+            dst_x,
+            dst_y,
+            dst_w: entry.atlas_w,
+            dst_h: entry.atlas_h,
+          },
+        )
+      }
+    }
+  }
+  quads
+}

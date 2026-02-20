@@ -108,7 +108,34 @@ pub enum BuiltinShaderAddress {
   Unsafe
   ClampToZero
   Repeat
+  MirrorRepeat
 } derive(Show)
+
+///|
+/// Per-axis sampler specification for texture sampling.
+pub struct SamplerSpec {
+  filter : BuiltinShaderFilter
+  address_u : BuiltinShaderAddress
+  address_v : BuiltinShaderAddress
+} derive(Show)
+
+///|
+pub fn default_sampler_spec() -> SamplerSpec {
+  {
+    filter: BuiltinShaderFilter::Nearest,
+    address_u: BuiltinShaderAddress::Unsafe,
+    address_v: BuiltinShaderAddress::Unsafe,
+  }
+}
+
+///|
+/// Convenience: create SamplerSpec with same address on both axes.
+pub fn sampler_spec(
+  filter : BuiltinShaderFilter,
+  address : BuiltinShaderAddress,
+) -> SamplerSpec {
+  { filter, address_u: address, address_v: address }
+}
 
 ///|
 pub struct BuiltinShaderKey {
@@ -116,6 +143,22 @@ pub struct BuiltinShaderKey {
   address : BuiltinShaderAddress
   use_color_m : Bool
 } derive(Show)
+
+///|
+/// Extended shader key that supports per-axis address modes.
+pub struct BuiltinShaderKeyEx {
+  sampler : SamplerSpec
+  use_color_m : Bool
+} derive(Show)
+
+///|
+/// Convert a classic BuiltinShaderKey to extended form.
+pub fn builtin_key_to_ex(key : BuiltinShaderKey) -> BuiltinShaderKeyEx {
+  {
+    sampler: { filter: key.filter, address_u: key.address, address_v: key.address },
+    use_color_m: key.use_color_m,
+  }
+}
 
 ///|
 pub trait ShaderFrontend {
@@ -155,6 +198,8 @@ pub trait UniformCanonicalizer {
 pub trait BuiltinShaderSourceRepo {
   /// Ebiten ref: internal/builtinshader/shader.go (ShaderSource/ClearShaderSource)
   shader_source(Self, key : BuiltinShaderKey) -> String
+  /// Extended: cache shader source by per-axis sampler key.
+  shader_source_ex(Self, key : BuiltinShaderKeyEx) -> String
 }
 
 ///|
@@ -201,10 +246,68 @@ struct BuiltinShaderSourceCacheEntry {
 }
 
 ///|
+struct BuiltinShaderSourceCacheEntryEx {
+  key : BuiltinShaderKeyEx
+  source : String
+  last_used_tick : Int
+}
+
+///|
+pub struct BuiltinShaderCacheStats {
+  hit_count : Int
+  miss_count : Int
+} derive(Show)
+
+///|
 pub struct BasicBuiltinShaderSourceRepo {
   mut cache : Array[BuiltinShaderSourceCacheEntry]
+  mut cache_ex : Array[BuiltinShaderSourceCacheEntryEx]
   mut tick : Int
   max_cache_entries : Int
+  mut hit_count : Int
+  mut miss_count : Int
+}
+
+///|
+/// Validate a shader compile request before compilation.
+/// Returns None if valid, Some(error_message) if invalid.
+pub fn validate_shader_compile_request(
+  request : ShaderCompileRequest,
+) -> String? {
+  if request.source.length() == 0 {
+    return Some("shader source must not be empty")
+  }
+  if request.entrypoints.vertex.length() == 0 {
+    return Some("vertex entrypoint must not be empty")
+  }
+  if request.entrypoints.fragment.length() == 0 {
+    return Some("fragment entrypoint must not be empty")
+  }
+  if request.src_image_count < 0 {
+    return Some("src_image_count must not be negative")
+  }
+  None
+}
+
+///|
+pub fn shader_unit_eq(lhs : ShaderUnit, rhs : ShaderUnit) -> Bool {
+  match lhs {
+    ShaderUnit::Pixels =>
+      match rhs {
+        ShaderUnit::Pixels => true
+        _ => false
+      }
+    ShaderUnit::Texels =>
+      match rhs {
+        ShaderUnit::Texels => true
+        _ => false
+      }
+  }
+}
+
+///|
+pub fn shader_hash_eq(lhs : ShaderSourceHash, rhs : ShaderSourceHash) -> Bool {
+  lhs.value == rhs.value
 }
 
 ///|
@@ -219,14 +322,21 @@ pub fn new_basic_uniform_canonicalizer() -> BasicUniformCanonicalizer {
 
 ///|
 pub fn new_basic_builtin_shader_source_repo() -> BasicBuiltinShaderSourceRepo {
-  { cache: [], tick: 0, max_cache_entries: 8 }
+  {
+    cache: [],
+    cache_ex: [],
+    tick: 0,
+    max_cache_entries: 8,
+    hit_count: 0,
+    miss_count: 0,
+  }
 }
 
 ///|
 pub fn builtin_shader_source_cache_size(
   repo : BasicBuiltinShaderSourceRepo,
 ) -> Int {
-  repo.cache.length()
+  repo.cache.length() + repo.cache_ex.length()
 }
 
 ///|
@@ -241,6 +351,77 @@ pub fn clear_builtin_shader_source_cache(
   repo : BasicBuiltinShaderSourceRepo,
 ) -> Unit {
   repo.cache = []
+  repo.cache_ex = []
+  repo.hit_count = 0
+  repo.miss_count = 0
+}
+
+///|
+pub fn builtin_shader_cache_stats(
+  repo : BasicBuiltinShaderSourceRepo,
+) -> BuiltinShaderCacheStats {
+  { hit_count: repo.hit_count, miss_count: repo.miss_count }
+}
+
+///|
+/// Validate a uniform layout for common errors.
+/// Returns None if valid, Some(error_message) if invalid.
+pub fn validate_uniform_layout(layout : UniformLayout) -> String? {
+  if layout.names.length() != layout.dword_counts.length() {
+    return Some(
+      "names length (\{layout.names.length()}) must match dword_counts length (\{layout.dword_counts.length()})",
+    )
+  }
+  for i in 0..<layout.names.length() {
+    if layout.dword_counts[i] < 0 {
+      return Some(
+        "dword_counts[\{i}] must not be negative (got \{layout.dword_counts[i]})",
+      )
+    }
+    for j in (i + 1)..<layout.names.length() {
+      if layout.names[i] == layout.names[j] {
+        return Some("duplicate uniform name '\{layout.names[i]}' at indices \{i} and \{j}")
+      }
+    }
+  }
+  if layout.preserved_prefix_dwords < 0 {
+    return Some(
+      "preserved_prefix_dwords must not be negative (got \{layout.preserved_prefix_dwords})",
+    )
+  }
+  None
+}
+
+///|
+/// Compute the expected preserved prefix dword count from a context.
+/// Ebiten layout: dst_size(2) + dst_region(4) + per_src(size(2) + region(4)).
+pub fn compute_expected_preserved_dwords(
+  context : PreservedUniformContext,
+) -> Int {
+  let src_count = if context.src_texture_sizes.length() <=
+    context.src_regions.length() {
+    context.src_texture_sizes.length()
+  } else {
+    context.src_regions.length()
+  }
+  2 + 4 + src_count * (2 + 4)
+}
+
+///|
+/// Validate that preserved uniform context is internally consistent.
+/// Returns None if valid, Some(error_message) if invalid.
+pub fn validate_preserved_uniform_context(
+  context : PreservedUniformContext,
+) -> String? {
+  if context.src_texture_sizes.length() != context.src_regions.length() {
+    return Some(
+      "src_texture_sizes length (\{context.src_texture_sizes.length()}) must match src_regions length (\{context.src_regions.length()})",
+    )
+  }
+  if context.dst_texture_size.width <= 0 || context.dst_texture_size.height <= 0 {
+    return Some("dst_texture_size must have positive dimensions")
+  }
+  None
 }
 
 ///|
@@ -714,6 +895,11 @@ fn builtin_address_eq(
         BuiltinShaderAddress::Repeat => true
         _ => false
       }
+    BuiltinShaderAddress::MirrorRepeat =>
+      match rhs {
+        BuiltinShaderAddress::MirrorRepeat => true
+        _ => false
+      }
   }
 }
 
@@ -728,6 +914,21 @@ fn builtin_shader_key_eq(
 }
 
 ///|
+fn sampler_spec_eq(lhs : SamplerSpec, rhs : SamplerSpec) -> Bool {
+  builtin_filter_eq(lhs.filter, rhs.filter) &&
+  builtin_address_eq(lhs.address_u, rhs.address_u) &&
+  builtin_address_eq(lhs.address_v, rhs.address_v)
+}
+
+///|
+fn builtin_shader_key_ex_eq(
+  lhs : BuiltinShaderKeyEx,
+  rhs : BuiltinShaderKeyEx,
+) -> Bool {
+  sampler_spec_eq(lhs.sampler, rhs.sampler) && lhs.use_color_m == rhs.use_color_m
+}
+
+///|
 fn find_builtin_shader_cache_index(
   cache : Array[BuiltinShaderSourceCacheEntry],
   key : BuiltinShaderKey,
@@ -738,6 +939,70 @@ fn find_builtin_shader_cache_index(
     }
   }
   None
+}
+
+///|
+fn find_builtin_shader_cache_ex_index(
+  cache : Array[BuiltinShaderSourceCacheEntryEx],
+  key : BuiltinShaderKeyEx,
+) -> Int? {
+  for i in 0..<cache.length() {
+    if builtin_shader_key_ex_eq(cache[i].key, key) {
+      return Some(i)
+    }
+  }
+  None
+}
+
+///|
+fn trim_builtin_shader_cache_ex(repo : BasicBuiltinShaderSourceRepo) -> Unit {
+  if repo.max_cache_entries <= 0 {
+    repo.cache_ex = []
+  } else {
+    let total = repo.cache.length() + repo.cache_ex.length()
+    let mut remaining = total
+    while remaining > repo.max_cache_entries {
+      // Find oldest across both caches
+      let mut oldest_tick = 2147483647
+      let mut evict_classic = true
+      let mut evict_index = -1
+      for i in 0..<repo.cache.length() {
+        if repo.cache[i].last_used_tick < oldest_tick {
+          oldest_tick = repo.cache[i].last_used_tick
+          evict_classic = true
+          evict_index = i
+        }
+      }
+      for i in 0..<repo.cache_ex.length() {
+        if repo.cache_ex[i].last_used_tick < oldest_tick {
+          oldest_tick = repo.cache_ex[i].last_used_tick
+          evict_classic = false
+          evict_index = i
+        }
+      }
+      if evict_index < 0 {
+        break
+      }
+      if evict_classic {
+        let next : Array[BuiltinShaderSourceCacheEntry] = []
+        for i in 0..<repo.cache.length() {
+          if i != evict_index {
+            next.push(repo.cache[i])
+          }
+        }
+        repo.cache = next
+      } else {
+        let next : Array[BuiltinShaderSourceCacheEntryEx] = []
+        for i in 0..<repo.cache_ex.length() {
+          if i != evict_index {
+            next.push(repo.cache_ex[i])
+          }
+        }
+        repo.cache_ex = next
+      }
+      remaining = remaining - 1
+    }
+  }
 }
 
 ///|
@@ -780,6 +1045,7 @@ fn builtin_address_tag(address : BuiltinShaderAddress) -> String {
     BuiltinShaderAddress::Unsafe => "unsafe"
     BuiltinShaderAddress::ClampToZero => "clamp_to_zero"
     BuiltinShaderAddress::Repeat => "repeat"
+    BuiltinShaderAddress::MirrorRepeat => "mirror_repeat"
   }
 }
 
@@ -791,6 +1057,35 @@ fn builtin_address_snippet(address : BuiltinShaderAddress) -> String {
       "if uv.x < 0.0 || uv.x > 1.0 || uv.y < 0.0 || uv.y > 1.0 {\n    return vec4f(0.0, 0.0, 0.0, 0.0);\n  }\n  let sample_uv = uv;"
     BuiltinShaderAddress::Repeat =>
       "// address: repeat\n  let sample_uv = fract(uv);"
+    BuiltinShaderAddress::MirrorRepeat =>
+      "// address: mirror_repeat\n  let sample_uv = abs(fract(uv * 0.5) * 2.0 - 1.0);"
+  }
+}
+
+///|
+/// Generate per-axis address snippet for SamplerSpec.
+fn builtin_address_snippet_per_axis(spec : SamplerSpec) -> String {
+  if builtin_address_eq(spec.address_u, spec.address_v) {
+    builtin_address_snippet(spec.address_u)
+  } else {
+    let u_snippet = single_axis_address_expr(spec.address_u, "uv.x")
+    let v_snippet = single_axis_address_expr(spec.address_v, "uv.y")
+    "let sample_uv = vec2f(\{u_snippet}, \{v_snippet});"
+  }
+}
+
+///|
+fn single_axis_address_expr(
+  address : BuiltinShaderAddress,
+  coord : String,
+) -> String {
+  match address {
+    BuiltinShaderAddress::Unsafe => coord
+    BuiltinShaderAddress::ClampToZero =>
+      "select(0.0, \{coord}, \{coord} >= 0.0 && \{coord} <= 1.0)"
+    BuiltinShaderAddress::Repeat => "fract(\{coord})"
+    BuiltinShaderAddress::MirrorRepeat =>
+      "abs(fract(\{coord} * 0.5) * 2.0 - 1.0)"
   }
 }
 
@@ -850,6 +1145,36 @@ fn build_builtin_shader_source(key : BuiltinShaderKey) -> String {
 }
 
 ///|
+/// Build shader source from extended key with per-axis address support.
+pub fn build_builtin_shader_source_ex(key : BuiltinShaderKeyEx) -> String {
+  let address_snippet = builtin_address_snippet_per_axis(key.sampler)
+  let sample_snippet = builtin_sample_snippet(key.sampler.filter)
+  let color_m_snippet = builtin_color_m_snippet(key.use_color_m)
+  let color_m_tag = if key.use_color_m { "on" } else { "off" }
+  let header = "// game_engine builtin shader\n" +
+    "// filter:\{builtin_filter_tag(key.sampler.filter)}\n" +
+    "// address_u:\{builtin_address_tag(key.sampler.address_u)}\n" +
+    "// address_v:\{builtin_address_tag(key.sampler.address_v)}\n" +
+    "// color_m:\{color_m_tag}\n"
+  let bindings = "@group(0) @binding(0) var tex: texture_2d<f32>;\n" +
+    "@group(0) @binding(1) var nearest_sampler: sampler;\n" +
+    "@group(0) @binding(2) var linear_sampler: sampler;\n\n"
+  let structs = "struct VertexOutput {\n" +
+    "  @builtin(position) pos: vec4f,\n" +
+    "  @location(0) uv: vec2f,\n" +
+    "};\n\n"
+  let body = "@fragment\n" +
+    "fn fs_main(in: VertexOutput) -> @location(0) vec4f {\n" +
+    "  let uv = in.uv;\n" +
+    "  \{address_snippet}\n" +
+    "  var color = \{sample_snippet};\n" +
+    "  \{color_m_snippet}\n" +
+    "  return color;\n" +
+    "}\n"
+  header + bindings + structs + body
+}
+
+///|
 pub impl BuiltinShaderSourceRepo for BasicBuiltinShaderSourceRepo with shader_source(
   self,
   key,
@@ -863,12 +1188,41 @@ pub impl BuiltinShaderSourceRepo for BasicBuiltinShaderSourceRepo with shader_so
         source: entry.source,
         last_used_tick: self.tick,
       }
+      self.hit_count = self.hit_count + 1
       entry.source
     }
     None => {
       let source = build_builtin_shader_source(key)
       self.cache.push({ key, source, last_used_tick: self.tick })
+      self.miss_count = self.miss_count + 1
       trim_builtin_shader_cache(self)
+      source
+    }
+  }
+}
+
+///|
+pub impl BuiltinShaderSourceRepo for BasicBuiltinShaderSourceRepo with shader_source_ex(
+  self,
+  key,
+) {
+  self.tick = self.tick + 1
+  match find_builtin_shader_cache_ex_index(self.cache_ex, key) {
+    Some(index) => {
+      let entry = self.cache_ex[index]
+      self.cache_ex[index] = {
+        key: entry.key,
+        source: entry.source,
+        last_used_tick: self.tick,
+      }
+      self.hit_count = self.hit_count + 1
+      entry.source
+    }
+    None => {
+      let source = build_builtin_shader_source_ex(key)
+      self.cache_ex.push({ key, source, last_used_tick: self.tick })
+      self.miss_count = self.miss_count + 1
+      trim_builtin_shader_cache_ex(self)
       source
     }
   }

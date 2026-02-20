@@ -23,6 +23,8 @@ pub fn new_input_edge_runtime_hooks(InputEdgeObserverState) -> RuntimeHooks
 
 pub fn new_runtime_hooks((Int, @core.InputSnapshot) -> Unit) -> RuntimeHooks
 
+pub fn new_runtime_hooks_full((Int, @core.InputSnapshot) -> Unit, (Int, @core.FrameBudget) -> Unit) -> RuntimeHooks
+
 pub fn observe_input_edge(InputEdgeObserverState, Int, @core.InputSnapshot) -> InputEdgeSummary
 
 pub fn plan_frame(@core.StepResult, Int) -> FramePlan
@@ -73,6 +75,7 @@ pub impl Show for RuntimeConfig
 
 pub struct RuntimeHooks {
   on_input_captured : (Int, @core.InputSnapshot) -> Unit
+  on_post_update : (Int, @core.FrameBudget) -> Unit
 }
 
 // Type aliases

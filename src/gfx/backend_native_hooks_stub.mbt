@@ -5,6 +5,7 @@ pub struct NativeGraphicsHooks {
   on_end : (Bool, Bool) -> Unit
   on_draw : (Bool, DrawTrianglesCommand) -> Unit
   on_resize : (Bool, Int, Int) -> Unit
+  on_read_pixels : (Bool, Int, Int, Int, Int) -> Array[Int]?
 }
 
 ///|
@@ -15,7 +16,14 @@ pub fn new_native_graphics_hooks(
   on_draw : (Bool, DrawTrianglesCommand) -> Unit,
   on_resize : (Bool, Int, Int) -> Unit,
 ) -> NativeGraphicsHooks {
-  { try_initialize, on_begin, on_end, on_draw, on_resize }
+  {
+    try_initialize,
+    on_begin,
+    on_end,
+    on_draw,
+    on_resize,
+    on_read_pixels: default_native_on_read_pixels,
+  }
 }
 
 ///|
@@ -48,6 +56,17 @@ fn default_native_on_resize(
   _height : Int,
 ) -> Unit {
   ()
+}
+
+///|
+fn default_native_on_read_pixels(
+  _active : Bool,
+  _x : Int,
+  _y : Int,
+  _width : Int,
+  _height : Int,
+) -> Array[Int]? {
+  None
 }
 
 ///|
@@ -96,4 +115,15 @@ fn native_on_draw(active : Bool, command : DrawTrianglesCommand) -> Unit {
 ///|
 fn native_on_resize(active : Bool, width : Int, height : Int) -> Unit {
   (native_graphics_hooks.val.on_resize)(active, width, height)
+}
+
+///|
+fn native_on_read_pixels(
+  active : Bool,
+  x : Int,
+  y : Int,
+  width : Int,
+  height : Int,
+) -> Array[Int]? {
+  (native_graphics_hooks.val.on_read_pixels)(active, x, y, width, height)
 }

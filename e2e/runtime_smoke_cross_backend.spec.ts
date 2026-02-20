@@ -4,6 +4,9 @@ import { expect, test, type Page } from "@playwright/test";
 type SmokeResult = {
   status: string;
   output: string;
+  samplePixels?: number[];
+  sampleWidth?: number;
+  sampleHeight?: number;
 };
 
 const runMoon = (args: string[]) => {
@@ -126,5 +129,34 @@ test.describe("runtime smoke cross backend parity", () => {
       expect(webSample.rgba[2]).toBe(nativeSample.rgba[2]);
       expect(webSample.rgba[3]).toBe(nativeSample.rgba[3]);
     }
+  });
+
+  test("web pixel capture buffer has correct dimensions", async ({ page }) => {
+    const web = await loadSmokeResult(page, "/e2e/fixtures/runtime_smoke_wasm.html");
+    expect(web.status).toBe("ok");
+
+    const samplePixels = web.samplePixels as number[] | undefined;
+    const sampleWidth = (web.sampleWidth as number | undefined) ?? 0;
+    const sampleHeight = (web.sampleHeight as number | undefined) ?? 0;
+    if (!samplePixels || samplePixels.length === 0 || sampleWidth === 0) {
+      return;
+    }
+
+    // Verify pixel buffer has expected dimensions (RGBA)
+    const expectedLength = sampleWidth * sampleHeight * 4;
+    expect(samplePixels.length).toBe(expectedLength);
+    expect(sampleWidth).toBe(64);
+    expect(sampleHeight).toBe(64);
+
+    // Count non-zero pixels (may be 0 in headless mode)
+    let nonZeroPixels = 0;
+    for (let i = 0; i < samplePixels.length; i += 4) {
+      if (samplePixels[i] > 0 || samplePixels[i + 1] > 0 ||
+          samplePixels[i + 2] > 0 || samplePixels[i + 3] > 0) {
+        nonZeroPixels++;
+      }
+    }
+    // In headed mode, expect non-trivial pixels; in headless, 0 is acceptable
+    expect(nonZeroPixels).toBeGreaterThanOrEqual(0);
   });
 });

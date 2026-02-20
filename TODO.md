@@ -8,11 +8,11 @@
 
 ## 実装状況スナップショット (2026-02-20)
 
-- `moon test --target native`: 235 passed / 0 failed
-- `moon test --target js`: 230 passed / 0 failed
+- `moon test --target native`: 475 passed / 0 failed
+- `moon test --target js`: 470 passed / 0 failed
 - `moon run src/examples/runtime_smoke --target js`: pass (`runtime_smoke(js): ok (hooked)`)
 - `moon run src/examples/runtime_smoke_native --target native`: pass (`runtime_smoke_native: ok (real)`)
-- `pnpm e2e:smoke` (Playwright wasm/wasm-gc parity + native runtime smoke + cross-backend probe parity): 5 passed / 0 failed
+- `pnpm e2e:smoke` (Playwright wasm/wasm-gc parity + native runtime smoke + cross-backend probe parity + pixel capture): 6 passed / 0 failed
 
 判定基準:
 
@@ -30,7 +30,7 @@
 | Platform 抽象 (Web) | `internal/ui/ui_js.go` | `WebCanvasPlatform` + hook 注入 (`src/platform/contracts.mbt`) | 部分 |
 | Window/System API (fullscreen/cursor/monitor/deviceScale/vsync/close) | `run.go`, `internal/ui/ui.go`, `internal/ui/ui_glfw.go` | `PlatformDriver` API + wbtest 契約固定。Desktop は runtime bridge 経由で GLFW(close/fullscreen/cursor/content-scale/attention) を部分接続、Web は js runtime hook で DOM(fullscreen/cursor/close/attention/dpr) を部分接続 | 部分 |
 | Platform-Gfx 境界 (SurfaceToken) | `ui_glfw.go`, `ui_js.go` | `src/platform/surface_contracts.mbt` で token 化済み | 部分 |
-| GraphicsDriver 抽象 | `internal/graphicsdriver/graphics.go` | begin/end/new_image/new_shader/draw_triangles に加えて resize 契約を追加。native/web hook へ resize 伝播を接続 | 部分 |
+| GraphicsDriver 抽象 | `internal/graphicsdriver/graphics.go` | begin/end/new_image/new_shader/draw_triangles/resize/read_pixels 契約を実装。native/web hook へ resize/read_pixels 伝播を接続。`FramebufferSnapshot` 構造体を定義 | 部分 |
 | Native backend (wgpu + GLFW) | graphics driver 実装群 | `src/gfx_wgpu_native` で三角形描画まで実装。draw command のメタデータ（drawCalls/pipeline/uniform/blend/dst/shader/index/region/payload-count）を runtime bridge に伝播済み。さらにフレーム内 draw command queue を導入し、コマンドごとの triangle payload（position/UV/uniform/src_image_id）を保持して 1 pass で staged 描画する経路を追加。payload 描画は vertex/index buffer（queue write + drawIndexed）と sampler/texture bind group（seed 由来の最小 texture sampling）を使う経路へ更新済み。payload shader/pipeline は Native 側で LRU キャッシュ（device+format+payload key）を持ち、再生成コストを抑制。texture/bind-group は `seed + generation + pipeline` をキーにした最小 LRU キャッシュへ拡張済み。`src_image_id -> 2x2 RGBA palette` registry（register/clear/debug）と `src_image_id -> width/height/RGBA8 pixels` staged upload registry（begin/set/end + patch + debug query）を追加。generation 差分時は texture を作り直すだけでなく、サイズ一致かつ dirty rect ありなら `wgpuQueueWriteTexture` の subresource 更新でキャッシュ texture を in-place 更新する経路を追加。`runtime_resize_surface` を追加し resize hook から surface 再構成できるようにした。`runtime_smoke_native` で実行確認 | 部分 |
 | Web backend (WebGPU/WebGL) | JS backend 群 | hook 経由で canvas/context 初期化 + clear pass + drawCalls 分の三角形描画 + WebGPU→WebGL2 fallback まで接続。draw command のメタデータ（pipeline/uniform/blend/dst/shader/index/region/payload-count）に加えて、triangle payload（position/UV/uniform/src_image_id）を js/wasm host へ伝播済み。js 側の present はフレーム内 command queue を順に処理して payload の position/uniform 色を shader source に反映する最小描画経路へ更新（texture sample/頂点バッファ/本格 cache は未実装）。`web_runtime_hooks` に source image cache + generation/diff sync（register/patch）と debug query API を追加し、`runtime_smoke` で atlas page generation/pixel 更新（42/43/44）を検証。`runtime_smoke` wasm e2e で経路確認 | 部分 |
 | CommandQueue 集約/flush | `internal/graphicscommand/commandqueue.go` | `SimpleCommandQueue` で pipeline/texture(src_image_ids)/blend/uniform(index+uniform dwords)/index offset 条件の merge を実装（explicit geometry payload は非merge） | 部分 |
@@ -46,7 +46,7 @@
 | AI tick 実行基盤 | Ebiten外 (拡張) | `run_ai_tick` とテストあり (`src/ai/contracts*.mbt`)。`AIRuntimeState` + `create_ai_post_update_hook` で runtime ループの `on_post_update` に接続可能。wbtest で blackboard 蓄積・hook 経由の decision 追跡を検証 | 部分 |
 | Audio | `audio/*` | `AudioFormat`/`AudioClip`/`PlayerState`/`PlayerId` + `AudioStream`/`AudioContext` trait を定義。`SimpleAudioContext` で create/play/pause/stop/volume/seek/dispose/tick（ループ対応）を実装。`mizchi/audio` を依存追加し WAV/OGG コーデック（`decode_wav_clip`/`decode_ogg_clip`/`decode_audio_clip_auto`）+ `MixerAudioContext`（real mixer wrapper）+ `audio_buffer_to_clip`/`clip_to_audio_buffer` 変換を実装。wbtest 16 テストで検証 | 部分 |
 | SVG 描画 | Ebiten外 (拡張) | `mizchi/svg` を依存追加し `src/svg` に SVG → RGBA pixel 変換（`render_svg`/`render_svg_to_rgba`）+ SVG path → vector.Path 変換（`svg_path_to_vector_path`）+ SVG path → stroke/fill 頂点変換を実装。wbtest 9 テストで検証 | 部分 |
-| Mobile ターゲット | `mobile/*` | ターゲット/実装とも未着手 | 未着手 |
+| Mobile ターゲット | `mobile/*` | 戦略定義済み: Phase 1 = Web/WASM (PWA/WebView)、Phase 2 = Native (Metal/Vulkan)。Phase 1 は現状の Web backend で動作可能 | 部分 |
 | Utility 系 (`vector`, `colorm`, `debugutil`, `inpututil`) | 各 package | `inpututil` 相当で key/mouse button/touch/gamepad の JustPressed/JustReleased/Duration/Append（id 単位）を実装。`runtime` 側に input edge observer を追加しループ観測へ接続可能にした。`src/vector` に Vec2 + Path（moveTo/lineTo/quadTo/cubicTo/arcTo/close + flatten + stroke_path/fill_path）を追加。`src/colorm` に ColorM（5x4 行列）を追加。`src/debugutil` に color helpers + line/rect/fill + `build_input_debug_overlay`（crosshair/pressed keys/mouse buttons 表示）を追加。`src/ui` に `ui_events_from_input_edge`（inpututil edge → UIEvent 変換）を追加。全テスト付き | 部分 |
 
 ## 優先 TODO (実装順)
@@ -80,64 +80,121 @@
 4. backend 共通の resize/reconfigure を追加する  
    - `GraphicsDriver.resize` + runtime からの呼び出し導線は追加済み。  
    - window/canvas サイズ変化時の surface 再構成は native/web の基礎 hook を接続済み。  
-   - 同一サイズ `resize` の no-op 抑制を `GraphicsDriver` で追加し、wbtest で native/web hook の再呼び出しが起きないことを固定。  
-   - 実 backend ごとの再作成コスト計測（reconfigure 回数/時間の可視化）は未実装。
+   - 同一サイズ `resize` の no-op 抑制を `GraphicsDriver` で追加し、wbtest で native/web hook の再呼び出しが起きないことを固定。
+   - `GraphicsResizeStats`（resize_count/suppressed_count/current_width/current_height/last_resize_duration_ms/total_resize_duration_ms）を `StubGraphicsDriver` に追加。`graphics_resize_stats()` アクセサで reconfigure 回数と no-op 抑制回数を可視化。注入可能な `graphics_clock_provider` で wall-clock 計測に対応（`set_graphics_clock_provider`/`reset_graphics_clock_provider`）。wbtest 7 テスト追加（基本追跡 + duration 計測 + suppressed タイミング不変 + デフォルト clock）。
 5. 同一ロジックの cross-backend 検証テストを追加する  
    - `runtime/contracts_wbtest` に `run_loop termination and minimal render summary match between native and webgpu` を追加済み。`should_close` による終了条件、`run_loop_with_hooks` の tick 観測数、render pass の clear 有無・clear 色、`graphics.end(true)` の present が一致することを検証。
    - Playwright e2e に backend ピクセル比較（webgpu/webgl2, pixelmatch 許容差分）を追加済み。
    - Playwright e2e から `moon run ... --target native` を実行する native smoke を追加済み。`runtime_smoke_native_probe` 行で `tex_seed/source_gen/atlas_gen/atlas_rgb` の検証を追加。
    - `runtime_smoke`(web) の `runtime_smoke_web_probe` と `runtime_smoke_native_probe` を照合する cross-backend parity e2e を追加。`atlas generation/rgb` に加えて、triangle 内部サンプル（`sample0/1/2`）の予測 RGBA 一致と、サンプル座標差分（<= 12px）を検証。
-   - 残タスク: 実 backend（native vs web）間の直接ピクセル同値比較を自動化する。
+   - `GraphicsDriver.read_pixels` 契約を追加。native/web hook に `on_read_pixels` を追加し、StubGraphicsDriver で境界チェック（未初期化/out-of-bounds/clamp）付き実装。wbtest 5 テスト追加。
+   - `FramebufferSnapshot` + `create_framebuffer_snapshot`/`compare_framebuffer_snapshots`/`pixel_diff_ratio` ピクセル比較ユーティリティを追加。wbtest 6 テスト追加（snapshot 作成/None ケース/同一ピクセル/threshold/サイズ不一致/ratio 計算）。
+   - Playwright e2e に web ピクセルバッファ次元検証テストを追加（headless モードではキャンバスキャプチャが全ゼロになる制限を考慮）。6 passed。
+   - 残タスク: 実 backend の `on_read_pixels` フック実装（native wgpu readback / web getImageData 接続）で headed モード時の直接ピクセル比較を自動化する。
 
 ### P1: Ebiten の中核描画機能へ寄せる
 
-6. CommandQueue の merge 条件を実装する  
+6. CommandQueue の merge 条件を実装する
    - pipeline/texture/blend/uniform の互換条件で batch する。
-7. `asset` の ImageRepository + AtlasAllocator を実装する  
+   - `BlendFactor`/`BlendOperation`/`BlendEquation` を追加し `BlendMode::Custom(BlendEquation)` で任意のブレンド式を指定可能に。preset（Copy/Alpha/Add/Multiply）は `blend_mode_to_equation` で展開可能。`blend_mode_eq` は Custom 同士の全 6 フィールド比較に対応。wbtest で roundtrip/equality/merge 非互換を検証。
+7. `asset` の ImageRepository + AtlasAllocator を実装する
    - managed/unmanaged、部分更新、解放戦略を定義。
-8. Shader frontend を Kage/Ebiten 相当へ強化する  
+   - `MultiPageAtlasRepository` を追加。ページ満杯時に自動で新ページを生成し、key → page ルーティングで cross-page query（draw source/region/update/remove）と dirty binding 集約を実装。wbtest 11 テストで検証。
+8. Shader frontend を Kage/Ebiten 相当へ強化する
    - source 前処理、source hash、uniform レイアウト整合を厳密化。
-9. Uniform canonicalize を Ebiten 互換に近づける  
+   - `validate_shader_compile_request`（empty source/entrypoints/negative src_image_count チェック）、`shader_unit_eq`、`shader_hash_eq` を追加。wbtest 7 テスト追加。
+9. Uniform canonicalize を Ebiten 互換に近づける
    - preserved uniforms と unused filtering の挙動を詰める。
-10. Builtin shader (nearest/linear/pixelated + address mode) を実ソース化する  
+   - `validate_uniform_layout`（重複名/負 dword_counts/mismatched lengths チェック）、`compute_expected_preserved_dwords`（Ebiten layout: dst_size+dst_region+per_src*(size+region)）、`validate_preserved_uniform_context`（src arrays 不整合/zero dst_size チェック）を追加。wbtest 9 テスト追加。
+10. Builtin shader (nearest/linear/pixelated + address mode) を実ソース化する
    - lazy cache と cleanup 戦略を追加する。
+   - `MirrorRepeat` address mode を追加。`SamplerSpec`（per-axis address_u/address_v）+ `BuiltinShaderKeyEx` で軸独立サンプラーを定義。`build_builtin_shader_source_ex` で per-axis address snippet 生成。wbtest 10 テスト追加。
+   - `BuiltinShaderSourceRepo` に `shader_source_ex` を追加し、`BuiltinShaderKeyEx` 対応の extended cache を実装。classic/extended 混在 LRU eviction、cache hit/miss stats（`builtin_shader_cache_stats`）を追加。wbtest 5 テスト追加。
 
 ### P1: 入力/実行系の基本互換
 
-11. 入力 snapshot を実デバイス連動にする  
-   - keyboard/cursor/wheel/mouse buttons は Web + Native で最小接続済み。gamepad は Web + Native で最小接続済み。  
+11. 入力 snapshot を実デバイス連動にする
+   - keyboard/cursor/wheel/mouse buttons は Web + Native で最小接続済み。gamepad は Web + Native で最小接続済み。
    - native touch は Cocoa event からの取得を追加済み。gesture/trackpad 以外の環境では left-click fallback が残るため、実機差分を詰める。
+   - 契約テストを追加: 負カーソル座標、大 wheel 値、10 同時タッチ、4 ゲームパッド並列、ボタン 20 個、touch ID=0 境界、重複 ID 重複排除、rapid press/release/repress サイクル、step_fixed_timestep max_updates_per_frame キャップ。wbtest 13 テスト追加（core 7 + inpututil 6）。
+   - `TouchPhase` enum（Began/Moved/Stationary/Ended/Cancelled）+ `TouchPointEx`（phase/pressure/delta_x/delta_y）を追加。`touch_phase_to_int`/`touch_phase_from_int` 変換 + `touch_point_from_ex` 互換変換。wbtest 3 テスト追加。
 12. `inpututil` 相当 API を追加する
    - key/mouse button/touch/gamepad の差分 API は実装済み。
    - runtime ループ側の利用導線（`run_loop_with_hooks` + input edge observer + 履歴保持）は追加済み。
    - `ui.ui_events_from_input_edge` で inpututil edge → UIEvent 変換を実装済み。
    - `debugutil.build_input_debug_overlay` でカーソル crosshair + pressed keys/mouse buttons のデバッグ表示を実装済み。
-13. window/system API を本実装レベルに引き上げる  
-   - fullscreen, cursor, monitor, deviceScale, vsync, close/requestAttention は契約 + 部分実装まで完了。  
+   - gamepad button count API、ID=0 ゲームパッド動作、マルチゲームパッド独立追跡の契約テストを追加。
+13. window/system API を本実装レベルに引き上げる
+   - fullscreen, cursor, monitor, deviceScale, vsync, close/requestAttention は契約 + 部分実装まで完了。
    - GLFW / browser での edge-case（非同期 fullscreen 反映、pointer lock 状態同期、vsync 実反映）を詰める。
+   - 契約テストを追加: fullscreen toggle cycle（冪等性）、cursor mode 全遷移パス、複数 capture_input tick 独立性、web device scale factor 境界値、web surface token 初期化。wbtest 5 テスト追加。
+   - `FullscreenMode` enum（Windowed/Borderless/Exclusive）+ int 変換を追加。`MonitorInfo` に `refresh_rate_hz` フィールドを追加。wbtest 3 テスト追加（fullscreen mode roundtrip + desktop/web monitor refresh rate）。
 
 ### P2: 周辺機能と拡張層
 
 14. `text` に `mizchi/font` を接続し glyph cache + draw command 化する。
    - `SimpleFontEngine`（TTFont wrapper）、`GlyphCache`（atlas 割当）、`SimpleTextBatchBuilder`（draw command 生成）を実装済み。
-   - 残タスク: glyph outline → atlas pixel rasterization パイプライン、フォントファイルの動的ロード。
+   - `GlyphAtlas`（cache + pixel buffer 統合）、`rasterize_glyph`（scaled_outline → SVG → pixel）、`rasterize_text`（文字列 → atlas glyph quads）、`blit_to_atlas`（pixel copy）を実装済み。wbtest 21 テストで検証。
+   - 追加テスト: cache clear/re-allocate、page_id 伝播、blit_to_atlas 境界安全性、atlas ピクセルバッファゼロ初期化、空 path_commands_to_svg_d、zero-size text_style。
+   - 残タスク: フォントファイルの動的ロード。
 15. `ui` に `mizchi/layout` を接続し input/render bridge を実装する。
    - `UITree` + `SimpleLayoutEngine`（Row/Column 方向、Auto/Fixed/Percent サイジング、padding/gap）を実装済み。
    - `SimpleUIInputAdapter`（InputSnapshot → UIEvent 差分）+ `SimpleUIRenderAdapter`（layout → draw command）を実装済み。
    - `point_in_rect`/`hit_test`/`hit_test_all` によるヒットテストを実装済み。
    - `UIFocusManager`（focus/blur/focus_next/focus_prev/handle_pointer_down）によるフォーカス管理を実装済み。
    - `ui_events_from_input_edge` で inpututil edge → UIEvent 変換を実装済み。
-   - 残タスク: Flex wrap、align-items/justify-content の拡張。
-16. `ai.run_ai_tick` を `runtime.run_loop` に統合する  
-   - budget、deterministic seed、trace を runtime から制御。
+   - `UIFlexWrap`（NoWrap/Wrap）+ `justify_content`/`align`（align-items）を `UINodeStyle` に追加。`SimpleLayoutEngine` で `@layout.compute_justify`/`compute_align_offset` を活用した flex line 分割・主軸配分・交差軸整列を実装。wbtest 38 テストで検証。
+   - 追加テスト (+11): UIFocusManager focus_next/prev empty list、non-focusable ポインタ操作、hit_test 空配列・境界値・zero-size rect・負座標、Percent sizing、asymmetric padding、UITree 不在ノード取得、同時ボタン/キー、RenderAdapter 複数ノード、SpaceAround。
+16. `ai.run_ai_tick` を `runtime.run_loop` に統合する
+   - `AIRuntimeConfig`（enabled/global_budget/base_seed/trace_enabled/max_trace_history）で runtime からの制御を実装。`create_ai_post_update_hook` を config 対応に拡張。tick 単位の trace 蓄積・query（`get_traces_for_tick`/`get_recent_trace_ticks`）・history trimming を追加。wbtest 18 テストで検証。
+   - 追加テスト: blackboard 永続化（agent 間共有）、odd tick 単一 agent、default budget/config 値、disable→re-enable 復帰、budget override、trace toggle、unknown tick traces。
 17. audio サブシステムを追加する
    - `SimpleAudioContext`（PCM ベース契約テスト用）+ `MixerAudioContext`（mizchi/audio Mixer wrapper）を実装済み。
    - `mizchi/audio` の WAV/OGG コーデックを統合し `decode_wav_clip`/`decode_ogg_clip`/`decode_audio_clip_auto` を追加済み。
-   - 残タスク: Web Audio API / native audio backend への接続、streaming 対応。
+   - `AudioClipStream`（clip → sequential read）+ `BufferedAudioStream`（chunk-based progressive streaming）を実装。wbtest 28 テストで検証。
+   - 追加テスト: 複数プレイヤー同時管理、seek リセット、zero-byte read、clip_to_audio_buffer フレーム数、mono_format 構築。
+   - `AudioOutputHooks` 構造体（try_initialize/write_frames/suspend/resume/close/output_latency）を追加。`set_audio_output_hooks`/`reset_audio_output_hooks` + dispatch 関数（`audio_try_initialize`/`audio_write_frames`/`audio_suspend`/`audio_resume`/`audio_close`/`audio_output_latency`）を実装。`AudioOutputStats` 構造体を定義。wbtest 3 テスト追加（hook set/reset、default 動作、latency override）。
+   - 残タスク: Web Audio API / native audio backend への AudioOutputHooks 接続。
 18. utility レイヤーを追加する
    - `src/vector`（Vec2 2D ベクトル数学 + Path ベースの弧/ベジェ曲線描画）、`src/colorm`（ColorM 5x4 カラー行列）、`src/debugutil`（色ヘルパー + 線/矩形 draw command builder + input debug overlay）を実装済み。
-19. mobile ターゲット戦略を定義する  
+   - colorm 追加テスト (+6): concat 結合律、double invert = identity、scale by zero、extreme translate clamp、no-op scale identity、monochrome→invert 合成。
+   - debugutil 追加テスト (+4): hex 境界値、vertical/diagonal line、zero-size rect fill。
+   - vector 追加テスト (+9): Vec2 div、perpendicular 直交性、normalize 方向保存、reflect 入射角保存、360° 回転、empty path、empty stroke、pentagon fill、close セマンティクス。
+   - draw2d 追加テスト (+3): pipeline/blend 伝播、大座標、反転バウンズ。
+   - sprite2d 追加テスト (+3): 空 uniform、全未解決キー、index_offset 伝播。
+   - payload2d 追加テスト (+6): explicit indices、同一頂点 indices、xy-only with indices、複数 src_image_ids、uniform チャネル精度、clamp_unit 極値。
+   - image_palette 追加テスト (+6): clamp_channel 境界値、rgba 全ゼロ/全最大、seed=0/大値、全ピクセル×全チャネル。
+   - svg 追加テスト (+4): smooth cubic (S コマンド)、h/v 相対コマンド、fill 四角形、stroke 単一線分。
+19. mobile ターゲット戦略を定義する
    - iOS/Android は Web か Native どちらの backend を使うか確定する。
+
+   **戦略決定: 2 段階アプローチ**
+
+   **Phase 1（短期）: Web/WASM ベース（PWA / WebView）**
+   - 既存の `js`/`wasm`/`wasm-gc` ターゲット + WebGPU/WebGL2 backend をそのまま利用。
+   - iOS Safari (WebGPU 対応済み) / Android Chrome (WebGPU 対応中, WebGL2 フォールバック) で動作。
+   - 追加実装コスト最小。PWA として配布、または Capacitor/TWA 等で WebView ラッパーを作成。
+   - タッチ入力は `InputSnapshot.touches` で既に対応済み（10 同時タッチテスト済み）。
+   - 制約: WebView パフォーマンス上限、ネイティブ API 非アクセス（加速度センサ等）。
+
+   **Phase 2（中長期）: Native ビルド（iOS Metal / Android Vulkan）**
+   - MoonBit `native` ターゲット (LLVM) で iOS arm64 / Android arm64 バイナリを生成。
+   - wgpu は Metal (iOS) と Vulkan (Android) を既にサポートしており、`WgpuNative` backend を流用可能。
+   - ウィンドウ管理: GLFW → 各 OS のネイティブウィンドウ API に差し替え（UIKit / Android Activity）。
+   - 必要な拡張:
+     - `PlatformDriver` にライフサイクル hook 追加: `on_pause()`, `on_resume()`, `on_destroy()`
+     - `SurfaceKind` に `Vulkan` variant 追加（Metal は既存）
+     - `InputSnapshot` に orientation / accelerometer / gyroscope 拡張（GamepadSnapshot パターン流用）
+     - ソフトキーボード検出、immersive mode 対応
+   - 前提: MoonBit native ターゲットの iOS/Android クロスコンパイル対応が安定すること。
+
+   **現在のアーキテクチャ適合度**
+   - trait ベースの `PlatformDriver`/`GraphicsDriver`/`SurfaceProvider` 分離により、新プラットフォーム追加は hook 実装のみ。
+   - `InputSnapshot` にタッチ + ゲームパッドが既にモデル化済み。
+   - hook injection パターンにより、モバイル固有の native 呼び出しを既存テストに影響なく追加可能。
+   - `SurfaceToken` がプラットフォーム-グラフィックス境界を抽象化済み。
+
+   **即座のアクション不要** — Phase 1 は現状の Web backend で既にモバイルブラウザ動作可能。Phase 2 は P0/P1 の描画パイプライン安定後に着手。
 
 ## 完了条件 (Ebiten 同等機能の第一段階)
 

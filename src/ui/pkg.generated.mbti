@@ -4,14 +4,30 @@ package "mizchi/game_engine/ui"
 import {
   "mizchi/game_engine/core",
   "mizchi/game_engine/gfx",
+  "mizchi/game_engine/inpututil",
+  "mizchi/layout/types",
 }
 
 // Values
 pub fn default_layout_constraint(Double, Double) -> LayoutConstraint
 
+pub fn default_node_style() -> UINodeStyle
+
+pub fn hit_test(Array[LayoutResult], Double, Double) -> UINodeId?
+
+pub fn hit_test_all(Array[LayoutResult], Double, Double) -> Array[UINodeId]
+
+pub fn point_in_rect(LayoutRect, Double, Double) -> Bool
+
+pub fn ui_events_from_input_edge(@inpututil.KeyInputState, @inpututil.MouseButtonInputState, Double, Double) -> Array[UIEvent]
+
 // Errors
 
 // Types and methods
+type ChildMeasure
+
+type FlexLine
+
 pub struct LayoutConstraint {
   min_width : Double
   min_height : Double
@@ -34,6 +50,34 @@ pub struct LayoutResult {
 }
 pub impl Show for LayoutResult
 
+pub struct SimpleLayoutEngine {
+  tree : UITree
+}
+pub fn SimpleLayoutEngine::new(UITree) -> Self
+pub impl LayoutEngine for SimpleLayoutEngine
+
+pub struct SimpleUIInputAdapter {
+  mut prev_pressed_mouse : Array[Int]
+  mut prev_cursor_x : Double
+  mut prev_cursor_y : Double
+  mut prev_pressed_keys : Array[Int]
+}
+pub fn SimpleUIInputAdapter::new() -> Self
+pub impl UIInputAdapter for SimpleUIInputAdapter
+
+pub struct SimpleUIRenderAdapter {
+  shader : @gfx.ShaderHandle
+  pipeline_id : Int
+}
+pub fn SimpleUIRenderAdapter::new(@gfx.ShaderHandle, Int) -> Self
+pub impl UIRenderAdapter for SimpleUIRenderAdapter
+
+pub enum UIDirection {
+  Row
+  Column
+}
+pub impl Show for UIDirection
+
 pub enum UIEvent {
   PointerDown(Double, Double)
   PointerUp(Double, Double)
@@ -44,10 +88,73 @@ pub enum UIEvent {
 }
 pub impl Show for UIEvent
 
+pub enum UIFlexWrap {
+  NoWrap
+  Wrap
+}
+pub impl Show for UIFlexWrap
+
+pub(all) enum UIFocusEvent {
+  FocusGained(UINodeId)
+  FocusLost(UINodeId)
+}
+pub impl Show for UIFocusEvent
+
+pub struct UIFocusManager {
+  mut focused : UINodeId?
+  mut focusable_ids : Array[UINodeId]
+}
+pub fn UIFocusManager::blur(Self) -> Array[UIFocusEvent]
+pub fn UIFocusManager::current_focus(Self) -> UINodeId?
+pub fn UIFocusManager::focus(Self, UINodeId) -> Array[UIFocusEvent]
+pub fn UIFocusManager::focus_next(Self) -> Array[UIFocusEvent]
+pub fn UIFocusManager::focus_prev(Self) -> Array[UIFocusEvent]
+pub fn UIFocusManager::handle_pointer_down(Self, Array[LayoutResult], Double, Double) -> Array[UIFocusEvent]
+pub fn UIFocusManager::new() -> Self
+pub fn UIFocusManager::set_focusable(Self, Array[UINodeId]) -> Unit
+
+pub struct UINode {
+  id : UINodeId
+  style : UINodeStyle
+  children : Array[UINodeId]
+}
+pub impl Show for UINode
+
 pub struct UINodeId {
   value : Int
 }
 pub impl Show for UINodeId
+
+pub struct UINodeStyle {
+  direction : UIDirection
+  width : UISizing
+  height : UISizing
+  padding_left : Double
+  padding_right : Double
+  padding_top : Double
+  padding_bottom : Double
+  gap : Double
+  align : @types.Alignment
+  justify_content : @types.Alignment
+  flex_wrap : UIFlexWrap
+}
+pub impl Show for UINodeStyle
+
+pub enum UISizing {
+  Fixed(Double)
+  Percent(Double)
+  Auto
+}
+pub impl Show for UISizing
+
+pub struct UITree {
+  nodes : Map[Int, UINode]
+  mut next_id : Int
+}
+pub fn UITree::add_node(Self, UINodeStyle, Array[UINodeId]) -> UINodeId
+pub fn UITree::get_node(Self, UINodeId) -> UINode?
+pub fn UITree::new() -> Self
+pub fn UITree::node_count(Self) -> Int
 
 // Type aliases
 

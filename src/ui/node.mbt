@@ -15,6 +15,12 @@ pub enum UISizing {
 } derive(Show)
 
 ///|
+pub enum UIFlexWrap {
+  NoWrap
+  Wrap
+} derive(Show)
+
+///|
 pub struct UINodeStyle {
   direction : UIDirection
   width : UISizing
@@ -25,6 +31,8 @@ pub struct UINodeStyle {
   padding_bottom : Double
   gap : Double
   align : @layout_types.Alignment
+  justify_content : @layout_types.Alignment
+  flex_wrap : UIFlexWrap
 } derive(Show)
 
 ///|
@@ -39,6 +47,8 @@ pub fn default_node_style() -> UINodeStyle {
     padding_bottom: 0.0,
     gap: 0.0,
     align: @layout_types.Alignment::Start,
+    justify_content: @layout_types.Alignment::Start,
+    flex_wrap: UIFlexWrap::NoWrap,
   }
 }
 

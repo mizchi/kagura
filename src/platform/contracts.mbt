@@ -20,7 +20,33 @@ pub struct MonitorInfo {
   width : Int
   height : Int
   device_scale_factor : Double
+  refresh_rate_hz : Int
 } derive(Show)
+
+///|
+pub enum FullscreenMode {
+  Windowed
+  Borderless
+  Exclusive
+} derive(Show)
+
+///|
+pub fn fullscreen_mode_to_int(mode : FullscreenMode) -> Int {
+  match mode {
+    FullscreenMode::Windowed => 0
+    FullscreenMode::Borderless => 1
+    FullscreenMode::Exclusive => 2
+  }
+}
+
+///|
+pub fn fullscreen_mode_from_int(mode : Int) -> FullscreenMode {
+  match mode {
+    1 => FullscreenMode::Borderless
+    2 => FullscreenMode::Exclusive
+    _ => FullscreenMode::Windowed
+  }
+}
 
 ///|
 pub enum CursorMode {
@@ -261,6 +287,7 @@ pub impl PlatformDriver for DesktopGlfwPlatform with monitor_info(self) {
     width: outside.width.to_int(),
     height: outside.height.to_int(),
     device_scale_factor: self.device_scale_factor,
+    refresh_rate_hz: 60,
   }
 }
 
@@ -436,6 +463,7 @@ pub impl PlatformDriver for WebCanvasPlatform with monitor_info(self) {
     width: self.options.width,
     height: self.options.height,
     device_scale_factor: self.device_scale_factor,
+    refresh_rate_hz: 60,
   }
 }
 

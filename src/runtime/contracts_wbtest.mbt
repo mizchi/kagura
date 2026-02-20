@@ -856,3 +856,69 @@ test "new_input_edge_runtime_hooks wires observer to run_loop_with_hooks" {
   assert_true(history[history.length() - 1].tick > 0)
   reset_test_web_hooks()
 }
+
+///|
+test "default_runtime_config returns expected defaults" {
+  let config = default_runtime_config()
+  assert_eq(config.max_skip_frames, 5)
+  assert_eq(config.enable_vsync, true)
+  assert_eq(config.clear_screen_every_frame, true)
+}
+
+///|
+test "default_runtime_hooks creates no-op hooks" {
+  let hooks = default_runtime_hooks()
+  // Should not panic when called
+  (hooks.on_input_captured)(0, @core.empty_input_snapshot())
+  (hooks.on_post_update)(0, @core.new_frame_budget(0, 0.0, 0))
+}
+
+///|
+test "new_runtime_hooks_full wires both callbacks" {
+  let captured_ticks : Array[Int] = []
+  let post_update_ticks : Array[Int] = []
+  let hooks = new_runtime_hooks_full(
+    fn(tick, _input) { captured_ticks.push(tick) },
+    fn(tick, _frame) { post_update_ticks.push(tick) },
+  )
+  (hooks.on_input_captured)(5, @core.empty_input_snapshot())
+  (hooks.on_post_update)(7, @core.new_frame_budget(1, 0.5, 7))
+  assert_eq(captured_ticks.length(), 1)
+  assert_eq(captured_ticks[0], 5)
+  assert_eq(post_update_ticks.length(), 1)
+  assert_eq(post_update_ticks[0], 7)
+}
+
+///|
+test "clear_input_edge_history empties history" {
+  let observer = new_input_edge_observer_state(10)
+  let _ = observe_input_edge(observer, 1, @core.empty_input_snapshot())
+  let _ = observe_input_edge(observer, 2, @core.empty_input_snapshot())
+  let before = append_input_edge_history(observer, [])
+  assert_eq(before.length(), 2)
+  clear_input_edge_history(observer)
+  let after = append_input_edge_history(observer, [])
+  assert_eq(after.length(), 0)
+}
+
+///|
+test "plan_frame with small elapsed produces zero updates" {
+  // 5ms is less than 1 tick (16.6ms at 60fps), so updates=0 but alpha>0
+  let state = @core.initial_fixed_step_state()
+  let config = @core.default_fixed_step_config()
+  let step = @core.step_fixed_timestep(state, 5.0, config)
+  let plan = plan_frame(step, 5)
+  assert_eq(plan.updates, 0)
+  // alpha > 0 from remainder, so should_draw = true
+  assert_eq(plan.should_draw, true)
+}
+
+///|
+test "plan_frame with zero elapsed does not draw" {
+  let state = @core.initial_fixed_step_state()
+  let config = @core.default_fixed_step_config()
+  let step = @core.step_fixed_timestep(state, 0.0, config)
+  let plan = plan_frame(step, 5)
+  assert_eq(plan.updates, 0)
+  assert_eq(plan.should_draw, false)
+}

@@ -93,6 +93,80 @@ test "render_svg invalid returns None" {
 }
 
 ///|
+test "svg_path_to_vector_path empty path returns empty" {
+  let path = svg_path_to_vector_path("")
+  let points = path.flatten(1.0)
+  assert_eq!(points.length(), 0)
+}
+
+///|
+test "render_svg_to_rgba returns pixel tuple" {
+  let svg = "<svg xmlns=\"http://www.w3.org/2000/svg\" width=\"4\" height=\"4\"><rect width=\"4\" height=\"4\" fill=\"blue\"/></svg>"
+  match render_svg_to_rgba(svg, 4, 4) {
+    Some((w, h, pixels)) => {
+      assert_eq!(w, 4)
+      assert_eq!(h, 4)
+      // 4*4*4 = 64 bytes
+      assert_eq!(pixels.length(), 64)
+    }
+    None => fail!("expected render result")
+  }
+}
+
+///|
+test "svg_path_to_stroke_vertices closed path" {
+  let (vertices, indices) = svg_path_to_stroke_vertices(
+    "M 0 0 L 10 0 L 10 10 Z", 1.0, 1.0,
+  )
+  assert_true!(vertices.length() > 0)
+  assert_true!(indices.length() > 0)
+}
+
+///|
+test "svg_path_to_vector_path smooth cubic (S command)" {
+  let path = svg_path_to_vector_path("M 0 0 C 10 30 30 30 40 0 S 70 -30 80 0")
+  let points = path.flatten(1.0)
+  assert_true!(points.length() > 4)
+  // Last point should be near (80, 0)
+  let last = points[points.length() - 1]
+  assert_true!((last.x - 80.0).abs() < 0.01)
+  assert_true!(last.y.abs() < 0.01)
+}
+
+///|
+test "svg_path_to_vector_path h/v relative commands" {
+  let path = svg_path_to_vector_path("M 10 10 h 20 v 30")
+  let points = path.flatten(1.0)
+  assert_eq!(points.length(), 3)
+  assert_eq!(points[0].x, 10.0)
+  assert_eq!(points[0].y, 10.0)
+  assert_eq!(points[1].x, 30.0)
+  assert_eq!(points[1].y, 10.0)
+  assert_eq!(points[2].x, 30.0)
+  assert_eq!(points[2].y, 40.0)
+}
+
+///|
+test "svg_path_to_fill_vertices quadrilateral" {
+  let (vertices, indices) = svg_path_to_fill_vertices(
+    "M 0 0 L 100 0 L 100 100 L 0 100 Z", 1.0,
+  )
+  // 5 points (quad + close) -> fan triangulation
+  assert_true!(vertices.length() > 0)
+  assert_true!(indices.length() > 0)
+}
+
+///|
+test "svg_path_to_stroke_vertices single line segment" {
+  let (vertices, indices) = svg_path_to_stroke_vertices(
+    "M 0 0 L 50 0", 4.0, 1.0,
+  )
+  // 2 points -> 1 segment -> 4 verts (16 doubles), 6 indices
+  assert_eq!(vertices.length(), 16)
+  assert_eq!(indices.length(), 6)
+}
+
+///|
 test "svg_path_to_vector_path quadratic" {
   let path = svg_path_to_vector_path("M 0 0 Q 50 100 100 0")
   let points = path.flatten(1.0)

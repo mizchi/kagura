@@ -5,6 +5,7 @@ pub struct WebGraphicsHooks {
   on_end : (Bool, GraphicsBackendKind, Bool) -> Unit
   on_draw : (Bool, GraphicsBackendKind, DrawTrianglesCommand) -> Unit
   on_resize : (Bool, GraphicsBackendKind, Int, Int) -> Unit
+  on_read_pixels : (Bool, GraphicsBackendKind, Int, Int, Int, Int) -> Array[Int]?
 }
 
 ///|
@@ -15,7 +16,14 @@ pub fn new_web_graphics_hooks(
   on_draw : (Bool, GraphicsBackendKind, DrawTrianglesCommand) -> Unit,
   on_resize : (Bool, GraphicsBackendKind, Int, Int) -> Unit,
 ) -> WebGraphicsHooks {
-  { try_initialize, on_begin, on_end, on_draw, on_resize }
+  {
+    try_initialize,
+    on_begin,
+    on_end,
+    on_draw,
+    on_resize,
+    on_read_pixels: default_web_on_read_pixels,
+  }
 }
 
 ///|
@@ -62,6 +70,18 @@ fn default_web_on_resize(
   _height : Int,
 ) -> Unit {
   ()
+}
+
+///|
+fn default_web_on_read_pixels(
+  _active : Bool,
+  _kind : GraphicsBackendKind,
+  _x : Int,
+  _y : Int,
+  _width : Int,
+  _height : Int,
+) -> Array[Int]? {
+  None
 }
 
 ///|
@@ -131,4 +151,16 @@ fn web_graphics_on_resize(
   height : Int,
 ) -> Unit {
   (web_graphics_hooks.val.on_resize)(active, kind, width, height)
+}
+
+///|
+fn web_graphics_on_read_pixels(
+  active : Bool,
+  kind : GraphicsBackendKind,
+  x : Int,
+  y : Int,
+  width : Int,
+  height : Int,
+) -> Array[Int]? {
+  (web_graphics_hooks.val.on_read_pixels)(active, kind, x, y, width, height)
 }

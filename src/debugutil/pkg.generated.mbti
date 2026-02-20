@@ -1,0 +1,48 @@
+// Generated using `moon info`, DON'T EDIT IT
+package "mizchi/game_engine/debugutil"
+
+import {
+  "mizchi/game_engine/core",
+  "mizchi/game_engine/gfx",
+  "mizchi/game_engine/inpututil",
+}
+
+// Values
+pub fn build_input_debug_overlay(@gfx.ImageHandle, @gfx.ShaderHandle, @core.InputSnapshot, @inpututil.KeyInputState, @inpututil.MouseButtonInputState, Int) -> Array[@gfx.DrawTrianglesCommand]
+
+pub fn color_black() -> @gfx.Color
+
+pub fn color_blue() -> @gfx.Color
+
+pub fn color_from_hex(Int) -> @gfx.Color
+
+pub fn color_from_hex_alpha(Int, Double) -> @gfx.Color
+
+pub fn color_green() -> @gfx.Color
+
+pub fn color_red() -> @gfx.Color
+
+pub fn color_transparent() -> @gfx.Color
+
+pub fn color_white() -> @gfx.Color
+
+pub fn color_yellow() -> @gfx.Color
+
+pub fn line_vertices(Double, Double, Double, Double, Double) -> (Array[Double], Array[Int])
+
+pub fn new_line_command(@gfx.ImageHandle, @gfx.ShaderHandle, Double, Double, Double, Double, Double, @gfx.Color, Int) -> @gfx.DrawTrianglesCommand
+
+pub fn new_rect_fill_command(@gfx.ImageHandle, @gfx.ShaderHandle, Double, Double, Double, Double, @gfx.Color, Int) -> @gfx.DrawTrianglesCommand
+
+pub fn rect_fill_vertices(Double, Double, Double, Double) -> (Array[Double], Array[Int])
+
+pub fn rect_outline_vertices(Double, Double, Double, Double, Double) -> (Array[Double], Array[Int])
+
+// Errors
+
+// Types and methods
+
+// Type aliases
+
+// Traits
+

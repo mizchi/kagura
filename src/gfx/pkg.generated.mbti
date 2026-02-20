@@ -6,13 +6,29 @@ import {
 }
 
 // Values
+pub fn blend_factor_from_int(Int) -> BlendFactor
+
+pub fn blend_factor_to_int(BlendFactor) -> Int
+
 pub fn blend_mode_from_int(Int) -> BlendMode
 
+pub fn blend_mode_to_equation(BlendMode) -> BlendEquation
+
 pub fn blend_mode_to_int(BlendMode) -> Int
+
+pub fn blend_operation_from_int(Int) -> BlendOperation
+
+pub fn blend_operation_to_int(BlendOperation) -> Int
+
+pub fn build_builtin_shader_source_ex(BuiltinShaderKeyEx) -> String
 
 pub fn[T : UniformCanonicalizer] build_canonical_uniforms(T, UniformLayout, Array[NamedUniform], PreservedUniformContext, ShaderIR) -> PackedUniforms raise
 
 pub fn build_draw_command_dispatch(DrawTrianglesCommand) -> DrawCommandDispatch
+
+pub fn builtin_key_to_ex(BuiltinShaderKey) -> BuiltinShaderKeyEx
+
+pub fn builtin_shader_cache_stats(BasicBuiltinShaderSourceRepo) -> BuiltinShaderCacheStats
 
 pub fn builtin_shader_source_cache_limit(BasicBuiltinShaderSourceRepo) -> Int
 
@@ -26,6 +42,8 @@ pub fn[T : GraphicsDriver] clear_screen(T, Color) -> Unit raise
 
 pub fn[T : ShaderFrontend] compile_shader_ir(T, ShaderCompileRequest) -> ShaderIR raise
 
+pub fn compute_expected_preserved_dwords(PreservedUniformContext) -> Int
+
 pub fn create_null_graphics(Int, Int) -> StubGraphicsDriver
 
 pub fn create_webgl_graphics(@platform.SurfaceToken, GraphicsBackendOptions) -> StubGraphicsDriver
@@ -35,6 +53,8 @@ pub fn create_webgpu_graphics(@platform.SurfaceToken, GraphicsBackendOptions) ->
 pub fn create_wgpu_native_graphics(@platform.SurfaceToken, GraphicsBackendOptions) -> StubGraphicsDriver
 
 pub fn default_graphics_backend_options() -> GraphicsBackendOptions
+
+pub fn default_sampler_spec() -> SamplerSpec
 
 pub fn estimated_draw_call_count(DrawTrianglesCommand) -> Int
 
@@ -78,17 +98,32 @@ pub fn reset_native_graphics_hooks() -> Unit
 
 pub fn reset_web_graphics_hooks() -> Unit
 
+pub fn sampler_spec(BuiltinShaderFilter, BuiltinShaderAddress) -> SamplerSpec
+
 pub fn set_native_graphics_hooks(NativeGraphicsHooks) -> Unit
 
 pub fn set_web_graphics_hooks(WebGraphicsHooks) -> Unit
+
+pub fn shader_hash_eq(ShaderSourceHash, ShaderSourceHash) -> Bool
+
+pub fn shader_unit_eq(ShaderUnit, ShaderUnit) -> Bool
+
+pub fn validate_preserved_uniform_context(PreservedUniformContext) -> String?
+
+pub fn validate_shader_compile_request(ShaderCompileRequest) -> String?
+
+pub fn validate_uniform_layout(UniformLayout) -> String?
 
 // Errors
 
 // Types and methods
 pub struct BasicBuiltinShaderSourceRepo {
   mut cache : Array[BuiltinShaderSourceCacheEntry]
+  mut cache_ex : Array[BuiltinShaderSourceCacheEntryEx]
   mut tick : Int
   max_cache_entries : Int
+  mut hit_count : Int
+  mut miss_count : Int
 }
 pub impl BuiltinShaderSourceRepo for BasicBuiltinShaderSourceRepo
 
@@ -100,20 +135,61 @@ pub struct BasicUniformCanonicalizer {
 }
 pub impl UniformCanonicalizer for BasicUniformCanonicalizer
 
+pub struct BlendEquation {
+  src_factor_rgb : BlendFactor
+  dst_factor_rgb : BlendFactor
+  op_rgb : BlendOperation
+  src_factor_alpha : BlendFactor
+  dst_factor_alpha : BlendFactor
+  op_alpha : BlendOperation
+}
+pub impl Show for BlendEquation
+
+pub enum BlendFactor {
+  Zero
+  One
+  SrcAlpha
+  OneMinusSrcAlpha
+  DstAlpha
+  OneMinusDstAlpha
+  SrcColor
+  OneMinusSrcColor
+  DstColor
+  OneMinusDstColor
+}
+pub impl Show for BlendFactor
+
 pub enum BlendMode {
   Copy
   Alpha
   Add
   Multiply
+  Custom(BlendEquation)
 }
 pub impl Show for BlendMode
+
+pub enum BlendOperation {
+  Add
+  Subtract
+  ReverseSubtract
+  Min
+  Max
+}
+pub impl Show for BlendOperation
 
 pub enum BuiltinShaderAddress {
   Unsafe
   ClampToZero
   Repeat
+  MirrorRepeat
 }
 pub impl Show for BuiltinShaderAddress
+
+pub struct BuiltinShaderCacheStats {
+  hit_count : Int
+  miss_count : Int
+}
+pub impl Show for BuiltinShaderCacheStats
 
 pub enum BuiltinShaderFilter {
   Nearest
@@ -129,7 +205,15 @@ pub struct BuiltinShaderKey {
 }
 pub impl Show for BuiltinShaderKey
 
+pub struct BuiltinShaderKeyEx {
+  sampler : SamplerSpec
+  use_color_m : Bool
+}
+pub impl Show for BuiltinShaderKeyEx
+
 type BuiltinShaderSourceCacheEntry
+
+type BuiltinShaderSourceCacheEntryEx
 
 pub struct Color {
   r : Double
@@ -260,6 +344,13 @@ pub struct RenderPassDesc {
 }
 pub impl Show for RenderPassDesc
 
+pub struct SamplerSpec {
+  filter : BuiltinShaderFilter
+  address_u : BuiltinShaderAddress
+  address_v : BuiltinShaderAddress
+}
+pub impl Show for SamplerSpec
+
 pub struct ShaderCompileRequest {
   source : String
   unit_hint : ShaderUnit?
@@ -355,6 +446,7 @@ pub struct WebGraphicsHooks {
 // Traits
 pub trait BuiltinShaderSourceRepo {
   shader_source(Self, BuiltinShaderKey) -> String
+  shader_source_ex(Self, BuiltinShaderKeyEx) -> String
 }
 
 pub trait CommandQueue {

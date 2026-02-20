@@ -62,7 +62,29 @@ pub fn list_image_palette_bindings(SimpleImageRepository) -> Array[ImagePaletteB
 
 pub fn list_source_image_bindings(SimpleImageRepository) -> Array[SourceImageBinding]
 
+pub fn multi_page_clear_dirty_flags(MultiPageAtlasRepository) -> Int
+
+pub fn multi_page_count(MultiPageAtlasRepository) -> Int
+
+pub fn multi_page_create_image(MultiPageAtlasRepository, AssetKey, ImageSpec) -> @gfx.ImageHandle?
+
+pub fn multi_page_get_draw_source(MultiPageAtlasRepository, AssetKey) -> AtlasDrawSource?
+
+pub fn multi_page_get_page_ids(MultiPageAtlasRepository) -> Array[Int]
+
+pub fn multi_page_get_region(MultiPageAtlasRepository, AssetKey) -> AtlasRegion?
+
+pub fn multi_page_image_count(MultiPageAtlasRepository) -> Int
+
+pub fn multi_page_list_dirty_bindings(MultiPageAtlasRepository) -> Array[SourceImageBinding]
+
+pub fn multi_page_remove_image(MultiPageAtlasRepository, AssetKey) -> Unit
+
+pub fn multi_page_update_image_spec(MultiPageAtlasRepository, AssetKey, ImageSpec) -> @gfx.ImageHandle?
+
 pub fn new_asset_key(String) -> AssetKey
+
+pub fn new_multi_page_atlas_repository(Int, Int) -> MultiPageAtlasRepository
 
 pub fn new_simple_atlas_allocator(Int, Int, Int) -> SimpleAtlasAllocator
 
@@ -149,6 +171,14 @@ pub struct MaterialSpec {
   uniform_keys : Array[String]
 }
 pub impl Show for MaterialSpec
+
+pub struct MultiPageAtlasRepository {
+  page_width : Int
+  page_height : Int
+  mut next_page_id : Int
+  pages : Array[SimpleAtlasImageRepository]
+  mut key_page_index : Array[(String, Int)]
+}
 
 pub enum RasterImageFormat {
   Png

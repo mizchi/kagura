@@ -1,0 +1,33 @@
+// Generated using `moon info`, DON'T EDIT IT
+package "mizchi/game_engine/colorm"
+
+import {
+  "mizchi/game_engine/gfx",
+}
+
+// Values
+
+// Errors
+
+// Types and methods
+pub struct ColorM {
+  elements : FixedArray[Double]
+}
+pub fn ColorM::apply(Self, Double, Double, Double, Double) -> (Double, Double, Double, Double)
+pub fn ColorM::apply_clamped(Self, Double, Double, Double, Double) -> (Double, Double, Double, Double)
+pub fn ColorM::apply_color(Self, @gfx.Color) -> @gfx.Color
+pub fn ColorM::change_hsv(Self, Double, Double, Double) -> Self
+pub fn ColorM::concat(Self, Self) -> Self
+pub fn ColorM::identity() -> Self
+pub fn ColorM::invert(Self) -> Self
+pub fn ColorM::is_identity(Self) -> Bool
+pub fn ColorM::monochrome(Self) -> Self
+pub fn ColorM::rotate_hue(Self, Double) -> Self
+pub fn ColorM::scale(Self, Double, Double, Double, Double) -> Self
+pub fn ColorM::translate(Self, Double, Double, Double, Double) -> Self
+pub impl Show for ColorM
+
+// Type aliases
+
+// Traits
+

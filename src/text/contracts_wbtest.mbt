@@ -105,6 +105,190 @@ test "GlyphCache duplicate allocate returns existing" {
 }
 
 ///|
+test "path_commands_to_svg_d basic" {
+  let commands : Array[@msvg.PathCommand] = [
+    @msvg.PathCommand::MoveTo(0.0, 10.0),
+    @msvg.PathCommand::LineTo(5.0, 0.0),
+    @msvg.PathCommand::LineTo(10.0, 10.0),
+    @msvg.PathCommand::ClosePath,
+  ]
+  let d = path_commands_to_svg_d(commands)
+  assert_true!(d.contains("M 0"))
+  assert_true!(d.contains("L 5"))
+  assert_true!(d.contains("L 10"))
+  assert_true!(d.contains("Z"))
+}
+
+///|
+test "path_commands_to_svg_d with curves" {
+  let commands : Array[@msvg.PathCommand] = [
+    @msvg.PathCommand::MoveTo(0.0, 0.0),
+    @msvg.PathCommand::QuadraticCurveTo(5.0, 10.0, 10.0, 0.0),
+    @msvg.PathCommand::CurveTo(15.0, 5.0, 20.0, 5.0, 25.0, 0.0),
+  ]
+  let d = path_commands_to_svg_d(commands)
+  assert_true!(d.contains("M 0"))
+  assert_true!(d.contains("Q "))
+  assert_true!(d.contains("C "))
+}
+
+///|
+test "outline_bbox" {
+  let commands : Array[@msvg.PathCommand] = [
+    @msvg.PathCommand::MoveTo(5.0, -3.0),
+    @msvg.PathCommand::LineTo(20.0, 15.0),
+    @msvg.PathCommand::LineTo(0.0, 10.0),
+    @msvg.PathCommand::ClosePath,
+  ]
+  let (x_min, y_min, x_max, y_max) = outline_bbox(commands)
+  assert_true!((x_min - 0.0).abs() < 0.01)
+  assert_true!((y_min - (-3.0)).abs() < 0.01)
+  assert_true!((x_max - 20.0).abs() < 0.01)
+  assert_true!((y_max - 15.0).abs() < 0.01)
+}
+
+///|
+test "outline_bbox with quadratic control points" {
+  let commands : Array[@msvg.PathCommand] = [
+    @msvg.PathCommand::MoveTo(0.0, 0.0),
+    @msvg.PathCommand::QuadraticCurveTo(5.0, 20.0, 10.0, 0.0),
+  ]
+  let (x_min, y_min, x_max, y_max) = outline_bbox(commands)
+  assert_true!((x_min - 0.0).abs() < 0.01)
+  assert_true!((y_min - 0.0).abs() < 0.01)
+  assert_true!((x_max - 10.0).abs() < 0.01)
+  // Control point at y=20 should extend bbox
+  assert_true!((y_max - 20.0).abs() < 0.01)
+}
+
+///|
+test "GlyphAtlas new" {
+  let atlas = GlyphAtlas::new(128, 128, 1)
+  assert_eq!(atlas.width, 128)
+  assert_eq!(atlas.height, 128)
+  assert_eq!(atlas.pixels.length(), 128 * 128 * 4)
+  assert_eq!(atlas.cache.entry_count(), 0)
+}
+
+///|
+test "blit_to_atlas" {
+  let atlas = GlyphAtlas::new(16, 16, 1)
+  // Create a 2x2 red bitmap
+  let bitmap : GlyphBitmap = {
+    width: 2,
+    height: 2,
+    pixels: [
+      255, 0, 0, 255, 0, 255, 0, 255, 0, 0, 255, 255, 255, 255, 0, 255,
+    ],
+  }
+  blit_to_atlas(atlas.pixels, atlas.width, bitmap, 3, 5)
+  // Check pixel at (3, 5) = red
+  let idx = (5 * 16 + 3) * 4
+  assert_eq!(atlas.pixels[idx], 255) // R
+  assert_eq!(atlas.pixels[idx + 1], 0) // G
+  assert_eq!(atlas.pixels[idx + 2], 0) // B
+  assert_eq!(atlas.pixels[idx + 3], 255) // A
+  // Check pixel at (4, 5) = green
+  let idx2 = (5 * 16 + 4) * 4
+  assert_eq!(atlas.pixels[idx2], 0)
+  assert_eq!(atlas.pixels[idx2 + 1], 255)
+  // Check pixel at (3, 6) = blue
+  let idx3 = (6 * 16 + 3) * 4
+  assert_eq!(atlas.pixels[idx3], 0)
+  assert_eq!(atlas.pixels[idx3 + 1], 0)
+  assert_eq!(atlas.pixels[idx3 + 2], 255)
+}
+
+///|
+test "SVG rasterize triangle produces non-empty pixels" {
+  // Test the SVG → pixel pipeline with a simple triangle
+  let svg = "<svg xmlns=\"http://www.w3.org/2000/svg\" width=\"32\" height=\"32\"><path d=\"M 16 2 L 30 30 L 2 30 Z\" fill=\"white\"/></svg>"
+  match @msvg.render_svg_to_image(svg, 32, 32) {
+    Some(img) => {
+      assert_eq!(img.width, 32)
+      assert_eq!(img.height, 32)
+      // Center of triangle should have white pixels
+      let center_idx = 20 * 32 + 16
+      assert_true!(img.pixels[center_idx].a > 200)
+    }
+    None => fail!("expected SVG render")
+  }
+}
+
+///|
+test "GlyphCache clear and re-allocate" {
+  let cache = GlyphCache::new(256.0, 256.0, 1)
+  let _ = cache.allocate(65, 10.0, 12.0)
+  let _ = cache.allocate(66, 8.0, 10.0)
+  assert_eq(cache.entry_count(), 2)
+  cache.clear()
+  assert_eq(cache.entry_count(), 0)
+  // After clear, should allocate at origin again
+  match cache.allocate(67, 5.0, 5.0) {
+    Some(entry) => {
+      assert_eq(entry.atlas_x, 0.0)
+      assert_eq(entry.atlas_y, 0.0)
+    }
+    None => panic()
+  }
+}
+
+///|
+test "GlyphCache page_id propagates to entries" {
+  let cache = GlyphCache::new(256.0, 256.0, 42)
+  match cache.allocate(65, 10.0, 12.0) {
+    Some(entry) => assert_eq(entry.atlas_page_id, 42)
+    None => panic()
+  }
+}
+
+///|
+test "blit_to_atlas with out of bounds is safe" {
+  let atlas = GlyphAtlas::new(8, 8, 1)
+  let bitmap : GlyphBitmap = {
+    width: 4,
+    height: 4,
+    pixels: Array::make(64, 255),
+  }
+  // Blit at position near edge, should not panic even if partially out of bounds
+  blit_to_atlas(atlas.pixels, atlas.width, bitmap, 6, 6)
+  // Only (6,6) and (7,6) of first row should be written
+  let idx = (6 * 8 + 6) * 4
+  assert_eq(atlas.pixels[idx], 255)
+  let idx2 = (6 * 8 + 7) * 4
+  assert_eq(atlas.pixels[idx2], 255)
+}
+
+///|
+test "GlyphAtlas new pixel buffer is zeroed" {
+  let atlas = GlyphAtlas::new(64, 64, 5)
+  // All pixels should be zero
+  let mut all_zero = true
+  for i in 0..<atlas.pixels.length() {
+    if atlas.pixels[i] != 0 {
+      all_zero = false
+      break
+    }
+  }
+  assert_true(all_zero)
+  assert_eq(atlas.pixels.length(), 64 * 64 * 4)
+}
+
+///|
+test "default_text_style with zero size" {
+  let style = default_text_style("mono", 0.0)
+  assert_eq(style.size_px, 0.0)
+  assert_eq(style.line_height, 0.0)
+  assert_eq(style.letter_spacing, 0.0)
+}
+
+///|
+test "path_commands_to_svg_d empty" {
+  let d = path_commands_to_svg_d([])
+  assert_eq(d, "")
+}
+
+///|
 test "SimpleTextBatchBuilder produces commands from glyphs" {
   let cache = GlyphCache::new(256.0, 256.0, 1)
   let builder = SimpleTextBatchBuilder::new(cache, 0)

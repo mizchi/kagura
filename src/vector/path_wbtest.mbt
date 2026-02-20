@@ -147,3 +147,48 @@ test "fill_path degenerate" {
   assert_eq!(vertices.length(), 0)
   assert_eq!(indices.length(), 0)
 }
+
+///|
+test "Path empty has no commands" {
+  let path = Path::new()
+  assert_eq(path.command_count(), 0)
+  let points = path.flatten(1.0)
+  assert_eq(points.length(), 0)
+}
+
+///|
+test "stroke_path empty returns empty" {
+  let points : Array[Vec2] = []
+  let (verts, indices) = stroke_path(points, 1.0)
+  assert_eq(verts.length(), 0)
+  assert_eq(indices.length(), 0)
+}
+
+///|
+test "fill_path pentagon" {
+  let pi = 3.14159265358979323846
+  let points : Array[Vec2] = []
+  for i in 0..<5 {
+    let angle = i.to_double() * pi * 2.0 / 5.0
+    points.push(Vec2::new(@math.cos(angle) * 10.0, @math.sin(angle) * 10.0))
+  }
+  let (vertices, indices) = fill_path(points)
+  // 5 vertices * 4 components = 20
+  assert_eq(vertices.length(), 20)
+  // 3 triangles (fan) = 9 indices
+  assert_eq(indices.length(), 9)
+}
+
+///|
+test "Path double close adds two close points" {
+  let path = Path::new()
+  path.move_to(0.0, 0.0)
+  path.line_to(10.0, 0.0)
+  path.line_to(10.0, 10.0)
+  path.close()
+  let points1 = path.flatten(1.0)
+  assert_eq(points1.length(), 4)
+  // Both closes go back to start
+  assert_true(approx_d(points1[3].x, 0.0))
+  assert_true(approx_d(points1[3].y, 0.0))
+}

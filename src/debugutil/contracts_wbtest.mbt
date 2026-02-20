@@ -112,6 +112,45 @@ test "build_input_debug_overlay empty state" {
 }
 
 ///|
+test "color_from_hex boundary values" {
+  let black = color_from_hex(0x000000)
+  assert_true(approx(black.r, 0.0))
+  assert_true(approx(black.g, 0.0))
+  assert_true(approx(black.b, 0.0))
+  let white = color_from_hex(0xFFFFFF)
+  assert_true(approx(white.r, 1.0))
+  assert_true(approx(white.g, 1.0))
+  assert_true(approx(white.b, 1.0))
+}
+
+///|
+test "line_vertices vertical line" {
+  let (verts, indices) = line_vertices(5.0, 0.0, 5.0, 10.0, 2.0)
+  assert_eq(verts.length(), 16)
+  assert_eq(indices.length(), 6)
+  // Vertical line: perpendicular offset should be in x direction
+  // First vertex x should differ from 5.0 by ±1.0
+  assert_true(approx(verts[0] - 5.0, 1.0) || approx(verts[0] - 5.0, -1.0))
+}
+
+///|
+test "line_vertices diagonal line" {
+  let (verts, indices) = line_vertices(0.0, 0.0, 10.0, 10.0, 2.0)
+  assert_eq(verts.length(), 16)
+  assert_eq(indices.length(), 6)
+}
+
+///|
+test "rect_fill_vertices zero size" {
+  let (verts, indices) = rect_fill_vertices(5.0, 5.0, 0.0, 0.0)
+  assert_eq(verts.length(), 16)
+  assert_eq(indices.length(), 6)
+  // All vertices should be at the same point
+  assert_true(approx(verts[0], 5.0))
+  assert_true(approx(verts[4], 5.0))
+}
+
+///|
 test "build_input_debug_overlay with pressed keys" {
   let dst = @gfx.new_image_handle(1, 640, 480)
   let shader = @gfx.new_shader_handle(1, "debug")

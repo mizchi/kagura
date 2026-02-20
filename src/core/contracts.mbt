@@ -139,6 +139,77 @@ pub fn empty_input_snapshot() -> InputSnapshot {
 }
 
 ///|
+pub enum TouchPhase {
+  Began
+  Moved
+  Stationary
+  Ended
+  Cancelled
+} derive(Show)
+
+///|
+pub fn touch_phase_to_int(phase : TouchPhase) -> Int {
+  match phase {
+    TouchPhase::Began => 0
+    TouchPhase::Moved => 1
+    TouchPhase::Stationary => 2
+    TouchPhase::Ended => 3
+    TouchPhase::Cancelled => 4
+  }
+}
+
+///|
+pub fn touch_phase_from_int(phase : Int) -> TouchPhase {
+  match phase {
+    0 => TouchPhase::Began
+    1 => TouchPhase::Moved
+    2 => TouchPhase::Stationary
+    3 => TouchPhase::Ended
+    4 => TouchPhase::Cancelled
+    _ => TouchPhase::Began
+  }
+}
+
+///|
+pub struct TouchPointEx {
+  id : Int
+  x : Double
+  y : Double
+  phase : TouchPhase
+  pressure : Double
+  delta_x : Double
+  delta_y : Double
+} derive(Show)
+
+///|
+pub fn new_touch_point_ex(
+  id : Int,
+  x : Double,
+  y : Double,
+  phase : TouchPhase,
+) -> TouchPointEx {
+  { id, x, y, phase, pressure: 1.0, delta_x: 0.0, delta_y: 0.0 }
+}
+
+///|
+pub fn new_touch_point_ex_full(
+  id : Int,
+  x : Double,
+  y : Double,
+  phase : TouchPhase,
+  pressure : Double,
+  delta_x : Double,
+  delta_y : Double,
+) -> TouchPointEx {
+  { id, x, y, phase, pressure, delta_x, delta_y }
+}
+
+///|
+pub fn touch_point_from_ex(ex : TouchPointEx) -> TouchPoint {
+  { id: ex.id, x: ex.x, y: ex.y }
+}
+
+///|
 pub trait Game {
   /// Ebiten ref: Game.Layout in run.go
   layout(Self, outside : OutsideSize) -> LogicalSize

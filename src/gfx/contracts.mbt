@@ -126,38 +126,42 @@ pub fn blend_mode_from_int(mode : Int) -> BlendMode {
 /// Get the blend equation for any BlendMode including presets.
 pub fn blend_mode_to_equation(mode : BlendMode) -> BlendEquation {
   match mode {
-    BlendMode::Copy => {
-      src_factor_rgb: BlendFactor::One,
-      dst_factor_rgb: BlendFactor::Zero,
-      op_rgb: BlendOperation::Add,
-      src_factor_alpha: BlendFactor::One,
-      dst_factor_alpha: BlendFactor::Zero,
-      op_alpha: BlendOperation::Add,
-    }
-    BlendMode::Alpha => {
-      src_factor_rgb: BlendFactor::SrcAlpha,
-      dst_factor_rgb: BlendFactor::OneMinusSrcAlpha,
-      op_rgb: BlendOperation::Add,
-      src_factor_alpha: BlendFactor::One,
-      dst_factor_alpha: BlendFactor::OneMinusSrcAlpha,
-      op_alpha: BlendOperation::Add,
-    }
-    BlendMode::Add => {
-      src_factor_rgb: BlendFactor::SrcAlpha,
-      dst_factor_rgb: BlendFactor::One,
-      op_rgb: BlendOperation::Add,
-      src_factor_alpha: BlendFactor::One,
-      dst_factor_alpha: BlendFactor::One,
-      op_alpha: BlendOperation::Add,
-    }
-    BlendMode::Multiply => {
-      src_factor_rgb: BlendFactor::DstColor,
-      dst_factor_rgb: BlendFactor::Zero,
-      op_rgb: BlendOperation::Add,
-      src_factor_alpha: BlendFactor::DstAlpha,
-      dst_factor_alpha: BlendFactor::Zero,
-      op_alpha: BlendOperation::Add,
-    }
+    BlendMode::Copy =>
+      {
+        src_factor_rgb: BlendFactor::One,
+        dst_factor_rgb: BlendFactor::Zero,
+        op_rgb: BlendOperation::Add,
+        src_factor_alpha: BlendFactor::One,
+        dst_factor_alpha: BlendFactor::Zero,
+        op_alpha: BlendOperation::Add,
+      }
+    BlendMode::Alpha =>
+      {
+        src_factor_rgb: BlendFactor::SrcAlpha,
+        dst_factor_rgb: BlendFactor::OneMinusSrcAlpha,
+        op_rgb: BlendOperation::Add,
+        src_factor_alpha: BlendFactor::One,
+        dst_factor_alpha: BlendFactor::OneMinusSrcAlpha,
+        op_alpha: BlendOperation::Add,
+      }
+    BlendMode::Add =>
+      {
+        src_factor_rgb: BlendFactor::SrcAlpha,
+        dst_factor_rgb: BlendFactor::One,
+        op_rgb: BlendOperation::Add,
+        src_factor_alpha: BlendFactor::One,
+        dst_factor_alpha: BlendFactor::One,
+        op_alpha: BlendOperation::Add,
+      }
+    BlendMode::Multiply =>
+      {
+        src_factor_rgb: BlendFactor::DstColor,
+        dst_factor_rgb: BlendFactor::Zero,
+        op_rgb: BlendOperation::Add,
+        src_factor_alpha: BlendFactor::DstAlpha,
+        dst_factor_alpha: BlendFactor::Zero,
+        op_alpha: BlendOperation::Add,
+      }
     BlendMode::Custom(eq) => eq
   }
 }
@@ -484,10 +488,7 @@ pub fn compare_framebuffer_snapshots(
       let dg = abs_int(a.pixels[base + 1] - b.pixels[base + 1])
       let db = abs_int(a.pixels[base + 2] - b.pixels[base + 2])
       let da = abs_int(a.pixels[base + 3] - b.pixels[base + 3])
-      let channel_max = @cmp.maximum(
-        @cmp.maximum(dr, dg),
-        @cmp.maximum(db, da),
-      )
+      let channel_max = @cmp.maximum(@cmp.maximum(dr, dg), @cmp.maximum(db, da))
       if channel_max > max_diff {
         max_diff = channel_max
       }
@@ -501,7 +502,11 @@ pub fn compare_framebuffer_snapshots(
 
 ///|
 fn abs_int(x : Int) -> Int {
-  if x < 0 { -x } else { x }
+  if x < 0 {
+    -x
+  } else {
+    x
+  }
 }
 
 ///|
@@ -663,8 +668,7 @@ fn merge_draw_triangles_range(
       merged_index_count = merged_index_count + commands[i].indices.length()
     }
     let merged_vertex_data : Array[Double] = Array::make(
-      merged_vertex_float_count,
-      0.0,
+      merged_vertex_float_count, 0.0,
     )
     let merged_indices : Array[Int] = Array::make(merged_index_count, 0)
     let mut vertex_offset = 0
@@ -721,11 +725,8 @@ pub impl CommandQueue for SimpleCommandQueue with flush(self) {
     let mut vertex_budget = base.vertex_data.length()
     while end < buffered.length() {
       let command = buffered[end]
-      if
-        can_merge_draw_triangles_with_vertex_budget(
-          base,
-          command,
-          vertex_budget,
+      if can_merge_draw_triangles_with_vertex_budget(
+          base, command, vertex_budget,
         ) {
         vertex_budget = vertex_budget + command.vertex_data.length()
         end = end + 1

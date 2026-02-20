@@ -26,10 +26,22 @@ pub impl UIRenderAdapter for SimpleUIRenderAdapter with build_draw_commands(
   for layout in layouts {
     let r = layout.rect
     let vertices = [
-      r.x, r.y, 0.0, 0.0,
-      r.x + r.width, r.y, 1.0, 0.0,
-      r.x + r.width, r.y + r.height, 1.0, 1.0,
-      r.x, r.y + r.height, 0.0, 1.0,
+      r.x,
+      r.y,
+      0.0,
+      0.0,
+      r.x + r.width,
+      r.y,
+      1.0,
+      0.0,
+      r.x + r.width,
+      r.y + r.height,
+      1.0,
+      1.0,
+      r.x,
+      r.y + r.height,
+      0.0,
+      1.0,
     ]
     let indices = [0, 1, 2, 2, 3, 0]
     let region = @gfx.new_dst_region(

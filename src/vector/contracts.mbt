@@ -128,18 +128,12 @@ pub fn Vec2::angle_between(self : Vec2, other : Vec2) -> Double {
 
 ///|
 pub fn Vec2::min(self : Vec2, other : Vec2) -> Vec2 {
-  {
-    x: @cmp.minimum(self.x, other.x),
-    y: @cmp.minimum(self.y, other.y),
-  }
+  { x: @cmp.minimum(self.x, other.x), y: @cmp.minimum(self.y, other.y) }
 }
 
 ///|
 pub fn Vec2::max(self : Vec2, other : Vec2) -> Vec2 {
-  {
-    x: @cmp.maximum(self.x, other.x),
-    y: @cmp.maximum(self.y, other.y),
-  }
+  { x: @cmp.maximum(self.x, other.x), y: @cmp.maximum(self.y, other.y) }
 }
 
 ///|

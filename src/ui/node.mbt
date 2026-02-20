@@ -90,5 +90,5 @@ pub fn UITree::get_node(self : UITree, id : UINodeId) -> UINode? {
 
 ///|
 pub fn UITree::node_count(self : UITree) -> Int {
-  self.nodes.size()
+  self.nodes.length()
 }

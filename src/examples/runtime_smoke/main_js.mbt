@@ -1,4 +1,5 @@
 ///|
+
 ///|
 fn clamp_u8(value : Int) -> Int {
   if value < 0 {
@@ -23,13 +24,13 @@ fn clamp_sample_coord(value : Int) -> Int {
 
 ///|
 fn sample_pixel_x_from_ndc(x_ndc : Double) -> Int {
-  let x = (((x_ndc + 1.0) * 0.5) * 64.0).to_int()
+  let x = ((x_ndc + 1.0) * 0.5 * 64.0).to_int()
   clamp_sample_coord(x)
 }
 
 ///|
 fn sample_pixel_y_from_ndc(y_ndc : Double) -> Int {
-  let y = (((1.0 - y_ndc) * 0.5) * 64.0).to_int()
+  let y = ((1.0 - y_ndc) * 0.5 * 64.0).to_int()
   clamp_sample_coord(y)
 }
 
@@ -52,8 +53,8 @@ fn normalized_payload_color(
       payload_texture_seed
     }
     r = (seed % 256).to_double() / 255.0
-    g = ((seed / 256) % 256).to_double() / 255.0
-    b = ((seed / 65536) % 256).to_double() / 255.0
+    g = (seed / 256 % 256).to_double() / 255.0
+    b = (seed / 65536 % 256).to_double() / 255.0
     if r + g + b < 0.3 {
       r = 0.92
       g = 0.26
@@ -99,40 +100,14 @@ fn sample_predicted_web_pixel_rgba(
   let x_ndc = (px.to_double() + 0.5) / sample_w.to_double() * 2.0 - 1.0
   let y_ndc = 1.0 - (py.to_double() + 0.5) / sample_h.to_double() * 2.0
   let area = edge(
-    payload_ax,
-    payload_ay,
-    payload_bx,
-    payload_by,
-    payload_cx,
-    payload_cy,
+    payload_ax, payload_ay, payload_bx, payload_by, payload_cx, payload_cy,
   )
   if area.abs() < 0.000001 {
     return [0, 0, 0, 255]
   }
-  let e0 = edge(
-    payload_bx,
-    payload_by,
-    payload_cx,
-    payload_cy,
-    x_ndc,
-    y_ndc,
-  )
-  let e1 = edge(
-    payload_cx,
-    payload_cy,
-    payload_ax,
-    payload_ay,
-    x_ndc,
-    y_ndc,
-  )
-  let e2 = edge(
-    payload_ax,
-    payload_ay,
-    payload_bx,
-    payload_by,
-    x_ndc,
-    y_ndc,
-  )
+  let e0 = edge(payload_bx, payload_by, payload_cx, payload_cy, x_ndc, y_ndc)
+  let e1 = edge(payload_cx, payload_cy, payload_ax, payload_ay, x_ndc, y_ndc)
+  let e2 = edge(payload_ax, payload_ay, payload_bx, payload_by, x_ndc, y_ndc)
   let inside = if area > 0.0 {
     e0 >= 0.0 && e1 >= 0.0 && e2 >= 0.0
   } else {
@@ -142,11 +117,7 @@ fn sample_predicted_web_pixel_rgba(
     return [0, 0, 0, 255]
   }
   let color = normalized_payload_color(
-    payload_uniform_r,
-    payload_uniform_g,
-    payload_uniform_b,
-    payload_uniform_a,
-    payload_texture_seed,
+    payload_uniform_r, payload_uniform_g, payload_uniform_b, payload_uniform_a, payload_texture_seed,
   )
   let r = clamp_u8((color[0] * 255.0).to_int())
   let g = clamp_u8((color[1] * 255.0).to_int())
@@ -266,9 +237,15 @@ fn[T : @gfx.GraphicsDriver] run_draw_payload_probe(graphics : T) -> Unit raise {
     sample2_y,
   )
   let atlas_generation = @web_hooks.source_image_generation(atlas_page_id)
-  let atlas_pixel_r = @web_hooks.source_image_pixel_channel(atlas_page_id, 1, 0, 0)
-  let atlas_pixel_g = @web_hooks.source_image_pixel_channel(atlas_page_id, 1, 0, 1)
-  let atlas_pixel_b = @web_hooks.source_image_pixel_channel(atlas_page_id, 1, 0, 2)
+  let atlas_pixel_r = @web_hooks.source_image_pixel_channel(
+    atlas_page_id, 1, 0, 0,
+  )
+  let atlas_pixel_g = @web_hooks.source_image_pixel_channel(
+    atlas_page_id, 1, 0, 1,
+  )
+  let atlas_pixel_b = @web_hooks.source_image_pixel_channel(
+    atlas_page_id, 1, 0, 2,
+  )
   graphics.begin(pass)
   for i = plan.commands.length() - 1; i >= 0; i = i - 1 {
     graphics.draw_triangles(plan.commands[i])

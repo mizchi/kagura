@@ -151,7 +151,7 @@ pub fn SimpleAudioContext::new(format : AudioFormat) -> SimpleAudioContext {
 }
 
 ///|
-fn find_player(
+fn SimpleAudioContext::find_player(
   self : SimpleAudioContext,
   id : PlayerId,
 ) -> SimpleAudioPlayer? {
@@ -167,9 +167,13 @@ fn find_player(
 pub impl AudioContext for SimpleAudioContext with create_player(self, clip) {
   let id : PlayerId = { value: self.next_id }
   self.next_id = self.next_id + 1
-  self.players.push(
-    { id, clip, state: PlayerState::Stopped, volume: 1.0, position_samples: 0 },
-  )
+  self.players.push({
+    id,
+    clip,
+    state: PlayerState::Stopped,
+    volume: 1.0,
+    position_samples: 0,
+  })
   id
 }
 
@@ -226,7 +230,8 @@ pub impl AudioContext for SimpleAudioContext with set_volume(self, id, volume) {
 ///|
 pub impl AudioContext for SimpleAudioContext with current_position(self, id) {
   match self.find_player(id) {
-    Some(player) => samples_to_duration(player.clip.format, player.position_samples)
+    Some(player) =>
+      samples_to_duration(player.clip.format, player.position_samples)
     None => 0.0
   }
 }
@@ -235,7 +240,10 @@ pub impl AudioContext for SimpleAudioContext with current_position(self, id) {
 pub impl AudioContext for SimpleAudioContext with seek(self, id, position) {
   match self.find_player(id) {
     Some(player) =>
-      player.position_samples = duration_to_samples(player.clip.format, position)
+      player.position_samples = duration_to_samples(
+        player.clip.format,
+        position,
+      )
     None => ()
   }
 }
@@ -363,7 +371,11 @@ pub fn decode_audio_clip_auto(
 /// Assumes 16-bit PCM format.
 pub fn clip_to_audio_buffer(clip : AudioClip) -> @ma.AudioBuffer {
   let frames = clip_sample_count(clip)
-  let buffer = @ma.new_audio_buffer(clip.format.channels, clip.format.sample_rate, frames)
+  let buffer = @ma.new_audio_buffer(
+    clip.format.channels,
+    clip.format.sample_rate,
+    frames,
+  )
   let channels = clip.format.channels
   for frame = 0; frame < frames; frame = frame + 1 {
     for ch = 0; ch < channels; ch = ch + 1 {
@@ -372,11 +384,7 @@ pub fn clip_to_audio_buffer(clip : AudioClip) -> @ma.AudioBuffer {
       let hi = clip.data[byte_offset + 1].to_int()
       let i16_val = lo | (hi << 8)
       // Sign extend 16-bit
-      let signed_val = if i16_val >= 32768 {
-        i16_val - 65536
-      } else {
-        i16_val
-      }
+      let signed_val = if i16_val >= 32768 { i16_val - 65536 } else { i16_val }
       let sample = signed_val.to_float() / 32767.0
       @ma.set_sample(buffer, frame, ch, sample)
     }
@@ -489,9 +497,7 @@ pub fn BufferedAudioStream::buffered_bytes(self : BufferedAudioStream) -> Int {
 }
 
 ///|
-pub fn BufferedAudioStream::is_finalized(
-  self : BufferedAudioStream,
-) -> Bool {
+pub fn BufferedAudioStream::is_finalized(self : BufferedAudioStream) -> Bool {
   self.finalized
 }
 
@@ -562,11 +568,7 @@ fn MixerAudioContext::find_voice_id(
 ///|
 pub impl AudioContext for MixerAudioContext with create_player(self, clip) {
   let buffer = clip_to_audio_buffer(clip)
-  let voice = @ma.new_voice_from_buffer(
-    self.mixer,
-    buffer,
-    looping=clip.loop_,
-  )
+  let voice = @ma.new_voice_from_buffer(self.mixer, buffer, looping=clip.loop_)
   let voice_id = @ma.add_voice(self.mixer, voice)
   // Stop immediately - AudioContext contract expects Stopped initial state
   let _ = @ma.stop_voice(self.mixer, voice_id)
@@ -622,7 +624,7 @@ pub impl AudioContext for MixerAudioContext with state(self, id) {
 ///|
 pub impl AudioContext for MixerAudioContext with set_volume(self, id, volume) {
   match self.find_voice_id(id) {
-    Some(vid) => {
+    Some(vid) =>
       match @ma.find_voice(self.mixer, vid) {
         Some(voice) => {
           let clamped = if volume < 0.0 {
@@ -636,7 +638,6 @@ pub impl AudioContext for MixerAudioContext with set_volume(self, id, volume) {
         }
         None => ()
       }
-    }
     None => ()
   }
 }
@@ -656,7 +657,7 @@ pub impl AudioContext for MixerAudioContext with current_position(self, id) {
 ///|
 pub impl AudioContext for MixerAudioContext with seek(self, id, position) {
   match self.find_voice_id(id) {
-    Some(vid) => {
+    Some(vid) =>
       match @ma.find_voice(self.mixer, vid) {
         Some(voice) => {
           let frame = (position * voice.sample_rate.to_double()).to_int()
@@ -664,7 +665,6 @@ pub impl AudioContext for MixerAudioContext with seek(self, id, position) {
         }
         None => ()
       }
-    }
     None => ()
   }
 }
@@ -765,11 +765,8 @@ fn default_audio_output_latency() -> Double {
 ///|
 fn default_audio_output_hooks() -> AudioOutputHooks {
   new_audio_output_hooks(
-    default_audio_try_initialize,
-    default_audio_write_frames,
-    default_audio_suspend,
-    default_audio_resume,
-    default_audio_close,
+    default_audio_try_initialize, default_audio_write_frames, default_audio_suspend,
+    default_audio_resume, default_audio_close,
   )
 }
 
@@ -794,10 +791,7 @@ pub fn audio_try_initialize(format : AudioFormat) -> Bool {
 }
 
 ///|
-pub fn audio_write_frames(
-  output : FixedArray[Float],
-  frames : Int,
-) -> Int {
+pub fn audio_write_frames(output : FixedArray[Float], frames : Int) -> Int {
   (audio_output_hooks.val.write_frames)(output, frames)
 }
 
@@ -831,10 +825,7 @@ pub struct AudioOutputStats {
 ///|
 /// Render audio from a MixerAudioContext and write to output hooks.
 /// Returns the number of frames actually written.
-pub fn audio_render_and_write(
-  mixer : MixerAudioContext,
-  frames : Int,
-) -> Int {
+pub fn audio_render_and_write(mixer : MixerAudioContext, frames : Int) -> Int {
   let channels = 2 // stereo
   let buf : FixedArray[Float] = FixedArray::make(frames * channels, 0.0)
   mixer.render(frames, buf)

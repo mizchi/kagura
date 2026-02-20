@@ -8,7 +8,7 @@ pub struct SimpleLayoutEngine {
 
 ///|
 pub fn SimpleLayoutEngine::new(tree : UITree) -> SimpleLayoutEngine {
-  { tree }
+  { tree, }
 }
 
 ///|
@@ -65,9 +65,11 @@ fn build_flex_lines(
       flex_wrap is UIFlexWrap::Wrap &&
       would_be > container_main &&
       container_main > 0.0 {
-      lines.push(
-        { items: current_items, main_size: current_main, cross_size: current_cross },
-      )
+      lines.push({
+        items: current_items,
+        main_size: current_main,
+        cross_size: current_cross,
+      })
       current_items = []
       current_main = 0.0
       current_cross = 0.0
@@ -83,9 +85,11 @@ fn build_flex_lines(
     }
   }
   if current_items.length() > 0 {
-    lines.push(
-      { items: current_items, main_size: current_main, cross_size: current_cross },
-    )
+    lines.push({
+      items: current_items,
+      main_size: current_main,
+      cross_size: current_cross,
+    })
   }
   lines
 }
@@ -134,12 +138,10 @@ fn layout_node(
       UISizing::Auto => 0.0
       _ => content_h
     }
-    results.push(
-      {
-        node_id,
-        rect: { x: offset_x, y: offset_y, width: final_w, height: final_h },
-      },
-    )
+    results.push({
+      node_id,
+      rect: { x: offset_x, y: offset_y, width: final_w, height: final_h },
+    })
     return (final_w, final_h)
   }
   // Phase 1: Measure each child at (0, 0)
@@ -148,8 +150,16 @@ fn layout_node(
     let child_constraint : LayoutConstraint = {
       min_width: 0.0,
       min_height: 0.0,
-      max_width: if clamped_w > 0.0 { clamped_w } else { 0.0 },
-      max_height: if clamped_h > 0.0 { clamped_h } else { 0.0 },
+      max_width: if clamped_w > 0.0 {
+        clamped_w
+      } else {
+        0.0
+      },
+      max_height: if clamped_h > 0.0 {
+        clamped_h
+      } else {
+        0.0
+      },
     }
     let temp : Array[LayoutResult] = []
     let (cw, ch) = layout_node(tree, child_id, child_constraint, temp, 0.0, 0.0)
@@ -158,7 +168,11 @@ fn layout_node(
   // Phase 2: Organize into flex lines
   let container_main = if is_row { clamped_w } else { clamped_h }
   let lines = build_flex_lines(
-    measures, is_row, container_main, style.gap, style.flex_wrap,
+    measures,
+    is_row,
+    container_main,
+    style.gap,
+    style.flex_wrap,
   )
   // Phase 3: Compute total content size for auto sizing
   let mut total_cross = 0.0
@@ -207,7 +221,11 @@ fn layout_node(
     let free_main = actual_main - line.main_size
     let (main_start, main_extra_gap) = @layout.compute_justify(
       style.justify_content,
-      if free_main > 0.0 { free_main } else { 0.0 },
+      if free_main > 0.0 {
+        free_main
+      } else {
+        0.0
+      },
       line.items.length(),
     )
     let mut main_pos = main_start
@@ -216,7 +234,11 @@ fn layout_node(
       let free_cross = line.cross_size - item_cross
       let cross_align = @layout.compute_align_offset(
         style.align,
-        if free_cross > 0.0 { free_cross } else { 0.0 },
+        if free_cross > 0.0 {
+          free_cross
+        } else {
+          0.0
+        },
       )
       // Compute final position delta
       let dx = if is_row { main_pos } else { cross_offset + cross_align }
@@ -224,29 +246,25 @@ fn layout_node(
       // Emit shifted child results
       let m = measures[child_idx]
       for r in m.temp_results {
-        results.push(
-          {
-            node_id: r.node_id,
-            rect: {
-              x: r.rect.x + base_x + dx,
-              y: r.rect.y + base_y + dy,
-              width: r.rect.width,
-              height: r.rect.height,
-            },
+        results.push({
+          node_id: r.node_id,
+          rect: {
+            x: r.rect.x + base_x + dx,
+            y: r.rect.y + base_y + dy,
+            width: r.rect.width,
+            height: r.rect.height,
           },
-        )
+        })
       }
       main_pos = main_pos + item_main + style.gap + main_extra_gap
     }
     cross_offset = cross_offset + line.cross_size
   }
   // Add container result
-  results.push(
-    {
-      node_id,
-      rect: { x: offset_x, y: offset_y, width: final_w, height: final_h },
-    },
-  )
+  results.push({
+    node_id,
+    rect: { x: offset_x, y: offset_y, width: final_w, height: final_h },
+  })
   (final_w, final_h)
 }
 

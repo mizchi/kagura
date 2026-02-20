@@ -92,10 +92,10 @@ test "decode_triangle_payload xyuv with explicit indices" {
   // 4 vertices (xyuv), indices select 1,2,3
   let payload = decode_triangle_payload(
     [
-      0.0, 0.0, 0.0, 0.0,  // vertex 0
-      1.0, 0.0, 1.0, 0.0,  // vertex 1
-      1.0, 1.0, 1.0, 1.0,  // vertex 2
-      0.0, 1.0, 0.0, 1.0,  // vertex 3
+      0.0, 0.0, 0.0, 0.0, // vertex 0
+       1.0, 0.0, 1.0, 0.0, // vertex 1
+       1.0, 1.0, 1.0, 1.0, // vertex 2
+       0.0, 1.0, 0.0, 1.0, // vertex 3
     ],
     [1, 2, 3],
     [],

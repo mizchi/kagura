@@ -144,11 +144,7 @@ pub struct GlyphAtlas {
 }
 
 ///|
-pub fn GlyphAtlas::new(
-  width : Int,
-  height : Int,
-  page_id : Int,
-) -> GlyphAtlas {
+pub fn GlyphAtlas::new(width : Int, height : Int, page_id : Int) -> GlyphAtlas {
   let total = width * height * 4
   let pixels : Array[Int] = Array::make(total, 0)
   {
@@ -181,13 +177,22 @@ fn path_commands_to_svg_d(commands : Array[@msvg.PathCommand]) -> String {
         parts.push("L " + x.to_string() + " " + y.to_string())
       @msvg.PathCommand::QuadraticCurveTo(cx, cy, x, y) =>
         parts.push(
-          "Q " + cx.to_string() + " " + cy.to_string() + " " + x.to_string() +
+          "Q " +
+          cx.to_string() +
+          " " +
+          cy.to_string() +
+          " " +
+          x.to_string() +
           " " +
           y.to_string(),
         )
       @msvg.PathCommand::CurveTo(cx1, cy1, cx2, cy2, x, y) =>
         parts.push(
-          "C " + cx1.to_string() + " " + cy1.to_string() + " " +
+          "C " +
+          cx1.to_string() +
+          " " +
+          cy1.to_string() +
+          " " +
           cx2.to_string() +
           " " +
           cy2.to_string() +
@@ -272,8 +277,7 @@ pub fn rasterize_glyph(
   // SVG with y-flip transform: font coords (y-up) → SVG coords (y-down)
   let tx = (-x_min + pad).to_string()
   let ty = (y_max + pad).to_string()
-  let svg =
-    "<svg xmlns=\"http://www.w3.org/2000/svg\" width=\"" +
+  let svg = "<svg xmlns=\"http://www.w3.org/2000/svg\" width=\"" +
     w.to_string() +
     "\" height=\"" +
     h.to_string() +
@@ -312,7 +316,7 @@ fn blit_to_atlas(
   if atlas_width <= 0 || src.width <= 0 || src.height <= 0 {
     return
   }
-  let atlas_height = (atlas_pixels.length() / 4) / atlas_width
+  let atlas_height = atlas_pixels.length() / 4 / atlas_width
   if atlas_height <= 0 {
     return
   }
@@ -336,11 +340,10 @@ fn blit_to_atlas(
   let row_copy_len = copy_width * 4
   for row in src_y_start..<src_y_end {
     let src_offset = (row * src.width + src_x_start) * 4
-    let dst_offset =
-      ((dst_y + row) * atlas_width + (dst_x + src_x_start)) * 4
+    let dst_offset = ((dst_y + row) * atlas_width + (dst_x + src_x_start)) * 4
     src.pixels[src_offset:src_offset + row_copy_len].blit_to(
       atlas_pixels,
-      dst_offset=dst_offset,
+      dst_offset~,
     )
   }
 }
@@ -363,11 +366,14 @@ pub fn GlyphAtlas::rasterize_glyph(
   // Rasterize the glyph
   match rasterize_glyph(font, codepoint, size_px) {
     None => None
-    Some(bitmap) => {
+    Some(bitmap) =>
       // Allocate space in atlas
-      match self.cache.allocate(
-        glyph_id, bitmap.width.to_double(), bitmap.height.to_double(),
-      ) {
+      match
+        self.cache.allocate(
+          glyph_id,
+          bitmap.width.to_double(),
+          bitmap.height.to_double(),
+        ) {
         None => None
         Some(entry) => {
           // Copy pixels into atlas
@@ -381,7 +387,6 @@ pub fn GlyphAtlas::rasterize_glyph(
           Some(entry)
         }
       }
-    }
   }
 }
 
@@ -406,24 +411,157 @@ pub fn GlyphAtlas::rasterize_text(
       Some(entry) => {
         let metrics = font.glyph_metrics(pos.glyph_id)
         let bbox = metrics.bbox
-        let dst_x = pos.x_offset +
-          metrics.left_side_bearing.to_double() * scale
+        let dst_x = pos.x_offset + metrics.left_side_bearing.to_double() * scale
         let dst_y = -(bbox.y_max.to_double() * scale)
-        quads.push(
-          {
-            glyph_id: pos.glyph_id,
-            atlas_x: entry.atlas_x,
-            atlas_y: entry.atlas_y,
-            atlas_w: entry.atlas_w,
-            atlas_h: entry.atlas_h,
-            dst_x,
-            dst_y,
-            dst_w: entry.atlas_w,
-            dst_h: entry.atlas_h,
-          },
-        )
+        quads.push({
+          glyph_id: pos.glyph_id,
+          atlas_x: entry.atlas_x,
+          atlas_y: entry.atlas_y,
+          atlas_w: entry.atlas_w,
+          atlas_h: entry.atlas_h,
+          dst_x,
+          dst_y,
+          dst_w: entry.atlas_w,
+          dst_h: entry.atlas_h,
+        })
       }
     }
   }
   quads
+}
+
+///|
+/// High-level text renderer that ties together font, atlas, and batch builder
+/// into a single easy-to-use API for rendering text as draw commands.
+///
+/// Usage:
+///   let renderer = TextRenderer::new(font, 512, page_id, pipeline_id)
+///   let commands = renderer.render_text("Hello", 24.0, 10.0, 50.0, dst, shader, blend, [255,255,255,255])
+///   // Upload renderer.get_atlas().get_pixels() as source texture for page_id
+///   // Submit commands to the graphics pipeline
+pub struct TextRenderer {
+  atlas : GlyphAtlas
+  font : @font.TTFont
+  pipeline_id : Int
+}
+
+///|
+pub fn TextRenderer::new(
+  font : @font.TTFont,
+  atlas_size : Int,
+  page_id : Int,
+  pipeline_id : Int,
+) -> TextRenderer {
+  { atlas: GlyphAtlas::new(atlas_size, atlas_size, page_id), font, pipeline_id }
+}
+
+///|
+/// Render text at the given position, returning draw commands ready
+/// for the graphics pipeline. Also rasterizes any new glyphs into the atlas.
+///
+/// The caller must ensure the atlas pixel data (from `get_atlas().get_pixels()`)
+/// is uploaded as a source texture bound to the atlas page_id.
+pub fn TextRenderer::render_text(
+  self : TextRenderer,
+  text : String,
+  size_px : Double,
+  x : Double,
+  y : Double,
+  dst : @gfx.ImageHandle,
+  shader : @gfx.ShaderHandle,
+  blend : @gfx.BlendMode,
+  uniform_dwords : Array[Int],
+) -> Array[@gfx.DrawTrianglesCommand] {
+  let quads = self.atlas.rasterize_text(self.font, text, size_px)
+  if quads.length() == 0 {
+    return []
+  }
+  // Offset quads by (x, y) for positioning
+  let offset_quads : Array[GlyphQuad] = []
+  for q in quads {
+    offset_quads.push({
+      glyph_id: q.glyph_id,
+      atlas_x: q.atlas_x,
+      atlas_y: q.atlas_y,
+      atlas_w: q.atlas_w,
+      atlas_h: q.atlas_h,
+      dst_x: q.dst_x + x,
+      dst_y: q.dst_y + y,
+      dst_w: q.dst_w,
+      dst_h: q.dst_h,
+    })
+  }
+  let builder = SimpleTextBatchBuilder::new(
+    self.atlas.get_cache(),
+    self.pipeline_id,
+  )
+  let commands = builder.build_draw_commands(dst, offset_quads, shader) catch {
+    _ => return []
+  }
+  // Patch uniform_dwords into each command if provided
+  if uniform_dwords.length() > 0 {
+    let patched : Array[@gfx.DrawTrianglesCommand] = []
+    for cmd in commands {
+      patched.push(
+        @gfx.new_draw_triangles_command(
+          cmd.dst,
+          cmd.shader,
+          cmd.dst_regions,
+          cmd.index_offset,
+          cmd.pipeline_id,
+          cmd.uniform_hash,
+          blend,
+          cmd.vertex_data,
+          cmd.indices,
+          cmd.src_image_ids,
+          uniform_dwords,
+        ),
+      )
+    }
+    patched
+  } else {
+    commands
+  }
+}
+
+///|
+/// Measure text dimensions without rasterizing.
+pub fn TextRenderer::measure(
+  self : TextRenderer,
+  text : String,
+  size_px : Double,
+) -> TextMetrics {
+  let engine = SimpleFontEngine::new(self.font)
+  let style = default_text_style("", size_px)
+  let run = new_text_run(text, style)
+  engine.measure(run)
+}
+
+///|
+/// Get the underlying atlas for pixel data access (GPU upload).
+pub fn TextRenderer::get_atlas(self : TextRenderer) -> GlyphAtlas {
+  self.atlas
+}
+
+///|
+/// Get the atlas page ID used as the source image ID in draw commands.
+pub fn TextRenderer::get_page_id(self : TextRenderer) -> Int {
+  self.atlas.cache.atlas_page_id
+}
+
+///|
+/// Check if the atlas has been modified (new glyphs rasterized) and needs
+/// re-upload to the GPU. Returns the number of cached glyph entries.
+pub fn TextRenderer::glyph_count(self : TextRenderer) -> Int {
+  self.atlas.cache.entry_count()
+}
+
+///|
+/// Clear all cached glyphs and atlas data. Use when switching fonts or sizes.
+pub fn TextRenderer::clear(self : TextRenderer) -> Unit {
+  self.atlas.cache.clear()
+  // Zero out pixel buffer
+  for i in 0..<self.atlas.pixels.length() {
+    self.atlas.pixels[i] = 0
+  }
 }

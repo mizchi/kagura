@@ -9,11 +9,7 @@ fn main {
   }
   let detected = @asset.detect_raster_image_format(encoded)
   match detected {
-    Some(format) => {
-      if format != png_format {
-        panic()
-      }
-    }
+    Some(format) => if format != png_format { panic() }
     None => panic()
   }
   let decoded = @asset.decode_image_spec_auto(encoded) catch { _ => panic() }

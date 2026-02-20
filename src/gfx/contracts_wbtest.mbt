@@ -528,28 +528,12 @@ test "command queue does not merge when uniform hash differs" {
 test "command queue merges compatible commands with same source image ids" {
   let queue = new_simple_command_queue()
   queue.enqueue_draw_triangles(
-    queue_test_command_with_source_ids(
-      1,
-      1,
-      BlendMode::Alpha,
-      0,
-      1,
-      7,
-      0,
-      [801],
-    ),
+    queue_test_command_with_source_ids(1, 1, BlendMode::Alpha, 0, 1, 7, 0, [801]),
   )
   queue.enqueue_draw_triangles(
-    queue_test_command_with_source_ids(
-      1,
-      1,
-      BlendMode::Alpha,
-      0,
-      1,
-      7,
-      32,
-      [801],
-    ),
+    queue_test_command_with_source_ids(1, 1, BlendMode::Alpha, 0, 1, 7, 32, [
+      801,
+    ]),
   )
 
   let commands = queue.flush()
@@ -563,28 +547,12 @@ test "command queue merges compatible commands with same source image ids" {
 test "command queue does not merge when source image ids differ" {
   let queue = new_simple_command_queue()
   queue.enqueue_draw_triangles(
-    queue_test_command_with_source_ids(
-      1,
-      1,
-      BlendMode::Alpha,
-      0,
-      1,
-      7,
-      0,
-      [801],
-    ),
+    queue_test_command_with_source_ids(1, 1, BlendMode::Alpha, 0, 1, 7, 0, [801]),
   )
   queue.enqueue_draw_triangles(
-    queue_test_command_with_source_ids(
-      1,
-      1,
-      BlendMode::Alpha,
-      0,
-      1,
-      7,
-      32,
-      [802],
-    ),
+    queue_test_command_with_source_ids(1, 1, BlendMode::Alpha, 0, 1, 7, 32, [
+      802,
+    ]),
   )
 
   let commands = queue.flush()
@@ -842,15 +810,27 @@ test "blend operation int conversion roundtrip" {
 ///|
 test "blend_mode_to_equation preset Copy" {
   let eq = blend_mode_to_equation(BlendMode::Copy)
-  assert_eq(blend_factor_to_int(eq.src_factor_rgb), blend_factor_to_int(BlendFactor::One))
-  assert_eq(blend_factor_to_int(eq.dst_factor_rgb), blend_factor_to_int(BlendFactor::Zero))
-  assert_eq(blend_operation_to_int(eq.op_rgb), blend_operation_to_int(BlendOperation::Add))
+  assert_eq(
+    blend_factor_to_int(eq.src_factor_rgb),
+    blend_factor_to_int(BlendFactor::One),
+  )
+  assert_eq(
+    blend_factor_to_int(eq.dst_factor_rgb),
+    blend_factor_to_int(BlendFactor::Zero),
+  )
+  assert_eq(
+    blend_operation_to_int(eq.op_rgb),
+    blend_operation_to_int(BlendOperation::Add),
+  )
 }
 
 ///|
 test "blend_mode_to_equation preset Alpha" {
   let eq = blend_mode_to_equation(BlendMode::Alpha)
-  assert_eq(blend_factor_to_int(eq.src_factor_rgb), blend_factor_to_int(BlendFactor::SrcAlpha))
+  assert_eq(
+    blend_factor_to_int(eq.src_factor_rgb),
+    blend_factor_to_int(BlendFactor::SrcAlpha),
+  )
   assert_eq(
     blend_factor_to_int(eq.dst_factor_rgb),
     blend_factor_to_int(BlendFactor::OneMinusSrcAlpha),
@@ -860,15 +840,27 @@ test "blend_mode_to_equation preset Alpha" {
 ///|
 test "blend_mode_to_equation preset Add" {
   let eq = blend_mode_to_equation(BlendMode::Add)
-  assert_eq(blend_factor_to_int(eq.src_factor_rgb), blend_factor_to_int(BlendFactor::SrcAlpha))
-  assert_eq(blend_factor_to_int(eq.dst_factor_rgb), blend_factor_to_int(BlendFactor::One))
+  assert_eq(
+    blend_factor_to_int(eq.src_factor_rgb),
+    blend_factor_to_int(BlendFactor::SrcAlpha),
+  )
+  assert_eq(
+    blend_factor_to_int(eq.dst_factor_rgb),
+    blend_factor_to_int(BlendFactor::One),
+  )
 }
 
 ///|
 test "blend_mode_to_equation preset Multiply" {
   let eq = blend_mode_to_equation(BlendMode::Multiply)
-  assert_eq(blend_factor_to_int(eq.src_factor_rgb), blend_factor_to_int(BlendFactor::DstColor))
-  assert_eq(blend_factor_to_int(eq.dst_factor_rgb), blend_factor_to_int(BlendFactor::Zero))
+  assert_eq(
+    blend_factor_to_int(eq.src_factor_rgb),
+    blend_factor_to_int(BlendFactor::DstColor),
+  )
+  assert_eq(
+    blend_factor_to_int(eq.dst_factor_rgb),
+    blend_factor_to_int(BlendFactor::Zero),
+  )
 }
 
 ///|
@@ -964,10 +956,7 @@ test "command queue does not merge when custom blend differs" {
     uniform_dwords: [],
   }
   queue.enqueue_draw_triangles(base)
-  queue.enqueue_draw_triangles({
-    ..base,
-    blend: BlendMode::Custom(eq2),
-  })
+  queue.enqueue_draw_triangles({ ..base, blend: BlendMode::Custom(eq2) })
   let flushed = queue.flush()
   assert_eq(flushed.length(), 2)
 }
@@ -1076,10 +1065,10 @@ test "read_pixels clamps to framebuffer bounds" {
   let read_pixels_height : Ref[Int] = Ref::new(0)
   set_native_graphics_hooks({
     try_initialize: fn(_w, _h) { true },
-    on_begin: fn(_a, _p) {},
-    on_end: fn(_a, _pr) {},
-    on_draw: fn(_a, _c) {},
-    on_resize: fn(_a, _w, _h) {},
+    on_begin: fn(_a, _p) {  },
+    on_end: fn(_a, _pr) {  },
+    on_draw: fn(_a, _c) {  },
+    on_resize: fn(_a, _w, _h) {  },
     on_read_pixels: fn(active, _x, _y, w, h) -> Array[Int]? {
       if active {
         read_pixels_width.val = w
@@ -1089,7 +1078,7 @@ test "read_pixels clamps to framebuffer bounds" {
         None
       }
     },
-    on_new_image: fn(_a, _id, _w, _h) {},
+    on_new_image: fn(_a, _id, _w, _h) {  },
   })
   let surface = @platform.create_offscreen_surface_token(64, 64)
   let options = default_graphics_backend_options()
@@ -1106,10 +1095,10 @@ test "read_pixels clamps to framebuffer bounds" {
 test "read_pixels delegates to native hook and returns pixels" {
   set_native_graphics_hooks({
     try_initialize: fn(_w, _h) { true },
-    on_begin: fn(_a, _p) {},
-    on_end: fn(_a, _pr) {},
-    on_draw: fn(_a, _c) {},
-    on_resize: fn(_a, _w, _h) {},
+    on_begin: fn(_a, _p) {  },
+    on_end: fn(_a, _pr) {  },
+    on_draw: fn(_a, _c) {  },
+    on_resize: fn(_a, _w, _h) {  },
     on_read_pixels: fn(active, _x, _y, _w, _h) -> Array[Int]? {
       if active {
         Some([255, 0, 0, 255])
@@ -1117,7 +1106,7 @@ test "read_pixels delegates to native hook and returns pixels" {
         None
       }
     },
-    on_new_image: fn(_a, _id, _w, _h) {},
+    on_new_image: fn(_a, _id, _w, _h) {  },
   })
   let surface = @platform.create_offscreen_surface_token(64, 64)
   let options = default_graphics_backend_options()
@@ -1139,10 +1128,10 @@ test "read_pixels delegates to web hook when native returns None" {
   reset_native_graphics_hooks()
   set_web_graphics_hooks({
     try_initialize: fn(_k, _w, _h) { true },
-    on_begin: fn(_a, _k, _p) {},
-    on_end: fn(_a, _k, _pr) {},
-    on_draw: fn(_a, _k, _c) {},
-    on_resize: fn(_a, _k, _w, _h) {},
+    on_begin: fn(_a, _k, _p) {  },
+    on_end: fn(_a, _k, _pr) {  },
+    on_draw: fn(_a, _k, _c) {  },
+    on_resize: fn(_a, _k, _w, _h) {  },
     on_read_pixels: fn(active, _k, _x, _y, _w, _h) -> Array[Int]? {
       if active {
         Some([0, 255, 0, 255])
@@ -1201,10 +1190,8 @@ fn queue_test_quad_command(
     uniform_hash: 0,
     blend,
     vertex_data: [
-      0.0, 0.0, 0.0, 0.0,
-      1.0, 0.0, 1.0, 0.0,
-      1.0, 1.0, 1.0, 1.0,
-      0.0, 1.0, 0.0, 1.0,
+      0.0, 0.0, 0.0, 0.0, 1.0, 0.0, 1.0, 0.0, 1.0, 1.0, 1.0, 1.0, 0.0, 1.0, 0.0,
+      1.0,
     ],
     indices: [0, 1, 2, 2, 3, 0],
     src_image_ids,
@@ -1425,10 +1412,10 @@ test "graphics_resize_stats default clock returns zero duration" {
 test "create_framebuffer_snapshot wraps read_pixels result" {
   set_native_graphics_hooks({
     try_initialize: fn(_w, _h) { true },
-    on_begin: fn(_a, _p) {},
-    on_end: fn(_a, _pr) {},
-    on_draw: fn(_a, _c) {},
-    on_resize: fn(_a, _w, _h) {},
+    on_begin: fn(_a, _p) {  },
+    on_end: fn(_a, _pr) {  },
+    on_draw: fn(_a, _c) {  },
+    on_resize: fn(_a, _w, _h) {  },
     on_read_pixels: fn(active, _x, _y, _w, _h) -> Array[Int]? {
       if active {
         Some([255, 128, 64, 255])
@@ -1436,7 +1423,7 @@ test "create_framebuffer_snapshot wraps read_pixels result" {
         None
       }
     },
-    on_new_image: fn(_a, _id, _w, _h) {},
+    on_new_image: fn(_a, _id, _w, _h) {  },
   })
   let surface = @platform.create_offscreen_surface_token(64, 64)
   let options = default_graphics_backend_options()
@@ -1518,7 +1505,9 @@ test "compare_framebuffer_snapshots mismatched dimensions" {
     y: 0,
     width: 3,
     height: 2,
-    pixels: [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0],
+    pixels: [
+      0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
+    ],
   }
   let result = compare_framebuffer_snapshots(a, b, 0)
   assert_eq(result.diff_pixels, 4)
@@ -1530,15 +1519,15 @@ test "new_native_graphics_hooks_full sets on_read_pixels" {
   let read_pixels_called : Ref[Bool] = Ref::new(false)
   let hooks = new_native_graphics_hooks_full(
     fn(_w, _h) { false },
-    fn(_a, _p) {},
-    fn(_a, _pr) {},
-    fn(_a, _c) {},
-    fn(_a, _w, _h) {},
+    fn(_a, _p) {  },
+    fn(_a, _pr) {  },
+    fn(_a, _c) {  },
+    fn(_a, _w, _h) {  },
     fn(_active, _x, _y, _w, _h) -> Array[Int]? {
       read_pixels_called.val = true
       Some([1, 2, 3, 4])
     },
-    fn(_a, _id, _w, _h) {},
+    fn(_a, _id, _w, _h) {  },
   )
   let result = (hooks.on_read_pixels)(true, 0, 0, 1, 1)
   assert_true(read_pixels_called.val)
@@ -1553,17 +1542,22 @@ test "new_web_graphics_hooks_full sets on_read_pixels" {
   let read_pixels_called : Ref[Bool] = Ref::new(false)
   let hooks = new_web_graphics_hooks_full(
     fn(_k, _w, _h) { false },
-    fn(_a, _k, _p) {},
-    fn(_a, _k, _pr) {},
-    fn(_a, _k, _c) {},
-    fn(_a, _k, _w, _h) {},
+    fn(_a, _k, _p) {  },
+    fn(_a, _k, _pr) {  },
+    fn(_a, _k, _c) {  },
+    fn(_a, _k, _w, _h) {  },
     fn(_active, _k, _x, _y, _w, _h) -> Array[Int]? {
       read_pixels_called.val = true
       Some([5, 6, 7, 8])
     },
   )
   let result = (hooks.on_read_pixels)(
-    true, GraphicsBackendKind::WebGpu, 0, 0, 1, 1,
+    true,
+    GraphicsBackendKind::WebGpu,
+    0,
+    0,
+    1,
+    1,
   )
   assert_true(read_pixels_called.val)
   match result {

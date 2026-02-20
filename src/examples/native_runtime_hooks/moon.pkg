@@ -13,6 +13,7 @@ warnings = "-29"
 options(
   targets: {
     "hooks_native.mbt": [ "native" ],
+    "hooks_native_wbtest.mbt": [ "js" ],
     "hooks_stub.mbt": [ "js", "wasm", "wasm-gc", "llvm" ],
   },
 )

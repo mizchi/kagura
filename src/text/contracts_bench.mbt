@@ -34,19 +34,17 @@ fn make_bench_glyphs(count : Int) -> Array[GlyphQuad] {
   for i in 0..<count {
     let x = (i % 64).to_double() * 12.0
     let y = (i / 64).to_double() * 12.0
-    glyphs.push(
-      {
-        glyph_id: i + 1,
-        atlas_x: 0.0,
-        atlas_y: 0.0,
-        atlas_w: 10.0,
-        atlas_h: 10.0,
-        dst_x: x,
-        dst_y: y,
-        dst_w: 10.0,
-        dst_h: 10.0,
-      },
-    )
+    glyphs.push({
+      glyph_id: i + 1,
+      atlas_x: 0.0,
+      atlas_y: 0.0,
+      atlas_w: 10.0,
+      atlas_h: 10.0,
+      dst_x: x,
+      dst_y: y,
+      dst_w: 10.0,
+      dst_h: 10.0,
+    })
   }
   glyphs
 }
@@ -94,9 +92,7 @@ test "bench build_draw_commands warm cache 512" (b : @bench.T) {
   let target = @gfx.new_image_handle(1, 1024, 1024)
   let shader = @gfx.new_shader_handle(1, "text_shader")
   // Warm up cache once.
-  let _ = builder.build_draw_commands(target, glyphs, shader) catch {
-    _ => []
-  }
+  let _ = builder.build_draw_commands(target, glyphs, shader) catch { _ => [] }
   b.bench(name="build_draw_commands/warm_cache_512", fn() {
     let commands = builder.build_draw_commands(target, glyphs, shader) catch {
       _ => []
@@ -129,9 +125,7 @@ test "bench draw pipeline warm cache 512" (b : @bench.T) {
   let glyphs = make_bench_glyphs(512)
   let target = @gfx.new_image_handle(1, 1024, 1024)
   let shader = @gfx.new_shader_handle(1, "text_shader")
-  let _ = builder.build_draw_commands(target, glyphs, shader) catch {
-    _ => []
-  }
+  let _ = builder.build_draw_commands(target, glyphs, shader) catch { _ => [] }
   b.bench(name="draw_pipeline/warm_cache_512", fn() {
     let commands = builder.build_draw_commands(target, glyphs, shader) catch {
       _ => []

@@ -36,7 +36,13 @@ test "new_source_image_binding factory constructs binding" {
   let pixels = [10, 20, 30, 255]
   let dirty = new_source_image_dirty_rect(1, 2, 3, 4)
   let binding = new_source_image_binding(
-    900, 32, 32, 1, Some(dirty), palette, pixels,
+    900,
+    32,
+    32,
+    1,
+    Some(dirty),
+    palette,
+    pixels,
   )
   assert_eq(binding.image_id, 900)
   assert_eq(binding.width, 32)
@@ -752,7 +758,10 @@ test "multi page atlas missing key returns None" {
   let missing = new_asset_key("missing")
   assert_true(multi_page_get_draw_source(repo, missing) is None)
   assert_true(multi_page_get_region(repo, missing) is None)
-  assert_true(multi_page_update_image_spec(repo, missing, default_image_spec(1, 1)) is None)
+  assert_true(
+    multi_page_update_image_spec(repo, missing, default_image_spec(1, 1))
+    is None,
+  )
 }
 
 ///|
@@ -785,8 +794,16 @@ test "multi page atlas remove and dirty tracking" {
 ///|
 test "multi page atlas dirty bindings across pages" {
   let repo = new_multi_page_atlas_repository(8, 8)
-  let _ = multi_page_create_image(repo, new_asset_key("p1"), default_image_spec(8, 8))
-  let _ = multi_page_create_image(repo, new_asset_key("p2"), default_image_spec(8, 8))
+  let _ = multi_page_create_image(
+    repo,
+    new_asset_key("p1"),
+    default_image_spec(8, 8),
+  )
+  let _ = multi_page_create_image(
+    repo,
+    new_asset_key("p2"),
+    default_image_spec(8, 8),
+  )
   let dirty = multi_page_list_dirty_bindings(repo)
   // Both pages should be dirty
   assert_eq(dirty.length(), 2)
@@ -799,8 +816,16 @@ test "multi page atlas dirty bindings across pages" {
 ///|
 test "multi page atlas get_page_ids" {
   let repo = new_multi_page_atlas_repository(8, 8)
-  let _ = multi_page_create_image(repo, new_asset_key("x"), default_image_spec(8, 8))
-  let _ = multi_page_create_image(repo, new_asset_key("y"), default_image_spec(8, 8))
+  let _ = multi_page_create_image(
+    repo,
+    new_asset_key("x"),
+    default_image_spec(8, 8),
+  )
+  let _ = multi_page_create_image(
+    repo,
+    new_asset_key("y"),
+    default_image_spec(8, 8),
+  )
   let ids = multi_page_get_page_ids(repo)
   assert_eq(ids.length(), 2)
   assert_true(ids[0] != ids[1])
@@ -811,7 +836,9 @@ test "multi page atlas image too large returns None" {
   let repo = new_multi_page_atlas_repository(8, 8)
   // Image larger than page
   let result = multi_page_create_image(
-    repo, new_asset_key("big"), default_image_spec(16, 16),
+    repo,
+    new_asset_key("big"),
+    default_image_spec(16, 16),
   )
   assert_true(result is None)
 }
@@ -870,14 +897,18 @@ test "remove_atlas_image resets allocator on empty page" {
   remove_atlas_image(repo, key_b)
   // After removing all images, allocator should be reset
   // so re-allocation starts at (0,0)
-  let handle = match create_atlas_image(
-    repo, new_asset_key("atlas/reset/c"), default_image_spec(2, 2),
-  ) {
+  let handle = match
+    create_atlas_image(
+      repo,
+      new_asset_key("atlas/reset/c"),
+      default_image_spec(2, 2),
+    ) {
     Some(h) => h
     None => panic()
   }
   let _ = handle
-  let region = match get_atlas_image_region(repo, new_asset_key("atlas/reset/c")) {
+  let region = match
+    get_atlas_image_region(repo, new_asset_key("atlas/reset/c")) {
     Some(r) => r
     None => panic()
   }
@@ -889,9 +920,21 @@ test "remove_atlas_image resets allocator on empty page" {
 test "multi_page_compact removes empty pages" {
   let repo = new_multi_page_atlas_repository(8, 8)
   // Create 3 pages: each with one 8x8 image
-  let _ = multi_page_create_image(repo, new_asset_key("p0"), default_image_spec(8, 8))
-  let _ = multi_page_create_image(repo, new_asset_key("p1"), default_image_spec(8, 8))
-  let _ = multi_page_create_image(repo, new_asset_key("p2"), default_image_spec(8, 8))
+  let _ = multi_page_create_image(
+    repo,
+    new_asset_key("p0"),
+    default_image_spec(8, 8),
+  )
+  let _ = multi_page_create_image(
+    repo,
+    new_asset_key("p1"),
+    default_image_spec(8, 8),
+  )
+  let _ = multi_page_create_image(
+    repo,
+    new_asset_key("p2"),
+    default_image_spec(8, 8),
+  )
   assert_eq(multi_page_count(repo), 3)
   // Remove middle page's image
   multi_page_remove_image(repo, new_asset_key("p1"))
@@ -904,9 +947,21 @@ test "multi_page_compact removes empty pages" {
 ///|
 test "multi_page_compact remaps key indices" {
   let repo = new_multi_page_atlas_repository(8, 8)
-  let _ = multi_page_create_image(repo, new_asset_key("c0"), default_image_spec(8, 8))
-  let _ = multi_page_create_image(repo, new_asset_key("c1"), default_image_spec(8, 8))
-  let _ = multi_page_create_image(repo, new_asset_key("c2"), default_image_spec(8, 8))
+  let _ = multi_page_create_image(
+    repo,
+    new_asset_key("c0"),
+    default_image_spec(8, 8),
+  )
+  let _ = multi_page_create_image(
+    repo,
+    new_asset_key("c1"),
+    default_image_spec(8, 8),
+  )
+  let _ = multi_page_create_image(
+    repo,
+    new_asset_key("c2"),
+    default_image_spec(8, 8),
+  )
   assert_eq(multi_page_count(repo), 3)
   // Remove pages 0 and 2, keep page 1
   multi_page_remove_image(repo, new_asset_key("c0"))
@@ -922,8 +977,16 @@ test "multi_page_compact remaps key indices" {
 ///|
 test "multi_page_compact no-op with no empty pages" {
   let repo = new_multi_page_atlas_repository(8, 8)
-  let _ = multi_page_create_image(repo, new_asset_key("n0"), default_image_spec(8, 8))
-  let _ = multi_page_create_image(repo, new_asset_key("n1"), default_image_spec(8, 8))
+  let _ = multi_page_create_image(
+    repo,
+    new_asset_key("n0"),
+    default_image_spec(8, 8),
+  )
+  let _ = multi_page_create_image(
+    repo,
+    new_asset_key("n1"),
+    default_image_spec(8, 8),
+  )
   let result = multi_page_compact(repo)
   assert_eq(result.removed_page_count, 0)
   assert_eq(result.remaining_page_count, 2)
@@ -932,7 +995,11 @@ test "multi_page_compact no-op with no empty pages" {
 ///|
 test "atlas_page_stats returns correct info" {
   let repo = new_simple_atlas_image_repository(16, 16, 600)
-  let _ = create_atlas_image(repo, new_asset_key("stats/a"), default_image_spec(4, 4))
+  let _ = create_atlas_image(
+    repo,
+    new_asset_key("stats/a"),
+    default_image_spec(4, 4),
+  )
   let stats = atlas_page_stats(repo)
   assert_eq(stats.atlas_id, 600)
   assert_eq(stats.image_count, 1)
@@ -945,11 +1012,23 @@ test "atlas_page_stats returns correct info" {
 ///|
 test "multi_page_stats per-page statistics" {
   let repo = new_multi_page_atlas_repository(8, 8)
-  let _ = multi_page_create_image(repo, new_asset_key("ms0"), default_image_spec(4, 4))
-  let _ = multi_page_create_image(repo, new_asset_key("ms1"), default_image_spec(4, 4))
+  let _ = multi_page_create_image(
+    repo,
+    new_asset_key("ms0"),
+    default_image_spec(4, 4),
+  )
+  let _ = multi_page_create_image(
+    repo,
+    new_asset_key("ms1"),
+    default_image_spec(4, 4),
+  )
   // Both fit on one page (4x4 images in 8x8 atlas)
   // Force second page
-  let _ = multi_page_create_image(repo, new_asset_key("ms2"), default_image_spec(8, 8))
+  let _ = multi_page_create_image(
+    repo,
+    new_asset_key("ms2"),
+    default_image_spec(8, 8),
+  )
   let stats = multi_page_stats(repo)
   assert_eq(stats.length(), 2)
   assert_eq(stats[0].image_count, 2)

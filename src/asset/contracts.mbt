@@ -965,9 +965,7 @@ pub fn atlas_allocator_is_empty(allocator : SimpleAtlasAllocator) -> Bool {
 }
 
 ///|
-pub fn atlas_allocator_reset_if_empty(
-  allocator : SimpleAtlasAllocator,
-) -> Bool {
+pub fn atlas_allocator_reset_if_empty(allocator : SimpleAtlasAllocator) -> Bool {
   if allocator.allocated.length() == 0 {
     allocator.cursor_x = 0
     allocator.cursor_y = 0
@@ -1418,10 +1416,7 @@ pub fn multi_page_image_count(repo : MultiPageAtlasRepository) -> Int {
 }
 
 ///|
-fn find_key_page_index(
-  index : Array[(String, Int)],
-  key : AssetKey,
-) -> Int? {
+fn find_key_page_index(index : Array[(String, Int)], key : AssetKey) -> Int? {
   for entry in index {
     if entry.0 == key.value {
       return Some(entry.1)
@@ -1460,7 +1455,9 @@ fn ensure_page(repo : MultiPageAtlasRepository) -> Int {
     repo.next_page_id = repo.next_page_id + 1
     repo.pages.push(
       new_simple_atlas_image_repository(
-        repo.page_width, repo.page_height, page_id,
+        repo.page_width,
+        repo.page_height,
+        page_id,
       ),
     )
   }
@@ -1473,7 +1470,9 @@ fn add_new_page(repo : MultiPageAtlasRepository) -> Int {
   repo.next_page_id = repo.next_page_id + 1
   repo.pages.push(
     new_simple_atlas_image_repository(
-      repo.page_width, repo.page_height, page_id,
+      repo.page_width,
+      repo.page_height,
+      page_id,
     ),
   )
   repo.pages.length() - 1
@@ -1597,9 +1596,7 @@ pub fn multi_page_list_dirty_bindings(
 }
 
 ///|
-pub fn multi_page_clear_dirty_flags(
-  repo : MultiPageAtlasRepository,
-) -> Int {
+pub fn multi_page_clear_dirty_flags(repo : MultiPageAtlasRepository) -> Int {
   let mut cleared = 0
   for page in repo.pages {
     cleared = cleared + clear_dirty_atlas_page_flags(page)
@@ -1608,9 +1605,7 @@ pub fn multi_page_clear_dirty_flags(
 }
 
 ///|
-pub fn multi_page_get_page_ids(
-  repo : MultiPageAtlasRepository,
-) -> Array[Int] {
+pub fn multi_page_get_page_ids(repo : MultiPageAtlasRepository) -> Array[Int] {
   let ids : Array[Int] = []
   for page in repo.pages {
     ids.push(page.atlas_id)

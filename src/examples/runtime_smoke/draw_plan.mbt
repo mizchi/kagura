@@ -30,9 +30,7 @@ pub fn build_runtime_smoke_tile_draw_plan(
     _ => panic()
   }
   let atlas_image = @asset.create_atlas_image_from_raster_bytes(
-    atlas_repository,
-    atlas_key,
-    atlas_png,
+    atlas_repository, atlas_key, atlas_png,
   ) catch {
     _ => None
   }
@@ -43,16 +41,13 @@ pub fn build_runtime_smoke_tile_draw_plan(
   let sprite_key = @asset.new_asset_key("runtime_smoke/sprite")
   let sprite_png = @asset.encode_png_image_spec(
     @asset.image_spec_with_rgba8(2, 2, [
-      100, 150, 200, 255, 50, 75, 100, 255, 25, 37, 50, 255, 200, 225, 250,
-      255,
+      100, 150, 200, 255, 50, 75, 100, 255, 25, 37, 50, 255, 200, 225, 250, 255,
     ]),
   ) catch {
     _ => panic()
   }
   let sprite_atlas_image = @asset.create_atlas_image_from_raster_bytes(
-    atlas_repository,
-    sprite_key,
-    sprite_png,
+    atlas_repository, sprite_key, sprite_png,
   ) catch {
     _ => None
   }
@@ -68,9 +63,7 @@ pub fn build_runtime_smoke_tile_draw_plan(
     _ => panic()
   }
   let atlas_updated = @asset.update_atlas_image_from_raster_bytes(
-    atlas_repository,
-    atlas_key,
-    atlas_updated_png,
+    atlas_repository, atlas_key, atlas_updated_png,
   ) catch {
     _ => None
   }
@@ -78,7 +71,9 @@ pub fn build_runtime_smoke_tile_draw_plan(
     Some(_) => ()
     None => panic()
   }
-  let atlas_dirty_synced = @asset.list_dirty_atlas_page_bindings(atlas_repository)
+  let atlas_dirty_synced = @asset.list_dirty_atlas_page_bindings(
+    atlas_repository,
+  )
   if atlas_dirty_synced.length() != 1 {
     panic()
   }
@@ -139,51 +134,34 @@ pub fn build_runtime_smoke_tile_draw_plan(
   if !sprite_appended || commands.length() != 2 {
     panic()
   }
-  // Text atlas: real font rasterization on a 64x64 atlas page
+  // Text rendering via TextRenderer (high-level API)
   let text_atlas_size = 64
-  let text_atlas = @text.GlyphAtlas::new(
-    text_atlas_size, text_atlas_size, runtime_smoke_text_page_id,
-  )
   let font_data = Bytes::from_array(smoke_test_font_otf[:])
   let font = @text.parse_font_bytes(font_data)
-  match font {
-    Some(ttfont) => {
-      let quads = text_atlas.rasterize_text(ttfont, "I", 24.0)
-      if quads.length() < 1 {
-        panic()
-      }
-      let quad = quads[0]
-      let aw = text_atlas_size.to_double()
-      let u0 = quad.atlas_x / aw
-      let v0 = quad.atlas_y / aw
-      let u1 = (quad.atlas_x + quad.atlas_w) / aw
-      let v1 = (quad.atlas_y + quad.atlas_h) / aw
-      let text_command = @gfx.new_draw_triangles_command(
-        dst,
-        shader,
-        [@gfx.new_dst_region(0, 0, 64, 64, 6)],
-        0,
-        7,
-        13,
-        @gfx.blend_mode_from_int(1),
-        [
-          -0.8, -0.8, u0, v0, -0.3, -0.8, u1, v0, -0.3, -0.3, u1, v1,
-          -0.8, -0.3, u0, v1,
-        ],
-        [0, 1, 2, 0, 2, 3],
-        [runtime_smoke_text_page_id],
-        [255, 255, 255, 255],
-      )
-      commands.push(text_command)
-    }
+  let text_renderer = match font {
+    Some(ttfont) =>
+      @text.TextRenderer::new(ttfont, text_atlas_size, runtime_smoke_text_page_id, 7)
     None => panic()
+  }
+  let text_commands = text_renderer.render_text(
+    "I",
+    24.0,
+    0.0,
+    0.0,
+    dst,
+    shader,
+    @gfx.blend_mode_from_int(1),
+    [255, 255, 255, 255],
+  )
+  for cmd in text_commands {
+    commands.push(cmd)
   }
   if commands.length() != 3 {
     panic()
   }
   {
     atlas_repository,
-    text_atlas,
+    text_atlas: text_renderer.get_atlas(),
     commands,
     sprite_command_index: 1,
     text_command_index: 2,

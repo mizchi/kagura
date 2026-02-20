@@ -800,27 +800,12 @@ test "fullscreen mode int conversion roundtrip" {
   assert_eq(fullscreen_mode_to_int(FullscreenMode::Windowed), 0)
   assert_eq(fullscreen_mode_to_int(FullscreenMode::Borderless), 1)
   assert_eq(fullscreen_mode_to_int(FullscreenMode::Exclusive), 2)
-  assert_eq(
-    fullscreen_mode_to_int(fullscreen_mode_from_int(0)),
-    0,
-  )
-  assert_eq(
-    fullscreen_mode_to_int(fullscreen_mode_from_int(1)),
-    1,
-  )
-  assert_eq(
-    fullscreen_mode_to_int(fullscreen_mode_from_int(2)),
-    2,
-  )
+  assert_eq(fullscreen_mode_to_int(fullscreen_mode_from_int(0)), 0)
+  assert_eq(fullscreen_mode_to_int(fullscreen_mode_from_int(1)), 1)
+  assert_eq(fullscreen_mode_to_int(fullscreen_mode_from_int(2)), 2)
   // Invalid defaults to Windowed
-  assert_eq(
-    fullscreen_mode_to_int(fullscreen_mode_from_int(-1)),
-    0,
-  )
-  assert_eq(
-    fullscreen_mode_to_int(fullscreen_mode_from_int(99)),
-    0,
-  )
+  assert_eq(fullscreen_mode_to_int(fullscreen_mode_from_int(-1)), 0)
+  assert_eq(fullscreen_mode_to_int(fullscreen_mode_from_int(99)), 0)
 }
 
 ///|

@@ -209,16 +209,38 @@ test "append_atlas_sprite_draw_command returns false for all missing" {
   let repo = sprite_test_atlas_repository()
   let commands : Array[@gfx.DrawTrianglesCommand] = []
   let r1 = append_atlas_sprite_draw_command(
-    commands, repo, @asset.new_asset_key("missing/1"),
-    @gfx.new_image_handle(1, 32, 32), @gfx.new_shader_handle(2, "s"),
-    @gfx.new_dst_region(0, 0, 32, 32, 6), 0, 1, 1,
-    @gfx.blend_mode_from_int(0), 0.0, 0.0, 1.0, 1.0, [],
+    commands,
+    repo,
+    @asset.new_asset_key("missing/1"),
+    @gfx.new_image_handle(1, 32, 32),
+    @gfx.new_shader_handle(2, "s"),
+    @gfx.new_dst_region(0, 0, 32, 32, 6),
+    0,
+    1,
+    1,
+    @gfx.blend_mode_from_int(0),
+    0.0,
+    0.0,
+    1.0,
+    1.0,
+    [],
   )
   let r2 = append_atlas_sprite_draw_command(
-    commands, repo, @asset.new_asset_key("missing/2"),
-    @gfx.new_image_handle(1, 32, 32), @gfx.new_shader_handle(2, "s"),
-    @gfx.new_dst_region(0, 0, 32, 32, 6), 0, 1, 1,
-    @gfx.blend_mode_from_int(0), 0.0, 0.0, 1.0, 1.0, [],
+    commands,
+    repo,
+    @asset.new_asset_key("missing/2"),
+    @gfx.new_image_handle(1, 32, 32),
+    @gfx.new_shader_handle(2, "s"),
+    @gfx.new_dst_region(0, 0, 32, 32, 6),
+    0,
+    1,
+    1,
+    @gfx.blend_mode_from_int(0),
+    0.0,
+    0.0,
+    1.0,
+    1.0,
+    [],
   )
   assert_true(!r1)
   assert_true(!r2)

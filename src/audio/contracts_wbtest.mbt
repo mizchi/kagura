@@ -6,35 +6,35 @@ fn approx(a : Double, b : Double) -> Bool {
 ///|
 test "default_audio_format" {
   let fmt = default_audio_format()
-  assert_eq!(fmt.sample_rate, 44100)
-  assert_eq!(fmt.channels, 2)
-  assert_eq!(fmt.bits_per_sample, 16)
+  assert_eq(fmt.sample_rate, 44100)
+  assert_eq(fmt.channels, 2)
+  assert_eq(fmt.bits_per_sample, 16)
 }
 
 ///|
 test "bytes_per_sample" {
   let fmt = default_audio_format()
   // 16-bit stereo = 4 bytes per sample
-  assert_eq!(bytes_per_sample(fmt), 4)
+  assert_eq(bytes_per_sample(fmt), 4)
   let mono = mono_format(22050)
   // 16-bit mono = 2 bytes per sample
-  assert_eq!(bytes_per_sample(mono), 2)
+  assert_eq(bytes_per_sample(mono), 2)
 }
 
 ///|
 test "sample byte conversion" {
   let fmt = default_audio_format()
-  assert_eq!(samples_to_bytes(fmt, 100), 400)
-  assert_eq!(bytes_to_samples(fmt, 400), 100)
+  assert_eq(samples_to_bytes(fmt, 100), 400)
+  assert_eq(bytes_to_samples(fmt, 400), 100)
 }
 
 ///|
 test "duration conversion" {
   let fmt = default_audio_format()
   let samples = duration_to_samples(fmt, 1.0)
-  assert_eq!(samples, 44100)
+  assert_eq(samples, 44100)
   let dur = samples_to_duration(fmt, 44100)
-  assert_true!(approx(dur, 1.0))
+  assert_true(approx(dur, 1.0))
 }
 
 ///|
@@ -43,8 +43,8 @@ test "clip_duration" {
   // 1 second of audio = 44100 * 4 bytes
   let data = Bytes::make(44100 * 4, 0)
   let clip = new_audio_clip(fmt, data, false)
-  assert_eq!(clip_sample_count(clip), 44100)
-  assert_true!(approx(clip_duration(clip), 1.0))
+  assert_eq(clip_sample_count(clip), 44100)
+  assert_true(approx(clip_duration(clip), 1.0))
 }
 
 ///|
@@ -53,26 +53,26 @@ test "SimpleAudioContext create and play" {
   let data = Bytes::make(1000, 0)
   let clip = new_audio_clip(default_audio_format(), data, false)
   let id = ctx.create_player(clip)
-  assert_eq!(ctx.player_count(), 1)
+  assert_eq(ctx.player_count(), 1)
   // Initial state is stopped
   match ctx.state(id) {
     PlayerState::Stopped => ()
-    _ => fail!("expected Stopped")
+    _ => fail("expected Stopped")
   }
   ctx.play(id)
   match ctx.state(id) {
     PlayerState::Playing => ()
-    _ => fail!("expected Playing")
+    _ => fail("expected Playing")
   }
   ctx.pause(id)
   match ctx.state(id) {
     PlayerState::Paused => ()
-    _ => fail!("expected Paused")
+    _ => fail("expected Paused")
   }
   ctx.stop(id)
   match ctx.state(id) {
     PlayerState::Stopped => ()
-    _ => fail!("expected Stopped")
+    _ => fail("expected Stopped")
   }
 }
 
@@ -98,13 +98,13 @@ test "SimpleAudioContext tick advances position" {
   ctx.play(id)
   // Advance 22050 samples (0.5s)
   ctx.tick(22050)
-  assert_true!(approx(ctx.current_position(id), 0.5))
+  assert_true(approx(ctx.current_position(id), 0.5))
   // Advance past end
   ctx.tick(44100)
   // Should stop (non-looping)
   match ctx.state(id) {
     PlayerState::Stopped => ()
-    _ => fail!("expected Stopped after end")
+    _ => fail("expected Stopped after end")
   }
 }
 
@@ -121,10 +121,10 @@ test "SimpleAudioContext tick loops" {
   // Should still be playing (looping)
   match ctx.state(id) {
     PlayerState::Playing => ()
-    _ => fail!("expected Playing for loop")
+    _ => fail("expected Playing for loop")
   }
   // Position should wrap around to ~0.5s
-  assert_true!(approx(ctx.current_position(id), 0.5))
+  assert_true(approx(ctx.current_position(id), 0.5))
 }
 
 ///|
@@ -135,7 +135,7 @@ test "SimpleAudioContext seek" {
   let clip = new_audio_clip(fmt, data, false)
   let id = ctx.create_player(clip)
   ctx.seek(id, 0.5)
-  assert_true!(approx(ctx.current_position(id), 0.5))
+  assert_true(approx(ctx.current_position(id), 0.5))
 }
 
 ///|
@@ -144,9 +144,9 @@ test "SimpleAudioContext dispose" {
   let data = Bytes::make(1000, 0)
   let clip = new_audio_clip(default_audio_format(), data, false)
   let id = ctx.create_player(clip)
-  assert_eq!(ctx.player_count(), 1)
+  assert_eq(ctx.player_count(), 1)
   ctx.dispose(id)
-  assert_eq!(ctx.player_count(), 0)
+  assert_eq(ctx.player_count(), 0)
 }
 
 ///|
@@ -158,17 +158,17 @@ test "audio_buffer_to_clip roundtrip" {
   @ma.set_sample(buffer, 2, 0, -0.5)
   @ma.set_sample(buffer, 3, 0, 1.0)
   let clip = audio_buffer_to_clip(buffer, false)
-  assert_eq!(clip.format.sample_rate, 44100)
-  assert_eq!(clip.format.channels, 1)
-  assert_eq!(clip_sample_count(clip), 4)
+  assert_eq(clip.format.sample_rate, 44100)
+  assert_eq(clip.format.channels, 1)
+  assert_eq(clip_sample_count(clip), 4)
   // Roundtrip back
   let buffer2 = clip_to_audio_buffer(clip)
-  assert_eq!(@ma.frame_count(buffer2), 4)
+  assert_eq(@ma.frame_count(buffer2), 4)
   // Check samples are approximately preserved
-  assert_true!((@ma.get_sample(buffer2, 0, 0) - 0.0).abs() < 0.001)
-  assert_true!((@ma.get_sample(buffer2, 1, 0) - 0.5).abs() < 0.001)
-  assert_true!((@ma.get_sample(buffer2, 2, 0) - (-0.5)).abs() < 0.001)
-  assert_true!((@ma.get_sample(buffer2, 3, 0) - 1.0).abs() < 0.001)
+  assert_true((@ma.get_sample(buffer2, 0, 0) - 0.0).abs() < 0.001)
+  assert_true((@ma.get_sample(buffer2, 1, 0) - 0.5).abs() < 0.001)
+  assert_true((@ma.get_sample(buffer2, 2, 0) - -0.5).abs() < 0.001)
+  assert_true((@ma.get_sample(buffer2, 3, 0) - 1.0).abs() < 0.001)
 }
 
 ///|
@@ -179,23 +179,27 @@ test "audio_buffer_to_clip stereo" {
   @ma.set_sample(buffer, 1, 0, 0.75)
   @ma.set_sample(buffer, 1, 1, -0.75)
   let clip = audio_buffer_to_clip(buffer, true)
-  assert_eq!(clip.format.channels, 2)
-  assert_eq!(clip.format.sample_rate, 48000)
-  assert_eq!(clip.loop_, true)
-  assert_eq!(clip_sample_count(clip), 2)
+  assert_eq(clip.format.channels, 2)
+  assert_eq(clip.format.sample_rate, 48000)
+  assert_eq(clip.loop_, true)
+  assert_eq(clip_sample_count(clip), 2)
 }
 
 ///|
 test "MixerAudioContext create and lifecycle" {
   let ctx = MixerAudioContext::new(44100)
-  let fmt : AudioFormat = { sample_rate: 44100, channels: 1, bits_per_sample: 16 }
+  let fmt : AudioFormat = {
+    sample_rate: 44100,
+    channels: 1,
+    bits_per_sample: 16,
+  }
   let data = Bytes::make(44100 * 2, 0) // 1 second mono 16-bit
   let clip = new_audio_clip(fmt, data, false)
   let id = ctx.create_player(clip)
   // Initial state
   match ctx.state(id) {
     PlayerState::Stopped => ()
-    _ => fail!("expected Stopped")
+    _ => fail("expected Stopped")
   }
 }
 
@@ -203,17 +207,17 @@ test "MixerAudioContext create and lifecycle" {
 test "detect_audio_format" {
   // Unknown format
   let unknown = Bytes::make(10, 0)
-  assert_eq!(detect_audio_format(unknown), "")
+  assert_eq(detect_audio_format(unknown), "")
   // WAV magic bytes
-  let wav_bytes = Bytes::from_array(
-    [b'R', b'I', b'F', b'F', b'\x00', b'\x00', b'\x00', b'\x00'],
-  )
-  assert_eq!(detect_audio_format(wav_bytes), "wav")
+  let wav_bytes = Bytes::from_array([
+    b'R', b'I', b'F', b'F', b'\x00', b'\x00', b'\x00', b'\x00',
+  ])
+  assert_eq(detect_audio_format(wav_bytes), "wav")
   // OGG magic bytes
-  let ogg_bytes = Bytes::from_array(
-    [b'O', b'g', b'g', b'S', b'\x00', b'\x00', b'\x00', b'\x00'],
-  )
-  assert_eq!(detect_audio_format(ogg_bytes), "ogg")
+  let ogg_bytes = Bytes::from_array([
+    b'O', b'g', b'g', b'S', b'\x00', b'\x00', b'\x00', b'\x00',
+  ])
+  assert_eq(detect_audio_format(ogg_bytes), "ogg")
 }
 
 ///|
@@ -222,7 +226,7 @@ test "decode_audio_clip_auto unknown returns None" {
   let result = decode_audio_clip_auto(data, false)
   match result {
     None => ()
-    Some(_) => fail!("expected None for unknown format")
+    Some(_) => fail("expected None for unknown format")
   }
 }
 
@@ -230,43 +234,46 @@ test "decode_audio_clip_auto unknown returns None" {
 test "AudioClipStream read full" {
   let fmt = mono_format(44100)
   // 10 bytes of data
-  let data = Bytes::from_array([b'\x01', b'\x02', b'\x03', b'\x04', b'\x05',
-    b'\x06', b'\x07', b'\x08', b'\x09', b'\x0A'])
+  let data = Bytes::from_array([
+    b'\x01', b'\x02', b'\x03', b'\x04', b'\x05', b'\x06', b'\x07', b'\x08', b'\x09',
+    b'\x0A',
+  ])
   let clip = new_audio_clip(fmt, data, false)
   let stream = AudioClipStream::new(clip)
-  assert_eq!(stream.content_length(), 10)
-  assert_eq!(stream.remaining(), 10)
+  assert_eq(stream.content_length(), 10)
+  assert_eq(stream.remaining(), 10)
 
   let buf : FixedArray[Byte] = FixedArray::make(20, b'\x00')
   let n = stream.read(buf, 20)
-  assert_eq!(n, 10) // Only 10 bytes available
-  assert_eq!(buf[0], b'\x01')
-  assert_eq!(buf[9], b'\x0A')
-  assert_eq!(stream.remaining(), 0)
+  assert_eq(n, 10) // Only 10 bytes available
+  assert_eq(buf[0], b'\x01')
+  assert_eq(buf[9], b'\x0A')
+  assert_eq(stream.remaining(), 0)
 }
 
 ///|
 test "AudioClipStream partial read" {
   let fmt = mono_format(44100)
-  let data = Bytes::from_array([b'\x01', b'\x02', b'\x03', b'\x04', b'\x05',
-    b'\x06'])
+  let data = Bytes::from_array([
+    b'\x01', b'\x02', b'\x03', b'\x04', b'\x05', b'\x06',
+  ])
   let clip = new_audio_clip(fmt, data, false)
   let stream = AudioClipStream::new(clip)
 
   // Read first 3 bytes
   let buf : FixedArray[Byte] = FixedArray::make(10, b'\x00')
   let n1 = stream.read(buf, 3)
-  assert_eq!(n1, 3)
-  assert_eq!(buf[0], b'\x01')
-  assert_eq!(buf[2], b'\x03')
-  assert_eq!(stream.remaining(), 3)
+  assert_eq(n1, 3)
+  assert_eq(buf[0], b'\x01')
+  assert_eq(buf[2], b'\x03')
+  assert_eq(stream.remaining(), 3)
 
   // Read remaining 3 bytes
   let n2 = stream.read(buf, 10)
-  assert_eq!(n2, 3)
-  assert_eq!(buf[0], b'\x04')
-  assert_eq!(buf[2], b'\x06')
-  assert_eq!(stream.remaining(), 0)
+  assert_eq(n2, 3)
+  assert_eq(buf[0], b'\x04')
+  assert_eq(buf[2], b'\x06')
+  assert_eq(stream.remaining(), 0)
 }
 
 ///|
@@ -278,44 +285,44 @@ test "AudioClipStream reset" {
 
   let buf : FixedArray[Byte] = FixedArray::make(10, b'\x00')
   let _ = stream.read(buf, 10)
-  assert_eq!(stream.remaining(), 0)
+  assert_eq(stream.remaining(), 0)
 
   stream.reset()
-  assert_eq!(stream.remaining(), 2)
+  assert_eq(stream.remaining(), 2)
   let n = stream.read(buf, 10)
-  assert_eq!(n, 2)
-  assert_eq!(buf[0], b'\x0A')
+  assert_eq(n, 2)
+  assert_eq(buf[0], b'\x0A')
 }
 
 ///|
 test "BufferedAudioStream push and read" {
   let stream = BufferedAudioStream::new()
-  assert_eq!(stream.content_length(), -1) // Unknown until finalized
-  assert_eq!(stream.has_data(), false)
+  assert_eq(stream.content_length(), -1) // Unknown until finalized
+  assert_eq(stream.has_data(), false)
 
   // Push first chunk
   stream.push_chunk(Bytes::from_array([b'\x01', b'\x02', b'\x03']))
-  assert_eq!(stream.buffered_bytes(), 3)
-  assert_eq!(stream.has_data(), true)
+  assert_eq(stream.buffered_bytes(), 3)
+  assert_eq(stream.has_data(), true)
 
   // Read 2 bytes
   let buf : FixedArray[Byte] = FixedArray::make(10, b'\x00')
   let n1 = stream.read(buf, 2)
-  assert_eq!(n1, 2)
-  assert_eq!(buf[0], b'\x01')
-  assert_eq!(buf[1], b'\x02')
-  assert_eq!(stream.buffered_bytes(), 1)
+  assert_eq(n1, 2)
+  assert_eq(buf[0], b'\x01')
+  assert_eq(buf[1], b'\x02')
+  assert_eq(stream.buffered_bytes(), 1)
 
   // Push second chunk
   stream.push_chunk(Bytes::from_array([b'\x04', b'\x05']))
-  assert_eq!(stream.buffered_bytes(), 3) // 1 remaining + 2 new
+  assert_eq(stream.buffered_bytes(), 3) // 1 remaining + 2 new
 
   // Read across chunk boundary
   let n2 = stream.read(buf, 10)
-  assert_eq!(n2, 3)
-  assert_eq!(buf[0], b'\x03') // End of first chunk
-  assert_eq!(buf[1], b'\x04') // Start of second chunk
-  assert_eq!(buf[2], b'\x05')
+  assert_eq(n2, 3)
+  assert_eq(buf[0], b'\x03') // End of first chunk
+  assert_eq(buf[1], b'\x04') // Start of second chunk
+  assert_eq(buf[2], b'\x05')
 }
 
 ///|
@@ -323,12 +330,12 @@ test "BufferedAudioStream finalize" {
   let stream = BufferedAudioStream::new()
   stream.push_chunk(Bytes::from_array([b'\x01', b'\x02']))
   stream.push_chunk(Bytes::from_array([b'\x03']))
-  assert_eq!(stream.is_finalized(), false)
-  assert_eq!(stream.content_length(), -1)
+  assert_eq(stream.is_finalized(), false)
+  assert_eq(stream.content_length(), -1)
 
   stream.finalize()
-  assert_eq!(stream.is_finalized(), true)
-  assert_eq!(stream.content_length(), 3)
+  assert_eq(stream.is_finalized(), true)
+  assert_eq(stream.content_length(), 3)
 }
 
 ///|
@@ -338,13 +345,13 @@ test "BufferedAudioStream reset" {
 
   let buf : FixedArray[Byte] = FixedArray::make(10, b'\x00')
   let _ = stream.read(buf, 10)
-  assert_eq!(stream.buffered_bytes(), 0)
+  assert_eq(stream.buffered_bytes(), 0)
 
   stream.reset()
-  assert_eq!(stream.buffered_bytes(), 3)
+  assert_eq(stream.buffered_bytes(), 3)
   let n = stream.read(buf, 10)
-  assert_eq!(n, 3)
-  assert_eq!(buf[0], b'\x01')
+  assert_eq(n, 3)
+  assert_eq(buf[0], b'\x01')
 }
 
 ///|
@@ -352,7 +359,7 @@ test "BufferedAudioStream empty read" {
   let stream = BufferedAudioStream::new()
   let buf : FixedArray[Byte] = FixedArray::make(10, b'\x00')
   let n = stream.read(buf, 10)
-  assert_eq!(n, 0)
+  assert_eq(n, 0)
 }
 
 ///|
@@ -415,7 +422,11 @@ test "AudioClipStream read zero bytes" {
 
 ///|
 test "clip_to_audio_buffer preserves sample count" {
-  let fmt : AudioFormat = { sample_rate: 44100, channels: 1, bits_per_sample: 16 }
+  let fmt : AudioFormat = {
+    sample_rate: 44100,
+    channels: 1,
+    bits_per_sample: 16,
+  }
   // 100 frames * 1ch * 2bytes = 200 bytes
   let data = Bytes::make(200, 0)
   let clip = new_audio_clip(fmt, data, false)
@@ -483,9 +494,9 @@ test "audio output hooks default returns false and zero" {
 ///|
 test "default_audio_output_stats" {
   let stats = default_audio_output_stats()
-  assert_eq!(stats.initialized, false)
-  assert_eq!(stats.frames_written, 0)
-  assert_eq!(stats.suspended, false)
+  assert_eq(stats.initialized, false)
+  assert_eq(stats.frames_written, 0)
+  assert_eq(stats.suspended, false)
 }
 
 ///|
@@ -498,15 +509,15 @@ test "audio_render_and_write calls mixer and hooks" {
         written_ref.val = written_ref.val + frames
         frames
       },
-      fn() {},
-      fn() {},
-      fn() {},
+      fn() {  },
+      fn() {  },
+      fn() {  },
     ),
   )
   let ctx = MixerAudioContext::new(44100)
   let result = audio_render_and_write(ctx, 256)
-  assert_eq!(result, 256)
-  assert_eq!(written_ref.val, 256)
+  assert_eq(result, 256)
+  assert_eq(written_ref.val, 256)
   reset_audio_output_hooks()
 }
 
@@ -516,15 +527,15 @@ test "tracked hooks updates stats on initialize" {
   let inner = new_audio_output_hooks(
     fn(_fmt) { true },
     fn(_output, frames) { frames },
-    fn() {},
-    fn() {},
-    fn() {},
+    fn() {  },
+    fn() {  },
+    fn() {  },
   )
   let tracked = new_tracked_audio_output_hooks(inner, stats)
-  assert_eq!(stats.val.initialized, false)
+  assert_eq(stats.val.initialized, false)
   let ok = (tracked.try_initialize)(default_audio_format())
-  assert_true!(ok)
-  assert_eq!(stats.val.initialized, true)
+  assert_true(ok)
+  assert_eq(stats.val.initialized, true)
 }
 
 ///|
@@ -533,16 +544,16 @@ test "tracked hooks accumulates frames_written" {
   let inner = new_audio_output_hooks(
     fn(_fmt) { true },
     fn(_output, frames) { frames },
-    fn() {},
-    fn() {},
-    fn() {},
+    fn() {  },
+    fn() {  },
+    fn() {  },
   )
   let tracked = new_tracked_audio_output_hooks(inner, stats)
   let buf : FixedArray[Float] = FixedArray::make(512, 0.0)
   let _ = (tracked.write_frames)(buf, 100)
-  assert_eq!(stats.val.frames_written, 100)
+  assert_eq(stats.val.frames_written, 100)
   let _ = (tracked.write_frames)(buf, 200)
-  assert_eq!(stats.val.frames_written, 300)
+  assert_eq(stats.val.frames_written, 300)
 }
 
 ///|
@@ -551,16 +562,16 @@ test "tracked hooks tracks suspend and resume" {
   let inner = new_audio_output_hooks(
     fn(_fmt) { true },
     fn(_output, frames) { frames },
-    fn() {},
-    fn() {},
-    fn() {},
+    fn() {  },
+    fn() {  },
+    fn() {  },
   )
   let tracked = new_tracked_audio_output_hooks(inner, stats)
-  assert_eq!(stats.val.suspended, false)
+  assert_eq(stats.val.suspended, false)
   (tracked.suspend)()
-  assert_eq!(stats.val.suspended, true)
+  assert_eq(stats.val.suspended, true)
   (tracked.resume)()
-  assert_eq!(stats.val.suspended, false)
+  assert_eq(stats.val.suspended, false)
 }
 
 ///|
@@ -568,9 +579,9 @@ test "audio output hooks latency can be overridden" {
   set_audio_output_hooks({
     try_initialize: fn(_fmt) { true },
     write_frames: fn(_output, _frames) { 0 },
-    suspend: fn() {},
-    resume: fn() {},
-    close: fn() {},
+    suspend: fn() {  },
+    resume: fn() {  },
+    close: fn() {  },
     output_latency: fn() { 0.023 },
   })
   assert_true(audio_output_latency() > 0.022)

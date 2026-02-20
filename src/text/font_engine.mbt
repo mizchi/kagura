@@ -8,7 +8,7 @@ pub struct SimpleFontEngine {
 
 ///|
 pub fn SimpleFontEngine::new(font : @font.TTFont) -> SimpleFontEngine {
-  { font }
+  { font, }
 }
 
 ///|
@@ -42,19 +42,17 @@ pub impl FontEngine for SimpleFontEngine with shape(self, run) {
     }
     let dst_x = pos.x_offset + metrics.left_side_bearing.to_double() * scale
     let dst_y = -(bbox.y_max.to_double() * scale)
-    quads.push(
-      {
-        glyph_id,
-        atlas_x: 0.0,
-        atlas_y: 0.0,
-        atlas_w: gw,
-        atlas_h: gh,
-        dst_x,
-        dst_y,
-        dst_w: gw,
-        dst_h: gh,
-      },
-    )
+    quads.push({
+      glyph_id,
+      atlas_x: 0.0,
+      atlas_y: 0.0,
+      atlas_w: gw,
+      atlas_h: gh,
+      dst_x,
+      dst_y,
+      dst_w: gw,
+      dst_h: gh,
+    })
   }
   quads
 }

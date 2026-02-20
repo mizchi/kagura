@@ -11,6 +11,9 @@ priv struct SyncedSourceGeneration {
 let synced_source_generations : Ref[Array[SyncedSourceGeneration]] = Ref::new([])
 
 ///|
+let saw_native_touch_input : Ref[Bool] = Ref::new(false)
+
+///|
 fn normalized_source_generation(generation : Int) -> Int {
   if generation <= 0 {
     1
@@ -52,6 +55,11 @@ fn set_synced_source_generation(image_id : Int, generation : Int) -> Unit {
 ///|
 fn clear_synced_source_generations() -> Unit {
   synced_source_generations.val = []
+}
+
+///|
+fn reset_touch_capture_state() -> Unit {
+  saw_native_touch_input.val = false
 }
 
 ///|
@@ -134,17 +142,14 @@ fn bridge_desktop_capture_input(
         )
       }
     }
-    if touches.length() == 0 {
-      let mut left_button_pressed = false
-      for button in pressed_mouse_buttons {
-        if button == 0 {
-          left_button_pressed = true
-        }
-      }
-      if left_button_pressed {
-        touches.push(@core.new_touch_point(0, cursor_x, cursor_y))
-      }
-    }
+    let resolved_touches = resolve_touch_points_with_mouse_fallback(
+      touches,
+      pressed_mouse_buttons,
+      cursor_x,
+      cursor_y,
+      saw_native_touch_input.val,
+    )
+    saw_native_touch_input.val = resolved_touches.saw_native_touch
 
     let gamepads : Array[@core.GamepadSnapshot] = []
     let gamepad_count = @wgpu_native.runtime_gamepad_count()
@@ -171,8 +176,14 @@ fn bridge_desktop_capture_input(
     }
 
     @core.new_input_snapshot_full(
-      cursor_x, cursor_y, wheel_x, wheel_y, pressed_keys, pressed_mouse_buttons,
-      touches, gamepads,
+      cursor_x,
+      cursor_y,
+      wheel_x,
+      wheel_y,
+      pressed_keys,
+      pressed_mouse_buttons,
+      resolved_touches.touches,
+      gamepads,
     )
   } else {
     @core.empty_input_snapshot()
@@ -592,6 +603,7 @@ pub fn sync_dirty_atlas_pages_from_repository(
 pub fn install(title : String) -> Unit {
   runtime_title.val = title
   clear_synced_source_generations()
+  reset_touch_capture_state()
   @platform.set_desktop_native_hooks(
     @platform.new_desktop_native_hooks(
       bridge_desktop_try_initialize, bridge_desktop_poll, bridge_desktop_should_close,
@@ -613,6 +625,7 @@ pub fn install(title : String) -> Unit {
 ///|
 pub fn uninstall() -> Unit {
   clear_synced_source_generations()
+  reset_touch_capture_state()
   @gfx.reset_native_graphics_hooks()
   @platform.reset_desktop_native_hooks()
 }

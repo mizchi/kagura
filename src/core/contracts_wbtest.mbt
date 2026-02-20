@@ -194,7 +194,13 @@ test "touch point ex construction and conversion" {
 ///|
 test "touch point ex full construction with pressure and delta" {
   let ex = new_touch_point_ex_full(
-    1, 50.0, 60.0, TouchPhase::Moved, 0.75, 3.0, -2.0,
+    1,
+    50.0,
+    60.0,
+    TouchPhase::Moved,
+    0.75,
+    3.0,
+    -2.0,
   )
   assert_eq(ex.pressure, 0.75)
   assert_eq(ex.delta_x, 3.0)

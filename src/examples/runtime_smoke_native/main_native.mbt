@@ -36,13 +36,13 @@ fn clamp_sample_coord(value : Int) -> Int {
 
 ///|
 fn sample_pixel_x_from_ndc(x_ndc : Double) -> Int {
-  let x = (((x_ndc + 1.0) * 0.5) * 64.0).to_int()
+  let x = ((x_ndc + 1.0) * 0.5 * 64.0).to_int()
   clamp_sample_coord(x)
 }
 
 ///|
 fn sample_pixel_y_from_ndc(y_ndc : Double) -> Int {
-  let y = (((1.0 - y_ndc) * 0.5) * 64.0).to_int()
+  let y = ((1.0 - y_ndc) * 0.5 * 64.0).to_int()
   clamp_sample_coord(y)
 }
 
@@ -65,8 +65,8 @@ fn normalized_payload_color(
       payload_texture_seed
     }
     r = (seed % 256).to_double() / 255.0
-    g = ((seed / 256) % 256).to_double() / 255.0
-    b = ((seed / 65536) % 256).to_double() / 255.0
+    g = (seed / 256 % 256).to_double() / 255.0
+    b = (seed / 65536 % 256).to_double() / 255.0
     if r + g + b < 0.3 {
       r = 0.92
       g = 0.26
@@ -112,40 +112,14 @@ fn sample_predicted_web_pixel_rgba(
   let x_ndc = (px.to_double() + 0.5) / sample_w.to_double() * 2.0 - 1.0
   let y_ndc = 1.0 - (py.to_double() + 0.5) / sample_h.to_double() * 2.0
   let area = edge(
-    payload_ax,
-    payload_ay,
-    payload_bx,
-    payload_by,
-    payload_cx,
-    payload_cy,
+    payload_ax, payload_ay, payload_bx, payload_by, payload_cx, payload_cy,
   )
   if area.abs() < 0.000001 {
     return [0, 0, 0, 255]
   }
-  let e0 = edge(
-    payload_bx,
-    payload_by,
-    payload_cx,
-    payload_cy,
-    x_ndc,
-    y_ndc,
-  )
-  let e1 = edge(
-    payload_cx,
-    payload_cy,
-    payload_ax,
-    payload_ay,
-    x_ndc,
-    y_ndc,
-  )
-  let e2 = edge(
-    payload_ax,
-    payload_ay,
-    payload_bx,
-    payload_by,
-    x_ndc,
-    y_ndc,
-  )
+  let e0 = edge(payload_bx, payload_by, payload_cx, payload_cy, x_ndc, y_ndc)
+  let e1 = edge(payload_cx, payload_cy, payload_ax, payload_ay, x_ndc, y_ndc)
+  let e2 = edge(payload_ax, payload_ay, payload_bx, payload_by, x_ndc, y_ndc)
   let inside = if area > 0.0 {
     e0 >= 0.0 && e1 >= 0.0 && e2 >= 0.0
   } else {
@@ -155,11 +129,7 @@ fn sample_predicted_web_pixel_rgba(
     return [0, 0, 0, 255]
   }
   let color = normalized_payload_color(
-    payload_uniform_r,
-    payload_uniform_g,
-    payload_uniform_b,
-    payload_uniform_a,
-    payload_texture_seed,
+    payload_uniform_r, payload_uniform_g, payload_uniform_b, payload_uniform_a, payload_texture_seed,
   )
   let r = clamp_u8((color[0] * 255.0).to_int())
   let g = clamp_u8((color[1] * 255.0).to_int())
@@ -169,7 +139,9 @@ fn sample_predicted_web_pixel_rgba(
 }
 
 ///|
-fn[T : @gfx.GraphicsDriver] run_draw_payload_probe(graphics : T) -> (Int, Int) raise {
+fn[T : @gfx.GraphicsDriver] run_draw_payload_probe(
+  graphics : T,
+) -> (Int, Int) raise {
   graphics.initialize()
   let pass = @gfx.new_render_pass_desc(@gfx.new_color(0.0, 0.0, 0.0, 1.0), true)
   let dst = graphics.new_image(64, 64)
@@ -182,9 +154,7 @@ fn[T : @gfx.GraphicsDriver] run_draw_payload_probe(graphics : T) -> (Int, Int) r
     _ => panic()
   }
   let source0 = @asset.create_image_from_raster_bytes(
-    repository,
-    source_key_0,
-    source0_png,
+    repository, source_key_0, source0_png,
   ) catch {
     _ => None
   }
@@ -200,9 +170,7 @@ fn[T : @gfx.GraphicsDriver] run_draw_payload_probe(graphics : T) -> (Int, Int) r
     _ => panic()
   }
   let source_created = @asset.create_image_from_raster_bytes(
-    repository,
-    source_key_1,
-    source1_png,
+    repository, source_key_1, source1_png,
   ) catch {
     _ => None
   }
@@ -231,9 +199,7 @@ fn[T : @gfx.GraphicsDriver] run_draw_payload_probe(graphics : T) -> (Int, Int) r
     _ => panic()
   }
   let updated = @asset.update_image_from_raster_bytes(
-    repository,
-    source_key_1,
-    source_updated_png,
+    repository, source_key_1, source_updated_png,
   ) catch {
     _ => None
   }
@@ -262,9 +228,7 @@ fn[T : @gfx.GraphicsDriver] run_draw_payload_probe(graphics : T) -> (Int, Int) r
     _ => panic()
   }
   let atlas_image = @asset.create_atlas_image_from_raster_bytes(
-    atlas_repository,
-    atlas_key,
-    atlas_png,
+    atlas_repository, atlas_key, atlas_png,
   ) catch {
     _ => None
   }
@@ -275,16 +239,13 @@ fn[T : @gfx.GraphicsDriver] run_draw_payload_probe(graphics : T) -> (Int, Int) r
   let sprite_key = @asset.new_asset_key("runtime_smoke/sprite")
   let sprite_png = @asset.encode_png_image_spec(
     @asset.image_spec_with_rgba8(2, 2, [
-      100, 150, 200, 255, 50, 75, 100, 255, 25, 37, 50, 255, 200, 225, 250,
-      255,
+      100, 150, 200, 255, 50, 75, 100, 255, 25, 37, 50, 255, 200, 225, 250, 255,
     ]),
   ) catch {
     _ => panic()
   }
   let sprite_atlas_image = @asset.create_atlas_image_from_raster_bytes(
-    atlas_repository,
-    sprite_key,
-    sprite_png,
+    atlas_repository, sprite_key, sprite_png,
   ) catch {
     _ => None
   }
@@ -312,9 +273,7 @@ fn[T : @gfx.GraphicsDriver] run_draw_payload_probe(graphics : T) -> (Int, Int) r
     _ => panic()
   }
   let atlas_updated = @asset.update_atlas_image_from_raster_bytes(
-    atlas_repository,
-    atlas_key,
-    atlas_updated_png,
+    atlas_repository, atlas_key, atlas_updated_png,
   ) catch {
     _ => None
   }
@@ -390,59 +349,33 @@ fn[T : @gfx.GraphicsDriver] run_draw_payload_probe(graphics : T) -> (Int, Int) r
   if !sprite_appended {
     panic()
   }
-  // Text atlas: real font rasterization on a 64x64 atlas page
+  // Text rendering via TextRenderer (high-level API)
   let text_atlas_size = 64
-  let text_atlas = @text.GlyphAtlas::new(text_atlas_size, text_atlas_size, 900)
   let font_data = Bytes::from_array(smoke_test_font_otf[:])
   let font = @text.parse_font_bytes(font_data)
-  let text_commands : Array[@gfx.DrawTrianglesCommand] = []
-  match font {
-    Some(ttfont) => {
-      let quads = text_atlas.rasterize_text(ttfont, "I", 24.0)
-      if quads.length() < 1 {
-        panic()
-      }
-      let quad = quads[0]
-      let text_binding = @asset.new_source_image_binding(
-        900,
-        text_atlas_size,
-        text_atlas_size,
-        1,
-        Some(
-          @asset.new_source_image_dirty_rect(
-            0, 0, text_atlas_size, text_atlas_size,
-          ),
-        ),
-        @image_palette.checker_palette_from_seed(900),
-        text_atlas.get_pixels(),
-      )
-      let _ = @native_hooks.sync_source_images([text_binding])
-      let aw = text_atlas_size.to_double()
-      let u0 = quad.atlas_x / aw
-      let v0 = quad.atlas_y / aw
-      let u1 = (quad.atlas_x + quad.atlas_w) / aw
-      let v1 = (quad.atlas_y + quad.atlas_h) / aw
-      let text_command = @gfx.new_draw_triangles_command(
-        dst,
-        shader,
-        [@gfx.new_dst_region(0, 0, 64, 64, 6)],
-        0,
-        7,
-        13,
-        @gfx.blend_mode_from_int(1),
-        [
-          -0.8, -0.8, u0, v0, -0.3, -0.8, u1, v0, -0.3, -0.3, u1, v1,
-          -0.8, -0.3, u0, v1,
-        ],
-        [0, 1, 2, 0, 2, 3],
-        [900],
-        [255, 255, 255, 255],
-      )
-      text_commands.push(text_command)
-    }
+  let text_renderer = match font {
+    Some(ttfont) => @text.TextRenderer::new(ttfont, text_atlas_size, 900, 7)
     None => panic()
   }
-  let command_count = tile_commands.length() + sprite_commands.length() +
+  let text_commands = text_renderer.render_text(
+    "I", 24.0, 0.0, 0.0, dst, shader,
+    @gfx.blend_mode_from_int(1), [255, 255, 255, 255],
+  )
+  // Upload atlas texture to GPU
+  let text_binding = @asset.new_source_image_binding(
+    900,
+    text_atlas_size,
+    text_atlas_size,
+    1,
+    Some(
+      @asset.new_source_image_dirty_rect(0, 0, text_atlas_size, text_atlas_size),
+    ),
+    @image_palette.checker_palette_from_seed(900),
+    text_renderer.get_atlas().get_pixels(),
+  )
+  let _ = @native_hooks.sync_source_images([text_binding])
+  let command_count = tile_commands.length() +
+    sprite_commands.length() +
     text_commands.length()
   let command = tile_commands[0]
   graphics.begin(pass)
@@ -602,57 +535,27 @@ fn run_with_real_native_hooks() -> Bool {
   let sample0_x = sample_pixel_x_from_ndc(sample0_x_ndc)
   let sample0_y = sample_pixel_y_from_ndc(sample0_y_ndc)
   let sample0 = sample_predicted_web_pixel_rgba(
-    payload_ax,
-    payload_ay,
-    payload_bx,
-    payload_by,
-    payload_cx,
-    payload_cy,
-    payload_uniform_r,
-    payload_uniform_g,
-    payload_uniform_b,
-    payload_uniform_a,
-    payload_texture_seed,
-    sample0_x,
-    sample0_y,
+    payload_ax, payload_ay, payload_bx, payload_by, payload_cx, payload_cy, payload_uniform_r,
+    payload_uniform_g, payload_uniform_b, payload_uniform_a, payload_texture_seed,
+    sample0_x, sample0_y,
   )
   let sample1_x_ndc = payload_ax * 0.2 + payload_bx * 0.6 + payload_cx * 0.2
   let sample1_y_ndc = payload_ay * 0.2 + payload_by * 0.6 + payload_cy * 0.2
   let sample1_x = sample_pixel_x_from_ndc(sample1_x_ndc)
   let sample1_y = sample_pixel_y_from_ndc(sample1_y_ndc)
   let sample1 = sample_predicted_web_pixel_rgba(
-    payload_ax,
-    payload_ay,
-    payload_bx,
-    payload_by,
-    payload_cx,
-    payload_cy,
-    payload_uniform_r,
-    payload_uniform_g,
-    payload_uniform_b,
-    payload_uniform_a,
-    payload_texture_seed,
-    sample1_x,
-    sample1_y,
+    payload_ax, payload_ay, payload_bx, payload_by, payload_cx, payload_cy, payload_uniform_r,
+    payload_uniform_g, payload_uniform_b, payload_uniform_a, payload_texture_seed,
+    sample1_x, sample1_y,
   )
   let sample2_x_ndc = payload_ax * 0.2 + payload_bx * 0.2 + payload_cx * 0.6
   let sample2_y_ndc = payload_ay * 0.2 + payload_by * 0.2 + payload_cy * 0.6
   let sample2_x = sample_pixel_x_from_ndc(sample2_x_ndc)
   let sample2_y = sample_pixel_y_from_ndc(sample2_y_ndc)
   let sample2 = sample_predicted_web_pixel_rgba(
-    payload_ax,
-    payload_ay,
-    payload_bx,
-    payload_by,
-    payload_cx,
-    payload_cy,
-    payload_uniform_r,
-    payload_uniform_g,
-    payload_uniform_b,
-    payload_uniform_a,
-    payload_texture_seed,
-    sample2_x,
-    sample2_y,
+    payload_ax, payload_ay, payload_bx, payload_by, payload_cx, payload_cy, payload_uniform_r,
+    payload_uniform_g, payload_uniform_b, payload_uniform_a, payload_texture_seed,
+    sample2_x, sample2_y,
   )
   let read_pixels_result = @wgpu_native.runtime_read_pixels(0, 0, 4, 4)
   let read_pixels_len = match read_pixels_result {

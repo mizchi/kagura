@@ -71,10 +71,22 @@ pub fn line_vertices(
   let perp = dir.perpendicular().scale(width / 2.0)
   // Four corners of the line quad
   let vertices = [
-    x0 + perp.x, y0 + perp.y, 0.0, 0.0,
-    x1 + perp.x, y1 + perp.y, 1.0, 0.0,
-    x1 - perp.x, y1 - perp.y, 1.0, 1.0,
-    x0 - perp.x, y0 - perp.y, 0.0, 1.0,
+    x0 + perp.x,
+    y0 + perp.y,
+    0.0,
+    0.0,
+    x1 + perp.x,
+    y1 + perp.y,
+    1.0,
+    0.0,
+    x1 - perp.x,
+    y1 - perp.y,
+    1.0,
+    1.0,
+    x0 - perp.x,
+    y0 - perp.y,
+    0.0,
+    1.0,
   ]
   let indices = [0, 1, 2, 2, 3, 0]
   (vertices, indices)
@@ -92,10 +104,10 @@ pub fn rect_outline_vertices(
   let all_vertices : Array[Double] = []
   let all_indices : Array[Int] = []
   let lines = [
-    (x, y, x + w, y),         // top
+    (x, y, x + w, y), // top
     (x + w, y, x + w, y + h), // right
     (x + w, y + h, x, y + h), // bottom
-    (x, y + h, x, y),         // left
+    (x, y + h, x, y), // left
   ]
   let mut base_index = 0
   for line in lines {
@@ -121,10 +133,22 @@ pub fn rect_fill_vertices(
   h : Double,
 ) -> (Array[Double], Array[Int]) {
   let vertices = [
-    x, y, 0.0, 0.0,
-    x + w, y, 1.0, 0.0,
-    x + w, y + h, 1.0, 1.0,
-    x, y + h, 0.0, 1.0,
+    x,
+    y,
+    0.0,
+    0.0,
+    x + w,
+    y,
+    1.0,
+    0.0,
+    x + w,
+    y + h,
+    1.0,
+    1.0,
+    x,
+    y + h,
+    0.0,
+    1.0,
   ]
   let indices = [0, 1, 2, 2, 3, 0]
   (vertices, indices)
@@ -229,7 +253,9 @@ pub fn build_input_debug_overlay(
     let bx = 4.0 + i.to_double() * 14.0
     let by = 16.0
     commands.push(
-      new_rect_fill_command(dst, shader, bx, by, 12.0, 12.0, btn_color, pipeline_id),
+      new_rect_fill_command(
+        dst, shader, bx, by, 12.0, 12.0, btn_color, pipeline_id,
+      ),
     )
   }
   commands

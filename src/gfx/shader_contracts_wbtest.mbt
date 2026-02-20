@@ -329,18 +329,12 @@ test "builtin_key_to_ex converts classic to extended" {
     use_color_m: true,
   }
   let ex = builtin_key_to_ex(key)
+  assert_true(builtin_filter_eq(ex.sampler.filter, BuiltinShaderFilter::Linear))
   assert_true(
-    builtin_filter_eq(ex.sampler.filter, BuiltinShaderFilter::Linear),
+    builtin_address_eq(ex.sampler.address_u, BuiltinShaderAddress::ClampToZero),
   )
   assert_true(
-    builtin_address_eq(
-      ex.sampler.address_u, BuiltinShaderAddress::ClampToZero,
-    ),
-  )
-  assert_true(
-    builtin_address_eq(
-      ex.sampler.address_v, BuiltinShaderAddress::ClampToZero,
-    ),
+    builtin_address_eq(ex.sampler.address_v, BuiltinShaderAddress::ClampToZero),
   )
   assert_eq(ex.use_color_m, true)
 }
@@ -509,11 +503,12 @@ test "shader_hash_eq compares hash values" {
 
 ///|
 test "validate_uniform_layout rejects mismatched lengths" {
-  match validate_uniform_layout({
-    names: ["a", "b"],
-    dword_counts: [1],
-    preserved_prefix_dwords: 0,
-  }) {
+  match
+    validate_uniform_layout({
+      names: ["a", "b"],
+      dword_counts: [1],
+      preserved_prefix_dwords: 0,
+    }) {
     Some(msg) => assert_true(msg.contains("length"))
     None => panic()
   }
@@ -521,11 +516,12 @@ test "validate_uniform_layout rejects mismatched lengths" {
 
 ///|
 test "validate_uniform_layout rejects duplicate names" {
-  match validate_uniform_layout({
-    names: ["u_a", "u_b", "u_a"],
-    dword_counts: [1, 1, 1],
-    preserved_prefix_dwords: 0,
-  }) {
+  match
+    validate_uniform_layout({
+      names: ["u_a", "u_b", "u_a"],
+      dword_counts: [1, 1, 1],
+      preserved_prefix_dwords: 0,
+    }) {
     Some(msg) => assert_true(msg.contains("duplicate"))
     None => panic()
   }
@@ -533,11 +529,12 @@ test "validate_uniform_layout rejects duplicate names" {
 
 ///|
 test "validate_uniform_layout rejects negative dword_counts" {
-  match validate_uniform_layout({
-    names: ["u_a"],
-    dword_counts: [-2],
-    preserved_prefix_dwords: 0,
-  }) {
+  match
+    validate_uniform_layout({
+      names: ["u_a"],
+      dword_counts: [-2],
+      preserved_prefix_dwords: 0,
+    }) {
     Some(msg) => assert_true(msg.contains("negative"))
     None => panic()
   }
@@ -545,11 +542,12 @@ test "validate_uniform_layout rejects negative dword_counts" {
 
 ///|
 test "validate_uniform_layout rejects negative preserved_prefix_dwords" {
-  match validate_uniform_layout({
-    names: [],
-    dword_counts: [],
-    preserved_prefix_dwords: -1,
-  }) {
+  match
+    validate_uniform_layout({
+      names: [],
+      dword_counts: [],
+      preserved_prefix_dwords: -1,
+    }) {
     Some(msg) => assert_true(msg.contains("negative"))
     None => panic()
   }
@@ -557,11 +555,12 @@ test "validate_uniform_layout rejects negative preserved_prefix_dwords" {
 
 ///|
 test "validate_uniform_layout accepts valid layout" {
-  match validate_uniform_layout({
-    names: ["u_a", "u_b"],
-    dword_counts: [1, 4],
-    preserved_prefix_dwords: 6,
-  }) {
+  match
+    validate_uniform_layout({
+      names: ["u_a", "u_b"],
+      dword_counts: [1, 4],
+      preserved_prefix_dwords: 6,
+    }) {
     Some(_) => panic()
     None => ()
   }
@@ -581,10 +580,7 @@ test "compute_expected_preserved_dwords matches context" {
   let ctx2 : PreservedUniformContext = {
     dst_texture_size: { width: 64, height: 64 },
     dst_region: { x: 0.0, y: 0.0, width: 64.0, height: 64.0 },
-    src_texture_sizes: [
-      { width: 32, height: 32 },
-      { width: 16, height: 16 },
-    ],
+    src_texture_sizes: [{ width: 32, height: 32 }, { width: 16, height: 16 }],
     src_regions: [
       { x: 0.0, y: 0.0, width: 32.0, height: 32.0 },
       { x: 0.0, y: 0.0, width: 16.0, height: 16.0 },

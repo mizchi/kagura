@@ -143,7 +143,10 @@ test "encode_image_spec dispatches by target format" {
   let encoded_png = encode_image_spec(source, RasterImageFormat::Png) catch {
     _ => panic()
   }
-  assert_eq(detect_raster_image_format(encoded_png), Some(RasterImageFormat::Png))
+  assert_eq(
+    detect_raster_image_format(encoded_png),
+    Some(RasterImageFormat::Png),
+  )
   let encoded_jpeg = encode_image_spec(source, RasterImageFormat::Jpeg) catch {
     _ => panic()
   }
@@ -154,7 +157,10 @@ test "encode_image_spec dispatches by target format" {
   let encoded_bmp = encode_image_spec(source, RasterImageFormat::Bmp) catch {
     _ => panic()
   }
-  assert_eq(detect_raster_image_format(encoded_bmp), Some(RasterImageFormat::Bmp))
+  assert_eq(
+    detect_raster_image_format(encoded_bmp),
+    Some(RasterImageFormat::Bmp),
+  )
 }
 
 ///|

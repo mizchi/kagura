@@ -313,7 +313,12 @@ pub impl GraphicsDriver for StubGraphicsDriver with read_pixels(
     Some(pixels) => Some(pixels)
     None =>
       web_graphics_on_read_pixels(
-        self.web_active, self.backend, x, y, read_w, read_h,
+        self.web_active,
+        self.backend,
+        x,
+        y,
+        read_w,
+        read_h,
       )
   }
 }

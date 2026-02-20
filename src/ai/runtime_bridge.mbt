@@ -94,9 +94,7 @@ pub fn AIRuntimeState::total_ticks(self : AIRuntimeState) -> Int {
 }
 
 ///|
-pub fn AIRuntimeState::last_tick_decision_count(
-  self : AIRuntimeState,
-) -> Int {
+pub fn AIRuntimeState::last_tick_decision_count(self : AIRuntimeState) -> Int {
   self.last_tick_decision_count
 }
 
@@ -130,9 +128,7 @@ pub fn AIRuntimeState::set_budget(
 }
 
 ///|
-pub fn AIRuntimeState::clear_budget_override(
-  self : AIRuntimeState,
-) -> Unit {
+pub fn AIRuntimeState::clear_budget_override(self : AIRuntimeState) -> Unit {
   self.config.global_budget = None
 }
 
@@ -193,46 +189,32 @@ pub fn[P : AIPolicy, S : SensorBridge, A : ActuatorBridge, C : AIScheduler] crea
       return
     }
     let seed = state.config.base_seed + tick
-    let agents = try {
-      scheduler.select_agents(tick)
-    } catch {
-      _ => []
-    }
+    let agents = scheduler.select_agents(tick) catch { _ => [] }
     let mut current_bb = state.blackboard
     let mut decision_count = 0
     let tick_traces : Array[DecisionTrace] = []
     for agent_id in agents {
-      let sensor_snapshot = try {
-        sensors.capture(agent_id, tick)
-      } catch {
+      let sensor_snapshot = sensors.capture(agent_id, tick) catch {
         _ => continue
       }
       let budget = match state.config.global_budget {
         Some(b) => b
         None =>
-          try {
-            scheduler.budget_for(agent_id)
-          } catch {
+          scheduler.budget_for(agent_id) catch {
             _ => default_ai_budget()
           }
       }
-      let decision = try {
-        policy.decide(
-          {
-            tick,
-            frame,
-            deterministic_seed: seed + decision_count,
-            budget,
-            perception: sensor_snapshot,
-            blackboard: current_bb,
-          },
-        )
-      } catch {
+      let decision = policy.decide({
+        tick,
+        frame,
+        deterministic_seed: seed + decision_count,
+        budget,
+        perception: sensor_snapshot,
+        blackboard: current_bb,
+      }) catch {
         _ => continue
       }
-      try {
-        actuator.apply(agent_id, decision.actions)
-      } catch {
+      actuator.apply(agent_id, decision.actions) catch {
         _ => ()
       }
       current_bb = decision.next_blackboard

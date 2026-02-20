@@ -84,8 +84,8 @@ test "run_ai_tick updates blackboard and applies actions" {
 ///|
 test "AIRuntimeState tracks decisions" {
   let state = AIRuntimeState::new()
-  assert_eq!(state.total_decisions(), 0)
-  assert_eq!(state.trace_count(), 0)
+  assert_eq(state.total_decisions(), 0)
+  assert_eq(state.trace_count(), 0)
 
   let sensor : TestSensor = { id: 0 }
   let actuator : TestActuator = { applied: 0 }
@@ -98,18 +98,18 @@ test "AIRuntimeState tracks decisions" {
   // Tick 10 (even): scheduler returns 2 agents → 2 decisions
   let frame = @core.new_frame_budget(1, 0.0, 10)
   hook(10, frame)
-  assert_eq!(state.total_decisions(), 2)
-  assert_eq!(state.last_tick_decision_count(), 2)
-  assert_eq!(state.total_ticks(), 1)
+  assert_eq(state.total_decisions(), 2)
+  assert_eq(state.last_tick_decision_count(), 2)
+  assert_eq(state.total_ticks(), 1)
 
   // Tick 11 (odd): scheduler returns 1 agent → 1 decision
   let frame2 = @core.new_frame_budget(1, 0.0, 11)
   hook(11, frame2)
-  assert_eq!(state.total_decisions(), 3)
-  assert_eq!(state.last_tick_decision_count(), 1)
-  assert_eq!(state.total_ticks(), 2)
+  assert_eq(state.total_decisions(), 3)
+  assert_eq(state.last_tick_decision_count(), 1)
+  assert_eq(state.total_ticks(), 2)
   // Blackboard should have accumulated entries
-  assert_true!(state.current_blackboard().entries.length() > 0)
+  assert_true(state.current_blackboard().entries.length() > 0)
 }
 
 ///|
@@ -118,17 +118,17 @@ test "AIRuntimeState with initial blackboard" {
     entries: [{ key: "init", value: "yes" }],
   }
   let state = AIRuntimeState::new_with_blackboard(initial)
-  assert_eq!(state.current_blackboard().entries.length(), 1)
-  assert_eq!(state.current_blackboard().entries[0].key, "init")
+  assert_eq(state.current_blackboard().entries.length(), 1)
+  assert_eq(state.current_blackboard().entries[0].key, "init")
 }
 
 ///|
 test "AIRuntimeState clear_traces" {
   let state = AIRuntimeState::new()
   state.traces.push([{ stage: "test", score: 1.0, note: "ok" }])
-  assert_eq!(state.trace_count(), 1)
+  assert_eq(state.trace_count(), 1)
   state.clear_traces()
-  assert_eq!(state.trace_count(), 0)
+  assert_eq(state.trace_count(), 0)
 }
 
 ///|
@@ -146,22 +146,26 @@ test "AIRuntimeState disabled skips tick" {
 
   let frame = @core.new_frame_budget(1, 0.0, 10)
   hook(10, frame)
-  assert_eq!(state.total_decisions(), 0)
-  assert_eq!(state.total_ticks(), 0)
-  assert_eq!(actuator.applied, 0)
+  assert_eq(state.total_decisions(), 0)
+  assert_eq(state.total_ticks(), 0)
+  assert_eq(actuator.applied, 0)
 }
 
 ///|
 test "AIRuntimeState global budget override" {
   let config : AIRuntimeConfig = {
     ..default_ai_runtime_config(),
-    global_budget: Some({ max_decision_ms: 1, max_nodes: 10, max_model_tokens: 8 }),
+    global_budget: Some({
+      max_decision_ms: 1,
+      max_nodes: 10,
+      max_model_tokens: 8,
+    }),
   }
   let state = AIRuntimeState::new_with_config(config)
-  assert_true!(state.get_config().global_budget is Some(_))
+  assert_true(state.get_config().global_budget is Some(_))
 
   state.clear_budget_override()
-  assert_true!(state.get_config().global_budget is None)
+  assert_true(state.get_config().global_budget is None)
 }
 
 ///|
@@ -183,10 +187,10 @@ test "AIRuntimeState trace collection" {
   let frame = @core.new_frame_budget(1, 0.0, 10)
   hook(10, frame)
   // Trace enabled: should have captured traces
-  assert_eq!(state.trace_count(), 1)
+  assert_eq(state.trace_count(), 1)
   let tick_traces = state.get_traces_for_tick(10)
-  assert_true!(tick_traces.length() > 0)
-  assert_eq!(tick_traces[0].stage, "test")
+  assert_true(tick_traces.length() > 0)
+  assert_eq(tick_traces[0].stage, "test")
 }
 
 ///|
@@ -211,18 +215,18 @@ test "AIRuntimeState recent trace ticks" {
   hook(12, @core.new_frame_budget(1, 0.0, 12))
 
   let recent = state.get_recent_trace_ticks(2)
-  assert_eq!(recent.length(), 2)
+  assert_eq(recent.length(), 2)
   // Newest first
-  assert_eq!(recent[0], 12)
-  assert_eq!(recent[1], 11)
+  assert_eq(recent[0], 12)
+  assert_eq(recent[1], 11)
 }
 
 ///|
 test "AIRuntimeState seed configuration" {
   let state = AIRuntimeState::new()
-  assert_eq!(state.get_config().base_seed, 42)
+  assert_eq(state.get_config().base_seed, 42)
   state.set_seed(100)
-  assert_eq!(state.get_config().base_seed, 100)
+  assert_eq(state.get_config().base_seed, 100)
 }
 
 ///|
@@ -358,5 +362,5 @@ test "AIRuntimeState trace history trimming" {
   hook(12, @core.new_frame_budget(1, 0.0, 12))
   hook(13, @core.new_frame_budget(1, 0.0, 13))
   // Only 2 most recent should remain in traces array
-  assert_true!(state.trace_count() <= 2)
+  assert_true(state.trace_count() <= 2)
 }

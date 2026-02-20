@@ -25,8 +25,16 @@ test "build_runtime_smoke_tile_draw_plan returns tile sprite and text commands" 
   let text_command = plan.commands[2]
   assert_eq(text_command.src_image_ids.length(), 1)
   assert_eq(text_command.src_image_ids[0], runtime_smoke_text_page_id)
+  // TextRenderer generates 1 glyph for "I": 4 verts * 4 floats = 16
   assert_eq(text_command.vertex_data.length(), 16)
+  // 1 glyph = 6 indices
   assert_eq(text_command.indices.length(), 6)
+  // UV coords should be in [0,1] range
+  assert_true(text_command.vertex_data[2] >= 0.0 && text_command.vertex_data[2] <= 1.0)
+  assert_true(text_command.vertex_data[3] >= 0.0 && text_command.vertex_data[3] <= 1.0)
+  // uniform_dwords should contain color data
+  assert_eq(text_command.uniform_dwords.length(), 4)
+  assert_eq(text_command.uniform_dwords[0], 255)
 }
 
 ///|
@@ -125,9 +133,7 @@ test "SimpleTextBatchBuilder with quads from rasterize_text" {
     Some(ttfont) => {
       let quads = text_atlas.rasterize_text(ttfont, "III", 24.0)
       assert_eq(quads.length(), 3)
-      let builder = @text.SimpleTextBatchBuilder::new(
-        text_atlas.get_cache(), 7,
-      )
+      let builder = @text.SimpleTextBatchBuilder::new(text_atlas.get_cache(), 7)
       let dst = @gfx.new_image_handle(1, 128, 128)
       let shader = @gfx.new_shader_handle(2, "shader")
       let commands = builder.build_draw_commands(dst, quads, shader)
@@ -147,12 +153,184 @@ test "SimpleTextBatchBuilder with quads from rasterize_text" {
       let first_x = cmd.vertex_data[0]
       let second_x = cmd.vertex_data[16]
       let third_x = cmd.vertex_data[32]
-      assert_true(
-        first_x < second_x,
+      assert_true(first_x < second_x)
+      assert_true(second_x < third_x)
+    }
+    None => panic()
+  }
+}
+
+///|
+test "TextRenderer render_text produces valid draw commands" {
+  let font_data = Bytes::from_array(smoke_test_font_otf[:])
+  let font = @text.parse_font_bytes(font_data)
+  match font {
+    Some(ttfont) => {
+      let renderer = @text.TextRenderer::new(ttfont, 128, 950, 7)
+      assert_eq(renderer.glyph_count(), 0)
+      assert_eq(renderer.get_page_id(), 950)
+      let dst = @gfx.new_image_handle(1, 640, 480)
+      let shader = @gfx.new_shader_handle(2, "text_shader")
+      let blend = @gfx.blend_mode_from_int(1)
+      let commands = renderer.render_text(
+        "III", 24.0, 10.0, 50.0, dst, shader, blend, [255, 255, 255, 255],
       )
-      assert_true(
-        second_x < third_x,
+      assert_eq(commands.length(), 1)
+      let cmd = commands[0]
+      // 3 glyphs => 3*4=12 vertices, 3*16=48 floats
+      assert_eq(cmd.vertex_data.length(), 48)
+      // 3 glyphs => 3*6=18 indices
+      assert_eq(cmd.indices.length(), 18)
+      // Source image is the atlas page
+      assert_eq(cmd.src_image_ids.length(), 1)
+      assert_eq(cmd.src_image_ids[0], 950)
+      // Uniform dwords should be passed through
+      assert_eq(cmd.uniform_dwords.length(), 4)
+      assert_eq(cmd.uniform_dwords[0], 255)
+      // Glyph positions should be offset by (10, 50)
+      let first_x = cmd.vertex_data[0]
+      assert_true(first_x >= 10.0)
+      let first_y = cmd.vertex_data[1]
+      assert_true(first_y >= 0.0) // y offset applied (50.0 + negative dst_y from baseline)
+      // Advancing x positions
+      let second_x = cmd.vertex_data[16]
+      let third_x = cmd.vertex_data[32]
+      assert_true(first_x < second_x)
+      assert_true(second_x < third_x)
+      // UV coords in [0,1] range
+      assert_true(cmd.vertex_data[2] >= 0.0 && cmd.vertex_data[2] <= 1.0)
+      assert_true(cmd.vertex_data[3] >= 0.0 && cmd.vertex_data[3] <= 1.0)
+      // Atlas should now have cached the glyph
+      assert_true(renderer.glyph_count() > 0)
+    }
+    None => panic()
+  }
+}
+
+///|
+test "TextRenderer render_text empty string returns no commands" {
+  let font_data = Bytes::from_array(smoke_test_font_otf[:])
+  let font = @text.parse_font_bytes(font_data)
+  match font {
+    Some(ttfont) => {
+      let renderer = @text.TextRenderer::new(ttfont, 64, 960, 0)
+      let dst = @gfx.new_image_handle(1, 640, 480)
+      let shader = @gfx.new_shader_handle(1, "shader")
+      let blend = @gfx.blend_mode_from_int(1)
+      let commands = renderer.render_text("", 24.0, 0.0, 0.0, dst, shader, blend, [])
+      assert_eq(commands.length(), 0)
+      assert_eq(renderer.glyph_count(), 0)
+    }
+    None => panic()
+  }
+}
+
+///|
+test "TextRenderer measure returns positive dimensions" {
+  let font_data = Bytes::from_array(smoke_test_font_otf[:])
+  let font = @text.parse_font_bytes(font_data)
+  match font {
+    Some(ttfont) => {
+      let renderer = @text.TextRenderer::new(ttfont, 64, 970, 0)
+      let metrics = renderer.measure("Hello", 24.0)
+      assert_true(metrics.width > 0.0)
+      assert_true(metrics.height > 0.0)
+      assert_true(metrics.baseline > 0.0)
+      assert_true(metrics.baseline <= metrics.height)
+    }
+    None => panic()
+  }
+}
+
+///|
+test "TextRenderer render_text then clear resets glyph count" {
+  let font_data = Bytes::from_array(smoke_test_font_otf[:])
+  let font = @text.parse_font_bytes(font_data)
+  match font {
+    Some(ttfont) => {
+      let renderer = @text.TextRenderer::new(ttfont, 128, 980, 0)
+      let dst = @gfx.new_image_handle(1, 640, 480)
+      let shader = @gfx.new_shader_handle(1, "shader")
+      let blend = @gfx.blend_mode_from_int(1)
+      // Render text to populate atlas
+      let _ = renderer.render_text(
+        "I", 24.0, 0.0, 0.0, dst, shader, blend, [],
       )
+      assert_true(renderer.glyph_count() > 0)
+      // Clear should reset
+      renderer.clear()
+      assert_eq(renderer.glyph_count(), 0)
+      // Atlas pixels should be zeroed
+      let pixels = renderer.get_atlas().get_pixels()
+      let mut all_zero = true
+      let check_len = if 64 < pixels.length() { 64 } else { pixels.length() }
+      for i in 0..<check_len {
+        if pixels[i] != 0 {
+          all_zero = false
+          break
+        }
+      }
+      assert_true(all_zero)
+    }
+    None => panic()
+  }
+}
+
+///|
+test "TextRenderer atlas has non-zero pixels after render" {
+  let font_data = Bytes::from_array(smoke_test_font_otf[:])
+  let font = @text.parse_font_bytes(font_data)
+  match font {
+    Some(ttfont) => {
+      let renderer = @text.TextRenderer::new(ttfont, 128, 990, 0)
+      let dst = @gfx.new_image_handle(1, 640, 480)
+      let shader = @gfx.new_shader_handle(1, "shader")
+      let blend = @gfx.blend_mode_from_int(1)
+      let _ = renderer.render_text(
+        "I", 24.0, 0.0, 0.0, dst, shader, blend, [],
+      )
+      // Atlas should have non-zero pixels from rasterized glyph
+      let pixels = renderer.get_atlas().get_pixels()
+      let mut has_nonzero = false
+      for i in 0..<pixels.length() {
+        if pixels[i] != 0 {
+          has_nonzero = true
+          break
+        }
+      }
+      assert_true(has_nonzero)
+    }
+    None => panic()
+  }
+}
+
+///|
+test "TextRenderer multiple render_text calls share glyph cache" {
+  let font_data = Bytes::from_array(smoke_test_font_otf[:])
+  let font = @text.parse_font_bytes(font_data)
+  match font {
+    Some(ttfont) => {
+      let renderer = @text.TextRenderer::new(ttfont, 128, 991, 0)
+      let dst = @gfx.new_image_handle(1, 640, 480)
+      let shader = @gfx.new_shader_handle(1, "shader")
+      let blend = @gfx.blend_mode_from_int(1)
+      // First render
+      let _ = renderer.render_text(
+        "I", 24.0, 0.0, 0.0, dst, shader, blend, [],
+      )
+      let count_after_first = renderer.glyph_count()
+      assert_true(count_after_first > 0)
+      // Second render with same text should not increase glyph count
+      let _ = renderer.render_text(
+        "I", 24.0, 50.0, 0.0, dst, shader, blend, [],
+      )
+      assert_eq(renderer.glyph_count(), count_after_first)
+      // Render with different text should increase glyph count
+      // (the "I" glyph is cached, rendering "II" should not add new entries)
+      let _ = renderer.render_text(
+        "II", 24.0, 100.0, 0.0, dst, shader, blend, [],
+      )
+      assert_eq(renderer.glyph_count(), count_after_first)
     }
     None => panic()
   }

@@ -73,7 +73,9 @@ pub fn default_layout_constraint(
 
 ///|
 pub fn point_in_rect(rect : LayoutRect, x : Double, y : Double) -> Bool {
-  x >= rect.x && x < rect.x + rect.width && y >= rect.y &&
+  x >= rect.x &&
+  x < rect.x + rect.width &&
+  y >= rect.y &&
   y < rect.y + rect.height
 }
 
@@ -192,9 +194,7 @@ fn UIFocusManager::find_focus_index(self : UIFocusManager) -> Int {
 
 ///|
 /// Move focus to the next focusable node (tab order).
-pub fn UIFocusManager::focus_next(
-  self : UIFocusManager,
-) -> Array[UIFocusEvent] {
+pub fn UIFocusManager::focus_next(self : UIFocusManager) -> Array[UIFocusEvent] {
   let n = self.focusable_ids.length()
   if n == 0 {
     return []
@@ -206,9 +206,7 @@ pub fn UIFocusManager::focus_next(
 
 ///|
 /// Move focus to the previous focusable node (shift-tab order).
-pub fn UIFocusManager::focus_prev(
-  self : UIFocusManager,
-) -> Array[UIFocusEvent] {
+pub fn UIFocusManager::focus_prev(self : UIFocusManager) -> Array[UIFocusEvent] {
   let n = self.focusable_ids.length()
   if n == 0 {
     return []

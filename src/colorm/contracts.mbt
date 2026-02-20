@@ -22,19 +22,24 @@ pub struct ColorM {
 pub fn ColorM::identity() -> ColorM {
   {
     elements: [
-      1.0, 0.0, 0.0, 0.0, 0.0, 0.0, 1.0, 0.0, 0.0, 0.0, 0.0, 0.0, 1.0, 0.0,
-      0.0, 0.0, 0.0, 0.0, 1.0, 0.0,
+      1.0, 0.0, 0.0, 0.0, 0.0, 0.0, 1.0, 0.0, 0.0, 0.0, 0.0, 0.0, 1.0, 0.0, 0.0,
+      0.0, 0.0, 0.0, 1.0, 0.0,
     ],
   }
 }
 
 ///|
-fn element_at(self : ColorM, row : Int, col : Int) -> Double {
+fn ColorM::element_at(self : ColorM, row : Int, col : Int) -> Double {
   self.elements[row * 5 + col]
 }
 
 ///|
-fn set_element(self : ColorM, row : Int, col : Int, value : Double) -> Unit {
+fn ColorM::set_element(
+  self : ColorM,
+  row : Int,
+  col : Int,
+  value : Double,
+) -> Unit {
   self.elements[row * 5 + col] = value
 }
 
@@ -117,14 +122,14 @@ pub fn ColorM::rotate_hue(self : ColorM, theta : Double) -> ColorM {
   let lr = 0.213
   let lg = 0.715
   let lb = 0.072
-  m.set_element(0, 0, lr + cos * (1.0 - lr) + sin * (-lr))
-  m.set_element(0, 1, lg + cos * (-lg) + sin * (-lg))
-  m.set_element(0, 2, lb + cos * (-lb) + sin * (1.0 - lb))
-  m.set_element(1, 0, lr + cos * (-lr) + sin * 0.143)
+  m.set_element(0, 0, lr + cos * (1.0 - lr) + sin * -lr)
+  m.set_element(0, 1, lg + cos * -lg + sin * -lg)
+  m.set_element(0, 2, lb + cos * -lb + sin * (1.0 - lb))
+  m.set_element(1, 0, lr + cos * -lr + sin * 0.143)
   m.set_element(1, 1, lg + cos * (1.0 - lg) + sin * 0.140)
-  m.set_element(1, 2, lb + cos * (-lb) + sin * (-0.283))
-  m.set_element(2, 0, lr + cos * (-lr) + sin * (-(1.0 - lr)))
-  m.set_element(2, 1, lg + cos * (-lg) + sin * lg)
+  m.set_element(1, 2, lb + cos * -lb + sin * -0.283)
+  m.set_element(2, 0, lr + cos * -lr + sin * -(1.0 - lr))
+  m.set_element(2, 1, lg + cos * -lg + sin * lg)
   m.set_element(2, 2, lb + cos * (1.0 - lb) + sin * lb)
   m.concat(self)
 }

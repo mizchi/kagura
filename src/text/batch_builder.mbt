@@ -133,7 +133,8 @@ pub impl TextBatchBuilder for SimpleTextBatchBuilder with build_draw_commands(
   if !has_region {
     []
   } else {
-    let command_vertex_data : Array[Double] = if vertex_offset == vertex_data.length() {
+    let command_vertex_data : Array[Double] = if vertex_offset ==
+      vertex_data.length() {
       vertex_data
     } else {
       let out : Array[Double] = []
@@ -159,11 +160,7 @@ pub impl TextBatchBuilder for SimpleTextBatchBuilder with build_draw_commands(
     let region_width = max_x - min_x
     let region_height = max_y - min_y
     let merged_region = @gfx.new_dst_region(
-      min_x,
-      min_y,
-      region_width,
-      region_height,
-      index_offset,
+      min_x, min_y, region_width, region_height, index_offset,
     )
     [
       @gfx.new_draw_triangles_command(

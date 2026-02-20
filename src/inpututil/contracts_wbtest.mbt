@@ -332,9 +332,7 @@ test "gamepad button count APIs" {
   let state = new_gamepad_input_state()
   update_gamepad_input_state(
     state,
-    snapshot_with_gamepads([
-      @core.new_gamepad_snapshot(0, [], [1, 2, 3, 4, 5]),
-    ]),
+    snapshot_with_gamepads([@core.new_gamepad_snapshot(0, [], [1, 2, 3, 4, 5])]),
   )
   assert_eq(gamepad_pressed_button_count(state), 5)
   assert_eq(gamepad_just_pressed_button_count(state), 5)

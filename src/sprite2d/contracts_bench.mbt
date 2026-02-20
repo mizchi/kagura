@@ -94,8 +94,7 @@ test "bench particle pipeline same state 10000" (b : @bench.T) {
     let commands : Array[@gfx.DrawTrianglesCommand] = []
     for i in 0..<10000 {
       append_particle_command(
-        commands, repo, key, dst, shader, dst_region, 7, 11, blend, i,
-        uniform_dwords,
+        commands, repo, key, dst, shader, dst_region, 7, 11, blend, i, uniform_dwords,
       )
     }
     b.keep(particle_pipeline_checksum(commands))
@@ -144,13 +143,11 @@ test "bench particle pipeline alternating texture pages 10000" (b : @bench.T) {
     for i in 0..<10000 {
       if i % 2 == 0 {
         append_particle_command(
-          commands, repo_a, key_a, dst, shader, dst_region, 7, 11, blend, i,
-          uniform_dwords,
+          commands, repo_a, key_a, dst, shader, dst_region, 7, 11, blend, i, uniform_dwords,
         )
       } else {
         append_particle_command(
-          commands, repo_b, key_b, dst, shader, dst_region, 7, 11, blend, i,
-          uniform_dwords,
+          commands, repo_b, key_b, dst, shader, dst_region, 7, 11, blend, i, uniform_dwords,
         )
       }
     }

@@ -157,7 +157,11 @@ pub struct BuiltinShaderKeyEx {
 /// Convert a classic BuiltinShaderKey to extended form.
 pub fn builtin_key_to_ex(key : BuiltinShaderKey) -> BuiltinShaderKeyEx {
   {
-    sampler: { filter: key.filter, address_u: key.address, address_v: key.address },
+    sampler: {
+      filter: key.filter,
+      address_u: key.address,
+      address_v: key.address,
+    },
     use_color_m: key.use_color_m,
   }
 }
@@ -382,7 +386,9 @@ pub fn validate_uniform_layout(layout : UniformLayout) -> String? {
     }
     for j in (i + 1)..<layout.names.length() {
       if layout.names[i] == layout.names[j] {
-        return Some("duplicate uniform name '\{layout.names[i]}' at indices \{i} and \{j}")
+        return Some(
+          "duplicate uniform name '\{layout.names[i]}' at indices \{i} and \{j}",
+        )
       }
     }
   }
@@ -432,25 +438,25 @@ pub fn double_to_f32_bits(v : Double) -> Int {
   let bits = v.reinterpret_as_int64()
   let sign = bits.lsr(63).land(1L).to_int()
   let exp = bits.lsr(52).land(0x7FFL).to_int()
-  let mantissa = bits.land(0xFFFFFFFFFFFFFL)
+  let mantissa = bits & 0xFFFFFFFFFFFFFL
   if exp == 0x7FF {
     // Infinity or NaN
     if mantissa != 0L {
-      sign.lsl(31).lor(0x7FC00000)
+      sign.lsl(31) | 0x7FC00000
     } else {
-      sign.lsl(31).lor(0x7F800000)
+      sign.lsl(31) | 0x7F800000
     }
   } else if exp == 0 {
     sign.lsl(31) // zero/denormal → zero
   } else {
     let f32_exp = exp - 1023 + 127
     if f32_exp >= 255 {
-      sign.lsl(31).lor(0x7F800000)
+      sign.lsl(31) | 0x7F800000
     } else if f32_exp <= 0 {
       sign.lsl(31)
     } else {
       let f32_mantissa = mantissa.lsr(29).to_int()
-      sign.lsl(31).lor(f32_exp.lsl(23)).lor(f32_mantissa)
+      sign.lsl(31) | f32_exp.lsl(23) | f32_mantissa
     }
   }
 }
@@ -458,9 +464,9 @@ pub fn double_to_f32_bits(v : Double) -> Int {
 ///|
 /// Convert IEEE 754 f32 bits (as Int) back to Double.
 pub fn f32_bits_to_double(bits : Int) -> Double {
-  let sign = bits.lsr(31).land(1)
-  let exp = bits.lsr(23).land(0xFF)
-  let mantissa = bits.land(0x7FFFFF)
+  let sign = bits.lsr(31) & 1
+  let exp = bits.lsr(23) & 0xFF
+  let mantissa = bits & 0x7FFFFF
   if exp == 0xFF {
     if mantissa != 0 {
       // NaN
@@ -471,11 +477,15 @@ pub fn f32_bits_to_double(bits : Int) -> Double {
       1.0 / 0.0
     }
   } else if exp == 0 {
-    if sign != 0 { -0.0 } else { 0.0 }
+    if sign != 0 {
+      -0.0
+    } else {
+      0.0
+    }
   } else {
     let f64_exp = (exp - 127 + 1023).to_int64()
     let f64_mantissa = mantissa.to_int64().lsl(29)
-    let f64_bits = sign.to_int64().lsl(63).lor(f64_exp.lsl(52)).lor(f64_mantissa)
+    let f64_bits = sign.to_int64().lsl(63) | f64_exp.lsl(52) | f64_mantissa
     f64_bits.reinterpret_as_double()
   }
 }
@@ -988,7 +998,8 @@ fn builtin_shader_key_ex_eq(
   lhs : BuiltinShaderKeyEx,
   rhs : BuiltinShaderKeyEx,
 ) -> Bool {
-  sampler_spec_eq(lhs.sampler, rhs.sampler) && lhs.use_color_m == rhs.use_color_m
+  sampler_spec_eq(lhs.sampler, rhs.sampler) &&
+  lhs.use_color_m == rhs.use_color_m
 }
 
 ///|

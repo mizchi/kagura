@@ -89,7 +89,7 @@ pub fn GlyphCache::allocate(
 
 ///|
 pub fn GlyphCache::entry_count(self : GlyphCache) -> Int {
-  self.entries.size()
+  self.entries.length()
 }
 
 ///|

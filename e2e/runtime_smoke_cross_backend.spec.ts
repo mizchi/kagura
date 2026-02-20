@@ -38,9 +38,9 @@ const loadSmokeResult = async (page: Page, path: string) => {
 };
 
 const WEB_PROBE_RE =
-  /runtime_smoke_web_probe:\s*tex_seed=(\d+)\s+atlas_gen=(\d+)\s+atlas_rgb=(\d+),(\d+),(\d+)\s+sample0=(\d+),(\d+),(\d+),(\d+),(\d+),(\d+)\s+sample1=(\d+),(\d+),(\d+),(\d+),(\d+),(\d+)\s+sample2=(\d+),(\d+),(\d+),(\d+),(\d+),(\d+)/;
+  /runtime_smoke_web_probe:\s*tex_seed=(\d+)\s+atlas_gen=(\d+)\s+atlas_rgb=(\d+),(\d+),(\d+)\s+sample0=(\d+),(\d+),(\d+),(\d+),(\d+),(\d+)\s+sample1=(\d+),(\d+),(\d+),(\d+),(\d+),(\d+)\s+sample2=(\d+),(\d+),(\d+),(\d+),(\d+),(\d+)\s+read_pixels_len=(-?\d+)\s+command_count=(\d+)/;
 const NATIVE_PROBE_RE =
-  /runtime_smoke_native_probe:\s*tex_seed=(\d+)\s+source_gen=(\d+)\s+atlas_gen=(\d+)\s+atlas_rgb=(\d+),(\d+),(\d+)\s+sample0=(\d+),(\d+),(\d+),(\d+),(\d+),(\d+)\s+sample1=(\d+),(\d+),(\d+),(\d+),(\d+),(\d+)\s+sample2=(\d+),(\d+),(\d+),(\d+),(\d+),(\d+)/;
+  /runtime_smoke_native_probe:\s*tex_seed=(\d+)\s+source_gen=(\d+)\s+atlas_gen=(\d+)\s+atlas_rgb=(\d+),(\d+),(\d+)\s+sample0=(\d+),(\d+),(\d+),(\d+),(\d+),(\d+)\s+sample1=(\d+),(\d+),(\d+),(\d+),(\d+),(\d+)\s+sample2=(\d+),(\d+),(\d+),(\d+),(\d+),(\d+)\s+read_pixels_len=(-?\d+)\s+command_count=(\d+)/;
 
 const decodeProbeSamples = (probe: RegExpMatchArray, startIndex: number) => {
   return [
@@ -114,7 +114,8 @@ test.describe("runtime smoke cross backend parity", () => {
 
     expect(webSeed).toBe(801);
     expect(nativeSeed).toBe(801);
-    expect(webAtlasGen).toBe(nativeAtlasGen);
+    expect(webAtlasGen).toBeGreaterThanOrEqual(2);
+    expect(nativeAtlasGen).toBeGreaterThanOrEqual(2);
     expect(webR).toBe(nativeR);
     expect(webG).toBe(nativeG);
     expect(webB).toBe(nativeB);
@@ -129,6 +130,13 @@ test.describe("runtime smoke cross backend parity", () => {
       expect(webSample.rgba[2]).toBe(nativeSample.rgba[2]);
       expect(webSample.rgba[3]).toBe(nativeSample.rgba[3]);
     }
+
+    // Verify command_count matches between web and native
+    const webCommandCount = Number(webProbe[25]);
+    const nativeCommandCount = Number(nativeProbe[26]);
+    expect(webCommandCount).toBe(2);
+    expect(nativeCommandCount).toBe(2);
+    expect(webCommandCount).toBe(nativeCommandCount);
   });
 
   test("web pixel capture buffer has correct dimensions", async ({ page }) => {

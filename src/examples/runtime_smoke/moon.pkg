@@ -6,6 +6,7 @@ import {
   "mizchi/game_engine/payload2d" @payload2d,
   "mizchi/game_engine/platform" @platform,
   "mizchi/game_engine/runtime" @runtime,
+  "mizchi/game_engine/sprite2d" @sprite2d,
   "mizchi/game_engine/tilemap2d" @tilemap2d,
 }
 

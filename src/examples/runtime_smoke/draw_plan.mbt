@@ -2,16 +2,17 @@
 let runtime_smoke_atlas_page_id : Int = 801
 
 ///|
-pub struct RuntimeSmokeTileDrawPlan {
+pub struct RuntimeSmokeDrawPlan {
   atlas_repository : @asset.SimpleAtlasImageRepository
   commands : Array[@gfx.DrawTrianglesCommand]
+  sprite_command_index : Int
 }
 
 ///|
 pub fn build_runtime_smoke_tile_draw_plan(
   dst : @gfx.ImageHandle,
   shader : @gfx.ShaderHandle,
-) -> RuntimeSmokeTileDrawPlan {
+) -> RuntimeSmokeDrawPlan {
   let atlas_repository = @asset.new_simple_atlas_image_repository(
     4, 4, runtime_smoke_atlas_page_id,
   )
@@ -31,6 +32,26 @@ pub fn build_runtime_smoke_tile_draw_plan(
     _ => None
   }
   match atlas_image {
+    Some(_) => ()
+    None => panic()
+  }
+  let sprite_key = @asset.new_asset_key("runtime_smoke/sprite")
+  let sprite_png = @asset.encode_png_image_spec(
+    @asset.image_spec_with_rgba8(2, 2, [
+      100, 150, 200, 255, 50, 75, 100, 255, 25, 37, 50, 255, 200, 225, 250,
+      255,
+    ]),
+  ) catch {
+    _ => panic()
+  }
+  let sprite_atlas_image = @asset.create_atlas_image_from_raster_bytes(
+    atlas_repository,
+    sprite_key,
+    sprite_png,
+  ) catch {
+    _ => None
+  }
+  match sprite_atlas_image {
     Some(_) => ()
     None => panic()
   }
@@ -93,5 +114,25 @@ pub fn build_runtime_smoke_tile_draw_plan(
   if appended != 1 || commands.length() != 1 {
     panic()
   }
-  { atlas_repository, commands }
+  let sprite_appended = @sprite2d.append_atlas_sprite_draw_command(
+    commands,
+    atlas_repository,
+    sprite_key,
+    dst,
+    shader,
+    @gfx.new_dst_region(0, 0, 64, 64, 6),
+    0,
+    7,
+    12,
+    @gfx.blend_mode_from_int(1),
+    0.0,
+    -0.5,
+    0.5,
+    0.5,
+    [200, 100, 50, 255],
+  )
+  if !sprite_appended || commands.length() != 2 {
+    panic()
+  }
+  { atlas_repository, commands, sprite_command_index: 1 }
 }

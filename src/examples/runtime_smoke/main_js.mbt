@@ -175,7 +175,7 @@ fn[T : @gfx.GraphicsDriver] run_draw_payload_probe(graphics : T) -> Unit raise {
     panic()
   }
   let atlas_page_id = 801
-  if @web_hooks.source_image_generation(atlas_page_id) != 2 {
+  if @web_hooks.source_image_generation(atlas_page_id) != 3 {
     panic()
   }
   if @web_hooks.source_image_width(atlas_page_id) != 4 ||
@@ -260,7 +260,9 @@ fn[T : @gfx.GraphicsDriver] run_draw_payload_probe(graphics : T) -> Unit raise {
   let atlas_pixel_g = @web_hooks.source_image_pixel_channel(atlas_page_id, 1, 0, 1)
   let atlas_pixel_b = @web_hooks.source_image_pixel_channel(atlas_page_id, 1, 0, 2)
   graphics.begin(pass)
-  graphics.draw_triangles(command)
+  for i = plan.commands.length() - 1; i >= 0; i = i - 1 {
+    graphics.draw_triangles(plan.commands[i])
+  }
   graphics.end(true)
   let read_pixels_result = graphics.read_pixels(0, 0, 4, 4)
   let read_pixels_len = match read_pixels_result {
@@ -268,7 +270,7 @@ fn[T : @gfx.GraphicsDriver] run_draw_payload_probe(graphics : T) -> Unit raise {
     None => -1
   }
   println(
-    "runtime_smoke_web_probe: tex_seed=\{payload_texture_seed} atlas_gen=\{atlas_generation} atlas_rgb=\{atlas_pixel_r},\{atlas_pixel_g},\{atlas_pixel_b} sample0=\{sample0_x},\{sample0_y},\{sample0[0]},\{sample0[1]},\{sample0[2]},\{sample0[3]} sample1=\{sample1_x},\{sample1_y},\{sample1[0]},\{sample1[1]},\{sample1[2]},\{sample1[3]} sample2=\{sample2_x},\{sample2_y},\{sample2[0]},\{sample2[1]},\{sample2[2]},\{sample2[3]} read_pixels_len=\{read_pixels_len}",
+    "runtime_smoke_web_probe: tex_seed=\{payload_texture_seed} atlas_gen=\{atlas_generation} atlas_rgb=\{atlas_pixel_r},\{atlas_pixel_g},\{atlas_pixel_b} sample0=\{sample0_x},\{sample0_y},\{sample0[0]},\{sample0[1]},\{sample0[2]},\{sample0[3]} sample1=\{sample1_x},\{sample1_y},\{sample1[0]},\{sample1[1]},\{sample1[2]},\{sample1[3]} sample2=\{sample2_x},\{sample2_y},\{sample2[0]},\{sample2[1]},\{sample2[2]},\{sample2[3]} read_pixels_len=\{read_pixels_len} command_count=\{plan.commands.length()}",
   )
 }
 

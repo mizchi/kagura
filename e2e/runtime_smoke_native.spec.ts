@@ -55,5 +55,12 @@ test.describe("runtime smoke native", () => {
       // read_pixels(0, 0, 4, 4) = 4*4*4 = 64 channels
       expect(readPixelsLen).toBe(64);
     }
+
+    // Verify command_count (tile + sprite)
+    const ccMatch = output.match(/command_count=(\d+)/);
+    expect(ccMatch, output).not.toBeNull();
+    if (ccMatch != null) {
+      expect(Number(ccMatch[1])).toBe(2);
+    }
   });
 });

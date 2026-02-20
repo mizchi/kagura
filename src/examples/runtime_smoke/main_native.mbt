@@ -5,9 +5,10 @@ fn[T : @gfx.GraphicsDriver] run_draw_payload_probe(graphics : T) -> Unit raise {
   let dst = graphics.new_image(64, 64)
   let shader = graphics.new_shader("runtime_smoke_payload_probe")
   let plan = build_runtime_smoke_tile_draw_plan(dst, shader)
-  let command = plan.commands[0]
   graphics.begin(pass)
-  graphics.draw_triangles(command)
+  for i = plan.commands.length() - 1; i >= 0; i = i - 1 {
+    graphics.draw_triangles(plan.commands[i])
+  }
   graphics.end(true)
 }
 

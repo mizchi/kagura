@@ -169,7 +169,7 @@ fn sample_predicted_web_pixel_rgba(
 }
 
 ///|
-fn[T : @gfx.GraphicsDriver] run_draw_payload_probe(graphics : T) -> Int raise {
+fn[T : @gfx.GraphicsDriver] run_draw_payload_probe(graphics : T) -> (Int, Int) raise {
   graphics.initialize()
   let pass = @gfx.new_render_pass_desc(@gfx.new_color(0.0, 0.0, 0.0, 1.0), true)
   let dst = graphics.new_image(64, 64)
@@ -272,6 +272,26 @@ fn[T : @gfx.GraphicsDriver] run_draw_payload_probe(graphics : T) -> Int raise {
     Some(_) => ()
     None => panic()
   }
+  let sprite_key = @asset.new_asset_key("runtime_smoke/sprite")
+  let sprite_png = @asset.encode_png_image_spec(
+    @asset.image_spec_with_rgba8(2, 2, [
+      100, 150, 200, 255, 50, 75, 100, 255, 25, 37, 50, 255, 200, 225, 250,
+      255,
+    ]),
+  ) catch {
+    _ => panic()
+  }
+  let sprite_atlas_image = @asset.create_atlas_image_from_raster_bytes(
+    atlas_repository,
+    sprite_key,
+    sprite_png,
+  ) catch {
+    _ => None
+  }
+  match sprite_atlas_image {
+    Some(_) => ()
+    None => panic()
+  }
   let atlas_initial_synced = @native_hooks.sync_dirty_atlas_pages_from_repository(
     atlas_repository,
   )
@@ -349,15 +369,40 @@ fn[T : @gfx.GraphicsDriver] run_draw_payload_probe(graphics : T) -> Int raise {
   if tile_commands.length() != 1 {
     panic()
   }
+  let sprite_commands : Array[@gfx.DrawTrianglesCommand] = []
+  let sprite_appended = @sprite2d.append_atlas_sprite_draw_command(
+    sprite_commands,
+    atlas_repository,
+    sprite_key,
+    dst,
+    shader,
+    @gfx.new_dst_region(0, 0, 64, 64, 6),
+    0,
+    7,
+    12,
+    @gfx.blend_mode_from_int(1),
+    0.0,
+    -0.5,
+    0.5,
+    0.5,
+    [200, 100, 50, 255],
+  )
+  if !sprite_appended {
+    panic()
+  }
+  let command_count = tile_commands.length() + sprite_commands.length()
   let command = tile_commands[0]
   graphics.begin(pass)
+  for cmd in sprite_commands {
+    graphics.draw_triangles(cmd)
+  }
   graphics.draw_triangles(command)
   graphics.end(true)
-  source.id
+  (source.id, command_count)
 }
 
 ///|
-fn run_runtime_contract_smoke() -> Int raise {
+fn run_runtime_contract_smoke() -> (Int, Int) raise {
   let game = @core.new_noop_game(320, 240)
   let platform = @platform.create_desktop_glfw_platform()
   let surface = platform.current_surface() catch {
@@ -383,7 +428,9 @@ fn run_runtime_contract_smoke() -> Int raise {
 fn run_with_real_native_hooks() -> Bool {
   @native_hooks.install("runtime_smoke_native")
   @native_hooks.clear_source_image_palettes()
-  let source_image_id = run_runtime_contract_smoke() catch { _ => -1 }
+  let (source_image_id, command_count) = run_runtime_contract_smoke() catch {
+    _ => (-1, 0)
+  }
   let has_payload = @wgpu_native.runtime_last_index_count() > 0 &&
     @wgpu_native.runtime_last_vertex_float_count() > 0 &&
     @wgpu_native.runtime_last_uniform_dword_count() > 0
@@ -557,7 +604,7 @@ fn run_with_real_native_hooks() -> Bool {
     None => -1
   }
   println(
-    "runtime_smoke_native_probe: tex_seed=\{payload_texture_seed} source_gen=\{source_generation} atlas_gen=\{atlas_generation} atlas_rgb=\{atlas_pixel_r},\{atlas_pixel_g},\{atlas_pixel_b} sample0=\{sample0_x},\{sample0_y},\{sample0[0]},\{sample0[1]},\{sample0[2]},\{sample0[3]} sample1=\{sample1_x},\{sample1_y},\{sample1[0]},\{sample1[1]},\{sample1[2]},\{sample1[3]} sample2=\{sample2_x},\{sample2_y},\{sample2[0]},\{sample2[1]},\{sample2[2]},\{sample2[3]} read_pixels_len=\{read_pixels_len}",
+    "runtime_smoke_native_probe: tex_seed=\{payload_texture_seed} source_gen=\{source_generation} atlas_gen=\{atlas_generation} atlas_rgb=\{atlas_pixel_r},\{atlas_pixel_g},\{atlas_pixel_b} sample0=\{sample0_x},\{sample0_y},\{sample0[0]},\{sample0[1]},\{sample0[2]},\{sample0[3]} sample1=\{sample1_x},\{sample1_y},\{sample1[0]},\{sample1[1]},\{sample1[2]},\{sample1[3]} sample2=\{sample2_x},\{sample2_y},\{sample2[0]},\{sample2[1]},\{sample2[2]},\{sample2[3]} read_pixels_len=\{read_pixels_len} command_count=\{command_count}",
   )
   true
 }

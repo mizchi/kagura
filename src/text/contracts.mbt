@@ -72,6 +72,56 @@ pub fn default_text_style(family : String, size_px : Double) -> TextStyle {
 }
 
 ///|
+/// Detect font format from raw bytes.
+pub enum FontFormat {
+  TrueType
+  OpenType
+  Woff1
+  Woff2
+  TrueTypeCollection
+  Unknown
+} derive(Show, Eq)
+
+///|
+pub fn detect_font_format(data : Bytes) -> FontFormat {
+  if data.length() < 4 {
+    return Unknown
+  }
+  let b0 = data[0]
+  let b1 = data[1]
+  let b2 = data[2]
+  let b3 = data[3]
+  if b0 == b'\x00' && b1 == b'\x01' && b2 == b'\x00' && b3 == b'\x00' {
+    TrueType
+  } else if b0 == b'\x4F' && b1 == b'\x54' && b2 == b'\x54' && b3 == b'\x4F' {
+    OpenType // "OTTO"
+  } else if b0 == b'\x77' && b1 == b'\x4F' && b2 == b'\x46' && b3 == b'\x46' {
+    Woff1 // "wOFF"
+  } else if b0 == b'\x77' && b1 == b'\x4F' && b2 == b'\x46' && b3 == b'\x32' {
+    Woff2 // "wOF2"
+  } else if b0 == b'\x74' && b1 == b'\x74' && b2 == b'\x63' && b3 == b'\x66' {
+    TrueTypeCollection // "ttcf"
+  } else {
+    Unknown
+  }
+}
+
+///|
+/// Parse font from raw bytes (auto-detects TTF/OTF/WOFF1/WOFF2).
+pub fn parse_font_bytes(data : Bytes) -> @font.TTFont? {
+  @font.parse_font(data)
+}
+
+///|
+/// Load font engine from raw bytes.
+pub fn load_font_engine_from_bytes(data : Bytes) -> SimpleFontEngine? {
+  match @font.parse_font(data) {
+    Some(font) => Some(SimpleFontEngine::new(font))
+    None => None
+  }
+}
+
+///|
 /// Rasterized glyph pixel data (RGBA8 flat array).
 pub struct GlyphBitmap {
   width : Int

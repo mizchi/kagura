@@ -289,6 +289,52 @@ test "path_commands_to_svg_d empty" {
 }
 
 ///|
+test "detect_font_format identifies formats" {
+  // TTF magic: 0x00010000
+  let ttf = Bytes::from_array([b'\x00', b'\x01', b'\x00', b'\x00', b'\x00'])
+  assert_eq!(detect_font_format(ttf), FontFormat::TrueType)
+  // OTF magic: "OTTO"
+  let otf = Bytes::from_array([b'\x4F', b'\x54', b'\x54', b'\x4F', b'\x00'])
+  assert_eq!(detect_font_format(otf), FontFormat::OpenType)
+  // WOFF1 magic: "wOFF"
+  let woff1 = Bytes::from_array([b'\x77', b'\x4F', b'\x46', b'\x46', b'\x00'])
+  assert_eq!(detect_font_format(woff1), FontFormat::Woff1)
+  // WOFF2 magic: "wOF2"
+  let woff2 = Bytes::from_array([b'\x77', b'\x4F', b'\x46', b'\x32', b'\x00'])
+  assert_eq!(detect_font_format(woff2), FontFormat::Woff2)
+  // TTC magic: "ttcf"
+  let ttc = Bytes::from_array([b'\x74', b'\x74', b'\x63', b'\x66', b'\x00'])
+  assert_eq!(detect_font_format(ttc), FontFormat::TrueTypeCollection)
+  // Unknown
+  let unknown = Bytes::from_array([b'\xFF', b'\xFF', b'\xFF', b'\xFF'])
+  assert_eq!(detect_font_format(unknown), FontFormat::Unknown)
+  // Too short
+  let short = Bytes::from_array([b'\x00', b'\x01'])
+  assert_eq!(detect_font_format(short), FontFormat::Unknown)
+  // Empty
+  let empty = Bytes::from_array([])
+  assert_eq!(detect_font_format(empty), FontFormat::Unknown)
+}
+
+///|
+test "parse_font_bytes returns None for invalid data" {
+  let bad = Bytes::from_array([b'\xFF', b'\xFE', b'\xFD', b'\xFC', b'\x00', b'\x00', b'\x00', b'\x00'])
+  match parse_font_bytes(bad) {
+    None => ()
+    Some(_) => fail!("expected None for invalid font data")
+  }
+}
+
+///|
+test "load_font_engine_from_bytes returns None for invalid data" {
+  let bad = Bytes::from_array([b'\x00', b'\x00', b'\x00', b'\x00', b'\x00', b'\x00', b'\x00', b'\x00'])
+  match load_font_engine_from_bytes(bad) {
+    None => ()
+    Some(_) => fail!("expected None for invalid font data")
+  }
+}
+
+///|
 test "SimpleTextBatchBuilder produces commands from glyphs" {
   let cache = GlyphCache::new(256.0, 256.0, 1)
   let builder = SimpleTextBatchBuilder::new(cache, 0)

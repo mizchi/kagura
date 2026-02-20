@@ -481,6 +481,89 @@ test "audio output hooks default returns false and zero" {
 }
 
 ///|
+test "default_audio_output_stats" {
+  let stats = default_audio_output_stats()
+  assert_eq!(stats.initialized, false)
+  assert_eq!(stats.frames_written, 0)
+  assert_eq!(stats.suspended, false)
+}
+
+///|
+test "audio_render_and_write calls mixer and hooks" {
+  let written_ref : Ref[Int] = Ref::new(0)
+  set_audio_output_hooks(
+    new_audio_output_hooks(
+      fn(_fmt) { true },
+      fn(_output, frames) {
+        written_ref.val = written_ref.val + frames
+        frames
+      },
+      fn() {},
+      fn() {},
+      fn() {},
+    ),
+  )
+  let ctx = MixerAudioContext::new(44100)
+  let result = audio_render_and_write(ctx, 256)
+  assert_eq!(result, 256)
+  assert_eq!(written_ref.val, 256)
+  reset_audio_output_hooks()
+}
+
+///|
+test "tracked hooks updates stats on initialize" {
+  let stats : Ref[AudioOutputStats] = Ref::new(default_audio_output_stats())
+  let inner = new_audio_output_hooks(
+    fn(_fmt) { true },
+    fn(_output, frames) { frames },
+    fn() {},
+    fn() {},
+    fn() {},
+  )
+  let tracked = new_tracked_audio_output_hooks(inner, stats)
+  assert_eq!(stats.val.initialized, false)
+  let ok = (tracked.try_initialize)(default_audio_format())
+  assert_true!(ok)
+  assert_eq!(stats.val.initialized, true)
+}
+
+///|
+test "tracked hooks accumulates frames_written" {
+  let stats : Ref[AudioOutputStats] = Ref::new(default_audio_output_stats())
+  let inner = new_audio_output_hooks(
+    fn(_fmt) { true },
+    fn(_output, frames) { frames },
+    fn() {},
+    fn() {},
+    fn() {},
+  )
+  let tracked = new_tracked_audio_output_hooks(inner, stats)
+  let buf : FixedArray[Float] = FixedArray::make(512, 0.0)
+  let _ = (tracked.write_frames)(buf, 100)
+  assert_eq!(stats.val.frames_written, 100)
+  let _ = (tracked.write_frames)(buf, 200)
+  assert_eq!(stats.val.frames_written, 300)
+}
+
+///|
+test "tracked hooks tracks suspend and resume" {
+  let stats : Ref[AudioOutputStats] = Ref::new(default_audio_output_stats())
+  let inner = new_audio_output_hooks(
+    fn(_fmt) { true },
+    fn(_output, frames) { frames },
+    fn() {},
+    fn() {},
+    fn() {},
+  )
+  let tracked = new_tracked_audio_output_hooks(inner, stats)
+  assert_eq!(stats.val.suspended, false)
+  (tracked.suspend)()
+  assert_eq!(stats.val.suspended, true)
+  (tracked.resume)()
+  assert_eq!(stats.val.suspended, false)
+}
+
+///|
 test "audio output hooks latency can be overridden" {
   set_audio_output_hooks({
     try_initialize: fn(_fmt) { true },

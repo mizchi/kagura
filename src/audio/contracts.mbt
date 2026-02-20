@@ -827,3 +827,57 @@ pub struct AudioOutputStats {
   frames_written : Int
   suspended : Bool
 } derive(Show)
+
+///|
+/// Render audio from a MixerAudioContext and write to output hooks.
+/// Returns the number of frames actually written.
+pub fn audio_render_and_write(
+  mixer : MixerAudioContext,
+  frames : Int,
+) -> Int {
+  let channels = 2 // stereo
+  let buf : FixedArray[Float] = FixedArray::make(frames * channels, 0.0)
+  mixer.render(frames, buf)
+  audio_write_frames(buf, frames)
+}
+
+///|
+/// Create default AudioOutputStats.
+pub fn default_audio_output_stats() -> AudioOutputStats {
+  { initialized: false, frames_written: 0, suspended: false }
+}
+
+///|
+/// Create a tracked AudioOutputHooks wrapper that updates stats.
+pub fn new_tracked_audio_output_hooks(
+  inner : AudioOutputHooks,
+  stats : Ref[AudioOutputStats],
+) -> AudioOutputHooks {
+  {
+    try_initialize: fn(fmt) {
+      let ok = (inner.try_initialize)(fmt)
+      if ok {
+        stats.val = { ..stats.val, initialized: true }
+      }
+      ok
+    },
+    write_frames: fn(output, frames) {
+      let written = (inner.write_frames)(output, frames)
+      stats.val = {
+        ..stats.val,
+        frames_written: stats.val.frames_written + written,
+      }
+      written
+    },
+    suspend: fn() {
+      (inner.suspend)()
+      stats.val = { ..stats.val, suspended: true }
+    },
+    resume: fn() {
+      (inner.resume)()
+      stats.val = { ..stats.val, suspended: false }
+    },
+    close: inner.close,
+    output_latency: inner.output_latency,
+  }
+}

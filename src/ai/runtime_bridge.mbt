@@ -180,27 +180,6 @@ pub fn AIRuntimeState::get_recent_trace_ticks(
 }
 
 ///|
-/// Run AI tick with runtime config applied.
-fn run_ai_tick_with_config(
-  state : AIRuntimeState,
-  run_fn : (Int, @core.FrameBudget) -> BlackboardSnapshot?,
-  tick : Int,
-  frame : @core.FrameBudget,
-) -> Unit {
-  if not(state.config.enabled) {
-    return
-  }
-  match run_fn(tick, frame) {
-    Some(next_bb) => {
-      state.blackboard = next_bb
-      state.total_decisions = state.total_decisions + 1
-    }
-    None => ()
-  }
-  state.total_ticks = state.total_ticks + 1
-}
-
-///|
 /// Create an on_post_update callback for RuntimeHooks that runs AI tick.
 pub fn[P : AIPolicy, S : SensorBridge, A : ActuatorBridge, C : AIScheduler] create_ai_post_update_hook(
   policy : P,

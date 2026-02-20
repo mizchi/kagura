@@ -791,3 +791,143 @@ test "multi page atlas image too large returns None" {
   )
   assert_true(result is None)
 }
+
+///|
+test "allocator reset after all releases resets cursor" {
+  let allocator = new_simple_atlas_allocator(8, 8, 1)
+  let r1 = match allocator.allocate(4, 4) {
+    Some(r) => r
+    None => panic()
+  }
+  let r2 = match allocator.allocate(4, 4) {
+    Some(r) => r
+    None => panic()
+  }
+  assert_eq(atlas_allocator_is_empty(allocator), false)
+  allocator.release(r1)
+  allocator.release(r2)
+  assert_eq(atlas_allocator_is_empty(allocator), true)
+  assert_eq(atlas_allocator_reset_if_empty(allocator), true)
+  // Cursor should be (0,0) now, can re-allocate from start
+  let r3 = match allocator.allocate(4, 4) {
+    Some(r) => r
+    None => panic()
+  }
+  assert_eq(r3.x, 0)
+  assert_eq(r3.y, 0)
+}
+
+///|
+test "allocator reset no-op when images remain" {
+  let allocator = new_simple_atlas_allocator(8, 8, 1)
+  let r1 = match allocator.allocate(4, 4) {
+    Some(r) => r
+    None => panic()
+  }
+  let _ = match allocator.allocate(4, 4) {
+    Some(r) => r
+    None => panic()
+  }
+  allocator.release(r1)
+  assert_eq(atlas_allocator_reset_if_empty(allocator), false)
+  // Cursor should NOT have been reset
+  assert_eq(allocator.allocated.length(), 1)
+}
+
+///|
+test "remove_atlas_image resets allocator on empty page" {
+  let repo = new_simple_atlas_image_repository(8, 8, 900)
+  let key_a = new_asset_key("atlas/reset/a")
+  let key_b = new_asset_key("atlas/reset/b")
+  let _ = create_atlas_image(repo, key_a, default_image_spec(2, 2))
+  let _ = create_atlas_image(repo, key_b, default_image_spec(2, 2))
+  let _ = clear_dirty_atlas_page_flags(repo)
+  remove_atlas_image(repo, key_a)
+  remove_atlas_image(repo, key_b)
+  // After removing all images, allocator should be reset
+  // so re-allocation starts at (0,0)
+  let handle = match create_atlas_image(
+    repo, new_asset_key("atlas/reset/c"), default_image_spec(2, 2),
+  ) {
+    Some(h) => h
+    None => panic()
+  }
+  let _ = handle
+  let region = match get_atlas_image_region(repo, new_asset_key("atlas/reset/c")) {
+    Some(r) => r
+    None => panic()
+  }
+  assert_eq(region.x, 0)
+  assert_eq(region.y, 0)
+}
+
+///|
+test "multi_page_compact removes empty pages" {
+  let repo = new_multi_page_atlas_repository(8, 8)
+  // Create 3 pages: each with one 8x8 image
+  let _ = multi_page_create_image(repo, new_asset_key("p0"), default_image_spec(8, 8))
+  let _ = multi_page_create_image(repo, new_asset_key("p1"), default_image_spec(8, 8))
+  let _ = multi_page_create_image(repo, new_asset_key("p2"), default_image_spec(8, 8))
+  assert_eq(multi_page_count(repo), 3)
+  // Remove middle page's image
+  multi_page_remove_image(repo, new_asset_key("p1"))
+  let result = multi_page_compact(repo)
+  assert_eq(result.removed_page_count, 1)
+  assert_eq(result.remaining_page_count, 2)
+  assert_eq(multi_page_count(repo), 2)
+}
+
+///|
+test "multi_page_compact remaps key indices" {
+  let repo = new_multi_page_atlas_repository(8, 8)
+  let _ = multi_page_create_image(repo, new_asset_key("c0"), default_image_spec(8, 8))
+  let _ = multi_page_create_image(repo, new_asset_key("c1"), default_image_spec(8, 8))
+  let _ = multi_page_create_image(repo, new_asset_key("c2"), default_image_spec(8, 8))
+  assert_eq(multi_page_count(repo), 3)
+  // Remove pages 0 and 2, keep page 1
+  multi_page_remove_image(repo, new_asset_key("c0"))
+  multi_page_remove_image(repo, new_asset_key("c2"))
+  let result = multi_page_compact(repo)
+  assert_eq(result.removed_page_count, 2)
+  assert_eq(result.remaining_page_count, 1)
+  // draw source for remaining key should still resolve
+  let src = multi_page_get_draw_source(repo, new_asset_key("c1"))
+  assert_true(src is Some(_))
+}
+
+///|
+test "multi_page_compact no-op with no empty pages" {
+  let repo = new_multi_page_atlas_repository(8, 8)
+  let _ = multi_page_create_image(repo, new_asset_key("n0"), default_image_spec(8, 8))
+  let _ = multi_page_create_image(repo, new_asset_key("n1"), default_image_spec(8, 8))
+  let result = multi_page_compact(repo)
+  assert_eq(result.removed_page_count, 0)
+  assert_eq(result.remaining_page_count, 2)
+}
+
+///|
+test "atlas_page_stats returns correct info" {
+  let repo = new_simple_atlas_image_repository(16, 16, 600)
+  let _ = create_atlas_image(repo, new_asset_key("stats/a"), default_image_spec(4, 4))
+  let stats = atlas_page_stats(repo)
+  assert_eq(stats.atlas_id, 600)
+  assert_eq(stats.image_count, 1)
+  assert_eq(stats.allocated_region_count, 1)
+  assert_eq(stats.atlas_width, 16)
+  assert_eq(stats.atlas_height, 16)
+  assert_eq(stats.is_empty, false)
+}
+
+///|
+test "multi_page_stats per-page statistics" {
+  let repo = new_multi_page_atlas_repository(8, 8)
+  let _ = multi_page_create_image(repo, new_asset_key("ms0"), default_image_spec(4, 4))
+  let _ = multi_page_create_image(repo, new_asset_key("ms1"), default_image_spec(4, 4))
+  // Both fit on one page (4x4 images in 8x8 atlas)
+  // Force second page
+  let _ = multi_page_create_image(repo, new_asset_key("ms2"), default_image_spec(8, 8))
+  let stats = multi_page_stats(repo)
+  assert_eq(stats.length(), 2)
+  assert_eq(stats[0].image_count, 2)
+  assert_eq(stats[1].image_count, 1)
+}

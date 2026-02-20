@@ -937,6 +937,25 @@ pub impl AtlasAllocator for SimpleAtlasAllocator with release(self, region) {
 }
 
 ///|
+pub fn atlas_allocator_is_empty(allocator : SimpleAtlasAllocator) -> Bool {
+  allocator.allocated.length() == 0
+}
+
+///|
+pub fn atlas_allocator_reset_if_empty(
+  allocator : SimpleAtlasAllocator,
+) -> Bool {
+  if allocator.allocated.length() == 0 {
+    allocator.cursor_x = 0
+    allocator.cursor_y = 0
+    allocator.row_height = 0
+    true
+  } else {
+    false
+  }
+}
+
+///|
 struct SimpleAtlasImageEntry {
   key : AssetKey
   handle : @gfx.ImageHandle
@@ -1209,6 +1228,7 @@ pub fn remove_atlas_image(
   }
   repo.images = next
   mark_atlas_page_dirty(repo, released_dirty_rect)
+  let _ = atlas_allocator_reset_if_empty(repo.allocator)
 }
 
 ///|
@@ -1573,4 +1593,89 @@ pub fn multi_page_get_page_ids(
     ids.push(page.atlas_id)
   }
   ids
+}
+
+///|
+pub fn atlas_page_is_empty(repo : SimpleAtlasImageRepository) -> Bool {
+  repo.images.length() == 0
+}
+
+///|
+pub fn atlas_page_image_count(repo : SimpleAtlasImageRepository) -> Int {
+  repo.images.length()
+}
+
+///|
+pub struct AtlasCompactResult {
+  removed_page_ids : Array[Int]
+  removed_page_count : Int
+  remaining_page_count : Int
+} derive(Show)
+
+///|
+pub fn multi_page_compact(
+  repo : MultiPageAtlasRepository,
+) -> AtlasCompactResult {
+  let removed_page_ids : Array[Int] = []
+  // Collect indices of empty pages (reverse order for safe removal)
+  let empty_indices : Array[Int] = []
+  for i in 0..<repo.pages.length() {
+    if repo.pages[i].images.length() == 0 {
+      removed_page_ids.push(repo.pages[i].atlas_id)
+      empty_indices.push(i)
+    }
+  }
+  // Remove empty pages from back to front
+  let mut i = empty_indices.length() - 1
+  while i >= 0 {
+    let _ = repo.pages.remove(empty_indices[i])
+    i = i - 1
+  }
+  // Rebuild key_page_index
+  let next_index : Array[(String, Int)] = []
+  for page_idx in 0..<repo.pages.length() {
+    let page = repo.pages[page_idx]
+    for entry in page.images {
+      next_index.push((entry.key.value, page_idx))
+    }
+  }
+  repo.key_page_index = next_index
+  {
+    removed_page_ids,
+    removed_page_count: removed_page_ids.length(),
+    remaining_page_count: repo.pages.length(),
+  }
+}
+
+///|
+pub struct AtlasPageStats {
+  atlas_id : Int
+  image_count : Int
+  allocated_region_count : Int
+  atlas_width : Int
+  atlas_height : Int
+  is_empty : Bool
+} derive(Show)
+
+///|
+pub fn atlas_page_stats(repo : SimpleAtlasImageRepository) -> AtlasPageStats {
+  {
+    atlas_id: repo.atlas_id,
+    image_count: repo.images.length(),
+    allocated_region_count: repo.allocator.allocated.length(),
+    atlas_width: repo.atlas_width,
+    atlas_height: repo.atlas_height,
+    is_empty: repo.images.length() == 0,
+  }
+}
+
+///|
+pub fn multi_page_stats(
+  repo : MultiPageAtlasRepository,
+) -> Array[AtlasPageStats] {
+  let stats : Array[AtlasPageStats] = []
+  for page in repo.pages {
+    stats.push(atlas_page_stats(page))
+  }
+  stats
 }

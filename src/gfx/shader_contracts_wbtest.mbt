@@ -28,6 +28,7 @@ test "basic canonicalizer packs and prepends uniforms" {
   let ir : ShaderIR = {
     source: "fn main() { let _ = u_a + u_b; }",
     unit: ShaderUnit::Pixels,
+    noperspective: false,
     src_image_count: 1,
     entrypoints: { vertex: "v", fragment: "f" },
     debug_name: "x",
@@ -50,8 +51,8 @@ test "basic canonicalizer packs and prepends uniforms" {
   )
   assert_eq(packed.dwords.length(), 3)
   assert_eq(packed.dwords[0], 7)
-  assert_eq(packed.dwords[1], 1)
-  assert_eq(packed.dwords[2], 2)
+  assert_eq(packed.dwords[1], 0x3F800000) // 1.0 as f32 bits
+  assert_eq(packed.dwords[2], 0x40000000) // 2.0 as f32 bits
 }
 
 ///|
@@ -149,6 +150,7 @@ test "canonical uniforms length follows uniform layout contract" {
   let ir : ShaderIR = {
     source: "x",
     unit: ShaderUnit::Pixels,
+    noperspective: false,
     src_image_count: 1,
     entrypoints: { vertex: "v", fragment: "f" },
     debug_name: "x",
@@ -178,6 +180,7 @@ test "unused uniforms are zeroed while preserved prefix is kept" {
   let ir : ShaderIR = {
     source: "fn main() { let _ = u_used; }",
     unit: ShaderUnit::Pixels,
+    noperspective: false,
     src_image_count: 1,
     entrypoints: { vertex: "v", fragment: "f" },
     debug_name: "x",
@@ -216,6 +219,7 @@ test "unused filter matches uniform names by identifier boundary" {
   let ir : ShaderIR = {
     source: "fn main() { let _ = u_ab; }",
     unit: ShaderUnit::Pixels,
+    noperspective: false,
     src_image_count: 1,
     entrypoints: { vertex: "v", fragment: "f" },
     debug_name: "x",
@@ -799,4 +803,125 @@ test "builtin shader source repo evicts old entries over cache limit" {
     builtin_shader_source_cache_size(repo) <=
     builtin_shader_source_cache_limit(repo),
   )
+}
+
+///|
+test "double_to_f32_bits encodes common values" {
+  assert_eq(double_to_f32_bits(0.0), 0)
+  assert_eq(double_to_f32_bits(1.0), 0x3F800000)
+  assert_eq(double_to_f32_bits(0.5), 0x3F000000)
+  // -1.0 f32 bits = 0xBF800000 = -1082130432 signed
+  assert_eq(double_to_f32_bits(-1.0), -1082130432)
+}
+
+///|
+test "double_to_f32_bits handles edge cases" {
+  // +infinity
+  assert_eq(double_to_f32_bits(1.0 / 0.0), 0x7F800000)
+  // negative zero: 0x80000000 = -2147483648 signed
+  assert_eq(double_to_f32_bits(-0.0), -2147483648)
+}
+
+///|
+test "f32_bits_to_double roundtrip" {
+  let values : Array[Double] = [0.0, 1.0, 0.5, -1.0, 0.25, 100.0, -0.125]
+  for v in values {
+    let bits = double_to_f32_bits(v)
+    let back = f32_bits_to_double(bits)
+    assert_eq(back, v)
+  }
+}
+
+///|
+test "uniform_to_dwords encodes floats as f32 bits" {
+  let dwords = uniform_to_dwords(UniformValue::Float(0.5))
+  assert_eq(dwords.length(), 1)
+  assert_eq(dwords[0], 0x3F000000)
+  let dwords2 = uniform_to_dwords(UniformValue::Floats([1.0, 2.0]))
+  assert_eq(dwords2.length(), 2)
+  assert_eq(dwords2[0], 0x3F800000)
+  assert_eq(dwords2[1], 0x40000000)
+}
+
+///|
+test "ClampToEdge address snippet" {
+  let source = build_builtin_shader_source({
+    filter: BuiltinShaderFilter::Nearest,
+    address: BuiltinShaderAddress::ClampToEdge,
+    use_color_m: false,
+  })
+  assert_true(source.contains("clamp(uv"))
+  assert_true(source.contains("clamp_to_edge"))
+}
+
+///|
+test "ClampToEdge per-axis snippet" {
+  let spec : SamplerSpec = {
+    filter: BuiltinShaderFilter::Nearest,
+    address_u: BuiltinShaderAddress::ClampToEdge,
+    address_v: BuiltinShaderAddress::Repeat,
+  }
+  let snippet = builtin_address_snippet_per_axis(spec)
+  assert_true(snippet.contains("clamp(uv.x"))
+  assert_true(snippet.contains("fract(uv.y)"))
+}
+
+///|
+test "builtin_filter roundtrip" {
+  let filters = [
+    BuiltinShaderFilter::Nearest,
+    BuiltinShaderFilter::Linear,
+    BuiltinShaderFilter::Pixelated,
+  ]
+  for f in filters {
+    let i = builtin_filter_to_int(f)
+    let back = builtin_filter_from_int(i)
+    assert_true(builtin_filter_eq(f, back))
+  }
+}
+
+///|
+test "builtin_address roundtrip" {
+  let addresses = [
+    BuiltinShaderAddress::Unsafe,
+    BuiltinShaderAddress::ClampToZero,
+    BuiltinShaderAddress::ClampToEdge,
+    BuiltinShaderAddress::Repeat,
+    BuiltinShaderAddress::MirrorRepeat,
+  ]
+  for a in addresses {
+    let i = builtin_address_to_int(a)
+    let back = builtin_address_from_int(i)
+    assert_true(builtin_address_eq(a, back))
+  }
+}
+
+///|
+test "default_shader_entrypoints" {
+  let ep = default_shader_entrypoints()
+  assert_eq(ep.vertex, "vs_main")
+  assert_eq(ep.fragment, "fs_main")
+}
+
+///|
+test "noperspective directive parsed into ShaderIR" {
+  let frontend = new_basic_shader_frontend()
+  let request_with : ShaderCompileRequest = {
+    source: "//kage:noperspective\n@fragment fn main() -> vec4f { return vec4f(1.0); }",
+    unit_hint: Some(ShaderUnit::Pixels),
+    src_image_count: 0,
+    entrypoints: { vertex: "vs_main", fragment: "fs_main" },
+    debug_name: "nopersp",
+  }
+  let request_without : ShaderCompileRequest = {
+    source: "@fragment fn main() -> vec4f { return vec4f(1.0); }",
+    unit_hint: Some(ShaderUnit::Pixels),
+    src_image_count: 0,
+    entrypoints: { vertex: "vs_main", fragment: "fs_main" },
+    debug_name: "nopersp",
+  }
+  let ir_with = compile_shader_ir(frontend, request_with)
+  let ir_without = compile_shader_ir(frontend, request_without)
+  assert_eq(ir_with.noperspective, true)
+  assert_eq(ir_without.noperspective, false)
 }

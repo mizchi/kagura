@@ -26,6 +26,14 @@ pub fn[T : UniformCanonicalizer] build_canonical_uniforms(T, UniformLayout, Arra
 
 pub fn build_draw_command_dispatch(DrawTrianglesCommand) -> DrawCommandDispatch
 
+pub fn builtin_address_from_int(Int) -> BuiltinShaderAddress
+
+pub fn builtin_address_to_int(BuiltinShaderAddress) -> Int
+
+pub fn builtin_filter_from_int(Int) -> BuiltinShaderFilter
+
+pub fn builtin_filter_to_int(BuiltinShaderFilter) -> Int
+
 pub fn builtin_key_to_ex(BuiltinShaderKey) -> BuiltinShaderKeyEx
 
 pub fn builtin_shader_cache_stats(BasicBuiltinShaderSourceRepo) -> BuiltinShaderCacheStats
@@ -40,9 +48,13 @@ pub fn clear_builtin_shader_source_cache(BasicBuiltinShaderSourceRepo) -> Unit
 
 pub fn[T : GraphicsDriver] clear_screen(T, Color) -> Unit raise
 
+pub fn compare_framebuffer_snapshots(FramebufferSnapshot, FramebufferSnapshot, Int) -> PixelDiffResult
+
 pub fn[T : ShaderFrontend] compile_shader_ir(T, ShaderCompileRequest) -> ShaderIR raise
 
 pub fn compute_expected_preserved_dwords(PreservedUniformContext) -> Int
+
+pub fn create_framebuffer_snapshot(&GraphicsDriver, Int, Int, Int, Int) -> FramebufferSnapshot? raise
 
 pub fn create_null_graphics(Int, Int) -> StubGraphicsDriver
 
@@ -56,15 +68,23 @@ pub fn default_graphics_backend_options() -> GraphicsBackendOptions
 
 pub fn default_sampler_spec() -> SamplerSpec
 
+pub fn default_shader_entrypoints() -> ShaderEntrypoints
+
+pub fn double_to_f32_bits(Double) -> Int
+
 pub fn estimated_draw_call_count(DrawTrianglesCommand) -> Int
 
 pub fn estimated_total_index_count(DrawTrianglesCommand) -> Int
+
+pub fn f32_bits_to_double(Int) -> Double
 
 pub fn filter_mode_from_int(Int) -> FilterMode
 
 pub fn filter_mode_to_int(FilterMode) -> Int
 
 pub fn[T : GraphicsDriver, Q : CommandQueue] flush_commands(T, Q, Bool) -> Unit raise
+
+pub fn graphics_resize_stats(StubGraphicsDriver) -> GraphicsResizeStats
 
 pub fn new_basic_builtin_shader_source_repo() -> BasicBuiltinShaderSourceRepo
 
@@ -84,6 +104,8 @@ pub fn new_image_handle(Int, Int, Int) -> ImageHandle
 
 pub fn new_native_graphics_hooks((Int, Int) -> Bool, (Bool, RenderPassDesc) -> Unit, (Bool, Bool) -> Unit, (Bool, DrawTrianglesCommand) -> Unit, (Bool, Int, Int) -> Unit) -> NativeGraphicsHooks
 
+pub fn new_native_graphics_hooks_full((Int, Int) -> Bool, (Bool, RenderPassDesc) -> Unit, (Bool, Bool) -> Unit, (Bool, DrawTrianglesCommand) -> Unit, (Bool, Int, Int) -> Unit, (Bool, Int, Int, Int, Int) -> Array[Int]?) -> NativeGraphicsHooks
+
 pub fn new_pipeline_handle(Int) -> PipelineHandle
 
 pub fn new_render_pass_desc(Color, Bool) -> RenderPassDesc
@@ -94,11 +116,21 @@ pub fn new_simple_command_queue() -> SimpleCommandQueue
 
 pub fn new_web_graphics_hooks((GraphicsBackendKind, Int, Int) -> Bool, (Bool, GraphicsBackendKind, RenderPassDesc) -> Unit, (Bool, GraphicsBackendKind, Bool) -> Unit, (Bool, GraphicsBackendKind, DrawTrianglesCommand) -> Unit, (Bool, GraphicsBackendKind, Int, Int) -> Unit) -> WebGraphicsHooks
 
+pub fn new_web_graphics_hooks_full((GraphicsBackendKind, Int, Int) -> Bool, (Bool, GraphicsBackendKind, RenderPassDesc) -> Unit, (Bool, GraphicsBackendKind, Bool) -> Unit, (Bool, GraphicsBackendKind, DrawTrianglesCommand) -> Unit, (Bool, GraphicsBackendKind, Int, Int) -> Unit, (Bool, GraphicsBackendKind, Int, Int, Int, Int) -> Array[Int]?) -> WebGraphicsHooks
+
+pub fn parse_kage_noperspective_directive(String) -> Bool
+
+pub fn pixel_diff_ratio(PixelDiffResult) -> Double
+
+pub fn reset_graphics_clock_provider() -> Unit
+
 pub fn reset_native_graphics_hooks() -> Unit
 
 pub fn reset_web_graphics_hooks() -> Unit
 
 pub fn sampler_spec(BuiltinShaderFilter, BuiltinShaderAddress) -> SamplerSpec
+
+pub fn set_graphics_clock_provider(() -> Double) -> Unit
 
 pub fn set_native_graphics_hooks(NativeGraphicsHooks) -> Unit
 
@@ -180,6 +212,7 @@ pub impl Show for BlendOperation
 pub enum BuiltinShaderAddress {
   Unsafe
   ClampToZero
+  ClampToEdge
   Repeat
   MirrorRepeat
 }
@@ -278,6 +311,15 @@ pub struct FloatRect {
 }
 pub impl Show for FloatRect
 
+pub struct FramebufferSnapshot {
+  x : Int
+  y : Int
+  width : Int
+  height : Int
+  pixels : Array[Int]
+}
+pub impl Show for FramebufferSnapshot
+
 pub enum GraphicsBackendKind {
   WgpuNative
   WebGpu
@@ -292,6 +334,16 @@ pub struct GraphicsBackendOptions {
   enable_vsync : Bool
 }
 pub impl Show for GraphicsBackendOptions
+
+pub struct GraphicsResizeStats {
+  resize_count : Int
+  suppressed_count : Int
+  current_width : Int
+  current_height : Int
+  last_resize_duration_ms : Double
+  total_resize_duration_ms : Double
+}
+pub impl Show for GraphicsResizeStats
 
 pub struct ImageHandle {
   id : Int
@@ -318,6 +370,7 @@ pub struct NativeGraphicsHooks {
   on_end : (Bool, Bool) -> Unit
   on_draw : (Bool, DrawTrianglesCommand) -> Unit
   on_resize : (Bool, Int, Int) -> Unit
+  on_read_pixels : (Bool, Int, Int, Int, Int) -> Array[Int]?
 }
 
 pub struct PackedUniforms {
@@ -329,6 +382,13 @@ pub struct PipelineHandle {
   id : Int
 }
 pub impl Show for PipelineHandle
+
+pub struct PixelDiffResult {
+  total_pixels : Int
+  diff_pixels : Int
+  max_channel_diff : Int
+}
+pub impl Show for PixelDiffResult
 
 pub struct PreservedUniformContext {
   dst_texture_size : IntSize
@@ -375,6 +435,7 @@ pub impl Show for ShaderHandle
 pub struct ShaderIR {
   source : String
   unit : ShaderUnit
+  noperspective : Bool
   src_image_count : Int
   entrypoints : ShaderEntrypoints
   debug_name : String
@@ -413,6 +474,10 @@ pub struct StubGraphicsDriver {
   mut begin_count : Int
   mut end_count : Int
   mut draw_count : Int
+  mut resize_count : Int
+  mut resize_suppressed_count : Int
+  mut last_resize_duration_ms : Double
+  mut total_resize_duration_ms : Double
 }
 pub impl GraphicsDriver for StubGraphicsDriver
 
@@ -439,6 +504,7 @@ pub struct WebGraphicsHooks {
   on_end : (Bool, GraphicsBackendKind, Bool) -> Unit
   on_draw : (Bool, GraphicsBackendKind, DrawTrianglesCommand) -> Unit
   on_resize : (Bool, GraphicsBackendKind, Int, Int) -> Unit
+  on_read_pixels : (Bool, GraphicsBackendKind, Int, Int, Int, Int) -> Array[Int]?
 }
 
 // Type aliases
@@ -466,6 +532,7 @@ pub trait GraphicsDriver {
   new_image(Self, Int, Int) -> ImageHandle raise
   new_shader(Self, String) -> ShaderHandle raise
   draw_triangles(Self, DrawTrianglesCommand) -> Unit raise
+  read_pixels(Self, Int, Int, Int, Int) -> Array[Int]? raise
 }
 
 pub trait ShaderFrontend {

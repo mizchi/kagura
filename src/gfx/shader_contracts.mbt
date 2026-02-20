@@ -35,6 +35,7 @@ pub struct ShaderCompileRequest {
 pub struct ShaderIR {
   source : String
   unit : ShaderUnit
+  noperspective : Bool
   src_image_count : Int
   entrypoints : ShaderEntrypoints
   debug_name : String
@@ -107,6 +108,7 @@ pub enum BuiltinShaderFilter {
 pub enum BuiltinShaderAddress {
   Unsafe
   ClampToZero
+  ClampToEdge
   Repeat
   MirrorRepeat
 } derive(Show)
@@ -425,14 +427,68 @@ pub fn validate_preserved_uniform_context(
 }
 
 ///|
+/// Convert a Double to IEEE 754 f32 bit representation as Int.
+pub fn double_to_f32_bits(v : Double) -> Int {
+  let bits = v.reinterpret_as_int64()
+  let sign = bits.lsr(63).land(1L).to_int()
+  let exp = bits.lsr(52).land(0x7FFL).to_int()
+  let mantissa = bits.land(0xFFFFFFFFFFFFFL)
+  if exp == 0x7FF {
+    // Infinity or NaN
+    if mantissa != 0L {
+      sign.lsl(31).lor(0x7FC00000)
+    } else {
+      sign.lsl(31).lor(0x7F800000)
+    }
+  } else if exp == 0 {
+    sign.lsl(31) // zero/denormal → zero
+  } else {
+    let f32_exp = exp - 1023 + 127
+    if f32_exp >= 255 {
+      sign.lsl(31).lor(0x7F800000)
+    } else if f32_exp <= 0 {
+      sign.lsl(31)
+    } else {
+      let f32_mantissa = mantissa.lsr(29).to_int()
+      sign.lsl(31).lor(f32_exp.lsl(23)).lor(f32_mantissa)
+    }
+  }
+}
+
+///|
+/// Convert IEEE 754 f32 bits (as Int) back to Double.
+pub fn f32_bits_to_double(bits : Int) -> Double {
+  let sign = bits.lsr(31).land(1)
+  let exp = bits.lsr(23).land(0xFF)
+  let mantissa = bits.land(0x7FFFFF)
+  if exp == 0xFF {
+    if mantissa != 0 {
+      // NaN
+      0.0 / 0.0
+    } else if sign != 0 {
+      -1.0 / 0.0
+    } else {
+      1.0 / 0.0
+    }
+  } else if exp == 0 {
+    if sign != 0 { -0.0 } else { 0.0 }
+  } else {
+    let f64_exp = (exp - 127 + 1023).to_int64()
+    let f64_mantissa = mantissa.to_int64().lsl(29)
+    let f64_bits = sign.to_int64().lsl(63).lor(f64_exp.lsl(52)).lor(f64_mantissa)
+    f64_bits.reinterpret_as_double()
+  }
+}
+
+///|
 fn uniform_to_dwords(value : UniformValue) -> Array[Int] {
   match value {
     Bool(v) => [if v { 1 } else { 0 }]
     Int(v) => [v]
-    Float(v) => [v.to_int()]
+    Float(v) => [double_to_f32_bits(v)]
     Bools(vs) => vs.map(fn(v) { if v { 1 } else { 0 } })
     Ints(vs) => vs
-    Floats(vs) => vs.map(fn(v) { v.to_int() })
+    Floats(vs) => vs.map(fn(v) { double_to_f32_bits(v) })
   }
 }
 
@@ -699,6 +755,7 @@ fn contains_uniform_identifier(source : String, name : String) -> Bool {
 pub impl ShaderFrontend for BasicShaderFrontend with compile_ir(_self, request) {
   let src_image_count = normalized_src_image_count(request.src_image_count)
   let unit = resolve_shader_unit(request)
+  let noperspective = parse_kage_noperspective_directive(request.source)
   let source = preprocess_shader_source(
     request.source,
     unit,
@@ -717,6 +774,7 @@ pub impl ShaderFrontend for BasicShaderFrontend with compile_ir(_self, request) 
   {
     source,
     unit,
+    noperspective,
     src_image_count,
     entrypoints: request.entrypoints,
     debug_name: request.debug_name,
@@ -890,6 +948,11 @@ fn builtin_address_eq(
         BuiltinShaderAddress::ClampToZero => true
         _ => false
       }
+    BuiltinShaderAddress::ClampToEdge =>
+      match rhs {
+        BuiltinShaderAddress::ClampToEdge => true
+        _ => false
+      }
     BuiltinShaderAddress::Repeat =>
       match rhs {
         BuiltinShaderAddress::Repeat => true
@@ -1044,6 +1107,7 @@ fn builtin_address_tag(address : BuiltinShaderAddress) -> String {
   match address {
     BuiltinShaderAddress::Unsafe => "unsafe"
     BuiltinShaderAddress::ClampToZero => "clamp_to_zero"
+    BuiltinShaderAddress::ClampToEdge => "clamp_to_edge"
     BuiltinShaderAddress::Repeat => "repeat"
     BuiltinShaderAddress::MirrorRepeat => "mirror_repeat"
   }
@@ -1055,6 +1119,8 @@ fn builtin_address_snippet(address : BuiltinShaderAddress) -> String {
     BuiltinShaderAddress::Unsafe => "// address: unsafe\n  let sample_uv = uv;"
     BuiltinShaderAddress::ClampToZero =>
       "if uv.x < 0.0 || uv.x > 1.0 || uv.y < 0.0 || uv.y > 1.0 {\n    return vec4f(0.0, 0.0, 0.0, 0.0);\n  }\n  let sample_uv = uv;"
+    BuiltinShaderAddress::ClampToEdge =>
+      "let sample_uv = clamp(uv, vec2f(0.0), vec2f(1.0));"
     BuiltinShaderAddress::Repeat =>
       "// address: repeat\n  let sample_uv = fract(uv);"
     BuiltinShaderAddress::MirrorRepeat =>
@@ -1083,6 +1149,7 @@ fn single_axis_address_expr(
     BuiltinShaderAddress::Unsafe => coord
     BuiltinShaderAddress::ClampToZero =>
       "select(0.0, \{coord}, \{coord} >= 0.0 && \{coord} <= 1.0)"
+    BuiltinShaderAddress::ClampToEdge => "clamp(\{coord}, 0.0, 1.0)"
     BuiltinShaderAddress::Repeat => "fract(\{coord})"
     BuiltinShaderAddress::MirrorRepeat =>
       "abs(fract(\{coord} * 0.5) * 2.0 - 1.0)"
@@ -1225,5 +1292,72 @@ pub impl BuiltinShaderSourceRepo for BasicBuiltinShaderSourceRepo with shader_so
       trim_builtin_shader_cache_ex(self)
       source
     }
+  }
+}
+
+///|
+pub fn builtin_filter_to_int(filter : BuiltinShaderFilter) -> Int {
+  match filter {
+    BuiltinShaderFilter::Nearest => 0
+    BuiltinShaderFilter::Linear => 1
+    BuiltinShaderFilter::Pixelated => 2
+  }
+}
+
+///|
+pub fn builtin_filter_from_int(value : Int) -> BuiltinShaderFilter {
+  match value {
+    1 => BuiltinShaderFilter::Linear
+    2 => BuiltinShaderFilter::Pixelated
+    _ => BuiltinShaderFilter::Nearest
+  }
+}
+
+///|
+pub fn builtin_address_to_int(address : BuiltinShaderAddress) -> Int {
+  match address {
+    BuiltinShaderAddress::Unsafe => 0
+    BuiltinShaderAddress::ClampToZero => 1
+    BuiltinShaderAddress::ClampToEdge => 2
+    BuiltinShaderAddress::Repeat => 3
+    BuiltinShaderAddress::MirrorRepeat => 4
+  }
+}
+
+///|
+pub fn builtin_address_from_int(value : Int) -> BuiltinShaderAddress {
+  match value {
+    1 => BuiltinShaderAddress::ClampToZero
+    2 => BuiltinShaderAddress::ClampToEdge
+    3 => BuiltinShaderAddress::Repeat
+    4 => BuiltinShaderAddress::MirrorRepeat
+    _ => BuiltinShaderAddress::Unsafe
+  }
+}
+
+///|
+pub fn default_shader_entrypoints() -> ShaderEntrypoints {
+  { vertex: "vs_main", fragment: "fs_main" }
+}
+
+///|
+pub fn parse_kage_noperspective_directive(source : String) -> Bool {
+  let chars = source.to_array()
+  let directive = "//kage:noperspective".to_array()
+  let chars_len = chars.length()
+  let directive_len = directive.length()
+  if chars_len < directive_len {
+    false
+  } else {
+    for i in 0..<(chars_len - directive_len + 1) {
+      if char_array_starts_with(chars, i, directive) {
+        // Check that it's at line start or preceded by newline
+        let at_start = i == 0 || chars[i - 1] == '\n'
+        if at_start {
+          return true
+        }
+      }
+    }
+    false
   }
 }

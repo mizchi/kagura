@@ -8,6 +8,16 @@ import {
 }
 
 // Values
+pub fn atlas_allocator_is_empty(SimpleAtlasAllocator) -> Bool
+
+pub fn atlas_allocator_reset_if_empty(SimpleAtlasAllocator) -> Bool
+
+pub fn atlas_page_image_count(SimpleAtlasImageRepository) -> Int
+
+pub fn atlas_page_is_empty(SimpleAtlasImageRepository) -> Bool
+
+pub fn atlas_page_stats(SimpleAtlasImageRepository) -> AtlasPageStats
+
 pub fn clear_dirty_atlas_page_flags(SimpleAtlasImageRepository) -> Int
 
 pub fn clear_source_image_dirty_flags(SimpleImageRepository) -> Int
@@ -64,6 +74,8 @@ pub fn list_source_image_bindings(SimpleImageRepository) -> Array[SourceImageBin
 
 pub fn multi_page_clear_dirty_flags(MultiPageAtlasRepository) -> Int
 
+pub fn multi_page_compact(MultiPageAtlasRepository) -> AtlasCompactResult
+
 pub fn multi_page_count(MultiPageAtlasRepository) -> Int
 
 pub fn multi_page_create_image(MultiPageAtlasRepository, AssetKey, ImageSpec) -> @gfx.ImageHandle?
@@ -79,6 +91,8 @@ pub fn multi_page_image_count(MultiPageAtlasRepository) -> Int
 pub fn multi_page_list_dirty_bindings(MultiPageAtlasRepository) -> Array[SourceImageBinding]
 
 pub fn multi_page_remove_image(MultiPageAtlasRepository, AssetKey) -> Unit
+
+pub fn multi_page_stats(MultiPageAtlasRepository) -> Array[AtlasPageStats]
 
 pub fn multi_page_update_image_spec(MultiPageAtlasRepository, AssetKey, ImageSpec) -> @gfx.ImageHandle?
 
@@ -130,6 +144,13 @@ pub struct AssetKey {
 }
 pub impl Show for AssetKey
 
+pub struct AtlasCompactResult {
+  removed_page_ids : Array[Int]
+  removed_page_count : Int
+  remaining_page_count : Int
+}
+pub impl Show for AtlasCompactResult
+
 pub struct AtlasDrawSource {
   page_image_id : Int
   region : AtlasRegion
@@ -139,6 +160,16 @@ pub struct AtlasDrawSource {
   v1 : Double
 }
 pub impl Show for AtlasDrawSource
+
+pub struct AtlasPageStats {
+  atlas_id : Int
+  image_count : Int
+  allocated_region_count : Int
+  atlas_width : Int
+  atlas_height : Int
+  is_empty : Bool
+}
+pub impl Show for AtlasPageStats
 
 pub struct AtlasRegion {
   x : Int

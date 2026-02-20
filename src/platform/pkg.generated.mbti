@@ -20,6 +20,10 @@ pub fn cursor_mode_from_int(Int) -> CursorMode
 
 pub fn cursor_mode_to_int(CursorMode) -> Int
 
+pub fn fullscreen_mode_from_int(Int) -> FullscreenMode
+
+pub fn fullscreen_mode_to_int(FullscreenMode) -> Int
+
 pub fn new_desktop_native_hooks((WindowOptions) -> Bool, (Bool) -> Unit, () -> Bool, (Int, Int) -> @core.OutsideSize, (Bool, Int) -> @core.InputSnapshot, (Bool, Bool) -> Bool, (Bool, Bool) -> Bool, (Bool, CursorMode) -> CursorMode, (Bool, CursorMode) -> CursorMode, (Bool, Double) -> Double, (Bool, Double) -> Double, (Bool, Bool) -> Bool, (Bool, Bool) -> Bool, (Bool) -> Unit, (Bool) -> Unit) -> DesktopNativeHooks
 
 pub fn new_web_canvas_hooks((String, WindowOptions) -> Bool, (Bool) -> Unit, () -> Bool, (Int, Int) -> @core.OutsideSize, (String, WindowOptions) -> SurfaceToken, (Bool, Int) -> @core.InputSnapshot, (String, Bool, Bool) -> Bool, (String, Bool, Bool) -> Bool, (String, Bool, CursorMode) -> CursorMode, (String, Bool, CursorMode) -> CursorMode, (String, Bool, Double) -> Double, (String, Bool, Double) -> Double, (String, Bool, Bool) -> Bool, (String, Bool, Bool) -> Bool, (String, Bool) -> Unit, (String, Bool) -> Unit) -> WebCanvasHooks
@@ -79,10 +83,18 @@ pub struct DesktopNativeHooks {
   request_attention : (Bool) -> Unit
 }
 
+pub enum FullscreenMode {
+  Windowed
+  Borderless
+  Exclusive
+}
+pub impl Show for FullscreenMode
+
 pub struct MonitorInfo {
   width : Int
   height : Int
   device_scale_factor : Double
+  refresh_rate_hz : Int
 }
 pub impl Show for MonitorInfo
 

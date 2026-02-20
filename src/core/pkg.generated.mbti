@@ -26,9 +26,19 @@ pub fn new_outside_size(Double, Double) -> OutsideSize
 
 pub fn new_touch_point(Int, Double, Double) -> TouchPoint
 
+pub fn new_touch_point_ex(Int, Double, Double, TouchPhase) -> TouchPointEx
+
+pub fn new_touch_point_ex_full(Int, Double, Double, TouchPhase, Double, Double, Double) -> TouchPointEx
+
 pub fn[T : Game] run_game(T, RunOptions) -> Unit
 
 pub fn step_fixed_timestep(FixedStepState, Double, FixedStepConfig) -> StepResult
+
+pub fn touch_phase_from_int(Int) -> TouchPhase
+
+pub fn touch_phase_to_int(TouchPhase) -> Int
+
+pub fn touch_point_from_ex(TouchPointEx) -> TouchPoint
 
 // Errors
 
@@ -109,12 +119,32 @@ pub struct StepResult {
 }
 pub impl Show for StepResult
 
+pub enum TouchPhase {
+  Began
+  Moved
+  Stationary
+  Ended
+  Cancelled
+}
+pub impl Show for TouchPhase
+
 pub struct TouchPoint {
   id : Int
   x : Double
   y : Double
 }
 pub impl Show for TouchPoint
+
+pub struct TouchPointEx {
+  id : Int
+  x : Double
+  y : Double
+  phase : TouchPhase
+  pressure : Double
+  delta_x : Double
+  delta_y : Double
+}
+pub impl Show for TouchPointEx
 
 // Type aliases
 

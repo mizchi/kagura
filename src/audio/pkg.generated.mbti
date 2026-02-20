@@ -4,6 +4,18 @@ package "mizchi/game_engine/audio"
 // Values
 pub fn audio_buffer_to_clip(@mizchi/audio.AudioBuffer, Bool) -> AudioClip
 
+pub fn audio_close() -> Unit
+
+pub fn audio_output_latency() -> Double
+
+pub fn audio_resume() -> Unit
+
+pub fn audio_suspend() -> Unit
+
+pub fn audio_try_initialize(AudioFormat) -> Bool
+
+pub fn audio_write_frames(FixedArray[Float], Int) -> Int
+
 pub fn bytes_per_sample(AudioFormat) -> Int
 
 pub fn bytes_to_samples(AudioFormat, Int) -> Int
@@ -32,9 +44,15 @@ pub fn mono_format(Int) -> AudioFormat
 
 pub fn new_audio_clip(AudioFormat, Bytes, Bool) -> AudioClip
 
+pub fn new_audio_output_hooks((AudioFormat) -> Bool, (FixedArray[Float], Int) -> Int, () -> Unit, () -> Unit, () -> Unit) -> AudioOutputHooks
+
+pub fn reset_audio_output_hooks() -> Unit
+
 pub fn samples_to_bytes(AudioFormat, Int) -> Int
 
 pub fn samples_to_duration(AudioFormat, Int) -> Double
+
+pub fn set_audio_output_hooks(AudioOutputHooks) -> Unit
 
 // Errors
 
@@ -61,6 +79,22 @@ pub struct AudioFormat {
   bits_per_sample : Int
 }
 pub impl Show for AudioFormat
+
+pub struct AudioOutputHooks {
+  try_initialize : (AudioFormat) -> Bool
+  write_frames : (FixedArray[Float], Int) -> Int
+  suspend : () -> Unit
+  resume : () -> Unit
+  close : () -> Unit
+  output_latency : () -> Double
+}
+
+pub struct AudioOutputStats {
+  initialized : Bool
+  frames_written : Int
+  suspended : Bool
+}
+pub impl Show for AudioOutputStats
 
 pub struct BufferedAudioStream {
   chunks : Array[Bytes]

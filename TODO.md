@@ -8,8 +8,8 @@
 
 ## 実装状況スナップショット (2026-02-20)
 
-- `moon test --target native`: 477 passed / 0 failed
-- `moon test --target js`: 472 passed / 0 failed
+- `moon test --target native`: 509 passed / 0 failed
+- `moon test --target js`: 504 passed / 0 failed
 - `moon run src/examples/runtime_smoke --target js`: pass (`runtime_smoke(js): ok (hooked)`)
 - `moon run src/examples/runtime_smoke_native --target native`: pass (`runtime_smoke_native: ok (real)`)
 - `pnpm e2e:smoke` (Playwright wasm/wasm-gc parity + native runtime smoke + cross-backend probe parity + pixel capture + read_pixels probe): 8 passed / 0 failed
@@ -33,21 +33,21 @@
 | GraphicsDriver 抽象 | `internal/graphicsdriver/graphics.go` | begin/end/new_image/new_shader/draw_triangles/resize/read_pixels 契約を実装。native/web hook へ resize/read_pixels 伝播を接続。`FramebufferSnapshot` 構造体を定義 | 部分 |
 | Native backend (wgpu + GLFW) | graphics driver 実装群 | `src/gfx_wgpu_native` で三角形描画まで実装。draw command のメタデータ（drawCalls/pipeline/uniform/blend/dst/shader/index/region/payload-count）を runtime bridge に伝播済み。さらにフレーム内 draw command queue を導入し、コマンドごとの triangle payload（position/UV/uniform/src_image_id）を保持して 1 pass で staged 描画する経路を追加。payload 描画は vertex/index buffer（queue write + drawIndexed）と sampler/texture bind group（seed 由来の最小 texture sampling）を使う経路へ更新済み。payload shader/pipeline は Native 側で LRU キャッシュ（device+format+payload key）を持ち、再生成コストを抑制。texture/bind-group は `seed + generation + pipeline` をキーにした最小 LRU キャッシュへ拡張済み。`src_image_id -> 2x2 RGBA palette` registry（register/clear/debug）と `src_image_id -> width/height/RGBA8 pixels` staged upload registry（begin/set/end + patch + debug query）を追加。generation 差分時は texture を作り直すだけでなく、サイズ一致かつ dirty rect ありなら `wgpuQueueWriteTexture` の subresource 更新でキャッシュ texture を in-place 更新する経路を追加。`runtime_resize_surface` を追加し resize hook から surface 再構成できるようにした。`runtime_smoke_native` で実行確認 | 部分 |
 | Web backend (WebGPU/WebGL) | JS backend 群 | hook 経由で canvas/context 初期化 + clear pass + drawCalls 分の三角形描画 + WebGPU→WebGL2 fallback まで接続。draw command のメタデータ（pipeline/uniform/blend/dst/shader/index/region/payload-count）に加えて、triangle payload（position/UV/uniform/src_image_id）を js/wasm host へ伝播済み。js 側の present はフレーム内 command queue を順に処理して payload の position/uniform 色を shader source に反映する最小描画経路へ更新（texture sample/頂点バッファ/本格 cache は未実装）。`web_runtime_hooks` に source image cache + generation/diff sync（register/patch）と debug query API を追加し、`runtime_smoke` で atlas page generation/pixel 更新（42/43/44）を検証。`runtime_smoke` wasm e2e で経路確認 | 部分 |
-| CommandQueue 集約/flush | `internal/graphicscommand/commandqueue.go` | `SimpleCommandQueue` で pipeline/texture(src_image_ids)/blend/uniform(index+uniform dwords)/index offset 条件の merge を実装（explicit geometry payload は非merge） | 部分 |
-| Image/Atlas 管理 | `internal/atlas/image.go` | `SimpleImageRepository`/`SimpleShaderRepository`/`SimpleMaterialRepository` と `SimpleAtlasAllocator` の最小実装を追加（高度な管理戦略は未実装）。image spec に 2x2 RGBA palette と任意 RGBA8 配列を保持できるよう拡張し、`image_id -> palette/pixels/generation` の export API (`SourceImageBinding`) を追加。`update_image_spec` で同サイズ更新時に generation を進め、RGBA8 差分から dirty rect を計算できるようにした。`list_dirty_source_image_bindings`/`clear_source_image_dirty_flags` を追加し、native/web hooks には `sync_dirty_source_images_from_repository` を追加。native は dirty rect が full でない更新で patch API を使うよう接続済み（web は契約のみ） | 部分 |
+| CommandQueue 集約/flush | `internal/graphicscommand/commandqueue.go` | `SimpleCommandQueue` で pipeline/texture(src_image_ids)/blend/uniform(index+uniform dwords)/index offset 条件の merge を実装。explicit geometry コマンド同士の vertex_data/indices 結合（インデックスオフセット付き）に対応、16384 float 上限付き。region-only と explicit の混合は非 merge | 完了 |
+| Image/Atlas 管理 | `internal/atlas/image.go` | `SimpleImageRepository`/`SimpleShaderRepository`/`SimpleMaterialRepository` と `SimpleAtlasAllocator` の最小実装を追加。image spec に 2x2 RGBA palette と任意 RGBA8 配列を保持できるよう拡張し、`image_id -> palette/pixels/generation` の export API (`SourceImageBinding`) を追加。`update_image_spec` で同サイズ更新時に generation を進め、RGBA8 差分から dirty rect を計算できるようにした。`list_dirty_source_image_bindings`/`clear_source_image_dirty_flags` を追加し、native/web hooks には `sync_dirty_source_images_from_repository` を追加。native は dirty rect が full でない更新で patch API を使うよう接続済み（web は契約のみ）。Atlas 解放戦略を追加: allocator 空間再利用（全解放時 cursor リセット）、`multi_page_compact`（空ページ除去）、利用統計 API（`AtlasPageStats`） | 部分 |
 | 画像 codec (decode/encode/resize) | Ebiten外 (拡張) | `mizchi/image` を依存追加し、`asset` パッケージに `ImageSpec <-> mizchi/image.ImageData` 変換と PNG/BMP/JPEG decode+encode、resize API を統合。format auto判別(`detect_raster_image_format`) と dispatch API (`decode_image_spec_auto` / `encode_image_spec`) および repository 直結 helper (`create/update_*_from_raster_bytes`) を追加。`src/asset/image_codec_wbtest.mbt` で roundtrip/resize/format判別/dispatch/create-update helper を検証。`src/examples/image_codec_smoke` で js/native の実行確認を追加し、`runtime_smoke`/`runtime_smoke_native` でも source image/atlas 更新を raster helper 経路で検証 | 部分 |
-| Shader Frontend/Hash | `internal/graphics/shader.go`, `internal/shader/shader.go` | source 前処理 + entrypoint/unit/src-image 含む hash を実装。`//kage:unit` directive（pixels/texels）の解釈を追加（Kage本体は未実装） | 部分 |
-| Uniform 正規化 | `internal/ui/shader.go`, `internal/shaderir/program.go` | layout 長（preserved/user）正規化 + source の識別子境界に基づく unused uniform 0化を実装 | 部分 |
-| Builtin shader source | `internal/builtinshader/shader.go` | filter/address/color_m 差分の WGSL source 生成 + lazy cache + clear/evict を実装 | 部分 |
+| Shader Frontend/Hash | `internal/graphics/shader.go`, `internal/shader/shader.go` | source 前処理 + entrypoint/unit/src-image 含む hash を実装。`//kage:unit` directive（pixels/texels）の解釈を追加。`//kage:noperspective` directive 解析 + `ShaderIR.noperspective` フィールド追加。`default_shader_entrypoints()` 追加（Kage本体は未実装） | 完了 |
+| Uniform 正規化 | `internal/ui/shader.go`, `internal/shaderir/program.go` | layout 長（preserved/user）正規化 + source の識別子境界に基づく unused uniform 0化を実装。Float/Floats の dword 変換を IEEE 754 f32 ビット表現に修正（`double_to_f32_bits`/`f32_bits_to_double`） | 完了 |
+| Builtin shader source | `internal/builtinshader/shader.go` | filter/address/color_m 差分の WGSL source 生成 + lazy cache + clear/evict を実装。`ClampToEdge` address mode 追加。filter/address の int roundtrip 関数追加 | 完了 |
 | Input snapshot 一貫性 | `internal/inputstate/inputstate.go` | Platform hook から tick ごとに取得する経路を追加。Web(JS hooks) は cursor/wheel/pressed_keys/mouse buttons/touches/gamepads の最小実装、Native(GLFW hooks) は cursor/wheel/pressed_keys/mouse buttons + gamepads + Cocoa touch 取得（touch 無効環境では left-click fallback）まで接続済み | 部分 |
 | 共通 2D payload decoder | `internal/graphicscommand/command.go` | `src/payload2d` に頂点/indices/uniform/src_image_id の decode 契約を分離。native hook に加え web/js/wasm hooks でも利用開始（後で独立 repo へ切り出し可能） | 部分 |
 | Text rendering | `text/v2` | `mizchi/font` を依存追加し `SimpleFontEngine`（measure/shape）+ `GlyphCache`（atlas 領域割当）+ `SimpleTextBatchBuilder`（glyph quad → draw command）を実装。wbtest でキャッシュ割当・行折返し・バッチ生成を検証 | 部分 |
 | UI レイアウト統合 | Ebiten外 (拡張) | `mizchi/layout` を依存追加し `UITree`（ノード木）+ `SimpleLayoutEngine`（Row/Column/Auto/Fixed/Percent/padding/gap）+ `SimpleUIInputAdapter`（InputSnapshot → UIEvent 差分変換）+ `SimpleUIRenderAdapter`（layout → draw command）を実装。wbtest で single/row/column/padding レイアウトと input/render adapter を検証 | 部分 |
-| AI tick 実行基盤 | Ebiten外 (拡張) | `run_ai_tick` とテストあり (`src/ai/contracts*.mbt`)。`AIRuntimeState` + `create_ai_post_update_hook` で runtime ループの `on_post_update` に接続可能。wbtest で blackboard 蓄積・hook 経由の decision 追跡を検証 | 部分 |
+| AI tick 実行基盤 | Ebiten外 (拡張) | `run_ai_tick` とテストあり (`src/ai/contracts*.mbt`)。`AIRuntimeState` + `create_ai_post_update_hook` で runtime ループの `on_post_update` に接続可能。wbtest で blackboard 蓄積・hook 経由の decision 追跡を検証 | 完了 |
 | Audio | `audio/*` | `AudioFormat`/`AudioClip`/`PlayerState`/`PlayerId` + `AudioStream`/`AudioContext` trait を定義。`SimpleAudioContext` で create/play/pause/stop/volume/seek/dispose/tick（ループ対応）を実装。`mizchi/audio` を依存追加し WAV/OGG コーデック（`decode_wav_clip`/`decode_ogg_clip`/`decode_audio_clip_auto`）+ `MixerAudioContext`（real mixer wrapper）+ `audio_buffer_to_clip`/`clip_to_audio_buffer` 変換を実装。wbtest 16 テストで検証 | 部分 |
 | SVG 描画 | Ebiten外 (拡張) | `mizchi/svg` を依存追加し `src/svg` に SVG → RGBA pixel 変換（`render_svg`/`render_svg_to_rgba`）+ SVG path → vector.Path 変換（`svg_path_to_vector_path`）+ SVG path → stroke/fill 頂点変換を実装。wbtest 9 テストで検証 | 部分 |
 | Mobile ターゲット | `mobile/*` | 戦略定義済み: Phase 1 = Web/WASM (PWA/WebView)、Phase 2 = Native (Metal/Vulkan)。Phase 1 は現状の Web backend で動作可能 | 部分 |
-| Utility 系 (`vector`, `colorm`, `debugutil`, `inpututil`) | 各 package | `inpututil` 相当で key/mouse button/touch/gamepad の JustPressed/JustReleased/Duration/Append（id 単位）を実装。`runtime` 側に input edge observer を追加しループ観測へ接続可能にした。`src/vector` に Vec2 + Path（moveTo/lineTo/quadTo/cubicTo/arcTo/close + flatten + stroke_path/fill_path）を追加。`src/colorm` に ColorM（5x4 行列）を追加。`src/debugutil` に color helpers + line/rect/fill + `build_input_debug_overlay`（crosshair/pressed keys/mouse buttons 表示）を追加。`src/ui` に `ui_events_from_input_edge`（inpututil edge → UIEvent 変換）を追加。全テスト付き | 部分 |
+| Utility 系 (`vector`, `colorm`, `debugutil`, `inpututil`) | 各 package | `inpututil` 相当で key/mouse button/touch/gamepad の JustPressed/JustReleased/Duration/Append（id 単位）を実装。`runtime` 側に input edge observer を追加しループ観測へ接続可能にした。`src/vector` に Vec2 + Path（moveTo/lineTo/quadTo/cubicTo/arcTo/close + flatten + stroke_path/fill_path）を追加。`src/colorm` に ColorM（5x4 行列）を追加。`src/debugutil` に color helpers + line/rect/fill + `build_input_debug_overlay`（crosshair/pressed keys/mouse buttons 表示）を追加。`src/ui` に `ui_events_from_input_edge`（inpututil edge → UIEvent 変換）を追加。全テスト付き | 完了 |
 
 ## 優先 TODO (実装順)
 
@@ -97,19 +97,24 @@
 6. CommandQueue の merge 条件を実装する
    - pipeline/texture/blend/uniform の互換条件で batch する。
    - `BlendFactor`/`BlendOperation`/`BlendEquation` を追加し `BlendMode::Custom(BlendEquation)` で任意のブレンド式を指定可能に。preset（Copy/Alpha/Add/Multiply）は `blend_mode_to_equation` で展開可能。`blend_mode_eq` は Custom 同士の全 6 フィールド比較に対応。wbtest で roundtrip/equality/merge 非互換を検証。
+   - explicit geometry コマンド同士の merge を実装: 同一レンダリング状態（dst/shader/blend/pipeline/uniforms/src_image_ids）を持つコマンドの vertex_data 結合 + indices オフセット付き結合。`max_merge_vertex_floats = 16384`（1024 quads）のバジェット制限。region-only と explicit の混合は非 merge。wbtest 6 テスト追加。
 7. `asset` の ImageRepository + AtlasAllocator を実装する
    - managed/unmanaged、部分更新、解放戦略を定義。
    - `MultiPageAtlasRepository` を追加。ページ満杯時に自動で新ページを生成し、key → page ルーティングで cross-page query（draw source/region/update/remove）と dirty binding 集約を実装。wbtest 11 テストで検証。
+   - Atlas 解放戦略を追加: `atlas_allocator_reset_if_empty`（全 region 解放後に cursor リセットで空間再利用）、`multi_page_compact`（空ページ除去 + key_page_index 再構築）、`AtlasPageStats`/`atlas_page_stats`/`multi_page_stats`（利用統計 API）。`remove_atlas_image` で自動リセットを接続。wbtest 8 テスト追加。
 8. Shader frontend を Kage/Ebiten 相当へ強化する
    - source 前処理、source hash、uniform レイアウト整合を厳密化。
    - `validate_shader_compile_request`（empty source/entrypoints/negative src_image_count チェック）、`shader_unit_eq`、`shader_hash_eq` を追加。wbtest 7 テスト追加。
+   - `default_shader_entrypoints()`（vertex="vs_main", fragment="fs_main"）を追加。`ShaderIR` に `noperspective : Bool` フィールドを追加し、`parse_kage_noperspective_directive` で `//kage:noperspective` directive を解析、`compile_ir` で ShaderIR に設定。wbtest 2 テスト追加。
 9. Uniform canonicalize を Ebiten 互換に近づける
    - preserved uniforms と unused filtering の挙動を詰める。
    - `validate_uniform_layout`（重複名/負 dword_counts/mismatched lengths チェック）、`compute_expected_preserved_dwords`（Ebiten layout: dst_size+dst_region+per_src*(size+region)）、`validate_preserved_uniform_context`（src arrays 不整合/zero dst_size チェック）を追加。wbtest 9 テスト追加。
+   - `double_to_f32_bits`/`f32_bits_to_double`（IEEE 754 f64→f32 ビット変換）を追加。`uniform_to_dwords` の `Float`/`Floats` を truncation(`v.to_int()`) から f32 ビット表現(`double_to_f32_bits(v)`) に修正し精度損失を解消。wbtest 4 テスト追加。
 10. Builtin shader (nearest/linear/pixelated + address mode) を実ソース化する
    - lazy cache と cleanup 戦略を追加する。
    - `MirrorRepeat` address mode を追加。`SamplerSpec`（per-axis address_u/address_v）+ `BuiltinShaderKeyEx` で軸独立サンプラーを定義。`build_builtin_shader_source_ex` で per-axis address snippet 生成。wbtest 10 テスト追加。
    - `BuiltinShaderSourceRepo` に `shader_source_ex` を追加し、`BuiltinShaderKeyEx` 対応の extended cache を実装。classic/extended 混在 LRU eviction、cache hit/miss stats（`builtin_shader_cache_stats`）を追加。wbtest 5 テスト追加。
+   - `ClampToEdge` address mode を追加（atlas 境界用）。tag/snippet/single_axis_address_expr/eq の全 match 式を更新。`builtin_filter_to_int`/`from_int`、`builtin_address_to_int`/`from_int` の int roundtrip 関数を追加。wbtest 4 テスト追加。
 
 ### P1: 入力/実行系の基本互換
 
@@ -136,7 +141,7 @@
    - `SimpleFontEngine`（TTFont wrapper）、`GlyphCache`（atlas 割当）、`SimpleTextBatchBuilder`（draw command 生成）を実装済み。
    - `GlyphAtlas`（cache + pixel buffer 統合）、`rasterize_glyph`（scaled_outline → SVG → pixel）、`rasterize_text`（文字列 → atlas glyph quads）、`blit_to_atlas`（pixel copy）を実装済み。wbtest 21 テストで検証。
    - 追加テスト: cache clear/re-allocate、page_id 伝播、blit_to_atlas 境界安全性、atlas ピクセルバッファゼロ初期化、空 path_commands_to_svg_d、zero-size text_style。
-   - 残タスク: フォントファイルの動的ロード。
+   - 残タスク: プラットフォーム hook 経由のフォントファイル動的ロード（`parse_font_bytes`/`load_font_engine_from_bytes` は追加済み）。
 15. `ui` に `mizchi/layout` を接続し input/render bridge を実装する。
    - `UITree` + `SimpleLayoutEngine`（Row/Column 方向、Auto/Fixed/Percent サイジング、padding/gap）を実装済み。
    - `SimpleUIInputAdapter`（InputSnapshot → UIEvent 差分）+ `SimpleUIRenderAdapter`（layout → draw command）を実装済み。

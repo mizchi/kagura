@@ -11,7 +11,7 @@
 - `moon test --target js`: 562 passed / 0 failed
 - `moon run src/examples/runtime_smoke --target js`: pass (`runtime_smoke(js): ok (hooked)`)
 - `moon run src/examples/runtime_smoke_native --target native`: pass (hook_font_load + audio_smoke)
-- `pnpm e2e:smoke`: 10 passed / 0 failed
+- `pnpm e2e:smoke`: 16 passed / 0 failed
 
 ### 機能領域 (判定: 完了)
 
@@ -49,6 +49,8 @@
 - P1-4: Audio Web Backend（Web Audio API ScriptProcessorNode + ring buffer, JS/WASM 両対応）
 - P2-1: フォント動的ロード運用検証（hook 経由 E2E + 複数サイズ glyph cache + native smoke）
 - P2-2: Native Audio Backend（miniaudio + ring buffer + MoonBit FFI bridge + native hooks 接続）
+- P3-2: WASM Audio Backend 接続（WASM host extern 7関数 + font stub + runtime_smoke audio smoke E2E）
+- P3-1: E2E テスト拡張（WASM font load 実装 + font smoke + native hook_font_load/audio_smoke アサーション, 16 tests）
 
 ## NOTE
 

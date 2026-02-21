@@ -21,15 +21,7 @@
 
 ### P3: 次に着手
 
-1. E2E テスト拡張
-   - Audio 再生 E2E 検証（Web Audio + native miniaudio）
-   - フォントロード + テキストレンダリング E2E
-   - WASM ターゲットの E2E 安定化
-
-2. WASM audio backend 接続
-   - Web Audio API hooks は JS で完了、WASM host extern は未接続
-
-3. 複数フォント・複数サイズの本格運用
+1. 複数フォント・複数サイズの本格運用
    - 現状: 単一グリフ 'I' の subset フォントで検証済み
    - 残課題: フルセットフォントでの日本語テキスト等
 

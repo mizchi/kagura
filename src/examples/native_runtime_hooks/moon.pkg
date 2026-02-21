@@ -1,5 +1,6 @@
 import {
   "mizchi/game_engine/asset" @asset,
+  "mizchi/game_engine/audio" @audio,
   "mizchi/game_engine/core" @core,
   "mizchi/game_engine/gfx" @gfx,
   "mizchi/game_engine/gfx_wgpu_native" @wgpu_native,

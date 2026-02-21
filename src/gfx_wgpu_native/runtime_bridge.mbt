@@ -1295,6 +1295,62 @@ pub fn runtime_load_font_data(path : String) -> Array[Int]? {
   Some(data)
 }
 
+// ---------------------------------------------------------------------------
+// Audio bridge (miniaudio native backend)
+// ---------------------------------------------------------------------------
+
+///|
+pub fn runtime_audio_try_initialize(sample_rate : Int, channels : Int) -> Bool {
+  moonbit_audio_try_initialize(sample_rate, channels) != 0
+}
+
+///|
+pub fn runtime_audio_write_frames(
+  output : FixedArray[Float],
+  frames : Int,
+) -> Int {
+  let channels = 2
+  let write_pos = moonbit_audio_get_write_pos()
+  let to_write = if frames < 0 { 0 } else { frames }
+  let available_samples = output.length()
+  let actual_frames = if to_write * channels > available_samples {
+    available_samples / channels
+  } else {
+    to_write
+  }
+  for i in 0..<actual_frames {
+    let ring_pos = (write_pos + i) % 32768 // AUDIO_RING_SIZE
+    for ch in 0..<channels {
+      let sample_idx = i * channels + ch
+      moonbit_audio_write_sample(ring_pos, ch, output[sample_idx])
+    }
+  }
+  if actual_frames > 0 {
+    moonbit_audio_advance_write(actual_frames)
+  }
+  actual_frames
+}
+
+///|
+pub fn runtime_audio_suspend() -> Unit {
+  moonbit_audio_suspend()
+}
+
+///|
+pub fn runtime_audio_resume() -> Unit {
+  moonbit_audio_resume()
+}
+
+///|
+pub fn runtime_audio_close() -> Unit {
+  moonbit_audio_close()
+}
+
+///|
+pub fn runtime_audio_output_latency() -> Double {
+  moonbit_audio_output_latency()
+}
+
 ///|
 pub fn shutdown_runtime_context() -> Unit {
   match runtime_context.val {

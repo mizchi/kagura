@@ -159,6 +159,32 @@ pub fn build_runtime_smoke_tile_draw_plan(
   if commands.length() != 3 {
     panic()
   }
+  // Multi-size verification: render at 12.0px
+  let glyph_count_after_24 = text_renderer.glyph_count()
+  let text_commands_12 = text_renderer.render_text(
+    "I",
+    12.0,
+    0.0,
+    30.0,
+    dst,
+    shader,
+    @gfx.blend_mode_from_int(1),
+    [255, 255, 255, 255],
+  )
+  if text_commands_12.length() == 0 {
+    panic()
+  }
+  let glyph_count_after_12 = text_renderer.glyph_count()
+  // Size-specific caching: 12px glyph should be separate from 24px
+  if glyph_count_after_12 <= glyph_count_after_24 {
+    panic()
+  }
+  // TextMetrics: 12px width should be smaller than 24px width
+  let metrics_24 = text_renderer.measure("I", 24.0)
+  let metrics_12 = text_renderer.measure("I", 12.0)
+  if metrics_12.width >= metrics_24.width {
+    panic()
+  }
   {
     atlas_repository,
     text_atlas: text_renderer.get_atlas(),

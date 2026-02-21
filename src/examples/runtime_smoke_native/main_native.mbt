@@ -414,9 +414,52 @@ fn run_runtime_contract_smoke() -> (Int, Int) raise {
 }
 
 ///|
+fn verify_hook_font_load() -> Bool {
+  // Verify hook-based font loading with real file
+  let font = @text.load_font(
+    ".mooncakes/mizchi/font/fixtures/NotoSans-subset.otf",
+  )
+  match font {
+    None => {
+      println("runtime_smoke_native: hook font load failed")
+      return false
+    }
+    Some(_) => ()
+  }
+  // Verify load_text_renderer via hook
+  let renderer = @text.load_text_renderer(
+    ".mooncakes/mizchi/font/fixtures/NotoSans-subset.otf", 256, 950, 0,
+  )
+  match renderer {
+    None => {
+      println("runtime_smoke_native: hook text_renderer load failed")
+      return false
+    }
+    Some(tr) => {
+      // Verify measure returns positive dimensions
+      let metrics = tr.measure("I", 24.0)
+      if metrics.width <= 0.0 || metrics.height <= 0.0 {
+        println("runtime_smoke_native: hook font measure invalid")
+        return false
+      }
+      println(
+        "runtime_smoke_native: hook_font_load ok, w=\{metrics.width} h=\{metrics.height}",
+      )
+    }
+  }
+  true
+}
+
+///|
 fn run_with_real_native_hooks() -> Bool {
   @native_hooks.install("runtime_smoke_native")
   @native_hooks.clear_source_image_palettes()
+  // Verify hook-based font loading before main probe
+  if !verify_hook_font_load() {
+    @native_hooks.shutdown()
+    @native_hooks.uninstall()
+    return false
+  }
   let (source_image_id, command_count) = run_runtime_contract_smoke() catch {
     _ => (-1, 0)
   }
@@ -578,9 +621,45 @@ fn run_with_real_native_hooks() -> Bool {
 }
 
 ///|
+fn verify_audio_smoke() -> Bool {
+  let format = @audio.default_audio_format()
+  let initialized = @audio.audio_try_initialize(format)
+  if !initialized {
+    // CI headless may not have audio device — skip gracefully
+    println("runtime_smoke_native: audio_try_initialize=false (no device, skipped)")
+    return true
+  }
+  // Write a short silence buffer
+  let frames = 256
+  let channels = 2
+  let buf : FixedArray[Float] = FixedArray::make(frames * channels, 0.0)
+  let written = @audio.audio_write_frames(buf, frames)
+  if written < 0 {
+    println("runtime_smoke_native: audio_write_frames failed")
+    @audio.audio_close()
+    return false
+  }
+  let latency = @audio.audio_output_latency()
+  @audio.audio_close()
+  println(
+    "runtime_smoke_native: audio_smoke ok, written=\{written} latency=\{latency}",
+  )
+  true
+}
+
+///|
 fn main {
   let native_ready = run_with_real_native_hooks()
   if !native_ready {
+    panic()
+  }
+  // Audio smoke — after native hooks are uninstalled, hooks are re-installed
+  // by verify_audio_smoke calling @audio.audio_try_initialize through hooks.
+  // But we need hooks installed first.
+  @native_hooks.install("runtime_smoke_native_audio")
+  let audio_ok = verify_audio_smoke()
+  @native_hooks.uninstall()
+  if !audio_ok {
     panic()
   }
   println("runtime_smoke_native: ok (real)")

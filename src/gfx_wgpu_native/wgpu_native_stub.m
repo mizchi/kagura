@@ -3669,3 +3669,134 @@ void moonbit_font_file_release(void) {
     g_font_file_size = 0;
   }
 }
+
+// ---------------------------------------------------------------------------
+// Native Audio Backend (miniaudio)
+// ---------------------------------------------------------------------------
+
+#define MA_NO_DECODING
+#define MA_NO_ENCODING
+#define MA_NO_GENERATION
+#define MA_NO_RESOURCE_MANAGER
+#define MA_NO_NODE_GRAPH
+#define MA_NO_ENGINE
+#define MINIAUDIO_IMPLEMENTATION
+#if __has_include("../../deps/miniaudio/miniaudio.h")
+#include "../../deps/miniaudio/miniaudio.h"
+#elif __has_include(<miniaudio.h>)
+#include <miniaudio.h>
+#else
+#error "miniaudio.h not found. download: curl -fsSL https://raw.githubusercontent.com/mackron/miniaudio/master/miniaudio.h -o deps/miniaudio/miniaudio.h"
+#endif
+
+#define AUDIO_RING_SIZE 32768
+static float g_audio_ring[AUDIO_RING_SIZE * 2]; // stereo
+static volatile int32_t g_audio_write_pos = 0;
+static volatile int32_t g_audio_read_pos = 0;
+static ma_device g_audio_device;
+static int32_t g_audio_initialized = 0;
+static int32_t g_audio_channels = 2;
+
+static void audio_data_callback(ma_device* pDevice, void* pOutput, const void* pInput, ma_uint32 frameCount) {
+    (void)pDevice;
+    (void)pInput;
+    float* out = (float*)pOutput;
+    int32_t channels = g_audio_channels;
+    int32_t ring_capacity = AUDIO_RING_SIZE;
+
+    for (ma_uint32 i = 0; i < frameCount; i++) {
+        int32_t rp = g_audio_read_pos;
+        int32_t wp = g_audio_write_pos;
+        int32_t available = wp - rp;
+        if (available < 0) available += ring_capacity;
+
+        if (available > 0) {
+            int32_t idx = (rp % ring_capacity) * channels;
+            for (int32_t ch = 0; ch < channels; ch++) {
+                out[i * channels + ch] = g_audio_ring[idx + ch];
+            }
+            g_audio_read_pos = (rp + 1) % ring_capacity;
+        } else {
+            for (int32_t ch = 0; ch < channels; ch++) {
+                out[i * channels + ch] = 0.0f;
+            }
+        }
+    }
+}
+
+int32_t moonbit_audio_try_initialize(int32_t sample_rate, int32_t channels) {
+    if (g_audio_initialized) return 1;
+    if (channels < 1) channels = 1;
+    if (channels > 2) channels = 2;
+    g_audio_channels = channels;
+
+    // Clear ring buffer
+    memset(g_audio_ring, 0, sizeof(g_audio_ring));
+    g_audio_write_pos = 0;
+    g_audio_read_pos = 0;
+
+    ma_device_config config = ma_device_config_init(ma_device_type_playback);
+    config.playback.format   = ma_format_f32;
+    config.playback.channels = (ma_uint32)channels;
+    config.sampleRate        = (ma_uint32)sample_rate;
+    config.dataCallback      = audio_data_callback;
+    config.pUserData         = NULL;
+
+    if (ma_device_init(NULL, &config, &g_audio_device) != MA_SUCCESS) {
+        return 0;
+    }
+    if (ma_device_start(&g_audio_device) != MA_SUCCESS) {
+        ma_device_uninit(&g_audio_device);
+        return 0;
+    }
+    g_audio_initialized = 1;
+    return 1;
+}
+
+void moonbit_audio_write_sample(int32_t pos, int32_t channel, float value) {
+    if (pos < 0 || pos >= AUDIO_RING_SIZE) return;
+    if (channel < 0 || channel >= g_audio_channels) return;
+    g_audio_ring[pos * g_audio_channels + channel] = value;
+}
+
+int32_t moonbit_audio_get_write_pos(void) {
+    return g_audio_write_pos;
+}
+
+void moonbit_audio_advance_write(int32_t frames) {
+    if (frames <= 0) return;
+    g_audio_write_pos = (g_audio_write_pos + frames) % AUDIO_RING_SIZE;
+}
+
+void moonbit_audio_suspend(void) {
+    if (g_audio_initialized) {
+        ma_device_stop(&g_audio_device);
+    }
+}
+
+void moonbit_audio_resume(void) {
+    if (g_audio_initialized) {
+        ma_device_start(&g_audio_device);
+    }
+}
+
+void moonbit_audio_close(void) {
+    if (g_audio_initialized) {
+        ma_device_uninit(&g_audio_device);
+        g_audio_initialized = 0;
+        g_audio_write_pos = 0;
+        g_audio_read_pos = 0;
+    }
+}
+
+double moonbit_audio_output_latency(void) {
+    // Estimate latency from ring buffer fill level
+    if (!g_audio_initialized) return 0.0;
+    int32_t wp = g_audio_write_pos;
+    int32_t rp = g_audio_read_pos;
+    int32_t buffered = wp - rp;
+    if (buffered < 0) buffered += AUDIO_RING_SIZE;
+    double sr = (double)g_audio_device.sampleRate;
+    if (sr <= 0.0) return 0.0;
+    return (double)buffered / sr;
+}

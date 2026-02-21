@@ -46,7 +46,7 @@ test "resolve_touch_points_with_mouse_fallback works when enabled explicitly" {
 }
 
 ///|
-test "touch point source preserved in resolve" {
+test "touch point source preserved in resolve - indirect filtered" {
   let direct_touch = @core.new_touch_point_with_source(
     1, 10.0, 20.0, @core.touch_source_from_int(0),
   )
@@ -61,9 +61,29 @@ test "touch point source preserved in resolve" {
     false,
     true,
   )
-  assert_eq(resolved.touches.length(), 2)
+  // Indirect touches should be filtered out, only Direct remains
+  assert_eq(resolved.touches.length(), 1)
   assert_eq(@core.touch_source_to_int(resolved.touches[0].source), 0)
-  assert_eq(@core.touch_source_to_int(resolved.touches[1].source), 1)
+}
+
+///|
+test "resolve ignores indirect-only touches and uses mouse fallback" {
+  let indirect_touch = @core.new_touch_point_with_source(
+    2, 30.0, 40.0, @core.touch_source_from_int(1),
+  )
+  let resolved = resolve_touch_points_with_mouse_fallback(
+    [indirect_touch],
+    [0],
+    50.0,
+    60.0,
+    false,
+    true,
+  )
+  // Indirect-only: should not set saw_native_touch, mouse fallback kicks in
+  assert_true(!resolved.saw_native_touch)
+  assert_eq(resolved.touches.length(), 1)
+  assert_eq(resolved.touches[0].id, 0)
+  assert_eq(resolved.touches[0].x.to_int(), 50)
 }
 
 ///|

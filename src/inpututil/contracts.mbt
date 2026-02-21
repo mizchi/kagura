@@ -302,11 +302,16 @@ pub fn append_just_released_mouse_buttons(
 pub struct InputHelper {
   key_state : KeyInputState
   mouse_state : MouseButtonInputState
+  touch_state : TouchInputState
 }
 
 ///|
 pub fn new_input_helper() -> InputHelper {
-  { key_state: new_key_input_state(), mouse_state: new_mouse_input_state() }
+  {
+    key_state: new_key_input_state(),
+    mouse_state: new_mouse_input_state(),
+    touch_state: new_touch_input_state(),
+  }
 }
 
 ///|
@@ -316,6 +321,7 @@ pub fn update_input_helper(
 ) -> Unit {
   update_key_input_state(helper.key_state, snapshot)
   update_mouse_input_state(helper.mouse_state, snapshot)
+  update_touch_input_state(helper.touch_state, snapshot)
 }
 
 ///|
@@ -325,5 +331,5 @@ pub fn is_any_action_just_pressed(
 ) -> Bool {
   helper.key_state.just_pressed_keys.length() > 0 ||
   helper.mouse_state.just_pressed_buttons.length() > 0 ||
-  input.touches.length() > 0
+  helper.touch_state.just_pressed_touch_ids.length() > 0
 }

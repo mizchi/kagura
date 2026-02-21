@@ -105,6 +105,47 @@ for (const target of TARGETS) {
   });
 }
 
+for (const target of TARGETS) {
+  test(`${target.name} audio smoke`, async ({ page }) => {
+    const result = await loadSmokeResult(page, target.normalPath);
+    expect(result.status).toBe("ok");
+    // Audio smoke line should be present in output
+    const audioMatch = result.output.match(/audio_smoke: ok init=(true|false)/);
+    expect(audioMatch).not.toBeNull();
+    if (audioMatch && audioMatch[1] === "true") {
+      // If audio initialized, check written frames
+      const writtenMatch = result.output.match(/written=(\d+)/);
+      expect(writtenMatch).not.toBeNull();
+      if (writtenMatch) {
+        expect(Number(writtenMatch[1])).toBe(256);
+      }
+    }
+  });
+}
+
+for (const target of TARGETS) {
+  test(`${target.name} font smoke`, async ({ page }) => {
+    const result = await loadSmokeResult(page, target.normalPath);
+    expect(result.status).toBe("ok");
+    // Font smoke line should be present in output
+    const fontMatch = result.output.match(
+      /font_smoke: ok load=(true|false)/,
+    );
+    expect(fontMatch).not.toBeNull();
+    if (fontMatch && fontMatch[1] === "true") {
+      // If font loaded, check measure dimensions
+      const wMatch = result.output.match(/font_smoke:.*w=([0-9.]+)/);
+      const hMatch = result.output.match(/font_smoke:.*h=([0-9.]+)/);
+      expect(wMatch).not.toBeNull();
+      expect(hMatch).not.toBeNull();
+      if (wMatch && hMatch) {
+        expect(Number(wMatch[1])).toBeGreaterThan(0);
+        expect(Number(hMatch[1])).toBeGreaterThan(0);
+      }
+    }
+  });
+}
+
 test("canvas dimensions match viewport after load", async ({ page }) => {
   await page.setViewportSize({ width: 800, height: 600 });
   const result = await loadSmokeResult(page, "/e2e/fixtures/runtime_smoke_wasm.html");

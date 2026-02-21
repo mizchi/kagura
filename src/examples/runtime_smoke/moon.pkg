@@ -1,6 +1,7 @@
 import {
   "mizchi/font" @font,
   "mizchi/game_engine/asset" @asset,
+  "mizchi/game_engine/audio" @audio,
   "mizchi/game_engine/core" @core,
   "mizchi/game_engine/examples/web_runtime_hooks" @web_hooks,
   "mizchi/game_engine/gfx" @gfx,

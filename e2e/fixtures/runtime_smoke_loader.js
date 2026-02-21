@@ -61,6 +61,8 @@ const webState = {
   height: 480,
   dpr: 1,
   backendMode: "webgpu",
+  audio: null,
+  font: { nameBytes: [], fontFiles: new Map() },
   webgpu: {
     context: null,
     device: null,
@@ -751,6 +753,98 @@ const run = async () => {
         webState.sample.canvas = null;
         webState.sample.context = null;
       },
+      load_font_name_len: (len) => {
+        webState.font.nameBytes = new Array(Number(len));
+      },
+      load_font_name_byte: (index, byteVal) => {
+        webState.font.nameBytes[Number(index)] = Number(byteVal) & 0xff;
+      },
+      load_font_data_begin: () => {
+        const nameBytes = new Uint8Array(webState.font.nameBytes);
+        const name = new TextDecoder().decode(nameBytes);
+        const data = webState.font.fontFiles.get(name);
+        if (data == null) {
+          webState.font._currentData = null;
+          return 0;
+        }
+        webState.font._currentData = data;
+        return data.length;
+      },
+      load_font_data_byte: (offset) => {
+        const data = webState.font._currentData;
+        if (data == null) return 0;
+        return data[Number(offset)] ?? 0;
+      },
+      audio_try_initialize: (sampleRate, channels) => {
+        try {
+          const AC = globalThis.AudioContext || globalThis.webkitAudioContext;
+          if (!AC) return 0;
+          const ctx = new AC({ sampleRate: Number(sampleRate) });
+          const ch = Number(channels) || 2;
+          const bufSize = 4096;
+          const ringSize = bufSize * 8;
+          const ring = new Float32Array(ringSize * ch);
+          let writePos = 0;
+          let readPos = 0;
+          const node = ctx.createScriptProcessor(bufSize, 0, ch);
+          node.onaudioprocess = (e) => {
+            const out = e.outputBuffer;
+            const frames = out.length;
+            for (let c = 0; c < ch; c++) {
+              const chData = out.getChannelData(c);
+              for (let i = 0; i < frames; i++) {
+                const idx = ((readPos + i) % ringSize) * ch + c;
+                chData[i] = ring[idx];
+              }
+            }
+            readPos = (readPos + frames) % ringSize;
+          };
+          node.connect(ctx.destination);
+          webState.audio = { ctx, node, ring, ringSize, writePos, readPos: 0, channels: ch, _frameIdx: 0 };
+          return 1;
+        } catch (_) {
+          return 0;
+        }
+      },
+      audio_write_frame: (channel, value) => {
+        const a = webState.audio;
+        if (!a) return;
+        const ch = Number(channel) | 0;
+        const idx = ((a.writePos + a._frameIdx) % a.ringSize) * a.channels + ch;
+        a.ring[idx] = Number(value);
+        if (ch === a.channels - 1) {
+          a._frameIdx++;
+        }
+      },
+      audio_write_end: (frames) => {
+        const a = webState.audio;
+        if (!a) return 0;
+        const f = Number(frames) | 0;
+        a.writePos = (a.writePos + f) % a.ringSize;
+        a._frameIdx = 0;
+        return f;
+      },
+      audio_suspend: () => {
+        const a = webState.audio;
+        if (a && a.ctx) a.ctx.suspend();
+      },
+      audio_resume: () => {
+        const a = webState.audio;
+        if (a && a.ctx) a.ctx.resume();
+      },
+      audio_close: () => {
+        const a = webState.audio;
+        if (a) {
+          if (a.node) { a.node.disconnect(); }
+          if (a.ctx) { a.ctx.close(); }
+          webState.audio = null;
+        }
+      },
+      audio_output_latency: () => {
+        const a = webState.audio;
+        if (a && a.ctx) return a.ctx.outputLatency || 0;
+        return 0;
+      },
     },
   };
   // Pre-initialize WebGPU device before WASM runs so gfx_try_initialize succeeds synchronously
@@ -773,13 +867,29 @@ const run = async () => {
     }
   }
 
+  // Pre-fetch font files for font smoke test
+  const fontPaths = [
+    ".mooncakes/mizchi/font/fixtures/NotoSans-subset.otf",
+  ];
+  for (const fontPath of fontPaths) {
+    try {
+      const fontResp = await fetch("/" + fontPath);
+      if (fontResp.ok) {
+        const buf = await fontResp.arrayBuffer();
+        webState.font.fontFiles.set(fontPath, new Uint8Array(buf));
+      }
+    } catch (_) {
+      // Font fetch failed — font smoke will report load=false
+    }
+  }
+
   const response = await fetch(wasmPath);
   if (!response.ok) {
     throw new Error(`failed to fetch wasm: ${response.status}`);
   }
   let instance;
   try {
-    ({ instance } = await WebAssembly.instantiateStreaming(response, imports));
+    ({ instance } = await WebAssembly.instantiateStreaming(response.clone(), imports));
   } catch (_) {
     const bytes = await response.arrayBuffer();
     ({ instance } = await WebAssembly.instantiate(bytes, imports));

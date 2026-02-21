@@ -294,6 +294,41 @@ fn main {
   run_draw_payload_probe(graphics) catch {
     _ => ()
   }
+  // Audio smoke test
+  let audio_format = @audio.default_audio_format()
+  let audio_ok = @audio.audio_try_initialize(audio_format)
+  if audio_ok {
+    // Write 256 frames of silence
+    let channels = audio_format.channels
+    let frames = 256
+    let buf : FixedArray[Float] = FixedArray::make(frames * channels, 0.0)
+    let written = @audio.audio_write_frames(buf, frames)
+    let latency = @audio.audio_output_latency()
+    @audio.audio_close()
+    println(
+      "audio_smoke: ok init=true written=\{written} latency=\{latency}",
+    )
+  } else {
+    println("audio_smoke: ok init=false")
+  }
+  // Font smoke test
+  let font_path = ".mooncakes/mizchi/font/fixtures/NotoSans-subset.otf"
+  let font = @text.load_font(font_path)
+  match font {
+    Some(_) => {
+      let renderer = @text.load_text_renderer(font_path, 256, 950, 0)
+      match renderer {
+        Some(tr) => {
+          let metrics = tr.measure("I", 24.0)
+          println(
+            "font_smoke: ok load=true w=\{metrics.width} h=\{metrics.height}",
+          )
+        }
+        None => println("font_smoke: ok load=true render=false")
+      }
+    }
+    None => println("font_smoke: ok load=false")
+  }
   let ready = @web_hooks.is_ready()
   @web_hooks.uninstall()
   if !ready {

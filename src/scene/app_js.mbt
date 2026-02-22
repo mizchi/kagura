@@ -1,13 +1,15 @@
+///|
 extern "js" fn js_request_animation_frame(f : () -> Unit) -> Unit =
   #| (f) => { requestAnimationFrame(() => f()); }
 
+///|
 pub fn run(
   view~ : () -> SceneNode,
   update~ : (@core.InputSnapshot) -> Unit,
-  width~ : Int = 320,
-  height~ : Int = 240,
-  title~ : String = "kagura",
-  canvas~ : String = "#app",
+  width? : Int = 320,
+  height? : Int = 240,
+  title? : String = "kagura",
+  canvas? : String = "#app",
 ) -> Unit {
   let game = @core.new_noop_game(width, height)
   let platform = @platform.create_web_canvas_platform(canvas)

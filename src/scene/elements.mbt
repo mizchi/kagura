@@ -1,11 +1,12 @@
+///|
 pub fn rect(
-  x~ : Double = 0.0,
-  y~ : Double = 0.0,
+  x? : Double = 0.0,
+  y? : Double = 0.0,
   w~ : Double,
   h~ : Double,
-  fill~ : Int = 0xFFFFFF,
-  alpha~ : Double = 1.0,
-  children~ : Array[SceneNode] = [],
+  fill? : Int = 0xFFFFFF,
+  alpha? : Double = 1.0,
+  children? : Array[SceneNode] = [],
 ) -> SceneNode {
   @ui.h(
     "rect",
@@ -21,12 +22,13 @@ pub fn rect(
   )
 }
 
+///|
 pub fn label(
-  x~ : Double = 0.0,
-  y~ : Double = 0.0,
+  x? : Double = 0.0,
+  y? : Double = 0.0,
   content~ : String,
-  color~ : Int = 0xFFFFFF,
-  scale~ : Double = 1.0,
+  color? : Int = 0xFFFFFF,
+  scale? : Double = 1.0,
 ) -> SceneNode {
   @ui.h(
     "label",
@@ -41,9 +43,10 @@ pub fn label(
   )
 }
 
+///|
 pub fn group(
-  x~ : Double = 0.0,
-  y~ : Double = 0.0,
+  x? : Double = 0.0,
+  y? : Double = 0.0,
   children~ : Array[SceneNode],
 ) -> SceneNode {
   @ui.h(
@@ -56,13 +59,14 @@ pub fn group(
   )
 }
 
+///|
 pub fn line(
   x0~ : Double,
   y0~ : Double,
   x1~ : Double,
   y1~ : Double,
-  width~ : Double = 1.0,
-  color~ : Int = 0xFFFFFF,
+  width? : Double = 1.0,
+  color? : Int = 0xFFFFFF,
 ) -> SceneNode {
   @ui.h(
     "line",
@@ -78,13 +82,14 @@ pub fn line(
   )
 }
 
+///|
 pub fn rect_outline(
   x~ : Double,
   y~ : Double,
   w~ : Double,
   h~ : Double,
-  line_width~ : Double = 1.0,
-  color~ : Int = 0xFFFFFF,
+  line_width? : Double = 1.0,
+  color? : Int = 0xFFFFFF,
 ) -> SceneNode {
   @ui.h(
     "rect_outline",
@@ -100,18 +105,22 @@ pub fn rect_outline(
   )
 }
 
+///|
 pub fn show(when : () -> Bool, child : () -> SceneNode) -> SceneNode {
   @ui.show(when, child)
 }
 
+///|
 pub fn for_each(items : () -> Array[SceneNode]) -> SceneNode {
   @ui.for_each(items)
 }
 
+///|
 pub fn fragment(children : Array[SceneNode]) -> SceneNode {
   @ui.fragment(children)
 }
 
+///|
 pub fn switch_(
   cases~ : Array[@ui.MatchCase[Unit, String]],
   fallback? : (() -> SceneNode)?,
@@ -119,6 +128,7 @@ pub fn switch_(
   @ui.switch_(cases~, fallback?)
 }
 
+///|
 pub fn match_case(
   when~ : () -> Bool,
   render~ : () -> SceneNode,

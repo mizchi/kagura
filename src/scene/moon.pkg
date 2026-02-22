@@ -10,8 +10,5 @@ import {
 warnings = "-6-53-68"
 
 options(
-  targets: {
-    "app_js.mbt": ["js"],
-    "app_native.mbt": ["native"],
-  },
+  targets: { "app_js.mbt": [ "js" ], "app_native.mbt": [ "native" ] },
 )

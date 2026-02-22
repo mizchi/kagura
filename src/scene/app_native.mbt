@@ -1,10 +1,11 @@
+///|
 pub fn run(
   view~ : () -> SceneNode,
   update~ : (@core.InputSnapshot) -> Unit,
-  width~ : Int = 320,
-  height~ : Int = 240,
-  title~ : String = "kagura",
-  canvas~ : String = "",
+  width? : Int = 320,
+  height? : Int = 240,
+  title? : String = "kagura",
+  canvas? : String = "",
 ) -> Unit {
   let _ = canvas
   let platform = @platform.create_desktop_glfw_platform()

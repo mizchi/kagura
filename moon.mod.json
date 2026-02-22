@@ -21,6 +21,6 @@
   ],
   "description": "2D-first game engine for MoonBit inspired by Ebiten",
   "source": "src",
-  "warn-list": "-6-53-68",
+  "warn-list": "-6-29-53-68",
   "preferred-target": "js"
 }

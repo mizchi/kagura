@@ -1,3 +1,4 @@
+///|
 pub fn render_scene(
   node : SceneNode,
   dst : @gfx.ImageHandle,
@@ -10,6 +11,7 @@ pub fn render_scene(
   cmds
 }
 
+///|
 fn render_node(
   cmds : Array[@gfx.DrawTrianglesCommand],
   node : SceneNode,
@@ -21,33 +23,76 @@ fn render_node(
   offset_y : Double,
 ) -> Unit {
   match node {
-    Element(el) => render_element(cmds, el, dst, shader, screen_w, screen_h, offset_x, offset_y)
+    Element(el) =>
+      render_element(
+        cmds, el, dst, shader, screen_w, screen_h, offset_x, offset_y,
+      )
     Fragment(children) =>
       for child in children {
-        render_node(cmds, child, dst, shader, screen_w, screen_h, offset_x, offset_y)
+        render_node(
+          cmds, child, dst, shader, screen_w, screen_h, offset_x, offset_y,
+        )
       }
     Show(condition~, child~) =>
       if condition() {
-        render_node(cmds, child(), dst, shader, screen_w, screen_h, offset_x, offset_y)
+        render_node(
+          cmds,
+          child(),
+          dst,
+          shader,
+          screen_w,
+          screen_h,
+          offset_x,
+          offset_y,
+        )
       }
     For(render~) => {
       let items = render()
       for item in items {
-        render_node(cmds, item, dst, shader, screen_w, screen_h, offset_x, offset_y)
+        render_node(
+          cmds, item, dst, shader, screen_w, screen_h, offset_x, offset_y,
+        )
       }
     }
     Component(render~) =>
-      render_node(cmds, render(), dst, shader, screen_w, screen_h, offset_x, offset_y)
+      render_node(
+        cmds,
+        render(),
+        dst,
+        shader,
+        screen_w,
+        screen_h,
+        offset_x,
+        offset_y,
+      )
     Switch(sw) => {
       for c in sw.cases {
         if (c.when)() {
-          render_node(cmds, (c.render)(), dst, shader, screen_w, screen_h, offset_x, offset_y)
+          render_node(
+            cmds,
+            (c.render)(),
+            dst,
+            shader,
+            screen_w,
+            screen_h,
+            offset_x,
+            offset_y,
+          )
           return
         }
       }
       match sw.fallback {
         Some(fb) =>
-          render_node(cmds, fb(), dst, shader, screen_w, screen_h, offset_x, offset_y)
+          render_node(
+            cmds,
+            fb(),
+            dst,
+            shader,
+            screen_w,
+            screen_h,
+            offset_x,
+            offset_y,
+          )
         None => ()
       }
     }
@@ -55,6 +100,7 @@ fn render_node(
   }
 }
 
+///|
 fn render_element(
   cmds : Array[@gfx.DrawTrianglesCommand],
   el : @ui.VElement[Unit, String],
@@ -66,15 +112,27 @@ fn render_element(
   offset_y : Double,
 ) -> Unit {
   match el.tag {
-    "rect" => render_rect(cmds, el, dst, shader, screen_w, screen_h, offset_x, offset_y)
-    "label" => render_label(cmds, el, dst, shader, screen_w, screen_h, offset_x, offset_y)
-    "group" => render_group(cmds, el, dst, shader, screen_w, screen_h, offset_x, offset_y)
-    "line" => render_line(cmds, el, dst, shader, screen_w, screen_h, offset_x, offset_y)
-    "rect_outline" => render_rect_outline(cmds, el, dst, shader, screen_w, screen_h, offset_x, offset_y)
+    "rect" =>
+      render_rect(cmds, el, dst, shader, screen_w, screen_h, offset_x, offset_y)
+    "label" =>
+      render_label(
+        cmds, el, dst, shader, screen_w, screen_h, offset_x, offset_y,
+      )
+    "group" =>
+      render_group(
+        cmds, el, dst, shader, screen_w, screen_h, offset_x, offset_y,
+      )
+    "line" =>
+      render_line(cmds, el, dst, shader, screen_w, screen_h, offset_x, offset_y)
+    "rect_outline" =>
+      render_rect_outline(
+        cmds, el, dst, shader, screen_w, screen_h, offset_x, offset_y,
+      )
     _ => ()
   }
 }
 
+///|
 fn render_rect(
   cmds : Array[@gfx.DrawTrianglesCommand],
   el : @ui.VElement[Unit, String],
@@ -102,6 +160,7 @@ fn render_rect(
   }
 }
 
+///|
 fn render_label(
   cmds : Array[@gfx.DrawTrianglesCommand],
   el : @ui.VElement[Unit, String],
@@ -119,9 +178,12 @@ fn render_label(
   let scale = get_attr_double(el.attrs, "scale", 1.0)
   let color = @debugutil.color_from_hex(color_hex)
   let chars = string_to_char_codes(content)
-  @debugutil.draw_dot_text(cmds, dst, shader, chars, x, y, screen_w, screen_h, color, scale)
+  @debugutil.draw_dot_text(
+    cmds, dst, shader, chars, x, y, screen_w, screen_h, color, scale,
+  )
 }
 
+///|
 fn render_group(
   cmds : Array[@gfx.DrawTrianglesCommand],
   el : @ui.VElement[Unit, String],
@@ -139,6 +201,7 @@ fn render_group(
   }
 }
 
+///|
 fn pixel_to_ndc_vertices(
   vertices : Array[Double],
   screen_w : Double,
@@ -160,6 +223,7 @@ fn pixel_to_ndc_vertices(
   out
 }
 
+///|
 fn render_line(
   cmds : Array[@gfx.DrawTrianglesCommand],
   el : @ui.VElement[Unit, String],
@@ -184,7 +248,15 @@ fn render_line(
     @gfx.new_draw_triangles_command(
       dst,
       shader,
-      [@gfx.new_dst_region(0, 0, screen_w.to_int(), screen_h.to_int(), indices.length())],
+      [
+        @gfx.new_dst_region(
+          0,
+          0,
+          screen_w.to_int(),
+          screen_h.to_int(),
+          indices.length(),
+        ),
+      ],
       0,
       0,
       0,
@@ -197,6 +269,7 @@ fn render_line(
   )
 }
 
+///|
 fn render_rect_outline(
   cmds : Array[@gfx.DrawTrianglesCommand],
   el : @ui.VElement[Unit, String],
@@ -214,14 +287,24 @@ fn render_rect_outline(
   let line_width = get_attr_double(el.attrs, "line_width", 1.0)
   let color_hex = get_attr_int(el.attrs, "color", 0xFFFFFF)
   let color = @debugutil.color_from_hex(color_hex)
-  let (vertices, indices) = @debugutil.rect_outline_vertices(x, y, w, h, line_width)
+  let (vertices, indices) = @debugutil.rect_outline_vertices(
+    x, y, w, h, line_width,
+  )
   let ndc_vertices = pixel_to_ndc_vertices(vertices, screen_w, screen_h)
   let uniform = @debugutil.color_to_uniform_dwords(color)
   cmds.push(
     @gfx.new_draw_triangles_command(
       dst,
       shader,
-      [@gfx.new_dst_region(0, 0, screen_w.to_int(), screen_h.to_int(), indices.length())],
+      [
+        @gfx.new_dst_region(
+          0,
+          0,
+          screen_w.to_int(),
+          screen_h.to_int(),
+          indices.length(),
+        ),
+      ],
       0,
       0,
       0,
@@ -234,6 +317,7 @@ fn render_rect_outline(
   )
 }
 
+///|
 fn get_attr_string(
   attrs : Array[(String, @ui.Attr[Unit, String])],
   key : String,
@@ -252,6 +336,7 @@ fn get_attr_string(
   default_
 }
 
+///|
 fn get_attr_double(
   attrs : Array[(String, @ui.Attr[Unit, String])],
   key : String,
@@ -264,6 +349,7 @@ fn get_attr_double(
   parse_double(s, default_)
 }
 
+///|
 fn get_attr_int(
   attrs : Array[(String, @ui.Attr[Unit, String])],
   key : String,
@@ -276,6 +362,7 @@ fn get_attr_int(
   parse_int(s, default_)
 }
 
+///|
 fn parse_double(s : String, default_ : Double) -> Double {
   let mut result = 0.0
   let mut frac = 0.0
@@ -314,9 +401,14 @@ fn parse_double(s : String, default_ : Double) -> Double {
     return default_
   }
   let v = result + frac
-  if negative { -v } else { v }
+  if negative {
+    -v
+  } else {
+    v
+  }
 }
 
+///|
 fn parse_int(s : String, default_ : Int) -> Int {
   let mut result = 0
   let mut negative = false
@@ -341,9 +433,14 @@ fn parse_int(s : String, default_ : Int) -> Int {
   if !started {
     return default_
   }
-  if negative { -result } else { result }
+  if negative {
+    -result
+  } else {
+    result
+  }
 }
 
+///|
 fn string_to_char_codes(s : String) -> Array[Int] {
   let codes : Array[Int] = []
   for ch in s {

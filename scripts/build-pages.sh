@@ -115,7 +115,7 @@ cat > "$SITE/index.html" <<'LANDING'
       <li><a href="./flappy_bird/">Flappy Bird</a></li>
       <li><a href="./survivor/">Survivor</a></li>
       <li><a href="./action_rpg/">Action RPG</a></li>
-      <li><a href="./arena3d/">Arena 3D</a></li>
+      <li><a href="./arena3d/">Arena 3D</a> — Experimental</li>
       <li><a href="./runtime_smoke/">Runtime Smoke</a></li>
     </ul>
     <div class="note">

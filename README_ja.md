@@ -112,7 +112,7 @@ fn main {
 | `flappy_bird`        | Scene | 入力処理付き 2D ゲームループ        |
 | `survivor`           | Scene | エンティティ・武器・カメラの複合ゲーム |
 | `action_rpg`         | Scene | タイルマップ・AI・UI のアクション RPG |
-| `arena3d`            | Low-level | 3D アリーナプロトタイプ           |
+| `arena3d`            | Low-level | 3D アリーナプロトタイプ (experimental) |
 | `runtime_smoke`      | Low-level | 最小 JS smoke テスト             |
 | `runtime_smoke_native` | Low-level | 最小 native smoke テスト       |
 

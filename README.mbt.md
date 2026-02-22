@@ -75,7 +75,7 @@ bash scripts/setup-wgpu-native.sh
 | `flappy_bird`        | 2D game loop with input handling   |
 | `survivor`           | Multi-entity game with weapons/UI  |
 | `action_rpg`         | Action RPG prototype               |
-| `arena3d`            | 3D arena prototype                 |
+| `arena3d`            | 3D arena prototype (experimental)  |
 
 Each example is an independent MoonBit module. Run with:
 

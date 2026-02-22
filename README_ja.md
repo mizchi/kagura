@@ -29,12 +29,16 @@ tilemap2d/     タイルマップシステム
 vector/        ベクトル演算
 ```
 
-### バックエンド戦略
+### プラットフォーム対応
 
-| ターゲット | バックエンド |
-|-----------|-------------|
-| デスクトップ | wgpu-native + GLFW |
-| Web       | WebGPU（主）、WebGL2（フォールバック） |
+| ターゲット | バックエンド | 対応状況 |
+|-----------|-------------|---------|
+| Web (全 OS) | WebGPU / WebGL2 | 対応済み |
+| Native macOS | wgpu-native + Metal + GLFW | 対応済み |
+| Native Linux | wgpu-native + Vulkan + GLFW | 未対応（予定あり） |
+| Native Windows | wgpu-native + D3D12/Vulkan + GLFW | 未対応（予定あり） |
+
+> JS ビルド（ブラウザ）は OS を問わず動作します。Native ビルドは現在 macOS のみです。
 
 ## クイックスタート
 

@@ -20,7 +20,19 @@
 
 ## 現在の優先タスク (優先順位順)
 
-(なし — MVP 第一段階の全タスク完了)
+### Windows / Linux Native 対応
+
+現在 Native ビルドは macOS のみ対応。wgpu-native と GLFW 自体は Windows/Linux をサポートしているため、以下の対応で拡張可能:
+
+- [ ] `scripts/setup-wgpu-native.sh` を Windows (MSYS2/MinGW) / Linux に対応
+- [ ] `moon.pkg` の `cc-link-flags` をプラットフォーム別に分岐（macOS: Metal frameworks、Linux: Vulkan + X11/Wayland、Windows: D3D12/Vulkan）
+- [ ] Audio バックエンドの抽象化（現在 AudioToolbox に依存 → Linux: PulseAudio/ALSA、Windows: WASAPI）
+- [ ] CI に `native-linux` (ubuntu-latest) / `native-windows` (windows-latest) ジョブ追加
+
+### scene3d API
+
+- [ ] `arena3d` の CPU 側 3D→2D 投影パターンを汎用化した `src/scene3d/` パッケージの検討
+- [ ] 現在 arena3d は Low-level API 直接使用。scene API と同様の宣言的インタフェースが可能か調査
 
 ## 完了条件 (第一段階)
 

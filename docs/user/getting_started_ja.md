@@ -27,7 +27,9 @@ pnpm install
 runtime_smoke(js): ok (hooked)
 ```
 
-## Native 実行（macOS）
+## Native 実行（macOS のみ）
+
+> Native ビルドは現在 macOS のみ対応しています。Windows / Linux 対応は計画中です。
 
 ```bash
 bash scripts/setup-wgpu-native.sh

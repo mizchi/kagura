@@ -43,4 +43,4 @@ fi
 
 echo "done"
 echo "- wgpu-native: $WGPU_DIR"
-echo "- run: moon run src/examples/native_triangle --target native"
+echo "- run: (cd examples/native_triangle && moon run src --target native)"

@@ -31,13 +31,24 @@ MoonBit 向け 2D(将来 3D) ゲームエンジン。
 
 契約先行だが、主要モジュールはランタイム統合のための最小実装が入っている。
 
+## ドキュメント
+
+### ユーザー向け
+
+- 入門: `docs/user/getting_started.md`
+- チュートリアル: `docs/user/tutorials.md`
+- API ガイド: `docs/user/api_guide.md`
+
+### 開発参加者向け
+
+- 開発フローと貢献手順: `CONTRIBUTING.md`
+- 設計/実装資料: `docs/architecture.md`, `docs/module_boundaries.md`, `docs/implementation_outline.md`, `docs/roadmap.md`, `docs/ebiten_reference.md`, `docs/shader_research.md`, `docs/ai_contract.md`, `docs/milestone2_native.md`
+
 ## Smoke Checks
 
 ```bash
-moon run src/examples/runtime_smoke --target js
-moon run src/examples/runtime_smoke_native --target native
-moon build src/examples/native_triangle --target native
+(cd examples/runtime_smoke && moon run src --target js)
+(cd examples/runtime_smoke_native && moon run src --target native)
+(cd examples/native_triangle && moon build src --target native)
 pnpm e2e:smoke
 ```
-
-詳細は `docs/architecture.md`, `docs/module_boundaries.md`, `docs/implementation_outline.md`, `docs/roadmap.md`, `docs/ebiten_reference.md`, `docs/shader_research.md`, `docs/ai_contract.md`, `docs/milestone2_native.md` を参照。

@@ -1,40 +1,40 @@
-# Getting Started
+# はじめに
 
-[日本語](getting_started_ja.md)
+[English](getting_started.md)
 
-## Prerequisites
+## 前提条件
 
 - [MoonBit](https://www.moonbitlang.com/)
 - Node.js 24+
 - pnpm
 - [just](https://github.com/casey/just)
 
-## Install
+## インストール
 
 ```bash
 pnpm install
 ```
 
-## First Run (JS smoke)
+## 最初の実行（JS smoke）
 
 ```bash
 (cd examples/runtime_smoke && moon run src --target js)
 ```
 
-Expected output:
+期待されるログ末尾:
 
 ```text
 runtime_smoke(js): ok (hooked)
 ```
 
-## Native Run (macOS)
+## Native 実行（macOS）
 
 ```bash
 bash scripts/setup-wgpu-native.sh
 (cd examples/runtime_smoke_native && moon run src --target native)
 ```
 
-## Ongoing Verification
+## 継続的な確認
 
 ```bash
 just check target=js

@@ -1,54 +1,115 @@
-# mizchi/kagura
+# kagura
 
-仮
+A 2D-first (with future 3D) game engine for [MoonBit](https://www.moonbitlang.com/), inspired by [Ebiten](https://github.com/hajimehoshi/ebiten).
 
-MoonBit 向け 2D(将来 3D) ゲームエンジン。
+[日本語](README_ja.md)
 
-- API/実装の責務を分離
-- Ebiten の良い設計（固定 timestep、描画コマンド集約、オフスクリーン合成、バックエンド抽象）を移植
-- デスクトップは wgpu-native、ブラウザは WebGPU / WebGL を対象
-- 現在は **契約先行 + 最小実装**（ランタイム smoke を通す stub 実装）
+## Features
 
-## 参考実装
+- **Contract-first architecture** -- API contracts are defined before implementations, keeping the codebase modular and replaceable
+- **Ebiten-inspired design** -- Fixed timestep updates, draw command batching, offscreen compositing, and backend abstraction
+- **Cross-platform** -- Desktop via wgpu-native, browser via WebGPU / WebGL
+- **Pure MoonBit** -- No CGo, no FFI beyond the graphics backend boundary
 
-- `hajimehoshi/ebiten`
-- `mizchi/layout`
-- `mizchi/font`
-- `~/Downloads/wgpu` の最小三角形デモ
+## Architecture
 
-## 現在の状態
+```
+core/          Game loop contracts, fixed timestep, frame stats
+platform/      Window / event / input abstraction (desktop + web)
+gfx/           Graphics driver, command queue, shader frontend
+runtime/       Game loop execution and integration
+asset/         Image / shader / material / atlas repository
+text/          Font shaping, glyph atlas (mizchi/font)
+ui/            Layout / input / render bridge (mizchi/layout)
+ai/            Sensor / policy / actuator / scheduler
+draw2d/        2D drawing utilities
+sprite2d/      Sprite system
+tilemap2d/     Tilemap system
+camera2d/      2D camera
+vector/        Vector math
+```
 
-- `core`: `Game`, `RunOptions`, `FixedStep*` の契約
-- `platform`: window/event/input 抽象
-- `gfx`: GraphicsDriver / CommandQueue + ShaderFrontend / UniformCanonicalizer + backend factory 抽象
-- `asset`: image/shader/material/atlas 抽象（SourceImageBinding ファクトリ付き）
-- `text`: font shaping / glyph atlas / text batch 抽象（GlyphAtlas → GPU テクスチャ同期済み）
-- `ui`: layout/input/render bridge 抽象
-- `ai`: sensor/policy/actuator/scheduler 抽象
-- `runtime`: ループ統合 API 抽象
-- `gfx_wgpu_native`: native 向け最小三角形バックエンド（Milestone 2）
-- `examples/native_runtime_hooks` / `examples/web_runtime_hooks`: 実行環境 hook 境界
+### Backend Strategy
 
-契約先行だが、主要モジュールはランタイム統合のための最小実装が入っている。
+| Target  | Backend              |
+|---------|----------------------|
+| Desktop | wgpu-native + GLFW   |
+| Web     | WebGPU (primary), WebGL2 (fallback) |
 
-## ドキュメント
+## Quick Start
 
-### ユーザー向け
+### Prerequisites
 
-- 入門: `docs/user/getting_started.md`
-- チュートリアル: `docs/user/tutorials.md`
-- API ガイド: `docs/user/api_guide.md`
+- [MoonBit](https://www.moonbitlang.com/)
+- Node.js 24+
+- pnpm
+- [just](https://github.com/casey/just)
 
-### 開発参加者向け
-
-- 開発フローと貢献手順: `CONTRIBUTING.md`
-- 設計/実装資料: `docs/architecture.md`, `docs/module_boundaries.md`, `docs/implementation_outline.md`, `docs/roadmap.md`, `docs/ebiten_reference.md`, `docs/shader_research.md`, `docs/ai_contract.md`, `docs/milestone2_native.md`
-
-## Smoke Checks
+### Install & Run
 
 ```bash
+pnpm install
+
+# JS smoke test
 (cd examples/runtime_smoke && moon run src --target js)
+
+# Native smoke test (macOS -- requires wgpu-native setup)
+bash scripts/setup-wgpu-native.sh
 (cd examples/runtime_smoke_native && moon run src --target native)
-(cd examples/native_triangle && moon build src --target native)
+```
+
+## Examples
+
+| Example              | Description                        |
+|----------------------|------------------------------------|
+| `runtime_smoke`      | Minimal JS smoke test              |
+| `runtime_smoke_native` | Minimal native smoke test        |
+| `native_triangle`    | Native backend triangle demo       |
+| `flappy_bird`        | 2D game loop with input handling   |
+| `survivor`           | Multi-entity game with weapons/UI  |
+| `action_rpg`         | Action RPG prototype               |
+| `arena3d`            | 3D arena prototype                 |
+
+Each example is an independent MoonBit module. Run with:
+
+```bash
+(cd examples/<name> && moon run src --target <js|native>)
+```
+
+## Documentation
+
+### For Users
+
+- [Getting Started](docs/user/getting_started.md)
+- [Tutorials](docs/user/tutorials.md)
+- [API Guide](docs/user/api_guide.md)
+
+### For Contributors
+
+- [Contributing Guide](CONTRIBUTING.md)
+- [Architecture](docs/architecture.md)
+- [Module Boundaries](docs/module_boundaries.md)
+- [Roadmap](docs/roadmap.md)
+
+## Verification
+
+```bash
+just fmt
+just check target=js
+just test target=js
+just check target=native
+just test target=native
 pnpm e2e:smoke
 ```
+
+## Dependencies
+
+- [mizchi/image](https://mooncakes.io/docs/#/mizchi/image/) -- Image codec (PNG/BMP/JPEG)
+- [mizchi/font](https://mooncakes.io/docs/#/mizchi/font/) -- Font rendering and shaping
+- [mizchi/layout](https://mooncakes.io/docs/#/mizchi/layout/) -- Layout engine
+- [mizchi/audio](https://mooncakes.io/docs/#/mizchi/audio/) -- Audio system
+- [mizchi/svg](https://mooncakes.io/docs/#/mizchi/svg/) -- SVG rendering
+
+## License
+
+Apache-2.0

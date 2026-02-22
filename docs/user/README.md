@@ -1,9 +1,9 @@
 # User Documentation
 
-`kagura` を利用するユーザー向けのドキュメントです。
+Documentation for users of `kagura`.
 
-- 入門: `docs/user/getting_started.md`
-- チュートリアル: `docs/user/tutorials.md`
-- API ガイド: `docs/user/api_guide.md`
+- [Getting Started](getting_started.md) / [はじめに](getting_started_ja.md)
+- [Tutorials](tutorials.md) / [チュートリアル](tutorials_ja.md)
+- [API Guide](api_guide.md) / [API ガイド](api_guide_ja.md)
 
-開発参加や内部設計の情報は `CONTRIBUTING.md` および `docs/` を参照してください。
+For contributor and architecture documentation, see [CONTRIBUTING.md](../../CONTRIBUTING.md) and `docs/`.

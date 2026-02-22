@@ -20,7 +20,7 @@ options(
   "is-main": true,
   link: {
     "native": {
-      "cc-link-flags": "-L../../deps/wgpu-macos/lib -L/usr/local/lib -L/Users/mz/brew/lib -lwgpu_native -lglfw -Wl,-rpath,../../deps/wgpu-macos/lib -Wl,-rpath,/usr/local/lib -Wl,-rpath,/Users/mz/brew/lib -framework Metal -framework QuartzCore -framework IOKit -framework CoreFoundation -framework Cocoa -framework Foundation",
+      "cc-link-flags": "-L../../deps/wgpu-macos/lib -L/usr/local/lib -L/opt/homebrew/lib -lwgpu_native -lglfw -Wl,-rpath,../../deps/wgpu-macos/lib -Wl,-rpath,/usr/local/lib -Wl,-rpath,/opt/homebrew/lib -framework Metal -framework QuartzCore -framework IOKit -framework CoreFoundation -framework Cocoa -framework Foundation",
     },
   },
   targets: {

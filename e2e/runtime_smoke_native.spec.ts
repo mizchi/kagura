@@ -1,9 +1,9 @@
 import { spawnSync } from "node:child_process";
 import { expect, test } from "@playwright/test";
 
-const runMoon = (args: string[]) => {
+const runMoon = (args: string[], cwd?: string) => {
   const result = spawnSync("moon", args, {
-    cwd: process.cwd(),
+    cwd: cwd ?? process.cwd(),
     encoding: "utf8",
     env: {
       ...process.env,
@@ -22,14 +22,14 @@ test.describe("runtime smoke native", () => {
   test.setTimeout(120_000);
 
   test("runtime_smoke --target native", () => {
-    const result = runMoon(["run", "src/examples/runtime_smoke", "--target", "native"]);
+    const result = runMoon(["run", "src", "--target", "native"], `${process.cwd()}/examples/runtime_smoke`);
     const output = `${result.stdout}\n${result.stderr}`;
     expect(result.status, output).toBe(0);
     expect(output).toContain("runtime_smoke(native): ok");
   });
 
   test("runtime_smoke_native hook_font_load", () => {
-    const result = runMoon(["run", "src/examples/runtime_smoke_native", "--target", "native"]);
+    const result = runMoon(["run", "src", "--target", "native"], `${process.cwd()}/examples/runtime_smoke_native`);
     const output = `${result.stdout}\n${result.stderr}`;
     expect(result.status, output).toBe(0);
     // hook_font_load should succeed with real font file
@@ -54,7 +54,7 @@ test.describe("runtime smoke native", () => {
   });
 
   test("runtime_smoke_native hook_font_load_cjk", () => {
-    const result = runMoon(["run", "src/examples/runtime_smoke_native", "--target", "native"]);
+    const result = runMoon(["run", "src", "--target", "native"], `${process.cwd()}/examples/runtime_smoke_native`);
     const output = `${result.stdout}\n${result.stderr}`;
     expect(result.status, output).toBe(0);
     const cjkMatch = output.match(/hook_font_load_cjk ok/);
@@ -72,7 +72,7 @@ test.describe("runtime smoke native", () => {
   });
 
   test("runtime_smoke_native audio_smoke", () => {
-    const result = runMoon(["run", "src/examples/runtime_smoke_native", "--target", "native"]);
+    const result = runMoon(["run", "src", "--target", "native"], `${process.cwd()}/examples/runtime_smoke_native`);
     const output = `${result.stdout}\n${result.stderr}`;
     expect(result.status, output).toBe(0);
     // audio_smoke should appear (either ok or with try_initialize=false)
@@ -81,7 +81,7 @@ test.describe("runtime smoke native", () => {
   });
 
   test("runtime_smoke_native --target native", () => {
-    const result = runMoon(["run", "src/examples/runtime_smoke_native", "--target", "native"]);
+    const result = runMoon(["run", "src", "--target", "native"], `${process.cwd()}/examples/runtime_smoke_native`);
     const output = `${result.stdout}\n${result.stderr}`;
     expect(result.status, output).toBe(0);
     expect(output).toContain("runtime_smoke_native: ok (real)");

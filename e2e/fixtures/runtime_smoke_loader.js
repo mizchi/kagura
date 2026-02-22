@@ -868,17 +868,18 @@ const run = async () => {
   }
 
   // Pre-fetch font files for font smoke test
-  const fontPaths = [
-    ".mooncakes/mizchi/font/fixtures/NotoSans-subset.otf",
-    ".mooncakes/mizchi/font/fixtures/NotoSansMono-Regular.ttf",
-    "fixtures/fonts/NotoSansJP-subset.otf",
+  // Each entry: [key used by MoonBit code, fetch URL path]
+  const fontEntries = [
+    [".mooncakes/mizchi/font/fixtures/NotoSans-subset.otf", "/examples/runtime_smoke/.mooncakes/mizchi/font/fixtures/NotoSans-subset.otf"],
+    [".mooncakes/mizchi/font/fixtures/NotoSansMono-Regular.ttf", "/examples/runtime_smoke/.mooncakes/mizchi/font/fixtures/NotoSansMono-Regular.ttf"],
+    ["fixtures/fonts/NotoSansJP-subset.otf", "/fixtures/fonts/NotoSansJP-subset.otf"],
   ];
-  for (const fontPath of fontPaths) {
+  for (const [fontKey, fontUrl] of fontEntries) {
     try {
-      const fontResp = await fetch("/" + fontPath);
+      const fontResp = await fetch(fontUrl);
       if (fontResp.ok) {
         const buf = await fontResp.arrayBuffer();
-        webState.font.fontFiles.set(fontPath, new Uint8Array(buf));
+        webState.font.fontFiles.set(fontKey, new Uint8Array(buf));
       }
     } catch (_) {
       // Font fetch failed — font smoke will report load=false

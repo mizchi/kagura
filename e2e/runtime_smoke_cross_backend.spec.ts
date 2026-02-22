@@ -9,9 +9,9 @@ type SmokeResult = {
   sampleHeight?: number;
 };
 
-const runMoon = (args: string[]) => {
+const runMoon = (args: string[], cwd?: string) => {
   const result = spawnSync("moon", args, {
-    cwd: process.cwd(),
+    cwd: cwd ?? process.cwd(),
     encoding: "utf8",
     env: {
       ...process.env,
@@ -97,7 +97,7 @@ test.describe("runtime smoke cross backend parity", () => {
     const webSamples = decodeProbeSamples(webProbe, 6);
     expect(webSeed).toBe(801);
 
-    const native = runMoon(["run", "src/examples/runtime_smoke_native", "--target", "native"]);
+    const native = runMoon(["run", "src", "--target", "native"], `${process.cwd()}/examples/runtime_smoke_native`);
     const nativeOutput = `${native.stdout}\n${native.stderr}`;
     expect(native.status, nativeOutput).toBe(0);
     const nativeProbe = nativeOutput.match(NATIVE_PROBE_RE);
@@ -146,7 +146,7 @@ test.describe("runtime smoke cross backend parity", () => {
     expect(webProbe, web.output).not.toBeNull();
     if (webProbe == null) return;
 
-    const native = runMoon(["run", "src/examples/runtime_smoke_native", "--target", "native"]);
+    const native = runMoon(["run", "src", "--target", "native"], `${process.cwd()}/examples/runtime_smoke_native`);
     const nativeOutput = `${native.stdout}\n${native.stderr}`;
     expect(native.status, nativeOutput).toBe(0);
     const nativeProbe = nativeOutput.match(NATIVE_PROBE_RE);

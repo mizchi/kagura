@@ -20,8 +20,8 @@ const CONTENT_TYPES = {
 const buildRuntimeSmoke = (target) => {
   const result = spawnSync(
     "moon",
-    ["build", "src/examples/runtime_smoke", "--target", target],
-    { stdio: "inherit" },
+    ["build", "src", "--target", target],
+    { cwd: join(ROOT, "examples", "runtime_smoke"), stdio: "inherit" },
   );
   if (result.status !== 0) {
     process.exit(result.status ?? 1);

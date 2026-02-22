@@ -61,10 +61,7 @@ pub fn LightingEnvironment::new(
 
 ///|
 pub fn LightingEnvironment::default() -> LightingEnvironment {
-  {
-    directional: DirectionalLight::default(),
-    ambient: AmbientLight::default(),
-  }
+  { directional: DirectionalLight::default(), ambient: AmbientLight::default() }
 }
 
 ///|

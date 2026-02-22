@@ -261,8 +261,8 @@ pub struct Mat4 {
 pub fn Mat4::identity() -> Mat4 {
   {
     elements: [
-      1.0, 0.0, 0.0, 0.0, 0.0, 1.0, 0.0, 0.0, 0.0, 0.0, 1.0, 0.0, 0.0, 0.0,
-      0.0, 1.0,
+      1.0, 0.0, 0.0, 0.0, 0.0, 1.0, 0.0, 0.0, 0.0, 0.0, 1.0, 0.0, 0.0, 0.0, 0.0,
+      1.0,
     ],
   }
 }
@@ -271,24 +271,33 @@ pub fn Mat4::identity() -> Mat4 {
 pub fn Mat4::zero() -> Mat4 {
   {
     elements: [
-      0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0,
-      0.0, 0.0,
+      0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0,
+      0.0,
     ],
   }
 }
 
 ///|
 /// Create Mat4 from four column vectors.
-pub fn Mat4::from_cols(
-  c0 : Vec4,
-  c1 : Vec4,
-  c2 : Vec4,
-  c3 : Vec4,
-) -> Mat4 {
+pub fn Mat4::from_cols(c0 : Vec4, c1 : Vec4, c2 : Vec4, c3 : Vec4) -> Mat4 {
   {
     elements: [
-      c0.x, c0.y, c0.z, c0.w, c1.x, c1.y, c1.z, c1.w, c2.x, c2.y, c2.z, c2.w,
-      c3.x, c3.y, c3.z, c3.w,
+      c0.x,
+      c0.y,
+      c0.z,
+      c0.w,
+      c1.x,
+      c1.y,
+      c1.z,
+      c1.w,
+      c2.x,
+      c2.y,
+      c2.z,
+      c2.w,
+      c3.x,
+      c3.y,
+      c3.z,
+      c3.w,
     ],
   }
 }
@@ -324,21 +333,21 @@ pub fn Mat4::multiply(self : Mat4, other : Mat4) -> Mat4 {
 pub fn Mat4::mul_vec4(self : Mat4, v : Vec4) -> Vec4 {
   {
     x: self.at(0, 0) * v.x +
-      self.at(0, 1) * v.y +
-      self.at(0, 2) * v.z +
-      self.at(0, 3) * v.w,
+    self.at(0, 1) * v.y +
+    self.at(0, 2) * v.z +
+    self.at(0, 3) * v.w,
     y: self.at(1, 0) * v.x +
-      self.at(1, 1) * v.y +
-      self.at(1, 2) * v.z +
-      self.at(1, 3) * v.w,
+    self.at(1, 1) * v.y +
+    self.at(1, 2) * v.z +
+    self.at(1, 3) * v.w,
     z: self.at(2, 0) * v.x +
-      self.at(2, 1) * v.y +
-      self.at(2, 2) * v.z +
-      self.at(2, 3) * v.w,
+    self.at(2, 1) * v.y +
+    self.at(2, 2) * v.z +
+    self.at(2, 3) * v.w,
     w: self.at(3, 0) * v.x +
-      self.at(3, 1) * v.y +
-      self.at(3, 2) * v.z +
-      self.at(3, 3) * v.w,
+    self.at(3, 1) * v.y +
+    self.at(3, 2) * v.z +
+    self.at(3, 3) * v.w,
   }
 }
 
@@ -418,7 +427,11 @@ pub fn Mat4::inverse(self : Mat4) -> Mat4 {
   let b09 = a21 * a32 - a22 * a31
   let b10 = a21 * a33 - a23 * a31
   let b11 = a22 * a33 - a23 * a32
-  let det = b00 * b11 - b01 * b10 + b02 * b09 + b03 * b08 - b04 * b07 +
+  let det = b00 * b11 -
+    b01 * b10 +
+    b02 * b09 +
+    b03 * b08 -
+    b04 * b07 +
     b05 * b06
   if det.abs() < 1.0e-12 {
     return Mat4::identity()
@@ -611,7 +624,10 @@ pub fn Quaternion::new(
 }
 
 ///|
-pub fn Quaternion::from_axis_angle(axis : Vec3, angle_rad : Double) -> Quaternion {
+pub fn Quaternion::from_axis_angle(
+  axis : Vec3,
+  angle_rad : Double,
+) -> Quaternion {
   let half = angle_rad / 2.0
   let s = @math.sin(half)
   let a = axis.normalize()
@@ -696,7 +712,10 @@ pub fn Quaternion::normalize(self : Quaternion) -> Quaternion {
 }
 
 ///|
-pub fn Quaternion::multiply(self : Quaternion, other : Quaternion) -> Quaternion {
+pub fn Quaternion::multiply(
+  self : Quaternion,
+  other : Quaternion,
+) -> Quaternion {
   {
     x: self.w * other.x + self.x * other.w + self.y * other.z - self.z * other.y,
     y: self.w * other.y - self.x * other.z + self.y * other.w + self.z * other.x,

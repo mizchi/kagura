@@ -11,8 +11,6 @@ jobs:
     steps:
       - uses: actions/checkout@v4
       - uses: hustcer/setup-moonbit@v1
-        with:
-          moonbit-version: "1.19.0"
       - name: Setup pnpm
         run: corepack enable
       - uses: actions/setup-node@v4
@@ -45,12 +43,10 @@ jobs:
     steps:
       - uses: actions/checkout@v4
       - uses: hustcer/setup-moonbit@v1
-        with:
-          moonbit-version: "1.19.0"
       - name: Update MoonBit registry
         run: moon update
-      - name: Install native deps
-        run: brew install glfw
+      - name: Setup wgpu-native and glfw
+        run: bash scripts/setup-wgpu-native.sh
       - name: Check
         run: moon check --target native
       - name: Test

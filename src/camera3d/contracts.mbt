@@ -75,7 +75,12 @@ pub fn Camera3D::view_matrix(self : Camera3D) -> @math3d.Mat4 {
 pub fn Camera3D::projection_matrix(self : Camera3D) -> @math3d.Mat4 {
   match self.projection_mode {
     Perspective =>
-      @math3d.Mat4::perspective(self.fov_y_rad, self.aspect, self.near, self.far)
+      @math3d.Mat4::perspective(
+        self.fov_y_rad,
+        self.aspect,
+        self.near,
+        self.far,
+      )
     Orthographic(left, right, bottom, top) =>
       @math3d.Mat4::orthographic(left, right, bottom, top, self.near, self.far)
   }

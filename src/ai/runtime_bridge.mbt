@@ -197,8 +197,7 @@ pub fn[P : AIPolicy, S : SensorBridge, A : ActuatorBridge, C : AIScheduler] crea
       let sensor_snapshot = sensors.capture(agent_id, tick)
       let budget = match state.config.global_budget {
         Some(b) => b
-        None =>
-          scheduler.budget_for(agent_id)
+        None => scheduler.budget_for(agent_id)
       }
       let decision = policy.decide({
         tick,

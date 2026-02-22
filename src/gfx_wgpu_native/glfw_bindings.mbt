@@ -254,7 +254,10 @@ pub fn get_window_height(window : GLFWwindow) -> Int {
 
 ///|
 pub fn get_framebuffer_size(window : GLFWwindow) -> WindowSize {
-  { width: glfwGetFramebufferWidth(window), height: glfwGetFramebufferHeight(window) }
+  {
+    width: glfwGetFramebufferWidth(window),
+    height: glfwGetFramebufferHeight(window),
+  }
 }
 
 ///|

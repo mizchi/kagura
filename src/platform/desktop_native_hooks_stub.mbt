@@ -179,8 +179,7 @@ fn default_desktop_native_hooks() -> DesktopNativeHooks {
     default_desktop_is_fullscreen, default_desktop_set_cursor_mode, default_desktop_cursor_mode,
     default_desktop_set_device_scale_factor, default_desktop_device_scale_factor,
     default_desktop_set_vsync_enabled, default_desktop_is_vsync_enabled, default_desktop_close_window,
-    default_desktop_request_attention,
-    default_desktop_set_mouse_touch_fallback,
+    default_desktop_request_attention, default_desktop_set_mouse_touch_fallback,
     default_desktop_mouse_touch_fallback_enabled,
   )
 }

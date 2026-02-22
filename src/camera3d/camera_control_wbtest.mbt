@@ -246,15 +246,7 @@ test "SmoothCamera set_target_look_at" {
 test "SmoothCamera to_camera3d" {
   let pos = @math3d.Vec3::new(0.0, 0.0, 5.0)
   let ident = @math3d.Quaternion::identity()
-  let cam = SmoothCamera::new(
-    pos,
-    ident,
-    5.0,
-    @math.PI / 4.0,
-    1.0,
-    0.1,
-    100.0,
-  )
+  let cam = SmoothCamera::new(pos, ident, 5.0, @math.PI / 4.0, 1.0, 0.1, 100.0)
   let c3d = cam.to_camera3d()
   assert_true(c3d.position.approx_eq(pos, eps))
   // identity orientation: forward = (0,0,-1), target = pos + (0,0,-1)

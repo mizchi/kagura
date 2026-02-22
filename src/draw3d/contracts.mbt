@@ -204,9 +204,7 @@ pub fn new_lit_mesh_draw_command(
   src_image_ids : Array[Int],
 ) -> @gfx.DrawTrianglesCommand {
   let uniform_dwords = lit_uniform_dwords(
-    model_matrix,
-    view_projection,
-    lighting,
+    model_matrix, view_projection, lighting,
   )
   @gfx.new_draw_triangles_command(
     dst,

@@ -478,7 +478,9 @@ pub fn TextRenderer::new(
   base_page_id : Int,
   pipeline_id : Int,
 ) -> TextRenderer {
-  TextRenderer::new_with_options(font, atlas_size, base_page_id, pipeline_id, 16)
+  TextRenderer::new_with_options(
+    font, atlas_size, base_page_id, pipeline_id, 16,
+  )
 }
 
 ///|
@@ -559,13 +561,14 @@ pub fn TextRenderer::render_text(
       if self.pages.length() < self.max_pages {
         let new_page_id = self.base_page_id + self.pages.length()
         let new_page = GlyphAtlas::new(
-          self.atlas_size, self.atlas_size, new_page_id,
+          self.atlas_size,
+          self.atlas_size,
+          new_page_id,
         )
         self.pages.push(new_page)
         let new_idx = self.pages.length() - 1
-        match self.pages[new_idx].rasterize_glyph(
-          self.font, codepoint, size_px,
-        ) {
+        match
+          self.pages[new_idx].rasterize_glyph(self.font, codepoint, size_px) {
           Some(_) => {
             self.pages[new_idx].last_used_generation = self.generation
             found_page_index = new_idx
@@ -636,7 +639,10 @@ pub fn TextRenderer::render_text(
       return
     }
     let page = self.pages[page_idx]
-    let builder = SimpleTextBatchBuilder::new(page.get_cache(), self.pipeline_id)
+    let builder = SimpleTextBatchBuilder::new(
+      page.get_cache(),
+      self.pipeline_id,
+    )
     let commands = builder.build_draw_commands(dst, quads, shader) catch {
       _ => return
     }
@@ -835,6 +841,7 @@ pub fn load_text_renderer(
 ) -> TextRenderer? {
   match load_font(name) {
     None => None
-    Some(font) => Some(TextRenderer::new(font, atlas_size, page_id, pipeline_id))
+    Some(font) =>
+      Some(TextRenderer::new(font, atlas_size, page_id, pipeline_id))
   }
 }

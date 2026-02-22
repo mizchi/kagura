@@ -73,10 +73,7 @@ pub fn SmoothCamera::snap(self : SmoothCamera) -> SmoothCamera {
 }
 
 ///|
-pub fn SmoothCamera::is_settled(
-  self : SmoothCamera,
-  epsilon : Double,
-) -> Bool {
+pub fn SmoothCamera::is_settled(self : SmoothCamera, epsilon : Double) -> Bool {
   self.current_position.approx_eq(self.target_position, epsilon) &&
   self.current_orientation.approx_eq(self.target_orientation, epsilon)
 }

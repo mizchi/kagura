@@ -42,10 +42,7 @@ test "to_mat4 scale only" {
 ///|
 test "to_mat4 rotation only" {
   let pi = 3.14159265358979
-  let q = @math3d.Quaternion::from_axis_angle(
-    @math3d.Vec3::unit_y(),
-    pi / 2.0,
-  )
+  let q = @math3d.Quaternion::from_axis_angle(@math3d.Vec3::unit_y(), pi / 2.0)
   let t = Transform3D::new().with_rotation(q)
   let m = t.to_mat4()
   let expected = @math3d.Mat4::rotation_y(pi / 2.0)
@@ -109,10 +106,7 @@ test "forward/right/up identity" {
 ///|
 test "forward after 90deg Y rotation" {
   let pi = 3.14159265358979
-  let q = @math3d.Quaternion::from_axis_angle(
-    @math3d.Vec3::unit_y(),
-    pi / 2.0,
-  )
+  let q = @math3d.Quaternion::from_axis_angle(@math3d.Vec3::unit_y(), pi / 2.0)
   let t = Transform3D::new().with_rotation(q)
   // After 90deg Y rotation, forward (-Z) should become (-X)
   assert_true(vec3_approx(t.forward(), @math3d.Vec3::new(-1.0, 0.0, 0.0)))
@@ -130,10 +124,7 @@ test "look_at" {
 ///|
 test "look_at sideways" {
   let t = Transform3D::from_position(@math3d.Vec3::zero())
-  let t2 = t.look_at(
-    @math3d.Vec3::new(1.0, 0.0, 0.0),
-    @math3d.Vec3::unit_y(),
-  )
+  let t2 = t.look_at(@math3d.Vec3::new(1.0, 0.0, 0.0), @math3d.Vec3::unit_y())
   let fwd = t2.forward()
   assert_true(vec3_approx(fwd, @math3d.Vec3::new(1.0, 0.0, 0.0)))
 }
@@ -141,14 +132,8 @@ test "look_at sideways" {
 ///|
 test "rotate applies additional rotation" {
   let pi = 3.14159265358979
-  let q1 = @math3d.Quaternion::from_axis_angle(
-    @math3d.Vec3::unit_y(),
-    pi / 2.0,
-  )
-  let q2 = @math3d.Quaternion::from_axis_angle(
-    @math3d.Vec3::unit_y(),
-    pi / 2.0,
-  )
+  let q1 = @math3d.Quaternion::from_axis_angle(@math3d.Vec3::unit_y(), pi / 2.0)
+  let q2 = @math3d.Quaternion::from_axis_angle(@math3d.Vec3::unit_y(), pi / 2.0)
   let t = Transform3D::new().with_rotation(q1).rotate(q2)
   // Two 90deg Y rotations = 180deg
   let fwd = t.forward()

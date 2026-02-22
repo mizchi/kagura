@@ -138,18 +138,14 @@ pub fn Mesh3D::plane(width : Double, depth : Double) -> Mesh3D {
 
 ///|
 /// UV sphere with given radius, number of horizontal segments, and vertical rings.
-pub fn Mesh3D::sphere(
-  radius : Double,
-  segments : Int,
-  rings : Int,
-) -> Mesh3D {
+pub fn Mesh3D::sphere(radius : Double, segments : Int, rings : Int) -> Mesh3D {
   let data : Array[Double] = []
   let indices : Array[Int] = []
-  for ring in 0..=rings {
+  for ring in 0..<=rings {
     let phi = @math.PI * ring.to_double() / rings.to_double()
     let sin_phi = @math.sin(phi)
     let cos_phi = @math.cos(phi)
-    for seg in 0..=segments {
+    for seg in 0..<=segments {
       let theta = 2.0 * @math.PI * seg.to_double() / segments.to_double()
       let sin_theta = @math.sin(theta)
       let cos_theta = @math.cos(theta)

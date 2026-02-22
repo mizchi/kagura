@@ -335,10 +335,7 @@ pub fn ndc_rect_fill_vertices(
   let x1 = (px + pw) / screen_w * 2.0 - 1.0
   let y1 = 1.0 - (py + ph) / screen_h * 2.0
   let vertices = [
-    x0, y0, 0.0, 0.0,
-    x1, y0, 1.0, 0.0,
-    x1, y1, 1.0, 1.0,
-    x0, y1, 0.0, 1.0,
+    x0, y0, 0.0, 0.0, x1, y0, 1.0, 0.0, x1, y1, 1.0, 1.0, x0, y1, 0.0, 1.0,
   ]
   let indices = [0, 1, 2, 2, 3, 0]
   (vertices, indices)
@@ -540,10 +537,7 @@ pub fn[T : @gfx.GraphicsDriver] render_commands(
   graphics : T,
   cmds : Array[@gfx.DrawTrianglesCommand],
 ) -> Unit raise {
-  let pass = @gfx.new_render_pass_desc(
-    @gfx.new_color(0.0, 0.0, 0.0, 1.0),
-    true,
-  )
+  let pass = @gfx.new_render_pass_desc(@gfx.new_color(0.0, 0.0, 0.0, 1.0), true)
   graphics.begin(pass)
   for cmd in cmds {
     graphics.draw_triangles(cmd)

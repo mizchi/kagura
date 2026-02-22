@@ -210,9 +210,7 @@ test "ndc_rect_fill_vertices full screen" {
 
 ///|
 test "ndc_rect_fill_vertices center rect" {
-  let (verts, _) = ndc_rect_fill_vertices(
-    160.0, 120.0, 0.0, 0.0, 320.0, 240.0,
-  )
+  let (verts, _) = ndc_rect_fill_vertices(160.0, 120.0, 0.0, 0.0, 320.0, 240.0)
   // Center point: (0, 0) in NDC
   assert_true(approx(verts[0], 0.0))
   assert_true(approx(verts[1], 0.0))
@@ -223,7 +221,16 @@ test "new_ndc_rect_fill_command" {
   let dst = @gfx.new_image_handle(1, 320, 240)
   let shader = @gfx.new_shader_handle(1, "test")
   let cmd = new_ndc_rect_fill_command(
-    dst, shader, 60.0, 100.0, 12.0, 12.0, 320.0, 240.0, color_red(), 0,
+    dst,
+    shader,
+    60.0,
+    100.0,
+    12.0,
+    12.0,
+    320.0,
+    240.0,
+    color_red(),
+    0,
   )
   assert_eq(cmd.vertex_data.length(), 16)
   assert_eq(cmd.indices.length(), 6)
@@ -240,7 +247,13 @@ test "new_simple_draw_command" {
   let shader = @gfx.new_shader_handle(1, "test")
   let vertices = [0.0, 0.0, 0.0, 0.0, 1.0, 0.0, 1.0, 0.0, 1.0, 1.0, 1.0, 1.0]
   let indices = [0, 1, 2]
-  let cmd = new_simple_draw_command(dst, shader, vertices, indices, color_green())
+  let cmd = new_simple_draw_command(
+    dst,
+    shader,
+    vertices,
+    indices,
+    color_green(),
+  )
   assert_eq(cmd.vertex_data.length(), 12)
   assert_eq(cmd.indices.length(), 3)
   assert_eq(cmd.uniform_dwords[0], 0) // R
@@ -309,7 +322,18 @@ test "draw_dot_text: single char generates correct commands" {
   let shader = @gfx.new_shader_handle(1, "test")
   let cmds : Array[@gfx.DrawTrianglesCommand] = []
   // Digit "0" has 12 lit pixels
-  draw_dot_text(cmds, dst, shader, [0], 160.0, 120.0, 320.0, 240.0, color_white(), 1.0)
+  draw_dot_text(
+    cmds,
+    dst,
+    shader,
+    [0],
+    160.0,
+    120.0,
+    320.0,
+    240.0,
+    color_white(),
+    1.0,
+  )
   inspect(cmds.length(), content="12")
 }
 
@@ -319,7 +343,18 @@ test "draw_dot_text: multiple chars" {
   let shader = @gfx.new_shader_handle(1, "test")
   let cmds : Array[@gfx.DrawTrianglesCommand] = []
   // "10" = digit 1 (8 pixels) + digit 0 (12 pixels) = 20
-  draw_dot_text(cmds, dst, shader, [1, 0], 160.0, 120.0, 320.0, 240.0, color_white(), 1.0)
+  draw_dot_text(
+    cmds,
+    dst,
+    shader,
+    [1, 0],
+    160.0,
+    120.0,
+    320.0,
+    240.0,
+    color_white(),
+    1.0,
+  )
   inspect(cmds.length(), content="20")
 }
 
@@ -328,7 +363,18 @@ test "draw_number: zero" {
   let dst = @gfx.new_image_handle(1, 320, 240)
   let shader = @gfx.new_shader_handle(1, "test")
   let cmds : Array[@gfx.DrawTrianglesCommand] = []
-  draw_number(cmds, dst, shader, 0, 160.0, 120.0, 320.0, 240.0, color_white(), 1.0)
+  draw_number(
+    cmds,
+    dst,
+    shader,
+    0,
+    160.0,
+    120.0,
+    320.0,
+    240.0,
+    color_white(),
+    1.0,
+  )
   // digit 0 = 12 lit pixels
   inspect(cmds.length(), content="12")
 }
@@ -338,7 +384,18 @@ test "draw_number: multi-digit" {
   let dst = @gfx.new_image_handle(1, 320, 240)
   let shader = @gfx.new_shader_handle(1, "test")
   let cmds : Array[@gfx.DrawTrianglesCommand] = []
-  draw_number(cmds, dst, shader, 42, 160.0, 120.0, 320.0, 240.0, color_white(), 1.0)
+  draw_number(
+    cmds,
+    dst,
+    shader,
+    42,
+    160.0,
+    120.0,
+    320.0,
+    240.0,
+    color_white(),
+    1.0,
+  )
   // digit 4 = 9 pixels, digit 2 = 11 pixels = 20
   inspect(cmds.length(), content="20")
 }

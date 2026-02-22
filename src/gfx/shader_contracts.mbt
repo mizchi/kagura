@@ -448,15 +448,17 @@ pub fn double_to_f32_bits(v : Double) -> Int {
       (sign << 31) | 0x7F800000
     }
   } else if exp == 0 {
-    (sign << 31) // zero/denormal → zero
-  } else {
+    sign << 31
+  } else { // zero/denormal → zero
     let f32_exp = exp - 1023 + 127
     if f32_exp >= 255 {
       (sign << 31) | 0x7F800000
     } else if f32_exp <= 0 {
-      (sign << 31)
+      sign << 31
     } else {
-      let f32_mantissa = (mantissa.reinterpret_as_uint64() >> 29).reinterpret_as_int64().to_int()
+      let f32_mantissa = (mantissa.reinterpret_as_uint64() >> 29)
+        .reinterpret_as_int64()
+        .to_int()
       (sign << 31) | (f32_exp << 23) | f32_mantissa
     }
   }
@@ -485,7 +487,7 @@ pub fn f32_bits_to_double(bits : Int) -> Double {
     }
   } else {
     let f64_exp = (exp - 127 + 1023).to_int64()
-    let f64_mantissa = (mantissa.to_int64() << 29)
+    let f64_mantissa = mantissa.to_int64() << 29
     let f64_bits = (sign.to_int64() << 63) | (f64_exp << 52) | f64_mantissa
     f64_bits.reinterpret_as_double()
   }

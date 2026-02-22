@@ -85,7 +85,7 @@ pub fn OrbitCamera::with_target(
   self : OrbitCamera,
   target : @math3d.Vec3,
 ) -> OrbitCamera {
-  { ..self, target }
+  { ..self, target, }
 }
 
 ///|
@@ -93,7 +93,7 @@ pub fn OrbitCamera::with_distance(
   self : OrbitCamera,
   distance : Double,
 ) -> OrbitCamera {
-  { ..self, distance }
+  { ..self, distance, }
 }
 
 ///|

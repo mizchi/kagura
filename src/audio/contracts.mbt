@@ -738,7 +738,14 @@ pub fn new_audio_output_hooks_full(
   close : () -> Unit,
   output_latency : () -> Double,
 ) -> AudioOutputHooks {
-  { try_initialize, write_frames, suspend, resume_playback, close, output_latency }
+  {
+    try_initialize,
+    write_frames,
+    suspend,
+    resume_playback,
+    close,
+    output_latency,
+  }
 }
 
 ///|

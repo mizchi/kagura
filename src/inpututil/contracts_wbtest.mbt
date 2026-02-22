@@ -323,7 +323,14 @@ test "InputHelper touch detected" {
   let empty = @core.empty_input_snapshot()
   update_input_helper(helper, empty)
   let input_with_touch = @core.new_input_snapshot_full(
-    0.0, 0.0, 0.0, 0.0, [], [], [@core.new_touch_point(1, 10.0, 20.0)], [],
+    0.0,
+    0.0,
+    0.0,
+    0.0,
+    [],
+    [],
+    [@core.new_touch_point(1, 10.0, 20.0)],
+    [],
   )
   update_input_helper(helper, input_with_touch)
   assert_true(is_any_action_just_pressed(helper, input_with_touch))
@@ -335,7 +342,14 @@ test "InputHelper touch held not just pressed on second frame" {
   let empty = @core.empty_input_snapshot()
   update_input_helper(helper, empty)
   let input_with_touch = @core.new_input_snapshot_full(
-    0.0, 0.0, 0.0, 0.0, [], [], [@core.new_touch_point(1, 10.0, 20.0)], [],
+    0.0,
+    0.0,
+    0.0,
+    0.0,
+    [],
+    [],
+    [@core.new_touch_point(1, 10.0, 20.0)],
+    [],
   )
   // Frame 1: just pressed
   update_input_helper(helper, input_with_touch)

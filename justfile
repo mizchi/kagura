@@ -38,6 +38,10 @@ dev name:
 pages:
     bash scripts/build-pages.sh
 
+check-release:
+    @echo "Checking for local path dependencies..."
+    @if grep -q '"path"' moon.mod.json; then echo "ERROR: moon.mod.json contains local path dependencies"; grep '"path"' moon.mod.json; exit 1; else echo "OK: No local path dependencies found"; fi
+
 clean:
     moon clean
     for dir in examples/*/; do (cd "$dir" && moon clean); done

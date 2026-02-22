@@ -327,7 +327,7 @@ pub fn update_input_helper(
 ///|
 pub fn is_any_action_just_pressed(
   helper : InputHelper,
-  input : @core.InputSnapshot,
+  _input : @core.InputSnapshot,
 ) -> Bool {
   helper.key_state.just_pressed_keys.length() > 0 ||
   helper.mouse_state.just_pressed_buttons.length() > 0 ||

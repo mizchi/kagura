@@ -22,7 +22,7 @@ fn resolve_size(sizing : UISizing, available : Double) -> Double {
 
 ///|
 /// A measured child subtree: temp layout results at (0,0) plus its size.
-struct ChildMeasure {
+priv struct ChildMeasure {
   temp_results : Array[LayoutResult]
   width : Double
   height : Double
@@ -30,7 +30,7 @@ struct ChildMeasure {
 
 ///|
 /// A flex line: a group of children that fit on one row/column.
-struct FlexLine {
+priv struct FlexLine {
   items : Array[(Int, Double, Double)]
   main_size : Double
   cross_size : Double

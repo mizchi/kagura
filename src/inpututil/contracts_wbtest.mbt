@@ -420,42 +420,42 @@ test "gamepad with id zero works" {
 test "is_move_up detects W key" {
   let state = new_key_input_state()
   update_key_input_state(state, snapshot_with_pressed_keys([87]))
-  assert_true!(is_move_up(state))
+  assert_true(is_move_up(state))
 }
 
 ///|
 test "is_move_up detects arrow up web" {
   let state = new_key_input_state()
   update_key_input_state(state, snapshot_with_pressed_keys([38]))
-  assert_true!(is_move_up(state))
+  assert_true(is_move_up(state))
 }
 
 ///|
 test "is_move_up detects arrow up glfw" {
   let state = new_key_input_state()
   update_key_input_state(state, snapshot_with_pressed_keys([265]))
-  assert_true!(is_move_up(state))
+  assert_true(is_move_up(state))
 }
 
 ///|
 test "is_move_down detects S key" {
   let state = new_key_input_state()
   update_key_input_state(state, snapshot_with_pressed_keys([83]))
-  assert_true!(is_move_down(state))
+  assert_true(is_move_down(state))
 }
 
 ///|
 test "is_move_left detects A key" {
   let state = new_key_input_state()
   update_key_input_state(state, snapshot_with_pressed_keys([65]))
-  assert_true!(is_move_left(state))
+  assert_true(is_move_left(state))
 }
 
 ///|
 test "is_move_right detects D key" {
   let state = new_key_input_state()
   update_key_input_state(state, snapshot_with_pressed_keys([68]))
-  assert_true!(is_move_right(state))
+  assert_true(is_move_right(state))
 }
 
 ///|
@@ -463,7 +463,7 @@ test "is_confirm_just_pressed detects space" {
   let helper = new_input_helper()
   let input = @core.new_input_snapshot(0.0, 0.0, 0.0, 0.0, [32])
   update_input_helper(helper, input)
-  assert_true!(is_confirm_just_pressed(helper))
+  assert_true(is_confirm_just_pressed(helper))
 }
 
 ///|
@@ -471,7 +471,7 @@ test "is_confirm_just_pressed detects enter web" {
   let helper = new_input_helper()
   let input = @core.new_input_snapshot(0.0, 0.0, 0.0, 0.0, [13])
   update_input_helper(helper, input)
-  assert_true!(is_confirm_just_pressed(helper))
+  assert_true(is_confirm_just_pressed(helper))
 }
 
 ///|
@@ -479,7 +479,7 @@ test "is_confirm_just_pressed detects enter glfw" {
   let helper = new_input_helper()
   let input = @core.new_input_snapshot(0.0, 0.0, 0.0, 0.0, [257])
   update_input_helper(helper, input)
-  assert_true!(is_confirm_just_pressed(helper))
+  assert_true(is_confirm_just_pressed(helper))
 }
 
 ///|
@@ -487,7 +487,7 @@ test "is_up_just_pressed detects W" {
   let helper = new_input_helper()
   let input = @core.new_input_snapshot(0.0, 0.0, 0.0, 0.0, [87])
   update_input_helper(helper, input)
-  assert_true!(is_up_just_pressed(helper))
+  assert_true(is_up_just_pressed(helper))
 }
 
 ///|
@@ -495,17 +495,17 @@ test "is_down_just_pressed detects S" {
   let helper = new_input_helper()
   let input = @core.new_input_snapshot(0.0, 0.0, 0.0, 0.0, [83])
   update_input_helper(helper, input)
-  assert_true!(is_down_just_pressed(helper))
+  assert_true(is_down_just_pressed(helper))
 }
 
 ///|
 test "direction not detected without matching key" {
   let state = new_key_input_state()
   update_key_input_state(state, snapshot_with_pressed_keys([99]))
-  assert_true!(!is_move_up(state))
-  assert_true!(!is_move_down(state))
-  assert_true!(!is_move_left(state))
-  assert_true!(!is_move_right(state))
+  assert_true(!is_move_up(state))
+  assert_true(!is_move_down(state))
+  assert_true(!is_move_left(state))
+  assert_true(!is_move_right(state))
 }
 
 ///|

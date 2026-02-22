@@ -189,20 +189,16 @@ pub fn[P : AIPolicy, S : SensorBridge, A : ActuatorBridge, C : AIScheduler] crea
       return
     }
     let seed = state.config.base_seed + tick
-    let agents = scheduler.select_agents(tick) catch { _ => [] }
+    let agents = scheduler.select_agents(tick)
     let mut current_bb = state.blackboard
     let mut decision_count = 0
     let tick_traces : Array[DecisionTrace] = []
     for agent_id in agents {
-      let sensor_snapshot = sensors.capture(agent_id, tick) catch {
-        _ => continue
-      }
+      let sensor_snapshot = sensors.capture(agent_id, tick)
       let budget = match state.config.global_budget {
         Some(b) => b
         None =>
-          scheduler.budget_for(agent_id) catch {
-            _ => default_ai_budget()
-          }
+          scheduler.budget_for(agent_id)
       }
       let decision = policy.decide({
         tick,

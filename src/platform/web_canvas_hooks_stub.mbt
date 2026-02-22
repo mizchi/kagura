@@ -400,7 +400,7 @@ fn web_set_mouse_touch_fallback(
 }
 
 ///|
-fn web_mouse_touch_fallback_enabled(
+fn _web_mouse_touch_fallback_enabled(
   canvas_selector : String,
   active : Bool,
 ) -> Bool {

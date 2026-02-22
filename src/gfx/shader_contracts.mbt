@@ -436,27 +436,28 @@ pub fn validate_preserved_uniform_context(
 /// Convert a Double to IEEE 754 f32 bit representation as Int.
 pub fn double_to_f32_bits(v : Double) -> Int {
   let bits = v.reinterpret_as_int64()
-  let sign = bits.lsr(63).land(1L).to_int()
-  let exp = bits.lsr(52).land(0x7FFL).to_int()
+  let ubits = bits.reinterpret_as_uint64()
+  let sign = ((ubits >> 63) & 1UL).reinterpret_as_int64().to_int()
+  let exp = ((ubits >> 52) & 0x7FFUL).reinterpret_as_int64().to_int()
   let mantissa = bits & 0xFFFFFFFFFFFFFL
   if exp == 0x7FF {
     // Infinity or NaN
     if mantissa != 0L {
-      sign.lsl(31) | 0x7FC00000
+      (sign << 31) | 0x7FC00000
     } else {
-      sign.lsl(31) | 0x7F800000
+      (sign << 31) | 0x7F800000
     }
   } else if exp == 0 {
-    sign.lsl(31) // zero/denormal → zero
+    (sign << 31) // zero/denormal → zero
   } else {
     let f32_exp = exp - 1023 + 127
     if f32_exp >= 255 {
-      sign.lsl(31) | 0x7F800000
+      (sign << 31) | 0x7F800000
     } else if f32_exp <= 0 {
-      sign.lsl(31)
+      (sign << 31)
     } else {
-      let f32_mantissa = mantissa.lsr(29).to_int()
-      sign.lsl(31) | f32_exp.lsl(23) | f32_mantissa
+      let f32_mantissa = (mantissa.reinterpret_as_uint64() >> 29).reinterpret_as_int64().to_int()
+      (sign << 31) | (f32_exp << 23) | f32_mantissa
     }
   }
 }
@@ -464,8 +465,8 @@ pub fn double_to_f32_bits(v : Double) -> Int {
 ///|
 /// Convert IEEE 754 f32 bits (as Int) back to Double.
 pub fn f32_bits_to_double(bits : Int) -> Double {
-  let sign = bits.lsr(31) & 1
-  let exp = bits.lsr(23) & 0xFF
+  let sign = (bits.reinterpret_as_uint() >> 31).reinterpret_as_int() & 1
+  let exp = (bits.reinterpret_as_uint() >> 23).reinterpret_as_int() & 0xFF
   let mantissa = bits & 0x7FFFFF
   if exp == 0xFF {
     if mantissa != 0 {
@@ -484,8 +485,8 @@ pub fn f32_bits_to_double(bits : Int) -> Double {
     }
   } else {
     let f64_exp = (exp - 127 + 1023).to_int64()
-    let f64_mantissa = mantissa.to_int64().lsl(29)
-    let f64_bits = sign.to_int64().lsl(63) | f64_exp.lsl(52) | f64_mantissa
+    let f64_mantissa = (mantissa.to_int64() << 29)
+    let f64_bits = (sign.to_int64() << 63) | (f64_exp << 52) | f64_mantissa
     f64_bits.reinterpret_as_double()
   }
 }

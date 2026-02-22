@@ -385,7 +385,7 @@ pub fn clip_to_audio_buffer(clip : AudioClip) -> @ma.AudioBuffer {
       let i16_val = lo | (hi << 8)
       // Sign extend 16-bit
       let signed_val = if i16_val >= 32768 { i16_val - 65536 } else { i16_val }
-      let sample = signed_val.to_float() / 32767.0
+      let sample = Float::from_int(signed_val) / 32767.0
       @ma.set_sample(buffer, frame, ch, sample)
     }
   }
@@ -634,7 +634,7 @@ pub impl AudioContext for MixerAudioContext with set_volume(self, id, volume) {
           } else {
             volume
           }
-          voice.gain = clamped.to_float()
+          voice.gain = Float::from_double(clamped)
         }
         None => ()
       }
@@ -704,7 +704,7 @@ pub struct AudioOutputHooks {
   /// Suspend audio output (e.g., tab hidden, app backgrounded).
   suspend : () -> Unit
   /// Resume audio output after suspend.
-  resume : () -> Unit
+  resume_playback : () -> Unit
   /// Close the audio output device and release resources.
   close : () -> Unit
   /// Query the actual output latency in seconds. Returns 0.0 if unknown.
@@ -716,14 +716,14 @@ pub fn new_audio_output_hooks(
   try_initialize : (AudioFormat) -> Bool,
   write_frames : (FixedArray[Float], Int) -> Int,
   suspend : () -> Unit,
-  resume : () -> Unit,
+  resume_playback : () -> Unit,
   close : () -> Unit,
 ) -> AudioOutputHooks {
   {
     try_initialize,
     write_frames,
     suspend,
-    resume,
+    resume_playback,
     close,
     output_latency: default_audio_output_latency,
   }
@@ -734,11 +734,11 @@ pub fn new_audio_output_hooks_full(
   try_initialize : (AudioFormat) -> Bool,
   write_frames : (FixedArray[Float], Int) -> Int,
   suspend : () -> Unit,
-  resume : () -> Unit,
+  resume_playback : () -> Unit,
   close : () -> Unit,
   output_latency : () -> Double,
 ) -> AudioOutputHooks {
-  { try_initialize, write_frames, suspend, resume, close, output_latency }
+  { try_initialize, write_frames, suspend, resume_playback, close, output_latency }
 }
 
 ///|
@@ -814,7 +814,7 @@ pub fn audio_suspend() -> Unit {
 
 ///|
 pub fn audio_resume() -> Unit {
-  (audio_output_hooks.val.resume)()
+  (audio_output_hooks.val.resume_playback)()
 }
 
 ///|
@@ -876,8 +876,8 @@ pub fn new_tracked_audio_output_hooks(
       (inner.suspend)()
       stats.val = { ..stats.val, suspended: true }
     },
-    resume: fn() {
-      (inner.resume)()
+    resume_playback: fn() {
+      (inner.resume_playback)()
       stats.val = { ..stats.val, suspended: false }
     },
     close: inner.close,

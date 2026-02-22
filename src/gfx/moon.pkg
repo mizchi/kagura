@@ -1,3 +1,4 @@
 import {
+  "moonbitlang/core/cmp" @cmp,
   "mizchi/kagura/platform" @platform,
 }

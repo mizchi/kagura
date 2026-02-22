@@ -570,7 +570,7 @@ test "tracked hooks tracks suspend and resume" {
   assert_eq(stats.val.suspended, false)
   (tracked.suspend)()
   assert_eq(stats.val.suspended, true)
-  (tracked.resume)()
+  (tracked.resume_playback)()
   assert_eq(stats.val.suspended, false)
 }
 
@@ -580,7 +580,7 @@ test "audio output hooks latency can be overridden" {
     try_initialize: fn(_fmt) { true },
     write_frames: fn(_output, _frames) { 0 },
     suspend: fn() {  },
-    resume: fn() {  },
+    resume_playback: fn() {  },
     close: fn() {  },
     output_latency: fn() { 0.023 },
   })

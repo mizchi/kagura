@@ -299,6 +299,6 @@ fn desktop_native_set_mouse_touch_fallback(
 }
 
 ///|
-fn desktop_native_mouse_touch_fallback_enabled(active : Bool) -> Bool {
+fn _desktop_native_mouse_touch_fallback_enabled(active : Bool) -> Bool {
   (desktop_native_hooks.val.mouse_touch_fallback_enabled)(active)
 }

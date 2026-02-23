@@ -6,8 +6,13 @@ extern "js" fn js_request_animation_frame(f : () -> Unit) -> Unit =
 pub fn run(
   view~ : () -> SceneNode,
   update~ : (@core.InputSnapshot) -> Unit,
-  on_frame~ : (Array[@gfx.DrawTrianglesCommand], @gfx.ImageHandle, @gfx.ShaderHandle, Double, Double) ->
-  Unit = fn(_c, _d, _s, _w, _h) {  },
+  on_frame? : (
+    Array[@gfx.DrawTrianglesCommand],
+    @gfx.ImageHandle,
+    @gfx.ShaderHandle,
+    Double,
+    Double,
+  ) -> Unit = fn(_c, _d, _s, _w, _h) {  },
   width? : Int = 320,
   height? : Int = 240,
   title? : String = "kagura",

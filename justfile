@@ -35,6 +35,9 @@ info:
 dev name:
     bash scripts/dev.sh {{name}}
 
+run-native name:
+    cd examples/{{name}} && CPATH="$(brew --prefix glfw)/include:${CPATH:-}" LIBRARY_PATH="$(brew --prefix)/lib:${LIBRARY_PATH:-}" moon run src/ --target native
+
 pages:
     bash scripts/build-pages.sh
 

@@ -296,8 +296,7 @@ pub impl PlatformDriver for DesktopGlfwPlatform with should_close(self) {
   if self.close_requested {
     true
   } else if self.native_active {
-    self.initialized &&
-    (desktop_native_should_close() || self.poll_count >= self.close_after_polls)
+    self.initialized && desktop_native_should_close()
   } else {
     self.initialized && self.poll_count >= self.close_after_polls
   }
@@ -504,8 +503,7 @@ pub impl PlatformDriver for WebCanvasPlatform with should_close(self) {
   if self.close_requested {
     true
   } else if self.web_active {
-    self.initialized &&
-    (web_should_close() || self.poll_count >= self.close_after_polls)
+    self.initialized && web_should_close()
   } else {
     self.initialized && self.poll_count >= self.close_after_polls
   }

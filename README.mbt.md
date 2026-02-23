@@ -62,6 +62,11 @@ Builds and serves at `http://localhost:8080`. Requires a WebGPU-capable browser 
 
 ```bash
 bash scripts/setup-wgpu-native.sh
+
+# Run with just (recommended -- sets CPATH/LIBRARY_PATH automatically)
+just run-native action_rpg
+
+# Or run manually
 (cd examples/runtime_smoke_native && moon run src --target native)
 ```
 

@@ -121,8 +121,8 @@ struct ShowcaseState {
   mut screen_flash : Int
   // SVG path
   level_border_path : @vector.Path
-  // Text metrics
-  text_style : @text.TextStyle
+  // Text renderer
+  text_renderer : @text.TextRenderer?
 }
 
 // === Tilemap Generation ===
@@ -262,7 +262,12 @@ fn ShowcaseState::new() -> ShowcaseState {
     "M 0 0 L 320 0 L 320 240 L 0 240 Z",
   )
   // Text
-  let text_style = @text.default_text_style("mono", 12.0)
+  let text_renderer = @text.load_text_renderer(
+    ".mooncakes/mizchi/font/fixtures/NotoSansMono-Regular.ttf",
+    256,
+    950,
+    0,
+  )
   // UI: create UITree and add menu nodes to get UINodeIds
   let ui_tree = @ui.UITree::new()
   let menu_style = @ui.default_node_style()
@@ -358,7 +363,7 @@ fn ShowcaseState::new() -> ShowcaseState {
     tile_table,
     screen_flash: 0,
     level_border_path,
-    text_style,
+    text_renderer,
   }
 }
 
@@ -939,4 +944,67 @@ fn ShowcaseState::view_gameover(self : ShowcaseState) -> @scene.SceneNode {
       ),
     ],
   )
+}
+
+// === Text HUD Rendering (TTF) ===
+
+///|
+fn ShowcaseState::render_text_hud(
+  self : ShowcaseState,
+  cmds : Array[@gfx.DrawTrianglesCommand],
+  dst : @gfx.ImageHandle,
+  shader : @gfx.ShaderHandle,
+  _sw : Double,
+  _sh : Double,
+) -> Unit {
+  let renderer = match self.text_renderer {
+    Some(r) => r
+    None => return
+  }
+  // Only render HUD text during gameplay
+  if self.mode != mode_playing {
+    return
+  }
+  let score_text = "SCORE:" + self.score.to_string()
+  let text_cmds = renderer.render_text(
+    score_text,
+    16.0,
+    screen_w - 120.0,
+    24.0,
+    dst,
+    shader,
+    @gfx.blend_mode_from_int(1),
+    [255, 204, 0, 255],
+  )
+  // Upload dirty atlas pages
+  let dirty_pages = renderer.flush_dirty_pages()
+  if dirty_pages.length() > 0 {
+    let bindings : Array[@asset.SourceImageBinding] = []
+    for page_info in dirty_pages {
+      let page_idx = page_info.page_id - renderer.get_page_id()
+      let page = renderer.get_page(page_idx)
+      let binding = @asset.new_source_image_binding(
+        page_info.page_id,
+        page_info.width,
+        page_info.height,
+        1,
+        Some(
+          @asset.new_source_image_dirty_rect(
+            0,
+            0,
+            page_info.width,
+            page_info.height,
+          ),
+        ),
+        @image_palette.checker_palette_from_seed(page_info.page_id),
+        page.get_pixels(),
+      )
+      bindings.push(binding)
+    }
+    let _ = @web_hooks.sync_source_images(bindings)
+    let _ = @native_hooks.sync_source_images(bindings)
+  }
+  for cmd in text_cmds {
+    cmds.push(cmd)
+  }
 }

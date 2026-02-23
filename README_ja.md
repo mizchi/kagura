@@ -59,7 +59,22 @@ pnpm install
 
 # Native smoke テスト（macOS -- wgpu-native のセットアップが必要）
 bash scripts/setup-wgpu-native.sh
-(cd examples/runtime_smoke_native && moon run src --target native)
+just run-native runtime_smoke_native
+```
+
+### Native 実行
+
+`just run-native <name>` は Homebrew の GLFW ヘッダ・ライブラリパスを自動設定します:
+
+```bash
+# action_rpg を native で実行
+just run-native action_rpg
+
+# 手動で実行する場合は CPATH / LIBRARY_PATH の指定が必要
+cd examples/action_rpg && \
+  CPATH="$(brew --prefix glfw)/include:${CPATH:-}" \
+  LIBRARY_PATH="$(brew --prefix)/lib:${LIBRARY_PATH:-}" \
+  moon run src/ --target native
 ```
 
 ## Web で動かす

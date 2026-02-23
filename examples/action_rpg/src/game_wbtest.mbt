@@ -488,11 +488,38 @@ test "svg path conversion produces commands" {
 // ============================================================
 
 ///|
-test "text style creation" {
-  let style = @text.default_text_style("mono", 12.0)
-  let _ = style
-  // Just verify it doesn't crash
-  assert_true(true)
+test "TextRenderer render and measure with embedded font" {
+  let font_data = embedded_test_font_data()
+  @text.set_font_load_hooks(@text.new_font_load_hooks(fn(_name) { Some(font_data) }))
+  let renderer = @text.load_text_renderer("test.otf", 256, 950, 0)
+  assert_true(renderer is Some(_))
+  let tr = renderer.unwrap()
+  // Measure text
+  let metrics = tr.measure("I", 16.0)
+  assert_true(metrics.width > 0.0)
+  assert_true(metrics.height > 0.0)
+  // Render text produces draw commands
+  let dst = @gfx.new_image_handle(1, 320, 240)
+  let shader = @gfx.new_shader_handle(1, "test_shader")
+  let cmds = tr.render_text(
+    "I",
+    16.0,
+    10.0,
+    20.0,
+    dst,
+    shader,
+    @gfx.blend_mode_from_int(1),
+    [255, 204, 0, 255],
+  )
+  assert_true(cmds.length() > 0)
+  assert_true(tr.glyph_count() > 0)
+  // Dirty pages should exist after first render
+  let dirty = tr.flush_dirty_pages()
+  assert_true(dirty.length() > 0)
+  // Second flush should be clean
+  let dirty2 = tr.flush_dirty_pages()
+  assert_eq(dirty2.length(), 0)
+  @text.reset_font_load_hooks()
 }
 
 // ============================================================

@@ -1,0 +1,11 @@
+import {
+  "mizchi/kagura/asset" @asset,
+  "mizchi/kagura/engine" @engine,
+  "mizchi/kagura/gfx" @gfx,
+  "mizchi/kagura/sprite2d" @sprite2d,
+  "mizchi/web_runtime_hooks" @web_hooks,
+}
+
+warnings = "-1-2-29-71"
+
+options("is-main": true)

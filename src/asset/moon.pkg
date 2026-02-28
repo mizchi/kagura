@@ -3,3 +3,7 @@ import {
   "mizchi/kagura/image_palette" @image_palette,
   "mizchi/image" @image,
 }
+
+options(
+  targets: { "fetch_js.mbt": [ "js" ], "fetch_js_wbtest.mbt": [ "js" ] },
+)

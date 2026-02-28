@@ -13,10 +13,8 @@ test "render_scene3d generates commands for visible objects" {
     100.0,
   )
   let scene = scene3d(
-    objects=[
-      object3d(mesh=cube, color=@math3d.Vec4::new(1.0, 0.0, 0.0, 1.0)),
-    ],
-    camera=camera,
+    objects=[object3d(mesh=cube, color=@math3d.Vec4::new(1.0, 0.0, 0.0, 1.0))],
+    camera~,
   )
   let cmds = render_scene3d(scene, dst, shader, 640, 480)
   assert_true(cmds.length() > 0)
@@ -35,7 +33,7 @@ test "render_scene3d returns empty for empty scene" {
     0.1,
     100.0,
   )
-  let scene = scene3d(objects=[], camera=camera)
+  let scene = scene3d(objects=[], camera~)
   let cmds = render_scene3d(scene, dst, shader, 640, 480)
   assert_eq(cmds.length(), 0)
 }
@@ -63,7 +61,7 @@ test "render_scene3d culls objects behind camera" {
         color=@math3d.Vec4::new(1.0, 0.0, 0.0, 1.0),
       ),
     ],
-    camera=camera,
+    camera~,
   )
   let cmds = render_scene3d(scene, dst, shader, 640, 480)
   assert_eq(cmds.length(), 0)
@@ -92,11 +90,9 @@ test "render_scene3d per-face lighting produces multiple commands" {
     @light3d.AmbientLight::new(@math3d.Vec3::new(1.0, 1.0, 1.0), 0.1),
   )
   let scene = scene3d(
-    objects=[
-      object3d(mesh=cube, color=@math3d.Vec4::new(1.0, 0.0, 0.0, 1.0)),
-    ],
-    camera=camera,
-    lighting=lighting,
+    objects=[object3d(mesh=cube, color=@math3d.Vec4::new(1.0, 0.0, 0.0, 1.0))],
+    camera~,
+    lighting~,
   )
   let cmds = render_scene3d(scene, dst, shader, 640, 480)
   // With per-face lighting, a cube should produce multiple batches
@@ -128,11 +124,9 @@ test "render_scene3d UV passthrough" {
     @light3d.AmbientLight::new(@math3d.Vec3::new(1.0, 1.0, 1.0), 0.5),
   )
   let scene = scene3d(
-    objects=[
-      object3d(mesh=cube, color=@math3d.Vec4::new(1.0, 1.0, 1.0, 1.0)),
-    ],
-    camera=camera,
-    lighting=lighting,
+    objects=[object3d(mesh=cube, color=@math3d.Vec4::new(1.0, 1.0, 1.0, 1.0))],
+    camera~,
+    lighting~,
   )
   let cmds = render_scene3d(scene, dst, shader, 640, 480)
   assert_true(cmds.length() > 0)

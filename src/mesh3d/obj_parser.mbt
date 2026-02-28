@@ -318,11 +318,7 @@ pub fn Mesh3D::from_obj(source : String) -> Mesh3D {
           let mut u = 0.0
           let mut v = 0.0
           if vti_raw != 0 {
-            let vti = if vti_raw < 0 {
-              num_texs + vti_raw + 1
-            } else {
-              vti_raw
-            }
+            let vti = if vti_raw < 0 { num_texs + vti_raw + 1 } else { vti_raw }
             let ti = (vti - 1) * 2
             if ti >= 0 && ti + 1 < texcoords.length() {
               u = texcoords[ti]

@@ -725,22 +725,16 @@ pub fn MixerAudioContext::render(
 pub fn MixerAudioContext::play_bgm(
   self : MixerAudioContext,
   clip : AudioClip,
-  volume~ : Double = 1.0,
+  volume? : Double = 1.0,
 ) -> Unit {
   // Stop existing BGM
   self.stop_bgm()
   // Create a looping clip
   let looping_clip = new_audio_clip(clip.format, clip.data, true)
-  let id = try {
-    self.create_player(looping_clip)
-  } catch {
-    _ => return
-  }
+  let id = self.create_player(looping_clip) catch { _ => return }
   let vol = clamp_volume(volume)
   self.set_volume(id, vol)
-  try {
-    self.play(id)
-  } catch {
+  self.play(id) catch {
     _ => ()
   }
   self.bgm_player_id = Some(id)
@@ -754,9 +748,7 @@ pub fn MixerAudioContext::play_bgm(
 pub fn MixerAudioContext::stop_bgm(self : MixerAudioContext) -> Unit {
   match self.bgm_player_id {
     Some(id) => {
-      try {
-        self.stop(id)
-      } catch {
+      self.stop(id) catch {
         _ => ()
       }
       self.dispose(id)
@@ -771,12 +763,7 @@ pub fn MixerAudioContext::stop_bgm(self : MixerAudioContext) -> Unit {
 /// Pause the current BGM.
 pub fn MixerAudioContext::pause_bgm(self : MixerAudioContext) -> Unit {
   match self.bgm_player_id {
-    Some(id) =>
-      try {
-        self.pause(id)
-      } catch {
-        _ => ()
-      }
+    Some(id) => self.pause(id) catch { _ => () }
     None => ()
   }
 }
@@ -785,12 +772,7 @@ pub fn MixerAudioContext::pause_bgm(self : MixerAudioContext) -> Unit {
 /// Resume the current BGM.
 pub fn MixerAudioContext::resume_bgm(self : MixerAudioContext) -> Unit {
   match self.bgm_player_id {
-    Some(id) =>
-      try {
-        self.play(id)
-      } catch {
-        _ => ()
-      }
+    Some(id) => self.play(id) catch { _ => () }
     None => ()
   }
 }
@@ -847,10 +829,18 @@ pub fn MixerAudioContext::tick_bgm(
       let target = self.bgm_fade_target
       let new_vol = if current < target {
         let v = current + delta
-        if v >= target { target } else { v }
+        if v >= target {
+          target
+        } else {
+          v
+        }
       } else {
         let v = current - delta
-        if v <= target { target } else { v }
+        if v <= target {
+          target
+        } else {
+          v
+        }
       }
       self.bgm_current_volume = new_vol
       self.set_volume(id, new_vol)
@@ -859,9 +849,7 @@ pub fn MixerAudioContext::tick_bgm(
         self.bgm_fade_speed = 0.0
       }
     }
-    None => {
-      self.bgm_fade_speed = 0.0
-    }
+    None => self.bgm_fade_speed = 0.0
   }
 }
 

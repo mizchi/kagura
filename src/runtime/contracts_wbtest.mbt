@@ -1,5 +1,5 @@
 ///|
-fn install_test_web_hooks(max_polls~ : Int = 3) -> Unit {
+fn install_test_web_hooks(max_polls? : Int = 3) -> Unit {
   let poll_count : Ref[Int] = Ref::new(0)
   @platform.set_web_canvas_hooks(
     @platform.new_web_canvas_hooks(
@@ -46,7 +46,7 @@ fn install_test_web_hooks(max_polls~ : Int = 3) -> Unit {
 }
 
 ///|
-fn install_test_web_hooks_with_tick_input(max_polls~ : Int = 3) -> Unit {
+fn install_test_web_hooks_with_tick_input(max_polls? : Int = 3) -> Unit {
   let poll_count : Ref[Int] = Ref::new(0)
   @platform.set_web_canvas_hooks(
     @platform.new_web_canvas_hooks(
@@ -101,7 +101,7 @@ fn reset_test_web_hooks() -> Unit {
 }
 
 ///|
-fn install_test_native_hooks(max_polls~ : Int = 3) -> Unit {
+fn install_test_native_hooks(max_polls? : Int = 3) -> Unit {
   let poll_count : Ref[Int] = Ref::new(0)
   @platform.set_desktop_native_hooks(
     @platform.new_desktop_native_hooks(
@@ -138,7 +138,7 @@ fn install_test_native_hooks(max_polls~ : Int = 3) -> Unit {
 }
 
 ///|
-fn install_test_native_hooks_with_tick_input(max_polls~ : Int = 3) -> Unit {
+fn install_test_native_hooks_with_tick_input(max_polls? : Int = 3) -> Unit {
   let poll_count : Ref[Int] = Ref::new(0)
   @platform.set_desktop_native_hooks(
     @platform.new_desktop_native_hooks(

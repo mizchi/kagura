@@ -3,11 +3,11 @@ pub fn run(
   update~ : (@core.InputSnapshot) -> Unit,
   draw~ : (EngineContext) -> Array[@gfx.DrawTrianglesCommand],
   audio_ctx? : @audio.MixerAudioContext,
-  audio_frames_per_tick~ : Int = 735,
-  width~ : Int = 320,
-  height~ : Int = 240,
-  title~ : String = "kagura",
-  canvas~ : String = "",
+  audio_frames_per_tick? : Int = 735,
+  width? : Int = 320,
+  height? : Int = 240,
+  title? : String = "kagura",
+  canvas? : String = "",
 ) -> Unit {
   let _ = canvas
   invoke_on_start(canvas, title)
@@ -39,7 +39,6 @@ pub fn run(
   match audio_ctx {
     Some(_) => {
       let _ = @audio.audio_try_initialize(@audio.default_audio_format())
-
     }
     None => ()
   }

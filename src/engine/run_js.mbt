@@ -11,11 +11,11 @@ pub fn run(
   update~ : (@core.InputSnapshot) -> Unit,
   draw~ : (EngineContext) -> Array[@gfx.DrawTrianglesCommand],
   audio_ctx? : @audio.MixerAudioContext,
-  audio_frames_per_tick~ : Int = 735,
-  width~ : Int = 320,
-  height~ : Int = 240,
-  title~ : String = "kagura",
-  canvas~ : String = "#app",
+  audio_frames_per_tick? : Int = 735,
+  width? : Int = 320,
+  height? : Int = 240,
+  title? : String = "kagura",
+  canvas? : String = "#app",
 ) -> Unit {
   invoke_on_start(canvas, title)
   let platform = @platform.create_web_canvas_platform(canvas)
@@ -45,7 +45,6 @@ pub fn run(
   match audio_ctx {
     Some(_) => {
       let _ = @audio.audio_try_initialize(@audio.default_audio_format())
-
     }
     None => ()
   }

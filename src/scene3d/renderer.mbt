@@ -279,7 +279,13 @@ pub fn render_scene3d(
   let cmds : Array[@gfx.DrawTrianglesCommand] = []
   for i in 0..<all_batches.length() {
     cmds.push(
-      build_batch_draw_command(all_batches[i].0, dst, shader, screen_w, screen_h),
+      build_batch_draw_command(
+        all_batches[i].0,
+        dst,
+        shader,
+        screen_w,
+        screen_h,
+      ),
     )
   }
   cmds

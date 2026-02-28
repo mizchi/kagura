@@ -1,3 +1,5 @@
+import { createAudioBackend, advanceAudioWrite, closeAudio } from "./lib/kagura-audio.js";
+
 const statusElement = document.getElementById("status");
 const outputElement = document.getElementById("output");
 const wasmPath = document.documentElement.getAttribute("data-wasm-path");
@@ -777,78 +779,10 @@ const run = async () => {
       },
       audio_try_initialize: (sampleRate, channels) => {
         try {
-          const AC = globalThis.AudioContext || globalThis.webkitAudioContext;
-          if (!AC) return 0;
-          const ctx = new AC({ sampleRate: Number(sampleRate) });
-          const ch = Number(channels) || 2;
-          const bufSize = 4096;
-          const ringSize = bufSize * 8;
-          const ring = new Float32Array(ringSize * ch);
-          let writePos = 0;
-          let readPos = 0;
-          const node = ctx.createScriptProcessor(bufSize, 0, ch);
-          node.onaudioprocess = (e) => {
-            const out = e.outputBuffer;
-            const frames = out.length;
-            for (let c = 0; c < ch; c++) {
-              const chData = out.getChannelData(c);
-              for (let i = 0; i < frames; i++) {
-                const idx = ((readPos + i) % ringSize) * ch + c;
-                chData[i] = ring[idx];
-              }
-            }
-            readPos = (readPos + frames) % ringSize;
-          };
-          node.connect(ctx.destination);
-          webState.audio = { ctx, node, ring, ringSize, writePos, readPos: 0, channels: ch, _frameIdx: 0, workletNode: null, useWorklet: false };
-          // Async AudioWorklet upgrade
-          if (ctx.audioWorklet) {
-            const wCode = [
-              'class KaguraProcessor extends AudioWorkletProcessor {',
-              '  constructor() {',
-              '    super();',
-              '    this.ring = null; this.ringSize = 0; this.channels = 2;',
-              '    this.readPos = 0; this.writePos = 0;',
-              '    this.port.onmessage = (e) => {',
-              '      const m = e.data;',
-              '      if (m.t === "i") {',
-              '        this.ringSize = m.s; this.channels = m.c;',
-              '        this.ring = new Float32Array(m.s * m.c);',
-              '        this.readPos = 0; this.writePos = 0;',
-              '      } else if (m.t === "w") {',
-              '        const d = m.d, len = this.ring.length;',
-              '        let wi = this.writePos * this.channels;',
-              '        for (let i = 0; i < d.length; i++) this.ring[(wi + i) % len] = d[i];',
-              '        this.writePos = (this.writePos + d.length / this.channels) % this.ringSize;',
-              '      }',
-              '    };',
-              '  }',
-              '  process(inputs, outputs) {',
-              '    if (!this.ring) return true;',
-              '    const o = outputs[0], f = o[0].length;',
-              '    for (let c = 0; c < this.channels && c < o.length; c++) {',
-              '      const cd = o[c];',
-              '      for (let i = 0; i < f; i++) cd[i] = this.ring[((this.readPos + i) % this.ringSize) * this.channels + c];',
-              '    }',
-              '    this.readPos = (this.readPos + f) % this.ringSize;',
-              '    return true;',
-              '  }',
-              '}',
-              'registerProcessor("kagura-processor", KaguraProcessor);',
-            ].join("\n");
-            const blob = new Blob([wCode], { type: "application/javascript" });
-            const url = URL.createObjectURL(blob);
-            ctx.audioWorklet.addModule(url).then(() => {
-              URL.revokeObjectURL(url);
-              const wn = new AudioWorkletNode(ctx, "kagura-processor", { outputChannelCount: [ch] });
-              wn.port.postMessage({ t: "i", s: ringSize, c: ch });
-              wn.connect(ctx.destination);
-              node.disconnect();
-              const a = webState.audio;
-              a.workletNode = wn;
-              a.useWorklet = true;
-            }).catch(() => {});
-          }
+          const audio = createAudioBackend(Number(sampleRate), Number(channels) || 2);
+          if (!audio) return 0;
+          audio._frameIdx = 0;
+          webState.audio = audio;
           return 1;
         } catch (_) {
           return 0;
@@ -868,15 +802,7 @@ const run = async () => {
         const a = webState.audio;
         if (!a) return 0;
         const f = Number(frames) | 0;
-        if (a.useWorklet && a.workletNode) {
-          const count = f * a.channels;
-          const buf = new Float32Array(count);
-          const ringLen = a.ringSize * a.channels;
-          const start = (a.writePos % a.ringSize) * a.channels;
-          for (let i = 0; i < count; i++) buf[i] = a.ring[(start + i) % ringLen];
-          a.workletNode.port.postMessage({ t: "w", d: buf }, [buf.buffer]);
-        }
-        a.writePos = (a.writePos + f) % a.ringSize;
+        advanceAudioWrite(a, f);
         a._frameIdx = 0;
         return f;
       },
@@ -891,9 +817,7 @@ const run = async () => {
       audio_close: () => {
         const a = webState.audio;
         if (a) {
-          if (a.workletNode) { a.workletNode.disconnect(); }
-          if (a.node) { a.node.disconnect(); }
-          if (a.ctx) { a.ctx.close(); }
+          closeAudio(a);
           webState.audio = null;
         }
       },

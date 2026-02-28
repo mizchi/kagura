@@ -18,6 +18,7 @@ done
 
 # Copy shared lib
 cp "$ROOT/e2e/fixtures/lib/kagura-init.js" "$SITE/lib/kagura-init.js"
+cp "$ROOT/e2e/fixtures/lib/kagura-audio.js" "$SITE/lib/kagura-audio.js"
 
 # Generate per-example pages
 for name in "${EXAMPLES[@]}"; do
@@ -48,9 +49,11 @@ for name in "${EXAMPLES[@]}"; do
   # Generate loader.js
   cat > "$dir/loader.js" <<LOADER
 import { initWebGPU, setupGlobalState, loadFonts, loadGameScript } from "../lib/kagura-init.js";
+import { installAudioHelpers } from "../lib/kagura-audio.js";
 async function init() {
   const result = await initWebGPU("#app");
   if (result) setupGlobalState(result.canvas, result.device, result.format, result.context);
+  installAudioHelpers();
 ${FONT_LOAD_SNIPPET}
   await loadGameScript("./${name}.js?v=${CACHE_BUST}");
 }

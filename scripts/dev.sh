@@ -29,6 +29,7 @@ trap 'rm -rf "$SERVE_DIR"' EXIT
 
 mkdir -p "$SERVE_DIR/lib"
 cp "$ROOT/e2e/fixtures/lib/kagura-init.js" "$SERVE_DIR/lib/kagura-init.js"
+cp "$ROOT/e2e/fixtures/lib/kagura-audio.js" "$SERVE_DIR/lib/kagura-audio.js"
 cp "$JS_PATH" "$SERVE_DIR/$NAME.js"
 
 # Copy assets if present
@@ -52,9 +53,11 @@ fi
 # Generate loader
 cat > "$SERVE_DIR/loader.js" <<LOADER
 import { initWebGPU, setupGlobalState, loadFonts, loadGameScript } from "./lib/kagura-init.js";
+import { installAudioHelpers } from "./lib/kagura-audio.js";
 async function init() {
   const result = await initWebGPU("#app");
   if (result) setupGlobalState(result.canvas, result.device, result.format, result.context);
+  installAudioHelpers();
 ${FONT_LOAD_SNIPPET}
   await loadGameScript("./${NAME}.js");
 }

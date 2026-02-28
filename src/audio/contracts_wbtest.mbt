@@ -588,3 +588,122 @@ test "audio output hooks latency can be overridden" {
   assert_true(audio_output_latency() < 0.024)
   reset_audio_output_hooks()
 }
+
+///|
+fn make_test_clip(duration_seconds : Double) -> AudioClip {
+  let fmt : AudioFormat = {
+    sample_rate: 44100,
+    channels: 1,
+    bits_per_sample: 16,
+  }
+  let sample_count = (44100.0 * duration_seconds).to_int()
+  let data = Bytes::make(sample_count * 2, 0)
+  new_audio_clip(fmt, data, false)
+}
+
+///|
+test "MixerAudioContext play_bgm and stop_bgm" {
+  let ctx = MixerAudioContext::new(44100)
+  let clip = make_test_clip(1.0)
+  ctx.play_bgm(clip)
+  // BGM should be playing
+  match ctx.bgm_player_id {
+    Some(id) =>
+      match ctx.state(id) {
+        PlayerState::Playing => ()
+        _ => fail("expected BGM Playing")
+      }
+    None => fail("expected bgm_player_id to be set")
+  }
+  ctx.stop_bgm()
+  match ctx.bgm_player_id {
+    None => ()
+    Some(_) => fail("expected bgm_player_id to be None after stop")
+  }
+}
+
+///|
+test "MixerAudioContext set_bgm_volume" {
+  let ctx = MixerAudioContext::new(44100)
+  let clip = make_test_clip(1.0)
+  ctx.play_bgm(clip, volume=0.8)
+  assert_true(approx(ctx.bgm_current_volume, 0.8))
+  ctx.set_bgm_volume(0.3)
+  assert_true(approx(ctx.bgm_current_volume, 0.3))
+  ctx.stop_bgm()
+}
+
+///|
+test "MixerAudioContext fade_bgm interpolation" {
+  let ctx = MixerAudioContext::new(44100)
+  let clip = make_test_clip(2.0)
+  ctx.play_bgm(clip, volume=1.0)
+  assert_true(approx(ctx.bgm_current_volume, 1.0))
+  // Fade to 0.0 over 1 second
+  ctx.fade_bgm(0.0, 1.0)
+  // Tick half a second (22050 frames at 44100Hz)
+  ctx.tick_bgm(22050)
+  // Should be approximately 0.5
+  assert_true(ctx.bgm_current_volume > 0.4)
+  assert_true(ctx.bgm_current_volume < 0.6)
+  // Tick remaining half second
+  ctx.tick_bgm(22050)
+  // Should be at target (0.0)
+  assert_true(ctx.bgm_current_volume < 0.01)
+  ctx.stop_bgm()
+}
+
+///|
+test "MixerAudioContext double play_bgm stops previous" {
+  let ctx = MixerAudioContext::new(44100)
+  let clip1 = make_test_clip(1.0)
+  let clip2 = make_test_clip(1.0)
+  ctx.play_bgm(clip1)
+  let first_id = ctx.bgm_player_id
+  ctx.play_bgm(clip2)
+  // First BGM should be disposed
+  match first_id {
+    Some(id) =>
+      match ctx.state(id) {
+        PlayerState::Stopped => ()
+        _ => ()
+      }
+    None => ()
+  }
+  // Second BGM should be playing
+  match ctx.bgm_player_id {
+    Some(id) =>
+      match ctx.state(id) {
+        PlayerState::Playing => ()
+        _ => fail("expected second BGM Playing")
+      }
+    None => fail("expected bgm_player_id to be set")
+  }
+  ctx.stop_bgm()
+}
+
+///|
+test "MixerAudioContext pause_bgm and resume_bgm" {
+  let ctx = MixerAudioContext::new(44100)
+  let clip = make_test_clip(1.0)
+  ctx.play_bgm(clip)
+  ctx.pause_bgm()
+  match ctx.bgm_player_id {
+    Some(id) =>
+      match ctx.state(id) {
+        PlayerState::Paused => ()
+        _ => fail("expected BGM Paused")
+      }
+    None => fail("expected bgm_player_id")
+  }
+  ctx.resume_bgm()
+  match ctx.bgm_player_id {
+    Some(id) =>
+      match ctx.state(id) {
+        PlayerState::Playing => ()
+        _ => fail("expected BGM Playing after resume")
+      }
+    None => fail("expected bgm_player_id")
+  }
+  ctx.stop_bgm()
+}

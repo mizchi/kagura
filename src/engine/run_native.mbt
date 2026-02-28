@@ -54,7 +54,7 @@ pub fn run(
     match audio_ctx {
       Some(actx) => {
         let _ = @audio.audio_render_and_write(actx, audio_frames_per_tick)
-
+        actx.tick_bgm(audio_frames_per_tick)
       }
       None => ()
     }

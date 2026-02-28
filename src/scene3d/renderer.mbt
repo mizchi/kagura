@@ -3,17 +3,19 @@
 // ============================================================
 
 ///|
+let bucket_count : Int = 8
+
+///|
 priv struct MeshBatch {
   vertices : Array[Double] // flat vertex buffer, stride 4 (x,y,u,v)
   indices : Array[Int] // index buffer
   color_dwords : Array[Int] // single color [r,g,b,a] for the batch
-  mut avg_z : Double // average depth for mesh-level sorting
   mut tri_count : Int // number of visible triangles
 }
 
 ///|
 fn MeshBatch::new(color_dwords : Array[Int]) -> MeshBatch {
-  { vertices: [], indices: [], color_dwords, avg_z: 0.0, tri_count: 0 }
+  { vertices: [], indices: [], color_dwords, tri_count: 0 }
 }
 
 ///|
@@ -41,31 +43,29 @@ fn to_byte(v : Double) -> Int {
 }
 
 ///|
-/// Compute per-mesh lighting color (ambient + hemisphere-average diffuse).
-fn compute_mesh_color(
+/// Compute per-bucket lighting colors (8 brightness levels).
+/// Returns an array of 8 color_dwords arrays, indexed by brightness bucket.
+fn compute_bucket_colors(
   lighting : @light3d.LightingEnvironment,
   color : @math3d.Vec4,
-) -> Array[Int] {
+) -> Array[Array[Int]] {
   let amb_r = lighting.ambient.color.x * lighting.ambient.intensity
   let amb_g = lighting.ambient.color.y * lighting.ambient.intensity
   let amb_b = lighting.ambient.color.z * lighting.ambient.intensity
-  // Average diffuse: hemisphere average NdotL ≈ 0.5
-  let avg_ndotl = 0.5
-  let diff_r = lighting.directional.color.x *
-    lighting.directional.intensity *
-    avg_ndotl
-  let diff_g = lighting.directional.color.y *
-    lighting.directional.intensity *
-    avg_ndotl
-  let diff_b = lighting.directional.color.z *
-    lighting.directional.intensity *
-    avg_ndotl
-  [
-    to_byte(color.x * (diff_r + amb_r)),
-    to_byte(color.y * (diff_g + amb_g)),
-    to_byte(color.z * (diff_b + amb_b)),
-    to_byte(color.w),
-  ]
+  let dir_r = lighting.directional.color.x * lighting.directional.intensity
+  let dir_g = lighting.directional.color.y * lighting.directional.intensity
+  let dir_b = lighting.directional.color.z * lighting.directional.intensity
+  let result : Array[Array[Int]] = []
+  for i in 0..<bucket_count {
+    let brightness = i.to_double() / (bucket_count - 1).to_double()
+    result.push([
+      to_byte(color.x * (amb_r + dir_r * brightness)),
+      to_byte(color.y * (amb_g + dir_g * brightness)),
+      to_byte(color.z * (amb_b + dir_b * brightness)),
+      to_byte(color.w),
+    ])
+  }
+  result
 }
 
 ///|
@@ -85,17 +85,36 @@ fn mat4_transform(
 }
 
 ///|
-/// Project all visible triangles of a mesh into a single batch.
-fn project_mesh_batched(
+/// Transform a normal vector by the upper-left 3x3 of a model matrix and normalize.
+fn transform_normal_3x3(
+  model : @math3d.Mat4,
+  nx : Double,
+  ny : Double,
+  nz : Double,
+) -> @math3d.Vec3 {
+  let e = model.elements
+  let rx = e[0] * nx + e[4] * ny + e[8] * nz
+  let ry = e[1] * nx + e[5] * ny + e[9] * nz
+  let rz = e[2] * nx + e[6] * ny + e[10] * nz
+  @math3d.Vec3::new(rx, ry, rz).normalize()
+}
+
+///|
+/// Project all visible triangles of a mesh into brightness-bucketed batches.
+/// Each triangle is assigned to one of 8 buckets based on its face normal's NdotL.
+fn project_mesh_bucketed(
   mesh : @mesh3d.Mesh3D,
   mvp : @math3d.Mat4,
-  batch : MeshBatch,
-) -> Unit {
+  model : @math3d.Mat4,
+  light_dir : @math3d.Vec3,
+  batches : Array[MeshBatch],
+) -> Double {
   let vdata = mesh.vertex_data
   let indices = mesh.indices
   let stride = 8
   let tri_count = indices.length() / 3
   let mut z_sum = 0.0
+  let mut total_tris = 0
   for t in 0..<tri_count {
     let i0 = indices[t * 3]
     let i1 = indices[t * 3 + 1]
@@ -138,28 +157,56 @@ fn project_mesh_batched(
     if cross_z < 0.0 {
       continue
     }
+    // Read face normal from first vertex (faces share normals per vertex data)
+    let fnx = vdata[i0 * stride + 3]
+    let fny = vdata[i0 * stride + 4]
+    let fnz = vdata[i0 * stride + 5]
+    // Transform normal to world space
+    let world_normal = transform_normal_3x3(model, fnx, fny, fnz)
+    // NdotL: light_dir points toward light (negated direction)
+    let ndotl = clamp01(world_normal.dot(light_dir))
+    // Bucket index: 0 = darkest, bucket_count-1 = brightest
+    let bucket_idx = (ndotl * (bucket_count - 1).to_double() + 0.5).to_int()
+    let bi = if bucket_idx >= bucket_count {
+      bucket_count - 1
+    } else if bucket_idx < 0 {
+      0
+    } else {
+      bucket_idx
+    }
+    let batch = batches[bi]
+    // Read UV coordinates from vertex data
+    let u0 = vdata[i0 * stride + 6]
+    let v0 = vdata[i0 * stride + 7]
+    let u1 = vdata[i1 * stride + 6]
+    let v1 = vdata[i1 * stride + 7]
+    let u2 = vdata[i2 * stride + 6]
+    let v2 = vdata[i2 * stride + 7]
     // Append vertices to batch (stride 4: x, y, u, v)
     let vi = batch.tri_count * 3
     batch.vertices.push(ndc0x)
     batch.vertices.push(ndc0y)
-    batch.vertices.push(0.0)
-    batch.vertices.push(0.0)
+    batch.vertices.push(u0)
+    batch.vertices.push(v0)
     batch.vertices.push(ndc1x)
     batch.vertices.push(ndc1y)
-    batch.vertices.push(0.0)
-    batch.vertices.push(0.0)
+    batch.vertices.push(u1)
+    batch.vertices.push(v1)
     batch.vertices.push(ndc2x)
     batch.vertices.push(ndc2y)
-    batch.vertices.push(0.0)
-    batch.vertices.push(0.0)
+    batch.vertices.push(u2)
+    batch.vertices.push(v2)
     batch.indices.push(vi)
     batch.indices.push(vi + 1)
     batch.indices.push(vi + 2)
     z_sum = z_sum + (ndc0z + ndc1z + ndc2z) / 3.0
     batch.tri_count = batch.tri_count + 1
+    total_tris = total_tris + 1
   }
-  if batch.tri_count > 0 {
-    batch.avg_z = z_sum / batch.tri_count.to_double()
+  if total_tris > 0 {
+    z_sum / total_tris.to_double()
+  } else {
+    0.0
   }
 }
 
@@ -191,6 +238,7 @@ fn build_batch_draw_command(
 ///|
 /// Render a 3D scene using CPU projection, producing an array of draw commands
 /// sorted back-to-front for the painter's algorithm.
+/// Uses per-face diffuse lighting with 8 brightness buckets per object.
 pub fn render_scene3d(
   scene : Scene3D,
   dst : @gfx.ImageHandle,
@@ -199,32 +247,40 @@ pub fn render_scene3d(
   screen_h : Int,
 ) -> Array[@gfx.DrawTrianglesCommand] {
   let vp = scene.camera.view_projection_matrix()
-  let batches : Array[MeshBatch] = []
+  // Light direction toward the light source (negate the directional light direction)
+  let light_dir = scene.lighting.directional.direction.negate()
+  let all_batches : Array[(MeshBatch, Double)] = []
   for i in 0..<scene.objects.length() {
     let obj = scene.objects[i]
-    let color_dwords = compute_mesh_color(scene.lighting, obj.color)
-    let batch = MeshBatch::new(color_dwords)
+    let bucket_colors = compute_bucket_colors(scene.lighting, obj.color)
+    let buckets : Array[MeshBatch] = []
+    for b in 0..<bucket_count {
+      buckets.push(MeshBatch::new(bucket_colors[b]))
+    }
     let model = obj.transform.to_mat4()
     let mvp = vp.multiply(model)
-    project_mesh_batched(obj.mesh, mvp, batch)
-    if batch.tri_count > 0 {
-      batches.push(batch)
+    let avg_z = project_mesh_bucketed(obj.mesh, mvp, model, light_dir, buckets)
+    for b in 0..<bucket_count {
+      if buckets[b].tri_count > 0 {
+        all_batches.push((buckets[b], avg_z))
+      }
     }
   }
   // Sort batches back-to-front (mesh-level depth sorting)
-  batches.sort_by(fn(a, b) {
-    if a.avg_z > b.avg_z {
+  all_batches.sort_by(fn(a, b) {
+    if a.1 > b.1 {
       -1
-    } else if a.avg_z < b.avg_z {
+    } else if a.1 < b.1 {
       1
     } else {
       0
     }
   })
-  // One draw command per batch
   let cmds : Array[@gfx.DrawTrianglesCommand] = []
-  for i in 0..<batches.length() {
-    cmds.push(build_batch_draw_command(batches[i], dst, shader, screen_w, screen_h))
+  for i in 0..<all_batches.length() {
+    cmds.push(
+      build_batch_draw_command(all_batches[i].0, dst, shader, screen_w, screen_h),
+    )
   }
   cmds
 }

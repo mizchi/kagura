@@ -544,11 +544,23 @@ pub struct MixerAudioContext {
   mixer : @ma.Mixer
   mut player_map : Array[(PlayerId, @ma.VoiceId)]
   mut next_id : Int
+  mut bgm_player_id : PlayerId?
+  mut bgm_fade_target : Double
+  mut bgm_fade_speed : Double
+  mut bgm_current_volume : Double
 }
 
 ///|
 pub fn MixerAudioContext::new(sample_rate : Int) -> MixerAudioContext {
-  { mixer: @ma.new_mixer(sample_rate), player_map: [], next_id: 1 }
+  {
+    mixer: @ma.new_mixer(sample_rate),
+    player_map: [],
+    next_id: 1,
+    bgm_player_id: None,
+    bgm_fade_target: 1.0,
+    bgm_fade_speed: 0.0,
+    bgm_current_volume: 1.0,
+  }
 }
 
 ///|
@@ -706,6 +718,162 @@ pub fn MixerAudioContext::render(
     }
   }
   @ma.collect_stopped(self.mixer)
+}
+
+///|
+/// Play a BGM clip with looping. Stops any currently playing BGM.
+pub fn MixerAudioContext::play_bgm(
+  self : MixerAudioContext,
+  clip : AudioClip,
+  volume~ : Double = 1.0,
+) -> Unit {
+  // Stop existing BGM
+  self.stop_bgm()
+  // Create a looping clip
+  let looping_clip = new_audio_clip(clip.format, clip.data, true)
+  let id = try {
+    self.create_player(looping_clip)
+  } catch {
+    _ => return
+  }
+  let vol = clamp_volume(volume)
+  self.set_volume(id, vol)
+  try {
+    self.play(id)
+  } catch {
+    _ => ()
+  }
+  self.bgm_player_id = Some(id)
+  self.bgm_current_volume = vol
+  self.bgm_fade_target = vol
+  self.bgm_fade_speed = 0.0
+}
+
+///|
+/// Stop and dispose the current BGM.
+pub fn MixerAudioContext::stop_bgm(self : MixerAudioContext) -> Unit {
+  match self.bgm_player_id {
+    Some(id) => {
+      try {
+        self.stop(id)
+      } catch {
+        _ => ()
+      }
+      self.dispose(id)
+      self.bgm_player_id = None
+      self.bgm_fade_speed = 0.0
+    }
+    None => ()
+  }
+}
+
+///|
+/// Pause the current BGM.
+pub fn MixerAudioContext::pause_bgm(self : MixerAudioContext) -> Unit {
+  match self.bgm_player_id {
+    Some(id) =>
+      try {
+        self.pause(id)
+      } catch {
+        _ => ()
+      }
+    None => ()
+  }
+}
+
+///|
+/// Resume the current BGM.
+pub fn MixerAudioContext::resume_bgm(self : MixerAudioContext) -> Unit {
+  match self.bgm_player_id {
+    Some(id) =>
+      try {
+        self.play(id)
+      } catch {
+        _ => ()
+      }
+    None => ()
+  }
+}
+
+///|
+/// Set BGM volume immediately.
+pub fn MixerAudioContext::set_bgm_volume(
+  self : MixerAudioContext,
+  volume : Double,
+) -> Unit {
+  let vol = clamp_volume(volume)
+  self.bgm_current_volume = vol
+  self.bgm_fade_target = vol
+  self.bgm_fade_speed = 0.0
+  match self.bgm_player_id {
+    Some(id) => self.set_volume(id, vol)
+    None => ()
+  }
+}
+
+///|
+/// Start a volume fade on the BGM.
+pub fn MixerAudioContext::fade_bgm(
+  self : MixerAudioContext,
+  target_volume : Double,
+  duration_seconds : Double,
+) -> Unit {
+  let target = clamp_volume(target_volume)
+  self.bgm_fade_target = target
+  if duration_seconds <= 0.0 {
+    self.set_bgm_volume(target)
+  } else {
+    let diff = (target - self.bgm_current_volume).abs()
+    self.bgm_fade_speed = diff / duration_seconds
+  }
+}
+
+///|
+/// Advance BGM fade by the given number of audio frames.
+/// Call this once per audio tick from the engine loop.
+pub fn MixerAudioContext::tick_bgm(
+  self : MixerAudioContext,
+  frames : Int,
+) -> Unit {
+  if self.bgm_fade_speed <= 0.0 {
+    return
+  }
+  match self.bgm_player_id {
+    Some(id) => {
+      let sample_rate = self.mixer.sample_rate
+      let dt = frames.to_double() / sample_rate.to_double()
+      let delta = self.bgm_fade_speed * dt
+      let current = self.bgm_current_volume
+      let target = self.bgm_fade_target
+      let new_vol = if current < target {
+        let v = current + delta
+        if v >= target { target } else { v }
+      } else {
+        let v = current - delta
+        if v <= target { target } else { v }
+      }
+      self.bgm_current_volume = new_vol
+      self.set_volume(id, new_vol)
+      if (new_vol - target).abs() < 0.0001 {
+        self.bgm_current_volume = target
+        self.bgm_fade_speed = 0.0
+      }
+    }
+    None => {
+      self.bgm_fade_speed = 0.0
+    }
+  }
+}
+
+///|
+fn clamp_volume(v : Double) -> Double {
+  if v < 0.0 {
+    0.0
+  } else if v > 1.0 {
+    1.0
+  } else {
+    v
+  }
 }
 
 ///|

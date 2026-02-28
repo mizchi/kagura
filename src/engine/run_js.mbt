@@ -57,7 +57,7 @@ pub fn run(
       Some(actx) => {
         @audio.audio_resume()
         let _ = @audio.audio_render_and_write(actx, audio_frames_per_tick)
-
+        actx.tick_bgm(audio_frames_per_tick)
       }
       None => ()
     }

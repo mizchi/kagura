@@ -16,6 +16,10 @@ test:
     moon test --target {{target}}
     for dir in examples/*/; do [ -f "$dir/moon.mod.json" ] && (cd "$dir" && moon test --target {{target}}); done
 
+bench:
+    moon bench --target {{target}}
+    for dir in examples/*/; do [ -f "$dir/moon.mod.json" ] && (cd "$dir" && moon bench --target {{target}}); done
+
 test-update:
     moon test --update --target {{target}}
 

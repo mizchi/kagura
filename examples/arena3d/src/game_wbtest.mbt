@@ -272,41 +272,6 @@ test "draw commands change when items collected" {
 }
 
 // ============================================================
-// Benchmark Tests
-// ============================================================
-
-///|
-test "benchmark: draw command count" {
-  let state = GameState::new()
-  let cmds = render_test_scene(state)
-  let total_tris = cmds.fold(
-    init=0,
-    fn(acc, cmd) { acc + cmd.indices.length() / 3 },
-  )
-  println("Draw commands: \{cmds.length()}, Total triangles: \{total_tris}")
-  assert_true(cmds.length() >= 1)
-  assert_true(total_tris > 0)
-}
-
-///|
-test "benchmark: render 1000 iterations" {
-  let state = GameState::new()
-  for _ in 0..<1000 {
-    let _ = render_test_scene(state)
-  }
-  assert_true(true)
-}
-
-///|
-test "benchmark: build_scene3d 10000 iterations" {
-  let state = GameState::new()
-  for _ in 0..<10000 {
-    let _ = state.build_scene3d()
-  }
-  assert_true(true)
-}
-
-// ============================================================
 // Utility Tests
 // ============================================================
 

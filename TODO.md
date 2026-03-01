@@ -26,8 +26,8 @@
 `src/scene3d/` パッケージは抽出済み（`scene3d()` ビルダー + `render_scene3d()` レンダラー + テスト）。
 
 - [ ] arena3d を `scene3d` API に移行（現在は独自の MeshBatch で CPU 側投影を実装）
-- [ ] scene3d に material / texture サポート追加
-- [ ] scene3d のパフォーマンス最適化（バッチ投影、カリング改善）
+- [x] scene3d に material / texture サポート追加
+- [x] scene3d のパフォーマンス最適化（per-object frustum culling）
 
 ### オーディオ改善
 
@@ -36,7 +36,39 @@ arena3d で基本的な SE 再生（Web/Native 両方）は動作確認済み。
 - [x] BGM 対応（ループ再生 + 音量調整） — `MixerAudioContext::play_bgm` 等
 - [x] フェードイン/アウト — `fade_bgm + tick_bgm`
 - [x] AudioWorklet への移行（現在 ScriptProcessorNode、Chrome で非推奨警告）
-- [ ] クロスフェード
+- [x] クロスフェード — `crossfade_bgm + dispose_outgoing_bgm`
+
+## 3D ゲームエンジン拡張ロードマップ
+
+### Tier 1: 最低限のゲーム制作に必要
+
+- [x] 衝突判定 (collision3d) - AABB/Sphere/Ray
+- [x] 衝突判定ブロードフェーズ - SpatialHashGrid
+- [x] シーングラフ (親子階層) - 親子 Transform 伝播
+- [x] 複数光源 - PointLight, SpotLight, 複数灯対応
+- [x] glTF loader - 業界標準フォーマット対応
+- [ ] glTF/OBJ ローダーを別パッケージに切り出し（mizchi/glfw と同様に mooncakes 化）
+
+### Tier 2: まともな 3D ゲームに必要
+
+- [ ] スケルタルアニメーション - ボーン, スキンメッシュ, キーフレーム補間
+- [ ] 物理エンジン - リジッドボディ, 重力, 衝突応答
+- [ ] シャドウマッピング - 深度バッファベースの影
+- [ ] パーティクルシステム - エフェクト (煙, 火, 爆発)
+
+### Tier 3: 品質向上
+
+- [ ] PBR マテリアル - Metallic/Roughness ワークフロー
+- [ ] 法線マップ - バンプ表現
+- [ ] ポストエフェクト - ブルーム, トーンマッピング, FXAA
+- [ ] 3D オーディオ定位 - 距離減衰, パンニング
+- [x] フラスタムカリング - オブジェクト単位の視錐台カリング
+- [ ] LOD - 距離に応じたメッシュ切替
+
+### アーキテクチャ課題
+
+- CPU ラスタライザ → GPU パイプライン移行: scene3d は CPU で頂点変換して 2D コマンドに変換している。draw3d に WGSL シェーダはあるので GPU 側に移行すべき
+- 頂点フォーマットの柔軟化: 現在 stride=8 固定。スキンメッシュではボーンウェイトが必要
 
 ## 完了条件 (第一段階)
 

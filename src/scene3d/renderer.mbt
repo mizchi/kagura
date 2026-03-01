@@ -245,41 +245,42 @@ fn build_batch_draw_command(
 }
 
 ///|
-/// Render a 3D scene using CPU projection, producing an array of draw commands
-/// sorted back-to-front for the painter's algorithm.
-/// Uses per-face diffuse lighting with 8 brightness buckets per object.
-pub fn render_scene3d(
-  scene : Scene3D,
+fn render_object(
+  mesh : @mesh3d.Mesh3D,
+  model_mat4 : @math3d.Mat4,
+  color : @math3d.Vec4,
+  material : Material?,
+  vp : @math3d.Mat4,
+  light_dir : @math3d.Vec3,
+  lighting : @light3d.LightingEnvironment,
+  all_batches : Array[(MeshBatch, Double)],
+) -> Unit {
+  let (col, src_image_id) = match material {
+    Some(mat) => (mat.color, mat.src_image_id)
+    None => (color, -1)
+  }
+  let bucket_colors = compute_bucket_colors(lighting, col)
+  let buckets : Array[MeshBatch] = []
+  for b in 0..<bucket_count {
+    buckets.push(MeshBatch::new(bucket_colors[b], src_image_id~))
+  }
+  let mvp = vp.multiply(model_mat4)
+  let avg_z = project_mesh_bucketed(mesh, mvp, model_mat4, light_dir, buckets)
+  for b in 0..<bucket_count {
+    if buckets[b].tri_count > 0 {
+      all_batches.push((buckets[b], avg_z))
+    }
+  }
+}
+
+///|
+fn collect_and_sort_commands(
+  all_batches : Array[(MeshBatch, Double)],
   dst : @gfx.ImageHandle,
   shader : @gfx.ShaderHandle,
   screen_w : Int,
   screen_h : Int,
 ) -> Array[@gfx.DrawTrianglesCommand] {
-  let vp = scene.camera.view_projection_matrix()
-  // Light direction toward the light source (negate the directional light direction)
-  let light_dir = scene.lighting.directional.direction.negate()
-  let all_batches : Array[(MeshBatch, Double)] = []
-  for i in 0..<scene.objects.length() {
-    let obj = scene.objects[i]
-    let (color, src_image_id) = match obj.material {
-      Some(mat) => (mat.color, mat.src_image_id)
-      None => (obj.color, -1)
-    }
-    let bucket_colors = compute_bucket_colors(scene.lighting, color)
-    let buckets : Array[MeshBatch] = []
-    for b in 0..<bucket_count {
-      buckets.push(MeshBatch::new(bucket_colors[b], src_image_id~))
-    }
-    let model = obj.transform.to_mat4()
-    let mvp = vp.multiply(model)
-    let avg_z = project_mesh_bucketed(obj.mesh, mvp, model, light_dir, buckets)
-    for b in 0..<bucket_count {
-      if buckets[b].tri_count > 0 {
-        all_batches.push((buckets[b], avg_z))
-      }
-    }
-  }
-  // Sort batches back-to-front (mesh-level depth sorting)
   all_batches.sort_by(fn(a, b) {
     if a.1 > b.1 {
       -1
@@ -291,15 +292,78 @@ pub fn render_scene3d(
   })
   let cmds : Array[@gfx.DrawTrianglesCommand] = []
   for i in 0..<all_batches.length() {
-    cmds.push(
-      build_batch_draw_command(
-        all_batches[i].0,
-        dst,
-        shader,
-        screen_w,
-        screen_h,
-      ),
-    )
+    cmds.push(build_batch_draw_command(all_batches[i].0, dst, shader, screen_w, screen_h))
   }
   cmds
+}
+
+///|
+/// Render a 3D scene using CPU projection, producing an array of draw commands
+/// sorted back-to-front for the painter's algorithm.
+/// Uses per-face diffuse lighting with 8 brightness buckets per object.
+pub fn render_scene3d(
+  scene : Scene3D,
+  dst : @gfx.ImageHandle,
+  shader : @gfx.ShaderHandle,
+  screen_w : Int,
+  screen_h : Int,
+) -> Array[@gfx.DrawTrianglesCommand] {
+  let vp = scene.camera.view_projection_matrix()
+  let light_dir = scene.lighting.directional.direction.negate()
+  let all_batches : Array[(MeshBatch, Double)] = []
+  for i in 0..<scene.objects.length() {
+    let obj = scene.objects[i]
+    let model = obj.transform.to_mat4()
+    render_object(
+      obj.mesh, model, obj.color, obj.material, vp, light_dir, scene.lighting,
+      all_batches,
+    )
+  }
+  collect_and_sort_commands(all_batches, dst, shader, screen_w, screen_h)
+}
+
+///|
+pub fn render_scene3d_graph(
+  graph : SceneGraph,
+  camera : @camera3d.Camera3D,
+  lighting? : @light3d.LightingEnvironment = @light3d.LightingEnvironment::default(),
+  dst : @gfx.ImageHandle,
+  shader : @gfx.ShaderHandle,
+  screen_w : Int,
+  screen_h : Int,
+) -> Array[@gfx.DrawTrianglesCommand] {
+  let vp = camera.view_projection_matrix()
+  let light_dir = lighting.directional.direction.negate()
+  let all_batches : Array[(MeshBatch, Double)] = []
+  let identity = @math3d.Mat4::identity()
+  for i in 0..<graph.roots.length() {
+    traverse_node(graph, graph.roots[i], identity, vp, light_dir, lighting, all_batches)
+  }
+  collect_and_sort_commands(all_batches, dst, shader, screen_w, screen_h)
+}
+
+///|
+fn traverse_node(
+  graph : SceneGraph,
+  node_id : Int,
+  parent_world : @math3d.Mat4,
+  vp : @math3d.Mat4,
+  light_dir : @math3d.Vec3,
+  lighting : @light3d.LightingEnvironment,
+  all_batches : Array[(MeshBatch, Double)],
+) -> Unit {
+  match graph.nodes.get(node_id) {
+    None => ()
+    Some(node) => {
+      let world = parent_world.multiply(node.transform.to_mat4())
+      match node.mesh {
+        Some(mesh) =>
+          render_object(mesh, world, node.color, node.material, vp, light_dir, lighting, all_batches)
+        None => ()
+      }
+      for i in 0..<node.children.length() {
+        traverse_node(graph, node.children[i], world, vp, light_dir, lighting, all_batches)
+      }
+    }
+  }
 }

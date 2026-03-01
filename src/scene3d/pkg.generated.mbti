@@ -1,0 +1,69 @@
+// Generated using `moon info`, DON'T EDIT IT
+package "mizchi/kagura/scene3d"
+
+import {
+  "mizchi/kagura/camera3d",
+  "mizchi/kagura/gfx",
+  "mizchi/kagura/light3d",
+  "mizchi/kagura/math3d",
+  "mizchi/kagura/mesh3d",
+  "mizchi/kagura/transform3d",
+}
+
+// Values
+pub fn object3d(mesh~ : @mesh3d.Mesh3D, position? : @math3d.Vec3, rotation? : @math3d.Quaternion, scale? : @math3d.Vec3, color? : @math3d.Vec4, material? : Material?) -> Object3D
+
+pub fn object3d_with_transform(mesh~ : @mesh3d.Mesh3D, transform~ : @transform3d.Transform3D, color? : @math3d.Vec4, material? : Material?) -> Object3D
+
+pub fn render_scene3d(Scene3D, @gfx.ImageHandle, @gfx.ShaderHandle, Int, Int) -> Array[@gfx.DrawTrianglesCommand]
+
+pub fn render_scene3d_graph(SceneGraph, @camera3d.Camera3D, lighting? : @light3d.LightingEnvironment, @gfx.ImageHandle, @gfx.ShaderHandle, Int, Int) -> Array[@gfx.DrawTrianglesCommand]
+
+pub fn scene3d(objects~ : Array[Object3D], camera~ : @camera3d.Camera3D, lighting? : @light3d.LightingEnvironment) -> Scene3D
+
+pub fn scene_node(mesh? : @mesh3d.Mesh3D?, position? : @math3d.Vec3, rotation? : @math3d.Quaternion, scale? : @math3d.Vec3, color? : @math3d.Vec4, material? : Material?) -> SceneNode
+
+// Errors
+
+// Types and methods
+pub(all) struct Material {
+  color : @math3d.Vec4
+  src_image_id : Int
+}
+
+pub(all) struct Object3D {
+  mesh : @mesh3d.Mesh3D
+  transform : @transform3d.Transform3D
+  color : @math3d.Vec4
+  material : Material?
+}
+
+pub(all) struct Scene3D {
+  objects : Array[Object3D]
+  camera : @camera3d.Camera3D
+  lighting : @light3d.LightingEnvironment
+}
+
+pub struct SceneGraph {
+  nodes : Map[Int, SceneNode]
+  roots : Array[Int]
+  mut next_id : Int
+}
+pub fn SceneGraph::add_child(Self, Int, SceneNode) -> Int
+pub fn SceneGraph::add_node(Self, SceneNode) -> Int
+pub fn SceneGraph::get_node(Self, Int) -> SceneNode?
+pub fn SceneGraph::new() -> Self
+pub fn SceneGraph::set_node(Self, Int, SceneNode) -> Unit
+
+pub(all) struct SceneNode {
+  transform : @transform3d.Transform3D
+  mesh : @mesh3d.Mesh3D?
+  color : @math3d.Vec4
+  material : Material?
+  children : Array[Int]
+}
+
+// Type aliases
+
+// Traits
+

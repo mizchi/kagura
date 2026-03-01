@@ -1,0 +1,35 @@
+// Generated using `moon info`, DON'T EDIT IT
+package "mizchi/kagura/engine"
+
+import {
+  "mizchi/kagura/audio",
+  "mizchi/kagura/core",
+  "mizchi/kagura/gfx",
+}
+
+// Values
+pub fn reset_lifecycle_hooks() -> Unit
+
+pub fn run(update~ : (@core.InputSnapshot) -> Unit, draw~ : (EngineContext) -> Array[@gfx.DrawTrianglesCommand], audio_ctx? : @audio.MixerAudioContext, audio_frames_per_tick? : Int, width? : Int, height? : Int, title? : String, canvas? : String) -> Unit
+
+pub fn set_lifecycle_hooks(LifecycleHooks) -> Unit
+
+// Errors
+
+// Types and methods
+pub(all) struct EngineContext {
+  dst : @gfx.ImageHandle
+  shader : @gfx.ShaderHandle
+  screen_w : Int
+  screen_h : Int
+}
+
+pub(all) struct LifecycleHooks {
+  on_start : (String, String) -> Unit
+  on_stop : () -> Unit
+}
+
+// Type aliases
+
+// Traits
+

@@ -1,0 +1,44 @@
+// Generated using `moon info`, DON'T EDIT IT
+package "mizchi/kagura/scene"
+
+import {
+  "mizchi/kagura/audio",
+  "mizchi/kagura/core",
+  "mizchi/kagura/gfx",
+  "mizchi/signals/ui",
+}
+
+// Values
+pub fn for_each(() -> Array[@ui.Node[Unit, String]]) -> @ui.Node[Unit, String]
+
+pub fn fragment(Array[@ui.Node[Unit, String]]) -> @ui.Node[Unit, String]
+
+pub fn group(x? : Double, y? : Double, children~ : Array[@ui.Node[Unit, String]]) -> @ui.Node[Unit, String]
+
+pub fn label(x? : Double, y? : Double, content~ : String, color? : Int, scale? : Double) -> @ui.Node[Unit, String]
+
+pub fn line(x0~ : Double, y0~ : Double, x1~ : Double, y1~ : Double, width? : Double, color? : Int) -> @ui.Node[Unit, String]
+
+pub fn match_case(when~ : () -> Bool, render~ : () -> @ui.Node[Unit, String]) -> @ui.MatchCase[Unit, String]
+
+pub fn rect(x? : Double, y? : Double, w~ : Double, h~ : Double, fill? : Int, alpha? : Double, children? : Array[@ui.Node[Unit, String]]) -> @ui.Node[Unit, String]
+
+pub fn rect_outline(x~ : Double, y~ : Double, w~ : Double, h~ : Double, line_width? : Double, color? : Int) -> @ui.Node[Unit, String]
+
+pub fn render_scene(@ui.Node[Unit, String], @gfx.ImageHandle, @gfx.ShaderHandle, Double, Double) -> Array[@gfx.DrawTrianglesCommand]
+
+pub fn run(view~ : () -> @ui.Node[Unit, String], update~ : (@core.InputSnapshot) -> Unit, on_frame? : (Array[@gfx.DrawTrianglesCommand], @gfx.ImageHandle, @gfx.ShaderHandle, Double, Double) -> Unit, audio_ctx? : @audio.MixerAudioContext, width? : Int, height? : Int, title? : String, canvas? : String) -> Unit
+
+pub fn show(() -> Bool, () -> @ui.Node[Unit, String]) -> @ui.Node[Unit, String]
+
+pub fn switch_(cases~ : Array[@ui.MatchCase[Unit, String]], fallback? : (() -> @ui.Node[Unit, String])?) -> @ui.Node[Unit, String]
+
+// Errors
+
+// Types and methods
+
+// Type aliases
+pub type SceneNode = @ui.Node[Unit, String]
+
+// Traits
+

@@ -1,0 +1,60 @@
+// Generated using `moon info`, DON'T EDIT IT
+package "mizchi/kagura/collision3d"
+
+import {
+  "mizchi/kagura/math3d",
+  "mizchi/kagura/mesh3d",
+}
+
+// Values
+pub fn aabb_from_mesh(@mesh3d.Mesh3D) -> AABB
+
+// Errors
+
+// Types and methods
+pub(all) struct AABB {
+  min : @math3d.Vec3
+  max : @math3d.Vec3
+}
+pub fn AABB::center(Self) -> @math3d.Vec3
+pub fn AABB::closest_point(Self, @math3d.Vec3) -> @math3d.Vec3
+pub fn AABB::contains_point(Self, @math3d.Vec3) -> Bool
+pub fn AABB::extents(Self) -> @math3d.Vec3
+pub fn AABB::from_center_extents(@math3d.Vec3, @math3d.Vec3) -> Self
+pub fn AABB::intersects_aabb(Self, Self) -> Bool
+pub fn AABB::intersects_sphere(Self, Sphere) -> Bool
+pub fn AABB::merge(Self, Self) -> Self
+pub fn AABB::new(@math3d.Vec3, @math3d.Vec3) -> Self
+pub impl Show for AABB
+
+pub(all) struct HitResult {
+  hit : Bool
+  distance : Double
+  point : @math3d.Vec3
+}
+pub impl Show for HitResult
+
+pub(all) struct Ray {
+  origin : @math3d.Vec3
+  direction : @math3d.Vec3
+}
+pub fn Ray::intersects_aabb(Self, AABB) -> HitResult
+pub fn Ray::intersects_sphere(Self, Sphere) -> HitResult
+pub fn Ray::new(@math3d.Vec3, @math3d.Vec3) -> Self
+pub fn Ray::point_at(Self, Double) -> @math3d.Vec3
+pub impl Show for Ray
+
+pub(all) struct Sphere {
+  center : @math3d.Vec3
+  radius : Double
+}
+pub fn Sphere::contains_point(Self, @math3d.Vec3) -> Bool
+pub fn Sphere::intersects_aabb(Self, AABB) -> Bool
+pub fn Sphere::intersects_sphere(Self, Self) -> Bool
+pub fn Sphere::new(@math3d.Vec3, Double) -> Self
+pub impl Show for Sphere
+
+// Type aliases
+
+// Traits
+

@@ -79,7 +79,9 @@ test "SceneGraph parent-child transform composition" {
     100.0,
   )
   let graph = SceneGraph::new()
-  let pid = graph.add_node(scene_node(position=@math3d.Vec3::new(1.0, 0.0, 0.0)))
+  let pid = graph.add_node(
+    scene_node(position=@math3d.Vec3::new(1.0, 0.0, 0.0)),
+  )
   let _ = graph.add_child(
     pid,
     scene_node(
@@ -106,8 +108,13 @@ test "SceneGraph deep nesting (3 levels)" {
     100.0,
   )
   let graph = SceneGraph::new()
-  let root = graph.add_node(scene_node(position=@math3d.Vec3::new(0.0, 0.0, 0.0)))
-  let mid = graph.add_child(root, scene_node(position=@math3d.Vec3::new(1.0, 0.0, 0.0)))
+  let root = graph.add_node(
+    scene_node(position=@math3d.Vec3::new(0.0, 0.0, 0.0)),
+  )
+  let mid = graph.add_child(
+    root,
+    scene_node(position=@math3d.Vec3::new(1.0, 0.0, 0.0)),
+  )
   let _ = graph.add_child(
     mid,
     scene_node(

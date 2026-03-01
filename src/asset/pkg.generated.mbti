@@ -50,6 +50,10 @@ pub fn encode_jpeg_image_spec(ImageSpec, quality? : Int) -> Bytes raise @image.E
 
 pub fn encode_png_image_spec(ImageSpec) -> Bytes raise @image.EncodeError
 
+pub fn fetch_bytes(String, (Bytes?) -> Unit) -> Unit
+
+pub fn fetch_image(String, (ImageSpec?) -> Unit) -> Unit
+
 pub fn get_atlas_draw_source(SimpleAtlasImageRepository, AssetKey) -> AtlasDrawSource?
 
 pub fn get_atlas_image_region(SimpleAtlasImageRepository, AssetKey) -> AtlasRegion?

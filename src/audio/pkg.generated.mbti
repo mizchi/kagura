@@ -125,9 +125,25 @@ pub struct MixerAudioContext {
   mixer : @mizchi/audio.Mixer
   mut player_map : Array[(PlayerId, @mizchi/audio.VoiceId)]
   mut next_id : Int
+  mut bgm_player_id : PlayerId?
+  mut bgm_fade_target : Double
+  mut bgm_fade_speed : Double
+  mut bgm_current_volume : Double
+  mut bgm_outgoing_id : PlayerId?
+  mut bgm_outgoing_volume : Double
+  mut bgm_outgoing_fade_speed : Double
 }
+pub fn MixerAudioContext::crossfade_bgm(Self, AudioClip, Double, volume? : Double) -> Unit
+pub fn MixerAudioContext::dispose_outgoing_bgm(Self) -> Unit
+pub fn MixerAudioContext::fade_bgm(Self, Double, Double) -> Unit
 pub fn MixerAudioContext::new(Int) -> Self
+pub fn MixerAudioContext::pause_bgm(Self) -> Unit
+pub fn MixerAudioContext::play_bgm(Self, AudioClip, volume? : Double) -> Unit
 pub fn MixerAudioContext::render(Self, Int, FixedArray[Float]) -> Unit
+pub fn MixerAudioContext::resume_bgm(Self) -> Unit
+pub fn MixerAudioContext::set_bgm_volume(Self, Double) -> Unit
+pub fn MixerAudioContext::stop_bgm(Self) -> Unit
+pub fn MixerAudioContext::tick_bgm(Self, Int) -> Unit
 pub impl AudioContext for MixerAudioContext
 
 pub struct PlayerId {

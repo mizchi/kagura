@@ -50,7 +50,11 @@ pub fn SceneGraph::get_node(self : SceneGraph, id : Int) -> SceneNode? {
 }
 
 ///|
-pub fn SceneGraph::set_node(self : SceneGraph, id : Int, node : SceneNode) -> Unit {
+pub fn SceneGraph::set_node(
+  self : SceneGraph,
+  id : Int,
+  node : SceneNode,
+) -> Unit {
   self.nodes[id] = node
 }
 
@@ -64,7 +68,9 @@ pub fn scene_node(
   material? : Material? = None,
 ) -> SceneNode {
   {
-    transform: @transform3d.Transform3D::from_components(position, rotation, scale),
+    transform: @transform3d.Transform3D::from_components(
+      position, rotation, scale,
+    ),
     mesh,
     color,
     material,

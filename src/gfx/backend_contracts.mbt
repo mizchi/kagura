@@ -208,6 +208,18 @@ pub impl GraphicsDriver for StubGraphicsDriver with initialize(self) {
 pub impl GraphicsDriver for StubGraphicsDriver with begin(self, pass) {
   let _ = self.backend
   if self.initialized {
+    // Re-check web initialization if not yet active (async WebGPU device init)
+    if not(self.web_active) {
+      match self.backend {
+        GraphicsBackendKind::WebGpu | GraphicsBackendKind::WebGl2 =>
+          self.web_active = web_graphics_try_initialize(
+            self.backend,
+            self.width,
+            self.height,
+          )
+        _ => ()
+      }
+    }
     self.begin_count = self.begin_count + 1
     native_on_begin(self.native_active, pass)
     web_graphics_on_begin(self.web_active, self.backend, pass)

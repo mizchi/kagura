@@ -1177,7 +1177,7 @@ extern "js" fn js_try_initialize_webgpu(
   #|         state.webgpu.pending = null;
   #|       });
   #|   }
-  #|   return true;
+  #|   return false;
   #| }
 
 ///|
@@ -2988,13 +2988,16 @@ fn bridge_audio_close() -> Unit {
 
 ///|
 pub fn install(canvas_selector : String) -> Unit {
+  let already_installed = web_hooks_installed.val
   web_canvas_selector.val = canvas_selector
   web_hooks_installed.val = true
-  clear_source_image_cache()
-  clear_synced_source_generations()
-  clear_gpu_texture_dirty()
+  if not(already_installed) {
+    clear_source_image_cache()
+    clear_synced_source_generations()
+    clear_gpu_texture_dirty()
+    js_release_webgpu_resources()
+  }
   js_ensure_window_state(canvas_selector)
-  js_release_webgpu_resources()
   js_set_should_close(false)
   let _ = js_set_vsync_enabled(true)
   @platform.set_web_canvas_hooks(

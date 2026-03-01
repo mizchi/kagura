@@ -11,6 +11,11 @@ pub struct Mesh3D {
 } derive(Show)
 
 ///|
+pub fn Mesh3D::new(vertex_data : Array[Double], indices : Array[Int]) -> Mesh3D {
+  { vertex_data, indices }
+}
+
+///|
 pub fn Mesh3D::vertex_count(self : Mesh3D) -> Int {
   self.vertex_data.length() / vertex3d_stride
 }

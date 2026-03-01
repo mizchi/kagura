@@ -1,0 +1,24 @@
+// Generated using `moon info`, DON'T EDIT IT
+package "mizchi/kagura/gltf"
+
+import {
+  "mizchi/kagura/mesh3d",
+  "mizchi/kagura/scene3d",
+}
+
+// Values
+pub fn mesh_from_gltf(String, Array[Bytes]) -> @mesh3d.Mesh3D raise GltfError
+
+pub fn meshes_from_gltf(String, Array[Bytes]) -> Array[@mesh3d.Mesh3D] raise GltfError
+
+pub fn scene_graph_from_gltf(String, Array[Bytes], scene_index? : Int) -> @scene3d.SceneGraph raise GltfError
+
+// Errors
+type GltfError
+
+// Types and methods
+
+// Type aliases
+
+// Traits
+

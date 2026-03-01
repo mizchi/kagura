@@ -52,6 +52,117 @@ fn read_accessor_floats(
 }
 
 ///|
+/// Read accessor as unsigned byte values (for JOINTS_0 with UNSIGNED_BYTE).
+fn read_accessor_ubytes(
+  doc : GltfDocument,
+  accessor_index : Int,
+  buffers : Array[Bytes],
+) -> Array[Int] raise GltfError {
+  if accessor_index < 0 || accessor_index >= doc.accessors.length() {
+    raise GltfError::InvalidAccessor(
+      "index out of range: " + accessor_index.to_string(),
+    )
+  }
+  let acc = doc.accessors[accessor_index]
+  if acc.buffer_view < 0 || acc.buffer_view >= doc.buffer_views.length() {
+    raise GltfError::InvalidBufferView(
+      "index out of range: " + acc.buffer_view.to_string(),
+    )
+  }
+  let bv = doc.buffer_views[acc.buffer_view]
+  if bv.buffer < 0 || bv.buffer >= buffers.length() {
+    raise GltfError::BufferOutOfRange(bv.buffer)
+  }
+  let buf = buffers[bv.buffer]
+  let comp_count = component_count(acc.type_)
+  let total = acc.count * comp_count
+  let result : Array[Int] = Array::make(total, 0)
+  let base_offset = bv.byte_offset + acc.byte_offset
+  let default_stride = comp_count * 1
+  let stride = if bv.byte_stride > 0 { bv.byte_stride } else { default_stride }
+  for i in 0..<acc.count {
+    let elem_offset = base_offset + i * stride
+    for j in 0..<comp_count {
+      result[i * comp_count + j] = buf[elem_offset + j].to_int()
+    }
+  }
+  result
+}
+
+///|
+/// Read accessor as unsigned short values (for JOINTS_0 with UNSIGNED_SHORT).
+fn read_accessor_ushorts(
+  doc : GltfDocument,
+  accessor_index : Int,
+  buffers : Array[Bytes],
+) -> Array[Int] raise GltfError {
+  if accessor_index < 0 || accessor_index >= doc.accessors.length() {
+    raise GltfError::InvalidAccessor(
+      "index out of range: " + accessor_index.to_string(),
+    )
+  }
+  let acc = doc.accessors[accessor_index]
+  if acc.buffer_view < 0 || acc.buffer_view >= doc.buffer_views.length() {
+    raise GltfError::InvalidBufferView(
+      "index out of range: " + acc.buffer_view.to_string(),
+    )
+  }
+  let bv = doc.buffer_views[acc.buffer_view]
+  if bv.buffer < 0 || bv.buffer >= buffers.length() {
+    raise GltfError::BufferOutOfRange(bv.buffer)
+  }
+  let buf = buffers[bv.buffer]
+  let comp_count = component_count(acc.type_)
+  let total = acc.count * comp_count
+  let result : Array[Int] = Array::make(total, 0)
+  let base_offset = bv.byte_offset + acc.byte_offset
+  let default_stride = comp_count * 2
+  let stride = if bv.byte_stride > 0 { bv.byte_stride } else { default_stride }
+  for i in 0..<acc.count {
+    let elem_offset = base_offset + i * stride
+    for j in 0..<comp_count {
+      result[i * comp_count + j] = read_u16_le(buf, elem_offset + j * 2)
+    }
+  }
+  result
+}
+
+///|
+/// Read joint indices from a primitive's JOINTS_0 attribute.
+fn read_skin_joints_from_primitive(
+  doc : GltfDocument,
+  prim : GltfPrimitive,
+  buffers : Array[Bytes],
+) -> Array[Int] raise GltfError {
+  let joints_idx = match prim.attributes.get("JOINTS_0") {
+    Some(i) => i
+    None => raise GltfError::MissingAttribute("JOINTS_0")
+  }
+  let acc = doc.accessors[joints_idx]
+  match acc.component_type {
+    5121 => // UNSIGNED_BYTE
+      read_accessor_ubytes(doc, joints_idx, buffers)
+    5123 => // UNSIGNED_SHORT
+      read_accessor_ushorts(doc, joints_idx, buffers)
+    _ => raise GltfError::UnsupportedComponentType(acc.component_type)
+  }
+}
+
+///|
+/// Read weights from a primitive's WEIGHTS_0 attribute.
+fn read_skin_weights_from_primitive(
+  doc : GltfDocument,
+  prim : GltfPrimitive,
+  buffers : Array[Bytes],
+) -> Array[Double] raise GltfError {
+  let weights_idx = match prim.attributes.get("WEIGHTS_0") {
+    Some(i) => i
+    None => raise GltfError::MissingAttribute("WEIGHTS_0")
+  }
+  read_accessor_floats(doc, weights_idx, buffers)
+}
+
+///|
 fn read_accessor_indices(
   doc : GltfDocument,
   accessor_index : Int,

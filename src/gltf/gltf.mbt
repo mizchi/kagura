@@ -57,3 +57,35 @@ pub fn scene_graph_from_gltf(
   }
   build_scene_graph(doc, idx, buffers)
 }
+
+///|
+/// Load a skinned scene from glTF, returning the scene graph, skeleton,
+/// animation clips, and skin data.
+pub fn skinned_scene_from_gltf(
+  source : String,
+  buffers : Array[Bytes],
+  scene_index? : Int,
+) -> (
+  @scene3d.SceneGraph,
+  @skeleton3d.Skeleton?,
+  Array[@animation3d.AnimationClip],
+  @skeleton3d.SkinData?,
+) raise GltfError {
+  let root = @json.parse(source) catch {
+    _ => raise GltfError::ParseError("invalid JSON")
+  }
+  let doc = parse_document(root)
+  let idx = match scene_index {
+    Some(i) => i
+    None => doc.default_scene
+  }
+  let graph = build_scene_graph(doc, idx, buffers)
+  if doc.skins.is_empty() {
+    return (graph, None, [], None)
+  }
+  // Use the first skin
+  let skeleton = skeleton_from_gltf(doc, 0, buffers)
+  let skin_data = skin_data_from_gltf(doc, 0, buffers)
+  let clips = animations_from_gltf(doc, 0, buffers)
+  (graph, Some(skeleton), clips, skin_data)
+}

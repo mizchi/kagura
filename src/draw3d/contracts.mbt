@@ -320,3 +320,142 @@ pub fn new_lit_normalmap_mesh_draw_command(
     uniform_dwords,
   )
 }
+
+// ============================================================
+// 3D Lit Skinned Shader (GPU Skinning)
+// ============================================================
+
+///|
+let max_bones : Int = 64
+
+///|
+/// Uniform struct for skinned lit shader.
+/// Layout: MVP(16) + Model(16) + NormalMatrix(12) + Light(12) + num_bones(4, padded) + bone_matrices(MAX_BONES*16).
+fn skinned_lit_uniform_struct_wgsl() -> String {
+  "const MAX_BONES: u32 = 64u;\n\n" +
+  "struct Uniforms {\n" +
+  "  mvp: mat4x4<f32>,\n" +
+  "  model: mat4x4<f32>,\n" +
+  "  normal_col0: vec4<f32>,\n" +
+  "  normal_col1: vec4<f32>,\n" +
+  "  normal_col2: vec4<f32>,\n" +
+  "  light_dir: vec4<f32>,\n" +
+  "  light_color: vec4<f32>,\n" +
+  "  ambient_color: vec4<f32>,\n" +
+  "  num_bones: vec4<f32>,\n" +
+  "  bone_matrices: array<mat4x4<f32>, 64>,\n" +
+  "};\n\n"
+}
+
+///|
+/// WGSL shader source for lit 3D rendering with GPU skinning.
+/// Vertex format: position(3) + normal(3) + uv(2) + joints(4) + weights(4) = stride 16.
+pub fn shader3d_lit_skinned_wgsl() -> String {
+  skinned_lit_uniform_struct_wgsl() +
+  "@group(0) @binding(0) var<uniform> uniforms: Uniforms;\n" +
+  "@group(0) @binding(1) var tex: texture_2d<f32>;\n" +
+  "@group(0) @binding(2) var tex_sampler: sampler;\n\n" +
+  "struct VertexInput {\n" +
+  "  @location(0) position: vec3<f32>,\n" +
+  "  @location(1) normal: vec3<f32>,\n" +
+  "  @location(2) uv: vec2<f32>,\n" +
+  "  @location(3) joints: vec4<f32>,\n" +
+  "  @location(4) weights: vec4<f32>,\n" +
+  "};\n\n" +
+  "struct VertexOutput {\n" +
+  "  @builtin(position) clip_position: vec4<f32>,\n" +
+  "  @location(0) world_normal: vec3<f32>,\n" +
+  "  @location(1) uv: vec2<f32>,\n" +
+  "};\n\n" +
+  "@vertex fn vs_main(input: VertexInput) -> VertexOutput {\n" +
+  "  var skin_mat = mat4x4<f32>();\n" +
+  "  for (var i = 0u; i < 4u; i = i + 1u) {\n" +
+  "    let joint_idx = u32(input.joints[i]);\n" +
+  "    let weight = input.weights[i];\n" +
+  "    if (weight > 0.0) {\n" +
+  "      skin_mat = skin_mat + weight * uniforms.bone_matrices[joint_idx];\n" +
+  "    }\n" +
+  "  }\n" +
+  "  let skinned_pos = skin_mat * vec4<f32>(input.position, 1.0);\n" +
+  "  let skinned_normal = (skin_mat * vec4<f32>(input.normal, 0.0)).xyz;\n" +
+  "  var out: VertexOutput;\n" +
+  "  out.clip_position = uniforms.mvp * skinned_pos;\n" +
+  lit_normal_mat_wgsl() +
+  "  out.world_normal = normalize(normal_mat * skinned_normal);\n" +
+  "  out.uv = input.uv;\n" +
+  "  return out;\n" +
+  "}\n\n" +
+  "@fragment fn fs_main(in: VertexOutput) -> @location(0) vec4<f32> {\n" +
+  lit_fragment_lighting_wgsl() +
+  "  let tex_color = textureSample(tex, tex_sampler, in.uv);\n" +
+  "  let lit_color = tex_color.rgb * (diffuse + ambient);\n" +
+  "  return vec4<f32>(lit_color, tex_color.a);\n" +
+  "}\n"
+}
+
+///|
+/// Compute uniform dwords count for skinned lit shader.
+/// 56 (base lit) + 4 (num_bones padded) + MAX_BONES * 16 (bone matrices).
+pub fn skinned_lit_uniform_dwords() -> Int {
+  56 + 4 + max_bones * 16
+}
+
+///|
+/// Build a skinned lit DrawTrianglesCommand.
+/// `skinning_matrices` are the final bone matrices to upload.
+pub fn new_skinned_lit_mesh_draw_command(
+  dst : @gfx.ImageHandle,
+  shader : @gfx.ShaderHandle,
+  dst_region : @gfx.DstRegion,
+  index_offset : Int,
+  pipeline_id : Int,
+  uniform_hash : Int,
+  blend : @gfx.BlendMode,
+  vertex_data : Array[Double],
+  indices : Array[Int],
+  model_matrix : @math3d.Mat4,
+  view_projection : @math3d.Mat4,
+  lighting : @light3d.LightingEnvironment,
+  skinning_matrices : Array[@math3d.Mat4],
+  src_image_ids : Array[Int],
+) -> @gfx.DrawTrianglesCommand {
+  // Base lit uniforms (56 dwords)
+  let dwords = lit_uniform_dwords(model_matrix, view_projection, lighting)
+  // num_bones as vec4<f32> (4 dwords, padded)
+  dwords.push(
+    @gfx.double_to_f32_bits(skinning_matrices.length().to_double()),
+  )
+  dwords.push(@gfx.double_to_f32_bits(0.0))
+  dwords.push(@gfx.double_to_f32_bits(0.0))
+  dwords.push(@gfx.double_to_f32_bits(0.0))
+  // Bone matrices (each 16 dwords, up to MAX_BONES)
+  let bone_count = if skinning_matrices.length() < max_bones {
+    skinning_matrices.length()
+  } else {
+    max_bones
+  }
+  for i in 0..<bone_count {
+    for j in 0..<16 {
+      dwords.push(@gfx.double_to_f32_bits(skinning_matrices[i].elements[j]))
+    }
+  }
+  // Pad remaining bones with zeros
+  for _i in bone_count..<max_bones {
+    for _j in 0..<16 {
+      dwords.push(0)
+    }
+  }
+  @gfx.new_draw_triangles_command(
+    dst,
+    shader,
+    [dst_region],
+    index_offset,
+    pipeline_id,
+    uniform_hash,
+    blend,
+    vertex_data,
+    indices,
+    src_image_ids,
+    dwords,
+  )
+}

@@ -78,7 +78,11 @@ fn parse_node(obj : Json) -> GltfNode {
     Some(v) => json_int_opt(v)
     None => None
   }
-  { mesh, children, translation, rotation, scale }
+  let skin = match json_get(obj, "skin") {
+    Some(v) => json_int_opt(v)
+    None => None
+  }
+  { mesh, skin, children, translation, rotation, scale }
 }
 
 ///|
@@ -111,6 +115,56 @@ fn parse_material(obj : Json) -> GltfMaterial {
 }
 
 ///|
+fn parse_skin(obj : Json) -> GltfSkin {
+  let joints : Array[Int] = []
+  for j in json_get_array(obj, "joints") {
+    joints.push(json_int(j))
+  }
+  let ibm = match json_get(obj, "inverseBindMatrices") {
+    Some(v) => json_int_opt(v)
+    None => None
+  }
+  { joints, inverse_bind_matrices: ibm }
+}
+
+///|
+fn parse_anim_sampler(obj : Json) -> GltfAnimSampler {
+  {
+    input: json_get_int(obj, "input", 0),
+    output: json_get_int(obj, "output", 0),
+    interpolation: json_get_string(obj, "interpolation", "LINEAR"),
+  }
+}
+
+///|
+fn parse_anim_channel(obj : Json) -> GltfAnimChannel {
+  let sampler = json_get_int(obj, "sampler", 0)
+  let target_node = match json_get(obj, "target") {
+    Some(t) => json_get_int(t, "node", 0)
+    None => 0
+  }
+  let target_path = match json_get(obj, "target") {
+    Some(t) => json_get_string(t, "path", "translation")
+    None => "translation"
+  }
+  { sampler, target_node, target_path }
+}
+
+///|
+fn parse_animation(obj : Json) -> GltfAnimation {
+  let name = json_get_string(obj, "name", "")
+  let channels : Array[GltfAnimChannel] = []
+  for c in json_get_array(obj, "channels") {
+    channels.push(parse_anim_channel(c))
+  }
+  let samplers : Array[GltfAnimSampler] = []
+  for s in json_get_array(obj, "samplers") {
+    samplers.push(parse_anim_sampler(s))
+  }
+  { name, channels, samplers }
+}
+
+///|
 fn parse_document(root : Json) -> GltfDocument {
   let accessors : Array[GltfAccessor] = []
   for a in json_get_array(root, "accessors") {
@@ -136,6 +190,24 @@ fn parse_document(root : Json) -> GltfDocument {
   for m in json_get_array(root, "materials") {
     materials.push(parse_material(m))
   }
+  let skins : Array[GltfSkin] = []
+  for s in json_get_array(root, "skins") {
+    skins.push(parse_skin(s))
+  }
+  let animations : Array[GltfAnimation] = []
+  for a in json_get_array(root, "animations") {
+    animations.push(parse_animation(a))
+  }
   let default_scene = json_get_int(root, "scene", 0)
-  { accessors, buffer_views, meshes, nodes, scenes, materials, default_scene }
+  {
+    accessors,
+    buffer_views,
+    meshes,
+    nodes,
+    scenes,
+    materials,
+    skins,
+    animations,
+    default_scene,
+  }
 }

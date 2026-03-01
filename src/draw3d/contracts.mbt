@@ -220,3 +220,103 @@ pub fn new_lit_mesh_draw_command(
     uniform_dwords,
   )
 }
+
+// ============================================================
+// 3D Lit Normal Map Shader
+// ============================================================
+
+///|
+/// Fragment lighting with derivative-based TBN and normal map sampling.
+fn lit_fragment_normalmap_lighting_wgsl() -> String {
+  "  let dpdx_pos = dpdx(in.world_position);\n" +
+  "  let dpdy_pos = dpdy(in.world_position);\n" +
+  "  let dpdx_uv = dpdx(in.uv);\n" +
+  "  let dpdy_uv = dpdy(in.uv);\n" +
+  "  let inv_det = 1.0 / max(dpdx_uv.x * dpdy_uv.y - dpdy_uv.x * dpdx_uv.y, 1e-6);\n" +
+  "  let tangent = normalize((dpdx_pos * dpdy_uv.y - dpdy_pos * dpdx_uv.y) * inv_det);\n" +
+  "  let bitangent = normalize((dpdy_pos * dpdx_uv.x - dpdx_pos * dpdy_uv.x) * inv_det);\n" +
+  "  let geom_normal = normalize(in.world_normal);\n" +
+  "  let tbn = mat3x3<f32>(tangent, bitangent, geom_normal);\n" +
+  "  let normal_sample = textureSample(normal_map, normal_map_sampler, in.uv).xyz * 2.0 - 1.0;\n" +
+  "  let normal = normalize(tbn * normal_sample);\n" +
+  "  let light_dir = normalize(-uniforms.light_dir.xyz);\n" +
+  "  let ndotl = max(dot(normal, light_dir), 0.0);\n" +
+  "  let diffuse = uniforms.light_color.xyz * ndotl;\n" +
+  "  let ambient = uniforms.ambient_color.xyz;\n"
+}
+
+///|
+/// WGSL shader source for lit 3D rendering with texture + normal map.
+/// Vertex format: position(3) + normal(3) + uv(2) = stride 8.
+/// Uniform struct: 56 dwords (MVP + Model + NormalMatrix + Lighting).
+/// Textures: @binding(1) diffuse, @binding(3) normal map.
+pub fn shader3d_lit_normalmap_wgsl() -> String {
+  lit_uniform_struct_wgsl() +
+  "@group(0) @binding(0) var<uniform> uniforms: Uniforms;\n" +
+  "@group(0) @binding(1) var tex: texture_2d<f32>;\n" +
+  "@group(0) @binding(2) var tex_sampler: sampler;\n" +
+  "@group(0) @binding(3) var normal_map: texture_2d<f32>;\n" +
+  "@group(0) @binding(4) var normal_map_sampler: sampler;\n\n" +
+  "struct VertexInput {\n" +
+  "  @location(0) position: vec3<f32>,\n" +
+  "  @location(1) normal: vec3<f32>,\n" +
+  "  @location(2) uv: vec2<f32>,\n" +
+  "};\n\n" +
+  "struct VertexOutput {\n" +
+  "  @builtin(position) clip_position: vec4<f32>,\n" +
+  "  @location(0) world_normal: vec3<f32>,\n" +
+  "  @location(1) uv: vec2<f32>,\n" +
+  "  @location(2) world_position: vec3<f32>,\n" +
+  "};\n\n" +
+  "@vertex fn vs_main(input: VertexInput) -> VertexOutput {\n" +
+  "  var out: VertexOutput;\n" +
+  "  out.clip_position = uniforms.mvp * vec4<f32>(input.position, 1.0);\n" +
+  lit_normal_mat_wgsl() +
+  "  out.world_normal = normalize(normal_mat * input.normal);\n" +
+  "  out.world_position = (uniforms.model * vec4<f32>(input.position, 1.0)).xyz;\n" +
+  "  out.uv = input.uv;\n" +
+  "  return out;\n" +
+  "}\n\n" +
+  "@fragment fn fs_main(in: VertexOutput) -> @location(0) vec4<f32> {\n" +
+  lit_fragment_normalmap_lighting_wgsl() +
+  "  let tex_color = textureSample(tex, tex_sampler, in.uv);\n" +
+  "  let lit_color = tex_color.rgb * (diffuse + ambient);\n" +
+  "  return vec4<f32>(lit_color, tex_color.a);\n" +
+  "}\n"
+}
+
+///|
+/// Build a lit DrawTrianglesCommand with normal map support.
+/// src_image_ids should contain [diffuse_image_id, normal_map_image_id].
+pub fn new_lit_normalmap_mesh_draw_command(
+  dst : @gfx.ImageHandle,
+  shader : @gfx.ShaderHandle,
+  dst_region : @gfx.DstRegion,
+  index_offset : Int,
+  pipeline_id : Int,
+  uniform_hash : Int,
+  blend : @gfx.BlendMode,
+  mesh : @mesh3d.Mesh3D,
+  model_matrix : @math3d.Mat4,
+  view_projection : @math3d.Mat4,
+  lighting : @light3d.LightingEnvironment,
+  diffuse_image_id : Int,
+  normal_map_image_id : Int,
+) -> @gfx.DrawTrianglesCommand {
+  let uniform_dwords = lit_uniform_dwords(
+    model_matrix, view_projection, lighting,
+  )
+  @gfx.new_draw_triangles_command(
+    dst,
+    shader,
+    [dst_region],
+    index_offset,
+    pipeline_id,
+    uniform_hash,
+    blend,
+    mesh.vertex_data,
+    mesh.indices,
+    [diffuse_image_id, normal_map_image_id],
+    uniform_dwords,
+  )
+}

@@ -163,3 +163,45 @@ test "new_lit_mesh_draw_command creates valid command" {
   assert_eq(cmd.indices.length(), 36)
   assert_eq(cmd.uniform_dwords.length(), 56)
 }
+
+// ============================================================
+// Normal map shader tests
+// ============================================================
+
+///|
+test "shader3d_lit_normalmap_wgsl contains dpdx and normal_map" {
+  let src = shader3d_lit_normalmap_wgsl()
+  assert_true(src.contains("dpdx"))
+  assert_true(src.contains("normal_map"))
+  assert_true(src.contains("world_position"))
+  assert_true(src.contains("@binding(3)"))
+  assert_true(src.contains("@binding(4)"))
+}
+
+///|
+test "shader3d_lit_normalmap_wgsl has vs_main and fs_main" {
+  let src = shader3d_lit_normalmap_wgsl()
+  assert_true(src.contains("vs_main"))
+  assert_true(src.contains("fs_main"))
+  assert_true(src.contains("textureSample"))
+}
+
+///|
+test "new_lit_normalmap_mesh_draw_command creates valid command" {
+  let mesh = @mesh3d.Mesh3D::cube(1.0)
+  let model = @math3d.Mat4::identity()
+  let vp = @math3d.Mat4::identity()
+  let lighting = @light3d.LightingEnvironment::default()
+  let dst = @gfx.new_image_handle(1, 800, 600)
+  let shader = @gfx.new_shader_handle(1, "test_normalmap")
+  let dst_region = @gfx.new_dst_region(0, 0, 800, 600, 36)
+  let blend = @gfx.blend_mode_from_int(0)
+  let cmd = new_lit_normalmap_mesh_draw_command(
+    dst, shader, dst_region, 0, 0, 0, blend,
+    mesh, model, vp, lighting, 10, 20,
+  )
+  assert_eq(cmd.src_image_ids.length(), 2)
+  assert_eq(cmd.src_image_ids[0], 10)
+  assert_eq(cmd.src_image_ids[1], 20)
+  assert_eq(cmd.uniform_dwords.length(), 56)
+}

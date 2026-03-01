@@ -1,0 +1,3 @@
+import {
+  "mizchi/kagura/vector" @vector,
+}

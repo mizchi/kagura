@@ -683,6 +683,141 @@ test "MixerAudioContext double play_bgm stops previous" {
 }
 
 ///|
+test "crossfade_bgm moves old BGM to outgoing" {
+  let ctx = MixerAudioContext::new(44100)
+  let clip1 = make_test_clip(2.0)
+  let clip2 = make_test_clip(2.0)
+  ctx.play_bgm(clip1, volume=0.8)
+  let old_id = ctx.bgm_player_id
+  ctx.crossfade_bgm(clip2, 1.0)
+  // Old BGM should be in outgoing slot
+  assert_true(ctx.bgm_outgoing_id is Some(_))
+  match (ctx.bgm_outgoing_id, old_id) {
+    (Some(out), Some(old)) => assert_eq(out.value, old.value)
+    _ => fail("expected outgoing to match old BGM")
+  }
+  // New BGM should be playing
+  assert_true(ctx.bgm_player_id is Some(_))
+  match ctx.bgm_player_id {
+    Some(id) =>
+      match ctx.state(id) {
+        PlayerState::Playing => ()
+        _ => fail("expected new BGM Playing")
+      }
+    None => fail("expected bgm_player_id")
+  }
+  ctx.stop_bgm()
+}
+
+///|
+test "crossfade_bgm tick fades outgoing out and incoming in" {
+  let ctx = MixerAudioContext::new(44100)
+  let clip1 = make_test_clip(2.0)
+  let clip2 = make_test_clip(2.0)
+  ctx.play_bgm(clip1, volume=1.0)
+  ctx.crossfade_bgm(clip2, 1.0)
+  // After crossfade: incoming at 0.0, outgoing at 1.0
+  assert_true(approx(ctx.bgm_current_volume, 0.0))
+  assert_true(approx(ctx.bgm_outgoing_volume, 1.0))
+  // Tick half a second
+  ctx.tick_bgm(22050)
+  // Incoming should be ~0.5, outgoing should be ~0.5
+  assert_true(ctx.bgm_current_volume > 0.4)
+  assert_true(ctx.bgm_current_volume < 0.6)
+  assert_true(ctx.bgm_outgoing_volume > 0.4)
+  assert_true(ctx.bgm_outgoing_volume < 0.6)
+  ctx.stop_bgm()
+}
+
+///|
+test "crossfade_bgm outgoing auto-disposes after fade completes" {
+  let ctx = MixerAudioContext::new(44100)
+  let clip1 = make_test_clip(2.0)
+  let clip2 = make_test_clip(2.0)
+  ctx.play_bgm(clip1, volume=1.0)
+  ctx.crossfade_bgm(clip2, 1.0)
+  // Tick past the fade duration
+  ctx.tick_bgm(44100)
+  // Outgoing should be auto-disposed
+  match ctx.bgm_outgoing_id {
+    None => ()
+    Some(_) => fail("expected outgoing to be disposed after fade")
+  }
+  // Incoming should be at target volume
+  assert_true(approx(ctx.bgm_current_volume, 1.0))
+  ctx.stop_bgm()
+}
+
+///|
+test "crossfade_bgm double crossfade disposes old outgoing" {
+  let ctx = MixerAudioContext::new(44100)
+  let clip1 = make_test_clip(2.0)
+  let clip2 = make_test_clip(2.0)
+  let clip3 = make_test_clip(2.0)
+  ctx.play_bgm(clip1, volume=1.0)
+  ctx.crossfade_bgm(clip2, 1.0)
+  let first_outgoing_id = ctx.bgm_outgoing_id
+  // Crossfade again before first completes
+  ctx.crossfade_bgm(clip3, 1.0)
+  // First outgoing should be disposed, second BGM is now outgoing
+  match first_outgoing_id {
+    Some(id) =>
+      match ctx.state(id) {
+        PlayerState::Stopped => ()
+        PlayerState::Paused => ()
+        _ => fail("expected first outgoing to be stopped/paused")
+      }
+    None => fail("expected first outgoing id")
+  }
+  assert_true(ctx.bgm_outgoing_id is Some(_))
+  ctx.stop_bgm()
+}
+
+///|
+test "stop_bgm also stops outgoing" {
+  let ctx = MixerAudioContext::new(44100)
+  let clip1 = make_test_clip(2.0)
+  let clip2 = make_test_clip(2.0)
+  ctx.play_bgm(clip1, volume=1.0)
+  ctx.crossfade_bgm(clip2, 1.0)
+  assert_true(ctx.bgm_outgoing_id is Some(_))
+  ctx.stop_bgm()
+  match ctx.bgm_outgoing_id {
+    None => ()
+    Some(_) => fail("expected outgoing to be None after stop_bgm")
+  }
+  match ctx.bgm_player_id {
+    None => ()
+    Some(_) => fail("expected bgm_player_id to be None after stop_bgm")
+  }
+}
+
+///|
+test "crossfade_bgm with no current BGM acts like play_bgm" {
+  let ctx = MixerAudioContext::new(44100)
+  let clip = make_test_clip(2.0)
+  ctx.crossfade_bgm(clip, 1.0, volume=0.8)
+  // No outgoing BGM
+  match ctx.bgm_outgoing_id {
+    None => ()
+    Some(_) => fail("expected no outgoing when starting from nothing")
+  }
+  // New BGM should be playing
+  match ctx.bgm_player_id {
+    Some(id) =>
+      match ctx.state(id) {
+        PlayerState::Playing => ()
+        _ => fail("expected BGM Playing")
+      }
+    None => fail("expected bgm_player_id")
+  }
+  // Tick to complete fade in
+  ctx.tick_bgm(44100)
+  assert_true(approx(ctx.bgm_current_volume, 0.8))
+  ctx.stop_bgm()
+}
+
+///|
 test "MixerAudioContext pause_bgm and resume_bgm" {
   let ctx = MixerAudioContext::new(44100)
   let clip = make_test_clip(1.0)

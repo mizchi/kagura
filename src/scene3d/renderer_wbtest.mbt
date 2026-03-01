@@ -101,6 +101,63 @@ test "render_scene3d per-face lighting produces multiple commands" {
 }
 
 ///|
+test "render_scene3d material None uses color and no src_image_ids" {
+  let dst = @gfx.new_image_handle(0, 640, 480)
+  let shader = @gfx.new_shader_handle(0, "")
+  let cube = @mesh3d.Mesh3D::cube(1.0)
+  let camera = @camera3d.Camera3D::new_perspective(
+    @math3d.Vec3::new(0.0, 5.0, 10.0),
+    @math3d.Vec3::zero(),
+    @math3d.Vec3::new(0.0, 1.0, 0.0),
+    @math.PI / 4.0,
+    640.0 / 480.0,
+    0.1,
+    100.0,
+  )
+  let scene = scene3d(
+    objects=[object3d(mesh=cube, color=@math3d.Vec4::new(1.0, 0.0, 0.0, 1.0))],
+    camera~,
+  )
+  let cmds = render_scene3d(scene, dst, shader, 640, 480)
+  assert_true(cmds.length() > 0)
+  // All commands should have empty src_image_ids
+  for cmd in cmds {
+    assert_eq(cmd.src_image_ids.length(), 0)
+  }
+}
+
+///|
+test "render_scene3d material with texture sets src_image_ids" {
+  let dst = @gfx.new_image_handle(0, 640, 480)
+  let shader = @gfx.new_shader_handle(0, "")
+  let cube = @mesh3d.Mesh3D::cube(1.0)
+  let camera = @camera3d.Camera3D::new_perspective(
+    @math3d.Vec3::new(0.0, 5.0, 10.0),
+    @math3d.Vec3::zero(),
+    @math3d.Vec3::new(0.0, 1.0, 0.0),
+    @math.PI / 4.0,
+    640.0 / 480.0,
+    0.1,
+    100.0,
+  )
+  let mat : Material = {
+    color: @math3d.Vec4::new(1.0, 1.0, 1.0, 1.0),
+    src_image_id: 42,
+  }
+  let scene = scene3d(
+    objects=[object3d(mesh=cube, material=Some(mat))],
+    camera~,
+  )
+  let cmds = render_scene3d(scene, dst, shader, 640, 480)
+  assert_true(cmds.length() > 0)
+  // All commands should have src_image_ids=[42]
+  for cmd in cmds {
+    assert_eq(cmd.src_image_ids.length(), 1)
+    assert_eq(cmd.src_image_ids[0], 42)
+  }
+}
+
+///|
 test "render_scene3d UV passthrough" {
   let dst = @gfx.new_image_handle(0, 640, 480)
   let shader = @gfx.new_shader_handle(0, "")

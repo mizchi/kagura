@@ -10,12 +10,13 @@ priv struct MeshBatch {
   vertices : Array[Double] // flat vertex buffer, stride 4 (x,y,u,v)
   indices : Array[Int] // index buffer
   color_dwords : Array[Int] // single color [r,g,b,a] for the batch
+  src_image_id : Int // -1 = no texture
   mut tri_count : Int // number of visible triangles
 }
 
 ///|
-fn MeshBatch::new(color_dwords : Array[Int]) -> MeshBatch {
-  { vertices: [], indices: [], color_dwords, tri_count: 0 }
+fn MeshBatch::new(color_dwords : Array[Int], src_image_id~ : Int = -1) -> MeshBatch {
+  { vertices: [], indices: [], color_dwords, src_image_id, tri_count: 0 }
 }
 
 ///|
@@ -220,6 +221,11 @@ fn build_batch_draw_command(
 ) -> @gfx.DrawTrianglesCommand {
   let index_count = batch.tri_count * 3
   let region = @gfx.new_dst_region(0, 0, screen_w, screen_h, index_count)
+  let src_image_ids : Array[Int] = if batch.src_image_id >= 0 {
+    [batch.src_image_id]
+  } else {
+    []
+  }
   @gfx.new_draw_triangles_command(
     dst,
     shader,
@@ -230,7 +236,7 @@ fn build_batch_draw_command(
     @gfx.blend_mode_from_int(1),
     batch.vertices,
     batch.indices,
-    [],
+    src_image_ids,
     batch.color_dwords,
   )
 }
@@ -252,10 +258,14 @@ pub fn render_scene3d(
   let all_batches : Array[(MeshBatch, Double)] = []
   for i in 0..<scene.objects.length() {
     let obj = scene.objects[i]
-    let bucket_colors = compute_bucket_colors(scene.lighting, obj.color)
+    let (color, src_image_id) = match obj.material {
+      Some(mat) => (mat.color, mat.src_image_id)
+      None => (obj.color, -1)
+    }
+    let bucket_colors = compute_bucket_colors(scene.lighting, color)
     let buckets : Array[MeshBatch] = []
     for b in 0..<bucket_count {
-      buckets.push(MeshBatch::new(bucket_colors[b]))
+      buckets.push(MeshBatch::new(bucket_colors[b], src_image_id~))
     }
     let model = obj.transform.to_mat4()
     let mvp = vp.multiply(model)

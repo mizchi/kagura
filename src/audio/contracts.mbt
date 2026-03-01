@@ -548,6 +548,9 @@ pub struct MixerAudioContext {
   mut bgm_fade_target : Double
   mut bgm_fade_speed : Double
   mut bgm_current_volume : Double
+  mut bgm_outgoing_id : PlayerId?
+  mut bgm_outgoing_volume : Double
+  mut bgm_outgoing_fade_speed : Double
 }
 
 ///|
@@ -560,6 +563,9 @@ pub fn MixerAudioContext::new(sample_rate : Int) -> MixerAudioContext {
     bgm_fade_target: 1.0,
     bgm_fade_speed: 0.0,
     bgm_current_volume: 1.0,
+    bgm_outgoing_id: None,
+    bgm_outgoing_volume: 0.0,
+    bgm_outgoing_fade_speed: 0.0,
   }
 }
 
@@ -744,8 +750,9 @@ pub fn MixerAudioContext::play_bgm(
 }
 
 ///|
-/// Stop and dispose the current BGM.
+/// Stop and dispose the current BGM and any outgoing BGM.
 pub fn MixerAudioContext::stop_bgm(self : MixerAudioContext) -> Unit {
+  self.dispose_outgoing_bgm()
   match self.bgm_player_id {
     Some(id) => {
       self.stop(id) catch {
@@ -817,39 +824,118 @@ pub fn MixerAudioContext::tick_bgm(
   self : MixerAudioContext,
   frames : Int,
 ) -> Unit {
-  if self.bgm_fade_speed <= 0.0 {
-    return
+  let sample_rate = self.mixer.sample_rate
+  let dt = frames.to_double() / sample_rate.to_double()
+  // Process incoming BGM fade
+  if self.bgm_fade_speed > 0.0 {
+    match self.bgm_player_id {
+      Some(id) => {
+        let delta = self.bgm_fade_speed * dt
+        let current = self.bgm_current_volume
+        let target = self.bgm_fade_target
+        let new_vol = if current < target {
+          let v = current + delta
+          if v >= target {
+            target
+          } else {
+            v
+          }
+        } else {
+          let v = current - delta
+          if v <= target {
+            target
+          } else {
+            v
+          }
+        }
+        self.bgm_current_volume = new_vol
+        self.set_volume(id, new_vol)
+        if (new_vol - target).abs() < 0.0001 {
+          self.bgm_current_volume = target
+          self.bgm_fade_speed = 0.0
+        }
+      }
+      None => self.bgm_fade_speed = 0.0
+    }
   }
+  // Process outgoing BGM fade
+  if self.bgm_outgoing_fade_speed > 0.0 {
+    match self.bgm_outgoing_id {
+      Some(id) => {
+        let delta = self.bgm_outgoing_fade_speed * dt
+        let new_vol = self.bgm_outgoing_volume - delta
+        if new_vol <= 0.0 {
+          self.dispose_outgoing_bgm()
+        } else {
+          self.bgm_outgoing_volume = new_vol
+          self.set_volume(id, new_vol)
+        }
+      }
+      None => self.bgm_outgoing_fade_speed = 0.0
+    }
+  }
+}
+
+///|
+/// Dispose the outgoing BGM player.
+pub fn MixerAudioContext::dispose_outgoing_bgm(
+  self : MixerAudioContext,
+) -> Unit {
+  match self.bgm_outgoing_id {
+    Some(id) => {
+      self.stop(id) catch {
+        _ => ()
+      }
+      self.dispose(id)
+      self.bgm_outgoing_id = None
+      self.bgm_outgoing_volume = 0.0
+      self.bgm_outgoing_fade_speed = 0.0
+    }
+    None => ()
+  }
+}
+
+///|
+/// Crossfade from the current BGM to a new BGM clip.
+/// The old BGM fades out and the new BGM fades in over duration_seconds.
+pub fn MixerAudioContext::crossfade_bgm(
+  self : MixerAudioContext,
+  clip : AudioClip,
+  duration_seconds : Double,
+  volume? : Double = 1.0,
+) -> Unit {
+  let target_vol = clamp_volume(volume)
+  // If there's already an outgoing BGM, dispose it immediately
+  self.dispose_outgoing_bgm()
+  // Move current BGM to outgoing slot
   match self.bgm_player_id {
     Some(id) => {
-      let sample_rate = self.mixer.sample_rate
-      let dt = frames.to_double() / sample_rate.to_double()
-      let delta = self.bgm_fade_speed * dt
-      let current = self.bgm_current_volume
-      let target = self.bgm_fade_target
-      let new_vol = if current < target {
-        let v = current + delta
-        if v >= target {
-          target
-        } else {
-          v
-        }
+      self.bgm_outgoing_id = Some(id)
+      self.bgm_outgoing_volume = self.bgm_current_volume
+      if duration_seconds > 0.0 {
+        self.bgm_outgoing_fade_speed = self.bgm_current_volume / duration_seconds
       } else {
-        let v = current - delta
-        if v <= target {
-          target
-        } else {
-          v
-        }
-      }
-      self.bgm_current_volume = new_vol
-      self.set_volume(id, new_vol)
-      if (new_vol - target).abs() < 0.0001 {
-        self.bgm_current_volume = target
-        self.bgm_fade_speed = 0.0
+        self.dispose_outgoing_bgm()
       }
     }
-    None => self.bgm_fade_speed = 0.0
+    None => ()
+  }
+  // Start new BGM at volume 0, fade in
+  let looping_clip = new_audio_clip(clip.format, clip.data, true)
+  let id = self.create_player(looping_clip) catch { _ => return }
+  self.set_volume(id, 0.0)
+  self.play(id) catch {
+    _ => ()
+  }
+  self.bgm_player_id = Some(id)
+  self.bgm_current_volume = 0.0
+  self.bgm_fade_target = target_vol
+  if duration_seconds > 0.0 {
+    self.bgm_fade_speed = target_vol / duration_seconds
+  } else {
+    self.bgm_current_volume = target_vol
+    self.set_volume(id, target_vol)
+    self.bgm_fade_speed = 0.0
   }
 }
 

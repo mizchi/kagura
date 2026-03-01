@@ -1,8 +1,15 @@
 ///|
+pub(all) struct Material {
+  color : @math3d.Vec4
+  src_image_id : Int // -1 = no texture
+}
+
+///|
 pub(all) struct Object3D {
   mesh : @mesh3d.Mesh3D
   transform : @transform3d.Transform3D
   color : @math3d.Vec4
+  material : Material?
 }
 
 ///|

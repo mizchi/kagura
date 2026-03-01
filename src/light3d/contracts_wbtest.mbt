@@ -98,3 +98,77 @@ test "normal_matrix_uniform_dwords with non-uniform scale" {
   assert_true(approx(decode(dw[5]), 1.0))
   assert_true(approx(decode(dw[10]), 1.0))
 }
+
+///|
+test "PointLight::new stores fields correctly" {
+  let p = PointLight::new(
+    @math3d.Vec3::new(1.0, 2.0, 3.0),
+    @math3d.Vec3::new(1.0, 0.5, 0.0),
+    2.0,
+    10.0,
+  )
+  assert_true(approx(p.position.x, 1.0))
+  assert_true(approx(p.position.y, 2.0))
+  assert_true(approx(p.position.z, 3.0))
+  assert_true(approx(p.intensity, 2.0))
+  assert_true(approx(p.radius, 10.0))
+}
+
+///|
+test "SpotLight::new normalizes direction" {
+  let s = SpotLight::new(
+    @math3d.Vec3::new(0.0, 5.0, 0.0),
+    @math3d.Vec3::new(0.0, -2.0, 0.0),
+    @math3d.Vec3::one(),
+    1.0,
+    10.0,
+    0.3,
+    0.5,
+  )
+  assert_true(approx(s.direction.x, 0.0))
+  assert_true(approx(s.direction.y, -1.0))
+  assert_true(approx(s.direction.z, 0.0))
+  assert_true(approx(s.inner_angle, 0.3))
+  assert_true(approx(s.outer_angle, 0.5))
+}
+
+///|
+test "LightingEnvironment backward compat (no point/spot)" {
+  let env = LightingEnvironment::new(
+    DirectionalLight::default(),
+    AmbientLight::default(),
+  )
+  assert_true(approx(env.directional.intensity, 1.0))
+  assert_true(approx(env.ambient.intensity, 0.2))
+  assert_eq(env.point_lights.length(), 0)
+  assert_eq(env.spot_lights.length(), 0)
+}
+
+///|
+test "LightingEnvironment with point_lights and spot_lights" {
+  let pl = PointLight::new(
+    @math3d.Vec3::zero(),
+    @math3d.Vec3::one(),
+    1.0,
+    5.0,
+  )
+  let sl = SpotLight::new(
+    @math3d.Vec3::zero(),
+    @math3d.Vec3::new(0.0, -1.0, 0.0),
+    @math3d.Vec3::one(),
+    1.0,
+    10.0,
+    0.2,
+    0.4,
+  )
+  let env = LightingEnvironment::new(
+    DirectionalLight::default(),
+    AmbientLight::default(),
+    point_lights=[pl],
+    spot_lights=[sl],
+  )
+  assert_eq(env.point_lights.length(), 1)
+  assert_eq(env.spot_lights.length(), 1)
+  assert_true(approx(env.point_lights[0].radius, 5.0))
+  assert_true(approx(env.spot_lights[0].outer_angle, 0.4))
+}

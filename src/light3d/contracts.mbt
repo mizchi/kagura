@@ -46,22 +46,73 @@ pub fn AmbientLight::default() -> AmbientLight {
 }
 
 ///|
+pub struct PointLight {
+  position : @math3d.Vec3
+  color : @math3d.Vec3
+  intensity : Double
+  radius : Double
+} derive(Show)
+
+///|
+pub fn PointLight::new(
+  position : @math3d.Vec3,
+  color : @math3d.Vec3,
+  intensity : Double,
+  radius : Double,
+) -> PointLight {
+  { position, color, intensity, radius }
+}
+
+///|
+pub struct SpotLight {
+  position : @math3d.Vec3
+  direction : @math3d.Vec3
+  color : @math3d.Vec3
+  intensity : Double
+  radius : Double
+  inner_angle : Double
+  outer_angle : Double
+} derive(Show)
+
+///|
+pub fn SpotLight::new(
+  position : @math3d.Vec3,
+  direction : @math3d.Vec3,
+  color : @math3d.Vec3,
+  intensity : Double,
+  radius : Double,
+  inner_angle : Double,
+  outer_angle : Double,
+) -> SpotLight {
+  { position, direction: direction.normalize(), color, intensity, radius, inner_angle, outer_angle }
+}
+
+///|
 pub struct LightingEnvironment {
   directional : DirectionalLight
   ambient : AmbientLight
+  point_lights : Array[PointLight]
+  spot_lights : Array[SpotLight]
 } derive(Show)
 
 ///|
 pub fn LightingEnvironment::new(
   directional : DirectionalLight,
   ambient : AmbientLight,
+  point_lights? : Array[PointLight] = [],
+  spot_lights? : Array[SpotLight] = [],
 ) -> LightingEnvironment {
-  { directional, ambient }
+  { directional, ambient, point_lights, spot_lights }
 }
 
 ///|
 pub fn LightingEnvironment::default() -> LightingEnvironment {
-  { directional: DirectionalLight::default(), ambient: AmbientLight::default() }
+  {
+    directional: DirectionalLight::default(),
+    ambient: AmbientLight::default(),
+    point_lights: [],
+    spot_lights: [],
+  }
 }
 
 ///|

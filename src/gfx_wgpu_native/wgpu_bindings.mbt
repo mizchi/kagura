@@ -66,6 +66,7 @@ extern "C" fn wgpuInstanceAddRef(instance : WGPUInstance) -> Unit = "wgpuInstanc
 
 ///|
 // Surface API（GLFW統合用）
+#borrow(window)
 extern "C" fn moonbit_create_surface_from_glfw(
   instance : WGPUInstance,
   window : @glfw.GLFWwindow,

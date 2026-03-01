@@ -3,6 +3,7 @@
 // ---------------------------------------------------------------------------
 
 ///|
+#borrow(path)
 extern "C" fn moonbit_load_font_file(path : Bytes, path_len : Int) -> Int = "moonbit_load_font_file"
 
 ///|

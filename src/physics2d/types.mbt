@@ -9,6 +9,7 @@ pub(all) enum BodyType2D {
 pub(all) enum ColliderShape2D {
   CircleShape(@vector.Vec2, Double)
   AABBShape2D(@vector.Vec2, @vector.Vec2)
+  OBBShape2D(@vector.Vec2, @vector.Vec2) // (half_extents, offset) rotated by body.angle
 } derive(Show)
 
 ///|
@@ -25,6 +26,8 @@ pub(all) struct RigidBody2D {
   inv_mass : Double
   restitution : Double
   friction : Double
+  inv_inertia : Double
+  angular_damping : Double
   linear_damping : Double
   collider : ColliderShape2D
 } derive(Show)

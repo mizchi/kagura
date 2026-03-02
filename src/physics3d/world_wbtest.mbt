@@ -76,6 +76,82 @@ test "static floor stops falling body" {
 }
 
 ///|
+test "sphere settles on floor without flying up" {
+  let world = PhysicsWorld::new(@math3d.Vec3::new(0.0, -9.8, 0.0), 4.0)
+  // Static ground: top surface at y=0
+  world.add_body(
+    RigidBody::new_static(
+      0,
+      @math3d.Vec3::new(0.0, -0.5, 0.0),
+      AABBShape(@math3d.Vec3::new(10.0, 0.5, 10.0), @math3d.Vec3::zero()),
+    ),
+  )
+  // Sphere dropping from low height
+  world.add_body(
+    {
+      ..RigidBody::new_dynamic(
+        1,
+        @math3d.Vec3::new(0.0, 2.0, 0.0),
+        1.0,
+        SphereShape(@math3d.Vec3::zero(), 0.4),
+      ),
+      restitution: 0.35,
+      linear_damping: 0.02,
+    },
+  )
+  // Run 5 seconds of simulation at 60fps, 2 sub-steps
+  for _ in 0..<600 {
+    let dt = 1.0 / 60.0 / 2.0
+    world.step(dt)
+    world.step(dt)
+  }
+  let ball = world.get_body(1).unwrap()
+  // Ball should rest near the ground surface (y ≈ 0.4, sphere radius)
+  // Must not fly up or fall through
+  inspect!(
+    ball.position.y > -0.5 && ball.position.y < 2.0,
+    content="true",
+  )
+  // Velocity should be near zero (settled)
+  inspect!(ball.velocity.length() < 1.0, content="true")
+}
+
+///|
+test "cube settles on floor without flying up" {
+  let world = PhysicsWorld::new(@math3d.Vec3::new(0.0, -9.8, 0.0), 4.0)
+  world.add_body(
+    RigidBody::new_static(
+      0,
+      @math3d.Vec3::new(0.0, -0.5, 0.0),
+      AABBShape(@math3d.Vec3::new(10.0, 0.5, 10.0), @math3d.Vec3::zero()),
+    ),
+  )
+  world.add_body(
+    {
+      ..RigidBody::new_dynamic(
+        1,
+        @math3d.Vec3::new(0.0, 2.0, 0.0),
+        1.0,
+        AABBShape(@math3d.Vec3::new(0.4, 0.4, 0.4), @math3d.Vec3::zero()),
+      ),
+      restitution: 0.35,
+      linear_damping: 0.02,
+    },
+  )
+  for _ in 0..<600 {
+    let dt = 1.0 / 60.0 / 2.0
+    world.step(dt)
+    world.step(dt)
+  }
+  let cube = world.get_body(1).unwrap()
+  inspect!(
+    cube.position.y > -0.5 && cube.position.y < 2.0,
+    content="true",
+  )
+  inspect!(cube.velocity.length() < 1.0, content="true")
+}
+
+///|
 test "kinematic not affected by gravity" {
   let world = PhysicsWorld::new(@math3d.Vec3::new(0.0, -10.0, 0.0), 10.0)
   world.add_body(

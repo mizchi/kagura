@@ -82,20 +82,20 @@ pub fn PhysicsWorld::step(self : PhysicsWorld, dt : Double) -> Unit {
   }
   let pairs = self.broadphase.get_pairs()
   // 3. Narrowphase + impulse resolution
+  // Note: avoid `continue` in for-loop due to MoonBit JS codegen bug
   for p = 0; p < pairs.length(); p = p + 1 {
     let (idx_a, idx_b) = pairs[p]
     let body_a = self.bodies[idx_a]
     let body_b = self.bodies[idx_b]
-    if body_a.inv_mass < 1.0e-12 && body_b.inv_mass < 1.0e-12 {
-      continue p
-    }
-    match generate_contact(body_a, body_b) {
-      Some(contact) => {
-        let (a_new, b_new) = resolve_contact(body_a, body_b, contact)
-        self.bodies[idx_a] = a_new
-        self.bodies[idx_b] = b_new
+    if body_a.inv_mass >= 1.0e-12 || body_b.inv_mass >= 1.0e-12 {
+      match generate_contact(body_a, body_b) {
+        Some(contact) => {
+          let (a_new, b_new) = resolve_contact(body_a, body_b, contact)
+          self.bodies[idx_a] = a_new
+          self.bodies[idx_b] = b_new
+        }
+        None => ()
       }
-      None => ()
     }
   }
   // 4. Position integration (dynamic only)

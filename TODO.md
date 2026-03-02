@@ -53,6 +53,7 @@ arena3d で基本的な SE 再生（Web/Native 両方）は動作確認済み。
 
 - [ ] スケルタルアニメーション - ボーン, スキンメッシュ, キーフレーム補間
 - [x] 物理エンジン - リジッドボディ, 重力, 衝突応答（physics3d: impulse-based, Baumgarte 補正, Coulomb 摩擦）
+- [x] 2D 物理エンジン - physics2d: circle/AABB 衝突, SpatialHashGrid2D broadphase, impulse solver, Y-down 座標系
 - [x] シャドウマッピング - 深度バッファベースの影（shadow3d パッケージ: depth-to-color + PCF）
 - [ ] パーティクルシステム - エフェクト (煙, 火, 爆発)
 

@@ -45,9 +45,9 @@ fn floor_to_int(x : Double) -> Int {
 
 ///|
 fn cell_key2d(cx : Int, cy : Int) -> Int64 {
-  let mask = 0xFFFFFFFF
-  let x = cx.land(mask).to_int64()
-  let y = cy.land(mask).to_int64()
+  let mask = 4294967295L // 0xFFFFFFFF as Int64
+  let x = cx.to_int64().land(mask)
+  let y = cy.to_int64().land(mask)
   (x << 32) | y
 }
 

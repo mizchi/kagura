@@ -1,4 +1,24 @@
 ///|
+fn compute_inv_inertia(
+  collider : ColliderShape2D,
+  mass : Double,
+) -> Double {
+  if mass < 1.0e-12 {
+    return 0.0
+  }
+  let inertia = match collider {
+    CircleShape(_, radius) => 0.5 * mass * radius * radius
+    AABBShape2D(he, _) | OBBShape2D(he, _) =>
+      mass / 3.0 * (he.x * he.x + he.y * he.y)
+  }
+  if inertia < 1.0e-12 {
+    0.0
+  } else {
+    1.0 / inertia
+  }
+}
+
+///|
 pub fn RigidBody2D::new_dynamic(
   id : Int,
   position : @vector.Vec2,
@@ -18,6 +38,8 @@ pub fn RigidBody2D::new_dynamic(
     inv_mass: 1.0 / mass,
     restitution: 0.5,
     friction: 0.3,
+    inv_inertia: compute_inv_inertia(collider, mass),
+    angular_damping: 0.05,
     collider,
     linear_damping: 0.01,
   }
@@ -42,6 +64,8 @@ pub fn RigidBody2D::new_static(
     inv_mass: 0.0,
     restitution: 0.5,
     friction: 0.3,
+    inv_inertia: 0.0,
+    angular_damping: 0.0,
     collider,
     linear_damping: 0.0,
   }
@@ -66,6 +90,8 @@ pub fn RigidBody2D::new_kinematic(
     inv_mass: 0.0,
     restitution: 0.5,
     friction: 0.3,
+    inv_inertia: 0.0,
+    angular_damping: 0.0,
     collider,
     linear_damping: 0.0,
   }
@@ -122,6 +148,15 @@ pub fn RigidBody2D::world_aabb(self : RigidBody2D) -> AABB2D {
     AABBShape2D(half_extents, offset) => {
       let center = self.position.add(offset)
       AABB2D::new(center.sub(half_extents), center.add(half_extents))
+    }
+    OBBShape2D(half_extents, offset) => {
+      let center = self.position.add(offset.rotate(self.angle))
+      let cos_a = @math.cos(self.angle).abs()
+      let sin_a = @math.sin(self.angle).abs()
+      let ex = half_extents.x * cos_a + half_extents.y * sin_a
+      let ey = half_extents.x * sin_a + half_extents.y * cos_a
+      let ext = @vector.Vec2::new(ex, ey)
+      AABB2D::new(center.sub(ext), center.add(ext))
     }
   }
 }

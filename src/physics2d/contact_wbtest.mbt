@@ -110,3 +110,106 @@ test "circle-aabb2d separated" {
   let contact = generate_contact2d(circle, box_body)
   assert_true(contact is None)
 }
+
+///|
+test "obb-obb no rotation overlap" {
+  let a = RigidBody2D::new_dynamic(
+    0,
+    @vector.Vec2::new(0.0, 0.0),
+    1.0,
+    OBBShape2D(@vector.Vec2::new(1.0, 1.0), @vector.Vec2::zero()),
+  )
+  let b = RigidBody2D::new_dynamic(
+    1,
+    @vector.Vec2::new(1.5, 0.0),
+    1.0,
+    OBBShape2D(@vector.Vec2::new(1.0, 1.0), @vector.Vec2::zero()),
+  )
+  let contact = generate_contact2d(a, b)
+  assert_true(not(contact is None))
+  let c = contact.unwrap()
+  assert_true(c.penetration > 0.0)
+  // Normal should point from A to B (positive x)
+  assert_true(c.normal.x > 0.0)
+}
+
+///|
+test "obb-obb 45deg overlap" {
+  let pi = 3.14159265358979
+  let a = { ..RigidBody2D::new_dynamic(
+    0,
+    @vector.Vec2::new(0.0, 0.0),
+    1.0,
+    OBBShape2D(@vector.Vec2::new(1.0, 1.0), @vector.Vec2::zero()),
+  ), angle: pi / 4.0 }
+  let b = RigidBody2D::new_dynamic(
+    1,
+    @vector.Vec2::new(1.8, 0.0),
+    1.0,
+    OBBShape2D(@vector.Vec2::new(1.0, 1.0), @vector.Vec2::zero()),
+  )
+  let contact = generate_contact2d(a, b)
+  assert_true(not(contact is None))
+  let c = contact.unwrap()
+  assert_true(c.penetration > 0.0)
+}
+
+///|
+test "obb-obb separated" {
+  let a = RigidBody2D::new_dynamic(
+    0,
+    @vector.Vec2::new(0.0, 0.0),
+    1.0,
+    OBBShape2D(@vector.Vec2::new(1.0, 1.0), @vector.Vec2::zero()),
+  )
+  let b = RigidBody2D::new_dynamic(
+    1,
+    @vector.Vec2::new(5.0, 0.0),
+    1.0,
+    OBBShape2D(@vector.Vec2::new(1.0, 1.0), @vector.Vec2::zero()),
+  )
+  let contact = generate_contact2d(a, b)
+  assert_true(contact is None)
+}
+
+///|
+test "obb-circle overlap" {
+  let pi = 3.14159265358979
+  let obb = { ..RigidBody2D::new_dynamic(
+    0,
+    @vector.Vec2::new(0.0, 0.0),
+    1.0,
+    OBBShape2D(@vector.Vec2::new(1.0, 0.5), @vector.Vec2::zero()),
+  ), angle: pi / 6.0 }
+  let circle = RigidBody2D::new_dynamic(
+    1,
+    @vector.Vec2::new(1.2, 0.0),
+    1.0,
+    CircleShape(@vector.Vec2::zero(), 0.5),
+  )
+  let contact = generate_contact2d(obb, circle)
+  assert_true(not(contact is None))
+  let c = contact.unwrap()
+  assert_true(c.penetration > 0.0)
+}
+
+///|
+test "obb-aabb overlap" {
+  let pi = 3.14159265358979
+  let obb = { ..RigidBody2D::new_dynamic(
+    0,
+    @vector.Vec2::new(0.0, 0.0),
+    1.0,
+    OBBShape2D(@vector.Vec2::new(1.0, 1.0), @vector.Vec2::zero()),
+  ), angle: pi / 4.0 }
+  let aabb = RigidBody2D::new_dynamic(
+    1,
+    @vector.Vec2::new(1.8, 0.0),
+    1.0,
+    AABBShape2D(@vector.Vec2::new(1.0, 1.0), @vector.Vec2::zero()),
+  )
+  let contact = generate_contact2d(obb, aabb)
+  assert_true(not(contact is None))
+  let c = contact.unwrap()
+  assert_true(c.penetration > 0.0)
+}

@@ -104,40 +104,94 @@ fn sphere_aabb(
     box_center.sub(box_he),
     box_center.add(box_he),
   )
-  let closest = box_aabb.closest_point(sphere_center)
-  let diff = sphere_center.sub(closest)
-  let dist_sq = diff.length_squared()
-  if dist_sq >= sphere_r * sphere_r {
-    return None
-  }
-  let dist = dist_sq.sqrt()
-  let normal = if dist < 1.0e-12 {
-    @math3d.Vec3::unit_y()
+  if box_aabb.contains_point(sphere_center) {
+    // Sphere center is inside AABB: find nearest face to escape
+    let dx_neg = sphere_center.x - box_aabb.min.x
+    let dx_pos = box_aabb.max.x - sphere_center.x
+    let dy_neg = sphere_center.y - box_aabb.min.y
+    let dy_pos = box_aabb.max.y - sphere_center.y
+    let dz_neg = sphere_center.z - box_aabb.min.z
+    let dz_pos = box_aabb.max.z - sphere_center.z
+    let mut min_dist = dx_neg
+    let mut face_outward = @math3d.Vec3::new(-1.0, 0.0, 0.0)
+    if dx_pos < min_dist {
+      min_dist = dx_pos
+      face_outward = @math3d.Vec3::new(1.0, 0.0, 0.0)
+    }
+    if dy_neg < min_dist {
+      min_dist = dy_neg
+      face_outward = @math3d.Vec3::new(0.0, -1.0, 0.0)
+    }
+    if dy_pos < min_dist {
+      min_dist = dy_pos
+      face_outward = @math3d.Vec3::new(0.0, 1.0, 0.0)
+    }
+    if dz_neg < min_dist {
+      min_dist = dz_neg
+      face_outward = @math3d.Vec3::new(0.0, 0.0, -1.0)
+    }
+    if dz_pos < min_dist {
+      min_dist = dz_pos
+      face_outward = @math3d.Vec3::new(0.0, 0.0, 1.0)
+    }
+    let penetration = min_dist + sphere_r
+    let contact_point = sphere_center.add(face_outward.scale(min_dist))
+    if swapped {
+      Some(
+        {
+          body_a_id: box_body.id,
+          body_b_id: sphere_body.id,
+          normal: face_outward,
+          penetration,
+          contact_point,
+        },
+      )
+    } else {
+      Some(
+        {
+          body_a_id: sphere_body.id,
+          body_b_id: box_body.id,
+          normal: face_outward.negate(),
+          penetration,
+          contact_point,
+        },
+      )
+    }
   } else {
-    diff.scale(1.0 / dist)
-  }
-  let penetration = sphere_r - dist
-  if swapped {
-    // box is A, sphere is B; diff points from box→sphere = A→B
-    Some(
-      {
-        body_a_id: box_body.id,
-        body_b_id: sphere_body.id,
-        normal,
-        penetration,
-        contact_point: closest,
-      },
-    )
-  } else {
-    // sphere is A, box is B; diff points from box→sphere = B→A, negate for A→B
-    Some(
-      {
-        body_a_id: sphere_body.id,
-        body_b_id: box_body.id,
-        normal: normal.negate(),
-        penetration,
-        contact_point: closest,
-      },
-    )
+    // Sphere center is outside AABB: use closest point
+    let closest = box_aabb.closest_point(sphere_center)
+    let diff = sphere_center.sub(closest)
+    let dist_sq = diff.length_squared()
+    if dist_sq >= sphere_r * sphere_r {
+      return None
+    }
+    let dist = dist_sq.sqrt()
+    let normal = if dist < 1.0e-12 {
+      @math3d.Vec3::unit_y()
+    } else {
+      diff.scale(1.0 / dist)
+    }
+    let penetration = sphere_r - dist
+    if swapped {
+      Some(
+        {
+          body_a_id: box_body.id,
+          body_b_id: sphere_body.id,
+          normal,
+          penetration,
+          contact_point: closest,
+        },
+      )
+    } else {
+      Some(
+        {
+          body_a_id: sphere_body.id,
+          body_b_id: box_body.id,
+          normal: normal.negate(),
+          penetration,
+          contact_point: closest,
+        },
+      )
+    }
   }
 }

@@ -115,3 +115,33 @@ test "friction reduces tangential velocity" {
   let (a2, _) = resolve_contact2d(a, floor, contact)
   assert_true(a2.velocity.x.abs() < 3.0)
 }
+
+///|
+test "angular impulse on off-center hit" {
+  let a = {
+    ..RigidBody2D::new_dynamic(
+      0,
+      @vector.Vec2::new(0.0, 0.0),
+      1.0,
+      OBBShape2D(@vector.Vec2::new(1.0, 1.0), @vector.Vec2::zero()),
+    ),
+    velocity: @vector.Vec2::new(0.0, -2.0),
+    restitution: 0.5,
+  }
+  let floor = RigidBody2D::new_static(
+    1,
+    @vector.Vec2::new(0.0, -2.0),
+    AABBShape2D(@vector.Vec2::new(10.0, 0.5), @vector.Vec2::zero()),
+  )
+  // Contact at the corner of the OBB (off-center)
+  let contact : Contact2D = {
+    body_a_id: 0,
+    body_b_id: 1,
+    normal: @vector.Vec2::new(0.0, -1.0),
+    penetration: 0.5,
+    contact_point: @vector.Vec2::new(0.8, -1.0),
+  }
+  let (a2, _) = resolve_contact2d(a, floor, contact)
+  // Off-center hit should produce angular velocity
+  assert_true(a2.angular_velocity.abs() > 0.01)
+}

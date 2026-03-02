@@ -1,6 +1,6 @@
 ///|
 /// Tone mapping operators for HDR to LDR conversion.
-pub enum ToneMapOperator {
+pub(all) enum ToneMapOperator {
   Reinhard
   ACES
 }
@@ -24,6 +24,7 @@ pub fn tonemap_wgsl(op : ToneMapOperator) -> String {
       "  return clamp((color * (a * color + b)) / (color * (c * color + d) + e), vec3<f32>(0.0), vec3<f32>(1.0));\n" +
       "}\n\n"
   }
+  fullscreen_vertex_wgsl() +
   "struct Uniforms {\n" +
   "  exposure: vec4<f32>,\n" +
   "};\n\n" +
@@ -31,12 +32,8 @@ pub fn tonemap_wgsl(op : ToneMapOperator) -> String {
   "@group(0) @binding(1) var tex: texture_2d<f32>;\n" +
   "@group(0) @binding(2) var tex_sampler: sampler;\n\n" +
   tonemap_fn +
-  "struct VertexOutput {\n" +
-  "  @builtin(position) clip_position: vec4<f32>,\n" +
-  "  @location(0) uv: vec2<f32>,\n" +
-  "};\n\n" +
   "@fragment fn fs_main(in: VertexOutput) -> @location(0) vec4<f32> {\n" +
-  "  let hdr_color = textureSample(tex, tex_sampler, in.uv).rgb;\n" +
+  "  let hdr_color = textureSampleLevel(tex, tex_sampler, in.uv, 0.0).rgb;\n" +
   "  let exposed = hdr_color * uniforms.exposure.x;\n" +
   "  let ldr_color = tonemap(exposed);\n" +
   "  return vec4<f32>(ldr_color, 1.0);\n" +

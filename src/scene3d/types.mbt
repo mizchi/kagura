@@ -10,6 +10,7 @@ pub(all) struct Object3D {
   transform : @transform3d.Transform3D
   color : @math3d.Vec4
   material : Material?
+  sort_bias : Double // positive = render earlier (farther), e.g. ground planes
 }
 
 ///|

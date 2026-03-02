@@ -32,10 +32,11 @@ test "Mesh3D cube normals" {
 ///|
 test "Mesh3D plane" {
   let mesh = Mesh3D::plane(10.0, 5.0)
-  assert_eq(mesh.vertex_count(), 4)
-  assert_eq(mesh.triangle_count(), 2)
+  // Default subdivisions=4: (4+1)^2 = 25 vertices, 4*4*2 = 32 triangles
+  assert_eq(mesh.vertex_count(), 25)
+  assert_eq(mesh.triangle_count(), 32)
   // Normal should be (0, 1, 0) for all vertices
-  for i in 0..<4 {
+  for i in 0..<mesh.vertex_count() {
     let base = i * vertex3d_stride
     assert_true(approx(mesh.vertex_data[base + 3], 0.0))
     assert_true(approx(mesh.vertex_data[base + 4], 1.0))

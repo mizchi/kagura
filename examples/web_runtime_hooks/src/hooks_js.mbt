@@ -1263,8 +1263,11 @@ extern "js" fn js_gfx_draw_begin(
   uniform_g : Int,
   uniform_b : Int,
   uniform_a : Int,
+  dst_id : Int,
+  dst_width : Int,
+  dst_height : Int,
 ) -> Unit =
-  #| (vertexCount, indexCount, srcImageId, uniformR, uniformG, uniformB, uniformA) => {
+  #| (vertexCount, indexCount, srcImageId, uniformR, uniformG, uniformB, uniformA, dstId, dstW, dstH) => {
   #|   const state = globalThis.__kaguraWebRuntime;
   #|   if (state == null) return;
   #|   const gpu = state.webgpu;
@@ -1277,6 +1280,9 @@ extern "js" fn js_gfx_draw_begin(
   #|     uniformG: (uniformG & 0xff) / 255.0,
   #|     uniformB: (uniformB & 0xff) / 255.0,
   #|     uniformA: (uniformA & 0xff) / 255.0,
+  #|     dstImageId: dstId | 0,
+  #|     dstWidth: Math.max(1, dstW | 0),
+  #|     dstHeight: Math.max(1, dstH | 0),
   #|   };
   #| }
 
@@ -1320,6 +1326,75 @@ extern "js" fn js_gfx_draw_end() -> Unit =
   #|   if (!Array.isArray(gpu.commands)) gpu.commands = [];
   #|   gpu.commands.push(gpu._currentDraw);
   #|   gpu._currentDraw = null;
+  #| }
+
+///|
+extern "js" fn js_gfx_custom_draw_begin(
+  shader_id : Int,
+  shader_source : String,
+  vertex_float_count : Int,
+  index_count : Int,
+  uniform_count : Int,
+  src_count : Int,
+  dst_id : Int,
+  dst_width : Int,
+  dst_height : Int,
+  blend_mode : Int,
+) -> Unit =
+  #| (shaderId, shaderSource, vfCount, iCount, uCount, srcCount, dstId, dstW, dstH, blendMode) => {
+  #|   const state = globalThis.__kaguraWebRuntime;
+  #|   if (state == null) return;
+  #|   const gpu = state.webgpu;
+  #|   if (gpu == null) return;
+  #|   gpu._currentDraw = {
+  #|     isCustom: true,
+  #|     shaderId: shaderId | 0,
+  #|     shaderSource: shaderSource,
+  #|     vertexData: new Float32Array(vfCount | 0),
+  #|     indices: new Uint32Array(iCount | 0),
+  #|     uniformDwords: new Int32Array(uCount | 0),
+  #|     srcImageIds: new Int32Array(srcCount | 0),
+  #|     dstImageId: dstId | 0,
+  #|     dstWidth: Math.max(1, dstW | 0),
+  #|     dstHeight: Math.max(1, dstH | 0),
+  #|     blendMode: blendMode | 0,
+  #|   };
+  #| }
+
+///|
+extern "js" fn js_gfx_custom_draw_vertex_float(
+  index : Int,
+  value : Double,
+) -> Unit =
+  #| (index, value) => {
+  #|   const state = globalThis.__kaguraWebRuntime;
+  #|   if (state == null) return;
+  #|   const gpu = state.webgpu;
+  #|   if (gpu == null || gpu._currentDraw == null) return;
+  #|   gpu._currentDraw.vertexData[index | 0] = value;
+  #| }
+
+///|
+extern "js" fn js_gfx_custom_draw_uniform(index : Int, value : Int) -> Unit =
+  #| (index, value) => {
+  #|   const state = globalThis.__kaguraWebRuntime;
+  #|   if (state == null) return;
+  #|   const gpu = state.webgpu;
+  #|   if (gpu == null || gpu._currentDraw == null) return;
+  #|   gpu._currentDraw.uniformDwords[index | 0] = value | 0;
+  #| }
+
+///|
+extern "js" fn js_gfx_custom_draw_src_image(
+  index : Int,
+  image_id : Int,
+) -> Unit =
+  #| (index, imageId) => {
+  #|   const state = globalThis.__kaguraWebRuntime;
+  #|   if (state == null) return;
+  #|   const gpu = state.webgpu;
+  #|   if (gpu == null || gpu._currentDraw == null) return;
+  #|   gpu._currentDraw.srcImageIds[index | 0] = imageId | 0;
   #| }
 
 ///|
@@ -2202,7 +2277,8 @@ test "js_webgpu_present is immediate when vsync is disabled" {
 test "js_webgpu_present emits draw calls using new draw FFI" {
   test_setup_present_state(true, false, false)
   js_webgpu_begin(0.0, 0.0, 0.0, 1.0)
-  js_gfx_draw_begin(3, 3, 0, 255, 0, 0, 255)
+
+  js_gfx_draw_begin(3, 3, 0, 255, 0, 0, 255, 0, 0, 0)
   js_gfx_draw_vertex(0, -0.8, 0.7, 0.0, 0.0)
   js_gfx_draw_vertex(1, -0.2, -0.6, 1.0, 0.0)
   js_gfx_draw_vertex(2, 0.9, -0.3, 1.0, 1.0)
@@ -2221,7 +2297,8 @@ test "js_webgpu_present emits draw calls using new draw FFI" {
 test "js_webgpu_present renders multiple queued draw commands" {
   test_setup_present_state(true, false, false)
   js_webgpu_begin(0.0, 0.0, 0.0, 1.0)
-  js_gfx_draw_begin(3, 3, 0, 255, 0, 0, 255)
+
+  js_gfx_draw_begin(3, 3, 0, 255, 0, 0, 255, 0, 0, 0)
   js_gfx_draw_vertex(0, -0.8, 0.7, 0.0, 0.0)
   js_gfx_draw_vertex(1, -0.2, -0.6, 1.0, 0.0)
   js_gfx_draw_vertex(2, 0.9, -0.3, 1.0, 1.0)
@@ -2229,7 +2306,7 @@ test "js_webgpu_present renders multiple queued draw commands" {
   js_gfx_draw_index(1, 1)
   js_gfx_draw_index(2, 2)
   js_gfx_draw_end()
-  js_gfx_draw_begin(3, 3, 0, 0, 255, 0, 255)
+  js_gfx_draw_begin(3, 3, 0, 0, 255, 0, 255, 0, 0, 0)
   js_gfx_draw_vertex(0, -0.6, 0.5, 0.0, 0.0)
   js_gfx_draw_vertex(1, -0.1, -0.7, 1.0, 0.0)
   js_gfx_draw_vertex(2, 0.7, -0.2, 1.0, 1.0)
@@ -2249,7 +2326,8 @@ test "js_webgpu_present reuses draw buffers and bind groups across frames" {
   test_setup_present_state(true, false, false)
 
   js_webgpu_begin(0.0, 0.0, 0.0, 1.0)
-  js_gfx_draw_begin(3, 3, 0, 255, 0, 0, 255)
+
+  js_gfx_draw_begin(3, 3, 0, 255, 0, 0, 255, 0, 0, 0)
   js_gfx_draw_vertex(0, -0.8, 0.7, 0.0, 0.0)
   js_gfx_draw_vertex(1, -0.2, -0.6, 1.0, 0.0)
   js_gfx_draw_vertex(2, 0.9, -0.3, 1.0, 1.0)
@@ -2265,7 +2343,8 @@ test "js_webgpu_present reuses draw buffers and bind groups across frames" {
   assert_true(first_bind_group_creates >= 2)
 
   js_webgpu_begin(0.0, 0.0, 0.0, 1.0)
-  js_gfx_draw_begin(3, 3, 0, 0, 255, 0, 255)
+
+  js_gfx_draw_begin(3, 3, 0, 0, 255, 0, 255, 0, 0, 0)
   js_gfx_draw_vertex(0, -0.6, 0.5, 0.0, 0.0)
   js_gfx_draw_vertex(1, -0.1, -0.7, 1.0, 0.0)
   js_gfx_draw_vertex(2, 0.7, -0.2, 1.0, 1.0)
@@ -2288,7 +2367,8 @@ test "uninstall releases cached webgpu buffers and textures" {
   install("#app")
 
   js_webgpu_begin(0.0, 0.0, 0.0, 1.0)
-  js_gfx_draw_begin(3, 3, 0, 255, 0, 0, 255)
+
+  js_gfx_draw_begin(3, 3, 0, 255, 0, 0, 255, 0, 0, 0)
   js_gfx_draw_vertex(0, -0.8, 0.7, 0.0, 0.0)
   js_gfx_draw_vertex(1, -0.2, -0.6, 1.0, 0.0)
   js_gfx_draw_vertex(2, 0.9, -0.3, 1.0, 1.0)
@@ -2528,48 +2608,86 @@ fn bridge_web_gfx_on_draw(
   command : @gfx.DrawTrianglesCommand,
 ) -> Unit {
   if active {
-    let src_id = if command.src_image_ids.length() > 0 {
-      command.src_image_ids[0]
-    } else {
-      0
-    }
-    let ur = if command.uniform_dwords.length() > 0 {
-      command.uniform_dwords[0]
-    } else {
-      255
-    }
-    let ug = if command.uniform_dwords.length() > 1 {
-      command.uniform_dwords[1]
-    } else {
-      255
-    }
-    let ub = if command.uniform_dwords.length() > 2 {
-      command.uniform_dwords[2]
-    } else {
-      255
-    }
-    let ua = if command.uniform_dwords.length() > 3 {
-      command.uniform_dwords[3]
-    } else {
-      255
-    }
-    let vc = command.vertex_data.length() / 4
-    let ic = command.indices.length()
-    js_gfx_draw_begin(vc, ic, src_id, ur, ug, ub, ua)
-    for i = 0; i < vc; i = i + 1 {
-      let base = i * 4
-      js_gfx_draw_vertex(
-        i,
-        command.vertex_data[base],
-        command.vertex_data[base + 1],
-        command.vertex_data[base + 2],
-        command.vertex_data[base + 3],
+    if command.shader.source.contains("@vertex") {
+      // Custom shader path
+      let vf_count = command.vertex_data.length()
+      let ic = command.indices.length()
+      let u_count = command.uniform_dwords.length()
+      let src_count = command.src_image_ids.length()
+      let blend = @gfx.blend_mode_to_int(command.blend)
+      js_gfx_custom_draw_begin(
+        command.shader.id,
+        command.shader.source,
+        vf_count,
+        ic,
+        u_count,
+        src_count,
+        command.dst.id,
+        command.dst.width,
+        command.dst.height,
+        blend,
       )
+      for i = 0; i < vf_count; i = i + 1 {
+        js_gfx_custom_draw_vertex_float(i, command.vertex_data[i])
+      }
+      for i = 0; i < ic; i = i + 1 {
+        js_gfx_draw_index(i, command.indices[i])
+      }
+      for i = 0; i < u_count; i = i + 1 {
+        js_gfx_custom_draw_uniform(i, command.uniform_dwords[i])
+      }
+      for i = 0; i < src_count; i = i + 1 {
+        js_gfx_custom_draw_src_image(i, command.src_image_ids[i])
+      }
+      js_gfx_draw_end()
+    } else {
+      // Default 2D pipeline path (backward compatible)
+      let src_id = if command.src_image_ids.length() > 0 {
+        command.src_image_ids[0]
+      } else {
+        0
+      }
+      let ur = if command.uniform_dwords.length() > 0 {
+        command.uniform_dwords[0]
+      } else {
+        255
+      }
+      let ug = if command.uniform_dwords.length() > 1 {
+        command.uniform_dwords[1]
+      } else {
+        255
+      }
+      let ub = if command.uniform_dwords.length() > 2 {
+        command.uniform_dwords[2]
+      } else {
+        255
+      }
+      let ua = if command.uniform_dwords.length() > 3 {
+        command.uniform_dwords[3]
+      } else {
+        255
+      }
+      let vc = command.vertex_data.length() / 4
+      let ic = command.indices.length()
+      js_gfx_draw_begin(
+        vc, ic, src_id, ur, ug, ub, ua,
+        command.dst.id, command.dst.width, command.dst.height,
+      )
+      for i = 0; i < vc; i = i + 1 {
+        let base = i * 4
+        js_gfx_draw_vertex(
+          i,
+          command.vertex_data[base],
+          command.vertex_data[base + 1],
+          command.vertex_data[base + 2],
+          command.vertex_data[base + 3],
+        )
+      }
+      for i = 0; i < ic; i = i + 1 {
+        js_gfx_draw_index(i, command.indices[i])
+      }
+      js_gfx_draw_end()
     }
-    for i = 0; i < ic; i = i + 1 {
-      js_gfx_draw_index(i, command.indices[i])
-    }
-    js_gfx_draw_end()
   }
 }
 

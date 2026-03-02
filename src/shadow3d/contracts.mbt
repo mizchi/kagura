@@ -270,7 +270,7 @@ fn shadow_calc_wgsl() -> String {
   "  for (var x = -1; x <= 1; x = x + 1) {\n" +
   "    for (var y = -1; y <= 1; y = y + 1) {\n" +
   "      let offset = vec2<f32>(f32(x), f32(y)) * texel_size;\n" +
-  "      let closest_depth = textureSample(shadow_map, shadow_sampler, shadow_uv + offset).r;\n" +
+  "      let closest_depth = textureSampleLevel(shadow_map, shadow_sampler, shadow_uv + offset, 0.0).r;\n" +
   "      shadow = shadow + select(0.0, 1.0, current_depth - bias > closest_depth);\n" +
   "    }\n" +
   "  }\n" +
@@ -330,7 +330,7 @@ pub fn shader3d_shadow_lit_wgsl() -> String {
   "@fragment fn fs_main(in: VertexOutput) -> @location(0) vec4<f32> {\n" +
   lit_fragment_lighting_wgsl() +
   "  let shadow_factor = calc_shadow(in.world_position);\n" +
-  "  let tex_color = textureSample(tex, tex_sampler, in.uv);\n" +
+  "  let tex_color = textureSampleLevel(tex, tex_sampler, in.uv, 0.0);\n" +
   "  let lit_color = tex_color.rgb * (diffuse * shadow_factor + ambient);\n" +
   "  return vec4<f32>(lit_color, tex_color.a);\n" +
   "}\n"

@@ -6,6 +6,7 @@ pub fn object3d(
   scale? : @math3d.Vec3 = @math3d.Vec3::one(),
   color? : @math3d.Vec4 = @math3d.Vec4::new(1.0, 1.0, 1.0, 1.0),
   material? : Material? = None,
+  sort_bias? : Double = 0.0,
 ) -> Object3D {
   {
     mesh,
@@ -14,6 +15,7 @@ pub fn object3d(
     ),
     color,
     material,
+    sort_bias,
   }
 }
 
@@ -23,8 +25,9 @@ pub fn object3d_with_transform(
   transform~ : @transform3d.Transform3D,
   color? : @math3d.Vec4 = @math3d.Vec4::new(1.0, 1.0, 1.0, 1.0),
   material? : Material? = None,
+  sort_bias? : Double = 0.0,
 ) -> Object3D {
-  { mesh, transform, color, material }
+  { mesh, transform, color, material, sort_bias }
 }
 
 ///|

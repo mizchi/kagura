@@ -130,15 +130,47 @@ pub fn Mesh3D::cube(size : Double) -> Mesh3D {
 
 ///|
 /// XZ plane centered at origin with given width and depth.
-pub fn Mesh3D::plane(width : Double, depth : Double) -> Mesh3D {
+pub fn Mesh3D::plane(
+  width : Double,
+  depth : Double,
+  subdivisions~ : Int = 4,
+) -> Mesh3D {
   let hw = width / 2.0
   let hd = depth / 2.0
+  let n = subdivisions
   let data : Array[Double] = []
-  push_vertex(data, -hw, 0.0, -hd, 0.0, 1.0, 0.0, 0.0, 0.0)
-  push_vertex(data, hw, 0.0, -hd, 0.0, 1.0, 0.0, 1.0, 0.0)
-  push_vertex(data, hw, 0.0, hd, 0.0, 1.0, 0.0, 1.0, 1.0)
-  push_vertex(data, -hw, 0.0, hd, 0.0, 1.0, 0.0, 0.0, 1.0)
-  { vertex_data: data, indices: [0, 1, 2, 2, 3, 0] }
+  let indices : Array[Int] = []
+  // Generate (n+1)×(n+1) grid of vertices
+  for row in 0..=n {
+    let t = row.to_double() / n.to_double()
+    let z = -hd + t * depth
+    let v = t
+    for col in 0..=n {
+      let s = col.to_double() / n.to_double()
+      let x = -hw + s * width
+      let u = s
+      push_vertex(data, x, 0.0, z, 0.0, 1.0, 0.0, u, v)
+    }
+  }
+  // Generate triangles (CCW winding when viewed from above: +Y direction)
+  let cols = n + 1
+  for row in 0..<n {
+    for col in 0..<n {
+      let tl = row * cols + col
+      let tr = tl + 1
+      let bl = tl + cols
+      let br = bl + 1
+      // Triangle 1: tl, bl, tr (CCW from above)
+      indices.push(tl)
+      indices.push(bl)
+      indices.push(tr)
+      // Triangle 2: tr, bl, br (CCW from above)
+      indices.push(tr)
+      indices.push(bl)
+      indices.push(br)
+    }
+  }
+  { vertex_data: data, indices }
 }
 
 ///|

@@ -547,6 +547,7 @@ fn render_object(
   lighting : @light3d.LightingEnvironment,
   all_batches : Array[(MeshBatch, Double)],
   frustum : Frustum,
+  sort_bias~ : Double = 0.0,
 ) -> Unit {
   // Frustum culling: compute world-space AABB and test
   let (omin_x, omin_y, omin_z, omax_x, omax_y, omax_z) = compute_mesh_aabb(
@@ -572,9 +573,10 @@ fn render_object(
     mesh, mvp, model_mat4, light_dir, buckets,
     lighting.point_lights, lighting.spot_lights,
   )
+  let biased_z = avg_z + sort_bias
   for b in 0..<bucket_count {
     if buckets[b].tri_count > 0 {
-      all_batches.push((buckets[b], avg_z))
+      all_batches.push((buckets[b], biased_z))
     }
   }
 }
@@ -639,6 +641,7 @@ pub fn render_scene3d(
       scene.lighting,
       all_batches,
       frustum,
+      sort_bias=obj.sort_bias,
     )
   }
   collect_and_sort_commands(all_batches, dst, shader, screen_w, screen_h)

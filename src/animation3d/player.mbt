@@ -11,11 +11,9 @@ pub fn AnimationPlayer::update(self : AnimationPlayer, dt : Double) -> Unit {
   }
   self.time = self.time + dt * self.speed
   if self.looping && self.clip.duration > 0.0 {
-    // Wrap around
-    while self.time >= self.clip.duration {
-      self.time = self.time - self.clip.duration
-    }
-    while self.time < 0.0 {
+    // Wrap around using modulo (safe even for large dt values)
+    self.time = self.time % self.clip.duration
+    if self.time < 0.0 {
       self.time = self.time + self.clip.duration
     }
   } else {

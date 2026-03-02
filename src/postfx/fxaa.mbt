@@ -2,6 +2,7 @@
 /// WGSL shader source for FXAA (Fast Approximate Anti-Aliasing).
 /// Uniform: vec4<f32> where x = texel_w (1/screen_w), y = texel_h (1/screen_h).
 pub fn fxaa_wgsl() -> String {
+  fullscreen_vertex_wgsl() +
   "struct Uniforms {\n" +
   "  texel_size: vec4<f32>,\n" +
   "};\n\n" +
@@ -11,17 +12,13 @@ pub fn fxaa_wgsl() -> String {
   "fn luminance(color: vec3<f32>) -> f32 {\n" +
   "  return dot(color, vec3<f32>(0.299, 0.587, 0.114));\n" +
   "}\n\n" +
-  "struct VertexOutput {\n" +
-  "  @builtin(position) clip_position: vec4<f32>,\n" +
-  "  @location(0) uv: vec2<f32>,\n" +
-  "};\n\n" +
   "@fragment fn fs_main(in: VertexOutput) -> @location(0) vec4<f32> {\n" +
   "  let texel = uniforms.texel_size.xy;\n" +
-  "  let color_m = textureSample(tex, tex_sampler, in.uv).rgb;\n" +
-  "  let color_n = textureSample(tex, tex_sampler, in.uv + vec2<f32>(0.0, -texel.y)).rgb;\n" +
-  "  let color_s = textureSample(tex, tex_sampler, in.uv + vec2<f32>(0.0, texel.y)).rgb;\n" +
-  "  let color_e = textureSample(tex, tex_sampler, in.uv + vec2<f32>(texel.x, 0.0)).rgb;\n" +
-  "  let color_w = textureSample(tex, tex_sampler, in.uv + vec2<f32>(-texel.x, 0.0)).rgb;\n" +
+  "  let color_m = textureSampleLevel(tex, tex_sampler, in.uv, 0.0).rgb;\n" +
+  "  let color_n = textureSampleLevel(tex, tex_sampler, in.uv + vec2<f32>(0.0, -texel.y), 0.0).rgb;\n" +
+  "  let color_s = textureSampleLevel(tex, tex_sampler, in.uv + vec2<f32>(0.0, texel.y), 0.0).rgb;\n" +
+  "  let color_e = textureSampleLevel(tex, tex_sampler, in.uv + vec2<f32>(texel.x, 0.0), 0.0).rgb;\n" +
+  "  let color_w = textureSampleLevel(tex, tex_sampler, in.uv + vec2<f32>(-texel.x, 0.0), 0.0).rgb;\n" +
   "  let luma_m = luminance(color_m);\n" +
   "  let luma_n = luminance(color_n);\n" +
   "  let luma_s = luminance(color_s);\n" +
@@ -39,12 +36,12 @@ pub fn fxaa_wgsl() -> String {
   "  let rcp_dir_min = 1.0 / (min(abs(dir_x), abs(dir_y)) + dir_reduce);\n" +
   "  let dir = clamp(vec2<f32>(dir_x, dir_y) * rcp_dir_min, vec2<f32>(-8.0), vec2<f32>(8.0)) * texel;\n" +
   "  let result_a = 0.5 * (\n" +
-  "    textureSample(tex, tex_sampler, in.uv + dir * (1.0 / 3.0 - 0.5)).rgb +\n" +
-  "    textureSample(tex, tex_sampler, in.uv + dir * (2.0 / 3.0 - 0.5)).rgb\n" +
+  "    textureSampleLevel(tex, tex_sampler, in.uv + dir * (1.0 / 3.0 - 0.5), 0.0).rgb +\n" +
+  "    textureSampleLevel(tex, tex_sampler, in.uv + dir * (2.0 / 3.0 - 0.5), 0.0).rgb\n" +
   "  );\n" +
   "  let result_b = result_a * 0.5 + 0.25 * (\n" +
-  "    textureSample(tex, tex_sampler, in.uv + dir * -0.5).rgb +\n" +
-  "    textureSample(tex, tex_sampler, in.uv + dir * 0.5).rgb\n" +
+  "    textureSampleLevel(tex, tex_sampler, in.uv + dir * -0.5, 0.0).rgb +\n" +
+  "    textureSampleLevel(tex, tex_sampler, in.uv + dir * 0.5, 0.0).rgb\n" +
   "  );\n" +
   "  let luma_b = luminance(result_b);\n" +
   "  if luma_b < luma_min || luma_b > luma_max {\n" +

@@ -1,4 +1,24 @@
 ///|
+/// Common fullscreen quad vertex shader for postfx passes.
+/// Stride 16: vec2 position + vec2 uv.
+pub fn fullscreen_vertex_wgsl() -> String {
+  "struct VertexInput {\n" +
+  "  @location(0) position: vec2<f32>,\n" +
+  "  @location(1) uv: vec2<f32>,\n" +
+  "};\n\n" +
+  "struct VertexOutput {\n" +
+  "  @builtin(position) clip_position: vec4<f32>,\n" +
+  "  @location(0) uv: vec2<f32>,\n" +
+  "};\n\n" +
+  "@vertex fn vs_main(in: VertexInput) -> VertexOutput {\n" +
+  "  var out: VertexOutput;\n" +
+  "  out.clip_position = vec4<f32>(in.position, 0.0, 1.0);\n" +
+  "  out.uv = in.uv;\n" +
+  "  return out;\n" +
+  "}\n\n"
+}
+
+///|
 /// Fullscreen quad vertex data in NDC [-1, 1].
 /// Stride 4: x, y, u, v per vertex. 4 vertices = 16 floats.
 pub fn fullscreen_quad_vertex_data() -> Array[Double] {

@@ -28,19 +28,18 @@ pub fn apply_skin(
     let mut nz = 0.0
     for j in 0..<4 {
       let w = skin.weights[ji_base + j]
-      if w <= 0.0 {
-        continue j
+      if w > 0.0 {
+        let joint = skin.joint_indices[ji_base + j]
+        let m = skinning_matrices[joint]
+        // Transform position: m * vec4(pos, 1.0)
+        px += w * (m.elements[0] * bx + m.elements[4] * by + m.elements[8] * bz + m.elements[12])
+        py += w * (m.elements[1] * bx + m.elements[5] * by + m.elements[9] * bz + m.elements[13])
+        pz += w * (m.elements[2] * bx + m.elements[6] * by + m.elements[10] * bz + m.elements[14])
+        // Transform normal: upper 3x3 of m * normal (w=0)
+        nx += w * (m.elements[0] * bnx + m.elements[4] * bny + m.elements[8] * bnz)
+        ny += w * (m.elements[1] * bnx + m.elements[5] * bny + m.elements[9] * bnz)
+        nz += w * (m.elements[2] * bnx + m.elements[6] * bny + m.elements[10] * bnz)
       }
-      let joint = skin.joint_indices[ji_base + j]
-      let m = skinning_matrices[joint]
-      // Transform position: m * vec4(pos, 1.0)
-      px += w * (m.elements[0] * bx + m.elements[4] * by + m.elements[8] * bz + m.elements[12])
-      py += w * (m.elements[1] * bx + m.elements[5] * by + m.elements[9] * bz + m.elements[13])
-      pz += w * (m.elements[2] * bx + m.elements[6] * by + m.elements[10] * bz + m.elements[14])
-      // Transform normal: upper 3x3 of m * normal (w=0)
-      nx += w * (m.elements[0] * bnx + m.elements[4] * bny + m.elements[8] * bnz)
-      ny += w * (m.elements[1] * bnx + m.elements[5] * bny + m.elements[9] * bnz)
-      nz += w * (m.elements[2] * bnx + m.elements[6] * bny + m.elements[10] * bnz)
     }
     // Normalize the normal
     let len = (nx * nx + ny * ny + nz * nz).sqrt()

@@ -66,6 +66,9 @@ fn make_static_body(
       @vector.Vec2::new(hx, hy),
       @vector.Vec2::zero(),
     ),
+    is_sleeping: false,
+    sleep_timer: 0.0,
+    is_bullet: false,
   }
 }
 

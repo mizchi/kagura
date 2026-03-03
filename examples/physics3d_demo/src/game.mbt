@@ -62,6 +62,7 @@ fn DemoState::new() -> DemoState {
     torque: @math3d.Vec3::zero(),
     mass: 0.0,
     inv_mass: 0.0,
+    inv_inertia: 0.0,
     restitution: 0.5,
     friction: 0.6,
     collider: @physics3d.AABBShape(
@@ -69,6 +70,10 @@ fn DemoState::new() -> DemoState {
       @math3d.Vec3::zero(),
     ),
     linear_damping: 0.0,
+    angular_damping: 0.0,
+    is_sleeping: false,
+    sleep_timer: 0.0,
+    is_bullet: false,
   })
   // Dynamic bodies: cubes and spheres at various heights
   let spawn_data : Array[(Double, Double, Double, Bool)] = [
@@ -109,10 +114,15 @@ fn DemoState::new() -> DemoState {
       torque: @math3d.Vec3::zero(),
       mass,
       inv_mass: 1.0 / mass,
+      inv_inertia: 1.0 / mass,
       restitution: 0.35,
       friction: 0.5,
       collider,
       linear_damping: 0.02,
+      angular_damping: 0.02,
+      is_sleeping: false,
+      sleep_timer: 0.0,
+      is_bullet: false,
     })
   }
   let camera = @camera3d.OrbitCamera::new(

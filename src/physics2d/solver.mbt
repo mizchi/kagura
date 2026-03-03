@@ -408,7 +408,7 @@ fn solve_constraint2d(
 
 ///|
 /// TGS relaxation pass: removes excess energy by solving with bias=0, gamma=0.
-fn solve_relaxation2d(
+fn _solve_relaxation2d(
   constraints : Array[ContactConstraint2D],
   ci : Int,
   bodies : Array[RigidBody2D],

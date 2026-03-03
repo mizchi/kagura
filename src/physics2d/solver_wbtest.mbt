@@ -302,7 +302,7 @@ test "relaxation reduces excess energy" {
   solve_constraint2d(constraints, 0, bodies)
   let vy_after_solve = bodies[0].velocity.y
   // Relaxation should not add energy (velocity magnitude should not increase)
-  solve_relaxation2d(constraints, 0, bodies)
+  _solve_relaxation2d(constraints, 0, bodies)
   let vy_after_relax = bodies[0].velocity.y
   // Relaxation should keep velocity bounded (not add energy)
   assert_true(vy_after_relax.abs() <= vy_after_solve.abs() + 1.0e-6)

@@ -203,6 +203,29 @@ fn MeshBatch::new(
 }
 
 ///|
+/// A single projected triangle with its own depth value for per-triangle sorting.
+priv struct SortedTri {
+  ndc_x0 : Double
+  ndc_y0 : Double
+  tex_u0 : Double
+  tex_v0 : Double
+  ndc_x1 : Double
+  ndc_y1 : Double
+  tex_u1 : Double
+  tex_v1 : Double
+  ndc_x2 : Double
+  ndc_y2 : Double
+  tex_u2 : Double
+  tex_v2 : Double
+  color_r : Int
+  color_g : Int
+  color_b : Int
+  color_a : Int
+  src_image_id : Int
+  z : Double
+}
+
+///|
 fn clamp01(v : Double) -> Double {
   if v < 0.0 {
     0.0
@@ -379,24 +402,24 @@ fn compute_extra_brightness(
 }
 
 ///|
-/// Project all visible triangles of a mesh into brightness-bucketed batches.
-/// Each triangle is assigned to one of 8 buckets based on its face normal's NdotL
-/// plus extra brightness from point/spot lights.
-fn project_mesh_bucketed(
+/// Project all visible triangles of a mesh into per-triangle sorted entries.
+/// Each triangle gets its own depth value for accurate back-to-front sorting.
+fn project_mesh_to_sorted_tris(
   mesh : @mesh3d.Mesh3D,
   mvp : @math3d.Mat4,
   model : @math3d.Mat4,
   light_dir : @math3d.Vec3,
-  batches : Array[MeshBatch],
+  bucket_colors : Array[Array[Int]],
+  src_image_id : Int,
+  all_tris : Array[SortedTri],
   point_lights : Array[@light3d.PointLight],
   spot_lights : Array[@light3d.SpotLight],
-) -> Double {
+  sort_bias : Double,
+) -> Unit {
   let vdata = mesh.vertex_data
   let indices = mesh.indices
   let stride = 8
   let tri_count = indices.length() / 3
-  let mut z_sum = 0.0
-  let mut total_tris = 0
   let has_extra_lights = point_lights.length() > 0 || spot_lights.length() > 0
   for t in 0..<tri_count {
     let i0 = indices[t * 3]
@@ -419,13 +442,10 @@ fn project_mesh_bucketed(
     }
     let ndc0x = c0.0 / c0.3
     let ndc0y = c0.1 / c0.3
-    let ndc0z = c0.2 / c0.3
     let ndc1x = c1.0 / c1.3
     let ndc1y = c1.1 / c1.3
-    let ndc1z = c1.2 / c1.3
     let ndc2x = c2.0 / c2.3
     let ndc2y = c2.1 / c2.3
-    let ndc2z = c2.2 / c2.3
     if (ndc0x < -1.5 && ndc1x < -1.5 && ndc2x < -1.5) ||
       (ndc0x > 1.5 && ndc1x > 1.5 && ndc2x > 1.5) ||
       (ndc0y < -1.5 && ndc1y < -1.5 && ndc2y < -1.5) ||
@@ -470,7 +490,7 @@ fn project_mesh_bucketed(
     } else {
       bucket_idx
     }
-    let batch = batches[bi]
+    let color = bucket_colors[bi]
     // Read UV coordinates from vertex data
     let u0 = vdata[i0 * stride + 6]
     let v0 = vdata[i0 * stride + 7]
@@ -478,31 +498,31 @@ fn project_mesh_bucketed(
     let v1 = vdata[i1 * stride + 7]
     let u2 = vdata[i2 * stride + 6]
     let v2 = vdata[i2 * stride + 7]
-    // Append vertices to batch (stride 4: x, y, u, v)
-    let vi = batch.tri_count * 3
-    batch.vertices.push(ndc0x)
-    batch.vertices.push(ndc0y)
-    batch.vertices.push(u0)
-    batch.vertices.push(v0)
-    batch.vertices.push(ndc1x)
-    batch.vertices.push(ndc1y)
-    batch.vertices.push(u1)
-    batch.vertices.push(v1)
-    batch.vertices.push(ndc2x)
-    batch.vertices.push(ndc2y)
-    batch.vertices.push(u2)
-    batch.vertices.push(v2)
-    batch.indices.push(vi)
-    batch.indices.push(vi + 1)
-    batch.indices.push(vi + 2)
-    z_sum = z_sum + (ndc0z + ndc1z + ndc2z) / 3.0
-    batch.tri_count = batch.tri_count + 1
-    total_tris = total_tris + 1
-  }
-  if total_tris > 0 {
-    z_sum / total_tris.to_double()
-  } else {
-    0.0
+    // Per-triangle depth: use clip-space w (= view-space distance, linear)
+    // instead of NDC Z (non-linear, loses precision at distance)
+    let tri_z = (c0.3 + c1.3 + c2.3) / 3.0 + sort_bias
+    all_tris.push(
+      {
+        ndc_x0: ndc0x,
+        ndc_y0: ndc0y,
+        tex_u0: u0,
+        tex_v0: v0,
+        ndc_x1: ndc1x,
+        ndc_y1: ndc1y,
+        tex_u1: u1,
+        tex_v1: v1,
+        ndc_x2: ndc2x,
+        ndc_y2: ndc2y,
+        tex_u2: u2,
+        tex_v2: v2,
+        color_r: color[0],
+        color_g: color[1],
+        color_b: color[2],
+        color_a: color[3],
+        src_image_id,
+        z: tri_z,
+      },
+    )
   }
 }
 
@@ -545,7 +565,7 @@ fn render_object(
   vp : @math3d.Mat4,
   light_dir : @math3d.Vec3,
   lighting : @light3d.LightingEnvironment,
-  all_batches : Array[(MeshBatch, Double)],
+  all_tris : Array[SortedTri],
   frustum : Frustum,
   sort_bias~ : Double = 0.0,
 ) -> Unit {
@@ -564,50 +584,91 @@ fn render_object(
     None => (color, -1)
   }
   let bucket_colors = compute_bucket_colors(lighting, col)
-  let buckets : Array[MeshBatch] = []
-  for b in 0..<bucket_count {
-    buckets.push(MeshBatch::new(bucket_colors[b], src_image_id~))
-  }
   let mvp = vp.multiply(model_mat4)
-  let avg_z = project_mesh_bucketed(
-    mesh, mvp, model_mat4, light_dir, buckets,
-    lighting.point_lights, lighting.spot_lights,
+  project_mesh_to_sorted_tris(
+    mesh, mvp, model_mat4, light_dir, bucket_colors, src_image_id,
+    all_tris, lighting.point_lights, lighting.spot_lights, sort_bias,
   )
-  let biased_z = avg_z + sort_bias
-  for b in 0..<bucket_count {
-    if buckets[b].tri_count > 0 {
-      all_batches.push((buckets[b], biased_z))
-    }
-  }
 }
 
 ///|
+/// Sort all triangles back-to-front by per-triangle depth,
+/// then batch consecutive same-color triangles into draw commands.
 fn collect_and_sort_commands(
-  all_batches : Array[(MeshBatch, Double)],
+  all_tris : Array[SortedTri],
   dst : @gfx.ImageHandle,
   shader : @gfx.ShaderHandle,
   screen_w : Int,
   screen_h : Int,
 ) -> Array[@gfx.DrawTrianglesCommand] {
-  all_batches.sort_by(fn(a, b) {
-    if a.1 > b.1 {
+  let cmds : Array[@gfx.DrawTrianglesCommand] = []
+  if all_tris.length() == 0 {
+    return cmds
+  }
+  // Sort back-to-front (larger z = farther = draw first)
+  all_tris.sort_by(fn(a, b) {
+    if a.z > b.z {
       -1
-    } else if a.1 < b.1 {
+    } else if a.z < b.z {
       1
     } else {
       0
     }
   })
-  let cmds : Array[@gfx.DrawTrianglesCommand] = []
-  for i in 0..<all_batches.length() {
+  // Batch consecutive triangles with same color and src_image_id
+  let first = all_tris[0]
+  let mut batch = MeshBatch::new(
+    [first.color_r, first.color_g, first.color_b, first.color_a],
+    src_image_id=first.src_image_id,
+  )
+  let mut batch_cr = first.color_r
+  let mut batch_cg = first.color_g
+  let mut batch_cb = first.color_b
+  let mut batch_ca = first.color_a
+  let mut batch_sid = first.src_image_id
+  for i in 0..<all_tris.length() {
+    let tri = all_tris[i]
+    // Start new batch if color or texture changed
+    if tri.color_r != batch_cr || tri.color_g != batch_cg ||
+      tri.color_b != batch_cb || tri.color_a != batch_ca ||
+      tri.src_image_id != batch_sid {
+      if batch.tri_count > 0 {
+        cmds.push(
+          build_batch_draw_command(batch, dst, shader, screen_w, screen_h),
+        )
+      }
+      batch = MeshBatch::new(
+        [tri.color_r, tri.color_g, tri.color_b, tri.color_a],
+        src_image_id=tri.src_image_id,
+      )
+      batch_cr = tri.color_r
+      batch_cg = tri.color_g
+      batch_cb = tri.color_b
+      batch_ca = tri.color_a
+      batch_sid = tri.src_image_id
+    }
+    // Add triangle to current batch
+    let vi = batch.tri_count * 3
+    batch.vertices.push(tri.ndc_x0)
+    batch.vertices.push(tri.ndc_y0)
+    batch.vertices.push(tri.tex_u0)
+    batch.vertices.push(tri.tex_v0)
+    batch.vertices.push(tri.ndc_x1)
+    batch.vertices.push(tri.ndc_y1)
+    batch.vertices.push(tri.tex_u1)
+    batch.vertices.push(tri.tex_v1)
+    batch.vertices.push(tri.ndc_x2)
+    batch.vertices.push(tri.ndc_y2)
+    batch.vertices.push(tri.tex_u2)
+    batch.vertices.push(tri.tex_v2)
+    batch.indices.push(vi)
+    batch.indices.push(vi + 1)
+    batch.indices.push(vi + 2)
+    batch.tri_count = batch.tri_count + 1
+  }
+  if batch.tri_count > 0 {
     cmds.push(
-      build_batch_draw_command(
-        all_batches[i].0,
-        dst,
-        shader,
-        screen_w,
-        screen_h,
-      ),
+      build_batch_draw_command(batch, dst, shader, screen_w, screen_h),
     )
   }
   cmds
@@ -627,7 +688,7 @@ pub fn render_scene3d(
   let vp = scene.camera.view_projection_matrix()
   let frustum = Frustum::from_vp(vp)
   let light_dir = scene.lighting.directional.direction.negate()
-  let all_batches : Array[(MeshBatch, Double)] = []
+  let all_tris : Array[SortedTri] = []
   for i in 0..<scene.objects.length() {
     let obj = scene.objects[i]
     let model = obj.transform.to_mat4()
@@ -639,12 +700,12 @@ pub fn render_scene3d(
       vp,
       light_dir,
       scene.lighting,
-      all_batches,
+      all_tris,
       frustum,
       sort_bias=obj.sort_bias,
     )
   }
-  collect_and_sort_commands(all_batches, dst, shader, screen_w, screen_h)
+  collect_and_sort_commands(all_tris, dst, shader, screen_w, screen_h)
 }
 
 ///|
@@ -660,7 +721,7 @@ pub fn render_scene3d_graph(
   let vp = camera.view_projection_matrix()
   let frustum = Frustum::from_vp(vp)
   let light_dir = lighting.directional.direction.negate()
-  let all_batches : Array[(MeshBatch, Double)] = []
+  let all_tris : Array[SortedTri] = []
   let identity = @math3d.Mat4::identity()
   for i in 0..<graph.roots.length() {
     traverse_node(
@@ -670,11 +731,11 @@ pub fn render_scene3d_graph(
       vp,
       light_dir,
       lighting,
-      all_batches,
+      all_tris,
       frustum,
     )
   }
-  collect_and_sort_commands(all_batches, dst, shader, screen_w, screen_h)
+  collect_and_sort_commands(all_tris, dst, shader, screen_w, screen_h)
 }
 
 ///|
@@ -685,7 +746,7 @@ fn traverse_node(
   vp : @math3d.Mat4,
   light_dir : @math3d.Vec3,
   lighting : @light3d.LightingEnvironment,
-  all_batches : Array[(MeshBatch, Double)],
+  all_tris : Array[SortedTri],
   frustum : Frustum,
 ) -> Unit {
   match graph.nodes.get(node_id) {
@@ -702,7 +763,7 @@ fn traverse_node(
             vp,
             light_dir,
             lighting,
-            all_batches,
+            all_tris,
             frustum,
           )
         None => ()
@@ -715,7 +776,7 @@ fn traverse_node(
           vp,
           light_dir,
           lighting,
-          all_batches,
+          all_tris,
           frustum,
         )
       }

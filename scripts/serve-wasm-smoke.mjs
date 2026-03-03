@@ -44,6 +44,8 @@ const buildJsExample = (name) => {
     console.log(`[e2e] skipping ${name} (not found)`);
     return;
   }
+  // Ensure dependencies are resolved (CI may not have run moon update in example dirs)
+  spawnSync("moon", ["update"], { cwd: dir, stdio: "inherit" });
   const result = spawnSync("moon", ["build", "src", "--target", "js"], {
     cwd: dir,
     stdio: "inherit",

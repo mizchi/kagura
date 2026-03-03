@@ -9,6 +9,7 @@ struct ViewerState {
   graph : @scene3d.SceneGraph
   mut camera : @camera3d.OrbitCamera
   lighting : @light3d.LightingEnvironment
+  shader3d : @gfx.ShaderHandle
   node_count : Int
   mesh_node_count : Int
 }
@@ -25,7 +26,7 @@ fn ViewerState::new(graph : @scene3d.SceneGraph) -> ViewerState {
   })
   // Add ground plane
   let ground = @scene3d.scene_node(
-    mesh=Some(@mesh3d.Mesh3D::plane(8.0, 8.0)),
+    mesh=Some(@mesh3d.Mesh3D::plane(8.0, 8.0, subdivisions=16)),
     position=@math3d.Vec3::new(0.0, -0.02, 0.0),
     color=@math3d.Vec4::new(0.35, 0.35, 0.4, 1.0),
   )
@@ -49,6 +50,10 @@ fn ViewerState::new(graph : @scene3d.SceneGraph) -> ViewerState {
         0.8,
       ),
       @light3d.AmbientLight::new(@math3d.Vec3::new(1.0, 1.0, 1.0), 0.3),
+    ),
+    shader3d: @gfx.new_shader_handle(
+      100,
+      @draw3d.shader3d_lit_untextured_wgsl(),
     ),
     node_count,
     mesh_node_count: mesh_count,
@@ -82,12 +87,12 @@ fn ViewerState::update(self : ViewerState, input : @core.InputSnapshot, prev_x :
 
 ///|
 fn ViewerState::draw(self : ViewerState, ctx : @engine.EngineContext) -> Array[@gfx.DrawTrianglesCommand] {
-  let cmds = @scene3d.render_scene3d_graph(
+  let cmds = @scene3d.render_scene3d_graph_gpu(
     self.graph,
     self.camera.to_camera3d(),
     lighting=self.lighting,
     ctx.dst,
-    ctx.shader,
+    self.shader3d,
     ctx.screen_w,
     ctx.screen_h,
   )

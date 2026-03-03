@@ -6,4 +6,5 @@ import {
   "mizchi/kagura/camera3d" @camera3d,
   "mizchi/kagura/light3d" @light3d,
   "mizchi/kagura/transform3d" @transform3d,
+  "mizchi/kagura/draw3d" @draw3d,
 }

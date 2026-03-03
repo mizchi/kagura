@@ -167,7 +167,7 @@ fn compute_mesh_depths(
 /// but the bulk of the ground behind the cube should sort correctly.
 test "ground plane should sort behind cube" {
   let cube = @mesh3d.Mesh3D::cube(1.0)
-  let ground = @mesh3d.Mesh3D::plane(8.0, 8.0)
+  let ground = @mesh3d.Mesh3D::plane(8.0, 8.0, subdivisions=16)
   let camera = @camera3d.OrbitCamera::new(
     @math3d.Vec3::new(0.0, 0.5, 0.0),
     6.0,

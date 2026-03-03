@@ -38,6 +38,8 @@ jobs:
         run: pnpm exec playwright install --with-deps chromium
       - name: Runtime Smoke E2E (wasm/wasm-gc)
         run: pnpm e2e:smoke
+      - name: VRT E2E (visual regression)
+        run: pnpm exec playwright test e2e/vrt.spec.ts --update-snapshots
       - name: API Info
         run: moon info
 

@@ -33,6 +33,12 @@ e2e:
 e2e-smoke:
     pnpm e2e:smoke
 
+e2e-vrt:
+    pnpm exec playwright test e2e/vrt.spec.ts
+
+e2e-vrt-update:
+    pnpm exec playwright test e2e/vrt.spec.ts --update-snapshots
+
 info:
     moon info
 

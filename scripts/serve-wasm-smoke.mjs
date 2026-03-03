@@ -18,6 +18,10 @@ const CONTENT_TYPES = {
   ".png": "image/png",
   ".jpg": "image/jpeg",
   ".jpeg": "image/jpeg",
+  ".ttf": "font/ttf",
+  ".otf": "font/otf",
+  ".glb": "model/gltf-binary",
+  ".obj": "text/plain; charset=utf-8",
 };
 
 const buildRuntimeSmoke = (target) => {
@@ -48,7 +52,16 @@ const buildJsExample = (name) => {
     process.exit(result.status ?? 1);
   }
 };
-buildJsExample("fetch_image");
+const VRT_EXAMPLES = [
+  "scene_demo", "flappy_bird", "survivor", "ui_demo", "action_rpg",
+  "fps_demo", "arena3d", "collision3d_demo", "physics2d_demo",
+  "physics3d_demo", "postfx_demo", "shadow3d_demo", "skeletal_anim",
+  "ragdoll_demo", "obj_viewer", "gltf_viewer", "fetch_image",
+];
+
+for (const name of VRT_EXAMPLES) {
+  buildJsExample(name);
+}
 
 const resolvePath = (pathname) => {
   const normalized = normalize(pathname).replace(/^(\.\.[/\\])+/, "");
@@ -83,11 +96,64 @@ const serveFile = (res, filePath) => {
   res.end(body);
 };
 
+const ASSET_EXAMPLES = {
+  action_rpg: [["assets/Tiny5-Regular.ttf", "/examples/action_rpg/assets/Tiny5-Regular.ttf"]],
+  fetch_image: [["assets/sample.png", "/examples/fetch_image/assets/sample.png"]],
+  gltf_viewer: [["assets/test_scene.glb", "/examples/gltf_viewer/assets/test_scene.glb"]],
+  obj_viewer: [["assets/bunny.obj", "/examples/obj_viewer/assets/bunny.obj"]],
+};
+
+const generateVrtHtml = (name) => {
+  const scriptPath = `/examples/${name}/_build/js/debug/build/${name}.js`;
+  const assetEntries = ASSET_EXAMPLES[name] ?? [];
+  const fontPreloads = assetEntries
+    .filter(([key]) => /\.(ttf|otf)$/i.test(key))
+    .map(([, url]) => `<link rel="preload" href="${url}" as="font" crossorigin>`)
+    .join("\n    ");
+  return `<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <title>VRT: ${name}</title>
+    ${fontPreloads}
+    <base href="/examples/${name}/" />
+    <style>
+      body { margin: 0; background: #000; display: flex; justify-content: center; align-items: center; height: 100vh; }
+      #app { border: none; }
+    </style>
+  </head>
+  <body>
+    <canvas id="app" width="320" height="240"
+      style="width: 320px; height: 240px; image-rendering: pixelated"></canvas>
+    <script type="module">
+      import { loadGameScript } from "/lib/web/kagura-init.js";
+      await loadGameScript("${scriptPath}");
+    </script>
+  </body>
+</html>`;
+};
+
+const vrtNameSet = new Set(VRT_EXAMPLES);
+
 const server = createServer((req, res) => {
   const url = new URL(req.url ?? "/", `http://${HOST}:${PORT}`);
   if (url.pathname === "/healthz") {
     res.writeHead(200, { "content-type": "text/plain; charset=utf-8" });
     res.end("ok");
+    return;
+  }
+  // Dynamic VRT route: /vrt/{name}
+  const vrtMatch = url.pathname.match(/^\/vrt\/([a-z0-9_]+)$/);
+  if (vrtMatch != null) {
+    const name = vrtMatch[1];
+    if (!vrtNameSet.has(name)) {
+      res.writeHead(404, { "content-type": "text/plain; charset=utf-8" });
+      res.end(`unknown VRT example: ${name}`);
+      return;
+    }
+    const html = generateVrtHtml(name);
+    res.writeHead(200, { "content-type": "text/html; charset=utf-8", "cache-control": "no-store" });
+    res.end(html);
     return;
   }
   const pathname =

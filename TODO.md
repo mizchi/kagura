@@ -109,6 +109,30 @@ AABB / Sphere / Ray の衝突判定を 3D シーンで可視化。
 - `moon check/test` (js/native) + Playwright e2e が常時通る
 - `docs/ebiten_reference.md` の主要項目に `未着手` がない
 
+## 既知の問題
+
+### scene3d: painter's algorithm のデプスソート精度
+
+`src/scene3d/renderer.mbt` の painter's algorithm (back-to-front ソート) でデプス計算に課題がある。
+
+**現在の方式**: centroid clip-space W `(w0+w1+w2)/3`
+
+**問題点**:
+- 大きな平面メッシュ（ground plane 8x8）とキューブが混在するシーンで、地面の三角形がキューブの底部に被さることがある
+- 同一面の2つの三角形（クワッド分割）が微妙に異なるデプスを持ち、隣接面と入り混じる (face interleaving) が約82%の角度で発生
+
+**試行済みアプローチ**:
+- screen-center 1/w 平面評価: 同一面は正しいが、オフセンターのオブジェクトで extrapolation が破綻
+- object-center 1/w 平面評価: 同一面は正しいが、異なるメッシュ間の比較が不正確（異なる評価点）
+- 2段階ソート (mesh_depth + face_depth): 遠いキューブが地面より後ろに全面的にソートされる
+
+**根本原因**: painter's algorithm は三角形が空間的に交差するシーンを正しく扱えない。ground plane はキューブと同じ深度範囲に広がるため、単一のデプス値では正しいソート順を決定できない。
+
+**考えられる解決策**:
+- BSP tree で三角形を空間分割
+- ground plane を小さなパッチに分割して各パッチの深度範囲を狭める
+- GPU ベースの Z-buffer に移行（アーキテクチャ課題の CPU→GPU 移行）
+
 ## 参照
 
 - 完了済み一覧: `docs/mvp.md`

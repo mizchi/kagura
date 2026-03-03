@@ -498,8 +498,9 @@ fn project_mesh_to_sorted_tris(
     let v1 = vdata[i1 * stride + 7]
     let u2 = vdata[i2 * stride + 6]
     let v2 = vdata[i2 * stride + 7]
-    // Per-triangle depth: use clip-space w (= view-space distance, linear)
-    // instead of NDC Z (non-linear, loses precision at distance)
+    // Per-triangle depth: centroid clip-space W (average of three vertices' W).
+    // This gives correct inter-object depth ordering since each triangle's
+    // depth represents its actual spatial position.
     let tri_z = (c0.3 + c1.3 + c2.3) / 3.0 + sort_bias
     all_tris.push(
       {

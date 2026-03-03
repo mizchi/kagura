@@ -2,26 +2,26 @@
 /// UI node tree and style definitions.
 
 ///|
-pub enum UIDirection {
+pub(all) enum UIDirection {
   Row
   Column
 } derive(Show)
 
 ///|
-pub enum UISizing {
+pub(all) enum UISizing {
   Fixed(Double)
   Percent(Double)
   Auto
 } derive(Show)
 
 ///|
-pub enum UIFlexWrap {
+pub(all) enum UIFlexWrap {
   NoWrap
   Wrap
 } derive(Show)
 
 ///|
-pub struct UINodeStyle {
+pub(all) struct UINodeStyle {
   direction : UIDirection
   width : UISizing
   height : UISizing

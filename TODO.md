@@ -71,6 +71,37 @@ arena3d で基本的な SE 再生（Web/Native 両方）は動作確認済み。
 - CPU ラスタライザ → GPU パイプライン移行: scene3d は CPU で頂点変換して 2D コマンドに変換している。draw3d に WGSL シェーダはあるので GPU 側に移行すべき
 - 頂点フォーマットの柔軟化: 現在 stride=8 固定。スキンメッシュではボーンウェイトが必要
 
+## サンプル不足パッケージのデモ実装
+
+カバレッジ調査の結果、以下のパッケージに専用デモがない:
+
+| パッケージ | 状態 | 方針 |
+|---|---|---|
+| ui | デモなし | **ui_demo 作成** |
+| collision3d | physics3d が内部利用のみ | **collision3d_demo 作成** |
+| gltf | skeletal_anim が部分カバー | 現状維持（将来 glTF viewer に拡張可能） |
+| draw2d | 内部ユーティリティ | デモ不要（sprite2d/tilemap2d 経由で利用） |
+| draw3d | 内部ユーティリティ | デモ不要（scene3d/shadow3d 経由で利用） |
+
+### ui_demo
+
+UITree + SimpleLayoutEngine + UIFocusManager の機能デモ。
+
+- [x] Row / Column レイアウトでパネルとボタンを配置
+- [x] クリックでフォーカス、Tab / Shift-Tab でフォーカス移動
+- [x] ホバー / フォーカス / クリック状態に応じた色変化
+- [x] debugutil で矩形描画 + ラベル表示
+
+### collision3d_demo
+
+AABB / Sphere / Ray の衝突判定を 3D シーンで可視化。
+
+- [x] FPSCamera で移動、カメラ中心からレイキャスト
+- [x] AABB（箱）と Sphere（球）をシーンに配置
+- [x] レイヒット時にオブジェクトの色を変更（赤→緑）
+- [x] SpatialHashGrid でブロードフェーズ候補を絞り込み
+- [x] debugutil でヒット情報オーバーレイ
+
 ## 完了条件 (第一段階)
 
 - 2D 基本機能（sprite/offscreen/shader/text/input）が js/native 同一 API で動作

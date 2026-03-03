@@ -1,4 +1,30 @@
 ///|
+///|
+fn compute_inv_inertia(mass : Double, collider : ColliderShape) -> Double {
+  if mass < 1.0e-12 {
+    return 0.0
+  }
+  let inertia = match collider {
+    // Solid sphere: I = 2/5 * m * r^2
+    SphereShape(_, radius) => 0.4 * mass * radius * radius
+    // Solid box: I ≈ m/12 * (h^2 + d^2) (using average of 3 axes)
+    // For simplicity, use the maximum moment (smallest axis excluded)
+    AABBShape(he, _) => {
+      let hx = he.x
+      let hy = he.y
+      let hz = he.z
+      // Use average inertia: m/3 * (hx^2 + hy^2 + hz^2) / 2 ≈ m/12 * (w^2+h^2+d^2) for full extents
+      mass / 3.0 * (hx * hx + hy * hy + hz * hz)
+    }
+  }
+  if inertia < 1.0e-12 {
+    0.0
+  } else {
+    1.0 / inertia
+  }
+}
+
+///|
 pub fn RigidBody::new_dynamic(
   id : Int,
   position : @math3d.Vec3,
@@ -16,10 +42,15 @@ pub fn RigidBody::new_dynamic(
     torque: @math3d.Vec3::zero(),
     mass,
     inv_mass: 1.0 / mass,
+    inv_inertia: compute_inv_inertia(mass, collider),
     restitution: 0.5,
     friction: 0.3,
     collider,
     linear_damping: 0.01,
+    angular_damping: 0.05,
+    is_sleeping: false,
+    sleep_timer: 0.0,
+    is_bullet: false,
   }
 }
 
@@ -40,10 +71,15 @@ pub fn RigidBody::new_static(
     torque: @math3d.Vec3::zero(),
     mass: 0.0,
     inv_mass: 0.0,
+    inv_inertia: 0.0,
     restitution: 0.5,
     friction: 0.3,
     collider,
     linear_damping: 0.0,
+    angular_damping: 0.0,
+    is_sleeping: false,
+    sleep_timer: 0.0,
+    is_bullet: false,
   }
 }
 
@@ -64,10 +100,15 @@ pub fn RigidBody::new_kinematic(
     torque: @math3d.Vec3::zero(),
     mass: 0.0,
     inv_mass: 0.0,
+    inv_inertia: 0.0,
     restitution: 0.5,
     friction: 0.3,
     collider,
     linear_damping: 0.0,
+    angular_damping: 0.0,
+    is_sleeping: false,
+    sleep_timer: 0.0,
+    is_bullet: false,
   }
 }
 
@@ -97,6 +138,11 @@ pub fn RigidBody::with_friction(self : RigidBody, f : Double) -> RigidBody {
 ///|
 pub fn RigidBody::with_damping(self : RigidBody, d : Double) -> RigidBody {
   { ..self, linear_damping: d }
+}
+
+///|
+pub fn RigidBody::with_bullet(self : RigidBody) -> RigidBody {
+  { ..self, is_bullet: true }
 }
 
 ///|

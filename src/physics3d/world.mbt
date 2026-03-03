@@ -2,11 +2,16 @@
 pub fn PhysicsWorld::new(
   gravity : @math3d.Vec3,
   broadphase_cell_size : Double,
+  solver_config~ : SolverConfig3D = SolverConfig3D::default(),
 ) -> PhysicsWorld {
   {
     bodies: [],
     gravity,
     broadphase: @collision3d.SpatialHashGrid::new(broadphase_cell_size),
+    solver_config,
+    contact_cache: {},
+    joints_distance: [],
+    joints_ball: [],
   }
 }
 
@@ -59,52 +64,364 @@ pub fn PhysicsWorld::apply_impulse(
 }
 
 ///|
-pub fn PhysicsWorld::step(self : PhysicsWorld, dt : Double) -> Unit {
-  // 1. Velocity integration (dynamic only)
-  for i = 0; i < self.bodies.length(); i = i + 1 {
-    let body = self.bodies[i]
-    if body.is_dynamic() {
-      let accel = self.gravity.add(body.force.scale(body.inv_mass))
-      let new_vel = body.velocity.add(accel.scale(dt)).scale(
-        1.0 - body.linear_damping * dt,
-      )
-      self.bodies[i] = {
-        ..body,
-        velocity: new_vel,
-        force: @math3d.Vec3::zero(),
-      }
+pub fn PhysicsWorld::add_distance_joint(
+  self : PhysicsWorld,
+  joint : DistanceJoint3D,
+) -> Unit {
+  self.joints_distance.push(joint)
+}
+
+///|
+pub fn PhysicsWorld::add_ball_joint(
+  self : PhysicsWorld,
+  joint : BallJoint3D,
+) -> Unit {
+  self.joints_ball.push(joint)
+}
+
+///|
+let sleep_velocity_threshold3d : Double = 0.5
+
+///|
+let sleep_angular_threshold3d : Double = 0.2
+
+///|
+let sleep_time_threshold3d : Double = 0.5
+
+///|
+fn uf_find3d(parent : Array[Int], i : Int) -> Int {
+  let mut x = i
+  for {
+    if parent[x] == x {
+      break x
     }
+    parent[x] = parent[parent[x]]
+    x = parent[x]
   }
-  // 2. Broadphase
+}
+
+///|
+fn uf_union3d(parent : Array[Int], rank : Array[Int], a : Int, b : Int) -> Unit {
+  let ra = uf_find3d(parent, a)
+  let rb = uf_find3d(parent, b)
+  if ra == rb {
+    return
+  }
+  if rank[ra] < rank[rb] {
+    parent[ra] = rb
+  } else if rank[ra] > rank[rb] {
+    parent[rb] = ra
+  } else {
+    parent[rb] = ra
+    rank[ra] = rank[ra] + 1
+  }
+}
+
+///|
+fn contact_pair_key3d(id_a : Int, id_b : Int) -> Int64 {
+  let min_id = if id_a < id_b { id_a } else { id_b }
+  let max_id = if id_a < id_b { id_b } else { id_a }
+  (min_id.to_int64() << 32).lor(max_id.to_int64().land(0xFFFFFFFFL))
+}
+
+///|
+pub fn PhysicsWorld::step(self : PhysicsWorld, dt : Double) -> Unit {
+  let config = self.solver_config
+  let substeps = config.substeps
+  let sub_dt = dt / substeps.to_double()
+  // 1. Broadphase (once per frame)
   self.broadphase.clear()
   for i = 0; i < self.bodies.length(); i = i + 1 {
     self.broadphase.insert(i, self.bodies[i].world_aabb())
   }
   let pairs = self.broadphase.get_pairs()
-  // 3. Narrowphase + impulse resolution
-  // Note: avoid `continue` in for-loop due to MoonBit JS codegen bug
+  // 2. Narrowphase: detect contacts once
+  let raw_contacts : Array[(Int, Int, Contact)] = []
   for p = 0; p < pairs.length(); p = p + 1 {
     let (idx_a, idx_b) = pairs[p]
     let body_a = self.bodies[idx_a]
     let body_b = self.bodies[idx_b]
     if body_a.inv_mass >= 1.0e-12 || body_b.inv_mass >= 1.0e-12 {
       match generate_contact(body_a, body_b) {
-        Some(contact) => {
-          let (a_new, b_new) = resolve_contact(body_a, body_b, contact)
-          self.bodies[idx_a] = a_new
-          self.bodies[idx_b] = b_new
-        }
+        Some(contact) => raw_contacts.push((idx_a, idx_b, contact))
         None => ()
       }
     }
   }
-  // 4. Position integration (dynamic only)
+  // 3. Precompute constraints with warm starting from cache
+  let constraints : Array[ContactConstraint3D] = []
+  let new_cache : Map[Int64, ContactManifold3D] = {}
+  for c = 0; c < raw_contacts.length(); c = c + 1 {
+    let (idx_a, idx_b, contact) = raw_contacts[c]
+    let body_a = self.bodies[idx_a]
+    let body_b = self.bodies[idx_b]
+    let mut constraint = precompute_constraint3d(
+      body_a,
+      body_b,
+      idx_a,
+      idx_b,
+      contact,
+      config.contact_hertz,
+      config.contact_damping_ratio,
+      sub_dt,
+    )
+    // Warm starting: look up cached impulses from previous frame
+    let pair_key = contact_pair_key3d(body_a.id, body_b.id)
+    match self.contact_cache.get(pair_key) {
+      Some(cached) => {
+        if cached.normal.dot(contact.normal) > 0.9 {
+          if cached.points.length() > 0 {
+            let pt = cached.points[0]
+            let warm_factor = 0.8
+            constraint = {
+              ..constraint,
+              acc_jn: pt.normal_impulse * warm_factor,
+              acc_jt: pt.tangent_impulse * warm_factor,
+            }
+            let n = contact.normal
+            let tangent = constraint.tangent_dir
+            let jn = pt.normal_impulse * warm_factor
+            let jt = pt.tangent_impulse * warm_factor
+            if jn.abs() > 1.0e-15 || jt.abs() > 1.0e-15 {
+              let impulse = n.scale(jn).add(tangent.scale(jt))
+              self.bodies[idx_a] = {
+                ..self.bodies[idx_a],
+                velocity: self.bodies[idx_a].velocity.add(
+                  impulse.scale(body_a.inv_mass),
+                ),
+              }
+              self.bodies[idx_b] = {
+                ..self.bodies[idx_b],
+                velocity: self.bodies[idx_b].velocity.sub(
+                  impulse.scale(body_b.inv_mass),
+                ),
+              }
+            }
+          }
+        }
+      }
+      None => ()
+    }
+    constraints.push(constraint)
+  }
+  // 3b. Precompute joint constraints
+  let dist_constraints : Array[DistanceJointConstraint3D] = []
+  for j = 0; j < self.joints_distance.length(); j = j + 1 {
+    match precompute_distance_joint3d(
+      self.joints_distance[j], self.bodies, sub_dt,
+    ) {
+      Some(c) => dist_constraints.push(c)
+      None => ()
+    }
+  }
+  let ball_constraints : Array[BallJointConstraint3D] = []
+  for j = 0; j < self.joints_ball.length(); j = j + 1 {
+    match precompute_ball_joint3d(self.joints_ball[j], self.bodies, sub_dt) {
+      Some(c) => ball_constraints.push(c)
+      None => ()
+    }
+  }
+  // 4. Substep loop
+  for _s = 0; _s < substeps; _s = _s + 1 {
+    // 4a. Velocity integration (dynamic, non-sleeping only)
+    for i = 0; i < self.bodies.length(); i = i + 1 {
+      let body = self.bodies[i]
+      if body.is_dynamic() && not(body.is_sleeping) {
+        let accel = self.gravity.add(body.force.scale(body.inv_mass))
+        let new_vel = body.velocity.add(accel.scale(sub_dt)).scale(
+          1.0 - body.linear_damping * sub_dt,
+        )
+        let angular_accel = body.torque.scale(body.inv_inertia)
+        let new_angular_vel = body.angular_velocity.add(
+          angular_accel.scale(sub_dt),
+        ).scale(1.0 - body.angular_damping * sub_dt)
+        self.bodies[i] = {
+          ..body,
+          velocity: new_vel,
+          angular_velocity: new_angular_vel,
+        }
+      }
+    }
+    // 4b. Velocity solve (contacts + joints)
+    for _iter = 0; _iter < config.velocity_iterations; _iter = _iter + 1 {
+      for ci = 0; ci < constraints.length(); ci = ci + 1 {
+        solve_constraint3d(constraints, ci, self.bodies)
+      }
+      for di = 0; di < dist_constraints.length(); di = di + 1 {
+        solve_distance_joint3d(
+          dist_constraints, di, self.bodies, self.joints_distance[di],
+        )
+      }
+      for bi = 0; bi < ball_constraints.length(); bi = bi + 1 {
+        solve_ball_joint3d(ball_constraints, bi, self.bodies)
+      }
+    }
+    // 4c. Position + rotation integration (dynamic, non-sleeping only)
+    // For bullet bodies, check CCD before full position update
+    for i = 0; i < self.bodies.length(); i = i + 1 {
+      let body = self.bodies[i]
+      if body.is_dynamic() && not(body.is_sleeping) {
+        let omega = body.angular_velocity
+        let omega_len = omega.length()
+        let new_rotation = if omega_len > 1.0e-12 {
+          let axis = omega.scale(1.0 / omega_len)
+          let angle = omega_len * sub_dt
+          body.rotation.multiply(
+            @math3d.Quaternion::from_axis_angle(axis, angle),
+          ).normalize()
+        } else {
+          body.rotation
+        }
+        if body.is_bullet {
+          match ccd_sweep_body3d(i, self.bodies, sub_dt) {
+            Some(toi) => {
+              let safe_toi = if toi > 0.01 { toi * 0.95 } else { 0.0 }
+              let safe_rotation = if omega_len > 1.0e-12 {
+                let axis = omega.scale(1.0 / omega_len)
+                let angle = omega_len * sub_dt * safe_toi
+                body.rotation.multiply(
+                  @math3d.Quaternion::from_axis_angle(axis, angle),
+                ).normalize()
+              } else {
+                body.rotation
+              }
+              self.bodies[i] = {
+                ..body,
+                position: body.position.add(
+                  body.velocity.scale(sub_dt * safe_toi),
+                ),
+                rotation: safe_rotation,
+              }
+            }
+            None =>
+              self.bodies[i] = {
+                ..body,
+                position: body.position.add(body.velocity.scale(sub_dt)),
+                rotation: new_rotation,
+              }
+          }
+        } else {
+          self.bodies[i] = {
+            ..body,
+            position: body.position.add(body.velocity.scale(sub_dt)),
+            rotation: new_rotation,
+          }
+        }
+      }
+    }
+  }
+  // 5. Save constraint impulses to cache for next frame warm starting
+  for c = 0; c < constraints.length(); c = c + 1 {
+    let con = constraints[c]
+    let body_a = self.bodies[con.idx_a]
+    let body_b = self.bodies[con.idx_b]
+    let pair_key = contact_pair_key3d(body_a.id, body_b.id)
+    let local_a = con.contact.contact_point.sub(body_a.position)
+    let local_b = con.contact.contact_point.sub(body_b.position)
+    new_cache.set(
+      pair_key,
+      {
+        body_a_id: body_a.id,
+        body_b_id: body_b.id,
+        normal: con.contact.normal,
+        points: [
+          {
+            local_a,
+            local_b,
+            penetration: con.contact.penetration,
+            normal_impulse: con.acc_jn,
+            tangent_impulse: con.acc_jt,
+          },
+        ],
+      },
+    )
+  }
+  // Replace old cache with new
+  self.contact_cache.clear()
+  new_cache.each(fn(k, v) { self.contact_cache.set(k, v) })
+  // 6. Clear forces (once per frame)
   for i = 0; i < self.bodies.length(); i = i + 1 {
     let body = self.bodies[i]
     if body.is_dynamic() {
       self.bodies[i] = {
         ..body,
-        position: body.position.add(body.velocity.scale(dt)),
+        force: @math3d.Vec3::zero(),
+        torque: @math3d.Vec3::zero(),
+      }
+    }
+  }
+  // 7. Sleeping: update sleep timers and detect islands
+  let n = self.bodies.length()
+  if n > 0 {
+    let parent : Array[Int] = Array::make(n, 0)
+    let rank : Array[Int] = Array::make(n, 0)
+    for i = 0; i < n; i = i + 1 {
+      parent[i] = i
+    }
+    for c = 0; c < constraints.length(); c = c + 1 {
+      let con = constraints[c]
+      uf_union3d(parent, rank, con.idx_a, con.idx_b)
+    }
+    // Update sleep timers per body
+    for i = 0; i < n; i = i + 1 {
+      let body = self.bodies[i]
+      if body.is_dynamic() {
+        let speed = body.velocity.length()
+        let angular_speed = body.angular_velocity.length()
+        if speed < sleep_velocity_threshold3d &&
+          angular_speed < sleep_angular_threshold3d {
+          self.bodies[i] = {
+            ..body,
+            sleep_timer: body.sleep_timer + dt,
+          }
+        } else {
+          self.bodies[i] = {
+            ..body,
+            is_sleeping: false,
+            sleep_timer: 0.0,
+          }
+        }
+      }
+    }
+    // Check islands
+    let island_can_sleep : Map[Int, Bool] = {}
+    for i = 0; i < n; i = i + 1 {
+      let body = self.bodies[i]
+      if body.is_dynamic() {
+        let root = uf_find3d(parent, i)
+        let can_sleep = body.sleep_timer >= sleep_time_threshold3d
+        match island_can_sleep.get(root) {
+          Some(prev) => island_can_sleep.set(root, prev && can_sleep)
+          None => island_can_sleep.set(root, can_sleep)
+        }
+      }
+    }
+    // Apply sleep/wake per island
+    for i = 0; i < n; i = i + 1 {
+      let body = self.bodies[i]
+      if body.is_dynamic() {
+        let root = uf_find3d(parent, i)
+        match island_can_sleep.get(root) {
+          Some(true) => {
+            if not(body.is_sleeping) {
+              self.bodies[i] = {
+                ..body,
+                is_sleeping: true,
+                velocity: @math3d.Vec3::zero(),
+                angular_velocity: @math3d.Vec3::zero(),
+              }
+            }
+          }
+          _ => {
+            if body.is_sleeping {
+              self.bodies[i] = {
+                ..body,
+                is_sleeping: false,
+                sleep_timer: 0.0,
+              }
+            }
+          }
+        }
       }
     }
   }

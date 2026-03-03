@@ -42,6 +42,9 @@ pub fn RigidBody2D::new_dynamic(
     angular_damping: 0.05,
     collider,
     linear_damping: 0.01,
+    is_sleeping: false,
+    sleep_timer: 0.0,
+    is_bullet: false,
   }
 }
 
@@ -68,6 +71,9 @@ pub fn RigidBody2D::new_static(
     angular_damping: 0.0,
     collider,
     linear_damping: 0.0,
+    is_sleeping: false,
+    sleep_timer: 0.0,
+    is_bullet: false,
   }
 }
 
@@ -94,6 +100,9 @@ pub fn RigidBody2D::new_kinematic(
     angular_damping: 0.0,
     collider,
     linear_damping: 0.0,
+    is_sleeping: false,
+    sleep_timer: 0.0,
+    is_bullet: false,
   }
 }
 
@@ -135,6 +144,11 @@ pub fn RigidBody2D::with_damping(
   d : Double,
 ) -> RigidBody2D {
   { ..self, linear_damping: d }
+}
+
+///|
+pub fn RigidBody2D::with_bullet(self : RigidBody2D) -> RigidBody2D {
+  { ..self, is_bullet: true }
 }
 
 ///|

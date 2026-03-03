@@ -60,8 +60,8 @@ pub fn light_view_matrix(
   distance : Double,
 ) -> @math3d.Mat4 {
   let len = (light_dir.x * light_dir.x +
-    light_dir.y * light_dir.y +
-    light_dir.z * light_dir.z).sqrt()
+  light_dir.y * light_dir.y +
+  light_dir.z * light_dir.z).sqrt()
   if len < 1.0e-8 {
     return @math3d.Mat4::identity()
   }
@@ -227,7 +227,11 @@ pub fn shadow_depth_pass_commands(
     let caster = casters[i]
     commands.push(
       new_shadow_depth_command(
-        shadow_map, depth_shader, caster.mesh, caster.model_matrix, light_vp,
+        shadow_map,
+        depth_shader,
+        caster.mesh,
+        caster.model_matrix,
+        light_vp,
       ),
     )
   }

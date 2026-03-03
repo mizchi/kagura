@@ -79,6 +79,7 @@ pub(all) struct ContactConstraint3D {
 }
 
 ///|
+
 ///|
 pub(all) struct ManifoldPoint3D {
   local_a : @math3d.Vec3

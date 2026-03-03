@@ -2,7 +2,7 @@
 pub fn PhysicsWorld::new(
   gravity : @math3d.Vec3,
   broadphase_cell_size : Double,
-  solver_config~ : SolverConfig3D = SolverConfig3D::default(),
+  solver_config? : SolverConfig3D = SolverConfig3D::default(),
 ) -> PhysicsWorld {
   {
     bodies: [],
@@ -121,7 +121,7 @@ fn uf_union3d(parent : Array[Int], rank : Array[Int], a : Int, b : Int) -> Unit 
 fn contact_pair_key3d(id_a : Int, id_b : Int) -> Int64 {
   let min_id = if id_a < id_b { id_a } else { id_b }
   let max_id = if id_a < id_b { id_b } else { id_a }
-  (min_id.to_int64() << 32).lor(max_id.to_int64().land(0xFFFFFFFFL))
+  (min_id.to_int64() << 32) | (max_id.to_int64() & 0xFFFFFFFFL)
 }
 
 ///|
@@ -168,7 +168,7 @@ pub fn PhysicsWorld::step(self : PhysicsWorld, dt : Double) -> Unit {
     // Warm starting: look up cached impulses from previous frame
     let pair_key = contact_pair_key3d(body_a.id, body_b.id)
     match self.contact_cache.get(pair_key) {
-      Some(cached) => {
+      Some(cached) =>
         if cached.normal.dot(contact.normal) > 0.9 {
           if cached.points.length() > 0 {
             let pt = cached.points[0]
@@ -199,7 +199,6 @@ pub fn PhysicsWorld::step(self : PhysicsWorld, dt : Double) -> Unit {
             }
           }
         }
-      }
       None => ()
     }
     constraints.push(constraint)
@@ -207,9 +206,8 @@ pub fn PhysicsWorld::step(self : PhysicsWorld, dt : Double) -> Unit {
   // 3b. Precompute joint constraints
   let dist_constraints : Array[DistanceJointConstraint3D] = []
   for j = 0; j < self.joints_distance.length(); j = j + 1 {
-    match precompute_distance_joint3d(
-      self.joints_distance[j], self.bodies, sub_dt,
-    ) {
+    match
+      precompute_distance_joint3d(self.joints_distance[j], self.bodies, sub_dt) {
       Some(c) => dist_constraints.push(c)
       None => ()
     }
@@ -228,13 +226,13 @@ pub fn PhysicsWorld::step(self : PhysicsWorld, dt : Double) -> Unit {
       let body = self.bodies[i]
       if body.is_dynamic() && not(body.is_sleeping) {
         let accel = self.gravity.add(body.force.scale(body.inv_mass))
-        let new_vel = body.velocity.add(accel.scale(sub_dt)).scale(
-          1.0 - body.linear_damping * sub_dt,
-        )
+        let new_vel = body.velocity
+          .add(accel.scale(sub_dt))
+          .scale(1.0 - body.linear_damping * sub_dt)
         let angular_accel = body.torque.scale(body.inv_inertia)
-        let new_angular_vel = body.angular_velocity.add(
-          angular_accel.scale(sub_dt),
-        ).scale(1.0 - body.angular_damping * sub_dt)
+        let new_angular_vel = body.angular_velocity
+          .add(angular_accel.scale(sub_dt))
+          .scale(1.0 - body.angular_damping * sub_dt)
         self.bodies[i] = {
           ..body,
           velocity: new_vel,
@@ -249,7 +247,10 @@ pub fn PhysicsWorld::step(self : PhysicsWorld, dt : Double) -> Unit {
       }
       for di = 0; di < dist_constraints.length(); di = di + 1 {
         solve_distance_joint3d(
-          dist_constraints, di, self.bodies, self.joints_distance[di],
+          dist_constraints,
+          di,
+          self.bodies,
+          self.joints_distance[di],
         )
       }
       for bi = 0; bi < ball_constraints.length(); bi = bi + 1 {
@@ -266,9 +267,9 @@ pub fn PhysicsWorld::step(self : PhysicsWorld, dt : Double) -> Unit {
         let new_rotation = if omega_len > 1.0e-12 {
           let axis = omega.scale(1.0 / omega_len)
           let angle = omega_len * sub_dt
-          body.rotation.multiply(
-            @math3d.Quaternion::from_axis_angle(axis, angle),
-          ).normalize()
+          body.rotation
+          .multiply(@math3d.Quaternion::from_axis_angle(axis, angle))
+          .normalize()
         } else {
           body.rotation
         }
@@ -279,9 +280,9 @@ pub fn PhysicsWorld::step(self : PhysicsWorld, dt : Double) -> Unit {
               let safe_rotation = if omega_len > 1.0e-12 {
                 let axis = omega.scale(1.0 / omega_len)
                 let angle = omega_len * sub_dt * safe_toi
-                body.rotation.multiply(
-                  @math3d.Quaternion::from_axis_angle(axis, angle),
-                ).normalize()
+                body.rotation
+                .multiply(@math3d.Quaternion::from_axis_angle(axis, angle))
+                .normalize()
               } else {
                 body.rotation
               }
@@ -318,23 +319,20 @@ pub fn PhysicsWorld::step(self : PhysicsWorld, dt : Double) -> Unit {
     let pair_key = contact_pair_key3d(body_a.id, body_b.id)
     let local_a = con.contact.contact_point.sub(body_a.position)
     let local_b = con.contact.contact_point.sub(body_b.position)
-    new_cache.set(
-      pair_key,
-      {
-        body_a_id: body_a.id,
-        body_b_id: body_b.id,
-        normal: con.contact.normal,
-        points: [
-          {
-            local_a,
-            local_b,
-            penetration: con.contact.penetration,
-            normal_impulse: con.acc_jn,
-            tangent_impulse: con.acc_jt,
-          },
-        ],
-      },
-    )
+    new_cache.set(pair_key, {
+      body_a_id: body_a.id,
+      body_b_id: body_b.id,
+      normal: con.contact.normal,
+      points: [
+        {
+          local_a,
+          local_b,
+          penetration: con.contact.penetration,
+          normal_impulse: con.acc_jn,
+          tangent_impulse: con.acc_jt,
+        },
+      ],
+    })
   }
   // Replace old cache with new
   self.contact_cache.clear()
@@ -370,16 +368,9 @@ pub fn PhysicsWorld::step(self : PhysicsWorld, dt : Double) -> Unit {
         let angular_speed = body.angular_velocity.length()
         if speed < sleep_velocity_threshold3d &&
           angular_speed < sleep_angular_threshold3d {
-          self.bodies[i] = {
-            ..body,
-            sleep_timer: body.sleep_timer + dt,
-          }
+          self.bodies[i] = { ..body, sleep_timer: body.sleep_timer + dt }
         } else {
-          self.bodies[i] = {
-            ..body,
-            is_sleeping: false,
-            sleep_timer: 0.0,
-          }
+          self.bodies[i] = { ..body, is_sleeping: false, sleep_timer: 0.0 }
         }
       }
     }
@@ -402,7 +393,7 @@ pub fn PhysicsWorld::step(self : PhysicsWorld, dt : Double) -> Unit {
       if body.is_dynamic() {
         let root = uf_find3d(parent, i)
         match island_can_sleep.get(root) {
-          Some(true) => {
+          Some(true) =>
             if not(body.is_sleeping) {
               self.bodies[i] = {
                 ..body,
@@ -411,16 +402,10 @@ pub fn PhysicsWorld::step(self : PhysicsWorld, dt : Double) -> Unit {
                 angular_velocity: @math3d.Vec3::zero(),
               }
             }
-          }
-          _ => {
+          _ =>
             if body.is_sleeping {
-              self.bodies[i] = {
-                ..body,
-                is_sleeping: false,
-                sleep_timer: 0.0,
-              }
+              self.bodies[i] = { ..body, is_sleeping: false, sleep_timer: 0.0 }
             }
-          }
         }
       }
     }

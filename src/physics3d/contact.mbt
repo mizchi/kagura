@@ -37,15 +37,7 @@ fn sphere_sphere(
   }
   let penetration = r_sum - dist
   let contact_point = center_a.add(normal.scale(r_a - penetration * 0.5))
-  Some(
-    {
-      body_a_id: a.id,
-      body_b_id: b.id,
-      normal,
-      penetration,
-      contact_point,
-    },
-  )
+  Some({ body_a_id: a.id, body_b_id: b.id, normal, penetration, contact_point })
 }
 
 ///|
@@ -66,7 +58,8 @@ fn aabb_aabb(
   if overlap_x <= 0.0 || overlap_y <= 0.0 || overlap_z <= 0.0 {
     return None
   }
-  let (normal, penetration) = if overlap_x <= overlap_y && overlap_x <= overlap_z {
+  let (normal, penetration) = if overlap_x <= overlap_y &&
+    overlap_x <= overlap_z {
     let nx = if diff.x >= 0.0 { 1.0 } else { -1.0 }
     (@math3d.Vec3::new(nx, 0.0, 0.0), overlap_x)
   } else if overlap_y <= overlap_z {
@@ -77,15 +70,7 @@ fn aabb_aabb(
     (@math3d.Vec3::new(0.0, 0.0, nz), overlap_z)
   }
   let contact_point = center_a.add(center_b).scale(0.5)
-  Some(
-    {
-      body_a_id: a.id,
-      body_b_id: b.id,
-      normal,
-      penetration,
-      contact_point,
-    },
-  )
+  Some({ body_a_id: a.id, body_b_id: b.id, normal, penetration, contact_point })
 }
 
 ///|
@@ -137,25 +122,21 @@ fn sphere_aabb(
     let penetration = min_dist + sphere_r
     let contact_point = sphere_center.add(face_outward.scale(min_dist))
     if swapped {
-      Some(
-        {
-          body_a_id: box_body.id,
-          body_b_id: sphere_body.id,
-          normal: face_outward,
-          penetration,
-          contact_point,
-        },
-      )
+      Some({
+        body_a_id: box_body.id,
+        body_b_id: sphere_body.id,
+        normal: face_outward,
+        penetration,
+        contact_point,
+      })
     } else {
-      Some(
-        {
-          body_a_id: sphere_body.id,
-          body_b_id: box_body.id,
-          normal: face_outward.negate(),
-          penetration,
-          contact_point,
-        },
-      )
+      Some({
+        body_a_id: sphere_body.id,
+        body_b_id: box_body.id,
+        normal: face_outward.negate(),
+        penetration,
+        contact_point,
+      })
     }
   } else {
     // Sphere center is outside AABB: use closest point
@@ -173,25 +154,21 @@ fn sphere_aabb(
     }
     let penetration = sphere_r - dist
     if swapped {
-      Some(
-        {
-          body_a_id: box_body.id,
-          body_b_id: sphere_body.id,
-          normal,
-          penetration,
-          contact_point: closest,
-        },
-      )
+      Some({
+        body_a_id: box_body.id,
+        body_b_id: sphere_body.id,
+        normal,
+        penetration,
+        contact_point: closest,
+      })
     } else {
-      Some(
-        {
-          body_a_id: sphere_body.id,
-          body_b_id: box_body.id,
-          normal: normal.negate(),
-          penetration,
-          contact_point: closest,
-        },
-      )
+      Some({
+        body_a_id: sphere_body.id,
+        body_b_id: box_body.id,
+        normal: normal.negate(),
+        penetration,
+        contact_point: closest,
+      })
     }
   }
 }

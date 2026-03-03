@@ -8,7 +8,10 @@ pub fn apply_skin(
 ) -> @mesh3d.Mesh3D {
   let stride = @mesh3d.vertex3d_stride
   let vc = skin.vertex_count
-  let new_data : Array[Double] = Array::make(bind_mesh.vertex_data.length(), 0.0)
+  let new_data : Array[Double] = Array::make(
+    bind_mesh.vertex_data.length(),
+    0.0,
+  )
   for v in 0..<vc {
     let base = v * stride
     let bx = bind_mesh.vertex_data[base]
@@ -32,13 +35,34 @@ pub fn apply_skin(
         let joint = skin.joint_indices[ji_base + j]
         let m = skinning_matrices[joint]
         // Transform position: m * vec4(pos, 1.0)
-        px += w * (m.elements[0] * bx + m.elements[4] * by + m.elements[8] * bz + m.elements[12])
-        py += w * (m.elements[1] * bx + m.elements[5] * by + m.elements[9] * bz + m.elements[13])
-        pz += w * (m.elements[2] * bx + m.elements[6] * by + m.elements[10] * bz + m.elements[14])
+        px += w *
+          (
+            m.elements[0] * bx +
+            m.elements[4] * by +
+            m.elements[8] * bz +
+            m.elements[12]
+          )
+        py += w *
+          (
+            m.elements[1] * bx +
+            m.elements[5] * by +
+            m.elements[9] * bz +
+            m.elements[13]
+          )
+        pz += w *
+          (
+            m.elements[2] * bx +
+            m.elements[6] * by +
+            m.elements[10] * bz +
+            m.elements[14]
+          )
         // Transform normal: upper 3x3 of m * normal (w=0)
-        nx += w * (m.elements[0] * bnx + m.elements[4] * bny + m.elements[8] * bnz)
-        ny += w * (m.elements[1] * bnx + m.elements[5] * bny + m.elements[9] * bnz)
-        nz += w * (m.elements[2] * bnx + m.elements[6] * bny + m.elements[10] * bnz)
+        nx += w *
+          (m.elements[0] * bnx + m.elements[4] * bny + m.elements[8] * bnz)
+        ny += w *
+          (m.elements[1] * bnx + m.elements[5] * bny + m.elements[9] * bnz)
+        nz += w *
+          (m.elements[2] * bnx + m.elements[6] * bny + m.elements[10] * bnz)
       }
     }
     // Normalize the normal

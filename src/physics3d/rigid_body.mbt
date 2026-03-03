@@ -1,4 +1,5 @@
 ///|
+
 ///|
 fn compute_inv_inertia(mass : Double, collider : ColliderShape) -> Double {
   if mass < 1.0e-12 {

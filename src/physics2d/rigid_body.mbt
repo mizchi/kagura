@@ -1,8 +1,5 @@
 ///|
-fn compute_inv_inertia(
-  collider : ColliderShape2D,
-  mass : Double,
-) -> Double {
+fn compute_inv_inertia(collider : ColliderShape2D, mass : Double) -> Double {
   if mass < 1.0e-12 {
     return 0.0
   }
@@ -139,10 +136,7 @@ pub fn RigidBody2D::with_friction(
 }
 
 ///|
-pub fn RigidBody2D::with_damping(
-  self : RigidBody2D,
-  d : Double,
-) -> RigidBody2D {
+pub fn RigidBody2D::with_damping(self : RigidBody2D, d : Double) -> RigidBody2D {
   { ..self, linear_damping: d }
 }
 

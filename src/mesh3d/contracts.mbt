@@ -133,7 +133,7 @@ pub fn Mesh3D::cube(size : Double) -> Mesh3D {
 pub fn Mesh3D::plane(
   width : Double,
   depth : Double,
-  subdivisions~ : Int = 4,
+  subdivisions? : Int = 4,
 ) -> Mesh3D {
   let hw = width / 2.0
   let hd = depth / 2.0
@@ -141,11 +141,11 @@ pub fn Mesh3D::plane(
   let data : Array[Double] = []
   let indices : Array[Int] = []
   // Generate (n+1)×(n+1) grid of vertices
-  for row in 0..=n {
+  for row in 0..<=n {
     let t = row.to_double() / n.to_double()
     let z = -hd + t * depth
     let v = t
-    for col in 0..=n {
+    for col in 0..<=n {
       let s = col.to_double() / n.to_double()
       let x = -hw + s * width
       let u = s

@@ -16,10 +16,16 @@ fn skeleton_from_gltf(
         let off = i * 16
         // Column-major: elements[col*4+row]
         let c0 = @math3d.Vec4::new(
-          floats[off], floats[off + 1], floats[off + 2], floats[off + 3],
+          floats[off],
+          floats[off + 1],
+          floats[off + 2],
+          floats[off + 3],
         )
         let c1 = @math3d.Vec4::new(
-          floats[off + 4], floats[off + 5], floats[off + 6], floats[off + 7],
+          floats[off + 4],
+          floats[off + 5],
+          floats[off + 6],
+          floats[off + 7],
         )
         let c2 = @math3d.Vec4::new(
           floats[off + 8],
@@ -74,9 +80,11 @@ fn skeleton_from_gltf(
       node.rotation,
       node.scale,
     )
-    bones.push(
-      { name: "joint_" + i.to_string(), parent: parent_joint, local_transform },
-    )
+    bones.push({
+      name: "joint_" + i.to_string(),
+      parent: parent_joint,
+      local_transform,
+    })
   }
   @skeleton3d.Skeleton::new(bones, ibms)
 }
@@ -118,13 +126,11 @@ fn skin_data_from_gltf(
   let vertex_count = raw_joints.length() / 4
   // Remap joint indices: glTF joint indices are node indices in the skin.joints array
   // They're already indices into the joints array, so no remapping needed
-  Some(
-    @skeleton3d.SkinData::{
-      joint_indices: raw_joints,
-      weights,
-      vertex_count,
-    },
-  )
+  Some(@skeleton3d.SkinData::{
+    joint_indices: raw_joints,
+    weights,
+    vertex_count,
+  })
 }
 
 ///|
@@ -165,24 +171,25 @@ fn animations_from_gltf(
         "scale" => Scale
         _ => continue
       }
-      let interpolation : @animation3d.Interpolation = match sampler.interpolation {
+      let interpolation : @animation3d.Interpolation = match
+        sampler.interpolation {
         "STEP" => Step
         _ => Linear
       }
-      channels.push(
-        @animation3d.AnimChannel::{
-          node_index: joint_idx,
-          target,
-          interpolation,
-          times,
-          values,
-        },
-      )
+      channels.push(@animation3d.AnimChannel::{
+        node_index: joint_idx,
+        target,
+        interpolation,
+        times,
+        values,
+      })
     }
     if channels.length() > 0 {
-      clips.push(
-        @animation3d.AnimationClip::{ name: anim.name, channels, duration },
-      )
+      clips.push(@animation3d.AnimationClip::{
+        name: anim.name,
+        channels,
+        duration,
+      })
     }
   }
   clips

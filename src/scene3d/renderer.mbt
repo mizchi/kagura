@@ -45,10 +45,12 @@ fn Frustum::from_vp(vp : @math3d.Mat4) -> Frustum {
   let r3y = e[7]
   let r3z = e[11]
   let r3w = e[15]
-  let planes : FixedArray[Plane] = FixedArray::make(
-    6,
-    { nx: 0.0, ny: 0.0, nz: 0.0, d: 0.0 },
-  )
+  let planes : FixedArray[Plane] = FixedArray::make(6, {
+    nx: 0.0,
+    ny: 0.0,
+    nz: 0.0,
+    d: 0.0,
+  })
   // Left:   row3 + row0
   planes[0] = normalize_plane(r3x + r0x, r3y + r0y, r3z + r0z, r3w + r0w)
   // Right:  row3 - row0
@@ -121,12 +123,24 @@ fn compute_mesh_aabb(
     let x = vdata[i * stride]
     let y = vdata[i * stride + 1]
     let z = vdata[i * stride + 2]
-    if x < min_x { min_x = x }
-    if y < min_y { min_y = y }
-    if z < min_z { min_z = z }
-    if x > max_x { max_x = x }
-    if y > max_y { max_y = y }
-    if z > max_z { max_z = z }
+    if x < min_x {
+      min_x = x
+    }
+    if y < min_y {
+      min_y = y
+    }
+    if z < min_z {
+      min_z = z
+    }
+    if x > max_x {
+      max_x = x
+    }
+    if y > max_y {
+      max_y = y
+    }
+    if z > max_z {
+      max_z = z
+    }
   }
   (min_x, min_y, min_z, max_x, max_y, max_z)
 }
@@ -502,28 +516,26 @@ fn project_mesh_to_sorted_tris(
     // This gives correct inter-object depth ordering since each triangle's
     // depth represents its actual spatial position.
     let tri_z = (c0.3 + c1.3 + c2.3) / 3.0 + sort_bias
-    all_tris.push(
-      {
-        ndc_x0: ndc0x,
-        ndc_y0: ndc0y,
-        tex_u0: u0,
-        tex_v0: v0,
-        ndc_x1: ndc1x,
-        ndc_y1: ndc1y,
-        tex_u1: u1,
-        tex_v1: v1,
-        ndc_x2: ndc2x,
-        ndc_y2: ndc2y,
-        tex_u2: u2,
-        tex_v2: v2,
-        color_r: color[0],
-        color_g: color[1],
-        color_b: color[2],
-        color_a: color[3],
-        src_image_id,
-        z: tri_z,
-      },
-    )
+    all_tris.push({
+      ndc_x0: ndc0x,
+      ndc_y0: ndc0y,
+      tex_u0: u0,
+      tex_v0: v0,
+      ndc_x1: ndc1x,
+      ndc_y1: ndc1y,
+      tex_u1: u1,
+      tex_v1: v1,
+      ndc_x2: ndc2x,
+      ndc_y2: ndc2y,
+      tex_u2: u2,
+      tex_v2: v2,
+      color_r: color[0],
+      color_g: color[1],
+      color_b: color[2],
+      color_a: color[3],
+      src_image_id,
+      z: tri_z,
+    })
   }
 }
 
@@ -568,12 +580,10 @@ fn render_object(
   lighting : @light3d.LightingEnvironment,
   all_tris : Array[SortedTri],
   frustum : Frustum,
-  sort_bias~ : Double = 0.0,
+  sort_bias? : Double = 0.0,
 ) -> Unit {
   // Frustum culling: compute world-space AABB and test
-  let (omin_x, omin_y, omin_z, omax_x, omax_y, omax_z) = compute_mesh_aabb(
-    mesh,
-  )
+  let (omin_x, omin_y, omin_z, omax_x, omax_y, omax_z) = compute_mesh_aabb(mesh)
   let (wmin_x, wmin_y, wmin_z, wmax_x, wmax_y, wmax_z) = transform_aabb(
     omin_x, omin_y, omin_z, omax_x, omax_y, omax_z, model_mat4,
   )
@@ -587,8 +597,16 @@ fn render_object(
   let bucket_colors = compute_bucket_colors(lighting, col)
   let mvp = vp.multiply(model_mat4)
   project_mesh_to_sorted_tris(
-    mesh, mvp, model_mat4, light_dir, bucket_colors, src_image_id,
-    all_tris, lighting.point_lights, lighting.spot_lights, sort_bias,
+    mesh,
+    mvp,
+    model_mat4,
+    light_dir,
+    bucket_colors,
+    src_image_id,
+    all_tris,
+    lighting.point_lights,
+    lighting.spot_lights,
+    sort_bias,
   )
 }
 
@@ -630,8 +648,10 @@ fn collect_and_sort_commands(
   for i in 0..<all_tris.length() {
     let tri = all_tris[i]
     // Start new batch if color or texture changed
-    if tri.color_r != batch_cr || tri.color_g != batch_cg ||
-      tri.color_b != batch_cb || tri.color_a != batch_ca ||
+    if tri.color_r != batch_cr ||
+      tri.color_g != batch_cg ||
+      tri.color_b != batch_cb ||
+      tri.color_a != batch_ca ||
       tri.src_image_id != batch_sid {
       if batch.tri_count > 0 {
         cmds.push(
@@ -668,9 +688,7 @@ fn collect_and_sort_commands(
     batch.tri_count = batch.tri_count + 1
   }
   if batch.tri_count > 0 {
-    cmds.push(
-      build_batch_draw_command(batch, dst, shader, screen_w, screen_h),
-    )
+    cmds.push(build_batch_draw_command(batch, dst, shader, screen_w, screen_h))
   }
   cmds
 }

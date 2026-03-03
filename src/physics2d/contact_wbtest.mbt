@@ -136,12 +136,15 @@ test "obb-obb no rotation overlap" {
 ///|
 test "obb-obb 45deg overlap" {
   let pi = 3.14159265358979
-  let a = { ..RigidBody2D::new_dynamic(
-    0,
-    @vector.Vec2::new(0.0, 0.0),
-    1.0,
-    OBBShape2D(@vector.Vec2::new(1.0, 1.0), @vector.Vec2::zero()),
-  ), angle: pi / 4.0 }
+  let a = {
+    ..RigidBody2D::new_dynamic(
+      0,
+      @vector.Vec2::new(0.0, 0.0),
+      1.0,
+      OBBShape2D(@vector.Vec2::new(1.0, 1.0), @vector.Vec2::zero()),
+    ),
+    angle: pi / 4.0,
+  }
   let b = RigidBody2D::new_dynamic(
     1,
     @vector.Vec2::new(1.8, 0.0),
@@ -175,12 +178,15 @@ test "obb-obb separated" {
 ///|
 test "obb-circle overlap" {
   let pi = 3.14159265358979
-  let obb = { ..RigidBody2D::new_dynamic(
-    0,
-    @vector.Vec2::new(0.0, 0.0),
-    1.0,
-    OBBShape2D(@vector.Vec2::new(1.0, 0.5), @vector.Vec2::zero()),
-  ), angle: pi / 6.0 }
+  let obb = {
+    ..RigidBody2D::new_dynamic(
+      0,
+      @vector.Vec2::new(0.0, 0.0),
+      1.0,
+      OBBShape2D(@vector.Vec2::new(1.0, 0.5), @vector.Vec2::zero()),
+    ),
+    angle: pi / 6.0,
+  }
   let circle = RigidBody2D::new_dynamic(
     1,
     @vector.Vec2::new(1.2, 0.0),
@@ -196,12 +202,15 @@ test "obb-circle overlap" {
 ///|
 test "obb-aabb overlap" {
   let pi = 3.14159265358979
-  let obb = { ..RigidBody2D::new_dynamic(
-    0,
-    @vector.Vec2::new(0.0, 0.0),
-    1.0,
-    OBBShape2D(@vector.Vec2::new(1.0, 1.0), @vector.Vec2::zero()),
-  ), angle: pi / 4.0 }
+  let obb = {
+    ..RigidBody2D::new_dynamic(
+      0,
+      @vector.Vec2::new(0.0, 0.0),
+      1.0,
+      OBBShape2D(@vector.Vec2::new(1.0, 1.0), @vector.Vec2::zero()),
+    ),
+    angle: pi / 4.0,
+  }
   let aabb = RigidBody2D::new_dynamic(
     1,
     @vector.Vec2::new(1.8, 0.0),

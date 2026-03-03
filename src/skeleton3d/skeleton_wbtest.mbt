@@ -59,9 +59,7 @@ test "hierarchy: 3-bone branch world transforms" {
   let poses = [
     @transform3d.Transform3D::from_position(@math3d.Vec3::new(0.0, 1.0, 0.0)),
     @transform3d.Transform3D::from_position(@math3d.Vec3::new(1.0, 0.0, 0.0)),
-    @transform3d.Transform3D::from_position(
-      @math3d.Vec3::new(-1.0, 0.0, 0.0),
-    ),
+    @transform3d.Transform3D::from_position(@math3d.Vec3::new(-1.0, 0.0, 0.0)),
   ]
   let world = skel.compute_world_transforms(poses)
   // left = root * left = translate(0,1,0) * translate(1,0,0) = translate(1,1,0)

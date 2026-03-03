@@ -135,9 +135,7 @@ pub fn SpatialHashGrid::query_ray(
 }
 
 ///|
-pub fn SpatialHashGrid::get_pairs(
-  self : SpatialHashGrid,
-) -> Array[(Int, Int)] {
+pub fn SpatialHashGrid::get_pairs(self : SpatialHashGrid) -> Array[(Int, Int)] {
   let seen : Map[Int64, Unit] = {}
   let result : Array[(Int, Int)] = []
   self.cells.each(fn(_key, bucket) {

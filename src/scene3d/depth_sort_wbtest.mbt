@@ -1,10 +1,12 @@
-///| Metadata for tracking which face a triangle belongs to
+///|
+/// Metadata for tracking which face a triangle belongs to
 struct TriFaceInfo {
   face_idx : Int
   depth : Double
 }
 
-///| Compute depth-sorted front-facing triangles for a cube at a given camera angle.
+///|
+/// Compute depth-sorted front-facing triangles for a cube at a given camera angle.
 /// Returns array of (face_index, depth) tuples for visible triangles,
 /// sorted back-to-front using the same algorithm as the renderer.
 fn cube_sorted_tris(yaw : Double, pitch : Double) -> Array[TriFaceInfo] {
@@ -30,13 +32,22 @@ fn cube_sorted_tris(yaw : Double, pitch : Double) -> Array[TriFaceInfo] {
     let i1 = indices[t * 3 + 1]
     let i2 = indices[t * 3 + 2]
     let c0 = mat4_transform(
-      vp, vdata[i0 * stride], vdata[i0 * stride + 1], vdata[i0 * stride + 2],
+      vp,
+      vdata[i0 * stride],
+      vdata[i0 * stride + 1],
+      vdata[i0 * stride + 2],
     )
     let c1 = mat4_transform(
-      vp, vdata[i1 * stride], vdata[i1 * stride + 1], vdata[i1 * stride + 2],
+      vp,
+      vdata[i1 * stride],
+      vdata[i1 * stride + 1],
+      vdata[i1 * stride + 2],
     )
     let c2 = mat4_transform(
-      vp, vdata[i2 * stride], vdata[i2 * stride + 1], vdata[i2 * stride + 2],
+      vp,
+      vdata[i2 * stride],
+      vdata[i2 * stride + 1],
+      vdata[i2 * stride + 2],
     )
     // Near plane clip
     if c0.3 <= 0.001 || c1.3 <= 0.001 || c2.3 <= 0.001 {
@@ -75,7 +86,8 @@ fn cube_sorted_tris(yaw : Double, pitch : Double) -> Array[TriFaceInfo] {
   visible
 }
 
-///| Check that in the sorted triangle array, triangles of the same face
+///|
+/// Check that in the sorted triangle array, triangles of the same face
 /// are contiguous (not interleaved with other faces).
 /// Returns true if no face interleaving is found (correct sort order).
 fn check_no_face_interleave(sorted : Array[TriFaceInfo]) -> Bool {
@@ -105,7 +117,8 @@ fn check_no_face_interleave(sorted : Array[TriFaceInfo]) -> Bool {
   ok
 }
 
-///| Compute centroid clip-space W depths for a mesh with a Y-axis offset applied.
+///|
+/// Compute centroid clip-space W depths for a mesh with a Y-axis offset applied.
 fn compute_mesh_depths(
   mesh : @mesh3d.Mesh3D,
   vp : @math3d.Mat4,
@@ -161,7 +174,8 @@ fn compute_mesh_depths(
   depths
 }
 
-///| Ground plane median depth should be behind (larger W) cube median depth
+///|
+/// Ground plane median depth should be behind (larger W) cube median depth
 /// for the gltf_viewer camera setup. With centroid depth, individual ground
 /// triangles near the camera edge may be closer than far cube triangles,
 /// but the bulk of the ground behind the cube should sort correctly.
@@ -183,10 +197,22 @@ test "ground plane should sort behind cube" {
   let ground_depths = compute_mesh_depths(ground, vp, -0.02)
   // Compute medians by sorting
   cube_depths.sort_by(fn(a, b) {
-    if a < b { -1 } else if a > b { 1 } else { 0 }
+    if a < b {
+      -1
+    } else if a > b {
+      1
+    } else {
+      0
+    }
   })
   ground_depths.sort_by(fn(a, b) {
-    if a < b { -1 } else if a > b { 1 } else { 0 }
+    if a < b {
+      -1
+    } else if a > b {
+      1
+    } else {
+      0
+    }
   })
   let cube_median = cube_depths[cube_depths.length() / 2]
   let ground_median = ground_depths[ground_depths.length() / 2]
@@ -196,7 +222,8 @@ test "ground plane should sort behind cube" {
   )
 }
 
-///| With centroid depth, face interleaving can occur at certain angles
+///|
+/// With centroid depth, face interleaving can occur at certain angles
 /// where adjacent faces have similar centroid depths. This is a known
 /// limitation of the centroid approach, traded off for correct inter-object
 /// depth ordering (ground plane vs cubes).

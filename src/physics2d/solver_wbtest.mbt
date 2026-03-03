@@ -179,7 +179,9 @@ test "soft constraint gamma computation" {
   let hertz = 30.0
   let damping_ratio = 1.0
   let sub_dt = 1.0 / 240.0
-  let c = precompute_constraint2d(a, b, 0, 1, contact, hertz, damping_ratio, sub_dt)
+  let c = precompute_constraint2d(
+    a, b, 0, 1, contact, hertz, damping_ratio, sub_dt,
+  )
   // gamma should be positive (soft regularization)
   assert_true(c.gamma > 0.0)
   // bias_coefficient should be positive
@@ -194,7 +196,8 @@ test "soft constraint gamma computation" {
   assert_true(c.normal_mass < 0.5)
   // Verify gamma numerically: omega=2*pi*30, gamma = 1/(sub_dt*(2*1*omega + sub_dt*omega^2))
   let omega = 2.0 * 3.14159265358979323846 * hertz
-  let expected_gamma = 1.0 / (sub_dt * (2.0 * damping_ratio * omega + sub_dt * omega * omega))
+  let expected_gamma = 1.0 /
+    (sub_dt * (2.0 * damping_ratio * omega + sub_dt * omega * omega))
   assert_true((c.gamma - expected_gamma).abs() < 1.0e-6)
   // acc_jn / acc_jt should start at 0
   assert_true(c.acc_jn == 0.0)
@@ -235,7 +238,14 @@ test "soft solve separates overlapping bodies" {
   }
   let sub_dt = 1.0 / 240.0
   let c = precompute_constraint2d(
-    bodies[0], bodies[1], 0, 1, contact, 30.0, 1.0, sub_dt,
+    bodies[0],
+    bodies[1],
+    0,
+    1,
+    contact,
+    30.0,
+    1.0,
+    sub_dt,
   )
   let constraints : Array[ContactConstraint2D] = [c]
   // Solve a few iterations
@@ -278,7 +288,14 @@ test "relaxation reduces excess energy" {
   }
   let sub_dt = 1.0 / 240.0
   let c = precompute_constraint2d(
-    bodies[0], bodies[1], 0, 1, contact, 30.0, 1.0, sub_dt,
+    bodies[0],
+    bodies[1],
+    0,
+    1,
+    contact,
+    30.0,
+    1.0,
+    sub_dt,
   )
   let constraints : Array[ContactConstraint2D] = [c]
   // Solve velocity

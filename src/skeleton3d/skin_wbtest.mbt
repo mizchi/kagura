@@ -3,8 +3,8 @@ test "cpu skin: single bone identity - position unchanged" {
   // Single triangle mesh
   let vertex_data : Array[Double] = [
     1.0, 0.0, 0.0, 0.0, 1.0, 0.0, 0.0, 0.0, // v0
-    0.0, 1.0, 0.0, 0.0, 1.0, 0.0, 0.0, 0.0, // v1
-    0.0, 0.0, 1.0, 0.0, 1.0, 0.0, 0.0, 0.0, // v2
+     0.0, 1.0, 0.0, 0.0, 1.0, 0.0, 0.0, 0.0, // v1
+     0.0, 0.0, 1.0, 0.0, 1.0, 0.0, 0.0, 0.0, // v2
   ]
   let mesh = @mesh3d.Mesh3D::new(vertex_data, [0, 1, 2])
   let skin : SkinData = {

@@ -59,24 +59,18 @@ pub fn precompute_distance_joint(
   let gamma = 1.0 /
     (sub_dt * (2.0 * joint.damping_ratio * omega + sub_dt * omega * omega))
   let beta = sub_dt * omega * omega * gamma
-  let effective_mass = if k + gamma > 1.0e-12 {
-    1.0 / (k + gamma)
-  } else {
-    0.0
-  }
-  Some(
-    {
-      idx_a,
-      idx_b,
-      r_a,
-      r_b,
-      axis,
-      effective_mass,
-      gamma,
-      bias_coefficient: beta,
-      acc_impulse: 0.0,
-    },
-  )
+  let effective_mass = if k + gamma > 1.0e-12 { 1.0 / (k + gamma) } else { 0.0 }
+  Some({
+    idx_a,
+    idx_b,
+    r_a,
+    r_b,
+    axis,
+    effective_mass,
+    gamma,
+    bias_coefficient: beta,
+    acc_impulse: 0.0,
+  })
 }
 
 ///|
@@ -113,13 +107,13 @@ pub fn solve_distance_joint(
       ..a,
       velocity: a.velocity.sub(impulse.scale(a.inv_mass)),
       angular_velocity: a.angular_velocity -
-        r_a_cross * delta_impulse * a.inv_inertia,
+      r_a_cross * delta_impulse * a.inv_inertia,
     }
     bodies[c.idx_b] = {
       ..b,
       velocity: b.velocity.add(impulse.scale(b.inv_mass)),
       angular_velocity: b.angular_velocity +
-        r_b_cross * delta_impulse * b.inv_inertia,
+      r_b_cross * delta_impulse * b.inv_inertia,
     }
   }
   constraints[ci] = { ..c, acc_impulse: new_acc }
@@ -163,30 +157,20 @@ pub fn precompute_revolute_joint(
     b.inv_mass +
     r_a_cross_y * r_a_cross_y * a.inv_inertia +
     r_b_cross_y * r_b_cross_y * b.inv_inertia
-  let eff_mass_x = if k_x + gamma > 1.0e-12 {
-    1.0 / (k_x + gamma)
-  } else {
-    0.0
-  }
-  let eff_mass_y = if k_y + gamma > 1.0e-12 {
-    1.0 / (k_y + gamma)
-  } else {
-    0.0
-  }
-  Some(
-    {
-      idx_a,
-      idx_b,
-      r_a,
-      r_b,
-      effective_mass_x: eff_mass_x,
-      effective_mass_y: eff_mass_y,
-      gamma,
-      bias_coefficient: beta,
-      acc_impulse_x: 0.0,
-      acc_impulse_y: 0.0,
-    },
-  )
+  let eff_mass_x = if k_x + gamma > 1.0e-12 { 1.0 / (k_x + gamma) } else { 0.0 }
+  let eff_mass_y = if k_y + gamma > 1.0e-12 { 1.0 / (k_y + gamma) } else { 0.0 }
+  Some({
+    idx_a,
+    idx_b,
+    r_a,
+    r_b,
+    effective_mass_x: eff_mass_x,
+    effective_mass_y: eff_mass_y,
+    gamma,
+    bias_coefficient: beta,
+    acc_impulse_x: 0.0,
+    acc_impulse_y: 0.0,
+  })
 }
 
 ///|

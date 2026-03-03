@@ -1,4 +1,5 @@
-///| Parse a .glb (Binary glTF) file into JSON string and binary buffer(s).
+///|
+/// Parse a .glb (Binary glTF) file into JSON string and binary buffer(s).
 ///
 /// GLB format:
 /// - 12-byte header: magic(0x46546C67) + version(2) + total_length
@@ -15,7 +16,9 @@ pub fn parse_glb(data : Bytes) -> (String, Array[Bytes]) raise GltfError {
   }
   let version = read_u32_le(data, 4)
   if version != 2 {
-    raise GltfError::ParseError("unsupported GLB version: " + version.to_string())
+    raise GltfError::ParseError(
+      "unsupported GLB version: " + version.to_string(),
+    )
   }
   let total_length = read_u32_le(data, 8)
   if data.length() < total_length {

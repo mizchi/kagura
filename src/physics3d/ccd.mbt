@@ -75,9 +75,15 @@ pub fn sweep_sphere_aabb(
       t1 = t2
       t2 = tmp
     }
-    if t1 > t_min { t_min = t1 }
-    if t2 < t_max { t_max = t2 }
-    if t_min > t_max { return None }
+    if t1 > t_min {
+      t_min = t1
+    }
+    if t2 < t_max {
+      t_max = t2
+    }
+    if t_min > t_max {
+      return None
+    }
   }
   // Y slab
   if sphere_vel.y.abs() < 1.0e-12 {
@@ -93,9 +99,15 @@ pub fn sweep_sphere_aabb(
       t1 = t2
       t2 = tmp
     }
-    if t1 > t_min { t_min = t1 }
-    if t2 < t_max { t_max = t2 }
-    if t_min > t_max { return None }
+    if t1 > t_min {
+      t_min = t1
+    }
+    if t2 < t_max {
+      t_max = t2
+    }
+    if t_min > t_max {
+      return None
+    }
   }
   // Z slab
   if sphere_vel.z.abs() < 1.0e-12 {
@@ -111,9 +123,15 @@ pub fn sweep_sphere_aabb(
       t1 = t2
       t2 = tmp
     }
-    if t1 > t_min { t_min = t1 }
-    if t2 < t_max { t_max = t2 }
-    if t_min > t_max { return None }
+    if t1 > t_min {
+      t_min = t1
+    }
+    if t2 < t_max {
+      t_max = t2
+    }
+    if t_min > t_max {
+      return None
+    }
   }
   if t_min >= 0.0 && t_min <= 1.0 {
     Some(t_min)

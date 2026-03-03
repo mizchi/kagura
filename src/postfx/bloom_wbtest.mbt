@@ -44,8 +44,7 @@ test "bloom_commands returns 4 commands" {
   let vblur_shader = @gfx.new_shader_handle(3, "vblur")
   let composite_shader = @gfx.new_shader_handle(4, "composite")
   let cmds = bloom_commands(
-    dst, 10, bloom_a, bloom_b,
-    threshold_shader, hblur_shader, vblur_shader, composite_shader,
+    dst, 10, bloom_a, bloom_b, threshold_shader, hblur_shader, vblur_shader, composite_shader,
     0.8, 1.0, 800, 600,
   )
   assert_eq(cmds.length(), 4)

@@ -309,7 +309,10 @@ test "empty point/spot lights produces same output as no lights" {
   let amb = @light3d.AmbientLight::new(@math3d.Vec3::one(), 0.1)
   let lighting_no_extra = @light3d.LightingEnvironment::new(dir, amb)
   let lighting_empty = @light3d.LightingEnvironment::new(
-    dir, amb, point_lights=[], spot_lights=[],
+    dir,
+    amb,
+    point_lights=[],
+    spot_lights=[],
   )
   let scene1 = scene3d(
     objects=[object3d(mesh=cube, color=@math3d.Vec4::new(1.0, 0.0, 0.0, 1.0))],
@@ -356,9 +359,9 @@ test "PointLight changes bucket distribution" {
     3.0,
     10.0,
   )
-  let lighting_with = @light3d.LightingEnvironment::new(
-    dir, amb, point_lights=[pl],
-  )
+  let lighting_with = @light3d.LightingEnvironment::new(dir, amb, point_lights=[
+    pl,
+  ])
   let scene_no = scene3d(
     objects=[object3d(mesh=cube, color=@math3d.Vec4::new(1.0, 1.0, 1.0, 1.0))],
     camera~,
@@ -415,9 +418,9 @@ test "PointLight outside radius has no effect" {
     2.0,
   )
   let lighting_no = @light3d.LightingEnvironment::new(dir, amb)
-  let lighting_far = @light3d.LightingEnvironment::new(
-    dir, amb, point_lights=[pl],
-  )
+  let lighting_far = @light3d.LightingEnvironment::new(dir, amb, point_lights=[
+    pl,
+  ])
   let scene_no = scene3d(
     objects=[object3d(mesh=cube, color=@math3d.Vec4::new(1.0, 0.0, 0.0, 1.0))],
     camera~,
@@ -465,9 +468,9 @@ test "SpotLight cone illumination" {
     1.0,
   )
   let lighting_no = @light3d.LightingEnvironment::new(dir, amb)
-  let lighting_spot = @light3d.LightingEnvironment::new(
-    dir, amb, spot_lights=[sl],
-  )
+  let lighting_spot = @light3d.LightingEnvironment::new(dir, amb, spot_lights=[
+    sl,
+  ])
   let scene_no = scene3d(
     objects=[object3d(mesh=cube, color=@math3d.Vec4::new(1.0, 1.0, 1.0, 1.0))],
     camera~,

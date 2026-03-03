@@ -53,16 +53,8 @@ pub fn fxaa_wgsl() -> String {
 
 ///|
 /// Encode FXAA uniform as 4 dwords (vec4 alignment).
-pub fn fxaa_uniform_dwords(
-  texel_w : Double,
-  texel_h : Double,
-) -> Array[Int] {
-  [
-    @gfx.double_to_f32_bits(texel_w),
-    @gfx.double_to_f32_bits(texel_h),
-    0,
-    0,
-  ]
+pub fn fxaa_uniform_dwords(texel_w : Double, texel_h : Double) -> Array[Int] {
+  [@gfx.double_to_f32_bits(texel_w), @gfx.double_to_f32_bits(texel_h), 0, 0]
 }
 
 ///|

@@ -129,7 +129,9 @@ test "circle alone on ground stable" {
       @vector.Vec2::new(0.0, 1.0),
       0.785,
       CircleShape(@vector.Vec2::zero(), 0.5),
-    ).with_damping(0.05).with_restitution(0.3),
+    )
+    .with_damping(0.05)
+    .with_restitution(0.3),
   )
   let dt = 1.0 / 60.0 / 8.0
   // Settle for 2 seconds
@@ -166,7 +168,9 @@ test "circle near obb should not gain energy" {
       @vector.Vec2::new(-2.0, 1.0),
       0.785,
       CircleShape(@vector.Vec2::zero(), 0.5),
-    ).with_damping(0.05).with_restitution(0.3),
+    )
+    .with_damping(0.05)
+    .with_restitution(0.3),
   )
   world.add_body(
     {
@@ -177,7 +181,9 @@ test "circle near obb should not gain energy" {
         OBBShape2D(@vector.Vec2::new(0.4, 0.4), @vector.Vec2::zero()),
       ),
       angular_velocity: 1.0,
-    }.with_damping(0.05).with_restitution(0.3),
+    }
+    .with_damping(0.05)
+    .with_restitution(0.3),
   )
   let dt = 1.0 / 60.0 / 8.0
   // Settle for 2 seconds
@@ -223,7 +229,9 @@ test "warm starting improves convergence" {
       @vector.Vec2::new(0.0, 1.0),
       1.0,
       CircleShape(@vector.Vec2::zero(), 0.5),
-    ).with_damping(0.05).with_restitution(0.0),
+    )
+    .with_damping(0.05)
+    .with_restitution(0.0),
   )
   let dt = 1.0 / 60.0
   // Run 60 frames (1 second) — ball should settle with warm starting
@@ -255,7 +263,9 @@ test "substepping stack stability" {
       @vector.Vec2::new(0.0, 1.0),
       1.0,
       AABBShape2D(@vector.Vec2::new(0.5, 0.5), @vector.Vec2::zero()),
-    ).with_damping(0.05).with_restitution(0.0),
+    )
+    .with_damping(0.05)
+    .with_restitution(0.0),
   )
   world.add_body(
     RigidBody2D::new_dynamic(
@@ -263,7 +273,9 @@ test "substepping stack stability" {
       @vector.Vec2::new(0.0, 2.5),
       1.0,
       AABBShape2D(@vector.Vec2::new(0.5, 0.5), @vector.Vec2::zero()),
-    ).with_damping(0.05).with_restitution(0.0),
+    )
+    .with_damping(0.05)
+    .with_restitution(0.0),
   )
   world.add_body(
     RigidBody2D::new_dynamic(
@@ -271,7 +283,9 @@ test "substepping stack stability" {
       @vector.Vec2::new(0.0, 4.0),
       1.0,
       AABBShape2D(@vector.Vec2::new(0.5, 0.5), @vector.Vec2::zero()),
-    ).with_damping(0.05).with_restitution(0.0),
+    )
+    .with_damping(0.05)
+    .with_restitution(0.0),
   )
   let dt = 1.0 / 60.0
   // Settle for 3 seconds
@@ -307,7 +321,9 @@ test "body falls asleep after settling" {
       @vector.Vec2::new(0.0, 1.0),
       1.0,
       CircleShape(@vector.Vec2::zero(), 0.5),
-    ).with_damping(0.1).with_restitution(0.0),
+    )
+    .with_damping(0.1)
+    .with_restitution(0.0),
   )
   let dt = 1.0 / 60.0
   // Run 10 seconds — body should eventually sleep
@@ -335,7 +351,9 @@ test "sleeping body wakes on new contact" {
       @vector.Vec2::new(0.0, 1.0),
       1.0,
       CircleShape(@vector.Vec2::zero(), 0.5),
-    ).with_damping(0.05).with_restitution(0.0),
+    )
+    .with_damping(0.05)
+    .with_restitution(0.0),
   )
   let dt = 1.0 / 60.0
   for _frame in 0..<300 {
@@ -352,7 +370,9 @@ test "sleeping body wakes on new contact" {
         CircleShape(@vector.Vec2::zero(), 0.5),
       ),
       velocity: @vector.Vec2::new(0.0, -5.0),
-    }.with_damping(0.05).with_restitution(0.3),
+    }
+    .with_damping(0.05)
+    .with_restitution(0.3),
   )
   // Run a few frames for the impact
   for _frame in 0..<30 {

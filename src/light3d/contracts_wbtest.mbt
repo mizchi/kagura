@@ -146,12 +146,7 @@ test "LightingEnvironment backward compat (no point/spot)" {
 
 ///|
 test "LightingEnvironment with point_lights and spot_lights" {
-  let pl = PointLight::new(
-    @math3d.Vec3::zero(),
-    @math3d.Vec3::one(),
-    1.0,
-    5.0,
-  )
+  let pl = PointLight::new(@math3d.Vec3::zero(), @math3d.Vec3::one(), 1.0, 5.0)
   let sl = SpotLight::new(
     @math3d.Vec3::zero(),
     @math3d.Vec3::new(0.0, -1.0, 0.0),

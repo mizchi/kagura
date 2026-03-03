@@ -197,8 +197,7 @@ test "new_lit_normalmap_mesh_draw_command creates valid command" {
   let dst_region = @gfx.new_dst_region(0, 0, 800, 600, 36)
   let blend = @gfx.blend_mode_from_int(0)
   let cmd = new_lit_normalmap_mesh_draw_command(
-    dst, shader, dst_region, 0, 0, 0, blend,
-    mesh, model, vp, lighting, 10, 20,
+    dst, shader, dst_region, 0, 0, 0, blend, mesh, model, vp, lighting, 10, 20,
   )
   assert_eq(cmd.src_image_ids.length(), 2)
   assert_eq(cmd.src_image_ids[0], 10)

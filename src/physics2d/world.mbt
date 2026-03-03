@@ -2,7 +2,7 @@
 pub fn PhysicsWorld2D::new(
   gravity : @vector.Vec2,
   broadphase_cell_size : Double,
-  solver_config~ : SolverConfig2D = SolverConfig2D::default(),
+  solver_config? : SolverConfig2D = SolverConfig2D::default(),
 ) -> PhysicsWorld2D {
   {
     bodies: [],
@@ -16,7 +16,10 @@ pub fn PhysicsWorld2D::new(
 }
 
 ///|
-pub fn PhysicsWorld2D::add_body(self : PhysicsWorld2D, body : RigidBody2D) -> Unit {
+pub fn PhysicsWorld2D::add_body(
+  self : PhysicsWorld2D,
+  body : RigidBody2D,
+) -> Unit {
   self.bodies.push(body)
 }
 
@@ -127,7 +130,7 @@ fn uf_union(parent : Array[Int], rank : Array[Int], a : Int, b : Int) -> Unit {
 fn contact_pair_key(id_a : Int, id_b : Int) -> Int64 {
   let min_id = if id_a < id_b { id_a } else { id_b }
   let max_id = if id_a < id_b { id_b } else { id_a }
-  (min_id.to_int64() << 32).lor(max_id.to_int64().land(0xFFFFFFFFL))
+  (min_id.to_int64() << 32) | (max_id.to_int64() & 0xFFFFFFFFL)
 }
 
 ///|
@@ -175,7 +178,7 @@ pub fn PhysicsWorld2D::step(self : PhysicsWorld2D, dt : Double) -> Unit {
     // Warm starting: look up cached impulses from previous frame
     let pair_key = contact_pair_key(body_a.id, body_b.id)
     match self.contact_cache.get(pair_key) {
-      Some(cached) => {
+      Some(cached) =>
         // Check normal similarity (dot > 0.9 means similar direction)
         if cached.normal.dot(contact.normal) > 0.9 {
           if cached.points.length() > 0 {
@@ -209,7 +212,6 @@ pub fn PhysicsWorld2D::step(self : PhysicsWorld2D, dt : Double) -> Unit {
             }
           }
         }
-      }
       None => ()
     }
     constraints.push(constraint)
@@ -217,14 +219,16 @@ pub fn PhysicsWorld2D::step(self : PhysicsWorld2D, dt : Double) -> Unit {
   // 3b. Precompute joint constraints
   let dist_constraints : Array[DistanceJointConstraint2D] = []
   for j = 0; j < self.joints_distance.length(); j = j + 1 {
-    match precompute_distance_joint(self.joints_distance[j], self.bodies, sub_dt) {
+    match
+      precompute_distance_joint(self.joints_distance[j], self.bodies, sub_dt) {
       Some(c) => dist_constraints.push(c)
       None => ()
     }
   }
   let rev_constraints : Array[RevoluteJointConstraint2D] = []
   for j = 0; j < self.joints_revolute.length(); j = j + 1 {
-    match precompute_revolute_joint(self.joints_revolute[j], self.bodies, sub_dt) {
+    match
+      precompute_revolute_joint(self.joints_revolute[j], self.bodies, sub_dt) {
       Some(c) => rev_constraints.push(c)
       None => ()
     }
@@ -236,9 +240,9 @@ pub fn PhysicsWorld2D::step(self : PhysicsWorld2D, dt : Double) -> Unit {
       let body = self.bodies[i]
       if body.is_dynamic() && not(body.is_sleeping) {
         let accel = self.gravity.add(body.force.scale(body.inv_mass))
-        let new_vel = body.velocity.add(accel.scale(sub_dt)).scale(
-          1.0 - body.linear_damping * sub_dt,
-        )
+        let new_vel = body.velocity
+          .add(accel.scale(sub_dt))
+          .scale(1.0 - body.linear_damping * sub_dt)
         let angular_accel = body.torque * body.inv_inertia
         let new_angular_vel = (body.angular_velocity + angular_accel * sub_dt) *
           (1.0 - body.angular_damping * sub_dt)
@@ -256,7 +260,10 @@ pub fn PhysicsWorld2D::step(self : PhysicsWorld2D, dt : Double) -> Unit {
       }
       for di = 0; di < dist_constraints.length(); di = di + 1 {
         solve_distance_joint(
-          dist_constraints, di, self.bodies, self.joints_distance[di],
+          dist_constraints,
+          di,
+          self.bodies,
+          self.joints_distance[di],
         )
       }
       for ri = 0; ri < rev_constraints.length(); ri = ri + 1 {
@@ -306,23 +313,20 @@ pub fn PhysicsWorld2D::step(self : PhysicsWorld2D, dt : Double) -> Unit {
     let pair_key = contact_pair_key(body_a.id, body_b.id)
     let local_a = con.contact.contact_point.sub(body_a.position)
     let local_b = con.contact.contact_point.sub(body_b.position)
-    new_cache.set(
-      pair_key,
-      {
-        body_a_id: body_a.id,
-        body_b_id: body_b.id,
-        normal: con.contact.normal,
-        points: [
-          {
-            local_a,
-            local_b,
-            penetration: con.contact.penetration,
-            normal_impulse: con.acc_jn,
-            tangent_impulse: con.acc_jt,
-          },
-        ],
-      },
-    )
+    new_cache.set(pair_key, {
+      body_a_id: body_a.id,
+      body_b_id: body_b.id,
+      normal: con.contact.normal,
+      points: [
+        {
+          local_a,
+          local_b,
+          penetration: con.contact.penetration,
+          normal_impulse: con.acc_jn,
+          tangent_impulse: con.acc_jt,
+        },
+      ],
+    })
   }
   // Replace old cache with new
   self.contact_cache.clear()
@@ -331,11 +335,7 @@ pub fn PhysicsWorld2D::step(self : PhysicsWorld2D, dt : Double) -> Unit {
   for i = 0; i < self.bodies.length(); i = i + 1 {
     let body = self.bodies[i]
     if body.is_dynamic() {
-      self.bodies[i] = {
-        ..body,
-        force: @vector.Vec2::zero(),
-        torque: 0.0,
-      }
+      self.bodies[i] = { ..body, force: @vector.Vec2::zero(), torque: 0.0 }
     }
   }
   // 7. Sleeping: update sleep timers and detect islands
@@ -359,17 +359,10 @@ pub fn PhysicsWorld2D::step(self : PhysicsWorld2D, dt : Double) -> Unit {
         let angular_speed = body.angular_velocity.abs()
         if speed < sleep_velocity_threshold &&
           angular_speed < sleep_angular_threshold {
-          self.bodies[i] = {
-            ..body,
-            sleep_timer: body.sleep_timer + dt,
-          }
+          self.bodies[i] = { ..body, sleep_timer: body.sleep_timer + dt }
         } else {
           // Wake up if moving
-          self.bodies[i] = {
-            ..body,
-            is_sleeping: false,
-            sleep_timer: 0.0,
-          }
+          self.bodies[i] = { ..body, is_sleeping: false, sleep_timer: 0.0 }
         }
       }
     }
@@ -393,7 +386,7 @@ pub fn PhysicsWorld2D::step(self : PhysicsWorld2D, dt : Double) -> Unit {
       if body.is_dynamic() {
         let root = uf_find(parent, i)
         match island_can_sleep.get(root) {
-          Some(true) => {
+          Some(true) =>
             if not(body.is_sleeping) {
               self.bodies[i] = {
                 ..body,
@@ -402,16 +395,10 @@ pub fn PhysicsWorld2D::step(self : PhysicsWorld2D, dt : Double) -> Unit {
                 angular_velocity: 0.0,
               }
             }
-          }
-          _ => {
+          _ =>
             if body.is_sleeping {
-              self.bodies[i] = {
-                ..body,
-                is_sleeping: false,
-                sleep_timer: 0.0,
-              }
+              self.bodies[i] = { ..body, is_sleeping: false, sleep_timer: 0.0 }
             }
-          }
         }
       }
     }

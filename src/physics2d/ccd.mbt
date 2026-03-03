@@ -143,7 +143,11 @@ pub fn ccd_sweep_body(
     CircleShape(_, r) => r
     AABBShape2D(he, _) | OBBShape2D(he, _) => {
       let r = he.length()
-      if r < 1.0e-8 { 0.5 } else { r }
+      if r < 1.0e-8 {
+        0.5
+      } else {
+        r
+      }
     }
   }
   if speed < bullet_radius * 0.5 {

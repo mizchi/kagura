@@ -87,7 +87,9 @@ test "bullet circle does not tunnel through thin wall" {
         CircleShape(@vector.Vec2::zero(), 0.3),
       ),
       velocity: @vector.Vec2::new(1000.0, 0.0),
-    }.with_damping(0.0).with_bullet(),
+    }
+    .with_damping(0.0)
+    .with_bullet(),
   )
   world.step(1.0 / 60.0)
   let bullet = world.get_body(1).unwrap()

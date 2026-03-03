@@ -43,12 +43,7 @@ pub fn tonemap_wgsl(op : ToneMapOperator) -> String {
 ///|
 /// Encode tone map uniform as 4 dwords (vec4 alignment).
 pub fn tonemap_uniform_dwords(exposure : Double) -> Array[Int] {
-  [
-    @gfx.double_to_f32_bits(exposure),
-    0,
-    0,
-    0,
-  ]
+  [@gfx.double_to_f32_bits(exposure), 0, 0, 0]
 }
 
 ///|

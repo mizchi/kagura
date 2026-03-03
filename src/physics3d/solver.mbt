@@ -78,7 +78,11 @@ fn resolve_velocity3d_acc(
   let j_n_delta = -(v_n + restitution_bias) / denom_n
   let new_acc_jn = {
     let raw = acc_jn + j_n_delta
-    if raw > 0.0 { 0.0 } else { raw }
+    if raw > 0.0 {
+      0.0
+    } else {
+      raw
+    }
   }
   let j_n = new_acc_jn - acc_jn
   let mut a_new = a
@@ -156,7 +160,9 @@ pub fn resolve_velocity3d(
   contact : Contact,
 ) -> (RigidBody, RigidBody) {
   let bias = compute_restitution_bias3d(a, b, contact)
-  let (a_new, b_new, _, _) = resolve_velocity3d_acc(a, b, contact, bias, 0.0, 0.0)
+  let (a_new, b_new, _, _) = resolve_velocity3d_acc(
+    a, b, contact, bias, 0.0, 0.0,
+  )
   (a_new, b_new)
 }
 
@@ -191,14 +197,8 @@ fn apply_position_correction(
     return (a, b)
   }
   let correction = contact.normal.scale(correction_mag)
-  let a_new = {
-    ..a,
-    position: a.position.sub(correction.scale(a.inv_mass)),
-  }
-  let b_new = {
-    ..b,
-    position: b.position.add(correction.scale(b.inv_mass)),
-  }
+  let a_new = { ..a, position: a.position.sub(correction.scale(a.inv_mass)) }
+  let b_new = { ..b, position: b.position.add(correction.scale(b.inv_mass)) }
   (a_new, b_new)
 }
 
@@ -253,18 +253,15 @@ fn precompute_constraint3d(
     r_b_cross_t.dot(r_b_cross_t) * b.inv_inertia
   // Soft constraint params
   let omega = 2.0 * pi3d * hertz
-  let gamma = 1.0 / (sub_dt * (2.0 * damping_ratio * omega + sub_dt * omega * omega))
+  let gamma = 1.0 /
+    (sub_dt * (2.0 * damping_ratio * omega + sub_dt * omega * omega))
   let beta = sub_dt * omega * omega * gamma
   let normal_mass = if k_normal + gamma > 1.0e-12 {
     1.0 / (k_normal + gamma)
   } else {
     0.0
   }
-  let tangent_mass = if k_tangent > 1.0e-12 {
-    1.0 / k_tangent
-  } else {
-    0.0
-  }
+  let tangent_mass = if k_tangent > 1.0e-12 { 1.0 / k_tangent } else { 0.0 }
   let e = if a.restitution < b.restitution {
     a.restitution
   } else {
@@ -319,7 +316,11 @@ fn solve_constraint3d(
     c.normal_mass
   let new_acc_jn = {
     let raw = c.acc_jn + lambda
-    if raw > 0.0 { 0.0 } else { raw }
+    if raw > 0.0 {
+      0.0
+    } else {
+      raw
+    }
   }
   let delta_jn = new_acc_jn - c.acc_jn
   let cur_acc_jn = new_acc_jn

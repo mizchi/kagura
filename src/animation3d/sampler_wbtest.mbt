@@ -7,10 +7,10 @@ test "sampler: step interpolation vec3" {
     times: [0.0, 1.0, 2.0],
     values: [
       0.0, 0.0, 0.0, // t=0
-      1.0, 2.0, 3.0, // t=1
-      4.0, 5.0, 6.0, // t=2
+       1.0, 2.0, 3.0, // t=1
+       4.0, 5.0, 6.0,
     ],
-  }
+  } // t=2
   // At t=0.5, step should return the value at t=0
   let v = sample_vec3(channel, 0.5)
   assert_true(v.approx_eq(@math3d.Vec3::new(0.0, 0.0, 0.0), 1.0e-6))
@@ -28,9 +28,9 @@ test "sampler: linear interpolation vec3" {
     times: [0.0, 1.0],
     values: [
       0.0, 0.0, 0.0, // t=0
-      2.0, 4.0, 6.0, // t=1
+       2.0, 4.0, 6.0,
     ],
-  }
+  } // t=1
   // At t=0.5, linear lerp should give midpoint
   let v = sample_vec3(channel, 0.5)
   assert_true(v.approx_eq(@math3d.Vec3::new(1.0, 2.0, 3.0), 1.0e-6))
@@ -72,9 +72,9 @@ test "sampler: time=0 returns first keyframe" {
     times: [0.5, 1.0],
     values: [
       10.0, 20.0, 30.0, // t=0.5
-      40.0, 50.0, 60.0, // t=1.0
+       40.0, 50.0, 60.0,
     ],
-  }
+  } // t=1.0
   // time=0 is before first keyframe, should return first value
   let v = sample_vec3(channel, 0.0)
   assert_true(v.approx_eq(@math3d.Vec3::new(10.0, 20.0, 30.0), 1.0e-6))
@@ -89,9 +89,9 @@ test "sampler: time>=duration returns last keyframe" {
     times: [0.0, 1.0],
     values: [
       0.0, 0.0, 0.0, // t=0
-      5.0, 10.0, 15.0, // t=1
+       5.0, 10.0, 15.0,
     ],
-  }
+  } // t=1
   // time=2.0 is past last keyframe, should return last value
   let v = sample_vec3(channel, 2.0)
   assert_true(v.approx_eq(@math3d.Vec3::new(5.0, 10.0, 15.0), 1.0e-6))

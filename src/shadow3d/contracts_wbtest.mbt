@@ -15,7 +15,13 @@ fn decode(bits : Int) -> Double {
 ///|
 test "ShadowConfig::new computes pcf_texel_size" {
   let config = ShadowConfig::new(
-    1024, 10.0, 0.1, 100.0, 50.0, @math3d.Vec3::zero(), 0.005,
+    1024,
+    10.0,
+    0.1,
+    100.0,
+    50.0,
+    @math3d.Vec3::zero(),
+    0.005,
   )
   assert_eq(config.map_size, 1024)
   assert_true(approx(config.pcf_texel_size, 1.0 / 1024.0))
@@ -26,7 +32,13 @@ test "ShadowConfig::new computes pcf_texel_size" {
 ///|
 test "ShadowConfig::new with different map_size" {
   let config = ShadowConfig::new(
-    512, 20.0, 0.5, 200.0, 100.0, @math3d.Vec3::new(1.0, 0.0, 0.0), 0.001,
+    512,
+    20.0,
+    0.5,
+    200.0,
+    100.0,
+    @math3d.Vec3::new(1.0, 0.0, 0.0),
+    0.001,
   )
   assert_true(approx(config.pcf_texel_size, 1.0 / 512.0))
   assert_true(approx(config.center.x, 1.0))
@@ -44,9 +56,13 @@ test "light_view_matrix with downward light" {
   // eye should be at (0, 10, 0), looking at (0, 0, 0)
   // Should use unit_x as up since dir is close to unit_y
   // Verify center maps to near origin in x,y view space
-  let cx = m.elements[0] * 0.0 + m.elements[4] * 0.0 + m.elements[8] * 0.0 +
+  let cx = m.elements[0] * 0.0 +
+    m.elements[4] * 0.0 +
+    m.elements[8] * 0.0 +
     m.elements[12]
-  let cy = m.elements[1] * 0.0 + m.elements[5] * 0.0 + m.elements[9] * 0.0 +
+  let cy = m.elements[1] * 0.0 +
+    m.elements[5] * 0.0 +
+    m.elements[9] * 0.0 +
     m.elements[13]
   assert_true(cx.abs() < 1.0e-4)
   assert_true(cy.abs() < 1.0e-4)
@@ -61,9 +77,13 @@ test "light_view_matrix with diagonal light" {
   let m = light_view_matrix(dir, center, 10.0)
   // Should use unit_y as up since dot(dir, unit_y) is not close to 1.0
   // Transform center point: should map to (0, 0, -distance) roughly
-  let cx = m.elements[0] * 0.0 + m.elements[4] * 0.0 + m.elements[8] * 0.0 +
+  let cx = m.elements[0] * 0.0 +
+    m.elements[4] * 0.0 +
+    m.elements[8] * 0.0 +
     m.elements[12]
-  let cy = m.elements[1] * 0.0 + m.elements[5] * 0.0 + m.elements[9] * 0.0 +
+  let cy = m.elements[1] * 0.0 +
+    m.elements[5] * 0.0 +
+    m.elements[9] * 0.0 +
     m.elements[13]
   // Center in view space should be near origin in x,y
   assert_true(cx.abs() < 1.0e-4)
@@ -171,7 +191,13 @@ test "shadow_depth_pass_commands generates per-caster commands" {
   ]
   let lighting = @light3d.LightingEnvironment::default()
   let config = ShadowConfig::new(
-    1024, 10.0, 0.1, 100.0, 50.0, @math3d.Vec3::zero(), 0.005,
+    1024,
+    10.0,
+    0.1,
+    100.0,
+    50.0,
+    @math3d.Vec3::zero(),
+    0.005,
   )
   let cmds = shadow_depth_pass_commands(
     shadow_map, shader, casters, lighting, config,
@@ -228,7 +254,13 @@ test "shadow_lit_uniform_dwords is 76 dwords" {
   let lighting = @light3d.LightingEnvironment::default()
   let light_vp = @math3d.Mat4::identity()
   let config = ShadowConfig::new(
-    1024, 10.0, 0.1, 100.0, 50.0, @math3d.Vec3::zero(), 0.005,
+    1024,
+    10.0,
+    0.1,
+    100.0,
+    50.0,
+    @math3d.Vec3::zero(),
+    0.005,
   )
   let dwords = shadow_lit_uniform_dwords(model, vp, lighting, light_vp, config)
   assert_eq(dwords.length(), 76)
@@ -261,15 +293,21 @@ test "new_shadow_lit_mesh_draw_command creates valid command" {
   let lighting = @light3d.LightingEnvironment::default()
   let light_vp = @math3d.Mat4::identity()
   let config = ShadowConfig::new(
-    1024, 10.0, 0.1, 100.0, 50.0, @math3d.Vec3::zero(), 0.005,
+    1024,
+    10.0,
+    0.1,
+    100.0,
+    50.0,
+    @math3d.Vec3::zero(),
+    0.005,
   )
   let dst = @gfx.new_image_handle(1, 800, 600)
   let shader = @gfx.new_shader_handle(1, "shadow_lit")
   let dst_region = @gfx.new_dst_region(0, 0, 800, 600, 36)
   let blend = @gfx.blend_mode_from_int(0)
   let cmd = new_shadow_lit_mesh_draw_command(
-    dst, shader, dst_region, 0, 0, 0, blend, mesh, model, vp, lighting,
-    light_vp, config, 10, 20,
+    dst, shader, dst_region, 0, 0, 0, blend, mesh, model, vp, lighting, light_vp,
+    config, 10, 20,
   )
   assert_eq(cmd.src_image_ids.length(), 2)
   assert_eq(cmd.src_image_ids[0], 10)

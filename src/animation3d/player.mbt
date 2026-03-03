@@ -93,10 +93,7 @@ pub fn AnimationPlayer::set_speed(
 }
 
 ///|
-pub fn AnimationPlayer::set_time(
-  self : AnimationPlayer,
-  time : Double,
-) -> Unit {
+pub fn AnimationPlayer::set_time(self : AnimationPlayer, time : Double) -> Unit {
   self.time = time
 }
 

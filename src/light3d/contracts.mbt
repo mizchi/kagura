@@ -84,7 +84,15 @@ pub fn SpotLight::new(
   inner_angle : Double,
   outer_angle : Double,
 ) -> SpotLight {
-  { position, direction: direction.normalize(), color, intensity, radius, inner_angle, outer_angle }
+  {
+    position,
+    direction: direction.normalize(),
+    color,
+    intensity,
+    radius,
+    inner_angle,
+    outer_angle,
+  }
 }
 
 ///|

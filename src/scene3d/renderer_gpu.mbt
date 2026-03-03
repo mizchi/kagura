@@ -12,7 +12,7 @@
 pub fn render_scene3d_graph_gpu(
   graph : SceneGraph,
   camera : @camera3d.Camera3D,
-  lighting~ : @light3d.LightingEnvironment = @light3d.LightingEnvironment::default(),
+  lighting? : @light3d.LightingEnvironment = @light3d.LightingEnvironment::default(),
   dst : @gfx.ImageHandle,
   shader3d : @gfx.ShaderHandle,
   screen_w : Int,
@@ -24,8 +24,17 @@ pub fn render_scene3d_graph_gpu(
   let identity = @math3d.Mat4::identity()
   for i in 0..<graph.roots.length() {
     traverse_node_gpu(
-      graph, graph.roots[i], identity, vp, frustum, lighting, dst, shader3d,
-      screen_w, screen_h, cmds,
+      graph,
+      graph.roots[i],
+      identity,
+      vp,
+      frustum,
+      lighting,
+      dst,
+      shader3d,
+      screen_w,
+      screen_h,
+      cmds,
     )
   }
   cmds
@@ -52,15 +61,34 @@ fn traverse_node_gpu(
       match node.mesh {
         Some(mesh) =>
           render_object_gpu(
-            mesh, world, node.color, node.material, vp, frustum, lighting,
-            dst, shader3d, screen_w, screen_h, cmds,
+            mesh,
+            world,
+            node.color,
+            node.material,
+            vp,
+            frustum,
+            lighting,
+            dst,
+            shader3d,
+            screen_w,
+            screen_h,
+            cmds,
           )
         None => ()
       }
       for i in 0..<node.children.length() {
         traverse_node_gpu(
-          graph, node.children[i], world, vp, frustum, lighting, dst,
-          shader3d, screen_w, screen_h, cmds,
+          graph,
+          node.children[i],
+          world,
+          vp,
+          frustum,
+          lighting,
+          dst,
+          shader3d,
+          screen_w,
+          screen_h,
+          cmds,
         )
       }
     }
@@ -83,9 +111,7 @@ fn render_object_gpu(
   cmds : Array[@gfx.DrawTrianglesCommand],
 ) -> Unit {
   // Frustum culling
-  let (omin_x, omin_y, omin_z, omax_x, omax_y, omax_z) = compute_mesh_aabb(
-    mesh,
-  )
+  let (omin_x, omin_y, omin_z, omax_x, omax_y, omax_z) = compute_mesh_aabb(mesh)
   let (wmin_x, wmin_y, wmin_z, wmax_x, wmax_y, wmax_z) = transform_aabb(
     omin_x, omin_y, omin_z, omax_x, omax_y, omax_z, model,
   )

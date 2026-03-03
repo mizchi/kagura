@@ -422,9 +422,7 @@ pub fn new_skinned_lit_mesh_draw_command(
   // Base lit uniforms (56 dwords)
   let dwords = lit_uniform_dwords(model_matrix, view_projection, lighting)
   // num_bones as vec4<f32> (4 dwords, padded)
-  dwords.push(
-    @gfx.double_to_f32_bits(skinning_matrices.length().to_double()),
-  )
+  dwords.push(@gfx.double_to_f32_bits(skinning_matrices.length().to_double()))
   dwords.push(@gfx.double_to_f32_bits(0.0))
   dwords.push(@gfx.double_to_f32_bits(0.0))
   dwords.push(@gfx.double_to_f32_bits(0.0))

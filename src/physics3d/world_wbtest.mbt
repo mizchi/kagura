@@ -87,18 +87,16 @@ test "sphere settles on floor without flying up" {
     ),
   )
   // Sphere dropping from low height
-  world.add_body(
-    {
-      ..RigidBody::new_dynamic(
-        1,
-        @math3d.Vec3::new(0.0, 2.0, 0.0),
-        1.0,
-        SphereShape(@math3d.Vec3::zero(), 0.4),
-      ),
-      restitution: 0.35,
-      linear_damping: 0.02,
-    },
-  )
+  world.add_body({
+    ..RigidBody::new_dynamic(
+      1,
+      @math3d.Vec3::new(0.0, 2.0, 0.0),
+      1.0,
+      SphereShape(@math3d.Vec3::zero(), 0.4),
+    ),
+    restitution: 0.35,
+    linear_damping: 0.02,
+  })
   // Run 5 seconds of simulation at 60fps, 2 sub-steps
   for _ in 0..<600 {
     let dt = 1.0 / 60.0 / 2.0
@@ -108,12 +106,9 @@ test "sphere settles on floor without flying up" {
   let ball = world.get_body(1).unwrap()
   // Ball should rest near the ground surface (y ≈ 0.4, sphere radius)
   // Must not fly up or fall through
-  inspect!(
-    ball.position.y > -0.5 && ball.position.y < 2.0,
-    content="true",
-  )
+  inspect(ball.position.y > -0.5 && ball.position.y < 2.0, content="true")
   // Velocity should be near zero (settled)
-  inspect!(ball.velocity.length() < 1.0, content="true")
+  inspect(ball.velocity.length() < 1.0, content="true")
 }
 
 ///|
@@ -126,29 +121,24 @@ test "cube settles on floor without flying up" {
       AABBShape(@math3d.Vec3::new(10.0, 0.5, 10.0), @math3d.Vec3::zero()),
     ),
   )
-  world.add_body(
-    {
-      ..RigidBody::new_dynamic(
-        1,
-        @math3d.Vec3::new(0.0, 2.0, 0.0),
-        1.0,
-        AABBShape(@math3d.Vec3::new(0.4, 0.4, 0.4), @math3d.Vec3::zero()),
-      ),
-      restitution: 0.35,
-      linear_damping: 0.02,
-    },
-  )
+  world.add_body({
+    ..RigidBody::new_dynamic(
+      1,
+      @math3d.Vec3::new(0.0, 2.0, 0.0),
+      1.0,
+      AABBShape(@math3d.Vec3::new(0.4, 0.4, 0.4), @math3d.Vec3::zero()),
+    ),
+    restitution: 0.35,
+    linear_damping: 0.02,
+  })
   for _ in 0..<600 {
     let dt = 1.0 / 60.0 / 2.0
     world.step(dt)
     world.step(dt)
   }
   let cube = world.get_body(1).unwrap()
-  inspect!(
-    cube.position.y > -0.5 && cube.position.y < 2.0,
-    content="true",
-  )
-  inspect!(cube.velocity.length() < 1.0, content="true")
+  inspect(cube.position.y > -0.5 && cube.position.y < 2.0, content="true")
+  inspect(cube.velocity.length() < 1.0, content="true")
 }
 
 ///|
@@ -167,7 +157,9 @@ test "sphere settles without energy gain" {
       @math3d.Vec3::new(0.0, 1.0, 0.0),
       1.0,
       SphereShape(@math3d.Vec3::zero(), 0.5),
-    ).with_damping(0.05).with_restitution(0.3),
+    )
+    .with_damping(0.05)
+    .with_restitution(0.3),
   )
   let dt = 1.0 / 60.0
   // Settle for 2 seconds
@@ -205,7 +197,9 @@ test "body falls asleep after settling 3d" {
       @math3d.Vec3::new(0.0, 1.0, 0.0),
       1.0,
       SphereShape(@math3d.Vec3::zero(), 0.5),
-    ).with_damping(0.1).with_restitution(0.0),
+    )
+    .with_damping(0.1)
+    .with_restitution(0.0),
   )
   let dt = 1.0 / 60.0
   for _frame in 0..<600 {
@@ -231,7 +225,9 @@ test "sleeping body wakes on new contact 3d" {
       @math3d.Vec3::new(0.0, 1.0, 0.0),
       1.0,
       SphereShape(@math3d.Vec3::zero(), 0.5),
-    ).with_damping(0.05).with_restitution(0.0),
+    )
+    .with_damping(0.05)
+    .with_restitution(0.0),
   )
   let dt = 1.0 / 60.0
   for _frame in 0..<300 {
@@ -248,7 +244,9 @@ test "sleeping body wakes on new contact 3d" {
         SphereShape(@math3d.Vec3::zero(), 0.5),
       ),
       velocity: @math3d.Vec3::new(0.0, -5.0, 0.0),
-    }.with_damping(0.05).with_restitution(0.3),
+    }
+    .with_damping(0.05)
+    .with_restitution(0.3),
   )
   for _frame in 0..<30 {
     world.step(dt)
@@ -276,17 +274,15 @@ test "distance joint maintains length 3d" {
       SphereShape(@math3d.Vec3::zero(), 0.2),
     ).with_damping(0.0),
   )
-  world.add_distance_joint(
-    {
-      body_a_id: 0,
-      body_b_id: 1,
-      local_anchor_a: @math3d.Vec3::zero(),
-      local_anchor_b: @math3d.Vec3::zero(),
-      rest_length: 2.0,
-      hertz: 30.0,
-      damping_ratio: 1.0,
-    },
-  )
+  world.add_distance_joint({
+    body_a_id: 0,
+    body_b_id: 1,
+    local_anchor_a: @math3d.Vec3::zero(),
+    local_anchor_b: @math3d.Vec3::zero(),
+    rest_length: 2.0,
+    hertz: 30.0,
+    damping_ratio: 1.0,
+  })
   world.apply_impulse(0, @math3d.Vec3::new(-5.0, 0.0, 0.0))
   world.apply_impulse(1, @math3d.Vec3::new(5.0, 0.0, 0.0))
   let dt = 1.0 / 60.0
@@ -318,16 +314,14 @@ test "ball joint keeps points together 3d" {
       SphereShape(@math3d.Vec3::zero(), 0.2),
     ).with_damping(0.0),
   )
-  world.add_ball_joint(
-    {
-      body_a_id: 0,
-      body_b_id: 1,
-      local_anchor_a: @math3d.Vec3::new(0.5, 0.0, 0.0),
-      local_anchor_b: @math3d.Vec3::new(-0.5, 0.0, 0.0),
-      hertz: 30.0,
-      damping_ratio: 1.0,
-    },
-  )
+  world.add_ball_joint({
+    body_a_id: 0,
+    body_b_id: 1,
+    local_anchor_a: @math3d.Vec3::new(0.5, 0.0, 0.0),
+    local_anchor_b: @math3d.Vec3::new(-0.5, 0.0, 0.0),
+    hertz: 30.0,
+    damping_ratio: 1.0,
+  })
   world.apply_impulse(0, @math3d.Vec3::new(-1.0, 0.3, 0.0))
   world.apply_impulse(1, @math3d.Vec3::new(1.0, -0.3, 0.0))
   let dt = 1.0 / 60.0
@@ -348,10 +342,7 @@ test "bullet sphere does not tunnel through thin wall 3d" {
     RigidBody::new_static(
       0,
       @math3d.Vec3::new(2.0, 0.0, 0.0),
-      AABBShape(
-        @math3d.Vec3::new(0.05, 5.0, 5.0),
-        @math3d.Vec3::zero(),
-      ),
+      AABBShape(@math3d.Vec3::new(0.05, 5.0, 5.0), @math3d.Vec3::zero()),
     ),
   )
   world.add_body(
@@ -363,7 +354,9 @@ test "bullet sphere does not tunnel through thin wall 3d" {
         SphereShape(@math3d.Vec3::zero(), 0.3),
       ),
       velocity: @math3d.Vec3::new(1000.0, 0.0, 0.0),
-    }.with_damping(0.0).with_bullet(),
+    }
+    .with_damping(0.0)
+    .with_bullet(),
   )
   world.step(1.0 / 60.0)
   let bullet = world.get_body(1).unwrap()

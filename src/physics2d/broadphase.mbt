@@ -14,12 +14,7 @@ pub struct SpatialHashGrid2D {
 
 ///|
 pub fn SpatialHashGrid2D::new(cell_size : Double) -> SpatialHashGrid2D {
-  {
-    cell_size,
-    inv_cell_size: 1.0 / cell_size,
-    cells: {},
-    entries: [],
-  }
+  { cell_size, inv_cell_size: 1.0 / cell_size, cells: {}, entries: [] }
 }
 
 ///|
@@ -46,8 +41,8 @@ fn floor_to_int(x : Double) -> Int {
 ///|
 fn cell_key2d(cx : Int, cy : Int) -> Int64 {
   let mask = 4294967295L // 0xFFFFFFFF as Int64
-  let x = cx.to_int64().land(mask)
-  let y = cy.to_int64().land(mask)
+  let x = cx.to_int64() & mask
+  let y = cy.to_int64() & mask
   (x << 32) | y
 }
 

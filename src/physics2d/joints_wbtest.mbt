@@ -18,17 +18,15 @@ test "distance joint maintains length" {
       CircleShape(@vector.Vec2::zero(), 0.2),
     ).with_damping(0.0),
   )
-  world.add_distance_joint(
-    {
-      body_a_id: 0,
-      body_b_id: 1,
-      local_anchor_a: @vector.Vec2::zero(),
-      local_anchor_b: @vector.Vec2::zero(),
-      rest_length: 2.0,
-      hertz: 30.0,
-      damping_ratio: 1.0,
-    },
-  )
+  world.add_distance_joint({
+    body_a_id: 0,
+    body_b_id: 1,
+    local_anchor_a: @vector.Vec2::zero(),
+    local_anchor_b: @vector.Vec2::zero(),
+    rest_length: 2.0,
+    hertz: 30.0,
+    damping_ratio: 1.0,
+  })
   // Push them apart
   world.apply_impulse(0, @vector.Vec2::new(-5.0, 0.0))
   world.apply_impulse(1, @vector.Vec2::new(5.0, 0.0))
@@ -63,17 +61,15 @@ test "distance joint with gravity pendulum" {
       CircleShape(@vector.Vec2::zero(), 0.2),
     ).with_damping(0.02),
   )
-  world.add_distance_joint(
-    {
-      body_a_id: 0,
-      body_b_id: 1,
-      local_anchor_a: @vector.Vec2::zero(),
-      local_anchor_b: @vector.Vec2::zero(),
-      rest_length: 2.0,
-      hertz: 30.0,
-      damping_ratio: 1.0,
-    },
-  )
+  world.add_distance_joint({
+    body_a_id: 0,
+    body_b_id: 1,
+    local_anchor_a: @vector.Vec2::zero(),
+    local_anchor_b: @vector.Vec2::zero(),
+    rest_length: 2.0,
+    hertz: 30.0,
+    damping_ratio: 1.0,
+  })
   let dt = 1.0 / 60.0
   // Run for 3 seconds
   for _frame in 0..<180 {
@@ -108,16 +104,14 @@ test "revolute joint keeps points together" {
       CircleShape(@vector.Vec2::zero(), 0.2),
     ).with_damping(0.0),
   )
-  world.add_revolute_joint(
-    {
-      body_a_id: 0,
-      body_b_id: 1,
-      local_anchor_a: @vector.Vec2::new(0.5, 0.0),
-      local_anchor_b: @vector.Vec2::new(-0.5, 0.0),
-      hertz: 30.0,
-      damping_ratio: 1.0,
-    },
-  )
+  world.add_revolute_joint({
+    body_a_id: 0,
+    body_b_id: 1,
+    local_anchor_a: @vector.Vec2::new(0.5, 0.0),
+    local_anchor_b: @vector.Vec2::new(-0.5, 0.0),
+    hertz: 30.0,
+    damping_ratio: 1.0,
+  })
   // Push them apart
   world.apply_impulse(0, @vector.Vec2::new(-2.0, 0.5))
   world.apply_impulse(1, @vector.Vec2::new(2.0, -0.5))
@@ -130,14 +124,10 @@ test "revolute joint keeps points together" {
   // The anchor points in world space should be close (accounting for rotation)
   let cos_a = @math.cos(a.angle)
   let sin_a = @math.sin(a.angle)
-  let anchor_a = a.position.add(
-    @vector.Vec2::new(0.5 * cos_a, 0.5 * sin_a),
-  )
+  let anchor_a = a.position.add(@vector.Vec2::new(0.5 * cos_a, 0.5 * sin_a))
   let cos_b = @math.cos(b.angle)
   let sin_b = @math.sin(b.angle)
-  let anchor_b = b.position.add(
-    @vector.Vec2::new(-0.5 * cos_b, -0.5 * sin_b),
-  )
+  let anchor_b = b.position.add(@vector.Vec2::new(-0.5 * cos_b, -0.5 * sin_b))
   let gap = anchor_b.sub(anchor_a).length()
   assert_true(gap < 1.0)
 }
@@ -172,27 +162,23 @@ test "revolute joint with gravity chain" {
     ).with_damping(0.05),
   )
   // Joint 0-1: fixed point to link 1
-  world.add_revolute_joint(
-    {
-      body_a_id: 0,
-      body_b_id: 1,
-      local_anchor_a: @vector.Vec2::zero(),
-      local_anchor_b: @vector.Vec2::new(0.0, 0.75),
-      hertz: 30.0,
-      damping_ratio: 1.0,
-    },
-  )
+  world.add_revolute_joint({
+    body_a_id: 0,
+    body_b_id: 1,
+    local_anchor_a: @vector.Vec2::zero(),
+    local_anchor_b: @vector.Vec2::new(0.0, 0.75),
+    hertz: 30.0,
+    damping_ratio: 1.0,
+  })
   // Joint 1-2: link 1 to link 2
-  world.add_revolute_joint(
-    {
-      body_a_id: 1,
-      body_b_id: 2,
-      local_anchor_a: @vector.Vec2::new(0.0, -0.75),
-      local_anchor_b: @vector.Vec2::new(0.0, 0.75),
-      hertz: 30.0,
-      damping_ratio: 1.0,
-    },
-  )
+  world.add_revolute_joint({
+    body_a_id: 1,
+    body_b_id: 2,
+    local_anchor_a: @vector.Vec2::new(0.0, -0.75),
+    local_anchor_b: @vector.Vec2::new(0.0, 0.75),
+    hertz: 30.0,
+    damping_ratio: 1.0,
+  })
   let dt = 1.0 / 60.0
   for _frame in 0..<300 {
     world.step(dt)

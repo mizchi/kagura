@@ -94,7 +94,11 @@ fn resolve_velocity2d_acc(
   // Clamp accumulated normal impulse: only repulsive (<=0 in our convention)
   let new_acc_jn = {
     let raw = acc_jn + j_n_delta
-    if raw > 0.0 { 0.0 } else { raw }
+    if raw > 0.0 {
+      0.0
+    } else {
+      raw
+    }
   }
   let j_n = new_acc_jn - acc_jn // actual delta to apply
   let mut a_new = a
@@ -255,7 +259,8 @@ fn precompute_constraint2d(
     r_b_cross_t * r_b_cross_t * b.inv_inertia
   // Soft constraint parameters
   let omega = 2.0 * pi * hertz
-  let gamma = 1.0 / (sub_dt * (2.0 * damping_ratio * omega + sub_dt * omega * omega))
+  let gamma = 1.0 /
+    (sub_dt * (2.0 * damping_ratio * omega + sub_dt * omega * omega))
   let beta = sub_dt * omega * omega * gamma
   // Softened normal mass
   let normal_mass = if k_normal + gamma > 1.0e-12 {
@@ -263,11 +268,7 @@ fn precompute_constraint2d(
   } else {
     0.0
   }
-  let tangent_mass = if k_tangent > 1.0e-12 {
-    1.0 / k_tangent
-  } else {
-    0.0
-  }
+  let tangent_mass = if k_tangent > 1.0e-12 { 1.0 / k_tangent } else { 0.0 }
   // Restitution bias
   let v_a = a.velocity.add(cross_scalar_vec(a.angular_velocity, r_a))
   let v_b = b.velocity.add(cross_scalar_vec(b.angular_velocity, r_b))
@@ -332,7 +333,11 @@ fn solve_constraint2d(
     c.normal_mass
   let new_acc_jn = {
     let raw = c.acc_jn + lambda
-    if raw > 0.0 { 0.0 } else { raw }
+    if raw > 0.0 {
+      0.0
+    } else {
+      raw
+    }
   }
   let delta_jn = new_acc_jn - c.acc_jn
   let cur_acc_jn = new_acc_jn
@@ -420,7 +425,8 @@ fn solve_relaxation2d(
   // Relaxation: no bias, no gamma, no restitution
   let r_a_cross_n = c.r_a.cross(n)
   let r_b_cross_n = c.r_b.cross(n)
-  let k_normal = a.inv_mass + b.inv_mass +
+  let k_normal = a.inv_mass +
+    b.inv_mass +
     r_a_cross_n * r_a_cross_n * a.inv_inertia +
     r_b_cross_n * r_b_cross_n * b.inv_inertia
   if k_normal < 1.0e-12 {
@@ -430,7 +436,11 @@ fn solve_relaxation2d(
   let lambda = -v_n * unsoftened_mass
   let new_acc_jn = {
     let raw = c.acc_jn + lambda
-    if raw > 0.0 { 0.0 } else { raw }
+    if raw > 0.0 {
+      0.0
+    } else {
+      raw
+    }
   }
   let delta_jn = new_acc_jn - c.acc_jn
   if delta_jn.abs() > 1.0e-15 {

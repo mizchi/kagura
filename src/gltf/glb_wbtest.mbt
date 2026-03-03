@@ -1,4 +1,5 @@
-///| Helper: push a u32 LE value into a byte array
+///|
+/// Helper: push a u32 LE value into a byte array
 fn push_u32_le(arr : Array[Byte], value : Int) -> Unit {
   arr.push((value & 0xFF).to_byte())
   arr.push(((value >> 8) & 0xFF).to_byte())
@@ -6,7 +7,8 @@ fn push_u32_le(arr : Array[Byte], value : Int) -> Unit {
   arr.push(((value >> 24) & 0xFF).to_byte())
 }
 
-///| Helper: build a minimal .glb from JSON string and optional binary buffer
+///|
+/// Helper: build a minimal .glb from JSON string and optional binary buffer
 fn build_glb(json_str : String, bin : Bytes?) -> Bytes {
   let json_bytes : Array[Byte] = []
   for c in json_str {
@@ -109,11 +111,9 @@ test "parse_glb with material" {
 ///|
 test "parse_glb rejects invalid magic" {
   let data = Bytes::make(12, b'\x00')
-  let result = try {
-    parse_glb(data)
-  } catch {
+  let result = try parse_glb(data) catch {
     e => Err(e)
-  } else {
+  } noraise {
     v => Ok(v)
   }
   assert_true(result is Err(_))
@@ -122,11 +122,9 @@ test "parse_glb rejects invalid magic" {
 ///|
 test "parse_glb rejects too-short data" {
   let data = Bytes::make(4, b'\x00')
-  let result = try {
-    parse_glb(data)
-  } catch {
+  let result = try parse_glb(data) catch {
     e => Err(e)
-  } else {
+  } noraise {
     v => Ok(v)
   }
   assert_true(result is Err(_))

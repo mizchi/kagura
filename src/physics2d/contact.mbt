@@ -125,15 +125,13 @@ fn obb_obb(
     let proj_diff = center_b.sub(center_a).dot(best_axis)
     mid.sub(best_axis.scale(proj_diff * 0.5))
   }
-  Some(
-    {
-      body_a_id: a.id,
-      body_b_id: b.id,
-      normal: best_axis,
-      penetration: min_overlap,
-      contact_point,
-    },
-  )
+  Some({
+    body_a_id: a.id,
+    body_b_id: b.id,
+    normal: best_axis,
+    penetration: min_overlap,
+    contact_point,
+  })
 }
 
 ///|
@@ -191,26 +189,22 @@ fn obb_circle(
     let contact_point = obb_center.add(cp_local.rotate(obb_body.angle))
     if swapped {
       // A=circle, B=obb; normal from A(circle) toward B(obb)
-      Some(
-        {
-          body_a_id: circle_body.id,
-          body_b_id: obb_body.id,
-          normal: world_normal.negate(),
-          penetration,
-          contact_point,
-        },
-      )
+      Some({
+        body_a_id: circle_body.id,
+        body_b_id: obb_body.id,
+        normal: world_normal.negate(),
+        penetration,
+        contact_point,
+      })
     } else {
       // A=obb, B=circle; normal from A(obb) toward B(circle)
-      Some(
-        {
-          body_a_id: obb_body.id,
-          body_b_id: circle_body.id,
-          normal: world_normal,
-          penetration,
-          contact_point,
-        },
-      )
+      Some({
+        body_a_id: obb_body.id,
+        body_b_id: circle_body.id,
+        normal: world_normal,
+        penetration,
+        contact_point,
+      })
     }
   } else {
     // Circle center outside OBB
@@ -230,25 +224,21 @@ fn obb_circle(
     let world_normal = loc_normal.rotate(obb_body.angle)
     let contact_point = obb_center.add(closest_local.rotate(obb_body.angle))
     if swapped {
-      Some(
-        {
-          body_a_id: circle_body.id,
-          body_b_id: obb_body.id,
-          normal: world_normal.negate(),
-          penetration,
-          contact_point,
-        },
-      )
+      Some({
+        body_a_id: circle_body.id,
+        body_b_id: obb_body.id,
+        normal: world_normal.negate(),
+        penetration,
+        contact_point,
+      })
     } else {
-      Some(
-        {
-          body_a_id: obb_body.id,
-          body_b_id: circle_body.id,
-          normal: world_normal,
-          penetration,
-          contact_point,
-        },
-      )
+      Some({
+        body_a_id: obb_body.id,
+        body_b_id: circle_body.id,
+        normal: world_normal,
+        penetration,
+        contact_point,
+      })
     }
   }
 }
@@ -278,15 +268,7 @@ fn circle_circle(
   }
   let penetration = r_sum - dist
   let contact_point = center_a.add(normal.scale(r_a - penetration * 0.5))
-  Some(
-    {
-      body_a_id: a.id,
-      body_b_id: b.id,
-      normal,
-      penetration,
-      contact_point,
-    },
-  )
+  Some({ body_a_id: a.id, body_b_id: b.id, normal, penetration, contact_point })
 }
 
 ///|
@@ -314,15 +296,7 @@ fn aabb2d_aabb2d(
     (@vector.Vec2::new(0.0, ny), overlap_y)
   }
   let contact_point = center_a.add(center_b).scale(0.5)
-  Some(
-    {
-      body_a_id: a.id,
-      body_b_id: b.id,
-      normal,
-      penetration,
-      contact_point,
-    },
-  )
+  Some({ body_a_id: a.id, body_b_id: b.id, normal, penetration, contact_point })
 }
 
 ///|
@@ -364,26 +338,22 @@ fn circle_aabb2d(
     // Convention: contact.normal points from A to B
     if swapped {
       // A=box, B=circle; from box toward circle escape = face_outward
-      Some(
-        {
-          body_a_id: box_body.id,
-          body_b_id: circle_body.id,
-          normal: face_outward,
-          penetration,
-          contact_point,
-        },
-      )
+      Some({
+        body_a_id: box_body.id,
+        body_b_id: circle_body.id,
+        normal: face_outward,
+        penetration,
+        contact_point,
+      })
     } else {
       // A=circle, B=box; from circle toward box interior = -face_outward
-      Some(
-        {
-          body_a_id: circle_body.id,
-          body_b_id: box_body.id,
-          normal: face_outward.negate(),
-          penetration,
-          contact_point,
-        },
-      )
+      Some({
+        body_a_id: circle_body.id,
+        body_b_id: box_body.id,
+        normal: face_outward.negate(),
+        penetration,
+        contact_point,
+      })
     }
   } else {
     // Circle center is outside AABB: use closest point
@@ -401,25 +371,21 @@ fn circle_aabb2d(
     }
     let penetration = circle_r - dist
     if swapped {
-      Some(
-        {
-          body_a_id: box_body.id,
-          body_b_id: circle_body.id,
-          normal,
-          penetration,
-          contact_point: closest,
-        },
-      )
+      Some({
+        body_a_id: box_body.id,
+        body_b_id: circle_body.id,
+        normal,
+        penetration,
+        contact_point: closest,
+      })
     } else {
-      Some(
-        {
-          body_a_id: circle_body.id,
-          body_b_id: box_body.id,
-          normal: normal.negate(),
-          penetration,
-          contact_point: closest,
-        },
-      )
+      Some({
+        body_a_id: circle_body.id,
+        body_b_id: box_body.id,
+        normal: normal.negate(),
+        penetration,
+        contact_point: closest,
+      })
     }
   }
 }

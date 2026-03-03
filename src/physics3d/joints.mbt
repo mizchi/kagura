@@ -60,24 +60,18 @@ pub fn precompute_distance_joint3d(
   let gamma = 1.0 /
     (sub_dt * (2.0 * joint.damping_ratio * omega + sub_dt * omega * omega))
   let beta = sub_dt * omega * omega * gamma
-  let effective_mass = if k + gamma > 1.0e-12 {
-    1.0 / (k + gamma)
-  } else {
-    0.0
-  }
-  Some(
-    {
-      idx_a,
-      idx_b,
-      r_a,
-      r_b,
-      axis,
-      effective_mass,
-      gamma,
-      bias_coefficient: beta,
-      acc_impulse: 0.0,
-    },
-  )
+  let effective_mass = if k + gamma > 1.0e-12 { 1.0 / (k + gamma) } else { 0.0 }
+  Some({
+    idx_a,
+    idx_b,
+    r_a,
+    r_b,
+    axis,
+    effective_mass,
+    gamma,
+    bias_coefficient: beta,
+    acc_impulse: 0.0,
+  })
 }
 
 ///|
@@ -168,22 +162,20 @@ pub fn precompute_ball_joint3d(
   let eff_x = if k_x + gamma > 1.0e-12 { 1.0 / (k_x + gamma) } else { 0.0 }
   let eff_y = if k_y + gamma > 1.0e-12 { 1.0 / (k_y + gamma) } else { 0.0 }
   let eff_z = if k_z + gamma > 1.0e-12 { 1.0 / (k_z + gamma) } else { 0.0 }
-  Some(
-    {
-      idx_a,
-      idx_b,
-      r_a,
-      r_b,
-      effective_mass_x: eff_x,
-      effective_mass_y: eff_y,
-      effective_mass_z: eff_z,
-      gamma,
-      bias_coefficient: beta,
-      acc_impulse_x: 0.0,
-      acc_impulse_y: 0.0,
-      acc_impulse_z: 0.0,
-    },
-  )
+  Some({
+    idx_a,
+    idx_b,
+    r_a,
+    r_b,
+    effective_mass_x: eff_x,
+    effective_mass_y: eff_y,
+    effective_mass_z: eff_z,
+    gamma,
+    bias_coefficient: beta,
+    acc_impulse_x: 0.0,
+    acc_impulse_y: 0.0,
+    acc_impulse_z: 0.0,
+  })
 }
 
 ///|
@@ -219,16 +211,12 @@ pub fn solve_ball_joint3d(
     bodies[c.idx_a] = {
       ..a,
       velocity: a.velocity.sub(impulse.scale(a.inv_mass)),
-      angular_velocity: a.angular_velocity.sub(
-        angular_a.scale(a.inv_inertia),
-      ),
+      angular_velocity: a.angular_velocity.sub(angular_a.scale(a.inv_inertia)),
     }
     bodies[c.idx_b] = {
       ..b,
       velocity: b.velocity.add(impulse.scale(b.inv_mass)),
-      angular_velocity: b.angular_velocity.add(
-        angular_b.scale(b.inv_inertia),
-      ),
+      angular_velocity: b.angular_velocity.add(angular_b.scale(b.inv_inertia)),
     }
   }
   constraints[ci] = {

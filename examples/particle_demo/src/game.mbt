@@ -10,6 +10,9 @@ struct DemoState {
   emitters : Array[@particle3d.ParticleEmitter]
   particle_shader : @gfx.ShaderHandle
   mut time : Double
+  mut frame_count : Int
+  mut fps_timer : Double
+  mut last_fps : Double
   mut prev_cursor_x : Double
   mut prev_cursor_y : Double
 }
@@ -27,30 +30,41 @@ fn DemoState::new() -> DemoState {
     0.1,
     100.0,
   )
-  // Fire pillar emitter
-  let fire_config : @particle3d.EmitterConfig = {
-    position: @math3d.Vec3::new(0.0, 0.0, 0.0),
-    spawn_rate: 80.0,
-    initial_velocity_min: @math3d.Vec3::new(-0.3, 2.0, -0.3),
-    initial_velocity_max: @math3d.Vec3::new(0.3, 4.0, 0.3),
-    lifetime_min: 0.5,
-    lifetime_max: 1.5,
-    size_min: 0.05,
-    size_max: 0.2,
-    color_start: @math3d.Vec4::new(1.0, 0.9, 0.3, 1.0),
-    color_end: @math3d.Vec4::new(1.0, 0.1, 0.0, 0.0),
-    gravity: @math3d.Vec3::new(0.0, -2.0, 0.0),
-    max_particles: 256,
+  // Create multiple emitters for stress test
+  let emitters : Array[@particle3d.ParticleEmitter] = []
+  let emitter_count = 50
+  for i = 0; i < emitter_count; i = i + 1 {
+    let angle = i.to_double() / emitter_count.to_double() * @math.PI * 2.0
+    let radius = 2.0 + (i % 3).to_double()
+    let x = @math.cos(angle) * radius
+    let z = @math.sin(angle) * radius
+    let config : @particle3d.EmitterConfig = {
+      position: @math3d.Vec3::new(x, 0.0, z),
+      spawn_rate: 500.0,
+      initial_velocity_min: @math3d.Vec3::new(-0.5, 2.0, -0.5),
+      initial_velocity_max: @math3d.Vec3::new(0.5, 5.0, 0.5),
+      lifetime_min: 0.5,
+      lifetime_max: 2.0,
+      size_min: 0.03,
+      size_max: 0.15,
+      color_start: @math3d.Vec4::new(1.0, 0.9, 0.3, 1.0),
+      color_end: @math3d.Vec4::new(1.0, 0.1, 0.0, 0.0),
+      gravity: @math3d.Vec3::new(0.0, -3.0, 0.0),
+      max_particles: 2048,
+    }
+    emitters.push(@particle3d.ParticleEmitter::new(config))
   }
-  let emitter = @particle3d.ParticleEmitter::new(fire_config)
   let particle_shader = @gfx.new_shader_handle(
     20, @draw3d.shader3d_particle_wgsl(),
   )
   {
     camera,
-    emitters: [emitter],
+    emitters,
     particle_shader,
     time: 0.0,
+    frame_count: 0,
+    fps_timer: 0.0,
+    last_fps: 0.0,
     prev_cursor_x: 0.0,
     prev_cursor_y: 0.0,
   }
@@ -60,6 +74,26 @@ fn DemoState::new() -> DemoState {
 fn DemoState::update(self : DemoState, input : @core.InputSnapshot) -> Unit {
   let dt = 1.0 / 60.0
   self.time = self.time + dt
+  self.frame_count = self.frame_count + 1
+  self.fps_timer = self.fps_timer + dt
+  // Report FPS every second
+  if self.fps_timer >= 1.0 {
+    self.last_fps = self.frame_count.to_double() / self.fps_timer
+    let mut total_particles = 0
+    for emitter in self.emitters {
+      total_particles = total_particles + emitter.particle_count()
+    }
+    println(
+      "[particle_bench] fps=" +
+      self.last_fps.to_int().to_string() +
+      " particles=" +
+      total_particles.to_string() +
+      " emitters=" +
+      self.emitters.length().to_string(),
+    )
+    self.frame_count = 0
+    self.fps_timer = 0.0
+  }
   // Camera orbit with left mouse drag
   let dx = input.cursor_x - self.prev_cursor_x
   let dy = input.cursor_y - self.prev_cursor_y

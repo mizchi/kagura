@@ -10,7 +10,6 @@ EXAMPLES=(
   action_rpg
   arena3d
   particle_demo
-  pbr_demo
   shadow3d_demo
   postfx_demo
   skeletal_anim
@@ -18,7 +17,6 @@ EXAMPLES=(
   physics3d_demo
   ragdoll_demo
   collision3d_demo
-  sprite_anim
   fps_demo
   obj_viewer
   ui_demo
@@ -161,7 +159,6 @@ cat > "$SITE/index.html" <<'LANDING'
     <h2>3D Rendering</h2>
     <ul>
       <li><a href="./arena3d/">Arena 3D</a> — Scene graph + GPU Z-buffer</li>
-      <li><a href="./pbr_demo/">PBR Demo</a> — Cook-Torrance BRDF</li>
       <li><a href="./shadow3d_demo/">Shadow 3D</a> — Depth-based shadow mapping</li>
       <li><a href="./postfx_demo/">Post Effects</a> — Bloom, tone mapping, FXAA</li>
       <li><a href="./skeletal_anim/">Skeletal Animation</a> — GPU skinning</li>
@@ -178,7 +175,6 @@ cat > "$SITE/index.html" <<'LANDING'
     <h2>2D / UI</h2>
     <ul>
       <li><a href="./scene_demo/">Scene Demo</a> — Minimal declarative API</li>
-      <li><a href="./sprite_anim/">Sprite Animation</a> — Spritesheet + state machine</li>
       <li><a href="./fps_demo/">FPS Demo</a></li>
       <li><a href="./ui_demo/">UI Demo</a></li>
       <li><a href="./runtime_smoke/">Runtime Smoke</a> — Integration test</li>

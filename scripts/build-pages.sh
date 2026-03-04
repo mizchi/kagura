@@ -20,7 +20,6 @@ EXAMPLES=(
   fps_demo
   obj_viewer
   ui_demo
-  runtime_smoke
 )
 CACHE_BUST="$(git -C "$ROOT" rev-parse --short HEAD 2>/dev/null || date +%s)"
 
@@ -37,6 +36,7 @@ done
 # Copy shared lib
 cp "$ROOT/lib/web/kagura-init.js" "$SITE/lib/kagura-init.js"
 cp "$ROOT/lib/web/kagura-audio.js" "$SITE/lib/kagura-audio.js"
+cp "$ROOT/lib/web/kagura-gfx.js" "$SITE/lib/kagura-gfx.js"
 
 # Generate per-example pages
 for name in "${EXAMPLES[@]}"; do
@@ -68,10 +68,12 @@ for name in "${EXAMPLES[@]}"; do
   cat > "$dir/loader.js" <<LOADER
 import { initWebGPU, setupGlobalState, loadFonts, loadGameScript } from "../lib/kagura-init.js";
 import { installAudioHelpers } from "../lib/kagura-audio.js";
+import { installGfxHelpers } from "../lib/kagura-gfx.js";
 async function init() {
   const result = await initWebGPU("#app");
   if (result) setupGlobalState(result.canvas, result.device, result.format, result.context);
   installAudioHelpers();
+  installGfxHelpers();
 ${FONT_LOAD_SNIPPET}
   await loadGameScript("./${name}.js?v=${CACHE_BUST}");
 }
@@ -177,7 +179,6 @@ cat > "$SITE/index.html" <<'LANDING'
       <li><a href="./scene_demo/">Scene Demo</a> — Minimal declarative API</li>
       <li><a href="./fps_demo/">FPS Demo</a></li>
       <li><a href="./ui_demo/">UI Demo</a></li>
-      <li><a href="./runtime_smoke/">Runtime Smoke</a> — Integration test</li>
     </ul>
     <div class="note">
       Source: <a href="https://github.com/mizchi/kagura">github.com/mizchi/kagura</a>

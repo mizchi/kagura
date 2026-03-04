@@ -103,6 +103,12 @@ fn DemoState::new() -> DemoState {
       )
     }
     let mass = 1.0
+    // Correct moment of inertia: cube I = m/6 * s^2, sphere I = 2/5 * m * r^2
+    let inv_inertia = if is_sphere {
+      1.0 / (0.4 * mass * 0.4 * 0.4) // 2/5 * m * r^2
+    } else {
+      6.0 / (mass * 0.8 * 0.8) // 1 / (m/6 * s^2)
+    }
     world.add_body({
       id,
       body_type: @physics3d.Dynamic,
@@ -114,12 +120,12 @@ fn DemoState::new() -> DemoState {
       torque: @math3d.Vec3::zero(),
       mass,
       inv_mass: 1.0 / mass,
-      inv_inertia: 1.0 / mass,
-      restitution: 0.35,
-      friction: 0.5,
+      inv_inertia,
+      restitution: 0.3,
+      friction: 0.6,
       collider,
-      linear_damping: 0.02,
-      angular_damping: 0.02,
+      linear_damping: 0.05,
+      angular_damping: 0.15,
       is_sleeping: false,
       sleep_timer: 0.0,
       is_bullet: false,

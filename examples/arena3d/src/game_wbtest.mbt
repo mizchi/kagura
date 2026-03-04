@@ -232,9 +232,16 @@ test "reset restores initial state" {
 ///|
 fn render_test_scene(state : GameState) -> Array[@gfx.DrawTrianglesCommand] {
   let dst = @gfx.new_image_handle(1, screen_w, screen_h)
-  let shader = @gfx.new_shader_handle(1, "test")
-  let scene = state.build_scene3d()
-  @scene3d.render_scene3d(scene, dst, shader, screen_w, screen_h)
+  let graph = state.build_scene_graph()
+  @scene3d.render_scene3d_graph_gpu(
+    graph,
+    state.camera.to_camera3d(),
+    lighting=state.lighting,
+    dst,
+    state.shader3d,
+    screen_w,
+    screen_h,
+  )
 }
 
 ///|
@@ -257,18 +264,13 @@ test "draw commands change when items collected" {
   let state = GameState::new()
   state.mode = mode_playing
   let cmds_before = render_test_scene(state)
-  state.items[0].active = false
+  // Deactivate all items to ensure visible ones are removed
+  for item in state.items {
+    item.active = false
+  }
   let cmds_after = render_test_scene(state)
-  // Fewer objects → different number of draw commands
-  let tris_before = cmds_before.fold(
-    init=0,
-    fn(acc, cmd) { acc + cmd.indices.length() / 3 },
-  )
-  let tris_after = cmds_after.fold(
-    init=0,
-    fn(acc, cmd) { acc + cmd.indices.length() / 3 },
-  )
-  assert_true(tris_after < tris_before)
+  // GPU renderer: one command per mesh node, fewer items → fewer commands
+  assert_true(cmds_after.length() < cmds_before.length())
 }
 
 // ============================================================

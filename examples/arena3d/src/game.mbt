@@ -129,6 +129,7 @@ struct GameState {
   lighting : @light3d.LightingEnvironment
   input : @inpututil.InputHelper
   meshes : Meshes
+  shader3d : @gfx.ShaderHandle
   audio_ctx : @audio.MixerAudioContext
   sfx_collect : @audio.PlayerId
   sfx_hit : @audio.PlayerId
@@ -204,6 +205,7 @@ fn GameState::new() -> GameState {
       ground: @mesh3d.Mesh3D::plane(20.0, 20.0),
       wall: @mesh3d.Mesh3D::cube(1.0),
     },
+    shader3d: @gfx.new_shader_handle(100, @draw3d.shader3d_lit_untextured_wgsl()),
     audio_ctx,
     sfx_collect,
     sfx_hit,
@@ -388,89 +390,85 @@ let color_ground : @math3d.Vec4 = @math3d.Vec4::new(0.4, 0.5, 0.4, 1.0)
 let color_wall : @math3d.Vec4 = @math3d.Vec4::new(0.3, 0.3, 0.35, 1.0)
 
 ///|
-fn GameState::build_scene3d(self : GameState) -> @scene3d.Scene3D {
-  let objects : Array[@scene3d.Object3D] = []
+fn GameState::build_scene_graph(self : GameState) -> @scene3d.SceneGraph {
+  let graph = @scene3d.SceneGraph::new()
   // Ground
-  objects.push(
-    @scene3d.object3d(mesh=self.meshes.ground, color=color_ground),
-  )
+  graph.add_node(
+    @scene3d.scene_node(mesh=Some(self.meshes.ground), color=color_ground),
+  ) |> ignore
   // Walls
   let h = arena_half
   let wh = wall_height / 2.0
   let wt = wall_thickness
   // North wall
-  objects.push(
-    @scene3d.object3d(
-      mesh=self.meshes.wall,
+  graph.add_node(
+    @scene3d.scene_node(
+      mesh=Some(self.meshes.wall),
       position=@math3d.Vec3::new(0.0, wh, -(h + wt / 2.0)),
       scale=@math3d.Vec3::new(h * 2.0 + wt * 2.0, wall_height, wt),
       color=color_wall,
     ),
-  )
+  ) |> ignore
   // South wall
-  objects.push(
-    @scene3d.object3d(
-      mesh=self.meshes.wall,
+  graph.add_node(
+    @scene3d.scene_node(
+      mesh=Some(self.meshes.wall),
       position=@math3d.Vec3::new(0.0, wh, h + wt / 2.0),
       scale=@math3d.Vec3::new(h * 2.0 + wt * 2.0, wall_height, wt),
       color=color_wall,
     ),
-  )
+  ) |> ignore
   // West wall
-  objects.push(
-    @scene3d.object3d(
-      mesh=self.meshes.wall,
+  graph.add_node(
+    @scene3d.scene_node(
+      mesh=Some(self.meshes.wall),
       position=@math3d.Vec3::new(-(h + wt / 2.0), wh, 0.0),
       scale=@math3d.Vec3::new(wt, wall_height, h * 2.0),
       color=color_wall,
     ),
-  )
+  ) |> ignore
   // East wall
-  objects.push(
-    @scene3d.object3d(
-      mesh=self.meshes.wall,
+  graph.add_node(
+    @scene3d.scene_node(
+      mesh=Some(self.meshes.wall),
       position=@math3d.Vec3::new(h + wt / 2.0, wh, 0.0),
       scale=@math3d.Vec3::new(wt, wall_height, h * 2.0),
       color=color_wall,
     ),
-  )
+  ) |> ignore
   // Items
   for i in 0..<self.items.length() {
     let item = self.items[i]
     if item.active {
-      objects.push(
-        @scene3d.object3d(
-          mesh=self.meshes.item,
+      graph.add_node(
+        @scene3d.scene_node(
+          mesh=Some(self.meshes.item),
           position=item.position,
           color=color_item,
         ),
-      )
+      ) |> ignore
     }
   }
   // Enemies
   for i in 0..<self.enemies.length() {
     let e = self.enemies[i]
-    objects.push(
-      @scene3d.object3d(
-        mesh=self.meshes.enemy,
+    graph.add_node(
+      @scene3d.scene_node(
+        mesh=Some(self.meshes.enemy),
         position=e.position,
         color=color_enemy,
       ),
-    )
+    ) |> ignore
   }
   // Player
-  objects.push(
-    @scene3d.object3d(
-      mesh=self.meshes.player,
+  graph.add_node(
+    @scene3d.scene_node(
+      mesh=Some(self.meshes.player),
       position=self.player.position,
       color=color_player,
     ),
-  )
-  @scene3d.scene3d(
-    objects~,
-    camera=self.camera.to_camera3d(),
-    lighting=self.lighting,
-  )
+  ) |> ignore
+  graph
 }
 
 ///|
@@ -478,6 +476,14 @@ fn GameState::draw(
   self : GameState,
   ctx : @engine.EngineContext,
 ) -> Array[@gfx.DrawTrianglesCommand] {
-  let scene = self.build_scene3d()
-  @scene3d.render_scene3d(scene, ctx.dst, ctx.shader, ctx.screen_w, ctx.screen_h)
+  let graph = self.build_scene_graph()
+  @scene3d.render_scene3d_graph_gpu(
+    graph,
+    self.camera.to_camera3d(),
+    lighting=self.lighting,
+    ctx.dst,
+    self.shader3d,
+    ctx.screen_w,
+    ctx.screen_h,
+  )
 }

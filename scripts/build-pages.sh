@@ -3,7 +3,27 @@ set -euo pipefail
 
 ROOT="$(cd "$(dirname "$0")/.." && pwd)"
 SITE="$ROOT/_site"
-EXAMPLES=(scene_demo flappy_bird survivor action_rpg arena3d runtime_smoke)
+EXAMPLES=(
+  scene_demo
+  flappy_bird
+  survivor
+  action_rpg
+  arena3d
+  particle_demo
+  pbr_demo
+  shadow3d_demo
+  postfx_demo
+  skeletal_anim
+  physics2d_demo
+  physics3d_demo
+  ragdoll_demo
+  collision3d_demo
+  sprite_anim
+  fps_demo
+  obj_viewer
+  ui_demo
+  runtime_smoke
+)
 CACHE_BUST="$(git -C "$ROOT" rev-parse --short HEAD 2>/dev/null || date +%s)"
 
 # Clean
@@ -19,7 +39,6 @@ done
 # Copy shared lib
 cp "$ROOT/lib/web/kagura-init.js" "$SITE/lib/kagura-init.js"
 cp "$ROOT/lib/web/kagura-audio.js" "$SITE/lib/kagura-audio.js"
-cp "$ROOT/lib/web/kagura-gfx.js" "$SITE/lib/kagura-gfx.js"
 
 # Generate per-example pages
 for name in "${EXAMPLES[@]}"; do
@@ -51,12 +70,10 @@ for name in "${EXAMPLES[@]}"; do
   cat > "$dir/loader.js" <<LOADER
 import { initWebGPU, setupGlobalState, loadFonts, loadGameScript } from "../lib/kagura-init.js";
 import { installAudioHelpers } from "../lib/kagura-audio.js";
-import { installGfxHelpers } from "../lib/kagura-gfx.js";
 async function init() {
   const result = await initWebGPU("#app");
   if (result) setupGlobalState(result.canvas, result.device, result.format, result.context);
   installAudioHelpers();
-  installGfxHelpers();
 ${FONT_LOAD_SNIPPET}
   await loadGameScript("./${name}.js?v=${CACHE_BUST}");
 }
@@ -134,14 +151,37 @@ cat > "$SITE/index.html" <<'LANDING'
   </head>
   <body>
     <h1>Kagura Examples</h1>
-    <p>2D-first game engine for MoonBit. These demos require a WebGPU-capable browser (Chrome 113+, Edge 113+).</p>
+    <p>2D/3D game engine for MoonBit. These demos require a WebGPU-capable browser (Chrome 113+, Edge 113+).</p>
+    <h2>Games</h2>
     <ul>
-      <li><a href="./scene_demo/">Scene Demo</a> — Minimal declarative API example</li>
       <li><a href="./flappy_bird/">Flappy Bird</a></li>
       <li><a href="./survivor/">Survivor</a></li>
       <li><a href="./action_rpg/">Action RPG</a></li>
-      <li><a href="./arena3d/">Arena 3D</a> — Experimental</li>
-      <li><a href="./runtime_smoke/">Runtime Smoke</a></li>
+    </ul>
+    <h2>3D Rendering</h2>
+    <ul>
+      <li><a href="./arena3d/">Arena 3D</a> — Scene graph + GPU Z-buffer</li>
+      <li><a href="./pbr_demo/">PBR Demo</a> — Cook-Torrance BRDF</li>
+      <li><a href="./shadow3d_demo/">Shadow 3D</a> — Depth-based shadow mapping</li>
+      <li><a href="./postfx_demo/">Post Effects</a> — Bloom, tone mapping, FXAA</li>
+      <li><a href="./skeletal_anim/">Skeletal Animation</a> — GPU skinning</li>
+      <li><a href="./obj_viewer/">OBJ Viewer</a></li>
+      <li><a href="./particle_demo/">Particle System</a> — Billboard particles, additive blending</li>
+    </ul>
+    <h2>Physics</h2>
+    <ul>
+      <li><a href="./physics3d_demo/">Physics 3D</a> — Rigid body, gravity, collision</li>
+      <li><a href="./physics2d_demo/">Physics 2D</a> — Circle/AABB/OBB, joints</li>
+      <li><a href="./ragdoll_demo/">Ragdoll</a> — Revolute joint physics</li>
+      <li><a href="./collision3d_demo/">Collision 3D</a> — AABB/Sphere/Ray</li>
+    </ul>
+    <h2>2D / UI</h2>
+    <ul>
+      <li><a href="./scene_demo/">Scene Demo</a> — Minimal declarative API</li>
+      <li><a href="./sprite_anim/">Sprite Animation</a> — Spritesheet + state machine</li>
+      <li><a href="./fps_demo/">FPS Demo</a></li>
+      <li><a href="./ui_demo/">UI Demo</a></li>
+      <li><a href="./runtime_smoke/">Runtime Smoke</a> — Integration test</li>
     </ul>
     <div class="note">
       Source: <a href="https://github.com/mizchi/kagura">github.com/mizchi/kagura</a>

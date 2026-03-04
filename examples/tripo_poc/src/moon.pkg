@@ -1,0 +1,10 @@
+import {
+  "moonbitlang/core/json",
+}
+
+warnings = "-1-2-29-71"
+
+options(
+  "is-main": true,
+  targets: { "ffi_js.mbt": [ "js" ] },
+)

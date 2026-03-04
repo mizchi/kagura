@@ -1,0 +1,17 @@
+import {
+  "mizchi/js/core" @core,
+}
+
+options(
+  "supported-targets": [ "js" ],
+  targets: {
+    "cleanup.mbt": [ "js" ],
+    "install.mbt": [ "js" ],
+    "pipeline.mbt": [ "js" ],
+    "render.mbt": [ "js" ],
+    "shader_utils.mbt": [ "js" ],
+    "state.mbt": [ "js" ],
+    "texture.mbt": [ "js" ],
+    "webgpu_ffi.mbt": [ "js" ],
+  },
+)

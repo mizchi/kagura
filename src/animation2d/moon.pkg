@@ -1,0 +1,5 @@
+import {
+  "mizchi/kagura/asset" @asset,
+  "mizchi/kagura/gfx" @gfx,
+  "mizchi/kagura/sprite2d" @sprite2d,
+}

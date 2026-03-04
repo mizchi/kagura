@@ -204,3 +204,99 @@ test "new_lit_normalmap_mesh_draw_command creates valid command" {
   assert_eq(cmd.src_image_ids[1], 20)
   assert_eq(cmd.uniform_dwords.length(), 56)
 }
+
+// ============================================================
+// Instanced shader and uniform tests
+// ============================================================
+
+///|
+test "shader3d_lit_instanced_wgsl contains instance_index" {
+  let src = shader3d_lit_instanced_wgsl()
+  assert_true(src.length() > 100)
+  assert_true(src.contains("instance_index"))
+  assert_true(src.contains("vs_main"))
+  assert_true(src.contains("fs_main"))
+  assert_true(src.contains("InstanceData"))
+  assert_true(src.contains("MAX_INSTANCES"))
+}
+
+///|
+test "instanced_lit_uniform_dwords layout" {
+  let vp = @math3d.Mat4::identity()
+  let lighting = @light3d.LightingEnvironment::default()
+  let matrices = [@math3d.Mat4::identity()]
+  let colors = [@math3d.Vec4::new(1.0, 0.0, 0.0, 1.0)]
+  let dwords = instanced_lit_uniform_dwords(vp, lighting, matrices, colors)
+  // VP(16) + Light(12) + instance_count(4) + 256 instances * 20 = 5152
+  assert_eq(dwords.length(), 16 + 12 + 4 + 256 * 20)
+}
+
+///|
+test "instanced_lit_uniform_dwords with 2 instances" {
+  let vp = @math3d.Mat4::identity()
+  let lighting = @light3d.LightingEnvironment::default()
+  let matrices = [
+    @math3d.Mat4::translation(1.0, 0.0, 0.0),
+    @math3d.Mat4::translation(0.0, 2.0, 0.0),
+  ]
+  let colors = [
+    @math3d.Vec4::new(1.0, 0.0, 0.0, 1.0),
+    @math3d.Vec4::new(0.0, 1.0, 0.0, 1.0),
+  ]
+  let dwords = instanced_lit_uniform_dwords(vp, lighting, matrices, colors)
+  // Header: VP(16) + Light(12) = 28, then instance_count at 28
+  let count_val = @gfx.f32_bits_to_double(dwords[28])
+  assert_true(approx(count_val, 2.0))
+  // Per-instance data starts at 32 (28 + 4 for instance_count vec4)
+  // First instance model: translation(1,0,0)
+  // column 3 element 0 (index 32 + 12 = 44)
+  let tx1 = @gfx.f32_bits_to_double(dwords[32 + 12])
+  assert_true(approx(tx1, 1.0))
+  // First instance color at offset 32 + 16 = 48
+  let cr = @gfx.f32_bits_to_double(dwords[48])
+  assert_true(approx(cr, 1.0))
+}
+
+///|
+test "new_instanced_lit_mesh_draw_command creates valid command" {
+  let mesh = @mesh3d.Mesh3D::cube(1.0)
+  let vp = @math3d.Mat4::identity()
+  let lighting = @light3d.LightingEnvironment::default()
+  let dst = @gfx.new_image_handle(1, 800, 600)
+  let shader = @gfx.new_shader_handle(1, "test_instanced")
+  let matrices = [
+    @math3d.Mat4::identity(),
+    @math3d.Mat4::translation(2.0, 0.0, 0.0),
+  ]
+  let colors = [
+    @math3d.Vec4::new(1.0, 0.0, 0.0, 1.0),
+    @math3d.Vec4::new(0.0, 1.0, 0.0, 1.0),
+  ]
+  let dst_region = @gfx.new_dst_region(0, 0, 800, 600, 36)
+  let cmd = new_instanced_lit_mesh_draw_command(
+    dst, shader, dst_region, @gfx.blend_mode_from_int(1), mesh, vp, lighting,
+    matrices, colors,
+  )
+  assert_eq(cmd.instance_count, 2)
+  assert_eq(cmd.vertex_data.length(), 24 * @mesh3d.vertex3d_stride)
+  assert_eq(cmd.indices.length(), 36)
+}
+
+///|
+test "instance_count=1 produces same data size as non-instanced" {
+  let mesh = @mesh3d.Mesh3D::cube(1.0)
+  let vp = @math3d.Mat4::identity()
+  let lighting = @light3d.LightingEnvironment::default()
+  let dst = @gfx.new_image_handle(1, 800, 600)
+  let shader = @gfx.new_shader_handle(1, "test_instanced")
+  let matrices = [@math3d.Mat4::identity()]
+  let colors = [@math3d.Vec4::new(1.0, 1.0, 1.0, 1.0)]
+  let dst_region = @gfx.new_dst_region(0, 0, 800, 600, 36)
+  let cmd = new_instanced_lit_mesh_draw_command(
+    dst, shader, dst_region, @gfx.blend_mode_from_int(1), mesh, vp, lighting,
+    matrices, colors,
+  )
+  assert_eq(cmd.instance_count, 1)
+  // Uniform size is always padded to MAX_INSTANCES
+  assert_eq(cmd.uniform_dwords.length(), 16 + 12 + 4 + 256 * 20)
+}

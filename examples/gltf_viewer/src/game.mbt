@@ -10,6 +10,7 @@ struct ViewerState {
   mut camera : @camera3d.OrbitCamera
   lighting : @light3d.LightingEnvironment
   shader3d : @gfx.ShaderHandle
+  shader3d_textured : @gfx.ShaderHandle
   node_count : Int
   mesh_node_count : Int
 }
@@ -55,6 +56,10 @@ fn ViewerState::new(graph : @scene3d.SceneGraph) -> ViewerState {
       100,
       @draw3d.shader3d_lit_untextured_wgsl(),
     ),
+    shader3d_textured: @gfx.new_shader_handle(
+      101,
+      @draw3d.shader3d_lit_wgsl(),
+    ),
     node_count,
     mesh_node_count: mesh_count,
   }
@@ -95,6 +100,7 @@ fn ViewerState::draw(self : ViewerState, ctx : @engine.EngineContext) -> Array[@
     self.shader3d,
     ctx.screen_w,
     ctx.screen_h,
+    shader3d_textured=Some(self.shader3d_textured),
   )
   // HUD: node count
   let sw = ctx.screen_w.to_double()

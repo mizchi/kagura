@@ -48,7 +48,7 @@ fn add_node_recursive(
           Some(mat_idx) =>
             if mat_idx < doc.materials.length() {
               let mat = doc.materials[mat_idx]
-              Some({ color: mat.base_color_factor, src_image_id: -1 })
+              Some(@scene3d.Material::new(color=mat.base_color_factor))
             } else {
               None
             }

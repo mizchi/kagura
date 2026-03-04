@@ -297,6 +297,7 @@ pub struct DrawTrianglesCommand {
   indices : Array[Int]
   src_image_ids : Array[Int]
   uniform_dwords : Array[Int]
+  instance_count : Int // 1 = default (non-instanced)
 }
 
 ///|
@@ -312,6 +313,7 @@ pub fn new_draw_triangles_command(
   indices : Array[Int],
   src_image_ids : Array[Int],
   uniform_dwords : Array[Int],
+  instance_count~ : Int = 1,
 ) -> DrawTrianglesCommand {
   {
     dst,
@@ -325,6 +327,7 @@ pub fn new_draw_triangles_command(
     indices,
     src_image_ids,
     uniform_dwords,
+    instance_count,
   }
 }
 
@@ -606,6 +609,10 @@ fn can_merge_draw_triangles(
   lhs : DrawTrianglesCommand,
   rhs : DrawTrianglesCommand,
 ) -> Bool {
+  // Instanced commands cannot be merged
+  if lhs.instance_count != 1 || rhs.instance_count != 1 {
+    return false
+  }
   let lhs_explicit = lhs.vertex_data.length() > 0 || lhs.indices.length() > 0
   let rhs_explicit = rhs.vertex_data.length() > 0 || rhs.indices.length() > 0
   lhs_explicit == rhs_explicit &&
@@ -658,6 +665,7 @@ fn merge_draw_triangles_range(
       indices: [],
       src_image_ids: base.src_image_ids,
       uniform_dwords: base.uniform_dwords,
+      instance_count: base.instance_count,
     }
   } else {
     let mut merged_vertex_float_count = 0
@@ -698,6 +706,7 @@ fn merge_draw_triangles_range(
       indices: merged_indices,
       src_image_ids: base.src_image_ids,
       uniform_dwords: base.uniform_dwords,
+      instance_count: base.instance_count,
     }
   }
 }

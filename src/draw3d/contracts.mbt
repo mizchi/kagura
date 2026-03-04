@@ -752,3 +752,141 @@ pub fn new_pbr_mesh_draw_command(
     uniform_dwords,
   )
 }
+
+// ============================================================
+// 3D Instanced Lit Shader
+// ============================================================
+
+///|
+let max_instances : Int = 256
+
+///|
+/// WGSL instanced lit shader (untextured).
+/// Uniform layout: VP(16) + Light(12) + instance_count(4) + InstanceData(N×20).
+/// Each instance has model(16) + color(4) dwords.
+pub fn shader3d_lit_instanced_wgsl() -> String {
+  "const MAX_INSTANCES: u32 = 256u;\n\n" +
+  "struct InstanceData {\n" +
+  "  model: mat4x4<f32>,\n" +
+  "  color: vec4<f32>,\n" +
+  "};\n\n" +
+  "struct Uniforms {\n" +
+  "  vp: mat4x4<f32>,\n" +
+  "  light_dir: vec4<f32>,\n" +
+  "  light_color: vec4<f32>,\n" +
+  "  ambient_color: vec4<f32>,\n" +
+  "  instance_count: vec4<f32>,\n" +
+  "  instances: array<InstanceData, 256>,\n" +
+  "};\n\n" +
+  "@group(0) @binding(0) var<uniform> uniforms: Uniforms;\n\n" +
+  "struct VertexInput {\n" +
+  "  @location(0) position: vec3<f32>,\n" +
+  "  @location(1) normal: vec3<f32>,\n" +
+  "  @location(2) uv: vec2<f32>,\n" +
+  "};\n\n" +
+  "struct VertexOutput {\n" +
+  "  @builtin(position) clip_position: vec4<f32>,\n" +
+  "  @location(0) world_normal: vec3<f32>,\n" +
+  "  @location(1) inst_color: vec4<f32>,\n" +
+  "};\n\n" +
+  "@vertex fn vs_main(input: VertexInput, @builtin(instance_index) iid: u32) -> VertexOutput {\n" +
+  "  let inst = uniforms.instances[iid];\n" +
+  "  let mvp = uniforms.vp * inst.model;\n" +
+  "  var out: VertexOutput;\n" +
+  "  out.clip_position = mvp * vec4<f32>(input.position, 1.0);\n" +
+  "  let normal_mat = mat3x3<f32>(inst.model[0].xyz, inst.model[1].xyz, inst.model[2].xyz);\n" +
+  "  out.world_normal = normalize(normal_mat * input.normal);\n" +
+  "  out.inst_color = inst.color;\n" +
+  "  return out;\n" +
+  "}\n\n" +
+  "@fragment fn fs_main(in: VertexOutput) -> @location(0) vec4<f32> {\n" +
+  "  let normal = normalize(in.world_normal);\n" +
+  "  let light_dir = normalize(-uniforms.light_dir.xyz);\n" +
+  "  let ndotl = max(dot(normal, light_dir), 0.0);\n" +
+  "  let diffuse = uniforms.light_color.xyz * ndotl;\n" +
+  "  let ambient = uniforms.ambient_color.xyz;\n" +
+  "  let lit_color = in.inst_color.rgb * (diffuse + ambient);\n" +
+  "  return vec4<f32>(lit_color, in.inst_color.a);\n" +
+  "}\n"
+}
+
+///|
+/// Encode instanced lit uniform data.
+/// Layout: VP(16) + Light(12) + instance_count(4) + per-instance(model(16)+color(4))×N.
+pub fn instanced_lit_uniform_dwords(
+  view_projection : @math3d.Mat4,
+  lighting : @light3d.LightingEnvironment,
+  instance_matrices : Array[@math3d.Mat4],
+  instance_colors : Array[@math3d.Vec4],
+) -> Array[Int] {
+  let dwords = mat4_to_uniform_dwords(view_projection)
+  // Light data (12 dwords)
+  let light_dw = @light3d.light_uniform_dwords(lighting)
+  for i in 0..<light_dw.length() {
+    dwords.push(light_dw[i])
+  }
+  // instance_count as vec4<f32> (4 dwords)
+  let count = instance_matrices.length()
+  dwords.push(@gfx.double_to_f32_bits(count.to_double()))
+  dwords.push(@gfx.double_to_f32_bits(0.0))
+  dwords.push(@gfx.double_to_f32_bits(0.0))
+  dwords.push(@gfx.double_to_f32_bits(0.0))
+  // Per-instance data: model(16) + color(4) = 20 dwords each
+  let inst_count = if count < max_instances { count } else { max_instances }
+  for i in 0..<inst_count {
+    let m = instance_matrices[i]
+    for j in 0..<16 {
+      dwords.push(@gfx.double_to_f32_bits(m.elements[j]))
+    }
+    let c = instance_colors[i]
+    dwords.push(@gfx.double_to_f32_bits(c.x))
+    dwords.push(@gfx.double_to_f32_bits(c.y))
+    dwords.push(@gfx.double_to_f32_bits(c.z))
+    dwords.push(@gfx.double_to_f32_bits(c.w))
+  }
+  // Pad remaining instances with zeros
+  for _i in inst_count..<max_instances {
+    for _j in 0..<20 {
+      dwords.push(0)
+    }
+  }
+  dwords
+}
+
+///|
+/// Build an instanced draw command.
+pub fn new_instanced_lit_mesh_draw_command(
+  dst : @gfx.ImageHandle,
+  shader : @gfx.ShaderHandle,
+  dst_region : @gfx.DstRegion,
+  blend : @gfx.BlendMode,
+  mesh : @mesh3d.Mesh3D,
+  view_projection : @math3d.Mat4,
+  lighting : @light3d.LightingEnvironment,
+  instance_matrices : Array[@math3d.Mat4],
+  instance_colors : Array[@math3d.Vec4],
+  src_image_ids~ : Array[Int] = [],
+) -> @gfx.DrawTrianglesCommand {
+  let count = if instance_matrices.length() < max_instances {
+    instance_matrices.length()
+  } else {
+    max_instances
+  }
+  let uniform_dwords = instanced_lit_uniform_dwords(
+    view_projection, lighting, instance_matrices, instance_colors,
+  )
+  @gfx.new_draw_triangles_command(
+    dst,
+    shader,
+    [dst_region],
+    0,
+    0,
+    0,
+    blend,
+    mesh.vertex_data,
+    mesh.indices,
+    src_image_ids,
+    uniform_dwords,
+    instance_count=count,
+  )
+}

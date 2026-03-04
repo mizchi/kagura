@@ -140,10 +140,10 @@ test "render_scene3d material with texture sets src_image_ids" {
     0.1,
     100.0,
   )
-  let mat : Material = {
-    color: @math3d.Vec4::new(1.0, 1.0, 1.0, 1.0),
-    src_image_id: 42,
-  }
+  let mat = Material::new(
+    color=@math3d.Vec4::new(1.0, 1.0, 1.0, 1.0),
+    src_image_id=42,
+  )
   let scene = scene3d(
     objects=[object3d(mesh=cube, material=Some(mat))],
     camera~,
@@ -642,10 +642,10 @@ test "render_scene3d_gpu material with texture sets src_image_ids" {
     0.1,
     100.0,
   )
-  let mat : Material = {
-    color: @math3d.Vec4::new(1.0, 1.0, 1.0, 1.0),
-    src_image_id: 42,
-  }
+  let mat = Material::new(
+    color=@math3d.Vec4::new(1.0, 1.0, 1.0, 1.0),
+    src_image_id=42,
+  )
   let scene = scene3d(
     objects=[object3d(mesh=cube, material=Some(mat))],
     camera~,
@@ -654,4 +654,69 @@ test "render_scene3d_gpu material with texture sets src_image_ids" {
   assert_eq(cmds.length(), 1)
   assert_eq(cmds[0].src_image_ids.length(), 1)
   assert_eq(cmds[0].src_image_ids[0], 42)
+}
+
+// ============================================================
+// Instanced rendering tests
+// ============================================================
+
+///|
+test "render_instanced_gpu creates single command with instance_count" {
+  let dst = @gfx.new_image_handle(0, 640, 480)
+  let shader3d = @gfx.new_shader_handle(10, "")
+  let cube = @mesh3d.Mesh3D::cube(1.0)
+  let camera = @camera3d.Camera3D::new_perspective(
+    @math3d.Vec3::new(0.0, 5.0, 10.0),
+    @math3d.Vec3::zero(),
+    @math3d.Vec3::new(0.0, 1.0, 0.0),
+    @math.PI / 4.0,
+    640.0 / 480.0,
+    0.1,
+    100.0,
+  )
+  let instances = [
+    InstanceData::new(
+      transform=@transform3d.Transform3D::new(),
+      color=@math3d.Vec4::new(1.0, 0.0, 0.0, 1.0),
+    ),
+    InstanceData::new(
+      transform=@transform3d.Transform3D::new().translate(@math3d.Vec3::new(2.0, 0.0, 0.0)),
+      color=@math3d.Vec4::new(0.0, 1.0, 0.0, 1.0),
+    ),
+    InstanceData::new(
+      transform=@transform3d.Transform3D::new().translate(@math3d.Vec3::new(-2.0, 0.0, 0.0)),
+      color=@math3d.Vec4::new(0.0, 0.0, 1.0, 1.0),
+    ),
+  ]
+  let cmd = render_instanced_gpu(
+    cube, instances, camera, dst, shader3d, 640, 480,
+  )
+  // Should be a single command with instance_count=3
+  assert_eq(cmd.instance_count, 3)
+  // Mesh data should be the cube data
+  assert_eq(cmd.vertex_data.length(), 24 * @mesh3d.vertex3d_stride)
+  assert_eq(cmd.indices.length(), 36)
+}
+
+///|
+test "render_instanced_gpu with 1 instance" {
+  let dst = @gfx.new_image_handle(0, 640, 480)
+  let shader3d = @gfx.new_shader_handle(10, "")
+  let cube = @mesh3d.Mesh3D::cube(1.0)
+  let camera = @camera3d.Camera3D::new_perspective(
+    @math3d.Vec3::new(0.0, 5.0, 10.0),
+    @math3d.Vec3::zero(),
+    @math3d.Vec3::new(0.0, 1.0, 0.0),
+    @math.PI / 4.0,
+    640.0 / 480.0,
+    0.1,
+    100.0,
+  )
+  let instances = [
+    InstanceData::new(color=@math3d.Vec4::new(1.0, 1.0, 1.0, 1.0)),
+  ]
+  let cmd = render_instanced_gpu(
+    cube, instances, camera, dst, shader3d, 640, 480,
+  )
+  assert_eq(cmd.instance_count, 1)
 }

@@ -79,7 +79,46 @@
 - [x] フラスタムカリング - オブジェクト単位の視錐台カリング
 - [x] LOD - 距離に応じたメッシュ切替（LodMesh, select_lod_mesh, sphere_lod）
 
-### アーキテクチャ課題
+## ベンチマークゲーム: Isometric Hack & Slash ARPG
+
+Path of Exile スタイルの斜め見下ろしアクション RPG をターゲットに開発を進める。
+
+- **視点**: 固定カメラ斜め見下ろし（クォータービュー）
+- **ビルド**: 近接ビルド / 魔法ビルド / 召喚ビルド
+- **システム**: スキルツリー、装備、ルート、マップ生成
+- **地形**: `mizchi/terrain` を使用 or 参考にした procedural 地形生成
+
+### ARPG 実現に必要な機能 (優先順位順)
+
+#### Phase 1: 最小プレイアブル
+
+- [x] テクスチャ付き 3D lit シェーダの GPU パス統合 — `render_scene3d_gpu` で textured/PBR shader 自動選択（Material 拡張 + shader3d_textured/pbr/pbr_textured パラメータ）
+- [ ] GPU スキニング — CPU skinning をコンピュートシェーダに移行（多数の敵表示に必須）
+- [x] パスファインディング — A* on Grid2D（`pathfind` パッケージ, Manhattan heuristic, カスタム walkable 関数）
+- [x] 地形システム — `mizchi/terrain` Grid2D → Mesh3D 変換（`terrain3d` パッケージ）+ terrain_demo（BSP ダンジョン + A* パス表示）
+- [x] インスタンスレンダリング — 同一メッシュ大量描画（敵の群れ、パーティクル）（DrawTrianglesCommand instance_count + WGSL instanced shader + SceneGraph 統合）
+- [x] シーン遷移 / ステート管理 — タイトル → ゲーム → リザルト、マップ間遷移（scene_manager パッケージ: Scene trait + SceneManager + フェード遷移）
+- [ ] 非同期アセットローダー — ロード画面、ストリーミング対応
+
+#### Phase 2: ゲームシステム
+
+- [ ] ECS / コンポーネントシステム — エンティティ管理（敵、プレイヤー、ドロップアイテム、投射物）
+- [ ] 3D アニメーションステートマシン — idle/walk/attack/cast/death のブレンド遷移
+- [ ] IK (Inverse Kinematics) — 武器持ち替え、地形追従
+- [ ] スプライトシート自動生成 — UI アイコン、スキルアイコン用テクスチャアトラス
+- [ ] UI フレームワーク — HP バー、スキルバー、インベントリ、スキルツリー画面
+- [ ] セーブ / ロード — キャラクターデータ、進行状況の永続化
+
+#### Phase 3: 品質・スケール
+
+- [ ] オクルージョンカリング — 大規模マップでの描画負荷軽減
+- [ ] PBR 拡張 (IBL, SSR, SSAO) — 環境マッピング、スクリーンスペース反射
+- [ ] ネットワーク同期 — マルチプレイヤー対応（WebSocket / WebRTC）
+- [ ] プロファイラ — フレーム時間、ドローコール、メモリ使用量の可視化
+- [ ] ホットリロード — WASM モジュール差し替えによるイテレーション高速化
+- [ ] ビジュアルエディタ — シーン配置、パラメータ調整 GUI
+
+## アーキテクチャ課題
 
 - CPU ラスタライザ → GPU パイプライン移行: scene3d は CPU で頂点変換して 2D コマンドに変換している。`src/gfx_webgpu/` で GPU Z-buffer レンダラーを実装済み、段階的に移行
 - 頂点フォーマットの柔軟化: 現在 stride=8 固定。スキンメッシュではボーンウェイトが必要
@@ -87,7 +126,7 @@
 ## テスト・CI
 
 - [x] Playwright VRT（Visual Regression Testing）— 17 examples の描画スナップショット自動検証
-- [x] moon test: 929 テスト（js target）
+- [x] moon test: 999 テスト（js target）
 - [x] CI: js / native-linux / native-windows / native-macos 4 ジョブ
 
 ## 参照

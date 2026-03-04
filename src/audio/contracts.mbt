@@ -69,7 +69,7 @@ pub enum PlayerState {
 } derive(Show)
 
 ///|
-pub struct PlayerId {
+pub(all) struct PlayerId {
   value : Int
 } derive(Show)
 
@@ -125,6 +125,8 @@ pub trait AudioContext {
   current_position(Self, id : PlayerId) -> Double
   /// Seek to position in seconds.
   seek(Self, id : PlayerId, position : Double) -> Unit raise
+  /// Set stereo pan (-1.0 left, 0.0 center, 1.0 right).
+  set_pan(Self, id : PlayerId, pan : Double) -> Unit
   /// Dispose player.
   dispose(Self, id : PlayerId) -> Unit
 }
@@ -225,6 +227,11 @@ pub impl AudioContext for SimpleAudioContext with set_volume(self, id, volume) {
       }
     None => ()
   }
+}
+
+///|
+pub impl AudioContext for SimpleAudioContext with set_pan(_self, _id, _pan) {
+  // SimpleAudioContext does not support stereo panning
 }
 
 ///|
@@ -656,6 +663,27 @@ pub impl AudioContext for MixerAudioContext with set_volume(self, id, volume) {
             volume
           }
           voice.gain = Float::from_double(clamped)
+        }
+        None => ()
+      }
+    None => ()
+  }
+}
+
+///|
+pub impl AudioContext for MixerAudioContext with set_pan(self, id, pan) {
+  match self.find_voice_id(id) {
+    Some(vid) =>
+      match @ma.find_voice(self.mixer, vid) {
+        Some(voice) => {
+          let clamped = if pan < -1.0 {
+            -1.0
+          } else if pan > 1.0 {
+            1.0
+          } else {
+            pan
+          }
+          voice.pan = Float::from_double(clamped)
         }
         None => ()
       }

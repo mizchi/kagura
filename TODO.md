@@ -68,16 +68,16 @@
 - [x] 物理エンジン 2D - physics2d: circle/AABB/OBB 衝突, SpatialHashGrid2D broadphase, soft-constraint solver, revolute joint
 - [x] ラグドール物理 - physics2d revolute joint ベース（ragdoll_demo）
 - [x] シャドウマッピング - 深度バッファベースの影（shadow3d パッケージ: depth-to-color + PCF）
-- [ ] パーティクルシステム - エフェクト (煙, 火, 爆発)
+- [x] パーティクルシステム - エフェクト (煙, 火, 爆発)（particle3d パッケージ: エミッタ, ビルボード, ハッシュ RNG, particle_demo）
 
 ### Tier 3: 品質向上
 
-- [ ] PBR マテリアル - Metallic/Roughness ワークフロー
+- [x] PBR マテリアル - Metallic/Roughness ワークフロー（Cook-Torrance BRDF, pbr_demo）
 - [x] 法線マップ - バンプ表現（derivative-based TBN + normal map shader）
 - [x] ポストエフェクト - ブルーム, トーンマッピング (Reinhard/ACES), FXAA（postfx_demo）
-- [ ] 3D オーディオ定位 - 距離減衰, パンニング
+- [x] 3D オーディオ定位 - 距離減衰, パンニング（audio3d パッケージ: Inverse/Linear/Exponential 減衰, ステレオ pan, set_pan 追加）
 - [x] フラスタムカリング - オブジェクト単位の視錐台カリング
-- [ ] LOD - 距離に応じたメッシュ切替
+- [x] LOD - 距離に応じたメッシュ切替（LodMesh, select_lod_mesh, sphere_lod）
 
 ### アーキテクチャ課題
 

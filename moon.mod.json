@@ -9,7 +9,8 @@
     "mizchi/svg": "0.1.9",
     "mizchi/signals": "0.6.3",
     "mizchi/glfw": "0.2.1",
-    "mizchi/js": "0.10.14"
+    "mizchi/js": "0.10.14",
+    "mizchi/terrain": { "path": "../terrain" }
   },
   "readme": "README.mbt.md",
   "repository": "https://github.com/mizchi/kagura",

@@ -43,3 +43,11 @@ pub struct AnimationPlayer {
   mut looping : Bool
   mut speed : Double
 }
+
+///|
+pub(all) struct AnimTransition3D {
+  from_state : String // "*" for any_state
+  to_state : String
+  trigger : String
+  blend_duration : Double // cross-fade seconds (0.0 = instant)
+}

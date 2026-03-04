@@ -130,6 +130,43 @@ test "look_at sideways" {
 }
 
 ///|
+test "from_mat4 round-trip identity" {
+  let t = Transform3D::new()
+  let m = t.to_mat4()
+  let t2 = Transform3D::from_mat4(m)
+  assert_true(vec3_approx(t2.position, @math3d.Vec3::zero()))
+  assert_true(t2.rotation.approx_eq(@math3d.Quaternion::identity(), 1.0e-4))
+  assert_true(vec3_approx(t2.scale, @math3d.Vec3::one()))
+}
+
+///|
+test "from_mat4 round-trip TRS" {
+  let pos = @math3d.Vec3::new(3.0, -1.0, 7.0)
+  let pi = 3.14159265358979
+  let rot = @math3d.Quaternion::from_axis_angle(@math3d.Vec3::unit_y(), pi / 3.0)
+  let sc = @math3d.Vec3::new(2.0, 3.0, 0.5)
+  let t = Transform3D::from_components(pos, rot, sc)
+  let m = t.to_mat4()
+  let t2 = Transform3D::from_mat4(m)
+  assert_true(vec3_approx(t2.position, pos))
+  // Quaternion may differ by sign, check rotation equivalence
+  let q_diff = t2.rotation.multiply(rot.inverse())
+  let w_abs = q_diff.w.abs()
+  let w_clamped = if w_abs > 1.0 { 1.0 } else { w_abs }
+  let angle = 2.0 * @math.acos(w_clamped)
+  assert_true(angle < 1.0e-3)
+  assert_true(vec3_approx(t2.scale, sc))
+}
+
+///|
+test "from_mat4 translation only" {
+  let m = @math3d.Mat4::translation(5.0, -2.0, 3.0)
+  let t = Transform3D::from_mat4(m)
+  assert_true(vec3_approx(t.position, @math3d.Vec3::new(5.0, -2.0, 3.0)))
+  assert_true(vec3_approx(t.scale, @math3d.Vec3::one()))
+}
+
+///|
 test "rotate applies additional rotation" {
   let pi = 3.14159265358979
   let q1 = @math3d.Quaternion::from_axis_angle(@math3d.Vec3::unit_y(), pi / 2.0)

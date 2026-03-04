@@ -101,3 +101,30 @@ pub fn AnimationPlayer::set_time(self : AnimationPlayer, time : Double) -> Unit 
 pub fn AnimationPlayer::current_time(self : AnimationPlayer) -> Double {
   self.time
 }
+
+///|
+/// Apply sampled NodePoses to a local_poses array (Transform3D per bone).
+pub fn apply_node_poses(
+  local_poses : Array[@transform3d.Transform3D],
+  node_poses : Array[NodePose],
+) -> Unit {
+  for pose in node_poses {
+    let idx = pose.node_index
+    if idx >= 0 && idx < local_poses.length() {
+      let mut t = local_poses[idx]
+      match pose.translation {
+        Some(v) => t = t.with_position(v)
+        None => ()
+      }
+      match pose.rotation {
+        Some(q) => t = t.with_rotation(q)
+        None => ()
+      }
+      match pose.scale {
+        Some(s) => t = t.with_scale(s)
+        None => ()
+      }
+      local_poses[idx] = t
+    }
+  }
+}

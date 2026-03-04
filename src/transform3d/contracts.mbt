@@ -146,6 +146,32 @@ pub fn Transform3D::look_at(
 }
 
 ///|
+/// Decompose a Mat4 into Transform3D (translation, rotation, scale).
+pub fn Transform3D::from_mat4(m : @math3d.Mat4) -> Transform3D {
+  let e = m.elements
+  // Translation: column 3
+  let position = @math3d.Vec3::new(e[12], e[13], e[14])
+  // Scale: length of each column vector
+  let sx = @math3d.Vec3::new(e[0], e[1], e[2]).length()
+  let sy = @math3d.Vec3::new(e[4], e[5], e[6]).length()
+  let sz = @math3d.Vec3::new(e[8], e[9], e[10]).length()
+  let scale = @math3d.Vec3::new(sx, sy, sz)
+  // Rotation: normalize column vectors and extract quaternion
+  let inv_sx = if sx > 1.0e-12 { 1.0 / sx } else { 0.0 }
+  let inv_sy = if sy > 1.0e-12 { 1.0 / sy } else { 0.0 }
+  let inv_sz = if sz > 1.0e-12 { 1.0 / sz } else { 0.0 }
+  let right = @math3d.Vec3::new(e[0] * inv_sx, e[1] * inv_sx, e[2] * inv_sx)
+  let up = @math3d.Vec3::new(e[4] * inv_sy, e[5] * inv_sy, e[6] * inv_sy)
+  let forward = @math3d.Vec3::new(
+    e[8] * inv_sz,
+    e[9] * inv_sz,
+    e[10] * inv_sz,
+  )
+  let rotation = quaternion_from_axes(right, up, forward)
+  { position, rotation, scale }
+}
+
+///|
 /// Extract quaternion from orthonormal basis (right, up, forward columns).
 fn quaternion_from_axes(
   right : @math3d.Vec3,

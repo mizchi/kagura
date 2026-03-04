@@ -43,3 +43,50 @@ test "player: speed control" {
   player.update(1.0) // effective dt = 2.0
   assert_true((player.current_time() - 2.0).abs() < 1.0e-6)
 }
+
+///|
+test "apply_node_poses: applies translation/rotation/scale" {
+  let poses : Array[@transform3d.Transform3D] = [
+    @transform3d.Transform3D::new(),
+    @transform3d.Transform3D::new(),
+  ]
+  let node_poses : Array[NodePose] = [
+    {
+      node_index: 0,
+      translation: Some(@math3d.Vec3::new(1.0, 2.0, 3.0)),
+      rotation: None,
+      scale: None,
+    },
+    {
+      node_index: 1,
+      translation: None,
+      rotation: None,
+      scale: Some(@math3d.Vec3::new(2.0, 2.0, 2.0)),
+    },
+  ]
+  apply_node_poses(poses, node_poses)
+  assert_true(
+    poses[0].position.approx_eq(@math3d.Vec3::new(1.0, 2.0, 3.0), 1.0e-6),
+  )
+  assert_true(
+    poses[1].scale.approx_eq(@math3d.Vec3::new(2.0, 2.0, 2.0), 1.0e-6),
+  )
+}
+
+///|
+test "apply_node_poses: out of range index ignored" {
+  let poses : Array[@transform3d.Transform3D] = [@transform3d.Transform3D::new()]
+  let node_poses : Array[NodePose] = [
+    {
+      node_index: 5,
+      translation: Some(@math3d.Vec3::new(1.0, 0.0, 0.0)),
+      rotation: None,
+      scale: None,
+    },
+  ]
+  apply_node_poses(poses, node_poses)
+  // Should not crash, pose unchanged
+  assert_true(
+    poses[0].position.approx_eq(@math3d.Vec3::zero(), 1.0e-6),
+  )
+}

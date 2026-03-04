@@ -101,6 +101,7 @@ struct GameState {
   input : @inpututil.InputHelper
   lighting : @light3d.LightingEnvironment
   meshes : Meshes
+  shader3d : @gfx.ShaderHandle
   bullets : Array[Bullet]
   targets : Array[Target]
   pillars : Array[Obstacle]
@@ -207,6 +208,7 @@ fn GameState::new() -> GameState {
       target: @mesh3d.Mesh3D::sphere(target_radius, 8, 6),
       bullet: @mesh3d.Mesh3D::sphere(bullet_radius, 4, 3),
     },
+    shader3d: @gfx.new_shader_handle(10, @draw3d.shader3d_lit_untextured_wgsl()),
     bullets: [],
     targets,
     pillars,
@@ -342,8 +344,8 @@ fn GameState::draw(
   ctx : @engine.EngineContext,
 ) -> Array[@gfx.DrawTrianglesCommand] {
   let scene = self.build_scene3d()
-  let cmds = @scene3d.render_scene3d(
-    scene, ctx.dst, ctx.shader, ctx.screen_w, ctx.screen_h,
+  let cmds = @scene3d.render_scene3d_gpu(
+    scene, ctx.dst, self.shader3d, ctx.screen_w, ctx.screen_h,
   )
   // Score overlay (top-left area)
   let sw = screen_w.to_double()

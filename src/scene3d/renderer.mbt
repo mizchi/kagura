@@ -694,6 +694,10 @@ fn collect_and_sort_commands(
 }
 
 ///|
+/// Deprecated: Use render_scene3d_gpu() for GPU Z-buffer rendering instead.
+/// This CPU painter's algorithm path is retained for compatibility but
+/// has higher CPU cost and lower rendering quality (no per-pixel lighting).
+///
 /// Render a 3D scene using CPU projection, producing an array of draw commands
 /// sorted back-to-front for the painter's algorithm.
 /// Uses per-face diffuse lighting with 8 brightness buckets per object.

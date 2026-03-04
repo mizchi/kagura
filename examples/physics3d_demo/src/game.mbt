@@ -23,6 +23,7 @@ struct DemoState {
   mut camera : @camera3d.OrbitCamera
   lighting : @light3d.LightingEnvironment
   input : @inpututil.InputHelper
+  shader3d : @gfx.ShaderHandle
   mut frame : Int
 }
 
@@ -157,6 +158,7 @@ fn DemoState::new() -> DemoState {
     camera,
     lighting,
     input: @inpututil.new_input_helper(),
+    shader3d: @gfx.new_shader_handle(10, @draw3d.shader3d_lit_untextured_wgsl()),
     frame: 0,
   }
 }
@@ -232,5 +234,5 @@ fn DemoState::draw(
     camera~,
     lighting=self.lighting,
   )
-  @scene3d.render_scene3d(scene, ctx.dst, ctx.shader, ctx.screen_w, ctx.screen_h)
+  @scene3d.render_scene3d_gpu(scene, ctx.dst, self.shader3d, ctx.screen_w, ctx.screen_h)
 }

@@ -96,6 +96,41 @@ fn traverse_node_gpu(
 }
 
 ///|
+/// Render a flat Scene3D (Object3D array) using GPU Z-buffer depth testing.
+/// Each visible mesh becomes a single draw command with lit shader uniforms.
+/// This is the GPU counterpart of render_scene3d (CPU painter's algorithm).
+pub fn render_scene3d_gpu(
+  scene : Scene3D,
+  dst : @gfx.ImageHandle,
+  shader3d : @gfx.ShaderHandle,
+  screen_w : Int,
+  screen_h : Int,
+) -> Array[@gfx.DrawTrianglesCommand] {
+  let vp = scene.camera.view_projection_matrix()
+  let frustum = Frustum::from_vp(vp)
+  let cmds : Array[@gfx.DrawTrianglesCommand] = []
+  for i in 0..<scene.objects.length() {
+    let obj = scene.objects[i]
+    let model = obj.transform.to_mat4()
+    render_object_gpu(
+      obj.mesh,
+      model,
+      obj.color,
+      obj.material,
+      vp,
+      frustum,
+      scene.lighting,
+      dst,
+      shader3d,
+      screen_w,
+      screen_h,
+      cmds,
+    )
+  }
+  cmds
+}
+
+///|
 fn render_object_gpu(
   mesh : @mesh3d.Mesh3D,
   model : @math3d.Mat4,

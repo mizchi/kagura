@@ -60,6 +60,7 @@ struct DemoState {
   sphere_mesh : @mesh3d.Mesh3D
   ground_mesh : @mesh3d.Mesh3D
   objects : Array[ColliderObj]
+  shader3d : @gfx.ShaderHandle
   mut hit_id : Int // -1 = no hit
   mut hit_point : @math3d.Vec3
   mut frame : Int
@@ -135,6 +136,7 @@ fn DemoState::new() -> DemoState {
       subdivisions=16,
     ),
     objects,
+    shader3d: @gfx.new_shader_handle(10, @draw3d.shader3d_lit_untextured_wgsl()),
     hit_id: -1,
     hit_point: @math3d.Vec3::zero(),
     frame: 0,
@@ -338,10 +340,10 @@ fn DemoState::draw(
     camera=self.camera.to_camera3d(),
     lighting=self.lighting,
   )
-  let cmds = @scene3d.render_scene3d(
+  let cmds = @scene3d.render_scene3d_gpu(
     scene,
     ctx.dst,
-    ctx.shader,
+    self.shader3d,
     ctx.screen_w,
     ctx.screen_h,
   )

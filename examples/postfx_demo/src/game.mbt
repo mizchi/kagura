@@ -25,6 +25,7 @@ struct DemoState {
   bloom_b : @gfx.ImageHandle
   post_target : @gfx.ImageHandle
   // Shaders
+  shader3d : @gfx.ShaderHandle
   bloom_threshold_sh : @gfx.ShaderHandle
   bloom_hblur_sh : @gfx.ShaderHandle
   bloom_vblur_sh : @gfx.ShaderHandle
@@ -45,6 +46,10 @@ fn DemoState::new() -> DemoState {
   let bloom_a = @gfx.new_image_handle(101, screen_w, screen_h)
   let bloom_b = @gfx.new_image_handle(102, screen_w, screen_h)
   let post_target = @gfx.new_image_handle(103, screen_w, screen_h)
+  // 3D lit shader
+  let shader3d = @gfx.new_shader_handle(
+    10, @draw3d.shader3d_lit_untextured_wgsl(),
+  )
   // PostFX shaders
   let bloom_threshold_sh = @gfx.new_shader_handle(
     100, @postfx.bloom_threshold_wgsl(),
@@ -89,6 +94,7 @@ fn DemoState::new() -> DemoState {
     bloom_a,
     bloom_b,
     post_target,
+    shader3d,
     bloom_threshold_sh,
     bloom_hblur_sh,
     bloom_vblur_sh,
@@ -180,8 +186,8 @@ fn DemoState::draw(
   let all_cmds : Array[@gfx.DrawTrianglesCommand] = []
   // 1. Render scene to intermediate target
   let scene = self.build_scene()
-  let scene_cmds = @scene3d.render_scene3d(
-    scene, self.scene_target, ctx.shader, ctx.screen_w, ctx.screen_h,
+  let scene_cmds = @scene3d.render_scene3d_gpu(
+    scene, self.scene_target, self.shader3d, ctx.screen_w, ctx.screen_h,
   )
   for cmd in scene_cmds {
     all_cmds.push(cmd)

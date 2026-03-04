@@ -3,6 +3,7 @@ import {
   "mizchi/kagura/collision3d" @collision3d,
   "mizchi/kagura/core" @core,
   "mizchi/kagura/debugutil" @debugutil,
+  "mizchi/kagura/draw3d" @draw3d,
   "mizchi/kagura/engine" @engine,
   "mizchi/kagura/gfx" @gfx,
   "mizchi/kagura/inpututil" @inpututil,

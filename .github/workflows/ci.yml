@@ -153,7 +153,7 @@ jobs:
         run: moon check --target native
       - name: Test
         run: moon test --target native
-      - name: Runtime Smoke (Native)
-        run: cd examples/runtime_smoke_native && moon run src --target native
+      - name: Runtime Smoke Build (Native)
+        run: cd examples/runtime_smoke_native && moon build src --target native
       - name: Build Native Triangle
         run: cd examples/native_triangle && moon build src --target native

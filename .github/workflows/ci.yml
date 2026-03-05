@@ -136,6 +136,7 @@ jobs:
       # moonbit doesn't propagate cc-flags from dependency packages,
       # so GLFW headers must be discoverable via system include paths
       CPATH: /opt/homebrew/include:/usr/local/include
+      LIBRARY_PATH: /opt/homebrew/lib:/usr/local/lib
     steps:
       - uses: actions/checkout@v4
       - name: Checkout terrain path dependency

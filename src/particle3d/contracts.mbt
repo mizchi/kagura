@@ -65,14 +65,11 @@ pub fn ParticleEmitter::new(config : EmitterConfig) -> ParticleEmitter {
 /// Deterministic hash function for RNG.
 fn hash_u32(seed : Int) -> Int {
   let mut h = seed
-  h = (h.reinterpret_as_uint() ^ (h.reinterpret_as_uint() >> 16))
-    .reinterpret_as_int()
+  h = (h.reinterpret_as_uint() ^ (h.reinterpret_as_uint() >> 16)).reinterpret_as_int()
   h = h * 0x45d9f3b
-  h = (h.reinterpret_as_uint() ^ (h.reinterpret_as_uint() >> 16))
-    .reinterpret_as_int()
+  h = (h.reinterpret_as_uint() ^ (h.reinterpret_as_uint() >> 16)).reinterpret_as_int()
   h = h * 0x45d9f3b
-  h = (h.reinterpret_as_uint() ^ (h.reinterpret_as_uint() >> 16))
-    .reinterpret_as_int()
+  h = (h.reinterpret_as_uint() ^ (h.reinterpret_as_uint() >> 16)).reinterpret_as_int()
   h & 0x7FFFFFFF
 }
 

@@ -22,10 +22,13 @@ jobs:
       MOON_CC: clang
     steps:
       - uses: actions/checkout@v4
+      - name: Checkout terrain path dependency
+        run: git clone --depth=1 https://github.com/mizchi/terrain.git ../terrain
       - name: Install MoonBit CLI
         run: |
           curl -fsSL https://cli.moonbitlang.com/install/unix.sh | bash
           echo "$HOME/.moon/bin" >> "$GITHUB_PATH"
+      - uses: taiki-e/install-action@just
       - name: Setup pnpm
         if: matrix.target == 'js'
         run: corepack enable
@@ -54,6 +57,8 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
+      - name: Checkout terrain path dependency
+        run: git clone --depth=1 https://github.com/mizchi/terrain.git ../terrain
       - name: Install MoonBit CLI
         run: |
           curl -fsSL https://cli.moonbitlang.com/install/unix.sh | bash
@@ -93,6 +98,8 @@ jobs:
       MOON_CC: clang
     steps:
       - uses: actions/checkout@v4
+      - name: Checkout terrain path dependency
+        run: git clone --depth=1 https://github.com/mizchi/terrain.git ../terrain
       - name: Install MoonBit CLI
         run: |
           curl -fsSL https://cli.moonbitlang.com/install/unix.sh | bash
@@ -109,6 +116,8 @@ jobs:
       CPATH: C:\vcpkg\installed\x64-windows-static\include
     steps:
       - uses: actions/checkout@v4
+      - name: Checkout terrain path dependency
+        run: git clone --depth=1 https://github.com/mizchi/terrain.git ../terrain
       - name: Install MoonBit CLI
         run: |
           Set-ExecutionPolicy RemoteSigned -Scope CurrentUser
@@ -129,6 +138,8 @@ jobs:
       CPATH: /opt/homebrew/include:/usr/local/include
     steps:
       - uses: actions/checkout@v4
+      - name: Checkout terrain path dependency
+        run: git clone --depth=1 https://github.com/mizchi/terrain.git ../terrain
       - name: Install MoonBit CLI
         run: |
           curl -fsSL https://cli.moonbitlang.com/install/unix.sh | bash

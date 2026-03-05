@@ -66,7 +66,10 @@ test "successful callback updates status and completed queue" {
   let loader = new_async_image_loader(fetch_image_fn=fn(url, callback) {
     enqueue_stub_fetch(stub, url, callback)
   })
-  let id = loader.enqueue_image(@asset.new_asset_key("async/success"), "/ok.png")
+  let id = loader.enqueue_image(
+    @asset.new_asset_key("async/success"),
+    "/ok.png",
+  )
   ignore(loader.start_pending())
   (stub.pending[0].callback)(Some(success_spec(0)))
   let progress = loader.progress()

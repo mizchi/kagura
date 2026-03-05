@@ -64,16 +64,13 @@ pub fn AsyncImageLoader::enqueue_image(
 ) -> Int {
   let id = self.next_id
   self.next_id = self.next_id + 1
-  self.requests.set(
+  self.requests.set(id, {
     id,
-    {
-      id,
-      key,
-      url,
-      status: AsyncImageStatus::Pending,
-      image_spec: None,
-    },
-  )
+    key,
+    url,
+    status: AsyncImageStatus::Pending,
+    image_spec: None,
+  })
   self.pending_ids.push(id)
   id
 }
@@ -129,7 +126,9 @@ pub fn AsyncImageLoader::drain_completed(self : AsyncImageLoader) -> Array[Int] 
 }
 
 ///|
-pub fn AsyncImageLoader::progress(self : AsyncImageLoader) -> AsyncImageProgress {
+pub fn AsyncImageLoader::progress(
+  self : AsyncImageLoader,
+) -> AsyncImageProgress {
   let mut pending = 0
   let mut loading = 0
   let mut succeeded = 0
@@ -167,10 +166,7 @@ pub fn AsyncImageLoader::commit_loaded_image(
                 Some(updated) => Some(updated)
                 None => Some(handle)
               }
-            None =>
-              Some(repo.create_image(req.key, spec)) catch {
-                _ => None
-              }
+            None => Some(repo.create_image(req.key, spec)) catch { _ => None }
           }
         _ => None
       }

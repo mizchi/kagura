@@ -53,18 +53,28 @@ fi
 
 # Generate loader
 cat > "$SERVE_DIR/loader.js" <<LOADER
-import { initWebGPU, setupGlobalState, loadFonts, loadGameScript } from "./lib/kagura-init.js";
+import { initWebGPU, setupGlobalState, loadFonts, loadGameScript, showStartupError } from "./lib/kagura-init.js";
 import { installAudioHelpers } from "./lib/kagura-audio.js";
 import { installGfxHelpers } from "./lib/kagura-gfx.js";
 async function init() {
   const result = await initWebGPU("#app");
-  if (result) setupGlobalState(result.canvas, result.device, result.format, result.context);
+  if (!result) {
+    showStartupError("#app", "WebGPU initialization failed", "Use a WebGPU-capable browser.");
+    return;
+  }
+  setupGlobalState(result.canvas, result.device, result.format, result.context);
   installAudioHelpers();
   installGfxHelpers();
 ${FONT_LOAD_SNIPPET}
-  await loadGameScript("./${NAME}.js");
+  try {
+    await loadGameScript("./${NAME}.js");
+  } catch (e) {
+    showStartupError("#app", "Failed to load game script", e && e.message ? e.message : String(e));
+  }
 }
-init().catch(console.error);
+init().catch((e) => {
+  showStartupError("#app", "Unexpected runtime error", e && e.message ? e.message : String(e));
+});
 LOADER
 
 # Generate HTML

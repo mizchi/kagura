@@ -84,7 +84,8 @@ examples/my_game/
     "mizchi/signals": "0.6.3",
     "mizchi/web_runtime_hooks": { "path": "../web_runtime_hooks" },
     "mizchi/native_runtime_hooks": { "path": "../native_runtime_hooks" }
-  }
+  },
+  "--moonbit-unstable-prebuild": "../../scripts/moon-prebuild-native-link-flags.cjs"
 }
 ```
 
@@ -104,7 +105,7 @@ options(
   "is-main": true,
   link: {
     "native": {
-      "cc-link-flags": "-L../../deps/wgpu-macos/lib -L/usr/local/lib -L/opt/homebrew/lib -lwgpu_native -lglfw -Wl,-rpath,../../deps/wgpu-macos/lib -Wl,-rpath,/usr/local/lib -Wl,-rpath,/opt/homebrew/lib -framework Metal -framework QuartzCore -framework IOKit -framework CoreFoundation -framework Cocoa -framework Foundation",
+      "cc-link-flags": "-L../../deps/wgpu-native/lib -lwgpu_native -lglfw -Wl,-rpath,../../deps/wgpu-native/lib ${build.KAGURA_NATIVE_PLATFORM_LIBS}",
     },
   },
   targets: {

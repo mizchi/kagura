@@ -6,8 +6,8 @@ options(
   link: {
     "native": {
       "cc": "clang",
-      "cc-flags": "-Ideps/wgpu-macos/include -I/usr/local/include -Ideps/miniaudio",
-      "cc-link-flags": "-Ldeps/wgpu-macos/lib -lwgpu_native -lglfw -Wl,-rpath,deps/wgpu-macos/lib -framework Metal -framework QuartzCore -framework IOKit -framework CoreFoundation -framework Cocoa -framework AudioToolbox -framework CoreAudio",
+      "cc-flags": "-Ideps/wgpu-native/include -I/usr/local/include -Ideps/miniaudio",
+      "cc-link-flags": "-Ldeps/wgpu-native/lib -lwgpu_native -lglfw -Wl,-rpath,deps/wgpu-native/lib ${build.KAGURA_NATIVE_AUDIO_LIBS}",
     },
   },
   "native-stub": [ "wgpu_native_stub.m" ],

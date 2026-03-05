@@ -9,7 +9,9 @@
     "mizchi/svg": "0.1.9",
     "mizchi/signals": "0.6.3",
     "mizchi/glfw": "0.2.1",
-    "mizchi/terrain": { "path": "../terrain" }
+    "mizchi/terrain": {
+      "path": "../terrain"
+    }
   },
   "readme": "README.mbt.md",
   "repository": "https://github.com/mizchi/kagura",
@@ -47,5 +49,6 @@
     "pnpm-lock.yaml",
     "playwright.config.ts"
   ],
-  "preferred-target": "js"
+  "preferred-target": "js",
+  "--moonbit-unstable-prebuild": "scripts/moon-prebuild-native-link-flags.cjs"
 }

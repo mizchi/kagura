@@ -24,7 +24,7 @@ options(
   "is-main": true,
   link: {
     "native": {
-      "cc-link-flags": "-L../../deps/wgpu-macos/lib -lwgpu_native -lglfw -Wl,-rpath,../../deps/wgpu-macos/lib -framework Metal -framework QuartzCore -framework IOKit -framework CoreFoundation -framework Cocoa -framework Foundation",
+      "cc-link-flags": "-L../../deps/wgpu-native/lib -lwgpu_native -lglfw -Wl,-rpath,../../deps/wgpu-native/lib ${build.KAGURA_NATIVE_PLATFORM_LIBS}",
     },
   },
 )

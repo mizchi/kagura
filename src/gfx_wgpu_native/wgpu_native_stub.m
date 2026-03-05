@@ -7,8 +7,10 @@
 #include <stdio.h>
 #include <stdint.h>
 
-// WebGPU と GLFW の macOS 固有ヘッダー
-#if __has_include("../../deps/wgpu-macos/include/webgpu/webgpu.h")
+// WebGPU と GLFW ヘッダー
+#if __has_include("../../deps/wgpu-native/include/webgpu/webgpu.h")
+#include "../../deps/wgpu-native/include/webgpu/webgpu.h"
+#elif __has_include("../../deps/wgpu-macos/include/webgpu/webgpu.h")
 #include "../../deps/wgpu-macos/include/webgpu/webgpu.h"
 #elif __has_include(<webgpu/webgpu.h>)
 #include <webgpu/webgpu.h>
@@ -17,7 +19,9 @@
 #endif
 
 // wgpu-native extension header (provides wgpuDevicePoll etc.)
-#if __has_include("../../deps/wgpu-macos/include/webgpu/wgpu.h")
+#if __has_include("../../deps/wgpu-native/include/webgpu/wgpu.h")
+#include "../../deps/wgpu-native/include/webgpu/wgpu.h"
+#elif __has_include("../../deps/wgpu-macos/include/webgpu/wgpu.h")
 #include "../../deps/wgpu-macos/include/webgpu/wgpu.h"
 #elif __has_include(<webgpu/wgpu.h>)
 #include <webgpu/wgpu.h>

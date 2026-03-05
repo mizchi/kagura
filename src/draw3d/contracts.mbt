@@ -368,16 +368,21 @@ pub fn shader3d_lit_skinned_wgsl() -> String {
   "  @location(1) uv: vec2<f32>,\n" +
   "};\n\n" +
   "@vertex fn vs_main(input: VertexInput) -> VertexOutput {\n" +
-  "  var skin_mat = mat4x4<f32>();\n" +
-  "  for (var i = 0u; i < 4u; i = i + 1u) {\n" +
-  "    let joint_idx = u32(input.joints[i]);\n" +
-  "    let weight = input.weights[i];\n" +
-  "    if (weight > 0.0) {\n" +
-  "      skin_mat = skin_mat + weight * uniforms.bone_matrices[joint_idx];\n" +
+  "  let pre_skinned = uniforms.num_bones.y > 0.5;\n" +
+  "  var skinned_pos = vec4<f32>(input.position, 1.0);\n" +
+  "  var skinned_normal = input.normal;\n" +
+  "  if (!pre_skinned) {\n" +
+  "    var skin_mat = mat4x4<f32>();\n" +
+  "    for (var i = 0u; i < 4u; i = i + 1u) {\n" +
+  "      let joint_idx = u32(input.joints[i]);\n" +
+  "      let weight = input.weights[i];\n" +
+  "      if (weight > 0.0) {\n" +
+  "        skin_mat = skin_mat + weight * uniforms.bone_matrices[joint_idx];\n" +
+  "      }\n" +
   "    }\n" +
+  "    skinned_pos = skin_mat * vec4<f32>(input.position, 1.0);\n" +
+  "    skinned_normal = (skin_mat * vec4<f32>(input.normal, 0.0)).xyz;\n" +
   "  }\n" +
-  "  let skinned_pos = skin_mat * vec4<f32>(input.position, 1.0);\n" +
-  "  let skinned_normal = (skin_mat * vec4<f32>(input.normal, 0.0)).xyz;\n" +
   "  var out: VertexOutput;\n" +
   "  out.clip_position = uniforms.mvp * skinned_pos;\n" +
   lit_normal_mat_wgsl() +
@@ -455,6 +460,44 @@ pub fn new_skinned_lit_mesh_draw_command(
     indices,
     src_image_ids,
     dwords,
+  )
+}
+
+///|
+/// Build a skinned lit DrawTrianglesCommand from Mesh3D + SkinData.
+/// This packs stride-8 mesh vertices into stride-16 GPU skinning vertices.
+pub fn new_skinned_lit_mesh_draw_command_from_skin(
+  dst : @gfx.ImageHandle,
+  shader : @gfx.ShaderHandle,
+  dst_region : @gfx.DstRegion,
+  index_offset : Int,
+  pipeline_id : Int,
+  uniform_hash : Int,
+  blend : @gfx.BlendMode,
+  mesh : @mesh3d.Mesh3D,
+  skin : @skeleton3d.SkinData,
+  model_matrix : @math3d.Mat4,
+  view_projection : @math3d.Mat4,
+  lighting : @light3d.LightingEnvironment,
+  skinning_matrices : Array[@math3d.Mat4],
+  src_image_ids : Array[Int],
+) -> @gfx.DrawTrianglesCommand {
+  let packed_vertex_data = @skeleton3d.build_skinned_vertex_data(mesh, skin)
+  new_skinned_lit_mesh_draw_command(
+    dst,
+    shader,
+    dst_region,
+    index_offset,
+    pipeline_id,
+    uniform_hash,
+    blend,
+    packed_vertex_data,
+    mesh.indices,
+    model_matrix,
+    view_projection,
+    lighting,
+    skinning_matrices,
+    src_image_ids,
   )
 }
 
@@ -735,8 +778,8 @@ pub fn new_pbr_mesh_draw_command(
   src_image_ids : Array[Int],
 ) -> @gfx.DrawTrianglesCommand {
   let uniform_dwords = pbr_uniform_dwords(
-    model_matrix, view_projection, lighting, metallic, roughness, base_color,
-    emissive, camera_pos,
+    model_matrix, view_projection, lighting, metallic, roughness, base_color, emissive,
+    camera_pos,
   )
   @gfx.new_draw_triangles_command(
     dst,
@@ -865,7 +908,7 @@ pub fn new_instanced_lit_mesh_draw_command(
   lighting : @light3d.LightingEnvironment,
   instance_matrices : Array[@math3d.Mat4],
   instance_colors : Array[@math3d.Vec4],
-  src_image_ids~ : Array[Int] = [],
+  src_image_ids? : Array[Int] = [],
 ) -> @gfx.DrawTrianglesCommand {
   let count = if instance_matrices.length() < max_instances {
     instance_matrices.length()

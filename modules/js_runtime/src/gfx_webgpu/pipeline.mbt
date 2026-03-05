@@ -116,6 +116,40 @@ fn build_3d_vertex_layout() -> @core.Any {
 }
 
 ///|
+fn build_skinned_3d_vertex_layout() -> @core.Any {
+  let layout = @core.new_object()
+  layout._set("arrayStride", @core.any(64))
+  let attr0 = @core.new_object()
+  attr0._set("shaderLocation", @core.any(0))
+  attr0._set("offset", @core.any(0))
+  attr0._set("format", @core.any("float32x3"))
+  let attr1 = @core.new_object()
+  attr1._set("shaderLocation", @core.any(1))
+  attr1._set("offset", @core.any(12))
+  attr1._set("format", @core.any("float32x3"))
+  let attr2 = @core.new_object()
+  attr2._set("shaderLocation", @core.any(2))
+  attr2._set("offset", @core.any(24))
+  attr2._set("format", @core.any("float32x2"))
+  let attr3 = @core.new_object()
+  attr3._set("shaderLocation", @core.any(3))
+  attr3._set("offset", @core.any(32))
+  attr3._set("format", @core.any("float32x4"))
+  let attr4 = @core.new_object()
+  attr4._set("shaderLocation", @core.any(4))
+  attr4._set("offset", @core.any(48))
+  attr4._set("format", @core.any("float32x4"))
+  let attrs = @core.new_array()
+  attrs._call("push", [attr0]) |> ignore
+  attrs._call("push", [attr1]) |> ignore
+  attrs._call("push", [attr2]) |> ignore
+  attrs._call("push", [attr3]) |> ignore
+  attrs._call("push", [attr4]) |> ignore
+  layout._set("attributes", attrs)
+  layout
+}
+
+///|
 /// Ensure the default GPU pipeline is created. Returns true if ready.
 pub fn ensure_gpu_pipeline(
   state : GpuState,
@@ -286,8 +320,12 @@ pub fn get_or_create_custom_pipeline(
   let sm_desc = @core.new_object()
   sm_desc._set("code", @core.any(shader_source))
   let shader_module = ffi_create_shader_module(device, sm_desc)
+  let stride64 = is_stride64(shader_source)
   let stride32 = is_stride32(shader_source)
-  let vertex_layout = if stride32 {
+  let is_3d = is_3d_shader(shader_source)
+  let vertex_layout = if stride64 {
+    build_skinned_3d_vertex_layout()
+  } else if stride32 {
     build_3d_vertex_layout()
   } else {
     build_2d_vertex_layout()
@@ -308,13 +346,13 @@ pub fn get_or_create_custom_pipeline(
   frag_desc._set("targets", frag_targets)
   let primitive = @core.new_object()
   primitive._set("topology", @core.any("triangle-list"))
-  primitive._set("cullMode", @core.any(if stride32 { "back" } else { "none" }))
+  primitive._set("cullMode", @core.any(if is_3d { "back" } else { "none" }))
   let pipeline_desc = @core.new_object()
   pipeline_desc._set("layout", @core.any("auto"))
   pipeline_desc._set("vertex", vertex_desc)
   pipeline_desc._set("fragment", frag_desc)
   pipeline_desc._set("primitive", primitive)
-  if stride32 {
+  if is_3d {
     let depth_stencil = @core.new_object()
     depth_stencil._set("format", @core.any("depth24plus"))
     depth_stencil._set("depthWriteEnabled", @core.any(true))
@@ -326,7 +364,7 @@ pub fn get_or_create_custom_pipeline(
   let entry : CustomPipelineEntry = {
     pipeline,
     bind_group_layout: bgl,
-    stride32,
+    stride32: is_3d,
   }
   state.custom_pipelines.set(key, entry)
   entry

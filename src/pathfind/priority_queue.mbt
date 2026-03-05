@@ -16,11 +16,6 @@ fn PriorityQueue::new() -> PriorityQueue {
 }
 
 ///|
-fn PriorityQueue::is_empty(self : PriorityQueue) -> Bool {
-  self.data.length() == 0
-}
-
-///|
 fn PriorityQueue::push(
   self : PriorityQueue,
   point : @terrain.Point,

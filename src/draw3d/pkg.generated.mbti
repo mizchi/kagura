@@ -6,22 +6,55 @@ import {
   "mizchi/kagura/light3d",
   "mizchi/kagura/math3d",
   "mizchi/kagura/mesh3d",
+  "mizchi/kagura/skeleton3d",
 }
 
 // Values
+pub fn instanced_lit_uniform_dwords(@math3d.Mat4, @light3d.LightingEnvironment, Array[@math3d.Mat4], Array[@math3d.Vec4]) -> Array[Int]
+
 pub fn lit_uniform_dwords(@math3d.Mat4, @math3d.Mat4, @light3d.LightingEnvironment) -> Array[Int]
 
 pub fn mat4_to_uniform_dwords(@math3d.Mat4) -> Array[Int]
 
 pub fn mvp_uniform_dwords(@math3d.Mat4, @math3d.Mat4) -> Array[Int]
 
+pub fn new_instanced_lit_mesh_draw_command(@gfx.ImageHandle, @gfx.ShaderHandle, @gfx.DstRegion, @gfx.BlendMode, @mesh3d.Mesh3D, @math3d.Mat4, @light3d.LightingEnvironment, Array[@math3d.Mat4], Array[@math3d.Vec4], src_image_ids? : Array[Int]) -> @gfx.DrawTrianglesCommand
+
 pub fn new_lit_mesh_draw_command(@gfx.ImageHandle, @gfx.ShaderHandle, @gfx.DstRegion, Int, Int, Int, @gfx.BlendMode, @mesh3d.Mesh3D, @math3d.Mat4, @math3d.Mat4, @light3d.LightingEnvironment, Array[Int]) -> @gfx.DrawTrianglesCommand
 
+pub fn new_lit_normalmap_mesh_draw_command(@gfx.ImageHandle, @gfx.ShaderHandle, @gfx.DstRegion, Int, Int, Int, @gfx.BlendMode, @mesh3d.Mesh3D, @math3d.Mat4, @math3d.Mat4, @light3d.LightingEnvironment, Int, Int) -> @gfx.DrawTrianglesCommand
+
 pub fn new_mesh_draw_command(@gfx.ImageHandle, @gfx.ShaderHandle, @gfx.DstRegion, Int, Int, Int, @gfx.BlendMode, @mesh3d.Mesh3D, @math3d.Mat4, @math3d.Mat4, Array[Int]) -> @gfx.DrawTrianglesCommand
+
+pub fn new_particle_draw_command(@gfx.ImageHandle, @gfx.ShaderHandle, @gfx.DstRegion, Int, Int, Int, @gfx.BlendMode, Array[Double], Array[Int], @math3d.Mat4, Array[Int]) -> @gfx.DrawTrianglesCommand
+
+pub fn new_pbr_mesh_draw_command(@gfx.ImageHandle, @gfx.ShaderHandle, @gfx.DstRegion, Int, Int, Int, @gfx.BlendMode, @mesh3d.Mesh3D, @math3d.Mat4, @math3d.Mat4, @light3d.LightingEnvironment, Double, Double, @math3d.Vec4, @math3d.Vec3, @math3d.Vec3, Array[Int]) -> @gfx.DrawTrianglesCommand
+
+pub fn new_skinned_lit_mesh_draw_command(@gfx.ImageHandle, @gfx.ShaderHandle, @gfx.DstRegion, Int, Int, Int, @gfx.BlendMode, Array[Double], Array[Int], @math3d.Mat4, @math3d.Mat4, @light3d.LightingEnvironment, Array[@math3d.Mat4], Array[Int]) -> @gfx.DrawTrianglesCommand
+
+pub fn new_skinned_lit_mesh_draw_command_from_skin(@gfx.ImageHandle, @gfx.ShaderHandle, @gfx.DstRegion, Int, Int, Int, @gfx.BlendMode, @mesh3d.Mesh3D, @skeleton3d.SkinData, @math3d.Mat4, @math3d.Mat4, @light3d.LightingEnvironment, Array[@math3d.Mat4], Array[Int]) -> @gfx.DrawTrianglesCommand
+
+pub fn particle_uniform_dwords(@math3d.Mat4) -> Array[Int]
+
+pub fn pbr_uniform_dwords(@math3d.Mat4, @math3d.Mat4, @light3d.LightingEnvironment, Double, Double, @math3d.Vec4, @math3d.Vec3, @math3d.Vec3) -> Array[Int]
+
+pub fn shader3d_lit_instanced_wgsl() -> String
+
+pub fn shader3d_lit_normalmap_wgsl() -> String
+
+pub fn shader3d_lit_skinned_wgsl() -> String
 
 pub fn shader3d_lit_untextured_wgsl() -> String
 
 pub fn shader3d_lit_wgsl() -> String
+
+pub fn shader3d_particle_wgsl() -> String
+
+pub fn shader3d_pbr_untextured_wgsl() -> String
+
+pub fn shader3d_pbr_wgsl() -> String
+
+pub fn skinned_lit_uniform_dwords() -> Int
 
 // Errors
 

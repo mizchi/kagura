@@ -18,7 +18,7 @@
   - `backend_contracts.mbt`: backend factory (`wgpu-native/webgpu/webgl/null`)
 - `src/gfx_wgpu_native` (planned)
   - `backend.mbt`: `~/Downloads/wgpu` 由来の backend 実装
-- `src/gfx_webgpu` / `src/gfx_webgl` (planned)
+- `modules/js_runtime/src/gfx_webgpu` / `src/gfx_webgl` (planned)
   - ブラウザ backend 実装
 - `src/asset` (planned)
   - `contracts.mbt`: image/shader/material/atlas 管理契約

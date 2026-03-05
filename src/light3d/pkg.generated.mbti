@@ -33,10 +33,33 @@ pub impl Show for DirectionalLight
 pub struct LightingEnvironment {
   directional : DirectionalLight
   ambient : AmbientLight
+  point_lights : Array[PointLight]
+  spot_lights : Array[SpotLight]
 }
 pub fn LightingEnvironment::default() -> Self
-pub fn LightingEnvironment::new(DirectionalLight, AmbientLight) -> Self
+pub fn LightingEnvironment::new(DirectionalLight, AmbientLight, point_lights? : Array[PointLight], spot_lights? : Array[SpotLight]) -> Self
 pub impl Show for LightingEnvironment
+
+pub struct PointLight {
+  position : @math3d.Vec3
+  color : @math3d.Vec3
+  intensity : Double
+  radius : Double
+}
+pub fn PointLight::new(@math3d.Vec3, @math3d.Vec3, Double, Double) -> Self
+pub impl Show for PointLight
+
+pub struct SpotLight {
+  position : @math3d.Vec3
+  direction : @math3d.Vec3
+  color : @math3d.Vec3
+  intensity : Double
+  radius : Double
+  inner_angle : Double
+  outer_angle : Double
+}
+pub fn SpotLight::new(@math3d.Vec3, @math3d.Vec3, @math3d.Vec3, Double, Double, Double, Double) -> Self
+pub impl Show for SpotLight
 
 // Type aliases
 

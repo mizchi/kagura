@@ -30,6 +30,163 @@ fn ensure_buffer_entry(
 }
 
 ///|
+/// Prepare GPU-computed skinning buffers for a skinned shader command.
+/// Returns null when the command is not eligible or compute is unavailable.
+extern "js" fn js_prepare_gpu_skinned_draw(
+  device : @core.Any,
+  shader_source : String,
+  vertex_data : @core.Any,
+  uniform_dwords : @core.Any,
+) -> @core.Any =
+  #| (device, shaderSource, vertexData, uniformDwords) => {
+  #|   if (
+  #|     device == null ||
+  #|     typeof device.createComputePipeline !== "function" ||
+  #|     vertexData == null ||
+  #|     uniformDwords == null
+  #|   ) {
+  #|     return null;
+  #|   }
+  #|   const isSkinned =
+  #|     /position\s*:\s*vec3<f32>/.test(shaderSource) &&
+  #|     /joints\s*:\s*vec4<f32>/.test(shaderSource) &&
+  #|     /weights\s*:\s*vec4<f32>/.test(shaderSource) &&
+  #|     /bone_matrices/.test(shaderSource);
+  #|   if (!isSkinned) return null;
+  #|   const floatCount = vertexData.length | 0;
+  #|   if (floatCount <= 0 || (floatCount % 16) !== 0) return null;
+  #|   if ((uniformDwords.length | 0) < 60) return null;
+  #|   const queue = device.queue;
+  #|   if (queue == null || typeof queue.writeBuffer !== "function") return null;
+  #|   const cacheKey = "__kaguraSkinnedComputeCache";
+  #|   const prev = globalThis[cacheKey];
+  #|   let cache = prev;
+  #|   if (cache == null || cache.device !== device) {
+  #|     cache = { device, pipeline: null, bgl: null };
+  #|     globalThis[cacheKey] = cache;
+  #|   }
+  #|   if (cache.pipeline == null || cache.bgl == null) {
+  #|     const code = `
+  #| const MAX_BONES: u32 = 64u;
+  #| struct Uniforms {
+  #|   mvp: mat4x4<f32>,
+  #|   model: mat4x4<f32>,
+  #|   normal_col0: vec4<f32>,
+  #|   normal_col1: vec4<f32>,
+  #|   normal_col2: vec4<f32>,
+  #|   light_dir: vec4<f32>,
+  #|   light_color: vec4<f32>,
+  #|   ambient_color: vec4<f32>,
+  #|   num_bones: vec4<f32>,
+  #|   bone_matrices: array<mat4x4<f32>, 64>,
+  #| };
+  #| @group(0) @binding(0) var<storage, read> in_data: array<f32>;
+  #| @group(0) @binding(1) var<storage, read_write> out_data: array<f32>;
+  #| @group(0) @binding(2) var<uniform> uniforms: Uniforms;
+  #| @compute @workgroup_size(64)
+  #| fn cs_main(@builtin(global_invocation_id) gid : vec3<u32>) {
+  #|   let idx = gid.x;
+  #|   let elem_count = arrayLength(&in_data);
+  #|   let vertex_count = elem_count / 16u;
+  #|   if (idx >= vertex_count) { return; }
+  #|   let base = idx * 16u;
+  #|   let px = in_data[base + 0u];
+  #|   let py = in_data[base + 1u];
+  #|   let pz = in_data[base + 2u];
+  #|   let nx = in_data[base + 3u];
+  #|   let ny = in_data[base + 4u];
+  #|   let nz = in_data[base + 5u];
+  #|   let j0 = u32(in_data[base + 8u]);
+  #|   let j1 = u32(in_data[base + 9u]);
+  #|   let j2 = u32(in_data[base + 10u]);
+  #|   let j3 = u32(in_data[base + 11u]);
+  #|   let w0 = in_data[base + 12u];
+  #|   let w1 = in_data[base + 13u];
+  #|   let w2 = in_data[base + 14u];
+  #|   let w3 = in_data[base + 15u];
+  #|   var skin_mat = mat4x4<f32>();
+  #|   if (w0 > 0.0) { skin_mat = skin_mat + w0 * uniforms.bone_matrices[j0]; }
+  #|   if (w1 > 0.0) { skin_mat = skin_mat + w1 * uniforms.bone_matrices[j1]; }
+  #|   if (w2 > 0.0) { skin_mat = skin_mat + w2 * uniforms.bone_matrices[j2]; }
+  #|   if (w3 > 0.0) { skin_mat = skin_mat + w3 * uniforms.bone_matrices[j3]; }
+  #|   let sp = skin_mat * vec4<f32>(px, py, pz, 1.0);
+  #|   let sn = (skin_mat * vec4<f32>(nx, ny, nz, 0.0)).xyz;
+  #|   let sn_len = max(length(sn), 1e-6);
+  #|   let nn = sn / sn_len;
+  #|   out_data[base + 0u] = sp.x;
+  #|   out_data[base + 1u] = sp.y;
+  #|   out_data[base + 2u] = sp.z;
+  #|   out_data[base + 3u] = nn.x;
+  #|   out_data[base + 4u] = nn.y;
+  #|   out_data[base + 5u] = nn.z;
+  #|   for (var i = 6u; i < 16u; i = i + 1u) {
+  #|     out_data[base + i] = in_data[base + i];
+  #|   }
+  #| }`;
+  #|     const module = device.createShaderModule({ code });
+  #|     const pipeline = device.createComputePipeline({
+  #|       layout: "auto",
+  #|       compute: { module, entryPoint: "cs_main" },
+  #|     });
+  #|     cache.pipeline = pipeline;
+  #|     cache.bgl = pipeline.getBindGroupLayout(0);
+  #|   }
+  #|   const inBuf = device.createBuffer({
+  #|     size: Math.max(16, vertexData.byteLength | 0),
+  #|     usage: GPUBufferUsage.STORAGE | GPUBufferUsage.COPY_DST,
+  #|   });
+  #|   const outBuf = device.createBuffer({
+  #|     size: Math.max(16, vertexData.byteLength | 0),
+  #|     usage: GPUBufferUsage.STORAGE | GPUBufferUsage.VERTEX,
+  #|   });
+  #|   const uniformBytes = uniformDwords.byteLength | 0;
+  #|   const alignedUniformBytes = Math.max(16, Math.ceil(uniformBytes / 16) * 16);
+  #|   const ubCompute = device.createBuffer({
+  #|     size: alignedUniformBytes,
+  #|     usage: GPUBufferUsage.UNIFORM | GPUBufferUsage.COPY_DST,
+  #|   });
+  #|   const ubRender = device.createBuffer({
+  #|     size: alignedUniformBytes,
+  #|     usage: GPUBufferUsage.UNIFORM | GPUBufferUsage.COPY_DST,
+  #|   });
+  #|   queue.writeBuffer(inBuf, 0, vertexData);
+  #|   queue.writeBuffer(
+  #|     ubCompute,
+  #|     0,
+  #|     new Uint8Array(
+  #|       uniformDwords.buffer,
+  #|       uniformDwords.byteOffset,
+  #|       uniformDwords.byteLength,
+  #|     ),
+  #|   );
+  #|   const patched = new Uint32Array(uniformDwords.length | 0);
+  #|   for (let i = 0; i < patched.length; i += 1) patched[i] = uniformDwords[i] >>> 0;
+  #|   // uniforms.num_bones.y = 1.0f (pre-skinned flag)
+  #|   if (patched.length > 57) patched[57] = 0x3f800000;
+  #|   queue.writeBuffer(ubRender, 0, new Uint8Array(patched.buffer));
+  #|   const bindGroup = device.createBindGroup({
+  #|     layout: cache.bgl,
+  #|     entries: [
+  #|       { binding: 0, resource: { buffer: inBuf } },
+  #|       { binding: 1, resource: { buffer: outBuf } },
+  #|       { binding: 2, resource: { buffer: ubCompute } },
+  #|     ],
+  #|   });
+  #|   const encoder = device.createCommandEncoder();
+  #|   const cpass = encoder.beginComputePass();
+  #|   cpass.setPipeline(cache.pipeline);
+  #|   cpass.setBindGroup(0, bindGroup);
+  #|   cpass.dispatchWorkgroups(Math.ceil((floatCount / 16) / 64));
+  #|   cpass.end();
+  #|   queue.submit([encoder.finish()]);
+  #|   return {
+  #|     vertexBuffer: outBuf,
+  #|     uniformBuffer: ubRender,
+  #|     cleanupBuffers: [inBuf, ubCompute, outBuf, ubRender],
+  #|   };
+  #| }
+
+///|
 /// Draw a default (2D) command using the default pipeline
 pub fn draw_default_command(
   state : GpuState,
@@ -198,7 +355,11 @@ pub fn draw_default_command(
   pass._call("setVertexBuffer", [@core.any(0), vb_entry.buffer]) |> ignore
   pass._call("setIndexBuffer", [ib_entry.buffer, @core.any("uint32")]) |> ignore
   let instance_count = cmd._get("instanceCount")
-  let ic = if @core.is_nullish(instance_count) { 1 } else { instance_count.cast_int() }
+  let ic = if @core.is_nullish(instance_count) {
+    1
+  } else {
+    instance_count.cast_int()
+  }
   if ic > 1 {
     pass._call("drawIndexed", [@core.any(idx_length), @core.any(ic)]) |> ignore
   } else {
@@ -238,14 +399,26 @@ pub fn draw_custom_command(
     state, device, shader_id, shader_source, blend_mode, format,
   )
   let queue = ffi_queue(device)
-  // Vertex buffer (temporary)
-  let vb_byte_length = vertex_data._get("byteLength").cast_int()
-  let vb_size = if vb_byte_length < 16 { 16 } else { vb_byte_length }
-  let vb_desc = @core.new_object()
-  vb_desc._set("size", @core.any(vb_size))
-  vb_desc._set("usage", @core.any(BUFFER_USAGE_VERTEX | BUFFER_USAGE_COPY_DST))
-  let vb = ffi_create_buffer(device, vb_desc)
-  queue._call("writeBuffer", [vb, @core.any(0), vertex_data]) |> ignore
+  let uniform_dwords = cmd._get("uniformDwords")
+  let compute_result = if @core.is_nullish(uniform_dwords) {
+    @core.null()
+  } else {
+    js_prepare_gpu_skinned_draw(device, shader_source, vertex_data, uniform_dwords)
+  }
+  let use_gpu_skinned = not(@core.is_nullish(compute_result))
+  // Vertex buffer (temporary or compute output)
+  let vb = if use_gpu_skinned {
+    compute_result._get("vertexBuffer")
+  } else {
+    let vb_byte_length = vertex_data._get("byteLength").cast_int()
+    let vb_size = if vb_byte_length < 16 { 16 } else { vb_byte_length }
+    let vb_desc = @core.new_object()
+    vb_desc._set("size", @core.any(vb_size))
+    vb_desc._set("usage", @core.any(BUFFER_USAGE_VERTEX | BUFFER_USAGE_COPY_DST))
+    let created = ffi_create_buffer(device, vb_desc)
+    queue._call("writeBuffer", [created, @core.any(0), vertex_data]) |> ignore
+    created
+  }
   // Index buffer (temporary)
   let ib_byte_length = indices._get("byteLength").cast_int()
   let ib_size = if ib_byte_length < 16 { 16 } else { ib_byte_length }
@@ -254,8 +427,7 @@ pub fn draw_custom_command(
   ib_desc._set("usage", @core.any(BUFFER_USAGE_INDEX | BUFFER_USAGE_COPY_DST))
   let ib = ffi_create_buffer(device, ib_desc)
   queue._call("writeBuffer", [ib, @core.any(0), indices]) |> ignore
-  // Uniform buffer (16-byte aligned)
-  let uniform_dwords = cmd._get("uniformDwords")
+  // Uniform buffer (16-byte aligned, or compute-prepared pre-skinned uniform buffer)
   let uniform_bytes = if @core.is_nullish(uniform_dwords) {
     0
   } else {
@@ -266,17 +438,22 @@ pub fn draw_custom_command(
   } else {
     (uniform_bytes + 15) / 16 * 16
   }
-  let ub_desc = @core.new_object()
-  ub_desc._set("size", @core.any(aligned_size))
-  ub_desc._set("usage", @core.any(BUFFER_USAGE_UNIFORM | BUFFER_USAGE_COPY_DST))
-  let ub = ffi_create_buffer(device, ub_desc)
-  if not(@core.is_nullish(uniform_dwords)) && uniform_bytes > 0 {
-    let u8view = @core.new(@core.global_this()._get("Uint8Array"), [
-      uniform_dwords._get("buffer"),
-      uniform_dwords._get("byteOffset"),
-      uniform_dwords._get("byteLength"),
-    ])
-    queue._call("writeBuffer", [ub, @core.any(0), u8view]) |> ignore
+  let ub = if use_gpu_skinned {
+    compute_result._get("uniformBuffer")
+  } else {
+    let ub_desc = @core.new_object()
+    ub_desc._set("size", @core.any(aligned_size))
+    ub_desc._set("usage", @core.any(BUFFER_USAGE_UNIFORM | BUFFER_USAGE_COPY_DST))
+    let created = ffi_create_buffer(device, ub_desc)
+    if not(@core.is_nullish(uniform_dwords)) && uniform_bytes > 0 {
+      let u8view = @core.new(@core.global_this()._get("Uint8Array"), [
+        uniform_dwords._get("buffer"),
+        uniform_dwords._get("byteOffset"),
+        uniform_dwords._get("byteLength"),
+      ])
+      queue._call("writeBuffer", [created, @core.any(0), u8view]) |> ignore
+    }
+    created
   }
   // Build bind group entries
   let bg_entries = @core.new_array()
@@ -350,9 +527,17 @@ pub fn draw_custom_command(
   } else {
     pass._call("drawIndexed", [@core.any(idx_length)]) |> ignore
   }
-  state.pending_buffer_cleanup.push(vb)
+  if use_gpu_skinned {
+    let cleanup_buffers = compute_result._get("cleanupBuffers")
+    let cleanup_len = cleanup_buffers._get("length").cast_int()
+    for i = 0; i < cleanup_len; i = i + 1 {
+      state.pending_buffer_cleanup.push(cleanup_buffers._get_by_index(i))
+    }
+  } else {
+    state.pending_buffer_cleanup.push(vb)
+    state.pending_buffer_cleanup.push(ub)
+  }
   state.pending_buffer_cleanup.push(ib)
-  state.pending_buffer_cleanup.push(ub)
 }
 
 ///|
@@ -495,7 +680,7 @@ pub fn render_gpu(
     let is_custom_cmd = not(@core.is_nullish(cmd._get("isCustom"))) &&
       cmd._get("isCustom").cast_bool()
     let needs_depth = is_custom_cmd &&
-      is_stride32(cmd._get("shaderSource").cast_string())
+      is_3d_shader(cmd._get("shaderSource").cast_string())
     if target_id != current_pass_target || needs_depth != current_pass_has_depth {
       match current_pass {
         Some(p) => p._call("end", []) |> ignore

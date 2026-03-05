@@ -1,0 +1,52 @@
+// Generated using `moon info`, DON'T EDIT IT
+package "mizchi/kagura/particle3d"
+
+import {
+  "mizchi/kagura/math3d",
+}
+
+// Values
+pub fn default_emitter_config() -> EmitterConfig
+
+// Errors
+
+// Types and methods
+pub(all) struct EmitterConfig {
+  position : @math3d.Vec3
+  spawn_rate : Double
+  initial_velocity_min : @math3d.Vec3
+  initial_velocity_max : @math3d.Vec3
+  lifetime_min : Double
+  lifetime_max : Double
+  size_min : Double
+  size_max : Double
+  color_start : @math3d.Vec4
+  color_end : @math3d.Vec4
+  gravity : @math3d.Vec3
+  max_particles : Int
+}
+
+pub(all) struct Particle {
+  mut position : @math3d.Vec3
+  mut velocity : @math3d.Vec3
+  mut age : Double
+  max_age : Double
+  color : @math3d.Vec4
+  mut size : Double
+}
+
+pub(all) struct ParticleEmitter {
+  config : EmitterConfig
+  mut particles : Array[Particle]
+  mut spawn_accumulator : Double
+  mut frame_count : Int
+}
+pub fn ParticleEmitter::build_billboard_vertices(Self, @math3d.Vec3, @math3d.Vec3) -> (Array[Double], Array[Int])
+pub fn ParticleEmitter::new(EmitterConfig) -> Self
+pub fn ParticleEmitter::particle_count(Self) -> Int
+pub fn ParticleEmitter::update(Self, Double) -> Unit
+
+// Type aliases
+
+// Traits
+

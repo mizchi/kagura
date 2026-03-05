@@ -9,13 +9,39 @@ pub(all) struct Material {
 
 ///|
 pub fn Material::new(
-  color~ : @math3d.Vec4 = @math3d.Vec4::new(1.0, 1.0, 1.0, 1.0),
-  src_image_id~ : Int = -1,
-  metallic~ : Double = 0.0,
-  roughness~ : Double = 0.5,
-  emissive~ : @math3d.Vec3 = @math3d.Vec3::new(0.0, 0.0, 0.0),
+  color? : @math3d.Vec4 = @math3d.Vec4::new(1.0, 1.0, 1.0, 1.0),
+  src_image_id? : Int = -1,
+  metallic? : Double = 0.0,
+  roughness? : Double = 0.5,
+  emissive? : @math3d.Vec3 = @math3d.Vec3::new(0.0, 0.0, 0.0),
 ) -> Material {
   { color, src_image_id, metallic, roughness, emissive }
+}
+
+///|
+pub(all) struct SkinningState {
+  skin : @skeleton3d.SkinData
+  skinning_matrices : Array[@math3d.Mat4]
+  packed_vertex_data : Array[Double]?
+}
+
+///|
+pub fn SkinningState::new(
+  skin : @skeleton3d.SkinData,
+  skinning_matrices : Array[@math3d.Mat4],
+) -> SkinningState {
+  { skin, skinning_matrices, packed_vertex_data: None }
+}
+
+///|
+/// Build a skinning state with prepacked stride-16 vertex payload.
+/// This avoids rebuilding mesh+skin packing every frame.
+pub fn SkinningState::new_with_packed(
+  skin : @skeleton3d.SkinData,
+  skinning_matrices : Array[@math3d.Mat4],
+  packed_vertex_data : Array[Double],
+) -> SkinningState {
+  { skin, skinning_matrices, packed_vertex_data: Some(packed_vertex_data) }
 }
 
 ///|
@@ -25,6 +51,7 @@ pub(all) struct Object3D {
   color : @math3d.Vec4
   material : Material?
   sort_bias : Double // positive = render earlier (farther), e.g. ground planes
+  skinning : SkinningState?
 }
 
 ///|
@@ -43,8 +70,8 @@ pub(all) struct InstanceData {
 
 ///|
 pub fn InstanceData::new(
-  transform~ : @transform3d.Transform3D = @transform3d.Transform3D::new(),
-  color~ : @math3d.Vec4 = @math3d.Vec4::new(1.0, 1.0, 1.0, 1.0),
+  transform? : @transform3d.Transform3D = @transform3d.Transform3D::new(),
+  color? : @math3d.Vec4 = @math3d.Vec4::new(1.0, 1.0, 1.0, 1.0),
 ) -> InstanceData {
   { transform, color }
 }

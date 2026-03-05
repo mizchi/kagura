@@ -88,3 +88,70 @@ pub fn apply_skin(
   }
   @mesh3d.Mesh3D::new(new_data, new_indices)
 }
+
+///|
+/// Build GPU skinning vertex payload with stride 16:
+/// position(3) + normal(3) + uv(2) + joints(4) + weights(4).
+pub fn build_skinned_vertex_data(
+  bind_mesh : @mesh3d.Mesh3D,
+  skin : SkinData,
+) -> Array[Double] {
+  let src_stride = @mesh3d.vertex3d_stride
+  let dst_stride = 16
+  let vertex_count = bind_mesh.vertex_count()
+  let out : Array[Double] = Array::make(vertex_count * dst_stride, 0.0)
+  for v in 0..<vertex_count {
+    let src_base = v * src_stride
+    let dst_base = v * dst_stride
+    // Base mesh attributes
+    out[dst_base] = bind_mesh.vertex_data[src_base]
+    out[dst_base + 1] = bind_mesh.vertex_data[src_base + 1]
+    out[dst_base + 2] = bind_mesh.vertex_data[src_base + 2]
+    out[dst_base + 3] = bind_mesh.vertex_data[src_base + 3]
+    out[dst_base + 4] = bind_mesh.vertex_data[src_base + 4]
+    out[dst_base + 5] = bind_mesh.vertex_data[src_base + 5]
+    out[dst_base + 6] = bind_mesh.vertex_data[src_base + 6]
+    out[dst_base + 7] = bind_mesh.vertex_data[src_base + 7]
+    // Skin attributes (fallback to identity joint if missing)
+    let ji_base = v * 4
+    let has_skin = v < skin.vertex_count &&
+      ji_base + 3 < skin.joint_indices.length() &&
+      ji_base + 3 < skin.weights.length()
+    if has_skin {
+      out[dst_base + 8] = if skin.joint_indices[ji_base] >= 0 {
+        skin.joint_indices[ji_base].to_double()
+      } else {
+        0.0
+      }
+      out[dst_base + 9] = if skin.joint_indices[ji_base + 1] >= 0 {
+        skin.joint_indices[ji_base + 1].to_double()
+      } else {
+        0.0
+      }
+      out[dst_base + 10] = if skin.joint_indices[ji_base + 2] >= 0 {
+        skin.joint_indices[ji_base + 2].to_double()
+      } else {
+        0.0
+      }
+      out[dst_base + 11] = if skin.joint_indices[ji_base + 3] >= 0 {
+        skin.joint_indices[ji_base + 3].to_double()
+      } else {
+        0.0
+      }
+      out[dst_base + 12] = skin.weights[ji_base]
+      out[dst_base + 13] = skin.weights[ji_base + 1]
+      out[dst_base + 14] = skin.weights[ji_base + 2]
+      out[dst_base + 15] = skin.weights[ji_base + 3]
+    } else {
+      out[dst_base + 8] = 0.0
+      out[dst_base + 9] = 0.0
+      out[dst_base + 10] = 0.0
+      out[dst_base + 11] = 0.0
+      out[dst_base + 12] = 1.0
+      out[dst_base + 13] = 0.0
+      out[dst_base + 14] = 0.0
+      out[dst_base + 15] = 0.0
+    }
+  }
+  out
+}

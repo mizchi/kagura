@@ -9,11 +9,7 @@ pub fn SpriteAnimationStateMachine::new(
     None => {
       // Fallback: use the first clip in the map
       let mut first : SpriteAnimationClip? = None
-      clips.each(fn(_k, v) {
-        if first is None {
-          first = Some(v)
-        }
-      })
+      clips.each(fn(_k, v) { if first is None { first = Some(v) } })
       match first {
         Some(c) => c
         None =>

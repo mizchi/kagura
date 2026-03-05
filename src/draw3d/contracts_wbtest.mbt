@@ -164,6 +164,59 @@ test "new_lit_mesh_draw_command creates valid command" {
   assert_eq(cmd.uniform_dwords.length(), 56)
 }
 
+///|
+test "new_skinned_lit_mesh_draw_command_from_skin packs stride16 vertex data" {
+  let mesh = @mesh3d.Mesh3D::new(
+    [
+      0.0, 0.0, 0.0, 0.0, 1.0, 0.0, 0.0, 0.0, 1.0, 0.0, 0.0, 0.0, 1.0, 0.0, 1.0,
+      0.0,
+    ],
+    [0, 1],
+  )
+  let skin : @skeleton3d.SkinData = {
+    joint_indices: [0, 1, 2, 3, 4, 5, 6, 7],
+    weights: [1.0, 0.0, 0.0, 0.0, 0.5, 0.5, 0.0, 0.0],
+    vertex_count: 2,
+  }
+  let model = @math3d.Mat4::identity()
+  let vp = @math3d.Mat4::identity()
+  let lighting = @light3d.LightingEnvironment::default()
+  let dst = @gfx.new_image_handle(1, 800, 600)
+  let shader = @gfx.new_shader_handle(11, "test_skinned")
+  let dst_region = @gfx.new_dst_region(0, 0, 800, 600, 2)
+  let cmd = new_skinned_lit_mesh_draw_command_from_skin(
+    dst,
+    shader,
+    dst_region,
+    0,
+    0,
+    0,
+    @gfx.blend_mode_from_int(1),
+    mesh,
+    skin,
+    model,
+    vp,
+    lighting,
+    [@math3d.Mat4::identity()],
+    [],
+  )
+  assert_eq(cmd.vertex_data.length(), 2 * 16)
+  assert_eq(cmd.indices.length(), 2)
+  // Base lit(56) + num_bones(4) + max_bones(64) * mat4(16)
+  assert_eq(cmd.uniform_dwords.length(), 56 + 4 + 64 * 16)
+  // First vertex joint0 and weight0 payload offsets
+  assert_eq(cmd.vertex_data[8], 0.0)
+  assert_eq(cmd.vertex_data[12], 1.0)
+}
+
+///|
+test "shader3d_lit_skinned_wgsl supports pre-skinned bypass flag" {
+  let src = shader3d_lit_skinned_wgsl()
+  assert_true(src.contains("pre_skinned"))
+  assert_true(src.contains("uniforms.num_bones.y > 0.5"))
+  assert_true(src.contains("if (!pre_skinned)"))
+}
+
 // ============================================================
 // Normal map shader tests
 // ============================================================
@@ -274,8 +327,15 @@ test "new_instanced_lit_mesh_draw_command creates valid command" {
   ]
   let dst_region = @gfx.new_dst_region(0, 0, 800, 600, 36)
   let cmd = new_instanced_lit_mesh_draw_command(
-    dst, shader, dst_region, @gfx.blend_mode_from_int(1), mesh, vp, lighting,
-    matrices, colors,
+    dst,
+    shader,
+    dst_region,
+    @gfx.blend_mode_from_int(1),
+    mesh,
+    vp,
+    lighting,
+    matrices,
+    colors,
   )
   assert_eq(cmd.instance_count, 2)
   assert_eq(cmd.vertex_data.length(), 24 * @mesh3d.vertex3d_stride)
@@ -293,8 +353,15 @@ test "instance_count=1 produces same data size as non-instanced" {
   let colors = [@math3d.Vec4::new(1.0, 1.0, 1.0, 1.0)]
   let dst_region = @gfx.new_dst_region(0, 0, 800, 600, 36)
   let cmd = new_instanced_lit_mesh_draw_command(
-    dst, shader, dst_region, @gfx.blend_mode_from_int(1), mesh, vp, lighting,
-    matrices, colors,
+    dst,
+    shader,
+    dst_region,
+    @gfx.blend_mode_from_int(1),
+    mesh,
+    vp,
+    lighting,
+    matrices,
+    colors,
   )
   assert_eq(cmd.instance_count, 1)
   // Uniform size is always padded to MAX_INSTANCES

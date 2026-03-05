@@ -32,6 +32,7 @@ struct Tentacle {
   skeleton : @skeleton3d.Skeleton
   bind_mesh : @mesh3d.Mesh3D
   skin_data : @skeleton3d.SkinData
+  packed_vertex_data : Array[Double]
   player : @animation3d.AnimationPlayer
   base_position : @math3d.Vec3
   color : @math3d.Vec4
@@ -284,6 +285,7 @@ fn create_tentacle(
 ) -> Tentacle {
   let skeleton = build_tentacle_skeleton()
   let (bind_mesh, skin_data) = build_tentacle_mesh()
+  let packed_vertex_data = @skeleton3d.build_skinned_vertex_data(bind_mesh, skin_data)
   let clip = build_tentacle_animation(phase)
   let player = @animation3d.AnimationPlayer::new(clip)
   // Initialize local poses from bone rest transforms
@@ -291,15 +293,26 @@ fn create_tentacle(
   for i in 0..<num_bones {
     local_poses.push(skeleton.bones[i].local_transform)
   }
-  { skeleton, bind_mesh, skin_data, player, base_position: position, color, local_poses }
+  {
+    skeleton,
+    bind_mesh,
+    skin_data,
+    packed_vertex_data,
+    player,
+    base_position: position,
+    color,
+    local_poses,
+  }
 }
 
 // ============================================================
-// Skin a tentacle for the current frame
+// Compute skinning matrices for the current frame
 // ============================================================
 
 ///|
-fn skin_tentacle(t : Tentacle) -> @mesh3d.Mesh3D {
+fn compute_tentacle_skinning_matrices(
+  t : Tentacle,
+) -> Array[@math3d.Mat4] {
   // Reset local poses to rest
   for i in 0..<num_bones {
     t.local_poses[i] = t.skeleton.bones[i].local_transform
@@ -326,9 +339,7 @@ fn skin_tentacle(t : Tentacle) -> @mesh3d.Mesh3D {
   }
   // Compute world transforms and skinning matrices
   let world_transforms = t.skeleton.compute_world_transforms(t.local_poses)
-  let skinning_matrices = t.skeleton.compute_skinning_matrices(world_transforms)
-  // Apply CPU skinning
-  @skeleton3d.apply_skin(t.bind_mesh, t.skin_data, skinning_matrices)
+  t.skeleton.compute_skinning_matrices(world_transforms)
 }
 
 // ============================================================
@@ -343,6 +354,7 @@ struct DemoState {
   lighting : @light3d.LightingEnvironment
   input : @inpututil.InputHelper
   shader3d : @gfx.ShaderHandle
+  shader3d_skinned : @gfx.ShaderHandle
   mut frame : Int
 }
 
@@ -390,6 +402,7 @@ fn DemoState::new() -> DemoState {
     lighting,
     input: @inpututil.new_input_helper(),
     shader3d: @gfx.new_shader_handle(10, @draw3d.shader3d_lit_untextured_wgsl()),
+    shader3d_skinned: @gfx.new_shader_handle(11, @draw3d.shader3d_lit_skinned_wgsl()),
     frame: 0,
   }
 }
@@ -413,12 +426,19 @@ fn DemoState::draw(
   let objects : Array[@scene3d.Object3D] = []
   // Render each tentacle
   for t in self.tentacles {
-    let skinned = skin_tentacle(t)
+    let skinning_matrices = compute_tentacle_skinning_matrices(t)
     objects.push(
       @scene3d.object3d(
-        mesh=skinned,
+        mesh=t.bind_mesh,
         position=t.base_position,
         color=t.color,
+        skinning=Some(
+          @scene3d.SkinningState::new_with_packed(
+            t.skin_data,
+            skinning_matrices,
+            t.packed_vertex_data,
+          ),
+        ),
       ),
     )
   }
@@ -437,5 +457,12 @@ fn DemoState::draw(
     camera=camera,
     lighting=self.lighting,
   )
-  @scene3d.render_scene3d_gpu(scene, ctx.dst, self.shader3d, ctx.screen_w, ctx.screen_h)
+  @scene3d.render_scene3d_gpu(
+    scene,
+    ctx.dst,
+    self.shader3d,
+    ctx.screen_w,
+    ctx.screen_h,
+    shader3d_skinned=Some(self.shader3d_skinned),
+  )
 }

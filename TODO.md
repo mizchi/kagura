@@ -93,12 +93,14 @@ Path of Exile スタイルの斜め見下ろしアクション RPG をターゲ�
 #### Phase 1: 最小プレイアブル
 
 - [x] テクスチャ付き 3D lit シェーダの GPU パス統合 — `render_scene3d_gpu` で textured/PBR shader 自動選択（Material 拡張 + shader3d_textured/pbr/pbr_textured パラメータ）
-- [ ] GPU スキニング — CPU skinning をコンピュートシェーダに移行（多数の敵表示に必須）
+- [x] GPU スキニング（第1段階）— CPU `apply_skin` を廃止し、`render_scene3d_gpu` の skinned shader パスへ移行（多数の敵表示の基盤）
+- [x] GPU スキニング最適化（第2段階）— WebGPU で skinned command をコンピュートシェーダ事前スキニング（prepacked 頂点キャッシュ + pre-skinned 描画分岐）
 - [x] パスファインディング — A* on Grid2D（`pathfind` パッケージ, Manhattan heuristic, カスタム walkable 関数）
 - [x] 地形システム — `mizchi/terrain` Grid2D → Mesh3D 変換（`terrain3d` パッケージ）+ terrain_demo（BSP ダンジョン + A* パス表示）
 - [x] インスタンスレンダリング — 同一メッシュ大量描画（敵の群れ、パーティクル）（DrawTrianglesCommand instance_count + WGSL instanced shader + SceneGraph 統合）
 - [x] シーン遷移 / ステート管理 — タイトル → ゲーム → リザルト、マップ間遷移（scene_manager パッケージ: Scene trait + SceneManager + フェード遷移）
-- [ ] 非同期アセットローダー — ロード画面、ストリーミング対応
+- [x] 非同期アセットローダー（第1段階）— 非同期キュー/進捗/完了通知 + リポジトリ反映（ロード画面の基盤）
+- [ ] 非同期アセットストリーミング（第2段階）— チャンク読み込みと優先度制御（遠景/近景の段階ロード）
 
 #### Phase 2: ゲームシステム
 

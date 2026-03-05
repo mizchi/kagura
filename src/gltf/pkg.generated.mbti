@@ -2,8 +2,10 @@
 package "mizchi/kagura/gltf"
 
 import {
+  "mizchi/kagura/animation3d",
   "mizchi/kagura/mesh3d",
   "mizchi/kagura/scene3d",
+  "mizchi/kagura/skeleton3d",
 }
 
 // Values
@@ -11,7 +13,11 @@ pub fn mesh_from_gltf(String, Array[Bytes]) -> @mesh3d.Mesh3D raise GltfError
 
 pub fn meshes_from_gltf(String, Array[Bytes]) -> Array[@mesh3d.Mesh3D] raise GltfError
 
+pub fn parse_glb(Bytes) -> (String, Array[Bytes]) raise GltfError
+
 pub fn scene_graph_from_gltf(String, Array[Bytes], scene_index? : Int) -> @scene3d.SceneGraph raise GltfError
+
+pub fn skinned_scene_from_gltf(String, Array[Bytes], scene_index? : Int) -> (@scene3d.SceneGraph, @skeleton3d.Skeleton?, Array[@animation3d.AnimationClip], @skeleton3d.SkinData?) raise GltfError
 
 // Errors
 type GltfError

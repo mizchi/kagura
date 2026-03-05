@@ -17,6 +17,7 @@ pub struct Transform3D {
 }
 pub fn Transform3D::forward(Self) -> @math3d.Vec3
 pub fn Transform3D::from_components(@math3d.Vec3, @math3d.Quaternion, @math3d.Vec3) -> Self
+pub fn Transform3D::from_mat4(@math3d.Mat4) -> Self
 pub fn Transform3D::from_position(@math3d.Vec3) -> Self
 pub fn Transform3D::from_position_rotation(@math3d.Vec3, @math3d.Quaternion) -> Self
 pub fn Transform3D::look_at(Self, @math3d.Vec3, @math3d.Vec3) -> Self

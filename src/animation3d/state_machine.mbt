@@ -19,11 +19,7 @@ pub fn AnimationStateMachine3D::new(
     Some(c) => c
     None => {
       let mut first : AnimationClip? = None
-      clips.each(fn(_k, v) {
-        if first is None {
-          first = Some(v)
-        }
-      })
+      clips.each(fn(_k, v) { if first is None { first = Some(v) } })
       match first {
         Some(c) => c
         None => { name: "", channels: [], duration: 0.0 }

@@ -313,7 +313,7 @@ pub fn new_draw_triangles_command(
   indices : Array[Int],
   src_image_ids : Array[Int],
   uniform_dwords : Array[Int],
-  instance_count~ : Int = 1,
+  instance_count? : Int = 1,
 ) -> DrawTrianglesCommand {
   {
     dst,

@@ -143,7 +143,10 @@ test "from_mat4 round-trip identity" {
 test "from_mat4 round-trip TRS" {
   let pos = @math3d.Vec3::new(3.0, -1.0, 7.0)
   let pi = 3.14159265358979
-  let rot = @math3d.Quaternion::from_axis_angle(@math3d.Vec3::unit_y(), pi / 3.0)
+  let rot = @math3d.Quaternion::from_axis_angle(
+    @math3d.Vec3::unit_y(),
+    pi / 3.0,
+  )
   let sc = @math3d.Vec3::new(2.0, 3.0, 0.5)
   let t = Transform3D::from_components(pos, rot, sc)
   let m = t.to_mat4()

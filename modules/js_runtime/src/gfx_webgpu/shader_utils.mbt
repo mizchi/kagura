@@ -12,6 +12,21 @@ pub fn is_stride32(source : String) -> Bool {
 }
 
 ///|
+/// Check if the shader source uses skinned 3D vertex layout:
+/// position(3) + normal(3) + uv(2) + joints(4) + weights(4) = 64 bytes.
+pub fn is_stride64(source : String) -> Bool {
+  is_stride32(source) &&
+  js_regex_test("joints\\s*:\\s*vec4<f32>", source) &&
+  js_regex_test("weights\\s*:\\s*vec4<f32>", source)
+}
+
+///|
+/// Check if shader should be treated as a 3D pipeline (depth/culling enabled).
+pub fn is_3d_shader(source : String) -> Bool {
+  is_stride32(source) || is_stride64(source)
+}
+
+///|
 /// Parse texture/sampler bindings from WGSL shader source
 pub fn parse_texture_bindings(source : String) -> Array[TextureBinding] {
   let raw = js_parse_texture_bindings(source)

@@ -3,8 +3,8 @@
 /// Each walkable tile becomes a floor quad, each wall becomes a raised block.
 pub fn grid_to_mesh3d(
   grid : @terrain.Grid2D,
-  tile_size~ : Double = 1.0,
-  wall_height~ : Double = 1.0,
+  tile_size? : Double = 1.0,
+  wall_height? : Double = 1.0,
 ) -> @mesh3d.Mesh3D {
   let vdata : Array[Double] = []
   let indices : Array[Int] = []
@@ -15,27 +15,22 @@ pub fn grid_to_mesh3d(
       let fx = x.to_double() * tile_size
       let fz = y.to_double() * tile_size
       match tile {
-        Wall => {
+        Wall =>
           vi = add_box(
             vdata, indices, vi, fx, 0.0, fz, tile_size, wall_height, tile_size,
           )
-        }
         Door => {
           // Half-height block
           let h = wall_height * 0.5
           vi = add_box(vdata, indices, vi, fx, 0.0, fz, tile_size, h, tile_size)
         }
-        Water => {
+        Water =>
           // Low floor
-          vi = add_floor_quad(
-            vdata, indices, vi, fx, -0.1, fz, tile_size,
-          )
-        }
+          vi = add_floor_quad(vdata, indices, vi, fx, -0.1, fz, tile_size)
         Empty => ()
-        _ => {
+        _ =>
           // Floor/Corridor/Start/Goal/etc: floor quad at y=0
           vi = add_floor_quad(vdata, indices, vi, fx, 0.0, fz, tile_size)
-        }
       }
     }
   }

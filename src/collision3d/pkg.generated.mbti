@@ -27,6 +27,8 @@ pub fn AABB::merge(Self, Self) -> Self
 pub fn AABB::new(@math3d.Vec3, @math3d.Vec3) -> Self
 pub impl Show for AABB
 
+type BroadphaseEntry
+
 pub(all) struct HitResult {
   hit : Bool
   distance : Double
@@ -43,6 +45,21 @@ pub fn Ray::intersects_sphere(Self, Sphere) -> HitResult
 pub fn Ray::new(@math3d.Vec3, @math3d.Vec3) -> Self
 pub fn Ray::point_at(Self, Double) -> @math3d.Vec3
 pub impl Show for Ray
+
+pub struct SpatialHashGrid {
+  cell_size : Double
+  inv_cell_size : Double
+  cells : Map[Int64, Array[Int]]
+  entries : Array[BroadphaseEntry]
+}
+pub fn SpatialHashGrid::clear(Self) -> Unit
+pub fn SpatialHashGrid::count(Self) -> Int
+pub fn SpatialHashGrid::get_pairs(Self) -> Array[(Int, Int)]
+pub fn SpatialHashGrid::insert(Self, Int, AABB) -> Unit
+pub fn SpatialHashGrid::new(Double) -> Self
+pub fn SpatialHashGrid::query_aabb(Self, AABB) -> Array[Int]
+pub fn SpatialHashGrid::query_ray(Self, Ray, Double) -> Array[Int]
+pub fn SpatialHashGrid::query_sphere(Self, Sphere) -> Array[Int]
 
 pub(all) struct Sphere {
   center : @math3d.Vec3

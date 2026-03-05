@@ -18,9 +18,10 @@ pub fn render_scene3d_graph_gpu(
   shader3d : @gfx.ShaderHandle,
   screen_w : Int,
   screen_h : Int,
-  shader3d_textured~ : @gfx.ShaderHandle? = None,
-  shader3d_pbr~ : @gfx.ShaderHandle? = None,
-  shader3d_pbr_textured~ : @gfx.ShaderHandle? = None,
+  shader3d_textured? : @gfx.ShaderHandle? = None,
+  shader3d_pbr? : @gfx.ShaderHandle? = None,
+  shader3d_pbr_textured? : @gfx.ShaderHandle? = None,
+  shader3d_skinned? : @gfx.ShaderHandle? = None,
 ) -> Array[@gfx.DrawTrianglesCommand] {
   let vp = camera.view_projection_matrix()
   let frustum = Frustum::from_vp(vp)
@@ -42,6 +43,7 @@ pub fn render_scene3d_graph_gpu(
       shader3d_textured~,
       shader3d_pbr~,
       shader3d_pbr_textured~,
+      shader3d_skinned~,
       camera_pos=camera.position,
     )
   }
@@ -61,10 +63,11 @@ fn traverse_node_gpu(
   screen_w : Int,
   screen_h : Int,
   cmds : Array[@gfx.DrawTrianglesCommand],
-  shader3d_textured~ : @gfx.ShaderHandle? = None,
-  shader3d_pbr~ : @gfx.ShaderHandle? = None,
-  shader3d_pbr_textured~ : @gfx.ShaderHandle? = None,
-  camera_pos~ : @math3d.Vec3 = @math3d.Vec3::new(0.0, 0.0, 0.0),
+  shader3d_textured? : @gfx.ShaderHandle? = None,
+  shader3d_pbr? : @gfx.ShaderHandle? = None,
+  shader3d_pbr_textured? : @gfx.ShaderHandle? = None,
+  shader3d_skinned? : @gfx.ShaderHandle? = None,
+  camera_pos? : @math3d.Vec3 = @math3d.Vec3::new(0.0, 0.0, 0.0),
 ) -> Unit {
   match graph.nodes.get(node_id) {
     None => ()
@@ -77,6 +80,7 @@ fn traverse_node_gpu(
             world,
             node.color,
             node.material,
+            node.skinning,
             vp,
             frustum,
             lighting,
@@ -88,6 +92,7 @@ fn traverse_node_gpu(
             shader3d_textured~,
             shader3d_pbr~,
             shader3d_pbr_textured~,
+            shader3d_skinned~,
             camera_pos~,
           )
         None => ()
@@ -108,6 +113,7 @@ fn traverse_node_gpu(
           shader3d_textured~,
           shader3d_pbr~,
           shader3d_pbr_textured~,
+          shader3d_skinned~,
           camera_pos~,
         )
       }
@@ -125,9 +131,10 @@ pub fn render_scene3d_gpu(
   shader3d : @gfx.ShaderHandle,
   screen_w : Int,
   screen_h : Int,
-  shader3d_textured~ : @gfx.ShaderHandle? = None,
-  shader3d_pbr~ : @gfx.ShaderHandle? = None,
-  shader3d_pbr_textured~ : @gfx.ShaderHandle? = None,
+  shader3d_textured? : @gfx.ShaderHandle? = None,
+  shader3d_pbr? : @gfx.ShaderHandle? = None,
+  shader3d_pbr_textured? : @gfx.ShaderHandle? = None,
+  shader3d_skinned? : @gfx.ShaderHandle? = None,
 ) -> Array[@gfx.DrawTrianglesCommand] {
   let vp = scene.camera.view_projection_matrix()
   let frustum = Frustum::from_vp(vp)
@@ -140,6 +147,7 @@ pub fn render_scene3d_gpu(
       model,
       obj.color,
       obj.material,
+      obj.skinning,
       vp,
       frustum,
       scene.lighting,
@@ -151,6 +159,7 @@ pub fn render_scene3d_gpu(
       shader3d_textured~,
       shader3d_pbr~,
       shader3d_pbr_textured~,
+      shader3d_skinned~,
       camera_pos=scene.camera.position,
     )
   }
@@ -163,6 +172,7 @@ fn render_object_gpu(
   model : @math3d.Mat4,
   color : @math3d.Vec4,
   material : Material?,
+  skinning : SkinningState?,
   vp : @math3d.Mat4,
   frustum : Frustum,
   lighting : @light3d.LightingEnvironment,
@@ -171,10 +181,11 @@ fn render_object_gpu(
   screen_w : Int,
   screen_h : Int,
   cmds : Array[@gfx.DrawTrianglesCommand],
-  shader3d_textured~ : @gfx.ShaderHandle? = None,
-  shader3d_pbr~ : @gfx.ShaderHandle? = None,
-  shader3d_pbr_textured~ : @gfx.ShaderHandle? = None,
-  camera_pos~ : @math3d.Vec3 = @math3d.Vec3::new(0.0, 0.0, 0.0),
+  shader3d_textured? : @gfx.ShaderHandle? = None,
+  shader3d_pbr? : @gfx.ShaderHandle? = None,
+  shader3d_pbr_textured? : @gfx.ShaderHandle? = None,
+  shader3d_skinned? : @gfx.ShaderHandle? = None,
+  camera_pos? : @math3d.Vec3 = @math3d.Vec3::new(0.0, 0.0, 0.0),
 ) -> Unit {
   // Frustum culling
   let (omin_x, omin_y, omin_z, omax_x, omax_y, omax_z) = compute_mesh_aabb(mesh)
@@ -186,7 +197,8 @@ fn render_object_gpu(
   }
   // Resolve color and texture from material
   let (col, src_image_id, metallic, roughness, emissive) = match material {
-    Some(mat) => (mat.color, mat.src_image_id, mat.metallic, mat.roughness, mat.emissive)
+    Some(mat) =>
+      (mat.color, mat.src_image_id, mat.metallic, mat.roughness, mat.emissive)
     None => (color, -1, 0.0, 0.5, @math3d.Vec3::new(0.0, 0.0, 0.0))
   }
   let has_texture = src_image_id >= 0
@@ -213,11 +225,7 @@ fn render_object_gpu(
   )
   let index_count = mesh.indices.length()
   let dst_region = @gfx.new_dst_region(0, 0, screen_w, screen_h, index_count)
-  let src_image_ids : Array[Int] = if has_texture {
-    [src_image_id]
-  } else {
-    []
-  }
+  let src_image_ids : Array[Int] = if has_texture { [src_image_id] } else { [] }
   // Select shader and build draw command based on material properties
   if is_pbr {
     let shader = if has_texture {
@@ -256,29 +264,72 @@ fn render_object_gpu(
     )
     cmds.push(cmd)
   } else {
-    let shader = if has_texture {
-      match shader3d_textured {
-        Some(s) => s
-        None => shader3d
+    match (skinning, shader3d_skinned) {
+      (Some(sk), Some(skinned_shader)) => {
+        let cmd = match sk.packed_vertex_data {
+          Some(packed_vertex_data) =>
+            @draw3d.new_skinned_lit_mesh_draw_command(
+              dst,
+              skinned_shader,
+              dst_region,
+              0,
+              0,
+              0,
+              @gfx.blend_mode_from_int(1),
+              packed_vertex_data,
+              mesh.indices,
+              model,
+              vp,
+              tinted_lighting,
+              sk.skinning_matrices,
+              src_image_ids,
+            )
+          None =>
+            @draw3d.new_skinned_lit_mesh_draw_command_from_skin(
+              dst,
+              skinned_shader,
+              dst_region,
+              0,
+              0,
+              0,
+              @gfx.blend_mode_from_int(1),
+              mesh,
+              sk.skin,
+              model,
+              vp,
+              tinted_lighting,
+              sk.skinning_matrices,
+              src_image_ids,
+            )
+        }
+        cmds.push(cmd)
       }
-    } else {
-      shader3d
+      _ => {
+        let shader = if has_texture {
+          match shader3d_textured {
+            Some(s) => s
+            None => shader3d
+          }
+        } else {
+          shader3d
+        }
+        let cmd = @draw3d.new_lit_mesh_draw_command(
+          dst,
+          shader,
+          dst_region,
+          0,
+          0,
+          0,
+          @gfx.blend_mode_from_int(1),
+          mesh,
+          model,
+          vp,
+          tinted_lighting,
+          src_image_ids,
+        )
+        cmds.push(cmd)
+      }
     }
-    let cmd = @draw3d.new_lit_mesh_draw_command(
-      dst,
-      shader,
-      dst_region,
-      0,
-      0,
-      0,
-      @gfx.blend_mode_from_int(1),
-      mesh,
-      model,
-      vp,
-      tinted_lighting,
-      src_image_ids,
-    )
-    cmds.push(cmd)
   }
 }
 
@@ -288,7 +339,7 @@ pub fn render_instanced_gpu(
   mesh : @mesh3d.Mesh3D,
   instances : Array[InstanceData],
   camera : @camera3d.Camera3D,
-  lighting~ : @light3d.LightingEnvironment = @light3d.LightingEnvironment::default(),
+  lighting? : @light3d.LightingEnvironment = @light3d.LightingEnvironment::default(),
   dst : @gfx.ImageHandle,
   shader3d_instanced : @gfx.ShaderHandle,
   screen_w : Int,

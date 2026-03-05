@@ -14,7 +14,7 @@ pub struct Mesh3D {
 pub fn Mesh3D::cube(Double) -> Self
 pub fn Mesh3D::from_obj(String) -> Self
 pub fn Mesh3D::new(Array[Double], Array[Int]) -> Self
-pub fn Mesh3D::plane(Double, Double) -> Self
+pub fn Mesh3D::plane(Double, Double, subdivisions? : Int) -> Self
 pub fn Mesh3D::sphere(Double, Int, Int) -> Self
 pub fn Mesh3D::triangle_count(Self) -> Int
 pub fn Mesh3D::vertex_count(Self) -> Int

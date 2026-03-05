@@ -226,6 +226,7 @@ fn DemoState::draw(
       color,
       material: None,
       sort_bias: if is_ground { 100.0 } else { 0.0 },
+      skinning: None,
     })
   }
   let camera = self.camera.to_camera3d()

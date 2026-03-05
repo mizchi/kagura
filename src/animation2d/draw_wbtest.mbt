@@ -12,8 +12,17 @@ test "draw_sprite_animation appends command when atlas key exists" {
   let shader = @gfx.new_shader_handle(1, "test_shader")
   let region = @gfx.new_dst_region(0, 0, 320, 240, 6)
   let ok = draw_sprite_animation(
-    commands, atlas, player, dst, shader, region,
-    @gfx.blend_mode_from_int(1), -1.0, -1.0, 1.0, 1.0,
+    commands,
+    atlas,
+    player,
+    dst,
+    shader,
+    region,
+    @gfx.blend_mode_from_int(1),
+    -1.0,
+    -1.0,
+    1.0,
+    1.0,
   )
   assert_true(ok)
   assert_eq(commands.length(), 1)
@@ -30,8 +39,17 @@ test "draw_sprite_animation returns false when atlas key missing" {
   let shader = @gfx.new_shader_handle(1, "test_shader")
   let region = @gfx.new_dst_region(0, 0, 320, 240, 6)
   let ok = draw_sprite_animation(
-    commands, atlas, player, dst, shader, region,
-    @gfx.blend_mode_from_int(1), -1.0, -1.0, 1.0, 1.0,
+    commands,
+    atlas,
+    player,
+    dst,
+    shader,
+    region,
+    @gfx.blend_mode_from_int(1),
+    -1.0,
+    -1.0,
+    1.0,
+    1.0,
   )
   assert_false(ok)
   assert_eq(commands.length(), 0)

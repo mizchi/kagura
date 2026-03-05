@@ -1,0 +1,10 @@
+{
+  "name": "mizchi/kagura",
+  "version": "0.1.1",
+  "source": "src",
+  "warn-list": "-6-29-53-68",
+  "preferred-target": "js",
+  "deps": {
+    "mizchi/js": "0.10.14"
+  }
+}

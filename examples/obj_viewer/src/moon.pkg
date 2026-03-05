@@ -7,12 +7,16 @@ import {
   "mizchi/kagura/mesh3d" @mesh3d,
   "mizchi/kagura/scene3d" @scene3d,
   "mizchi/web_runtime_hooks" @web_hooks,
-  "mizchi/native_runtime_hooks" @native_hooks,
 }
 
 warnings = "-1-2-29-71"
 
 options(
   "is-main": true,
+  link: {
+    "native": {
+      "cc-link-flags": "-L../../deps/wgpu-macos/lib -lwgpu_native -lglfw -Wl,-rpath,../../deps/wgpu-macos/lib -framework Metal -framework QuartzCore -framework IOKit -framework CoreFoundation -framework Cocoa -framework Foundation",
+    },
+  },
   targets: { "main_js.mbt": [ "js" ], "main_native.mbt": [ "native" ] },
 )

@@ -162,11 +162,7 @@ pub fn Transform3D::from_mat4(m : @math3d.Mat4) -> Transform3D {
   let inv_sz = if sz > 1.0e-12 { 1.0 / sz } else { 0.0 }
   let right = @math3d.Vec3::new(e[0] * inv_sx, e[1] * inv_sx, e[2] * inv_sx)
   let up = @math3d.Vec3::new(e[4] * inv_sy, e[5] * inv_sy, e[6] * inv_sy)
-  let forward = @math3d.Vec3::new(
-    e[8] * inv_sz,
-    e[9] * inv_sz,
-    e[10] * inv_sz,
-  )
+  let forward = @math3d.Vec3::new(e[8] * inv_sz, e[9] * inv_sz, e[10] * inv_sz)
   let rotation = quaternion_from_axes(right, up, forward)
   { position, rotation, scale }
 }

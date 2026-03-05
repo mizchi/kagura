@@ -4,6 +4,7 @@ pub(all) struct SceneNode {
   mesh : @mesh3d.Mesh3D?
   color : @math3d.Vec4
   material : Material?
+  skinning : SkinningState?
   children : Array[Int]
 }
 
@@ -66,6 +67,7 @@ pub fn scene_node(
   scale? : @math3d.Vec3 = @math3d.Vec3::one(),
   color? : @math3d.Vec4 = @math3d.Vec4::new(1.0, 1.0, 1.0, 1.0),
   material? : Material? = None,
+  skinning? : SkinningState? = None,
 ) -> SceneNode {
   {
     transform: @transform3d.Transform3D::from_components(
@@ -74,6 +76,7 @@ pub fn scene_node(
     mesh,
     color,
     material,
+    skinning,
     children: [],
   }
 }

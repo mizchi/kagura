@@ -146,7 +146,7 @@ pub fn MixerAudioContext::stop_bgm(Self) -> Unit
 pub fn MixerAudioContext::tick_bgm(Self, Int) -> Unit
 pub impl AudioContext for MixerAudioContext
 
-pub struct PlayerId {
+pub(all) struct PlayerId {
   value : Int
 }
 pub impl Show for PlayerId
@@ -188,6 +188,7 @@ pub trait AudioContext {
   set_volume(Self, PlayerId, Double) -> Unit
   current_position(Self, PlayerId) -> Double
   seek(Self, PlayerId, Double) -> Unit raise
+  set_pan(Self, PlayerId, Double) -> Unit
   dispose(Self, PlayerId) -> Unit
 }
 

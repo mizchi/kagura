@@ -35,12 +35,8 @@ fn make_arm_skeleton() -> @skeleton3d.Skeleton {
 fn make_arm_poses() -> Array[@transform3d.Transform3D] {
   [
     @transform3d.Transform3D::new(),
-    @transform3d.Transform3D::from_position(
-      @math3d.Vec3::new(0.0, 1.0, 0.0),
-    ),
-    @transform3d.Transform3D::from_position(
-      @math3d.Vec3::new(0.0, 1.0, 0.0),
-    ),
+    @transform3d.Transform3D::from_position(@math3d.Vec3::new(0.0, 1.0, 0.0)),
+    @transform3d.Transform3D::from_position(@math3d.Vec3::new(0.0, 1.0, 0.0)),
   ]
 }
 
@@ -49,17 +45,15 @@ test "two-bone IK: reachable target" {
   let skeleton = make_arm_skeleton()
   let poses = make_arm_poses()
   // Target at (1, 1, 0) - reachable (within 2.0 total length)
-  let result = solve_two_bone_ik(
-    {
-      skeleton,
-      local_poses: poses,
-      upper_bone: 0,
-      lower_bone: 1,
-      end_bone: 2,
-      target: @math3d.Vec3::new(1.0, 1.0, 0.0),
-      pole_target: None,
-    },
-  )
+  let result = solve_two_bone_ik({
+    skeleton,
+    local_poses: poses,
+    upper_bone: 0,
+    lower_bone: 1,
+    end_bone: 2,
+    target: @math3d.Vec3::new(1.0, 1.0, 0.0),
+    pole_target: None,
+  })
   assert_true(result.success)
   // Verify end effector reaches near target
   let world = skeleton.compute_world_transforms(result.local_poses)
@@ -77,17 +71,15 @@ test "two-bone IK: unreachable target" {
   let skeleton = make_arm_skeleton()
   let poses = make_arm_poses()
   // Target at (0, 5, 0) - unreachable (total length = 2.0)
-  let result = solve_two_bone_ik(
-    {
-      skeleton,
-      local_poses: poses,
-      upper_bone: 0,
-      lower_bone: 1,
-      end_bone: 2,
-      target: @math3d.Vec3::new(0.0, 5.0, 0.0),
-      pole_target: None,
-    },
-  )
+  let result = solve_two_bone_ik({
+    skeleton,
+    local_poses: poses,
+    upper_bone: 0,
+    lower_bone: 1,
+    end_bone: 2,
+    target: @math3d.Vec3::new(0.0, 5.0, 0.0),
+    pole_target: None,
+  })
   assert_true(not(result.success))
   // Chain should stretch toward target direction
   let world = skeleton.compute_world_transforms(result.local_poses)
@@ -105,17 +97,15 @@ test "two-bone IK: with pole target" {
   let skeleton = make_arm_skeleton()
   let poses = make_arm_poses()
   // Target at (0, 1.5, 0), pole at (0, 0, 1) to bend elbow toward +Z
-  let result = solve_two_bone_ik(
-    {
-      skeleton,
-      local_poses: poses,
-      upper_bone: 0,
-      lower_bone: 1,
-      end_bone: 2,
-      target: @math3d.Vec3::new(0.0, 1.5, 0.0),
-      pole_target: Some(@math3d.Vec3::new(0.0, 0.0, 1.0)),
-    },
-  )
+  let result = solve_two_bone_ik({
+    skeleton,
+    local_poses: poses,
+    upper_bone: 0,
+    lower_bone: 1,
+    end_bone: 2,
+    target: @math3d.Vec3::new(0.0, 1.5, 0.0),
+    pole_target: Some(@math3d.Vec3::new(0.0, 0.0, 1.0)),
+  })
   assert_true(result.success)
   // Verify the elbow bends (not straight line)
   let world = skeleton.compute_world_transforms(result.local_poses)
@@ -125,8 +115,7 @@ test "two-bone IK: with pole target" {
     world[1].elements[14],
   )
   // The elbow should have some displacement (not just straight along Y)
-  let elbow_dist_from_y = (elbow_pos.x * elbow_pos.x +
-    elbow_pos.z * elbow_pos.z).sqrt()
+  let elbow_dist_from_y = (elbow_pos.x * elbow_pos.x + elbow_pos.z * elbow_pos.z).sqrt()
   // With a target close enough to need bending, elbow should be off-axis
   assert_true(elbow_dist_from_y > 0.01 || elbow_pos.y < 1.9)
 }
@@ -137,17 +126,15 @@ test "two-bone IK: elbow not on straight line (visible bend)" {
   let poses = make_arm_poses()
   // Target at (0.6, 0.6, 0) - close enough to force significant bending
   let target = @math3d.Vec3::new(0.6, 0.6, 0.0)
-  let result = solve_two_bone_ik(
-    {
-      skeleton,
-      local_poses: poses,
-      upper_bone: 0,
-      lower_bone: 1,
-      end_bone: 2,
-      target,
-      pole_target: Some(@math3d.Vec3::new(0.0, 0.0, 1.0)),
-    },
-  )
+  let result = solve_two_bone_ik({
+    skeleton,
+    local_poses: poses,
+    upper_bone: 0,
+    lower_bone: 1,
+    end_bone: 2,
+    target,
+    pole_target: Some(@math3d.Vec3::new(0.0, 0.0, 1.0)),
+  })
   assert_true(result.success)
   let world = skeleton.compute_world_transforms(result.local_poses)
   let p0 = @math3d.Vec3::new(
@@ -194,29 +181,25 @@ test "two-bone IK: compare with FABRIK same target" {
   let skeleton = make_arm_skeleton()
   let target = @math3d.Vec3::new(0.6, 0.6, 0.0)
   // Two-Bone IK
-  let tb_result = solve_two_bone_ik(
-    {
-      skeleton,
-      local_poses: make_arm_poses(),
-      upper_bone: 0,
-      lower_bone: 1,
-      end_bone: 2,
-      target,
-      pole_target: Some(@math3d.Vec3::new(0.0, 0.0, 1.0)),
-    },
-  )
+  let tb_result = solve_two_bone_ik({
+    skeleton,
+    local_poses: make_arm_poses(),
+    upper_bone: 0,
+    lower_bone: 1,
+    end_bone: 2,
+    target,
+    pole_target: Some(@math3d.Vec3::new(0.0, 0.0, 1.0)),
+  })
   let tb_world = skeleton.compute_world_transforms(tb_result.local_poses)
   // FABRIK
-  let fab_result = solve_fabrik(
-    {
-      skeleton,
-      local_poses: make_arm_poses(),
-      chain: [0, 1, 2],
-      target,
-      tolerance: 0.001,
-      max_iterations: 50,
-    },
-  )
+  let fab_result = solve_fabrik({
+    skeleton,
+    local_poses: make_arm_poses(),
+    chain: [0, 1, 2],
+    target,
+    tolerance: 0.001,
+    max_iterations: 50,
+  })
   let fab_world = skeleton.compute_world_transforms(fab_result.local_poses)
   // Compare hand positions
   let tb_hand = @math3d.Vec3::new(
@@ -261,17 +244,15 @@ test "two-bone IK: compare with FABRIK same target" {
 test "two-bone IK: bone lengths preserved after solve" {
   let skeleton = make_arm_skeleton()
   let poses = make_arm_poses()
-  let result = solve_two_bone_ik(
-    {
-      skeleton,
-      local_poses: poses,
-      upper_bone: 0,
-      lower_bone: 1,
-      end_bone: 2,
-      target: @math3d.Vec3::new(1.0, 1.0, 0.0),
-      pole_target: Some(@math3d.Vec3::new(0.0, 0.0, 1.0)),
-    },
-  )
+  let result = solve_two_bone_ik({
+    skeleton,
+    local_poses: poses,
+    upper_bone: 0,
+    lower_bone: 1,
+    end_bone: 2,
+    target: @math3d.Vec3::new(1.0, 1.0, 0.0),
+    pole_target: Some(@math3d.Vec3::new(0.0, 0.0, 1.0)),
+  })
   let world = skeleton.compute_world_transforms(result.local_poses)
   let p0 = @math3d.Vec3::new(
     world[0].elements[12],

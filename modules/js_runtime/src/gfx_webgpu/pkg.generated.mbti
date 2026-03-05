@@ -1,0 +1,138 @@
+// Generated using `moon info`, DON'T EDIT IT
+package "mizchi/kagura/gfx_webgpu"
+
+import {
+  "mizchi/js/core",
+}
+
+// Values
+pub const BUFFER_USAGE_COPY_DST : Int = 8
+
+pub const BUFFER_USAGE_INDEX : Int = 16
+
+pub const BUFFER_USAGE_UNIFORM : Int = 64
+
+pub const BUFFER_USAGE_VERTEX : Int = 32
+
+pub const SHADER_STAGE_COMPUTE : Int = 4
+
+pub const SHADER_STAGE_FRAGMENT : Int = 2
+
+pub const SHADER_STAGE_VERTEX : Int = 1
+
+pub const TEXTURE_USAGE_COPY_DST : Int = 2
+
+pub const TEXTURE_USAGE_RENDER_ATTACHMENT : Int = 16
+
+pub const TEXTURE_USAGE_TEXTURE_BINDING : Int = 4
+
+pub fn draw_custom_command(GpuState, @core.Any, @core.Any, @core.Any, String) -> Unit
+
+pub fn draw_default_command(GpuState, @core.Any, @core.Any, @core.Any, Int, DrawResourceCache, String) -> Unit
+
+pub fn ensure_depth_texture(GpuState, @core.Any, Int, Int) -> DepthTextureEntry
+
+pub fn ensure_gpu_pipeline(GpuState, @core.Any, String) -> Bool
+
+pub fn ensure_render_target(GpuState, @core.Any, Int, Int, Int) -> RenderTargetEntry
+
+pub fn finalize_texture_upload(GpuState, @core.Any, @core.Any) -> Unit
+
+pub fn get_gpu_state() -> GpuState
+
+pub fn get_or_create_custom_pipeline(GpuState, @core.Any, Int, String, Int, String) -> CustomPipelineEntry
+
+pub fn install_gfx_helpers() -> Unit
+
+pub fn is_3d_shader(String) -> Bool
+
+pub fn is_stride32(String) -> Bool
+
+pub fn is_stride64(String) -> Bool
+
+pub fn parse_texture_bindings(String) -> Array[TextureBinding]
+
+pub fn release_gpu_resources(GpuState, @core.Any) -> Unit
+
+pub fn render_gpu(GpuState, @core.Any, @core.Any, @core.Any, @core.Any, String) -> Bool
+
+pub fn reset_gpu_state() -> Unit
+
+// Errors
+
+// Types and methods
+pub(all) struct BufferEntry {
+  mut size : Int
+  mut buffer : @core.Any
+}
+
+pub(all) struct CustomPipelineEntry {
+  pipeline : @core.Any
+  bind_group_layout : @core.Any
+  stride32 : Bool
+}
+
+pub(all) struct DepthTextureEntry {
+  texture : @core.Any
+  view : @core.Any
+  width : Int
+  height : Int
+}
+
+pub(all) struct DrawResourceCache {
+  vertex_buffers : Array[BufferEntry?]
+  index_buffers : Array[BufferEntry?]
+  uniform_buffers : Array[BufferEntry?]
+  uniform_bind_groups : Array[@core.Any?]
+  uniform_bind_buffers : Array[@core.Any?]
+  texture_bind_groups : Array[@core.Any?]
+  texture_bind_image_ids : Array[Int]
+  texture_bind_revisions : Array[Int]
+}
+pub fn DrawResourceCache::new() -> Self
+
+pub(all) struct GpuState {
+  mut pipeline : @core.Any?
+  mut pipeline_format : String
+  mut pipeline_offscreen : @core.Any?
+  mut uniform_bgl : @core.Any?
+  mut tex_bgl : @core.Any?
+  mut default_texture : @core.Any?
+  mut default_tex_view : @core.Any?
+  mut default_sampler : @core.Any?
+  mut linear_sampler : @core.Any?
+  mut draw_cache : DrawResourceCache?
+  mut custom_pipelines : Map[String, CustomPipelineEntry]
+  mut render_targets : Map[Int, RenderTargetEntry]
+  mut depth_textures : Map[String, DepthTextureEntry]
+  mut textures : Map[Int, TextureEntry]
+  mut pending_buffer_cleanup : Array[@core.Any]
+  mut screen_target_id : Int
+}
+pub fn GpuState::new() -> Self
+
+pub(all) struct RenderTargetEntry {
+  texture : @core.Any
+  view : @core.Any
+  width : Int
+  height : Int
+}
+
+pub(all) struct TextureBinding {
+  binding : Int
+  type_ : String
+}
+
+pub(all) struct TextureEntry {
+  texture : @core.Any
+  view : @core.Any
+  sampler : @core.Any
+  width : Int
+  height : Int
+  mut revision : Int
+}
+
+// Type aliases
+
+// Traits
+

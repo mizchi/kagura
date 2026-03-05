@@ -13,7 +13,7 @@ pub fn find_path(
   grid : @terrain.Grid2D,
   start : @terrain.Point,
   goal : @terrain.Point,
-  walkable~ : ((@terrain.Tile) -> Bool) = default_walkable,
+  walkable? : (@terrain.Tile) -> Bool = default_walkable,
 ) -> Array[@terrain.Point]? {
   // Validate start and goal
   if not(grid.in_bounds(start.x, start.y)) ||

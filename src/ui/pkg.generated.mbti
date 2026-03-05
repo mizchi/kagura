@@ -68,7 +68,7 @@ pub struct SimpleUIRenderAdapter {
 pub fn SimpleUIRenderAdapter::new(@gfx.ShaderHandle, Int) -> Self
 pub impl UIRenderAdapter for SimpleUIRenderAdapter
 
-pub enum UIDirection {
+pub(all) enum UIDirection {
   Row
   Column
 }
@@ -84,7 +84,7 @@ pub enum UIEvent {
 }
 pub impl Show for UIEvent
 
-pub enum UIFlexWrap {
+pub(all) enum UIFlexWrap {
   NoWrap
   Wrap
 }
@@ -121,7 +121,7 @@ pub struct UINodeId {
 }
 pub impl Show for UINodeId
 
-pub struct UINodeStyle {
+pub(all) struct UINodeStyle {
   direction : UIDirection
   width : UISizing
   height : UISizing
@@ -136,7 +136,7 @@ pub struct UINodeStyle {
 }
 pub impl Show for UINodeStyle
 
-pub enum UISizing {
+pub(all) enum UISizing {
   Fixed(Double)
   Percent(Double)
   Auto

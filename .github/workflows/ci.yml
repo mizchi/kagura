@@ -6,6 +6,50 @@ on:
   pull_request:
 
 jobs:
+  check-test-matrix:
+    strategy:
+      fail-fast: false
+      matrix:
+        include:
+          - name: js
+            os: ubuntu-latest
+            target: js
+          - name: native
+            os: macos-latest
+            target: native
+    runs-on: ${{ matrix.os }}
+    env:
+      MOON_CC: clang
+    steps:
+      - uses: actions/checkout@v4
+      - name: Install MoonBit CLI
+        run: |
+          curl -fsSL https://cli.moonbitlang.com/install/unix.sh | bash
+          echo "$HOME/.moon/bin" >> "$GITHUB_PATH"
+      - name: Setup pnpm
+        if: matrix.target == 'js'
+        run: corepack enable
+      - uses: actions/setup-node@v4
+        if: matrix.target == 'js'
+        with:
+          node-version: "24"
+          cache: "pnpm"
+      - name: Install JS deps
+        if: matrix.target == 'js'
+        run: pnpm install --frozen-lockfile
+      - name: Update MoonBit registry
+        run: moon update
+      - name: Setup wgpu-native and glfw
+        if: matrix.target == 'native'
+        run: |
+          bash scripts/setup-wgpu-native.sh
+          echo "CPATH=$(brew --prefix glfw)/include:/usr/local/include:${CPATH:-}" >> "$GITHUB_ENV"
+          echo "LIBRARY_PATH=$(brew --prefix)/lib:/usr/local/lib:${LIBRARY_PATH:-}" >> "$GITHUB_ENV"
+      - name: Check
+        run: just target=${{ matrix.target }} check
+      - name: Test
+        run: just target=${{ matrix.target }} test
+
   js:
     runs-on: ubuntu-latest
     steps:

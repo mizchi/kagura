@@ -1,0 +1,9 @@
+import {
+  "mizchi/kagura/asset" @asset,
+  "mizchi/kagura/gfx" @gfx,
+}
+
+options(
+  "supported-targets": [ "js" ],
+  targets: { "contracts.mbt": [ "js" ], "contracts_wbtest.mbt": [ "js" ] },
+)

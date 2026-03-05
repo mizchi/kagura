@@ -75,7 +75,9 @@ test "apply_node_poses: applies translation/rotation/scale" {
 
 ///|
 test "apply_node_poses: out of range index ignored" {
-  let poses : Array[@transform3d.Transform3D] = [@transform3d.Transform3D::new()]
+  let poses : Array[@transform3d.Transform3D] = [
+    @transform3d.Transform3D::new(),
+  ]
   let node_poses : Array[NodePose] = [
     {
       node_index: 5,
@@ -86,7 +88,5 @@ test "apply_node_poses: out of range index ignored" {
   ]
   apply_node_poses(poses, node_poses)
   // Should not crash, pose unchanged
-  assert_true(
-    poses[0].position.approx_eq(@math3d.Vec3::zero(), 1.0e-6),
-  )
+  assert_true(poses[0].position.approx_eq(@math3d.Vec3::zero(), 1.0e-6))
 }

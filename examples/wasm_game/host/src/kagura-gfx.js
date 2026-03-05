@@ -1,5 +1,5 @@
 // Local WebGPU rendering for WASM host.
-// Canonical implementation is now in MoonBit: src/gfx_webgpu/
+// Canonical implementation is now in MoonBit: modules/js_runtime/src/gfx_webgpu/
 
 const SHADER_CODE = `
 struct Uniforms { color: vec4f }

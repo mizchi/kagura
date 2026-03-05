@@ -80,10 +80,9 @@ test "find_path on larger grid" {
   let grid = @terrain.Grid2D::make(20, 20, @terrain.Tile::Floor)
   let path = find_path(grid, { x: 0, y: 0 }, { x: 19, y: 19 })
   match path {
-    Some(p) => {
+    Some(p) =>
       // Manhattan distance = 38, path length = 39 (including start)
       assert_eq(p.length(), 39)
-    }
     None => assert_true(false)
   }
 }
@@ -100,12 +99,9 @@ test "find_path start on wall returns None" {
 test "find_path custom walkable function" {
   // Use Water as walkable
   let grid = @terrain.Grid2D::make(3, 1, @terrain.Tile::Water)
-  let path = find_path(
-    grid,
-    { x: 0, y: 0 },
-    { x: 2, y: 0 },
-    walkable=fn(tile) { tile == @terrain.Tile::Water },
-  )
+  let path = find_path(grid, { x: 0, y: 0 }, { x: 2, y: 0 }, walkable=fn(tile) {
+    tile == @terrain.Tile::Water
+  })
   match path {
     Some(p) => assert_eq(p.length(), 3)
     None => assert_true(false)

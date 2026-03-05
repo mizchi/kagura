@@ -1,0 +1,60 @@
+// Generated using `moon info`, DON'T EDIT IT
+package "mizchi/kagura/asset_loader"
+
+import {
+  "mizchi/kagura/asset",
+  "mizchi/kagura/gfx",
+}
+
+// Values
+pub fn async_image_status_to_int(AsyncImageStatus) -> Int
+
+pub fn new_async_image_loader(fetch_image_fn? : (String, (@asset.ImageSpec?) -> Unit) -> Unit) -> AsyncImageLoader
+
+// Errors
+
+// Types and methods
+pub struct AsyncImageLoader {
+  mut next_id : Int
+  requests : Map[Int, AsyncImageRequest]
+  mut pending_ids : Array[Int]
+  mut completed_ids : Array[Int]
+  fetch_image_fn : (String, (@asset.ImageSpec?) -> Unit) -> Unit
+}
+pub fn AsyncImageLoader::commit_loaded_image(Self, Int, @asset.SimpleImageRepository) -> @gfx.ImageHandle?
+pub fn AsyncImageLoader::drain_completed(Self) -> Array[Int]
+pub fn AsyncImageLoader::enqueue_image(Self, @asset.AssetKey, String) -> Int
+pub fn AsyncImageLoader::get_request(Self, Int) -> AsyncImageRequest?
+pub fn AsyncImageLoader::progress(Self) -> AsyncImageProgress
+pub fn AsyncImageLoader::start_pending(Self) -> Int
+
+pub struct AsyncImageProgress {
+  total : Int
+  pending : Int
+  loading : Int
+  succeeded : Int
+  failed : Int
+}
+pub impl Show for AsyncImageProgress
+
+pub struct AsyncImageRequest {
+  id : Int
+  key : @asset.AssetKey
+  url : String
+  mut status : AsyncImageStatus
+  mut image_spec : @asset.ImageSpec?
+}
+pub impl Show for AsyncImageRequest
+
+pub enum AsyncImageStatus {
+  Pending
+  Loading
+  Succeeded
+  Failed
+}
+pub impl Show for AsyncImageStatus
+
+// Type aliases
+
+// Traits
+

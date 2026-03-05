@@ -63,13 +63,7 @@ pub fn compute_attenuation(
   let ref_d = source.ref_distance
   let max_d = source.max_distance
   let rolloff = source.rolloff
-  let clamped_d = if d < ref_d {
-    ref_d
-  } else if d > max_d {
-    max_d
-  } else {
-    d
-  }
+  let clamped_d = if d < ref_d { ref_d } else if d > max_d { max_d } else { d }
   match source.attenuation {
     Inverse => {
       // 1 / (1 + (d / ref) * rolloff) -- OpenAL-style
@@ -82,17 +76,20 @@ pub fn compute_attenuation(
         1.0
       } else {
         let v = 1.0 - rolloff * (clamped_d - ref_d) / range
-        if v < 0.0 { 0.0 } else { v }
+        if v < 0.0 {
+          0.0
+        } else {
+          v
+        }
       }
     }
-    Exponential => {
+    Exponential =>
       if ref_d <= 0.0 {
         1.0
       } else {
         let ratio = clamped_d / ref_d
         pow(ratio, -rolloff)
       }
-    }
   }
 }
 
@@ -138,7 +135,11 @@ fn pow(base : Double, exponent : Double) -> Double {
     }
     result = result * frac_result
   }
-  if neg { 1.0 / result } else { result }
+  if neg {
+    1.0 / result
+  } else {
+    result
+  }
 }
 
 ///|

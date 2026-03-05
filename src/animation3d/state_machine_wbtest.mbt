@@ -49,10 +49,30 @@ fn make_test_clips() -> Map[String, AnimationClip] {
 ///|
 fn make_test_transitions() -> Array[AnimTransition3D] {
   [
-    { from_state: "idle", to_state: "walk", trigger: "move", blend_duration: 0.3 },
-    { from_state: "walk", to_state: "idle", trigger: "stop", blend_duration: 0.3 },
-    { from_state: "idle", to_state: "walk", trigger: "instant_move", blend_duration: 0.0 },
-    { from_state: "*", to_state: "attack", trigger: "attack", blend_duration: 0.1 },
+    {
+      from_state: "idle",
+      to_state: "walk",
+      trigger: "move",
+      blend_duration: 0.3,
+    },
+    {
+      from_state: "walk",
+      to_state: "idle",
+      trigger: "stop",
+      blend_duration: 0.3,
+    },
+    {
+      from_state: "idle",
+      to_state: "walk",
+      trigger: "instant_move",
+      blend_duration: 0.0,
+    },
+    {
+      from_state: "*",
+      to_state: "attack",
+      trigger: "attack",
+      blend_duration: 0.1,
+    },
   ]
 }
 
@@ -148,11 +168,10 @@ test "state machine: sample during blend" {
   assert_true(poses.length() > 0)
   // At weight ~0.5, translation should be between idle (0,0,0) and walk interpolated
   match poses[0].translation {
-    Some(v) => {
+    Some(v) =>
       // Walk at t=0.15 would be (0.15, 0, 0), idle at t=0.15 would be (0, 0, 0)
       // Blended at ~0.5 weight: ~(0.075, 0, 0)
       assert_true(v.x >= -0.01)
-    }
     None => fail("Expected translation")
   }
 }

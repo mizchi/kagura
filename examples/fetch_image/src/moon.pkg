@@ -8,4 +8,10 @@ import {
 
 warnings = "-1-2-29-71"
 
-options("is-main": true)
+options(
+  "is-main": true,
+  targets: {
+    "main.mbt": [ "js" ],
+    "main_stub.mbt": [ "native", "wasm", "wasm-gc", "llvm" ],
+  },
+)

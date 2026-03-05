@@ -14,6 +14,11 @@ import {
 warnings = "-1-7-29"
 
 options(
+  link: {
+    "native": {
+      "cc-link-flags": "-L../../deps/wgpu-macos/lib -lwgpu_native -lglfw -Wl,-rpath,../../deps/wgpu-macos/lib -framework Metal -framework QuartzCore -framework IOKit -framework CoreFoundation -framework Cocoa -framework Foundation -framework AudioToolbox -framework CoreAudio",
+    },
+  },
   targets: {
     "hooks_native.mbt": [ "native" ],
     "hooks_native_wbtest.mbt": [ "js" ],

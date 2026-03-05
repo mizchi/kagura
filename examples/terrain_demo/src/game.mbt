@@ -75,7 +75,6 @@ impl @scene_manager.Scene for MenuScene with draw(self, ctx) {
 ///|
 struct DungeonScene {
   graph : @scene3d.SceneGraph
-  grid : @terrain.Grid2D
   mut camera : @camera3d.OrbitCamera
   lighting : @light3d.LightingEnvironment
   shader3d : @gfx.ShaderHandle
@@ -219,7 +218,6 @@ fn DungeonScene::new() -> DungeonScene {
   )
   {
     graph,
-    grid,
     camera,
     lighting,
     shader3d,

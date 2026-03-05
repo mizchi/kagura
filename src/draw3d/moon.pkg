@@ -3,4 +3,5 @@ import {
   "mizchi/kagura/gfx" @gfx,
   "mizchi/kagura/mesh3d" @mesh3d,
   "mizchi/kagura/light3d" @light3d,
+  "mizchi/kagura/skeleton3d" @skeleton3d,
 }

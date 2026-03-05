@@ -96,7 +96,7 @@ pub fn new_color(Double, Double, Double, Double) -> Color
 
 pub fn[T : CommandQueue] new_command_queue() -> T
 
-pub fn new_draw_triangles_command(ImageHandle, ShaderHandle, Array[DstRegion], Int, Int, Int, BlendMode, Array[Double], Array[Int], Array[Int], Array[Int]) -> DrawTrianglesCommand
+pub fn new_draw_triangles_command(ImageHandle, ShaderHandle, Array[DstRegion], Int, Int, Int, BlendMode, Array[Double], Array[Int], Array[Int], Array[Int], instance_count? : Int) -> DrawTrianglesCommand
 
 pub fn new_dst_region(Int, Int, Int, Int, Int) -> DstRegion
 
@@ -285,6 +285,7 @@ pub struct DrawTrianglesCommand {
   indices : Array[Int]
   src_image_ids : Array[Int]
   uniform_dwords : Array[Int]
+  instance_count : Int
 }
 
 pub struct DstRegion {

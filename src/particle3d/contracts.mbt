@@ -58,24 +58,22 @@ pub(all) struct ParticleEmitter {
 
 ///|
 pub fn ParticleEmitter::new(config : EmitterConfig) -> ParticleEmitter {
-  {
-    config,
-    particles: [],
-    spawn_accumulator: 0.0,
-    frame_count: 0,
-  }
+  { config, particles: [], spawn_accumulator: 0.0, frame_count: 0 }
 }
 
 ///|
 /// Deterministic hash function for RNG.
 fn hash_u32(seed : Int) -> Int {
   let mut h = seed
-  h = h.lxor(h.lsr(16))
+  h = (h.reinterpret_as_uint() ^ (h.reinterpret_as_uint() >> 16))
+    .reinterpret_as_int()
   h = h * 0x45d9f3b
-  h = h.lxor(h.lsr(16))
+  h = (h.reinterpret_as_uint() ^ (h.reinterpret_as_uint() >> 16))
+    .reinterpret_as_int()
   h = h * 0x45d9f3b
-  h = h.lxor(h.lsr(16))
-  h.land(0x7FFFFFFF)
+  h = (h.reinterpret_as_uint() ^ (h.reinterpret_as_uint() >> 16))
+    .reinterpret_as_int()
+  h & 0x7FFFFFFF
 }
 
 ///|
@@ -144,17 +142,19 @@ pub fn ParticleEmitter::update(self : ParticleEmitter, dt : Double) -> Unit {
       self.config.lifetime_min,
       self.config.lifetime_max,
     )
-    let size = hash_lerp(seed_base + 4, self.config.size_min, self.config.size_max)
-    self.particles.push(
-      {
-        position: self.config.position,
-        velocity: @math3d.Vec3::new(vx, vy, vz),
-        age: 0.0,
-        max_age: lifetime,
-        color: self.config.color_start,
-        size,
-      },
+    let size = hash_lerp(
+      seed_base + 4,
+      self.config.size_min,
+      self.config.size_max,
     )
+    self.particles.push({
+      position: self.config.position,
+      velocity: @math3d.Vec3::new(vx, vy, vz),
+      age: 0.0,
+      max_age: lifetime,
+      color: self.config.color_start,
+      size,
+    })
   }
 }
 

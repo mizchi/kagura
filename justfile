@@ -6,15 +6,18 @@ default: check test
 
 fmt:
     moon fmt
+    [ -f modules/js_runtime/moon.mod.json ] && (cd modules/js_runtime && moon fmt)
     for dir in examples/*/; do [ -f "$dir/moon.mod.json" ] && (cd "$dir" && moon fmt); done
 
 check:
     moon check --deny-warn --target {{target}}
+    if [ "{{target}}" = "js" ] && [ -f modules/js_runtime/moon.mod.json ]; then (cd modules/js_runtime && moon check --deny-warn --target js); fi
     for dir in examples/*/; do [ -f "$dir/moon.mod.json" ] && (cd "$dir" && moon check --deny-warn --target {{target}}); done
 
 test:
-    moon test --target {{target}}
-    for dir in examples/*/; do [ -f "$dir/moon.mod.json" ] && (cd "$dir" && moon test --target {{target}}); done
+    if [ "{{target}}" = "native" ]; then CPATH="$(brew --prefix glfw)/include:${CPATH:-}" LIBRARY_PATH="$(brew --prefix)/lib:${LIBRARY_PATH:-}" moon test --target native; else moon test --target {{target}}; fi
+    if [ "{{target}}" = "js" ] && [ -f modules/js_runtime/moon.mod.json ]; then (cd modules/js_runtime && moon test --target js); fi
+    for dir in examples/*/; do if [ -f "$dir/moon.mod.json" ]; then (cd "$dir" && if [ "{{target}}" = "native" ]; then CPATH="$(brew --prefix glfw)/include:${CPATH:-}" LIBRARY_PATH="$(brew --prefix)/lib:${LIBRARY_PATH:-}" moon test --target native; else moon test --target {{target}}; fi) || exit 1; fi; done
 
 bench:
     moon bench --target {{target}}
@@ -55,10 +58,12 @@ check-release:
     @echo "Checking for local path dependencies..."
     @if grep -q '"path"' moon.mod.json; then echo "ERROR: moon.mod.json contains local path dependencies"; grep '"path"' moon.mod.json; exit 1; else echo "OK: No local path dependencies found"; fi
     moon check --target js
+    [ -f modules/js_runtime/moon.mod.json ] && (cd modules/js_runtime && moon check --target js)
     moon check --target native
 
 clean:
     moon clean
+    [ -f modules/js_runtime/moon.mod.json ] && (cd modules/js_runtime && moon clean)
     for dir in examples/*/; do (cd "$dir" && moon clean); done
 
 # WASM game host tasks

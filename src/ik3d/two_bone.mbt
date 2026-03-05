@@ -160,21 +160,21 @@ pub fn solve_two_bone_ik(request : TwoBoneIKRequest) -> TwoBoneIKResult {
   let inv_parent = parent_world_rot.inverse()
   let target_local_upper = inv_parent.rotate_vec3(desired_ab_dir)
   let new_local_rot_upper = rotation_between_vectors(
-    upper_child_offset,
-    target_local_upper,
+    upper_child_offset, target_local_upper,
   )
   result_poses[request.upper_bone] = result_poses[request.upper_bone].with_rotation(
     new_local_rot_upper,
   )
   // Upper bone's world rotation
-  let upper_world_rot = parent_world_rot.multiply(new_local_rot_upper).normalize()
+  let upper_world_rot = parent_world_rot
+    .multiply(new_local_rot_upper)
+    .normalize()
   // Lower bone: child offset direction (rest pose direction to end bone)
   let lower_child_offset = local_poses[request.end_bone].position.normalize()
   let inv_upper = upper_world_rot.inverse()
   let target_local_lower = inv_upper.rotate_vec3(desired_bc_dir)
   let new_local_rot_lower = rotation_between_vectors(
-    lower_child_offset,
-    target_local_lower,
+    lower_child_offset, target_local_lower,
   )
   result_poses[request.lower_bone] = result_poses[request.lower_bone].with_rotation(
     new_local_rot_lower,

@@ -16,7 +16,20 @@ pub fn draw_sprite_animation(
 ) -> Bool {
   let key = player.current_key()
   @sprite2d.append_atlas_sprite_draw_command(
-    commands, atlas, key, dst, shader, dst_region, 0, 0, 0, blend, left, top,
-    right, bottom, [],
+    commands,
+    atlas,
+    key,
+    dst,
+    shader,
+    dst_region,
+    0,
+    0,
+    0,
+    blend,
+    left,
+    top,
+    right,
+    bottom,
+    [],
   )
 }

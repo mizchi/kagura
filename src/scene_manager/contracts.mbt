@@ -31,7 +31,7 @@ pub fn SceneManager::new(initial : &Scene) -> SceneManager {
 pub fn SceneManager::transition_to(
   self : SceneManager,
   next : &Scene,
-  duration~ : Double = 0.5,
+  duration? : Double = 0.5,
 ) -> Unit {
   self.next = Some(next)
   self.transition_progress = 0.0
@@ -44,7 +44,7 @@ pub fn SceneManager::transition_to(
 pub fn SceneManager::update(
   self : SceneManager,
   input : @core.InputSnapshot,
-  dt~ : Double = 1.0 / 60.0,
+  dt? : Double = 1.0 / 60.0,
 ) -> Unit {
   if self.transitioning {
     self.transition_progress = self.transition_progress +

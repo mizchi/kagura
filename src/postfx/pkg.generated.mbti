@@ -1,0 +1,48 @@
+// Generated using `moon info`, DON'T EDIT IT
+package "mizchi/kagura/postfx"
+
+import {
+  "mizchi/kagura/gfx",
+}
+
+// Values
+pub fn bloom_blur_wgsl(Bool) -> String
+
+pub fn bloom_commands(@gfx.ImageHandle, Int, @gfx.ImageHandle, @gfx.ImageHandle, @gfx.ShaderHandle, @gfx.ShaderHandle, @gfx.ShaderHandle, @gfx.ShaderHandle, Double, Double, Int, Int) -> Array[@gfx.DrawTrianglesCommand]
+
+pub fn bloom_composite_wgsl() -> String
+
+pub fn bloom_threshold_wgsl() -> String
+
+pub fn fullscreen_quad_indices() -> Array[Int]
+
+pub fn fullscreen_quad_vertex_data() -> Array[Double]
+
+pub fn fullscreen_vertex_wgsl() -> String
+
+pub fn fxaa_uniform_dwords(Double, Double) -> Array[Int]
+
+pub fn fxaa_wgsl() -> String
+
+pub fn new_fullscreen_quad_command(@gfx.ImageHandle, @gfx.ShaderHandle, Array[Int], Array[Int], @gfx.BlendMode) -> @gfx.DrawTrianglesCommand
+
+pub fn new_fxaa_command(@gfx.ImageHandle, @gfx.ShaderHandle, Int, Int, Int) -> @gfx.DrawTrianglesCommand
+
+pub fn new_tonemap_command(@gfx.ImageHandle, @gfx.ShaderHandle, Int, Double) -> @gfx.DrawTrianglesCommand
+
+pub fn tonemap_uniform_dwords(Double) -> Array[Int]
+
+pub fn tonemap_wgsl(ToneMapOperator) -> String
+
+// Errors
+
+// Types and methods
+pub(all) enum ToneMapOperator {
+  Reinhard
+  ACES
+}
+
+// Type aliases
+
+// Traits
+

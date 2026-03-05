@@ -66,16 +66,21 @@ bash scripts/setup-wgpu-native.sh
 # Run with just (recommended -- sets CPATH/LIBRARY_PATH automatically)
 just run-native action_rpg
 
-# Or run manually
+# Non-visual smoke test (window can appear black)
 (cd examples/runtime_smoke_native && moon run src --target native)
+
+# Visual sanity check
+just run-native native_triangle
 ```
+
+`runtime_smoke_native` is intended for internal verification. A black window is expected; success is `runtime_smoke_native: ok (real)`.
 
 ## Examples
 
 | Example              | Description                        |
 |----------------------|------------------------------------|
 | `runtime_smoke`      | Minimal JS smoke test              |
-| `runtime_smoke_native` | Minimal native smoke test        |
+| `runtime_smoke_native` | Minimal native smoke test (non-visual) |
 | `native_triangle`    | Native backend triangle demo       |
 | `flappy_bird`        | 2D game loop with input handling   |
 | `survivor`           | Multi-entity game with weapons/UI  |

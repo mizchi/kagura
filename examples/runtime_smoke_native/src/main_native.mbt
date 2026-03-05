@@ -765,6 +765,7 @@ fn verify_audio_smoke() -> Bool {
 
 ///|
 fn main {
+  println("runtime_smoke_native: non-visual smoke (window can appear black)")
   let native_ready = run_with_real_native_hooks()
   if !native_ready {
     panic()

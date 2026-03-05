@@ -60,7 +60,12 @@ pnpm install
 # Native smoke テスト（macOS -- wgpu-native のセットアップが必要）
 bash scripts/setup-wgpu-native.sh
 just run-native runtime_smoke_native
+
+# 可視確認（native の三角形デモ）
+just run-native native_triangle
 ```
+
+`runtime_smoke_native` は内部検証向けのため、ウィンドウが黒く見えても `ok (real)` が出れば成功です。
 
 ### Native 実行
 
@@ -129,7 +134,8 @@ fn main {
 | `action_rpg`         | Scene | タイルマップ・AI・UI のアクション RPG |
 | `arena3d`            | Low-level | 3D アリーナプロトタイプ (experimental) |
 | `runtime_smoke`      | Low-level | 最小 JS smoke テスト             |
-| `runtime_smoke_native` | Low-level | 最小 native smoke テスト       |
+| `runtime_smoke_native` | Low-level | 最小 native smoke（非可視）テスト |
+| `native_triangle`    | Low-level | native 可視確認用の三角形デモ      |
 
 各サンプルは独立した MoonBit モジュールです。以下で実行:
 

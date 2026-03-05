@@ -50,7 +50,12 @@ runtime_smoke(js): ok (hooked)
 ```bash
 bash scripts/setup-wgpu-native.sh
 (cd examples/runtime_smoke_native && moon run src --target native)
+
+# Visual sanity check
+just run-native native_triangle
 ```
+
+`runtime_smoke_native` is for internal verification. A black window is expected; success is `runtime_smoke_native: ok (real)`.
 
 ## Creating a New Example
 

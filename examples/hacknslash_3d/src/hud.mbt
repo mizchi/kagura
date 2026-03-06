@@ -1,71 +1,18 @@
 // HUD: HP bar, floor, score, enemy count, dash cooldown (no minimap)
-// Uses TTF text rendering via TextRenderer when available,
-// falls back to @scene.label (dot-matrix) otherwise.
+// Uses @hud.HudContext for rendering, falls back to @scene.label when TextRenderer is unavailable.
 
-fn hex_to_color(hex : Int, alpha~ : Double = 1.0) -> @gfx.Color {
-  let r = ((hex >> 16) & 0xFF).to_double() / 255.0
-  let g = ((hex >> 8) & 0xFF).to_double() / 255.0
-  let b = (hex & 0xFF).to_double() / 255.0
-  @gfx.new_color(r, g, b, alpha)
-}
-
-fn hex_to_uniform(hex : Int, alpha~ : Int = 255) -> Array[Int] {
-  [(hex >> 16) & 0xFF, (hex >> 8) & 0xFF, hex & 0xFF, alpha]
-}
-
-fn add_rect(
-  cmds : Array[@gfx.DrawTrianglesCommand],
+fn GameState::make_hud_ctx(
+  self : GameState,
   dst : @gfx.ImageHandle,
   shader : @gfx.ShaderHandle,
-  x : Double,
-  y : Double,
-  w : Double,
-  h : Double,
-  color : @gfx.Color,
-) -> Unit {
-  cmds.push(
-    @debugutil.new_ndc_rect_fill_command(
-      dst, shader, x, y, w, h,
-      screen_w.to_double(), screen_h.to_double(), color, 0,
-    ),
-  )
-}
-
-fn add_text(
-  cmds : Array[@gfx.DrawTrianglesCommand],
-  renderer : @text.TextRenderer,
-  text : String,
-  size : Double,
-  x : Double,
-  y : Double,
-  dst : @gfx.ImageHandle,
-  shader : @gfx.ShaderHandle,
-  color_hex : Int,
-) -> Unit {
-  let blend = @gfx.blend_mode_from_int(1)
-  let text_cmds = renderer.render_text(
-    text, size, x, y, dst, shader, blend, hex_to_uniform(color_hex),
-  )
-  for cmd in text_cmds {
-    cmds.push(cmd)
+) -> @hud.HudContext {
+  {
+    dst,
+    shader,
+    screen_w: screen_w.to_double(),
+    screen_h: screen_h.to_double(),
+    text_renderer: self.text_renderer,
   }
-}
-
-fn add_text_centered(
-  cmds : Array[@gfx.DrawTrianglesCommand],
-  renderer : @text.TextRenderer,
-  text : String,
-  size : Double,
-  cx : Double,
-  cy : Double,
-  dst : @gfx.ImageHandle,
-  shader : @gfx.ShaderHandle,
-  color_hex : Int,
-) -> Unit {
-  let metrics = renderer.measure(text, size)
-  let x = cx - metrics.width / 2.0
-  let y = cy - metrics.height / 2.0
-  add_text(cmds, renderer, text, size, x, y, dst, shader, color_hex)
 }
 
 fn GameState::render_hud_cmds(
@@ -76,7 +23,6 @@ fn GameState::render_hud_cmds(
   let sw = screen_w.to_double()
   let cmds : Array[@gfx.DrawTrianglesCommand] = []
   let hp_ratio = self.player.hp.to_double() / self.player.max_hp.to_double()
-  let hp_width = 60.0 * hp_ratio
   let hp_color = if hp_ratio > 0.5 {
     0x00CC00
   } else if hp_ratio > 0.25 {
@@ -90,32 +36,34 @@ fn GameState::render_hud_cmds(
       alive_count = alive_count + 1
     }
   }
+  let ctx = self.make_hud_ctx(dst, shader)
   // HP bar background
-  add_rect(cmds, dst, shader, 8.0, 8.0, 124.0, 16.0, hex_to_color(0x440000, alpha=0.8))
+  ctx.draw_rect(cmds, 8.0, 8.0, 124.0, 16.0, @hud.hex_color(0x440000, alpha=0.8))
   // HP bar fill
-  add_rect(cmds, dst, shader, 10.0, 10.0, hp_width * 2.0, 12.0, hex_to_color(hp_color))
+  ctx.draw_rect(cmds, 10.0, 10.0, 60.0 * hp_ratio * 2.0, 12.0, @hud.hex_color(hp_color))
   match self.text_renderer {
     Some(tr) => {
+      let _ = tr
       // TTF text
-      add_text(cmds, tr, "HP", 16.0, 60.0, 8.0, dst, shader, 0xFFFFFF)
-      add_text_centered(
-        cmds, tr, "FLOOR " + self.floor.to_string(),
-        20.0, sw / 2.0, 16.0, dst, shader, 0xCCCCCC,
+      ctx.draw_text(cmds, "HP", 16.0, 60.0, 8.0, 0xFFFFFF)
+      ctx.draw_text_centered(
+        cmds, "FLOOR " + self.floor.to_string(),
+        20.0, sw / 2.0, 16.0, 0xCCCCCC,
       )
-      add_text(
-        cmds, tr, self.score.to_string(),
-        24.0, sw - 80.0, 8.0, dst, shader, 0xFFCC00,
+      ctx.draw_text(
+        cmds, self.score.to_string(),
+        24.0, sw - 80.0, 8.0, 0xFFCC00,
       )
-      add_text(
-        cmds, tr, "x" + alive_count.to_string(),
-        16.0, sw - 80.0, 30.0, dst, shader, 0xCC2222,
+      ctx.draw_text(
+        cmds, "x" + alive_count.to_string(),
+        16.0, sw - 80.0, 30.0, 0xCC2222,
       )
       // Floor announce overlay
       if self.floor_announce_timer > 0 {
         let sh = screen_h.to_double()
-        add_text_centered(
-          cmds, tr, "FLOOR " + self.floor.to_string(),
-          48.0, sw / 2.0, sh / 2.0, dst, shader, 0xFFCC00,
+        ctx.draw_text_centered(
+          cmds, "FLOOR " + self.floor.to_string(),
+          48.0, sw / 2.0, sh / 2.0, 0xFFCC00,
         )
       }
     }
@@ -131,7 +79,7 @@ fn GameState::render_hud_cmds(
   // Dash cooldown indicator
   if self.player.dash_cooldown_timer > 0 {
     let cd_ratio = self.player.dash_cooldown_timer.to_double() / dash_cooldown.to_double()
-    add_rect(cmds, dst, shader, 10.0, 28.0, 120.0 * (1.0 - cd_ratio), 4.0, hex_to_color(0x66DDFF, alpha=0.6))
+    ctx.draw_rect(cmds, 10.0, 28.0, 120.0 * (1.0 - cd_ratio), 4.0, @hud.hex_color(0x66DDFF, alpha=0.6))
   }
   cmds
 }
@@ -177,22 +125,24 @@ fn GameState::render_title_cmds(
   let sw = screen_w.to_double()
   let sh = screen_h.to_double()
   let cmds : Array[@gfx.DrawTrianglesCommand] = []
+  let ctx = self.make_hud_ctx(dst, shader)
   // Background
-  add_rect(cmds, dst, shader, 0.0, 0.0, sw, sh, hex_to_color(0x1A1A2E))
+  ctx.draw_rect(cmds, 0.0, 0.0, sw, sh, @hud.hex_color(0x1A1A2E))
   match self.text_renderer {
     Some(tr) => {
-      add_text_centered(
-        cmds, tr, "HACK N SLASH", 48.0,
-        sw / 2.0, sh / 2.0 - 60.0, dst, shader, 0xFF4444,
+      let _ = tr
+      ctx.draw_text_centered(
+        cmds, "HACK N SLASH", 48.0,
+        sw / 2.0, sh / 2.0 - 60.0, 0xFF4444,
       )
-      add_text_centered(
-        cmds, tr, "3D", 32.0,
-        sw / 2.0, sh / 2.0 - 10.0, dst, shader, 0x44AAFF,
+      ctx.draw_text_centered(
+        cmds, "3D", 32.0,
+        sw / 2.0, sh / 2.0 - 10.0, 0x44AAFF,
       )
       if self.frame_count / 30 % 2 == 0 {
-        add_text_centered(
-          cmds, tr, "PRESS SPACE", 24.0,
-          sw / 2.0, sh / 2.0 + 40.0, dst, shader, 0xFFCC00,
+        ctx.draw_text_centered(
+          cmds, "PRESS SPACE", 24.0,
+          sw / 2.0, sh / 2.0 + 40.0, 0xFFCC00,
         )
       }
     }
@@ -230,26 +180,28 @@ fn GameState::render_gameover_cmds(
   let sw = screen_w.to_double()
   let sh = screen_h.to_double()
   let cmds : Array[@gfx.DrawTrianglesCommand] = []
+  let ctx = self.make_hud_ctx(dst, shader)
   // Background
-  add_rect(cmds, dst, shader, 0.0, 0.0, sw, sh, hex_to_color(0x2E0000))
+  ctx.draw_rect(cmds, 0.0, 0.0, sw, sh, @hud.hex_color(0x2E0000))
   match self.text_renderer {
     Some(tr) => {
-      add_text_centered(
-        cmds, tr, "GAME OVER", 48.0,
-        sw / 2.0, sh / 2.0 - 60.0, dst, shader, 0xFF0000,
+      let _ = tr
+      ctx.draw_text_centered(
+        cmds, "GAME OVER", 48.0,
+        sw / 2.0, sh / 2.0 - 60.0, 0xFF0000,
       )
-      add_text_centered(
-        cmds, tr, "FLOOR " + self.floor.to_string(), 24.0,
-        sw / 2.0, sh / 2.0 + 5.0, dst, shader, 0xFFCC00,
+      ctx.draw_text_centered(
+        cmds, "FLOOR " + self.floor.to_string(), 24.0,
+        sw / 2.0, sh / 2.0 + 5.0, 0xFFCC00,
       )
-      add_text_centered(
-        cmds, tr, "SCORE " + self.score.to_string(), 32.0,
-        sw / 2.0, sh / 2.0 + 40.0, dst, shader, 0xFFFFFF,
+      ctx.draw_text_centered(
+        cmds, "SCORE " + self.score.to_string(), 32.0,
+        sw / 2.0, sh / 2.0 + 40.0, 0xFFFFFF,
       )
       if self.frame_count / 30 % 2 == 0 {
-        add_text_centered(
-          cmds, tr, "PRESS SPACE", 24.0,
-          sw / 2.0, sh / 2.0 + 80.0, dst, shader, 0x888888,
+        ctx.draw_text_centered(
+          cmds, "PRESS SPACE", 24.0,
+          sw / 2.0, sh / 2.0 + 80.0, 0x888888,
         )
       }
     }

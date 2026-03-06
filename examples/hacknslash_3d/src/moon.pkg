@@ -25,6 +25,7 @@ import {
   "mizchi/kagura/asset" @asset,
   "mizchi/kagura/image_palette" @image_palette,
   "mizchi/kagura/debugutil" @debugutil,
+  "mizchi/kagura/hud" @hud,
 }
 
 warnings = "-1-2-7-20-29-71"

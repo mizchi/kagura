@@ -61,6 +61,62 @@
 - MixerAudioContext ボイスライフサイクル修正（create_player の GC 問題、play の状態遷移）
 - arena3d 初期化バグ修正（platform.initialize / graphics.initialize 欠落）
 
+### scene3d / GPU レンダラー (2026-03)
+
+- arena3d を `scene3d` API に移行（SceneGraph + GPU Z-buffer renderer）
+- GPU Z-buffer レンダラー実装 (`src/gfx_webgpu/`) — painter's algorithm の精度問題を根本解決
+
+### 3D エンジン Tier 1 (2026-03)
+
+- 衝突判定 (collision3d) - AABB/Sphere/Ray
+- 衝突判定ブロードフェーズ - SpatialHashGrid
+- シーングラフ (親子階層) - 親子 Transform 伝播
+- 複数光源 - PointLight, SpotLight, 複数灯対応
+- glTF loader - 業界標準フォーマット対応
+- テクスチャ付き 3D シェーダ (UV マッピング + sampler) — `shader3d_lit_wgsl()`
+- glTF baseColorTexture の読み込み・適用 — `load_gltf()` で画像抽出 + material_texture_map
+- レンダラのシェーダ自動切替 — `render_scene3d_graph_gpu` の `shader3d_textured~` 引数
+- 2D スプライトのテクスチャアトラスからの描画
+- PNG/JPEG/BMP デコード（`mizchi/image` パッケージ経由）
+- スプライトシートアニメーション（フレーム定義 + 再生制御）— `animation2d` パッケージ
+- スプライトアトラスからのリージョン切り出し — `split_sprite_sheet()`, `extract_subimage_spec()`
+- アニメーションステートマシン（idle/walk/attack 等の遷移）— `SpriteAnimationStateMachine`
+
+### 3D エンジン Tier 2 (2026-03)
+
+- スケルタルアニメーション - ボーン, スキンメッシュ, キーフレーム補間（skeleton3d + animation3d パッケージ）
+- 物理エンジン 3D - リジッドボディ, 重力, 衝突応答（physics3d: soft-constraint solver, CCD, ジョイント）
+- 物理エンジン 2D - physics2d: circle/AABB/OBB 衝突, SpatialHashGrid2D broadphase, soft-constraint solver, revolute joint
+- ラグドール物理 - physics2d revolute joint ベース（ragdoll_demo）
+- シャドウマッピング - 深度バッファベースの影（shadow3d パッケージ: depth-to-color + PCF）
+- パーティクルシステム - エフェクト（particle3d パッケージ: エミッタ, ビルボード, ハッシュ RNG）
+
+### 3D エンジン Tier 3 (2026-03)
+
+- PBR マテリアル - Metallic/Roughness ワークフロー（Cook-Torrance BRDF, pbr_demo）
+- 法線マップ - バンプ表現（derivative-based TBN + normal map shader）
+- ポストエフェクト - ブルーム, トーンマッピング (Reinhard/ACES), FXAA（postfx_demo）
+- 3D オーディオ定位 - 距離減衰, パンニング（audio3d パッケージ）
+- フラスタムカリング - オブジェクト単位の視錐台カリング
+- LOD - 距離に応じたメッシュ切替（LodMesh, select_lod_mesh, sphere_lod）
+
+### ARPG Phase 1 完了分 (2026-03)
+
+- テクスチャ付き 3D lit シェーダの GPU パス統合
+- GPU スキニング（第1〜2段階）
+- パスファインディング — A* on Grid2D（`pathfind` パッケージ）
+- 地形システム — `mizchi/terrain` Grid2D → Mesh3D 変換（`terrain3d` パッケージ）
+- インスタンスレンダリング — 同一メッシュ大量描画
+- シーン遷移 / ステート管理（scene_manager パッケージ）
+- 非同期アセットローダー（第1段階）
+
+### ARPG Phase 2 完了分 (2026-03)
+
+- ECS / コンポーネントシステム（ecs パッケージ）
+- 3D アニメーションステートマシン（animation3d: AnimationStateMachine3D）
+- IK (Inverse Kinematics)（ik3d パッケージ）
+- HUD ウィジェットフレームワーク — `src/hud/` パッケージ（HudContext, StatusBar, TextLabel, IconSlot, Panel）
+
 ## NOTE
 
 - 現在進行中の項目は `TODO.md` を参照。

@@ -48,6 +48,17 @@ pub struct AtlasRegion {
 } derive(Show)
 
 ///|
+pub fn new_atlas_region(
+  x : Int,
+  y : Int,
+  width : Int,
+  height : Int,
+  atlas_id : Int,
+) -> AtlasRegion {
+  { x, y, width, height, atlas_id }
+}
+
+///|
 pub struct ImagePaletteBinding {
   image_id : Int
   palette : @image_palette.ImagePalette2x2
@@ -1122,6 +1133,30 @@ pub fn create_atlas_image(
     }
     None => None
   }
+}
+
+///|
+/// Register an image with a precomputed atlas region (bypasses allocator).
+/// Used by sprite_packer to register MaxRects-packed results directly.
+pub fn register_precomputed_image(
+  repo : SimpleAtlasImageRepository,
+  key : AssetKey,
+  region : AtlasRegion,
+  spec : ImageSpec,
+) -> @gfx.ImageHandle {
+  for entry in repo.images {
+    if asset_key_eq(entry.key, key) {
+      return entry.handle
+    }
+  }
+  let width = if spec.width <= 0 { 1 } else { spec.width }
+  let height = if spec.height <= 0 { 1 } else { spec.height }
+  let pixels_rgba8 = normalized_rgba8_channels(spec.pixels_rgba8, width, height)
+  let handle = @gfx.new_image_handle(repo.next_image_id, width, height)
+  repo.next_image_id = repo.next_image_id + 1
+  repo.images.push({ key, handle, region, palette: spec.palette, pixels_rgba8 })
+  mark_atlas_page_dirty(repo, Some(atlas_region_to_dirty_rect(region)))
+  handle
 }
 
 ///|

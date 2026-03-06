@@ -1,0 +1,7 @@
+import {
+  "mizchi/kagura/math3d" @math3d,
+  "mizchi/kagura/transform3d" @transform3d,
+  "mizchi/kagura/scene3d" @scene3d,
+  "mizchi/kagura/physics3d" @physics3d,
+  "mizchi/kagura/animation3d" @animation3d,
+}

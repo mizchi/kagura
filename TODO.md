@@ -104,9 +104,9 @@ Path of Exile スタイルの斜め見下ろしアクション RPG をターゲ�
 
 #### Phase 2: ゲームシステム
 
-- [ ] ECS / コンポーネントシステム — エンティティ管理（敵、プレイヤー、ドロップアイテム、投射物）
-- [ ] 3D アニメーションステートマシン — idle/walk/attack/cast/death のブレンド遷移
-- [ ] IK (Inverse Kinematics) — 武器持ち替え、地形追従
+- [x] ECS / コンポーネントシステム — エンティティ管理（敵、プレイヤー、ドロップアイテム、投射物）（ecs パッケージ: Map ベース World + クエリ + movement/death/physics sync システム）
+- [x] 3D アニメーションステートマシン — idle/walk/attack/cast/death のブレンド遷移（animation3d: AnimationStateMachine3D）
+- [x] IK (Inverse Kinematics) — 武器持ち替え、地形追従（ik3d パッケージ）
 - [ ] スプライトシート自動生成 — UI アイコン、スキルアイコン用テクスチャアトラス
 - [ ] UI フレームワーク — HP バー、スキルバー、インベントリ、スキルツリー画面
 - [ ] セーブ / ロード — キャラクターデータ、進行状況の永続化

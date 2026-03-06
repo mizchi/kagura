@@ -3,6 +3,7 @@ import {
   "mizchi/kagura/asset" @asset,
   "mizchi/kagura/engine" @engine,
   "mizchi/kagura/gfx" @gfx,
+  "mizchi/kagura/sprite_packer" @sprite_packer,
   "mizchi/web_runtime_hooks" @web_hooks,
 }
 

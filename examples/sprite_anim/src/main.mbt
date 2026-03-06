@@ -46,13 +46,20 @@ fn generate_sprite_sheet() -> @asset.ImageSpec {
 fn main {
   @web_hooks.install("#app")
   let sheet = generate_sprite_sheet()
-  let atlas = @asset.new_simple_atlas_image_repository(
-    256, 256, atlas_page_id,
+  let frames = @animation2d.split_sprite_sheet(
+    sheet, "frame", 4, 1, frame_w, frame_h,
   )
-  let keys = @animation2d.register_sprite_sheet(
-    atlas, sheet, "frame", 4, 1, frame_w, frame_h,
+  let inputs : Array[@sprite_packer.SpriteInput] = []
+  for pair in frames {
+    let (key, spec) = pair
+    inputs.push({ key: key.value, spec })
+  }
+  let result = @sprite_packer.pack_sprites(inputs).unwrap()
+  let atlas = @sprite_packer.create_packed_atlas_repository(
+    inputs, result, atlas_id=atlas_page_id,
   )
   @web_hooks.sync_dirty_atlas_pages_from_repository(atlas) |> ignore
+  let keys = @animation2d.sprite_sheet_keys("frame", 4)
   let clip = @animation2d.SpriteAnimationClip::uniform("walk", keys, 0.25)
   let player = @animation2d.SpriteAnimationPlayer::new(clip)
   let dt = 1.0 / 60.0

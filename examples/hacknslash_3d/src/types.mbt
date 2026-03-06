@@ -96,4 +96,17 @@ struct GameState {
   shadow_config : @shadow3d.ShadowConfig
   mut dungeon_mesh_groups : Array[DungeonMeshGroup]
   mut dungeon_wall_mesh : @mesh3d.Mesh3D
+  // PostFX
+  scene_target : @gfx.ImageHandle
+  bloom_a : @gfx.ImageHandle
+  bloom_b : @gfx.ImageHandle
+  post_target : @gfx.ImageHandle
+  bloom_threshold_sh : @gfx.ShaderHandle
+  bloom_hblur_sh : @gfx.ShaderHandle
+  bloom_vblur_sh : @gfx.ShaderHandle
+  bloom_composite_sh : @gfx.ShaderHandle
+  fxaa_sh : @gfx.ShaderHandle
+  tonemap_sh : @gfx.ShaderHandle
+  // Particles
+  particle_manager : @particle3d.ParticleManager
 }

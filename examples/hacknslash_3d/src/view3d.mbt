@@ -179,6 +179,8 @@ fn GameState::draw_playing(
     shadow_config.far,
   )
   let cmds : Array[@gfx.DrawTrianglesCommand] = []
+  // Render target: all 3D content goes to scene_target (offscreen)
+  let rt = self.scene_target
   // === Pass 1: Shadow depth pass (all dungeon tiles as casters) ===
   let identity = @math3d.Mat4::identity()
   let casters : Array[@shadow3d.ShadowCaster] = []
@@ -195,7 +197,7 @@ fn GameState::draw_playing(
   for cmd in depth_cmds {
     cmds.push(cmd)
   }
-  // === Pass 2: Shadow-lit dungeon (batched mesh groups) ===
+  // === Pass 2: Shadow-lit dungeon (batched mesh groups) → scene_target ===
   for group in self.dungeon_mesh_groups {
     // Tint lighting with object color
     let col = group.color
@@ -222,7 +224,7 @@ fn GameState::draw_playing(
       0, 0, ctx.screen_w, ctx.screen_h, group.mesh.indices.length(),
     )
     let cmd = @shadow3d.new_shadow_lit_mesh_draw_command(
-      ctx.dst,
+      rt,
       self.shadow_lit_shader,
       dst_region,
       0,
@@ -240,13 +242,13 @@ fn GameState::draw_playing(
     )
     cmds.push(cmd)
   }
-  // === Pass 3: Entities (items/projectiles) — use non-shadow lit for now ===
+  // === Pass 3: Entities (items/projectiles) → scene_target ===
   let entity_graph = build_entity_graph(self)
   let entity_cmds = @scene3d.render_scene3d_graph_gpu(
     entity_graph,
     camera,
     lighting=self.lighting,
-    ctx.dst,
+    rt,
     self.shader3d,
     ctx.screen_w,
     ctx.screen_h,
@@ -254,7 +256,7 @@ fn GameState::draw_playing(
   for cmd in entity_cmds {
     cmds.push(cmd)
   }
-  // === Pass 4: Skinned enemies ===
+  // === Pass 4: Skinned enemies → scene_target ===
   let enemy_skinning = self.enemy_models.compute_skinning()
   let skinned_objects : Array[@scene3d.Object3D] = []
   for enemy in self.enemies {
@@ -306,7 +308,7 @@ fn GameState::draw_playing(
     )
     let enemy_cmds = @scene3d.render_scene3d_gpu(
       enemy_scene,
-      ctx.dst,
+      rt,
       self.shader3d,
       ctx.screen_w,
       ctx.screen_h,
@@ -316,7 +318,7 @@ fn GameState::draw_playing(
       cmds.push(cmd)
     }
   }
-  // Render skinned player character
+  // Render skinned player character → scene_target
   let px = self.player.x / tile_size
   let pz = self.player.y / tile_size
   let player_color = if self.player.dash_timer > 0 {
@@ -354,7 +356,7 @@ fn GameState::draw_playing(
   )
   let player_cmds = @scene3d.render_scene3d_gpu(
     player_scene,
-    ctx.dst,
+    rt,
     self.shader3d,
     ctx.screen_w,
     ctx.screen_h,
@@ -363,7 +365,43 @@ fn GameState::draw_playing(
   for cmd in player_cmds {
     cmds.push(cmd)
   }
-  // Render 2D HUD overlay
+  // === Pass 6: Particles → scene_target (additive blend, feeds into Bloom) ===
+  let particle_cmds = self.particle_manager.draw(
+    rt, camera, ctx.screen_w, ctx.screen_h, self.frame_count,
+  )
+  for cmd in particle_cmds {
+    cmds.push(cmd)
+  }
+  // === PostFX chain: scene_target → bloom → tonemap → FXAA → ctx.dst ===
+  // Bloom: scene_target → post_target (via bloom_a/bloom_b ping-pong)
+  let bloom_cmds = @postfx.bloom_commands(
+    self.post_target,
+    self.scene_target.id,
+    self.bloom_a,
+    self.bloom_b,
+    self.bloom_threshold_sh,
+    self.bloom_hblur_sh,
+    self.bloom_vblur_sh,
+    self.bloom_composite_sh,
+    0.6, // threshold (lower = more bloom on bright surfaces)
+    1.5, // intensity
+    screen_w,
+    screen_h,
+  )
+  for cmd in bloom_cmds {
+    cmds.push(cmd)
+  }
+  // Tonemap: post_target → scene_target (reuse as intermediate)
+  let tonemap_cmd = @postfx.new_tonemap_command(
+    self.scene_target, self.tonemap_sh, self.post_target.id, 1.0,
+  )
+  cmds.push(tonemap_cmd)
+  // FXAA: scene_target → ctx.dst
+  let fxaa_cmd = @postfx.new_fxaa_command(
+    ctx.dst, self.fxaa_sh, self.scene_target.id, screen_w, screen_h,
+  )
+  cmds.push(fxaa_cmd)
+  // Render 2D HUD overlay (after postfx, directly to ctx.dst)
   let hud_node = render_hud(self)
   let hud_cmds = @scene.render_scene(hud_node, ctx.dst, ctx.shader, sw, sh)
   for cmd in hud_cmds {

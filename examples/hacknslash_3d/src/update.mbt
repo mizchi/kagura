@@ -89,6 +89,30 @@ fn GameState::new(seed~ : Int) -> GameState {
     shadow_config,
     dungeon_mesh_groups,
     dungeon_wall_mesh,
+    // PostFX render targets
+    scene_target: @gfx.new_image_handle(300, screen_w, screen_h),
+    bloom_a: @gfx.new_image_handle(301, screen_w, screen_h),
+    bloom_b: @gfx.new_image_handle(302, screen_w, screen_h),
+    post_target: @gfx.new_image_handle(303, screen_w, screen_h),
+    // PostFX shaders
+    bloom_threshold_sh: @gfx.new_shader_handle(
+      300, @postfx.bloom_threshold_wgsl(),
+    ),
+    bloom_hblur_sh: @gfx.new_shader_handle(
+      301, @postfx.bloom_blur_wgsl(true),
+    ),
+    bloom_vblur_sh: @gfx.new_shader_handle(
+      302, @postfx.bloom_blur_wgsl(false),
+    ),
+    bloom_composite_sh: @gfx.new_shader_handle(
+      303, @postfx.bloom_composite_wgsl(),
+    ),
+    fxaa_sh: @gfx.new_shader_handle(304, @postfx.fxaa_wgsl()),
+    tonemap_sh: @gfx.new_shader_handle(
+      305, @postfx.tonemap_wgsl(@postfx.ACES),
+    ),
+    // Particles
+    particle_manager: @particle3d.ParticleManager::new(400),
   }
 }
 
@@ -208,6 +232,10 @@ fn GameState::update_playing(self : GameState) -> Unit {
   }
   if self.player.dash_timer > 0 {
     self.player.dash_timer = self.player.dash_timer - 1
+    // Dash trail particles every 3 frames
+    if self.player.dash_timer % 3 == 0 {
+      spawn_dash_trail(self.particle_manager, self.player.x, self.player.y)
+    }
     let next_x = self.player.x + self.player.dash_vx
     let next_y = self.player.y + self.player.dash_vy
     if not(check_wall_collision(self.dungeon.grid, next_x, self.player.y, self.player.size)) {
@@ -224,6 +252,8 @@ fn GameState::update_playing(self : GameState) -> Unit {
       self.player.dash_vx = dx * player_speed * dash_speed_mult
       self.player.dash_vy = dy * player_speed * dash_speed_mult
       self.player.iframe_timer = dash_duration
+      // Dash trail at start
+      spawn_dash_trail(self.particle_manager, self.player.x, self.player.y)
     } else {
       let next_x = self.player.x + dx * player_speed
       let next_y = self.player.y + dy * player_speed
@@ -283,6 +313,7 @@ fn GameState::update_playing(self : GameState) -> Unit {
           self.player.damage_timer = damage_flash_duration
           self.player.iframe_timer = iframe_duration
           self.screen_flash = 3
+          spawn_player_hurt(self.particle_manager, self.player.x, self.player.y)
           if self.player.hp <= 0 {
             self.mode = mode_gameover
           }
@@ -311,6 +342,7 @@ fn GameState::update_playing(self : GameState) -> Unit {
           self.player.damage_timer = damage_flash_duration
           self.player.iframe_timer = iframe_duration
           self.screen_flash = 3
+          spawn_player_hurt(self.particle_manager, self.player.x, self.player.y)
           proj.alive = false
           if self.player.hp <= 0 {
             self.mode = mode_gameover
@@ -332,7 +364,9 @@ fn GameState::update_playing(self : GameState) -> Unit {
       let idy = item.y - self.player.y
       if idx * idx + idy * idy < 64.0 {
         item.alive = false
-        if item.kind == item_health {
+        let is_health = item.kind == item_health
+        spawn_item_pickup(self.particle_manager, item.x, item.y, is_health)
+        if is_health {
           self.player.hp = @cmp.minimum(self.player.max_hp, self.player.hp + 2)
         } else {
           self.score = self.score + 5
@@ -430,4 +464,6 @@ fn GameState::update_playing(self : GameState) -> Unit {
   if all_dead {
     self.reset_floor()
   }
+  // Update particles
+  self.particle_manager.update(1.0 / 60.0)
 }

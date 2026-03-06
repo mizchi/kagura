@@ -156,6 +156,32 @@ pub fn ParticleEmitter::update(self : ParticleEmitter, dt : Double) -> Unit {
 }
 
 ///|
+/// Update only physics and aging without spawning new particles.
+/// Use this for burst emitters after the initial spawn.
+pub fn ParticleEmitter::update_physics_only(
+  self : ParticleEmitter,
+  dt : Double
+) -> Unit {
+  let gravity = self.config.gravity
+  let mut i = 0
+  while i < self.particles.length() {
+    let p = self.particles[i]
+    p.age = p.age + dt
+    if p.age >= p.max_age {
+      let last = self.particles.length() - 1
+      if i < last {
+        self.particles[i] = self.particles[last]
+      }
+      let _ = self.particles.pop()
+    } else {
+      p.velocity = p.velocity.add(gravity.scale(dt))
+      p.position = p.position.add(p.velocity.scale(dt))
+      i = i + 1
+    }
+  }
+}
+
+///|
 /// Build billboard vertices for all active particles.
 /// Returns (vertex_data, indices) in stride-8 format.
 /// Normal channels encode RGB color, uv.x encodes alpha.

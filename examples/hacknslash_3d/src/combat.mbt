@@ -22,6 +22,8 @@ fn try_attack(state : GameState) -> Unit {
           // 60 degrees = ~1.047 rad
           enemy.hp = enemy.hp - 1
           enemy.damage_timer = damage_flash_duration
+          // Hit sparks
+          spawn_hit_sparks(state.particle_manager, enemy.x, enemy.y)
           // Knockback
           if dist > 0.001 {
             enemy.vx = enemy.vx + edx / dist * knockback_strength
@@ -29,6 +31,8 @@ fn try_attack(state : GameState) -> Unit {
           }
           if enemy.hp <= 0 {
             enemy.alive = false
+            // Death explosion
+            spawn_death_burst(state.particle_manager, enemy.x, enemy.y)
             let kill_score = if enemy.kind == kind_boss { 100 } else { 10 }
             state.score = state.score + kill_score
             // Item drop: 50% health, 30% score gem

@@ -11,6 +11,8 @@ import {
   "mizchi/kagura/scene" @scene,
   "mizchi/kagura/scene3d" @scene3d,
   "mizchi/kagura/shadow3d" @shadow3d,
+  "mizchi/kagura/particle3d" @particle3d,
+  "mizchi/kagura/postfx" @postfx,
   "mizchi/kagura/skeleton3d" @skeleton3d,
   "mizchi/kagura/animation3d" @animation3d,
   "mizchi/kagura/transform3d" @transform3d,

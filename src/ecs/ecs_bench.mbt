@@ -30,7 +30,6 @@ test "bench spawn 10000 entities" (b : @bench.T) {
     let world = World::new()
     for _i in 0..<10000 {
       let _ = world.spawn()
-
     }
     b.keep(world.entity_count())
   })
@@ -46,7 +45,6 @@ test "bench spawn_at 10000 entities" (b : @bench.T) {
           @math3d.Vec3::new(i.to_double(), 0.0, 0.0),
         ),
       )
-
     }
     b.keep(world.entity_count())
   })

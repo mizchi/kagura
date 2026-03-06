@@ -1,14 +1,12 @@
+///|
 pub fn World::each_entity(self : World, f : (EntityId) -> Unit) -> Unit {
-  self.alive.each(fn(id, alive) {
-    if alive {
-      f({ value: id })
-    }
-  })
+  self.alive.each(fn(id, alive) { if alive { f({ value: id }) } })
 }
 
+///|
 pub fn World::each_with_transform(
   self : World,
-  f : (EntityId, @transform3d.Transform3D) -> Unit
+  f : (EntityId, @transform3d.Transform3D) -> Unit,
 ) -> Unit {
   self.alive.each(fn(id, alive) {
     if alive {
@@ -20,9 +18,10 @@ pub fn World::each_with_transform(
   })
 }
 
+///|
 pub fn World::each_with_transform_velocity(
   self : World,
-  f : (EntityId, @transform3d.Transform3D, Velocity) -> Unit
+  f : (EntityId, @transform3d.Transform3D, Velocity) -> Unit,
 ) -> Unit {
   self.alive.each(fn(id, alive) {
     if alive {
@@ -34,10 +33,11 @@ pub fn World::each_with_transform_velocity(
   })
 }
 
+///|
 pub fn World::each_with_tag(
   self : World,
   tag : Tag,
-  f : (EntityId) -> Unit
+  f : (EntityId) -> Unit,
 ) -> Unit {
   self.alive.each(fn(id, alive) {
     if alive {
@@ -49,6 +49,7 @@ pub fn World::each_with_tag(
   })
 }
 
+///|
 pub fn World::entities_with_tag(self : World, tag : Tag) -> Array[EntityId] {
   let result : Array[EntityId] = []
   self.each_with_tag(tag, fn(eid) { result.push(eid) })

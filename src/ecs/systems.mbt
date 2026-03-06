@@ -1,3 +1,4 @@
+///|
 pub fn system_movement(world : World, dt : Double) -> Unit {
   world.alive.each(fn(id, alive) {
     if alive {
@@ -17,6 +18,7 @@ pub fn system_movement(world : World, dt : Double) -> Unit {
   })
 }
 
+///|
 pub fn system_death(world : World) -> Unit {
   world.alive.each(fn(id, alive) {
     if alive {
@@ -28,13 +30,15 @@ pub fn system_death(world : World) -> Unit {
   })
 }
 
+///|
 pub fn system_cleanup(world : World) -> Unit {
   world.compact()
 }
 
+///|
 pub fn system_sync_from_physics(
   world : World,
-  physics : @physics3d.PhysicsWorld
+  physics : @physics3d.PhysicsWorld,
 ) -> Unit {
   world.alive.each(fn(id, alive) {
     if alive {
@@ -57,9 +61,10 @@ pub fn system_sync_from_physics(
   })
 }
 
+///|
 pub fn system_sync_to_physics(
   world : World,
-  physics : @physics3d.PhysicsWorld
+  physics : @physics3d.PhysicsWorld,
 ) -> Unit {
   world.alive.each(fn(id, alive) {
     if alive {

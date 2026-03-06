@@ -1,3 +1,4 @@
+///|
 test "each_entity iterates alive entities" {
   let world = World::new()
   let _e1 = world.spawn()
@@ -6,16 +7,18 @@ test "each_entity iterates alive entities" {
   world.destroy(e2)
   let count = @ref.new(0)
   world.each_entity(fn(_eid) { count.update(fn(n) { n + 1 }) })
-  assert_eq!(count.val, 2)
+  assert_eq(count.val, 2)
 }
 
+///|
 test "each_entity on empty world" {
   let world = World::new()
   let count = @ref.new(0)
   world.each_entity(fn(_eid) { count.update(fn(n) { n + 1 }) })
-  assert_eq!(count.val, 0)
+  assert_eq(count.val, 0)
 }
 
+///|
 test "each_with_transform only visits entities with transform" {
   let world = World::new()
   let e1 = world.spawn()
@@ -31,9 +34,10 @@ test "each_with_transform only visits entities with transform" {
   )
   let count = @ref.new(0)
   world.each_with_transform(fn(_eid, _t) { count.update(fn(n) { n + 1 }) })
-  assert_eq!(count.val, 2)
+  assert_eq(count.val, 2)
 }
 
+///|
 test "each_with_transform skips dead entities" {
   let world = World::new()
   let e1 = world.spawn()
@@ -49,9 +53,10 @@ test "each_with_transform skips dead entities" {
   world.destroy(e1)
   let count = @ref.new(0)
   world.each_with_transform(fn(_eid, _t) { count.update(fn(n) { n + 1 }) })
-  assert_eq!(count.val, 1)
+  assert_eq(count.val, 1)
 }
 
+///|
 test "each_with_transform_velocity requires both components" {
   let world = World::new()
   let e1 = world.spawn()
@@ -74,9 +79,10 @@ test "each_with_transform_velocity requires both components" {
   world.each_with_transform_velocity(fn(_eid, _t, _v) {
     count.update(fn(n) { n + 1 })
   })
-  assert_eq!(count.val, 1)
+  assert_eq(count.val, 1)
 }
 
+///|
 test "each_with_transform_velocity passes correct data" {
   let world = World::new()
   let eid = world.spawn()
@@ -93,11 +99,12 @@ test "each_with_transform_velocity passes correct data" {
     vx.val = v.x
     vy.val = v.y
   })
-  assert_true!((tx.val - 10.0).abs() < 0.001)
-  assert_true!((vx.val - 5.0).abs() < 0.001)
-  assert_true!((vy.val - -3.0).abs() < 0.001)
+  assert_true((tx.val - 10.0).abs() < 0.001)
+  assert_true((vx.val - 5.0).abs() < 0.001)
+  assert_true((vy.val - -3.0).abs() < 0.001)
 }
 
+///|
 test "each_with_tag filters by tag" {
   let world = World::new()
   let e1 = world.spawn()
@@ -107,9 +114,10 @@ test "each_with_tag filters by tag" {
   world.add_tag(e2, Player)
   world.add_tag(e3, Enemy)
   let enemies = world.entities_with_tag(Enemy)
-  assert_eq!(enemies.length(), 2)
+  assert_eq(enemies.length(), 2)
 }
 
+///|
 test "entities_with_tag excludes dead entities" {
   let world = World::new()
   let e1 = world.spawn()
@@ -118,17 +126,19 @@ test "entities_with_tag excludes dead entities" {
   world.add_tag(e2, Bullet)
   world.destroy(e1)
   let bullets = world.entities_with_tag(Bullet)
-  assert_eq!(bullets.length(), 1)
+  assert_eq(bullets.length(), 1)
 }
 
+///|
 test "entities_with_tag returns empty for no matches" {
   let world = World::new()
   let e1 = world.spawn()
   world.add_tag(e1, Player)
   let items = world.entities_with_tag(Item)
-  assert_eq!(items.length(), 0)
+  assert_eq(items.length(), 0)
 }
 
+///|
 test "each_with_tag on entity with multiple tags" {
   let world = World::new()
   let eid = world.spawn()
@@ -136,8 +146,8 @@ test "each_with_tag on entity with multiple tags" {
   world.add_tag(eid, Item) // player carrying item
   let players = world.entities_with_tag(Player)
   let items = world.entities_with_tag(Item)
-  assert_eq!(players.length(), 1)
-  assert_eq!(items.length(), 1)
-  assert_eq!(players[0].value, eid.value)
-  assert_eq!(items[0].value, eid.value)
+  assert_eq(players.length(), 1)
+  assert_eq(items.length(), 1)
+  assert_eq(players[0].value, eid.value)
+  assert_eq(items[0].value, eid.value)
 }

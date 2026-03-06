@@ -21,6 +21,7 @@ import {
   "mizchi/terrain/bsp" @bsp,
   "mizchi/terrain/types" @terrain,
   "mizchi/web_runtime_hooks" @web_hooks,
+  "mizchi/native_runtime_hooks" @native_hooks,
   "mizchi/kagura/text" @text,
   "mizchi/kagura/asset" @asset,
   "mizchi/kagura/image_palette" @image_palette,
@@ -32,4 +33,15 @@ warnings = "-1-2-7-20-29-71"
 
 options(
   "is-main": true,
+  link: {
+    "native": {
+      "cc-link-flags": "-L../../deps/wgpu-native/lib -lwgpu_native -lglfw -Wl,-rpath,../../deps/wgpu-native/lib ${build.KAGURA_NATIVE_PLATFORM_LIBS}",
+    },
+  },
+  targets: {
+    "snapshot.mbt": ["js"],
+    "snapshot_native.mbt": ["native"],
+    "main_js.mbt": ["js"],
+    "main_native.mbt": ["native"],
+  },
 )

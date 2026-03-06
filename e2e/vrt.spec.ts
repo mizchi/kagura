@@ -18,6 +18,7 @@ const VRT_EXAMPLES = [
   "obj_viewer",
   "gltf_viewer",
   "fetch_image",
+  "hacknslash_3d",
 ];
 
 for (const name of VRT_EXAMPLES) {
@@ -33,6 +34,39 @@ for (const name of VRT_EXAMPLES) {
     await page.waitForTimeout(500);
     const canvas = page.locator("#app");
     await expect(canvas).toHaveScreenshot(`${name}.png`, {
+      maxDiffPixelRatio: 0.01,
+    });
+  });
+}
+
+// Snapshot mode tests: render specific game states via URL params
+// tick: number of rendered frames to wait before capture (ensures PostFX pipeline runs)
+const SNAPSHOT_TESTS = [
+  { name: "hacknslash_3d", params: "?snapshot=playing&frames=60&tick=5", tick: 5, suffix: "playing" },
+];
+
+for (const { name, params, tick, suffix } of SNAPSHOT_TESTS) {
+  test(`VRT: ${name} ${suffix}`, async ({ page }) => {
+    await page.goto(`/vrt/${name}${params}`);
+    await page.waitForFunction(
+      () =>
+        (globalThis as { __kaguraWebRuntime?: { webgpu?: { presentScheduled?: boolean } } })
+          .__kaguraWebRuntime?.webgpu?.presentScheduled !== undefined,
+      { timeout: 15_000 },
+    );
+    if (tick > 0) {
+      // Wait until the game has rendered the required number of frames
+      await page.waitForFunction(
+        (target) =>
+          ((globalThis as { __kaguraSnapshotTick?: number }).__kaguraSnapshotTick ?? 0) >= target,
+        tick,
+        { timeout: 10_000 },
+      );
+    } else {
+      await page.waitForTimeout(500);
+    }
+    const canvas = page.locator("#app");
+    await expect(canvas).toHaveScreenshot(`${name}-${suffix}.png`, {
       maxDiffPixelRatio: 0.01,
     });
   });

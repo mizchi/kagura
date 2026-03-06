@@ -59,6 +59,7 @@ const VRT_EXAMPLES = [
   "fps_demo", "arena3d", "collision3d_demo", "physics2d_demo",
   "physics3d_demo", "postfx_demo", "shadow3d_demo", "skeletal_anim",
   "ragdoll_demo", "obj_viewer", "gltf_viewer", "fetch_image",
+  "hacknslash_3d",
 ];
 
 for (const name of VRT_EXAMPLES) {

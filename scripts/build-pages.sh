@@ -20,6 +20,8 @@ EXAMPLES=(
   fps_demo
   obj_viewer
   ui_demo
+  hacknslash
+  hacknslash_3d
 )
 CACHE_BUST="$(git -C "$ROOT" rev-parse --short HEAD 2>/dev/null || date +%s)"
 
@@ -167,6 +169,8 @@ cat > "$SITE/index.html" <<'LANDING'
       <li><a href="./flappy_bird/">Flappy Bird</a></li>
       <li><a href="./survivor/">Survivor</a></li>
       <li><a href="./action_rpg/">Action RPG</a></li>
+      <li><a href="./hacknslash/">Hack &amp; Slash</a></li>
+      <li><a href="./hacknslash_3d/">Hack &amp; Slash 3D</a> &mdash; 3D isometric view</li>
     </ul>
     <h2>3D Rendering</h2>
     <ul>

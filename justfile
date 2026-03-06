@@ -46,7 +46,7 @@ info:
     moon info
 
 dev name:
-    bash scripts/dev.sh {{name}}
+    node scripts/dev-server.mjs {{name}}
 
 run-native name:
     cd examples/{{name}} && CPATH="$(brew --prefix glfw)/include:${CPATH:-}" LIBRARY_PATH="$(brew --prefix)/lib:${LIBRARY_PATH:-}" moon run src/ --target native

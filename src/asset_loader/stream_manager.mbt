@@ -179,6 +179,41 @@ pub fn make_stream_fetch_image_fn(
 }
 
 ///|
+pub fn AssetStreamManager::reprioritize(
+  self : AssetStreamManager,
+  id : Int,
+  new_priority : AssetPriority,
+) -> Bool {
+  for i in 0..<self.pending.length() {
+    if self.pending[i].id == id {
+      let req = self.pending.remove(i)
+      let req : StreamRequest = {
+        id: req.id,
+        url: req.url,
+        priority: new_priority,
+        on_complete: req.on_complete,
+        handle: req.handle,
+        done: req.done,
+      }
+      let p = priority_to_int(new_priority)
+      let mut inserted = false
+      for j in 0..<self.pending.length() {
+        if priority_to_int(self.pending[j].priority) > p {
+          self.pending.insert(j, req)
+          inserted = true
+          break
+        }
+      }
+      if not(inserted) {
+        self.pending.push(req)
+      }
+      return true
+    }
+  }
+  false
+}
+
+///|
 pub fn AssetStreamManager::progress(
   self : AssetStreamManager,
 ) -> StreamProgress {

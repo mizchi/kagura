@@ -7,5 +7,6 @@ options(
   targets: {
     "contracts.mbt": [ "js" ],
     "contracts_wbtest.mbt": [ "js" ],
+    "streamer_wbtest.mbt": [ "js" ],
   },
 )

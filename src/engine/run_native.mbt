@@ -2,6 +2,7 @@
 pub fn run(
   update~ : (@core.InputSnapshot) -> Unit,
   draw~ : (EngineContext) -> Array[@gfx.DrawTrianglesCommand],
+  on_frame? : () -> Unit,
   audio_ctx? : @audio.MixerAudioContext,
   audio_frames_per_tick? : Int = 735,
   width? : Int = 320,
@@ -47,6 +48,10 @@ pub fn run(
     let input = platform.capture_input(tick)
     tick = tick + 1
     update(input)
+    match on_frame {
+      Some(f) => f()
+      None => ()
+    }
     let cmds = draw(ctx)
     @debugutil.render_commands(graphics, cmds) catch {
       _ => ()

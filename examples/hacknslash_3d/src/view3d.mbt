@@ -155,18 +155,93 @@ fn GameState::draw_playing(
   let sw = ctx.screen_w.to_double()
   let sh = ctx.screen_h.to_double()
   let camera = self.camera.to_camera3d()
-  let entity_graph = build_entity_graph(self)
-  // Render 3D dungeon (static graph)
-  let cmds = @scene3d.render_scene3d_graph_gpu(
-    self.dungeon_graph,
-    camera,
-    lighting=self.lighting,
-    ctx.dst,
-    self.shader3d,
-    ctx.screen_w,
-    ctx.screen_h,
+  let view_projection = camera.view_projection_matrix()
+  // Shadow config centered on player
+  let px3d = self.player.x / tile_size
+  let pz3d = self.player.y / tile_size
+  let shadow_config = @shadow3d.ShadowConfig::new(
+    self.shadow_config.map_size,
+    self.shadow_config.half_extent,
+    self.shadow_config.near,
+    self.shadow_config.far,
+    self.shadow_config.distance,
+    @math3d.Vec3::new(px3d, 0.0, pz3d),
+    self.shadow_config.bias,
+  ) // center follows player each frame
+  let lighting = self.lighting
+  // Compute light-space VP matrix
+  let light_vp = @shadow3d.light_space_matrix(
+    lighting.directional.direction,
+    shadow_config.center,
+    shadow_config.distance,
+    shadow_config.half_extent,
+    shadow_config.near,
+    shadow_config.far,
   )
-  // Render 3D entities (items/projectiles)
+  let cmds : Array[@gfx.DrawTrianglesCommand] = []
+  // === Pass 1: Shadow depth pass (all dungeon tiles as casters) ===
+  let identity = @math3d.Mat4::identity()
+  let casters : Array[@shadow3d.ShadowCaster] = []
+  for group in self.dungeon_mesh_groups {
+    casters.push(@shadow3d.ShadowCaster::new(group.mesh, identity))
+  }
+  let depth_cmds = @shadow3d.shadow_depth_pass_commands(
+    self.shadow_map,
+    self.shadow_depth_shader,
+    casters,
+    lighting,
+    shadow_config,
+  )
+  for cmd in depth_cmds {
+    cmds.push(cmd)
+  }
+  // === Pass 2: Shadow-lit dungeon (batched mesh groups) ===
+  for group in self.dungeon_mesh_groups {
+    // Tint lighting with object color
+    let col = group.color
+    let tinted_lighting = @light3d.LightingEnvironment::new(
+      @light3d.DirectionalLight::new(
+        lighting.directional.direction,
+        @math3d.Vec3::new(
+          lighting.directional.color.x * col.x,
+          lighting.directional.color.y * col.y,
+          lighting.directional.color.z * col.z,
+        ),
+        lighting.directional.intensity,
+      ),
+      @light3d.AmbientLight::new(
+        @math3d.Vec3::new(
+          lighting.ambient.color.x * col.x,
+          lighting.ambient.color.y * col.y,
+          lighting.ambient.color.z * col.z,
+        ),
+        lighting.ambient.intensity,
+      ),
+    )
+    let dst_region = @gfx.new_dst_region(
+      0, 0, ctx.screen_w, ctx.screen_h, group.mesh.indices.length(),
+    )
+    let cmd = @shadow3d.new_shadow_lit_mesh_draw_command(
+      ctx.dst,
+      self.shadow_lit_shader,
+      dst_region,
+      0,
+      0,
+      0,
+      @gfx.blend_mode_from_int(0),
+      group.mesh,
+      identity,
+      view_projection,
+      tinted_lighting,
+      light_vp,
+      shadow_config,
+      self.shadow_map.id,
+      self.shadow_map.id,
+    )
+    cmds.push(cmd)
+  }
+  // === Pass 3: Entities (items/projectiles) — use non-shadow lit for now ===
+  let entity_graph = build_entity_graph(self)
   let entity_cmds = @scene3d.render_scene3d_graph_gpu(
     entity_graph,
     camera,
@@ -179,7 +254,7 @@ fn GameState::draw_playing(
   for cmd in entity_cmds {
     cmds.push(cmd)
   }
-  // Render skinned enemies
+  // === Pass 4: Skinned enemies ===
   let enemy_skinning = self.enemy_models.compute_skinning()
   let skinned_objects : Array[@scene3d.Object3D] = []
   for enemy in self.enemies {

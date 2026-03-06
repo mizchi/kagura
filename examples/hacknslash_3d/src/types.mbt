@@ -59,6 +59,12 @@ struct Meshes3D {
   wall : @mesh3d.Mesh3D
 }
 
+// Combined mesh with a single color for batched shadow-lit rendering
+struct DungeonMeshGroup {
+  mesh : @mesh3d.Mesh3D
+  color : @math3d.Vec4
+}
+
 struct GameState {
   mut mode : Int
   mut frame_count : Int
@@ -83,4 +89,11 @@ struct GameState {
   mut dungeon_graph : @scene3d.SceneGraph
   character : PlayerCharacter
   enemy_models : EnemyModels
+  // Shadow mapping
+  shadow_map : @gfx.ImageHandle
+  shadow_depth_shader : @gfx.ShaderHandle
+  shadow_lit_shader : @gfx.ShaderHandle
+  shadow_config : @shadow3d.ShadowConfig
+  mut dungeon_mesh_groups : Array[DungeonMeshGroup]
+  mut dungeon_wall_mesh : @mesh3d.Mesh3D
 }

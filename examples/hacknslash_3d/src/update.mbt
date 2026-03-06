@@ -32,13 +32,29 @@ fn GameState::new(seed~ : Int) -> GameState {
     @light3d.DirectionalLight::new(
       @math3d.Vec3::new(-0.3, -1.0, -0.5),
       @math3d.Vec3::one(),
-      0.8,
+      0.9,
     ),
-    @light3d.AmbientLight::new(@math3d.Vec3::one(), 0.3),
+    @light3d.AmbientLight::new(@math3d.Vec3::one(), 0.15),
   )
   let meshes = Meshes3D::new()
   let enemies = spawn_enemies_in_rooms(dungeon.rooms, 0, seed)
   let dungeon_graph = build_dungeon_graph(dungeon, meshes)
+  let (dungeon_mesh_groups, dungeon_wall_mesh) = build_dungeon_mesh_groups(
+    dungeon, meshes,
+  )
+  let shadow_config = @shadow3d.ShadowConfig::new(
+    2048, // map_size (higher res)
+    12.0, // half_extent (tighter coverage for sharper shadows)
+    0.1, // near
+    50.0, // far
+    25.0, // distance
+    @math3d.Vec3::new(
+      player.x / tile_size,
+      0.0,
+      player.y / tile_size,
+    ), // center (player pos)
+    0.005, // bias
+  )
   {
     mode: mode_title,
     frame_count: 0,
@@ -62,6 +78,17 @@ fn GameState::new(seed~ : Int) -> GameState {
     dungeon_graph,
     character: PlayerCharacter::new(),
     enemy_models: EnemyModels::new(),
+    // Shadow mapping
+    shadow_map: @gfx.new_image_handle(200, 2048, 2048),
+    shadow_depth_shader: @gfx.new_shader_handle(
+      200, @shadow3d.shader_shadow_depth_wgsl(),
+    ),
+    shadow_lit_shader: @gfx.new_shader_handle(
+      201, @shadow3d.shader3d_shadow_lit_untextured_wgsl(),
+    ),
+    shadow_config,
+    dungeon_mesh_groups,
+    dungeon_wall_mesh,
   }
 }
 
@@ -86,6 +113,9 @@ fn GameState::reset_floor(self : GameState) -> Unit {
     @math3d.Vec3::new(self.player.x / tile_size, 0.0, self.player.y / tile_size),
   )
   self.dungeon_graph = build_dungeon_graph(self.dungeon, self.meshes)
+  let (groups, wall_mesh) = build_dungeon_mesh_groups(self.dungeon, self.meshes)
+  self.dungeon_mesh_groups = groups
+  self.dungeon_wall_mesh = wall_mesh
 }
 
 fn GameState::update(self : GameState, input : @core.InputSnapshot) -> Unit {
@@ -134,6 +164,11 @@ fn GameState::update_gameover(self : GameState) -> Unit {
       @math3d.Vec3::new(self.player.x / tile_size, 0.0, self.player.y / tile_size),
     )
     self.dungeon_graph = build_dungeon_graph(self.dungeon, self.meshes)
+    let (groups, wall_mesh) = build_dungeon_mesh_groups(
+      self.dungeon, self.meshes,
+    )
+    self.dungeon_mesh_groups = groups
+    self.dungeon_wall_mesh = wall_mesh
   }
 }
 

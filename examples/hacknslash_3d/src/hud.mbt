@@ -84,7 +84,7 @@ fn GameState::view_title(self : GameState) -> @scene.SceneNode {
     @scene.label(
       x=sw / 2.0,
       y=sh / 2.0 - 60.0,
-      content="HACK & SLASH",
+      content="HACK N SLASH",
       scale=3.0,
       color=0xFF4444,
     ),

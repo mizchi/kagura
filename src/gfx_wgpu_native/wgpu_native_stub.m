@@ -3146,6 +3146,73 @@ int32_t moonbit_read_pixels_channel(int32_t offset) {
 // ---------------------------------------------------------------------------
 // Font file I/O
 // ---------------------------------------------------------------------------
+// Generic file I/O
+// ---------------------------------------------------------------------------
+static uint8_t *g_file_buffer = NULL;
+static int32_t  g_file_buffer_size = 0;
+
+int32_t moonbit_read_file_all(const uint8_t *path_ptr, int32_t path_len) {
+  if (g_file_buffer) {
+    free(g_file_buffer);
+    g_file_buffer = NULL;
+    g_file_buffer_size = 0;
+  }
+  if (!path_ptr || path_len <= 0) return -1;
+
+  char path[4096];
+  int32_t copy_len = path_len < 4095 ? path_len : 4095;
+  memcpy(path, path_ptr, copy_len);
+  path[copy_len] = '\0';
+
+  FILE *fp = fopen(path, "rb");
+  if (!fp) return -1;
+
+  fseek(fp, 0, SEEK_END);
+  long file_size = ftell(fp);
+  fseek(fp, 0, SEEK_SET);
+
+  if (file_size < 0 || file_size > 256 * 1024 * 1024) {
+    fclose(fp);
+    return -1;
+  }
+
+  g_file_buffer = (uint8_t *)malloc(file_size);
+  if (!g_file_buffer) {
+    fclose(fp);
+    return -1;
+  }
+
+  size_t read = fread(g_file_buffer, 1, file_size, fp);
+  fclose(fp);
+
+  if ((long)read != file_size) {
+    free(g_file_buffer);
+    g_file_buffer = NULL;
+    return -1;
+  }
+
+  g_file_buffer_size = (int32_t)file_size;
+  return g_file_buffer_size;
+}
+
+int32_t moonbit_file_buf_byte_at(int32_t offset) {
+  if (!g_file_buffer || offset < 0 || offset >= g_file_buffer_size) {
+    return 0;
+  }
+  return (int32_t)g_file_buffer[offset];
+}
+
+void moonbit_file_buf_release(void) {
+  if (g_file_buffer) {
+    free(g_file_buffer);
+    g_file_buffer = NULL;
+    g_file_buffer_size = 0;
+  }
+}
+
+// ---------------------------------------------------------------------------
+// Font file I/O (legacy)
+// ---------------------------------------------------------------------------
 static uint8_t *g_font_file_buffer = NULL;
 static int32_t  g_font_file_size   = 0;
 

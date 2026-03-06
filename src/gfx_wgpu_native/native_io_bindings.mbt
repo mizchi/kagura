@@ -1,4 +1,33 @@
 // ---------------------------------------------------------------------------
+// Generic file I/O FFI
+// ---------------------------------------------------------------------------
+
+///|
+#borrow(path)
+extern "C" fn moonbit_read_file_all(path : Bytes, path_len : Int) -> Int = "moonbit_read_file_all"
+
+///|
+extern "C" fn moonbit_file_buf_byte_at(offset : Int) -> Int = "moonbit_file_buf_byte_at"
+
+///|
+extern "C" fn moonbit_file_buf_release() = "moonbit_file_buf_release"
+
+///|
+pub fn read_file_bytes(path : String) -> Bytes? {
+  let utf8 = Bytes::from_array(string_to_utf8_fixed_array(path))
+  let size = moonbit_read_file_all(utf8, utf8.length())
+  if size < 0 {
+    return None
+  }
+  let arr : Array[Byte] = Array::make(size, b'\x00')
+  for i in 0..<size {
+    arr[i] = moonbit_file_buf_byte_at(i).to_byte()
+  }
+  moonbit_file_buf_release()
+  Some(Bytes::from_array(arr))
+}
+
+// ---------------------------------------------------------------------------
 // Font file I/O FFI
 // ---------------------------------------------------------------------------
 

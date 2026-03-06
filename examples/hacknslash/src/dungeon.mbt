@@ -68,3 +68,27 @@ fn tile_color(tile : @terrain.Tile) -> Int {
     _ => 0x1A1A2E
   }
 }
+
+// Tile color with coordinate-based variation
+fn tile_color_varied(tile : @terrain.Tile, col : Int, row : Int) -> Int {
+  match tile {
+    Floor => {
+      // Checker pattern with subtle variation
+      let checker = (col + row) % 2
+      if checker == 0 { 0x2A2A3A } else { 0x2E2E3E }
+    }
+    Wall => {
+      // Brick pattern: offset every other row
+      let brick_offset = if row % 2 == 0 { 0 } else { 2 }
+      let brick_pos = (col + brick_offset) % 4
+      if brick_pos == 0 { 0x5B3216 } else { 0x6B4226 }
+    }
+    Corridor => {
+      // Directional stripe
+      let stripe = (col + row) % 3
+      if stripe == 0 { 0x2D2D3E } else { 0x333344 }
+    }
+    Door => 0x8B6914
+    _ => 0x1A1A2E
+  }
+}

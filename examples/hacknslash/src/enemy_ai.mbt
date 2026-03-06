@@ -1,10 +1,11 @@
-// Enemy AI: chase + pathfinding
+// Enemy AI: chase + pathfinding + patrol + ranged + boss
 
 fn update_enemy_ai(
   enemies : Array[Enemy],
   player : Player,
   grid : @terrain.Grid2D,
   frame_count : Int,
+  projectiles : Array[Projectile],
 ) -> Unit {
   let player_tile_x = (player.x / tile_size).to_int()
   let player_tile_y = (player.y / tile_size).to_int()
@@ -15,8 +16,62 @@ fn update_enemy_ai(
     let cdx = player.x - enemy.x
     let cdy = player.y - enemy.y
     let dist = (cdx * cdx + cdy * cdy).sqrt()
+    // Boss charge logic
+    if enemy.kind == kind_boss {
+      if enemy.charge_timer > 0 {
+        enemy.charge_timer = enemy.charge_timer - 1
+        // Continue charging in set direction
+        continue
+      }
+      if dist < chase_range && enemy.charge_cooldown <= 0 {
+        // Initiate charge
+        enemy.charge_cooldown = 120
+        enemy.charge_timer = 20
+        if dist > 0.001 {
+          enemy.vx = cdx / dist * enemy.speed * 3.0
+          enemy.vy = cdy / dist * enemy.speed * 3.0
+        }
+        continue
+      }
+      if enemy.charge_cooldown > 0 {
+        enemy.charge_cooldown = enemy.charge_cooldown - 1
+      }
+    }
+    // Patrol if out of chase range
     if dist > chase_range {
+      let angle = ((frame_count + enemy.x.to_int()) % 360).to_double() * 3.14159 / 180.0
+      enemy.vx = @math.cos(angle) * enemy.speed * 0.3
+      enemy.vy = @math.sin(angle) * enemy.speed * 0.3
       continue
+    }
+    // Ranged enemy: shoot if in range but far enough
+    if enemy.kind == kind_ranged && dist > 60.0 {
+      if enemy.shoot_cooldown <= 0 {
+        enemy.shoot_cooldown = 120
+        if dist > 0.001 {
+          let bspeed = 2.0
+          projectiles.push({
+            x: enemy.x,
+            y: enemy.y,
+            vx: cdx / dist * bspeed,
+            vy: cdy / dist * bspeed,
+            alive: true,
+            damage: 1,
+          })
+        }
+      }
+      // Ranged enemies don't chase when shooting, slight retreat
+      if dist > 0.001 {
+        enemy.vx = -(cdx / dist) * enemy.speed * 0.3
+        enemy.vy = -(cdy / dist) * enemy.speed * 0.3
+      }
+      if enemy.shoot_cooldown > 0 {
+        enemy.shoot_cooldown = enemy.shoot_cooldown - 1
+      }
+      continue
+    }
+    if enemy.shoot_cooldown > 0 {
+      enemy.shoot_cooldown = enemy.shoot_cooldown - 1
     }
     // Update pathfinding cache periodically
     if enemy.path_timer <= 0 {
@@ -59,7 +114,5 @@ fn update_enemy_ai(
       enemy.vx = cdx / dist * enemy.speed
       enemy.vy = cdy / dist * enemy.speed
     }
-    // frame_count usage to avoid unused import
-    let _ = frame_count
   }
 }

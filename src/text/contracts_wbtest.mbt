@@ -1345,6 +1345,146 @@ test "CJK mixed text rendering" {
 }
 
 ///|
+test "GlyphAtlas::rasterize_text end-to-end" {
+  let font_data = test_font_otf_data()
+  let bytes = font_data_to_bytes(font_data)
+  let font = parse_font_bytes(bytes).unwrap()
+  let atlas = GlyphAtlas::new(256, 256, 1)
+  let quads = atlas.rasterize_text(font, "I", 24.0)
+  // 'I' is in the font subset, should produce at least one quad
+  assert_true(quads.length() > 0)
+  let q = quads[0]
+  // Atlas coordinates should be valid
+  assert_true(q.atlas_w > 0.0)
+  assert_true(q.atlas_h > 0.0)
+  assert_true(q.dst_w > 0.0)
+  assert_true(q.dst_h > 0.0)
+  // Cache should now contain the glyph
+  assert_true(atlas.cache.entry_count() > 0)
+  // Atlas should be marked dirty
+  assert_true(atlas.dirty)
+}
+
+///|
+test "GlyphAtlas::rasterize_text skips missing glyphs" {
+  let font_data = test_font_otf_data()
+  let bytes = font_data_to_bytes(font_data)
+  let font = parse_font_bytes(bytes).unwrap()
+  let atlas = GlyphAtlas::new(256, 256, 1)
+  // 'A', 'B' not in subset — should be skipped (glyph_id=0)
+  let quads = atlas.rasterize_text(font, "AB", 24.0)
+  assert_eq(quads.length(), 0)
+  assert_eq(atlas.cache.entry_count(), 0)
+}
+
+///|
+test "GlyphAtlas::rasterize_text mixed known and unknown" {
+  let font_data = test_font_otf_data()
+  let bytes = font_data_to_bytes(font_data)
+  let font = parse_font_bytes(bytes).unwrap()
+  let atlas = GlyphAtlas::new(256, 256, 1)
+  // Only 'I' should produce a quad
+  let quads = atlas.rasterize_text(font, "ABI", 24.0)
+  assert_eq(quads.length(), 1)
+  assert_eq(atlas.cache.entry_count(), 1)
+}
+
+///|
+test "GlyphAtlas::rasterize_text empty string" {
+  let font_data = test_font_otf_data()
+  let bytes = font_data_to_bytes(font_data)
+  let font = parse_font_bytes(bytes).unwrap()
+  let atlas = GlyphAtlas::new(256, 256, 1)
+  let quads = atlas.rasterize_text(font, "", 24.0)
+  assert_eq(quads.length(), 0)
+  assert_eq(atlas.cache.entry_count(), 0)
+  assert_false(atlas.dirty)
+}
+
+///|
+test "render_text with uniform_dwords propagates to commands" {
+  let font_data = test_font_otf_data()
+  set_font_load_hooks({ load_font_data: fn(_name) { Some(font_data) } })
+  let renderer = load_text_renderer("test.otf", 256, 1, 0).unwrap()
+  let dst = @gfx.new_image_handle(1, 640, 480)
+  let shader = @gfx.new_shader_handle(1, "text_shader")
+  let color_dwords = [255, 128, 64, 255]
+  let commands = renderer.render_text(
+    "I", 24.0, 10.0, 20.0, dst, shader,
+    @gfx.blend_mode_from_int(1), color_dwords,
+  )
+  assert_true(commands.length() > 0)
+  // Each command should have the uniform_dwords we passed
+  for cmd in commands {
+    assert_eq(cmd.uniform_dwords.length(), 4)
+    assert_eq(cmd.uniform_dwords[0], 255)
+    assert_eq(cmd.uniform_dwords[1], 128)
+    assert_eq(cmd.uniform_dwords[2], 64)
+    assert_eq(cmd.uniform_dwords[3], 255)
+  }
+  reset_font_load_hooks()
+}
+
+///|
+test "render_text with empty uniform_dwords does not add uniforms" {
+  let font_data = test_font_otf_data()
+  set_font_load_hooks({ load_font_data: fn(_name) { Some(font_data) } })
+  let renderer = load_text_renderer("test.otf", 256, 1, 0).unwrap()
+  let dst = @gfx.new_image_handle(1, 640, 480)
+  let shader = @gfx.new_shader_handle(1, "text_shader")
+  let commands = renderer.render_text(
+    "I", 24.0, 10.0, 20.0, dst, shader,
+    @gfx.blend_mode_from_int(1), [],
+  )
+  assert_true(commands.length() > 0)
+  // Commands should have empty uniform_dwords (default from batch builder)
+  for cmd in commands {
+    assert_eq(cmd.uniform_dwords.length(), 0)
+  }
+  reset_font_load_hooks()
+}
+
+///|
+test "render_text empty string returns no commands" {
+  let font_data = test_font_otf_data()
+  set_font_load_hooks({ load_font_data: fn(_name) { Some(font_data) } })
+  let renderer = load_text_renderer("test.otf", 256, 1, 0).unwrap()
+  let dst = @gfx.new_image_handle(1, 640, 480)
+  let shader = @gfx.new_shader_handle(1, "text_shader")
+  let commands = renderer.render_text(
+    "", 24.0, 0.0, 0.0, dst, shader,
+    @gfx.blend_mode_from_int(1), [255, 255, 255, 255],
+  )
+  assert_eq(commands.length(), 0)
+  reset_font_load_hooks()
+}
+
+///|
+test "flush_dirty_pages returns dirty and clears flag" {
+  let font_data = test_font_otf_data()
+  set_font_load_hooks({ load_font_data: fn(_name) { Some(font_data) } })
+  let renderer = load_text_renderer("test.otf", 256, 1, 0).unwrap()
+  let dst = @gfx.new_image_handle(1, 640, 480)
+  let shader = @gfx.new_shader_handle(1, "text_shader")
+  // Before rendering, no dirty pages
+  let empty_dirty = renderer.flush_dirty_pages()
+  assert_eq(empty_dirty.length(), 0)
+  // After rendering, should have dirty pages
+  let _ = renderer.render_text(
+    "I", 24.0, 0.0, 0.0, dst, shader,
+    @gfx.blend_mode_from_int(1), [],
+  )
+  let dirty = renderer.flush_dirty_pages()
+  assert_true(dirty.length() > 0)
+  assert_eq(dirty[0].page_id, renderer.get_page_id())
+  assert_true(dirty[0].dirty)
+  // Second flush should return empty (dirty flags cleared)
+  let dirty2 = renderer.flush_dirty_pages()
+  assert_eq(dirty2.length(), 0)
+  reset_font_load_hooks()
+}
+
+///|
 test "CJK multi-size measure" {
   let font_data = load_cjk_font_data()
   match font_data {

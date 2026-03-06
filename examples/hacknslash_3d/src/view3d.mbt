@@ -135,17 +135,13 @@ fn GameState::draw(
 ) -> Array[@gfx.DrawTrianglesCommand] {
   let sw = ctx.screen_w.to_double()
   let sh = ctx.screen_h.to_double()
-  match self.mode {
-    m if m == mode_title => {
-      let hud_node = self.view_title()
-      @scene.render_scene(hud_node, ctx.dst, ctx.shader, sw, sh)
-    }
-    m if m == mode_gameover => {
-      let hud_node = self.view_gameover()
-      @scene.render_scene(hud_node, ctx.dst, ctx.shader, sw, sh)
-    }
+  let result = match self.mode {
+    m if m == mode_title => self.render_title_cmds(ctx.dst, ctx.shader)
+    m if m == mode_gameover => self.render_gameover_cmds(ctx.dst, ctx.shader)
     _ => self.draw_playing(ctx)
   }
+  self.flush_text_atlas()
+  result
 }
 
 fn GameState::draw_playing(
@@ -402,8 +398,7 @@ fn GameState::draw_playing(
   )
   cmds.push(fxaa_cmd)
   // Render 2D HUD overlay (after postfx, directly to ctx.dst)
-  let hud_node = render_hud(self)
-  let hud_cmds = @scene.render_scene(hud_node, ctx.dst, ctx.shader, sw, sh)
+  let hud_cmds = self.render_hud_cmds(ctx.dst, ctx.shader)
   for cmd in hud_cmds {
     cmds.push(cmd)
   }

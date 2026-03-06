@@ -21,6 +21,10 @@ import {
   "mizchi/terrain/bsp" @bsp,
   "mizchi/terrain/types" @terrain,
   "mizchi/web_runtime_hooks" @web_hooks,
+  "mizchi/kagura/text" @text,
+  "mizchi/kagura/asset" @asset,
+  "mizchi/kagura/image_palette" @image_palette,
+  "mizchi/kagura/debugutil" @debugutil,
 }
 
 warnings = "-1-2-7-20-29-71"

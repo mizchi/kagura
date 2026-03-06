@@ -113,6 +113,10 @@ fn GameState::new(seed~ : Int) -> GameState {
     ),
     // Particles
     particle_manager: @particle3d.ParticleManager::new(400),
+    // Text
+    text_renderer: @text.load_text_renderer(
+      "assets/Tiny5-Regular.ttf", 256, 500, 0,
+    ),
   }
 }
 

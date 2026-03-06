@@ -109,4 +109,6 @@ struct GameState {
   tonemap_sh : @gfx.ShaderHandle
   // Particles
   particle_manager : @particle3d.ParticleManager
+  // Text
+  text_renderer : @text.TextRenderer?
 }

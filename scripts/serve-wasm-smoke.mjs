@@ -101,6 +101,7 @@ const serveFile = (res, filePath) => {
 
 const ASSET_EXAMPLES = {
   action_rpg: [["assets/Tiny5-Regular.ttf", "/examples/action_rpg/assets/Tiny5-Regular.ttf"]],
+  hacknslash_3d: [["assets/Tiny5-Regular.ttf", "/examples/hacknslash_3d/assets/Tiny5-Regular.ttf"]],
   fetch_image: [["assets/sample.png", "/examples/fetch_image/assets/sample.png"]],
   gltf_viewer: [["assets/test_scene.glb", "/examples/gltf_viewer/assets/test_scene.glb"]],
   obj_viewer: [["assets/bunny.obj", "/examples/obj_viewer/assets/bunny.obj"]],

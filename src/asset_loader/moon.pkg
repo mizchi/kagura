@@ -4,6 +4,8 @@ import {
 }
 
 options(
-  "supported-targets": [ "js" ],
-  targets: { "contracts.mbt": [ "js" ], "contracts_wbtest.mbt": [ "js" ] },
+  targets: {
+    "contracts.mbt": [ "js" ],
+    "contracts_wbtest.mbt": [ "js" ],
+  },
 )

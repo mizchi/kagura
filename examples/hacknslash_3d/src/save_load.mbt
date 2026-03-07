@@ -151,12 +151,15 @@ fn GameState::load_game(self : GameState) -> Bool {
   self.enemies = spawn_enemies_for_floor(dungeon.rooms, 0, self.seed, self.floor)
   self.items = []
   self.projectiles = []
-  self.dungeon_graph = build_dungeon_graph(self.dungeon, self.meshes)
-  let (groups, wall_mesh) = build_dungeon_mesh_groups(self.dungeon, self.meshes)
-  self.dungeon_mesh_groups = groups
-  self.dungeon_wall_mesh = wall_mesh
+  self.dungeon_chunks = build_dungeon_chunks(self.dungeon, self.meshes)
+  // Copy height map
+  self.dungeon.height_map.clear()
+  for h in dungeon.height_map {
+    self.dungeon.height_map.push(h)
+  }
+  let sy = get_tile_height(self.dungeon, self.player.x, self.player.y)
   self.camera = self.camera.with_target(
-    @math3d.Vec3::new(self.player.x / tile_size, 0.0, self.player.y / tile_size),
+    @math3d.Vec3::new(self.player.x / tile_size, sy, self.player.y / tile_size),
   )
   true
 }

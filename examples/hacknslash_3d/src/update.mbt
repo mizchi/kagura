@@ -42,13 +42,10 @@ fn GameState::new(seed~ : Int) -> GameState {
   )
   let meshes = Meshes3D::new()
   let enemies = spawn_enemies_in_rooms(dungeon.rooms, 0, seed)
-  let dungeon_graph = build_dungeon_graph(dungeon, meshes)
-  let (dungeon_mesh_groups, dungeon_wall_mesh) = build_dungeon_mesh_groups(
-    dungeon, meshes,
-  )
+  let dungeon_chunks = build_dungeon_chunks(dungeon, meshes)
   let shadow_config = @shadow3d.ShadowConfig::new(
-    2048, // map_size (higher res)
-    16.0, // half_extent (wider coverage for larger map)
+    1024, // map_size
+    14.0, // half_extent
     0.1, // near
     60.0, // far
     30.0, // distance
@@ -91,11 +88,10 @@ fn GameState::new(seed~ : Int) -> GameState {
     shader3d: @gfx.new_shader_handle(100, @draw3d.shader3d_lit_untextured_wgsl()),
     shader3d_skinned: @gfx.new_shader_handle(101, @draw3d.shader3d_lit_skinned_wgsl()),
     meshes,
-    dungeon_graph,
     character: PlayerCharacter::new(),
     enemy_models: EnemyModels::new(),
     // Shadow mapping
-    shadow_map: @gfx.new_image_handle(200, 2048, 2048),
+    shadow_map: @gfx.new_image_handle(200, 1024, 1024),
     shadow_depth_shader: @gfx.new_shader_handle(
       200, @shadow3d.shader_shadow_depth_wgsl(),
     ),
@@ -103,8 +99,7 @@ fn GameState::new(seed~ : Int) -> GameState {
       201, @shadow3d.shader3d_shadow_lit_untextured_wgsl(),
     ),
     shadow_config,
-    dungeon_mesh_groups,
-    dungeon_wall_mesh,
+    dungeon_chunks,
     // PostFX render targets
     scene_target: @gfx.new_image_handle(300, screen_w, screen_h),
     bloom_a: @gfx.new_image_handle(301, screen_w, screen_h),
@@ -170,10 +165,7 @@ fn GameState::reset_floor(self : GameState) -> Unit {
   self.camera = self.camera.with_target(
     @math3d.Vec3::new(self.player.x / tile_size, ry, self.player.y / tile_size),
   )
-  self.dungeon_graph = build_dungeon_graph(self.dungeon, self.meshes)
-  let (groups, wall_mesh) = build_dungeon_mesh_groups(self.dungeon, self.meshes)
-  self.dungeon_mesh_groups = groups
-  self.dungeon_wall_mesh = wall_mesh
+  self.dungeon_chunks = build_dungeon_chunks(self.dungeon, self.meshes)
 }
 
 fn GameState::update(self : GameState, input : @core.InputSnapshot) -> Unit {
@@ -251,7 +243,6 @@ fn GameState::update_gameover(self : GameState) -> Unit {
     self.camera = self.camera.with_target(
       @math3d.Vec3::new(self.player.x / tile_size, gy, self.player.y / tile_size),
     )
-    self.dungeon_graph = build_dungeon_graph(self.dungeon, self.meshes)
     let (groups, wall_mesh) = build_dungeon_mesh_groups(
       self.dungeon, self.meshes,
     )

@@ -1,7 +1,9 @@
 // Shadow mapping: dungeon mesh batching + shadow pass rendering
+// Spatial chunking: split dungeon into chunks for frustum culling
+
+let chunk_size : Int = 12 // tiles per chunk side
 
 // Merge multiple positioned meshes into a single combined mesh.
-// Each source mesh is offset by (ox, oy, oz).
 fn merge_mesh_at(
   dst_verts : Array[Double],
   dst_indices : Array[Int],
@@ -16,27 +18,56 @@ fn merge_mesh_at(
   let vert_count = src_verts.length() / stride
   for i in 0..<vert_count {
     let off = i * stride
-    dst_verts.push(src_verts[off] + ox) // position x
-    dst_verts.push(src_verts[off + 1] + oy) // position y
-    dst_verts.push(src_verts[off + 2] + oz) // position z
-    dst_verts.push(src_verts[off + 3]) // normal x
-    dst_verts.push(src_verts[off + 4]) // normal y
-    dst_verts.push(src_verts[off + 5]) // normal z
-    dst_verts.push(src_verts[off + 6]) // u
-    dst_verts.push(src_verts[off + 7]) // v
+    dst_verts.push(src_verts[off] + ox)
+    dst_verts.push(src_verts[off + 1] + oy)
+    dst_verts.push(src_verts[off + 2] + oz)
+    dst_verts.push(src_verts[off + 3])
+    dst_verts.push(src_verts[off + 4])
+    dst_verts.push(src_verts[off + 5])
+    dst_verts.push(src_verts[off + 6])
+    dst_verts.push(src_verts[off + 7])
   }
   for idx in src.indices {
     dst_indices.push(idx + base_vert)
   }
 }
 
-// Build combined meshes grouped by tile type + color variant.
-// Returns (mesh_groups_for_lit_pass, wall_mesh_for_depth_pass).
-fn build_dungeon_mesh_groups(
+// A spatial chunk: pre-built mesh groups for a region of the map
+struct DungeonChunk {
+  cx : Int // chunk column index
+  cz : Int // chunk row index
+  groups : Array[DungeonMeshGroup]
+  wall_mesh : @mesh3d.Mesh3D
+}
+
+// Build chunked dungeon mesh groups.
+// Returns array of chunks, each with its own mesh groups.
+fn build_dungeon_chunks(
   dungeon : DungeonData,
   meshes : Meshes3D,
-) -> (Array[DungeonMeshGroup], @mesh3d.Mesh3D) {
-  // Groups: floor_a, floor_b, corridor_a, corridor_b, door, wall, ledge, pillar
+) -> Array[DungeonChunk] {
+  let w = dungeon.grid.width
+  let h = dungeon.grid.height
+  let cols_chunks = (w + chunk_size - 1) / chunk_size
+  let rows_chunks = (h + chunk_size - 1) / chunk_size
+  let chunks : Array[DungeonChunk] = []
+  for cz = 0; cz < rows_chunks; cz = cz + 1 {
+    for cx = 0; cx < cols_chunks; cx = cx + 1 {
+      let chunk = build_single_chunk(dungeon, meshes, cx, cz, w, h)
+      chunks.push(chunk)
+    }
+  }
+  chunks
+}
+
+fn build_single_chunk(
+  dungeon : DungeonData,
+  meshes : Meshes3D,
+  cx : Int,
+  cz : Int,
+  w : Int,
+  h : Int,
+) -> DungeonChunk {
   let floor_a_v : Array[Double] = []
   let floor_a_i : Array[Int] = []
   let floor_b_v : Array[Double] = []
@@ -49,15 +80,16 @@ fn build_dungeon_mesh_groups(
   let door_i : Array[Int] = []
   let wall_v : Array[Double] = []
   let wall_i : Array[Int] = []
-  // Pillar decoration
   let pillar_v : Array[Double] = []
   let pillar_i : Array[Int] = []
-  // Combined wall mesh for shadow caster (all walls + ledges)
   let wall_all_v : Array[Double] = []
   let wall_all_i : Array[Int] = []
-  let w = dungeon.grid.width
-  for row = 0; row < dungeon.grid.height; row = row + 1 {
-    for col = 0; col < w; col = col + 1 {
+  let start_col = cx * chunk_size
+  let start_row = cz * chunk_size
+  let end_col = @cmp.minimum(start_col + chunk_size, w)
+  let end_row = @cmp.minimum(start_row + chunk_size, h)
+  for row = start_row; row < end_row; row = row + 1 {
+    for col = start_col; col < end_col; col = col + 1 {
       let tile = dungeon.grid.get(col, row)
       let x = col.to_double()
       let z = row.to_double()
@@ -85,24 +117,20 @@ fn build_dungeon_mesh_groups(
         }
         Door => {
           merge_mesh_at(door_v, door_i, meshes.floor_tile, x, y, z)
-          // Add pillars on both sides of door
           merge_mesh_at(pillar_v, pillar_i, meshes.pillar, x - 0.4, y, z)
           merge_mesh_at(pillar_v, pillar_i, meshes.pillar, x + 0.4, y, z)
         }
         Wall => {
-          // Only render walls that border walkable tiles (edge walls)
           if has_adjacent_walkable(dungeon.grid, col, row) {
             merge_mesh_at(wall_v, wall_i, meshes.wall, x, y, z)
             merge_mesh_at(wall_all_v, wall_all_i, meshes.wall, x, y, z)
           }
-          // Interior walls: just a floor at lower height (void)
         }
         _ => ()
       }
     }
   }
   let groups : Array[DungeonMeshGroup] = []
-  // Helper to add non-empty groups
   fn add_group(
     verts : Array[Double],
     indices : Array[Int],
@@ -125,7 +153,27 @@ fn build_dungeon_mesh_groups(
   add_group(wall_v, wall_i, color_wall, groups)
   add_group(pillar_v, pillar_i, color_pillar, groups)
   let wall_mesh = @mesh3d.Mesh3D::new(wall_all_v, wall_all_i)
-  (groups, wall_mesh)
+  { cx, cz, groups, wall_mesh }
+}
+
+// Get visible chunks near player position (in tile coords)
+fn get_visible_chunks(
+  chunks : Array[DungeonChunk],
+  player_tile_x : Int,
+  player_tile_z : Int,
+  radius : Int, // in chunks
+) -> Array[DungeonChunk] {
+  let pcx = player_tile_x / chunk_size
+  let pcz = player_tile_z / chunk_size
+  let result : Array[DungeonChunk] = []
+  for chunk in chunks {
+    let dx = chunk.cx - pcx
+    let dz = chunk.cz - pcz
+    if dx >= -radius && dx <= radius && dz >= -radius && dz <= radius {
+      result.push(chunk)
+    }
+  }
+  result
 }
 
 // Check if a wall tile has at least one adjacent walkable tile

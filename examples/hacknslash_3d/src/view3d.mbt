@@ -37,90 +37,6 @@ let color_item_score : @math3d.Vec4 = @math3d.Vec4::new(0.0, 1.0, 1.0, 1.0)
 
 let color_projectile : @math3d.Vec4 = @math3d.Vec4::new(1.0, 0.27, 0.4, 1.0)
 
-// Build static dungeon scene graph (cached, rebuilt on floor reset)
-fn build_dungeon_graph(dungeon : DungeonData, meshes : Meshes3D) -> @scene3d.SceneGraph {
-  let graph = @scene3d.SceneGraph::new()
-  let w = dungeon.grid.width
-  for row = 0; row < dungeon.grid.height; row = row + 1 {
-    for col = 0; col < w; col = col + 1 {
-      let tile = dungeon.grid.get(col, row)
-      let x = col.to_double()
-      let z = row.to_double()
-      let y = dungeon.height_map[row * w + col]
-      match tile {
-        Floor | Start | Goal => {
-          let checker = (col + row) % 2
-          let c = if tile == @terrain.Start {
-            @math3d.Vec4::new(0.2, 0.45, 0.25, 1.0)
-          } else if tile == @terrain.Goal {
-            @math3d.Vec4::new(0.45, 0.2, 0.15, 1.0)
-          } else if checker == 0 {
-            color_floor
-          } else {
-            color_floor_alt
-          }
-          graph.add_node(
-            @scene3d.scene_node(
-              mesh=Some(meshes.floor_tile),
-              position=@math3d.Vec3::new(x, y, z),
-              color=c,
-            ),
-          ) |> ignore
-        }
-        Corridor => {
-          let stripe = (col + row) % 3
-          let c = if stripe == 0 { color_corridor } else { color_corridor_alt }
-          graph.add_node(
-            @scene3d.scene_node(
-              mesh=Some(meshes.floor_tile),
-              position=@math3d.Vec3::new(x, y, z),
-              color=c,
-            ),
-          ) |> ignore
-        }
-        Door => {
-          graph.add_node(
-            @scene3d.scene_node(
-              mesh=Some(meshes.floor_tile),
-              position=@math3d.Vec3::new(x, y, z),
-              color=color_door,
-            ),
-          ) |> ignore
-          // Door frame pillars
-          graph.add_node(
-            @scene3d.scene_node(
-              mesh=Some(meshes.pillar),
-              position=@math3d.Vec3::new(x - 0.4, y, z),
-              color=color_pillar,
-            ),
-          ) |> ignore
-          graph.add_node(
-            @scene3d.scene_node(
-              mesh=Some(meshes.pillar),
-              position=@math3d.Vec3::new(x + 0.4, y, z),
-              color=color_pillar,
-            ),
-          ) |> ignore
-        }
-        Wall => {
-          // Only render edge walls (adjacent to walkable)
-          if has_adjacent_walkable(dungeon.grid, col, row) {
-            graph.add_node(
-              @scene3d.scene_node(
-                mesh=Some(meshes.wall),
-                position=@math3d.Vec3::new(x, y, z),
-                color=color_wall,
-              ),
-            ) |> ignore
-          }
-        }
-        _ => ()
-      }
-    }
-  }
-  graph
-}
-
 // Build dynamic entity scene graph (per frame, items/projectiles only)
 fn build_entity_graph(state : GameState, region : VisibleRegion) -> @scene3d.SceneGraph {
   let graph = @scene3d.SceneGraph::new()
@@ -226,11 +142,19 @@ fn GameState::draw_playing(
   let cmds : Array[@gfx.DrawTrianglesCommand] = []
   // Render target: all 3D content goes to scene_target (offscreen)
   let rt = self.scene_target
-  // === Pass 1: Shadow depth pass (all dungeon tiles as casters) ===
+  // Get visible chunks near player (radius 2 = up to 5x5 chunks)
+  let player_tile_x = (self.player.x / tile_size).to_int()
+  let player_tile_z = (self.player.y / tile_size).to_int()
+  let visible_chunks = get_visible_chunks(
+    self.dungeon_chunks, player_tile_x, player_tile_z, 1,
+  )
+  // === Pass 1: Shadow depth pass (visible chunks only) ===
   let identity = @math3d.Mat4::identity()
   let casters : Array[@shadow3d.ShadowCaster] = []
-  for group in self.dungeon_mesh_groups {
-    casters.push(@shadow3d.ShadowCaster::new(group.mesh, identity))
+  for chunk in visible_chunks {
+    for group in chunk.groups {
+      casters.push(@shadow3d.ShadowCaster::new(group.mesh, identity))
+    }
   }
   let depth_cmds = @shadow3d.shadow_depth_pass_commands(
     self.shadow_map,
@@ -242,60 +166,51 @@ fn GameState::draw_playing(
   for cmd in depth_cmds {
     cmds.push(cmd)
   }
-  // === Pass 1.5: Camera depth pass (for SSAO) ===
-  let cam_depth_cmds = @shadow3d.camera_depth_pass_commands(
-    self.camera_depth_target,
-    self.camera_depth_shader,
-    casters,
-    view_projection,
-  )
-  for cmd in cam_depth_cmds {
-    cmds.push(cmd)
-  }
-  // === Pass 2: Shadow-lit dungeon (batched mesh groups) → scene_target ===
-  for group in self.dungeon_mesh_groups {
-    // Tint lighting with object color
-    let col = group.color
-    let tinted_lighting = @light3d.LightingEnvironment::new(
-      @light3d.DirectionalLight::new(
-        lighting.directional.direction,
-        @math3d.Vec3::new(
-          lighting.directional.color.x * col.x,
-          lighting.directional.color.y * col.y,
-          lighting.directional.color.z * col.z,
+  // === Pass 2: Shadow-lit dungeon (visible chunks only) → scene_target ===
+  for chunk in visible_chunks {
+    for group in chunk.groups {
+      let col = group.color
+      let tinted_lighting = @light3d.LightingEnvironment::new(
+        @light3d.DirectionalLight::new(
+          lighting.directional.direction,
+          @math3d.Vec3::new(
+            lighting.directional.color.x * col.x,
+            lighting.directional.color.y * col.y,
+            lighting.directional.color.z * col.z,
+          ),
+          lighting.directional.intensity,
         ),
-        lighting.directional.intensity,
-      ),
-      @light3d.AmbientLight::new(
-        @math3d.Vec3::new(
-          lighting.ambient.color.x * col.x,
-          lighting.ambient.color.y * col.y,
-          lighting.ambient.color.z * col.z,
+        @light3d.AmbientLight::new(
+          @math3d.Vec3::new(
+            lighting.ambient.color.x * col.x,
+            lighting.ambient.color.y * col.y,
+            lighting.ambient.color.z * col.z,
+          ),
+          lighting.ambient.intensity,
         ),
-        lighting.ambient.intensity,
-      ),
-    )
-    let dst_region = @gfx.new_dst_region(
-      0, 0, ctx.screen_w, ctx.screen_h, group.mesh.indices.length(),
-    )
-    let cmd = @shadow3d.new_shadow_lit_mesh_draw_command(
-      rt,
-      self.shadow_lit_shader,
-      dst_region,
-      0,
-      0,
-      0,
-      @gfx.blend_mode_from_int(0),
-      group.mesh,
-      identity,
-      view_projection,
-      tinted_lighting,
-      light_vp,
-      shadow_config,
-      self.shadow_map.id,
-      self.shadow_map.id,
-    )
-    cmds.push(cmd)
+      )
+      let dst_region = @gfx.new_dst_region(
+        0, 0, ctx.screen_w, ctx.screen_h, group.mesh.indices.length(),
+      )
+      let cmd = @shadow3d.new_shadow_lit_mesh_draw_command(
+        rt,
+        self.shadow_lit_shader,
+        dst_region,
+        0,
+        0,
+        0,
+        @gfx.blend_mode_from_int(0),
+        group.mesh,
+        identity,
+        view_projection,
+        tinted_lighting,
+        light_vp,
+        shadow_config,
+        self.shadow_map.id,
+        self.shadow_map.id,
+      )
+      cmds.push(cmd)
+    }
   }
   // Compute visible region for occlusion culling
   let vis_region = compute_visible_region(
@@ -434,46 +349,13 @@ fn GameState::draw_playing(
   for cmd in particle_cmds {
     cmds.push(cmd)
   }
-  // === PostFX chain: scene_target → bloom → tonemap → FXAA → ctx.dst ===
-  // Bloom: scene_target → post_target (via bloom_a/bloom_b ping-pong)
-  let bloom_cmds = @postfx.bloom_commands(
-    self.post_target,
-    self.scene_target.id,
-    self.bloom_a,
-    self.bloom_b,
-    self.bloom_threshold_sh,
-    self.bloom_hblur_sh,
-    self.bloom_vblur_sh,
-    self.bloom_composite_sh,
-    0.6, // threshold (lower = more bloom on bright surfaces)
-    1.5, // intensity
-    screen_w,
-    screen_h,
-  )
-  for cmd in bloom_cmds {
-    cmds.push(cmd)
-  }
-  // SSAO: post_target + camera_depth → ssao_target
-  let ssao_cmd = @postfx.new_ssao_command(
-    self.ssao_target,
-    self.ssao_sh,
-    self.post_target.id,
-    self.camera_depth_target.id,
-    8.0,  // radius
-    0.02, // bias
-    0.6,  // intensity
-    screen_w,
-    screen_h,
-  )
-  cmds.push(ssao_cmd)
-  // Tonemap: ssao_target → scene_target (reuse as intermediate)
+  // === PostFX: tonemap → FXAA (bloom/SSAO disabled for performance) ===
   let tonemap_cmd = @postfx.new_tonemap_command(
-    self.scene_target, self.tonemap_sh, self.ssao_target.id, 1.0,
+    self.post_target, self.tonemap_sh, self.scene_target.id, 1.0,
   )
   cmds.push(tonemap_cmd)
-  // FXAA: scene_target → ctx.dst
   let fxaa_cmd = @postfx.new_fxaa_command(
-    ctx.dst, self.fxaa_sh, self.scene_target.id, screen_w, screen_h,
+    ctx.dst, self.fxaa_sh, self.post_target.id, screen_w, screen_h,
   )
   cmds.push(fxaa_cmd)
   // Render 2D HUD overlay (after postfx, directly to ctx.dst)

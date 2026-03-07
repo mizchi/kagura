@@ -98,7 +98,7 @@ struct GameState {
   shader3d : @gfx.ShaderHandle
   shader3d_skinned : @gfx.ShaderHandle
   meshes : Meshes3D
-  mut dungeon_graph : @scene3d.SceneGraph
+  // dungeon_graph removed — using batched mesh groups only
   character : PlayerCharacter
   enemy_models : EnemyModels
   // Shadow mapping
@@ -106,8 +106,7 @@ struct GameState {
   shadow_depth_shader : @gfx.ShaderHandle
   shadow_lit_shader : @gfx.ShaderHandle
   shadow_config : @shadow3d.ShadowConfig
-  mut dungeon_mesh_groups : Array[DungeonMeshGroup]
-  mut dungeon_wall_mesh : @mesh3d.Mesh3D
+  mut dungeon_chunks : Array[DungeonChunk]
   // PostFX
   scene_target : @gfx.ImageHandle
   bloom_a : @gfx.ImageHandle

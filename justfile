@@ -84,7 +84,19 @@ wasm-build-zig:
     cp examples/wasm_game/guest/zig/zig-out/lib/kagura_wasm_guest_zig.wasm examples/wasm_game/host/public/game.wasm
 
 wasm-host-install:
-    cd examples/wasm_game/host && pnpm install
+    cd examples/wasm_game/host && pnpm install --frozen-lockfile
+
+wasm-host-check:
+    just wasm-host-install
+    cd examples/wasm_game/host && pnpm exec tsc --noEmit
+    cd examples/wasm_game/host && pnpm build
+
+wasm-verify:
+    just wasm-build-moonbit
+    just wasm-build-rust
+    just wasm-build-zig
+    just wasm-test all
+    just wasm-host-check
 
 wasm-test guest="all":
     node examples/wasm_game/test-wasm.mjs {{guest}}

@@ -53,6 +53,35 @@ jobs:
       - name: Test
         run: just target=${{ matrix.target }} test
 
+  wasm-guests:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - name: Checkout terrain path dependency
+        run: git clone --depth=1 https://github.com/mizchi/terrain.git ../terrain
+      - name: Install MoonBit CLI
+        run: |
+          curl -fsSL https://cli.moonbitlang.com/install/unix.sh | bash
+          echo "$HOME/.moon/bin" >> "$GITHUB_PATH"
+      - uses: taiki-e/install-action@just
+      - name: Setup pnpm
+        run: corepack enable
+      - uses: actions/setup-node@v4
+        with:
+          node-version: "24"
+          cache: "pnpm"
+          cache-dependency-path: examples/wasm_game/host/pnpm-lock.yaml
+      - name: Install Rust toolchain
+        run: rustup toolchain install stable --profile minimal --target wasm32-unknown-unknown
+      - name: Setup Zig
+        uses: mlugg/setup-zig@v2
+        with:
+          version: 0.15.2
+      - name: Update MoonBit registry
+        run: moon update
+      - name: Verify WASM guests
+        run: just wasm-verify
+
   js:
     runs-on: ubuntu-latest
     steps:

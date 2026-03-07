@@ -10,7 +10,7 @@ options(
       "cc-link-flags": "-Ldeps/wgpu-native/lib -lwgpu_native -lglfw -Wl,-rpath,deps/wgpu-native/lib ${build.KAGURA_NATIVE_AUDIO_LIBS}",
     },
   },
-  "native-stub": [ "wgpu_native_stub.m" ],
+  "native-stub": [ "wgpu_native_stub.c", "wgpu_native_stub_macos.m" ],
   "supported-targets": [ "native" ],
   targets: {
     "backend.mbt": [ "native" ],

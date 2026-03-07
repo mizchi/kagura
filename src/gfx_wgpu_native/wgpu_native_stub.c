@@ -27,26 +27,31 @@
 #include <webgpu/wgpu.h>
 #endif
 
-#define GLFW_EXPOSE_NATIVE_COCOA
+// Platform-specific GLFW native expose
+#ifdef __APPLE__
+  #define GLFW_EXPOSE_NATIVE_COCOA
+#elif defined(_WIN32)
+  #define GLFW_EXPOSE_NATIVE_WIN32
+#elif defined(__linux__)
+  #define GLFW_EXPOSE_NATIVE_X11
+#endif
+
 #if __has_include("/opt/homebrew/include/GLFW/glfw3.h")
 #include "/opt/homebrew/include/GLFW/glfw3.h"
 #include "/opt/homebrew/include/GLFW/glfw3native.h"
 #elif __has_include("/usr/local/include/GLFW/glfw3.h")
 #include "/usr/local/include/GLFW/glfw3.h"
 #include "/usr/local/include/GLFW/glfw3native.h"
-#elif __has_include("/Users/mz/brew/include/GLFW/glfw3.h")
-#include "/Users/mz/brew/include/GLFW/glfw3.h"
-#include "/Users/mz/brew/include/GLFW/glfw3native.h"
 #elif __has_include(<GLFW/glfw3.h>)
 #include <GLFW/glfw3.h>
 #include <GLFW/glfw3native.h>
 #else
-#error "GLFW headers not found. install glfw (brew install glfw)."
+#error "GLFW headers not found. Install glfw: brew install glfw (macOS), apt install libglfw3-dev (Linux)."
 #endif
 
-// macOS Cocoa フレームワーク
-#import <QuartzCore/CAMetalLayer.h>
-#import <Cocoa/Cocoa.h>
+#ifdef _WIN32
+#include <windows.h>
+#endif
 
 static WGPUTextureFormat g_configured_surface_format = WGPUTextureFormat_BGRA8Unorm;
 
@@ -204,75 +209,77 @@ static uint64_t g_planned_source_image_stamp = 1;
 void moonbit_clear_planned_bind_group_cache(void);
 
 // GLFW C implementations are now in mizchi/glfw-mbt package.
-// Only the WebGPU Surface bridge (get_metal_layer_from_glfw + moonbit_create_surface_from_glfw) remains here.
+// Only the WebGPU Surface bridge remains here.
 
 // ===============================
-// WebGPU Surface 作成
+// WebGPU Surface 作成 (platform-specific)
 // ===============================
 
-// GLFWwindow から CAMetalLayer を取得/作成
-CAMetalLayer* get_metal_layer_from_glfw(GLFWwindow* window) {
-  NSWindow* nswindow = glfwGetCocoaWindow(window);
-  if (!nswindow) {
-    printf("[ERROR] Failed to get NSWindow from GLFW\n");
-    return NULL;
-  }
+#ifdef __APPLE__
+// macOS: implemented in wgpu_native_stub_macos.m
+extern void* moonbit_create_surface_from_glfw(void* instance, GLFWwindow* window);
 
-  NSView* contentView = [nswindow contentView];
-  if (!contentView) {
-    printf("[ERROR] Failed to get content view\n");
-    return NULL;
-  }
-
-  // CAMetalLayer が既にある場合はそれを返す
-  if ([[contentView layer] isKindOfClass:[CAMetalLayer class]]) {
-    return (CAMetalLayer*)[contentView layer];
-  }
-
-  // CAMetalLayer を新規作成
-  [contentView setWantsLayer:YES];
-  CAMetalLayer* metalLayer = [CAMetalLayer layer];
-  [contentView setLayer:metalLayer];
-
-  printf("[INFO] Created CAMetalLayer for GLFW window\n");
-  return metalLayer;
-}
-
-// GLFW window から wgpu Surface を作成
+#elif defined(__linux__)
+// Linux: X11 backend
 void* moonbit_create_surface_from_glfw(void* instance, GLFWwindow* window) {
-  printf("[C] moonbit_create_surface_from_glfw() called\n");
+  printf("[C] moonbit_create_surface_from_glfw() called (X11)\n");
   printf("[C]   instance=%p, window=%p\n", instance, (void*)window);
 
-  // Metal layer を取得
-  CAMetalLayer* metalLayer = get_metal_layer_from_glfw(window);
-  if (!metalLayer) {
-    printf("[ERROR] Failed to get Metal layer\n");
-    return NULL;
-  }
+  Display* x11_display = glfwGetX11Display();
+  Window x11_window = glfwGetX11Window(window);
 
-  printf("[C]   metalLayer=%p\n", (void*)metalLayer);
-
-  // WGPUSurfaceSourceMetalLayer 構造体を作成
-  WGPUSurfaceSourceMetalLayer metalSurfaceSource = {
+  WGPUSurfaceSourceXlibWindow x11SurfaceSource = {
     .chain = {
       .next = NULL,
-      .sType = WGPUSType_SurfaceSourceMetalLayer
+      .sType = WGPUSType_SurfaceSourceXlibWindow
     },
-    .layer = metalLayer
+    .display = x11_display,
+    .window = (uint64_t)x11_window
   };
 
-  // WGPUSurfaceDescriptor を作成
   WGPUSurfaceDescriptor surfaceDescriptor = {
-    .nextInChain = (WGPUChainedStruct*)&metalSurfaceSource,
-    .label = "GLFW Surface"
+    .nextInChain = (WGPUChainedStruct*)&x11SurfaceSource,
+    .label = "GLFW Surface (X11)"
   };
 
-  // Surface を作成
   WGPUSurface surface = wgpuInstanceCreateSurface((WGPUInstance)instance, &surfaceDescriptor);
   printf("[C] wgpuInstanceCreateSurface() returned: %p\n", (void*)surface);
 
   return surface;
 }
+
+#elif defined(_WIN32)
+// Windows: Win32 backend
+void* moonbit_create_surface_from_glfw(void* instance, GLFWwindow* window) {
+  printf("[C] moonbit_create_surface_from_glfw() called (Win32)\n");
+  printf("[C]   instance=%p, window=%p\n", instance, (void*)window);
+
+  HWND hwnd = glfwGetWin32Window(window);
+  HINSTANCE hinstance = GetModuleHandle(NULL);
+
+  WGPUSurfaceSourceWindowsHWND win32SurfaceSource = {
+    .chain = {
+      .next = NULL,
+      .sType = WGPUSType_SurfaceSourceWindowsHWND
+    },
+    .hinstance = hinstance,
+    .hwnd = hwnd
+  };
+
+  WGPUSurfaceDescriptor surfaceDescriptor = {
+    .nextInChain = (WGPUChainedStruct*)&win32SurfaceSource,
+    .label = "GLFW Surface (Win32)"
+  };
+
+  WGPUSurface surface = wgpuInstanceCreateSurface((WGPUInstance)instance, &surfaceDescriptor);
+  printf("[C] wgpuInstanceCreateSurface() returned: %p\n", (void*)surface);
+
+  return surface;
+}
+
+#else
+#error "Unsupported platform for surface creation"
+#endif
 
 // ===============================
 // Adapter 取得（非同期コールバック対応）

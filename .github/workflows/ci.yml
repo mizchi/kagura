@@ -100,14 +100,29 @@ jobs:
       - uses: actions/checkout@v4
       - name: Checkout terrain path dependency
         run: git clone --depth=1 https://github.com/mizchi/terrain.git ../terrain
+      - name: Install system dependencies
+        run: |
+          sudo apt-get update
+          sudo apt-get install -y libglfw3-dev clang libx11-dev libxrandr-dev libxi-dev libxcursor-dev libxinerama-dev libxxf86vm-dev libasound2-dev
+      - name: Ensure /usr/bin/cc is clang
+        run: sudo ln -sf "$(which clang)" /usr/bin/cc
       - name: Install MoonBit CLI
         run: |
           curl -fsSL https://cli.moonbitlang.com/install/unix.sh | bash
           echo "$HOME/.moon/bin" >> "$GITHUB_PATH"
       - name: Update MoonBit registry
         run: moon update
+      - name: Setup wgpu-native
+        run: |
+          bash scripts/setup-wgpu-native.sh
+          echo "CPATH=/usr/include:${CPATH:-}" >> "$GITHUB_ENV"
+          echo "LIBRARY_PATH=/usr/lib/x86_64-linux-gnu:${LIBRARY_PATH:-}" >> "$GITHUB_ENV"
       - name: Check
         run: moon check --target native
+      - name: Test
+        run: moon test --target native
+      - name: Build Native Triangle
+        run: cd examples/native_triangle && moon build src --target native
 
   native-windows:
     runs-on: windows-latest
@@ -125,10 +140,17 @@ jobs:
           echo "$env:USERPROFILE\.moon\bin" >> $env:GITHUB_PATH
       - name: Install GLFW headers (vcpkg)
         run: vcpkg install glfw3:x64-windows-static
+      - name: Setup wgpu-native
+        shell: bash
+        run: |
+          bash scripts/setup-wgpu-native.sh
+          echo "LIBRARY_PATH=$(pwd)/deps/wgpu-native/lib:${LIBRARY_PATH:-}" >> "$GITHUB_ENV"
       - name: Update MoonBit registry
         run: moon update
       - name: Check
         run: moon check --target native
+      - name: Build Native Triangle
+        run: cd examples/native_triangle && moon build src --target native
 
   native-macos:
     runs-on: macos-latest

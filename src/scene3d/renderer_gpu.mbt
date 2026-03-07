@@ -139,8 +139,9 @@ pub fn render_scene3d_gpu(
   let vp = scene.camera.view_projection_matrix()
   let frustum = Frustum::from_vp(vp)
   let cmds : Array[@gfx.DrawTrianglesCommand] = []
-  for i in 0..<scene.objects.length() {
-    let obj = scene.objects[i]
+  let objects = sort_objects_for_gpu(scene.objects)
+  for i in 0..<objects.length() {
+    let obj = objects[i]
     let model = obj.transform.to_mat4()
     render_object_gpu(
       obj.mesh,
@@ -164,6 +165,30 @@ pub fn render_scene3d_gpu(
     )
   }
   cmds
+}
+
+///|
+fn sort_objects_for_gpu(objects : Array[Object3D]) -> Array[Object3D] {
+  let ordered : Array[(Int, Object3D)] = []
+  for i in 0..<objects.length() {
+    ordered.push((i, objects[i]))
+  }
+  ordered.sort_by(fn(a, b) {
+    let bias_a = a.1.sort_bias
+    let bias_b = b.1.sort_bias
+    if bias_a > bias_b {
+      -1
+    } else if bias_a < bias_b {
+      1
+    } else {
+      a.0 - b.0
+    }
+  })
+  let sorted : Array[Object3D] = []
+  for entry in ordered {
+    sorted.push(entry.1)
+  }
+  sorted
 }
 
 ///|

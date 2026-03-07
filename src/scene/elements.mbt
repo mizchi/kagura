@@ -11,12 +11,12 @@ pub fn rect(
   @ui.h(
     "rect",
     [
-      ("x", @ui.attr_static(x.to_string())),
-      ("y", @ui.attr_static(y.to_string())),
-      ("w", @ui.attr_static(w.to_string())),
-      ("h", @ui.attr_static(h.to_string())),
-      ("fill", @ui.attr_static(fill.to_string())),
-      ("alpha", @ui.attr_static(alpha.to_string())),
+      ("x", @ui.attr_static(SceneDouble(x))),
+      ("y", @ui.attr_static(SceneDouble(y))),
+      ("w", @ui.attr_static(SceneDouble(w))),
+      ("h", @ui.attr_static(SceneDouble(h))),
+      ("fill", @ui.attr_static(SceneInt(fill))),
+      ("alpha", @ui.attr_static(SceneDouble(alpha))),
     ],
     children,
   )
@@ -33,11 +33,11 @@ pub fn label(
   @ui.h(
     "label",
     [
-      ("x", @ui.attr_static(x.to_string())),
-      ("y", @ui.attr_static(y.to_string())),
-      ("content", @ui.attr_static(content)),
-      ("color", @ui.attr_static(color.to_string())),
-      ("scale", @ui.attr_static(scale.to_string())),
+      ("x", @ui.attr_static(SceneDouble(x))),
+      ("y", @ui.attr_static(SceneDouble(y))),
+      ("content", @ui.attr_static(SceneText(content))),
+      ("color", @ui.attr_static(SceneInt(color))),
+      ("scale", @ui.attr_static(SceneDouble(scale))),
     ],
     [],
   )
@@ -52,8 +52,8 @@ pub fn group(
   @ui.h(
     "group",
     [
-      ("x", @ui.attr_static(x.to_string())),
-      ("y", @ui.attr_static(y.to_string())),
+      ("x", @ui.attr_static(SceneDouble(x))),
+      ("y", @ui.attr_static(SceneDouble(y))),
     ],
     children,
   )
@@ -71,12 +71,12 @@ pub fn line(
   @ui.h(
     "line",
     [
-      ("x0", @ui.attr_static(x0.to_string())),
-      ("y0", @ui.attr_static(y0.to_string())),
-      ("x1", @ui.attr_static(x1.to_string())),
-      ("y1", @ui.attr_static(y1.to_string())),
-      ("width", @ui.attr_static(width.to_string())),
-      ("color", @ui.attr_static(color.to_string())),
+      ("x0", @ui.attr_static(SceneDouble(x0))),
+      ("y0", @ui.attr_static(SceneDouble(y0))),
+      ("x1", @ui.attr_static(SceneDouble(x1))),
+      ("y1", @ui.attr_static(SceneDouble(y1))),
+      ("width", @ui.attr_static(SceneDouble(width))),
+      ("color", @ui.attr_static(SceneInt(color))),
     ],
     [],
   )
@@ -94,12 +94,12 @@ pub fn rect_outline(
   @ui.h(
     "rect_outline",
     [
-      ("x", @ui.attr_static(x.to_string())),
-      ("y", @ui.attr_static(y.to_string())),
-      ("w", @ui.attr_static(w.to_string())),
-      ("h", @ui.attr_static(h.to_string())),
-      ("line_width", @ui.attr_static(line_width.to_string())),
-      ("color", @ui.attr_static(color.to_string())),
+      ("x", @ui.attr_static(SceneDouble(x))),
+      ("y", @ui.attr_static(SceneDouble(y))),
+      ("w", @ui.attr_static(SceneDouble(w))),
+      ("h", @ui.attr_static(SceneDouble(h))),
+      ("line_width", @ui.attr_static(SceneDouble(line_width))),
+      ("color", @ui.attr_static(SceneInt(color))),
     ],
     [],
   )
@@ -122,7 +122,7 @@ pub fn fragment(children : Array[SceneNode]) -> SceneNode {
 
 ///|
 pub fn switch_(
-  cases~ : Array[@ui.MatchCase[Unit, String]],
+  cases~ : Array[@ui.MatchCase[Unit, SceneAttrValue]],
   fallback? : (() -> SceneNode)?,
 ) -> SceneNode {
   @ui.switch_(cases~, fallback?)
@@ -132,6 +132,6 @@ pub fn switch_(
 pub fn match_case(
   when~ : () -> Bool,
   render~ : () -> SceneNode,
-) -> @ui.MatchCase[Unit, String] {
+) -> @ui.MatchCase[Unit, SceneAttrValue] {
   @ui.match_case(when~, render~)
 }

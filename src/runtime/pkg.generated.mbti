@@ -21,6 +21,8 @@ pub fn new_input_edge_observer_state(Int) -> InputEdgeObserverState
 
 pub fn new_input_edge_runtime_hooks(InputEdgeObserverState) -> RuntimeHooks
 
+pub fn new_runtime_config(max_skip_frames? : Int, enable_vsync? : Bool, clear_screen_every_frame? : Bool) -> RuntimeConfig
+
 pub fn new_runtime_hooks((Int, @core.InputSnapshot) -> Unit) -> RuntimeHooks
 
 pub fn new_runtime_hooks_full((Int, @core.InputSnapshot) -> Unit, (Int, @core.FrameBudget) -> Unit) -> RuntimeHooks
@@ -29,9 +31,13 @@ pub fn observe_input_edge(InputEdgeObserverState, Int, @core.InputSnapshot) -> I
 
 pub fn plan_frame(@core.StepResult, Int) -> FramePlan
 
+pub fn reset_runtime_clock_provider() -> Unit
+
 pub fn[G : @core.Game, P : @platform.PlatformDriver, R : @gfx.GraphicsDriver] run_loop(G, P, R, @core.RunOptions, RuntimeConfig) -> Unit raise
 
 pub fn[G : @core.Game, P : @platform.PlatformDriver, R : @gfx.GraphicsDriver] run_loop_with_hooks(G, P, R, @core.RunOptions, RuntimeConfig, RuntimeHooks) -> Unit raise
+
+pub fn set_runtime_clock_provider(() -> Double) -> Unit
 
 // Errors
 

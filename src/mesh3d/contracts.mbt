@@ -5,14 +5,25 @@
 pub let vertex3d_stride : Int = 8
 
 ///|
+pub struct MeshBounds3D {
+  min_x : Double
+  min_y : Double
+  min_z : Double
+  max_x : Double
+  max_y : Double
+  max_z : Double
+} derive(Show)
+
+///|
 pub struct Mesh3D {
   vertex_data : Array[Double]
   indices : Array[Int]
+  bounds : MeshBounds3D
 } derive(Show)
 
 ///|
 pub fn Mesh3D::new(vertex_data : Array[Double], indices : Array[Int]) -> Mesh3D {
-  { vertex_data, indices }
+  { vertex_data, indices, bounds: compute_mesh_bounds(vertex_data) }
 }
 
 ///|
@@ -23,6 +34,57 @@ pub fn Mesh3D::vertex_count(self : Mesh3D) -> Int {
 ///|
 pub fn Mesh3D::triangle_count(self : Mesh3D) -> Int {
   self.indices.length() / 3
+}
+
+///|
+pub fn Mesh3D::bounds(self : Mesh3D) -> MeshBounds3D {
+  self.bounds
+}
+
+///|
+fn compute_mesh_bounds(vertex_data : Array[Double]) -> MeshBounds3D {
+  let vertex_count = vertex_data.length() / vertex3d_stride
+  if vertex_count == 0 {
+    return {
+      min_x: 0.0,
+      min_y: 0.0,
+      min_z: 0.0,
+      max_x: 0.0,
+      max_y: 0.0,
+      max_z: 0.0,
+    }
+  }
+  let mut min_x = vertex_data[0]
+  let mut min_y = vertex_data[1]
+  let mut min_z = vertex_data[2]
+  let mut max_x = min_x
+  let mut max_y = min_y
+  let mut max_z = min_z
+  for i in 1..<vertex_count {
+    let base = i * vertex3d_stride
+    let x = vertex_data[base]
+    let y = vertex_data[base + 1]
+    let z = vertex_data[base + 2]
+    if x < min_x {
+      min_x = x
+    }
+    if y < min_y {
+      min_y = y
+    }
+    if z < min_z {
+      min_z = z
+    }
+    if x > max_x {
+      max_x = x
+    }
+    if y > max_y {
+      max_y = y
+    }
+    if z > max_z {
+      max_z = z
+    }
+  }
+  { min_x, min_y, min_z, max_x, max_y, max_z }
 }
 
 ///|
@@ -125,7 +187,7 @@ pub fn Mesh3D::cube(size : Double) -> Mesh3D {
   indices.push(base + 2)
   indices.push(base + 3)
   indices.push(base + 0)
-  { vertex_data: data, indices }
+  Mesh3D::new(data, indices)
 }
 
 ///|
@@ -170,7 +232,7 @@ pub fn Mesh3D::plane(
       indices.push(br)
     }
   }
-  { vertex_data: data, indices }
+  Mesh3D::new(data, indices)
 }
 
 ///|
@@ -207,5 +269,5 @@ pub fn Mesh3D::sphere(radius : Double, segments : Int, rings : Int) -> Mesh3D {
       indices.push(next + 1)
     }
   }
-  { vertex_data: data, indices }
+  Mesh3D::new(data, indices)
 }

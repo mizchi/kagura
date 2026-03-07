@@ -13,6 +13,7 @@ pub struct WindowOptions {
   height : Int
   transparent : Bool
   resizable : Bool
+  focused : Bool
 } derive(Show)
 
 ///|
@@ -108,8 +109,9 @@ pub fn new_window_options(
   height : Int,
   transparent : Bool,
   resizable : Bool,
+  focused? : Bool = true,
 ) -> WindowOptions {
-  { title, width, height, transparent, resizable }
+  { title, width, height, transparent, resizable, focused }
 }
 
 ///|
@@ -213,6 +215,7 @@ pub fn create_desktop_glfw_platform() -> DesktopGlfwPlatform {
       height: 600,
       transparent: false,
       resizable: true,
+      focused: true,
     },
     current_input: @core.empty_input_snapshot(),
     fullscreen: false,
@@ -243,6 +246,7 @@ pub fn create_web_canvas_platform(
       height: 600,
       transparent: true,
       resizable: true,
+      focused: true,
     },
     current_input: @core.empty_input_snapshot(),
     fullscreen: false,

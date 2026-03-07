@@ -55,6 +55,15 @@ pub fn default_runtime_config() -> RuntimeConfig {
 }
 
 ///|
+pub fn new_runtime_config(
+  max_skip_frames? : Int = 5,
+  enable_vsync? : Bool = true,
+  clear_screen_every_frame? : Bool = true,
+) -> RuntimeConfig {
+  { max_skip_frames, enable_vsync, clear_screen_every_frame }
+}
+
+///|
 pub fn plan_frame(fixed : @core.StepResult, max_skip_frames : Int) -> FramePlan {
   let cap = if max_skip_frames <= 0 { 1 } else { max_skip_frames }
   let updates = if fixed.updates > cap { cap } else { fixed.updates }
@@ -71,13 +80,15 @@ pub fn[G : @core.Game, P : @platform.PlatformDriver, R : @gfx.GraphicsDriver] ru
   runtime_config : RuntimeConfig,
   runtime_hooks : RuntimeHooks,
 ) -> Unit raise {
-  let _ = run_options.init_unfocused
-  let _ = run_options.screen_cleared_every_frame
   let fixed_cfg = @core.default_fixed_step_config()
+  let tps = if fixed_cfg.tps <= 0 { 60 } else { fixed_cfg.tps }
+  let tick_ms = 1000.0 / tps.to_double()
   let mut fixed_state = @core.initial_fixed_step_state()
   let mut should_stop = false
   let mut configured_width = 0
   let mut configured_height = 0
+  let start_time_ms = (runtime_clock_provider.val)()
+  let mut previous_time_ms = start_time_ms - tick_ms
 
   let window_options = @platform.new_window_options(
     "kagura",
@@ -85,6 +96,7 @@ pub fn[G : @core.Game, P : @platform.PlatformDriver, R : @gfx.GraphicsDriver] ru
     600,
     run_options.screen_transparent,
     true,
+    focused=not(run_options.init_unfocused),
   )
   platform.initialize(window_options)
   platform.set_vsync_enabled(runtime_config.enable_vsync)
@@ -94,30 +106,25 @@ pub fn[G : @core.Game, P : @platform.PlatformDriver, R : @gfx.GraphicsDriver] ru
     platform.poll_events()
 
     let outside = platform.outside_size()
-    let _ = game.layout(outside)
-    let next_width = if outside.width.to_int() <= 0 {
-      1
-    } else {
-      outside.width.to_int()
-    }
-    let next_height = if outside.height.to_int() <= 0 {
-      1
-    } else {
-      outside.height.to_int()
-    }
+    let logical = game.layout(outside)
+    let next_width = if logical.width <= 0 { 1 } else { logical.width }
+    let next_height = if logical.height <= 0 { 1 } else { logical.height }
     if configured_width != next_width || configured_height != next_height {
       graphics.resize(next_width, next_height)
       configured_width = next_width
       configured_height = next_height
     }
 
-    let step = @core.step_fixed_timestep(fixed_state, 16.6667, fixed_cfg)
-    fixed_state = step.next_state
+    let current_time_ms = (runtime_clock_provider.val)()
+    let elapsed_ms = current_time_ms - previous_time_ms
+    previous_time_ms = current_time_ms
+    let step = @core.step_fixed_timestep(fixed_state, elapsed_ms, fixed_cfg)
     let frame_plan = plan_frame(step, runtime_config.max_skip_frames)
 
+    let mut update_tick = fixed_state.tick
     for _ in 0..<frame_plan.updates {
-      let input = platform.capture_input(fixed_state.tick)
-      (runtime_hooks.on_input_captured)(fixed_state.tick, input)
+      let input = platform.capture_input(update_tick)
+      (runtime_hooks.on_input_captured)(update_tick, input)
       match game.update(input) {
         Some(@core.EngineTermination::RegularTermination) => should_stop = true
         Some(@core.EngineTermination::Fatal(_)) => should_stop = true
@@ -126,15 +133,18 @@ pub fn[G : @core.Game, P : @platform.PlatformDriver, R : @gfx.GraphicsDriver] ru
       let frame_budget = @core.new_frame_budget(
         frame_plan.updates,
         step.alpha,
-        fixed_state.tick,
+        update_tick,
       )
-      (runtime_hooks.on_post_update)(fixed_state.tick, frame_budget)
+      (runtime_hooks.on_post_update)(update_tick, frame_budget)
+      update_tick += 1
     }
+    fixed_state = step.next_state
 
     if frame_plan.should_draw {
       let pass = @gfx.new_render_pass_desc(
         @gfx.new_color(0.0, 0.0, 0.0, 1.0),
-        runtime_config.clear_screen_every_frame,
+        runtime_config.clear_screen_every_frame &&
+        run_options.screen_cleared_every_frame,
       )
       graphics.begin(pass)
       game.draw(

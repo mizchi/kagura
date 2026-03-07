@@ -33,7 +33,9 @@ pub fn[G : @core.Game, P : @platform.PlatformDriver, R : @gfx.GraphicsDriver] ru
   graphics : R,
   options : RunOptions,
 ) -> Unit raise {
-  let runtime_config = @runtime.default_runtime_config()
+  let runtime_config = @runtime.new_runtime_config(
+    clear_screen_every_frame=options.screen_cleared_every_frame,
+  )
   @runtime.run_loop(game, platform, graphics, options, runtime_config)
 }
 

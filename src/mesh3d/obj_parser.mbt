@@ -402,5 +402,5 @@ pub fn Mesh3D::from_obj(source : String) -> Mesh3D {
       }
     }
   }
-  { vertex_data, indices }
+  Mesh3D::new(vertex_data, indices)
 }

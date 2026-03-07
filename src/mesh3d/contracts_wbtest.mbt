@@ -79,3 +79,24 @@ test "Mesh3D sphere positions on surface" {
     assert_true(approx(dist, r))
   }
 }
+
+///|
+test "Mesh3D bounds are cached at construction" {
+  let cube = Mesh3D::cube(2.0)
+  let cube_bounds = cube.bounds()
+  assert_true(approx(cube_bounds.min_x, -1.0))
+  assert_true(approx(cube_bounds.min_y, -1.0))
+  assert_true(approx(cube_bounds.min_z, -1.0))
+  assert_true(approx(cube_bounds.max_x, 1.0))
+  assert_true(approx(cube_bounds.max_y, 1.0))
+  assert_true(approx(cube_bounds.max_z, 1.0))
+
+  let plane = Mesh3D::plane(10.0, 6.0)
+  let plane_bounds = plane.bounds()
+  assert_true(approx(plane_bounds.min_x, -5.0))
+  assert_true(approx(plane_bounds.max_x, 5.0))
+  assert_true(approx(plane_bounds.min_y, 0.0))
+  assert_true(approx(plane_bounds.max_y, 0.0))
+  assert_true(approx(plane_bounds.min_z, -3.0))
+  assert_true(approx(plane_bounds.max_z, 3.0))
+}

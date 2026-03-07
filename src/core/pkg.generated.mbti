@@ -24,6 +24,8 @@ pub fn new_noop_game(Int, Int) -> NoopGame
 
 pub fn new_outside_size(Double, Double) -> OutsideSize
 
+pub fn new_run_options(init_unfocused? : Bool, screen_transparent? : Bool, screen_cleared_every_frame? : Bool) -> RunOptions
+
 pub fn new_touch_point(Int, Double, Double) -> TouchPoint
 
 pub fn new_touch_point_ex(Int, Double, Double, TouchPhase) -> TouchPointEx

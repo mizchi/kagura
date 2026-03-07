@@ -108,7 +108,7 @@ pub fn new_native_graphics_hooks_full((Int, Int) -> Bool, (Bool, RenderPassDesc)
 
 pub fn new_pipeline_handle(Int) -> PipelineHandle
 
-pub fn new_render_pass_desc(Color, Bool) -> RenderPassDesc
+pub fn new_render_pass_desc(Color, Bool, present? : Bool) -> RenderPassDesc
 
 pub fn new_shader_handle(Int, String) -> ShaderHandle
 
@@ -402,6 +402,7 @@ pub impl Show for PreservedUniformContext
 
 pub struct RenderPassDesc {
   clear_color : Color
+  clear_enabled : Bool
   present : Bool
 }
 pub impl Show for RenderPassDesc

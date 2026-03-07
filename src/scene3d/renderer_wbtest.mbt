@@ -791,6 +791,35 @@ test "render_scene3d_gpu skinned object uses prepacked vertex data when provided
   assert_eq(cmds[0].vertex_data[3], 9.0)
 }
 
+///|
+test "render_scene3d_gpu respects sort_bias draw ordering" {
+  let dst = @gfx.new_image_handle(0, 640, 480)
+  let shader3d = @gfx.new_shader_handle(10, "")
+  let cube = @mesh3d.Mesh3D::cube(1.0)
+  let camera = @camera3d.Camera3D::new_perspective(
+    @math3d.Vec3::new(0.0, 5.0, 10.0),
+    @math3d.Vec3::zero(),
+    @math3d.Vec3::new(0.0, 1.0, 0.0),
+    @math.PI / 4.0,
+    640.0 / 480.0,
+    0.1,
+    100.0,
+  )
+  let near_mat = Material::new(src_image_id=1)
+  let far_mat = Material::new(src_image_id=2)
+  let scene = scene3d(
+    objects=[
+      object3d(mesh=cube, material=Some(near_mat), sort_bias=0.0),
+      object3d(mesh=cube, material=Some(far_mat), sort_bias=100.0),
+    ],
+    camera~,
+  )
+  let cmds = render_scene3d_gpu(scene, dst, shader3d, 640, 480)
+  assert_eq(cmds.length(), 2)
+  assert_eq(cmds[0].src_image_ids[0], 2)
+  assert_eq(cmds[1].src_image_ids[0], 1)
+}
+
 // ============================================================
 // Instanced rendering tests
 // ============================================================

@@ -36,6 +36,7 @@ pub struct Color {
 ///|
 pub struct RenderPassDesc {
   clear_color : Color
+  clear_enabled : Bool
   present : Bool
 } derive(Show)
 
@@ -47,9 +48,10 @@ pub fn new_color(r : Double, g : Double, b : Double, a : Double) -> Color {
 ///|
 pub fn new_render_pass_desc(
   clear_color : Color,
-  present : Bool,
+  clear_enabled : Bool,
+  present? : Bool = true,
 ) -> RenderPassDesc {
-  { clear_color, present }
+  { clear_color, clear_enabled, present }
 }
 
 ///|
@@ -773,7 +775,11 @@ pub fn[T : GraphicsDriver, Q : CommandQueue] flush_commands(
   if commands.length() == 0 && !present {
     ()
   } else {
-    driver.begin({ clear_color: { r: 0.0, g: 0.0, b: 0.0, a: 1.0 }, present })
+    driver.begin({
+      clear_color: { r: 0.0, g: 0.0, b: 0.0, a: 1.0 },
+      clear_enabled: true,
+      present,
+    })
     for command in commands {
       driver.draw_triangles(command)
     }
@@ -786,6 +792,6 @@ pub fn[T : GraphicsDriver] clear_screen(
   driver : T,
   color : Color,
 ) -> Unit raise {
-  driver.begin({ clear_color: color, present: false })
+  driver.begin({ clear_color: color, clear_enabled: true, present: false })
   driver.end(false)
 }

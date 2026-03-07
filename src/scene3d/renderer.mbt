@@ -107,42 +107,15 @@ fn frustum_cull_aabb(
 fn compute_mesh_aabb(
   mesh : @mesh3d.Mesh3D,
 ) -> (Double, Double, Double, Double, Double, Double) {
-  let vdata = mesh.vertex_data
-  let stride = 8
-  let vert_count = vdata.length() / stride
-  if vert_count == 0 {
-    return (0.0, 0.0, 0.0, 0.0, 0.0, 0.0)
-  }
-  let mut min_x = vdata[0]
-  let mut min_y = vdata[1]
-  let mut min_z = vdata[2]
-  let mut max_x = min_x
-  let mut max_y = min_y
-  let mut max_z = min_z
-  for i in 1..<vert_count {
-    let x = vdata[i * stride]
-    let y = vdata[i * stride + 1]
-    let z = vdata[i * stride + 2]
-    if x < min_x {
-      min_x = x
-    }
-    if y < min_y {
-      min_y = y
-    }
-    if z < min_z {
-      min_z = z
-    }
-    if x > max_x {
-      max_x = x
-    }
-    if y > max_y {
-      max_y = y
-    }
-    if z > max_z {
-      max_z = z
-    }
-  }
-  (min_x, min_y, min_z, max_x, max_y, max_z)
+  let bounds = mesh.bounds()
+  (
+    bounds.min_x,
+    bounds.min_y,
+    bounds.min_z,
+    bounds.max_x,
+    bounds.max_y,
+    bounds.max_z,
+  )
 }
 
 ///|

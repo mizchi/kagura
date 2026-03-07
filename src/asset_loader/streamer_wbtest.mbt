@@ -33,6 +33,34 @@ test "AssetStreamer: duplicate request returns same id" {
 }
 
 ///|
+test "AssetStreamer: duplicate request fans out completion callbacks" {
+  let fetcher = new_mock_fetcher()
+  let streamer = new_asset_streamer(fetcher, config=default_streamer_config())
+  let key = @asset.new_asset_key("dup-fanout")
+  let completions : Array[String] = []
+  ignore(
+    streamer.request("fanout.png", key, Normal, fn(data) {
+      match data {
+        Some(_) => completions.push("first")
+        None => ()
+      }
+    }),
+  )
+  ignore(
+    streamer.request("fanout.png", key, Normal, fn(data) {
+      match data {
+        Some(_) => completions.push("second")
+        None => ()
+      }
+    }),
+  )
+  streamer.update()
+  complete_mock(fetcher, 0, Some(b"fanout"))
+  streamer.update()
+  assert_eq(completions, ["first", "second"])
+}
+
+///|
 test "AssetStreamer: distance-based priority" {
   let fetcher = new_mock_fetcher()
   let streamer = new_asset_streamer(fetcher, config={

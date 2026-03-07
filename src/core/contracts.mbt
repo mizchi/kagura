@@ -294,11 +294,16 @@ pub impl Game for NoopGame with draw(_self, _frame) {
 
 ///|
 pub fn default_run_options() -> RunOptions {
-  {
-    init_unfocused: false,
-    screen_transparent: false,
-    screen_cleared_every_frame: true,
-  }
+  new_run_options()
+}
+
+///|
+pub fn new_run_options(
+  init_unfocused? : Bool = false,
+  screen_transparent? : Bool = false,
+  screen_cleared_every_frame? : Bool = true,
+) -> RunOptions {
+  { init_unfocused, screen_transparent, screen_cleared_every_frame }
 }
 
 ///|

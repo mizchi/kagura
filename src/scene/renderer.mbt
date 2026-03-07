@@ -103,7 +103,7 @@ fn render_node(
 ///|
 fn render_element(
   cmds : Array[@gfx.DrawTrianglesCommand],
-  el : @ui.VElement[Unit, String],
+  el : @ui.VElement[Unit, SceneAttrValue],
   dst : @gfx.ImageHandle,
   shader : @gfx.ShaderHandle,
   screen_w : Double,
@@ -135,7 +135,7 @@ fn render_element(
 ///|
 fn render_rect(
   cmds : Array[@gfx.DrawTrianglesCommand],
-  el : @ui.VElement[Unit, String],
+  el : @ui.VElement[Unit, SceneAttrValue],
   dst : @gfx.ImageHandle,
   shader : @gfx.ShaderHandle,
   screen_w : Double,
@@ -163,7 +163,7 @@ fn render_rect(
 ///|
 fn render_label(
   cmds : Array[@gfx.DrawTrianglesCommand],
-  el : @ui.VElement[Unit, String],
+  el : @ui.VElement[Unit, SceneAttrValue],
   dst : @gfx.ImageHandle,
   shader : @gfx.ShaderHandle,
   screen_w : Double,
@@ -186,7 +186,7 @@ fn render_label(
 ///|
 fn render_group(
   cmds : Array[@gfx.DrawTrianglesCommand],
-  el : @ui.VElement[Unit, String],
+  el : @ui.VElement[Unit, SceneAttrValue],
   dst : @gfx.ImageHandle,
   shader : @gfx.ShaderHandle,
   screen_w : Double,
@@ -226,7 +226,7 @@ fn pixel_to_ndc_vertices(
 ///|
 fn render_line(
   cmds : Array[@gfx.DrawTrianglesCommand],
-  el : @ui.VElement[Unit, String],
+  el : @ui.VElement[Unit, SceneAttrValue],
   dst : @gfx.ImageHandle,
   shader : @gfx.ShaderHandle,
   screen_w : Double,
@@ -272,7 +272,7 @@ fn render_line(
 ///|
 fn render_rect_outline(
   cmds : Array[@gfx.DrawTrianglesCommand],
-  el : @ui.VElement[Unit, String],
+  el : @ui.VElement[Unit, SceneAttrValue],
   dst : @gfx.ImageHandle,
   shader : @gfx.ShaderHandle,
   screen_w : Double,
@@ -318,125 +318,58 @@ fn render_rect_outline(
 }
 
 ///|
-fn get_attr_string(
-  attrs : Array[(String, @ui.Attr[Unit, String])],
+fn get_attr_value(
+  attrs : Array[(String, @ui.Attr[Unit, SceneAttrValue])],
   key : String,
-  default_ : String,
-) -> String {
+) -> SceneAttrValue? {
   for pair in attrs {
     let (k, v) = pair
     if k == key {
       match v {
-        VStatic(s) => return s
-        VDynamic(f) => return f()
+        VStatic(value) => return Some(value)
+        VDynamic(f) => return Some(f())
         VHandler(_) => continue
       }
     }
   }
-  default_
+  None
+}
+
+///|
+fn get_attr_string(
+  attrs : Array[(String, @ui.Attr[Unit, SceneAttrValue])],
+  key : String,
+  default_ : String,
+) -> String {
+  match get_attr_value(attrs, key) {
+    Some(SceneText(value)) => value
+    _ => default_
+  }
 }
 
 ///|
 fn get_attr_double(
-  attrs : Array[(String, @ui.Attr[Unit, String])],
+  attrs : Array[(String, @ui.Attr[Unit, SceneAttrValue])],
   key : String,
   default_ : Double,
 ) -> Double {
-  let s = get_attr_string(attrs, key, "")
-  if s == "" {
-    return default_
+  match get_attr_value(attrs, key) {
+    Some(SceneDouble(value)) => value
+    Some(SceneInt(value)) => value.to_double()
+    _ => default_
   }
-  parse_double(s, default_)
 }
 
 ///|
 fn get_attr_int(
-  attrs : Array[(String, @ui.Attr[Unit, String])],
+  attrs : Array[(String, @ui.Attr[Unit, SceneAttrValue])],
   key : String,
   default_ : Int,
 ) -> Int {
-  let s = get_attr_string(attrs, key, "")
-  if s == "" {
-    return default_
-  }
-  parse_int(s, default_)
-}
-
-///|
-fn parse_double(s : String, default_ : Double) -> Double {
-  let mut result = 0.0
-  let mut frac = 0.0
-  let mut frac_div = 1.0
-  let mut in_frac = false
-  let mut negative = false
-  let mut started = false
-  for ch in s {
-    if ch == '-' && !started {
-      negative = true
-      started = true
-      continue
-    }
-    if ch == '.' {
-      in_frac = true
-      started = true
-      continue
-    }
-    let digit = ch.to_int() - 48
-    if digit >= 0 && digit <= 9 {
-      started = true
-      if in_frac {
-        frac_div = frac_div * 10.0
-        frac = frac + digit.to_double() / frac_div
-      } else {
-        result = result * 10.0 + digit.to_double()
-      }
-    } else {
-      if started {
-        break
-      }
-      return default_
-    }
-  }
-  if !started {
-    return default_
-  }
-  let v = result + frac
-  if negative {
-    -v
-  } else {
-    v
-  }
-}
-
-///|
-fn parse_int(s : String, default_ : Int) -> Int {
-  let mut result = 0
-  let mut negative = false
-  let mut started = false
-  for ch in s {
-    if ch == '-' && !started {
-      negative = true
-      started = true
-      continue
-    }
-    let digit = ch.to_int() - 48
-    if digit >= 0 && digit <= 9 {
-      started = true
-      result = result * 10 + digit
-    } else {
-      if started {
-        break
-      }
-      return default_
-    }
-  }
-  if !started {
-    return default_
-  }
-  if negative {
-    -result
-  } else {
-    result
+  match get_attr_value(attrs, key) {
+    Some(SceneInt(value)) => value
+    Some(SceneDouble(value)) => value.to_int()
+    _ => default_
   }
 }
 

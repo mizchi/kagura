@@ -44,6 +44,14 @@ struct AssetEntry {
   mut last_touched : Int
   mut lod_level : Int
   mut stream_id : Int
+  mut callbacks : Array[(Bytes?) -> Unit]
+  mut completion : AssetCompletion
+}
+
+///|
+priv enum AssetCompletion {
+  Pending
+  Completed(Bytes?)
 }
 
 ///|
@@ -81,20 +89,38 @@ pub fn AssetStreamer::request(
   priority : AssetPriority,
   on_complete : (Bytes?) -> Unit,
 ) -> Int {
-  // Duplicate check
   match self.handles.get(key.value) {
     Some(entry) => {
       entry.last_touched = self.frame_count
+      match entry.completion {
+        Pending => entry.callbacks.push(on_complete)
+        Completed(data) => on_complete(data)
+      }
       return entry.stream_id
     }
     None => ()
   }
-  let id = self.manager.enqueue(url, priority, on_complete)
+  let callbacks : Array[(Bytes?) -> Unit] = [on_complete]
+  let id = self.manager.enqueue(url, priority, fn(data) {
+    match self.handles.get(key.value) {
+      Some(entry) => {
+        entry.completion = Completed(data)
+        let pending = entry.callbacks
+        entry.callbacks = []
+        for callback in pending {
+          callback(data)
+        }
+      }
+      None => ()
+    }
+  })
   self.handles.set(key.value, {
     key,
     last_touched: self.frame_count,
     lod_level: 0,
     stream_id: id,
+    callbacks,
+    completion: Pending,
   })
   id
 }
@@ -125,23 +151,55 @@ pub fn AssetStreamer::request_lod(
     Some(entry) => {
       entry.last_touched = self.frame_count
       if entry.lod_level >= lod_level {
-        // Already have same or better LOD
+        match entry.completion {
+          Pending => entry.callbacks.push(on_complete)
+          Completed(data) => on_complete(data)
+        }
         return entry.stream_id
       }
-      // Upgrade LOD: cancel old, request new
       self.manager.cancel(entry.stream_id)
-      let id = self.manager.enqueue(url, priority, on_complete)
-      entry.stream_id = id // Note: cannot reassign struct field on immutable
+      let callbacks : Array[(Bytes?) -> Unit] = [on_complete]
+      let id = self.manager.enqueue(url, priority, fn(data) {
+        match self.handles.get(key.value) {
+          Some(active_entry) => {
+            active_entry.completion = Completed(data)
+            let pending = active_entry.callbacks
+            active_entry.callbacks = []
+            for callback in pending {
+              callback(data)
+            }
+          }
+          None => ()
+        }
+      })
+      entry.stream_id = id
       entry.lod_level = lod_level
+      entry.callbacks = callbacks
+      entry.completion = Pending
       id
     }
     None => {
-      let id = self.manager.enqueue(url, priority, on_complete)
+      let callbacks : Array[(Bytes?) -> Unit] = [on_complete]
+      let id = self.manager.enqueue(url, priority, fn(data) {
+        match self.handles.get(key.value) {
+          Some(entry) => {
+            entry.completion = Completed(data)
+            let pending = entry.callbacks
+            entry.callbacks = []
+            for callback in pending {
+              callback(data)
+            }
+          }
+          None => ()
+        }
+      })
       self.handles.set(key.value, {
         key,
         last_touched: self.frame_count,
         lod_level,
         stream_id: id,
+        callbacks,
+        completion: Pending,
       })
       id
     }

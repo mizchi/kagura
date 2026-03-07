@@ -32,7 +32,7 @@ pub fn new_desktop_native_hooks((WindowOptions) -> Bool, (Bool) -> Unit, () -> B
 
 pub fn new_web_canvas_hooks((String, WindowOptions) -> Bool, (Bool) -> Unit, () -> Bool, (Int, Int) -> @core.OutsideSize, (String, WindowOptions) -> SurfaceToken, (Bool, Int) -> @core.InputSnapshot, (String, Bool, Bool) -> Bool, (String, Bool, Bool) -> Bool, (String, Bool, CursorMode) -> CursorMode, (String, Bool, CursorMode) -> CursorMode, (String, Bool, Double) -> Double, (String, Bool, Double) -> Double, (String, Bool, Bool) -> Bool, (String, Bool, Bool) -> Bool, (String, Bool) -> Unit, (String, Bool) -> Unit, (String, Bool, Bool) -> Unit, (String, Bool) -> Bool, (String, Bool, Int) -> Int, (String, Bool, Int) -> Int) -> WebCanvasHooks
 
-pub fn new_window_options(String, Int, Int, Bool, Bool) -> WindowOptions
+pub fn new_window_options(String, Int, Int, Bool, Bool, focused? : Bool) -> WindowOptions
 
 pub fn reset_desktop_native_hooks() -> Unit
 
@@ -182,6 +182,7 @@ pub struct WindowOptions {
   height : Int
   transparent : Bool
   resizable : Bool
+  focused : Bool
 }
 pub impl Show for WindowOptions
 

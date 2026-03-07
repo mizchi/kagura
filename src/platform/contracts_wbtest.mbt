@@ -6,6 +6,7 @@ fn default_window_options_for_test() -> WindowOptions {
     height: 240,
     transparent: false,
     resizable: true,
+    focused: true,
   }
 }
 

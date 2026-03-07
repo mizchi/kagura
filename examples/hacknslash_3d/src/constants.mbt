@@ -68,3 +68,21 @@ let dash_speed_mult : Double = 4.0
 
 // Shift key code
 let key_shift : Int = 16
+
+// UI mode constants
+let ui_mode_none : Int = 0
+
+let ui_mode_inventory : Int = 1
+
+let ui_mode_skills : Int = 2
+
+// Key codes for UI
+let key_i : Int = 73 // 'I' for inventory
+
+let key_k : Int = 75 // 'K' for skill tree
+
+let key_e : Int = 69 // 'E' for equip
+
+let key_escape : Int = 27
+
+let key_f3 : Int = 114 // F3 for profiler toggle

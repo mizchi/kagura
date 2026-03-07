@@ -27,6 +27,8 @@ import {
   "mizchi/kagura/image_palette" @image_palette,
   "mizchi/kagura/debugutil" @debugutil,
   "mizchi/kagura/hud" @hud,
+  "mizchi/kagura/sprite_packer" @sprite_packer,
+  "mizchi/kagura/ui" @ui,
 }
 
 warnings = "-1-2-7-20-29-71"
@@ -43,5 +45,7 @@ options(
     "snapshot_native.mbt": ["native"],
     "main_js.mbt": ["js"],
     "main_native.mbt": ["native"],
+    "save_load.mbt": ["js"],
+    "save_load_native.mbt": ["native"],
   },
 )

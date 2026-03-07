@@ -94,11 +94,11 @@ fn build_dungeon_graph(dungeon : DungeonData, meshes : Meshes3D) -> @scene3d.Sce
 }
 
 // Build dynamic entity scene graph (per frame, items/projectiles only)
-fn build_entity_graph(state : GameState) -> @scene3d.SceneGraph {
+fn build_entity_graph(state : GameState, region : VisibleRegion) -> @scene3d.SceneGraph {
   let graph = @scene3d.SceneGraph::new()
   // Items with Y-axis bob
   for item in state.items {
-    if item.alive {
+    if item.alive && is_entity_visible(region, item.x, item.y) {
       let ix = item.x / tile_size
       let iz = item.y / tile_size
       let bob = 0.3 + 0.1 * @math.sin(state.frame_count.to_double() * 0.1)
@@ -114,7 +114,7 @@ fn build_entity_graph(state : GameState) -> @scene3d.SceneGraph {
   }
   // Projectiles
   for proj in state.projectiles {
-    if proj.alive {
+    if proj.alive && is_entity_visible(region, proj.x, proj.y) {
       let prx = proj.x / tile_size
       let prz = proj.y / tile_size
       graph.add_node(
@@ -133,12 +133,31 @@ fn GameState::draw(
   self : GameState,
   ctx : @engine.EngineContext,
 ) -> Array[@gfx.DrawTrianglesCommand] {
-  let sw = ctx.screen_w.to_double()
-  let sh = ctx.screen_h.to_double()
   let result = match self.mode {
     m if m == mode_title => self.render_title_cmds(ctx.dst, ctx.shader)
     m if m == mode_gameover => self.render_gameover_cmds(ctx.dst, ctx.shader)
     _ => self.draw_playing(ctx)
+  }
+  // Profiler HUD (after all other rendering)
+  if self.show_profiler {
+    // Count stats from commands
+    let mut vtx_count = 0
+    for cmd in result {
+      vtx_count = vtx_count + cmd.indices.length()
+    }
+    self.profile = {
+      fps: self.profile.fps,
+      frame_time_ms: self.profile.frame_time_ms,
+      update_ms: self.profile.update_ms,
+      draw_ms: self.profile.draw_ms,
+      draw_calls: result.length(),
+      vertex_count: vtx_count,
+      asset_inflight: 0,
+    }
+    @debugutil.build_profiler_hud(
+      result, ctx.dst, ctx.shader, self.profile,
+      ctx.screen_w.to_double(), ctx.screen_h.to_double(),
+    )
   }
   self.flush_text_atlas()
   result
@@ -238,8 +257,13 @@ fn GameState::draw_playing(
     )
     cmds.push(cmd)
   }
+  // Compute visible region for occlusion culling
+  let vis_region = compute_visible_region(
+    self.dungeon.rooms, self.player.x, self.player.y,
+    self.dungeon.grid.width, self.dungeon.grid.height,
+  )
   // === Pass 3: Entities (items/projectiles) → scene_target ===
-  let entity_graph = build_entity_graph(self)
+  let entity_graph = build_entity_graph(self, vis_region)
   let entity_cmds = @scene3d.render_scene3d_graph_gpu(
     entity_graph,
     camera,
@@ -256,7 +280,7 @@ fn GameState::draw_playing(
   let enemy_skinning = self.enemy_models.compute_skinning()
   let skinned_objects : Array[@scene3d.Object3D] = []
   for enemy in self.enemies {
-    if enemy.alive {
+    if enemy.alive && is_entity_visible(vis_region, enemy.x, enemy.y) {
       let ex = enemy.x / tile_size
       let ez = enemy.y / tile_size
       let color = if enemy.damage_timer > 0 {
@@ -387,9 +411,22 @@ fn GameState::draw_playing(
   for cmd in bloom_cmds {
     cmds.push(cmd)
   }
-  // Tonemap: post_target → scene_target (reuse as intermediate)
+  // SSAO: post_target + shadow_map(depth) → ssao_target
+  let ssao_cmd = @postfx.new_ssao_command(
+    self.ssao_target,
+    self.ssao_sh,
+    self.post_target.id,
+    self.shadow_map.id,
+    8.0,  // radius
+    0.02, // bias
+    0.6,  // intensity
+    screen_w,
+    screen_h,
+  )
+  cmds.push(ssao_cmd)
+  // Tonemap: ssao_target → scene_target (reuse as intermediate)
   let tonemap_cmd = @postfx.new_tonemap_command(
-    self.scene_target, self.tonemap_sh, self.post_target.id, 1.0,
+    self.scene_target, self.tonemap_sh, self.ssao_target.id, 1.0,
   )
   cmds.push(tonemap_cmd)
   // FXAA: scene_target → ctx.dst
@@ -401,6 +438,13 @@ fn GameState::draw_playing(
   let hud_cmds = self.render_hud_cmds(ctx.dst, ctx.shader)
   for cmd in hud_cmds {
     cmds.push(cmd)
+  }
+  // RPG UI overlay (inventory/skill tree)
+  if self.ui_mode != ui_mode_none {
+    let ui_cmds = self.render_rpg_ui_cmds(ctx.dst, ctx.shader)
+    for cmd in ui_cmds {
+      cmds.push(cmd)
+    }
   }
   cmds
 }

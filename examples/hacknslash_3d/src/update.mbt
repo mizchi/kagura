@@ -55,6 +55,9 @@ fn GameState::new(seed~ : Int) -> GameState {
     ), // center (player pos)
     0.005, // bias
   )
+  let equipment = Equipment::new()
+  let skills = SkillTree::new()
+  let player_stats = compute_player_stats(equipment, skills)
   {
     mode: mode_title,
     frame_count: 0,
@@ -70,6 +73,15 @@ fn GameState::new(seed~ : Int) -> GameState {
     attack_timer: 0,
     screen_flash: 0,
     floor_announce_timer: 0,
+    // RPG systems
+    inventory: Inventory::new(20),
+    equipment,
+    skills,
+    player_stats,
+    ui_mode: ui_mode_none,
+    ui_cursor: 0,
+    show_profiler: false,
+    profile: @debugutil.default_frame_profile(),
     camera,
     lighting,
     shader3d: @gfx.new_shader_handle(100, @draw3d.shader3d_lit_untextured_wgsl()),
@@ -111,6 +123,9 @@ fn GameState::new(seed~ : Int) -> GameState {
     tonemap_sh: @gfx.new_shader_handle(
       305, @postfx.tonemap_wgsl(@postfx.ACES),
     ),
+    // SSAO
+    ssao_sh: @gfx.new_shader_handle(306, @postfx.ssao_wgsl()),
+    ssao_target: @gfx.new_image_handle(304, screen_w, screen_h),
     // Particles
     particle_manager: @particle3d.ParticleManager::new(400),
     // Text
@@ -149,6 +164,10 @@ fn GameState::reset_floor(self : GameState) -> Unit {
 fn GameState::update(self : GameState, input : @core.InputSnapshot) -> Unit {
   self.frame_count = self.frame_count + 1
   @inpututil.update_input_helper(self.input, input)
+  // Profiler toggle (works in any mode)
+  if @inpututil.is_key_just_pressed(self.input.key_state, key_f3) {
+    self.show_profiler = not(self.show_profiler)
+  }
   match self.mode {
     m if m == mode_title => self.update_title()
     m if m == mode_playing => self.update_playing()
@@ -159,6 +178,10 @@ fn GameState::update(self : GameState, input : @core.InputSnapshot) -> Unit {
 
 fn GameState::update_title(self : GameState) -> Unit {
   if @inpututil.is_confirm_just_pressed(self.input) {
+    // Try loading save first
+    if not(self.load_game()) {
+      // No save — fresh start
+    }
     self.mode = mode_playing
   }
 }
@@ -188,6 +211,20 @@ fn GameState::update_gameover(self : GameState) -> Unit {
     self.floor_announce_timer = 0
     self.player.dash_timer = 0
     self.player.dash_cooldown_timer = 0
+    // Reset RPG state
+    self.ui_mode = ui_mode_none
+    self.ui_cursor = 0
+    for i in 0..<self.inventory.capacity {
+      self.inventory.items[i] = None
+    }
+    self.equipment.weapon = None
+    self.equipment.armor = None
+    self.equipment.accessory = None
+    for node in self.skills.nodes {
+      node.level = 0
+    }
+    self.skills.skill_points = 0
+    self.player_stats = compute_player_stats(self.equipment, self.skills)
     self.camera = self.camera.with_target(
       @math3d.Vec3::new(self.player.x / tile_size, 0.0, self.player.y / tile_size),
     )
@@ -201,6 +238,26 @@ fn GameState::update_gameover(self : GameState) -> Unit {
 }
 
 fn GameState::update_playing(self : GameState) -> Unit {
+  // UI toggle
+  if @inpututil.is_key_just_pressed(self.input.key_state, key_i) {
+    self.ui_mode = if self.ui_mode == ui_mode_inventory { ui_mode_none } else { ui_mode_inventory }
+    self.ui_cursor = 0
+    return
+  }
+  if @inpututil.is_key_just_pressed(self.input.key_state, key_k) {
+    self.ui_mode = if self.ui_mode == ui_mode_skills { ui_mode_none } else { ui_mode_skills }
+    self.ui_cursor = 0
+    return
+  }
+  if @inpututil.is_key_just_pressed(self.input.key_state, key_escape) && self.ui_mode != ui_mode_none {
+    self.ui_mode = ui_mode_none
+    return
+  }
+  // UI interaction mode
+  if self.ui_mode != ui_mode_none {
+    self.update_ui()
+    return
+  }
   // Floor announce timer
   if self.floor_announce_timer > 0 {
     self.floor_announce_timer = self.floor_announce_timer - 1
@@ -467,6 +524,7 @@ fn GameState::update_playing(self : GameState) -> Unit {
   }
   if all_dead {
     self.reset_floor()
+    self.save_game()
   }
   // Update particles
   self.particle_manager.update(1.0 / 60.0)

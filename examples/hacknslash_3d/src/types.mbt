@@ -80,6 +80,16 @@ struct GameState {
   mut attack_timer : Int
   mut screen_flash : Int
   mut floor_announce_timer : Int
+  // RPG systems
+  inventory : Inventory
+  equipment : Equipment
+  skills : SkillTree
+  mut player_stats : PlayerStats
+  mut ui_mode : Int // 0=none, 1=inventory, 2=skill tree
+  mut ui_cursor : Int // selected slot index in UI
+  // Profiler
+  mut show_profiler : Bool
+  mut profile : @debugutil.FrameProfile
   // 3D-specific
   mut camera : @camera3d.OrbitCamera
   lighting : @light3d.LightingEnvironment
@@ -107,6 +117,9 @@ struct GameState {
   bloom_composite_sh : @gfx.ShaderHandle
   fxaa_sh : @gfx.ShaderHandle
   tonemap_sh : @gfx.ShaderHandle
+  // SSAO
+  ssao_sh : @gfx.ShaderHandle
+  ssao_target : @gfx.ImageHandle
   // Particles
   particle_manager : @particle3d.ParticleManager
   // Text

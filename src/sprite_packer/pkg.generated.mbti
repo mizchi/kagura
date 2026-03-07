@@ -1,0 +1,63 @@
+// Generated using `moon info`, DON'T EDIT IT
+package "mizchi/kagura/sprite_packer"
+
+import {
+  "mizchi/kagura/asset",
+  "mizchi/kagura/tilemap2d",
+}
+
+// Values
+pub fn compose_packed_image(Array[SpriteInput], PackResult) -> @asset.ImageSpec
+
+pub fn create_packed_atlas_repository(Array[SpriteInput], PackResult, atlas_id? : Int) -> @asset.SimpleAtlasImageRepository
+
+pub fn pack_result_to_tile_atlas_table(PackResult) -> @tilemap2d.TileAtlasTable
+
+pub fn pack_sprites(Array[SpriteInput], config? : PackerConfig) -> PackResult?
+
+pub fn packed_sprite_to_atlas_region(PackedSprite, Int) -> @asset.AtlasRegion
+
+// Errors
+
+// Types and methods
+type AllocResult
+pub impl Show for AllocResult
+
+pub(all) struct PackResult {
+  width : Int
+  height : Int
+  sprites : Array[PackedSprite]
+}
+pub impl Show for PackResult
+
+pub(all) struct PackedSprite {
+  key : String
+  x : Int
+  y : Int
+  width : Int
+  height : Int
+}
+pub impl Show for PackedSprite
+
+pub(all) struct PackerConfig {
+  max_width : Int
+  max_height : Int
+  padding : Int
+  power_of_two : Bool
+}
+pub fn PackerConfig::default() -> Self
+pub impl Show for PackerConfig
+
+type Rect
+pub impl Eq for Rect
+pub impl Show for Rect
+
+pub(all) struct SpriteInput {
+  key : String
+  spec : @asset.ImageSpec
+}
+
+// Type aliases
+
+// Traits
+

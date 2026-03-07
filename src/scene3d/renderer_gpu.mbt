@@ -124,7 +124,7 @@ fn traverse_node_gpu(
 ///|
 /// Render a flat Scene3D (Object3D array) using GPU Z-buffer depth testing.
 /// Each visible mesh becomes a single draw command with lit shader uniforms.
-/// This is the GPU counterpart of render_scene3d (CPU painter's algorithm).
+/// No CPU-side depth sorting is needed — the GPU handles it via Z-buffer.
 pub fn render_scene3d_gpu(
   scene : Scene3D,
   dst : @gfx.ImageHandle,

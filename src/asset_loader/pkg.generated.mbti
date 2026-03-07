@@ -9,11 +9,70 @@ import {
 // Values
 pub fn async_image_status_to_int(AsyncImageStatus) -> Int
 
+pub fn default_distance_thresholds() -> DistanceThresholds
+
+pub fn default_streamer_config() -> AssetStreamerConfig
+
+pub fn make_stream_fetch_image_fn(AssetStreamManager, priority? : AssetPriority) -> (String, (@asset.ImageSpec?) -> Unit) -> Unit
+
+pub fn new_asset_stream_manager(&@asset.BytesFetcher, max_concurrent? : Int) -> AssetStreamManager
+
+pub fn new_asset_streamer(&@asset.BytesFetcher, config? : AssetStreamerConfig, on_evict? : (@asset.AssetKey) -> Unit) -> AssetStreamer
+
 pub fn new_async_image_loader(fetch_image_fn? : (String, (@asset.ImageSpec?) -> Unit) -> Unit) -> AsyncImageLoader
 
 // Errors
 
 // Types and methods
+type AssetEntry
+
+pub enum AssetPriority {
+  Critical
+  High
+  Normal
+  Low
+}
+pub impl Eq for AssetPriority
+pub impl Show for AssetPriority
+
+pub struct AssetStreamManager {
+  fetcher : &@asset.BytesFetcher
+  max_concurrent : Int
+  mut next_id : Int
+  pending : Array[StreamRequest]
+  active : Map[Int, StreamRequest]
+  mut completed_count : Int
+  mut failed_count : Int
+}
+pub fn AssetStreamManager::cancel(Self, Int) -> Unit
+pub fn AssetStreamManager::enqueue(Self, String, AssetPriority, (Bytes?) -> Unit) -> Int
+pub fn AssetStreamManager::progress(Self) -> StreamProgress
+pub fn AssetStreamManager::reprioritize(Self, Int, AssetPriority) -> Bool
+pub fn AssetStreamManager::update(Self) -> Unit
+
+pub struct AssetStreamer {
+  manager : AssetStreamManager
+  config : AssetStreamerConfig
+  mut frame_count : Int
+  handles : Map[String, AssetEntry]
+  on_evict : (@asset.AssetKey) -> Unit
+}
+pub fn AssetStreamer::evict(Self, @asset.AssetKey) -> Unit
+pub fn AssetStreamer::get_manager(Self) -> AssetStreamManager
+pub fn AssetStreamer::progress(Self) -> StreamProgress
+pub fn AssetStreamer::request(Self, String, @asset.AssetKey, AssetPriority, (Bytes?) -> Unit) -> Int
+pub fn AssetStreamer::request_by_distance(Self, String, @asset.AssetKey, Double, thresholds? : DistanceThresholds, on_complete~ : (Bytes?) -> Unit) -> Int
+pub fn AssetStreamer::request_lod(Self, String, @asset.AssetKey, Int, AssetPriority, (Bytes?) -> Unit) -> Int
+pub fn AssetStreamer::touch(Self, @asset.AssetKey) -> Unit
+pub fn AssetStreamer::update(Self) -> Unit
+
+pub(all) struct AssetStreamerConfig {
+  max_concurrent : Int
+  max_cached : Int
+  eviction_interval : Int
+}
+pub impl Show for AssetStreamerConfig
+
 pub struct AsyncImageLoader {
   mut next_id : Int
   requests : Map[Int, AsyncImageRequest]
@@ -53,6 +112,24 @@ pub enum AsyncImageStatus {
   Failed
 }
 pub impl Show for AsyncImageStatus
+
+pub(all) struct DistanceThresholds {
+  critical : Double
+  high : Double
+  normal : Double
+}
+pub impl Show for DistanceThresholds
+
+pub(all) struct StreamProgress {
+  total : Int
+  pending : Int
+  active : Int
+  completed : Int
+  failed : Int
+}
+pub impl Show for StreamProgress
+
+type StreamRequest
 
 // Type aliases
 

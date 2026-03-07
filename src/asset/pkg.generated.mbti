@@ -102,6 +102,10 @@ pub fn multi_page_update_image_spec(MultiPageAtlasRepository, AssetKey, ImageSpe
 
 pub fn new_asset_key(String) -> AssetKey
 
+pub fn new_atlas_region(Int, Int, Int, Int, Int) -> AtlasRegion
+
+pub fn new_js_fetcher() -> JsFetcher
+
 pub fn new_multi_page_atlas_repository(Int, Int) -> MultiPageAtlasRepository
 
 pub fn new_simple_atlas_allocator(Int, Int, Int) -> SimpleAtlasAllocator
@@ -131,6 +135,8 @@ pub fn raster_resize_bicubic() -> RasterResizeMethod
 pub fn raster_resize_bilinear() -> RasterResizeMethod
 
 pub fn raster_resize_nearest() -> RasterResizeMethod
+
+pub fn register_precomputed_image(SimpleAtlasImageRepository, AssetKey, AtlasRegion, ImageSpec) -> @gfx.ImageHandle
 
 pub fn remove_atlas_image(SimpleAtlasImageRepository, AssetKey) -> Unit
 
@@ -188,6 +194,17 @@ pub struct AtlasRegion {
 }
 pub impl Show for AtlasRegion
 
+pub(all) struct FetchHandle {
+  id : Int
+}
+pub impl Show for FetchHandle
+
+pub(all) struct FetchProgress {
+  loaded : Int
+  total : Int
+}
+pub impl Show for FetchProgress
+
 pub struct ImagePaletteBinding {
   image_id : Int
   palette : @image_palette.ImagePalette2x2
@@ -202,6 +219,11 @@ pub struct ImageSpec {
   pixels_rgba8 : Array[Int]
 }
 pub impl Show for ImageSpec
+
+pub struct JsFetcher {
+  mut next_id : Int
+}
+pub impl BytesFetcher for JsFetcher
 
 pub struct MaterialSpec {
   shader : AssetKey
@@ -316,6 +338,12 @@ pub impl Show for SourceImageDirtyRect
 pub trait AtlasAllocator {
   allocate(Self, Int, Int) -> AtlasRegion?
   release(Self, AtlasRegion) -> Unit
+}
+
+pub(open) trait BytesFetcher {
+  fetch(Self, String, (FetchProgress) -> Unit, (Bytes?) -> Unit) -> FetchHandle
+  cancel(Self, FetchHandle) -> Unit
+  poll(Self) -> Unit
 }
 
 pub trait ImageRepository {

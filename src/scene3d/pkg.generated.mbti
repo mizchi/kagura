@@ -18,11 +18,7 @@ pub fn object3d_with_transform(mesh~ : @mesh3d.Mesh3D, transform~ : @transform3d
 
 pub fn render_instanced_gpu(@mesh3d.Mesh3D, Array[InstanceData], @camera3d.Camera3D, lighting? : @light3d.LightingEnvironment, @gfx.ImageHandle, @gfx.ShaderHandle, Int, Int) -> @gfx.DrawTrianglesCommand
 
-pub fn render_scene3d(Scene3D, @gfx.ImageHandle, @gfx.ShaderHandle, Int, Int) -> Array[@gfx.DrawTrianglesCommand]
-
 pub fn render_scene3d_gpu(Scene3D, @gfx.ImageHandle, @gfx.ShaderHandle, Int, Int, shader3d_textured? : @gfx.ShaderHandle?, shader3d_pbr? : @gfx.ShaderHandle?, shader3d_pbr_textured? : @gfx.ShaderHandle?, shader3d_skinned? : @gfx.ShaderHandle?) -> Array[@gfx.DrawTrianglesCommand]
-
-pub fn render_scene3d_graph(SceneGraph, @camera3d.Camera3D, lighting? : @light3d.LightingEnvironment, @gfx.ImageHandle, @gfx.ShaderHandle, Int, Int) -> Array[@gfx.DrawTrianglesCommand]
 
 pub fn render_scene3d_graph_gpu(SceneGraph, @camera3d.Camera3D, lighting? : @light3d.LightingEnvironment, @gfx.ImageHandle, @gfx.ShaderHandle, Int, Int, shader3d_textured? : @gfx.ShaderHandle?, shader3d_pbr? : @gfx.ShaderHandle?, shader3d_pbr_textured? : @gfx.ShaderHandle?, shader3d_skinned? : @gfx.ShaderHandle?) -> Array[@gfx.DrawTrianglesCommand]
 
@@ -94,3 +90,4 @@ pub fn SkinningState::new_with_packed(@skeleton3d.SkinData, Array[@math3d.Mat4],
 // Type aliases
 
 // Traits
+

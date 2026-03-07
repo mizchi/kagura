@@ -2,6 +2,8 @@
 package "mizchi/kagura/particle3d"
 
 import {
+  "mizchi/kagura/camera3d",
+  "mizchi/kagura/gfx",
   "mizchi/kagura/math3d",
 }
 
@@ -11,6 +13,11 @@ pub fn default_emitter_config() -> EmitterConfig
 // Errors
 
 // Types and methods
+pub(all) struct BurstEmitter {
+  emitter : ParticleEmitter
+  mut spawned : Bool
+}
+
 pub(all) struct EmitterConfig {
   position : @math3d.Vec3
   spawn_rate : Double
@@ -45,6 +52,17 @@ pub fn ParticleEmitter::build_billboard_vertices(Self, @math3d.Vec3, @math3d.Vec
 pub fn ParticleEmitter::new(EmitterConfig) -> Self
 pub fn ParticleEmitter::particle_count(Self) -> Int
 pub fn ParticleEmitter::update(Self, Double) -> Unit
+pub fn ParticleEmitter::update_physics_only(Self, Double) -> Unit
+
+pub(all) struct ParticleManager {
+  mut emitters : Array[BurstEmitter]
+  particle_shader : @gfx.ShaderHandle
+}
+pub fn ParticleManager::draw(Self, @gfx.ImageHandle, @camera3d.Camera3D, Int, Int, Int) -> Array[@gfx.DrawTrianglesCommand]
+pub fn ParticleManager::new(Int) -> Self
+pub fn ParticleManager::spawn(Self, EmitterConfig) -> Unit
+pub fn ParticleManager::total_particle_count(Self) -> Int
+pub fn ParticleManager::update(Self, Double) -> Unit
 
 // Type aliases
 

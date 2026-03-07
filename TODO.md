@@ -6,17 +6,28 @@
 ## ゴール再確認
 
 - 目標: 2D/3D 両対応のゲームエンジンを MoonBit で提供する
-- 優先: WebGPU (browser) と native wgpu (macOS) で同一ゲームロジックを早期に動かす
+- 優先: WebGPU (browser) と native wgpu (macOS/Linux/Windows) で同一ゲームロジックを早期に動かす
 - 非目標: WebGL/WebGL2 フォールバック
 
 ## 現在の優先タスク (優先順位順)
 
+### コードレビュー起因の修正項目 (performance / API)
+
+- [ ] `runtime.run_loop` を実時間 delta で駆動し、`step_fixed_timestep` へ固定値 `16.6667ms` を渡す実装を廃止する
+- [ ] 低レベル API 契約の no-op を解消する — `Game.layout` の `LogicalSize`、`RunOptions.init_unfocused`、`RunOptions.screen_cleared_every_frame` を実行系に反映する
+- [ ] `AssetStreamer.request` の重複要求を callback fan-out 対応する — 同一 asset を待つ全 caller が `on_complete` を受け取れるようにする
+- [ ] `@scene` の宣言的 API の内部表現を見直す — 毎フレームの `view()` 再構築・文字列属性化・再パースを減らし、利用者向け API と内部契約の型ズレを縮小する
+- [ ] `scene3d` のフラスタムカリングを最適化する — mesh ごとの AABB をキャッシュし、毎フレーム・毎オブジェクトの全頂点走査を避ける
+- [ ] `scene3d.sort_bias` の扱いを確定する — renderer で意味を持たせるか、公開 API から整理する
+
 ### Windows / Linux Native 対応
 
-現在 Native ビルドは macOS のみ対応。wgpu-native と GLFW 自体は Windows/Linux をサポートしているため、以下の対応で拡張可能:
+Surface 作成のクロスプラットフォーム化と CI 整備は完了。残タスク:
 
-- [ ] `scripts/setup-wgpu-native.sh` を Windows (MSYS2/MinGW) / Linux に対応
-- [ ] `moon.pkg` の `cc-link-flags` をプラットフォーム別に分岐（macOS: Metal frameworks、Linux: Vulkan + X11/Wayland、Windows: D3D12/Vulkan）
+- [x] Surface 作成を macOS/Linux(X11)/Windows(Win32) に分岐 — `wgpu_native_stub.c` + `_macos.m` 分離
+- [x] CI: native-linux に wgpu-native + GLFW + X11 セットアップ追加、テスト・ビルド通過
+- [x] CI: native-windows に wgpu-native セットアップ追加、`moon check` 通過
+- [ ] Windows `moon build`: MoonBit ランタイムが `-lm` を無条件付加する問題の上流修正待ち
 - [ ] Audio バックエンドの抽象化（現在 AudioToolbox に依存 → Linux: PulseAudio/ALSA、Windows: WASAPI）
 
 ### 残タスク (3D エンジン)
@@ -55,7 +66,7 @@ Path of Exile スタイルの斜め見下ろしアクション RPG をターゲ�
 
 ## アーキテクチャ課題
 
-- CPU ラスタライザ → GPU パイプライン移行: scene3d は CPU で頂点変換して 2D コマンドに変換している。`src/gfx_webgpu/` で GPU Z-buffer レンダラーを実装済み、段階的に移行
+- [x] CPU ラスタライザ → GPU パイプライン移行: CPU painter's algorithm 削除済み、全 example が GPU Z-buffer レンダラーに統一
 - 頂点フォーマットの柔軟化: 現在 stride=8 固定。スキンメッシュではボーンウェイトが必要
 
 ## テスト・CI

@@ -1,4 +1,20 @@
 ///|
+/// Transform a point by a 4x4 matrix (manual multiply with perspective divide components).
+fn mat4_transform(
+  m : @math3d.Mat4,
+  x : Double,
+  y : Double,
+  z : Double,
+) -> (Double, Double, Double, Double) {
+  let e = m.elements
+  let rx = e[0] * x + e[4] * y + e[8] * z + e[12]
+  let ry = e[1] * x + e[5] * y + e[9] * z + e[13]
+  let rz = e[2] * x + e[6] * y + e[10] * z + e[14]
+  let rw = e[3] * x + e[7] * y + e[11] * z + e[15]
+  (rx, ry, rz, rw)
+}
+
+///|
 /// Metadata for tracking which face a triangle belongs to
 struct TriFaceInfo {
   face_idx : Int

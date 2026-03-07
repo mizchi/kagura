@@ -31,6 +31,10 @@ fn main {
       ),
       @light3d.AmbientLight::new(@math3d.Vec3::new(1.0, 1.0, 1.0), 0.3),
     )
+    let shader3d = @gfx.new_shader_handle(
+      10,
+      @draw3d.shader3d_lit_untextured_wgsl(),
+    )
     let prev_x : Ref[Double] = Ref::new(0.0)
     let prev_y : Ref[Double] = Ref::new(0.0)
     @engine.run(
@@ -69,8 +73,8 @@ fn main {
           camera=camera.to_camera3d(),
           lighting~,
         )
-        @scene3d.render_scene3d(
-          scene, ctx.dst, ctx.shader, ctx.screen_w, ctx.screen_h,
+        @scene3d.render_scene3d_gpu(
+          scene, ctx.dst, shader3d, ctx.screen_w, ctx.screen_h,
         )
       },
       width=screen_w,

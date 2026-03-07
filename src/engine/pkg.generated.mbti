@@ -10,7 +10,7 @@ import {
 // Values
 pub fn reset_lifecycle_hooks() -> Unit
 
-pub fn run(update~ : (@core.InputSnapshot) -> Unit, draw~ : (EngineContext) -> Array[@gfx.DrawTrianglesCommand], audio_ctx? : @audio.MixerAudioContext, audio_frames_per_tick? : Int, width? : Int, height? : Int, title? : String, canvas? : String) -> Unit
+pub fn run(update~ : (@core.InputSnapshot) -> Unit, draw~ : (EngineContext) -> Array[@gfx.DrawTrianglesCommand], on_frame? : () -> Unit, audio_ctx? : @audio.MixerAudioContext, audio_frames_per_tick? : Int, width? : Int, height? : Int, title? : String, canvas? : String) -> Unit
 
 pub fn set_lifecycle_hooks(LifecycleHooks) -> Unit
 

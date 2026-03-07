@@ -6,9 +6,15 @@ options(
     "wasm": {
       "exports": [
         "kagura_init",
+        "kagura_guest_init_export:kagura_guest_init",
         "kagura_update_export:kagura_update",
+        "kagura_guest_update_export:kagura_guest_update",
         "kagura_draw",
+        "kagura_guest_render",
         "kagura_alloc",
+        "kagura_guest_snapshot_state",
+        "kagura_guest_restore_state",
+        "kagura_guest_shutdown",
       ],
       "export-memory-name": "memory",
     },

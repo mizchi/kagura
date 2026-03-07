@@ -1,8 +1,13 @@
-// kagura-game WIT contract
-// Defines the interface between Host (JS+WebGPU) and Guest (WASM game module)
+// Legacy PoC contract for examples/wasm_game.
 //
-// This is a documentation-only WIT file. The actual protocol uses
-// a binary shared-memory format described below.
+// This file documents the current shared-memory protocol used by the
+// JS host and the MoonBit/Rust guest examples.
+//
+// The target semantic ABI for the roadmap is defined in:
+//   `examples/wasm_game/wit/kagura-app-v0.wit`
+//
+// Keep this file only while the PoC host still talks to guests via
+// raw linear-memory layouts (`kagura_alloc`, packed input, packed draw cmds).
 
 package kagura:game;
 

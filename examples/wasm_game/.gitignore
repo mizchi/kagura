@@ -8,5 +8,10 @@ guest/rust/target/
 guest/moonbit/_build/
 guest/moonbit/.mooncakes/
 
+# Zig
+guest/zig/zig-out/
+guest/zig/.zig-cache/
+
 # Host
 host/node_modules/
+host/dist/

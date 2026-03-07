@@ -73,9 +73,15 @@ wasm-build-moonbit:
     cp examples/wasm_game/guest/moonbit/_build/wasm/debug/build/wasm_game_guest.wasm examples/wasm_game/host/public/game.wasm
 
 wasm-build-rust:
-    cd examples/wasm_game/guest/rust && rustup run stable cargo build --target wasm32-unknown-unknown --release
+    cd examples/wasm_game/guest/rust && RUSTC="$(rustup which --toolchain stable rustc)" "$(rustup which --toolchain stable cargo)" build --target wasm32-unknown-unknown --release
     mkdir -p examples/wasm_game/host/public
     cp examples/wasm_game/guest/rust/target/wasm32-unknown-unknown/release/kagura_wasm_guest_rust.wasm examples/wasm_game/host/public/game.wasm
+
+wasm-build-zig:
+    mkdir -p examples/wasm_game/guest/zig/zig-out/lib
+    zig build-exe examples/wasm_game/guest/zig/src/main.zig -target wasm32-freestanding -O ReleaseSmall -fno-entry --export-memory -rdynamic -ofmt=wasm -femit-bin=examples/wasm_game/guest/zig/zig-out/lib/kagura_wasm_guest_zig.wasm
+    mkdir -p examples/wasm_game/host/public
+    cp examples/wasm_game/guest/zig/zig-out/lib/kagura_wasm_guest_zig.wasm examples/wasm_game/host/public/game.wasm
 
 wasm-host-install:
     cd examples/wasm_game/host && pnpm install
@@ -88,4 +94,4 @@ wasm-dev guest="moonbit": (wasm-build guest)
 
 [private]
 wasm-build guest:
-    @if [ "{{guest}}" = "moonbit" ]; then just wasm-build-moonbit; elif [ "{{guest}}" = "rust" ]; then just wasm-build-rust; else echo "Unknown guest: {{guest}}"; exit 1; fi
+    @if [ "{{guest}}" = "moonbit" ]; then just wasm-build-moonbit; elif [ "{{guest}}" = "rust" ]; then just wasm-build-rust; elif [ "{{guest}}" = "zig" ]; then just wasm-build-zig; else echo "Unknown guest: {{guest}}"; exit 1; fi

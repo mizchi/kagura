@@ -5,16 +5,107 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <title>kagura WASM Game Host</title>
   <style>
+    :root {
+      color-scheme: dark;
+      --bg: #0a0d10;
+      --panel: rgba(12, 17, 24, 0.88);
+      --panel-border: rgba(142, 176, 201, 0.22);
+      --text: #edf2f7;
+      --muted: #9db0c2;
+      --accent: #76d9ff;
+      --danger: #ff8d73;
+    }
     body {
       margin: 0;
-      background: #111;
-      display: flex;
-      justify-content: center;
-      align-items: center;
+      background:
+        radial-gradient(circle at top, rgba(118, 217, 255, 0.12), transparent 30%),
+        linear-gradient(180deg, #10161d 0%, #0a0d10 100%);
+      color: var(--text);
+      font-family: "IBM Plex Mono", "SFMono-Regular", ui-monospace, monospace;
       min-height: 100vh;
+    }
+    .preview-shell {
+      display: grid;
+      grid-template-columns: minmax(320px, auto) 260px;
+      gap: 20px;
+      align-items: start;
+      justify-content: center;
+      padding: 24px;
+      box-sizing: border-box;
+      min-height: 100vh;
+    }
+    .preview-stage {
+      position: relative;
+      padding: 18px;
+      border-radius: 18px;
+      background: rgba(255, 255, 255, 0.03);
+      box-shadow:
+        0 24px 80px rgba(0, 0, 0, 0.35),
+        inset 0 1px 0 rgba(255, 255, 255, 0.06);
     }
     canvas {
       image-rendering: pixelated;
+      display: block;
+      border-radius: 10px;
+      border: 1px solid rgba(255, 255, 255, 0.08);
+      background: #000;
+    }
+    .preview-panel {
+      display: grid;
+      gap: 12px;
+      padding: 16px;
+      border-radius: 16px;
+      border: 1px solid var(--panel-border);
+      background: var(--panel);
+      backdrop-filter: blur(14px);
+      box-shadow: 0 20px 50px rgba(0, 0, 0, 0.28);
+    }
+    .preview-title {
+      color: var(--accent);
+      font-size: 14px;
+      font-weight: 600;
+      letter-spacing: 0.04em;
+      text-transform: uppercase;
+    }
+    .preview-status {
+      margin: 0;
+      color: var(--muted);
+      font-size: 13px;
+      line-height: 1.65;
+      white-space: pre-wrap;
+    }
+    .preview-logs {
+      margin: 0;
+      min-height: 124px;
+      padding-top: 12px;
+      border-top: 1px solid rgba(255, 255, 255, 0.08);
+      color: #c6f0ff;
+      font-size: 12px;
+      line-height: 1.6;
+      white-space: pre-wrap;
+      overflow-wrap: anywhere;
+    }
+    .preview-error {
+      position: fixed;
+      left: 24px;
+      right: 24px;
+      bottom: 24px;
+      padding: 14px 16px;
+      border-radius: 14px;
+      border: 1px solid rgba(255, 141, 115, 0.28);
+      background: rgba(63, 19, 15, 0.9);
+      color: #ffd4cb;
+      font-size: 13px;
+      line-height: 1.5;
+      box-shadow: 0 20px 60px rgba(0, 0, 0, 0.3);
+    }
+    @media (max-width: 900px) {
+      .preview-shell {
+        grid-template-columns: 1fr;
+      }
+      .preview-panel {
+        order: -1;
+      }
     }
   </style>
 </head>

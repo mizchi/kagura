@@ -56,6 +56,61 @@ struct DrawCmd {
   indices : Array[Int]
 }
 
+struct Utf8Slice {
+  ptr : Int
+  len : Int
+}
+
+///| Write legacy PoC game config to linear memory and return the pointer.
+fn write_legacy_game_config(width : Int, height : Int, title : String) -> Int {
+  let title_bytes = title.to_array()
+  let ptr = bump_alloc(12 + title_bytes.length())
+  mem_store32(ptr, width)
+  mem_store32(ptr + 4, height)
+  mem_store32(ptr + 8, title_bytes.length())
+  for i = 0; i < title_bytes.length(); i = i + 1 {
+    mem_store8(ptr + 12 + i, title_bytes[i].to_int())
+  }
+  ptr
+}
+
+fn write_semantic_guest_config_bytes(
+  logical_width : Int,
+  logical_height : Int,
+  target_tps : Int,
+  title : Utf8Slice
+) -> Int {
+  let ptr = bump_alloc(16 + title.len)
+  mem_store32(ptr, logical_width)
+  mem_store32(ptr + 4, logical_height)
+  mem_store32(ptr + 8, target_tps)
+  mem_store32(ptr + 12, title.len)
+  for i in 0..<title.len {
+    mem_store8(ptr + 16 + i, mem_load8(title.ptr + i))
+  }
+  ptr
+}
+
+///| Write semantic guest config to linear memory and return the pointer.
+fn write_semantic_guest_config(
+  logical_width : Int,
+  logical_height : Int,
+  target_tps : Int,
+  title : String
+) -> Int {
+  let title_bytes = title.to_array()
+  let title_ptr = bump_alloc(title_bytes.length())
+  for i = 0; i < title_bytes.length(); i = i + 1 {
+    mem_store8(title_ptr + i, title_bytes[i].to_int())
+  }
+  write_semantic_guest_config_bytes(
+    logical_width,
+    logical_height,
+    target_tps,
+    { ptr: title_ptr, len: title_bytes.length() },
+  )
+}
+
 ///| Write an array of DrawCmds to linear memory and return the pointer.
 fn write_draw_commands(cmds : Array[DrawCmd]) -> Int {
   let ptr = bump_alloc(4)

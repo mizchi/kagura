@@ -1,5 +1,9 @@
 # Architecture Draft (Ebiten inspired)
 
+> Note:
+> 現在の中長期方針は [ADR 0001](./adr/0001-wgpu-host-wasm-guest.md) を正とする。
+> この文書は Ebiten 由来の初期アーキテクチャ草案として残しており、一部は最新方針と一致しない。
+
 ## Goals
 
 - まず 2D を安定実装し、後で 3D に拡張

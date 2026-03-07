@@ -20,6 +20,7 @@ const PIPE_GAP: f64 = 70.0;
 const PIPE_SPEED: f64 = 1.5;
 const PIPE_INTERVAL: i32 = 120;
 const GROUND_H: f64 = 20.0;
+const TARGET_TPS: i32 = 60;
 const KEY_SPACE: i32 = 32;
 const KEY_UP: i32 = 38;
 const MAX_PIPES: usize = 16;
@@ -31,7 +32,7 @@ static mut BUMP_OFFSET: usize = 0;
 const HEAP_BASE: usize = 8192;
 
 unsafe fn bump_alloc(size: usize) -> *mut u8 {
-    let ptr = BUMP_OFFSET;
+    let ptr = if BUMP_OFFSET == 0 { HEAP_BASE } else { BUMP_OFFSET };
     BUMP_OFFSET = ptr + size;
     ptr as *mut u8
 }
@@ -56,6 +57,78 @@ unsafe fn read_i32_at(ptr: *const u8) -> i32 {
 
 unsafe fn read_f64_at(ptr: *const u8) -> f64 {
     (ptr as *const f64).read_unaligned()
+}
+
+unsafe fn write_bytes_at(ptr: *mut u8, bytes: &[u8]) {
+    core::ptr::copy_nonoverlapping(bytes.as_ptr(), ptr, bytes.len());
+}
+
+unsafe fn write_legacy_game_config(width: i32, height: i32, title: &[u8]) -> i32 {
+    let ptr = bump_alloc(12 + title.len());
+    write_i32_at(ptr, width);
+    write_i32_at(ptr.add(4), height);
+    write_i32_at(ptr.add(8), title.len() as i32);
+    write_bytes_at(ptr.add(12), title);
+    ptr as i32
+}
+
+unsafe fn write_semantic_guest_config(
+    logical_width: i32,
+    logical_height: i32,
+    target_tps: i32,
+    title: &[u8],
+) -> i32 {
+    let ptr = bump_alloc(16 + title.len());
+    write_i32_at(ptr, logical_width);
+    write_i32_at(ptr.add(4), logical_height);
+    write_i32_at(ptr.add(8), target_tps);
+    write_i32_at(ptr.add(12), title.len() as i32);
+    write_bytes_at(ptr.add(16), title);
+    ptr as i32
+}
+
+unsafe fn write_semantic_guest_config_raw(
+    logical_width: i32,
+    logical_height: i32,
+    target_tps: i32,
+    title_ptr: *const u8,
+    title_len: usize,
+) -> i32 {
+    let ptr = bump_alloc(16 + title_len);
+    write_i32_at(ptr, logical_width);
+    write_i32_at(ptr.add(4), logical_height);
+    write_i32_at(ptr.add(8), target_tps);
+    write_i32_at(ptr.add(12), title_len as i32);
+    core::ptr::copy_nonoverlapping(title_ptr, ptr.add(16), title_len);
+    ptr as i32
+}
+
+#[link(wasm_import_module = "kagura_host")]
+unsafe extern "C" {
+    #[link_name = "log_i32_utf8"]
+    fn host_log_i32_utf8(level: i32, ptr: *const u8, len: i32);
+    #[link_name = "read_asset_len_i32_utf8"]
+    fn host_read_asset_len_i32_utf8(ptr: *const u8, len: i32) -> i32;
+    #[link_name = "read_asset_copy_i32_utf8"]
+    fn host_read_asset_copy_i32_utf8(path_ptr: *const u8, path_len: i32, dst_ptr: *mut u8) -> i32;
+}
+
+unsafe fn host_log_info(message: &[u8]) {
+    host_log_i32_utf8(2, message.as_ptr(), message.len() as i32);
+}
+
+unsafe fn host_read_asset_bytes(path: &[u8]) -> Option<(*mut u8, usize)> {
+    let len = host_read_asset_len_i32_utf8(path.as_ptr(), path.len() as i32);
+    if len < 0 {
+        return None;
+    }
+    let dst = bump_alloc(len as usize);
+    let copied_len = host_read_asset_copy_i32_utf8(path.as_ptr(), path.len() as i32, dst);
+    if copied_len < 0 {
+        None
+    } else {
+        Some((dst, copied_len as usize))
+    }
 }
 
 // --- Game State ---
@@ -266,13 +339,7 @@ impl Game {
 pub extern "C" fn kagura_init() -> i32 {
     unsafe {
         bump_reset();
-        let ptr = bump_alloc(64);
-        write_i32_at(ptr, SCREEN_W);
-        write_i32_at(ptr.add(4), SCREEN_H);
-        let title = b"Flappy Bird (Rust)";
-        write_i32_at(ptr.add(8), title.len() as i32);
-        core::ptr::copy_nonoverlapping(title.as_ptr(), ptr.add(12), title.len());
-        ptr as i32
+        write_legacy_game_config(SCREEN_W, SCREEN_H, b"Flappy Bird (Rust)")
     }
 }
 
@@ -282,11 +349,38 @@ pub extern "C" fn kagura_alloc(size: i32) -> i32 {
 }
 
 #[no_mangle]
+pub extern "C" fn kagura_guest_init(_ptr: i32, _len: i32) -> i32 {
+    unsafe {
+        bump_reset();
+        host_log_info(b"guest init: rust/flappy");
+        match host_read_asset_bytes(b"/guest-title.txt") {
+            Some((title_ptr, title_len)) => {
+                host_log_info(b"guest asset: /guest-title.txt");
+                write_semantic_guest_config_raw(
+                    SCREEN_W,
+                    SCREEN_H,
+                    TARGET_TPS,
+                    title_ptr,
+                    title_len,
+                )
+            }
+            None => write_semantic_guest_config(SCREEN_W, SCREEN_H, TARGET_TPS, b"Flappy Bird (Rust)"),
+        }
+    }
+}
+
+#[no_mangle]
 pub extern "C" fn kagura_update(ptr: i32, _len: i32) {
     unsafe {
         let input = read_input(ptr as *const u8);
         GAME.update(&input);
     }
+}
+
+#[no_mangle]
+pub extern "C" fn kagura_guest_update(ptr: i32, len: i32) -> i32 {
+    kagura_update(ptr, len);
+    1
 }
 
 #[no_mangle]
@@ -359,3 +453,21 @@ pub extern "C" fn kagura_draw() -> i32 {
         header as i32
     }
 }
+
+#[no_mangle]
+pub extern "C" fn kagura_guest_render() -> i32 {
+    kagura_draw()
+}
+
+#[no_mangle]
+pub extern "C" fn kagura_guest_snapshot_state() -> i32 {
+    0
+}
+
+#[no_mangle]
+pub extern "C" fn kagura_guest_restore_state(_ptr: i32, _len: i32) -> i32 {
+    0
+}
+
+#[no_mangle]
+pub extern "C" fn kagura_guest_shutdown() {}

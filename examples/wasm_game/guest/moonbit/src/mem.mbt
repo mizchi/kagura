@@ -2,6 +2,10 @@
 extern "wasm" fn mem_load32(offset : Int) -> Int =
   #|(func (param i32) (result i32) (i32.load (local.get 0)))
 
+///| Load an unsigned byte from linear memory at byte offset.
+extern "wasm" fn mem_load8(offset : Int) -> Int =
+  #|(func (param i32) (result i32) (i32.load8_u (local.get 0)))
+
 ///| Store a 32-bit integer to linear memory at byte offset.
 extern "wasm" fn mem_store32(offset : Int, value : Int) =
   #|(func (param i32 i32) (i32.store (local.get 0) (local.get 1)))
@@ -29,7 +33,8 @@ fn bump_init() -> Unit {
 
 ///| Allocate `size` bytes contiguously (no alignment padding).
 fn bump_alloc(size : Int) -> Int {
-  let current = mem_load32(0)
+  let slot = mem_load32(0)
+  let current = if slot == 0 { heap_base } else { slot }
   mem_store32(0, current + size)
   current
 }

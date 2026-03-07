@@ -31,6 +31,8 @@ let key_space : Int = 32
 
 let key_up : Int = 38
 
+let target_tps : Int = 60
+
 ///|
 struct Game {
   mut game_mode : Int // 0=start, 1=playing, 2=game_over
@@ -215,17 +217,22 @@ let game : Game = Game::new()
 ///|
 pub fn kagura_init() -> Int {
   bump_init()
-  let ptr = bump_alloc(64)
-  mem_store32(ptr, screen_w)
-  mem_store32(ptr + 4, screen_h)
-  // Title: "Flappy Bird"
-  let title = "Flappy Bird"
-  let title_bytes = title.to_array()
-  mem_store32(ptr + 8, title_bytes.length())
-  for i = 0; i < title_bytes.length(); i = i + 1 {
-    mem_store8(ptr + 12 + i, title_bytes[i].to_int())
+  write_legacy_game_config(screen_w, screen_h, "Flappy Bird")
+}
+
+///|
+pub fn kagura_guest_init_export(env_ptr : Int, len : Int) -> Int {
+  bump_init()
+  ignore(env_ptr)
+  ignore(len)
+  host_log_info("guest init: moonbit/flappy")
+  match host_read_asset_utf8("/guest-title.txt") {
+    Some(title_utf8) => {
+      host_log_info("guest asset: /guest-title.txt")
+      write_semantic_guest_config_bytes(screen_w, screen_h, target_tps, title_utf8)
+    }
+    None => write_semantic_guest_config(screen_w, screen_h, target_tps, "Flappy Bird")
   }
-  ptr
 }
 
 ///|
@@ -236,6 +243,14 @@ pub fn kagura_update_export(ptr : Int, len : Int) -> Unit {
 }
 
 ///|
+pub fn kagura_guest_update_export(ptr : Int, len : Int) -> Int {
+  let input = read_input(ptr)
+  game.update(input)
+  ignore(len)
+  1
+}
+
+///|
 pub fn kagura_draw() -> Int {
   bump_reset()
   let cmds = game.draw()
@@ -243,8 +258,30 @@ pub fn kagura_draw() -> Int {
 }
 
 ///|
+pub fn kagura_guest_render() -> Int {
+  kagura_draw()
+}
+
+///|
 pub fn kagura_alloc(size : Int) -> Int {
   bump_alloc(size)
+}
+
+///|
+pub fn kagura_guest_snapshot_state() -> Int {
+  0
+}
+
+///|
+pub fn kagura_guest_restore_state(ptr : Int, len : Int) -> Int {
+  ignore(ptr)
+  ignore(len)
+  0
+}
+
+///|
+pub fn kagura_guest_shutdown() -> Unit {
+  ()
 }
 
 ///|

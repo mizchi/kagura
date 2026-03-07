@@ -1,5 +1,19 @@
 import type { InputSnapshot } from "./input-collector";
 
+export interface InitEnv {
+  width: number;
+  height: number;
+  devicePixelRatio: number;
+  hotReloadEnabled: boolean;
+}
+
+export interface GuestConfig {
+  width: number;
+  height: number;
+  targetTps: number;
+  title: string;
+}
+
 /**
  * Serialize InputSnapshot into WASM linear memory at the given pointer.
  * Returns the total byte length written.
@@ -49,6 +63,48 @@ export function serializeInput(
   offset += 4;
 
   return offset - ptr;
+}
+
+export function writeInitEnv(
+  memory: WebAssembly.Memory,
+  ptr: number,
+  env: InitEnv,
+): number {
+  const dv = new DataView(memory.buffer);
+  dv.setInt32(ptr, env.width, true);
+  dv.setInt32(ptr + 4, env.height, true);
+  dv.setFloat32(ptr + 8, env.devicePixelRatio, true);
+  dv.setInt32(ptr + 12, env.hotReloadEnabled ? 1 : 0, true);
+  return 16;
+}
+
+export function readLegacyGameConfig(
+  memory: WebAssembly.Memory,
+  ptr: number,
+): GuestConfig {
+  const dv = new DataView(memory.buffer);
+  const width = dv.getInt32(ptr, true);
+  const height = dv.getInt32(ptr + 4, true);
+  const titleLen = dv.getInt32(ptr + 8, true);
+  const title = new TextDecoder().decode(
+    new Uint8Array(memory.buffer, ptr + 12, titleLen),
+  );
+  return { width, height, targetTps: 60, title };
+}
+
+export function readSemanticGuestConfig(
+  memory: WebAssembly.Memory,
+  ptr: number,
+): GuestConfig {
+  const dv = new DataView(memory.buffer);
+  const width = dv.getInt32(ptr, true);
+  const height = dv.getInt32(ptr + 4, true);
+  const targetTps = dv.getInt32(ptr + 8, true);
+  const titleLen = dv.getInt32(ptr + 12, true);
+  const title = new TextDecoder().decode(
+    new Uint8Array(memory.buffer, ptr + 16, titleLen),
+  );
+  return { width, height, targetTps, title };
 }
 
 /**

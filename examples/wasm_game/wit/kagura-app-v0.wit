@@ -1,0 +1,130 @@
+package kagura:app@0.1.0;
+
+interface types {
+  type key-code = u32;
+  type mouse-button = u32;
+  type texture-id = u32;
+  type bytes = list<u8>;
+
+  record vec2f {
+    x: f32,
+    y: f32,
+  }
+
+  record rgba8 {
+    r: u8,
+    g: u8,
+    b: u8,
+    a: u8,
+  }
+
+  record surface-config {
+    width: u32,
+    height: u32,
+    device-pixel-ratio: f32,
+  }
+
+  record init-env {
+    surface: surface-config,
+    hot-reload-enabled: bool,
+  }
+
+  record guest-config {
+    title: string,
+    logical-width: u32,
+    logical-height: u32,
+    target-tps: u32,
+  }
+
+  record input-snapshot {
+    cursor: vec2f,
+    wheel: vec2f,
+    pressed-keys: list<key-code>,
+    pressed-mouse-buttons: list<mouse-button>,
+    frame: u64,
+    dt-ms: f32,
+  }
+
+  enum blend-mode {
+    source-over,
+    copy,
+    additive,
+  }
+
+  record mesh2d-vertex {
+    x: f32,
+    y: f32,
+    u: f32,
+    v: f32,
+  }
+
+  record draw-mesh2d {
+    texture: option<texture-id>,
+    blend: blend-mode,
+    tint: rgba8,
+    vertices: list<mesh2d-vertex>,
+    indices: list<u32>,
+  }
+
+  variant render-command {
+    clear(rgba8),
+    mesh2d(draw-mesh2d),
+  }
+
+  record frame-output {
+    commands: list<render-command>,
+  }
+
+  record update-result {
+    wants-redraw: bool,
+  }
+
+  record guest-error {
+    code: string,
+    message: string,
+  }
+}
+
+interface host {
+  use types.{bytes, guest-error};
+
+  enum log-level {
+    trace,
+    debug,
+    info,
+    warn,
+    error,
+  }
+
+  log: func(level: log-level, message: string);
+  read-asset: func(path: string) -> result<bytes, guest-error>;
+}
+
+interface guest {
+  use types.{
+    bytes,
+    frame-output,
+    guest-config,
+    guest-error,
+    init-env,
+    input-snapshot,
+    update-result,
+  };
+
+  init: func(env: init-env) -> result<guest-config, guest-error>;
+  update: func(input: input-snapshot) -> result<update-result, guest-error>;
+  render: func() -> result<frame-output, guest-error>;
+
+  // Optional-for-now HMR hooks:
+  // guests that do not support state transfer may return none from
+  // `snapshot-state` and `err(code="unsupported", ...)` from `restore-state`.
+  snapshot-state: func() -> option<bytes>;
+  restore-state: func(state: bytes) -> result<_, guest-error>;
+
+  shutdown: func();
+}
+
+world app {
+  import host;
+  export guest;
+}

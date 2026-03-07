@@ -96,10 +96,14 @@ wasm-verify:
     just wasm-build-rust
     just wasm-build-zig
     just wasm-test all
+    just wasm-test-abi all
     just wasm-host-check
 
 wasm-test guest="all":
     node examples/wasm_game/test-wasm.mjs {{guest}}
+
+wasm-test-abi guest="all":
+    node examples/wasm_game/test-wasm-abi.mjs {{guest}}
 
 wasm-dev guest="moonbit": (wasm-build guest)
     cd examples/wasm_game/host && pnpm dev

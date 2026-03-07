@@ -1,4 +1,4 @@
-// Dungeon generation using BSP algorithm
+// Dungeon generation using Diablo-style connected fields
 
 struct DungeonData {
   mut grid : @terrain.Grid2D
@@ -9,13 +9,19 @@ struct DungeonData {
 
 fn generate_dungeon(seed : Int) -> DungeonData {
   let rng = @terrain.make_rng(seed.to_uint())
-  let config : @bsp.BspConfig = {
+  let config : @diablo.DiabloConfig = {
     width: map_cols,
     height: map_rows,
-    min_room_size: 4,
-    max_depth: 5,
+    spine_length: 5 + seed % 3, // 5-7 connected areas
+    branch_chance: 0.6,
+    loop_chance: 0.3,
+    room_min_size: 5,
+    room_max_size: 11,
+    room_padding: 1,
+    max_placement_attempts: 80,
   }
-  let result = @bsp.generate(config, rng)
+  let result = @diablo.generate(config, rng)
+  // Find start room (entrance)
   let start_room = result.rooms[0]
   let center = start_room.rect.center()
   {
@@ -61,7 +67,7 @@ fn check_wall_collision(
 
 fn tile_color(tile : @terrain.Tile) -> Int {
   match tile {
-    Floor => 0x2A2A3A
+    Floor | Start | Goal => 0x2A2A3A
     Wall => 0x6B4226
     Corridor => 0x333344
     Door => 0x8B6914
@@ -72,19 +78,16 @@ fn tile_color(tile : @terrain.Tile) -> Int {
 // Tile color with coordinate-based variation
 fn tile_color_varied(tile : @terrain.Tile, col : Int, row : Int) -> Int {
   match tile {
-    Floor => {
-      // Checker pattern with subtle variation
+    Floor | Start | Goal => {
       let checker = (col + row) % 2
       if checker == 0 { 0x2A2A3A } else { 0x2E2E3E }
     }
     Wall => {
-      // Brick pattern: offset every other row
       let brick_offset = if row % 2 == 0 { 0 } else { 2 }
       let brick_pos = (col + brick_offset) % 4
       if brick_pos == 0 { 0x5B3216 } else { 0x6B4226 }
     }
     Corridor => {
-      // Directional stripe
       let stripe = (col + row) % 3
       if stripe == 0 { 0x2D2D3E } else { 0x333344 }
     }

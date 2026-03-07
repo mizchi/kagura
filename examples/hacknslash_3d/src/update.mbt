@@ -20,21 +20,24 @@ fn GameState::new(seed~ : Int) -> GameState {
   let sh = screen_h.to_double()
   let camera = @camera3d.OrbitCamera::new(
     @math3d.Vec3::new(player.x / tile_size, 0.0, player.y / tile_size),
-    18.0,
+    22.0, // farther to see more of the map
     0.785, // yaw 45 degrees
     0.96,  // pitch ~55 degrees
     @math.PI / 5.0,
     sw / sh,
     0.1,
-    100.0,
+    150.0, // farther clip plane for larger map
   )
   let lighting = @light3d.LightingEnvironment::new(
     @light3d.DirectionalLight::new(
-      @math3d.Vec3::new(-0.3, -1.0, -0.5),
-      @math3d.Vec3::one(),
-      0.9,
+      @math3d.Vec3::new(-0.4, -1.0, -0.6),
+      @math3d.Vec3::new(1.0, 0.9, 0.7), // warm directional light
+      0.85,
     ),
-    @light3d.AmbientLight::new(@math3d.Vec3::one(), 0.15),
+    @light3d.AmbientLight::new(
+      @math3d.Vec3::new(0.6, 0.65, 0.8), // cool blue ambient
+      0.2,
+    ),
   )
   let meshes = Meshes3D::new()
   let enemies = spawn_enemies_in_rooms(dungeon.rooms, 0, seed)
@@ -44,10 +47,10 @@ fn GameState::new(seed~ : Int) -> GameState {
   )
   let shadow_config = @shadow3d.ShadowConfig::new(
     2048, // map_size (higher res)
-    12.0, // half_extent (tighter coverage for sharper shadows)
+    16.0, // half_extent (wider coverage for larger map)
     0.1, // near
-    50.0, // far
-    25.0, // distance
+    60.0, // far
+    30.0, // distance
     @math3d.Vec3::new(
       player.x / tile_size,
       0.0,
@@ -269,27 +272,37 @@ fn GameState::update_playing(self : GameState) -> Unit {
   if self.floor_announce_timer > 0 {
     self.floor_announce_timer = self.floor_announce_timer - 1
   }
-  // Player movement
-  let mut dx = 0.0
-  let mut dy = 0.0
+  // Player movement (camera-relative: rotate input by camera yaw)
+  let mut raw_dx = 0.0
+  let mut raw_dy = 0.0
   if @inpututil.is_move_up(self.input.key_state) {
-    dy = dy - 1.0
+    raw_dy = raw_dy - 1.0
   }
   if @inpututil.is_move_down(self.input.key_state) {
-    dy = dy + 1.0
+    raw_dy = raw_dy + 1.0
   }
   if @inpututil.is_move_left(self.input.key_state) {
-    dx = dx - 1.0
+    raw_dx = raw_dx - 1.0
   }
   if @inpututil.is_move_right(self.input.key_state) {
-    dx = dx + 1.0
+    raw_dx = raw_dx + 1.0
   }
   // Normalize diagonal
-  if dx != 0.0 && dy != 0.0 {
-    let v = @vector.Vec2::new(dx, dy).normalize()
-    dx = v.x
-    dy = v.y
+  if raw_dx != 0.0 && raw_dy != 0.0 {
+    let v = @vector.Vec2::new(raw_dx, raw_dy).normalize()
+    raw_dx = v.x
+    raw_dy = v.y
   }
+  // Rotate input by camera yaw so W moves "into screen" from camera's perspective
+  // Camera yaw maps: forward (W/-Z) → world direction
+  let yaw = self.camera.yaw
+  let cos_yaw = @math.cos(yaw)
+  let sin_yaw = @math.sin(yaw)
+  // raw_dx = right, raw_dy = forward (into screen = +Z in world)
+  // World X = raw_dx * cos(yaw) + raw_dy * sin(yaw)
+  // World Z = -raw_dx * sin(yaw) + raw_dy * cos(yaw)
+  let dx = raw_dx * cos_yaw + raw_dy * sin_yaw
+  let dy = -raw_dx * sin_yaw + raw_dy * cos_yaw
   // Update facing
   if dx != 0.0 || dy != 0.0 {
     self.player.facing_angle = @math.atan2(dy, dx)
@@ -341,15 +354,28 @@ fn GameState::update_playing(self : GameState) -> Unit {
   self.camera = self.camera.with_target(
     @math3d.Vec3::new(self.player.x / tile_size, 0.0, self.player.y / tile_size),
   )
-  // Attack
+  // Auto-attack: swing at nearest enemy in range automatically
   if self.attack_timer > 0 {
     self.attack_timer = self.attack_timer - 1
   }
-  if @inpututil.is_confirm_just_pressed(self.input) && self.attack_timer <= 0 {
-    self.attack_timer = attack_cooldown
-    self.screen_flash = 2
-    try_attack(self)
-    self.character.trigger_attack()
+  if self.attack_timer <= 0 {
+    let has_target = has_enemy_in_range(self)
+    if has_target {
+      self.attack_timer = attack_cooldown
+      self.screen_flash = 2
+      try_attack(self)
+      self.character.trigger_attack()
+    }
+  }
+  // Skill activation: 1/2/3 keys
+  if @inpututil.is_key_just_pressed(self.input.key_state, key_1) {
+    activate_skill(self, 0)
+  }
+  if @inpututil.is_key_just_pressed(self.input.key_state, key_2) {
+    activate_skill(self, 1)
+  }
+  if @inpututil.is_key_just_pressed(self.input.key_state, key_3) {
+    activate_skill(self, 2)
   }
   // Update character animation
   self.character.update(1.0 / 60.0)

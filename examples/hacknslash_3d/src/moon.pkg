@@ -18,7 +18,7 @@ import {
   "mizchi/kagura/transform3d" @transform3d,
   "mizchi/kagura/pathfind" @pathfind,
   "mizchi/kagura/vector" @vector,
-  "mizchi/terrain/bsp" @bsp,
+  "mizchi/terrain/diablo" @diablo,
   "mizchi/terrain/types" @terrain,
   "mizchi/web_runtime_hooks" @web_hooks,
   "mizchi/native_runtime_hooks" @native_hooks,

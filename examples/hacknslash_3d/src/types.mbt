@@ -57,6 +57,7 @@ struct Meshes3D {
   projectile : @mesh3d.Mesh3D
   floor_tile : @mesh3d.Mesh3D
   wall : @mesh3d.Mesh3D
+  pillar : @mesh3d.Mesh3D
 }
 
 // Combined mesh with a single color for batched shadow-lit rendering

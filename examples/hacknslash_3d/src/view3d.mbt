@@ -1,19 +1,23 @@
 // 3D rendering: dungeon graph, entity graph, draw
 
-// Colors (RGBA, 0-1 range)
-let color_floor : @math3d.Vec4 = @math3d.Vec4::new(0.16, 0.16, 0.23, 1.0)
+// Colors (RGBA, 0-1 range) — dark atmospheric dungeon palette
+let color_floor : @math3d.Vec4 = @math3d.Vec4::new(0.22, 0.20, 0.28, 1.0)
 
-let color_floor_alt : @math3d.Vec4 = @math3d.Vec4::new(0.18, 0.18, 0.24, 1.0)
+let color_floor_alt : @math3d.Vec4 = @math3d.Vec4::new(0.25, 0.23, 0.30, 1.0)
 
-let color_corridor : @math3d.Vec4 = @math3d.Vec4::new(0.2, 0.2, 0.27, 1.0)
+let color_corridor : @math3d.Vec4 = @math3d.Vec4::new(0.18, 0.17, 0.24, 1.0)
 
-let color_corridor_alt : @math3d.Vec4 = @math3d.Vec4::new(0.18, 0.18, 0.24, 1.0)
+let color_corridor_alt : @math3d.Vec4 = @math3d.Vec4::new(0.15, 0.14, 0.21, 1.0)
 
-let color_wall : @math3d.Vec4 = @math3d.Vec4::new(0.42, 0.26, 0.15, 1.0)
+let color_wall : @math3d.Vec4 = @math3d.Vec4::new(0.45, 0.32, 0.20, 1.0)
 
-let color_wall_alt : @math3d.Vec4 = @math3d.Vec4::new(0.36, 0.20, 0.09, 1.0)
+let color_wall_alt : @math3d.Vec4 = @math3d.Vec4::new(0.38, 0.25, 0.14, 1.0)
 
-let color_door : @math3d.Vec4 = @math3d.Vec4::new(0.55, 0.41, 0.08, 1.0)
+let color_wall_top : @math3d.Vec4 = @math3d.Vec4::new(0.50, 0.36, 0.22, 1.0)
+
+let color_door : @math3d.Vec4 = @math3d.Vec4::new(0.60, 0.45, 0.12, 1.0)
+
+let color_pillar : @math3d.Vec4 = @math3d.Vec4::new(0.52, 0.40, 0.28, 1.0)
 
 let color_player : @math3d.Vec4 = @math3d.Vec4::new(0.0, 1.0, 0.8, 1.0)
 
@@ -46,9 +50,17 @@ fn build_dungeon_graph(dungeon : DungeonData, meshes : Meshes3D) -> @scene3d.Sce
       let x = col.to_double()
       let z = row.to_double()
       match tile {
-        Floor => {
+        Floor | Start | Goal => {
           let checker = (col + row) % 2
-          let c = if checker == 0 { color_floor } else { color_floor_alt }
+          let c = if tile == @terrain.Start {
+            @math3d.Vec4::new(0.1, 0.3, 0.2, 1.0)
+          } else if tile == @terrain.Goal {
+            @math3d.Vec4::new(0.3, 0.1, 0.1, 1.0)
+          } else if checker == 0 {
+            color_floor
+          } else {
+            color_floor_alt
+          }
           graph.add_node(
             @scene3d.scene_node(
               mesh=Some(meshes.floor_tile),
@@ -57,20 +69,38 @@ fn build_dungeon_graph(dungeon : DungeonData, meshes : Meshes3D) -> @scene3d.Sce
             ),
           ) |> ignore
         }
-        Corridor | Door => {
+        Corridor => {
           let stripe = (col + row) % 3
-          let c = if tile == @terrain.Door {
-            color_door
-          } else if stripe == 0 {
-            color_corridor
-          } else {
-            color_corridor_alt
-          }
+          let c = if stripe == 0 { color_corridor } else { color_corridor_alt }
+          graph.add_node(
+            @scene3d.scene_node(
+              mesh=Some(meshes.floor_tile),
+              position=@math3d.Vec3::new(x, -0.05, z),
+              color=c,
+            ),
+          ) |> ignore
+        }
+        Door => {
           graph.add_node(
             @scene3d.scene_node(
               mesh=Some(meshes.floor_tile),
               position=@math3d.Vec3::new(x, 0.0, z),
-              color=c,
+              color=color_door,
+            ),
+          ) |> ignore
+          // Door frame pillars
+          graph.add_node(
+            @scene3d.scene_node(
+              mesh=Some(meshes.pillar),
+              position=@math3d.Vec3::new(x - 0.4, 0.0, z),
+              color=color_pillar,
+            ),
+          ) |> ignore
+          graph.add_node(
+            @scene3d.scene_node(
+              mesh=Some(meshes.pillar),
+              position=@math3d.Vec3::new(x + 0.4, 0.0, z),
+              color=color_pillar,
             ),
           ) |> ignore
         }
@@ -81,7 +111,7 @@ fn build_dungeon_graph(dungeon : DungeonData, meshes : Meshes3D) -> @scene3d.Sce
           graph.add_node(
             @scene3d.scene_node(
               mesh=Some(meshes.wall),
-              position=@math3d.Vec3::new(x, 0.5, z),
+              position=@math3d.Vec3::new(x, 0.0, z),
               color=c,
             ),
           ) |> ignore

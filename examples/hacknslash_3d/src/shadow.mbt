@@ -51,6 +51,9 @@ fn build_dungeon_mesh_groups(
   let wall_a_i : Array[Int] = []
   let wall_b_v : Array[Double] = []
   let wall_b_i : Array[Int] = []
+  // Pillar decoration
+  let pillar_v : Array[Double] = []
+  let pillar_i : Array[Int] = []
   // Combined wall mesh for shadow caster (all walls)
   let wall_all_v : Array[Double] = []
   let wall_all_i : Array[Int] = []
@@ -60,7 +63,7 @@ fn build_dungeon_mesh_groups(
       let x = col.to_double()
       let z = row.to_double()
       match tile {
-        Floor => {
+        Floor | Start | Goal => {
           let checker = (col + row) % 2
           if checker == 0 {
             merge_mesh_at(floor_a_v, floor_a_i, meshes.floor_tile, x, 0.0, z)
@@ -80,17 +83,22 @@ fn build_dungeon_mesh_groups(
             )
           }
         }
-        Door => merge_mesh_at(door_v, door_i, meshes.floor_tile, x, 0.0, z)
+        Door => {
+          merge_mesh_at(door_v, door_i, meshes.floor_tile, x, 0.0, z)
+          // Add pillars on both sides of door
+          merge_mesh_at(pillar_v, pillar_i, meshes.pillar, x - 0.4, 0.0, z)
+          merge_mesh_at(pillar_v, pillar_i, meshes.pillar, x + 0.4, 0.0, z)
+        }
         Wall => {
           let brick_offset = if row % 2 == 0 { 0 } else { 2 }
           let brick_pos = (col + brick_offset) % 4
           if brick_pos == 0 {
-            merge_mesh_at(wall_a_v, wall_a_i, meshes.wall, x, 0.5, z)
+            merge_mesh_at(wall_a_v, wall_a_i, meshes.wall, x, 0.0, z)
           } else {
-            merge_mesh_at(wall_b_v, wall_b_i, meshes.wall, x, 0.5, z)
+            merge_mesh_at(wall_b_v, wall_b_i, meshes.wall, x, 0.0, z)
           }
           // All walls go into shadow caster mesh
-          merge_mesh_at(wall_all_v, wall_all_i, meshes.wall, x, 0.5, z)
+          merge_mesh_at(wall_all_v, wall_all_i, meshes.wall, x, 0.0, z)
         }
         _ => ()
       }
@@ -119,6 +127,7 @@ fn build_dungeon_mesh_groups(
   add_group(door_v, door_i, color_door, groups)
   add_group(wall_a_v, wall_a_i, color_wall, groups)
   add_group(wall_b_v, wall_b_i, color_wall_alt, groups)
+  add_group(pillar_v, pillar_i, color_pillar, groups)
   let wall_mesh = @mesh3d.Mesh3D::new(wall_all_v, wall_all_i)
   (groups, wall_mesh)
 }

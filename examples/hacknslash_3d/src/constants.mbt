@@ -6,13 +6,13 @@ let screen_h : Int = 480
 
 let tile_size : Double = 16.0
 
-let map_cols : Int = 40
+let map_cols : Int = 60
 
-let map_rows : Int = 30
+let map_rows : Int = 45
 
-let world_w : Double = 640.0
+let world_w : Double = 960.0
 
-let world_h : Double = 480.0
+let world_h : Double = 720.0
 
 let player_speed : Double = 2.0
 
@@ -86,3 +86,10 @@ let key_e : Int = 69 // 'E' for equip
 let key_escape : Int = 27
 
 let key_f3 : Int = 114 // F3 for profiler toggle
+
+// Skill keys (number row)
+let key_1 : Int = 49
+
+let key_2 : Int = 50
+
+let key_3 : Int = 51

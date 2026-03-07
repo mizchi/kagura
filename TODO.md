@@ -125,6 +125,17 @@ Path of Exile スタイルの斜め見下ろしアクション RPG をターゲ�
 - [x] ホットリロード — Vite ベース dev サーバー + .mbt 変更検知 full-reload
 - [ ] ビジュアルエディタ — シーン配置、パラメータ調整 GUI
 
+#### ARPG バグ・改善 (レビュー起因)
+
+- [x] DEF が被ダメージに反映されない — 敵接触・弾丸ダメージで `player_stats.def` を減算していない
+- [x] DashMastery がハードコード定数を使用 — `dash_cooldown` 定数ではなく `player_stats.dash_cooldown` を参照すべき
+- [x] Whirlwind スキルの効果未実装 — SP 消費するが攻撃に変化なし
+- [x] `player.max_hp` vs `player_stats.max_hp` 二重管理 — HP 回復で旧 max_hp(10) を参照する箇所あり
+- [x] SSAO が light-space depth を使用 — カメラスペース深度バッファが必要
+- [x] ゲームオーバーでセーブ未削除 — 死んでも旧セーブから復活できる
+- [x] インベントリ満杯時のアイテム消失 — ドロップ通知なし、地面に落とす処理もなし
+- [ ] アイコンアトラスが未使用 — `create_icon_atlas()` がどこからも呼ばれていない
+
 ## アーキテクチャ課題
 
 - [x] CPU ラスタライザ → GPU パイプライン移行: CPU painter's algorithm 削除済み、全 example が GPU Z-buffer レンダラーに統一

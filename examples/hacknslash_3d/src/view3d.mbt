@@ -212,6 +212,16 @@ fn GameState::draw_playing(
   for cmd in depth_cmds {
     cmds.push(cmd)
   }
+  // === Pass 1.5: Camera depth pass (for SSAO) ===
+  let cam_depth_cmds = @shadow3d.camera_depth_pass_commands(
+    self.camera_depth_target,
+    self.camera_depth_shader,
+    casters,
+    view_projection,
+  )
+  for cmd in cam_depth_cmds {
+    cmds.push(cmd)
+  }
   // === Pass 2: Shadow-lit dungeon (batched mesh groups) → scene_target ===
   for group in self.dungeon_mesh_groups {
     // Tint lighting with object color
@@ -411,12 +421,12 @@ fn GameState::draw_playing(
   for cmd in bloom_cmds {
     cmds.push(cmd)
   }
-  // SSAO: post_target + shadow_map(depth) → ssao_target
+  // SSAO: post_target + camera_depth → ssao_target
   let ssao_cmd = @postfx.new_ssao_command(
     self.ssao_target,
     self.ssao_sh,
     self.post_target.id,
-    self.shadow_map.id,
+    self.camera_depth_target.id,
     8.0,  // radius
     0.02, // bias
     0.6,  // intensity

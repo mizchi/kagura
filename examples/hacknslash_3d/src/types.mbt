@@ -117,6 +117,9 @@ struct GameState {
   bloom_composite_sh : @gfx.ShaderHandle
   fxaa_sh : @gfx.ShaderHandle
   tonemap_sh : @gfx.ShaderHandle
+  // Camera depth (for SSAO)
+  camera_depth_target : @gfx.ImageHandle
+  camera_depth_shader : @gfx.ShaderHandle
   // SSAO
   ssao_sh : @gfx.ShaderHandle
   ssao_target : @gfx.ImageHandle

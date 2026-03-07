@@ -123,6 +123,11 @@ fn GameState::new(seed~ : Int) -> GameState {
     tonemap_sh: @gfx.new_shader_handle(
       305, @postfx.tonemap_wgsl(@postfx.ACES),
     ),
+    // Camera depth (for SSAO)
+    camera_depth_target: @gfx.new_image_handle(305, screen_w, screen_h),
+    camera_depth_shader: @gfx.new_shader_handle(
+      307, @shadow3d.shader_camera_depth_wgsl(),
+    ),
     // SSAO
     ssao_sh: @gfx.new_shader_handle(306, @postfx.ssao_wgsl()),
     ssao_target: @gfx.new_image_handle(304, screen_w, screen_h),
@@ -202,7 +207,6 @@ fn GameState::update_gameover(self : GameState) -> Unit {
     self.dungeon.start_y = dungeon.start_y
     self.player.x = dungeon.start_x
     self.player.y = dungeon.start_y
-    self.player.hp = self.player.max_hp
     self.player.damage_timer = 0
     self.player.iframe_timer = 0
     self.enemies = spawn_enemies_for_floor(dungeon.rooms, 0, self.seed, 1)
@@ -211,6 +215,8 @@ fn GameState::update_gameover(self : GameState) -> Unit {
     self.floor_announce_timer = 0
     self.player.dash_timer = 0
     self.player.dash_cooldown_timer = 0
+    // Delete save on game over
+    self.delete_save()
     // Reset RPG state
     self.ui_mode = ui_mode_none
     self.ui_cursor = 0
@@ -225,6 +231,7 @@ fn GameState::update_gameover(self : GameState) -> Unit {
     }
     self.skills.skill_points = 0
     self.player_stats = compute_player_stats(self.equipment, self.skills)
+    self.player.hp = self.player_stats.max_hp
     self.camera = self.camera.with_target(
       @math3d.Vec3::new(self.player.x / tile_size, 0.0, self.player.y / tile_size),
     )
@@ -309,7 +316,7 @@ fn GameState::update_playing(self : GameState) -> Unit {
     let shift_pressed = @inpututil.is_key_just_pressed(self.input.key_state, 16)
     if shift_pressed && self.player.dash_cooldown_timer <= 0 && (dx != 0.0 || dy != 0.0) {
       self.player.dash_timer = dash_duration
-      self.player.dash_cooldown_timer = dash_cooldown
+      self.player.dash_cooldown_timer = self.player_stats.dash_cooldown
       self.player.dash_vx = dx * player_speed * dash_speed_mult
       self.player.dash_vy = dy * player_speed * dash_speed_mult
       self.player.iframe_timer = dash_duration
@@ -362,7 +369,7 @@ fn GameState::update_playing(self : GameState) -> Unit {
       }
       enemy.vx = 0.0
       enemy.vy = 0.0
-      // Contact damage
+      // Contact damage (reduced by DEF)
       if self.player.iframe_timer <= 0 {
         if @vector.aabb_overlap_center(
           self.player.x, self.player.y,
@@ -370,7 +377,9 @@ fn GameState::update_playing(self : GameState) -> Unit {
           enemy.x, enemy.y,
           enemy.size / 2.0, enemy.size / 2.0,
         ) {
-          self.player.hp = self.player.hp - 1
+          let raw_dmg = 1
+          let actual_dmg = @cmp.maximum(1, raw_dmg - self.player_stats.def)
+          self.player.hp = self.player.hp - actual_dmg
           self.player.damage_timer = damage_flash_duration
           self.player.iframe_timer = iframe_duration
           self.screen_flash = 3
@@ -399,7 +408,8 @@ fn GameState::update_playing(self : GameState) -> Unit {
         let pdx = proj.x - self.player.x
         let pdy = proj.y - self.player.y
         if pdx * pdx + pdy * pdy < 64.0 {
-          self.player.hp = self.player.hp - proj.damage
+          let proj_dmg = @cmp.maximum(1, proj.damage - self.player_stats.def)
+          self.player.hp = self.player.hp - proj_dmg
           self.player.damage_timer = damage_flash_duration
           self.player.iframe_timer = iframe_duration
           self.screen_flash = 3
@@ -428,7 +438,7 @@ fn GameState::update_playing(self : GameState) -> Unit {
         let is_health = item.kind == item_health
         spawn_item_pickup(self.particle_manager, item.x, item.y, is_health)
         if is_health {
-          self.player.hp = @cmp.minimum(self.player.max_hp, self.player.hp + 2)
+          self.player.hp = @cmp.minimum(self.player_stats.max_hp, self.player.hp + 2)
         } else {
           self.score = self.score + 5
         }

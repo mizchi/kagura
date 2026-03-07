@@ -7,23 +7,35 @@ fn try_attack(state : GameState) -> Unit {
   let crit_roll = (state.frame_count * 31 + state.seed * 7) % 100
   let is_crit = crit_roll.to_double() / 100.0 < stats.crit_chance
   let damage = if is_crit { stats.atk * 2 } else { stats.atk }
+  // Whirlwind: 360° AoE with extended range per level
+  let whirlwind_level = state.skills.get_level(Whirlwind)
+  let is_whirlwind = whirlwind_level > 0
+  let effective_range = if is_whirlwind {
+    attack_range + whirlwind_level.to_double() * 6.0
+  } else {
+    attack_range
+  }
   for enemy in state.enemies {
     if enemy.alive {
       let edx = enemy.x - state.player.x
       let edy = enemy.y - state.player.y
       let dist = (edx * edx + edy * edy).sqrt()
-      if dist < attack_range {
-        // Arc check: ±60° from facing
-        let enemy_angle = @math.atan2(edy, edx)
-        let mut angle_diff = enemy_angle - facing
-        // Normalize to [-PI, PI]
-        while angle_diff > 3.14159 {
-          angle_diff = angle_diff - 6.28318
+      if dist < effective_range {
+        // Whirlwind hits 360°, normal attack ±60° from facing
+        let in_arc = if is_whirlwind {
+          true
+        } else {
+          let enemy_angle = @math.atan2(edy, edx)
+          let mut angle_diff = enemy_angle - facing
+          while angle_diff > 3.14159 {
+            angle_diff = angle_diff - 6.28318
+          }
+          while angle_diff < -3.14159 {
+            angle_diff = angle_diff + 6.28318
+          }
+          angle_diff.abs() < 1.0472
         }
-        while angle_diff < -3.14159 {
-          angle_diff = angle_diff + 6.28318
-        }
-        if angle_diff.abs() < 1.0472 {
+        if in_arc {
           enemy.hp = enemy.hp - damage
           enemy.damage_timer = damage_flash_duration
           spawn_hit_sparks(state.particle_manager, enemy.x, enemy.y)
@@ -48,9 +60,11 @@ fn try_attack(state : GameState) -> Unit {
             let drop_seed = state.frame_count * 7 + enemy.x.to_int() * 13 + enemy.y.to_int() * 17
             let drop_roll = drop_seed % 100
             if drop_roll < 30 {
-              // Drop equipment item into inventory
+              // Drop equipment item into inventory; if full, drop as health pickup
               let item = generate_item(drop_seed, state.floor)
-              let _ = state.inventory.add(item)
+              if not(state.inventory.add(item)) {
+                state.items.push({ x: enemy.x, y: enemy.y, kind: item_score, alive: true, spawn_frame: state.frame_count })
+              }
             } else if drop_roll < 60 {
               state.items.push({ x: enemy.x, y: enemy.y, kind: item_health, alive: true, spawn_frame: state.frame_count })
             } else if drop_roll < 80 {

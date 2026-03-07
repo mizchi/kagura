@@ -4,15 +4,16 @@ import {
   HOST_ASSET_TITLE,
   allocGuest,
   assert,
+  deserializeDrawCommands,
   fileExists,
   hasSemanticAbi,
+  inputByteSize,
   instantiateGuest,
-  readDrawCommands,
-  readLegacyConfig,
-  readSemanticConfig,
+  readLegacyGameConfig,
+  readSemanticGuestConfig,
   resolveTargets,
+  serializeInput,
   writeInitEnv,
-  writeInput,
 } from "./test-wasm-harness.mjs";
 
 async function testWasm(path, label) {
@@ -41,7 +42,7 @@ async function testWasm(path, label) {
     const envPtr = allocGuest(exports, 16);
     writeInitEnv(memory, envPtr);
     const configPtr = kagura_guest_init(envPtr, 16);
-    config = readSemanticConfig(memory, configPtr);
+    config = readSemanticGuestConfig(memory, configPtr);
     assert(hostLogs.length > 0, "semantic guest must emit at least one host log");
     assert(
       hostLogs.some((entry) => entry.message.includes("guest init")),
@@ -49,7 +50,7 @@ async function testWasm(path, label) {
     );
   } else {
     const configPtr = kagura_init();
-    config = readLegacyConfig(memory, configPtr);
+    config = readLegacyGameConfig(memory, configPtr);
   }
 
   const { width, height, targetTps, title } = config;
@@ -63,40 +64,48 @@ async function testWasm(path, label) {
   }
   console.log(`  config: ${width}x${height} @${targetTps} "${title}"`);
 
-  const inputPtr = allocGuest(exports, 64);
-  const inputSize = writeInput(memory, inputPtr);
+  const emptyInput = {
+    cursorX: 0,
+    cursorY: 0,
+    wheelX: 0,
+    wheelY: 0,
+    keys: [],
+    mouseButtons: [],
+  };
+  const inputPtr = allocGuest(exports, inputByteSize(emptyInput));
+  const inputSize = serializeInput(memory, inputPtr, emptyInput);
   const wantsRedraw = semanticAbi
     ? kagura_guest_update(inputPtr, inputSize)
     : (kagura_update(inputPtr, inputSize), 1);
   assert(wantsRedraw === 1, `wantsRedraw=${wantsRedraw}`);
 
   const drawPtr = semanticAbi ? kagura_guest_render() : kagura_draw();
-  const commands = readDrawCommands(memory, drawPtr);
+  const commands = deserializeDrawCommands(memory, drawPtr);
   assert(commands.length === 3, `initial cmdCount=${commands.length}, expected 3`);
 
   const expectedColors = [
-    [135, 206, 235, 255],
-    [139, 69, 19, 255],
-    [255, 215, 0, 255],
+    [135 / 255, 206 / 255, 235 / 255, 1],
+    [139 / 255, 69 / 255, 19 / 255, 1],
+    [1, 215 / 255, 0, 1],
   ];
   for (let i = 0; i < commands.length; i++) {
     const command = commands[i];
-    assert(command.vertexCount === 4, `cmd[${i}] vertexCount=${command.vertexCount}`);
-    assert(command.indexCount === 6, `cmd[${i}] indexCount=${command.indexCount}`);
+    assert(command.vertexData.length === 16, `cmd[${i}] vertexCount=${command.vertexData.length / 4}`);
+    assert(command.indices.length === 6, `cmd[${i}] indexCount=${command.indices.length}`);
     const [r, g, b, a] = expectedColors[i];
     assert(
-      command.color.r === r &&
-        command.color.g === g &&
-        command.color.b === b &&
-        command.color.a === a,
-      `cmd[${i}] color=(${command.color.r},${command.color.g},${command.color.b},${command.color.a}) expected (${r},${g},${b},${a})`,
+      command.uniformR === r &&
+        command.uniformG === g &&
+        command.uniformB === b &&
+        command.uniformA === a,
+      `cmd[${i}] color=(${command.uniformR},${command.uniformG},${command.uniformB},${command.uniformA}) expected (${r},${g},${b},${a})`,
     );
   }
   console.log("  draw commands: OK (3 cmds, correct colors)");
 
   for (let frame = 0; frame < 60; frame++) {
-    const ptr = allocGuest(exports, 64);
-    const bytesWritten = writeInput(memory, ptr);
+    const ptr = allocGuest(exports, inputByteSize(emptyInput));
+    const bytesWritten = serializeInput(memory, ptr, emptyInput);
     if (semanticAbi) {
       kagura_guest_update(ptr, bytesWritten);
       kagura_guest_render();
@@ -107,15 +116,23 @@ async function testWasm(path, label) {
   }
   console.log("  60 frame cycles: OK");
 
-  const ptr = allocGuest(exports, 68);
-  const bytesWritten = writeInput(memory, ptr, { keys: [32] });
+  const startedInput = {
+    cursorX: 0,
+    cursorY: 0,
+    wheelX: 0,
+    wheelY: 0,
+    keys: [32],
+    mouseButtons: [],
+  };
+  const ptr = allocGuest(exports, inputByteSize(startedInput));
+  const bytesWritten = serializeInput(memory, ptr, startedInput);
   if (semanticAbi) {
     kagura_guest_update(ptr, bytesWritten);
   } else {
     kagura_update(ptr, bytesWritten);
   }
   const drawPtr2 = semanticAbi ? kagura_guest_render() : kagura_draw();
-  const commandsAfterSpace = readDrawCommands(memory, drawPtr2);
+  const commandsAfterSpace = deserializeDrawCommands(memory, drawPtr2);
   assert(commandsAfterSpace.length >= 3, `after space cmdCount=${commandsAfterSpace.length}`);
   console.log("  space key input: OK");
 

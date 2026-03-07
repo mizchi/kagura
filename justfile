@@ -91,7 +91,11 @@ wasm-host-check:
     cd examples/wasm_game/host && pnpm exec tsc --noEmit
     cd examples/wasm_game/host && pnpm build
 
+wasm-wit-validate:
+    wasm-tools component wit examples/wasm_game/wit/kagura-app-v0.wit > /dev/null
+
 wasm-verify:
+    just wasm-wit-validate
     just wasm-build-moonbit
     just wasm-build-rust
     just wasm-build-zig

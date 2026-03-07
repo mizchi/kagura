@@ -73,6 +73,8 @@ jobs:
           cache-dependency-path: examples/wasm_game/host/pnpm-lock.yaml
       - name: Install Rust toolchain
         run: rustup toolchain install stable --profile minimal --target wasm32-unknown-unknown
+      - name: Install wasm-tools
+        run: cargo install --locked wasm-tools
       - name: Setup Zig
         uses: mlugg/setup-zig@v2
         with:

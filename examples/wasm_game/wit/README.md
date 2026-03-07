@@ -8,6 +8,9 @@
 - `kagura-app-v0.wit`
   - ADR 0001 に沿って今後の正本にする target guest ABI v0
   - host / guest の意味的な責務を表し、linear memory の詰め方までは固定しない
+- `shared-memory-layout-v0.md`
+  - `kagura-app-v0.wit` を current raw wasm PoC の linear memory layout へ lower する adapter spec
+  - `examples/wasm_game/protocol/shared-memory.js` と対になる
 
 ## v0 で固定したいこと
 

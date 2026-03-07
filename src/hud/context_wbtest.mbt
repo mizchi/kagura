@@ -1,3 +1,4 @@
+///|
 test "hex_color basic" {
   let c = hex_color(0xFF8800)
   assert_eq(c.r, 1.0)
@@ -6,12 +7,14 @@ test "hex_color basic" {
   assert_eq(c.a, 1.0)
 }
 
+///|
 test "hex_color with alpha" {
   let c = hex_color(0x000000, alpha=0.5)
   assert_eq(c.r, 0.0)
   assert_eq(c.a, 0.5)
 }
 
+///|
 test "hex_color white" {
   let c = hex_color(0xFFFFFF)
   assert_eq(c.r, 1.0)
@@ -19,6 +22,7 @@ test "hex_color white" {
   assert_eq(c.b, 1.0)
 }
 
+///|
 test "measure_text fallback" {
   let ctx : HudContext = {
     dst: @gfx.new_image_handle(0, 320, 240),
@@ -34,6 +38,7 @@ test "measure_text fallback" {
   assert_eq(h, 10.0)
 }
 
+///|
 test "measure_text empty" {
   let ctx : HudContext = {
     dst: @gfx.new_image_handle(0, 320, 240),

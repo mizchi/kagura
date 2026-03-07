@@ -49,7 +49,7 @@ pub struct AssetStreamManager {
 ///|
 pub fn new_asset_stream_manager(
   fetcher : &@asset.BytesFetcher,
-  max_concurrent~ : Int = 4,
+  max_concurrent? : Int = 4,
 ) -> AssetStreamManager {
   {
     fetcher,
@@ -123,11 +123,7 @@ pub fn AssetStreamManager::update(self : AssetStreamManager) -> Unit {
   self.fetcher.poll()
   // Remove completed active requests
   let done_ids : Array[Int] = []
-  self.active.each(fn(id, req) {
-    if req.done {
-      done_ids.push(id)
-    }
-  })
+  self.active.each(fn(id, req) { if req.done { done_ids.push(id) } })
   for id in done_ids {
     self.active.remove(id)
   }
@@ -135,23 +131,19 @@ pub fn AssetStreamManager::update(self : AssetStreamManager) -> Unit {
   while self.active.length() < self.max_concurrent && self.pending.length() > 0 {
     let req = self.pending.remove(0)
     let id = req.id
-    let handle = self.fetcher.fetch(
-      req.url,
-      fn(_progress) {  },
-      fn(data) {
-        match self.active.get(id) {
-          Some(r) => {
-            r.done = true
-            match data {
-              Some(_) => self.completed_count = self.completed_count + 1
-              None => self.failed_count = self.failed_count + 1
-            }
-            (r.on_complete)(data)
+    let handle = self.fetcher.fetch(req.url, fn(_progress) {  }, fn(data) {
+      match self.active.get(id) {
+        Some(r) => {
+          r.done = true
+          match data {
+            Some(_) => self.completed_count = self.completed_count + 1
+            None => self.failed_count = self.failed_count + 1
           }
-          None => ()
+          (r.on_complete)(data)
         }
-      },
-    )
+        None => ()
+      }
+    })
     req.handle = Some(handle)
     self.active.set(id, req)
   }
@@ -161,7 +153,7 @@ pub fn AssetStreamManager::update(self : AssetStreamManager) -> Unit {
 /// Creates a fetch_image_fn compatible with AsyncImageLoader from a stream manager.
 pub fn make_stream_fetch_image_fn(
   manager : AssetStreamManager,
-  priority~ : AssetPriority = Normal,
+  priority? : AssetPriority = Normal,
 ) -> (String, (@asset.ImageSpec?) -> Unit) -> Unit {
   fn(url, callback) {
     ignore(
@@ -169,8 +161,8 @@ pub fn make_stream_fetch_image_fn(
         match bytes_opt {
           None => callback(None)
           Some(bytes) =>
-            callback(@asset.decode_image_spec_auto(bytes)) catch { _ =>
-              callback(None)
+            callback(@asset.decode_image_spec_auto(bytes)) catch {
+              _ => callback(None)
             }
         }
       }),
@@ -219,9 +211,9 @@ pub fn AssetStreamManager::progress(
 ) -> StreamProgress {
   {
     total: self.pending.length() +
-      self.active.length() +
-      self.completed_count +
-      self.failed_count,
+    self.active.length() +
+    self.completed_count +
+    self.failed_count,
     pending: self.pending.length(),
     active: self.active.length(),
     completed: self.completed_count,

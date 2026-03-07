@@ -21,7 +21,8 @@ pub fn ParticleManager::new(shader_id : Int) -> ParticleManager {
   {
     emitters: [],
     particle_shader: @gfx.new_shader_handle(
-      shader_id, @draw3d.shader3d_particle_wgsl(),
+      shader_id,
+      @draw3d.shader3d_particle_wgsl(),
     ),
   }
 }
@@ -31,12 +32,9 @@ pub fn ParticleManager::new(shader_id : Int) -> ParticleManager {
 /// Particles are created on the next update() call.
 pub fn ParticleManager::spawn(
   self : ParticleManager,
-  config : EmitterConfig
+  config : EmitterConfig,
 ) -> Unit {
-  self.emitters.push({
-    emitter: ParticleEmitter::new(config),
-    spawned: false,
-  })
+  self.emitters.push({ emitter: ParticleEmitter::new(config), spawned: false })
 }
 
 ///|
@@ -76,10 +74,14 @@ pub fn ParticleManager::draw(
   let vp = camera.view_projection_matrix()
   let view = camera.view_matrix()
   let cam_right = @math3d.Vec3::new(
-    view.elements[0], view.elements[4], view.elements[8],
+    view.elements[0],
+    view.elements[4],
+    view.elements[8],
   )
   let cam_up = @math3d.Vec3::new(
-    view.elements[1], view.elements[5], view.elements[9],
+    view.elements[1],
+    view.elements[5],
+    view.elements[9],
   )
   for be in self.emitters {
     let (vertex_data, indices) = be.emitter.build_billboard_vertices(
@@ -87,7 +89,11 @@ pub fn ParticleManager::draw(
     )
     if indices.length() > 0 {
       let region = @gfx.new_dst_region(
-        0, 0, screen_w, screen_h, indices.length(),
+        0,
+        0,
+        screen_w,
+        screen_h,
+        indices.length(),
       )
       let cmd = @draw3d.new_particle_draw_command(
         dst,

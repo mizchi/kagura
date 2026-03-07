@@ -1410,8 +1410,14 @@ test "render_text with uniform_dwords propagates to commands" {
   let shader = @gfx.new_shader_handle(1, "text_shader")
   let color_dwords = [255, 128, 64, 255]
   let commands = renderer.render_text(
-    "I", 24.0, 10.0, 20.0, dst, shader,
-    @gfx.blend_mode_from_int(1), color_dwords,
+    "I",
+    24.0,
+    10.0,
+    20.0,
+    dst,
+    shader,
+    @gfx.blend_mode_from_int(1),
+    color_dwords,
   )
   assert_true(commands.length() > 0)
   // Each command should have the uniform_dwords we passed
@@ -1433,8 +1439,14 @@ test "render_text with empty uniform_dwords does not add uniforms" {
   let dst = @gfx.new_image_handle(1, 640, 480)
   let shader = @gfx.new_shader_handle(1, "text_shader")
   let commands = renderer.render_text(
-    "I", 24.0, 10.0, 20.0, dst, shader,
-    @gfx.blend_mode_from_int(1), [],
+    "I",
+    24.0,
+    10.0,
+    20.0,
+    dst,
+    shader,
+    @gfx.blend_mode_from_int(1),
+    [],
   )
   assert_true(commands.length() > 0)
   // Commands should have empty uniform_dwords (default from batch builder)
@@ -1452,8 +1464,14 @@ test "render_text empty string returns no commands" {
   let dst = @gfx.new_image_handle(1, 640, 480)
   let shader = @gfx.new_shader_handle(1, "text_shader")
   let commands = renderer.render_text(
-    "", 24.0, 0.0, 0.0, dst, shader,
-    @gfx.blend_mode_from_int(1), [255, 255, 255, 255],
+    "",
+    24.0,
+    0.0,
+    0.0,
+    dst,
+    shader,
+    @gfx.blend_mode_from_int(1),
+    [255, 255, 255, 255],
   )
   assert_eq(commands.length(), 0)
   reset_font_load_hooks()
@@ -1471,8 +1489,14 @@ test "flush_dirty_pages returns dirty and clears flag" {
   assert_eq(empty_dirty.length(), 0)
   // After rendering, should have dirty pages
   let _ = renderer.render_text(
-    "I", 24.0, 0.0, 0.0, dst, shader,
-    @gfx.blend_mode_from_int(1), [],
+    "I",
+    24.0,
+    0.0,
+    0.0,
+    dst,
+    shader,
+    @gfx.blend_mode_from_int(1),
+    [],
   )
   let dirty = renderer.flush_dirty_pages()
   assert_true(dirty.length() > 0)

@@ -24,8 +24,8 @@ test "AssetStreamer: duplicate request returns same id" {
   let fetcher = new_mock_fetcher()
   let streamer = new_asset_streamer(fetcher, config=default_streamer_config())
   let key = @asset.new_asset_key("dup")
-  let id1 = streamer.request("a.png", key, Normal, fn(_) {})
-  let id2 = streamer.request("a.png", key, Normal, fn(_) {})
+  let id1 = streamer.request("a.png", key, Normal, fn(_) {  })
+  let id2 = streamer.request("a.png", key, Normal, fn(_) {  })
   assert_eq(id1, id2)
   // Only one fetch should have been enqueued
   streamer.update()
@@ -35,10 +35,10 @@ test "AssetStreamer: duplicate request returns same id" {
 ///|
 test "AssetStreamer: distance-based priority" {
   let fetcher = new_mock_fetcher()
-  let streamer = new_asset_streamer(
-    fetcher,
-    config={ ..default_streamer_config(), max_concurrent: 1 },
-  )
+  let streamer = new_asset_streamer(fetcher, config={
+    ..default_streamer_config(),
+    max_concurrent: 1,
+  })
   let thresholds = default_distance_thresholds()
   // Request far object first, then close object
   ignore(
@@ -47,7 +47,7 @@ test "AssetStreamer: distance-based priority" {
       @asset.new_asset_key("far"),
       100.0,
       thresholds~,
-      on_complete=fn(_) {},
+      on_complete=fn(_) {  },
     ),
   )
   ignore(
@@ -56,7 +56,7 @@ test "AssetStreamer: distance-based priority" {
       @asset.new_asset_key("close"),
       5.0,
       thresholds~,
-      on_complete=fn(_) {},
+      on_complete=fn(_) {  },
     ),
   )
   streamer.update()
@@ -69,9 +69,9 @@ test "AssetStreamer: LOD skip duplicate" {
   let fetcher = new_mock_fetcher()
   let streamer = new_asset_streamer(fetcher, config=default_streamer_config())
   let key = @asset.new_asset_key("model")
-  let id1 = streamer.request_lod("model_lod2.obj", key, 2, Normal, fn(_) {})
+  let id1 = streamer.request_lod("model_lod2.obj", key, 2, Normal, fn(_) {  })
   // Request same or lower LOD → should return same id
-  let id2 = streamer.request_lod("model_lod1.obj", key, 1, Normal, fn(_) {})
+  let id2 = streamer.request_lod("model_lod1.obj", key, 1, Normal, fn(_) {  })
   assert_eq(id1, id2)
 }
 
@@ -80,9 +80,9 @@ test "AssetStreamer: LOD upgrade" {
   let fetcher = new_mock_fetcher()
   let streamer = new_asset_streamer(fetcher, config=default_streamer_config())
   let key = @asset.new_asset_key("model")
-  let id1 = streamer.request_lod("model_lod1.obj", key, 1, Normal, fn(_) {})
+  let id1 = streamer.request_lod("model_lod1.obj", key, 1, Normal, fn(_) {  })
   // Request higher LOD → should create new request
-  let id2 = streamer.request_lod("model_lod2.obj", key, 2, High, fn(_) {})
+  let id2 = streamer.request_lod("model_lod2.obj", key, 2, High, fn(_) {  })
   assert_true(id1 != id2)
 }
 
@@ -95,37 +95,20 @@ test "AssetStreamer: eviction" {
     eviction_interval: 1, // sweep every frame
   }
   let fetcher = new_mock_fetcher()
-  let streamer = new_asset_streamer(
-    fetcher,
-    config~,
-    on_evict=fn(key) { evicted.push(key.value) },
-  )
+  let streamer = new_asset_streamer(fetcher, config~, on_evict=fn(key) {
+    evicted.push(key.value)
+  })
   // Add 3 entries
   ignore(
-    streamer.request(
-      "a.png",
-      @asset.new_asset_key("a"),
-      Normal,
-      fn(_) {},
-    ),
+    streamer.request("a.png", @asset.new_asset_key("a"), Normal, fn(_) {  }),
   )
   streamer.update() // frame 0→1
   ignore(
-    streamer.request(
-      "b.png",
-      @asset.new_asset_key("b"),
-      Normal,
-      fn(_) {},
-    ),
+    streamer.request("b.png", @asset.new_asset_key("b"), Normal, fn(_) {  }),
   )
   streamer.update() // frame 1→2
   ignore(
-    streamer.request(
-      "c.png",
-      @asset.new_asset_key("c"),
-      Normal,
-      fn(_) {},
-    ),
+    streamer.request("c.png", @asset.new_asset_key("c"), Normal, fn(_) {  }),
   )
   // Touch "b" to keep it alive
   streamer.touch(@asset.new_asset_key("b"))
@@ -139,12 +122,11 @@ test "AssetStreamer: eviction" {
 test "AssetStreamer: manual evict" {
   let evicted : Array[String] = []
   let fetcher = new_mock_fetcher()
-  let streamer = new_asset_streamer(
-    fetcher,
-    on_evict=fn(key) { evicted.push(key.value) },
-  )
+  let streamer = new_asset_streamer(fetcher, on_evict=fn(key) {
+    evicted.push(key.value)
+  })
   let key = @asset.new_asset_key("manual")
-  ignore(streamer.request("m.png", key, Normal, fn(_) {}))
+  ignore(streamer.request("m.png", key, Normal, fn(_) {  }))
   streamer.evict(key)
   assert_eq(evicted, ["manual"])
 }
@@ -154,8 +136,8 @@ test "reprioritize pending request" {
   let fetcher = new_mock_fetcher()
   let manager = new_asset_stream_manager(fetcher, max_concurrent=1)
   // Enqueue two Low requests, then reprioritize second to Critical
-  let _id1 = manager.enqueue("first.png", Low, fn(_) {})
-  let id2 = manager.enqueue("second.png", Low, fn(_) {})
+  let _id1 = manager.enqueue("first.png", Low, fn(_) {  })
+  let id2 = manager.enqueue("second.png", Low, fn(_) {  })
   let ok = manager.reprioritize(id2, Critical)
   assert_true(ok)
   // Now start fetching — the reprioritized one should go first

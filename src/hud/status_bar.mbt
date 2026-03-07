@@ -1,20 +1,21 @@
+///|
 /// StatusBar: horizontal progress bar for HP, MP, stamina, cooldowns, etc.
-
 pub(all) struct StatusBar {
   x : Double
   y : Double
   width : Double
   height : Double
-  ratio : Double        // 0.0 .. 1.0
-  fill_color : Int      // hex
-  bg_color : Int        // hex
-  border_color : Int?   // None = no border
+  ratio : Double // 0.0 .. 1.0
+  fill_color : Int // hex
+  bg_color : Int // hex
+  border_color : Int? // None = no border
   border_width : Double
-  label : String        // "" = no label
+  label : String // "" = no label
   label_size : Double
-  label_color : Int     // hex
+  label_color : Int // hex
 }
 
+///|
 /// Default status bar preset.
 pub fn default_status_bar() -> StatusBar {
   {
@@ -33,6 +34,7 @@ pub fn default_status_bar() -> StatusBar {
   }
 }
 
+///|
 /// Render: background -> fill -> border (4 rects) -> label (centered)
 pub fn StatusBar::render(
   self : StatusBar,
@@ -40,11 +42,25 @@ pub fn StatusBar::render(
   cmds : Array[@gfx.DrawTrianglesCommand],
 ) -> Unit {
   // Background
-  ctx.draw_rect(cmds, self.x, self.y, self.width, self.height, hex_color(self.bg_color, alpha=0.8))
+  ctx.draw_rect(
+    cmds,
+    self.x,
+    self.y,
+    self.width,
+    self.height,
+    hex_color(self.bg_color, alpha=0.8),
+  )
   // Fill
   let fill_w = self.width * self.ratio.clamp(0.0, 1.0)
   if fill_w > 0.0 {
-    ctx.draw_rect(cmds, self.x, self.y, fill_w, self.height, hex_color(self.fill_color))
+    ctx.draw_rect(
+      cmds,
+      self.x,
+      self.y,
+      fill_w,
+      self.height,
+      hex_color(self.fill_color),
+    )
   }
   // Border (4 rects: top, bottom, left, right)
   match self.border_color {
@@ -54,11 +70,25 @@ pub fn StatusBar::render(
       // Top
       ctx.draw_rect(cmds, self.x, self.y, self.width, bw, color)
       // Bottom
-      ctx.draw_rect(cmds, self.x, self.y + self.height - bw, self.width, bw, color)
+      ctx.draw_rect(
+        cmds,
+        self.x,
+        self.y + self.height - bw,
+        self.width,
+        bw,
+        color,
+      )
       // Left
       ctx.draw_rect(cmds, self.x, self.y, bw, self.height, color)
       // Right
-      ctx.draw_rect(cmds, self.x + self.width - bw, self.y, bw, self.height, color)
+      ctx.draw_rect(
+        cmds,
+        self.x + self.width - bw,
+        self.y,
+        bw,
+        self.height,
+        color,
+      )
     }
     None => ()
   }
@@ -66,10 +96,18 @@ pub fn StatusBar::render(
   if self.label.length() > 0 {
     let cx = self.x + self.width / 2.0
     let cy = self.y + self.height / 2.0
-    ctx.draw_text_centered(cmds, self.label, self.label_size, cx, cy, self.label_color)
+    ctx.draw_text_centered(
+      cmds,
+      self.label,
+      self.label_size,
+      cx,
+      cy,
+      self.label_color,
+    )
   }
 }
 
+///|
 /// Helper: clamp a Double to [min, max].
 fn Double::clamp(self : Double, min : Double, max : Double) -> Double {
   if self < min {

@@ -160,7 +160,7 @@ pub fn ParticleEmitter::update(self : ParticleEmitter, dt : Double) -> Unit {
 /// Use this for burst emitters after the initial spawn.
 pub fn ParticleEmitter::update_physics_only(
   self : ParticleEmitter,
-  dt : Double
+  dt : Double,
 ) -> Unit {
   let gravity = self.config.gravity
   let mut i = 0

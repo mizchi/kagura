@@ -4,7 +4,13 @@ pub fn packed_sprite_to_atlas_region(
   sprite : PackedSprite,
   atlas_id : Int,
 ) -> @asset.AtlasRegion {
-  @asset.new_atlas_region(sprite.x, sprite.y, sprite.width, sprite.height, atlas_id)
+  @asset.new_atlas_region(
+    sprite.x,
+    sprite.y,
+    sprite.width,
+    sprite.height,
+    atlas_id,
+  )
 }
 
 ///|
@@ -14,7 +20,7 @@ pub fn packed_sprite_to_atlas_region(
 pub fn create_packed_atlas_repository(
   inputs : Array[SpriteInput],
   result : PackResult,
-  atlas_id~ : Int = 0,
+  atlas_id? : Int = 0,
 ) -> @asset.SimpleAtlasImageRepository {
   let repo = @asset.new_simple_atlas_image_repository(
     result.width,
@@ -34,7 +40,6 @@ pub fn create_packed_atlas_repository(
     let region = packed_sprite_to_atlas_region(sprite, atlas_id)
     let key = @asset.new_asset_key(sprite.key)
     let _ = @asset.register_precomputed_image(repo, key, region, spec)
-
   }
   repo
 }

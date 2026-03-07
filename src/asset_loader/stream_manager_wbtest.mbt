@@ -2,7 +2,7 @@
 struct MockRequest {
   id : Int
   url : String
-  on_progress : (@asset.FetchProgress) -> Unit
+  _on_progress : (@asset.FetchProgress) -> Unit
   on_complete : (Bytes?) -> Unit
   mut cancelled : Bool
 }
@@ -27,7 +27,13 @@ impl @asset.BytesFetcher for MockFetcher with fetch(
 ) {
   let id = self.next_id
   self.next_id = self.next_id + 1
-  self.requests.push({ id, url, on_progress, on_complete, cancelled: false })
+  self.requests.push({
+    id,
+    url,
+    _on_progress: on_progress,
+    on_complete,
+    cancelled: false,
+  })
   { id, }
 }
 
@@ -58,9 +64,7 @@ test "priority ordering: Critical before Low" {
   let fetcher = new_mock_fetcher()
   let manager = new_asset_stream_manager(fetcher, max_concurrent=1)
   let order : Array[String] = []
-  ignore(
-    manager.enqueue("low.png", Low, fn(_) { order.push("low") }),
-  )
+  ignore(manager.enqueue("low.png", Low, fn(_) { order.push("low") }))
   ignore(
     manager.enqueue("critical.png", Critical, fn(_) { order.push("critical") }),
   )

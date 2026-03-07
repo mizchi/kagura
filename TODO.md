@@ -21,7 +21,7 @@
 
 ### 残タスク (3D エンジン)
 
-- [ ] glTF/OBJ ローダーを別パッケージに切り出し（mizchi/glfw と同様に mooncakes 化）
+- [ ] glTF/OBJ ローダーを別パッケージに切り出し — 後回し: 現状 mesh3d/scene3d/skeleton3d/animation3d 等 6 パッケージに依存しており、基盤パッケージの独立とテクスチャパイプライン安定後に着手
 
 ## ベンチマークゲーム: Isometric Hack & Slash ARPG
 

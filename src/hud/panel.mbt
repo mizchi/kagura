@@ -1,19 +1,20 @@
+///|
 /// Panel: bordered container with optional title bar.
-
 pub(all) struct Panel {
   x : Double
   y : Double
   width : Double
   height : Double
-  bg_color : Int       // hex
-  border_color : Int   // hex
+  bg_color : Int // hex
+  border_color : Int // hex
   border_width : Double
-  title : String       // "" = no title bar
+  title : String // "" = no title bar
   title_size : Double
-  title_color : Int    // hex
+  title_color : Int // hex
   title_bg_color : Int // hex
 }
 
+///|
 /// Render the panel and return the content area (cx, cy, cw, ch).
 pub fn Panel::render(
   self : Panel,
@@ -22,7 +23,14 @@ pub fn Panel::render(
 ) -> (Double, Double, Double, Double) {
   let bw = self.border_width
   // Background
-  ctx.draw_rect(cmds, self.x, self.y, self.width, self.height, hex_color(self.bg_color, alpha=0.8))
+  ctx.draw_rect(
+    cmds,
+    self.x,
+    self.y,
+    self.width,
+    self.height,
+    hex_color(self.bg_color, alpha=0.8),
+  )
   // Border (4 rects)
   let bc = hex_color(self.border_color)
   // Top
@@ -36,10 +44,20 @@ pub fn Panel::render(
   // Title bar
   let title_h = if self.title.length() > 0 {
     let th = self.title_size + 4.0
-    ctx.draw_rect(cmds, self.x + bw, self.y + bw, self.width - bw * 2.0, th, hex_color(self.title_bg_color))
+    ctx.draw_rect(
+      cmds,
+      self.x + bw,
+      self.y + bw,
+      self.width - bw * 2.0,
+      th,
+      hex_color(self.title_bg_color),
+    )
     ctx.draw_text(
-      cmds, self.title, self.title_size,
-      self.x + bw + 4.0, self.y + bw + 2.0,
+      cmds,
+      self.title,
+      self.title_size,
+      self.x + bw + 4.0,
+      self.y + bw + 2.0,
       self.title_color,
     )
     th

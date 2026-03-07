@@ -58,11 +58,14 @@ pub struct AssetStreamer {
 ///|
 pub fn new_asset_streamer(
   fetcher : &@asset.BytesFetcher,
-  config~ : AssetStreamerConfig = default_streamer_config(),
-  on_evict~ : (@asset.AssetKey) -> Unit = fn(_) {},
+  config? : AssetStreamerConfig = default_streamer_config(),
+  on_evict? : (@asset.AssetKey) -> Unit = fn(_) {  },
 ) -> AssetStreamer {
   {
-    manager: new_asset_stream_manager(fetcher, max_concurrent=config.max_concurrent),
+    manager: new_asset_stream_manager(
+      fetcher,
+      max_concurrent=config.max_concurrent,
+    ),
     config,
     frame_count: 0,
     handles: {},
@@ -102,7 +105,7 @@ pub fn AssetStreamer::request_by_distance(
   url : String,
   key : @asset.AssetKey,
   distance : Double,
-  thresholds~ : DistanceThresholds = default_distance_thresholds(),
+  thresholds? : DistanceThresholds = default_distance_thresholds(),
   on_complete~ : (Bytes?) -> Unit,
 ) -> Int {
   let priority = distance_to_priority(distance, thresholds)
@@ -174,7 +177,10 @@ pub fn AssetStreamer::update(self : AssetStreamer) -> Unit {
 }
 
 ///|
-pub fn AssetStreamer::touch(self : AssetStreamer, key : @asset.AssetKey) -> Unit {
+pub fn AssetStreamer::touch(
+  self : AssetStreamer,
+  key : @asset.AssetKey,
+) -> Unit {
   match self.handles.get(key.value) {
     Some(entry) => entry.last_touched = self.frame_count
     None => ()
@@ -182,7 +188,10 @@ pub fn AssetStreamer::touch(self : AssetStreamer, key : @asset.AssetKey) -> Unit
 }
 
 ///|
-pub fn AssetStreamer::evict(self : AssetStreamer, key : @asset.AssetKey) -> Unit {
+pub fn AssetStreamer::evict(
+  self : AssetStreamer,
+  key : @asset.AssetKey,
+) -> Unit {
   match self.handles.get(key.value) {
     Some(entry) => {
       self.manager.cancel(entry.stream_id)

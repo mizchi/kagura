@@ -1,3 +1,4 @@
+///|
 test "default_status_bar fields" {
   let bar = default_status_bar()
   assert_eq(bar.width, 120.0)
@@ -7,6 +8,7 @@ test "default_status_bar fields" {
   assert_eq(bar.label, "")
 }
 
+///|
 test "StatusBar render produces commands" {
   let ctx : HudContext = {
     dst: @gfx.new_image_handle(0, 320, 240),
@@ -16,17 +18,13 @@ test "StatusBar render produces commands" {
     text_renderer: None,
   }
   let cmds : Array[@gfx.DrawTrianglesCommand] = []
-  let bar : StatusBar = {
-    ..default_status_bar(),
-    x: 10.0,
-    y: 10.0,
-    ratio: 0.5,
-  }
+  let bar : StatusBar = { ..default_status_bar(), x: 10.0, y: 10.0, ratio: 0.5 }
   bar.render(ctx, cmds)
   // bg + fill = 2 commands (no border, no label)
   assert_eq(cmds.length(), 2)
 }
 
+///|
 test "StatusBar render with border and label" {
   let ctx : HudContext = {
     dst: @gfx.new_image_handle(0, 320, 240),
@@ -49,6 +47,7 @@ test "StatusBar render with border and label" {
   assert_true(cmds.length() >= 6)
 }
 
+///|
 test "StatusBar zero ratio no fill" {
   let ctx : HudContext = {
     dst: @gfx.new_image_handle(0, 320, 240),
@@ -58,15 +57,13 @@ test "StatusBar zero ratio no fill" {
     text_renderer: None,
   }
   let cmds : Array[@gfx.DrawTrianglesCommand] = []
-  let bar : StatusBar = {
-    ..default_status_bar(),
-    ratio: 0.0,
-  }
+  let bar : StatusBar = { ..default_status_bar(), ratio: 0.0 }
   bar.render(ctx, cmds)
   // bg only, no fill (ratio=0)
   assert_eq(cmds.length(), 1)
 }
 
+///|
 test "clamp method" {
   assert_eq(0.5.clamp(0.0, 1.0), 0.5)
   assert_eq((-0.1).clamp(0.0, 1.0), 0.0)

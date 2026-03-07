@@ -1,5 +1,12 @@
+///|
 test "packed_sprite_to_atlas_region" {
-  let sprite : PackedSprite = { key: "test", x: 10, y: 20, width: 32, height: 48 }
+  let sprite : PackedSprite = {
+    key: "test",
+    x: 10,
+    y: 20,
+    width: 32,
+    height: 48,
+  }
   let region = packed_sprite_to_atlas_region(sprite, 5)
   assert_eq(region.x, 10)
   assert_eq(region.y, 20)
@@ -8,6 +15,7 @@ test "packed_sprite_to_atlas_region" {
   assert_eq(region.atlas_id, 5)
 }
 
+///|
 test "create_packed_atlas_repository basic" {
   // Create two 4x4 sprites
   let pixels_a : Array[Int] = Array::make(4 * 4 * 4, 255)
@@ -28,15 +36,22 @@ test "create_packed_atlas_repository basic" {
   }
   let repo = create_packed_atlas_repository(inputs, result)
   // Both sprites should be retrievable
-  let src_a = @asset.get_atlas_draw_source(repo, @asset.new_asset_key("sprite_a"))
+  let src_a = @asset.get_atlas_draw_source(
+    repo,
+    @asset.new_asset_key("sprite_a"),
+  )
   assert_true(not(src_a is None))
-  let src_b = @asset.get_atlas_draw_source(repo, @asset.new_asset_key("sprite_b"))
+  let src_b = @asset.get_atlas_draw_source(
+    repo,
+    @asset.new_asset_key("sprite_b"),
+  )
   assert_true(not(src_b is None))
   // Nonexistent key returns None
   let src_c = @asset.get_atlas_draw_source(repo, @asset.new_asset_key("nope"))
   assert_true(src_c is None)
 }
 
+///|
 test "create_packed_atlas_repository UV coordinates" {
   let pixels : Array[Int] = Array::make(8 * 8 * 4, 200)
   let spec = @asset.image_spec_with_rgba8(8, 8, pixels)
@@ -57,6 +72,7 @@ test "create_packed_atlas_repository UV coordinates" {
   assert_eq(s.v1, 0.75)
 }
 
+///|
 test "pack_result_to_tile_atlas_table with tile_ keys" {
   let result : PackResult = {
     width: 64,
@@ -82,6 +98,7 @@ test "pack_result_to_tile_atlas_table with tile_ keys" {
   assert_true(r1 is None)
 }
 
+///|
 test "pack_result_to_tile_atlas_table with non-tile keys" {
   let result : PackResult = {
     width: 32,
@@ -100,6 +117,7 @@ test "pack_result_to_tile_atlas_table with non-tile keys" {
   assert_true(not(r1 is None))
 }
 
+///|
 test "end-to-end: split_sprite_sheet → pack → repository → draw_source" {
   // Create a 32x32 sprite sheet (2x2 grid of 16x16 tiles)
   let sheet_w = 32
@@ -152,6 +170,7 @@ test "end-to-end: split_sprite_sheet → pack → repository → draw_source" {
   inspect(table.entries.length(), content="4")
 }
 
+///|
 test "parse_tile_index" {
   assert_eq(parse_tile_index("tile_0"), Some(0))
   assert_eq(parse_tile_index("tile_42"), Some(42))

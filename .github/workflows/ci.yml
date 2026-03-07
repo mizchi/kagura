@@ -149,8 +149,7 @@ jobs:
         run: moon update
       - name: Check
         run: moon check --target native
-      - name: Build Native Triangle
-        run: cd examples/native_triangle && moon build src --target native
+      # moon build skipped: MoonBit runtime unconditionally links -lm which doesn't exist on Windows (m.lib)
 
   native-macos:
     runs-on: macos-latest

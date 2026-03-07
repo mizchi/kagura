@@ -1,23 +1,19 @@
 // 3D rendering: dungeon graph, entity graph, draw
 
-// Colors (RGBA, 0-1 range) — dark atmospheric dungeon palette
-let color_floor : @math3d.Vec4 = @math3d.Vec4::new(0.22, 0.20, 0.28, 1.0)
+// Colors (RGBA, 0-1 range) — natural field palette
+let color_floor : @math3d.Vec4 = @math3d.Vec4::new(0.30, 0.38, 0.22, 1.0)
 
-let color_floor_alt : @math3d.Vec4 = @math3d.Vec4::new(0.25, 0.23, 0.30, 1.0)
+let color_floor_alt : @math3d.Vec4 = @math3d.Vec4::new(0.34, 0.42, 0.25, 1.0)
 
-let color_corridor : @math3d.Vec4 = @math3d.Vec4::new(0.18, 0.17, 0.24, 1.0)
+let color_corridor : @math3d.Vec4 = @math3d.Vec4::new(0.35, 0.32, 0.25, 1.0)
 
-let color_corridor_alt : @math3d.Vec4 = @math3d.Vec4::new(0.15, 0.14, 0.21, 1.0)
+let color_corridor_alt : @math3d.Vec4 = @math3d.Vec4::new(0.32, 0.29, 0.22, 1.0)
 
-let color_wall : @math3d.Vec4 = @math3d.Vec4::new(0.45, 0.32, 0.20, 1.0)
+let color_wall : @math3d.Vec4 = @math3d.Vec4::new(0.45, 0.40, 0.32, 1.0)
 
-let color_wall_alt : @math3d.Vec4 = @math3d.Vec4::new(0.38, 0.25, 0.14, 1.0)
+let color_door : @math3d.Vec4 = @math3d.Vec4::new(0.50, 0.42, 0.20, 1.0)
 
-let color_wall_top : @math3d.Vec4 = @math3d.Vec4::new(0.50, 0.36, 0.22, 1.0)
-
-let color_door : @math3d.Vec4 = @math3d.Vec4::new(0.60, 0.45, 0.12, 1.0)
-
-let color_pillar : @math3d.Vec4 = @math3d.Vec4::new(0.52, 0.40, 0.28, 1.0)
+let color_pillar : @math3d.Vec4 = @math3d.Vec4::new(0.50, 0.45, 0.35, 1.0)
 
 let color_player : @math3d.Vec4 = @math3d.Vec4::new(0.0, 1.0, 0.8, 1.0)
 
@@ -44,18 +40,20 @@ let color_projectile : @math3d.Vec4 = @math3d.Vec4::new(1.0, 0.27, 0.4, 1.0)
 // Build static dungeon scene graph (cached, rebuilt on floor reset)
 fn build_dungeon_graph(dungeon : DungeonData, meshes : Meshes3D) -> @scene3d.SceneGraph {
   let graph = @scene3d.SceneGraph::new()
+  let w = dungeon.grid.width
   for row = 0; row < dungeon.grid.height; row = row + 1 {
-    for col = 0; col < dungeon.grid.width; col = col + 1 {
+    for col = 0; col < w; col = col + 1 {
       let tile = dungeon.grid.get(col, row)
       let x = col.to_double()
       let z = row.to_double()
+      let y = dungeon.height_map[row * w + col]
       match tile {
         Floor | Start | Goal => {
           let checker = (col + row) % 2
           let c = if tile == @terrain.Start {
-            @math3d.Vec4::new(0.1, 0.3, 0.2, 1.0)
+            @math3d.Vec4::new(0.2, 0.45, 0.25, 1.0)
           } else if tile == @terrain.Goal {
-            @math3d.Vec4::new(0.3, 0.1, 0.1, 1.0)
+            @math3d.Vec4::new(0.45, 0.2, 0.15, 1.0)
           } else if checker == 0 {
             color_floor
           } else {
@@ -64,7 +62,7 @@ fn build_dungeon_graph(dungeon : DungeonData, meshes : Meshes3D) -> @scene3d.Sce
           graph.add_node(
             @scene3d.scene_node(
               mesh=Some(meshes.floor_tile),
-              position=@math3d.Vec3::new(x, 0.0, z),
+              position=@math3d.Vec3::new(x, y, z),
               color=c,
             ),
           ) |> ignore
@@ -75,7 +73,7 @@ fn build_dungeon_graph(dungeon : DungeonData, meshes : Meshes3D) -> @scene3d.Sce
           graph.add_node(
             @scene3d.scene_node(
               mesh=Some(meshes.floor_tile),
-              position=@math3d.Vec3::new(x, -0.05, z),
+              position=@math3d.Vec3::new(x, y, z),
               color=c,
             ),
           ) |> ignore
@@ -84,7 +82,7 @@ fn build_dungeon_graph(dungeon : DungeonData, meshes : Meshes3D) -> @scene3d.Sce
           graph.add_node(
             @scene3d.scene_node(
               mesh=Some(meshes.floor_tile),
-              position=@math3d.Vec3::new(x, 0.0, z),
+              position=@math3d.Vec3::new(x, y, z),
               color=color_door,
             ),
           ) |> ignore
@@ -92,29 +90,29 @@ fn build_dungeon_graph(dungeon : DungeonData, meshes : Meshes3D) -> @scene3d.Sce
           graph.add_node(
             @scene3d.scene_node(
               mesh=Some(meshes.pillar),
-              position=@math3d.Vec3::new(x - 0.4, 0.0, z),
+              position=@math3d.Vec3::new(x - 0.4, y, z),
               color=color_pillar,
             ),
           ) |> ignore
           graph.add_node(
             @scene3d.scene_node(
               mesh=Some(meshes.pillar),
-              position=@math3d.Vec3::new(x + 0.4, 0.0, z),
+              position=@math3d.Vec3::new(x + 0.4, y, z),
               color=color_pillar,
             ),
           ) |> ignore
         }
         Wall => {
-          let brick_offset = if row % 2 == 0 { 0 } else { 2 }
-          let brick_pos = (col + brick_offset) % 4
-          let c = if brick_pos == 0 { color_wall_alt } else { color_wall }
-          graph.add_node(
-            @scene3d.scene_node(
-              mesh=Some(meshes.wall),
-              position=@math3d.Vec3::new(x, 0.0, z),
-              color=c,
-            ),
-          ) |> ignore
+          // Only render edge walls (adjacent to walkable)
+          if has_adjacent_walkable(dungeon.grid, col, row) {
+            graph.add_node(
+              @scene3d.scene_node(
+                mesh=Some(meshes.wall),
+                position=@math3d.Vec3::new(x, y, z),
+                color=color_wall,
+              ),
+            ) |> ignore
+          }
         }
         _ => ()
       }
@@ -131,7 +129,8 @@ fn build_entity_graph(state : GameState, region : VisibleRegion) -> @scene3d.Sce
     if item.alive && is_entity_visible(region, item.x, item.y) {
       let ix = item.x / tile_size
       let iz = item.y / tile_size
-      let bob = 0.3 + 0.1 * @math.sin(state.frame_count.to_double() * 0.1)
+      let base_y = get_tile_height(state.dungeon, item.x, item.y)
+      let bob = base_y + 0.3 + 0.1 * @math.sin(state.frame_count.to_double() * 0.1)
       let c = if item.kind == item_health { color_item_health } else { color_item_score }
       graph.add_node(
         @scene3d.scene_node(
@@ -147,10 +146,11 @@ fn build_entity_graph(state : GameState, region : VisibleRegion) -> @scene3d.Sce
     if proj.alive && is_entity_visible(region, proj.x, proj.y) {
       let prx = proj.x / tile_size
       let prz = proj.y / tile_size
+      let base_y = get_tile_height(state.dungeon, proj.x, proj.y)
       graph.add_node(
         @scene3d.scene_node(
           mesh=Some(state.meshes.projectile),
-          position=@math3d.Vec3::new(prx, 0.3, prz),
+          position=@math3d.Vec3::new(prx, base_y + 0.3, prz),
           color=color_projectile,
         ),
       ) |> ignore
@@ -323,6 +323,7 @@ fn GameState::draw_playing(
     if enemy.alive && is_entity_visible(vis_region, enemy.x, enemy.y) {
       let ex = enemy.x / tile_size
       let ez = enemy.y / tile_size
+      let ey = get_tile_height(self.dungeon, enemy.x, enemy.y)
       let color = if enemy.damage_timer > 0 {
         color_player_hurt
       } else {
@@ -346,7 +347,7 @@ fn GameState::draw_playing(
       skinned_objects.push(
         @scene3d.object3d(
           mesh=mesh_data.bind_mesh,
-          position=@math3d.Vec3::new(ex, 0.0, ez),
+          position=@math3d.Vec3::new(ex, ey, ez),
           rotation=rot,
           color=color,
           skinning=Some(
@@ -381,6 +382,7 @@ fn GameState::draw_playing(
   // Render skinned player character → scene_target
   let px = self.player.x / tile_size
   let pz = self.player.y / tile_size
+  let py = get_tile_height(self.dungeon, self.player.x, self.player.y)
   let player_color = if self.player.dash_timer > 0 {
     color_player_dash
   } else if self.player.damage_timer > 0 {
@@ -397,7 +399,7 @@ fn GameState::draw_playing(
   let player_objects : Array[@scene3d.Object3D] = [
     @scene3d.object3d(
       mesh=self.character.bind_mesh,
-      position=@math3d.Vec3::new(px, 0.0, pz),
+      position=@math3d.Vec3::new(px, py, pz),
       rotation=facing_rot,
       color=player_color,
       skinning=Some(

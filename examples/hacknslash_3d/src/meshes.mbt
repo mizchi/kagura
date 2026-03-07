@@ -5,8 +5,9 @@ fn Meshes3D::new() -> Meshes3D {
     item: @mesh3d.Mesh3D::sphere(0.2, 5, 3),
     projectile: @mesh3d.Mesh3D::sphere(0.15, 4, 3),
     floor_tile: @mesh3d.Mesh3D::plane(1.0, 1.0),
-    wall: make_wall_mesh(1.0, 1.5, 1.0), // width, height, depth — taller walls
-    pillar: make_pillar_mesh(0.15, 2.0), // narrow tall pillar
+    wall: make_wall_mesh(1.0, 0.4, 1.0), // low wall/ledge
+    ledge: make_wall_mesh(1.0, 0.15, 1.0), // very low step
+    pillar: make_pillar_mesh(0.12, 0.8), // short decorative pillar
   }
 }
 

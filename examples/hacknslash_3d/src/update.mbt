@@ -18,9 +18,10 @@ fn GameState::new(seed~ : Int) -> GameState {
   }
   let sw = screen_w.to_double()
   let sh = screen_h.to_double()
+  let init_y = get_tile_height(dungeon, player.x, player.y)
   let camera = @camera3d.OrbitCamera::new(
-    @math3d.Vec3::new(player.x / tile_size, 0.0, player.y / tile_size),
-    22.0, // farther to see more of the map
+    @math3d.Vec3::new(player.x / tile_size, init_y, player.y / tile_size),
+    24.0, // farther to see more of the map
     0.785, // yaw 45 degrees
     0.96,  // pitch ~55 degrees
     @math.PI / 5.0,
@@ -153,6 +154,11 @@ fn GameState::reset_floor(self : GameState) -> Unit {
   }
   self.dungeon.start_x = dungeon.start_x
   self.dungeon.start_y = dungeon.start_y
+  // Copy height map
+  self.dungeon.height_map.clear()
+  for h in dungeon.height_map {
+    self.dungeon.height_map.push(h)
+  }
   self.player.x = dungeon.start_x
   self.player.y = dungeon.start_y
   self.floor = self.floor + 1
@@ -160,8 +166,9 @@ fn GameState::reset_floor(self : GameState) -> Unit {
   self.items = []
   self.projectiles = []
   self.floor_announce_timer = 120
+  let ry = get_tile_height(self.dungeon, self.player.x, self.player.y)
   self.camera = self.camera.with_target(
-    @math3d.Vec3::new(self.player.x / tile_size, 0.0, self.player.y / tile_size),
+    @math3d.Vec3::new(self.player.x / tile_size, ry, self.player.y / tile_size),
   )
   self.dungeon_graph = build_dungeon_graph(self.dungeon, self.meshes)
   let (groups, wall_mesh) = build_dungeon_mesh_groups(self.dungeon, self.meshes)
@@ -208,6 +215,11 @@ fn GameState::update_gameover(self : GameState) -> Unit {
     }
     self.dungeon.start_x = dungeon.start_x
     self.dungeon.start_y = dungeon.start_y
+    // Copy height map
+    self.dungeon.height_map.clear()
+    for h in dungeon.height_map {
+      self.dungeon.height_map.push(h)
+    }
     self.player.x = dungeon.start_x
     self.player.y = dungeon.start_y
     self.player.damage_timer = 0
@@ -235,8 +247,9 @@ fn GameState::update_gameover(self : GameState) -> Unit {
     self.skills.skill_points = 0
     self.player_stats = compute_player_stats(self.equipment, self.skills)
     self.player.hp = self.player_stats.max_hp
+    let gy = get_tile_height(self.dungeon, self.player.x, self.player.y)
     self.camera = self.camera.with_target(
-      @math3d.Vec3::new(self.player.x / tile_size, 0.0, self.player.y / tile_size),
+      @math3d.Vec3::new(self.player.x / tile_size, gy, self.player.y / tile_size),
     )
     self.dungeon_graph = build_dungeon_graph(self.dungeon, self.meshes)
     let (groups, wall_mesh) = build_dungeon_mesh_groups(
@@ -350,9 +363,10 @@ fn GameState::update_playing(self : GameState) -> Unit {
   let half = self.player.size / 2.0
   self.player.x = @cmp.maximum(half, @cmp.minimum(world_w - half, self.player.x))
   self.player.y = @cmp.maximum(half, @cmp.minimum(world_h - half, self.player.y))
-  // Camera follow (3D: convert 2D coords to 3D)
+  // Camera follow (3D: convert 2D coords to 3D with height)
+  let cam_y = get_tile_height(self.dungeon, self.player.x, self.player.y)
   self.camera = self.camera.with_target(
-    @math3d.Vec3::new(self.player.x / tile_size, 0.0, self.player.y / tile_size),
+    @math3d.Vec3::new(self.player.x / tile_size, cam_y, self.player.y / tile_size),
   )
   // Auto-attack: swing at nearest enemy in range automatically
   if self.attack_timer > 0 {

@@ -36,7 +36,7 @@ fn build_dungeon_mesh_groups(
   dungeon : DungeonData,
   meshes : Meshes3D,
 ) -> (Array[DungeonMeshGroup], @mesh3d.Mesh3D) {
-  // Groups: floor_a, floor_b, corridor_a, corridor_b, door, wall_a, wall_b
+  // Groups: floor_a, floor_b, corridor_a, corridor_b, door, wall, ledge, pillar
   let floor_a_v : Array[Double] = []
   let floor_a_i : Array[Int] = []
   let floor_b_v : Array[Double] = []
@@ -47,58 +47,55 @@ fn build_dungeon_mesh_groups(
   let corridor_b_i : Array[Int] = []
   let door_v : Array[Double] = []
   let door_i : Array[Int] = []
-  let wall_a_v : Array[Double] = []
-  let wall_a_i : Array[Int] = []
-  let wall_b_v : Array[Double] = []
-  let wall_b_i : Array[Int] = []
+  let wall_v : Array[Double] = []
+  let wall_i : Array[Int] = []
   // Pillar decoration
   let pillar_v : Array[Double] = []
   let pillar_i : Array[Int] = []
-  // Combined wall mesh for shadow caster (all walls)
+  // Combined wall mesh for shadow caster (all walls + ledges)
   let wall_all_v : Array[Double] = []
   let wall_all_i : Array[Int] = []
+  let w = dungeon.grid.width
   for row = 0; row < dungeon.grid.height; row = row + 1 {
-    for col = 0; col < dungeon.grid.width; col = col + 1 {
+    for col = 0; col < w; col = col + 1 {
       let tile = dungeon.grid.get(col, row)
       let x = col.to_double()
       let z = row.to_double()
+      let y = dungeon.height_map[row * w + col]
       match tile {
         Floor | Start | Goal => {
           let checker = (col + row) % 2
           if checker == 0 {
-            merge_mesh_at(floor_a_v, floor_a_i, meshes.floor_tile, x, 0.0, z)
+            merge_mesh_at(floor_a_v, floor_a_i, meshes.floor_tile, x, y, z)
           } else {
-            merge_mesh_at(floor_b_v, floor_b_i, meshes.floor_tile, x, 0.0, z)
+            merge_mesh_at(floor_b_v, floor_b_i, meshes.floor_tile, x, y, z)
           }
         }
         Corridor => {
           let stripe = (col + row) % 3
           if stripe == 0 {
             merge_mesh_at(
-              corridor_a_v, corridor_a_i, meshes.floor_tile, x, 0.0, z,
+              corridor_a_v, corridor_a_i, meshes.floor_tile, x, y, z,
             )
           } else {
             merge_mesh_at(
-              corridor_b_v, corridor_b_i, meshes.floor_tile, x, 0.0, z,
+              corridor_b_v, corridor_b_i, meshes.floor_tile, x, y, z,
             )
           }
         }
         Door => {
-          merge_mesh_at(door_v, door_i, meshes.floor_tile, x, 0.0, z)
+          merge_mesh_at(door_v, door_i, meshes.floor_tile, x, y, z)
           // Add pillars on both sides of door
-          merge_mesh_at(pillar_v, pillar_i, meshes.pillar, x - 0.4, 0.0, z)
-          merge_mesh_at(pillar_v, pillar_i, meshes.pillar, x + 0.4, 0.0, z)
+          merge_mesh_at(pillar_v, pillar_i, meshes.pillar, x - 0.4, y, z)
+          merge_mesh_at(pillar_v, pillar_i, meshes.pillar, x + 0.4, y, z)
         }
         Wall => {
-          let brick_offset = if row % 2 == 0 { 0 } else { 2 }
-          let brick_pos = (col + brick_offset) % 4
-          if brick_pos == 0 {
-            merge_mesh_at(wall_a_v, wall_a_i, meshes.wall, x, 0.0, z)
-          } else {
-            merge_mesh_at(wall_b_v, wall_b_i, meshes.wall, x, 0.0, z)
+          // Only render walls that border walkable tiles (edge walls)
+          if has_adjacent_walkable(dungeon.grid, col, row) {
+            merge_mesh_at(wall_v, wall_i, meshes.wall, x, y, z)
+            merge_mesh_at(wall_all_v, wall_all_i, meshes.wall, x, y, z)
           }
-          // All walls go into shadow caster mesh
-          merge_mesh_at(wall_all_v, wall_all_i, meshes.wall, x, 0.0, z)
+          // Interior walls: just a floor at lower height (void)
         }
         _ => ()
       }
@@ -125,9 +122,29 @@ fn build_dungeon_mesh_groups(
   add_group(corridor_a_v, corridor_a_i, color_corridor, groups)
   add_group(corridor_b_v, corridor_b_i, color_corridor_alt, groups)
   add_group(door_v, door_i, color_door, groups)
-  add_group(wall_a_v, wall_a_i, color_wall, groups)
-  add_group(wall_b_v, wall_b_i, color_wall_alt, groups)
+  add_group(wall_v, wall_i, color_wall, groups)
   add_group(pillar_v, pillar_i, color_pillar, groups)
   let wall_mesh = @mesh3d.Mesh3D::new(wall_all_v, wall_all_i)
   (groups, wall_mesh)
+}
+
+// Check if a wall tile has at least one adjacent walkable tile
+fn has_adjacent_walkable(
+  grid : @terrain.Grid2D,
+  col : Int,
+  row : Int,
+) -> Bool {
+  let dirs = [(-1, 0), (1, 0), (0, -1), (0, 1)]
+  for pair in dirs {
+    let nx = col + pair.0
+    let ny = row + pair.1
+    if nx >= 0 && nx < grid.width && ny >= 0 && ny < grid.height {
+      let t = grid.get(nx, ny)
+      match t {
+        Floor | Corridor | Door | Start | Goal => return true
+        _ => ()
+      }
+    }
+  }
+  false
 }

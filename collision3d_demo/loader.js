@@ -12,7 +12,7 @@ async function init() {
   installGfxHelpers();
 
   try {
-    await loadGameScript("./collision3d_demo.js?v=65a8635");
+    await loadGameScript("./collision3d_demo.js?v=3ee2f9c");
   } catch (e) {
     showStartupError("#app", "Failed to load game script", e && e.message ? e.message : String(e));
   }

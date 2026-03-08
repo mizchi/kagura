@@ -2061,10 +2061,11 @@ const _M0FP36mizchi6kagura6mesh3d16vertex3d__stride = 8;
 const _M0FP36mizchi6kagura6draw3d10max__bones = 64;
 const _M0FP26mizchi14hacknslash__3d11chunk__size = 24;
 const _M0FP26mizchi14hacknslash__3d18enemy__bone__count = 3;
-const _M0FP26mizchi14hacknslash__3d8ui__font = 30;
-const _M0FP26mizchi14hacknslash__3d12ui__font__sm = 24;
-const _M0FP26mizchi14hacknslash__3d7ui__pad = 16;
-const _M0FP26mizchi14hacknslash__3d10ui__row__h = 36;
+const _M0FP26mizchi14hacknslash__3d8ui__font = 10;
+const _M0FP26mizchi14hacknslash__3d12ui__font__lg = 14;
+const _M0FP26mizchi14hacknslash__3d12ui__font__sm = 8;
+const _M0FP26mizchi14hacknslash__3d7ui__pad = 8;
+const _M0FP26mizchi14hacknslash__3d10ui__row__h = 20;
 const _M0FP26mizchi14hacknslash__3d16char__num__bones = 5;
 const _M0FP26mizchi14hacknslash__3d21enemy__idle__duration = 1.5;
 const _M0FP26mizchi14hacknslash__3d22enemy__idle__keyframes = 12;
@@ -12458,131 +12459,200 @@ function _M0FP36mizchi6kagura9debugutil23color__from__hex__alpha(hex, alpha) {
   return _M0FP36mizchi6kagura3gfx10new__color(r, g, b, alpha);
 }
 function _M0FP36mizchi6kagura9debugutil14glyph__pattern(ch) {
-  switch (ch) {
-    case 0: {
-      return [1, 1, 1, 1, 0, 1, 1, 0, 1, 1, 0, 1, 1, 1, 1];
-    }
-    case 1: {
-      return [0, 1, 0, 1, 1, 0, 0, 1, 0, 0, 1, 0, 1, 1, 1];
-    }
-    case 2: {
-      return [1, 1, 1, 0, 0, 1, 1, 1, 1, 1, 0, 0, 1, 1, 1];
-    }
-    case 3: {
-      return [1, 1, 1, 0, 0, 1, 1, 1, 1, 0, 0, 1, 1, 1, 1];
-    }
-    case 4: {
-      return [1, 0, 1, 1, 0, 1, 1, 1, 1, 0, 0, 1, 0, 0, 1];
-    }
-    case 5: {
-      return [1, 1, 1, 1, 0, 0, 1, 1, 1, 0, 0, 1, 1, 1, 1];
-    }
-    case 6: {
-      return [1, 1, 1, 1, 0, 0, 1, 1, 1, 1, 0, 1, 1, 1, 1];
-    }
-    case 7: {
+  _L: {
+    _L$2: {
+      _L$3: {
+        _L$4: {
+          _L$5: {
+            _L$6: {
+              _L$7: {
+                _L$8: {
+                  _L$9: {
+                    _L$10: {
+                      switch (ch) {
+                        case 0: {
+                          break _L$10;
+                        }
+                        case 48: {
+                          break _L$10;
+                        }
+                        case 1: {
+                          break _L$9;
+                        }
+                        case 49: {
+                          break _L$9;
+                        }
+                        case 2: {
+                          break _L$8;
+                        }
+                        case 50: {
+                          break _L$8;
+                        }
+                        case 3: {
+                          break _L$7;
+                        }
+                        case 51: {
+                          break _L$7;
+                        }
+                        case 4: {
+                          break _L$6;
+                        }
+                        case 52: {
+                          break _L$6;
+                        }
+                        case 5: {
+                          break _L$5;
+                        }
+                        case 53: {
+                          break _L$5;
+                        }
+                        case 6: {
+                          break _L$4;
+                        }
+                        case 54: {
+                          break _L$4;
+                        }
+                        case 7: {
+                          break _L$3;
+                        }
+                        case 55: {
+                          break _L$3;
+                        }
+                        case 8: {
+                          break _L$2;
+                        }
+                        case 56: {
+                          break _L$2;
+                        }
+                        case 9: {
+                          break _L;
+                        }
+                        case 57: {
+                          break _L;
+                        }
+                        case 65: {
+                          return [0, 1, 0, 1, 0, 1, 1, 1, 1, 1, 0, 1, 1, 0, 1];
+                        }
+                        case 66: {
+                          return [1, 1, 0, 1, 0, 1, 1, 1, 0, 1, 0, 1, 1, 1, 0];
+                        }
+                        case 67: {
+                          return [1, 1, 1, 1, 0, 0, 1, 0, 0, 1, 0, 0, 1, 1, 1];
+                        }
+                        case 68: {
+                          return [1, 1, 0, 1, 0, 1, 1, 0, 1, 1, 0, 1, 1, 1, 0];
+                        }
+                        case 69: {
+                          return [1, 1, 1, 1, 0, 0, 1, 1, 0, 1, 0, 0, 1, 1, 1];
+                        }
+                        case 70: {
+                          return [1, 1, 1, 1, 0, 0, 1, 1, 0, 1, 0, 0, 1, 0, 0];
+                        }
+                        case 71: {
+                          return [1, 1, 1, 1, 0, 0, 1, 0, 1, 1, 0, 1, 1, 1, 1];
+                        }
+                        case 72: {
+                          return [1, 0, 1, 1, 0, 1, 1, 1, 1, 1, 0, 1, 1, 0, 1];
+                        }
+                        case 73: {
+                          return [1, 1, 1, 0, 1, 0, 0, 1, 0, 0, 1, 0, 1, 1, 1];
+                        }
+                        case 74: {
+                          return [0, 0, 1, 0, 0, 1, 0, 0, 1, 1, 0, 1, 1, 1, 1];
+                        }
+                        case 75: {
+                          return [1, 0, 1, 1, 1, 0, 1, 0, 0, 1, 1, 0, 1, 0, 1];
+                        }
+                        case 76: {
+                          return [1, 0, 0, 1, 0, 0, 1, 0, 0, 1, 0, 0, 1, 1, 1];
+                        }
+                        case 77: {
+                          return [1, 0, 1, 1, 1, 1, 1, 0, 1, 1, 0, 1, 1, 0, 1];
+                        }
+                        case 78: {
+                          return [1, 0, 1, 1, 1, 1, 1, 1, 1, 1, 0, 1, 1, 0, 1];
+                        }
+                        case 79: {
+                          return [1, 1, 1, 1, 0, 1, 1, 0, 1, 1, 0, 1, 1, 1, 1];
+                        }
+                        case 80: {
+                          return [1, 1, 0, 1, 0, 1, 1, 1, 0, 1, 0, 0, 1, 0, 0];
+                        }
+                        case 81: {
+                          return [1, 1, 1, 1, 0, 1, 1, 0, 1, 1, 1, 0, 0, 0, 1];
+                        }
+                        case 82: {
+                          return [1, 1, 0, 1, 0, 1, 1, 1, 0, 1, 0, 1, 1, 0, 1];
+                        }
+                        case 83: {
+                          return [1, 1, 1, 1, 0, 0, 1, 1, 1, 0, 0, 1, 1, 1, 1];
+                        }
+                        case 84: {
+                          return [1, 1, 1, 0, 1, 0, 0, 1, 0, 0, 1, 0, 0, 1, 0];
+                        }
+                        case 85: {
+                          return [1, 0, 1, 1, 0, 1, 1, 0, 1, 1, 0, 1, 1, 1, 1];
+                        }
+                        case 86: {
+                          return [1, 0, 1, 1, 0, 1, 1, 0, 1, 0, 1, 0, 0, 1, 0];
+                        }
+                        case 87: {
+                          return [1, 0, 1, 1, 0, 1, 1, 0, 1, 1, 1, 1, 1, 0, 1];
+                        }
+                        case 88: {
+                          return [1, 0, 1, 0, 1, 0, 0, 1, 0, 0, 1, 0, 1, 0, 1];
+                        }
+                        case 89: {
+                          return [1, 0, 1, 1, 0, 1, 0, 1, 0, 0, 1, 0, 0, 1, 0];
+                        }
+                        case 90: {
+                          return [1, 1, 1, 0, 0, 1, 0, 1, 0, 1, 0, 0, 1, 1, 1];
+                        }
+                        case 58: {
+                          return [0, 0, 0, 0, 1, 0, 0, 0, 0, 0, 1, 0, 0, 0, 0];
+                        }
+                        case 32: {
+                          return [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0];
+                        }
+                        case 62: {
+                          return [1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 1, 0, 1, 0, 0];
+                        }
+                        case 43: {
+                          return [0, 0, 0, 0, 1, 0, 1, 1, 1, 0, 1, 0, 0, 0, 0];
+                        }
+                        case 47: {
+                          return [0, 0, 1, 0, 0, 1, 0, 1, 0, 1, 0, 0, 1, 0, 0];
+                        }
+                        case 45: {
+                          return [0, 0, 0, 0, 0, 0, 1, 1, 1, 0, 0, 0, 0, 0, 0];
+                        }
+                        case 37: {
+                          return [1, 0, 1, 0, 0, 1, 0, 1, 0, 1, 0, 0, 1, 0, 1];
+                        }
+                        default: {
+                          return [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0];
+                        }
+                      }
+                    }
+                    return [1, 1, 1, 1, 0, 1, 1, 0, 1, 1, 0, 1, 1, 1, 1];
+                  }
+                  return [0, 1, 0, 1, 1, 0, 0, 1, 0, 0, 1, 0, 1, 1, 1];
+                }
+                return [1, 1, 1, 0, 0, 1, 1, 1, 1, 1, 0, 0, 1, 1, 1];
+              }
+              return [1, 1, 1, 0, 0, 1, 1, 1, 1, 0, 0, 1, 1, 1, 1];
+            }
+            return [1, 0, 1, 1, 0, 1, 1, 1, 1, 0, 0, 1, 0, 0, 1];
+          }
+          return [1, 1, 1, 1, 0, 0, 1, 1, 1, 0, 0, 1, 1, 1, 1];
+        }
+        return [1, 1, 1, 1, 0, 0, 1, 1, 1, 1, 0, 1, 1, 1, 1];
+      }
       return [1, 1, 1, 0, 0, 1, 0, 0, 1, 0, 0, 1, 0, 0, 1];
     }
-    case 8: {
-      return [1, 1, 1, 1, 0, 1, 1, 1, 1, 1, 0, 1, 1, 1, 1];
-    }
-    case 9: {
-      return [1, 1, 1, 1, 0, 1, 1, 1, 1, 0, 0, 1, 1, 1, 1];
-    }
-    case 65: {
-      return [0, 1, 0, 1, 0, 1, 1, 1, 1, 1, 0, 1, 1, 0, 1];
-    }
-    case 66: {
-      return [1, 1, 0, 1, 0, 1, 1, 1, 0, 1, 0, 1, 1, 1, 0];
-    }
-    case 67: {
-      return [1, 1, 1, 1, 0, 0, 1, 0, 0, 1, 0, 0, 1, 1, 1];
-    }
-    case 68: {
-      return [1, 1, 0, 1, 0, 1, 1, 0, 1, 1, 0, 1, 1, 1, 0];
-    }
-    case 69: {
-      return [1, 1, 1, 1, 0, 0, 1, 1, 0, 1, 0, 0, 1, 1, 1];
-    }
-    case 70: {
-      return [1, 1, 1, 1, 0, 0, 1, 1, 0, 1, 0, 0, 1, 0, 0];
-    }
-    case 71: {
-      return [1, 1, 1, 1, 0, 0, 1, 0, 1, 1, 0, 1, 1, 1, 1];
-    }
-    case 72: {
-      return [1, 0, 1, 1, 0, 1, 1, 1, 1, 1, 0, 1, 1, 0, 1];
-    }
-    case 73: {
-      return [1, 1, 1, 0, 1, 0, 0, 1, 0, 0, 1, 0, 1, 1, 1];
-    }
-    case 74: {
-      return [0, 0, 1, 0, 0, 1, 0, 0, 1, 1, 0, 1, 1, 1, 1];
-    }
-    case 75: {
-      return [1, 0, 1, 1, 1, 0, 1, 0, 0, 1, 1, 0, 1, 0, 1];
-    }
-    case 76: {
-      return [1, 0, 0, 1, 0, 0, 1, 0, 0, 1, 0, 0, 1, 1, 1];
-    }
-    case 77: {
-      return [1, 0, 1, 1, 1, 1, 1, 0, 1, 1, 0, 1, 1, 0, 1];
-    }
-    case 78: {
-      return [1, 0, 1, 1, 1, 1, 1, 1, 1, 1, 0, 1, 1, 0, 1];
-    }
-    case 79: {
-      return [1, 1, 1, 1, 0, 1, 1, 0, 1, 1, 0, 1, 1, 1, 1];
-    }
-    case 80: {
-      return [1, 1, 0, 1, 0, 1, 1, 1, 0, 1, 0, 0, 1, 0, 0];
-    }
-    case 81: {
-      return [1, 1, 1, 1, 0, 1, 1, 0, 1, 1, 1, 0, 0, 0, 1];
-    }
-    case 82: {
-      return [1, 1, 0, 1, 0, 1, 1, 1, 0, 1, 0, 1, 1, 0, 1];
-    }
-    case 83: {
-      return [1, 1, 1, 1, 0, 0, 1, 1, 1, 0, 0, 1, 1, 1, 1];
-    }
-    case 84: {
-      return [1, 1, 1, 0, 1, 0, 0, 1, 0, 0, 1, 0, 0, 1, 0];
-    }
-    case 85: {
-      return [1, 0, 1, 1, 0, 1, 1, 0, 1, 1, 0, 1, 1, 1, 1];
-    }
-    case 86: {
-      return [1, 0, 1, 1, 0, 1, 1, 0, 1, 0, 1, 0, 0, 1, 0];
-    }
-    case 87: {
-      return [1, 0, 1, 1, 0, 1, 1, 0, 1, 1, 1, 1, 1, 0, 1];
-    }
-    case 88: {
-      return [1, 0, 1, 0, 1, 0, 0, 1, 0, 0, 1, 0, 1, 0, 1];
-    }
-    case 89: {
-      return [1, 0, 1, 1, 0, 1, 0, 1, 0, 0, 1, 0, 0, 1, 0];
-    }
-    case 90: {
-      return [1, 1, 1, 0, 0, 1, 0, 1, 0, 1, 0, 0, 1, 1, 1];
-    }
-    case 58: {
-      return [0, 0, 0, 0, 1, 0, 0, 0, 0, 0, 1, 0, 0, 0, 0];
-    }
-    case 32: {
-      return [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0];
-    }
-    case 62: {
-      return [1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 1, 0, 1, 0, 0];
-    }
-    case 43: {
-      return [0, 0, 0, 0, 1, 0, 1, 1, 1, 0, 1, 0, 0, 0, 0];
-    }
-    default: {
-      return [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0];
-    }
+    return [1, 1, 1, 1, 0, 1, 1, 1, 1, 1, 0, 1, 1, 1, 1];
   }
+  return [1, 1, 1, 1, 0, 1, 1, 1, 1, 0, 0, 1, 1, 1, 1];
 }
 function _M0FP36mizchi6kagura9debugutil26color__to__uniform__dwords(color) {
   return [_M0MP311moonbitlang4core6double6Double7to__int(color.r * 255), _M0MP311moonbitlang4core6double6Double7to__int(color.g * 255), _M0MP311moonbitlang4core6double6Double7to__int(color.b * 255), _M0MP311moonbitlang4core6double6Double7to__int(color.a * 255)];
@@ -31540,12 +31610,20 @@ function _M0MP36mizchi6kagura3hud10HudContext10draw__text(self, cmds, text, size
             break _L$2;
           }
         }
-        _M0MP311moonbitlang4core5array5Array4pushGiE(chars, ch);
+        const c = ch;
+        const c$2 = c >= 97 && c <= 122 ? c - 32 | 0 : c;
+        _M0MP311moonbitlang4core5array5Array4pushGiE(chars, c$2);
         continue;
       }
+      if (chars.length === 0) {
+        return undefined;
+      }
       const scale = size / 10;
-      const cx = x + (chars.length + 0) * 4 * scale / 2;
-      const cy = y + 5 * scale / 2;
+      const n = chars.length + 0;
+      const total_w = (12 * n - 3) * scale;
+      const total_h = 15 * scale;
+      const cx = x + total_w / 2;
+      const cy = y + total_h / 2;
       _M0FP36mizchi6kagura9debugutil15draw__dot__text(cmds, self.dst, self.shader, chars, cx, cy, self.screen_w, self.screen_h, _M0FP36mizchi6kagura3hud18hex__color_2einner(color_hex, 1), scale);
       return;
     } else {
@@ -31592,7 +31670,9 @@ function _M0MP36mizchi6kagura3hud10HudContext20draw__text__centered(self, cmds, 
             break _L$2;
           }
         }
-        _M0MP311moonbitlang4core5array5Array4pushGiE(chars, ch);
+        const c = ch;
+        const c$2 = c >= 97 && c <= 122 ? c - 32 | 0 : c;
+        _M0MP311moonbitlang4core5array5Array4pushGiE(chars, c$2);
         continue;
       }
       const scale = size / 10;
@@ -34439,12 +34519,12 @@ function _M0MP26mizchi14hacknslash__3d9GameState21render__inventory__ui(self, ds
   const sh = _M0FP26mizchi14hacknslash__3d9screen__h + 0;
   const p = _M0FP26mizchi14hacknslash__3d7ui__pad;
   const rh = _M0FP26mizchi14hacknslash__3d10ui__row__h;
-  _M0MP36mizchi6kagura3hud10HudContext10draw__rect(ctx, cmds, 0, 0, sw, sh, _M0FP36mizchi6kagura3hud18hex__color_2einner(855322, 0.95));
+  _M0MP36mizchi6kagura3hud10HudContext10draw__rect(ctx, cmds, 0, 0, sw, sh, _M0FP36mizchi6kagura3hud18hex__color_2einner(855322, 1));
   const y = { val: p };
-  _M0MP36mizchi6kagura3hud10HudContext10draw__text(ctx, cmds, "INVENTORY", 36, p, y.val, 16763904);
-  y.val = y.val + 42;
+  _M0MP36mizchi6kagura3hud10HudContext10draw__text(ctx, cmds, "INVENTORY", _M0FP26mizchi14hacknslash__3d12ui__font__lg, p, y.val, 16763904);
+  y.val = y.val + 24;
   _M0MP36mizchi6kagura3hud10HudContext10draw__text(ctx, cmds, "EQUIPPED", _M0FP26mizchi14hacknslash__3d12ui__font__sm, p, y.val, 8947848);
-  y.val = y.val + 30;
+  y.val = y.val + 18;
   const slot_labels = ["WPN", "ARM", "ACC"];
   const slot_items = [self.world.equipment.weapon, self.world.equipment.armor, self.world.equipment.accessory];
   const _arr = slot_labels;
@@ -34457,13 +34537,13 @@ function _M0MP26mizchi14hacknslash__3d9GameState21render__inventory__ui(self, ds
       const label = _arr[_i];
       const row_y = y.val + (i + 0) * rh;
       _M0MP36mizchi6kagura3hud10HudContext10draw__rect(ctx, cmds, p, row_y, sw - p * 2, rh - 2, _M0FP36mizchi6kagura3hud18hex__color_2einner(1710643, 1));
-      _M0MP36mizchi6kagura3hud10HudContext10draw__text(ctx, cmds, label, _M0FP26mizchi14hacknslash__3d12ui__font__sm, p + 6, row_y + 8, 6710920);
+      _M0MP36mizchi6kagura3hud10HudContext10draw__text(ctx, cmds, label, _M0FP26mizchi14hacknslash__3d12ui__font__sm, p + 4, row_y + 4, 6710920);
       let item;
       _L: {
         _L$2: {
           const _bind = _M0MP311moonbitlang4core5array5Array2atGORP36mizchi14hacknslash__3d4game8ItemDataE(slot_items, i);
           if (_bind === undefined) {
-            _M0MP36mizchi6kagura3hud10HudContext10draw__text(ctx, cmds, "---", _M0FP26mizchi14hacknslash__3d12ui__font__sm, p + 60, row_y + 8, 4473924);
+            _M0MP36mizchi6kagura3hud10HudContext10draw__text(ctx, cmds, "---", _M0FP26mizchi14hacknslash__3d12ui__font__sm, p + 50, row_y + 4, 4473924);
           } else {
             const _Some = _bind;
             const _item = _Some;
@@ -34472,7 +34552,7 @@ function _M0MP26mizchi14hacknslash__3d9GameState21render__inventory__ui(self, ds
           }
           break _L;
         }
-        _M0MP36mizchi6kagura3hud10HudContext10draw__text(ctx, cmds, _M0MP36mizchi14hacknslash__3d4game8ItemData13display__name(item), _M0FP26mizchi14hacknslash__3d12ui__font__sm, p + 60, row_y + 8, _M0MP36mizchi14hacknslash__3d4game10ItemRarity5color(item.rarity));
+        _M0MP36mizchi6kagura3hud10HudContext10draw__text(ctx, cmds, _M0MP36mizchi14hacknslash__3d4game8ItemData13display__name(item), _M0FP26mizchi14hacknslash__3d12ui__font__sm, p + 50, row_y + 4, _M0MP36mizchi14hacknslash__3d4game10ItemRarity5color(item.rarity));
       }
       _tmp = _i + 1 | 0;
       continue;
@@ -34480,16 +34560,16 @@ function _M0MP26mizchi14hacknslash__3d9GameState21render__inventory__ui(self, ds
       break;
     }
   }
-  y.val = y.val + 3 * rh + 6;
+  y.val = y.val + 3 * rh + 4;
   const s = self.world.player_stats;
   _M0MP36mizchi6kagura3hud10HudContext10draw__rect(ctx, cmds, p, y.val, sw - p * 2, rh - 2, _M0FP36mizchi6kagura3hud18hex__color_2einner(1122833, 1));
-  _M0MP36mizchi6kagura3hud10HudContext10draw__text(ctx, cmds, `ATK:${_M0MP311moonbitlang4core3int3Int18to__string_2einner(s.atk, 10)} DEF:${_M0MP311moonbitlang4core3int3Int18to__string_2einner(s.def, 10)} HP:${_M0MP311moonbitlang4core3int3Int18to__string_2einner(s.max_hp, 10)}`, _M0FP26mizchi14hacknslash__3d8ui__font, p + 6, y.val + 8, 6741350);
-  y.val = y.val + rh + 6;
+  _M0MP36mizchi6kagura3hud10HudContext10draw__text(ctx, cmds, `ATK:${_M0MP311moonbitlang4core3int3Int18to__string_2einner(s.atk, 10)} DEF:${_M0MP311moonbitlang4core3int3Int18to__string_2einner(s.def, 10)} HP:${_M0MP311moonbitlang4core3int3Int18to__string_2einner(s.max_hp, 10)}`, _M0FP26mizchi14hacknslash__3d8ui__font, p + 4, y.val + 4, 6741350);
+  y.val = y.val + rh + 4;
   const count_str = `ITEMS ${_M0MP311moonbitlang4core3int3Int18to__string_2einner(_M0MP36mizchi14hacknslash__3d4game9Inventory5count(self.world.inventory), 10)}/${_M0MP311moonbitlang4core3int3Int18to__string_2einner(self.world.inventory.capacity, 10)}`;
   _M0MP36mizchi6kagura3hud10HudContext10draw__text(ctx, cmds, count_str, _M0FP26mizchi14hacknslash__3d12ui__font__sm, p, y.val, 8947848);
-  _M0MP36mizchi6kagura3hud10HudContext10draw__text(ctx, cmds, "[E]Equip [I]Close", _M0FP26mizchi14hacknslash__3d12ui__font__sm, sw - 240, y.val, 5592405);
-  y.val = y.val + 30;
-  const max_rows = _M0MP311moonbitlang4core6double6Double7to__int((sh - y.val - 40) / rh);
+  _M0MP36mizchi6kagura3hud10HudContext10draw__text(ctx, cmds, "E:EQUIP I:CLOSE", _M0FP26mizchi14hacknslash__3d12ui__font__sm, sw - 200, y.val, 5592405);
+  y.val = y.val + 18;
+  const max_rows = _M0MP311moonbitlang4core6double6Double7to__int((sh - y.val - 24) / rh);
   const visible = _M0FP311moonbitlang4core3cmp7minimumGiE(self.world.inventory.capacity, max_rows);
   const scroll = self.world.ui_cursor >= visible ? (self.world.ui_cursor - visible | 0) + 1 | 0 : 0;
   const _start630 = 0;
@@ -34519,7 +34599,7 @@ function _M0MP26mizchi14hacknslash__3d9GameState21render__inventory__ui(self, ds
       }
       _M0MP36mizchi6kagura3hud10HudContext10draw__rect(ctx, cmds, p, row_y, sw - p * 2, rh - 2, _M0FP36mizchi6kagura3hud18hex__color_2einner(bg, 1));
       if (sel) {
-        _M0MP36mizchi6kagura3hud10HudContext10draw__rect(ctx, cmds, p, row_y, 4, rh - 2, _M0FP36mizchi6kagura3hud18hex__color_2einner(16763904, 1));
+        _M0MP36mizchi6kagura3hud10HudContext10draw__rect(ctx, cmds, p, row_y, 3, rh - 2, _M0FP36mizchi6kagura3hud18hex__color_2einner(16763904, 1));
       }
       let item;
       _L: {
@@ -34534,7 +34614,7 @@ function _M0MP26mizchi14hacknslash__3d9GameState21render__inventory__ui(self, ds
           }
           break _L;
         }
-        _M0MP36mizchi6kagura3hud10HudContext10draw__text(ctx, cmds, _M0MP36mizchi14hacknslash__3d4game8ItemData13display__name(item), _M0FP26mizchi14hacknslash__3d8ui__font, p + 12, row_y + 8, _M0MP36mizchi14hacknslash__3d4game10ItemRarity5color(item.rarity));
+        _M0MP36mizchi6kagura3hud10HudContext10draw__text(ctx, cmds, _M0MP36mizchi14hacknslash__3d4game8ItemData13display__name(item), _M0FP26mizchi14hacknslash__3d8ui__font, p + 8, row_y + 4, _M0MP36mizchi14hacknslash__3d4game10ItemRarity5color(item.rarity));
       }
       _tmp$2 = i + 1 | 0;
       continue;
@@ -34555,25 +34635,25 @@ function _M0MP26mizchi14hacknslash__3d9GameState21render__inventory__ui(self, ds
         break _L;
       }
     }
-    const detail_y = sh - 30;
+    const detail_y = sh - 20;
     const dx = { val: p };
     const _bind = item.slot;
     let slot_name;
     switch (_bind) {
       case 0: {
-        slot_name = "Weapon";
+        slot_name = "WPN";
         break;
       }
       case 1: {
-        slot_name = "Armor";
+        slot_name = "ARM";
         break;
       }
       default: {
-        slot_name = "Accessory";
+        slot_name = "ACC";
       }
     }
     _M0MP36mizchi6kagura3hud10HudContext10draw__text(ctx, cmds, slot_name, _M0FP26mizchi14hacknslash__3d12ui__font__sm, dx.val, detail_y, 8947848);
-    dx.val = dx.val + 120;
+    dx.val = dx.val + 80;
     let a;
     _L$2: {
       _L$3: {
@@ -34588,7 +34668,7 @@ function _M0MP26mizchi14hacknslash__3d9GameState21render__inventory__ui(self, ds
         break _L$2;
       }
       _M0MP36mizchi6kagura3hud10HudContext10draw__text(ctx, cmds, _M0FP26mizchi14hacknslash__3d20format__affix__stats(a), _M0FP26mizchi14hacknslash__3d12ui__font__sm, dx.val, detail_y, 6737151);
-      dx.val = dx.val + 160;
+      dx.val = dx.val + 120;
     }
     let a$2;
     _L$3: {
@@ -34613,14 +34693,14 @@ function _M0MP26mizchi14hacknslash__3d9GameState18render__skills__ui(self, dst, 
   const sw = _M0FP26mizchi14hacknslash__3d9screen__w + 0;
   const sh = _M0FP26mizchi14hacknslash__3d9screen__h + 0;
   const p = _M0FP26mizchi14hacknslash__3d7ui__pad;
-  const rh = 52;
-  _M0MP36mizchi6kagura3hud10HudContext10draw__rect(ctx, cmds, 0, 0, sw, sh, _M0FP36mizchi6kagura3hud18hex__color_2einner(855322, 0.95));
+  const rh = 32;
+  _M0MP36mizchi6kagura3hud10HudContext10draw__rect(ctx, cmds, 0, 0, sw, sh, _M0FP36mizchi6kagura3hud18hex__color_2einner(855322, 1));
   const y = { val: p };
-  _M0MP36mizchi6kagura3hud10HudContext10draw__text(ctx, cmds, "SKILLS", 36, p, y.val, 16763904);
-  _M0MP36mizchi6kagura3hud10HudContext10draw__text(ctx, cmds, `SP:${_M0MP311moonbitlang4core3int3Int18to__string_2einner(self.world.skills.skill_points, 10)}`, _M0FP26mizchi14hacknslash__3d8ui__font, sw - 120, y.val + 4, 16763904);
-  y.val = y.val + 42;
-  _M0MP36mizchi6kagura3hud10HudContext10draw__text(ctx, cmds, "[Space]Learn [K]Close", _M0FP26mizchi14hacknslash__3d12ui__font__sm, p, y.val, 5592405);
-  y.val = y.val + 30;
+  _M0MP36mizchi6kagura3hud10HudContext10draw__text(ctx, cmds, "SKILLS", _M0FP26mizchi14hacknslash__3d12ui__font__lg, p, y.val, 16763904);
+  _M0MP36mizchi6kagura3hud10HudContext10draw__text(ctx, cmds, `SP:${_M0MP311moonbitlang4core3int3Int18to__string_2einner(self.world.skills.skill_points, 10)}`, _M0FP26mizchi14hacknslash__3d8ui__font, sw - 100, y.val + 4, 16763904);
+  y.val = y.val + 24;
+  _M0MP36mizchi6kagura3hud10HudContext10draw__text(ctx, cmds, "SPACE:LEARN K:CLOSE", _M0FP26mizchi14hacknslash__3d12ui__font__sm, p, y.val, 5592405);
+  y.val = y.val + 16;
   const _arr = self.world.skills.nodes;
   const _len = _arr.length;
   let _tmp = 0;
@@ -34638,20 +34718,20 @@ function _M0MP26mizchi14hacknslash__3d9GameState18render__skills__ui(self, dst, 
       const bg = sel ? 2237098 : 1315880;
       _M0MP36mizchi6kagura3hud10HudContext10draw__rect(ctx, cmds, p, row_y, sw - p * 2, rh - 2, _M0FP36mizchi6kagura3hud18hex__color_2einner(bg, 1));
       if (sel) {
-        _M0MP36mizchi6kagura3hud10HudContext10draw__rect(ctx, cmds, p, row_y, 4, rh - 2, _M0FP36mizchi6kagura3hud18hex__color_2einner(16763904, 1));
+        _M0MP36mizchi6kagura3hud10HudContext10draw__rect(ctx, cmds, p, row_y, 3, rh - 2, _M0FP36mizchi6kagura3hud18hex__color_2einner(16763904, 1));
       }
       const name_color = node.level > 0 ? 4521796 : can_learn ? 16763904 : 6710886;
-      _M0MP36mizchi6kagura3hud10HudContext10draw__text(ctx, cmds, node.name, _M0FP26mizchi14hacknslash__3d8ui__font, p + 12, row_y + 6, name_color);
+      _M0MP36mizchi6kagura3hud10HudContext10draw__text(ctx, cmds, node.name, _M0FP26mizchi14hacknslash__3d8ui__font, p + 8, row_y + 4, name_color);
       const level_text = `Lv ${_M0MP311moonbitlang4core3int3Int18to__string_2einner(node.level, 10)}/${_M0MP311moonbitlang4core3int3Int18to__string_2einner(node.max_level, 10)}`;
-      _M0MP36mizchi6kagura3hud10HudContext10draw__text(ctx, cmds, level_text, _M0FP26mizchi14hacknslash__3d12ui__font__sm, sw - 140, row_y + 6, 13421772);
-      _M0MP36mizchi6kagura3hud10HudContext10draw__text(ctx, cmds, `Cost:${_M0MP311moonbitlang4core3int3Int18to__string_2einner(node.cost, 10)}`, _M0FP26mizchi14hacknslash__3d12ui__font__sm, p + 12, row_y + 28, 6710886);
+      _M0MP36mizchi6kagura3hud10HudContext10draw__text(ctx, cmds, level_text, _M0FP26mizchi14hacknslash__3d12ui__font__sm, sw - 120, row_y + 4, 13421772);
+      _M0MP36mizchi6kagura3hud10HudContext10draw__text(ctx, cmds, `Cost:${_M0MP311moonbitlang4core3int3Int18to__string_2einner(node.cost, 10)}`, _M0FP26mizchi14hacknslash__3d12ui__font__sm, p + 8, row_y + 18, 6710886);
       if (node.max_level > 0) {
-        const bar_w = 100;
-        const bar_x = sw - 140;
+        const bar_w = 80;
+        const bar_x = sw - 120;
         const bar_ratio = (node.level + 0) / (node.max_level + 0);
-        _M0MP36mizchi6kagura3hud10HudContext10draw__rect(ctx, cmds, bar_x, row_y + 32, bar_w, 10, _M0FP36mizchi6kagura3hud18hex__color_2einner(3355443, 1));
+        _M0MP36mizchi6kagura3hud10HudContext10draw__rect(ctx, cmds, bar_x, row_y + 20, bar_w, 8, _M0FP36mizchi6kagura3hud18hex__color_2einner(3355443, 1));
         if (bar_ratio > 0) {
-          _M0MP36mizchi6kagura3hud10HudContext10draw__rect(ctx, cmds, bar_x, row_y + 32, bar_w * bar_ratio, 10, _M0FP36mizchi6kagura3hud18hex__color_2einner(4500036, 1));
+          _M0MP36mizchi6kagura3hud10HudContext10draw__rect(ctx, cmds, bar_x, row_y + 20, bar_w * bar_ratio, 8, _M0FP36mizchi6kagura3hud18hex__color_2einner(4500036, 1));
         }
       }
       _tmp = _i + 1 | 0;

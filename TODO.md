@@ -119,7 +119,7 @@ Path of Exile スタイルの斜め見下ろしアクション RPG をターゲ�
 #### Phase 3: 品質・スケール
 
 - [x] オクルージョンカリング — ルームベース可視判定 + エンティティ距離カリング
-- [x] PBR 拡張 (SSAO) — スクリーンスペースアンビエントオクルージョン（IBL/SSR は後回し）
+- [ ] PBR 拡張 (SSAO) — シェーダー・ターゲット・カメラ深度定義済み、レンダーパス未接続（IBL/SSR は後回し）
 - [x] プロファイラ — F3 キーで FPS/draw calls/vertex count/frame time 表示
 - [x] ホットリロード — Vite ベース dev サーバー + .mbt 変更検知 full-reload
 

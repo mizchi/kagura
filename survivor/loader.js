@@ -12,7 +12,7 @@ async function init() {
   installGfxHelpers();
 
   try {
-    await loadGameScript("./survivor.js?v=cba5aba");
+    await loadGameScript("./survivor.js?v=c58aafd");
   } catch (e) {
     showStartupError("#app", "Failed to load game script", e && e.message ? e.message : String(e));
   }

@@ -1,57 +1,4 @@
-// Data structures (same as 2D version + 3D extensions)
-
-struct Player {
-  mut x : Double
-  mut y : Double
-  mut hp : Int
-  max_hp : Int
-  size : Double
-  mut damage_timer : Int
-  mut iframe_timer : Int
-  mut facing_angle : Double
-  mut dash_timer : Int
-  mut dash_cooldown_timer : Int
-  mut dash_vx : Double
-  mut dash_vy : Double
-}
-
-struct ItemDrop {
-  x : Double
-  y : Double
-  kind : ItemKind
-  mut alive : Bool
-  spawn_frame : Int
-}
-
-struct Projectile {
-  mut x : Double
-  mut y : Double
-  vx : Double
-  vy : Double
-  mut alive : Bool
-  damage : Int
-  is_player : Bool // true = player arrow, false = enemy projectile
-}
-
-struct Enemy {
-  mut x : Double
-  mut y : Double
-  mut vx : Double
-  mut vy : Double
-  mut hp : Int
-  max_hp : Int
-  speed : Double
-  size : Double
-  mut alive : Bool
-  mut damage_timer : Int
-  kind : EnemyKind
-  mut path_cache : Array[@terrain.Point]
-  mut path_index : Int
-  mut path_timer : Int
-  mut shoot_cooldown : Int
-  mut charge_timer : Int
-  mut charge_cooldown : Int
-}
+// Rendering-only types (stay in src/)
 
 struct Meshes3D {
   item : @mesh3d.Mesh3D
@@ -70,27 +17,8 @@ struct DungeonMeshGroup {
 }
 
 struct GameState {
-  mut mode : GameMode
-  mut frame_count : Int
-  mut seed : Int
-  mut floor : Int
-  mut score : Int
-  player : Player
-  mut enemies : Array[Enemy]
-  mut items : Array[ItemDrop]
-  mut projectiles : Array[Projectile]
-  dungeon : DungeonData
+  world : @game.GameWorld
   input : @inpututil.InputHelper
-  mut attack_timer : Int
-  mut screen_flash : Int
-  mut floor_announce_timer : Int
-  // RPG systems
-  inventory : Inventory
-  equipment : Equipment
-  skills : SkillTree
-  mut player_stats : PlayerStats
-  mut ui_mode : UIMode
-  mut ui_cursor : Int // selected slot index in UI
   // Profiler
   mut show_profiler : Bool
   mut profile : @debugutil.FrameProfile
@@ -100,7 +28,6 @@ struct GameState {
   shader3d : @gfx.ShaderHandle
   shader3d_skinned : @gfx.ShaderHandle
   meshes : Meshes3D
-  // dungeon_graph removed — using batched mesh groups only
   character : PlayerCharacter
   enemy_models : EnemyModels
   // Shadow mapping

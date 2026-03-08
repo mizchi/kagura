@@ -1,4 +1,5 @@
 import {
+  "mizchi/hacknslash_3d/game" @game,
   "mizchi/kagura/camera3d" @camera3d,
   "mizchi/kagura/core" @core,
   "mizchi/kagura/draw3d" @draw3d,

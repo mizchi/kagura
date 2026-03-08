@@ -48,13 +48,13 @@ fn build_entity_cmds(
 ) -> Unit {
   let lighting = state.lighting
   // Items with Y-axis bob
-  for item in state.items {
+  for item in state.world.items {
     if item.alive && is_entity_visible(region, item.x, item.y) {
       let ix = item.x / tile_size
       let iz = item.y / tile_size
-      let base_y = get_tile_height(state.dungeon, item.x, item.y)
-      let bob = base_y + 0.3 + 0.1 * @math.sin(state.frame_count.to_double() * 0.1)
-      let c = if item.kind == Health { color_item_health } else { color_item_score }
+      let base_y = @game.get_tile_height(state.world.dungeon, item.x, item.y)
+      let bob = base_y + 0.3 + 0.1 * @math.sin(state.world.frame_count.to_double() * 0.1)
+      let c = if item.kind == @game.Health { color_item_health } else { color_item_score }
       let model = @math3d.Mat4::translation(ix, bob, iz)
       let tinted = tint_lighting(lighting, c)
       let dst_region = @gfx.new_dst_region(
@@ -70,11 +70,11 @@ fn build_entity_cmds(
     }
   }
   // Projectiles (enemy spheres + player arrows)
-  for proj in state.projectiles {
+  for proj in state.world.projectiles {
     if proj.alive && is_entity_visible(region, proj.x, proj.y) {
       let prx = proj.x / tile_size
       let prz = proj.y / tile_size
-      let base_y = get_tile_height(state.dungeon, proj.x, proj.y)
+      let base_y = @game.get_tile_height(state.world.dungeon, proj.x, proj.y)
       if proj.is_player {
         // Player arrow: rotated to face movement direction
         let angle = @math.atan2(proj.vy, proj.vx)
@@ -141,10 +141,10 @@ fn GameState::draw(
   self : GameState,
   ctx : @engine.EngineContext,
 ) -> Array[@gfx.DrawTrianglesCommand] {
-  let result = match self.mode {
-    Title => self.render_title_cmds(ctx.dst, ctx.shader)
-    GameOver => self.render_gameover_cmds(ctx.dst, ctx.shader)
-    Playing => self.draw_playing(ctx)
+  let result = match self.world.mode {
+    @game.Title => self.render_title_cmds(ctx.dst, ctx.shader)
+    @game.GameOver => self.render_gameover_cmds(ctx.dst, ctx.shader)
+    @game.Playing => self.draw_playing(ctx)
   }
   // Profiler HUD (after all other rendering)
   if self.show_profiler {
@@ -178,8 +178,8 @@ fn GameState::draw_playing(
   let camera = self.camera.to_camera3d()
   let view_projection = camera.view_projection_matrix()
   // Shadow config centered on player
-  let px3d = self.player.x / tile_size
-  let pz3d = self.player.y / tile_size
+  let px3d = self.world.player.x / tile_size
+  let pz3d = self.world.player.y / tile_size
   let shadow_config = @shadow3d.ShadowConfig::new(
     self.shadow_config.map_size,
     self.shadow_config.half_extent,
@@ -202,8 +202,8 @@ fn GameState::draw_playing(
   let rt = self.scene_target
   let identity = @math3d.Mat4::identity()
   // Get visible chunks (larger chunks = fewer iterations)
-  let player_tile_x = (self.player.x / tile_size).to_int()
-  let player_tile_z = (self.player.y / tile_size).to_int()
+  let player_tile_x = (self.world.player.x / tile_size).to_int()
+  let player_tile_z = (self.world.player.y / tile_size).to_int()
   let visible_chunks = get_visible_chunks(
     self.dungeon_chunks, player_tile_x, player_tile_z, 1,
   )
@@ -252,8 +252,8 @@ fn GameState::draw_playing(
   }
   // Compute visible region for occlusion culling
   let vis_region = compute_visible_region(
-    self.dungeon.rooms, self.player.x, self.player.y,
-    self.dungeon.grid.width, self.dungeon.grid.height,
+    self.world.dungeon.rooms, self.world.player.x, self.world.player.y,
+    self.world.dungeon.grid.width, self.world.dungeon.grid.height,
   )
   // === Pass 3: Entities (items/projectiles) → direct draw commands ===
   build_entity_cmds(
@@ -263,25 +263,25 @@ fn GameState::draw_playing(
   // === Pass 4: Skinned enemies → scene_target ===
   let enemy_skinning = self.enemy_models.compute_skinning()
   let skinned_objects : Array[@scene3d.Object3D] = []
-  for enemy in self.enemies {
+  for enemy in self.world.enemies {
     if enemy.alive && is_entity_visible(vis_region, enemy.x, enemy.y) {
       let ex = enemy.x / tile_size
       let ez = enemy.y / tile_size
-      let ey = get_tile_height(self.dungeon, enemy.x, enemy.y)
+      let ey = @game.get_tile_height(self.world.dungeon, enemy.x, enemy.y)
       let color = if enemy.damage_timer > 0 {
         color_player_hurt
       } else {
         match enemy.kind {
-          Fast => color_enemy_fast
-          Tank => color_enemy_tank
-          Ranged => color_enemy_ranged
-          Boss => color_enemy_boss
-          Basic => color_enemy_basic
+          @game.Fast => color_enemy_fast
+          @game.Tank => color_enemy_tank
+          @game.Ranged => color_enemy_ranged
+          @game.Boss => color_enemy_boss
+          @game.Basic => color_enemy_basic
         }
       }
       let mesh_data = self.enemy_models.get_mesh_data(enemy.kind)
-      let dx = self.player.x - enemy.x
-      let dy = self.player.y - enemy.y
+      let dx = self.world.player.x - enemy.x
+      let dy = self.world.player.y - enemy.y
       let face_angle = @math.atan2(dy, dx)
       let rot = @math3d.Quaternion::from_axis_angle(
         @math3d.Vec3::unit_y(),
@@ -323,12 +323,12 @@ fn GameState::draw_playing(
     }
   }
   // === Pass 5: Player character ===
-  let px = self.player.x / tile_size
-  let pz = self.player.y / tile_size
-  let py = get_tile_height(self.dungeon, self.player.x, self.player.y)
-  let player_color = if self.player.dash_timer > 0 {
+  let px = self.world.player.x / tile_size
+  let pz = self.world.player.y / tile_size
+  let py = @game.get_tile_height(self.world.dungeon, self.world.player.x, self.world.player.y)
+  let player_color = if self.world.player.dash_timer > 0 {
     color_player_dash
-  } else if self.player.damage_timer > 0 {
+  } else if self.world.player.damage_timer > 0 {
     color_player_hurt
   } else {
     color_player
@@ -336,7 +336,7 @@ fn GameState::draw_playing(
   let skinning_matrices = self.character.compute_skinning()
   let facing_rot = @math3d.Quaternion::from_axis_angle(
     @math3d.Vec3::unit_y(),
-    -self.player.facing_angle + @math.PI / 2.0,
+    -self.world.player.facing_angle + @math.PI / 2.0,
   )
   let player_objects : Array[@scene3d.Object3D] = [
     @scene3d.object3d(
@@ -371,7 +371,7 @@ fn GameState::draw_playing(
   }
   // === Pass 6: Particles ===
   let particle_cmds = self.particle_manager.draw(
-    rt, camera, ctx.screen_w, ctx.screen_h, self.frame_count,
+    rt, camera, ctx.screen_w, ctx.screen_h, self.world.frame_count,
   )
   for cmd in particle_cmds {
     cmds.push(cmd)
@@ -425,7 +425,7 @@ fn GameState::draw_playing(
   for cmd in hud_cmds {
     cmds.push(cmd)
   }
-  if self.ui_mode != UIMode::None {
+  if self.world.ui_mode != @game.UIMode::None {
     let ui_cmds = self.render_rpg_ui_cmds(ctx.dst, ctx.shader)
     for cmd in ui_cmds {
       cmds.push(cmd)

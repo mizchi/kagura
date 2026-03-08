@@ -5,13 +5,13 @@ fn main {
   let state = GameState::new(seed=42)
   let snapshot_mode = get_snapshot_mode()
   if snapshot_mode == "playing" {
-    state.mode = Playing
+    state.world.mode = @game.Playing
     let frames = get_snapshot_frames()
     for i = 0; i < frames; i = i + 1 {
       state.update(@core.empty_input_snapshot())
     }
   } else if snapshot_mode == "gameover" {
-    state.mode = GameOver
+    state.world.mode = @game.GameOver
   }
   let snapshot_tick = get_snapshot_tick()
   let rendered_frames : Ref[Int] = Ref::new(0)

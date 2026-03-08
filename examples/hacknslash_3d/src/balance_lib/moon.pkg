@@ -1,0 +1,6 @@
+import {
+  "moonbitlang/core/math" @math,
+  "mizchi/hacknslash_3d/game" @game,
+}
+
+warnings = "-1-2-7-20-29-71"

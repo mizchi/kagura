@@ -162,10 +162,10 @@ fn rasterize_icon(pattern : Array[Int], color : Int) -> Array[Int] {
 fn build_icon_sprite_inputs() -> Array[@sprite_packer.SpriteInput] {
   let patterns = all_icon_patterns()
   let rarity_colors = [
-    (Common, 0xAAAAAA),
-    (Uncommon, 0x00CC00),
-    (Rare, 0x3366FF),
-    (Epic, 0xCC00FF),
+    (@game.Common, 0xAAAAAA),
+    (@game.Uncommon, 0x00CC00),
+    (@game.Rare, 0x3366FF),
+    (@game.Epic, 0xCC00FF),
   ]
   let skill_color = 0xFFCC00
   let inputs : Array[@sprite_packer.SpriteInput] = []

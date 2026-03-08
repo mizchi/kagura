@@ -22,7 +22,7 @@ fn GameState::render_hud_cmds(
 ) -> Array[@gfx.DrawTrianglesCommand] {
   let sw = screen_w.to_double()
   let cmds : Array[@gfx.DrawTrianglesCommand] = []
-  let hp_ratio = self.player.hp.to_double() / self.player.max_hp.to_double()
+  let hp_ratio = self.world.player.hp.to_double() / self.world.player.max_hp.to_double()
   let hp_color = if hp_ratio > 0.5 {
     0x00CC00
   } else if hp_ratio > 0.25 {
@@ -31,7 +31,7 @@ fn GameState::render_hud_cmds(
     0xCC0000
   }
   let mut alive_count = 0
-  for enemy in self.enemies {
+  for enemy in self.world.enemies {
     if enemy.alive {
       alive_count = alive_count + 1
     }
@@ -47,11 +47,11 @@ fn GameState::render_hud_cmds(
       // TTF text
       ctx.draw_text(cmds, "HP", 16.0, 60.0, 8.0, 0xFFFFFF)
       ctx.draw_text_centered(
-        cmds, "FLOOR " + self.floor.to_string(),
+        cmds, "FLOOR " + self.world.floor.to_string(),
         20.0, sw / 2.0, 16.0, 0xCCCCCC,
       )
       ctx.draw_text(
-        cmds, self.score.to_string(),
+        cmds, self.world.score.to_string(),
         24.0, sw - 80.0, 8.0, 0xFFCC00,
       )
       ctx.draw_text(
@@ -59,10 +59,10 @@ fn GameState::render_hud_cmds(
         16.0, sw - 80.0, 30.0, 0xCC2222,
       )
       // Floor announce overlay
-      if self.floor_announce_timer > 0 {
+      if self.world.floor_announce_timer > 0 {
         let sh = screen_h.to_double()
         ctx.draw_text_centered(
-          cmds, "FLOOR " + self.floor.to_string(),
+          cmds, "FLOOR " + self.world.floor.to_string(),
           48.0, sw / 2.0, sh / 2.0, 0xFFCC00,
         )
       }
@@ -77,9 +77,13 @@ fn GameState::render_hud_cmds(
     }
   }
   // Dash cooldown indicator
-  if self.player.dash_cooldown_timer > 0 {
-    let cd_ratio = self.player.dash_cooldown_timer.to_double() / dash_cooldown.to_double()
+  if self.world.player.dash_cooldown_timer > 0 {
+    let cd_ratio = self.world.player.dash_cooldown_timer.to_double() / dash_cooldown.to_double()
     ctx.draw_rect(cmds, 10.0, 28.0, 120.0 * (1.0 - cd_ratio), 4.0, @hud.hex_color(0x66DDFF, alpha=0.6))
+  }
+  // Auto-play indicator
+  if self.world.auto_play {
+    ctx.draw_text(cmds, "AUTO", 14.0, 10.0, 36.0, 0x00FFAA)
   }
   // Minimap
   self.render_minimap(ctx, cmds)
@@ -96,9 +100,9 @@ fn GameState::render_minimap(
   let map_y = ctx.screen_h - map_size - 8.0
   let cell_size = 2.0
   let radius = (map_size / cell_size / 2.0).to_int()
-  let grid = self.dungeon.grid
-  let pcx = (self.player.x / tile_size).to_int()
-  let pcy = (self.player.y / tile_size).to_int()
+  let grid = self.world.dungeon.grid
+  let pcx = (self.world.player.x / tile_size).to_int()
+  let pcy = (self.world.player.y / tile_size).to_int()
   // Background
   ctx.draw_rect(cmds, map_x - 2.0, map_y - 2.0, map_size + 4.0, map_size + 4.0, @hud.hex_color(0x000000, alpha=0.7))
   // Tiles
@@ -122,12 +126,12 @@ fn GameState::render_minimap(
     }
   }
   // Enemies
-  for enemy in self.enemies {
+  for enemy in self.world.enemies {
     if enemy.alive {
       let ex = ((enemy.x / tile_size).to_int() - pcx + radius).to_double() * cell_size
       let ey = ((enemy.y / tile_size).to_int() - pcy + radius).to_double() * cell_size
       if ex >= 0.0 && ex < map_size && ey >= 0.0 && ey < map_size {
-        let c = if enemy.kind == Boss { 0xFF2266 } else { 0xCC2222 }
+        let c = if enemy.kind == @game.Boss { 0xFF2266 } else { 0xCC2222 }
         ctx.draw_rect(cmds, map_x + ex, map_y + ey, cell_size + 1.0, cell_size + 1.0, @hud.hex_color(c))
       }
     }
@@ -147,12 +151,12 @@ fn GameState::render_hud_scene_fallback(
     @scene.label(x=72.0, y=16.0, content="HP", color=0xFFFFFF),
     @scene.label(
       x=sw / 2.0, y=16.0,
-      content="FLOOR " + self.floor.to_string(),
+      content="FLOOR " + self.world.floor.to_string(),
       color=0xCCCCCC, scale=1.2,
     ),
     @scene.label(
       x=sw - 80.0, y=16.0,
-      content=self.score.to_string(),
+      content=self.world.score.to_string(),
       color=0xFFCC00, scale=1.5,
     ),
     @scene.label(
@@ -160,11 +164,11 @@ fn GameState::render_hud_scene_fallback(
       content="x" + alive_count.to_string(),
       color=0xCC2222,
     ),
-    @scene.show(fn() { self.floor_announce_timer > 0 }, fn() {
+    @scene.show(fn() { self.world.floor_announce_timer > 0 }, fn() {
       let sh = screen_h.to_double()
       @scene.label(
         x=sw / 2.0, y=sh / 2.0,
-        content="FLOOR " + self.floor.to_string(),
+        content="FLOOR " + self.world.floor.to_string(),
         color=0xFFCC00, scale=3.0,
       )
     }),
@@ -193,7 +197,7 @@ fn GameState::render_title_cmds(
         cmds, "3D", 32.0,
         sw / 2.0, sh / 2.0 - 10.0, 0x44AAFF,
       )
-      if self.frame_count / 30 % 2 == 0 {
+      if self.world.frame_count / 30 % 2 == 0 {
         ctx.draw_text_centered(
           cmds, "PRESS SPACE", 24.0,
           sw / 2.0, sh / 2.0 + 40.0, 0xFFCC00,
@@ -210,7 +214,7 @@ fn GameState::render_title_cmds(
           x=sw / 2.0, y=sh / 2.0 - 10.0,
           content="3D", scale=2.0, color=0x44AAFF,
         ),
-        @scene.show(fn() { self.frame_count / 30 % 2 == 0 }, fn() {
+        @scene.show(fn() { self.world.frame_count / 30 % 2 == 0 }, fn() {
           @scene.label(
             x=sw / 2.0, y=sh / 2.0 + 40.0,
             content="PRESS SPACE", color=0xFFCC00, scale=1.5,
@@ -245,14 +249,14 @@ fn GameState::render_gameover_cmds(
         sw / 2.0, sh / 2.0 - 60.0, 0xFF0000,
       )
       ctx.draw_text_centered(
-        cmds, "FLOOR " + self.floor.to_string(), 24.0,
+        cmds, "FLOOR " + self.world.floor.to_string(), 24.0,
         sw / 2.0, sh / 2.0 + 5.0, 0xFFCC00,
       )
       ctx.draw_text_centered(
-        cmds, "SCORE " + self.score.to_string(), 32.0,
+        cmds, "SCORE " + self.world.score.to_string(), 32.0,
         sw / 2.0, sh / 2.0 + 40.0, 0xFFFFFF,
       )
-      if self.frame_count / 30 % 2 == 0 {
+      if self.world.frame_count / 30 % 2 == 0 {
         ctx.draw_text_centered(
           cmds, "PRESS SPACE", 24.0,
           sw / 2.0, sh / 2.0 + 80.0, 0x888888,
@@ -267,14 +271,14 @@ fn GameState::render_gameover_cmds(
         ),
         @scene.label(
           x=sw / 2.0, y=sh / 2.0 + 5.0,
-          content="FLOOR " + self.floor.to_string(),
+          content="FLOOR " + self.world.floor.to_string(),
           color=0xFFCC00, scale=1.5,
         ),
         @scene.label(
           x=sw / 2.0, y=sh / 2.0 + 40.0,
-          content="SCORE " + self.score.to_string(), scale=2.0,
+          content="SCORE " + self.world.score.to_string(), scale=2.0,
         ),
-        @scene.show(fn() { self.frame_count / 30 % 2 == 0 }, fn() {
+        @scene.show(fn() { self.world.frame_count / 30 % 2 == 0 }, fn() {
           @scene.label(
             x=sw / 2.0, y=sh / 2.0 + 80.0,
             content="PRESS SPACE", color=0x888888, scale=1.5,

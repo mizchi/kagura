@@ -44,7 +44,7 @@ struct DungeonChunk {
 // Build chunked dungeon mesh groups.
 // Returns array of chunks, each with its own mesh groups.
 fn build_dungeon_chunks(
-  dungeon : DungeonData,
+  dungeon : @game.DungeonData,
   meshes : Meshes3D,
 ) -> Array[DungeonChunk] {
   let w = dungeon.grid.width
@@ -62,7 +62,7 @@ fn build_dungeon_chunks(
 }
 
 fn build_single_chunk(
-  dungeon : DungeonData,
+  dungeon : @game.DungeonData,
   meshes : Meshes3D,
   cx : Int,
   cz : Int,

@@ -300,13 +300,13 @@ fn EnemyModels::update(self : EnemyModels, dt : Double) -> Unit {
   self.idle_player.update(dt)
 }
 
-fn EnemyModels::get_mesh_data(self : EnemyModels, kind : EnemyKind) -> EnemyMeshData {
+fn EnemyModels::get_mesh_data(self : EnemyModels, kind : @game.EnemyKind) -> EnemyMeshData {
   match kind {
-    Fast => self.fast
-    Tank => self.tank
-    Ranged => self.ranged
-    Boss => self.boss
-    Basic => self.basic
+    @game.Fast => self.fast
+    @game.Tank => self.tank
+    @game.Ranged => self.ranged
+    @game.Boss => self.boss
+    @game.Basic => self.basic
   }
 }
 

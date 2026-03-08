@@ -1,10 +1,35 @@
 // RPG UI: inventory and skill tree screens
 
+fn format_affix_stats(a : @game.Affix) -> String {
+  let parts : Array[String] = []
+  if a.atk != 0 { parts.push("A" + format_signed(a.atk)) }
+  if a.def != 0 { parts.push("D" + format_signed(a.def)) }
+  if a.hp != 0 { parts.push("H" + format_signed(a.hp)) }
+  if a.crit > 0.001 {
+    let pct = (a.crit * 100.0).to_int()
+    parts.push("Crit+" + pct.to_string() + "%")
+  }
+  if a.life_steal > 0.001 {
+    let pct = (a.life_steal * 100.0).to_int()
+    parts.push("LS+" + pct.to_string() + "%")
+  }
+  let mut result = ""
+  for i, p in parts {
+    if i > 0 { result = result + " " }
+    result = result + p
+  }
+  result
+}
+
+fn format_signed(v : Int) -> String {
+  if v > 0 { "+" + v.to_string() } else { v.to_string() }
+}
+
 fn GameState::update_ui(self : GameState) -> Unit {
-  match self.ui_mode {
-    Inventory => self.update_inventory_ui()
-    Skills => self.update_skills_ui()
-    UIMode::None => ()
+  match self.world.ui_mode {
+    @game.Inventory => self.update_inventory_ui()
+    @game.Skills => self.update_skills_ui()
+    @game.UIMode::None => ()
   }
 }
 
@@ -19,22 +44,22 @@ fn is_down_just_pressed(input : @inpututil.InputHelper) -> Bool {
 }
 
 fn GameState::update_inventory_ui(self : GameState) -> Unit {
-  let cap = self.inventory.capacity
+  let cap = self.world.inventory.capacity
   if is_up_just_pressed(self.input) {
-    self.ui_cursor = (self.ui_cursor - 1 + cap) % cap
+    self.world.ui_cursor = (self.world.ui_cursor - 1 + cap) % cap
   }
   if is_down_just_pressed(self.input) {
-    self.ui_cursor = (self.ui_cursor + 1) % cap
+    self.world.ui_cursor = (self.world.ui_cursor + 1) % cap
   }
   // Equip with E
   if @inpututil.is_key_just_pressed(self.input.key_state, key_e) {
-    match self.inventory.items[self.ui_cursor] {
+    match self.world.inventory.items[self.world.ui_cursor] {
       Some(item) => {
-        let prev = self.equipment.equip(item)
-        self.inventory.items[self.ui_cursor] = prev
-        self.player_stats = compute_player_stats(self.equipment, self.skills)
+        let prev = self.world.equipment.equip(item)
+        self.world.inventory.items[self.world.ui_cursor] = prev
+        self.world.player_stats = @game.compute_player_stats(self.world.equipment, self.world.skills)
         // Update player max_hp
-        self.player.hp = @cmp.minimum(self.player.hp, self.player_stats.max_hp)
+        self.world.player.hp = @cmp.minimum(self.world.player.hp, self.world.player_stats.max_hp)
       }
       None => ()
     }
@@ -42,18 +67,18 @@ fn GameState::update_inventory_ui(self : GameState) -> Unit {
 }
 
 fn GameState::update_skills_ui(self : GameState) -> Unit {
-  let node_count = self.skills.nodes.length()
+  let node_count = self.world.skills.nodes.length()
   if is_up_just_pressed(self.input) {
-    self.ui_cursor = (self.ui_cursor - 1 + node_count) % node_count
+    self.world.ui_cursor = (self.world.ui_cursor - 1 + node_count) % node_count
   }
   if is_down_just_pressed(self.input) {
-    self.ui_cursor = (self.ui_cursor + 1) % node_count
+    self.world.ui_cursor = (self.world.ui_cursor + 1) % node_count
   }
   // Learn with Space/Enter
   if @inpututil.is_confirm_just_pressed(self.input) {
-    let node = self.skills.nodes[self.ui_cursor]
-    if self.skills.learn(node.id) {
-      self.player_stats = compute_player_stats(self.equipment, self.skills)
+    let node = self.world.skills.nodes[self.world.ui_cursor]
+    if self.world.skills.learn(node.id) {
+      self.world.player_stats = @game.compute_player_stats(self.world.equipment, self.world.skills)
     }
   }
 }
@@ -64,10 +89,10 @@ fn GameState::render_rpg_ui_cmds(
   shader : @gfx.ShaderHandle,
 ) -> Array[@gfx.DrawTrianglesCommand] {
   let cmds : Array[@gfx.DrawTrianglesCommand] = []
-  match self.ui_mode {
-    Inventory => self.render_inventory_ui(dst, shader, cmds)
-    Skills => self.render_skills_ui(dst, shader, cmds)
-    UIMode::None => ()
+  match self.world.ui_mode {
+    @game.Inventory => self.render_inventory_ui(dst, shader, cmds)
+    @game.Skills => self.render_skills_ui(dst, shader, cmds)
+    @game.UIMode::None => ()
   }
   cmds
 }
@@ -100,7 +125,7 @@ fn GameState::render_inventory_ui(
   let eq_y = cy + 8.0
   ctx.draw_text(cmds, "EQUIPMENT", 14.0, px + 10.0, eq_y, 0xCCCCCC)
   let slot_labels = ["WPN", "ARM", "ACC"]
-  let slot_items = [self.equipment.weapon, self.equipment.armor, self.equipment.accessory]
+  let slot_items = [self.world.equipment.weapon, self.world.equipment.armor, self.world.equipment.accessory]
   for i, label in slot_labels {
     let sy = eq_y + 20.0 + i.to_double() * 22.0
     ctx.draw_rect(cmds, px + 10.0, sy, 280.0, 20.0, @hud.hex_color(0x222244))
@@ -108,10 +133,10 @@ fn GameState::render_inventory_ui(
     match slot_items[i] {
       Some(item) => {
         let color = item.rarity.color()
-        ctx.draw_text(cmds, item.name, 12.0, px + 50.0, sy + 2.0, color)
+        ctx.draw_text(cmds, item.display_name(), 12.0, px + 50.0, sy + 2.0, color)
         ctx.draw_text(
           cmds,
-          "A:" + item.atk_bonus.to_string() + " D:" + item.def_bonus.to_string() + " H:" + item.hp_bonus.to_string(),
+          "A:" + item.total_atk().to_string() + " D:" + item.total_def().to_string() + " H:" + item.total_hp().to_string(),
           10.0, px + 180.0, sy + 4.0, 0xAAAAAA,
         )
       }
@@ -120,37 +145,62 @@ fn GameState::render_inventory_ui(
   }
   // Inventory list
   let inv_y = eq_y + 90.0
-  ctx.draw_text(cmds, "ITEMS (" + self.inventory.count().to_string() + "/" + self.inventory.capacity.to_string() + ")", 14.0, px + 10.0, inv_y, 0xCCCCCC)
+  ctx.draw_text(cmds, "ITEMS (" + self.world.inventory.count().to_string() + "/" + self.world.inventory.capacity.to_string() + ")", 14.0, px + 10.0, inv_y, 0xCCCCCC)
   ctx.draw_text(cmds, "[E] Equip  [I] Close", 10.0, px + 10.0, inv_y + 16.0, 0x666666)
   let list_y = inv_y + 32.0
-  let visible = @cmp.minimum(self.inventory.capacity, 10)
+  let visible = @cmp.minimum(self.world.inventory.capacity, 10)
   // Scroll offset
-  let scroll = if self.ui_cursor >= visible { self.ui_cursor - visible + 1 } else { 0 }
+  let scroll = if self.world.ui_cursor >= visible { self.world.ui_cursor - visible + 1 } else { 0 }
   for i in 0..<visible {
     let idx = scroll + i
-    if idx >= self.inventory.capacity {
+    if idx >= self.world.inventory.capacity {
       break
     }
     let iy = list_y + i.to_double() * 20.0
-    let is_selected = idx == self.ui_cursor
+    let is_selected = idx == self.world.ui_cursor
     let bg = if is_selected { 0x3333AA } else { 0x222233 }
     ctx.draw_rect(cmds, px + 10.0, iy, 280.0, 18.0, @hud.hex_color(bg))
-    match self.inventory.items[idx] {
+    match self.world.inventory.items[idx] {
       Some(item) => {
         let color = item.rarity.color()
-        ctx.draw_text(cmds, item.name, 12.0, px + 14.0, iy + 2.0, color)
+        ctx.draw_text(cmds, item.display_name(), 12.0, px + 14.0, iy + 2.0, color)
         ctx.draw_text(
           cmds,
-          "A:" + item.atk_bonus.to_string() + " D:" + item.def_bonus.to_string(),
+          "A:" + item.total_atk().to_string() + " D:" + item.total_def().to_string(),
           10.0, px + 200.0, iy + 3.0, 0xAAAAAA,
         )
       }
       None => ctx.draw_text(cmds, "---", 12.0, px + 14.0, iy + 2.0, 0x333333)
     }
   }
+  // Selected item detail
+  let detail_y = list_y + visible.to_double() * 20.0 + 4.0
+  match self.world.inventory.items[self.world.ui_cursor] {
+    Some(item) => {
+      let mut dy = detail_y
+      match item.prefix {
+        Some(a) => {
+          ctx.draw_text(cmds, "Prefix: " + a.name, 10.0, px + 10.0, dy, 0x66CCFF)
+          ctx.draw_text(cmds, format_affix_stats(a), 10.0, px + 80.0, dy, 0x88AACC)
+          dy = dy + 14.0
+        }
+        None => ()
+      }
+      match item.suffix {
+        Some(a) => {
+          ctx.draw_text(cmds, "Suffix: " + a.name, 10.0, px + 10.0, dy, 0xFFCC66)
+          ctx.draw_text(cmds, format_affix_stats(a), 10.0, px + 80.0, dy, 0xCCAA88)
+          dy = dy + 14.0
+        }
+        None => ()
+      }
+      let _ = dy
+    }
+    None => ()
+  }
   // Stats summary
-  let stats_y = list_y + visible.to_double() * 20.0 + 8.0
-  let s = self.player_stats
+  let stats_y = detail_y + 30.0
+  let s = self.world.player_stats
   ctx.draw_text(
     cmds,
     "ATK:" + s.atk.to_string() + "  DEF:" + s.def.to_string() + "  HP:" + s.max_hp.to_string(),
@@ -182,15 +232,15 @@ fn GameState::render_skills_ui(
   // Skill points
   ctx.draw_text(
     cmds,
-    "Skill Points: " + self.skills.skill_points.to_string(),
+    "Skill Points: " + self.world.skills.skill_points.to_string(),
     14.0, px + 10.0, cy + 8.0, 0xFFCC00,
   )
   ctx.draw_text(cmds, "[Space] Learn  [K] Close", 10.0, px + 10.0, cy + 26.0, 0x666666)
   let list_y = cy + 44.0
-  for i, node in self.skills.nodes {
+  for i, node in self.world.skills.nodes {
     let ny = list_y + i.to_double() * 42.0
-    let is_selected = i == self.ui_cursor
-    let can_learn = self.skills.can_learn(node.id)
+    let is_selected = i == self.world.ui_cursor
+    let can_learn = self.world.skills.can_learn(node.id)
     let bg = if is_selected { 0x3333AA } else { 0x222233 }
     ctx.draw_rect(cmds, px + 10.0, ny, 300.0, 38.0, @hud.hex_color(bg))
     // Skill name + level

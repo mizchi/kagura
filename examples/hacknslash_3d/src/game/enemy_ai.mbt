@@ -1,11 +1,12 @@
 // Enemy AI: chase + pathfinding + patrol + ranged + boss
 
-fn update_enemy_ai(
+pub fn update_enemy_ai(
   enemies : Array[Enemy],
   player : Player,
   grid : @terrain.Grid2D,
   frame_count : Int,
   projectiles : Array[Projectile],
+  params~ : BalanceParams = BalanceParams::default(),
 ) -> Unit {
   let player_tile_x = (player.x / tile_size).to_int()
   let player_tile_y = (player.y / tile_size).to_int()
@@ -16,7 +17,7 @@ fn update_enemy_ai(
     let cdx = player.x - enemy.x
     let cdy = player.y - enemy.y
     let dist_sq = cdx * cdx + cdy * cdy
-    let chase_range_sq = chase_range * chase_range
+    let chase_range_sq = params.chase_range * params.chase_range
     // Boss charge logic
     if enemy.kind == Boss {
       if enemy.charge_timer > 0 {

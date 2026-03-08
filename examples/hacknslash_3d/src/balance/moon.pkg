@@ -1,0 +1,13 @@
+import {
+  "mizchi/hacknslash_3d/balance_lib" @blib,
+  "mizchi/hacknslash_3d/game" @game,
+}
+
+options(
+  "is-main": true,
+  targets: {
+    "main.mbt": ["js"],
+  },
+)
+
+warnings = "-1-2-7-20-29-71"

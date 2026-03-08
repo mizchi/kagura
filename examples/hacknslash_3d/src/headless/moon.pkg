@@ -1,0 +1,11 @@
+import {
+  "mizchi/hacknslash_3d/game" @game,
+  "mizchi/terrain/types" @terrain,
+}
+
+options(
+  "is-main": true,
+  targets: {
+    "main.mbt": ["js"],
+  },
+)

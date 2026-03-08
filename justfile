@@ -75,6 +75,10 @@ clean:
     [ -f modules/js_runtime/moon.mod.json ] && (cd modules/js_runtime && moon clean)
     for dir in examples/*/; do (cd "$dir" && moon clean); done
 
+balance name="playtest":
+    cd examples/hacknslash_3d && moon run src/balance --target js 2>&1 | tee /dev/stderr | sed -n '/^=== CSV ===/,$ p' | tail -n +2 > data/hackslash/{{name}}.csv
+    @echo "Saved: examples/hacknslash_3d/data/hackslash/{{name}}.csv"
+
 # WASM game host tasks
 wasm-build-moonbit:
     cd examples/wasm_game/guest/moonbit && moon build --target wasm

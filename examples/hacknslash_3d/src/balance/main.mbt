@@ -167,6 +167,45 @@ fn main {
     }
   }
   println("")
+  // CSV output
+  println("=== CSV ===")
+  let csv_header = "hypothesis,loss_before,loss_after,improvement_pct,survival_frames,floors_cleared,total_kills,score,total_damage,avg_hp,hp_cv,avg_floor_time,kill_interval,kill_cv,near_death_rate,kills_per_floor,damage_interval," + names.join(",")
+  println(csv_header)
+  // Baseline rows
+  for result in results {
+    let (name, bl, _, _, _) = result
+    let base_params = { ..default_params, affix_profile: profile_id(name) }
+    let (_, bam) = @blib.compute_loss_averaged_full(base_params, targets, seeds, sim_max_frames)
+    let bb = bam.base
+    let pvals = base_params.to_array().map(fn(v) { fmt4(v) }).join(",")
+    println(
+      "Baseline_" + name + "," + fmt4(bl) + "," + fmt4(bl) + ",0," +
+      bb.survival_frames.to_string() + "," + bb.floors_cleared.to_string() + "," +
+      bb.total_kills.to_string() + "," + bb.score.to_string() + "," +
+      bb.total_damage_taken.to_string() + "," +
+      fmt4(bam.avg_hp_ratio) + "," + fmt4(bam.hp_cv) + "," +
+      fmt4(bam.avg_floor_time) + "," + fmt4(bam.avg_kill_interval) + "," +
+      fmt4(bam.kill_interval_cv) + "," + fmt4(bam.near_death_rate) + "," +
+      fmt4(bam.kills_per_floor) + "," + fmt4(bam.avg_damage_interval) + "," + pvals,
+    )
+  }
+  // Optimized rows
+  for result in results {
+    let (name, bl, fl, am, bp) = result
+    let imp = if bl > 0.0001 { (1.0 - fl / bl) * 100.0 } else { 0.0 }
+    let b = am.base
+    let pvals = bp.to_array().map(fn(v) { fmt4(v) }).join(",")
+    println(
+      name + "," + fmt4(bl) + "," + fmt4(fl) + "," + fmt(imp) + "," +
+      b.survival_frames.to_string() + "," + b.floors_cleared.to_string() + "," +
+      b.total_kills.to_string() + "," + b.score.to_string() + "," +
+      b.total_damage_taken.to_string() + "," +
+      fmt4(am.avg_hp_ratio) + "," + fmt4(am.hp_cv) + "," +
+      fmt4(am.avg_floor_time) + "," + fmt4(am.avg_kill_interval) + "," +
+      fmt4(am.kill_interval_cv) + "," + fmt4(am.near_death_rate) + "," +
+      fmt4(am.kills_per_floor) + "," + fmt4(am.avg_damage_interval) + "," + pvals,
+    )
+  }
 }
 
 fn pad(s : String, width : Int) -> String {
@@ -208,4 +247,36 @@ fn fmt(v : Double) -> String {
   let frac = ((abs_v - int_part.to_double()) * 100.0).to_int()
   let p = if frac < 10 { "0" + frac.to_string() } else { frac.to_string() }
   sign + int_part.to_string() + "." + p
+}
+
+fn fmt4(v : Double) -> String {
+  let sign = if v < 0.0 { "-" } else { "" }
+  let abs_v = if v < 0.0 { -v } else { v }
+  let int_part = abs_v.to_int()
+  let frac = ((abs_v - int_part.to_double()) * 10000.0).to_int()
+  let s = frac.to_string()
+  let p = if frac < 10 {
+    "000" + s
+  } else if frac < 100 {
+    "00" + s
+  } else if frac < 1000 {
+    "0" + s
+  } else {
+    s
+  }
+  sign + int_part.to_string() + "." + p
+}
+
+fn profile_id(name : String) -> Int {
+  if name == "GlassCannon" {
+    1
+  } else if name == "Tank" {
+    2
+  } else if name == "Mobility" {
+    3
+  } else if name == "Expanded" {
+    4
+  } else {
+    0
+  }
 }

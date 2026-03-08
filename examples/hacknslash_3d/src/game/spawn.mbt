@@ -123,7 +123,8 @@ pub fn spawn_enemies_in_rooms_with_params(
     }
     let room = rooms[i]
     let area = room.rect.w * room.rect.h
-    let count = @cmp.minimum(3, @cmp.maximum(1, area / 20))
+    let base_count = @cmp.minimum(3, @cmp.maximum(1, area / 20))
+    let count = @cmp.maximum(1, (base_count.to_double() * params.spawn_density).to_int())
     for _j = 0; _j < count; _j = _j + 1 {
       let cx = room.rect.x.to_double() * tile_size +
         rng.rand_range(1, room.rect.w - 1).to_double() * tile_size +

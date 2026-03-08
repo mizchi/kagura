@@ -56,7 +56,9 @@ fn serialize_affix(a : @game.Affix) -> String {
   a.def.to_string() + "~" +
   a.hp.to_string() + "~" +
   a.crit.to_string() + "~" +
-  a.life_steal.to_string()
+  a.life_steal.to_string() + "~" +
+  a.speed_bonus.to_string() + "~" +
+  a.cooldown_reduction.to_string()
 }
 
 fn deserialize_affix(s : String) -> @game.Affix? {
@@ -74,6 +76,8 @@ fn deserialize_affix(s : String) -> @game.Affix? {
     hp: parse_int(parts[3]),
     crit: parse_double(parts[4]),
     life_steal: parse_double(parts[5]),
+    speed_bonus: if parts.length() > 6 { parse_double(parts[6]) } else { 0.0 },
+    cooldown_reduction: if parts.length() > 7 { parse_double(parts[7]) } else { 0.0 },
   })
 }
 

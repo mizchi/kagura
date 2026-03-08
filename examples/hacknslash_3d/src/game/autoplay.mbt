@@ -252,7 +252,7 @@ pub fn GameWorld::auto_equip_best(self : GameWorld) -> Unit {
         if dominated {
           let prev = self.equipment.equip(item)
           self.inventory.items[i] = prev
-          self.player_stats = compute_player_stats(self.equipment, self.skills)
+          self.player_stats = compute_player_stats(self.equipment, self.skills, base_hp=self.params.player_base_hp.to_int())
           self.player.hp = @cmp.minimum(self.player.hp, self.player_stats.max_hp)
         }
       }
@@ -272,7 +272,7 @@ pub fn GameWorld::auto_learn_skills(self : GameWorld) -> Unit {
   ]
   for id in priority {
     if self.skills.learn(id) {
-      self.player_stats = compute_player_stats(self.equipment, self.skills)
+      self.player_stats = compute_player_stats(self.equipment, self.skills, base_hp=self.params.player_base_hp.to_int())
       return
     }
   }

@@ -102,7 +102,7 @@ pub fn process_player_arrows(world : GameWorld) -> Unit {
             enemy.y.to_int() * 17
           let drop_roll = drop_seed % 100
           if drop_roll < 30 {
-            let item = generate_item(drop_seed, world.floor)
+            let item = generate_item_with_profile(drop_seed, world.floor, world.params.get_affix_profile())
             if not(world.inventory.add(item)) {
               spawn_ground_item(world, enemy.x, enemy.y, Score)
             }

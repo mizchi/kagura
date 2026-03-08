@@ -31,6 +31,8 @@ pub(all) struct Affix {
   hp : Int
   crit : Double
   life_steal : Double
+  speed_bonus : Double // movement speed multiplier bonus (e.g. 0.1 = +10%)
+  cooldown_reduction : Double // attack cooldown reduction fraction (e.g. 0.1 = 10% faster)
 }
 
 pub(all) struct ItemData {
@@ -233,6 +235,22 @@ pub fn Equipment::total_life_steal(self : Equipment) -> Double {
   equipment_sum_f(self, ItemData::total_life_steal)
 }
 
+pub fn ItemData::total_speed_bonus(self : ItemData) -> Double {
+  affix_sum_double(self, fn(a) { a.speed_bonus })
+}
+
+pub fn ItemData::total_cooldown_reduction(self : ItemData) -> Double {
+  affix_sum_double(self, fn(a) { a.cooldown_reduction })
+}
+
+pub fn Equipment::total_speed_bonus(self : Equipment) -> Double {
+  equipment_sum_f(self, ItemData::total_speed_bonus)
+}
+
+pub fn Equipment::total_cooldown_reduction(self : Equipment) -> Double {
+  equipment_sum_f(self, ItemData::total_cooldown_reduction)
+}
+
 // --- Skill System ---
 
 pub(all) enum SkillId {
@@ -351,10 +369,15 @@ pub(all) struct PlayerStats {
   dash_cooldown : Int
   crit_chance : Double
   life_steal : Double
+  speed_bonus : Double // total movement speed bonus from equipment
+  cooldown_reduction : Double // total attack cooldown reduction from equipment
 }
 
-pub fn compute_player_stats(equipment : Equipment, skills : SkillTree) -> PlayerStats {
-  let base_hp = 10
+pub fn compute_player_stats(
+  equipment : Equipment,
+  skills : SkillTree,
+  base_hp~ : Int = 10
+) -> PlayerStats {
   let base_atk = 1
   let base_def = 0
   let vitality_level = skills.get_level(Vitality)
@@ -369,39 +392,190 @@ pub fn compute_player_stats(equipment : Equipment, skills : SkillTree) -> Player
     dash_cooldown: 40 - dash_mastery_level * 8,
     crit_chance: crit_level.to_double() * 0.1 + equipment.total_crit(),
     life_steal: ls_level.to_double() * 0.05 + equipment.total_life_steal(),
+    speed_bonus: equipment.total_speed_bonus(),
+    cooldown_reduction: equipment.total_cooldown_reduction(),
   }
 }
 
 // --- Affix Tables ---
 
+// Affix profile IDs for selecting different affix table sets
+pub(all) enum AffixProfile {
+  Classic // original 10+10
+  GlassCannon // high atk, negative hp/def
+  Tank // high def/hp, sustain
+  Mobility // speed & cooldown focused
+  Expanded // all axes mixed
+}
+
+fn a(
+  name : String,
+  atk~ : Int = 0,
+  def~ : Int = 0,
+  hp~ : Int = 0,
+  crit~ : Double = 0.0,
+  ls~ : Double = 0.0,
+  spd~ : Double = 0.0,
+  cdr~ : Double = 0.0
+) -> Affix {
+  { name, atk, def, hp, crit, life_steal: ls, speed_bonus: spd, cooldown_reduction: cdr }
+}
+
 pub fn prefix_table() -> Array[Affix] {
-  [
-    { name: "Keen", atk: 2, def: 0, hp: 0, crit: 0.05, life_steal: 0.0 },
-    { name: "Brutal", atk: 4, def: 0, hp: 0, crit: 0.0, life_steal: 0.0 },
-    { name: "Sturdy", atk: 0, def: 3, hp: 2, crit: 0.0, life_steal: 0.0 },
-    { name: "Vampiric", atk: 1, def: 0, hp: 0, crit: 0.0, life_steal: 0.08 },
-    { name: "Blazing", atk: 3, def: 0, hp: 0, crit: 0.03, life_steal: 0.0 },
-    { name: "Iron", atk: 0, def: 4, hp: 0, crit: 0.0, life_steal: 0.0 },
-    { name: "Mighty", atk: 5, def: -1, hp: 0, crit: 0.0, life_steal: 0.0 },
-    { name: "Blessed", atk: 1, def: 1, hp: 3, crit: 0.0, life_steal: 0.02 },
-    { name: "Savage", atk: 3, def: 0, hp: 0, crit: 0.08, life_steal: 0.0 },
-    { name: "Arcane", atk: 2, def: 0, hp: 2, crit: 0.04, life_steal: 0.0 },
-  ]
+  prefix_table_for(Classic)
 }
 
 pub fn suffix_table() -> Array[Affix] {
-  [
-    { name: "of Power", atk: 3, def: 0, hp: 0, crit: 0.0, life_steal: 0.0 },
-    { name: "of the Bear", atk: 0, def: 2, hp: 5, crit: 0.0, life_steal: 0.0 },
-    { name: "of Precision", atk: 0, def: 0, hp: 0, crit: 0.1, life_steal: 0.0 },
-    { name: "of Leeching", atk: 0, def: 0, hp: 0, crit: 0.0, life_steal: 0.1 },
-    { name: "of Thorns", atk: 0, def: 4, hp: 0, crit: 0.0, life_steal: 0.0 },
-    { name: "of Haste", atk: 1, def: 0, hp: 0, crit: 0.05, life_steal: 0.0 },
-    { name: "of Vitality", atk: 0, def: 0, hp: 6, crit: 0.0, life_steal: 0.0 },
-    { name: "of Fury", atk: 4, def: 0, hp: -2, crit: 0.06, life_steal: 0.0 },
-    { name: "of the Wolf", atk: 2, def: 1, hp: 2, crit: 0.0, life_steal: 0.03 },
-    { name: "of Fortune", atk: 1, def: 1, hp: 1, crit: 0.03, life_steal: 0.03 },
+  suffix_table_for(Classic)
+}
+
+pub fn prefix_table_for(profile : AffixProfile) -> Array[Affix] {
+  let classic : Array[Affix] = [
+    a("Keen", atk=2, crit=0.05),
+    a("Brutal", atk=4),
+    a("Sturdy", def=3, hp=2),
+    a("Vampiric", atk=1, ls=0.08),
+    a("Blazing", atk=3, crit=0.03),
+    a("Iron", def=4),
+    a("Mighty", atk=5, def=-1),
+    a("Blessed", atk=1, def=1, hp=3, ls=0.02),
+    a("Savage", atk=3, crit=0.08),
+    a("Arcane", atk=2, hp=2, crit=0.04),
   ]
+  match profile {
+    Classic => classic
+    GlassCannon => [
+      a("Deadly", atk=6, hp=-3),
+      a("Frenzied", atk=5, crit=0.1, def=-2),
+      a("Reckless", atk=7, def=-3, hp=-2),
+      a("Brutal", atk=4),
+      a("Keen", atk=2, crit=0.05),
+      a("Savage", atk=3, crit=0.08),
+      a("Blazing", atk=3, crit=0.03),
+      a("Piercing", atk=4, crit=0.06, hp=-1),
+      a("Berserker", atk=6, crit=0.04, def=-2),
+      a("Wrathful", atk=5, ls=0.03, hp=-2),
+    ]
+    Tank => [
+      a("Fortified", def=5, hp=3),
+      a("Stalwart", def=4, hp=4),
+      a("Iron", def=4),
+      a("Sturdy", def=3, hp=2),
+      a("Blessed", atk=1, def=1, hp=3, ls=0.02),
+      a("Guardian", def=3, hp=2, ls=0.04),
+      a("Resilient", def=2, hp=5),
+      a("Warden", def=6, atk=-1),
+      a("Enduring", hp=4, ls=0.05),
+      a("Titanic", def=3, hp=6, atk=-2),
+    ]
+    Mobility => [
+      a("Swift", spd=0.15, atk=1),
+      a("Fleet", spd=0.2),
+      a("Rapid", cdr=0.15, atk=1),
+      a("Hasty", spd=0.1, cdr=0.1),
+      a("Nimble", spd=0.12, crit=0.03),
+      a("Windborne", spd=0.18, def=-1),
+      a("Keen", atk=2, crit=0.05),
+      a("Relentless", cdr=0.2, hp=-1),
+      a("Agile", spd=0.1, def=1),
+      a("Tempest", spd=0.15, cdr=0.1, atk=2, hp=-2),
+    ]
+    Expanded => {
+      // Mix of all axes
+      let result : Array[Affix] = []
+      // classic core
+      result.push(a("Keen", atk=2, crit=0.05))
+      result.push(a("Brutal", atk=4))
+      result.push(a("Sturdy", def=3, hp=2))
+      result.push(a("Vampiric", atk=1, ls=0.08))
+      // glass cannon
+      result.push(a("Deadly", atk=6, hp=-3))
+      result.push(a("Frenzied", atk=5, crit=0.1, def=-2))
+      // tank
+      result.push(a("Fortified", def=5, hp=3))
+      result.push(a("Guardian", def=3, hp=2, ls=0.04))
+      // mobility
+      result.push(a("Swift", spd=0.15, atk=1))
+      result.push(a("Rapid", cdr=0.15, atk=1))
+      result.push(a("Hasty", spd=0.1, cdr=0.1))
+      result.push(a("Tempest", spd=0.15, cdr=0.1, atk=2, hp=-2))
+      result
+    }
+  }
+}
+
+pub fn suffix_table_for(profile : AffixProfile) -> Array[Affix] {
+  let classic : Array[Affix] = [
+    a("of Power", atk=3),
+    a("of the Bear", def=2, hp=5),
+    a("of Precision", crit=0.1),
+    a("of Leeching", ls=0.1),
+    a("of Thorns", def=4),
+    a("of Haste", atk=1, crit=0.05),
+    a("of Vitality", hp=6),
+    a("of Fury", atk=4, hp=-2, crit=0.06),
+    a("of the Wolf", atk=2, def=1, hp=2, ls=0.03),
+    a("of Fortune", atk=1, def=1, hp=1, crit=0.03, ls=0.03),
+  ]
+  match profile {
+    Classic => classic
+    GlassCannon => [
+      a("of Annihilation", atk=5, def=-2),
+      a("of Fury", atk=4, hp=-2, crit=0.06),
+      a("of Slaughter", atk=4, crit=0.08),
+      a("of Power", atk=3),
+      a("of Precision", crit=0.1),
+      a("of Carnage", atk=6, hp=-4, crit=0.05),
+      a("of Ruin", atk=5, def=-1, crit=0.04),
+      a("of the Blade", atk=3, crit=0.07),
+      a("of Leeching", ls=0.1),
+      a("of Devastation", atk=7, hp=-3),
+    ]
+    Tank => [
+      a("of the Bear", def=2, hp=5),
+      a("of the Mountain", def=5, hp=3),
+      a("of Vitality", hp=6),
+      a("of Thorns", def=4),
+      a("of Regeneration", hp=3, ls=0.06),
+      a("of the Bulwark", def=6, atk=-1),
+      a("of Leeching", ls=0.1),
+      a("of Stone", def=3, hp=4),
+      a("of the Sentinel", def=4, hp=2, ls=0.02),
+      a("of Endurance", hp=8, atk=-2),
+    ]
+    Mobility => [
+      a("of the Wind", spd=0.2),
+      a("of Alacrity", cdr=0.2),
+      a("of Swiftness", spd=0.15, atk=1),
+      a("of Tempo", cdr=0.15, crit=0.03),
+      a("of the Gale", spd=0.18, cdr=0.08),
+      a("of Celerity", spd=0.12, cdr=0.12),
+      a("of Haste", atk=1, crit=0.05),
+      a("of Quickening", cdr=0.18, hp=-1),
+      a("of the Falcon", spd=0.15, crit=0.05),
+      a("of Lightning", spd=0.1, cdr=0.1, atk=2),
+    ]
+    Expanded => {
+      let result : Array[Affix] = []
+      // classic core
+      result.push(a("of Power", atk=3))
+      result.push(a("of the Bear", def=2, hp=5))
+      result.push(a("of Precision", crit=0.1))
+      result.push(a("of Leeching", ls=0.1))
+      // glass cannon
+      result.push(a("of Fury", atk=4, hp=-2, crit=0.06))
+      result.push(a("of Annihilation", atk=5, def=-2))
+      // tank
+      result.push(a("of Vitality", hp=6))
+      result.push(a("of Regeneration", hp=3, ls=0.06))
+      // mobility
+      result.push(a("of the Wind", spd=0.2))
+      result.push(a("of Alacrity", cdr=0.2))
+      result.push(a("of the Gale", spd=0.18, cdr=0.08))
+      result.push(a("of Lightning", spd=0.1, cdr=0.1, atk=2))
+      result
+    }
+  }
 }
 
 pub fn scale_affix(affix : Affix, floor : Int) -> Affix {
@@ -413,12 +587,22 @@ pub fn scale_affix(affix : Affix, floor : Int) -> Affix {
     hp: affix.hp * scale,
     crit: affix.crit,
     life_steal: affix.life_steal,
+    speed_bonus: affix.speed_bonus,
+    cooldown_reduction: affix.cooldown_reduction,
   }
 }
 
 // --- Item Generation ---
 
 pub fn generate_item(seed : Int, floor : Int) -> ItemData {
+  generate_item_with_profile(seed, floor, Classic)
+}
+
+pub fn generate_item_with_profile(
+  seed : Int,
+  floor : Int,
+  profile : AffixProfile
+) -> ItemData {
   let rng = seed.land(0x7FFFFFFF)
   let slot_roll = rng % 3
   let slot = match slot_roll {
@@ -453,8 +637,8 @@ pub fn generate_item(seed : Int, floor : Int) -> ItemData {
     Armor => "Armor"
     Accessory => "Ring"
   }
-  let prefixes = prefix_table()
-  let suffixes = suffix_table()
+  let prefixes = prefix_table_for(profile)
+  let suffixes = suffix_table_for(profile)
   let prefix_seed = (rng / 300) % prefixes.length()
   let suffix_seed = (rng / 3000) % suffixes.length()
   let (prefix, suffix) : (Affix?, Affix?) = match rarity {

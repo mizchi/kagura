@@ -33,7 +33,7 @@ pub fn GameWorld::new(seed~ : Int, params~ : BalanceParams = BalanceParams::defa
   let dungeon = generate_dungeon(seed)
   let equipment = Equipment::new()
   let skills = SkillTree::new()
-  let player_stats = compute_player_stats(equipment, skills)
+  let player_stats = compute_player_stats(equipment, skills, base_hp=params.player_base_hp.to_int())
   let player : Player = {
     x: dungeon.start_x,
     y: dungeon.start_y,
@@ -199,9 +199,10 @@ pub fn GameWorld::tick(self : GameWorld, dx : Double, dy : Double) -> Unit {
     self.player.y = py
   } else {
     // 6. Normal movement with slide_move
+    let effective_speed = self.params.player_speed * (1.0 + self.player_stats.speed_bonus)
     let (px, py) = slide_move(
       self.dungeon.grid, self.player.x, self.player.y,
-      dx * self.params.player_speed, dy * self.params.player_speed, self.player.size,
+      dx * effective_speed, dy * effective_speed, self.player.size,
     )
     self.player.x = px
     self.player.y = py
@@ -216,7 +217,9 @@ pub fn GameWorld::tick(self : GameWorld, dx : Double, dy : Double) -> Unit {
   } else {
     let target = find_nearest_enemy(self, self.params.arrow_range)
     if target is Some(_) {
-      self.attack_timer = self.params.bow_cooldown.to_int()
+      let cdr = self.player_stats.cooldown_reduction
+      let effective_cd = self.params.bow_cooldown * (1.0 - cdr)
+      self.attack_timer = @cmp.maximum(3, effective_cd.to_int())
       shoot_arrow(self, target)
       self.events.push(AttackTriggered)
     }
@@ -245,7 +248,7 @@ pub fn GameWorld::tick(self : GameWorld, dx : Double, dy : Double) -> Unit {
           enemy.x, enemy.y,
           enemy.size / 2.0, enemy.size / 2.0,
         ) {
-          self.deal_player_damage(1)
+          self.deal_player_damage(self.params.enemy_contact_damage.to_int())
         }
       }
     }

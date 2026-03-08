@@ -22,9 +22,14 @@ pub(all) struct BalanceParams {
   ranged_hp : Double
   boss_hp_base : Double
   boss_hp_per_floor : Double
+  // New: damage & survivability knobs
+  enemy_contact_damage : Double // base contact damage (default 1)
+  player_base_hp : Double // player starting HP before equipment (default 10)
+  spawn_density : Double // multiplier for enemy count per room (default 1.0)
+  affix_profile : Int // 0=Classic, 1=GlassCannon, 2=Tank, 3=Mobility, 4=Expanded
 }
 
-pub let balance_param_count : Int = 20
+pub let balance_param_count : Int = 23
 
 pub fn BalanceParams::default() -> BalanceParams {
   {
@@ -48,6 +53,10 @@ pub fn BalanceParams::default() -> BalanceParams {
     ranged_hp: 2.0,
     boss_hp_base: 20.0,
     boss_hp_per_floor: 2.0,
+    enemy_contact_damage: 1.0,
+    player_base_hp: 10.0,
+    spawn_density: 1.0,
+    affix_profile: 0,
   }
 }
 
@@ -59,6 +68,7 @@ pub fn BalanceParams::to_array(self : BalanceParams) -> Array[Double] {
     self.knockback_strength, self.iframe_duration, self.dash_duration,
     self.dash_cooldown, self.dash_speed_mult, self.basic_hp, self.fast_hp,
     self.tank_hp, self.ranged_hp, self.boss_hp_base, self.boss_hp_per_floor,
+    self.enemy_contact_damage, self.player_base_hp, self.spawn_density,
   ]
 }
 
@@ -84,6 +94,10 @@ pub fn BalanceParams::from_array(arr : Array[Double]) -> BalanceParams {
     ranged_hp: arr[17],
     boss_hp_base: arr[18],
     boss_hp_per_floor: arr[19],
+    enemy_contact_damage: arr[20],
+    player_base_hp: arr[21],
+    spawn_density: arr[22],
+    affix_profile: 0, // not optimized, set separately
   }
 }
 
@@ -95,6 +109,7 @@ pub fn BalanceParams::param_names() -> Array[String] {
     "knockback_strength", "iframe_duration", "dash_duration",
     "dash_cooldown", "dash_speed_mult", "basic_hp", "fast_hp",
     "tank_hp", "ranged_hp", "boss_hp_base", "boss_hp_per_floor",
+    "enemy_contact_damage", "player_base_hp", "spawn_density",
   ]
 }
 
@@ -109,7 +124,7 @@ pub fn BalanceParams::clamp(self : BalanceParams) -> BalanceParams {
     arrow_speed: clamp_d(self.arrow_speed, 1.0, 10.0),
     arrow_range: clamp_d(self.arrow_range, 40.0, 400.0),
     bow_cooldown: clamp_d(self.bow_cooldown, 3.0, 40.0),
-    chase_range: clamp_d(self.chase_range, 40.0, 300.0),
+    chase_range: clamp_d(self.chase_range, 60.0, 300.0),
     knockback_strength: clamp_d(self.knockback_strength, 0.5, 10.0),
     iframe_duration: clamp_d(self.iframe_duration, 5.0, 60.0),
     dash_duration: clamp_d(self.dash_duration, 3.0, 20.0),
@@ -121,6 +136,20 @@ pub fn BalanceParams::clamp(self : BalanceParams) -> BalanceParams {
     ranged_hp: clamp_d(self.ranged_hp, 1.0, 10.0),
     boss_hp_base: clamp_d(self.boss_hp_base, 5.0, 60.0),
     boss_hp_per_floor: clamp_d(self.boss_hp_per_floor, 0.5, 10.0),
+    enemy_contact_damage: clamp_d(self.enemy_contact_damage, 1.0, 8.0),
+    player_base_hp: clamp_d(self.player_base_hp, 3.0, 30.0),
+    spawn_density: clamp_d(self.spawn_density, 0.5, 3.0),
+    affix_profile: self.affix_profile,
+  }
+}
+
+pub fn BalanceParams::get_affix_profile(self : BalanceParams) -> AffixProfile {
+  match self.affix_profile {
+    1 => GlassCannon
+    2 => Tank
+    3 => Mobility
+    4 => Expanded
+    _ => Classic
   }
 }
 

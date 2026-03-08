@@ -1,5 +1,19 @@
 // RPG UI: inventory and skill tree screens
 
+// Layout constants — sized for dot-matrix font at 640x480
+// Dot-matrix: px_size=3*scale, char_w=9*scale, gap=3*scale, char_h=15*scale
+// size=10 → scale=1.0 → chars 9x15px per char, 12px stride
+// size=8  → scale=0.8 → chars 7x12px per char, 10px stride
+let ui_font : Double = 10.0
+
+let ui_font_sm : Double = 8.0
+
+let ui_font_lg : Double = 14.0
+
+let ui_row_h : Double = 20.0
+
+let ui_pad : Double = 8.0
+
 fn format_affix_stats(a : @game.Affix) -> String {
   let parts : Array[String] = []
   if a.atk != 0 { parts.push("ATK" + format_signed(a.atk)) }
@@ -7,7 +21,7 @@ fn format_affix_stats(a : @game.Affix) -> String {
   if a.hp != 0 { parts.push("HP" + format_signed(a.hp)) }
   if a.crit > 0.001 {
     let pct = (a.crit * 100.0).to_int()
-    parts.push("Crit+" + pct.to_string() + "%")
+    parts.push("C+" + pct.to_string() + "%")
   }
   if a.life_steal > 0.001 {
     let pct = (a.life_steal * 100.0).to_int()
@@ -51,7 +65,6 @@ fn GameState::update_inventory_ui(self : GameState) -> Unit {
   if is_down_just_pressed(self.input) {
     self.world.ui_cursor = (self.world.ui_cursor + 1) % cap
   }
-  // Equip with E
   if @inpututil.is_key_just_pressed(self.input.key_state, key_e) {
     match self.world.inventory.items[self.world.ui_cursor] {
       Some(item) => {
@@ -104,85 +117,88 @@ fn GameState::render_inventory_ui(
   let ctx = self.make_hud_ctx(dst, shader)
   let sw = screen_w.to_double()
   let sh = screen_h.to_double()
-  // Backdrop
-  ctx.draw_rect(cmds, 0.0, 0.0, sw, sh, @hud.hex_color(0x000000, alpha=0.7))
-  // Title
-  ctx.draw_text(cmds, "INVENTORY", 20.0, 16.0, 8.0, 0xFFCC00)
-  ctx.draw_text(cmds, "[E]Equip [I]Close", 14.0, sw - 160.0, 12.0, 0x666666)
-  // Equipment slots (top section)
-  let eq_y = 32.0
+  let p = ui_pad
+  let rh = ui_row_h
+  // Fully opaque backdrop
+  ctx.draw_rect(cmds, 0.0, 0.0, sw, sh, @hud.hex_color(0x0D0D1A))
+  // ---- Header ----
+  let mut y = p
+  ctx.draw_text(cmds, "INVENTORY", ui_font_lg, p, y, 0xFFCC00)
+  y = y + 24.0
+  // ---- Equipment section ----
+  ctx.draw_text(cmds, "EQUIPPED", ui_font_sm, p, y, 0x888888)
+  y = y + 18.0
   let slot_labels = ["WPN", "ARM", "ACC"]
   let slot_items = [self.world.equipment.weapon, self.world.equipment.armor, self.world.equipment.accessory]
   for i, label in slot_labels {
-    let sy = eq_y + i.to_double() * 20.0
-    ctx.draw_rect(cmds, 8.0, sy, sw - 16.0, 18.0, @hud.hex_color(0x222244))
-    ctx.draw_text(cmds, label, 14.0, 12.0, sy + 2.0, 0x888888)
+    let row_y = y + i.to_double() * rh
+    ctx.draw_rect(cmds, p, row_y, sw - p * 2.0, rh - 2.0, @hud.hex_color(0x1A1A33))
+    ctx.draw_text(cmds, label, ui_font_sm, p + 4.0, row_y + 4.0, 0x666688)
     match slot_items[i] {
       Some(item) => {
-        let color = item.rarity.color()
-        ctx.draw_text(cmds, item.display_name(), 14.0, 52.0, sy + 2.0, color)
-        let stats = "A:" + item.total_atk().to_string() + " D:" + item.total_def().to_string() + " H:" + item.total_hp().to_string()
-        ctx.draw_text(cmds, stats, 14.0, sw - 130.0, sy + 2.0, 0xAAAAAA)
+        ctx.draw_text(cmds, item.display_name(), ui_font_sm, p + 50.0, row_y + 4.0, item.rarity.color())
       }
-      None => ctx.draw_text(cmds, "---", 14.0, 52.0, sy + 2.0, 0x555555)
+      None => ctx.draw_text(cmds, "---", ui_font_sm, p + 50.0, row_y + 4.0, 0x444444)
     }
   }
-  // Stats bar
-  let stats_y = eq_y + 62.0
+  y = y + 3.0 * rh + 4.0
+  // ---- Stats ----
   let s = self.world.player_stats
-  ctx.draw_rect(cmds, 8.0, stats_y, sw - 16.0, 16.0, @hud.hex_color(0x113311))
+  ctx.draw_rect(cmds, p, y, sw - p * 2.0, rh - 2.0, @hud.hex_color(0x112211))
   ctx.draw_text(
     cmds,
-    "ATK:" + s.atk.to_string() + "  DEF:" + s.def.to_string() + "  HP:" + s.max_hp.to_string(),
-    14.0, 12.0, stats_y + 1.0, 0x88FF88,
+    "ATK:" + s.atk.to_string() + " DEF:" + s.def.to_string() + " HP:" + s.max_hp.to_string(),
+    ui_font, p + 4.0, y + 4.0, 0x66DD66,
   )
-  // Inventory list
-  let inv_y = stats_y + 20.0
-  let count_text = "ITEMS " + self.world.inventory.count().to_string() + "/" + self.world.inventory.capacity.to_string()
-  ctx.draw_text(cmds, count_text, 14.0, 12.0, inv_y, 0xCCCCCC)
-  let list_y = inv_y + 18.0
-  let row_h = 18.0
-  let max_visible = ((sh - list_y - 30.0) / row_h).to_int()
-  let visible = @cmp.minimum(self.world.inventory.capacity, max_visible)
+  y = y + rh + 4.0
+  // ---- Item list ----
+  let count_str = "ITEMS " + self.world.inventory.count().to_string() + "/" + self.world.inventory.capacity.to_string()
+  ctx.draw_text(cmds, count_str, ui_font_sm, p, y, 0x888888)
+  ctx.draw_text(cmds, "E:EQUIP I:CLOSE", ui_font_sm, sw - 200.0, y, 0x555555)
+  y = y + 18.0
+  let max_rows = ((sh - y - 24.0) / rh).to_int()
+  let visible = @cmp.minimum(self.world.inventory.capacity, max_rows)
   let scroll = if self.world.ui_cursor >= visible { self.world.ui_cursor - visible + 1 } else { 0 }
   for i in 0..<visible {
     let idx = scroll + i
     if idx >= self.world.inventory.capacity { break }
-    let iy = list_y + i.to_double() * row_h
-    let is_selected = idx == self.world.ui_cursor
-    let bg = if is_selected { 0x3333AA } else if idx % 2 == 0 { 0x1A1A2E } else { 0x222233 }
-    ctx.draw_rect(cmds, 8.0, iy, sw - 16.0, row_h - 2.0, @hud.hex_color(bg))
-    if is_selected {
-      ctx.draw_rect(cmds, 8.0, iy, 3.0, row_h - 2.0, @hud.hex_color(0xFFCC00))
+    let row_y = y + i.to_double() * rh
+    let sel = idx == self.world.ui_cursor
+    let bg = if sel { 0x2222AA } else if idx % 2 == 0 { 0x141428 } else { 0x1A1A33 }
+    ctx.draw_rect(cmds, p, row_y, sw - p * 2.0, rh - 2.0, @hud.hex_color(bg))
+    if sel {
+      ctx.draw_rect(cmds, p, row_y, 3.0, rh - 2.0, @hud.hex_color(0xFFCC00))
     }
     match self.world.inventory.items[idx] {
       Some(item) => {
-        let color = item.rarity.color()
-        ctx.draw_text(cmds, item.display_name(), 14.0, 16.0, iy + 1.0, color)
-        let stats = "A:" + item.total_atk().to_string() + " D:" + item.total_def().to_string()
-        ctx.draw_text(cmds, stats, 14.0, sw - 100.0, iy + 1.0, 0xAAAAAA)
+        ctx.draw_text(cmds, item.display_name(), ui_font, p + 8.0, row_y + 4.0, item.rarity.color())
       }
       None => ()
     }
   }
-  // Selected item detail (bottom)
+  // ---- Selected detail (bottom) ----
   if self.world.ui_cursor < self.world.inventory.capacity {
     match self.world.inventory.items[self.world.ui_cursor] {
       Some(item) => {
-        let detail_y = sh - 28.0
-        let mut dx = 12.0
+        let detail_y = sh - 20.0
+        let mut dx = p
+        let slot_name = match item.slot {
+          @game.Weapon => "WPN"
+          @game.Armor => "ARM"
+          @game.Accessory => "ACC"
+        }
+        ctx.draw_text(cmds, slot_name, ui_font_sm, dx, detail_y, 0x888888)
+        dx = dx + 80.0
         match item.prefix {
           Some(a) => {
-            let text = "+" + a.name + " " + format_affix_stats(a)
-            ctx.draw_text(cmds, text, 14.0, dx, detail_y, 0x66CCFF)
-            dx = dx + text.length().to_double() * 7.0 + 8.0
+            ctx.draw_text(cmds, format_affix_stats(a), ui_font_sm, dx, detail_y, 0x66CCFF)
+            dx = dx + 120.0
           }
           None => ()
         }
         match item.suffix {
           Some(a) => {
-            let text = a.name + " " + format_affix_stats(a)
-            ctx.draw_text(cmds, text, 14.0, dx, detail_y, 0xFFCC66)
+            ctx.draw_text(cmds, format_affix_stats(a), ui_font_sm, dx, detail_y, 0xFFCC66)
           }
           None => ()
         }
@@ -201,47 +217,48 @@ fn GameState::render_skills_ui(
   let ctx = self.make_hud_ctx(dst, shader)
   let sw = screen_w.to_double()
   let sh = screen_h.to_double()
-  ctx.draw_rect(cmds, 0.0, 0.0, sw, sh, @hud.hex_color(0x000000, alpha=0.7))
-  // Title
-  ctx.draw_text(cmds, "SKILLS", 20.0, 16.0, 8.0, 0xFFCC00)
+  let p = ui_pad
+  let rh = 32.0
+  // Fully opaque backdrop
+  ctx.draw_rect(cmds, 0.0, 0.0, sw, sh, @hud.hex_color(0x0D0D1A))
+  // Header
+  let mut y = p
+  ctx.draw_text(cmds, "SKILLS", ui_font_lg, p, y, 0xFFCC00)
   ctx.draw_text(
     cmds,
     "SP:" + self.world.skills.skill_points.to_string(),
-    16.0, sw - 80.0, 10.0, 0xFFCC00,
+    ui_font, sw - 100.0, y + 4.0, 0xFFCC00,
   )
-  ctx.draw_text(cmds, "[Space]Learn [K]Close", 14.0, 16.0, 28.0, 0x666666)
-  let list_y = 48.0
-  let row_h = 36.0
+  y = y + 24.0
+  ctx.draw_text(cmds, "SPACE:LEARN K:CLOSE", ui_font_sm, p, y, 0x555555)
+  y = y + 16.0
   for i, node in self.world.skills.nodes {
-    let ny = list_y + i.to_double() * row_h
-    if ny + row_h > sh { break }
-    let is_selected = i == self.world.ui_cursor
+    let row_y = y + i.to_double() * rh
+    if row_y + rh > sh { break }
+    let sel = i == self.world.ui_cursor
     let can_learn = self.world.skills.can_learn(node.id)
-    let bg = if is_selected { 0x3333AA } else { 0x1A1A2E }
-    ctx.draw_rect(cmds, 8.0, ny, sw - 16.0, row_h - 2.0, @hud.hex_color(bg))
-    if is_selected {
-      ctx.draw_rect(cmds, 8.0, ny, 3.0, row_h - 2.0, @hud.hex_color(0xFFCC00))
+    let bg = if sel { 0x2222AA } else { 0x141428 }
+    ctx.draw_rect(cmds, p, row_y, sw - p * 2.0, rh - 2.0, @hud.hex_color(bg))
+    if sel {
+      ctx.draw_rect(cmds, p, row_y, 3.0, rh - 2.0, @hud.hex_color(0xFFCC00))
     }
-    // Skill name
     let name_color = if node.level > 0 { 0x44FF44 } else if can_learn { 0xFFCC00 } else { 0x666666 }
-    ctx.draw_text(cmds, node.name, 16.0, 16.0, ny + 2.0, name_color)
-    // Level
+    ctx.draw_text(cmds, node.name, ui_font, p + 8.0, row_y + 4.0, name_color)
     let level_text = "Lv " + node.level.to_string() + "/" + node.max_level.to_string()
-    ctx.draw_text(cmds, level_text, 14.0, sw - 100.0, ny + 2.0, 0xCCCCCC)
-    // Cost + progress bar
+    ctx.draw_text(cmds, level_text, ui_font_sm, sw - 120.0, row_y + 4.0, 0xCCCCCC)
     ctx.draw_text(
       cmds,
-      "Cost:" + node.cost.to_string() + "SP",
-      14.0, 16.0, ny + 18.0, 0x888888,
+      "Cost:" + node.cost.to_string(),
+      ui_font_sm, p + 8.0, row_y + 18.0, 0x666666,
     )
+    // Progress bar
     if node.max_level > 0 {
       let bar_w = 80.0
-      let bar_x = sw - 100.0
-      let bar_y = ny + 20.0
+      let bar_x = sw - 120.0
       let bar_ratio = node.level.to_double() / node.max_level.to_double()
-      ctx.draw_rect(cmds, bar_x, bar_y, bar_w, 8.0, @hud.hex_color(0x333333))
+      ctx.draw_rect(cmds, bar_x, row_y + 20.0, bar_w, 8.0, @hud.hex_color(0x333333))
       if bar_ratio > 0.0 {
-        ctx.draw_rect(cmds, bar_x, bar_y, bar_w * bar_ratio, 8.0, @hud.hex_color(0x44AA44))
+        ctx.draw_rect(cmds, bar_x, row_y + 20.0, bar_w * bar_ratio, 8.0, @hud.hex_color(0x44AA44))
       }
     }
   }

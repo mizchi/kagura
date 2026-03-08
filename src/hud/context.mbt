@@ -83,12 +83,21 @@ pub fn HudContext::draw_text(
     None => {
       let chars : Array[Int] = []
       for ch in text {
-        chars.push(ch.to_int())
+        let c = ch.to_int()
+        // Auto-uppercase: a-z (97-122) → A-Z (65-90)
+        let c = if c >= 97 && c <= 122 { c - 32 } else { c }
+        chars.push(c)
       }
+      if chars.length() == 0 { return }
       let scale = size / 10.0
-      // dot-matrix: centered at (cx, cy), so offset to top-left alignment
-      let cx = x + chars.length().to_double() * 4.0 * scale / 2.0
-      let cy = y + 5.0 * scale / 2.0
+      // dot-matrix: px_size=3*scale, char_w=9*scale, gap=3*scale
+      // total_w = n*9*scale + (n-1)*3*scale = (12n-3)*scale
+      // char_h = 5*3*scale = 15*scale
+      let n = chars.length().to_double()
+      let total_w = (12.0 * n - 3.0) * scale
+      let total_h = 15.0 * scale
+      let cx = x + total_w / 2.0
+      let cy = y + total_h / 2.0
       @debugutil.draw_dot_text(
         cmds,
         self.dst,
@@ -139,7 +148,9 @@ pub fn HudContext::draw_text_centered(
     None => {
       let chars : Array[Int] = []
       for ch in text {
-        chars.push(ch.to_int())
+        let c = ch.to_int()
+        let c = if c >= 97 && c <= 122 { c - 32 } else { c }
+        chars.push(c)
       }
       let scale = size / 10.0
       @debugutil.draw_dot_text(
@@ -171,11 +182,14 @@ pub fn HudContext::measure_text(
       (metrics.width, metrics.height)
     }
     None => {
-      // Dot-matrix estimation: each char is 3 wide + 1 spacing, 5 tall
+      // Dot-matrix: px_size=3*scale, char_w=9*scale, gap=3*scale
       let scale = size / 10.0
-      let char_count = text.iter().count()
-      let w = char_count.to_double() * 4.0 * scale
-      let h = 5.0 * scale
+      let n = text.iter().count().to_double()
+      if n <= 0.0 {
+        return (0.0, 0.0)
+      }
+      let w = (12.0 * n - 3.0) * scale
+      let h = 15.0 * scale
       (w, h)
     }
   }

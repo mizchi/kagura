@@ -32,10 +32,10 @@ test "measure_text fallback" {
     text_renderer: None,
   }
   let (w, h) = ctx.measure_text("HELLO", 20.0)
-  // 5 chars * 4.0 * scale(2.0) = 40.0
-  assert_eq(w, 40.0)
-  // 5.0 * scale(2.0) = 10.0
-  assert_eq(h, 10.0)
+  // (12*5 - 3) * scale(2.0) = 57 * 2.0 = 114.0
+  assert_eq(w, 114.0)
+  // 15 * scale(2.0) = 30.0
+  assert_eq(h, 30.0)
 }
 
 ///|
@@ -49,5 +49,5 @@ test "measure_text empty" {
   }
   let (w, h) = ctx.measure_text("", 10.0)
   assert_eq(w, 0.0)
-  assert_eq(h, 5.0)
+  assert_eq(h, 0.0)
 }

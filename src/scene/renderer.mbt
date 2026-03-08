@@ -132,7 +132,49 @@ fn render_element(
   }
 }
 
+// ============================================================
+// Index-based attribute access (O(1) instead of O(n) linear search)
+// Elements are built with fixed attribute order in elements.mbt,
+// so we can access by index directly.
+// ============================================================
+
 ///|
+fn resolve_attr(attr : @ui.Attr[Unit, SceneAttrValue]) -> SceneAttrValue {
+  match attr {
+    VStatic(value) => value
+    VDynamic(f) => f()
+    VHandler(_) => SceneDouble(0.0)
+  }
+}
+
+///|
+fn attr_double(attr : @ui.Attr[Unit, SceneAttrValue], default_ : Double) -> Double {
+  match resolve_attr(attr) {
+    SceneDouble(v) => v
+    SceneInt(v) => v.to_double()
+    _ => default_
+  }
+}
+
+///|
+fn attr_int(attr : @ui.Attr[Unit, SceneAttrValue], default_ : Int) -> Int {
+  match resolve_attr(attr) {
+    SceneInt(v) => v
+    SceneDouble(v) => v.to_int()
+    _ => default_
+  }
+}
+
+///|
+fn attr_string(attr : @ui.Attr[Unit, SceneAttrValue], default_ : String) -> String {
+  match resolve_attr(attr) {
+    SceneText(v) => v
+    _ => default_
+  }
+}
+
+///|
+// rect attrs order: x(0), y(1), w(2), h(3), fill(4), alpha(5)
 fn render_rect(
   cmds : Array[@gfx.DrawTrianglesCommand],
   el : @ui.VElement[Unit, SceneAttrValue],
@@ -143,12 +185,23 @@ fn render_rect(
   offset_x : Double,
   offset_y : Double,
 ) -> Unit {
-  let x = get_attr_double(el.attrs, "x", 0.0) + offset_x
-  let y = get_attr_double(el.attrs, "y", 0.0) + offset_y
-  let w = get_attr_double(el.attrs, "w", 0.0)
-  let h = get_attr_double(el.attrs, "h", 0.0)
-  let fill = get_attr_int(el.attrs, "fill", 0xFFFFFF)
-  let alpha = get_attr_double(el.attrs, "alpha", 1.0)
+  let attrs = el.attrs
+  let x = (if attrs.length() > 0 { attr_double(attrs[0].1, 0.0) } else { 0.0 }) +
+    offset_x
+  let y = (if attrs.length() > 1 { attr_double(attrs[1].1, 0.0) } else { 0.0 }) +
+    offset_y
+  let w = if attrs.length() > 2 { attr_double(attrs[2].1, 0.0) } else { 0.0 }
+  let h = if attrs.length() > 3 { attr_double(attrs[3].1, 0.0) } else { 0.0 }
+  let fill = if attrs.length() > 4 {
+    attr_int(attrs[4].1, 0xFFFFFF)
+  } else {
+    0xFFFFFF
+  }
+  let alpha = if attrs.length() > 5 {
+    attr_double(attrs[5].1, 1.0)
+  } else {
+    1.0
+  }
   let color = @debugutil.color_from_hex_alpha(fill, alpha)
   cmds.push(
     @debugutil.new_ndc_rect_fill_command(
@@ -161,6 +214,7 @@ fn render_rect(
 }
 
 ///|
+// label attrs order: x(0), y(1), content(2), color(3), scale(4)
 fn render_label(
   cmds : Array[@gfx.DrawTrianglesCommand],
   el : @ui.VElement[Unit, SceneAttrValue],
@@ -171,11 +225,26 @@ fn render_label(
   offset_x : Double,
   offset_y : Double,
 ) -> Unit {
-  let x = get_attr_double(el.attrs, "x", 0.0) + offset_x
-  let y = get_attr_double(el.attrs, "y", 0.0) + offset_y
-  let content = get_attr_string(el.attrs, "content", "")
-  let color_hex = get_attr_int(el.attrs, "color", 0xFFFFFF)
-  let scale = get_attr_double(el.attrs, "scale", 1.0)
+  let attrs = el.attrs
+  let x = (if attrs.length() > 0 { attr_double(attrs[0].1, 0.0) } else { 0.0 }) +
+    offset_x
+  let y = (if attrs.length() > 1 { attr_double(attrs[1].1, 0.0) } else { 0.0 }) +
+    offset_y
+  let content = if attrs.length() > 2 {
+    attr_string(attrs[2].1, "")
+  } else {
+    ""
+  }
+  let color_hex = if attrs.length() > 3 {
+    attr_int(attrs[3].1, 0xFFFFFF)
+  } else {
+    0xFFFFFF
+  }
+  let scale = if attrs.length() > 4 {
+    attr_double(attrs[4].1, 1.0)
+  } else {
+    1.0
+  }
   let color = @debugutil.color_from_hex(color_hex)
   let chars = string_to_char_codes(content)
   @debugutil.draw_dot_text(
@@ -184,6 +253,7 @@ fn render_label(
 }
 
 ///|
+// group attrs order: x(0), y(1)
 fn render_group(
   cmds : Array[@gfx.DrawTrianglesCommand],
   el : @ui.VElement[Unit, SceneAttrValue],
@@ -194,8 +264,11 @@ fn render_group(
   offset_x : Double,
   offset_y : Double,
 ) -> Unit {
-  let x = get_attr_double(el.attrs, "x", 0.0) + offset_x
-  let y = get_attr_double(el.attrs, "y", 0.0) + offset_y
+  let attrs = el.attrs
+  let x = (if attrs.length() > 0 { attr_double(attrs[0].1, 0.0) } else { 0.0 }) +
+    offset_x
+  let y = (if attrs.length() > 1 { attr_double(attrs[1].1, 0.0) } else { 0.0 }) +
+    offset_y
   for child in el.children {
     render_node(cmds, child, dst, shader, screen_w, screen_h, x, y)
   }
@@ -224,6 +297,7 @@ fn pixel_to_ndc_vertices(
 }
 
 ///|
+// line attrs order: x0(0), y0(1), x1(2), y1(3), width(4), color(5)
 fn render_line(
   cmds : Array[@gfx.DrawTrianglesCommand],
   el : @ui.VElement[Unit, SceneAttrValue],
@@ -234,12 +308,37 @@ fn render_line(
   offset_x : Double,
   offset_y : Double,
 ) -> Unit {
-  let x0 = get_attr_double(el.attrs, "x0", 0.0) + offset_x
-  let y0 = get_attr_double(el.attrs, "y0", 0.0) + offset_y
-  let x1 = get_attr_double(el.attrs, "x1", 0.0) + offset_x
-  let y1 = get_attr_double(el.attrs, "y1", 0.0) + offset_y
-  let width = get_attr_double(el.attrs, "width", 1.0)
-  let color_hex = get_attr_int(el.attrs, "color", 0xFFFFFF)
+  let attrs = el.attrs
+  let x0 = (if attrs.length() > 0 {
+    attr_double(attrs[0].1, 0.0)
+  } else {
+    0.0
+  }) + offset_x
+  let y0 = (if attrs.length() > 1 {
+    attr_double(attrs[1].1, 0.0)
+  } else {
+    0.0
+  }) + offset_y
+  let x1 = (if attrs.length() > 2 {
+    attr_double(attrs[2].1, 0.0)
+  } else {
+    0.0
+  }) + offset_x
+  let y1 = (if attrs.length() > 3 {
+    attr_double(attrs[3].1, 0.0)
+  } else {
+    0.0
+  }) + offset_y
+  let width = if attrs.length() > 4 {
+    attr_double(attrs[4].1, 1.0)
+  } else {
+    1.0
+  }
+  let color_hex = if attrs.length() > 5 {
+    attr_int(attrs[5].1, 0xFFFFFF)
+  } else {
+    0xFFFFFF
+  }
   let color = @debugutil.color_from_hex(color_hex)
   let (vertices, indices) = @debugutil.line_vertices(x0, y0, x1, y1, width)
   let ndc_vertices = pixel_to_ndc_vertices(vertices, screen_w, screen_h)
@@ -270,6 +369,7 @@ fn render_line(
 }
 
 ///|
+// rect_outline attrs order: x(0), y(1), w(2), h(3), line_width(4), color(5)
 fn render_rect_outline(
   cmds : Array[@gfx.DrawTrianglesCommand],
   el : @ui.VElement[Unit, SceneAttrValue],
@@ -280,12 +380,23 @@ fn render_rect_outline(
   offset_x : Double,
   offset_y : Double,
 ) -> Unit {
-  let x = get_attr_double(el.attrs, "x", 0.0) + offset_x
-  let y = get_attr_double(el.attrs, "y", 0.0) + offset_y
-  let w = get_attr_double(el.attrs, "w", 0.0)
-  let h = get_attr_double(el.attrs, "h", 0.0)
-  let line_width = get_attr_double(el.attrs, "line_width", 1.0)
-  let color_hex = get_attr_int(el.attrs, "color", 0xFFFFFF)
+  let attrs = el.attrs
+  let x = (if attrs.length() > 0 { attr_double(attrs[0].1, 0.0) } else { 0.0 }) +
+    offset_x
+  let y = (if attrs.length() > 1 { attr_double(attrs[1].1, 0.0) } else { 0.0 }) +
+    offset_y
+  let w = if attrs.length() > 2 { attr_double(attrs[2].1, 0.0) } else { 0.0 }
+  let h = if attrs.length() > 3 { attr_double(attrs[3].1, 0.0) } else { 0.0 }
+  let line_width = if attrs.length() > 4 {
+    attr_double(attrs[4].1, 1.0)
+  } else {
+    1.0
+  }
+  let color_hex = if attrs.length() > 5 {
+    attr_int(attrs[5].1, 0xFFFFFF)
+  } else {
+    0xFFFFFF
+  }
   let color = @debugutil.color_from_hex(color_hex)
   let (vertices, indices) = @debugutil.rect_outline_vertices(
     x, y, w, h, line_width,
@@ -316,6 +427,10 @@ fn render_rect_outline(
     ),
   )
 }
+
+// ============================================================
+// Fallback key-based attribute lookup (for backward compatibility)
+// ============================================================
 
 ///|
 fn get_attr_value(

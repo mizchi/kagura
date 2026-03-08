@@ -160,6 +160,81 @@ test "AssetStreamer: manual evict" {
 }
 
 ///|
+test "AssetStreamer: payload released after callbacks fire (Delivered state)" {
+  let fetcher = new_mock_fetcher()
+  let streamer = new_asset_streamer(fetcher, config=default_streamer_config())
+  let key = @asset.new_asset_key("release")
+  let mut first_received = false
+  ignore(
+    streamer.request("release.png", key, Normal, fn(data) {
+      match data {
+        Some(_) => first_received = true
+        None => ()
+      }
+    }),
+  )
+  streamer.update()
+  complete_mock(fetcher, 0, Some(b"payload"))
+  streamer.update()
+  assert_true(first_received)
+  // After completion, requesting the same key again should get None
+  // because payload was released (Delivered state)
+  let mut late_data : Bytes? = Some(b"should-be-none")
+  ignore(
+    streamer.request("release.png", key, Normal, fn(data) { late_data = data }),
+  )
+  assert_true(late_data is None)
+}
+
+///|
+test "AssetStreamer: fetch failure delivers None to callbacks" {
+  let fetcher = new_mock_fetcher()
+  let streamer = new_asset_streamer(fetcher, config=default_streamer_config())
+  let key = @asset.new_asset_key("fail")
+  let mut received_data : Bytes? = Some(b"initial")
+  ignore(
+    streamer.request("fail.png", key, Normal, fn(data) { received_data = data }),
+  )
+  streamer.update()
+  // Simulate fetch failure (None)
+  complete_mock(fetcher, 0, None)
+  streamer.update()
+  assert_true(received_data is None)
+}
+
+///|
+test "AssetStreamer: eviction of in-flight request cancels fetch" {
+  let evicted : Array[String] = []
+  let fetcher = new_mock_fetcher()
+  let streamer = new_asset_streamer(fetcher, on_evict=fn(key) {
+    evicted.push(key.value)
+  })
+  let key = @asset.new_asset_key("inflight")
+  ignore(streamer.request("inflight.png", key, Normal, fn(_) {  }))
+  streamer.update()
+  assert_eq(fetcher.requests.length(), 1)
+  assert_false(fetcher.requests[0].cancelled)
+  // Evict while still in-flight
+  streamer.evict(key)
+  assert_true(fetcher.requests[0].cancelled)
+  assert_eq(evicted, ["inflight"])
+}
+
+///|
+test "AssetStreamer: LOD upgrade cancels previous in-flight fetch" {
+  let fetcher = new_mock_fetcher()
+  let streamer = new_asset_streamer(fetcher, config=default_streamer_config())
+  let key = @asset.new_asset_key("lod-cancel")
+  ignore(streamer.request_lod("model_lod1.obj", key, 1, Normal, fn(_) {  }))
+  streamer.update()
+  assert_eq(fetcher.requests.length(), 1)
+  // Upgrade to higher LOD
+  ignore(streamer.request_lod("model_lod2.obj", key, 2, High, fn(_) {  }))
+  // Previous fetch should be cancelled
+  assert_true(fetcher.requests[0].cancelled)
+}
+
+///|
 test "reprioritize pending request" {
   let fetcher = new_mock_fetcher()
   let manager = new_asset_stream_manager(fetcher, max_concurrent=1)

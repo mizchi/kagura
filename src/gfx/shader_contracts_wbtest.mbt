@@ -893,6 +893,17 @@ test "builtin_address roundtrip" {
 }
 
 ///|
+test "default_builtin_shader_source returns valid WGSL with kagura header" {
+  let source = default_builtin_shader_source()
+  assert_true(source.contains("// kagura builtin shader"))
+  assert_true(source.contains("@fragment"))
+  assert_true(source.contains("fn fs_main"))
+  assert_true(source.contains("texture_2d<f32>"))
+  // Must not be empty or a trivial string
+  assert_true(source.length() > 100)
+}
+
+///|
 test "default_shader_entrypoints" {
   let ep = default_shader_entrypoints()
   assert_eq(ep.vertex, "vs_main")

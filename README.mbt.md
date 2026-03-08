@@ -33,12 +33,13 @@ vector/        Vector math
 
 | Target | Backend | Status |
 |--------|---------|--------|
-| Web (all OS) | WebGPU / WebGL2 | Supported |
+| Web (all OS) | WebGPU | Supported |
 | Native macOS | wgpu-native + Metal + GLFW | Supported |
-| Native Linux | wgpu-native + Vulkan + GLFW | Planned |
-| Native Windows | wgpu-native + D3D12/Vulkan + GLFW | Planned |
+| Native Linux | wgpu-native + Vulkan + GLFW | Supported (CI: check + test + build) |
+| Native Windows | wgpu-native + D3D12/Vulkan + GLFW | Partial (check only; `moon build` blocked by upstream `-lm` issue) |
+| WASM Guest | Shared-memory binary protocol | Supported (MoonBit / Rust / Zig) |
 
-> JS builds (browser) work on any OS. Native builds currently support macOS only.
+> JS builds (browser) work on any OS. Native builds support macOS and Linux. Windows native build is blocked by an upstream MoonBit toolchain issue.
 
 ## Quick Start
 

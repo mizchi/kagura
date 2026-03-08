@@ -1,7 +1,7 @@
 ///|
 pub(all) struct EngineContext {
-  dst : @gfx.ImageHandle
+  mut dst : @gfx.ImageHandle
   shader : @gfx.ShaderHandle
-  screen_w : Int
-  screen_h : Int
+  mut screen_w : Int
+  mut screen_h : Int
 }

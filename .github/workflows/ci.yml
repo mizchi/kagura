@@ -112,6 +112,8 @@ jobs:
         run: moon check --deny-warn --target js
       - name: Test
         run: moon test --target js
+      - name: Coverage Analysis
+        run: bash scripts/check-coverage.sh js
       - name: Runtime Smoke (JS)
         run: cd examples/runtime_smoke && moon run src --target js
       - name: Install Playwright Browser

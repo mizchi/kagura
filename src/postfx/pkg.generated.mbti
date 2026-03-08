@@ -28,7 +28,13 @@ pub fn new_fullscreen_quad_command(@gfx.ImageHandle, @gfx.ShaderHandle, Array[In
 
 pub fn new_fxaa_command(@gfx.ImageHandle, @gfx.ShaderHandle, Int, Int, Int) -> @gfx.DrawTrianglesCommand
 
+pub fn new_ssao_command(@gfx.ImageHandle, @gfx.ShaderHandle, Int, Int, Double, Double, Double, Int, Int) -> @gfx.DrawTrianglesCommand
+
 pub fn new_tonemap_command(@gfx.ImageHandle, @gfx.ShaderHandle, Int, Double) -> @gfx.DrawTrianglesCommand
+
+pub fn ssao_uniform_dwords(Double, Double, Double, Int, Int) -> Array[Int]
+
+pub fn ssao_wgsl() -> String
 
 pub fn tonemap_uniform_dwords(Double) -> Array[Int]
 

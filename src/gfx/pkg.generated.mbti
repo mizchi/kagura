@@ -64,6 +64,8 @@ pub fn create_webgpu_graphics(@platform.SurfaceToken, GraphicsBackendOptions) ->
 
 pub fn create_wgpu_native_graphics(@platform.SurfaceToken, GraphicsBackendOptions) -> StubGraphicsDriver
 
+pub fn default_builtin_shader_source() -> String
+
 pub fn default_graphics_backend_options() -> GraphicsBackendOptions
 
 pub fn default_sampler_spec() -> SamplerSpec
@@ -82,7 +84,7 @@ pub fn filter_mode_from_int(Int) -> FilterMode
 
 pub fn filter_mode_to_int(FilterMode) -> Int
 
-pub fn[T : GraphicsDriver, Q : CommandQueue] flush_commands(T, Q, Bool) -> Unit raise
+pub fn[T : GraphicsDriver, Q : CommandQueue] flush_commands(T, Q, Bool, clear_color? : Color) -> Unit raise
 
 pub fn graphics_resize_stats(StubGraphicsDriver) -> GraphicsResizeStats
 
@@ -93,8 +95,6 @@ pub fn new_basic_shader_frontend() -> BasicShaderFrontend
 pub fn new_basic_uniform_canonicalizer() -> BasicUniformCanonicalizer
 
 pub fn new_color(Double, Double, Double, Double) -> Color
-
-pub fn[T : CommandQueue] new_command_queue() -> T
 
 pub fn new_draw_triangles_command(ImageHandle, ShaderHandle, Array[DstRegion], Int, Int, Int, BlendMode, Array[Double], Array[Int], Array[Int], Array[Int], instance_count? : Int) -> DrawTrianglesCommand
 

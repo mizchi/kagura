@@ -1350,6 +1350,17 @@ pub fn builtin_address_from_int(value : Int) -> BuiltinShaderAddress {
 }
 
 ///|
+/// Returns a minimal valid builtin shader source for the default 2D pipeline.
+/// Use this instead of passing arbitrary strings (e.g. game title) to new_shader.
+pub fn default_builtin_shader_source() -> String {
+  build_builtin_shader_source({
+    filter: BuiltinShaderFilter::Nearest,
+    address: BuiltinShaderAddress::Unsafe,
+    use_color_m: false,
+  })
+}
+
+///|
 pub fn default_shader_entrypoints() -> ShaderEntrypoints {
   { vertex: "vs_main", fragment: "fs_main" }
 }

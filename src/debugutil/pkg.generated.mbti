@@ -10,6 +10,8 @@ import {
 // Values
 pub fn build_input_debug_overlay(@gfx.ImageHandle, @gfx.ShaderHandle, @core.InputSnapshot, @inpututil.KeyInputState, @inpututil.MouseButtonInputState, Int) -> Array[@gfx.DrawTrianglesCommand]
 
+pub fn build_profiler_hud(Array[@gfx.DrawTrianglesCommand], @gfx.ImageHandle, @gfx.ShaderHandle, FrameProfile, Double, Double) -> Unit
+
 pub fn color_black() -> @gfx.Color
 
 pub fn color_blue() -> @gfx.Color
@@ -29,6 +31,8 @@ pub fn color_transparent() -> @gfx.Color
 pub fn color_white() -> @gfx.Color
 
 pub fn color_yellow() -> @gfx.Color
+
+pub fn default_frame_profile() -> FrameProfile
 
 pub fn draw_dot_text(Array[@gfx.DrawTrianglesCommand], @gfx.ImageHandle, @gfx.ShaderHandle, Array[Int], Double, Double, Double, Double, @gfx.Color, Double) -> Unit
 
@@ -52,11 +56,21 @@ pub fn rect_fill_vertices(Double, Double, Double, Double) -> (Array[Double], Arr
 
 pub fn rect_outline_vertices(Double, Double, Double, Double, Double) -> (Array[Double], Array[Int])
 
-pub fn[T : @gfx.GraphicsDriver] render_commands(T, Array[@gfx.DrawTrianglesCommand]) -> Unit raise
+pub fn[T : @gfx.GraphicsDriver] render_commands(T, Array[@gfx.DrawTrianglesCommand], clear_color? : @gfx.Color, clear_enabled? : Bool) -> Unit raise
 
 // Errors
 
 // Types and methods
+pub(all) struct FrameProfile {
+  fps : Double
+  frame_time_ms : Double
+  update_ms : Double
+  draw_ms : Double
+  draw_calls : Int
+  vertex_count : Int
+  asset_inflight : Int
+}
+pub impl Show for FrameProfile
 
 // Type aliases
 

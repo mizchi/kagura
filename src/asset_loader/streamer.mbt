@@ -52,6 +52,9 @@ struct AssetEntry {
 priv enum AssetCompletion {
   Pending
   Completed(Bytes?)
+  /// Payload delivered to all callbacks; bytes released to save memory.
+  /// New duplicate requests will receive None (callers should re-request if needed).
+  Delivered
 }
 
 ///|
@@ -95,6 +98,7 @@ pub fn AssetStreamer::request(
       match entry.completion {
         Pending => entry.callbacks.push(on_complete)
         Completed(data) => on_complete(data)
+        Delivered => on_complete(None)
       }
       return entry.stream_id
     }
@@ -104,12 +108,13 @@ pub fn AssetStreamer::request(
   let id = self.manager.enqueue(url, priority, fn(data) {
     match self.handles.get(key.value) {
       Some(entry) => {
-        entry.completion = Completed(data)
         let pending = entry.callbacks
         entry.callbacks = []
         for callback in pending {
           callback(data)
         }
+        // Release Bytes after all callbacks have been notified
+        entry.completion = Delivered
       }
       None => ()
     }
@@ -154,6 +159,7 @@ pub fn AssetStreamer::request_lod(
         match entry.completion {
           Pending => entry.callbacks.push(on_complete)
           Completed(data) => on_complete(data)
+          Delivered => on_complete(None)
         }
         return entry.stream_id
       }
@@ -162,12 +168,12 @@ pub fn AssetStreamer::request_lod(
       let id = self.manager.enqueue(url, priority, fn(data) {
         match self.handles.get(key.value) {
           Some(active_entry) => {
-            active_entry.completion = Completed(data)
             let pending = active_entry.callbacks
             active_entry.callbacks = []
             for callback in pending {
               callback(data)
             }
+            active_entry.completion = Delivered
           }
           None => ()
         }
@@ -183,12 +189,12 @@ pub fn AssetStreamer::request_lod(
       let id = self.manager.enqueue(url, priority, fn(data) {
         match self.handles.get(key.value) {
           Some(entry) => {
-            entry.completion = Completed(data)
             let pending = entry.callbacks
             entry.callbacks = []
             for callback in pending {
               callback(data)
             }
+            entry.completion = Delivered
           }
           None => ()
         }

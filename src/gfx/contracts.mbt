@@ -761,25 +761,21 @@ pub fn new_simple_command_queue() -> SimpleCommandQueue {
 }
 
 ///|
-pub fn[T : CommandQueue] new_command_queue() -> T {
-  panic()
-}
-
-///|
 pub fn[T : GraphicsDriver, Q : CommandQueue] flush_commands(
   driver : T,
   queue : Q,
   present : Bool,
+  clear_color? : Color,
 ) -> Unit raise {
   let commands = queue.flush()
   if commands.length() == 0 && !present {
     ()
   } else {
-    driver.begin({
-      clear_color: { r: 0.0, g: 0.0, b: 0.0, a: 1.0 },
-      clear_enabled: true,
-      present,
-    })
+    let color = match clear_color {
+      Some(c) => c
+      None => { r: 0.0, g: 0.0, b: 0.0, a: 1.0 }
+    }
+    driver.begin({ clear_color: color, clear_enabled: true, present })
     for command in commands {
       driver.draw_triangles(command)
     }

@@ -254,6 +254,62 @@ test "new_touch_point_with_source sets source" {
 }
 
 ///|
+test "step_fixed_timestep with zero tps defaults to 60" {
+  let state = initial_fixed_step_state()
+  let config = new_fixed_step_config(0, 5)
+  let result = step_fixed_timestep(state, 100.0, config)
+  // 0 tps → safe_tps returns 60, so 100ms / 16.67ms = 6 updates, capped at 5
+  assert_eq(result.updates, 5)
+}
+
+///|
+test "step_fixed_timestep with negative tps defaults to 60" {
+  let state = initial_fixed_step_state()
+  let config = new_fixed_step_config(-10, 3)
+  let result = step_fixed_timestep(state, 50.0, config)
+  // -10 tps → safe_tps returns 60, tick_ms=16.667ms, 50/16.667 = 2 full ticks
+  assert_eq(result.updates, 2)
+}
+
+///|
+test "step_fixed_timestep with zero max_updates defaults to 1" {
+  let state = initial_fixed_step_state()
+  let config = new_fixed_step_config(60, 0)
+  let result = step_fixed_timestep(state, 100.0, config)
+  // 0 max_updates → safe_max_updates returns 1
+  assert_eq(result.updates, 1)
+}
+
+///|
+test "step_fixed_timestep spiral of death drops backlog" {
+  let state = initial_fixed_step_state()
+  let config = default_fixed_step_config()
+  // 1000ms elapsed at 60 tps = 60 updates needed, capped at 5
+  let result = step_fixed_timestep(state, 1000.0, config)
+  assert_eq(result.updates, 5)
+  // After spiral-of-death protection, accumulator should be reset
+  assert_eq(result.alpha, 0.0)
+  assert_eq(result.next_state.accumulator_ms, 0.0)
+}
+
+///|
+test "step_fixed_timestep accumulator carries over sub-tick remainder" {
+  let state = initial_fixed_step_state()
+  let config = default_fixed_step_config()
+  // 25ms at 60 tps = 1 update (16.67ms), remainder ~8.33ms
+  let result = step_fixed_timestep(state, 25.0, config)
+  assert_eq(result.updates, 1)
+  assert_true(result.next_state.accumulator_ms > 8.0)
+  assert_true(result.next_state.accumulator_ms < 9.0)
+  // Feed remainder-only: 5ms more = ~13.33ms total, still < 16.67ms tick
+  let result2 = step_fixed_timestep(result.next_state, 5.0, config)
+  assert_eq(result2.updates, 0)
+  // Feed 5ms more = ~18.33ms total, triggers 1 update
+  let result3 = step_fixed_timestep(result2.next_state, 5.0, config)
+  assert_eq(result3.updates, 1)
+}
+
+///|
 test "touch_point_from_ex has Unknown source" {
   let ex = new_touch_point_ex(1, 10.0, 20.0, TouchPhase::Began)
   let tp = touch_point_from_ex(ex)

@@ -19,9 +19,18 @@ test:
     if [ "{{target}}" = "js" ] && [ -f modules/js_runtime/moon.mod.json ]; then (cd modules/js_runtime && moon test --target js); fi
     for dir in examples/*/; do if [ -f "$dir/moon.mod.json" ]; then if [ "{{target}}" = "native" ] && [ "$dir" = "examples/runtime_smoke_native/" ]; then echo "skip $dir (native smoke app is validated in native-macos build job)"; continue; fi; (cd "$dir" && if [ "{{target}}" = "native" ]; then CPATH="$(brew --prefix glfw)/include:${CPATH:-}" LIBRARY_PATH="$(brew --prefix)/lib:${LIBRARY_PATH:-}" moon test --target native; else moon test --target {{target}}; fi) || exit 1; fi; done
 
+coverage:
+    bash scripts/check-coverage.sh {{target}}
+
 bench:
     moon bench --target {{target}}
     for dir in examples/*/; do [ -f "$dir/moon.mod.json" ] && (cd "$dir" && moon bench --target {{target}}); done
+
+bench-gate:
+    bash scripts/bench-gate.sh {{target}}
+
+bench-update:
+    bash scripts/bench-gate.sh {{target}} --update
 
 test-update:
     moon test --update --target {{target}}

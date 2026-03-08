@@ -1,15 +1,14 @@
-// Smoke test for WASM guest modules
+// Smoke test for WASM guest modules (semantic ABI only)
 // Usage: node examples/wasm_game/test-wasm.mjs [moonbit|rust|zig|all]
 import {
   HOST_ASSET_TITLE,
   allocGuest,
   assert,
+  assertSemanticAbi,
   deserializeDrawCommands,
   fileExists,
-  hasSemanticAbi,
   inputByteSize,
   instantiateGuest,
-  readLegacyGameConfig,
   readSemanticGuestConfig,
   resolveTargets,
   serializeInput,
@@ -20,48 +19,24 @@ async function testWasm(path, label) {
   console.log(`\n=== ${label} ===`);
   const guest = await instantiateGuest(path);
   const { exports, memory, hostLogs } = guest;
-  const semanticAbi = hasSemanticAbi(exports);
+  assertSemanticAbi(exports);
 
-  const {
-    kagura_init,
-    kagura_update,
-    kagura_draw,
-    kagura_guest_init,
-    kagura_guest_update,
-    kagura_guest_render,
-    kagura_guest_snapshot_state,
-    kagura_guest_restore_state,
-  } = exports;
+  const envPtr = allocGuest(exports, 16);
+  writeInitEnv(memory, envPtr);
+  const configPtr = exports.kagura_guest_init(envPtr, 16);
+  const config = readSemanticGuestConfig(memory, configPtr);
 
-  if (label === "MoonBit" || label === "Rust" || label === "Zig") {
-    assert(semanticAbi, `${label} guest must expose semantic guest ABI`);
-  }
-
-  let config;
-  if (semanticAbi) {
-    const envPtr = allocGuest(exports, 16);
-    writeInitEnv(memory, envPtr);
-    const configPtr = kagura_guest_init(envPtr, 16);
-    config = readSemanticGuestConfig(memory, configPtr);
-    assert(hostLogs.length > 0, "semantic guest must emit at least one host log");
-    assert(
-      hostLogs.some((entry) => entry.message.includes("guest init")),
-      `missing init log: ${JSON.stringify(hostLogs)}`,
-    );
-  } else {
-    const configPtr = kagura_init();
-    config = readLegacyGameConfig(memory, configPtr);
-  }
+  assert(hostLogs.length > 0, "guest must emit at least one host log");
+  assert(
+    hostLogs.some((entry) => entry.message.includes("guest init")),
+    `missing init log: ${JSON.stringify(hostLogs)}`,
+  );
 
   const { width, height, targetTps, title } = config;
   assert(width === 320, `width=${width}`);
   assert(height === 240, `height=${height}`);
   assert(targetTps === 60, `targetTps=${targetTps}`);
-  if (semanticAbi) {
-    assert(title === HOST_ASSET_TITLE, `title="${title}"`);
-  } else {
-    assert(title.length > 0, `title="${title}"`);
-  }
+  assert(title === HOST_ASSET_TITLE, `title="${title}"`);
   console.log(`  config: ${width}x${height} @${targetTps} "${title}"`);
 
   const emptyInput = {
@@ -74,12 +49,10 @@ async function testWasm(path, label) {
   };
   const inputPtr = allocGuest(exports, inputByteSize(emptyInput));
   const inputSize = serializeInput(memory, inputPtr, emptyInput);
-  const wantsRedraw = semanticAbi
-    ? kagura_guest_update(inputPtr, inputSize)
-    : (kagura_update(inputPtr, inputSize), 1);
+  const wantsRedraw = exports.kagura_guest_update(inputPtr, inputSize);
   assert(wantsRedraw === 1, `wantsRedraw=${wantsRedraw}`);
 
-  const drawPtr = semanticAbi ? kagura_guest_render() : kagura_draw();
+  const drawPtr = exports.kagura_guest_render();
   const commands = deserializeDrawCommands(memory, drawPtr);
   assert(commands.length === 3, `initial cmdCount=${commands.length}, expected 3`);
 
@@ -106,13 +79,8 @@ async function testWasm(path, label) {
   for (let frame = 0; frame < 60; frame++) {
     const ptr = allocGuest(exports, inputByteSize(emptyInput));
     const bytesWritten = serializeInput(memory, ptr, emptyInput);
-    if (semanticAbi) {
-      kagura_guest_update(ptr, bytesWritten);
-      kagura_guest_render();
-    } else {
-      kagura_update(ptr, bytesWritten);
-      kagura_draw();
-    }
+    exports.kagura_guest_update(ptr, bytesWritten);
+    exports.kagura_guest_render();
   }
   console.log("  60 frame cycles: OK");
 
@@ -126,31 +94,25 @@ async function testWasm(path, label) {
   };
   const ptr = allocGuest(exports, inputByteSize(startedInput));
   const bytesWritten = serializeInput(memory, ptr, startedInput);
-  if (semanticAbi) {
-    kagura_guest_update(ptr, bytesWritten);
-  } else {
-    kagura_update(ptr, bytesWritten);
-  }
-  const drawPtr2 = semanticAbi ? kagura_guest_render() : kagura_draw();
+  exports.kagura_guest_update(ptr, bytesWritten);
+  const drawPtr2 = exports.kagura_guest_render();
   const commandsAfterSpace = deserializeDrawCommands(memory, drawPtr2);
   assert(commandsAfterSpace.length >= 3, `after space cmdCount=${commandsAfterSpace.length}`);
   console.log("  space key input: OK");
 
-  if (semanticAbi) {
-    assert(
-      typeof kagura_guest_snapshot_state === "function",
-      "snapshot_state export missing",
-    );
-    assert(
-      typeof kagura_guest_restore_state === "function",
-      "restore_state export missing",
-    );
-    const snapshotPtr = kagura_guest_snapshot_state();
-    assert(snapshotPtr === 0, `snapshotPtr=${snapshotPtr}`);
-    const restoreResult = kagura_guest_restore_state(0, 0);
-    assert(restoreResult === 0, `restoreResult=${restoreResult}`);
-    console.log("  semantic ABI hooks: OK");
-  }
+  assert(
+    typeof exports.kagura_guest_snapshot_state === "function",
+    "snapshot_state export missing",
+  );
+  assert(
+    typeof exports.kagura_guest_restore_state === "function",
+    "restore_state export missing",
+  );
+  const snapshotPtr = exports.kagura_guest_snapshot_state();
+  assert(snapshotPtr === 0, `snapshotPtr=${snapshotPtr}`);
+  const restoreResult = exports.kagura_guest_restore_state(0, 0);
+  assert(restoreResult === 0, `restoreResult=${restoreResult}`);
+  console.log("  semantic ABI hooks: OK");
 
   console.log(`  ${label}: PASS`);
 }

@@ -47,11 +47,6 @@ export function writeInitEnv(
   env: InitEnv,
 ): number;
 
-export function readLegacyGameConfig(
-  memory: WebAssembly.Memory,
-  ptr: number,
-): GuestConfig;
-
 export function readSemanticGuestConfig(
   memory: WebAssembly.Memory,
   ptr: number,

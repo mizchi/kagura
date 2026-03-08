@@ -4,9 +4,9 @@ import {
   HOST_ASSET_TITLE,
   allocGuest,
   assert,
+  assertSemanticAbi,
   deserializeDrawCommands,
   fileExists,
-  hasSemanticAbi,
   inputByteSize,
   instantiateGuest,
   readSemanticGuestConfig,
@@ -14,13 +14,6 @@ import {
   serializeInput,
   writeInitEnv,
 } from "./test-wasm-harness.mjs";
-
-function assertSemanticExports(exports, label) {
-  assert(hasSemanticAbi(exports), `${label} guest must expose semantic guest ABI`);
-  assert(typeof exports.kagura_guest_snapshot_state === "function", "snapshot_state export missing");
-  assert(typeof exports.kagura_guest_restore_state === "function", "restore_state export missing");
-  assert(typeof exports.kagura_guest_shutdown === "function", "shutdown export missing");
-}
 
 function initSemanticGuest(exports, memory, env) {
   const envPtr = allocGuest(exports, 16);
@@ -52,7 +45,7 @@ async function testGuestConformance(path, label) {
   console.log(`\n=== ${label} ABI ===`);
   const primary = await instantiateGuest(path);
   const { exports, memory, hostLogs, assetRequests } = primary;
-  assertSemanticExports(exports, label);
+  assertSemanticAbi(exports, label);
 
   const config = initSemanticGuest(exports, memory, {
     width: 800,
@@ -100,7 +93,7 @@ async function testGuestConformance(path, label) {
   console.log("  snapshot + restore + shutdown: OK");
 
   const fallback = await instantiateGuest(path, { assets: {} });
-  assertSemanticExports(fallback.exports, `${label} fallback`);
+  assertSemanticAbi(fallback.exports, `${label} fallback`);
   const fallbackConfig = initSemanticGuest(fallback.exports, fallback.memory, {
     width: 320,
     height: 240,

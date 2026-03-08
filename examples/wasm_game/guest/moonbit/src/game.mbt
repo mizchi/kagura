@@ -215,12 +215,6 @@ fn Game::draw(self : Game) -> Array[DrawCmd] {
 let game : Game = Game::new()
 
 ///|
-pub fn kagura_init() -> Int {
-  bump_init()
-  write_legacy_game_config(screen_w, screen_h, "Flappy Bird")
-}
-
-///|
 pub fn kagura_guest_init_export(env_ptr : Int, len : Int) -> Int {
   bump_init()
   ignore(env_ptr)
@@ -236,13 +230,6 @@ pub fn kagura_guest_init_export(env_ptr : Int, len : Int) -> Int {
 }
 
 ///|
-pub fn kagura_update_export(ptr : Int, len : Int) -> Unit {
-  let input = read_input(ptr)
-  game.update(input)
-  ignore(len)
-}
-
-///|
 pub fn kagura_guest_update_export(ptr : Int, len : Int) -> Int {
   let input = read_input(ptr)
   game.update(input)
@@ -251,15 +238,10 @@ pub fn kagura_guest_update_export(ptr : Int, len : Int) -> Int {
 }
 
 ///|
-pub fn kagura_draw() -> Int {
+pub fn kagura_guest_render() -> Int {
   bump_reset()
   let cmds = game.draw()
   write_draw_commands(cmds)
-}
-
-///|
-pub fn kagura_guest_render() -> Int {
-  kagura_draw()
 }
 
 ///|

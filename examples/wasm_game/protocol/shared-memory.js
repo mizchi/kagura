@@ -57,17 +57,6 @@ export function writeInitEnv(
   return INIT_ENV_SIZE;
 }
 
-export function readLegacyGameConfig(memory, ptr) {
-  const dv = new DataView(memory.buffer);
-  const width = dv.getInt32(ptr, true);
-  const height = dv.getInt32(ptr + 4, true);
-  const titleLen = dv.getInt32(ptr + 8, true);
-  const title = textDecoder.decode(
-    new Uint8Array(memory.buffer, ptr + 12, titleLen),
-  );
-  return { width, height, targetTps: 60, title };
-}
-
 export function readSemanticGuestConfig(memory, ptr) {
   const dv = new DataView(memory.buffer);
   const width = dv.getInt32(ptr, true);

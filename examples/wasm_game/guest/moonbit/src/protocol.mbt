@@ -61,19 +61,6 @@ struct Utf8Slice {
   len : Int
 }
 
-///| Write legacy PoC game config to linear memory and return the pointer.
-fn write_legacy_game_config(width : Int, height : Int, title : String) -> Int {
-  let title_bytes = title.to_array()
-  let ptr = bump_alloc(12 + title_bytes.length())
-  mem_store32(ptr, width)
-  mem_store32(ptr + 4, height)
-  mem_store32(ptr + 8, title_bytes.length())
-  for i = 0; i < title_bytes.length(); i = i + 1 {
-    mem_store8(ptr + 12 + i, title_bytes[i].to_int())
-  }
-  ptr
-}
-
 fn write_semantic_guest_config_bytes(
   logical_width : Int,
   logical_height : Int,

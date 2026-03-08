@@ -63,15 +63,6 @@ unsafe fn write_bytes_at(ptr: *mut u8, bytes: &[u8]) {
     core::ptr::copy_nonoverlapping(bytes.as_ptr(), ptr, bytes.len());
 }
 
-unsafe fn write_legacy_game_config(width: i32, height: i32, title: &[u8]) -> i32 {
-    let ptr = bump_alloc(12 + title.len());
-    write_i32_at(ptr, width);
-    write_i32_at(ptr.add(4), height);
-    write_i32_at(ptr.add(8), title.len() as i32);
-    write_bytes_at(ptr.add(12), title);
-    ptr as i32
-}
-
 unsafe fn write_semantic_guest_config(
     logical_width: i32,
     logical_height: i32,
@@ -336,14 +327,6 @@ impl Game {
 // --- WASM Exports ---
 
 #[no_mangle]
-pub extern "C" fn kagura_init() -> i32 {
-    unsafe {
-        bump_reset();
-        write_legacy_game_config(SCREEN_W, SCREEN_H, b"Flappy Bird (Rust)")
-    }
-}
-
-#[no_mangle]
 pub extern "C" fn kagura_alloc(size: i32) -> i32 {
     unsafe { bump_alloc(size as usize) as i32 }
 }
@@ -370,21 +353,16 @@ pub extern "C" fn kagura_guest_init(_ptr: i32, _len: i32) -> i32 {
 }
 
 #[no_mangle]
-pub extern "C" fn kagura_update(ptr: i32, _len: i32) {
+pub extern "C" fn kagura_guest_update(ptr: i32, _len: i32) -> i32 {
     unsafe {
         let input = read_input(ptr as *const u8);
         GAME.update(&input);
     }
-}
-
-#[no_mangle]
-pub extern "C" fn kagura_guest_update(ptr: i32, len: i32) -> i32 {
-    kagura_update(ptr, len);
     1
 }
 
 #[no_mangle]
-pub extern "C" fn kagura_draw() -> i32 {
+pub extern "C" fn kagura_guest_render() -> i32 {
     unsafe {
         bump_reset();
         let sw = SCREEN_W as f64;
@@ -452,11 +430,6 @@ pub extern "C" fn kagura_draw() -> i32 {
 
         header as i32
     }
-}
-
-#[no_mangle]
-pub extern "C" fn kagura_guest_render() -> i32 {
-    kagura_draw()
 }
 
 #[no_mangle]

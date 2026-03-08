@@ -1,7 +1,6 @@
 export {
   deserializeDrawCommands,
   inputByteSize,
-  readLegacyGameConfig,
   readSemanticGuestConfig,
   serializeInput,
   writeInitEnv,

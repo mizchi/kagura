@@ -9,43 +9,26 @@ import {
   deserializeDrawCommands,
   inputByteSize,
   writeInitEnv,
-  readLegacyGameConfig,
   readSemanticGuestConfig,
 } from "./host-protocol";
 import { createPreviewShell } from "./preview-shell";
 
 interface GameExports {
-  kagura_init?: () => number;
-  kagura_alloc?: (size: number) => number;
-  kagura_update?: (ptr: number, len: number) => void;
-  kagura_draw?: () => number;
-  kagura_guest_init?: (ptr: number, len: number) => number;
-  kagura_guest_update?: (ptr: number, len: number) => number;
-  kagura_guest_render?: () => number;
-  kagura_guest_shutdown?: () => void;
+  kagura_alloc: (size: number) => number;
+  kagura_guest_init: (ptr: number, len: number) => number;
+  kagura_guest_update: (ptr: number, len: number) => number;
+  kagura_guest_render: () => number;
+  kagura_guest_shutdown: () => void;
   memory: WebAssembly.Memory;
   _start?: () => void;
 }
 
-function hasSemanticAbi(
-  exports: GameExports,
-): exports is GameExports & {
-  kagura_guest_init: (ptr: number, len: number) => number;
-  kagura_guest_update: (ptr: number, len: number) => number;
-  kagura_guest_render: () => number;
-} {
-  return (
-    typeof exports.kagura_guest_init === "function" &&
-    typeof exports.kagura_guest_update === "function" &&
-    typeof exports.kagura_guest_render === "function"
-  );
-}
-
-function alloc(exports: GameExports, size: number): number {
-  if (!exports.kagura_alloc) {
-    throw new Error("guest is missing kagura_alloc");
+function assertSemanticAbi(exports: Record<string, unknown>): asserts exports is Record<string, unknown> & GameExports {
+  for (const name of ["kagura_alloc", "kagura_guest_init", "kagura_guest_update", "kagura_guest_render", "kagura_guest_shutdown"]) {
+    if (typeof exports[name] !== "function") {
+      throw new Error(`guest is missing required export: ${name}`);
+    }
   }
-  return exports.kagura_alloc(size);
 }
 
 async function loadHostAssets(
@@ -113,9 +96,9 @@ async function loadWasm(
     },
   };
   const { instance } = await WebAssembly.instantiateStreaming(response, importObject);
-  const exports = instance.exports as unknown as GameExports;
+  const exports = instance.exports as unknown as Record<string, unknown>;
+  assertSemanticAbi(exports);
   currentMemory = exports.memory;
-  // MoonBit WASM exports _start for module initialization
   if (exports._start) {
     exports._start();
   }
@@ -126,47 +109,15 @@ function initGame(
   game: GameExports,
   canvas: HTMLCanvasElement,
 ): { width: number; height: number; title: string; targetTps: number } {
-  if (hasSemanticAbi(game)) {
-    const envPtr = alloc(game, 16);
-    writeInitEnv(game.memory, envPtr, {
-      width: canvas.clientWidth || canvas.width || 320,
-      height: canvas.clientHeight || canvas.height || 240,
-      devicePixelRatio: window.devicePixelRatio || 1,
-      hotReloadEnabled: Boolean(import.meta.hot),
-    });
-    const configPtr = game.kagura_guest_init(envPtr, 16);
-    return readSemanticGuestConfig(game.memory, configPtr);
-  }
-  if (!game.kagura_init) {
-    throw new Error("guest is missing kagura_init");
-  }
-  const configPtr = game.kagura_init();
-  return readLegacyGameConfig(game.memory, configPtr);
-}
-
-function updateGame(game: GameExports, inputPtr: number, inputSize: number): boolean {
-  if (hasSemanticAbi(game)) {
-    return game.kagura_guest_update(inputPtr, inputSize) !== 0;
-  }
-  if (!game.kagura_update) {
-    throw new Error("guest is missing kagura_update");
-  }
-  game.kagura_update(inputPtr, inputSize);
-  return true;
-}
-
-function renderGame(game: GameExports): number {
-  if (hasSemanticAbi(game)) {
-    return game.kagura_guest_render();
-  }
-  if (!game.kagura_draw) {
-    throw new Error("guest is missing kagura_draw");
-  }
-  return game.kagura_draw();
-}
-
-function gameAbiMode(game: GameExports): "semantic" | "legacy" {
-  return hasSemanticAbi(game) ? "semantic" : "legacy";
+  const envPtr = game.kagura_alloc(16);
+  writeInitEnv(game.memory, envPtr, {
+    width: canvas.clientWidth || canvas.width || 320,
+    height: canvas.clientHeight || canvas.height || 240,
+    devicePixelRatio: window.devicePixelRatio || 1,
+    hotReloadEnabled: Boolean(import.meta.hot),
+  });
+  const configPtr = game.kagura_guest_init(envPtr, 16);
+  return readSemanticGuestConfig(game.memory, configPtr);
 }
 
 async function main() {
@@ -212,7 +163,7 @@ async function main() {
   document.title = config.title;
   shell.setMeta({
     title: config.title,
-    abiMode: gameAbiMode(game),
+    abiMode: "v0",
     logicalWidth: config.width,
     logicalHeight: config.height,
     targetTps: config.targetTps,
@@ -222,24 +173,54 @@ async function main() {
   const input = createInputCollector(canvas);
 
   function frame() {
+    // Pause/step support
+    if (shell.isPaused() && !shell.consumeStep()) {
+      requestAnimationFrame(frame);
+      return;
+    }
+
     const snap = input.snapshot();
     let wantsRedraw = false;
+    let vertexCount = 0;
+    let serializeMs = 0;
+    let updateMs = 0;
+    let renderMs = 0;
+    let deserializeMs = 0;
+    let inputBytes = 0;
+    let drawBytes = 0;
 
     try {
-      // Allocate space for input in WASM memory
+      // Allocate + serialize input
       const inputSize = inputByteSize(snap);
-      const inputPtr = alloc(game, inputSize);
+      const inputPtr = game.kagura_alloc(inputSize);
 
-      // Write input to WASM memory
+      let t0 = performance.now();
       const bytesWritten = serializeInput(game.memory, inputPtr, snap);
+      serializeMs = performance.now() - t0;
+      inputBytes = bytesWritten;
 
-      // Update game state
-      wantsRedraw = updateGame(game, inputPtr, bytesWritten);
+      // Update game state (wasm boundary call)
+      t0 = performance.now();
+      wantsRedraw = game.kagura_guest_update(inputPtr, bytesWritten) !== 0;
+      updateMs = performance.now() - t0;
 
       if (wantsRedraw) {
-        const drawPtr = renderGame(game);
+        // Render (wasm boundary call)
+        t0 = performance.now();
+        const drawPtr = game.kagura_guest_render();
+        renderMs = performance.now() - t0;
+
+        // Deserialize draw commands from shared memory
+        t0 = performance.now();
         const commands = deserializeDrawCommands(game.memory, drawPtr);
+        deserializeMs = performance.now() - t0;
         lastCommandCount = commands.length;
+
+        // Count vertices and estimate draw data size
+        for (const cmd of commands) {
+          vertexCount += cmd.vertexData.length / 8;
+          drawBytes += cmd.vertexData.byteLength + cmd.indices.byteLength;
+        }
 
         // Convert to kagura-gfx format and render
         gpu.commands = commands;
@@ -264,7 +245,16 @@ async function main() {
       fps: lastFps,
       frame: frameNumber,
       commandCount: lastCommandCount,
+      vertexCount,
       redraw: wantsRedraw,
+    });
+    shell.setAbi({
+      updateMs,
+      renderMs,
+      serializeMs,
+      deserializeMs,
+      inputBytes,
+      drawBytes,
     });
 
     requestAnimationFrame(frame);
@@ -279,7 +269,7 @@ async function main() {
       shell.pushLog("[host] hmr reload requested");
       shell.setHmrState("reloading");
       try {
-        game.kagura_guest_shutdown?.();
+        game.kagura_guest_shutdown();
         game = await loadWasm("/game.wasm?t=" + Date.now(), (message) => {
           shell.pushLog(message);
         });
@@ -288,14 +278,14 @@ async function main() {
         canvas.height = newConfig.height;
         shell.setMeta({
           title: newConfig.title,
-          abiMode: gameAbiMode(game),
+          abiMode: "v0",
           logicalWidth: newConfig.width,
           logicalHeight: newConfig.height,
           targetTps: newConfig.targetTps,
         });
         shell.setError(null);
         shell.setHmrState("ready");
-        shell.pushLog(`[host] hmr ready (${gameAbiMode(game)})`);
+        shell.pushLog(`[host] hmr ready`);
         console.log("[HMR] Game reloaded:", newConfig.title, `@${newConfig.targetTps} TPS`);
       } catch (e) {
         const message = e instanceof Error ? e.stack ?? e.message : String(e);

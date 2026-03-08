@@ -1,3 +1,15 @@
+// kagura guest ABI v0
+//
+// Host owns the GPU (WebGPU / wgpu-native). Guests never touch GPU APIs.
+// Communication is via shared linear memory with a bump allocator.
+//
+// Wire format: all multi-byte values are little-endian.
+// Guests allocate memory via `kagura-alloc` and return pointers to
+// serialized structs. Host reads from guest memory after each call.
+//
+// Current v0 wire format is documented inline below.
+// Future versions may adopt WIT component-model canonical ABI.
+
 package kagura:app@0.1.0;
 
 interface types {
@@ -18,17 +30,17 @@ interface types {
     a: u8,
   }
 
-  record surface-config {
+  // Host provides surface info to guest at init time.
+  // v0 wire: i32 width, i32 height, f32 dpr, i32 hot-reload-enabled (16 bytes)
+  record init-env {
     width: u32,
     height: u32,
     device-pixel-ratio: f32,
-  }
-
-  record init-env {
-    surface: surface-config,
     hot-reload-enabled: bool,
   }
 
+  // Guest returns its preferred config after init.
+  // v0 wire: i32 width, i32 height, i32 target-tps, i32 title-len, u8[title-len] title
   record guest-config {
     title: string,
     logical-width: u32,
@@ -36,43 +48,35 @@ interface types {
     target-tps: u32,
   }
 
+  // Host serializes input state each frame.
+  // v0 wire:
+  //   f64 cursor-x, f64 cursor-y, f64 wheel-x, f64 wheel-y,
+  //   i32 key-count, i32[key-count] keys,
+  //   i32 mouse-btn-count, i32[mouse-btn-count] mouse-btns,
+  //   i32 touch-count (reserved=0), i32 gamepad-count (reserved=0)
   record input-snapshot {
     cursor: vec2f,
     wheel: vec2f,
     pressed-keys: list<key-code>,
     pressed-mouse-buttons: list<mouse-button>,
-    frame: u64,
-    dt-ms: f32,
   }
 
-  enum blend-mode {
-    source-over,
-    copy,
-    additive,
-  }
-
-  record mesh2d-vertex {
-    x: f32,
-    y: f32,
-    u: f32,
-    v: f32,
-  }
-
+  // A single 2D mesh draw command (colored/textured quad).
+  // v0 wire per command:
+  //   i32 vertex-count (V), i32 index-count (I), i32 src-image-id,
+  //   i32 r (0-255), i32 g (0-255), i32 b (0-255), i32 a (0-255),
+  //   f32[V*4] vertices (x,y,u,v in NDC), u32[I] indices
   record draw-mesh2d {
     texture: option<texture-id>,
-    blend: blend-mode,
     tint: rgba8,
-    vertices: list<mesh2d-vertex>,
+    vertices: list<vec2f>,
     indices: list<u32>,
   }
 
-  variant render-command {
-    clear(rgba8),
-    mesh2d(draw-mesh2d),
-  }
-
+  // Guest returns a list of draw commands from render.
+  // v0 wire: i32 command-count, then command-count * draw-mesh2d
   record frame-output {
-    commands: list<render-command>,
+    commands: list<draw-mesh2d>,
   }
 
   record update-result {
@@ -85,6 +89,8 @@ interface types {
   }
 }
 
+// Host-provided functions (WASM imports under "kagura_host" module).
+// v0 wire uses raw pointer+length pairs instead of WIT strings/lists.
 interface host {
   use types.{bytes, guest-error};
 
@@ -96,10 +102,16 @@ interface host {
     error,
   }
 
+  // v0: log_i32_utf8(level: i32, ptr: i32, len: i32) -> i32
   log: func(level: log-level, message: string);
+
+  // v0: read_asset_len_i32_utf8(ptr: i32, len: i32) -> i32
+  //     read_asset_copy_i32_utf8(path_ptr: i32, path_len: i32, dst_ptr: i32) -> i32
   read-asset: func(path: string) -> result<bytes, guest-error>;
 }
 
+// Guest-exported functions (WASM exports).
+// All functions use the bump allocator (`kagura_alloc`) for memory.
 interface guest {
   use types.{
     bytes,
@@ -111,18 +123,27 @@ interface guest {
     update-result,
   };
 
+  // v0: kagura_guest_init(env_ptr: i32, env_len: i32) -> config_ptr: i32
   init: func(env: init-env) -> result<guest-config, guest-error>;
+
+  // v0: kagura_guest_update(input_ptr: i32, input_len: i32) -> wants_redraw: i32
   update: func(input: input-snapshot) -> result<update-result, guest-error>;
+
+  // v0: kagura_guest_render() -> commands_ptr: i32
   render: func() -> result<frame-output, guest-error>;
 
-  // Optional-for-now HMR hooks:
-  // guests that do not support state transfer may return none from
-  // `snapshot-state` and `err(code="unsupported", ...)` from `restore-state`.
+  // v0: kagura_guest_snapshot_state() -> ptr: i32 (0 = unsupported)
   snapshot-state: func() -> option<bytes>;
+
+  // v0: kagura_guest_restore_state(ptr: i32, len: i32) -> status: i32
   restore-state: func(state: bytes) -> result<_, guest-error>;
 
+  // v0: kagura_guest_shutdown() -> void
   shutdown: func();
 }
+
+// Required allocator export:
+// v0: kagura_alloc(size: i32) -> ptr: i32
 
 world app {
   import host;

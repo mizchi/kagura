@@ -2,7 +2,6 @@ import { access, readFile } from "node:fs/promises";
 import {
   deserializeDrawCommands,
   inputByteSize,
-  readLegacyGameConfig,
   readSemanticGuestConfig,
   serializeInput,
   writeInitEnv,
@@ -51,23 +50,19 @@ export function resolveTargets(arg) {
   return targets;
 }
 
-export function hasSemanticAbi(exports) {
-  return (
-    typeof exports.kagura_guest_init === "function" &&
-    typeof exports.kagura_guest_update === "function" &&
-    typeof exports.kagura_guest_render === "function"
-  );
+export function assertSemanticAbi(exports, label = "guest") {
+  for (const name of ["kagura_alloc", "kagura_guest_init", "kagura_guest_update", "kagura_guest_render", "kagura_guest_shutdown"]) {
+    assert(typeof exports[name] === "function", `${label} is missing required export: ${name}`);
+  }
 }
 
 export function allocGuest(exports, size) {
-  assert(typeof exports.kagura_alloc === "function", "guest allocator export is required");
   return exports.kagura_alloc(size);
 }
 
 export {
   deserializeDrawCommands,
   inputByteSize,
-  readLegacyGameConfig,
   readSemanticGuestConfig,
   serializeInput,
   writeInitEnv,

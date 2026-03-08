@@ -3,7 +3,7 @@
 fn make_enemy(
   cx : Double,
   cy : Double,
-  kind : Int,
+  kind : EnemyKind,
   hp : Int,
   speed : Double,
   size : Double,
@@ -72,14 +72,14 @@ fn spawn_boss(
   let cy = room.rect.y.to_double() * tile_size +
     (room.rect.h.to_double() / 2.0) * tile_size + tile_size / 2.0
   let boss_hp = 20 + floor * 2
-  enemies.push(make_enemy(cx, cy, kind_boss, boss_hp, 0.6, 20.0))
+  enemies.push(make_enemy(cx, cy, Boss, boss_hp, 0.6, 20.0))
   // Add a few minions
   for _i = 0; _i < 2; _i = _i + 1 {
     let mx = room.rect.x.to_double() * tile_size +
       rng.rand_range(1, room.rect.w - 1).to_double() * tile_size + tile_size / 2.0
     let my = room.rect.y.to_double() * tile_size +
       rng.rand_range(1, room.rect.h - 1).to_double() * tile_size + tile_size / 2.0
-    enemies.push(make_enemy(mx, my, kind_basic, 3, enemy_speed_basic, 10.0))
+    enemies.push(make_enemy(mx, my, Basic, 3, enemy_speed_basic, 10.0))
   }
   enemies
 }
@@ -107,13 +107,13 @@ fn spawn_enemies_in_rooms(
         tile_size / 2.0
       let kind_roll = rng.next_int(10)
       let (kind, hp, spd, sz) = if kind_roll < 4 {
-        (kind_basic, 3, enemy_speed_basic, 10.0)
+        (Basic, 3, enemy_speed_basic, 10.0)
       } else if kind_roll < 7 {
-        (kind_fast, 2, enemy_speed_fast, 8.0)
+        (Fast, 2, enemy_speed_fast, 8.0)
       } else if kind_roll < 9 {
-        (kind_tank, 8, enemy_speed_tank, 14.0)
+        (Tank, 8, enemy_speed_tank, 14.0)
       } else {
-        (kind_ranged, 2, 0.5, 8.0)
+        (Ranged, 2, 0.5, 8.0)
       }
       enemies.push(make_enemy(cx, cy, kind, hp, spd, sz))
     }

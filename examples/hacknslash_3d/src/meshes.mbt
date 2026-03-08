@@ -4,10 +4,11 @@ fn Meshes3D::new() -> Meshes3D {
   {
     item: @mesh3d.Mesh3D::sphere(0.2, 5, 3),
     projectile: @mesh3d.Mesh3D::sphere(0.15, 4, 3),
+    arrow: make_arrow_mesh(0.5, 0.04),
     floor_tile: @mesh3d.Mesh3D::plane(1.0, 1.0),
-    wall: make_wall_mesh(1.0, 0.4, 1.0), // low wall/ledge
-    ledge: make_wall_mesh(1.0, 0.15, 1.0), // very low step
-    pillar: make_pillar_mesh(0.12, 0.8), // short decorative pillar
+    wall: make_wall_mesh(1.0, 0.4, 1.0),
+    ledge: make_wall_mesh(1.0, 0.15, 1.0),
+    pillar: make_pillar_mesh(0.12, 0.8),
   }
 }
 
@@ -65,6 +66,44 @@ fn make_pillar_mesh(
   height : Double,
 ) -> @mesh3d.Mesh3D {
   make_wall_mesh(radius * 2.0, height, radius * 2.0)
+}
+
+// Arrow mesh: elongated diamond shape pointing along +X axis
+fn make_arrow_mesh(length : Double, thickness : Double) -> @mesh3d.Mesh3D {
+  let data : Array[Double] = []
+  let indices : Array[Int] = []
+  let hl = length / 2.0
+  let t = thickness
+  // Tip (+X)
+  // Top face: tip, left-back, right-back
+  push_vert(data, hl, 0.0, 0.0, 0.0, 1.0, 0.0)
+  push_vert(data, -hl, t, -t, 0.0, 1.0, 0.0)
+  push_vert(data, -hl, t, t, 0.0, 1.0, 0.0)
+  indices.push(0)
+  indices.push(1)
+  indices.push(2)
+  // Bottom face
+  push_vert(data, hl, 0.0, 0.0, 0.0, -1.0, 0.0)
+  push_vert(data, -hl, -t, t, 0.0, -1.0, 0.0)
+  push_vert(data, -hl, -t, -t, 0.0, -1.0, 0.0)
+  indices.push(3)
+  indices.push(4)
+  indices.push(5)
+  // Right face (+Z)
+  push_vert(data, hl, 0.0, 0.0, 0.0, 0.0, 1.0)
+  push_vert(data, -hl, t, t, 0.0, 0.0, 1.0)
+  push_vert(data, -hl, -t, t, 0.0, 0.0, 1.0)
+  indices.push(6)
+  indices.push(7)
+  indices.push(8)
+  // Left face (-Z)
+  push_vert(data, hl, 0.0, 0.0, 0.0, 0.0, -1.0)
+  push_vert(data, -hl, -t, -t, 0.0, 0.0, -1.0)
+  push_vert(data, -hl, t, -t, 0.0, 0.0, -1.0)
+  indices.push(9)
+  indices.push(10)
+  indices.push(11)
+  @mesh3d.Mesh3D::new(data, indices)
 }
 
 fn push_vert(

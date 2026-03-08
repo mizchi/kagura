@@ -1,7 +1,7 @@
 // Shadow mapping: dungeon mesh batching + shadow pass rendering
 // Spatial chunking: split dungeon into chunks for frustum culling
 
-let chunk_size : Int = 12 // tiles per chunk side
+let chunk_size : Int = 24 // tiles per chunk side
 
 // Merge multiple positioned meshes into a single combined mesh.
 fn merge_mesh_at(
@@ -38,6 +38,7 @@ struct DungeonChunk {
   cz : Int // chunk row index
   groups : Array[DungeonMeshGroup]
   wall_mesh : @mesh3d.Mesh3D
+  all_mesh : @mesh3d.Mesh3D // all geometry merged for shadow depth pass
 }
 
 // Build chunked dungeon mesh groups.
@@ -68,22 +69,19 @@ fn build_single_chunk(
   w : Int,
   h : Int,
 ) -> DungeonChunk {
-  let floor_a_v : Array[Double] = []
-  let floor_a_i : Array[Int] = []
-  let floor_b_v : Array[Double] = []
-  let floor_b_i : Array[Int] = []
-  let corridor_a_v : Array[Double] = []
-  let corridor_a_i : Array[Int] = []
-  let corridor_b_v : Array[Double] = []
-  let corridor_b_i : Array[Int] = []
+  let floor_v : Array[Double] = []
+  let floor_i : Array[Int] = []
+  let corridor_v : Array[Double] = []
+  let corridor_i : Array[Int] = []
   let door_v : Array[Double] = []
   let door_i : Array[Int] = []
   let wall_v : Array[Double] = []
   let wall_i : Array[Int] = []
   let pillar_v : Array[Double] = []
   let pillar_i : Array[Int] = []
-  let wall_all_v : Array[Double] = []
-  let wall_all_i : Array[Int] = []
+  // Combined mesh for shadow depth (all geometry merged)
+  let all_v : Array[Double] = []
+  let all_i : Array[Int] = []
   let start_col = cx * chunk_size
   let start_row = cz * chunk_size
   let end_col = @cmp.minimum(start_col + chunk_size, w)
@@ -96,34 +94,25 @@ fn build_single_chunk(
       let y = dungeon.height_map[row * w + col]
       match tile {
         Floor | Start | Goal => {
-          let checker = (col + row) % 2
-          if checker == 0 {
-            merge_mesh_at(floor_a_v, floor_a_i, meshes.floor_tile, x, y, z)
-          } else {
-            merge_mesh_at(floor_b_v, floor_b_i, meshes.floor_tile, x, y, z)
-          }
+          merge_mesh_at(floor_v, floor_i, meshes.floor_tile, x, y, z)
+          merge_mesh_at(all_v, all_i, meshes.floor_tile, x, y, z)
         }
         Corridor => {
-          let stripe = (col + row) % 3
-          if stripe == 0 {
-            merge_mesh_at(
-              corridor_a_v, corridor_a_i, meshes.floor_tile, x, y, z,
-            )
-          } else {
-            merge_mesh_at(
-              corridor_b_v, corridor_b_i, meshes.floor_tile, x, y, z,
-            )
-          }
+          merge_mesh_at(corridor_v, corridor_i, meshes.floor_tile, x, y, z)
+          merge_mesh_at(all_v, all_i, meshes.floor_tile, x, y, z)
         }
         Door => {
           merge_mesh_at(door_v, door_i, meshes.floor_tile, x, y, z)
           merge_mesh_at(pillar_v, pillar_i, meshes.pillar, x - 0.4, y, z)
           merge_mesh_at(pillar_v, pillar_i, meshes.pillar, x + 0.4, y, z)
+          merge_mesh_at(all_v, all_i, meshes.floor_tile, x, y, z)
+          merge_mesh_at(all_v, all_i, meshes.pillar, x - 0.4, y, z)
+          merge_mesh_at(all_v, all_i, meshes.pillar, x + 0.4, y, z)
         }
         Wall => {
           if has_adjacent_walkable(dungeon.grid, col, row) {
             merge_mesh_at(wall_v, wall_i, meshes.wall, x, y, z)
-            merge_mesh_at(wall_all_v, wall_all_i, meshes.wall, x, y, z)
+            merge_mesh_at(all_v, all_i, meshes.wall, x, y, z)
           }
         }
         _ => ()
@@ -145,15 +134,14 @@ fn build_single_chunk(
     }
   }
 
-  add_group(floor_a_v, floor_a_i, color_floor, groups)
-  add_group(floor_b_v, floor_b_i, color_floor_alt, groups)
-  add_group(corridor_a_v, corridor_a_i, color_corridor, groups)
-  add_group(corridor_b_v, corridor_b_i, color_corridor_alt, groups)
+  add_group(floor_v, floor_i, color_floor, groups)
+  add_group(corridor_v, corridor_i, color_corridor, groups)
   add_group(door_v, door_i, color_door, groups)
   add_group(wall_v, wall_i, color_wall, groups)
   add_group(pillar_v, pillar_i, color_pillar, groups)
-  let wall_mesh = @mesh3d.Mesh3D::new(wall_all_v, wall_all_i)
-  { cx, cz, groups, wall_mesh }
+  let wall_mesh = @mesh3d.Mesh3D::new(wall_v, wall_i)
+  let all_mesh = @mesh3d.Mesh3D::new(all_v, all_i)
+  { cx, cz, groups, wall_mesh, all_mesh }
 }
 
 // Get visible chunks near player position (in tile coords)

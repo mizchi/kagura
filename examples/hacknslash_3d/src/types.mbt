@@ -18,7 +18,7 @@ struct Player {
 struct ItemDrop {
   x : Double
   y : Double
-  kind : Int
+  kind : ItemKind
   mut alive : Bool
   spawn_frame : Int
 }
@@ -30,6 +30,7 @@ struct Projectile {
   vy : Double
   mut alive : Bool
   damage : Int
+  is_player : Bool // true = player arrow, false = enemy projectile
 }
 
 struct Enemy {
@@ -43,7 +44,7 @@ struct Enemy {
   size : Double
   mut alive : Bool
   mut damage_timer : Int
-  kind : Int
+  kind : EnemyKind
   mut path_cache : Array[@terrain.Point]
   mut path_index : Int
   mut path_timer : Int
@@ -55,6 +56,7 @@ struct Enemy {
 struct Meshes3D {
   item : @mesh3d.Mesh3D
   projectile : @mesh3d.Mesh3D
+  arrow : @mesh3d.Mesh3D
   floor_tile : @mesh3d.Mesh3D
   wall : @mesh3d.Mesh3D
   ledge : @mesh3d.Mesh3D
@@ -68,7 +70,7 @@ struct DungeonMeshGroup {
 }
 
 struct GameState {
-  mut mode : Int
+  mut mode : GameMode
   mut frame_count : Int
   mut seed : Int
   mut floor : Int
@@ -87,7 +89,7 @@ struct GameState {
   equipment : Equipment
   skills : SkillTree
   mut player_stats : PlayerStats
-  mut ui_mode : Int // 0=none, 1=inventory, 2=skill tree
+  mut ui_mode : UIMode
   mut ui_cursor : Int // selected slot index in UI
   // Profiler
   mut show_profiler : Bool

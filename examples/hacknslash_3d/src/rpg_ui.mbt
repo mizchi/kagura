@@ -2,9 +2,9 @@
 
 fn GameState::update_ui(self : GameState) -> Unit {
   match self.ui_mode {
-    m if m == ui_mode_inventory => self.update_inventory_ui()
-    m if m == ui_mode_skills => self.update_skills_ui()
-    _ => ()
+    Inventory => self.update_inventory_ui()
+    Skills => self.update_skills_ui()
+    UIMode::None => ()
   }
 }
 
@@ -65,9 +65,9 @@ fn GameState::render_rpg_ui_cmds(
 ) -> Array[@gfx.DrawTrianglesCommand] {
   let cmds : Array[@gfx.DrawTrianglesCommand] = []
   match self.ui_mode {
-    m if m == ui_mode_inventory => self.render_inventory_ui(dst, shader, cmds)
-    m if m == ui_mode_skills => self.render_skills_ui(dst, shader, cmds)
-    _ => ()
+    Inventory => self.render_inventory_ui(dst, shader, cmds)
+    Skills => self.render_skills_ui(dst, shader, cmds)
+    UIMode::None => ()
   }
   cmds
 }

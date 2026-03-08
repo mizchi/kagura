@@ -1,13 +1,9 @@
 // 3D rendering: dungeon graph, entity graph, draw
 
 // Colors (RGBA, 0-1 range) — natural field palette
-let color_floor : @math3d.Vec4 = @math3d.Vec4::new(0.30, 0.38, 0.22, 1.0)
+let color_floor : @math3d.Vec4 = @math3d.Vec4::new(0.32, 0.40, 0.24, 1.0)
 
-let color_floor_alt : @math3d.Vec4 = @math3d.Vec4::new(0.34, 0.42, 0.25, 1.0)
-
-let color_corridor : @math3d.Vec4 = @math3d.Vec4::new(0.35, 0.32, 0.25, 1.0)
-
-let color_corridor_alt : @math3d.Vec4 = @math3d.Vec4::new(0.32, 0.29, 0.22, 1.0)
+let color_corridor : @math3d.Vec4 = @math3d.Vec4::new(0.34, 0.31, 0.24, 1.0)
 
 let color_wall : @math3d.Vec4 = @math3d.Vec4::new(0.45, 0.40, 0.32, 1.0)
 
@@ -37,9 +33,20 @@ let color_item_score : @math3d.Vec4 = @math3d.Vec4::new(0.0, 1.0, 1.0, 1.0)
 
 let color_projectile : @math3d.Vec4 = @math3d.Vec4::new(1.0, 0.27, 0.4, 1.0)
 
-// Build dynamic entity scene graph (per frame, items/projectiles only)
-fn build_entity_graph(state : GameState, region : VisibleRegion) -> @scene3d.SceneGraph {
-  let graph = @scene3d.SceneGraph::new()
+let color_arrow : @math3d.Vec4 = @math3d.Vec4::new(0.9, 0.85, 0.3, 1.0)
+
+// Build entity draw commands directly (items/projectiles) — no SceneGraph overhead
+fn build_entity_cmds(
+  state : GameState,
+  region : VisibleRegion,
+  vp : @math3d.Mat4,
+  dst : @gfx.ImageHandle,
+  shader : @gfx.ShaderHandle,
+  screen_w : Int,
+  screen_h : Int,
+  cmds : Array[@gfx.DrawTrianglesCommand],
+) -> Unit {
+  let lighting = state.lighting
   // Items with Y-axis bob
   for item in state.items {
     if item.alive && is_entity_visible(region, item.x, item.y) {
@@ -47,32 +54,87 @@ fn build_entity_graph(state : GameState, region : VisibleRegion) -> @scene3d.Sce
       let iz = item.y / tile_size
       let base_y = get_tile_height(state.dungeon, item.x, item.y)
       let bob = base_y + 0.3 + 0.1 * @math.sin(state.frame_count.to_double() * 0.1)
-      let c = if item.kind == item_health { color_item_health } else { color_item_score }
-      graph.add_node(
-        @scene3d.scene_node(
-          mesh=Some(state.meshes.item),
-          position=@math3d.Vec3::new(ix, bob, iz),
-          color=c,
+      let c = if item.kind == Health { color_item_health } else { color_item_score }
+      let model = @math3d.Mat4::translation(ix, bob, iz)
+      let tinted = tint_lighting(lighting, c)
+      let dst_region = @gfx.new_dst_region(
+        0, 0, screen_w, screen_h, state.meshes.item.indices.length(),
+      )
+      cmds.push(
+        @draw3d.new_lit_mesh_draw_command(
+          dst, shader, dst_region, 0, 0, 0,
+          @gfx.blend_mode_from_int(1),
+          state.meshes.item, model, vp, tinted, [],
         ),
-      ) |> ignore
+      )
     }
   }
-  // Projectiles
+  // Projectiles (enemy spheres + player arrows)
   for proj in state.projectiles {
     if proj.alive && is_entity_visible(region, proj.x, proj.y) {
       let prx = proj.x / tile_size
       let prz = proj.y / tile_size
       let base_y = get_tile_height(state.dungeon, proj.x, proj.y)
-      graph.add_node(
-        @scene3d.scene_node(
-          mesh=Some(state.meshes.projectile),
-          position=@math3d.Vec3::new(prx, base_y + 0.3, prz),
-          color=color_projectile,
-        ),
-      ) |> ignore
+      if proj.is_player {
+        // Player arrow: rotated to face movement direction
+        let angle = @math.atan2(proj.vy, proj.vx)
+        let rot = @math3d.Mat4::rotation_y(-angle)
+        let trans = @math3d.Mat4::translation(prx, base_y + 0.3, prz)
+        let model = trans.multiply(rot)
+        let tinted = tint_lighting(lighting, color_arrow)
+        let mesh = state.meshes.arrow
+        let dst_region = @gfx.new_dst_region(
+          0, 0, screen_w, screen_h, mesh.indices.length(),
+        )
+        cmds.push(
+          @draw3d.new_lit_mesh_draw_command(
+            dst, shader, dst_region, 0, 0, 0,
+            @gfx.blend_mode_from_int(1),
+            mesh, model, vp, tinted, [],
+          ),
+        )
+      } else {
+        let model = @math3d.Mat4::translation(prx, base_y + 0.3, prz)
+        let tinted = tint_lighting(lighting, color_projectile)
+        let dst_region = @gfx.new_dst_region(
+          0, 0, screen_w, screen_h, state.meshes.projectile.indices.length(),
+        )
+        cmds.push(
+          @draw3d.new_lit_mesh_draw_command(
+            dst, shader, dst_region, 0, 0, 0,
+            @gfx.blend_mode_from_int(1),
+            state.meshes.projectile, model, vp, tinted, [],
+          ),
+        )
+      }
     }
   }
-  graph
+}
+
+// Pre-compute tinted lighting for a color (used for dungeon groups)
+fn tint_lighting(
+  lighting : @light3d.LightingEnvironment,
+  col : @math3d.Vec4,
+) -> @light3d.LightingEnvironment {
+  @light3d.LightingEnvironment::new(
+    @light3d.DirectionalLight::new(
+      lighting.directional.direction,
+      @math3d.Vec3::new(
+        lighting.directional.color.x * col.x,
+        lighting.directional.color.y * col.y,
+        lighting.directional.color.z * col.z,
+      ),
+      lighting.directional.intensity,
+    ),
+    @light3d.AmbientLight::new(
+      @math3d.Vec3::new(
+        lighting.ambient.color.x * col.x,
+        lighting.ambient.color.y * col.y,
+        lighting.ambient.color.z * col.z,
+      ),
+      lighting.ambient.intensity,
+    ),
+  )
 }
 
 fn GameState::draw(
@@ -80,9 +142,9 @@ fn GameState::draw(
   ctx : @engine.EngineContext,
 ) -> Array[@gfx.DrawTrianglesCommand] {
   let result = match self.mode {
-    m if m == mode_title => self.render_title_cmds(ctx.dst, ctx.shader)
-    m if m == mode_gameover => self.render_gameover_cmds(ctx.dst, ctx.shader)
-    _ => self.draw_playing(ctx)
+    Title => self.render_title_cmds(ctx.dst, ctx.shader)
+    GameOver => self.render_gameover_cmds(ctx.dst, ctx.shader)
+    Playing => self.draw_playing(ctx)
   }
   // Profiler HUD (after all other rendering)
   if self.show_profiler {
@@ -113,8 +175,6 @@ fn GameState::draw_playing(
   self : GameState,
   ctx : @engine.EngineContext,
 ) -> Array[@gfx.DrawTrianglesCommand] {
-  let sw = ctx.screen_w.to_double()
-  let sh = ctx.screen_h.to_double()
   let camera = self.camera.to_camera3d()
   let view_projection = camera.view_projection_matrix()
   // Shadow config centered on player
@@ -128,9 +188,8 @@ fn GameState::draw_playing(
     self.shadow_config.distance,
     @math3d.Vec3::new(px3d, 0.0, pz3d),
     self.shadow_config.bias,
-  ) // center follows player each frame
+  )
   let lighting = self.lighting
-  // Compute light-space VP matrix
   let light_vp = @shadow3d.light_space_matrix(
     lighting.directional.direction,
     shadow_config.center,
@@ -140,76 +199,55 @@ fn GameState::draw_playing(
     shadow_config.far,
   )
   let cmds : Array[@gfx.DrawTrianglesCommand] = []
-  // Render target: all 3D content goes to scene_target (offscreen)
   let rt = self.scene_target
-  // Get visible chunks near player (radius 2 = up to 5x5 chunks)
+  let identity = @math3d.Mat4::identity()
+  // Get visible chunks (larger chunks = fewer iterations)
   let player_tile_x = (self.player.x / tile_size).to_int()
   let player_tile_z = (self.player.y / tile_size).to_int()
   let visible_chunks = get_visible_chunks(
     self.dungeon_chunks, player_tile_x, player_tile_z, 1,
   )
-  // === Pass 1: Shadow depth pass (visible chunks only) ===
-  let identity = @math3d.Mat4::identity()
-  let casters : Array[@shadow3d.ShadowCaster] = []
+  // === Pass 1: Shadow depth — 1 command per chunk using all_mesh ===
   for chunk in visible_chunks {
-    for group in chunk.groups {
-      casters.push(@shadow3d.ShadowCaster::new(group.mesh, identity))
-    }
-  }
-  let depth_cmds = @shadow3d.shadow_depth_pass_commands(
-    self.shadow_map,
-    self.shadow_depth_shader,
-    casters,
-    lighting,
-    shadow_config,
-  )
-  for cmd in depth_cmds {
-    cmds.push(cmd)
-  }
-  // === Pass 2: Shadow-lit dungeon (visible chunks only) → scene_target ===
-  for chunk in visible_chunks {
-    for group in chunk.groups {
-      let col = group.color
-      let tinted_lighting = @light3d.LightingEnvironment::new(
-        @light3d.DirectionalLight::new(
-          lighting.directional.direction,
-          @math3d.Vec3::new(
-            lighting.directional.color.x * col.x,
-            lighting.directional.color.y * col.y,
-            lighting.directional.color.z * col.z,
-          ),
-          lighting.directional.intensity,
-        ),
-        @light3d.AmbientLight::new(
-          @math3d.Vec3::new(
-            lighting.ambient.color.x * col.x,
-            lighting.ambient.color.y * col.y,
-            lighting.ambient.color.z * col.z,
-          ),
-          lighting.ambient.intensity,
+    if chunk.all_mesh.indices.length() > 0 {
+      cmds.push(
+        @shadow3d.new_shadow_depth_command(
+          self.shadow_map, self.shadow_depth_shader,
+          chunk.all_mesh, identity, light_vp,
         ),
       )
+    }
+  }
+  // === Pass 2: Shadow-lit dungeon — pre-compute tinted lighting per color ===
+  // Cache tinted lighting for each unique dungeon color (computed once per frame)
+  let tl_floor = tint_lighting(lighting, color_floor)
+  let tl_corridor = tint_lighting(lighting, color_corridor)
+  let tl_door = tint_lighting(lighting, color_door)
+  let tl_wall = tint_lighting(lighting, color_wall)
+  let tl_pillar = tint_lighting(lighting, color_pillar)
+  let tinted_cache : Array[@light3d.LightingEnvironment] = [
+    tl_floor, tl_corridor, tl_door, tl_wall, tl_pillar,
+  ]
+  for chunk in visible_chunks {
+    for gi in 0..<chunk.groups.length() {
+      let group = chunk.groups[gi]
+      let tinted = if gi < tinted_cache.length() {
+        tinted_cache[gi]
+      } else {
+        tint_lighting(lighting, group.color)
+      }
       let dst_region = @gfx.new_dst_region(
         0, 0, ctx.screen_w, ctx.screen_h, group.mesh.indices.length(),
       )
-      let cmd = @shadow3d.new_shadow_lit_mesh_draw_command(
-        rt,
-        self.shadow_lit_shader,
-        dst_region,
-        0,
-        0,
-        0,
-        @gfx.blend_mode_from_int(0),
-        group.mesh,
-        identity,
-        view_projection,
-        tinted_lighting,
-        light_vp,
-        shadow_config,
-        self.shadow_map.id,
-        self.shadow_map.id,
+      cmds.push(
+        @shadow3d.new_shadow_lit_mesh_draw_command(
+          rt, self.shadow_lit_shader, dst_region,
+          0, 0, 0, @gfx.blend_mode_from_int(0),
+          group.mesh, identity, view_projection, tinted,
+          light_vp, shadow_config,
+          self.shadow_map.id, self.shadow_map.id,
+        ),
       )
-      cmds.push(cmd)
     }
   }
   // Compute visible region for occlusion culling
@@ -217,20 +255,11 @@ fn GameState::draw_playing(
     self.dungeon.rooms, self.player.x, self.player.y,
     self.dungeon.grid.width, self.dungeon.grid.height,
   )
-  // === Pass 3: Entities (items/projectiles) → scene_target ===
-  let entity_graph = build_entity_graph(self, vis_region)
-  let entity_cmds = @scene3d.render_scene3d_graph_gpu(
-    entity_graph,
-    camera,
-    lighting=self.lighting,
-    rt,
-    self.shader3d,
-    ctx.screen_w,
-    ctx.screen_h,
+  // === Pass 3: Entities (items/projectiles) → direct draw commands ===
+  build_entity_cmds(
+    self, vis_region, view_projection, rt, self.shader3d,
+    ctx.screen_w, ctx.screen_h, cmds,
   )
-  for cmd in entity_cmds {
-    cmds.push(cmd)
-  }
   // === Pass 4: Skinned enemies → scene_target ===
   let enemy_skinning = self.enemy_models.compute_skinning()
   let skinned_objects : Array[@scene3d.Object3D] = []
@@ -243,15 +272,14 @@ fn GameState::draw_playing(
         color_player_hurt
       } else {
         match enemy.kind {
-          k if k == kind_fast => color_enemy_fast
-          k if k == kind_tank => color_enemy_tank
-          k if k == kind_ranged => color_enemy_ranged
-          k if k == kind_boss => color_enemy_boss
-          _ => color_enemy_basic
+          Fast => color_enemy_fast
+          Tank => color_enemy_tank
+          Ranged => color_enemy_ranged
+          Boss => color_enemy_boss
+          Basic => color_enemy_basic
         }
       }
       let mesh_data = self.enemy_models.get_mesh_data(enemy.kind)
-      // Face toward player
       let dx = self.player.x - enemy.x
       let dy = self.player.y - enemy.y
       let face_angle = @math.atan2(dy, dx)
@@ -294,7 +322,7 @@ fn GameState::draw_playing(
       cmds.push(cmd)
     }
   }
-  // Render skinned player character → scene_target
+  // === Pass 5: Player character ===
   let px = self.player.x / tile_size
   let pz = self.player.y / tile_size
   let py = get_tile_height(self.dungeon, self.player.x, self.player.y)
@@ -306,7 +334,6 @@ fn GameState::draw_playing(
     color_player
   }
   let skinning_matrices = self.character.compute_skinning()
-  // Rotate character to face movement direction
   let facing_rot = @math3d.Quaternion::from_axis_angle(
     @math3d.Vec3::unit_y(),
     -self.player.facing_angle + @math.PI / 2.0,
@@ -342,29 +369,30 @@ fn GameState::draw_playing(
   for cmd in player_cmds {
     cmds.push(cmd)
   }
-  // === Pass 6: Particles → scene_target (additive blend, feeds into Bloom) ===
+  // === Pass 6: Particles ===
   let particle_cmds = self.particle_manager.draw(
     rt, camera, ctx.screen_w, ctx.screen_h, self.frame_count,
   )
   for cmd in particle_cmds {
     cmds.push(cmd)
   }
-  // === PostFX: tonemap → FXAA (bloom/SSAO disabled for performance) ===
-  let tonemap_cmd = @postfx.new_tonemap_command(
-    self.post_target, self.tonemap_sh, self.scene_target.id, 1.0,
+  // === PostFX: tonemap → FXAA ===
+  cmds.push(
+    @postfx.new_tonemap_command(
+      self.post_target, self.tonemap_sh, self.scene_target.id, 1.0,
+    ),
   )
-  cmds.push(tonemap_cmd)
-  let fxaa_cmd = @postfx.new_fxaa_command(
-    ctx.dst, self.fxaa_sh, self.post_target.id, screen_w, screen_h,
+  cmds.push(
+    @postfx.new_fxaa_command(
+      ctx.dst, self.fxaa_sh, self.post_target.id, screen_w, screen_h,
+    ),
   )
-  cmds.push(fxaa_cmd)
-  // Render 2D HUD overlay (after postfx, directly to ctx.dst)
+  // 2D HUD overlay
   let hud_cmds = self.render_hud_cmds(ctx.dst, ctx.shader)
   for cmd in hud_cmds {
     cmds.push(cmd)
   }
-  // RPG UI overlay (inventory/skill tree)
-  if self.ui_mode != ui_mode_none {
+  if self.ui_mode != UIMode::None {
     let ui_cmds = self.render_rpg_ui_cmds(ctx.dst, ctx.shader)
     for cmd in ui_cmds {
       cmds.push(cmd)

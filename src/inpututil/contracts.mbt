@@ -374,6 +374,21 @@ pub let key_left_glfw : Int = 263
 ///|
 pub let key_right_glfw : Int = 262
 
+// Dvorak layout equivalents for WASD: ,aoe
+// ',' (Dvorak W position) = keyCode 188
+// 'a' (Dvorak A position) = keyCode 65 (same as QWERTY)
+// 'o' (Dvorak S position) = keyCode 79
+// 'e' (Dvorak D position) = keyCode 69
+
+///|
+pub let key_comma : Int = 188
+
+///|
+pub let key_o : Int = 79
+
+///|
+pub let key_e : Int = 69
+
 ///|
 pub let key_space : Int = 32
 
@@ -390,6 +405,7 @@ pub let key_enter_glfw : Int = 257
 ///|
 pub fn is_move_up(key_state : KeyInputState) -> Bool {
   is_key_pressed(key_state, key_w) ||
+  is_key_pressed(key_state, key_comma) || // Dvorak ','
   is_key_pressed(key_state, key_up_web) ||
   is_key_pressed(key_state, key_up_glfw)
 }
@@ -397,13 +413,14 @@ pub fn is_move_up(key_state : KeyInputState) -> Bool {
 ///|
 pub fn is_move_down(key_state : KeyInputState) -> Bool {
   is_key_pressed(key_state, key_s) ||
+  is_key_pressed(key_state, key_o) || // Dvorak 'o'
   is_key_pressed(key_state, key_down_web) ||
   is_key_pressed(key_state, key_down_glfw)
 }
 
 ///|
 pub fn is_move_left(key_state : KeyInputState) -> Bool {
-  is_key_pressed(key_state, key_a) ||
+  is_key_pressed(key_state, key_a) || // same on Dvorak
   is_key_pressed(key_state, key_left_web) ||
   is_key_pressed(key_state, key_left_glfw)
 }
@@ -411,6 +428,7 @@ pub fn is_move_left(key_state : KeyInputState) -> Bool {
 ///|
 pub fn is_move_right(key_state : KeyInputState) -> Bool {
   is_key_pressed(key_state, key_d) ||
+  is_key_pressed(key_state, key_e) || // Dvorak 'e'
   is_key_pressed(key_state, key_right_web) ||
   is_key_pressed(key_state, key_right_glfw)
 }
@@ -425,6 +443,7 @@ pub fn is_confirm_just_pressed(helper : InputHelper) -> Bool {
 ///|
 pub fn is_up_just_pressed(helper : InputHelper) -> Bool {
   is_key_just_pressed(helper.key_state, key_w) ||
+  is_key_just_pressed(helper.key_state, key_comma) || // Dvorak ','
   is_key_just_pressed(helper.key_state, key_up_web) ||
   is_key_just_pressed(helper.key_state, key_up_glfw)
 }
@@ -432,6 +451,7 @@ pub fn is_up_just_pressed(helper : InputHelper) -> Bool {
 ///|
 pub fn is_down_just_pressed(helper : InputHelper) -> Bool {
   is_key_just_pressed(helper.key_state, key_s) ||
+  is_key_just_pressed(helper.key_state, key_o) || // Dvorak 'o'
   is_key_just_pressed(helper.key_state, key_down_web) ||
   is_key_just_pressed(helper.key_state, key_down_glfw)
 }

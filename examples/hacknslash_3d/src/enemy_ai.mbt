@@ -15,19 +15,21 @@ fn update_enemy_ai(
     }
     let cdx = player.x - enemy.x
     let cdy = player.y - enemy.y
-    let dist = (cdx * cdx + cdy * cdy).sqrt()
+    let dist_sq = cdx * cdx + cdy * cdy
+    let chase_range_sq = chase_range * chase_range
     // Boss charge logic
-    if enemy.kind == kind_boss {
+    if enemy.kind == Boss {
       if enemy.charge_timer > 0 {
         enemy.charge_timer = enemy.charge_timer - 1
         // Continue charging in set direction
         continue
       }
-      if dist < chase_range && enemy.charge_cooldown <= 0 {
+      if dist_sq < chase_range_sq && enemy.charge_cooldown <= 0 {
         // Initiate charge
         enemy.charge_cooldown = 120
         enemy.charge_timer = 20
-        if dist > 0.001 {
+        if dist_sq > 0.000001 {
+          let dist = dist_sq.sqrt()
           enemy.vx = cdx / dist * enemy.speed * 3.0
           enemy.vy = cdy / dist * enemy.speed * 3.0
         }
@@ -38,17 +40,18 @@ fn update_enemy_ai(
       }
     }
     // Patrol if out of chase range
-    if dist > chase_range {
-      let angle = ((frame_count + enemy.x.to_int()) % 360).to_double() * 3.14159 / 180.0
+    if dist_sq > chase_range_sq {
+      let angle = ((frame_count + enemy.x.to_int()) % 360).to_double() * @math.PI / 180.0
       enemy.vx = @math.cos(angle) * enemy.speed * 0.3
       enemy.vy = @math.sin(angle) * enemy.speed * 0.3
       continue
     }
     // Ranged enemy: shoot if in range but far enough
-    if enemy.kind == kind_ranged && dist > 60.0 {
-      if enemy.shoot_cooldown <= 0 {
-        enemy.shoot_cooldown = 120
-        if dist > 0.001 {
+    if enemy.kind == Ranged && dist_sq > 3600.0 { // 60.0^2
+      if dist_sq > 0.000001 {
+        let dist = dist_sq.sqrt()
+        if enemy.shoot_cooldown <= 0 {
+          enemy.shoot_cooldown = 120
           let bspeed = 2.0
           projectiles.push({
             x: enemy.x,
@@ -57,11 +60,10 @@ fn update_enemy_ai(
             vy: cdy / dist * bspeed,
             alive: true,
             damage: 1,
+            is_player: false,
           })
         }
-      }
-      // Ranged enemies don't chase when shooting, slight retreat
-      if dist > 0.001 {
+        // Ranged enemies don't chase when shooting, slight retreat
         enemy.vx = -(cdx / dist) * enemy.speed * 0.3
         enemy.vy = -(cdy / dist) * enemy.speed * 0.3
       }
@@ -109,8 +111,9 @@ fn update_enemy_ai(
         enemy.vx = pdx / pdist * enemy.speed
         enemy.vy = pdy / pdist * enemy.speed
       }
-    } else if dist > 1.0 {
+    } else if dist_sq > 1.0 {
       // Direct chase fallback
+      let dist = dist_sq.sqrt()
       enemy.vx = cdx / dist * enemy.speed
       enemy.vy = cdy / dist * enemy.speed
     }

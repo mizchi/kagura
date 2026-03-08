@@ -12,7 +12,7 @@ async function init() {
   installGfxHelpers();
 
   try {
-    await loadGameScript("./skeletal_anim.js?v=1bc5edd");
+    await loadGameScript("./skeletal_anim.js?v=65a8635");
   } catch (e) {
     showStartupError("#app", "Failed to load game script", e && e.message ? e.message : String(e));
   }

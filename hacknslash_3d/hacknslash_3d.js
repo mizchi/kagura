@@ -39149,29 +39149,6 @@ function _M0MP36mizchi6kagura3hud10HudContext20draw__text__centered(self, cmds, 
 function _M0MP36mizchi6kagura3hud10HudContext10draw__rect(self, cmds, x, y, w, h, color) {
   _M0MP311moonbitlang4core5array5Array4pushGRP36mizchi6kagura3gfx20DrawTrianglesCommandE(cmds, _M0FP36mizchi6kagura9debugutil29new__ndc__rect__fill__command(self.dst, self.shader, x, y, w, h, self.screen_w, self.screen_h, color, 0));
 }
-function _M0MP36mizchi6kagura3hud5Panel6render(self, ctx, cmds) {
-  const bw = self.border_width;
-  _M0MP36mizchi6kagura3hud10HudContext10draw__rect(ctx, cmds, self.x, self.y, self.width, self.height, _M0FP36mizchi6kagura3hud18hex__color_2einner(self.bg_color, 0.8));
-  const bc = _M0FP36mizchi6kagura3hud18hex__color_2einner(self.border_color, 1);
-  _M0MP36mizchi6kagura3hud10HudContext10draw__rect(ctx, cmds, self.x, self.y, self.width, bw, bc);
-  _M0MP36mizchi6kagura3hud10HudContext10draw__rect(ctx, cmds, self.x, self.y + self.height - bw, self.width, bw, bc);
-  _M0MP36mizchi6kagura3hud10HudContext10draw__rect(ctx, cmds, self.x, self.y, bw, self.height, bc);
-  _M0MP36mizchi6kagura3hud10HudContext10draw__rect(ctx, cmds, self.x + self.width - bw, self.y, bw, self.height, bc);
-  let title_h;
-  if (self.title.length > 0) {
-    const th = self.title_size + 4;
-    _M0MP36mizchi6kagura3hud10HudContext10draw__rect(ctx, cmds, self.x + bw, self.y + bw, self.width - bw * 2, th, _M0FP36mizchi6kagura3hud18hex__color_2einner(self.title_bg_color, 1));
-    _M0MP36mizchi6kagura3hud10HudContext10draw__text(ctx, cmds, self.title, self.title_size, self.x + bw + 4, self.y + bw + 2, self.title_color);
-    title_h = th;
-  } else {
-    title_h = 0;
-  }
-  const cx = self.x + bw;
-  const cy = self.y + bw + title_h;
-  const cw = self.width - bw * 2;
-  const ch = self.height - bw * 2 - title_h;
-  return { _0: cx, _1: cy, _2: cw, _3: ch };
-}
 function _M0MP36mizchi6kagura10particle3d15ParticleManager3new(shader_id) {
   return { emitters: [], particle_shader: _M0FP36mizchi6kagura3gfx19new__shader__handle(shader_id, _M0FP36mizchi6kagura6draw3d24shader3d__particle__wgsl()) };
 }
@@ -41455,31 +41432,31 @@ function _M0FP26mizchi19web__runtime__hooks20sync__source__images(bindings) {
   }
   return count.val;
 }
-function _M0IP26mizchi14hacknslash__3d13CharAnimStateP311moonbitlang4core7builtin2Eq5equal(_x_1063, _x_1064) {
-  switch (_x_1063) {
+function _M0IP26mizchi14hacknslash__3d13CharAnimStateP311moonbitlang4core7builtin2Eq5equal(_x_1061, _x_1062) {
+  switch (_x_1061) {
     case 0: {
-      if (_x_1064 === 0) {
+      if (_x_1062 === 0) {
         return true;
       } else {
         return false;
       }
     }
     case 1: {
-      if (_x_1064 === 1) {
+      if (_x_1062 === 1) {
         return true;
       } else {
         return false;
       }
     }
     case 2: {
-      if (_x_1064 === 2) {
+      if (_x_1062 === 2) {
         return true;
       } else {
         return false;
       }
     }
     default: {
-      if (_x_1064 === 3) {
+      if (_x_1062 === 3) {
         return true;
       } else {
         return false;
@@ -41940,13 +41917,13 @@ function _M0FP26mizchi14hacknslash__3d14format__signed(v) {
 function _M0FP26mizchi14hacknslash__3d20format__affix__stats(a) {
   const parts = [];
   if (a.atk !== 0) {
-    _M0MP311moonbitlang4core5array5Array4pushGsE(parts, `A${_M0FP26mizchi14hacknslash__3d14format__signed(a.atk)}`);
+    _M0MP311moonbitlang4core5array5Array4pushGsE(parts, `ATK${_M0FP26mizchi14hacknslash__3d14format__signed(a.atk)}`);
   }
   if (a.def !== 0) {
-    _M0MP311moonbitlang4core5array5Array4pushGsE(parts, `D${_M0FP26mizchi14hacknslash__3d14format__signed(a.def)}`);
+    _M0MP311moonbitlang4core5array5Array4pushGsE(parts, `DEF${_M0FP26mizchi14hacknslash__3d14format__signed(a.def)}`);
   }
   if (a.hp !== 0) {
-    _M0MP311moonbitlang4core5array5Array4pushGsE(parts, `H${_M0FP26mizchi14hacknslash__3d14format__signed(a.hp)}`);
+    _M0MP311moonbitlang4core5array5Array4pushGsE(parts, `HP${_M0FP26mizchi14hacknslash__3d14format__signed(a.hp)}`);
   }
   if (a.crit > 0.001) {
     const pct = _M0MP311moonbitlang4core6double6Double7to__int(a.crit * 100);
@@ -41981,24 +41958,10 @@ function _M0MP26mizchi14hacknslash__3d9GameState21render__inventory__ui(self, ds
   const ctx = _M0MP26mizchi14hacknslash__3d9GameState14make__hud__ctx(self, dst, shader);
   const sw = _M0FP26mizchi14hacknslash__3d9screen__w + 0;
   const sh = _M0FP26mizchi14hacknslash__3d9screen__h + 0;
-  _M0MP36mizchi6kagura3hud10HudContext10draw__rect(ctx, cmds, 0, 0, sw, sh, _M0FP36mizchi6kagura3hud18hex__color_2einner(0, 0.6));
-  const panel_w = 300;
-  const panel_h = 380;
-  const px = (sw - panel_w) / 2;
-  const py = (sh - panel_h) / 2;
-  const panel = { x: px, y: py, width: panel_w, height: panel_h, bg_color: 1710638, border_color: 4474026, border_width: 2, title: "INVENTORY", title_size: 20, title_color: 16763904, title_bg_color: 2763342 };
-  let cw;
-  let cy;
-  _L: {
-    const _bind = _M0MP36mizchi6kagura3hud5Panel6render(panel, ctx, cmds);
-    const _cy = _bind._1;
-    const _cw = _bind._2;
-    cw = _cw;
-    cy = _cy;
-    break _L;
-  }
-  const eq_y = cy + 8;
-  _M0MP36mizchi6kagura3hud10HudContext10draw__text(ctx, cmds, "EQUIPMENT", 14, px + 10, eq_y, 13421772);
+  _M0MP36mizchi6kagura3hud10HudContext10draw__rect(ctx, cmds, 0, 0, sw, sh, _M0FP36mizchi6kagura3hud18hex__color_2einner(0, 0.7));
+  _M0MP36mizchi6kagura3hud10HudContext10draw__text(ctx, cmds, "INVENTORY", 20, 16, 8, 16763904);
+  _M0MP36mizchi6kagura3hud10HudContext10draw__text(ctx, cmds, "[E]Equip [I]Close", 14, sw - 160, 12, 6710886);
+  const eq_y = 32;
   const slot_labels = ["WPN", "ARM", "ACC"];
   const slot_items = [self.world.equipment.weapon, self.world.equipment.armor, self.world.equipment.accessory];
   const _arr = slot_labels;
@@ -42009,26 +41972,27 @@ function _M0MP26mizchi14hacknslash__3d9GameState21render__inventory__ui(self, ds
     if (_i < _len) {
       const i = _i;
       const label = _arr[_i];
-      const sy = eq_y + 20 + (i + 0) * 22;
-      _M0MP36mizchi6kagura3hud10HudContext10draw__rect(ctx, cmds, px + 10, sy, 280, 20, _M0FP36mizchi6kagura3hud18hex__color_2einner(2236996, 1));
-      _M0MP36mizchi6kagura3hud10HudContext10draw__text(ctx, cmds, label, 12, px + 14, sy + 2, 8947848);
+      const sy = eq_y + (i + 0) * 20;
+      _M0MP36mizchi6kagura3hud10HudContext10draw__rect(ctx, cmds, 8, sy, sw - 16, 18, _M0FP36mizchi6kagura3hud18hex__color_2einner(2236996, 1));
+      _M0MP36mizchi6kagura3hud10HudContext10draw__text(ctx, cmds, label, 14, 12, sy + 2, 8947848);
       let item;
-      _L$2: {
-        _L$3: {
+      _L: {
+        _L$2: {
           const _bind = _M0MP311moonbitlang4core5array5Array2atGORP36mizchi14hacknslash__3d4game8ItemDataE(slot_items, i);
           if (_bind === undefined) {
-            _M0MP36mizchi6kagura3hud10HudContext10draw__text(ctx, cmds, "---", 12, px + 50, sy + 2, 5592405);
+            _M0MP36mizchi6kagura3hud10HudContext10draw__text(ctx, cmds, "---", 14, 52, sy + 2, 5592405);
           } else {
             const _Some = _bind;
             const _item = _Some;
             item = _item;
-            break _L$3;
+            break _L$2;
           }
-          break _L$2;
+          break _L;
         }
         const color = _M0MP36mizchi14hacknslash__3d4game10ItemRarity5color(item.rarity);
-        _M0MP36mizchi6kagura3hud10HudContext10draw__text(ctx, cmds, _M0MP36mizchi14hacknslash__3d4game8ItemData13display__name(item), 12, px + 50, sy + 2, color);
-        _M0MP36mizchi6kagura3hud10HudContext10draw__text(ctx, cmds, `A:${_M0MP311moonbitlang4core3int3Int18to__string_2einner(_M0MP36mizchi14hacknslash__3d4game8ItemData10total__atk(item), 10)} D:${_M0MP311moonbitlang4core3int3Int18to__string_2einner(_M0MP36mizchi14hacknslash__3d4game8ItemData10total__def(item), 10)} H:${_M0MP311moonbitlang4core3int3Int18to__string_2einner(_M0MP36mizchi14hacknslash__3d4game8ItemData9total__hp(item), 10)}`, 10, px + 180, sy + 4, 11184810);
+        _M0MP36mizchi6kagura3hud10HudContext10draw__text(ctx, cmds, _M0MP36mizchi14hacknslash__3d4game8ItemData13display__name(item), 14, 52, sy + 2, color);
+        const stats = `A:${_M0MP311moonbitlang4core3int3Int18to__string_2einner(_M0MP36mizchi14hacknslash__3d4game8ItemData10total__atk(item), 10)} D:${_M0MP311moonbitlang4core3int3Int18to__string_2einner(_M0MP36mizchi14hacknslash__3d4game8ItemData10total__def(item), 10)} H:${_M0MP311moonbitlang4core3int3Int18to__string_2einner(_M0MP36mizchi14hacknslash__3d4game8ItemData9total__hp(item), 10)}`;
+        _M0MP36mizchi6kagura3hud10HudContext10draw__text(ctx, cmds, stats, 14, sw - 130, sy + 2, 11184810);
       }
       _tmp = _i + 1 | 0;
       continue;
@@ -42036,43 +42000,64 @@ function _M0MP26mizchi14hacknslash__3d9GameState21render__inventory__ui(self, ds
       break;
     }
   }
-  const inv_y = eq_y + 90;
-  _M0MP36mizchi6kagura3hud10HudContext10draw__text(ctx, cmds, `ITEMS (${_M0MP311moonbitlang4core3int3Int18to__string_2einner(_M0MP36mizchi14hacknslash__3d4game9Inventory5count(self.world.inventory), 10)}/${_M0MP311moonbitlang4core3int3Int18to__string_2einner(self.world.inventory.capacity, 10)})`, 14, px + 10, inv_y, 13421772);
-  _M0MP36mizchi6kagura3hud10HudContext10draw__text(ctx, cmds, "[E] Equip  [I] Close", 10, px + 10, inv_y + 16, 6710886);
-  const list_y = inv_y + 32;
-  const visible = _M0FP311moonbitlang4core3cmp7minimumGiE(self.world.inventory.capacity, 10);
+  const stats_y = eq_y + 62;
+  const s = self.world.player_stats;
+  _M0MP36mizchi6kagura3hud10HudContext10draw__rect(ctx, cmds, 8, stats_y, sw - 16, 16, _M0FP36mizchi6kagura3hud18hex__color_2einner(1127185, 1));
+  _M0MP36mizchi6kagura3hud10HudContext10draw__text(ctx, cmds, `ATK:${_M0MP311moonbitlang4core3int3Int18to__string_2einner(s.atk, 10)}  DEF:${_M0MP311moonbitlang4core3int3Int18to__string_2einner(s.def, 10)}  HP:${_M0MP311moonbitlang4core3int3Int18to__string_2einner(s.max_hp, 10)}`, 14, 12, stats_y + 1, 8978312);
+  const inv_y = stats_y + 20;
+  const count_text = `ITEMS ${_M0MP311moonbitlang4core3int3Int18to__string_2einner(_M0MP36mizchi14hacknslash__3d4game9Inventory5count(self.world.inventory), 10)}/${_M0MP311moonbitlang4core3int3Int18to__string_2einner(self.world.inventory.capacity, 10)}`;
+  _M0MP36mizchi6kagura3hud10HudContext10draw__text(ctx, cmds, count_text, 14, 12, inv_y, 13421772);
+  const list_y = inv_y + 18;
+  const row_h = 18;
+  const max_visible = _M0MP311moonbitlang4core6double6Double7to__int((sh - list_y - 30) / row_h);
+  const visible = _M0FP311moonbitlang4core3cmp7minimumGiE(self.world.inventory.capacity, max_visible);
   const scroll = self.world.ui_cursor >= visible ? (self.world.ui_cursor - visible | 0) + 1 | 0 : 0;
-  const _start637 = 0;
-  const _end638 = visible;
-  let _tmp$2 = _start637;
+  const _start634 = 0;
+  const _end635 = visible;
+  let _tmp$2 = _start634;
   while (true) {
     const i = _tmp$2;
-    if (i < _end638) {
+    if (i < _end635) {
       const idx = scroll + i | 0;
       if (idx >= self.world.inventory.capacity) {
         break;
       }
-      const iy = list_y + (i + 0) * 20;
+      const iy = list_y + (i + 0) * row_h;
       const is_selected = idx === self.world.ui_cursor;
-      const bg = is_selected ? 3355562 : 2236979;
-      _M0MP36mizchi6kagura3hud10HudContext10draw__rect(ctx, cmds, px + 10, iy, 280, 18, _M0FP36mizchi6kagura3hud18hex__color_2einner(bg, 1));
+      let bg;
+      if (is_selected) {
+        bg = 3355562;
+      } else {
+        if (2 === 0) {
+          $panic();
+        }
+        if ((idx % 2 | 0) === 0) {
+          bg = 1710638;
+        } else {
+          bg = 2236979;
+        }
+      }
+      _M0MP36mizchi6kagura3hud10HudContext10draw__rect(ctx, cmds, 8, iy, sw - 16, row_h - 2, _M0FP36mizchi6kagura3hud18hex__color_2einner(bg, 1));
+      if (is_selected) {
+        _M0MP36mizchi6kagura3hud10HudContext10draw__rect(ctx, cmds, 8, iy, 3, row_h - 2, _M0FP36mizchi6kagura3hud18hex__color_2einner(16763904, 1));
+      }
       let item;
-      _L$2: {
-        _L$3: {
+      _L: {
+        _L$2: {
           const _bind = _M0MP311moonbitlang4core5array5Array2atGORP36mizchi14hacknslash__3d4game8ItemDataE(self.world.inventory.items, idx);
           if (_bind === undefined) {
-            _M0MP36mizchi6kagura3hud10HudContext10draw__text(ctx, cmds, "---", 12, px + 14, iy + 2, 3355443);
           } else {
             const _Some = _bind;
             const _item = _Some;
             item = _item;
-            break _L$3;
+            break _L$2;
           }
-          break _L$2;
+          break _L;
         }
         const color = _M0MP36mizchi14hacknslash__3d4game10ItemRarity5color(item.rarity);
-        _M0MP36mizchi6kagura3hud10HudContext10draw__text(ctx, cmds, _M0MP36mizchi14hacknslash__3d4game8ItemData13display__name(item), 12, px + 14, iy + 2, color);
-        _M0MP36mizchi6kagura3hud10HudContext10draw__text(ctx, cmds, `A:${_M0MP311moonbitlang4core3int3Int18to__string_2einner(_M0MP36mizchi14hacknslash__3d4game8ItemData10total__atk(item), 10)} D:${_M0MP311moonbitlang4core3int3Int18to__string_2einner(_M0MP36mizchi14hacknslash__3d4game8ItemData10total__def(item), 10)}`, 10, px + 200, iy + 3, 11184810);
+        _M0MP36mizchi6kagura3hud10HudContext10draw__text(ctx, cmds, _M0MP36mizchi14hacknslash__3d4game8ItemData13display__name(item), 14, 16, iy + 1, color);
+        const stats = `A:${_M0MP311moonbitlang4core3int3Int18to__string_2einner(_M0MP36mizchi14hacknslash__3d4game8ItemData10total__atk(item), 10)} D:${_M0MP311moonbitlang4core3int3Int18to__string_2einner(_M0MP36mizchi14hacknslash__3d4game8ItemData10total__def(item), 10)}`;
+        _M0MP36mizchi6kagura3hud10HudContext10draw__text(ctx, cmds, stats, 14, sw - 100, iy + 1, 11184810);
       }
       _tmp$2 = i + 1 | 0;
       continue;
@@ -42080,81 +42065,67 @@ function _M0MP26mizchi14hacknslash__3d9GameState21render__inventory__ui(self, ds
       break;
     }
   }
-  const detail_y = list_y + (visible + 0) * 20 + 4;
-  let item;
-  _L$2: {
-    _L$3: {
+  if (self.world.ui_cursor < self.world.inventory.capacity) {
+    let item;
+    _L: {
       const _bind = _M0MP311moonbitlang4core5array5Array2atGORP36mizchi14hacknslash__3d4game8ItemDataE(self.world.inventory.items, self.world.ui_cursor);
       if (_bind === undefined) {
+        return;
       } else {
         const _Some = _bind;
         const _item = _Some;
         item = _item;
-        break _L$3;
+        break _L;
       }
-      break _L$2;
     }
-    const dy = { val: detail_y };
+    const detail_y = sh - 28;
+    const dx = { val: 12 };
     let a;
-    _L$4: {
-      _L$5: {
+    _L$2: {
+      _L$3: {
         const _bind = item.prefix;
         if (_bind === undefined) {
         } else {
           const _Some = _bind;
           const _a = _Some;
           a = _a;
-          break _L$5;
+          break _L$3;
         }
-        break _L$4;
+        break _L$2;
       }
-      _M0MP36mizchi6kagura3hud10HudContext10draw__text(ctx, cmds, `Prefix: ${a.name}`, 10, px + 10, dy.val, 6737151);
-      _M0MP36mizchi6kagura3hud10HudContext10draw__text(ctx, cmds, _M0FP26mizchi14hacknslash__3d20format__affix__stats(a), 10, px + 80, dy.val, 8956620);
-      dy.val = dy.val + 14;
+      const text = `+${a.name} ${_M0FP26mizchi14hacknslash__3d20format__affix__stats(a)}`;
+      _M0MP36mizchi6kagura3hud10HudContext10draw__text(ctx, cmds, text, 14, dx.val, detail_y, 6737151);
+      dx.val = dx.val + (text.length + 0) * 7 + 8;
     }
     let a$2;
-    _L$5: {
-      _L$6: {
-        const _bind = item.suffix;
-        if (_bind === undefined) {
-        } else {
-          const _Some = _bind;
-          const _a = _Some;
-          a$2 = _a;
-          break _L$6;
-        }
-        break _L$5;
+    _L$3: {
+      const _bind = item.suffix;
+      if (_bind === undefined) {
+        return;
+      } else {
+        const _Some = _bind;
+        const _a = _Some;
+        a$2 = _a;
+        break _L$3;
       }
-      _M0MP36mizchi6kagura3hud10HudContext10draw__text(ctx, cmds, `Suffix: ${a$2.name}`, 10, px + 10, dy.val, 16764006);
-      _M0MP36mizchi6kagura3hud10HudContext10draw__text(ctx, cmds, _M0FP26mizchi14hacknslash__3d20format__affix__stats(a$2), 10, px + 80, dy.val, 13413000);
-      dy.val = dy.val + 14;
     }
-    dy.val;
+    const text = `${a$2.name} ${_M0FP26mizchi14hacknslash__3d20format__affix__stats(a$2)}`;
+    _M0MP36mizchi6kagura3hud10HudContext10draw__text(ctx, cmds, text, 14, dx.val, detail_y, 16764006);
+    return;
+  } else {
+    return;
   }
-  const stats_y = detail_y + 30;
-  const s = self.world.player_stats;
-  _M0MP36mizchi6kagura3hud10HudContext10draw__text(ctx, cmds, `ATK:${_M0MP311moonbitlang4core3int3Int18to__string_2einner(s.atk, 10)}  DEF:${_M0MP311moonbitlang4core3int3Int18to__string_2einner(s.def, 10)}  HP:${_M0MP311moonbitlang4core3int3Int18to__string_2einner(s.max_hp, 10)}`, 12, px + 10, stats_y, 8978312);
 }
 function _M0MP26mizchi14hacknslash__3d9GameState18render__skills__ui(self, dst, shader, cmds) {
   const ctx = _M0MP26mizchi14hacknslash__3d9GameState14make__hud__ctx(self, dst, shader);
   const sw = _M0FP26mizchi14hacknslash__3d9screen__w + 0;
   const sh = _M0FP26mizchi14hacknslash__3d9screen__h + 0;
-  _M0MP36mizchi6kagura3hud10HudContext10draw__rect(ctx, cmds, 0, 0, sw, sh, _M0FP36mizchi6kagura3hud18hex__color_2einner(0, 0.6));
-  const panel_w = 320;
-  const panel_h = 340;
-  const px = (sw - panel_w) / 2;
-  const py = (sh - panel_h) / 2;
-  const panel = { x: px, y: py, width: panel_w, height: panel_h, bg_color: 1710638, border_color: 11158698, border_width: 2, title: "SKILL TREE", title_size: 20, title_color: 16763904, title_bg_color: 3021358 };
-  let cy;
-  _L: {
-    const _bind = _M0MP36mizchi6kagura3hud5Panel6render(panel, ctx, cmds);
-    const _cy = _bind._1;
-    cy = _cy;
-    break _L;
-  }
-  _M0MP36mizchi6kagura3hud10HudContext10draw__text(ctx, cmds, `Skill Points: ${_M0MP311moonbitlang4core3int3Int18to__string_2einner(self.world.skills.skill_points, 10)}`, 14, px + 10, cy + 8, 16763904);
-  _M0MP36mizchi6kagura3hud10HudContext10draw__text(ctx, cmds, "[Space] Learn  [K] Close", 10, px + 10, cy + 26, 6710886);
-  const list_y = cy + 44;
+  _M0MP36mizchi6kagura3hud10HudContext10draw__rect(ctx, cmds, 0, 0, sw, sh, _M0FP36mizchi6kagura3hud18hex__color_2einner(0, 0.7));
+  _M0MP36mizchi6kagura3hud10HudContext10draw__text(ctx, cmds, "SKILLS", 20, 16, 8, 16763904);
+  _M0MP36mizchi6kagura3hud10HudContext10draw__text(ctx, cmds, `SP:${_M0MP311moonbitlang4core3int3Int18to__string_2einner(self.world.skills.skill_points, 10)}`, 16, sw - 80, 10, 16763904);
+  _M0MP36mizchi6kagura3hud10HudContext10draw__text(ctx, cmds, "[Space]Learn [K]Close", 14, 16, 28, 6710886);
+  const list_y = 48;
+  const row_h = 36;
   const _arr = self.world.skills.nodes;
   const _len = _arr.length;
   let _tmp = 0;
@@ -42163,21 +42134,30 @@ function _M0MP26mizchi14hacknslash__3d9GameState18render__skills__ui(self, dst, 
     if (_i < _len) {
       const i = _i;
       const node = _arr[_i];
-      const ny = list_y + (i + 0) * 42;
+      const ny = list_y + (i + 0) * row_h;
+      if (ny + row_h > sh) {
+        break;
+      }
       const is_selected = i === self.world.ui_cursor;
       const can_learn = _M0MP36mizchi14hacknslash__3d4game9SkillTree10can__learn(self.world.skills, node.id);
-      const bg = is_selected ? 3355562 : 2236979;
-      _M0MP36mizchi6kagura3hud10HudContext10draw__rect(ctx, cmds, px + 10, ny, 300, 38, _M0FP36mizchi6kagura3hud18hex__color_2einner(bg, 1));
+      const bg = is_selected ? 3355562 : 1710638;
+      _M0MP36mizchi6kagura3hud10HudContext10draw__rect(ctx, cmds, 8, ny, sw - 16, row_h - 2, _M0FP36mizchi6kagura3hud18hex__color_2einner(bg, 1));
+      if (is_selected) {
+        _M0MP36mizchi6kagura3hud10HudContext10draw__rect(ctx, cmds, 8, ny, 3, row_h - 2, _M0FP36mizchi6kagura3hud18hex__color_2einner(16763904, 1));
+      }
       const name_color = node.level > 0 ? 4521796 : can_learn ? 16763904 : 6710886;
-      _M0MP36mizchi6kagura3hud10HudContext10draw__text(ctx, cmds, node.name, 14, px + 14, ny + 2, name_color);
-      const level_text = `${_M0MP311moonbitlang4core3int3Int18to__string_2einner(node.level, 10)}/${_M0MP311moonbitlang4core3int3Int18to__string_2einner(node.max_level, 10)}`;
-      _M0MP36mizchi6kagura3hud10HudContext10draw__text(ctx, cmds, `Lv ${level_text}`, 12, px + 200, ny + 2, 13421772);
-      _M0MP36mizchi6kagura3hud10HudContext10draw__text(ctx, cmds, `Cost: ${_M0MP311moonbitlang4core3int3Int18to__string_2einner(node.cost, 10)}SP`, 10, px + 14, ny + 20, 8947848);
+      _M0MP36mizchi6kagura3hud10HudContext10draw__text(ctx, cmds, node.name, 16, 16, ny + 2, name_color);
+      const level_text = `Lv ${_M0MP311moonbitlang4core3int3Int18to__string_2einner(node.level, 10)}/${_M0MP311moonbitlang4core3int3Int18to__string_2einner(node.max_level, 10)}`;
+      _M0MP36mizchi6kagura3hud10HudContext10draw__text(ctx, cmds, level_text, 14, sw - 100, ny + 2, 13421772);
+      _M0MP36mizchi6kagura3hud10HudContext10draw__text(ctx, cmds, `Cost:${_M0MP311moonbitlang4core3int3Int18to__string_2einner(node.cost, 10)}SP`, 14, 16, ny + 18, 8947848);
       if (node.max_level > 0) {
+        const bar_w = 80;
+        const bar_x = sw - 100;
+        const bar_y = ny + 20;
         const bar_ratio = (node.level + 0) / (node.max_level + 0);
-        _M0MP36mizchi6kagura3hud10HudContext10draw__rect(ctx, cmds, px + 200, ny + 22, 100, 8, _M0FP36mizchi6kagura3hud18hex__color_2einner(3355443, 1));
+        _M0MP36mizchi6kagura3hud10HudContext10draw__rect(ctx, cmds, bar_x, bar_y, bar_w, 8, _M0FP36mizchi6kagura3hud18hex__color_2einner(3355443, 1));
         if (bar_ratio > 0) {
-          _M0MP36mizchi6kagura3hud10HudContext10draw__rect(ctx, cmds, px + 200, ny + 22, 100 * bar_ratio, 8, _M0FP36mizchi6kagura3hud18hex__color_2einner(4500036, 1));
+          _M0MP36mizchi6kagura3hud10HudContext10draw__rect(ctx, cmds, bar_x, bar_y, bar_w * bar_ratio, 8, _M0FP36mizchi6kagura3hud18hex__color_2einner(4500036, 1));
         }
       }
       _tmp = _i + 1 | 0;
@@ -42327,12 +42307,12 @@ function _M0MP26mizchi14hacknslash__3d9GameState13draw__playing(self, ctx) {
     const _i = _tmp$2;
     if (_i < _len$2) {
       const chunk = _arr$2[_i];
-      const _start937 = 0;
-      const _end938 = chunk.groups.length;
-      let _tmp$3 = _start937;
+      const _start935 = 0;
+      const _end936 = chunk.groups.length;
+      let _tmp$3 = _start935;
       while (true) {
         const gi = _tmp$3;
-        if (gi < _end938) {
+        if (gi < _end936) {
           const group = _M0MP311moonbitlang4core5array5Array2atGRP26mizchi14hacknslash__3d16DungeonMeshGroupE(chunk.groups, gi);
           const tinted = gi < tinted_cache.length ? _M0MP311moonbitlang4core5array5Array2atGRP36mizchi6kagura7light3d19LightingEnvironmentE(tinted_cache, gi) : _M0FP26mizchi14hacknslash__3d14tint__lighting(lighting, group.color);
           const dst_region = _M0FP36mizchi6kagura3gfx16new__dst__region(0, 0, ctx.screen_w, ctx.screen_h, group.mesh.indices.length);
@@ -42790,12 +42770,12 @@ function _M0FP26mizchi14hacknslash__3d15merge__mesh__at(dst_verts, dst_indices, 
     $panic();
   }
   const vert_count = src_verts.length / stride | 0;
-  const _start841 = 0;
-  const _end842 = vert_count;
-  let _tmp = _start841;
+  const _start839 = 0;
+  const _end840 = vert_count;
+  let _tmp = _start839;
   while (true) {
     const i = _tmp;
-    if (i < _end842) {
+    if (i < _end840) {
       const off = Math.imul(i, stride) | 0;
       _M0MP311moonbitlang4core5array5Array4pushGdE(dst_verts, _M0MP311moonbitlang4core5array5Array2atGdE(src_verts, off) + ox);
       _M0MP311moonbitlang4core5array5Array4pushGdE(dst_verts, _M0MP311moonbitlang4core5array5Array2atGdE(src_verts, off + 1 | 0) + oy);
@@ -43749,12 +43729,12 @@ function _M0MP26mizchi14hacknslash__3d9GameState16update__gameover(self) {
     _M0MP26mizchi14hacknslash__3d9GameState12delete__save(self);
     self.world.ui_mode = 0;
     self.world.ui_cursor = 0;
-    const _start886 = 0;
-    const _end887 = self.world.inventory.capacity;
-    let _tmp = _start886;
+    const _start884 = 0;
+    const _end885 = self.world.inventory.capacity;
+    let _tmp = _start884;
     while (true) {
       const i = _tmp;
-      if (i < _end887) {
+      if (i < _end885) {
         _M0MP311moonbitlang4core5array5Array3setGORP36mizchi14hacknslash__3d4game8ItemDataE(self.world.inventory.items, i, undefined);
         _tmp = i + 1 | 0;
         continue;
@@ -43953,12 +43933,12 @@ function _M0MP26mizchi14hacknslash__3d9GameState15serialize__save(self) {
   }
   _M0MP311moonbitlang4core5array5Array4pushGsE(parts, _M0FP26mizchi14hacknslash__3d13join__strings(skill_parts, ","));
   const inv_parts = [];
-  const _start752 = 0;
-  const _end753 = self.world.inventory.capacity;
-  let _tmp$2 = _start752;
+  const _start750 = 0;
+  const _end751 = self.world.inventory.capacity;
+  let _tmp$2 = _start750;
   while (true) {
     const i = _tmp$2;
-    if (i < _end753) {
+    if (i < _end751) {
       _M0MP311moonbitlang4core5array5Array4pushGsE(inv_parts, _M0FP26mizchi14hacknslash__3d20serialize__opt__item(_M0MP311moonbitlang4core5array5Array2atGORP36mizchi14hacknslash__3d4game8ItemDataE(self.world.inventory.items, i)));
       _tmp$2 = i + 1 | 0;
       continue;
@@ -44494,12 +44474,12 @@ function _M0MP26mizchi14hacknslash__3d9GameState10load__game(self) {
   self.world.equipment.armor = _M0FP26mizchi14hacknslash__3d22deserialize__opt__item(_M0MP311moonbitlang4core5array5Array2atGsE(parts, 4));
   self.world.equipment.accessory = _M0FP26mizchi14hacknslash__3d22deserialize__opt__item(_M0MP311moonbitlang4core5array5Array2atGsE(parts, 5));
   const skill_parts = _M0FP26mizchi14hacknslash__3d13split__string(_M0MP311moonbitlang4core5array5Array2atGsE(parts, 6), 44);
-  const _start715 = 0;
-  const _end716 = _M0FP311moonbitlang4core3cmp7minimumGiE(skill_parts.length, self.world.skills.nodes.length);
-  let _tmp = _start715;
+  const _start713 = 0;
+  const _end714 = _M0FP311moonbitlang4core3cmp7minimumGiE(skill_parts.length, self.world.skills.nodes.length);
+  let _tmp = _start713;
   while (true) {
     const i = _tmp;
-    if (i < _end716) {
+    if (i < _end714) {
       _M0MP311moonbitlang4core5array5Array2atGRP36mizchi14hacknslash__3d4game9SkillNodeE(self.world.skills.nodes, i).level = _M0FP26mizchi14hacknslash__3d10parse__int(_M0MP311moonbitlang4core5array5Array2atGsE(skill_parts, i));
       _tmp = i + 1 | 0;
       continue;
@@ -44508,12 +44488,12 @@ function _M0MP26mizchi14hacknslash__3d9GameState10load__game(self) {
     }
   }
   const inv_parts = _M0FP26mizchi14hacknslash__3d13split__string(_M0MP311moonbitlang4core5array5Array2atGsE(parts, 7), 59);
-  const _start721 = 0;
-  const _end722 = _M0FP311moonbitlang4core3cmp7minimumGiE(inv_parts.length, self.world.inventory.capacity);
-  let _tmp$2 = _start721;
+  const _start719 = 0;
+  const _end720 = _M0FP311moonbitlang4core3cmp7minimumGiE(inv_parts.length, self.world.inventory.capacity);
+  let _tmp$2 = _start719;
   while (true) {
     const i = _tmp$2;
-    if (i < _end722) {
+    if (i < _end720) {
       _M0MP311moonbitlang4core5array5Array3setGORP36mizchi14hacknslash__3d4game8ItemDataE(self.world.inventory.items, i, _M0FP26mizchi14hacknslash__3d22deserialize__opt__item(_M0MP311moonbitlang4core5array5Array2atGsE(inv_parts, i)));
       _tmp$2 = i + 1 | 0;
       continue;

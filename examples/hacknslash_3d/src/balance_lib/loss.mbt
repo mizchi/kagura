@@ -162,14 +162,6 @@ pub fn BalanceTargets::default() -> BalanceTargets {
   }
 }
 
-fn sq_err(actual : Double, target : Double) -> Double {
-  if target.abs() < 0.001 {
-    return actual * actual
-  }
-  let err = (actual - target) / target
-  err * err
-}
-
 // Compute loss for a single simulation result
 pub fn compute_loss(metrics : SimMetrics, t : BalanceTargets) -> Double {
   let survival = metrics.survival_frames.to_double()
@@ -185,15 +177,15 @@ pub fn compute_loss(metrics : SimMetrics, t : BalanceTargets) -> Double {
   let near_death = metrics.near_death_rate()
   let kills_pf = metrics.kills_per_floor()
   let dmg_interval = metrics.avg_damage_interval()
-  t.w_survival * sq_err(survival, t.target_survival_frames) +
-    t.w_floor * sq_err(floors, t.target_floors) +
-    t.w_floor_time * sq_err(floor_time, t.target_floor_time) +
-    t.w_hp_cv * sq_err(hp_cv, t.target_hp_cv) +
-    t.w_kill_interval * sq_err(kill_interval, t.target_kill_interval) +
-    t.w_kill_cv * sq_err(kill_cv, t.target_kill_interval_cv) +
-    t.w_near_death * sq_err(near_death, t.target_near_death_rate) +
-    t.w_kills_per_floor * sq_err(kills_pf, t.target_kills_per_floor) +
-    t.w_damage_interval * sq_err(dmg_interval, t.target_damage_interval)
+  t.w_survival * @dec.sq_err(survival, t.target_survival_frames) +
+    t.w_floor * @dec.sq_err(floors, t.target_floors) +
+    t.w_floor_time * @dec.sq_err(floor_time, t.target_floor_time) +
+    t.w_hp_cv * @dec.sq_err(hp_cv, t.target_hp_cv) +
+    t.w_kill_interval * @dec.sq_err(kill_interval, t.target_kill_interval) +
+    t.w_kill_cv * @dec.sq_err(kill_cv, t.target_kill_interval_cv) +
+    t.w_near_death * @dec.sq_err(near_death, t.target_near_death_rate) +
+    t.w_kills_per_floor * @dec.sq_err(kills_pf, t.target_kills_per_floor) +
+    t.w_damage_interval * @dec.sq_err(dmg_interval, t.target_damage_interval)
 }
 
 // Run multiple simulations with different seeds, return average loss

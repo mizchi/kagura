@@ -7,7 +7,8 @@
     "mizchi/kagura": { "path": "../.." },
     "mizchi/web_runtime_hooks": { "path": "../web_runtime_hooks" },
     "mizchi/native_runtime_hooks": { "path": "../native_runtime_hooks" },
-    "mizchi/terrain": { "path": "../../../terrain" }
+    "mizchi/terrain": "0.1.1",
+    "mizchi/differentiable_ecs": "0.2.0"
   },
   "--moonbit-unstable-prebuild": "../../scripts/moon-prebuild-native-link-flags.cjs"
 }

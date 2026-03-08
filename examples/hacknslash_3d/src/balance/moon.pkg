@@ -1,6 +1,6 @@
 import {
   "mizchi/hacknslash_3d/balance_lib" @blib,
-  "mizchi/hacknslash_3d/game" @game,
+  "mizchi/differentiable_ecs" @dec,
 }
 
 options(

@@ -33,6 +33,13 @@ let color_item_score : @math3d.Vec4 = @math3d.Vec4::new(0.0, 1.0, 1.0, 1.0)
 
 let color_projectile : @math3d.Vec4 = @math3d.Vec4::new(1.0, 0.27, 0.4, 1.0)
 
+fn hex_to_vec4(hex : Int) -> @math3d.Vec4 {
+  let r = ((hex >> 16) & 0xFF).to_double() / 255.0
+  let g = ((hex >> 8) & 0xFF).to_double() / 255.0
+  let b = (hex & 0xFF).to_double() / 255.0
+  @math3d.Vec4::new(r, g, b, 1.0)
+}
+
 let color_arrow : @math3d.Vec4 = @math3d.Vec4::new(0.9, 0.85, 0.3, 1.0)
 
 // Build entity draw commands directly (items/projectiles) — no SceneGraph overhead
@@ -54,7 +61,11 @@ fn build_entity_cmds(
       let iz = item.y / tile_size
       let base_y = @game.get_tile_height(state.world.dungeon, item.x, item.y)
       let bob = base_y + 0.3 + 0.1 * @math.sin(state.world.frame_count.to_double() * 0.1)
-      let c = if item.kind == @game.Health { color_item_health } else { color_item_score }
+      let c = match item.kind {
+        @game.Health => color_item_health
+        @game.Equipment(data) => hex_to_vec4(data.rarity.color())
+        _ => color_item_score
+      }
       let model = @math3d.Mat4::translation(ix, bob, iz)
       let tinted = tint_lighting(lighting, c)
       let dst_region = @gfx.new_dst_region(

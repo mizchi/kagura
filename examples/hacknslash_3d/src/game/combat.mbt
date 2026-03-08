@@ -54,7 +54,17 @@ pub fn shoot_arrow(world : GameWorld, target : Enemy?) -> Unit {
 }
 
 pub fn spawn_ground_item(world : GameWorld, x : Double, y : Double, kind : ItemKind) -> Unit {
-  world.items.push({ x, y, kind, alive: true, spawn_frame: world.frame_count })
+  world.items.push({ x, y, vx: 0.0, vy: 0.0, kind, alive: true, spawn_frame: world.frame_count })
+}
+
+/// Spawn item with scatter velocity (items fly out from death position)
+fn spawn_scatter_item(world : GameWorld, x : Double, y : Double, kind : ItemKind, angle : Double, speed : Double) -> Unit {
+  world.items.push({
+    x, y,
+    vx: @math.cos(angle) * speed,
+    vy: @math.sin(angle) * speed,
+    kind, alive: true, spawn_frame: world.frame_count,
+  })
 }
 
 // Process player arrow hitting enemies
@@ -96,20 +106,24 @@ pub fn process_player_arrows(world : GameWorld) -> Unit {
           world.events.push(DeathBurst(enemy.x, enemy.y))
           let kill_score = if enemy.kind == Boss { 100 } else { 10 }
           world.score = world.score + kill_score
-          // Drop item
+          // Drop items — scatter from enemy death position
           let drop_seed = world.frame_count * 7 +
             enemy.x.to_int() * 13 +
             enemy.y.to_int() * 17
-          let drop_roll = drop_seed % 100
-          if drop_roll < 30 {
-            let item = generate_item_with_profile(drop_seed, world.floor, world.params.get_affix_profile())
-            if not(world.inventory.add(item)) {
-              spawn_ground_item(world, enemy.x, enemy.y, Score)
+          let drop_count = if enemy.kind == Boss { 5 } else { drop_seed % 3 + 1 } // 1-3 items, boss drops 5
+          for di = 0; di < drop_count; di = di + 1 {
+            let item_seed = drop_seed + di * 31
+            let angle = (item_seed % 628).to_double() / 100.0 // 0..2π
+            let scatter_speed = 1.5 + (item_seed % 100).to_double() / 100.0 // 1.5..2.5
+            let roll = (item_seed * 37 + di * 13) % 100
+            if roll < 30 {
+              let item = generate_item_with_profile(item_seed, world.floor, world.params.get_affix_profile())
+              spawn_scatter_item(world, enemy.x, enemy.y, Equipment(item), angle, scatter_speed)
+            } else if roll < 60 {
+              spawn_scatter_item(world, enemy.x, enemy.y, Health, angle, scatter_speed)
+            } else {
+              spawn_scatter_item(world, enemy.x, enemy.y, Score, angle, scatter_speed)
             }
-          } else if drop_roll < 60 {
-            spawn_ground_item(world, enemy.x, enemy.y, Health)
-          } else if drop_roll < 80 {
-            spawn_ground_item(world, enemy.x, enemy.y, Score)
           }
           if enemy.kind == Boss {
             world.skills.skill_points = world.skills.skill_points + 1

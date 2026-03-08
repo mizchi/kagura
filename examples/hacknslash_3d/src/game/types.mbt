@@ -36,8 +36,10 @@ pub(all) struct Enemy {
 }
 
 pub(all) struct ItemDrop {
-  x : Double
-  y : Double
+  mut x : Double
+  mut y : Double
+  mut vx : Double
+  mut vy : Double
   kind : ItemKind
   mut alive : Bool
   spawn_frame : Int
@@ -72,7 +74,16 @@ pub(all) enum EnemyKind {
 pub(all) enum ItemKind {
   Health
   Score
-} derive(Eq)
+  Equipment(ItemData)
+}
+
+pub fn ItemKind::op_equal(self : ItemKind, other : ItemKind) -> Bool {
+  match (self, other) {
+    (Health, Health) => true
+    (Score, Score) => true
+    _ => false
+  }
+}
 
 pub(all) enum GameMode {
   Title

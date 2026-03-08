@@ -278,23 +278,51 @@ pub fn GameWorld::tick(self : GameWorld, dx : Double, dy : Double) -> Unit {
   // 12. Process player arrows + compact projectiles
   process_player_arrows(self)
   compact_projectiles(self.projectiles)
-  // 13. Item collection
+  // 13. Item movement (scatter physics) + collection
   for item in self.items {
     if item.alive {
+      // Apply scatter velocity with friction
+      if item.vx != 0.0 || item.vy != 0.0 {
+        let (nx, ny) = slide_move(
+          self.dungeon.grid, item.x, item.y,
+          item.vx, item.vy, 4.0,
+        )
+        item.x = nx
+        item.y = ny
+        item.vx = item.vx * 0.85
+        item.vy = item.vy * 0.85
+        if item.vx * item.vx + item.vy * item.vy < 0.01 {
+          item.vx = 0.0
+          item.vy = 0.0
+        }
+      }
+      // Despawn
       if self.frame_count - item.spawn_frame > 600 {
         item.alive = false
         continue
       }
+      // Pickup
       let idx = item.x - self.player.x
       let idy = item.y - self.player.y
       if idx * idx + idy * idy < pickup_radius_sq {
-        item.alive = false
-        let is_health = item.kind == Health
-        self.events.push(ItemPickup(item.x, item.y, is_health))
-        if is_health {
-          self.player.hp = @cmp.minimum(self.player_stats.max_hp, self.player.hp + 2)
-        } else {
-          self.score = self.score + 5
+        match item.kind {
+          Health => {
+            item.alive = false
+            self.events.push(ItemPickup(item.x, item.y, true))
+            self.player.hp = @cmp.minimum(self.player_stats.max_hp, self.player.hp + 2)
+          }
+          Score => {
+            item.alive = false
+            self.events.push(ItemPickup(item.x, item.y, false))
+            self.score = self.score + 5
+          }
+          Equipment(data) => {
+            if self.inventory.add(data) {
+              item.alive = false
+              self.events.push(ItemPickup(item.x, item.y, false))
+            }
+            // If inventory full, leave on ground
+          }
         }
       }
     }

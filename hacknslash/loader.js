@@ -12,7 +12,7 @@ async function init() {
   installGfxHelpers();
 
   try {
-    await loadGameScript("./hacknslash.js?v=c58aafd");
+    await loadGameScript("./hacknslash.js?v=1bc5edd");
   } catch (e) {
     showStartupError("#app", "Failed to load game script", e && e.message ? e.message : String(e));
   }

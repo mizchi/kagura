@@ -156,6 +156,13 @@ $64$mizchi$47$hacknslash_3d$47$game$46$GameEvent$ItemPickup.prototype.$name = "I
 const $64$mizchi$47$hacknslash_3d$47$game$46$GameEvent$AttackTriggered = { $tag: 5, $name: "AttackTriggered" };
 const $64$mizchi$47$hacknslash_3d$47$game$46$GameEvent$HurtTriggered = { $tag: 6, $name: "HurtTriggered" };
 const $64$mizchi$47$hacknslash_3d$47$game$46$GameEvent$FloorComplete = { $tag: 7, $name: "FloorComplete" };
+const $64$mizchi$47$hacknslash_3d$47$game$46$ItemKind$Health = { $tag: 0, $name: "Health" };
+const $64$mizchi$47$hacknslash_3d$47$game$46$ItemKind$Score = { $tag: 1, $name: "Score" };
+function $64$mizchi$47$hacknslash_3d$47$game$46$ItemKind$Equipment(param0) {
+  this._0 = param0;
+}
+$64$mizchi$47$hacknslash_3d$47$game$46$ItemKind$Equipment.prototype.$tag = 2;
+$64$mizchi$47$hacknslash_3d$47$game$46$ItemKind$Equipment.prototype.$name = "Equipment";
 function Result$Err$6$(param0) {
   this._0 = param0;
 }
@@ -9831,24 +9838,24 @@ function _M0FP36mizchi7terrain6diablo8generate(config, rng) {
   const grid = _M0FP36mizchi7terrain6diablo16render__to__grid(nodes, rooms, edges, config);
   return { grid: grid, rooms: rooms, edges: edges };
 }
-function _M0IP36mizchi14hacknslash__3d4game6UIModeP311moonbitlang4core7builtin2Eq5equal(_x_610, _x_611) {
-  switch (_x_610) {
+function _M0IP36mizchi14hacknslash__3d4game6UIModeP311moonbitlang4core7builtin2Eq5equal(_x_621, _x_622) {
+  switch (_x_621) {
     case 0: {
-      if (_x_611 === 0) {
+      if (_x_622 === 0) {
         return true;
       } else {
         return false;
       }
     }
     case 1: {
-      if (_x_611 === 1) {
+      if (_x_622 === 1) {
         return true;
       } else {
         return false;
       }
     }
     default: {
-      if (_x_611 === 2) {
+      if (_x_622 === 2) {
         return true;
       } else {
         return false;
@@ -9856,38 +9863,38 @@ function _M0IP36mizchi14hacknslash__3d4game6UIModeP311moonbitlang4core7builtin2E
     }
   }
 }
-function _M0IP36mizchi14hacknslash__3d4game9EnemyKindP311moonbitlang4core7builtin2Eq5equal(_x_606, _x_607) {
-  switch (_x_606) {
+function _M0IP36mizchi14hacknslash__3d4game9EnemyKindP311moonbitlang4core7builtin2Eq5equal(_x_617, _x_618) {
+  switch (_x_617) {
     case 0: {
-      if (_x_607 === 0) {
+      if (_x_618 === 0) {
         return true;
       } else {
         return false;
       }
     }
     case 1: {
-      if (_x_607 === 1) {
+      if (_x_618 === 1) {
         return true;
       } else {
         return false;
       }
     }
     case 2: {
-      if (_x_607 === 2) {
+      if (_x_618 === 2) {
         return true;
       } else {
         return false;
       }
     }
     case 3: {
-      if (_x_607 === 3) {
+      if (_x_618 === 3) {
         return true;
       } else {
         return false;
       }
     }
     default: {
-      if (_x_607 === 4) {
+      if (_x_618 === 4) {
         return true;
       } else {
         return false;
@@ -9895,43 +9902,28 @@ function _M0IP36mizchi14hacknslash__3d4game9EnemyKindP311moonbitlang4core7builti
     }
   }
 }
-function _M0IP36mizchi14hacknslash__3d4game8GameModeP311moonbitlang4core7builtin2Eq5equal(_x_602, _x_603) {
-  switch (_x_602) {
+function _M0IP36mizchi14hacknslash__3d4game8GameModeP311moonbitlang4core7builtin2Eq5equal(_x_613, _x_614) {
+  switch (_x_613) {
     case 0: {
-      if (_x_603 === 0) {
+      if (_x_614 === 0) {
         return true;
       } else {
         return false;
       }
     }
     case 1: {
-      if (_x_603 === 1) {
+      if (_x_614 === 1) {
         return true;
       } else {
         return false;
       }
     }
     default: {
-      if (_x_603 === 2) {
+      if (_x_614 === 2) {
         return true;
       } else {
         return false;
       }
-    }
-  }
-}
-function _M0IP36mizchi14hacknslash__3d4game8ItemKindP311moonbitlang4core7builtin2Eq5equal(_x_598, _x_599) {
-  if (_x_598 === 0) {
-    if (_x_599 === 0) {
-      return true;
-    } else {
-      return false;
-    }
-  } else {
-    if (_x_599 === 1) {
-      return true;
-    } else {
-      return false;
     }
   }
 }
@@ -10516,12 +10508,12 @@ function _M0MP36mizchi14hacknslash__3d4game9Equipment3new() {
 }
 function _M0MP36mizchi14hacknslash__3d4game9Inventory3new(capacity) {
   const items = [];
-  const _start400 = 0;
-  const _end401 = capacity;
-  let _tmp = _start400;
+  const _start411 = 0;
+  const _end412 = capacity;
+  let _tmp = _start411;
   while (true) {
     const _i = _tmp;
-    if (_i < _end401) {
+    if (_i < _end412) {
       _M0MP311moonbitlang4core5array5Array4pushGORP36mizchi14hacknslash__3d4game8ItemDataE(items, undefined);
       _tmp = _i + 1 | 0;
       continue;
@@ -11044,8 +11036,8 @@ function _M0FP36mizchi14hacknslash__3d4game29generate__item__with__profile(seed,
   }
   return { name: slot_name, rarity: rarity, slot: slot, atk_bonus: atk, def_bonus: def, hp_bonus: hp, prefix: prefix, suffix: suffix, icon_id: slot_roll + (rarity_roll % 3 | 0) | 0 };
 }
-function _M0FP36mizchi14hacknslash__3d4game19spawn__ground__item(world, x, y, kind) {
-  _M0MP311moonbitlang4core5array5Array4pushGRP36mizchi14hacknslash__3d4game8ItemDropE(world.items, { x: x, y: y, kind: kind, alive: true, spawn_frame: world.frame_count });
+function _M0FP36mizchi14hacknslash__3d4game20spawn__scatter__item(world, x, y, kind, angle, speed) {
+  _M0MP311moonbitlang4core5array5Array4pushGRP36mizchi14hacknslash__3d4game8ItemDropE(world.items, { x: x, y: y, vx: _M0FP311moonbitlang4core4math3cos(angle) * speed, vy: _M0FP311moonbitlang4core4math3sin(angle) * speed, kind: kind, alive: true, spawn_frame: world.frame_count });
 }
 function _M0MP36mizchi14hacknslash__3d4game13BalanceParams19get__affix__profile(self) {
   const _bind = self.affix_profile;
@@ -11066,26 +11058,6 @@ function _M0MP36mizchi14hacknslash__3d4game13BalanceParams19get__affix__profile(
       return 0;
     }
   }
-}
-function _M0MP36mizchi14hacknslash__3d4game9Inventory3add(self, item) {
-  const _start393 = 0;
-  const _end394 = self.capacity;
-  let _tmp = _start393;
-  while (true) {
-    const i = _tmp;
-    if (i < _end394) {
-      const _bind = _M0MP311moonbitlang4core5array5Array2atGORP36mizchi14hacknslash__3d4game8ItemDataE(self.items, i);
-      if (_bind === undefined) {
-        _M0MP311moonbitlang4core5array5Array3setGORP36mizchi14hacknslash__3d4game8ItemDataE(self.items, i, item);
-        return true;
-      }
-      _tmp = i + 1 | 0;
-      continue;
-    } else {
-      break;
-    }
-  }
-  return false;
 }
 function _M0FP36mizchi14hacknslash__3d4game23process__player__arrows(world) {
   const _arr = world.projectiles;
@@ -11136,22 +11108,46 @@ function _M0FP36mizchi14hacknslash__3d4game23process__player__arrows(world) {
                   const kill_score = _M0IP36mizchi14hacknslash__3d4game9EnemyKindP311moonbitlang4core7builtin2Eq5equal(enemy.kind, 4) ? 100 : 10;
                   world.score = world.score + kill_score | 0;
                   const drop_seed = ((Math.imul(world.frame_count, 7) | 0) + (Math.imul(_M0MP311moonbitlang4core6double6Double7to__int(enemy.x), 13) | 0) | 0) + (Math.imul(_M0MP311moonbitlang4core6double6Double7to__int(enemy.y), 17) | 0) | 0;
-                  if (100 === 0) {
-                    $panic();
-                  }
-                  const drop_roll = drop_seed % 100 | 0;
-                  if (drop_roll < 30) {
-                    const item = _M0FP36mizchi14hacknslash__3d4game29generate__item__with__profile(drop_seed, world.floor, _M0MP36mizchi14hacknslash__3d4game13BalanceParams19get__affix__profile(world.params));
-                    if (!_M0MP36mizchi14hacknslash__3d4game9Inventory3add(world.inventory, item)) {
-                      _M0FP36mizchi14hacknslash__3d4game19spawn__ground__item(world, enemy.x, enemy.y, 1);
-                    }
+                  let drop_count;
+                  if (_M0IP36mizchi14hacknslash__3d4game9EnemyKindP311moonbitlang4core7builtin2Eq5equal(enemy.kind, 4)) {
+                    drop_count = 5;
                   } else {
-                    if (drop_roll < 60) {
-                      _M0FP36mizchi14hacknslash__3d4game19spawn__ground__item(world, enemy.x, enemy.y, 0);
-                    } else {
-                      if (drop_roll < 80) {
-                        _M0FP36mizchi14hacknslash__3d4game19spawn__ground__item(world, enemy.x, enemy.y, 1);
+                    if (3 === 0) {
+                      $panic();
+                    }
+                    drop_count = (drop_seed % 3 | 0) + 1 | 0;
+                  }
+                  let _tmp$3 = 0;
+                  while (true) {
+                    const di = _tmp$3;
+                    if (di < drop_count) {
+                      const item_seed = drop_seed + (Math.imul(di, 31) | 0) | 0;
+                      if (628 === 0) {
+                        $panic();
                       }
+                      const angle = ((item_seed % 628 | 0) + 0) / 100;
+                      if (100 === 0) {
+                        $panic();
+                      }
+                      const scatter_speed = 1.5 + ((item_seed % 100 | 0) + 0) / 100;
+                      if (100 === 0) {
+                        $panic();
+                      }
+                      const roll = ((Math.imul(item_seed, 37) | 0) + (Math.imul(di, 13) | 0) | 0) % 100 | 0;
+                      if (roll < 30) {
+                        const item = _M0FP36mizchi14hacknslash__3d4game29generate__item__with__profile(item_seed, world.floor, _M0MP36mizchi14hacknslash__3d4game13BalanceParams19get__affix__profile(world.params));
+                        _M0FP36mizchi14hacknslash__3d4game20spawn__scatter__item(world, enemy.x, enemy.y, new $64$mizchi$47$hacknslash_3d$47$game$46$ItemKind$Equipment(item), angle, scatter_speed);
+                      } else {
+                        if (roll < 60) {
+                          _M0FP36mizchi14hacknslash__3d4game20spawn__scatter__item(world, enemy.x, enemy.y, $64$mizchi$47$hacknslash_3d$47$game$46$ItemKind$Health, angle, scatter_speed);
+                        } else {
+                          _M0FP36mizchi14hacknslash__3d4game20spawn__scatter__item(world, enemy.x, enemy.y, $64$mizchi$47$hacknslash_3d$47$game$46$ItemKind$Score, angle, scatter_speed);
+                        }
+                      }
+                      _tmp$3 = di + 1 | 0;
+                      continue;
+                    } else {
+                      break;
                     }
                   }
                   if (_M0IP36mizchi14hacknslash__3d4game9EnemyKindP311moonbitlang4core7builtin2Eq5equal(enemy.kind, 4)) {
@@ -11347,6 +11343,26 @@ function _M0FP36mizchi14hacknslash__3d4game25update__enemy__ai_2einner(enemies, 
     }
   }
 }
+function _M0MP36mizchi14hacknslash__3d4game9Inventory3add(self, item) {
+  const _start404 = 0;
+  const _end405 = self.capacity;
+  let _tmp = _start404;
+  while (true) {
+    const i = _tmp;
+    if (i < _end405) {
+      const _bind = _M0MP311moonbitlang4core5array5Array2atGORP36mizchi14hacknslash__3d4game8ItemDataE(self.items, i);
+      if (_bind === undefined) {
+        _M0MP311moonbitlang4core5array5Array3setGORP36mizchi14hacknslash__3d4game8ItemDataE(self.items, i, item);
+        return true;
+      }
+      _tmp = i + 1 | 0;
+      continue;
+    } else {
+      break;
+    }
+  }
+  return false;
+}
 function _M0MP36mizchi14hacknslash__3d4game9GameWorld4tick(self, dx, dy) {
   self.frame_count = self.frame_count + 1 | 0;
   if (self.floor_announce_timer > 0) {
@@ -11486,6 +11502,26 @@ function _M0MP36mizchi14hacknslash__3d4game9GameWorld4tick(self, dx, dy) {
       _L: {
         const item = _arr$3[_i];
         if (item.alive) {
+          if (item.vx !== 0 || item.vy !== 0) {
+            let nx;
+            let ny;
+            _L$2: {
+              const _bind = _M0FP36mizchi14hacknslash__3d4game11slide__move(self.dungeon.grid, item.x, item.y, item.vx, item.vy, 4);
+              const _nx = _bind._0;
+              const _ny = _bind._1;
+              nx = _nx;
+              ny = _ny;
+              break _L$2;
+            }
+            item.x = nx;
+            item.y = ny;
+            item.vx = item.vx * 0.85;
+            item.vy = item.vy * 0.85;
+            if (item.vx * item.vx + item.vy * item.vy < 0.01) {
+              item.vx = 0;
+              item.vy = 0;
+            }
+          }
           if ((self.frame_count - item.spawn_frame | 0) > 600) {
             item.alive = false;
             break _L;
@@ -11493,13 +11529,36 @@ function _M0MP36mizchi14hacknslash__3d4game9GameWorld4tick(self, dx, dy) {
           const idx = item.x - self.player.x;
           const idy = item.y - self.player.y;
           if (idx * idx + idy * idy < _M0FP36mizchi14hacknslash__3d4game18pickup__radius__sq) {
-            item.alive = false;
-            const is_health = _M0IP36mizchi14hacknslash__3d4game8ItemKindP311moonbitlang4core7builtin2Eq5equal(item.kind, 0);
-            _M0MP311moonbitlang4core5array5Array4pushGRP36mizchi14hacknslash__3d4game9GameEventE(self.events, new $64$mizchi$47$hacknslash_3d$47$game$46$GameEvent$ItemPickup(item.x, item.y, is_health));
-            if (is_health) {
-              self.player.hp = _M0FP311moonbitlang4core3cmp7minimumGiE(self.player_stats.max_hp, self.player.hp + 2 | 0);
-            } else {
-              self.score = self.score + 5 | 0;
+            let data;
+            _L$2: {
+              _L$3: {
+                const _bind = item.kind;
+                switch (_bind.$tag) {
+                  case 0: {
+                    item.alive = false;
+                    _M0MP311moonbitlang4core5array5Array4pushGRP36mizchi14hacknslash__3d4game9GameEventE(self.events, new $64$mizchi$47$hacknslash_3d$47$game$46$GameEvent$ItemPickup(item.x, item.y, true));
+                    self.player.hp = _M0FP311moonbitlang4core3cmp7minimumGiE(self.player_stats.max_hp, self.player.hp + 2 | 0);
+                    break;
+                  }
+                  case 1: {
+                    item.alive = false;
+                    _M0MP311moonbitlang4core5array5Array4pushGRP36mizchi14hacknslash__3d4game9GameEventE(self.events, new $64$mizchi$47$hacknslash_3d$47$game$46$GameEvent$ItemPickup(item.x, item.y, false));
+                    self.score = self.score + 5 | 0;
+                    break;
+                  }
+                  default: {
+                    const _Equipment = _bind;
+                    const _data = _Equipment._0;
+                    data = _data;
+                    break _L$3;
+                  }
+                }
+                break _L$2;
+              }
+              if (_M0MP36mizchi14hacknslash__3d4game9Inventory3add(self.inventory, data)) {
+                item.alive = false;
+                _M0MP311moonbitlang4core5array5Array4pushGRP36mizchi14hacknslash__3d4game9GameEventE(self.events, new $64$mizchi$47$hacknslash_3d$47$game$46$GameEvent$ItemPickup(item.x, item.y, false));
+              }
             }
           }
         }
@@ -41396,37 +41455,43 @@ function _M0FP26mizchi19web__runtime__hooks20sync__source__images(bindings) {
   }
   return count.val;
 }
-function _M0IP26mizchi14hacknslash__3d13CharAnimStateP311moonbitlang4core7builtin2Eq5equal(_x_1058, _x_1059) {
-  switch (_x_1058) {
+function _M0IP26mizchi14hacknslash__3d13CharAnimStateP311moonbitlang4core7builtin2Eq5equal(_x_1063, _x_1064) {
+  switch (_x_1063) {
     case 0: {
-      if (_x_1059 === 0) {
+      if (_x_1064 === 0) {
         return true;
       } else {
         return false;
       }
     }
     case 1: {
-      if (_x_1059 === 1) {
+      if (_x_1064 === 1) {
         return true;
       } else {
         return false;
       }
     }
     case 2: {
-      if (_x_1059 === 2) {
+      if (_x_1064 === 2) {
         return true;
       } else {
         return false;
       }
     }
     default: {
-      if (_x_1059 === 3) {
+      if (_x_1064 === 3) {
         return true;
       } else {
         return false;
       }
     }
   }
+}
+function _M0FP26mizchi14hacknslash__3d13hex__to__vec4(hex) {
+  const r = ((hex >> 16 & 255) + 0) / 255;
+  const g = ((hex >> 8 & 255) + 0) / 255;
+  const b = ((hex & 255) + 0) / 255;
+  return _M0MP36mizchi6kagura6math3d4Vec43new(r, g, b, 1);
 }
 function _M0FP26mizchi14hacknslash__3d19is__entity__visible(region, x, y) {
   const col = _M0MP311moonbitlang4core6double6Double7to__int(x / _M0FP26mizchi14hacknslash__3d10tile__size);
@@ -41450,7 +41515,30 @@ function _M0FP26mizchi14hacknslash__3d19build__entity__cmds(state, region, vp, d
         const iz = item.y / _M0FP26mizchi14hacknslash__3d10tile__size;
         const base_y = _M0FP36mizchi14hacknslash__3d4game17get__tile__height(state.world.dungeon, item.x, item.y);
         const bob = base_y + 0.3 + 0.1 * _M0FP311moonbitlang4core4math3sin((state.world.frame_count + 0) * 0.1);
-        const c = _M0IP36mizchi14hacknslash__3d4game8ItemKindP311moonbitlang4core7builtin2Eq5equal(item.kind, 0) ? _M0FP26mizchi14hacknslash__3d19color__item__health : _M0FP26mizchi14hacknslash__3d18color__item__score;
+        let c;
+        let data;
+        _L: {
+          _L$2: {
+            const _bind = item.kind;
+            switch (_bind.$tag) {
+              case 0: {
+                c = _M0FP26mizchi14hacknslash__3d19color__item__health;
+                break;
+              }
+              case 2: {
+                const _Equipment = _bind;
+                const _data = _Equipment._0;
+                data = _data;
+                break _L$2;
+              }
+              default: {
+                c = _M0FP26mizchi14hacknslash__3d18color__item__score;
+              }
+            }
+            break _L;
+          }
+          c = _M0FP26mizchi14hacknslash__3d13hex__to__vec4(_M0MP36mizchi14hacknslash__3d4game10ItemRarity5color(data.rarity));
+        }
         const model = _M0MP36mizchi6kagura6math3d4Mat411translation(ix, bob, iz);
         const tinted = _M0FP26mizchi14hacknslash__3d14tint__lighting(lighting, c);
         const dst_region = _M0FP36mizchi6kagura3gfx16new__dst__region(0, 0, screen_w, screen_h, state.meshes.item.indices.length);

@@ -13,17 +13,30 @@ let sword_len : Double = 0.35
 // Animation
 let idle_anim_duration : Double = 2.0
 let attack_anim_duration : Double = 0.3
+let run_anim_duration : Double = 0.5
+let hurt_anim_duration : Double = 0.25
 let idle_num_keyframes : Int = 16
 let attack_num_keyframes : Int = 8
+let run_num_keyframes : Int = 12
+let hurt_num_keyframes : Int = 6
+
+enum CharAnimState {
+  Idle
+  Attacking
+  Running
+  Hurt
+} derive(Eq)
 
 struct PlayerCharacter {
   skeleton : @skeleton3d.Skeleton
   bind_mesh : @mesh3d.Mesh3D
   skin_data : @skeleton3d.SkinData
   packed_vertex_data : Array[Double]
-  mut anim_state : Int // 0=idle, 1=attacking
+  mut anim_state : CharAnimState
   idle_player : @animation3d.AnimationPlayer
   attack_player : @animation3d.AnimationPlayer
+  run_player : @animation3d.AnimationPlayer
+  hurt_player : @animation3d.AnimationPlayer
   local_poses : Array[@transform3d.Transform3D]
 }
 
@@ -328,17 +341,125 @@ fn build_attack_animation() -> @animation3d.AnimationClip {
   { name: "attack", channels, duration: attack_anim_duration }
 }
 
+// Run animation: torso bob + arm swing
+fn build_run_animation() -> @animation3d.AnimationClip {
+  let channels : Array[@animation3d.AnimChannel] = []
+  // Root: vertical bob (up/down while running)
+  let root_times : Array[Double] = []
+  let root_values : Array[Double] = []
+  for k in 0..<run_num_keyframes {
+    let t = k.to_double() / (run_num_keyframes - 1).to_double() * run_anim_duration
+    root_times.push(t)
+    let phase = t * 2.0 * @math.PI / run_anim_duration * 2.0 // 2 bobs per cycle
+    let y_offset = @math.sin(phase).abs() * 0.03
+    root_values.push(0.0)
+    root_values.push(y_offset)
+    root_values.push(0.0)
+  }
+  channels.push({
+    node_index: 0, // root
+    target: @animation3d.Translation,
+    interpolation: @animation3d.Linear,
+    times: root_times,
+    values: root_values,
+  })
+  // Torso: slight forward lean + side-to-side sway
+  let torso_times : Array[Double] = []
+  let torso_values : Array[Double] = []
+  for k in 0..<run_num_keyframes {
+    let t = k.to_double() / (run_num_keyframes - 1).to_double() * run_anim_duration
+    torso_times.push(t)
+    let phase = t * 2.0 * @math.PI / run_anim_duration
+    let lean = -0.12 // constant forward lean
+    let sway = 0.06 * @math.sin(phase * 2.0) // side sway
+    let qx = @math3d.Quaternion::from_axis_angle(@math3d.Vec3::unit_x(), lean)
+    let qz = @math3d.Quaternion::from_axis_angle(@math3d.Vec3::unit_z(), sway)
+    let q = qx.multiply(qz)
+    torso_values.push(q.x)
+    torso_values.push(q.y)
+    torso_values.push(q.z)
+    torso_values.push(q.w)
+  }
+  channels.push({
+    node_index: 1, // torso
+    target: @animation3d.Rotation,
+    interpolation: @animation3d.Linear,
+    times: torso_times,
+    values: torso_values,
+  })
+  // Right arm: swing back and forth
+  let arm_times : Array[Double] = []
+  let arm_values : Array[Double] = []
+  for k in 0..<run_num_keyframes {
+    let t = k.to_double() / (run_num_keyframes - 1).to_double() * run_anim_duration
+    arm_times.push(t)
+    let phase = t * 2.0 * @math.PI / run_anim_duration
+    let angle = 0.4 * @math.sin(phase) // arm swing
+    let q = @math3d.Quaternion::from_axis_angle(@math3d.Vec3::unit_z(), angle)
+    arm_values.push(q.x)
+    arm_values.push(q.y)
+    arm_values.push(q.z)
+    arm_values.push(q.w)
+  }
+  channels.push({
+    node_index: 2, // r_upper_arm
+    target: @animation3d.Rotation,
+    interpolation: @animation3d.Linear,
+    times: arm_times,
+    values: arm_values,
+  })
+  { name: "run", channels, duration: run_anim_duration }
+}
+
+// Hurt animation: torso jerks back then recovers
+fn build_hurt_animation() -> @animation3d.AnimationClip {
+  let channels : Array[@animation3d.AnimChannel] = []
+  let times : Array[Double] = []
+  let values : Array[Double] = []
+  for k in 0..<hurt_num_keyframes {
+    let t = k.to_double() / (hurt_num_keyframes - 1).to_double() * hurt_anim_duration
+    times.push(t)
+    let progress = t / hurt_anim_duration
+    // Quick jerk back then recovery
+    let angle = if progress < 0.2 {
+      -0.3 * (progress / 0.2) // fast lean back
+    } else {
+      -0.3 * (1.0 - (progress - 0.2) / 0.8) // slow recovery
+    }
+    let q = @math3d.Quaternion::from_axis_angle(@math3d.Vec3::unit_x(), angle)
+    values.push(q.x)
+    values.push(q.y)
+    values.push(q.z)
+    values.push(q.w)
+  }
+  channels.push({
+    node_index: 1, // torso
+    target: @animation3d.Rotation,
+    interpolation: @animation3d.Linear,
+    times,
+    values,
+  })
+  { name: "hurt", channels, duration: hurt_anim_duration }
+}
+
 fn PlayerCharacter::new() -> PlayerCharacter {
   let skeleton = build_character_skeleton()
   let (bind_mesh, skin_data) = build_character_mesh()
   let packed_vertex_data = @skeleton3d.build_skinned_vertex_data(bind_mesh, skin_data)
   let idle_clip = build_idle_animation()
   let attack_clip = build_attack_animation()
+  let run_clip = build_run_animation()
+  let hurt_clip = build_hurt_animation()
   let idle_player = @animation3d.AnimationPlayer::new(idle_clip)
   idle_player.set_looping(true)
   idle_player.play()
   let attack_player = @animation3d.AnimationPlayer::new(attack_clip)
   attack_player.set_looping(false)
+  let run_player = @animation3d.AnimationPlayer::new(run_clip)
+  run_player.set_looping(true)
+  run_player.play()
+  let hurt_player = @animation3d.AnimationPlayer::new(hurt_clip)
+  hurt_player.set_looping(false)
   let local_poses : Array[@transform3d.Transform3D] = []
   for i in 0..<char_num_bones {
     local_poses.push(skeleton.bones[i].local_transform)
@@ -348,31 +469,56 @@ fn PlayerCharacter::new() -> PlayerCharacter {
     bind_mesh,
     skin_data,
     packed_vertex_data,
-    anim_state: 0,
+    anim_state: Idle,
     idle_player,
     attack_player,
+    run_player,
+    hurt_player,
     local_poses,
   }
 }
 
 fn PlayerCharacter::trigger_attack(self : PlayerCharacter) -> Unit {
-  self.anim_state = 1
+  self.anim_state = Attacking
   self.attack_player.set_time(0.0)
   self.attack_player.play()
 }
 
+fn PlayerCharacter::trigger_hurt(self : PlayerCharacter) -> Unit {
+  if self.anim_state != Attacking {
+    self.anim_state = Hurt
+    self.hurt_player.set_time(0.0)
+    self.hurt_player.play()
+  }
+}
+
+fn PlayerCharacter::set_moving(self : PlayerCharacter, moving : Bool) -> Unit {
+  if self.anim_state == Attacking || self.anim_state == Hurt {
+    return
+  }
+  if moving && self.anim_state != Running {
+    self.anim_state = Running
+  } else if not(moving) && self.anim_state == Running {
+    self.anim_state = Idle
+  }
+}
+
 fn PlayerCharacter::update(self : PlayerCharacter, dt : Double) -> Unit {
   match self.anim_state {
-    1 => {
+    Attacking => {
       self.attack_player.update(dt)
-      // Check if attack animation finished
       if not(self.attack_player.playing) {
-        self.anim_state = 0
+        self.anim_state = Idle
       }
     }
-    _ => {
-      self.idle_player.update(dt)
+    Hurt => {
+      self.hurt_player.update(dt)
+      if not(self.hurt_player.playing) {
+        self.anim_state = Idle
+      }
     }
+    Running => self.run_player.update(dt)
+    Idle => self.idle_player.update(dt)
   }
 }
 
@@ -383,8 +529,10 @@ fn PlayerCharacter::compute_skinning(self : PlayerCharacter) -> Array[@math3d.Ma
   }
   // Apply current animation
   let poses = match self.anim_state {
-    1 => self.attack_player.sample()
-    _ => self.idle_player.sample()
+    Attacking => self.attack_player.sample()
+    Hurt => self.hurt_player.sample()
+    Running => self.run_player.sample()
+    Idle => self.idle_player.sample()
   }
   for pose in poses {
     let idx = pose.node_index

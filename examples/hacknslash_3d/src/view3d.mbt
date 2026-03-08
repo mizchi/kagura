@@ -376,15 +376,48 @@ fn GameState::draw_playing(
   for cmd in particle_cmds {
     cmds.push(cmd)
   }
+  // === Pass 7: Camera depth for SSAO ===
+  let casters : Array[@shadow3d.ShadowCaster] = []
+  for chunk in visible_chunks {
+    if chunk.all_mesh.indices.length() > 0 {
+      casters.push(@shadow3d.ShadowCaster::new(chunk.all_mesh, identity))
+    }
+  }
+  let depth_cmds = @shadow3d.camera_depth_pass_commands(
+    self.camera_depth_target, self.camera_depth_shader,
+    casters, view_projection,
+  )
+  for cmd in depth_cmds {
+    cmds.push(cmd)
+  }
+  // === Pass 8: SSAO ===
+  cmds.push(
+    @postfx.new_ssao_command(
+      self.ssao_target, self.ssao_sh,
+      self.scene_target.id, self.camera_depth_target.id,
+      0.5, 0.025, 1.0, ctx.screen_w, ctx.screen_h,
+    ),
+  )
+  // === Pass 9: Bloom (threshold → hblur → vblur → composite) ===
+  let bloom_cmds = @postfx.bloom_commands(
+    self.post_target, self.ssao_target.id,
+    self.bloom_a, self.bloom_b,
+    self.bloom_threshold_sh, self.bloom_hblur_sh,
+    self.bloom_vblur_sh, self.bloom_composite_sh,
+    0.8, 0.3, ctx.screen_w, ctx.screen_h,
+  )
+  for cmd in bloom_cmds {
+    cmds.push(cmd)
+  }
   // === PostFX: tonemap → FXAA ===
   cmds.push(
     @postfx.new_tonemap_command(
-      self.post_target, self.tonemap_sh, self.scene_target.id, 1.0,
+      self.bloom_b, self.tonemap_sh, self.post_target.id, 1.0,
     ),
   )
   cmds.push(
     @postfx.new_fxaa_command(
-      ctx.dst, self.fxaa_sh, self.post_target.id, screen_w, screen_h,
+      ctx.dst, self.fxaa_sh, self.bloom_b.id, ctx.screen_w, ctx.screen_h,
     ),
   )
   // 2D HUD overlay

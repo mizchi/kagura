@@ -126,3 +126,30 @@ fn spawn_player_hurt(
     max_particles: 20,
   })
 }
+
+// Ambient dust particles — spawned periodically near the player
+fn spawn_ambient_dust(
+  pm : @particle3d.ParticleManager,
+  x : Double,
+  y : Double,
+  frame : Int,
+) -> Unit {
+  // Pseudo-random offset around player using frame as seed
+  let ox = ((frame * 73 + 17) % 200 - 100).to_double() / 100.0 * 3.0
+  let oz = ((frame * 37 + 53) % 200 - 100).to_double() / 100.0 * 3.0
+  let pos = game_to_3d(x + ox * tile_size, y + oz * tile_size, 0.1)
+  pm.spawn({
+    position: pos,
+    spawn_rate: 100.0,
+    initial_velocity_min: @math3d.Vec3::new(-0.1, 0.1, -0.1),
+    initial_velocity_max: @math3d.Vec3::new(0.1, 0.4, 0.1),
+    lifetime_min: 1.5,
+    lifetime_max: 3.0,
+    size_min: 0.01,
+    size_max: 0.03,
+    color_start: @math3d.Vec4::new(0.6, 0.55, 0.4, 0.3),
+    color_end: @math3d.Vec4::new(0.5, 0.45, 0.35, 0.0),
+    gravity: @math3d.Vec3::new(0.0, 0.05, 0.0),
+    max_particles: 3,
+  })
+}

@@ -81,7 +81,61 @@ fn GameState::render_hud_cmds(
     let cd_ratio = self.player.dash_cooldown_timer.to_double() / dash_cooldown.to_double()
     ctx.draw_rect(cmds, 10.0, 28.0, 120.0 * (1.0 - cd_ratio), 4.0, @hud.hex_color(0x66DDFF, alpha=0.6))
   }
+  // Minimap
+  self.render_minimap(ctx, cmds)
   cmds
+}
+
+fn GameState::render_minimap(
+  self : GameState,
+  ctx : @hud.HudContext,
+  cmds : Array[@gfx.DrawTrianglesCommand],
+) -> Unit {
+  let map_size = 100.0
+  let map_x = ctx.screen_w - map_size - 8.0
+  let map_y = ctx.screen_h - map_size - 8.0
+  let cell_size = 2.0
+  let radius = (map_size / cell_size / 2.0).to_int()
+  let grid = self.dungeon.grid
+  let pcx = (self.player.x / tile_size).to_int()
+  let pcy = (self.player.y / tile_size).to_int()
+  // Background
+  ctx.draw_rect(cmds, map_x - 2.0, map_y - 2.0, map_size + 4.0, map_size + 4.0, @hud.hex_color(0x000000, alpha=0.7))
+  // Tiles
+  for dy = -radius; dy <= radius; dy = dy + 1 {
+    for dx = -radius; dx <= radius; dx = dx + 1 {
+      let gx = pcx + dx
+      let gy = pcy + dy
+      if gx >= 0 && gx < grid.width && gy >= 0 && gy < grid.height {
+        let tile = grid.get(gx, gy)
+        let color = if tile == @terrain.Wall {
+          0x444444
+        } else if tile == @terrain.Floor || tile == @terrain.Corridor {
+          0x223322
+        } else {
+          continue // skip unknown tiles
+        }
+        let sx = map_x + (dx + radius).to_double() * cell_size
+        let sy = map_y + (dy + radius).to_double() * cell_size
+        ctx.draw_rect(cmds, sx, sy, cell_size, cell_size, @hud.hex_color(color, alpha=0.9))
+      }
+    }
+  }
+  // Enemies
+  for enemy in self.enemies {
+    if enemy.alive {
+      let ex = ((enemy.x / tile_size).to_int() - pcx + radius).to_double() * cell_size
+      let ey = ((enemy.y / tile_size).to_int() - pcy + radius).to_double() * cell_size
+      if ex >= 0.0 && ex < map_size && ey >= 0.0 && ey < map_size {
+        let c = if enemy.kind == Boss { 0xFF2266 } else { 0xCC2222 }
+        ctx.draw_rect(cmds, map_x + ex, map_y + ey, cell_size + 1.0, cell_size + 1.0, @hud.hex_color(c))
+      }
+    }
+  }
+  // Player dot (center)
+  let px = map_x + radius.to_double() * cell_size
+  let py = map_y + radius.to_double() * cell_size
+  ctx.draw_rect(cmds, px - 1.0, py - 1.0, cell_size + 2.0, cell_size + 2.0, @hud.hex_color(0x00FFCC))
 }
 
 fn GameState::render_hud_scene_fallback(

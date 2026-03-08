@@ -258,6 +258,7 @@ fn GameState::deal_player_damage(self : GameState, raw_dmg : Int) -> Unit {
   self.player.iframe_timer = iframe_duration
   self.screen_flash = 3
   spawn_player_hurt(self.particle_manager, self.player.x, self.player.y)
+  self.character.trigger_hurt()
   if self.player.hp <= 0 {
     self.mode = GameOver
   }
@@ -408,8 +409,14 @@ fn GameState::update_playing(self : GameState) -> Unit {
     activate_skill(self, 2)
   }
   // Update character animation
+  let is_moving = dx != 0.0 || dy != 0.0
+  self.character.set_moving(is_moving)
   self.character.update(1.0 / 60.0)
   self.enemy_models.update(1.0 / 60.0)
+  // Ambient dust particles (every 15 frames)
+  if self.frame_count % 15 == 0 {
+    spawn_ambient_dust(self.particle_manager, self.player.x, self.player.y, self.frame_count)
+  }
   // Enemy AI
   update_enemy_ai(self.enemies, self.player, self.dungeon.grid, self.frame_count, self.projectiles)
   // Apply enemy movement + collision

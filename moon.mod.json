@@ -1,6 +1,6 @@
 {
   "name": "mizchi/kagura",
-  "version": "0.1.1",
+  "version": "0.2.0",
   "deps": {
     "mizchi/image": "0.1.1",
     "mizchi/font": "0.3.1",
@@ -9,9 +9,7 @@
     "mizchi/svg": "0.1.9",
     "mizchi/signals": "0.6.3",
     "mizchi/glfw": "0.2.1",
-    "mizchi/terrain": {
-      "path": "../terrain"
-    }
+    "mizchi/terrain": "0.1.1"
   },
   "readme": "README.mbt.md",
   "repository": "https://github.com/mizchi/kagura",
@@ -30,7 +28,6 @@
     "e2e",
     "docs",
     "deps",
-    "scripts",
     "fixtures",
     ".github",
     ".claude",

@@ -660,51 +660,12 @@ pub fn install(title : String) -> Unit {
     ),
   )
   @text.set_font_load_hooks(@text.new_font_load_hooks(bridge_load_font_data))
-  @audio.set_audio_output_hooks(
-    @audio.new_audio_output_hooks_full(
-      bridge_audio_try_initialize, bridge_audio_write_frames, bridge_audio_suspend,
-      bridge_audio_resume, bridge_audio_close, bridge_audio_output_latency,
-    ),
-  )
+  @audio.set_audio_output_hooks(@wgpu_native.new_native_audio_output_hooks())
 }
 
 ///|
 fn bridge_load_font_data(name : String) -> Array[Int]? {
   @wgpu_native.runtime_load_font_data(name)
-}
-
-// ---------------------------------------------------------------------------
-// Audio bridge (miniaudio native backend)
-// ---------------------------------------------------------------------------
-
-///|
-fn bridge_audio_try_initialize(format : @audio.AudioFormat) -> Bool {
-  @wgpu_native.runtime_audio_try_initialize(format.sample_rate, format.channels)
-}
-
-///|
-fn bridge_audio_write_frames(output : FixedArray[Float], frames : Int) -> Int {
-  @wgpu_native.runtime_audio_write_frames(output, frames)
-}
-
-///|
-fn bridge_audio_suspend() -> Unit {
-  @wgpu_native.runtime_audio_suspend()
-}
-
-///|
-fn bridge_audio_resume() -> Unit {
-  @wgpu_native.runtime_audio_resume()
-}
-
-///|
-fn bridge_audio_close() -> Unit {
-  @wgpu_native.runtime_audio_close()
-}
-
-///|
-fn bridge_audio_output_latency() -> Double {
-  @wgpu_native.runtime_audio_output_latency()
 }
 
 ///|
@@ -756,10 +717,11 @@ pub fn shutdown_context() -> Unit {
 
 ///|
 fn init {
-  @engine.set_lifecycle_hooks(
-    {
-      on_start: fn(_canvas, title) { install(title) },
-      on_stop: fn() { shutdown(); uninstall() },
+  @engine.set_lifecycle_hooks({
+    on_start: fn(_canvas, title) { install(title) },
+    on_stop: fn() {
+      shutdown()
+      uninstall()
     },
-  )
+  })
 }

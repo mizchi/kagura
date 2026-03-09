@@ -89,7 +89,7 @@ Surface 作成のクロスプラットフォーム化と CI 整備は完了。�
 - [x] CI: native-linux に wgpu-native + GLFW + X11 セットアップ追加、テスト・ビルド通過
 - [x] CI: native-windows に wgpu-native セットアップ追加、`moon check` 通過
 - [ ] Windows `moon build`: MoonBit ランタイムが `-lm` を無条件付加する問題の上流修正待ち
-- [ ] Audio バックエンドの抽象化（現在 AudioToolbox に依存 → Linux: PulseAudio/ALSA、Windows: WASAPI）
+- [x] Audio バックエンドの抽象化 — `audio.AudioOutputHooks` を native backend factory (`gfx_wgpu_native.new_native_audio_output_hooks()`) に整理し、host bridge から実装詳細を分離
 
 ### 残タスク (3D エンジン)
 

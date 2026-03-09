@@ -109,6 +109,9 @@ extern "C" fn moonbit_audio_get_write_pos() -> Int = "moonbit_audio_get_write_po
 extern "C" fn moonbit_audio_advance_write(frames : Int) = "moonbit_audio_advance_write"
 
 ///|
+extern "C" fn moonbit_audio_is_initialized() -> Int = "moonbit_audio_is_initialized"
+
+///|
 extern "C" fn moonbit_audio_suspend() = "moonbit_audio_suspend"
 
 ///|

@@ -3380,6 +3380,10 @@ void moonbit_audio_advance_write(int32_t frames) {
     g_audio_write_pos = (g_audio_write_pos + frames) % AUDIO_RING_SIZE;
 }
 
+int32_t moonbit_audio_is_initialized(void) {
+    return g_audio_initialized ? 1 : 0;
+}
+
 void moonbit_audio_suspend(void) {
     if (g_audio_initialized) {
         ma_device_stop(&g_audio_device);

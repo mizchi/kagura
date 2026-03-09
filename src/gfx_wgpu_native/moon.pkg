@@ -1,4 +1,5 @@
 import {
+  "mizchi/kagura/audio" @audio,
   "mizchi/glfw" @glfw,
 }
 
@@ -13,6 +14,8 @@ options(
   "native-stub": [ "wgpu_native_stub.c", "wgpu_native_stub_macos.m" ],
   "supported-targets": [ "native" ],
   targets: {
+    "audio_backend.mbt": [ "native" ],
+    "audio_backend_wbtest.mbt": [ "native" ],
     "backend.mbt": [ "native" ],
     "native_io_bindings.mbt": [ "native" ],
     "runtime_bridge.mbt": [ "native" ],

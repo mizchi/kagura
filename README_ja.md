@@ -9,7 +9,7 @@
 - **宣言的 Scene API** -- `@scene.run` + VNode ベースの view 関数で 2D ゲームを記述
 - **Signal による状態管理** -- `mizchi/signals` でリアクティブな状態更新
 - **契約先行アーキテクチャ** -- API の契約を先に定義し、実装を差し替え可能に保つ
-- **クロスプラットフォーム** -- デスクトップは wgpu-native、ブラウザは WebGPU / WebGL
+- **クロスプラットフォーム** -- デスクトップは wgpu-native、ブラウザは WebGPU
 - **Pure MoonBit** -- グラフィクスバックエンド境界以外の FFI なし
 
 ## アーキテクチャ
@@ -33,7 +33,7 @@ vector/        ベクトル演算
 
 | ターゲット | バックエンド | 対応状況 |
 |-----------|-------------|---------|
-| Web (全 OS) | WebGPU / WebGL2 | 対応済み |
+| Web (全 OS) | WebGPU | 対応済み |
 | Native macOS | wgpu-native + Metal + GLFW | 対応済み |
 | Native Linux | wgpu-native + Vulkan + GLFW | 未対応（予定あり） |
 | Native Windows | wgpu-native + D3D12/Vulkan + GLFW | 未対応（予定あり） |
@@ -90,7 +90,7 @@ cd examples/action_rpg && \
 just dev flappy_bird
 ```
 
-ビルド → ローカルサーバー起動 → `http://localhost:8080` で開けます。WebGPU 対応ブラウザ（Chrome 113+, Edge 113+）が必要です。
+ビルド → ローカルサーバー起動 → `http://localhost:8080` で開けます。ブラウザ版は現在 WebGPU 専用です。WebGPU 対応ブラウザ（Chrome 113+, Edge 113+）を使ってください。
 
 ## Scene API で始める
 

@@ -21,7 +21,7 @@ pnpm install
 just dev flappy_bird
 ```
 
-Builds and starts a local server. Open `http://localhost:8080` in a WebGPU-capable browser.
+Builds and starts a local server. Open `http://localhost:8080` in a WebGPU-capable browser. Browser demos currently require WebGPU.
 
 Other examples work the same way:
 

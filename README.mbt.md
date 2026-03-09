@@ -8,7 +8,7 @@ A 2D-first (with future 3D) game engine for [MoonBit](https://www.moonbitlang.co
 
 - **Contract-first architecture** -- API contracts are defined before implementations, keeping the codebase modular and replaceable
 - **Ebiten-inspired design** -- Fixed timestep updates, draw command batching, offscreen compositing, and backend abstraction
-- **Cross-platform** -- Desktop via wgpu-native, browser via WebGPU / WebGL
+- **Cross-platform** -- Desktop via wgpu-native, browser via WebGPU
 - **Pure MoonBit** -- No CGo, no FFI beyond the graphics backend boundary
 
 ## Architecture
@@ -57,7 +57,7 @@ pnpm install
 just dev flappy_bird
 ```
 
-Builds and serves at `http://localhost:8080`. Requires a WebGPU-capable browser (Chrome 113+, Edge 113+).
+Builds and serves at `http://localhost:8080`. Browser demos currently require WebGPU (Chrome 113+, Edge 113+).
 
 ### Native (macOS only)
 

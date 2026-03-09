@@ -2,6 +2,12 @@ import { createServer } from "vite";
 import { resolve, join } from "node:path";
 import { existsSync, readdirSync, readFileSync } from "node:fs";
 import { moonbit } from "vite-plugin-moonbit";
+import {
+  detectFontEntries,
+  renderDemoHtml,
+  renderLoaderModule,
+  resolveDemoPage,
+} from "./web-demo-pages.mjs";
 
 const ROOT = resolve(import.meta.dirname, "..");
 const name = process.argv[2];
@@ -18,66 +24,19 @@ if (!existsSync(exampleDir)) {
   process.exit(1);
 }
 
-// Detect TTF fonts
-function detectFonts() {
-  const assetsDir = join(exampleDir, "assets");
-  if (!existsSync(assetsDir)) return "";
-  const ttfs = readdirSync(assetsDir).filter((f) => f.endsWith(".ttf"));
-  if (ttfs.length === 0) return "";
-  const entries = ttfs.map((f) => `["assets/${f}", "./assets/${f}"]`).join(", ");
-  return `  await loadFonts([${entries}]);`;
-}
-
-const fontSnippet = detectFonts();
-const title = name.replace(/_/g, " ");
-
-// Generate index.html content
-const indexHtml = `<!doctype html>
-<html lang="en">
-  <head>
-    <meta charset="utf-8" />
-    <title>${title} - Kagura Dev</title>
-    <style>
-      body {
-        margin: 0;
-        background: #000;
-        display: flex;
-        justify-content: center;
-        align-items: center;
-        height: 100vh;
-      }
-      #app { border: 1px solid #444; }
-    </style>
-  </head>
-  <body>
-    <canvas id="app" width="320" height="240"
-      style="width: 640px; height: 480px; image-rendering: pixelated"></canvas>
-    <script type="module">
-      import { initWebGPU, setupGlobalState, loadFonts, loadGameScript, showStartupError } from "./lib/web/kagura-init.js";
-      import { installAudioHelpers } from "./lib/web/kagura-audio.js";
-      import { installGfxHelpers } from "./lib/web/kagura-gfx.js";
-      async function init() {
-        const result = await initWebGPU("#app");
-        if (!result) {
-          showStartupError("#app", "WebGPU initialization failed", "Use a WebGPU-capable browser.");
-          return;
-        }
-        setupGlobalState(result.canvas, result.device, result.format, result.context);
-        installAudioHelpers();
-        installGfxHelpers();
-      ${fontSnippet}
-        try {
-          await loadGameScript("./_build/js/debug/build/${name}.js");
-        } catch (e) {
-          showStartupError("#app", "Failed to load game script", e && e.message ? e.message : String(e));
-        }
-      }
-      init().catch((e) => {
-        showStartupError("#app", "Unexpected runtime error", e && e.message ? e.message : String(e));
-      });
-    </script>
-  </body>
-</html>`;
+const demo = resolveDemoPage(name);
+const inlineLoader = renderLoaderModule({
+  fontEntries: detectFontEntries(exampleDir),
+  scriptPath: `./_build/js/debug/build/${name}.js`,
+  libPrefix: "./lib/web",
+});
+const scriptTag = `<script type="module">\n${inlineLoader.replaceAll("</script>", "<\\/script>")}</script>`;
+const indexHtml = renderDemoHtml({
+  demo,
+  homeHref: "https://github.com/mizchi/kagura",
+  homeLabel: "Repository",
+  scriptTag,
+});
 
 const PORT = parseInt(process.env.PORT ?? "8080", 10);
 
@@ -130,6 +89,7 @@ const server = await createServer({
 });
 
 await server.listen();
-console.log(`\n  Serving ${name} at http://localhost:${PORT}`);
+const localUrl = server.resolvedUrls?.local?.[0] ?? `http://127.0.0.1:${PORT}/`;
+console.log(`\n  Serving ${name} at ${localUrl}`);
 console.log(`  .mbt changes will trigger auto-rebuild + full-reload\n`);
 server.printUrls();

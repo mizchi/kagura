@@ -21,7 +21,7 @@ pnpm install
 just dev flappy_bird
 ```
 
-ビルドしてローカルサーバーが起動します。`http://localhost:8080` を WebGPU 対応ブラウザで開いてください。
+ビルドしてローカルサーバーが起動します。`http://localhost:8080` を WebGPU 対応ブラウザで開いてください。ブラウザ版は現在 WebGPU 専用です。
 
 他の example も同様に実行できます:
 

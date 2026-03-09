@@ -6,9 +6,9 @@ import {
 options(
   link: {
     "native": {
-      "cc": "clang",
-      "cc-flags": "-Ideps/wgpu-native/include -I/usr/local/include -Ideps/miniaudio",
-      "cc-link-flags": "-Ldeps/wgpu-native/lib -lwgpu_native -lglfw -Wl,-rpath,deps/wgpu-native/lib ${build.KAGURA_NATIVE_AUDIO_LIBS}",
+      "cc": "scripts/moon-native-cc.sh",
+      "cc-flags": "-Ideps/wgpu-native/include -Ideps/miniaudio ${build.KAGURA_NATIVE_GLFW_CFLAGS}",
+      "cc-link-flags": "-Ldeps/wgpu-native/lib -lwgpu_native ${build.KAGURA_NATIVE_GLFW_LIBS} -Wl,-rpath,deps/wgpu-native/lib ${build.KAGURA_NATIVE_AUDIO_LIBS}",
     },
   },
   "native-stub": [ "wgpu_native_stub.c", "wgpu_native_stub_macos.m" ],

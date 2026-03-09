@@ -4,3 +4,7 @@ import {
   "mizchi/kagura/inpututil" @inpututil,
   "mizchi/kagura/platform" @platform,
 }
+
+options(
+  "native-stub": [ "runtime_clock_native.c" ],
+)

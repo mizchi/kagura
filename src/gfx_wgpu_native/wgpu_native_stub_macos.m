@@ -17,7 +17,10 @@
 
 // GLFW
 #define GLFW_EXPOSE_NATIVE_COCOA
-#if __has_include("/opt/homebrew/include/GLFW/glfw3.h")
+#if __has_include("../../vendor/glfw/include/GLFW/glfw3.h")
+#include "../../vendor/glfw/include/GLFW/glfw3.h"
+#include "../../vendor/glfw/include/GLFW/glfw3native.h"
+#elif __has_include("/opt/homebrew/include/GLFW/glfw3.h")
 #include "/opt/homebrew/include/GLFW/glfw3.h"
 #include "/opt/homebrew/include/GLFW/glfw3native.h"
 #elif __has_include("/usr/local/include/GLFW/glfw3.h")

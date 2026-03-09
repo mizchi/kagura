@@ -8,7 +8,9 @@
     "mizchi/audio": "0.1.0",
     "mizchi/svg": "0.1.9",
     "mizchi/signals": "0.6.3",
-    "mizchi/glfw": "0.2.1",
+    "mizchi/glfw": {
+      "path": "vendor/glfw"
+    },
     "mizchi/terrain": "0.1.1"
   },
   "readme": "README.mbt.md",

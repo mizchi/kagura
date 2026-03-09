@@ -1,0 +1,12 @@
+options(
+  link: {
+    "native": {
+      "cc": "clang",
+      "cc-flags": "-I/opt/homebrew/include -I/usr/local/include",
+      "cc-link-flags": "-L/usr/local/lib -L/opt/homebrew/lib -lglfw -Wl,-rpath,/usr/local/lib -Wl,-rpath,/opt/homebrew/lib -framework Cocoa -framework IOKit -framework CoreFoundation -framework QuartzCore",
+    },
+  },
+  "native-stub": [ "glfw_stub.c", "glfw_stub_macos.m" ],
+  "supported-targets": [ "native" ],
+  targets: { "glfw.mbt": [ "native" ] },
+)

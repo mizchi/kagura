@@ -16,7 +16,8 @@ warnings = "-1-7-29"
 options(
   link: {
     "native": {
-      "cc-link-flags": "-L../../deps/wgpu-native/lib -lwgpu_native -lglfw -Wl,-rpath,../../deps/wgpu-native/lib ${build.KAGURA_NATIVE_AUDIO_LIBS}",
+      "cc": "../../scripts/moon-native-cc.sh",
+      "cc-link-flags": "-L../../deps/wgpu-native/lib -lwgpu_native ${build.KAGURA_NATIVE_GLFW_LIBS} -Wl,-rpath,../../deps/wgpu-native/lib ${build.KAGURA_NATIVE_AUDIO_LIBS}",
     },
   },
   targets: {

@@ -1,15 +1,24 @@
 // Game state construction, update logic, reset
 
+///|
 fn GameState::new(seed~ : Int) -> GameState {
   let world = @game.GameWorld::new(seed~)
   let sw = screen_w.to_double()
   let sh = screen_h.to_double()
-  let init_y = @game.get_tile_height(world.dungeon, world.player.x, world.player.y)
+  let init_y = @game.get_tile_height(
+    world.dungeon,
+    world.player.x,
+    world.player.y,
+  )
   let camera = @camera3d.OrbitCamera::new(
-    @math3d.Vec3::new(world.player.x / tile_size, init_y, world.player.y / tile_size),
+    @math3d.Vec3::new(
+      world.player.x / tile_size,
+      init_y,
+      world.player.y / tile_size,
+    ),
     16.0, // closer to player
     0.785, // yaw 45 degrees
-    0.96,  // pitch ~55 degrees
+    0.96, // pitch ~55 degrees
     @math.PI / 5.0,
     sw / sh,
     0.1,
@@ -28,6 +37,7 @@ fn GameState::new(seed~ : Int) -> GameState {
   )
   let meshes = Meshes3D::new()
   let dungeon_chunks = build_dungeon_chunks(world.dungeon, meshes)
+  let icon_atlas = create_icon_atlas()
   let shadow_config = @shadow3d.ShadowConfig::new(
     1024, // map_size
     14.0, // half_extent
@@ -48,18 +58,26 @@ fn GameState::new(seed~ : Int) -> GameState {
     profile: @debugutil.default_frame_profile(),
     camera,
     lighting,
-    shader3d: @gfx.new_shader_handle(100, @draw3d.shader3d_lit_untextured_wgsl()),
-    shader3d_skinned: @gfx.new_shader_handle(101, @draw3d.shader3d_lit_skinned_wgsl()),
+    shader3d: @gfx.new_shader_handle(
+      100,
+      @draw3d.shader3d_lit_untextured_wgsl(),
+    ),
+    shader3d_skinned: @gfx.new_shader_handle(
+      101,
+      @draw3d.shader3d_lit_skinned_wgsl(),
+    ),
     meshes,
     character: PlayerCharacter::new(),
     enemy_models: EnemyModels::new(),
     // Shadow mapping
     shadow_map: @gfx.new_image_handle(200, 1024, 1024),
     shadow_depth_shader: @gfx.new_shader_handle(
-      200, @shadow3d.shader_shadow_depth_wgsl(),
+      200,
+      @shadow3d.shader_shadow_depth_wgsl(),
     ),
     shadow_lit_shader: @gfx.new_shader_handle(
-      201, @shadow3d.shader3d_shadow_lit_untextured_wgsl(),
+      201,
+      @shadow3d.shader3d_shadow_lit_untextured_wgsl(),
     ),
     shadow_config,
     dungeon_chunks,
@@ -70,36 +88,36 @@ fn GameState::new(seed~ : Int) -> GameState {
     post_target: @gfx.new_image_handle(303, screen_w, screen_h),
     // PostFX shaders
     bloom_threshold_sh: @gfx.new_shader_handle(
-      300, @postfx.bloom_threshold_wgsl(),
+      300,
+      @postfx.bloom_threshold_wgsl(),
     ),
-    bloom_hblur_sh: @gfx.new_shader_handle(
-      301, @postfx.bloom_blur_wgsl(true),
-    ),
-    bloom_vblur_sh: @gfx.new_shader_handle(
-      302, @postfx.bloom_blur_wgsl(false),
-    ),
+    bloom_hblur_sh: @gfx.new_shader_handle(301, @postfx.bloom_blur_wgsl(true)),
+    bloom_vblur_sh: @gfx.new_shader_handle(302, @postfx.bloom_blur_wgsl(false)),
     bloom_composite_sh: @gfx.new_shader_handle(
-      303, @postfx.bloom_composite_wgsl(),
+      303,
+      @postfx.bloom_composite_wgsl(),
     ),
     fxaa_sh: @gfx.new_shader_handle(304, @postfx.fxaa_wgsl()),
-    tonemap_sh: @gfx.new_shader_handle(
-      305, @postfx.tonemap_wgsl(@postfx.ACES),
-    ),
+    tonemap_sh: @gfx.new_shader_handle(305, @postfx.tonemap_wgsl(@postfx.ACES)),
     // Camera depth (for SSAO)
     camera_depth_target: @gfx.new_image_handle(305, screen_w, screen_h),
     camera_depth_shader: @gfx.new_shader_handle(
-      307, @shadow3d.shader_camera_depth_wgsl(),
+      307,
+      @shadow3d.shader_camera_depth_wgsl(),
     ),
     // SSAO
     ssao_sh: @gfx.new_shader_handle(306, @postfx.ssao_wgsl()),
     ssao_target: @gfx.new_image_handle(304, screen_w, screen_h),
     // Particles
     particle_manager: @particle3d.ParticleManager::new(400),
+    // UI icons
+    icon_atlas,
     // Text
     text_renderer: None,
   }
 }
 
+///|
 fn GameState::update(self : GameState, input : @core.InputSnapshot) -> Unit {
   self.world.frame_count = self.world.frame_count + 1
   @inpututil.update_input_helper(self.input, input)
@@ -114,6 +132,7 @@ fn GameState::update(self : GameState, input : @core.InputSnapshot) -> Unit {
   }
 }
 
+///|
 fn GameState::update_title(self : GameState) -> Unit {
   if @inpututil.is_confirm_just_pressed(self.input) {
     // Try loading save first
@@ -124,6 +143,7 @@ fn GameState::update_title(self : GameState) -> Unit {
   }
 }
 
+///|
 fn GameState::update_gameover(self : GameState) -> Unit {
   if @inpututil.is_confirm_just_pressed(self.input) {
     self.world.mode = @game.Title
@@ -152,11 +172,15 @@ fn GameState::update_gameover(self : GameState) -> Unit {
       node.level = 0
     }
     self.world.skills.skill_points = 0
-    self.world.player_stats = @game.compute_player_stats(self.world.equipment, self.world.skills)
+    self.world.player_stats = @game.compute_player_stats(
+      self.world.equipment,
+      self.world.skills,
+    )
     self.world.player.hp = self.world.player_stats.max_hp
   }
 }
 
+///|
 fn GameState::update_playing(self : GameState) -> Unit {
   // Auto-play toggle (F2)
   if @inpututil.is_key_just_pressed(self.input.key_state, key_f2) {
@@ -164,16 +188,25 @@ fn GameState::update_playing(self : GameState) -> Unit {
   }
   // UI toggle
   if @inpututil.is_key_just_pressed(self.input.key_state, key_i) {
-    self.world.ui_mode = if self.world.ui_mode == @game.Inventory { @game.UIMode::None } else { @game.Inventory }
+    self.world.ui_mode = if self.world.ui_mode == @game.Inventory {
+      @game.UIMode::None
+    } else {
+      @game.Inventory
+    }
     self.world.ui_cursor = 0
     return
   }
   if @inpututil.is_key_just_pressed(self.input.key_state, key_k) {
-    self.world.ui_mode = if self.world.ui_mode == @game.Skills { @game.UIMode::None } else { @game.Skills }
+    self.world.ui_mode = if self.world.ui_mode == @game.Skills {
+      @game.UIMode::None
+    } else {
+      @game.Skills
+    }
     self.world.ui_cursor = 0
     return
   }
-  if @inpututil.is_key_just_pressed(self.input.key_state, key_escape) && self.world.ui_mode != @game.UIMode::None {
+  if @inpututil.is_key_just_pressed(self.input.key_state, key_escape) &&
+    self.world.ui_mode != @game.UIMode::None {
     self.world.ui_mode = @game.UIMode::None
     return
   }
@@ -213,8 +246,13 @@ fn GameState::update_playing(self : GameState) -> Unit {
     let dx = raw_dx * cos_yaw + raw_dy * sin_yaw
     let dy = -raw_dx * sin_yaw + raw_dy * cos_yaw
     // Dash via shift
-    let shift_pressed = @inpututil.is_key_just_pressed(self.input.key_state, key_shift)
-    if shift_pressed && self.world.player.dash_cooldown_timer <= 0 && (dx != 0.0 || dy != 0.0) {
+    let shift_pressed = @inpututil.is_key_just_pressed(
+      self.input.key_state,
+      key_shift,
+    )
+    if shift_pressed &&
+      self.world.player.dash_cooldown_timer <= 0 &&
+      (dx != 0.0 || dy != 0.0) {
       @game.start_dash(self.world, dx, dy)
     }
     // Skill activation: 1/2/3 keys
@@ -238,7 +276,8 @@ fn GameState::update_playing(self : GameState) -> Unit {
       @game.DeathBurst(x, y) => spawn_death_burst(self.particle_manager, x, y)
       @game.DashTrail(x, y) => spawn_dash_trail(self.particle_manager, x, y)
       @game.PlayerHurt(x, y) => spawn_player_hurt(self.particle_manager, x, y)
-      @game.ItemPickup(x, y, is_health) => spawn_item_pickup(self.particle_manager, x, y, is_health)
+      @game.ItemPickup(x, y, is_health) =>
+        spawn_item_pickup(self.particle_manager, x, y, is_health)
       @game.AttackTriggered => self.character.trigger_attack()
       @game.HurtTriggered => self.character.trigger_hurt()
       @game.FloorComplete => {
@@ -248,37 +287,63 @@ fn GameState::update_playing(self : GameState) -> Unit {
     }
   }
   // Camera follow (3D: convert 2D coords to 3D with height)
-  let cam_y = @game.get_tile_height(self.world.dungeon, self.world.player.x, self.world.player.y)
+  let cam_y = @game.get_tile_height(
+    self.world.dungeon,
+    self.world.player.x,
+    self.world.player.y,
+  )
   self.camera = self.camera.with_target(
-    @math3d.Vec3::new(self.world.player.x / tile_size, cam_y, self.world.player.y / tile_size),
+    @math3d.Vec3::new(
+      self.world.player.x / tile_size,
+      cam_y,
+      self.world.player.y / tile_size,
+    ),
   )
   // Update character animation
-  let is_moving = self.world.player.dash_timer > 0 || (
+  let is_moving = self.world.player.dash_timer > 0 ||
+    (
     // check if player moved this frame by seeing if facing angle changed or velocity != 0
     // simpler: check if any movement keys are held
-    not(self.world.auto_play) && (
-      @inpututil.is_move_up(self.input.key_state) ||
-      @inpututil.is_move_down(self.input.key_state) ||
-      @inpututil.is_move_left(self.input.key_state) ||
-      @inpututil.is_move_right(self.input.key_state)
-    )
-  ) || self.world.auto_play
+      not(self.world.auto_play) &&
+      (
+        @inpututil.is_move_up(self.input.key_state) ||
+        @inpututil.is_move_down(self.input.key_state) ||
+        @inpututil.is_move_left(self.input.key_state) ||
+        @inpututil.is_move_right(self.input.key_state)
+      )
+    ) ||
+    self.world.auto_play
   self.character.set_moving(is_moving)
   self.character.update(1.0 / 60.0)
   self.enemy_models.update(1.0 / 60.0)
   // Ambient dust particles (every 15 frames)
   if self.world.frame_count % 15 == 0 {
-    spawn_ambient_dust(self.particle_manager, self.world.player.x, self.world.player.y, self.world.frame_count)
+    spawn_ambient_dust(
+      self.particle_manager,
+      self.world.player.x,
+      self.world.player.y,
+      self.world.frame_count,
+    )
   }
   // Update particles
   self.particle_manager.update(1.0 / 60.0)
 }
 
 // Rebuild dungeon rendering state after dungeon changes (floor complete, game over reset, load)
+
+///|
 fn GameState::rebuild_dungeon_rendering(self : GameState) -> Unit {
   self.dungeon_chunks = build_dungeon_chunks(self.world.dungeon, self.meshes)
-  let ry = @game.get_tile_height(self.world.dungeon, self.world.player.x, self.world.player.y)
+  let ry = @game.get_tile_height(
+    self.world.dungeon,
+    self.world.player.x,
+    self.world.player.y,
+  )
   self.camera = self.camera.with_target(
-    @math3d.Vec3::new(self.world.player.x / tile_size, ry, self.world.player.y / tile_size),
+    @math3d.Vec3::new(
+      self.world.player.x / tile_size,
+      ry,
+      self.world.player.y / tile_size,
+    ),
   )
 }

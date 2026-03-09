@@ -1,5 +1,6 @@
 // Rendering-only types (stay in src/)
 
+///|
 struct Meshes3D {
   item : @mesh3d.Mesh3D
   projectile : @mesh3d.Mesh3D
@@ -11,11 +12,14 @@ struct Meshes3D {
 }
 
 // Combined mesh with a single color for batched shadow-lit rendering
+
+///|
 struct DungeonMeshGroup {
   mesh : @mesh3d.Mesh3D
   color : @math3d.Vec4
 }
 
+///|
 struct GameState {
   world : @game.GameWorld
   input : @inpututil.InputHelper
@@ -55,6 +59,8 @@ struct GameState {
   ssao_target : @gfx.ImageHandle
   // Particles
   particle_manager : @particle3d.ParticleManager
+  // UI icons
+  icon_atlas : IconAtlas
   // Text
   text_renderer : @text.TextRenderer?
 }

@@ -132,7 +132,7 @@ Path of Exile スタイルの斜め見下ろしアクション RPG をターゲ�
 - [x] SSAO が light-space depth を使用 — カメラスペース深度バッファが必要
 - [x] ゲームオーバーでセーブ未削除 — 死んでも旧セーブから復活できる
 - [x] インベントリ満杯時のアイテム消失 — ドロップ通知なし、地面に落とす処理もなし
-- [ ] アイコンアトラスが未使用 — `create_icon_atlas()` がどこからも呼ばれていない
+- [x] アイコンアトラスが未使用 — `create_icon_atlas()` を UI inventory / skills 描画へ接続し、atlas draw command のテストを追加
 
 ## アーキテクチャ課題
 

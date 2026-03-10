@@ -14,19 +14,27 @@ test("landing page exposes additional public demos", () => {
 
   assert.match(html, /gltf_viewer/);
   assert.match(html, /fetch_image/);
+  assert.match(html, /model_authoring/);
+  assert.match(html, /chair_authoring/);
+  assert.match(html, /shelf_authoring/);
+  assert.match(html, /frog_authoring/);
+  assert.match(html, /dragon_authoring/);
   assert.match(html, /WebGPU only/i);
 });
 
 test("demo page includes responsive layout and control guidance", () => {
   const html = renderDemoHtml({
-    demo: getDemoPage("survivor"),
+    demo: getDemoPage("model_authoring"),
     scriptTag: '<script type="module" src="./loader.js?v=test"></script>',
   });
 
   assert.match(html, /name="viewport"/i);
   assert.match(html, /Controls/i);
   assert.match(html, /Gallery/i);
-  assert.match(html, /WASD/i);
+  assert.match(html, /openrouter/i);
+  assert.match(html, /by default/i);
+  assert.match(html, /fallback/i);
+  assert.match(html, /gemini-3\.1-flash-lite-preview/i);
   assert.match(html, /stage-canvas/);
 });
 

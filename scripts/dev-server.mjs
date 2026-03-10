@@ -10,17 +10,28 @@ import {
 } from "./web-demo-pages.mjs";
 
 const ROOT = resolve(import.meta.dirname, "..");
+const EXAMPLE_ROOTS = [
+  resolve(ROOT, "tools", "modeling3d", "examples"),
+  resolve(ROOT, "examples"),
+];
 const name = process.argv[2];
 if (!name) {
   console.error("Usage: node scripts/dev-server.mjs <example_name>");
   process.exit(1);
 }
 
-const exampleDir = resolve(ROOT, "examples", name);
-if (!existsSync(exampleDir)) {
-  console.error(`Error: examples/${name} not found`);
+const exampleDir = EXAMPLE_ROOTS
+  .map((dir) => resolve(dir, name))
+  .find((dir) => existsSync(dir));
+if (exampleDir == null) {
+  console.error(`Error: example ${name} not found`);
   console.error("Available:");
-  for (const d of readdirSync(resolve(ROOT, "examples"))) console.error(`  ${d}`);
+  const available = new Set();
+  for (const root of EXAMPLE_ROOTS) {
+    if (!existsSync(root)) continue;
+    for (const d of readdirSync(root)) available.add(d);
+  }
+  for (const d of [...available].sort()) console.error(`  ${d}`);
   process.exit(1);
 }
 

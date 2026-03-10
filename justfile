@@ -7,24 +7,41 @@ default: check test
 fmt:
     moon fmt
     [ -f modules/js_runtime/moon.mod.json ] && (cd modules/js_runtime && moon fmt)
-    for dir in examples/*/; do [ -f "$dir/moon.mod.json" ] && (cd "$dir" && moon fmt); done
+    for dir in examples/*/ tools/modeling3d/examples/*/; do [ -f "$dir/moon.mod.json" ] && (cd "$dir" && moon fmt); done
 
 check:
     moon check --deny-warn --target {{target}}
     if [ "{{target}}" = "js" ] && [ -f modules/js_runtime/moon.mod.json ]; then (cd modules/js_runtime && moon check --deny-warn --target js); fi
-    for dir in examples/*/; do [ -f "$dir/moon.mod.json" ] && (cd "$dir" && moon check --deny-warn --target {{target}}); done
+    for dir in examples/*/ tools/modeling3d/examples/*/; do [ -f "$dir/moon.mod.json" ] && (cd "$dir" && moon check --deny-warn --target {{target}}); done
+
+modeling3d-check:
+    for dir in tools/modeling3d/examples/*/; do [ -f "$dir/moon.mod.json" ] && (cd "$dir" && moon check --deny-warn --target {{target}}); done
 
 test:
     if [ "{{target}}" = "native" ]; then CPATH="$(brew --prefix glfw)/include:${CPATH:-}" LIBRARY_PATH="$(brew --prefix)/lib:${LIBRARY_PATH:-}" moon test --target native; else moon test --target {{target}}; fi
     if [ "{{target}}" = "js" ] && [ -f modules/js_runtime/moon.mod.json ]; then (cd modules/js_runtime && moon test --target js); fi
-    for dir in examples/*/; do if [ -f "$dir/moon.mod.json" ]; then if [ "{{target}}" = "native" ] && [ "$dir" = "examples/runtime_smoke_native/" ]; then echo "skip $dir (native smoke app is validated in native-macos build job)"; continue; fi; (cd "$dir" && if [ "{{target}}" = "native" ]; then CPATH="$(brew --prefix glfw)/include:${CPATH:-}" LIBRARY_PATH="$(brew --prefix)/lib:${LIBRARY_PATH:-}" moon test --target native; else moon test --target {{target}}; fi) || exit 1; fi; done
+    for dir in examples/*/ tools/modeling3d/examples/*/; do if [ -f "$dir/moon.mod.json" ]; then if [ "{{target}}" = "native" ] && [ "$dir" = "examples/runtime_smoke_native/" ]; then echo "skip $dir (native smoke app is validated in native-macos build job)"; continue; fi; (cd "$dir" && if [ "{{target}}" = "native" ]; then CPATH="$(brew --prefix glfw)/include:${CPATH:-}" LIBRARY_PATH="$(brew --prefix)/lib:${LIBRARY_PATH:-}" moon test --target native; else moon test --target {{target}}; fi) || exit 1; fi; done
+
+modeling3d-test:
+    for dir in tools/modeling3d/examples/*/; do [ -f "$dir/moon.mod.json" ] && (cd "$dir" && if [ "{{target}}" = "native" ]; then CPATH="$(brew --prefix glfw)/include:${CPATH:-}" LIBRARY_PATH="$(brew --prefix)/lib:${LIBRARY_PATH:-}" moon test --target native; else moon test --target {{target}}; fi); done
+
+modeling3d-scripts-check:
+    node --test tools/modeling3d/scripts/*.test.mjs
+    for script in tools/modeling3d/scripts/*.mjs; do node --check "$script"; done
+    if ls tools/modeling3d/scripts/*.py >/dev/null 2>&1; then python3 -m py_compile tools/modeling3d/scripts/*.py; fi
+
+modeling3d-ci:
+    just modeling3d-scripts-check
+    just target=js modeling3d-check
+    just target=js modeling3d-test
+    just target=native modeling3d-check
 
 coverage:
     bash scripts/check-coverage.sh {{target}}
 
 bench:
     moon bench --target {{target}}
-    for dir in examples/*/; do [ -f "$dir/moon.mod.json" ] && (cd "$dir" && moon bench --target {{target}}); done
+    for dir in examples/*/ tools/modeling3d/examples/*/; do [ -f "$dir/moon.mod.json" ] && (cd "$dir" && moon bench --target {{target}}); done
 
 bench-gate:
     bash scripts/bench-gate.sh {{target}}
@@ -57,8 +74,66 @@ info:
 dev name:
     node scripts/dev-server.mjs {{name}}
 
+vlm-handoff example="model_authoring" profile="roundtrip_diff_bundle" provider="openrouter" port="8113" extra="":
+    node tools/modeling3d/scripts/model-authoring-vlm-handoff.mjs --example {{example}} --edit-profile {{profile}} --provider {{provider}} --serve --port {{port}} {{extra}}
+
+vlm-handoff-interactive example="model_authoring" profile="roundtrip_diff_bundle" provider="openrouter" port="8113" extra="":
+    node tools/modeling3d/scripts/model-authoring-vlm-handoff.mjs --example {{example}} --edit-profile {{profile}} --provider {{provider}} --serve --port {{port}} --interactive {{extra}}
+
+vlm-live-review example="model_authoring" provider="openrouter" port="8113" extra="":
+    node tools/modeling3d/scripts/model-authoring-vlm-handoff.mjs --example {{example}} --live-review --provider {{provider}} --serve --port {{port}} {{extra}}
+
+vlm-live-review-interactive example="model_authoring" provider="openrouter" port="8113" extra="":
+    node tools/modeling3d/scripts/model-authoring-vlm-handoff.mjs --example {{example}} --live-review --provider {{provider}} --serve --port {{port}} --interactive {{extra}}
+
+vlm-live-review-native example="model_authoring" provider="openrouter" extra="":
+    node tools/modeling3d/scripts/model-authoring-vlm-handoff.mjs --example {{example}} --live-review --renderer native --provider {{provider}} {{extra}}
+
+vlm-daemon-start example="frog_authoring" provider="openrouter" port="8113" daemon_port="9123" extra="":
+    node tools/modeling3d/scripts/model-authoring-vlm-handoff.mjs --example {{example}} --live-review --provider {{provider}} --url http://127.0.0.1:{{port}}/ --daemon --daemon-port {{daemon_port}} {{extra}}
+
+vlm-daemon-start-checkpoint example="frog_authoring" provider="openrouter" port="8113" daemon_port="9123" extra="":
+    node tools/modeling3d/scripts/model-authoring-vlm-handoff.mjs --example {{example}} --live-review --provider {{provider}} --url http://127.0.0.1:{{port}}/ --daemon --daemon-port {{daemon_port}} --execute {{extra}}
+
+vlm-daemon-run daemon_port="9123" cycle="1" out_dir="output/playwright/daemon-run" extra="":
+    node tools/modeling3d/scripts/model-authoring-vlm-daemon-client.mjs --port {{daemon_port}} --run --cycle {{cycle}} --out-dir {{out_dir}} {{extra}}
+
+vlm-daemon-run-checkpoint daemon_port="9123" cycle="1" out_dir="output/playwright/daemon-checkpoint" extra="":
+    node tools/modeling3d/scripts/model-authoring-vlm-daemon-client.mjs --port {{daemon_port}} --run --cycle {{cycle}} --out-dir {{out_dir}} {{extra}}
+
+vlm-daemon-stop daemon_port="9123":
+    node tools/modeling3d/scripts/model-authoring-vlm-daemon-client.mjs --port {{daemon_port}} --shutdown
+
+vlm-perf-live-review example="frog_authoring" provider="openrouter" iterations="8" warmup="1" port="8230" extra="":
+    node tools/modeling3d/scripts/model-authoring-vlm-perf.mjs --example {{example}} --provider {{provider}} --iterations {{iterations}} --warmup {{warmup}} --port {{port}} {{extra}}
+
+vlm-perf-live-review-persistent example="frog_authoring" provider="openrouter" iterations="8" warmup="1" port="8230" extra="":
+    node tools/modeling3d/scripts/model-authoring-vlm-perf.mjs --example {{example}} --provider {{provider}} --renderer web --session-mode both --iterations {{iterations}} --warmup {{warmup}} --port {{port}} {{extra}}
+
+vlm-perf-live-review-daemon example="frog_authoring" provider="openrouter" iterations="8" warmup="1" port="8230" extra="":
+    node tools/modeling3d/scripts/model-authoring-vlm-perf.mjs --example {{example}} --provider {{provider}} --renderer web --session-mode daemon --iterations {{iterations}} --warmup {{warmup}} --port {{port}} {{extra}}
+
+vlm-renderer-parity example="frog_authoring" provider="openrouter" port="8210" silhouette_threshold="0.2" visual_threshold="20" extra="":
+    node tools/modeling3d/scripts/model-authoring-renderer-parity.mjs --example {{example}} --provider {{provider}} --port {{port}} --silhouette-threshold {{silhouette_threshold}} --visual-threshold {{visual_threshold}} {{extra}}
+
+vlm-close-loop example="model_authoring" profile="" glb="" provider="openrouter" port="8113" extra="":
+    if [ -n "{{profile}}" ]; then node tools/modeling3d/scripts/model-authoring-vlm-close-loop.mjs --example {{example}} --edit-profile {{profile}} --provider {{provider}} --port {{port}} {{extra}}; \
+    else test -n "{{glb}}" && node tools/modeling3d/scripts/model-authoring-vlm-close-loop.mjs --example {{example}} --import-glb {{glb}} --provider {{provider}} --port {{port}} {{extra}}; fi
+
+vlm-reimport example="model_authoring" glb="" provider="openrouter" port="8113" extra="":
+    test -n "{{glb}}"
+    node tools/modeling3d/scripts/model-authoring-vlm-handoff.mjs --example {{example}} --import-glb {{glb}} --provider {{provider}} --serve --port {{port}} {{extra}}
+
+vlm-feedback bundle="" parsed="":
+    test -n "{{bundle}}" && test -n "{{parsed}}"
+    node tools/modeling3d/scripts/model-authoring-vlm-local-feedback.mjs --bundle {{bundle}} --parsed {{parsed}}
+
+vlm-apply target="" patch="" extra="":
+    test -n "{{target}}" && test -n "{{patch}}"
+    node tools/modeling3d/scripts/model-authoring-vlm-apply-patch.mjs --target {{target}} --patch {{patch}} {{extra}}
+
 run-native name:
-    cd examples/{{name}} && CPATH="$(brew --prefix glfw)/include:${CPATH:-}" LIBRARY_PATH="$(brew --prefix)/lib:${LIBRARY_PATH:-}" moon run src/ --target native
+    dir="examples/{{name}}"; if [ ! -f "$dir/moon.mod.json" ]; then dir="tools/modeling3d/examples/{{name}}"; fi; cd "$dir" && CPATH="$(brew --prefix glfw)/include:${CPATH:-}" LIBRARY_PATH="$(brew --prefix)/lib:${LIBRARY_PATH:-}" moon run src/ --target native
 
 pages:
     bash scripts/build-pages.sh
@@ -73,7 +148,7 @@ check-release:
 clean:
     moon clean
     [ -f modules/js_runtime/moon.mod.json ] && (cd modules/js_runtime && moon clean)
-    for dir in examples/*/; do (cd "$dir" && moon clean); done
+    for dir in examples/*/ tools/modeling3d/examples/*/; do [ -d "$dir" ] && (cd "$dir" && moon clean); done
 
 balance name="playtest":
     cd examples/hacknslash_3d && moon run src/balance --target js 2>&1 | tee /dev/stderr | sed -n '/^=== CSV ===/,$ p' | tail -n +2 > data/hackslash/{{name}}.csv

@@ -6,6 +6,6 @@ import {
 options(
   "is-main": true,
   targets: {
-    "main.mbt": ["js"],
+    "main.mbt": ["js", "native"],
   },
 )

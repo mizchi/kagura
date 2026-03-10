@@ -70,6 +70,12 @@ static void moonbit_readback_encode_copy(
     WGPUDevice device, WGPUCommandEncoder encoder, WGPUTexture surface_texture,
     uint32_t tex_width, uint32_t tex_height);
 static void moonbit_readback_map_and_read(WGPUDevice device);
+static int32_t moonbit_readback_copy_texture_now(
+    WGPUDevice device,
+    WGPUQueue queue,
+    WGPUTexture texture,
+    uint32_t tex_width,
+    uint32_t tex_height);
 
 #define MOONBIT_MAX_PLANNED_DRAW_COMMANDS 4096
 typedef struct {
@@ -3129,6 +3135,53 @@ static void moonbit_readback_map_and_read(WGPUDevice device) {
   g_readback_valid = 1;
 }
 
+static int32_t moonbit_readback_copy_texture_now(
+    WGPUDevice device,
+    WGPUQueue queue,
+    WGPUTexture texture,
+    uint32_t tex_width,
+    uint32_t tex_height
+) {
+  if (device == NULL || queue == NULL || texture == NULL) {
+    g_readback_valid = 0;
+    return 0;
+  }
+  if (tex_width == 0 || tex_height == 0) {
+    g_readback_valid = 0;
+    return 0;
+  }
+
+  WGPUCommandEncoderDescriptor encoderDesc = {
+    .nextInChain = NULL,
+    .label = "Standalone Readback Encoder"
+  };
+  WGPUCommandEncoder encoder = wgpuDeviceCreateCommandEncoder(device, &encoderDesc);
+  if (encoder == NULL) {
+    g_readback_valid = 0;
+    return 0;
+  }
+
+  moonbit_readback_encode_copy(device, encoder, texture, tex_width, tex_height);
+
+  WGPUCommandBufferDescriptor cmdBufferDesc = {
+    .nextInChain = NULL,
+    .label = "Standalone Readback Buffer"
+  };
+  WGPUCommandBuffer cmdBuffer = wgpuCommandEncoderFinish(encoder, &cmdBufferDesc);
+  if (cmdBuffer == NULL) {
+    wgpuCommandEncoderRelease(encoder);
+    g_readback_valid = 0;
+    return 0;
+  }
+
+  wgpuQueueSubmit(queue, 1, &cmdBuffer);
+  moonbit_readback_map_and_read(device);
+
+  wgpuCommandBufferRelease(cmdBuffer);
+  wgpuCommandEncoderRelease(encoder);
+  return g_readback_valid;
+}
+
 // FFI: readback query functions
 int32_t moonbit_read_pixels_available(void) {
   return g_readback_valid;
@@ -3151,6 +3204,41 @@ int32_t moonbit_read_pixels_channel(int32_t offset) {
     return 0;
   }
   return (int32_t)g_readback_data[offset];
+}
+
+int32_t moonbit_capture_offscreen_target_readback(int32_t image_id) {
+  if (image_id <= 0 || g_device == NULL) {
+    g_readback_valid = 0;
+    return 0;
+  }
+
+  moonbit_offscreen_target* target = moonbit_find_offscreen_target(image_id);
+  if (target == NULL || !target->used) {
+    g_readback_valid = 0;
+    return 0;
+  }
+
+  moonbit_ensure_offscreen_gpu_texture(g_device, target);
+  if (target->texture == NULL) {
+    g_readback_valid = 0;
+    return 0;
+  }
+
+  WGPUQueue queue = wgpuDeviceGetQueue(g_device);
+  if (queue == NULL) {
+    g_readback_valid = 0;
+    return 0;
+  }
+
+  int32_t ok = moonbit_readback_copy_texture_now(
+    g_device,
+    queue,
+    target->texture,
+    target->width,
+    target->height
+  );
+  wgpuQueueRelease(queue);
+  return ok;
 }
 
 // ---------------------------------------------------------------------------
@@ -3203,6 +3291,27 @@ int32_t moonbit_read_file_all(const uint8_t *path_ptr, int32_t path_len) {
 
   g_file_buffer_size = (int32_t)file_size;
   return g_file_buffer_size;
+}
+
+int32_t moonbit_write_file_all(
+    const uint8_t *path_ptr,
+    int32_t path_len,
+    const uint8_t *data_ptr,
+    int32_t data_len
+) {
+  if (!path_ptr || path_len <= 0 || !data_ptr || data_len < 0) return -1;
+
+  char path[4096];
+  int32_t copy_len = path_len < 4095 ? path_len : 4095;
+  memcpy(path, path_ptr, copy_len);
+  path[copy_len] = '\0';
+
+  FILE *fp = fopen(path, "wb");
+  if (!fp) return -1;
+
+  size_t wrote = fwrite(data_ptr, 1, (size_t)data_len, fp);
+  fclose(fp);
+  return wrote == (size_t)data_len ? 0 : -1;
 }
 
 int32_t moonbit_file_buf_byte_at(int32_t offset) {

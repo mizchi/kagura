@@ -1,0 +1,76 @@
+// Generated using `moon info`, DON'T EDIT IT
+package "mizchi/frog_authoring"
+
+// Values
+
+// Errors
+
+// Types and methods
+type BakedSurfaceSample
+
+type DensityGrid
+
+type DocumentStats
+
+type EdgeIndices
+
+type ExportBufferSlice
+
+type ExportMeshPayload
+
+type ExportSceneNode
+
+type GizmoAxis
+
+type GizmoDragState
+
+type GizmoHandleHit
+
+type ModelDocument
+
+type ModelSelection
+
+type ModelSelectionKind
+
+type PrimitiveKind
+
+type PrimitiveNode
+
+type RoundTripDiffReport
+
+type RoundTripImport
+
+type RoundTripImportedNode
+
+type RoundTripPatchAction
+
+type RoundTripPatchArtifacts
+
+type RoundTripPatchPlan
+
+type SculptLayer
+
+type SculptMode
+
+type SculptStamp
+
+type StampHistoryEntry
+
+type SurfaceBasis
+
+type SurfaceDirection
+
+type SurfaceHit
+
+type SurfaceKind
+
+type SurfaceVertex
+
+type TetraIndices
+
+type WorldRay
+
+// Type aliases
+
+// Traits
+

@@ -428,66 +428,6 @@ fn render_rect_outline(
   )
 }
 
-// ============================================================
-// Fallback key-based attribute lookup (for backward compatibility)
-// ============================================================
-
-///|
-fn get_attr_value(
-  attrs : Array[(String, @ui.Attr[Unit, SceneAttrValue])],
-  key : String,
-) -> SceneAttrValue? {
-  for pair in attrs {
-    let (k, v) = pair
-    if k == key {
-      match v {
-        VStatic(value) => return Some(value)
-        VDynamic(f) => return Some(f())
-        VHandler(_) => continue
-      }
-    }
-  }
-  None
-}
-
-///|
-fn get_attr_string(
-  attrs : Array[(String, @ui.Attr[Unit, SceneAttrValue])],
-  key : String,
-  default_ : String,
-) -> String {
-  match get_attr_value(attrs, key) {
-    Some(SceneText(value)) => value
-    _ => default_
-  }
-}
-
-///|
-fn get_attr_double(
-  attrs : Array[(String, @ui.Attr[Unit, SceneAttrValue])],
-  key : String,
-  default_ : Double,
-) -> Double {
-  match get_attr_value(attrs, key) {
-    Some(SceneDouble(value)) => value
-    Some(SceneInt(value)) => value.to_double()
-    _ => default_
-  }
-}
-
-///|
-fn get_attr_int(
-  attrs : Array[(String, @ui.Attr[Unit, SceneAttrValue])],
-  key : String,
-  default_ : Int,
-) -> Int {
-  match get_attr_value(attrs, key) {
-    Some(SceneInt(value)) => value
-    Some(SceneDouble(value)) => value.to_int()
-    _ => default_
-  }
-}
-
 ///|
 fn string_to_char_codes(s : String) -> Array[Int] {
   let codes : Array[Int] = []

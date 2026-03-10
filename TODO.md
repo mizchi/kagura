@@ -3,6 +3,8 @@
 このファイルは未完了タスクのみを管理する。
 完了済みは `docs/mvp.md` の `DONE` セクションへ退避。
 
+3D modeling / VLM authoring 関連の未完了は `tools/modeling3d/TODO.md` で管理する。
+
 ## ゴール再確認
 
 - 目標: `wgpu` を renderer とする host 上で、wasm guest として 2D/3D アプリケーションコードを動かす

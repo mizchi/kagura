@@ -1,10 +1,10 @@
 ///|
 test "default targets has sensible values" {
   let t = BalanceTargets::default()
-  assert_true!(t.target_survival_frames > 0.0)
-  assert_true!(t.target_floors > 0.0)
-  assert_true!(t.target_floor_time > 0.0)
-  assert_true!(t.w_survival > 0.0)
+  assert_true(t.target_survival_frames > 0.0)
+  assert_true(t.target_floors > 0.0)
+  assert_true(t.target_floor_time > 0.0)
+  assert_true(t.w_survival > 0.0)
 }
 
 ///|
@@ -18,12 +18,12 @@ test "all hypothesis constructors are valid" {
   ]
   for t in targets {
     // All targets should have positive survival target
-    assert_true!(t.target_survival_frames > 0.0)
+    assert_true(t.target_survival_frames > 0.0)
     // All weights should be non-negative
-    assert_true!(t.w_survival >= 0.0)
-    assert_true!(t.w_floor >= 0.0)
-    assert_true!(t.w_floor_time >= 0.0)
-    assert_true!(t.w_hp_cv >= 0.0)
+    assert_true(t.w_survival >= 0.0)
+    assert_true(t.w_floor >= 0.0)
+    assert_true(t.w_floor_time >= 0.0)
+    assert_true(t.w_hp_cv >= 0.0)
   }
 }
 
@@ -46,7 +46,7 @@ test "compute_loss zero when metrics match targets" {
   let loss = compute_loss(m, t)
   // Loss should be small (close to targets) but not necessarily zero
   // because hp_cv and near_death_rate depend on samples
-  assert_true!(loss < 5.0)
+  assert_true(loss < 5.0)
 }
 
 ///|
@@ -80,15 +80,15 @@ test "compute_loss increases with worse metrics" {
   }
   let good_loss = compute_loss(good, t)
   let bad_loss = compute_loss(bad, t)
-  assert_true!(bad_loss > good_loss)
+  assert_true(bad_loss > good_loss)
 }
 
 ///|
 test "run_simulation completes with default params" {
   let params = @game.BalanceParams::default()
   let m = run_simulation(params, 42, 300)
-  assert_true!(m.survival_frames > 0)
-  assert_true!(m.hp_samples.length() > 0)
+  assert_true(m.survival_frames > 0)
+  assert_true(m.hp_samples.length() > 0)
 }
 
 ///|
@@ -96,7 +96,7 @@ test "run_simulation deterministic" {
   let params = @game.BalanceParams::default()
   let m1 = run_simulation(params, 42, 300)
   let m2 = run_simulation(params, 42, 300)
-  assert_eq!(m1.survival_frames, m2.survival_frames)
-  assert_eq!(m1.total_kills, m2.total_kills)
-  assert_eq!(m1.floors_cleared, m2.floors_cleared)
+  assert_eq(m1.survival_frames, m2.survival_frames)
+  assert_eq(m1.total_kills, m2.total_kills)
+  assert_eq(m1.floors_cleared, m2.floors_cleared)
 }

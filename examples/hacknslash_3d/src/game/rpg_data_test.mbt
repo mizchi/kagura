@@ -15,14 +15,14 @@ fn mk_affix(
 ///|
 test "affix struct fields" {
   let affix = mk_affix("Test", atk=3, def=1, hp=2, crit=0.05, ls=0.1, spd=0.15, cdr=0.2)
-  assert_eq!(affix.name, "Test")
-  assert_eq!(affix.atk, 3)
-  assert_eq!(affix.def, 1)
-  assert_eq!(affix.hp, 2)
-  assert_true!((affix.crit - 0.05).abs() < 0.001)
-  assert_true!((affix.life_steal - 0.1).abs() < 0.001)
-  assert_true!((affix.speed_bonus - 0.15).abs() < 0.001)
-  assert_true!((affix.cooldown_reduction - 0.2).abs() < 0.001)
+  assert_eq(affix.name, "Test")
+  assert_eq(affix.atk, 3)
+  assert_eq(affix.def, 1)
+  assert_eq(affix.hp, 2)
+  assert_true((affix.crit - 0.05).abs() < 0.001)
+  assert_true((affix.life_steal - 0.1).abs() < 0.001)
+  assert_true((affix.speed_bonus - 0.15).abs() < 0.001)
+  assert_true((affix.cooldown_reduction - 0.2).abs() < 0.001)
 }
 
 ///|
@@ -30,7 +30,7 @@ test "prefix_table_for returns 10+ entries for each profile" {
   let profiles : Array[AffixProfile] = [Classic, GlassCannon, Tank, Mobility, Expanded]
   for profile in profiles {
     let prefixes = prefix_table_for(profile)
-    assert_true!(prefixes.length() >= 10)
+    assert_true(prefixes.length() >= 10)
   }
 }
 
@@ -39,7 +39,7 @@ test "suffix_table_for returns 10+ entries for each profile" {
   let profiles : Array[AffixProfile] = [Classic, GlassCannon, Tank, Mobility, Expanded]
   for profile in profiles {
     let suffixes = suffix_table_for(profile)
-    assert_true!(suffixes.length() >= 10)
+    assert_true(suffixes.length() >= 10)
   }
 }
 
@@ -53,7 +53,7 @@ test "mobility profile has speed_bonus affixes" {
       break
     }
   }
-  assert_true!(has_speed)
+  assert_true(has_speed)
 }
 
 ///|
@@ -66,7 +66,7 @@ test "mobility profile has cooldown_reduction affixes" {
       break
     }
   }
-  assert_true!(has_cdr)
+  assert_true(has_cdr)
 }
 
 ///|
@@ -74,12 +74,12 @@ test "classic profile has no speed_bonus or cooldown_reduction" {
   let prefixes = prefix_table_for(Classic)
   let suffixes = suffix_table_for(Classic)
   for p in prefixes {
-    assert_true!(p.speed_bonus < 0.001)
-    assert_true!(p.cooldown_reduction < 0.001)
+    assert_true(p.speed_bonus < 0.001)
+    assert_true(p.cooldown_reduction < 0.001)
   }
   for s in suffixes {
-    assert_true!(s.speed_bonus < 0.001)
-    assert_true!(s.cooldown_reduction < 0.001)
+    assert_true(s.speed_bonus < 0.001)
+    assert_true(s.cooldown_reduction < 0.001)
   }
 }
 
@@ -87,17 +87,17 @@ test "classic profile has no speed_bonus or cooldown_reduction" {
 test "generate_item deterministic" {
   let item1 = generate_item(42, 3)
   let item2 = generate_item(42, 3)
-  assert_eq!(item1.name, item2.name)
-  assert_eq!(item1.atk_bonus, item2.atk_bonus)
-  assert_eq!(item1.def_bonus, item2.def_bonus)
+  assert_eq(item1.name, item2.name)
+  assert_eq(item1.atk_bonus, item2.atk_bonus)
+  assert_eq(item1.def_bonus, item2.def_bonus)
 }
 
 ///|
 test "generate_item_with_profile uses correct tables" {
   let classic = generate_item_with_profile(1000, 5, Classic)
   let glass = generate_item_with_profile(1000, 5, GlassCannon)
-  assert_true!(classic.name.length() > 0)
-  assert_true!(glass.name.length() > 0)
+  assert_true(classic.name.length() > 0)
+  assert_true(glass.name.length() > 0)
 }
 
 ///|
@@ -105,9 +105,9 @@ test "scale_affix preserves speed_bonus and cooldown_reduction" {
   let affix = mk_affix("Swift", spd=0.15, cdr=0.1, atk=2)
   let scaled = scale_affix(affix, 10)
   // atk scales: 2 * (1 + 10/5) = 6
-  assert_eq!(scaled.atk, 6)
-  assert_true!((scaled.speed_bonus - 0.15).abs() < 0.001)
-  assert_true!((scaled.cooldown_reduction - 0.1).abs() < 0.001)
+  assert_eq(scaled.atk, 6)
+  assert_true((scaled.speed_bonus - 0.15).abs() < 0.001)
+  assert_true((scaled.cooldown_reduction - 0.1).abs() < 0.001)
 }
 
 ///|
@@ -137,8 +137,8 @@ test "equipment speed_bonus and cooldown_reduction aggregate" {
   }
   equip.equip(weapon) |> ignore
   equip.equip(armor) |> ignore
-  assert_true!((equip.total_speed_bonus() - 0.25).abs() < 0.001)
-  assert_true!((equip.total_cooldown_reduction() - 0.3).abs() < 0.001)
+  assert_true((equip.total_speed_bonus() - 0.25).abs() < 0.001)
+  assert_true((equip.total_cooldown_reduction() - 0.3).abs() < 0.001)
 }
 
 ///|
@@ -147,8 +147,8 @@ test "compute_player_stats with custom base_hp" {
   let skills = SkillTree::new()
   let stats_default = compute_player_stats(equip, skills)
   let stats_custom = compute_player_stats(equip, skills, base_hp=20)
-  assert_eq!(stats_default.max_hp, 10)
-  assert_eq!(stats_custom.max_hp, 20)
+  assert_eq(stats_default.max_hp, 10)
+  assert_eq(stats_custom.max_hp, 20)
 }
 
 ///|
@@ -168,6 +168,6 @@ test "compute_player_stats includes speed_bonus and cooldown_reduction" {
   equip.equip(weapon) |> ignore
   let skills = SkillTree::new()
   let stats = compute_player_stats(equip, skills)
-  assert_true!((stats.speed_bonus - 0.15).abs() < 0.001)
-  assert_true!((stats.cooldown_reduction - 0.12).abs() < 0.001)
+  assert_true((stats.speed_bonus - 0.15).abs() < 0.001)
+  assert_true((stats.cooldown_reduction - 0.12).abs() < 0.001)
 }

@@ -19,6 +19,7 @@ import {
 const ROOT = resolve(import.meta.dirname, "..");
 const SITE = join(ROOT, "_site");
 const CACHE_BUST = resolveCacheBust();
+const MODELING_EXAMPLES_ROOT = join(ROOT, "tools", "modeling3d", "examples");
 
 buildPages();
 
@@ -42,7 +43,7 @@ function buildPages() {
 function buildExample(name) {
   console.log(`Building ${name} ...`);
   const result = spawnSync("moon", ["build", "src", "--target", "js"], {
-    cwd: join(ROOT, "examples", name),
+    cwd: resolveExampleDir(name),
     stdio: "inherit",
   });
   if (result.status !== 0) {
@@ -51,7 +52,7 @@ function buildExample(name) {
 }
 
 function emitExamplePage(demo) {
-  const exampleDir = join(ROOT, "examples", demo.name);
+  const exampleDir = resolveExampleDir(demo.name);
   const demoDir = join(SITE, demo.name);
   mkdirSync(demoDir, { recursive: true });
 
@@ -86,6 +87,14 @@ function emitExamplePage(demo) {
       scriptTag: `<script type="module" src="./loader.js?v=${CACHE_BUST}"></script>`,
     }),
   );
+}
+
+function resolveExampleDir(name) {
+  const modelingDir = join(MODELING_EXAMPLES_ROOT, name);
+  if (existsSync(modelingDir)) {
+    return modelingDir;
+  }
+  return join(ROOT, "examples", name);
 }
 
 function copySharedLib(fileName) {

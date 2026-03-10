@@ -1,7 +1,7 @@
 ///|
 test "balance_param_count matches to_array length" {
   let params = BalanceParams::default()
-  assert_eq!(params.to_array().length(), balance_param_count)
+  assert_eq(params.to_array().length(), balance_param_count)
 }
 
 ///|
@@ -11,13 +11,13 @@ test "to_array/from_array roundtrip" {
   let restored = BalanceParams::from_array(arr)
   let arr2 = restored.to_array()
   for i = 0; i < arr.length(); i = i + 1 {
-    assert_true!((arr[i] - arr2[i]).abs() < 0.0001)
+    assert_true((arr[i] - arr2[i]).abs() < 0.0001)
   }
 }
 
 ///|
 test "param_names matches param count" {
-  assert_eq!(BalanceParams::param_names().length(), balance_param_count)
+  assert_eq(BalanceParams::param_names().length(), balance_param_count)
 }
 
 ///|
@@ -49,20 +49,20 @@ test "clamp enforces bounds" {
     affix_profile: 0,
   }
   let clamped = extreme.clamp()
-  assert_true!(clamped.player_speed <= 5.0)
-  assert_true!(clamped.enemy_speed_basic >= 0.2)
-  assert_true!(clamped.enemy_contact_damage >= 1.0)
-  assert_true!(clamped.player_base_hp >= 3.0)
-  assert_true!(clamped.spawn_density >= 0.5)
+  assert_true(clamped.player_speed <= 5.0)
+  assert_true(clamped.enemy_speed_basic >= 0.2)
+  assert_true(clamped.enemy_contact_damage >= 1.0)
+  assert_true(clamped.player_base_hp >= 3.0)
+  assert_true(clamped.spawn_density >= 0.5)
 }
 
 ///|
 test "get_affix_profile mapping" {
   let params = BalanceParams::default()
-  assert_true!(match { ..params, affix_profile: 0 }.get_affix_profile() { Classic => true; _ => false })
-  assert_true!(match { ..params, affix_profile: 1 }.get_affix_profile() { GlassCannon => true; _ => false })
-  assert_true!(match { ..params, affix_profile: 2 }.get_affix_profile() { Tank => true; _ => false })
-  assert_true!(match { ..params, affix_profile: 3 }.get_affix_profile() { Mobility => true; _ => false })
-  assert_true!(match { ..params, affix_profile: 4 }.get_affix_profile() { Expanded => true; _ => false })
-  assert_true!(match { ..params, affix_profile: 99 }.get_affix_profile() { Classic => true; _ => false })
+  assert_true(match { ..params, affix_profile: 0 }.get_affix_profile() { Classic => true; _ => false })
+  assert_true(match { ..params, affix_profile: 1 }.get_affix_profile() { GlassCannon => true; _ => false })
+  assert_true(match { ..params, affix_profile: 2 }.get_affix_profile() { Tank => true; _ => false })
+  assert_true(match { ..params, affix_profile: 3 }.get_affix_profile() { Mobility => true; _ => false })
+  assert_true(match { ..params, affix_profile: 4 }.get_affix_profile() { Expanded => true; _ => false })
+  assert_true(match { ..params, affix_profile: 99 }.get_affix_profile() { Classic => true; _ => false })
 }

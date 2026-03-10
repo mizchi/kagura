@@ -1241,7 +1241,7 @@ pub fn runtime_present_planned_frame() -> Bool {
 }
 
 ///|
-pub fn runtime_read_pixels(x : Int, y : Int, w : Int, h : Int) -> Array[Int]? {
+fn slice_readback_pixels(x : Int, y : Int, w : Int, h : Int) -> Array[Int]? {
   if !read_pixels_available() {
     return None
   }
@@ -1271,6 +1271,28 @@ pub fn runtime_read_pixels(x : Int, y : Int, w : Int, h : Int) -> Array[Int]? {
     }
   }
   Some(result)
+}
+
+///|
+pub fn runtime_read_pixels(x : Int, y : Int, w : Int, h : Int) -> Array[Int]? {
+  slice_readback_pixels(x, y, w, h)
+}
+
+///|
+pub fn runtime_read_offscreen_pixels(
+  image_id : Int,
+  x : Int,
+  y : Int,
+  w : Int,
+  h : Int,
+) -> Array[Int]? {
+  if image_id <= 0 {
+    return None
+  }
+  if !capture_offscreen_target_readback(image_id) {
+    return None
+  }
+  slice_readback_pixels(x, y, w, h)
 }
 
 ///|

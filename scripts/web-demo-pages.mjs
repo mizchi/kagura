@@ -165,6 +165,120 @@ const RAW_DEMO_PAGES = [
     sourcePath: "examples/gltf_viewer/src/main_js.mbt",
   },
   {
+    name: "model_authoring",
+    title: "Model Authoring",
+    group: "3D Rendering",
+    summary: "Code-first hard-surface + voxel sculpt modeling POC with baked surface preview for VLM review loops.",
+    start: "Orbit the model, inspect the baked sculpt preview, click a hovered target to select it, drag the gizmo to move a primitive, then hold A or S while clicking to author sculpt stamps. Press G to export a GLB snapshot, I to build a round-trip diff and patch proposal from an imported GLB, P to apply the safe auto-patch subset in memory, U to apply opt-in primitive sync candidates, J to download the machine-readable VLM bundle, K to download the generated MoonBit patch snippet, and L to download the VLM review prompt.",
+    controls: [
+      "Left drag: orbit camera",
+      "Wheel: zoom",
+      "Click: select hovered primitive or sculpt layer",
+      "Drag gizmo handle: move the selected primitive on one axis",
+      "A + left click: add sculpt stamp",
+      "S + left click: subtract sculpt stamp",
+      "M: toggle x-axis symmetry for sculpt stamps",
+      "Z: undo latest stamp in the active sculpt layer",
+      "1 / 2 / 3 / 4: mute or unmute recent history slots",
+      "G: download the current document as GLB",
+      "I: import a GLB, diff it against the current document, and publish a patch proposal",
+      "P: apply auto-safe patch actions from the latest imported GLB",
+      "U: apply auto-safe patch actions plus opt-in primitive remove/append candidates",
+      "J: download the machine-readable VLM bundle JSON for API handoff",
+      "K: download the generated MoonBit patch snippet for model_doc-style updates",
+      "L: download the generated VLM review prompt for manual diff resolution",
+      "D / E: brush radius, O: reset document",
+      "Inspect globalThis.__kaguraModelingContext in the browser console",
+      "Inspect globalThis.__kaguraModelingExport after exporting",
+      "Inspect globalThis.__kaguraModelingRoundTrip after importing",
+      "Inspect globalThis.__kaguraModelingPatch for auto/manual patch actions, opt_in_append_source_ids, opt_in_remove_source_ids, manual_issue_details, moonbit_patch, and review_prompt",
+      "J downloads current_document + roundtrip_report + patch_payload as one JSON bundle",
+      "Use tools/modeling3d/scripts/model-authoring-vlm-review.mjs --provider openrouter with repeated --screenshot flags to send angled/front/side/top captures to google/gemini-3.1-flash-lite-preview by default, with free-model fallback if OpenRouter rejects the preview tier",
+      "Use tools/modeling3d/scripts/model-authoring-vlm-handoff.mjs --serve --edit-profile roundtrip_diff_bundle --provider openrouter for an end-to-end local dry-run with four fixed review views",
+      "After P or U, round-trip diff and patch payload are recomputed against the imported GLB",
+      "Exported GLB keeps Kagura source ids in glTF extras and uses double-sided materials",
+    ],
+    tags: ["3D", "Modeling", "VLM"],
+    sourcePath: "tools/modeling3d/examples/model_authoring/src/model_doc.mbt",
+  },
+  {
+    name: "chair_authoring",
+    title: "Chair Authoring",
+    group: "3D Rendering",
+    summary: "Primitive-first chair study with a small sculpted cushion, built to validate hard-surface VLM patch loops.",
+    start: "Orbit the chair, click a part to select it, drag the gizmo to adjust proportions, and use the same GLB export/import round-trip loop as model_authoring.",
+    controls: [
+      "Left drag: orbit camera",
+      "Wheel: zoom",
+      "Click: select hovered primitive or the seat cushion sculpt layer",
+      "Drag gizmo handle: move the selected primitive on one axis",
+      "A + left click: add sculpt stamp to the seat cushion",
+      "S + left click: subtract sculpt stamp from the seat cushion",
+      "M: toggle x-axis symmetry for sculpt stamps",
+      "G / I / P / U / J / K / L: same round-trip export, import, patch, and VLM bundle loop as model_authoring",
+      "D / E: brush radius, O: reset document",
+    ],
+    tags: ["3D", "Modeling", "VLM", "Hard Surface"],
+    sourcePath: "tools/modeling3d/examples/chair_authoring/src/model_doc.mbt",
+  },
+  {
+    name: "shelf_authoring",
+    title: "Shelf Authoring",
+    group: "3D Rendering",
+    summary: "Hard-surface shelf study with simple storage props, used to validate stacked-plane alignment in the VLM loop.",
+    start: "Orbit the shelf, inspect the horizontal levels, uprights, and storage props, then use the same GLB export/import loop to see how well the VLM catches drifting shelves, missing braces, and clutter misalignment.",
+    controls: [
+      "Left drag: orbit camera",
+      "Wheel: zoom",
+      "Click: select hovered primitive",
+      "Drag gizmo handle: move the selected primitive on one axis",
+      "G / I / P / U / J / K / L: same round-trip export, import, patch, and VLM bundle loop as model_authoring",
+      "O: reset document",
+    ],
+    tags: ["3D", "Modeling", "VLM", "Hard Surface"],
+    sourcePath: "tools/modeling3d/examples/shelf_authoring/src/model_doc.mbt",
+  },
+  {
+    name: "frog_authoring",
+    title: "Frog Authoring",
+    group: "3D Rendering",
+    summary: "Stylized frog maquette using a voxel sculpt body and eye primitives, aimed at organic blockout workflows.",
+    start: "Orbit the frog, inspect the sculpted body, then use sculpt stamps and GLB round-tripping to see where the current system handles organic forms well and where it falls back to manual review.",
+    controls: [
+      "Left drag: orbit camera",
+      "Wheel: zoom",
+      "Click: select hovered primitive or the frog_body sculpt layer",
+      "A + left click: add sculpt stamp",
+      "S + left click: subtract sculpt stamp",
+      "M: toggle x-axis symmetry for sculpt stamps",
+      "Drag gizmo handle: move the selected primitive on one axis",
+      "G / I / P / U / J / K / L: same round-trip export, import, patch, and VLM bundle loop as model_authoring",
+      "D / E: brush radius, O: reset document",
+    ],
+    tags: ["3D", "Modeling", "VLM", "Organic"],
+    sourcePath: "tools/modeling3d/examples/frog_authoring/src/model_doc.mbt",
+  },
+  {
+    name: "dragon_authoring",
+    title: "Dragon Authoring",
+    group: "3D Rendering",
+    summary: "Stylized voxel dragon study focused on readable head, wings, and tail silhouettes in the VLM loop.",
+    start: "Orbit the dragon, inspect the wing and tail silhouette, then use sculpt stamps and live-review to see whether the current voxel blockout still reads as a dragon from all four views.",
+    controls: [
+      "Left drag: orbit camera",
+      "Wheel: zoom",
+      "Click: select hovered primitive or the dragon_body sculpt layer",
+      "A + left click: add sculpt stamp",
+      "S + left click: subtract sculpt stamp",
+      "M: toggle x-axis symmetry for sculpt stamps",
+      "Drag gizmo handle: move the selected primitive on one axis",
+      "G / I / P / U / J / K / L: same round-trip export, import, patch, and VLM bundle loop as model_authoring",
+      "D / E: brush radius, O: reset document",
+    ],
+    tags: ["3D", "Modeling", "VLM", "Organic"],
+    sourcePath: "tools/modeling3d/examples/dragon_authoring/src/model_doc.mbt",
+  },
+  {
     name: "particle_demo",
     title: "Particle System",
     group: "3D Rendering",
@@ -296,6 +410,7 @@ export function resolveDemoPage(name) {
   if (DEMO_PAGE_MAP.has(name)) {
     return getDemoPage(name);
   }
+  const sourcePath = resolveExampleSourcePath(name);
   const title = humanizeName(name);
   return {
     name,
@@ -308,9 +423,16 @@ export function resolveDemoPage(name) {
       "Open the example source for control details",
     ],
     tags: ["Local"],
-    sourcePath: `examples/${name}/src`,
-    githubHref: `${GITHUB_BLOB_ROOT}/examples/${name}/src`,
+    sourcePath,
+    githubHref: `${GITHUB_BLOB_ROOT}/${sourcePath}`,
   };
+}
+
+function resolveExampleSourcePath(name) {
+  if (name.endsWith("_authoring")) {
+    return `tools/modeling3d/examples/${name}/src`;
+  }
+  return `examples/${name}/src`;
 }
 
 export function detectFontEntries(exampleDir) {

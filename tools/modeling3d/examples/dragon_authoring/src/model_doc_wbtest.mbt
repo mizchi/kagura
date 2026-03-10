@@ -1,0 +1,27 @@
+///|
+test "dragon document exposes a stylized sculpt body with readable landmarks" {
+  let doc = default_model_document()
+  let stats = document_stats(doc)
+  let context_json = document_context_json(doc)
+
+  assert_eq(doc.name, "vlm_dragon_study")
+  assert_eq(doc.primitives.length(), 3)
+  assert_eq(doc.sculpt_layers.length(), 1)
+  assert_eq(doc.sculpt_layers[0].id, "dragon_body")
+  assert_eq(doc.sculpt_layers[0].stamps.length(), 27)
+  assert_eq(doc.sculpt_layers[0].muted_stamp_ids.length(), 0)
+  assert_eq(doc.sculpt_layers[0].stamps[0].id, "torso")
+  assert_eq(doc.sculpt_layers[0].stamps[12].id, "left_wing_mid")
+  assert_eq(doc.sculpt_layers[0].stamps[23].id, "tail_tip")
+  assert_eq(doc.sculpt_layers[0].stamps[26].id, "belly_cut")
+  assert_true(stats.occupied_voxel_count > 0)
+  assert_eq(stats.render_object_count, doc.primitives.length() + 1)
+  assert_true(stats.baked_triangle_count > 0)
+  assert_true(context_json.contains("\"name\":\"vlm_dragon_study\""))
+  assert_true(context_json.contains("\"id\":\"dragon_body\""))
+  assert_true(context_json.contains("\"id\":\"left_wing_root\""))
+  assert_true(context_json.contains("\"id\":\"left_wing_tip\""))
+  assert_true(context_json.contains("\"id\":\"neck_cut\""))
+  assert_true(context_json.contains("\"id\":\"right_eye_glow\""))
+  assert_true(context_json.contains("\"enabled\":true"))
+}

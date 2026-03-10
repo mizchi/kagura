@@ -9,3 +9,5 @@ playwright-report
 .repos/
 deps/wgpu-native/
 *.mi
+__pycache__/
+*.pyc

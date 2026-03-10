@@ -703,6 +703,11 @@ extern "C" fn moonbit_read_pixels_height() -> Int = "moonbit_read_pixels_height"
 extern "C" fn moonbit_read_pixels_channel(offset : Int) -> Int = "moonbit_read_pixels_channel"
 
 ///|
+extern "C" fn moonbit_capture_offscreen_target_readback(
+  image_id : Int,
+) -> Int = "moonbit_capture_offscreen_target_readback"
+
+///|
 pub fn read_pixels_available() -> Bool {
   moonbit_read_pixels_available() != 0
 }
@@ -720,6 +725,11 @@ pub fn read_pixels_height() -> Int {
 ///|
 pub fn read_pixels_channel(offset : Int) -> Int {
   moonbit_read_pixels_channel(offset)
+}
+
+///|
+pub fn capture_offscreen_target_readback(image_id : Int) -> Bool {
+  moonbit_capture_offscreen_target_readback(image_id) != 0
 }
 
 ///|

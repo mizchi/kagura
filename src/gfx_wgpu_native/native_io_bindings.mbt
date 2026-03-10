@@ -27,6 +27,45 @@ pub fn read_file_bytes(path : String) -> Bytes? {
   Some(Bytes::from_array(arr))
 }
 
+///|
+#borrow(path, data)
+extern "C" fn moonbit_write_file_all(
+  path : Bytes,
+  path_len : Int,
+  data : Bytes,
+  data_len : Int,
+) -> Int = "moonbit_write_file_all"
+
+///|
+pub fn write_file_bytes(path : String, data : Bytes) -> Bool {
+  let utf8 = Bytes::from_array(string_to_utf8_fixed_array(path))
+  moonbit_write_file_all(utf8, utf8.length(), data, data.length()) == 0
+}
+
+///|
+pub fn write_file_text(path : String, text : String) -> Bool {
+  let chars : Array[Byte] = []
+  for ch in text {
+    let code = ch.to_int()
+    if code < 0x80 {
+      chars.push(code.to_byte())
+    } else if code < 0x800 {
+      chars.push((0xC0 | (code >> 6)).to_byte())
+      chars.push((0x80 | (code & 0x3F)).to_byte())
+    } else if code < 0x10000 {
+      chars.push((0xE0 | (code >> 12)).to_byte())
+      chars.push((0x80 | ((code >> 6) & 0x3F)).to_byte())
+      chars.push((0x80 | (code & 0x3F)).to_byte())
+    } else {
+      chars.push((0xF0 | (code >> 18)).to_byte())
+      chars.push((0x80 | ((code >> 12) & 0x3F)).to_byte())
+      chars.push((0x80 | ((code >> 6) & 0x3F)).to_byte())
+      chars.push((0x80 | (code & 0x3F)).to_byte())
+    }
+  }
+  write_file_bytes(path, Bytes::from_array(chars))
+}
+
 // ---------------------------------------------------------------------------
 // Font file I/O FFI
 // ---------------------------------------------------------------------------

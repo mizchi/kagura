@@ -1,5 +1,6 @@
 // Balance tuner using @dec.tune() API
 
+///|
 fn main {
   println("=== AFFIX PROFILE BALANCE TUNER ===")
   println("")
@@ -16,8 +17,12 @@ fn main {
     ("Expanded", 4),
   ]
   println(
-    "Seeds: " + seeds.length().to_string() + " | Frames: " +
-    sim_max_frames.to_string() + " | Gens: " + max_generations.to_string(),
+    "Seeds: " +
+    seeds.length().to_string() +
+    " | Frames: " +
+    sim_max_frames.to_string() +
+    " | Gens: " +
+    max_generations.to_string(),
   )
   println("")
 
@@ -42,7 +47,9 @@ fn main {
     println("============================================")
     let sim = @blib.make_sim(id, sim_max_frames)
     let initial = @dec.initial_params(specs)
-    let (base_loss, _) = @dec.compute_loss_averaged(sim, initial, targets, seeds)
+    let (base_loss, _) = @dec.compute_loss_averaged(
+      sim, initial, targets, seeds,
+    )
     println("  Baseline loss: " + fmt(base_loss))
     let config : @dec.TuneConfig = {
       ..@dec.TuneConfig::default(specs, targets),
@@ -55,16 +62,26 @@ fn main {
     } else {
       0.0
     }
-    println("  Optimized loss: " + fmt(result.loss) + " (improvement: " + fmt(imp) + "%)")
+    println(
+      "  Optimized loss: " +
+      fmt(result.loss) +
+      " (improvement: " +
+      fmt(imp) +
+      "%)",
+    )
     print_metrics(result.metrics)
     println("")
     results.push((name, result, base_loss))
   }
 
   // Summary
-  println("╔══════════════════════════════════════════╗")
+  println(
+    "╔══════════════════════════════════════════╗",
+  )
   println("║     AFFIX PROFILE COMPARISON SUMMARY     ║")
-  println("╚══════════════════════════════════════════╝")
+  println(
+    "╚══════════════════════════════════════════╝",
+  )
   println("")
   for r in results {
     let (name, result, base_loss) = r
@@ -75,8 +92,13 @@ fn main {
     }
     println("--- " + name + " ---")
     println(
-      "  Loss: " + fmt(base_loss) + " -> " + fmt(result.loss) +
-      " (" + fmt(imp) + "%)",
+      "  Loss: " +
+      fmt(base_loss) +
+      " -> " +
+      fmt(result.loss) +
+      " (" +
+      fmt(imp) +
+      "%)",
     )
     print_metrics(result.metrics)
     println("")
@@ -102,7 +124,11 @@ fn main {
     if any_changed {
       let mut line = pad(names[i], 22) + pad(fmt(defaults[i]), 10)
       for r in results {
-        let mark = if (r.1.params[i] - defaults[i]).abs() > 0.01 { "*" } else { " " }
+        let mark = if (r.1.params[i] - defaults[i]).abs() > 0.01 {
+          "*"
+        } else {
+          " "
+        }
         line = line + pad(fmt(r.1.params[i]) + mark, 14)
       }
       println(line)
@@ -110,27 +136,41 @@ fn main {
   }
 }
 
+///|
 fn print_metrics(m : @dec.Metrics) -> Unit {
   println(
-    "  Surv:" + fmt(m.get("survival_frames")) +
-    " Floor:" + fmt(m.get("floors_cleared")) +
-    " Kills:" + fmt(m.get("total_kills")) +
-    " Dmg:" + fmt(m.get("total_damage")),
+    "  Surv:" +
+    fmt(m.get("survival_frames")) +
+    " Floor:" +
+    fmt(m.get("floors_cleared")) +
+    " Kills:" +
+    fmt(m.get("total_kills")) +
+    " Dmg:" +
+    fmt(m.get("total_damage")),
   )
   println(
-    "  HP:" + fmt(m.get("avg_hp_ratio")) +
-    " CV:" + fmt(m.get("hp_cv")) +
-    " FTime:" + fmt(m.get("floor_time")) +
-    " NearDeath:" + fmt(m.get("near_death_rate")),
+    "  HP:" +
+    fmt(m.get("avg_hp_ratio")) +
+    " CV:" +
+    fmt(m.get("hp_cv")) +
+    " FTime:" +
+    fmt(m.get("floor_time")) +
+    " NearDeath:" +
+    fmt(m.get("near_death_rate")),
   )
   println(
-    "  KillInt:" + fmt(m.get("kill_interval")) +
-    " KillCV:" + fmt(m.get("kill_cv")) +
-    " KPF:" + fmt(m.get("kills_per_floor")) +
-    " DmgInt:" + fmt(m.get("damage_interval")),
+    "  KillInt:" +
+    fmt(m.get("kill_interval")) +
+    " KillCV:" +
+    fmt(m.get("kill_cv")) +
+    " KPF:" +
+    fmt(m.get("kills_per_floor")) +
+    " DmgInt:" +
+    fmt(m.get("damage_interval")),
   )
 }
 
+///|
 fn pad(s : String, width : Int) -> String {
   let mut r = s
   while r.length() < width {
@@ -139,6 +179,7 @@ fn pad(s : String, width : Int) -> String {
   r
 }
 
+///|
 fn fmt(v : Double) -> String {
   let sign = if v < 0.0 { "-" } else { "" }
   let abs_v = if v < 0.0 { -v } else { v }

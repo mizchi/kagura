@@ -1,14 +1,17 @@
 // Game-specific particle effect spawn functions
 
 // Convert 2D game coords to 3D world position
+
+///|
 fn game_to_3d(x : Double, y : Double, height : Double) -> @math3d.Vec3 {
   @math3d.Vec3::new(x / tile_size, height, y / tile_size)
 }
 
+///|
 fn spawn_hit_sparks(
   pm : @particle3d.ParticleManager,
   x : Double,
-  y : Double
+  y : Double,
 ) -> Unit {
   let pos = game_to_3d(x, y, 0.5)
   pm.spawn({
@@ -27,10 +30,11 @@ fn spawn_hit_sparks(
   })
 }
 
+///|
 fn spawn_death_burst(
   pm : @particle3d.ParticleManager,
   x : Double,
-  y : Double
+  y : Double,
 ) -> Unit {
   let pos = game_to_3d(x, y, 0.4)
   pm.spawn({
@@ -49,10 +53,11 @@ fn spawn_death_burst(
   })
 }
 
+///|
 fn spawn_dash_trail(
   pm : @particle3d.ParticleManager,
   x : Double,
-  y : Double
+  y : Double,
 ) -> Unit {
   let pos = game_to_3d(x, y, 0.3)
   pm.spawn({
@@ -71,11 +76,12 @@ fn spawn_dash_trail(
   })
 }
 
+///|
 fn spawn_item_pickup(
   pm : @particle3d.ParticleManager,
   x : Double,
   y : Double,
-  is_health : Bool
+  is_health : Bool,
 ) -> Unit {
   let pos = game_to_3d(x, y, 0.3)
   let (cs, ce) = if is_health {
@@ -105,10 +111,11 @@ fn spawn_item_pickup(
   })
 }
 
+///|
 fn spawn_player_hurt(
   pm : @particle3d.ParticleManager,
   x : Double,
-  y : Double
+  y : Double,
 ) -> Unit {
   let pos = game_to_3d(x, y, 0.5)
   pm.spawn({
@@ -128,6 +135,8 @@ fn spawn_player_hurt(
 }
 
 // Ambient dust particles — spawned periodically near the player
+
+///|
 fn spawn_ambient_dust(
   pm : @particle3d.ParticleManager,
   x : Double,

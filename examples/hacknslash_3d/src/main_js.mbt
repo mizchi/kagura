@@ -1,6 +1,8 @@
+///|
 extern "js" fn js_now() -> Double =
   #| () => (globalThis.performance?.now?.() ?? Date.now())
 
+///|
 fn main {
   let state = GameState::new(seed=42)
   let snapshot_mode = get_snapshot_mode()

@@ -59,10 +59,40 @@ test "clamp enforces bounds" {
 ///|
 test "get_affix_profile mapping" {
   let params = BalanceParams::default()
-  assert_true(match { ..params, affix_profile: 0 }.get_affix_profile() { Classic => true; _ => false })
-  assert_true(match { ..params, affix_profile: 1 }.get_affix_profile() { GlassCannon => true; _ => false })
-  assert_true(match { ..params, affix_profile: 2 }.get_affix_profile() { Tank => true; _ => false })
-  assert_true(match { ..params, affix_profile: 3 }.get_affix_profile() { Mobility => true; _ => false })
-  assert_true(match { ..params, affix_profile: 4 }.get_affix_profile() { Expanded => true; _ => false })
-  assert_true(match { ..params, affix_profile: 99 }.get_affix_profile() { Classic => true; _ => false })
+  assert_true(
+    match { ..params, affix_profile: 0 }.get_affix_profile() {
+      Classic => true
+      _ => false
+    },
+  )
+  assert_true(
+    match { ..params, affix_profile: 1 }.get_affix_profile() {
+      GlassCannon => true
+      _ => false
+    },
+  )
+  assert_true(
+    match { ..params, affix_profile: 2 }.get_affix_profile() {
+      Tank => true
+      _ => false
+    },
+  )
+  assert_true(
+    match { ..params, affix_profile: 3 }.get_affix_profile() {
+      Mobility => true
+      _ => false
+    },
+  )
+  assert_true(
+    match { ..params, affix_profile: 4 }.get_affix_profile() {
+      Expanded => true
+      _ => false
+    },
+  )
+  assert_true(
+    match { ..params, affix_profile: 99 }.get_affix_profile() {
+      Classic => true
+      _ => false
+    },
+  )
 }

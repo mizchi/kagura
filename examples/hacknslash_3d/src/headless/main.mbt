@@ -1,5 +1,6 @@
 // Headless auto-play runner with ASCII art visualization
 
+///|
 fn main {
   let world = @game.GameWorld::new(seed=42)
   world.auto_play = true
@@ -18,11 +19,20 @@ fn main {
       match event {
         @game.FloorComplete =>
           println(
-            "[F " + world.frame_count.to_string() + "] === FLOOR " + world.floor.to_string() + " ===",
+            "[F " +
+            world.frame_count.to_string() +
+            "] === FLOOR " +
+            world.floor.to_string() +
+            " ===",
           )
         @game.HurtTriggered =>
           println(
-            "[F " + world.frame_count.to_string() + "] Player hurt! HP: " + world.player.hp.to_string() + "/" + world.player_stats.max_hp.to_string(),
+            "[F " +
+            world.frame_count.to_string() +
+            "] Player hurt! HP: " +
+            world.player.hp.to_string() +
+            "/" +
+            world.player_stats.max_hp.to_string(),
           )
         _ => ()
       }
@@ -31,7 +41,12 @@ fn main {
     if world.mode == @game.GameOver {
       println("")
       println(
-        "[F " + world.frame_count.to_string() + "] GAME OVER on Floor " + world.floor.to_string() + " | Score: " + world.score.to_string(),
+        "[F " +
+        world.frame_count.to_string() +
+        "] GAME OVER on Floor " +
+        world.floor.to_string() +
+        " | Score: " +
+        world.score.to_string(),
       )
       break
     }
@@ -44,7 +59,22 @@ fn main {
         }
       }
       println(
-        "[F " + world.frame_count.to_string() + "] Floor " + world.floor.to_string() + " | HP " + world.player.hp.to_string() + "/" + world.player_stats.max_hp.to_string() + " | Score " + world.score.to_string() + " | Enemies " + alive.to_string() + " | ATK " + world.player_stats.atk.to_string() + " DEF " + world.player_stats.def.to_string(),
+        "[F " +
+        world.frame_count.to_string() +
+        "] Floor " +
+        world.floor.to_string() +
+        " | HP " +
+        world.player.hp.to_string() +
+        "/" +
+        world.player_stats.max_hp.to_string() +
+        " | Score " +
+        world.score.to_string() +
+        " | Enemies " +
+        alive.to_string() +
+        " | ATK " +
+        world.player_stats.atk.to_string() +
+        " DEF " +
+        world.player_stats.def.to_string(),
       )
     }
     // Periodic ASCII minimap
@@ -55,13 +85,19 @@ fn main {
   if world.mode != @game.GameOver {
     println("")
     println(
-      "[F " + world.frame_count.to_string() + "] TIME LIMIT | Floor " + world.floor.to_string() + " | Score " + world.score.to_string(),
+      "[F " +
+      world.frame_count.to_string() +
+      "] TIME LIMIT | Floor " +
+      world.floor.to_string() +
+      " | Score " +
+      world.score.to_string(),
     )
   }
   println("")
   println("=== HEADLESS AUTO-PLAY END ===")
 }
 
+///|
 fn print_ascii_map(world : @game.GameWorld) -> Unit {
   let ts = @game.tile_size
   let pcx = (world.player.x / ts).to_int()

@@ -1,12 +1,13 @@
 // Enemy AI: chase + pathfinding + patrol + ranged + boss
 
+///|
 pub fn update_enemy_ai(
   enemies : Array[Enemy],
   player : Player,
   grid : @terrain.Grid2D,
   frame_count : Int,
   projectiles : Array[Projectile],
-  params~ : BalanceParams = BalanceParams::default(),
+  params? : BalanceParams = BalanceParams::default(),
 ) -> Unit {
   let player_tile_x = (player.x / tile_size).to_int()
   let player_tile_y = (player.y / tile_size).to_int()
@@ -42,7 +43,9 @@ pub fn update_enemy_ai(
     }
     // Patrol if out of chase range
     if dist_sq > chase_range_sq {
-      let angle = ((frame_count + enemy.x.to_int()) % 360).to_double() * @math.PI / 180.0
+      let angle = ((frame_count + enemy.x.to_int()) % 360).to_double() *
+        @math.PI /
+        180.0
       enemy.vx = @math.cos(angle) * enemy.speed * 0.3
       enemy.vy = @math.sin(angle) * enemy.speed * 0.3
       continue
@@ -97,7 +100,8 @@ pub fn update_enemy_ai(
       enemy.path_timer = enemy.path_timer - 1
     }
     // Movement: follow path or direct chase
-    if enemy.path_cache.length() > 0 && enemy.path_index < enemy.path_cache.length() {
+    if enemy.path_cache.length() > 0 &&
+      enemy.path_index < enemy.path_cache.length() {
       let target = enemy.path_cache[enemy.path_index]
       let tx = target.x.to_double() * tile_size + tile_size / 2.0
       let ty = target.y.to_double() * tile_size + tile_size / 2.0

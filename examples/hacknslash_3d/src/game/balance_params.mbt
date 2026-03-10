@@ -1,6 +1,7 @@
 // BalanceParams: tunable game parameters for automatic balance optimization
 // All values are Double for smooth optimization; cast to Int at use site
 
+///|
 pub(all) struct BalanceParams {
   player_speed : Double
   enemy_speed_basic : Double
@@ -29,8 +30,10 @@ pub(all) struct BalanceParams {
   affix_profile : Int // 0=Classic, 1=GlassCannon, 2=Tank, 3=Mobility, 4=Expanded
 }
 
+///|
 pub let balance_param_count : Int = 23
 
+///|
 pub fn BalanceParams::default() -> BalanceParams {
   {
     player_speed: 2.0,
@@ -60,18 +63,36 @@ pub fn BalanceParams::default() -> BalanceParams {
   }
 }
 
+///|
 pub fn BalanceParams::to_array(self : BalanceParams) -> Array[Double] {
   [
-    self.player_speed, self.enemy_speed_basic, self.enemy_speed_fast,
-    self.enemy_speed_tank, self.attack_cooldown, self.arrow_speed,
-    self.arrow_range, self.bow_cooldown, self.chase_range,
-    self.knockback_strength, self.iframe_duration, self.dash_duration,
-    self.dash_cooldown, self.dash_speed_mult, self.basic_hp, self.fast_hp,
-    self.tank_hp, self.ranged_hp, self.boss_hp_base, self.boss_hp_per_floor,
-    self.enemy_contact_damage, self.player_base_hp, self.spawn_density,
+    self.player_speed,
+    self.enemy_speed_basic,
+    self.enemy_speed_fast,
+    self.enemy_speed_tank,
+    self.attack_cooldown,
+    self.arrow_speed,
+    self.arrow_range,
+    self.bow_cooldown,
+    self.chase_range,
+    self.knockback_strength,
+    self.iframe_duration,
+    self.dash_duration,
+    self.dash_cooldown,
+    self.dash_speed_mult,
+    self.basic_hp,
+    self.fast_hp,
+    self.tank_hp,
+    self.ranged_hp,
+    self.boss_hp_base,
+    self.boss_hp_per_floor,
+    self.enemy_contact_damage,
+    self.player_base_hp,
+    self.spawn_density,
   ]
 }
 
+///|
 pub fn BalanceParams::from_array(arr : Array[Double]) -> BalanceParams {
   {
     player_speed: arr[0],
@@ -101,19 +122,20 @@ pub fn BalanceParams::from_array(arr : Array[Double]) -> BalanceParams {
   }
 }
 
+///|
 pub fn BalanceParams::param_names() -> Array[String] {
   [
-    "player_speed", "enemy_speed_basic", "enemy_speed_fast",
-    "enemy_speed_tank", "attack_cooldown", "arrow_speed",
-    "arrow_range", "bow_cooldown", "chase_range",
-    "knockback_strength", "iframe_duration", "dash_duration",
-    "dash_cooldown", "dash_speed_mult", "basic_hp", "fast_hp",
-    "tank_hp", "ranged_hp", "boss_hp_base", "boss_hp_per_floor",
+    "player_speed", "enemy_speed_basic", "enemy_speed_fast", "enemy_speed_tank",
+    "attack_cooldown", "arrow_speed", "arrow_range", "bow_cooldown", "chase_range",
+    "knockback_strength", "iframe_duration", "dash_duration", "dash_cooldown", "dash_speed_mult",
+    "basic_hp", "fast_hp", "tank_hp", "ranged_hp", "boss_hp_base", "boss_hp_per_floor",
     "enemy_contact_damage", "player_base_hp", "spawn_density",
   ]
 }
 
 // Clamp parameters to sensible bounds
+
+///|
 pub fn BalanceParams::clamp(self : BalanceParams) -> BalanceParams {
   {
     player_speed: clamp_d(self.player_speed, 0.5, 5.0),
@@ -143,6 +165,7 @@ pub fn BalanceParams::clamp(self : BalanceParams) -> BalanceParams {
   }
 }
 
+///|
 pub fn BalanceParams::get_affix_profile(self : BalanceParams) -> AffixProfile {
   match self.affix_profile {
     1 => GlassCannon
@@ -153,6 +176,7 @@ pub fn BalanceParams::get_affix_profile(self : BalanceParams) -> AffixProfile {
   }
 }
 
+///|
 fn clamp_d(v : Double, lo : Double, hi : Double) -> Double {
   if v < lo {
     lo

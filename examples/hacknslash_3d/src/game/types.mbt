@@ -1,5 +1,6 @@
 // Pure game logic types — no rendering dependencies
 
+///|
 pub(all) struct Player {
   mut x : Double
   mut y : Double
@@ -15,6 +16,7 @@ pub(all) struct Player {
   mut dash_vy : Double
 }
 
+///|
 pub(all) struct Enemy {
   mut x : Double
   mut y : Double
@@ -35,6 +37,7 @@ pub(all) struct Enemy {
   mut charge_cooldown : Int
 }
 
+///|
 pub(all) struct ItemDrop {
   mut x : Double
   mut y : Double
@@ -45,6 +48,7 @@ pub(all) struct ItemDrop {
   spawn_frame : Int
 }
 
+///|
 pub(all) struct Projectile {
   mut x : Double
   mut y : Double
@@ -55,6 +59,7 @@ pub(all) struct Projectile {
   is_player : Bool
 }
 
+///|
 pub(all) struct DungeonData {
   mut grid : @terrain.Grid2D
   rooms : Array[@terrain.Room]
@@ -63,6 +68,7 @@ pub(all) struct DungeonData {
   height_map : Array[Double]
 }
 
+///|
 pub(all) enum EnemyKind {
   Basic
   Fast
@@ -71,12 +77,14 @@ pub(all) enum EnemyKind {
   Boss
 } derive(Eq)
 
+///|
 pub(all) enum ItemKind {
   Health
   Score
   Equipment(ItemData)
 }
 
+///|
 pub fn ItemKind::op_equal(self : ItemKind, other : ItemKind) -> Bool {
   match (self, other) {
     (Health, Health) => true
@@ -85,18 +93,21 @@ pub fn ItemKind::op_equal(self : ItemKind, other : ItemKind) -> Bool {
   }
 }
 
+///|
 pub(all) enum GameMode {
   Title
   Playing
   GameOver
 } derive(Eq)
 
+///|
 pub(all) enum UIMode {
   None
   Inventory
   Skills
 } derive(Eq)
 
+///|
 pub(all) enum GameEvent {
   HitSparks(Double, Double)
   DeathBurst(Double, Double)

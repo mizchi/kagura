@@ -1,19 +1,25 @@
 // Save/Load system via localStorage (JS target only)
 // Serializes character progress: inventory, equipment, skills, floor, score
 
+///|
 extern "js" fn js_storage_set(key : String, value : String) -> Unit =
   #| (key, value) => { try { localStorage.setItem(key, value); } catch(e) {} }
 
+///|
 extern "js" fn js_storage_get(key : String) -> String =
   #| (key) => { try { return localStorage.getItem(key) ?? ""; } catch(e) { return ""; } }
 
+///|
 extern "js" fn js_storage_remove(key : String) -> Unit =
   #| (key) => { try { localStorage.removeItem(key); } catch(e) {} }
 
+///|
 let save_key : String = "hacknslash3d_save"
 
 // Encode game state as a simple key=value format
 // Format: floor|score|sp|weapon|armor|accessory|skills|items
+
+///|
 fn GameState::serialize_save(self : GameState) -> String {
   let parts : Array[String] = []
   // 0: floor
@@ -43,6 +49,7 @@ fn GameState::serialize_save(self : GameState) -> String {
   join_strings(parts, "|")
 }
 
+///|
 fn serialize_opt_item(item : @game.ItemData?) -> String {
   match item {
     None => "-"
@@ -50,17 +57,26 @@ fn serialize_opt_item(item : @game.ItemData?) -> String {
   }
 }
 
+///|
 fn serialize_affix(a : @game.Affix) -> String {
-  a.name + "~" +
-  a.atk.to_string() + "~" +
-  a.def.to_string() + "~" +
-  a.hp.to_string() + "~" +
-  a.crit.to_string() + "~" +
-  a.life_steal.to_string() + "~" +
-  a.speed_bonus.to_string() + "~" +
+  a.name +
+  "~" +
+  a.atk.to_string() +
+  "~" +
+  a.def.to_string() +
+  "~" +
+  a.hp.to_string() +
+  "~" +
+  a.crit.to_string() +
+  "~" +
+  a.life_steal.to_string() +
+  "~" +
+  a.speed_bonus.to_string() +
+  "~" +
   a.cooldown_reduction.to_string()
 }
 
+///|
 fn deserialize_affix(s : String) -> @game.Affix? {
   if s == "" {
     return None
@@ -76,11 +92,20 @@ fn deserialize_affix(s : String) -> @game.Affix? {
     hp: parse_int(parts[3]),
     crit: parse_double(parts[4]),
     life_steal: parse_double(parts[5]),
-    speed_bonus: if parts.length() > 6 { parse_double(parts[6]) } else { 0.0 },
-    cooldown_reduction: if parts.length() > 7 { parse_double(parts[7]) } else { 0.0 },
+    speed_bonus: if parts.length() > 6 {
+      parse_double(parts[6])
+    } else {
+      0.0
+    },
+    cooldown_reduction: if parts.length() > 7 {
+      parse_double(parts[7])
+    } else {
+      0.0
+    },
   })
 }
 
+///|
 fn serialize_opt_affix(a : @game.Affix?) -> String {
   match a {
     None => ""
@@ -88,6 +113,7 @@ fn serialize_opt_affix(a : @game.Affix?) -> String {
   }
 }
 
+///|
 fn serialize_item(item : @game.ItemData) -> String {
   // name,rarity_int,slot_int,atk,def,hp,icon_id,prefix_data,suffix_data
   let rarity_int = match item.rarity {
@@ -101,17 +127,26 @@ fn serialize_item(item : @game.ItemData) -> String {
     @game.Armor => 1
     @game.Accessory => 2
   }
-  item.name + "," +
-  rarity_int.to_string() + "," +
-  slot_int.to_string() + "," +
-  item.atk_bonus.to_string() + "," +
-  item.def_bonus.to_string() + "," +
-  item.hp_bonus.to_string() + "," +
-  item.icon_id.to_string() + "," +
-  serialize_opt_affix(item.prefix) + "," +
+  item.name +
+  "," +
+  rarity_int.to_string() +
+  "," +
+  slot_int.to_string() +
+  "," +
+  item.atk_bonus.to_string() +
+  "," +
+  item.def_bonus.to_string() +
+  "," +
+  item.hp_bonus.to_string() +
+  "," +
+  item.icon_id.to_string() +
+  "," +
+  serialize_opt_affix(item.prefix) +
+  "," +
   serialize_opt_affix(item.suffix)
 }
 
+///|
 fn deserialize_item(s : String) -> @game.ItemData? {
   let parts = split_string(s, ',')
   if parts.length() < 7 {
@@ -128,8 +163,16 @@ fn deserialize_item(s : String) -> @game.ItemData? {
     2 => @game.Accessory
     _ => @game.Weapon
   }
-  let prefix = if parts.length() > 7 { deserialize_affix(parts[7]) } else { None }
-  let suffix = if parts.length() > 8 { deserialize_affix(parts[8]) } else { None }
+  let prefix = if parts.length() > 7 {
+    deserialize_affix(parts[7])
+  } else {
+    None
+  }
+  let suffix = if parts.length() > 8 {
+    deserialize_affix(parts[8])
+  } else {
+    None
+  }
   Some({
     name: parts[0],
     rarity,
@@ -143,11 +186,13 @@ fn deserialize_item(s : String) -> @game.ItemData? {
   })
 }
 
+///|
 fn GameState::save_game(self : GameState) -> Unit {
   let data = self.serialize_save()
   js_storage_set(save_key, data)
 }
 
+///|
 fn GameState::load_game(self : GameState) -> Bool {
   let data = js_storage_get(save_key)
   if data == "" {
@@ -169,7 +214,11 @@ fn GameState::load_game(self : GameState) -> Bool {
   self.world.equipment.accessory = deserialize_opt_item(parts[5])
   // 6: skill levels
   let skill_parts = split_string(parts[6], ',')
-  for i in 0..<@cmp.minimum(skill_parts.length(), self.world.skills.nodes.length()) {
+  for
+    i in 0..<@cmp.minimum(
+      skill_parts.length(),
+      self.world.skills.nodes.length(),
+    ) {
     self.world.skills.nodes[i].level = parse_int(skill_parts[i])
   }
   // 7: inventory
@@ -178,7 +227,10 @@ fn GameState::load_game(self : GameState) -> Bool {
     self.world.inventory.items[i] = deserialize_opt_item(inv_parts[i])
   }
   // Recompute stats
-  self.world.player_stats = @game.compute_player_stats(self.world.equipment, self.world.skills)
+  self.world.player_stats = @game.compute_player_stats(
+    self.world.equipment,
+    self.world.skills,
+  )
   self.world.player.hp = self.world.player_stats.max_hp
   // Regenerate dungeon for current floor
   self.world.seed = 42 + self.world.floor - 1
@@ -188,6 +240,7 @@ fn GameState::load_game(self : GameState) -> Bool {
   true
 }
 
+///|
 fn deserialize_opt_item(s : String) -> @game.ItemData? {
   if s == "-" {
     return None
@@ -195,11 +248,14 @@ fn deserialize_opt_item(s : String) -> @game.ItemData? {
   deserialize_item(s)
 }
 
+///|
 fn GameState::delete_save(_self : GameState) -> Unit {
   js_storage_remove(save_key)
 }
 
 // Simple string utilities
+
+///|
 fn split_string(s : String, sep : Char) -> Array[String] {
   let parts : Array[String] = []
   let buf = StringBuilder::new()
@@ -215,6 +271,7 @@ fn split_string(s : String, sep : Char) -> Array[String] {
   parts
 }
 
+///|
 fn join_strings(parts : Array[String], sep : String) -> String {
   let buf = StringBuilder::new()
   for i, part in parts {
@@ -226,6 +283,7 @@ fn join_strings(parts : Array[String], sep : String) -> String {
   buf.to_string()
 }
 
+///|
 fn parse_int(s : String) -> Int {
   let mut result = 0
   let mut negative = false
@@ -239,9 +297,14 @@ fn parse_int(s : String) -> Int {
       result = result * 10 + d
     }
   }
-  if negative { -result } else { result }
+  if negative {
+    -result
+  } else {
+    result
+  }
 }
 
+///|
 fn parse_double(s : String) -> Double {
   let mut int_part = 0
   let mut frac_part = 0.0
@@ -268,5 +331,9 @@ fn parse_double(s : String) -> Double {
     }
   }
   let result = int_part.to_double() + frac_part
-  if negative { -result } else { result }
+  if negative {
+    -result
+  } else {
+    result
+  }
 }

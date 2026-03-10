@@ -2,24 +2,50 @@
 // Bones: root(0) -> torso(1) -> r_upper_arm(2) -> r_forearm(3) -> sword(4)
 // Designed to be replaceable with a glTF model later.
 
+///|
 let char_num_bones : Int = 5
 
 // Bone dimensions
+
+///|
 let torso_height : Double = 0.3
+
+///|
 let upper_arm_len : Double = 0.15
+
+///|
 let forearm_len : Double = 0.15
+
+///|
 let sword_len : Double = 0.35
 
 // Animation
+
+///|
 let idle_anim_duration : Double = 2.0
+
+///|
 let attack_anim_duration : Double = 0.3
+
+///|
 let run_anim_duration : Double = 0.5
+
+///|
 let hurt_anim_duration : Double = 0.25
+
+///|
 let idle_num_keyframes : Int = 16
+
+///|
 let attack_num_keyframes : Int = 8
+
+///|
 let run_num_keyframes : Int = 12
+
+///|
 let hurt_num_keyframes : Int = 6
 
+///|
 enum CharAnimState {
   Idle
   Attacking
@@ -27,6 +53,7 @@ enum CharAnimState {
   Hurt
 } derive(Eq)
 
+///|
 struct PlayerCharacter {
   skeleton : @skeleton3d.Skeleton
   bind_mesh : @mesh3d.Mesh3D
@@ -41,6 +68,8 @@ struct PlayerCharacter {
 }
 
 // Build skeleton
+
+///|
 fn build_character_skeleton() -> @skeleton3d.Skeleton {
   let bones : Array[@skeleton3d.Bone] = []
   let ibms : Array[@math3d.Mat4] = []
@@ -107,28 +136,41 @@ fn build_character_skeleton() -> @skeleton3d.Skeleton {
 }
 
 // Helper: add a box segment to mesh data
+
+///|
 fn add_box_segment(
   verts : Array[Double],
   indices : Array[Int],
   joint_indices : Array[Int],
   weights : Array[Double],
   vertex_count : Ref[Int],
-  x0 : Double, y0 : Double, z0 : Double,
-  x1 : Double, y1 : Double, z1 : Double,
-  bone_bottom : Int, bone_top : Int,
+  x0 : Double,
+  y0 : Double,
+  z0 : Double,
+  x1 : Double,
+  y1 : Double,
+  z1 : Double,
+  bone_bottom : Int,
+  bone_top : Int,
 ) -> Unit {
   // 8 corners of box
   let corners : Array[(Double, Double, Double)] = [
-    (x0, y0, z1), (x1, y0, z1), (x1, y1, z1), (x0, y1, z1), // front
-    (x0, y0, z0), (x1, y0, z0), (x1, y1, z0), (x0, y1, z0), // back
+    (x0, y0, z1),
+    (x1, y0, z1),
+    (x1, y1, z1),
+    (x0, y1, z1), // front
+    (x0, y0, z0),
+    (x1, y0, z0),
+    (x1, y1, z0),
+    (x0, y1, z0), // back
   ]
   // 6 faces: front, back, right, left, top, bottom
   let faces : Array[(Int, Int, Int, Int, Double, Double, Double)] = [
-    (0, 1, 2, 3, 0.0, 0.0, 1.0),  // front
+    (0, 1, 2, 3, 0.0, 0.0, 1.0), // front
     (5, 4, 7, 6, 0.0, 0.0, -1.0), // back
-    (1, 5, 6, 2, 1.0, 0.0, 0.0),  // right
+    (1, 5, 6, 2, 1.0, 0.0, 0.0), // right
     (4, 0, 3, 7, -1.0, 0.0, 0.0), // left
-    (3, 2, 6, 7, 0.0, 1.0, 0.0),  // top
+    (3, 2, 6, 7, 0.0, 1.0, 0.0), // top
     (4, 5, 1, 0, 0.0, -1.0, 0.0), // bottom
   ]
   let y_mid = (y0 + y1) / 2.0
@@ -167,6 +209,7 @@ fn add_box_segment(
   }
 }
 
+///|
 fn build_character_mesh() -> (@mesh3d.Mesh3D, @skeleton3d.SkinData) {
   let verts : Array[Double] = []
   let indices : Array[Int] = []
@@ -177,48 +220,117 @@ fn build_character_mesh() -> (@mesh3d.Mesh3D, @skeleton3d.SkinData) {
   let bw = 0.12 // half width
   let bd = 0.08 // half depth
   add_box_segment(
-    verts, indices, joint_indices, weights_arr, vc,
-    -bw, 0.0, -bd, bw, torso_height + 0.1, bd,
-    0, 1, // root to torso
+    verts,
+    indices,
+    joint_indices,
+    weights_arr,
+    vc,
+    -bw,
+    0.0,
+    -bd,
+    bw,
+    torso_height + 0.1,
+    bd,
+    0,
+    1, // root to torso
   )
   // Head: small box on top
   let hw = 0.07
   add_box_segment(
-    verts, indices, joint_indices, weights_arr, vc,
-    -hw, torso_height + 0.1, -hw, hw, torso_height + 0.22, hw,
-    1, 1, // all torso bone
+    verts,
+    indices,
+    joint_indices,
+    weights_arr,
+    vc,
+    -hw,
+    torso_height + 0.1,
+    -hw,
+    hw,
+    torso_height + 0.22,
+    hw,
+    1,
+    1, // all torso bone
   )
   // Left arm (static, attached to torso)
   add_box_segment(
-    verts, indices, joint_indices, weights_arr, vc,
-    -bw - 0.06, torso_height - 0.05, -0.03, -bw, torso_height + 0.05, 0.03,
-    1, 1, // torso bone
+    verts,
+    indices,
+    joint_indices,
+    weights_arr,
+    vc,
+    -bw - 0.06,
+    torso_height - 0.05,
+    -0.03,
+    -bw,
+    torso_height + 0.05,
+    0.03,
+    1,
+    1, // torso bone
   )
   // Right upper arm
   add_box_segment(
-    verts, indices, joint_indices, weights_arr, vc,
-    bw, torso_height, -0.03, bw + 0.06, torso_height - upper_arm_len, 0.03,
-    2, 2, // r_upper_arm
+    verts,
+    indices,
+    joint_indices,
+    weights_arr,
+    vc,
+    bw,
+    torso_height,
+    -0.03,
+    bw + 0.06,
+    torso_height - upper_arm_len,
+    0.03,
+    2,
+    2, // r_upper_arm
   )
   // Right forearm
   add_box_segment(
-    verts, indices, joint_indices, weights_arr, vc,
-    bw, torso_height - upper_arm_len, -0.025,
-    bw + 0.05, torso_height - upper_arm_len - forearm_len, 0.025,
-    3, 3, // r_forearm
+    verts,
+    indices,
+    joint_indices,
+    weights_arr,
+    vc,
+    bw,
+    torso_height - upper_arm_len,
+    -0.025,
+    bw + 0.05,
+    torso_height - upper_arm_len - forearm_len,
+    0.025,
+    3,
+    3, // r_forearm
   )
   // Sword blade (from forearm tip downward)
   let sy_top = torso_height - upper_arm_len - forearm_len
   add_box_segment(
-    verts, indices, joint_indices, weights_arr, vc,
-    bw + 0.01, sy_top, -0.01, bw + 0.04, sy_top - sword_len, 0.01,
-    4, 4, // sword bone
+    verts,
+    indices,
+    joint_indices,
+    weights_arr,
+    vc,
+    bw + 0.01,
+    sy_top,
+    -0.01,
+    bw + 0.04,
+    sy_top - sword_len,
+    0.01,
+    4,
+    4, // sword bone
   )
   // Sword guard (crossguard)
   add_box_segment(
-    verts, indices, joint_indices, weights_arr, vc,
-    bw - 0.02, sy_top, -0.025, bw + 0.07, sy_top - 0.02, 0.025,
-    4, 4, // sword bone
+    verts,
+    indices,
+    joint_indices,
+    weights_arr,
+    vc,
+    bw - 0.02,
+    sy_top,
+    -0.025,
+    bw + 0.07,
+    sy_top - 0.02,
+    0.025,
+    4,
+    4, // sword bone
   )
   let mesh = @mesh3d.Mesh3D::new(verts, indices)
   let skin : @skeleton3d.SkinData = {
@@ -230,13 +342,17 @@ fn build_character_mesh() -> (@mesh3d.Mesh3D, @skeleton3d.SkinData) {
 }
 
 // Idle animation: subtle torso sway
+
+///|
 fn build_idle_animation() -> @animation3d.AnimationClip {
   let channels : Array[@animation3d.AnimChannel] = []
   // Torso gentle Y-axis rotation
   let times : Array[Double] = []
   let values : Array[Double] = []
   for k in 0..<idle_num_keyframes {
-    let t = k.to_double() / (idle_num_keyframes - 1).to_double() * idle_anim_duration
+    let t = k.to_double() /
+      (idle_num_keyframes - 1).to_double() *
+      idle_anim_duration
     times.push(t)
     let angle = 0.05 * @math.sin(t * 2.0 * @math.PI / idle_anim_duration)
     let q = @math3d.Quaternion::from_axis_angle(@math3d.Vec3::unit_y(), angle)
@@ -256,13 +372,17 @@ fn build_idle_animation() -> @animation3d.AnimationClip {
 }
 
 // Attack animation: arm swings forward with sword
+
+///|
 fn build_attack_animation() -> @animation3d.AnimationClip {
   let channels : Array[@animation3d.AnimChannel] = []
   // Upper arm rotation: swing forward (X-axis rotation)
   let arm_times : Array[Double] = []
   let arm_values : Array[Double] = []
   for k in 0..<attack_num_keyframes {
-    let t = k.to_double() / (attack_num_keyframes - 1).to_double() * attack_anim_duration
+    let t = k.to_double() /
+      (attack_num_keyframes - 1).to_double() *
+      attack_anim_duration
     arm_times.push(t)
     // Wind up then swing: starts at 0.3rad back, swings to -1.2rad forward
     let progress = t / attack_anim_duration
@@ -291,7 +411,9 @@ fn build_attack_animation() -> @animation3d.AnimationClip {
   let fa_times : Array[Double] = []
   let fa_values : Array[Double] = []
   for k in 0..<attack_num_keyframes {
-    let t = k.to_double() / (attack_num_keyframes - 1).to_double() * attack_anim_duration
+    let t = k.to_double() /
+      (attack_num_keyframes - 1).to_double() *
+      attack_anim_duration
     fa_times.push(t)
     let progress = t / attack_anim_duration
     let angle = if progress < 0.3 {
@@ -317,7 +439,9 @@ fn build_attack_animation() -> @animation3d.AnimationClip {
   let torso_times : Array[Double] = []
   let torso_values : Array[Double] = []
   for k in 0..<attack_num_keyframes {
-    let t = k.to_double() / (attack_num_keyframes - 1).to_double() * attack_anim_duration
+    let t = k.to_double() /
+      (attack_num_keyframes - 1).to_double() *
+      attack_anim_duration
     torso_times.push(t)
     let progress = t / attack_anim_duration
     let angle = if progress < 0.3 {
@@ -342,13 +466,17 @@ fn build_attack_animation() -> @animation3d.AnimationClip {
 }
 
 // Run animation: torso bob + arm swing
+
+///|
 fn build_run_animation() -> @animation3d.AnimationClip {
   let channels : Array[@animation3d.AnimChannel] = []
   // Root: vertical bob (up/down while running)
   let root_times : Array[Double] = []
   let root_values : Array[Double] = []
   for k in 0..<run_num_keyframes {
-    let t = k.to_double() / (run_num_keyframes - 1).to_double() * run_anim_duration
+    let t = k.to_double() /
+      (run_num_keyframes - 1).to_double() *
+      run_anim_duration
     root_times.push(t)
     let phase = t * 2.0 * @math.PI / run_anim_duration * 2.0 // 2 bobs per cycle
     let y_offset = @math.sin(phase).abs() * 0.03
@@ -367,7 +495,9 @@ fn build_run_animation() -> @animation3d.AnimationClip {
   let torso_times : Array[Double] = []
   let torso_values : Array[Double] = []
   for k in 0..<run_num_keyframes {
-    let t = k.to_double() / (run_num_keyframes - 1).to_double() * run_anim_duration
+    let t = k.to_double() /
+      (run_num_keyframes - 1).to_double() *
+      run_anim_duration
     torso_times.push(t)
     let phase = t * 2.0 * @math.PI / run_anim_duration
     let lean = -0.12 // constant forward lean
@@ -391,7 +521,9 @@ fn build_run_animation() -> @animation3d.AnimationClip {
   let arm_times : Array[Double] = []
   let arm_values : Array[Double] = []
   for k in 0..<run_num_keyframes {
-    let t = k.to_double() / (run_num_keyframes - 1).to_double() * run_anim_duration
+    let t = k.to_double() /
+      (run_num_keyframes - 1).to_double() *
+      run_anim_duration
     arm_times.push(t)
     let phase = t * 2.0 * @math.PI / run_anim_duration
     let angle = 0.4 * @math.sin(phase) // arm swing
@@ -412,12 +544,16 @@ fn build_run_animation() -> @animation3d.AnimationClip {
 }
 
 // Hurt animation: torso jerks back then recovers
+
+///|
 fn build_hurt_animation() -> @animation3d.AnimationClip {
   let channels : Array[@animation3d.AnimChannel] = []
   let times : Array[Double] = []
   let values : Array[Double] = []
   for k in 0..<hurt_num_keyframes {
-    let t = k.to_double() / (hurt_num_keyframes - 1).to_double() * hurt_anim_duration
+    let t = k.to_double() /
+      (hurt_num_keyframes - 1).to_double() *
+      hurt_anim_duration
     times.push(t)
     let progress = t / hurt_anim_duration
     // Quick jerk back then recovery
@@ -442,10 +578,13 @@ fn build_hurt_animation() -> @animation3d.AnimationClip {
   { name: "hurt", channels, duration: hurt_anim_duration }
 }
 
+///|
 fn PlayerCharacter::new() -> PlayerCharacter {
   let skeleton = build_character_skeleton()
   let (bind_mesh, skin_data) = build_character_mesh()
-  let packed_vertex_data = @skeleton3d.build_skinned_vertex_data(bind_mesh, skin_data)
+  let packed_vertex_data = @skeleton3d.build_skinned_vertex_data(
+    bind_mesh, skin_data,
+  )
   let idle_clip = build_idle_animation()
   let attack_clip = build_attack_animation()
   let run_clip = build_run_animation()
@@ -478,12 +617,14 @@ fn PlayerCharacter::new() -> PlayerCharacter {
   }
 }
 
+///|
 fn PlayerCharacter::trigger_attack(self : PlayerCharacter) -> Unit {
   self.anim_state = Attacking
   self.attack_player.set_time(0.0)
   self.attack_player.play()
 }
 
+///|
 fn PlayerCharacter::trigger_hurt(self : PlayerCharacter) -> Unit {
   if self.anim_state != Attacking {
     self.anim_state = Hurt
@@ -492,6 +633,7 @@ fn PlayerCharacter::trigger_hurt(self : PlayerCharacter) -> Unit {
   }
 }
 
+///|
 fn PlayerCharacter::set_moving(self : PlayerCharacter, moving : Bool) -> Unit {
   if self.anim_state == Attacking || self.anim_state == Hurt {
     return
@@ -503,6 +645,7 @@ fn PlayerCharacter::set_moving(self : PlayerCharacter, moving : Bool) -> Unit {
   }
 }
 
+///|
 fn PlayerCharacter::update(self : PlayerCharacter, dt : Double) -> Unit {
   match self.anim_state {
     Attacking => {
@@ -522,7 +665,10 @@ fn PlayerCharacter::update(self : PlayerCharacter, dt : Double) -> Unit {
   }
 }
 
-fn PlayerCharacter::compute_skinning(self : PlayerCharacter) -> Array[@math3d.Mat4] {
+///|
+fn PlayerCharacter::compute_skinning(
+  self : PlayerCharacter,
+) -> Array[@math3d.Mat4] {
   // Reset to rest pose
   for i in 0..<char_num_bones {
     self.local_poses[i] = self.skeleton.bones[i].local_transform
@@ -538,15 +684,19 @@ fn PlayerCharacter::compute_skinning(self : PlayerCharacter) -> Array[@math3d.Ma
     let idx = pose.node_index
     if idx >= 0 && idx < char_num_bones {
       match pose.rotation {
-        Some(q) => self.local_poses[idx] = self.local_poses[idx].with_rotation(q)
+        Some(q) =>
+          self.local_poses[idx] = self.local_poses[idx].with_rotation(q)
         None => ()
       }
       match pose.translation {
-        Some(v) => self.local_poses[idx] = self.local_poses[idx].with_position(v)
+        Some(v) =>
+          self.local_poses[idx] = self.local_poses[idx].with_position(v)
         None => ()
       }
     }
   }
-  let world_transforms = self.skeleton.compute_world_transforms(self.local_poses)
+  let world_transforms = self.skeleton.compute_world_transforms(
+    self.local_poses,
+  )
   self.skeleton.compute_skinning_matrices(world_transforms)
 }

@@ -1,8 +1,17 @@
 // Auto-play AI: room navigation, combat, skill activation
 
 // Find which room an entity is in (returns room index or -1)
-pub fn find_room_at(rooms : Array[@terrain.Room], x : Double, y : Double) -> Int {
-  let p : @terrain.Point = { x: (x / tile_size).to_int(), y: (y / tile_size).to_int() }
+
+///|
+pub fn find_room_at(
+  rooms : Array[@terrain.Room],
+  x : Double,
+  y : Double,
+) -> Int {
+  let p : @terrain.Point = {
+    x: (x / tile_size).to_int(),
+    y: (y / tile_size).to_int(),
+  }
   for i, room in rooms {
     if room.rect.contains(p) {
       return i
@@ -12,6 +21,8 @@ pub fn find_room_at(rooms : Array[@terrain.Room], x : Double, y : Double) -> Int
 }
 
 // Count alive enemies in a specific room
+
+///|
 pub fn count_enemies_in_room(
   enemies : Array[Enemy],
   room : @terrain.Room,
@@ -19,7 +30,10 @@ pub fn count_enemies_in_room(
   let mut count = 0
   for enemy in enemies {
     if enemy.alive {
-      let p : @terrain.Point = { x: (enemy.x / tile_size).to_int(), y: (enemy.y / tile_size).to_int() }
+      let p : @terrain.Point = {
+        x: (enemy.x / tile_size).to_int(),
+        y: (enemy.y / tile_size).to_int(),
+      }
       if room.rect.contains(p) {
         count = count + 1
       }
@@ -29,11 +43,17 @@ pub fn count_enemies_in_room(
 }
 
 // Find nearest alive enemy within vision range (current room + adjacent rooms)
+
+///|
 pub fn find_nearest_visible_enemy(world : GameWorld) -> (Int, Double) {
   // Returns (enemy_index, dist_sq), or (-1, max) if none
   let mut best_idx = -1
   let mut best_dist_sq = 1000000.0
-  let player_room = find_room_at(world.dungeon.rooms, world.player.x, world.player.y)
+  let player_room = find_room_at(
+    world.dungeon.rooms,
+    world.player.x,
+    world.player.y,
+  )
   for i, enemy in world.enemies {
     if not(enemy.alive) {
       continue
@@ -60,6 +80,8 @@ pub fn find_nearest_visible_enemy(world : GameWorld) -> (Int, Double) {
 }
 
 // Find the next uncleared room to visit
+
+///|
 pub fn find_next_target_room(world : GameWorld) -> Int {
   let rooms = world.dungeon.rooms
   let player_room = find_room_at(rooms, world.player.x, world.player.y)
@@ -99,6 +121,8 @@ pub fn find_next_target_room(world : GameWorld) -> Int {
 
 // Auto-play: compute desired movement direction
 // Returns (dx, dy, enemy_idx, enemy_dist_sq) — also returns vision result to avoid recomputation
+
+///|
 pub fn auto_play_input(world : GameWorld) -> (Double, Double, Int, Double) {
   // 1. Check for visible enemies — if found, move toward nearest
   let (enemy_idx, enemy_dist_sq) = find_nearest_visible_enemy(world)
@@ -201,7 +225,12 @@ pub fn auto_play_input(world : GameWorld) -> (Double, Double, Int, Double) {
 }
 
 // Auto-play: activate skills when enemies are nearby
-pub fn GameWorld::auto_activate_skills(self : GameWorld, enemy_idx : Int) -> Unit {
+
+///|
+pub fn GameWorld::auto_activate_skills(
+  self : GameWorld,
+  enemy_idx : Int,
+) -> Unit {
   if enemy_idx < 0 {
     return
   }
@@ -228,6 +257,8 @@ pub fn GameWorld::auto_activate_skills(self : GameWorld, enemy_idx : Int) -> Uni
 }
 
 // Auto-equip: automatically equip better items
+
+///|
 pub fn GameWorld::auto_equip_best(self : GameWorld) -> Unit {
   for i in 0..<self.inventory.capacity {
     match self.inventory.items[i] {
@@ -252,8 +283,15 @@ pub fn GameWorld::auto_equip_best(self : GameWorld) -> Unit {
         if dominated {
           let prev = self.equipment.equip(item)
           self.inventory.items[i] = prev
-          self.player_stats = compute_player_stats(self.equipment, self.skills, base_hp=self.params.player_base_hp.to_int())
-          self.player.hp = @cmp.minimum(self.player.hp, self.player_stats.max_hp)
+          self.player_stats = compute_player_stats(
+            self.equipment,
+            self.skills,
+            base_hp=self.params.player_base_hp.to_int(),
+          )
+          self.player.hp = @cmp.minimum(
+            self.player.hp,
+            self.player_stats.max_hp,
+          )
         }
       }
       None => ()
@@ -262,17 +300,28 @@ pub fn GameWorld::auto_equip_best(self : GameWorld) -> Unit {
 }
 
 // Auto-learn: spend skill points automatically
+
+///|
 pub fn GameWorld::auto_learn_skills(self : GameWorld) -> Unit {
   if self.skills.skill_points <= 0 {
     return
   }
   // Priority: Vitality > PowerStrike > CriticalHit > DashMastery > Whirlwind > LifeSteal
   let priority : Array[SkillId] = [
-    Vitality, PowerStrike, CriticalHit, DashMastery, Whirlwind, LifeSteal,
+    Vitality,
+    PowerStrike,
+    CriticalHit,
+    DashMastery,
+    Whirlwind,
+    LifeSteal,
   ]
   for id in priority {
     if self.skills.learn(id) {
-      self.player_stats = compute_player_stats(self.equipment, self.skills, base_hp=self.params.player_base_hp.to_int())
+      self.player_stats = compute_player_stats(
+        self.equipment,
+        self.skills,
+        base_hp=self.params.player_base_hp.to_int(),
+      )
       return
     }
   }

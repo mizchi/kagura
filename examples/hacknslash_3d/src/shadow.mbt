@@ -1,9 +1,12 @@
 // Shadow mapping: dungeon mesh batching + shadow pass rendering
 // Spatial chunking: split dungeon into chunks for frustum culling
 
+///|
 let chunk_size : Int = 24 // tiles per chunk side
 
 // Merge multiple positioned meshes into a single combined mesh.
+
+///|
 fn merge_mesh_at(
   dst_verts : Array[Double],
   dst_indices : Array[Int],
@@ -33,6 +36,8 @@ fn merge_mesh_at(
 }
 
 // A spatial chunk: pre-built mesh groups for a region of the map
+
+///|
 struct DungeonChunk {
   cx : Int // chunk column index
   cz : Int // chunk row index
@@ -43,6 +48,8 @@ struct DungeonChunk {
 
 // Build chunked dungeon mesh groups.
 // Returns array of chunks, each with its own mesh groups.
+
+///|
 fn build_dungeon_chunks(
   dungeon : @game.DungeonData,
   meshes : Meshes3D,
@@ -61,6 +68,7 @@ fn build_dungeon_chunks(
   chunks
 }
 
+///|
 fn build_single_chunk(
   dungeon : @game.DungeonData,
   meshes : Meshes3D,
@@ -109,12 +117,11 @@ fn build_single_chunk(
           merge_mesh_at(all_v, all_i, meshes.pillar, x - 0.4, y, z)
           merge_mesh_at(all_v, all_i, meshes.pillar, x + 0.4, y, z)
         }
-        Wall => {
+        Wall =>
           if has_adjacent_walkable(dungeon.grid, col, row) {
             merge_mesh_at(wall_v, wall_i, meshes.wall, x, y, z)
             merge_mesh_at(all_v, all_i, meshes.wall, x, y, z)
           }
-        }
         _ => ()
       }
     }
@@ -127,10 +134,7 @@ fn build_single_chunk(
     groups : Array[DungeonMeshGroup],
   ) -> Unit {
     if indices.length() > 0 {
-      groups.push({
-        mesh: @mesh3d.Mesh3D::new(verts, indices),
-        color,
-      })
+      groups.push({ mesh: @mesh3d.Mesh3D::new(verts, indices), color })
     }
   }
 
@@ -145,6 +149,8 @@ fn build_single_chunk(
 }
 
 // Get visible chunks near player position (in tile coords)
+
+///|
 fn get_visible_chunks(
   chunks : Array[DungeonChunk],
   player_tile_x : Int,
@@ -165,11 +171,9 @@ fn get_visible_chunks(
 }
 
 // Check if a wall tile has at least one adjacent walkable tile
-fn has_adjacent_walkable(
-  grid : @terrain.Grid2D,
-  col : Int,
-  row : Int,
-) -> Bool {
+
+///|
+fn has_adjacent_walkable(grid : @terrain.Grid2D, col : Int, row : Int) -> Bool {
   let dirs = [(-1, 0), (1, 0), (0, -1), (0, 1)]
   for pair in dirs {
     let nx = col + pair.0

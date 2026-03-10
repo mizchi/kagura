@@ -1,0 +1,35 @@
+// Generated using `moon info`, DON'T EDIT IT
+package "mizchi/hacknslash_3d"
+
+// Values
+
+// Errors
+
+// Types and methods
+type CharAnimState
+pub impl Eq for CharAnimState
+
+type DungeonChunk
+
+type DungeonMeshGroup
+
+type EnemyMeshData
+
+type EnemyModels
+
+type GameState
+
+type IconAtlas
+
+type Meshes3D
+
+type PlayerCharacter
+
+type SSAOConfig
+
+type VisibleRegion
+
+// Type aliases
+
+// Traits
+

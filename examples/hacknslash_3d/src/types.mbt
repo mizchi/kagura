@@ -55,6 +55,7 @@ struct GameState {
   camera_depth_target : @gfx.ImageHandle
   camera_depth_shader : @gfx.ShaderHandle
   // SSAO
+  ssao_config : SSAOConfig
   ssao_sh : @gfx.ShaderHandle
   ssao_target : @gfx.ImageHandle
   // Particles

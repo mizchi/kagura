@@ -2,6 +2,11 @@
 
 ///|
 fn GameState::new(seed~ : Int) -> GameState {
+  GameState::new_with_ssao(seed~, SSAOConfig::disabled_default())
+}
+
+///|
+fn GameState::new_with_ssao(seed~ : Int, ssao_config : SSAOConfig) -> GameState {
   let world = @game.GameWorld::new(seed~)
   let sw = screen_w.to_double()
   let sh = screen_h.to_double()
@@ -106,6 +111,7 @@ fn GameState::new(seed~ : Int) -> GameState {
       @shadow3d.shader_camera_depth_wgsl(),
     ),
     // SSAO
+    ssao_config,
     ssao_sh: @gfx.new_shader_handle(306, @postfx.ssao_wgsl()),
     ssao_target: @gfx.new_image_handle(304, screen_w, screen_h),
     // Particles

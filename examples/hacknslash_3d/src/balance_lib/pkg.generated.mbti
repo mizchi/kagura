@@ -1,0 +1,91 @@
+// Generated using `moon info`, DON'T EDIT IT
+package "mizchi/hacknslash_3d/balance_lib"
+
+import {
+  "mizchi/differentiable_ecs",
+  "mizchi/hacknslash_3d/game",
+}
+
+// Values
+pub fn compute_loss(SimMetrics, BalanceTargets) -> Double
+
+pub fn compute_loss_averaged(@game.BalanceParams, BalanceTargets, Array[Int], Int) -> (Double, SimMetrics)
+
+pub fn compute_loss_averaged_full(@game.BalanceParams, BalanceTargets, Array[Int], Int) -> (Double, AveragedMetrics)
+
+pub fn make_sim(Int, Int) -> (Array[Double], Int) -> @differentiable_ecs.Metrics
+
+pub fn param_specs() -> Array[@differentiable_ecs.ParamSpec]
+
+pub fn run_simulation(@game.BalanceParams, Int, Int) -> SimMetrics
+
+// Errors
+
+// Types and methods
+pub(all) struct AveragedMetrics {
+  base : SimMetrics
+  avg_hp_ratio : Double
+  hp_cv : Double
+  avg_floor_time : Double
+  avg_kill_interval : Double
+  kill_interval_cv : Double
+  near_death_rate : Double
+  kills_per_floor : Double
+  avg_damage_interval : Double
+}
+
+pub(all) struct BalanceTargets {
+  target_survival_frames : Double
+  target_floors : Double
+  target_floor_time : Double
+  target_hp_cv : Double
+  target_kill_interval : Double
+  target_kill_interval_cv : Double
+  target_near_death_rate : Double
+  target_kills_per_floor : Double
+  target_damage_interval : Double
+  w_survival : Double
+  w_floor : Double
+  w_floor_time : Double
+  w_hp_cv : Double
+  w_kill_interval : Double
+  w_kill_cv : Double
+  w_near_death : Double
+  w_kills_per_floor : Double
+  w_damage_interval : Double
+}
+pub fn BalanceTargets::action_dense() -> Self
+pub fn BalanceTargets::default() -> Self
+pub fn BalanceTargets::risk_reward() -> Self
+pub fn BalanceTargets::speedrun() -> Self
+pub fn BalanceTargets::survival_horror() -> Self
+pub fn BalanceTargets::to_dec_targets(Self) -> Array[@differentiable_ecs.BalanceTarget]
+
+pub(all) struct SimMetrics {
+  survival_frames : Int
+  floors_cleared : Int
+  total_damage_taken : Int
+  total_kills : Int
+  score : Int
+  hp_samples : Array[Double]
+  floor_times : Array[Int]
+  kill_frames : Array[Int]
+  damage_frames : Array[Int]
+  equip_upgrades : Int
+  near_death_count : Int
+}
+pub fn SimMetrics::avg_damage_interval(Self) -> Double
+pub fn SimMetrics::avg_floor_time(Self) -> Double
+pub fn SimMetrics::avg_hp_ratio(Self) -> Double
+pub fn SimMetrics::avg_kill_interval(Self) -> Double
+pub fn SimMetrics::hp_coefficient_of_variation(Self) -> Double
+pub fn SimMetrics::hp_variance(Self) -> Double
+pub fn SimMetrics::kill_interval_cv(Self) -> Double
+pub fn SimMetrics::kills_per_floor(Self) -> Double
+pub fn SimMetrics::near_death_rate(Self) -> Double
+pub fn SimMetrics::to_dec_metrics(Self) -> @differentiable_ecs.Metrics
+
+// Type aliases
+
+// Traits
+

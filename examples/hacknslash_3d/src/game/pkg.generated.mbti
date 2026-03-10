@@ -1,0 +1,434 @@
+// Generated using `moon info`, DON'T EDIT IT
+package "mizchi/hacknslash_3d/game"
+
+import {
+  "mizchi/terrain/types",
+}
+
+// Values
+pub fn activate_skill(GameWorld, Int) -> Unit
+
+pub fn aim_at(GameWorld, Enemy?, Double) -> (Double, Double)
+
+pub let arrow_range : Double
+
+pub let arrow_speed : Double
+
+pub let attack_cooldown : Int
+
+pub fn auto_play_input(GameWorld) -> (Double, Double, Int, Double)
+
+pub let balance_param_count : Int
+
+pub let bow_cooldown : Int
+
+pub fn build_height_map(@types.Grid2D, Array[@types.Room], Int) -> Array[Double]
+
+pub let chase_range : Double
+
+pub fn check_wall_collision(@types.Grid2D, Double, Double, Double) -> Bool
+
+pub fn compact_items(Array[ItemDrop]) -> Unit
+
+pub fn compact_projectiles(Array[Projectile]) -> Unit
+
+pub fn compute_player_stats(Equipment, SkillTree, base_hp? : Int) -> PlayerStats
+
+pub fn count_enemies_in_room(Array[Enemy], @types.Room) -> Int
+
+pub let damage_flash_duration : Int
+
+pub let dash_cooldown : Int
+
+pub let dash_duration : Int
+
+pub let dash_speed_mult : Double
+
+pub let enemy_speed_basic : Double
+
+pub let enemy_speed_fast : Double
+
+pub let enemy_speed_tank : Double
+
+pub fn find_nearest_enemy(GameWorld, Double) -> Enemy?
+
+pub fn find_nearest_visible_enemy(GameWorld) -> (Int, Double)
+
+pub fn find_next_target_room(GameWorld) -> Int
+
+pub fn find_room_at(Array[@types.Room], Double, Double) -> Int
+
+pub fn generate_dungeon(Int) -> DungeonData
+
+pub fn generate_item(Int, Int) -> ItemData
+
+pub fn generate_item_with_profile(Int, Int, AffixProfile) -> ItemData
+
+pub fn get_tile_height(DungeonData, Double, Double) -> Double
+
+pub let iframe_duration : Int
+
+pub fn is_wall_at(@types.Grid2D, Double, Double) -> Bool
+
+pub let knockback_strength : Double
+
+pub fn make_enemy(Double, Double, EnemyKind, Int, Double, Double) -> Enemy
+
+pub let map_cols : Int
+
+pub let map_rows : Int
+
+pub let path_update_interval : Int
+
+pub let pickup_radius_sq : Double
+
+pub let player_speed : Double
+
+pub fn prefix_table() -> Array[Affix]
+
+pub fn prefix_table_for(AffixProfile) -> Array[Affix]
+
+pub fn process_player_arrows(GameWorld) -> Unit
+
+pub fn scale_affix(Affix, Int) -> Affix
+
+pub let screen_h : Int
+
+pub let screen_w : Int
+
+pub fn shoot_arrow(GameWorld, Enemy?) -> Unit
+
+pub fn skill_id_eq(SkillId, SkillId) -> Bool
+
+pub fn skill_id_to_int(SkillId) -> Int
+
+pub fn slide_move(@types.Grid2D, Double, Double, Double, Double, Double) -> (Double, Double)
+
+pub fn spawn_boss(Array[@types.Room], Int, Int, Int) -> Array[Enemy]
+
+pub fn spawn_boss_with_params(Array[@types.Room], Int, Int, Int, BalanceParams) -> Array[Enemy]
+
+pub fn spawn_enemies_for_floor(Array[@types.Room], Int, Int, Int) -> Array[Enemy]
+
+pub fn spawn_enemies_for_floor_with_params(Array[@types.Room], Int, Int, Int, BalanceParams) -> Array[Enemy]
+
+pub fn spawn_enemies_in_rooms(Array[@types.Room], Int, Int) -> Array[Enemy]
+
+pub fn spawn_enemies_in_rooms_with_params(Array[@types.Room], Int, Int, BalanceParams) -> Array[Enemy]
+
+pub fn spawn_ground_item(GameWorld, Double, Double, ItemKind) -> Unit
+
+pub fn start_dash(GameWorld, Double, Double) -> Unit
+
+pub fn suffix_table() -> Array[Affix]
+
+pub fn suffix_table_for(AffixProfile) -> Array[Affix]
+
+pub let tile_size : Double
+
+pub fn update_enemy_ai(Array[Enemy], Player, @types.Grid2D, Int, Array[Projectile], params? : BalanceParams) -> Unit
+
+pub let world_h : Double
+
+pub let world_w : Double
+
+// Errors
+
+// Types and methods
+pub(all) struct Affix {
+  name : String
+  atk : Int
+  def : Int
+  hp : Int
+  crit : Double
+  life_steal : Double
+  speed_bonus : Double
+  cooldown_reduction : Double
+}
+
+pub(all) enum AffixProfile {
+  Classic
+  GlassCannon
+  Tank
+  Mobility
+  Expanded
+}
+
+pub(all) struct BalanceParams {
+  player_speed : Double
+  enemy_speed_basic : Double
+  enemy_speed_fast : Double
+  enemy_speed_tank : Double
+  attack_cooldown : Double
+  arrow_speed : Double
+  arrow_range : Double
+  bow_cooldown : Double
+  chase_range : Double
+  knockback_strength : Double
+  iframe_duration : Double
+  dash_duration : Double
+  dash_cooldown : Double
+  dash_speed_mult : Double
+  basic_hp : Double
+  fast_hp : Double
+  tank_hp : Double
+  ranged_hp : Double
+  boss_hp_base : Double
+  boss_hp_per_floor : Double
+  enemy_contact_damage : Double
+  player_base_hp : Double
+  spawn_density : Double
+  affix_profile : Int
+}
+pub fn BalanceParams::clamp(Self) -> Self
+pub fn BalanceParams::default() -> Self
+pub fn BalanceParams::from_array(Array[Double]) -> Self
+pub fn BalanceParams::get_affix_profile(Self) -> AffixProfile
+pub fn BalanceParams::param_names() -> Array[String]
+pub fn BalanceParams::to_array(Self) -> Array[Double]
+
+pub(all) struct DungeonData {
+  mut grid : @types.Grid2D
+  rooms : Array[@types.Room]
+  mut start_x : Double
+  mut start_y : Double
+  height_map : Array[Double]
+}
+
+pub(all) struct Enemy {
+  mut x : Double
+  mut y : Double
+  mut vx : Double
+  mut vy : Double
+  mut hp : Int
+  max_hp : Int
+  speed : Double
+  size : Double
+  mut alive : Bool
+  mut damage_timer : Int
+  kind : EnemyKind
+  mut path_cache : Array[@types.Point]
+  mut path_index : Int
+  mut path_timer : Int
+  mut shoot_cooldown : Int
+  mut charge_timer : Int
+  mut charge_cooldown : Int
+}
+
+pub(all) enum EnemyKind {
+  Basic
+  Fast
+  Tank
+  Ranged
+  Boss
+}
+pub impl Eq for EnemyKind
+
+pub(all) enum EquipSlot {
+  Weapon
+  Armor
+  Accessory
+}
+
+pub(all) struct Equipment {
+  mut weapon : ItemData?
+  mut armor : ItemData?
+  mut accessory : ItemData?
+}
+pub fn Equipment::equip(Self, ItemData) -> ItemData?
+pub fn Equipment::new() -> Self
+pub fn Equipment::total_atk(Self) -> Int
+pub fn Equipment::total_cooldown_reduction(Self) -> Double
+pub fn Equipment::total_crit(Self) -> Double
+pub fn Equipment::total_def(Self) -> Int
+pub fn Equipment::total_hp(Self) -> Int
+pub fn Equipment::total_life_steal(Self) -> Double
+pub fn Equipment::total_speed_bonus(Self) -> Double
+
+pub(all) enum GameEvent {
+  HitSparks(Double, Double)
+  DeathBurst(Double, Double)
+  DashTrail(Double, Double)
+  PlayerHurt(Double, Double)
+  ItemPickup(Double, Double, Bool)
+  AttackTriggered
+  HurtTriggered
+  FloorComplete
+}
+
+pub(all) enum GameMode {
+  Title
+  Playing
+  GameOver
+}
+pub impl Eq for GameMode
+
+pub(all) struct GameWorld {
+  params : BalanceParams
+  mut mode : GameMode
+  mut frame_count : Int
+  mut seed : Int
+  mut floor : Int
+  mut score : Int
+  player : Player
+  mut enemies : Array[Enemy]
+  mut items : Array[ItemDrop]
+  mut projectiles : Array[Projectile]
+  dungeon : DungeonData
+  mut attack_timer : Int
+  mut screen_flash : Int
+  mut floor_announce_timer : Int
+  inventory : Inventory
+  equipment : Equipment
+  skills : SkillTree
+  mut player_stats : PlayerStats
+  mut ui_mode : UIMode
+  mut ui_cursor : Int
+  mut auto_play : Bool
+  mut auto_nav_target : @types.Point?
+  mut auto_nav_path : Array[@types.Point]
+  mut auto_nav_index : Int
+  mut auto_cleared_rooms : Array[Bool]
+  mut events : Array[GameEvent]
+}
+pub fn GameWorld::apply_dungeon(Self, Int, Int) -> Unit
+pub fn GameWorld::auto_activate_skills(Self, Int) -> Unit
+pub fn GameWorld::auto_equip_best(Self) -> Unit
+pub fn GameWorld::auto_learn_skills(Self) -> Unit
+pub fn GameWorld::deal_player_damage(Self, Int) -> Unit
+pub fn GameWorld::drain_events(Self) -> Array[GameEvent]
+pub fn GameWorld::new(seed~ : Int, params? : BalanceParams) -> Self
+pub fn GameWorld::reset_floor(Self) -> Unit
+pub fn GameWorld::tick(Self, Double, Double) -> Unit
+pub fn GameWorld::tick_auto(Self) -> Unit
+
+pub(all) struct Inventory {
+  items : Array[ItemData?]
+  capacity : Int
+}
+pub fn Inventory::add(Self, ItemData) -> Bool
+pub fn Inventory::count(Self) -> Int
+pub fn Inventory::new(Int) -> Self
+pub fn Inventory::remove(Self, Int) -> ItemData?
+
+pub(all) struct ItemData {
+  name : String
+  rarity : ItemRarity
+  slot : EquipSlot
+  atk_bonus : Int
+  def_bonus : Int
+  hp_bonus : Int
+  prefix : Affix?
+  suffix : Affix?
+  icon_id : Int
+}
+pub fn ItemData::display_name(Self) -> String
+pub fn ItemData::total_atk(Self) -> Int
+pub fn ItemData::total_cooldown_reduction(Self) -> Double
+pub fn ItemData::total_crit(Self) -> Double
+pub fn ItemData::total_def(Self) -> Int
+pub fn ItemData::total_hp(Self) -> Int
+pub fn ItemData::total_life_steal(Self) -> Double
+pub fn ItemData::total_speed_bonus(Self) -> Double
+
+pub(all) struct ItemDrop {
+  mut x : Double
+  mut y : Double
+  mut vx : Double
+  mut vy : Double
+  kind : ItemKind
+  mut alive : Bool
+  spawn_frame : Int
+}
+
+pub(all) enum ItemKind {
+  Health
+  Score
+  Equipment(ItemData)
+}
+pub fn ItemKind::op_equal(Self, Self) -> Bool
+
+pub(all) enum ItemRarity {
+  Common
+  Uncommon
+  Rare
+  Epic
+}
+pub fn ItemRarity::color(Self) -> Int
+
+pub(all) struct Player {
+  mut x : Double
+  mut y : Double
+  mut hp : Int
+  max_hp : Int
+  size : Double
+  mut damage_timer : Int
+  mut iframe_timer : Int
+  mut facing_angle : Double
+  mut dash_timer : Int
+  mut dash_cooldown_timer : Int
+  mut dash_vx : Double
+  mut dash_vy : Double
+}
+
+pub(all) struct PlayerStats {
+  max_hp : Int
+  atk : Int
+  def : Int
+  dash_cooldown : Int
+  crit_chance : Double
+  life_steal : Double
+  speed_bonus : Double
+  cooldown_reduction : Double
+}
+
+pub(all) struct Projectile {
+  mut x : Double
+  mut y : Double
+  vx : Double
+  vy : Double
+  mut alive : Bool
+  damage : Int
+  is_player : Bool
+}
+
+pub(all) enum SkillId {
+  PowerStrike
+  Whirlwind
+  DashMastery
+  Vitality
+  CriticalHit
+  LifeSteal
+}
+
+pub(all) struct SkillNode {
+  id : SkillId
+  name : String
+  max_level : Int
+  mut level : Int
+  cost : Int
+  icon_id : Int
+  prereqs : Array[SkillId]
+}
+
+pub(all) struct SkillTree {
+  nodes : Array[SkillNode]
+  mut skill_points : Int
+}
+pub fn SkillTree::can_learn(Self, SkillId) -> Bool
+pub fn SkillTree::find(Self, SkillId) -> SkillNode?
+pub fn SkillTree::get_level(Self, SkillId) -> Int
+pub fn SkillTree::learn(Self, SkillId) -> Bool
+pub fn SkillTree::new() -> Self
+
+pub(all) enum UIMode {
+  None
+  Inventory
+  Skills
+}
+pub impl Eq for UIMode
+
+// Type aliases
+
+// Traits
+

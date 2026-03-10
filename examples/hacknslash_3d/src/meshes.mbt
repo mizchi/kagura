@@ -1,5 +1,6 @@
 // Pre-built 3D meshes (environment + items only; characters use skeletal models)
 
+///|
 fn Meshes3D::new() -> Meshes3D {
   {
     item: @mesh3d.Mesh3D::sphere(0.2, 5, 3),
@@ -13,6 +14,8 @@ fn Meshes3D::new() -> Meshes3D {
 }
 
 // Custom wall mesh: a box with specified dimensions, bottom at y=0
+
+///|
 fn make_wall_mesh(
   width : Double,
   height : Double,
@@ -61,14 +64,15 @@ fn make_wall_mesh(
 }
 
 // Pillar mesh: narrow tall box for decoration
-fn make_pillar_mesh(
-  radius : Double,
-  height : Double,
-) -> @mesh3d.Mesh3D {
+
+///|
+fn make_pillar_mesh(radius : Double, height : Double) -> @mesh3d.Mesh3D {
   make_wall_mesh(radius * 2.0, height, radius * 2.0)
 }
 
 // Arrow mesh: elongated diamond shape pointing along +X axis
+
+///|
 fn make_arrow_mesh(length : Double, thickness : Double) -> @mesh3d.Mesh3D {
   let data : Array[Double] = []
   let indices : Array[Int] = []
@@ -106,6 +110,7 @@ fn make_arrow_mesh(length : Double, thickness : Double) -> @mesh3d.Mesh3D {
   @mesh3d.Mesh3D::new(data, indices)
 }
 
+///|
 fn push_vert(
   data : Array[Double],
   px : Double,
@@ -125,6 +130,7 @@ fn push_vert(
   data.push(0.0) // v
 }
 
+///|
 fn push_quad(indices : Array[Int], base : Int) -> Unit {
   indices.push(base)
   indices.push(base + 1)

@@ -1,3 +1,4 @@
+///|
 fn main {
   let state = GameState::new(seed=42)
   @engine.run(

@@ -1,6 +1,7 @@
 // Room-based occlusion culling
 // Determines visible region based on player's room + adjacent rooms
 
+///|
 struct VisibleRegion {
   min_col : Int
   max_col : Int
@@ -8,6 +9,7 @@ struct VisibleRegion {
   max_row : Int
 }
 
+///|
 fn find_player_room(
   rooms : Array[@terrain.Room],
   player_x : Double,
@@ -24,6 +26,7 @@ fn find_player_room(
   -1
 }
 
+///|
 fn compute_visible_region(
   rooms : Array[@terrain.Room],
   player_x : Double,
@@ -71,13 +74,12 @@ fn compute_visible_region(
   }
 }
 
-fn is_entity_visible(
-  region : VisibleRegion,
-  x : Double,
-  y : Double,
-) -> Bool {
+///|
+fn is_entity_visible(region : VisibleRegion, x : Double, y : Double) -> Bool {
   let col = (x / tile_size).to_int()
   let row = (y / tile_size).to_int()
-  col >= region.min_col && col <= region.max_col &&
-  row >= region.min_row && row <= region.max_row
+  col >= region.min_col &&
+  col <= region.max_col &&
+  row >= region.min_row &&
+  row <= region.max_row
 }

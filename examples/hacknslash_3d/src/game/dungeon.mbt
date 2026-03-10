@@ -1,5 +1,6 @@
 // Dungeon generation, collision, height map
 
+///|
 pub fn generate_dungeon(seed : Int) -> DungeonData {
   let rng = @terrain.make_rng(seed.to_uint())
   let config : @diablo.DiabloConfig = {
@@ -29,6 +30,8 @@ pub fn generate_dungeon(seed : Int) -> DungeonData {
 }
 
 // Assign each room a base elevation, corridors get interpolated height
+
+///|
 pub fn build_height_map(
   grid : @terrain.Grid2D,
   rooms : Array[@terrain.Room],
@@ -121,15 +124,21 @@ pub fn build_height_map(
 }
 
 // Get tile height at world position
+
+///|
 pub fn get_tile_height(dungeon : DungeonData, x : Double, y : Double) -> Double {
   let col = (x / tile_size).to_int()
   let row = (y / tile_size).to_int()
-  if col < 0 || col >= dungeon.grid.width || row < 0 || row >= dungeon.grid.height {
+  if col < 0 ||
+    col >= dungeon.grid.width ||
+    row < 0 ||
+    row >= dungeon.grid.height {
     return 0.0
   }
   dungeon.height_map[row * dungeon.grid.width + col]
 }
 
+///|
 pub fn is_wall_at(grid : @terrain.Grid2D, x : Double, y : Double) -> Bool {
   let col = (x / tile_size).to_int()
   let row = (y / tile_size).to_int()
@@ -139,6 +148,7 @@ pub fn is_wall_at(grid : @terrain.Grid2D, x : Double, y : Double) -> Bool {
   grid.get(col, row) == @terrain.Wall
 }
 
+///|
 pub fn check_wall_collision(
   grid : @terrain.Grid2D,
   x : Double,
@@ -163,6 +173,7 @@ pub fn check_wall_collision(
   false
 }
 
+///|
 pub fn slide_move(
   grid : @terrain.Grid2D,
   x : Double,
@@ -171,7 +182,15 @@ pub fn slide_move(
   vy : Double,
   size : Double,
 ) -> (Double, Double) {
-  let nx = if not(check_wall_collision(grid, x + vx, y, size)) { x + vx } else { x }
-  let ny = if not(check_wall_collision(grid, nx, y + vy, size)) { y + vy } else { y }
+  let nx = if not(check_wall_collision(grid, x + vx, y, size)) {
+    x + vx
+  } else {
+    x
+  }
+  let ny = if not(check_wall_collision(grid, nx, y + vy, size)) {
+    y + vy
+  } else {
+    y
+  }
   (nx, ny)
 }

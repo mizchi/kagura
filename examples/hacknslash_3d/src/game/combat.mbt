@@ -1,6 +1,8 @@
 // Combat system: bow attack, damage, knockback
 
 // Find nearest enemy in range for auto-aim (uses dist_sq to avoid sqrt)
+
+///|
 pub fn find_nearest_enemy(world : GameWorld, max_range : Double) -> Enemy? {
   let mut nearest : Enemy? = None
   let mut nearest_dist_sq = max_range * max_range
@@ -19,7 +21,13 @@ pub fn find_nearest_enemy(world : GameWorld, max_range : Double) -> Enemy? {
 }
 
 // Compute arrow velocity toward a target enemy or in facing direction
-pub fn aim_at(world : GameWorld, target : Enemy?, speed : Double) -> (Double, Double) {
+
+///|
+pub fn aim_at(
+  world : GameWorld,
+  target : Enemy?,
+  speed : Double,
+) -> (Double, Double) {
   match target {
     Some(enemy) => {
       let edx = enemy.x - world.player.x
@@ -36,6 +44,8 @@ pub fn aim_at(world : GameWorld, target : Enemy?, speed : Double) -> (Double, Do
 }
 
 // Shoot an arrow toward the given target or in facing direction
+
+///|
 pub fn shoot_arrow(world : GameWorld, target : Enemy?) -> Unit {
   let stats = world.player_stats
   let crit_roll = (world.frame_count * 31 + world.seed * 7) % 100
@@ -53,21 +63,48 @@ pub fn shoot_arrow(world : GameWorld, target : Enemy?) -> Unit {
   })
 }
 
-pub fn spawn_ground_item(world : GameWorld, x : Double, y : Double, kind : ItemKind) -> Unit {
-  world.items.push({ x, y, vx: 0.0, vy: 0.0, kind, alive: true, spawn_frame: world.frame_count })
+///|
+pub fn spawn_ground_item(
+  world : GameWorld,
+  x : Double,
+  y : Double,
+  kind : ItemKind,
+) -> Unit {
+  world.items.push({
+    x,
+    y,
+    vx: 0.0,
+    vy: 0.0,
+    kind,
+    alive: true,
+    spawn_frame: world.frame_count,
+  })
 }
 
+///|
 /// Spawn item with scatter velocity (items fly out from death position)
-fn spawn_scatter_item(world : GameWorld, x : Double, y : Double, kind : ItemKind, angle : Double, speed : Double) -> Unit {
+fn spawn_scatter_item(
+  world : GameWorld,
+  x : Double,
+  y : Double,
+  kind : ItemKind,
+  angle : Double,
+  speed : Double,
+) -> Unit {
   world.items.push({
-    x, y,
+    x,
+    y,
     vx: @math.cos(angle) * speed,
     vy: @math.sin(angle) * speed,
-    kind, alive: true, spawn_frame: world.frame_count,
+    kind,
+    alive: true,
+    spawn_frame: world.frame_count,
   })
 }
 
 // Process player arrow hitting enemies
+
+///|
 pub fn process_player_arrows(world : GameWorld) -> Unit {
   for proj in world.projectiles {
     if not(proj.alive) || not(proj.is_player) {
@@ -91,7 +128,8 @@ pub fn process_player_arrows(world : GameWorld) -> Unit {
           let heal = (proj.damage.to_double() * world.player_stats.life_steal).to_int()
           if heal > 0 {
             world.player.hp = @cmp.minimum(
-              world.player_stats.max_hp, world.player.hp + heal,
+              world.player_stats.max_hp,
+              world.player.hp + heal,
             )
           }
         }
@@ -110,19 +148,48 @@ pub fn process_player_arrows(world : GameWorld) -> Unit {
           let drop_seed = world.frame_count * 7 +
             enemy.x.to_int() * 13 +
             enemy.y.to_int() * 17
-          let drop_count = if enemy.kind == Boss { 5 } else { drop_seed % 3 + 1 } // 1-3 items, boss drops 5
+          let drop_count = if enemy.kind == Boss {
+            5
+          } else {
+            drop_seed % 3 + 1
+          } // 1-3 items, boss drops 5
           for di = 0; di < drop_count; di = di + 1 {
             let item_seed = drop_seed + di * 31
             let angle = (item_seed % 628).to_double() / 100.0 // 0..2π
             let scatter_speed = 1.5 + (item_seed % 100).to_double() / 100.0 // 1.5..2.5
             let roll = (item_seed * 37 + di * 13) % 100
             if roll < 30 {
-              let item = generate_item_with_profile(item_seed, world.floor, world.params.get_affix_profile())
-              spawn_scatter_item(world, enemy.x, enemy.y, Equipment(item), angle, scatter_speed)
+              let item = generate_item_with_profile(
+                item_seed,
+                world.floor,
+                world.params.get_affix_profile(),
+              )
+              spawn_scatter_item(
+                world,
+                enemy.x,
+                enemy.y,
+                Equipment(item),
+                angle,
+                scatter_speed,
+              )
             } else if roll < 60 {
-              spawn_scatter_item(world, enemy.x, enemy.y, Health, angle, scatter_speed)
+              spawn_scatter_item(
+                world,
+                enemy.x,
+                enemy.y,
+                Health,
+                angle,
+                scatter_speed,
+              )
             } else {
-              spawn_scatter_item(world, enemy.x, enemy.y, Score, angle, scatter_speed)
+              spawn_scatter_item(
+                world,
+                enemy.x,
+                enemy.y,
+                Score,
+                angle,
+                scatter_speed,
+              )
             }
           }
           if enemy.kind == Boss {
@@ -136,6 +203,8 @@ pub fn process_player_arrows(world : GameWorld) -> Unit {
 }
 
 // Skill activation via number keys
+
+///|
 pub fn activate_skill(world : GameWorld, slot : Int) -> Unit {
   match slot {
     0 => {

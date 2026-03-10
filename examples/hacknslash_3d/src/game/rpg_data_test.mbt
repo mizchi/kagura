@@ -1,20 +1,38 @@
 ///|
 fn mk_affix(
   name : String,
-  atk~ : Int = 0,
-  def~ : Int = 0,
-  hp~ : Int = 0,
-  crit~ : Double = 0.0,
-  ls~ : Double = 0.0,
-  spd~ : Double = 0.0,
-  cdr~ : Double = 0.0
+  atk? : Int = 0,
+  def? : Int = 0,
+  hp? : Int = 0,
+  crit? : Double = 0.0,
+  ls? : Double = 0.0,
+  spd? : Double = 0.0,
+  cdr? : Double = 0.0,
 ) -> Affix {
-  { name, atk, def, hp, crit, life_steal: ls, speed_bonus: spd, cooldown_reduction: cdr }
+  {
+    name,
+    atk,
+    def,
+    hp,
+    crit,
+    life_steal: ls,
+    speed_bonus: spd,
+    cooldown_reduction: cdr,
+  }
 }
 
 ///|
 test "affix struct fields" {
-  let affix = mk_affix("Test", atk=3, def=1, hp=2, crit=0.05, ls=0.1, spd=0.15, cdr=0.2)
+  let affix = mk_affix(
+    "Test",
+    atk=3,
+    def=1,
+    hp=2,
+    crit=0.05,
+    ls=0.1,
+    spd=0.15,
+    cdr=0.2,
+  )
   assert_eq(affix.name, "Test")
   assert_eq(affix.atk, 3)
   assert_eq(affix.def, 1)
@@ -27,7 +45,13 @@ test "affix struct fields" {
 
 ///|
 test "prefix_table_for returns 10+ entries for each profile" {
-  let profiles : Array[AffixProfile] = [Classic, GlassCannon, Tank, Mobility, Expanded]
+  let profiles : Array[AffixProfile] = [
+    Classic,
+    GlassCannon,
+    Tank,
+    Mobility,
+    Expanded,
+  ]
   for profile in profiles {
     let prefixes = prefix_table_for(profile)
     assert_true(prefixes.length() >= 10)
@@ -36,7 +60,13 @@ test "prefix_table_for returns 10+ entries for each profile" {
 
 ///|
 test "suffix_table_for returns 10+ entries for each profile" {
-  let profiles : Array[AffixProfile] = [Classic, GlassCannon, Tank, Mobility, Expanded]
+  let profiles : Array[AffixProfile] = [
+    Classic,
+    GlassCannon,
+    Tank,
+    Mobility,
+    Expanded,
+  ]
   for profile in profiles {
     let suffixes = suffix_table_for(profile)
     assert_true(suffixes.length() >= 10)

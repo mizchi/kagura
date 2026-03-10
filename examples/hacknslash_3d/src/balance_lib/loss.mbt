@@ -1,6 +1,7 @@
 // Loss functions for game balance optimization
 // Each hypothesis targets a different player experience
 
+///|
 pub(all) struct BalanceTargets {
   target_survival_frames : Double
   target_floors : Double
@@ -29,6 +30,8 @@ pub(all) struct BalanceTargets {
 // 目標: 戦闘密度が高く、テンポよく敵を倒し続ける爽快感
 // - 短いキル間隔、適度なHP変動、速いフロアクリア
 // ==========================================
+
+///|
 pub fn BalanceTargets::action_dense() -> BalanceTargets {
   {
     target_survival_frames: 9000.0,
@@ -57,6 +60,8 @@ pub fn BalanceTargets::action_dense() -> BalanceTargets {
 // 目標: 常に緊張感があり、リソース管理が重要
 // - HP変動が大きい、頻繁に瀕死、短い生存時間
 // ==========================================
+
+///|
 pub fn BalanceTargets::survival_horror() -> BalanceTargets {
   {
     target_survival_frames: 5400.0, // 1.5分で死ぬ
@@ -85,6 +90,8 @@ pub fn BalanceTargets::survival_horror() -> BalanceTargets {
 // 目標: 熟練プレイヤーが素早く攻略できる
 // - 非常に速いフロアクリア、高キルレート、装備更新頻度高
 // ==========================================
+
+///|
 pub fn BalanceTargets::speedrun() -> BalanceTargets {
   {
     target_survival_frames: 9000.0,
@@ -113,6 +120,8 @@ pub fn BalanceTargets::speedrun() -> BalanceTargets {
 // 目標: 死と隣り合わせだが報酬が大きい
 // - 高い瀕死率だが生存、適度なフロア進行、高スコア
 // ==========================================
+
+///|
 pub fn BalanceTargets::risk_reward() -> BalanceTargets {
   {
     target_survival_frames: 7200.0, // 2分
@@ -139,6 +148,8 @@ pub fn BalanceTargets::risk_reward() -> BalanceTargets {
 // ==========================================
 // Default (balanced)
 // ==========================================
+
+///|
 pub fn BalanceTargets::default() -> BalanceTargets {
   {
     target_survival_frames: 9000.0,
@@ -163,6 +174,8 @@ pub fn BalanceTargets::default() -> BalanceTargets {
 }
 
 // Compute loss for a single simulation result
+
+///|
 pub fn compute_loss(metrics : SimMetrics, t : BalanceTargets) -> Double {
   let survival = metrics.survival_frames.to_double()
   let floors = metrics.floors_cleared.to_double()
@@ -178,18 +191,20 @@ pub fn compute_loss(metrics : SimMetrics, t : BalanceTargets) -> Double {
   let kills_pf = metrics.kills_per_floor()
   let dmg_interval = metrics.avg_damage_interval()
   t.w_survival * @dec.sq_err(survival, t.target_survival_frames) +
-    t.w_floor * @dec.sq_err(floors, t.target_floors) +
-    t.w_floor_time * @dec.sq_err(floor_time, t.target_floor_time) +
-    t.w_hp_cv * @dec.sq_err(hp_cv, t.target_hp_cv) +
-    t.w_kill_interval * @dec.sq_err(kill_interval, t.target_kill_interval) +
-    t.w_kill_cv * @dec.sq_err(kill_cv, t.target_kill_interval_cv) +
-    t.w_near_death * @dec.sq_err(near_death, t.target_near_death_rate) +
-    t.w_kills_per_floor * @dec.sq_err(kills_pf, t.target_kills_per_floor) +
-    t.w_damage_interval * @dec.sq_err(dmg_interval, t.target_damage_interval)
+  t.w_floor * @dec.sq_err(floors, t.target_floors) +
+  t.w_floor_time * @dec.sq_err(floor_time, t.target_floor_time) +
+  t.w_hp_cv * @dec.sq_err(hp_cv, t.target_hp_cv) +
+  t.w_kill_interval * @dec.sq_err(kill_interval, t.target_kill_interval) +
+  t.w_kill_cv * @dec.sq_err(kill_cv, t.target_kill_interval_cv) +
+  t.w_near_death * @dec.sq_err(near_death, t.target_near_death_rate) +
+  t.w_kills_per_floor * @dec.sq_err(kills_pf, t.target_kills_per_floor) +
+  t.w_damage_interval * @dec.sq_err(dmg_interval, t.target_damage_interval)
 }
 
 // Run multiple simulations with different seeds, return average loss
 // Per-seed metrics are averaged as scalars to avoid cross-seed frame concatenation bugs
+
+///|
 pub fn compute_loss_averaged(
   params : @game.BalanceParams,
   targets : BalanceTargets,
@@ -251,8 +266,16 @@ pub fn compute_loss_averaged(
     score: total_score / n,
     hp_samples: [avg_hp],
     floor_times: [avg_floor_time.to_int()],
-    kill_frames: if avg_kill_int > 0.0 { [0, avg_kill_int.to_int()] } else { [] },
-    damage_frames: if avg_dmg_int > 0.0 { [0, avg_dmg_int.to_int()] } else { [] },
+    kill_frames: if avg_kill_int > 0.0 {
+      [0, avg_kill_int.to_int()]
+    } else {
+      []
+    },
+    damage_frames: if avg_dmg_int > 0.0 {
+      [0, avg_dmg_int.to_int()]
+    } else {
+      []
+    },
     equip_upgrades: total_equip / n,
     near_death_count: total_near_death / n,
   }
@@ -260,6 +283,8 @@ pub fn compute_loss_averaged(
 }
 
 // Averaged scalar accessors for display (bypasses array-based computation)
+
+///|
 pub(all) struct AveragedMetrics {
   base : SimMetrics
   avg_hp_ratio : Double
@@ -272,6 +297,7 @@ pub(all) struct AveragedMetrics {
   avg_damage_interval : Double
 }
 
+///|
 pub fn compute_loss_averaged_full(
   params : @game.BalanceParams,
   targets : BalanceTargets,

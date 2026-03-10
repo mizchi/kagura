@@ -3,11 +3,9 @@ import {
   "mizchi/differentiable_ecs" @dec,
 }
 
+warnings = "-1-2-7-20-29-71"
+
 options(
   "is-main": true,
-  targets: {
-    "main.mbt": ["js", "native"],
-  },
+  targets: { "main.mbt": [ "js", "native" ] },
 )
-
-warnings = "-1-2-7-20-29-71"

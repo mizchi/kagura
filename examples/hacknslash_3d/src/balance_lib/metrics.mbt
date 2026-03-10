@@ -1,5 +1,6 @@
 // SimMetrics: statistics collected from a headless simulation run
 
+///|
 pub(all) struct SimMetrics {
   survival_frames : Int
   floors_cleared : Int
@@ -15,6 +16,7 @@ pub(all) struct SimMetrics {
   near_death_count : Int // times HP dropped below 25%
 }
 
+///|
 pub fn SimMetrics::avg_hp_ratio(self : SimMetrics) -> Double {
   if self.hp_samples.length() == 0 {
     return 0.0
@@ -26,6 +28,7 @@ pub fn SimMetrics::avg_hp_ratio(self : SimMetrics) -> Double {
   sum / self.hp_samples.length().to_double()
 }
 
+///|
 pub fn SimMetrics::hp_variance(self : SimMetrics) -> Double {
   let n = self.hp_samples.length()
   if n < 2 {
@@ -40,6 +43,7 @@ pub fn SimMetrics::hp_variance(self : SimMetrics) -> Double {
   sum_sq / n.to_double()
 }
 
+///|
 pub fn SimMetrics::hp_coefficient_of_variation(self : SimMetrics) -> Double {
   let mean = self.avg_hp_ratio()
   if mean < 0.001 {
@@ -48,6 +52,7 @@ pub fn SimMetrics::hp_coefficient_of_variation(self : SimMetrics) -> Double {
   self.hp_variance().sqrt() / mean
 }
 
+///|
 pub fn SimMetrics::avg_floor_time(self : SimMetrics) -> Double {
   if self.floor_times.length() == 0 {
     return 0.0
@@ -60,6 +65,8 @@ pub fn SimMetrics::avg_floor_time(self : SimMetrics) -> Double {
 }
 
 // Kill pacing: average frames between kills (lower = more action-dense)
+
+///|
 pub fn SimMetrics::avg_kill_interval(self : SimMetrics) -> Double {
   if self.kill_frames.length() < 2 {
     return 0.0
@@ -72,6 +79,8 @@ pub fn SimMetrics::avg_kill_interval(self : SimMetrics) -> Double {
 }
 
 // Kill pacing variance (low = monotonous, high = varied encounters)
+
+///|
 pub fn SimMetrics::kill_interval_cv(self : SimMetrics) -> Double {
   if self.kill_frames.length() < 3 {
     return 0.0
@@ -91,6 +100,8 @@ pub fn SimMetrics::kill_interval_cv(self : SimMetrics) -> Double {
 }
 
 // Damage pacing: average frames between damage events
+
+///|
 pub fn SimMetrics::avg_damage_interval(self : SimMetrics) -> Double {
   if self.damage_frames.length() < 2 {
     return 0.0
@@ -103,6 +114,8 @@ pub fn SimMetrics::avg_damage_interval(self : SimMetrics) -> Double {
 }
 
 // Kills per floor (combat density per area)
+
+///|
 pub fn SimMetrics::kills_per_floor(self : SimMetrics) -> Double {
   if self.floors_cleared == 0 {
     return self.total_kills.to_double()
@@ -111,6 +124,8 @@ pub fn SimMetrics::kills_per_floor(self : SimMetrics) -> Double {
 }
 
 // Near-death rate: fraction of time spent below 25% HP
+
+///|
 pub fn SimMetrics::near_death_rate(self : SimMetrics) -> Double {
   if self.hp_samples.length() == 0 {
     return 0.0
@@ -125,6 +140,8 @@ pub fn SimMetrics::near_death_rate(self : SimMetrics) -> Double {
 }
 
 // Run a single headless simulation and collect metrics
+
+///|
 pub fn run_simulation(
   params : @game.BalanceParams,
   seed : Int,
@@ -149,7 +166,8 @@ pub fn run_simulation(
     world.tick_auto()
     // Sample HP ratio
     if frame % sample_interval == 0 {
-      let ratio = world.player.hp.to_double() / world.player_stats.max_hp.to_double()
+      let ratio = world.player.hp.to_double() /
+        world.player_stats.max_hp.to_double()
       hp_samples.push(ratio)
       if ratio < 0.25 {
         near_death_count = near_death_count + 1

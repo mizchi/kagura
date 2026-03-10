@@ -1,38 +1,56 @@
 // 3D rendering: dungeon graph, entity graph, draw
 
 // Colors (RGBA, 0-1 range) — natural field palette
+
+///|
 let color_floor : @math3d.Vec4 = @math3d.Vec4::new(0.32, 0.40, 0.24, 1.0)
 
+///|
 let color_corridor : @math3d.Vec4 = @math3d.Vec4::new(0.34, 0.31, 0.24, 1.0)
 
+///|
 let color_wall : @math3d.Vec4 = @math3d.Vec4::new(0.45, 0.40, 0.32, 1.0)
 
+///|
 let color_door : @math3d.Vec4 = @math3d.Vec4::new(0.50, 0.42, 0.20, 1.0)
 
+///|
 let color_pillar : @math3d.Vec4 = @math3d.Vec4::new(0.50, 0.45, 0.35, 1.0)
 
+///|
 let color_player : @math3d.Vec4 = @math3d.Vec4::new(0.0, 1.0, 0.8, 1.0)
 
+///|
 let color_player_dash : @math3d.Vec4 = @math3d.Vec4::new(0.4, 0.87, 1.0, 1.0)
 
+///|
 let color_player_hurt : @math3d.Vec4 = @math3d.Vec4::new(1.0, 1.0, 1.0, 1.0)
 
+///|
 let color_enemy_basic : @math3d.Vec4 = @math3d.Vec4::new(0.8, 0.13, 0.13, 1.0)
 
+///|
 let color_enemy_fast : @math3d.Vec4 = @math3d.Vec4::new(1.0, 0.53, 0.0, 1.0)
 
+///|
 let color_enemy_tank : @math3d.Vec4 = @math3d.Vec4::new(0.53, 0.27, 0.8, 1.0)
 
+///|
 let color_enemy_ranged : @math3d.Vec4 = @math3d.Vec4::new(0.27, 0.67, 1.0, 1.0)
 
+///|
 let color_enemy_boss : @math3d.Vec4 = @math3d.Vec4::new(1.0, 0.13, 0.4, 1.0)
 
+///|
 let color_item_health : @math3d.Vec4 = @math3d.Vec4::new(0.0, 1.0, 0.4, 1.0)
 
+///|
 let color_item_score : @math3d.Vec4 = @math3d.Vec4::new(0.0, 1.0, 1.0, 1.0)
 
+///|
 let color_projectile : @math3d.Vec4 = @math3d.Vec4::new(1.0, 0.27, 0.4, 1.0)
 
+///|
 fn hex_to_vec4(hex : Int) -> @math3d.Vec4 {
   let r = ((hex >> 16) & 0xFF).to_double() / 255.0
   let g = ((hex >> 8) & 0xFF).to_double() / 255.0
@@ -40,9 +58,12 @@ fn hex_to_vec4(hex : Int) -> @math3d.Vec4 {
   @math3d.Vec4::new(r, g, b, 1.0)
 }
 
+///|
 let color_arrow : @math3d.Vec4 = @math3d.Vec4::new(0.9, 0.85, 0.3, 1.0)
 
 // Build entity draw commands directly (items/projectiles) — no SceneGraph overhead
+
+///|
 fn build_entity_cmds(
   state : GameState,
   region : VisibleRegion,
@@ -60,7 +81,9 @@ fn build_entity_cmds(
       let ix = item.x / tile_size
       let iz = item.y / tile_size
       let base_y = @game.get_tile_height(state.world.dungeon, item.x, item.y)
-      let bob = base_y + 0.3 + 0.1 * @math.sin(state.world.frame_count.to_double() * 0.1)
+      let bob = base_y +
+        0.3 +
+        0.1 * @math.sin(state.world.frame_count.to_double() * 0.1)
       let c = match item.kind {
         @game.Health => color_item_health
         @game.Equipment(data) => hex_to_vec4(data.rarity.color())
@@ -69,13 +92,26 @@ fn build_entity_cmds(
       let model = @math3d.Mat4::translation(ix, bob, iz)
       let tinted = tint_lighting(lighting, c)
       let dst_region = @gfx.new_dst_region(
-        0, 0, screen_w, screen_h, state.meshes.item.indices.length(),
+        0,
+        0,
+        screen_w,
+        screen_h,
+        state.meshes.item.indices.length(),
       )
       cmds.push(
         @draw3d.new_lit_mesh_draw_command(
-          dst, shader, dst_region, 0, 0, 0,
+          dst,
+          shader,
+          dst_region,
+          0,
+          0,
+          0,
           @gfx.blend_mode_from_int(1),
-          state.meshes.item, model, vp, tinted, [],
+          state.meshes.item,
+          model,
+          vp,
+          tinted,
+          [],
         ),
       )
     }
@@ -95,26 +131,52 @@ fn build_entity_cmds(
         let tinted = tint_lighting(lighting, color_arrow)
         let mesh = state.meshes.arrow
         let dst_region = @gfx.new_dst_region(
-          0, 0, screen_w, screen_h, mesh.indices.length(),
+          0,
+          0,
+          screen_w,
+          screen_h,
+          mesh.indices.length(),
         )
         cmds.push(
           @draw3d.new_lit_mesh_draw_command(
-            dst, shader, dst_region, 0, 0, 0,
+            dst,
+            shader,
+            dst_region,
+            0,
+            0,
+            0,
             @gfx.blend_mode_from_int(1),
-            mesh, model, vp, tinted, [],
+            mesh,
+            model,
+            vp,
+            tinted,
+            [],
           ),
         )
       } else {
         let model = @math3d.Mat4::translation(prx, base_y + 0.3, prz)
         let tinted = tint_lighting(lighting, color_projectile)
         let dst_region = @gfx.new_dst_region(
-          0, 0, screen_w, screen_h, state.meshes.projectile.indices.length(),
+          0,
+          0,
+          screen_w,
+          screen_h,
+          state.meshes.projectile.indices.length(),
         )
         cmds.push(
           @draw3d.new_lit_mesh_draw_command(
-            dst, shader, dst_region, 0, 0, 0,
+            dst,
+            shader,
+            dst_region,
+            0,
+            0,
+            0,
             @gfx.blend_mode_from_int(1),
-            state.meshes.projectile, model, vp, tinted, [],
+            state.meshes.projectile,
+            model,
+            vp,
+            tinted,
+            [],
           ),
         )
       }
@@ -123,6 +185,8 @@ fn build_entity_cmds(
 }
 
 // Pre-compute tinted lighting for a color (used for dungeon groups)
+
+///|
 fn tint_lighting(
   lighting : @light3d.LightingEnvironment,
   col : @math3d.Vec4,
@@ -148,6 +212,7 @@ fn tint_lighting(
   )
 }
 
+///|
 fn GameState::draw(
   self : GameState,
   ctx : @engine.EngineContext,
@@ -174,14 +239,19 @@ fn GameState::draw(
       asset_inflight: 0,
     }
     @debugutil.build_profiler_hud(
-      result, ctx.dst, ctx.shader, self.profile,
-      ctx.screen_w.to_double(), ctx.screen_h.to_double(),
+      result,
+      ctx.dst,
+      ctx.shader,
+      self.profile,
+      ctx.screen_w.to_double(),
+      ctx.screen_h.to_double(),
     )
   }
   self.flush_text_atlas()
   result
 }
 
+///|
 fn GameState::draw_playing(
   self : GameState,
   ctx : @engine.EngineContext,
@@ -216,15 +286,21 @@ fn GameState::draw_playing(
   let player_tile_x = (self.world.player.x / tile_size).to_int()
   let player_tile_z = (self.world.player.y / tile_size).to_int()
   let visible_chunks = get_visible_chunks(
-    self.dungeon_chunks, player_tile_x, player_tile_z, 1,
+    self.dungeon_chunks,
+    player_tile_x,
+    player_tile_z,
+    1,
   )
   // === Pass 1: Shadow depth — 1 command per chunk using all_mesh ===
   for chunk in visible_chunks {
     if chunk.all_mesh.indices.length() > 0 {
       cmds.push(
         @shadow3d.new_shadow_depth_command(
-          self.shadow_map, self.shadow_depth_shader,
-          chunk.all_mesh, identity, light_vp,
+          self.shadow_map,
+          self.shadow_depth_shader,
+          chunk.all_mesh,
+          identity,
+          light_vp,
         ),
       )
     }
@@ -248,28 +324,51 @@ fn GameState::draw_playing(
         tint_lighting(lighting, group.color)
       }
       let dst_region = @gfx.new_dst_region(
-        0, 0, ctx.screen_w, ctx.screen_h, group.mesh.indices.length(),
+        0,
+        0,
+        ctx.screen_w,
+        ctx.screen_h,
+        group.mesh.indices.length(),
       )
       cmds.push(
         @shadow3d.new_shadow_lit_mesh_draw_command(
-          rt, self.shadow_lit_shader, dst_region,
-          0, 0, 0, @gfx.blend_mode_from_int(0),
-          group.mesh, identity, view_projection, tinted,
-          light_vp, shadow_config,
-          self.shadow_map.id, self.shadow_map.id,
+          rt,
+          self.shadow_lit_shader,
+          dst_region,
+          0,
+          0,
+          0,
+          @gfx.blend_mode_from_int(0),
+          group.mesh,
+          identity,
+          view_projection,
+          tinted,
+          light_vp,
+          shadow_config,
+          self.shadow_map.id,
+          self.shadow_map.id,
         ),
       )
     }
   }
   // Compute visible region for occlusion culling
   let vis_region = compute_visible_region(
-    self.world.dungeon.rooms, self.world.player.x, self.world.player.y,
-    self.world.dungeon.grid.width, self.world.dungeon.grid.height,
+    self.world.dungeon.rooms,
+    self.world.player.x,
+    self.world.player.y,
+    self.world.dungeon.grid.width,
+    self.world.dungeon.grid.height,
   )
   // === Pass 3: Entities (items/projectiles) → direct draw commands ===
   build_entity_cmds(
-    self, vis_region, view_projection, rt, self.shader3d,
-    ctx.screen_w, ctx.screen_h, cmds,
+    self,
+    vis_region,
+    view_projection,
+    rt,
+    self.shader3d,
+    ctx.screen_w,
+    ctx.screen_h,
+    cmds,
   )
   // === Pass 4: Skinned enemies → scene_target ===
   let enemy_skinning = self.enemy_models.compute_skinning()
@@ -303,7 +402,7 @@ fn GameState::draw_playing(
           mesh=mesh_data.bind_mesh,
           position=@math3d.Vec3::new(ex, ey, ez),
           rotation=rot,
-          color=color,
+          color~,
           skinning=Some(
             @scene3d.SkinningState::new_with_packed(
               mesh_data.skin_data,
@@ -336,7 +435,11 @@ fn GameState::draw_playing(
   // === Pass 5: Player character ===
   let px = self.world.player.x / tile_size
   let pz = self.world.player.y / tile_size
-  let py = @game.get_tile_height(self.world.dungeon, self.world.player.x, self.world.player.y)
+  let py = @game.get_tile_height(
+    self.world.dungeon,
+    self.world.player.x,
+    self.world.player.y,
+  )
   let player_color = if self.world.player.dash_timer > 0 {
     color_player_dash
   } else if self.world.player.damage_timer > 0 {
@@ -382,40 +485,64 @@ fn GameState::draw_playing(
   }
   // === Pass 6: Particles ===
   let particle_cmds = self.particle_manager.draw(
-    rt, camera, ctx.screen_w, ctx.screen_h, self.world.frame_count,
+    rt,
+    camera,
+    ctx.screen_w,
+    ctx.screen_h,
+    self.world.frame_count,
   )
   for cmd in particle_cmds {
     cmds.push(cmd)
   }
-  // === Pass 7: Camera depth for SSAO ===
-  let casters : Array[@shadow3d.ShadowCaster] = []
-  for chunk in visible_chunks {
-    if chunk.all_mesh.indices.length() > 0 {
-      casters.push(@shadow3d.ShadowCaster::new(chunk.all_mesh, identity))
+  let bloom_input_id = if self.ssao_config.enabled {
+    // === Pass 7: Camera depth for SSAO ===
+    let casters : Array[@shadow3d.ShadowCaster] = []
+    for chunk in visible_chunks {
+      if chunk.all_mesh.indices.length() > 0 {
+        casters.push(@shadow3d.ShadowCaster::new(chunk.all_mesh, identity))
+      }
     }
+    let depth_cmds = @shadow3d.camera_depth_pass_commands(
+      self.camera_depth_target,
+      self.camera_depth_shader,
+      casters,
+      view_projection,
+    )
+    for cmd in depth_cmds {
+      cmds.push(cmd)
+    }
+    // === Pass 8: SSAO ===
+    cmds.push(
+      @postfx.new_ssao_command(
+        self.ssao_target,
+        self.ssao_sh,
+        self.scene_target.id,
+        self.camera_depth_target.id,
+        self.ssao_config.radius,
+        self.ssao_config.bias,
+        self.ssao_config.intensity,
+        ctx.screen_w,
+        ctx.screen_h,
+      ),
+    )
+    self.ssao_target.id
+  } else {
+    self.scene_target.id
   }
-  let depth_cmds = @shadow3d.camera_depth_pass_commands(
-    self.camera_depth_target, self.camera_depth_shader,
-    casters, view_projection,
-  )
-  for cmd in depth_cmds {
-    cmds.push(cmd)
-  }
-  // === Pass 8: SSAO ===
-  cmds.push(
-    @postfx.new_ssao_command(
-      self.ssao_target, self.ssao_sh,
-      self.scene_target.id, self.camera_depth_target.id,
-      0.5, 0.025, 1.0, ctx.screen_w, ctx.screen_h,
-    ),
-  )
   // === Pass 9: Bloom (threshold → hblur → vblur → composite) ===
   let bloom_cmds = @postfx.bloom_commands(
-    self.post_target, self.ssao_target.id,
-    self.bloom_a, self.bloom_b,
-    self.bloom_threshold_sh, self.bloom_hblur_sh,
-    self.bloom_vblur_sh, self.bloom_composite_sh,
-    0.8, 0.3, ctx.screen_w, ctx.screen_h,
+    self.post_target,
+    bloom_input_id,
+    self.bloom_a,
+    self.bloom_b,
+    self.bloom_threshold_sh,
+    self.bloom_hblur_sh,
+    self.bloom_vblur_sh,
+    self.bloom_composite_sh,
+    0.8,
+    0.3,
+    ctx.screen_w,
+    ctx.screen_h,
   )
   for cmd in bloom_cmds {
     cmds.push(cmd)
@@ -423,12 +550,19 @@ fn GameState::draw_playing(
   // === PostFX: tonemap → FXAA ===
   cmds.push(
     @postfx.new_tonemap_command(
-      self.bloom_b, self.tonemap_sh, self.post_target.id, 1.0,
+      self.bloom_b,
+      self.tonemap_sh,
+      self.post_target.id,
+      1.0,
     ),
   )
   cmds.push(
     @postfx.new_fxaa_command(
-      ctx.dst, self.fxaa_sh, self.bloom_b.id, ctx.screen_w, ctx.screen_h,
+      ctx.dst,
+      self.fxaa_sh,
+      self.bloom_b.id,
+      ctx.screen_w,
+      ctx.screen_h,
     ),
   )
   // 2D HUD overlay

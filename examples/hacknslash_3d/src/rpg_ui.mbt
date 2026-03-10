@@ -4,6 +4,7 @@
 // Dot-matrix: px_size=3*scale, char_w=9*scale, gap=3*scale, char_h=15*scale
 // size=10 → scale=1.0 → chars 9x15px per char, 12px stride
 // size=8  → scale=0.8 → chars 7x12px per char, 10px stride
+
 ///|
 let ui_font : Double = 10.0
 

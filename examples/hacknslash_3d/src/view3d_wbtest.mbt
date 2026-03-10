@@ -9,6 +9,11 @@ fn test_engine_context() -> @engine.EngineContext {
 }
 
 ///|
+fn state_with_ssao_enabled() -> GameState {
+  GameState::new_with_ssao(seed=42, SSAOConfig::enabled_default())
+}
+
+///|
 fn find_first_command_index(
   commands : Array[@gfx.DrawTrianglesCommand],
   pred : (@gfx.DrawTrianglesCommand) -> Bool,
@@ -37,7 +42,7 @@ fn find_last_command_index(
 
 ///|
 test "draw_playing wires camera depth into SSAO postfx chain" {
-  let state = GameState::new(seed=42)
+  let state = state_with_ssao_enabled()
   state.world.mode = @game.Playing
   let ctx = test_engine_context()
   let commands = state.draw_playing(ctx)
@@ -52,24 +57,21 @@ test "draw_playing wires camera depth into SSAO postfx chain" {
   }
   let ssao_idx = match
     find_first_command_index(commands, fn(cmd) {
-      cmd.dst.id == state.ssao_target.id &&
-      cmd.shader.id == state.ssao_sh.id
+      cmd.dst.id == state.ssao_target.id && cmd.shader.id == state.ssao_sh.id
     }) {
     Some(i) => i
     None => panic()
   }
   let tonemap_idx = match
     find_first_command_index(commands, fn(cmd) {
-      cmd.dst.id == state.bloom_b.id &&
-      cmd.shader.id == state.tonemap_sh.id
+      cmd.dst.id == state.bloom_b.id && cmd.shader.id == state.tonemap_sh.id
     }) {
     Some(i) => i
     None => panic()
   }
   let fxaa_idx = match
     find_first_command_index(commands, fn(cmd) {
-      cmd.dst.id == ctx.dst.id &&
-      cmd.shader.id == state.fxaa_sh.id
+      cmd.dst.id == ctx.dst.id && cmd.shader.id == state.fxaa_sh.id
     }) {
     Some(i) => i
     None => panic()
@@ -88,14 +90,13 @@ test "draw_playing wires camera depth into SSAO postfx chain" {
 
 ///|
 test "draw_playing feeds ssao output into bloom composite" {
-  let state = GameState::new(seed=42)
+  let state = state_with_ssao_enabled()
   state.world.mode = @game.Playing
   let commands = state.draw_playing(test_engine_context())
 
   let ssao_idx = match
     find_first_command_index(commands, fn(cmd) {
-      cmd.dst.id == state.ssao_target.id &&
-      cmd.shader.id == state.ssao_sh.id
+      cmd.dst.id == state.ssao_target.id && cmd.shader.id == state.ssao_sh.id
     }) {
     Some(i) => i
     None => panic()
@@ -127,5 +128,48 @@ test "draw_playing feeds ssao output into bloom composite" {
   let composite_cmd = commands[composite_idx]
   assert_eq(composite_cmd.src_image_ids.length(), 2)
   assert_eq(composite_cmd.src_image_ids[0], state.ssao_target.id)
+  assert_eq(composite_cmd.src_image_ids[1], state.bloom_a.id)
+}
+
+///|
+test "draw_playing skips ssao and feeds scene target into bloom composite by default" {
+  let state = GameState::new(seed=42)
+  state.world.mode = @game.Playing
+  let commands = state.draw_playing(test_engine_context())
+
+  let ssao_idx = find_first_command_index(commands, fn(cmd) {
+    cmd.dst.id == state.ssao_target.id && cmd.shader.id == state.ssao_sh.id
+  })
+  let depth_idx = find_last_command_index(commands, fn(cmd) {
+    cmd.dst.id == state.camera_depth_target.id &&
+    cmd.shader.id == state.camera_depth_shader.id
+  })
+  let threshold_idx = match
+    find_first_command_index(commands, fn(cmd) {
+      cmd.dst.id == state.bloom_a.id &&
+      cmd.shader.id == state.bloom_threshold_sh.id
+    }) {
+    Some(i) => i
+    None => panic()
+  }
+  let composite_idx = match
+    find_first_command_index(commands, fn(cmd) {
+      cmd.dst.id == state.post_target.id &&
+      cmd.shader.id == state.bloom_composite_sh.id
+    }) {
+    Some(i) => i
+    None => panic()
+  }
+
+  assert_eq(ssao_idx, None)
+  assert_eq(depth_idx, None)
+
+  let threshold_cmd = commands[threshold_idx]
+  assert_eq(threshold_cmd.src_image_ids.length(), 1)
+  assert_eq(threshold_cmd.src_image_ids[0], state.scene_target.id)
+
+  let composite_cmd = commands[composite_idx]
+  assert_eq(composite_cmd.src_image_ids.length(), 2)
+  assert_eq(composite_cmd.src_image_ids[0], state.scene_target.id)
   assert_eq(composite_cmd.src_image_ids[1], state.bloom_a.id)
 }

@@ -282,3 +282,24 @@ test "scene_graph with parent-child nodes" {
     None => assert_true(false)
   }
 }
+
+///|
+test "skinned_scene_from_gltf preserves joint hierarchy" {
+  let json = "{\"asset\":{\"version\":\"2.0\"},\"nodes\":[{\"name\":\"root_joint\",\"children\":[1]},{\"name\":\"child_joint\"}],\"skins\":[{\"joints\":[0,1]}],\"scenes\":[{\"nodes\":[0]}],\"scene\":0}"
+  let (_graph, skeleton, _clips, skin_data) = skinned_scene_from_gltf(json, [])
+  assert_true(skin_data is None)
+  match skeleton {
+    Some(skel) => {
+      assert_eq(skel.bone_count(), 2)
+      let poses = [
+        @transform3d.Transform3D::from_position(@math3d.Vec3::new(1.0, 0.0, 0.0)),
+        @transform3d.Transform3D::from_position(@math3d.Vec3::new(0.0, 2.0, 0.0)),
+      ]
+      let world = skel.compute_world_transforms(poses)
+      assert_true(
+        @math3d.Mat4::translation(1.0, 2.0, 0.0).approx_eq(world[1], 1.0e-6),
+      )
+    }
+    None => assert_true(false)
+  }
+}

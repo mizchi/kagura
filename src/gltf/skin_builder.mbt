@@ -61,7 +61,7 @@ fn skeleton_from_gltf(
     let mut parent_joint = -1
     for p in 0..<joint_count {
       if p == i {
-        continue p
+        continue
       }
       let parent_node_idx = skin.joints[p]
       let parent_node = doc.nodes[parent_node_idx]

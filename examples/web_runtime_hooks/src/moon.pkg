@@ -13,6 +13,7 @@ import {
 warnings = "-1-29"
 
 options(
+  "supported-targets": [ "js", "native", "wasm", "wasm-gc", "llvm" ],
   targets: {
     "hooks_js.mbt": [ "js" ],
     "hooks_llvm.mbt": [ "llvm" ],

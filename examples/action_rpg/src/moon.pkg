@@ -15,7 +15,6 @@ import {
   "mizchi/kagura/ui" @ui,
   "mizchi/kagura/vector" @vector,
   "mizchi/web_runtime_hooks" @web_hooks,
-  "mizchi/native_runtime_hooks" @native_hooks,
 }
 
 warnings = "-1-2-7-20-29-71"

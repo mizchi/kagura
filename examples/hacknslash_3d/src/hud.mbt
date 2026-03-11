@@ -641,6 +641,5 @@ fn GameState::flush_text_atlas(self : GameState) -> Unit {
       bindings.push(binding)
     }
     let _ = @web_hooks.sync_source_images(bindings)
-    let _ = @native_hooks.sync_source_images(bindings)
   }
 }

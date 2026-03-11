@@ -6,7 +6,6 @@
   "deps": {
     "mizchi/kagura": { "path": "../.." },
     "mizchi/web_runtime_hooks": { "path": "../web_runtime_hooks" },
-    "mizchi/native_runtime_hooks": { "path": "../native_runtime_hooks" },
     "mizchi/terrain": "0.1.1",
     "mizchi/differentiable_ecs": "0.2.0"
   },

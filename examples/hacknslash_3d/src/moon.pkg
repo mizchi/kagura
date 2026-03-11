@@ -23,7 +23,6 @@ import {
   "mizchi/terrain/diablo" @diablo,
   "mizchi/terrain/types" @terrain,
   "mizchi/web_runtime_hooks" @web_hooks,
-  "mizchi/native_runtime_hooks" @native_hooks,
   "mizchi/kagura/text" @text,
   "mizchi/kagura/asset" @asset,
   "mizchi/kagura/image_palette" @image_palette,

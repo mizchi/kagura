@@ -253,7 +253,6 @@ fn GameState::sync_icon_atlas(self : GameState) -> Unit {
     return
   }
   let _ = @web_hooks.sync_source_images(bindings)
-  let _ = @native_hooks.sync_source_images(bindings)
   let _ = @asset.clear_dirty_atlas_page_flags(self.icon_atlas.repo)
 }
 

@@ -6,8 +6,6 @@ import {
   "mizchi/kagura/inpututil" @inpututil,
   "mizchi/kagura/physics2d" @physics2d,
   "mizchi/kagura/vector" @vector,
-  "mizchi/web_runtime_hooks" @web_hooks,
-  "mizchi/native_runtime_hooks" @native_hooks,
 }
 
 warnings = "-1-2-29-71"

@@ -1175,7 +1175,6 @@ fn ShowcaseState::render_text_hud(
         bindings.push(binding)
       }
       let _ = @web_hooks.sync_source_images(bindings)
-      let _ = @native_hooks.sync_source_images(bindings)
     }
     for cmd in all_text_cmds {
       cmds.push(cmd)
@@ -1197,7 +1196,6 @@ fn ShowcaseState::render_text_hud(
           pixels,
         )
         let _ = @web_hooks.sync_source_images([binding])
-        let _ = @native_hooks.sync_source_images([binding])
       }
       None => ()
     }

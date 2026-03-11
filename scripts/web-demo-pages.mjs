@@ -2,6 +2,13 @@ import { existsSync, readdirSync } from "node:fs";
 import { join } from "node:path";
 
 const GITHUB_BLOB_ROOT = "https://github.com/mizchi/kagura/blob/main";
+const HIDDEN_PAGE_NAMES = new Set([
+  "model_authoring",
+  "chair_authoring",
+  "shelf_authoring",
+  "frog_authoring",
+  "dragon_authoring",
+]);
 
 const RAW_DEMO_PAGES = [
   {
@@ -384,10 +391,12 @@ const RAW_DEMO_PAGES = [
   },
 ];
 
-export const DEMO_PAGES = RAW_DEMO_PAGES.map((demo) => ({
-  ...demo,
-  githubHref: `${GITHUB_BLOB_ROOT}/${demo.sourcePath}`,
-}));
+export const DEMO_PAGES = RAW_DEMO_PAGES
+  .filter((demo) => !HIDDEN_PAGE_NAMES.has(demo.name))
+  .map((demo) => ({
+    ...demo,
+    githubHref: `${GITHUB_BLOB_ROOT}/${demo.sourcePath}`,
+  }));
 
 const DEMO_PAGE_MAP = new Map(DEMO_PAGES.map((demo) => [demo.name, demo]));
 

@@ -316,7 +316,7 @@ extern "js" fn js_ensure_window_state(selector : String) -> Unit =
   #|       vsyncEnabled: true,
   #|       attentionRequests: 0,
   #|       interactionHooksInstalled: false,
-  #|       webgpu: { context: null, device: null, format: "bgra8unorm", pending: null, _pipeline: null, _pipelineFormat: "", _uniformBGL: null, _texBGL: null, _defaultTexture: null, _defaultTexView: null, _defaultSampler: null, _drawResourceCache: null, _currentDraw: null, _pendingTexture: null, presentScheduled: false, clear: [0, 0, 0, 1], commands: [], textures: null, lastError: "" },
+  #|       webgpu: { context: null, device: null, format: "bgra8unorm", pending: null, _pipeline: null, _pipelineFormat: "", _configuredFormat: "", _uniformBGL: null, _texBGL: null, _defaultTexture: null, _defaultTexView: null, _defaultSampler: null, _drawResourceCache: null, _currentDraw: null, _pendingTexture: null, presentScheduled: false, clear: [0, 0, 0, 1], commands: [], textures: null, lastError: "" },
   #|     });
   #|     if (typeof nextSelector === "string" && nextSelector.length > 0) {
   #|       state.selector = nextSelector;
@@ -337,12 +337,13 @@ extern "js" fn js_ensure_window_state(selector : String) -> Unit =
   #|     if (!Array.isArray(state.testGamepads)) state.testGamepads = [];
   #|     if (state.inputHooksInstalled == null) state.inputHooksInstalled = false;
   #|     if (state.webgpu == null) {
-  #|       state.webgpu = { context: null, device: null, format: "bgra8unorm", pending: null, _pipeline: null, _pipelineFormat: "", _uniformBGL: null, _texBGL: null, _defaultTexture: null, _defaultTexView: null, _defaultSampler: null, _drawResourceCache: null, _currentDraw: null, _pendingTexture: null, presentScheduled: false, clear: [0, 0, 0, 1], commands: [], textures: null, lastError: "" };
+  #|       state.webgpu = { context: null, device: null, format: "bgra8unorm", pending: null, _pipeline: null, _pipelineFormat: "", _configuredFormat: "", _uniformBGL: null, _texBGL: null, _defaultTexture: null, _defaultTexView: null, _defaultSampler: null, _drawResourceCache: null, _currentDraw: null, _pendingTexture: null, presentScheduled: false, clear: [0, 0, 0, 1], commands: [], textures: null, lastError: "" };
   #|     } else {
   #|       if (!Array.isArray(state.webgpu.clear)) state.webgpu.clear = [0, 0, 0, 1];
   #|       if (!Array.isArray(state.webgpu.commands)) state.webgpu.commands = [];
   #|       if (state.webgpu._pipeline == null) state.webgpu._pipeline = null;
   #|       if (typeof state.webgpu._pipelineFormat !== "string") state.webgpu._pipelineFormat = "";
+  #|       if (typeof state.webgpu._configuredFormat !== "string") state.webgpu._configuredFormat = "";
   #|       if (state.webgpu._uniformBGL == null) state.webgpu._uniformBGL = null;
   #|       if (state.webgpu._texBGL == null) state.webgpu._texBGL = null;
   #|       if (state.webgpu._defaultTexture == null) state.webgpu._defaultTexture = null;
@@ -1098,7 +1099,7 @@ extern "js" fn js_try_initialize_webgpu(
   #|     width: fallbackWidth,
   #|     height: fallbackHeight,
   #|     dpr: 1,
-  #|     webgpu: { context: null, device: null, format: "bgra8unorm", pending: null, _pipeline: null, _pipelineFormat: "", _uniformBGL: null, _texBGL: null, _defaultTexture: null, _defaultTexView: null, _defaultSampler: null, _drawResourceCache: null, _currentDraw: null, _pendingTexture: null, presentScheduled: false, clear: [0, 0, 0, 1], commands: [], textures: null, lastError: "" },
+  #|     webgpu: { context: null, device: null, format: "bgra8unorm", pending: null, _pipeline: null, _pipelineFormat: "", _configuredFormat: "", _uniformBGL: null, _texBGL: null, _defaultTexture: null, _defaultTexView: null, _defaultSampler: null, _drawResourceCache: null, _currentDraw: null, _pendingTexture: null, presentScheduled: false, clear: [0, 0, 0, 1], commands: [], textures: null, lastError: "" },
   #|   });
   #|   state.selector = selector;
   #|   const doc = typeof document === "undefined" ? null : document;
@@ -1149,7 +1150,21 @@ extern "js" fn js_try_initialize_webgpu(
   #|   }
   #|   if (state.webgpu.pending == null) {
   #|     state.webgpu.pending = nav.gpu.requestAdapter()
-  #|       .then((adapter) => adapter == null ? null : adapter.requestDevice())
+  #|       .then((adapter) => {
+  #|         if (adapter == null) return null;
+  #|         const supportsTimestampQuery = adapter.features != null &&
+  #|           typeof adapter.features.has === "function" &&
+  #|           adapter.features.has("timestamp-query");
+  #|         const requestOptions = supportsTimestampQuery
+  #|           ? { requiredFeatures: ["timestamp-query"] }
+  #|           : undefined;
+  #|         return adapter.requestDevice(requestOptions).then((device) => {
+  #|           if (device != null) {
+  #|             device.__kaguraTimestampQueryEnabled = supportsTimestampQuery;
+  #|           }
+  #|           return device;
+  #|         });
+  #|       })
   #|       .then((device) => {
   #|         if (device == null) return;
   #|         const format = typeof nav.gpu.getPreferredCanvasFormat === "function"
@@ -1159,12 +1174,14 @@ extern "js" fn js_try_initialize_webgpu(
   #|         state.webgpu.device = device;
   #|         state.webgpu._pipeline = null;
   #|         state.webgpu._pipelineFormat = "";
+  #|         state.webgpu._configuredFormat = "";
   #|         if (state.webgpu.context != null) {
   #|           state.webgpu.context.configure({
   #|             device,
   #|             format,
   #|             alphaMode: "opaque",
   #|           });
+  #|           state.webgpu._configuredFormat = format;
   #|         }
   #|       })
   #|       .catch((error) => {
@@ -1172,6 +1189,7 @@ extern "js" fn js_try_initialize_webgpu(
   #|         state.webgpu.device = null;
   #|         state.webgpu._pipeline = null;
   #|         state.webgpu._pipelineFormat = "";
+  #|         state.webgpu._configuredFormat = "";
   #|       })
   #|       .finally(() => {
   #|         state.webgpu.pending = null;
@@ -1224,6 +1242,7 @@ extern "js" fn js_release_webgpu_resources() -> Unit =
   #|   }
   #|   gpu._pipeline = null;
   #|   gpu._pipelineFormat = "";
+  #|   gpu._configuredFormat = "";
   #|   gpu._uniformBGL = null;
   #|   gpu._texBGL = null;
   #|   gpu._defaultTexture = null;
@@ -1521,7 +1540,10 @@ extern "js" fn js_webgpu_present() -> Bool =
   #|     if (gfx != null) {
   #|       return gfx.render(currentGpu, currentDevice, currentContext, currentGpu.clear, format);
   #|     }
-  #|     currentContext.configure({ device: currentDevice, format, alphaMode: "opaque" });
+  #|     if (currentGpu._configuredFormat !== format) {
+  #|       currentContext.configure({ device: currentDevice, format, alphaMode: "opaque" });
+  #|       currentGpu._configuredFormat = format;
+  #|     }
   #|     if (currentGpu._pipeline == null || currentGpu._pipelineFormat !== format) {
   #|       const shaderCode = `
   #| struct Uniforms { color: vec4f }
@@ -1709,7 +1731,10 @@ extern "js" fn js_webgpu_present() -> Bool =
   #|       pass.setBindGroup(1, texBG);
   #|       pass.setVertexBuffer(0, vbEntry.buffer);
   #|       pass.setIndexBuffer(ibEntry.buffer, "uint32");
-  #|       pass.drawIndexed(cmd.indices.length);
+  #|       const instanceCount = Number.isFinite(cmd.instanceCount ?? cmd.instance_count)
+  #|         ? Math.max(1, (cmd.instanceCount ?? cmd.instance_count) | 0)
+  #|         : 1;
+  #|       pass.drawIndexed(cmd.indices.length, instanceCount);
   #|     }
   #|     pass.end();
   #|     currentDevice.queue.submit([encoder.finish()]);
@@ -1766,6 +1791,7 @@ extern "js" fn test_setup_present_state(
   #|   }
   #|   const stats = {
   #|     submits: 0,
+  #|     configures: 0,
   #|     clears: 0,
   #|     draws: 0,
   #|     bufferCreates: 0,
@@ -1775,7 +1801,7 @@ extern "js" fn test_setup_present_state(
   #|     lastWebGpuShaderCode: "",
   #|   };
   #|   const webgpuContext = {
-  #|     configure: () => {},
+  #|     configure: () => { stats.configures += 1; },
   #|     getCurrentTexture: () => ({ createView: () => ({}) }),
   #|   };
   #|   const createMockBuffer = () => ({
@@ -1830,6 +1856,7 @@ extern "js" fn test_setup_present_state(
   #|       pending: null,
   #|       _pipeline: null,
   #|       _pipelineFormat: "",
+  #|       _configuredFormat: "",
   #|       presentScheduled: false,
   #|       clear: [0, 0, 0, 1],
   #|       commands: [],
@@ -1870,6 +1897,14 @@ extern "js" fn test_present_submit_count() -> Int =
   #|   const stats = globalThis.__kaguraPresentTestStats;
   #|   if (stats == null) return 0;
   #|   return Number(stats.submits ?? 0) | 0;
+  #| }
+
+///|
+extern "js" fn test_present_configure_count() -> Int =
+  #| () => {
+  #|   const stats = globalThis.__kaguraPresentTestStats;
+  #|   if (stats == null) return 0;
+  #|   return Number(stats.configures ?? 0) | 0;
   #| }
 
 ///|
@@ -2320,6 +2355,38 @@ test "js_webgpu_present renders multiple queued draw commands" {
   assert_true(presented)
   assert_eq(test_present_draw_count(), 2)
   assert_eq(test_present_submit_count(), 1)
+  test_teardown_present_state()
+}
+
+///|
+test "js_webgpu_present does not reconfigure context every frame" {
+  test_setup_present_state(true, false, false)
+
+  js_webgpu_begin(0.0, 0.0, 0.0, 1.0)
+  js_gfx_draw_begin(3, 3, 0, 255, 0, 0, 255, 0, 0, 0)
+  js_gfx_draw_vertex(0, -0.8, 0.7, 0.0, 0.0)
+  js_gfx_draw_vertex(1, -0.2, -0.6, 1.0, 0.0)
+  js_gfx_draw_vertex(2, 0.9, -0.3, 1.0, 1.0)
+  js_gfx_draw_index(0, 0)
+  js_gfx_draw_index(1, 1)
+  js_gfx_draw_index(2, 2)
+  js_gfx_draw_end()
+  assert_true(js_webgpu_present())
+  let configure_count = test_present_configure_count()
+  assert_eq(configure_count, 1)
+
+  js_webgpu_begin(0.0, 0.0, 0.0, 1.0)
+  js_gfx_draw_begin(3, 3, 0, 0, 255, 0, 255, 0, 0, 0)
+  js_gfx_draw_vertex(0, -0.6, 0.5, 0.0, 0.0)
+  js_gfx_draw_vertex(1, -0.1, -0.7, 1.0, 0.0)
+  js_gfx_draw_vertex(2, 0.7, -0.2, 1.0, 1.0)
+  js_gfx_draw_index(0, 0)
+  js_gfx_draw_index(1, 1)
+  js_gfx_draw_index(2, 2)
+  js_gfx_draw_end()
+  assert_true(js_webgpu_present())
+  assert_eq(test_present_configure_count(), configure_count)
+
   test_teardown_present_state()
 }
 

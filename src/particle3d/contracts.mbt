@@ -192,8 +192,21 @@ pub fn ParticleEmitter::build_billboard_vertices(
 ) -> (Array[Double], Array[Int]) {
   let vertex_data : Array[Double] = []
   let indices : Array[Int] = []
+  self.append_billboard_vertices(camera_right, camera_up, vertex_data, indices)
+  (vertex_data, indices)
+}
+
+///|
+fn ParticleEmitter::append_billboard_vertices(
+  self : ParticleEmitter,
+  camera_right : @math3d.Vec3,
+  camera_up : @math3d.Vec3,
+  vertex_data : Array[Double],
+  indices : Array[Int],
+) -> Unit {
   let cs = self.config.color_start
   let ce = self.config.color_end
+  let base_vertex = vertex_data.length() / 8
   for i = 0; i < self.particles.length(); i = i + 1 {
     let p = self.particles[i]
     let t = if p.max_age > 0.0 { p.age / p.max_age } else { 1.0 }
@@ -205,7 +218,7 @@ pub fn ParticleEmitter::build_billboard_vertices(
     let half = p.size * 0.5
     let right = camera_right.scale(half)
     let up = camera_up.scale(half)
-    let base_idx = i * 4
+    let base_idx = base_vertex + i * 4
     // Quad corners: bottom-left, bottom-right, top-right, top-left
     let corners = [
       p.position.sub(right).sub(up),
@@ -235,7 +248,6 @@ pub fn ParticleEmitter::build_billboard_vertices(
     indices.push(base_idx + 2)
     indices.push(base_idx + 3)
   }
-  (vertex_data, indices)
 }
 
 ///|

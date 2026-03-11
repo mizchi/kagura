@@ -180,6 +180,7 @@ fn queue_test_command(
     src_image_ids: [],
     uniform_dwords: [],
     instance_count: 1,
+    resource_cache_key: 0,
   }
 }
 
@@ -207,6 +208,7 @@ fn queue_test_command_with_source_ids(
     src_image_ids,
     uniform_dwords: [],
     instance_count: 1,
+    resource_cache_key: 0,
   }
 }
 
@@ -235,7 +237,18 @@ fn queue_test_command_with_sources_and_uniforms(
     src_image_ids,
     uniform_dwords,
     instance_count: 1,
+    resource_cache_key: 0,
   }
+}
+
+///|
+test "build_resource_cache_key is stable and input-sensitive" {
+  let a = build_resource_cache_key(123, [1, 2, 3, 4])
+  let b = build_resource_cache_key(123, [1, 2, 3, 4])
+  let c = build_resource_cache_key(123, [1, 2, 3, 5])
+  assert_true(a != 0)
+  assert_eq(a, b)
+  assert_true(a != c)
 }
 
 ///|
@@ -276,6 +289,7 @@ test "native graphics hooks can be overridden and reset" {
     src_image_ids: [],
     uniform_dwords: [],
     instance_count: 1,
+    resource_cache_key: 0,
   }
   let pass = new_render_pass_desc(new_color(0.0, 0.0, 0.0, 1.0), true)
 
@@ -321,6 +335,7 @@ test "native graphics hooks can be overridden and reset" {
     src_image_ids: [],
     uniform_dwords: [],
     instance_count: 1,
+    resource_cache_key: 0,
   })
   driver2.end(true)
   driver2.resize(320, 200)
@@ -373,6 +388,7 @@ test "web graphics hooks can be overridden and reset" {
     src_image_ids: [],
     uniform_dwords: [],
     instance_count: 1,
+    resource_cache_key: 0,
   }
   let pass = new_render_pass_desc(new_color(0.0, 0.0, 0.0, 1.0), true)
 
@@ -418,6 +434,7 @@ test "web graphics hooks can be overridden and reset" {
     src_image_ids: [],
     uniform_dwords: [],
     instance_count: 1,
+    resource_cache_key: 0,
   })
   driver2.end(true)
   driver2.resize(400, 225)
@@ -452,6 +469,7 @@ test "command queue flush calls driver draw" {
     src_image_ids: [],
     uniform_dwords: [],
     instance_count: 1,
+    resource_cache_key: 0,
   })
 
   flush_commands(driver, queue, true)
@@ -658,6 +676,7 @@ test "estimated_draw_call_count uses region index_count as triangle budget" {
     src_image_ids: [],
     uniform_dwords: [],
     instance_count: 1,
+    resource_cache_key: 0,
   }
 
   assert_eq(estimated_draw_call_count(command), 6)
@@ -678,6 +697,7 @@ test "estimated_draw_call_count is zero for empty regions" {
     src_image_ids: [],
     uniform_dwords: [],
     instance_count: 1,
+    resource_cache_key: 0,
   }
 
   assert_eq(estimated_draw_call_count(command), 0)
@@ -732,6 +752,7 @@ test "draw command dispatch captures backend boundary payload" {
     src_image_ids: [30, 31],
     uniform_dwords: [1, 2, 3],
     instance_count: 1,
+    resource_cache_key: 0,
   }
 
   let dispatch = build_draw_command_dispatch(command)
@@ -768,6 +789,7 @@ test "draw command dispatch falls back index count to region totals" {
     src_image_ids: [],
     uniform_dwords: [],
     instance_count: 1,
+    resource_cache_key: 0,
   }
 
   let dispatch = build_draw_command_dispatch(command)
@@ -954,7 +976,7 @@ test "command queue does not merge when custom blend differs" {
     dst_factor_alpha: BlendFactor::One,
     op_alpha: BlendOperation::Add,
   }
-  let base = {
+  let base : DrawTrianglesCommand = {
     dst: { id: 1, width: 10, height: 10 },
     shader: { id: 1, source: "s" },
     dst_regions: [{ x: 0, y: 0, width: 10, height: 10, index_count: 3 }],
@@ -967,6 +989,7 @@ test "command queue does not merge when custom blend differs" {
     src_image_ids: [],
     uniform_dwords: [],
     instance_count: 1,
+    resource_cache_key: 0,
   }
   queue.enqueue_draw_triangles(base)
   queue.enqueue_draw_triangles({ ..base, blend: BlendMode::Custom(eq2) })
@@ -1210,6 +1233,7 @@ fn queue_test_quad_command(
     src_image_ids,
     uniform_dwords: [],
     instance_count: 1,
+    resource_cache_key: 0,
   }
 }
 
@@ -1301,6 +1325,7 @@ test "command queue does not merge explicit geometry exceeding budget" {
     src_image_ids: [10],
     uniform_dwords: [],
     instance_count: 1,
+    resource_cache_key: 0,
   }
   queue.enqueue_draw_triangles(cmd1)
   // Second command would push over the limit

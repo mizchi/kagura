@@ -41,6 +41,32 @@ pub fn fullscreen_quad_indices() -> Array[Int] {
 }
 
 ///|
+fn fullscreen_quad_resource_cache_key(
+  dst : @gfx.ImageHandle,
+  shader : @gfx.ShaderHandle,
+  src_image_ids : Array[Int],
+  uniform_dwords : Array[Int],
+  blend : @gfx.BlendMode,
+) -> Int {
+  let values : Array[Int] = [
+    dst.id,
+    dst.width,
+    dst.height,
+    shader.id,
+    @gfx.blend_mode_to_int(blend),
+    src_image_ids.length(),
+    uniform_dwords.length(),
+  ]
+  for image_id in src_image_ids {
+    values.push(image_id)
+  }
+  for dword in uniform_dwords {
+    values.push(dword)
+  }
+  @gfx.build_resource_cache_key(0x504F5354, values)
+}
+
+///|
 /// Build a DrawTrianglesCommand for a fullscreen post-processing pass.
 pub fn new_fullscreen_quad_command(
   dst : @gfx.ImageHandle,
@@ -62,5 +88,8 @@ pub fn new_fullscreen_quad_command(
     fullscreen_quad_indices(),
     src_image_ids,
     uniform_dwords,
+    resource_cache_key=fullscreen_quad_resource_cache_key(
+      dst, shader, src_image_ids, uniform_dwords, blend,
+    ),
   )
 }

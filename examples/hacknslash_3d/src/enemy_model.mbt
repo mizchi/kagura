@@ -27,6 +27,21 @@ struct EnemyModels {
   skeleton : @skeleton3d.Skeleton
   idle_player : @animation3d.AnimationPlayer
   local_poses : Array[@transform3d.Transform3D]
+  mut cached_skinning_matrices : Array[@math3d.Mat4]
+  mut skinning_cache_dirty : Bool
+  mut skinning_cache_builds : Int
+  mut cached_skinned_basic : @mesh3d.Mesh3D
+  mut cached_skinned_fast : @mesh3d.Mesh3D
+  mut cached_skinned_tank : @mesh3d.Mesh3D
+  mut cached_skinned_ranged : @mesh3d.Mesh3D
+  mut cached_skinned_boss : @mesh3d.Mesh3D
+  cached_skinned_basic_data : Array[Double]
+  cached_skinned_fast_data : Array[Double]
+  cached_skinned_tank_data : Array[Double]
+  cached_skinned_ranged_data : Array[Double]
+  cached_skinned_boss_data : Array[Double]
+  mut skinned_mesh_cache_dirty : Bool
+  mut skinned_mesh_cache_builds : Int
   basic : EnemyMeshData
   fast : EnemyMeshData
   tank : EnemyMeshData
@@ -306,6 +321,15 @@ fn build_mesh_data(
   { bind_mesh: mesh, skin_data: skin, packed_vertex_data: packed }
 }
 
+///|
+fn clone_vertex_data(data : Array[Double]) -> Array[Double] {
+  let cloned : Array[Double] = Array::make(data.length(), 0.0)
+  for i in 0..<data.length() {
+    cloned[i] = data[i]
+  }
+  cloned
+}
+
 // Shared idle animation for enemies (body sway)
 
 ///|
@@ -357,6 +381,21 @@ fn EnemyModels::new() -> EnemyModels {
     skeleton,
     idle_player,
     local_poses,
+    cached_skinning_matrices: [],
+    skinning_cache_dirty: true,
+    skinning_cache_builds: 0,
+    cached_skinned_basic: basic_mesh,
+    cached_skinned_fast: fast_mesh,
+    cached_skinned_tank: tank_mesh,
+    cached_skinned_ranged: ranged_mesh,
+    cached_skinned_boss: boss_mesh,
+    cached_skinned_basic_data: clone_vertex_data(basic_mesh.vertex_data),
+    cached_skinned_fast_data: clone_vertex_data(fast_mesh.vertex_data),
+    cached_skinned_tank_data: clone_vertex_data(tank_mesh.vertex_data),
+    cached_skinned_ranged_data: clone_vertex_data(ranged_mesh.vertex_data),
+    cached_skinned_boss_data: clone_vertex_data(boss_mesh.vertex_data),
+    skinned_mesh_cache_dirty: true,
+    skinned_mesh_cache_builds: 0,
     basic: build_mesh_data(skeleton, basic_mesh, basic_skin),
     fast: build_mesh_data(skeleton, fast_mesh, fast_skin),
     tank: build_mesh_data(skeleton, tank_mesh, tank_skin),
@@ -368,6 +407,8 @@ fn EnemyModels::new() -> EnemyModels {
 ///|
 fn EnemyModels::update(self : EnemyModels, dt : Double) -> Unit {
   self.idle_player.update(dt)
+  self.skinning_cache_dirty = true
+  self.skinned_mesh_cache_dirty = true
 }
 
 ///|
@@ -386,6 +427,9 @@ fn EnemyModels::get_mesh_data(
 
 ///|
 fn EnemyModels::compute_skinning(self : EnemyModels) -> Array[@math3d.Mat4] {
+  if not(self.skinning_cache_dirty) {
+    return self.cached_skinning_matrices
+  }
   for i in 0..<enemy_bone_count {
     self.local_poses[i] = self.skeleton.bones[i].local_transform
   }
@@ -408,5 +452,85 @@ fn EnemyModels::compute_skinning(self : EnemyModels) -> Array[@math3d.Mat4] {
   let world_transforms = self.skeleton.compute_world_transforms(
     self.local_poses,
   )
-  self.skeleton.compute_skinning_matrices(world_transforms)
+  self.cached_skinning_matrices = self.skeleton.compute_skinning_matrices(
+    world_transforms,
+  )
+  self.skinning_cache_dirty = false
+  self.skinning_cache_builds = self.skinning_cache_builds + 1
+  self.cached_skinning_matrices
+}
+
+///|
+fn EnemyModels::rebuild_skinned_mesh_cache(self : EnemyModels) -> Unit {
+  if not(self.skinned_mesh_cache_dirty) {
+    return
+  }
+  let skinning = self.compute_skinning()
+  @skeleton3d.apply_skin_into(
+    self.basic.bind_mesh,
+    self.basic.skin_data,
+    skinning,
+    self.cached_skinned_basic_data,
+  )
+  self.cached_skinned_basic = @mesh3d.Mesh3D::new(
+    self.cached_skinned_basic_data,
+    self.basic.bind_mesh.indices,
+  )
+  @skeleton3d.apply_skin_into(
+    self.fast.bind_mesh,
+    self.fast.skin_data,
+    skinning,
+    self.cached_skinned_fast_data,
+  )
+  self.cached_skinned_fast = @mesh3d.Mesh3D::new(
+    self.cached_skinned_fast_data,
+    self.fast.bind_mesh.indices,
+  )
+  @skeleton3d.apply_skin_into(
+    self.tank.bind_mesh,
+    self.tank.skin_data,
+    skinning,
+    self.cached_skinned_tank_data,
+  )
+  self.cached_skinned_tank = @mesh3d.Mesh3D::new(
+    self.cached_skinned_tank_data,
+    self.tank.bind_mesh.indices,
+  )
+  @skeleton3d.apply_skin_into(
+    self.ranged.bind_mesh,
+    self.ranged.skin_data,
+    skinning,
+    self.cached_skinned_ranged_data,
+  )
+  self.cached_skinned_ranged = @mesh3d.Mesh3D::new(
+    self.cached_skinned_ranged_data,
+    self.ranged.bind_mesh.indices,
+  )
+  @skeleton3d.apply_skin_into(
+    self.boss.bind_mesh,
+    self.boss.skin_data,
+    skinning,
+    self.cached_skinned_boss_data,
+  )
+  self.cached_skinned_boss = @mesh3d.Mesh3D::new(
+    self.cached_skinned_boss_data,
+    self.boss.bind_mesh.indices,
+  )
+  self.skinned_mesh_cache_dirty = false
+  self.skinned_mesh_cache_builds = self.skinned_mesh_cache_builds + 1
+}
+
+///|
+fn EnemyModels::get_skinned_mesh(
+  self : EnemyModels,
+  kind : @game.EnemyKind,
+) -> @mesh3d.Mesh3D {
+  self.rebuild_skinned_mesh_cache()
+  match kind {
+    @game.Fast => self.cached_skinned_fast
+    @game.Tank => self.cached_skinned_tank
+    @game.Ranged => self.cached_skinned_ranged
+    @game.Boss => self.cached_skinned_boss
+    @game.Basic => self.cached_skinned_basic
+  }
 }

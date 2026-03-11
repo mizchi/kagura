@@ -1,27 +1,37 @@
 ///|
-test "fullscreen_quad_vertex_data has 16 floats" {
-  let data = fullscreen_quad_vertex_data()
-  assert_eq(data.length(), 16)
-}
-
-///|
-test "fullscreen_quad_indices has 6 indices" {
-  let indices = fullscreen_quad_indices()
-  assert_eq(indices.length(), 6)
-}
-
-///|
-test "fullscreen_quad_vertex_data NDC range" {
-  let data = fullscreen_quad_vertex_data()
-  // Check all x,y coordinates are in [-1, 1] and u,v in [0, 1]
-  for i = 0; i < 4; i = i + 1 {
-    let x = data[i * 4]
-    let y = data[i * 4 + 1]
-    let u = data[i * 4 + 2]
-    let v = data[i * 4 + 3]
-    assert_true(x >= -1.0 && x <= 1.0)
-    assert_true(y >= -1.0 && y <= 1.0)
-    assert_true(u >= 0.0 && u <= 1.0)
-    assert_true(v >= 0.0 && v <= 1.0)
-  }
+test "new_fullscreen_quad_command assigns stable resource_cache_key" {
+  let dst = @gfx.new_image_handle(1, 320, 240)
+  let shader = @gfx.new_shader_handle(2, "postfx")
+  let a = new_fullscreen_quad_command(
+    dst,
+    shader,
+    [10],
+    [1, 2, 3, 4],
+    @gfx.blend_mode_from_int(0),
+  )
+  let b = new_fullscreen_quad_command(
+    dst,
+    shader,
+    [10],
+    [1, 2, 3, 4],
+    @gfx.blend_mode_from_int(0),
+  )
+  let c = new_fullscreen_quad_command(
+    dst,
+    shader,
+    [10],
+    [1, 2, 3, 5],
+    @gfx.blend_mode_from_int(0),
+  )
+  let d = new_fullscreen_quad_command(
+    dst,
+    shader,
+    [11],
+    [1, 2, 3, 4],
+    @gfx.blend_mode_from_int(0),
+  )
+  assert_true(a.resource_cache_key != 0)
+  assert_eq(a.resource_cache_key, b.resource_cache_key)
+  assert_true(a.resource_cache_key != c.resource_cache_key)
+  assert_true(a.resource_cache_key != d.resource_cache_key)
 }

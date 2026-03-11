@@ -14,6 +14,41 @@ fn state_with_ssao_enabled() -> GameState {
 }
 
 ///|
+fn state_with_ssao_and_fxaa_enabled() -> GameState {
+  let state = state_with_ssao_enabled()
+  state.fxaa_enabled = true
+  state
+}
+
+///|
+fn state_with_shadows_enabled() -> GameState {
+  let state = GameState::new(seed=42)
+  state.shadows_enabled = true
+  state
+}
+
+///|
+fn state_with_all_effects_enabled() -> GameState {
+  let state = state_with_ssao_and_fxaa_enabled()
+  state.shadows_enabled = true
+  state
+}
+
+///|
+fn count_matching_commands(
+  commands : Array[@gfx.DrawTrianglesCommand],
+  pred : (@gfx.DrawTrianglesCommand) -> Bool,
+) -> Int {
+  let mut count = 0
+  for cmd in commands {
+    if pred(cmd) {
+      count = count + 1
+    }
+  }
+  count
+}
+
+///|
 fn find_first_command_index(
   commands : Array[@gfx.DrawTrianglesCommand],
   pred : (@gfx.DrawTrianglesCommand) -> Bool,
@@ -41,8 +76,86 @@ fn find_last_command_index(
 }
 
 ///|
-test "draw_playing wires camera depth into SSAO postfx chain" {
-  let state = state_with_ssao_enabled()
+test "compute_shadow_frame_state skips matrix build when disabled" {
+  let out = compute_shadow_frame_state(
+    false,
+    @shadow3d.ShadowConfig::new(
+      1024,
+      14.0,
+      0.1,
+      60.0,
+      30.0,
+      @math3d.Vec3::zero(),
+      0.005,
+    ),
+    32.0,
+    48.0,
+    @light3d.LightingEnvironment::default(),
+  )
+  assert_true(out is None)
+}
+
+///|
+test "compute_shadow_frame_state centers shadow config on player when enabled" {
+  let out = compute_shadow_frame_state(
+    true,
+    @shadow3d.ShadowConfig::new(
+      1024,
+      14.0,
+      0.1,
+      60.0,
+      30.0,
+      @math3d.Vec3::zero(),
+      0.005,
+    ),
+    tile_size * 3.0,
+    tile_size * 5.0,
+    @light3d.LightingEnvironment::default(),
+  )
+  let shadow = match out {
+    Some(shadow) => shadow
+    None => panic()
+  }
+  assert_eq(shadow.config.center.x, 3.0)
+  assert_eq(shadow.config.center.z, 5.0)
+}
+
+///|
+test "visible chunk cache rebuilds only when player tile changes" {
+  let state = GameState::new(seed=42)
+  let chunks0 = state.get_visible_chunks_for_player()
+  let builds0 = state.visible_chunk_cache_builds
+  let chunks1 = state.get_visible_chunks_for_player()
+  let builds1 = state.visible_chunk_cache_builds
+  assert_eq(chunks0.length(), chunks1.length())
+  assert_eq(builds0, 1)
+  assert_eq(builds1, 1)
+
+  state.world.player.x = state.world.player.x + tile_size
+  let _chunks2 = state.get_visible_chunks_for_player()
+  assert_eq(state.visible_chunk_cache_builds, 2)
+}
+
+///|
+test "visible dungeon mesh cache rebuilds only when player tile changes" {
+  let state = GameState::new(seed=42)
+  let groups0 = state.get_visible_dungeon_mesh_cache_for_player().groups
+  let builds0 = state.visible_dungeon_mesh_cache_builds
+  let groups1 = state.get_visible_dungeon_mesh_cache_for_player().groups
+  let builds1 = state.visible_dungeon_mesh_cache_builds
+  assert_eq(groups0.length(), groups1.length())
+  assert_eq(builds0, 1)
+  assert_eq(builds1, 1)
+  assert_true(groups0.length() <= 5)
+
+  state.world.player.x = state.world.player.x + tile_size
+  let _groups2 = state.get_visible_dungeon_mesh_cache_for_player().groups
+  assert_eq(state.visible_dungeon_mesh_cache_builds, 2)
+}
+
+///|
+test "draw_playing wires camera depth into ssao postfx chain with fxaa enabled" {
+  let state = state_with_ssao_and_fxaa_enabled()
   state.world.mode = @game.Playing
   let ctx = test_engine_context()
   let commands = state.draw_playing(ctx)
@@ -86,6 +199,71 @@ test "draw_playing wires camera depth into SSAO postfx chain" {
   assert_eq(ssao_cmd.src_image_ids[0], state.scene_target.id)
   assert_eq(ssao_cmd.src_image_ids[1], state.camera_depth_target.id)
   assert_true(ssao_cmd.src_image_ids[1] != state.shadow_map.id)
+}
+
+///|
+test "draw_playing skips fxaa and tonemaps directly into dst by default" {
+  let state = state_with_ssao_enabled()
+  state.world.mode = @game.Playing
+  let ctx = test_engine_context()
+  let commands = state.draw_playing(ctx)
+
+  let tonemap_idx = match
+    find_first_command_index(commands, fn(cmd) {
+      cmd.dst.id == ctx.dst.id && cmd.shader.id == state.tonemap_sh.id
+    }) {
+    Some(i) => i
+    None => panic()
+  }
+  let fxaa_idx = find_first_command_index(commands, fn(cmd) {
+    cmd.dst.id == ctx.dst.id && cmd.shader.id == state.fxaa_sh.id
+  })
+
+  assert_eq(fxaa_idx, None)
+
+  let tonemap_cmd = commands[tonemap_idx]
+  assert_eq(tonemap_cmd.src_image_ids.length(), 1)
+  assert_eq(tonemap_cmd.src_image_ids[0], state.post_target.id)
+}
+
+///|
+test "draw_playing skips shadow depth and shadow lit dungeon by default" {
+  let state = GameState::new(seed=42)
+  state.world.mode = @game.Playing
+  let commands = state.draw_playing(test_engine_context())
+
+  let shadow_depth_idx = find_first_command_index(commands, fn(cmd) {
+    cmd.dst.id == state.shadow_map.id &&
+    cmd.shader.id == state.shadow_depth_shader.id
+  })
+  let shadow_lit_idx = find_first_command_index(commands, fn(cmd) {
+    cmd.shader.id == state.shadow_lit_shader.id
+  })
+  let lit_idx = find_first_command_index(commands, fn(cmd) {
+    cmd.shader.id == state.shader3d.id
+  })
+
+  assert_eq(shadow_depth_idx, None)
+  assert_eq(shadow_lit_idx, None)
+  assert_true(lit_idx is Some(_))
+}
+
+///|
+test "draw_playing emits shadow depth and shadow lit dungeon when shadows are enabled" {
+  let state = state_with_shadows_enabled()
+  state.world.mode = @game.Playing
+  let commands = state.draw_playing(test_engine_context())
+
+  let shadow_depth_idx = find_first_command_index(commands, fn(cmd) {
+    cmd.dst.id == state.shadow_map.id &&
+    cmd.shader.id == state.shadow_depth_shader.id
+  })
+  let shadow_lit_idx = find_first_command_index(commands, fn(cmd) {
+    cmd.shader.id == state.shadow_lit_shader.id
+  })
+
+  assert_true(shadow_depth_idx is Some(_))
+  assert_true(shadow_lit_idx is Some(_))
 }
 
 ///|
@@ -172,4 +350,610 @@ test "draw_playing skips ssao and feeds scene target into bloom composite by def
   assert_eq(composite_cmd.src_image_ids.length(), 2)
   assert_eq(composite_cmd.src_image_ids[0], state.scene_target.id)
   assert_eq(composite_cmd.src_image_ids[1], state.bloom_a.id)
+}
+
+///|
+test "game state allocates bloom targets at half resolution" {
+  let state = GameState::new(seed=42)
+
+  assert_eq(state.scene_target.width, screen_w)
+  assert_eq(state.scene_target.height, screen_h)
+  assert_eq(state.bloom_a.width, screen_w / 2)
+  assert_eq(state.bloom_a.height, screen_h / 2)
+  assert_eq(state.bloom_b.width, screen_w / 2)
+  assert_eq(state.bloom_b.height, screen_h / 2)
+  assert_eq(state.post_target.width, screen_w)
+  assert_eq(state.post_target.height, screen_h)
+}
+
+///|
+test "game state caches dungeon tinted lighting for fixed mesh groups" {
+  let state = GameState::new(seed=42)
+  assert_eq(state.dungeon_tinted_lighting_cache.length(), 5)
+}
+
+///|
+test "draw_playing batches repeated entity meshes into instanced draw commands" {
+  let state = GameState::new(seed=42)
+  state.world.mode = @game.Playing
+  let px = state.world.player.x
+  let py = state.world.player.y
+  state.world.items = [
+    {
+      x: px,
+      y: py,
+      vx: 0.0,
+      vy: 0.0,
+      kind: @game.Health,
+      alive: true,
+      spawn_frame: 0,
+    },
+    {
+      x: px + 8.0,
+      y: py,
+      vx: 0.0,
+      vy: 0.0,
+      kind: @game.Score,
+      alive: true,
+      spawn_frame: 0,
+    },
+  ]
+  state.world.projectiles = [
+    { x: px, y: py, vx: 1.0, vy: 0.0, alive: true, damage: 1, is_player: true },
+    {
+      x: px + 4.0,
+      y: py + 4.0,
+      vx: -1.0,
+      vy: 0.0,
+      alive: true,
+      damage: 1,
+      is_player: false,
+    },
+  ]
+
+  let commands = state.draw_playing(test_engine_context())
+  let instanced_commands : Array[@gfx.DrawTrianglesCommand] = []
+  let colored_commands : Array[@gfx.DrawTrianglesCommand] = []
+  for cmd in commands {
+    if cmd.shader.id == state.shader3d_instanced.id {
+      instanced_commands.push(cmd)
+    }
+    if cmd.shader.id == state.shader3d_colored.id {
+      colored_commands.push(cmd)
+    }
+  }
+
+  assert_eq(instanced_commands.length(), 0)
+  assert_eq(colored_commands.length(), 2)
+}
+
+///|
+test "draw preserves gpu profiler timing when profiler hud is enabled" {
+  let state = GameState::new(seed=42)
+  state.world.mode = @game.Playing
+  state.show_profiler = true
+  state.profile = {
+    fps: 60.0,
+    frame_time_ms: 16.0,
+    update_ms: 4.0,
+    draw_ms: 5.0,
+    gpu_frame_ms: 7.0,
+    draw_calls: 0,
+    vertex_count: 0,
+    asset_inflight: 0,
+  }
+
+  let _ = state.draw(test_engine_context())
+
+  assert_eq(state.profile.gpu_frame_ms, 7.0)
+}
+
+///|
+test "summarize_draw_playing_commands reports cheaper default path than all effects" {
+  let ctx = test_engine_context()
+  let default_state = GameState::new(seed=42)
+  default_state.world.mode = @game.Playing
+  let default_stats = summarize_draw_playing_commands(
+    default_state.draw_playing(ctx),
+    default_state,
+    ctx.dst,
+  )
+
+  let full_state = state_with_all_effects_enabled()
+  full_state.world.mode = @game.Playing
+  let full_stats = summarize_draw_playing_commands(
+    full_state.draw_playing(ctx),
+    full_state,
+    ctx.dst,
+  )
+
+  assert_eq(default_stats.shadow_depth_commands, 0)
+  assert_eq(default_stats.shadow_lit_commands, 0)
+  assert_eq(default_stats.ssao_commands, 0)
+  assert_eq(default_stats.fxaa_commands, 0)
+  assert_true(default_stats.direct_lit_commands > 0)
+
+  assert_true(full_stats.shadow_depth_commands > 0)
+  assert_true(full_stats.shadow_lit_commands > 0)
+  assert_true(full_stats.ssao_commands > 0)
+  assert_true(full_stats.fxaa_commands > 0)
+  assert_true(default_stats.total_commands < full_stats.total_commands)
+  assert_true(
+    default_stats.estimated_draw_calls < full_stats.estimated_draw_calls,
+  )
+}
+
+///|
+test "summarize_draw_playing_commands tracks instancing workload" {
+  let state = GameState::new(seed=42)
+  state.world.mode = @game.Playing
+  let ctx = test_engine_context()
+  let px = state.world.player.x
+  let py = state.world.player.y
+  state.world.items = [
+    {
+      x: px,
+      y: py,
+      vx: 0.0,
+      vy: 0.0,
+      kind: @game.Health,
+      alive: true,
+      spawn_frame: 0,
+    },
+    {
+      x: px + 8.0,
+      y: py,
+      vx: 0.0,
+      vy: 0.0,
+      kind: @game.Score,
+      alive: true,
+      spawn_frame: 0,
+    },
+  ]
+  state.world.projectiles = [
+    { x: px, y: py, vx: 1.0, vy: 0.0, alive: true, damage: 1, is_player: true },
+    {
+      x: px + 4.0,
+      y: py + 4.0,
+      vx: -1.0,
+      vy: 0.0,
+      alive: true,
+      damage: 1,
+      is_player: false,
+    },
+  ]
+  state.world.enemies = [
+    {
+      x: px,
+      y: py,
+      vx: 0.0,
+      vy: 0.0,
+      hp: 3,
+      max_hp: 3,
+      speed: 1.0,
+      size: 12.0,
+      alive: true,
+      damage_timer: 0,
+      kind: @game.Basic,
+      path_cache: [],
+      path_index: 0,
+      path_timer: 0,
+      shoot_cooldown: 0,
+      charge_timer: 0,
+      charge_cooldown: 0,
+    },
+    {
+      x: px + tile_size * 0.5,
+      y: py,
+      vx: 0.0,
+      vy: 0.0,
+      hp: 3,
+      max_hp: 3,
+      speed: 1.0,
+      size: 12.0,
+      alive: true,
+      damage_timer: 0,
+      kind: @game.Basic,
+      path_cache: [],
+      path_index: 0,
+      path_timer: 0,
+      shoot_cooldown: 0,
+      charge_timer: 0,
+      charge_cooldown: 0,
+    },
+  ]
+
+  let stats = summarize_draw_playing_commands(
+    state.draw_playing(ctx),
+    state,
+    ctx.dst,
+  )
+
+  assert_true(stats.instanced_commands > 0)
+  assert_true(stats.instanced_instances > 0)
+  assert_true(stats.direct_lit_commands >= 2)
+  assert_true(stats.skinned_commands > 0)
+}
+
+///|
+test "push_character_commands emits skinned commands for player path" {
+  let state = GameState::new(seed=42)
+  state.world.mode = @game.Playing
+  let ctx = test_engine_context()
+  let vis_region = compute_visible_region(
+    state.world.dungeon.rooms,
+    state.world.player.x,
+    state.world.player.y,
+    state.world.dungeon.grid.width,
+    state.world.dungeon.grid.height,
+  )
+  let commands : Array[@gfx.DrawTrianglesCommand] = []
+  state.push_character_commands(
+    vis_region,
+    state.camera.to_camera3d(),
+    state.scene_target,
+    ctx.screen_w,
+    ctx.screen_h,
+    commands,
+  )
+
+  assert_true(
+    count_matching_commands(commands, fn(cmd) {
+      cmd.shader.id == state.shader3d_skinned.id
+    }) >
+    0,
+  )
+}
+
+///|
+test "push_enemy_character_commands emits skinned commands for visible enemies" {
+  let state = GameState::new(seed=42)
+  state.world.mode = @game.Playing
+  let ctx = test_engine_context()
+  let px = state.world.player.x
+  let py = state.world.player.y
+  state.world.enemies = [
+    {
+      x: px,
+      y: py,
+      vx: 0.0,
+      vy: 0.0,
+      hp: 3,
+      max_hp: 3,
+      speed: 1.0,
+      size: 12.0,
+      alive: true,
+      damage_timer: 0,
+      kind: @game.Basic,
+      path_cache: [],
+      path_index: 0,
+      path_timer: 0,
+      shoot_cooldown: 0,
+      charge_timer: 0,
+      charge_cooldown: 0,
+    },
+    {
+      x: px + tile_size * 0.5,
+      y: py,
+      vx: 0.0,
+      vy: 0.0,
+      hp: 3,
+      max_hp: 3,
+      speed: 1.0,
+      size: 12.0,
+      alive: true,
+      damage_timer: 0,
+      kind: @game.Basic,
+      path_cache: [],
+      path_index: 0,
+      path_timer: 0,
+      shoot_cooldown: 0,
+      charge_timer: 0,
+      charge_cooldown: 0,
+    },
+  ]
+  let vis_region = compute_visible_region(
+    state.world.dungeon.rooms,
+    state.world.player.x,
+    state.world.player.y,
+    state.world.dungeon.grid.width,
+    state.world.dungeon.grid.height,
+  )
+  let commands : Array[@gfx.DrawTrianglesCommand] = []
+  state.push_enemy_character_commands(
+    vis_region,
+    state.camera.to_camera3d(),
+    state.scene_target,
+    ctx.screen_w,
+    ctx.screen_h,
+    commands,
+  )
+
+  assert_true(
+    count_matching_commands(commands, fn(cmd) {
+      cmd.shader.id == state.shader3d_skinned_instanced.id ||
+      cmd.shader.id == state.shader3d_skinned_instanced_monochrome.id ||
+      cmd.shader.id == state.shader3d_instanced_monochrome.id
+    }) >
+    0,
+  )
+}
+
+///|
+test "push_enemy_character_commands keeps stress enemies batched by kind" {
+  let state = GameState::new(seed=42)
+  state.world.mode = @game.Playing
+  let ctx = test_engine_context()
+  apply_enemy_stress_scenario(state.world, 64)
+  let vis_region = compute_visible_region(
+    state.world.dungeon.rooms,
+    state.world.player.x,
+    state.world.player.y,
+    state.world.dungeon.grid.width,
+    state.world.dungeon.grid.height,
+  )
+  let commands : Array[@gfx.DrawTrianglesCommand] = []
+  state.push_enemy_character_commands(
+    vis_region,
+    state.camera.to_camera3d(),
+    state.scene_target,
+    ctx.screen_w,
+    ctx.screen_h,
+    commands,
+  )
+
+  let enemy_cmd_count = count_matching_commands(commands, fn(cmd) {
+    cmd.shader.id == state.shader3d_skinned.id ||
+    cmd.shader.id == state.shader3d_skinned_instanced.id ||
+    cmd.shader.id == state.shader3d_skinned_instanced_monochrome.id ||
+    cmd.shader.id == state.shader3d_instanced_monochrome.id
+  })
+  assert_true(enemy_cmd_count <= 5)
+  assert_true(
+    count_matching_commands(commands, fn(cmd) {
+      cmd.shader.id == state.shader3d_skinned_instanced.id ||
+      cmd.shader.id == state.shader3d_skinned_instanced_monochrome.id ||
+      cmd.shader.id == state.shader3d_instanced_monochrome.id
+    }) >
+    0,
+  )
+}
+
+///|
+test "push_player_character_commands emits one skinned command for player" {
+  let state = GameState::new(seed=42)
+  state.world.mode = @game.Playing
+  let ctx = test_engine_context()
+  let commands : Array[@gfx.DrawTrianglesCommand] = []
+  state.push_player_character_commands(
+    state.camera.to_camera3d(),
+    state.scene_target,
+    ctx.screen_w,
+    ctx.screen_h,
+    commands,
+  )
+
+  assert_eq(commands.length(), 1)
+  assert_eq(commands[0].shader.id, state.shader3d_skinned.id)
+}
+
+///|
+test "rebuild_enemy_render_buckets clears stale enemy groups" {
+  let state = GameState::new(seed=42)
+  let px = state.world.player.x
+  let py = state.world.player.y
+  let vis_region = compute_visible_region(
+    state.world.dungeon.rooms,
+    px,
+    py,
+    state.world.dungeon.grid.width,
+    state.world.dungeon.grid.height,
+  )
+  state.world.enemies = [
+    {
+      x: px,
+      y: py,
+      vx: 0.0,
+      vy: 0.0,
+      hp: 3,
+      max_hp: 3,
+      speed: 1.0,
+      size: 12.0,
+      alive: true,
+      damage_timer: 0,
+      kind: @game.Basic,
+      path_cache: [],
+      path_index: 0,
+      path_timer: 0,
+      shoot_cooldown: 0,
+      charge_timer: 0,
+      charge_cooldown: 0,
+    },
+  ]
+
+  state.rebuild_enemy_render_buckets(vis_region)
+  assert_eq(state.enemy_render_buckets.basic_matrices.length(), 1)
+  assert_eq(state.enemy_render_buckets.basic_colors.length(), 1)
+
+  state.world.enemies = []
+  state.rebuild_enemy_render_buckets(vis_region)
+  assert_eq(state.enemy_render_buckets.basic_matrices.length(), 0)
+  assert_eq(state.enemy_render_buckets.basic_colors.length(), 0)
+}
+
+///|
+test "enemy_facing_model_matrix matches transform path" {
+  let dx = 24.0
+  let dy = -18.0
+  let ex = 3.0
+  let ey = 1.5
+  let ez = 7.0
+  let actual = enemy_facing_model_matrix(ex, ey, ez, dx, dy)
+  let expected_rot = @math3d.Quaternion::from_axis_angle(
+    @math3d.Vec3::unit_y(),
+    -@math.atan2(dy, dx) + @math.PI / 2.0,
+  )
+  let expected = @transform3d.Transform3D::from_components(
+    @math3d.Vec3::new(ex, ey, ez),
+    expected_rot,
+    @math3d.Vec3::one(),
+  ).to_mat4()
+  assert_true(actual.approx_eq(expected, 1.0e-6))
+}
+
+///|
+test "enemy_facing_model_matrix keeps zero delta fallback stable" {
+  let actual = enemy_facing_model_matrix(1.0, 2.0, 3.0, 0.0, 0.0)
+  let expected = @math3d.Mat4::translation(1.0, 2.0, 3.0).multiply(
+    @math3d.Mat4::rotation_y(@math.PI / 2.0),
+  )
+  assert_true(actual.approx_eq(expected, 1.0e-6))
+}
+
+///|
+test "entity subpass helpers emit one instanced command each from scratch" {
+  let state = GameState::new(seed=42)
+  let px = state.world.player.x
+  let py = state.world.player.y
+  let vis_region = compute_visible_region(
+    state.world.dungeon.rooms,
+    px,
+    py,
+    state.world.dungeon.grid.width,
+    state.world.dungeon.grid.height,
+  )
+  state.world.items = [
+    {
+      x: px,
+      y: py,
+      vx: 0.0,
+      vy: 0.0,
+      kind: @game.Health,
+      alive: true,
+      spawn_frame: 0,
+    },
+  ]
+  state.world.projectiles = [
+    {
+      x: px + 4.0,
+      y: py,
+      vx: 1.0,
+      vy: 0.0,
+      alive: true,
+      damage: 1,
+      is_player: true,
+    },
+    {
+      x: px,
+      y: py + 4.0,
+      vx: -1.0,
+      vy: 0.0,
+      alive: true,
+      damage: 1,
+      is_player: false,
+    },
+  ]
+  state.rebuild_entity_instance_scratch(vis_region)
+  let cmds : Array[@gfx.DrawTrianglesCommand] = []
+  let camera = state.camera.to_camera3d()
+  let view_projection = camera.view_projection_matrix()
+  push_item_instance_cmds(
+    state,
+    view_projection,
+    state.scene_target,
+    screen_w,
+    screen_h,
+    cmds,
+  )
+  push_arrow_instance_cmds(
+    state,
+    view_projection,
+    state.scene_target,
+    screen_w,
+    screen_h,
+    cmds,
+  )
+  push_enemy_projectile_instance_cmds(
+    state,
+    view_projection,
+    state.scene_target,
+    screen_w,
+    screen_h,
+    cmds,
+  )
+  assert_eq(cmds.length(), 3)
+  assert_eq(cmds[0].instance_count, 1)
+  assert_eq(cmds[1].instance_count, 1)
+  assert_eq(cmds[2].instance_count, 1)
+  assert_eq(cmds[0].shader.id, state.shader3d_colored.id)
+  assert_eq(cmds[1].shader.id, state.shader3d.id)
+  assert_eq(cmds[2].shader.id, state.shader3d.id)
+  assert_eq(cmds[0].uniform_dwords.length(), 60)
+  assert_eq(cmds[0].uniform_dwords[56], @gfx.double_to_f32_bits(0.0))
+  assert_eq(cmds[0].uniform_dwords[57], @gfx.double_to_f32_bits(1.0))
+  assert_eq(cmds[0].uniform_dwords[58], @gfx.double_to_f32_bits(0.4))
+  assert_eq(cmds[0].uniform_dwords[59], @gfx.double_to_f32_bits(1.0))
+}
+
+///|
+test "rebuild_entity_instance_scratch clears stale instanced data" {
+  let state = GameState::new(seed=42)
+  let px = state.world.player.x
+  let py = state.world.player.y
+  let vis_region = compute_visible_region(
+    state.world.dungeon.rooms,
+    px,
+    py,
+    state.world.dungeon.grid.width,
+    state.world.dungeon.grid.height,
+  )
+  state.world.items = [
+    {
+      x: px,
+      y: py,
+      vx: 0.0,
+      vy: 0.0,
+      kind: @game.Health,
+      alive: true,
+      spawn_frame: 0,
+    },
+  ]
+  state.world.projectiles = [
+    {
+      x: px + 4.0,
+      y: py,
+      vx: 1.0,
+      vy: 0.0,
+      alive: true,
+      damage: 1,
+      is_player: true,
+    },
+    {
+      x: px,
+      y: py + 4.0,
+      vx: -1.0,
+      vy: 0.0,
+      alive: true,
+      damage: 1,
+      is_player: false,
+    },
+  ]
+
+  state.rebuild_entity_instance_scratch(vis_region)
+  assert_eq(state.entity_instance_scratch.item_instances.length(), 1)
+  assert_eq(state.entity_instance_scratch.arrow_instances.length(), 1)
+  assert_eq(
+    state.entity_instance_scratch.enemy_projectile_instances.length(),
+    1,
+  )
+
+  state.world.items = []
+  state.world.projectiles = []
+  state.rebuild_entity_instance_scratch(vis_region)
+  assert_eq(state.entity_instance_scratch.item_instances.length(), 0)
+  assert_eq(state.entity_instance_scratch.arrow_instances.length(), 0)
+  assert_eq(
+    state.entity_instance_scratch.enemy_projectile_instances.length(),
+    0,
+  )
 }

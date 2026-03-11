@@ -175,6 +175,65 @@ test "new_shadow_depth_command creates valid command" {
   assert_eq(cmd.src_image_ids.length(), 0)
 }
 
+///|
+test "new_shadow_depth_command assigns stable resource_cache_key" {
+  let mesh = @mesh3d.Mesh3D::cube(1.0)
+  let shadow_map = @gfx.new_image_handle(1, 1024, 1024)
+  let shader = @gfx.new_shader_handle(1, "depth")
+  let a = new_shadow_depth_command(
+    shadow_map,
+    shader,
+    mesh,
+    @math3d.Mat4::identity(),
+    @math3d.Mat4::identity(),
+  )
+  let b = new_shadow_depth_command(
+    shadow_map,
+    shader,
+    mesh,
+    @math3d.Mat4::identity(),
+    @math3d.Mat4::identity(),
+  )
+  let c = new_shadow_depth_command(
+    shadow_map,
+    shader,
+    mesh,
+    @math3d.Mat4::translation(1.0, 0.0, 0.0),
+    @math3d.Mat4::identity(),
+  )
+  assert_true(a.resource_cache_key != 0)
+  assert_eq(a.resource_cache_key, b.resource_cache_key)
+  assert_true(a.resource_cache_key != c.resource_cache_key)
+}
+
+///|
+test "new_camera_depth_command assigns stable resource_cache_key" {
+  let mesh = @mesh3d.Mesh3D::cube(1.0)
+  let depth_target = @gfx.new_image_handle(2, 512, 512)
+  let shader = @gfx.new_shader_handle(2, "camera_depth")
+  let a = new_camera_depth_command(
+    depth_target,
+    shader,
+    mesh,
+    @math3d.Mat4::identity(),
+  )
+  let b = new_camera_depth_command(
+    depth_target,
+    shader,
+    mesh,
+    @math3d.Mat4::identity(),
+  )
+  let c = new_camera_depth_command(
+    depth_target,
+    shader,
+    mesh,
+    @math3d.Mat4::translation(0.0, 0.0, -2.0),
+  )
+  assert_true(a.resource_cache_key != 0)
+  assert_eq(a.resource_cache_key, b.resource_cache_key)
+  assert_true(a.resource_cache_key != c.resource_cache_key)
+}
+
 // ============================================================
 // Shadow Depth Pass Commands
 // ============================================================

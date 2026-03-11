@@ -140,6 +140,75 @@ test "new_atlas_quad_draw_command preserves pipeline and blend" {
 }
 
 ///|
+test "new_atlas_quad_draw_command assigns resource_cache_key from geometry and uniforms" {
+  let source = test_atlas_draw_source(910)
+  let a = new_atlas_quad_draw_command(
+    @gfx.new_image_handle(1, 64, 64),
+    @gfx.new_shader_handle(2, "atlas"),
+    @gfx.new_dst_region(0, 0, 64, 64, 6),
+    0,
+    0,
+    0,
+    @gfx.blend_mode_from_int(1),
+    source,
+    0.0,
+    0.0,
+    1.0,
+    1.0,
+    [1, 2, 3, 4],
+  )
+  let b = new_atlas_quad_draw_command(
+    @gfx.new_image_handle(1, 64, 64),
+    @gfx.new_shader_handle(2, "atlas"),
+    @gfx.new_dst_region(0, 0, 64, 64, 6),
+    0,
+    0,
+    0,
+    @gfx.blend_mode_from_int(1),
+    source,
+    0.0,
+    0.0,
+    1.0,
+    1.0,
+    [1, 2, 3, 4],
+  )
+  let moved = new_atlas_quad_draw_command(
+    @gfx.new_image_handle(1, 64, 64),
+    @gfx.new_shader_handle(2, "atlas"),
+    @gfx.new_dst_region(0, 0, 64, 64, 6),
+    0,
+    0,
+    0,
+    @gfx.blend_mode_from_int(1),
+    source,
+    0.5,
+    0.0,
+    1.5,
+    1.0,
+    [1, 2, 3, 4],
+  )
+  let recolored = new_atlas_quad_draw_command(
+    @gfx.new_image_handle(1, 64, 64),
+    @gfx.new_shader_handle(2, "atlas"),
+    @gfx.new_dst_region(0, 0, 64, 64, 6),
+    0,
+    0,
+    0,
+    @gfx.blend_mode_from_int(1),
+    source,
+    0.0,
+    0.0,
+    1.0,
+    1.0,
+    [1, 2, 3, 5],
+  )
+  assert_true(a.resource_cache_key != 0)
+  assert_eq(a.resource_cache_key, b.resource_cache_key)
+  assert_true(a.resource_cache_key != moved.resource_cache_key)
+  assert_true(a.resource_cache_key != recolored.resource_cache_key)
+}
+
+///|
 test "atlas_quad_vertex_data large coordinates" {
   let source = test_atlas_draw_source(300)
   let vertex = atlas_quad_vertex_data(source, -1000.0, -2000.0, 3000.0, 4000.0)

@@ -148,7 +148,10 @@ fn resolve_attr(attr : @ui.Attr[Unit, SceneAttrValue]) -> SceneAttrValue {
 }
 
 ///|
-fn attr_double(attr : @ui.Attr[Unit, SceneAttrValue], default_ : Double) -> Double {
+fn attr_double(
+  attr : @ui.Attr[Unit, SceneAttrValue],
+  default_ : Double,
+) -> Double {
   match resolve_attr(attr) {
     SceneDouble(v) => v
     SceneInt(v) => v.to_double()
@@ -166,7 +169,10 @@ fn attr_int(attr : @ui.Attr[Unit, SceneAttrValue], default_ : Int) -> Int {
 }
 
 ///|
-fn attr_string(attr : @ui.Attr[Unit, SceneAttrValue], default_ : String) -> String {
+fn attr_string(
+  attr : @ui.Attr[Unit, SceneAttrValue],
+  default_ : String,
+) -> String {
   match resolve_attr(attr) {
     SceneText(v) => v
     _ => default_
@@ -309,26 +315,14 @@ fn render_line(
   offset_y : Double,
 ) -> Unit {
   let attrs = el.attrs
-  let x0 = (if attrs.length() > 0 {
-    attr_double(attrs[0].1, 0.0)
-  } else {
-    0.0
-  }) + offset_x
-  let y0 = (if attrs.length() > 1 {
-    attr_double(attrs[1].1, 0.0)
-  } else {
-    0.0
-  }) + offset_y
-  let x1 = (if attrs.length() > 2 {
-    attr_double(attrs[2].1, 0.0)
-  } else {
-    0.0
-  }) + offset_x
-  let y1 = (if attrs.length() > 3 {
-    attr_double(attrs[3].1, 0.0)
-  } else {
-    0.0
-  }) + offset_y
+  let x0 = (if attrs.length() > 0 { attr_double(attrs[0].1, 0.0) } else { 0.0 }) +
+    offset_x
+  let y0 = (if attrs.length() > 1 { attr_double(attrs[1].1, 0.0) } else { 0.0 }) +
+    offset_y
+  let x1 = (if attrs.length() > 2 { attr_double(attrs[2].1, 0.0) } else { 0.0 }) +
+    offset_x
+  let y1 = (if attrs.length() > 3 { attr_double(attrs[3].1, 0.0) } else { 0.0 }) +
+    offset_y
   let width = if attrs.length() > 4 {
     attr_double(attrs[4].1, 1.0)
   } else {

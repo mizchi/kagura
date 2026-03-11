@@ -55,3 +55,24 @@ test "bloom_commands returns 4 commands" {
     assert_eq(cmds[i].uniform_dwords.length(), 4)
   }
 }
+
+///|
+test "bloom_commands uses bloom target size for blur texel uniforms" {
+  let dst = @gfx.new_image_handle(1, 800, 600)
+  let bloom_a = @gfx.new_image_handle(2, 200, 150)
+  let bloom_b = @gfx.new_image_handle(3, 200, 150)
+  let threshold_shader = @gfx.new_shader_handle(1, "threshold")
+  let hblur_shader = @gfx.new_shader_handle(2, "hblur")
+  let vblur_shader = @gfx.new_shader_handle(3, "vblur")
+  let composite_shader = @gfx.new_shader_handle(4, "composite")
+  let cmds = bloom_commands(
+    dst, 10, bloom_a, bloom_b, threshold_shader, hblur_shader, vblur_shader, composite_shader,
+    0.8, 1.0, 800, 600,
+  )
+  let expected_texel_w = @gfx.double_to_f32_bits(1.0 / 200.0)
+  let expected_texel_h = @gfx.double_to_f32_bits(1.0 / 150.0)
+  assert_eq(cmds[1].uniform_dwords[0], expected_texel_w)
+  assert_eq(cmds[1].uniform_dwords[1], expected_texel_h)
+  assert_eq(cmds[2].uniform_dwords[0], expected_texel_w)
+  assert_eq(cmds[2].uniform_dwords[1], expected_texel_h)
+}

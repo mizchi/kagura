@@ -57,6 +57,8 @@ pub fn ParticleEmitter::update_physics_only(Self, Double) -> Unit
 pub(all) struct ParticleManager {
   mut emitters : Array[BurstEmitter]
   particle_shader : @gfx.ShaderHandle
+  mut vertex_scratch : Array[Double]
+  mut index_scratch : Array[Int]
 }
 pub fn ParticleManager::draw(Self, @gfx.ImageHandle, @camera3d.Camera3D, Int, Int, Int) -> Array[@gfx.DrawTrianglesCommand]
 pub fn ParticleManager::new(Int) -> Self

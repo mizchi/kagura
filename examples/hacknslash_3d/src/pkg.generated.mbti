@@ -9,6 +9,9 @@ package "mizchi/hacknslash_3d"
 type CharAnimState
 pub impl Eq for CharAnimState
 
+type DrawPlayingStats
+pub impl Show for DrawPlayingStats
+
 type DungeonChunk
 
 type DungeonMeshGroup
@@ -16,6 +19,10 @@ type DungeonMeshGroup
 type EnemyMeshData
 
 type EnemyModels
+
+type EnemyRenderBuckets
+
+type EntityInstanceScratch
 
 type GameState
 
@@ -26,6 +33,8 @@ type Meshes3D
 type PlayerCharacter
 
 type SSAOConfig
+
+type ShadowFrameState
 
 type VisibleRegion
 

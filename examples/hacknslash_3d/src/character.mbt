@@ -65,6 +65,9 @@ struct PlayerCharacter {
   run_player : @animation3d.AnimationPlayer
   hurt_player : @animation3d.AnimationPlayer
   local_poses : Array[@transform3d.Transform3D]
+  mut cached_skinning_matrices : Array[@math3d.Mat4]
+  mut skinning_cache_dirty : Bool
+  mut skinning_cache_builds : Int
 }
 
 // Build skeleton
@@ -614,6 +617,9 @@ fn PlayerCharacter::new() -> PlayerCharacter {
     run_player,
     hurt_player,
     local_poses,
+    cached_skinning_matrices: [],
+    skinning_cache_dirty: true,
+    skinning_cache_builds: 0,
   }
 }
 
@@ -622,6 +628,7 @@ fn PlayerCharacter::trigger_attack(self : PlayerCharacter) -> Unit {
   self.anim_state = Attacking
   self.attack_player.set_time(0.0)
   self.attack_player.play()
+  self.skinning_cache_dirty = true
 }
 
 ///|
@@ -630,6 +637,7 @@ fn PlayerCharacter::trigger_hurt(self : PlayerCharacter) -> Unit {
     self.anim_state = Hurt
     self.hurt_player.set_time(0.0)
     self.hurt_player.play()
+    self.skinning_cache_dirty = true
   }
 }
 
@@ -640,8 +648,10 @@ fn PlayerCharacter::set_moving(self : PlayerCharacter, moving : Bool) -> Unit {
   }
   if moving && self.anim_state != Running {
     self.anim_state = Running
+    self.skinning_cache_dirty = true
   } else if not(moving) && self.anim_state == Running {
     self.anim_state = Idle
+    self.skinning_cache_dirty = true
   }
 }
 
@@ -663,12 +673,16 @@ fn PlayerCharacter::update(self : PlayerCharacter, dt : Double) -> Unit {
     Running => self.run_player.update(dt)
     Idle => self.idle_player.update(dt)
   }
+  self.skinning_cache_dirty = true
 }
 
 ///|
 fn PlayerCharacter::compute_skinning(
   self : PlayerCharacter,
 ) -> Array[@math3d.Mat4] {
+  if not(self.skinning_cache_dirty) {
+    return self.cached_skinning_matrices
+  }
   // Reset to rest pose
   for i in 0..<char_num_bones {
     self.local_poses[i] = self.skeleton.bones[i].local_transform
@@ -698,5 +712,10 @@ fn PlayerCharacter::compute_skinning(
   let world_transforms = self.skeleton.compute_world_transforms(
     self.local_poses,
   )
-  self.skeleton.compute_skinning_matrices(world_transforms)
+  self.cached_skinning_matrices = self.skeleton.compute_skinning_matrices(
+    world_transforms,
+  )
+  self.skinning_cache_dirty = false
+  self.skinning_cache_builds = self.skinning_cache_builds + 1
+  self.cached_skinning_matrices
 }

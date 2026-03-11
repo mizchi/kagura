@@ -39,6 +39,47 @@ pub fn atlas_quad_vertex_data(
 }
 
 ///|
+fn atlas_quad_resource_cache_key(
+  dst : @gfx.ImageHandle,
+  shader : @gfx.ShaderHandle,
+  dst_region : @gfx.DstRegion,
+  blend : @gfx.BlendMode,
+  source : @asset.AtlasDrawSource,
+  left : Double,
+  top : Double,
+  right : Double,
+  bottom : Double,
+  uniform_dwords : Array[Int],
+) -> Int {
+  let values : Array[Int] = [
+    dst.id,
+    dst.width,
+    dst.height,
+    shader.id,
+    dst_region.x,
+    dst_region.y,
+    dst_region.width,
+    dst_region.height,
+    dst_region.index_count,
+    @gfx.blend_mode_to_int(blend),
+    source.page_image_id,
+    @gfx.double_to_f32_bits(source.u0),
+    @gfx.double_to_f32_bits(source.v0),
+    @gfx.double_to_f32_bits(source.u1),
+    @gfx.double_to_f32_bits(source.v1),
+    @gfx.double_to_f32_bits(left),
+    @gfx.double_to_f32_bits(top),
+    @gfx.double_to_f32_bits(right),
+    @gfx.double_to_f32_bits(bottom),
+    uniform_dwords.length(),
+  ]
+  for dword in uniform_dwords {
+    values.push(dword)
+  }
+  @gfx.build_resource_cache_key(0x41544C53, values)
+}
+
+///|
 pub fn new_atlas_quad_draw_command(
   dst : @gfx.ImageHandle,
   shader : @gfx.ShaderHandle,
@@ -66,5 +107,8 @@ pub fn new_atlas_quad_draw_command(
     atlas_quad_indices(),
     [source.page_image_id],
     uniform_dwords,
+    resource_cache_key=atlas_quad_resource_cache_key(
+      dst, shader, dst_region, blend, source, left, top, right, bottom, uniform_dwords,
+    ),
   )
 }

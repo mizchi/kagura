@@ -300,6 +300,7 @@ pub struct DrawTrianglesCommand {
   src_image_ids : Array[Int]
   uniform_dwords : Array[Int]
   instance_count : Int // 1 = default (non-instanced)
+  resource_cache_key : Int // 0 = disabled, non-zero allows backend payload cache reuse
 }
 
 ///|
@@ -316,6 +317,7 @@ pub fn new_draw_triangles_command(
   src_image_ids : Array[Int],
   uniform_dwords : Array[Int],
   instance_count? : Int = 1,
+  resource_cache_key? : Int = 0,
 ) -> DrawTrianglesCommand {
   {
     dst,
@@ -330,6 +332,25 @@ pub fn new_draw_triangles_command(
     src_image_ids,
     uniform_dwords,
     instance_count,
+    resource_cache_key,
+  }
+}
+
+///|
+fn mix_resource_cache_key(seed : Int, value : Int) -> Int {
+  seed * 16777619 + value + 31
+}
+
+///|
+pub fn build_resource_cache_key(seed : Int, values : Array[Int]) -> Int {
+  let mut hash = if seed == 0 { 146959810 } else { seed }
+  for value in values {
+    hash = mix_resource_cache_key(hash, value)
+  }
+  if hash == 0 {
+    1
+  } else {
+    hash
   }
 }
 
@@ -668,6 +689,7 @@ fn merge_draw_triangles_range(
       src_image_ids: base.src_image_ids,
       uniform_dwords: base.uniform_dwords,
       instance_count: base.instance_count,
+      resource_cache_key: base.resource_cache_key,
     }
   } else {
     let mut merged_vertex_float_count = 0
@@ -709,6 +731,7 @@ fn merge_draw_triangles_range(
       src_image_ids: base.src_image_ids,
       uniform_dwords: base.uniform_dwords,
       instance_count: base.instance_count,
+      resource_cache_key: base.resource_cache_key,
     }
   }
 }

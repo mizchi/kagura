@@ -88,11 +88,15 @@ pub fn is_up_just_pressed(InputHelper) -> Bool
 
 pub let key_a : Int
 
+pub let key_comma : Int
+
 pub let key_d : Int
 
 pub let key_down_glfw : Int
 
 pub let key_down_web : Int
+
+pub let key_e : Int
 
 pub let key_enter_glfw : Int
 
@@ -101,6 +105,8 @@ pub let key_enter_web : Int
 pub let key_left_glfw : Int
 
 pub let key_left_web : Int
+
+pub let key_o : Int
 
 pub fn key_press_duration(KeyInputState, Int) -> Int
 

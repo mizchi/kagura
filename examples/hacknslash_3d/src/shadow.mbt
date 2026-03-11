@@ -134,7 +134,17 @@ fn build_single_chunk(
     groups : Array[DungeonMeshGroup],
   ) -> Unit {
     if indices.length() > 0 {
-      groups.push({ mesh: @mesh3d.Mesh3D::new(verts, indices), color })
+      groups.push({
+        mesh: @mesh3d.Mesh3D::new(verts, indices),
+        color,
+        dst_region: @gfx.new_dst_region(
+          0,
+          0,
+          screen_w,
+          screen_h,
+          indices.length(),
+        ),
+      })
     }
   }
 

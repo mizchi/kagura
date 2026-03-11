@@ -27,6 +27,7 @@
 | action_rpg | >= 60 | <= 14ms |
 | arena3d | >= 30 | <= 20ms |
 | hacknslash_3d | >= 30 | <= 25ms |
+| hacknslash_3d `stress_enemies_256` | >= 60 | <= 16ms |
 
 ## WASM ABI
 
@@ -52,3 +53,9 @@ CI で js / native-linux / native-macos の 3 環境で同一シーンをビル�
 - `just bench-gate` — 基準値との回帰比較
 - preview-shell の ABI stats パネル — wasm host-guest 境界コスト
 - `@debugutil.build_profiler_hud()` — ゲーム内 stats overlay
+
+## Reference
+
+- `hacknslash_3d` の render tuning 結果と最新実測は [hacknslash_3d-rendering-performance.md](/Users/mz/ghq/github.com/mizchi/kagura/docs/hacknslash_3d-rendering-performance.md) を参照
+- render tuning を一旦完了扱いにする判断は [ADR 0002](/Users/mz/ghq/github.com/mizchi/kagura/docs/adr/0002-hacknslash-3d-rendering-performance-baseline.md) を参照
+- `hacknslash_3d` の update phase bench は `enemy_ai_phase / enemy_movement_contact_phase / enemy_enemy_separation` を継続監視対象とする

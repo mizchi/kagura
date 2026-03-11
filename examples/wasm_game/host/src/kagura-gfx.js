@@ -21,6 +21,26 @@ struct VertexOutput {
   return tex_color * uniforms.color;
 }`;
 
+function getInstanceCount(cmd) {
+  const raw = cmd == null ? null : (cmd.instanceCount ?? cmd.instance_count);
+  if (!Number.isFinite(raw)) return 1;
+  return Math.max(1, raw | 0);
+}
+
+function performanceNow() {
+  return globalThis.performance?.now?.() ?? Date.now();
+}
+
+function recordCompletedFrameMs(gpu, frameMs) {
+  const safeFrameMs = Math.max(0, frameMs);
+  gpu._lastCompletedFrameMs = safeFrameMs;
+  if (gpu._completedFrameMsQueue == null) gpu._completedFrameMsQueue = [];
+  gpu._completedFrameMsQueue.push(safeFrameMs);
+  if (gpu._completedFrameMsQueue.length > 120) {
+    gpu._completedFrameMsQueue.shift();
+  }
+}
+
 export function ensureGpuPipeline(gpu, device, format) {
   if (gpu._pipeline != null && gpu._pipelineFormat === format) return true;
   try {
@@ -82,6 +102,7 @@ export function ensureGpuPipeline(gpu, device, format) {
 export function renderGpu(gpu, device, context, clearColor, format) {
   if (device == null || context == null) return false;
   try {
+    globalThis.__kaguraLastGpu = gpu;
     const safeFormat = typeof format === "string" && format.length > 0 ? format : "bgra8unorm";
     if (!ensureGpuPipeline(gpu, device, safeFormat)) return false;
     context.configure({ device, format: safeFormat, alphaMode: "opaque" });
@@ -145,11 +166,18 @@ export function renderGpu(gpu, device, context, clearColor, format) {
         pass.setBindGroup(1, texBG);
         pass.setVertexBuffer(0, vb.buffer);
         pass.setIndexBuffer(ib.buffer, "uint32");
-        pass.drawIndexed(cmd.indices.length);
+        pass.drawIndexed(cmd.indices.length, getInstanceCount(cmd));
       }
     }
     pass.end();
+    const frameStart = performanceNow();
     device.queue.submit([encoder.finish()]);
+    const submitted = device.queue?.onSubmittedWorkDone?.();
+    if (submitted != null && typeof submitted.then === "function") {
+      submitted.then(() => {
+        recordCompletedFrameMs(gpu, performanceNow() - frameStart);
+      }).catch(() => {});
+    }
     gpu.commands = [];
     return true;
   } catch (e) {

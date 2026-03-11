@@ -222,6 +222,281 @@ test "append_tile_indexed_chunk_batched_draw_commands merges per page" {
 }
 
 ///|
+test "append_tile_indexed_chunk_draw_commands assigns stable resource_cache_key" {
+  let repo = tilemap_test_repository()
+  let table = new_tile_atlas_table([
+    new_tile_atlas_entry(1, @asset.new_asset_key("tile/a")),
+    new_tile_atlas_entry(2, @asset.new_asset_key("tile/b")),
+  ])
+  let a : Array[@gfx.DrawTrianglesCommand] = []
+  let b : Array[@gfx.DrawTrianglesCommand] = []
+  let c : Array[@gfx.DrawTrianglesCommand] = []
+  let _ = append_tile_indexed_chunk_draw_commands(
+    a,
+    table,
+    repo,
+    @gfx.new_image_handle(10, 64, 64),
+    @gfx.new_shader_handle(20, "shader"),
+    7,
+    11,
+    @gfx.blend_mode_from_int(1),
+    @gfx.new_dst_region(0, 0, 64, 64, 6),
+    [1],
+    1,
+    0,
+    0,
+    1,
+    1,
+    -0.5,
+    -0.5,
+    0.5,
+    0.5,
+    [1, 2, 3, 4],
+  )
+  let _ = append_tile_indexed_chunk_draw_commands(
+    b,
+    table,
+    repo,
+    @gfx.new_image_handle(10, 64, 64),
+    @gfx.new_shader_handle(20, "shader"),
+    7,
+    11,
+    @gfx.blend_mode_from_int(1),
+    @gfx.new_dst_region(0, 0, 64, 64, 6),
+    [1],
+    1,
+    0,
+    0,
+    1,
+    1,
+    -0.5,
+    -0.5,
+    0.5,
+    0.5,
+    [1, 2, 3, 4],
+  )
+  let _ = append_tile_indexed_chunk_draw_commands(
+    c,
+    table,
+    repo,
+    @gfx.new_image_handle(10, 64, 64),
+    @gfx.new_shader_handle(20, "shader"),
+    7,
+    11,
+    @gfx.blend_mode_from_int(1),
+    @gfx.new_dst_region(0, 0, 64, 64, 6),
+    [2],
+    1,
+    0,
+    0,
+    1,
+    1,
+    -0.5,
+    -0.5,
+    0.5,
+    0.5,
+    [1, 2, 3, 4],
+  )
+  assert_eq(a.length(), 1)
+  assert_eq(b.length(), 1)
+  assert_eq(c.length(), 1)
+  assert_true(a[0].resource_cache_key != 0)
+  assert_eq(a[0].resource_cache_key, b[0].resource_cache_key)
+  assert_true(a[0].resource_cache_key != c[0].resource_cache_key)
+}
+
+///|
+test "append_tile_indexed_chunk_batched_draw_commands assigns stable resource_cache_key" {
+  let repo = tilemap_test_repository()
+  let table = new_tile_atlas_table([
+    new_tile_atlas_entry(1, @asset.new_asset_key("tile/a")),
+    new_tile_atlas_entry(2, @asset.new_asset_key("tile/b")),
+  ])
+  let a : Array[@gfx.DrawTrianglesCommand] = []
+  let b : Array[@gfx.DrawTrianglesCommand] = []
+  let c : Array[@gfx.DrawTrianglesCommand] = []
+  let _ = append_tile_indexed_chunk_batched_draw_commands(
+    a,
+    table,
+    repo,
+    @gfx.new_image_handle(10, 64, 64),
+    @gfx.new_shader_handle(20, "shader"),
+    7,
+    11,
+    @gfx.blend_mode_from_int(1),
+    @gfx.new_dst_region(0, 0, 64, 64, 6),
+    [1],
+    1,
+    0,
+    0,
+    1,
+    1,
+    -0.5,
+    -0.5,
+    0.5,
+    0.5,
+    [1, 2, 3, 4],
+  )
+  let _ = append_tile_indexed_chunk_batched_draw_commands(
+    b,
+    table,
+    repo,
+    @gfx.new_image_handle(10, 64, 64),
+    @gfx.new_shader_handle(20, "shader"),
+    7,
+    11,
+    @gfx.blend_mode_from_int(1),
+    @gfx.new_dst_region(0, 0, 64, 64, 6),
+    [1],
+    1,
+    0,
+    0,
+    1,
+    1,
+    -0.5,
+    -0.5,
+    0.5,
+    0.5,
+    [1, 2, 3, 4],
+  )
+  let _ = append_tile_indexed_chunk_batched_draw_commands(
+    c,
+    table,
+    repo,
+    @gfx.new_image_handle(10, 64, 64),
+    @gfx.new_shader_handle(20, "shader"),
+    7,
+    11,
+    @gfx.blend_mode_from_int(1),
+    @gfx.new_dst_region(0, 0, 64, 64, 6),
+    [2],
+    1,
+    0,
+    0,
+    1,
+    1,
+    -0.5,
+    -0.5,
+    0.5,
+    0.5,
+    [1, 2, 3, 4],
+  )
+  assert_eq(a.length(), 1)
+  assert_eq(b.length(), 1)
+  assert_eq(c.length(), 1)
+  assert_true(a[0].resource_cache_key != 0)
+  assert_eq(a[0].resource_cache_key, b[0].resource_cache_key)
+  assert_true(a[0].resource_cache_key != c[0].resource_cache_key)
+}
+
+///|
+test "TileChunkBatchCache redraws visible chunk on first frame and skips unchanged frame" {
+  let repo = tilemap_test_repository()
+  let table = new_tile_atlas_table([
+    new_tile_atlas_entry(1, @asset.new_asset_key("tile/a")),
+  ])
+  let cache = TileChunkBatchCache::new(1, [1, 1, 1, 1])
+  let visible = new_tile_chunk_rect(0, 0, 1, 1)
+  let a : Array[@gfx.DrawTrianglesCommand] = []
+  let first = cache.append_visible_dirty_chunk_batched_draw_commands(
+    a,
+    table,
+    repo,
+    @gfx.new_image_handle(10, 64, 64),
+    @gfx.new_shader_handle(20, "shader"),
+    7,
+    11,
+    @gfx.blend_mode_from_int(1),
+    @gfx.new_dst_region(0, 0, 64, 64, 6),
+    [1, 1, 1, 1],
+    2,
+    visible,
+    -0.5,
+    -0.5,
+    0.5,
+    0.5,
+    [1, 2, 3, 4],
+  )
+  let b : Array[@gfx.DrawTrianglesCommand] = []
+  let second = cache.append_visible_dirty_chunk_batched_draw_commands(
+    b,
+    table,
+    repo,
+    @gfx.new_image_handle(10, 64, 64),
+    @gfx.new_shader_handle(20, "shader"),
+    7,
+    11,
+    @gfx.blend_mode_from_int(1),
+    @gfx.new_dst_region(0, 0, 64, 64, 6),
+    [1, 1, 1, 1],
+    2,
+    visible,
+    -0.5,
+    -0.5,
+    0.5,
+    0.5,
+    [1, 2, 3, 4],
+  )
+  assert_eq(first, 1)
+  assert_eq(a.length(), 1)
+  assert_eq(second, 0)
+  assert_eq(b.length(), 0)
+}
+
+///|
+test "TileChunkBatchCache redraws full chunk when visible region changes" {
+  let repo = tilemap_test_repository()
+  let table = new_tile_atlas_table([
+    new_tile_atlas_entry(1, @asset.new_asset_key("tile/a")),
+    new_tile_atlas_entry(2, @asset.new_asset_key("tile/b")),
+  ])
+  let cache = TileChunkBatchCache::new(1, [1, 1, 1, 1])
+  let first_visible = new_tile_chunk_rect(0, 0, 1, 1)
+  let second_visible = new_tile_chunk_rect(1, 0, 1, 1)
+  let _ = cache.append_visible_dirty_chunk_batched_draw_commands(
+    [],
+    table,
+    repo,
+    @gfx.new_image_handle(10, 64, 64),
+    @gfx.new_shader_handle(20, "shader"),
+    7,
+    11,
+    @gfx.blend_mode_from_int(1),
+    @gfx.new_dst_region(0, 0, 64, 64, 6),
+    [1, 1, 1, 1],
+    2,
+    first_visible,
+    -0.5,
+    -0.5,
+    0.5,
+    0.5,
+    [1, 2, 3, 4],
+  )
+  let moved : Array[@gfx.DrawTrianglesCommand] = []
+  let appended = cache.append_visible_dirty_chunk_batched_draw_commands(
+    moved,
+    table,
+    repo,
+    @gfx.new_image_handle(10, 64, 64),
+    @gfx.new_shader_handle(20, "shader"),
+    7,
+    11,
+    @gfx.blend_mode_from_int(1),
+    @gfx.new_dst_region(0, 0, 64, 64, 6),
+    [1, 2, 1, 1],
+    2,
+    second_visible,
+    -0.5,
+    -0.5,
+    0.5,
+    0.5,
+    [1, 2, 3, 4],
+  )
+  assert_eq(appended, 1)
+  assert_eq(moved.length(), 1)
+}
+
+///|
 test "estimate_visible_tile_chunk clamps to map bounds" {
   let chunk = estimate_visible_tile_chunk(
     10, 8, 0.0, 0.0, 16.0, 16.0, -8.0, -8.0, 40.0, 24.0, 1,

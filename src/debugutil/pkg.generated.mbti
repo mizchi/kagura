@@ -66,6 +66,7 @@ pub(all) struct FrameProfile {
   frame_time_ms : Double
   update_ms : Double
   draw_ms : Double
+  gpu_frame_ms : Double
   draw_calls : Int
   vertex_count : Int
   asset_inflight : Int

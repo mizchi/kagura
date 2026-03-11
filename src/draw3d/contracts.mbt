@@ -156,6 +156,50 @@ pub fn shader3d_lit_untextured_wgsl() -> String {
   "}\n"
 }
 
+///|
+/// WGSL shader source for lit 3D rendering with uniform base color.
+/// Vertex format: position(3) + normal(3) + uv(2) = stride 8.
+/// Uniform struct: 60 dwords (MVP + Model + NormalMatrix + Lighting + BaseColor).
+pub fn shader3d_lit_colored_wgsl() -> String {
+  "struct ColoredUniforms {\n" +
+  "  mvp: mat4x4<f32>,\n" +
+  "  model: mat4x4<f32>,\n" +
+  "  normal0: vec4<f32>,\n" +
+  "  normal1: vec4<f32>,\n" +
+  "  normal2: vec4<f32>,\n" +
+  "  light_dir: vec4<f32>,\n" +
+  "  light_color: vec4<f32>,\n" +
+  "  ambient_color: vec4<f32>,\n" +
+  "  base_color: vec4<f32>,\n" +
+  "};\n\n" +
+  "@group(0) @binding(0) var<uniform> uniforms: ColoredUniforms;\n\n" +
+  "struct VertexInput {\n" +
+  "  @location(0) position: vec3<f32>,\n" +
+  "  @location(1) normal: vec3<f32>,\n" +
+  "  @location(2) uv: vec2<f32>,\n" +
+  "};\n\n" +
+  "struct VertexOutput {\n" +
+  "  @builtin(position) clip_position: vec4<f32>,\n" +
+  "  @location(0) world_normal: vec3<f32>,\n" +
+  "};\n\n" +
+  "@vertex fn vs_main(input: VertexInput) -> VertexOutput {\n" +
+  "  var out: VertexOutput;\n" +
+  "  out.clip_position = uniforms.mvp * vec4<f32>(input.position, 1.0);\n" +
+  "  let normal_mat = mat3x3<f32>(uniforms.normal0.xyz, uniforms.normal1.xyz, uniforms.normal2.xyz);\n" +
+  "  out.world_normal = normalize(normal_mat * input.normal);\n" +
+  "  return out;\n" +
+  "}\n\n" +
+  "@fragment fn fs_main(in: VertexOutput) -> @location(0) vec4<f32> {\n" +
+  "  let normal = normalize(in.world_normal);\n" +
+  "  let light_dir = normalize(-uniforms.light_dir.xyz);\n" +
+  "  let ndotl = max(dot(normal, light_dir), 0.0);\n" +
+  "  let diffuse = uniforms.light_color.xyz * ndotl;\n" +
+  "  let ambient = uniforms.ambient_color.xyz;\n" +
+  "  let lit_color = uniforms.base_color.rgb * (diffuse + ambient);\n" +
+  "  return vec4<f32>(lit_color, uniforms.base_color.a);\n" +
+  "}\n"
+}
+
 // ============================================================
 // Lit Uniform Encoding
 // ============================================================
@@ -188,6 +232,23 @@ pub fn lit_uniform_dwords(
 }
 
 ///|
+/// Encode lit uniform data with uniform base color as 60 dwords.
+/// MVP(16) + Model(16) + NormalMatrix(12) + Light(12) + BaseColor(4).
+pub fn lit_colored_uniform_dwords(
+  model : @math3d.Mat4,
+  view_projection : @math3d.Mat4,
+  lighting : @light3d.LightingEnvironment,
+  base_color : @math3d.Vec4,
+) -> Array[Int] {
+  let dwords = lit_uniform_dwords(model, view_projection, lighting)
+  dwords.push(@gfx.double_to_f32_bits(base_color.x))
+  dwords.push(@gfx.double_to_f32_bits(base_color.y))
+  dwords.push(@gfx.double_to_f32_bits(base_color.z))
+  dwords.push(@gfx.double_to_f32_bits(base_color.w))
+  dwords
+}
+
+///|
 /// Build a lit DrawTrianglesCommand from a 3D mesh with lighting.
 pub fn new_lit_mesh_draw_command(
   dst : @gfx.ImageHandle,
@@ -205,6 +266,41 @@ pub fn new_lit_mesh_draw_command(
 ) -> @gfx.DrawTrianglesCommand {
   let uniform_dwords = lit_uniform_dwords(
     model_matrix, view_projection, lighting,
+  )
+  @gfx.new_draw_triangles_command(
+    dst,
+    shader,
+    [dst_region],
+    index_offset,
+    pipeline_id,
+    uniform_hash,
+    blend,
+    mesh.vertex_data,
+    mesh.indices,
+    src_image_ids,
+    uniform_dwords,
+  )
+}
+
+///|
+/// Build a lit DrawTrianglesCommand from a 3D mesh with lighting and uniform base color.
+pub fn new_lit_colored_mesh_draw_command(
+  dst : @gfx.ImageHandle,
+  shader : @gfx.ShaderHandle,
+  dst_region : @gfx.DstRegion,
+  index_offset : Int,
+  pipeline_id : Int,
+  uniform_hash : Int,
+  blend : @gfx.BlendMode,
+  mesh : @mesh3d.Mesh3D,
+  model_matrix : @math3d.Mat4,
+  view_projection : @math3d.Mat4,
+  lighting : @light3d.LightingEnvironment,
+  base_color : @math3d.Vec4,
+  src_image_ids : Array[Int],
+) -> @gfx.DrawTrianglesCommand {
+  let uniform_dwords = lit_colored_uniform_dwords(
+    model_matrix, view_projection, lighting, base_color,
   )
   @gfx.new_draw_triangles_command(
     dst,
@@ -329,6 +425,14 @@ pub fn new_lit_normalmap_mesh_draw_command(
 let max_bones : Int = 64
 
 ///|
+let max_skinned_instances : Int = 64
+
+///|
+pub fn skinned_instanced_max_instances() -> Int {
+  max_skinned_instances
+}
+
+///|
 /// Uniform struct for skinned lit shader.
 /// Layout: MVP(16) + Model(16) + NormalMatrix(12) + Light(12) + num_bones(4, padded) + bone_matrices(MAX_BONES*16).
 fn skinned_lit_uniform_struct_wgsl() -> String {
@@ -399,10 +503,265 @@ pub fn shader3d_lit_skinned_wgsl() -> String {
 }
 
 ///|
+fn skinned_instanced_lit_uniform_struct_wgsl() -> String {
+  "const MAX_BONES: u32 = 64u;\n" +
+  "const MAX_INSTANCES: u32 = 64u;\n\n" +
+  "struct InstanceData {\n" +
+  "  model: mat4x4<f32>,\n" +
+  "  color: vec4<f32>,\n" +
+  "};\n\n" +
+  "struct Uniforms {\n" +
+  "  vp: mat4x4<f32>,\n" +
+  "  light_dir: vec4<f32>,\n" +
+  "  light_color: vec4<f32>,\n" +
+  "  ambient_color: vec4<f32>,\n" +
+  "  num_bones: vec4<f32>,\n" +
+  "  bone_matrices: array<mat4x4<f32>, 64>,\n" +
+  "  instance_count: vec4<f32>,\n" +
+  "  instances: array<InstanceData, 64>,\n" +
+  "};\n\n"
+}
+
+///|
+pub fn shader3d_lit_skinned_instanced_wgsl() -> String {
+  skinned_instanced_lit_uniform_struct_wgsl() +
+  "@group(0) @binding(0) var<uniform> uniforms: Uniforms;\n" +
+  "@group(0) @binding(1) var tex: texture_2d<f32>;\n" +
+  "@group(0) @binding(2) var tex_sampler: sampler;\n\n" +
+  "struct VertexInput {\n" +
+  "  @location(0) position: vec3<f32>,\n" +
+  "  @location(1) normal: vec3<f32>,\n" +
+  "  @location(2) uv: vec2<f32>,\n" +
+  "  @location(3) joints: vec4<f32>,\n" +
+  "  @location(4) weights: vec4<f32>,\n" +
+  "};\n\n" +
+  "struct VertexOutput {\n" +
+  "  @builtin(position) clip_position: vec4<f32>,\n" +
+  "  @location(0) world_normal: vec3<f32>,\n" +
+  "  @location(1) uv: vec2<f32>,\n" +
+  "  @location(2) inst_color: vec4<f32>,\n" +
+  "};\n\n" +
+  "@vertex fn vs_main(input: VertexInput, @builtin(instance_index) iid: u32) -> VertexOutput {\n" +
+  "  let inst = uniforms.instances[iid];\n" +
+  "  var skin_mat = mat4x4<f32>();\n" +
+  "  for (var i = 0u; i < 4u; i = i + 1u) {\n" +
+  "    let joint_idx = u32(input.joints[i]);\n" +
+  "    let weight = input.weights[i];\n" +
+  "    if (weight > 0.0) {\n" +
+  "      skin_mat = skin_mat + weight * uniforms.bone_matrices[joint_idx];\n" +
+  "    }\n" +
+  "  }\n" +
+  "  let skinned_pos = skin_mat * vec4<f32>(input.position, 1.0);\n" +
+  "  let skinned_normal = (skin_mat * vec4<f32>(input.normal, 0.0)).xyz;\n" +
+  "  let world_pos = inst.model * skinned_pos;\n" +
+  "  var out: VertexOutput;\n" +
+  "  out.clip_position = uniforms.vp * world_pos;\n" +
+  "  let normal_mat = mat3x3<f32>(inst.model[0].xyz, inst.model[1].xyz, inst.model[2].xyz);\n" +
+  "  out.world_normal = normalize(normal_mat * skinned_normal);\n" +
+  "  out.uv = input.uv;\n" +
+  "  out.inst_color = inst.color;\n" +
+  "  return out;\n" +
+  "}\n\n" +
+  "@fragment fn fs_main(in: VertexOutput) -> @location(0) vec4<f32> {\n" +
+  lit_fragment_lighting_wgsl() +
+  "  let tex_color = textureSample(tex, tex_sampler, in.uv);\n" +
+  "  let lit_color = tex_color.rgb * in.inst_color.rgb * (diffuse + ambient);\n" +
+  "  return vec4<f32>(lit_color, tex_color.a * in.inst_color.a);\n" +
+  "}\n"
+}
+
+///|
+fn skinned_instanced_monochrome_lit_uniform_struct_wgsl() -> String {
+  "const MAX_BONES: u32 = 64u;\n" +
+  "const MAX_INSTANCES: u32 = 64u;\n\n" +
+  "struct Uniforms {\n" +
+  "  vp: mat4x4<f32>,\n" +
+  "  light_dir: vec4<f32>,\n" +
+  "  light_color: vec4<f32>,\n" +
+  "  ambient_color: vec4<f32>,\n" +
+  "  num_bones: vec4<f32>,\n" +
+  "  bone_matrices: array<mat4x4<f32>, 64>,\n" +
+  "  instance_count: vec4<f32>,\n" +
+  "  base_color: vec4<f32>,\n" +
+  "  instance_models: array<mat4x4<f32>, 64>,\n" +
+  "};\n\n"
+}
+
+///|
+pub fn shader3d_lit_skinned_instanced_monochrome_wgsl() -> String {
+  skinned_instanced_monochrome_lit_uniform_struct_wgsl() +
+  "@group(0) @binding(0) var<uniform> uniforms: Uniforms;\n" +
+  "@group(0) @binding(1) var tex: texture_2d<f32>;\n" +
+  "@group(0) @binding(2) var tex_sampler: sampler;\n\n" +
+  "struct VertexInput {\n" +
+  "  @location(0) position: vec3<f32>,\n" +
+  "  @location(1) normal: vec3<f32>,\n" +
+  "  @location(2) uv: vec2<f32>,\n" +
+  "  @location(3) joints: vec4<f32>,\n" +
+  "  @location(4) weights: vec4<f32>,\n" +
+  "};\n\n" +
+  "struct VertexOutput {\n" +
+  "  @builtin(position) clip_position: vec4<f32>,\n" +
+  "  @location(0) world_normal: vec3<f32>,\n" +
+  "  @location(1) uv: vec2<f32>,\n" +
+  "};\n\n" +
+  "@vertex fn vs_main(input: VertexInput, @builtin(instance_index) iid: u32) -> VertexOutput {\n" +
+  "  let model = uniforms.instance_models[iid];\n" +
+  "  var skin_mat = mat4x4<f32>();\n" +
+  "  for (var i = 0u; i < 4u; i = i + 1u) {\n" +
+  "    let joint_idx = u32(input.joints[i]);\n" +
+  "    let weight = input.weights[i];\n" +
+  "    if (weight > 0.0) {\n" +
+  "      skin_mat = skin_mat + weight * uniforms.bone_matrices[joint_idx];\n" +
+  "    }\n" +
+  "  }\n" +
+  "  let skinned_pos = skin_mat * vec4<f32>(input.position, 1.0);\n" +
+  "  let skinned_normal = (skin_mat * vec4<f32>(input.normal, 0.0)).xyz;\n" +
+  "  let world_pos = model * skinned_pos;\n" +
+  "  var out: VertexOutput;\n" +
+  "  out.clip_position = uniforms.vp * world_pos;\n" +
+  "  let normal_mat = mat3x3<f32>(model[0].xyz, model[1].xyz, model[2].xyz);\n" +
+  "  out.world_normal = normalize(normal_mat * skinned_normal);\n" +
+  "  out.uv = input.uv;\n" +
+  "  return out;\n" +
+  "}\n\n" +
+  "@fragment fn fs_main(in: VertexOutput) -> @location(0) vec4<f32> {\n" +
+  lit_fragment_lighting_wgsl() +
+  "  let tex_color = textureSample(tex, tex_sampler, in.uv);\n" +
+  "  let lit_color = tex_color.rgb * uniforms.base_color.rgb * (diffuse + ambient);\n" +
+  "  return vec4<f32>(lit_color, tex_color.a * uniforms.base_color.a);\n" +
+  "}\n"
+}
+
+///|
 /// Compute uniform dwords count for skinned lit shader.
 /// 56 (base lit) + 4 (num_bones padded) + MAX_BONES * 16 (bone matrices).
 pub fn skinned_lit_uniform_dwords() -> Int {
   56 + 4 + max_bones * 16
+}
+
+///|
+pub fn skinned_instanced_lit_uniform_dwords(
+  view_projection : @math3d.Mat4,
+  lighting : @light3d.LightingEnvironment,
+  skinning_matrices : Array[@math3d.Mat4],
+  instance_matrices : Array[@math3d.Mat4],
+  instance_colors : Array[@math3d.Vec4],
+) -> Array[Int] {
+  let dwords = mat4_to_uniform_dwords(view_projection)
+  let light_dw = @light3d.light_uniform_dwords(lighting)
+  for i in 0..<light_dw.length() {
+    dwords.push(light_dw[i])
+  }
+  let bone_count = if skinning_matrices.length() < max_bones {
+    skinning_matrices.length()
+  } else {
+    max_bones
+  }
+  dwords.push(@gfx.double_to_f32_bits(bone_count.to_double()))
+  dwords.push(@gfx.double_to_f32_bits(0.0))
+  dwords.push(@gfx.double_to_f32_bits(0.0))
+  dwords.push(@gfx.double_to_f32_bits(0.0))
+  for i in 0..<bone_count {
+    for j in 0..<16 {
+      dwords.push(@gfx.double_to_f32_bits(skinning_matrices[i].elements[j]))
+    }
+  }
+  for _i in bone_count..<max_bones {
+    for _j in 0..<16 {
+      dwords.push(0)
+    }
+  }
+  let count = if instance_matrices.length() < instance_colors.length() {
+    instance_matrices.length()
+  } else {
+    instance_colors.length()
+  }
+  dwords.push(@gfx.double_to_f32_bits(count.to_double()))
+  dwords.push(@gfx.double_to_f32_bits(0.0))
+  dwords.push(@gfx.double_to_f32_bits(0.0))
+  dwords.push(@gfx.double_to_f32_bits(0.0))
+  let inst_count = if count < max_skinned_instances {
+    count
+  } else {
+    max_skinned_instances
+  }
+  for i in 0..<inst_count {
+    let m = instance_matrices[i]
+    for j in 0..<16 {
+      dwords.push(@gfx.double_to_f32_bits(m.elements[j]))
+    }
+    let c = instance_colors[i]
+    dwords.push(@gfx.double_to_f32_bits(c.x))
+    dwords.push(@gfx.double_to_f32_bits(c.y))
+    dwords.push(@gfx.double_to_f32_bits(c.z))
+    dwords.push(@gfx.double_to_f32_bits(c.w))
+  }
+  for _i in inst_count..<max_skinned_instances {
+    for _j in 0..<20 {
+      dwords.push(0)
+    }
+  }
+  dwords
+}
+
+///|
+pub fn skinned_instanced_monochrome_lit_uniform_dwords(
+  view_projection : @math3d.Mat4,
+  lighting : @light3d.LightingEnvironment,
+  skinning_matrices : Array[@math3d.Mat4],
+  instance_matrices : Array[@math3d.Mat4],
+  base_color : @math3d.Vec4,
+) -> Array[Int] {
+  let dwords = mat4_to_uniform_dwords(view_projection)
+  let light_dw = @light3d.light_uniform_dwords(lighting)
+  for i in 0..<light_dw.length() {
+    dwords.push(light_dw[i])
+  }
+  let bone_count = if skinning_matrices.length() < max_bones {
+    skinning_matrices.length()
+  } else {
+    max_bones
+  }
+  dwords.push(@gfx.double_to_f32_bits(bone_count.to_double()))
+  dwords.push(@gfx.double_to_f32_bits(0.0))
+  dwords.push(@gfx.double_to_f32_bits(0.0))
+  dwords.push(@gfx.double_to_f32_bits(0.0))
+  for i in 0..<bone_count {
+    for j in 0..<16 {
+      dwords.push(@gfx.double_to_f32_bits(skinning_matrices[i].elements[j]))
+    }
+  }
+  for _i in bone_count..<max_bones {
+    for _j in 0..<16 {
+      dwords.push(0)
+    }
+  }
+  let inst_count = if instance_matrices.length() < max_skinned_instances {
+    instance_matrices.length()
+  } else {
+    max_skinned_instances
+  }
+  dwords.push(@gfx.double_to_f32_bits(inst_count.to_double()))
+  dwords.push(@gfx.double_to_f32_bits(0.0))
+  dwords.push(@gfx.double_to_f32_bits(0.0))
+  dwords.push(@gfx.double_to_f32_bits(0.0))
+  dwords.push(@gfx.double_to_f32_bits(base_color.x))
+  dwords.push(@gfx.double_to_f32_bits(base_color.y))
+  dwords.push(@gfx.double_to_f32_bits(base_color.z))
+  dwords.push(@gfx.double_to_f32_bits(base_color.w))
+  for i in 0..<inst_count {
+    let m = instance_matrices[i]
+    for j in 0..<16 {
+      dwords.push(@gfx.double_to_f32_bits(m.elements[j]))
+    }
+  }
+  for _i in inst_count..<max_skinned_instances {
+    for _j in 0..<16 {
+      dwords.push(0)
+    }
+  }
+  dwords
 }
 
 ///|
@@ -460,6 +819,89 @@ pub fn new_skinned_lit_mesh_draw_command(
     indices,
     src_image_ids,
     dwords,
+  )
+}
+
+///|
+pub fn new_skinned_instanced_lit_mesh_draw_command(
+  dst : @gfx.ImageHandle,
+  shader : @gfx.ShaderHandle,
+  dst_region : @gfx.DstRegion,
+  blend : @gfx.BlendMode,
+  vertex_data : Array[Double],
+  indices : Array[Int],
+  view_projection : @math3d.Mat4,
+  lighting : @light3d.LightingEnvironment,
+  skinning_matrices : Array[@math3d.Mat4],
+  instance_matrices : Array[@math3d.Mat4],
+  instance_colors : Array[@math3d.Vec4],
+  src_image_ids? : Array[Int] = [],
+) -> @gfx.DrawTrianglesCommand {
+  let count = if instance_matrices.length() < instance_colors.length() {
+    instance_matrices.length()
+  } else {
+    instance_colors.length()
+  }
+  let clamped_count = if count < max_skinned_instances {
+    count
+  } else {
+    max_skinned_instances
+  }
+  let dwords = skinned_instanced_lit_uniform_dwords(
+    view_projection, lighting, skinning_matrices, instance_matrices, instance_colors,
+  )
+  @gfx.new_draw_triangles_command(
+    dst,
+    shader,
+    [dst_region],
+    0,
+    0,
+    0,
+    blend,
+    vertex_data,
+    indices,
+    src_image_ids,
+    dwords,
+    instance_count=clamped_count,
+  )
+}
+
+///|
+pub fn new_skinned_instanced_monochrome_lit_mesh_draw_command(
+  dst : @gfx.ImageHandle,
+  shader : @gfx.ShaderHandle,
+  dst_region : @gfx.DstRegion,
+  blend : @gfx.BlendMode,
+  vertex_data : Array[Double],
+  indices : Array[Int],
+  view_projection : @math3d.Mat4,
+  lighting : @light3d.LightingEnvironment,
+  skinning_matrices : Array[@math3d.Mat4],
+  instance_matrices : Array[@math3d.Mat4],
+  base_color : @math3d.Vec4,
+  src_image_ids? : Array[Int] = [],
+) -> @gfx.DrawTrianglesCommand {
+  let count = if instance_matrices.length() < max_skinned_instances {
+    instance_matrices.length()
+  } else {
+    max_skinned_instances
+  }
+  let dwords = skinned_instanced_monochrome_lit_uniform_dwords(
+    view_projection, lighting, skinning_matrices, instance_matrices, base_color,
+  )
+  @gfx.new_draw_triangles_command(
+    dst,
+    shader,
+    [dst_region],
+    0,
+    0,
+    0,
+    blend,
+    vertex_data,
+    indices,
+    src_image_ids,
+    dwords,
+    instance_count=count,
   )
 }
 
@@ -804,6 +1246,14 @@ pub fn new_pbr_mesh_draw_command(
 let max_instances : Int = 256
 
 ///|
+let max_monochrome_instances : Int = 64
+
+///|
+pub fn instanced_monochrome_max_instances() -> Int {
+  max_monochrome_instances
+}
+
+///|
 /// WGSL instanced lit shader (untextured).
 /// Uniform layout: VP(16) + Light(12) + instance_count(4) + InstanceData(N×20).
 /// Each instance has model(16) + color(4) dwords.
@@ -854,6 +1304,49 @@ pub fn shader3d_lit_instanced_wgsl() -> String {
 }
 
 ///|
+/// WGSL instanced lit shader (untextured, uniform color, 64 instance cap).
+pub fn shader3d_lit_instanced_monochrome_wgsl() -> String {
+  "const MAX_INSTANCES: u32 = 64u;\n\n" +
+  "struct Uniforms {\n" +
+  "  vp: mat4x4<f32>,\n" +
+  "  light_dir: vec4<f32>,\n" +
+  "  light_color: vec4<f32>,\n" +
+  "  ambient_color: vec4<f32>,\n" +
+  "  instance_count: vec4<f32>,\n" +
+  "  base_color: vec4<f32>,\n" +
+  "  instance_models: array<mat4x4<f32>, 64>,\n" +
+  "};\n\n" +
+  "@group(0) @binding(0) var<uniform> uniforms: Uniforms;\n\n" +
+  "struct VertexInput {\n" +
+  "  @location(0) position: vec3<f32>,\n" +
+  "  @location(1) normal: vec3<f32>,\n" +
+  "  @location(2) uv: vec2<f32>,\n" +
+  "};\n\n" +
+  "struct VertexOutput {\n" +
+  "  @builtin(position) clip_position: vec4<f32>,\n" +
+  "  @location(0) world_normal: vec3<f32>,\n" +
+  "};\n\n" +
+  "@vertex fn vs_main(input: VertexInput, @builtin(instance_index) iid: u32) -> VertexOutput {\n" +
+  "  let model = uniforms.instance_models[iid];\n" +
+  "  let mvp = uniforms.vp * model;\n" +
+  "  var out: VertexOutput;\n" +
+  "  out.clip_position = mvp * vec4<f32>(input.position, 1.0);\n" +
+  "  let normal_mat = mat3x3<f32>(model[0].xyz, model[1].xyz, model[2].xyz);\n" +
+  "  out.world_normal = normalize(normal_mat * input.normal);\n" +
+  "  return out;\n" +
+  "}\n\n" +
+  "@fragment fn fs_main(in: VertexOutput) -> @location(0) vec4<f32> {\n" +
+  "  let normal = normalize(in.world_normal);\n" +
+  "  let light_dir = normalize(-uniforms.light_dir.xyz);\n" +
+  "  let ndotl = max(dot(normal, light_dir), 0.0);\n" +
+  "  let diffuse = uniforms.light_color.xyz * ndotl;\n" +
+  "  let ambient = uniforms.ambient_color.xyz;\n" +
+  "  let lit_color = uniforms.base_color.rgb * (diffuse + ambient);\n" +
+  "  return vec4<f32>(lit_color, uniforms.base_color.a);\n" +
+  "}\n"
+}
+
+///|
 /// Encode instanced lit uniform data.
 /// Layout: VP(16) + Light(12) + instance_count(4) + per-instance(model(16)+color(4))×N.
 pub fn instanced_lit_uniform_dwords(
@@ -897,6 +1390,46 @@ pub fn instanced_lit_uniform_dwords(
 }
 
 ///|
+/// Encode instanced lit uniform data with uniform base color and 64 instance cap.
+pub fn instanced_monochrome_lit_uniform_dwords(
+  view_projection : @math3d.Mat4,
+  lighting : @light3d.LightingEnvironment,
+  instance_matrices : Array[@math3d.Mat4],
+  base_color : @math3d.Vec4,
+) -> Array[Int] {
+  let dwords = mat4_to_uniform_dwords(view_projection)
+  let light_dw = @light3d.light_uniform_dwords(lighting)
+  for i in 0..<light_dw.length() {
+    dwords.push(light_dw[i])
+  }
+  let count = if instance_matrices.length() < max_monochrome_instances {
+    instance_matrices.length()
+  } else {
+    max_monochrome_instances
+  }
+  dwords.push(@gfx.double_to_f32_bits(count.to_double()))
+  dwords.push(@gfx.double_to_f32_bits(0.0))
+  dwords.push(@gfx.double_to_f32_bits(0.0))
+  dwords.push(@gfx.double_to_f32_bits(0.0))
+  dwords.push(@gfx.double_to_f32_bits(base_color.x))
+  dwords.push(@gfx.double_to_f32_bits(base_color.y))
+  dwords.push(@gfx.double_to_f32_bits(base_color.z))
+  dwords.push(@gfx.double_to_f32_bits(base_color.w))
+  for i in 0..<count {
+    let m = instance_matrices[i]
+    for j in 0..<16 {
+      dwords.push(@gfx.double_to_f32_bits(m.elements[j]))
+    }
+  }
+  for _i in count..<max_monochrome_instances {
+    for _j in 0..<16 {
+      dwords.push(0)
+    }
+  }
+  dwords
+}
+
+///|
 /// Build an instanced draw command.
 pub fn new_instanced_lit_mesh_draw_command(
   dst : @gfx.ImageHandle,
@@ -917,6 +1450,44 @@ pub fn new_instanced_lit_mesh_draw_command(
   }
   let uniform_dwords = instanced_lit_uniform_dwords(
     view_projection, lighting, instance_matrices, instance_colors,
+  )
+  @gfx.new_draw_triangles_command(
+    dst,
+    shader,
+    [dst_region],
+    0,
+    0,
+    0,
+    blend,
+    mesh.vertex_data,
+    mesh.indices,
+    src_image_ids,
+    uniform_dwords,
+    instance_count=count,
+  )
+}
+
+///|
+/// Build a monochrome instanced draw command with a small uniform footprint.
+pub fn new_instanced_monochrome_lit_mesh_draw_command(
+  dst : @gfx.ImageHandle,
+  shader : @gfx.ShaderHandle,
+  dst_region : @gfx.DstRegion,
+  blend : @gfx.BlendMode,
+  mesh : @mesh3d.Mesh3D,
+  view_projection : @math3d.Mat4,
+  lighting : @light3d.LightingEnvironment,
+  instance_matrices : Array[@math3d.Mat4],
+  base_color : @math3d.Vec4,
+  src_image_ids? : Array[Int] = [],
+) -> @gfx.DrawTrianglesCommand {
+  let count = if instance_matrices.length() < max_monochrome_instances {
+    instance_matrices.length()
+  } else {
+    max_monochrome_instances
+  }
+  let uniform_dwords = instanced_monochrome_lit_uniform_dwords(
+    view_projection, lighting, instance_matrices, base_color,
   )
   @gfx.new_draw_triangles_command(
     dst,

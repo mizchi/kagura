@@ -5,12 +5,15 @@ pub fn update_enemy_ai(
   enemies : Array[Enemy],
   player : Player,
   grid : @terrain.Grid2D,
+  rooms : Array[@terrain.Room],
   frame_count : Int,
   projectiles : Array[Projectile],
   params? : BalanceParams = BalanceParams::default(),
 ) -> Unit {
   let player_tile_x = (player.x / tile_size).to_int()
   let player_tile_y = (player.y / tile_size).to_int()
+  let player_room = find_room_at(rooms, player.x, player.y)
+  let chase_range_sq = params.chase_range * params.chase_range
   for enemy in enemies {
     if not(enemy.alive) {
       continue
@@ -18,7 +21,8 @@ pub fn update_enemy_ai(
     let cdx = player.x - enemy.x
     let cdy = player.y - enemy.y
     let dist_sq = cdx * cdx + cdy * cdy
-    let chase_range_sq = params.chase_range * params.chase_range
+    let enemy_room = find_room_at(rooms, enemy.x, enemy.y)
+    let same_room_visible = player_room >= 0 && enemy_room == player_room
     // Boss charge logic
     if enemy.kind == Boss {
       if enemy.charge_timer > 0 {
@@ -78,6 +82,15 @@ pub fn update_enemy_ai(
     }
     if enemy.shoot_cooldown > 0 {
       enemy.shoot_cooldown = enemy.shoot_cooldown - 1
+    }
+    if same_room_visible && dist_sq > 1.0 {
+      let dist = dist_sq.sqrt()
+      enemy.path_cache = []
+      enemy.path_index = 0
+      enemy.path_timer = path_update_interval
+      enemy.vx = cdx / dist * enemy.speed
+      enemy.vy = cdy / dist * enemy.speed
+      continue
     }
     // Update pathfinding cache periodically
     if enemy.path_timer <= 0 {

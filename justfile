@@ -19,6 +19,7 @@ modeling3d-check:
 
 test:
     if [ "{{target}}" = "native" ]; then CPATH="$(brew --prefix glfw)/include:${CPATH:-}" LIBRARY_PATH="$(brew --prefix)/lib:${LIBRARY_PATH:-}" moon test --target native; else moon test --target {{target}}; fi
+    if [ "{{target}}" = "js" ] && ls lib/web/*.test.mjs >/dev/null 2>&1; then node --test lib/web/*.test.mjs; fi
     if [ "{{target}}" = "js" ] && [ -f modules/js_runtime/moon.mod.json ]; then (cd modules/js_runtime && moon test --target js); fi
     for dir in examples/*/ tools/modeling3d/examples/*/; do if [ -f "$dir/moon.mod.json" ]; then if [ "{{target}}" = "native" ] && [ "$dir" = "examples/runtime_smoke_native/" ]; then echo "skip $dir (native smoke app is validated in native-macos build job)"; continue; fi; (cd "$dir" && if [ "{{target}}" = "native" ]; then CPATH="$(brew --prefix glfw)/include:${CPATH:-}" LIBRARY_PATH="$(brew --prefix)/lib:${LIBRARY_PATH:-}" moon test --target native; else moon test --target {{target}}; fi) || exit 1; fi; done
 
@@ -67,6 +68,9 @@ e2e-vrt:
 
 e2e-vrt-update:
     pnpm exec playwright test e2e/vrt.spec.ts --update-snapshots
+
+hacknslash3d-gpu-perf port="8282" samples="120" warmup="30" extra="--headed":
+    node scripts/hacknslash_3d_gpu_perf.mjs --serve --port {{port}} --samples {{samples}} --warmup {{warmup}} {{extra}}
 
 info:
     moon info

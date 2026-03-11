@@ -16,6 +16,31 @@ fn get_snapshot_tick() -> Int {
 }
 
 ///|
+fn get_initial_profiler_enabled() -> Bool {
+  false
+}
+
+///|
+fn get_initial_perf_capture_enabled() -> Bool {
+  false
+}
+
+///|
+fn get_initial_fxaa_enabled() -> Bool {
+  false
+}
+
+///|
+fn get_initial_shadows_enabled() -> Bool {
+  false
+}
+
+///|
+fn get_initial_ssao_enabled() -> Bool {
+  false
+}
+
+///|
 fn js_set_snapshot_tick(_count : Int) -> Unit {
 
 }

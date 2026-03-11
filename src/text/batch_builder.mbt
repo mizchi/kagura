@@ -16,6 +16,43 @@ pub fn SimpleTextBatchBuilder::new(
 }
 
 ///|
+fn simple_text_batch_resource_cache_key(
+  target : @gfx.ImageHandle,
+  shader : @gfx.ShaderHandle,
+  pipeline_id : Int,
+  region : @gfx.DstRegion,
+  src_image_ids : Array[Int],
+  vertex_data : Array[Double],
+  indices : Array[Int],
+) -> Int {
+  let values : Array[Int] = [
+    target.id,
+    target.width,
+    target.height,
+    shader.id,
+    pipeline_id,
+    region.x,
+    region.y,
+    region.width,
+    region.height,
+    region.index_count,
+    src_image_ids.length(),
+    vertex_data.length(),
+    indices.length(),
+  ]
+  for image_id in src_image_ids {
+    values.push(image_id)
+  }
+  for v in vertex_data {
+    values.push(@gfx.double_to_f32_bits(v))
+  }
+  for index in indices {
+    values.push(index)
+  }
+  @gfx.build_resource_cache_key(0x54455854, values)
+}
+
+///|
 pub impl TextBatchBuilder for SimpleTextBatchBuilder with build_draw_commands(
   self,
   target,
@@ -175,6 +212,15 @@ pub impl TextBatchBuilder for SimpleTextBatchBuilder with build_draw_commands(
         command_indices,
         src_image_ids,
         [],
+        resource_cache_key=simple_text_batch_resource_cache_key(
+          target,
+          shader,
+          self.pipeline_id,
+          merged_region,
+          src_image_ids,
+          command_vertex_data,
+          command_indices,
+        ),
       ),
     ]
   }

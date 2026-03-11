@@ -72,3 +72,128 @@ test "ParticleEmitter::update_physics_only does not spawn" {
   emitter.update_physics_only(0.01)
   assert_eq(emitter.particle_count(), initial_count)
 }
+
+///|
+test "ParticleManager::draw batches multiple emitters into one command" {
+  let pm = ParticleManager::new(999)
+  pm.spawn({
+    ..default_emitter_config(),
+    position: @math3d.Vec3::new(0.0, 0.0, 0.0),
+    spawn_rate: 1000.0,
+    max_particles: 8,
+    lifetime_min: 1.0,
+    lifetime_max: 1.0,
+  })
+  pm.spawn({
+    ..default_emitter_config(),
+    position: @math3d.Vec3::new(1.0, 0.0, 0.0),
+    spawn_rate: 1000.0,
+    max_particles: 8,
+    lifetime_min: 1.0,
+    lifetime_max: 1.0,
+  })
+  pm.update(1.0 / 60.0)
+  let camera = @camera3d.Camera3D::new_perspective(
+    @math3d.Vec3::new(0.0, 0.0, 3.0),
+    @math3d.Vec3::zero(),
+    @math3d.Vec3::unit_y(),
+    0.7853981633974483,
+    640.0 / 480.0,
+    0.1,
+    100.0,
+  )
+  let cmds = pm.draw(@gfx.new_image_handle(1, 640, 480), camera, 640, 480, 0)
+
+  assert_eq(cmds.length(), 1)
+  assert_true(cmds[0].indices.length() > 0)
+  assert_eq(cmds[0].dst_regions.length(), 1)
+}
+
+///|
+test "ParticleManager::draw clears scratch after emitters expire" {
+  let pm = ParticleManager::new(999)
+  pm.spawn({
+    ..default_emitter_config(),
+    spawn_rate: 1000.0,
+    max_particles: 8,
+    lifetime_min: 0.01,
+    lifetime_max: 0.01,
+  })
+  pm.update(1.0 / 60.0)
+  let camera = @camera3d.Camera3D::new_perspective(
+    @math3d.Vec3::new(0.0, 0.0, 3.0),
+    @math3d.Vec3::zero(),
+    @math3d.Vec3::unit_y(),
+    0.7853981633974483,
+    640.0 / 480.0,
+    0.1,
+    100.0,
+  )
+  let cmds = pm.draw(@gfx.new_image_handle(1, 640, 480), camera, 640, 480, 0)
+  assert_eq(cmds.length(), 1)
+  assert_true(pm.vertex_scratch.length() > 0)
+  assert_true(pm.index_scratch.length() > 0)
+
+  pm.update(1.0)
+  let empty_cmds = pm.draw(
+    @gfx.new_image_handle(1, 640, 480),
+    camera,
+    640,
+    480,
+    1,
+  )
+  assert_eq(empty_cmds.length(), 0)
+  assert_eq(pm.vertex_scratch.length(), 0)
+  assert_eq(pm.index_scratch.length(), 0)
+}
+
+///|
+test "ParticleManager::append_draw_commands appends into existing command array" {
+  let pm = ParticleManager::new(999)
+  pm.spawn({
+    ..default_emitter_config(),
+    position: @math3d.Vec3::new(0.0, 0.0, 0.0),
+    spawn_rate: 1000.0,
+    max_particles: 8,
+    lifetime_min: 1.0,
+    lifetime_max: 1.0,
+  })
+  pm.update(1.0 / 60.0)
+  let camera = @camera3d.Camera3D::new_perspective(
+    @math3d.Vec3::new(0.0, 0.0, 3.0),
+    @math3d.Vec3::zero(),
+    @math3d.Vec3::unit_y(),
+    0.7853981633974483,
+    640.0 / 480.0,
+    0.1,
+    100.0,
+  )
+  let cmds : Array[@gfx.DrawTrianglesCommand] = []
+  cmds.push(
+    @gfx.new_draw_triangles_command(
+      @gfx.new_image_handle(9, 640, 480),
+      @gfx.new_shader_handle(9, "dummy"),
+      [@gfx.new_dst_region(0, 0, 640, 480, 3)],
+      0,
+      0,
+      0,
+      @gfx.blend_mode_from_int(1),
+      [0.0, 0.0, 0.0, 0.0, 1.0, 0.0, 1.0, 0.0, 1.0, 1.0, 1.0, 1.0],
+      [0, 1, 2],
+      [],
+      [],
+    ),
+  )
+
+  pm.append_draw_commands(
+    cmds,
+    @gfx.new_image_handle(1, 640, 480),
+    camera,
+    640,
+    480,
+    0,
+  )
+
+  assert_eq(cmds.length(), 2)
+  assert_true(cmds[1].indices.length() > 0)
+}

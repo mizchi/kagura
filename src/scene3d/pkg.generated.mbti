@@ -16,7 +16,21 @@ pub fn object3d(mesh~ : @mesh3d.Mesh3D, position? : @math3d.Vec3, rotation? : @m
 
 pub fn object3d_with_transform(mesh~ : @mesh3d.Mesh3D, transform~ : @transform3d.Transform3D, color? : @math3d.Vec4, material? : Material?, sort_bias? : Double, skinning? : SkinningState?) -> Object3D
 
+pub fn push_object3d_gpu_commands(Object3D, @camera3d.Camera3D, @light3d.LightingEnvironment, @gfx.ImageHandle, @gfx.ShaderHandle, Int, Int, Array[@gfx.DrawTrianglesCommand], shader3d_textured? : @gfx.ShaderHandle?, shader3d_pbr? : @gfx.ShaderHandle?, shader3d_pbr_textured? : @gfx.ShaderHandle?, shader3d_skinned? : @gfx.ShaderHandle?) -> Unit
+
+pub fn push_scene3d_gpu_commands(Array[Object3D], @camera3d.Camera3D, @light3d.LightingEnvironment, @gfx.ImageHandle, @gfx.ShaderHandle, Int, Int, Array[@gfx.DrawTrianglesCommand], shader3d_textured? : @gfx.ShaderHandle?, shader3d_pbr? : @gfx.ShaderHandle?, shader3d_pbr_textured? : @gfx.ShaderHandle?, shader3d_skinned? : @gfx.ShaderHandle?) -> Unit
+
+pub fn push_single_skinned_mesh_gpu_command(@mesh3d.Mesh3D, @transform3d.Transform3D, @math3d.Vec4, Array[Double], Array[@math3d.Mat4], @camera3d.Camera3D, @light3d.LightingEnvironment, @gfx.ImageHandle, @gfx.ShaderHandle, Int, Int, Array[@gfx.DrawTrianglesCommand]) -> Unit
+
+pub fn push_single_skinned_mesh_gpu_command_with_view_projection(@mesh3d.Mesh3D, @transform3d.Transform3D, @math3d.Vec4, Array[Double], Array[@math3d.Mat4], @math3d.Mat4, @light3d.LightingEnvironment, @gfx.ImageHandle, @gfx.ShaderHandle, Int, Int, Array[@gfx.DrawTrianglesCommand]) -> Unit
+
+pub fn push_skinned_mesh_gpu_commands(@mesh3d.Mesh3D, Array[@transform3d.Transform3D], Array[@math3d.Vec4], Array[Double], Array[@math3d.Mat4], @camera3d.Camera3D, @light3d.LightingEnvironment, @gfx.ImageHandle, @gfx.ShaderHandle, @gfx.ShaderHandle, Int, Int, Array[@gfx.DrawTrianglesCommand]) -> Unit
+
+pub fn push_skinned_mesh_gpu_commands_with_view_projection(@mesh3d.Mesh3D, Array[@transform3d.Transform3D], Array[@math3d.Vec4], Array[Double], Array[@math3d.Mat4], @math3d.Mat4, @light3d.LightingEnvironment, @gfx.ImageHandle, @gfx.ShaderHandle, @gfx.ShaderHandle, Int, Int, Array[@gfx.DrawTrianglesCommand]) -> Unit
+
 pub fn render_instanced_gpu(@mesh3d.Mesh3D, Array[InstanceData], @camera3d.Camera3D, lighting? : @light3d.LightingEnvironment, @gfx.ImageHandle, @gfx.ShaderHandle, Int, Int) -> @gfx.DrawTrianglesCommand
+
+pub fn render_instanced_gpu_with_view_projection(@mesh3d.Mesh3D, Array[InstanceData], @math3d.Mat4, @light3d.LightingEnvironment, @gfx.ImageHandle, @gfx.ShaderHandle, Int, Int) -> @gfx.DrawTrianglesCommand
 
 pub fn render_scene3d_gpu(Scene3D, @gfx.ImageHandle, @gfx.ShaderHandle, Int, Int, shader3d_textured? : @gfx.ShaderHandle?, shader3d_pbr? : @gfx.ShaderHandle?, shader3d_pbr_textured? : @gfx.ShaderHandle?, shader3d_skinned? : @gfx.ShaderHandle?) -> Array[@gfx.DrawTrianglesCommand]
 

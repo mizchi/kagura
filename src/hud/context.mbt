@@ -25,6 +25,57 @@ fn hex_to_uniform(hex : Int, alpha? : Int = 255) -> Array[Int] {
 }
 
 ///|
+/// Append rectangle geometry into a shared HUD batch.
+pub fn HudContext::append_rect_batch_geometry(
+  self : HudContext,
+  vertices : Array[Double],
+  indices : Array[Int],
+  x : Double,
+  y : Double,
+  w : Double,
+  h : Double,
+) -> Unit {
+  let (rect_vertices, rect_indices) = @debugutil.ndc_rect_fill_vertices(
+    x,
+    y,
+    w,
+    h,
+    self.screen_w,
+    self.screen_h,
+  )
+  let base_vertex = vertices.length() / 4
+  for value in rect_vertices {
+    vertices.push(value)
+  }
+  for idx in rect_indices {
+    indices.push(base_vertex + idx)
+  }
+}
+
+///|
+/// Flush shared rectangle geometry as a single HUD draw command.
+pub fn HudContext::push_rect_batch_command(
+  self : HudContext,
+  cmds : Array[@gfx.DrawTrianglesCommand],
+  vertices : Array[Double],
+  indices : Array[Int],
+  color : @gfx.Color,
+) -> Unit {
+  if indices.is_empty() {
+    return
+  }
+  cmds.push(
+    @debugutil.new_simple_draw_command(
+      self.dst,
+      self.shader,
+      vertices,
+      indices,
+      color,
+    ),
+  )
+}
+
+///|
 /// Draw a filled rectangle in pixel coordinates.
 pub fn HudContext::draw_rect(
   self : HudContext,
@@ -88,7 +139,9 @@ pub fn HudContext::draw_text(
         let c = if c >= 97 && c <= 122 { c - 32 } else { c }
         chars.push(c)
       }
-      if chars.length() == 0 { return }
+      if chars.length() == 0 {
+        return
+      }
       let scale = size / 10.0
       // dot-matrix: px_size=3*scale, char_w=9*scale, gap=3*scale
       // total_w = n*9*scale + (n-1)*3*scale = (12n-3)*scale

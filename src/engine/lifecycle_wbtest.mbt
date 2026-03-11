@@ -2,9 +2,7 @@
 test "lifecycle hooks: on_start and on_stop fire correctly" {
   let events : Array[String] = []
   set_lifecycle_hooks({
-    on_start: fn(canvas, title) {
-      events.push("start:" + canvas + ":" + title)
-    },
+    on_start: fn(canvas, title) { events.push("start:" + canvas + ":" + title) },
     on_stop: fn() { events.push("stop") },
   })
   invoke_on_start("#app", "test-game")
@@ -26,7 +24,7 @@ test "lifecycle hooks: reset clears hooks" {
   let called = Ref::new(false)
   set_lifecycle_hooks({
     on_start: fn(_canvas, _title) { called.val = true },
-    on_stop: fn() {},
+    on_stop: fn() {  },
   })
   reset_lifecycle_hooks()
   invoke_on_start("#app", "test")

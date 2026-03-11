@@ -100,3 +100,24 @@ test "build_skinned_vertex_data interleaves joints and weights (stride 16)" {
   assert_eq(packed[14], 0.2)
   assert_eq(packed[15], 0.1)
 }
+
+///|
+test "apply_skin_into matches apply_skin output" {
+  let vertex_data : Array[Double] = [
+    1.0, 0.0, 0.0, 0.0, 1.0, 0.0, 0.0, 0.0, 0.0, 1.0, 0.0, 0.0, 1.0, 0.0, 1.0, 0.0,
+  ]
+  let mesh = @mesh3d.Mesh3D::new(vertex_data, [0, 1])
+  let skin : SkinData = {
+    joint_indices: [0, 0, 0, 0, 0, 0, 0, 0],
+    weights: [1.0, 0.0, 0.0, 0.0, 1.0, 0.0, 0.0, 0.0],
+    vertex_count: 2,
+  }
+  let skinning = [@math3d.Mat4::rotation_z(@math.PI / 2.0)]
+  let expected = apply_skin(mesh, skin, skinning)
+  let out : Array[Double] = []
+  apply_skin_into(mesh, skin, skinning, out)
+  assert_eq(out.length(), expected.vertex_data.length())
+  for i in 0..<out.length() {
+    assert_true((out[i] - expected.vertex_data[i]).abs() < 1.0e-6)
+  }
+}

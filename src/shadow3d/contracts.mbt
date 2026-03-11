@@ -9,6 +9,34 @@ fn f32(v : Double) -> Int {
   @gfx.double_to_f32_bits(v)
 }
 
+///|
+fn shadow_depth_resource_cache_key(
+  shadow_map : @gfx.ImageHandle,
+  shader : @gfx.ShaderHandle,
+  mesh : @mesh3d.Mesh3D,
+  uniform_dwords : Array[Int],
+) -> Int {
+  let values : Array[Int] = [
+    shadow_map.id,
+    shadow_map.width,
+    shadow_map.height,
+    shader.id,
+    mesh.vertex_data.length(),
+    mesh.indices.length(),
+    uniform_dwords.length(),
+  ]
+  for vertex in mesh.vertex_data {
+    values.push(@gfx.double_to_f32_bits(vertex))
+  }
+  for index in mesh.indices {
+    values.push(index)
+  }
+  for dword in uniform_dwords {
+    values.push(dword)
+  }
+  @gfx.build_resource_cache_key(0x53484450, values)
+}
+
 // ============================================================
 // ShadowConfig
 // ============================================================
@@ -184,6 +212,9 @@ pub fn new_shadow_depth_command(
     mesh.indices,
     [],
     uniform_dwords,
+    resource_cache_key=shadow_depth_resource_cache_key(
+      shadow_map, shader, mesh, uniform_dwords,
+    ),
   )
 }
 

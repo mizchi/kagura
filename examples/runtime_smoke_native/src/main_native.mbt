@@ -291,21 +291,14 @@ fn[T : @gfx.GraphicsDriver] run_draw_payload_probe(
   let tile_table = @tilemap2d.new_tile_atlas_table([
     @tilemap2d.new_tile_atlas_entry(1, atlas_key),
   ])
-  let previous_tiles = [0, 0, 0, 0]
+  let tile_cache = @tilemap2d.TileChunkBatchCache::new(1, [0, 0, 0, 0])
   let next_tiles = [0, 1, 0, 0]
   let visible_chunk = @tilemap2d.estimate_visible_tile_chunk(
     2, 2, -0.5, -0.5, 0.5, 0.5, -0.5, -0.5, 0.5, 0.5, 0,
   )
-  let dirty_chunks = @tilemap2d.diff_visible_tile_index_chunks(
-    previous_tiles, next_tiles, 2, 1, visible_chunk,
-  )
-  if dirty_chunks.length() != 1 {
-    panic()
-  }
   let tile_commands : Array[@gfx.DrawTrianglesCommand] = []
-  let appended = @tilemap2d.append_tile_indexed_dirty_chunk_batched_draw_commands(
+  let appended = tile_cache.append_visible_dirty_chunk_batched_draw_commands(
     tile_commands,
-    dirty_chunks,
     tile_table,
     atlas_repository,
     dst,
@@ -316,6 +309,7 @@ fn[T : @gfx.GraphicsDriver] run_draw_payload_probe(
     @gfx.new_dst_region(0, 0, 64, 64, 6),
     next_tiles,
     2,
+    visible_chunk,
     -0.5,
     -0.5,
     0.5,

@@ -1,6 +1,11 @@
 // Game state construction, update logic, reset
 
 ///|
+fn half_res_target_size(size : Int) -> Int {
+  Int::max(1, size / 2)
+}
+
+///|
 fn GameState::new(seed~ : Int) -> GameState {
   GameState::new_with_ssao(seed~, SSAOConfig::disabled_default())
 }
@@ -10,6 +15,8 @@ fn GameState::new_with_ssao(seed~ : Int, ssao_config : SSAOConfig) -> GameState 
   let world = @game.GameWorld::new(seed~)
   let sw = screen_w.to_double()
   let sh = screen_h.to_double()
+  let bloom_w = half_res_target_size(screen_w)
+  let bloom_h = half_res_target_size(screen_h)
   let init_y = @game.get_tile_height(
     world.dungeon,
     world.player.x,
@@ -42,6 +49,9 @@ fn GameState::new_with_ssao(seed~ : Int, ssao_config : SSAOConfig) -> GameState 
   )
   let meshes = Meshes3D::new()
   let dungeon_chunks = build_dungeon_chunks(world.dungeon, meshes)
+  let dungeon_tinted_lighting_cache = build_dungeon_tinted_lighting_cache(
+    lighting,
+  )
   let icon_atlas = create_icon_atlas()
   let shadow_config = @shadow3d.ShadowConfig::new(
     1024, // map_size
@@ -67,13 +77,34 @@ fn GameState::new_with_ssao(seed~ : Int, ssao_config : SSAOConfig) -> GameState 
       100,
       @draw3d.shader3d_lit_untextured_wgsl(),
     ),
+    shader3d_colored: @gfx.new_shader_handle(
+      103,
+      @draw3d.shader3d_lit_colored_wgsl(),
+    ),
+    shader3d_instanced: @gfx.new_shader_handle(
+      102,
+      @draw3d.shader3d_lit_instanced_wgsl(),
+    ),
+    shader3d_instanced_monochrome: @gfx.new_shader_handle(
+      106,
+      @draw3d.shader3d_lit_instanced_monochrome_wgsl(),
+    ),
     shader3d_skinned: @gfx.new_shader_handle(
       101,
       @draw3d.shader3d_lit_skinned_wgsl(),
     ),
+    shader3d_skinned_instanced: @gfx.new_shader_handle(
+      104,
+      @draw3d.shader3d_lit_skinned_instanced_wgsl(),
+    ),
+    shader3d_skinned_instanced_monochrome: @gfx.new_shader_handle(
+      105,
+      @draw3d.shader3d_lit_skinned_instanced_monochrome_wgsl(),
+    ),
     meshes,
     character: PlayerCharacter::new(),
     enemy_models: EnemyModels::new(),
+    enemy_render_buckets: default_enemy_render_buckets(),
     // Shadow mapping
     shadow_map: @gfx.new_image_handle(200, 1024, 1024),
     shadow_depth_shader: @gfx.new_shader_handle(
@@ -84,12 +115,25 @@ fn GameState::new_with_ssao(seed~ : Int, ssao_config : SSAOConfig) -> GameState 
       201,
       @shadow3d.shader3d_shadow_lit_untextured_wgsl(),
     ),
+    shadows_enabled: false,
     shadow_config,
     dungeon_chunks,
+    dungeon_tinted_lighting_cache,
+    visible_chunks_cache: [],
+    visible_chunk_cache_player_tile_x: -1,
+    visible_chunk_cache_player_tile_z: -1,
+    visible_chunk_cache_builds: 0,
+    visible_dungeon_mesh_cache: {
+      groups: [],
+      all_mesh: @mesh3d.Mesh3D::new([], []),
+    },
+    visible_dungeon_mesh_cache_player_tile_x: -1,
+    visible_dungeon_mesh_cache_player_tile_z: -1,
+    visible_dungeon_mesh_cache_builds: 0,
     // PostFX render targets
     scene_target: @gfx.new_image_handle(300, screen_w, screen_h),
-    bloom_a: @gfx.new_image_handle(301, screen_w, screen_h),
-    bloom_b: @gfx.new_image_handle(302, screen_w, screen_h),
+    bloom_a: @gfx.new_image_handle(301, bloom_w, bloom_h),
+    bloom_b: @gfx.new_image_handle(302, bloom_w, bloom_h),
     post_target: @gfx.new_image_handle(303, screen_w, screen_h),
     // PostFX shaders
     bloom_threshold_sh: @gfx.new_shader_handle(
@@ -102,6 +146,7 @@ fn GameState::new_with_ssao(seed~ : Int, ssao_config : SSAOConfig) -> GameState 
       303,
       @postfx.bloom_composite_wgsl(),
     ),
+    fxaa_enabled: false,
     fxaa_sh: @gfx.new_shader_handle(304, @postfx.fxaa_wgsl()),
     tonemap_sh: @gfx.new_shader_handle(305, @postfx.tonemap_wgsl(@postfx.ACES)),
     // Camera depth (for SSAO)
@@ -120,6 +165,20 @@ fn GameState::new_with_ssao(seed~ : Int, ssao_config : SSAOConfig) -> GameState 
     icon_atlas,
     // Text
     text_renderer: None,
+    entity_instance_scratch: default_entity_instance_scratch(),
+    minimap_static_cmds: [],
+    minimap_cache_player_tile_x: -1,
+    minimap_cache_player_tile_y: -1,
+    minimap_cache_floor: -1,
+    minimap_cache_dst_id: -1,
+    minimap_cache_shader_id: -1,
+    minimap_cache_builds: 0,
+    hud_static_cmds: [],
+    hud_static_cache_floor: -1,
+    hud_static_cache_dst_id: -1,
+    hud_static_cache_shader_id: -1,
+    hud_static_cache_text_mode: -1,
+    hud_static_cache_builds: 0,
   }
 }
 
@@ -130,6 +189,14 @@ fn GameState::update(self : GameState, input : @core.InputSnapshot) -> Unit {
   // Profiler toggle (works in any mode)
   if @inpututil.is_key_just_pressed(self.input.key_state, key_f3) {
     self.show_profiler = not(self.show_profiler)
+  }
+  // FXAA toggle for visual/perf comparison
+  if @inpututil.is_key_just_pressed(self.input.key_state, key_f4) {
+    self.fxaa_enabled = not(self.fxaa_enabled)
+  }
+  // Shadow toggle for visual/perf comparison
+  if @inpututil.is_key_just_pressed(self.input.key_state, key_f5) {
+    self.shadows_enabled = not(self.shadows_enabled)
   }
   match self.world.mode {
     @game.Title => self.update_title()
@@ -340,6 +407,11 @@ fn GameState::update_playing(self : GameState) -> Unit {
 ///|
 fn GameState::rebuild_dungeon_rendering(self : GameState) -> Unit {
   self.dungeon_chunks = build_dungeon_chunks(self.world.dungeon, self.meshes)
+  self.dungeon_tinted_lighting_cache = build_dungeon_tinted_lighting_cache(
+    self.lighting,
+  )
+  self.invalidate_visible_chunk_cache()
+  self.invalidate_minimap_cache()
   let ry = @game.get_tile_height(
     self.world.dungeon,
     self.world.player.x,

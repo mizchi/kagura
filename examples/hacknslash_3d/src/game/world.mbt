@@ -28,6 +28,9 @@ pub(all) struct GameWorld {
   mut auto_nav_index : Int
   mut auto_cleared_rooms : Array[Bool]
   mut events : Array[GameEvent]
+  mut enemy_separation_cell_heads : Array[Int]
+  mut enemy_separation_next_indices : Array[Int]
+  mut enemy_separation_cell_indices : Array[Int]
 }
 
 ///|
@@ -90,6 +93,12 @@ pub fn GameWorld::new(
     auto_nav_index: 0,
     auto_cleared_rooms: Array::make(dungeon.rooms.length(), false),
     events: [],
+    enemy_separation_cell_heads: Array::make(
+      enemy_separation_grid_cols() * enemy_separation_grid_rows(),
+      -1,
+    ),
+    enemy_separation_next_indices: [],
+    enemy_separation_cell_indices: [],
   }
 }
 
@@ -191,6 +200,190 @@ pub fn compact_items(arr : Array[ItemDrop]) -> Unit {
 }
 
 ///|
+
+///|
+fn enemy_separation_grid_cols() -> Int {
+  world_w.to_int() / 20 + 2
+}
+
+///|
+fn enemy_separation_grid_rows() -> Int {
+  world_h.to_int() / 20 + 2
+}
+
+///|
+fn enemy_separation_grid_axis_index(pos : Double, max_cells : Int) -> Int {
+  let raw = (pos / 20.0).to_int()
+  @cmp.maximum(0, @cmp.minimum(max_cells - 1, raw))
+}
+
+///|
+fn enemy_separation_grid_index(
+  x : Double,
+  y : Double,
+  cols : Int,
+  rows : Int,
+) -> Int {
+  let col = enemy_separation_grid_axis_index(x, cols)
+  let row = enemy_separation_grid_axis_index(y, rows)
+  row * cols + col
+}
+
+///|
+fn resolve_enemy_enemy_pair(
+  enemies : Array[Enemy],
+  grid : @terrain.Grid2D,
+  a_idx : Int,
+  b_idx : Int,
+) -> Unit {
+  let a = enemies[a_idx]
+  let b = enemies[b_idx]
+  let min_dist = (a.size + b.size) / 2.0
+  let sep_dx = a.x - b.x
+  if sep_dx.abs() >= min_dist {
+    return
+  }
+  let sep_dy = a.y - b.y
+  if sep_dy.abs() >= min_dist {
+    return
+  }
+  let sep_dist_sq = sep_dx * sep_dx + sep_dy * sep_dy
+  if sep_dist_sq < min_dist * min_dist && sep_dist_sq > 0.000001 {
+    let sep_dist = sep_dist_sq.sqrt()
+    let push = (min_dist - sep_dist) / 2.0
+    let nx = sep_dx / sep_dist
+    let ny = sep_dy / sep_dist
+    let ax_new = a.x + nx * push
+    let ay_new = a.y + ny * push
+    if not(check_wall_collision(grid, ax_new, a.y, a.size)) {
+      a.x = ax_new
+    }
+    if not(check_wall_collision(grid, a.x, ay_new, a.size)) {
+      a.y = ay_new
+    }
+    let bx_new = b.x - nx * push
+    let by_new = b.y - ny * push
+    if not(check_wall_collision(grid, bx_new, b.y, b.size)) {
+      b.x = bx_new
+    }
+    if not(check_wall_collision(grid, b.x, by_new, b.size)) {
+      b.y = by_new
+    }
+  }
+}
+
+///|
+fn GameWorld::prepare_enemy_separation_scratch(self : GameWorld) -> Unit {
+  for i = 0; i < self.enemy_separation_cell_heads.length(); i = i + 1 {
+    self.enemy_separation_cell_heads[i] = -1
+  }
+  while self.enemy_separation_next_indices.length() < self.enemies.length() {
+    self.enemy_separation_next_indices.push(-1)
+  }
+  while self.enemy_separation_cell_indices.length() < self.enemies.length() {
+    self.enemy_separation_cell_indices.push(0)
+  }
+}
+
+///|
+fn GameWorld::resolve_enemy_enemy_cell_neighbors(
+  self : GameWorld,
+  a_idx : Int,
+  cell : Int,
+  cols : Int,
+  rows : Int,
+) -> Unit {
+  let col = cell % cols
+  let row = cell / cols
+  let mut b_idx = self.enemy_separation_next_indices[a_idx]
+  while b_idx >= 0 {
+    resolve_enemy_enemy_pair(self.enemies, self.dungeon.grid, a_idx, b_idx)
+    b_idx = self.enemy_separation_next_indices[b_idx]
+  }
+  if col + 1 < cols {
+    let mut east_idx = self.enemy_separation_cell_heads[cell + 1]
+    while east_idx >= 0 {
+      resolve_enemy_enemy_pair(self.enemies, self.dungeon.grid, a_idx, east_idx)
+      east_idx = self.enemy_separation_next_indices[east_idx]
+    }
+  }
+  if row + 1 < rows {
+    let south = cell + cols
+    let mut south_idx = self.enemy_separation_cell_heads[south]
+    while south_idx >= 0 {
+      resolve_enemy_enemy_pair(
+        self.enemies,
+        self.dungeon.grid,
+        a_idx,
+        south_idx,
+      )
+      south_idx = self.enemy_separation_next_indices[south_idx]
+    }
+    if col > 0 {
+      let mut southwest_idx = self.enemy_separation_cell_heads[south - 1]
+      while southwest_idx >= 0 {
+        resolve_enemy_enemy_pair(
+          self.enemies,
+          self.dungeon.grid,
+          a_idx,
+          southwest_idx,
+        )
+        southwest_idx = self.enemy_separation_next_indices[southwest_idx]
+      }
+    }
+    if col + 1 < cols {
+      let mut southeast_idx = self.enemy_separation_cell_heads[south + 1]
+      while southeast_idx >= 0 {
+        resolve_enemy_enemy_pair(
+          self.enemies,
+          self.dungeon.grid,
+          a_idx,
+          southeast_idx,
+        )
+        southeast_idx = self.enemy_separation_next_indices[southeast_idx]
+      }
+    }
+  }
+}
+
+///|
+pub fn GameWorld::resolve_enemy_enemy_separation(self : GameWorld) -> Unit {
+  self.prepare_enemy_separation_scratch()
+  let cols = enemy_separation_grid_cols()
+  let rows = enemy_separation_grid_rows()
+  for enemy_index = 0
+      enemy_index < self.enemies.length()
+      enemy_index = enemy_index + 1 {
+    if not(self.enemies[enemy_index].alive) {
+      self.enemy_separation_next_indices[enemy_index] = -1
+      continue
+    }
+    let cell = enemy_separation_grid_index(
+      self.enemies[enemy_index].x,
+      self.enemies[enemy_index].y,
+      cols,
+      rows,
+    )
+    self.enemy_separation_cell_indices[enemy_index] = cell
+    self.enemy_separation_next_indices[enemy_index] = self.enemy_separation_cell_heads[cell]
+    self.enemy_separation_cell_heads[cell] = enemy_index
+  }
+  for enemy_index = 0
+      enemy_index < self.enemies.length()
+      enemy_index = enemy_index + 1 {
+    if not(self.enemies[enemy_index].alive) {
+      continue
+    }
+    self.resolve_enemy_enemy_cell_neighbors(
+      enemy_index,
+      self.enemy_separation_cell_indices[enemy_index],
+      cols,
+      rows,
+    )
+  }
+}
+
+///|
 pub fn start_dash(world : GameWorld, dir_x : Double, dir_y : Double) -> Unit {
   let p = world.params
   world.player.dash_timer = p.dash_duration.to_int()
@@ -199,6 +392,224 @@ pub fn start_dash(world : GameWorld, dir_x : Double, dir_y : Double) -> Unit {
   world.player.dash_vy = dir_y * p.player_speed * p.dash_speed_mult
   world.player.iframe_timer = p.dash_duration.to_int()
   world.events.push(DashTrail(world.player.x, world.player.y))
+}
+
+///|
+pub fn GameWorld::tick_enemy_ai_phase(self : GameWorld) -> Unit {
+  update_enemy_ai(
+    self.enemies,
+    self.player,
+    self.dungeon.grid,
+    self.dungeon.rooms,
+    self.frame_count,
+    self.projectiles,
+    params=self.params,
+  )
+}
+
+///|
+pub fn GameWorld::tick_enemy_movement_and_contact_phase(
+  self : GameWorld,
+) -> Unit {
+  let player_x = self.player.x
+  let player_y = self.player.y
+  let player_half = self.player.size / 2.0
+  let mut can_contact_player = self.player.iframe_timer <= 0
+  let enemy_contact_damage = self.params.enemy_contact_damage.to_int()
+  for enemy in self.enemies {
+    if enemy.alive {
+      if enemy.vx != 0.0 || enemy.vy != 0.0 {
+        let (ex, ey) = slide_move(
+          self.dungeon.grid,
+          enemy.x,
+          enemy.y,
+          enemy.vx,
+          enemy.vy,
+          enemy.size,
+        )
+        enemy.x = ex
+        enemy.y = ey
+      }
+      enemy.vx = 0.0
+      enemy.vy = 0.0
+      if can_contact_player {
+        let overlap_half = player_half + enemy.size / 2.0
+        let dx = (player_x - enemy.x).abs()
+        if dx < overlap_half {
+          let dy = (player_y - enemy.y).abs()
+          if dy < overlap_half {
+            self.deal_player_damage(enemy_contact_damage)
+            can_contact_player = false
+          }
+        }
+      }
+    }
+    if enemy.damage_timer > 0 {
+      enemy.damage_timer = enemy.damage_timer - 1
+    }
+  }
+}
+
+///|
+pub fn GameWorld::tick_projectiles_phase(self : GameWorld) -> Unit {
+  for proj in self.projectiles {
+    if proj.alive {
+      proj.x = proj.x + proj.vx
+      proj.y = proj.y + proj.vy
+      if is_wall_at(self.dungeon.grid, proj.x, proj.y) {
+        proj.alive = false
+      }
+      if proj.alive && not(proj.is_player) && self.player.iframe_timer <= 0 {
+        let pdx = proj.x - self.player.x
+        let pdy = proj.y - self.player.y
+        if pdx * pdx + pdy * pdy < pickup_radius_sq {
+          self.deal_player_damage(proj.damage)
+          proj.alive = false
+        }
+      }
+    }
+  }
+  process_player_arrows(self)
+  compact_projectiles(self.projectiles)
+}
+
+///|
+pub fn GameWorld::tick_items_phase(self : GameWorld) -> Unit {
+  for item in self.items {
+    if item.alive {
+      if item.vx != 0.0 || item.vy != 0.0 {
+        let (nx, ny) = slide_move(
+          self.dungeon.grid,
+          item.x,
+          item.y,
+          item.vx,
+          item.vy,
+          4.0,
+        )
+        item.x = nx
+        item.y = ny
+        item.vx = item.vx * 0.85
+        item.vy = item.vy * 0.85
+        if item.vx * item.vx + item.vy * item.vy < 0.01 {
+          item.vx = 0.0
+          item.vy = 0.0
+        }
+      }
+      if self.frame_count - item.spawn_frame > 600 {
+        item.alive = false
+        continue
+      }
+      let idx = item.x - self.player.x
+      let idy = item.y - self.player.y
+      if idx * idx + idy * idy < pickup_radius_sq {
+        match item.kind {
+          Health => {
+            item.alive = false
+            self.events.push(ItemPickup(item.x, item.y, true))
+            self.player.hp = @cmp.minimum(
+              self.player_stats.max_hp,
+              self.player.hp + 2,
+            )
+          }
+          Score => {
+            item.alive = false
+            self.events.push(ItemPickup(item.x, item.y, false))
+            self.score = self.score + 5
+          }
+          Equipment(data) =>
+            if self.inventory.add(data) {
+              item.alive = false
+              self.events.push(ItemPickup(item.x, item.y, false))
+            }
+        }
+      }
+    }
+  }
+  compact_items(self.items)
+}
+
+///|
+pub fn GameWorld::tick_player_enemy_separation_phase(self : GameWorld) -> Unit {
+  for enemy in self.enemies {
+    if enemy.alive {
+      let sep_dx = self.player.x - enemy.x
+      let sep_dy = self.player.y - enemy.y
+      let sep_dist_sq = sep_dx * sep_dx + sep_dy * sep_dy
+      let min_dist = (self.player.size + enemy.size) / 2.0
+      if sep_dist_sq < min_dist * min_dist && sep_dist_sq > 0.000001 {
+        let sep_dist = sep_dist_sq.sqrt()
+        let push = (min_dist - sep_dist) / 2.0
+        let nx = sep_dx / sep_dist
+        let ny = sep_dy / sep_dist
+        let px_new = self.player.x + nx * push
+        let py_new = self.player.y + ny * push
+        if not(
+            check_wall_collision(
+              self.dungeon.grid,
+              px_new,
+              self.player.y,
+              self.player.size,
+            ),
+          ) {
+          self.player.x = px_new
+        } else {
+          enemy.x = enemy.x - nx * push
+        }
+        if not(
+            check_wall_collision(
+              self.dungeon.grid,
+              self.player.x,
+              py_new,
+              self.player.size,
+            ),
+          ) {
+          self.player.y = py_new
+        } else {
+          enemy.y = enemy.y - ny * push
+        }
+        let ex_new = enemy.x - nx * push
+        let ey_new = enemy.y - ny * push
+        if not(
+            check_wall_collision(self.dungeon.grid, ex_new, enemy.y, enemy.size),
+          ) {
+          enemy.x = ex_new
+        }
+        if not(
+            check_wall_collision(self.dungeon.grid, enemy.x, ey_new, enemy.size),
+          ) {
+          enemy.y = ey_new
+        }
+      }
+    }
+  }
+}
+
+///|
+pub fn GameWorld::tick_floor_completion_phase(self : GameWorld) -> Unit {
+  let mut all_dead = true
+  for enemy in self.enemies {
+    if enemy.alive {
+      all_dead = false
+      break
+    }
+  }
+  if all_dead && self.mode == Playing {
+    self.reset_floor()
+    self.events.push(FloorComplete)
+  }
+}
+
+///|
+pub fn GameWorld::tick_player_timers_phase(self : GameWorld) -> Unit {
+  if self.player.damage_timer > 0 {
+    self.player.damage_timer = self.player.damage_timer - 1
+  }
+  if self.player.iframe_timer > 0 {
+    self.player.iframe_timer = self.player.iframe_timer - 1
+  }
+  if self.screen_flash > 0 {
+    self.screen_flash = self.screen_flash - 1
+  }
 }
 
 ///|
@@ -272,238 +683,21 @@ pub fn GameWorld::tick(self : GameWorld, dx : Double, dy : Double) -> Unit {
     }
   }
   // 9. Update enemy AI
-  update_enemy_ai(
-    self.enemies,
-    self.player,
-    self.dungeon.grid,
-    self.frame_count,
-    self.projectiles,
-    params=self.params,
-  )
+  self.tick_enemy_ai_phase()
   // 10. Enemy movement + contact damage
-  for enemy in self.enemies {
-    if enemy.alive {
-      let (ex, ey) = slide_move(
-        self.dungeon.grid,
-        enemy.x,
-        enemy.y,
-        enemy.vx,
-        enemy.vy,
-        enemy.size,
-      )
-      enemy.x = ex
-      enemy.y = ey
-      enemy.vx = 0.0
-      enemy.vy = 0.0
-      // Contact damage
-      if self.player.iframe_timer <= 0 {
-        if @vector.aabb_overlap_center(
-            self.player.x,
-            self.player.y,
-            self.player.size / 2.0,
-            self.player.size / 2.0,
-            enemy.x,
-            enemy.y,
-            enemy.size / 2.0,
-            enemy.size / 2.0,
-          ) {
-          self.deal_player_damage(self.params.enemy_contact_damage.to_int())
-        }
-      }
-    }
-    if enemy.damage_timer > 0 {
-      enemy.damage_timer = enemy.damage_timer - 1
-    }
-  }
-  // 11. Projectile movement + wall collision + enemy projectile->player hit
-  for proj in self.projectiles {
-    if proj.alive {
-      proj.x = proj.x + proj.vx
-      proj.y = proj.y + proj.vy
-      if is_wall_at(self.dungeon.grid, proj.x, proj.y) {
-        proj.alive = false
-      }
-      // Enemy projectiles hit player
-      if proj.alive && not(proj.is_player) && self.player.iframe_timer <= 0 {
-        let pdx = proj.x - self.player.x
-        let pdy = proj.y - self.player.y
-        if pdx * pdx + pdy * pdy < pickup_radius_sq {
-          self.deal_player_damage(proj.damage)
-          proj.alive = false
-        }
-      }
-    }
-  }
-  // 12. Process player arrows + compact projectiles
-  process_player_arrows(self)
-  compact_projectiles(self.projectiles)
-  // 13. Item movement (scatter physics) + collection
-  for item in self.items {
-    if item.alive {
-      // Apply scatter velocity with friction
-      if item.vx != 0.0 || item.vy != 0.0 {
-        let (nx, ny) = slide_move(
-          self.dungeon.grid,
-          item.x,
-          item.y,
-          item.vx,
-          item.vy,
-          4.0,
-        )
-        item.x = nx
-        item.y = ny
-        item.vx = item.vx * 0.85
-        item.vy = item.vy * 0.85
-        if item.vx * item.vx + item.vy * item.vy < 0.01 {
-          item.vx = 0.0
-          item.vy = 0.0
-        }
-      }
-      // Despawn
-      if self.frame_count - item.spawn_frame > 600 {
-        item.alive = false
-        continue
-      }
-      // Pickup
-      let idx = item.x - self.player.x
-      let idy = item.y - self.player.y
-      if idx * idx + idy * idy < pickup_radius_sq {
-        match item.kind {
-          Health => {
-            item.alive = false
-            self.events.push(ItemPickup(item.x, item.y, true))
-            self.player.hp = @cmp.minimum(
-              self.player_stats.max_hp,
-              self.player.hp + 2,
-            )
-          }
-          Score => {
-            item.alive = false
-            self.events.push(ItemPickup(item.x, item.y, false))
-            self.score = self.score + 5
-          }
-          Equipment(data) =>
-            if self.inventory.add(data) {
-              item.alive = false
-              self.events.push(ItemPickup(item.x, item.y, false))
-            }
-          // If inventory full, leave on ground
-        }
-      }
-    }
-  }
-  // 14. Compact items
-  compact_items(self.items)
+  self.tick_enemy_movement_and_contact_phase()
+  // 11-12. Projectiles
+  self.tick_projectiles_phase()
+  // 13-14. Items
+  self.tick_items_phase()
   // 15. Player-enemy separation (push physics)
-  for enemy in self.enemies {
-    if enemy.alive {
-      let sep_dx = self.player.x - enemy.x
-      let sep_dy = self.player.y - enemy.y
-      let sep_dist_sq = sep_dx * sep_dx + sep_dy * sep_dy
-      let min_dist = (self.player.size + enemy.size) / 2.0
-      if sep_dist_sq < min_dist * min_dist && sep_dist_sq > 0.000001 {
-        let sep_dist = sep_dist_sq.sqrt()
-        let push = (min_dist - sep_dist) / 2.0
-        let nx = sep_dx / sep_dist
-        let ny = sep_dy / sep_dist
-        let px_new = self.player.x + nx * push
-        let py_new = self.player.y + ny * push
-        if not(
-            check_wall_collision(
-              self.dungeon.grid,
-              px_new,
-              self.player.y,
-              self.player.size,
-            ),
-          ) {
-          self.player.x = px_new
-        } else {
-          enemy.x = enemy.x - nx * push
-        }
-        if not(
-            check_wall_collision(
-              self.dungeon.grid,
-              self.player.x,
-              py_new,
-              self.player.size,
-            ),
-          ) {
-          self.player.y = py_new
-        } else {
-          enemy.y = enemy.y - ny * push
-        }
-        let ex_new = enemy.x - nx * push
-        let ey_new = enemy.y - ny * push
-        if not(
-            check_wall_collision(self.dungeon.grid, ex_new, enemy.y, enemy.size),
-          ) {
-          enemy.x = ex_new
-        }
-        if not(
-            check_wall_collision(self.dungeon.grid, enemy.x, ey_new, enemy.size),
-          ) {
-          enemy.y = ey_new
-        }
-      }
-    }
-  }
+  self.tick_player_enemy_separation_phase()
   // 16. Enemy-enemy separation
-  for i = 0; i < self.enemies.length(); i = i + 1 {
-    for j = i + 1; j < self.enemies.length(); j = j + 1 {
-      let a = self.enemies[i]
-      let b = self.enemies[j]
-      if a.alive && b.alive {
-        let sep_dx = a.x - b.x
-        let sep_dy = a.y - b.y
-        let sep_dist_sq = sep_dx * sep_dx + sep_dy * sep_dy
-        let min_dist = (a.size + b.size) / 2.0
-        if sep_dist_sq < min_dist * min_dist && sep_dist_sq > 0.000001 {
-          let sep_dist = sep_dist_sq.sqrt()
-          let push = (min_dist - sep_dist) / 2.0
-          let nx = sep_dx / sep_dist
-          let ny = sep_dy / sep_dist
-          let ax_new = a.x + nx * push
-          let ay_new = a.y + ny * push
-          if not(check_wall_collision(self.dungeon.grid, ax_new, a.y, a.size)) {
-            a.x = ax_new
-          }
-          if not(check_wall_collision(self.dungeon.grid, a.x, ay_new, a.size)) {
-            a.y = ay_new
-          }
-          let bx_new = b.x - nx * push
-          let by_new = b.y - ny * push
-          if not(check_wall_collision(self.dungeon.grid, bx_new, b.y, b.size)) {
-            b.x = bx_new
-          }
-          if not(check_wall_collision(self.dungeon.grid, b.x, by_new, b.size)) {
-            b.y = by_new
-          }
-        }
-      }
-    }
-  }
+  self.resolve_enemy_enemy_separation()
   // 17. Floor completion check
-  let mut all_dead = true
-  for enemy in self.enemies {
-    if enemy.alive {
-      all_dead = false
-      break
-    }
-  }
-  if all_dead && self.mode == Playing {
-    self.reset_floor()
-    self.events.push(FloorComplete)
-  }
+  self.tick_floor_completion_phase()
   // 18. Decrement player damage_timer and iframe_timer
-  if self.player.damage_timer > 0 {
-    self.player.damage_timer = self.player.damage_timer - 1
-  }
-  if self.player.iframe_timer > 0 {
-    self.player.iframe_timer = self.player.iframe_timer - 1
-  }
-  if self.screen_flash > 0 {
-    self.screen_flash = self.screen_flash - 1
-  }
+  self.tick_player_timers_phase()
 }
 
 ///|

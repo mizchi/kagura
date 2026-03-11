@@ -79,6 +79,7 @@ struct DungeonScene {
   lighting : @light3d.LightingEnvironment
   shader3d : @gfx.ShaderHandle
   shader3d_instanced : @gfx.ShaderHandle
+  shader3d_instanced_monochrome : @gfx.ShaderHandle
   enemy_mesh : @mesh3d.Mesh3D
   enemy_instances : Array[@scene3d.InstanceData]
   mut prev_cursor_x : Double
@@ -216,12 +217,17 @@ fn DungeonScene::new() -> DungeonScene {
     11,
     @draw3d.shader3d_lit_instanced_wgsl(),
   )
+  let shader3d_instanced_monochrome = @gfx.new_shader_handle(
+    12,
+    @draw3d.shader3d_lit_instanced_monochrome_wgsl(),
+  )
   {
     graph,
     camera,
     lighting,
     shader3d,
     shader3d_instanced,
+    shader3d_instanced_monochrome,
     enemy_mesh,
     enemy_instances,
     prev_cursor_x: 0.0,
@@ -267,9 +273,11 @@ impl @scene_manager.Scene for DungeonScene with update(self, input) {
 ///|
 impl @scene_manager.Scene for DungeonScene with draw(self, ctx) {
   // Render dungeon scene graph
+  let camera = self.camera.to_camera3d()
+  let view_projection = camera.view_projection_matrix()
   let cmds = @scene3d.render_scene3d_graph_gpu(
     self.graph,
-    self.camera.to_camera3d(),
+    camera,
     lighting=self.lighting,
     ctx.dst,
     self.shader3d,
@@ -278,17 +286,19 @@ impl @scene_manager.Scene for DungeonScene with draw(self, ctx) {
   )
   // Add instanced enemy draw call
   if self.enemy_instances.length() > 0 {
-    let inst_cmd = @scene3d.render_instanced_gpu(
+    @scene3d.push_instanced_instance_data_gpu_commands_with_color_optimization_and_view_projection(
       self.enemy_mesh,
       self.enemy_instances,
-      self.camera.to_camera3d(),
-      lighting=self.lighting,
+      view_projection,
+      self.lighting,
       ctx.dst,
+      self.shader3d,
       self.shader3d_instanced,
+      self.shader3d_instanced_monochrome,
       ctx.screen_w,
       ctx.screen_h,
+      cmds,
     )
-    cmds.push(inst_cmd)
   }
   cmds
 }

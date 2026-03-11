@@ -15,6 +15,7 @@ pub fn run(
   update~ : (@core.InputSnapshot) -> Unit,
   draw~ : (EngineContext) -> Array[@gfx.DrawTrianglesCommand],
   on_frame? : () -> Unit,
+  after_render? : (Double, Double) -> Unit,
   audio_ctx? : @audio.MixerAudioContext,
   audio_frames_per_tick? : Int = 735,
   width? : Int = 320,
@@ -70,7 +71,9 @@ pub fn run(
     let outside = platform.outside_size()
     let new_w = outside.width.to_int()
     let new_h = outside.height.to_int()
-    if new_w > 0 && new_h > 0 && (new_w != ctx.screen_w || new_h != ctx.screen_h) {
+    if new_w > 0 &&
+      new_h > 0 &&
+      (new_w != ctx.screen_w || new_h != ctx.screen_h) {
       graphics.resize(new_w, new_h) catch {
         e => println("[engine] graphics.resize failed: \{e}")
       }
@@ -90,9 +93,18 @@ pub fn run(
       Some(f) => f()
       None => ()
     }
+    let draw_callback_start = js_performance_now()
     let cmds = draw(ctx)
+    let draw_callback_end = js_performance_now()
+    let render_start = js_performance_now()
     @debugutil.render_commands(graphics, cmds) catch {
       e => println("[engine] render_commands failed: \{e}")
+    }
+    let render_end = js_performance_now()
+    match after_render {
+      Some(f) =>
+        f(draw_callback_end - draw_callback_start, render_end - render_start)
+      None => ()
     }
     // Time-based audio ticking
     let now = js_performance_now()

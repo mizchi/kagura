@@ -5,6 +5,7 @@ pub(all) struct FrameProfile {
   frame_time_ms : Double
   update_ms : Double
   draw_ms : Double
+  gpu_frame_ms : Double
   draw_calls : Int
   vertex_count : Int
   asset_inflight : Int
@@ -17,6 +18,7 @@ pub fn default_frame_profile() -> FrameProfile {
     frame_time_ms: 0.0,
     update_ms: 0.0,
     draw_ms: 0.0,
+    gpu_frame_ms: 0.0,
     draw_calls: 0,
     vertex_count: 0,
     asset_inflight: 0,
@@ -50,7 +52,7 @@ pub fn build_profiler_hud(
       screen_w - 160.0,
       0.0,
       160.0,
-      margin + line_h * 7.0 + margin,
+      margin + line_h * 8.0 + margin,
       screen_w,
       screen_h,
       bg_color,
@@ -156,6 +158,32 @@ pub fn build_profiler_hud(
     dst,
     shader,
     profile.draw_ms.to_int(),
+    x + 20.0,
+    y,
+    screen_w,
+    screen_h,
+    text_color,
+    scale,
+  )
+  y = y + line_h
+  // GPU frame ms
+  draw_dot_text(
+    cmds,
+    dst,
+    shader,
+    [71, 80],
+    x - 30.0,
+    y,
+    screen_w,
+    screen_h,
+    text_color,
+    scale,
+  )
+  draw_number(
+    cmds,
+    dst,
+    shader,
+    profile.gpu_frame_ms.to_int(),
     x + 20.0,
     y,
     screen_w,

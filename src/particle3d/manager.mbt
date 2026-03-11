@@ -8,6 +8,8 @@
 pub(all) struct ParticleManager {
   mut emitters : Array[BurstEmitter]
   particle_shader : @gfx.ShaderHandle
+  mut vertex_scratch : Array[Double]
+  mut index_scratch : Array[Int]
 }
 
 ///|
@@ -24,6 +26,8 @@ pub fn ParticleManager::new(shader_id : Int) -> ParticleManager {
       shader_id,
       @draw3d.shader3d_particle_wgsl(),
     ),
+    vertex_scratch: [],
+    index_scratch: [],
   }
 }
 
@@ -68,8 +72,25 @@ pub fn ParticleManager::draw(
   frame_count : Int,
 ) -> Array[@gfx.DrawTrianglesCommand] {
   let cmds : Array[@gfx.DrawTrianglesCommand] = []
+  self.append_draw_commands(cmds, dst, camera, screen_w, screen_h, frame_count)
+  cmds
+}
+
+///|
+/// Append particle draw commands into an existing command buffer.
+pub fn ParticleManager::append_draw_commands(
+  self : ParticleManager,
+  cmds : Array[@gfx.DrawTrianglesCommand],
+  dst : @gfx.ImageHandle,
+  camera : @camera3d.Camera3D,
+  screen_w : Int,
+  screen_h : Int,
+  frame_count : Int,
+) -> Unit {
+  self.vertex_scratch.clear()
+  self.index_scratch.clear()
   if self.emitters.length() == 0 {
-    return cmds
+    return
   }
   let vp = camera.view_projection_matrix()
   let view = camera.view_matrix()
@@ -84,34 +105,36 @@ pub fn ParticleManager::draw(
     view.elements[9],
   )
   for be in self.emitters {
-    let (vertex_data, indices) = be.emitter.build_billboard_vertices(
-      cam_right, cam_up,
+    be.emitter.append_billboard_vertices(
+      cam_right,
+      cam_up,
+      self.vertex_scratch,
+      self.index_scratch,
     )
-    if indices.length() > 0 {
-      let region = @gfx.new_dst_region(
-        0,
-        0,
-        screen_w,
-        screen_h,
-        indices.length(),
-      )
-      let cmd = @draw3d.new_particle_draw_command(
-        dst,
-        self.particle_shader,
-        region,
-        0,
-        self.particle_shader.id,
-        frame_count,
-        @gfx.blend_mode_from_int(2), // Additive blending
-        vertex_data,
-        indices,
-        vp,
-        [],
-      )
-      cmds.push(cmd)
-    }
   }
-  cmds
+  if self.index_scratch.length() > 0 {
+    let region = @gfx.new_dst_region(
+      0,
+      0,
+      screen_w,
+      screen_h,
+      self.index_scratch.length(),
+    )
+    let cmd = @draw3d.new_particle_draw_command(
+      dst,
+      self.particle_shader,
+      region,
+      0,
+      self.particle_shader.id,
+      frame_count,
+      @gfx.blend_mode_from_int(2), // Additive blending
+      self.vertex_scratch,
+      self.index_scratch,
+      vp,
+      [],
+    )
+    cmds.push(cmd)
+  }
 }
 
 ///|

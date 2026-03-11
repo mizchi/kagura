@@ -570,6 +570,71 @@ test "SimpleTextBatchBuilder merged region covers all glyphs" {
 }
 
 ///|
+test "SimpleTextBatchBuilder assigns stable resource_cache_key" {
+  let cache = GlyphCache::new(256.0, 256.0, 7)
+  let builder = SimpleTextBatchBuilder::new(cache, 5)
+  let glyphs = [
+    {
+      glyph_id: 65,
+      atlas_x: 0.0,
+      atlas_y: 0.0,
+      atlas_w: 10.0,
+      atlas_h: 12.0,
+      dst_x: 0.0,
+      dst_y: 0.0,
+      dst_w: 10.0,
+      dst_h: 12.0,
+    },
+    {
+      glyph_id: 66,
+      atlas_x: 0.0,
+      atlas_y: 0.0,
+      atlas_w: 8.0,
+      atlas_h: 12.0,
+      dst_x: 12.0,
+      dst_y: 0.0,
+      dst_w: 8.0,
+      dst_h: 12.0,
+    },
+  ]
+  let moved = [
+    {
+      glyph_id: 65,
+      atlas_x: 0.0,
+      atlas_y: 0.0,
+      atlas_w: 10.0,
+      atlas_h: 12.0,
+      dst_x: 1.0,
+      dst_y: 0.0,
+      dst_w: 10.0,
+      dst_h: 12.0,
+    },
+    {
+      glyph_id: 66,
+      atlas_x: 0.0,
+      atlas_y: 0.0,
+      atlas_w: 8.0,
+      atlas_h: 12.0,
+      dst_x: 13.0,
+      dst_y: 0.0,
+      dst_w: 8.0,
+      dst_h: 12.0,
+    },
+  ]
+  let dst = @gfx.new_image_handle(1, 640, 480)
+  let shader = @gfx.new_shader_handle(1, "text_shader")
+  let a = builder.build_draw_commands(dst, glyphs, shader)
+  let b = builder.build_draw_commands(dst, glyphs, shader)
+  let c = builder.build_draw_commands(dst, moved, shader)
+  assert_eq(a.length(), 1)
+  assert_eq(b.length(), 1)
+  assert_eq(c.length(), 1)
+  assert_true(a[0].resource_cache_key != 0)
+  assert_eq(a[0].resource_cache_key, b[0].resource_cache_key)
+  assert_true(a[0].resource_cache_key != c[0].resource_cache_key)
+}
+
+///|
 test "make_glyph_cache_key basic" {
   // Different glyph IDs produce different keys at the same size
   let k1 = make_glyph_cache_key(1, 16.0)

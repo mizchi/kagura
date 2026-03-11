@@ -4,6 +4,34 @@
 /// Used by SSAO to get correct camera-space occlusion.
 
 ///|
+fn camera_depth_resource_cache_key(
+  depth_target : @gfx.ImageHandle,
+  shader : @gfx.ShaderHandle,
+  mesh : @mesh3d.Mesh3D,
+  uniform_dwords : Array[Int],
+) -> Int {
+  let values : Array[Int] = [
+    depth_target.id,
+    depth_target.width,
+    depth_target.height,
+    shader.id,
+    mesh.vertex_data.length(),
+    mesh.indices.length(),
+    uniform_dwords.length(),
+  ]
+  for vertex in mesh.vertex_data {
+    values.push(@gfx.double_to_f32_bits(vertex))
+  }
+  for index in mesh.indices {
+    values.push(index)
+  }
+  for dword in uniform_dwords {
+    values.push(dword)
+  }
+  @gfx.build_resource_cache_key(0x43445054, values)
+}
+
+///|
 /// WGSL shader for camera depth pass.
 /// Uniform: camera_vp mat4x4 (16 dwords).
 /// Vertex format: position(3) + normal(3) + uv(2) = stride 8.
@@ -35,9 +63,7 @@ pub fn shader_camera_depth_wgsl() -> String {
 
 ///|
 /// Encode camera depth uniform: camera_vp (16 dwords).
-pub fn camera_depth_uniform_dwords(
-  camera_vp : @math3d.Mat4,
-) -> Array[Int] {
+pub fn camera_depth_uniform_dwords(camera_vp : @math3d.Mat4) -> Array[Int] {
   let dwords : Array[Int] = []
   for i in 0..<16 {
     dwords.push(f32(camera_vp.elements[i]))
@@ -55,7 +81,11 @@ pub fn new_camera_depth_command(
 ) -> @gfx.DrawTrianglesCommand {
   let uniform_dwords = camera_depth_uniform_dwords(camera_vp)
   let dst_region = @gfx.new_dst_region(
-    0, 0, depth_target.width, depth_target.height, mesh.indices.length(),
+    0,
+    0,
+    depth_target.width,
+    depth_target.height,
+    mesh.indices.length(),
   )
   @gfx.new_draw_triangles_command(
     depth_target,
@@ -69,6 +99,9 @@ pub fn new_camera_depth_command(
     mesh.indices,
     [],
     uniform_dwords,
+    resource_cache_key=camera_depth_resource_cache_key(
+      depth_target, shader, mesh, uniform_dwords,
+    ),
   )
 }
 

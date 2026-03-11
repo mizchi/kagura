@@ -36,6 +36,13 @@ pub struct TileChunkRect {
 } derive(Show)
 
 ///|
+pub(all) struct TileChunkBatchCache {
+  chunk_size : Int
+  mut previous_tile_indices : Array[Int]
+  mut previous_visible_chunk : TileChunkRect?
+}
+
+///|
 struct TileChunkOrigin {
   tile_x : Int
   tile_y : Int
@@ -75,6 +82,18 @@ pub fn new_tile_chunk_rect(
   tile_height : Int,
 ) -> TileChunkRect {
   { tile_x, tile_y, tile_width, tile_height }
+}
+
+///|
+pub fn TileChunkBatchCache::new(
+  chunk_size : Int,
+  initial_tile_indices : Array[Int],
+) -> TileChunkBatchCache {
+  {
+    chunk_size: normalized_positive_int(chunk_size),
+    previous_tile_indices: copy_int_array(initial_tile_indices),
+    previous_visible_chunk: None,
+  }
 }
 
 ///|
@@ -288,6 +307,23 @@ fn normalized_positive_int(value : Int) -> Int {
 }
 
 ///|
+fn copy_int_array(values : Array[Int]) -> Array[Int] {
+  let out : Array[Int] = []
+  for value in values {
+    out.push(value)
+  }
+  out
+}
+
+///|
+fn tile_chunk_rect_eq(lhs : TileChunkRect, rhs : TileChunkRect) -> Bool {
+  lhs.tile_x == rhs.tile_x &&
+  lhs.tile_y == rhs.tile_y &&
+  lhs.tile_width == rhs.tile_width &&
+  lhs.tile_height == rhs.tile_height
+}
+
+///|
 fn resolve_tile_quad(
   table : TileAtlasTable,
   atlas_repository : @asset.SimpleAtlasImageRepository,
@@ -415,6 +451,45 @@ fn page_slot_of(page_ids : Array[Int], page_image_id : Int) -> Int {
     }
   }
   out
+}
+
+///|
+fn tilemap_draw_resource_cache_key(
+  dst : @gfx.ImageHandle,
+  shader : @gfx.ShaderHandle,
+  dst_region : @gfx.DstRegion,
+  blend : @gfx.BlendMode,
+  page_image_id : Int,
+  vertex_data : Array[Double],
+  indices : Array[Int],
+  uniform_dwords : Array[Int],
+) -> Int {
+  let values : Array[Int] = [
+    dst.id,
+    dst.width,
+    dst.height,
+    shader.id,
+    dst_region.x,
+    dst_region.y,
+    dst_region.width,
+    dst_region.height,
+    dst_region.index_count,
+    @gfx.blend_mode_to_int(blend),
+    page_image_id,
+    vertex_data.length(),
+    indices.length(),
+    uniform_dwords.length(),
+  ]
+  for value in vertex_data {
+    values.push(@gfx.double_to_f32_bits(value))
+  }
+  for index in indices {
+    values.push(index)
+  }
+  for dword in uniform_dwords {
+    values.push(dword)
+  }
+  @gfx.build_resource_cache_key(0x54494C45, values)
 }
 
 ///|
@@ -594,6 +669,9 @@ pub fn append_tile_indexed_chunk_draw_commands(
         indices,
         [quad.page_image_id],
         uniform_dwords,
+        resource_cache_key=tilemap_draw_resource_cache_key(
+          dst, shader, dst_region, blend, quad.page_image_id, vertex_data, indices, uniform_dwords,
+        ),
       ),
     )
   }
@@ -658,6 +736,16 @@ pub fn append_tile_indexed_chunk_batched_draw_commands(
         page_indices[i],
         [page_ids[i]],
         uniform_dwords,
+        resource_cache_key=tilemap_draw_resource_cache_key(
+          dst,
+          shader,
+          dst_region,
+          blend,
+          page_ids[i],
+          page_vertex_data[i],
+          page_indices[i],
+          uniform_dwords,
+        ),
       ),
     )
   }
@@ -710,6 +798,72 @@ pub fn append_tile_indexed_dirty_chunk_batched_draw_commands(
         uniform_dwords,
       )
   }
+  appended
+}
+
+///|
+pub fn TileChunkBatchCache::invalidate(self : TileChunkBatchCache) -> Unit {
+  self.previous_visible_chunk = None
+}
+
+///|
+pub fn TileChunkBatchCache::append_visible_dirty_chunk_batched_draw_commands(
+  self : TileChunkBatchCache,
+  commands : Array[@gfx.DrawTrianglesCommand],
+  table : TileAtlasTable,
+  atlas_repository : @asset.SimpleAtlasImageRepository,
+  dst : @gfx.ImageHandle,
+  shader : @gfx.ShaderHandle,
+  pipeline_id : Int,
+  uniform_hash : Int,
+  blend : @gfx.BlendMode,
+  dst_region : @gfx.DstRegion,
+  tile_indices : Array[Int],
+  columns : Int,
+  visible_chunk : TileChunkRect,
+  origin_left : Double,
+  origin_top : Double,
+  tile_width : Double,
+  tile_height : Double,
+  uniform_dwords : Array[Int],
+) -> Int {
+  let chunks : Array[TileChunkRect] =
+    match self.previous_visible_chunk {
+      Some(previous_visible_chunk) =>
+        if tile_chunk_rect_eq(previous_visible_chunk, visible_chunk) {
+          diff_visible_tile_index_chunks(
+            self.previous_tile_indices,
+            tile_indices,
+            columns,
+            self.chunk_size,
+            visible_chunk,
+          )
+        } else {
+          [visible_chunk]
+        }
+      None => [visible_chunk]
+    }
+  let appended = append_tile_indexed_dirty_chunk_batched_draw_commands(
+    commands,
+    chunks,
+    table,
+    atlas_repository,
+    dst,
+    shader,
+    pipeline_id,
+    uniform_hash,
+    blend,
+    dst_region,
+    tile_indices,
+    columns,
+    origin_left,
+    origin_top,
+    tile_width,
+    tile_height,
+    uniform_dwords,
+  )
+  self.previous_tile_indices = copy_int_array(tile_indices)
+  self.previous_visible_chunk = Some(visible_chunk)
   appended
 }
 

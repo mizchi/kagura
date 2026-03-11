@@ -17,6 +17,206 @@ fn GameState::make_hud_ctx(
 }
 
 ///|
+fn GameState::invalidate_minimap_cache(self : GameState) -> Unit {
+  self.minimap_static_cmds = []
+  self.minimap_cache_player_tile_x = -1
+  self.minimap_cache_player_tile_y = -1
+  self.minimap_cache_floor = -1
+  self.minimap_cache_dst_id = -1
+  self.minimap_cache_shader_id = -1
+}
+
+///|
+fn GameState::invalidate_hud_static_cache(self : GameState) -> Unit {
+  self.hud_static_cmds = []
+  self.hud_static_cache_floor = -1
+  self.hud_static_cache_dst_id = -1
+  self.hud_static_cache_shader_id = -1
+  self.hud_static_cache_text_mode = -1
+}
+
+///|
+fn GameState::hud_static_text_mode(self : GameState) -> Int {
+  match self.text_renderer {
+    Some(_) => 1
+    None => 0
+  }
+}
+
+///|
+fn GameState::build_hud_static_cmds(
+  self : GameState,
+  ctx : @hud.HudContext,
+) -> Array[@gfx.DrawTrianglesCommand] {
+  let sw = screen_w.to_double()
+  let cmds : Array[@gfx.DrawTrianglesCommand] = []
+  match self.text_renderer {
+    Some(tr) => {
+      let _ = tr
+      ctx.draw_text(cmds, "HP", 16.0, 60.0, 8.0, 0xFFFFFF)
+      ctx.draw_text_centered(
+        cmds,
+        "FLOOR " + self.world.floor.to_string(),
+        20.0,
+        sw / 2.0,
+        16.0,
+        0xCCCCCC,
+      )
+    }
+    None => {
+      let fallback = @scene.fragment([
+        @scene.label(x=72.0, y=16.0, content="HP", color=0xFFFFFF),
+        @scene.label(
+          x=sw / 2.0,
+          y=16.0,
+          content="FLOOR " + self.world.floor.to_string(),
+          color=0xCCCCCC,
+          scale=1.2,
+        ),
+      ])
+      let fallback_cmds = @scene.render_scene(
+        fallback,
+        ctx.dst,
+        ctx.shader,
+        sw,
+        screen_h.to_double(),
+      )
+      for cmd in fallback_cmds {
+        cmds.push(cmd)
+      }
+    }
+  }
+  cmds
+}
+
+///|
+fn GameState::ensure_hud_static_cache(
+  self : GameState,
+  ctx : @hud.HudContext,
+) -> Unit {
+  let text_mode = self.hud_static_text_mode()
+  if self.hud_static_cache_floor == self.world.floor &&
+    self.hud_static_cache_dst_id == ctx.dst.id &&
+    self.hud_static_cache_shader_id == ctx.shader.id &&
+    self.hud_static_cache_text_mode == text_mode {
+    return
+  }
+  self.hud_static_cmds = self.build_hud_static_cmds(ctx)
+  self.hud_static_cache_floor = self.world.floor
+  self.hud_static_cache_dst_id = ctx.dst.id
+  self.hud_static_cache_shader_id = ctx.shader.id
+  self.hud_static_cache_text_mode = text_mode
+  self.hud_static_cache_builds = self.hud_static_cache_builds + 1
+}
+
+///|
+fn minimap_layout(
+  ctx : @hud.HudContext,
+) -> (Double, Double, Double, Double, Int) {
+  let map_size = 100.0
+  let map_x = ctx.screen_w - map_size - 8.0
+  let map_y = ctx.screen_h - map_size - 8.0
+  let cell_size = 2.0
+  let radius = (map_size / cell_size / 2.0).to_int()
+  (map_size, map_x, map_y, cell_size, radius)
+}
+
+///|
+fn GameState::build_minimap_static_cmds(
+  self : GameState,
+  ctx : @hud.HudContext,
+  pcx : Int,
+  pcy : Int,
+) -> Array[@gfx.DrawTrianglesCommand] {
+  let (map_size, map_x, map_y, cell_size, radius) = minimap_layout(ctx)
+  let grid = self.world.dungeon.grid
+  let commands : Array[@gfx.DrawTrianglesCommand] = []
+  let border_vertices : Array[Double] = []
+  let border_indices : Array[Int] = []
+  let wall_vertices : Array[Double] = []
+  let wall_indices : Array[Int] = []
+  let floor_vertices : Array[Double] = []
+  let floor_indices : Array[Int] = []
+  ctx.append_rect_batch_geometry(
+    border_vertices,
+    border_indices,
+    map_x - 2.0,
+    map_y - 2.0,
+    map_size + 4.0,
+    map_size + 4.0,
+  )
+  for dy = -radius; dy <= radius; dy = dy + 1 {
+    for dx = -radius; dx <= radius; dx = dx + 1 {
+      let gx = pcx + dx
+      let gy = pcy + dy
+      if gx >= 0 && gx < grid.width && gy >= 0 && gy < grid.height {
+        let tile = grid.get(gx, gy)
+        let color = if tile == @terrain.Wall {
+          0x444444
+        } else if tile == @terrain.Floor || tile == @terrain.Corridor {
+          0x223322
+        } else {
+          continue
+        }
+        let sx = map_x + (dx + radius).to_double() * cell_size
+        let sy = map_y + (dy + radius).to_double() * cell_size
+        if tile == @terrain.Wall {
+          ctx.append_rect_batch_geometry(
+            wall_vertices, wall_indices, sx, sy, cell_size, cell_size,
+          )
+        } else {
+          ctx.append_rect_batch_geometry(
+            floor_vertices, floor_indices, sx, sy, cell_size, cell_size,
+          )
+        }
+      }
+    }
+  }
+  ctx.push_rect_batch_command(
+    commands,
+    border_vertices,
+    border_indices,
+    @hud.hex_color(0x000000, alpha=0.7),
+  )
+  ctx.push_rect_batch_command(
+    commands,
+    wall_vertices,
+    wall_indices,
+    @hud.hex_color(0x444444, alpha=0.9),
+  )
+  ctx.push_rect_batch_command(
+    commands,
+    floor_vertices,
+    floor_indices,
+    @hud.hex_color(0x223322, alpha=0.9),
+  )
+  commands
+}
+
+///|
+fn GameState::ensure_minimap_static_cache(
+  self : GameState,
+  ctx : @hud.HudContext,
+  pcx : Int,
+  pcy : Int,
+) -> Unit {
+  if self.minimap_cache_player_tile_x == pcx &&
+    self.minimap_cache_player_tile_y == pcy &&
+    self.minimap_cache_floor == self.world.floor &&
+    self.minimap_cache_dst_id == ctx.dst.id &&
+    self.minimap_cache_shader_id == ctx.shader.id {
+    return
+  }
+  self.minimap_static_cmds = self.build_minimap_static_cmds(ctx, pcx, pcy)
+  self.minimap_cache_player_tile_x = pcx
+  self.minimap_cache_player_tile_y = pcy
+  self.minimap_cache_floor = self.world.floor
+  self.minimap_cache_dst_id = ctx.dst.id
+  self.minimap_cache_shader_id = ctx.shader.id
+  self.minimap_cache_builds = self.minimap_cache_builds + 1
+}
+
+///|
 fn GameState::render_hud_cmds(
   self : GameState,
   dst : @gfx.ImageHandle,
@@ -40,6 +240,7 @@ fn GameState::render_hud_cmds(
     }
   }
   let ctx = self.make_hud_ctx(dst, shader)
+  self.ensure_hud_static_cache(ctx)
   // HP bar background
   ctx.draw_rect(
     cmds,
@@ -58,19 +259,12 @@ fn GameState::render_hud_cmds(
     12.0,
     @hud.hex_color(hp_color),
   )
+  for cmd in self.hud_static_cmds {
+    cmds.push(cmd)
+  }
   match self.text_renderer {
     Some(tr) => {
       let _ = tr
-      // TTF text
-      ctx.draw_text(cmds, "HP", 16.0, 60.0, 8.0, 0xFFFFFF)
-      ctx.draw_text_centered(
-        cmds,
-        "FLOOR " + self.world.floor.to_string(),
-        20.0,
-        sw / 2.0,
-        16.0,
-        0xCCCCCC,
-      )
       ctx.draw_text(
         cmds,
         self.world.score.to_string(),
@@ -102,7 +296,7 @@ fn GameState::render_hud_cmds(
     }
     None => {
       // Fallback: scene-based rendering
-      let hud_node = self.render_hud_scene_fallback(alive_count)
+      let hud_node = self.render_hud_scene_fallback_dynamic(alive_count)
       let scene_cmds = @scene.render_scene(
         hud_node,
         dst,
@@ -143,51 +337,17 @@ fn GameState::render_minimap(
   ctx : @hud.HudContext,
   cmds : Array[@gfx.DrawTrianglesCommand],
 ) -> Unit {
-  let map_size = 100.0
-  let map_x = ctx.screen_w - map_size - 8.0
-  let map_y = ctx.screen_h - map_size - 8.0
-  let cell_size = 2.0
-  let radius = (map_size / cell_size / 2.0).to_int()
-  let grid = self.world.dungeon.grid
+  let (map_size, map_x, map_y, cell_size, radius) = minimap_layout(ctx)
   let pcx = (self.world.player.x / tile_size).to_int()
   let pcy = (self.world.player.y / tile_size).to_int()
-  // Background
-  ctx.draw_rect(
-    cmds,
-    map_x - 2.0,
-    map_y - 2.0,
-    map_size + 4.0,
-    map_size + 4.0,
-    @hud.hex_color(0x000000, alpha=0.7),
-  )
-  // Tiles
-  for dy = -radius; dy <= radius; dy = dy + 1 {
-    for dx = -radius; dx <= radius; dx = dx + 1 {
-      let gx = pcx + dx
-      let gy = pcy + dy
-      if gx >= 0 && gx < grid.width && gy >= 0 && gy < grid.height {
-        let tile = grid.get(gx, gy)
-        let color = if tile == @terrain.Wall {
-          0x444444
-        } else if tile == @terrain.Floor || tile == @terrain.Corridor {
-          0x223322
-        } else {
-          continue // skip unknown tiles
-        }
-        let sx = map_x + (dx + radius).to_double() * cell_size
-        let sy = map_y + (dy + radius).to_double() * cell_size
-        ctx.draw_rect(
-          cmds,
-          sx,
-          sy,
-          cell_size,
-          cell_size,
-          @hud.hex_color(color, alpha=0.9),
-        )
-      }
-    }
+  self.ensure_minimap_static_cache(ctx, pcx, pcy)
+  for cmd in self.minimap_static_cmds {
+    cmds.push(cmd)
   }
-  // Enemies
+  let enemy_vertices : Array[Double] = []
+  let enemy_indices : Array[Int] = []
+  let boss_vertices : Array[Double] = []
+  let boss_indices : Array[Int] = []
   for enemy in self.world.enemies {
     if enemy.alive {
       let ex = ((enemy.x / tile_size).to_int() - pcx + radius).to_double() *
@@ -195,18 +355,38 @@ fn GameState::render_minimap(
       let ey = ((enemy.y / tile_size).to_int() - pcy + radius).to_double() *
         cell_size
       if ex >= 0.0 && ex < map_size && ey >= 0.0 && ey < map_size {
-        let c = if enemy.kind == @game.Boss { 0xFF2266 } else { 0xCC2222 }
-        ctx.draw_rect(
-          cmds,
+        let is_boss = enemy.kind == @game.Boss
+        ctx.append_rect_batch_geometry(
+          if is_boss {
+            boss_vertices
+          } else {
+            enemy_vertices
+          },
+          if is_boss {
+            boss_indices
+          } else {
+            enemy_indices
+          },
           map_x + ex,
           map_y + ey,
           cell_size + 1.0,
           cell_size + 1.0,
-          @hud.hex_color(c),
         )
       }
     }
   }
+  ctx.push_rect_batch_command(
+    cmds,
+    enemy_vertices,
+    enemy_indices,
+    @hud.hex_color(0xCC2222),
+  )
+  ctx.push_rect_batch_command(
+    cmds,
+    boss_vertices,
+    boss_indices,
+    @hud.hex_color(0xFF2266),
+  )
   // Player dot (center)
   let px = map_x + radius.to_double() * cell_size
   let py = map_y + radius.to_double() * cell_size
@@ -227,14 +407,6 @@ fn GameState::render_hud_scene_fallback(
 ) -> @scene.SceneNode {
   let sw = screen_w.to_double()
   @scene.fragment([
-    @scene.label(x=72.0, y=16.0, content="HP", color=0xFFFFFF),
-    @scene.label(
-      x=sw / 2.0,
-      y=16.0,
-      content="FLOOR " + self.world.floor.to_string(),
-      color=0xCCCCCC,
-      scale=1.2,
-    ),
     @scene.label(
       x=sw - 80.0,
       y=16.0,
@@ -259,6 +431,14 @@ fn GameState::render_hud_scene_fallback(
       )
     }),
   ])
+}
+
+///|
+fn GameState::render_hud_scene_fallback_dynamic(
+  self : GameState,
+  alive_count : Int,
+) -> @scene.SceneNode {
+  self.render_hud_scene_fallback(alive_count)
 }
 
 ///|

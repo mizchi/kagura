@@ -92,8 +92,10 @@ pub fn bloom_commands(
   screen_w : Int,
   screen_h : Int,
 ) -> Array[@gfx.DrawTrianglesCommand] {
-  let texel_w = 1.0 / screen_w.to_double()
-  let texel_h = 1.0 / screen_h.to_double()
+  let blur_w = if bloom_a.width > 0 { bloom_a.width } else { screen_w }
+  let blur_h = if bloom_a.height > 0 { bloom_a.height } else { screen_h }
+  let texel_w = 1.0 / blur_w.to_double()
+  let texel_h = 1.0 / blur_h.to_double()
   let texel_dwords = [
     @gfx.double_to_f32_bits(texel_w),
     @gfx.double_to_f32_bits(texel_h),

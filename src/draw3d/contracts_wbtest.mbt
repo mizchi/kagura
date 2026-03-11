@@ -94,6 +94,15 @@ test "shader3d_lit_untextured_wgsl returns non-empty string" {
 }
 
 ///|
+test "shader3d_lit_colored_wgsl returns non-empty string" {
+  let src = shader3d_lit_colored_wgsl()
+  assert_true(src.length() > 100)
+  assert_true(src.contains("vs_main"))
+  assert_true(src.contains("fs_main"))
+  assert_true(src.contains("base_color"))
+}
+
+///|
 test "lit_uniform_dwords layout 56 dwords" {
   let model = @math3d.Mat4::identity()
   let vp = @math3d.Mat4::identity()
@@ -165,6 +174,39 @@ test "new_lit_mesh_draw_command creates valid command" {
 }
 
 ///|
+test "new_lit_colored_mesh_draw_command packs base color uniform" {
+  let mesh = @mesh3d.Mesh3D::cube(1.0)
+  let model = @math3d.Mat4::identity()
+  let vp = @math3d.Mat4::identity()
+  let lighting = @light3d.LightingEnvironment::default()
+  let base_color = @math3d.Vec4::new(0.25, 0.5, 0.75, 1.0)
+  let dst = @gfx.new_image_handle(1, 800, 600)
+  let shader = @gfx.new_shader_handle(12, "test_lit_colored")
+  let dst_region = @gfx.new_dst_region(0, 0, 800, 600, 36)
+  let blend = @gfx.blend_mode_from_int(0)
+  let cmd = new_lit_colored_mesh_draw_command(
+    dst,
+    shader,
+    dst_region,
+    0,
+    0,
+    0,
+    blend,
+    mesh,
+    model,
+    vp,
+    lighting,
+    base_color,
+    [],
+  )
+  assert_eq(cmd.uniform_dwords.length(), 60)
+  assert_true(approx(@gfx.f32_bits_to_double(cmd.uniform_dwords[56]), 0.25))
+  assert_true(approx(@gfx.f32_bits_to_double(cmd.uniform_dwords[57]), 0.5))
+  assert_true(approx(@gfx.f32_bits_to_double(cmd.uniform_dwords[58]), 0.75))
+  assert_true(approx(@gfx.f32_bits_to_double(cmd.uniform_dwords[59]), 1.0))
+}
+
+///|
 test "new_skinned_lit_mesh_draw_command_from_skin packs stride16 vertex data" {
   let mesh = @mesh3d.Mesh3D::new(
     [
@@ -215,6 +257,92 @@ test "shader3d_lit_skinned_wgsl supports pre-skinned bypass flag" {
   assert_true(src.contains("pre_skinned"))
   assert_true(src.contains("uniforms.num_bones.y > 0.5"))
   assert_true(src.contains("if (!pre_skinned)"))
+}
+
+///|
+test "shader3d_lit_skinned_instanced_wgsl supports instance_index and bone matrices" {
+  let src = shader3d_lit_skinned_instanced_wgsl()
+  assert_true(src.contains("instance_index"))
+  assert_true(src.contains("bone_matrices"))
+  assert_true(src.contains("instances"))
+  assert_true(src.contains("input.weights"))
+}
+
+///|
+test "shader3d_lit_skinned_instanced_monochrome_wgsl uses base_color" {
+  let src = shader3d_lit_skinned_instanced_monochrome_wgsl()
+  assert_true(src.contains("instance_index"))
+  assert_true(src.contains("base_color"))
+  assert_true(src.contains("instance_models"))
+  assert_true(src.contains("input.weights"))
+}
+
+///|
+test "new_skinned_instanced_lit_mesh_draw_command creates valid command" {
+  let mesh = @mesh3d.Mesh3D::new(
+    [
+      0.0, 0.0, 0.0, 0.0, 1.0, 0.0, 0.0, 0.0, 1.0, 0.0, 0.0, 0.0, 1.0, 0.0, 1.0,
+      0.0,
+    ],
+    [0, 1],
+  )
+  let dst = @gfx.new_image_handle(1, 800, 600)
+  let shader = @gfx.new_shader_handle(13, "test_skinned_instanced")
+  let dst_region = @gfx.new_dst_region(0, 0, 800, 600, 2)
+  let cmd = new_skinned_instanced_lit_mesh_draw_command(
+    dst,
+    shader,
+    dst_region,
+    @gfx.blend_mode_from_int(1),
+    mesh.vertex_data,
+    mesh.indices,
+    @math3d.Mat4::identity(),
+    @light3d.LightingEnvironment::default(),
+    [@math3d.Mat4::identity()],
+    [@math3d.Mat4::identity(), @math3d.Mat4::translation(1.0, 0.0, 0.0)],
+    [
+      @math3d.Vec4::new(1.0, 0.0, 0.0, 1.0),
+      @math3d.Vec4::new(0.0, 1.0, 0.0, 1.0),
+    ],
+  )
+  assert_eq(cmd.instance_count, 2)
+  assert_eq(cmd.vertex_data.length(), mesh.vertex_data.length())
+  assert_eq(cmd.indices.length(), mesh.indices.length())
+  assert_eq(cmd.uniform_dwords.length(), 16 + 12 + 4 + 64 * 16 + 4 + 64 * 20)
+}
+
+///|
+test "new_skinned_instanced_monochrome_lit_mesh_draw_command shrinks uniform payload" {
+  let mesh = @mesh3d.Mesh3D::new(
+    [
+      0.0, 0.0, 0.0, 0.0, 1.0, 0.0, 0.0, 0.0, 1.0, 0.0, 0.0, 0.0, 1.0, 0.0, 1.0,
+      0.0,
+    ],
+    [0, 1],
+  )
+  let dst = @gfx.new_image_handle(1, 800, 600)
+  let shader = @gfx.new_shader_handle(15, "test_skinned_instanced_monochrome")
+  let dst_region = @gfx.new_dst_region(0, 0, 800, 600, 2)
+  let cmd = new_skinned_instanced_monochrome_lit_mesh_draw_command(
+    dst,
+    shader,
+    dst_region,
+    @gfx.blend_mode_from_int(1),
+    mesh.vertex_data,
+    mesh.indices,
+    @math3d.Mat4::identity(),
+    @light3d.LightingEnvironment::default(),
+    [@math3d.Mat4::identity()],
+    [@math3d.Mat4::identity(), @math3d.Mat4::translation(1.0, 0.0, 0.0)],
+    @math3d.Vec4::new(0.75, 0.5, 0.25, 1.0),
+  )
+  assert_eq(cmd.instance_count, 2)
+  assert_eq(cmd.vertex_data.length(), mesh.vertex_data.length())
+  assert_eq(cmd.indices.length(), mesh.indices.length())
+  assert_eq(
+    cmd.uniform_dwords.length(),
+    16 + 12 + 4 + 64 * 16 + 4 + 4 + 64 * 16,
+  )
 }
 
 // ============================================================
@@ -366,4 +494,30 @@ test "instance_count=1 produces same data size as non-instanced" {
   assert_eq(cmd.instance_count, 1)
   // Uniform size is always padded to MAX_INSTANCES
   assert_eq(cmd.uniform_dwords.length(), 16 + 12 + 4 + 256 * 20)
+}
+
+///|
+test "shader3d_lit_instanced_monochrome_wgsl uses small instance cap" {
+  let src = shader3d_lit_instanced_monochrome_wgsl()
+  assert_true(src.contains("MAX_INSTANCES: u32 = 64u"))
+  assert_true(src.contains("base_color"))
+  assert_true(src.contains("instance_models"))
+}
+
+///|
+test "instanced_monochrome_lit_uniform_dwords layout uses 64 instance cap" {
+  let vp = @math3d.Mat4::identity()
+  let lighting = @light3d.LightingEnvironment::default()
+  let matrices = [@math3d.Mat4::identity()]
+  let dwords = instanced_monochrome_lit_uniform_dwords(
+    vp,
+    lighting,
+    matrices,
+    @math3d.Vec4::new(0.5, 0.6, 0.7, 1.0),
+  )
+  assert_eq(dwords.length(), 16 + 12 + 4 + 4 + 64 * 16)
+  assert_true(approx(@gfx.f32_bits_to_double(dwords[32]), 0.5))
+  assert_true(approx(@gfx.f32_bits_to_double(dwords[33]), 0.6))
+  assert_true(approx(@gfx.f32_bits_to_double(dwords[34]), 0.7))
+  assert_true(approx(@gfx.f32_bits_to_double(dwords[35]), 1.0))
 }

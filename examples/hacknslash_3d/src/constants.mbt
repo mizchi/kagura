@@ -93,6 +93,12 @@ let key_escape : Int = 27
 let key_f3 : Int = 114
 
 ///|
+let key_f4 : Int = 115
+
+///|
+let key_f5 : Int = 116
+
+///|
 let key_f2 : Int = 113
 
 ///|

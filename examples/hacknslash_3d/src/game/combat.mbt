@@ -21,6 +21,31 @@ pub fn find_nearest_enemy(world : GameWorld, max_range : Double) -> Enemy? {
 }
 
 ///|
+fn find_nearest_enemy_index_from_point(
+  world : GameWorld,
+  source_x : Double,
+  source_y : Double,
+  max_range : Double,
+) -> Int {
+  let mut nearest_idx = -1
+  let mut nearest_dist_sq = max_range * max_range
+  for idx = 0; idx < world.enemies.length(); idx = idx + 1 {
+    let enemy = world.enemies[idx]
+    if not(enemy.alive) {
+      continue
+    }
+    let dx = enemy.x - source_x
+    let dy = enemy.y - source_y
+    let dist_sq = dx * dx + dy * dy
+    if dist_sq < nearest_dist_sq {
+      nearest_dist_sq = dist_sq
+      nearest_idx = idx
+    }
+  }
+  nearest_idx
+}
+
+///|
 let spell_cast_attack_lock_frames = 18
 
 ///|
@@ -53,6 +78,27 @@ pub fn aim_at(
   (@math.cos(a) * speed, @math.sin(a) * speed)
 }
 
+///|
+fn homing_missile_target_direction(
+  world : GameWorld,
+  target : Enemy?,
+) -> (Double, Double) {
+  match target {
+    Some(enemy) => {
+      let dx = enemy.x - world.player.x
+      let dy = enemy.y - world.player.y
+      let dist_sq = dx * dx + dy * dy
+      if dist_sq > 0.000001 {
+        let dist = dist_sq.sqrt()
+        return (dx / dist, dy / dist)
+      }
+    }
+    _ => ()
+  }
+  let angle = world.player.facing_angle
+  (@math.cos(angle), @math.sin(angle))
+}
+
 // Shoot an arrow toward the given target or in facing direction
 
 ///|
@@ -67,6 +113,7 @@ pub fn shoot_arrow(world : GameWorld, target : Enemy?) -> Unit {
     y: world.player.y,
     vx,
     vy,
+    age: 0,
     alive: true,
     damage,
     is_player: true,
@@ -243,6 +290,24 @@ fn splitting_fireball_telegraph_target(world : GameWorld) -> (Double, Double) {
 }
 
 ///|
+fn homing_missile_feedback_endpoint(world : GameWorld) -> (Double, Double) {
+  let angle = world.player.facing_angle
+  let length = homing_missile_range * 0.78
+  (
+    world.player.x + @math.cos(angle) * length,
+    world.player.y + @math.sin(angle) * length,
+  )
+}
+
+///|
+fn homing_missile_telegraph_target(world : GameWorld) -> (Double, Double) {
+  match find_nearest_enemy(world, homing_missile_range) {
+    Some(enemy) => (enemy.x, enemy.y)
+    None => homing_missile_feedback_endpoint(world)
+  }
+}
+
+///|
 pub fn cast_chain_lightning(world : GameWorld) -> Bool {
   if world.chain_lightning_cooldown_timer > 0 {
     return false
@@ -336,6 +401,7 @@ pub fn cast_splitting_fireball(world : GameWorld) -> Bool {
     y: world.player.y,
     vx,
     vy,
+    age: 0,
     alive: true,
     damage: world.player_stats.atk + 2,
     is_player: true,
@@ -385,6 +451,60 @@ pub fn cast_ice_nova(world : GameWorld) -> Bool {
 }
 
 ///|
+pub fn cast_homing_missile(world : GameWorld) -> Bool {
+  if world.homing_missile_cooldown_timer > 0 {
+    return false
+  }
+  let (telegraph_x, telegraph_y) = homing_missile_telegraph_target(world)
+  world.events.push(
+    GroundTelegraphLine(
+      world.player.x,
+      world.player.y,
+      telegraph_x,
+      telegraph_y,
+    ),
+  )
+  world.events.push(
+    GroundTelegraphRing(
+      telegraph_x,
+      telegraph_y,
+      homing_missile_telegraph_radius,
+    ),
+  )
+  let target = find_nearest_enemy(world, homing_missile_range)
+  let (dir_x, dir_y) = homing_missile_target_direction(world, target)
+  let side_x = -dir_y
+  let side_y = dir_x
+  for sign in [-1.0, 1.0] {
+    let spawn_x = world.player.x + side_x * homing_missile_launch_offset * sign
+    let spawn_y = world.player.y + side_y * homing_missile_launch_offset * sign
+    let initial_x = dir_x + side_x * homing_missile_initial_spread * sign
+    let initial_y = dir_y + side_y * homing_missile_initial_spread * sign
+    let initial_dist = (initial_x * initial_x + initial_y * initial_y).sqrt()
+    let vx = initial_x / initial_dist * homing_missile_speed
+    let vy = initial_y / initial_dist * homing_missile_speed
+    world.projectiles.push({
+      x: spawn_x,
+      y: spawn_y,
+      vx,
+      vy,
+      age: 0,
+      alive: true,
+      damage: world.player_stats.atk + 3,
+      is_player: true,
+      kind: HomingMissile,
+    })
+    world.events.push(
+      HomingMissileLaunch(spawn_x, spawn_y, telegraph_x, telegraph_y),
+    )
+  }
+  world.homing_missile_cooldown_timer = homing_missile_cooldown
+  apply_spell_attack_lock(world)
+  world.events.push(AttackTriggered)
+  true
+}
+
+///|
 /// Spawn item with scatter velocity (items fly out from death position)
 fn spawn_scatter_item(
   world : GameWorld,
@@ -429,6 +549,7 @@ fn spawn_split_fireball_projectiles(
       y: projectile.y,
       vx: @math.cos(angle) * speed,
       vy: @math.sin(angle) * speed,
+      age: 0,
       alive: true,
       damage: @cmp.maximum(1, projectile.damage - 1),
       is_player: true,
@@ -495,6 +616,17 @@ pub fn process_player_projectiles(
               world, proj, spawned_projectiles, remaining_splits,
             )
           }
+          HomingMissile => {
+            proj.alive = false
+            apply_player_damage_to_enemy(
+              world,
+              enemy,
+              proj.damage,
+              proj.x,
+              proj.y,
+            )
+            world.events.push(HomingMissileImpact(proj.x, proj.y))
+          }
           EnemyBolt => ()
         }
         break // arrow consumed
@@ -523,6 +655,7 @@ pub fn activate_skill(world : GameWorld, slot : Int) -> Unit {
             y: world.player.y,
             vx: @math.cos(spread) * world.params.arrow_speed,
             vy: @math.sin(spread) * world.params.arrow_speed,
+            age: 0,
             alive: true,
             damage: world.player_stats.atk * (1 + level),
             is_player: true,
@@ -545,6 +678,7 @@ pub fn activate_skill(world : GameWorld, slot : Int) -> Unit {
             y: world.player.y,
             vx: @math.cos(a) * world.params.arrow_speed,
             vy: @math.sin(a) * world.params.arrow_speed,
+            age: 0,
             alive: true,
             damage: world.player_stats.atk * level,
             is_player: true,
@@ -567,6 +701,7 @@ pub fn activate_skill(world : GameWorld, slot : Int) -> Unit {
     3 => ignore(cast_chain_lightning(world))
     4 => ignore(cast_splitting_fireball(world))
     5 => ignore(cast_ice_nova(world))
+    6 => ignore(cast_homing_missile(world))
     _ => ()
   }
 }

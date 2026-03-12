@@ -112,6 +112,36 @@ pub let ice_nova_radius : Double = 72.0
 pub let ice_nova_cooldown : Int = 48
 
 ///|
+pub let homing_missile_range : Double = 144.0
+
+///|
+pub let homing_missile_seek_range : Double = 176.0
+
+///|
+pub let homing_missile_speed : Double = 3.2
+
+///|
+pub let homing_missile_cooldown : Int = 54
+
+///|
+pub let homing_missile_turn_rate : Double = 0.36
+
+///|
+pub let homing_missile_launch_offset : Double = 8.0
+
+///|
+pub let homing_missile_initial_spread : Double = 0.42
+
+///|
+pub let homing_missile_lifetime : Int = 34
+
+///|
+pub let homing_missile_arc_frames : Int = 24
+
+///|
+pub let homing_missile_telegraph_radius : Double = 18.0
+
+///|
 pub let enemy_bolt_telegraph_frames : Int = 14
 
 ///|

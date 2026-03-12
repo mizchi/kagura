@@ -17,6 +17,7 @@ pub(all) struct GameWorld {
   mut screen_flash : Int
   mut floor_announce_timer : Int
   mut chain_lightning_cooldown_timer : Int
+  mut homing_missile_cooldown_timer : Int
   mut splitting_fireball_cooldown_timer : Int
   mut ice_nova_cooldown_timer : Int
   inventory : Inventory
@@ -85,6 +86,7 @@ pub fn GameWorld::new(
     screen_flash: 0,
     floor_announce_timer: 0,
     chain_lightning_cooldown_timer: 0,
+    homing_missile_cooldown_timer: 0,
     splitting_fireball_cooldown_timer: 0,
     ice_nova_cooldown_timer: 0,
     inventory: Inventory::new(20),
@@ -135,7 +137,7 @@ pub fn GameWorld::apply_dungeon(
   seed : Int,
   floor : Int,
 ) -> Unit {
-  let dungeon = generate_dungeon(seed)
+  let dungeon = generate_dungeon(seed, floor=floor)
   self.dungeon.grid = dungeon.grid
   self.dungeon.rooms.clear()
   for room in dungeon.rooms {
@@ -159,6 +161,7 @@ pub fn GameWorld::apply_dungeon(
   self.items = []
   self.projectiles = []
   self.chain_lightning_cooldown_timer = 0
+  self.homing_missile_cooldown_timer = 0
   self.splitting_fireball_cooldown_timer = 0
   self.ice_nova_cooldown_timer = 0
   // Reset auto-play navigation
@@ -473,14 +476,60 @@ pub fn GameWorld::tick_projectiles_phase(self : GameWorld) -> Unit {
   let spawned_projectiles : Array[Projectile] = []
   for proj in self.projectiles {
     if proj.alive {
+      let prev_x = proj.x
+      let prev_y = proj.y
+      match proj.kind {
+        HomingMissile if proj.is_player => {
+          let target_index = find_nearest_enemy_index_from_point(
+            self,
+            proj.x,
+            proj.y,
+            homing_missile_seek_range,
+          )
+          if target_index >= 0 {
+            let target = self.enemies[target_index]
+            let dx = target.x - proj.x
+            let dy = target.y - proj.y
+            let dist_sq = dx * dx + dy * dy
+            if dist_sq > 0.000001 {
+              let dist = dist_sq.sqrt()
+              let desired_vx = dx / dist * homing_missile_speed
+              let desired_vy = dy / dist * homing_missile_speed
+              let keep = 1.0 - homing_missile_turn_rate
+              let blended_vx = proj.vx * keep +
+                desired_vx * homing_missile_turn_rate
+              let blended_vy = proj.vy * keep +
+                desired_vy * homing_missile_turn_rate
+              let blended_dist_sq = blended_vx * blended_vx +
+                blended_vy * blended_vy
+              if blended_dist_sq > 0.000001 {
+                let blended_dist = blended_dist_sq.sqrt()
+                proj.vx = blended_vx / blended_dist * homing_missile_speed
+                proj.vy = blended_vy / blended_dist * homing_missile_speed
+              } else {
+                proj.vx = desired_vx
+                proj.vy = desired_vy
+              }
+            }
+          }
+        }
+        _ => ()
+      }
       proj.x = proj.x + proj.vx
       proj.y = proj.y + proj.vy
+      proj.age = proj.age + 1
       if proj.is_player &&
         self.frame_count % splitting_fireball_trail_interval == 0 {
         match proj.kind {
           Fireball(_) => self.events.push(FireballTrail(proj.x, proj.y))
+          HomingMissile =>
+            self.events.push(HomingMissileTrail(prev_x, prev_y, proj.x, proj.y))
           _ => ()
         }
+      }
+      if proj.kind == HomingMissile && proj.age > homing_missile_lifetime {
+        proj.alive = false
+        self.events.push(HomingMissileImpact(proj.x, proj.y))
       }
       if is_wall_at(self.dungeon.grid, proj.x, proj.y) {
         match proj.kind {
@@ -488,6 +537,10 @@ pub fn GameWorld::tick_projectiles_phase(self : GameWorld) -> Unit {
             explode_player_fireball(
               self, proj, spawned_projectiles, remaining_splits,
             )
+          HomingMissile if proj.is_player => {
+            proj.alive = false
+            self.events.push(HomingMissileImpact(proj.x, proj.y))
+          }
           _ => proj.alive = false
         }
       }
@@ -648,6 +701,9 @@ pub fn GameWorld::tick_player_timers_phase(self : GameWorld) -> Unit {
   if self.chain_lightning_cooldown_timer > 0 {
     self.chain_lightning_cooldown_timer = self.chain_lightning_cooldown_timer -
       1
+  }
+  if self.homing_missile_cooldown_timer > 0 {
+    self.homing_missile_cooldown_timer = self.homing_missile_cooldown_timer - 1
   }
   if self.splitting_fireball_cooldown_timer > 0 {
     self.splitting_fireball_cooldown_timer = self.splitting_fireball_cooldown_timer -

@@ -68,11 +68,58 @@ fn has_ice_nova_cast(events : Array[GameEvent]) -> Bool {
 }
 
 ///|
+fn count_homing_missile_launches(events : Array[GameEvent]) -> Int {
+  let mut count = 0
+  for event in events {
+    match event {
+      HomingMissileLaunch(_, _, _, _) => count += 1
+      _ => ()
+    }
+  }
+  count
+}
+
+///|
+fn count_homing_missile_trails(events : Array[GameEvent]) -> Int {
+  let mut count = 0
+  for event in events {
+    match event {
+      HomingMissileTrail(_, _, _, _) => count += 1
+      _ => ()
+    }
+  }
+  count
+}
+
+///|
+fn has_homing_missile_impact(events : Array[GameEvent]) -> Bool {
+  for event in events {
+    match event {
+      HomingMissileImpact(_, _) => return true
+      _ => ()
+    }
+  }
+  false
+}
+
+///|
 fn projectile_fireball_count(projectiles : Array[Projectile]) -> Int {
   let mut count = 0
   for projectile in projectiles {
     match projectile.kind {
       Fireball(_) => count += 1
+      _ => ()
+    }
+  }
+  count
+}
+
+///|
+fn projectile_homing_missile_count(projectiles : Array[Projectile]) -> Int {
+  let mut count = 0
+  for projectile in projectiles {
+    match projectile.kind {
+      HomingMissile => count += 1
       _ => ()
     }
   }
@@ -143,6 +190,7 @@ test "tick_projectiles_phase splits fireball on enemy hit" {
       y: py,
       vx: 0.0,
       vy: 0.0,
+      age: 0,
       alive: true,
       damage: 6,
       is_player: true,
@@ -176,4 +224,62 @@ test "cast_ice_nova damages nearby enemies and emits nova event" {
   assert_true(world.enemies[1].hp < 10)
   assert_eq(world.enemies[2].hp, 20)
   assert_true(world.attack_timer > 0)
+}
+
+///|
+test "cast_homing_missile spawns projectile and telegraph events" {
+  let world = GameWorld::new(seed=42)
+  let px = world.player.x
+  let py = world.player.y
+  world.enemies = [make_enemy(px + 128.0, py + 8.0, Basic, 12, 1.0, 10.0)]
+
+  let casted = cast_homing_missile(world)
+
+  assert_true(casted)
+  assert_eq(projectile_homing_missile_count(world.projectiles), 2)
+  assert_eq(count_homing_missile_launches(world.events), 2)
+  assert_eq(count_ground_telegraph_lines(world.events), 1)
+  assert_eq(count_ground_telegraph_rings(world.events), 1)
+  assert_eq(world.homing_missile_cooldown_timer, homing_missile_cooldown)
+  assert_true(world.attack_timer > 0)
+  let left = world.projectiles[0]
+  let right = world.projectiles[1]
+  assert_true(((left.x + right.x) - px * 2.0).abs() < 0.0001)
+  assert_true(((left.y + right.y) - py * 2.0).abs() < 0.0001)
+  assert_true(
+    (left.x - px).abs() > 0.01 || (left.y - py).abs() > 0.01,
+  )
+}
+
+///|
+test "tick_projectiles_phase steers and impacts homing missile" {
+  let world = GameWorld::new(seed=42)
+  let px = world.player.x
+  let py = world.player.y
+  world.enemies = [make_enemy(px + 36.0, py, Basic, 12, 1.0, 10.0)]
+  world.projectiles = [
+    {
+      x: px,
+      y: py,
+      vx: 0.0,
+      vy: homing_missile_speed,
+      alive: true,
+      damage: 7,
+      is_player: true,
+      age: 0,
+      kind: HomingMissile,
+    },
+  ]
+
+  world.tick_projectiles_phase()
+
+  assert_true(count_homing_missile_trails(world.events) >= 1)
+  assert_true(world.projectiles[0].vx > 1.4)
+  assert_true(world.projectiles[0].vy < homing_missile_speed)
+
+  world.projectiles[0].x = world.enemies[0].x
+  world.projectiles[0].y = world.enemies[0].y
+  world.tick_projectiles_phase()
+
+  assert_true(has_homing_missile_impact(world.events))
 }

@@ -211,32 +211,34 @@ pub fn GameWorld::auto_equip_best(self : GameWorld) -> Unit {
   }
 }
 
-// Auto-learn: spend skill points automatically
+///|
+fn levelup_offer_priority(id : SkillId) -> Int {
+  match id {
+    Vitality => 0
+    PowerStrike => 1
+    CriticalHit => 2
+    DashMastery => 3
+    Whirlwind => 4
+    LifeSteal => 5
+  }
+}
 
 ///|
-pub fn GameWorld::auto_learn_skills(self : GameWorld) -> Unit {
-  if self.skills.skill_points <= 0 {
+pub fn GameWorld::auto_choose_levelup_offer(self : GameWorld) -> Unit {
+  if self.level_progress.pending_choices <= 0 ||
+    self.level_progress.current_offers.length() == 0 {
     return
   }
-  // Priority: Vitality > PowerStrike > CriticalHit > DashMastery > Whirlwind > LifeSteal
-  let priority : Array[SkillId] = [
-    Vitality,
-    PowerStrike,
-    CriticalHit,
-    DashMastery,
-    Whirlwind,
-    LifeSteal,
-  ]
-  for id in priority {
-    if self.skills.learn(id) {
-      self.player_stats = compute_player_stats(
-        self.equipment,
-        self.skills,
-        base_hp=self.params.player_base_hp.to_int(),
-      )
-      return
+  let mut best_index = 0
+  let mut best_priority = 999999
+  for i, offer in self.level_progress.current_offers {
+    let priority = levelup_offer_priority(offer)
+    if priority < best_priority {
+      best_priority = priority
+      best_index = i
     }
   }
+  ignore(self.apply_levelup_offer_choice(best_index, self.seed + self.frame_count))
 }
 
 ///|

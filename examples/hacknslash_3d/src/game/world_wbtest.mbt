@@ -313,6 +313,34 @@ test "tick_items_phase in auto_play replaces oldest inventory item and auto equi
 }
 
 ///|
+test "spawn_enemies_for_floor_with_params scales hp and speed on deeper floors" {
+  let world = GameWorld::new(seed=42)
+  let params = {
+    ..BalanceParams::default(),
+    enemy_hp_floor_scale: 0.2,
+    enemy_speed_floor_scale: 0.05,
+  }
+  let enemies_floor_1 = spawn_enemies_for_floor_with_params(
+    world.dungeon.rooms,
+    0,
+    42,
+    1,
+    params,
+  )
+  let enemies_floor_4 = spawn_enemies_for_floor_with_params(
+    world.dungeon.rooms,
+    0,
+    42,
+    4,
+    params,
+  )
+  assert_true(enemies_floor_1.length() > 0)
+  assert_eq(enemies_floor_1.length(), enemies_floor_4.length())
+  assert_true(enemies_floor_4[0].max_hp > enemies_floor_1[0].max_hp)
+  assert_true(enemies_floor_4[0].speed > enemies_floor_1[0].speed)
+}
+
+///|
 test "tick auto-casts ice nova for nearby enemy" {
   let world = GameWorld::new(seed=42)
   let (ex, ey) = find_same_room_point_near_distance(world, 24.0)

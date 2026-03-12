@@ -33,6 +33,7 @@ fn update_enemy_bolt_castup(
   enemy : Enemy,
   projectiles : Array[Projectile],
   params : BalanceParams,
+  floor : Int,
 ) -> Bool {
   if enemy.pending_bolt_timer <= 0 {
     return false
@@ -54,7 +55,10 @@ fn update_enemy_bolt_castup(
         vy: cdy / dist * bspeed,
         age: 0,
         alive: true,
-        damage: params.enemy_bolt_damage_int(),
+        damage: params.scale_enemy_damage_for_floor(
+          params.enemy_bolt_damage_int(),
+          floor,
+        ),
         is_player: false,
         kind: EnemyBolt,
       })
@@ -73,6 +77,7 @@ pub fn update_enemy_ai(
   projectiles : Array[Projectile],
   events : Array[GameEvent],
   params? : BalanceParams = BalanceParams::default(),
+  floor? : Int = 1,
 ) -> Unit {
   let player_tile_x = (player.x / tile_size).to_int()
   let player_tile_y = (player.y / tile_size).to_int()
@@ -83,7 +88,7 @@ pub fn update_enemy_ai(
       continue
     }
     if enemy.kind == Ranged &&
-      update_enemy_bolt_castup(enemy, projectiles, params) {
+      update_enemy_bolt_castup(enemy, projectiles, params, floor) {
       if enemy.shoot_cooldown > 0 {
         enemy.shoot_cooldown = enemy.shoot_cooldown - 1
       }

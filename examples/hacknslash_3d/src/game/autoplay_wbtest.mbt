@@ -252,3 +252,18 @@ test "auto_play_input_with_nav_grid still routes toward equipment pickup when in
   assert_true(dx > 0.5)
   assert_true(dy.abs() < 0.2)
 }
+
+///|
+test "tick_auto_with_enemy_ai_grid auto selects pending levelup offer" {
+  let world = GameWorld::new(seed=42)
+  world.auto_play = true
+  world.frame_count = 59
+  world.level_progress.pending_choices = 1
+  world.level_progress.current_offers = [Vitality, PowerStrike, DashMastery]
+
+  world.tick_auto_with_enemy_ai_grid(world.dungeon.grid)
+
+  assert_eq(world.level_progress.pending_choices, 0)
+  assert_eq(world.level_progress.current_offers.length(), 0)
+  assert_true(world.skills.get_level(Vitality) > 0 || world.skills.get_level(PowerStrike) > 0 || world.skills.get_level(DashMastery) > 0)
+}

@@ -23,6 +23,7 @@ pub(all) struct GameWorld {
   inventory : Inventory
   equipment : Equipment
   skills : SkillTree
+  mut level_progress : LevelProgression
   mut player_stats : PlayerStats
   mut ui_mode : UIMode
   mut ui_cursor : Int
@@ -65,6 +66,7 @@ pub fn GameWorld::new(
     skills,
     base_hp=params.player_base_hp.to_int(),
   )
+  let level_progress = LevelProgression::new(config=params.levelup_config())
   let player : Player = {
     x: dungeon.start_x,
     y: dungeon.start_y,
@@ -110,6 +112,7 @@ pub fn GameWorld::new(
     inventory: Inventory::new(20),
     equipment,
     skills,
+    level_progress,
     player_stats,
     ui_mode: UIMode::None,
     ui_cursor: 0,
@@ -194,6 +197,59 @@ pub fn GameWorld::apply_dungeon(
   self.auto_nav_target = None
   self.auto_nav_path = []
   self.auto_nav_index = 0
+}
+
+///|
+pub fn GameWorld::refresh_player_stats(self : GameWorld) -> Unit {
+  self.player_stats = compute_player_stats(
+    self.equipment,
+    self.skills,
+    base_hp=self.params.player_base_hp.to_int(),
+  )
+  self.player.hp = @cmp.minimum(self.player.hp, self.player_stats.max_hp)
+}
+
+///|
+pub fn GameWorld::open_levelup_ui_if_needed(self : GameWorld) -> Unit {
+  if self.auto_play {
+    return
+  }
+  if self.level_progress.pending_choices <= 0 ||
+    self.level_progress.current_offers.length() == 0 {
+    if self.ui_mode == LevelUp {
+      self.ui_mode = UIMode::None
+    }
+    return
+  }
+  self.ui_mode = LevelUp
+  self.ui_cursor = @cmp.maximum(
+    0,
+    @cmp.minimum(
+      self.ui_cursor,
+      self.level_progress.current_offers.length() - 1,
+    ),
+  )
+}
+
+///|
+pub fn GameWorld::apply_levelup_offer_choice(
+  self : GameWorld,
+  offer_index : Int,
+  offer_seed : Int,
+) -> Bool {
+  if not(self.level_progress.choose_offer(self.skills, offer_index, offer_seed)) {
+    return false
+  }
+  self.refresh_player_stats()
+  if self.level_progress.pending_choices > 0 &&
+    self.level_progress.current_offers.length() > 0 {
+    self.ui_mode = LevelUp
+    self.ui_cursor = 0
+  } else if self.ui_mode == LevelUp {
+    self.ui_mode = UIMode::None
+    self.ui_cursor = 0
+  }
+  true
 }
 
 ///|
@@ -465,6 +521,7 @@ pub fn GameWorld::tick_enemy_ai_phase_with_grid(
     self.projectiles,
     self.events,
     params=self.params,
+    floor=self.floor,
   )
 }
 
@@ -476,7 +533,10 @@ pub fn GameWorld::tick_enemy_movement_and_contact_phase(
   let player_y = self.player.y
   let player_half = self.player.size / 2.0
   let mut can_contact_player = self.player.iframe_timer <= 0
-  let enemy_contact_damage = self.params.enemy_contact_damage.to_int()
+  let enemy_contact_damage = self.params.scale_enemy_damage_for_floor(
+    self.params.enemy_contact_damage.to_int(),
+    self.floor,
+  )
   for enemy in self.enemies {
     if enemy.alive {
       if enemy.vx != 0.0 || enemy.vy != 0.0 {
@@ -875,8 +935,10 @@ pub fn GameWorld::tick_auto_with_enemy_ai_grid(
   // 3. Every 60 frames: auto_equip_best(), auto_learn_skills()
   if self.frame_count % 60 == 0 {
     self.auto_equip_best()
-    self.auto_learn_skills()
   }
   // 4. Call tick(dx, dy)
   self.tick_with_enemy_ai_grid(dx, dy, enemy_ai_grid)
+  if self.frame_count % 60 == 0 {
+    self.auto_choose_levelup_offer()
+  }
 }

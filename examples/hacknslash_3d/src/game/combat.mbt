@@ -155,10 +155,60 @@ fn apply_life_steal(world : GameWorld, damage : Int) -> Unit {
 }
 
 ///|
+fn enemy_xp_reward(enemy : Enemy) -> Int {
+  match enemy.kind {
+    Basic => 1
+    Fast => 1
+    Tank => 2
+    Ranged => 2
+    Boss => 8
+  }
+}
+
+///|
+fn roll_drop_item_kind(
+  world : GameWorld,
+  item_seed : Int,
+) -> ItemKind {
+  let config = world.params.drop_table_config()
+  let equipment_weight = @cmp.maximum(0, config.equipment_weight)
+  let health_weight = @cmp.maximum(0, config.health_weight)
+  let score_weight = @cmp.maximum(0, config.score_weight)
+  let total_weight = equipment_weight + health_weight + score_weight
+  let roll = if total_weight <= 0 {
+    0
+  } else {
+    ((item_seed * 37) % total_weight + total_weight) % total_weight
+  }
+  if roll < equipment_weight {
+    Equipment(
+      generate_item_with_profile_and_drop_config(
+        item_seed,
+        world.floor,
+        world.params.get_affix_profile(),
+        config,
+      ),
+    )
+  } else if roll < equipment_weight + health_weight {
+    Health
+  } else {
+    Score
+  }
+}
+
+///|
 fn apply_enemy_death_rewards(world : GameWorld, enemy : Enemy) -> Unit {
   world.events.push(DeathBurst(enemy.x, enemy.y))
   let kill_score = if enemy.kind == Boss { 100 } else { 10 }
   world.score = world.score + kill_score
+  ignore(
+    world.level_progress.gain_xp(
+      world.skills,
+      enemy_xp_reward(enemy),
+      world.frame_count * 97 + world.floor * 13,
+      world.params.levelup_config(),
+    ),
+  )
   let drop_seed = world.frame_count * 7 +
     enemy.x.to_int() * 13 +
     enemy.y.to_int() * 17
@@ -167,29 +217,17 @@ fn apply_enemy_death_rewards(world : GameWorld, enemy : Enemy) -> Unit {
     let item_seed = drop_seed + di * 31
     let angle = (item_seed % 628).to_double() / 100.0
     let scatter_speed = 1.5 + (item_seed % 100).to_double() / 100.0
-    let roll = (item_seed * 37 + di * 13) % 100
-    if roll < 30 {
-      let item = generate_item_with_profile(
-        item_seed,
-        world.floor,
-        world.params.get_affix_profile(),
-      )
-      spawn_scatter_item(
-        world,
-        enemy.x,
-        enemy.y,
-        Equipment(item),
-        angle,
-        scatter_speed,
-      )
-    } else if roll < 60 {
-      spawn_scatter_item(world, enemy.x, enemy.y, Health, angle, scatter_speed)
-    } else {
-      spawn_scatter_item(world, enemy.x, enemy.y, Score, angle, scatter_speed)
-    }
+    spawn_scatter_item(
+      world,
+      enemy.x,
+      enemy.y,
+      roll_drop_item_kind(world, item_seed + di * 13),
+      angle,
+      scatter_speed,
+    )
   }
-  if enemy.kind == Boss {
-    world.skills.skill_points = world.skills.skill_points + 1
+  if world.level_progress.pending_choices > 0 {
+    world.open_levelup_ui_if_needed()
   }
 }
 

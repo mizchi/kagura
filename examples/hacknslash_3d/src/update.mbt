@@ -268,9 +268,13 @@ fn GameState::update_gameover(self : GameState) -> Unit {
       node.level = 0
     }
     self.world.skills.skill_points = 0
+    self.world.level_progress = @game.LevelProgression::new(
+      config=self.world.params.levelup_config(),
+    )
     self.world.player_stats = @game.compute_player_stats(
       self.world.equipment,
       self.world.skills,
+      base_hp=self.world.params.player_base_hp.to_int(),
     )
     self.world.player.hp = self.world.player_stats.max_hp
   }
@@ -281,6 +285,10 @@ fn GameState::update_playing(self : GameState) -> Unit {
   // Auto-play toggle (F2)
   if @inpututil.is_key_just_pressed(self.input.key_state, key_f2) {
     self.world.auto_play = not(self.world.auto_play)
+  }
+  if self.world.ui_mode == @game.LevelUp {
+    self.update_ui()
+    return
   }
   // UI toggle
   if @inpututil.is_key_just_pressed(self.input.key_state, key_i) {

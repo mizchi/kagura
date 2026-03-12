@@ -31,11 +31,23 @@ pub(all) struct BalanceParams {
   spell_damage_mult : Double // global spell damage multiplier
   enemy_bolt_damage : Double // ranged enemy projectile damage
   ranged_shot_cooldown : Double // ranged enemy attack interval
+  levelup_xp_base : Double
+  levelup_xp_growth : Double
+  drop_equipment_weight : Double
+  drop_health_weight : Double
+  drop_score_weight : Double
+  drop_weapon_weight : Double
+  drop_armor_weight : Double
+  drop_accessory_weight : Double
+  item_rarity_bonus_per_floor : Double
+  enemy_hp_floor_scale : Double
+  enemy_speed_floor_scale : Double
+  enemy_damage_floor_scale : Double
   affix_profile : Int // 0=Classic, 1=GlassCannon, 2=Tank, 3=Mobility, 4=Expanded
 }
 
 ///|
-pub let balance_param_count : Int = 27
+pub let balance_param_count : Int = 39
 
 ///|
 pub fn BalanceParams::default() -> BalanceParams {
@@ -67,6 +79,18 @@ pub fn BalanceParams::default() -> BalanceParams {
     spell_damage_mult: 0.5,
     enemy_bolt_damage: 3.0,
     ranged_shot_cooldown: 56.0,
+    levelup_xp_base: 10.0,
+    levelup_xp_growth: 6.0,
+    drop_equipment_weight: 30.0,
+    drop_health_weight: 30.0,
+    drop_score_weight: 40.0,
+    drop_weapon_weight: 1.0,
+    drop_armor_weight: 1.0,
+    drop_accessory_weight: 1.0,
+    item_rarity_bonus_per_floor: 0.0,
+    enemy_hp_floor_scale: 0.15,
+    enemy_speed_floor_scale: 0.03,
+    enemy_damage_floor_scale: 0.08,
     affix_profile: 0,
   }
 }
@@ -101,6 +125,18 @@ pub fn BalanceParams::to_array(self : BalanceParams) -> Array[Double] {
     self.spell_damage_mult,
     self.enemy_bolt_damage,
     self.ranged_shot_cooldown,
+    self.levelup_xp_base,
+    self.levelup_xp_growth,
+    self.drop_equipment_weight,
+    self.drop_health_weight,
+    self.drop_score_weight,
+    self.drop_weapon_weight,
+    self.drop_armor_weight,
+    self.drop_accessory_weight,
+    self.item_rarity_bonus_per_floor,
+    self.enemy_hp_floor_scale,
+    self.enemy_speed_floor_scale,
+    self.enemy_damage_floor_scale,
   ]
 }
 
@@ -134,6 +170,18 @@ pub fn BalanceParams::from_array(arr : Array[Double]) -> BalanceParams {
     spell_damage_mult: arr[24],
     enemy_bolt_damage: arr[25],
     ranged_shot_cooldown: arr[26],
+    levelup_xp_base: arr[27],
+    levelup_xp_growth: arr[28],
+    drop_equipment_weight: arr[29],
+    drop_health_weight: arr[30],
+    drop_score_weight: arr[31],
+    drop_weapon_weight: arr[32],
+    drop_armor_weight: arr[33],
+    drop_accessory_weight: arr[34],
+    item_rarity_bonus_per_floor: arr[35],
+    enemy_hp_floor_scale: arr[36],
+    enemy_speed_floor_scale: arr[37],
+    enemy_damage_floor_scale: arr[38],
     affix_profile: 0, // not optimized, set separately
   }
 }
@@ -146,7 +194,11 @@ pub fn BalanceParams::param_names() -> Array[String] {
     "knockback_strength", "iframe_duration", "dash_duration", "dash_cooldown", "dash_speed_mult",
     "basic_hp", "fast_hp", "tank_hp", "ranged_hp", "boss_hp_base", "boss_hp_per_floor",
     "enemy_contact_damage", "player_base_hp", "spawn_density", "spell_cooldown_mult",
-    "spell_damage_mult", "enemy_bolt_damage", "ranged_shot_cooldown",
+    "spell_damage_mult", "enemy_bolt_damage", "ranged_shot_cooldown", "levelup_xp_base",
+    "levelup_xp_growth", "drop_equipment_weight", "drop_health_weight", "drop_score_weight",
+    "drop_weapon_weight", "drop_armor_weight", "drop_accessory_weight",
+    "item_rarity_bonus_per_floor", "enemy_hp_floor_scale", "enemy_speed_floor_scale",
+    "enemy_damage_floor_scale",
   ]
 }
 
@@ -182,6 +234,18 @@ pub fn BalanceParams::clamp(self : BalanceParams) -> BalanceParams {
     spell_damage_mult: clamp_d(self.spell_damage_mult, 0.3, 2.0),
     enemy_bolt_damage: clamp_d(self.enemy_bolt_damage, 1.0, 8.0),
     ranged_shot_cooldown: clamp_d(self.ranged_shot_cooldown, 20.0, 180.0),
+    levelup_xp_base: clamp_d(self.levelup_xp_base, 1.0, 100.0),
+    levelup_xp_growth: clamp_d(self.levelup_xp_growth, 0.0, 50.0),
+    drop_equipment_weight: clamp_d(self.drop_equipment_weight, 0.0, 100.0),
+    drop_health_weight: clamp_d(self.drop_health_weight, 0.0, 100.0),
+    drop_score_weight: clamp_d(self.drop_score_weight, 0.0, 100.0),
+    drop_weapon_weight: clamp_d(self.drop_weapon_weight, 0.0, 100.0),
+    drop_armor_weight: clamp_d(self.drop_armor_weight, 0.0, 100.0),
+    drop_accessory_weight: clamp_d(self.drop_accessory_weight, 0.0, 100.0),
+    item_rarity_bonus_per_floor: clamp_d(self.item_rarity_bonus_per_floor, 0.0, 10.0),
+    enemy_hp_floor_scale: clamp_d(self.enemy_hp_floor_scale, 0.0, 1.0),
+    enemy_speed_floor_scale: clamp_d(self.enemy_speed_floor_scale, 0.0, 0.5),
+    enemy_damage_floor_scale: clamp_d(self.enemy_damage_floor_scale, 0.0, 1.0),
     affix_profile: self.affix_profile,
   }
 }
@@ -231,6 +295,56 @@ pub fn BalanceParams::enemy_bolt_damage_int(self : BalanceParams) -> Int {
 ///|
 pub fn BalanceParams::ranged_shot_cooldown_frames(self : BalanceParams) -> Int {
   @cmp.maximum(1, self.ranged_shot_cooldown.to_int())
+}
+
+///|
+pub fn BalanceParams::levelup_config(self : BalanceParams) -> LevelUpConfig {
+  {
+    xp_base: @cmp.maximum(1, self.levelup_xp_base.to_int()),
+    xp_growth: @cmp.maximum(0, self.levelup_xp_growth.to_int()),
+  }
+}
+
+///|
+pub fn BalanceParams::drop_table_config(self : BalanceParams) -> DropTableConfig {
+  {
+    equipment_weight: @cmp.maximum(0, self.drop_equipment_weight.to_int()),
+    health_weight: @cmp.maximum(0, self.drop_health_weight.to_int()),
+    score_weight: @cmp.maximum(0, self.drop_score_weight.to_int()),
+    weapon_weight: @cmp.maximum(0, self.drop_weapon_weight.to_int()),
+    armor_weight: @cmp.maximum(0, self.drop_armor_weight.to_int()),
+    accessory_weight: @cmp.maximum(0, self.drop_accessory_weight.to_int()),
+    rarity_bonus_per_floor: self.item_rarity_bonus_per_floor,
+  }
+}
+
+///|
+pub fn BalanceParams::scale_enemy_hp_for_floor(
+  self : BalanceParams,
+  base_hp : Int,
+  floor : Int,
+) -> Int {
+  let scale = 1.0 + @cmp.maximum(0, floor - 1).to_double() * self.enemy_hp_floor_scale
+  @cmp.maximum(1, (base_hp.to_double() * scale).to_int())
+}
+
+///|
+pub fn BalanceParams::scale_enemy_speed_for_floor(
+  self : BalanceParams,
+  base_speed : Double,
+  floor : Int,
+) -> Double {
+  base_speed * (1.0 + @cmp.maximum(0, floor - 1).to_double() * self.enemy_speed_floor_scale)
+}
+
+///|
+pub fn BalanceParams::scale_enemy_damage_for_floor(
+  self : BalanceParams,
+  base_damage : Int,
+  floor : Int,
+) -> Int {
+  let scale = 1.0 + @cmp.maximum(0, floor - 1).to_double() * self.enemy_damage_floor_scale
+  @cmp.maximum(1, (base_damage.to_double() * scale).to_int())
 }
 
 ///|

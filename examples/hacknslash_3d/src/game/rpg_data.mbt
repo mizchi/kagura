@@ -470,6 +470,19 @@ pub fn skill_id_to_int(id : SkillId) -> Int {
 }
 
 ///|
+pub fn skill_id_from_int(id : Int) -> SkillId? {
+  match id {
+    0 => Some(PowerStrike)
+    1 => Some(Whirlwind)
+    2 => Some(DashMastery)
+    3 => Some(Vitality)
+    4 => Some(CriticalHit)
+    5 => Some(LifeSteal)
+    _ => None
+  }
+}
+
+///|
 pub fn SkillTree::can_learn(self : SkillTree, id : SkillId) -> Bool {
   match self.find(id) {
     None => false
@@ -784,72 +797,10 @@ pub fn generate_item_with_profile(
   floor : Int,
   profile : AffixProfile,
 ) -> ItemData {
-  let rng = seed & 0x7FFFFFFF
-  let slot_roll = rng % 3
-  let slot = match slot_roll {
-    0 => Weapon
-    1 => Armor
-    _ => Accessory
-  }
-  let rarity_roll = rng / 3 % 100
-  let rarity = if rarity_roll < 50 {
-    Common
-  } else if rarity_roll < 80 {
-    Uncommon
-  } else if rarity_roll < 95 {
-    Rare
-  } else {
-    Epic
-  }
-  let rarity_mult = match rarity {
-    Common => 1
-    Uncommon => 2
-    Rare => 3
-    Epic => 5
-  }
-  let base = 1 + floor / 3
-  let (atk, def, hp) = match slot {
-    Weapon => (base * rarity_mult, 0, 0)
-    Armor => (0, base * rarity_mult, base)
-    Accessory => (base, base, base * rarity_mult)
-  }
-  let slot_name = match slot {
-    Weapon => "Sword"
-    Armor => "Armor"
-    Accessory => "Ring"
-  }
-  let prefixes = prefix_table_for(profile)
-  let suffixes = suffix_table_for(profile)
-  let prefix_seed = rng / 300 % prefixes.length()
-  let suffix_seed = rng / 3000 % suffixes.length()
-  let (prefix, suffix) : (Affix?, Affix?) = match rarity {
-    Common => (None, None)
-    Uncommon =>
-      if rng / 30 % 2 == 0 {
-        (Some(scale_affix(prefixes[prefix_seed], floor)), None)
-      } else {
-        (None, Some(scale_affix(suffixes[suffix_seed], floor)))
-      }
-    Rare =>
-      (
-        Some(scale_affix(prefixes[prefix_seed], floor)),
-        Some(scale_affix(suffixes[suffix_seed], floor)),
-      )
-    Epic =>
-      (
-        Some(scale_affix(prefixes[prefix_seed], floor)),
-        Some(scale_affix(suffixes[suffix_seed], floor)),
-      )
-  }
-  {
-    name: slot_name,
-    rarity,
-    slot,
-    atk_bonus: atk,
-    def_bonus: def,
-    hp_bonus: hp,
-    prefix,
-    suffix,
-    icon_id: slot_roll + rarity_roll % 3,
-  }
+  generate_item_with_profile_and_drop_config(
+    seed,
+    floor,
+    profile,
+    DropTableConfig::default(),
+  )
 }

@@ -260,6 +260,75 @@ test "inventory add_fifo keeps newest items when capacity is full" {
 }
 
 ///|
+test "available_levelup_skill_ids excludes locked and maxed skills" {
+  let skills = SkillTree::new()
+  let offers0 = skills.available_levelup_skill_ids()
+  assert_eq(offers0.length(), 3)
+  assert_true(contains_skill_id(offers0, PowerStrike))
+  assert_true(contains_skill_id(offers0, DashMastery))
+  assert_true(contains_skill_id(offers0, Vitality))
+  assert_false(contains_skill_id(offers0, Whirlwind))
+  skills.learn_from_levelup(Vitality) |> ignore
+  skills.learn_from_levelup(PowerStrike) |> ignore
+  let offers1 = skills.available_levelup_skill_ids()
+  assert_true(contains_skill_id(offers1, Whirlwind))
+  assert_true(contains_skill_id(offers1, CriticalHit))
+}
+
+///|
+test "level_progression gain_xp creates three offers and choosing one learns it" {
+  let skills = SkillTree::new()
+  let progress = LevelProgression::new()
+  let config = LevelUpConfig::default()
+  let leveled = progress.gain_xp(skills, 12, 17, config)
+  assert_true(leveled)
+  assert_eq(progress.level, 2)
+  assert_eq(progress.pending_choices, 1)
+  assert_eq(progress.current_offers.length(), 3)
+  let chosen = progress.current_offers[1]
+  assert_true(progress.choose_offer(skills, 1, 33))
+  assert_eq(skills.get_level(chosen), 1)
+  assert_eq(progress.pending_choices, 0)
+  assert_eq(progress.current_offers.length(), 0)
+}
+
+///|
+test "generate_item_with_profile_and_drop_config applies slot weights" {
+  let config : DropTableConfig = {
+    ..DropTableConfig::default(),
+    weapon_weight: 100,
+    armor_weight: 0,
+    accessory_weight: 0,
+  }
+  let item = generate_item_with_profile_and_drop_config(42, 5, Classic, config)
+  match item.slot {
+    Weapon => ()
+    _ => fail("expected weapon slot")
+  }
+}
+
+///|
+test "roll_item_rarity becomes stronger with floor bias" {
+  let config : DropTableConfig = {
+    ..DropTableConfig::default(),
+    rarity_bonus_per_floor: 4.0,
+  }
+  let low = roll_item_rarity(123, 1, config)
+  let high = roll_item_rarity(123, 12, config)
+  assert_true(item_rarity_rank(high) >= item_rarity_rank(low))
+}
+
+///|
+fn contains_skill_id(ids : Array[SkillId], id : SkillId) -> Bool {
+  for current in ids {
+    if skill_id_eq(current, id) {
+      return true
+    }
+  }
+  false
+}
+
+///|
 test "equipment should_equip compares total stat score across matching slot" {
   let equip = Equipment::new()
   ignore(

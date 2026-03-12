@@ -118,6 +118,7 @@ pub(all) enum UIMode {
   None
   Inventory
   Skills
+  LevelUp
 } derive(Eq)
 
 ///|

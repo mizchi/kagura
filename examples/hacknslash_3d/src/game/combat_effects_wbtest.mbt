@@ -280,6 +280,23 @@ test "cast_homing_missile spawns projectile and telegraph events" {
 }
 
 ///|
+test "enemy death rewards xp and opens level up offers" {
+  let world = GameWorld::new(
+    seed=42,
+    params={ ..BalanceParams::default(), levelup_xp_base: 1.0, levelup_xp_growth: 0.0 },
+  )
+  let enemy = make_enemy(world.player.x + 8.0, world.player.y, Basic, 1, 1.0, 10.0)
+  world.enemies = [enemy]
+
+  apply_player_damage_to_enemy(world, world.enemies[0], 2, world.player.x, world.player.y)
+
+  assert_eq(world.level_progress.level, 2)
+  assert_eq(world.level_progress.pending_choices, 1)
+  assert_eq(world.level_progress.current_offers.length(), 3)
+  assert_true(world.ui_mode == LevelUp)
+}
+
+///|
 test "tick_projectiles_phase steers and impacts homing missile" {
   let world = GameWorld::new(seed=42)
   let px = world.player.x

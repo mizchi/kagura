@@ -145,6 +145,18 @@ pub fn param_specs() -> Array[@dec.ParamSpec] {
     (0.3, 2.0), // spell_damage_mult
     (1.0, 8.0), // enemy_bolt_damage
     (20.0, 180.0), // ranged_shot_cooldown
+    (1.0, 100.0), // levelup_xp_base
+    (0.0, 50.0), // levelup_xp_growth
+    (0.0, 100.0), // drop_equipment_weight
+    (0.0, 100.0), // drop_health_weight
+    (0.0, 100.0), // drop_score_weight
+    (0.0, 100.0), // drop_weapon_weight
+    (0.0, 100.0), // drop_armor_weight
+    (0.0, 100.0), // drop_accessory_weight
+    (0.0, 10.0), // item_rarity_bonus_per_floor
+    (0.0, 1.0), // enemy_hp_floor_scale
+    (0.0, 0.5), // enemy_speed_floor_scale
+    (0.0, 1.0), // enemy_damage_floor_scale
   ]
   let specs : Array[@dec.ParamSpec] = []
   for i = 0; i < names.length(); i = i + 1 {
@@ -187,6 +199,18 @@ pub fn param_specs_autoplay_rebalance() -> Array[@dec.ParamSpec] {
     (0.35, 1.0), // spell_damage_mult
     (1.0, 4.0), // enemy_bolt_damage
     (40.0, 120.0), // ranged_shot_cooldown
+    (6.0, 30.0), // levelup_xp_base
+    (2.0, 15.0), // levelup_xp_growth
+    (10.0, 60.0), // drop_equipment_weight
+    (5.0, 40.0), // drop_health_weight
+    (5.0, 60.0), // drop_score_weight
+    (1.0, 6.0), // drop_weapon_weight
+    (1.0, 6.0), // drop_armor_weight
+    (1.0, 6.0), // drop_accessory_weight
+    (0.0, 5.0), // item_rarity_bonus_per_floor
+    (0.0, 0.5), // enemy_hp_floor_scale
+    (0.0, 0.2), // enemy_speed_floor_scale
+    (0.0, 0.4), // enemy_damage_floor_scale
   ]
   let specs : Array[@dec.ParamSpec] = []
   for i = 0; i < names.length(); i = i + 1 {

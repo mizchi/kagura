@@ -50,6 +50,18 @@ test "clamp enforces bounds" {
     spell_damage_mult: 0.0,
     enemy_bolt_damage: 0.0,
     ranged_shot_cooldown: 0.0,
+    levelup_xp_base: 0.0,
+    levelup_xp_growth: -10.0,
+    drop_equipment_weight: -1.0,
+    drop_health_weight: -1.0,
+    drop_score_weight: -1.0,
+    drop_weapon_weight: -1.0,
+    drop_armor_weight: -1.0,
+    drop_accessory_weight: -1.0,
+    item_rarity_bonus_per_floor: -1.0,
+    enemy_hp_floor_scale: -1.0,
+    enemy_speed_floor_scale: -1.0,
+    enemy_damage_floor_scale: -1.0,
     affix_profile: 0,
   }
   let clamped = extreme.clamp()
@@ -62,6 +74,9 @@ test "clamp enforces bounds" {
   assert_true(clamped.spell_damage_mult >= 0.3)
   assert_true(clamped.enemy_bolt_damage >= 1.0)
   assert_true(clamped.ranged_shot_cooldown >= 20.0)
+  assert_true(clamped.levelup_xp_base >= 1.0)
+  assert_true(clamped.drop_equipment_weight >= 0.0)
+  assert_true(clamped.enemy_hp_floor_scale >= 0.0)
 }
 
 ///|
@@ -128,4 +143,45 @@ test "enemy ranged pressure helpers apply parameter values" {
   }
   assert_eq(params.enemy_bolt_damage_int(), 3)
   assert_eq(params.ranged_shot_cooldown_frames(), 45)
+}
+
+///|
+test "levelup and drop table configs follow tuned parameters" {
+  let params = {
+    ..BalanceParams::default(),
+    levelup_xp_base: 18.0,
+    levelup_xp_growth: 7.0,
+    drop_equipment_weight: 40.0,
+    drop_health_weight: 20.0,
+    drop_score_weight: 10.0,
+    drop_weapon_weight: 6.0,
+    drop_armor_weight: 3.0,
+    drop_accessory_weight: 1.0,
+    item_rarity_bonus_per_floor: 2.5,
+  }
+  let levelup = params.levelup_config()
+  assert_eq(levelup.xp_base, 18)
+  assert_eq(levelup.xp_growth, 7)
+  let drop = params.drop_table_config()
+  assert_eq(drop.equipment_weight, 40)
+  assert_eq(drop.health_weight, 20)
+  assert_eq(drop.score_weight, 10)
+  assert_eq(drop.weapon_weight, 6)
+  assert_eq(drop.armor_weight, 3)
+  assert_eq(drop.accessory_weight, 1)
+  assert_true((drop.rarity_bonus_per_floor - 2.5).abs() < 0.001)
+}
+
+///|
+test "enemy floor scaling helpers increase pressure on deeper floors" {
+  let params = {
+    ..BalanceParams::default(),
+    enemy_hp_floor_scale: 0.2,
+    enemy_speed_floor_scale: 0.05,
+    enemy_damage_floor_scale: 0.15,
+  }
+  assert_eq(params.scale_enemy_hp_for_floor(10, 1), 10)
+  assert_eq(params.scale_enemy_hp_for_floor(10, 4), 16)
+  assert_true((params.scale_enemy_speed_for_floor(1.0, 5) - 1.2).abs() < 0.001)
+  assert_eq(params.scale_enemy_damage_for_floor(2, 5), 3)
 }

@@ -17,7 +17,9 @@ extern "js" fn js_storage_remove(key : String) -> Unit =
 let save_key : String = "hacknslash3d_save"
 
 // Encode game state as a simple key=value format
-// Format: floor|score|sp|weapon|armor|accessory|skills|items
+// Format:
+// floor|score|legacy_sp|weapon|armor|accessory|skills|items|
+// level|xp|next_xp|pending_choices|offer_ids
 
 ///|
 fn GameState::serialize_save(self : GameState) -> String {
@@ -46,6 +48,16 @@ fn GameState::serialize_save(self : GameState) -> String {
     inv_parts.push(serialize_opt_item(self.world.inventory.items[i]))
   }
   parts.push(join_strings(inv_parts, ";"))
+  // 8-12: level progression
+  parts.push(self.world.level_progress.level.to_string())
+  parts.push(self.world.level_progress.xp.to_string())
+  parts.push(self.world.level_progress.next_level_xp.to_string())
+  parts.push(self.world.level_progress.pending_choices.to_string())
+  let offer_parts : Array[String] = []
+  for offer in self.world.level_progress.current_offers {
+    offer_parts.push(@game.skill_id_to_int(offer).to_string())
+  }
+  parts.push(join_strings(offer_parts, ","))
   join_strings(parts, "|")
 }
 
@@ -226,10 +238,37 @@ fn GameState::load_game(self : GameState) -> Bool {
   for i in 0..<@cmp.minimum(inv_parts.length(), self.world.inventory.capacity) {
     self.world.inventory.items[i] = deserialize_opt_item(inv_parts[i])
   }
+  // 8-12: level progression (optional for backward compatibility)
+  let level_progress = @game.LevelProgression::new(
+    config=self.world.params.levelup_config(),
+  )
+  if parts.length() >= 13 {
+    level_progress.level = @cmp.maximum(1, parse_int(parts[8]))
+    level_progress.xp = @cmp.maximum(0, parse_int(parts[9]))
+    level_progress.next_level_xp = @cmp.maximum(1, parse_int(parts[10]))
+    level_progress.pending_choices = @cmp.maximum(0, parse_int(parts[11]))
+    let offers = split_string(parts[12], ',')
+    level_progress.current_offers = []
+    for offer_str in offers {
+      if offer_str == "" {
+        continue
+      }
+      match @game.skill_id_from_int(parse_int(offer_str)) {
+        Some(id) => level_progress.current_offers.push(id)
+        None => ()
+      }
+    }
+    if level_progress.pending_choices > 0 &&
+      level_progress.current_offers.length() == 0 {
+      level_progress.pending_choices = 0
+    }
+  }
+  self.world.level_progress = level_progress
   // Recompute stats
   self.world.player_stats = @game.compute_player_stats(
     self.world.equipment,
     self.world.skills,
+    base_hp=self.world.params.player_base_hp.to_int(),
   )
   self.world.player.hp = self.world.player_stats.max_hp
   // Regenerate dungeon for current floor
@@ -237,6 +276,7 @@ fn GameState::load_game(self : GameState) -> Bool {
   self.world.apply_dungeon(self.world.seed, self.world.floor)
   // Rebuild rendering state
   self.rebuild_dungeon_rendering()
+  self.world.open_levelup_ui_if_needed()
   true
 }
 

@@ -64,6 +64,7 @@ fn GameState::update_ui(self : GameState) -> Unit {
   match self.world.ui_mode {
     @game.Inventory => self.update_inventory_ui()
     @game.Skills => self.update_skills_ui()
+    @game.LevelUp => self.update_levelup_ui()
     @game.UIMode::None => ()
   }
 }
@@ -97,6 +98,7 @@ fn GameState::update_inventory_ui(self : GameState) -> Unit {
         self.world.player_stats = @game.compute_player_stats(
           self.world.equipment,
           self.world.skills,
+          base_hp=self.world.params.player_base_hp.to_int(),
         )
         self.world.player.hp = @cmp.minimum(
           self.world.player.hp,
@@ -117,14 +119,37 @@ fn GameState::update_skills_ui(self : GameState) -> Unit {
   if is_down_just_pressed(self.input) {
     self.world.ui_cursor = (self.world.ui_cursor + 1) % node_count
   }
-  if @inpututil.is_confirm_just_pressed(self.input) {
-    let node = self.world.skills.nodes[self.world.ui_cursor]
-    if self.world.skills.learn(node.id) {
-      self.world.player_stats = @game.compute_player_stats(
-        self.world.equipment,
-        self.world.skills,
-      )
-    }
+}
+
+///|
+fn GameState::update_levelup_ui(self : GameState) -> Unit {
+  let offer_count = self.world.level_progress.current_offers.length()
+  if offer_count == 0 {
+    self.world.ui_mode = @game.UIMode::None
+    self.world.ui_cursor = 0
+    return
+  }
+  if is_up_just_pressed(self.input) {
+    self.world.ui_cursor = (self.world.ui_cursor - 1 + offer_count) % offer_count
+  }
+  if is_down_just_pressed(self.input) {
+    self.world.ui_cursor = (self.world.ui_cursor + 1) % offer_count
+  }
+  let mut chosen_index = -1
+  if @inpututil.is_key_just_pressed(self.input.key_state, key_1) {
+    chosen_index = 0
+  } else if @inpututil.is_key_just_pressed(self.input.key_state, key_2) {
+    chosen_index = 1
+  } else if @inpututil.is_key_just_pressed(self.input.key_state, key_3) {
+    chosen_index = 2
+  } else if @inpututil.is_confirm_just_pressed(self.input) {
+    chosen_index = self.world.ui_cursor
+  }
+  if chosen_index >= 0 && chosen_index < offer_count {
+    let _ = self.world.apply_levelup_offer_choice(
+      chosen_index,
+      self.world.seed + self.world.frame_count,
+    )
   }
 }
 
@@ -139,6 +164,7 @@ fn GameState::render_rpg_ui_cmds(
   match self.world.ui_mode {
     @game.Inventory => self.render_inventory_ui(dst, shader, cmds)
     @game.Skills => self.render_skills_ui(dst, shader, cmds)
+    @game.LevelUp => self.render_levelup_ui(dst, shader, cmds)
     @game.UIMode::None => ()
   }
   cmds
@@ -342,14 +368,19 @@ fn GameState::render_skills_ui(
   ctx.draw_text(cmds, "SKILLS", ui_font_lg, p, y, 0xFFCC00)
   ctx.draw_text(
     cmds,
-    "SP:" + self.world.skills.skill_points.to_string(),
+    "LV:" +
+    self.world.level_progress.level.to_string() +
+    " XP:" +
+    self.world.level_progress.xp.to_string() +
+    "/" +
+    self.world.level_progress.next_level_xp.to_string(),
     ui_font,
-    sw - 100.0,
+    sw - 180.0,
     y + 4.0,
     0xFFCC00,
   )
   y = y + 24.0
-  ctx.draw_text(cmds, "SPACE:LEARN K:CLOSE", ui_font_sm, p, y, 0x555555)
+  ctx.draw_text(cmds, "LEVEL UP CHOICES ONLY  K:CLOSE", ui_font_sm, p, y, 0x555555)
   y = y + 16.0
   for i, node in self.world.skills.nodes {
     let row_y = y + i.to_double() * rh
@@ -393,7 +424,7 @@ fn GameState::render_skills_ui(
     )
     ctx.draw_text(
       cmds,
-      "Cost:" + node.cost.to_string(),
+      "Via Level Up",
       ui_font_sm,
       p + 32.0,
       row_y + 18.0,
@@ -420,6 +451,137 @@ fn GameState::render_skills_ui(
           bar_w * bar_ratio,
           8.0,
           @hud.hex_color(0x44AA44),
+        )
+      }
+    }
+  }
+}
+
+///|
+fn skill_levelup_summary(
+  skills : @game.SkillTree,
+  id : @game.SkillId,
+) -> String {
+  match skills.find(id) {
+    None => "---"
+    Some(node) => {
+      let prereq_text = if node.prereqs.length() == 0 {
+        "OPEN"
+      } else {
+        "REQ"
+      }
+      "Lv " +
+      node.level.to_string() +
+      " -> " +
+      (node.level + 1).to_string() +
+      " / " +
+      node.max_level.to_string() +
+      "  " +
+      prereq_text
+    }
+  }
+}
+
+///|
+fn GameState::render_levelup_ui(
+  self : GameState,
+  dst : @gfx.ImageHandle,
+  shader : @gfx.ShaderHandle,
+  cmds : Array[@gfx.DrawTrianglesCommand],
+) -> Unit {
+  let ctx = self.make_hud_ctx(dst, shader)
+  let sw = screen_w.to_double()
+  let sh = screen_h.to_double()
+  let p = ui_pad
+  let panel_w = 360.0
+  let panel_h = 190.0
+  let panel_x = (sw - panel_w) / 2.0
+  let panel_y = (sh - panel_h) / 2.0
+  ctx.draw_rect(cmds, 0.0, 0.0, sw, sh, @hud.hex_color(0x050510))
+  ctx.draw_rect(
+    cmds,
+    panel_x,
+    panel_y,
+    panel_w,
+    panel_h,
+    @hud.hex_color(0x11162A),
+  )
+  ctx.draw_rect(
+    cmds,
+    panel_x,
+    panel_y,
+    panel_w,
+    3.0,
+    @hud.hex_color(0xFFCC00),
+  )
+  let mut y = panel_y + 10.0
+  ctx.draw_text(cmds, "LEVEL UP", ui_font_lg, panel_x + p, y, 0xFFCC00)
+  ctx.draw_text(
+    cmds,
+    "1-3 / SPACE SELECT",
+    ui_font_sm,
+    panel_x + panel_w - 132.0,
+    y + 4.0,
+    0x777788,
+  )
+  y = y + 26.0
+  ctx.draw_text(
+    cmds,
+    "Choose 1 of " + self.world.level_progress.current_offers.length().to_string(),
+    ui_font_sm,
+    panel_x + p,
+    y,
+    0xAABBDD,
+  )
+  y = y + 18.0
+  for i, offer in self.world.level_progress.current_offers {
+    let row_y = y + i.to_double() * 42.0
+    let selected = i == self.world.ui_cursor
+    let bg = if selected { 0x223366 } else { 0x171B2D }
+    ctx.draw_rect(
+      cmds,
+      panel_x + p,
+      row_y,
+      panel_w - p * 2.0,
+      36.0,
+      @hud.hex_color(bg),
+    )
+    if selected {
+      ctx.draw_rect(
+        cmds,
+        panel_x + p,
+        row_y,
+        4.0,
+        36.0,
+        @hud.hex_color(0xFFCC00),
+      )
+    }
+    match self.world.skills.find(offer) {
+      None => ()
+      Some(node) => {
+        let _ = self.append_skill_icon(
+          cmds,
+          dst,
+          shader,
+          node,
+          panel_x + p + 10.0,
+          row_y + 9.0,
+        )
+        ctx.draw_text(
+          cmds,
+          (i + 1).to_string() + ". " + node.name,
+          ui_font,
+          panel_x + p + 34.0,
+          row_y + 4.0,
+          0xE8F0FF,
+        )
+        ctx.draw_text(
+          cmds,
+          skill_levelup_summary(self.world.skills, offer),
+          ui_font_sm,
+          panel_x + p + 34.0,
+          row_y + 19.0,
+          0x88AADD,
         )
       }
     }

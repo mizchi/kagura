@@ -79,6 +79,25 @@ pub fn find_nearest_visible_enemy(world : GameWorld) -> (Int, Double) {
   (best_idx, best_dist_sq)
 }
 
+///|
+fn find_nearest_alive_enemy(world : GameWorld) -> (Int, Double) {
+  let mut best_idx = -1
+  let mut best_dist_sq = 100000000.0
+  for i, enemy in world.enemies {
+    if not(enemy.alive) {
+      continue
+    }
+    let dx = enemy.x - world.player.x
+    let dy = enemy.y - world.player.y
+    let dist_sq = dx * dx + dy * dy
+    if dist_sq < best_dist_sq {
+      best_idx = i
+      best_dist_sq = dist_sq
+    }
+  }
+  (best_idx, best_dist_sq)
+}
+
 // Find the next uncleared room to visit
 
 ///|
@@ -267,6 +286,26 @@ fn auto_play_input_with_nav_grid(
   let (enemy_idx, enemy_dist_sq) = find_nearest_visible_enemy(world)
   if enemy_idx >= 0 {
     let enemy = world.enemies[enemy_idx]
+    if enemy_direct_chase_path_blocked(
+      nav_grid,
+      world.player.x,
+      world.player.y,
+      enemy.x,
+      enemy.y,
+      world.player.size,
+    ) {
+      let goal_tile : @terrain.Point = {
+        x: (enemy.x / tile_size).to_int(),
+        y: (enemy.y / tile_size).to_int(),
+      }
+      return auto_play_direction_to_goal_tile(
+        world,
+        nav_grid,
+        goal_tile,
+        enemy_idx,
+        enemy_dist_sq,
+      )
+    }
     // If close enough for bow, strafe slightly; otherwise approach
     if enemy_dist_sq < 80.0 * 80.0 {
       // In bow range — orbit around enemy at medium distance
@@ -319,6 +358,23 @@ fn auto_play_input_with_nav_grid(
   // 3. No visible enemies — navigate to next room
   let target_room = find_next_target_room(world)
   if target_room < 0 {
+    let (fallback_enemy_idx, fallback_enemy_dist_sq) = find_nearest_alive_enemy(
+      world,
+    )
+    if fallback_enemy_idx >= 0 {
+      let fallback_enemy = world.enemies[fallback_enemy_idx]
+      let goal_tile : @terrain.Point = {
+        x: (fallback_enemy.x / tile_size).to_int(),
+        y: (fallback_enemy.y / tile_size).to_int(),
+      }
+      return auto_play_direction_to_goal_tile(
+        world,
+        nav_grid,
+        goal_tile,
+        enemy_idx,
+        fallback_enemy_dist_sq,
+      )
+    }
     return (0.0, 0.0, enemy_idx, enemy_dist_sq)
   }
   let r = world.dungeon.rooms[target_room].rect

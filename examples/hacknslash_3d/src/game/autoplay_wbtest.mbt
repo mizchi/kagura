@@ -85,3 +85,61 @@ test "auto_play_input_with_nav_grid avoids blocked target room center" {
   assert_true(enemy_dist_sq > 0.0)
   assert_true(dx.abs() > 0.01 || dy.abs() > 0.01)
 }
+
+///|
+test "auto_play_input_with_nav_grid pathfinds around blocker toward visible enemy" {
+  let world = GameWorld::new(seed=42)
+  let grid = clone_grid(world.dungeon.grid)
+  let player_tile_x = (world.player.x / tile_size).to_int()
+  let player_tile_y = (world.player.y / tile_size).to_int()
+  grid.set(player_tile_x + 1, player_tile_y, @terrain.Wall)
+  world.enemies = [
+    make_enemy(
+      world.player.x + 3.0 * tile_size,
+      world.player.y,
+      Basic,
+      3,
+      1.0,
+      10.0,
+    ),
+  ]
+
+  let (dx, dy, enemy_idx, enemy_dist_sq) = auto_play_input_with_nav_grid(
+    world,
+    grid,
+  )
+
+  assert_eq(enemy_idx, 0)
+  assert_true(enemy_dist_sq > 0.0)
+  assert_true(dy.abs() > 0.01)
+  assert_true(dx.abs() < 0.99)
+}
+
+///|
+test "auto_play_input_with_nav_grid falls back to nearest alive enemy when rooms are marked cleared" {
+  let world = GameWorld::new(seed=42)
+  world.items = []
+  world.auto_cleared_rooms = Array::make(world.dungeon.rooms.length(), true)
+  let target_room_idx = furthest_room_index_from_player(world)
+  let target_room = world.dungeon.rooms[target_room_idx]
+  let center = target_room.rect.center()
+  world.enemies = [
+    make_enemy(
+      center.x.to_double() * tile_size + tile_size / 2.0,
+      center.y.to_double() * tile_size + tile_size / 2.0,
+      Basic,
+      3,
+      1.0,
+      10.0,
+    ),
+  ]
+
+  let (dx, dy, enemy_idx, enemy_dist_sq) = auto_play_input_with_nav_grid(
+    world,
+    world.dungeon.grid,
+  )
+
+  assert_eq(enemy_idx, -1)
+  assert_true(enemy_dist_sq > 0.0)
+  assert_true(dx.abs() > 0.01 || dy.abs() > 0.01)
+}

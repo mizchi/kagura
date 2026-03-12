@@ -1,0 +1,22 @@
+{
+  "name": "mizchi/fal_trellis_demo",
+  "version": "0.1.0",
+  "source": "src",
+  "supported-targets": [
+    "js",
+    "native"
+  ],
+  "warn-list": "-6-29-53-68",
+  "deps": {
+    "mizchi/kagura": {
+      "path": "../.."
+    },
+    "mizchi/web_runtime_hooks": {
+      "path": "../web_runtime_hooks"
+    },
+    "mizchi/native_runtime_hooks": {
+      "path": "../native_runtime_hooks"
+    }
+  },
+  "--moonbit-unstable-prebuild": "../../scripts/moon-prebuild-native-link-flags.cjs"
+}

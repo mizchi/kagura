@@ -95,6 +95,21 @@ info:
 dev name:
     node scripts/dev-server.mjs {{name}}
 
+fal-trellis-demo-generate image="" extra="":
+    test -n "{{image}}"
+    node examples/fal_trellis_demo/scripts/fal_trellis_asset.mjs --image {{image}} {{extra}}
+
+fal-trellis-demo-generate-sample sample="proxy-chest" extra="":
+    image="examples/fal_trellis_demo/assets/fal_samples/{{sample}}.png"; test -f "$image"
+    node examples/fal_trellis_demo/scripts/fal_trellis_asset.mjs --image "$image" {{extra}}
+
+fal-trellis-demo-check:
+    moon -C examples/fal_trellis_demo test --target js
+    moon -C examples/fal_trellis_demo check --target js
+    node --test examples/fal_trellis_demo/scripts/fal_trellis_asset_utils.test.mjs
+    node --check examples/fal_trellis_demo/scripts/fal_trellis_asset.mjs examples/fal_trellis_demo/scripts/fal_trellis_asset_utils.mjs
+    python3 -m py_compile examples/fal_trellis_demo/scripts/fal_trellis_preprocess.py
+
 vlm-handoff example="model_authoring" profile="roundtrip_diff_bundle" provider="openrouter" port="8113" extra="":
     node tools/modeling3d/scripts/model-authoring-vlm-handoff.mjs --example {{example}} --edit-profile {{profile}} --provider {{provider}} --serve --port {{port}} {{extra}}
 

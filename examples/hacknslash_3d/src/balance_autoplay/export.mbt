@@ -99,7 +99,7 @@ fn new_autoplay_experiment_parquet_file(
   let rows = [
     autoplay_experiment_row(
       config,
-      "baseline",
+      "before_change",
       0,
       baseline_loss,
       baseline_metrics,
@@ -107,7 +107,7 @@ fn new_autoplay_experiment_parquet_file(
     ),
     autoplay_experiment_row(
       config,
-      "optimized",
+      "after_tune",
       tuned.generation,
       tuned.loss,
       tuned.metrics,

@@ -147,7 +147,21 @@ pub fn run_simulation(
   seed : Int,
   max_frames : Int,
 ) -> SimMetrics {
+  run_simulation_from_floor(params, seed, max_frames, 1)
+}
+
+///|
+pub fn run_simulation_from_floor(
+  params : @game.BalanceParams,
+  seed : Int,
+  max_frames : Int,
+  start_floor : Int,
+) -> SimMetrics {
   let world = @game.GameWorld::new(seed~, params~)
+  if start_floor > 1 {
+    world.floor = start_floor
+    world.apply_dungeon(seed + start_floor * 1000, start_floor)
+  }
   world.auto_play = true
   world.mode = @game.Playing
   let hp_samples : Array[Double] = []
@@ -205,7 +219,7 @@ pub fn run_simulation(
     if world.mode == @game.GameOver {
       return {
         survival_frames: frame,
-        floors_cleared: world.floor - 1,
+        floors_cleared: @cmp.maximum(0, world.floor - start_floor),
         total_damage_taken: total_damage,
         total_kills,
         score: world.score,
@@ -220,7 +234,7 @@ pub fn run_simulation(
   }
   {
     survival_frames: max_frames,
-    floors_cleared: world.floor - 1,
+    floors_cleared: @cmp.maximum(0, world.floor - start_floor),
     total_damage_taken: total_damage,
     total_kills,
     score: world.score,

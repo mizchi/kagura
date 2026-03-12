@@ -32,6 +32,7 @@ fn enemy_direct_chase_path_blocked(
 fn update_enemy_bolt_castup(
   enemy : Enemy,
   projectiles : Array[Projectile],
+  params : BalanceParams,
 ) -> Bool {
   if enemy.pending_bolt_timer <= 0 {
     return false
@@ -53,7 +54,7 @@ fn update_enemy_bolt_castup(
         vy: cdy / dist * bspeed,
         age: 0,
         alive: true,
-        damage: 1,
+        damage: params.enemy_bolt_damage_int(),
         is_player: false,
         kind: EnemyBolt,
       })
@@ -81,7 +82,8 @@ pub fn update_enemy_ai(
     if not(enemy.alive) {
       continue
     }
-    if enemy.kind == Ranged && update_enemy_bolt_castup(enemy, projectiles) {
+    if enemy.kind == Ranged &&
+      update_enemy_bolt_castup(enemy, projectiles, params) {
       if enemy.shoot_cooldown > 0 {
         enemy.shoot_cooldown = enemy.shoot_cooldown - 1
       }
@@ -128,7 +130,7 @@ pub fn update_enemy_ai(
       if dist_sq > 0.000001 {
         let dist = dist_sq.sqrt()
         if enemy.shoot_cooldown <= 0 {
-          enemy.shoot_cooldown = 120
+          enemy.shoot_cooldown = params.ranged_shot_cooldown_frames()
           enemy.pending_bolt_timer = enemy_bolt_telegraph_frames
           enemy.pending_bolt_target_x = player.x
           enemy.pending_bolt_target_y = player.y

@@ -27,38 +27,46 @@ pub(all) struct BalanceParams {
   enemy_contact_damage : Double // base contact damage (default 1)
   player_base_hp : Double // player starting HP before equipment (default 10)
   spawn_density : Double // multiplier for enemy count per room (default 1.0)
+  spell_cooldown_mult : Double // global spell cooldown multiplier
+  spell_damage_mult : Double // global spell damage multiplier
+  enemy_bolt_damage : Double // ranged enemy projectile damage
+  ranged_shot_cooldown : Double // ranged enemy attack interval
   affix_profile : Int // 0=Classic, 1=GlassCannon, 2=Tank, 3=Mobility, 4=Expanded
 }
 
 ///|
-pub let balance_param_count : Int = 23
+pub let balance_param_count : Int = 27
 
 ///|
 pub fn BalanceParams::default() -> BalanceParams {
   {
-    player_speed: 2.0,
+    player_speed: 1.25,
     enemy_speed_basic: 0.8,
-    enemy_speed_fast: 1.2,
+    enemy_speed_fast: 2.2,
     enemy_speed_tank: 0.4,
     attack_cooldown: 20.0,
     arrow_speed: 4.0,
     arrow_range: 160.0,
     bow_cooldown: 15.0,
     chase_range: 120.0,
-    knockback_strength: 4.0,
-    iframe_duration: 30.0,
-    dash_duration: 8.0,
-    dash_cooldown: 40.0,
-    dash_speed_mult: 4.0,
-    basic_hp: 3.0,
-    fast_hp: 2.0,
+    knockback_strength: 2.0,
+    iframe_duration: 28.0,
+    dash_duration: 5.0,
+    dash_cooldown: 50.0,
+    dash_speed_mult: 2.5,
+    basic_hp: 6.5,
+    fast_hp: 4.0,
     tank_hp: 8.0,
     ranged_hp: 2.0,
-    boss_hp_base: 20.0,
-    boss_hp_per_floor: 2.0,
-    enemy_contact_damage: 1.0,
-    player_base_hp: 10.0,
+    boss_hp_base: 27.0,
+    boss_hp_per_floor: 3.5,
+    enemy_contact_damage: 2.0,
+    player_base_hp: 4.0,
     spawn_density: 1.0,
+    spell_cooldown_mult: 1.1,
+    spell_damage_mult: 0.5,
+    enemy_bolt_damage: 3.0,
+    ranged_shot_cooldown: 56.0,
     affix_profile: 0,
   }
 }
@@ -89,6 +97,10 @@ pub fn BalanceParams::to_array(self : BalanceParams) -> Array[Double] {
     self.enemy_contact_damage,
     self.player_base_hp,
     self.spawn_density,
+    self.spell_cooldown_mult,
+    self.spell_damage_mult,
+    self.enemy_bolt_damage,
+    self.ranged_shot_cooldown,
   ]
 }
 
@@ -118,6 +130,10 @@ pub fn BalanceParams::from_array(arr : Array[Double]) -> BalanceParams {
     enemy_contact_damage: arr[20],
     player_base_hp: arr[21],
     spawn_density: arr[22],
+    spell_cooldown_mult: arr[23],
+    spell_damage_mult: arr[24],
+    enemy_bolt_damage: arr[25],
+    ranged_shot_cooldown: arr[26],
     affix_profile: 0, // not optimized, set separately
   }
 }
@@ -129,7 +145,8 @@ pub fn BalanceParams::param_names() -> Array[String] {
     "attack_cooldown", "arrow_speed", "arrow_range", "bow_cooldown", "chase_range",
     "knockback_strength", "iframe_duration", "dash_duration", "dash_cooldown", "dash_speed_mult",
     "basic_hp", "fast_hp", "tank_hp", "ranged_hp", "boss_hp_base", "boss_hp_per_floor",
-    "enemy_contact_damage", "player_base_hp", "spawn_density",
+    "enemy_contact_damage", "player_base_hp", "spawn_density", "spell_cooldown_mult",
+    "spell_damage_mult", "enemy_bolt_damage", "ranged_shot_cooldown",
   ]
 }
 
@@ -161,8 +178,59 @@ pub fn BalanceParams::clamp(self : BalanceParams) -> BalanceParams {
     enemy_contact_damage: clamp_d(self.enemy_contact_damage, 1.0, 8.0),
     player_base_hp: clamp_d(self.player_base_hp, 3.0, 30.0),
     spawn_density: clamp_d(self.spawn_density, 0.5, 3.0),
+    spell_cooldown_mult: clamp_d(self.spell_cooldown_mult, 0.5, 3.0),
+    spell_damage_mult: clamp_d(self.spell_damage_mult, 0.3, 2.0),
+    enemy_bolt_damage: clamp_d(self.enemy_bolt_damage, 1.0, 8.0),
+    ranged_shot_cooldown: clamp_d(self.ranged_shot_cooldown, 20.0, 180.0),
     affix_profile: self.affix_profile,
   }
+}
+
+///|
+pub fn BalanceParams::spell_cooldown_frames(self : BalanceParams, base : Int) -> Int {
+  @cmp.maximum(1, (base.to_double() * self.spell_cooldown_mult).to_int())
+}
+
+///|
+pub fn BalanceParams::scale_spell_damage(
+  self : BalanceParams,
+  base_damage : Int,
+) -> Int {
+  @cmp.maximum(1, (base_damage.to_double() * self.spell_damage_mult).to_int())
+}
+
+///|
+pub fn BalanceParams::chain_lightning_cooldown_frames(self : BalanceParams) -> Int {
+  self.spell_cooldown_frames(chain_lightning_cooldown)
+}
+
+///|
+pub fn BalanceParams::splitting_fireball_cooldown_frames(
+  self : BalanceParams,
+) -> Int {
+  self.spell_cooldown_frames(splitting_fireball_cooldown)
+}
+
+///|
+pub fn BalanceParams::ice_nova_cooldown_frames(self : BalanceParams) -> Int {
+  self.spell_cooldown_frames(ice_nova_cooldown)
+}
+
+///|
+pub fn BalanceParams::homing_missile_cooldown_frames(
+  self : BalanceParams,
+) -> Int {
+  self.spell_cooldown_frames(homing_missile_cooldown)
+}
+
+///|
+pub fn BalanceParams::enemy_bolt_damage_int(self : BalanceParams) -> Int {
+  @cmp.maximum(1, self.enemy_bolt_damage.to_int())
+}
+
+///|
+pub fn BalanceParams::ranged_shot_cooldown_frames(self : BalanceParams) -> Int {
+  @cmp.maximum(1, self.ranged_shot_cooldown.to_int())
 }
 
 ///|

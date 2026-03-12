@@ -110,7 +110,7 @@ fn GameState::draw_spell_cooldowns(
     42.0,
     56.0,
     self.world.chain_lightning_cooldown_timer,
-    @game.chain_lightning_cooldown,
+    self.world.params.chain_lightning_cooldown_frames(),
     0x77CCFF,
   )
   self.draw_spell_cooldown_widget(
@@ -121,7 +121,7 @@ fn GameState::draw_spell_cooldowns(
     58.0,
     56.0,
     self.world.splitting_fireball_cooldown_timer,
-    @game.splitting_fireball_cooldown,
+    self.world.params.splitting_fireball_cooldown_frames(),
     0xFF9944,
   )
   self.draw_spell_cooldown_widget(
@@ -132,7 +132,7 @@ fn GameState::draw_spell_cooldowns(
     74.0,
     56.0,
     self.world.ice_nova_cooldown_timer,
-    @game.ice_nova_cooldown,
+    self.world.params.ice_nova_cooldown_frames(),
     0x99EEFF,
   )
   self.draw_spell_cooldown_widget(
@@ -143,7 +143,7 @@ fn GameState::draw_spell_cooldowns(
     90.0,
     56.0,
     self.world.homing_missile_cooldown_timer,
-    @game.homing_missile_cooldown,
+    self.world.params.homing_missile_cooldown_frames(),
     0xFF66CC,
   )
 }

@@ -329,6 +329,7 @@ pub fn cast_chain_lightning(world : GameWorld) -> Bool {
   let chained_enemy_indices : Array[Int] = []
   let mut arc_start_x = world.player.x
   let mut arc_start_y = world.player.y
+  let damage = world.params.scale_spell_damage(world.player_stats.atk + 2)
   for _step = 0; _step < chain_lightning_max_targets; _step = _step + 1 {
     let next_index = find_next_chain_target(
       world,
@@ -351,7 +352,7 @@ pub fn cast_chain_lightning(world : GameWorld) -> Bool {
     apply_player_damage_to_enemy(
       world,
       enemy,
-      world.player_stats.atk + 2,
+      damage,
       arc_start_x,
       arc_start_y,
     )
@@ -365,7 +366,7 @@ pub fn cast_chain_lightning(world : GameWorld) -> Bool {
       ChainLightningArc(world.player.x, world.player.y, end_x, end_y),
     )
   }
-  world.chain_lightning_cooldown_timer = chain_lightning_cooldown
+  world.chain_lightning_cooldown_timer = world.params.chain_lightning_cooldown_frames()
   apply_spell_attack_lock(world)
   world.events.push(AttackTriggered)
   true
@@ -390,6 +391,7 @@ pub fn cast_splitting_fireball(world : GameWorld) -> Bool {
       telegraph_x, telegraph_y, splitting_fireball_telegraph_radius,
     ),
   )
+  let damage = world.params.scale_spell_damage(world.player_stats.atk + 2)
   let target = find_nearest_enemy(world, chain_lightning_range)
   let (vx, vy) = aim_at(world, target, world.params.arrow_speed * 0.8)
   world.projectiles.push({
@@ -399,12 +401,13 @@ pub fn cast_splitting_fireball(world : GameWorld) -> Bool {
     vy,
     age: 0,
     alive: true,
-    damage: world.player_stats.atk + 2,
+    damage,
     is_player: true,
     kind: Fireball(1),
   })
   world.events.push(FireballCast(world.player.x, world.player.y))
-  world.splitting_fireball_cooldown_timer = splitting_fireball_cooldown
+  world.splitting_fireball_cooldown_timer = world.params
+    .splitting_fireball_cooldown_frames()
   apply_spell_attack_lock(world)
   world.events.push(AttackTriggered)
   true
@@ -418,6 +421,7 @@ pub fn cast_ice_nova(world : GameWorld) -> Bool {
   world.events.push(
     GroundTelegraphRing(world.player.x, world.player.y, ice_nova_radius),
   )
+  let damage = world.params.scale_spell_damage(world.player_stats.atk + 1)
   let mut hit_any = false
   let radius_sq = ice_nova_radius * ice_nova_radius
   for enemy in world.enemies {
@@ -430,7 +434,7 @@ pub fn cast_ice_nova(world : GameWorld) -> Bool {
       apply_player_damage_to_enemy(
         world,
         enemy,
-        world.player_stats.atk + 1,
+        damage,
         world.player.x,
         world.player.y,
       )
@@ -440,7 +444,7 @@ pub fn cast_ice_nova(world : GameWorld) -> Bool {
   world.events.push(
     IceNovaCast(world.player.x, world.player.y, ice_nova_radius),
   )
-  world.ice_nova_cooldown_timer = ice_nova_cooldown
+  world.ice_nova_cooldown_timer = world.params.ice_nova_cooldown_frames()
   apply_spell_attack_lock(world)
   world.events.push(AttackTriggered)
   hit_any
@@ -465,6 +469,7 @@ pub fn cast_homing_missile(world : GameWorld) -> Bool {
       telegraph_x, telegraph_y, homing_missile_telegraph_radius,
     ),
   )
+  let damage = world.params.scale_spell_damage(world.player_stats.atk + 3)
   let target = find_nearest_enemy(world, homing_missile_range)
   let (dir_x, dir_y) = homing_missile_target_direction(world, target)
   let side_x = -dir_y
@@ -484,7 +489,7 @@ pub fn cast_homing_missile(world : GameWorld) -> Bool {
       vy,
       age: 0,
       alive: true,
-      damage: world.player_stats.atk + 3,
+      damage,
       is_player: true,
       kind: HomingMissile,
     })
@@ -492,7 +497,8 @@ pub fn cast_homing_missile(world : GameWorld) -> Bool {
       HomingMissileLaunch(spawn_x, spawn_y, telegraph_x, telegraph_y),
     )
   }
-  world.homing_missile_cooldown_timer = homing_missile_cooldown
+  world.homing_missile_cooldown_timer = world.params
+    .homing_missile_cooldown_frames()
   apply_spell_attack_lock(world)
   world.events.push(AttackTriggered)
   true

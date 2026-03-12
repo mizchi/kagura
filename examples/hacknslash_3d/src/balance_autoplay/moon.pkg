@@ -1,0 +1,11 @@
+import {
+  "mizchi/hacknslash_3d/balance_lib" @blib,
+  "mizchi/differentiable_ecs" @dec,
+}
+
+warnings = "-1-2-7-20-29-71"
+
+options(
+  "is-main": true,
+  targets: { "main.mbt": [ "js", "native" ] },
+)

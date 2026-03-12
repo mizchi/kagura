@@ -163,3 +163,10 @@ test "avg_damage_interval" {
   }
   assert_true((m.avg_damage_interval() - 100.0).abs() < 0.01)
 }
+
+///|
+test "run_simulation_from_floor reports floors relative to start floor" {
+  let params = @game.BalanceParams::default()
+  let m = run_simulation_from_floor(params, 42, 1, 3)
+  assert_eq(m.floors_cleared, 0)
+}

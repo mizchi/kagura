@@ -13,6 +13,7 @@ pub(all) struct BalanceTargets {
   target_near_death_rate : Double // fraction of time near death
   target_kills_per_floor : Double
   target_damage_interval : Double // frames between getting hit
+  target_total_damage : Double // total hits taken in a run
   // Weights (control which objectives matter most)
   w_survival : Double
   w_floor : Double
@@ -23,6 +24,7 @@ pub(all) struct BalanceTargets {
   w_near_death : Double
   w_kills_per_floor : Double
   w_damage_interval : Double
+  w_total_damage : Double
 }
 
 // ==========================================
@@ -43,6 +45,7 @@ pub fn BalanceTargets::action_dense() -> BalanceTargets {
     target_near_death_rate: 0.05, // ほぼ瀕死にならない
     target_kills_per_floor: 15.0, // 1フロアに多くの敵
     target_damage_interval: 600.0, // あまりダメージ受けない
+    target_total_damage: 5.0,
     w_survival: 0.5,
     w_floor: 1.0,
     w_floor_time: 1.5, // フロアタイム重視
@@ -52,6 +55,7 @@ pub fn BalanceTargets::action_dense() -> BalanceTargets {
     w_near_death: 0.5,
     w_kills_per_floor: 1.0,
     w_damage_interval: 0.3,
+    w_total_damage: 0.4,
   }
 }
 
@@ -73,6 +77,7 @@ pub fn BalanceTargets::survival_horror() -> BalanceTargets {
     target_near_death_rate: 0.2, // 20%の時間が瀕死
     target_kills_per_floor: 8.0,
     target_damage_interval: 200.0, // 頻繁にダメージ
+    target_total_damage: 24.0,
     w_survival: 1.5, // 生存時間を厳密に制御
     w_floor: 1.0,
     w_floor_time: 0.5,
@@ -82,6 +87,7 @@ pub fn BalanceTargets::survival_horror() -> BalanceTargets {
     w_near_death: 2.0, // 瀕死率を最重視
     w_kills_per_floor: 0.3,
     w_damage_interval: 1.0,
+    w_total_damage: 1.0,
   }
 }
 
@@ -103,6 +109,7 @@ pub fn BalanceTargets::speedrun() -> BalanceTargets {
     target_near_death_rate: 0.02,
     target_kills_per_floor: 10.0,
     target_damage_interval: 900.0,
+    target_total_damage: 2.0,
     w_survival: 0.3,
     w_floor: 2.0, // フロア数を最重視
     w_floor_time: 2.0, // フロアタイムを最重視
@@ -112,6 +119,7 @@ pub fn BalanceTargets::speedrun() -> BalanceTargets {
     w_near_death: 0.3,
     w_kills_per_floor: 0.5,
     w_damage_interval: 0.2,
+    w_total_damage: 0.2,
   }
 }
 
@@ -133,6 +141,7 @@ pub fn BalanceTargets::risk_reward() -> BalanceTargets {
     target_near_death_rate: 0.15, // 15%瀕死
     target_kills_per_floor: 12.0,
     target_damage_interval: 300.0, // 頻繁にダメージ
+    target_total_damage: 18.0,
     w_survival: 1.0,
     w_floor: 0.8,
     w_floor_time: 0.5,
@@ -142,6 +151,7 @@ pub fn BalanceTargets::risk_reward() -> BalanceTargets {
     w_near_death: 1.5, // 瀕死率を重視
     w_kills_per_floor: 0.8,
     w_damage_interval: 1.0,
+    w_total_damage: 1.2,
   }
 }
 
@@ -161,6 +171,7 @@ pub fn BalanceTargets::default() -> BalanceTargets {
     target_near_death_rate: 0.08,
     target_kills_per_floor: 12.0,
     target_damage_interval: 400.0,
+    target_total_damage: 10.0,
     w_survival: 1.0,
     w_floor: 1.0,
     w_floor_time: 0.5,
@@ -170,6 +181,39 @@ pub fn BalanceTargets::default() -> BalanceTargets {
     w_near_death: 0.5,
     w_kills_per_floor: 0.3,
     w_damage_interval: 0.3,
+    w_total_damage: 0.4,
+  }
+}
+
+// ==========================================
+// Current autoplay rebalance target
+// 目標: いまの build で強すぎる autoplay を抑え、
+//       4-5 floor 前後で適度に被弾しつつ進む状態へ寄せる
+// ==========================================
+
+///|
+pub fn BalanceTargets::autoplay_rebalance() -> BalanceTargets {
+  {
+    target_survival_frames: 7200.0,
+    target_floors: 4.5,
+    target_floor_time: 1500.0,
+    target_hp_cv: 0.38,
+    target_kill_interval: 90.0,
+    target_kill_interval_cv: 0.9,
+    target_near_death_rate: 0.08,
+    target_kills_per_floor: 24.0,
+    target_damage_interval: 220.0,
+    target_total_damage: 12.0,
+    w_survival: 1.8,
+    w_floor: 0.8,
+    w_floor_time: 0.7,
+    w_hp_cv: 1.4,
+    w_kill_interval: 0.7,
+    w_kill_cv: 0.4,
+    w_near_death: 1.7,
+    w_kills_per_floor: 1.0,
+    w_damage_interval: 1.5,
+    w_total_damage: 2.0,
   }
 }
 
@@ -190,6 +234,7 @@ pub fn compute_loss(metrics : SimMetrics, t : BalanceTargets) -> Double {
   let near_death = metrics.near_death_rate()
   let kills_pf = metrics.kills_per_floor()
   let dmg_interval = metrics.avg_damage_interval()
+  let total_damage = metrics.total_damage_taken.to_double()
   t.w_survival * @dec.sq_err(survival, t.target_survival_frames) +
   t.w_floor * @dec.sq_err(floors, t.target_floors) +
   t.w_floor_time * @dec.sq_err(floor_time, t.target_floor_time) +
@@ -198,7 +243,8 @@ pub fn compute_loss(metrics : SimMetrics, t : BalanceTargets) -> Double {
   t.w_kill_cv * @dec.sq_err(kill_cv, t.target_kill_interval_cv) +
   t.w_near_death * @dec.sq_err(near_death, t.target_near_death_rate) +
   t.w_kills_per_floor * @dec.sq_err(kills_pf, t.target_kills_per_floor) +
-  t.w_damage_interval * @dec.sq_err(dmg_interval, t.target_damage_interval)
+  t.w_damage_interval * @dec.sq_err(dmg_interval, t.target_damage_interval) +
+  t.w_total_damage * @dec.sq_err(total_damage, t.target_total_damage)
 }
 
 // Run multiple simulations with different seeds, return average loss

@@ -159,8 +159,35 @@ test "cast_chain_lightning without enemy still emits forward arc feedback" {
   assert_eq(count_chain_arcs(world.events), 1)
   assert_eq(count_ground_telegraph_lines(world.events), 1)
   assert_eq(count_ground_telegraph_rings(world.events), 1)
-  assert_eq(world.chain_lightning_cooldown_timer, chain_lightning_cooldown)
+  assert_eq(
+    world.chain_lightning_cooldown_timer,
+    world.params.chain_lightning_cooldown_frames(),
+  )
   assert_true(world.attack_timer > 0)
+}
+
+///|
+test "spell multipliers affect cooldowns and spell damage" {
+  let world = GameWorld::new(
+    seed=42,
+    params={
+      ..BalanceParams::default(),
+      spell_cooldown_mult: 2.0,
+      spell_damage_mult: 0.5,
+    },
+  )
+  let px = world.player.x
+  let py = world.player.y
+  world.enemies = [make_enemy(px + 24.0, py, Basic, 12, 1.0, 10.0)]
+
+  let casted = cast_chain_lightning(world)
+
+  assert_true(casted)
+  assert_eq(
+    world.chain_lightning_cooldown_timer,
+    world.params.chain_lightning_cooldown_frames(),
+  )
+  assert_eq(world.enemies[0].hp, 11)
 }
 
 ///|
@@ -240,7 +267,10 @@ test "cast_homing_missile spawns projectile and telegraph events" {
   assert_eq(count_homing_missile_launches(world.events), 2)
   assert_eq(count_ground_telegraph_lines(world.events), 1)
   assert_eq(count_ground_telegraph_rings(world.events), 1)
-  assert_eq(world.homing_missile_cooldown_timer, homing_missile_cooldown)
+  assert_eq(
+    world.homing_missile_cooldown_timer,
+    world.params.homing_missile_cooldown_frames(),
+  )
   assert_true(world.attack_timer > 0)
   let left = world.projectiles[0]
   let right = world.projectiles[1]

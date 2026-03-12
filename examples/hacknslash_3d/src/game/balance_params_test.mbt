@@ -46,6 +46,10 @@ test "clamp enforces bounds" {
     enemy_contact_damage: 0.0,
     player_base_hp: 0.0,
     spawn_density: 0.0,
+    spell_cooldown_mult: 0.0,
+    spell_damage_mult: 0.0,
+    enemy_bolt_damage: 0.0,
+    ranged_shot_cooldown: 0.0,
     affix_profile: 0,
   }
   let clamped = extreme.clamp()
@@ -54,6 +58,10 @@ test "clamp enforces bounds" {
   assert_true(clamped.enemy_contact_damage >= 1.0)
   assert_true(clamped.player_base_hp >= 3.0)
   assert_true(clamped.spawn_density >= 0.5)
+  assert_true(clamped.spell_cooldown_mult >= 0.5)
+  assert_true(clamped.spell_damage_mult >= 0.3)
+  assert_true(clamped.enemy_bolt_damage >= 1.0)
+  assert_true(clamped.ranged_shot_cooldown >= 20.0)
 }
 
 ///|
@@ -95,4 +103,29 @@ test "get_affix_profile mapping" {
       _ => false
     },
   )
+}
+
+///|
+test "spell cooldown and damage helpers apply global multipliers" {
+  let params = {
+    ..BalanceParams::default(),
+    spell_cooldown_mult: 1.5,
+    spell_damage_mult: 0.5,
+  }
+  assert_eq(params.chain_lightning_cooldown_frames(), 48)
+  assert_eq(params.splitting_fireball_cooldown_frames(), 60)
+  assert_eq(params.ice_nova_cooldown_frames(), 72)
+  assert_eq(params.homing_missile_cooldown_frames(), 81)
+  assert_eq(params.scale_spell_damage(9), 4)
+}
+
+///|
+test "enemy ranged pressure helpers apply parameter values" {
+  let params = {
+    ..BalanceParams::default(),
+    enemy_bolt_damage: 3.8,
+    ranged_shot_cooldown: 45.0,
+  }
+  assert_eq(params.enemy_bolt_damage_int(), 3)
+  assert_eq(params.ranged_shot_cooldown_frames(), 45)
 }

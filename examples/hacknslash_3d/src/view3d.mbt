@@ -51,6 +51,9 @@ let color_item_score : @math3d.Vec4 = @math3d.Vec4::new(0.0, 1.0, 1.0, 1.0)
 let color_projectile : @math3d.Vec4 = @math3d.Vec4::new(1.0, 0.27, 0.4, 1.0)
 
 ///|
+let color_fireball : @math3d.Vec4 = @math3d.Vec4::new(1.0, 0.48, 0.10, 1.0)
+
+///|
 fn hex_to_vec4(hex : Int) -> @math3d.Vec4 {
   let r = ((hex >> 16) & 0xFF).to_double() / 255.0
   let g = ((hex >> 8) & 0xFF).to_double() / 255.0

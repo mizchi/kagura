@@ -35,11 +35,12 @@ fn chain_lightning_effect_placement(
 fn fireball_burst_effect_placement(
   x : Double,
   y : Double,
+  scale : Double,
 ) -> @effect.EffectPlacement {
   @effect.new_effect_placement(
     game_to_effect_world_position(x, y, 0.35),
     None,
-    1.0,
+    scale,
   )
 }
 
@@ -82,7 +83,21 @@ fn GameState::queue_fireball_burst_effect(
     self,
     "splitting_fireball",
     @effect.splitting_fireball_effect_document(),
-    fireball_burst_effect_placement(x, y),
+    fireball_burst_effect_placement(x, y, 1.0),
+  )
+}
+
+///|
+fn GameState::queue_fireball_cast_effect(
+  self : GameState,
+  x : Double,
+  y : Double,
+) -> Unit {
+  queue_active_effect(
+    self,
+    "splitting_fireball_cast",
+    @effect.splitting_fireball_effect_document(),
+    fireball_burst_effect_placement(x, y, 0.55),
   )
 }
 

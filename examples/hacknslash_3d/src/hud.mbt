@@ -44,6 +44,99 @@ fn GameState::hud_static_text_mode(self : GameState) -> Int {
 }
 
 ///|
+fn cooldown_tenths_text(timer : Int) -> String {
+  let tenths = (timer + 5) / 6
+  let whole = tenths / 10
+  let frac = tenths % 10
+  whole.to_string() + "." + frac.to_string()
+}
+
+///|
+fn GameState::draw_spell_cooldown_widget(
+  self : GameState,
+  ctx : @hud.HudContext,
+  cmds : Array[@gfx.DrawTrianglesCommand],
+  label : String,
+  x : Double,
+  y : Double,
+  width : Double,
+  timer : Int,
+  max_timer : Int,
+  color_hex : Int,
+) -> Unit {
+  let bg_y = y + 2.0
+  ctx.draw_text(cmds, label, 12.0, x, y, 0xDDEEFF)
+  ctx.draw_rect(
+    cmds,
+    x + 28.0,
+    bg_y,
+    width,
+    6.0,
+    @hud.hex_color(0x112233, alpha=0.45),
+  )
+  if timer > 0 {
+    let ratio = timer.to_double() / max_timer.to_double()
+    ctx.draw_rect(
+      cmds,
+      x + 28.0,
+      bg_y,
+      width * ratio,
+      6.0,
+      @hud.hex_color(color_hex, alpha=0.85),
+    )
+    ctx.draw_text(
+      cmds,
+      cooldown_tenths_text(timer),
+      12.0,
+      x + 28.0 + width + 6.0,
+      y,
+      color_hex,
+    )
+  }
+}
+
+///|
+fn GameState::draw_spell_cooldowns(
+  self : GameState,
+  ctx : @hud.HudContext,
+  cmds : Array[@gfx.DrawTrianglesCommand],
+) -> Unit {
+  self.draw_spell_cooldown_widget(
+    ctx,
+    cmds,
+    "4 CL",
+    10.0,
+    42.0,
+    56.0,
+    self.world.chain_lightning_cooldown_timer,
+    @game.chain_lightning_cooldown,
+    0x77CCFF,
+  )
+  self.draw_spell_cooldown_widget(
+    ctx,
+    cmds,
+    "5 FB",
+    10.0,
+    58.0,
+    56.0,
+    self.world.splitting_fireball_cooldown_timer,
+    @game.splitting_fireball_cooldown,
+    0xFF9944,
+  )
+  self.draw_spell_cooldown_widget(
+    ctx,
+    cmds,
+    "6 IN",
+    10.0,
+    74.0,
+    56.0,
+    self.world.ice_nova_cooldown_timer,
+    @game.ice_nova_cooldown,
+    0x99EEFF,
+  )
+}
+
+///|
 fn GameState::build_hud_static_cmds(
   self : GameState,
   ctx : @hud.HudContext,
@@ -322,9 +415,10 @@ fn GameState::render_hud_cmds(
       @hud.hex_color(0x66DDFF, alpha=0.6),
     )
   }
+  self.draw_spell_cooldowns(ctx, cmds)
   // Auto-play indicator
   if self.world.auto_play {
-    ctx.draw_text(cmds, "AUTO", 14.0, 10.0, 36.0, 0x00FFAA)
+    ctx.draw_text(cmds, "AUTO", 14.0, 10.0, 92.0, 0x00FFAA)
   }
   // Minimap
   self.render_minimap(ctx, cmds)

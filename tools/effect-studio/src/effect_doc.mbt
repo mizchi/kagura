@@ -56,7 +56,10 @@ pub fn effect_track_end_time(track : EffectTrack) -> Double {
 }
 
 ///|
-pub fn effect_document_time(doc : EffectDocument, preview_time : Double) -> Double {
+pub fn effect_document_time(
+  doc : EffectDocument,
+  preview_time : Double,
+) -> Double {
   if preview_time <= 0.0 {
     0.0
   } else if doc.duration <= 0.000001 {

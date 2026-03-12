@@ -97,3 +97,18 @@ test "render_minimap batches enemy markers under stress scenario" {
 
   assert_true(cmds.length() <= 6)
 }
+
+///|
+test "render_hud_cmds adds spell cooldown widgets when spell timers are active" {
+  let state = GameState::new(seed=42)
+  state.world.mode = @game.Playing
+  let ctx = hud_test_engine_context()
+
+  let base_cmds = state.render_hud_cmds(ctx.dst, ctx.shader)
+  state.world.chain_lightning_cooldown_timer = 20
+  state.world.splitting_fireball_cooldown_timer = 18
+  state.world.ice_nova_cooldown_timer = 12
+  let cooldown_cmds = state.render_hud_cmds(ctx.dst, ctx.shader)
+
+  assert_true(cooldown_cmds.length() > base_cmds.length())
+}

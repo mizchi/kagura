@@ -256,6 +256,28 @@ pub fn GameWorld::auto_activate_skills(
   }
 }
 
+///|
+pub fn GameWorld::auto_activate_spell_slots(
+  self : GameWorld,
+  enemy_idx : Int,
+  enemy_dist_sq : Double,
+) -> Unit {
+  if enemy_idx < 0 {
+    return
+  }
+  let ice_auto_radius = ice_nova_radius * 0.9
+  if enemy_dist_sq <= ice_auto_radius * ice_auto_radius && cast_ice_nova(self) {
+    return
+  }
+  if enemy_dist_sq <= chain_lightning_range * chain_lightning_range &&
+    cast_chain_lightning(self) {
+    return
+  }
+  if enemy_dist_sq <= self.params.arrow_range * self.params.arrow_range {
+    ignore(cast_splitting_fireball(self))
+  }
+}
+
 // Auto-equip: automatically equip better items
 
 ///|

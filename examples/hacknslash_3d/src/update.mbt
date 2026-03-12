@@ -381,6 +381,7 @@ fn GameState::update_playing(self : GameState) -> Unit {
         spawn_item_pickup(self.particle_manager, x, y, is_health)
       @game.ChainLightningArc(x0, y0, x1, y1) =>
         self.queue_chain_lightning_effect(x0, y0, x1, y1)
+      @game.FireballCast(x, y) => self.queue_fireball_cast_effect(x, y)
       @game.FireballTrail(x, y) =>
         spawn_fireball_trail(self.particle_manager, x, y)
       @game.FireballBurst(x, y) => self.queue_fireball_burst_effect(x, y)

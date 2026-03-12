@@ -55,7 +55,11 @@ fn hash_lerp(seed : Int, min : Double, max : Double) -> Double {
 
 ///|
 fn max_double(a : Double, b : Double) -> Double {
-  if a > b { a } else { b }
+  if a > b {
+    a
+  } else {
+    b
+  }
 }
 
 ///|
@@ -97,9 +101,17 @@ fn burst_origin(track : EffectTrack, burst_index : Int) -> @math3d.Vec3 {
       let line_origin = track.origin.scale(1.0 - ratio)
       let line_target = track.secondary_origin.scale(ratio)
       let offset = @math3d.Vec3::new(
-        hash_lerp(burst_index * 31 + 1, -track.spread_radius, track.spread_radius),
+        hash_lerp(
+          burst_index * 31 + 1,
+          -track.spread_radius,
+          track.spread_radius,
+        ),
         0.0,
-        hash_lerp(burst_index * 31 + 2, -track.spread_radius, track.spread_radius),
+        hash_lerp(
+          burst_index * 31 + 2,
+          -track.spread_radius,
+          track.spread_radius,
+        ),
       )
       line_origin.add(line_target).add(offset)
     }
@@ -154,7 +166,10 @@ fn scheduled_burst_config(
 }
 
 ///|
-fn resolve_track(track : EffectTrack, placement : EffectPlacement) -> EffectTrack {
+fn resolve_track(
+  track : EffectTrack,
+  placement : EffectPlacement,
+) -> EffectTrack {
   let scale = if placement.scale <= 0.000001 { 1.0 } else { placement.scale }
   let target = match placement.target {
     Some(target) => target
@@ -232,11 +247,7 @@ pub fn build_effect_runtime_window(
     }
     if to_time + 0.000001 >= from_time {
       append_effect_runtime_window_for_range(
-        doc,
-        from_time,
-        to_time,
-        placement,
-        scheduled_bursts,
+        doc, from_time, to_time, placement, scheduled_bursts,
       )
     } else {
       append_effect_runtime_window_for_range(
@@ -247,11 +258,7 @@ pub fn build_effect_runtime_window(
         scheduled_bursts,
       )
       append_effect_runtime_window_for_range(
-        doc,
-        0.0,
-        to_time,
-        placement,
-        scheduled_bursts,
+        doc, 0.0, to_time, placement, scheduled_bursts,
       )
     }
     return scheduled_bursts
@@ -259,11 +266,7 @@ pub fn build_effect_runtime_window(
   let from_time = @cmp.maximum(0.0, previous_time)
   let to_time = @cmp.minimum(doc.duration, current_time)
   append_effect_runtime_window_for_range(
-    doc,
-    from_time,
-    to_time,
-    placement,
-    scheduled_bursts,
+    doc, from_time, to_time, placement, scheduled_bursts,
   )
   scheduled_bursts
 }

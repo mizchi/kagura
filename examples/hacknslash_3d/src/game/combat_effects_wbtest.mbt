@@ -22,6 +22,17 @@ fn has_fireball_burst(events : Array[GameEvent]) -> Bool {
 }
 
 ///|
+fn has_fireball_cast(events : Array[GameEvent]) -> Bool {
+  for event in events {
+    match event {
+      FireballCast(_, _) => return true
+      _ => ()
+    }
+  }
+  false
+}
+
+///|
 fn has_ice_nova_cast(events : Array[GameEvent]) -> Bool {
   for event in events {
     match event {
@@ -65,6 +76,18 @@ test "cast_chain_lightning damages multiple enemies and emits arc events" {
 }
 
 ///|
+test "cast_chain_lightning without enemy still emits forward arc feedback" {
+  let world = GameWorld::new(seed=42)
+  world.player.facing_angle = 0.0
+
+  let casted = cast_chain_lightning(world)
+
+  assert_true(casted)
+  assert_eq(count_chain_arcs(world.events), 1)
+  assert_eq(world.chain_lightning_cooldown_timer, chain_lightning_cooldown)
+}
+
+///|
 test "cast_splitting_fireball spawns fireball projectile" {
   let world = GameWorld::new(seed=42)
 
@@ -73,6 +96,7 @@ test "cast_splitting_fireball spawns fireball projectile" {
   assert_true(casted)
   assert_eq(world.projectiles.length(), 1)
   assert_eq(projectile_fireball_count(world.projectiles), 1)
+  assert_true(has_fireball_cast(world.events))
 }
 
 ///|

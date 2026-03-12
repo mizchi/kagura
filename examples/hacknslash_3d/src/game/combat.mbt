@@ -91,7 +91,10 @@ fn apply_life_steal(world : GameWorld, damage : Int) -> Unit {
   if heal <= 0 {
     return
   }
-  world.player.hp = @cmp.minimum(world.player_stats.max_hp, world.player.hp + heal)
+  world.player.hp = @cmp.minimum(
+    world.player_stats.max_hp,
+    world.player.hp + heal,
+  )
 }
 
 ///|
@@ -99,7 +102,9 @@ fn apply_enemy_death_rewards(world : GameWorld, enemy : Enemy) -> Unit {
   world.events.push(DeathBurst(enemy.x, enemy.y))
   let kill_score = if enemy.kind == Boss { 100 } else { 10 }
   world.score = world.score + kill_score
-  let drop_seed = world.frame_count * 7 + enemy.x.to_int() * 13 + enemy.y.to_int() * 17
+  let drop_seed = world.frame_count * 7 +
+    enemy.x.to_int() * 13 +
+    enemy.y.to_int() * 17
   let drop_count = if enemy.kind == Boss { 5 } else { drop_seed % 3 + 1 }
   for di = 0; di < drop_count; di = di + 1 {
     let item_seed = drop_seed + di * 31
@@ -121,23 +126,9 @@ fn apply_enemy_death_rewards(world : GameWorld, enemy : Enemy) -> Unit {
         scatter_speed,
       )
     } else if roll < 60 {
-      spawn_scatter_item(
-        world,
-        enemy.x,
-        enemy.y,
-        Health,
-        angle,
-        scatter_speed,
-      )
+      spawn_scatter_item(world, enemy.x, enemy.y, Health, angle, scatter_speed)
     } else {
-      spawn_scatter_item(
-        world,
-        enemy.x,
-        enemy.y,
-        Score,
-        angle,
-        scatter_speed,
-      )
+      spawn_scatter_item(world, enemy.x, enemy.y, Score, angle, scatter_speed)
     }
   }
   if enemy.kind == Boss {
@@ -177,8 +168,9 @@ fn find_next_chain_target(
   source_x : Double,
   source_y : Double,
   chained_enemy_indices : Array[Int],
+  max_range : Double,
 ) -> Int {
-  let max_dist_sq = chain_lightning_hop_range * chain_lightning_hop_range
+  let max_dist_sq = max_range * max_range
   let mut nearest_index = -1
   let mut nearest_dist_sq = max_dist_sq
   for index = 0; index < world.enemies.length(); index = index + 1 {
@@ -208,12 +200,18 @@ fn find_next_chain_target(
 }
 
 ///|
+fn chain_lightning_feedback_endpoint(world : GameWorld) -> (Double, Double) {
+  let angle = world.player.facing_angle
+  let length = chain_lightning_range * 0.8
+  (
+    world.player.x + @math.cos(angle) * length,
+    world.player.y + @math.sin(angle) * length,
+  )
+}
+
+///|
 pub fn cast_chain_lightning(world : GameWorld) -> Bool {
   if world.chain_lightning_cooldown_timer > 0 {
-    return false
-  }
-  let first_target = find_nearest_enemy(world, chain_lightning_range)
-  if first_target is None {
     return false
   }
   let chained_enemy_indices : Array[Int] = []
@@ -225,6 +223,11 @@ pub fn cast_chain_lightning(world : GameWorld) -> Bool {
       arc_start_x,
       arc_start_y,
       chained_enemy_indices,
+      if chained_enemy_indices.is_empty() {
+        chain_lightning_range
+      } else {
+        chain_lightning_hop_range
+      },
     )
     if next_index < 0 {
       break
@@ -245,7 +248,10 @@ pub fn cast_chain_lightning(world : GameWorld) -> Bool {
     arc_start_y = enemy.y
   }
   if chained_enemy_indices.is_empty() {
-    return false
+    let (end_x, end_y) = chain_lightning_feedback_endpoint(world)
+    world.events.push(
+      ChainLightningArc(world.player.x, world.player.y, end_x, end_y),
+    )
   }
   world.chain_lightning_cooldown_timer = chain_lightning_cooldown
   world.events.push(AttackTriggered)
@@ -269,6 +275,7 @@ pub fn cast_splitting_fireball(world : GameWorld) -> Bool {
     is_player: true,
     kind: Fireball(1),
   })
+  world.events.push(FireballCast(world.player.x, world.player.y))
   world.splitting_fireball_cooldown_timer = splitting_fireball_cooldown
   world.events.push(AttackTriggered)
   true
@@ -298,7 +305,9 @@ pub fn cast_ice_nova(world : GameWorld) -> Bool {
       hit_any = true
     }
   }
-  world.events.push(IceNovaCast(world.player.x, world.player.y, ice_nova_radius))
+  world.events.push(
+    IceNovaCast(world.player.x, world.player.y, ice_nova_radius),
+  )
   world.ice_nova_cooldown_timer = ice_nova_cooldown
   world.events.push(AttackTriggered)
   hit_any
@@ -370,10 +379,7 @@ fn explode_player_fireball(
   projectile.alive = false
   world.events.push(FireballBurst(projectile.x, projectile.y))
   spawn_split_fireball_projectiles(
-    world,
-    projectile,
-    spawned_projectiles,
-    remaining_splits,
+    world, projectile, spawned_projectiles, remaining_splits,
   )
 }
 
@@ -398,15 +404,24 @@ pub fn process_player_projectiles(
         match proj.kind {
           Arrow => {
             proj.alive = false
-            apply_player_damage_to_enemy(world, enemy, proj.damage, proj.x, proj.y)
+            apply_player_damage_to_enemy(
+              world,
+              enemy,
+              proj.damage,
+              proj.x,
+              proj.y,
+            )
           }
           Fireball(remaining_splits) => {
-            apply_player_damage_to_enemy(world, enemy, proj.damage, proj.x, proj.y)
-            explode_player_fireball(
+            apply_player_damage_to_enemy(
               world,
-              proj,
-              spawned_projectiles,
-              remaining_splits,
+              enemy,
+              proj.damage,
+              proj.x,
+              proj.y,
+            )
+            explode_player_fireball(
+              world, proj, spawned_projectiles, remaining_splits,
             )
           }
           EnemyBolt => ()

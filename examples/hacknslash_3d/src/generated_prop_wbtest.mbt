@@ -412,6 +412,9 @@ test "update_playing routes enemy pathfinding around blocking generated prop" {
   )
   state.world.player.x = prop_x - 48.0
   state.world.player.y = prop_y
+  state.world.chain_lightning_cooldown_timer = 999
+  state.world.splitting_fireball_cooldown_timer = 999
+  state.world.ice_nova_cooldown_timer = 999
   state.world.enemies = [
     @game.make_enemy(prop_x + 48.0, prop_y, @game.Basic, 3, 1.0, 12.0),
   ]

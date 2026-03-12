@@ -57,8 +57,8 @@ pub fn build_timeline_view(
       start_ratio: clamp_ratio(track.start_time / duration),
       duration_ratio: clamp_ratio(track.duration / duration),
       active: track.enabled &&
-        normalized_time >= track.start_time &&
-        normalized_time <= end_time,
+      normalized_time >= track.start_time &&
+      normalized_time <= end_time,
       marker_ratios: markers,
       accent_color: track.color_start,
     })

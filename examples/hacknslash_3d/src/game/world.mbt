@@ -474,7 +474,8 @@ pub fn GameWorld::tick_projectiles_phase(self : GameWorld) -> Unit {
     if proj.alive {
       proj.x = proj.x + proj.vx
       proj.y = proj.y + proj.vy
-      if proj.is_player && self.frame_count % splitting_fireball_trail_interval == 0 {
+      if proj.is_player &&
+        self.frame_count % splitting_fireball_trail_interval == 0 {
         match proj.kind {
           Fireball(_) => self.events.push(FireballTrail(proj.x, proj.y))
           _ => ()
@@ -484,10 +485,7 @@ pub fn GameWorld::tick_projectiles_phase(self : GameWorld) -> Unit {
         match proj.kind {
           Fireball(remaining_splits) if proj.is_player =>
             explode_player_fireball(
-              self,
-              proj,
-              spawned_projectiles,
-              remaining_splits,
+              self, proj, spawned_projectiles, remaining_splits,
             )
           _ => proj.alive = false
         }
@@ -647,10 +645,12 @@ pub fn GameWorld::tick_player_timers_phase(self : GameWorld) -> Unit {
     self.screen_flash = self.screen_flash - 1
   }
   if self.chain_lightning_cooldown_timer > 0 {
-    self.chain_lightning_cooldown_timer = self.chain_lightning_cooldown_timer - 1
+    self.chain_lightning_cooldown_timer = self.chain_lightning_cooldown_timer -
+      1
   }
   if self.splitting_fireball_cooldown_timer > 0 {
-    self.splitting_fireball_cooldown_timer = self.splitting_fireball_cooldown_timer - 1
+    self.splitting_fireball_cooldown_timer = self.splitting_fireball_cooldown_timer -
+      1
   }
   if self.ice_nova_cooldown_timer > 0 {
     self.ice_nova_cooldown_timer = self.ice_nova_cooldown_timer - 1
@@ -724,7 +724,10 @@ pub fn GameWorld::tick_with_enemy_ai_grid(
     half,
     @cmp.minimum(world_h - half, self.player.y),
   )
-  // 8. Auto-shoot: find_nearest_enemy -> shoot_arrow + push AttackTriggered
+  // 8. Auto-cast spell slots based on nearest visible enemy
+  let (skill_enemy_idx, skill_enemy_dist_sq) = find_nearest_visible_enemy(self)
+  self.auto_activate_spell_slots(skill_enemy_idx, skill_enemy_dist_sq)
+  // 9. Auto-shoot: find_nearest_enemy -> shoot_arrow + push AttackTriggered
   if self.attack_timer > 0 {
     self.attack_timer = self.attack_timer - 1
   } else {
@@ -737,21 +740,21 @@ pub fn GameWorld::tick_with_enemy_ai_grid(
       self.events.push(AttackTriggered)
     }
   }
-  // 9. Update enemy AI
+  // 10. Update enemy AI
   self.tick_enemy_ai_phase_with_grid(enemy_ai_grid)
-  // 10. Enemy movement + contact damage
+  // 11. Enemy movement + contact damage
   self.tick_enemy_movement_and_contact_phase()
-  // 11-12. Projectiles
+  // 12-13. Projectiles
   self.tick_projectiles_phase()
-  // 13-14. Items
+  // 14-15. Items
   self.tick_items_phase()
-  // 15. Player-enemy separation (push physics)
+  // 16. Player-enemy separation (push physics)
   self.tick_player_enemy_separation_phase()
-  // 16. Enemy-enemy separation
+  // 17. Enemy-enemy separation
   self.resolve_enemy_enemy_separation()
-  // 17. Floor completion check
+  // 18. Floor completion check
   self.tick_floor_completion_phase()
-  // 18. Decrement player damage_timer and iframe_timer
+  // 19. Decrement player damage_timer and iframe_timer
   self.tick_player_timers_phase()
 }
 

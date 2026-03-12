@@ -123,6 +123,7 @@ pub(all) enum GameEvent {
   PlayerHurt(Double, Double)
   ItemPickup(Double, Double, Bool)
   ChainLightningArc(Double, Double, Double, Double)
+  FireballCast(Double, Double)
   FireballTrail(Double, Double)
   FireballBurst(Double, Double)
   IceNovaCast(Double, Double, Double)

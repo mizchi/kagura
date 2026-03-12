@@ -1132,3 +1132,58 @@ test "rebuild_entity_instance_scratch clears stale instanced data" {
     0,
   )
 }
+
+///|
+test "rebuild_entity_instance_scratch separates fireball from arrow instances" {
+  let state = GameState::new(seed=42)
+  let px = state.world.player.x
+  let py = state.world.player.y
+  let vis_region = compute_visible_region(
+    state.world.dungeon.rooms,
+    px,
+    py,
+    state.world.dungeon.grid.width,
+    state.world.dungeon.grid.height,
+  )
+  state.world.projectiles = [
+    {
+      x: px + 4.0,
+      y: py,
+      vx: 1.0,
+      vy: 0.0,
+      alive: true,
+      damage: 1,
+      is_player: true,
+      kind: @game.Arrow,
+    },
+    {
+      x: px + 8.0,
+      y: py,
+      vx: 1.0,
+      vy: 0.0,
+      alive: true,
+      damage: 2,
+      is_player: true,
+      kind: @game.Fireball(1),
+    },
+    {
+      x: px,
+      y: py + 4.0,
+      vx: -1.0,
+      vy: 0.0,
+      alive: true,
+      damage: 1,
+      is_player: false,
+      kind: @game.EnemyBolt,
+    },
+  ]
+
+  state.rebuild_entity_instance_scratch(vis_region)
+
+  assert_eq(state.entity_instance_scratch.arrow_instances.length(), 1)
+  assert_eq(state.entity_instance_scratch.fireball_instances.length(), 1)
+  assert_eq(
+    state.entity_instance_scratch.enemy_projectile_instances.length(),
+    1,
+  )
+}

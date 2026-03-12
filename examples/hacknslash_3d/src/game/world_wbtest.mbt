@@ -129,3 +129,42 @@ test "tick_items_phase collects score item and compacts" {
   assert_eq(world.score, before_score + 5)
   assert_eq(world.items.length(), 0)
 }
+
+///|
+test "tick auto-casts ice nova for nearby enemy" {
+  let world = GameWorld::new(seed=42)
+  let px = world.player.x
+  let py = world.player.y
+  world.attack_timer = 999
+  world.enemies = [make_enemy(px + 24.0, py, Basic, 12, 1.0, 10.0)]
+
+  world.tick(0.0, 0.0)
+
+  assert_true(world.ice_nova_cooldown_timer > 0)
+}
+
+///|
+test "tick auto-casts chain lightning for mid-range enemy" {
+  let world = GameWorld::new(seed=42)
+  let px = world.player.x
+  let py = world.player.y
+  world.attack_timer = 999
+  world.enemies = [make_enemy(px + 88.0, py, Basic, 12, 1.0, 10.0)]
+
+  world.tick(0.0, 0.0)
+
+  assert_true(world.chain_lightning_cooldown_timer > 0)
+}
+
+///|
+test "tick auto-casts splitting fireball for far visible enemy" {
+  let world = GameWorld::new(seed=42)
+  let px = world.player.x
+  let py = world.player.y
+  world.attack_timer = 999
+  world.enemies = [make_enemy(px + 118.0, py, Basic, 12, 1.0, 10.0)]
+
+  world.tick(0.0, 0.0)
+
+  assert_true(world.splitting_fireball_cooldown_timer > 0)
+}

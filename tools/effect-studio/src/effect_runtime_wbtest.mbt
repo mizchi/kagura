@@ -75,5 +75,35 @@ test "build_effect_runtime_window scales ice nova ring outward" {
     new_effect_placement(@math3d.Vec3::new(0.0, 0.0, 0.0), None, 2.0),
   )
   assert_eq(small.length(), large.length())
-  assert_true(large[0].config.position.length() > small[0].config.position.length())
+  assert_true(
+    large[0].config.position.length() > small[0].config.position.length(),
+  )
+}
+
+///|
+fn has_track_id(
+  bursts : Array[ScheduledEffectBurst],
+  track_id : String,
+) -> Bool {
+  for burst in bursts {
+    if burst.track_id == track_id {
+      return true
+    }
+  }
+  false
+}
+
+///|
+test "build_effect_runtime_window emits ice nova radial ring and spoke bursts" {
+  let doc = ice_nova_effect_document()
+  let bursts = build_effect_runtime_window(
+    doc,
+    0.0,
+    0.12,
+    new_effect_placement(@math3d.Vec3::new(0.0, 0.0, 0.0), None, 1.5),
+  )
+  assert_true(has_track_id(bursts, "nova_ring"))
+  assert_true(has_track_id(bursts, "nova_ring_echo"))
+  assert_true(has_track_id(bursts, "nova_spokes_x"))
+  assert_true(has_track_id(bursts, "nova_spokes_z"))
 }

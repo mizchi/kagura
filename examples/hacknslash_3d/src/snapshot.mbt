@@ -60,6 +60,11 @@ fn get_initial_perf_capture_enabled() -> Bool {
 }
 
 ///|
+fn get_initial_autoplay_enabled() -> Bool {
+  js_get_query_param_bool("autoplay", false)
+}
+
+///|
 fn get_initial_fxaa_enabled() -> Bool {
   js_get_query_param_bool("fxaa", false)
 }

@@ -190,6 +190,29 @@ fn game_mode_name(mode : @game.GameMode) -> String {
 }
 
 ///|
+fn apply_initial_mode_overrides(
+  state : GameState,
+  snapshot_mode : String,
+  snapshot_frames : Int,
+  initial_autoplay_enabled : Bool,
+) -> Unit {
+  if snapshot_mode == "playing" {
+    state.world.mode = @game.Playing
+    let frames = snapshot_frames
+    for i = 0; i < frames; i = i + 1 {
+      state.update(@core.empty_input_snapshot())
+    }
+  } else if snapshot_mode == "gameover" {
+    state.world.mode = @game.GameOver
+  } else if initial_autoplay_enabled {
+    state.world.mode = @game.Playing
+  }
+  if initial_autoplay_enabled && state.world.mode == @game.Playing {
+    state.world.auto_play = true
+  }
+}
+
+///|
 fn build_initial_state() -> GameState {
   let state = if get_initial_ssao_enabled() {
     GameState::new_with_ssao(seed=42, SSAOConfig::enabled_default())
@@ -203,16 +226,12 @@ fn build_initial_state() -> GameState {
   if stress_enemy_count > 0 {
     apply_enemy_stress_scenario(state.world, stress_enemy_count)
   }
-  let snapshot_mode = get_snapshot_mode()
-  if snapshot_mode == "playing" {
-    state.world.mode = @game.Playing
-    let frames = get_snapshot_frames()
-    for i = 0; i < frames; i = i + 1 {
-      state.update(@core.empty_input_snapshot())
-    }
-  } else if snapshot_mode == "gameover" {
-    state.world.mode = @game.GameOver
-  }
+  apply_initial_mode_overrides(
+    state,
+    get_snapshot_mode(),
+    get_snapshot_frames(),
+    get_initial_autoplay_enabled(),
+  )
   state
 }
 

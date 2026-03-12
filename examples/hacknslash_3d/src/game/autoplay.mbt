@@ -119,6 +119,86 @@ pub fn find_next_target_room(world : GameWorld) -> Int {
   best_room
 }
 
+///|
+fn find_nearest_autoplay_pickup_item(world : GameWorld) -> ItemDrop? {
+  let mut nearest : ItemDrop? = None
+  let mut nearest_dist_sq = 100000000.0
+  for item in world.items {
+    if not(item.alive) {
+      continue
+    }
+    match item.kind {
+      Equipment(_) => {
+        let dx = item.x - world.player.x
+        let dy = item.y - world.player.y
+        let dist_sq = dx * dx + dy * dy
+        if dist_sq < nearest_dist_sq {
+          nearest_dist_sq = dist_sq
+          nearest = Some(item)
+        }
+      }
+      _ => ()
+    }
+  }
+  nearest
+}
+
+///|
+fn auto_play_direction_to_goal_tile(
+  world : GameWorld,
+  goal_tile : @terrain.Point,
+  enemy_idx : Int,
+  enemy_dist_sq : Double,
+) -> (Double, Double, Int, Double) {
+  let need_repath = match world.auto_nav_target {
+    None => true
+    Some(t) => t.x != goal_tile.x || t.y != goal_tile.y
+  }
+  if need_repath || world.auto_nav_index >= world.auto_nav_path.length() {
+    let px = (world.player.x / tile_size).to_int()
+    let py = (world.player.y / tile_size).to_int()
+    let start : @terrain.Point = { x: px, y: py }
+    match @pathfind.find_path(world.dungeon.grid, start, goal_tile) {
+      Some(path) => {
+        world.auto_nav_path = path
+        world.auto_nav_index = 1
+        world.auto_nav_target = Some(goal_tile)
+      }
+      None => {
+        world.auto_nav_path = []
+        world.auto_nav_index = 0
+        world.auto_nav_target = None
+        return (0.0, 0.0, enemy_idx, enemy_dist_sq)
+      }
+    }
+  }
+  if world.auto_nav_index < world.auto_nav_path.length() {
+    let wp = world.auto_nav_path[world.auto_nav_index]
+    let wx = wp.x.to_double() * tile_size + tile_size / 2.0
+    let wy = wp.y.to_double() * tile_size + tile_size / 2.0
+    let pdx = wx - world.player.x
+    let pdy = wy - world.player.y
+    let pdist = (pdx * pdx + pdy * pdy).sqrt()
+    if pdist < tile_size / 2.0 {
+      world.auto_nav_index = world.auto_nav_index + 1
+      if world.auto_nav_index < world.auto_nav_path.length() {
+        let nwp = world.auto_nav_path[world.auto_nav_index]
+        let nwx = nwp.x.to_double() * tile_size + tile_size / 2.0
+        let nwy = nwp.y.to_double() * tile_size + tile_size / 2.0
+        let ndx = nwx - world.player.x
+        let ndy = nwy - world.player.y
+        let ndist = (ndx * ndx + ndy * ndy).sqrt()
+        if ndist > 0.001 {
+          return (ndx / ndist, ndy / ndist, enemy_idx, enemy_dist_sq)
+        }
+      }
+    } else if pdist > 0.001 {
+      return (pdx / pdist, pdy / pdist, enemy_idx, enemy_dist_sq)
+    }
+  }
+  (0.0, 0.0, enemy_idx, enemy_dist_sq)
+}
+
 // Auto-play: compute desired movement direction
 // Returns (dx, dy, enemy_idx, enemy_dist_sq) — also returns vision result to avoid recomputation
 
@@ -164,64 +244,27 @@ pub fn auto_play_input(world : GameWorld) -> (Double, Double, Int, Double) {
       }
     }
   }
-  // 2. No visible enemies — navigate to next room
+  // 2. No visible enemies — move toward nearby equipment pickup first
+  match find_nearest_autoplay_pickup_item(world) {
+    Some(item) => {
+      let goal_tile : @terrain.Point = {
+        x: (item.x / tile_size).to_int(),
+        y: (item.y / tile_size).to_int(),
+      }
+      return auto_play_direction_to_goal_tile(
+        world, goal_tile, enemy_idx, enemy_dist_sq,
+      )
+    }
+    None => ()
+  }
+  // 3. No visible enemies — navigate to next room
   let target_room = find_next_target_room(world)
   if target_room < 0 {
-    // All rooms cleared — stay put
     return (0.0, 0.0, enemy_idx, enemy_dist_sq)
   }
   let r = world.dungeon.rooms[target_room].rect
   let goal_tile : @terrain.Point = { x: r.x + r.w / 2, y: r.y + r.h / 2 }
-  // Check if we need a new path
-  let need_repath = match world.auto_nav_target {
-    None => true
-    Some(t) => t.x != goal_tile.x || t.y != goal_tile.y
-  }
-  if need_repath || world.auto_nav_index >= world.auto_nav_path.length() {
-    let px = (world.player.x / tile_size).to_int()
-    let py = (world.player.y / tile_size).to_int()
-    let start : @terrain.Point = { x: px, y: py }
-    match @pathfind.find_path(world.dungeon.grid, start, goal_tile) {
-      Some(path) => {
-        world.auto_nav_path = path
-        world.auto_nav_index = 1 // skip start
-        world.auto_nav_target = Some(goal_tile)
-      }
-      None => {
-        world.auto_nav_path = []
-        world.auto_nav_index = 0
-        world.auto_nav_target = None
-        return (0.0, 0.0, enemy_idx, enemy_dist_sq)
-      }
-    }
-  }
-  // Follow path
-  if world.auto_nav_index < world.auto_nav_path.length() {
-    let wp = world.auto_nav_path[world.auto_nav_index]
-    let wx = wp.x.to_double() * tile_size + tile_size / 2.0
-    let wy = wp.y.to_double() * tile_size + tile_size / 2.0
-    let pdx = wx - world.player.x
-    let pdy = wy - world.player.y
-    let pdist = (pdx * pdx + pdy * pdy).sqrt()
-    if pdist < tile_size / 2.0 {
-      world.auto_nav_index = world.auto_nav_index + 1
-      // Recurse to get next direction
-      if world.auto_nav_index < world.auto_nav_path.length() {
-        let nwp = world.auto_nav_path[world.auto_nav_index]
-        let nwx = nwp.x.to_double() * tile_size + tile_size / 2.0
-        let nwy = nwp.y.to_double() * tile_size + tile_size / 2.0
-        let ndx = nwx - world.player.x
-        let ndy = nwy - world.player.y
-        let ndist = (ndx * ndx + ndy * ndy).sqrt()
-        if ndist > 0.001 {
-          return (ndx / ndist, ndy / ndist, enemy_idx, enemy_dist_sq)
-        }
-      }
-    } else if pdist > 0.001 {
-      return (pdx / pdist, pdy / pdist, enemy_idx, enemy_dist_sq)
-    }
-  }
-  (0.0, 0.0, enemy_idx, enemy_dist_sq)
+  auto_play_direction_to_goal_tile(world, goal_tile, enemy_idx, enemy_dist_sq)
 }
 
 // Auto-play: activate skills when enemies are nearby

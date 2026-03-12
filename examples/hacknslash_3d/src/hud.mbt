@@ -137,6 +137,91 @@ fn GameState::draw_spell_cooldowns(
 }
 
 ///|
+fn item_drop_label_text(kind : @game.ItemKind) -> String {
+  match kind {
+    @game.Health => "HP +2"
+    @game.Score => "GOLD +5"
+    @game.Equipment(data) => data.display_name()
+  }
+}
+
+///|
+fn item_drop_label_color(kind : @game.ItemKind) -> Int {
+  match kind {
+    @game.Health => 0x66FFAA
+    @game.Score => 0xFFCC33
+    @game.Equipment(data) => data.rarity.color()
+  }
+}
+
+///|
+fn project_world_label_position(
+  camera : @camera3d.Camera3D,
+  world_pos : @math3d.Vec3,
+  screen_w : Double,
+  screen_h : Double,
+) -> (Double, Double)? {
+  let clip = camera
+    .view_projection_matrix()
+    .mul_vec4(@math3d.Vec4::from_vec3(world_pos, 1.0))
+  if clip.w <= 0.000001 {
+    return None
+  }
+  let inv_w = 1.0 / clip.w
+  let ndc_x = clip.x * inv_w
+  let ndc_y = clip.y * inv_w
+  let ndc_z = clip.z * inv_w
+  if ndc_x < -1.1 ||
+    ndc_x > 1.1 ||
+    ndc_y < -1.1 ||
+    ndc_y > 1.1 ||
+    ndc_z < -1.0 ||
+    ndc_z > 1.0 {
+    return None
+  }
+  let sx = (ndc_x * 0.5 + 0.5) * screen_w
+  let sy = (1.0 - (ndc_y * 0.5 + 0.5)) * screen_h
+  Some((sx, sy))
+}
+
+///|
+fn GameState::draw_item_drop_labels(
+  self : GameState,
+  ctx : @hud.HudContext,
+  cmds : Array[@gfx.DrawTrianglesCommand],
+) -> Unit {
+  let camera = self.camera.to_camera3d()
+  for item in self.world.items {
+    if not(item.alive) {
+      continue
+    }
+    let world_pos = @math3d.Vec3::new(
+      item.x / tile_size,
+      @game.get_tile_height(self.world.dungeon, item.x, item.y) + 1.05,
+      item.y / tile_size,
+    )
+    match
+      project_world_label_position(
+        camera,
+        world_pos,
+        ctx.screen_w,
+        ctx.screen_h,
+      ) {
+      Some((sx, sy)) =>
+        ctx.draw_text_centered(
+          cmds,
+          item_drop_label_text(item.kind),
+          11.0,
+          sx,
+          sy - 16.0,
+          item_drop_label_color(item.kind),
+        )
+      None => ()
+    }
+  }
+}
+
+///|
 fn GameState::build_hud_static_cmds(
   self : GameState,
   ctx : @hud.HudContext,
@@ -420,6 +505,7 @@ fn GameState::render_hud_cmds(
   if self.world.auto_play {
     ctx.draw_text(cmds, "AUTO", 14.0, 10.0, 92.0, 0x00FFAA)
   }
+  self.draw_item_drop_labels(ctx, cmds)
   // Minimap
   self.render_minimap(ctx, cmds)
   cmds

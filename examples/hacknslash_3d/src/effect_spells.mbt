@@ -83,7 +83,7 @@ fn GameState::queue_fireball_burst_effect(
     self,
     "splitting_fireball",
     @effect.splitting_fireball_effect_document(),
-    fireball_burst_effect_placement(x, y, 1.0),
+    fireball_burst_effect_placement(x, y, 1.2),
   )
 }
 
@@ -96,8 +96,8 @@ fn GameState::queue_fireball_cast_effect(
   queue_active_effect(
     self,
     "splitting_fireball_cast",
-    @effect.splitting_fireball_effect_document(),
-    fireball_burst_effect_placement(x, y, 0.55),
+    @effect.splitting_fireball_cast_effect_document(),
+    fireball_burst_effect_placement(x, y, 0.9),
   )
 }
 

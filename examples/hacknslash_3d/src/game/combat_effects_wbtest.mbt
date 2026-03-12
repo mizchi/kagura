@@ -85,6 +85,7 @@ test "cast_chain_lightning without enemy still emits forward arc feedback" {
   assert_true(casted)
   assert_eq(count_chain_arcs(world.events), 1)
   assert_eq(world.chain_lightning_cooldown_timer, chain_lightning_cooldown)
+  assert_true(world.attack_timer > 0)
 }
 
 ///|
@@ -97,6 +98,7 @@ test "cast_splitting_fireball spawns fireball projectile" {
   assert_eq(world.projectiles.length(), 1)
   assert_eq(projectile_fireball_count(world.projectiles), 1)
   assert_true(has_fireball_cast(world.events))
+  assert_true(world.attack_timer > 0)
 }
 
 ///|
@@ -142,4 +144,5 @@ test "cast_ice_nova damages nearby enemies and emits nova event" {
   assert_true(world.enemies[0].hp < 12)
   assert_true(world.enemies[1].hp < 10)
   assert_eq(world.enemies[2].hp, 20)
+  assert_true(world.attack_timer > 0)
 }

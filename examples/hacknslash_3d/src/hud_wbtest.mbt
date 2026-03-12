@@ -112,3 +112,36 @@ test "render_hud_cmds adds spell cooldown widgets when spell timers are active" 
 
   assert_true(cooldown_cmds.length() > base_cmds.length())
 }
+
+///|
+test "render_hud_cmds adds dropped item labels for visible equipment" {
+  let state = GameState::new(seed=42)
+  state.world.mode = @game.Playing
+  let ctx = hud_test_engine_context()
+
+  let base_cmds = state.render_hud_cmds(ctx.dst, ctx.shader)
+  state.world.items = [
+    {
+      x: state.world.player.x + 8.0,
+      y: state.world.player.y,
+      vx: 0.0,
+      vy: 0.0,
+      kind: @game.Equipment({
+        name: "Iron Charm",
+        rarity: @game.Epic,
+        slot: @game.Accessory,
+        atk_bonus: 0,
+        def_bonus: 0,
+        hp_bonus: 4,
+        prefix: None,
+        suffix: None,
+        icon_id: 0,
+      }),
+      alive: true,
+      spawn_frame: state.world.frame_count,
+    },
+  ]
+  let labeled_cmds = state.render_hud_cmds(ctx.dst, ctx.shader)
+
+  assert_true(labeled_cmds.length() > base_cmds.length())
+}

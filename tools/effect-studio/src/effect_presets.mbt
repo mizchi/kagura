@@ -69,14 +69,71 @@ fn chain_lightning_glow_track() -> EffectTrack {
 }
 
 ///|
+fn chain_lightning_beam_track() -> EffectTrack {
+  {
+    id: "arc_beam",
+    label: "Arc Beam",
+    start_time: 0.0,
+    duration: 0.16,
+    burst_interval: 0.024,
+    burst_particles: 14,
+    pattern: Line,
+    origin: @math3d.Vec3::new(0.0, 0.34, 0.0),
+    secondary_origin: @math3d.Vec3::new(1.0, 0.34, 0.0),
+    spread_radius: 0.06,
+    initial_velocity_min: @math3d.Vec3::new(-0.08, 0.18, -0.08),
+    initial_velocity_max: @math3d.Vec3::new(0.08, 0.72, 0.08),
+    lifetime_min: 0.08,
+    lifetime_max: 0.18,
+    size_min: 0.06,
+    size_max: 0.14,
+    color_start: @math3d.Vec4::new(0.95, 1.0, 1.0, 0.96),
+    color_end: @math3d.Vec4::new(0.22, 0.58, 1.0, 0.0),
+    gravity: @math3d.Vec3::new(0.0, -0.4, 0.0),
+    enabled: true,
+  }
+}
+
+///|
+fn chain_lightning_sparks_track() -> EffectTrack {
+  {
+    id: "arc_sparks",
+    label: "Arc Sparks",
+    start_time: 0.01,
+    duration: 0.18,
+    burst_interval: 0.036,
+    burst_particles: 10,
+    pattern: Line,
+    origin: @math3d.Vec3::new(0.0, 0.28, 0.0),
+    secondary_origin: @math3d.Vec3::new(1.0, 0.28, 0.0),
+    spread_radius: 0.11,
+    initial_velocity_min: @math3d.Vec3::new(-0.55, 0.12, -0.55),
+    initial_velocity_max: @math3d.Vec3::new(0.55, 1.25, 0.55),
+    lifetime_min: 0.10,
+    lifetime_max: 0.22,
+    size_min: 0.03,
+    size_max: 0.08,
+    color_start: @math3d.Vec4::new(0.72, 0.90, 1.0, 0.82),
+    color_end: @math3d.Vec4::new(0.25, 0.42, 0.95, 0.0),
+    gravity: @math3d.Vec3::new(0.0, -1.1, 0.0),
+    enabled: true,
+  }
+}
+
+///|
 pub fn chain_lightning_effect_document() -> EffectDocument {
   {
     name: "chain_lightning",
-    duration: 0.24,
+    duration: 0.28,
     looping: false,
-    notes: "Short chained lightning arc. Use multiple instances for each hop.",
-    ai_edit_goal: "Keep the beam readable in 0.0-0.18s and bias the brightest energy toward the first 60% of the timeline.",
-    tracks: [chain_lightning_arc_track(), chain_lightning_glow_track()],
+    notes: "Short chained lightning arc with a thick beam core and secondary crackle sparks.",
+    ai_edit_goal: "Keep the beam readable in 0.0-0.2s, with a thick core and a brighter secondary crackle shell.",
+    tracks: [
+      chain_lightning_arc_track(),
+      chain_lightning_beam_track(),
+      chain_lightning_glow_track(),
+      chain_lightning_sparks_track(),
+    ],
   }
 }
 
@@ -102,6 +159,32 @@ fn splitting_fireball_core_track() -> EffectTrack {
     color_start: @math3d.Vec4::new(1.0, 0.92, 0.55, 1.0),
     color_end: @math3d.Vec4::new(1.0, 0.38, 0.08, 0.0),
     gravity: @math3d.Vec3::new(0.0, -2.2, 0.0),
+    enabled: true,
+  }
+}
+
+///|
+fn splitting_fireball_impact_flame_track() -> EffectTrack {
+  {
+    id: "impact_flame",
+    label: "Impact Flame",
+    start_time: 0.0,
+    duration: 0.24,
+    burst_interval: 0.05,
+    burst_particles: 14,
+    pattern: Column,
+    origin: @math3d.Vec3::new(0.0, 0.18, 0.0),
+    secondary_origin: @math3d.Vec3::new(0.0, 0.18, 0.0),
+    spread_radius: 0.16,
+    initial_velocity_min: @math3d.Vec3::new(-0.14, 0.85, -0.14),
+    initial_velocity_max: @math3d.Vec3::new(0.14, 1.8, 0.14),
+    lifetime_min: 0.20,
+    lifetime_max: 0.36,
+    size_min: 0.08,
+    size_max: 0.14,
+    color_start: @math3d.Vec4::new(1.0, 0.86, 0.38, 0.96),
+    color_end: @math3d.Vec4::new(0.82, 0.12, 0.02, 0.0),
+    gravity: @math3d.Vec3::new(0.0, -2.6, 0.0),
     enabled: true,
   }
 }
@@ -133,6 +216,58 @@ fn splitting_fireball_split_ring_track() -> EffectTrack {
 }
 
 ///|
+fn splitting_fireball_split_spokes_x_track() -> EffectTrack {
+  {
+    id: "split_spokes_x",
+    label: "Split Spokes X",
+    start_time: 0.03,
+    duration: 0.18,
+    burst_interval: 0.036,
+    burst_particles: 8,
+    pattern: Line,
+    origin: @math3d.Vec3::new(-0.56, 0.18, 0.0),
+    secondary_origin: @math3d.Vec3::new(0.56, 0.18, 0.0),
+    spread_radius: 0.04,
+    initial_velocity_min: @math3d.Vec3::new(-0.25, 0.38, -0.08),
+    initial_velocity_max: @math3d.Vec3::new(0.25, 0.92, 0.08),
+    lifetime_min: 0.16,
+    lifetime_max: 0.26,
+    size_min: 0.04,
+    size_max: 0.08,
+    color_start: @math3d.Vec4::new(1.0, 0.76, 0.28, 0.9),
+    color_end: @math3d.Vec4::new(0.90, 0.14, 0.04, 0.0),
+    gravity: @math3d.Vec3::new(0.0, -1.6, 0.0),
+    enabled: true,
+  }
+}
+
+///|
+fn splitting_fireball_split_spokes_z_track() -> EffectTrack {
+  {
+    id: "split_spokes_z",
+    label: "Split Spokes Z",
+    start_time: 0.03,
+    duration: 0.18,
+    burst_interval: 0.036,
+    burst_particles: 8,
+    pattern: Line,
+    origin: @math3d.Vec3::new(0.0, 0.18, -0.56),
+    secondary_origin: @math3d.Vec3::new(0.0, 0.18, 0.56),
+    spread_radius: 0.04,
+    initial_velocity_min: @math3d.Vec3::new(-0.08, 0.38, -0.25),
+    initial_velocity_max: @math3d.Vec3::new(0.08, 0.92, 0.25),
+    lifetime_min: 0.16,
+    lifetime_max: 0.26,
+    size_min: 0.04,
+    size_max: 0.08,
+    color_start: @math3d.Vec4::new(1.0, 0.76, 0.28, 0.9),
+    color_end: @math3d.Vec4::new(0.90, 0.14, 0.04, 0.0),
+    gravity: @math3d.Vec3::new(0.0, -1.6, 0.0),
+    enabled: true,
+  }
+}
+
+///|
 fn splitting_fireball_smoke_track() -> EffectTrack {
   {
     id: "fireball_smoke",
@@ -159,16 +294,98 @@ fn splitting_fireball_smoke_track() -> EffectTrack {
 }
 
 ///|
+pub fn splitting_fireball_cast_effect_document() -> EffectDocument {
+  {
+    name: "splitting_fireball_cast",
+    duration: 0.42,
+    looping: false,
+    notes: "Launch flash with a bright core and a short column of flame.",
+    ai_edit_goal: "Keep the cast readable at the player position, with a bright launch flash in the first 0.08s and a short flame wake after it.",
+    tracks: [
+      {
+        id: "cast_core",
+        label: "Cast Core",
+        start_time: 0.0,
+        duration: 0.12,
+        burst_interval: 0.04,
+        burst_particles: 12,
+        pattern: Point,
+        origin: @math3d.Vec3::new(0.0, 0.28, 0.0),
+        secondary_origin: @math3d.Vec3::new(0.0, 0.28, 0.0),
+        spread_radius: 0.0,
+        initial_velocity_min: @math3d.Vec3::new(-0.24, 0.62, -0.24),
+        initial_velocity_max: @math3d.Vec3::new(0.24, 1.35, 0.24),
+        lifetime_min: 0.10,
+        lifetime_max: 0.18,
+        size_min: 0.07,
+        size_max: 0.13,
+        color_start: @math3d.Vec4::new(1.0, 0.94, 0.62, 1.0),
+        color_end: @math3d.Vec4::new(1.0, 0.38, 0.10, 0.0),
+        gravity: @math3d.Vec3::new(0.0, -2.2, 0.0),
+        enabled: true,
+      },
+      {
+        id: "cast_flame_column",
+        label: "Cast Flame Column",
+        start_time: 0.02,
+        duration: 0.24,
+        burst_interval: 0.06,
+        burst_particles: 10,
+        pattern: Column,
+        origin: @math3d.Vec3::new(0.0, 0.18, 0.0),
+        secondary_origin: @math3d.Vec3::new(0.0, 0.18, 0.0),
+        spread_radius: 0.12,
+        initial_velocity_min: @math3d.Vec3::new(-0.12, 0.48, -0.12),
+        initial_velocity_max: @math3d.Vec3::new(0.12, 1.35, 0.12),
+        lifetime_min: 0.18,
+        lifetime_max: 0.34,
+        size_min: 0.05,
+        size_max: 0.10,
+        color_start: @math3d.Vec4::new(1.0, 0.62, 0.22, 0.82),
+        color_end: @math3d.Vec4::new(0.70, 0.12, 0.04, 0.0),
+        gravity: @math3d.Vec3::new(0.0, -1.5, 0.0),
+        enabled: true,
+      },
+      {
+        id: "cast_ring",
+        label: "Cast Ring",
+        start_time: 0.0,
+        duration: 0.16,
+        burst_interval: 0.05,
+        burst_particles: 10,
+        pattern: Ring,
+        origin: @math3d.Vec3::new(0.0, 0.18, 0.0),
+        secondary_origin: @math3d.Vec3::new(0.0, 0.18, 0.0),
+        spread_radius: 0.28,
+        initial_velocity_min: @math3d.Vec3::new(-0.25, 0.18, -0.25),
+        initial_velocity_max: @math3d.Vec3::new(0.25, 0.65, 0.25),
+        lifetime_min: 0.14,
+        lifetime_max: 0.24,
+        size_min: 0.03,
+        size_max: 0.06,
+        color_start: @math3d.Vec4::new(1.0, 0.72, 0.22, 0.84),
+        color_end: @math3d.Vec4::new(0.88, 0.18, 0.05, 0.0),
+        gravity: @math3d.Vec3::new(0.0, -1.2, 0.0),
+        enabled: true,
+      },
+    ],
+  }
+}
+
+///|
 pub fn splitting_fireball_effect_document() -> EffectDocument {
   {
     name: "splitting_fireball",
     duration: 0.85,
     looping: false,
-    notes: "Impact burst for a splitting fireball with hot core, radial split sparks, and smoke.",
-    ai_edit_goal: "Keep the impact bright at 0.0-0.1s and make the split ring read clearly by 0.14s.",
+    notes: "Impact burst for a splitting fireball with hot core, radial split spokes, and rising flames.",
+    ai_edit_goal: "Keep the impact bright at 0.0-0.1s and make the split ring plus spokes read clearly by 0.14s.",
     tracks: [
       splitting_fireball_core_track(),
+      splitting_fireball_impact_flame_track(),
       splitting_fireball_split_ring_track(),
+      splitting_fireball_split_spokes_x_track(),
+      splitting_fireball_split_spokes_z_track(),
       splitting_fireball_smoke_track(),
     ],
   }

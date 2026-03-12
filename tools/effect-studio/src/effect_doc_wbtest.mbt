@@ -20,13 +20,18 @@ test "effect_document_time loops when looping is enabled" {
 test "hacknslash effect presets expose readable names and patterns" {
   let chain = chain_lightning_effect_document()
   let fireball = splitting_fireball_effect_document()
+  let fireball_cast = splitting_fireball_cast_effect_document()
   let nova = ice_nova_effect_document()
 
   assert_eq(chain.name, "chain_lightning")
   assert_eq(fireball.name, "splitting_fireball")
+  assert_eq(fireball_cast.name, "splitting_fireball_cast")
   assert_eq(nova.name, "ice_nova")
 
   assert_eq(effect_spawn_pattern_name(chain.tracks[0].pattern), "line")
   assert_eq(effect_spawn_pattern_name(fireball.tracks[0].pattern), "point")
   assert_eq(effect_spawn_pattern_name(nova.tracks[0].pattern), "ring")
+  assert_true(chain.tracks.length() >= 4)
+  assert_true(fireball.tracks.length() >= 4)
+  assert_true(fireball_cast.tracks.length() >= 3)
 }

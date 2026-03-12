@@ -105,7 +105,7 @@ fn GameState::rebuild_entity_instance_scratch(
               @scene3d.InstanceData::new(
                 transform=@transform3d.Transform3D::from_position(
                   @math3d.Vec3::new(prx, base_y + 0.34, prz),
-                ).with_scale(@math3d.Vec3::new(0.72, 0.72, 0.72)),
+                ).with_scale(@math3d.Vec3::new(1.05, 1.05, 1.05)),
                 color=color_fireball,
               ),
             )

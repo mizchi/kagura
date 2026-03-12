@@ -20,6 +20,16 @@ pub fn find_nearest_enemy(world : GameWorld, max_range : Double) -> Enemy? {
   nearest
 }
 
+///|
+let spell_cast_attack_lock_frames = 18
+
+///|
+fn apply_spell_attack_lock(world : GameWorld) -> Unit {
+  if world.attack_timer < spell_cast_attack_lock_frames {
+    world.attack_timer = spell_cast_attack_lock_frames
+  }
+}
+
 // Compute arrow velocity toward a target enemy or in facing direction
 
 ///|
@@ -254,6 +264,7 @@ pub fn cast_chain_lightning(world : GameWorld) -> Bool {
     )
   }
   world.chain_lightning_cooldown_timer = chain_lightning_cooldown
+  apply_spell_attack_lock(world)
   world.events.push(AttackTriggered)
   true
 }
@@ -277,6 +288,7 @@ pub fn cast_splitting_fireball(world : GameWorld) -> Bool {
   })
   world.events.push(FireballCast(world.player.x, world.player.y))
   world.splitting_fireball_cooldown_timer = splitting_fireball_cooldown
+  apply_spell_attack_lock(world)
   world.events.push(AttackTriggered)
   true
 }
@@ -309,6 +321,7 @@ pub fn cast_ice_nova(world : GameWorld) -> Bool {
     IceNovaCast(world.player.x, world.player.y, ice_nova_radius),
   )
   world.ice_nova_cooldown_timer = ice_nova_cooldown
+  apply_spell_attack_lock(world)
   world.events.push(AttackTriggered)
   hit_any
 }

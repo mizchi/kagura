@@ -120,17 +120,17 @@ fn spawn_fireball_trail(
   let pos = game_to_3d(x, y, 0.28)
   pm.spawn({
     position: pos,
-    spawn_rate: 220.0,
-    initial_velocity_min: @math3d.Vec3::new(-0.12, 0.25, -0.12),
-    initial_velocity_max: @math3d.Vec3::new(0.12, 0.65, 0.12),
-    lifetime_min: 0.12,
-    lifetime_max: 0.22,
-    size_min: 0.03,
-    size_max: 0.07,
-    color_start: @math3d.Vec4::new(1.0, 0.62, 0.16, 0.8),
-    color_end: @math3d.Vec4::new(0.55, 0.10, 0.02, 0.0),
-    gravity: @math3d.Vec3::new(0.0, -1.5, 0.0),
-    max_particles: 5,
+    spawn_rate: 340.0,
+    initial_velocity_min: @math3d.Vec3::new(-0.18, 0.35, -0.18),
+    initial_velocity_max: @math3d.Vec3::new(0.18, 0.95, 0.18),
+    lifetime_min: 0.16,
+    lifetime_max: 0.28,
+    size_min: 0.05,
+    size_max: 0.11,
+    color_start: @math3d.Vec4::new(1.0, 0.76, 0.18, 0.92),
+    color_end: @math3d.Vec4::new(0.70, 0.10, 0.02, 0.0),
+    gravity: @math3d.Vec3::new(0.0, -2.0, 0.0),
+    max_particles: 9,
   })
 }
 

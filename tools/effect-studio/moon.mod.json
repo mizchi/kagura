@@ -1,0 +1,19 @@
+{
+  "name": "mizchi/kagura_effect_studio",
+  "version": "0.1.0",
+  "description": "AI-oriented effect studio workspace for Kagura timeline-driven particle effects",
+  "repository": "https://github.com/mizchi/kagura",
+  "license": "Apache-2.0",
+  "source": "src",
+  "warn-list": "-6-29-53-68",
+  "exclude": [
+    "examples",
+    "docs",
+    "output"
+  ],
+  "deps": {
+    "mizchi/kagura": {
+      "path": "../.."
+    }
+  }
+}

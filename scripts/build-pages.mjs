@@ -19,6 +19,7 @@ import {
 const ROOT = resolve(import.meta.dirname, "..");
 const SITE = join(ROOT, "_site");
 const CACHE_BUST = resolveCacheBust();
+const EFFECT_STUDIO_EXAMPLES_ROOT = join(ROOT, "tools", "effect-studio", "examples");
 const MODELING_EXAMPLES_ROOT = join(ROOT, "tools", "modeling3d", "examples");
 
 buildPages();
@@ -90,6 +91,10 @@ function emitExamplePage(demo) {
 }
 
 function resolveExampleDir(name) {
+  const effectStudioDir = join(EFFECT_STUDIO_EXAMPLES_ROOT, name);
+  if (existsSync(effectStudioDir)) {
+    return effectStudioDir;
+  }
   const modelingDir = join(MODELING_EXAMPLES_ROOT, name);
   if (existsSync(modelingDir)) {
     return modelingDir;

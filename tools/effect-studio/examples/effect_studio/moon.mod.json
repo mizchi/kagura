@@ -1,0 +1,15 @@
+{
+  "name": "mizchi/effect_studio",
+  "version": "0.1.0",
+  "source": "src",
+  "warn-list": "-6-29-53-68",
+  "--moonbit-unstable-prebuild": "../../../../scripts/moon-prebuild-native-link-flags.cjs",
+  "deps": {
+    "mizchi/kagura": {
+      "path": "../../../.."
+    },
+    "mizchi/kagura_effect_studio": {
+      "path": "../.."
+    }
+  }
+}

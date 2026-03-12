@@ -7,6 +7,10 @@ import process from "node:process";
 const ROOT = process.cwd();
 const HOST = "127.0.0.1";
 const PORT = Number.parseInt(process.env.PORT ?? "4173", 10);
+const EXAMPLE_ROOTS = [
+  join(ROOT, "examples"),
+  join(ROOT, "tools", "effect-studio", "examples"),
+];
 
 const CONTENT_TYPES = {
   ".html": "text/html; charset=utf-8",
@@ -38,9 +42,27 @@ const buildRuntimeSmoke = (target) => {
 buildRuntimeSmoke("wasm");
 buildRuntimeSmoke("wasm-gc");
 
+const resolveExampleDir = (name) => {
+  for (const root of EXAMPLE_ROOTS) {
+    const dir = join(root, name);
+    if (existsSync(join(dir, "moon.mod.json"))) {
+      return dir;
+    }
+  }
+  return null;
+};
+
+const examplePublicPath = (name) => {
+  const dir = resolveExampleDir(name);
+  if (dir == null) {
+    return null;
+  }
+  return `/${dir.slice(ROOT.length + 1).replaceAll("\\", "/")}`;
+};
+
 const buildJsExample = (name) => {
-  const dir = join(ROOT, "examples", name);
-  if (!existsSync(join(dir, "moon.mod.json"))) {
+  const dir = resolveExampleDir(name);
+  if (dir == null) {
     console.log(`[e2e] skipping ${name} (not found)`);
     return;
   }
@@ -59,7 +81,7 @@ const VRT_EXAMPLES = [
   "fps_demo", "arena3d", "collision3d_demo", "physics2d_demo",
   "physics3d_demo", "postfx_demo", "shadow3d_demo", "skeletal_anim",
   "ragdoll_demo", "obj_viewer", "gltf_viewer", "fetch_image",
-  "hacknslash_3d",
+  "hacknslash_3d", "effect_studio",
 ];
 
 for (const name of VRT_EXAMPLES) {
@@ -108,7 +130,11 @@ const ASSET_EXAMPLES = {
 };
 
 const generateVrtHtml = (name) => {
-  const scriptPath = `/examples/${name}/_build/js/debug/build/${name}.js`;
+  const publicPath = examplePublicPath(name);
+  if (publicPath == null) {
+    throw new Error(`unknown example: ${name}`);
+  }
+  const scriptPath = `${publicPath}/_build/js/debug/build/${name}.js`;
   const assetEntries = ASSET_EXAMPLES[name] ?? [];
   const fontPreloads = assetEntries
     .filter(([key]) => /\.(ttf|otf)$/i.test(key))
@@ -120,7 +146,7 @@ const generateVrtHtml = (name) => {
     <meta charset="utf-8" />
     <title>VRT: ${name}</title>
     ${fontPreloads}
-    <base href="/examples/${name}/" />
+    <base href="${publicPath}/" />
     <style>
       body { margin: 0; background: #000; display: flex; justify-content: center; align-items: center; height: 100vh; }
       #app { border: none; }

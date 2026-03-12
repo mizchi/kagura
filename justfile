@@ -7,24 +7,30 @@ default: check test
 fmt:
     moon fmt
     [ -f modules/js_runtime/moon.mod.json ] && (cd modules/js_runtime && moon fmt)
-    for dir in examples/*/ tools/modeling3d/examples/*/; do [ -f "$dir/moon.mod.json" ] && (cd "$dir" && moon fmt); done
+    for dir in examples/*/ tools/modeling3d/examples/*/ tools/effect-studio/examples/*/; do [ -f "$dir/moon.mod.json" ] && (cd "$dir" && moon fmt); done
 
 check:
     moon check --deny-warn --target {{target}}
     if [ "{{target}}" = "js" ] && [ -f modules/js_runtime/moon.mod.json ]; then (cd modules/js_runtime && moon check --deny-warn --target js); fi
-    for dir in examples/*/ tools/modeling3d/examples/*/; do [ -f "$dir/moon.mod.json" ] && (cd "$dir" && moon check --deny-warn --target {{target}}); done
+    for dir in examples/*/ tools/modeling3d/examples/*/ tools/effect-studio/examples/*/; do [ -f "$dir/moon.mod.json" ] && (cd "$dir" && moon check --deny-warn --target {{target}}); done
 
 modeling3d-check:
     for dir in tools/modeling3d/examples/*/; do [ -f "$dir/moon.mod.json" ] && (cd "$dir" && moon check --deny-warn --target {{target}}); done
+
+effect-studio-check:
+    for dir in tools/effect-studio/examples/*/; do [ -f "$dir/moon.mod.json" ] && (cd "$dir" && moon check --deny-warn --target {{target}}); done
 
 test:
     if [ "{{target}}" = "native" ]; then CPATH="$(brew --prefix glfw)/include:${CPATH:-}" LIBRARY_PATH="$(brew --prefix)/lib:${LIBRARY_PATH:-}" moon test --target native; else moon test --target {{target}}; fi
     if [ "{{target}}" = "js" ] && ls lib/web/*.test.mjs >/dev/null 2>&1; then node --test lib/web/*.test.mjs; fi
     if [ "{{target}}" = "js" ] && [ -f modules/js_runtime/moon.mod.json ]; then (cd modules/js_runtime && moon test --target js); fi
-    for dir in examples/*/ tools/modeling3d/examples/*/; do if [ -f "$dir/moon.mod.json" ]; then if [ "{{target}}" = "native" ] && [ "$dir" = "examples/runtime_smoke_native/" ]; then echo "skip $dir (native smoke app is validated in native-macos build job)"; continue; fi; (cd "$dir" && if [ "{{target}}" = "native" ]; then CPATH="$(brew --prefix glfw)/include:${CPATH:-}" LIBRARY_PATH="$(brew --prefix)/lib:${LIBRARY_PATH:-}" moon test --target native; else moon test --target {{target}}; fi) || exit 1; fi; done
+    for dir in examples/*/ tools/modeling3d/examples/*/ tools/effect-studio/examples/*/; do if [ -f "$dir/moon.mod.json" ]; then if [ "{{target}}" = "native" ] && { [ "$dir" = "examples/runtime_smoke_native/" ] || [ "$dir" = "tools/effect-studio/examples/effect_studio/" ]; }; then echo "skip $dir (native test is validated separately or limited to check-only)"; continue; fi; (cd "$dir" && if [ "{{target}}" = "native" ]; then CPATH="$(brew --prefix glfw)/include:${CPATH:-}" LIBRARY_PATH="$(brew --prefix)/lib:${LIBRARY_PATH:-}" moon test --target native; else moon test --target {{target}}; fi) || exit 1; fi; done
 
 modeling3d-test:
     for dir in tools/modeling3d/examples/*/; do [ -f "$dir/moon.mod.json" ] && (cd "$dir" && if [ "{{target}}" = "native" ]; then CPATH="$(brew --prefix glfw)/include:${CPATH:-}" LIBRARY_PATH="$(brew --prefix)/lib:${LIBRARY_PATH:-}" moon test --target native; else moon test --target {{target}}; fi); done
+
+effect-studio-test:
+    for dir in tools/effect-studio/examples/*/; do [ -f "$dir/moon.mod.json" ] && if [ "{{target}}" = "native" ]; then echo "skip $dir (effect-studio native validation is check-only for now)"; else (cd "$dir" && moon test --target {{target}}); fi; done
 
 modeling3d-scripts-check:
     node --test tools/modeling3d/scripts/*.test.mjs
@@ -37,12 +43,20 @@ modeling3d-ci:
     just target=js modeling3d-test
     just target=native modeling3d-check
 
+effect-studio-ci:
+    just target=js effect-studio-check
+    just target=js effect-studio-test
+    just target=native effect-studio-check
+
+effect-studio-e2e:
+    pnpm exec playwright test e2e/effect_studio.spec.ts
+
 coverage:
     bash scripts/check-coverage.sh {{target}}
 
 bench:
     moon bench --target {{target}}
-    for dir in examples/*/ tools/modeling3d/examples/*/; do [ -f "$dir/moon.mod.json" ] && (cd "$dir" && moon bench --target {{target}}); done
+    for dir in examples/*/ tools/modeling3d/examples/*/ tools/effect-studio/examples/*/; do [ -f "$dir/moon.mod.json" ] && (cd "$dir" && moon bench --target {{target}}); done
 
 bench-gate:
     bash scripts/bench-gate.sh {{target}}
@@ -154,7 +168,7 @@ vlm-apply target="" patch="" extra="":
     node tools/modeling3d/scripts/model-authoring-vlm-apply-patch.mjs --target {{target}} --patch {{patch}} {{extra}}
 
 run-native name:
-    dir="examples/{{name}}"; if [ ! -f "$dir/moon.mod.json" ]; then dir="tools/modeling3d/examples/{{name}}"; fi; cd "$dir" && CPATH="$(brew --prefix glfw)/include:${CPATH:-}" LIBRARY_PATH="$(brew --prefix)/lib:${LIBRARY_PATH:-}" moon run src/ --target native
+    dir="examples/{{name}}"; if [ ! -f "$dir/moon.mod.json" ]; then dir="tools/modeling3d/examples/{{name}}"; fi; if [ ! -f "$dir/moon.mod.json" ]; then dir="tools/effect-studio/examples/{{name}}"; fi; cd "$dir" && CPATH="$(brew --prefix glfw)/include:${CPATH:-}" LIBRARY_PATH="$(brew --prefix)/lib:${LIBRARY_PATH:-}" moon run src/ --target native
 
 pages:
     bash scripts/build-pages.sh
@@ -169,7 +183,7 @@ check-release:
 clean:
     moon clean
     [ -f modules/js_runtime/moon.mod.json ] && (cd modules/js_runtime && moon clean)
-    for dir in examples/*/ tools/modeling3d/examples/*/; do [ -d "$dir" ] && (cd "$dir" && moon clean); done
+    for dir in examples/*/ tools/modeling3d/examples/*/ tools/effect-studio/examples/*/; do [ -d "$dir" ] && (cd "$dir" && moon clean); done
 
 balance name="playtest":
     cd examples/hacknslash_3d && moon run src/balance --target js 2>&1 | tee /dev/stderr | sed -n '/^=== CSV ===/,$ p' | tail -n +2 > data/hackslash/{{name}}.csv

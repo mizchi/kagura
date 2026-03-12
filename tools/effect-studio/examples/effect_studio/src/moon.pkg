@@ -1,0 +1,34 @@
+import {
+  "moonbitlang/core/math" @math,
+  "mizchi/kagura_effect_studio" @effect,
+  "mizchi/kagura/camera3d" @camera3d,
+  "mizchi/kagura/core" @core,
+  "mizchi/kagura/debugutil" @debugutil,
+  "mizchi/kagura/draw3d" @draw3d,
+  "mizchi/kagura/engine" @engine,
+  "mizchi/kagura/gfx" @gfx,
+  "mizchi/kagura/hud" @hud,
+  "mizchi/kagura/inpututil" @inpututil,
+  "mizchi/kagura/light3d" @light3d,
+  "mizchi/kagura/math3d" @math3d,
+  "mizchi/kagura/mesh3d" @mesh3d,
+  "mizchi/kagura/particle3d" @particle3d,
+}
+
+warnings = "-1-2-29-71"
+
+options(
+  "is-main": true,
+  "supported-targets": [ "js", "native" ],
+  link: {
+    "native": {
+      "cc": "../../../../../scripts/moon-native-cc.sh",
+      "cc-link-flags": "-L../../../../../deps/wgpu-native/lib -lwgpu_native ${build.KAGURA_NATIVE_GLFW_LIBS} -Wl,-rpath,../../../../../deps/wgpu-native/lib ${build.KAGURA_NATIVE_PLATFORM_LIBS}",
+    },
+  },
+  targets: {
+    "main.mbt": [ "js" ],
+    "main_native.mbt": [ "native" ],
+    "main_stub.mbt": [ "wasm", "wasm-gc", "llvm" ],
+  },
+)

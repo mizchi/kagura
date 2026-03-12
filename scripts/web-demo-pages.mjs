@@ -286,6 +286,26 @@ const RAW_DEMO_PAGES = [
     sourcePath: "tools/modeling3d/examples/dragon_authoring/src/model_doc.mbt",
   },
   {
+    name: "effect_studio",
+    title: "Effect Studio",
+    group: "Tools",
+    summary: "AI-first timeline effect editor with particle preview and timeline feedback.",
+    start: "Orbit the preview, scrub the timeline, and inspect the published AI editing context in the browser console.",
+    controls: [
+      "Left drag: orbit camera",
+      "Wheel: zoom",
+      "Space: play / pause preview",
+      "Left / Right: scrub timeline",
+      "Shift + Left / Right: coarse scrub",
+      "R: reset preview time",
+      "J: download the machine-readable patch bundle JSON",
+      "L: download the AI review prompt markdown",
+      "Inspect globalThis.__kaguraEffectStudioContext in the browser console",
+    ],
+    tags: ["3D", "Particles", "Timeline", "AI"],
+    sourcePath: "tools/effect-studio/examples/effect_studio/src/main.mbt",
+  },
+  {
     name: "particle_demo",
     title: "Particle System",
     group: "3D Rendering",
@@ -405,6 +425,7 @@ export const DEMO_GROUPS = [
   "2D / UI",
   "3D Rendering",
   "Physics",
+  "Tools",
 ];
 
 export function getDemoPage(name) {
@@ -438,6 +459,9 @@ export function resolveDemoPage(name) {
 }
 
 function resolveExampleSourcePath(name) {
+  if (name.endsWith("_studio")) {
+    return `tools/effect-studio/examples/${name}/src`;
+  }
   if (name.endsWith("_authoring")) {
     return `tools/modeling3d/examples/${name}/src`;
   }

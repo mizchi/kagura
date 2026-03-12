@@ -28,6 +28,15 @@ pub fn mono_format(sample_rate : Int) -> AudioFormat {
 }
 
 ///|
+pub fn pcm16_format(sample_rate : Int, channels : Int) -> AudioFormat {
+  {
+    sample_rate,
+    channels,
+    bits_per_sample: 16,
+  }
+}
+
+///|
 pub fn bytes_per_sample(format : AudioFormat) -> Int {
   format.bits_per_sample / 8 * format.channels
 }

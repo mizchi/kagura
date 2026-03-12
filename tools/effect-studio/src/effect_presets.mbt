@@ -4,6 +4,8 @@ pub enum EffectPresetId {
   ChainLightning
   SplittingFireball
   IceNova
+  GroundTelegraphRing
+  GroundTelegraphLine
 } derive(Eq, Show)
 
 ///|
@@ -13,6 +15,8 @@ pub fn effect_preset_id_name(id : EffectPresetId) -> String {
     ChainLightning => "chain_lightning"
     SplittingFireball => "splitting_fireball"
     IceNova => "ice_nova"
+    GroundTelegraphRing => "ground_telegraph_ring"
+    GroundTelegraphLine => "ground_telegraph_line"
   }
 }
 
@@ -567,11 +571,147 @@ pub fn ice_nova_effect_document() -> EffectDocument {
 }
 
 ///|
+fn ground_telegraph_ring_outline_track() -> EffectTrack {
+  {
+    id: "telegraph_ring_outline",
+    label: "Telegraph Ring Outline",
+    start_time: 0.0,
+    duration: 0.30,
+    burst_interval: 0.05,
+    burst_particles: 36,
+    pattern: Ring,
+    origin: @math3d.Vec3::new(0.0, 0.03, 0.0),
+    secondary_origin: @math3d.Vec3::new(0.0, 0.03, 0.0),
+    spread_radius: 0.6,
+    initial_velocity_min: @math3d.Vec3::new(0.0, 0.0, 0.0),
+    initial_velocity_max: @math3d.Vec3::new(0.0, 0.03, 0.0),
+    lifetime_min: 0.20,
+    lifetime_max: 0.34,
+    size_min: 0.045,
+    size_max: 0.075,
+    color_start: @math3d.Vec4::new(1.0, 0.18, 0.12, 0.92),
+    color_end: @math3d.Vec4::new(0.75, 0.05, 0.03, 0.0),
+    gravity: @math3d.Vec3::new(0.0, 0.0, 0.0),
+    enabled: true,
+  }
+}
+
+///|
+fn ground_telegraph_ring_fill_track() -> EffectTrack {
+  {
+    id: "telegraph_ring_fill",
+    label: "Telegraph Ring Fill",
+    start_time: 0.0,
+    duration: 0.30,
+    burst_interval: 0.08,
+    burst_particles: 28,
+    pattern: Column,
+    origin: @math3d.Vec3::new(0.0, 0.02, 0.0),
+    secondary_origin: @math3d.Vec3::new(0.0, 0.02, 0.0),
+    spread_radius: 0.48,
+    initial_velocity_min: @math3d.Vec3::new(0.0, 0.0, 0.0),
+    initial_velocity_max: @math3d.Vec3::new(0.0, 0.02, 0.0),
+    lifetime_min: 0.18,
+    lifetime_max: 0.28,
+    size_min: 0.04,
+    size_max: 0.07,
+    color_start: @math3d.Vec4::new(1.0, 0.12, 0.08, 0.22),
+    color_end: @math3d.Vec4::new(0.58, 0.03, 0.02, 0.0),
+    gravity: @math3d.Vec3::new(0.0, 0.0, 0.0),
+    enabled: true,
+  }
+}
+
+///|
+pub fn ground_telegraph_ring_effect_document() -> EffectDocument {
+  {
+    name: "ground_telegraph_ring",
+    duration: 0.32,
+    looping: false,
+    notes: "Short hostile ground telegraph ring with a bright red outline and a faint fill disk.",
+    ai_edit_goal: "Keep the ring readable from top-down view and pinned to the floor with a clear red perimeter.",
+    tracks: [
+      ground_telegraph_ring_outline_track(),
+      ground_telegraph_ring_fill_track(),
+    ],
+  }
+}
+
+///|
+fn ground_telegraph_line_core_track() -> EffectTrack {
+  {
+    id: "telegraph_line_core",
+    label: "Telegraph Line Core",
+    start_time: 0.0,
+    duration: 0.26,
+    burst_interval: 0.04,
+    burst_particles: 28,
+    pattern: Line,
+    origin: @math3d.Vec3::new(0.0, 0.03, 0.0),
+    secondary_origin: @math3d.Vec3::new(1.0, 0.03, 0.0),
+    spread_radius: 0.03,
+    initial_velocity_min: @math3d.Vec3::new(0.0, 0.0, 0.0),
+    initial_velocity_max: @math3d.Vec3::new(0.0, 0.03, 0.0),
+    lifetime_min: 0.18,
+    lifetime_max: 0.28,
+    size_min: 0.04,
+    size_max: 0.065,
+    color_start: @math3d.Vec4::new(1.0, 0.16, 0.10, 0.90),
+    color_end: @math3d.Vec4::new(0.72, 0.04, 0.03, 0.0),
+    gravity: @math3d.Vec3::new(0.0, 0.0, 0.0),
+    enabled: true,
+  }
+}
+
+///|
+fn ground_telegraph_line_glow_track() -> EffectTrack {
+  {
+    id: "telegraph_line_glow",
+    label: "Telegraph Line Glow",
+    start_time: 0.0,
+    duration: 0.26,
+    burst_interval: 0.06,
+    burst_particles: 18,
+    pattern: Line,
+    origin: @math3d.Vec3::new(0.0, 0.025, 0.0),
+    secondary_origin: @math3d.Vec3::new(1.0, 0.025, 0.0),
+    spread_radius: 0.08,
+    initial_velocity_min: @math3d.Vec3::new(0.0, 0.0, 0.0),
+    initial_velocity_max: @math3d.Vec3::new(0.0, 0.02, 0.0),
+    lifetime_min: 0.18,
+    lifetime_max: 0.30,
+    size_min: 0.05,
+    size_max: 0.085,
+    color_start: @math3d.Vec4::new(1.0, 0.18, 0.12, 0.30),
+    color_end: @math3d.Vec4::new(0.62, 0.04, 0.03, 0.0),
+    gravity: @math3d.Vec3::new(0.0, 0.0, 0.0),
+    enabled: true,
+  }
+}
+
+///|
+pub fn ground_telegraph_line_effect_document() -> EffectDocument {
+  {
+    name: "ground_telegraph_line",
+    duration: 0.28,
+    looping: false,
+    notes: "Short hostile line telegraph pinned to the floor.",
+    ai_edit_goal: "Keep the line bright and floor-hugging so melee and ranged attack paths read clearly from the gameplay camera.",
+    tracks: [
+      ground_telegraph_line_core_track(),
+      ground_telegraph_line_glow_track(),
+    ],
+  }
+}
+
+///|
 pub fn effect_preset_document(id : EffectPresetId) -> EffectDocument {
   match id {
     ForgeBurst => default_effect_document()
     ChainLightning => chain_lightning_effect_document()
     SplittingFireball => splitting_fireball_effect_document()
     IceNova => ice_nova_effect_document()
+    GroundTelegraphRing => ground_telegraph_ring_effect_document()
+    GroundTelegraphLine => ground_telegraph_line_effect_document()
   }
 }

@@ -220,10 +220,49 @@ fn chain_lightning_feedback_endpoint(world : GameWorld) -> (Double, Double) {
 }
 
 ///|
+fn chain_lightning_telegraph_endpoint(world : GameWorld) -> (Double, Double) {
+  match find_nearest_enemy(world, chain_lightning_range) {
+    Some(enemy) => (enemy.x, enemy.y)
+    None => chain_lightning_feedback_endpoint(world)
+  }
+}
+
+///|
+fn splitting_fireball_telegraph_target(world : GameWorld) -> (Double, Double) {
+  match find_nearest_enemy(world, chain_lightning_range) {
+    Some(enemy) => (enemy.x, enemy.y)
+    None => {
+      let angle = world.player.facing_angle
+      let length = chain_lightning_range * 0.7
+      (
+        world.player.x + @math.cos(angle) * length,
+        world.player.y + @math.sin(angle) * length,
+      )
+    }
+  }
+}
+
+///|
 pub fn cast_chain_lightning(world : GameWorld) -> Bool {
   if world.chain_lightning_cooldown_timer > 0 {
     return false
   }
+  let (telegraph_x, telegraph_y) = chain_lightning_telegraph_endpoint(world)
+  world.events.push(
+    GroundTelegraphLine(
+      world.player.x,
+      world.player.y,
+      telegraph_x,
+      telegraph_y,
+    ),
+  )
+  world.events.push(
+    GroundTelegraphRing(
+      telegraph_x,
+      telegraph_y,
+      chain_lightning_telegraph_radius,
+    ),
+  )
   let chained_enemy_indices : Array[Int] = []
   let mut arc_start_x = world.player.x
   let mut arc_start_y = world.player.y
@@ -274,6 +313,22 @@ pub fn cast_splitting_fireball(world : GameWorld) -> Bool {
   if world.splitting_fireball_cooldown_timer > 0 {
     return false
   }
+  let (telegraph_x, telegraph_y) = splitting_fireball_telegraph_target(world)
+  world.events.push(
+    GroundTelegraphLine(
+      world.player.x,
+      world.player.y,
+      telegraph_x,
+      telegraph_y,
+    ),
+  )
+  world.events.push(
+    GroundTelegraphRing(
+      telegraph_x,
+      telegraph_y,
+      splitting_fireball_telegraph_radius,
+    ),
+  )
   let target = find_nearest_enemy(world, chain_lightning_range)
   let (vx, vy) = aim_at(world, target, world.params.arrow_speed * 0.8)
   world.projectiles.push({
@@ -298,6 +353,9 @@ pub fn cast_ice_nova(world : GameWorld) -> Bool {
   if world.ice_nova_cooldown_timer > 0 {
     return false
   }
+  world.events.push(
+    GroundTelegraphRing(world.player.x, world.player.y, ice_nova_radius),
+  )
   let mut hit_any = false
   let radius_sq = ice_nova_radius * ice_nova_radius
   for enemy in world.enemies {

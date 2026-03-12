@@ -58,6 +58,33 @@ fn ice_nova_effect_placement(
 }
 
 ///|
+fn ground_ring_telegraph_effect_placement(
+  x : Double,
+  y : Double,
+  radius : Double,
+) -> @effect.EffectPlacement {
+  @effect.new_effect_placement(
+    game_to_effect_world_position(x, y, 0.03),
+    None,
+    @cmp.maximum(1.0, radius / tile_size),
+  )
+}
+
+///|
+fn ground_line_telegraph_effect_placement(
+  start_x : Double,
+  start_y : Double,
+  end_x : Double,
+  end_y : Double,
+) -> @effect.EffectPlacement {
+  @effect.new_effect_placement(
+    game_to_effect_world_position(start_x, start_y, 0.03),
+    Some(game_to_effect_world_position(end_x, end_y, 0.03)),
+    1.0,
+  )
+}
+
+///|
 fn GameState::queue_chain_lightning_effect(
   self : GameState,
   start_x : Double,
@@ -113,6 +140,37 @@ fn GameState::queue_ice_nova_effect(
     "ice_nova",
     @effect.ice_nova_effect_document(),
     ice_nova_effect_placement(x, y, radius),
+  )
+}
+
+///|
+fn GameState::queue_ground_ring_telegraph_effect(
+  self : GameState,
+  x : Double,
+  y : Double,
+  radius : Double,
+) -> Unit {
+  queue_active_effect(
+    self,
+    "ground_telegraph_ring",
+    @effect.ground_telegraph_ring_effect_document(),
+    ground_ring_telegraph_effect_placement(x, y, radius),
+  )
+}
+
+///|
+fn GameState::queue_ground_line_telegraph_effect(
+  self : GameState,
+  start_x : Double,
+  start_y : Double,
+  end_x : Double,
+  end_y : Double,
+) -> Unit {
+  queue_active_effect(
+    self,
+    "ground_telegraph_line",
+    @effect.ground_telegraph_line_effect_document(),
+    ground_line_telegraph_effect_placement(start_x, start_y, end_x, end_y),
   )
 }
 

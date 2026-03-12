@@ -89,23 +89,6 @@ e2e-vrt-update:
 hacknslash3d-gpu-perf port="8282" samples="120" warmup="30" extra="--headed":
     node scripts/hacknslash_3d_gpu_perf.mjs --serve --port {{port}} --samples {{samples}} --warmup {{warmup}} {{extra}}
 
-hacknslash3d-fal-trellis image="" extra="":
-    test -n "{{image}}"
-    node scripts/fal_trellis_asset.mjs --image {{image}} --preset hard-surface --preprocess isolate {{extra}}
-
-hacknslash3d-fal-trellis-sample sample="chest-open-strong-shadow" extra="":
-    case "{{sample}}" in \
-      chest) image="examples/hacknslash_3d/assets/fal_samples/chest-illustration.png" ;; \
-      chest-open) image="examples/hacknslash_3d/assets/fal_samples/chest-open-illustration.png" ;; \
-      chest-open-strong-shadow) image="examples/hacknslash_3d/assets/fal_samples/chest-open-strong-shadow.png" ;; \
-      chest-open-oblique) image="examples/hacknslash_3d/assets/fal_samples/chest-open-oblique.png" ;; \
-      proxy-chest-render) image="examples/hacknslash_3d/assets/fal_samples/gltf-viewer-proxy-chest.png" ;; \
-      gltf-viewer) image="examples/hacknslash_3d/assets/fal_samples/gltf-viewer-test-scene.png" ;; \
-      fetch-image) image="examples/hacknslash_3d/assets/fal_samples/fetch-image-sample-512.png" ;; \
-      *) echo "unknown sample: {{sample}}" >&2; exit 1 ;; \
-    esac; \
-    node scripts/fal_trellis_asset.mjs --image "$image" --preset hard-surface --preprocess isolate {{extra}}
-
 info:
     moon info
 

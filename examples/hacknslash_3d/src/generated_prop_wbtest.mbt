@@ -62,9 +62,7 @@ test "generated_prop_anchor_center_world resolves treasure room anchor to furthe
 ///|
 test "default_generated_prop_manifest_for_floor uses boss anchor on boss floor" {
   let config = default_generated_prop_manifest_for_floor(5)
-  assert_eq(config.length(), 1)
-  assert_eq(config[0].floor, 5)
-  assert_eq(config[0].anchor, BossRoomCenter)
+  assert_eq(config.length(), 0)
 }
 
 ///|
@@ -95,26 +93,10 @@ test "generated_prop_role_from_string parses known roles" {
 ///|
 test "default_generated_prop_manifest_for_floor assigns expected roles" {
   let floor1 = default_generated_prop_manifest_for_floor(1)
-  assert_eq(floor1.length(), 2)
-  assert_eq(
-    floor1[0].source_path,
-    "./assets/generated/gltf-viewer-proxy-chest-trellis.glb",
-  )
-  assert_eq(
-    floor1[1].source_path,
-    "./assets/generated/gltf-viewer-proxy-chest-trellis.glb",
-  )
-  assert_eq(floor1[0].role, Decoration)
-  assert_eq(floor1[1].role, Pickup)
-  assert_eq(floor1[1].pickup_effect, HealthPickup)
+  assert_eq(floor1.length(), 0)
 
   let boss_floor = default_generated_prop_manifest_for_floor(5)
-  assert_eq(boss_floor.length(), 1)
-  assert_eq(
-    boss_floor[0].source_path,
-    "./assets/generated/gltf-viewer-proxy-chest-trellis.glb",
-  )
-  assert_eq(boss_floor[0].role, Blocking)
+  assert_eq(boss_floor.length(), 0)
 }
 
 ///|

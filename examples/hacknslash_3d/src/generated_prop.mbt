@@ -48,45 +48,8 @@ fn default_generated_prop_manifest() -> Array[GeneratedPropPlacement] {
 fn default_generated_prop_manifest_for_floor(
   floor : Int,
 ) -> Array[GeneratedPropPlacement] {
-  let default_prop_path = "./assets/generated/gltf-viewer-proxy-chest-trellis.glb"
-  if floor > 1 && floor % 5 == 0 {
-    [
-      generated_prop_placement(
-        default_prop_path,
-        floor~,
-        anchor=BossRoomCenter,
-        role=Blocking,
-        scale=1.5,
-        yaw_degrees=15.0,
-        x_offset_tiles=0.0,
-        z_offset_tiles=0.0,
-      ),
-    ]
-  } else {
-    [
-      generated_prop_placement(
-        default_prop_path,
-        floor~,
-        anchor=StartRoomCenter,
-        role=Decoration,
-        scale=1.35,
-        yaw_degrees=25.0,
-        x_offset_tiles=2.5,
-        z_offset_tiles=0.5,
-      ),
-      generated_prop_placement(
-        default_prop_path,
-        floor~,
-        anchor=TreasureRoomCenter,
-        role=Pickup,
-        pickup_effect=HealthPickup,
-        scale=1.10,
-        yaw_degrees=-20.0,
-        x_offset_tiles=-2.0,
-        z_offset_tiles=-1.0,
-      ),
-    ]
-  }
+  let _ = floor
+  []
 }
 
 ///|

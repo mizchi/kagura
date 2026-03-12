@@ -379,6 +379,10 @@ fn GameState::update_playing(self : GameState) -> Unit {
       @game.PlayerHurt(x, y) => spawn_player_hurt(self.particle_manager, x, y)
       @game.ItemPickup(x, y, is_health) =>
         spawn_item_pickup(self.particle_manager, x, y, is_health)
+      @game.GroundTelegraphRing(x, y, radius) =>
+        self.queue_ground_ring_telegraph_effect(x, y, radius)
+      @game.GroundTelegraphLine(x0, y0, x1, y1) =>
+        self.queue_ground_line_telegraph_effect(x0, y0, x1, y1)
       @game.ChainLightningArc(x0, y0, x1, y1) =>
         self.queue_chain_lightning_effect(x0, y0, x1, y1)
       @game.FireballCast(x, y) => self.queue_fireball_cast_effect(x, y)

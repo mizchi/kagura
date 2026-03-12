@@ -47,7 +47,6 @@ fn main {
   @web_hooks.install("#app")
   let show_hud = get_initial_hud_enabled()
   match sample_asset_source_from_query_param(get_initial_asset_query()) {
-    ProxyChest => start_viewer(build_proxy_chest_graph(), show_hud)
     DefaultGlb(path) =>
       js_fetch_bytes(path, fn(data) {
         let (json, buffers) = @gltf.parse_glb(data) catch {

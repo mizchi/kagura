@@ -33,6 +33,30 @@ fn has_fireball_cast(events : Array[GameEvent]) -> Bool {
 }
 
 ///|
+fn count_ground_telegraph_rings(events : Array[GameEvent]) -> Int {
+  let mut count = 0
+  for event in events {
+    match event {
+      GroundTelegraphRing(_, _, _) => count += 1
+      _ => ()
+    }
+  }
+  count
+}
+
+///|
+fn count_ground_telegraph_lines(events : Array[GameEvent]) -> Int {
+  let mut count = 0
+  for event in events {
+    match event {
+      GroundTelegraphLine(_, _, _, _) => count += 1
+      _ => ()
+    }
+  }
+  count
+}
+
+///|
 fn has_ice_nova_cast(events : Array[GameEvent]) -> Bool {
   for event in events {
     match event {
@@ -70,6 +94,8 @@ test "cast_chain_lightning damages multiple enemies and emits arc events" {
 
   assert_true(casted)
   assert_eq(count_chain_arcs(world.events), 3)
+  assert_eq(count_ground_telegraph_lines(world.events), 1)
+  assert_eq(count_ground_telegraph_rings(world.events), 1)
   assert_true(world.enemies[0].hp < 12)
   assert_true(world.enemies[1].hp < 10)
   assert_true(world.enemies[2].hp < 16)
@@ -84,6 +110,8 @@ test "cast_chain_lightning without enemy still emits forward arc feedback" {
 
   assert_true(casted)
   assert_eq(count_chain_arcs(world.events), 1)
+  assert_eq(count_ground_telegraph_lines(world.events), 1)
+  assert_eq(count_ground_telegraph_rings(world.events), 1)
   assert_eq(world.chain_lightning_cooldown_timer, chain_lightning_cooldown)
   assert_true(world.attack_timer > 0)
 }
@@ -98,6 +126,8 @@ test "cast_splitting_fireball spawns fireball projectile" {
   assert_eq(world.projectiles.length(), 1)
   assert_eq(projectile_fireball_count(world.projectiles), 1)
   assert_true(has_fireball_cast(world.events))
+  assert_eq(count_ground_telegraph_lines(world.events), 1)
+  assert_eq(count_ground_telegraph_rings(world.events), 1)
   assert_true(world.attack_timer > 0)
 }
 
@@ -141,6 +171,7 @@ test "cast_ice_nova damages nearby enemies and emits nova event" {
 
   assert_true(casted)
   assert_true(has_ice_nova_cast(world.events))
+  assert_eq(count_ground_telegraph_rings(world.events), 1)
   assert_true(world.enemies[0].hp < 12)
   assert_true(world.enemies[1].hp < 10)
   assert_eq(world.enemies[2].hp, 20)

@@ -420,6 +420,7 @@ pub fn GameWorld::tick_enemy_ai_phase_with_grid(
     self.dungeon.rooms,
     self.frame_count,
     self.projectiles,
+    self.events,
     params=self.params,
   )
 }

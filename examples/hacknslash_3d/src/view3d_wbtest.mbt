@@ -287,21 +287,9 @@ test "draw_playing renders textured generated prop with textured material shader
 }
 
 ///|
-test "default_generated_prop_manifest installs floor 1 samples" {
+test "default_generated_prop_manifest is empty by default" {
   let config = default_generated_prop_manifest()
-  assert_eq(config.length(), 2)
-  assert_eq(config[0].floor, 1)
-  assert_eq(config[1].floor, 1)
-  assert_eq(config[0].anchor, StartRoomCenter)
-  assert_eq(config[1].anchor, TreasureRoomCenter)
-  assert_eq(
-    config[0].source_path,
-    "./assets/generated/gltf-viewer-proxy-chest-trellis.glb",
-  )
-  assert_eq(
-    config[1].source_path,
-    "./assets/generated/gltf-viewer-proxy-chest-trellis.glb",
-  )
+  assert_eq(config.length(), 0)
 }
 
 ///|
@@ -710,6 +698,9 @@ test "summarize_draw_playing_commands tracks instancing workload" {
       path_index: 0,
       path_timer: 0,
       shoot_cooldown: 0,
+      pending_bolt_timer: 0,
+      pending_bolt_target_x: px,
+      pending_bolt_target_y: py,
       charge_timer: 0,
       charge_cooldown: 0,
     },
@@ -729,6 +720,9 @@ test "summarize_draw_playing_commands tracks instancing workload" {
       path_index: 0,
       path_timer: 0,
       shoot_cooldown: 0,
+      pending_bolt_timer: 0,
+      pending_bolt_target_x: px + tile_size * 0.5,
+      pending_bolt_target_y: py,
       charge_timer: 0,
       charge_cooldown: 0,
     },
@@ -800,6 +794,9 @@ test "push_enemy_character_commands emits skinned commands for visible enemies" 
       path_index: 0,
       path_timer: 0,
       shoot_cooldown: 0,
+      pending_bolt_timer: 0,
+      pending_bolt_target_x: px,
+      pending_bolt_target_y: py,
       charge_timer: 0,
       charge_cooldown: 0,
     },
@@ -819,6 +816,9 @@ test "push_enemy_character_commands emits skinned commands for visible enemies" 
       path_index: 0,
       path_timer: 0,
       shoot_cooldown: 0,
+      pending_bolt_timer: 0,
+      pending_bolt_target_x: px + tile_size * 0.5,
+      pending_bolt_target_y: py,
       charge_timer: 0,
       charge_cooldown: 0,
     },
@@ -937,6 +937,9 @@ test "rebuild_enemy_render_buckets clears stale enemy groups" {
       path_index: 0,
       path_timer: 0,
       shoot_cooldown: 0,
+      pending_bolt_timer: 0,
+      pending_bolt_target_x: px,
+      pending_bolt_target_y: py,
       charge_timer: 0,
       charge_cooldown: 0,
     },

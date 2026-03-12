@@ -29,6 +29,39 @@ fn enemy_direct_chase_path_blocked(
 }
 
 ///|
+fn update_enemy_bolt_castup(
+  enemy : Enemy,
+  projectiles : Array[Projectile],
+) -> Bool {
+  if enemy.pending_bolt_timer <= 0 {
+    return false
+  }
+  enemy.pending_bolt_timer = enemy.pending_bolt_timer - 1
+  enemy.vx = 0.0
+  enemy.vy = 0.0
+  if enemy.pending_bolt_timer == 0 {
+    let cdx = enemy.pending_bolt_target_x - enemy.x
+    let cdy = enemy.pending_bolt_target_y - enemy.y
+    let dist_sq = cdx * cdx + cdy * cdy
+    if dist_sq > 0.000001 {
+      let dist = dist_sq.sqrt()
+      let bspeed = 2.0
+      projectiles.push({
+        x: enemy.x,
+        y: enemy.y,
+        vx: cdx / dist * bspeed,
+        vy: cdy / dist * bspeed,
+        alive: true,
+        damage: 1,
+        is_player: false,
+        kind: EnemyBolt,
+      })
+    }
+  }
+  true
+}
+
+///|
 pub fn update_enemy_ai(
   enemies : Array[Enemy],
   player : Player,
@@ -36,6 +69,7 @@ pub fn update_enemy_ai(
   rooms : Array[@terrain.Room],
   frame_count : Int,
   projectiles : Array[Projectile],
+  events : Array[GameEvent],
   params? : BalanceParams = BalanceParams::default(),
 ) -> Unit {
   let player_tile_x = (player.x / tile_size).to_int()
@@ -44,6 +78,12 @@ pub fn update_enemy_ai(
   let chase_range_sq = params.chase_range * params.chase_range
   for enemy in enemies {
     if not(enemy.alive) {
+      continue
+    }
+    if enemy.kind == Ranged && update_enemy_bolt_castup(enemy, projectiles) {
+      if enemy.shoot_cooldown > 0 {
+        enemy.shoot_cooldown = enemy.shoot_cooldown - 1
+      }
       continue
     }
     let cdx = player.x - enemy.x
@@ -88,17 +128,19 @@ pub fn update_enemy_ai(
         let dist = dist_sq.sqrt()
         if enemy.shoot_cooldown <= 0 {
           enemy.shoot_cooldown = 120
-          let bspeed = 2.0
-          projectiles.push({
-            x: enemy.x,
-            y: enemy.y,
-            vx: cdx / dist * bspeed,
-            vy: cdy / dist * bspeed,
-            alive: true,
-            damage: 1,
-            is_player: false,
-            kind: EnemyBolt,
-          })
+          enemy.pending_bolt_timer = enemy_bolt_telegraph_frames
+          enemy.pending_bolt_target_x = player.x
+          enemy.pending_bolt_target_y = player.y
+          events.push(
+            GroundTelegraphLine(enemy.x, enemy.y, player.x, player.y),
+          )
+          events.push(
+            GroundTelegraphRing(
+              player.x,
+              player.y,
+              enemy_bolt_telegraph_radius,
+            ),
+          )
         }
         // Ranged enemies don't chase when shooting, slight retreat
         enemy.vx = -(cdx / dist) * enemy.speed * 0.3

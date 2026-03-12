@@ -85,7 +85,13 @@ pub let chain_lightning_max_targets : Int = 3
 pub let chain_lightning_cooldown : Int = 32
 
 ///|
+pub let chain_lightning_telegraph_radius : Double = 18.0
+
+///|
 pub let splitting_fireball_cooldown : Int = 40
+
+///|
+pub let splitting_fireball_telegraph_radius : Double = 22.0
 
 ///|
 pub let splitting_fireball_split_angle : Double = 0.48
@@ -104,3 +110,9 @@ pub let ice_nova_radius : Double = 72.0
 
 ///|
 pub let ice_nova_cooldown : Int = 48
+
+///|
+pub let enemy_bolt_telegraph_frames : Int = 14
+
+///|
+pub let enemy_bolt_telegraph_radius : Double = 14.0

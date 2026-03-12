@@ -33,6 +33,9 @@ pub(all) struct Enemy {
   mut path_index : Int
   mut path_timer : Int
   mut shoot_cooldown : Int
+  mut pending_bolt_timer : Int
+  mut pending_bolt_target_x : Double
+  mut pending_bolt_target_y : Double
   mut charge_timer : Int
   mut charge_cooldown : Int
 }
@@ -122,6 +125,8 @@ pub(all) enum GameEvent {
   DashTrail(Double, Double)
   PlayerHurt(Double, Double)
   ItemPickup(Double, Double, Bool)
+  GroundTelegraphRing(Double, Double, Double)
+  GroundTelegraphLine(Double, Double, Double, Double)
   ChainLightningArc(Double, Double, Double, Double)
   FireballCast(Double, Double)
   FireballTrail(Double, Double)

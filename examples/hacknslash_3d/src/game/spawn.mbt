@@ -25,6 +25,9 @@ pub fn make_enemy(
     path_index: 0,
     path_timer: 0,
     shoot_cooldown: 0,
+    pending_bolt_timer: 0,
+    pending_bolt_target_x: cx,
+    pending_bolt_target_y: cy,
     charge_timer: 0,
     charge_cooldown: 0,
   }

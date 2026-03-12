@@ -32,6 +32,52 @@ test "auto_play_input routes toward nearby equipment pickup when no enemy is vis
 }
 
 ///|
+test "auto_play_input routes toward nearby score pickup when no enemy is visible" {
+  let world = GameWorld::new(seed=42)
+  world.items = [
+    {
+      x: world.player.x + tile_size,
+      y: world.player.y,
+      vx: 0.0,
+      vy: 0.0,
+      kind: Score,
+      alive: true,
+      spawn_frame: world.frame_count,
+    },
+  ]
+
+  let (dx, dy, enemy_idx, enemy_dist_sq) = auto_play_input(world)
+
+  assert_eq(enemy_idx, -1)
+  assert_true(enemy_dist_sq > 0.0)
+  assert_true(dx > 0.5)
+  assert_true(dy.abs() < 0.2)
+}
+
+///|
+test "auto_play_input moves toward pickup on same tile when item is still outside pickup radius" {
+  let world = GameWorld::new(seed=42)
+  world.items = [
+    {
+      x: world.player.x + 6.0,
+      y: world.player.y + 6.0,
+      vx: 0.0,
+      vy: 0.0,
+      kind: Score,
+      alive: true,
+      spawn_frame: world.frame_count,
+    },
+  ]
+
+  let (dx, dy, enemy_idx, enemy_dist_sq) = auto_play_input(world)
+
+  assert_eq(enemy_idx, -1)
+  assert_true(enemy_dist_sq > 0.0)
+  assert_true(dx > 0.1)
+  assert_true(dy > 0.1)
+}
+
+///|
 fn clone_grid(grid : @terrain.Grid2D) -> @terrain.Grid2D {
   let copy = @terrain.Grid2D::make(grid.width, grid.height, @terrain.Empty)
   for row = 0; row < grid.height; row = row + 1 {
@@ -105,8 +151,7 @@ test "auto_play_input_with_nav_grid pathfinds around blocker toward visible enem
   ]
 
   let (dx, dy, enemy_idx, enemy_dist_sq) = auto_play_input_with_nav_grid(
-    world,
-    grid,
+    world, grid,
   )
 
   assert_eq(enemy_idx, 0)
@@ -145,20 +190,22 @@ test "auto_play_input_with_nav_grid falls back to nearest alive enemy when rooms
 }
 
 ///|
-test "auto_play_input_with_nav_grid ignores equipment pickup when inventory is full" {
+test "auto_play_input_with_nav_grid still routes toward equipment pickup when inventory is full" {
   let world = GameWorld::new(seed=42)
   for i in 0..<world.inventory.capacity {
-    ignore(world.inventory.add({
-      name: "Filled \{i}",
-      rarity: Common,
-      slot: Weapon,
-      atk_bonus: 1,
-      def_bonus: 0,
-      hp_bonus: 0,
-      prefix: None,
-      suffix: None,
-      icon_id: 0,
-    }))
+    ignore(
+      world.inventory.add({
+        name: "Filled \{i}",
+        rarity: Common,
+        slot: Weapon,
+        atk_bonus: 1,
+        def_bonus: 0,
+        hp_bonus: 0,
+        prefix: None,
+        suffix: None,
+        icon_id: 0,
+      }),
+    )
   }
   let target_room_idx = furthest_room_index_from_player(world)
   let target_room = world.dungeon.rooms[target_room_idx]
@@ -175,7 +222,7 @@ test "auto_play_input_with_nav_grid ignores equipment pickup when inventory is f
   ]
   world.items = [
     {
-      x: world.player.x,
+      x: world.player.x + tile_size,
       y: world.player.y,
       vx: 0.0,
       vy: 0.0,
@@ -202,5 +249,6 @@ test "auto_play_input_with_nav_grid ignores equipment pickup when inventory is f
 
   assert_eq(enemy_idx, -1)
   assert_true(enemy_dist_sq > 0.0)
-  assert_true(dx.abs() > 0.01 || dy.abs() > 0.01)
+  assert_true(dx > 0.5)
+  assert_true(dy.abs() < 0.2)
 }

@@ -142,28 +142,101 @@ pub fn find_next_target_room(world : GameWorld) -> Int {
 fn find_nearest_autoplay_pickup_item(world : GameWorld) -> ItemDrop? {
   let mut nearest : ItemDrop? = None
   let mut nearest_dist_sq = 100000000.0
-  let inventory_has_space = world.inventory.count() < world.inventory.capacity
   for item in world.items {
     if not(item.alive) {
       continue
     }
-    match item.kind {
-      Equipment(_) => {
-        if not(inventory_has_space) {
-          continue
-        }
-        let dx = item.x - world.player.x
-        let dy = item.y - world.player.y
-        let dist_sq = dx * dx + dy * dy
-        if dist_sq < nearest_dist_sq {
-          nearest_dist_sq = dist_sq
-          nearest = Some(item)
-        }
-      }
-      _ => ()
+    let dx = item.x - world.player.x
+    let dy = item.y - world.player.y
+    let dist_sq = dx * dx + dy * dy
+    if dist_sq < nearest_dist_sq {
+      nearest_dist_sq = dist_sq
+      nearest = Some(item)
     }
   }
   nearest
+}
+
+///|
+pub fn GameWorld::collect_equipment_pickup(
+  self : GameWorld,
+  item : ItemData,
+) -> Bool {
+  if not(self.auto_play) {
+    return self.inventory.add(item)
+  }
+  if self.equipment.should_equip(item) {
+    let previous = self.equipment.equip(item)
+    match previous {
+      Some(old_item) => ignore(self.inventory.add_fifo(old_item))
+      None => ()
+    }
+    self.player_stats = compute_player_stats(
+      self.equipment,
+      self.skills,
+      base_hp=self.params.player_base_hp.to_int(),
+    )
+    self.player.hp = @cmp.minimum(self.player.hp, self.player_stats.max_hp)
+    return true
+  }
+  ignore(self.inventory.add_fifo(item))
+  true
+}
+
+///|
+fn auto_equip_inventory_item(
+  world : GameWorld,
+  index : Int,
+  item : ItemData,
+) -> Unit {
+  if world.equipment.should_equip(item) {
+    let prev = world.equipment.equip(item)
+    world.inventory.items[index] = prev
+    world.player_stats = compute_player_stats(
+      world.equipment,
+      world.skills,
+      base_hp=world.params.player_base_hp.to_int(),
+    )
+    world.player.hp = @cmp.minimum(world.player.hp, world.player_stats.max_hp)
+  }
+}
+
+///|
+pub fn GameWorld::auto_equip_best(self : GameWorld) -> Unit {
+  for i in 0..<self.inventory.capacity {
+    match self.inventory.items[i] {
+      Some(item) => auto_equip_inventory_item(self, i, item)
+      None => ()
+    }
+  }
+}
+
+// Auto-learn: spend skill points automatically
+
+///|
+pub fn GameWorld::auto_learn_skills(self : GameWorld) -> Unit {
+  if self.skills.skill_points <= 0 {
+    return
+  }
+  // Priority: Vitality > PowerStrike > CriticalHit > DashMastery > Whirlwind > LifeSteal
+  let priority : Array[SkillId] = [
+    Vitality,
+    PowerStrike,
+    CriticalHit,
+    DashMastery,
+    Whirlwind,
+    LifeSteal,
+  ]
+  for id in priority {
+    if self.skills.learn(id) {
+      self.player_stats = compute_player_stats(
+        self.equipment,
+        self.skills,
+        base_hp=self.params.player_base_hp.to_int(),
+      )
+      return
+    }
+  }
 }
 
 ///|
@@ -273,6 +346,26 @@ fn auto_play_direction_to_goal_tile(
   (0.0, 0.0, enemy_idx, enemy_dist_sq)
 }
 
+///|
+fn auto_play_direction_to_world_target(
+  world : GameWorld,
+  target_x : Double,
+  target_y : Double,
+  enemy_idx : Int,
+  enemy_dist_sq : Double,
+) -> (Double, Double, Int, Double) {
+  world.auto_nav_path = []
+  world.auto_nav_index = 0
+  world.auto_nav_target = None
+  let dx = target_x - world.player.x
+  let dy = target_y - world.player.y
+  let dist = (dx * dx + dy * dy).sqrt()
+  if dist > 0.001 {
+    return (dx / dist, dy / dist, enemy_idx, enemy_dist_sq)
+  }
+  (0.0, 0.0, enemy_idx, enemy_dist_sq)
+}
+
 // Auto-play: compute desired movement direction
 // Returns (dx, dy, enemy_idx, enemy_dist_sq) — also returns vision result to avoid recomputation
 
@@ -291,23 +384,19 @@ fn auto_play_input_with_nav_grid(
   if enemy_idx >= 0 {
     let enemy = world.enemies[enemy_idx]
     if enemy_direct_chase_path_blocked(
-      nav_grid,
-      world.player.x,
-      world.player.y,
-      enemy.x,
-      enemy.y,
-      world.player.size,
-    ) {
+        nav_grid,
+        world.player.x,
+        world.player.y,
+        enemy.x,
+        enemy.y,
+        world.player.size,
+      ) {
       let goal_tile : @terrain.Point = {
         x: (enemy.x / tile_size).to_int(),
         y: (enemy.y / tile_size).to_int(),
       }
       return auto_play_direction_to_goal_tile(
-        world,
-        nav_grid,
-        goal_tile,
-        enemy_idx,
-        enemy_dist_sq,
+        world, nav_grid, goal_tile, enemy_idx, enemy_dist_sq,
       )
     }
     // If close enough for bow, strafe slightly; otherwise approach
@@ -349,6 +438,19 @@ fn auto_play_input_with_nav_grid(
   // 2. No visible enemies — move toward nearby equipment pickup first
   match find_nearest_autoplay_pickup_item(world) {
     Some(item) => {
+      let player_tile_x = (world.player.x / tile_size).to_int()
+      let player_tile_y = (world.player.y / tile_size).to_int()
+      let item_tile_x = (item.x / tile_size).to_int()
+      let item_tile_y = (item.y / tile_size).to_int()
+      if player_tile_x == item_tile_x && player_tile_y == item_tile_y {
+        return auto_play_direction_to_world_target(
+          world,
+          item.x,
+          item.y,
+          enemy_idx,
+          enemy_dist_sq,
+        )
+      }
       let goal_tile : @terrain.Point = {
         x: (item.x / tile_size).to_int(),
         y: (item.y / tile_size).to_int(),
@@ -372,11 +474,7 @@ fn auto_play_input_with_nav_grid(
         y: (fallback_enemy.y / tile_size).to_int(),
       }
       return auto_play_direction_to_goal_tile(
-        world,
-        nav_grid,
-        goal_tile,
-        enemy_idx,
-        fallback_enemy_dist_sq,
+        world, nav_grid, goal_tile, enemy_idx, fallback_enemy_dist_sq,
       )
     }
     return (0.0, 0.0, enemy_idx, enemy_dist_sq)
@@ -439,76 +537,5 @@ pub fn GameWorld::auto_activate_spell_slots(
   }
   if enemy_dist_sq <= self.params.arrow_range * self.params.arrow_range {
     ignore(cast_splitting_fireball(self))
-  }
-}
-
-// Auto-equip: automatically equip better items
-
-///|
-pub fn GameWorld::auto_equip_best(self : GameWorld) -> Unit {
-  for i in 0..<self.inventory.capacity {
-    match self.inventory.items[i] {
-      Some(item) => {
-        let dominated = match item.slot {
-          Weapon =>
-            match self.equipment.weapon {
-              Some(eq) => item.total_atk() > eq.total_atk()
-              None => true
-            }
-          Armor =>
-            match self.equipment.armor {
-              Some(eq) => item.total_def() > eq.total_def()
-              None => true
-            }
-          Accessory =>
-            match self.equipment.accessory {
-              Some(eq) => item.total_hp() > eq.total_hp()
-              None => true
-            }
-        }
-        if dominated {
-          let prev = self.equipment.equip(item)
-          self.inventory.items[i] = prev
-          self.player_stats = compute_player_stats(
-            self.equipment,
-            self.skills,
-            base_hp=self.params.player_base_hp.to_int(),
-          )
-          self.player.hp = @cmp.minimum(
-            self.player.hp,
-            self.player_stats.max_hp,
-          )
-        }
-      }
-      None => ()
-    }
-  }
-}
-
-// Auto-learn: spend skill points automatically
-
-///|
-pub fn GameWorld::auto_learn_skills(self : GameWorld) -> Unit {
-  if self.skills.skill_points <= 0 {
-    return
-  }
-  // Priority: Vitality > PowerStrike > CriticalHit > DashMastery > Whirlwind > LifeSteal
-  let priority : Array[SkillId] = [
-    Vitality,
-    PowerStrike,
-    CriticalHit,
-    DashMastery,
-    Whirlwind,
-    LifeSteal,
-  ]
-  for id in priority {
-    if self.skills.learn(id) {
-      self.player_stats = compute_player_stats(
-        self.equipment,
-        self.skills,
-        base_hp=self.params.player_base_hp.to_int(),
-      )
-      return
-    }
   }
 }

@@ -139,6 +139,9 @@ struct GameState {
   mut active_effects : Array[ActiveEffectInstance]
   audio_ctx : @audio.MixerAudioContext
   audio_players : GameAudioPlayers
+  audio_failed_paths : Array[String]
+  mut audio_last_played_cue : String
+  mut audio_last_played_state : String
   mut dungeon_floor_texture_image_id : Int?
   mut dungeon_wall_texture_image_id : Int?
   // PostFX

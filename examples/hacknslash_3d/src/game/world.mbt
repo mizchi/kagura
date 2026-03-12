@@ -85,8 +85,9 @@ pub fn GameWorld::new(
     seed,
     params,
   )
-  let (discovered_rooms, discovered_rooms_version) =
-    initial_discovered_rooms_for_dungeon(dungeon)
+  let (discovered_rooms, discovered_rooms_version) = initial_discovered_rooms_for_dungeon(
+    dungeon,
+  )
   {
     params,
     mode: Title,
@@ -156,7 +157,7 @@ pub fn GameWorld::apply_dungeon(
   seed : Int,
   floor : Int,
 ) -> Unit {
-  let dungeon = generate_dungeon(seed, floor=floor)
+  let dungeon = generate_dungeon(seed, floor~)
   self.dungeon.grid = dungeon.grid
   self.dungeon.rooms.clear()
   for room in dungeon.rooms {
@@ -185,8 +186,9 @@ pub fn GameWorld::apply_dungeon(
   self.ice_nova_cooldown_timer = 0
   // Reset auto-play navigation
   self.auto_cleared_rooms = Array::make(self.dungeon.rooms.length(), false)
-  let (discovered_rooms, discovered_rooms_version) =
-    initial_discovered_rooms_for_dungeon(self.dungeon)
+  let (discovered_rooms, discovered_rooms_version) = initial_discovered_rooms_for_dungeon(
+    self.dungeon,
+  )
   self.discovered_rooms = discovered_rooms
   self.discovered_rooms_version = discovered_rooms_version
   self.auto_nav_target = None

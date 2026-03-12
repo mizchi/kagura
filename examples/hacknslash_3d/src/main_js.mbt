@@ -181,6 +181,24 @@ extern "js" fn js_publish_runtime_state(
   #| }
 
 ///|
+extern "js" fn js_publish_audio_debug_state(
+  loaded_count : Int,
+  playing_count : Int,
+  failed_count : Int,
+  last_played_cue : String,
+  last_played_state : String,
+) -> Unit =
+  #| (loadedCount, playingCount, failedCount, lastPlayedCue, lastPlayedState) => {
+  #|   const debug = globalThis.__hacknslash3dAudioDebug ?? {}
+  #|   debug.loadedCount = loadedCount
+  #|   debug.playingCount = playingCount
+  #|   debug.failedCount = failedCount
+  #|   debug.lastPlayedCue = lastPlayedCue
+  #|   debug.lastPlayedState = lastPlayedState
+  #|   globalThis.__hacknslash3dAudioDebug = debug
+  #| }
+
+///|
 fn game_mode_name(mode : @game.GameMode) -> String {
   match mode {
     @game.Title => "title"
@@ -401,6 +419,13 @@ fn run_game_js(state : GameState, perf_capture_enabled : Bool) -> Unit {
         state.world.enemies.length(),
         state.active_effects.length(),
         state.particle_manager.emitters.length(),
+      )
+      js_publish_audio_debug_state(
+        state.loaded_audio_player_count(),
+        state.playing_audio_player_count(),
+        state.audio_failed_paths.length(),
+        state.audio_last_played_cue,
+        state.audio_last_played_state,
       )
     },
     audio_ctx=state.audio_ctx,

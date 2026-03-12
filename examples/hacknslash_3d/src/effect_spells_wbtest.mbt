@@ -54,3 +54,25 @@ test "queue_ground_line_telegraph_effect stores telegraph line target" {
   assert_eq(state.active_effects[0].doc.name, "ground_telegraph_line")
   assert_true(state.active_effects[0].placement.target is Some(_))
 }
+
+///|
+test "queue_homing_missile_effect stores line placement target" {
+  let state = GameState::new(seed=42)
+
+  state.queue_homing_missile_effect(16.0, 24.0, 40.0, 52.0)
+
+  assert_eq(state.active_effects.length(), 1)
+  assert_eq(state.active_effects[0].doc.name, "homing_missile")
+  assert_true(state.active_effects[0].placement.target is Some(_))
+}
+
+///|
+test "queue_homing_missile_impact_effect stores impact document" {
+  let state = GameState::new(seed=42)
+
+  state.queue_homing_missile_impact_effect(20.0, 28.0)
+
+  assert_eq(state.active_effects.length(), 1)
+  assert_eq(state.active_effects[0].doc.name, "homing_missile_impact")
+  assert_true(state.active_effects[0].placement.scale >= 1.0)
+}

@@ -4,6 +4,7 @@ struct EntityInstanceScratch {
   enemy_projectile_instances : Array[@scene3d.InstanceData]
   arrow_instances : Array[@scene3d.InstanceData]
   fireball_instances : Array[@scene3d.InstanceData]
+  homing_missile_instances : Array[@scene3d.InstanceData]
 }
 
 ///|
@@ -13,6 +14,7 @@ fn default_entity_instance_scratch() -> EntityInstanceScratch {
     enemy_projectile_instances: [],
     arrow_instances: [],
     fireball_instances: [],
+    homing_missile_instances: [],
   }
 }
 
@@ -38,6 +40,7 @@ fn GameState::rebuild_entity_instance_scratch(
   self.entity_instance_scratch.enemy_projectile_instances.clear()
   self.entity_instance_scratch.arrow_instances.clear()
   self.entity_instance_scratch.fireball_instances.clear()
+  self.entity_instance_scratch.homing_missile_instances.clear()
   let item_bob_offset = 0.1 *
     @math.sin(self.world.frame_count.to_double() * 0.1)
   let grid_w = self.world.dungeon.grid.width
@@ -79,8 +82,8 @@ fn GameState::rebuild_entity_instance_scratch(
       row >= 0 &&
       row < grid_h &&
       is_tile_visible(region, col, row) {
-      let prx = col.to_double()
-      let prz = row.to_double()
+      let prx = proj.x / tile_size
+      let prz = proj.y / tile_size
       let base_y = height_at_tile(self.world.dungeon, col, row)
       if proj.is_player {
         match proj.kind {
@@ -109,6 +112,25 @@ fn GameState::rebuild_entity_instance_scratch(
                 color=color_fireball,
               ),
             )
+          @game.HomingMissile => {
+            let arc_progress = @cmp.minimum(
+              1.0,
+              proj.age.to_double() / @game.homing_missile_arc_frames.to_double(),
+            )
+            let arc_height = @math.sin(arc_progress * @math.PI) * 0.82
+            self.entity_instance_scratch.homing_missile_instances.push(
+              @scene3d.InstanceData::new(
+                transform=@transform3d.Transform3D::from_position_rotation(
+                  @math3d.Vec3::new(prx, base_y + 0.24 + arc_height, prz),
+                  @math3d.Quaternion::from_axis_angle(
+                    @math3d.Vec3::unit_y(),
+                    -@math.atan2(proj.vy, proj.vx),
+                  ),
+                ).with_scale(@math3d.Vec3::new(0.95, 0.95, 1.35)),
+                color=@math3d.Vec4::new(1.0, 0.58, 0.22, 1.0),
+              ),
+            )
+          }
           @game.EnemyBolt => ()
         }
       } else {
@@ -335,6 +357,62 @@ fn push_enemy_projectile_instance_cmds(
 }
 
 ///|
+fn push_homing_missile_instance_cmds(
+  state : GameState,
+  view_projection : @math3d.Mat4,
+  dst : @gfx.ImageHandle,
+  screen_w : Int,
+  screen_h : Int,
+  cmds : Array[@gfx.DrawTrianglesCommand],
+) -> Unit {
+  let instances = state.entity_instance_scratch.homing_missile_instances
+  if instances.length() == 0 {
+    return
+  }
+  if instances.length() <= 2 {
+    let dst_region = @gfx.new_dst_region(
+      0,
+      0,
+      screen_w,
+      screen_h,
+      state.meshes.projectile.indices.length(),
+    )
+    for inst in instances {
+      cmds.push(
+        @draw3d.new_lit_colored_mesh_draw_command(
+          dst,
+          state.shader3d_colored,
+          dst_region,
+          0,
+          0,
+          0,
+          @gfx.blend_mode_from_int(1),
+          state.meshes.projectile,
+          inst.transform.to_mat4(),
+          view_projection,
+          state.lighting,
+          inst.color,
+          [],
+        ),
+      )
+    }
+    return
+  }
+  cmds.push(
+    @scene3d.render_instanced_gpu_with_view_projection(
+      state.meshes.projectile,
+      instances,
+      view_projection,
+      state.lighting,
+      dst,
+      state.shader3d_instanced,
+      screen_w,
+      screen_h,
+    ),
+  )
+}
+
+///|
 fn push_entity_instanced_cmds(
   state : GameState,
   region : VisibleRegion,
@@ -351,6 +429,9 @@ fn push_entity_instanced_cmds(
     state, view_projection, dst, screen_w, screen_h, cmds,
   )
   push_fireball_instance_cmds(
+    state, view_projection, dst, screen_w, screen_h, cmds,
+  )
+  push_homing_missile_instance_cmds(
     state, view_projection, dst, screen_w, screen_h, cmds,
   )
   push_enemy_projectile_instance_cmds(

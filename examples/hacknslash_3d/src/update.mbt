@@ -147,6 +147,9 @@ fn GameState::new_with_ssao(seed~ : Int, ssao_config : SSAOConfig) -> GameState 
     active_effects: [],
     audio_ctx: @audio.MixerAudioContext::new(44100),
     audio_players: default_game_audio_players(),
+    audio_failed_paths: [],
+    audio_last_played_cue: "",
+    audio_last_played_state: "",
     dungeon_floor_texture_image_id: None,
     dungeon_wall_texture_image_id: None,
     // PostFX render targets

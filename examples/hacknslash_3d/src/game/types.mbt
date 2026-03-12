@@ -55,8 +55,9 @@ pub(all) struct ItemDrop {
 pub(all) struct Projectile {
   mut x : Double
   mut y : Double
-  vx : Double
-  vy : Double
+  mut vx : Double
+  mut vy : Double
+  mut age : Int
   mut alive : Bool
   damage : Int
   is_player : Bool
@@ -67,6 +68,7 @@ pub(all) struct Projectile {
 pub(all) enum ProjectileKind {
   Arrow
   Fireball(Int)
+  HomingMissile
   EnemyBolt
 } derive(Eq, Show)
 
@@ -128,6 +130,9 @@ pub(all) enum GameEvent {
   GroundTelegraphRing(Double, Double, Double)
   GroundTelegraphLine(Double, Double, Double, Double)
   ChainLightningArc(Double, Double, Double, Double)
+  HomingMissileLaunch(Double, Double, Double, Double)
+  HomingMissileTrail(Double, Double, Double, Double)
+  HomingMissileImpact(Double, Double)
   FireballCast(Double, Double)
   FireballTrail(Double, Double)
   FireballBurst(Double, Double)

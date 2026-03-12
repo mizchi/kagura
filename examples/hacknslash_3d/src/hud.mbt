@@ -385,12 +385,7 @@ fn GameState::build_minimap_static_cmds(
           room_index < self.world.discovered_rooms.length() &&
           not(self.world.discovered_rooms[room_index]) {
           ctx.append_rect_batch_geometry(
-            fog_vertices,
-            fog_indices,
-            sx,
-            sy,
-            cell_size,
-            cell_size,
+            fog_vertices, fog_indices, sx, sy, cell_size, cell_size,
           )
         }
       }

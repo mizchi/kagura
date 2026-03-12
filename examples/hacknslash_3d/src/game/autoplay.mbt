@@ -535,6 +535,10 @@ pub fn GameWorld::auto_activate_spell_slots(
     cast_chain_lightning(self) {
     return
   }
+  if enemy_dist_sq <= homing_missile_range * homing_missile_range &&
+    cast_homing_missile(self) {
+    return
+  }
   if enemy_dist_sq <= self.params.arrow_range * self.params.arrow_range {
     ignore(cast_splitting_fireball(self))
   }

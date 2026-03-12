@@ -287,6 +287,45 @@ test "draw_playing renders textured generated prop with textured material shader
 }
 
 ///|
+test "draw_playing renders dungeon with textured shaders when dungeon textures are loaded" {
+  let state = GameState::new(seed=42)
+  state.world.mode = @game.Playing
+  state.dungeon_floor_texture_image_id = Some(910)
+  state.dungeon_wall_texture_image_id = Some(911)
+
+  let commands = state.draw_playing(test_engine_context())
+  let floor_idx = find_first_command_index(commands, fn(cmd) {
+    cmd.shader.id == state.shader3d_textured.id &&
+    cmd.src_image_ids.length() == 1 &&
+    cmd.src_image_ids[0] == 910
+  })
+  let wall_idx = find_first_command_index(commands, fn(cmd) {
+    cmd.shader.id == state.shader3d_textured.id &&
+    cmd.src_image_ids.length() == 1 &&
+    cmd.src_image_ids[0] == 911
+  })
+
+  assert_true(floor_idx is Some(_))
+  assert_true(wall_idx is Some(_))
+}
+
+///|
+test "draw_playing uses textured shadow shader for dungeon when shadows and textures are enabled" {
+  let state = state_with_shadows_enabled()
+  state.world.mode = @game.Playing
+  state.dungeon_floor_texture_image_id = Some(910)
+  state.dungeon_wall_texture_image_id = Some(911)
+
+  let commands = state.draw_playing(test_engine_context())
+  let textured_shadow_idx = find_first_command_index(commands, fn(cmd) {
+    cmd.shader.id == state.shadow_lit_textured_shader.id &&
+    cmd.src_image_ids.length() == 2
+  })
+
+  assert_true(textured_shadow_idx is Some(_))
+}
+
+///|
 test "default_generated_prop_manifest is empty by default" {
   let config = default_generated_prop_manifest()
   assert_eq(config.length(), 0)
@@ -543,6 +582,7 @@ test "draw_playing batches repeated entity meshes into instanced draw commands" 
       y: py,
       vx: 1.0,
       vy: 0.0,
+      age: 0,
       alive: true,
       damage: 1,
       is_player: true,
@@ -553,6 +593,7 @@ test "draw_playing batches repeated entity meshes into instanced draw commands" 
       y: py + 4.0,
       vx: -1.0,
       vy: 0.0,
+      age: 0,
       alive: true,
       damage: 1,
       is_player: false,
@@ -665,6 +706,7 @@ test "summarize_draw_playing_commands tracks instancing workload" {
       y: py,
       vx: 1.0,
       vy: 0.0,
+      age: 0,
       alive: true,
       damage: 1,
       is_player: true,
@@ -675,6 +717,7 @@ test "summarize_draw_playing_commands tracks instancing workload" {
       y: py + 4.0,
       vx: -1.0,
       vy: 0.0,
+      age: 0,
       alive: true,
       damage: 1,
       is_player: false,
@@ -1013,6 +1056,7 @@ test "entity subpass helpers emit one instanced command each from scratch" {
       y: py,
       vx: 1.0,
       vy: 0.0,
+      age: 0,
       alive: true,
       damage: 1,
       is_player: true,
@@ -1023,6 +1067,7 @@ test "entity subpass helpers emit one instanced command each from scratch" {
       y: py + 4.0,
       vx: -1.0,
       vy: 0.0,
+      age: 0,
       alive: true,
       damage: 1,
       is_player: false,
@@ -1100,6 +1145,7 @@ test "rebuild_entity_instance_scratch clears stale instanced data" {
       y: py,
       vx: 1.0,
       vy: 0.0,
+      age: 0,
       alive: true,
       damage: 1,
       is_player: true,
@@ -1110,6 +1156,7 @@ test "rebuild_entity_instance_scratch clears stale instanced data" {
       y: py + 4.0,
       vx: -1.0,
       vy: 0.0,
+      age: 0,
       alive: true,
       damage: 1,
       is_player: false,
@@ -1154,6 +1201,7 @@ test "rebuild_entity_instance_scratch separates fireball from arrow instances" {
       y: py,
       vx: 1.0,
       vy: 0.0,
+      age: 0,
       alive: true,
       damage: 1,
       is_player: true,
@@ -1164,6 +1212,7 @@ test "rebuild_entity_instance_scratch separates fireball from arrow instances" {
       y: py,
       vx: 1.0,
       vy: 0.0,
+      age: 0,
       alive: true,
       damage: 2,
       is_player: true,
@@ -1174,6 +1223,7 @@ test "rebuild_entity_instance_scratch separates fireball from arrow instances" {
       y: py + 4.0,
       vx: -1.0,
       vy: 0.0,
+      age: 0,
       alive: true,
       damage: 1,
       is_player: false,

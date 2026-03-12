@@ -56,11 +56,12 @@ async function expectEffectActivation(
   ).toBeTruthy();
 }
 
-test("hacknslash_3d activates chain lightning, splitting fireball, and ice nova effects", async ({ page }) => {
+test("hacknslash_3d activates chain lightning, splitting fireball, ice nova, and homing missile effects", async ({ page }) => {
   const runtime = await waitForHacknslashRuntime(page);
   expect(runtime.enemyCount).toBeGreaterThan(0);
 
   await expectEffectActivation(page, "4");
   await expectEffectActivation(page, "5");
   await expectEffectActivation(page, "6");
+  await expectEffectActivation(page, "7");
 });

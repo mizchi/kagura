@@ -31,17 +31,13 @@ fn same_dungeon_group_color(left : @math3d.Vec4, right : @math3d.Vec4) -> Bool {
 }
 
 ///|
-fn dungeon_group_index_from_color(color : @math3d.Vec4) -> Int {
-  if same_dungeon_group_color(color, color_floor) {
-    0
-  } else if same_dungeon_group_color(color, color_corridor) {
-    1
-  } else if same_dungeon_group_color(color, color_door) {
-    2
-  } else if same_dungeon_group_color(color, color_wall) {
-    3
-  } else {
-    4
+fn dungeon_surface_index(kind : DungeonSurfaceKind) -> Int {
+  match kind {
+    Floor => 0
+    Corridor => 1
+    Door => 2
+    Wall => 3
+    Pillar => 4
   }
 }
 
@@ -68,7 +64,7 @@ fn build_visible_dungeon_mesh_cache(
       )
     }
     for group in chunk.groups {
-      let idx = dungeon_group_index_from_color(group.color)
+      let idx = dungeon_surface_index(group.surface_kind)
       let acc = accumulators[idx]
       merge_mesh_at(acc.vertices, acc.indices, group.mesh, 0.0, 0.0, 0.0)
     }
@@ -77,6 +73,7 @@ fn build_visible_dungeon_mesh_cache(
   fn push_group(
     acc : MeshAccumulator,
     color : @math3d.Vec4,
+    surface_kind : DungeonSurfaceKind,
     groups : Array[DungeonMeshGroup],
   ) -> Unit {
     if acc.indices.length() == 0 {
@@ -85,6 +82,7 @@ fn build_visible_dungeon_mesh_cache(
     groups.push({
       mesh: @mesh3d.Mesh3D::new(acc.vertices, acc.indices),
       color,
+      surface_kind,
       dst_region: @gfx.new_dst_region(
         0,
         0,
@@ -94,12 +92,23 @@ fn build_visible_dungeon_mesh_cache(
       ),
     })
   }
-  push_group(floor_acc, color_floor, groups)
-  push_group(corridor_acc, color_corridor, groups)
-  push_group(door_acc, color_door, groups)
-  push_group(wall_acc, color_wall, groups)
-  push_group(pillar_acc, color_pillar, groups)
+  push_group(floor_acc, color_floor, Floor, groups)
+  push_group(corridor_acc, color_corridor, Corridor, groups)
+  push_group(door_acc, color_door, Door, groups)
+  push_group(wall_acc, color_wall, Wall, groups)
+  push_group(pillar_acc, color_pillar, Pillar, groups)
   { groups, all_mesh: @mesh3d.Mesh3D::new(all_acc.vertices, all_acc.indices) }
+}
+
+///|
+fn GameState::dungeon_diffuse_image_id(
+  self : GameState,
+  surface_kind : DungeonSurfaceKind,
+) -> Int? {
+  match surface_kind {
+    Floor | Corridor | Door => self.dungeon_floor_texture_image_id
+    Wall | Pillar => self.dungeon_wall_texture_image_id
+  }
 }
 
 ///|
@@ -128,46 +137,90 @@ fn GameState::push_dungeon_chunk_commands(
         )
       }
       for group in visible_groups {
-        let tinted = tinted_cache[dungeon_group_index_from_color(group.color)]
-        cmds.push(
-          @shadow3d.new_shadow_lit_mesh_draw_command(
-            dst,
-            self.shadow_lit_shader,
-            group.dst_region,
-            0,
-            0,
-            0,
-            @gfx.blend_mode_from_int(0),
-            group.mesh,
-            identity,
-            view_projection,
-            tinted,
-            shadow.light_vp,
-            shadow.config,
-            self.shadow_map.id,
-            self.shadow_map.id,
-          ),
-        )
+        let tinted = tinted_cache[dungeon_surface_index(group.surface_kind)]
+        match self.dungeon_diffuse_image_id(group.surface_kind) {
+          Some(diffuse_image_id) =>
+            cmds.push(
+              @shadow3d.new_shadow_lit_mesh_draw_command(
+                dst,
+                self.shadow_lit_textured_shader,
+                group.dst_region,
+                0,
+                0,
+                0,
+                @gfx.blend_mode_from_int(0),
+                group.mesh,
+                identity,
+                view_projection,
+                tinted,
+                shadow.light_vp,
+                shadow.config,
+                diffuse_image_id,
+                self.shadow_map.id,
+              ),
+            )
+          None =>
+            cmds.push(
+              @shadow3d.new_shadow_lit_mesh_draw_command(
+                dst,
+                self.shadow_lit_shader,
+                group.dst_region,
+                0,
+                0,
+                0,
+                @gfx.blend_mode_from_int(0),
+                group.mesh,
+                identity,
+                view_projection,
+                tinted,
+                shadow.light_vp,
+                shadow.config,
+                self.shadow_map.id,
+                self.shadow_map.id,
+              ),
+            )
+        }
       }
     }
     None =>
       for group in visible_groups {
-        cmds.push(
-          @draw3d.new_lit_mesh_draw_command(
-            dst,
-            self.shader3d,
-            group.dst_region,
-            0,
-            0,
-            0,
-            @gfx.blend_mode_from_int(0),
-            group.mesh,
-            identity,
-            view_projection,
-            tinted_cache[dungeon_group_index_from_color(group.color)],
-            [],
-          ),
-        )
+        let tinted = tinted_cache[dungeon_surface_index(group.surface_kind)]
+        match self.dungeon_diffuse_image_id(group.surface_kind) {
+          Some(diffuse_image_id) =>
+            cmds.push(
+              @draw3d.new_lit_mesh_draw_command(
+                dst,
+                self.shader3d_textured,
+                group.dst_region,
+                0,
+                0,
+                0,
+                @gfx.blend_mode_from_int(0),
+                group.mesh,
+                identity,
+                view_projection,
+                tinted,
+                [diffuse_image_id],
+              ),
+            )
+          None =>
+            cmds.push(
+              @draw3d.new_lit_mesh_draw_command(
+                dst,
+                self.shader3d,
+                group.dst_region,
+                0,
+                0,
+                0,
+                @gfx.blend_mode_from_int(0),
+                group.mesh,
+                identity,
+                view_projection,
+                tinted,
+                [],
+              ),
+            )
+        }
       }
   }
 }

@@ -93,7 +93,32 @@ fn GameAudioPlayers::assign(
 }
 
 ///|
+fn sound_cue_name(cue : GameSoundCue) -> String {
+  match cue {
+    SfxAttack => "attack"
+    SfxHurt => "hurt"
+    SfxPickupLoot => "pickup_loot"
+    SfxPickupHealth => "pickup_health"
+    SfxSpellChainLightning => "spell_chain_lightning"
+    SfxSpellFireball => "spell_fireball"
+    SfxSpellIceNova => "spell_ice_nova"
+    SfxSpellHomingMissile => "spell_homing_missile"
+    SfxFloorComplete => "floor_complete"
+  }
+}
+
+///|
+fn player_state_name(state : @audio.PlayerState) -> String {
+  match state {
+    @audio.PlayerState::Stopped => "stopped"
+    @audio.PlayerState::Playing => "playing"
+    @audio.PlayerState::Paused => "paused"
+  }
+}
+
+///|
 fn GameState::play_sound_cue(self : GameState, cue : GameSoundCue) -> Unit {
+  self.audio_last_played_cue = sound_cue_name(cue)
   match self.audio_players.lookup(cue) {
     Some(player) => {
       self.audio_ctx.seek(player, 0.0) catch {
@@ -102,9 +127,60 @@ fn GameState::play_sound_cue(self : GameState, cue : GameSoundCue) -> Unit {
       self.audio_ctx.play(player) catch {
         _ => ()
       }
+      self.audio_last_played_state = player_state_name(
+        self.audio_ctx.state(player),
+      )
     }
-    None => ()
+    None => self.audio_last_played_state = "missing"
   }
+}
+
+///|
+fn GameState::loaded_audio_player_count(self : GameState) -> Int {
+  let mut count = 0
+  for cue in [
+    SfxAttack,
+    SfxHurt,
+    SfxPickupLoot,
+    SfxPickupHealth,
+    SfxSpellChainLightning,
+    SfxSpellFireball,
+    SfxSpellIceNova,
+    SfxSpellHomingMissile,
+    SfxFloorComplete,
+  ] {
+    match self.audio_players.lookup(cue) {
+      Some(_) => count = count + 1
+      None => ()
+    }
+  }
+  count
+}
+
+///|
+fn GameState::playing_audio_player_count(self : GameState) -> Int {
+  let mut count = 0
+  for cue in [
+    SfxAttack,
+    SfxHurt,
+    SfxPickupLoot,
+    SfxPickupHealth,
+    SfxSpellChainLightning,
+    SfxSpellFireball,
+    SfxSpellIceNova,
+    SfxSpellHomingMissile,
+    SfxFloorComplete,
+  ] {
+    match self.audio_players.lookup(cue) {
+      Some(player) =>
+        match self.audio_ctx.state(player) {
+          @audio.PlayerState::Playing => count = count + 1
+          _ => ()
+        }
+      None => ()
+    }
+  }
+  count
 }
 
 ///|

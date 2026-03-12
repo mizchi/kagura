@@ -86,7 +86,8 @@ test "render_hud_cmds rebuilds minimap static cache when discovery changes" {
   for i in 0..<state.world.discovered_rooms.length() {
     if i != player_room {
       state.world.discovered_rooms[i] = true
-      state.world.discovered_rooms_version = state.world.discovered_rooms_version + 1
+      state.world.discovered_rooms_version = state.world.discovered_rooms_version +
+        1
       break
     }
   }

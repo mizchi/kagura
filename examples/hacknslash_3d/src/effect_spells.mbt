@@ -32,6 +32,20 @@ fn chain_lightning_effect_placement(
 }
 
 ///|
+fn homing_missile_effect_placement(
+  start_x : Double,
+  start_y : Double,
+  end_x : Double,
+  end_y : Double,
+) -> @effect.EffectPlacement {
+  @effect.new_effect_placement(
+    game_to_effect_world_position(start_x, start_y, 0.58),
+    Some(game_to_effect_world_position(end_x, end_y, 0.62)),
+    1.0,
+  )
+}
+
+///|
 fn fireball_burst_effect_placement(
   x : Double,
   y : Double,
@@ -41,6 +55,18 @@ fn fireball_burst_effect_placement(
     game_to_effect_world_position(x, y, 0.35),
     None,
     scale,
+  )
+}
+
+///|
+fn homing_missile_impact_effect_placement(
+  x : Double,
+  y : Double,
+) -> @effect.EffectPlacement {
+  @effect.new_effect_placement(
+    game_to_effect_world_position(x, y, 0.34),
+    None,
+    1.1,
   )
 }
 
@@ -97,6 +123,36 @@ fn GameState::queue_chain_lightning_effect(
     "chain_lightning",
     @effect.chain_lightning_effect_document(),
     chain_lightning_effect_placement(start_x, start_y, end_x, end_y),
+  )
+}
+
+///|
+fn GameState::queue_homing_missile_effect(
+  self : GameState,
+  start_x : Double,
+  start_y : Double,
+  end_x : Double,
+  end_y : Double,
+) -> Unit {
+  queue_active_effect(
+    self,
+    "homing_missile",
+    @effect.homing_missile_effect_document(),
+    homing_missile_effect_placement(start_x, start_y, end_x, end_y),
+  )
+}
+
+///|
+fn GameState::queue_homing_missile_impact_effect(
+  self : GameState,
+  x : Double,
+  y : Double,
+) -> Unit {
+  queue_active_effect(
+    self,
+    "homing_missile_impact",
+    @effect.homing_missile_impact_effect_document(),
+    homing_missile_impact_effect_placement(x, y),
   )
 }
 

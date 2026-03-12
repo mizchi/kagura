@@ -131,12 +131,14 @@ fn build_single_chunk(
     verts : Array[Double],
     indices : Array[Int],
     color : @math3d.Vec4,
+    surface_kind : DungeonSurfaceKind,
     groups : Array[DungeonMeshGroup],
   ) -> Unit {
     if indices.length() > 0 {
       groups.push({
         mesh: @mesh3d.Mesh3D::new(verts, indices),
         color,
+        surface_kind,
         dst_region: @gfx.new_dst_region(
           0,
           0,
@@ -148,11 +150,11 @@ fn build_single_chunk(
     }
   }
 
-  add_group(floor_v, floor_i, color_floor, groups)
-  add_group(corridor_v, corridor_i, color_corridor, groups)
-  add_group(door_v, door_i, color_door, groups)
-  add_group(wall_v, wall_i, color_wall, groups)
-  add_group(pillar_v, pillar_i, color_pillar, groups)
+  add_group(floor_v, floor_i, color_floor, Floor, groups)
+  add_group(corridor_v, corridor_i, color_corridor, Corridor, groups)
+  add_group(door_v, door_i, color_door, Door, groups)
+  add_group(wall_v, wall_i, color_wall, Wall, groups)
+  add_group(pillar_v, pillar_i, color_pillar, Pillar, groups)
   let wall_mesh = @mesh3d.Mesh3D::new(wall_v, wall_i)
   let all_mesh = @mesh3d.Mesh3D::new(all_v, all_i)
   { cx, cz, groups, wall_mesh, all_mesh }

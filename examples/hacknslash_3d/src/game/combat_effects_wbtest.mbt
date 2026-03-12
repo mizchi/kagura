@@ -244,11 +244,9 @@ test "cast_homing_missile spawns projectile and telegraph events" {
   assert_true(world.attack_timer > 0)
   let left = world.projectiles[0]
   let right = world.projectiles[1]
-  assert_true(((left.x + right.x) - px * 2.0).abs() < 0.0001)
-  assert_true(((left.y + right.y) - py * 2.0).abs() < 0.0001)
-  assert_true(
-    (left.x - px).abs() > 0.01 || (left.y - py).abs() > 0.01,
-  )
+  assert_true((left.x + right.x - px * 2.0).abs() < 0.0001)
+  assert_true((left.y + right.y - py * 2.0).abs() < 0.0001)
+  assert_true((left.x - px).abs() > 0.01 || (left.y - py).abs() > 0.01)
 }
 
 ///|

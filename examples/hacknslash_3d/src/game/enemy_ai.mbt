@@ -51,6 +51,7 @@ fn update_enemy_bolt_castup(
         y: enemy.y,
         vx: cdx / dist * bspeed,
         vy: cdy / dist * bspeed,
+        age: 0,
         alive: true,
         damage: 1,
         is_player: false,
@@ -131,15 +132,9 @@ pub fn update_enemy_ai(
           enemy.pending_bolt_timer = enemy_bolt_telegraph_frames
           enemy.pending_bolt_target_x = player.x
           enemy.pending_bolt_target_y = player.y
+          events.push(GroundTelegraphLine(enemy.x, enemy.y, player.x, player.y))
           events.push(
-            GroundTelegraphLine(enemy.x, enemy.y, player.x, player.y),
-          )
-          events.push(
-            GroundTelegraphRing(
-              player.x,
-              player.y,
-              enemy_bolt_telegraph_radius,
-            ),
+            GroundTelegraphRing(player.x, player.y, enemy_bolt_telegraph_radius),
           )
         }
         // Ranged enemies don't chase when shooting, slight retreat

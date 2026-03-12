@@ -323,9 +323,7 @@ pub fn cast_chain_lightning(world : GameWorld) -> Bool {
   )
   world.events.push(
     GroundTelegraphRing(
-      telegraph_x,
-      telegraph_y,
-      chain_lightning_telegraph_radius,
+      telegraph_x, telegraph_y, chain_lightning_telegraph_radius,
     ),
   )
   let chained_enemy_indices : Array[Int] = []
@@ -389,9 +387,7 @@ pub fn cast_splitting_fireball(world : GameWorld) -> Bool {
   )
   world.events.push(
     GroundTelegraphRing(
-      telegraph_x,
-      telegraph_y,
-      splitting_fireball_telegraph_radius,
+      telegraph_x, telegraph_y, splitting_fireball_telegraph_radius,
     ),
   )
   let target = find_nearest_enemy(world, chain_lightning_range)
@@ -466,9 +462,7 @@ pub fn cast_homing_missile(world : GameWorld) -> Bool {
   )
   world.events.push(
     GroundTelegraphRing(
-      telegraph_x,
-      telegraph_y,
-      homing_missile_telegraph_radius,
+      telegraph_x, telegraph_y, homing_missile_telegraph_radius,
     ),
   )
   let target = find_nearest_enemy(world, homing_missile_range)

@@ -2,7 +2,9 @@ import {
   "moonbitlang/core/math" @math,
   "mizchi/kagura/pathfind" @pathfind,
   "mizchi/kagura/vector" @vector,
+  "mizchi/terrain/arena_chain" @arena_chain,
   "mizchi/terrain/diablo" @diablo,
+  "mizchi/terrain/tinykeep" @tinykeep,
   "mizchi/terrain/types" @terrain,
 }
 

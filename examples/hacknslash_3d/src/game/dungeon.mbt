@@ -1,20 +1,178 @@
 // Dungeon generation, collision, height map
 
 ///|
-pub fn generate_dungeon(seed : Int) -> DungeonData {
-  let rng = @terrain.make_rng(seed.to_uint())
-  let config : @diablo.DiabloConfig = {
+enum DungeonGeneratorKind {
+  ArenaChain
+  TinyKeep
+} derive(Eq, Show)
+
+///|
+priv struct GeneratedDungeonLayout {
+  grid : @terrain.Grid2D
+  rooms : Array[@terrain.Room]
+}
+
+///|
+fn clamp_prob(value : Double) -> Double {
+  @cmp.maximum(0.0, @cmp.minimum(1.0, value))
+}
+
+///|
+fn validated_arena_chain_config(
+  config : @arena_chain.ArenaChainConfig,
+) -> @arena_chain.ArenaChainConfig {
+  let width = @cmp.maximum(24, config.width)
+  let height = @cmp.maximum(24, config.height)
+  let max_room_span = @cmp.maximum(7, @cmp.minimum(width, height) - 4)
+  let arena_min_size = @cmp.maximum(
+    7,
+    @cmp.minimum(config.arena_min_size, max_room_span),
+  )
+  let arena_max_size = @cmp.maximum(
+    arena_min_size,
+    @cmp.minimum(config.arena_max_size, max_room_span),
+  )
+  let num_arenas = @cmp.maximum(3, @cmp.minimum(config.num_arenas, 8))
+  let corridor_width = @cmp.maximum(2, @cmp.minimum(config.corridor_width, 4))
+  let side_room_min_size = @cmp.maximum(
+    3,
+    @cmp.minimum(config.side_room_min_size, arena_max_size),
+  )
+  let side_room_max_size = @cmp.maximum(
+    side_room_min_size,
+    @cmp.minimum(config.side_room_max_size, arena_max_size),
+  )
+  {
+    width,
+    height,
+    num_arenas,
+    arena_min_size,
+    arena_max_size,
+    corridor_width,
+    side_room_chance: clamp_prob(config.side_room_chance),
+    side_room_min_size,
+    side_room_max_size,
+    max_placement_attempts: @cmp.maximum(10, config.max_placement_attempts),
+  }
+}
+
+///|
+fn validated_tinykeep_config(
+  config : @tinykeep.TinyKeepConfig,
+) -> @tinykeep.TinyKeepConfig {
+  let width = @cmp.maximum(24, config.width)
+  let height = @cmp.maximum(24, config.height)
+  let max_room_span = @cmp.maximum(5, @cmp.minimum(width, height) - 4)
+  let room_min_size = @cmp.maximum(
+    3,
+    @cmp.minimum(config.room_min_size, max_room_span),
+  )
+  let room_max_size = @cmp.maximum(
+    room_min_size,
+    @cmp.minimum(config.room_max_size, max_room_span),
+  )
+  {
+    width,
+    height,
+    num_rooms: @cmp.maximum(8, @cmp.minimum(config.num_rooms, 48)),
+    room_min_size,
+    room_max_size,
+    main_room_threshold: @cmp.maximum(
+      room_min_size,
+      @cmp.minimum(config.main_room_threshold, room_max_size),
+    ),
+    extra_edge_chance: clamp_prob(config.extra_edge_chance),
+    separation_iterations: @cmp.maximum(10, config.separation_iterations),
+  }
+}
+
+///|
+fn dungeon_generator_kind_for_floor(
+  seed~ : Int,
+  floor : Int,
+) -> DungeonGeneratorKind {
+  if floor % 3 == 0 {
+    TinyKeep
+  } else {
+    ArenaChain
+  }
+}
+
+///|
+fn arena_chain_config_for_floor(
+  seed~ : Int,
+  floor : Int,
+) -> @arena_chain.ArenaChainConfig {
+  let boss_floor = floor % 5 == 0
+  let arena_min_size = if boss_floor {
+    13
+  } else {
+    11 + @cmp.minimum(2, floor / 4)
+  }
+  let arena_max_size = if boss_floor {
+    19
+  } else {
+    17 + @cmp.minimum(2, floor / 3)
+  }
+  validated_arena_chain_config({
     width: map_cols,
     height: map_rows,
-    spine_length: 4 + seed % 3, // 4-6 connected areas
-    branch_chance: 0.4,
-    loop_chance: 0.4,
-    room_min_size: 9,
-    room_max_size: 19,
-    room_padding: 2,
-    max_placement_attempts: 100,
+    num_arenas: if boss_floor {
+      3 + seed % 2
+    } else {
+      5 + (seed + floor) % 2
+    },
+    arena_min_size,
+    arena_max_size,
+    corridor_width: if boss_floor {
+      4
+    } else {
+      3
+    },
+    side_room_chance: if boss_floor {
+      0.15
+    } else {
+      0.25
+    },
+    side_room_min_size: 5,
+    side_room_max_size: 8,
+    max_placement_attempts: 80,
+  })
+}
+
+///|
+fn tinykeep_config_for_floor(
+  seed~ : Int,
+  floor : Int,
+) -> @tinykeep.TinyKeepConfig {
+  validated_tinykeep_config({
+    width: map_cols,
+    height: map_rows,
+    num_rooms: 22 + (seed + floor) % 8,
+    room_min_size: 6,
+    room_max_size: 14,
+    main_room_threshold: 8,
+    extra_edge_chance: 0.08,
+    separation_iterations: 60,
+  })
+}
+
+///|
+pub fn generate_dungeon(seed : Int, floor? : Int = 1) -> DungeonData {
+  let rng = @terrain.make_rng(seed.to_uint())
+  let result : GeneratedDungeonLayout = match
+    dungeon_generator_kind_for_floor(seed~, floor) {
+    ArenaChain => {
+      let config = arena_chain_config_for_floor(seed~, floor)
+      let generated = @arena_chain.generate(config, rng)
+      { grid: generated.grid, rooms: generated.rooms }
+    }
+    TinyKeep => {
+      let config = tinykeep_config_for_floor(seed~, floor)
+      let generated = @tinykeep.generate(config, rng)
+      { grid: generated.grid, rooms: generated.rooms }
+    }
   }
-  let result = @diablo.generate(config, rng)
   // Build height map: each room at a different elevation
   let height_map = build_height_map(result.grid, result.rooms, seed)
   // Find start room (entrance)

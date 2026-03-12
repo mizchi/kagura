@@ -3,6 +3,7 @@ pub enum EffectSpawnPattern {
   Point
   Ring
   Column
+  Line
 } derive(Show)
 
 ///|
@@ -15,6 +16,7 @@ pub struct EffectTrack {
   burst_particles : Int
   pattern : EffectSpawnPattern
   origin : @math3d.Vec3
+  secondary_origin : @math3d.Vec3
   spread_radius : Double
   initial_velocity_min : @math3d.Vec3
   initial_velocity_max : @math3d.Vec3
@@ -44,6 +46,7 @@ pub fn effect_spawn_pattern_name(pattern : EffectSpawnPattern) -> String {
     Point => "point"
     Ring => "ring"
     Column => "column"
+    Line => "line"
   }
 }
 
@@ -79,6 +82,7 @@ fn flash_track() -> EffectTrack {
     burst_particles: 24,
     pattern: Point,
     origin: @math3d.Vec3::new(0.0, 0.28, 0.0),
+    secondary_origin: @math3d.Vec3::new(0.0, 0.28, 0.0),
     spread_radius: 0.0,
     initial_velocity_min: @math3d.Vec3::new(-0.1, 0.8, -0.1),
     initial_velocity_max: @math3d.Vec3::new(0.1, 1.8, 0.1),
@@ -104,6 +108,7 @@ fn ember_track() -> EffectTrack {
     burst_particles: 10,
     pattern: Ring,
     origin: @math3d.Vec3::new(0.0, 0.18, 0.0),
+    secondary_origin: @math3d.Vec3::new(0.0, 0.18, 0.0),
     spread_radius: 0.32,
     initial_velocity_min: @math3d.Vec3::new(-0.2, 1.2, -0.2),
     initial_velocity_max: @math3d.Vec3::new(0.2, 2.2, 0.2),
@@ -129,6 +134,7 @@ fn smoke_track() -> EffectTrack {
     burst_particles: 8,
     pattern: Column,
     origin: @math3d.Vec3::new(0.0, 0.12, 0.0),
+    secondary_origin: @math3d.Vec3::new(0.0, 0.12, 0.0),
     spread_radius: 0.14,
     initial_velocity_min: @math3d.Vec3::new(-0.05, 0.6, -0.05),
     initial_velocity_max: @math3d.Vec3::new(0.05, 1.2, 0.05),

@@ -29,6 +29,13 @@ test "effect_track_patch_scaffold exposes editable track fields" {
 }
 
 ///|
+test "effect_track_patch_scaffold renders line pattern" {
+  let track = @effect.chain_lightning_effect_document().tracks[0]
+  let scaffold = effect_track_patch_scaffold(track, 0)
+  assert_true(scaffold.contains("pattern: @effect.Line"))
+}
+
+///|
 test "effect_studio_context_json includes patch scaffold payload" {
   let doc = @effect.default_effect_document()
   let json = effect_studio_context_json(doc, 0.5, false)

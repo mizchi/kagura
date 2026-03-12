@@ -16,6 +16,9 @@ pub(all) struct GameWorld {
   mut attack_timer : Int
   mut screen_flash : Int
   mut floor_announce_timer : Int
+  mut chain_lightning_cooldown_timer : Int
+  mut splitting_fireball_cooldown_timer : Int
+  mut ice_nova_cooldown_timer : Int
   inventory : Inventory
   equipment : Equipment
   skills : SkillTree
@@ -81,6 +84,9 @@ pub fn GameWorld::new(
     attack_timer: 0,
     screen_flash: 0,
     floor_announce_timer: 0,
+    chain_lightning_cooldown_timer: 0,
+    splitting_fireball_cooldown_timer: 0,
+    ice_nova_cooldown_timer: 0,
     inventory: Inventory::new(20),
     equipment,
     skills,
@@ -152,6 +158,9 @@ pub fn GameWorld::apply_dungeon(
   )
   self.items = []
   self.projectiles = []
+  self.chain_lightning_cooldown_timer = 0
+  self.splitting_fireball_cooldown_timer = 0
+  self.ice_nova_cooldown_timer = 0
   // Reset auto-play navigation
   self.auto_cleared_rooms = Array::make(self.dungeon.rooms.length(), false)
   self.auto_nav_target = None
@@ -460,12 +469,28 @@ pub fn GameWorld::tick_enemy_movement_and_contact_phase(
 
 ///|
 pub fn GameWorld::tick_projectiles_phase(self : GameWorld) -> Unit {
+  let spawned_projectiles : Array[Projectile] = []
   for proj in self.projectiles {
     if proj.alive {
       proj.x = proj.x + proj.vx
       proj.y = proj.y + proj.vy
+      if proj.is_player && self.frame_count % splitting_fireball_trail_interval == 0 {
+        match proj.kind {
+          Fireball(_) => self.events.push(FireballTrail(proj.x, proj.y))
+          _ => ()
+        }
+      }
       if is_wall_at(self.dungeon.grid, proj.x, proj.y) {
-        proj.alive = false
+        match proj.kind {
+          Fireball(remaining_splits) if proj.is_player =>
+            explode_player_fireball(
+              self,
+              proj,
+              spawned_projectiles,
+              remaining_splits,
+            )
+          _ => proj.alive = false
+        }
       }
       if proj.alive && not(proj.is_player) && self.player.iframe_timer <= 0 {
         let pdx = proj.x - self.player.x
@@ -477,7 +502,10 @@ pub fn GameWorld::tick_projectiles_phase(self : GameWorld) -> Unit {
       }
     }
   }
-  process_player_arrows(self)
+  process_player_projectiles(self, spawned_projectiles)
+  for projectile in spawned_projectiles {
+    self.projectiles.push(projectile)
+  }
   compact_projectiles(self.projectiles)
 }
 
@@ -617,6 +645,15 @@ pub fn GameWorld::tick_player_timers_phase(self : GameWorld) -> Unit {
   }
   if self.screen_flash > 0 {
     self.screen_flash = self.screen_flash - 1
+  }
+  if self.chain_lightning_cooldown_timer > 0 {
+    self.chain_lightning_cooldown_timer = self.chain_lightning_cooldown_timer - 1
+  }
+  if self.splitting_fireball_cooldown_timer > 0 {
+    self.splitting_fireball_cooldown_timer = self.splitting_fireball_cooldown_timer - 1
+  }
+  if self.ice_nova_cooldown_timer > 0 {
+    self.ice_nova_cooldown_timer = self.ice_nova_cooldown_timer - 1
   }
 }
 

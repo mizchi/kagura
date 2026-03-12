@@ -53,7 +53,16 @@ fn bench_state_with_visible_entities() -> GameState {
     },
   ]
   state.world.projectiles = [
-    { x: px, y: py, vx: 1.0, vy: 0.0, alive: true, damage: 1, is_player: true },
+    {
+      x: px,
+      y: py,
+      vx: 1.0,
+      vy: 0.0,
+      alive: true,
+      damage: 1,
+      is_player: true,
+      kind: @game.Arrow,
+    },
     {
       x: px + 4.0,
       y: py + 4.0,
@@ -62,6 +71,7 @@ fn bench_state_with_visible_entities() -> GameState {
       alive: true,
       damage: 1,
       is_player: false,
+      kind: @game.EnemyBolt,
     },
   ]
   state
@@ -156,6 +166,7 @@ fn bench_state_with_enemy_projectile_hit() -> GameState {
       alive: true,
       damage: 2,
       is_player: false,
+      kind: @game.EnemyBolt,
     },
   ]
   state

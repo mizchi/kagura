@@ -57,7 +57,15 @@ pub(all) struct Projectile {
   mut alive : Bool
   damage : Int
   is_player : Bool
+  kind : ProjectileKind
 }
+
+///|
+pub(all) enum ProjectileKind {
+  Arrow
+  Fireball(Int)
+  EnemyBolt
+} derive(Eq, Show)
 
 ///|
 pub(all) struct DungeonData {
@@ -114,6 +122,10 @@ pub(all) enum GameEvent {
   DashTrail(Double, Double)
   PlayerHurt(Double, Double)
   ItemPickup(Double, Double, Bool)
+  ChainLightningArc(Double, Double, Double, Double)
+  FireballTrail(Double, Double)
+  FireballBurst(Double, Double)
+  IceNovaCast(Double, Double, Double)
   AttackTriggered
   HurtTriggered
   FloorComplete

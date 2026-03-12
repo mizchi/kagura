@@ -89,6 +89,7 @@ test "tick_projectiles_phase applies enemy projectile damage and compacts" {
       alive: true,
       damage: 2,
       is_player: false,
+      kind: EnemyBolt,
     },
   ]
   world.tick_projectiles_phase()

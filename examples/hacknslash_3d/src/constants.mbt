@@ -109,3 +109,12 @@ let key_2 : Int = 50
 
 ///|
 let key_3 : Int = 51
+
+///|
+let key_4 : Int = 52
+
+///|
+let key_5 : Int = 53
+
+///|
+let key_6 : Int = 54

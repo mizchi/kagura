@@ -296,11 +296,11 @@ test "default_generated_prop_manifest installs floor 1 samples" {
   assert_eq(config[1].anchor, TreasureRoomCenter)
   assert_eq(
     config[0].source_path,
-    "./assets/generated/chest-illustration-strong-trellis.glb",
+    "./assets/generated/gltf-viewer-proxy-chest-trellis.glb",
   )
   assert_eq(
     config[1].source_path,
-    "./assets/generated/chest-illustration-strong-trellis.glb",
+    "./assets/generated/gltf-viewer-proxy-chest-trellis.glb",
   )
 }
 
@@ -550,7 +550,16 @@ test "draw_playing batches repeated entity meshes into instanced draw commands" 
     },
   ]
   state.world.projectiles = [
-    { x: px, y: py, vx: 1.0, vy: 0.0, alive: true, damage: 1, is_player: true },
+    {
+      x: px,
+      y: py,
+      vx: 1.0,
+      vy: 0.0,
+      alive: true,
+      damage: 1,
+      is_player: true,
+      kind: @game.Arrow,
+    },
     {
       x: px + 4.0,
       y: py + 4.0,
@@ -559,6 +568,7 @@ test "draw_playing batches repeated entity meshes into instanced draw commands" 
       alive: true,
       damage: 1,
       is_player: false,
+      kind: @game.EnemyBolt,
     },
   ]
 
@@ -662,7 +672,16 @@ test "summarize_draw_playing_commands tracks instancing workload" {
     },
   ]
   state.world.projectiles = [
-    { x: px, y: py, vx: 1.0, vy: 0.0, alive: true, damage: 1, is_player: true },
+    {
+      x: px,
+      y: py,
+      vx: 1.0,
+      vy: 0.0,
+      alive: true,
+      damage: 1,
+      is_player: true,
+      kind: @game.Arrow,
+    },
     {
       x: px + 4.0,
       y: py + 4.0,
@@ -671,6 +690,7 @@ test "summarize_draw_playing_commands tracks instancing workload" {
       alive: true,
       damage: 1,
       is_player: false,
+      kind: @game.EnemyBolt,
     },
   ]
   state.world.enemies = [
@@ -993,6 +1013,7 @@ test "entity subpass helpers emit one instanced command each from scratch" {
       alive: true,
       damage: 1,
       is_player: true,
+      kind: @game.Arrow,
     },
     {
       x: px,
@@ -1002,6 +1023,7 @@ test "entity subpass helpers emit one instanced command each from scratch" {
       alive: true,
       damage: 1,
       is_player: false,
+      kind: @game.EnemyBolt,
     },
   ]
   state.rebuild_entity_instance_scratch(vis_region)
@@ -1078,6 +1100,7 @@ test "rebuild_entity_instance_scratch clears stale instanced data" {
       alive: true,
       damage: 1,
       is_player: true,
+      kind: @game.Arrow,
     },
     {
       x: px,
@@ -1087,6 +1110,7 @@ test "rebuild_entity_instance_scratch clears stale instanced data" {
       alive: true,
       damage: 1,
       is_player: false,
+      kind: @game.EnemyBolt,
     },
   ]
 

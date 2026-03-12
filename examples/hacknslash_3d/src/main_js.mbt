@@ -163,6 +163,33 @@ extern "js" fn js_publish_profiler_state(
   #| }
 
 ///|
+extern "js" fn js_publish_runtime_state(
+  frame : Int,
+  mode : String,
+  enemy_count : Int,
+  active_effect_count : Int,
+  particle_emitter_count : Int,
+) -> Unit =
+  #| (frame, mode, enemyCount, activeEffectCount, particleEmitterCount) => {
+  #|   const runtime = globalThis.__hacknslash3dRuntime ?? {}
+  #|   runtime.frame = frame
+  #|   runtime.mode = mode
+  #|   runtime.enemyCount = enemyCount
+  #|   runtime.activeEffectCount = activeEffectCount
+  #|   runtime.particleEmitterCount = particleEmitterCount
+  #|   globalThis.__hacknslash3dRuntime = runtime
+  #| }
+
+///|
+fn game_mode_name(mode : @game.GameMode) -> String {
+  match mode {
+    @game.Title => "title"
+    @game.Playing => "playing"
+    @game.GameOver => "gameover"
+  }
+}
+
+///|
 fn build_initial_state() -> GameState {
   let state = if get_initial_ssao_enabled() {
     GameState::new_with_ssao(seed=42, SSAOConfig::enabled_default())
@@ -286,6 +313,13 @@ fn run_game_js(state : GameState, perf_capture_enabled : Bool) -> Unit {
         state.fxaa_enabled,
         state.shadows_enabled,
         state.ssao_config.enabled,
+      )
+      js_publish_runtime_state(
+        state.world.frame_count,
+        game_mode_name(state.world.mode),
+        state.world.enemies.length(),
+        state.active_effects.length(),
+        state.particle_manager.emitters.length(),
       )
     },
     width=screen_w,

@@ -71,3 +71,36 @@ pub let dash_cooldown : Int = 40
 
 ///|
 pub let dash_speed_mult : Double = 4.0
+
+///|
+pub let chain_lightning_range : Double = 112.0
+
+///|
+pub let chain_lightning_hop_range : Double = 104.0
+
+///|
+pub let chain_lightning_max_targets : Int = 3
+
+///|
+pub let chain_lightning_cooldown : Int = 32
+
+///|
+pub let splitting_fireball_cooldown : Int = 40
+
+///|
+pub let splitting_fireball_split_angle : Double = 0.48
+
+///|
+pub let splitting_fireball_split_speed_mult : Double = 0.85
+
+///|
+pub let splitting_fireball_split_children : Int = 3
+
+///|
+pub let splitting_fireball_trail_interval : Int = 3
+
+///|
+pub let ice_nova_radius : Double = 72.0
+
+///|
+pub let ice_nova_cooldown : Int = 48

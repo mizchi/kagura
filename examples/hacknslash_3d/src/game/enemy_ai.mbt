@@ -97,6 +97,7 @@ pub fn update_enemy_ai(
             alive: true,
             damage: 1,
             is_player: false,
+            kind: EnemyBolt,
           })
         }
         // Ranged enemies don't chase when shooting, slight retreat

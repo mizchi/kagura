@@ -77,6 +77,14 @@ struct GeneratedPropState {
 }
 
 ///|
+struct ActiveEffectInstance {
+  label : String
+  doc : @effect.EffectDocument
+  placement : @effect.EffectPlacement
+  mut elapsed : Double
+}
+
+///|
 struct GameState {
   world : @game.GameWorld
   input : @inpututil.InputHelper
@@ -117,6 +125,7 @@ struct GameState {
   mut visible_dungeon_mesh_cache_player_tile_z : Int
   mut visible_dungeon_mesh_cache_builds : Int
   mut generated_props : Array[GeneratedPropState]
+  mut active_effects : Array[ActiveEffectInstance]
   // PostFX
   scene_target : @gfx.ImageHandle
   bloom_a : @gfx.ImageHandle

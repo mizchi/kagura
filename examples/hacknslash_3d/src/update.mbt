@@ -140,6 +140,7 @@ fn GameState::new_with_ssao(seed~ : Int, ssao_config : SSAOConfig) -> GameState 
     visible_dungeon_mesh_cache_player_tile_z: -1,
     visible_dungeon_mesh_cache_builds: 0,
     generated_props: [],
+    active_effects: [],
     // PostFX render targets
     scene_target: @gfx.new_image_handle(300, screen_w, screen_h),
     bloom_a: @gfx.new_image_handle(301, bloom_w, bloom_h),
@@ -352,6 +353,15 @@ fn GameState::update_playing(self : GameState) -> Unit {
     if @inpututil.is_key_just_pressed(self.input.key_state, key_3) {
       @game.activate_skill(self.world, 2)
     }
+    if @inpututil.is_key_just_pressed(self.input.key_state, key_4) {
+      @game.activate_skill(self.world, 3)
+    }
+    if @inpututil.is_key_just_pressed(self.input.key_state, key_5) {
+      @game.activate_skill(self.world, 4)
+    }
+    if @inpututil.is_key_just_pressed(self.input.key_state, key_6) {
+      @game.activate_skill(self.world, 5)
+    }
     // Tick world with movement
     match self.build_generated_prop_enemy_ai_grid() {
       Some(collision_grid) =>
@@ -369,6 +379,13 @@ fn GameState::update_playing(self : GameState) -> Unit {
       @game.PlayerHurt(x, y) => spawn_player_hurt(self.particle_manager, x, y)
       @game.ItemPickup(x, y, is_health) =>
         spawn_item_pickup(self.particle_manager, x, y, is_health)
+      @game.ChainLightningArc(x0, y0, x1, y1) =>
+        self.queue_chain_lightning_effect(x0, y0, x1, y1)
+      @game.FireballTrail(x, y) =>
+        spawn_fireball_trail(self.particle_manager, x, y)
+      @game.FireballBurst(x, y) => self.queue_fireball_burst_effect(x, y)
+      @game.IceNovaCast(x, y, radius) =>
+        self.queue_ice_nova_effect(x, y, radius)
       @game.AttackTriggered => self.character.trigger_attack()
       @game.HurtTriggered => self.character.trigger_hurt()
       @game.FloorComplete => {
@@ -417,6 +434,7 @@ fn GameState::update_playing(self : GameState) -> Unit {
       self.world.frame_count,
     )
   }
+  self.update_active_effects(1.0 / 60.0)
   // Update particles
   self.particle_manager.update(1.0 / 60.0)
 }

@@ -51,6 +51,9 @@ effect-studio-ci:
 effect-studio-e2e:
     pnpm exec playwright test e2e/effect_studio.spec.ts
 
+hacknslash3d-effects-e2e:
+    pnpm exec playwright test e2e/hacknslash_3d_effects.spec.ts
+
 coverage:
     bash scripts/check-coverage.sh {{target}}
 

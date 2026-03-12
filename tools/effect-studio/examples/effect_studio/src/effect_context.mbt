@@ -113,6 +113,7 @@ fn effect_track_patch_scaffold(track : @effect.EffectTrack, index : Int) -> Stri
     Point => buf.write_string("Point")
     Ring => buf.write_string("Ring")
     Column => buf.write_string("Column")
+    Line => buf.write_string("Line")
   }
   buf.write_string(",\n")
   buf.write_string("  origin: ")

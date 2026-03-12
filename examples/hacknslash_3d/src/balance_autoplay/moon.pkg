@@ -1,6 +1,8 @@
 import {
+  "moonbitlang/x/sys" @sys,
   "mizchi/hacknslash_3d/balance_lib" @blib,
   "mizchi/differentiable_ecs" @dec,
+  "mizchi/parquet" @parquet,
 }
 
 warnings = "-1-2-7-20-29-71"

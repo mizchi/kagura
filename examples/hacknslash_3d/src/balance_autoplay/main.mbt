@@ -4,6 +4,25 @@ fn main {
   let sim_max_frames = 7200
   let seeds : Array[Int] = [42, 137, 256, 512]
   let start_floor = 5
+  let args = @sys.get_cli_args()
+  let output_path =
+    if args.length() >= 2 {
+      Some(args[1])
+    } else {
+      None
+    }
+  let experiment_id =
+    if args.length() >= 3 {
+      args[2]
+    } else {
+      "local-autoplay-rebalance"
+    }
+  let created_at_utc =
+    if args.length() >= 4 {
+      args[3]
+    } else {
+      "1970-01-01T00:00:00Z"
+    }
   let specs = @blib.param_specs_autoplay_rebalance()
   let targets = @blib.BalanceTargets::autoplay_rebalance().to_dec_targets()
   let sim = @blib.make_autoplay_rebalance_sim(0, sim_max_frames, start_floor)
@@ -25,6 +44,36 @@ fn main {
   println("")
   println("Optimized loss: " + fmt(result.loss))
   print_metrics(result.metrics)
+  match output_path {
+    Some(path) => {
+      let export_config : AutoplayExperimentConfig = {
+        experiment_id,
+        created_at_utc,
+        start_floor,
+        sim_max_frames,
+        max_generations,
+        seed_count: seeds.length(),
+        specs,
+      }
+      write_autoplay_experiment_parquet_file(
+        path,
+        export_config,
+        base_loss,
+        base_metrics,
+        initial,
+        result,
+      ) catch {
+        err => {
+          println("")
+          println("Failed to write parquet: " + err.to_string())
+          @sys.exit(1)
+        }
+      }
+      println("")
+      println("Saved parquet: " + path)
+    }
+    None => ()
+  }
   println("")
   println("=== TUNED PARAMS ===")
   let names = @dec.param_names(specs)

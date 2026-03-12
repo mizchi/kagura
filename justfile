@@ -190,6 +190,9 @@ balance name="playtest":
     cd examples/hacknslash_3d && moon run src/balance --target js 2>&1 | tee /dev/stderr | sed -n '/^=== CSV ===/,$ p' | tail -n +2 > data/hackslash/{{name}}.csv
     @echo "Saved: examples/hacknslash_3d/data/hackslash/{{name}}.csv"
 
+balance-autoplay-record out_dir="examples/hacknslash_3d/data/hackslash/autoplay_experiments":
+    node examples/hacknslash_3d/scripts/balance_autoplay_record.mjs --out-dir {{out_dir}}
+
 # WASM game host tasks
 wasm-build-moonbit:
     cd examples/wasm_game/guest/moonbit && moon build --target wasm

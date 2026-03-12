@@ -8,7 +8,9 @@
     "mizchi/kagura_effect_studio": { "path": "../../tools/effect-studio" },
     "mizchi/web_runtime_hooks": { "path": "../web_runtime_hooks" },
     "mizchi/terrain": "0.1.1",
-    "mizchi/differentiable_ecs": "0.2.0"
+    "mizchi/differentiable_ecs": "0.2.0",
+    "mizchi/parquet": "0.2.0",
+    "moonbitlang/x": "0.4.40"
   },
   "--moonbit-unstable-prebuild": "../../scripts/moon-prebuild-native-link-flags.cjs"
 }

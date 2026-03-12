@@ -10,6 +10,8 @@ output/
 .tornado/
 .repos/
 deps/wgpu-native/
+examples/hacknslash_3d/data/hackslash/autoplay_experiments/*.duckdb
+examples/hacknslash_3d/data/hackslash/autoplay_experiments/*.parquet
 *.mi
 __pycache__/
 *.pyc

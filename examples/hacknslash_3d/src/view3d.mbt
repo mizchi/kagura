@@ -196,6 +196,13 @@ fn GameState::draw_playing(
     rt,
     cmds,
   )
+  self.append_generated_prop_draw_commands(
+    camera,
+    rt,
+    ctx.screen_w,
+    ctx.screen_h,
+    cmds,
+  )
   // Compute visible region for occlusion culling
   let vis_region = compute_visible_region(
     self.world.dungeon.rooms,

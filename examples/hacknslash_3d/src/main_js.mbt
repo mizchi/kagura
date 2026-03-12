@@ -163,13 +163,12 @@ extern "js" fn js_publish_profiler_state(
   #| }
 
 ///|
-fn main {
+fn build_initial_state() -> GameState {
   let state = if get_initial_ssao_enabled() {
     GameState::new_with_ssao(seed=42, SSAOConfig::enabled_default())
   } else {
     GameState::new(seed=42)
   }
-  let perf_capture_enabled = get_initial_perf_capture_enabled()
   state.show_profiler = get_initial_profiler_enabled()
   state.fxaa_enabled = get_initial_fxaa_enabled()
   state.shadows_enabled = get_initial_shadows_enabled()
@@ -187,6 +186,11 @@ fn main {
   } else if snapshot_mode == "gameover" {
     state.world.mode = @game.GameOver
   }
+  state
+}
+
+///|
+fn run_game_js(state : GameState, perf_capture_enabled : Bool) -> Unit {
   let snapshot_tick = get_snapshot_tick()
   let rendered_frames : Ref[Int] = Ref::new(0)
   // Fixed 60fps timestep accumulator
@@ -288,5 +292,102 @@ fn main {
     height=screen_h,
     title="Hack & Slash 3D",
     canvas="#app",
+  )
+}
+
+///|
+fn load_generated_prop_manifest_js(
+  state : GameState,
+  placements : Array[GeneratedPropPlacement],
+  perf_capture_enabled : Bool,
+  index : Int,
+) -> Unit {
+  if index >= placements.length() {
+    run_game_js(state, perf_capture_enabled)
+    return
+  }
+  let placement = placements[index]
+  @asset.fetch_bytes(placement.source_path, fn(bytes_opt) {
+    match bytes_opt {
+      Some(bytes) =>
+        match
+          parse_generated_prop_asset_from_glb_bytes(
+            bytes,
+            placement.source_path,
+          ) {
+          Some(asset) => {
+            state.set_generated_prop_asset(asset, placement)
+            println("Loaded generated prop: " + placement.source_path)
+          }
+          None =>
+            println("Failed to parse generated prop: " + placement.source_path)
+        }
+      None =>
+        println("Failed to fetch generated prop: " + placement.source_path)
+    }
+    load_generated_prop_manifest_js(
+      state,
+      placements,
+      perf_capture_enabled,
+      index + 1,
+    )
+  })
+}
+
+///|
+fn main {
+  let perf_capture_enabled = get_initial_perf_capture_enabled()
+  let generated_prop_path = get_initial_generated_prop_path()
+  let generated_prop_anchor = match
+    generated_prop_anchor_from_string(get_initial_generated_prop_anchor_name()) {
+    Some(anchor) => anchor
+    None => StartRoomCenter
+  }
+  let generated_prop_role = match
+    generated_prop_role_from_string(get_initial_generated_prop_role_name()) {
+    Some(role) => role
+    None => Decoration
+  }
+  let generated_prop_pickup_effect = match
+    generated_prop_pickup_effect_from_string(
+      get_initial_generated_prop_pickup_effect_name(),
+    ) {
+    Some(effect) => effect
+    None => ScorePickup
+  }
+  let generated_prop_pickup_rarity = generated_prop_item_rarity_from_string(
+    get_initial_generated_prop_pickup_rarity_name(),
+  )
+  let generated_prop_pickup_slot = generated_prop_item_slot_from_string(
+    get_initial_generated_prop_pickup_slot_name(),
+  )
+  let generated_prop_manifest = if generated_prop_path == "none" {
+    []
+  } else if generated_prop_path.is_empty() {
+    default_generated_prop_manifest()
+  } else {
+    [
+      generated_prop_placement(
+        generated_prop_path,
+        floor=1,
+        anchor=generated_prop_anchor,
+        role=generated_prop_role,
+        pickup_effect=generated_prop_pickup_effect,
+        pickup_rarity=generated_prop_pickup_rarity,
+        pickup_slot=generated_prop_pickup_slot,
+        scale=get_initial_generated_prop_scale(),
+        yaw_degrees=get_initial_generated_prop_yaw_degrees(),
+        x_offset_tiles=get_initial_generated_prop_x_offset_tiles(),
+        z_offset_tiles=get_initial_generated_prop_z_offset_tiles(),
+      ),
+    ]
+  }
+  if generated_prop_manifest.is_empty() {
+    run_game_js(build_initial_state(), perf_capture_enabled)
+    return
+  }
+  let state = build_initial_state()
+  load_generated_prop_manifest_js(
+    state, generated_prop_manifest, perf_capture_enabled, 0,
   )
 }

@@ -10,6 +10,16 @@ extern "js" fn js_get_query_param_int(key : String, default_val : Int) -> Int =
   #| (key, defaultVal) => { const v = new URLSearchParams(location.search).get(key); return v ? parseInt(v, 10) : defaultVal; }
 
 ///|
+extern "js" fn js_get_query_param_double(
+  key : String,
+  default_val : Double,
+) -> Double =
+  #| (key, defaultVal) => {
+  #|   const v = new URLSearchParams(location.search).get(key)
+  #|   return v == null ? defaultVal : Number.parseFloat(v)
+  #| }
+
+///|
 extern "js" fn js_get_query_param_bool(
   key : String,
   default_val : Bool,
@@ -67,4 +77,54 @@ fn get_initial_ssao_enabled() -> Bool {
 ///|
 fn get_initial_stress_enemy_count() -> Int {
   js_get_query_param_int("stress_enemies", 0)
+}
+
+///|
+fn get_initial_generated_prop_path() -> String {
+  js_get_query_param("generated_prop")
+}
+
+///|
+fn get_initial_generated_prop_anchor_name() -> String {
+  js_get_query_param("generated_prop_anchor")
+}
+
+///|
+fn get_initial_generated_prop_role_name() -> String {
+  js_get_query_param("generated_prop_role")
+}
+
+///|
+fn get_initial_generated_prop_pickup_effect_name() -> String {
+  js_get_query_param("generated_prop_pickup")
+}
+
+///|
+fn get_initial_generated_prop_pickup_rarity_name() -> String {
+  js_get_query_param("generated_prop_pickup_rarity")
+}
+
+///|
+fn get_initial_generated_prop_pickup_slot_name() -> String {
+  js_get_query_param("generated_prop_pickup_slot")
+}
+
+///|
+fn get_initial_generated_prop_scale() -> Double {
+  js_get_query_param_double("generated_prop_scale", 1.0)
+}
+
+///|
+fn get_initial_generated_prop_yaw_degrees() -> Double {
+  js_get_query_param_double("generated_prop_yaw", 0.0)
+}
+
+///|
+fn get_initial_generated_prop_x_offset_tiles() -> Double {
+  js_get_query_param_double("generated_prop_x_offset", 2.0)
+}
+
+///|
+fn get_initial_generated_prop_z_offset_tiles() -> Double {
+  js_get_query_param_double("generated_prop_z_offset", 0.0)
 }

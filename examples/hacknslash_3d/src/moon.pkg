@@ -5,6 +5,7 @@ import {
   "mizchi/kagura/core" @core,
   "mizchi/kagura/draw3d" @draw3d,
   "mizchi/kagura/engine" @engine,
+  "mizchi/kagura/gltf" @gltf,
   "mizchi/kagura/gfx" @gfx,
   "mizchi/kagura/inpututil" @inpututil,
   "mizchi/kagura/light3d" @light3d,
@@ -37,13 +38,13 @@ warnings = "-1-2-7-20-29-71"
 
 options(
   "is-main": true,
-  "supported-targets": [ "js", "native" ],
   link: {
     "native": {
       "cc": "../../scripts/moon-native-cc.sh",
       "cc-link-flags": "-L../../deps/wgpu-native/lib -lwgpu_native ${build.KAGURA_NATIVE_GLFW_LIBS} -Wl,-rpath,../../deps/wgpu-native/lib ${build.KAGURA_NATIVE_PLATFORM_LIBS}",
     },
   },
+  "supported-targets": [ "js", "native" ],
   targets: {
     "main_js.mbt": [ "js" ],
     "main_native.mbt": [ "native" ],

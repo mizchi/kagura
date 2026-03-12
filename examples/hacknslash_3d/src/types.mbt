@@ -27,6 +27,56 @@ struct VisibleDungeonMeshCache {
 }
 
 ///|
+struct GeneratedPropAsset {
+  scene_graph : @scene3d.SceneGraph
+  source_path : String
+}
+
+///|
+enum GeneratedPropAnchor {
+  StartRoomCenter
+  LargestNonStartRoomCenter
+  BossRoomCenter
+  TreasureRoomCenter
+} derive(Eq, Show)
+
+///|
+enum GeneratedPropRole {
+  Decoration
+  Blocking
+  Pickup
+} derive(Eq, Show)
+
+///|
+enum GeneratedPropPickupEffect {
+  ScorePickup
+  HealthPickup
+  EquipmentPickup
+} derive(Eq, Show)
+
+///|
+struct GeneratedPropPlacement {
+  source_path : String
+  floor : Int
+  anchor : GeneratedPropAnchor
+  role : GeneratedPropRole
+  pickup_effect : GeneratedPropPickupEffect
+  pickup_rarity : @game.ItemRarity?
+  pickup_slot : @game.EquipSlot?
+  scale : Double
+  yaw_degrees : Double
+  x_offset_tiles : Double
+  z_offset_tiles : Double
+}
+
+///|
+struct GeneratedPropState {
+  base_scene_graph : @scene3d.SceneGraph
+  scene_graph : @scene3d.SceneGraph
+  placement : GeneratedPropPlacement
+}
+
+///|
 struct GameState {
   world : @game.GameWorld
   input : @inpututil.InputHelper
@@ -37,6 +87,9 @@ struct GameState {
   mut camera : @camera3d.OrbitCamera
   lighting : @light3d.LightingEnvironment
   shader3d : @gfx.ShaderHandle
+  shader3d_textured : @gfx.ShaderHandle
+  shader3d_pbr : @gfx.ShaderHandle
+  shader3d_pbr_textured : @gfx.ShaderHandle
   shader3d_colored : @gfx.ShaderHandle
   shader3d_instanced : @gfx.ShaderHandle
   shader3d_instanced_monochrome : @gfx.ShaderHandle
@@ -63,6 +116,7 @@ struct GameState {
   mut visible_dungeon_mesh_cache_player_tile_x : Int
   mut visible_dungeon_mesh_cache_player_tile_z : Int
   mut visible_dungeon_mesh_cache_builds : Int
+  mut generated_props : Array[GeneratedPropState]
   // PostFX
   scene_target : @gfx.ImageHandle
   bloom_a : @gfx.ImageHandle

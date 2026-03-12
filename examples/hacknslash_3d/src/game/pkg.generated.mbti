@@ -126,7 +126,7 @@ pub fn suffix_table_for(AffixProfile) -> Array[Affix]
 
 pub let tile_size : Double
 
-pub fn update_enemy_ai(Array[Enemy], Player, @types.Grid2D, Int, Array[Projectile], params? : BalanceParams) -> Unit
+pub fn update_enemy_ai(Array[Enemy], Player, @types.Grid2D, Array[@types.Room], Int, Array[Projectile], params? : BalanceParams) -> Unit
 
 pub let world_h : Double
 
@@ -290,6 +290,9 @@ pub(all) struct GameWorld {
   mut auto_nav_index : Int
   mut auto_cleared_rooms : Array[Bool]
   mut events : Array[GameEvent]
+  mut enemy_separation_cell_heads : Array[Int]
+  mut enemy_separation_next_indices : Array[Int]
+  mut enemy_separation_cell_indices : Array[Int]
 }
 pub fn GameWorld::apply_dungeon(Self, Int, Int) -> Unit
 pub fn GameWorld::auto_activate_skills(Self, Int) -> Unit
@@ -299,8 +302,16 @@ pub fn GameWorld::deal_player_damage(Self, Int) -> Unit
 pub fn GameWorld::drain_events(Self) -> Array[GameEvent]
 pub fn GameWorld::new(seed~ : Int, params? : BalanceParams) -> Self
 pub fn GameWorld::reset_floor(Self) -> Unit
+pub fn GameWorld::resolve_enemy_enemy_separation(Self) -> Unit
 pub fn GameWorld::tick(Self, Double, Double) -> Unit
 pub fn GameWorld::tick_auto(Self) -> Unit
+pub fn GameWorld::tick_enemy_ai_phase(Self) -> Unit
+pub fn GameWorld::tick_enemy_movement_and_contact_phase(Self) -> Unit
+pub fn GameWorld::tick_floor_completion_phase(Self) -> Unit
+pub fn GameWorld::tick_items_phase(Self) -> Unit
+pub fn GameWorld::tick_player_enemy_separation_phase(Self) -> Unit
+pub fn GameWorld::tick_player_timers_phase(Self) -> Unit
+pub fn GameWorld::tick_projectiles_phase(Self) -> Unit
 
 pub(all) struct Inventory {
   items : Array[ItemData?]

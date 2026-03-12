@@ -292,8 +292,12 @@ test "skinned_scene_from_gltf preserves joint hierarchy" {
     Some(skel) => {
       assert_eq(skel.bone_count(), 2)
       let poses = [
-        @transform3d.Transform3D::from_position(@math3d.Vec3::new(1.0, 0.0, 0.0)),
-        @transform3d.Transform3D::from_position(@math3d.Vec3::new(0.0, 2.0, 0.0)),
+        @transform3d.Transform3D::from_position(
+          @math3d.Vec3::new(1.0, 0.0, 0.0),
+        ),
+        @transform3d.Transform3D::from_position(
+          @math3d.Vec3::new(0.0, 2.0, 0.0),
+        ),
       ]
       let world = skel.compute_world_transforms(poses)
       assert_true(

@@ -396,10 +396,18 @@ pub fn start_dash(world : GameWorld, dir_x : Double, dir_y : Double) -> Unit {
 
 ///|
 pub fn GameWorld::tick_enemy_ai_phase(self : GameWorld) -> Unit {
+  self.tick_enemy_ai_phase_with_grid(self.dungeon.grid)
+}
+
+///|
+pub fn GameWorld::tick_enemy_ai_phase_with_grid(
+  self : GameWorld,
+  collision_grid : @terrain.Grid2D,
+) -> Unit {
   update_enemy_ai(
     self.enemies,
     self.player,
-    self.dungeon.grid,
+    collision_grid,
     self.dungeon.rooms,
     self.frame_count,
     self.projectiles,
@@ -614,6 +622,16 @@ pub fn GameWorld::tick_player_timers_phase(self : GameWorld) -> Unit {
 
 ///|
 pub fn GameWorld::tick(self : GameWorld, dx : Double, dy : Double) -> Unit {
+  self.tick_with_enemy_ai_grid(dx, dy, self.dungeon.grid)
+}
+
+///|
+pub fn GameWorld::tick_with_enemy_ai_grid(
+  self : GameWorld,
+  dx : Double,
+  dy : Double,
+  enemy_ai_grid : @terrain.Grid2D,
+) -> Unit {
   // 1. Increment frame_count
   self.frame_count = self.frame_count + 1
   // 2. Floor announce timer decrement
@@ -683,7 +701,7 @@ pub fn GameWorld::tick(self : GameWorld, dx : Double, dy : Double) -> Unit {
     }
   }
   // 9. Update enemy AI
-  self.tick_enemy_ai_phase()
+  self.tick_enemy_ai_phase_with_grid(enemy_ai_grid)
   // 10. Enemy movement + contact damage
   self.tick_enemy_movement_and_contact_phase()
   // 11-12. Projectiles
@@ -702,6 +720,14 @@ pub fn GameWorld::tick(self : GameWorld, dx : Double, dy : Double) -> Unit {
 
 ///|
 pub fn GameWorld::tick_auto(self : GameWorld) -> Unit {
+  self.tick_auto_with_enemy_ai_grid(self.dungeon.grid)
+}
+
+///|
+pub fn GameWorld::tick_auto_with_enemy_ai_grid(
+  self : GameWorld,
+  enemy_ai_grid : @terrain.Grid2D,
+) -> Unit {
   // 1. Call auto_play_input() to get (dx, dy, enemy_idx, _)
   let (dx, dy, enemy_idx, _) = auto_play_input(self)
   // 2. Call auto_activate_skills(enemy_idx)
@@ -712,5 +738,5 @@ pub fn GameWorld::tick_auto(self : GameWorld) -> Unit {
     self.auto_learn_skills()
   }
   // 4. Call tick(dx, dy)
-  self.tick(dx, dy)
+  self.tick_with_enemy_ai_grid(dx, dy, enemy_ai_grid)
 }

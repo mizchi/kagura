@@ -154,6 +154,157 @@ test "visible dungeon mesh cache rebuilds only when player tile changes" {
 }
 
 ///|
+test "draw_playing appends generated prop commands when glb prop is attached" {
+  let state = GameState::new(seed=42)
+  state.world.mode = @game.Playing
+  let baseline = state.draw_playing(test_engine_context())
+
+  let graph = @scene3d.SceneGraph::new()
+  ignore(
+    graph.add_node(@scene3d.scene_node(mesh=Some(@mesh3d.Mesh3D::cube(0.75)))),
+  )
+  state.set_generated_prop_asset(
+    { scene_graph: graph, source_path: "./assets/generated/test.glb" },
+    generated_prop_placement(
+      "./assets/generated/test.glb",
+      floor=1,
+      anchor=StartRoomCenter,
+      scale=1.0,
+      yaw_degrees=0.0,
+      x_offset_tiles=2.0,
+      z_offset_tiles=0.0,
+    ),
+  )
+  let with_prop = state.draw_playing(test_engine_context())
+
+  assert_true(with_prop.length() > baseline.length())
+  assert_eq(state.generated_props.length(), 1)
+  assert_eq(
+    state.generated_props[0].placement.source_path,
+    "./assets/generated/test.glb",
+  )
+}
+
+///|
+test "draw_playing skips generated prop when current floor does not match placement" {
+  let state = GameState::new(seed=42)
+  state.world.mode = @game.Playing
+  let baseline = state.draw_playing(test_engine_context())
+
+  let graph = @scene3d.SceneGraph::new()
+  ignore(
+    graph.add_node(@scene3d.scene_node(mesh=Some(@mesh3d.Mesh3D::cube(0.75)))),
+  )
+  state.set_generated_prop_asset(
+    { scene_graph: graph, source_path: "./assets/generated/test.glb" },
+    generated_prop_placement(
+      "./assets/generated/test.glb",
+      floor=2,
+      anchor=StartRoomCenter,
+      scale=1.0,
+      yaw_degrees=0.0,
+      x_offset_tiles=2.0,
+      z_offset_tiles=0.0,
+    ),
+  )
+
+  let with_prop = state.draw_playing(test_engine_context())
+  assert_eq(with_prop.length(), baseline.length())
+}
+
+///|
+test "draw_playing appends commands for multiple generated props" {
+  let state = GameState::new(seed=42)
+  state.world.mode = @game.Playing
+  let baseline = state.draw_playing(test_engine_context())
+
+  let graph0 = @scene3d.SceneGraph::new()
+  ignore(
+    graph0.add_node(@scene3d.scene_node(mesh=Some(@mesh3d.Mesh3D::cube(0.75)))),
+  )
+  let graph1 = @scene3d.SceneGraph::new()
+  ignore(
+    graph1.add_node(@scene3d.scene_node(mesh=Some(@mesh3d.Mesh3D::cube(0.5)))),
+  )
+  state.set_generated_prop_asset(
+    { scene_graph: graph0, source_path: "./assets/generated/test-a.glb" },
+    generated_prop_placement(
+      "./assets/generated/test-a.glb",
+      floor=1,
+      x_offset_tiles=2.0,
+    ),
+  )
+  state.set_generated_prop_asset(
+    { scene_graph: graph1, source_path: "./assets/generated/test-b.glb" },
+    generated_prop_placement(
+      "./assets/generated/test-b.glb",
+      floor=1,
+      x_offset_tiles=-2.0,
+    ),
+  )
+
+  let with_props = state.draw_playing(test_engine_context())
+  assert_true(with_props.length() > baseline.length())
+  assert_eq(state.generated_props.length(), 2)
+}
+
+///|
+test "draw_playing renders textured generated prop with textured material shader" {
+  let state = GameState::new(seed=42)
+  state.world.mode = @game.Playing
+  let graph = @scene3d.SceneGraph::new()
+  ignore(
+    graph.add_node(
+      @scene3d.scene_node(
+        mesh=Some(@mesh3d.Mesh3D::cube(0.75)),
+        material=Some(
+          @scene3d.Material::new(src_image_id=777, metallic=1.0, roughness=1.0),
+        ),
+      ),
+    ),
+  )
+  state.set_generated_prop_asset(
+    { scene_graph: graph, source_path: "./assets/generated/textured.glb" },
+    generated_prop_placement(
+      "./assets/generated/textured.glb",
+      floor=1,
+      anchor=StartRoomCenter,
+      x_offset_tiles=2.0,
+    ),
+  )
+
+  let commands = state.draw_playing(test_engine_context())
+  let textured_idx = match
+    find_first_command_index(commands, fn(cmd) {
+      cmd.shader.id == state.shader3d_pbr_textured.id &&
+      cmd.src_image_ids.length() == 1 &&
+      cmd.src_image_ids[0] == 777
+    }) {
+    Some(i) => i
+    None => panic()
+  }
+  assert_true(textured_idx >= 0)
+}
+
+///|
+test "default_generated_prop_manifest installs floor 1 samples" {
+  let config = default_generated_prop_manifest()
+  assert_eq(config.length(), 2)
+  assert_eq(config[0].floor, 1)
+  assert_eq(config[1].floor, 1)
+  assert_eq(config[0].anchor, StartRoomCenter)
+  assert_eq(config[1].anchor, TreasureRoomCenter)
+  assert_eq(
+    config[0].source_path,
+    "./assets/generated/chest-illustration-strong-trellis.glb",
+  )
+  assert_eq(
+    config[1].source_path,
+    "./assets/generated/chest-illustration-strong-trellis.glb",
+  )
+}
+
+///|
 test "draw_playing wires camera depth into ssao postfx chain with fxaa enabled" {
   let state = state_with_ssao_and_fxaa_enabled()
   state.world.mode = @game.Playing

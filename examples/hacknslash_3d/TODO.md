@@ -42,6 +42,10 @@
 - [x] RPG UI 読みやすさ改善 (不透明背景、フォントサイズ調整、レイアウト整理)
 - [x] 装備ドロップ散乱エフェクト (敵撃破時にアイテムが飛び散る)
 - [x] CMA-ES バランスチューナー (5プロファイル最適化、CSV出力)
+- [x] fal.ai Trellis 2 static prop 読み込み経路
+  - `node scripts/fal_trellis_asset.mjs --image <png/jpg>`
+  - 生成先は `examples/hacknslash_3d/assets/generated/*.glb`
+  - `?generated_prop=./assets/generated/<name>.glb` で `hacknslash_3d` に配置
 
 ## Next — すぐ取り組めるもの
 

@@ -60,6 +60,43 @@ pub fn SceneGraph::set_node(
 }
 
 ///|
+pub fn SceneGraph::clone_graph(self : SceneGraph) -> SceneGraph {
+  let nodes : Map[Int, SceneNode] = {}
+  for id, node in self.nodes {
+    let children : Array[Int] = []
+    for child_id in node.children {
+      children.push(child_id)
+    }
+    nodes[id] = { ..node, children, }
+  }
+  let roots : Array[Int] = []
+  for root_id in self.roots {
+    roots.push(root_id)
+  }
+  { nodes, roots, next_id: self.next_id }
+}
+
+///|
+pub fn SceneGraph::apply_root_transform(
+  self : SceneGraph,
+  transform : @transform3d.Transform3D,
+) -> Unit {
+  let root_world = transform.to_mat4()
+  for root_id in self.roots {
+    match self.nodes.get(root_id) {
+      Some(node) => {
+        let world = root_world.multiply(node.transform.to_mat4())
+        self.nodes[root_id] = {
+          ..node,
+          transform: @transform3d.Transform3D::from_mat4(world),
+        }
+      }
+      None => ()
+    }
+  }
+}
+
+///|
 pub fn scene_node(
   mesh? : @mesh3d.Mesh3D? = None,
   position? : @math3d.Vec3 = @math3d.Vec3::zero(),

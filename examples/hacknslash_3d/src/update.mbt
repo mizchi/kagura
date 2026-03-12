@@ -77,6 +77,15 @@ fn GameState::new_with_ssao(seed~ : Int, ssao_config : SSAOConfig) -> GameState 
       100,
       @draw3d.shader3d_lit_untextured_wgsl(),
     ),
+    shader3d_textured: @gfx.new_shader_handle(107, @draw3d.shader3d_lit_wgsl()),
+    shader3d_pbr: @gfx.new_shader_handle(
+      108,
+      @draw3d.shader3d_pbr_untextured_wgsl(),
+    ),
+    shader3d_pbr_textured: @gfx.new_shader_handle(
+      109,
+      @draw3d.shader3d_pbr_wgsl(),
+    ),
     shader3d_colored: @gfx.new_shader_handle(
       103,
       @draw3d.shader3d_lit_colored_wgsl(),
@@ -130,6 +139,7 @@ fn GameState::new_with_ssao(seed~ : Int, ssao_config : SSAOConfig) -> GameState 
     visible_dungeon_mesh_cache_player_tile_x: -1,
     visible_dungeon_mesh_cache_player_tile_z: -1,
     visible_dungeon_mesh_cache_builds: 0,
+    generated_props: [],
     // PostFX render targets
     scene_target: @gfx.new_image_handle(300, screen_w, screen_h),
     bloom_a: @gfx.new_image_handle(301, bloom_w, bloom_h),
@@ -291,7 +301,11 @@ fn GameState::update_playing(self : GameState) -> Unit {
   // Determine movement input
   if self.world.auto_play {
     // Auto-play: let world handle everything
-    self.world.tick_auto()
+    match self.build_generated_prop_enemy_ai_grid() {
+      Some(collision_grid) =>
+        self.world.tick_auto_with_enemy_ai_grid(collision_grid)
+      None => self.world.tick_auto()
+    }
   } else {
     // Manual input (camera-relative)
     let mut raw_dx = 0.0
@@ -339,7 +353,11 @@ fn GameState::update_playing(self : GameState) -> Unit {
       @game.activate_skill(self.world, 2)
     }
     // Tick world with movement
-    self.world.tick(dx, dy)
+    match self.build_generated_prop_enemy_ai_grid() {
+      Some(collision_grid) =>
+        self.world.tick_with_enemy_ai_grid(dx, dy, collision_grid)
+      None => self.world.tick(dx, dy)
+    }
   }
   // Process events from world tick
   let events = self.world.drain_events()
@@ -359,6 +377,7 @@ fn GameState::update_playing(self : GameState) -> Unit {
       }
     }
   }
+  self.apply_generated_prop_roles_for_current_floor()
   // Camera follow (3D: convert 2D coords to 3D with height)
   let cam_y = @game.get_tile_height(
     self.world.dungeon,
@@ -424,4 +443,5 @@ fn GameState::rebuild_dungeon_rendering(self : GameState) -> Unit {
       self.world.player.y / tile_size,
     ),
   )
+  self.refresh_generated_props_for_current_floor()
 }

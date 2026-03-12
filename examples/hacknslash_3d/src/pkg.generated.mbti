@@ -26,7 +26,15 @@ type EntityInstanceScratch
 
 type GameState
 
+type GeneratedPropAsset
+
+type GeneratedPropPlacement
+
+type GeneratedPropState
+
 type IconAtlas
+
+type MeshAccumulator
 
 type Meshes3D
 
@@ -35,6 +43,8 @@ type PlayerCharacter
 type SSAOConfig
 
 type ShadowFrameState
+
+type VisibleDungeonMeshCache
 
 type VisibleRegion
 

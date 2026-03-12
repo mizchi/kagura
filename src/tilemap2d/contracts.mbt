@@ -670,7 +670,14 @@ pub fn append_tile_indexed_chunk_draw_commands(
         [quad.page_image_id],
         uniform_dwords,
         resource_cache_key=tilemap_draw_resource_cache_key(
-          dst, shader, dst_region, blend, quad.page_image_id, vertex_data, indices, uniform_dwords,
+          dst,
+          shader,
+          dst_region,
+          blend,
+          quad.page_image_id,
+          vertex_data,
+          indices,
+          uniform_dwords,
         ),
       ),
     )
@@ -827,40 +834,25 @@ pub fn TileChunkBatchCache::append_visible_dirty_chunk_batched_draw_commands(
   tile_height : Double,
   uniform_dwords : Array[Int],
 ) -> Int {
-  let chunks : Array[TileChunkRect] =
-    match self.previous_visible_chunk {
-      Some(previous_visible_chunk) =>
-        if tile_chunk_rect_eq(previous_visible_chunk, visible_chunk) {
-          diff_visible_tile_index_chunks(
-            self.previous_tile_indices,
-            tile_indices,
-            columns,
-            self.chunk_size,
-            visible_chunk,
-          )
-        } else {
-          [visible_chunk]
-        }
-      None => [visible_chunk]
-    }
+  let chunks : Array[TileChunkRect] = match self.previous_visible_chunk {
+    Some(previous_visible_chunk) =>
+      if tile_chunk_rect_eq(previous_visible_chunk, visible_chunk) {
+        diff_visible_tile_index_chunks(
+          self.previous_tile_indices,
+          tile_indices,
+          columns,
+          self.chunk_size,
+          visible_chunk,
+        )
+      } else {
+        [visible_chunk]
+      }
+    None => [visible_chunk]
+  }
   let appended = append_tile_indexed_dirty_chunk_batched_draw_commands(
-    commands,
-    chunks,
-    table,
-    atlas_repository,
-    dst,
-    shader,
-    pipeline_id,
-    uniform_hash,
-    blend,
-    dst_region,
-    tile_indices,
-    columns,
-    origin_left,
-    origin_top,
-    tile_width,
-    tile_height,
-    uniform_dwords,
+    commands, chunks, table, atlas_repository, dst, shader, pipeline_id, uniform_hash,
+    blend, dst_region, tile_indices, columns, origin_left, origin_top, tile_width,
+    tile_height, uniform_dwords,
   )
   self.previous_tile_indices = copy_int_array(tile_indices)
   self.previous_visible_chunk = Some(visible_chunk)

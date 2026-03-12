@@ -1,0 +1,23 @@
+{
+  "model": "fal-ai/trellis-2",
+  "outputPath": "/Users/mz/ghq/github.com/mizchi/kagura/examples/hacknslash_3d/assets/generated/chest-illustration-trellis.glb",
+  "queryAssetPath": "./assets/generated/chest-illustration-trellis.glb",
+  "glbUrl": "https://v3b.fal.media/files/b/0a91d3ec/l9cQJC98pC-ThuuqaIgCk_trellis2_82716410330e4c0087ece28a2d007392.glb",
+  "input": {
+    "image": "examples/hacknslash_3d/assets/fal_samples/chest-illustration.png",
+    "preparedImage": "/Users/mz/ghq/github.com/mizchi/kagura/examples/hacknslash_3d/assets/generated/chest-illustration-prepped.png",
+    "imageUrl": "",
+    "seed": null,
+    "preset": "hard-surface",
+    "preprocess": "isolate",
+    "preprocessPadding": 0.14,
+    "preprocessSize": 1024,
+    "meshSimplify": null,
+    "resolution": 1024,
+    "textureSize": 2048,
+    "ssGuidanceStrength": 8.5,
+    "shapeSlatGuidanceStrength": 8,
+    "shapeSlatSamplingSteps": 16,
+    "remesh": true
+  }
+}

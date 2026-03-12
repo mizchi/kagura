@@ -1,6 +1,34 @@
 // Enemy AI: chase + pathfinding + patrol + ranged + boss
 
 ///|
+fn enemy_direct_chase_path_blocked(
+  grid : @terrain.Grid2D,
+  enemy_x : Double,
+  enemy_y : Double,
+  target_x : Double,
+  target_y : Double,
+  enemy_size : Double,
+) -> Bool {
+  let dx = target_x - enemy_x
+  let dy = target_y - enemy_y
+  let dist_sq = dx * dx + dy * dy
+  if dist_sq <= 0.000001 {
+    return false
+  }
+  let dist = dist_sq.sqrt()
+  let steps = @cmp.maximum(1, (dist / (tile_size * 0.5)).ceil().to_int())
+  for step = 1; step < steps; step = step + 1 {
+    let t = step.to_double() / steps.to_double()
+    let sample_x = enemy_x + dx * t
+    let sample_y = enemy_y + dy * t
+    if check_wall_collision(grid, sample_x, sample_y, enemy_size) {
+      return true
+    }
+  }
+  false
+}
+
+///|
 pub fn update_enemy_ai(
   enemies : Array[Enemy],
   player : Player,
@@ -85,12 +113,25 @@ pub fn update_enemy_ai(
     }
     if same_room_visible && dist_sq > 1.0 {
       let dist = dist_sq.sqrt()
-      enemy.path_cache = []
-      enemy.path_index = 0
-      enemy.path_timer = path_update_interval
-      enemy.vx = cdx / dist * enemy.speed
-      enemy.vy = cdy / dist * enemy.speed
-      continue
+      if not(
+          enemy_direct_chase_path_blocked(
+            grid,
+            enemy.x,
+            enemy.y,
+            player.x,
+            player.y,
+            enemy.size,
+          ),
+        ) {
+        let chase_vx = cdx / dist * enemy.speed
+        let chase_vy = cdy / dist * enemy.speed
+        enemy.path_cache = []
+        enemy.path_index = 0
+        enemy.path_timer = path_update_interval
+        enemy.vx = chase_vx
+        enemy.vy = chase_vy
+        continue
+      }
     }
     // Update pathfinding cache periodically
     if enemy.path_timer <= 0 {

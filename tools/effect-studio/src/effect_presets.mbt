@@ -2,6 +2,8 @@
 pub enum EffectPresetId {
   ForgeBurst
   ChainLightning
+  HomingMissile
+  HomingMissileImpact
   SplittingFireball
   IceNova
   GroundTelegraphRing
@@ -13,6 +15,8 @@ pub fn effect_preset_id_name(id : EffectPresetId) -> String {
   match id {
     ForgeBurst => "forge_burst"
     ChainLightning => "chain_lightning"
+    HomingMissile => "homing_missile"
+    HomingMissileImpact => "homing_missile_impact"
     SplittingFireball => "splitting_fireball"
     IceNova => "ice_nova"
     GroundTelegraphRing => "ground_telegraph_ring"
@@ -137,6 +141,167 @@ pub fn chain_lightning_effect_document() -> EffectDocument {
       chain_lightning_beam_track(),
       chain_lightning_glow_track(),
       chain_lightning_sparks_track(),
+    ],
+  }
+}
+
+///|
+fn homing_missile_core_track() -> EffectTrack {
+  {
+    id: "missile_core",
+    label: "Missile Core",
+    start_time: 0.0,
+    duration: 0.20,
+    burst_interval: 0.026,
+    burst_particles: 10,
+    pattern: Line,
+    origin: @math3d.Vec3::new(0.0, 0.48, 0.0),
+    secondary_origin: @math3d.Vec3::new(1.0, 0.52, 0.0),
+    spread_radius: 0.04,
+    initial_velocity_min: @math3d.Vec3::new(-0.10, 0.14, -0.10),
+    initial_velocity_max: @math3d.Vec3::new(0.10, 0.72, 0.10),
+    lifetime_min: 0.08,
+    lifetime_max: 0.16,
+    size_min: 0.05,
+    size_max: 0.12,
+    color_start: @math3d.Vec4::new(1.0, 0.86, 0.42, 0.96),
+    color_end: @math3d.Vec4::new(1.0, 0.24, 0.10, 0.0),
+    gravity: @math3d.Vec3::new(0.0, -0.5, 0.0),
+    enabled: true,
+  }
+}
+
+///|
+fn homing_missile_glow_track() -> EffectTrack {
+  {
+    id: "missile_glow",
+    label: "Missile Glow",
+    start_time: 0.0,
+    duration: 0.22,
+    burst_interval: 0.05,
+    burst_particles: 12,
+    pattern: Line,
+    origin: @math3d.Vec3::new(0.0, 0.42, 0.0),
+    secondary_origin: @math3d.Vec3::new(1.0, 0.46, 0.0),
+    spread_radius: 0.08,
+    initial_velocity_min: @math3d.Vec3::new(-0.08, 0.10, -0.08),
+    initial_velocity_max: @math3d.Vec3::new(0.08, 0.46, 0.08),
+    lifetime_min: 0.10,
+    lifetime_max: 0.20,
+    size_min: 0.05,
+    size_max: 0.14,
+    color_start: @math3d.Vec4::new(1.0, 0.58, 0.24, 0.72),
+    color_end: @math3d.Vec4::new(0.74, 0.10, 0.26, 0.0),
+    gravity: @math3d.Vec3::new(0.0, -0.25, 0.0),
+    enabled: true,
+  }
+}
+
+///|
+fn homing_missile_sparks_track() -> EffectTrack {
+  {
+    id: "missile_sparks",
+    label: "Missile Sparks",
+    start_time: 0.02,
+    duration: 0.24,
+    burst_interval: 0.04,
+    burst_particles: 8,
+    pattern: Line,
+    origin: @math3d.Vec3::new(0.0, 0.38, 0.0),
+    secondary_origin: @math3d.Vec3::new(1.0, 0.42, 0.0),
+    spread_radius: 0.12,
+    initial_velocity_min: @math3d.Vec3::new(-0.45, 0.12, -0.45),
+    initial_velocity_max: @math3d.Vec3::new(0.45, 0.92, 0.45),
+    lifetime_min: 0.12,
+    lifetime_max: 0.24,
+    size_min: 0.03,
+    size_max: 0.07,
+    color_start: @math3d.Vec4::new(1.0, 0.82, 0.48, 0.82),
+    color_end: @math3d.Vec4::new(0.86, 0.18, 0.08, 0.0),
+    gravity: @math3d.Vec3::new(0.0, -1.2, 0.0),
+    enabled: true,
+  }
+}
+
+///|
+pub fn homing_missile_effect_document() -> EffectDocument {
+  {
+    name: "homing_missile",
+    duration: 0.36,
+    looping: false,
+    notes: "Arcing homing missile trail with a bright core, warm glow, and spark shell.",
+    ai_edit_goal: "Keep the missile path readable from the gameplay camera and make the trail feel like a rising arc with a bright nose cone.",
+    tracks: [
+      homing_missile_core_track(),
+      homing_missile_glow_track(),
+      homing_missile_sparks_track(),
+    ],
+  }
+}
+
+///|
+fn homing_missile_impact_ring_track() -> EffectTrack {
+  {
+    id: "impact_ring",
+    label: "Impact Ring",
+    start_time: 0.0,
+    duration: 0.22,
+    burst_interval: 0.05,
+    burst_particles: 12,
+    pattern: Ring,
+    origin: @math3d.Vec3::new(0.0, 0.18, 0.0),
+    secondary_origin: @math3d.Vec3::new(0.0, 0.18, 0.0),
+    spread_radius: 0.38,
+    initial_velocity_min: @math3d.Vec3::new(-0.42, 0.26, -0.42),
+    initial_velocity_max: @math3d.Vec3::new(0.42, 0.82, 0.42),
+    lifetime_min: 0.16,
+    lifetime_max: 0.30,
+    size_min: 0.04,
+    size_max: 0.08,
+    color_start: @math3d.Vec4::new(1.0, 0.76, 0.38, 0.96),
+    color_end: @math3d.Vec4::new(0.82, 0.18, 0.06, 0.0),
+    gravity: @math3d.Vec3::new(0.0, -1.0, 0.0),
+    enabled: true,
+  }
+}
+
+///|
+fn homing_missile_impact_column_track() -> EffectTrack {
+  {
+    id: "impact_column",
+    label: "Impact Column",
+    start_time: 0.0,
+    duration: 0.28,
+    burst_interval: 0.07,
+    burst_particles: 14,
+    pattern: Column,
+    origin: @math3d.Vec3::new(0.0, 0.16, 0.0),
+    secondary_origin: @math3d.Vec3::new(0.0, 0.16, 0.0),
+    spread_radius: 0.12,
+    initial_velocity_min: @math3d.Vec3::new(-0.12, 0.68, -0.12),
+    initial_velocity_max: @math3d.Vec3::new(0.12, 1.55, 0.12),
+    lifetime_min: 0.16,
+    lifetime_max: 0.32,
+    size_min: 0.06,
+    size_max: 0.12,
+    color_start: @math3d.Vec4::new(1.0, 0.94, 0.62, 0.92),
+    color_end: @math3d.Vec4::new(0.78, 0.14, 0.04, 0.0),
+    gravity: @math3d.Vec3::new(0.0, -2.2, 0.0),
+    enabled: true,
+  }
+}
+
+///|
+pub fn homing_missile_impact_effect_document() -> EffectDocument {
+  {
+    name: "homing_missile_impact",
+    duration: 0.52,
+    looping: false,
+    notes: "Tight impact burst for the homing missile with a hot ring and short flame column.",
+    ai_edit_goal: "Keep the impact punchy and readable in under half a second with a bright ring and a short upward plume.",
+    tracks: [
+      homing_missile_impact_ring_track(),
+      homing_missile_impact_column_track(),
     ],
   }
 }
@@ -709,6 +874,8 @@ pub fn effect_preset_document(id : EffectPresetId) -> EffectDocument {
   match id {
     ForgeBurst => default_effect_document()
     ChainLightning => chain_lightning_effect_document()
+    HomingMissile => homing_missile_effect_document()
+    HomingMissileImpact => homing_missile_impact_effect_document()
     SplittingFireball => splitting_fireball_effect_document()
     IceNova => ice_nova_effect_document()
     GroundTelegraphRing => ground_telegraph_ring_effect_document()

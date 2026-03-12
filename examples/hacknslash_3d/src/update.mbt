@@ -145,6 +145,8 @@ fn GameState::new_with_ssao(seed~ : Int, ssao_config : SSAOConfig) -> GameState 
     visible_dungeon_mesh_cache_builds: 0,
     generated_props: [],
     active_effects: [],
+    audio_ctx: @audio.MixerAudioContext::new(44100),
+    audio_players: default_game_audio_players(),
     dungeon_floor_texture_image_id: None,
     dungeon_wall_texture_image_id: None,
     // PostFX render targets
@@ -382,6 +384,7 @@ fn GameState::update_playing(self : GameState) -> Unit {
   // Process events from world tick
   let events = self.world.drain_events()
   for event in events {
+    self.play_sound_for_event(event)
     match event {
       @game.HitSparks(x, y) => spawn_hit_sparks(self.particle_manager, x, y)
       @game.DeathBurst(x, y) => spawn_death_burst(self.particle_manager, x, y)

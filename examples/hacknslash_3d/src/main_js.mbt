@@ -246,6 +246,7 @@ fn run_game_js(state : GameState, perf_capture_enabled : Bool) -> Unit {
   let last_input : Ref[@core.InputSnapshot] = Ref::new(
     @core.empty_input_snapshot(),
   )
+  init_game_audio_js(state)
   js_configure_detailed_render_timing(
     state.show_profiler || perf_capture_enabled,
   )
@@ -341,6 +342,7 @@ fn run_game_js(state : GameState, perf_capture_enabled : Bool) -> Unit {
         state.particle_manager.emitters.length(),
       )
     },
+    audio_ctx=state.audio_ctx,
     width=screen_w,
     height=screen_h,
     title="Hack & Slash 3D",

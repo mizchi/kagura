@@ -137,6 +137,8 @@ struct GameState {
   mut visible_dungeon_mesh_cache_builds : Int
   mut generated_props : Array[GeneratedPropState]
   mut active_effects : Array[ActiveEffectInstance]
+  audio_ctx : @audio.MixerAudioContext
+  audio_players : GameAudioPlayers
   mut dungeon_floor_texture_image_id : Int?
   mut dungeon_wall_texture_image_id : Int?
   // PostFX

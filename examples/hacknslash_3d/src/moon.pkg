@@ -19,6 +19,7 @@ import {
   "mizchi/kagura/postfx" @postfx,
   "mizchi/kagura/skeleton3d" @skeleton3d,
   "mizchi/kagura/animation3d" @animation3d,
+  "mizchi/kagura/audio" @audio,
   "mizchi/kagura/transform3d" @transform3d,
   "mizchi/kagura/pathfind" @pathfind,
   "mizchi/kagura/vector" @vector,
@@ -47,6 +48,7 @@ options(
   },
   "supported-targets": [ "js", "native" ],
   targets: {
+    "audio_bootstrap_js.mbt": [ "js" ],
     "main_js.mbt": [ "js" ],
     "main_native.mbt": [ "native" ],
     "save_load.mbt": [ "js" ],

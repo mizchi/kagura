@@ -143,3 +143,64 @@ test "auto_play_input_with_nav_grid falls back to nearest alive enemy when rooms
   assert_true(enemy_dist_sq > 0.0)
   assert_true(dx.abs() > 0.01 || dy.abs() > 0.01)
 }
+
+///|
+test "auto_play_input_with_nav_grid ignores equipment pickup when inventory is full" {
+  let world = GameWorld::new(seed=42)
+  for i in 0..<world.inventory.capacity {
+    ignore(world.inventory.add({
+      name: "Filled \{i}",
+      rarity: Common,
+      slot: Weapon,
+      atk_bonus: 1,
+      def_bonus: 0,
+      hp_bonus: 0,
+      prefix: None,
+      suffix: None,
+      icon_id: 0,
+    }))
+  }
+  let target_room_idx = furthest_room_index_from_player(world)
+  let target_room = world.dungeon.rooms[target_room_idx]
+  let center = target_room.rect.center()
+  world.enemies = [
+    make_enemy(
+      center.x.to_double() * tile_size + tile_size / 2.0,
+      center.y.to_double() * tile_size + tile_size / 2.0,
+      Basic,
+      3,
+      1.0,
+      10.0,
+    ),
+  ]
+  world.items = [
+    {
+      x: world.player.x,
+      y: world.player.y,
+      vx: 0.0,
+      vy: 0.0,
+      kind: Equipment({
+        name: "Blocked Loot",
+        rarity: Epic,
+        slot: Weapon,
+        atk_bonus: 10,
+        def_bonus: 0,
+        hp_bonus: 0,
+        prefix: None,
+        suffix: None,
+        icon_id: 1,
+      }),
+      alive: true,
+      spawn_frame: world.frame_count,
+    },
+  ]
+
+  let (dx, dy, enemy_idx, enemy_dist_sq) = auto_play_input_with_nav_grid(
+    world,
+    world.dungeon.grid,
+  )
+
+  assert_eq(enemy_idx, -1)
+  assert_true(enemy_dist_sq > 0.0)
+  assert_true(dx.abs() > 0.01 || dy.abs() > 0.01)
+}

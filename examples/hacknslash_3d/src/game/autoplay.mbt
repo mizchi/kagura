@@ -142,12 +142,16 @@ pub fn find_next_target_room(world : GameWorld) -> Int {
 fn find_nearest_autoplay_pickup_item(world : GameWorld) -> ItemDrop? {
   let mut nearest : ItemDrop? = None
   let mut nearest_dist_sq = 100000000.0
+  let inventory_has_space = world.inventory.count() < world.inventory.capacity
   for item in world.items {
     if not(item.alive) {
       continue
     }
     match item.kind {
       Equipment(_) => {
+        if not(inventory_has_space) {
+          continue
+        }
         let dx = item.x - world.player.x
         let dy = item.y - world.player.y
         let dist_sq = dx * dx + dy * dy

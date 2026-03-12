@@ -124,6 +124,10 @@ fn GameState::new_with_ssao(seed~ : Int, ssao_config : SSAOConfig) -> GameState 
       201,
       @shadow3d.shader3d_shadow_lit_untextured_wgsl(),
     ),
+    shadow_lit_textured_shader: @gfx.new_shader_handle(
+      202,
+      @shadow3d.shader3d_shadow_lit_wgsl(),
+    ),
     shadows_enabled: false,
     shadow_config,
     dungeon_chunks,
@@ -141,6 +145,8 @@ fn GameState::new_with_ssao(seed~ : Int, ssao_config : SSAOConfig) -> GameState 
     visible_dungeon_mesh_cache_builds: 0,
     generated_props: [],
     active_effects: [],
+    dungeon_floor_texture_image_id: None,
+    dungeon_wall_texture_image_id: None,
     // PostFX render targets
     scene_target: @gfx.new_image_handle(300, screen_w, screen_h),
     bloom_a: @gfx.new_image_handle(301, bloom_w, bloom_h),
@@ -183,6 +189,7 @@ fn GameState::new_with_ssao(seed~ : Int, ssao_config : SSAOConfig) -> GameState 
     minimap_cache_floor: -1,
     minimap_cache_dst_id: -1,
     minimap_cache_shader_id: -1,
+    minimap_cache_discovery_version: -1,
     minimap_cache_builds: 0,
     hud_static_cmds: [],
     hud_static_cache_floor: -1,
@@ -362,6 +369,9 @@ fn GameState::update_playing(self : GameState) -> Unit {
     if @inpututil.is_key_just_pressed(self.input.key_state, key_6) {
       @game.activate_skill(self.world, 5)
     }
+    if @inpututil.is_key_just_pressed(self.input.key_state, key_7) {
+      @game.activate_skill(self.world, 6)
+    }
     // Tick world with movement
     match self.build_generated_prop_enemy_ai_grid() {
       Some(collision_grid) =>
@@ -385,6 +395,12 @@ fn GameState::update_playing(self : GameState) -> Unit {
         self.queue_ground_line_telegraph_effect(x0, y0, x1, y1)
       @game.ChainLightningArc(x0, y0, x1, y1) =>
         self.queue_chain_lightning_effect(x0, y0, x1, y1)
+      @game.HomingMissileLaunch(x0, y0, x1, y1) =>
+        self.queue_homing_missile_effect(x0, y0, x1, y1)
+      @game.HomingMissileTrail(x0, y0, x1, y1) =>
+        self.queue_homing_missile_effect(x0, y0, x1, y1)
+      @game.HomingMissileImpact(x, y) =>
+        self.queue_homing_missile_impact_effect(x, y)
       @game.FireballCast(x, y) => self.queue_fireball_cast_effect(x, y)
       @game.FireballTrail(x, y) =>
         spawn_fireball_trail(self.particle_manager, x, y)

@@ -23,6 +23,37 @@ fn enemy_overlap_pair_count(enemies : Array[Enemy]) -> Int {
 }
 
 ///|
+fn find_same_room_point_near_distance(
+  world : GameWorld,
+  target_dist : Double,
+) -> (Double, Double) {
+  let room_idx = find_room_at(
+    world.dungeon.rooms,
+    world.player.x,
+    world.player.y,
+  )
+  let room = world.dungeon.rooms[room_idx]
+  let mut best_x = world.player.x
+  let mut best_y = world.player.y
+  let mut best_err = 1000000000.0
+  for tx in (room.rect.x + 1)..<(room.rect.x + room.rect.w - 1) {
+    for ty in (room.rect.y + 1)..<(room.rect.y + room.rect.h - 1) {
+      let x = tx.to_double() * tile_size + tile_size * 0.5
+      let y = ty.to_double() * tile_size + tile_size * 0.5
+      let dx = x - world.player.x
+      let dy = y - world.player.y
+      let err = ((dx * dx + dy * dy).sqrt() - target_dist).abs()
+      if err < best_err {
+        best_err = err
+        best_x = x
+        best_y = y
+      }
+    }
+  }
+  (best_x, best_y)
+}
+
+///|
 test "enemy separation grid index clamps into 2d bounds" {
   let cols = enemy_separation_grid_cols()
   let rows = enemy_separation_grid_rows()
@@ -86,6 +117,7 @@ test "tick_projectiles_phase applies enemy projectile damage and compacts" {
       y: world.player.y,
       vx: 0.0,
       vy: 0.0,
+      age: 0,
       alive: true,
       damage: 2,
       is_player: false,
@@ -128,6 +160,48 @@ test "tick_items_phase collects score item and compacts" {
   world.tick_items_phase()
   assert_eq(world.score, before_score + 5)
   assert_eq(world.items.length(), 0)
+}
+
+///|
+test "GameWorld::new marks only the start room as discovered" {
+  let world = GameWorld::new(seed=42)
+  let start_room = find_room_at(
+    world.dungeon.rooms,
+    world.player.x,
+    world.player.y,
+  )
+  let mut discovered_count = 0
+  for i in 0..<world.discovered_rooms.length() {
+    if world.discovered_rooms[i] {
+      discovered_count += 1
+      assert_eq(i, start_room)
+    }
+  }
+  assert_eq(discovered_count, 1)
+}
+
+///|
+test "tick marks the entered room as discovered" {
+  let world = GameWorld::new(seed=42)
+  let start_room = find_room_at(
+    world.dungeon.rooms,
+    world.player.x,
+    world.player.y,
+  )
+  let mut target_room = -1
+  for i in 0..<world.dungeon.rooms.length() {
+    if i != start_room {
+      target_room = i
+      break
+    }
+  }
+  let center = world.dungeon.rooms[target_room].rect.center()
+  world.player.x = center.x.to_double() * tile_size + tile_size * 0.5
+  world.player.y = center.y.to_double() * tile_size + tile_size * 0.5
+
+  world.tick(0.0, 0.0)
+
+  assert_true(world.discovered_rooms[target_room])
 }
 
 ///|
@@ -241,10 +315,9 @@ test "tick_items_phase in auto_play replaces oldest inventory item and auto equi
 ///|
 test "tick auto-casts ice nova for nearby enemy" {
   let world = GameWorld::new(seed=42)
-  let px = world.player.x
-  let py = world.player.y
+  let (ex, ey) = find_same_room_point_near_distance(world, 24.0)
   world.attack_timer = 999
-  world.enemies = [make_enemy(px + 24.0, py, Basic, 12, 1.0, 10.0)]
+  world.enemies = [make_enemy(ex, ey, Basic, 12, 1.0, 10.0)]
 
   world.tick(0.0, 0.0)
 
@@ -254,10 +327,9 @@ test "tick auto-casts ice nova for nearby enemy" {
 ///|
 test "tick auto-casts chain lightning for mid-range enemy" {
   let world = GameWorld::new(seed=42)
-  let px = world.player.x
-  let py = world.player.y
+  let (ex, ey) = find_same_room_point_near_distance(world, 88.0)
   world.attack_timer = 999
-  world.enemies = [make_enemy(px + 88.0, py, Basic, 12, 1.0, 10.0)]
+  world.enemies = [make_enemy(ex, ey, Basic, 12, 1.0, 10.0)]
 
   world.tick(0.0, 0.0)
 
@@ -267,12 +339,26 @@ test "tick auto-casts chain lightning for mid-range enemy" {
 ///|
 test "tick auto-casts splitting fireball for far visible enemy" {
   let world = GameWorld::new(seed=42)
-  let px = world.player.x
-  let py = world.player.y
+  let (ex, ey) = find_same_room_point_near_distance(world, 152.0)
   world.attack_timer = 999
-  world.enemies = [make_enemy(px + 118.0, py, Basic, 12, 1.0, 10.0)]
+  world.homing_missile_cooldown_timer = 10
+  world.enemies = [make_enemy(ex, ey, Basic, 12, 1.0, 10.0)]
 
   world.tick(0.0, 0.0)
 
   assert_true(world.splitting_fireball_cooldown_timer > 0)
+  assert_true(world.homing_missile_cooldown_timer > 0)
+}
+
+///|
+test "tick auto-casts homing missile for semi-far visible enemy" {
+  let world = GameWorld::new(seed=42)
+  let (ex, ey) = find_same_room_point_near_distance(world, 132.0)
+  world.attack_timer = 999
+  world.enemies = [make_enemy(ex, ey, Basic, 12, 1.0, 10.0)]
+
+  world.tick(0.0, 0.0)
+
+  assert_true(world.homing_missile_cooldown_timer > 0)
+  assert_eq(world.splitting_fireball_cooldown_timer, 0)
 }

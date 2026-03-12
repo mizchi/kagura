@@ -11,12 +11,22 @@ struct Meshes3D {
   pillar : @mesh3d.Mesh3D
 }
 
+///|
+enum DungeonSurfaceKind {
+  Floor
+  Corridor
+  Door
+  Wall
+  Pillar
+} derive(Eq, Show)
+
 // Combined mesh with a single color for batched shadow-lit rendering
 
 ///|
 struct DungeonMeshGroup {
   mesh : @mesh3d.Mesh3D
   color : @math3d.Vec4
+  surface_kind : DungeonSurfaceKind
   dst_region : @gfx.DstRegion
 }
 
@@ -112,6 +122,7 @@ struct GameState {
   shadow_map : @gfx.ImageHandle
   shadow_depth_shader : @gfx.ShaderHandle
   shadow_lit_shader : @gfx.ShaderHandle
+  shadow_lit_textured_shader : @gfx.ShaderHandle
   mut shadows_enabled : Bool
   shadow_config : @shadow3d.ShadowConfig
   mut dungeon_chunks : Array[DungeonChunk]
@@ -126,6 +137,8 @@ struct GameState {
   mut visible_dungeon_mesh_cache_builds : Int
   mut generated_props : Array[GeneratedPropState]
   mut active_effects : Array[ActiveEffectInstance]
+  mut dungeon_floor_texture_image_id : Int?
+  mut dungeon_wall_texture_image_id : Int?
   // PostFX
   scene_target : @gfx.ImageHandle
   bloom_a : @gfx.ImageHandle
@@ -160,6 +173,7 @@ struct GameState {
   mut minimap_cache_floor : Int
   mut minimap_cache_dst_id : Int
   mut minimap_cache_shader_id : Int
+  mut minimap_cache_discovery_version : Int
   mut minimap_cache_builds : Int
   // HUD static text cache
   mut hud_static_cmds : Array[@gfx.DrawTrianglesCommand]

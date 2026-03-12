@@ -31,10 +31,25 @@ pub(all) struct GameWorld {
   mut auto_nav_path : Array[@terrain.Point]
   mut auto_nav_index : Int
   mut auto_cleared_rooms : Array[Bool]
+  mut discovered_rooms : Array[Bool]
+  mut discovered_rooms_version : Int
   mut events : Array[GameEvent]
   mut enemy_separation_cell_heads : Array[Int]
   mut enemy_separation_next_indices : Array[Int]
   mut enemy_separation_cell_indices : Array[Int]
+}
+
+///|
+fn initial_discovered_rooms_for_dungeon(
+  dungeon : DungeonData,
+) -> (Array[Bool], Int) {
+  let discovered = Array::make(dungeon.rooms.length(), false)
+  let start_room = find_room_at(dungeon.rooms, dungeon.start_x, dungeon.start_y)
+  if start_room >= 0 {
+    discovered[start_room] = true
+    return (discovered, 1)
+  }
+  (discovered, 0)
 }
 
 ///|
@@ -70,6 +85,8 @@ pub fn GameWorld::new(
     seed,
     params,
   )
+  let (discovered_rooms, discovered_rooms_version) =
+    initial_discovered_rooms_for_dungeon(dungeon)
   {
     params,
     mode: Title,
@@ -100,6 +117,8 @@ pub fn GameWorld::new(
     auto_nav_path: [],
     auto_nav_index: 0,
     auto_cleared_rooms: Array::make(dungeon.rooms.length(), false),
+    discovered_rooms,
+    discovered_rooms_version,
     events: [],
     enemy_separation_cell_heads: Array::make(
       enemy_separation_grid_cols() * enemy_separation_grid_rows(),
@@ -166,9 +185,28 @@ pub fn GameWorld::apply_dungeon(
   self.ice_nova_cooldown_timer = 0
   // Reset auto-play navigation
   self.auto_cleared_rooms = Array::make(self.dungeon.rooms.length(), false)
+  let (discovered_rooms, discovered_rooms_version) =
+    initial_discovered_rooms_for_dungeon(self.dungeon)
+  self.discovered_rooms = discovered_rooms
+  self.discovered_rooms_version = discovered_rooms_version
   self.auto_nav_target = None
   self.auto_nav_path = []
   self.auto_nav_index = 0
+}
+
+///|
+pub fn GameWorld::mark_current_room_discovered(self : GameWorld) -> Unit {
+  let room_index = find_room_at(
+    self.dungeon.rooms,
+    self.player.x,
+    self.player.y,
+  )
+  if room_index >= 0 &&
+    room_index < self.discovered_rooms.length() &&
+    not(self.discovered_rooms[room_index]) {
+    self.discovered_rooms[room_index] = true
+    self.discovered_rooms_version = self.discovered_rooms_version + 1
+  }
 }
 
 ///|
@@ -781,6 +819,7 @@ pub fn GameWorld::tick_with_enemy_ai_grid(
     half,
     @cmp.minimum(world_h - half, self.player.y),
   )
+  self.mark_current_room_discovered()
   // 8. Auto-cast spell slots based on nearest visible enemy
   let (skill_enemy_idx, skill_enemy_dist_sq) = find_nearest_visible_enemy(self)
   self.auto_activate_spell_slots(skill_enemy_idx, skill_enemy_dist_sq)

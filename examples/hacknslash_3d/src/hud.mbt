@@ -24,6 +24,7 @@ fn GameState::invalidate_minimap_cache(self : GameState) -> Unit {
   self.minimap_cache_floor = -1
   self.minimap_cache_dst_id = -1
   self.minimap_cache_shader_id = -1
+  self.minimap_cache_discovery_version = -1
 }
 
 ///|
@@ -133,6 +134,17 @@ fn GameState::draw_spell_cooldowns(
     self.world.ice_nova_cooldown_timer,
     @game.ice_nova_cooldown,
     0x99EEFF,
+  )
+  self.draw_spell_cooldown_widget(
+    ctx,
+    cmds,
+    "7 HM",
+    10.0,
+    90.0,
+    56.0,
+    self.world.homing_missile_cooldown_timer,
+    @game.homing_missile_cooldown,
+    0xFF66CC,
   )
 }
 
@@ -300,6 +312,21 @@ fn minimap_layout(
 }
 
 ///|
+fn find_room_index_at_minimap_tile(
+  rooms : Array[@terrain.Room],
+  gx : Int,
+  gy : Int,
+) -> Int {
+  let point : @terrain.Point = { x: gx, y: gy }
+  for i, room in rooms {
+    if room.rect.contains(point) {
+      return i
+    }
+  }
+  -1
+}
+
+///|
 fn GameState::build_minimap_static_cmds(
   self : GameState,
   ctx : @hud.HudContext,
@@ -315,6 +342,8 @@ fn GameState::build_minimap_static_cmds(
   let wall_indices : Array[Int] = []
   let floor_vertices : Array[Double] = []
   let floor_indices : Array[Int] = []
+  let fog_vertices : Array[Double] = []
+  let fog_indices : Array[Int] = []
   ctx.append_rect_batch_geometry(
     border_vertices,
     border_indices,
@@ -338,6 +367,11 @@ fn GameState::build_minimap_static_cmds(
         }
         let sx = map_x + (dx + radius).to_double() * cell_size
         let sy = map_y + (dy + radius).to_double() * cell_size
+        let room_index = find_room_index_at_minimap_tile(
+          self.world.dungeon.rooms,
+          gx,
+          gy,
+        )
         if tile == @terrain.Wall {
           ctx.append_rect_batch_geometry(
             wall_vertices, wall_indices, sx, sy, cell_size, cell_size,
@@ -345,6 +379,18 @@ fn GameState::build_minimap_static_cmds(
         } else {
           ctx.append_rect_batch_geometry(
             floor_vertices, floor_indices, sx, sy, cell_size, cell_size,
+          )
+        }
+        if room_index >= 0 &&
+          room_index < self.world.discovered_rooms.length() &&
+          not(self.world.discovered_rooms[room_index]) {
+          ctx.append_rect_batch_geometry(
+            fog_vertices,
+            fog_indices,
+            sx,
+            sy,
+            cell_size,
+            cell_size,
           )
         }
       }
@@ -368,6 +414,12 @@ fn GameState::build_minimap_static_cmds(
     floor_indices,
     @hud.hex_color(0x223322, alpha=0.9),
   )
+  ctx.push_rect_batch_command(
+    commands,
+    fog_vertices,
+    fog_indices,
+    @hud.hex_color(0x000000, alpha=0.75),
+  )
   commands
 }
 
@@ -382,7 +434,8 @@ fn GameState::ensure_minimap_static_cache(
     self.minimap_cache_player_tile_y == pcy &&
     self.minimap_cache_floor == self.world.floor &&
     self.minimap_cache_dst_id == ctx.dst.id &&
-    self.minimap_cache_shader_id == ctx.shader.id {
+    self.minimap_cache_shader_id == ctx.shader.id &&
+    self.minimap_cache_discovery_version == self.world.discovered_rooms_version {
     return
   }
   self.minimap_static_cmds = self.build_minimap_static_cmds(ctx, pcx, pcy)
@@ -391,6 +444,7 @@ fn GameState::ensure_minimap_static_cache(
   self.minimap_cache_floor = self.world.floor
   self.minimap_cache_dst_id = ctx.dst.id
   self.minimap_cache_shader_id = ctx.shader.id
+  self.minimap_cache_discovery_version = self.world.discovered_rooms_version
   self.minimap_cache_builds = self.minimap_cache_builds + 1
 }
 
@@ -530,6 +584,16 @@ fn GameState::render_minimap(
   let boss_indices : Array[Int] = []
   for enemy in self.world.enemies {
     if enemy.alive {
+      let enemy_room = @game.find_room_at(
+        self.world.dungeon.rooms,
+        enemy.x,
+        enemy.y,
+      )
+      if enemy_room >= 0 &&
+        enemy_room < self.world.discovered_rooms.length() &&
+        not(self.world.discovered_rooms[enemy_room]) {
+        continue
+      }
       let ex = ((enemy.x / tile_size).to_int() - pcx + radius).to_double() *
         cell_size
       let ey = ((enemy.y / tile_size).to_int() - pcy + radius).to_double() *

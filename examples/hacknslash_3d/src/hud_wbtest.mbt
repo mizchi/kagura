@@ -23,7 +23,7 @@ test "render_hud_cmds reuses minimap static cache when player tile is unchanged"
   assert_eq(first_builds, 1)
   assert_eq(state.minimap_cache_builds, 1)
   assert_true(cached_len > 0)
-  assert_true(cached_len <= 3)
+  assert_true(cached_len <= 4)
   assert_eq(state.minimap_static_cmds.length(), cached_len)
 }
 
@@ -35,7 +35,26 @@ test "render_hud_cmds batches minimap static geometry by tile color" {
 
   let _ = state.render_hud_cmds(ctx.dst, ctx.shader)
 
-  assert_true(state.minimap_static_cmds.length() <= 3)
+  assert_true(state.minimap_static_cmds.length() <= 4)
+}
+
+///|
+test "render_hud_cmds adds minimap fog for undiscovered rooms" {
+  let state = GameState::new(seed=42)
+  state.world.mode = @game.Playing
+  let ctx = hud_test_engine_context()
+  let base_room = @game.find_room_at(
+    state.world.dungeon.rooms,
+    state.world.player.x,
+    state.world.player.y,
+  )
+  for i in 0..<state.world.discovered_rooms.length() {
+    state.world.discovered_rooms[i] = i == base_room
+  }
+
+  let _ = state.render_hud_cmds(ctx.dst, ctx.shader)
+
+  assert_true(state.minimap_static_cmds.length() >= 4)
 }
 
 ///|
@@ -48,6 +67,33 @@ test "render_hud_cmds rebuilds minimap static cache when player tile changes" {
   state.world.player.x = state.world.player.x + tile_size
   let _ = state.render_hud_cmds(ctx.dst, ctx.shader)
 
+  assert_eq(state.minimap_cache_builds, 2)
+}
+
+///|
+test "render_hud_cmds rebuilds minimap static cache when discovery changes" {
+  let state = GameState::new(seed=42)
+  state.world.mode = @game.Playing
+  let ctx = hud_test_engine_context()
+
+  let _ = state.render_hud_cmds(ctx.dst, ctx.shader)
+  let first_builds = state.minimap_cache_builds
+  let player_room = @game.find_room_at(
+    state.world.dungeon.rooms,
+    state.world.player.x,
+    state.world.player.y,
+  )
+  for i in 0..<state.world.discovered_rooms.length() {
+    if i != player_room {
+      state.world.discovered_rooms[i] = true
+      state.world.discovered_rooms_version = state.world.discovered_rooms_version + 1
+      break
+    }
+  }
+
+  let _ = state.render_hud_cmds(ctx.dst, ctx.shader)
+
+  assert_eq(first_builds, 1)
   assert_eq(state.minimap_cache_builds, 2)
 }
 
@@ -95,7 +141,7 @@ test "render_minimap batches enemy markers under stress scenario" {
 
   state.render_minimap(ctx, cmds)
 
-  assert_true(cmds.length() <= 6)
+  assert_true(cmds.length() <= 7)
 }
 
 ///|

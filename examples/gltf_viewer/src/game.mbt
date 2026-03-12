@@ -13,10 +13,14 @@ struct ViewerState {
   shader3d_textured : @gfx.ShaderHandle
   node_count : Int
   mesh_node_count : Int
+  show_hud : Bool
 }
 
 ///|
-fn ViewerState::new(graph : @scene3d.SceneGraph) -> ViewerState {
+fn ViewerState::new(
+  graph : @scene3d.SceneGraph,
+  show_hud? : Bool = true,
+) -> ViewerState {
   // Count nodes and mesh nodes
   let node_count = graph.nodes.length()
   let mut mesh_count = 0
@@ -56,17 +60,20 @@ fn ViewerState::new(graph : @scene3d.SceneGraph) -> ViewerState {
       100,
       @draw3d.shader3d_lit_untextured_wgsl(),
     ),
-    shader3d_textured: @gfx.new_shader_handle(
-      101,
-      @draw3d.shader3d_lit_wgsl(),
-    ),
+    shader3d_textured: @gfx.new_shader_handle(101, @draw3d.shader3d_lit_wgsl()),
     node_count,
     mesh_node_count: mesh_count,
+    show_hud,
   }
 }
 
 ///|
-fn ViewerState::update(self : ViewerState, input : @core.InputSnapshot, prev_x : Ref[Double], prev_y : Ref[Double]) -> Unit {
+fn ViewerState::update(
+  self : ViewerState,
+  input : @core.InputSnapshot,
+  prev_x : Ref[Double],
+  prev_y : Ref[Double],
+) -> Unit {
   let cx = input.cursor_x
   let cy = input.cursor_y
   let dx = cx - prev_x.val
@@ -91,7 +98,10 @@ fn ViewerState::update(self : ViewerState, input : @core.InputSnapshot, prev_x :
 }
 
 ///|
-fn ViewerState::draw(self : ViewerState, ctx : @engine.EngineContext) -> Array[@gfx.DrawTrianglesCommand] {
+fn ViewerState::draw(
+  self : ViewerState,
+  ctx : @engine.EngineContext,
+) -> Array[@gfx.DrawTrianglesCommand] {
   let cmds = @scene3d.render_scene3d_graph_gpu(
     self.graph,
     self.camera.to_camera3d(),
@@ -102,31 +112,62 @@ fn ViewerState::draw(self : ViewerState, ctx : @engine.EngineContext) -> Array[@
     ctx.screen_h,
     shader3d_textured=Some(self.shader3d_textured),
   )
+  if !self.show_hud {
+    return cmds
+  }
   // HUD: node count
   let sw = ctx.screen_w.to_double()
   let sh = ctx.screen_h.to_double()
   let white = @debugutil.color_from_hex(0xFFFFFF)
   // "N:" label + node count
   @debugutil.draw_dot_text(
-    cmds, ctx.dst, ctx.shader,
+    cmds,
+    ctx.dst,
+    ctx.shader,
     [78], // 'N'
-    4.0, 4.0, sw, sh, white, 1.0,
+    4.0,
+    4.0,
+    sw,
+    sh,
+    white,
+    1.0,
   )
   @debugutil.draw_number(
-    cmds, ctx.dst, ctx.shader,
+    cmds,
+    ctx.dst,
+    ctx.shader,
     self.node_count,
-    12.0, 4.0, sw, sh, white, 1.0,
+    12.0,
+    4.0,
+    sw,
+    sh,
+    white,
+    1.0,
   )
   // "M:" label + mesh node count
   @debugutil.draw_dot_text(
-    cmds, ctx.dst, ctx.shader,
+    cmds,
+    ctx.dst,
+    ctx.shader,
     [77], // 'M'
-    4.0, 12.0, sw, sh, white, 1.0,
+    4.0,
+    12.0,
+    sw,
+    sh,
+    white,
+    1.0,
   )
   @debugutil.draw_number(
-    cmds, ctx.dst, ctx.shader,
+    cmds,
+    ctx.dst,
+    ctx.shader,
     self.mesh_node_count,
-    12.0, 12.0, sw, sh, white, 1.0,
+    12.0,
+    12.0,
+    sw,
+    sh,
+    white,
+    1.0,
   )
   cmds
 }

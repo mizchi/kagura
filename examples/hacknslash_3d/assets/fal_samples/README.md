@@ -12,10 +12,25 @@
 - `chest-illustration.png`
   - repo 内で生成した単一物体の sample
   - Trellis に渡す入力としてはこれが一番安定
+- `chest-open-illustration.png`
+  - 開いた蓋、脚、側面ハンドルを入れた 3/4 視点の sample
+  - 今のところ chest 系ではこれが一番 shape の差が出やすい
+- `chest-open-strong-shadow.png`
+  - 開いた蓋に加えて陰影をかなり強くした variant
+  - 現状では chest 系 sample の中でこれが一番マシ
+- `chest-open-oblique.png`
+  - 3/4 視点をさらに強めた variant
+- `gltf-viewer-proxy-chest.png`
+  - `examples/gltf_viewer/?asset=proxy_chest&hud=0` から切り出した procedural 3D render
+  - 単純イラストより立体情報が多いので、Trellis 入力としてこちらの方が有望
 
 最短では次のように使えます。
 
 ```sh
+just hacknslash3d-fal-trellis-sample chest-open
+just hacknslash3d-fal-trellis-sample chest-open-strong-shadow
+just hacknslash3d-fal-trellis-sample chest-open-oblique
+just hacknslash3d-fal-trellis-sample proxy-chest-render
 just hacknslash3d-fal-trellis-sample chest
 just hacknslash3d-fal-trellis-sample gltf-viewer
 just hacknslash3d-fal-trellis-sample fetch-image

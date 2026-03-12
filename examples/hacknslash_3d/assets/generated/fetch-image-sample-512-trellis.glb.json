@@ -1,0 +1,13 @@
+{
+  "model": "fal-ai/trellis-2",
+  "outputPath": "/Users/mz/ghq/github.com/mizchi/kagura/examples/hacknslash_3d/assets/generated/fetch-image-sample-512-trellis.glb",
+  "queryAssetPath": "./assets/generated/fetch-image-sample-512-trellis.glb",
+  "glbUrl": "https://v3b.fal.media/files/b/0a91c506/ktziS8JS3IwGyUoR0G9_T_trellis2_8e72473b043b44babdb699ffa0c1db0a.glb",
+  "input": {
+    "image": "examples/hacknslash_3d/assets/fal_samples/fetch-image-sample-512.png",
+    "imageUrl": "",
+    "seed": null,
+    "meshSimplify": null,
+    "textureSize": null
+  }
+}

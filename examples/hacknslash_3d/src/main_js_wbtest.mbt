@@ -1,4 +1,15 @@
 ///|
+test "install_web_runtime_js installs web hooks" {
+  @web_hooks.uninstall()
+  assert_false(@web_hooks.is_ready())
+
+  install_web_runtime_js()
+
+  assert_true(@web_hooks.is_ready())
+  @web_hooks.uninstall()
+}
+
+///|
 test "apply_initial_mode_overrides starts in playing auto-play mode when autoplay is enabled" {
   let state = GameState::new(seed=42)
 

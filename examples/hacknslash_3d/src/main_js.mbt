@@ -236,6 +236,67 @@ fn build_initial_state() -> GameState {
 }
 
 ///|
+fn install_web_runtime_js() -> Unit {
+  @web_hooks.install("#app")
+}
+
+///|
+let dungeon_floor_texture_image_id : Int = 920
+
+///|
+let dungeon_wall_texture_image_id : Int = 921
+
+///|
+fn sync_loaded_source_image(image_id : Int, spec : @asset.ImageSpec) -> Unit {
+  let binding = @asset.new_source_image_binding(
+    image_id,
+    spec.width,
+    spec.height,
+    1,
+    Some(@asset.new_source_image_dirty_rect(0, 0, spec.width, spec.height)),
+    spec.palette,
+    spec.pixels_rgba8,
+  )
+  ignore(@web_hooks.sync_source_images([binding]))
+}
+
+///|
+fn load_dungeon_textures_js(state : GameState) -> Unit {
+  @asset.fetch_image("./assets/textures/stone_pavers_diff_1k.jpg", fn(
+    spec_opt,
+  ) {
+    match spec_opt {
+      Some(spec) => {
+        sync_loaded_source_image(dungeon_floor_texture_image_id, spec)
+        state.dungeon_floor_texture_image_id = Some(
+          dungeon_floor_texture_image_id,
+        )
+      }
+      None =>
+        println(
+          "Failed to load dungeon floor texture: stone_pavers_diff_1k.jpg",
+        )
+    }
+  })
+  @asset.fetch_image("./assets/textures/old_stone_wall_02_diff_1k.jpg", fn(
+    spec_opt,
+  ) {
+    match spec_opt {
+      Some(spec) => {
+        sync_loaded_source_image(dungeon_wall_texture_image_id, spec)
+        state.dungeon_wall_texture_image_id = Some(
+          dungeon_wall_texture_image_id,
+        )
+      }
+      None =>
+        println(
+          "Failed to load dungeon wall texture: old_stone_wall_02_diff_1k.jpg",
+        )
+    }
+  })
+}
+
+///|
 fn run_game_js(state : GameState, perf_capture_enabled : Bool) -> Unit {
   let snapshot_tick = get_snapshot_tick()
   let rendered_frames : Ref[Int] = Ref::new(0)
@@ -359,6 +420,7 @@ fn load_generated_prop_manifest_js(
 ) -> Unit {
   if index >= placements.length() {
     run_game_js(state, perf_capture_enabled)
+    load_dungeon_textures_js(state)
     return
   }
   let placement = placements[index]
@@ -391,6 +453,7 @@ fn load_generated_prop_manifest_js(
 
 ///|
 fn main {
+  install_web_runtime_js()
   let perf_capture_enabled = get_initial_perf_capture_enabled()
   let generated_prop_path = get_initial_generated_prop_path()
   let generated_prop_anchor = match
@@ -438,7 +501,9 @@ fn main {
     ]
   }
   if generated_prop_manifest.is_empty() {
-    run_game_js(build_initial_state(), perf_capture_enabled)
+    let state = build_initial_state()
+    run_game_js(state, perf_capture_enabled)
+    load_dungeon_textures_js(state)
     return
   }
   let state = build_initial_state()

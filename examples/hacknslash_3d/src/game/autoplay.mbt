@@ -144,8 +144,59 @@ fn find_nearest_autoplay_pickup_item(world : GameWorld) -> ItemDrop? {
 }
 
 ///|
+fn autoplay_walkable_tile(tile : @terrain.Tile) -> Bool {
+  match tile {
+    @terrain.Floor
+    | @terrain.Corridor
+    | @terrain.Door
+    | @terrain.Start
+    | @terrain.Goal => true
+    _ => false
+  }
+}
+
+///|
+fn resolve_autoplay_goal_path(
+  nav_grid : @terrain.Grid2D,
+  start : @terrain.Point,
+  goal_tile : @terrain.Point,
+) -> Array[@terrain.Point]? {
+  match @pathfind.find_path(nav_grid, start, goal_tile) {
+    Some(path) => return Some(path)
+    None => ()
+  }
+  let max_radius = @cmp.maximum(nav_grid.width, nav_grid.height)
+  for radius = 1; radius <= max_radius; radius = radius + 1 {
+    let min_row = @cmp.maximum(0, goal_tile.y - radius)
+    let max_row = @cmp.minimum(nav_grid.height - 1, goal_tile.y + radius)
+    let min_col = @cmp.maximum(0, goal_tile.x - radius)
+    let max_col = @cmp.minimum(nav_grid.width - 1, goal_tile.x + radius)
+    for row = min_row; row <= max_row; row = row + 1 {
+      for col = min_col; col <= max_col; col = col + 1 {
+        let on_perimeter = row == min_row ||
+          row == max_row ||
+          col == min_col ||
+          col == max_col
+        if not(on_perimeter) {
+          continue
+        }
+        if not(autoplay_walkable_tile(nav_grid.get(col, row))) {
+          continue
+        }
+        match @pathfind.find_path(nav_grid, start, { x: col, y: row }) {
+          Some(path) => return Some(path)
+          None => ()
+        }
+      }
+    }
+  }
+  None
+}
+
+///|
 fn auto_play_direction_to_goal_tile(
   world : GameWorld,
+  nav_grid : @terrain.Grid2D,
   goal_tile : @terrain.Point,
   enemy_idx : Int,
   enemy_dist_sq : Double,
@@ -158,7 +209,7 @@ fn auto_play_direction_to_goal_tile(
     let px = (world.player.x / tile_size).to_int()
     let py = (world.player.y / tile_size).to_int()
     let start : @terrain.Point = { x: px, y: py }
-    match @pathfind.find_path(world.dungeon.grid, start, goal_tile) {
+    match resolve_autoplay_goal_path(nav_grid, start, goal_tile) {
       Some(path) => {
         world.auto_nav_path = path
         world.auto_nav_index = 1
@@ -204,6 +255,14 @@ fn auto_play_direction_to_goal_tile(
 
 ///|
 pub fn auto_play_input(world : GameWorld) -> (Double, Double, Int, Double) {
+  auto_play_input_with_nav_grid(world, world.dungeon.grid)
+}
+
+///|
+fn auto_play_input_with_nav_grid(
+  world : GameWorld,
+  nav_grid : @terrain.Grid2D,
+) -> (Double, Double, Int, Double) {
   // 1. Check for visible enemies — if found, move toward nearest
   let (enemy_idx, enemy_dist_sq) = find_nearest_visible_enemy(world)
   if enemy_idx >= 0 {
@@ -252,7 +311,7 @@ pub fn auto_play_input(world : GameWorld) -> (Double, Double, Int, Double) {
         y: (item.y / tile_size).to_int(),
       }
       return auto_play_direction_to_goal_tile(
-        world, goal_tile, enemy_idx, enemy_dist_sq,
+        world, nav_grid, goal_tile, enemy_idx, enemy_dist_sq,
       )
     }
     None => ()
@@ -264,7 +323,9 @@ pub fn auto_play_input(world : GameWorld) -> (Double, Double, Int, Double) {
   }
   let r = world.dungeon.rooms[target_room].rect
   let goal_tile : @terrain.Point = { x: r.x + r.w / 2, y: r.y + r.h / 2 }
-  auto_play_direction_to_goal_tile(world, goal_tile, enemy_idx, enemy_dist_sq)
+  auto_play_direction_to_goal_tile(
+    world, nav_grid, goal_tile, enemy_idx, enemy_dist_sq,
+  )
 }
 
 // Auto-play: activate skills when enemies are nearby

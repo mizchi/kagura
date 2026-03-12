@@ -769,7 +769,9 @@ pub fn GameWorld::tick_auto_with_enemy_ai_grid(
   enemy_ai_grid : @terrain.Grid2D,
 ) -> Unit {
   // 1. Call auto_play_input() to get (dx, dy, enemy_idx, _)
-  let (dx, dy, enemy_idx, _) = auto_play_input(self)
+  let (dx, dy, enemy_idx, _) = auto_play_input_with_nav_grid(
+    self, enemy_ai_grid,
+  )
   // 2. Call auto_activate_skills(enemy_idx)
   self.auto_activate_skills(enemy_idx)
   // 3. Every 60 frames: auto_equip_best(), auto_learn_skills()

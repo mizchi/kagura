@@ -27,38 +27,38 @@ fn make_wall_mesh(
   let indices : Array[Int] = []
   let mut base = 0
   // +Z face (front)
-  push_vert(data, -hw, 0.0, hd, 0.0, 0.0, 1.0)
-  push_vert(data, hw, 0.0, hd, 0.0, 0.0, 1.0)
-  push_vert(data, hw, height, hd, 0.0, 0.0, 1.0)
-  push_vert(data, -hw, height, hd, 0.0, 0.0, 1.0)
+  push_vert(data, -hw, 0.0, hd, 0.0, 0.0, 1.0, 0.0, 1.0)
+  push_vert(data, hw, 0.0, hd, 0.0, 0.0, 1.0, 1.0, 1.0)
+  push_vert(data, hw, height, hd, 0.0, 0.0, 1.0, 1.0, 0.0)
+  push_vert(data, -hw, height, hd, 0.0, 0.0, 1.0, 0.0, 0.0)
   push_quad(indices, base)
   base = base + 4
   // -Z face (back)
-  push_vert(data, hw, 0.0, -hd, 0.0, 0.0, -1.0)
-  push_vert(data, -hw, 0.0, -hd, 0.0, 0.0, -1.0)
-  push_vert(data, -hw, height, -hd, 0.0, 0.0, -1.0)
-  push_vert(data, hw, height, -hd, 0.0, 0.0, -1.0)
+  push_vert(data, hw, 0.0, -hd, 0.0, 0.0, -1.0, 0.0, 1.0)
+  push_vert(data, -hw, 0.0, -hd, 0.0, 0.0, -1.0, 1.0, 1.0)
+  push_vert(data, -hw, height, -hd, 0.0, 0.0, -1.0, 1.0, 0.0)
+  push_vert(data, hw, height, -hd, 0.0, 0.0, -1.0, 0.0, 0.0)
   push_quad(indices, base)
   base = base + 4
   // +X face (right)
-  push_vert(data, hw, 0.0, hd, 1.0, 0.0, 0.0)
-  push_vert(data, hw, 0.0, -hd, 1.0, 0.0, 0.0)
-  push_vert(data, hw, height, -hd, 1.0, 0.0, 0.0)
-  push_vert(data, hw, height, hd, 1.0, 0.0, 0.0)
+  push_vert(data, hw, 0.0, hd, 1.0, 0.0, 0.0, 0.0, 1.0)
+  push_vert(data, hw, 0.0, -hd, 1.0, 0.0, 0.0, 1.0, 1.0)
+  push_vert(data, hw, height, -hd, 1.0, 0.0, 0.0, 1.0, 0.0)
+  push_vert(data, hw, height, hd, 1.0, 0.0, 0.0, 0.0, 0.0)
   push_quad(indices, base)
   base = base + 4
   // -X face (left)
-  push_vert(data, -hw, 0.0, -hd, -1.0, 0.0, 0.0)
-  push_vert(data, -hw, 0.0, hd, -1.0, 0.0, 0.0)
-  push_vert(data, -hw, height, hd, -1.0, 0.0, 0.0)
-  push_vert(data, -hw, height, -hd, -1.0, 0.0, 0.0)
+  push_vert(data, -hw, 0.0, -hd, -1.0, 0.0, 0.0, 0.0, 1.0)
+  push_vert(data, -hw, 0.0, hd, -1.0, 0.0, 0.0, 1.0, 1.0)
+  push_vert(data, -hw, height, hd, -1.0, 0.0, 0.0, 1.0, 0.0)
+  push_vert(data, -hw, height, -hd, -1.0, 0.0, 0.0, 0.0, 0.0)
   push_quad(indices, base)
   base = base + 4
   // +Y face (top)
-  push_vert(data, -hw, height, hd, 0.0, 1.0, 0.0)
-  push_vert(data, hw, height, hd, 0.0, 1.0, 0.0)
-  push_vert(data, hw, height, -hd, 0.0, 1.0, 0.0)
-  push_vert(data, -hw, height, -hd, 0.0, 1.0, 0.0)
+  push_vert(data, -hw, height, hd, 0.0, 1.0, 0.0, 0.0, 1.0)
+  push_vert(data, hw, height, hd, 0.0, 1.0, 0.0, 1.0, 1.0)
+  push_vert(data, hw, height, -hd, 0.0, 1.0, 0.0, 1.0, 0.0)
+  push_vert(data, -hw, height, -hd, 0.0, 1.0, 0.0, 0.0, 0.0)
   push_quad(indices, base)
   @mesh3d.Mesh3D::new(data, indices)
 }
@@ -80,30 +80,30 @@ fn make_arrow_mesh(length : Double, thickness : Double) -> @mesh3d.Mesh3D {
   let t = thickness
   // Tip (+X)
   // Top face: tip, left-back, right-back
-  push_vert(data, hl, 0.0, 0.0, 0.0, 1.0, 0.0)
-  push_vert(data, -hl, t, -t, 0.0, 1.0, 0.0)
-  push_vert(data, -hl, t, t, 0.0, 1.0, 0.0)
+  push_vert(data, hl, 0.0, 0.0, 0.0, 1.0, 0.0, 0.5, 0.0)
+  push_vert(data, -hl, t, -t, 0.0, 1.0, 0.0, 0.0, 1.0)
+  push_vert(data, -hl, t, t, 0.0, 1.0, 0.0, 1.0, 1.0)
   indices.push(0)
   indices.push(1)
   indices.push(2)
   // Bottom face
-  push_vert(data, hl, 0.0, 0.0, 0.0, -1.0, 0.0)
-  push_vert(data, -hl, -t, t, 0.0, -1.0, 0.0)
-  push_vert(data, -hl, -t, -t, 0.0, -1.0, 0.0)
+  push_vert(data, hl, 0.0, 0.0, 0.0, -1.0, 0.0, 0.5, 0.0)
+  push_vert(data, -hl, -t, t, 0.0, -1.0, 0.0, 0.0, 1.0)
+  push_vert(data, -hl, -t, -t, 0.0, -1.0, 0.0, 1.0, 1.0)
   indices.push(3)
   indices.push(4)
   indices.push(5)
   // Right face (+Z)
-  push_vert(data, hl, 0.0, 0.0, 0.0, 0.0, 1.0)
-  push_vert(data, -hl, t, t, 0.0, 0.0, 1.0)
-  push_vert(data, -hl, -t, t, 0.0, 0.0, 1.0)
+  push_vert(data, hl, 0.0, 0.0, 0.0, 0.0, 1.0, 0.5, 0.0)
+  push_vert(data, -hl, t, t, 0.0, 0.0, 1.0, 0.0, 1.0)
+  push_vert(data, -hl, -t, t, 0.0, 0.0, 1.0, 1.0, 1.0)
   indices.push(6)
   indices.push(7)
   indices.push(8)
   // Left face (-Z)
-  push_vert(data, hl, 0.0, 0.0, 0.0, 0.0, -1.0)
-  push_vert(data, -hl, -t, -t, 0.0, 0.0, -1.0)
-  push_vert(data, -hl, t, -t, 0.0, 0.0, -1.0)
+  push_vert(data, hl, 0.0, 0.0, 0.0, 0.0, -1.0, 0.5, 0.0)
+  push_vert(data, -hl, -t, -t, 0.0, 0.0, -1.0, 0.0, 1.0)
+  push_vert(data, -hl, t, -t, 0.0, 0.0, -1.0, 1.0, 1.0)
   indices.push(9)
   indices.push(10)
   indices.push(11)
@@ -119,6 +119,8 @@ fn push_vert(
   nx : Double,
   ny : Double,
   nz : Double,
+  u : Double,
+  v : Double,
 ) -> Unit {
   data.push(px)
   data.push(py)
@@ -126,8 +128,8 @@ fn push_vert(
   data.push(nx)
   data.push(ny)
   data.push(nz)
-  data.push(0.0) // u
-  data.push(0.0) // v
+  data.push(u)
+  data.push(v)
 }
 
 ///|

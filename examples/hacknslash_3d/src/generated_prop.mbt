@@ -648,7 +648,7 @@ fn GameState::apply_generated_prop_roles_for_current_floor(
             self.world,
             prop.placement,
           )
-          if not(self.world.inventory.add(item)) {
+          if not(self.world.collect_equipment_pickup(item)) {
             retained.push(prop)
             continue
           }

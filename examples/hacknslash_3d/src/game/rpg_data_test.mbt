@@ -201,3 +201,90 @@ test "compute_player_stats includes speed_bonus and cooldown_reduction" {
   assert_true((stats.speed_bonus - 0.15).abs() < 0.001)
   assert_true((stats.cooldown_reduction - 0.12).abs() < 0.001)
 }
+
+///|
+test "inventory add_fifo keeps newest items when capacity is full" {
+  let inv = Inventory::new(2)
+  ignore(
+    inv.add_fifo({
+      name: "Oldest",
+      rarity: Common,
+      slot: Weapon,
+      atk_bonus: 1,
+      def_bonus: 0,
+      hp_bonus: 0,
+      prefix: None,
+      suffix: None,
+      icon_id: 0,
+    }),
+  )
+  ignore(
+    inv.add_fifo({
+      name: "Middle",
+      rarity: Common,
+      slot: Weapon,
+      atk_bonus: 2,
+      def_bonus: 0,
+      hp_bonus: 0,
+      prefix: None,
+      suffix: None,
+      icon_id: 1,
+    }),
+  )
+  let dropped = inv.add_fifo({
+    name: "Newest",
+    rarity: Common,
+    slot: Weapon,
+    atk_bonus: 3,
+    def_bonus: 0,
+    hp_bonus: 0,
+    prefix: None,
+    suffix: None,
+    icon_id: 2,
+  })
+  let dropped_name = match dropped {
+    Some(item) => item.name
+    None => panic()
+  }
+  assert_eq(dropped_name, "Oldest")
+  let first = match inv.items[0] {
+    Some(item) => item.name
+    None => panic()
+  }
+  let second = match inv.items[1] {
+    Some(item) => item.name
+    None => panic()
+  }
+  assert_eq(first, "Middle")
+  assert_eq(second, "Newest")
+}
+
+///|
+test "equipment should_equip compares total stat score across matching slot" {
+  let equip = Equipment::new()
+  ignore(
+    equip.equip({
+      name: "Bronze Charm",
+      rarity: Common,
+      slot: Accessory,
+      atk_bonus: 0,
+      def_bonus: 0,
+      hp_bonus: 3,
+      prefix: None,
+      suffix: None,
+      icon_id: 0,
+    }),
+  )
+  let better : ItemData = {
+    name: "Crit Charm",
+    rarity: Common,
+    slot: Accessory,
+    atk_bonus: 0,
+    def_bonus: 0,
+    hp_bonus: 0,
+    prefix: Some(mk_affix("Sharp", crit=0.08)),
+    suffix: None,
+    icon_id: 1,
+  }
+  assert_true(equip.should_equip(better))
+}

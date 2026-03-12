@@ -326,6 +326,108 @@ test "update_playing collects equipment pickup with forced rarity and slot" {
 }
 
 ///|
+test "update_playing in auto_play equips stronger generated equipment pickup and keeps fifo inventory" {
+  let state = GameState::new(seed=42)
+  state.world.mode = @game.Playing
+  state.world.auto_play = true
+  ignore(
+    state.world.inventory.add_fifo({
+      name: "Old Weapon",
+      rarity: @game.Common,
+      slot: @game.Weapon,
+      atk_bonus: 1,
+      def_bonus: 0,
+      hp_bonus: 0,
+      prefix: None,
+      suffix: None,
+      icon_id: 0,
+    }),
+  )
+  ignore(
+    state.world.inventory.add_fifo({
+      name: "Old Armor",
+      rarity: @game.Common,
+      slot: @game.Armor,
+      atk_bonus: 0,
+      def_bonus: 1,
+      hp_bonus: 0,
+      prefix: None,
+      suffix: None,
+      icon_id: 1,
+    }),
+  )
+  for i in 0..<(state.world.inventory.capacity - 2) {
+    ignore(
+      state.world.inventory.add_fifo({
+        name: "Filler \{i}",
+        rarity: @game.Common,
+        slot: @game.Accessory,
+        atk_bonus: 0,
+        def_bonus: 0,
+        hp_bonus: 1,
+        prefix: None,
+        suffix: None,
+        icon_id: 10 + i,
+      }),
+    )
+  }
+  ignore(
+    state.world.equipment.equip({
+      name: "Weak Sword",
+      rarity: @game.Common,
+      slot: @game.Weapon,
+      atk_bonus: 2,
+      def_bonus: 0,
+      hp_bonus: 0,
+      prefix: None,
+      suffix: None,
+      icon_id: 2,
+    }),
+  )
+  let graph = @scene3d.SceneGraph::new()
+  ignore(
+    graph.add_node(@scene3d.scene_node(mesh=Some(@mesh3d.Mesh3D::cube(0.5)))),
+  )
+  state.set_generated_prop_asset(
+    {
+      scene_graph: graph,
+      source_path: "./assets/generated/equipment-autoplay.glb",
+    },
+    generated_prop_placement(
+      "./assets/generated/equipment-autoplay.glb",
+      floor=1,
+      anchor=StartRoomCenter,
+      role=Pickup,
+      pickup_effect=EquipmentPickup,
+      pickup_rarity=Some(@game.Epic),
+      pickup_slot=Some(@game.Weapon),
+      x_offset_tiles=0.0,
+      z_offset_tiles=0.0,
+    ),
+  )
+
+  state.update_playing()
+
+  let equipped = match state.world.equipment.weapon {
+    Some(item) => item
+    None => panic()
+  }
+  assert_true(equipped.total_stat_score() > 2.0)
+  let mut has_weak_sword = false
+  for item in state.world.inventory.items {
+    match item {
+      Some(item) if item.name == "Weak Sword" => {
+        has_weak_sword = true
+        break
+      }
+      _ => ()
+    }
+  }
+  assert_true(has_weak_sword)
+  assert_eq(state.generated_props.length(), 0)
+}
+
+///|
 test "update_playing pushes player away from blocking generated prop" {
   let state = GameState::new(seed=42)
   state.world.mode = @game.Playing

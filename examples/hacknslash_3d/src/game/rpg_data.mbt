@@ -106,6 +106,17 @@ pub fn ItemData::total_life_steal(self : ItemData) -> Double {
 }
 
 ///|
+pub fn ItemData::total_stat_score(self : ItemData) -> Double {
+  self.total_atk().to_double() +
+  self.total_def().to_double() +
+  self.total_hp().to_double() +
+  self.total_crit() * 100.0 +
+  self.total_life_steal() * 100.0 +
+  self.total_speed_bonus() * 100.0 +
+  self.total_cooldown_reduction() * 100.0
+}
+
+///|
 pub fn ItemData::display_name(self : ItemData) -> String {
   let mut n = ""
   match self.prefix {
@@ -144,6 +155,42 @@ pub fn Inventory::add(self : Inventory, item : ItemData) -> Bool {
     }
   }
   false
+}
+
+///|
+fn inventory_compact(inv : Inventory) -> Int {
+  let mut write = 0
+  for read in 0..<inv.capacity {
+    match inv.items[read] {
+      Some(item) => {
+        if write != read {
+          inv.items[write] = Some(item)
+          inv.items[read] = None
+        }
+        write = write + 1
+      }
+      None => ()
+    }
+  }
+  write
+}
+
+///|
+pub fn Inventory::add_fifo(self : Inventory, item : ItemData) -> ItemData? {
+  let used = inventory_compact(self)
+  if used < self.capacity {
+    self.items[used] = Some(item)
+    return None
+  }
+  if self.capacity <= 0 {
+    return Some(item)
+  }
+  let dropped = self.items[0]
+  for i = 1; i < self.capacity; i = i + 1 {
+    self.items[i - 1] = self.items[i]
+  }
+  self.items[self.capacity - 1] = Some(item)
+  dropped
 }
 
 ///|
@@ -199,6 +246,26 @@ pub fn Equipment::equip(self : Equipment, item : ItemData) -> ItemData? {
       self.accessory = Some(item)
       old
     }
+  }
+}
+
+///|
+pub fn Equipment::item_for_slot(
+  self : Equipment,
+  slot : EquipSlot,
+) -> ItemData? {
+  match slot {
+    Weapon => self.weapon
+    Armor => self.armor
+    Accessory => self.accessory
+  }
+}
+
+///|
+pub fn Equipment::should_equip(self : Equipment, item : ItemData) -> Bool {
+  match self.item_for_slot(item.slot) {
+    Some(equipped) => item.total_stat_score() > equipped.total_stat_score()
+    None => true
   }
 }
 

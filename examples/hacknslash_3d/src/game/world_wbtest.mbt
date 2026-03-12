@@ -131,6 +131,114 @@ test "tick_items_phase collects score item and compacts" {
 }
 
 ///|
+test "tick_items_phase in auto_play replaces oldest inventory item and auto equips stronger pickup" {
+  let world = GameWorld::new(seed=42)
+  world.auto_play = true
+  let old_weapon : ItemData = {
+    name: "Old Weapon",
+    rarity: Common,
+    slot: Weapon,
+    atk_bonus: 1,
+    def_bonus: 0,
+    hp_bonus: 0,
+    prefix: None,
+    suffix: None,
+    icon_id: 0,
+  }
+  let old_armor : ItemData = {
+    name: "Old Armor",
+    rarity: Common,
+    slot: Armor,
+    atk_bonus: 0,
+    def_bonus: 1,
+    hp_bonus: 0,
+    prefix: None,
+    suffix: None,
+    icon_id: 1,
+  }
+  ignore(world.inventory.add_fifo(old_weapon))
+  ignore(world.inventory.add_fifo(old_armor))
+  for i in 0..<(world.inventory.capacity - 2) {
+    ignore(
+      world.inventory.add_fifo({
+        name: "Filler \{i}",
+        rarity: Common,
+        slot: Accessory,
+        atk_bonus: 0,
+        def_bonus: 0,
+        hp_bonus: 1,
+        prefix: None,
+        suffix: None,
+        icon_id: 10 + i,
+      }),
+    )
+  }
+  ignore(
+    world.equipment.equip({
+      name: "Weak Sword",
+      rarity: Common,
+      slot: Weapon,
+      atk_bonus: 2,
+      def_bonus: 0,
+      hp_bonus: 0,
+      prefix: None,
+      suffix: None,
+      icon_id: 2,
+    }),
+  )
+  world.items = [
+    {
+      x: world.player.x,
+      y: world.player.y,
+      vx: 0.0,
+      vy: 0.0,
+      kind: Equipment({
+        name: "Strong Sword",
+        rarity: Rare,
+        slot: Weapon,
+        atk_bonus: 6,
+        def_bonus: 0,
+        hp_bonus: 0,
+        prefix: Some({
+          name: "Keen",
+          atk: 1,
+          def: 0,
+          hp: 0,
+          crit: 0.02,
+          life_steal: 0.0,
+          speed_bonus: 0.0,
+          cooldown_reduction: 0.0,
+        }),
+        suffix: None,
+        icon_id: 3,
+      }),
+      alive: true,
+      spawn_frame: world.frame_count,
+    },
+  ]
+
+  world.tick_items_phase()
+
+  let equipped = match world.equipment.weapon {
+    Some(item) => item
+    None => panic()
+  }
+  assert_eq(equipped.name, "Strong Sword")
+  assert_eq(world.inventory.count(), world.inventory.capacity)
+  let inv0 = match world.inventory.items[0] {
+    Some(item) => item.name
+    None => panic()
+  }
+  assert_eq(inv0, "Old Armor")
+  let inv_last = match world.inventory.items[world.inventory.capacity - 1] {
+    Some(item) => item.name
+    None => panic()
+  }
+  assert_eq(inv_last, "Weak Sword")
+  assert_eq(world.items.length(), 0)
+}
+
+///|
 test "tick auto-casts ice nova for nearby enemy" {
   let world = GameWorld::new(seed=42)
   let px = world.player.x

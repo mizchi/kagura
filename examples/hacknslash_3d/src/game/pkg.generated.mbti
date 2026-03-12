@@ -24,6 +24,20 @@ pub let bow_cooldown : Int
 
 pub fn build_height_map(@types.Grid2D, Array[@types.Room], Int) -> Array[Double]
 
+pub fn cast_chain_lightning(GameWorld) -> Bool
+
+pub fn cast_ice_nova(GameWorld) -> Bool
+
+pub fn cast_splitting_fireball(GameWorld) -> Bool
+
+pub let chain_lightning_cooldown : Int
+
+pub let chain_lightning_hop_range : Double
+
+pub let chain_lightning_max_targets : Int
+
+pub let chain_lightning_range : Double
+
 pub let chase_range : Double
 
 pub fn check_wall_collision(@types.Grid2D, Double, Double, Double) -> Bool
@@ -66,6 +80,10 @@ pub fn generate_item_with_profile(Int, Int, AffixProfile) -> ItemData
 
 pub fn get_tile_height(DungeonData, Double, Double) -> Double
 
+pub let ice_nova_cooldown : Int
+
+pub let ice_nova_radius : Double
+
 pub let iframe_duration : Int
 
 pub fn is_wall_at(@types.Grid2D, Double, Double) -> Bool
@@ -88,7 +106,7 @@ pub fn prefix_table() -> Array[Affix]
 
 pub fn prefix_table_for(AffixProfile) -> Array[Affix]
 
-pub fn process_player_arrows(GameWorld) -> Unit
+pub fn process_player_projectiles(GameWorld, Array[Projectile]) -> Unit
 
 pub fn scale_affix(Affix, Int) -> Affix
 
@@ -117,6 +135,16 @@ pub fn spawn_enemies_in_rooms(Array[@types.Room], Int, Int) -> Array[Enemy]
 pub fn spawn_enemies_in_rooms_with_params(Array[@types.Room], Int, Int, BalanceParams) -> Array[Enemy]
 
 pub fn spawn_ground_item(GameWorld, Double, Double, ItemKind) -> Unit
+
+pub let splitting_fireball_cooldown : Int
+
+pub let splitting_fireball_split_angle : Double
+
+pub let splitting_fireball_split_children : Int
+
+pub let splitting_fireball_split_speed_mult : Double
+
+pub let splitting_fireball_trail_interval : Int
 
 pub fn start_dash(GameWorld, Double, Double) -> Unit
 
@@ -251,6 +279,11 @@ pub(all) enum GameEvent {
   DashTrail(Double, Double)
   PlayerHurt(Double, Double)
   ItemPickup(Double, Double, Bool)
+  ChainLightningArc(Double, Double, Double, Double)
+  FireballCast(Double, Double)
+  FireballTrail(Double, Double)
+  FireballBurst(Double, Double)
+  IceNovaCast(Double, Double, Double)
   AttackTriggered
   HurtTriggered
   FloorComplete
@@ -278,6 +311,9 @@ pub(all) struct GameWorld {
   mut attack_timer : Int
   mut screen_flash : Int
   mut floor_announce_timer : Int
+  mut chain_lightning_cooldown_timer : Int
+  mut splitting_fireball_cooldown_timer : Int
+  mut ice_nova_cooldown_timer : Int
   inventory : Inventory
   equipment : Equipment
   skills : SkillTree
@@ -296,6 +332,7 @@ pub(all) struct GameWorld {
 }
 pub fn GameWorld::apply_dungeon(Self, Int, Int) -> Unit
 pub fn GameWorld::auto_activate_skills(Self, Int) -> Unit
+pub fn GameWorld::auto_activate_spell_slots(Self, Int, Double) -> Unit
 pub fn GameWorld::auto_equip_best(Self) -> Unit
 pub fn GameWorld::auto_learn_skills(Self) -> Unit
 pub fn GameWorld::deal_player_damage(Self, Int) -> Unit
@@ -305,13 +342,16 @@ pub fn GameWorld::reset_floor(Self) -> Unit
 pub fn GameWorld::resolve_enemy_enemy_separation(Self) -> Unit
 pub fn GameWorld::tick(Self, Double, Double) -> Unit
 pub fn GameWorld::tick_auto(Self) -> Unit
+pub fn GameWorld::tick_auto_with_enemy_ai_grid(Self, @types.Grid2D) -> Unit
 pub fn GameWorld::tick_enemy_ai_phase(Self) -> Unit
+pub fn GameWorld::tick_enemy_ai_phase_with_grid(Self, @types.Grid2D) -> Unit
 pub fn GameWorld::tick_enemy_movement_and_contact_phase(Self) -> Unit
 pub fn GameWorld::tick_floor_completion_phase(Self) -> Unit
 pub fn GameWorld::tick_items_phase(Self) -> Unit
 pub fn GameWorld::tick_player_enemy_separation_phase(Self) -> Unit
 pub fn GameWorld::tick_player_timers_phase(Self) -> Unit
 pub fn GameWorld::tick_projectiles_phase(Self) -> Unit
+pub fn GameWorld::tick_with_enemy_ai_grid(Self, Double, Double, @types.Grid2D) -> Unit
 
 pub(all) struct Inventory {
   items : Array[ItemData?]
@@ -401,7 +441,16 @@ pub(all) struct Projectile {
   mut alive : Bool
   damage : Int
   is_player : Bool
+  kind : ProjectileKind
 }
+
+pub(all) enum ProjectileKind {
+  Arrow
+  Fireball(Int)
+  EnemyBolt
+}
+pub impl Eq for ProjectileKind
+pub impl Show for ProjectileKind
 
 pub(all) enum SkillId {
   PowerStrike

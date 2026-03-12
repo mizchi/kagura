@@ -551,7 +551,7 @@ pub fn GameWorld::tick_items_phase(self : GameWorld) -> Unit {
             self.score = self.score + 5
           }
           Equipment(data) =>
-            if self.inventory.add(data) {
+            if self.collect_equipment_pickup(data) {
               item.alive = false
               self.events.push(ItemPickup(item.x, item.y, false))
             }

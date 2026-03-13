@@ -44,6 +44,18 @@
 - [x] CMA-ES バランスチューナー (5プロファイル最適化、CSV出力)
 ## Next — すぐ取り組めるもの
 
+### Balance Experiment Plan
+- [ ] `default / autoplay_progression / build_diverse_hackslash / mechanics_roguelike_v2` を floor 1 / floor 5 の両方で headless 比較し、`before_change / after_tune` を DuckDB に継続蓄積する
+- [ ] `ArchetypeAligned` で tuned した値を固定して、`AntiSynergy` build に cross-eval し、「明らかに噛み合わない build はちゃんと死ぬ」ことを確認する
+- [ ] `Melee / Mage / Summoner / Ranger` を別々に tune し、各 archetype ごとに `skill unlock / drop table / stat scaling` の探索範囲を個別化する
+- [ ] 爽快感重視 (`build_diverse_hackslash`) とメカニクス重視 (`mechanics_roguelike_v2`) を preset として維持し、同じ seed 群で継続比較する
+- [ ] 探索時間を減らす方向の仮説として、`map_room_count_scale / map_room_size_scale / map_corridor_width_bonus / pack_large_room_bonus` を優先探索し、広場が多い地形での clear time を確認する
+- [ ] アイテム更新の spike を強める方向として、`base tier / prefix / suffix / modifier tier` の floor scaling を tuning し、`equip_upgrades` と `learned_skill_count` の増え方を見る
+- [ ] 敵パターン増加後の stress case を固定し、`弾幕 / タックル / 炎上 / 死亡爆発` が追加された状態で `total_damage / near_death_rate / floors_cleared` を再基準化する
+- [ ] `爽快感` の proxy として `kill cadence / knockback distance / particle burst count` を experiment metric に追加する
+- [ ] `examples/hacknslash_3d/scripts/balance_hypothesis_record.mjs` の出力から `best_generation` 推移を可視化し、収束しない仮説を早めに切る
+- [ ] 詳細な実行手順は [docs/hacknslash_3d-balance-tuning.md](/Users/mz/ghq/github.com/mizchi/kagura/docs/hacknslash_3d-balance-tuning.md) に残し、この TODO では「次に試す仮説」と「採用判断」だけを管理する
+
 ### UI / UX
 - [ ] TTF フォントレンダリング対応 (init 順序問題の解決: GameState 生成を on_start 内に移動)
 - [ ] ダメージ数値ポップアップ (敵に与えたダメージを画面上に表示)

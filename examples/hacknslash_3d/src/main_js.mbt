@@ -236,10 +236,7 @@ fn build_initial_balance_params(preset_name : String) -> @game.BalanceParams {
 }
 
 ///|
-fn apply_debug_skill_unlocks(
-  state : GameState,
-  unlock_spells : Bool,
-) -> Unit {
+fn apply_debug_skill_unlocks(state : GameState, unlock_spells : Bool) -> Unit {
   if not(unlock_spells) {
     return
   }

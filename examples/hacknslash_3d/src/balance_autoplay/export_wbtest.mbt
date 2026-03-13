@@ -55,39 +55,13 @@ test "new_autoplay_experiment_parquet_file builds baseline and optimized rows" {
   )
 
   let names = file.columns().map(fn(column) { column.name() })
-  assert_eq(
-    names,
-    [
-      "experiment_id",
-      "created_at_utc",
-      "runner",
-      "hypothesis_name",
-      "run_kind",
-      "generation",
-      "loss",
-      "start_floor",
-      "sim_max_frames",
-      "max_generations",
-      "seed_count",
-      "survival_frames",
-      "floors_cleared",
-      "total_kills",
-      "total_damage",
-      "score",
-      "avg_hp_ratio",
-      "hp_cv",
-      "floor_time",
-      "kill_interval",
-      "kill_cv",
-      "kills_per_floor",
-      "damage_interval",
-      "equip_upgrades",
-      "learned_skill_count",
-      "near_death_rate",
-      "player_speed",
-      "spell_damage_mult",
-    ],
-  )
+  assert_eq(names, [
+    "experiment_id", "created_at_utc", "runner", "hypothesis_name", "run_kind", "generation",
+    "loss", "start_floor", "sim_max_frames", "max_generations", "seed_count", "survival_frames",
+    "floors_cleared", "total_kills", "total_damage", "score", "avg_hp_ratio", "hp_cv",
+    "floor_time", "kill_interval", "kill_cv", "kills_per_floor", "damage_interval",
+    "equip_upgrades", "learned_skill_count", "near_death_rate", "player_speed", "spell_damage_mult",
+  ])
 
   let rows = file.rows()
   assert_eq(rows.length(), 2)

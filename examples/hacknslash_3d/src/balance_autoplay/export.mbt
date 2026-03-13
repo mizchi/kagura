@@ -1,20 +1,8 @@
 ///|
 let autoplay_experiment_metric_names : Array[String] = [
-  "survival_frames",
-  "floors_cleared",
-  "total_kills",
-  "total_damage",
-  "score",
-  "avg_hp_ratio",
-  "hp_cv",
-  "floor_time",
-  "kill_interval",
-  "kill_cv",
-  "kills_per_floor",
-  "damage_interval",
-  "equip_upgrades",
-  "learned_skill_count",
-  "near_death_rate",
+  "survival_frames", "floors_cleared", "total_kills", "total_damage", "score", "avg_hp_ratio",
+  "hp_cv", "floor_time", "kill_interval", "kill_cv", "kills_per_floor", "damage_interval",
+  "equip_upgrades", "learned_skill_count", "near_death_rate",
 ]
 
 ///|
@@ -103,12 +91,7 @@ fn new_autoplay_experiment_parquet_file(
   let columns = autoplay_experiment_columns(config.specs)
   let rows = [
     autoplay_experiment_row(
-      config,
-      "before_change",
-      0,
-      baseline_loss,
-      baseline_metrics,
-      baseline_params,
+      config, "before_change", 0, baseline_loss, baseline_metrics, baseline_params,
     ),
     autoplay_experiment_row(
       config,
@@ -132,11 +115,7 @@ fn write_autoplay_experiment_parquet_file(
   tuned : @dec.TuneResult,
 ) -> Unit raise {
   let file = new_autoplay_experiment_parquet_file(
-    config,
-    baseline_loss,
-    baseline_metrics,
-    baseline_params,
-    tuned,
+    config, baseline_loss, baseline_metrics, baseline_params, tuned,
   )
   @parquet.write_file(path, file)
 }

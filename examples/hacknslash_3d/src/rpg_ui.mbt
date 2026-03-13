@@ -130,7 +130,8 @@ fn GameState::update_levelup_ui(self : GameState) -> Unit {
     return
   }
   if is_up_just_pressed(self.input) {
-    self.world.ui_cursor = (self.world.ui_cursor - 1 + offer_count) % offer_count
+    self.world.ui_cursor = (self.world.ui_cursor - 1 + offer_count) %
+      offer_count
   }
   if is_down_just_pressed(self.input) {
     self.world.ui_cursor = (self.world.ui_cursor + 1) % offer_count
@@ -380,7 +381,9 @@ fn GameState::render_skills_ui(
     0xFFCC00,
   )
   y = y + 24.0
-  ctx.draw_text(cmds, "LEVEL UP CHOICES ONLY  K:CLOSE", ui_font_sm, p, y, 0x555555)
+  ctx.draw_text(
+    cmds, "LEVEL UP CHOICES ONLY  K:CLOSE", ui_font_sm, p, y, 0x555555,
+  )
   y = y + 16.0
   for i, node in self.world.skills.nodes {
     let row_y = y + i.to_double() * rh
@@ -465,11 +468,7 @@ fn skill_levelup_summary(
   match skills.find(id) {
     None => "---"
     Some(node) => {
-      let prereq_text = if node.prereqs.length() == 0 {
-        "OPEN"
-      } else {
-        "REQ"
-      }
+      let prereq_text = if node.prereqs.length() == 0 { "OPEN" } else { "REQ" }
       "Lv " +
       node.level.to_string() +
       " -> " +
@@ -506,14 +505,7 @@ fn GameState::render_levelup_ui(
     panel_h,
     @hud.hex_color(0x11162A),
   )
-  ctx.draw_rect(
-    cmds,
-    panel_x,
-    panel_y,
-    panel_w,
-    3.0,
-    @hud.hex_color(0xFFCC00),
-  )
+  ctx.draw_rect(cmds, panel_x, panel_y, panel_w, 3.0, @hud.hex_color(0xFFCC00))
   let mut y = panel_y + 10.0
   ctx.draw_text(cmds, "LEVEL UP", ui_font_lg, panel_x + p, y, 0xFFCC00)
   ctx.draw_text(
@@ -527,7 +519,8 @@ fn GameState::render_levelup_ui(
   y = y + 26.0
   ctx.draw_text(
     cmds,
-    "Choose 1 of " + self.world.level_progress.current_offers.length().to_string(),
+    "Choose 1 of " +
+    self.world.level_progress.current_offers.length().to_string(),
     ui_font_sm,
     panel_x + p,
     y,

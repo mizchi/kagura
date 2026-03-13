@@ -146,3 +146,48 @@ pub let enemy_bolt_telegraph_frames : Int = 14
 
 ///|
 pub let enemy_bolt_telegraph_radius : Double = 14.0
+
+///|
+pub let enemy_barrage_projectile_count : Int = 5
+
+///|
+pub let enemy_barrage_spread_angle : Double = 0.18
+
+///|
+pub let enemy_tackle_trigger_range : Double = 96.0
+
+///|
+pub let enemy_tackle_telegraph_frames : Int = 12
+
+///|
+pub let enemy_tackle_active_frames : Int = 9
+
+///|
+pub let enemy_tackle_speed_mult : Double = 3.8
+
+///|
+pub let enemy_tackle_telegraph_radius : Double = 16.0
+
+///|
+pub let enemy_fire_nova_trigger_range : Double = 56.0
+
+///|
+pub let enemy_fire_nova_cast_frames : Int = 16
+
+///|
+pub let enemy_fire_nova_cooldown_frames : Int = 90
+
+///|
+pub let enemy_fire_nova_radius : Double = 32.0
+
+///|
+pub let enemy_fire_nova_projectile_count : Int = 8
+
+///|
+pub let enemy_fire_nova_projectile_speed : Double = 1.6
+
+///|
+pub let enemy_death_explosion_radius : Double = 26.0
+
+///|
+pub let enemy_death_explosion_projectile_count : Int = 8

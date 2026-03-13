@@ -144,10 +144,7 @@ fn arena_chain_config_for_floor(
     } else {
       0.25
     },
-    side_room_min_size: @cmp.maximum(
-      4,
-      (5.0 * room_size_scale).to_int(),
-    ),
+    side_room_min_size: @cmp.maximum(4, (5.0 * room_size_scale).to_int()),
     side_room_max_size: @cmp.maximum(
       @cmp.maximum(4, (5.0 * room_size_scale).to_int()),
       (8.0 * room_size_scale).to_int(),

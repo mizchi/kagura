@@ -41,7 +41,7 @@ fn GameState::new_with_params_and_ssao(
   params : @game.BalanceParams,
   ssao_config : SSAOConfig,
 ) -> GameState {
-  let world = @game.GameWorld::new(seed~, params=params)
+  let world = @game.GameWorld::new(seed~, params~)
   let sw = screen_w.to_double()
   let sh = screen_h.to_double()
   let bloom_w = half_res_target_size(screen_w)

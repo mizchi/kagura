@@ -63,7 +63,9 @@ test "build_initial_balance_params falls back to default preset" {
   let params = build_initial_balance_params("unknown")
   let default_params = @game.BalanceParams::default()
 
-  assert_true((params.player_speed - default_params.player_speed).abs() < 0.0001)
+  assert_true(
+    (params.player_speed - default_params.player_speed).abs() < 0.0001,
+  )
   assert_true(
     (params.enemy_bolt_damage - default_params.enemy_bolt_damage).abs() < 0.0001,
   )

@@ -138,17 +138,18 @@ fn GameState::play_sound_cue(self : GameState, cue : GameSoundCue) -> Unit {
 ///|
 fn GameState::loaded_audio_player_count(self : GameState) -> Int {
   let mut count = 0
-  for cue in [
-    SfxAttack,
-    SfxHurt,
-    SfxPickupLoot,
-    SfxPickupHealth,
-    SfxSpellChainLightning,
-    SfxSpellFireball,
-    SfxSpellIceNova,
-    SfxSpellHomingMissile,
-    SfxFloorComplete,
-  ] {
+  for
+    cue in [
+      SfxAttack,
+      SfxHurt,
+      SfxPickupLoot,
+      SfxPickupHealth,
+      SfxSpellChainLightning,
+      SfxSpellFireball,
+      SfxSpellIceNova,
+      SfxSpellHomingMissile,
+      SfxFloorComplete,
+    ] {
     match self.audio_players.lookup(cue) {
       Some(_) => count = count + 1
       None => ()
@@ -160,17 +161,18 @@ fn GameState::loaded_audio_player_count(self : GameState) -> Int {
 ///|
 fn GameState::playing_audio_player_count(self : GameState) -> Int {
   let mut count = 0
-  for cue in [
-    SfxAttack,
-    SfxHurt,
-    SfxPickupLoot,
-    SfxPickupHealth,
-    SfxSpellChainLightning,
-    SfxSpellFireball,
-    SfxSpellIceNova,
-    SfxSpellHomingMissile,
-    SfxFloorComplete,
-  ] {
+  for
+    cue in [
+      SfxAttack,
+      SfxHurt,
+      SfxPickupLoot,
+      SfxPickupHealth,
+      SfxSpellChainLightning,
+      SfxSpellFireball,
+      SfxSpellIceNova,
+      SfxSpellHomingMissile,
+      SfxFloorComplete,
+    ] {
     match self.audio_players.lookup(cue) {
       Some(player) =>
         match self.audio_ctx.state(player) {

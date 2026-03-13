@@ -166,10 +166,7 @@ fn enemy_xp_reward(enemy : Enemy) -> Int {
 }
 
 ///|
-fn roll_drop_item_kind(
-  world : GameWorld,
-  item_seed : Int,
-) -> ItemKind {
+fn roll_drop_item_kind(world : GameWorld, item_seed : Int) -> ItemKind {
   let config = world.params.drop_table_config()
   let equipment_weight = @cmp.maximum(0, config.equipment_weight)
   let health_weight = @cmp.maximum(0, config.health_weight)
@@ -178,7 +175,7 @@ fn roll_drop_item_kind(
   let roll = if total_weight <= 0 {
     0
   } else {
-    ((item_seed * 37) % total_weight + total_weight) % total_weight
+    (item_seed * 37 % total_weight + total_weight) % total_weight
   }
   if roll < equipment_weight {
     Equipment(
@@ -199,6 +196,39 @@ fn roll_drop_item_kind(
 ///|
 fn apply_enemy_death_rewards(world : GameWorld, enemy : Enemy) -> Unit {
   world.events.push(DeathBurst(enemy.x, enemy.y))
+  if enemy.kind == Tank || enemy.kind == Boss {
+    world.events.push(FireballBurst(enemy.x, enemy.y))
+    let dx = world.player.x - enemy.x
+    let dy = world.player.y - enemy.y
+    if dx * dx + dy * dy <=
+      enemy_death_explosion_radius * enemy_death_explosion_radius &&
+      world.player.iframe_timer <= 0 {
+      let explosion_damage = world.params.scale_enemy_damage_for_floor(
+        @cmp.maximum(1, world.params.enemy_contact_damage.to_int()),
+        world.floor,
+      )
+      world.deal_player_damage(explosion_damage)
+    }
+    let bolt_damage = world.params.scale_enemy_damage_for_floor(
+      @cmp.maximum(1, world.params.enemy_bolt_damage_int() - 1),
+      world.floor,
+    )
+    for idx = 0; idx < enemy_death_explosion_projectile_count; idx = idx + 1 {
+      let angle = idx.to_double() *
+        (2.0 * @math.PI / enemy_death_explosion_projectile_count.to_double())
+      world.projectiles.push({
+        x: enemy.x,
+        y: enemy.y,
+        vx: @math.cos(angle) * enemy_fire_nova_projectile_speed,
+        vy: @math.sin(angle) * enemy_fire_nova_projectile_speed,
+        age: 0,
+        alive: true,
+        damage: bolt_damage,
+        is_player: false,
+        kind: EnemyBolt,
+      })
+    }
+  }
   let kill_score = if enemy.kind == Boss { 100 } else { 10 }
   world.score = world.score + kill_score
   ignore(
@@ -395,13 +425,7 @@ pub fn cast_chain_lightning(world : GameWorld) -> Bool {
     world.events.push(
       ChainLightningArc(arc_start_x, arc_start_y, enemy.x, enemy.y),
     )
-    apply_player_damage_to_enemy(
-      world,
-      enemy,
-      damage,
-      arc_start_x,
-      arc_start_y,
-    )
+    apply_player_damage_to_enemy(world, enemy, damage, arc_start_x, arc_start_y)
     chained_enemy_indices.push(next_index)
     arc_start_x = enemy.x
     arc_start_y = enemy.y
@@ -455,8 +479,7 @@ pub fn cast_splitting_fireball(world : GameWorld) -> Bool {
     kind: Fireball(1),
   })
   world.events.push(FireballCast(world.player.x, world.player.y))
-  world.splitting_fireball_cooldown_timer = world.params
-    .splitting_fireball_cooldown_frames()
+  world.splitting_fireball_cooldown_timer = world.params.splitting_fireball_cooldown_frames()
   apply_spell_attack_lock(world)
   world.events.push(AttackTriggered)
   true
@@ -552,8 +575,7 @@ pub fn cast_homing_missile(world : GameWorld) -> Bool {
       HomingMissileLaunch(spawn_x, spawn_y, telegraph_x, telegraph_y),
     )
   }
-  world.homing_missile_cooldown_timer = world.params
-    .homing_missile_cooldown_frames()
+  world.homing_missile_cooldown_timer = world.params.homing_missile_cooldown_frames()
   apply_spell_attack_lock(world)
   world.events.push(AttackTriggered)
   true

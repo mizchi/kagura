@@ -58,7 +58,7 @@ pub fn GameWorld::new(
   seed~ : Int,
   params? : BalanceParams = BalanceParams::default(),
 ) -> GameWorld {
-  let dungeon = generate_dungeon(seed, params=params)
+  let dungeon = generate_dungeon(seed, params~)
   let equipment = Equipment::new()
   let skills = SkillTree::new()
   let player_stats = compute_player_stats(

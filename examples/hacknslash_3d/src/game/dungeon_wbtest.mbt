@@ -89,7 +89,7 @@ test "generate_dungeon with roominess params keeps early floors broad and wide" 
     map_room_size_scale: 1.35,
     map_corridor_width_bonus: 1.0,
   }
-  let dungeon = generate_dungeon(42, floor=1, params=params)
+  let dungeon = generate_dungeon(42, floor=1, params~)
   let mut widest_room = 0
   for room in dungeon.rooms {
     widest_room = @cmp.maximum(widest_room, room.rect.w)

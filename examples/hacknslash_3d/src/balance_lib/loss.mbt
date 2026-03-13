@@ -610,9 +610,7 @@ pub fn autoplay_balance_hypotheses() -> Array[BalanceHypothesis] {
 }
 
 ///|
-pub fn balance_hypothesis_from_name(
-  name : String,
-) -> BalanceHypothesis? {
+pub fn balance_hypothesis_from_name(name : String) -> BalanceHypothesis? {
   for hypothesis in autoplay_balance_hypotheses() {
     if hypothesis.name == name {
       return Some(hypothesis)
@@ -693,7 +691,8 @@ pub fn compute_loss_averaged(
     total_score = total_score + m.score
     total_damage = total_damage + m.total_damage_taken
     total_equip = total_equip + m.equip_upgrades
-    total_learned_skill_count = total_learned_skill_count + m.learned_skill_count
+    total_learned_skill_count = total_learned_skill_count +
+      m.learned_skill_count
     total_near_death = total_near_death + m.near_death_count
     total_avg_hp = total_avg_hp + m.avg_hp_ratio()
     total_hp_cv = total_hp_cv + m.hp_coefficient_of_variation()
@@ -788,7 +787,8 @@ pub fn compute_loss_averaged_full(
     total_score = total_score + m.score
     total_damage = total_damage + m.total_damage_taken
     total_equip = total_equip + m.equip_upgrades
-    total_learned_skill_count = total_learned_skill_count + m.learned_skill_count
+    total_learned_skill_count = total_learned_skill_count +
+      m.learned_skill_count
     total_near_death = total_near_death + m.near_death_count
     total_avg_hp = total_avg_hp + m.avg_hp_ratio()
     total_hp_cv = total_hp_cv + m.hp_coefficient_of_variation()

@@ -253,7 +253,12 @@ test "balance presets expose distinct gameplay priorities" {
   assert_true(build_diverse.player_speed > mechanics.player_speed)
   assert_true(build_diverse.map_room_size_scale > mechanics.map_room_size_scale)
   assert_true(build_diverse.arrow_range < mechanics.arrow_range)
-  assert_true(build_diverse.pack_large_room_bonus < mechanics.pack_large_room_bonus)
+  assert_true(
+    build_diverse.pack_large_room_bonus < mechanics.pack_large_room_bonus,
+  )
   assert_true(mechanics.enemy_bolt_damage > build_diverse.enemy_bolt_damage)
-  assert_true(mechanics.item_rarity_bonus_per_floor > build_diverse.item_rarity_bonus_per_floor)
+  assert_true(
+    mechanics.item_rarity_bonus_per_floor >
+    build_diverse.item_rarity_bonus_per_floor,
+  )
 }

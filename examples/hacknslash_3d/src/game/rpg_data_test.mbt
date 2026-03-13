@@ -337,7 +337,12 @@ test "generate_item_with_profile_and_drop_config scales base and affix tiers by 
     rarity_bonus_per_floor: 6.0,
   }
   let low = generate_item_with_profile_and_drop_config(123, 2, Expanded, config)
-  let high = generate_item_with_profile_and_drop_config(123, 12, Expanded, config)
+  let high = generate_item_with_profile_and_drop_config(
+    123,
+    12,
+    Expanded,
+    config,
+  )
   assert_true(high.total_stat_score() >= low.total_stat_score())
 }
 

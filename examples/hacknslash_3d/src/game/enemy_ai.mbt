@@ -32,6 +32,8 @@ fn enemy_direct_chase_path_blocked(
 fn update_enemy_bolt_castup(
   enemy : Enemy,
   projectiles : Array[Projectile],
+  events : Array[GameEvent],
+  player : Player,
   params : BalanceParams,
   floor : Int,
 ) -> Bool {
@@ -45,26 +47,158 @@ fn update_enemy_bolt_castup(
     let cdx = enemy.pending_bolt_target_x - enemy.x
     let cdy = enemy.pending_bolt_target_y - enemy.y
     let dist_sq = cdx * cdx + cdy * cdy
-    if dist_sq > 0.000001 {
-      let dist = dist_sq.sqrt()
-      let bspeed = 2.0
-      projectiles.push({
-        x: enemy.x,
-        y: enemy.y,
-        vx: cdx / dist * bspeed,
-        vy: cdy / dist * bspeed,
-        age: 0,
-        alive: true,
-        damage: params.scale_enemy_damage_for_floor(
-          params.enemy_bolt_damage_int(),
+    match enemy.kind {
+      Ranged =>
+        if dist_sq > 0.000001 {
+          let dist = dist_sq.sqrt()
+          let base_angle = @math.atan2(cdy, cdx)
+          let center = enemy_barrage_projectile_count / 2
+          let bolt_damage = params.scale_enemy_damage_for_floor(
+            params.enemy_bolt_damage_int(),
+            floor,
+          )
+          for idx = 0; idx < enemy_barrage_projectile_count; idx = idx + 1 {
+            let offset = (idx - center).to_double()
+            let angle = base_angle + offset * enemy_barrage_spread_angle
+            let bspeed = 2.0
+            projectiles.push({
+              x: enemy.x,
+              y: enemy.y,
+              vx: @math.cos(angle) * bspeed,
+              vy: @math.sin(angle) * bspeed,
+              age: 0,
+              alive: true,
+              damage: bolt_damage,
+              is_player: false,
+              kind: EnemyBolt,
+            })
+          }
+        }
+      Tank | Boss => {
+        events.push(FireballBurst(enemy.x, enemy.y))
+        let damage = params.scale_enemy_damage_for_floor(
+          @cmp.maximum(1, params.enemy_bolt_damage_int() - 1),
           floor,
-        ),
-        is_player: false,
-        kind: EnemyBolt,
-      })
+        )
+        for idx = 0; idx < enemy_fire_nova_projectile_count; idx = idx + 1 {
+          let angle = idx.to_double() *
+            (2.0 * @math.PI / enemy_fire_nova_projectile_count.to_double())
+          projectiles.push({
+            x: enemy.x,
+            y: enemy.y,
+            vx: @math.cos(angle) * enemy_fire_nova_projectile_speed,
+            vy: @math.sin(angle) * enemy_fire_nova_projectile_speed,
+            age: 0,
+            alive: true,
+            damage,
+            is_player: false,
+            kind: EnemyBolt,
+          })
+        }
+        let pdx = player.x - enemy.x
+        let pdy = player.y - enemy.y
+        if pdx * pdx + pdy * pdy <=
+          enemy_fire_nova_radius * enemy_fire_nova_radius {
+          events.push(PlayerHurt(player.x, player.y))
+        }
+      }
+      _ => ()
     }
   }
   true
+}
+
+///|
+fn start_enemy_tackle(
+  enemy : Enemy,
+  player : Player,
+  events : Array[GameEvent],
+) -> Unit {
+  enemy.charge_cooldown = 120
+  enemy.charge_timer = enemy_tackle_telegraph_frames +
+    enemy_tackle_active_frames
+  enemy.pending_bolt_target_x = player.x
+  enemy.pending_bolt_target_y = player.y
+  events.push(GroundTelegraphLine(enemy.x, enemy.y, player.x, player.y))
+  events.push(
+    GroundTelegraphRing(player.x, player.y, enemy_tackle_telegraph_radius),
+  )
+}
+
+///|
+fn update_enemy_tackle(enemy : Enemy) -> Bool {
+  if enemy.charge_timer <= 0 {
+    return false
+  }
+  enemy.charge_timer = enemy.charge_timer - 1
+  if enemy.charge_timer >= enemy_tackle_active_frames {
+    enemy.vx = 0.0
+    enemy.vy = 0.0
+    return true
+  }
+  let dx = enemy.pending_bolt_target_x - enemy.x
+  let dy = enemy.pending_bolt_target_y - enemy.y
+  let dist_sq = dx * dx + dy * dy
+  if dist_sq > 0.000001 {
+    let dist = dist_sq.sqrt()
+    enemy.vx = dx / dist * enemy.speed * enemy_tackle_speed_mult
+    enemy.vy = dy / dist * enemy.speed * enemy_tackle_speed_mult
+  } else {
+    enemy.vx = 0.0
+    enemy.vy = 0.0
+  }
+  true
+}
+
+///|
+fn try_start_enemy_fire_nova(
+  enemy : Enemy,
+  player : Player,
+  events : Array[GameEvent],
+) -> Bool {
+  let dx = player.x - enemy.x
+  let dy = player.y - enemy.y
+  if dx * dx + dy * dy >
+    enemy_fire_nova_trigger_range * enemy_fire_nova_trigger_range {
+    return false
+  }
+  if enemy.shoot_cooldown > 0 || enemy.pending_bolt_timer > 0 {
+    return false
+  }
+  enemy.shoot_cooldown = enemy_fire_nova_cooldown_frames
+  enemy.pending_bolt_timer = enemy_fire_nova_cast_frames
+  enemy.pending_bolt_target_x = player.x
+  enemy.pending_bolt_target_y = player.y
+  events.push(GroundTelegraphRing(enemy.x, enemy.y, enemy_fire_nova_radius))
+  true
+}
+
+///|
+fn try_start_enemy_tackle(
+  enemy : Enemy,
+  player : Player,
+  events : Array[GameEvent],
+) -> Bool {
+  if enemy.charge_cooldown > 0 || enemy.charge_timer > 0 {
+    return false
+  }
+  let dx = player.x - enemy.x
+  let dy = player.y - enemy.y
+  if dx * dx + dy * dy > enemy_tackle_trigger_range * enemy_tackle_trigger_range {
+    return false
+  }
+  start_enemy_tackle(enemy, player, events)
+  true
+}
+
+///|
+fn tick_enemy_pattern_cooldowns(enemy : Enemy) -> Unit {
+  if enemy.shoot_cooldown > 0 {
+    enemy.shoot_cooldown = enemy.shoot_cooldown - 1
+  }
+  if enemy.charge_cooldown > 0 {
+    enemy.charge_cooldown = enemy.charge_cooldown - 1
+  }
 }
 
 ///|
@@ -87,11 +221,14 @@ pub fn update_enemy_ai(
     if not(enemy.alive) {
       continue
     }
-    if enemy.kind == Ranged &&
-      update_enemy_bolt_castup(enemy, projectiles, params, floor) {
-      if enemy.shoot_cooldown > 0 {
-        enemy.shoot_cooldown = enemy.shoot_cooldown - 1
-      }
+    if update_enemy_bolt_castup(
+        enemy, projectiles, events, player, params, floor,
+      ) {
+      tick_enemy_pattern_cooldowns(enemy)
+      continue
+    }
+    if update_enemy_tackle(enemy) {
+      tick_enemy_pattern_cooldowns(enemy)
       continue
     }
     let cdx = player.x - enemy.x
@@ -99,27 +236,28 @@ pub fn update_enemy_ai(
     let dist_sq = cdx * cdx + cdy * cdy
     let enemy_room = find_room_at(rooms, enemy.x, enemy.y)
     let same_room_visible = player_room >= 0 && enemy_room == player_room
-    // Boss charge logic
-    if enemy.kind == Boss {
-      if enemy.charge_timer > 0 {
-        enemy.charge_timer = enemy.charge_timer - 1
-        // Continue charging in set direction
-        continue
-      }
-      if dist_sq < chase_range_sq && enemy.charge_cooldown <= 0 {
-        // Initiate charge
-        enemy.charge_cooldown = 120
-        enemy.charge_timer = 20
-        if dist_sq > 0.000001 {
-          let dist = dist_sq.sqrt()
-          enemy.vx = cdx / dist * enemy.speed * 3.0
-          enemy.vy = cdy / dist * enemy.speed * 3.0
+    match enemy.kind {
+      Boss => {
+        if try_start_enemy_fire_nova(enemy, player, events) {
+          tick_enemy_pattern_cooldowns(enemy)
+          continue
         }
-        continue
+        if try_start_enemy_tackle(enemy, player, events) {
+          tick_enemy_pattern_cooldowns(enemy)
+          continue
+        }
       }
-      if enemy.charge_cooldown > 0 {
-        enemy.charge_cooldown = enemy.charge_cooldown - 1
-      }
+      Tank =>
+        if try_start_enemy_fire_nova(enemy, player, events) {
+          tick_enemy_pattern_cooldowns(enemy)
+          continue
+        }
+      Fast =>
+        if try_start_enemy_tackle(enemy, player, events) {
+          tick_enemy_pattern_cooldowns(enemy)
+          continue
+        }
+      _ => ()
     }
     // Patrol if out of chase range
     if dist_sq > chase_range_sq {
@@ -128,6 +266,7 @@ pub fn update_enemy_ai(
         180.0
       enemy.vx = @math.cos(angle) * enemy.speed * 0.3
       enemy.vy = @math.sin(angle) * enemy.speed * 0.3
+      tick_enemy_pattern_cooldowns(enemy)
       continue
     }
     // Ranged enemy: shoot if in range but far enough
@@ -148,14 +287,10 @@ pub fn update_enemy_ai(
         enemy.vx = -(cdx / dist) * enemy.speed * 0.3
         enemy.vy = -(cdy / dist) * enemy.speed * 0.3
       }
-      if enemy.shoot_cooldown > 0 {
-        enemy.shoot_cooldown = enemy.shoot_cooldown - 1
-      }
+      tick_enemy_pattern_cooldowns(enemy)
       continue
     }
-    if enemy.shoot_cooldown > 0 {
-      enemy.shoot_cooldown = enemy.shoot_cooldown - 1
-    }
+    tick_enemy_pattern_cooldowns(enemy)
     if same_room_visible && dist_sq > 1.0 {
       let dist = dist_sq.sqrt()
       if not(

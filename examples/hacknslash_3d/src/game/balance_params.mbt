@@ -363,9 +363,8 @@ pub fn BalanceParams::param_names() -> Array[String] {
     "enemy_contact_damage", "player_base_hp", "spawn_density", "spell_cooldown_mult",
     "spell_damage_mult", "enemy_bolt_damage", "ranged_shot_cooldown", "levelup_xp_base",
     "levelup_xp_growth", "drop_equipment_weight", "drop_health_weight", "drop_score_weight",
-    "drop_weapon_weight", "drop_armor_weight", "drop_accessory_weight",
-    "item_rarity_bonus_per_floor", "item_base_tier_per_floor",
-    "item_prefix_tier_per_floor", "item_suffix_tier_per_floor",
+    "drop_weapon_weight", "drop_armor_weight", "drop_accessory_weight", "item_rarity_bonus_per_floor",
+    "item_base_tier_per_floor", "item_prefix_tier_per_floor", "item_suffix_tier_per_floor",
     "item_modifier_tier_per_floor", "map_room_count_scale", "map_room_size_scale",
     "map_corridor_width_bonus", "pack_large_room_bonus", "enemy_hp_floor_scale",
     "enemy_speed_floor_scale", "enemy_damage_floor_scale",
@@ -412,11 +411,27 @@ pub fn BalanceParams::clamp(self : BalanceParams) -> BalanceParams {
     drop_weapon_weight: clamp_d(self.drop_weapon_weight, 0.0, 100.0),
     drop_armor_weight: clamp_d(self.drop_armor_weight, 0.0, 100.0),
     drop_accessory_weight: clamp_d(self.drop_accessory_weight, 0.0, 100.0),
-    item_rarity_bonus_per_floor: clamp_d(self.item_rarity_bonus_per_floor, 0.0, 10.0),
+    item_rarity_bonus_per_floor: clamp_d(
+      self.item_rarity_bonus_per_floor,
+      0.0,
+      10.0,
+    ),
     item_base_tier_per_floor: clamp_d(self.item_base_tier_per_floor, 0.0, 1.5),
-    item_prefix_tier_per_floor: clamp_d(self.item_prefix_tier_per_floor, 0.0, 1.5),
-    item_suffix_tier_per_floor: clamp_d(self.item_suffix_tier_per_floor, 0.0, 1.5),
-    item_modifier_tier_per_floor: clamp_d(self.item_modifier_tier_per_floor, 0.0, 1.0),
+    item_prefix_tier_per_floor: clamp_d(
+      self.item_prefix_tier_per_floor,
+      0.0,
+      1.5,
+    ),
+    item_suffix_tier_per_floor: clamp_d(
+      self.item_suffix_tier_per_floor,
+      0.0,
+      1.5,
+    ),
+    item_modifier_tier_per_floor: clamp_d(
+      self.item_modifier_tier_per_floor,
+      0.0,
+      1.0,
+    ),
     map_room_count_scale: clamp_d(self.map_room_count_scale, 0.75, 2.0),
     map_room_size_scale: clamp_d(self.map_room_size_scale, 0.8, 2.0),
     map_corridor_width_bonus: clamp_d(self.map_corridor_width_bonus, 0.0, 3.0),
@@ -429,7 +444,10 @@ pub fn BalanceParams::clamp(self : BalanceParams) -> BalanceParams {
 }
 
 ///|
-pub fn BalanceParams::spell_cooldown_frames(self : BalanceParams, base : Int) -> Int {
+pub fn BalanceParams::spell_cooldown_frames(
+  self : BalanceParams,
+  base : Int,
+) -> Int {
   @cmp.maximum(1, (base.to_double() * self.spell_cooldown_mult).to_int())
 }
 
@@ -442,7 +460,9 @@ pub fn BalanceParams::scale_spell_damage(
 }
 
 ///|
-pub fn BalanceParams::chain_lightning_cooldown_frames(self : BalanceParams) -> Int {
+pub fn BalanceParams::chain_lightning_cooldown_frames(
+  self : BalanceParams,
+) -> Int {
   self.spell_cooldown_frames(chain_lightning_cooldown)
 }
 
@@ -484,7 +504,9 @@ pub fn BalanceParams::levelup_config(self : BalanceParams) -> LevelUpConfig {
 }
 
 ///|
-pub fn BalanceParams::drop_table_config(self : BalanceParams) -> DropTableConfig {
+pub fn BalanceParams::drop_table_config(
+  self : BalanceParams,
+) -> DropTableConfig {
   {
     equipment_weight: @cmp.maximum(0, self.drop_equipment_weight.to_int()),
     health_weight: @cmp.maximum(0, self.drop_health_weight.to_int()),
@@ -510,7 +532,8 @@ pub fn BalanceParams::scale_enemy_hp_for_floor(
   base_hp : Int,
   floor : Int,
 ) -> Int {
-  let scale = 1.0 + @cmp.maximum(0, floor - 1).to_double() * self.enemy_hp_floor_scale
+  let scale = 1.0 +
+    @cmp.maximum(0, floor - 1).to_double() * self.enemy_hp_floor_scale
   @cmp.maximum(1, (base_hp.to_double() * scale).to_int())
 }
 
@@ -520,7 +543,8 @@ pub fn BalanceParams::scale_enemy_speed_for_floor(
   base_speed : Double,
   floor : Int,
 ) -> Double {
-  base_speed * (1.0 + @cmp.maximum(0, floor - 1).to_double() * self.enemy_speed_floor_scale)
+  base_speed *
+  (1.0 + @cmp.maximum(0, floor - 1).to_double() * self.enemy_speed_floor_scale)
 }
 
 ///|
@@ -529,7 +553,8 @@ pub fn BalanceParams::scale_enemy_damage_for_floor(
   base_damage : Int,
   floor : Int,
 ) -> Int {
-  let scale = 1.0 + @cmp.maximum(0, floor - 1).to_double() * self.enemy_damage_floor_scale
+  let scale = 1.0 +
+    @cmp.maximum(0, floor - 1).to_double() * self.enemy_damage_floor_scale
   @cmp.maximum(1, (base_damage.to_double() * scale).to_int())
 }
 

@@ -564,7 +564,9 @@ pub fn param_specs_mechanics_roguelike_v2() -> Array[@dec.ParamSpec] {
 }
 
 ///|
-pub fn param_specs_for_hypothesis(hypothesis_name : String) -> Array[@dec.ParamSpec] {
+pub fn param_specs_for_hypothesis(
+  hypothesis_name : String,
+) -> Array[@dec.ParamSpec] {
   if hypothesis_name == "autoplay_progression" ||
     hypothesis_name == "autoplay_progression_v2" ||
     hypothesis_name == "autoplay_progression_v3" {

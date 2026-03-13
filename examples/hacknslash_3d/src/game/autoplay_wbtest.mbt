@@ -265,5 +265,9 @@ test "tick_auto_with_enemy_ai_grid auto selects pending levelup offer" {
 
   assert_eq(world.level_progress.pending_choices, 0)
   assert_eq(world.level_progress.current_offers.length(), 0)
-  assert_true(world.skills.get_level(Vitality) > 0 || world.skills.get_level(PowerStrike) > 0 || world.skills.get_level(DashMastery) > 0)
+  assert_true(
+    world.skills.get_level(Vitality) > 0 ||
+    world.skills.get_level(PowerStrike) > 0 ||
+    world.skills.get_level(DashMastery) > 0,
+  )
 }

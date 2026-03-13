@@ -19,7 +19,9 @@ pub(all) struct LevelProgression {
 }
 
 ///|
-pub fn LevelProgression::new(config? : LevelUpConfig = LevelUpConfig::default()) -> LevelProgression {
+pub fn LevelProgression::new(
+  config? : LevelUpConfig = LevelUpConfig::default(),
+) -> LevelProgression {
   {
     level: 1,
     xp: 0,
@@ -35,7 +37,10 @@ fn next_level_xp_for(level : Int, config : LevelUpConfig) -> Int {
 }
 
 ///|
-pub fn SkillTree::can_learn_from_levelup(self : SkillTree, id : SkillId) -> Bool {
+pub fn SkillTree::can_learn_from_levelup(
+  self : SkillTree,
+  id : SkillId,
+) -> Bool {
   match self.find(id) {
     None => false
     Some(node) => {
@@ -54,7 +59,9 @@ pub fn SkillTree::can_learn_from_levelup(self : SkillTree, id : SkillId) -> Bool
 }
 
 ///|
-pub fn SkillTree::available_levelup_skill_ids(self : SkillTree) -> Array[SkillId] {
+pub fn SkillTree::available_levelup_skill_ids(
+  self : SkillTree,
+) -> Array[SkillId] {
   let ids : Array[SkillId] = []
   for node in self.nodes {
     if self.can_learn_from_levelup(node.id) {
@@ -79,16 +86,13 @@ pub fn SkillTree::learn_from_levelup(self : SkillTree, id : SkillId) -> Bool {
 }
 
 ///|
-fn build_levelup_offers(
-  skills : SkillTree,
-  offer_seed : Int,
-) -> Array[SkillId] {
+fn build_levelup_offers(skills : SkillTree, offer_seed : Int) -> Array[SkillId] {
   let available = skills.available_levelup_skill_ids()
   if available.length() == 0 {
     return []
   }
   let len = available.length()
-  let start = ((offer_seed % len) + len) % len
+  let start = (offer_seed % len + len) % len
   let offers : Array[SkillId] = []
   let offer_count = @cmp.minimum(3, len)
   for i = 0; i < len; i = i + 1 {

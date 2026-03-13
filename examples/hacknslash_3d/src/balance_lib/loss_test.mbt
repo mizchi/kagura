@@ -77,12 +77,25 @@ test "autoplay variants are ordered from progression to pressure" {
   assert_true(progression.target_floors > pressure.target_floors)
   assert_true(progression.target_floors > progression_v2.target_floors)
   assert_true(progression.target_floors >= progression_v3.target_floors)
-  assert_true(progression.target_total_damage < progression_v3.target_total_damage)
-  assert_true(progression_v3.target_total_damage < progression_v2.target_total_damage)
-  assert_true(progression.target_near_death_rate < progression_v3.target_near_death_rate)
-  assert_true(progression_v3.target_near_death_rate < progression_v2.target_near_death_rate)
-  assert_true(progression.target_total_damage < progression_v2.target_total_damage)
-  assert_true(progression.target_near_death_rate < progression_v2.target_near_death_rate)
+  assert_true(
+    progression.target_total_damage < progression_v3.target_total_damage,
+  )
+  assert_true(
+    progression_v3.target_total_damage < progression_v2.target_total_damage,
+  )
+  assert_true(
+    progression.target_near_death_rate < progression_v3.target_near_death_rate,
+  )
+  assert_true(
+    progression_v3.target_near_death_rate <
+    progression_v2.target_near_death_rate,
+  )
+  assert_true(
+    progression.target_total_damage < progression_v2.target_total_damage,
+  )
+  assert_true(
+    progression.target_near_death_rate < progression_v2.target_near_death_rate,
+  )
   assert_true(progression.target_total_damage < pressure.target_total_damage)
   assert_true(attrition.target_total_damage > progression.target_total_damage)
   assert_true(attrition.target_total_damage < pressure.target_total_damage)
@@ -274,7 +287,10 @@ test "autoplay progression specs stay closer to current defaults than rebalance"
   let progression = param_specs_for_hypothesis("autoplay_progression")
   let rebalance = param_specs_for_hypothesis("autoplay_rebalance")
   let names = @game.BalanceParams::param_names()
-  let find = fn(specs : Array[@dec.ParamSpec], name : String) -> @dec.ParamSpec {
+  let find = fn(
+    specs : Array[@dec.ParamSpec],
+    name : String,
+  ) -> @dec.ParamSpec {
     for i = 0; i < names.length(); i = i + 1 {
       if names[i] == name {
         return specs[i]

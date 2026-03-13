@@ -1,73 +1,50 @@
+///|
 fn main {
   println("=== HACKNSLASH AUTOPLAY REBALANCE TUNER ===")
   let seeds : Array[Int] = [42, 137, 256, 512]
   let args = @sys.get_cli_args()
-  let output_path =
-    if args.length() >= 2 {
-      Some(args[1])
-    } else {
-      None
+  let output_path = if args.length() >= 2 { Some(args[1]) } else { None }
+  let experiment_id = if args.length() >= 3 {
+    args[2]
+  } else {
+    "local-autoplay-rebalance"
+  }
+  let created_at_utc = if args.length() >= 4 {
+    args[3]
+  } else {
+    "1970-01-01T00:00:00Z"
+  }
+  let hypothesis_name = if args.length() >= 5 {
+    args[4]
+  } else {
+    "autoplay_rebalance"
+  }
+  let runner = if args.length() >= 6 { args[5] } else { "balance_autoplay" }
+  let start_floor = if args.length() >= 7 { parse_int(args[6], 5) } else { 5 }
+  let sim_max_frames = if args.length() >= 8 {
+    parse_int(args[7], 7200)
+  } else {
+    7200
+  }
+  let max_generations = if args.length() >= 9 {
+    parse_int(args[8], 40)
+  } else {
+    40
+  }
+  let hypothesis = match @blib.balance_hypothesis_from_name(hypothesis_name) {
+    Some(h) => h
+    None => {
+      println("Unknown hypothesis: " + hypothesis_name)
+      @sys.exit(1)
+      panic()
     }
-  let experiment_id =
-    if args.length() >= 3 {
-      args[2]
-    } else {
-      "local-autoplay-rebalance"
-    }
-  let created_at_utc =
-    if args.length() >= 4 {
-      args[3]
-    } else {
-      "1970-01-01T00:00:00Z"
-    }
-  let hypothesis_name =
-    if args.length() >= 5 {
-      args[4]
-    } else {
-      "autoplay_rebalance"
-    }
-  let runner =
-    if args.length() >= 6 {
-      args[5]
-    } else {
-      "balance_autoplay"
-    }
-  let start_floor =
-    if args.length() >= 7 {
-      parse_int(args[6], 5)
-    } else {
-      5
-    }
-  let sim_max_frames =
-    if args.length() >= 8 {
-      parse_int(args[7], 7200)
-    } else {
-      7200
-    }
-  let max_generations =
-    if args.length() >= 9 {
-      parse_int(args[8], 40)
-    } else {
-      40
-    }
-  let hypothesis =
-    match @blib.balance_hypothesis_from_name(hypothesis_name) {
-      Some(h) => h
-      None => {
-        println("Unknown hypothesis: " + hypothesis_name)
-        @sys.exit(1)
-        panic()
-      }
-    }
+  }
   let targets = hypothesis.targets.to_dec_targets()
   let specs = @blib.param_specs_for_hypothesis(hypothesis.name)
   let sim = @blib.make_autoplay_rebalance_sim(0, sim_max_frames, start_floor)
   let initial = @dec.initial_params(specs)
   let (base_loss, base_metrics) = @dec.compute_loss_averaged(
-    sim,
-    initial,
-    targets,
-    seeds,
+    sim, initial, targets, seeds,
   )
   println("Baseline loss: " + fmt(base_loss))
   print_metrics(base_metrics)
@@ -94,12 +71,7 @@ fn main {
         specs,
       }
       write_autoplay_experiment_parquet_file(
-        path,
-        export_config,
-        base_loss,
-        base_metrics,
-        initial,
-        result,
+        path, export_config, base_loss, base_metrics, initial, result,
       ) catch {
         err => {
           println("")
@@ -120,6 +92,7 @@ fn main {
   }
 }
 
+///|
 fn print_metrics(m : @dec.Metrics) -> Unit {
   println(
     "  Surv:" +
@@ -153,6 +126,7 @@ fn print_metrics(m : @dec.Metrics) -> Unit {
   )
 }
 
+///|
 fn fmt(v : Double) -> String {
   let sign = if v < 0.0 { "-" } else { "" }
   let abs_v = if v < 0.0 { -v } else { v }
@@ -162,6 +136,7 @@ fn fmt(v : Double) -> String {
   sign + int_part.to_string() + "." + p
 }
 
+///|
 fn parse_int(s : String, fallback : Int) -> Int {
   let mut result = 0
   let mut negative = false

@@ -90,7 +90,7 @@ pub fn roll_item_rarity(
   floor : Int,
   config : DropTableConfig,
 ) -> ItemRarity {
-  let base_roll = ((seed / 3) % 100 + 100) % 100
+  let base_roll = (seed / 3 % 100 + 100) % 100
   let bonus = @cmp.maximum(
     0,
     ((floor - 1).to_double() * config.rarity_bonus_per_floor).to_int(),
@@ -116,7 +116,7 @@ fn weighted_slot_pick(seed : Int, config : DropTableConfig) -> EquipSlot {
   if total_weight <= 0 {
     return Weapon
   }
-  let roll = ((seed % total_weight) + total_weight) % total_weight
+  let roll = (seed % total_weight + total_weight) % total_weight
   if roll < weapon_weight {
     Weapon
   } else if roll < weapon_weight + armor_weight {
@@ -179,11 +179,7 @@ pub fn generate_item_with_profile_and_drop_config(
   let base = 1 + floor / 3
   let (atk, def, hp) = match slot {
     Weapon =>
-      (
-        scaled_base_item_stat(base, base_tier, rarity_mult, modifier_tier),
-        0,
-        0,
-      )
+      (scaled_base_item_stat(base, base_tier, rarity_mult, modifier_tier), 0, 0)
     Armor =>
       (
         0,
@@ -282,6 +278,6 @@ pub fn generate_item_with_profile_and_drop_config(
     hp_bonus: hp,
     prefix,
     suffix,
-    icon_id: equip_slot_icon_base(slot) + (rng / 11 % 3),
+    icon_id: equip_slot_icon_base(slot) + rng / 11 % 3,
   }
 }

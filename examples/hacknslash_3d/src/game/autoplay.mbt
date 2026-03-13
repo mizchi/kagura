@@ -242,7 +242,9 @@ pub fn GameWorld::auto_choose_levelup_offer(self : GameWorld) -> Unit {
       best_index = i
     }
   }
-  ignore(self.apply_levelup_offer_choice(best_index, self.seed + self.frame_count))
+  ignore(
+    self.apply_levelup_offer_choice(best_index, self.seed + self.frame_count),
+  )
 }
 
 ///|

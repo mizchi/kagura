@@ -127,6 +127,18 @@ fn projectile_homing_missile_count(projectiles : Array[Projectile]) -> Int {
 }
 
 ///|
+fn projectile_enemy_bolt_count(projectiles : Array[Projectile]) -> Int {
+  let mut count = 0
+  for projectile in projectiles {
+    match projectile.kind {
+      EnemyBolt => count += 1
+      _ => ()
+    }
+  }
+  count
+}
+
+///|
 fn unlock_spell_for_combat_test(world : GameWorld, id : SkillId) -> Unit {
   ignore(world.skills.learn_from_levelup(id))
 }
@@ -185,14 +197,11 @@ test "cast_chain_lightning without enemy still emits forward arc feedback" {
 
 ///|
 test "spell multipliers affect cooldowns and spell damage" {
-  let world = GameWorld::new(
-    seed=42,
-    params={
-      ..BalanceParams::default(),
-      spell_cooldown_mult: 2.0,
-      spell_damage_mult: 0.5,
-    },
-  )
+  let world = GameWorld::new(seed=42, params={
+    ..BalanceParams::default(),
+    spell_cooldown_mult: 2.0,
+    spell_damage_mult: 0.5,
+  })
   unlock_spell_for_combat_test(world, ChainLightning)
   let px = world.player.x
   let py = world.player.y
@@ -302,19 +311,57 @@ test "cast_homing_missile spawns projectile and telegraph events" {
 
 ///|
 test "enemy death rewards xp and opens level up offers" {
-  let world = GameWorld::new(
-    seed=42,
-    params={ ..BalanceParams::default(), levelup_xp_base: 1.0, levelup_xp_growth: 0.0 },
+  let world = GameWorld::new(seed=42, params={
+    ..BalanceParams::default(),
+    levelup_xp_base: 1.0,
+    levelup_xp_growth: 0.0,
+  })
+  let enemy = make_enemy(
+    world.player.x + 8.0,
+    world.player.y,
+    Basic,
+    1,
+    1.0,
+    10.0,
   )
-  let enemy = make_enemy(world.player.x + 8.0, world.player.y, Basic, 1, 1.0, 10.0)
   world.enemies = [enemy]
 
-  apply_player_damage_to_enemy(world, world.enemies[0], 2, world.player.x, world.player.y)
+  apply_player_damage_to_enemy(
+    world,
+    world.enemies[0],
+    2,
+    world.player.x,
+    world.player.y,
+  )
 
   assert_eq(world.level_progress.level, 2)
   assert_eq(world.level_progress.pending_choices, 1)
   assert_eq(world.level_progress.current_offers.length(), 3)
   assert_true(world.ui_mode == LevelUp)
+}
+
+///|
+test "tank death triggers death explosion and radial bolts" {
+  let world = GameWorld::new(seed=42)
+  let px = world.player.x
+  let py = world.player.y
+  world.enemies = [make_enemy(px + 12.0, py, Tank, 1, 1.0, 14.0)]
+  let hp_before = world.player.hp
+
+  apply_player_damage_to_enemy(
+    world,
+    world.enemies[0],
+    3,
+    world.player.x,
+    world.player.y,
+  )
+
+  assert_true(has_fireball_burst(world.events))
+  assert_true(
+    projectile_enemy_bolt_count(world.projectiles) >=
+    enemy_death_explosion_projectile_count,
+  )
+  assert_true(world.player.hp < hp_before)
 }
 
 ///|

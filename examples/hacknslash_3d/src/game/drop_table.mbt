@@ -40,7 +40,7 @@ pub fn DropTableConfig::default() -> DropTableConfig {
 
 ///|
 fn item_tier_value(base : Double, per_floor : Double, floor : Int) -> Double {
-  base + @cmp.maximum(0, floor - 1).to_double() * per_floor
+  @loot.tier_curve_value(@loot.TierCurve::new(base, per_floor), floor)
 }
 
 ///|
@@ -50,11 +50,7 @@ fn scaled_base_item_stat(
   rarity_mult : Int,
   modifier_tier : Double,
 ) -> Int {
-  let multiplier = 1.0 + tier_value * 0.35 + modifier_tier * 0.2
-  @cmp.maximum(
-    1,
-    (base_value.to_double() * rarity_mult.to_double() * multiplier).to_int(),
-  )
+  @loot.scale_base_stat(base_value, tier_value, rarity_mult, modifier_tier)
 }
 
 ///|
@@ -76,12 +72,7 @@ fn scale_affix_with_tier(
 
 ///|
 pub fn item_rarity_rank(rarity : ItemRarity) -> Int {
-  match rarity {
-    Common => 0
-    Uncommon => 1
-    Rare => 2
-    Epic => 3
-  }
+  @loot.loot_rarity_rank(item_rarity_to_loot_rarity(rarity))
 }
 
 ///|
@@ -90,36 +81,33 @@ pub fn roll_item_rarity(
   floor : Int,
   config : DropTableConfig,
 ) -> ItemRarity {
-  let base_roll = (seed / 3 % 100 + 100) % 100
-  let bonus = @cmp.maximum(
-    0,
-    ((floor - 1).to_double() * config.rarity_bonus_per_floor).to_int(),
+  loot_rarity_to_item_rarity(
+    @loot.roll_loot_rarity(
+      seed,
+      floor,
+      config={
+        rarity_bonus_per_floor: config.rarity_bonus_per_floor,
+        common_max: 50,
+        uncommon_max: 80,
+        rare_max: 95,
+      },
+    ),
   )
-  let rarity_roll = @cmp.maximum(0, base_roll - bonus)
-  if rarity_roll < 50 {
-    Common
-  } else if rarity_roll < 80 {
-    Uncommon
-  } else if rarity_roll < 95 {
-    Rare
-  } else {
-    Epic
-  }
 }
 
 ///|
 fn weighted_slot_pick(seed : Int, config : DropTableConfig) -> EquipSlot {
-  let weapon_weight = @cmp.maximum(0, config.weapon_weight)
-  let armor_weight = @cmp.maximum(0, config.armor_weight)
-  let accessory_weight = @cmp.maximum(0, config.accessory_weight)
-  let total_weight = weapon_weight + armor_weight + accessory_weight
-  if total_weight <= 0 {
-    return Weapon
-  }
-  let roll = (seed % total_weight + total_weight) % total_weight
-  if roll < weapon_weight {
+  let index = @loot.weighted_pick_index(
+    seed,
+    [
+      @cmp.maximum(0, config.weapon_weight),
+      @cmp.maximum(0, config.armor_weight),
+      @cmp.maximum(0, config.accessory_weight),
+    ],
+  )
+  if index == 0 {
     Weapon
-  } else if roll < weapon_weight + armor_weight {
+  } else if index == 1 {
     Armor
   } else {
     Accessory
@@ -137,11 +125,26 @@ fn equip_slot_icon_base(slot : EquipSlot) -> Int {
 
 ///|
 fn rarity_multiplier(rarity : ItemRarity) -> Int {
+  @loot.loot_rarity_multiplier(item_rarity_to_loot_rarity(rarity))
+}
+
+///|
+fn item_rarity_to_loot_rarity(rarity : ItemRarity) -> @loot.LootRarity {
   match rarity {
-    Common => 1
-    Uncommon => 2
-    Rare => 3
-    Epic => 5
+    Common => @loot.LootCommon
+    Uncommon => @loot.LootUncommon
+    Rare => @loot.LootRare
+    Epic => @loot.LootEpic
+  }
+}
+
+///|
+fn loot_rarity_to_item_rarity(rarity : @loot.LootRarity) -> ItemRarity {
+  match rarity {
+    LootCommon => Common
+    LootUncommon => Uncommon
+    LootRare => Rare
+    LootEpic => Epic
   }
 }
 

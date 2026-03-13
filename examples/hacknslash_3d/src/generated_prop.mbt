@@ -15,7 +15,7 @@ fn generated_prop_placement(
   source_path : String,
   floor? : Int = 1,
   anchor? : GeneratedPropAnchor = StartRoomCenter,
-  role? : GeneratedPropRole = Decoration,
+  role? : GeneratedPropRole = @interactable2d.Decoration,
   pickup_effect? : GeneratedPropPickupEffect = ScorePickup,
   pickup_rarity? : @game.ItemRarity? = None,
   pickup_slot? : @game.EquipSlot? = None,
@@ -54,35 +54,19 @@ fn default_generated_prop_manifest_for_floor(
 
 ///|
 fn generated_prop_anchor_from_string(value : String) -> GeneratedPropAnchor? {
-  match value {
-    "start_room" | "start" => Some(StartRoomCenter)
-    "largest_non_start_room" | "largest_room" => Some(LargestNonStartRoomCenter)
-    "boss_room" | "boss" => Some(BossRoomCenter)
-    "treasure_room" | "treasure" => Some(TreasureRoomCenter)
-    _ => None
-  }
+  @interactable2d.interactable_anchor_from_string(value)
 }
 
 ///|
 fn generated_prop_role_from_string(value : String) -> GeneratedPropRole? {
-  match value {
-    "decoration" | "decor" => Some(Decoration)
-    "blocking" | "blocker" => Some(Blocking)
-    "pickup" | "loot" => Some(Pickup)
-    _ => None
-  }
+  @interactable2d.interactable_role_from_string(value)
 }
 
 ///|
 fn generated_prop_pickup_effect_from_string(
   value : String,
 ) -> GeneratedPropPickupEffect? {
-  match value {
-    "score" => Some(ScorePickup)
-    "health" | "heal" => Some(HealthPickup)
-    "equipment" | "equip" | "gear" => Some(EquipmentPickup)
-    _ => None
-  }
+  @interactable2d.interactable_pickup_effect_from_string(value)
 }
 
 ///|
@@ -108,12 +92,12 @@ fn generated_prop_item_slot_from_string(value : String) -> @game.EquipSlot? {
 
 ///|
 fn generated_prop_role_is_solid(role : GeneratedPropRole) -> Bool {
-  role == Blocking
+  @interactable2d.interactable_role_is_solid(role)
 }
 
 ///|
 fn generated_prop_role_is_pickup(role : GeneratedPropRole) -> Bool {
-  role == Pickup
+  @interactable2d.interactable_role_is_pickup(role)
 }
 
 ///|
@@ -357,9 +341,13 @@ fn generated_prop_player_can_pickup(
   prop_x : Double,
   prop_y : Double,
 ) -> Bool {
-  let dx = prop_x - player_x
-  let dy = prop_y - player_y
-  dx * dx + dy * dy < pickup_radius_sq
+  @interactable2d.circular_interactable_can_pickup(
+    player_x,
+    player_y,
+    prop_x,
+    prop_y,
+    pickup_radius_sq,
+  )
 }
 
 ///|
@@ -371,20 +359,14 @@ fn resolve_generated_prop_actor_block(
   prop_y : Double,
   prop_radius : Double,
 ) -> (Double, Double)? {
-  let dx = actor_x - prop_x
-  let dy = actor_y - prop_y
-  let min_dist = actor_size / 2.0 + prop_radius
-  let dist_sq = dx * dx + dy * dy
-  if dist_sq >= min_dist * min_dist {
-    return None
-  }
-  if dist_sq <= 0.000001 {
-    return Some((prop_x + min_dist, prop_y))
-  }
-  let dist = dist_sq.sqrt()
-  let nx = dx / dist
-  let ny = dy / dist
-  Some((prop_x + nx * min_dist, prop_y + ny * min_dist))
+  @interactable2d.resolve_circular_interactable_block(
+    actor_x,
+    actor_y,
+    actor_size,
+    prop_x,
+    prop_y,
+    prop_radius,
+  )
 }
 
 ///|

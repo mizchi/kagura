@@ -1,13 +1,4 @@
-///|
-pub(all) struct LevelUpConfig {
-  xp_base : Int
-  xp_growth : Int
-}
-
-///|
-pub fn LevelUpConfig::default() -> LevelUpConfig {
-  { xp_base: 10, xp_growth: 6 }
-}
+pub type LevelUpConfig = @progression.LevelUpConfig
 
 ///|
 pub(all) struct LevelProgression {
@@ -22,18 +13,40 @@ pub(all) struct LevelProgression {
 pub fn LevelProgression::new(
   config? : LevelUpConfig = LevelUpConfig::default(),
 ) -> LevelProgression {
+  let core = @progression.LevelProgression::new(config=config)
   {
-    level: 1,
-    xp: 0,
-    next_level_xp: config.xp_base,
-    pending_choices: 0,
+    level: core.level,
+    xp: core.xp,
+    next_level_xp: core.next_level_xp,
+    pending_choices: core.pending_choices,
     current_offers: [],
   }
 }
 
 ///|
 fn next_level_xp_for(level : Int, config : LevelUpConfig) -> Int {
-  @cmp.maximum(1, config.xp_base + (level - 1) * config.xp_growth)
+  @progression.next_level_xp_for(level, config)
+}
+
+///|
+fn LevelProgression::to_core(self : LevelProgression) -> @progression.LevelProgression {
+  {
+    level: self.level,
+    xp: self.xp,
+    next_level_xp: self.next_level_xp,
+    pending_choices: self.pending_choices,
+  }
+}
+
+///|
+fn LevelProgression::sync_from_core(
+  self : LevelProgression,
+  core : @progression.LevelProgression,
+) -> Unit {
+  self.level = core.level
+  self.xp = core.xp
+  self.next_level_xp = core.next_level_xp
+  self.pending_choices = core.pending_choices
 }
 
 ///|
@@ -122,18 +135,9 @@ pub fn LevelProgression::gain_xp(
   offer_seed : Int,
   config : LevelUpConfig,
 ) -> Bool {
-  if gained_xp <= 0 {
-    return false
-  }
-  self.xp = self.xp + gained_xp
-  let mut leveled = false
-  while self.xp >= self.next_level_xp {
-    self.xp = self.xp - self.next_level_xp
-    self.level = self.level + 1
-    self.next_level_xp = next_level_xp_for(self.level, config)
-    self.pending_choices = self.pending_choices + 1
-    leveled = true
-  }
+  let core = self.to_core()
+  let leveled = core.gain_xp(gained_xp, config)
+  self.sync_from_core(core)
   if self.current_offers.length() == 0 && self.pending_choices > 0 {
     self.current_offers = build_levelup_offers(skills, offer_seed + self.level)
     if self.current_offers.length() == 0 {
@@ -157,9 +161,9 @@ pub fn LevelProgression::choose_offer(
   if not(skills.learn_from_levelup(chosen)) {
     return false
   }
-  if self.pending_choices > 0 {
-    self.pending_choices = self.pending_choices - 1
-  }
+  let core = self.to_core()
+  ignore(core.consume_choice())
+  self.sync_from_core(core)
   self.current_offers = []
   if self.pending_choices > 0 {
     self.current_offers = build_levelup_offers(skills, offer_seed + self.level)

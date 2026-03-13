@@ -43,26 +43,13 @@ struct GeneratedPropAsset {
 }
 
 ///|
-enum GeneratedPropAnchor {
-  StartRoomCenter
-  LargestNonStartRoomCenter
-  BossRoomCenter
-  TreasureRoomCenter
-} derive(Eq, Show)
+type GeneratedPropAnchor = @interactable2d.InteractableAnchor
 
 ///|
-enum GeneratedPropRole {
-  Decoration
-  Blocking
-  Pickup
-} derive(Eq, Show)
+type GeneratedPropRole = @interactable2d.InteractableRole
 
 ///|
-enum GeneratedPropPickupEffect {
-  ScorePickup
-  HealthPickup
-  EquipmentPickup
-} derive(Eq, Show)
+type GeneratedPropPickupEffect = @interactable2d.InteractablePickupEffect
 
 ///|
 struct GeneratedPropPlacement {

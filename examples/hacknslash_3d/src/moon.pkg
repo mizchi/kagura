@@ -9,6 +9,7 @@ import {
   "mizchi/kagura/gltf" @gltf,
   "mizchi/kagura/gfx" @gfx,
   "mizchi/kagura/inpututil" @inpututil,
+  "mizchi/kagura/interactable2d" @interactable2d,
   "mizchi/kagura/light3d" @light3d,
   "mizchi/kagura/math3d" @math3d,
   "mizchi/kagura/mesh3d" @mesh3d,

@@ -29,6 +29,8 @@ const defaultHypotheses = [
   "mechanics_roguelike_v2",
   "autoplay_progression",
 ];
+const defaultArchetypes = ["melee", "mage", "summoner", "ranger"];
+const defaultBuildPolicies = ["aligned", "anti_synergy"];
 const balanceAutoplayJsEntry = resolve(
   exampleRoot,
   "_build/js/debug/build/balance_autoplay/balance_autoplay.js",
@@ -40,6 +42,8 @@ function parseArgs(argv) {
     dbPath: null,
     tableName: defaultTableName,
     hypotheses: defaultHypotheses,
+    archetypes: defaultArchetypes,
+    buildPolicies: defaultBuildPolicies,
     maxGenerations: 8,
     simMaxFrames: 2400,
     startFloor: 5,
@@ -61,6 +65,18 @@ function parseArgs(argv) {
         .map((value) => value.trim())
         .filter(Boolean);
       i += 1;
+    } else if (arg === "--archetypes") {
+      options.archetypes = argv[i + 1]
+        .split(",")
+        .map((value) => value.trim())
+        .filter(Boolean);
+      i += 1;
+    } else if (arg === "--build-policies") {
+      options.buildPolicies = argv[i + 1]
+        .split(",")
+        .map((value) => value.trim())
+        .filter(Boolean);
+      i += 1;
     } else if (arg === "--max-generations") {
       options.maxGenerations = Number.parseInt(argv[i + 1], 10);
       i += 1;
@@ -76,6 +92,12 @@ function parseArgs(argv) {
   }
   if (options.hypotheses.length === 0) {
     throw new Error("at least one hypothesis is required");
+  }
+  if (options.archetypes.length === 0) {
+    throw new Error("at least one archetype is required");
+  }
+  if (options.buildPolicies.length === 0) {
+    throw new Error("at least one build policy is required");
   }
   return options;
 }
@@ -127,27 +149,35 @@ function main() {
   const parquetPaths = [];
 
   for (const hypothesisName of options.hypotheses) {
-    const parquetPath = buildHypothesisParquetPath(
-      options.outDir,
-      experimentId,
-      hypothesisName,
-    );
-    parquetPaths.push(parquetPath);
-    runBalanceAutoplayJs([
-      parquetPath,
-      experimentId,
-      createdAtUtc,
-      hypothesisName,
-      "balance_hypothesis_record",
-      String(options.startFloor),
-      String(options.simMaxFrames),
-      String(options.maxGenerations),
-    ]);
-    run("duckdb", [
-      dbPath,
-      "-c",
-      buildDuckdbAppendSql(options.tableName, parquetPath),
-    ]);
+    for (const archetypeName of options.archetypes) {
+      for (const buildPolicyName of options.buildPolicies) {
+        const parquetPath = buildHypothesisParquetPath(
+          options.outDir,
+          experimentId,
+          hypothesisName,
+          archetypeName,
+          buildPolicyName,
+        );
+        parquetPaths.push(parquetPath);
+        runBalanceAutoplayJs([
+          parquetPath,
+          experimentId,
+          createdAtUtc,
+          hypothesisName,
+          "balance_hypothesis_record",
+          String(options.startFloor),
+          String(options.simMaxFrames),
+          String(options.maxGenerations),
+          archetypeName,
+          buildPolicyName,
+        ]);
+        run("duckdb", [
+          dbPath,
+          "-c",
+          buildDuckdbAppendSql(options.tableName, parquetPath),
+        ]);
+      }
+    }
   }
 
   const summary = run("duckdb", [
@@ -167,6 +197,8 @@ function main() {
         outDir: options.outDir,
         parquetPaths,
         hypotheses: options.hypotheses,
+        archetypes: options.archetypes,
+        buildPolicies: options.buildPolicies,
         tableName: options.tableName,
         summary: JSON.parse(summary),
       },

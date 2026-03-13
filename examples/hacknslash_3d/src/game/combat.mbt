@@ -234,6 +234,8 @@ fn apply_enemy_death_rewards(world : GameWorld, enemy : Enemy) -> Unit {
   ignore(
     world.level_progress.gain_xp(
       world.skills,
+      world.archetype,
+      world.build_policy,
       enemy_xp_reward(enemy),
       world.frame_count * 97 + world.floor * 13,
       world.params.levelup_config(),

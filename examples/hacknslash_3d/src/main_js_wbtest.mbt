@@ -80,3 +80,15 @@ test "build_initial_balance_params falls back to default preset" {
     (params.enemy_bolt_damage - default_params.enemy_bolt_damage).abs() < 0.0001,
   )
 }
+
+///|
+test "build_initial_archetype falls back to default archetype" {
+  let archetype = build_initial_archetype("")
+  assert_eq(@game.character_archetype_to_string(archetype), "melee")
+}
+
+///|
+test "build_initial_build_policy falls back to default build policy" {
+  let policy = build_initial_build_policy("")
+  assert_eq(@game.archetype_build_policy_to_string(policy), "aligned")
+}

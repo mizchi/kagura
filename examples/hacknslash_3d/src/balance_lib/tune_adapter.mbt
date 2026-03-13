@@ -110,13 +110,22 @@ pub fn make_autoplay_rebalance_sim(
   affix_profile : Int,
   max_frames : Int,
   start_floor : Int,
+  archetype : @game.CharacterArchetype,
+  build_policy : @game.ArchetypeBuildPolicy,
 ) -> (Array[Double], Int) -> @dec.Metrics {
   fn(params : Array[Double], seed : Int) -> @dec.Metrics {
     let bp = {
       ..@game.BalanceParams::from_array(params).clamp(),
       affix_profile,
     }
-    let sim = run_simulation_from_floor(bp, seed, max_frames, start_floor)
+    let sim = run_simulation_from_floor(
+      bp,
+      seed,
+      max_frames,
+      start_floor,
+      archetype=archetype,
+      build_policy=build_policy,
+    )
     sim.to_dec_metrics()
   }
 }

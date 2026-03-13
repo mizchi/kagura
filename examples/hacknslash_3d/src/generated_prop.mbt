@@ -493,20 +493,21 @@ fn GameState::apply_generated_prop_roles_for_current_floor(
     }
     if generated_prop_role_is_pickup(prop.placement.role) && interacted {
       match
-        @gameplay2d.apply_builtin_pickup_effect(
+        @gameplay2d.apply_builtin_pickup_to_actor(
           prop.placement.pickup_effect,
           self.world.player.hp,
           self.world.player_stats.max_hp,
+          self.world.score,
           pickup_rewards,
         ) {
-        Some((next_hp, score_delta, heal_feedback)) => {
-          self.world.player.hp = next_hp
-          self.world.score = self.world.score + score_delta
+        Some(application) => {
+          self.world.player.hp = application.next_hp
+          self.world.score = application.next_score
           spawn_item_pickup(
             self.particle_manager,
             prop_x,
             prop_y,
-            heal_feedback,
+            application.heal_feedback,
           )
         }
         None => {

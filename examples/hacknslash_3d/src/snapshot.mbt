@@ -80,6 +80,16 @@ fn get_initial_balance_preset_name() -> String {
 }
 
 ///|
+fn get_initial_archetype_name() -> String {
+  js_get_query_param("archetype")
+}
+
+///|
+fn get_initial_build_policy_name() -> String {
+  js_get_query_param("build_policy")
+}
+
+///|
 fn get_initial_fxaa_enabled() -> Bool {
   js_get_query_param_bool("fxaa", false)
 }

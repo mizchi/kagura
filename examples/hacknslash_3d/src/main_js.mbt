@@ -238,6 +238,24 @@ fn build_initial_balance_params(preset_name : String) -> @game.BalanceParams {
 }
 
 ///|
+fn build_initial_archetype(name : String) -> @game.CharacterArchetype {
+  match @game.character_archetype_from_string(name) {
+    Some(archetype) => archetype
+    None => @game.default_character_archetype()
+  }
+}
+
+///|
+fn build_initial_build_policy(
+  name : String,
+) -> @game.ArchetypeBuildPolicy {
+  match @game.archetype_build_policy_from_string(name) {
+    Some(policy) => policy
+    None => @game.default_archetype_build_policy()
+  }
+}
+
+///|
 fn apply_debug_skill_unlocks(state : GameState, unlock_spells : Bool) -> Unit {
   if not(unlock_spells) {
     return
@@ -261,14 +279,25 @@ fn build_initial_state() -> GameState {
   let initial_balance_params = build_initial_balance_params(
     get_initial_balance_preset_name(),
   )
+  let initial_archetype = build_initial_archetype(get_initial_archetype_name())
+  let initial_build_policy = build_initial_build_policy(
+    get_initial_build_policy_name(),
+  )
   let state = if get_initial_ssao_enabled() {
     GameState::new_with_params_and_ssao(
       seed=42,
       initial_balance_params,
       SSAOConfig::enabled_default(),
+      archetype=initial_archetype,
+      build_policy=initial_build_policy,
     )
   } else {
-    GameState::new_with_params(seed=42, initial_balance_params)
+    GameState::new_with_params(
+      seed=42,
+      initial_balance_params,
+      archetype=initial_archetype,
+      build_policy=initial_build_policy,
+    )
   }
   state.show_profiler = get_initial_profiler_enabled()
   state.fxaa_enabled = get_initial_fxaa_enabled()

@@ -31,16 +31,30 @@ test("path builders use stable filenames", () => {
     buildHypothesisParquetPath("/tmp/autoplay", "exp-001", "speedrun"),
     "/tmp/autoplay/exp-001-speedrun.parquet",
   );
+  assert.equal(
+    buildHypothesisParquetPath(
+      "/tmp/autoplay",
+      "exp-001",
+      "speedrun",
+      "mage",
+      "anti_synergy",
+    ),
+    "/tmp/autoplay/exp-001-speedrun-mage-anti_synergy.parquet",
+  );
 });
 
 test("duckdb sql escapes parquet paths and experiment ids", () => {
   const appendSql = buildDuckdbAppendSql("autoplay_experiments", "/tmp/it's.parquet");
   assert.match(appendSql, /it''s\.parquet/);
   assert.match(appendSql, /ADD COLUMN IF NOT EXISTS hypothesis_name VARCHAR/);
+  assert.match(appendSql, /ADD COLUMN IF NOT EXISTS archetype_name VARCHAR/);
+  assert.match(appendSql, /ADD COLUMN IF NOT EXISTS build_policy_name VARCHAR/);
   assert.match(appendSql, /INSERT INTO autoplay_experiments BY NAME/);
   const summarySql = buildDuckdbSummarySql("autoplay_experiments", "exp'001");
   assert.match(summarySql, /exp''001/);
   assert.match(summarySql, /hypothesis_name/);
+  assert.match(summarySql, /archetype_name/);
+  assert.match(summarySql, /build_policy_name/);
   assert.match(summarySql, /CAST\(loss AS DOUBLE\) AS loss/);
   assert.match(summarySql, /CAST\(equip_upgrades AS DOUBLE\) AS equip_upgrades/);
   assert.match(summarySql, /CAST\(learned_skill_count AS DOUBLE\) AS learned_skill_count/);

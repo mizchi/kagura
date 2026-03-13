@@ -31,6 +31,12 @@ fn main {
   } else {
     40
   }
+  let archetype_name = if args.length() >= 10 { args[9] } else { "melee" }
+  let build_policy_name = if args.length() >= 11 {
+    args[10]
+  } else {
+    "aligned"
+  }
   let hypothesis = match @blib.balance_hypothesis_from_name(hypothesis_name) {
     Some(h) => h
     None => {
@@ -41,7 +47,31 @@ fn main {
   }
   let targets = hypothesis.targets.to_dec_targets()
   let specs = @blib.param_specs_for_hypothesis(hypothesis.name)
-  let sim = @blib.make_autoplay_rebalance_sim(0, sim_max_frames, start_floor)
+  let archetype = match @game.character_archetype_from_string(archetype_name) {
+    Some(value) => value
+    None => {
+      println("Unknown archetype: " + archetype_name)
+      @sys.exit(1)
+      panic()
+    }
+  }
+  let build_policy = match @game.archetype_build_policy_from_string(
+    build_policy_name,
+  ) {
+    Some(value) => value
+    None => {
+      println("Unknown build policy: " + build_policy_name)
+      @sys.exit(1)
+      panic()
+    }
+  }
+  let sim = @blib.make_autoplay_rebalance_sim(
+    0,
+    sim_max_frames,
+    start_floor,
+    archetype,
+    build_policy,
+  )
   let initial = @dec.initial_params(specs)
   let (base_loss, base_metrics) = @dec.compute_loss_averaged(
     sim, initial, targets, seeds,
@@ -64,6 +94,8 @@ fn main {
         created_at_utc,
         runner,
         hypothesis_name: hypothesis.name,
+        archetype_name: @game.character_archetype_to_string(archetype),
+        build_policy_name: @game.archetype_build_policy_to_string(build_policy),
         start_floor,
         sim_max_frames,
         max_generations,

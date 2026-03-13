@@ -57,21 +57,21 @@ pub fn SkillTree::can_learn_from_levelup(
   self : SkillTree,
   id : SkillId,
 ) -> Bool {
-  match self.find(id) {
-    None => false
-    Some(node) => {
-      if node.level >= node.max_level {
-        return false
-      }
-      for prereq in node.prereqs {
-        match self.find(prereq) {
-          None => return false
-          Some(p) => if p.level == 0 { return false }
-        }
-      }
-      true
+  let index = self.find_index(id)
+  if index < 0 {
+    return false
+  }
+  let node = self.nodes[index]
+  if node.level >= node.max_level {
+    return false
+  }
+  for prereq in node.prereqs {
+    let prereq_index = self.find_index(prereq)
+    if prereq_index < 0 || self.nodes[prereq_index].level == 0 {
+      return false
     }
   }
+  true
 }
 
 ///|
@@ -92,40 +92,42 @@ pub fn SkillTree::learn_from_levelup(self : SkillTree, id : SkillId) -> Bool {
   if not(self.can_learn_from_levelup(id)) {
     return false
   }
-  match self.find(id) {
-    None => false
-    Some(node) => {
-      node.level = node.level + 1
-      true
-    }
+  let index = self.find_index(id)
+  if index < 0 {
+    return false
   }
+  self.nodes[index].level = self.nodes[index].level + 1
+  true
 }
 
 ///|
-fn build_levelup_offers(skills : SkillTree, offer_seed : Int) -> Array[SkillId] {
+fn build_levelup_offers(
+  skills : SkillTree,
+  archetype : CharacterArchetype,
+  build_policy : ArchetypeBuildPolicy,
+  offer_seed : Int,
+) -> Array[SkillId] {
   let available = skills.available_levelup_skill_ids()
   if available.length() == 0 {
     return []
   }
-  let len = available.length()
-  let start = (offer_seed % len + len) % len
+  let ordered : Array[SkillId] = []
+  for priority = 0; priority < 128; priority = priority + 1 {
+    for candidate in available {
+      if archetype.offer_priority_with_policy(build_policy, candidate) == priority {
+        ordered.push(candidate)
+      }
+    }
+  }
+  if ordered.length() == 0 {
+    return []
+  }
+  let len = ordered.length()
+  let offset = ((offer_seed % len) + len) % len
   let offers : Array[SkillId] = []
   let offer_count = @cmp.minimum(3, len)
-  for i = 0; i < len; i = i + 1 {
-    let candidate = available[(start + i) % len]
-    let mut duplicate = false
-    for existing in offers {
-      if skill_id_eq(existing, candidate) {
-        duplicate = true
-        break
-      }
-    }
-    if not(duplicate) {
-      offers.push(candidate)
-      if offers.length() >= offer_count {
-        break
-      }
-    }
+  for i = 0; i < offer_count; i = i + 1 {
+    offers.push(ordered[(offset + i) % len])
   }
   offers
 }
@@ -134,6 +136,8 @@ fn build_levelup_offers(skills : SkillTree, offer_seed : Int) -> Array[SkillId] 
 pub fn LevelProgression::gain_xp(
   self : LevelProgression,
   skills : SkillTree,
+  archetype : CharacterArchetype,
+  build_policy : ArchetypeBuildPolicy,
   gained_xp : Int,
   offer_seed : Int,
   config : LevelUpConfig,
@@ -142,7 +146,12 @@ pub fn LevelProgression::gain_xp(
   let leveled = core.gain_xp(gained_xp, config)
   self.sync_from_core(core)
   if self.current_offers.length() == 0 && self.pending_choices > 0 {
-    self.current_offers = build_levelup_offers(skills, offer_seed + self.level)
+    self.current_offers = build_levelup_offers(
+      skills,
+      archetype,
+      build_policy,
+      offer_seed + self.level,
+    )
     if self.current_offers.length() == 0 {
       self.pending_choices = 0
     }
@@ -154,6 +163,8 @@ pub fn LevelProgression::gain_xp(
 pub fn LevelProgression::choose_offer(
   self : LevelProgression,
   skills : SkillTree,
+  archetype : CharacterArchetype,
+  build_policy : ArchetypeBuildPolicy,
   offer_index : Int,
   offer_seed : Int,
 ) -> Bool {
@@ -169,7 +180,12 @@ pub fn LevelProgression::choose_offer(
   self.sync_from_core(core)
   self.current_offers = []
   if self.pending_choices > 0 {
-    self.current_offers = build_levelup_offers(skills, offer_seed + self.level)
+    self.current_offers = build_levelup_offers(
+      skills,
+      archetype,
+      build_policy,
+      offer_seed + self.level,
+    )
     if self.current_offers.length() == 0 {
       self.pending_choices = 0
     }

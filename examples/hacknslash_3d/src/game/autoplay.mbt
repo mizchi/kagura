@@ -163,19 +163,11 @@ fn find_nearest_autoplay_pickup_item(world : GameWorld) -> ItemDrop? {
 }
 
 ///|
-pub fn GameWorld::collect_equipment_pickup(
+pub fn GameWorld::apply_equipment_pickup_plan(
   self : GameWorld,
   item : ItemData,
+  plan : @gameplay2d.EquipmentPickupPlan,
 ) -> Bool {
-  let plan = @gameplay2d.plan_equipment_pickup(
-    auto_play=self.auto_play,
-    should_equip=self.equipment.should_equip(item),
-    inventory_has_space=self.inventory.count() < self.inventory.capacity,
-    has_previous_equipped=match self.equipment.item_for_slot(item.slot) {
-      Some(_) => true
-      None => false
-    },
-  )
   if plan.equip_incoming {
     let previous = self.equipment.equip(item)
     match (previous, plan.store_previous_equipped) {
@@ -192,6 +184,7 @@ pub fn GameWorld::collect_equipment_pickup(
       self.equipment,
       self.skills,
       base_hp=self.params.player_base_hp.to_int(),
+      archetype=Some(self.archetype),
     )
     self.player.hp = @cmp.minimum(self.player.hp, self.player_stats.max_hp)
     return true
@@ -208,6 +201,23 @@ pub fn GameWorld::collect_equipment_pickup(
 }
 
 ///|
+pub fn GameWorld::collect_equipment_pickup(
+  self : GameWorld,
+  item : ItemData,
+) -> Bool {
+  let plan = @gameplay2d.plan_equipment_pickup(
+    auto_play=self.auto_play,
+    should_equip=self.equipment.should_equip(item),
+    inventory_has_space=self.inventory.count() < self.inventory.capacity,
+    has_previous_equipped=match self.equipment.item_for_slot(item.slot) {
+      Some(_) => true
+      None => false
+    },
+  )
+  self.apply_equipment_pickup_plan(item, plan)
+}
+
+///|
 fn auto_equip_inventory_item(
   world : GameWorld,
   index : Int,
@@ -220,6 +230,7 @@ fn auto_equip_inventory_item(
       world.equipment,
       world.skills,
       base_hp=world.params.player_base_hp.to_int(),
+      archetype=Some(world.archetype),
     )
     world.player.hp = @cmp.minimum(world.player.hp, world.player_stats.max_hp)
   }
@@ -236,21 +247,6 @@ pub fn GameWorld::auto_equip_best(self : GameWorld) -> Unit {
 }
 
 ///|
-fn levelup_offer_priority(id : SkillId) -> Int {
-  match id {
-    Vitality => 0
-    PowerStrike => 1
-    ChainLightning => 2
-    IceNova => 3
-    HomingMissile => 4
-    SplittingFireball => 5
-    CriticalHit => 6
-    DashMastery => 7
-    Whirlwind => 8
-    LifeSteal => 9
-  }
-}
-
 ///|
 pub fn GameWorld::auto_choose_levelup_offer(self : GameWorld) -> Unit {
   if self.level_progress.pending_choices <= 0 ||
@@ -260,7 +256,10 @@ pub fn GameWorld::auto_choose_levelup_offer(self : GameWorld) -> Unit {
   let mut best_index = 0
   let mut best_priority = 999999
   for i, offer in self.level_progress.current_offers {
-    let priority = levelup_offer_priority(offer)
+    let priority = self.archetype.offer_priority_with_policy(
+      self.build_policy,
+      offer,
+    )
     if priority < best_priority {
       best_priority = priority
       best_index = i

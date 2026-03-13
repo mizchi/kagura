@@ -522,7 +522,7 @@ pub fn SkillTree::new() -> SkillTree {
       {
         id: ChainLightning,
         name: "Chain Lightning",
-        max_level: 1,
+        max_level: 3,
         level: 0,
         cost: 1,
         icon_id: 16,
@@ -531,7 +531,7 @@ pub fn SkillTree::new() -> SkillTree {
       {
         id: SplittingFireball,
         name: "Splitting Fireball",
-        max_level: 1,
+        max_level: 3,
         level: 0,
         cost: 1,
         icon_id: 17,
@@ -540,7 +540,7 @@ pub fn SkillTree::new() -> SkillTree {
       {
         id: IceNova,
         name: "Ice Nova",
-        max_level: 1,
+        max_level: 3,
         level: 0,
         cost: 1,
         icon_id: 18,
@@ -549,7 +549,7 @@ pub fn SkillTree::new() -> SkillTree {
       {
         id: HomingMissile,
         name: "Homing Missile",
-        max_level: 1,
+        max_level: 3,
         level: 0,
         cost: 1,
         icon_id: 19,
@@ -561,6 +561,39 @@ pub fn SkillTree::new() -> SkillTree {
 }
 
 ///|
+pub fn SkillTree::new_for_archetype(
+  archetype : CharacterArchetype,
+) -> SkillTree {
+  let tree = SkillTree::new()
+  for skill_id in archetype.starting_skill_ids() {
+    let index = tree.find_index(skill_id)
+    if index >= 0 {
+      tree.nodes[index].level = 1
+    }
+  }
+  tree
+}
+
+///|
+pub fn infer_character_archetype_from_skills(
+  skills : SkillTree,
+) -> CharacterArchetype? {
+  if skills.get_level(PowerStrike) > 0 {
+    return Some(Melee)
+  }
+  if skills.get_level(ChainLightning) > 0 {
+    return Some(Mage)
+  }
+  if skills.get_level(HomingMissile) > 0 {
+    return Some(Summoner)
+  }
+  if skills.get_level(CriticalHit) > 0 {
+    return Some(Ranger)
+  }
+  None
+}
+
+///|
 pub fn SkillTree::find(self : SkillTree, id : SkillId) -> SkillNode? {
   for node in self.nodes {
     if skill_id_eq(node.id, id) {
@@ -568,6 +601,16 @@ pub fn SkillTree::find(self : SkillTree, id : SkillId) -> SkillNode? {
     }
   }
   None
+}
+
+///|
+fn SkillTree::find_index(self : SkillTree, id : SkillId) -> Int {
+  for i = 0; i < self.nodes.length(); i = i + 1 {
+    if skill_id_eq(self.nodes[i].id, id) {
+      return i
+    }
+  }
+  -1
 }
 
 ///|
@@ -626,24 +669,24 @@ pub fn spell_skill_ids() -> Array[SkillId] {
 
 ///|
 pub fn SkillTree::can_learn(self : SkillTree, id : SkillId) -> Bool {
-  match self.find(id) {
-    None => false
-    Some(node) => {
-      if node.level >= node.max_level {
-        return false
-      }
-      if self.skill_points < node.cost {
-        return false
-      }
-      for prereq in node.prereqs {
-        match self.find(prereq) {
-          None => return false
-          Some(p) => if p.level == 0 { return false }
-        }
-      }
-      true
+  let index = self.find_index(id)
+  if index < 0 {
+    return false
+  }
+  let node = self.nodes[index]
+  if node.level >= node.max_level {
+    return false
+  }
+  if self.skill_points < node.cost {
+    return false
+  }
+  for prereq in node.prereqs {
+    let prereq_index = self.find_index(prereq)
+    if prereq_index < 0 || self.nodes[prereq_index].level == 0 {
+      return false
     }
   }
+  true
 }
 
 ///|
@@ -651,14 +694,13 @@ pub fn SkillTree::learn(self : SkillTree, id : SkillId) -> Bool {
   if not(self.can_learn(id)) {
     return false
   }
-  match self.find(id) {
-    None => false
-    Some(node) => {
-      self.skill_points = self.skill_points - node.cost
-      node.level = node.level + 1
-      true
-    }
+  let index = self.find_index(id)
+  if index < 0 {
+    return false
   }
+  self.skill_points = self.skill_points - self.nodes[index].cost
+  self.nodes[index].level = self.nodes[index].level + 1
+  true
 }
 
 ///|
@@ -739,6 +781,9 @@ pub fn compute_player_stats(
   equipment : Equipment,
   skills : SkillTree,
   base_hp? : Int = 8,
+  archetype? : CharacterArchetype? = infer_character_archetype_from_skills(
+    skills,
+  ),
 ) -> PlayerStats {
   let base_atk = 1
   let base_def = 0
@@ -757,9 +802,21 @@ pub fn compute_player_stats(
       }
       count
     }
-  let strength = 10 + equipment.total_str_bonus() + power_strike_level
-  let intelligence = 10 + equipment.total_int_bonus() + spell_unlocks
-  let dexterity = 10 + equipment.total_dex_bonus() + dash_mastery_level
+  let base_strength = match archetype {
+    Some(a) => a.base_strength()
+    None => 10
+  }
+  let base_intelligence = match archetype {
+    Some(a) => a.base_intelligence()
+    None => 10
+  }
+  let base_dexterity = match archetype {
+    Some(a) => a.base_dexterity()
+    None => 10
+  }
+  let strength = base_strength + equipment.total_str_bonus() + power_strike_level
+  let intelligence = base_intelligence + equipment.total_int_bonus() + spell_unlocks
+  let dexterity = base_dexterity + equipment.total_dex_bonus() + dash_mastery_level
   let attack_power = soulslike_scaled_damage(
     base_atk + equipment.total_atk() + power_strike_level,
     strength,

@@ -11,6 +11,8 @@ struct AutoplayExperimentConfig {
   created_at_utc : String
   runner : String
   hypothesis_name : String
+  archetype_name : String
+  build_policy_name : String
   start_floor : Int
   sim_max_frames : Int
   max_generations : Int
@@ -27,6 +29,8 @@ fn autoplay_experiment_columns(
     @parquet.new_column("created_at_utc", @parquet.String, @parquet.Required),
     @parquet.new_column("runner", @parquet.String, @parquet.Required),
     @parquet.new_column("hypothesis_name", @parquet.String, @parquet.Required),
+    @parquet.new_column("archetype_name", @parquet.String, @parquet.Required),
+    @parquet.new_column("build_policy_name", @parquet.String, @parquet.Required),
     @parquet.new_column("run_kind", @parquet.String, @parquet.Required),
     @parquet.new_column("generation", @parquet.Int32, @parquet.Required),
     @parquet.new_column("loss", @parquet.String, @parquet.Required),
@@ -63,6 +67,8 @@ fn autoplay_experiment_row(
     @parquet.Value::String(config.created_at_utc),
     @parquet.Value::String(config.runner),
     @parquet.Value::String(config.hypothesis_name),
+    @parquet.Value::String(config.archetype_name),
+    @parquet.Value::String(config.build_policy_name),
     @parquet.Value::String(run_kind),
     @parquet.Value::Int32(generation),
     numeric_value(loss),

@@ -289,3 +289,35 @@ test "tick_auto_with_enemy_ai_grid auto selects pending levelup offer" {
     world.skills.get_level(DashMastery) > 0,
   )
 }
+
+///|
+test "tick_auto_with_enemy_ai_grid prefers archetype-aligned levelup offer" {
+  let world = GameWorld::new(seed=42, archetype=Mage)
+  world.auto_play = true
+  world.frame_count = 59
+  world.level_progress.pending_choices = 1
+  world.level_progress.current_offers = [PowerStrike, ChainLightning, DashMastery]
+
+  world.tick_auto_with_enemy_ai_grid(world.dungeon.grid)
+
+  assert_eq(world.skills.get_level(ChainLightning), 2)
+  assert_eq(world.skills.get_level(PowerStrike), 0)
+}
+
+///|
+test "tick_auto_with_enemy_ai_grid picks anti-synergy offer when build policy is anti_synergy" {
+  let world = GameWorld::new(
+    seed=42,
+    archetype=Mage,
+    build_policy=AntiSynergy,
+  )
+  world.auto_play = true
+  world.frame_count = 59
+  world.level_progress.pending_choices = 1
+  world.level_progress.current_offers = [PowerStrike, ChainLightning, DashMastery]
+
+  world.tick_auto_with_enemy_ai_grid(world.dungeon.grid)
+
+  assert_eq(world.skills.get_level(ChainLightning), 1)
+  assert_eq(world.skills.get_level(PowerStrike), 1)
+}

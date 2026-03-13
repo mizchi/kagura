@@ -12,8 +12,17 @@ export function buildParquetPath(outDir, experimentId) {
   return join(outDir, `${experimentId}.parquet`);
 }
 
-export function buildHypothesisParquetPath(outDir, experimentId, hypothesisName) {
-  return join(outDir, `${experimentId}-${hypothesisName}.parquet`);
+export function buildHypothesisParquetPath(
+  outDir,
+  experimentId,
+  hypothesisName,
+  archetypeName = null,
+  buildPolicyName = null,
+) {
+  const suffix = [hypothesisName, archetypeName, buildPolicyName]
+    .filter(Boolean)
+    .join("-");
+  return join(outDir, `${experimentId}-${suffix}.parquet`);
 }
 
 export function buildDuckdbPath(outDir) {
@@ -27,6 +36,8 @@ export function buildDuckdbAppendSql(tableName, parquetPath) {
     `SELECT * FROM read_parquet('${sqlParquetPath}') LIMIT 0;`,
     `ALTER TABLE ${tableName} ADD COLUMN IF NOT EXISTS runner VARCHAR;`,
     `ALTER TABLE ${tableName} ADD COLUMN IF NOT EXISTS hypothesis_name VARCHAR;`,
+    `ALTER TABLE ${tableName} ADD COLUMN IF NOT EXISTS archetype_name VARCHAR;`,
+    `ALTER TABLE ${tableName} ADD COLUMN IF NOT EXISTS build_policy_name VARCHAR;`,
     `INSERT INTO ${tableName} BY NAME`,
     `SELECT * FROM read_parquet('${sqlParquetPath}');`,
   ].join("\n");
@@ -34,7 +45,7 @@ export function buildDuckdbAppendSql(tableName, parquetPath) {
 
 export function buildDuckdbSummarySql(tableName, experimentId) {
   return [
-    "SELECT experiment_id, runner, hypothesis_name, run_kind, generation,",
+    "SELECT experiment_id, runner, hypothesis_name, archetype_name, build_policy_name, run_kind, generation,",
     "       CAST(loss AS DOUBLE) AS loss,",
     "       CAST(floors_cleared AS DOUBLE) AS floors_cleared,",
     "       CAST(total_damage AS DOUBLE) AS total_damage,",

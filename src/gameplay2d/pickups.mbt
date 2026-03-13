@@ -7,6 +7,13 @@ pub(all) struct PickupRewardConfig {
 } derive(Eq, Show)
 
 ///|
+pub(all) struct BuiltinPickupApplication {
+  next_hp : Int
+  next_score : Int
+  heal_feedback : Bool
+} derive(Eq, Show)
+
+///|
 pub fn PickupRewardConfig::new(
   score_amount~ : Int,
   heal_amount~ : Int,
@@ -20,6 +27,12 @@ pub(all) struct EquipmentPickupPlan {
   store_previous_equipped : Bool
   equip_incoming : Bool
   use_fifo_storage : Bool
+} derive(Eq, Show)
+
+///|
+pub(all) enum PickupResolution {
+  Builtin(Int, Int, Bool)
+  Equipment(EquipmentPickupPlan)
 } derive(Eq, Show)
 
 ///|
@@ -71,5 +84,55 @@ pub fn apply_builtin_pickup_effect(
       Some((next_hp, 0, true))
     }
     EquipmentPickup => None
+  }
+}
+
+///|
+pub fn apply_builtin_pickup_to_actor(
+  effect : PickupEffect,
+  actor_hp : Int,
+  actor_max_hp : Int,
+  actor_score : Int,
+  rewards : PickupRewardConfig,
+) -> BuiltinPickupApplication? {
+  match apply_builtin_pickup_effect(effect, actor_hp, actor_max_hp, rewards) {
+    Some((next_hp, score_delta, heal_feedback)) => Some({
+      next_hp,
+      next_score: actor_score + score_delta,
+      heal_feedback,
+    })
+    None => None
+  }
+}
+
+///|
+pub fn resolve_pickup_resolution(
+  effect : PickupEffect,
+  actor_hp : Int,
+  actor_max_hp : Int,
+  rewards : PickupRewardConfig,
+  auto_play~ : Bool,
+  should_equip~ : Bool,
+  inventory_has_space~ : Bool,
+  has_previous_equipped~ : Bool,
+) -> PickupResolution {
+  match effect {
+    ScorePickup | HealthPickup => {
+      match apply_builtin_pickup_effect(effect, actor_hp, actor_max_hp, rewards) {
+        Some((next_hp, score_delta, heal_feedback)) =>
+          Builtin(next_hp, score_delta, heal_feedback)
+        None => abort("builtin pickup effect must resolve")
+      }
+    }
+    EquipmentPickup => {
+      Equipment(
+        plan_equipment_pickup(
+          auto_play=auto_play,
+          should_equip=should_equip,
+          inventory_has_space=inventory_has_space,
+          has_previous_equipped=has_previous_equipped,
+        ),
+      )
+    }
   }
 }

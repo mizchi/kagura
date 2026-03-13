@@ -3,6 +3,8 @@
 ///|
 pub(all) struct GameWorld {
   params : BalanceParams
+  archetype : CharacterArchetype
+  build_policy : ArchetypeBuildPolicy
   mut mode : GameMode
   mut frame_count : Int
   mut seed : Int
@@ -57,14 +59,17 @@ fn initial_discovered_rooms_for_dungeon(
 pub fn GameWorld::new(
   seed~ : Int,
   params? : BalanceParams = BalanceParams::default(),
+  archetype? : CharacterArchetype = default_character_archetype(),
+  build_policy? : ArchetypeBuildPolicy = default_archetype_build_policy(),
 ) -> GameWorld {
   let dungeon = generate_dungeon(seed, params~)
   let equipment = Equipment::new()
-  let skills = SkillTree::new()
+  let skills = SkillTree::new_for_archetype(archetype)
   let player_stats = compute_player_stats(
     equipment,
     skills,
     base_hp=params.player_base_hp.to_int(),
+    archetype=Some(archetype),
   )
   let level_progress = LevelProgression::new(config=params.levelup_config())
   let player : Player = {
@@ -92,6 +97,8 @@ pub fn GameWorld::new(
   )
   {
     params,
+    archetype,
+    build_policy,
     mode: Title,
     frame_count: 0,
     seed,
@@ -206,6 +213,7 @@ pub fn GameWorld::refresh_player_stats(self : GameWorld) -> Unit {
     self.equipment,
     self.skills,
     base_hp=self.params.player_base_hp.to_int(),
+    archetype=Some(self.archetype),
   )
   self.player.hp = @cmp.minimum(self.player.hp, self.player_stats.max_hp)
 }
@@ -238,7 +246,15 @@ pub fn GameWorld::apply_levelup_offer_choice(
   offer_index : Int,
   offer_seed : Int,
 ) -> Bool {
-  if not(self.level_progress.choose_offer(self.skills, offer_index, offer_seed)) {
+  if not(
+      self.level_progress.choose_offer(
+        self.skills,
+        self.archetype,
+        self.build_policy,
+        offer_index,
+        offer_seed,
+      )
+  ) {
     return false
   }
   self.refresh_player_stats()
@@ -705,16 +721,20 @@ pub fn GameWorld::tick_items_phase(self : GameWorld) -> Unit {
               heal_amount=2,
             )
             match
-              @gameplay2d.apply_builtin_pickup_effect(
+              @gameplay2d.apply_builtin_pickup_to_actor(
                 HealthPickup,
                 self.player.hp,
                 self.player_stats.max_hp,
+                self.score,
                 rewards,
               ) {
-              Some((next_hp, _score_delta, heal_feedback)) => {
+              Some(application) => {
                 item.alive = false
-                self.events.push(ItemPickup(item.x, item.y, heal_feedback))
-                self.player.hp = next_hp
+                self.events.push(
+                  ItemPickup(item.x, item.y, application.heal_feedback),
+                )
+                self.player.hp = application.next_hp
+                self.score = application.next_score
               }
               None => abort("health pickup should always resolve")
             }
@@ -725,16 +745,20 @@ pub fn GameWorld::tick_items_phase(self : GameWorld) -> Unit {
               heal_amount=2,
             )
             match
-              @gameplay2d.apply_builtin_pickup_effect(
+              @gameplay2d.apply_builtin_pickup_to_actor(
                 ScorePickup,
                 self.player.hp,
                 self.player_stats.max_hp,
+                self.score,
                 rewards,
               ) {
-              Some((_next_hp, score_delta, heal_feedback)) => {
+              Some(application) => {
                 item.alive = false
-                self.events.push(ItemPickup(item.x, item.y, heal_feedback))
-                self.score = self.score + score_delta
+                self.events.push(
+                  ItemPickup(item.x, item.y, application.heal_feedback),
+                )
+                self.player.hp = application.next_hp
+                self.score = application.next_score
               }
               None => abort("score pickup should always resolve")
             }

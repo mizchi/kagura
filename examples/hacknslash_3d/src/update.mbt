@@ -14,6 +14,8 @@ fn GameState::new(seed~ : Int) -> GameState {
     seed~,
     @game.BalanceParams::default(),
     SSAOConfig::disabled_default(),
+    archetype=@game.default_character_archetype(),
+    build_policy=@game.default_archetype_build_policy(),
   )
 }
 
@@ -23,6 +25,8 @@ fn GameState::new_with_ssao(seed~ : Int, ssao_config : SSAOConfig) -> GameState 
     seed~,
     @game.BalanceParams::default(),
     ssao_config,
+    archetype=@game.default_character_archetype(),
+    build_policy=@game.default_archetype_build_policy(),
   )
 }
 
@@ -30,11 +34,15 @@ fn GameState::new_with_ssao(seed~ : Int, ssao_config : SSAOConfig) -> GameState 
 fn GameState::new_with_params(
   seed~ : Int,
   params : @game.BalanceParams,
+  archetype? : @game.CharacterArchetype = @game.default_character_archetype(),
+  build_policy? : @game.ArchetypeBuildPolicy = @game.default_archetype_build_policy(),
 ) -> GameState {
   GameState::new_with_params_and_ssao(
     seed~,
     params,
     SSAOConfig::disabled_default(),
+    archetype=archetype,
+    build_policy=build_policy,
   )
 }
 
@@ -43,8 +51,15 @@ fn GameState::new_with_params_and_ssao(
   seed~ : Int,
   params : @game.BalanceParams,
   ssao_config : SSAOConfig,
+  archetype? : @game.CharacterArchetype = @game.default_character_archetype(),
+  build_policy? : @game.ArchetypeBuildPolicy = @game.default_archetype_build_policy(),
 ) -> GameState {
-  let world = @game.GameWorld::new(seed~, params~)
+  let world = @game.GameWorld::new(
+    seed~,
+    params~,
+    archetype=archetype,
+    build_policy=build_policy,
+  )
   let sw = screen_w.to_double()
   let sh = screen_h.to_double()
   let bloom_w = half_res_target_size(screen_w)

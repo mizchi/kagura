@@ -10,6 +10,9 @@
     },
     "mizchi/kagura_effect_studio": {
       "path": "../.."
+    },
+    "mizchi/web_runtime_hooks": {
+      "path": "../../../../examples/web_runtime_hooks"
     }
   }
 }

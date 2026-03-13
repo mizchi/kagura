@@ -275,6 +275,7 @@ fn GameState::update(self : GameState, input : @core.InputSnapshot) -> Unit {
   }
   match self.world.mode {
     @game.Title => self.update_title(input)
+    @game.CharacterSelect => self.update_character_select(input)
     @game.Playing => self.update_playing()
     @game.GameOver => self.update_gameover(input)
   }
@@ -291,10 +292,37 @@ fn GameState::update_title(
   }
   if @inpututil.is_confirm_just_pressed(self.input) {
     // Try loading save first
-    if not(self.load_game()) {
-      // No save — fresh start
+    if self.load_game() {
+      self.world.mode = @game.Playing
+    } else {
+      // No save — go to character select
+      self.world.select_cursor = 0
+      self.world.mode = @game.CharacterSelect
     }
+  }
+}
+
+///|
+fn GameState::update_character_select(
+  self : GameState,
+  _input : @core.InputSnapshot,
+) -> Unit {
+  let archetypes = @game.selectable_archetypes()
+  let count = archetypes.length()
+  if @inpututil.is_up_just_pressed(self.input) {
+    self.world.select_cursor = (self.world.select_cursor - 1 + count) % count
+  }
+  if @inpututil.is_down_just_pressed(self.input) {
+    self.world.select_cursor = (self.world.select_cursor + 1) % count
+  }
+  if @inpututil.is_confirm_just_pressed(self.input) {
+    let chosen = archetypes[self.world.select_cursor]
+    self.world.apply_archetype(chosen)
     self.world.mode = @game.Playing
+  }
+  // ESC to go back to title
+  if @inpututil.is_key_just_pressed(self.input.key_state, key_escape) {
+    self.world.mode = @game.Title
   }
 }
 

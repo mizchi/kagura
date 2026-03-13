@@ -843,6 +843,136 @@ fn GameState::render_title_cmds(
 }
 
 ///|
+fn GameState::render_character_select_cmds(
+  self : GameState,
+  dst : @gfx.ImageHandle,
+  shader : @gfx.ShaderHandle,
+) -> Array[@gfx.DrawTrianglesCommand] {
+  let sw = screen_w.to_double()
+  let sh = screen_h.to_double()
+  let cmds : Array[@gfx.DrawTrianglesCommand] = []
+  let ctx = self.make_hud_ctx(dst, shader)
+  // Background
+  ctx.draw_rect(cmds, 0.0, 0.0, sw, sh, @hud.hex_color(0x0E1020))
+  let archetypes = @game.selectable_archetypes()
+  let cursor = self.world.select_cursor
+  let title_y = sh / 2.0 - 120.0
+  let start_y = sh / 2.0 - 50.0
+  let row_height = 60.0
+  match self.text_renderer {
+    Some(tr) => {
+      let _ = tr
+      ctx.draw_text_centered(
+        cmds,
+        "SELECT CLASS",
+        36.0,
+        sw / 2.0,
+        title_y,
+        0xFFCC00,
+      )
+      for i, archetype in archetypes {
+        let y = start_y + i.to_double() * row_height
+        let is_selected = i == cursor
+        let name_color = if is_selected { 0xFFFFFF } else { 0x888888 }
+        let stat_color = if is_selected { 0xAADDFF } else { 0x556677 }
+        // Selection indicator
+        if is_selected {
+          ctx.draw_rect(
+            cmds,
+            sw / 2.0 - 140.0,
+            y - 6.0,
+            280.0,
+            48.0,
+            @hud.hex_color(0x334466, alpha=0.6),
+          )
+          ctx.draw_text(cmds, ">", 20.0, sw / 2.0 - 130.0, y, 0xFFCC00)
+        }
+        ctx.draw_text_centered(
+          cmds,
+          archetype.display_name(),
+          24.0,
+          sw / 2.0,
+          y,
+          name_color,
+        )
+        let stats_text = "STR " +
+          archetype.base_strength().to_string() +
+          "  INT " +
+          archetype.base_intelligence().to_string() +
+          "  DEX " +
+          archetype.base_dexterity().to_string()
+        ctx.draw_text_centered(
+          cmds,
+          stats_text,
+          14.0,
+          sw / 2.0,
+          y + 24.0,
+          stat_color,
+        )
+      }
+      // Instructions
+      if self.world.frame_count / 30 % 2 == 0 {
+        ctx.draw_text_centered(
+          cmds,
+          "UP/DOWN + SPACE",
+          16.0,
+          sw / 2.0,
+          start_y + archetypes.length().to_double() * row_height + 20.0,
+          0x666666,
+        )
+      }
+    }
+    None => {
+      let nodes : Array[@scene.SceneNode] = []
+      nodes.push(
+        @scene.label(
+          x=sw / 2.0,
+          y=title_y,
+          content="SELECT CLASS",
+          scale=2.5,
+          color=0xFFCC00,
+        ),
+      )
+      for i, archetype in archetypes {
+        let y = start_y + i.to_double() * row_height
+        let is_selected = i == cursor
+        let name_color = if is_selected { 0xFFFFFF } else { 0x888888 }
+        let prefix = if is_selected { "> " } else { "  " }
+        nodes.push(
+          @scene.label(
+            x=sw / 2.0,
+            y=y,
+            content=prefix + archetype.display_name(),
+            scale=1.5,
+            color=name_color,
+          ),
+        )
+        let stats_text = "STR " +
+          archetype.base_strength().to_string() +
+          " INT " +
+          archetype.base_intelligence().to_string() +
+          " DEX " +
+          archetype.base_dexterity().to_string()
+        nodes.push(
+          @scene.label(
+            x=sw / 2.0,
+            y=y + 24.0,
+            content=stats_text,
+            color=0x556677,
+          ),
+        )
+      }
+      let fallback = @scene.fragment(nodes)
+      let scene_cmds = @scene.render_scene(fallback, dst, shader, sw, sh)
+      for cmd in scene_cmds {
+        cmds.push(cmd)
+      }
+    }
+  }
+  cmds
+}
+
+///|
 fn GameState::render_gameover_cmds(
   self : GameState,
   dst : @gfx.ImageHandle,

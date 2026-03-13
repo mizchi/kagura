@@ -138,6 +138,8 @@ fn GameState::draw(
 ) -> Array[@gfx.DrawTrianglesCommand] {
   let result = match self.world.mode {
     @game.Title => self.render_title_cmds(ctx.dst, ctx.shader)
+    @game.CharacterSelect =>
+      self.render_character_select_cmds(ctx.dst, ctx.shader)
     @game.GameOver => self.render_gameover_cmds(ctx.dst, ctx.shader)
     @game.Playing => self.draw_playing(ctx)
   }

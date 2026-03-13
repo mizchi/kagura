@@ -352,6 +352,11 @@ pub fn Equipment::equip(self : Equipment, item : ItemData) -> ItemData? {
 }
 
 ///|
+pub fn Equipment::clone(self : Equipment) -> Equipment {
+  { weapon: self.weapon, armor: self.armor, accessory: self.accessory }
+}
+
+///|
 pub fn Equipment::item_for_slot(
   self : Equipment,
   slot : EquipSlot,

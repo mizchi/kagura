@@ -109,6 +109,7 @@ pub fn ItemKind::op_equal(self : ItemKind, other : ItemKind) -> Bool {
 ///|
 pub(all) enum GameMode {
   Title
+  CharacterSelect
   Playing
   GameOver
 } derive(Eq)

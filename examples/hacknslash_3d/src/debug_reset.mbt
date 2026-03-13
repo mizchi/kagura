@@ -12,6 +12,7 @@ fn debug_reset_button_rect(
   let x = screen_w / 2.0 - width / 2.0
   let y = match mode {
     @game.Title => screen_h / 2.0 + 84.0
+    @game.CharacterSelect => screen_h / 2.0 + 84.0
     @game.GameOver => screen_h / 2.0 + 116.0
     _ => return None
   }
@@ -36,7 +37,7 @@ fn input_snapshot_requests_debug_reset(
   mode : @game.GameMode,
 ) -> Bool {
   match mode {
-    @game.Title | @game.GameOver => ()
+    @game.Title | @game.CharacterSelect | @game.GameOver => ()
     _ => return false
   }
   for key in input.pressed_keys {

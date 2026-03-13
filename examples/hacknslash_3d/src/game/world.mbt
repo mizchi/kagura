@@ -3,7 +3,7 @@
 ///|
 pub(all) struct GameWorld {
   params : BalanceParams
-  archetype : CharacterArchetype
+  mut archetype : CharacterArchetype
   build_policy : ArchetypeBuildPolicy
   mut mode : GameMode
   mut frame_count : Int
@@ -36,6 +36,7 @@ pub(all) struct GameWorld {
   mut auto_cleared_rooms : Array[Bool]
   mut discovered_rooms : Array[Bool]
   mut discovered_rooms_version : Int
+  mut select_cursor : Int
   mut events : Array[GameEvent]
   mut enemy_separation_cell_heads : Array[Int]
   mut enemy_separation_next_indices : Array[Int]
@@ -130,6 +131,7 @@ pub fn GameWorld::new(
     auto_cleared_rooms: Array::make(dungeon.rooms.length(), false),
     discovered_rooms,
     discovered_rooms_version,
+    select_cursor: 0,
     events: [],
     enemy_separation_cell_heads: Array::make(
       enemy_separation_grid_cols() * enemy_separation_grid_rows(),
@@ -138,6 +140,33 @@ pub fn GameWorld::new(
     enemy_separation_next_indices: [],
     enemy_separation_cell_indices: [],
   }
+}
+
+///|
+pub fn GameWorld::apply_archetype(
+  self : GameWorld,
+  archetype : CharacterArchetype,
+) -> Unit {
+  self.archetype = archetype
+  // Reset skills and apply archetype starting skills
+  for node in self.skills.nodes {
+    node.level = 0
+  }
+  self.skills.skill_points = 0
+  for skill_id in archetype.starting_skill_ids() {
+    let index = self.skills.find_index(skill_id)
+    if index >= 0 {
+      self.skills.nodes[index].level = 1
+    }
+  }
+  // Recompute stats with new archetype
+  self.player_stats = compute_player_stats(
+    self.equipment,
+    self.skills,
+    base_hp=self.params.player_base_hp.to_int(),
+    archetype=Some(archetype),
+  )
+  self.player.hp = self.player_stats.max_hp
 }
 
 ///|

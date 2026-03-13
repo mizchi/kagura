@@ -1,6 +1,7 @@
 ///|
 test "auto_play_input routes toward nearby equipment pickup when no enemy is visible" {
   let world = GameWorld::new(seed=42)
+  world.enemies = []
   world.items = [
     {
       x: world.player.x + tile_size,
@@ -40,6 +41,7 @@ test "auto_play_input routes toward nearby equipment pickup when no enemy is vis
 ///|
 test "auto_play_input routes toward nearby score pickup when no enemy is visible" {
   let world = GameWorld::new(seed=42)
+  world.enemies = []
   world.items = [
     {
       x: world.player.x + tile_size,
@@ -63,6 +65,7 @@ test "auto_play_input routes toward nearby score pickup when no enemy is visible
 ///|
 test "auto_play_input moves toward pickup on same tile when item is still outside pickup radius" {
   let world = GameWorld::new(seed=42)
+  world.enemies = []
   world.items = [
     {
       x: world.player.x + 6.0,

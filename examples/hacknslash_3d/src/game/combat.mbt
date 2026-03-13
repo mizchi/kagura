@@ -244,7 +244,13 @@ fn apply_enemy_death_rewards(world : GameWorld, enemy : Enemy) -> Unit {
   let drop_seed = world.frame_count * 7 +
     enemy.x.to_int() * 13 +
     enemy.y.to_int() * 17
-  let drop_count = if enemy.kind == Boss { 5 } else { drop_seed % 3 + 1 }
+  let drop_count = if enemy.kind == Boss {
+    3
+  } else if enemy.kind == Tank {
+    drop_seed % 2 + 1
+  } else {
+    1
+  }
   for di = 0; di < drop_count; di = di + 1 {
     let item_seed = drop_seed + di * 31
     let angle = (item_seed % 628).to_double() / 100.0

@@ -204,6 +204,7 @@ extern "js" fn js_publish_audio_debug_state(
 fn game_mode_name(mode : @game.GameMode) -> String {
   match mode {
     @game.Title => "title"
+    @game.CharacterSelect => "character_select"
     @game.Playing => "playing"
     @game.GameOver => "gameover"
   }
@@ -224,6 +225,8 @@ fn apply_initial_mode_overrides(
     }
   } else if snapshot_mode == "gameover" {
     state.world.mode = @game.GameOver
+  } else if snapshot_mode == "character_select" {
+    state.world.mode = @game.CharacterSelect
   } else if initial_autoplay_enabled {
     state.world.mode = @game.Playing
   }

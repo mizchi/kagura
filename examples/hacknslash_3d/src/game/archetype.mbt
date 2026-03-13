@@ -240,6 +240,33 @@ pub fn CharacterArchetype::skill_damage_multiplier(
 }
 
 ///|
+pub fn selectable_archetypes() -> Array[CharacterArchetype] {
+  [Melee, Mage, Ranger]
+}
+
+///|
+pub fn CharacterArchetype::display_name(self : CharacterArchetype) -> String {
+  match self {
+    Melee => "WARRIOR"
+    Mage => "MAGE"
+    Summoner => "SUMMONER"
+    Ranger => "RANGER"
+  }
+}
+
+///|
+pub fn CharacterArchetype::display_description(
+  self : CharacterArchetype,
+) -> String {
+  match self {
+    Melee => "STR-focused melee fighter"
+    Mage => "INT-focused spell caster"
+    Summoner => "INT/DEX balanced summoner"
+    Ranger => "DEX-focused ranged attacker"
+  }
+}
+
+///|
 pub fn CharacterArchetype::anti_synergy_target(
   self : CharacterArchetype,
 ) -> CharacterArchetype {

@@ -60,6 +60,77 @@ fn format_signed(v : Int) -> String {
 }
 
 ///|
+fn diff_color(diff : Int) -> Int {
+  if diff > 0 {
+    0x44FF44 // green = improvement
+  } else {
+    0xFF4444 // red = worse
+  }
+}
+
+///|
+fn format_diff(diff : Int) -> String {
+  if diff > 0 {
+    "+" + diff.to_string()
+  } else {
+    diff.to_string()
+  }
+}
+
+///|
+fn draw_stat_with_diff(
+  ctx : @hud.HudContext,
+  cmds : Array[@gfx.DrawTrianglesCommand],
+  label : String,
+  current : Int,
+  preview : Int?,
+  x : Double,
+  y : Double,
+  color : Int,
+) -> Unit {
+  let base_text = label + ":" + current.to_string()
+  ctx.draw_text(cmds, base_text, ui_font, x, y, color)
+  match preview {
+    Some(pv) => {
+      let diff = pv - current
+      if diff != 0 {
+        let diff_text = format_diff(diff)
+        // Estimate text width: ~7px per char at ui_font size
+        let offset = (base_text.length().to_double()) * 7.0 + 2.0
+        ctx.draw_text(cmds, diff_text, ui_font_sm, x + offset, y + 2.0, diff_color(diff))
+      }
+    }
+    None => ()
+  }
+}
+
+///|
+fn draw_stat_pct_with_diff(
+  ctx : @hud.HudContext,
+  cmds : Array[@gfx.DrawTrianglesCommand],
+  label : String,
+  current_pct : Int,
+  preview_pct : Int?,
+  x : Double,
+  y : Double,
+  color : Int,
+) -> Unit {
+  let base_text = label + ":" + current_pct.to_string() + "%"
+  ctx.draw_text(cmds, base_text, ui_font, x, y, color)
+  match preview_pct {
+    Some(pv) => {
+      let diff = pv - current_pct
+      if diff != 0 {
+        let diff_text = format_diff(diff)
+        let offset = (base_text.length().to_double()) * 7.0 + 2.0
+        ctx.draw_text(cmds, diff_text, ui_font_sm, x + offset, y + 2.0, diff_color(diff))
+      }
+    }
+    None => ()
+  }
+}
+
+///|
 fn GameState::update_ui(self : GameState) -> Unit {
   match self.world.ui_mode {
     @game.Inventory => self.update_inventory_ui()
@@ -233,23 +304,98 @@ fn GameState::render_inventory_ui(
     }
   }
   y = y + 3.0 * rh + 4.0
-  // ---- Stats ----
+  // ---- Stats panel with equip preview ----
   let s = self.world.player_stats
-  ctx.draw_rect(cmds, p, y, sw - p * 2.0, rh - 2.0, @hud.hex_color(0x112211))
-  ctx.draw_text(
+  // Compute preview stats if cursor is on an equippable item
+  let preview : @game.PlayerStats? = if self.world.ui_cursor <
+    self.world.inventory.capacity {
+    match self.world.inventory.items[self.world.ui_cursor] {
+      Some(item) => {
+        let tmp_equip = self.world.equipment.clone()
+        let _ = tmp_equip.equip(item)
+        Some(
+          @game.compute_player_stats(
+            tmp_equip,
+            self.world.skills,
+            base_hp=self.world.params.player_base_hp.to_int(),
+            archetype=Some(self.world.archetype),
+          ),
+        )
+      }
+      None => None
+    }
+  } else {
+    None
+  }
+  let stats_h = rh * 3.0 + 4.0
+  ctx.draw_rect(
     cmds,
-    "ATK:" +
-    s.atk.to_string() +
-    " DEF:" +
-    s.def.to_string() +
-    " HP:" +
-    s.max_hp.to_string(),
-    ui_font,
-    p + 4.0,
-    y + 4.0,
-    0x66DD66,
+    p,
+    y,
+    sw - p * 2.0,
+    stats_h,
+    @hud.hex_color(0x112211),
   )
-  y = y + rh + 4.0
+  ctx.draw_text(cmds, "STATS", ui_font_sm, p + 4.0, y + 2.0, 0x448844)
+  // Row 1: core stats
+  let row1_y = y + 14.0
+  draw_stat_with_diff(ctx, cmds, "STR", s.strength, preview.map(fn(ps) {
+    ps.strength
+  }), p + 4.0, row1_y, 0xFF8866)
+  draw_stat_with_diff(ctx, cmds, "INT", s.intelligence, preview.map(fn(ps) {
+    ps.intelligence
+  }), p + 100.0, row1_y, 0x66AAFF)
+  draw_stat_with_diff(ctx, cmds, "DEX", s.dexterity, preview.map(fn(ps) {
+    ps.dexterity
+  }), p + 196.0, row1_y, 0x66FF66)
+  draw_stat_with_diff(ctx, cmds, "HP", s.max_hp, preview.map(fn(ps) {
+    ps.max_hp
+  }), p + 292.0, row1_y, 0xFFFFFF)
+  // Row 2: derived powers
+  let row2_y = row1_y + rh
+  draw_stat_with_diff(ctx, cmds, "ATK", s.attack_power, preview.map(fn(ps) {
+    ps.attack_power
+  }), p + 4.0, row2_y, 0xFF8866)
+  draw_stat_with_diff(ctx, cmds, "SPL", s.spell_power, preview.map(fn(ps) {
+    ps.spell_power
+  }), p + 100.0, row2_y, 0x66AAFF)
+  draw_stat_with_diff(ctx, cmds, "RNG", s.ranged_power, preview.map(fn(ps) {
+    ps.ranged_power
+  }), p + 196.0, row2_y, 0x66FF66)
+  draw_stat_with_diff(ctx, cmds, "DEF", s.def, preview.map(fn(ps) {
+    ps.def
+  }), p + 292.0, row2_y, 0xFFFFFF)
+  // Row 3: secondary stats
+  let row3_y = row2_y + rh
+  let crit_pct = (s.crit_chance * 100.0).to_int()
+  let preview_crit_pct = preview.map(fn(ps) {
+    (ps.crit_chance * 100.0).to_int()
+  })
+  draw_stat_pct_with_diff(
+    ctx, cmds, "CRIT", crit_pct, preview_crit_pct, p + 4.0, row3_y, 0xFFCC00,
+  )
+  let ls_pct = (s.life_steal * 100.0).to_int()
+  let preview_ls_pct = preview.map(fn(ps) {
+    (ps.life_steal * 100.0).to_int()
+  })
+  draw_stat_pct_with_diff(
+    ctx, cmds, "LS", ls_pct, preview_ls_pct, p + 100.0, row3_y, 0xFF66AA,
+  )
+  let spd_pct = (s.speed_bonus * 100.0).to_int()
+  let preview_spd_pct = preview.map(fn(ps) {
+    (ps.speed_bonus * 100.0).to_int()
+  })
+  draw_stat_pct_with_diff(
+    ctx, cmds, "SPD", spd_pct, preview_spd_pct, p + 196.0, row3_y, 0x88DDFF,
+  )
+  let cdr_pct = (s.cooldown_reduction * 100.0).to_int()
+  let preview_cdr_pct = preview.map(fn(ps) {
+    (ps.cooldown_reduction * 100.0).to_int()
+  })
+  draw_stat_pct_with_diff(
+    ctx, cmds, "CDR", cdr_pct, preview_cdr_pct, p + 292.0, row3_y, 0xAAFF88,
+  )
+  y = y + stats_h + 4.0
   // ---- Item list ----
   let count_str = "ITEMS " +
     self.world.inventory.count().to_string() +

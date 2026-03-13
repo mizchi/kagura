@@ -33,10 +33,16 @@ pub(all) struct Affix {
   atk : Int
   def : Int
   hp : Int
+  str_bonus : Int
+  int_bonus : Int
+  dex_bonus : Int
   crit : Double
   life_steal : Double
   speed_bonus : Double // movement speed multiplier bonus (e.g. 0.1 = +10%)
   cooldown_reduction : Double // attack cooldown reduction fraction (e.g. 0.1 = 10% faster)
+  str_scaling : Double
+  int_scaling : Double
+  dex_scaling : Double
 }
 
 ///|
@@ -47,6 +53,12 @@ pub(all) struct ItemData {
   atk_bonus : Int
   def_bonus : Int
   hp_bonus : Int
+  str_bonus : Int
+  int_bonus : Int
+  dex_bonus : Int
+  str_scaling : Double
+  int_scaling : Double
+  dex_scaling : Double
   prefix : Affix?
   suffix : Affix?
   icon_id : Int
@@ -101,8 +113,38 @@ pub fn ItemData::total_crit(self : ItemData) -> Double {
 }
 
 ///|
+pub fn ItemData::total_str_bonus(self : ItemData) -> Int {
+  affix_sum_int(self, self.str_bonus, fn(a) { a.str_bonus })
+}
+
+///|
+pub fn ItemData::total_int_bonus(self : ItemData) -> Int {
+  affix_sum_int(self, self.int_bonus, fn(a) { a.int_bonus })
+}
+
+///|
+pub fn ItemData::total_dex_bonus(self : ItemData) -> Int {
+  affix_sum_int(self, self.dex_bonus, fn(a) { a.dex_bonus })
+}
+
+///|
 pub fn ItemData::total_life_steal(self : ItemData) -> Double {
   affix_sum_double(self, fn(a) { a.life_steal })
+}
+
+///|
+pub fn ItemData::total_str_scaling(self : ItemData) -> Double {
+  self.str_scaling + affix_sum_double(self, fn(a) { a.str_scaling })
+}
+
+///|
+pub fn ItemData::total_int_scaling(self : ItemData) -> Double {
+  self.int_scaling + affix_sum_double(self, fn(a) { a.int_scaling })
+}
+
+///|
+pub fn ItemData::total_dex_scaling(self : ItemData) -> Double {
+  self.dex_scaling + affix_sum_double(self, fn(a) { a.dex_scaling })
 }
 
 ///|
@@ -110,10 +152,16 @@ pub fn ItemData::total_stat_score(self : ItemData) -> Double {
   self.total_atk().to_double() +
   self.total_def().to_double() +
   self.total_hp().to_double() +
+  self.total_str_bonus().to_double() * 1.5 +
+  self.total_int_bonus().to_double() * 1.5 +
+  self.total_dex_bonus().to_double() * 1.5 +
   self.total_crit() * 100.0 +
   self.total_life_steal() * 100.0 +
   self.total_speed_bonus() * 100.0 +
-  self.total_cooldown_reduction() * 100.0
+  self.total_cooldown_reduction() * 100.0 +
+  self.total_str_scaling() * 40.0 +
+  self.total_int_scaling() * 40.0 +
+  self.total_dex_scaling() * 40.0
 }
 
 ///|
@@ -326,6 +374,21 @@ pub fn Equipment::total_crit(self : Equipment) -> Double {
 }
 
 ///|
+pub fn Equipment::total_str_bonus(self : Equipment) -> Int {
+  equipment_sum(self, ItemData::total_str_bonus)
+}
+
+///|
+pub fn Equipment::total_int_bonus(self : Equipment) -> Int {
+  equipment_sum(self, ItemData::total_int_bonus)
+}
+
+///|
+pub fn Equipment::total_dex_bonus(self : Equipment) -> Int {
+  equipment_sum(self, ItemData::total_dex_bonus)
+}
+
+///|
 pub fn Equipment::total_life_steal(self : Equipment) -> Double {
   equipment_sum_f(self, ItemData::total_life_steal)
 }
@@ -348,6 +411,21 @@ pub fn Equipment::total_speed_bonus(self : Equipment) -> Double {
 ///|
 pub fn Equipment::total_cooldown_reduction(self : Equipment) -> Double {
   equipment_sum_f(self, ItemData::total_cooldown_reduction)
+}
+
+///|
+pub fn Equipment::total_str_scaling(self : Equipment) -> Double {
+  equipment_sum_f(self, ItemData::total_str_scaling)
+}
+
+///|
+pub fn Equipment::total_int_scaling(self : Equipment) -> Double {
+  equipment_sum_f(self, ItemData::total_int_scaling)
+}
+
+///|
+pub fn Equipment::total_dex_scaling(self : Equipment) -> Double {
+  equipment_sum_f(self, ItemData::total_dex_scaling)
 }
 
 // --- Skill System ---
@@ -597,7 +675,13 @@ pub fn SkillTree::get_level(self : SkillTree, id : SkillId) -> Int {
 pub(all) struct PlayerStats {
   max_hp : Int
   atk : Int
+  attack_power : Int
+  spell_power : Int
+  ranged_power : Int
   def : Int
+  strength : Int
+  intelligence : Int
+  dexterity : Int
   dash_cooldown : Int
   crit_chance : Double
   life_steal : Double
@@ -606,10 +690,55 @@ pub(all) struct PlayerStats {
 }
 
 ///|
+fn stat_scaling_progress(stat : Int) -> Double {
+  let extra = @cmp.maximum(0, stat - 10).to_double()
+  let tier1 = @cmp.minimum(extra, 10.0) * 0.04
+  let tier2 = @cmp.minimum(@cmp.maximum(0.0, extra - 10.0), 20.0) * 0.02
+  let tier3 = @cmp.minimum(@cmp.maximum(0.0, extra - 30.0), 20.0) * 0.01
+  let tier4 = @cmp.maximum(0.0, extra - 50.0) * 0.005
+  tier1 + tier2 + tier3 + tier4
+}
+
+///|
+pub fn soulslike_scaled_damage(
+  base_damage : Int,
+  stat : Int,
+  scaling : Double,
+) -> Int {
+  if base_damage <= 0 {
+    return 0
+  }
+  let multiplier = 1.0 +
+    stat_scaling_progress(stat) * @cmp.maximum(0.0, scaling)
+  @cmp.maximum(base_damage, (base_damage.to_double() * multiplier).to_int())
+}
+
+///|
+pub fn player_basic_attack_damage(stats : PlayerStats) -> Int {
+  stats.ranged_power
+}
+
+///|
+pub fn player_spell_damage(
+  stats : PlayerStats,
+  params : BalanceParams,
+  skill : SkillId,
+) -> Int {
+  let base_damage = match skill {
+    ChainLightning => stats.spell_power + 2
+    SplittingFireball => stats.spell_power + 2
+    IceNova => stats.spell_power + 1
+    HomingMissile => stats.ranged_power + 2
+    _ => stats.attack_power
+  }
+  params.scale_spell_damage(base_damage)
+}
+
+///|
 pub fn compute_player_stats(
   equipment : Equipment,
   skills : SkillTree,
-  base_hp? : Int = 10,
+  base_hp? : Int = 8,
 ) -> PlayerStats {
   let base_atk = 1
   let base_def = 0
@@ -618,10 +747,44 @@ pub fn compute_player_stats(
   let dash_mastery_level = skills.get_level(DashMastery)
   let crit_level = skills.get_level(CriticalHit)
   let ls_level = skills.get_level(LifeSteal)
+  let spell_unlocks = spell_skill_ids()
+    |> ids => {
+      let mut count = 0
+      for id in ids {
+        if skills.get_level(id) > 0 {
+          count += 1
+        }
+      }
+      count
+    }
+  let strength = 10 + equipment.total_str_bonus() + power_strike_level
+  let intelligence = 10 + equipment.total_int_bonus() + spell_unlocks
+  let dexterity = 10 + equipment.total_dex_bonus() + dash_mastery_level
+  let attack_power = soulslike_scaled_damage(
+    base_atk + equipment.total_atk() + power_strike_level,
+    strength,
+    0.15 + equipment.total_str_scaling(),
+  )
+  let spell_power = soulslike_scaled_damage(
+    base_atk + equipment.total_atk() + @cmp.maximum(1, spell_unlocks),
+    intelligence,
+    0.2 + equipment.total_int_scaling(),
+  )
+  let ranged_power = soulslike_scaled_damage(
+    base_atk + equipment.total_atk(),
+    dexterity,
+    0.2 + equipment.total_dex_scaling(),
+  )
   {
     max_hp: base_hp + equipment.total_hp() + vitality_level * 3,
-    atk: base_atk + equipment.total_atk() + power_strike_level,
+    atk: attack_power,
+    attack_power,
+    spell_power,
+    ranged_power,
     def: base_def + equipment.total_def(),
+    strength,
+    intelligence,
+    dexterity,
     dash_cooldown: 40 - dash_mastery_level * 8,
     crit_chance: crit_level.to_double() * 0.1 + equipment.total_crit(),
     life_steal: ls_level.to_double() * 0.05 + equipment.total_life_steal(),
@@ -649,20 +812,32 @@ fn a(
   atk? : Int = 0,
   def? : Int = 0,
   hp? : Int = 0,
+  str? : Int = 0,
+  int_? : Int = 0,
+  dex? : Int = 0,
   crit? : Double = 0.0,
   ls? : Double = 0.0,
   spd? : Double = 0.0,
   cdr? : Double = 0.0,
+  str_scale? : Double = 0.0,
+  int_scale? : Double = 0.0,
+  dex_scale? : Double = 0.0,
 ) -> Affix {
   {
     name,
     atk,
     def,
     hp,
+    str_bonus: str,
+    int_bonus: int_,
+    dex_bonus: dex,
     crit,
     life_steal: ls,
     speed_bonus: spd,
     cooldown_reduction: cdr,
+    str_scaling: str_scale,
+    int_scaling: int_scale,
+    dex_scaling: dex_scale,
   }
 }
 
@@ -841,10 +1016,16 @@ pub fn scale_affix(affix : Affix, floor : Int) -> Affix {
     atk: affix.atk * scale,
     def: affix.def * scale,
     hp: affix.hp * scale,
+    str_bonus: affix.str_bonus * scale,
+    int_bonus: affix.int_bonus * scale,
+    dex_bonus: affix.dex_bonus * scale,
     crit: affix.crit,
     life_steal: affix.life_steal,
     speed_bonus: affix.speed_bonus,
     cooldown_reduction: affix.cooldown_reduction,
+    str_scaling: affix.str_scaling,
+    int_scaling: affix.int_scaling,
+    dex_scaling: affix.dex_scaling,
   }
 }
 

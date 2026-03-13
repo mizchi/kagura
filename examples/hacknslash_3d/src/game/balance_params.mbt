@@ -32,7 +32,7 @@ pub(all) struct BalanceParams {
   boss_hp_per_floor : Double
   // New: damage & survivability knobs
   enemy_contact_damage : Double // base contact damage (default 1)
-  player_base_hp : Double // player starting HP before equipment (default 10)
+  player_base_hp : Double // player starting HP before equipment (default 8)
   spawn_density : Double // multiplier for enemy count per room (default 1.0)
   spell_cooldown_mult : Double // global spell cooldown multiplier
   spell_damage_mult : Double // global spell damage multiplier
@@ -99,7 +99,7 @@ pub fn BalanceParams::default() -> BalanceParams {
     boss_hp_base: 27.0,
     boss_hp_per_floor: 3.5,
     enemy_contact_damage: 2.0,
-    player_base_hp: 4.0,
+    player_base_hp: 8.0,
     spawn_density: 1.0,
     spell_cooldown_mult: 1.1,
     spell_damage_mult: 0.5,
@@ -153,7 +153,7 @@ pub fn BalanceParams::build_diverse_hackslash() -> BalanceParams {
     boss_hp_base: 21.669594264717357,
     boss_hp_per_floor: 5.133188030755077,
     enemy_contact_damage: 2.368975409961992,
-    player_base_hp: 3.0,
+    player_base_hp: 8.0,
     spawn_density: 1.0,
     spell_cooldown_mult: 1.125592230777317,
     spell_damage_mult: 0.5352601566263829,
@@ -207,7 +207,7 @@ pub fn BalanceParams::mechanics_roguelike() -> BalanceParams {
     boss_hp_base: 22.0,
     boss_hp_per_floor: 2.942515103134292,
     enemy_contact_damage: 3.574939426103503,
-    player_base_hp: 4.458500700185323,
+    player_base_hp: 8.0,
     spawn_density: 1.0,
     spell_cooldown_mult: 1.1195861600925212,
     spell_damage_mult: 0.7312348672858308,
@@ -397,7 +397,7 @@ pub fn BalanceParams::clamp(self : BalanceParams) -> BalanceParams {
     boss_hp_base: clamp_d(self.boss_hp_base, 5.0, 60.0),
     boss_hp_per_floor: clamp_d(self.boss_hp_per_floor, 0.5, 10.0),
     enemy_contact_damage: clamp_d(self.enemy_contact_damage, 1.0, 8.0),
-    player_base_hp: clamp_d(self.player_base_hp, 3.0, 30.0),
+    player_base_hp: clamp_d(self.player_base_hp, 8.0, 30.0),
     spawn_density: clamp_d(self.spawn_density, 0.5, 3.0),
     spell_cooldown_mult: clamp_d(self.spell_cooldown_mult, 0.5, 3.0),
     spell_damage_mult: clamp_d(self.spell_damage_mult, 0.3, 2.0),

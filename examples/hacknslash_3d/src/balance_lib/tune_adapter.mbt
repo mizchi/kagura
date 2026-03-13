@@ -150,7 +150,7 @@ pub fn param_specs() -> Array[@dec.ParamSpec] {
     (5.0, 60.0), // boss_hp_base
     (0.5, 10.0), // boss_hp_per_floor
     (1.0, 8.0), // enemy_contact_damage
-    (3.0, 30.0), // player_base_hp
+    (8.0, 30.0), // player_base_hp
     (0.5, 3.0), // spawn_density
     (0.5, 3.0), // spell_cooldown_mult
     (0.3, 2.0), // spell_damage_mult
@@ -212,7 +212,7 @@ pub fn param_specs_autoplay_rebalance() -> Array[@dec.ParamSpec] {
     (20.0, 60.0), // boss_hp_base
     (2.0, 8.0), // boss_hp_per_floor
     (1.0, 4.0), // enemy_contact_damage
-    (3.0, 10.0), // player_base_hp
+    (8.0, 10.0), // player_base_hp
     (1.0, 2.0), // spawn_density
     (1.0, 2.2), // spell_cooldown_mult
     (0.35, 1.0), // spell_damage_mult
@@ -275,7 +275,7 @@ pub fn param_specs_autoplay_progression() -> Array[@dec.ParamSpec] {
     (20.0, 52.0), // boss_hp_base
     (2.0, 6.5), // boss_hp_per_floor
     (1.0, 3.0), // enemy_contact_damage
-    (3.0, 8.0), // player_base_hp
+    (8.0, 12.0), // player_base_hp
     (1.0, 1.7), // spawn_density
     (1.0, 1.8), // spell_cooldown_mult
     (0.45, 0.9), // spell_damage_mult
@@ -338,7 +338,7 @@ pub fn param_specs_build_diverse() -> Array[@dec.ParamSpec] {
     (18.0, 60.0), // boss_hp_base
     (1.5, 7.5), // boss_hp_per_floor
     (1.0, 4.0), // enemy_contact_damage
-    (3.0, 10.0), // player_base_hp
+    (8.0, 10.0), // player_base_hp
     (1.0, 2.2), // spawn_density
     (0.8, 1.8), // spell_cooldown_mult
     (0.45, 1.2), // spell_damage_mult
@@ -401,7 +401,7 @@ pub fn param_specs_item_spike_feedback() -> Array[@dec.ParamSpec] {
     (18.0, 60.0), // boss_hp_base
     (1.5, 7.5), // boss_hp_per_floor
     (1.0, 4.0), // enemy_contact_damage
-    (3.0, 10.0), // player_base_hp
+    (8.0, 10.0), // player_base_hp
     (1.0, 2.0), // spawn_density
     (0.8, 1.8), // spell_cooldown_mult
     (0.5, 1.3), // spell_damage_mult
@@ -464,7 +464,7 @@ pub fn param_specs_mechanics_roguelike() -> Array[@dec.ParamSpec] {
     (22.0, 64.0), // boss_hp_base
     (2.0, 8.0), // boss_hp_per_floor
     (1.5, 4.5), // enemy_contact_damage
-    (3.0, 8.0), // player_base_hp
+    (8.0, 12.0), // player_base_hp
     (1.2, 2.4), // spawn_density
     (1.0, 1.9), // spell_cooldown_mult
     (0.4, 0.85), // spell_damage_mult
@@ -527,7 +527,7 @@ pub fn param_specs_mechanics_roguelike_v2() -> Array[@dec.ParamSpec] {
     (22.0, 64.0), // boss_hp_base
     (2.0, 8.0), // boss_hp_per_floor
     (1.5, 4.5), // enemy_contact_damage
-    (3.0, 7.0), // player_base_hp
+    (8.0, 12.0), // player_base_hp
     (1.0, 2.3), // spawn_density
     (1.0, 1.9), // spell_cooldown_mult
     (0.35, 0.8), // spell_damage_mult

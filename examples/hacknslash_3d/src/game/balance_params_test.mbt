@@ -76,7 +76,7 @@ test "clamp enforces bounds" {
   assert_true(clamped.player_speed <= 5.0)
   assert_true(clamped.enemy_speed_basic >= 0.2)
   assert_true(clamped.enemy_contact_damage >= 1.0)
-  assert_true(clamped.player_base_hp >= 3.0)
+  assert_true(clamped.player_base_hp >= 8.0)
   assert_true(clamped.spawn_density >= 0.5)
   assert_true(clamped.spell_cooldown_mult >= 0.5)
   assert_true(clamped.spell_damage_mult >= 0.3)

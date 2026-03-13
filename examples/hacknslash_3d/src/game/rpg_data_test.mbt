@@ -4,20 +4,32 @@ fn mk_affix(
   atk? : Int = 0,
   def? : Int = 0,
   hp? : Int = 0,
+  str? : Int = 0,
+  int_? : Int = 0,
+  dex? : Int = 0,
   crit? : Double = 0.0,
   ls? : Double = 0.0,
   spd? : Double = 0.0,
   cdr? : Double = 0.0,
+  str_scale? : Double = 0.0,
+  int_scale? : Double = 0.0,
+  dex_scale? : Double = 0.0,
 ) -> Affix {
   {
     name,
     atk,
     def,
     hp,
+    str_bonus: str,
+    int_bonus: int_,
+    dex_bonus: dex,
     crit,
     life_steal: ls,
     speed_bonus: spd,
     cooldown_reduction: cdr,
+    str_scaling: str_scale,
+    int_scaling: int_scale,
+    dex_scaling: dex_scale,
   }
 }
 
@@ -37,10 +49,16 @@ test "affix struct fields" {
   assert_eq(affix.atk, 3)
   assert_eq(affix.def, 1)
   assert_eq(affix.hp, 2)
+  assert_eq(affix.str_bonus, 0)
+  assert_eq(affix.int_bonus, 0)
+  assert_eq(affix.dex_bonus, 0)
   assert_true((affix.crit - 0.05).abs() < 0.001)
   assert_true((affix.life_steal - 0.1).abs() < 0.001)
   assert_true((affix.speed_bonus - 0.15).abs() < 0.001)
   assert_true((affix.cooldown_reduction - 0.2).abs() < 0.001)
+  assert_true((affix.str_scaling - 0.0).abs() < 0.001)
+  assert_true((affix.int_scaling - 0.0).abs() < 0.001)
+  assert_true((affix.dex_scaling - 0.0).abs() < 0.001)
 }
 
 ///|
@@ -150,6 +168,12 @@ test "equipment speed_bonus and cooldown_reduction aggregate" {
     atk_bonus: 5,
     def_bonus: 0,
     hp_bonus: 0,
+    str_bonus: 0,
+    int_bonus: 0,
+    dex_bonus: 0,
+    str_scaling: 0.0,
+    int_scaling: 0.0,
+    dex_scaling: 0.0,
     prefix: Some(mk_affix("Swift", spd=0.15, atk=1)),
     suffix: Some(mk_affix("of Alacrity", cdr=0.2)),
     icon_id: 0,
@@ -161,6 +185,12 @@ test "equipment speed_bonus and cooldown_reduction aggregate" {
     atk_bonus: 0,
     def_bonus: 3,
     hp_bonus: 2,
+    str_bonus: 0,
+    int_bonus: 0,
+    dex_bonus: 0,
+    str_scaling: 0.0,
+    int_scaling: 0.0,
+    dex_scaling: 0.0,
     prefix: Some(mk_affix("Hasty", spd=0.1, cdr=0.1)),
     suffix: None,
     icon_id: 1,
@@ -177,7 +207,7 @@ test "compute_player_stats with custom base_hp" {
   let skills = SkillTree::new()
   let stats_default = compute_player_stats(equip, skills)
   let stats_custom = compute_player_stats(equip, skills, base_hp=20)
-  assert_eq(stats_default.max_hp, 10)
+  assert_eq(stats_default.max_hp, 8)
   assert_eq(stats_custom.max_hp, 20)
 }
 
@@ -191,6 +221,12 @@ test "compute_player_stats includes speed_bonus and cooldown_reduction" {
     atk_bonus: 5,
     def_bonus: 0,
     hp_bonus: 0,
+    str_bonus: 0,
+    int_bonus: 0,
+    dex_bonus: 0,
+    str_scaling: 0.0,
+    int_scaling: 0.0,
+    dex_scaling: 0.0,
     prefix: Some(mk_affix("Swift", spd=0.15)),
     suffix: Some(mk_affix("of Tempo", cdr=0.12)),
     icon_id: 0,
@@ -200,6 +236,93 @@ test "compute_player_stats includes speed_bonus and cooldown_reduction" {
   let stats = compute_player_stats(equip, skills)
   assert_true((stats.speed_bonus - 0.15).abs() < 0.001)
   assert_true((stats.cooldown_reduction - 0.12).abs() < 0.001)
+}
+
+///|
+test "compute_player_stats starts from 10/10/10 core stats and applies equipment scaling" {
+  let equip = Equipment::new()
+  let weapon : ItemData = {
+    name: "Sorcerer Bow",
+    rarity: Epic,
+    slot: Weapon,
+    atk_bonus: 4,
+    def_bonus: 0,
+    hp_bonus: 0,
+    str_bonus: 1,
+    int_bonus: 0,
+    dex_bonus: 3,
+    str_scaling: 0.25,
+    int_scaling: 0.15,
+    dex_scaling: 1.05,
+    prefix: Some(mk_affix("Hunter", dex=2, dex_scale=0.15)),
+    suffix: None,
+    icon_id: 0,
+  }
+  let accessory : ItemData = {
+    name: "Scholar Ring",
+    rarity: Rare,
+    slot: Accessory,
+    atk_bonus: 1,
+    def_bonus: 0,
+    hp_bonus: 2,
+    str_bonus: 0,
+    int_bonus: 4,
+    dex_bonus: 0,
+    str_scaling: 0.05,
+    int_scaling: 0.9,
+    dex_scaling: 0.1,
+    prefix: Some(mk_affix("Scholar", int_=3, int_scale=0.2)),
+    suffix: None,
+    icon_id: 1,
+  }
+  equip.equip(weapon) |> ignore
+  equip.equip(accessory) |> ignore
+  let skills = SkillTree::new()
+  let stats = compute_player_stats(equip, skills, base_hp=8)
+  assert_eq(stats.max_hp, 10)
+  assert_eq(stats.strength, 11)
+  assert_eq(stats.intelligence, 17)
+  assert_eq(stats.dexterity, 15)
+  assert_true(stats.attack_power >= 1)
+  assert_true(stats.spell_power > stats.attack_power)
+  assert_true(stats.ranged_power > stats.attack_power)
+}
+
+///|
+test "soulslike damage scaling has diminishing returns after soft cap" {
+  let low = soulslike_scaled_damage(10, 20, 1.0)
+  let mid = soulslike_scaled_damage(10, 40, 1.0)
+  let high = soulslike_scaled_damage(10, 60, 1.0)
+  assert_true(low > 10)
+  assert_true(mid > low)
+  assert_true(high > mid)
+  assert_true(mid - low > high - mid)
+}
+
+///|
+test "player damage helpers map skills to different core stats" {
+  let stats : PlayerStats = {
+    max_hp: 8,
+    atk: 5,
+    attack_power: 5,
+    spell_power: 14,
+    ranged_power: 11,
+    def: 0,
+    strength: 12,
+    intelligence: 22,
+    dexterity: 18,
+    dash_cooldown: 40,
+    crit_chance: 0.0,
+    life_steal: 0.0,
+    speed_bonus: 0.0,
+    cooldown_reduction: 0.0,
+  }
+  let params = { ..BalanceParams::default(), spell_damage_mult: 1.0 }
+  assert_true(
+    player_spell_damage(stats, params, ChainLightning) >
+    player_spell_damage(stats, params, HomingMissile),
+  )
+  assert_true(player_basic_attack_damage(stats) > 0)
 }
 
 ///|
@@ -213,6 +336,12 @@ test "inventory add_fifo keeps newest items when capacity is full" {
       atk_bonus: 1,
       def_bonus: 0,
       hp_bonus: 0,
+      str_bonus: 0,
+      int_bonus: 0,
+      dex_bonus: 0,
+      str_scaling: 0.0,
+      int_scaling: 0.0,
+      dex_scaling: 0.0,
       prefix: None,
       suffix: None,
       icon_id: 0,
@@ -226,6 +355,12 @@ test "inventory add_fifo keeps newest items when capacity is full" {
       atk_bonus: 2,
       def_bonus: 0,
       hp_bonus: 0,
+      str_bonus: 0,
+      int_bonus: 0,
+      dex_bonus: 0,
+      str_scaling: 0.0,
+      int_scaling: 0.0,
+      dex_scaling: 0.0,
       prefix: None,
       suffix: None,
       icon_id: 1,
@@ -238,6 +373,12 @@ test "inventory add_fifo keeps newest items when capacity is full" {
     atk_bonus: 3,
     def_bonus: 0,
     hp_bonus: 0,
+    str_bonus: 0,
+    int_bonus: 0,
+    dex_bonus: 0,
+    str_scaling: 0.0,
+    int_scaling: 0.0,
+    dex_scaling: 0.0,
     prefix: None,
     suffix: None,
     icon_id: 2,
@@ -367,6 +508,12 @@ test "equipment should_equip compares total stat score across matching slot" {
       atk_bonus: 0,
       def_bonus: 0,
       hp_bonus: 3,
+      str_bonus: 0,
+      int_bonus: 0,
+      dex_bonus: 0,
+      str_scaling: 0.0,
+      int_scaling: 0.0,
+      dex_scaling: 0.0,
       prefix: None,
       suffix: None,
       icon_id: 0,
@@ -379,6 +526,12 @@ test "equipment should_equip compares total stat score across matching slot" {
     atk_bonus: 0,
     def_bonus: 0,
     hp_bonus: 0,
+    str_bonus: 0,
+    int_bonus: 0,
+    dex_bonus: 0,
+    str_scaling: 0.0,
+    int_scaling: 0.0,
+    dex_scaling: 0.0,
     prefix: Some(mk_affix("Sharp", crit=0.08)),
     suffix: None,
     icon_id: 1,

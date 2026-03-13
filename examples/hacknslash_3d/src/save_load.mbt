@@ -85,7 +85,19 @@ fn serialize_affix(a : @game.Affix) -> String {
   "~" +
   a.speed_bonus.to_string() +
   "~" +
-  a.cooldown_reduction.to_string()
+  a.cooldown_reduction.to_string() +
+  "~" +
+  a.str_bonus.to_string() +
+  "~" +
+  a.int_bonus.to_string() +
+  "~" +
+  a.dex_bonus.to_string() +
+  "~" +
+  a.str_scaling.to_string() +
+  "~" +
+  a.int_scaling.to_string() +
+  "~" +
+  a.dex_scaling.to_string()
 }
 
 ///|
@@ -114,6 +126,36 @@ fn deserialize_affix(s : String) -> @game.Affix? {
     } else {
       0.0
     },
+    str_bonus: if parts.length() > 8 {
+      parse_int(parts[8])
+    } else {
+      0
+    },
+    int_bonus: if parts.length() > 9 {
+      parse_int(parts[9])
+    } else {
+      0
+    },
+    dex_bonus: if parts.length() > 10 {
+      parse_int(parts[10])
+    } else {
+      0
+    },
+    str_scaling: if parts.length() > 11 {
+      parse_double(parts[11])
+    } else {
+      0.0
+    },
+    int_scaling: if parts.length() > 12 {
+      parse_double(parts[12])
+    } else {
+      0.0
+    },
+    dex_scaling: if parts.length() > 13 {
+      parse_double(parts[13])
+    } else {
+      0.0
+    },
   })
 }
 
@@ -127,7 +169,8 @@ fn serialize_opt_affix(a : @game.Affix?) -> String {
 
 ///|
 fn serialize_item(item : @game.ItemData) -> String {
-  // name,rarity_int,slot_int,atk,def,hp,icon_id,prefix_data,suffix_data
+  // name,rarity_int,slot_int,atk,def,hp,icon_id,prefix_data,suffix_data,
+  // str_bonus,int_bonus,dex_bonus,str_scaling,int_scaling,dex_scaling
   let rarity_int = match item.rarity {
     @game.Common => 0
     @game.Uncommon => 1
@@ -155,7 +198,19 @@ fn serialize_item(item : @game.ItemData) -> String {
   "," +
   serialize_opt_affix(item.prefix) +
   "," +
-  serialize_opt_affix(item.suffix)
+  serialize_opt_affix(item.suffix) +
+  "," +
+  item.str_bonus.to_string() +
+  "," +
+  item.int_bonus.to_string() +
+  "," +
+  item.dex_bonus.to_string() +
+  "," +
+  item.str_scaling.to_string() +
+  "," +
+  item.int_scaling.to_string() +
+  "," +
+  item.dex_scaling.to_string()
 }
 
 ///|
@@ -192,6 +247,36 @@ fn deserialize_item(s : String) -> @game.ItemData? {
     atk_bonus: parse_int(parts[3]),
     def_bonus: parse_int(parts[4]),
     hp_bonus: parse_int(parts[5]),
+    str_bonus: if parts.length() > 9 {
+      parse_int(parts[9])
+    } else {
+      0
+    },
+    int_bonus: if parts.length() > 10 {
+      parse_int(parts[10])
+    } else {
+      0
+    },
+    dex_bonus: if parts.length() > 11 {
+      parse_int(parts[11])
+    } else {
+      0
+    },
+    str_scaling: if parts.length() > 12 {
+      parse_double(parts[12])
+    } else {
+      0.0
+    },
+    int_scaling: if parts.length() > 13 {
+      parse_double(parts[13])
+    } else {
+      0.0
+    },
+    dex_scaling: if parts.length() > 14 {
+      parse_double(parts[14])
+    } else {
+      0.0
+    },
     prefix,
     suffix,
     icon_id: parse_int(parts[6]),

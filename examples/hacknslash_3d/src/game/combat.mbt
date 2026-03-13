@@ -403,7 +403,11 @@ pub fn cast_chain_lightning(world : GameWorld) -> Bool {
   let chained_enemy_indices : Array[Int] = []
   let mut arc_start_x = world.player.x
   let mut arc_start_y = world.player.y
-  let damage = world.params.scale_spell_damage(world.player_stats.atk + 2)
+  let damage = player_spell_damage(
+    world.player_stats,
+    world.params,
+    ChainLightning,
+  )
   for _step = 0; _step < chain_lightning_max_targets; _step = _step + 1 {
     let next_index = find_next_chain_target(
       world,
@@ -462,7 +466,11 @@ pub fn cast_splitting_fireball(world : GameWorld) -> Bool {
       telegraph_x, telegraph_y, splitting_fireball_telegraph_radius,
     ),
   )
-  let damage = world.params.scale_spell_damage(world.player_stats.atk + 2)
+  let damage = player_spell_damage(
+    world.player_stats,
+    world.params,
+    SplittingFireball,
+  )
   let target = find_nearest_enemy(world, chain_lightning_range)
   let (vx, vy) = aim_at(world, target, world.params.arrow_speed * 0.8)
   world.projectiles.push({
@@ -494,7 +502,7 @@ pub fn cast_ice_nova(world : GameWorld) -> Bool {
   world.events.push(
     GroundTelegraphRing(world.player.x, world.player.y, ice_nova_radius),
   )
-  let damage = world.params.scale_spell_damage(world.player_stats.atk + 1)
+  let damage = player_spell_damage(world.player_stats, world.params, IceNova)
   let mut hit_any = false
   let radius_sq = ice_nova_radius * ice_nova_radius
   for enemy in world.enemies {
@@ -545,7 +553,11 @@ pub fn cast_homing_missile(world : GameWorld) -> Bool {
       telegraph_x, telegraph_y, homing_missile_telegraph_radius,
     ),
   )
-  let damage = world.params.scale_spell_damage(world.player_stats.atk + 3)
+  let damage = player_spell_damage(
+    world.player_stats,
+    world.params,
+    HomingMissile,
+  )
   let target = find_nearest_enemy(world, homing_missile_range)
   let (dir_x, dir_y) = homing_missile_target_direction(world, target)
   let side_x = -dir_y
@@ -732,7 +744,7 @@ pub fn activate_skill(world : GameWorld, slot : Int) -> Unit {
             vy: @math.sin(spread) * world.params.arrow_speed,
             age: 0,
             alive: true,
-            damage: world.player_stats.atk * (1 + level),
+            damage: player_basic_attack_damage(world.player_stats) * (1 + level),
             is_player: true,
             kind: Arrow,
           })
@@ -755,7 +767,7 @@ pub fn activate_skill(world : GameWorld, slot : Int) -> Unit {
             vy: @math.sin(a) * world.params.arrow_speed,
             age: 0,
             alive: true,
-            damage: world.player_stats.atk * level,
+            damage: player_basic_attack_damage(world.player_stats) * level,
             is_player: true,
             kind: Arrow,
           })

@@ -67,6 +67,18 @@ fn scale_affix_with_tier(
     atk: @cmp.maximum(0, (scaled.atk.to_double() * multiplier).to_int()),
     def: @cmp.maximum(0, (scaled.def.to_double() * multiplier).to_int()),
     hp: @cmp.maximum(0, (scaled.hp.to_double() * multiplier).to_int()),
+    str_bonus: @cmp.maximum(
+      0,
+      (scaled.str_bonus.to_double() * multiplier).to_int(),
+    ),
+    int_bonus: @cmp.maximum(
+      0,
+      (scaled.int_bonus.to_double() * multiplier).to_int(),
+    ),
+    dex_bonus: @cmp.maximum(
+      0,
+      (scaled.dex_bonus.to_double() * multiplier).to_int(),
+    ),
   }
 }
 
@@ -172,22 +184,94 @@ pub fn generate_item_with_profile_and_drop_config(
     config.modifier_tier_per_floor,
     floor,
   )
+  let primary_stat_index = rng / 17 % 3
   let base = 1 + floor / 3
-  let (atk, def, hp) = match slot {
-    Weapon =>
-      (scaled_base_item_stat(base, base_tier, rarity_mult, modifier_tier), 0, 0)
-    Armor =>
-      (
-        0,
-        scaled_base_item_stat(base, base_tier, rarity_mult, modifier_tier),
-        @cmp.maximum(1, (base.to_double() * (1.0 + base_tier * 0.25)).to_int()),
+  let primary_bonus = @cmp.maximum(
+    1,
+    (base.to_double() * (1.0 + base_tier * 0.35 + modifier_tier * 0.2)).to_int(),
+  )
+  let secondary_bonus = @cmp.maximum(
+    0,
+    (base.to_double() * (0.4 + base_tier * 0.15)).to_int(),
+  )
+  let primary_scaling = 0.25 + base_tier * 0.08 + modifier_tier * 0.05
+  let secondary_scaling = 0.05 + base_tier * 0.03
+  let (
+    atk,
+    def,
+    hp,
+    str_bonus,
+    int_bonus,
+    dex_bonus,
+    str_scaling,
+    int_scaling,
+    dex_scaling,
+  ) = match slot {
+    Weapon => {
+      let atk = scaled_base_item_stat(
+        base, base_tier, rarity_mult, modifier_tier,
       )
-    Accessory =>
-      (
-        @cmp.maximum(1, (base.to_double() * (1.0 + base_tier * 0.2)).to_int()),
-        @cmp.maximum(1, (base.to_double() * (1.0 + base_tier * 0.2)).to_int()),
-        scaled_base_item_stat(base, base_tier, rarity_mult, modifier_tier),
+      match primary_stat_index {
+        0 =>
+          (
+            atk, 0, 0, primary_bonus, 0, secondary_bonus, primary_scaling, 0.0, secondary_scaling,
+          )
+        1 =>
+          (
+            atk, 0, 0, secondary_bonus, primary_bonus, 0, secondary_scaling, primary_scaling,
+            0.0,
+          )
+        _ =>
+          (
+            atk, 0, 0, 0, secondary_bonus, primary_bonus, 0.0, secondary_scaling,
+            primary_scaling,
+          )
+      }
+    }
+    Armor => {
+      let def = scaled_base_item_stat(
+        base, base_tier, rarity_mult, modifier_tier,
       )
+      let hp = @cmp.maximum(
+        1,
+        (base.to_double() * (1.0 + base_tier * 0.25)).to_int(),
+      )
+      match primary_stat_index {
+        0 => (0, def, hp, primary_bonus, 0, 0, secondary_scaling, 0.0, 0.0)
+        1 => (0, def, hp, 0, primary_bonus, 0, 0.0, secondary_scaling, 0.0)
+        _ => (0, def, hp, 0, 0, primary_bonus, 0.0, 0.0, secondary_scaling)
+      }
+    }
+    Accessory => {
+      let atk = @cmp.maximum(
+        1,
+        (base.to_double() * (1.0 + base_tier * 0.2)).to_int(),
+      )
+      let def = @cmp.maximum(
+        1,
+        (base.to_double() * (1.0 + base_tier * 0.2)).to_int(),
+      )
+      let hp = scaled_base_item_stat(
+        base, base_tier, rarity_mult, modifier_tier,
+      )
+      match primary_stat_index {
+        0 =>
+          (
+            atk, def, hp, primary_bonus, secondary_bonus, secondary_bonus, secondary_scaling,
+            secondary_scaling, secondary_scaling,
+          )
+        1 =>
+          (
+            atk, def, hp, secondary_bonus, primary_bonus, secondary_bonus, secondary_scaling,
+            secondary_scaling, secondary_scaling,
+          )
+        _ =>
+          (
+            atk, def, hp, secondary_bonus, secondary_bonus, primary_bonus, secondary_scaling,
+            secondary_scaling, secondary_scaling,
+          )
+      }
+    }
   }
   let slot_name = match slot {
     Weapon => "Sword"
@@ -272,6 +356,12 @@ pub fn generate_item_with_profile_and_drop_config(
     atk_bonus: atk,
     def_bonus: def,
     hp_bonus: hp,
+    str_bonus,
+    int_bonus,
+    dex_bonus,
+    str_scaling,
+    int_scaling,
+    dex_scaling,
     prefix,
     suffix,
     icon_id: equip_slot_icon_base(slot) + rng / 11 % 3,

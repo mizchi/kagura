@@ -214,7 +214,7 @@ test "spell multipliers affect cooldowns and spell damage" {
     world.chain_lightning_cooldown_timer,
     world.params.chain_lightning_cooldown_frames(),
   )
-  assert_eq(world.enemies[0].hp, 11)
+  assert_eq(world.enemies[0].hp, 10)
 }
 
 ///|

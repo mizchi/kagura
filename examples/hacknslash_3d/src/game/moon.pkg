@@ -1,6 +1,7 @@
 import {
   "moonbitlang/core/math" @math,
   "mizchi/kagura/pathfind" @pathfind,
+  "mizchi/kagura/physics2d" @physics2d,
   "mizchi/kagura/vector" @vector,
   "mizchi/terrain/arena_chain" @arena_chain,
   "mizchi/terrain/diablo" @diablo,

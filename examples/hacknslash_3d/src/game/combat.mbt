@@ -4,30 +4,19 @@
 
 ///|
 pub fn find_nearest_enemy(world : GameWorld, max_range : Double) -> Enemy? {
-  let mut nearest : Enemy? = None
-  let mut nearest_dist_sq = max_range * max_range
-  for enemy in world.enemies {
-    if enemy.alive {
-      let edx = enemy.x - world.player.x
-      let edy = enemy.y - world.player.y
-      let dist_sq = edx * edx + edy * edy
-      if dist_sq < nearest_dist_sq &&
-        not(
-          segment_hits_wall(
-            world.dungeon.grid,
-            world.player.x,
-            world.player.y,
-            enemy.x,
-            enemy.y,
-            0.0,
-          ),
-        ) {
-        nearest_dist_sq = dist_sq
-        nearest = Some(enemy)
-      }
-    }
-  }
-  nearest
+  let (index, _dist_sq) = @physics2d.grid_find_nearest_visible_candidate_index(
+    world.dungeon.grid,
+    world.player.x,
+    world.player.y,
+    0.0,
+    max_range,
+    world.enemies.length(),
+    fn(idx) { world.enemies[idx].alive },
+    fn(idx) { world.enemies[idx].x },
+    fn(idx) { world.enemies[idx].y },
+    tile_size,
+  )
+  if index >= 0 { Some(world.enemies[index]) } else { None }
 }
 
 ///|
@@ -37,31 +26,18 @@ fn find_nearest_enemy_index_from_point(
   source_y : Double,
   max_range : Double,
 ) -> Int {
-  let mut nearest_idx = -1
-  let mut nearest_dist_sq = max_range * max_range
-  for idx = 0; idx < world.enemies.length(); idx = idx + 1 {
-    let enemy = world.enemies[idx]
-    if not(enemy.alive) {
-      continue
-    }
-    let dx = enemy.x - source_x
-    let dy = enemy.y - source_y
-    let dist_sq = dx * dx + dy * dy
-    if dist_sq < nearest_dist_sq &&
-      not(
-        segment_hits_wall(
-          world.dungeon.grid,
-          source_x,
-          source_y,
-          enemy.x,
-          enemy.y,
-          0.0,
-        ),
-      ) {
-      nearest_dist_sq = dist_sq
-      nearest_idx = idx
-    }
-  }
+  let (nearest_idx, _nearest_dist_sq) = @physics2d.grid_find_nearest_visible_candidate_index(
+    world.dungeon.grid,
+    source_x,
+    source_y,
+    0.0,
+    max_range,
+    world.enemies.length(),
+    fn(idx) { world.enemies[idx].alive },
+    fn(idx) { world.enemies[idx].x },
+    fn(idx) { world.enemies[idx].y },
+    tile_size,
+  )
   nearest_idx
 }
 
@@ -315,42 +291,29 @@ fn find_next_chain_target(
   chained_enemy_indices : Array[Int],
   max_range : Double,
 ) -> Int {
-  let max_dist_sq = max_range * max_range
-  let mut nearest_index = -1
-  let mut nearest_dist_sq = max_dist_sq
-  for index = 0; index < world.enemies.length(); index = index + 1 {
-    let enemy = world.enemies[index]
-    if not(enemy.alive) {
-      continue
-    }
-    let mut already_chained = false
-    for chained in chained_enemy_indices {
-      if chained == index {
-        already_chained = true
-        break
+  let (nearest_index, _nearest_dist_sq) = @physics2d.grid_find_nearest_visible_candidate_index(
+    world.dungeon.grid,
+    source_x,
+    source_y,
+    0.0,
+    max_range,
+    world.enemies.length(),
+    fn(index) {
+      let enemy = world.enemies[index]
+      if not(enemy.alive) {
+        return false
       }
-    }
-    if already_chained {
-      continue
-    }
-    let dx = enemy.x - source_x
-    let dy = enemy.y - source_y
-    let dist_sq = dx * dx + dy * dy
-    if dist_sq < nearest_dist_sq &&
-      not(
-        segment_hits_wall(
-          world.dungeon.grid,
-          source_x,
-          source_y,
-          enemy.x,
-          enemy.y,
-          0.0,
-        ),
-      ) {
-      nearest_dist_sq = dist_sq
-      nearest_index = index
-    }
-  }
+      for chained in chained_enemy_indices {
+        if chained == index {
+          return false
+        }
+      }
+      true
+    },
+    fn(index) { world.enemies[index].x },
+    fn(index) { world.enemies[index].y },
+    tile_size,
+  )
   nearest_index
 }
 

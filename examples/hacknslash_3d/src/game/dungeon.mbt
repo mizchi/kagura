@@ -321,12 +321,7 @@ pub fn get_tile_height(dungeon : DungeonData, x : Double, y : Double) -> Double 
 
 ///|
 pub fn is_wall_at(grid : @terrain.Grid2D, x : Double, y : Double) -> Bool {
-  let col = (x / tile_size).to_int()
-  let row = (y / tile_size).to_int()
-  if col < 0 || col >= grid.width || row < 0 || row >= grid.height {
-    return true
-  }
-  grid.get(col, row) == @terrain.Wall
+  @physics2d.grid_is_wall_at(grid, x, y, tile_size)
 }
 
 ///|
@@ -336,22 +331,7 @@ pub fn check_wall_collision(
   y : Double,
   size : Double,
 ) -> Bool {
-  let half = size / 2.0
-  let left_col = ((x - half) / tile_size).to_int()
-  let right_col = ((x + half) / tile_size).to_int()
-  let top_row = ((y - half) / tile_size).to_int()
-  let bottom_row = ((y + half) / tile_size).to_int()
-  for row = top_row; row <= bottom_row; row = row + 1 {
-    for col = left_col; col <= right_col; col = col + 1 {
-      if col < 0 || col >= grid.width || row < 0 || row >= grid.height {
-        return true
-      }
-      if grid.get(col, row) == @terrain.Wall {
-        return true
-      }
-    }
-  }
-  false
+  @physics2d.grid_check_wall_collision(grid, x, y, size, tile_size)
 }
 
 ///|
@@ -363,23 +343,15 @@ pub fn segment_hits_wall(
   end_y : Double,
   size : Double,
 ) -> Bool {
-  let dx = end_x - start_x
-  let dy = end_y - start_y
-  let max_delta = if dx.abs() > dy.abs() { dx.abs() } else { dy.abs() }
-  let steps = @cmp.maximum(1, (max_delta / (tile_size * 0.25)).ceil().to_int())
-  for step = 1; step <= steps; step = step + 1 {
-    let t = step.to_double() / steps.to_double()
-    let sample_x = start_x + dx * t
-    let sample_y = start_y + dy * t
-    if size > 0.0 {
-      if check_wall_collision(grid, sample_x, sample_y, size) {
-        return true
-      }
-    } else if is_wall_at(grid, sample_x, sample_y) {
-      return true
-    }
-  }
-  false
+  @physics2d.grid_segment_hits_wall(
+    grid,
+    start_x,
+    start_y,
+    end_x,
+    end_y,
+    size,
+    tile_size,
+  )
 }
 
 ///|
@@ -391,15 +363,5 @@ pub fn slide_move(
   vy : Double,
   size : Double,
 ) -> (Double, Double) {
-  let nx = if not(check_wall_collision(grid, x + vx, y, size)) {
-    x + vx
-  } else {
-    x
-  }
-  let ny = if not(check_wall_collision(grid, nx, y + vy, size)) {
-    y + vy
-  } else {
-    y
-  }
-  (nx, ny)
+  @physics2d.grid_slide_move(grid, x, y, vx, vy, size, tile_size)
 }

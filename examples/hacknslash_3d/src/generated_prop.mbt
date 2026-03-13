@@ -306,13 +306,7 @@ fn generated_prop_blocking_radius(placement : GeneratedPropPlacement) -> Double 
 fn clone_generated_prop_collision_grid(
   grid : @terrain.Grid2D,
 ) -> @terrain.Grid2D {
-  let copy = @terrain.Grid2D::make(grid.width, grid.height, @terrain.Empty)
-  for row = 0; row < grid.height; row = row + 1 {
-    for col = 0; col < grid.width; col = col + 1 {
-      copy.set(col, row, grid.get(col, row))
-    }
-  }
-  copy
+  @physics2d.clone_terrain_grid(grid)
 }
 
 ///|
@@ -322,37 +316,13 @@ fn append_generated_prop_blocking_walls(
   placement : GeneratedPropPlacement,
 ) -> Unit {
   let (prop_x, prop_y) = generated_prop_world_xy(world, placement)
-  let prop_radius = generated_prop_blocking_radius(placement)
-  let tile_half = tile_size / 2.0
-  let effective_radius = prop_radius + tile_half
-  let min_col = @cmp.maximum(
-    0,
-    ((prop_x - effective_radius) / tile_size).to_int() - 1,
+  @physics2d.append_circular_wall_blocker(
+    grid,
+    prop_x,
+    prop_y,
+    generated_prop_blocking_radius(placement),
+    tile_size,
   )
-  let max_col = @cmp.minimum(
-    grid.width - 1,
-    ((prop_x + effective_radius) / tile_size).to_int() + 1,
-  )
-  let min_row = @cmp.maximum(
-    0,
-    ((prop_y - effective_radius) / tile_size).to_int() - 1,
-  )
-  let max_row = @cmp.minimum(
-    grid.height - 1,
-    ((prop_y + effective_radius) / tile_size).to_int() + 1,
-  )
-  let effective_radius_sq = effective_radius * effective_radius
-  for row = min_row; row <= max_row; row = row + 1 {
-    for col = min_col; col <= max_col; col = col + 1 {
-      let tile_center_x = col.to_double() * tile_size + tile_half
-      let tile_center_y = row.to_double() * tile_size + tile_half
-      let dx = tile_center_x - prop_x
-      let dy = tile_center_y - prop_y
-      if dx * dx + dy * dy <= effective_radius_sq {
-        grid.set(col, row, @terrain.Wall)
-      }
-    }
-  }
 }
 
 ///|

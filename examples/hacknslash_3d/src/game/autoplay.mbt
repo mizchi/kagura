@@ -49,41 +49,34 @@ fn find_nearest_visible_enemy_with_nav_grid(
   world : GameWorld,
   nav_grid : @terrain.Grid2D,
 ) -> (Int, Double) {
-  // Returns (enemy_index, dist_sq), or (-1, max) if none
-  let mut best_idx = -1
-  let mut best_dist_sq = 1000000.0
   let player_room = find_room_at(
     world.dungeon.rooms,
     world.player.x,
     world.player.y,
   )
-  for i, enemy in world.enemies {
-    if not(enemy.alive) {
-      continue
-    }
-    let edx = enemy.x - world.player.x
-    let edy = enemy.y - world.player.y
-    let dist_sq = edx * edx + edy * edy
-    let enemy_room = find_room_at(world.dungeon.rooms, enemy.x, enemy.y)
-    let within_room_or_range = (enemy_room == player_room && player_room >= 0) ||
+  @physics2d.grid_find_nearest_visible_candidate_index(
+    nav_grid,
+    world.player.x,
+    world.player.y,
+    world.player.size,
+    world.params.chase_range,
+    world.enemies.length(),
+    fn(i) {
+      let enemy = world.enemies[i]
+      if not(enemy.alive) {
+        return false
+      }
+      let edx = enemy.x - world.player.x
+      let edy = enemy.y - world.player.y
+      let dist_sq = edx * edx + edy * edy
+      let enemy_room = find_room_at(world.dungeon.rooms, enemy.x, enemy.y)
+      (enemy_room == player_room && player_room >= 0) ||
       dist_sq < world.params.chase_range * world.params.chase_range
-    let visible = within_room_or_range &&
-      not(
-        enemy_direct_chase_path_blocked(
-          nav_grid,
-          world.player.x,
-          world.player.y,
-          enemy.x,
-          enemy.y,
-          world.player.size,
-        ),
-      )
-    if visible && dist_sq < best_dist_sq {
-      best_dist_sq = dist_sq
-      best_idx = i
-    }
-  }
-  (best_idx, best_dist_sq)
+    },
+    fn(i) { world.enemies[i].x },
+    fn(i) { world.enemies[i].y },
+    tile_size,
+  )
 }
 
 ///|

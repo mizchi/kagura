@@ -96,3 +96,30 @@ test "generate_dungeon with roominess params keeps early floors broad and wide" 
   }
   assert_true(widest_room >= 12)
 }
+
+///|
+test "segment_hits_wall detects blocking wall between points" {
+  let grid = @terrain.Grid2D::make(8, 8, @terrain.Empty)
+  grid.set(3, 3, @terrain.Wall)
+
+  assert_true(
+    segment_hits_wall(
+      grid,
+      2.5 * tile_size,
+      3.5 * tile_size,
+      4.5 * tile_size,
+      3.5 * tile_size,
+      0.0,
+    ),
+  )
+  assert_false(
+    segment_hits_wall(
+      grid,
+      1.5 * tile_size,
+      1.5 * tile_size,
+      2.5 * tile_size,
+      1.5 * tile_size,
+      0.0,
+    ),
+  )
+}

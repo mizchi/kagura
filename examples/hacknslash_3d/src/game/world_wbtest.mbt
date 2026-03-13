@@ -135,6 +135,33 @@ test "tick_projectiles_phase applies enemy projectile damage and compacts" {
 }
 
 ///|
+test "tick_projectiles_phase removes projectile that crosses wall in one frame" {
+  let world = GameWorld::new(seed=42)
+  let px = world.player.x
+  let py = world.player.y
+  let start_col = (px / tile_size).to_int()
+  let row = (py / tile_size).to_int()
+  world.dungeon.grid.set(start_col + 1, row, @terrain.Wall)
+  world.projectiles = [
+    {
+      x: px,
+      y: py,
+      vx: tile_size * 2.5,
+      vy: 0.0,
+      age: 0,
+      alive: true,
+      damage: 2,
+      is_player: false,
+      kind: EnemyBolt,
+    },
+  ]
+
+  world.tick_projectiles_phase()
+
+  assert_eq(world.projectiles.length(), 0)
+}
+
+///|
 test "tick_enemy_movement_and_contact_phase applies contact damage once" {
   let world = GameWorld::new(seed=42)
   let before_hp = world.player.hp

@@ -11,7 +11,17 @@ pub fn find_nearest_enemy(world : GameWorld, max_range : Double) -> Enemy? {
       let edx = enemy.x - world.player.x
       let edy = enemy.y - world.player.y
       let dist_sq = edx * edx + edy * edy
-      if dist_sq < nearest_dist_sq {
+      if dist_sq < nearest_dist_sq &&
+        not(
+          segment_hits_wall(
+            world.dungeon.grid,
+            world.player.x,
+            world.player.y,
+            enemy.x,
+            enemy.y,
+            0.0,
+          ),
+        ) {
         nearest_dist_sq = dist_sq
         nearest = Some(enemy)
       }
@@ -37,7 +47,17 @@ fn find_nearest_enemy_index_from_point(
     let dx = enemy.x - source_x
     let dy = enemy.y - source_y
     let dist_sq = dx * dx + dy * dy
-    if dist_sq < nearest_dist_sq {
+    if dist_sq < nearest_dist_sq &&
+      not(
+        segment_hits_wall(
+          world.dungeon.grid,
+          source_x,
+          source_y,
+          enemy.x,
+          enemy.y,
+          0.0,
+        ),
+      ) {
       nearest_dist_sq = dist_sq
       nearest_idx = idx
     }
@@ -316,7 +336,17 @@ fn find_next_chain_target(
     let dx = enemy.x - source_x
     let dy = enemy.y - source_y
     let dist_sq = dx * dx + dy * dy
-    if dist_sq < nearest_dist_sq {
+    if dist_sq < nearest_dist_sq &&
+      not(
+        segment_hits_wall(
+          world.dungeon.grid,
+          source_x,
+          source_y,
+          enemy.x,
+          enemy.y,
+          0.0,
+        ),
+      ) {
       nearest_dist_sq = dist_sq
       nearest_index = index
     }

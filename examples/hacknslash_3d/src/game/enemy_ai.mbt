@@ -9,23 +9,7 @@ fn enemy_direct_chase_path_blocked(
   target_y : Double,
   enemy_size : Double,
 ) -> Bool {
-  let dx = target_x - enemy_x
-  let dy = target_y - enemy_y
-  let dist_sq = dx * dx + dy * dy
-  if dist_sq <= 0.000001 {
-    return false
-  }
-  let dist = dist_sq.sqrt()
-  let steps = @cmp.maximum(1, (dist / (tile_size * 0.5)).ceil().to_int())
-  for step = 1; step < steps; step = step + 1 {
-    let t = step.to_double() / steps.to_double()
-    let sample_x = enemy_x + dx * t
-    let sample_y = enemy_y + dy * t
-    if check_wall_collision(grid, sample_x, sample_y, enemy_size) {
-      return true
-    }
-  }
-  false
+  segment_hits_wall(grid, enemy_x, enemy_y, target_x, target_y, enemy_size)
 }
 
 ///|

@@ -260,6 +260,25 @@ test "tick_projectiles_phase splits fireball on enemy hit" {
 }
 
 ///|
+test "cast_chain_lightning ignores wall-blocked enemy and falls back to forward arc" {
+  let world = GameWorld::new(seed=42)
+  unlock_spell_for_combat_test(world, ChainLightning)
+  let px = world.player.x
+  let py = world.player.y
+  world.enemies = [make_enemy(px + 3.0 * tile_size, py, Basic, 12, 1.0, 10.0)]
+  let wall_x = (px / tile_size).to_int() + 1
+  let wall_y = (py / tile_size).to_int()
+  world.dungeon.grid.set(wall_x, wall_y, @terrain.Wall)
+  let before_hp = world.enemies[0].hp
+
+  let casted = cast_chain_lightning(world)
+
+  assert_true(casted)
+  assert_eq(world.enemies[0].hp, before_hp)
+  assert_eq(count_chain_arcs(world.events), 1)
+}
+
+///|
 test "cast_ice_nova damages nearby enemies and emits nova event" {
   let world = GameWorld::new(seed=42)
   unlock_spell_for_combat_test(world, IceNova)

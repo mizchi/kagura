@@ -45,7 +45,10 @@ pub fn count_enemies_in_room(
 // Find nearest alive enemy within vision range (current room + adjacent rooms)
 
 ///|
-pub fn find_nearest_visible_enemy(world : GameWorld) -> (Int, Double) {
+fn find_nearest_visible_enemy_with_nav_grid(
+  world : GameWorld,
+  nav_grid : @terrain.Grid2D,
+) -> (Int, Double) {
   // Returns (enemy_index, dist_sq), or (-1, max) if none
   let mut best_idx = -1
   let mut best_dist_sq = 1000000.0
@@ -61,22 +64,31 @@ pub fn find_nearest_visible_enemy(world : GameWorld) -> (Int, Double) {
     let edx = enemy.x - world.player.x
     let edy = enemy.y - world.player.y
     let dist_sq = edx * edx + edy * edy
-    // Vision: enemies in same room always visible
     let enemy_room = find_room_at(world.dungeon.rooms, enemy.x, enemy.y)
-    let visible = if enemy_room == player_room && player_room >= 0 {
-      true
-    } else if dist_sq < world.params.chase_range * world.params.chase_range {
-      // Also detect nearby enemies (in corridors / adjacent rooms)
-      true
-    } else {
-      false
-    }
+    let within_room_or_range = (enemy_room == player_room && player_room >= 0) ||
+      dist_sq < world.params.chase_range * world.params.chase_range
+    let visible = within_room_or_range &&
+      not(
+        enemy_direct_chase_path_blocked(
+          nav_grid,
+          world.player.x,
+          world.player.y,
+          enemy.x,
+          enemy.y,
+          world.player.size,
+        ),
+      )
     if visible && dist_sq < best_dist_sq {
       best_dist_sq = dist_sq
       best_idx = i
     }
   }
   (best_idx, best_dist_sq)
+}
+
+///|
+pub fn find_nearest_visible_enemy(world : GameWorld) -> (Int, Double) {
+  find_nearest_visible_enemy_with_nav_grid(world, world.dungeon.grid)
 }
 
 ///|
@@ -388,7 +400,10 @@ fn auto_play_input_with_nav_grid(
   nav_grid : @terrain.Grid2D,
 ) -> (Double, Double, Int, Double) {
   // 1. Check for visible enemies — if found, move toward nearest
-  let (enemy_idx, enemy_dist_sq) = find_nearest_visible_enemy(world)
+  let (enemy_idx, enemy_dist_sq) = find_nearest_visible_enemy_with_nav_grid(
+    world,
+    nav_grid,
+  )
   if enemy_idx >= 0 {
     let enemy = world.enemies[enemy_idx]
     if enemy_direct_chase_path_blocked(

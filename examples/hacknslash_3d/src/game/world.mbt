@@ -631,7 +631,14 @@ pub fn GameWorld::tick_projectiles_phase(self : GameWorld) -> Unit {
         proj.alive = false
         self.events.push(HomingMissileImpact(proj.x, proj.y))
       }
-      if is_wall_at(self.dungeon.grid, proj.x, proj.y) {
+      if segment_hits_wall(
+          self.dungeon.grid,
+          prev_x,
+          prev_y,
+          proj.x,
+          proj.y,
+          0.0,
+        ) {
         match proj.kind {
           Fireball(remaining_splits) if proj.is_player =>
             explode_player_fireball(

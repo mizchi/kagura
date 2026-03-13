@@ -355,6 +355,34 @@ pub fn check_wall_collision(
 }
 
 ///|
+pub fn segment_hits_wall(
+  grid : @terrain.Grid2D,
+  start_x : Double,
+  start_y : Double,
+  end_x : Double,
+  end_y : Double,
+  size : Double,
+) -> Bool {
+  let dx = end_x - start_x
+  let dy = end_y - start_y
+  let max_delta = if dx.abs() > dy.abs() { dx.abs() } else { dy.abs() }
+  let steps = @cmp.maximum(1, (max_delta / (tile_size * 0.25)).ceil().to_int())
+  for step = 1; step <= steps; step = step + 1 {
+    let t = step.to_double() / steps.to_double()
+    let sample_x = start_x + dx * t
+    let sample_y = start_y + dy * t
+    if size > 0.0 {
+      if check_wall_collision(grid, sample_x, sample_y, size) {
+        return true
+      }
+    } else if is_wall_at(grid, sample_x, sample_y) {
+      return true
+    }
+  }
+  false
+}
+
+///|
 pub fn slide_move(
   grid : @terrain.Grid2D,
   x : Double,

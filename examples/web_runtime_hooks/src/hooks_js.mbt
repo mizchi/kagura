@@ -28,6 +28,19 @@ let source_image_cache : Ref[Array[SourceImageCacheEntry]] = Ref::new([])
 let gpu_texture_dirty : Ref[Array[Int]] = Ref::new([])
 
 ///|
+fn should_prevent_canvas_scroll_key(key : Int) -> Bool {
+  key == 32 ||
+  key == 33 ||
+  key == 34 ||
+  key == 35 ||
+  key == 36 ||
+  key == 37 ||
+  key == 38 ||
+  key == 39 ||
+  key == 40
+}
+
+///|
 fn mark_gpu_texture_dirty(image_id : Int) -> Unit {
   for id in gpu_texture_dirty.val {
     if id == image_id {
@@ -257,6 +270,9 @@ extern "js" fn js_prepare_surface(
   #|   if (canvas.__kaguraSurfaceId == null) {
   #|     canvas.__kaguraSurfaceId = state.nextSurfaceId++;
   #|   }
+  #|   if ((Number(canvas.tabIndex ?? -1) | 0) < 0) {
+  #|     canvas.tabIndex = 0;
+  #|   }
   #|   state.canvas = canvas;
   #|   state.surfaceId = Number(canvas.__kaguraSurfaceId) | 0;
   #|   state.width = pixelWidth;
@@ -402,6 +418,32 @@ extern "js" fn js_ensure_window_state(selector : String) -> Unit =
   #|           const raw = Number(event.keyCode ?? event.which ?? 0) | 0;
   #|           return raw > 0 ? raw : 0;
   #|         };
+  #|         const eventTargetsCanvas = (current, event) => {
+  #|           const canvas = current?.canvas;
+  #|           const target = event?.target;
+  #|           if (canvas == null || target == null) return false;
+  #|           return target === canvas || (typeof canvas.contains === "function" && canvas.contains(target));
+  #|         };
+  #|         const focusCanvas = (current) => {
+  #|           const canvas = current?.canvas;
+  #|           if (canvas == null || typeof canvas.focus !== "function") return;
+  #|           if ((Number(canvas.tabIndex ?? -1) | 0) < 0) {
+  #|             canvas.tabIndex = 0;
+  #|           }
+  #|           try {
+  #|             canvas.focus({ preventScroll: true });
+  #|           } catch (_) {
+  #|             try { canvas.focus(); } catch (_focusError) {}
+  #|           }
+  #|         };
+  #|         const isCanvasFocused = (current, documentRef) => {
+  #|           return current?.canvas != null && documentRef?.activeElement === current.canvas;
+  #|         };
+  #|         const shouldPreventCanvasScroll = (current, documentRef, event) => {
+  #|           const key = normalizeKeyCode(event);
+  #|           return isCanvasFocused(current, documentRef) &&
+  #|             (key === 32 || key === 33 || key === 34 || key === 35 || key === 36 || key === 37 || key === 38 || key === 39 || key === 40);
+  #|         };
   #|         const addPressedKey = (current, key) => {
   #|           if (key <= 0) return;
   #|           if (!Array.isArray(current.pressedKeys)) current.pressedKeys = [];
@@ -495,6 +537,9 @@ extern "js" fn js_ensure_window_state(selector : String) -> Unit =
   #|         doc.addEventListener("mousedown", (event) => {
   #|           const current = root.__kaguraWebRuntime;
   #|           if (current == null) return;
+  #|           if (eventTargetsCanvas(current, event)) {
+  #|             focusCanvas(current);
+  #|           }
   #|           updateCursor(current, event);
   #|           addPressedMouseButton(current, normalizeMouseButton(event));
   #|         });
@@ -515,6 +560,9 @@ extern "js" fn js_ensure_window_state(selector : String) -> Unit =
   #|         doc.addEventListener("touchstart", (event) => {
   #|           const current = root.__kaguraWebRuntime;
   #|           if (current == null) return;
+  #|           if (eventTargetsCanvas(current, event)) {
+  #|             focusCanvas(current);
+  #|           }
   #|           syncTouches(current, event);
   #|         }, { passive: true });
   #|         doc.addEventListener("touchmove", (event) => {
@@ -537,6 +585,9 @@ extern "js" fn js_ensure_window_state(selector : String) -> Unit =
   #|           targetWindow.addEventListener("keydown", (event) => {
   #|             const current = root.__kaguraWebRuntime;
   #|             if (current == null) return;
+  #|             if (shouldPreventCanvasScroll(current, doc, event) && typeof event.preventDefault === "function") {
+  #|               event.preventDefault();
+  #|             }
   #|             addPressedKey(current, normalizeKeyCode(event));
   #|           });
   #|           targetWindow.addEventListener("keyup", (event) => {

@@ -154,3 +154,17 @@ test "source image debug APIs expose synced atlas generation and pixels" {
   assert_eq(source_image_pixel_channel(901, 1, 0, 2), 44)
   assert_eq(source_image_pixel_channel(901, 9, 9, 0), -1)
 }
+
+///|
+test "should_prevent_canvas_scroll_key matches navigation keys" {
+  assert_true(should_prevent_canvas_scroll_key(32))
+  assert_true(should_prevent_canvas_scroll_key(33))
+  assert_true(should_prevent_canvas_scroll_key(34))
+  assert_true(should_prevent_canvas_scroll_key(35))
+  assert_true(should_prevent_canvas_scroll_key(36))
+  assert_true(should_prevent_canvas_scroll_key(37))
+  assert_true(should_prevent_canvas_scroll_key(38))
+  assert_true(should_prevent_canvas_scroll_key(39))
+  assert_true(should_prevent_canvas_scroll_key(40))
+  assert_false(should_prevent_canvas_scroll_key(65))
+}

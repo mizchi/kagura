@@ -764,6 +764,7 @@ fn GameState::render_title_cmds(
       }
     }
   }
+  self.draw_debug_reset_button(ctx, cmds, @game.Title)
   cmds
 }
 
@@ -855,6 +856,7 @@ fn GameState::render_gameover_cmds(
       }
     }
   }
+  self.draw_debug_reset_button(ctx, cmds, @game.GameOver)
   cmds
 }
 

@@ -258,14 +258,21 @@ fn GameState::update(self : GameState, input : @core.InputSnapshot) -> Unit {
     self.toggle_audio_muted()
   }
   match self.world.mode {
-    @game.Title => self.update_title()
+    @game.Title => self.update_title(input)
     @game.Playing => self.update_playing()
-    @game.GameOver => self.update_gameover()
+    @game.GameOver => self.update_gameover(input)
   }
 }
 
 ///|
-fn GameState::update_title(self : GameState) -> Unit {
+fn GameState::update_title(
+  self : GameState,
+  input : @core.InputSnapshot,
+) -> Unit {
+  if input_snapshot_requests_debug_reset(input, self.world.mode) {
+    self.reset_save_and_restart()
+    return
+  }
   if @inpututil.is_confirm_just_pressed(self.input) {
     // Try loading save first
     if not(self.load_game()) {
@@ -276,7 +283,14 @@ fn GameState::update_title(self : GameState) -> Unit {
 }
 
 ///|
-fn GameState::update_gameover(self : GameState) -> Unit {
+fn GameState::update_gameover(
+  self : GameState,
+  input : @core.InputSnapshot,
+) -> Unit {
+  if input_snapshot_requests_debug_reset(input, self.world.mode) {
+    self.reset_save_and_restart()
+    return
+  }
   if @inpututil.is_confirm_just_pressed(self.input) {
     self.world.mode = @game.Title
     self.world.floor = 1

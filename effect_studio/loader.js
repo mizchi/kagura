@@ -16,7 +16,7 @@ async function init() {
   installAudioHelpers();
   installGfxHelpers();
   try {
-    await loadGameScript("./effect_studio.js?v=7f9b67e");
+    await loadGameScript("./effect_studio.js?v=5e8cb15");
   } catch (e) {
     showStartupError(
       "#app",

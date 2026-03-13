@@ -16,7 +16,7 @@ async function init() {
   installAudioHelpers();
   installGfxHelpers();
   try {
-    await loadGameScript("./survivor.js?v=7f9b67e");
+    await loadGameScript("./survivor.js?v=5e8cb15");
   } catch (e) {
     showStartupError(
       "#app",

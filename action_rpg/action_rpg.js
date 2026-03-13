@@ -95,6 +95,16 @@ const _M0MP311moonbitlang4core7builtin7MyInt6423reinterpret__as__double = functi
   view.setUint32(4, a.lo);
   return view.getFloat64(0);
 };
+const _M0MP311moonbitlang4core7builtin7MyInt6419reinterpret__double = function f(a) {
+  let view = f._view;
+  if (view === undefined) {
+    view = f._view = new DataView(new ArrayBuffer(8));
+  }
+  view.setFloat64(0, a);
+  const hi = view.getInt32(0);
+  const lo = view.getInt32(4);
+  return { hi, lo };
+};
 const _M0MP311moonbitlang4core7builtin7JSArray4copy = (arr) => arr.slice(0);
 const _M0FP311moonbitlang4core7builtin15ryu__to__string = (number) => number.toString();
 const $bytes_literal$0 = new Uint8Array();
@@ -187,6 +197,8 @@ function Result$Ok$12$(param0) {
 }
 Result$Ok$12$.prototype.$tag = 1;
 Result$Ok$12$.prototype.$name = "Ok";
+const $2047L = { hi: 0, lo: 2047 };
+const $4503599627370495L = { hi: 1048575, lo: -1 };
 const $64$mizchi$47$kagura$47$gfx$46$BlendMode$Copy = { $tag: 0, $name: "Copy" };
 const $64$mizchi$47$kagura$47$gfx$46$BlendMode$Alpha = { $tag: 1, $name: "Alpha" };
 const $64$mizchi$47$kagura$47$gfx$46$BlendMode$Add = { $tag: 2, $name: "Add" };
@@ -781,6 +793,9 @@ const _M0FP26mizchi19web__runtime__hooks20js__prepare__surface = (selector, fall
    if (canvas.__kaguraSurfaceId == null) {
      canvas.__kaguraSurfaceId = state.nextSurfaceId++;
    }
+   if ((Number(canvas.tabIndex ?? -1) | 0) < 0) {
+     canvas.tabIndex = 0;
+   }
    state.canvas = canvas;
    state.surfaceId = Number(canvas.__kaguraSurfaceId) | 0;
    state.width = pixelWidth;
@@ -825,7 +840,7 @@ const _M0FP26mizchi19web__runtime__hooks25js__ensure__window__state = (selector)
        vsyncEnabled: true,
        attentionRequests: 0,
        interactionHooksInstalled: false,
-       webgpu: { context: null, device: null, format: "bgra8unorm", pending: null, _pipeline: null, _pipelineFormat: "", _uniformBGL: null, _texBGL: null, _defaultTexture: null, _defaultTexView: null, _defaultSampler: null, _drawResourceCache: null, _currentDraw: null, _pendingTexture: null, presentScheduled: false, clear: [0, 0, 0, 1], commands: [], textures: null, lastError: "" },
+       webgpu: { context: null, device: null, format: "bgra8unorm", pending: null, _pipeline: null, _pipelineFormat: "", _configuredFormat: "", _uniformBGL: null, _texBGL: null, _defaultTexture: null, _defaultTexView: null, _defaultSampler: null, _drawResourceCache: null, _currentDraw: null, _pendingTexture: null, presentScheduled: false, clear: [0, 0, 0, 1], commands: [], textures: null, lastError: "" },
      });
      if (typeof nextSelector === "string" && nextSelector.length > 0) {
        state.selector = nextSelector;
@@ -846,12 +861,13 @@ const _M0FP26mizchi19web__runtime__hooks25js__ensure__window__state = (selector)
      if (!Array.isArray(state.testGamepads)) state.testGamepads = [];
      if (state.inputHooksInstalled == null) state.inputHooksInstalled = false;
      if (state.webgpu == null) {
-       state.webgpu = { context: null, device: null, format: "bgra8unorm", pending: null, _pipeline: null, _pipelineFormat: "", _uniformBGL: null, _texBGL: null, _defaultTexture: null, _defaultTexView: null, _defaultSampler: null, _drawResourceCache: null, _currentDraw: null, _pendingTexture: null, presentScheduled: false, clear: [0, 0, 0, 1], commands: [], textures: null, lastError: "" };
+       state.webgpu = { context: null, device: null, format: "bgra8unorm", pending: null, _pipeline: null, _pipelineFormat: "", _configuredFormat: "", _uniformBGL: null, _texBGL: null, _defaultTexture: null, _defaultTexView: null, _defaultSampler: null, _drawResourceCache: null, _currentDraw: null, _pendingTexture: null, presentScheduled: false, clear: [0, 0, 0, 1], commands: [], textures: null, lastError: "" };
      } else {
        if (!Array.isArray(state.webgpu.clear)) state.webgpu.clear = [0, 0, 0, 1];
        if (!Array.isArray(state.webgpu.commands)) state.webgpu.commands = [];
        if (state.webgpu._pipeline == null) state.webgpu._pipeline = null;
        if (typeof state.webgpu._pipelineFormat !== "string") state.webgpu._pipelineFormat = "";
+       if (typeof state.webgpu._configuredFormat !== "string") state.webgpu._configuredFormat = "";
        if (state.webgpu._uniformBGL == null) state.webgpu._uniformBGL = null;
        if (state.webgpu._texBGL == null) state.webgpu._texBGL = null;
        if (state.webgpu._defaultTexture == null) state.webgpu._defaultTexture = null;
@@ -909,6 +925,32 @@ const _M0FP26mizchi19web__runtime__hooks25js__ensure__window__state = (selector)
            if (event == null) return 0;
            const raw = Number(event.keyCode ?? event.which ?? 0) | 0;
            return raw > 0 ? raw : 0;
+         };
+         const eventTargetsCanvas = (current, event) => {
+           const canvas = current?.canvas;
+           const target = event?.target;
+           if (canvas == null || target == null) return false;
+           return target === canvas || (typeof canvas.contains === "function" && canvas.contains(target));
+         };
+         const focusCanvas = (current) => {
+           const canvas = current?.canvas;
+           if (canvas == null || typeof canvas.focus !== "function") return;
+           if ((Number(canvas.tabIndex ?? -1) | 0) < 0) {
+             canvas.tabIndex = 0;
+           }
+           try {
+             canvas.focus({ preventScroll: true });
+           } catch (_) {
+             try { canvas.focus(); } catch (_focusError) {}
+           }
+         };
+         const isCanvasFocused = (current, documentRef) => {
+           return current?.canvas != null && documentRef?.activeElement === current.canvas;
+         };
+         const shouldPreventCanvasScroll = (current, documentRef, event) => {
+           const key = normalizeKeyCode(event);
+           return isCanvasFocused(current, documentRef) &&
+             (key === 32 || key === 33 || key === 34 || key === 35 || key === 36 || key === 37 || key === 38 || key === 39 || key === 40);
          };
          const addPressedKey = (current, key) => {
            if (key <= 0) return;
@@ -1003,6 +1045,9 @@ const _M0FP26mizchi19web__runtime__hooks25js__ensure__window__state = (selector)
          doc.addEventListener("mousedown", (event) => {
            const current = root.__kaguraWebRuntime;
            if (current == null) return;
+           if (eventTargetsCanvas(current, event)) {
+             focusCanvas(current);
+           }
            updateCursor(current, event);
            addPressedMouseButton(current, normalizeMouseButton(event));
          });
@@ -1023,6 +1068,9 @@ const _M0FP26mizchi19web__runtime__hooks25js__ensure__window__state = (selector)
          doc.addEventListener("touchstart", (event) => {
            const current = root.__kaguraWebRuntime;
            if (current == null) return;
+           if (eventTargetsCanvas(current, event)) {
+             focusCanvas(current);
+           }
            syncTouches(current, event);
          }, { passive: true });
          doc.addEventListener("touchmove", (event) => {
@@ -1045,6 +1093,9 @@ const _M0FP26mizchi19web__runtime__hooks25js__ensure__window__state = (selector)
            targetWindow.addEventListener("keydown", (event) => {
              const current = root.__kaguraWebRuntime;
              if (current == null) return;
+             if (shouldPreventCanvasScroll(current, doc, event) && typeof event.preventDefault === "function") {
+               event.preventDefault();
+             }
              addPressedKey(current, normalizeKeyCode(event));
            });
            targetWindow.addEventListener("keyup", (event) => {
@@ -1502,7 +1553,7 @@ const _M0FP26mizchi19web__runtime__hooks27js__try__initialize__webgpu = (selecto
      width: fallbackWidth,
      height: fallbackHeight,
      dpr: 1,
-     webgpu: { context: null, device: null, format: "bgra8unorm", pending: null, _pipeline: null, _pipelineFormat: "", _uniformBGL: null, _texBGL: null, _defaultTexture: null, _defaultTexView: null, _defaultSampler: null, _drawResourceCache: null, _currentDraw: null, _pendingTexture: null, presentScheduled: false, clear: [0, 0, 0, 1], commands: [], textures: null, lastError: "" },
+     webgpu: { context: null, device: null, format: "bgra8unorm", pending: null, _pipeline: null, _pipelineFormat: "", _configuredFormat: "", _uniformBGL: null, _texBGL: null, _defaultTexture: null, _defaultTexView: null, _defaultSampler: null, _drawResourceCache: null, _currentDraw: null, _pendingTexture: null, presentScheduled: false, clear: [0, 0, 0, 1], commands: [], textures: null, lastError: "" },
    });
    state.selector = selector;
    const doc = typeof document === "undefined" ? null : document;
@@ -1553,7 +1604,21 @@ const _M0FP26mizchi19web__runtime__hooks27js__try__initialize__webgpu = (selecto
    }
    if (state.webgpu.pending == null) {
      state.webgpu.pending = nav.gpu.requestAdapter()
-       .then((adapter) => adapter == null ? null : adapter.requestDevice())
+       .then((adapter) => {
+         if (adapter == null) return null;
+         const supportsTimestampQuery = adapter.features != null &&
+           typeof adapter.features.has === "function" &&
+           adapter.features.has("timestamp-query");
+         const requestOptions = supportsTimestampQuery
+           ? { requiredFeatures: ["timestamp-query"] }
+           : undefined;
+         return adapter.requestDevice(requestOptions).then((device) => {
+           if (device != null) {
+             device.__kaguraTimestampQueryEnabled = supportsTimestampQuery;
+           }
+           return device;
+         });
+       })
        .then((device) => {
          if (device == null) return;
          const format = typeof nav.gpu.getPreferredCanvasFormat === "function"
@@ -1563,12 +1628,14 @@ const _M0FP26mizchi19web__runtime__hooks27js__try__initialize__webgpu = (selecto
          state.webgpu.device = device;
          state.webgpu._pipeline = null;
          state.webgpu._pipelineFormat = "";
+         state.webgpu._configuredFormat = "";
          if (state.webgpu.context != null) {
            state.webgpu.context.configure({
              device,
              format,
              alphaMode: "opaque",
            });
+           state.webgpu._configuredFormat = format;
          }
        })
        .catch((error) => {
@@ -1576,6 +1643,7 @@ const _M0FP26mizchi19web__runtime__hooks27js__try__initialize__webgpu = (selecto
          state.webgpu.device = null;
          state.webgpu._pipeline = null;
          state.webgpu._pipelineFormat = "";
+         state.webgpu._configuredFormat = "";
        })
        .finally(() => {
          state.webgpu.pending = null;
@@ -1625,6 +1693,7 @@ const _M0FP26mizchi19web__runtime__hooks30js__release__webgpu__resources = () =>
    }
    gpu._pipeline = null;
    gpu._pipelineFormat = "";
+   gpu._configuredFormat = "";
    gpu._uniformBGL = null;
    gpu._texBGL = null;
    gpu._defaultTexture = null;
@@ -1833,7 +1902,10 @@ const _M0FP26mizchi19web__runtime__hooks19js__webgpu__present = () => {
      if (gfx != null) {
        return gfx.render(currentGpu, currentDevice, currentContext, currentGpu.clear, format);
      }
-     currentContext.configure({ device: currentDevice, format, alphaMode: "opaque" });
+     if (currentGpu._configuredFormat !== format) {
+       currentContext.configure({ device: currentDevice, format, alphaMode: "opaque" });
+       currentGpu._configuredFormat = format;
+     }
      if (currentGpu._pipeline == null || currentGpu._pipelineFormat !== format) {
        const shaderCode = `
  struct Uniforms { color: vec4f }
@@ -2021,7 +2093,10 @@ const _M0FP26mizchi19web__runtime__hooks19js__webgpu__present = () => {
        pass.setBindGroup(1, texBG);
        pass.setVertexBuffer(0, vbEntry.buffer);
        pass.setIndexBuffer(ibEntry.buffer, "uint32");
-       pass.drawIndexed(cmd.indices.length);
+       const instanceCount = Number.isFinite(cmd.instanceCount ?? cmd.instance_count)
+         ? Math.max(1, (cmd.instanceCount ?? cmd.instance_count) | 0)
+         : 1;
+       pass.drawIndexed(cmd.indices.length, instanceCount);
      }
      pass.end();
      currentDevice.queue.submit([encoder.finish()]);
@@ -2276,16 +2351,11 @@ const _M0FP26mizchi11action__rpg12enemy__speed = 0.5;
 const _M0FP26mizchi11action__rpg13player__speed = 1.5;
 const _M0FP26mizchi11action__rpg10tile__size = 16;
 const _M0FP36mizchi6kagura6engine16lifecycle__hooks = _M0MP311moonbitlang4core3ref3Ref3newGORP36mizchi6kagura6engine14LifecycleHooksE(undefined);
-(() => {
-  _M0FP36mizchi6kagura6engine21set__lifecycle__hooks({ on_start: (_canvas, _title) => {
-  }, on_stop: () => {
-  } });
-})();
 const _M0FP26mizchi19web__runtime__hooks21web__canvas__selector = _M0MP311moonbitlang4core3ref3Ref3newGsE("#app");
 const _M0FP26mizchi19web__runtime__hooks21web__hooks__installed = _M0MP311moonbitlang4core3ref3Ref3newGbE(false);
 const _M0FP36mizchi6kagura5audio20audio__output__hooks = _M0MP311moonbitlang4core3ref3Ref3newGRP36mizchi6kagura5audio16AudioOutputHooksE(_M0FP36mizchi6kagura5audio29default__audio__output__hooks());
-const _M0FP311moonbitlang4core7builtin33brute__force__find_2econstr_2f387 = 0;
-const _M0FP311moonbitlang4core7builtin43boyer__moore__horspool__find_2econstr_2f373 = 0;
+const _M0FP311moonbitlang4core7builtin33brute__force__find_2econstr_2f389 = 0;
+const _M0FP311moonbitlang4core7builtin43boyer__moore__horspool__find_2econstr_2f375 = 0;
 const _M0FP26mizchi19web__runtime__hooks20source__image__cache = _M0MP311moonbitlang4core3ref3Ref3newGRP311moonbitlang4core7builtin5ArrayGRP26mizchi19web__runtime__hooks21SourceImageCacheEntryEE([]);
 const _M0FP26mizchi19web__runtime__hooks19gpu__texture__dirty = _M0MP311moonbitlang4core3ref3Ref3newGRP311moonbitlang4core7builtin5ArrayGiEE([]);
 const _M0FP36mizchi6kagura3gfx20web__graphics__hooks = _M0MP311moonbitlang4core3ref3Ref3newGRP36mizchi6kagura3gfx16WebGraphicsHooksE(_M0FP36mizchi6kagura3gfx29default__web__graphics__hooks());
@@ -2299,7 +2369,7 @@ const _M0FP36mizchi6kagura8platform18web__canvas__hooks = _M0MP311moonbitlang4co
     _M0FP26mizchi19web__runtime__hooks8shutdown();
   } });
 })();
-const _M0FP311moonbitlang4core4math35trig__reduce_2etwo__over__pi_2f2132 = [0, 683565275, -1819212470, 2131351028, 2102212464, 920167782, 1326507024, 0];
+const _M0FP311moonbitlang4core4math35trig__reduce_2etwo__over__pi_2f2142 = [0, 683565275, -1819212470, 2131351028, 2102212464, 920167782, 1326507024, 0];
 const _M0FP36mizchi6kagura3gfx25graphics__clock__provider = _M0MP311moonbitlang4core3ref3Ref3newGWEdE(_M0FP36mizchi6kagura3gfx23default__clock__now__ms);
 const _M0FP36mizchi6kagura3gfx23native__graphics__hooks = _M0MP311moonbitlang4core3ref3Ref3newGRP36mizchi6kagura3gfx19NativeGraphicsHooksE(_M0FP36mizchi6kagura3gfx32default__native__graphics__hooks());
 const _M0FP311moonbitlang4core6double13neg__infinity = _M0MP311moonbitlang4core5int645Int6423reinterpret__as__double($_4503599627370496L);
@@ -3114,6 +3184,9 @@ function _M0IP016_24default__implP311moonbitlang4core7builtin2Eq10not__equalGsE(
 function _M0IP016_24default__implP311moonbitlang4core7builtin2Eq10not__equalGRP26mizchi5audio10VoiceStateE(x, y) {
   return !_M0IP26mizchi5audio10VoiceStateP311moonbitlang4core7builtin2Eq5equal(x, y);
 }
+function _M0IP016_24default__implP311moonbitlang4core7builtin2Eq10not__equalGlE(x, y) {
+  return !_M0IP311moonbitlang4core5int645Int64P311moonbitlang4core7builtin2Eq5equal(x, y);
+}
 function _M0IP016_24default__implP311moonbitlang4core7builtin2Eq10not__equalGbE(x, y) {
   return !(x === y);
 }
@@ -3569,7 +3642,7 @@ function _M0FP311moonbitlang4core7builtin28boyer__moore__horspool__find(haystack
       return undefined;
     }
   } else {
-    return _M0FP311moonbitlang4core7builtin43boyer__moore__horspool__find_2econstr_2f373;
+    return _M0FP311moonbitlang4core7builtin43boyer__moore__horspool__find_2econstr_2f375;
   }
 }
 function _M0FP311moonbitlang4core7builtin18brute__force__find(haystack, needle) {
@@ -3616,7 +3689,7 @@ function _M0FP311moonbitlang4core7builtin18brute__force__find(haystack, needle) 
       return undefined;
     }
   } else {
-    return _M0FP311moonbitlang4core7builtin33brute__force__find_2econstr_2f387;
+    return _M0FP311moonbitlang4core7builtin33brute__force__find_2econstr_2f389;
   }
 }
 function _M0MP311moonbitlang4core6string10StringView4find(self, str) {
@@ -7405,8 +7478,23 @@ function _M0MP311moonbitlang4core7builtin7MyInt643lsr(self, shift) {
   const shift$2 = shift & 63;
   return shift$2 === 0 ? self : shift$2 < 32 ? { hi: self.hi >>> shift$2 | 0, lo: self.lo >>> shift$2 | 0 | self.hi << (32 - shift$2 | 0) } : { hi: 0, lo: self.hi >>> (shift$2 - 32 | 0) | 0 };
 }
+function _M0IP311moonbitlang4core7builtin7MyInt64P311moonbitlang4core7builtin2Eq5equal(self, other) {
+  return self.hi === other.hi && self.lo === other.lo;
+}
 function _M0MP311moonbitlang4core7builtin7MyInt648to__uint(self) {
   return self.lo;
+}
+function _M0IP311moonbitlang4core5int645Int64P311moonbitlang4core7builtin6BitAnd4land(self, other) {
+  return _M0MP311moonbitlang4core7builtin7MyInt644land(self, other);
+}
+function _M0IP311moonbitlang4core5int645Int64P311moonbitlang4core7builtin2Eq5equal(self, other) {
+  return _M0IP311moonbitlang4core7builtin7MyInt64P311moonbitlang4core7builtin2Eq5equal(self, other);
+}
+function _M0MP311moonbitlang4core5int645Int647to__int(self) {
+  return _M0MP311moonbitlang4core7builtin7MyInt647to__int(self);
+}
+function _M0MP311moonbitlang4core6double6Double22reinterpret__as__int64(self) {
+  return _M0MP311moonbitlang4core7builtin7MyInt6419reinterpret__double(self);
 }
 function _M0IP311moonbitlang4core6uint646UInt64P311moonbitlang4core7builtin3Sub3sub(self, other) {
   return _M0IP311moonbitlang4core7builtin7MyInt64P311moonbitlang4core7builtin3Sub3sub(self, other);
@@ -7864,10 +7952,10 @@ function _M0FP311moonbitlang4core4math12trig__reduce(x, switch_over) {
   const ix = ($i32_reinterpret_f32(x) & 8388607) << 8 | -2147483648;
   const ind = exp >> 5;
   exp = exp & 31;
-  let hi = _M0MP311moonbitlang4core5array13ReadOnlyArray2atGjE(_M0FP311moonbitlang4core4math35trig__reduce_2etwo__over__pi_2f2132, ind);
-  let mi = _M0MP311moonbitlang4core5array13ReadOnlyArray2atGjE(_M0FP311moonbitlang4core4math35trig__reduce_2etwo__over__pi_2f2132, ind + 1 | 0);
-  let lo = _M0MP311moonbitlang4core5array13ReadOnlyArray2atGjE(_M0FP311moonbitlang4core4math35trig__reduce_2etwo__over__pi_2f2132, ind + 2 | 0);
-  const tp = _M0MP311moonbitlang4core5array13ReadOnlyArray2atGjE(_M0FP311moonbitlang4core4math35trig__reduce_2etwo__over__pi_2f2132, ind + 3 | 0);
+  let hi = _M0MP311moonbitlang4core5array13ReadOnlyArray2atGjE(_M0FP311moonbitlang4core4math35trig__reduce_2etwo__over__pi_2f2142, ind);
+  let mi = _M0MP311moonbitlang4core5array13ReadOnlyArray2atGjE(_M0FP311moonbitlang4core4math35trig__reduce_2etwo__over__pi_2f2142, ind + 1 | 0);
+  let lo = _M0MP311moonbitlang4core5array13ReadOnlyArray2atGjE(_M0FP311moonbitlang4core4math35trig__reduce_2etwo__over__pi_2f2142, ind + 2 | 0);
+  const tp = _M0MP311moonbitlang4core5array13ReadOnlyArray2atGjE(_M0FP311moonbitlang4core4math35trig__reduce_2etwo__over__pi_2f2142, ind + 3 | 0);
   if (exp > 0) {
     hi = hi << exp | (mi >>> (32 - exp | 0) | 0);
     mi = mi << exp | (lo >>> (32 - exp | 0) | 0);
@@ -9353,6 +9441,32 @@ function _M0IP36mizchi6kagura8platform17WebCanvasPlatformP36mizchi6kagura8platfo
   self.current_input = _M0FP36mizchi6kagura8platform19web__capture__input(self.web_active, tick);
   return self.current_input;
 }
+function _M0FP36mizchi6kagura3gfx21double__to__f32__bits(v) {
+  const bits = _M0MP311moonbitlang4core6double6Double22reinterpret__as__int64(v);
+  const ubits = bits;
+  const sign = _M0MP311moonbitlang4core5int645Int647to__int(_M0IP311moonbitlang4core6uint646UInt64P311moonbitlang4core7builtin6BitAnd4land(_M0IP311moonbitlang4core6uint646UInt64P311moonbitlang4core7builtin3Shr3shr(ubits, 63), $1L));
+  const exp = _M0MP311moonbitlang4core5int645Int647to__int(_M0IP311moonbitlang4core6uint646UInt64P311moonbitlang4core7builtin6BitAnd4land(_M0IP311moonbitlang4core6uint646UInt64P311moonbitlang4core7builtin3Shr3shr(ubits, 52), $2047L));
+  const mantissa = _M0IP311moonbitlang4core5int645Int64P311moonbitlang4core7builtin6BitAnd4land(bits, $4503599627370495L);
+  if (exp === 2047) {
+    return _M0IP016_24default__implP311moonbitlang4core7builtin2Eq10not__equalGlE(mantissa, $0L) ? sign << 31 | 2143289344 : sign << 31 | 2139095040;
+  } else {
+    if (exp === 0) {
+      return sign << 31;
+    } else {
+      const f32_exp = (exp - 1023 | 0) + 127 | 0;
+      if (f32_exp >= 255) {
+        return sign << 31 | 2139095040;
+      } else {
+        if (f32_exp <= 0) {
+          return sign << 31;
+        } else {
+          const f32_mantissa = _M0MP311moonbitlang4core5int645Int647to__int(_M0IP311moonbitlang4core6uint646UInt64P311moonbitlang4core7builtin3Shr3shr(mantissa, 29));
+          return sign << 31 | f32_exp << 23 | f32_mantissa;
+        }
+      }
+    }
+  }
+}
 function _M0FP36mizchi6kagura3gfx20builtin__filter__tag(filter) {
   switch (filter) {
     case 0: {
@@ -9487,8 +9601,29 @@ function _M0FP36mizchi6kagura3gfx18new__image__handle(id$2, width, height) {
 function _M0FP36mizchi6kagura3gfx19new__shader__handle(id$2, source) {
   return { id: id$2, source: source };
 }
-function _M0FP36mizchi6kagura3gfx37new__draw__triangles__command_2einner(dst, shader, dst_regions, index_offset, pipeline_id, uniform_hash, blend, vertex_data, indices, src_image_ids, uniform_dwords, instance_count) {
-  return { dst: dst, shader: shader, dst_regions: dst_regions, index_offset: index_offset, pipeline_id: pipeline_id, uniform_hash: uniform_hash, blend: blend, vertex_data: vertex_data, indices: indices, src_image_ids: src_image_ids, uniform_dwords: uniform_dwords, instance_count: instance_count };
+function _M0FP36mizchi6kagura3gfx37new__draw__triangles__command_2einner(dst, shader, dst_regions, index_offset, pipeline_id, uniform_hash, blend, vertex_data, indices, src_image_ids, uniform_dwords, instance_count, resource_cache_key) {
+  return { dst: dst, shader: shader, dst_regions: dst_regions, index_offset: index_offset, pipeline_id: pipeline_id, uniform_hash: uniform_hash, blend: blend, vertex_data: vertex_data, indices: indices, src_image_ids: src_image_ids, uniform_dwords: uniform_dwords, instance_count: instance_count, resource_cache_key: resource_cache_key };
+}
+function _M0FP36mizchi6kagura3gfx25mix__resource__cache__key(seed, value) {
+  return ((Math.imul(seed, 16777619) | 0) + value | 0) + 31 | 0;
+}
+function _M0FP36mizchi6kagura3gfx27build__resource__cache__key(seed, values) {
+  const hash = { val: seed === 0 ? 146959810 : seed };
+  const _arr = values;
+  const _len = _arr.length;
+  let _tmp = 0;
+  while (true) {
+    const _i = _tmp;
+    if (_i < _len) {
+      const value = _arr[_i];
+      hash.val = _M0FP36mizchi6kagura3gfx25mix__resource__cache__key(hash.val, value);
+      _tmp = _i + 1 | 0;
+      continue;
+    } else {
+      break;
+    }
+  }
+  return hash.val === 0 ? 1 : hash.val;
 }
 function _M0FP36mizchi6kagura3gfx30default__web__on__read__pixels(_active, _kind, _x, _y, _width, _height) {
   return Option$None$4$;
@@ -11365,7 +11500,7 @@ function _M0FP36mizchi6kagura9debugutil29new__ndc__rect__fill__command(dst, shad
     break _L;
   }
   const uniform = _M0FP36mizchi6kagura9debugutil26color__to__uniform__dwords(color);
-  return _M0FP36mizchi6kagura3gfx37new__draw__triangles__command_2einner(dst, shader, [_M0FP36mizchi6kagura3gfx16new__dst__region(0, 0, _M0MP311moonbitlang4core6double6Double7to__int(screen_w), _M0MP311moonbitlang4core6double6Double7to__int(screen_h), 6)], 0, pipeline_id, 0, _M0FP36mizchi6kagura3gfx22blend__mode__from__int(1), vertices, indices, [], uniform, 1);
+  return _M0FP36mizchi6kagura3gfx37new__draw__triangles__command_2einner(dst, shader, [_M0FP36mizchi6kagura3gfx16new__dst__region(0, 0, _M0MP311moonbitlang4core6double6Double7to__int(screen_w), _M0MP311moonbitlang4core6double6Double7to__int(screen_h), 6)], 0, pipeline_id, 0, _M0FP36mizchi6kagura3gfx22blend__mode__from__int(1), vertices, indices, [], uniform, 1, 0);
 }
 function _M0FP36mizchi6kagura9debugutil15draw__dot__text(cmds, dst, shader, chars, cx, cy, sw, sh, color, scale) {
   const px_size = 3 * scale;
@@ -11581,7 +11716,7 @@ function _M0FP36mizchi6kagura6engine16invoke__on__stop() {
   const _func = hooks.on_stop;
   _func();
 }
-function _M0FP36mizchi6kagura6engine11run_2einner(update, draw, on_frame, audio_ctx, audio_frames_per_tick, width, height, title, canvas) {
+function _M0FP36mizchi6kagura6engine11run_2einner(update, draw, on_frame, after_render, audio_ctx, audio_frames_per_tick, width, height, title, canvas) {
   _M0FP36mizchi6kagura6engine17invoke__on__start(canvas, title);
   const platform = _M0FP36mizchi6kagura8platform29create__web__canvas__platform(canvas);
   let surface;
@@ -11747,7 +11882,10 @@ function _M0FP36mizchi6kagura6engine11run_2einner(update, draw, on_frame, audio_
       }
       f();
     }
+    const draw_callback_start = _M0FP36mizchi6kagura6engine20js__performance__now();
     const cmds = draw(ctx);
+    const draw_callback_end = _M0FP36mizchi6kagura6engine20js__performance__now();
+    const render_start = _M0FP36mizchi6kagura6engine20js__performance__now();
     let _try_err$6;
     _L$7: {
       _L$8: {
@@ -11765,20 +11903,35 @@ function _M0FP36mizchi6kagura6engine11run_2einner(update, draw, on_frame, audio_
       const e = _try_err$6;
       _M0FP311moonbitlang4core7builtin7printlnGsE(`[engine] render_commands failed: ${_M0IP016_24default__implP311moonbitlang4core7builtin4Show10to__stringGRP311moonbitlang4core5error5ErrorE(e)}`);
     }
+    const render_end = _M0FP36mizchi6kagura6engine20js__performance__now();
+    let f$2;
+    _L$8: {
+      _L$9: {
+        if (after_render === undefined) {
+        } else {
+          const _Some = after_render;
+          const _f = _Some;
+          f$2 = _f;
+          break _L$9;
+        }
+        break _L$8;
+      }
+      f$2(draw_callback_end - draw_callback_start, render_end - render_start);
+    }
     const now = _M0FP36mizchi6kagura6engine20js__performance__now();
     const elapsed = now - prev_time.val;
     prev_time.val = now;
     let actx;
-    _L$8: {
-      _L$9: {
+    _L$9: {
+      _L$10: {
         if (audio_ctx === undefined) {
         } else {
           const _Some = audio_ctx;
           const _actx = _Some;
           actx = _actx;
-          break _L$9;
+          break _L$10;
         }
-        break _L$8;
+        break _L$9;
       }
       _M0FP36mizchi6kagura5audio13audio__resume();
       audio_accum.val = audio_accum.val + elapsed;
@@ -11975,7 +12128,7 @@ function _M0FP36mizchi6kagura5scene12render__line(cmds, el, dst, shader, screen_
   }
   const ndc_vertices = _M0FP36mizchi6kagura5scene24pixel__to__ndc__vertices(vertices, screen_w, screen_h);
   const uniform = _M0FP36mizchi6kagura9debugutil26color__to__uniform__dwords(color);
-  _M0MP311moonbitlang4core5array5Array4pushGRP36mizchi6kagura3gfx20DrawTrianglesCommandE(cmds, _M0FP36mizchi6kagura3gfx37new__draw__triangles__command_2einner(dst, shader, [_M0FP36mizchi6kagura3gfx16new__dst__region(0, 0, _M0MP311moonbitlang4core6double6Double7to__int(screen_w), _M0MP311moonbitlang4core6double6Double7to__int(screen_h), indices.length)], 0, 0, 0, _M0FP36mizchi6kagura3gfx22blend__mode__from__int(1), ndc_vertices, indices, [], uniform, 1));
+  _M0MP311moonbitlang4core5array5Array4pushGRP36mizchi6kagura3gfx20DrawTrianglesCommandE(cmds, _M0FP36mizchi6kagura3gfx37new__draw__triangles__command_2einner(dst, shader, [_M0FP36mizchi6kagura3gfx16new__dst__region(0, 0, _M0MP311moonbitlang4core6double6Double7to__int(screen_w), _M0MP311moonbitlang4core6double6Double7to__int(screen_h), indices.length)], 0, 0, 0, _M0FP36mizchi6kagura3gfx22blend__mode__from__int(1), ndc_vertices, indices, [], uniform, 1, 0));
 }
 function _M0FP36mizchi6kagura5scene21render__rect__outline(cmds, el, dst, shader, screen_w, screen_h, offset_x, offset_y) {
   const attrs = el.attrs;
@@ -11998,7 +12151,7 @@ function _M0FP36mizchi6kagura5scene21render__rect__outline(cmds, el, dst, shader
   }
   const ndc_vertices = _M0FP36mizchi6kagura5scene24pixel__to__ndc__vertices(vertices, screen_w, screen_h);
   const uniform = _M0FP36mizchi6kagura9debugutil26color__to__uniform__dwords(color);
-  _M0MP311moonbitlang4core5array5Array4pushGRP36mizchi6kagura3gfx20DrawTrianglesCommandE(cmds, _M0FP36mizchi6kagura3gfx37new__draw__triangles__command_2einner(dst, shader, [_M0FP36mizchi6kagura3gfx16new__dst__region(0, 0, _M0MP311moonbitlang4core6double6Double7to__int(screen_w), _M0MP311moonbitlang4core6double6Double7to__int(screen_h), indices.length)], 0, 0, 0, _M0FP36mizchi6kagura3gfx22blend__mode__from__int(1), ndc_vertices, indices, [], uniform, 1));
+  _M0MP311moonbitlang4core5array5Array4pushGRP36mizchi6kagura3gfx20DrawTrianglesCommandE(cmds, _M0FP36mizchi6kagura3gfx37new__draw__triangles__command_2einner(dst, shader, [_M0FP36mizchi6kagura3gfx16new__dst__region(0, 0, _M0MP311moonbitlang4core6double6Double7to__int(screen_w), _M0MP311moonbitlang4core6double6Double7to__int(screen_h), indices.length)], 0, 0, 0, _M0FP36mizchi6kagura3gfx22blend__mode__from__int(1), ndc_vertices, indices, [], uniform, 1, 0));
 }
 function _M0FP36mizchi6kagura5scene12render__node(cmds, node, dst, shader, screen_w, screen_h, offset_x, offset_y) {
   let _tmp = cmds;
@@ -12322,7 +12475,7 @@ function _M0FP36mizchi6kagura5scene11run_2einner(view, update, on_frame, audio_c
       f(cmds, ctx.dst, ctx.shader, sw, sh);
     }
     return cmds;
-  }, undefined, audio_ctx, 735, width, height, title, canvas);
+  }, undefined, undefined, audio_ctx, 735, width, height, title, canvas);
 }
 function _M0IP26mizchi3svg14PaintOrderItemP311moonbitlang4core7builtin2Eq5equal(_x_5367, _x_5368) {
   switch (_x_5367) {
@@ -33670,12 +33823,12 @@ function _M0FP36mizchi6kagura4text15blit__to__atlas(atlas_pixels, atlas_width, s
   }
   const copy_width = src_x_end.val - src_x_start | 0;
   const row_copy_len = Math.imul(copy_width, 4) | 0;
-  const _start228 = src_y_start;
-  const _end229 = src_y_end.val;
-  let _tmp = _start228;
+  const _start248 = src_y_start;
+  const _end249 = src_y_end.val;
+  let _tmp = _start248;
   while (true) {
     const row = _tmp;
-    if (row < _end229) {
+    if (row < _end249) {
       const src_offset = Math.imul((Math.imul(row, src.width) | 0) + src_x_start | 0, 4) | 0;
       const dst_offset = Math.imul((Math.imul(dst_y + row | 0, atlas_width) | 0) + (dst_x + src_x_start | 0) | 0, 4) | 0;
       _M0MP311moonbitlang4core5array9ArrayView16blit__to_2einnerGiE(_M0MP311moonbitlang4core5array5Array12view_2einnerGiE(src.pixels, src_offset, src_offset + row_copy_len | 0), atlas_pixels, dst_offset);
@@ -33693,6 +33846,52 @@ function _M0MP36mizchi6kagura4text10GlyphAtlas3new(width, height, page_id) {
 }
 function _M0MP36mizchi6kagura4text22SimpleTextBatchBuilder3new(cache, pipeline_id) {
   return { cache: cache, pipeline_id: pipeline_id };
+}
+function _M0FP36mizchi6kagura4text41simple__text__batch__resource__cache__key(target, shader, pipeline_id, region, src_image_ids, vertex_data, indices) {
+  const values = [target.id, target.width, target.height, shader.id, pipeline_id, region.x, region.y, region.width, region.height, region.index_count, src_image_ids.length, vertex_data.length, indices.length];
+  const _arr = src_image_ids;
+  const _len = _arr.length;
+  let _tmp = 0;
+  while (true) {
+    const _i = _tmp;
+    if (_i < _len) {
+      const image_id = _arr[_i];
+      _M0MP311moonbitlang4core5array5Array4pushGiE(values, image_id);
+      _tmp = _i + 1 | 0;
+      continue;
+    } else {
+      break;
+    }
+  }
+  const _arr$2 = vertex_data;
+  const _len$2 = _arr$2.length;
+  let _tmp$2 = 0;
+  while (true) {
+    const _i = _tmp$2;
+    if (_i < _len$2) {
+      const v = _arr$2[_i];
+      _M0MP311moonbitlang4core5array5Array4pushGiE(values, _M0FP36mizchi6kagura3gfx21double__to__f32__bits(v));
+      _tmp$2 = _i + 1 | 0;
+      continue;
+    } else {
+      break;
+    }
+  }
+  const _arr$3 = indices;
+  const _len$3 = _arr$3.length;
+  let _tmp$3 = 0;
+  while (true) {
+    const _i = _tmp$3;
+    if (_i < _len$3) {
+      const index = _arr$3[_i];
+      _M0MP311moonbitlang4core5array5Array4pushGiE(values, index);
+      _tmp$3 = _i + 1 | 0;
+      continue;
+    } else {
+      break;
+    }
+  }
+  return _M0FP36mizchi6kagura3gfx27build__resource__cache__key(1413830740, values);
 }
 function _M0IP36mizchi6kagura4text22SimpleTextBatchBuilderP36mizchi6kagura4text16TextBatchBuilder21build__draw__commands(self, target, glyphs, shader) {
   if (glyphs.length === 0) {
@@ -33871,7 +34070,7 @@ function _M0IP36mizchi6kagura4text22SimpleTextBatchBuilderP36mizchi6kagura4text1
     const region_width = max_x.val - min_x.val | 0;
     const region_height = max_y.val - min_y.val | 0;
     const merged_region = _M0FP36mizchi6kagura3gfx16new__dst__region(min_x.val, min_y.val, region_width, region_height, index_offset.val);
-    _tmp$2 = [_M0FP36mizchi6kagura3gfx37new__draw__triangles__command_2einner(target, shader, [merged_region], 0, self.pipeline_id, 0, _M0FP36mizchi6kagura3gfx22blend__mode__from__int(1), command_vertex_data, command_indices, src_image_ids, [], 1)];
+    _tmp$2 = [_M0FP36mizchi6kagura3gfx37new__draw__triangles__command_2einner(target, shader, [merged_region], 0, self.pipeline_id, 0, _M0FP36mizchi6kagura3gfx22blend__mode__from__int(1), command_vertex_data, command_indices, src_image_ids, [], 1, _M0FP36mizchi6kagura4text41simple__text__batch__resource__cache__key(target, shader, self.pipeline_id, merged_region, src_image_ids, command_vertex_data, command_indices))];
   }
   return new Result$Ok$25$(_tmp$2);
 }
@@ -34361,12 +34560,12 @@ function _M0MP36mizchi6kagura4text12TextRenderer12render__text(self, text, size_
             }
             const evicted = _M0MP311moonbitlang4core5array5Array2atGRP36mizchi6kagura4text10GlyphAtlasE(self.pages, oldest_idx.val);
             _M0MP36mizchi6kagura4text10GlyphCache5clear(evicted.cache);
-            const _start152 = 0;
-            const _end153 = evicted.pixels.length;
-            let _tmp$4 = _start152;
+            const _start172 = 0;
+            const _end173 = evicted.pixels.length;
+            let _tmp$4 = _start172;
             while (true) {
               const j = _tmp$4;
-              if (j < _end153) {
+              if (j < _end173) {
                 _M0MP311moonbitlang4core5array5Array3setGiE(evicted.pixels, j, 0);
                 _tmp$4 = j + 1 | 0;
                 continue;
@@ -34460,7 +34659,7 @@ function _M0MP36mizchi6kagura4text12TextRenderer12render__text(self, text, size_
         const _i = _tmp$2;
         if (_i < _len$2) {
           const cmd = _arr$2[_i];
-          _M0MP311moonbitlang4core5array5Array4pushGRP36mizchi6kagura3gfx20DrawTrianglesCommandE(all_commands, _M0FP36mizchi6kagura3gfx37new__draw__triangles__command_2einner(cmd.dst, cmd.shader, cmd.dst_regions, cmd.index_offset, cmd.pipeline_id, cmd.uniform_hash, blend, cmd.vertex_data, cmd.indices, cmd.src_image_ids, uniform_dwords, 1));
+          _M0MP311moonbitlang4core5array5Array4pushGRP36mizchi6kagura3gfx20DrawTrianglesCommandE(all_commands, _M0FP36mizchi6kagura3gfx37new__draw__triangles__command_2einner(cmd.dst, cmd.shader, cmd.dst_regions, cmd.index_offset, cmd.pipeline_id, cmd.uniform_hash, blend, cmd.vertex_data, cmd.indices, cmd.src_image_ids, uniform_dwords, 1, 0));
           _tmp$2 = _i + 1 | 0;
           continue;
         } else {
@@ -34687,9 +34886,6 @@ function _M0MP36mizchi6kagura2ui14UIFocusManager11focus__prev(self) {
   const prev_idx = current <= 0 ? n - 1 | 0 : current - 1 | 0;
   return _M0MP36mizchi6kagura2ui14UIFocusManager5focus(self, _M0MP311moonbitlang4core5array5Array2atGRP36mizchi6kagura2ui8UINodeIdE(self.focusable_ids, prev_idx));
 }
-function _M0FP26mizchi22native__runtime__hooks20sync__source__images(bindings) {
-  return bindings.length;
-}
 function _M0FP26mizchi19web__runtime__hooks25mark__gpu__texture__dirty(image_id) {
   const _arr = _M0FP26mizchi19web__runtime__hooks19gpu__texture__dirty.val;
   const _len = _arr.length;
@@ -34805,12 +35001,12 @@ function _M0FP26mizchi19web__runtime__hooks27normalized__rgba8__channels(rgba8_c
   if (expected <= 0 || rgba8_channels.length < expected) {
     return out;
   } else {
-    const _start431 = 0;
-    const _end432 = expected;
-    let _tmp = _start431;
+    const _start432 = 0;
+    const _end433 = expected;
+    let _tmp = _start432;
     while (true) {
       const i = _tmp;
-      if (i < _end432) {
+      if (i < _end433) {
         _M0MP311moonbitlang4core5array5Array4pushGiE(out, _M0FP26mizchi19web__runtime__hooks18clamp__u8__channel(_M0MP311moonbitlang4core5array5Array2atGiE(rgba8_channels, i)));
         _tmp = i + 1 | 0;
         continue;
@@ -35837,7 +36033,6 @@ function _M0MP26mizchi11action__rpg13ShowcaseState17render__text__hud(self, cmds
         }
       }
       _M0FP26mizchi19web__runtime__hooks20sync__source__images(bindings);
-      _M0FP26mizchi22native__runtime__hooks20sync__source__images(bindings);
     }
     const _arr = all_text_cmds;
     const _len = _arr.length;
@@ -35879,7 +36074,6 @@ function _M0MP26mizchi11action__rpg13ShowcaseState17render__text__hud(self, cmds
       }
       const binding = _M0FP36mizchi6kagura5asset27new__source__image__binding(self.svg_icon_image_id, 16, 16, 1, _M0FP36mizchi6kagura5asset31new__source__image__dirty__rect(0, 0, 16, 16), _M0FP36mizchi6kagura14image__palette28checker__palette__from__seed(self.svg_icon_image_id), pixels);
       _M0FP26mizchi19web__runtime__hooks20sync__source__images([binding]);
-      _M0FP26mizchi22native__runtime__hooks20sync__source__images([binding]);
     }
   }
   if (self.svg_icon_loaded && (self.mode === _M0FP26mizchi11action__rpg13mode__playing || self.mode === _M0FP26mizchi11action__rpg12mode__paused)) {
@@ -35889,7 +36083,7 @@ function _M0MP26mizchi11action__rpg13ShowcaseState17render__text__hud(self, cmds
     const svg_vertex_data = [icon_x, icon_y, 0, 0, icon_x + icon_size, icon_y, 1, 0, icon_x + icon_size, icon_y + icon_size, 1, 1, icon_x, icon_y + icon_size, 0, 1];
     const svg_indices = [0, 1, 2, 2, 3, 0];
     const svg_dst_region = _M0FP36mizchi6kagura3gfx16new__dst__region(_M0MP311moonbitlang4core6double6Double7to__int(icon_x), _M0MP311moonbitlang4core6double6Double7to__int(icon_y), _M0MP311moonbitlang4core6double6Double7to__int(icon_size), _M0MP311moonbitlang4core6double6Double7to__int(icon_size), 6);
-    _M0MP311moonbitlang4core5array5Array4pushGRP36mizchi6kagura3gfx20DrawTrianglesCommandE(cmds, _M0FP36mizchi6kagura3gfx37new__draw__triangles__command_2einner(dst, shader, [svg_dst_region], 0, 0, 0, blend, svg_vertex_data, svg_indices, [self.svg_icon_image_id], [255, 255, 255, 255], 1));
+    _M0MP311moonbitlang4core5array5Array4pushGRP36mizchi6kagura3gfx20DrawTrianglesCommandE(cmds, _M0FP36mizchi6kagura3gfx37new__draw__triangles__command_2einner(dst, shader, [svg_dst_region], 0, 0, 0, blend, svg_vertex_data, svg_indices, [self.svg_icon_image_id], [255, 255, 255, 255], 1, 0));
     return;
   } else {
     return;

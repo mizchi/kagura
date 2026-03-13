@@ -1,22 +1,36 @@
 import { initWebGPU, setupGlobalState, loadFonts, loadGameScript, showStartupError } from "../lib/kagura-init.js";
 import { installAudioHelpers } from "../lib/kagura-audio.js";
 import { installGfxHelpers } from "../lib/kagura-gfx.js";
+
 async function init() {
   const result = await initWebGPU("#app");
   if (!result) {
-    showStartupError("#app", "WebGPU initialization failed", "Use a WebGPU-capable browser.");
+    showStartupError(
+      "#app",
+      "WebGPU only demo",
+      "Kagura browser demos currently require WebGPU.",
+    );
     return;
   }
   setupGlobalState(result.canvas, result.device, result.format, result.context);
   installAudioHelpers();
   installGfxHelpers();
-  await loadFonts([["assets/Tiny5-Regular.ttf", "./assets/Tiny5-Regular.ttf"]]);
+  await loadFonts([["assets/Tiny5-Regular.ttf","./assets/Tiny5-Regular.ttf"]]);
   try {
-    await loadGameScript("./action_rpg.js?v=3ee2f9c");
+    await loadGameScript("./action_rpg.js?v=8a0250f");
   } catch (e) {
-    showStartupError("#app", "Failed to load game script", e && e.message ? e.message : String(e));
+    showStartupError(
+      "#app",
+      "Failed to load game script",
+      e && e.message ? e.message : String(e),
+    );
   }
 }
+
 init().catch((e) => {
-  showStartupError("#app", "Unexpected runtime error", e && e.message ? e.message : String(e));
+  showStartupError(
+    "#app",
+    "Unexpected runtime error",
+    e && e.message ? e.message : String(e),
+  );
 });

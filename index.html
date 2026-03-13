@@ -2,73 +2,388 @@
 <html lang="en">
   <head>
     <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover" />
     <title>Kagura Examples</title>
     <style>
-      body {
-        font-family: system-ui, sans-serif;
-        max-width: 640px;
-        margin: 2rem auto;
-        padding: 0 1rem;
-        color: #e0e0e0;
-        background: #1a1a2e;
+      :root {
+        color-scheme: dark;
+        --bg: #08101a;
+        --panel: rgba(10, 16, 28, 0.88);
+        --panel-border: rgba(128, 156, 196, 0.22);
+        --muted: #9fb0c7;
+        --text: #eef4ff;
+        --accent: #79d4ff;
+        --accent-strong: #ffe082;
       }
-      h1 { color: #fff; }
-      a {
-        color: #7ecfff;
+      * {
+        box-sizing: border-box;
+      }
+      body {
+        margin: 0;
+        min-height: 100svh;
+        font-family: system-ui, sans-serif;
+        color: var(--text);
+        background:
+          radial-gradient(circle at top, rgba(73, 122, 183, 0.26), transparent 34rem),
+          linear-gradient(180deg, #0d1524 0%, var(--bg) 100%);
+      }
+      .page {
+        width: min(100%, 80rem);
+        margin: 0 auto;
+        padding: 1rem;
+        display: flex;
+        flex-direction: column;
+        gap: 1rem;
+      }
+      .hero,
+      .card,
+      .notice {
+        background: var(--panel);
+        border: 1px solid var(--panel-border);
+        border-radius: 1.25rem;
+        box-shadow: 0 1rem 3rem rgba(0, 0, 0, 0.25);
+      }
+      .hero,
+      .notice {
+        padding: 1rem;
+      }
+      .hero {
+        display: flex;
+        flex-direction: column;
+        gap: 0.75rem;
+      }
+      .hero-top {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        gap: 0.75rem;
+        flex-wrap: wrap;
+      }
+      h1,
+      h2,
+      h3,
+      p {
+        margin: 0;
+      }
+      .muted {
+        color: var(--muted);
+        line-height: 1.6;
+      }
+      .badge {
+        display: inline-flex;
+        align-items: center;
+        gap: 0.4rem;
+        width: fit-content;
+        padding: 0.35rem 0.7rem;
+        border-radius: 999px;
+        font-size: 0.85rem;
+        font-weight: 700;
+        color: #06111d;
+        background: linear-gradient(135deg, var(--accent) 0%, #c9fbff 100%);
+      }
+      .group {
+        display: flex;
+        flex-direction: column;
+        gap: 0.75rem;
+      }
+      .grid {
+        display: grid;
+        grid-template-columns: repeat(auto-fit, minmax(15rem, 1fr));
+        gap: 1rem;
+      }
+      .card {
+        padding: 1rem;
+        display: flex;
+        flex-direction: column;
+        gap: 0.6rem;
+      }
+      .card a {
+        color: inherit;
         text-decoration: none;
       }
-      a:hover { text-decoration: underline; }
-      ul { list-style: none; padding: 0; }
-      li {
-        padding: 0.75rem 1rem;
-        margin: 0.5rem 0;
-        background: #16213e;
-        border-radius: 8px;
+      .card a:hover h3 {
+        text-decoration: underline;
       }
-      .note {
-        margin-top: 2rem;
-        padding: 1rem;
-        background: #0f3460;
-        border-radius: 8px;
-        font-size: 0.9rem;
+      .tag-list {
+        list-style: none;
+        margin: 0;
+        padding: 0;
+        display: flex;
+        flex-wrap: wrap;
+        gap: 0.5rem;
+      }
+      .tag-list li {
+        padding: 0.25rem 0.6rem;
+        border-radius: 999px;
+        background: rgba(121, 212, 255, 0.12);
+        border: 1px solid rgba(121, 212, 255, 0.24);
+        color: #d7f5ff;
+        font-size: 0.82rem;
+      }
+      .card strong {
+        color: var(--accent-strong);
+      }
+      .group-head {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        gap: 0.75rem;
+        flex-wrap: wrap;
+      }
+      @media (max-width: 520px) {
+        .page {
+          padding: 0.75rem;
+        }
+        .hero,
+        .card,
+        .notice {
+          border-radius: 1rem;
+        }
       }
     </style>
   </head>
   <body>
-    <h1>Kagura Examples</h1>
-    <p>2D/3D game engine for MoonBit. These demos require a WebGPU-capable browser (Chrome 113+, Edge 113+).</p>
-    <h2>Games</h2>
-    <ul>
-      <li><a href="./flappy_bird/">Flappy Bird</a></li>
-      <li><a href="./survivor/">Survivor</a></li>
-      <li><a href="./action_rpg/">Action RPG</a></li>
-      <li><a href="./hacknslash/">Hack &amp; Slash</a></li>
-      <li><a href="./hacknslash_3d/">Hack &amp; Slash 3D</a> &mdash; 3D isometric view</li>
-    </ul>
-    <h2>3D Rendering</h2>
-    <ul>
-      <li><a href="./arena3d/">Arena 3D</a> — Scene graph + GPU Z-buffer</li>
-      <li><a href="./shadow3d_demo/">Shadow 3D</a> — Depth-based shadow mapping</li>
-      <li><a href="./postfx_demo/">Post Effects</a> — Bloom, tone mapping, FXAA</li>
-      <li><a href="./skeletal_anim/">Skeletal Animation</a> — GPU skinning</li>
-      <li><a href="./obj_viewer/">OBJ Viewer</a></li>
-      <li><a href="./particle_demo/">Particle System</a> — Billboard particles, additive blending</li>
-    </ul>
-    <h2>Physics</h2>
-    <ul>
-      <li><a href="./physics3d_demo/">Physics 3D</a> — Rigid body, gravity, collision</li>
-      <li><a href="./physics2d_demo/">Physics 2D</a> — Circle/AABB/OBB, joints</li>
-      <li><a href="./ragdoll_demo/">Ragdoll</a> — Revolute joint physics</li>
-      <li><a href="./collision3d_demo/">Collision 3D</a> — AABB/Sphere/Ray</li>
-    </ul>
-    <h2>2D / UI</h2>
-    <ul>
-      <li><a href="./scene_demo/">Scene Demo</a> — Minimal declarative API</li>
-      <li><a href="./fps_demo/">FPS Demo</a></li>
-      <li><a href="./ui_demo/">UI Demo</a></li>
-    </ul>
-    <div class="note">
-      Source: <a href="https://github.com/mizchi/kagura">github.com/mizchi/kagura</a>
+    <div class="page">
+      <header class="hero">
+        <div class="hero-top">
+          <h1>Kagura Examples</h1>
+          <span class="badge">WebGPU only</span>
+        </div>
+        <p class="muted">
+          Interactive examples for Kagura, a MoonBit game engine. Open any card below to launch the demo, review controls, and jump to source.
+        </p>
+      </header>
+
+      <section class="notice">
+        <p class="muted">
+          Browser demos currently require WebGPU. Recent desktop Chrome or Edge is recommended. On phones, open the page in portrait and use the built-in control notes before interacting.
+        </p>
+      </section>
+
+      <section class="group">
+        <div class="group-head">
+          <h2>Games</h2>
+        </div>
+        <div class="grid">
+          <article class="card">
+            <a href="./flappy_bird/">
+              <h3>Flappy Bird</h3>
+            </a>
+            <p class="muted">One-button 2D game loop demo.</p>
+            <p class="muted"><strong>Start:</strong> Tap the canvas or press Space to start.</p>
+            <p class="muted"><strong>Controls:</strong> Tap / Space: flap</p>
+            <ul class="tag-list"><li>2D</li><li>Scene API</li></ul>
+          </article>
+          <article class="card">
+            <a href="./survivor/">
+              <h3>Survivor</h3>
+            </a>
+            <p class="muted">Auto-attack survival prototype with leveling.</p>
+            <p class="muted"><strong>Start:</strong> Press Space to start, then keep moving.</p>
+            <p class="muted"><strong>Controls:</strong> WASD / Arrow: move</p>
+            <ul class="tag-list"><li>2D</li><li>Camera</li><li>Leveling</li></ul>
+          </article>
+          <article class="card">
+            <a href="./action_rpg/">
+              <h3>Action RPG</h3>
+            </a>
+            <p class="muted">Tilemap, AI, audio, and UI showcase.</p>
+            <p class="muted"><strong>Start:</strong> Press Space to enter the dungeon.</p>
+            <p class="muted"><strong>Controls:</strong> WASD / Arrow: move</p>
+            <ul class="tag-list"><li>2D</li><li>AI</li><li>UI</li></ul>
+          </article>
+          <article class="card">
+            <a href="./hacknslash/">
+              <h3>Hack &amp; Slash</h3>
+            </a>
+            <p class="muted">Compact 2D action prototype.</p>
+            <p class="muted"><strong>Start:</strong> Press Space to start.</p>
+            <p class="muted"><strong>Controls:</strong> WASD / Arrow: move</p>
+            <ul class="tag-list"><li>2D</li><li>Combat</li></ul>
+          </article>
+          <article class="card">
+            <a href="./hacknslash_3d/">
+              <h3>Hack &amp; Slash 3D</h3>
+            </a>
+            <p class="muted">3D action prototype with RPG overlays.</p>
+            <p class="muted"><strong>Start:</strong> Press Space to begin, then move into combat.</p>
+            <p class="muted"><strong>Controls:</strong> WASD / Arrow: move</p>
+            <ul class="tag-list"><li>3D</li><li>Combat</li><li>RPG</li></ul>
+          </article>
+        </div>
+      </section>
+      <section class="group">
+        <div class="group-head">
+          <h2>2D / UI</h2>
+        </div>
+        <div class="grid">
+          <article class="card">
+            <a href="./scene_demo/">
+              <h3>Scene Demo</h3>
+            </a>
+            <p class="muted">Minimal declarative Scene API example.</p>
+            <p class="muted"><strong>Start:</strong> Open the page and move the square.</p>
+            <p class="muted"><strong>Controls:</strong> WASD / Arrow: move</p>
+            <ul class="tag-list"><li>2D</li><li>Scene API</li></ul>
+          </article>
+          <article class="card">
+            <a href="./ui_demo/">
+              <h3>UI Demo</h3>
+            </a>
+            <p class="muted">Focus handling and layout interactions.</p>
+            <p class="muted"><strong>Start:</strong> Use keyboard or mouse to move focus.</p>
+            <p class="muted"><strong>Controls:</strong> Tab / Shift+Tab: move focus</p>
+            <ul class="tag-list"><li>UI</li><li>Focus</li></ul>
+          </article>
+          <article class="card">
+            <a href="./fetch_image/">
+              <h3>Fetch Image</h3>
+            </a>
+            <p class="muted">Asset loading demo that fetches and renders an image.</p>
+            <p class="muted"><strong>Start:</strong> Loads automatically on open.</p>
+            <p class="muted"><strong>Controls:</strong> No input required</p>
+            <ul class="tag-list"><li>Asset</li><li>Image</li></ul>
+          </article>
+        </div>
+      </section>
+      <section class="group">
+        <div class="group-head">
+          <h2>3D Rendering</h2>
+        </div>
+        <div class="grid">
+          <article class="card">
+            <a href="./arena3d/">
+              <h3>Arena 3D</h3>
+            </a>
+            <p class="muted">3D arena prototype using the low-level renderer.</p>
+            <p class="muted"><strong>Start:</strong> Opens directly into the scene.</p>
+            <p class="muted"><strong>Controls:</strong> Watch the scene render</p>
+            <ul class="tag-list"><li>3D</li><li>Renderer</li></ul>
+          </article>
+          <article class="card">
+            <a href="./fps_demo/">
+              <h3>FPS Demo</h3>
+            </a>
+            <p class="muted">First-person movement and shooting demo.</p>
+            <p class="muted"><strong>Start:</strong> Move immediately after load.</p>
+            <p class="muted"><strong>Controls:</strong> WASD: move</p>
+            <ul class="tag-list"><li>3D</li><li>FPS</li></ul>
+          </article>
+          <article class="card">
+            <a href="./obj_viewer/">
+              <h3>OBJ Viewer</h3>
+            </a>
+            <p class="muted">Interactive OBJ mesh viewer.</p>
+            <p class="muted"><strong>Start:</strong> Drag the model to inspect it.</p>
+            <p class="muted"><strong>Controls:</strong> Left drag: orbit camera</p>
+            <ul class="tag-list"><li>3D</li><li>Asset</li></ul>
+          </article>
+          <article class="card">
+            <a href="./gltf_viewer/">
+              <h3>glTF Viewer</h3>
+            </a>
+            <p class="muted">Interactive glTF / GLB viewer.</p>
+            <p class="muted"><strong>Start:</strong> Drag the scene or zoom in.</p>
+            <p class="muted"><strong>Controls:</strong> Left drag: orbit camera</p>
+            <ul class="tag-list"><li>3D</li><li>Asset</li></ul>
+          </article>
+          <article class="card">
+            <a href="./particle_demo/">
+              <h3>Particle System</h3>
+            </a>
+            <p class="muted">Billboard particle rendering showcase.</p>
+            <p class="muted"><strong>Start:</strong> Orbit around the particles for a closer look.</p>
+            <p class="muted"><strong>Controls:</strong> Left drag: orbit camera</p>
+            <ul class="tag-list"><li>3D</li><li>Particles</li></ul>
+          </article>
+          <article class="card">
+            <a href="./shadow3d_demo/">
+              <h3>Shadow 3D</h3>
+            </a>
+            <p class="muted">Depth-based shadow mapping demo.</p>
+            <p class="muted"><strong>Start:</strong> Loads directly into the scene.</p>
+            <p class="muted"><strong>Controls:</strong> Automatic camera motion</p>
+            <ul class="tag-list"><li>3D</li><li>Shadow</li></ul>
+          </article>
+          <article class="card">
+            <a href="./postfx_demo/">
+              <h3>Post Effects</h3>
+            </a>
+            <p class="muted">Bloom, tone mapping, and FXAA post-processing demo.</p>
+            <p class="muted"><strong>Start:</strong> Loads directly into the scene.</p>
+            <p class="muted"><strong>Controls:</strong> Automatic camera motion</p>
+            <ul class="tag-list"><li>3D</li><li>PostFX</li></ul>
+          </article>
+          <article class="card">
+            <a href="./skeletal_anim/">
+              <h3>Skeletal Animation</h3>
+            </a>
+            <p class="muted">GPU skinning and animated character demo.</p>
+            <p class="muted"><strong>Start:</strong> Loads directly into the scene.</p>
+            <p class="muted"><strong>Controls:</strong> Automatic camera motion</p>
+            <ul class="tag-list"><li>3D</li><li>Animation</li></ul>
+          </article>
+        </div>
+      </section>
+      <section class="group">
+        <div class="group-head">
+          <h2>Physics</h2>
+        </div>
+        <div class="grid">
+          <article class="card">
+            <a href="./physics3d_demo/">
+              <h3>Physics 3D</h3>
+            </a>
+            <p class="muted">Rigid body and collision demo in 3D.</p>
+            <p class="muted"><strong>Start:</strong> Loads directly into the scene.</p>
+            <p class="muted"><strong>Controls:</strong> Automatic camera motion</p>
+            <ul class="tag-list"><li>Physics</li><li>3D</li></ul>
+          </article>
+          <article class="card">
+            <a href="./physics2d_demo/">
+              <h3>Physics 2D</h3>
+            </a>
+            <p class="muted">2D body spawning and collision sandbox.</p>
+            <p class="muted"><strong>Start:</strong> Click the stage to spawn bodies.</p>
+            <p class="muted"><strong>Controls:</strong> Click: spawn a new body</p>
+            <ul class="tag-list"><li>Physics</li><li>2D</li></ul>
+          </article>
+          <article class="card">
+            <a href="./ragdoll_demo/">
+              <h3>Ragdoll</h3>
+            </a>
+            <p class="muted">Drag-and-drop ragdoll interaction demo.</p>
+            <p class="muted"><strong>Start:</strong> Grab a body part with the mouse.</p>
+            <p class="muted"><strong>Controls:</strong> Click and drag: pull the ragdoll</p>
+            <ul class="tag-list"><li>Physics</li><li>2D</li></ul>
+          </article>
+          <article class="card">
+            <a href="./collision3d_demo/">
+              <h3>Collision 3D</h3>
+            </a>
+            <p class="muted">Raycast and collision query viewer.</p>
+            <p class="muted"><strong>Start:</strong> Move through the scene and watch hits update.</p>
+            <p class="muted"><strong>Controls:</strong> WASD: move</p>
+            <ul class="tag-list"><li>Physics</li><li>3D</li></ul>
+          </article>
+        </div>
+      </section>
+      <section class="group">
+        <div class="group-head">
+          <h2>Tools</h2>
+        </div>
+        <div class="grid">
+          <article class="card">
+            <a href="./effect_studio/">
+              <h3>Effect Studio</h3>
+            </a>
+            <p class="muted">AI-first timeline effect editor with particle preview and timeline feedback.</p>
+            <p class="muted"><strong>Start:</strong> Orbit the preview, scrub the timeline, and inspect the published AI editing context in the browser console.</p>
+            <p class="muted"><strong>Controls:</strong> Left drag: orbit camera</p>
+            <ul class="tag-list"><li>3D</li><li>Particles</li><li>Timeline</li><li>AI</li></ul>
+          </article>
+        </div>
+      </section>
     </div>
   </body>
 </html>

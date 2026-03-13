@@ -2,24 +2,236 @@
 <html lang="en">
   <head>
     <meta charset="utf-8" />
-    <title>particle demo - Kagura</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover" />
+    <title>Particle System - Kagura</title>
     <style>
+      :root {
+        color-scheme: dark;
+        --bg: #08101a;
+        --panel: rgba(10, 16, 28, 0.88);
+        --panel-border: rgba(128, 156, 196, 0.22);
+        --muted: #9fb0c7;
+        --text: #eef4ff;
+        --accent: #79d4ff;
+        --accent-strong: #ffe082;
+      }
+      * {
+        box-sizing: border-box;
+      }
       body {
         margin: 0;
-        background: #000;
+        min-height: 100svh;
+        font-family: system-ui, sans-serif;
+        color: var(--text);
+        background:
+          radial-gradient(circle at top, rgba(73, 122, 183, 0.24), transparent 34rem),
+          linear-gradient(180deg, #0d1524 0%, var(--bg) 100%);
+      }
+      a {
+        color: inherit;
+      }
+      .page {
+        width: min(100%, 72rem);
+        margin: 0 auto;
+        padding: 1rem;
+        display: flex;
+        flex-direction: column;
+        gap: 1rem;
+      }
+      .hero,
+      .stage-panel,
+      .card {
+        background: var(--panel);
+        border: 1px solid var(--panel-border);
+        border-radius: 1.25rem;
+        box-shadow: 0 1rem 3rem rgba(0, 0, 0, 0.25);
+      }
+      .hero {
+        padding: 1rem;
+        display: flex;
+        flex-direction: column;
+        gap: 0.75rem;
+      }
+      .hero-top {
+        display: flex;
+        justify-content: space-between;
+        gap: 0.75rem;
+        align-items: center;
+        flex-wrap: wrap;
+      }
+      .hero-links {
+        display: flex;
+        gap: 0.75rem;
+        flex-wrap: wrap;
+      }
+      .hero-link,
+      .hero-link:visited {
+        text-decoration: none;
+        color: var(--accent);
+        font-weight: 600;
+      }
+      .hero-link:hover {
+        text-decoration: underline;
+      }
+      .badge {
+        display: inline-flex;
+        align-items: center;
+        gap: 0.4rem;
+        width: fit-content;
+        padding: 0.35rem 0.7rem;
+        border-radius: 999px;
+        font-size: 0.85rem;
+        font-weight: 700;
+        color: #06111d;
+        background: linear-gradient(135deg, var(--accent) 0%, #c9fbff 100%);
+      }
+      h1,
+      h2,
+      p {
+        margin: 0;
+      }
+      .hero p,
+      .card p,
+      .support-copy {
+        color: var(--muted);
+        line-height: 1.55;
+      }
+      .tag-list {
+        list-style: none;
+        margin: 0;
+        padding: 0;
+        display: flex;
+        flex-wrap: wrap;
+        gap: 0.5rem;
+      }
+      .tag-list li {
+        padding: 0.25rem 0.6rem;
+        border-radius: 999px;
+        background: rgba(121, 212, 255, 0.12);
+        border: 1px solid rgba(121, 212, 255, 0.24);
+        color: #d7f5ff;
+        font-size: 0.82rem;
+      }
+      .content {
+        display: grid;
+        grid-template-columns: minmax(0, 1.2fr) minmax(18rem, 0.8fr);
+        gap: 1rem;
+        align-items: start;
+      }
+      .stage-panel {
+        padding: 1rem;
+        display: flex;
+        flex-direction: column;
+        gap: 0.75rem;
+      }
+      .stage-shell {
+        border-radius: 1rem;
+        background: #02060d;
+        border: 1px solid rgba(255, 255, 255, 0.08);
+        padding: 0.75rem;
         display: flex;
         justify-content: center;
-        align-items: center;
-        height: 100vh;
       }
-      #app {
-        border: 1px solid #444;
+      .stage-canvas {
+        display: block;
+        width: min(100%, 28rem);
+        height: auto;
+        aspect-ratio: 4 / 3;
+        max-height: 62svh;
+        border: 1px solid rgba(255, 255, 255, 0.12);
+        background: #000;
+        image-rendering: pixelated;
+      }
+      .side {
+        display: grid;
+        gap: 1rem;
+      }
+      .card {
+        padding: 1rem;
+        display: flex;
+        flex-direction: column;
+        gap: 0.6rem;
+      }
+      .card ul {
+        margin: 0;
+        padding-left: 1.1rem;
+        color: var(--text);
+      }
+      .card li + li {
+        margin-top: 0.35rem;
+      }
+      .card strong {
+        color: var(--accent-strong);
+      }
+      @media (max-width: 860px) {
+        .content {
+          grid-template-columns: 1fr;
+        }
+      }
+      @media (max-width: 520px) {
+        .page {
+          padding: 0.75rem;
+        }
+        .hero,
+        .stage-panel,
+        .card {
+          border-radius: 1rem;
+        }
+        .stage-panel {
+          padding: 0.75rem;
+        }
+        .stage-shell {
+          padding: 0.5rem;
+        }
+        .stage-canvas {
+          width: 100%;
+        }
       }
     </style>
   </head>
   <body>
-    <canvas id="app" width="320" height="240"
-      style="width: 640px; height: 480px; image-rendering: pixelated"></canvas>
-    <script type="module" src="./loader.js?v=3ee2f9c"></script>
+    <div class="page">
+      <header class="hero">
+        <div class="hero-top">
+          <div class="hero-links">
+            <a class="hero-link" href="../">Gallery</a>
+            <a class="hero-link" href="https://github.com/mizchi/kagura/blob/main/examples/particle_demo/src/game.mbt">Source</a>
+          </div>
+          <span class="badge">WebGPU only</span>
+        </div>
+        <h1>Particle System</h1>
+        <p>Billboard particle rendering showcase.</p>
+        <ul class="tag-list"><li>3D</li><li>Particles</li></ul>
+      </header>
+
+      <main class="content">
+        <section class="stage-panel">
+          <div class="stage-shell">
+            <canvas id="app" class="stage-canvas" width="320" height="240"></canvas>
+          </div>
+          <p class="support-copy">
+            <strong>Start:</strong> Orbit around the particles for a closer look.
+          </p>
+          <p class="support-copy">
+            Browser demos currently target WebGPU only. Recent desktop Chrome or Edge is the safest path.
+          </p>
+        </section>
+
+        <aside class="side">
+          <section class="card">
+            <h2>Controls</h2>
+            <ul><li>Left drag: orbit camera</li><li>Wheel: zoom</li></ul>
+          </section>
+          <section class="card">
+            <h2>Source</h2>
+            <p>examples/particle_demo/src/game.mbt</p>
+            <p>
+              Open the source if you want to map the controls directly to the implementation.
+            </p>
+          </section>
+        </aside>
+      </main>
+    </div>
+    <script type="module" src="./loader.js?v=8a0250f"></script>
   </body>
 </html>

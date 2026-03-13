@@ -257,6 +257,9 @@ const _M0FP26mizchi19web__runtime__hooks20js__prepare__surface = (selector, fall
    if (canvas.__kaguraSurfaceId == null) {
      canvas.__kaguraSurfaceId = state.nextSurfaceId++;
    }
+   if ((Number(canvas.tabIndex ?? -1) | 0) < 0) {
+     canvas.tabIndex = 0;
+   }
    state.canvas = canvas;
    state.surfaceId = Number(canvas.__kaguraSurfaceId) | 0;
    state.width = pixelWidth;
@@ -301,7 +304,7 @@ const _M0FP26mizchi19web__runtime__hooks25js__ensure__window__state = (selector)
        vsyncEnabled: true,
        attentionRequests: 0,
        interactionHooksInstalled: false,
-       webgpu: { context: null, device: null, format: "bgra8unorm", pending: null, _pipeline: null, _pipelineFormat: "", _uniformBGL: null, _texBGL: null, _defaultTexture: null, _defaultTexView: null, _defaultSampler: null, _drawResourceCache: null, _currentDraw: null, _pendingTexture: null, presentScheduled: false, clear: [0, 0, 0, 1], commands: [], textures: null, lastError: "" },
+       webgpu: { context: null, device: null, format: "bgra8unorm", pending: null, _pipeline: null, _pipelineFormat: "", _configuredFormat: "", _uniformBGL: null, _texBGL: null, _defaultTexture: null, _defaultTexView: null, _defaultSampler: null, _drawResourceCache: null, _currentDraw: null, _pendingTexture: null, presentScheduled: false, clear: [0, 0, 0, 1], commands: [], textures: null, lastError: "" },
      });
      if (typeof nextSelector === "string" && nextSelector.length > 0) {
        state.selector = nextSelector;
@@ -322,12 +325,13 @@ const _M0FP26mizchi19web__runtime__hooks25js__ensure__window__state = (selector)
      if (!Array.isArray(state.testGamepads)) state.testGamepads = [];
      if (state.inputHooksInstalled == null) state.inputHooksInstalled = false;
      if (state.webgpu == null) {
-       state.webgpu = { context: null, device: null, format: "bgra8unorm", pending: null, _pipeline: null, _pipelineFormat: "", _uniformBGL: null, _texBGL: null, _defaultTexture: null, _defaultTexView: null, _defaultSampler: null, _drawResourceCache: null, _currentDraw: null, _pendingTexture: null, presentScheduled: false, clear: [0, 0, 0, 1], commands: [], textures: null, lastError: "" };
+       state.webgpu = { context: null, device: null, format: "bgra8unorm", pending: null, _pipeline: null, _pipelineFormat: "", _configuredFormat: "", _uniformBGL: null, _texBGL: null, _defaultTexture: null, _defaultTexView: null, _defaultSampler: null, _drawResourceCache: null, _currentDraw: null, _pendingTexture: null, presentScheduled: false, clear: [0, 0, 0, 1], commands: [], textures: null, lastError: "" };
      } else {
        if (!Array.isArray(state.webgpu.clear)) state.webgpu.clear = [0, 0, 0, 1];
        if (!Array.isArray(state.webgpu.commands)) state.webgpu.commands = [];
        if (state.webgpu._pipeline == null) state.webgpu._pipeline = null;
        if (typeof state.webgpu._pipelineFormat !== "string") state.webgpu._pipelineFormat = "";
+       if (typeof state.webgpu._configuredFormat !== "string") state.webgpu._configuredFormat = "";
        if (state.webgpu._uniformBGL == null) state.webgpu._uniformBGL = null;
        if (state.webgpu._texBGL == null) state.webgpu._texBGL = null;
        if (state.webgpu._defaultTexture == null) state.webgpu._defaultTexture = null;
@@ -385,6 +389,32 @@ const _M0FP26mizchi19web__runtime__hooks25js__ensure__window__state = (selector)
            if (event == null) return 0;
            const raw = Number(event.keyCode ?? event.which ?? 0) | 0;
            return raw > 0 ? raw : 0;
+         };
+         const eventTargetsCanvas = (current, event) => {
+           const canvas = current?.canvas;
+           const target = event?.target;
+           if (canvas == null || target == null) return false;
+           return target === canvas || (typeof canvas.contains === "function" && canvas.contains(target));
+         };
+         const focusCanvas = (current) => {
+           const canvas = current?.canvas;
+           if (canvas == null || typeof canvas.focus !== "function") return;
+           if ((Number(canvas.tabIndex ?? -1) | 0) < 0) {
+             canvas.tabIndex = 0;
+           }
+           try {
+             canvas.focus({ preventScroll: true });
+           } catch (_) {
+             try { canvas.focus(); } catch (_focusError) {}
+           }
+         };
+         const isCanvasFocused = (current, documentRef) => {
+           return current?.canvas != null && documentRef?.activeElement === current.canvas;
+         };
+         const shouldPreventCanvasScroll = (current, documentRef, event) => {
+           const key = normalizeKeyCode(event);
+           return isCanvasFocused(current, documentRef) &&
+             (key === 32 || key === 33 || key === 34 || key === 35 || key === 36 || key === 37 || key === 38 || key === 39 || key === 40);
          };
          const addPressedKey = (current, key) => {
            if (key <= 0) return;
@@ -479,6 +509,9 @@ const _M0FP26mizchi19web__runtime__hooks25js__ensure__window__state = (selector)
          doc.addEventListener("mousedown", (event) => {
            const current = root.__kaguraWebRuntime;
            if (current == null) return;
+           if (eventTargetsCanvas(current, event)) {
+             focusCanvas(current);
+           }
            updateCursor(current, event);
            addPressedMouseButton(current, normalizeMouseButton(event));
          });
@@ -499,6 +532,9 @@ const _M0FP26mizchi19web__runtime__hooks25js__ensure__window__state = (selector)
          doc.addEventListener("touchstart", (event) => {
            const current = root.__kaguraWebRuntime;
            if (current == null) return;
+           if (eventTargetsCanvas(current, event)) {
+             focusCanvas(current);
+           }
            syncTouches(current, event);
          }, { passive: true });
          doc.addEventListener("touchmove", (event) => {
@@ -521,6 +557,9 @@ const _M0FP26mizchi19web__runtime__hooks25js__ensure__window__state = (selector)
            targetWindow.addEventListener("keydown", (event) => {
              const current = root.__kaguraWebRuntime;
              if (current == null) return;
+             if (shouldPreventCanvasScroll(current, doc, event) && typeof event.preventDefault === "function") {
+               event.preventDefault();
+             }
              addPressedKey(current, normalizeKeyCode(event));
            });
            targetWindow.addEventListener("keyup", (event) => {
@@ -978,7 +1017,7 @@ const _M0FP26mizchi19web__runtime__hooks27js__try__initialize__webgpu = (selecto
      width: fallbackWidth,
      height: fallbackHeight,
      dpr: 1,
-     webgpu: { context: null, device: null, format: "bgra8unorm", pending: null, _pipeline: null, _pipelineFormat: "", _uniformBGL: null, _texBGL: null, _defaultTexture: null, _defaultTexView: null, _defaultSampler: null, _drawResourceCache: null, _currentDraw: null, _pendingTexture: null, presentScheduled: false, clear: [0, 0, 0, 1], commands: [], textures: null, lastError: "" },
+     webgpu: { context: null, device: null, format: "bgra8unorm", pending: null, _pipeline: null, _pipelineFormat: "", _configuredFormat: "", _uniformBGL: null, _texBGL: null, _defaultTexture: null, _defaultTexView: null, _defaultSampler: null, _drawResourceCache: null, _currentDraw: null, _pendingTexture: null, presentScheduled: false, clear: [0, 0, 0, 1], commands: [], textures: null, lastError: "" },
    });
    state.selector = selector;
    const doc = typeof document === "undefined" ? null : document;
@@ -1029,7 +1068,21 @@ const _M0FP26mizchi19web__runtime__hooks27js__try__initialize__webgpu = (selecto
    }
    if (state.webgpu.pending == null) {
      state.webgpu.pending = nav.gpu.requestAdapter()
-       .then((adapter) => adapter == null ? null : adapter.requestDevice())
+       .then((adapter) => {
+         if (adapter == null) return null;
+         const supportsTimestampQuery = adapter.features != null &&
+           typeof adapter.features.has === "function" &&
+           adapter.features.has("timestamp-query");
+         const requestOptions = supportsTimestampQuery
+           ? { requiredFeatures: ["timestamp-query"] }
+           : undefined;
+         return adapter.requestDevice(requestOptions).then((device) => {
+           if (device != null) {
+             device.__kaguraTimestampQueryEnabled = supportsTimestampQuery;
+           }
+           return device;
+         });
+       })
        .then((device) => {
          if (device == null) return;
          const format = typeof nav.gpu.getPreferredCanvasFormat === "function"
@@ -1039,12 +1092,14 @@ const _M0FP26mizchi19web__runtime__hooks27js__try__initialize__webgpu = (selecto
          state.webgpu.device = device;
          state.webgpu._pipeline = null;
          state.webgpu._pipelineFormat = "";
+         state.webgpu._configuredFormat = "";
          if (state.webgpu.context != null) {
            state.webgpu.context.configure({
              device,
              format,
              alphaMode: "opaque",
            });
+           state.webgpu._configuredFormat = format;
          }
        })
        .catch((error) => {
@@ -1052,6 +1107,7 @@ const _M0FP26mizchi19web__runtime__hooks27js__try__initialize__webgpu = (selecto
          state.webgpu.device = null;
          state.webgpu._pipeline = null;
          state.webgpu._pipelineFormat = "";
+         state.webgpu._configuredFormat = "";
        })
        .finally(() => {
          state.webgpu.pending = null;
@@ -1101,6 +1157,7 @@ const _M0FP26mizchi19web__runtime__hooks30js__release__webgpu__resources = () =>
    }
    gpu._pipeline = null;
    gpu._pipelineFormat = "";
+   gpu._configuredFormat = "";
    gpu._uniformBGL = null;
    gpu._texBGL = null;
    gpu._defaultTexture = null;
@@ -1309,7 +1366,10 @@ const _M0FP26mizchi19web__runtime__hooks19js__webgpu__present = () => {
      if (gfx != null) {
        return gfx.render(currentGpu, currentDevice, currentContext, currentGpu.clear, format);
      }
-     currentContext.configure({ device: currentDevice, format, alphaMode: "opaque" });
+     if (currentGpu._configuredFormat !== format) {
+       currentContext.configure({ device: currentDevice, format, alphaMode: "opaque" });
+       currentGpu._configuredFormat = format;
+     }
      if (currentGpu._pipeline == null || currentGpu._pipelineFormat !== format) {
        const shaderCode = `
  struct Uniforms { color: vec4f }
@@ -1497,7 +1557,10 @@ const _M0FP26mizchi19web__runtime__hooks19js__webgpu__present = () => {
        pass.setBindGroup(1, texBG);
        pass.setVertexBuffer(0, vbEntry.buffer);
        pass.setIndexBuffer(ibEntry.buffer, "uint32");
-       pass.drawIndexed(cmd.indices.length);
+       const instanceCount = Number.isFinite(cmd.instanceCount ?? cmd.instance_count)
+         ? Math.max(1, (cmd.instanceCount ?? cmd.instance_count) | 0)
+         : 1;
+       pass.drawIndexed(cmd.indices.length, instanceCount);
      }
      pass.end();
      currentDevice.queue.submit([encoder.finish()]);
@@ -4461,8 +4524,8 @@ function _M0FP36mizchi6kagura3gfx18new__image__handle(id, width, height) {
 function _M0FP36mizchi6kagura3gfx19new__shader__handle(id, source) {
   return { id: id, source: source };
 }
-function _M0FP36mizchi6kagura3gfx37new__draw__triangles__command_2einner(dst, shader, dst_regions, index_offset, pipeline_id, uniform_hash, blend, vertex_data, indices, src_image_ids, uniform_dwords, instance_count) {
-  return { dst: dst, shader: shader, dst_regions: dst_regions, index_offset: index_offset, pipeline_id: pipeline_id, uniform_hash: uniform_hash, blend: blend, vertex_data: vertex_data, indices: indices, src_image_ids: src_image_ids, uniform_dwords: uniform_dwords, instance_count: instance_count };
+function _M0FP36mizchi6kagura3gfx37new__draw__triangles__command_2einner(dst, shader, dst_regions, index_offset, pipeline_id, uniform_hash, blend, vertex_data, indices, src_image_ids, uniform_dwords, instance_count, resource_cache_key) {
+  return { dst: dst, shader: shader, dst_regions: dst_regions, index_offset: index_offset, pipeline_id: pipeline_id, uniform_hash: uniform_hash, blend: blend, vertex_data: vertex_data, indices: indices, src_image_ids: src_image_ids, uniform_dwords: uniform_dwords, instance_count: instance_count, resource_cache_key: resource_cache_key };
 }
 function _M0FP36mizchi6kagura3gfx30default__web__on__read__pixels(_active, _kind, _x, _y, _width, _height) {
   return Option$None$4$;
@@ -4907,7 +4970,7 @@ function _M0FP36mizchi6kagura9debugutil29new__ndc__rect__fill__command(dst, shad
     break _L;
   }
   const uniform = _M0FP36mizchi6kagura9debugutil26color__to__uniform__dwords(color);
-  return _M0FP36mizchi6kagura3gfx37new__draw__triangles__command_2einner(dst, shader, [_M0FP36mizchi6kagura3gfx16new__dst__region(0, 0, _M0MP311moonbitlang4core6double6Double7to__int(screen_w), _M0MP311moonbitlang4core6double6Double7to__int(screen_h), 6)], 0, pipeline_id, 0, _M0FP36mizchi6kagura3gfx22blend__mode__from__int(1), vertices, indices, [], uniform, 1);
+  return _M0FP36mizchi6kagura3gfx37new__draw__triangles__command_2einner(dst, shader, [_M0FP36mizchi6kagura3gfx16new__dst__region(0, 0, _M0MP311moonbitlang4core6double6Double7to__int(screen_w), _M0MP311moonbitlang4core6double6Double7to__int(screen_h), 6)], 0, pipeline_id, 0, _M0FP36mizchi6kagura3gfx22blend__mode__from__int(1), vertices, indices, [], uniform, 1, 0);
 }
 function _M0FP36mizchi6kagura9debugutil15draw__dot__text(cmds, dst, shader, chars, cx, cy, sw, sh, color, scale) {
   const px_size = 3 * scale;
@@ -5123,7 +5186,7 @@ function _M0FP36mizchi6kagura6engine16invoke__on__stop() {
   const _func = hooks.on_stop;
   _func();
 }
-function _M0FP36mizchi6kagura6engine11run_2einner(update, draw, on_frame, audio_ctx, audio_frames_per_tick, width, height, title, canvas) {
+function _M0FP36mizchi6kagura6engine11run_2einner(update, draw, on_frame, after_render, audio_ctx, audio_frames_per_tick, width, height, title, canvas) {
   _M0FP36mizchi6kagura6engine17invoke__on__start(canvas, title);
   const platform = _M0FP36mizchi6kagura8platform29create__web__canvas__platform(canvas);
   let surface;
@@ -5289,7 +5352,10 @@ function _M0FP36mizchi6kagura6engine11run_2einner(update, draw, on_frame, audio_
       }
       f();
     }
+    const draw_callback_start = _M0FP36mizchi6kagura6engine20js__performance__now();
     const cmds = draw(ctx);
+    const draw_callback_end = _M0FP36mizchi6kagura6engine20js__performance__now();
+    const render_start = _M0FP36mizchi6kagura6engine20js__performance__now();
     let _try_err$6;
     _L$7: {
       _L$8: {
@@ -5307,20 +5373,35 @@ function _M0FP36mizchi6kagura6engine11run_2einner(update, draw, on_frame, audio_
       const e = _try_err$6;
       _M0FP311moonbitlang4core7builtin7printlnGsE(`[engine] render_commands failed: ${_M0IP016_24default__implP311moonbitlang4core7builtin4Show10to__stringGRP311moonbitlang4core5error5ErrorE(e)}`);
     }
+    const render_end = _M0FP36mizchi6kagura6engine20js__performance__now();
+    let f$2;
+    _L$8: {
+      _L$9: {
+        if (after_render === undefined) {
+        } else {
+          const _Some = after_render;
+          const _f = _Some;
+          f$2 = _f;
+          break _L$9;
+        }
+        break _L$8;
+      }
+      f$2(draw_callback_end - draw_callback_start, render_end - render_start);
+    }
     const now = _M0FP36mizchi6kagura6engine20js__performance__now();
     const elapsed = now - prev_time.val;
     prev_time.val = now;
     let actx;
-    _L$8: {
-      _L$9: {
+    _L$9: {
+      _L$10: {
         if (audio_ctx === undefined) {
         } else {
           const _Some = audio_ctx;
           const _actx = _Some;
           actx = _actx;
-          break _L$9;
+          break _L$10;
         }
-        break _L$8;
+        break _L$9;
       }
       _M0FP36mizchi6kagura5audio13audio__resume();
       audio_accum.val = audio_accum.val + elapsed;
@@ -5517,7 +5598,7 @@ function _M0FP36mizchi6kagura5scene12render__line(cmds, el, dst, shader, screen_
   }
   const ndc_vertices = _M0FP36mizchi6kagura5scene24pixel__to__ndc__vertices(vertices, screen_w, screen_h);
   const uniform = _M0FP36mizchi6kagura9debugutil26color__to__uniform__dwords(color);
-  _M0MP311moonbitlang4core5array5Array4pushGRP36mizchi6kagura3gfx20DrawTrianglesCommandE(cmds, _M0FP36mizchi6kagura3gfx37new__draw__triangles__command_2einner(dst, shader, [_M0FP36mizchi6kagura3gfx16new__dst__region(0, 0, _M0MP311moonbitlang4core6double6Double7to__int(screen_w), _M0MP311moonbitlang4core6double6Double7to__int(screen_h), indices.length)], 0, 0, 0, _M0FP36mizchi6kagura3gfx22blend__mode__from__int(1), ndc_vertices, indices, [], uniform, 1));
+  _M0MP311moonbitlang4core5array5Array4pushGRP36mizchi6kagura3gfx20DrawTrianglesCommandE(cmds, _M0FP36mizchi6kagura3gfx37new__draw__triangles__command_2einner(dst, shader, [_M0FP36mizchi6kagura3gfx16new__dst__region(0, 0, _M0MP311moonbitlang4core6double6Double7to__int(screen_w), _M0MP311moonbitlang4core6double6Double7to__int(screen_h), indices.length)], 0, 0, 0, _M0FP36mizchi6kagura3gfx22blend__mode__from__int(1), ndc_vertices, indices, [], uniform, 1, 0));
 }
 function _M0FP36mizchi6kagura5scene21render__rect__outline(cmds, el, dst, shader, screen_w, screen_h, offset_x, offset_y) {
   const attrs = el.attrs;
@@ -5540,7 +5621,7 @@ function _M0FP36mizchi6kagura5scene21render__rect__outline(cmds, el, dst, shader
   }
   const ndc_vertices = _M0FP36mizchi6kagura5scene24pixel__to__ndc__vertices(vertices, screen_w, screen_h);
   const uniform = _M0FP36mizchi6kagura9debugutil26color__to__uniform__dwords(color);
-  _M0MP311moonbitlang4core5array5Array4pushGRP36mizchi6kagura3gfx20DrawTrianglesCommandE(cmds, _M0FP36mizchi6kagura3gfx37new__draw__triangles__command_2einner(dst, shader, [_M0FP36mizchi6kagura3gfx16new__dst__region(0, 0, _M0MP311moonbitlang4core6double6Double7to__int(screen_w), _M0MP311moonbitlang4core6double6Double7to__int(screen_h), indices.length)], 0, 0, 0, _M0FP36mizchi6kagura3gfx22blend__mode__from__int(1), ndc_vertices, indices, [], uniform, 1));
+  _M0MP311moonbitlang4core5array5Array4pushGRP36mizchi6kagura3gfx20DrawTrianglesCommandE(cmds, _M0FP36mizchi6kagura3gfx37new__draw__triangles__command_2einner(dst, shader, [_M0FP36mizchi6kagura3gfx16new__dst__region(0, 0, _M0MP311moonbitlang4core6double6Double7to__int(screen_w), _M0MP311moonbitlang4core6double6Double7to__int(screen_h), indices.length)], 0, 0, 0, _M0FP36mizchi6kagura3gfx22blend__mode__from__int(1), ndc_vertices, indices, [], uniform, 1, 0));
 }
 function _M0FP36mizchi6kagura5scene12render__node(cmds, node, dst, shader, screen_w, screen_h, offset_x, offset_y) {
   let _tmp = cmds;
@@ -5867,7 +5948,7 @@ function _M0FP36mizchi6kagura5scene11run_2einner(view, update, on_frame, audio_c
       f(cmds, ctx.dst, ctx.shader, sw, sh);
     }
     return cmds;
-  }, undefined, audio_ctx, 735, width, height, title, canvas);
+  }, undefined, undefined, audio_ctx, 735, width, height, title, canvas);
 }
 function _M0FP36mizchi7terrain3bsp11split__node(rect, depth, max_depth, min_size, rng) {
   if (depth >= max_depth || rect.w < (Math.imul(min_size, 2) | 0) && rect.h < (Math.imul(min_size, 2) | 0)) {

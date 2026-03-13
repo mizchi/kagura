@@ -193,3 +193,60 @@ pub fn CharacterArchetype::offer_priority_with_policy(
     AntiSynergy => 100 - aligned
   }
 }
+
+///|
+pub fn CharacterArchetype::basic_attack_multiplier(
+  self : CharacterArchetype,
+) -> Double {
+  match self {
+    Melee => 1.0
+    Mage => 0.8
+    Summoner => 0.9
+    Ranger => 1.35
+  }
+}
+
+///|
+pub fn CharacterArchetype::skill_damage_multiplier(
+  self : CharacterArchetype,
+  id : SkillId,
+) -> Double {
+  match self {
+    Melee => match id {
+      PowerStrike | Whirlwind => 1.35
+      ChainLightning | SplittingFireball | IceNova => 0.7
+      HomingMissile => 0.8
+      _ => 1.0
+    }
+    Mage => match id {
+      ChainLightning | SplittingFireball | IceNova => 1.35
+      HomingMissile => 0.8
+      PowerStrike | Whirlwind => 0.7
+      _ => 1.0
+    }
+    Summoner => match id {
+      HomingMissile => 1.4
+      ChainLightning | SplittingFireball => 0.8
+      PowerStrike | Whirlwind => 0.7
+      _ => 1.0
+    }
+    Ranger => match id {
+      HomingMissile => 1.05
+      ChainLightning | SplittingFireball | IceNova => 0.75
+      PowerStrike | Whirlwind => 0.85
+      _ => 1.0
+    }
+  }
+}
+
+///|
+pub fn CharacterArchetype::anti_synergy_target(
+  self : CharacterArchetype,
+) -> CharacterArchetype {
+  match self {
+    Melee => Mage
+    Mage => Melee
+    Summoner => Melee
+    Ranger => Mage
+  }
+}

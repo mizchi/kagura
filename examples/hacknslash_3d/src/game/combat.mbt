@@ -408,6 +408,7 @@ pub fn cast_chain_lightning(world : GameWorld) -> Bool {
   let damage = player_spell_damage(
     world.player_stats,
     world.params,
+    world.archetype,
     ChainLightning,
   )
   for _step = 0; _step < chain_lightning_max_targets; _step = _step + 1 {
@@ -471,6 +472,7 @@ pub fn cast_splitting_fireball(world : GameWorld) -> Bool {
   let damage = player_spell_damage(
     world.player_stats,
     world.params,
+    world.archetype,
     SplittingFireball,
   )
   let target = find_nearest_enemy(world, chain_lightning_range)
@@ -504,7 +506,12 @@ pub fn cast_ice_nova(world : GameWorld) -> Bool {
   world.events.push(
     GroundTelegraphRing(world.player.x, world.player.y, ice_nova_radius),
   )
-  let damage = player_spell_damage(world.player_stats, world.params, IceNova)
+  let damage = player_spell_damage(
+    world.player_stats,
+    world.params,
+    world.archetype,
+    IceNova,
+  )
   let mut hit_any = false
   let radius_sq = ice_nova_radius * ice_nova_radius
   for enemy in world.enemies {
@@ -558,6 +565,7 @@ pub fn cast_homing_missile(world : GameWorld) -> Bool {
   let damage = player_spell_damage(
     world.player_stats,
     world.params,
+    world.archetype,
     HomingMissile,
   )
   let target = find_nearest_enemy(world, homing_missile_range)
@@ -746,7 +754,11 @@ pub fn activate_skill(world : GameWorld, slot : Int) -> Unit {
             vy: @math.sin(spread) * world.params.arrow_speed,
             age: 0,
             alive: true,
-            damage: player_basic_attack_damage(world.player_stats) * (1 + level),
+            damage: player_basic_attack_damage(
+              world.player_stats,
+              world.archetype,
+            ) *
+              (1 + level),
             is_player: true,
             kind: Arrow,
           })
@@ -769,7 +781,11 @@ pub fn activate_skill(world : GameWorld, slot : Int) -> Unit {
             vy: @math.sin(a) * world.params.arrow_speed,
             age: 0,
             alive: true,
-            damage: player_basic_attack_damage(world.player_stats) * level,
+            damage: player_basic_attack_damage(
+              world.player_stats,
+              world.archetype,
+            ) *
+              level,
             is_player: true,
             kind: Arrow,
           })

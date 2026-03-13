@@ -165,6 +165,60 @@ pub fn ItemData::total_stat_score(self : ItemData) -> Double {
 }
 
 ///|
+pub fn ItemData::archetype_fit_score(
+  self : ItemData,
+  archetype : CharacterArchetype,
+) -> Double {
+  let atk = self.total_atk().to_double()
+  let def = self.total_def().to_double()
+  let hp = self.total_hp().to_double()
+  let str_bonus = self.total_str_bonus().to_double()
+  let int_bonus = self.total_int_bonus().to_double()
+  let dex_bonus = self.total_dex_bonus().to_double()
+  let str_scaling = self.total_str_scaling()
+  let int_scaling = self.total_int_scaling()
+  let dex_scaling = self.total_dex_scaling()
+  let crit = self.total_crit()
+  let ls = self.total_life_steal()
+  let spd = self.total_speed_bonus()
+  let cdr = self.total_cooldown_reduction()
+  match archetype {
+    Melee =>
+      atk * 1.2 + def * 0.8 + hp * 0.35 + str_bonus * 4.0 +
+      dex_bonus * 0.75 + int_bonus * 0.2 + str_scaling * 90.0 +
+      dex_scaling * 20.0 + crit * 40.0 + ls * 55.0 + spd * 25.0 +
+      cdr * 20.0
+    Mage =>
+      atk * 0.75 + def * 0.35 + hp * 0.2 + int_bonus * 4.0 +
+      dex_bonus * 0.6 + str_bonus * 0.2 + int_scaling * 95.0 +
+      dex_scaling * 18.0 + crit * 25.0 + ls * 10.0 + spd * 30.0 +
+      cdr * 85.0
+    Summoner =>
+      atk * 0.9 + def * 0.45 + hp * 0.25 + int_bonus * 2.75 +
+      dex_bonus * 2.5 + str_bonus * 0.25 + int_scaling * 70.0 +
+      dex_scaling * 70.0 + crit * 45.0 + ls * 15.0 + spd * 40.0 +
+      cdr * 65.0
+    Ranger =>
+      atk * 1.0 + def * 0.4 + hp * 0.2 + dex_bonus * 4.0 +
+      int_bonus * 0.5 + str_bonus * 0.2 + dex_scaling * 95.0 +
+      int_scaling * 15.0 + crit * 90.0 + ls * 20.0 + spd * 55.0 +
+      cdr * 35.0
+  }
+}
+
+///|
+pub fn ItemData::build_policy_fit_score(
+  self : ItemData,
+  archetype : CharacterArchetype,
+  build_policy : ArchetypeBuildPolicy,
+) -> Double {
+  match build_policy {
+    ArchetypeAligned => self.archetype_fit_score(archetype)
+    AntiSynergy => self.archetype_fit_score(archetype.anti_synergy_target())
+  }
+}
+
+///|
 pub fn ItemData::display_name(self : ItemData) -> String {
   let mut n = ""
   match self.prefix {
@@ -313,6 +367,21 @@ pub fn Equipment::item_for_slot(
 pub fn Equipment::should_equip(self : Equipment, item : ItemData) -> Bool {
   match self.item_for_slot(item.slot) {
     Some(equipped) => item.total_stat_score() > equipped.total_stat_score()
+    None => true
+  }
+}
+
+///|
+pub fn Equipment::should_equip_for_build(
+  self : Equipment,
+  item : ItemData,
+  archetype : CharacterArchetype,
+  build_policy : ArchetypeBuildPolicy,
+) -> Bool {
+  match self.item_for_slot(item.slot) {
+    Some(equipped) =>
+      item.build_policy_fit_score(archetype, build_policy) >
+      equipped.build_policy_fit_score(archetype, build_policy)
     None => true
   }
 }
@@ -756,14 +825,22 @@ pub fn soulslike_scaled_damage(
 }
 
 ///|
-pub fn player_basic_attack_damage(stats : PlayerStats) -> Int {
-  stats.ranged_power
+pub fn player_basic_attack_damage(
+  stats : PlayerStats,
+  archetype : CharacterArchetype,
+) -> Int {
+  @cmp.maximum(
+    1,
+    (stats.ranged_power.to_double() * archetype.basic_attack_multiplier())
+      .to_int(),
+  )
 }
 
 ///|
 pub fn player_spell_damage(
   stats : PlayerStats,
   params : BalanceParams,
+  archetype : CharacterArchetype,
   skill : SkillId,
 ) -> Int {
   let base_damage = match skill {
@@ -773,7 +850,11 @@ pub fn player_spell_damage(
     HomingMissile => stats.ranged_power + 2
     _ => stats.attack_power
   }
-  params.scale_spell_damage(base_damage)
+  let scaled = params.scale_spell_damage(base_damage)
+  @cmp.maximum(
+    1,
+    (scaled.to_double() * archetype.skill_damage_multiplier(skill)).to_int(),
+  )
 }
 
 ///|

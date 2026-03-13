@@ -350,10 +350,43 @@ test "player damage helpers map skills to different core stats" {
   }
   let params = { ..BalanceParams::default(), spell_damage_mult: 1.0 }
   assert_true(
-    player_spell_damage(stats, params, ChainLightning) >
-    player_spell_damage(stats, params, HomingMissile),
+    player_spell_damage(stats, params, Mage, ChainLightning) >
+    player_spell_damage(stats, params, Mage, HomingMissile),
   )
-  assert_true(player_basic_attack_damage(stats) > 0)
+  assert_true(player_basic_attack_damage(stats, Ranger) > 0)
+}
+
+///|
+test "archetype affinity boosts aligned damage and punishes offspec damage" {
+  let stats : PlayerStats = {
+    max_hp: 8,
+    atk: 5,
+    attack_power: 10,
+    spell_power: 10,
+    ranged_power: 10,
+    def: 0,
+    strength: 16,
+    intelligence: 16,
+    dexterity: 16,
+    dash_cooldown: 40,
+    crit_chance: 0.0,
+    life_steal: 0.0,
+    speed_bonus: 0.0,
+    cooldown_reduction: 0.0,
+  }
+  let params = { ..BalanceParams::default(), spell_damage_mult: 1.0 }
+  assert_true(
+    player_spell_damage(stats, params, Mage, ChainLightning) >
+    player_spell_damage(stats, params, Melee, ChainLightning),
+  )
+  assert_true(
+    player_spell_damage(stats, params, Summoner, HomingMissile) >
+    player_spell_damage(stats, params, Mage, HomingMissile),
+  )
+  assert_true(
+    player_basic_attack_damage(stats, Ranger) >
+    player_basic_attack_damage(stats, Mage),
+  )
 }
 
 ///|
@@ -596,4 +629,50 @@ test "equipment should_equip compares total stat score across matching slot" {
     icon_id: 1,
   }
   assert_true(equip.should_equip(better))
+}
+
+///|
+test "equipment should_equip_for_build follows archetype policy" {
+  let equip = Equipment::new()
+  let str_weapon : ItemData = {
+    name: "Iron Sword",
+    rarity: Rare,
+    slot: Weapon,
+    atk_bonus: 4,
+    def_bonus: 0,
+    hp_bonus: 0,
+    str_bonus: 3,
+    int_bonus: 0,
+    dex_bonus: 0,
+    str_scaling: 0.8,
+    int_scaling: 0.0,
+    dex_scaling: 0.0,
+    prefix: None,
+    suffix: None,
+    icon_id: 0,
+  }
+  ignore(equip.equip(str_weapon))
+  let int_weapon : ItemData = {
+    name: "Scholar Wand",
+    rarity: Rare,
+    slot: Weapon,
+    atk_bonus: 4,
+    def_bonus: 0,
+    hp_bonus: 0,
+    str_bonus: 0,
+    int_bonus: 3,
+    dex_bonus: 0,
+    str_scaling: 0.0,
+    int_scaling: 0.8,
+    dex_scaling: 0.0,
+    prefix: None,
+    suffix: None,
+    icon_id: 1,
+  }
+  assert_false(
+    equip.should_equip_for_build(int_weapon, Melee, ArchetypeAligned),
+  )
+  assert_true(
+    equip.should_equip_for_build(int_weapon, Melee, AntiSynergy),
+  )
 }

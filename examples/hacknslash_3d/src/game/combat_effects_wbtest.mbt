@@ -197,11 +197,15 @@ test "cast_chain_lightning without enemy still emits forward arc feedback" {
 
 ///|
 test "spell multipliers affect cooldowns and spell damage" {
-  let world = GameWorld::new(seed=42, params={
-    ..BalanceParams::default(),
-    spell_cooldown_mult: 2.0,
-    spell_damage_mult: 0.5,
-  })
+  let world = GameWorld::new(
+    seed=42,
+    params={
+      ..BalanceParams::default(),
+      spell_cooldown_mult: 2.0,
+      spell_damage_mult: 0.5,
+    },
+    archetype=Mage,
+  )
   unlock_spell_for_combat_test(world, ChainLightning)
   let px = world.player.x
   let py = world.player.y

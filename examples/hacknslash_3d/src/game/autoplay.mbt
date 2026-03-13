@@ -207,7 +207,11 @@ pub fn GameWorld::collect_equipment_pickup(
 ) -> Bool {
   let plan = @gameplay2d.plan_equipment_pickup(
     auto_play=self.auto_play,
-    should_equip=self.equipment.should_equip(item),
+    should_equip=self.equipment.should_equip_for_build(
+      item,
+      self.archetype,
+      self.build_policy,
+    ),
     inventory_has_space=self.inventory.count() < self.inventory.capacity,
     has_previous_equipped=match self.equipment.item_for_slot(item.slot) {
       Some(_) => true
@@ -223,7 +227,11 @@ fn auto_equip_inventory_item(
   index : Int,
   item : ItemData,
 ) -> Unit {
-  if world.equipment.should_equip(item) {
+  if world.equipment.should_equip_for_build(
+    item,
+    world.archetype,
+    world.build_policy,
+  ) {
     let prev = world.equipment.equip(item)
     world.inventory.items[index] = prev
     world.player_stats = compute_player_stats(

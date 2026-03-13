@@ -16,7 +16,7 @@ async function init() {
   installAudioHelpers();
   installGfxHelpers();
   try {
-    await loadGameScript("./obj_viewer.js?v=69947a6");
+    await loadGameScript("./obj_viewer.js?v=7f9b67e");
   } catch (e) {
     showStartupError(
       "#app",

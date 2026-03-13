@@ -16,7 +16,7 @@ async function init() {
   installAudioHelpers();
   installGfxHelpers();
   try {
-    await loadGameScript("./hacknslash.js?v=69947a6");
+    await loadGameScript("./hacknslash.js?v=7f9b67e");
   } catch (e) {
     showStartupError(
       "#app",

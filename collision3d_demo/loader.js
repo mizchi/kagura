@@ -16,7 +16,7 @@ async function init() {
   installAudioHelpers();
   installGfxHelpers();
   try {
-    await loadGameScript("./collision3d_demo.js?v=69947a6");
+    await loadGameScript("./collision3d_demo.js?v=7f9b67e");
   } catch (e) {
     showStartupError(
       "#app",

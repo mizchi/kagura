@@ -699,17 +699,42 @@ pub fn GameWorld::tick_items_phase(self : GameWorld) -> Unit {
       if idx * idx + idy * idy < pickup_radius_sq {
         match item.kind {
           Health => {
-            item.alive = false
-            self.events.push(ItemPickup(item.x, item.y, true))
-            self.player.hp = @cmp.minimum(
-              self.player_stats.max_hp,
-              self.player.hp + 2,
+            let rewards = @gameplay2d.PickupRewardConfig::new(
+              score_amount=5,
+              heal_amount=2,
             )
+            match @gameplay2d.apply_builtin_pickup_effect(
+              HealthPickup,
+              self.player.hp,
+              self.player_stats.max_hp,
+              rewards,
+            ) {
+              Some((next_hp, _score_delta, heal_feedback)) => {
+                item.alive = false
+                self.events.push(ItemPickup(item.x, item.y, heal_feedback))
+                self.player.hp = next_hp
+              }
+              None => abort("health pickup should always resolve")
+            }
           }
           Score => {
-            item.alive = false
-            self.events.push(ItemPickup(item.x, item.y, false))
-            self.score = self.score + 5
+            let rewards = @gameplay2d.PickupRewardConfig::new(
+              score_amount=5,
+              heal_amount=2,
+            )
+            match @gameplay2d.apply_builtin_pickup_effect(
+              ScorePickup,
+              self.player.hp,
+              self.player_stats.max_hp,
+              rewards,
+            ) {
+              Some((_next_hp, score_delta, heal_feedback)) => {
+                item.alive = false
+                self.events.push(ItemPickup(item.x, item.y, heal_feedback))
+                self.score = self.score + score_delta
+              }
+              None => abort("score pickup should always resolve")
+            }
           }
           Equipment(data) =>
             if self.collect_equipment_pickup(data) {

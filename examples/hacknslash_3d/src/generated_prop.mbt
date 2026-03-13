@@ -195,45 +195,23 @@ fn build_generated_prop_equipment_item(
   }
 }
 
-///|
-fn largest_non_start_room_index(world : @game.GameWorld) -> Int {
-  let rooms = world.dungeon.rooms
-  if rooms.length() <= 1 {
-    return 0
+fn generated_prop_anchor_candidates(
+  world : @game.GameWorld,
+) -> Array[@interactable2d.AnchorCandidate] {
+  let candidates : Array[@interactable2d.AnchorCandidate] = []
+  for i = 0; i < world.dungeon.rooms.length(); i = i + 1 {
+    let room = world.dungeon.rooms[i]
+    let center = room.rect.center()
+    candidates.push(
+      @interactable2d.AnchorCandidate::new(
+        center.x.to_double() * tile_size + tile_size / 2.0,
+        center.y.to_double() * tile_size + tile_size / 2.0,
+        room.rect.w * room.rect.h,
+        i == 0,
+      ),
+    )
   }
-  let mut best_idx = 1
-  let mut best_area = rooms[1].rect.w * rooms[1].rect.h
-  for i = 2; i < rooms.length(); i = i + 1 {
-    let area = rooms[i].rect.w * rooms[i].rect.h
-    if area > best_area {
-      best_idx = i
-      best_area = area
-    }
-  }
-  best_idx
-}
-
-///|
-fn treasure_room_index(world : @game.GameWorld) -> Int {
-  let rooms = world.dungeon.rooms
-  if rooms.length() <= 1 {
-    return 0
-  }
-  let mut best_idx = 1
-  let mut best_dist_sq = -1.0
-  for i = 1; i < rooms.length(); i = i + 1 {
-    let center = rooms[i].rect.center()
-    let cx = center.x.to_double() * tile_size + tile_size / 2.0
-    let cy = center.y.to_double() * tile_size + tile_size / 2.0
-    let dx = cx - world.dungeon.start_x
-    let dy = cy - world.dungeon.start_y
-    let dist_sq = dx * dx + dy * dy
-    if dist_sq > best_dist_sq {
-      best_idx = i
-      best_dist_sq = dist_sq
-    }
-  }
-  best_idx
+  candidates
 }
 
 ///|
@@ -241,29 +219,12 @@ fn generated_prop_anchor_center_world(
   world : @game.GameWorld,
   anchor : GeneratedPropAnchor,
 ) -> (Double, Double) {
-  match anchor {
-    StartRoomCenter => (world.dungeon.start_x, world.dungeon.start_y)
-    LargestNonStartRoomCenter => {
-      let rooms = world.dungeon.rooms
-      let best_idx = largest_non_start_room_index(world)
-      let center = rooms[best_idx].rect.center()
-      (
-        center.x.to_double() * tile_size + tile_size / 2.0,
-        center.y.to_double() * tile_size + tile_size / 2.0,
-      )
-    }
-    BossRoomCenter =>
-      generated_prop_anchor_center_world(world, LargestNonStartRoomCenter)
-    TreasureRoomCenter => {
-      let rooms = world.dungeon.rooms
-      let best_idx = treasure_room_index(world)
-      let center = rooms[best_idx].rect.center()
-      (
-        center.x.to_double() * tile_size + tile_size / 2.0,
-        center.y.to_double() * tile_size + tile_size / 2.0,
-      )
-    }
-  }
+  @interactable2d.resolve_anchor_position(
+    generated_prop_anchor_candidates(world),
+    anchor,
+    world.dungeon.start_x,
+    world.dungeon.start_y,
+  )
 }
 
 ///|
@@ -294,29 +255,34 @@ fn clone_generated_prop_collision_grid(
 }
 
 ///|
-fn append_generated_prop_blocking_walls(
-  grid : @terrain.Grid2D,
+fn generated_prop_floor_interactables(
   world : @game.GameWorld,
-  placement : GeneratedPropPlacement,
-) -> Unit {
-  let (prop_x, prop_y) = generated_prop_world_xy(world, placement)
-  @physics2d.append_circular_wall_blocker(
-    grid,
-    prop_x,
-    prop_y,
-    generated_prop_blocking_radius(placement),
-    tile_size,
-  )
+  props : Array[GeneratedPropState],
+) -> Array[@interactable2d.CircularInteractable] {
+  let interactables : Array[@interactable2d.CircularInteractable] = []
+  for prop in props {
+    if prop.placement.floor != world.floor {
+      continue
+    }
+    let (prop_x, prop_y) = generated_prop_world_xy(world, prop.placement)
+    interactables.push(
+      generated_prop_interactable(prop_x, prop_y, prop.placement),
+    )
+  }
+  interactables
 }
 
 ///|
 fn GameState::build_generated_prop_enemy_ai_grid(
   self : GameState,
 ) -> @terrain.Grid2D? {
+  let floor_interactables = generated_prop_floor_interactables(
+    self.world,
+    self.generated_props,
+  )
   let mut has_blocker = false
-  for prop in self.generated_props {
-    if prop.placement.floor == self.world.floor &&
-      generated_prop_role_is_solid(prop.placement.role) {
+  for interactable in floor_interactables {
+    if @interactable2d.interactable_role_is_solid(interactable.role) {
       has_blocker = true
       break
     }
@@ -325,28 +291,25 @@ fn GameState::build_generated_prop_enemy_ai_grid(
     return None
   }
   let grid = clone_generated_prop_collision_grid(self.world.dungeon.grid)
-  for prop in self.generated_props {
-    if prop.placement.floor == self.world.floor &&
-      generated_prop_role_is_solid(prop.placement.role) {
-      append_generated_prop_blocking_walls(grid, self.world, prop.placement)
-    }
-  }
+  @interactable2d.append_circular_interactable_blockers_to_grid(
+    grid,
+    floor_interactables,
+    tile_size,
+  )
   Some(grid)
 }
 
 ///|
-fn generated_prop_player_can_pickup(
-  player_x : Double,
-  player_y : Double,
+fn generated_prop_interactable(
   prop_x : Double,
   prop_y : Double,
-) -> Bool {
-  @interactable2d.circular_interactable_can_pickup(
-    player_x,
-    player_y,
+  placement : GeneratedPropPlacement,
+) -> @interactable2d.CircularInteractable {
+  @interactable2d.CircularInteractable::new(
     prop_x,
     prop_y,
-    pickup_radius_sq,
+    generated_prop_blocking_radius(placement),
+    placement.role,
   )
 }
 
@@ -447,118 +410,92 @@ fn GameState::apply_generated_prop_roles_for_current_floor(
   self : GameState,
 ) -> Unit {
   let retained : Array[GeneratedPropState] = []
+  let pickup_rewards = @gameplay2d.PickupRewardConfig::new(
+    score_amount=5,
+    heal_amount=2,
+  )
   let player_size = self.world.player.size
   let player_half = player_size / 2.0
   let mut player_x = self.world.player.x
   let mut player_y = self.world.player.y
+  let floor_interactables = generated_prop_floor_interactables(
+    self.world,
+    self.generated_props,
+  )
+  let player_frame = @interactable2d.resolve_circular_interactable_frame(
+    floor_interactables,
+    player_x,
+    player_y,
+    player_size,
+    pickup_radius_sq,
+    fn(next_x, next_y, size) {
+      let clamped_x = if next_x < player_half {
+        player_half
+      } else if next_x > world_w - player_half {
+        world_w - player_half
+      } else {
+        next_x
+      }
+      let clamped_y = if next_y < player_half {
+        player_half
+      } else if next_y > world_h - player_half {
+        world_h - player_half
+      } else {
+        next_y
+      }
+      next_x == clamped_x &&
+      next_y == clamped_y &&
+      not(@game.check_wall_collision(self.world.dungeon.grid, clamped_x, clamped_y, size))
+    },
+  )
+  player_x = player_frame.actor_x
+  player_y = player_frame.actor_y
+  for enemy in self.world.enemies {
+    if not(enemy.alive) {
+      continue
+    }
+    let (resolved_enemy_x, resolved_enemy_y) = @interactable2d.resolve_circular_blockers_for_actor(
+      floor_interactables,
+      enemy.x,
+      enemy.y,
+      enemy.size,
+      fn(next_x, next_y, size) {
+        not(@game.check_wall_collision(self.world.dungeon.grid, next_x, next_y, size))
+      },
+    )
+    enemy.x = resolved_enemy_x
+    enemy.y = resolved_enemy_y
+  }
+  let mut floor_index = 0
   for prop in self.generated_props {
     if prop.placement.floor != self.world.floor {
       retained.push(prop)
       continue
     }
-    let (prop_x, prop_y) = generated_prop_world_xy(self.world, prop.placement)
+    let prop_floor_index = floor_index
+    floor_index = floor_index + 1
     if generated_prop_role_is_solid(prop.placement.role) {
-      let prop_radius = generated_prop_blocking_radius(prop.placement)
-      match
-        resolve_generated_prop_actor_block(
-          player_x, player_y, player_size, prop_x, prop_y, prop_radius,
-        ) {
-        Some((next_x, next_y)) => {
-          let clamped_x = if next_x < player_half {
-            player_half
-          } else if next_x > world_w - player_half {
-            world_w - player_half
-          } else {
-            next_x
-          }
-          let clamped_y = if next_y < player_half {
-            player_half
-          } else if next_y > world_h - player_half {
-            world_h - player_half
-          } else {
-            next_y
-          }
-          if not(
-              @game.check_wall_collision(
-                self.world.dungeon.grid,
-                clamped_x,
-                player_y,
-                player_size,
-              ),
-            ) {
-            player_x = clamped_x
-          }
-          if not(
-              @game.check_wall_collision(
-                self.world.dungeon.grid,
-                player_x,
-                clamped_y,
-                player_size,
-              ),
-            ) {
-            player_y = clamped_y
-          }
-        }
-        None => ()
-      }
-      for enemy in self.world.enemies {
-        if not(enemy.alive) {
-          continue
-        }
-        match
-          resolve_generated_prop_actor_block(
-            enemy.x,
-            enemy.y,
-            enemy.size,
-            prop_x,
-            prop_y,
-            prop_radius,
-          ) {
-          Some((next_x, next_y)) => {
-            if not(
-                @game.check_wall_collision(
-                  self.world.dungeon.grid,
-                  next_x,
-                  enemy.y,
-                  enemy.size,
-                ),
-              ) {
-              enemy.x = next_x
-            }
-            if not(
-                @game.check_wall_collision(
-                  self.world.dungeon.grid,
-                  enemy.x,
-                  next_y,
-                  enemy.size,
-                ),
-              ) {
-              enemy.y = next_y
-            }
-          }
-          None => ()
-        }
-      }
       retained.push(prop)
       continue
     }
-    if generated_prop_role_is_pickup(prop.placement.role) &&
-      generated_prop_player_can_pickup(player_x, player_y, prop_x, prop_y) {
-      match prop.placement.pickup_effect {
-        ScorePickup => {
-          self.world.score = self.world.score + 5
-          spawn_item_pickup(self.particle_manager, prop_x, prop_y, false)
+    let (prop_x, prop_y) = generated_prop_world_xy(self.world, prop.placement)
+    let interacted = match player_frame.pickup_contact_index {
+      Some(contact_index) => contact_index == prop_floor_index
+      None => false
+    }
+    if generated_prop_role_is_pickup(prop.placement.role) && interacted {
+      match @gameplay2d.apply_builtin_pickup_effect(
+        prop.placement.pickup_effect,
+        self.world.player.hp,
+        self.world.player_stats.max_hp,
+        pickup_rewards,
+      ) {
+        Some((next_hp, score_delta, heal_feedback)) => {
+          self.world.player.hp = next_hp
+          self.world.score = self.world.score + score_delta
+          spawn_item_pickup(self.particle_manager, prop_x, prop_y, heal_feedback)
         }
-        HealthPickup => {
-          let healed = self.world.player.hp + 2
-          self.world.player.hp = if healed > self.world.player_stats.max_hp {
-            self.world.player_stats.max_hp
-          } else {
-            healed
-          }
-          spawn_item_pickup(self.particle_manager, prop_x, prop_y, true)
-        }
-        EquipmentPickup => {
+        None => {
           let item = build_generated_prop_equipment_item(
             self.world,
             prop.placement,

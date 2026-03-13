@@ -8,6 +8,7 @@ import {
   "mizchi/kagura/engine" @engine,
   "mizchi/kagura/gltf" @gltf,
   "mizchi/kagura/gfx" @gfx,
+  "mizchi/kagura/gameplay2d" @gameplay2d,
   "mizchi/kagura/inpututil" @inpututil,
   "mizchi/kagura/interactable2d" @interactable2d,
   "mizchi/kagura/light3d" @light3d,

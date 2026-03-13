@@ -167,14 +167,26 @@ pub fn GameWorld::collect_equipment_pickup(
   self : GameWorld,
   item : ItemData,
 ) -> Bool {
-  if not(self.auto_play) {
-    return self.inventory.add(item)
-  }
-  if self.equipment.should_equip(item) {
+  let plan = @gameplay2d.plan_equipment_pickup(
+    auto_play=self.auto_play,
+    should_equip=self.equipment.should_equip(item),
+    inventory_has_space=self.inventory.count() < self.inventory.capacity,
+    has_previous_equipped=match self.equipment.item_for_slot(item.slot) {
+      Some(_) => true
+      None => false
+    },
+  )
+  if plan.equip_incoming {
     let previous = self.equipment.equip(item)
-    match previous {
-      Some(old_item) => ignore(self.inventory.add_fifo(old_item))
-      None => ()
+    match (previous, plan.store_previous_equipped) {
+      (Some(old_item), true) =>
+        if plan.use_fifo_storage {
+          ignore(self.inventory.add_fifo(old_item))
+        } else {
+          ignore(self.inventory.add(old_item))
+        }
+      (None, _) => ()
+      _ => ()
     }
     self.player_stats = compute_player_stats(
       self.equipment,
@@ -184,7 +196,14 @@ pub fn GameWorld::collect_equipment_pickup(
     self.player.hp = @cmp.minimum(self.player.hp, self.player_stats.max_hp)
     return true
   }
-  ignore(self.inventory.add_fifo(item))
+  if not(plan.store_incoming) {
+    return false
+  }
+  if plan.use_fifo_storage {
+    ignore(self.inventory.add_fifo(item))
+  } else {
+    ignore(self.inventory.add(item))
+  }
   true
 }
 

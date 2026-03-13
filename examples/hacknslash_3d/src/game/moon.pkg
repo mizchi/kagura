@@ -1,4 +1,5 @@
 import {
+  "mizchi/kagura/gameplay2d" @gameplay2d,
   "mizchi/kagura/loot" @loot,
   "moonbitlang/core/math" @math,
   "mizchi/kagura/pathfind" @pathfind,

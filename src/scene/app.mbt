@@ -15,14 +15,16 @@ pub fn run(
   title? : String = "kagura",
   canvas? : String = "#app",
 ) -> Unit {
+  // Use the game's logical size for scene coordinate space,
+  // not the canvas backing size (which may be scaled by DPR).
+  let logical_w = width.to_double()
+  let logical_h = height.to_double()
   @engine.run(
     update~,
     draw=fn(ctx) {
-      let sw = ctx.screen_w.to_double()
-      let sh = ctx.screen_h.to_double()
-      let cmds = render_scene(view(), ctx.dst, ctx.shader, sw, sh)
+      let cmds = render_scene(view(), ctx.dst, ctx.shader, logical_w, logical_h)
       match on_frame {
-        Some(f) => f(cmds, ctx.dst, ctx.shader, sw, sh)
+        Some(f) => f(cmds, ctx.dst, ctx.shader, logical_w, logical_h)
         None => ()
       }
       cmds

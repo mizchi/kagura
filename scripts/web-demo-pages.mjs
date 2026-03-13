@@ -77,6 +77,8 @@ const RAW_DEMO_PAGES = [
     ],
     tags: ["3D", "Combat", "RPG"],
     sourcePath: "examples/hacknslash_3d/src/update.mbt",
+    width: 640,
+    height: 480,
   },
   {
     name: "scene_demo",
@@ -103,6 +105,8 @@ const RAW_DEMO_PAGES = [
     ],
     tags: ["UI", "Focus"],
     sourcePath: "examples/ui_demo/src/game.mbt",
+    width: 640,
+    height: 480,
   },
   {
     name: "fetch_image",
@@ -129,6 +133,8 @@ const RAW_DEMO_PAGES = [
     ],
     tags: ["3D", "Renderer"],
     sourcePath: "examples/arena3d/src/game.mbt",
+    width: 640,
+    height: 480,
   },
   {
     name: "fps_demo",
@@ -144,6 +150,8 @@ const RAW_DEMO_PAGES = [
     ],
     tags: ["3D", "FPS"],
     sourcePath: "examples/fps_demo/src/game.mbt",
+    width: 640,
+    height: 480,
   },
   {
     name: "obj_viewer",
@@ -157,6 +165,8 @@ const RAW_DEMO_PAGES = [
     ],
     tags: ["3D", "Asset"],
     sourcePath: "examples/obj_viewer/src/main_js.mbt",
+    width: 640,
+    height: 480,
   },
   {
     name: "gltf_viewer",
@@ -170,6 +180,8 @@ const RAW_DEMO_PAGES = [
     ],
     tags: ["3D", "Asset"],
     sourcePath: "examples/gltf_viewer/src/main_js.mbt",
+    width: 640,
+    height: 480,
   },
   {
     name: "model_authoring",
@@ -207,6 +219,8 @@ const RAW_DEMO_PAGES = [
     ],
     tags: ["3D", "Modeling", "VLM"],
     sourcePath: "tools/modeling3d/examples/model_authoring/src/model_doc.mbt",
+    width: 640,
+    height: 480,
   },
   {
     name: "chair_authoring",
@@ -227,6 +241,8 @@ const RAW_DEMO_PAGES = [
     ],
     tags: ["3D", "Modeling", "VLM", "Hard Surface"],
     sourcePath: "tools/modeling3d/examples/chair_authoring/src/model_doc.mbt",
+    width: 640,
+    height: 480,
   },
   {
     name: "shelf_authoring",
@@ -244,6 +260,8 @@ const RAW_DEMO_PAGES = [
     ],
     tags: ["3D", "Modeling", "VLM", "Hard Surface"],
     sourcePath: "tools/modeling3d/examples/shelf_authoring/src/model_doc.mbt",
+    width: 640,
+    height: 480,
   },
   {
     name: "frog_authoring",
@@ -264,6 +282,8 @@ const RAW_DEMO_PAGES = [
     ],
     tags: ["3D", "Modeling", "VLM", "Organic"],
     sourcePath: "tools/modeling3d/examples/frog_authoring/src/model_doc.mbt",
+    width: 640,
+    height: 480,
   },
   {
     name: "dragon_authoring",
@@ -284,6 +304,8 @@ const RAW_DEMO_PAGES = [
     ],
     tags: ["3D", "Modeling", "VLM", "Organic"],
     sourcePath: "tools/modeling3d/examples/dragon_authoring/src/model_doc.mbt",
+    width: 640,
+    height: 480,
   },
   {
     name: "effect_studio",
@@ -304,6 +326,8 @@ const RAW_DEMO_PAGES = [
     ],
     tags: ["3D", "Particles", "Timeline", "AI"],
     sourcePath: "tools/effect-studio/examples/effect_studio/src/main.mbt",
+    width: 640,
+    height: 480,
   },
   {
     name: "particle_demo",
@@ -317,6 +341,8 @@ const RAW_DEMO_PAGES = [
     ],
     tags: ["3D", "Particles"],
     sourcePath: "examples/particle_demo/src/game.mbt",
+    width: 640,
+    height: 480,
   },
   {
     name: "shadow3d_demo",
@@ -330,6 +356,8 @@ const RAW_DEMO_PAGES = [
     ],
     tags: ["3D", "Shadow"],
     sourcePath: "examples/shadow3d_demo/src/game.mbt",
+    width: 640,
+    height: 480,
   },
   {
     name: "postfx_demo",
@@ -343,6 +371,8 @@ const RAW_DEMO_PAGES = [
     ],
     tags: ["3D", "PostFX"],
     sourcePath: "examples/postfx_demo/src/game.mbt",
+    width: 640,
+    height: 480,
   },
   {
     name: "skeletal_anim",
@@ -356,6 +386,8 @@ const RAW_DEMO_PAGES = [
     ],
     tags: ["3D", "Animation"],
     sourcePath: "examples/skeletal_anim/src/game.mbt",
+    width: 640,
+    height: 480,
   },
   {
     name: "physics3d_demo",
@@ -369,6 +401,8 @@ const RAW_DEMO_PAGES = [
     ],
     tags: ["Physics", "3D"],
     sourcePath: "examples/physics3d_demo/src/game.mbt",
+    width: 640,
+    height: 480,
   },
   {
     name: "physics2d_demo",
@@ -382,6 +416,8 @@ const RAW_DEMO_PAGES = [
     ],
     tags: ["Physics", "2D"],
     sourcePath: "examples/physics2d_demo/src/game.mbt",
+    width: 640,
+    height: 480,
   },
   {
     name: "ragdoll_demo",
@@ -395,6 +431,8 @@ const RAW_DEMO_PAGES = [
     ],
     tags: ["Physics", "2D"],
     sourcePath: "examples/ragdoll_demo/src/game.mbt",
+    width: 640,
+    height: 480,
   },
   {
     name: "collision3d_demo",
@@ -408,6 +446,8 @@ const RAW_DEMO_PAGES = [
     ],
     tags: ["Physics", "3D"],
     sourcePath: "examples/collision3d_demo/src/game.mbt",
+    width: 640,
+    height: 480,
   },
 ];
 
@@ -740,7 +780,7 @@ export function renderDemoHtml({
       <main class="content">
         <section class="stage-panel">
           <div class="stage-shell">
-            <canvas id="app" class="stage-canvas" width="320" height="240"></canvas>
+            <canvas id="app" class="stage-canvas" width="${demo.width || 320}" height="${demo.height || 240}"></canvas>
           </div>
           <p class="support-copy">
             <strong>Start:</strong> ${escapeHtml(demo.start)}

@@ -5929,10 +5929,10 @@ function _M0FP36mizchi6kagura5scene8fragment(children) {
   return _M0FP36mizchi7signals2ui8fragmentGuRP36mizchi6kagura5scene14SceneAttrValueE(children);
 }
 function _M0FP36mizchi6kagura5scene11run_2einner(view, update, on_frame, audio_ctx, width, height, title, canvas) {
+  const logical_w = width + 0;
+  const logical_h = height + 0;
   _M0FP36mizchi6kagura6engine11run_2einner(update, (ctx) => {
-    const sw = ctx.screen_w + 0;
-    const sh = ctx.screen_h + 0;
-    const cmds = _M0FP36mizchi6kagura5scene13render__scene(view(), ctx.dst, ctx.shader, sw, sh);
+    const cmds = _M0FP36mizchi6kagura5scene13render__scene(view(), ctx.dst, ctx.shader, logical_w, logical_h);
     let f;
     _L: {
       _L$2: {
@@ -5945,7 +5945,7 @@ function _M0FP36mizchi6kagura5scene11run_2einner(view, update, on_frame, audio_c
         }
         break _L;
       }
-      f(cmds, ctx.dst, ctx.shader, sw, sh);
+      f(cmds, ctx.dst, ctx.shader, logical_w, logical_h);
     }
     return cmds;
   }, undefined, undefined, audio_ctx, 735, width, height, title, canvas);

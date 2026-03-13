@@ -413,8 +413,7 @@ fn auto_play_input_with_nav_grid(
 ) -> (Double, Double, Int, Double) {
   // 1. Check for visible enemies — if found, move toward nearest
   let (enemy_idx, enemy_dist_sq) = find_nearest_visible_enemy_with_nav_grid(
-    world,
-    nav_grid,
+    world, nav_grid,
   )
   if enemy_idx >= 0 {
     let enemy = world.enemies[enemy_idx]

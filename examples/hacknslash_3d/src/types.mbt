@@ -82,6 +82,16 @@ struct ActiveEffectInstance {
 }
 
 ///|
+struct DamagePopup {
+  x : Double
+  y : Double
+  amount : Int
+  color_hex : Int
+  mut ttl : Int
+  mut rise : Double
+}
+
+///|
 struct GameState {
   world : @game.GameWorld
   input : @inpututil.InputHelper
@@ -124,6 +134,7 @@ struct GameState {
   mut visible_dungeon_mesh_cache_builds : Int
   mut generated_props : Array[GeneratedPropState]
   mut active_effects : Array[ActiveEffectInstance]
+  mut damage_popups : Array[DamagePopup]
   audio_ctx : @audio.MixerAudioContext
   mut audio_muted : Bool
   audio_players : GameAudioPlayers

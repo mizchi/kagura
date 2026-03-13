@@ -344,13 +344,7 @@ pub fn segment_hits_wall(
   size : Double,
 ) -> Bool {
   @physics2d.grid_segment_hits_wall(
-    grid,
-    start_x,
-    start_y,
-    end_x,
-    end_y,
-    size,
-    tile_size,
+    grid, start_x, start_y, end_x, end_y, size, tile_size,
   )
 }
 

@@ -127,6 +127,8 @@ pub(all) enum GameEvent {
   DeathBurst(Double, Double)
   DashTrail(Double, Double)
   PlayerHurt(Double, Double)
+  PlayerDamageNumber(Double, Double, Int)
+  EnemyDamageNumber(Double, Double, Int)
   ItemPickup(Double, Double, Bool)
   GroundTelegraphRing(Double, Double, Double)
   GroundTelegraphLine(Double, Double, Double, Double)

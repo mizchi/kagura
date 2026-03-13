@@ -196,6 +196,101 @@ fn bench_state_with_collectible_item() -> GameState {
 }
 
 ///|
+fn build_basic_enemy_cluster(
+  center_x : Double,
+  center_y : Double,
+  count : Int,
+) -> Array[@game.Enemy] {
+  let side = enemy_stress_grid_side(count)
+  let spacing = tile_size * 0.75
+  let center = (side - 1).to_double() / 2.0
+  let enemies : Array[@game.Enemy] = []
+  for i = 0; i < count; i = i + 1 {
+    let col = i % side
+    let row = i / side
+    let offset_x = (col.to_double() - center) * spacing
+    let offset_y = (row.to_double() - center) * spacing
+    enemies.push(
+      @game.make_enemy(
+        center_x + offset_x,
+        center_y + offset_y,
+        @game.Basic,
+        3,
+        1.0,
+        10.0,
+      ),
+    )
+  }
+  enemies
+}
+
+///|
+fn bench_state_with_enemy_ai_direct_chase(count : Int) -> GameState {
+  let state = GameState::new(seed=42)
+  state.world.enemies = build_basic_enemy_cluster(
+    state.world.player.x + tile_size * 2.0,
+    state.world.player.y,
+    count,
+  )
+  state
+}
+
+///|
+fn bench_state_with_enemy_ai_castup_phase(count : Int) -> GameState {
+  let state = bench_state_with_stress_enemies(count)
+  let target_x = state.world.player.x + tile_size
+  let target_y = state.world.player.y
+  for enemy in state.world.enemies {
+    enemy.pending_bolt_timer = @game.enemy_bolt_telegraph_frames
+    enemy.pending_bolt_target_x = target_x
+    enemy.pending_bolt_target_y = target_y
+  }
+  state
+}
+
+///|
+fn bench_state_with_enemy_ai_tackle_phase(count : Int) -> GameState {
+  let state = bench_state_with_stress_enemies(count)
+  let target_x = state.world.player.x + tile_size
+  let target_y = state.world.player.y
+  for enemy in state.world.enemies {
+    enemy.charge_timer = @game.enemy_tackle_active_frames
+    enemy.pending_bolt_target_x = target_x
+    enemy.pending_bolt_target_y = target_y
+  }
+  state
+}
+
+///|
+fn bench_state_with_enemy_ai_path_rebuild(count : Int) -> GameState {
+  let state = bench_state_with_enemy_ai_direct_chase(count)
+  let grid = @physics2d.clone_terrain_grid(state.world.dungeon.grid)
+  @physics2d.append_circular_wall_blocker(
+    grid,
+    state.world.player.x + tile_size,
+    state.world.player.y,
+    tile_size * 0.75,
+    tile_size,
+  )
+  state.world.dungeon.grid = grid
+  for enemy in state.world.enemies {
+    enemy.path_timer = 0
+  }
+  state
+}
+
+///|
+fn bench_state_with_enemy_ai_path_follow(count : Int) -> GameState {
+  let state = bench_state_with_enemy_ai_path_rebuild(count)
+  state.world.projectiles = []
+  state.world.events = []
+  state.world.tick_enemy_ai_phase()
+  state.world.projectiles = []
+  state.world.events = []
+  state
+}
+
+///|
 test "bench hacknslash_3d draw_playing default" (b : @bench.T) {
   let state = GameState::new(seed=42)
   state.world.mode = @game.Playing
@@ -548,6 +643,81 @@ test "bench hacknslash_3d enemy_ai_phase stress_enemies_256" (b : @bench.T) {
   b.bench(name="hacknslash_3d/enemy_ai_phase/stress_enemies_256", fn() {
     state.world.enemies = clone_enemy_array(template)
     state.world.projectiles = []
+    state.world.tick_enemy_ai_phase()
+    b.keep(state.world.enemies.length() + state.world.projectiles.length())
+  })
+}
+
+///|
+test "bench hacknslash_3d enemy_ai_castup_phase stress_enemies_256" (
+  b : @bench.T,
+) {
+  let state = bench_state_with_enemy_ai_castup_phase(256)
+  let template = clone_enemy_array(state.world.enemies)
+  b.bench(name="hacknslash_3d/enemy_ai_castup_phase/stress_enemies_256", fn() {
+    state.world.enemies = clone_enemy_array(template)
+    state.world.projectiles = []
+    state.world.events = []
+    state.world.tick_enemy_ai_phase()
+    b.keep(state.world.enemies.length() + state.world.projectiles.length())
+  })
+}
+
+///|
+test "bench hacknslash_3d enemy_ai_tackle_phase stress_enemies_256" (
+  b : @bench.T,
+) {
+  let state = bench_state_with_enemy_ai_tackle_phase(256)
+  let template = clone_enemy_array(state.world.enemies)
+  b.bench(name="hacknslash_3d/enemy_ai_tackle_phase/stress_enemies_256", fn() {
+    state.world.enemies = clone_enemy_array(template)
+    state.world.projectiles = []
+    state.world.events = []
+    state.world.tick_enemy_ai_phase()
+    b.keep(state.world.enemies.length() + state.world.projectiles.length())
+  })
+}
+
+///|
+test "bench hacknslash_3d enemy_ai_direct_chase_phase stress_enemies_256" (
+  b : @bench.T,
+) {
+  let state = bench_state_with_enemy_ai_direct_chase(256)
+  let template = clone_enemy_array(state.world.enemies)
+  b.bench(name="hacknslash_3d/enemy_ai_direct_chase_phase/stress_enemies_256", fn() {
+    state.world.enemies = clone_enemy_array(template)
+    state.world.projectiles = []
+    state.world.events = []
+    state.world.tick_enemy_ai_phase()
+    b.keep(state.world.enemies.length() + state.world.projectiles.length())
+  })
+}
+
+///|
+test "bench hacknslash_3d enemy_ai_path_rebuild_phase stress_enemies_256" (
+  b : @bench.T,
+) {
+  let state = bench_state_with_enemy_ai_path_rebuild(256)
+  let template = clone_enemy_array(state.world.enemies)
+  b.bench(name="hacknslash_3d/enemy_ai_path_rebuild_phase/stress_enemies_256", fn() {
+    state.world.enemies = clone_enemy_array(template)
+    state.world.projectiles = []
+    state.world.events = []
+    state.world.tick_enemy_ai_phase()
+    b.keep(state.world.enemies.length() + state.world.projectiles.length())
+  })
+}
+
+///|
+test "bench hacknslash_3d enemy_ai_path_follow_phase stress_enemies_256" (
+  b : @bench.T,
+) {
+  let state = bench_state_with_enemy_ai_path_follow(256)
+  let template = clone_enemy_array(state.world.enemies)
+  b.bench(name="hacknslash_3d/enemy_ai_path_follow_phase/stress_enemies_256", fn() {
+    state.world.enemies = clone_enemy_array(template)
+    state.world.projectiles = []
+    state.world.events = []
     state.world.tick_enemy_ai_phase()
     b.keep(state.world.enemies.length() + state.world.projectiles.length())
   })

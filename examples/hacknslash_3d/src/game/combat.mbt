@@ -16,7 +16,11 @@ pub fn find_nearest_enemy(world : GameWorld, max_range : Double) -> Enemy? {
     fn(idx) { world.enemies[idx].y },
     tile_size,
   )
-  if index >= 0 { Some(world.enemies[index]) } else { None }
+  if index >= 0 {
+    Some(world.enemies[index])
+  } else {
+    None
+  }
 }
 
 ///|
@@ -268,6 +272,7 @@ fn apply_player_damage_to_enemy(
   enemy.hp = enemy.hp - damage
   enemy.damage_timer = damage_flash_duration
   world.events.push(HitSparks(enemy.x, enemy.y))
+  world.events.push(EnemyDamageNumber(enemy.x, enemy.y, damage))
   apply_life_steal(world, damage)
   let edx = source_x - enemy.x
   let edy = source_y - enemy.y

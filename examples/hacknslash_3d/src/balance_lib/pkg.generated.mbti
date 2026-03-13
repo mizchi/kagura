@@ -7,17 +7,39 @@ import {
 }
 
 // Values
+pub fn autoplay_balance_hypotheses() -> Array[BalanceHypothesis]
+
+pub fn balance_hypothesis_from_name(String) -> BalanceHypothesis?
+
 pub fn compute_loss(SimMetrics, BalanceTargets) -> Double
 
 pub fn compute_loss_averaged(@game.BalanceParams, BalanceTargets, Array[Int], Int) -> (Double, SimMetrics)
 
 pub fn compute_loss_averaged_full(@game.BalanceParams, BalanceTargets, Array[Int], Int) -> (Double, AveragedMetrics)
 
+pub fn make_autoplay_rebalance_sim(Int, Int, Int) -> (Array[Double], Int) -> @differentiable_ecs.Metrics
+
 pub fn make_sim(Int, Int) -> (Array[Double], Int) -> @differentiable_ecs.Metrics
 
 pub fn param_specs() -> Array[@differentiable_ecs.ParamSpec]
 
+pub fn param_specs_autoplay_progression() -> Array[@differentiable_ecs.ParamSpec]
+
+pub fn param_specs_autoplay_rebalance() -> Array[@differentiable_ecs.ParamSpec]
+
+pub fn param_specs_build_diverse() -> Array[@differentiable_ecs.ParamSpec]
+
+pub fn param_specs_for_hypothesis(String) -> Array[@differentiable_ecs.ParamSpec]
+
+pub fn param_specs_item_spike_feedback() -> Array[@differentiable_ecs.ParamSpec]
+
+pub fn param_specs_mechanics_roguelike() -> Array[@differentiable_ecs.ParamSpec]
+
+pub fn param_specs_mechanics_roguelike_v2() -> Array[@differentiable_ecs.ParamSpec]
+
 pub fn run_simulation(@game.BalanceParams, Int, Int) -> SimMetrics
+
+pub fn run_simulation_from_floor(@game.BalanceParams, Int, Int, Int) -> SimMetrics
 
 // Errors
 
@@ -34,6 +56,11 @@ pub(all) struct AveragedMetrics {
   avg_damage_interval : Double
 }
 
+pub(all) struct BalanceHypothesis {
+  name : String
+  targets : BalanceTargets
+}
+
 pub(all) struct BalanceTargets {
   target_survival_frames : Double
   target_floors : Double
@@ -44,6 +71,9 @@ pub(all) struct BalanceTargets {
   target_near_death_rate : Double
   target_kills_per_floor : Double
   target_damage_interval : Double
+  target_total_damage : Double
+  target_equip_upgrades : Double
+  target_learned_skill_count : Double
   w_survival : Double
   w_floor : Double
   w_floor_time : Double
@@ -53,9 +83,22 @@ pub(all) struct BalanceTargets {
   w_near_death : Double
   w_kills_per_floor : Double
   w_damage_interval : Double
+  w_total_damage : Double
+  w_equip_upgrades : Double
+  w_learned_skill_count : Double
 }
 pub fn BalanceTargets::action_dense() -> Self
+pub fn BalanceTargets::autoplay_attrition() -> Self
+pub fn BalanceTargets::autoplay_pressure() -> Self
+pub fn BalanceTargets::autoplay_progression() -> Self
+pub fn BalanceTargets::autoplay_progression_v2() -> Self
+pub fn BalanceTargets::autoplay_progression_v3() -> Self
+pub fn BalanceTargets::autoplay_rebalance() -> Self
+pub fn BalanceTargets::build_diverse_hackslash() -> Self
 pub fn BalanceTargets::default() -> Self
+pub fn BalanceTargets::item_spike_feedback() -> Self
+pub fn BalanceTargets::mechanics_roguelike() -> Self
+pub fn BalanceTargets::mechanics_roguelike_v2() -> Self
 pub fn BalanceTargets::risk_reward() -> Self
 pub fn BalanceTargets::speedrun() -> Self
 pub fn BalanceTargets::survival_horror() -> Self
@@ -72,6 +115,7 @@ pub(all) struct SimMetrics {
   kill_frames : Array[Int]
   damage_frames : Array[Int]
   equip_upgrades : Int
+  learned_skill_count : Int
   near_death_count : Int
 }
 pub fn SimMetrics::avg_damage_interval(Self) -> Double

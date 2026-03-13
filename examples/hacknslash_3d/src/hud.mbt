@@ -53,6 +53,22 @@ fn cooldown_tenths_text(timer : Int) -> String {
 }
 
 ///|
+fn hp_bar_ratio_clamped(current : Int, max_hp : Int) -> Double {
+  if max_hp <= 0 {
+    return 0.0
+  }
+  let clamped_current = @cmp.maximum(0, @cmp.minimum(current, max_hp))
+  clamped_current.to_double() / max_hp.to_double()
+}
+
+///|
+fn hp_status_text(current : Int, max_hp : Int) -> String {
+  let shown_max = @cmp.maximum(0, max_hp)
+  let shown_current = @cmp.maximum(0, @cmp.minimum(current, shown_max))
+  shown_current.to_string() + "/" + shown_max.to_string()
+}
+
+///|
 fn GameState::draw_spell_cooldown_widget(
   self : GameState,
   ctx : @hud.HudContext,
@@ -227,6 +243,45 @@ fn GameState::draw_item_drop_labels(
           sx,
           sy - 16.0,
           item_drop_label_color(item.kind),
+        )
+      None => ()
+    }
+  }
+}
+
+///|
+fn GameState::draw_damage_popups(
+  self : GameState,
+  ctx : @hud.HudContext,
+  cmds : Array[@gfx.DrawTrianglesCommand],
+) -> Unit {
+  if self.damage_popups.is_empty() {
+    return
+  }
+  let camera = self.camera.to_camera3d()
+  for popup in self.damage_popups {
+    let world_pos = @math3d.Vec3::new(
+      popup.x / tile_size,
+      @game.get_tile_height(self.world.dungeon, popup.x, popup.y) +
+      1.1 +
+      popup.rise,
+      popup.y / tile_size,
+    )
+    match
+      project_world_label_position(
+        camera,
+        world_pos,
+        ctx.screen_w,
+        ctx.screen_h,
+      ) {
+      Some((sx, sy)) =>
+        ctx.draw_text_centered(
+          cmds,
+          popup.amount.to_string(),
+          12.0,
+          sx,
+          sy - 8.0,
+          popup.color_hex,
         )
       None => ()
     }
@@ -451,8 +506,10 @@ fn GameState::render_hud_cmds(
 ) -> Array[@gfx.DrawTrianglesCommand] {
   let sw = screen_w.to_double()
   let cmds : Array[@gfx.DrawTrianglesCommand] = []
-  let hp_ratio = self.world.player.hp.to_double() /
-    self.world.player.max_hp.to_double()
+  let hp_ratio = hp_bar_ratio_clamped(
+    self.world.player.hp,
+    self.world.player.max_hp,
+  )
   let hp_color = if hp_ratio > 0.5 {
     0x00CC00
   } else if hp_ratio > 0.25 {
@@ -508,6 +565,14 @@ fn GameState::render_hud_cmds(
         30.0,
         0xCC2222,
       )
+      ctx.draw_text(
+        cmds,
+        hp_status_text(self.world.player.hp, self.world.player.max_hp),
+        14.0,
+        136.0,
+        8.0,
+        0xFFFFFF,
+      )
       // Floor announce overlay
       if self.world.floor_announce_timer > 0 {
         let sh = screen_h.to_double()
@@ -534,6 +599,14 @@ fn GameState::render_hud_cmds(
       for cmd in scene_cmds {
         cmds.push(cmd)
       }
+      ctx.draw_text(
+        cmds,
+        hp_status_text(self.world.player.hp, self.world.player.max_hp),
+        14.0,
+        136.0,
+        8.0,
+        0xFFFFFF,
+      )
     }
   }
   // Dash cooldown indicator
@@ -564,6 +637,7 @@ fn GameState::render_hud_cmds(
       0xFF8899,
     )
   }
+  self.draw_damage_popups(ctx, cmds)
   self.draw_item_drop_labels(ctx, cmds)
   // Minimap
   self.render_minimap(ctx, cmds)

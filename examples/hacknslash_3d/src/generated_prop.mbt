@@ -195,6 +195,7 @@ fn build_generated_prop_equipment_item(
   }
 }
 
+///|
 fn generated_prop_anchor_candidates(
   world : @game.GameWorld,
 ) -> Array[@interactable2d.AnchorCandidate] {
@@ -292,9 +293,7 @@ fn GameState::build_generated_prop_enemy_ai_grid(
   }
   let grid = clone_generated_prop_collision_grid(self.world.dungeon.grid)
   @interactable2d.append_circular_interactable_blockers_to_grid(
-    grid,
-    floor_interactables,
-    tile_size,
+    grid, floor_interactables, tile_size,
   )
   Some(grid)
 }
@@ -323,12 +322,7 @@ fn resolve_generated_prop_actor_block(
   prop_radius : Double,
 ) -> (Double, Double)? {
   @interactable2d.resolve_circular_interactable_block(
-    actor_x,
-    actor_y,
-    actor_size,
-    prop_x,
-    prop_y,
-    prop_radius,
+    actor_x, actor_y, actor_size, prop_x, prop_y, prop_radius,
   )
 }
 
@@ -445,7 +439,14 @@ fn GameState::apply_generated_prop_roles_for_current_floor(
       }
       next_x == clamped_x &&
       next_y == clamped_y &&
-      not(@game.check_wall_collision(self.world.dungeon.grid, clamped_x, clamped_y, size))
+      not(
+        @game.check_wall_collision(
+          self.world.dungeon.grid,
+          clamped_x,
+          clamped_y,
+          size,
+        ),
+      )
     },
   )
   player_x = player_frame.actor_x
@@ -460,7 +461,14 @@ fn GameState::apply_generated_prop_roles_for_current_floor(
       enemy.y,
       enemy.size,
       fn(next_x, next_y, size) {
-        not(@game.check_wall_collision(self.world.dungeon.grid, next_x, next_y, size))
+        not(
+          @game.check_wall_collision(
+            self.world.dungeon.grid,
+            next_x,
+            next_y,
+            size,
+          ),
+        )
       },
     )
     enemy.x = resolved_enemy_x
@@ -484,16 +492,22 @@ fn GameState::apply_generated_prop_roles_for_current_floor(
       None => false
     }
     if generated_prop_role_is_pickup(prop.placement.role) && interacted {
-      match @gameplay2d.apply_builtin_pickup_effect(
-        prop.placement.pickup_effect,
-        self.world.player.hp,
-        self.world.player_stats.max_hp,
-        pickup_rewards,
-      ) {
+      match
+        @gameplay2d.apply_builtin_pickup_effect(
+          prop.placement.pickup_effect,
+          self.world.player.hp,
+          self.world.player_stats.max_hp,
+          pickup_rewards,
+        ) {
         Some((next_hp, score_delta, heal_feedback)) => {
           self.world.player.hp = next_hp
           self.world.score = self.world.score + score_delta
-          spawn_item_pickup(self.particle_manager, prop_x, prop_y, heal_feedback)
+          spawn_item_pickup(
+            self.particle_manager,
+            prop_x,
+            prop_y,
+            heal_feedback,
+          )
         }
         None => {
           let item = build_generated_prop_equipment_item(

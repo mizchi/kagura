@@ -1,3 +1,4 @@
+///|
 pub type LevelUpConfig = @progression.LevelUpConfig
 
 ///|
@@ -13,7 +14,7 @@ pub(all) struct LevelProgression {
 pub fn LevelProgression::new(
   config? : LevelUpConfig = LevelUpConfig::default(),
 ) -> LevelProgression {
-  let core = @progression.LevelProgression::new(config=config)
+  let core = @progression.LevelProgression::new(config~)
   {
     level: core.level,
     xp: core.xp,
@@ -29,7 +30,9 @@ fn next_level_xp_for(level : Int, config : LevelUpConfig) -> Int {
 }
 
 ///|
-fn LevelProgression::to_core(self : LevelProgression) -> @progression.LevelProgression {
+fn LevelProgression::to_core(
+  self : LevelProgression,
+) -> @progression.LevelProgression {
   {
     level: self.level,
     xp: self.xp,

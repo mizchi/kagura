@@ -192,3 +192,39 @@ test "render_hud_cmds adds dropped item labels for visible equipment" {
 
   assert_true(labeled_cmds.length() > base_cmds.length())
 }
+
+///|
+test "hp_bar_ratio_clamped clamps overflow and underflow" {
+  assert_eq(hp_bar_ratio_clamped(15, 10), 1.0)
+  assert_eq(hp_bar_ratio_clamped(-2, 10), 0.0)
+  assert_eq(hp_bar_ratio_clamped(5, 10), 0.5)
+}
+
+///|
+test "hp_status_text shows current and max hp" {
+  assert_eq(hp_status_text(7, 10), "7/10")
+  assert_eq(hp_status_text(14, 10), "10/10")
+  assert_eq(hp_status_text(-3, 10), "0/10")
+}
+
+///|
+test "render_hud_cmds adds damage popups for active damage popup state" {
+  let state = GameState::new(seed=42)
+  state.world.mode = @game.Playing
+  let ctx = hud_test_engine_context()
+
+  let base_cmds = state.render_hud_cmds(ctx.dst, ctx.shader)
+  state.damage_popups = [
+    {
+      x: state.world.player.x,
+      y: state.world.player.y,
+      amount: 12,
+      color_hex: 0xFF4444,
+      ttl: 24,
+      rise: 0.0,
+    },
+  ]
+  let popup_cmds = state.render_hud_cmds(ctx.dst, ctx.shader)
+
+  assert_true(popup_cmds.length() > base_cmds.length())
+}

@@ -11,12 +11,18 @@ type ActiveEffectInstance
 type CharAnimState
 pub impl Eq for CharAnimState
 
+type DamagePopup
+
 type DrawPlayingStats
 pub impl Show for DrawPlayingStats
 
 type DungeonChunk
 
 type DungeonMeshGroup
+
+type DungeonSurfaceKind
+pub impl Eq for DungeonSurfaceKind
+pub impl Show for DungeonSurfaceKind
 
 type EnemyMeshData
 
@@ -26,23 +32,17 @@ type EnemyRenderBuckets
 
 type EntityInstanceScratch
 
-type GameState
+type GameAudioPlayers
 
-type GeneratedPropAnchor
-pub impl Eq for GeneratedPropAnchor
-pub impl Show for GeneratedPropAnchor
+type GameSoundCue
+pub impl Eq for GameSoundCue
+pub impl Show for GameSoundCue
+
+type GameState
 
 type GeneratedPropAsset
 
-type GeneratedPropPickupEffect
-pub impl Eq for GeneratedPropPickupEffect
-pub impl Show for GeneratedPropPickupEffect
-
 type GeneratedPropPlacement
-
-type GeneratedPropRole
-pub impl Eq for GeneratedPropRole
-pub impl Show for GeneratedPropRole
 
 type GeneratedPropState
 

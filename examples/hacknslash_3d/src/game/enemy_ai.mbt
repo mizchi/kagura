@@ -11,13 +11,7 @@ fn enemy_direct_chase_path_blocked(
 ) -> Bool {
   not(
     @physics2d.grid_line_of_sight_clear(
-      grid,
-      enemy_x,
-      enemy_y,
-      target_x,
-      target_y,
-      enemy_size,
-      tile_size,
+      grid, enemy_x, enemy_y, target_x, target_y, enemy_size, tile_size,
     ),
   )
 }

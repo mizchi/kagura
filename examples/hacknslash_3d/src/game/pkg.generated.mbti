@@ -2,6 +2,7 @@
 package "mizchi/hacknslash_3d/game"
 
 import {
+  "mizchi/kagura/progression",
   "mizchi/terrain/types",
 }
 
@@ -20,11 +21,15 @@ pub fn auto_play_input(GameWorld) -> (Double, Double, Int, Double)
 
 pub let balance_param_count : Int
 
+pub fn balance_preset_from_name(String) -> BalancePreset
+
 pub let bow_cooldown : Int
 
 pub fn build_height_map(@types.Grid2D, Array[@types.Room], Int) -> Array[Double]
 
 pub fn cast_chain_lightning(GameWorld) -> Bool
+
+pub fn cast_homing_missile(GameWorld) -> Bool
 
 pub fn cast_ice_nova(GameWorld) -> Bool
 
@@ -37,6 +42,8 @@ pub let chain_lightning_hop_range : Double
 pub let chain_lightning_max_targets : Int
 
 pub let chain_lightning_range : Double
+
+pub let chain_lightning_telegraph_radius : Double
 
 pub let chase_range : Double
 
@@ -58,11 +65,45 @@ pub let dash_duration : Int
 
 pub let dash_speed_mult : Double
 
+pub let enemy_barrage_projectile_count : Int
+
+pub let enemy_barrage_spread_angle : Double
+
+pub let enemy_bolt_telegraph_frames : Int
+
+pub let enemy_bolt_telegraph_radius : Double
+
+pub let enemy_death_explosion_projectile_count : Int
+
+pub let enemy_death_explosion_radius : Double
+
+pub let enemy_fire_nova_cast_frames : Int
+
+pub let enemy_fire_nova_cooldown_frames : Int
+
+pub let enemy_fire_nova_projectile_count : Int
+
+pub let enemy_fire_nova_projectile_speed : Double
+
+pub let enemy_fire_nova_radius : Double
+
+pub let enemy_fire_nova_trigger_range : Double
+
 pub let enemy_speed_basic : Double
 
 pub let enemy_speed_fast : Double
 
 pub let enemy_speed_tank : Double
+
+pub let enemy_tackle_active_frames : Int
+
+pub let enemy_tackle_speed_mult : Double
+
+pub let enemy_tackle_telegraph_frames : Int
+
+pub let enemy_tackle_telegraph_radius : Double
+
+pub let enemy_tackle_trigger_range : Double
 
 pub fn find_nearest_enemy(GameWorld, Double) -> Enemy?
 
@@ -72,13 +113,35 @@ pub fn find_next_target_room(GameWorld) -> Int
 
 pub fn find_room_at(Array[@types.Room], Double, Double) -> Int
 
-pub fn generate_dungeon(Int) -> DungeonData
+pub fn generate_dungeon(Int, floor? : Int, params? : BalanceParams) -> DungeonData
 
 pub fn generate_item(Int, Int) -> ItemData
 
 pub fn generate_item_with_profile(Int, Int, AffixProfile) -> ItemData
 
+pub fn generate_item_with_profile_and_drop_config(Int, Int, AffixProfile, DropTableConfig) -> ItemData
+
 pub fn get_tile_height(DungeonData, Double, Double) -> Double
+
+pub let homing_missile_arc_frames : Int
+
+pub let homing_missile_cooldown : Int
+
+pub let homing_missile_initial_spread : Double
+
+pub let homing_missile_launch_offset : Double
+
+pub let homing_missile_lifetime : Int
+
+pub let homing_missile_range : Double
+
+pub let homing_missile_seek_range : Double
+
+pub let homing_missile_speed : Double
+
+pub let homing_missile_telegraph_radius : Double
+
+pub let homing_missile_turn_rate : Double
 
 pub let ice_nova_cooldown : Int
 
@@ -87,6 +150,8 @@ pub let ice_nova_radius : Double
 pub let iframe_duration : Int
 
 pub fn is_wall_at(@types.Grid2D, Double, Double) -> Bool
+
+pub fn item_rarity_rank(ItemRarity) -> Int
 
 pub let knockback_strength : Double
 
@@ -108,15 +173,21 @@ pub fn prefix_table_for(AffixProfile) -> Array[Affix]
 
 pub fn process_player_projectiles(GameWorld, Array[Projectile]) -> Unit
 
+pub fn roll_item_rarity(Int, Int, DropTableConfig) -> ItemRarity
+
 pub fn scale_affix(Affix, Int) -> Affix
 
 pub let screen_h : Int
 
 pub let screen_w : Int
 
+pub fn segment_hits_wall(@types.Grid2D, Double, Double, Double, Double, Double) -> Bool
+
 pub fn shoot_arrow(GameWorld, Enemy?) -> Unit
 
 pub fn skill_id_eq(SkillId, SkillId) -> Bool
+
+pub fn skill_id_from_int(Int) -> SkillId?
 
 pub fn skill_id_to_int(SkillId) -> Int
 
@@ -132,9 +203,11 @@ pub fn spawn_enemies_for_floor_with_params(Array[@types.Room], Int, Int, Int, Ba
 
 pub fn spawn_enemies_in_rooms(Array[@types.Room], Int, Int) -> Array[Enemy]
 
-pub fn spawn_enemies_in_rooms_with_params(Array[@types.Room], Int, Int, BalanceParams) -> Array[Enemy]
+pub fn spawn_enemies_in_rooms_with_params(Array[@types.Room], Int, Int, BalanceParams, floor? : Int) -> Array[Enemy]
 
 pub fn spawn_ground_item(GameWorld, Double, Double, ItemKind) -> Unit
+
+pub fn spell_skill_ids() -> Array[SkillId]
 
 pub let splitting_fireball_cooldown : Int
 
@@ -143,6 +216,8 @@ pub let splitting_fireball_split_angle : Double
 pub let splitting_fireball_split_children : Int
 
 pub let splitting_fireball_split_speed_mult : Double
+
+pub let splitting_fireball_telegraph_radius : Double
 
 pub let splitting_fireball_trail_interval : Int
 
@@ -154,7 +229,7 @@ pub fn suffix_table_for(AffixProfile) -> Array[Affix]
 
 pub let tile_size : Double
 
-pub fn update_enemy_ai(Array[Enemy], Player, @types.Grid2D, Array[@types.Room], Int, Array[Projectile], params? : BalanceParams) -> Unit
+pub fn update_enemy_ai(Array[Enemy], Player, @types.Grid2D, Array[@types.Room], Int, Array[Projectile], Array[GameEvent], params? : BalanceParams, floor? : Int) -> Unit
 
 pub let world_h : Double
 
@@ -206,14 +281,81 @@ pub(all) struct BalanceParams {
   enemy_contact_damage : Double
   player_base_hp : Double
   spawn_density : Double
+  spell_cooldown_mult : Double
+  spell_damage_mult : Double
+  enemy_bolt_damage : Double
+  ranged_shot_cooldown : Double
+  levelup_xp_base : Double
+  levelup_xp_growth : Double
+  drop_equipment_weight : Double
+  drop_health_weight : Double
+  drop_score_weight : Double
+  drop_weapon_weight : Double
+  drop_armor_weight : Double
+  drop_accessory_weight : Double
+  item_rarity_bonus_per_floor : Double
+  item_base_tier_per_floor : Double
+  item_prefix_tier_per_floor : Double
+  item_suffix_tier_per_floor : Double
+  item_modifier_tier_per_floor : Double
+  map_room_count_scale : Double
+  map_room_size_scale : Double
+  map_corridor_width_bonus : Double
+  pack_large_room_bonus : Double
+  enemy_hp_floor_scale : Double
+  enemy_speed_floor_scale : Double
+  enemy_damage_floor_scale : Double
   affix_profile : Int
 }
+pub fn BalanceParams::build_diverse_hackslash() -> Self
+pub fn BalanceParams::chain_lightning_cooldown_frames(Self) -> Int
 pub fn BalanceParams::clamp(Self) -> Self
 pub fn BalanceParams::default() -> Self
+pub fn BalanceParams::drop_table_config(Self) -> DropTableConfig
+pub fn BalanceParams::enemy_bolt_damage_int(Self) -> Int
 pub fn BalanceParams::from_array(Array[Double]) -> Self
+pub fn BalanceParams::from_preset(BalancePreset) -> Self
 pub fn BalanceParams::get_affix_profile(Self) -> AffixProfile
+pub fn BalanceParams::homing_missile_cooldown_frames(Self) -> Int
+pub fn BalanceParams::ice_nova_cooldown_frames(Self) -> Int
+pub fn BalanceParams::levelup_config(Self) -> @progression.LevelUpConfig
+pub fn BalanceParams::mechanics_roguelike() -> Self
 pub fn BalanceParams::param_names() -> Array[String]
+pub fn BalanceParams::ranged_shot_cooldown_frames(Self) -> Int
+pub fn BalanceParams::scale_enemy_damage_for_floor(Self, Int, Int) -> Int
+pub fn BalanceParams::scale_enemy_hp_for_floor(Self, Int, Int) -> Int
+pub fn BalanceParams::scale_enemy_speed_for_floor(Self, Double, Int) -> Double
+pub fn BalanceParams::scale_spell_damage(Self, Int) -> Int
+pub fn BalanceParams::spell_cooldown_frames(Self, Int) -> Int
+pub fn BalanceParams::splitting_fireball_cooldown_frames(Self) -> Int
 pub fn BalanceParams::to_array(Self) -> Array[Double]
+
+pub enum BalancePreset {
+  Default
+  BuildDiverseHackSlash
+  MechanicsRoguelike
+}
+pub impl Eq for BalancePreset
+pub impl Show for BalancePreset
+
+pub(all) struct DropTableConfig {
+  equipment_weight : Int
+  health_weight : Int
+  score_weight : Int
+  weapon_weight : Int
+  armor_weight : Int
+  accessory_weight : Int
+  rarity_bonus_per_floor : Double
+  base_item_tier_base : Double
+  base_item_tier_per_floor : Double
+  prefix_tier_base : Double
+  prefix_tier_per_floor : Double
+  suffix_tier_base : Double
+  suffix_tier_per_floor : Double
+  modifier_tier_base : Double
+  modifier_tier_per_floor : Double
+}
+pub fn DropTableConfig::default() -> Self
 
 pub(all) struct DungeonData {
   mut grid : @types.Grid2D
@@ -222,6 +364,10 @@ pub(all) struct DungeonData {
   mut start_y : Double
   height_map : Array[Double]
 }
+
+type DungeonGeneratorKind
+pub impl Eq for DungeonGeneratorKind
+pub impl Show for DungeonGeneratorKind
 
 pub(all) struct Enemy {
   mut x : Double
@@ -239,6 +385,9 @@ pub(all) struct Enemy {
   mut path_index : Int
   mut path_timer : Int
   mut shoot_cooldown : Int
+  mut pending_bolt_timer : Int
+  mut pending_bolt_target_x : Double
+  mut pending_bolt_target_y : Double
   mut charge_timer : Int
   mut charge_cooldown : Int
 }
@@ -264,7 +413,9 @@ pub(all) struct Equipment {
   mut accessory : ItemData?
 }
 pub fn Equipment::equip(Self, ItemData) -> ItemData?
+pub fn Equipment::item_for_slot(Self, EquipSlot) -> ItemData?
 pub fn Equipment::new() -> Self
+pub fn Equipment::should_equip(Self, ItemData) -> Bool
 pub fn Equipment::total_atk(Self) -> Int
 pub fn Equipment::total_cooldown_reduction(Self) -> Double
 pub fn Equipment::total_crit(Self) -> Double
@@ -278,8 +429,15 @@ pub(all) enum GameEvent {
   DeathBurst(Double, Double)
   DashTrail(Double, Double)
   PlayerHurt(Double, Double)
+  PlayerDamageNumber(Double, Double, Int)
+  EnemyDamageNumber(Double, Double, Int)
   ItemPickup(Double, Double, Bool)
+  GroundTelegraphRing(Double, Double, Double)
+  GroundTelegraphLine(Double, Double, Double, Double)
   ChainLightningArc(Double, Double, Double, Double)
+  HomingMissileLaunch(Double, Double, Double, Double)
+  HomingMissileTrail(Double, Double, Double, Double)
+  HomingMissileImpact(Double, Double)
   FireballCast(Double, Double)
   FireballTrail(Double, Double)
   FireballBurst(Double, Double)
@@ -312,11 +470,13 @@ pub(all) struct GameWorld {
   mut screen_flash : Int
   mut floor_announce_timer : Int
   mut chain_lightning_cooldown_timer : Int
+  mut homing_missile_cooldown_timer : Int
   mut splitting_fireball_cooldown_timer : Int
   mut ice_nova_cooldown_timer : Int
   inventory : Inventory
   equipment : Equipment
   skills : SkillTree
+  mut level_progress : LevelProgression
   mut player_stats : PlayerStats
   mut ui_mode : UIMode
   mut ui_cursor : Int
@@ -325,19 +485,26 @@ pub(all) struct GameWorld {
   mut auto_nav_path : Array[@types.Point]
   mut auto_nav_index : Int
   mut auto_cleared_rooms : Array[Bool]
+  mut discovered_rooms : Array[Bool]
+  mut discovered_rooms_version : Int
   mut events : Array[GameEvent]
   mut enemy_separation_cell_heads : Array[Int]
   mut enemy_separation_next_indices : Array[Int]
   mut enemy_separation_cell_indices : Array[Int]
 }
 pub fn GameWorld::apply_dungeon(Self, Int, Int) -> Unit
+pub fn GameWorld::apply_levelup_offer_choice(Self, Int, Int) -> Bool
 pub fn GameWorld::auto_activate_skills(Self, Int) -> Unit
 pub fn GameWorld::auto_activate_spell_slots(Self, Int, Double) -> Unit
+pub fn GameWorld::auto_choose_levelup_offer(Self) -> Unit
 pub fn GameWorld::auto_equip_best(Self) -> Unit
-pub fn GameWorld::auto_learn_skills(Self) -> Unit
+pub fn GameWorld::collect_equipment_pickup(Self, ItemData) -> Bool
 pub fn GameWorld::deal_player_damage(Self, Int) -> Unit
 pub fn GameWorld::drain_events(Self) -> Array[GameEvent]
+pub fn GameWorld::mark_current_room_discovered(Self) -> Unit
 pub fn GameWorld::new(seed~ : Int, params? : BalanceParams) -> Self
+pub fn GameWorld::open_levelup_ui_if_needed(Self) -> Unit
+pub fn GameWorld::refresh_player_stats(Self) -> Unit
 pub fn GameWorld::reset_floor(Self) -> Unit
 pub fn GameWorld::resolve_enemy_enemy_separation(Self) -> Unit
 pub fn GameWorld::tick(Self, Double, Double) -> Unit
@@ -358,6 +525,7 @@ pub(all) struct Inventory {
   capacity : Int
 }
 pub fn Inventory::add(Self, ItemData) -> Bool
+pub fn Inventory::add_fifo(Self, ItemData) -> ItemData?
 pub fn Inventory::count(Self) -> Int
 pub fn Inventory::new(Int) -> Self
 pub fn Inventory::remove(Self, Int) -> ItemData?
@@ -381,6 +549,7 @@ pub fn ItemData::total_def(Self) -> Int
 pub fn ItemData::total_hp(Self) -> Int
 pub fn ItemData::total_life_steal(Self) -> Double
 pub fn ItemData::total_speed_bonus(Self) -> Double
+pub fn ItemData::total_stat_score(Self) -> Double
 
 pub(all) struct ItemDrop {
   mut x : Double
@@ -406,6 +575,17 @@ pub(all) enum ItemRarity {
   Epic
 }
 pub fn ItemRarity::color(Self) -> Int
+
+pub(all) struct LevelProgression {
+  mut level : Int
+  mut xp : Int
+  mut next_level_xp : Int
+  mut pending_choices : Int
+  mut current_offers : Array[SkillId]
+}
+pub fn LevelProgression::choose_offer(Self, SkillTree, Int, Int) -> Bool
+pub fn LevelProgression::gain_xp(Self, SkillTree, Int, Int, @progression.LevelUpConfig) -> Bool
+pub fn LevelProgression::new(config? : @progression.LevelUpConfig) -> Self
 
 pub(all) struct Player {
   mut x : Double
@@ -436,8 +616,9 @@ pub(all) struct PlayerStats {
 pub(all) struct Projectile {
   mut x : Double
   mut y : Double
-  vx : Double
-  vy : Double
+  mut vx : Double
+  mut vy : Double
+  mut age : Int
   mut alive : Bool
   damage : Int
   is_player : Bool
@@ -447,6 +628,7 @@ pub(all) struct Projectile {
 pub(all) enum ProjectileKind {
   Arrow
   Fireball(Int)
+  HomingMissile
   EnemyBolt
 }
 pub impl Eq for ProjectileKind
@@ -459,6 +641,10 @@ pub(all) enum SkillId {
   Vitality
   CriticalHit
   LifeSteal
+  ChainLightning
+  SplittingFireball
+  IceNova
+  HomingMissile
 }
 
 pub(all) struct SkillNode {
@@ -475,20 +661,26 @@ pub(all) struct SkillTree {
   nodes : Array[SkillNode]
   mut skill_points : Int
 }
+pub fn SkillTree::available_levelup_skill_ids(Self) -> Array[SkillId]
 pub fn SkillTree::can_learn(Self, SkillId) -> Bool
+pub fn SkillTree::can_learn_from_levelup(Self, SkillId) -> Bool
 pub fn SkillTree::find(Self, SkillId) -> SkillNode?
 pub fn SkillTree::get_level(Self, SkillId) -> Int
 pub fn SkillTree::learn(Self, SkillId) -> Bool
+pub fn SkillTree::learn_from_levelup(Self, SkillId) -> Bool
+pub fn SkillTree::learned_node_count(Self) -> Int
 pub fn SkillTree::new() -> Self
 
 pub(all) enum UIMode {
   None
   Inventory
   Skills
+  LevelUp
 }
 pub impl Eq for UIMode
 
 // Type aliases
+pub using @progression {type LevelUpConfig}
 
 // Traits
 

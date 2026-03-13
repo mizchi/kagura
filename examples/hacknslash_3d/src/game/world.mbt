@@ -148,6 +148,7 @@ pub fn GameWorld::deal_player_damage(self : GameWorld, raw_dmg : Int) -> Unit {
   self.player.iframe_timer = self.params.iframe_duration.to_int()
   self.screen_flash = 3
   self.events.push(PlayerHurt(self.player.x, self.player.y))
+  self.events.push(PlayerDamageNumber(self.player.x, self.player.y, actual_dmg))
   self.events.push(HurtTriggered)
   if self.player.hp <= 0 {
     self.mode = GameOver
@@ -703,12 +704,13 @@ pub fn GameWorld::tick_items_phase(self : GameWorld) -> Unit {
               score_amount=5,
               heal_amount=2,
             )
-            match @gameplay2d.apply_builtin_pickup_effect(
-              HealthPickup,
-              self.player.hp,
-              self.player_stats.max_hp,
-              rewards,
-            ) {
+            match
+              @gameplay2d.apply_builtin_pickup_effect(
+                HealthPickup,
+                self.player.hp,
+                self.player_stats.max_hp,
+                rewards,
+              ) {
               Some((next_hp, _score_delta, heal_feedback)) => {
                 item.alive = false
                 self.events.push(ItemPickup(item.x, item.y, heal_feedback))
@@ -722,12 +724,13 @@ pub fn GameWorld::tick_items_phase(self : GameWorld) -> Unit {
               score_amount=5,
               heal_amount=2,
             )
-            match @gameplay2d.apply_builtin_pickup_effect(
-              ScorePickup,
-              self.player.hp,
-              self.player_stats.max_hp,
-              rewards,
-            ) {
+            match
+              @gameplay2d.apply_builtin_pickup_effect(
+                ScorePickup,
+                self.player.hp,
+                self.player_stats.max_hp,
+                rewards,
+              ) {
               Some((_next_hp, score_delta, heal_feedback)) => {
                 item.alive = false
                 self.events.push(ItemPickup(item.x, item.y, heal_feedback))

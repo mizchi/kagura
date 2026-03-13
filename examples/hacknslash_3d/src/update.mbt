@@ -177,6 +177,7 @@ fn GameState::new_with_params_and_ssao(
     visible_dungeon_mesh_cache_builds: 0,
     generated_props: [],
     active_effects: [],
+    damage_popups: [],
     audio_ctx: @audio.MixerAudioContext::new(44100),
     audio_muted: false,
     audio_players: default_game_audio_players(),
@@ -442,6 +443,7 @@ fn GameState::update_playing(self : GameState) -> Unit {
       None => self.world.tick(dx, dy)
     }
   }
+  self.update_damage_popups()
   // Process events from world tick
   let events = self.world.drain_events()
   for event in events {
@@ -451,6 +453,10 @@ fn GameState::update_playing(self : GameState) -> Unit {
       @game.DeathBurst(x, y) => spawn_death_burst(self.particle_manager, x, y)
       @game.DashTrail(x, y) => spawn_dash_trail(self.particle_manager, x, y)
       @game.PlayerHurt(x, y) => spawn_player_hurt(self.particle_manager, x, y)
+      @game.PlayerDamageNumber(x, y, amount) =>
+        self.spawn_damage_popup(x, y, amount, 0xFF7777)
+      @game.EnemyDamageNumber(x, y, amount) =>
+        self.spawn_damage_popup(x, y, amount, 0xFF4444)
       @game.ItemPickup(x, y, is_health) =>
         spawn_item_pickup(self.particle_manager, x, y, is_health)
       @game.GroundTelegraphRing(x, y, radius) =>
@@ -522,6 +528,30 @@ fn GameState::update_playing(self : GameState) -> Unit {
   self.update_active_effects(1.0 / 60.0)
   // Update particles
   self.particle_manager.update(1.0 / 60.0)
+}
+
+///|
+fn GameState::spawn_damage_popup(
+  self : GameState,
+  x : Double,
+  y : Double,
+  amount : Int,
+  color_hex : Int,
+) -> Unit {
+  self.damage_popups.push({ x, y, amount, color_hex, ttl: 30, rise: 0.0 })
+}
+
+///|
+fn GameState::update_damage_popups(self : GameState) -> Unit {
+  let still_active : Array[DamagePopup] = []
+  for popup in self.damage_popups {
+    popup.ttl = popup.ttl - 1
+    popup.rise = popup.rise + 0.025
+    if popup.ttl > 0 {
+      still_active.push(popup)
+    }
+  }
+  self.damage_popups = still_active
 }
 
 // Rebuild dungeon rendering state after dungeon changes (floor complete, game over reset, load)

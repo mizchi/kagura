@@ -5,6 +5,7 @@ import {
   "mizchi/kagura/gfx" @gfx,
   "mizchi/kagura/inpututil" @inpututil,
   "mizchi/kagura/ui" @ui,
+  "mizchi/web_runtime_hooks" @web_hooks,
 }
 
 warnings = "-1-2-29-71"

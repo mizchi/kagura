@@ -4,6 +4,7 @@ import {
   "mizchi/kagura/inpututil" @inpututil,
   "mizchi/kagura/scene" @scene,
   "mizchi/kagura/vector" @vector,
+  "mizchi/web_runtime_hooks" @web_hooks,
 }
 
 warnings = "-1-2-29-71"

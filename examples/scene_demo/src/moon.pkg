@@ -3,6 +3,7 @@ import {
   "mizchi/kagura/scene" @scene,
   "mizchi/kagura/core" @core,
   "mizchi/kagura/inpututil" @inpututil,
+  "mizchi/web_runtime_hooks" @web_hooks,
 }
 
 warnings = "-29"

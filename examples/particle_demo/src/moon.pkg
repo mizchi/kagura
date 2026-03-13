@@ -7,6 +7,7 @@ import {
   "mizchi/kagura/gfx" @gfx,
   "mizchi/kagura/math3d" @math3d,
   "mizchi/kagura/particle3d" @particle3d,
+  "mizchi/web_runtime_hooks" @web_hooks,
 }
 
 warnings = "-1-2-29-71"

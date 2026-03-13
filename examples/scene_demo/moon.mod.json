@@ -7,7 +7,10 @@
     "mizchi/kagura": {
       "path": "../.."
     },
-    "mizchi/signals": "0.6.3"
+    "mizchi/signals": "0.6.3",
+    "mizchi/web_runtime_hooks": {
+      "path": "../web_runtime_hooks"
+    }
   },
   "--moonbit-unstable-prebuild": "../../scripts/moon-prebuild-native-link-flags.cjs"
 }

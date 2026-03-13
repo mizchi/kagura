@@ -11,6 +11,7 @@ import {
   "mizchi/kagura/physics3d" @physics3d,
   "mizchi/kagura/scene3d" @scene3d,
   "mizchi/kagura/transform3d" @transform3d,
+  "mizchi/web_runtime_hooks" @web_hooks,
 }
 
 warnings = "-1-2-29-71"

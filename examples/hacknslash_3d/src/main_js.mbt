@@ -231,11 +231,23 @@ fn apply_initial_mode_overrides(
 }
 
 ///|
+fn build_initial_balance_params(preset_name : String) -> @game.BalanceParams {
+  @game.BalanceParams::from_preset(@game.balance_preset_from_name(preset_name))
+}
+
+///|
 fn build_initial_state() -> GameState {
+  let initial_balance_params = build_initial_balance_params(
+    get_initial_balance_preset_name(),
+  )
   let state = if get_initial_ssao_enabled() {
-    GameState::new_with_ssao(seed=42, SSAOConfig::enabled_default())
+    GameState::new_with_params_and_ssao(
+      seed=42,
+      initial_balance_params,
+      SSAOConfig::enabled_default(),
+    )
   } else {
-    GameState::new(seed=42)
+    GameState::new_with_params(seed=42, initial_balance_params)
   }
   state.show_profiler = get_initial_profiler_enabled()
   state.fxaa_enabled = get_initial_fxaa_enabled()

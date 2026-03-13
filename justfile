@@ -193,6 +193,9 @@ balance name="playtest":
 balance-autoplay-record out_dir="examples/hacknslash_3d/data/hackslash/autoplay_experiments":
     node examples/hacknslash_3d/scripts/balance_autoplay_record.mjs --out-dir {{out_dir}}
 
+balance-hypothesis-record out_dir="examples/hacknslash_3d/data/hackslash/autoplay_hypothesis_experiments" extra="":
+    node examples/hacknslash_3d/scripts/balance_hypothesis_record.mjs --out-dir {{out_dir}} {{extra}}
+
 # WASM game host tasks
 wasm-build-moonbit:
     cd examples/wasm_game/guest/moonbit && moon build --target wasm

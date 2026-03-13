@@ -7,12 +7,41 @@ fn half_res_target_size(size : Int) -> Int {
 
 ///|
 fn GameState::new(seed~ : Int) -> GameState {
-  GameState::new_with_ssao(seed~, SSAOConfig::disabled_default())
+  GameState::new_with_params_and_ssao(
+    seed~,
+    @game.BalanceParams::default(),
+    SSAOConfig::disabled_default(),
+  )
 }
 
 ///|
 fn GameState::new_with_ssao(seed~ : Int, ssao_config : SSAOConfig) -> GameState {
-  let world = @game.GameWorld::new(seed~)
+  GameState::new_with_params_and_ssao(
+    seed~,
+    @game.BalanceParams::default(),
+    ssao_config,
+  )
+}
+
+///|
+fn GameState::new_with_params(
+  seed~ : Int,
+  params : @game.BalanceParams,
+) -> GameState {
+  GameState::new_with_params_and_ssao(
+    seed~,
+    params,
+    SSAOConfig::disabled_default(),
+  )
+}
+
+///|
+fn GameState::new_with_params_and_ssao(
+  seed~ : Int,
+  params : @game.BalanceParams,
+  ssao_config : SSAOConfig,
+) -> GameState {
+  let world = @game.GameWorld::new(seed~, params=params)
   let sw = screen_w.to_double()
   let sh = screen_h.to_double()
   let bloom_w = half_res_target_size(screen_w)

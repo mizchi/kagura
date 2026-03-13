@@ -11,6 +11,7 @@ test "avg_hp_ratio empty" {
     kill_frames: [],
     damage_frames: [],
     equip_upgrades: 0,
+    learned_skill_count: 0,
     near_death_count: 0,
   }
   assert_true(m.avg_hp_ratio() < 0.001)
@@ -29,6 +30,7 @@ test "avg_hp_ratio computes mean" {
     kill_frames: [],
     damage_frames: [],
     equip_upgrades: 0,
+    learned_skill_count: 0,
     near_death_count: 0,
   }
   let avg = m.avg_hp_ratio()
@@ -48,6 +50,7 @@ test "hp_coefficient_of_variation" {
     kill_frames: [],
     damage_frames: [],
     equip_upgrades: 0,
+    learned_skill_count: 0,
     near_death_count: 0,
   }
   // All same => variance=0 => cv=0
@@ -67,6 +70,7 @@ test "avg_floor_time" {
     kill_frames: [],
     damage_frames: [],
     equip_upgrades: 0,
+    learned_skill_count: 0,
     near_death_count: 0,
   }
   assert_true((m.avg_floor_time() - 200.0).abs() < 0.01)
@@ -85,6 +89,7 @@ test "avg_kill_interval" {
     kill_frames: [10, 60, 110, 160],
     damage_frames: [],
     equip_upgrades: 0,
+    learned_skill_count: 0,
     near_death_count: 0,
   }
   // intervals: 50, 50, 50 => avg = 50
@@ -104,6 +109,7 @@ test "kill_interval_cv uniform kills" {
     kill_frames: [0, 100, 200, 300],
     damage_frames: [],
     equip_upgrades: 0,
+    learned_skill_count: 0,
     near_death_count: 0,
   }
   // uniform intervals => cv = 0
@@ -123,6 +129,7 @@ test "kills_per_floor" {
     kill_frames: [],
     damage_frames: [],
     equip_upgrades: 0,
+    learned_skill_count: 0,
     near_death_count: 0,
   }
   assert_true((m.kills_per_floor() - 10.0).abs() < 0.01)
@@ -141,6 +148,7 @@ test "near_death_rate" {
     kill_frames: [],
     damage_frames: [],
     equip_upgrades: 0,
+    learned_skill_count: 0,
     near_death_count: 0,
   }
   assert_true((m.near_death_rate() - 0.5).abs() < 0.01)
@@ -159,6 +167,7 @@ test "avg_damage_interval" {
     kill_frames: [],
     damage_frames: [100, 200, 300],
     equip_upgrades: 0,
+    learned_skill_count: 0,
     near_death_count: 0,
   }
   assert_true((m.avg_damage_interval() - 100.0).abs() < 0.01)

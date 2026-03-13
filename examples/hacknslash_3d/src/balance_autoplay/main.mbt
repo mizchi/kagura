@@ -1,9 +1,6 @@
 fn main {
   println("=== HACKNSLASH AUTOPLAY REBALANCE TUNER ===")
-  let max_generations = 40
-  let sim_max_frames = 7200
   let seeds : Array[Int] = [42, 137, 256, 512]
-  let start_floor = 5
   let args = @sys.get_cli_args()
   let output_path =
     if args.length() >= 2 {
@@ -23,8 +20,47 @@ fn main {
     } else {
       "1970-01-01T00:00:00Z"
     }
-  let specs = @blib.param_specs_autoplay_rebalance()
-  let targets = @blib.BalanceTargets::autoplay_rebalance().to_dec_targets()
+  let hypothesis_name =
+    if args.length() >= 5 {
+      args[4]
+    } else {
+      "autoplay_rebalance"
+    }
+  let runner =
+    if args.length() >= 6 {
+      args[5]
+    } else {
+      "balance_autoplay"
+    }
+  let start_floor =
+    if args.length() >= 7 {
+      parse_int(args[6], 5)
+    } else {
+      5
+    }
+  let sim_max_frames =
+    if args.length() >= 8 {
+      parse_int(args[7], 7200)
+    } else {
+      7200
+    }
+  let max_generations =
+    if args.length() >= 9 {
+      parse_int(args[8], 40)
+    } else {
+      40
+    }
+  let hypothesis =
+    match @blib.balance_hypothesis_from_name(hypothesis_name) {
+      Some(h) => h
+      None => {
+        println("Unknown hypothesis: " + hypothesis_name)
+        @sys.exit(1)
+        panic()
+      }
+    }
+  let targets = hypothesis.targets.to_dec_targets()
+  let specs = @blib.param_specs_for_hypothesis(hypothesis.name)
   let sim = @blib.make_autoplay_rebalance_sim(0, sim_max_frames, start_floor)
   let initial = @dec.initial_params(specs)
   let (base_loss, base_metrics) = @dec.compute_loss_averaged(
@@ -49,6 +85,8 @@ fn main {
       let export_config : AutoplayExperimentConfig = {
         experiment_id,
         created_at_utc,
+        runner,
+        hypothesis_name: hypothesis.name,
         start_floor,
         sim_max_frames,
         max_generations,
@@ -122,4 +160,28 @@ fn fmt(v : Double) -> String {
   let frac = ((abs_v - int_part.to_double()) * 100.0).to_int()
   let p = if frac < 10 { "0" + frac.to_string() } else { frac.to_string() }
   sign + int_part.to_string() + "." + p
+}
+
+fn parse_int(s : String, fallback : Int) -> Int {
+  let mut result = 0
+  let mut negative = false
+  let mut found_digit = false
+  for i, c in s {
+    if i == 0 && c == '-' {
+      negative = true
+      continue
+    }
+    let d = c.to_int() - '0'.to_int()
+    if d >= 0 && d <= 9 {
+      result = result * 10 + d
+      found_digit = true
+    }
+  }
+  if !found_digit {
+    fallback
+  } else if negative {
+    -result
+  } else {
+    result
+  }
 }

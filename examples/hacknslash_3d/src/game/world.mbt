@@ -58,7 +58,7 @@ pub fn GameWorld::new(
   seed~ : Int,
   params? : BalanceParams = BalanceParams::default(),
 ) -> GameWorld {
-  let dungeon = generate_dungeon(seed)
+  let dungeon = generate_dungeon(seed, params=params)
   let equipment = Equipment::new()
   let skills = SkillTree::new()
   let player_stats = compute_player_stats(
@@ -160,7 +160,7 @@ pub fn GameWorld::apply_dungeon(
   seed : Int,
   floor : Int,
 ) -> Unit {
-  let dungeon = generate_dungeon(seed, floor~)
+  let dungeon = generate_dungeon(seed, floor~, params=self.params)
   self.dungeon.grid = dungeon.grid
   self.dungeon.rooms.clear()
   for room in dungeon.rooms {

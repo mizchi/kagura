@@ -7,6 +7,14 @@ pub(all) struct DropTableConfig {
   armor_weight : Int
   accessory_weight : Int
   rarity_bonus_per_floor : Double
+  base_item_tier_base : Double
+  base_item_tier_per_floor : Double
+  prefix_tier_base : Double
+  prefix_tier_per_floor : Double
+  suffix_tier_base : Double
+  suffix_tier_per_floor : Double
+  modifier_tier_base : Double
+  modifier_tier_per_floor : Double
 }
 
 ///|
@@ -19,6 +27,50 @@ pub fn DropTableConfig::default() -> DropTableConfig {
     armor_weight: 1,
     accessory_weight: 1,
     rarity_bonus_per_floor: 0.0,
+    base_item_tier_base: 1.0,
+    base_item_tier_per_floor: 0.0,
+    prefix_tier_base: 0.0,
+    prefix_tier_per_floor: 0.0,
+    suffix_tier_base: 0.0,
+    suffix_tier_per_floor: 0.0,
+    modifier_tier_base: 0.0,
+    modifier_tier_per_floor: 0.0,
+  }
+}
+
+///|
+fn item_tier_value(base : Double, per_floor : Double, floor : Int) -> Double {
+  base + @cmp.maximum(0, floor - 1).to_double() * per_floor
+}
+
+///|
+fn scaled_base_item_stat(
+  base_value : Int,
+  tier_value : Double,
+  rarity_mult : Int,
+  modifier_tier : Double,
+) -> Int {
+  let multiplier = 1.0 + tier_value * 0.35 + modifier_tier * 0.2
+  @cmp.maximum(
+    1,
+    (base_value.to_double() * rarity_mult.to_double() * multiplier).to_int(),
+  )
+}
+
+///|
+fn scale_affix_with_tier(
+  affix : Affix,
+  floor : Int,
+  tier_value : Double,
+  modifier_tier : Double,
+) -> Affix {
+  let scaled = scale_affix(affix, floor)
+  let multiplier = 1.0 + tier_value * 0.3 + modifier_tier * 0.15
+  {
+    ..scaled,
+    atk: @cmp.maximum(0, (scaled.atk.to_double() * multiplier).to_int()),
+    def: @cmp.maximum(0, (scaled.def.to_double() * multiplier).to_int()),
+    hp: @cmp.maximum(0, (scaled.hp.to_double() * multiplier).to_int()),
   }
 }
 
@@ -104,11 +156,46 @@ pub fn generate_item_with_profile_and_drop_config(
   let slot = weighted_slot_pick(rng, config)
   let rarity = roll_item_rarity(rng, floor, config)
   let rarity_mult = rarity_multiplier(rarity)
+  let base_tier = item_tier_value(
+    config.base_item_tier_base,
+    config.base_item_tier_per_floor,
+    floor,
+  )
+  let prefix_tier = item_tier_value(
+    config.prefix_tier_base,
+    config.prefix_tier_per_floor,
+    floor,
+  )
+  let suffix_tier = item_tier_value(
+    config.suffix_tier_base,
+    config.suffix_tier_per_floor,
+    floor,
+  )
+  let modifier_tier = item_tier_value(
+    config.modifier_tier_base,
+    config.modifier_tier_per_floor,
+    floor,
+  )
   let base = 1 + floor / 3
   let (atk, def, hp) = match slot {
-    Weapon => (base * rarity_mult, 0, 0)
-    Armor => (0, base * rarity_mult, base)
-    Accessory => (base, base, base * rarity_mult)
+    Weapon =>
+      (
+        scaled_base_item_stat(base, base_tier, rarity_mult, modifier_tier),
+        0,
+        0,
+      )
+    Armor =>
+      (
+        0,
+        scaled_base_item_stat(base, base_tier, rarity_mult, modifier_tier),
+        @cmp.maximum(1, (base.to_double() * (1.0 + base_tier * 0.25)).to_int()),
+      )
+    Accessory =>
+      (
+        @cmp.maximum(1, (base.to_double() * (1.0 + base_tier * 0.2)).to_int()),
+        @cmp.maximum(1, (base.to_double() * (1.0 + base_tier * 0.2)).to_int()),
+        scaled_base_item_stat(base, base_tier, rarity_mult, modifier_tier),
+      )
   }
   let slot_name = match slot {
     Weapon => "Sword"
@@ -123,19 +210,67 @@ pub fn generate_item_with_profile_and_drop_config(
     Common => (None, None)
     Uncommon =>
       if rng / 30 % 2 == 0 {
-        (Some(scale_affix(prefixes[prefix_seed], floor)), None)
+        (
+          Some(
+            scale_affix_with_tier(
+              prefixes[prefix_seed],
+              floor,
+              prefix_tier,
+              modifier_tier,
+            ),
+          ),
+          None,
+        )
       } else {
-        (None, Some(scale_affix(suffixes[suffix_seed], floor)))
+        (
+          None,
+          Some(
+            scale_affix_with_tier(
+              suffixes[suffix_seed],
+              floor,
+              suffix_tier,
+              modifier_tier,
+            ),
+          ),
+        )
       }
     Rare =>
       (
-        Some(scale_affix(prefixes[prefix_seed], floor)),
-        Some(scale_affix(suffixes[suffix_seed], floor)),
+        Some(
+          scale_affix_with_tier(
+            prefixes[prefix_seed],
+            floor,
+            prefix_tier,
+            modifier_tier,
+          ),
+        ),
+        Some(
+          scale_affix_with_tier(
+            suffixes[suffix_seed],
+            floor,
+            suffix_tier,
+            modifier_tier,
+          ),
+        ),
       )
     Epic =>
       (
-        Some(scale_affix(prefixes[prefix_seed], floor)),
-        Some(scale_affix(suffixes[suffix_seed], floor)),
+        Some(
+          scale_affix_with_tier(
+            prefixes[prefix_seed],
+            floor,
+            prefix_tier,
+            modifier_tier,
+          ),
+        ),
+        Some(
+          scale_affix_with_tier(
+            suffixes[suffix_seed],
+            floor,
+            suffix_tier,
+            modifier_tier,
+          ),
+        ),
       )
   }
   {

@@ -2,6 +2,13 @@
 // All values are Double for smooth optimization; cast to Int at use site
 
 ///|
+pub enum BalancePreset {
+  Default
+  BuildDiverseHackSlash
+  MechanicsRoguelike
+} derive(Eq, Show)
+
+///|
 pub(all) struct BalanceParams {
   player_speed : Double
   enemy_speed_basic : Double
@@ -40,6 +47,14 @@ pub(all) struct BalanceParams {
   drop_armor_weight : Double
   drop_accessory_weight : Double
   item_rarity_bonus_per_floor : Double
+  item_base_tier_per_floor : Double
+  item_prefix_tier_per_floor : Double
+  item_suffix_tier_per_floor : Double
+  item_modifier_tier_per_floor : Double
+  map_room_count_scale : Double
+  map_room_size_scale : Double
+  map_corridor_width_bonus : Double
+  pack_large_room_bonus : Double
   enemy_hp_floor_scale : Double
   enemy_speed_floor_scale : Double
   enemy_damage_floor_scale : Double
@@ -47,7 +62,18 @@ pub(all) struct BalanceParams {
 }
 
 ///|
-pub let balance_param_count : Int = 39
+pub let balance_param_count : Int = 47
+
+///|
+pub fn balance_preset_from_name(name : String) -> BalancePreset {
+  match name {
+    "build_diverse_hackslash" | "build_diverse" | "hackslash" =>
+      BuildDiverseHackSlash
+    "mechanics_roguelike" | "mechanics_roguelike_v2" | "roguelike" =>
+      MechanicsRoguelike
+    _ => Default
+  }
+}
 
 ///|
 pub fn BalanceParams::default() -> BalanceParams {
@@ -88,10 +114,135 @@ pub fn BalanceParams::default() -> BalanceParams {
     drop_armor_weight: 1.0,
     drop_accessory_weight: 1.0,
     item_rarity_bonus_per_floor: 0.0,
+    item_base_tier_per_floor: 0.25,
+    item_prefix_tier_per_floor: 0.18,
+    item_suffix_tier_per_floor: 0.14,
+    item_modifier_tier_per_floor: 0.08,
+    map_room_count_scale: 1.0,
+    map_room_size_scale: 1.0,
+    map_corridor_width_bonus: 0.0,
+    pack_large_room_bonus: 0.0,
     enemy_hp_floor_scale: 0.15,
     enemy_speed_floor_scale: 0.03,
     enemy_damage_floor_scale: 0.08,
     affix_profile: 0,
+  }
+}
+
+///|
+pub fn BalanceParams::build_diverse_hackslash() -> BalanceParams {
+  {
+    player_speed: 2.0,
+    enemy_speed_basic: 0.8,
+    enemy_speed_fast: 2.4097665998280893,
+    enemy_speed_tank: 0.4109976655911408,
+    attack_cooldown: 16.0,
+    arrow_speed: 4.5,
+    arrow_range: 93.6545947091699,
+    bow_cooldown: 14.971207912462834,
+    chase_range: 184.97155829958325,
+    knockback_strength: 3.0009326154441,
+    iframe_duration: 12.660055056711197,
+    dash_duration: 4.904334216202607,
+    dash_cooldown: 37.76302876567426,
+    dash_speed_mult: 2.507586859390241,
+    basic_hp: 6.253729078867858,
+    fast_hp: 3.7305791707854983,
+    tank_hp: 10.200020084353746,
+    ranged_hp: 2.150006468609155,
+    boss_hp_base: 21.669594264717357,
+    boss_hp_per_floor: 5.133188030755077,
+    enemy_contact_damage: 2.368975409961992,
+    player_base_hp: 3.0,
+    spawn_density: 1.0,
+    spell_cooldown_mult: 1.125592230777317,
+    spell_damage_mult: 0.5352601566263829,
+    enemy_bolt_damage: 1.7877006387857546,
+    ranged_shot_cooldown: 56.284684566415045,
+    levelup_xp_base: 10.751973158257536,
+    levelup_xp_growth: 5.902750872121251,
+    drop_equipment_weight: 21.470187809790357,
+    drop_health_weight: 21.174729595285136,
+    drop_score_weight: 14.13297711733712,
+    drop_weapon_weight: 1.0,
+    drop_armor_weight: 1.0,
+    drop_accessory_weight: 1.3292847614745906,
+    item_rarity_bonus_per_floor: 0.0,
+    item_base_tier_per_floor: 0.2173319294818014,
+    item_prefix_tier_per_floor: 0.21382298654392617,
+    item_suffix_tier_per_floor: 0.15338956128076195,
+    item_modifier_tier_per_floor: 0.0,
+    map_room_count_scale: 1.0,
+    map_room_size_scale: 1.2253745535048524,
+    map_corridor_width_bonus: 0.04293665164259668,
+    pack_large_room_bonus: 0.0,
+    enemy_hp_floor_scale: 0.1455011738707569,
+    enemy_speed_floor_scale: 0.2,
+    enemy_damage_floor_scale: 0.35,
+    affix_profile: 0,
+  }
+}
+
+///|
+pub fn BalanceParams::mechanics_roguelike() -> BalanceParams {
+  {
+    player_speed: 1.45,
+    enemy_speed_basic: 2.031173364711682,
+    enemy_speed_fast: 1.3,
+    enemy_speed_tank: 0.5,
+    attack_cooldown: 31.98915589692,
+    arrow_speed: 3.8230630799290046,
+    arrow_range: 150.0,
+    bow_cooldown: 15.584374516791584,
+    chase_range: 110.0,
+    knockback_strength: 1.5,
+    iframe_duration: 27.503997985124602,
+    dash_duration: 6.648466095565617,
+    dash_cooldown: 30.0,
+    dash_speed_mult: 2.866739317075175,
+    basic_hp: 7.443085309689287,
+    fast_hp: 2.5,
+    tank_hp: 9.351042440388083,
+    ranged_hp: 2.0,
+    boss_hp_base: 22.0,
+    boss_hp_per_floor: 2.942515103134292,
+    enemy_contact_damage: 3.574939426103503,
+    player_base_hp: 4.458500700185323,
+    spawn_density: 1.0,
+    spell_cooldown_mult: 1.1195861600925212,
+    spell_damage_mult: 0.7312348672858308,
+    enemy_bolt_damage: 4.34362329908358,
+    ranged_shot_cooldown: 62.915406323491275,
+    levelup_xp_base: 9.084748085001639,
+    levelup_xp_growth: 1.7365994739559514,
+    drop_equipment_weight: 23.691353938140878,
+    drop_health_weight: 18.77425513811207,
+    drop_score_weight: 14.152689461544806,
+    drop_weapon_weight: 1.0,
+    drop_armor_weight: 1.3597392986160064,
+    drop_accessory_weight: 1.0,
+    item_rarity_bonus_per_floor: 1.0,
+    item_base_tier_per_floor: 0.2,
+    item_prefix_tier_per_floor: 0.23052515506469717,
+    item_suffix_tier_per_floor: 0.23728672821507085,
+    item_modifier_tier_per_floor: 0.1,
+    map_room_count_scale: 0.9,
+    map_room_size_scale: 1.05,
+    map_corridor_width_bonus: 0.0,
+    pack_large_room_bonus: 0.32244256804539967,
+    enemy_hp_floor_scale: 0.12,
+    enemy_speed_floor_scale: 0.25,
+    enemy_damage_floor_scale: 0.176011844226213,
+    affix_profile: 0,
+  }
+}
+
+///|
+pub fn BalanceParams::from_preset(preset : BalancePreset) -> BalanceParams {
+  match preset {
+    Default => BalanceParams::default()
+    BuildDiverseHackSlash => BalanceParams::build_diverse_hackslash()
+    MechanicsRoguelike => BalanceParams::mechanics_roguelike()
   }
 }
 
@@ -134,6 +285,14 @@ pub fn BalanceParams::to_array(self : BalanceParams) -> Array[Double] {
     self.drop_armor_weight,
     self.drop_accessory_weight,
     self.item_rarity_bonus_per_floor,
+    self.item_base_tier_per_floor,
+    self.item_prefix_tier_per_floor,
+    self.item_suffix_tier_per_floor,
+    self.item_modifier_tier_per_floor,
+    self.map_room_count_scale,
+    self.map_room_size_scale,
+    self.map_corridor_width_bonus,
+    self.pack_large_room_bonus,
     self.enemy_hp_floor_scale,
     self.enemy_speed_floor_scale,
     self.enemy_damage_floor_scale,
@@ -179,9 +338,17 @@ pub fn BalanceParams::from_array(arr : Array[Double]) -> BalanceParams {
     drop_armor_weight: arr[33],
     drop_accessory_weight: arr[34],
     item_rarity_bonus_per_floor: arr[35],
-    enemy_hp_floor_scale: arr[36],
-    enemy_speed_floor_scale: arr[37],
-    enemy_damage_floor_scale: arr[38],
+    item_base_tier_per_floor: arr[36],
+    item_prefix_tier_per_floor: arr[37],
+    item_suffix_tier_per_floor: arr[38],
+    item_modifier_tier_per_floor: arr[39],
+    map_room_count_scale: arr[40],
+    map_room_size_scale: arr[41],
+    map_corridor_width_bonus: arr[42],
+    pack_large_room_bonus: arr[43],
+    enemy_hp_floor_scale: arr[44],
+    enemy_speed_floor_scale: arr[45],
+    enemy_damage_floor_scale: arr[46],
     affix_profile: 0, // not optimized, set separately
   }
 }
@@ -197,8 +364,11 @@ pub fn BalanceParams::param_names() -> Array[String] {
     "spell_damage_mult", "enemy_bolt_damage", "ranged_shot_cooldown", "levelup_xp_base",
     "levelup_xp_growth", "drop_equipment_weight", "drop_health_weight", "drop_score_weight",
     "drop_weapon_weight", "drop_armor_weight", "drop_accessory_weight",
-    "item_rarity_bonus_per_floor", "enemy_hp_floor_scale", "enemy_speed_floor_scale",
-    "enemy_damage_floor_scale",
+    "item_rarity_bonus_per_floor", "item_base_tier_per_floor",
+    "item_prefix_tier_per_floor", "item_suffix_tier_per_floor",
+    "item_modifier_tier_per_floor", "map_room_count_scale", "map_room_size_scale",
+    "map_corridor_width_bonus", "pack_large_room_bonus", "enemy_hp_floor_scale",
+    "enemy_speed_floor_scale", "enemy_damage_floor_scale",
   ]
 }
 
@@ -243,6 +413,14 @@ pub fn BalanceParams::clamp(self : BalanceParams) -> BalanceParams {
     drop_armor_weight: clamp_d(self.drop_armor_weight, 0.0, 100.0),
     drop_accessory_weight: clamp_d(self.drop_accessory_weight, 0.0, 100.0),
     item_rarity_bonus_per_floor: clamp_d(self.item_rarity_bonus_per_floor, 0.0, 10.0),
+    item_base_tier_per_floor: clamp_d(self.item_base_tier_per_floor, 0.0, 1.5),
+    item_prefix_tier_per_floor: clamp_d(self.item_prefix_tier_per_floor, 0.0, 1.5),
+    item_suffix_tier_per_floor: clamp_d(self.item_suffix_tier_per_floor, 0.0, 1.5),
+    item_modifier_tier_per_floor: clamp_d(self.item_modifier_tier_per_floor, 0.0, 1.0),
+    map_room_count_scale: clamp_d(self.map_room_count_scale, 0.75, 2.0),
+    map_room_size_scale: clamp_d(self.map_room_size_scale, 0.8, 2.0),
+    map_corridor_width_bonus: clamp_d(self.map_corridor_width_bonus, 0.0, 3.0),
+    pack_large_room_bonus: clamp_d(self.pack_large_room_bonus, 0.0, 2.0),
     enemy_hp_floor_scale: clamp_d(self.enemy_hp_floor_scale, 0.0, 1.0),
     enemy_speed_floor_scale: clamp_d(self.enemy_speed_floor_scale, 0.0, 0.5),
     enemy_damage_floor_scale: clamp_d(self.enemy_damage_floor_scale, 0.0, 1.0),
@@ -315,6 +493,14 @@ pub fn BalanceParams::drop_table_config(self : BalanceParams) -> DropTableConfig
     armor_weight: @cmp.maximum(0, self.drop_armor_weight.to_int()),
     accessory_weight: @cmp.maximum(0, self.drop_accessory_weight.to_int()),
     rarity_bonus_per_floor: self.item_rarity_bonus_per_floor,
+    base_item_tier_base: 1.0,
+    base_item_tier_per_floor: self.item_base_tier_per_floor,
+    prefix_tier_base: 0.0,
+    prefix_tier_per_floor: self.item_prefix_tier_per_floor,
+    suffix_tier_base: 0.0,
+    suffix_tier_per_floor: self.item_suffix_tier_per_floor,
+    modifier_tier_base: 0.0,
+    modifier_tier_per_floor: self.item_modifier_tier_per_floor,
   }
 }
 

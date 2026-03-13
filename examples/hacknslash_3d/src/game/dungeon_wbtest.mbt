@@ -80,3 +80,19 @@ test "generate_dungeon floor 3 creates multiple roomy spaces" {
   assert_true(dungeon.rooms.length() >= 5)
   assert_true(large_room_count >= 2)
 }
+
+///|
+test "generate_dungeon with roominess params keeps early floors broad and wide" {
+  let params = {
+    ..BalanceParams::default(),
+    map_room_count_scale: 1.2,
+    map_room_size_scale: 1.35,
+    map_corridor_width_bonus: 1.0,
+  }
+  let dungeon = generate_dungeon(42, floor=1, params=params)
+  let mut widest_room = 0
+  for room in dungeon.rooms {
+    widest_room = @cmp.maximum(widest_room, room.rect.w)
+  }
+  assert_true(widest_room >= 12)
+}

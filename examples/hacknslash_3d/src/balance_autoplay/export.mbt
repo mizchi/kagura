@@ -13,6 +13,7 @@ let autoplay_experiment_metric_names : Array[String] = [
   "kills_per_floor",
   "damage_interval",
   "equip_upgrades",
+  "learned_skill_count",
   "near_death_rate",
 ]
 
@@ -20,6 +21,8 @@ let autoplay_experiment_metric_names : Array[String] = [
 struct AutoplayExperimentConfig {
   experiment_id : String
   created_at_utc : String
+  runner : String
+  hypothesis_name : String
   start_floor : Int
   sim_max_frames : Int
   max_generations : Int
@@ -35,6 +38,7 @@ fn autoplay_experiment_columns(
     @parquet.new_column("experiment_id", @parquet.String, @parquet.Required),
     @parquet.new_column("created_at_utc", @parquet.String, @parquet.Required),
     @parquet.new_column("runner", @parquet.String, @parquet.Required),
+    @parquet.new_column("hypothesis_name", @parquet.String, @parquet.Required),
     @parquet.new_column("run_kind", @parquet.String, @parquet.Required),
     @parquet.new_column("generation", @parquet.Int32, @parquet.Required),
     @parquet.new_column("loss", @parquet.String, @parquet.Required),
@@ -69,7 +73,8 @@ fn autoplay_experiment_row(
   let row : Array[@parquet.Value] = [
     @parquet.Value::String(config.experiment_id),
     @parquet.Value::String(config.created_at_utc),
-    @parquet.Value::String("balance_autoplay"),
+    @parquet.Value::String(config.runner),
+    @parquet.Value::String(config.hypothesis_name),
     @parquet.Value::String(run_kind),
     @parquet.Value::Int32(generation),
     numeric_value(loss),

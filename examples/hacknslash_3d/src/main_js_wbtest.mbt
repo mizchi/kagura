@@ -37,3 +37,22 @@ test "apply_initial_mode_overrides enables auto_play after snapshot playing warm
   assert_true(state.world.auto_play)
   assert_true(state.world.frame_count >= 2)
 }
+
+///|
+test "build_initial_balance_params selects build diverse preset by name" {
+  let params = build_initial_balance_params("build_diverse_hackslash")
+
+  assert_true((params.player_speed - 2.0).abs() < 0.0001)
+  assert_true((params.map_room_size_scale - 1.2253745535048524).abs() < 0.0001)
+}
+
+///|
+test "build_initial_balance_params falls back to default preset" {
+  let params = build_initial_balance_params("unknown")
+  let default_params = @game.BalanceParams::default()
+
+  assert_true((params.player_speed - default_params.player_speed).abs() < 0.0001)
+  assert_true(
+    (params.enemy_bolt_damage - default_params.enemy_bolt_damage).abs() < 0.0001,
+  )
+}

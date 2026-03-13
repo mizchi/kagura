@@ -59,6 +59,14 @@ test "clamp enforces bounds" {
     drop_armor_weight: -1.0,
     drop_accessory_weight: -1.0,
     item_rarity_bonus_per_floor: -1.0,
+    item_base_tier_per_floor: -1.0,
+    item_prefix_tier_per_floor: -1.0,
+    item_suffix_tier_per_floor: -1.0,
+    item_modifier_tier_per_floor: -1.0,
+    map_room_count_scale: 0.0,
+    map_room_size_scale: 0.0,
+    map_corridor_width_bonus: -1.0,
+    pack_large_room_bonus: -1.0,
     enemy_hp_floor_scale: -1.0,
     enemy_speed_floor_scale: -1.0,
     enemy_damage_floor_scale: -1.0,
@@ -76,6 +84,8 @@ test "clamp enforces bounds" {
   assert_true(clamped.ranged_shot_cooldown >= 20.0)
   assert_true(clamped.levelup_xp_base >= 1.0)
   assert_true(clamped.drop_equipment_weight >= 0.0)
+  assert_true(clamped.item_base_tier_per_floor >= 0.0)
+  assert_true(clamped.map_room_count_scale >= 0.75)
   assert_true(clamped.enemy_hp_floor_scale >= 0.0)
 }
 
@@ -158,6 +168,10 @@ test "levelup and drop table configs follow tuned parameters" {
     drop_armor_weight: 3.0,
     drop_accessory_weight: 1.0,
     item_rarity_bonus_per_floor: 2.5,
+    item_base_tier_per_floor: 0.4,
+    item_prefix_tier_per_floor: 0.3,
+    item_suffix_tier_per_floor: 0.2,
+    item_modifier_tier_per_floor: 0.1,
   }
   let levelup = params.levelup_config()
   assert_eq(levelup.xp_base, 18)
@@ -170,6 +184,10 @@ test "levelup and drop table configs follow tuned parameters" {
   assert_eq(drop.armor_weight, 3)
   assert_eq(drop.accessory_weight, 1)
   assert_true((drop.rarity_bonus_per_floor - 2.5).abs() < 0.001)
+  assert_true((drop.base_item_tier_per_floor - 0.4).abs() < 0.001)
+  assert_true((drop.prefix_tier_per_floor - 0.3).abs() < 0.001)
+  assert_true((drop.suffix_tier_per_floor - 0.2).abs() < 0.001)
+  assert_true((drop.modifier_tier_per_floor - 0.1).abs() < 0.001)
 }
 
 ///|
@@ -184,4 +202,58 @@ test "enemy floor scaling helpers increase pressure on deeper floors" {
   assert_eq(params.scale_enemy_hp_for_floor(10, 4), 16)
   assert_true((params.scale_enemy_speed_for_floor(1.0, 5) - 1.2).abs() < 0.001)
   assert_eq(params.scale_enemy_damage_for_floor(2, 5), 3)
+}
+
+///|
+test "map exploration helpers expose broader room and pack tuning" {
+  let params = {
+    ..BalanceParams::default(),
+    map_room_count_scale: 1.4,
+    map_room_size_scale: 1.3,
+    map_corridor_width_bonus: 1.0,
+    pack_large_room_bonus: 0.75,
+  }
+  assert_true((params.map_room_count_scale - 1.4).abs() < 0.001)
+  assert_true((params.map_room_size_scale - 1.3).abs() < 0.001)
+  assert_true((params.map_corridor_width_bonus - 1.0).abs() < 0.001)
+  assert_true((params.pack_large_room_bonus - 0.75).abs() < 0.001)
+}
+
+///|
+test "balance preset parser maps known names" {
+  assert_true(
+    match balance_preset_from_name("build_diverse_hackslash") {
+      BuildDiverseHackSlash => true
+      _ => false
+    },
+  )
+  assert_true(
+    match balance_preset_from_name("mechanics_roguelike_v2") {
+      MechanicsRoguelike => true
+      _ => false
+    },
+  )
+  assert_true(
+    match balance_preset_from_name("unknown") {
+      Default => true
+      _ => false
+    },
+  )
+}
+
+///|
+test "balance presets expose distinct gameplay priorities" {
+  let build_diverse = BalanceParams::from_preset(
+    balance_preset_from_name("build_diverse_hackslash"),
+  )
+  let mechanics = BalanceParams::from_preset(
+    balance_preset_from_name("mechanics_roguelike_v2"),
+  )
+
+  assert_true(build_diverse.player_speed > mechanics.player_speed)
+  assert_true(build_diverse.map_room_size_scale > mechanics.map_room_size_scale)
+  assert_true(build_diverse.arrow_range < mechanics.arrow_range)
+  assert_true(build_diverse.pack_large_room_bonus < mechanics.pack_large_room_bonus)
+  assert_true(mechanics.enemy_bolt_damage > build_diverse.enemy_bolt_damage)
+  assert_true(mechanics.item_rarity_bonus_per_floor > build_diverse.item_rarity_bonus_per_floor)
 }

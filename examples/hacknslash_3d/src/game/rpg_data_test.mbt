@@ -319,6 +319,25 @@ test "roll_item_rarity becomes stronger with floor bias" {
 }
 
 ///|
+test "generate_item_with_profile_and_drop_config scales base and affix tiers by floor" {
+  let config : DropTableConfig = {
+    ..DropTableConfig::default(),
+    base_item_tier_base: 1,
+    base_item_tier_per_floor: 0.5,
+    prefix_tier_base: 1,
+    prefix_tier_per_floor: 0.4,
+    suffix_tier_base: 1,
+    suffix_tier_per_floor: 0.4,
+    modifier_tier_base: 1,
+    modifier_tier_per_floor: 0.3,
+    rarity_bonus_per_floor: 6.0,
+  }
+  let low = generate_item_with_profile_and_drop_config(123, 2, Expanded, config)
+  let high = generate_item_with_profile_and_drop_config(123, 12, Expanded, config)
+  assert_true(high.total_stat_score() >= low.total_stat_score())
+}
+
+///|
 fn contains_skill_id(ids : Array[SkillId], id : SkillId) -> Bool {
   for current in ids {
     if skill_id_eq(current, id) {

@@ -453,6 +453,17 @@ pub fn SkillTree::find(self : SkillTree, id : SkillId) -> SkillNode? {
 }
 
 ///|
+pub fn SkillTree::learned_node_count(self : SkillTree) -> Int {
+  let mut count = 0
+  for node in self.nodes {
+    if node.level > 0 {
+      count = count + 1
+    }
+  }
+  count
+}
+
+///|
 pub fn skill_id_eq(a : SkillId, b : SkillId) -> Bool {
   skill_id_to_int(a) == skill_id_to_int(b)
 }

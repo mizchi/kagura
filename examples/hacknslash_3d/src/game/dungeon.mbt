@@ -102,6 +102,7 @@ fn dungeon_generator_kind_for_floor(
 fn arena_chain_config_for_floor(
   seed~ : Int,
   floor : Int,
+  params : BalanceParams,
 ) -> @arena_chain.ArenaChainConfig {
   let boss_floor = floor % 5 == 0
   let arena_min_size = if boss_floor {
@@ -114,28 +115,43 @@ fn arena_chain_config_for_floor(
   } else {
     17 + @cmp.minimum(2, floor / 3)
   }
+  let room_count_scale = @cmp.maximum(0.75, params.map_room_count_scale)
+  let room_size_scale = @cmp.maximum(0.8, params.map_room_size_scale)
+  let corridor_width_bonus = @cmp.maximum(0.0, params.map_corridor_width_bonus)
   validated_arena_chain_config({
     width: map_cols,
     height: map_rows,
     num_arenas: if boss_floor {
-      3 + seed % 2
+      ((3 + seed % 2).to_double() * room_count_scale).to_int()
     } else {
-      5 + (seed + floor) % 2
+      ((5 + (seed + floor) % 2).to_double() * room_count_scale).to_int()
     },
-    arena_min_size,
-    arena_max_size,
+    arena_min_size: @cmp.maximum(
+      7,
+      (arena_min_size.to_double() * room_size_scale).to_int(),
+    ),
+    arena_max_size: @cmp.maximum(
+      @cmp.maximum(7, (arena_min_size.to_double() * room_size_scale).to_int()),
+      (arena_max_size.to_double() * room_size_scale).to_int(),
+    ),
     corridor_width: if boss_floor {
-      4
+      (4.0 + corridor_width_bonus).to_int()
     } else {
-      3
+      (3.0 + corridor_width_bonus).to_int()
     },
     side_room_chance: if boss_floor {
       0.15
     } else {
       0.25
     },
-    side_room_min_size: 5,
-    side_room_max_size: 8,
+    side_room_min_size: @cmp.maximum(
+      4,
+      (5.0 * room_size_scale).to_int(),
+    ),
+    side_room_max_size: @cmp.maximum(
+      @cmp.maximum(4, (5.0 * room_size_scale).to_int()),
+      (8.0 * room_size_scale).to_int(),
+    ),
     max_placement_attempts: 80,
   })
 }
@@ -144,31 +160,41 @@ fn arena_chain_config_for_floor(
 fn tinykeep_config_for_floor(
   seed~ : Int,
   floor : Int,
+  params : BalanceParams,
 ) -> @tinykeep.TinyKeepConfig {
+  let room_count_scale = @cmp.maximum(0.75, params.map_room_count_scale)
+  let room_size_scale = @cmp.maximum(0.8, params.map_room_size_scale)
   validated_tinykeep_config({
     width: map_cols,
     height: map_rows,
-    num_rooms: 22 + (seed + floor) % 8,
-    room_min_size: 6,
-    room_max_size: 14,
-    main_room_threshold: 8,
+    num_rooms: ((22 + (seed + floor) % 8).to_double() * room_count_scale).to_int(),
+    room_min_size: @cmp.maximum(4, (6.0 * room_size_scale).to_int()),
+    room_max_size: @cmp.maximum(
+      @cmp.maximum(4, (6.0 * room_size_scale).to_int()),
+      (14.0 * room_size_scale).to_int(),
+    ),
+    main_room_threshold: @cmp.maximum(5, (8.0 * room_size_scale).to_int()),
     extra_edge_chance: 0.08,
     separation_iterations: 60,
   })
 }
 
 ///|
-pub fn generate_dungeon(seed : Int, floor? : Int = 1) -> DungeonData {
+pub fn generate_dungeon(
+  seed : Int,
+  floor? : Int = 1,
+  params? : BalanceParams = BalanceParams::default(),
+) -> DungeonData {
   let rng = @terrain.make_rng(seed.to_uint())
   let result : GeneratedDungeonLayout = match
     dungeon_generator_kind_for_floor(seed~, floor) {
     ArenaChain => {
-      let config = arena_chain_config_for_floor(seed~, floor)
+      let config = arena_chain_config_for_floor(seed~, floor, params)
       let generated = @arena_chain.generate(config, rng)
       { grid: generated.grid, rooms: generated.rooms }
     }
     TinyKeep => {
-      let config = tinykeep_config_for_floor(seed~, floor)
+      let config = tinykeep_config_for_floor(seed~, floor, params)
       let generated = @tinykeep.generate(config, rng)
       { grid: generated.grid, rooms: generated.rooms }
     }

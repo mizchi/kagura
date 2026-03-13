@@ -13,6 +13,7 @@ pub(all) struct SimMetrics {
   kill_frames : Array[Int] // frame number of each kill (for kill pacing)
   damage_frames : Array[Int] // frame number of each damage event
   equip_upgrades : Int // number of equipment upgrades
+  learned_skill_count : Int // number of learned skill nodes
   near_death_count : Int // times HP dropped below 25%
 }
 
@@ -228,6 +229,7 @@ pub fn run_simulation_from_floor(
         kill_frames,
         damage_frames,
         equip_upgrades,
+        learned_skill_count: world.skills.learned_node_count(),
         near_death_count,
       }
     }
@@ -243,6 +245,7 @@ pub fn run_simulation_from_floor(
     kill_frames,
     damage_frames,
     equip_upgrades,
+    learned_skill_count: world.skills.learned_node_count(),
     near_death_count,
   }
 }

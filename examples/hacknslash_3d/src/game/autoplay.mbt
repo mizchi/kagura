@@ -216,10 +216,14 @@ fn levelup_offer_priority(id : SkillId) -> Int {
   match id {
     Vitality => 0
     PowerStrike => 1
-    CriticalHit => 2
-    DashMastery => 3
-    Whirlwind => 4
-    LifeSteal => 5
+    ChainLightning => 2
+    IceNova => 3
+    HomingMissile => 4
+    SplittingFireball => 5
+    CriticalHit => 6
+    DashMastery => 7
+    Whirlwind => 8
+    LifeSteal => 9
   }
 }
 
@@ -530,18 +534,23 @@ pub fn GameWorld::auto_activate_spell_slots(
     return
   }
   let ice_auto_radius = ice_nova_radius * 0.9
-  if enemy_dist_sq <= ice_auto_radius * ice_auto_radius && cast_ice_nova(self) {
+  if self.skills.get_level(IceNova) > 0 &&
+    enemy_dist_sq <= ice_auto_radius * ice_auto_radius &&
+    cast_ice_nova(self) {
     return
   }
-  if enemy_dist_sq <= chain_lightning_range * chain_lightning_range &&
+  if self.skills.get_level(ChainLightning) > 0 &&
+    enemy_dist_sq <= chain_lightning_range * chain_lightning_range &&
     cast_chain_lightning(self) {
     return
   }
-  if enemy_dist_sq <= homing_missile_range * homing_missile_range &&
+  if self.skills.get_level(HomingMissile) > 0 &&
+    enemy_dist_sq <= homing_missile_range * homing_missile_range &&
     cast_homing_missile(self) {
     return
   }
-  if enemy_dist_sq <= self.params.arrow_range * self.params.arrow_range {
+  if self.skills.get_level(SplittingFireball) > 0 &&
+    enemy_dist_sq <= self.params.arrow_range * self.params.arrow_range {
     ignore(cast_splitting_fireball(self))
   }
 }

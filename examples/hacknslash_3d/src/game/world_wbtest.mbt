@@ -54,6 +54,11 @@ fn find_same_room_point_near_distance(
 }
 
 ///|
+fn unlock_spell_for_world_test(world : GameWorld, id : SkillId) -> Unit {
+  ignore(world.skills.learn_from_levelup(id))
+}
+
+///|
 test "enemy separation grid index clamps into 2d bounds" {
   let cols = enemy_separation_grid_cols()
   let rows = enemy_separation_grid_rows()
@@ -343,6 +348,7 @@ test "spawn_enemies_for_floor_with_params scales hp and speed on deeper floors" 
 ///|
 test "tick auto-casts ice nova for nearby enemy" {
   let world = GameWorld::new(seed=42)
+  unlock_spell_for_world_test(world, IceNova)
   let (ex, ey) = find_same_room_point_near_distance(world, 24.0)
   world.attack_timer = 999
   world.enemies = [make_enemy(ex, ey, Basic, 12, 1.0, 10.0)]
@@ -355,6 +361,7 @@ test "tick auto-casts ice nova for nearby enemy" {
 ///|
 test "tick auto-casts chain lightning for mid-range enemy" {
   let world = GameWorld::new(seed=42)
+  unlock_spell_for_world_test(world, ChainLightning)
   let (ex, ey) = find_same_room_point_near_distance(world, 88.0)
   world.attack_timer = 999
   world.enemies = [make_enemy(ex, ey, Basic, 12, 1.0, 10.0)]
@@ -367,6 +374,7 @@ test "tick auto-casts chain lightning for mid-range enemy" {
 ///|
 test "tick auto-casts splitting fireball for far visible enemy" {
   let world = GameWorld::new(seed=42)
+  unlock_spell_for_world_test(world, SplittingFireball)
   let (ex, ey) = find_same_room_point_near_distance(world, 152.0)
   world.attack_timer = 999
   world.homing_missile_cooldown_timer = 10
@@ -381,6 +389,7 @@ test "tick auto-casts splitting fireball for far visible enemy" {
 ///|
 test "tick auto-casts homing missile for semi-far visible enemy" {
   let world = GameWorld::new(seed=42)
+  unlock_spell_for_world_test(world, HomingMissile)
   let (ex, ey) = find_same_room_point_near_distance(world, 132.0)
   world.attack_timer = 999
   world.enemies = [make_enemy(ex, ey, Basic, 12, 1.0, 10.0)]
@@ -389,4 +398,19 @@ test "tick auto-casts homing missile for semi-far visible enemy" {
 
   assert_true(world.homing_missile_cooldown_timer > 0)
   assert_eq(world.splitting_fireball_cooldown_timer, 0)
+}
+
+///|
+test "tick does not auto-cast locked spells" {
+  let world = GameWorld::new(seed=42)
+  let (ex, ey) = find_same_room_point_near_distance(world, 88.0)
+  world.attack_timer = 999
+  world.enemies = [make_enemy(ex, ey, Basic, 12, 1.0, 10.0)]
+
+  world.tick(0.0, 0.0)
+
+  assert_eq(world.chain_lightning_cooldown_timer, 0)
+  assert_eq(world.splitting_fireball_cooldown_timer, 0)
+  assert_eq(world.ice_nova_cooldown_timer, 0)
+  assert_eq(world.homing_missile_cooldown_timer, 0)
 }

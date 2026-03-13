@@ -127,8 +127,24 @@ fn projectile_homing_missile_count(projectiles : Array[Projectile]) -> Int {
 }
 
 ///|
+fn unlock_spell_for_combat_test(world : GameWorld, id : SkillId) -> Unit {
+  ignore(world.skills.learn_from_levelup(id))
+}
+
+///|
+test "cast_chain_lightning fails before unlock" {
+  let world = GameWorld::new(seed=42)
+
+  let casted = cast_chain_lightning(world)
+
+  assert_false(casted)
+  assert_eq(count_chain_arcs(world.events), 0)
+}
+
+///|
 test "cast_chain_lightning damages multiple enemies and emits arc events" {
   let world = GameWorld::new(seed=42)
+  unlock_spell_for_combat_test(world, ChainLightning)
   let px = world.player.x
   let py = world.player.y
   world.enemies = [
@@ -151,6 +167,7 @@ test "cast_chain_lightning damages multiple enemies and emits arc events" {
 ///|
 test "cast_chain_lightning without enemy still emits forward arc feedback" {
   let world = GameWorld::new(seed=42)
+  unlock_spell_for_combat_test(world, ChainLightning)
   world.player.facing_angle = 0.0
 
   let casted = cast_chain_lightning(world)
@@ -176,6 +193,7 @@ test "spell multipliers affect cooldowns and spell damage" {
       spell_damage_mult: 0.5,
     },
   )
+  unlock_spell_for_combat_test(world, ChainLightning)
   let px = world.player.x
   let py = world.player.y
   world.enemies = [make_enemy(px + 24.0, py, Basic, 12, 1.0, 10.0)]
@@ -193,6 +211,7 @@ test "spell multipliers affect cooldowns and spell damage" {
 ///|
 test "cast_splitting_fireball spawns fireball projectile" {
   let world = GameWorld::new(seed=42)
+  unlock_spell_for_combat_test(world, SplittingFireball)
 
   let casted = cast_splitting_fireball(world)
 
@@ -234,6 +253,7 @@ test "tick_projectiles_phase splits fireball on enemy hit" {
 ///|
 test "cast_ice_nova damages nearby enemies and emits nova event" {
   let world = GameWorld::new(seed=42)
+  unlock_spell_for_combat_test(world, IceNova)
   let px = world.player.x
   let py = world.player.y
   world.enemies = [
@@ -256,6 +276,7 @@ test "cast_ice_nova damages nearby enemies and emits nova event" {
 ///|
 test "cast_homing_missile spawns projectile and telegraph events" {
   let world = GameWorld::new(seed=42)
+  unlock_spell_for_combat_test(world, HomingMissile)
   let px = world.player.x
   let py = world.player.y
   world.enemies = [make_enemy(px + 128.0, py + 8.0, Basic, 12, 1.0, 10.0)]

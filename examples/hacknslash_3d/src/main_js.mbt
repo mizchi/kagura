@@ -236,6 +236,20 @@ fn build_initial_balance_params(preset_name : String) -> @game.BalanceParams {
 }
 
 ///|
+fn apply_debug_skill_unlocks(
+  state : GameState,
+  unlock_spells : Bool,
+) -> Unit {
+  if not(unlock_spells) {
+    return
+  }
+  for skill_id in @game.spell_skill_ids() {
+    ignore(state.world.skills.learn_from_levelup(skill_id))
+  }
+  state.world.refresh_player_stats()
+}
+
+///|
 fn build_initial_state() -> GameState {
   let initial_balance_params = build_initial_balance_params(
     get_initial_balance_preset_name(),
@@ -262,6 +276,7 @@ fn build_initial_state() -> GameState {
     get_snapshot_frames(),
     get_initial_autoplay_enabled(),
   )
+  apply_debug_skill_unlocks(state, get_initial_unlock_spells_enabled())
   state
 }
 

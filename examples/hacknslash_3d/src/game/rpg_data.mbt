@@ -360,6 +360,10 @@ pub(all) enum SkillId {
   Vitality
   CriticalHit
   LifeSteal
+  ChainLightning
+  SplittingFireball
+  IceNova
+  HomingMissile
 }
 
 ///|
@@ -437,6 +441,42 @@ pub fn SkillTree::new() -> SkillTree {
         icon_id: 15,
         prereqs: [CriticalHit, Vitality],
       },
+      {
+        id: ChainLightning,
+        name: "Chain Lightning",
+        max_level: 1,
+        level: 0,
+        cost: 1,
+        icon_id: 16,
+        prereqs: [],
+      },
+      {
+        id: SplittingFireball,
+        name: "Splitting Fireball",
+        max_level: 1,
+        level: 0,
+        cost: 1,
+        icon_id: 17,
+        prereqs: [],
+      },
+      {
+        id: IceNova,
+        name: "Ice Nova",
+        max_level: 1,
+        level: 0,
+        cost: 1,
+        icon_id: 18,
+        prereqs: [],
+      },
+      {
+        id: HomingMissile,
+        name: "Homing Missile",
+        max_level: 1,
+        level: 0,
+        cost: 1,
+        icon_id: 19,
+        prereqs: [],
+      },
     ],
     skill_points: 0,
   }
@@ -477,6 +517,10 @@ pub fn skill_id_to_int(id : SkillId) -> Int {
     Vitality => 3
     CriticalHit => 4
     LifeSteal => 5
+    ChainLightning => 6
+    SplittingFireball => 7
+    IceNova => 8
+    HomingMissile => 9
   }
 }
 
@@ -489,8 +533,17 @@ pub fn skill_id_from_int(id : Int) -> SkillId? {
     3 => Some(Vitality)
     4 => Some(CriticalHit)
     5 => Some(LifeSteal)
+    6 => Some(ChainLightning)
+    7 => Some(SplittingFireball)
+    8 => Some(IceNova)
+    9 => Some(HomingMissile)
     _ => None
   }
+}
+
+///|
+pub fn spell_skill_ids() -> Array[SkillId] {
+  [ChainLightning, SplittingFireball, IceNova, HomingMissile]
 }
 
 ///|

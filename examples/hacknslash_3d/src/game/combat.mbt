@@ -346,7 +346,15 @@ fn homing_missile_telegraph_target(world : GameWorld) -> (Double, Double) {
 }
 
 ///|
+fn has_spell_unlock(world : GameWorld, id : SkillId) -> Bool {
+  world.skills.get_level(id) > 0
+}
+
+///|
 pub fn cast_chain_lightning(world : GameWorld) -> Bool {
+  if not(has_spell_unlock(world, ChainLightning)) {
+    return false
+  }
   if world.chain_lightning_cooldown_timer > 0 {
     return false
   }
@@ -412,6 +420,9 @@ pub fn cast_chain_lightning(world : GameWorld) -> Bool {
 
 ///|
 pub fn cast_splitting_fireball(world : GameWorld) -> Bool {
+  if not(has_spell_unlock(world, SplittingFireball)) {
+    return false
+  }
   if world.splitting_fireball_cooldown_timer > 0 {
     return false
   }
@@ -453,6 +464,9 @@ pub fn cast_splitting_fireball(world : GameWorld) -> Bool {
 
 ///|
 pub fn cast_ice_nova(world : GameWorld) -> Bool {
+  if not(has_spell_unlock(world, IceNova)) {
+    return false
+  }
   if world.ice_nova_cooldown_timer > 0 {
     return false
   }
@@ -490,6 +504,9 @@ pub fn cast_ice_nova(world : GameWorld) -> Bool {
 
 ///|
 pub fn cast_homing_missile(world : GameWorld) -> Bool {
+  if not(has_spell_unlock(world, HomingMissile)) {
+    return false
+  }
   if world.homing_missile_cooldown_timer > 0 {
     return false
   }

@@ -39,6 +39,18 @@ test "apply_initial_mode_overrides enables auto_play after snapshot playing warm
 }
 
 ///|
+test "apply_debug_skill_unlocks learns all spell nodes when enabled" {
+  let state = GameState::new(seed=42)
+
+  apply_debug_skill_unlocks(state, true)
+
+  assert_eq(state.world.skills.get_level(@game.ChainLightning), 1)
+  assert_eq(state.world.skills.get_level(@game.SplittingFireball), 1)
+  assert_eq(state.world.skills.get_level(@game.IceNova), 1)
+  assert_eq(state.world.skills.get_level(@game.HomingMissile), 1)
+}
+
+///|
 test "build_initial_balance_params selects build diverse preset by name" {
   let params = build_initial_balance_params("build_diverse_hackslash")
 

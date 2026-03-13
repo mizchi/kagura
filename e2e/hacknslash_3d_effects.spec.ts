@@ -9,7 +9,7 @@ type HacknslashRuntime = {
 };
 
 async function waitForHacknslashRuntime(page: import("@playwright/test").Page) {
-  await page.goto("/vrt/hacknslash_3d?snapshot=playing&frames=10&stress_enemies=64");
+  await page.goto("/vrt/hacknslash_3d?snapshot=playing&frames=10&stress_enemies=64&unlock_spells=1");
   await page.waitForFunction(
     () => {
       const runtime = (window as { __hacknslash3dRuntime?: HacknslashRuntime }).__hacknslash3dRuntime;

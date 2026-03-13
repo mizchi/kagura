@@ -65,6 +65,11 @@ fn get_initial_autoplay_enabled() -> Bool {
 }
 
 ///|
+fn get_initial_unlock_spells_enabled() -> Bool {
+  js_get_query_param_bool("unlock_spells", false)
+}
+
+///|
 fn get_initial_balance_preset_name() -> String {
   js_get_query_param("balance_preset")
 }

@@ -16,7 +16,7 @@ async function init() {
   installAudioHelpers();
   installGfxHelpers();
   try {
-    await loadGameScript("./shadow3d_demo.js?v=8a0250f");
+    await loadGameScript("./shadow3d_demo.js?v=69947a6");
   } catch (e) {
     showStartupError(
       "#app",

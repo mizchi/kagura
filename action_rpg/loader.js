@@ -17,7 +17,7 @@ async function init() {
   installGfxHelpers();
   await loadFonts([["assets/Tiny5-Regular.ttf","./assets/Tiny5-Regular.ttf"]]);
   try {
-    await loadGameScript("./action_rpg.js?v=8a0250f");
+    await loadGameScript("./action_rpg.js?v=69947a6");
   } catch (e) {
     showStartupError(
       "#app",

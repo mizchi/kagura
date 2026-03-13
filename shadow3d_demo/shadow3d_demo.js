@@ -25,6 +25,11 @@ Result$Ok$0$.prototype.$tag = 1;
 Result$Ok$0$.prototype.$name = "Ok";
 const Error$moonbitlang$47$core$47$builtin$46$CreatingViewError$46$IndexOutOfBounds = { $tag: 1, $name: "moonbitlang/core/builtin.CreatingViewError.IndexOutOfBounds" };
 const Error$moonbitlang$47$core$47$builtin$46$CreatingViewError$46$InvalidIndex = { $tag: 0, $name: "moonbitlang/core/builtin.CreatingViewError.InvalidIndex" };
+function $make_array_len_and_init(a, b) {
+  const arr = new Array(a);
+  arr.fill(b);
+  return arr;
+}
 const _M0MP311moonbitlang4core7builtin7JSArray4push = (arr, val) => { arr.push(val); };
 const _M0MP311moonbitlang4core7builtin7MyInt6419reinterpret__double = function f(a) {
   let view = f._view;
@@ -59,11 +64,6 @@ function Result$Ok$1$(param0) {
 }
 Result$Ok$1$.prototype.$tag = 1;
 Result$Ok$1$.prototype.$name = "Ok";
-function $make_array_len_and_init(a, b) {
-  const arr = new Array(a);
-  arr.fill(b);
-  return arr;
-}
 function Result$Err$2$(param0) {
   this._0 = param0;
 }
@@ -116,6 +116,1479 @@ Result$Ok$5$.prototype.$name = "Ok";
 const _M0FP36mizchi6kagura6engine29js__request__animation__frame = (f) => { requestAnimationFrame(() => f()); };
 const _M0FP36mizchi6kagura6engine20js__on__beforeunload = (f) => { window.addEventListener("beforeunload", () => f()); };
 const _M0FP36mizchi6kagura6engine20js__performance__now = () => (globalThis.performance?.now?.() ?? Date.now());
+const _M0FP26mizchi19web__runtime__hooks20js__prepare__surface = (selector, fallbackWidth, fallbackHeight) => {
+   const root = globalThis;
+   const state = root.__kaguraWebRuntime ?? (root.__kaguraWebRuntime = {
+     nextSurfaceId: 100,
+     selector: "#app",
+     canvas: null,
+     surfaceId: 0,
+     width: fallbackWidth,
+     height: fallbackHeight,
+     dpr: 1,
+     webgpu: {
+       context: null,
+       device: null,
+       format: "bgra8unorm",
+       pending: null,
+       _pipeline: null,
+       _pipelineFormat: "",
+       _uniformBGL: null,
+       _texBGL: null,
+       _defaultTexture: null,
+       _defaultTexView: null,
+       _defaultSampler: null,
+       _drawResourceCache: null,
+       _currentDraw: null,
+       _pendingTexture: null,
+       presentScheduled: false,
+       clear: [0, 0, 0, 1],
+       commands: [],
+       textures: null,
+       lastError: "",
+     },
+   });
+   state.selector = selector;
+   const doc = typeof document === "undefined" ? null : document;
+   if (doc == null || typeof doc.querySelector !== "function") {
+     state.canvas = null;
+     state.width = fallbackWidth;
+     state.height = fallbackHeight;
+     state.dpr = 1;
+     state.surfaceId = 1;
+     return true;
+   }
+   const canvas = doc.querySelector(selector);
+   if (canvas == null || typeof canvas.getContext !== "function") {
+     return false;
+   }
+   const CanvasType = typeof HTMLCanvasElement === "undefined" ? null : HTMLCanvasElement;
+   if (CanvasType != null && !(canvas instanceof CanvasType)) {
+     return false;
+   }
+   const dpr = Number(root.devicePixelRatio ?? 1) || 1;
+   const rect = typeof canvas.getBoundingClientRect === "function"
+     ? canvas.getBoundingClientRect()
+     : { width: fallbackWidth, height: fallbackHeight };
+   const cssWidth = rect.width > 0 ? rect.width : fallbackWidth;
+   const cssHeight = rect.height > 0 ? rect.height : fallbackHeight;
+   const pixelWidth = Math.max(1, Math.round(cssWidth * dpr));
+   const pixelHeight = Math.max(1, Math.round(cssHeight * dpr));
+   if (canvas.width !== pixelWidth) {
+     canvas.width = pixelWidth;
+   }
+   if (canvas.height !== pixelHeight) {
+     canvas.height = pixelHeight;
+   }
+   if (canvas.__kaguraSurfaceId == null) {
+     canvas.__kaguraSurfaceId = state.nextSurfaceId++;
+   }
+   if ((Number(canvas.tabIndex ?? -1) | 0) < 0) {
+     canvas.tabIndex = 0;
+   }
+   state.canvas = canvas;
+   state.surfaceId = Number(canvas.__kaguraSurfaceId) | 0;
+   state.width = pixelWidth;
+   state.height = pixelHeight;
+   state.dpr = dpr;
+   return true;
+ };
+const _M0FP26mizchi19web__runtime__hooks15js__surface__id = () => {
+   const state = globalThis.__kaguraWebRuntime;
+   return state == null ? 1 : (Number(state.surfaceId ?? 1) | 0);
+ };
+const _M0FP26mizchi19web__runtime__hooks18js__surface__width = (fallbackWidth) => {
+   const state = globalThis.__kaguraWebRuntime;
+   if (state == null) return fallbackWidth;
+   return Math.max(1, Number(state.width ?? fallbackWidth) | 0);
+ };
+const _M0FP26mizchi19web__runtime__hooks19js__surface__height = (fallbackHeight) => {
+   const state = globalThis.__kaguraWebRuntime;
+   if (state == null) return fallbackHeight;
+   return Math.max(1, Number(state.height ?? fallbackHeight) | 0);
+ };
+const _M0FP26mizchi19web__runtime__hooks16js__surface__dpr = () => {
+   const state = globalThis.__kaguraWebRuntime;
+   if (state == null) return 1;
+   return Number(state.dpr ?? 1) || 1;
+ };
+const _M0FP26mizchi19web__runtime__hooks25js__ensure__window__state = (selector) => {
+   const root = globalThis;
+   const ensureState = root.__kaguraEnsureWindowState ?? (root.__kaguraEnsureWindowState = (nextSelector) => {
+     const state = root.__kaguraWebRuntime ?? (root.__kaguraWebRuntime = {
+       nextSurfaceId: 100,
+       selector: "#app",
+       canvas: null,
+       surfaceId: 0,
+       width: 1,
+       height: 1,
+       dpr: 1,
+       shouldClose: false,
+       fullscreen: false,
+       cursorMode: 0,
+       deviceScaleOverride: 0,
+       vsyncEnabled: true,
+       attentionRequests: 0,
+       interactionHooksInstalled: false,
+       webgpu: { context: null, device: null, format: "bgra8unorm", pending: null, _pipeline: null, _pipelineFormat: "", _configuredFormat: "", _uniformBGL: null, _texBGL: null, _defaultTexture: null, _defaultTexView: null, _defaultSampler: null, _drawResourceCache: null, _currentDraw: null, _pendingTexture: null, presentScheduled: false, clear: [0, 0, 0, 1], commands: [], textures: null, lastError: "" },
+     });
+     if (typeof nextSelector === "string" && nextSelector.length > 0) {
+       state.selector = nextSelector;
+     }
+     if (state.shouldClose == null) state.shouldClose = false;
+     if (state.fullscreen == null) state.fullscreen = false;
+     if (state.cursorMode == null) state.cursorMode = 0;
+     if (state.deviceScaleOverride == null) state.deviceScaleOverride = 0;
+     if (state.vsyncEnabled == null) state.vsyncEnabled = true;
+     if (state.attentionRequests == null) state.attentionRequests = 0;
+     if (typeof state.cursorX !== "number") state.cursorX = 0;
+     if (typeof state.cursorY !== "number") state.cursorY = 0;
+     if (typeof state.wheelX !== "number") state.wheelX = 0;
+     if (typeof state.wheelY !== "number") state.wheelY = 0;
+     if (!Array.isArray(state.pressedKeys)) state.pressedKeys = [];
+     if (!Array.isArray(state.pressedMouseButtons)) state.pressedMouseButtons = [];
+     if (!Array.isArray(state.touches)) state.touches = [];
+     if (!Array.isArray(state.testGamepads)) state.testGamepads = [];
+     if (state.inputHooksInstalled == null) state.inputHooksInstalled = false;
+     if (state.webgpu == null) {
+       state.webgpu = { context: null, device: null, format: "bgra8unorm", pending: null, _pipeline: null, _pipelineFormat: "", _configuredFormat: "", _uniformBGL: null, _texBGL: null, _defaultTexture: null, _defaultTexView: null, _defaultSampler: null, _drawResourceCache: null, _currentDraw: null, _pendingTexture: null, presentScheduled: false, clear: [0, 0, 0, 1], commands: [], textures: null, lastError: "" };
+     } else {
+       if (!Array.isArray(state.webgpu.clear)) state.webgpu.clear = [0, 0, 0, 1];
+       if (!Array.isArray(state.webgpu.commands)) state.webgpu.commands = [];
+       if (state.webgpu._pipeline == null) state.webgpu._pipeline = null;
+       if (typeof state.webgpu._pipelineFormat !== "string") state.webgpu._pipelineFormat = "";
+       if (typeof state.webgpu._configuredFormat !== "string") state.webgpu._configuredFormat = "";
+       if (state.webgpu._uniformBGL == null) state.webgpu._uniformBGL = null;
+       if (state.webgpu._texBGL == null) state.webgpu._texBGL = null;
+       if (state.webgpu._defaultTexture == null) state.webgpu._defaultTexture = null;
+       if (state.webgpu._defaultTexView == null) state.webgpu._defaultTexView = null;
+       if (state.webgpu._defaultSampler == null) state.webgpu._defaultSampler = null;
+       if (state.webgpu._drawResourceCache == null) state.webgpu._drawResourceCache = null;
+       if (state.webgpu._currentDraw == null) state.webgpu._currentDraw = null;
+       if (state.webgpu._pendingTexture == null) state.webgpu._pendingTexture = null;
+       if (state.webgpu.presentScheduled == null) state.webgpu.presentScheduled = false;
+       if (state.webgpu.lastError == null) state.webgpu.lastError = "";
+     }
+     const doc = typeof document === "undefined" ? null : document;
+     if (doc != null && typeof doc.querySelector === "function") {
+       const canvas = doc.querySelector(state.selector);
+       if (canvas != null) {
+         state.canvas = canvas;
+         const dpr = Number(root.devicePixelRatio ?? state.dpr ?? 1) || 1;
+         state.dpr = dpr > 0 ? dpr : 1;
+         state.fullscreen = doc.fullscreenElement === canvas;
+         let mode = Number(state.cursorMode ?? 0) | 0;
+         if (doc.pointerLockElement === canvas) {
+           mode = 2;
+         } else if (mode === 2) {
+           mode = canvas.style != null && canvas.style.cursor === "none" ? 1 : 0;
+         }
+         if (mode !== 1 && mode !== 2) mode = 0;
+         state.cursorMode = mode;
+         if (canvas.style != null) {
+           canvas.style.cursor = mode === 0 ? "" : "none";
+         }
+       }
+       if (!state.interactionHooksInstalled && typeof doc.addEventListener === "function") {
+         doc.addEventListener("fullscreenchange", () => {
+           const current = root.__kaguraWebRuntime;
+           if (current == null || current.canvas == null) return;
+           current.fullscreen = doc.fullscreenElement === current.canvas;
+         });
+         doc.addEventListener("pointerlockchange", () => {
+           const current = root.__kaguraWebRuntime;
+           if (current == null) return;
+           const canvas = current.canvas;
+           let mode = Number(current.cursorMode ?? 0) | 0;
+           if (canvas != null && doc.pointerLockElement === canvas) {
+             mode = 2;
+           } else if (mode === 2) {
+             mode = canvas != null && canvas.style != null && canvas.style.cursor === "none" ? 1 : 0;
+           }
+           if (mode !== 1 && mode !== 2) mode = 0;
+           current.cursorMode = mode;
+           if (canvas != null && canvas.style != null) {
+             canvas.style.cursor = mode === 0 ? "" : "none";
+           }
+         });
+         const normalizeKeyCode = (event) => {
+           if (event == null) return 0;
+           const raw = Number(event.keyCode ?? event.which ?? 0) | 0;
+           return raw > 0 ? raw : 0;
+         };
+         const eventTargetsCanvas = (current, event) => {
+           const canvas = current?.canvas;
+           const target = event?.target;
+           if (canvas == null || target == null) return false;
+           return target === canvas || (typeof canvas.contains === "function" && canvas.contains(target));
+         };
+         const focusCanvas = (current) => {
+           const canvas = current?.canvas;
+           if (canvas == null || typeof canvas.focus !== "function") return;
+           if ((Number(canvas.tabIndex ?? -1) | 0) < 0) {
+             canvas.tabIndex = 0;
+           }
+           try {
+             canvas.focus({ preventScroll: true });
+           } catch (_) {
+             try { canvas.focus(); } catch (_focusError) {}
+           }
+         };
+         const isCanvasFocused = (current, documentRef) => {
+           return current?.canvas != null && documentRef?.activeElement === current.canvas;
+         };
+         const shouldPreventCanvasScroll = (current, documentRef, event) => {
+           const key = normalizeKeyCode(event);
+           return isCanvasFocused(current, documentRef) &&
+             (key === 32 || key === 33 || key === 34 || key === 35 || key === 36 || key === 37 || key === 38 || key === 39 || key === 40);
+         };
+         const addPressedKey = (current, key) => {
+           if (key <= 0) return;
+           if (!Array.isArray(current.pressedKeys)) current.pressedKeys = [];
+           for (let i = 0; i < current.pressedKeys.length; i++) {
+             if ((Number(current.pressedKeys[i]) | 0) === key) return;
+           }
+           current.pressedKeys.push(key);
+         };
+         const removePressedKey = (current, key) => {
+           if (key <= 0) return;
+           if (!Array.isArray(current.pressedKeys)) {
+             current.pressedKeys = [];
+             return;
+           }
+           const next = [];
+           for (let i = 0; i < current.pressedKeys.length; i++) {
+             const value = Number(current.pressedKeys[i]) | 0;
+             if (value !== key) next.push(value);
+           }
+           current.pressedKeys = next;
+         };
+         const normalizeMouseButton = (event) => {
+           if (event == null) return -1;
+           const raw = Number(event.button ?? -1) | 0;
+           return raw >= 0 ? raw : -1;
+         };
+         const addPressedMouseButton = (current, button) => {
+           if (button < 0) return;
+           if (!Array.isArray(current.pressedMouseButtons)) current.pressedMouseButtons = [];
+           for (let i = 0; i < current.pressedMouseButtons.length; i++) {
+             if ((Number(current.pressedMouseButtons[i]) | 0) === button) return;
+           }
+           current.pressedMouseButtons.push(button);
+         };
+         const removePressedMouseButton = (current, button) => {
+           if (button < 0) return;
+           if (!Array.isArray(current.pressedMouseButtons)) {
+             current.pressedMouseButtons = [];
+             return;
+           }
+           const next = [];
+           for (let i = 0; i < current.pressedMouseButtons.length; i++) {
+             const value = Number(current.pressedMouseButtons[i]) | 0;
+             if (value !== button) next.push(value);
+           }
+           current.pressedMouseButtons = next;
+         };
+         const syncTouches = (current, event) => {
+           if (current == null) return;
+           const list = event?.touches;
+           if (list == null || typeof list.length !== "number") {
+             current.touches = [];
+             return;
+           }
+           const next = [];
+           for (let i = 0; i < list.length; i++) {
+             const touch = list[i];
+             if (touch == null) continue;
+             let x = Number(touch.clientX ?? 0);
+             let y = Number(touch.clientY ?? 0);
+             if (current.canvas != null && typeof current.canvas.getBoundingClientRect === "function") {
+               const rect = current.canvas.getBoundingClientRect();
+               x = x - Number(rect.left ?? 0);
+               y = y - Number(rect.top ?? 0);
+             }
+             next.push({
+               id: Number(touch.identifier ?? 0) | 0,
+               x: Number.isFinite(x) ? x : 0,
+               y: Number.isFinite(y) ? y : 0,
+             });
+           }
+           current.touches = next;
+         };
+         const updateCursor = (current, event) => {
+           if (current == null || event == null) return;
+           let x = Number(event.clientX ?? 0);
+           let y = Number(event.clientY ?? 0);
+           if (current.canvas != null && typeof current.canvas.getBoundingClientRect === "function") {
+             const rect = current.canvas.getBoundingClientRect();
+             x = x - Number(rect.left ?? 0);
+             y = y - Number(rect.top ?? 0);
+           }
+           current.cursorX = Number.isFinite(x) ? x : 0;
+           current.cursorY = Number.isFinite(y) ? y : 0;
+         };
+         doc.addEventListener("mousemove", (event) => {
+           const current = root.__kaguraWebRuntime;
+           if (current == null) return;
+           updateCursor(current, event);
+         });
+         doc.addEventListener("mousedown", (event) => {
+           const current = root.__kaguraWebRuntime;
+           if (current == null) return;
+           if (eventTargetsCanvas(current, event)) {
+             focusCanvas(current);
+           }
+           updateCursor(current, event);
+           addPressedMouseButton(current, normalizeMouseButton(event));
+         });
+         doc.addEventListener("mouseup", (event) => {
+           const current = root.__kaguraWebRuntime;
+           if (current == null) return;
+           updateCursor(current, event);
+           removePressedMouseButton(current, normalizeMouseButton(event));
+         });
+         doc.addEventListener("wheel", (event) => {
+           const current = root.__kaguraWebRuntime;
+           if (current == null) return;
+           const dx = Number(event?.deltaX ?? 0);
+           const dy = Number(event?.deltaY ?? 0);
+           current.wheelX = Number(current.wheelX ?? 0) + (Number.isFinite(dx) ? dx : 0);
+           current.wheelY = Number(current.wheelY ?? 0) + (Number.isFinite(dy) ? dy : 0);
+         }, { passive: true });
+         doc.addEventListener("touchstart", (event) => {
+           const current = root.__kaguraWebRuntime;
+           if (current == null) return;
+           if (eventTargetsCanvas(current, event)) {
+             focusCanvas(current);
+           }
+           syncTouches(current, event);
+         }, { passive: true });
+         doc.addEventListener("touchmove", (event) => {
+           const current = root.__kaguraWebRuntime;
+           if (current == null) return;
+           syncTouches(current, event);
+         }, { passive: true });
+         doc.addEventListener("touchend", (event) => {
+           const current = root.__kaguraWebRuntime;
+           if (current == null) return;
+           syncTouches(current, event);
+         }, { passive: true });
+         doc.addEventListener("touchcancel", (event) => {
+           const current = root.__kaguraWebRuntime;
+           if (current == null) return;
+           syncTouches(current, event);
+         }, { passive: true });
+         const targetWindow = typeof window === "undefined" ? null : window;
+         if (targetWindow != null && typeof targetWindow.addEventListener === "function") {
+           targetWindow.addEventListener("keydown", (event) => {
+             const current = root.__kaguraWebRuntime;
+             if (current == null) return;
+             if (shouldPreventCanvasScroll(current, doc, event) && typeof event.preventDefault === "function") {
+               event.preventDefault();
+             }
+             addPressedKey(current, normalizeKeyCode(event));
+           });
+           targetWindow.addEventListener("keyup", (event) => {
+             const current = root.__kaguraWebRuntime;
+             if (current == null) return;
+             removePressedKey(current, normalizeKeyCode(event));
+           });
+           targetWindow.addEventListener("blur", () => {
+             const current = root.__kaguraWebRuntime;
+             if (current == null) return;
+             current.pressedKeys = [];
+             current.pressedMouseButtons = [];
+             current.touches = [];
+             current.wheelX = 0;
+             current.wheelY = 0;
+           });
+         }
+         state.interactionHooksInstalled = true;
+         state.inputHooksInstalled = true;
+       }
+     }
+     return state;
+   });
+   ensureState(selector);
+ };
+const _M0FP26mizchi19web__runtime__hooks22js__set__should__close = (value) => {
+   const root = globalThis;
+   if (typeof root.__kaguraEnsureWindowState === "function") {
+     root.__kaguraEnsureWindowState("#app");
+   }
+   const state = root.__kaguraWebRuntime ?? (root.__kaguraWebRuntime = {});
+   state.shouldClose = !!value;
+ };
+const _M0FP26mizchi19web__runtime__hooks24js__should__close__state = () => {
+   const state = globalThis.__kaguraWebRuntime;
+   if (state == null) return false;
+   return !!state.shouldClose;
+ };
+const _M0FP26mizchi19web__runtime__hooks19js__set__fullscreen = (selector, enabled) => {
+   const root = globalThis;
+   if (typeof root.__kaguraEnsureWindowState === "function") {
+     root.__kaguraEnsureWindowState(selector);
+   }
+   const state = root.__kaguraWebRuntime ?? (root.__kaguraWebRuntime = {});
+   const doc = typeof document === "undefined" ? null : document;
+   if (doc == null || typeof doc.querySelector !== "function") {
+     state.fullscreen = !!enabled;
+     return !!state.fullscreen;
+   }
+   const target = doc.querySelector(selector);
+   if (target == null) {
+     state.fullscreen = !!enabled;
+     return !!state.fullscreen;
+   }
+   if (enabled) {
+     if (doc.fullscreenElement === target) {
+       state.fullscreen = true;
+       return true;
+     }
+     if (typeof target.requestFullscreen === "function") {
+       Promise.resolve(target.requestFullscreen()).catch(() => {
+         const current = root.__kaguraWebRuntime;
+         if (current != null) current.fullscreen = doc.fullscreenElement === target;
+       });
+       state.fullscreen = true;
+       return true;
+     }
+     state.fullscreen = doc.fullscreenElement === target;
+     return !!state.fullscreen;
+   }
+   if (doc.fullscreenElement != null && typeof doc.exitFullscreen === "function") {
+     Promise.resolve(doc.exitFullscreen()).catch(() => {
+       const current = root.__kaguraWebRuntime;
+       if (current != null) current.fullscreen = doc.fullscreenElement === target;
+     });
+   }
+   state.fullscreen = false;
+   return false;
+ };
+const _M0FP26mizchi19web__runtime__hooks18js__is__fullscreen = (selector, fallback) => {
+   const root = globalThis;
+   if (typeof root.__kaguraEnsureWindowState === "function") {
+     root.__kaguraEnsureWindowState(selector);
+   }
+   const state = root.__kaguraWebRuntime ?? (root.__kaguraWebRuntime = {});
+   const doc = typeof document === "undefined" ? null : document;
+   if (doc == null || typeof doc.querySelector !== "function") {
+     if (state.fullscreen == null) state.fullscreen = !!fallback;
+     return !!state.fullscreen;
+   }
+   const target = doc.querySelector(selector);
+   if (target == null) {
+     if (state.fullscreen == null) state.fullscreen = !!fallback;
+     return !!state.fullscreen;
+   }
+   state.fullscreen = doc.fullscreenElement === target;
+   return !!state.fullscreen;
+ };
+const _M0FP26mizchi19web__runtime__hooks21js__set__cursor__mode = (selector, mode) => {
+   const root = globalThis;
+   if (typeof root.__kaguraEnsureWindowState === "function") {
+     root.__kaguraEnsureWindowState(selector);
+   }
+   const doc = typeof document === "undefined" ? null : document;
+   const state = root.__kaguraWebRuntime ?? (root.__kaguraWebRuntime = {});
+   let nextMode = Number(mode) | 0;
+   if (nextMode !== 1 && nextMode !== 2) nextMode = 0;
+   if (doc != null && typeof doc.querySelector === "function") {
+     const canvas = doc.querySelector(selector);
+     if (canvas != null) {
+       if (nextMode === 0) {
+         if (canvas.style != null) canvas.style.cursor = "";
+         if (doc.pointerLockElement === canvas && typeof doc.exitPointerLock === "function") {
+           doc.exitPointerLock();
+         }
+       } else if (nextMode === 1) {
+         if (canvas.style != null) canvas.style.cursor = "none";
+       } else {
+         if (canvas.style != null) canvas.style.cursor = "none";
+         if (doc.pointerLockElement !== canvas && typeof canvas.requestPointerLock === "function") {
+           try {
+             canvas.requestPointerLock();
+           } catch (_) {}
+         }
+       }
+     }
+   }
+   state.cursorMode = nextMode;
+   return nextMode;
+ };
+const _M0FP26mizchi19web__runtime__hooks16js__cursor__mode = (selector, fallback) => {
+   const root = globalThis;
+   if (typeof root.__kaguraEnsureWindowState === "function") {
+     root.__kaguraEnsureWindowState(selector);
+   }
+   const state = root.__kaguraWebRuntime;
+   const doc = typeof document === "undefined" ? null : document;
+   if (doc != null && typeof doc.querySelector === "function") {
+     const canvas = doc.querySelector(selector);
+     if (canvas != null && doc.pointerLockElement === canvas) {
+       state.cursorMode = 2;
+       return 2;
+     }
+     if (canvas != null && Number(state?.cursorMode ?? fallback) === 2) {
+       state.cursorMode = canvas.style != null && canvas.style.cursor === "none" ? 1 : 0;
+     }
+   }
+   if (state == null) return (Number(fallback) | 0);
+   const mode = Number(state.cursorMode ?? fallback) | 0;
+   if (mode !== 1 && mode !== 2) return 0;
+   return mode;
+ };
+const _M0FP26mizchi19web__runtime__hooks30js__set__device__scale__factor = (scale) => {
+   const root = globalThis;
+   if (typeof root.__kaguraEnsureWindowState === "function") {
+     root.__kaguraEnsureWindowState("#app");
+   }
+   const state = root.__kaguraWebRuntime ?? (root.__kaguraWebRuntime = {});
+   const normalized = Number(scale) > 0 ? Number(scale) : 1;
+   state.deviceScaleOverride = normalized;
+   return normalized;
+ };
+const _M0FP26mizchi19web__runtime__hooks25js__device__scale__factor = (fallback) => {
+   const state = globalThis.__kaguraWebRuntime;
+   const safeFallback = Number(fallback) > 0 ? Number(fallback) : 1;
+   if (state == null) return safeFallback;
+   const override = Number(state.deviceScaleOverride ?? 0);
+   if (override > 0) return override;
+   const dpr = Number(state.dpr ?? safeFallback);
+   return dpr > 0 ? dpr : safeFallback;
+ };
+const _M0FP26mizchi19web__runtime__hooks23js__set__vsync__enabled = (enabled) => {
+   const root = globalThis;
+   if (typeof root.__kaguraEnsureWindowState === "function") {
+     root.__kaguraEnsureWindowState("#app");
+   }
+   const state = root.__kaguraWebRuntime ?? (root.__kaguraWebRuntime = {});
+   state.vsyncEnabled = !!enabled;
+   return !!enabled;
+ };
+const _M0FP26mizchi19web__runtime__hooks22js__is__vsync__enabled = (fallback) => {
+   const state = globalThis.__kaguraWebRuntime;
+   if (state == null || state.vsyncEnabled == null) return !!fallback;
+   return !!state.vsyncEnabled;
+ };
+const _M0FP26mizchi19web__runtime__hooks20js__input__cursor__x = () => {
+   const state = globalThis.__kaguraWebRuntime;
+   if (state == null) return 0;
+   return Number(state.cursorX ?? 0) || 0;
+ };
+const _M0FP26mizchi19web__runtime__hooks20js__input__cursor__y = () => {
+   const state = globalThis.__kaguraWebRuntime;
+   if (state == null) return 0;
+   return Number(state.cursorY ?? 0) || 0;
+ };
+const _M0FP26mizchi19web__runtime__hooks19js__input__wheel__x = () => {
+   const state = globalThis.__kaguraWebRuntime;
+   if (state == null) return 0;
+   return Number(state.wheelX ?? 0) || 0;
+ };
+const _M0FP26mizchi19web__runtime__hooks19js__input__wheel__y = () => {
+   const state = globalThis.__kaguraWebRuntime;
+   if (state == null) return 0;
+   return Number(state.wheelY ?? 0) || 0;
+ };
+const _M0FP26mizchi19web__runtime__hooks23js__clear__input__wheel = () => {
+   const state = globalThis.__kaguraWebRuntime;
+   if (state == null) return;
+   state.wheelX = 0;
+   state.wheelY = 0;
+ };
+const _M0FP26mizchi19web__runtime__hooks30js__input__pressed__key__count = () => {
+   const state = globalThis.__kaguraWebRuntime;
+   if (state == null || !Array.isArray(state.pressedKeys)) return 0;
+   return Math.max(0, Number(state.pressedKeys.length) | 0);
+ };
+const _M0FP26mizchi19web__runtime__hooks27js__input__pressed__key__at = (index) => {
+   const state = globalThis.__kaguraWebRuntime;
+   if (state == null || !Array.isArray(state.pressedKeys)) return 0;
+   const i = Number(index) | 0;
+   if (i < 0 || i >= state.pressedKeys.length) return 0;
+   return Number(state.pressedKeys[i] ?? 0) | 0;
+ };
+const _M0FP26mizchi19web__runtime__hooks40js__input__pressed__mouse__button__count = () => {
+   const state = globalThis.__kaguraWebRuntime;
+   if (state == null || !Array.isArray(state.pressedMouseButtons)) return 0;
+   return Math.max(0, Number(state.pressedMouseButtons.length) | 0);
+ };
+const _M0FP26mizchi19web__runtime__hooks37js__input__pressed__mouse__button__at = (index) => {
+   const state = globalThis.__kaguraWebRuntime;
+   if (state == null || !Array.isArray(state.pressedMouseButtons)) return -1;
+   const i = Number(index) | 0;
+   if (i < 0 || i >= state.pressedMouseButtons.length) return -1;
+   return Number(state.pressedMouseButtons[i] ?? -1) | 0;
+ };
+const _M0FP26mizchi19web__runtime__hooks23js__input__touch__count = () => {
+   const state = globalThis.__kaguraWebRuntime;
+   if (state == null || !Array.isArray(state.touches)) return 0;
+   return Math.max(0, Number(state.touches.length) | 0);
+ };
+const _M0FP26mizchi19web__runtime__hooks24js__input__touch__id__at = (index) => {
+   const state = globalThis.__kaguraWebRuntime;
+   if (state == null || !Array.isArray(state.touches)) return 0;
+   const i = Number(index) | 0;
+   if (i < 0 || i >= state.touches.length) return 0;
+   const touch = state.touches[i];
+   return Number(touch?.id ?? 0) | 0;
+ };
+const _M0FP26mizchi19web__runtime__hooks23js__input__touch__x__at = (index) => {
+   const state = globalThis.__kaguraWebRuntime;
+   if (state == null || !Array.isArray(state.touches)) return 0;
+   const i = Number(index) | 0;
+   if (i < 0 || i >= state.touches.length) return 0;
+   const touch = state.touches[i];
+   return Number(touch?.x ?? 0) || 0;
+ };
+const _M0FP26mizchi19web__runtime__hooks23js__input__touch__y__at = (index) => {
+   const state = globalThis.__kaguraWebRuntime;
+   if (state == null || !Array.isArray(state.touches)) return 0;
+   const i = Number(index) | 0;
+   if (i < 0 || i >= state.touches.length) return 0;
+   const touch = state.touches[i];
+   return Number(touch?.y ?? 0) || 0;
+ };
+const _M0FP26mizchi19web__runtime__hooks25js__input__gamepad__count = () => {
+   const root = globalThis;
+   const state = root.__kaguraWebRuntime;
+   if (state != null && Array.isArray(state.testGamepads) && state.testGamepads.length > 0) {
+     return Math.max(0, Number(state.testGamepads.length) | 0);
+   }
+   const nav = root.navigator;
+   if (nav == null || typeof nav.getGamepads !== "function") return 0;
+   const pads = nav.getGamepads();
+   if (pads == null || typeof pads.length !== "number") return 0;
+   let count = 0;
+   for (let i = 0; i < pads.length; i++) {
+     if (pads[i] != null) count++;
+   }
+   return count | 0;
+ };
+const _M0FP26mizchi19web__runtime__hooks26js__input__gamepad__id__at = (index) => {
+   const root = globalThis;
+   const i = Number(index) | 0;
+   if (i < 0) return -1;
+   const state = root.__kaguraWebRuntime;
+   const testPads = state != null && Array.isArray(state.testGamepads) ? state.testGamepads : null;
+   if (testPads != null && testPads.length > 0) {
+     if (i >= testPads.length || testPads[i] == null) return -1;
+     return Number(testPads[i].id ?? i) | 0;
+   }
+   const nav = root.navigator;
+   if (nav == null || typeof nav.getGamepads !== "function") return -1;
+   const pads = nav.getGamepads();
+   if (pads == null || typeof pads.length !== "number") return -1;
+   let found = 0;
+   for (let padIndex = 0; padIndex < pads.length; padIndex++) {
+     const pad = pads[padIndex];
+     if (pad == null) continue;
+     if (found === i) {
+       return Number(pad.index ?? padIndex) | 0;
+     }
+     found++;
+   }
+   return -1;
+ };
+const _M0FP26mizchi19web__runtime__hooks42js__input__gamepad__pressed__button__count = (gamepadIndex) => {
+   const root = globalThis;
+   const gpIndex = Number(gamepadIndex) | 0;
+   if (gpIndex < 0) return 0;
+   const state = root.__kaguraWebRuntime;
+   const testPads = state != null && Array.isArray(state.testGamepads) ? state.testGamepads : null;
+   const target = testPads != null && testPads.length > 0 ? testPads[gpIndex] : null;
+   if (target != null && Array.isArray(target.pressedButtons)) {
+     return Math.max(0, Number(target.pressedButtons.length) | 0);
+   }
+   const nav = root.navigator;
+   if (nav == null || typeof nav.getGamepads !== "function") return 0;
+   const pads = nav.getGamepads();
+   if (pads == null) return 0;
+   let found = 0;
+   let pad = null;
+   for (let i = 0; i < pads.length; i++) {
+     if (pads[i] == null) continue;
+     if (found === gpIndex) {
+       pad = pads[i];
+       break;
+     }
+     found++;
+   }
+   if (pad == null || !Array.isArray(pad.buttons)) return 0;
+   let count = 0;
+   for (let i = 0; i < pad.buttons.length; i++) {
+     const button = pad.buttons[i];
+     if (button != null && !!button.pressed) count++;
+   }
+   return count | 0;
+ };
+const _M0FP26mizchi19web__runtime__hooks39js__input__gamepad__pressed__button__at = (gamepadIndex, buttonIndex) => {
+   const root = globalThis;
+   const gpIndex = Number(gamepadIndex) | 0;
+   const btnIndex = Number(buttonIndex) | 0;
+   if (gpIndex < 0 || btnIndex < 0) return -1;
+   const state = root.__kaguraWebRuntime;
+   const testPads = state != null && Array.isArray(state.testGamepads) ? state.testGamepads : null;
+   const target = testPads != null && testPads.length > 0 ? testPads[gpIndex] : null;
+   if (target != null && Array.isArray(target.pressedButtons)) {
+     if (btnIndex >= target.pressedButtons.length) return -1;
+     return Number(target.pressedButtons[btnIndex] ?? -1) | 0;
+   }
+   const nav = root.navigator;
+   if (nav == null || typeof nav.getGamepads !== "function") return -1;
+   const pads = nav.getGamepads();
+   if (pads == null) return -1;
+   let foundPad = null;
+   let found = 0;
+   for (let i = 0; i < pads.length; i++) {
+     if (pads[i] == null) continue;
+     if (found === gpIndex) {
+       foundPad = pads[i];
+       break;
+     }
+     found++;
+   }
+   const pad = foundPad;
+   if (pad == null || !Array.isArray(pad.buttons)) return -1;
+   let pressedFound = 0;
+   for (let i = 0; i < pad.buttons.length; i++) {
+     const button = pad.buttons[i];
+     if (button != null && !!button.pressed) {
+       if (pressedFound === btnIndex) return i;
+       pressedFound++;
+     }
+   }
+   return -1;
+ };
+const _M0FP26mizchi19web__runtime__hooks31js__input__gamepad__axis__count = (gamepadIndex) => {
+   const root = globalThis;
+   const gpIndex = Number(gamepadIndex) | 0;
+   if (gpIndex < 0) return 0;
+   const state = root.__kaguraWebRuntime;
+   const testPads = state != null && Array.isArray(state.testGamepads) ? state.testGamepads : null;
+   const target = testPads != null && testPads.length > 0 ? testPads[gpIndex] : null;
+   if (target != null && Array.isArray(target.axes)) {
+     return Math.max(0, Number(target.axes.length) | 0);
+   }
+   const nav = root.navigator;
+   if (nav == null || typeof nav.getGamepads !== "function") return 0;
+   const pads = nav.getGamepads();
+   if (pads == null) return 0;
+   let found = 0;
+   let pad = null;
+   for (let i = 0; i < pads.length; i++) {
+     if (pads[i] == null) continue;
+     if (found === gpIndex) {
+       pad = pads[i];
+       break;
+     }
+     found++;
+   }
+   if (pad == null || !Array.isArray(pad.axes)) return 0;
+   return Math.max(0, Number(pad.axes.length) | 0);
+ };
+const _M0FP26mizchi19web__runtime__hooks28js__input__gamepad__axis__at = (gamepadIndex, axisIndex) => {
+   const root = globalThis;
+   const gpIndex = Number(gamepadIndex) | 0;
+   const axIndex = Number(axisIndex) | 0;
+   if (gpIndex < 0 || axIndex < 0) return 0;
+   const state = root.__kaguraWebRuntime;
+   const testPads = state != null && Array.isArray(state.testGamepads) ? state.testGamepads : null;
+   const target = testPads != null && testPads.length > 0 ? testPads[gpIndex] : null;
+   if (target != null && Array.isArray(target.axes)) {
+     if (axIndex >= target.axes.length) return 0;
+     return Number(target.axes[axIndex] ?? 0) || 0;
+   }
+   const nav = root.navigator;
+   if (nav == null || typeof nav.getGamepads !== "function") return 0;
+   const pads = nav.getGamepads();
+   if (pads == null) return 0;
+   let found = 0;
+   let pad = null;
+   for (let i = 0; i < pads.length; i++) {
+     if (pads[i] == null) continue;
+     if (found === gpIndex) {
+       pad = pads[i];
+       break;
+     }
+     found++;
+   }
+   if (pad == null || !Array.isArray(pad.axes)) return 0;
+   if (axIndex >= pad.axes.length) return 0;
+   return Number(pad.axes[axIndex] ?? 0) || 0;
+ };
+const _M0FP26mizchi19web__runtime__hooks22js__request__attention = () => {
+   const root = globalThis;
+   if (typeof root.__kaguraEnsureWindowState === "function") {
+     root.__kaguraEnsureWindowState("#app");
+   }
+   const state = root.__kaguraWebRuntime ?? (root.__kaguraWebRuntime = {});
+   state.attentionRequests = (Number(state.attentionRequests ?? 0) | 0) + 1;
+   const doc = typeof document === "undefined" ? null : document;
+   if (doc != null && typeof doc.hasFocus === "function" && !doc.hasFocus()) {
+     const title = typeof doc.title === "string" ? doc.title : "";
+     if (title.length > 0 && !title.startsWith("(*) ")) {
+       doc.title = "(*) " + title;
+     }
+   }
+ };
+const _M0FP26mizchi19web__runtime__hooks27js__try__initialize__webgpu = (selector, fallbackWidth, fallbackHeight) => {
+   const root = globalThis;
+   const state = root.__kaguraWebRuntime ?? (root.__kaguraWebRuntime = {
+     nextSurfaceId: 100,
+     selector: "#app",
+     canvas: null,
+     surfaceId: 0,
+     width: fallbackWidth,
+     height: fallbackHeight,
+     dpr: 1,
+     webgpu: { context: null, device: null, format: "bgra8unorm", pending: null, _pipeline: null, _pipelineFormat: "", _configuredFormat: "", _uniformBGL: null, _texBGL: null, _defaultTexture: null, _defaultTexView: null, _defaultSampler: null, _drawResourceCache: null, _currentDraw: null, _pendingTexture: null, presentScheduled: false, clear: [0, 0, 0, 1], commands: [], textures: null, lastError: "" },
+   });
+   state.selector = selector;
+   const doc = typeof document === "undefined" ? null : document;
+   if (doc != null && typeof doc.querySelector === "function") {
+     const canvas = doc.querySelector(selector);
+     if (canvas == null || typeof canvas.getContext !== "function") return false;
+     const CanvasType = typeof HTMLCanvasElement === "undefined" ? null : HTMLCanvasElement;
+     if (CanvasType != null && !(canvas instanceof CanvasType)) return false;
+     const dpr = Number(root.devicePixelRatio ?? 1) || 1;
+     const rect = typeof canvas.getBoundingClientRect === "function"
+       ? canvas.getBoundingClientRect()
+       : { width: fallbackWidth, height: fallbackHeight };
+     const cssWidth = rect.width > 0 ? rect.width : fallbackWidth;
+     const cssHeight = rect.height > 0 ? rect.height : fallbackHeight;
+     const pixelWidth = Math.max(1, Math.round(cssWidth * dpr));
+     const pixelHeight = Math.max(1, Math.round(cssHeight * dpr));
+     if (canvas.width !== pixelWidth) canvas.width = pixelWidth;
+     if (canvas.height !== pixelHeight) canvas.height = pixelHeight;
+     if (canvas.__kaguraSurfaceId == null) {
+       canvas.__kaguraSurfaceId = state.nextSurfaceId++;
+     }
+     state.canvas = canvas;
+     state.surfaceId = Number(canvas.__kaguraSurfaceId) | 0;
+     state.width = pixelWidth;
+     state.height = pixelHeight;
+     state.dpr = dpr;
+   } else {
+     state.canvas = null;
+     state.surfaceId = 1;
+     state.width = fallbackWidth;
+     state.height = fallbackHeight;
+     state.dpr = 1;
+   }
+   if (state == null || state.canvas == null) {
+     return true;
+   }
+   const nav = typeof navigator === "undefined" ? null : navigator;
+   if (nav == null || nav.gpu == null) {
+     return false;
+   }
+   const context = state.canvas.getContext("webgpu");
+   if (context == null) {
+     return false;
+   }
+   state.webgpu.context = context;
+   if (state.webgpu.device != null) {
+     return true;
+   }
+   if (state.webgpu.pending == null) {
+     state.webgpu.pending = nav.gpu.requestAdapter()
+       .then((adapter) => {
+         if (adapter == null) return null;
+         const supportsTimestampQuery = adapter.features != null &&
+           typeof adapter.features.has === "function" &&
+           adapter.features.has("timestamp-query");
+         const requestOptions = supportsTimestampQuery
+           ? { requiredFeatures: ["timestamp-query"] }
+           : undefined;
+         return adapter.requestDevice(requestOptions).then((device) => {
+           if (device != null) {
+             device.__kaguraTimestampQueryEnabled = supportsTimestampQuery;
+           }
+           return device;
+         });
+       })
+       .then((device) => {
+         if (device == null) return;
+         const format = typeof nav.gpu.getPreferredCanvasFormat === "function"
+           ? nav.gpu.getPreferredCanvasFormat()
+           : "bgra8unorm";
+         state.webgpu.format = format;
+         state.webgpu.device = device;
+         state.webgpu._pipeline = null;
+         state.webgpu._pipelineFormat = "";
+         state.webgpu._configuredFormat = "";
+         if (state.webgpu.context != null) {
+           state.webgpu.context.configure({
+             device,
+             format,
+             alphaMode: "opaque",
+           });
+           state.webgpu._configuredFormat = format;
+         }
+       })
+       .catch((error) => {
+         state.webgpu.lastError = String(error);
+         state.webgpu.device = null;
+         state.webgpu._pipeline = null;
+         state.webgpu._pipelineFormat = "";
+         state.webgpu._configuredFormat = "";
+       })
+       .finally(() => {
+         state.webgpu.pending = null;
+       });
+   }
+   return false;
+ };
+const _M0FP26mizchi19web__runtime__hooks30js__release__webgpu__resources = () => {
+   const state = globalThis.__kaguraWebRuntime;
+   const gpu = state == null ? null : state.webgpu;
+   if (gpu == null) return;
+   const gfx = globalThis.__kaguraGfx;
+   if (gfx != null) { gfx.release(gpu); gpu.presentScheduled = false; return; }
+   const releaseBufferEntries = (entries) => {
+     if (!Array.isArray(entries)) return;
+     for (let i = 0; i < entries.length; i += 1) {
+       const entry = entries[i];
+       const buffer = entry == null ? null : entry.buffer;
+       if (buffer != null && typeof buffer.destroy === "function") {
+         try { buffer.destroy(); } catch (_) {}
+       }
+     }
+   };
+   const cache = gpu._drawResourceCache;
+   if (cache != null) {
+     releaseBufferEntries(cache.vertexBuffers);
+     releaseBufferEntries(cache.indexBuffers);
+     releaseBufferEntries(cache.uniformBuffers);
+   }
+   const textures = gpu.textures;
+   if (textures != null && typeof textures.values === "function") {
+     for (const entry of textures.values()) {
+       const texture = entry == null ? null : entry.texture;
+       if (texture != null && typeof texture.destroy === "function") {
+         try { texture.destroy(); } catch (_) {}
+       }
+     }
+   }
+   if (textures != null && typeof textures.clear === "function") {
+     textures.clear();
+   }
+   if (gpu._defaultTexture != null && typeof gpu._defaultTexture.destroy === "function") {
+     try { gpu._defaultTexture.destroy(); } catch (_) {}
+   }
+   if (gpu.context != null && typeof gpu.context.unconfigure === "function") {
+     try { gpu.context.unconfigure(); } catch (_) {}
+   }
+   gpu._pipeline = null;
+   gpu._pipelineFormat = "";
+   gpu._configuredFormat = "";
+   gpu._uniformBGL = null;
+   gpu._texBGL = null;
+   gpu._defaultTexture = null;
+   gpu._defaultTexView = null;
+   gpu._defaultSampler = null;
+   gpu._drawResourceCache = null;
+   gpu._pendingTexture = null;
+   gpu._currentDraw = null;
+   gpu.commands = [];
+   gpu.textures = new Map();
+   gpu.presentScheduled = false;
+ };
+const _M0FP26mizchi19web__runtime__hooks17js__webgpu__begin = (r, g, b, a) => {
+   const state = globalThis.__kaguraWebRuntime;
+   if (state == null) return;
+   const gpu = state.webgpu;
+   if (gpu == null) return;
+   gpu.clear = [r, g, b, a];
+   gpu.commands = [];
+   gpu._currentDraw = null;
+ };
+const _M0FP26mizchi19web__runtime__hooks20js__gfx__draw__begin = (vertexCount, indexCount, srcImageId, uniformR, uniformG, uniformB, uniformA, dstId, dstW, dstH) => {
+   const state = globalThis.__kaguraWebRuntime;
+   if (state == null) return;
+   const gpu = state.webgpu;
+   if (gpu == null) return;
+   gpu._currentDraw = {
+     vertexData: new Float32Array((vertexCount | 0) * 4),
+     indices: new Uint32Array(indexCount | 0),
+     srcImageId: srcImageId | 0,
+     uniformR: (uniformR & 0xff) / 255.0,
+     uniformG: (uniformG & 0xff) / 255.0,
+     uniformB: (uniformB & 0xff) / 255.0,
+     uniformA: (uniformA & 0xff) / 255.0,
+     dstImageId: dstId | 0,
+     dstWidth: Math.max(1, dstW | 0),
+     dstHeight: Math.max(1, dstH | 0),
+   };
+ };
+const _M0FP26mizchi19web__runtime__hooks21js__gfx__draw__vertex = (offset, x, y, u, v) => {
+   const state = globalThis.__kaguraWebRuntime;
+   if (state == null) return;
+   const gpu = state.webgpu;
+   if (gpu == null || gpu._currentDraw == null) return;
+   const base = (offset | 0) * 4;
+   gpu._currentDraw.vertexData[base] = x;
+   gpu._currentDraw.vertexData[base + 1] = y;
+   gpu._currentDraw.vertexData[base + 2] = u;
+   gpu._currentDraw.vertexData[base + 3] = v;
+ };
+const _M0FP26mizchi19web__runtime__hooks20js__gfx__draw__index = (offset, value) => {
+   const state = globalThis.__kaguraWebRuntime;
+   if (state == null) return;
+   const gpu = state.webgpu;
+   if (gpu == null || gpu._currentDraw == null) return;
+   gpu._currentDraw.indices[offset | 0] = value | 0;
+ };
+const _M0FP26mizchi19web__runtime__hooks18js__gfx__draw__end = () => {
+   const state = globalThis.__kaguraWebRuntime;
+   if (state == null) return;
+   const gpu = state.webgpu;
+   if (gpu == null || gpu._currentDraw == null) return;
+   if (!Array.isArray(gpu.commands)) gpu.commands = [];
+   gpu.commands.push(gpu._currentDraw);
+   gpu._currentDraw = null;
+ };
+const _M0FP26mizchi19web__runtime__hooks28js__gfx__custom__draw__begin = (shaderId, shaderSource, vfCount, iCount, uCount, srcCount, dstId, dstW, dstH, blendMode, instanceCount) => {
+   const state = globalThis.__kaguraWebRuntime;
+   if (state == null) return;
+   const gpu = state.webgpu;
+   if (gpu == null) return;
+   gpu._currentDraw = {
+     isCustom: true,
+     shaderId: shaderId | 0,
+     shaderSource: shaderSource,
+     vertexData: new Float32Array(vfCount | 0),
+     indices: new Uint32Array(iCount | 0),
+     uniformDwords: new Int32Array(uCount | 0),
+     srcImageIds: new Int32Array(srcCount | 0),
+     dstImageId: dstId | 0,
+     dstWidth: Math.max(1, dstW | 0),
+     dstHeight: Math.max(1, dstH | 0),
+     blendMode: blendMode | 0,
+     instanceCount: instanceCount | 0,
+   };
+ };
+const _M0FP26mizchi19web__runtime__hooks36js__gfx__custom__draw__vertex__float = (index, value) => {
+   const state = globalThis.__kaguraWebRuntime;
+   if (state == null) return;
+   const gpu = state.webgpu;
+   if (gpu == null || gpu._currentDraw == null) return;
+   gpu._currentDraw.vertexData[index | 0] = value;
+ };
+const _M0FP26mizchi19web__runtime__hooks30js__gfx__custom__draw__uniform = (index, value) => {
+   const state = globalThis.__kaguraWebRuntime;
+   if (state == null) return;
+   const gpu = state.webgpu;
+   if (gpu == null || gpu._currentDraw == null) return;
+   gpu._currentDraw.uniformDwords[index | 0] = value | 0;
+ };
+const _M0FP26mizchi19web__runtime__hooks33js__gfx__custom__draw__src__image = (index, imageId) => {
+   const state = globalThis.__kaguraWebRuntime;
+   if (state == null) return;
+   const gpu = state.webgpu;
+   if (gpu == null || gpu._currentDraw == null) return;
+   gpu._currentDraw.srcImageIds[index | 0] = imageId | 0;
+ };
+const _M0FP26mizchi19web__runtime__hooks31js__gfx__upload__texture__begin = (imageId, width, height) => {
+   const state = globalThis.__kaguraWebRuntime;
+   if (state == null) return;
+   const gpu = state.webgpu;
+   if (gpu == null) return;
+   gpu._pendingTexture = {
+     imageId: imageId | 0,
+     width: Math.max(1, width | 0),
+     height: Math.max(1, height | 0),
+     pixels: new Uint8Array(Math.max(1, width | 0) * Math.max(1, height | 0) * 4),
+   };
+ };
+const _M0FP26mizchi19web__runtime__hooks31js__gfx__upload__texture__pixel = (offset, r, g, b, a) => {
+   const state = globalThis.__kaguraWebRuntime;
+   if (state == null) return;
+   const gpu = state.webgpu;
+   if (gpu == null || gpu._pendingTexture == null) return;
+   const base = (offset | 0) * 4;
+   gpu._pendingTexture.pixels[base] = r & 0xff;
+   gpu._pendingTexture.pixels[base + 1] = g & 0xff;
+   gpu._pendingTexture.pixels[base + 2] = b & 0xff;
+   gpu._pendingTexture.pixels[base + 3] = a & 0xff;
+ };
+const _M0FP26mizchi19web__runtime__hooks29js__gfx__upload__texture__end = () => {
+   const state = globalThis.__kaguraWebRuntime;
+   if (state == null) return;
+   const gpu = state.webgpu;
+   if (gpu == null || gpu._pendingTexture == null || gpu.device == null) return;
+   const gfx = globalThis.__kaguraGfx;
+   if (gfx != null) { gfx.finalizeTexture(gpu); return; }
+   const { imageId, width, height, pixels } = gpu._pendingTexture;
+   gpu._pendingTexture = null;
+   if (width <= 0 || height <= 0) return;
+   if (gpu.textures == null) gpu.textures = new Map();
+   const existing = gpu.textures.get(imageId);
+   if (existing != null && (existing.width !== width || existing.height !== height)) {
+     if (existing.texture != null && typeof existing.texture.destroy === "function") {
+       existing.texture.destroy();
+     }
+     gpu.textures.delete(imageId);
+   }
+   let entry = gpu.textures.get(imageId);
+   if (entry == null) {
+     const nextRevision = existing != null && Number.isFinite(existing.revision)
+       ? ((existing.revision | 0) + 1)
+       : 1;
+     const texture = gpu.device.createTexture({
+       size: { width, height },
+       format: "rgba8unorm",
+       usage: GPUTextureUsage.TEXTURE_BINDING | GPUTextureUsage.COPY_DST,
+     });
+     const view = texture.createView();
+     const sampler = gpu.device.createSampler({
+       magFilter: "nearest",
+       minFilter: "nearest",
+       addressModeU: "clamp-to-edge",
+       addressModeV: "clamp-to-edge",
+     });
+     entry = { texture, view, sampler, width, height, revision: nextRevision };
+     gpu.textures.set(imageId, entry);
+   } else if (!Number.isFinite(entry.revision)) {
+     entry.revision = 1;
+   }
+   gpu.device.queue.writeTexture(
+     { texture: entry.texture },
+     pixels,
+     { bytesPerRow: width * 4 },
+     { width, height },
+   );
+ };
+const _M0FP26mizchi19web__runtime__hooks19js__webgpu__present = () => {
+   const state = globalThis.__kaguraWebRuntime;
+   if (state == null) return false;
+   const gpu = state.webgpu;
+   const device = gpu == null ? null : gpu.device;
+   const context = gpu == null ? null : gpu.context;
+   if (gpu == null || device == null || context == null) return false;
+   const presentNow = (currentState) => {
+     const canvas = currentState.canvas;
+     if (canvas != null && typeof canvas.getBoundingClientRect === "function") {
+       const dpr = Number(globalThis.devicePixelRatio ?? 1) || 1;
+       const rect = canvas.getBoundingClientRect();
+       const cssWidth = rect.width > 0 ? rect.width : currentState.width;
+       const cssHeight = rect.height > 0 ? rect.height : currentState.height;
+       const pixelWidth = Math.max(1, Math.round(cssWidth * dpr));
+       const pixelHeight = Math.max(1, Math.round(cssHeight * dpr));
+       if (canvas.width !== pixelWidth) canvas.width = pixelWidth;
+       if (canvas.height !== pixelHeight) canvas.height = pixelHeight;
+       currentState.width = pixelWidth;
+       currentState.height = pixelHeight;
+       currentState.dpr = dpr;
+     }
+     const currentGpu = currentState.webgpu;
+     const currentDevice = currentGpu == null ? null : currentGpu.device;
+     const currentContext = currentGpu == null ? null : currentGpu.context;
+     if (currentGpu == null || currentDevice == null || currentContext == null) return false;
+     const format = typeof currentGpu.format === "string" ? currentGpu.format : "bgra8unorm";
+     const gfx = globalThis.__kaguraGfx;
+     if (gfx != null) {
+       return gfx.render(currentGpu, currentDevice, currentContext, currentGpu.clear, format);
+     }
+     if (currentGpu._configuredFormat !== format) {
+       currentContext.configure({ device: currentDevice, format, alphaMode: "opaque" });
+       currentGpu._configuredFormat = format;
+     }
+     if (currentGpu._pipeline == null || currentGpu._pipelineFormat !== format) {
+       const shaderCode = `
+ struct Uniforms { color: vec4f }
+ @group(0) @binding(0) var<uniform> uniforms: Uniforms;
+ @group(1) @binding(0) var tex: texture_2d<f32>;
+ @group(1) @binding(1) var tex_sampler: sampler;
+ struct VertexOutput {
+   @builtin(position) position: vec4f,
+   @location(0) uv: vec2f,
+ }
+ @vertex fn vs_main(@location(0) pos: vec2f, @location(1) uv: vec2f) -> VertexOutput {
+   var out: VertexOutput;
+   out.position = vec4f(pos, 0.0, 1.0);
+   out.uv = uv;
+   return out;
+ }
+ @fragment fn fs_main(input: VertexOutput) -> @location(0) vec4f {
+   let tex_color = textureSample(tex, tex_sampler, input.uv);
+   return tex_color * uniforms.color;
+ }`;
+       const shaderModule = currentDevice.createShaderModule({ code: shaderCode });
+       const texBGL = currentDevice.createBindGroupLayout({
+         entries: [
+           { binding: 0, visibility: GPUShaderStage.FRAGMENT, texture: { sampleType: "float" } },
+           { binding: 1, visibility: GPUShaderStage.FRAGMENT, sampler: {} },
+         ],
+       });
+       const uniformBGL = currentDevice.createBindGroupLayout({
+         entries: [
+           { binding: 0, visibility: GPUShaderStage.FRAGMENT | GPUShaderStage.VERTEX, buffer: { type: "uniform" } },
+         ],
+       });
+       const pipelineLayout = currentDevice.createPipelineLayout({ bindGroupLayouts: [uniformBGL, texBGL] });
+       currentGpu._pipeline = currentDevice.createRenderPipeline({
+         layout: pipelineLayout,
+         vertex: {
+           module: shaderModule,
+           entryPoint: "vs_main",
+           buffers: [{
+             arrayStride: 16,
+             attributes: [
+               { shaderLocation: 0, offset: 0, format: "float32x2" },
+               { shaderLocation: 1, offset: 8, format: "float32x2" },
+             ],
+           }],
+         },
+         fragment: {
+           module: shaderModule,
+           entryPoint: "fs_main",
+           targets: [{
+             format,
+             blend: {
+               color: { srcFactor: "src-alpha", dstFactor: "one-minus-src-alpha", operation: "add" },
+               alpha: { srcFactor: "one", dstFactor: "one-minus-src-alpha", operation: "add" },
+             },
+           }],
+         },
+         primitive: { topology: "triangle-list", cullMode: "none" },
+       });
+       currentGpu._pipelineFormat = format;
+       currentGpu._uniformBGL = uniformBGL;
+       currentGpu._texBGL = texBGL;
+       currentGpu._drawResourceCache = null;
+       const defaultTex = currentDevice.createTexture({
+         size: { width: 1, height: 1 },
+         format: "rgba8unorm",
+         usage: GPUTextureUsage.TEXTURE_BINDING | GPUTextureUsage.COPY_DST,
+       });
+       currentDevice.queue.writeTexture(
+         { texture: defaultTex },
+         new Uint8Array([255, 255, 255, 255]),
+         { bytesPerRow: 4 },
+         { width: 1, height: 1 },
+       );
+       currentGpu._defaultTexture = defaultTex;
+       currentGpu._defaultTexView = defaultTex.createView();
+       currentGpu._defaultSampler = currentDevice.createSampler({ magFilter: "nearest", minFilter: "nearest" });
+     }
+     const [r, g, b, a] = currentGpu.clear;
+     const texture = currentContext.getCurrentTexture();
+     const view = texture.createView();
+     const encoder = currentDevice.createCommandEncoder();
+     const pass = encoder.beginRenderPass({
+       colorAttachments: [{ view, clearValue: { r, g, b, a }, loadOp: "clear", storeOp: "store" }],
+     });
+     const drawCommands = Array.isArray(currentGpu.commands) ? currentGpu.commands : [];
+     if (currentGpu._drawResourceCache == null) {
+       currentGpu._drawResourceCache = {
+         vertexBuffers: [],
+         indexBuffers: [],
+         uniformBuffers: [],
+         uniformBindGroups: [],
+         uniformBindBuffers: [],
+         textureBindGroups: [],
+         textureBindImageIds: [],
+         textureBindRevisions: [],
+       };
+     }
+     const cache = currentGpu._drawResourceCache;
+     const ensureBufferEntry = (slots, slotIndex, minSize, usage) => {
+       const requiredSize = Math.max(16, Number(minSize) | 0);
+       let entry = slots[slotIndex];
+       const currentSize = entry == null ? 0 : (Number(entry.size ?? 0) | 0);
+       if (entry == null || currentSize < requiredSize) {
+         if (entry != null && entry.buffer != null && typeof entry.buffer.destroy === "function") {
+           try { entry.buffer.destroy(); } catch (_) {}
+         }
+         entry = {
+           size: requiredSize,
+           buffer: currentDevice.createBuffer({ size: requiredSize, usage }),
+         };
+         slots[slotIndex] = entry;
+       }
+       return entry;
+     };
+     for (let drawIndex = 0; drawIndex < drawCommands.length; drawIndex += 1) {
+       const cmd = drawCommands[drawIndex];
+       if (cmd.vertexData == null || cmd.vertexData.length === 0) continue;
+       if (cmd.indices == null || cmd.indices.length === 0) continue;
+       const vbEntry = ensureBufferEntry(
+         cache.vertexBuffers,
+         drawIndex,
+         cmd.vertexData.byteLength,
+         GPUBufferUsage.VERTEX | GPUBufferUsage.COPY_DST,
+       );
+       currentDevice.queue.writeBuffer(vbEntry.buffer, 0, cmd.vertexData);
+       const ibEntry = ensureBufferEntry(
+         cache.indexBuffers,
+         drawIndex,
+         cmd.indices.byteLength,
+         GPUBufferUsage.INDEX | GPUBufferUsage.COPY_DST,
+       );
+       currentDevice.queue.writeBuffer(ibEntry.buffer, 0, cmd.indices);
+       const ubEntry = ensureBufferEntry(
+         cache.uniformBuffers,
+         drawIndex,
+         16,
+         GPUBufferUsage.UNIFORM | GPUBufferUsage.COPY_DST,
+       );
+       currentDevice.queue.writeBuffer(
+         ubEntry.buffer,
+         0,
+         new Float32Array([cmd.uniformR, cmd.uniformG, cmd.uniformB, cmd.uniformA]),
+       );
+       let uniformBG = cache.uniformBindGroups[drawIndex];
+       if (uniformBG == null || cache.uniformBindBuffers[drawIndex] !== ubEntry.buffer) {
+         uniformBG = currentDevice.createBindGroup({
+           layout: currentGpu._uniformBGL,
+           entries: [{ binding: 0, resource: { buffer: ubEntry.buffer } }],
+         });
+         cache.uniformBindGroups[drawIndex] = uniformBG;
+         cache.uniformBindBuffers[drawIndex] = ubEntry.buffer;
+       }
+       let texView = currentGpu._defaultTexView;
+       let texSampler = currentGpu._defaultSampler;
+       let resolvedImageId = 0;
+       let resolvedRevision = -1;
+       if (currentGpu.textures != null && cmd.srcImageId > 0) {
+         const texEntry = currentGpu.textures.get(cmd.srcImageId);
+         if (texEntry != null) {
+           texView = texEntry.view;
+           texSampler = texEntry.sampler;
+           resolvedImageId = cmd.srcImageId | 0;
+           resolvedRevision = Number.isFinite(texEntry.revision)
+             ? (texEntry.revision | 0)
+             : 0;
+         }
+       }
+       let texBG = cache.textureBindGroups[drawIndex];
+       if (
+         texBG == null ||
+         cache.textureBindImageIds[drawIndex] !== resolvedImageId ||
+         cache.textureBindRevisions[drawIndex] !== resolvedRevision
+       ) {
+         texBG = currentDevice.createBindGroup({
+           layout: currentGpu._texBGL,
+           entries: [{ binding: 0, resource: texView }, { binding: 1, resource: texSampler }],
+         });
+         cache.textureBindGroups[drawIndex] = texBG;
+         cache.textureBindImageIds[drawIndex] = resolvedImageId;
+         cache.textureBindRevisions[drawIndex] = resolvedRevision;
+       }
+       pass.setPipeline(currentGpu._pipeline);
+       pass.setBindGroup(0, uniformBG);
+       pass.setBindGroup(1, texBG);
+       pass.setVertexBuffer(0, vbEntry.buffer);
+       pass.setIndexBuffer(ibEntry.buffer, "uint32");
+       const instanceCount = Number.isFinite(cmd.instanceCount ?? cmd.instance_count)
+         ? Math.max(1, (cmd.instanceCount ?? cmd.instance_count) | 0)
+         : 1;
+       pass.drawIndexed(cmd.indices.length, instanceCount);
+     }
+     pass.end();
+     currentDevice.queue.submit([encoder.finish()]);
+     currentGpu.commands = [];
+     return true;
+   };
+   const scheduleVsync = !!state.vsyncEnabled && typeof globalThis.requestAnimationFrame === "function";
+   if (scheduleVsync) {
+     if (gpu.presentScheduled) return true;
+     gpu.presentScheduled = true;
+     globalThis.requestAnimationFrame(() => {
+       const current = globalThis.__kaguraWebRuntime;
+       if (current == null) return;
+       if (current.webgpu != null) current.webgpu.presentScheduled = false;
+       try { presentNow(current); } catch (error) {
+         if (current.webgpu != null) current.webgpu.lastError = String(error);
+       }
+     });
+     return true;
+   }
+   try { return presentNow(state); } catch (error) { gpu.lastError = String(error); return false; }
+ };
+const _M0FP26mizchi19web__runtime__hooks16js__audio__close = () => {
+   const state = globalThis.__kaguraWebRuntime;
+   const a = state?.audio;
+   if (a) {
+     const helper = globalThis.__kaguraAudio;
+     if (helper) { helper.close(a); } else {
+       if (a.workletNode) { a.workletNode.disconnect(); }
+       if (a.node) { a.node.disconnect(); }
+       if (a.ctx) { a.ctx.close(); }
+     }
+     state.audio = null;
+   }
+ };
+const _M0FP26mizchi19web__runtime__hooks17js__audio__resume = () => {
+   const a = globalThis.__kaguraWebRuntime?.audio;
+   if (a?.ctx) a.ctx.resume();
+ };
+const _M0FP26mizchi19web__runtime__hooks18js__audio__suspend = () => {
+   const a = globalThis.__kaguraWebRuntime?.audio;
+   if (a?.ctx) a.ctx.suspend();
+ };
+const _M0FP26mizchi19web__runtime__hooks26js__audio__try__initialize = (sampleRate, channels) => {
+   try {
+     const root = globalThis;
+     const state = root.__kaguraWebRuntime ?? (root.__kaguraWebRuntime = {});
+     if (state.audio && state.audio.ctx) return true;
+     const helper = root.__kaguraAudio;
+     if (!helper) return false;
+     const audio = helper.create(sampleRate, channels);
+     if (!audio) return false;
+     state.audio = audio;
+     return true;
+   } catch(e) { return false; }
+ };
+const _M0FP26mizchi19web__runtime__hooks25js__audio__advance__write = (frames) => {
+   const a = globalThis.__kaguraWebRuntime?.audio;
+   if (!a) return;
+   const helper = globalThis.__kaguraAudio;
+   if (helper) { helper.advance(a, frames); return; }
+   a.writePos = (a.writePos + frames) % a.ringSize;
+ };
+const _M0FP26mizchi19web__runtime__hooks26js__audio__get__write__pos = () => {
+   const root = globalThis;
+   const a = root.__kaguraWebRuntime?.audio;
+   return a ? a.writePos : 0;
+ };
+const _M0FP26mizchi19web__runtime__hooks24js__audio__write__frames = (frames) => {
+   const root = globalThis;
+   const a = root.__kaguraWebRuntime?.audio;
+   if (!a) return 0;
+   return frames;
+ };
+const _M0FP26mizchi19web__runtime__hooks24js__audio__write__sample = (pos, channel, value) => {
+   const root = globalThis;
+   const a = root.__kaguraWebRuntime?.audio;
+   if (!a) return;
+   const idx = (pos % a.ringSize) * a.channels + channel;
+   a.ring[idx] = value;
+ };
+const _M0FP26mizchi19web__runtime__hooks20js__load__font__data = (name) => {
+   const root = globalThis;
+   const state = root.__kaguraWebRuntime;
+   if (!state || !state.fonts || !state.fonts[name]) return -1;
+   const data = state.fonts[name];
+   if (!(data instanceof Uint8Array)) return -1;
+   state._fontLoadBuffer = data;
+   return data.length;
+ };
+const _M0FP26mizchi19web__runtime__hooks26js__load__font__data__byte = (offset) => {
+   const root = globalThis;
+   const state = root.__kaguraWebRuntime;
+   if (!state || !state._fontLoadBuffer) return 0;
+   if (offset < 0 || offset >= state._fontLoadBuffer.length) return 0;
+   return state._fontLoadBuffer[offset];
+ };
+const _M0FP26mizchi19web__runtime__hooks26js__audio__output__latency = () => {
+   const a = globalThis.__kaguraWebRuntime?.audio;
+   if (a?.ctx) return a.ctx.outputLatency || 0;
+   return 0;
+ };
 const Option$None$6$ = { $tag: 0, $name: "None" };
 function Option$Some$6$(param0) {
   this._0 = param0;
@@ -143,12 +1616,27 @@ const _M0FP36mizchi6kagura6mesh3d16vertex3d__stride = 8;
 const _M0FP26mizchi14shadow3d__demo9screen__h = 480;
 const _M0FP26mizchi14shadow3d__demo9screen__w = 640;
 const _M0FP36mizchi6kagura6engine16lifecycle__hooks = _M0MP311moonbitlang4core3ref3Ref3newGORP36mizchi6kagura6engine14LifecycleHooksE(undefined);
-const _M0FP311moonbitlang4core4math34trig__reduce_2etwo__over__pi_2f246 = [0, 683565275, -1819212470, 2131351028, 2102212464, 920167782, 1326507024, 0];
+const _M0FP26mizchi19web__runtime__hooks21web__canvas__selector = _M0MP311moonbitlang4core3ref3Ref3newGsE("#app");
+const _M0FP26mizchi19web__runtime__hooks21web__hooks__installed = _M0MP311moonbitlang4core3ref3Ref3newGbE(false);
 const _M0FP36mizchi6kagura5audio20audio__output__hooks = _M0MP311moonbitlang4core3ref3Ref3newGRP36mizchi6kagura5audio16AudioOutputHooksE(_M0FP36mizchi6kagura5audio29default__audio__output__hooks());
+const _M0FP311moonbitlang4core7builtin33brute__force__find_2econstr_2f106 = 0;
+const _M0FP311moonbitlang4core7builtin42boyer__moore__horspool__find_2econstr_2f92 = 0;
+const _M0FP26mizchi19web__runtime__hooks20source__image__cache = _M0MP311moonbitlang4core3ref3Ref3newGRP311moonbitlang4core7builtin5ArrayGRP26mizchi19web__runtime__hooks21SourceImageCacheEntryEE([]);
+const _M0FP26mizchi19web__runtime__hooks19gpu__texture__dirty = _M0MP311moonbitlang4core3ref3Ref3newGRP311moonbitlang4core7builtin5ArrayGiEE([]);
+const _M0FP36mizchi6kagura3gfx20web__graphics__hooks = _M0MP311moonbitlang4core3ref3Ref3newGRP36mizchi6kagura3gfx16WebGraphicsHooksE(_M0FP36mizchi6kagura3gfx29default__web__graphics__hooks());
+const _M0FP26mizchi19web__runtime__hooks27synced__source__generations = _M0MP311moonbitlang4core3ref3Ref3newGRP311moonbitlang4core7builtin5ArrayGRP26mizchi19web__runtime__hooks22SyncedSourceGenerationEE([]);
+const _M0FP36mizchi6kagura4text17font__load__hooks = _M0MP311moonbitlang4core3ref3Ref3newGRP36mizchi6kagura4text13FontLoadHooksE(_M0FP36mizchi6kagura4text26default__font__load__hooks());
 const _M0FP36mizchi6kagura8platform18web__canvas__hooks = _M0MP311moonbitlang4core3ref3Ref3newGRP36mizchi6kagura8platform14WebCanvasHooksE(_M0FP36mizchi6kagura8platform27default__web__canvas__hooks());
+(() => {
+  _M0FP36mizchi6kagura6engine21set__lifecycle__hooks({ on_start: (canvas, _title) => {
+    _M0FP26mizchi19web__runtime__hooks7install(canvas);
+  }, on_stop: () => {
+    _M0FP26mizchi19web__runtime__hooks8shutdown();
+  } });
+})();
+const _M0FP311moonbitlang4core4math34trig__reduce_2etwo__over__pi_2f310 = [0, 683565275, -1819212470, 2131351028, 2102212464, 920167782, 1326507024, 0];
 const _M0FP36mizchi6kagura3gfx25graphics__clock__provider = _M0MP311moonbitlang4core3ref3Ref3newGWEdE(_M0FP36mizchi6kagura3gfx23default__clock__now__ms);
 const _M0FP36mizchi6kagura3gfx23native__graphics__hooks = _M0MP311moonbitlang4core3ref3Ref3newGRP36mizchi6kagura3gfx19NativeGraphicsHooksE(_M0FP36mizchi6kagura3gfx32default__native__graphics__hooks());
-const _M0FP36mizchi6kagura3gfx20web__graphics__hooks = _M0MP311moonbitlang4core3ref3Ref3newGRP36mizchi6kagura3gfx16WebGraphicsHooksE(_M0FP36mizchi6kagura3gfx29default__web__graphics__hooks());
 function _M0IP311moonbitlang4core7builtin17CreatingViewErrorP311moonbitlang4core7builtin4Show6output(_x_5142, _x_5143) {
   if (_x_5142.$tag === 1) {
     _x_5143.method_table.method_0(_x_5143.self, "IndexOutOfBounds");
@@ -180,15 +1668,6 @@ function _M0MP311moonbitlang4core5array5Array2atGRP26mizchi14shadow3d__demo11Sce
     return $panic();
   }
 }
-function _M0MP311moonbitlang4core5array5Array2atGRP36mizchi6kagura8shadow3d12ShadowCasterE(self, index) {
-  const len = self.length;
-  if (index >= 0 && index < len) {
-    $bound_check(self, index);
-    return self[index];
-  } else {
-    return $panic();
-  }
-}
 function _M0MP311moonbitlang4core5array5Array2atGiE(self, index) {
   const len = self.length;
   if (index >= 0 && index < len) {
@@ -207,6 +1686,15 @@ function _M0MP311moonbitlang4core5array5Array2atGdE(self, index) {
     return $panic();
   }
 }
+function _M0MP311moonbitlang4core5array5Array2atGRP36mizchi6kagura8shadow3d12ShadowCasterE(self, index) {
+  const len = self.length;
+  if (index >= 0 && index < len) {
+    $bound_check(self, index);
+    return self[index];
+  } else {
+    return $panic();
+  }
+}
 function _M0IP311moonbitlang4core7builtin13StringBuilderP311moonbitlang4core7builtin6Logger13write__string(self, str) {
   const _bind = self;
   _bind.val = `${_bind.val}${str}`;
@@ -214,8 +1702,14 @@ function _M0IP311moonbitlang4core7builtin13StringBuilderP311moonbitlang4core7bui
 function _M0MP311moonbitlang4core7builtin7MyInt647to__int(self) {
   return self.lo;
 }
+function _M0IP311moonbitlang4core6uint166UInt16P311moonbitlang4core7builtin2Eq10not__equal(self, that) {
+  return self !== that;
+}
 function _M0IP311moonbitlang4core6uint166UInt16P311moonbitlang4core7builtin7Compare7compare(self, that) {
   return $compare_int(self, that);
+}
+function _M0IP016_24default__implP311moonbitlang4core7builtin2Eq10not__equalGsE(x, y) {
+  return !(x === y);
 }
 function _M0IP016_24default__implP311moonbitlang4core7builtin2Eq10not__equalGRP26mizchi5audio10VoiceStateE(x, y) {
   return !_M0IP26mizchi5audio10VoiceStateP311moonbitlang4core7builtin2Eq5equal(x, y);
@@ -272,6 +1766,9 @@ function _M0IP016_24default__implP311moonbitlang4core7builtin6Logger16write__sub
   }
   _M0IP311moonbitlang4core7builtin13StringBuilderP311moonbitlang4core7builtin6Logger11write__view(self, _tmp);
 }
+function _M0MP311moonbitlang4core6string10StringView6length(self) {
+  return self.end - self.start | 0;
+}
 function _M0IP016_24default__implP311moonbitlang4core7builtin4Show10to__stringGRP311moonbitlang4core5error5ErrorE(self) {
   const logger = _M0MP311moonbitlang4core7builtin13StringBuilder11new_2einner(0);
   _M0IP311moonbitlang4core5error5ErrorP311moonbitlang4core7builtin4Show6output(self, { self: logger, method_table: _M0FP095_40moonbitlang_2fcore_2fbuiltin_2eStringBuilder_24as_24_40moonbitlang_2fcore_2fbuiltin_2eLogger });
@@ -282,12 +1779,119 @@ function _M0IP016_24default__implP311moonbitlang4core7builtin4Show10to__stringGR
   _M0IP311moonbitlang4core7builtin17CreatingViewErrorP311moonbitlang4core7builtin4Show6output(self, { self: logger, method_table: _M0FP095_40moonbitlang_2fcore_2fbuiltin_2eStringBuilder_24as_24_40moonbitlang_2fcore_2fbuiltin_2eLogger });
   return _M0MP311moonbitlang4core7builtin13StringBuilder10to__string(logger);
 }
+function _M0MP311moonbitlang4core6string10StringView11unsafe__get(self, index) {
+  return self.str.charCodeAt(self.start + index | 0);
+}
 function _M0IP311moonbitlang4core6string10StringViewP311moonbitlang4core7builtin4Show10to__string(self) {
   return self.str.substring(self.start, self.end);
 }
 function _M0IP311moonbitlang4core7builtin13StringBuilderP311moonbitlang4core7builtin6Logger11write__view(self, str) {
   const _bind = self;
   _bind.val = `${_bind.val}${_M0IP311moonbitlang4core6string10StringViewP311moonbitlang4core7builtin4Show10to__string(str)}`;
+}
+function _M0FP311moonbitlang4core7builtin28boyer__moore__horspool__find(haystack, needle) {
+  const haystack_len = _M0MP311moonbitlang4core6string10StringView6length(haystack);
+  const needle_len = _M0MP311moonbitlang4core6string10StringView6length(needle);
+  if (needle_len > 0) {
+    if (haystack_len >= needle_len) {
+      const skip_table = $make_array_len_and_init(256, needle_len);
+      const _end4308 = needle_len - 1 | 0;
+      let _tmp = 0;
+      while (true) {
+        const i = _tmp;
+        if (i < _end4308) {
+          const _tmp$2 = _M0MP311moonbitlang4core6string10StringView11unsafe__get(needle, i) & 255;
+          $bound_check(skip_table, _tmp$2);
+          skip_table[_tmp$2] = (needle_len - 1 | 0) - i | 0;
+          _tmp = i + 1 | 0;
+          continue;
+        } else {
+          break;
+        }
+      }
+      let _tmp$2 = 0;
+      while (true) {
+        const i = _tmp$2;
+        if (i <= (haystack_len - needle_len | 0)) {
+          const _end4314 = needle_len - 1 | 0;
+          let _tmp$3 = 0;
+          while (true) {
+            const j = _tmp$3;
+            if (j <= _end4314) {
+              if (_M0IP311moonbitlang4core6uint166UInt16P311moonbitlang4core7builtin2Eq10not__equal(_M0MP311moonbitlang4core6string10StringView11unsafe__get(haystack, i + j | 0), _M0MP311moonbitlang4core6string10StringView11unsafe__get(needle, j))) {
+                break;
+              }
+              _tmp$3 = j + 1 | 0;
+              continue;
+            } else {
+              return i;
+            }
+          }
+          const _tmp$4 = _M0MP311moonbitlang4core6string10StringView11unsafe__get(haystack, (i + needle_len | 0) - 1 | 0) & 255;
+          $bound_check(skip_table, _tmp$4);
+          _tmp$2 = i + skip_table[_tmp$4] | 0;
+          continue;
+        } else {
+          break;
+        }
+      }
+      return undefined;
+    } else {
+      return undefined;
+    }
+  } else {
+    return _M0FP311moonbitlang4core7builtin42boyer__moore__horspool__find_2econstr_2f92;
+  }
+}
+function _M0FP311moonbitlang4core7builtin18brute__force__find(haystack, needle) {
+  const haystack_len = _M0MP311moonbitlang4core6string10StringView6length(haystack);
+  const needle_len = _M0MP311moonbitlang4core6string10StringView6length(needle);
+  if (needle_len > 0) {
+    if (haystack_len >= needle_len) {
+      const needle_first = _M0MP311moonbitlang4core6string10StringView11unsafe__get(needle, 0);
+      const forward_len = haystack_len - needle_len | 0;
+      let i = 0;
+      while (true) {
+        if (i <= forward_len) {
+          while (true) {
+            if (i <= forward_len && _M0IP311moonbitlang4core6uint166UInt16P311moonbitlang4core7builtin2Eq10not__equal(_M0MP311moonbitlang4core6string10StringView11unsafe__get(haystack, i), needle_first)) {
+              i = i + 1 | 0;
+              continue;
+            } else {
+              break;
+            }
+          }
+          if (i <= forward_len) {
+            let _tmp = 1;
+            while (true) {
+              const j = _tmp;
+              if (j < needle_len) {
+                if (_M0IP311moonbitlang4core6uint166UInt16P311moonbitlang4core7builtin2Eq10not__equal(_M0MP311moonbitlang4core6string10StringView11unsafe__get(haystack, i + j | 0), _M0MP311moonbitlang4core6string10StringView11unsafe__get(needle, j))) {
+                  break;
+                }
+                _tmp = j + 1 | 0;
+                continue;
+              } else {
+                return i;
+              }
+            }
+            i = i + 1 | 0;
+          }
+          continue;
+        } else {
+          break;
+        }
+      }
+      return undefined;
+    } else {
+      return undefined;
+    }
+  } else {
+    return _M0FP311moonbitlang4core7builtin33brute__force__find_2econstr_2f106;
+  }
+}
+function _M0MP311moonbitlang4core6string10StringView4find(self, str) {
+  return _M0MP311moonbitlang4core6string10StringView6length(str) <= 4 ? _M0FP311moonbitlang4core7builtin18brute__force__find(self, str) : _M0FP311moonbitlang4core7builtin28boyer__moore__horspool__find(self, str);
 }
 function _M0MP311moonbitlang4core5array5Array4pushGRP36mizchi6kagura8shadow3d12ShadowCasterE(self, value) {
   _M0MP311moonbitlang4core7builtin7JSArray4push(self, value);
@@ -298,10 +1902,16 @@ function _M0MP311moonbitlang4core5array5Array4pushGRP36mizchi6kagura3gfx20DrawTr
 function _M0MP311moonbitlang4core5array5Array4pushGiE(self, value) {
   _M0MP311moonbitlang4core7builtin7JSArray4push(self, value);
 }
-function _M0MP311moonbitlang4core5array5Array4pushGRP26mizchi14shadow3d__demo11SceneObjectE(self, value) {
+function _M0MP311moonbitlang4core5array5Array4pushGRP36mizchi6kagura4core10TouchPointE(self, value) {
   _M0MP311moonbitlang4core7builtin7JSArray4push(self, value);
 }
 function _M0MP311moonbitlang4core5array5Array4pushGdE(self, value) {
+  _M0MP311moonbitlang4core7builtin7JSArray4push(self, value);
+}
+function _M0MP311moonbitlang4core5array5Array4pushGRP36mizchi6kagura4core15GamepadSnapshotE(self, value) {
+  _M0MP311moonbitlang4core7builtin7JSArray4push(self, value);
+}
+function _M0MP311moonbitlang4core5array5Array4pushGRP26mizchi14shadow3d__demo11SceneObjectE(self, value) {
   _M0MP311moonbitlang4core7builtin7JSArray4push(self, value);
 }
 function _M0MP311moonbitlang4core5array5Array4pushGRP36mizchi6kagura9inpututil16KeyDurationEntryE(self, value) {
@@ -319,12 +1929,45 @@ function _M0MP311moonbitlang4core5array5Array4pushGRP26mizchi5audio5VoiceE(self,
 function _M0MP311moonbitlang4core5array5Array4pushGURP36mizchi6kagura5audio8PlayerIdRP26mizchi5audio7VoiceIdEE(self, value) {
   _M0MP311moonbitlang4core7builtin7JSArray4push(self, value);
 }
+function _M0MP311moonbitlang4core6string10StringView8contains(self, str) {
+  const _bind = _M0MP311moonbitlang4core6string10StringView4find(self, str);
+  return !(_bind === undefined);
+}
+function _M0MP311moonbitlang4core6string6String8contains(self, str) {
+  return _M0MP311moonbitlang4core6string10StringView8contains({ str: self, start: 0, end: self.length }, str);
+}
 function _M0IP311moonbitlang4core6string6StringP311moonbitlang4core7builtin4Show10to__string(self) {
   return self;
 }
 function _M0MP311moonbitlang4core5array13ReadOnlyArray2atGjE(self, index) {
   $bound_check(self, index);
   return self[index];
+}
+function _M0MP311moonbitlang4core5array5Array4makeGiE(len, elem) {
+  const arr = new Array(len);
+  let _tmp = 0;
+  while (true) {
+    const i = _tmp;
+    if (i < len) {
+      arr[i] = elem;
+      _tmp = i + 1 | 0;
+      continue;
+    } else {
+      break;
+    }
+  }
+  return arr;
+}
+function _M0MP311moonbitlang4core5array5Array3setGiE(self, index, value) {
+  const len = self.length;
+  if (index >= 0 && index < len) {
+    $bound_check(self, index);
+    self[index] = value;
+    return;
+  } else {
+    $panic();
+    return;
+  }
 }
 function _M0MP311moonbitlang4core5array10FixedArray12fill_2einnerGfE(self, value, start, end) {
   const array_length = self.length;
@@ -504,16 +2147,34 @@ function _M0MP311moonbitlang4core3ref3Ref3newGdE(x) {
 function _M0MP311moonbitlang4core3ref3Ref3newGORP36mizchi6kagura6engine14LifecycleHooksE(x) {
   return { val: x };
 }
-function _M0MP311moonbitlang4core3ref3Ref3newGRP36mizchi6kagura5audio16AudioOutputHooksE(x) {
+function _M0MP311moonbitlang4core3ref3Ref3newGbE(x) {
   return { val: x };
 }
-function _M0MP311moonbitlang4core3ref3Ref3newGWEdE(x) {
+function _M0MP311moonbitlang4core3ref3Ref3newGsE(x) {
+  return { val: x };
+}
+function _M0MP311moonbitlang4core3ref3Ref3newGRP311moonbitlang4core7builtin5ArrayGRP26mizchi19web__runtime__hooks21SourceImageCacheEntryEE(x) {
+  return { val: x };
+}
+function _M0MP311moonbitlang4core3ref3Ref3newGRP311moonbitlang4core7builtin5ArrayGRP26mizchi19web__runtime__hooks22SyncedSourceGenerationEE(x) {
+  return { val: x };
+}
+function _M0MP311moonbitlang4core3ref3Ref3newGRP311moonbitlang4core7builtin5ArrayGiEE(x) {
   return { val: x };
 }
 function _M0MP311moonbitlang4core3ref3Ref3newGRP36mizchi6kagura8platform14WebCanvasHooksE(x) {
   return { val: x };
 }
 function _M0MP311moonbitlang4core3ref3Ref3newGRP36mizchi6kagura3gfx16WebGraphicsHooksE(x) {
+  return { val: x };
+}
+function _M0MP311moonbitlang4core3ref3Ref3newGRP36mizchi6kagura4text13FontLoadHooksE(x) {
+  return { val: x };
+}
+function _M0MP311moonbitlang4core3ref3Ref3newGRP36mizchi6kagura5audio16AudioOutputHooksE(x) {
+  return { val: x };
+}
+function _M0MP311moonbitlang4core3ref3Ref3newGWEdE(x) {
   return { val: x };
 }
 function _M0MP311moonbitlang4core3ref3Ref3newGRP36mizchi6kagura3gfx19NativeGraphicsHooksE(x) {
@@ -556,10 +2217,10 @@ function _M0FP311moonbitlang4core4math12trig__reduce(x, switch_over) {
   const ix = ($i32_reinterpret_f32(x) & 8388607) << 8 | -2147483648;
   const ind = exp >> 5;
   exp = exp & 31;
-  let hi = _M0MP311moonbitlang4core5array13ReadOnlyArray2atGjE(_M0FP311moonbitlang4core4math34trig__reduce_2etwo__over__pi_2f246, ind);
-  let mi = _M0MP311moonbitlang4core5array13ReadOnlyArray2atGjE(_M0FP311moonbitlang4core4math34trig__reduce_2etwo__over__pi_2f246, ind + 1 | 0);
-  let lo = _M0MP311moonbitlang4core5array13ReadOnlyArray2atGjE(_M0FP311moonbitlang4core4math34trig__reduce_2etwo__over__pi_2f246, ind + 2 | 0);
-  const tp = _M0MP311moonbitlang4core5array13ReadOnlyArray2atGjE(_M0FP311moonbitlang4core4math34trig__reduce_2etwo__over__pi_2f246, ind + 3 | 0);
+  let hi = _M0MP311moonbitlang4core5array13ReadOnlyArray2atGjE(_M0FP311moonbitlang4core4math34trig__reduce_2etwo__over__pi_2f310, ind);
+  let mi = _M0MP311moonbitlang4core5array13ReadOnlyArray2atGjE(_M0FP311moonbitlang4core4math34trig__reduce_2etwo__over__pi_2f310, ind + 1 | 0);
+  let lo = _M0MP311moonbitlang4core5array13ReadOnlyArray2atGjE(_M0FP311moonbitlang4core4math34trig__reduce_2etwo__over__pi_2f310, ind + 2 | 0);
+  const tp = _M0MP311moonbitlang4core5array13ReadOnlyArray2atGjE(_M0FP311moonbitlang4core4math34trig__reduce_2etwo__over__pi_2f310, ind + 3 | 0);
   if (exp > 0) {
     hi = hi << exp | (mi >>> (32 - exp | 0) | 0);
     mi = mi << exp | (lo >>> (32 - exp | 0) | 0);
@@ -1083,6 +2744,12 @@ function _M0MP36mizchi6kagura8camera3d8Camera3D24view__projection__matrix(self) 
 }
 function _M0FP36mizchi6kagura4core18new__outside__size(width, height) {
   return { width: width, height: height };
+}
+function _M0FP36mizchi6kagura4core17new__touch__point(id, x, y) {
+  return { id: id, x: x, y: y, source: 3 };
+}
+function _M0FP36mizchi6kagura4core22new__gamepad__snapshot(id, axes, pressed_buttons) {
+  return { id: id, axes: axes, pressed_buttons: pressed_buttons };
 }
 function _M0FP36mizchi6kagura4core26new__input__snapshot__full(cursor_x, cursor_y, wheel_x, wheel_y, pressed_keys, pressed_mouse_buttons, touches, gamepads) {
   return { cursor_x: cursor_x, cursor_y: cursor_y, wheel_x: wheel_x, wheel_y: wheel_y, pressed_keys: pressed_keys, pressed_mouse_buttons: pressed_mouse_buttons, touches: touches, gamepads: gamepads };
@@ -1843,6 +3510,9 @@ function _M0FP36mizchi6kagura5audio31default__audio__output__latency() {
 function _M0FP36mizchi6kagura5audio25new__audio__output__hooks(try_initialize, write_frames, suspend, resume_playback, close) {
   return { try_initialize: try_initialize, write_frames: write_frames, suspend: suspend, resume_playback: resume_playback, close: close, output_latency: _M0FP36mizchi6kagura5audio31default__audio__output__latency };
 }
+function _M0FP36mizchi6kagura5audio31new__audio__output__hooks__full(try_initialize, write_frames, suspend, resume_playback, close, output_latency) {
+  return { try_initialize: try_initialize, write_frames: write_frames, suspend: suspend, resume_playback: resume_playback, close: close, output_latency: output_latency };
+}
 function _M0FP36mizchi6kagura5audio31default__audio__try__initialize(_format) {
   return false;
 }
@@ -1854,6 +3524,12 @@ function _M0FP36mizchi6kagura5audio22default__audio__resume() {}
 function _M0FP36mizchi6kagura5audio21default__audio__close() {}
 function _M0FP36mizchi6kagura5audio29default__audio__output__hooks() {
   return _M0FP36mizchi6kagura5audio25new__audio__output__hooks(_M0FP36mizchi6kagura5audio31default__audio__try__initialize, _M0FP36mizchi6kagura5audio29default__audio__write__frames, _M0FP36mizchi6kagura5audio23default__audio__suspend, _M0FP36mizchi6kagura5audio22default__audio__resume, _M0FP36mizchi6kagura5audio21default__audio__close);
+}
+function _M0FP36mizchi6kagura5audio25set__audio__output__hooks(hooks) {
+  _M0FP36mizchi6kagura5audio20audio__output__hooks.val = hooks;
+}
+function _M0FP36mizchi6kagura5audio27reset__audio__output__hooks() {
+  _M0FP36mizchi6kagura5audio20audio__output__hooks.val = _M0FP36mizchi6kagura5audio29default__audio__output__hooks();
 }
 function _M0FP36mizchi6kagura5audio22audio__try__initialize(format) {
   const _func = _M0FP36mizchi6kagura5audio20audio__output__hooks.val.try_initialize;
@@ -1931,6 +3607,12 @@ function _M0FP36mizchi6kagura8platform43default__web__cursor__mode__request__sta
 function _M0FP36mizchi6kagura8platform27default__web__canvas__hooks() {
   return _M0FP36mizchi6kagura8platform23new__web__canvas__hooks(_M0FP36mizchi6kagura8platform29default__web__try__initialize, _M0FP36mizchi6kagura8platform18default__web__poll, _M0FP36mizchi6kagura8platform27default__web__should__close, _M0FP36mizchi6kagura8platform27default__web__outside__size, _M0FP36mizchi6kagura8platform30default__web__current__surface, _M0FP36mizchi6kagura8platform28default__web__capture__input, _M0FP36mizchi6kagura8platform29default__web__set__fullscreen, _M0FP36mizchi6kagura8platform28default__web__is__fullscreen, _M0FP36mizchi6kagura8platform31default__web__set__cursor__mode, _M0FP36mizchi6kagura8platform26default__web__cursor__mode, _M0FP36mizchi6kagura8platform40default__web__set__device__scale__factor, _M0FP36mizchi6kagura8platform35default__web__device__scale__factor, _M0FP36mizchi6kagura8platform33default__web__set__vsync__enabled, _M0FP36mizchi6kagura8platform32default__web__is__vsync__enabled, _M0FP36mizchi6kagura8platform27default__web__close__window, _M0FP36mizchi6kagura8platform32default__web__request__attention, _M0FP36mizchi6kagura8platform41default__web__set__mouse__touch__fallback, _M0FP36mizchi6kagura8platform45default__web__mouse__touch__fallback__enabled, _M0FP36mizchi6kagura8platform41default__web__fullscreen__request__status, _M0FP36mizchi6kagura8platform43default__web__cursor__mode__request__status);
 }
+function _M0FP36mizchi6kagura8platform23set__web__canvas__hooks(hooks) {
+  _M0FP36mizchi6kagura8platform18web__canvas__hooks.val = hooks;
+}
+function _M0FP36mizchi6kagura8platform25reset__web__canvas__hooks() {
+  _M0FP36mizchi6kagura8platform18web__canvas__hooks.val = _M0FP36mizchi6kagura8platform27default__web__canvas__hooks();
+}
 function _M0FP36mizchi6kagura8platform20web__try__initialize(canvas_selector, options) {
   const _func = _M0FP36mizchi6kagura8platform18web__canvas__hooks.val.try_initialize;
   return _func(canvas_selector, options);
@@ -1970,8 +3652,37 @@ function _M0FP36mizchi6kagura8platform23web__is__vsync__enabled(canvas_selector,
 function _M0FP36mizchi6kagura8platform33create__offscreen__surface__token(width, height) {
   return { kind: 3, opaque_id: 0, width: width, height: height, device_scale_factor: 1 };
 }
+function _M0FP36mizchi6kagura8platform30create__webgpu__surface__token(opaque_id, width, height, device_scale_factor) {
+  return { kind: 1, opaque_id: opaque_id, width: width, height: height, device_scale_factor: device_scale_factor };
+}
 function _M0IP36mizchi6kagura8platform17WebCanvasPlatformP36mizchi6kagura8platform15SurfaceProvider16current__surface(self) {
   return new Result$Ok$2$(self.web_active ? _M0FP36mizchi6kagura8platform21web__current__surface(self.canvas_selector, self.options) : { kind: 1, opaque_id: 2, width: self.options.width, height: self.options.height, device_scale_factor: 1 });
+}
+function _M0FP36mizchi6kagura8platform21cursor__mode__to__int(mode) {
+  switch (mode) {
+    case 0: {
+      return 0;
+    }
+    case 1: {
+      return 1;
+    }
+    default: {
+      return 2;
+    }
+  }
+}
+function _M0FP36mizchi6kagura8platform23cursor__mode__from__int(mode) {
+  switch (mode) {
+    case 1: {
+      return 1;
+    }
+    case 2: {
+      return 2;
+    }
+    default: {
+      return 0;
+    }
+  }
 }
 function _M0FP36mizchi6kagura8platform28new__window__options_2einner(title, width, height, transparent, resizable, focused) {
   return { title: title, width: width, height: height, transparent: transparent, resizable: resizable, focused: focused };
@@ -2124,6 +3835,25 @@ function _M0FP36mizchi6kagura3gfx10new__color(r, g, b, a) {
 function _M0FP36mizchi6kagura3gfx31new__render__pass__desc_2einner(clear_color, clear_enabled, present) {
   return { clear_color: clear_color, clear_enabled: clear_enabled, present: present };
 }
+function _M0FP36mizchi6kagura3gfx20blend__mode__to__int(mode) {
+  switch (mode.$tag) {
+    case 0: {
+      return 0;
+    }
+    case 1: {
+      return 1;
+    }
+    case 2: {
+      return 2;
+    }
+    case 3: {
+      return 3;
+    }
+    default: {
+      return 4;
+    }
+  }
+}
 function _M0FP36mizchi6kagura3gfx22blend__mode__from__int(mode) {
   switch (mode) {
     case 0: {
@@ -2188,6 +3918,12 @@ function _M0FP36mizchi6kagura3gfx22default__web__on__draw(_active, _kind, _comma
 function _M0FP36mizchi6kagura3gfx24default__web__on__resize(_active, _kind, _width, _height) {}
 function _M0FP36mizchi6kagura3gfx29default__web__graphics__hooks() {
   return _M0FP36mizchi6kagura3gfx25new__web__graphics__hooks(_M0FP36mizchi6kagura3gfx29default__web__try__initialize, _M0FP36mizchi6kagura3gfx23default__web__on__begin, _M0FP36mizchi6kagura3gfx21default__web__on__end, _M0FP36mizchi6kagura3gfx22default__web__on__draw, _M0FP36mizchi6kagura3gfx24default__web__on__resize);
+}
+function _M0FP36mizchi6kagura3gfx25set__web__graphics__hooks(hooks) {
+  _M0FP36mizchi6kagura3gfx20web__graphics__hooks.val = hooks;
+}
+function _M0FP36mizchi6kagura3gfx27reset__web__graphics__hooks() {
+  _M0FP36mizchi6kagura3gfx20web__graphics__hooks.val = _M0FP36mizchi6kagura3gfx29default__web__graphics__hooks();
 }
 function _M0FP36mizchi6kagura3gfx30web__graphics__try__initialize(kind, width, height) {
   const _func = _M0FP36mizchi6kagura3gfx20web__graphics__hooks.val.try_initialize;
@@ -2989,6 +4725,9 @@ function _M0FP36mizchi6kagura6engine11run_2einner(update, draw, on_frame, after_
   });
   _M0FP36mizchi6kagura6engine29js__request__animation__frame(frame);
 }
+function _M0FP36mizchi6kagura6engine21set__lifecycle__hooks(hooks) {
+  _M0FP36mizchi6kagura6engine16lifecycle__hooks.val = hooks;
+}
 function _M0MP36mizchi6kagura7light3d16DirectionalLight3new(direction, color, intensity) {
   return { direction: _M0MP36mizchi6kagura6math3d4Vec39normalize(direction), color: color, intensity: intensity };
 }
@@ -3559,6 +5298,560 @@ function _M0FP36mizchi6kagura8shadow3d28shadow__lit__uniform__dwords(model, view
 function _M0FP36mizchi6kagura8shadow3d37new__shadow__lit__mesh__draw__command(dst, shader, dst_region, index_offset, pipeline_id, uniform_hash, blend, mesh, model_matrix, view_projection, lighting, light_vp, config, diffuse_image_id, shadow_map_image_id) {
   const uniform_dwords = _M0FP36mizchi6kagura8shadow3d28shadow__lit__uniform__dwords(model_matrix, view_projection, lighting, light_vp, config);
   return _M0FP36mizchi6kagura3gfx37new__draw__triangles__command_2einner(dst, shader, [dst_region], index_offset, pipeline_id, uniform_hash, blend, mesh.vertex_data, mesh.indices, [diffuse_image_id, shadow_map_image_id], uniform_dwords, 1, 0);
+}
+function _M0FP36mizchi6kagura4text22new__font__load__hooks(load_font_data) {
+  return { load_font_data: load_font_data };
+}
+function _M0FP36mizchi6kagura4text25default__load__font__data(_name) {
+  return Option$None$3$;
+}
+function _M0FP36mizchi6kagura4text26default__font__load__hooks() {
+  return { load_font_data: _M0FP36mizchi6kagura4text25default__load__font__data };
+}
+function _M0FP36mizchi6kagura4text22set__font__load__hooks(hooks) {
+  _M0FP36mizchi6kagura4text17font__load__hooks.val = hooks;
+}
+function _M0FP36mizchi6kagura4text24reset__font__load__hooks() {
+  _M0FP36mizchi6kagura4text17font__load__hooks.val = _M0FP36mizchi6kagura4text26default__font__load__hooks();
+}
+function _M0FP26mizchi19web__runtime__hooks26clear__gpu__texture__dirty() {
+  _M0FP26mizchi19web__runtime__hooks19gpu__texture__dirty.val = [];
+}
+function _M0FP26mizchi19web__runtime__hooks34clear__synced__source__generations() {
+  _M0FP26mizchi19web__runtime__hooks27synced__source__generations.val = [];
+}
+function _M0FP26mizchi19web__runtime__hooks31source__image__cache__entry__at(image_id) {
+  const out = { val: undefined };
+  const _arr = _M0FP26mizchi19web__runtime__hooks20source__image__cache.val;
+  const _len = _arr.length;
+  let _tmp = 0;
+  while (true) {
+    const _i = _tmp;
+    if (_i < _len) {
+      const entry = _arr[_i];
+      if (entry.image_id === image_id) {
+        out.val = entry;
+      }
+      _tmp = _i + 1 | 0;
+      continue;
+    } else {
+      break;
+    }
+  }
+  return out.val;
+}
+function _M0FP26mizchi19web__runtime__hooks27clear__source__image__cache() {
+  _M0FP26mizchi19web__runtime__hooks20source__image__cache.val = [];
+}
+function _M0FP26mizchi19web__runtime__hooks20bridge__audio__close() {
+  _M0FP26mizchi19web__runtime__hooks16js__audio__close();
+}
+function _M0FP26mizchi19web__runtime__hooks21bridge__audio__resume() {
+  _M0FP26mizchi19web__runtime__hooks17js__audio__resume();
+}
+function _M0FP26mizchi19web__runtime__hooks22bridge__audio__suspend() {
+  _M0FP26mizchi19web__runtime__hooks18js__audio__suspend();
+}
+function _M0FP26mizchi19web__runtime__hooks30bridge__audio__try__initialize(format) {
+  return _M0FP26mizchi19web__runtime__hooks26js__audio__try__initialize(format.sample_rate, format.channels);
+}
+function _M0FP26mizchi19web__runtime__hooks28bridge__audio__write__frames(output, frames) {
+  const channels = 2;
+  const write_pos = _M0FP26mizchi19web__runtime__hooks26js__audio__get__write__pos();
+  const _start102 = 0;
+  const _end103 = frames;
+  let _tmp = _start102;
+  while (true) {
+    const i = _tmp;
+    if (i < _end103) {
+      const _start107 = 0;
+      const _end108 = channels;
+      let _tmp$2 = _start107;
+      while (true) {
+        const ch = _tmp$2;
+        if (ch < _end108) {
+          const idx = (Math.imul(i, channels) | 0) + ch | 0;
+          let value;
+          if (idx < output.length) {
+            $bound_check(output, idx);
+            value = output[idx];
+          } else {
+            value = 0;
+          }
+          _M0FP26mizchi19web__runtime__hooks24js__audio__write__sample(write_pos + i | 0, ch, value);
+          _tmp$2 = ch + 1 | 0;
+          continue;
+        } else {
+          break;
+        }
+      }
+      _tmp = i + 1 | 0;
+      continue;
+    } else {
+      break;
+    }
+  }
+  _M0FP26mizchi19web__runtime__hooks25js__audio__advance__write(frames);
+  _M0FP26mizchi19web__runtime__hooks24js__audio__write__frames(frames);
+  return frames;
+}
+function _M0FP26mizchi19web__runtime__hooks24bridge__load__font__data(name) {
+  const size = _M0FP26mizchi19web__runtime__hooks20js__load__font__data(name);
+  if (size <= 0) {
+    return Option$None$3$;
+  }
+  const data = _M0MP311moonbitlang4core5array5Array4makeGiE(size, 0);
+  const _start125 = 0;
+  const _end126 = size;
+  let _tmp = _start125;
+  while (true) {
+    const i = _tmp;
+    if (i < _end126) {
+      _M0MP311moonbitlang4core5array5Array3setGiE(data, i, _M0FP26mizchi19web__runtime__hooks26js__load__font__data__byte(i));
+      _tmp = i + 1 | 0;
+      continue;
+    } else {
+      break;
+    }
+  }
+  return new Option$Some$3$(data);
+}
+function _M0FP26mizchi19web__runtime__hooks27bridge__web__capture__input(active, _tick) {
+  if (active) {
+    _M0FP26mizchi19web__runtime__hooks25js__ensure__window__state(_M0FP26mizchi19web__runtime__hooks21web__canvas__selector.val);
+    const pressed_keys = [];
+    const key_count = _M0FP26mizchi19web__runtime__hooks30js__input__pressed__key__count();
+    const _start164 = 0;
+    const _end165 = key_count;
+    let _tmp = _start164;
+    while (true) {
+      const i = _tmp;
+      if (i < _end165) {
+        _M0MP311moonbitlang4core5array5Array4pushGiE(pressed_keys, _M0FP26mizchi19web__runtime__hooks27js__input__pressed__key__at(i));
+        _tmp = i + 1 | 0;
+        continue;
+      } else {
+        break;
+      }
+    }
+    const pressed_mouse_buttons = [];
+    const mouse_button_count = _M0FP26mizchi19web__runtime__hooks40js__input__pressed__mouse__button__count();
+    const _start171 = 0;
+    const _end172 = mouse_button_count;
+    let _tmp$2 = _start171;
+    while (true) {
+      const i = _tmp$2;
+      if (i < _end172) {
+        const button = _M0FP26mizchi19web__runtime__hooks37js__input__pressed__mouse__button__at(i);
+        if (button >= 0) {
+          _M0MP311moonbitlang4core5array5Array4pushGiE(pressed_mouse_buttons, button);
+        }
+        _tmp$2 = i + 1 | 0;
+        continue;
+      } else {
+        break;
+      }
+    }
+    const touches = [];
+    const touch_count = _M0FP26mizchi19web__runtime__hooks23js__input__touch__count();
+    const _start179 = 0;
+    const _end180 = touch_count;
+    let _tmp$3 = _start179;
+    while (true) {
+      const i = _tmp$3;
+      if (i < _end180) {
+        _M0MP311moonbitlang4core5array5Array4pushGRP36mizchi6kagura4core10TouchPointE(touches, _M0FP36mizchi6kagura4core17new__touch__point(_M0FP26mizchi19web__runtime__hooks24js__input__touch__id__at(i), _M0FP26mizchi19web__runtime__hooks23js__input__touch__x__at(i), _M0FP26mizchi19web__runtime__hooks23js__input__touch__y__at(i)));
+        _tmp$3 = i + 1 | 0;
+        continue;
+      } else {
+        break;
+      }
+    }
+    const gamepads = [];
+    const gamepad_count = _M0FP26mizchi19web__runtime__hooks25js__input__gamepad__count();
+    const _start186 = 0;
+    const _end187 = gamepad_count;
+    let _tmp$4 = _start186;
+    while (true) {
+      const i = _tmp$4;
+      if (i < _end187) {
+        const axes = [];
+        const axis_count = _M0FP26mizchi19web__runtime__hooks31js__input__gamepad__axis__count(i);
+        const _start193 = 0;
+        const _end194 = axis_count;
+        let _tmp$5 = _start193;
+        while (true) {
+          const j = _tmp$5;
+          if (j < _end194) {
+            _M0MP311moonbitlang4core5array5Array4pushGdE(axes, _M0FP26mizchi19web__runtime__hooks28js__input__gamepad__axis__at(i, j));
+            _tmp$5 = j + 1 | 0;
+            continue;
+          } else {
+            break;
+          }
+        }
+        const pressed_buttons = [];
+        const button_count = _M0FP26mizchi19web__runtime__hooks42js__input__gamepad__pressed__button__count(i);
+        const _start200 = 0;
+        const _end201 = button_count;
+        let _tmp$6 = _start200;
+        while (true) {
+          const j = _tmp$6;
+          if (j < _end201) {
+            const button_id = _M0FP26mizchi19web__runtime__hooks39js__input__gamepad__pressed__button__at(i, j);
+            if (button_id >= 0) {
+              _M0MP311moonbitlang4core5array5Array4pushGiE(pressed_buttons, button_id);
+            }
+            _tmp$6 = j + 1 | 0;
+            continue;
+          } else {
+            break;
+          }
+        }
+        _M0MP311moonbitlang4core5array5Array4pushGRP36mizchi6kagura4core15GamepadSnapshotE(gamepads, _M0FP36mizchi6kagura4core22new__gamepad__snapshot(_M0FP26mizchi19web__runtime__hooks26js__input__gamepad__id__at(i), axes, pressed_buttons));
+        _tmp$4 = i + 1 | 0;
+        continue;
+      } else {
+        break;
+      }
+    }
+    const snapshot = _M0FP36mizchi6kagura4core26new__input__snapshot__full(_M0FP26mizchi19web__runtime__hooks20js__input__cursor__x(), _M0FP26mizchi19web__runtime__hooks20js__input__cursor__y(), _M0FP26mizchi19web__runtime__hooks19js__input__wheel__x(), _M0FP26mizchi19web__runtime__hooks19js__input__wheel__y(), pressed_keys, pressed_mouse_buttons, touches, gamepads);
+    _M0FP26mizchi19web__runtime__hooks23js__clear__input__wheel();
+    return snapshot;
+  } else {
+    return _M0FP36mizchi6kagura4core22empty__input__snapshot();
+  }
+}
+function _M0FP26mizchi19web__runtime__hooks26bridge__web__close__window(_canvas_selector, active) {
+  if (active) {
+    _M0FP26mizchi19web__runtime__hooks25js__ensure__window__state(_M0FP26mizchi19web__runtime__hooks21web__canvas__selector.val);
+    _M0FP26mizchi19web__runtime__hooks22js__set__should__close(true);
+    return;
+  } else {
+    return;
+  }
+}
+function _M0FP26mizchi19web__runtime__hooks19sync__surface__info(fallback_width, fallback_height) {
+  return _M0FP26mizchi19web__runtime__hooks20js__prepare__surface(_M0FP26mizchi19web__runtime__hooks21web__canvas__selector.val, fallback_width, fallback_height);
+}
+function _M0FP26mizchi19web__runtime__hooks29bridge__web__current__surface(_canvas_selector, options) {
+  _M0FP26mizchi19web__runtime__hooks19sync__surface__info(options.width, options.height);
+  const width = _M0FP26mizchi19web__runtime__hooks18js__surface__width(options.width);
+  const height = _M0FP26mizchi19web__runtime__hooks19js__surface__height(options.height);
+  const dpr = _M0FP26mizchi19web__runtime__hooks16js__surface__dpr();
+  const id = _M0FP26mizchi19web__runtime__hooks15js__surface__id();
+  return _M0FP36mizchi6kagura8platform30create__webgpu__surface__token(id, width, height, dpr);
+}
+function _M0FP26mizchi19web__runtime__hooks25bridge__web__cursor__mode(_canvas_selector, active, current) {
+  if (active) {
+    _M0FP26mizchi19web__runtime__hooks25js__ensure__window__state(_M0FP26mizchi19web__runtime__hooks21web__canvas__selector.val);
+    return _M0FP36mizchi6kagura8platform23cursor__mode__from__int(_M0FP26mizchi19web__runtime__hooks16js__cursor__mode(_M0FP26mizchi19web__runtime__hooks21web__canvas__selector.val, _M0FP36mizchi6kagura8platform21cursor__mode__to__int(current)));
+  } else {
+    return current;
+  }
+}
+function _M0FP26mizchi19web__runtime__hooks34bridge__web__device__scale__factor(_canvas_selector, active, current) {
+  if (active) {
+    _M0FP26mizchi19web__runtime__hooks25js__ensure__window__state(_M0FP26mizchi19web__runtime__hooks21web__canvas__selector.val);
+    return _M0FP26mizchi19web__runtime__hooks25js__device__scale__factor(current);
+  } else {
+    return current <= 0 ? 1 : current;
+  }
+}
+function _M0FP26mizchi19web__runtime__hooks27bridge__web__gfx__on__begin(active, _kind, pass) {
+  if (active) {
+    _M0FP26mizchi19web__runtime__hooks17js__webgpu__begin(pass.clear_color.r, pass.clear_color.g, pass.clear_color.b, pass.clear_color.a);
+    const dirty = _M0FP26mizchi19web__runtime__hooks19gpu__texture__dirty.val;
+    const _arr = dirty;
+    const _len = _arr.length;
+    let _tmp = 0;
+    while (true) {
+      const _i = _tmp;
+      if (_i < _len) {
+        const image_id = _arr[_i];
+        let entry;
+        _L: {
+          _L$2: {
+            const _bind = _M0FP26mizchi19web__runtime__hooks31source__image__cache__entry__at(image_id);
+            if (_bind === undefined) {
+            } else {
+              const _Some = _bind;
+              const _entry = _Some;
+              entry = _entry;
+              break _L$2;
+            }
+            break _L;
+          }
+          const w = entry.width;
+          const h = entry.height;
+          const px = entry.pixels_rgba8;
+          const pixel_count = Math.imul(w, h) | 0;
+          if (px.length >= (Math.imul(pixel_count, 4) | 0)) {
+            _M0FP26mizchi19web__runtime__hooks31js__gfx__upload__texture__begin(image_id, w, h);
+            let _tmp$2 = 0;
+            while (true) {
+              const i = _tmp$2;
+              if (i < pixel_count) {
+                const base = Math.imul(i, 4) | 0;
+                _M0FP26mizchi19web__runtime__hooks31js__gfx__upload__texture__pixel(i, _M0MP311moonbitlang4core5array5Array2atGiE(px, base), _M0MP311moonbitlang4core5array5Array2atGiE(px, base + 1 | 0), _M0MP311moonbitlang4core5array5Array2atGiE(px, base + 2 | 0), _M0MP311moonbitlang4core5array5Array2atGiE(px, base + 3 | 0));
+                _tmp$2 = i + 1 | 0;
+                continue;
+              } else {
+                break;
+              }
+            }
+            _M0FP26mizchi19web__runtime__hooks29js__gfx__upload__texture__end();
+          }
+        }
+        _tmp = _i + 1 | 0;
+        continue;
+      } else {
+        break;
+      }
+    }
+    _M0FP26mizchi19web__runtime__hooks19gpu__texture__dirty.val = [];
+    return;
+  } else {
+    return;
+  }
+}
+function _M0FP26mizchi19web__runtime__hooks26bridge__web__gfx__on__draw(active, _kind, command) {
+  if (active) {
+    const _tmp = command.shader.source;
+    const _bind = "@vertex";
+    if (_M0MP311moonbitlang4core6string6String8contains(_tmp, { str: _bind, start: 0, end: _bind.length })) {
+      const vf_count = command.vertex_data.length;
+      const ic = command.indices.length;
+      const u_count = command.uniform_dwords.length;
+      const src_count = command.src_image_ids.length;
+      const blend = _M0FP36mizchi6kagura3gfx20blend__mode__to__int(command.blend);
+      _M0FP26mizchi19web__runtime__hooks28js__gfx__custom__draw__begin(command.shader.id, command.shader.source, vf_count, ic, u_count, src_count, command.dst.id, command.dst.width, command.dst.height, blend, command.instance_count);
+      let _tmp$2 = 0;
+      while (true) {
+        const i = _tmp$2;
+        if (i < vf_count) {
+          _M0FP26mizchi19web__runtime__hooks36js__gfx__custom__draw__vertex__float(i, _M0MP311moonbitlang4core5array5Array2atGdE(command.vertex_data, i));
+          _tmp$2 = i + 1 | 0;
+          continue;
+        } else {
+          break;
+        }
+      }
+      let _tmp$3 = 0;
+      while (true) {
+        const i = _tmp$3;
+        if (i < ic) {
+          _M0FP26mizchi19web__runtime__hooks20js__gfx__draw__index(i, _M0MP311moonbitlang4core5array5Array2atGiE(command.indices, i));
+          _tmp$3 = i + 1 | 0;
+          continue;
+        } else {
+          break;
+        }
+      }
+      let _tmp$4 = 0;
+      while (true) {
+        const i = _tmp$4;
+        if (i < u_count) {
+          _M0FP26mizchi19web__runtime__hooks30js__gfx__custom__draw__uniform(i, _M0MP311moonbitlang4core5array5Array2atGiE(command.uniform_dwords, i));
+          _tmp$4 = i + 1 | 0;
+          continue;
+        } else {
+          break;
+        }
+      }
+      let _tmp$5 = 0;
+      while (true) {
+        const i = _tmp$5;
+        if (i < src_count) {
+          _M0FP26mizchi19web__runtime__hooks33js__gfx__custom__draw__src__image(i, _M0MP311moonbitlang4core5array5Array2atGiE(command.src_image_ids, i));
+          _tmp$5 = i + 1 | 0;
+          continue;
+        } else {
+          break;
+        }
+      }
+      _M0FP26mizchi19web__runtime__hooks18js__gfx__draw__end();
+      return;
+    } else {
+      const src_id = command.src_image_ids.length > 0 ? _M0MP311moonbitlang4core5array5Array2atGiE(command.src_image_ids, 0) : 0;
+      const ur = command.uniform_dwords.length > 0 ? _M0MP311moonbitlang4core5array5Array2atGiE(command.uniform_dwords, 0) : 255;
+      const ug = command.uniform_dwords.length > 1 ? _M0MP311moonbitlang4core5array5Array2atGiE(command.uniform_dwords, 1) : 255;
+      const ub = command.uniform_dwords.length > 2 ? _M0MP311moonbitlang4core5array5Array2atGiE(command.uniform_dwords, 2) : 255;
+      const ua = command.uniform_dwords.length > 3 ? _M0MP311moonbitlang4core5array5Array2atGiE(command.uniform_dwords, 3) : 255;
+      if (4 === 0) {
+        $panic();
+      }
+      const vc = command.vertex_data.length / 4 | 0;
+      const ic = command.indices.length;
+      _M0FP26mizchi19web__runtime__hooks20js__gfx__draw__begin(vc, ic, src_id, ur, ug, ub, ua, command.dst.id, command.dst.width, command.dst.height);
+      let _tmp$2 = 0;
+      while (true) {
+        const i = _tmp$2;
+        if (i < vc) {
+          const base = Math.imul(i, 4) | 0;
+          _M0FP26mizchi19web__runtime__hooks21js__gfx__draw__vertex(i, _M0MP311moonbitlang4core5array5Array2atGdE(command.vertex_data, base), _M0MP311moonbitlang4core5array5Array2atGdE(command.vertex_data, base + 1 | 0), _M0MP311moonbitlang4core5array5Array2atGdE(command.vertex_data, base + 2 | 0), _M0MP311moonbitlang4core5array5Array2atGdE(command.vertex_data, base + 3 | 0));
+          _tmp$2 = i + 1 | 0;
+          continue;
+        } else {
+          break;
+        }
+      }
+      let _tmp$3 = 0;
+      while (true) {
+        const i = _tmp$3;
+        if (i < ic) {
+          _M0FP26mizchi19web__runtime__hooks20js__gfx__draw__index(i, _M0MP311moonbitlang4core5array5Array2atGiE(command.indices, i));
+          _tmp$3 = i + 1 | 0;
+          continue;
+        } else {
+          break;
+        }
+      }
+      _M0FP26mizchi19web__runtime__hooks18js__gfx__draw__end();
+      return;
+    }
+  } else {
+    return;
+  }
+}
+function _M0FP26mizchi19web__runtime__hooks25bridge__web__gfx__on__end(active, _kind, present) {
+  if (active && present) {
+    _M0FP26mizchi19web__runtime__hooks19js__webgpu__present();
+    return;
+  } else {
+    return;
+  }
+}
+function _M0FP26mizchi19web__runtime__hooks28bridge__web__gfx__on__resize(active, _kind, width, height) {
+  if (active) {
+    _M0FP26mizchi19web__runtime__hooks20js__prepare__surface(_M0FP26mizchi19web__runtime__hooks21web__canvas__selector.val, width, height);
+    _M0FP26mizchi19web__runtime__hooks27js__try__initialize__webgpu(_M0FP26mizchi19web__runtime__hooks21web__canvas__selector.val, width, height);
+    return;
+  } else {
+    return;
+  }
+}
+function _M0FP26mizchi19web__runtime__hooks33bridge__web__gfx__try__initialize(kind, width, height) {
+  if (kind === 1) {
+    return _M0FP26mizchi19web__runtime__hooks27js__try__initialize__webgpu(_M0FP26mizchi19web__runtime__hooks21web__canvas__selector.val, width, height);
+  } else {
+    return false;
+  }
+}
+function _M0FP26mizchi19web__runtime__hooks27bridge__web__is__fullscreen(_canvas_selector, active, current) {
+  if (active) {
+    _M0FP26mizchi19web__runtime__hooks25js__ensure__window__state(_M0FP26mizchi19web__runtime__hooks21web__canvas__selector.val);
+    return _M0FP26mizchi19web__runtime__hooks18js__is__fullscreen(_M0FP26mizchi19web__runtime__hooks21web__canvas__selector.val, current);
+  } else {
+    return current;
+  }
+}
+function _M0FP26mizchi19web__runtime__hooks31bridge__web__is__vsync__enabled(_canvas_selector, active, current) {
+  if (active) {
+    _M0FP26mizchi19web__runtime__hooks25js__ensure__window__state(_M0FP26mizchi19web__runtime__hooks21web__canvas__selector.val);
+    return _M0FP26mizchi19web__runtime__hooks22js__is__vsync__enabled(current);
+  } else {
+    return current;
+  }
+}
+function _M0FP26mizchi19web__runtime__hooks26bridge__web__outside__size(width, height) {
+  _M0FP26mizchi19web__runtime__hooks19sync__surface__info(width, height);
+  return _M0FP36mizchi6kagura4core18new__outside__size(_M0FP26mizchi19web__runtime__hooks18js__surface__width(width) + 0, _M0FP26mizchi19web__runtime__hooks19js__surface__height(height) + 0);
+}
+function _M0FP26mizchi19web__runtime__hooks17bridge__web__poll(active) {
+  if (active && _M0FP26mizchi19web__runtime__hooks21web__hooks__installed.val) {
+    _M0FP26mizchi19web__runtime__hooks25js__ensure__window__state(_M0FP26mizchi19web__runtime__hooks21web__canvas__selector.val);
+    return;
+  } else {
+    return;
+  }
+}
+function _M0FP26mizchi19web__runtime__hooks31bridge__web__request__attention(_canvas_selector, active) {
+  if (active) {
+    _M0FP26mizchi19web__runtime__hooks25js__ensure__window__state(_M0FP26mizchi19web__runtime__hooks21web__canvas__selector.val);
+    _M0FP26mizchi19web__runtime__hooks22js__request__attention();
+    return;
+  } else {
+    return;
+  }
+}
+function _M0FP26mizchi19web__runtime__hooks30bridge__web__set__cursor__mode(_canvas_selector, active, mode) {
+  if (active) {
+    _M0FP26mizchi19web__runtime__hooks25js__ensure__window__state(_M0FP26mizchi19web__runtime__hooks21web__canvas__selector.val);
+    return _M0FP36mizchi6kagura8platform23cursor__mode__from__int(_M0FP26mizchi19web__runtime__hooks21js__set__cursor__mode(_M0FP26mizchi19web__runtime__hooks21web__canvas__selector.val, _M0FP36mizchi6kagura8platform21cursor__mode__to__int(mode)));
+  } else {
+    return mode;
+  }
+}
+function _M0FP26mizchi19web__runtime__hooks39bridge__web__set__device__scale__factor(_canvas_selector, active, scale) {
+  if (active) {
+    _M0FP26mizchi19web__runtime__hooks25js__ensure__window__state(_M0FP26mizchi19web__runtime__hooks21web__canvas__selector.val);
+    return _M0FP26mizchi19web__runtime__hooks30js__set__device__scale__factor(scale);
+  } else {
+    return scale <= 0 ? 1 : scale;
+  }
+}
+function _M0FP26mizchi19web__runtime__hooks28bridge__web__set__fullscreen(_canvas_selector, active, enabled) {
+  if (active) {
+    _M0FP26mizchi19web__runtime__hooks25js__ensure__window__state(_M0FP26mizchi19web__runtime__hooks21web__canvas__selector.val);
+    return _M0FP26mizchi19web__runtime__hooks19js__set__fullscreen(_M0FP26mizchi19web__runtime__hooks21web__canvas__selector.val, enabled);
+  } else {
+    return enabled;
+  }
+}
+function _M0FP26mizchi19web__runtime__hooks32bridge__web__set__vsync__enabled(_canvas_selector, active, enabled) {
+  if (active) {
+    _M0FP26mizchi19web__runtime__hooks25js__ensure__window__state(_M0FP26mizchi19web__runtime__hooks21web__canvas__selector.val);
+    return _M0FP26mizchi19web__runtime__hooks23js__set__vsync__enabled(enabled);
+  } else {
+    return enabled;
+  }
+}
+function _M0FP26mizchi19web__runtime__hooks26bridge__web__should__close() {
+  return _M0FP26mizchi19web__runtime__hooks24js__should__close__state();
+}
+function _M0FP26mizchi19web__runtime__hooks28bridge__web__try__initialize(canvas_selector, options) {
+  if (!_M0FP26mizchi19web__runtime__hooks21web__hooks__installed.val || _M0IP016_24default__implP311moonbitlang4core7builtin2Eq10not__equalGsE(canvas_selector, _M0FP26mizchi19web__runtime__hooks21web__canvas__selector.val)) {
+    return false;
+  } else {
+    _M0FP26mizchi19web__runtime__hooks25js__ensure__window__state(canvas_selector);
+    return _M0FP26mizchi19web__runtime__hooks19sync__surface__info(options.width, options.height);
+  }
+}
+function _M0FP26mizchi19web__runtime__hooks7install(canvas_selector) {
+  const already_installed = _M0FP26mizchi19web__runtime__hooks21web__hooks__installed.val;
+  _M0FP26mizchi19web__runtime__hooks21web__canvas__selector.val = canvas_selector;
+  _M0FP26mizchi19web__runtime__hooks21web__hooks__installed.val = true;
+  if (!already_installed) {
+    _M0FP26mizchi19web__runtime__hooks27clear__source__image__cache();
+    _M0FP26mizchi19web__runtime__hooks34clear__synced__source__generations();
+    _M0FP26mizchi19web__runtime__hooks26clear__gpu__texture__dirty();
+    _M0FP26mizchi19web__runtime__hooks30js__release__webgpu__resources();
+  }
+  _M0FP26mizchi19web__runtime__hooks25js__ensure__window__state(canvas_selector);
+  _M0FP26mizchi19web__runtime__hooks22js__set__should__close(false);
+  _M0FP26mizchi19web__runtime__hooks23js__set__vsync__enabled(true);
+  _M0FP36mizchi6kagura8platform23set__web__canvas__hooks(_M0FP36mizchi6kagura8platform23new__web__canvas__hooks(_M0FP26mizchi19web__runtime__hooks28bridge__web__try__initialize, _M0FP26mizchi19web__runtime__hooks17bridge__web__poll, _M0FP26mizchi19web__runtime__hooks26bridge__web__should__close, _M0FP26mizchi19web__runtime__hooks26bridge__web__outside__size, _M0FP26mizchi19web__runtime__hooks29bridge__web__current__surface, _M0FP26mizchi19web__runtime__hooks27bridge__web__capture__input, _M0FP26mizchi19web__runtime__hooks28bridge__web__set__fullscreen, _M0FP26mizchi19web__runtime__hooks27bridge__web__is__fullscreen, _M0FP26mizchi19web__runtime__hooks30bridge__web__set__cursor__mode, _M0FP26mizchi19web__runtime__hooks25bridge__web__cursor__mode, _M0FP26mizchi19web__runtime__hooks39bridge__web__set__device__scale__factor, _M0FP26mizchi19web__runtime__hooks34bridge__web__device__scale__factor, _M0FP26mizchi19web__runtime__hooks32bridge__web__set__vsync__enabled, _M0FP26mizchi19web__runtime__hooks31bridge__web__is__vsync__enabled, _M0FP26mizchi19web__runtime__hooks26bridge__web__close__window, _M0FP26mizchi19web__runtime__hooks31bridge__web__request__attention, (_s, _a, _e) => {
+  }, (_s, _a) => false, (_s, _a, c) => c, (_s, _a, c) => c));
+  _M0FP36mizchi6kagura3gfx25set__web__graphics__hooks(_M0FP36mizchi6kagura3gfx25new__web__graphics__hooks(_M0FP26mizchi19web__runtime__hooks33bridge__web__gfx__try__initialize, _M0FP26mizchi19web__runtime__hooks27bridge__web__gfx__on__begin, _M0FP26mizchi19web__runtime__hooks25bridge__web__gfx__on__end, _M0FP26mizchi19web__runtime__hooks26bridge__web__gfx__on__draw, _M0FP26mizchi19web__runtime__hooks28bridge__web__gfx__on__resize));
+  _M0FP36mizchi6kagura4text22set__font__load__hooks(_M0FP36mizchi6kagura4text22new__font__load__hooks(_M0FP26mizchi19web__runtime__hooks24bridge__load__font__data));
+  _M0FP36mizchi6kagura5audio25set__audio__output__hooks(_M0FP36mizchi6kagura5audio31new__audio__output__hooks__full(_M0FP26mizchi19web__runtime__hooks30bridge__audio__try__initialize, _M0FP26mizchi19web__runtime__hooks28bridge__audio__write__frames, _M0FP26mizchi19web__runtime__hooks22bridge__audio__suspend, _M0FP26mizchi19web__runtime__hooks21bridge__audio__resume, _M0FP26mizchi19web__runtime__hooks20bridge__audio__close, _M0FP26mizchi19web__runtime__hooks26js__audio__output__latency));
+}
+function _M0FP26mizchi19web__runtime__hooks9uninstall() {
+  _M0FP26mizchi19web__runtime__hooks21web__hooks__installed.val = false;
+  _M0FP26mizchi19web__runtime__hooks27clear__source__image__cache();
+  _M0FP26mizchi19web__runtime__hooks34clear__synced__source__generations();
+  _M0FP26mizchi19web__runtime__hooks26clear__gpu__texture__dirty();
+  _M0FP26mizchi19web__runtime__hooks25js__ensure__window__state(_M0FP26mizchi19web__runtime__hooks21web__canvas__selector.val);
+  _M0FP26mizchi19web__runtime__hooks30js__release__webgpu__resources();
+  _M0FP26mizchi19web__runtime__hooks22js__set__should__close(false);
+  _M0FP36mizchi6kagura3gfx27reset__web__graphics__hooks();
+  _M0FP36mizchi6kagura8platform25reset__web__canvas__hooks();
+  _M0FP36mizchi6kagura4text24reset__font__load__hooks();
+  _M0FP36mizchi6kagura5audio27reset__audio__output__hooks();
+}
+function _M0FP26mizchi19web__runtime__hooks8shutdown() {
+  _M0FP26mizchi19web__runtime__hooks9uninstall();
 }
 function _M0MP26mizchi14shadow3d__demo9DemoState14build__objects(self) {
   const objects = [];

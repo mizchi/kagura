@@ -138,6 +138,7 @@ struct GameState {
   mut generated_props : Array[GeneratedPropState]
   mut active_effects : Array[ActiveEffectInstance]
   audio_ctx : @audio.MixerAudioContext
+  mut audio_muted : Bool
   audio_players : GameAudioPlayers
   audio_failed_paths : Array[String]
   mut audio_last_played_cue : String

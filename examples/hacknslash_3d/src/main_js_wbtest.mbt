@@ -51,6 +51,16 @@ test "apply_debug_skill_unlocks learns all spell nodes when enabled" {
 }
 
 ///|
+test "apply_initial_audio_settings enables mute from startup settings" {
+  let state = GameState::new(seed=42)
+
+  apply_initial_audio_settings(state, true)
+
+  assert_true(state.audio_muted)
+  assert_eq(state.audio_last_played_state, "muted")
+}
+
+///|
 test "build_initial_balance_params selects build diverse preset by name" {
   let params = build_initial_balance_params("build_diverse_hackslash")
 

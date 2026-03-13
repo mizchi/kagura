@@ -35,3 +35,16 @@ test "sound_cue_for_event ignores purely visual events" {
   assert_eq(sound_cue_for_event(@game.FireballTrail(0.0, 0.0)), None)
   assert_eq(sound_cue_for_event(@game.GroundTelegraphRing(0.0, 0.0, 2.0)), None)
 }
+
+///|
+test "play_sound_cue reports muted state when audio is muted" {
+  let state = GameState::new(seed=42)
+
+  state.set_audio_muted(true)
+  state.play_sound_cue(SfxAttack)
+
+  assert_true(state.audio_muted)
+  assert_eq(state.audio_last_played_cue, "attack")
+  assert_eq(state.audio_last_played_state, "muted")
+  assert_eq(state.playing_audio_player_count(), 0)
+}

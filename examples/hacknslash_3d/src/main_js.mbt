@@ -187,14 +187,16 @@ extern "js" fn js_publish_audio_debug_state(
   failed_count : Int,
   last_played_cue : String,
   last_played_state : String,
+  muted : Bool,
 ) -> Unit =
-  #| (loadedCount, playingCount, failedCount, lastPlayedCue, lastPlayedState) => {
+  #| (loadedCount, playingCount, failedCount, lastPlayedCue, lastPlayedState, muted) => {
   #|   const debug = globalThis.__hacknslash3dAudioDebug ?? {}
   #|   debug.loadedCount = loadedCount
   #|   debug.playingCount = playingCount
   #|   debug.failedCount = failedCount
   #|   debug.lastPlayedCue = lastPlayedCue
   #|   debug.lastPlayedState = lastPlayedState
+  #|   debug.muted = muted === true
   #|   globalThis.__hacknslash3dAudioDebug = debug
   #| }
 
@@ -247,6 +249,14 @@ fn apply_debug_skill_unlocks(state : GameState, unlock_spells : Bool) -> Unit {
 }
 
 ///|
+fn apply_initial_audio_settings(
+  state : GameState,
+  initial_audio_muted : Bool,
+) -> Unit {
+  state.set_audio_muted(initial_audio_muted)
+}
+
+///|
 fn build_initial_state() -> GameState {
   let initial_balance_params = build_initial_balance_params(
     get_initial_balance_preset_name(),
@@ -273,6 +283,7 @@ fn build_initial_state() -> GameState {
     get_snapshot_frames(),
     get_initial_autoplay_enabled(),
   )
+  apply_initial_audio_settings(state, get_initial_audio_muted())
   apply_debug_skill_unlocks(state, get_initial_unlock_spells_enabled())
   state
 }
@@ -450,6 +461,7 @@ fn run_game_js(state : GameState, perf_capture_enabled : Bool) -> Unit {
         state.audio_failed_paths.length(),
         state.audio_last_played_cue,
         state.audio_last_played_state,
+        state.audio_muted,
       )
     },
     audio_ctx=state.audio_ctx,

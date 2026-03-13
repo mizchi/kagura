@@ -117,8 +117,46 @@ fn player_state_name(state : @audio.PlayerState) -> String {
 }
 
 ///|
+fn game_sound_cues() -> Array[GameSoundCue] {
+  [
+    SfxAttack,
+    SfxHurt,
+    SfxPickupLoot,
+    SfxPickupHealth,
+    SfxSpellChainLightning,
+    SfxSpellFireball,
+    SfxSpellIceNova,
+    SfxSpellHomingMissile,
+    SfxFloorComplete,
+  ]
+}
+
+///|
+fn GameState::set_audio_muted(self : GameState, muted : Bool) -> Unit {
+  self.audio_muted = muted
+  self.audio_last_played_state = if muted { "muted" } else { "unmuted" }
+  if muted {
+    for cue in game_sound_cues() {
+      match self.audio_players.lookup(cue) {
+        Some(player) => self.audio_ctx.stop(player) catch { _ => () }
+        None => ()
+      }
+    }
+  }
+}
+
+///|
+fn GameState::toggle_audio_muted(self : GameState) -> Unit {
+  self.set_audio_muted(not(self.audio_muted))
+}
+
+///|
 fn GameState::play_sound_cue(self : GameState, cue : GameSoundCue) -> Unit {
   self.audio_last_played_cue = sound_cue_name(cue)
+  if self.audio_muted {
+    self.audio_last_played_state = "muted"
+    return
+  }
   match self.audio_players.lookup(cue) {
     Some(player) => {
       self.audio_ctx.seek(player, 0.0) catch {
@@ -138,18 +176,7 @@ fn GameState::play_sound_cue(self : GameState, cue : GameSoundCue) -> Unit {
 ///|
 fn GameState::loaded_audio_player_count(self : GameState) -> Int {
   let mut count = 0
-  for
-    cue in [
-      SfxAttack,
-      SfxHurt,
-      SfxPickupLoot,
-      SfxPickupHealth,
-      SfxSpellChainLightning,
-      SfxSpellFireball,
-      SfxSpellIceNova,
-      SfxSpellHomingMissile,
-      SfxFloorComplete,
-    ] {
+  for cue in game_sound_cues() {
     match self.audio_players.lookup(cue) {
       Some(_) => count = count + 1
       None => ()
@@ -161,18 +188,7 @@ fn GameState::loaded_audio_player_count(self : GameState) -> Int {
 ///|
 fn GameState::playing_audio_player_count(self : GameState) -> Int {
   let mut count = 0
-  for
-    cue in [
-      SfxAttack,
-      SfxHurt,
-      SfxPickupLoot,
-      SfxPickupHealth,
-      SfxSpellChainLightning,
-      SfxSpellFireball,
-      SfxSpellIceNova,
-      SfxSpellHomingMissile,
-      SfxFloorComplete,
-    ] {
+  for cue in game_sound_cues() {
     match self.audio_players.lookup(cue) {
       Some(player) =>
         match self.audio_ctx.state(player) {

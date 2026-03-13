@@ -65,6 +65,11 @@ fn get_initial_autoplay_enabled() -> Bool {
 }
 
 ///|
+fn get_initial_audio_muted() -> Bool {
+  js_get_query_param_bool("mute", false)
+}
+
+///|
 fn get_initial_unlock_spells_enabled() -> Bool {
   js_get_query_param_bool("unlock_spells", false)
 }

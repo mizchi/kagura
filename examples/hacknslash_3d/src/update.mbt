@@ -6,6 +6,9 @@ fn half_res_target_size(size : Int) -> Int {
 }
 
 ///|
+let key_m : Int = 77
+
+///|
 fn GameState::new(seed~ : Int) -> GameState {
   GameState::new_with_params_and_ssao(
     seed~,
@@ -175,6 +178,7 @@ fn GameState::new_with_params_and_ssao(
     generated_props: [],
     active_effects: [],
     audio_ctx: @audio.MixerAudioContext::new(44100),
+    audio_muted: false,
     audio_players: default_game_audio_players(),
     audio_failed_paths: [],
     audio_last_played_cue: "",
@@ -249,6 +253,9 @@ fn GameState::update(self : GameState, input : @core.InputSnapshot) -> Unit {
   // Shadow toggle for visual/perf comparison
   if @inpututil.is_key_just_pressed(self.input.key_state, key_f5) {
     self.shadows_enabled = not(self.shadows_enabled)
+  }
+  if @inpututil.is_key_just_pressed(self.input.key_state, key_m) {
+    self.toggle_audio_muted()
   }
   match self.world.mode {
     @game.Title => self.update_title()

@@ -554,6 +554,16 @@ fn GameState::render_hud_cmds(
   if self.world.auto_play {
     ctx.draw_text(cmds, "AUTO", 14.0, 10.0, 92.0, 0x00FFAA)
   }
+  if self.audio_muted {
+    ctx.draw_text(
+      cmds,
+      "MUTE",
+      14.0,
+      screen_w.to_double() - 56.0,
+      10.0,
+      0xFF8899,
+    )
+  }
   self.draw_item_drop_labels(ctx, cmds)
   // Minimap
   self.render_minimap(ctx, cmds)

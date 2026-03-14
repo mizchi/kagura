@@ -286,11 +286,11 @@ fn GameState::draw_playing(
       self.fog_sh,
       bloom_input_id,
       self.camera_depth_target.id,
-      0.02, // fog R
-      0.03, // fog G
-      0.05, // fog B
-      0.15, // fog start (near)
-      0.85, // fog end (far)
+      0.03, // fog R
+      0.04, // fog G
+      0.06, // fog B
+      0.4, // fog start (near) - start fading at 40% depth
+      0.95, // fog end (far) - fully fogged at 95% depth
     ),
   )
   let fog_output_id = self.post_target.id

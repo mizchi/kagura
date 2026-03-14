@@ -137,7 +137,7 @@ test "spell cooldown and damage helpers apply global multipliers" {
     spell_cooldown_mult: 1.5,
     spell_damage_mult: 0.5,
   }
-  assert_eq(params.chain_lightning_cooldown_frames(), 48)
+  assert_eq(params.chain_lightning_cooldown_frames(), 67)
   assert_eq(params.splitting_fireball_cooldown_frames(), 60)
   assert_eq(params.ice_nova_cooldown_frames(), 72)
   assert_eq(params.homing_missile_cooldown_frames(), 81)

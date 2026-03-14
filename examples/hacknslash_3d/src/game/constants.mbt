@@ -79,10 +79,10 @@ pub let chain_lightning_range : Double = 112.0
 pub let chain_lightning_hop_range : Double = 104.0
 
 ///|
-pub let chain_lightning_max_targets : Int = 3
+pub let chain_lightning_max_targets : Int = 2
 
 ///|
-pub let chain_lightning_cooldown : Int = 32
+pub let chain_lightning_cooldown : Int = 45
 
 ///|
 pub let chain_lightning_telegraph_radius : Double = 18.0

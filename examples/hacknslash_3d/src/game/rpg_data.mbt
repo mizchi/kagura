@@ -919,7 +919,13 @@ pub fn compute_player_stats(
     0.2 + equipment.total_dex_scaling(),
   )
   {
-    max_hp: base_hp + equipment.total_hp() + vitality_level * 3,
+    max_hp: {
+      let hp_mod = match archetype {
+        Some(a) => a.hp_modifier()
+        None => 0
+      }
+      base_hp + equipment.total_hp() + vitality_level * 3 + hp_mod
+    },
     atk: attack_power,
     attack_power,
     spell_power,
@@ -931,7 +937,13 @@ pub fn compute_player_stats(
     dash_cooldown: 40 - dash_mastery_level * 8,
     crit_chance: crit_level.to_double() * 0.1 + equipment.total_crit(),
     life_steal: ls_level.to_double() * 0.05 + equipment.total_life_steal(),
-    speed_bonus: equipment.total_speed_bonus(),
+    speed_bonus: {
+      let archetype_speed = match archetype {
+        Some(a) => a.speed_modifier() - 1.0
+        None => 0.0
+      }
+      equipment.total_speed_bonus() + archetype_speed
+    },
     cooldown_reduction: equipment.total_cooldown_reduction(),
   }
 }

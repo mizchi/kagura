@@ -96,7 +96,7 @@ pub fn CharacterArchetype::base_intelligence(
 ) -> Int {
   match self {
     Melee => 8
-    Mage => 14
+    Mage => 12
     Summoner => 14
     Ranger => 8
   }
@@ -109,6 +109,26 @@ pub fn CharacterArchetype::base_dexterity(self : CharacterArchetype) -> Int {
     Mage => 8
     Summoner => 10
     Ranger => 14
+  }
+}
+
+///|
+pub fn CharacterArchetype::hp_modifier(self : CharacterArchetype) -> Int {
+  match self {
+    Melee => 2
+    Mage => -3
+    Summoner => 0
+    Ranger => 0
+  }
+}
+
+///|
+pub fn CharacterArchetype::speed_modifier(self : CharacterArchetype) -> Double {
+  match self {
+    Melee => 1.0
+    Mage => 0.8 // slower = harder to kite, glass cannon trade-off
+    Summoner => 0.95
+    Ranger => 1.0
   }
 }
 
@@ -200,7 +220,7 @@ pub fn CharacterArchetype::basic_attack_multiplier(
 ) -> Double {
   match self {
     Melee => 1.0
-    Mage => 0.8
+    Mage => 0.65
     Summoner => 0.9
     Ranger => 1.35
   }
@@ -219,9 +239,10 @@ pub fn CharacterArchetype::skill_damage_multiplier(
       _ => 1.0
     }
     Mage => match id {
-      ChainLightning | SplittingFireball | IceNova => 1.35
-      HomingMissile => 0.8
-      PowerStrike | Whirlwind => 0.7
+      ChainLightning => 0.85
+      SplittingFireball | IceNova => 1.0
+      HomingMissile => 0.65
+      PowerStrike | Whirlwind => 0.55
       _ => 1.0
     }
     Summoner => match id {

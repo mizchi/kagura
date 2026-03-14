@@ -530,17 +530,18 @@ fn GameState::update_playing(self : GameState) -> Unit {
       @game.IceNovaCast(x, y, radius) =>
         self.queue_ice_nova_effect(x, y, radius)
       @game.MeteorCastStart(x, y, radius) => {
-        // Large warning telegraph at cast start
-        self.queue_ground_ring_telegraph_effect(x, y, radius)
-        self.queue_ground_ring_telegraph_effect(x, y, radius * 0.5)
+        self.queue_enemy_telegraph_effect(x, y, radius)
+        self.queue_enemy_telegraph_effect(x, y, radius * 0.5)
       }
       @game.MeteorImpact(x, y, radius) => {
         // Huge explosion effect (damage already applied in game logic)
         spawn_death_burst(self.particle_manager, x, y)
         spawn_death_burst(self.particle_manager, x, y)
         self.queue_fireball_burst_effect(x, y)
-        self.queue_ground_ring_telegraph_effect(x, y, radius)
+        self.queue_enemy_telegraph_effect(x, y, radius)
       }
+      @game.EnemyTelegraphRing(x, y, radius) =>
+        self.queue_enemy_telegraph_effect(x, y, radius)
       @game.AttackTriggered => self.character.trigger_attack()
       @game.HurtTriggered => self.character.trigger_hurt()
       @game.FloorComplete => {

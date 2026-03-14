@@ -754,8 +754,8 @@ fn ground_telegraph_ring_outline_track() -> EffectTrack {
     lifetime_max: 0.40,
     size_min: 0.06,
     size_max: 0.10,
-    color_start: @math3d.Vec4::new(1.0, 0.2, 0.15, 0.95),
-    color_end: @math3d.Vec4::new(0.9, 0.08, 0.05, 0.0),
+    color_start: @math3d.Vec4::new(0.3, 0.6, 1.0, 0.9),
+    color_end: @math3d.Vec4::new(0.1, 0.3, 0.8, 0.0),
     gravity: @math3d.Vec3::new(0.0, 0.0, 0.0),
     enabled: true,
   }
@@ -780,8 +780,8 @@ fn ground_telegraph_ring_fill_track() -> EffectTrack {
     lifetime_max: 0.35,
     size_min: 0.05,
     size_max: 0.09,
-    color_start: @math3d.Vec4::new(1.0, 0.15, 0.1, 0.35),
-    color_end: @math3d.Vec4::new(0.7, 0.05, 0.03, 0.0),
+    color_start: @math3d.Vec4::new(0.2, 0.4, 0.9, 0.3),
+    color_end: @math3d.Vec4::new(0.1, 0.2, 0.6, 0.0),
     gravity: @math3d.Vec3::new(0.0, 0.0, 0.0),
     enabled: true,
   }
@@ -793,12 +793,76 @@ pub fn ground_telegraph_ring_effect_document() -> EffectDocument {
     name: "ground_telegraph_ring",
     duration: 0.32,
     looping: false,
-    notes: "Short hostile ground telegraph ring with a bright red outline and a faint fill disk.",
-    ai_edit_goal: "Keep the ring readable from top-down view and pinned to the floor with a clear red perimeter.",
+    notes: "Player skill telegraph ring (blue-white).",
+    ai_edit_goal: "Keep the ring readable from top-down view and pinned to the floor.",
     tracks: [
       ground_telegraph_ring_outline_track(),
       ground_telegraph_ring_fill_track(),
     ],
+  }
+}
+
+///|
+fn enemy_telegraph_outline_track() -> EffectTrack {
+  {
+    id: "enemy_telegraph_outline",
+    label: "Enemy Telegraph Outline",
+    start_time: 0.0,
+    duration: 0.5,
+    burst_interval: 0.04,
+    burst_particles: 56,
+    pattern: Ring,
+    origin: @math3d.Vec3::new(0.0, 0.03, 0.0),
+    secondary_origin: @math3d.Vec3::new(0.0, 0.03, 0.0),
+    spread_radius: 0.7,
+    initial_velocity_min: @math3d.Vec3::new(0.0, 0.0, 0.0),
+    initial_velocity_max: @math3d.Vec3::new(0.0, 0.05, 0.0),
+    lifetime_min: 0.3,
+    lifetime_max: 0.5,
+    size_min: 0.08,
+    size_max: 0.14,
+    color_start: @math3d.Vec4::new(1.0, 0.1, 0.05, 1.0),
+    color_end: @math3d.Vec4::new(1.0, 0.3, 0.1, 0.0),
+    gravity: @math3d.Vec3::new(0.0, 0.0, 0.0),
+    enabled: true,
+  }
+}
+
+///|
+fn enemy_telegraph_fill_track() -> EffectTrack {
+  {
+    id: "enemy_telegraph_fill",
+    label: "Enemy Telegraph Fill",
+    start_time: 0.0,
+    duration: 0.5,
+    burst_interval: 0.06,
+    burst_particles: 40,
+    pattern: Column,
+    origin: @math3d.Vec3::new(0.0, 0.02, 0.0),
+    secondary_origin: @math3d.Vec3::new(0.0, 0.02, 0.0),
+    spread_radius: 0.55,
+    initial_velocity_min: @math3d.Vec3::new(0.0, 0.0, 0.0),
+    initial_velocity_max: @math3d.Vec3::new(0.0, 0.03, 0.0),
+    lifetime_min: 0.25,
+    lifetime_max: 0.45,
+    size_min: 0.06,
+    size_max: 0.11,
+    color_start: @math3d.Vec4::new(1.0, 0.05, 0.02, 0.45),
+    color_end: @math3d.Vec4::new(0.8, 0.02, 0.01, 0.0),
+    gravity: @math3d.Vec3::new(0.0, 0.0, 0.0),
+    enabled: true,
+  }
+}
+
+///|
+pub fn enemy_telegraph_ring_effect_document() -> EffectDocument {
+  {
+    name: "enemy_telegraph_ring",
+    duration: 0.55,
+    looping: false,
+    notes: "Enemy attack danger zone telegraph (bright red, longer lasting).",
+    ai_edit_goal: "Must be clearly distinguishable as hostile. Use bright red with white-hot center particles.",
+    tracks: [enemy_telegraph_outline_track(), enemy_telegraph_fill_track()],
   }
 }
 

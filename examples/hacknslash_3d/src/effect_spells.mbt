@@ -215,6 +215,21 @@ fn GameState::queue_ground_ring_telegraph_effect(
 }
 
 ///|
+fn GameState::queue_enemy_telegraph_effect(
+  self : GameState,
+  x : Double,
+  y : Double,
+  radius : Double,
+) -> Unit {
+  queue_active_effect(
+    self,
+    "enemy_telegraph_ring",
+    @effect.enemy_telegraph_ring_effect_document(),
+    ground_ring_telegraph_effect_placement(x, y, radius),
+  )
+}
+
+///|
 fn GameState::queue_ground_line_telegraph_effect(
   self : GameState,
   start_x : Double,

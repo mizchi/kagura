@@ -151,7 +151,7 @@ fn start_enemy_tackle(
   enemy.pending_bolt_target_y = player.y
   events.push(GroundTelegraphLine(enemy.x, enemy.y, player.x, player.y))
   events.push(
-    GroundTelegraphRing(player.x, player.y, enemy_tackle_telegraph_radius),
+    EnemyTelegraphRing(player.x, player.y, enemy_tackle_telegraph_radius),
   )
 }
 
@@ -199,7 +199,7 @@ fn try_start_enemy_fire_nova(
   enemy.pending_bolt_timer = enemy_fire_nova_cast_frames
   enemy.pending_bolt_target_x = player.x
   enemy.pending_bolt_target_y = player.y
-  events.push(GroundTelegraphRing(enemy.x, enemy.y, enemy_fire_nova_radius))
+  events.push(EnemyTelegraphRing(enemy.x, enemy.y, enemy_fire_nova_radius))
   true
 }
 
@@ -259,7 +259,7 @@ pub fn update_enemy_ai(
       // Periodic telegraph pulses during cast
       if enemy.meteor_cast_timer % 30 == 0 && enemy.meteor_cast_timer > 0 {
         events.push(
-          GroundTelegraphRing(
+          EnemyTelegraphRing(
             enemy.meteor_target_x,
             enemy.meteor_target_y,
             meteor_radius,
@@ -344,7 +344,7 @@ pub fn update_enemy_ai(
               MeteorCastStart(player.x, player.y, meteor_radius),
             )
             events.push(
-              GroundTelegraphRing(player.x, player.y, meteor_radius),
+              EnemyTelegraphRing(player.x, player.y, meteor_radius),
             )
             tick_enemy_pattern_cooldowns(enemy)
             continue
@@ -355,7 +355,7 @@ pub fn update_enemy_ai(
           enemy.pending_bolt_target_y = player.y
           events.push(GroundTelegraphLine(enemy.x, enemy.y, player.x, player.y))
           events.push(
-            GroundTelegraphRing(player.x, player.y, enemy_bolt_telegraph_radius),
+            EnemyTelegraphRing(player.x, player.y, enemy_bolt_telegraph_radius),
           )
         }
         // Ranged enemies don't chase when shooting, slight retreat

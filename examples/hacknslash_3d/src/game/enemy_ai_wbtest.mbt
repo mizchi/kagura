@@ -77,7 +77,7 @@ test "update_enemy_ai telegraphs ranged bolt before spawning projectile" {
   let mut saw_line = false
   for event in events {
     match event {
-      GroundTelegraphRing(_, _, _) => saw_ring = true
+      EnemyTelegraphRing(_, _, _) => saw_ring = true
       GroundTelegraphLine(_, _, _, _) => saw_line = true
       _ => ()
     }
@@ -187,7 +187,7 @@ test "update_enemy_ai telegraphs fast tackle and then lunges toward player" {
   let mut saw_line = false
   for event in events {
     match event {
-      GroundTelegraphRing(_, _, _) => saw_ring = true
+      EnemyTelegraphRing(_, _, _) => saw_ring = true
       GroundTelegraphLine(_, _, _, _) => saw_line = true
       _ => ()
     }
@@ -243,7 +243,7 @@ test "update_enemy_ai telegraphs tank fire nova and emits radial bolts" {
   let mut saw_ring = false
   for event in events {
     match event {
-      GroundTelegraphRing(_, _, _) => saw_ring = true
+      EnemyTelegraphRing(_, _, _) => saw_ring = true
       _ => ()
     }
   }

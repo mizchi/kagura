@@ -118,13 +118,29 @@ fn GameState::draw_spell_cooldowns(
   ctx : @hud.HudContext,
   cmds : Array[@gfx.DrawTrianglesCommand],
 ) -> Unit {
+  let sh = screen_h.to_double()
+  let sw = screen_w.to_double()
+  // Horizontal skill bar at bottom-center
+  let bar_y = sh - 26.0
+  let slot_w = 80.0
+  let total_w = slot_w * 4.0
+  let start_x = (sw - total_w) / 2.0
+  // Background
+  ctx.draw_rect(
+    cmds,
+    start_x - 4.0,
+    bar_y - 2.0,
+    total_w + 8.0,
+    18.0,
+    @hud.hex_color(0x0A0A14, alpha=0.7),
+  )
   self.draw_spell_cooldown_widget(
     ctx,
     cmds,
-    "4 CL",
-    10.0,
-    42.0,
-    56.0,
+    "CL",
+    start_x,
+    bar_y,
+    46.0,
     self.world.chain_lightning_cooldown_timer,
     self.world.params.chain_lightning_cooldown_frames(),
     0x77CCFF,
@@ -132,10 +148,10 @@ fn GameState::draw_spell_cooldowns(
   self.draw_spell_cooldown_widget(
     ctx,
     cmds,
-    "5 FB",
-    10.0,
-    58.0,
-    56.0,
+    "FB",
+    start_x + slot_w,
+    bar_y,
+    46.0,
     self.world.splitting_fireball_cooldown_timer,
     self.world.params.splitting_fireball_cooldown_frames(),
     0xFF9944,
@@ -143,10 +159,10 @@ fn GameState::draw_spell_cooldowns(
   self.draw_spell_cooldown_widget(
     ctx,
     cmds,
-    "6 IN",
-    10.0,
-    74.0,
-    56.0,
+    "IN",
+    start_x + slot_w * 2.0,
+    bar_y,
+    46.0,
     self.world.ice_nova_cooldown_timer,
     self.world.params.ice_nova_cooldown_frames(),
     0x99EEFF,
@@ -154,10 +170,10 @@ fn GameState::draw_spell_cooldowns(
   self.draw_spell_cooldown_widget(
     ctx,
     cmds,
-    "7 HM",
-    10.0,
-    90.0,
-    56.0,
+    "HM",
+    start_x + slot_w * 3.0,
+    bar_y,
+    46.0,
     self.world.homing_missile_cooldown_timer,
     self.world.params.homing_missile_cooldown_frames(),
     0xFF66CC,
@@ -295,25 +311,28 @@ fn GameState::build_hud_static_cmds(
 ) -> Array[@gfx.DrawTrianglesCommand] {
   let sw = screen_w.to_double()
   let cmds : Array[@gfx.DrawTrianglesCommand] = []
+  let sh = screen_h.to_double()
   match self.text_renderer {
     Some(tr) => {
       let _ = tr
-      ctx.draw_text(cmds, "HP", 16.0, 60.0, 8.0, 0xFFFFFF)
+      // HP label at bottom-left
+      ctx.draw_text(cmds, "HP", 14.0, 8.0, sh - 30.0, 0xFFFFFF)
+      // FLOOR at top-center
       ctx.draw_text_centered(
         cmds,
         "FLOOR " + self.world.floor.to_string(),
-        20.0,
-        sw / 2.0,
         16.0,
+        sw / 2.0,
+        8.0,
         0xCCCCCC,
       )
     }
     None => {
       let fallback = @scene.fragment([
-        @scene.label(x=72.0, y=16.0, content="HP", color=0xFFFFFF),
+        @scene.label(x=24.0, y=sh - 30.0, content="HP", color=0xFFFFFF),
         @scene.label(
           x=sw / 2.0,
-          y=16.0,
+          y=8.0,
           content="FLOOR " + self.world.floor.to_string(),
           color=0xCCCCCC,
           scale=1.2,
@@ -360,7 +379,7 @@ fn minimap_layout(
 ) -> (Double, Double, Double, Double, Int) {
   let map_size = 100.0
   let map_x = ctx.screen_w - map_size - 8.0
-  let map_y = ctx.screen_h - map_size - 8.0
+  let map_y = 8.0 // top-right
   let cell_size = 2.0
   let radius = (map_size / cell_size / 2.0).to_int()
   (map_size, map_x, map_y, cell_size, radius)
@@ -525,20 +544,21 @@ fn GameState::render_hud_cmds(
   }
   let ctx = self.make_hud_ctx(dst, shader)
   self.ensure_hud_static_cache(ctx)
-  // HP bar background
+  let sh = screen_h.to_double()
+  // HP bar at bottom-left
+  let hp_y = sh - 28.0
   ctx.draw_rect(
     cmds,
     8.0,
-    8.0,
+    hp_y,
     124.0,
     16.0,
     @hud.hex_color(0x440000, alpha=0.8),
   )
-  // HP bar fill
   ctx.draw_rect(
     cmds,
     10.0,
-    10.0,
+    hp_y + 2.0,
     60.0 * hp_ratio * 2.0,
     12.0,
     @hud.hex_color(hp_color),
@@ -549,33 +569,34 @@ fn GameState::render_hud_cmds(
   match self.text_renderer {
     Some(tr) => {
       let _ = tr
+      // Score + enemy count at top-left
       ctx.draw_text(
         cmds,
         self.world.score.to_string(),
-        24.0,
-        sw - 80.0,
+        20.0,
+        8.0,
         8.0,
         0xFFCC00,
       )
       ctx.draw_text(
         cmds,
         "x" + alive_count.to_string(),
-        16.0,
-        sw - 80.0,
-        30.0,
+        14.0,
+        8.0,
+        28.0,
         0xCC2222,
       )
+      // HP text next to HP bar (bottom-left)
       ctx.draw_text(
         cmds,
         hp_status_text(self.world.player.hp, self.world.player.max_hp),
         14.0,
         136.0,
-        8.0,
+        hp_y,
         0xFFFFFF,
       )
       // Floor announce overlay
       if self.world.floor_announce_timer > 0 {
-        let sh = screen_h.to_double()
         ctx.draw_text_centered(
           cmds,
           "FLOOR " + self.world.floor.to_string(),
@@ -587,14 +608,13 @@ fn GameState::render_hud_cmds(
       }
     }
     None => {
-      // Fallback: scene-based rendering
       let hud_node = self.render_hud_scene_fallback_dynamic(alive_count)
       let scene_cmds = @scene.render_scene(
         hud_node,
         dst,
         shader,
         sw,
-        screen_h.to_double(),
+        sh,
       )
       for cmd in scene_cmds {
         cmds.push(cmd)
@@ -604,36 +624,38 @@ fn GameState::render_hud_cmds(
         hp_status_text(self.world.player.hp, self.world.player.max_hp),
         14.0,
         136.0,
-        8.0,
+        hp_y,
         0xFFFFFF,
       )
     }
   }
-  // Dash cooldown indicator
+  // Skill cooldowns at bottom-center
+  self.draw_spell_cooldowns(ctx, cmds)
+  // Dash cooldown at bottom-center (below skills)
   if self.world.player.dash_cooldown_timer > 0 {
     let cd_ratio = self.world.player.dash_cooldown_timer.to_double() /
       dash_cooldown.to_double()
+    let dash_x = sw / 2.0 - 60.0
     ctx.draw_rect(
       cmds,
-      10.0,
-      28.0,
+      dash_x,
+      sh - 10.0,
       120.0 * (1.0 - cd_ratio),
       4.0,
       @hud.hex_color(0x66DDFF, alpha=0.6),
     )
   }
-  self.draw_spell_cooldowns(ctx, cmds)
-  // Auto-play indicator
+  // Auto-play indicator at top-left
   if self.world.auto_play {
-    ctx.draw_text(cmds, "AUTO", 14.0, 10.0, 92.0, 0x00FFAA)
+    ctx.draw_text(cmds, "AUTO", 14.0, 8.0, 44.0, 0x00FFAA)
   }
   if self.audio_muted {
     ctx.draw_text(
       cmds,
       "MUTE",
-      14.0,
-      screen_w.to_double() - 56.0,
-      10.0,
+      12.0,
+      sw - 56.0,
+      sh - 10.0,
       0xFF8899,
     )
   }

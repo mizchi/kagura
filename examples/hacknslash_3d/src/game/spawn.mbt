@@ -171,6 +171,19 @@ pub fn spawn_enemies_in_rooms_with_params(
 ) -> Array[Enemy] {
   let enemies : Array[Enemy] = []
   let rng = @terrain.make_rng(seed.to_uint() + 7777)
+  // Find largest non-player room for elite/mini-boss placement
+  let mut largest_room_idx = -1
+  let mut largest_area = 0
+  for i = 0; i < rooms.length(); i = i + 1 {
+    if i == player_room_idx {
+      continue
+    }
+    let area = rooms[i].rect.w * rooms[i].rect.h
+    if area > largest_area {
+      largest_area = area
+      largest_room_idx = i
+    }
+  }
   for i = 0; i < rooms.length(); i = i + 1 {
     if i == player_room_idx {
       continue
@@ -187,6 +200,22 @@ pub fn spawn_enemies_in_rooms_with_params(
       1,
       (base_count.to_double() * params.spawn_density * (1.0 + large_room_bonus)).to_int(),
     )
+    // Place mini-boss in largest room (every floor)
+    if i == largest_room_idx {
+      let bcx = room.rect.x.to_double() * tile_size +
+        (room.rect.w.to_double() / 2.0) * tile_size +
+        tile_size / 2.0
+      let bcy = room.rect.y.to_double() * tile_size +
+        (room.rect.h.to_double() / 2.0) * tile_size +
+        tile_size / 2.0
+      let mini_boss_hp = params.scale_enemy_hp_for_floor(
+        params.boss_hp_base.to_int() / 2 +
+        floor * (params.boss_hp_per_floor.to_int() / 2),
+        floor,
+      )
+      let mini_boss_speed = params.scale_enemy_speed_for_floor(0.5, floor)
+      enemies.push(make_enemy(bcx, bcy, Boss, mini_boss_hp, mini_boss_speed, 16.0))
+    }
     for _j = 0; _j < count; _j = _j + 1 {
       let cx = room.rect.x.to_double() * tile_size +
         rng.rand_range(1, room.rect.w - 1).to_double() * tile_size +

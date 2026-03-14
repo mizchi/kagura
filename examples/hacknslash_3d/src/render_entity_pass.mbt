@@ -3,6 +3,7 @@ struct EntityInstanceScratch {
   item_instances : Array[@scene3d.InstanceData]
   loot_beam_instances : Array[@scene3d.InstanceData]
   enemy_projectile_instances : Array[@scene3d.InstanceData]
+  enemy_projectile_outline_instances : Array[@scene3d.InstanceData]
   arrow_instances : Array[@scene3d.InstanceData]
   fireball_instances : Array[@scene3d.InstanceData]
   homing_missile_instances : Array[@scene3d.InstanceData]
@@ -14,6 +15,7 @@ fn default_entity_instance_scratch() -> EntityInstanceScratch {
     item_instances: [],
     loot_beam_instances: [],
     enemy_projectile_instances: [],
+    enemy_projectile_outline_instances: [],
     arrow_instances: [],
     fireball_instances: [],
     homing_missile_instances: [],
@@ -41,6 +43,7 @@ fn GameState::rebuild_entity_instance_scratch(
   self.entity_instance_scratch.item_instances.clear()
   self.entity_instance_scratch.loot_beam_instances.clear()
   self.entity_instance_scratch.enemy_projectile_instances.clear()
+  self.entity_instance_scratch.enemy_projectile_outline_instances.clear()
   self.entity_instance_scratch.arrow_instances.clear()
   self.entity_instance_scratch.fireball_instances.clear()
   self.entity_instance_scratch.homing_missile_instances.clear()
@@ -165,11 +168,21 @@ fn GameState::rebuild_entity_instance_scratch(
           @game.EnemyBolt => ()
         }
       } else {
+        // White outline (larger sphere behind)
+        self.entity_instance_scratch.enemy_projectile_outline_instances.push(
+          @scene3d.InstanceData::new(
+            transform=@transform3d.Transform3D::from_position(
+              @math3d.Vec3::new(prx, base_y + 0.3, prz),
+            ).with_scale(@math3d.Vec3::new(1.6, 1.6, 1.6)),
+            color=color_projectile_outline,
+          ),
+        )
+        // Red core (normal size)
         self.entity_instance_scratch.enemy_projectile_instances.push(
           @scene3d.InstanceData::new(
             transform=@transform3d.Transform3D::from_position(
               @math3d.Vec3::new(prx, base_y + 0.3, prz),
-            ),
+            ).with_scale(@math3d.Vec3::new(1.3, 1.3, 1.3)),
             color=color_projectile,
           ),
         )
@@ -509,6 +522,19 @@ fn push_entity_instanced_cmds(
   )
   push_homing_missile_instance_cmds(
     state, view_projection, dst, screen_w, screen_h, cmds,
+  )
+  // Enemy projectile outlines first (white, behind red core)
+  push_entity_instances_if_any(
+    state.meshes.projectile,
+    state.entity_instance_scratch.enemy_projectile_outline_instances,
+    view_projection,
+    state.lighting,
+    dst,
+    state.shader3d,
+    state.shader3d_instanced,
+    screen_w,
+    screen_h,
+    cmds,
   )
   push_enemy_projectile_instance_cmds(
     state, view_projection, dst, screen_w, screen_h, cmds,

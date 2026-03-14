@@ -54,7 +54,12 @@ let color_item_health : @math3d.Vec4 = @math3d.Vec4::new(0.0, 1.0, 0.4, 1.0)
 let color_item_score : @math3d.Vec4 = @math3d.Vec4::new(0.0, 1.0, 1.0, 1.0)
 
 ///|
-let color_projectile : @math3d.Vec4 = @math3d.Vec4::new(1.0, 0.27, 0.4, 1.0)
+let color_projectile : @math3d.Vec4 = @math3d.Vec4::new(1.0, 0.15, 0.15, 1.0) // bright red core
+
+///|
+let color_projectile_outline : @math3d.Vec4 = @math3d.Vec4::new(
+  1.0, 0.9, 0.9, 1.0,
+) // white-ish outline
 
 ///|
 let color_fireball : @math3d.Vec4 = @math3d.Vec4::new(1.0, 0.48, 0.10, 1.0)

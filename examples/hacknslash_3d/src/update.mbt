@@ -303,6 +303,14 @@ fn GameState::update_title(
 }
 
 ///|
+fn GameState::random_seed(self : GameState) -> Int {
+  // Use frame count as entropy source for varying seeds between sessions
+  let t = self.world.frame_count
+  let h = t * 31337 + 137
+  (if h < 0 { -h } else { h }) % 100000
+}
+
+///|
 fn GameState::update_character_select(
   self : GameState,
   _input : @core.InputSnapshot,
@@ -339,7 +347,7 @@ fn GameState::update_gameover(
     self.world.mode = @game.Title
     self.world.floor = 1
     self.world.score = 0
-    self.world.seed = 42
+    self.world.seed = self.random_seed()
     self.world.apply_dungeon(self.world.seed, 1)
     // Rebuild rendering state after dungeon change
     self.rebuild_dungeon_rendering()

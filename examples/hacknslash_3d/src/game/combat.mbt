@@ -244,6 +244,16 @@ fn apply_enemy_death_rewards(world : GameWorld, enemy : Enemy) -> Unit {
   let drop_seed = world.frame_count * 7 +
     enemy.x.to_int() * 13 +
     enemy.y.to_int() * 17
+  // Drop chance: Boss always, Tank 80%, others 40%
+  let drop_roll = (drop_seed * 31 + 17) % 100
+  let drop_chance = match enemy.kind {
+    Boss => 100
+    Tank => 80
+    _ => 40
+  }
+  if drop_roll >= drop_chance {
+    return
+  }
   let drop_count = if enemy.kind == Boss {
     3
   } else if enemy.kind == Tank {

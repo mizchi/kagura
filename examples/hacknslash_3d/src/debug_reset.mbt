@@ -102,7 +102,7 @@ fn GameState::reset_save_and_restart(self : GameState) -> Unit {
   self.world.frame_count = 0
   self.world.floor = 1
   self.world.score = 0
-  self.world.seed = 42
+  self.world.seed = self.random_seed()
   self.world.apply_dungeon(self.world.seed, 1)
   self.world.attack_timer = 0
   self.world.screen_flash = 0

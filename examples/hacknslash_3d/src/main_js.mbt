@@ -278,6 +278,11 @@ fn apply_initial_audio_settings(
 }
 
 ///|
+///|
+extern "js" fn js_random_seed() -> Int =
+  #| () => (Math.random() * 2147483647) | 0
+
+///|
 fn build_initial_state() -> GameState {
   let initial_balance_params = build_initial_balance_params(
     get_initial_balance_preset_name(),
@@ -286,9 +291,10 @@ fn build_initial_state() -> GameState {
   let initial_build_policy = build_initial_build_policy(
     get_initial_build_policy_name(),
   )
+  let seed = js_random_seed()
   let state = if get_initial_ssao_enabled() {
     GameState::new_with_params_and_ssao(
-      seed=42,
+      seed~,
       initial_balance_params,
       SSAOConfig::enabled_default(),
       archetype=initial_archetype,
@@ -296,7 +302,7 @@ fn build_initial_state() -> GameState {
     )
   } else {
     GameState::new_with_params(
-      seed=42,
+      seed~,
       initial_balance_params,
       archetype=initial_archetype,
       build_policy=initial_build_policy,

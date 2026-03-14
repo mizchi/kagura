@@ -14,6 +14,8 @@ fn mk_affix(
   str_scale? : Double = 0.0,
   int_scale? : Double = 0.0,
   dex_scale? : Double = 0.0,
+  spell_dmg? : Double = 0.0,
+  chain? : Int = 0,
 ) -> Affix {
   {
     name,
@@ -30,6 +32,8 @@ fn mk_affix(
     str_scaling: str_scale,
     int_scaling: int_scale,
     dex_scaling: dex_scale,
+    spell_damage_pct: spell_dmg,
+    chain_bonus: chain,
   }
 }
 
@@ -346,7 +350,7 @@ test "player damage helpers map skills to different core stats" {
     crit_chance: 0.0,
     life_steal: 0.0,
     speed_bonus: 0.0,
-    cooldown_reduction: 0.0,
+    cooldown_reduction: 0.0, spell_damage_pct: 0.0, chain_bonus: 0,
   }
   let params = { ..BalanceParams::default(), spell_damage_mult: 1.0 }
   assert_true(
@@ -372,7 +376,7 @@ test "archetype affinity boosts aligned damage and punishes offspec damage" {
     crit_chance: 0.0,
     life_steal: 0.0,
     speed_bonus: 0.0,
-    cooldown_reduction: 0.0,
+    cooldown_reduction: 0.0, spell_damage_pct: 0.0, chain_bonus: 0,
   }
   let params = { ..BalanceParams::default(), spell_damage_mult: 1.0 }
   assert_true(

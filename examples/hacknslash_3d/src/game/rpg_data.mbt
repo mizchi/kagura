@@ -43,6 +43,8 @@ pub(all) struct Affix {
   str_scaling : Double
   int_scaling : Double
   dex_scaling : Double
+  spell_damage_pct : Double // +% spell damage (e.g. 0.15 = +15%)
+  chain_bonus : Int // +chain targets for ChainLightning
 }
 
 ///|
@@ -145,6 +147,16 @@ pub fn ItemData::total_int_scaling(self : ItemData) -> Double {
 ///|
 pub fn ItemData::total_dex_scaling(self : ItemData) -> Double {
   self.dex_scaling + affix_sum_double(self, fn(a) { a.dex_scaling })
+}
+
+///|
+pub fn ItemData::total_spell_damage_pct(self : ItemData) -> Double {
+  affix_sum_double(self, fn(a) { a.spell_damage_pct })
+}
+
+///|
+pub fn ItemData::total_chain_bonus(self : ItemData) -> Int {
+  affix_sum_int(self, 0, fn(a) { a.chain_bonus })
 }
 
 ///|
@@ -502,6 +514,16 @@ pub fn Equipment::total_dex_scaling(self : Equipment) -> Double {
   equipment_sum_f(self, ItemData::total_dex_scaling)
 }
 
+///|
+pub fn Equipment::total_spell_damage_pct(self : Equipment) -> Double {
+  equipment_sum_f(self, ItemData::total_spell_damage_pct)
+}
+
+///|
+pub fn Equipment::total_chain_bonus(self : Equipment) -> Int {
+  equipment_sum(self, ItemData::total_chain_bonus)
+}
+
 // --- Skill System ---
 
 ///|
@@ -803,6 +825,8 @@ pub(all) struct PlayerStats {
   life_steal : Double
   speed_bonus : Double // total movement speed bonus from equipment
   cooldown_reduction : Double // total attack cooldown reduction from equipment
+  spell_damage_pct : Double // total +% spell damage from equipment
+  chain_bonus : Int // total +chain targets from equipment
 }
 
 ///|
@@ -842,11 +866,34 @@ pub fn player_basic_attack_damage(
 }
 
 ///|
+pub fn skill_level_damage_multiplier(id : SkillId, level : Int) -> Double {
+  if level <= 0 {
+    return 1.0
+  }
+  let growth = match id {
+    PowerStrike => 0.25
+    Whirlwind => 0.3
+    ChainLightning => 0.35
+    SplittingFireball => 0.3
+    IceNova => 0.3
+    HomingMissile => 0.35
+    _ => 0.0
+  }
+  1.0 + (level - 1).to_double() * growth
+}
+
+///|
+pub fn chain_lightning_targets_for_level(level : Int) -> Int {
+  @cmp.maximum(1, level + 1)
+}
+
+///|
 pub fn player_spell_damage(
   stats : PlayerStats,
   params : BalanceParams,
   archetype : CharacterArchetype,
   skill : SkillId,
+  skill_level? : Int = 1,
 ) -> Int {
   let base_damage = match skill {
     ChainLightning => stats.spell_power + 2
@@ -856,9 +903,11 @@ pub fn player_spell_damage(
     _ => stats.attack_power
   }
   let scaled = params.scale_spell_damage(base_damage)
+  let level_mult = skill_level_damage_multiplier(skill, skill_level)
+  let spell_pct = 1.0 + stats.spell_damage_pct
   @cmp.maximum(
     1,
-    (scaled.to_double() * archetype.skill_damage_multiplier(skill)).to_int(),
+    (scaled.to_double() * archetype.skill_damage_multiplier(skill) * level_mult * spell_pct).to_int(),
   )
 }
 
@@ -945,7 +994,127 @@ pub fn compute_player_stats(
       equipment.total_speed_bonus() + archetype_speed
     },
     cooldown_reduction: equipment.total_cooldown_reduction(),
+    spell_damage_pct: equipment.total_spell_damage_pct(),
+    chain_bonus: equipment.total_chain_bonus(),
   }
+}
+
+// --- DPS Calculation ---
+
+///|
+pub(all) struct SkillDpsInfo {
+  skill_id : SkillId
+  damage_per_hit : Int
+  hits_per_cast : Int
+  cooldown_frames : Int
+  dps : Double
+}
+
+///|
+pub fn compute_skill_dps(
+  skill_id : SkillId,
+  level : Int,
+  stats : PlayerStats,
+  params : BalanceParams,
+  archetype : CharacterArchetype,
+) -> SkillDpsInfo {
+  if level <= 0 {
+    return {
+      skill_id,
+      damage_per_hit: 0,
+      hits_per_cast: 0,
+      cooldown_frames: 60,
+      dps: 0.0,
+    }
+  }
+  let (damage, hits, cd) = match skill_id {
+    PowerStrike => {
+      let dmg = (player_basic_attack_damage(stats, archetype).to_double() *
+        skill_level_damage_multiplier(PowerStrike, level)).to_int().max(1)
+      (dmg, 3, params.attack_cooldown.to_int())
+    }
+    Whirlwind => {
+      let dmg = (player_basic_attack_damage(stats, archetype).to_double() *
+        skill_level_damage_multiplier(Whirlwind, level)).to_int().max(1)
+      (dmg, 4, params.attack_cooldown.to_int() + 5) // 8-way, ~4 avg hits
+    }
+    ChainLightning => {
+      let dmg = player_spell_damage(
+        stats,
+        params,
+        archetype,
+        ChainLightning,
+        skill_level=level,
+      )
+      let targets = chain_lightning_targets_for_level(level) + stats.chain_bonus
+      (dmg, targets, params.chain_lightning_cooldown_frames())
+    }
+    SplittingFireball => {
+      let dmg = player_spell_damage(
+        stats,
+        params,
+        archetype,
+        SplittingFireball,
+        skill_level=level,
+      )
+      (dmg, 2, params.splitting_fireball_cooldown_frames()) // main + 1 split avg
+    }
+    IceNova => {
+      let dmg = player_spell_damage(
+        stats,
+        params,
+        archetype,
+        IceNova,
+        skill_level=level,
+      )
+      (dmg, 3, params.ice_nova_cooldown_frames()) // AoE avg hits
+    }
+    HomingMissile => {
+      let dmg = player_spell_damage(
+        stats,
+        params,
+        archetype,
+        HomingMissile,
+        skill_level=level,
+      )
+      (dmg, 2, params.homing_missile_cooldown_frames())
+    }
+    _ => (0, 0, 60)
+  }
+  let effective_cd = @cmp.maximum(1, cd)
+  let casts_per_sec = 60.0 / effective_cd.to_double()
+  let dps = damage.to_double() * hits.to_double() * casts_per_sec
+  { skill_id, damage_per_hit: damage, hits_per_cast: hits, cooldown_frames: cd, dps }
+}
+
+///|
+pub fn compute_total_dps(
+  skills : SkillTree,
+  stats : PlayerStats,
+  params : BalanceParams,
+  archetype : CharacterArchetype,
+) -> Double {
+  let mut total = 0.0
+  // Basic auto-attack DPS
+  let arrow_dmg = player_basic_attack_damage(stats, archetype)
+  let bow_cd = @cmp.maximum(
+    3,
+    (params.bow_cooldown * (1.0 - stats.cooldown_reduction)).to_int(),
+  )
+  total = total + arrow_dmg.to_double() * 60.0 / bow_cd.to_double()
+  // Skill DPS contributions
+  let skill_ids : Array[SkillId] = [
+    PowerStrike, Whirlwind, ChainLightning, SplittingFireball, IceNova,
+    HomingMissile,
+  ]
+  for id in skill_ids {
+    let level = skills.get_level(id)
+    if level > 0 {
+      let info = compute_skill_dps(id, level, stats, params, archetype)
+      total = total + info.dps
+    }
+  }
+  total
 }
 
 // --- Affix Tables ---
@@ -977,6 +1146,8 @@ fn a(
   str_scale? : Double = 0.0,
   int_scale? : Double = 0.0,
   dex_scale? : Double = 0.0,
+  spell_dmg? : Double = 0.0,
+  chain? : Int = 0,
 ) -> Affix {
   {
     name,
@@ -993,6 +1164,8 @@ fn a(
     str_scaling: str_scale,
     int_scaling: int_scale,
     dex_scaling: dex_scale,
+    spell_damage_pct: spell_dmg,
+    chain_bonus: chain,
   }
 }
 
@@ -1019,6 +1192,8 @@ pub fn prefix_table_for(profile : AffixProfile) -> Array[Affix] {
     a("Blessed", atk=1, def=1, hp=3, ls=0.02),
     a("Savage", atk=3, crit=0.08),
     a("Arcane", atk=2, hp=2, crit=0.04),
+    a("Crackling", int_=2, spell_dmg=0.12, chain=1),
+    a("Volatile", atk=1, spell_dmg=0.15),
   ]
   match profile {
     Classic => classic
@@ -1098,6 +1273,8 @@ pub fn suffix_table_for(profile : AffixProfile) -> Array[Affix] {
     a("of Fury", atk=4, hp=-2, crit=0.06),
     a("of the Wolf", atk=2, def=1, hp=2, ls=0.03),
     a("of Fortune", atk=1, def=1, hp=1, crit=0.03, ls=0.03),
+    a("of Arcing", int_=1, chain=1, spell_dmg=0.08),
+    a("of Storms", spell_dmg=0.2, int_=2),
   ]
   match profile {
     Classic => classic
@@ -1181,6 +1358,8 @@ pub fn scale_affix(affix : Affix, floor : Int) -> Affix {
     str_scaling: affix.str_scaling,
     int_scaling: affix.int_scaling,
     dex_scaling: affix.dex_scaling,
+    spell_damage_pct: affix.spell_damage_pct,
+    chain_bonus: affix.chain_bonus,
   }
 }
 

@@ -156,6 +156,16 @@ fn deserialize_affix(s : String) -> @game.Affix? {
     } else {
       0.0
     },
+    spell_damage_pct: if parts.length() > 14 {
+      parse_double(parts[14])
+    } else {
+      0.0
+    },
+    chain_bonus: if parts.length() > 15 {
+      parse_int(parts[15])
+    } else {
+      0
+    },
   })
 }
 

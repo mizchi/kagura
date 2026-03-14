@@ -227,11 +227,31 @@ fn auto_equip_inventory_item(
   index : Int,
   item : ItemData,
 ) -> Unit {
-  if world.equipment.should_equip_for_build(
-    item,
+  // DPS-based equip: simulate equipping and compare total DPS
+  let current_dps = compute_total_dps(
+    world.skills,
+    world.player_stats,
+    world.params,
     world.archetype,
-    world.build_policy,
-  ) {
+  )
+  let tmp_equip = world.equipment.clone()
+  let _ = tmp_equip.equip(item)
+  let tmp_stats = compute_player_stats(
+    tmp_equip,
+    world.skills,
+    base_hp=world.params.player_base_hp.to_int(),
+    archetype=Some(world.archetype),
+  )
+  let new_dps = compute_total_dps(
+    world.skills,
+    tmp_stats,
+    world.params,
+    world.archetype,
+  )
+  // Also consider survivability: +HP is worth some DPS
+  let hp_delta = (tmp_stats.max_hp - world.player_stats.max_hp).to_double()
+  let effective_new = new_dps + hp_delta * 0.5
+  if effective_new > current_dps {
     let prev = world.equipment.equip(item)
     world.inventory.items[index] = prev
     world.player_stats = compute_player_stats(
@@ -261,15 +281,46 @@ pub fn GameWorld::auto_choose_levelup_offer(self : GameWorld) -> Unit {
     self.level_progress.current_offers.length() == 0 {
     return
   }
+  // DPS-based levelup: simulate learning each offer, pick max DPS
+  let current_dps = compute_total_dps(
+    self.skills,
+    self.player_stats,
+    self.params,
+    self.archetype,
+  )
   let mut best_index = 0
-  let mut best_priority = 999999
+  let mut best_value = -1.0
   for i, offer in self.level_progress.current_offers {
-    let priority = self.archetype.offer_priority_with_policy(
-      self.build_policy,
-      offer,
+    // Simulate: temporarily level up this skill
+    let node_idx = self.skills.find_index(offer)
+    if node_idx < 0 {
+      continue
+    }
+    let old_level = self.skills.nodes[node_idx].level
+    self.skills.nodes[node_idx].level = old_level + 1
+    let sim_stats = compute_player_stats(
+      self.equipment,
+      self.skills,
+      base_hp=self.params.player_base_hp.to_int(),
+      archetype=Some(self.archetype),
     )
-    if priority < best_priority {
-      best_priority = priority
+    let sim_dps = compute_total_dps(
+      self.skills,
+      sim_stats,
+      self.params,
+      self.archetype,
+    )
+    // Utility skills get synthetic value
+    let utility_bonus = match offer {
+      Vitality => 3.0 // +3 HP per level
+      LifeSteal => current_dps * 0.05 // 5% of DPS as sustain value
+      DashMastery => 2.0 // mobility value
+      _ => 0.0
+    }
+    let value = sim_dps - current_dps + utility_bonus
+    self.skills.nodes[node_idx].level = old_level // revert
+    if value > best_value {
+      best_value = value
       best_index = i
     }
   }

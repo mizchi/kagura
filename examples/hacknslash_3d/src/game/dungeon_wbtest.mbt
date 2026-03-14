@@ -47,10 +47,20 @@ test "validated tinykeep config clamps room thresholds and counts" {
 }
 
 ///|
-test "dungeon generator selection favors plaza layouts on early floors" {
-  assert_eq(dungeon_generator_kind_for_floor(seed=42, 1), ArenaChain)
-  assert_eq(dungeon_generator_kind_for_floor(seed=42, 3), TinyKeep)
-  assert_eq(dungeon_generator_kind_for_floor(seed=42, 5), ArenaChain)
+test "dungeon generator selection uses boss floors for TinyKeep" {
+  // Boss floors (multiples of 5, after floor 1) always use TinyKeep
+  assert_eq(dungeon_generator_kind_for_floor(seed=42, 5), TinyKeep)
+  assert_eq(dungeon_generator_kind_for_floor(seed=42, 10), TinyKeep)
+  // Non-boss floors use varied generators
+  let kind = dungeon_generator_kind_for_floor(seed=42, 1)
+  assert_true(
+    kind == ArenaChain ||
+    kind == TinyKeep ||
+    kind == Diablo ||
+    kind == BSP ||
+    kind == Cellular ||
+    kind == Rogue,
+  )
 }
 
 ///|

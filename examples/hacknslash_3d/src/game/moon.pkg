@@ -7,7 +7,10 @@ import {
   "mizchi/kagura/progression" @progression,
   "mizchi/kagura/vector" @vector,
   "mizchi/terrain/arena_chain" @arena_chain,
+  "mizchi/terrain/bsp" @bsp,
+  "mizchi/terrain/cellular" @cellular,
   "mizchi/terrain/diablo" @diablo,
+  "mizchi/terrain/rogue" @rogue,
   "mizchi/terrain/tinykeep" @tinykeep,
   "mizchi/terrain/types" @terrain,
 }

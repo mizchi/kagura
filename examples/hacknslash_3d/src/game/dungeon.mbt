@@ -4,6 +4,10 @@
 enum DungeonGeneratorKind {
   ArenaChain
   TinyKeep
+  Diablo
+  BSP
+  Cellular
+  Rogue
 } derive(Eq, Show)
 
 ///|
@@ -91,10 +95,20 @@ fn dungeon_generator_kind_for_floor(
   seed~ : Int,
   floor : Int,
 ) -> DungeonGeneratorKind {
-  if floor % 3 == 0 {
-    TinyKeep
-  } else {
-    ArenaChain
+  // Boss floors (every 5th) use TinyKeep for large open arenas
+  if floor > 1 && floor % 5 == 0 {
+    return TinyKeep
+  }
+  // Rotate through generators based on floor + seed for variety
+  let gen_roll = ((seed * 7 + floor * 13) % 6 + 6) % 6
+  match gen_roll {
+    0 => ArenaChain
+    1 => TinyKeep
+    2 => Diablo
+    3 => BSP
+    4 => Cellular
+    5 => Rogue
+    _ => ArenaChain
   }
 }
 
@@ -154,6 +168,142 @@ fn arena_chain_config_for_floor(
 }
 
 ///|
+fn diablo_config_for_floor(
+  seed~ : Int,
+  floor : Int,
+  params : BalanceParams,
+) -> @diablo.DiabloConfig {
+  let room_count_scale = @cmp.maximum(0.75, params.map_room_count_scale)
+  let room_size_scale = @cmp.maximum(0.8, params.map_room_size_scale)
+  {
+    width: map_cols,
+    height: map_rows,
+    spine_length: ((4 + (seed + floor) % 3).to_double() * room_count_scale).to_int(),
+    branch_chance: 0.5,
+    loop_chance: 0.2,
+    room_min_size: @cmp.maximum(4, (5.0 * room_size_scale).to_int()),
+    room_max_size: @cmp.maximum(6, (12.0 * room_size_scale).to_int()),
+    room_padding: 2,
+    max_placement_attempts: 80,
+  }
+}
+
+///|
+fn bsp_config_for_floor(
+  seed~ : Int,
+  floor : Int,
+  params : BalanceParams,
+) -> @bsp.BspConfig {
+  let _ = seed
+  let _ = floor
+  let room_size_scale = @cmp.maximum(0.8, params.map_room_size_scale)
+  {
+    width: map_cols,
+    height: map_rows,
+    min_room_size: @cmp.maximum(4, (5.0 * room_size_scale).to_int()),
+    max_depth: 4,
+  }
+}
+
+///|
+fn cellular_config_for_floor(
+  seed~ : Int,
+  floor : Int,
+  params : BalanceParams,
+) -> @cellular.CellularConfig {
+  let _ = seed
+  let _ = floor
+  let _ = params
+  {
+    width: map_cols,
+    height: map_rows,
+    initial_fill: 0.42,
+    iterations: 5,
+    birth_threshold: 5,
+    survival_threshold: 4,
+  }
+}
+
+///|
+fn rogue_config_for_floor(
+  seed~ : Int,
+  floor : Int,
+  params : BalanceParams,
+) -> @rogue.RogueConfig {
+  let _ = seed
+  let _ = floor
+  let room_size_scale = @cmp.maximum(0.8, params.map_room_size_scale)
+  {
+    width: map_cols,
+    height: map_rows,
+    grid_cols: 3,
+    grid_rows: 3,
+    room_min_ratio: 0.4 * room_size_scale,
+    room_max_ratio: 0.8 * room_size_scale,
+    skip_chance: 0.1,
+  }
+}
+
+///|
+fn extract_rooms_from_grid(grid : @terrain.Grid2D) -> Array[@terrain.Room] {
+  // For cellular automata, find connected floor regions and create rooms
+  let rooms : Array[@terrain.Room] = []
+  let visited = Array::make(grid.width * grid.height, false)
+  let mut room_id = 0
+  for row = 1; row < grid.height - 1; row = row + 1 {
+    for col = 1; col < grid.width - 1; col = col + 1 {
+      let idx = row * grid.width + col
+      if not(visited[idx]) && grid.get(col, row) == @terrain.Floor {
+        // Flood fill to find region bounds
+        let mut min_x = col
+        let mut max_x = col
+        let mut min_y = row
+        let mut max_y = row
+        let stack : Array[(Int, Int)] = [(col, row)]
+        visited[idx] = true
+        while stack.length() > 0 {
+          let (cx, cy) = stack.pop_exn()
+          if cx < min_x { min_x = cx }
+          if cx > max_x { max_x = cx }
+          if cy < min_y { min_y = cy }
+          if cy > max_y { max_y = cy }
+          let dx_arr = [-1, 1, 0, 0]
+          let dy_arr = [0, 0, -1, 1]
+          for d = 0; d < 4; d = d + 1 {
+            let nx = cx + dx_arr[d]
+            let ny = cy + dy_arr[d]
+            if nx >= 0 &&
+              nx < grid.width &&
+              ny >= 0 &&
+              ny < grid.height {
+              let ni = ny * grid.width + nx
+              if not(visited[ni]) && grid.get(nx, ny) == @terrain.Floor {
+                visited[ni] = true
+                stack.push((nx, ny))
+              }
+            }
+          }
+        }
+        let w = max_x - min_x + 1
+        let h = max_y - min_y + 1
+        if w >= 3 && h >= 3 {
+          rooms.push({ rect: { x: min_x, y: min_y, w, h }, id: room_id })
+          room_id = room_id + 1
+        }
+      }
+    }
+  }
+  // Ensure at least one room
+  if rooms.is_empty() {
+    rooms.push({
+      rect: { x: grid.width / 4, y: grid.height / 4, w: 4, h: 4 },
+      id: 0,
+    })
+  }
+  rooms
+}
+
+///|
 fn tinykeep_config_for_floor(
   seed~ : Int,
   floor : Int,
@@ -193,6 +343,36 @@ pub fn generate_dungeon(
     TinyKeep => {
       let config = tinykeep_config_for_floor(seed~, floor, params)
       let generated = @tinykeep.generate(config, rng)
+      { grid: generated.grid, rooms: generated.rooms }
+    }
+    Diablo => {
+      let generated = @diablo.generate(
+        diablo_config_for_floor(seed~, floor, params),
+        rng,
+      )
+      { grid: generated.grid, rooms: generated.rooms }
+    }
+    BSP => {
+      let generated = @bsp.generate(
+        bsp_config_for_floor(seed~, floor, params),
+        rng,
+      )
+      { grid: generated.grid, rooms: generated.rooms }
+    }
+    Cellular => {
+      let generated = @cellular.generate(
+        cellular_config_for_floor(seed~, floor, params),
+        rng,
+      )
+      // Cellular automata doesn't produce rooms, create synthetic ones
+      let rooms = extract_rooms_from_grid(generated.grid)
+      { grid: generated.grid, rooms }
+    }
+    Rogue => {
+      let generated = @rogue.generate(
+        rogue_config_for_floor(seed~, floor, params),
+        rng,
+      )
       { grid: generated.grid, rooms: generated.rooms }
     }
   }

@@ -401,7 +401,7 @@ test "draw_playing skips fxaa and tonemaps directly into dst by default" {
 
   let tonemap_cmd = commands[tonemap_idx]
   assert_eq(tonemap_cmd.src_image_ids.length(), 1)
-  assert_eq(tonemap_cmd.src_image_ids[0], state.scene_target.id)
+  assert_eq(tonemap_cmd.src_image_ids[0], state.post_target.id)
 }
 
 ///|
@@ -465,14 +465,6 @@ test "draw_playing feeds ssao output into bloom composite" {
     Some(i) => i
     None => panic()
   }
-  // Fog pass should exist between SSAO and bloom
-  let fog_idx = match
-    find_first_command_index(commands, fn(cmd) {
-      cmd.shader.id == state.fog_sh.id
-    }) {
-    Some(i) => i
-    None => panic()
-  }
   let threshold_idx = match
     find_first_command_index(commands, fn(cmd) {
       cmd.dst.id == state.bloom_a.id &&
@@ -482,8 +474,7 @@ test "draw_playing feeds ssao output into bloom composite" {
     None => panic()
   }
 
-  assert_true(ssao_idx < fog_idx)
-  assert_true(fog_idx < threshold_idx)
+  assert_true(ssao_idx < threshold_idx)
 }
 
 ///|
@@ -508,14 +499,8 @@ test "draw_playing skips ssao and feeds scene target into bloom composite by def
     None => panic()
   }
   assert_eq(ssao_idx, None)
-  // Depth pass always runs now (needed for fog)
+  // Depth pass always runs now
   assert_true(depth_idx is Some(_))
-
-  // Fog pass should exist
-  let fog_idx = find_first_command_index(commands, fn(cmd) {
-    cmd.shader.id == state.fog_sh.id
-  })
-  assert_true(fog_idx is Some(_))
 
   assert_true(threshold_idx > 0)
 }

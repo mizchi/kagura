@@ -87,6 +87,12 @@ fn build_single_chunk(
   let wall_i : Array[Int] = []
   let pillar_v : Array[Double] = []
   let pillar_i : Array[Int] = []
+  // Exterior ground for Empty/out-of-bounds tiles
+  let exterior_v : Array[Double] = []
+  let exterior_i : Array[Int] = []
+  // Decorative objects (debris, crates in rooms)
+  let decor_v : Array[Double] = []
+  let decor_i : Array[Int] = []
   // Combined mesh for shadow depth (all geometry merged)
   let all_v : Array[Double] = []
   let all_i : Array[Int] = []
@@ -104,6 +110,18 @@ fn build_single_chunk(
         Floor | Start | Goal => {
           merge_mesh_at(floor_v, floor_i, meshes.floor_tile, x, y, z)
           merge_mesh_at(all_v, all_i, meshes.floor_tile, x, y, z)
+          // Scatter debris in rooms (deterministic hash)
+          let hash = (col * 7919 + row * 104729 + 31) % 100
+          if hash < 8 {
+            let dx = ((hash * 37) % 80).to_double() / 100.0 - 0.4
+            let dz = ((hash * 53) % 80).to_double() / 100.0 - 0.4
+            merge_mesh_at(decor_v, decor_i, meshes.debris, x + dx, y, z + dz)
+          } else if hash < 12 {
+            let dx = ((hash * 41) % 60).to_double() / 100.0 - 0.3
+            let dz = ((hash * 67) % 60).to_double() / 100.0 - 0.3
+            merge_mesh_at(decor_v, decor_i, meshes.crate, x + dx, y, z + dz)
+            merge_mesh_at(all_v, all_i, meshes.crate, x + dx, y, z + dz)
+          }
         }
         Corridor => {
           merge_mesh_at(corridor_v, corridor_i, meshes.floor_tile, x, y, z)
@@ -119,9 +137,29 @@ fn build_single_chunk(
         }
         Wall =>
           if has_adjacent_walkable(dungeon.grid, col, row) {
-            merge_mesh_at(wall_v, wall_i, meshes.wall, x, y, z)
-            merge_mesh_at(all_v, all_i, meshes.wall, x, y, z)
+            // Wall height variation by position hash
+            let wall_hash = (col * 2971 + row * 6173) % 100
+            let wall_mesh = if wall_hash < 25 {
+              meshes.wall_low
+            } else if wall_hash < 85 {
+              meshes.wall
+            } else {
+              meshes.wall_tall
+            }
+            merge_mesh_at(wall_v, wall_i, wall_mesh, x, y, z)
+            merge_mesh_at(all_v, all_i, wall_mesh, x, y, z)
           }
+        Empty => {
+          // Exterior ground: dark plane at y=-0.1 for void areas
+          merge_mesh_at(
+            exterior_v,
+            exterior_i,
+            meshes.floor_tile,
+            x,
+            -0.1,
+            z,
+          )
+        }
         _ => ()
       }
     }
@@ -150,11 +188,13 @@ fn build_single_chunk(
     }
   }
 
+  add_group(exterior_v, exterior_i, color_exterior, Floor, groups)
   add_group(floor_v, floor_i, color_floor, Floor, groups)
   add_group(corridor_v, corridor_i, color_corridor, Corridor, groups)
   add_group(door_v, door_i, color_door, Door, groups)
   add_group(wall_v, wall_i, color_wall, Wall, groups)
   add_group(pillar_v, pillar_i, color_pillar, Pillar, groups)
+  add_group(decor_v, decor_i, color_debris, Floor, groups)
   let wall_mesh = @mesh3d.Mesh3D::new(wall_v, wall_i)
   let all_mesh = @mesh3d.Mesh3D::new(all_v, all_i)
   { cx, cz, groups, wall_mesh, all_mesh }

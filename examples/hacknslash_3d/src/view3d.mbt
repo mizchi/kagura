@@ -18,6 +18,12 @@ let color_door : @math3d.Vec4 = @math3d.Vec4::new(0.50, 0.42, 0.20, 1.0)
 let color_pillar : @math3d.Vec4 = @math3d.Vec4::new(0.50, 0.45, 0.35, 1.0)
 
 ///|
+let color_exterior : @math3d.Vec4 = @math3d.Vec4::new(0.12, 0.11, 0.10, 1.0)
+
+///|
+let color_debris : @math3d.Vec4 = @math3d.Vec4::new(0.30, 0.28, 0.22, 1.0)
+
+///|
 let color_player : @math3d.Vec4 = @math3d.Vec4::new(0.0, 1.0, 0.8, 1.0)
 
 ///|

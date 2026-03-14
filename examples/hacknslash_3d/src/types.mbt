@@ -7,8 +7,12 @@ struct Meshes3D {
   arrow : @mesh3d.Mesh3D
   floor_tile : @mesh3d.Mesh3D
   wall : @mesh3d.Mesh3D
+  wall_low : @mesh3d.Mesh3D
+  wall_tall : @mesh3d.Mesh3D
   ledge : @mesh3d.Mesh3D
   pillar : @mesh3d.Mesh3D
+  debris : @mesh3d.Mesh3D
+  crate : @mesh3d.Mesh3D
 }
 
 ///|

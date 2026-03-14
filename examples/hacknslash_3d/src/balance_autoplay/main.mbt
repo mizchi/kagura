@@ -3,7 +3,11 @@ fn main {
   println("=== HACKNSLASH AUTOPLAY REBALANCE TUNER ===")
   let seeds : Array[Int] = [42, 137, 256, 512]
   let args = @sys.get_cli_args()
-  let output_path = if args.length() >= 2 { Some(args[1]) } else { None }
+  let output_path = if args.length() >= 2 && args[1].length() > 0 {
+    Some(args[1])
+  } else {
+    None
+  }
   let experiment_id = if args.length() >= 3 {
     args[2]
   } else {

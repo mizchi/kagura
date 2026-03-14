@@ -183,12 +183,97 @@ fn GameState::update_inventory_ui(self : GameState) -> Unit {
 
 ///|
 fn GameState::update_skills_ui(self : GameState) -> Unit {
-  let node_count = self.world.skills.nodes.length()
+  let nodes = self.world.skills.nodes
+  let cur = self.world.ui_cursor
+  if cur >= nodes.length() {
+    self.world.ui_cursor = 0
+    return
+  }
+  let cur_col = nodes[cur].tree_col
+  let cur_row = nodes[cur].tree_row
+  // Navigate by tree position
   if is_up_just_pressed(self.input) {
-    self.world.ui_cursor = (self.world.ui_cursor - 1 + node_count) % node_count
+    // Find nearest node in row above
+    let mut best = -1
+    let mut best_dist = 9999
+    for i, node in nodes {
+      if node.tree_row < cur_row {
+        let dist = (node.tree_col - cur_col).abs() +
+          (cur_row - node.tree_row) * 4
+        if dist < best_dist {
+          best_dist = dist
+          best = i
+        }
+      }
+    }
+    if best >= 0 {
+      self.world.ui_cursor = best
+    }
   }
   if is_down_just_pressed(self.input) {
-    self.world.ui_cursor = (self.world.ui_cursor + 1) % node_count
+    let mut best = -1
+    let mut best_dist = 9999
+    for i, node in nodes {
+      if node.tree_row > cur_row {
+        let dist = (node.tree_col - cur_col).abs() +
+          (node.tree_row - cur_row) * 4
+        if dist < best_dist {
+          best_dist = dist
+          best = i
+        }
+      }
+    }
+    if best >= 0 {
+      self.world.ui_cursor = best
+    }
+  }
+  if @inpututil.is_key_just_pressed(
+      self.input.key_state,
+      @inpututil.key_a,
+    ) ||
+    @inpututil.is_key_just_pressed(
+      self.input.key_state,
+      @inpututil.key_left_web,
+    ) {
+    let mut best = -1
+    let mut best_dist = 9999
+    for i, node in nodes {
+      if node.tree_col < cur_col {
+        let dist = (cur_col - node.tree_col) * 4 +
+          (node.tree_row - cur_row).abs()
+        if dist < best_dist {
+          best_dist = dist
+          best = i
+        }
+      }
+    }
+    if best >= 0 {
+      self.world.ui_cursor = best
+    }
+  }
+  if @inpututil.is_key_just_pressed(
+      self.input.key_state,
+      @inpututil.key_d,
+    ) ||
+    @inpututil.is_key_just_pressed(
+      self.input.key_state,
+      @inpututil.key_right_web,
+    ) {
+    let mut best = -1
+    let mut best_dist = 9999
+    for i, node in nodes {
+      if node.tree_col > cur_col {
+        let dist = (node.tree_col - cur_col) * 4 +
+          (node.tree_row - cur_row).abs()
+        if dist < best_dist {
+          best_dist = dist
+          best = i
+        }
+      }
+    }
+    if best >= 0 {
+      self.world.ui_cursor = best
+    }
   }
 }
 
@@ -507,12 +592,10 @@ fn GameState::render_skills_ui(
   let sw = screen_w.to_double()
   let sh = screen_h.to_double()
   let p = ui_pad
-  let rh = 32.0
   // Fully opaque backdrop
   ctx.draw_rect(cmds, 0.0, 0.0, sw, sh, @hud.hex_color(0x0D0D1A))
   // Header
-  let mut y = p
-  ctx.draw_text(cmds, "SKILLS", ui_font_lg, p, y, 0xFFCC00)
+  ctx.draw_text(cmds, "SKILL TREE", ui_font_lg, p, p, 0xFFCC00)
   ctx.draw_text(
     cmds,
     "LV:" +
@@ -523,42 +606,112 @@ fn GameState::render_skills_ui(
     self.world.level_progress.next_level_xp.to_string(),
     ui_font,
     sw - 180.0,
-    y + 4.0,
+    p + 4.0,
     0xFFCC00,
   )
-  y = y + 24.0
-  ctx.draw_text(
-    cmds, "LEVEL UP CHOICES ONLY  K:CLOSE", ui_font_sm, p, y, 0x555555,
-  )
-  y = y + 16.0
-  for i, node in self.world.skills.nodes {
-    let row_y = y + i.to_double() * rh
-    if row_y + rh > sh {
-      break
+  ctx.draw_text(cmds, "K:CLOSE", ui_font_sm, sw - 60.0, p + 18.0, 0x555555)
+  // Tree layout: 4 columns × 3 rows grid
+  let tree_x0 = 20.0
+  let tree_y0 = 40.0
+  let cell_w = (sw - 40.0) / 4.0
+  let cell_h = (sh - 80.0) / 3.0
+  let node_w = cell_w - 8.0
+  let node_h = cell_h - 8.0
+  // Draw prerequisite connection lines first (behind nodes)
+  for node in self.world.skills.nodes {
+    let nx = tree_x0 + node.tree_col.to_double() * cell_w + cell_w / 2.0
+    let ny = tree_y0 + node.tree_row.to_double() * cell_h + cell_h / 2.0
+    for prereq_id in node.prereqs {
+      match self.world.skills.find(prereq_id) {
+        Some(prereq_node) => {
+          let px = tree_x0 +
+            prereq_node.tree_col.to_double() * cell_w +
+            cell_w / 2.0
+          let py = tree_y0 +
+            prereq_node.tree_row.to_double() * cell_h +
+            cell_h / 2.0
+          let line_color = if prereq_node.level > 0 {
+            0x446644
+          } else {
+            0x222233
+          }
+          // Draw line as thin rect (horizontal then vertical)
+          let mid_y = (py + ny) / 2.0
+          ctx.draw_rect(
+            cmds,
+            @cmp.minimum(px, nx) - 1.0,
+            mid_y - 1.0,
+            (px - nx).abs() + 2.0,
+            2.0,
+            @hud.hex_color(line_color),
+          )
+          ctx.draw_rect(
+            cmds,
+            px - 1.0,
+            @cmp.minimum(py, mid_y),
+            2.0,
+            (py - mid_y).abs(),
+            @hud.hex_color(line_color),
+          )
+          ctx.draw_rect(
+            cmds,
+            nx - 1.0,
+            @cmp.minimum(ny, mid_y),
+            2.0,
+            (ny - mid_y).abs(),
+            @hud.hex_color(line_color),
+          )
+        }
+        None => ()
+      }
     }
+  }
+  // Draw skill nodes
+  for i, node in self.world.skills.nodes {
+    let cx = tree_x0 + node.tree_col.to_double() * cell_w + 4.0
+    let cy = tree_y0 + node.tree_row.to_double() * cell_h + 4.0
     let sel = i == self.world.ui_cursor
     let can_learn = self.world.skills.can_learn(node.id)
-    let bg = if sel { 0x2222AA } else { 0x141428 }
-    ctx.draw_rect(cmds, p, row_y, sw - p * 2.0, rh - 2.0, @hud.hex_color(bg))
-    if sel {
-      ctx.draw_rect(cmds, p, row_y, 3.0, rh - 2.0, @hud.hex_color(0xFFCC00))
+    // Node background
+    let bg = if sel {
+      0x2233AA
+    } else if node.level > 0 {
+      0x1A2A1A
+    } else {
+      0x141420
     }
+    ctx.draw_rect(cmds, cx, cy, node_w, node_h, @hud.hex_color(bg))
+    // Selection border
+    if sel {
+      ctx.draw_rect(cmds, cx, cy, node_w, 2.0, @hud.hex_color(0xFFCC00))
+      ctx.draw_rect(
+        cmds,
+        cx,
+        cy + node_h - 2.0,
+        node_w,
+        2.0,
+        @hud.hex_color(0xFFCC00),
+      )
+      ctx.draw_rect(cmds, cx, cy, 2.0, node_h, @hud.hex_color(0xFFCC00))
+      ctx.draw_rect(
+        cmds,
+        cx + node_w - 2.0,
+        cy,
+        2.0,
+        node_h,
+        @hud.hex_color(0xFFCC00),
+      )
+    }
+    // Skill name
     let name_color = if node.level > 0 {
       0x44FF44
     } else if can_learn {
       0xFFCC00
     } else {
-      0x666666
+      0x555566
     }
-    let _ = self.append_skill_icon(
-      cmds,
-      dst,
-      shader,
-      node,
-      p + 8.0,
-      row_y + 8.0,
-    )
-    ctx.draw_text(cmds, node.name, ui_font, p + 32.0, row_y + 4.0, name_color)
+    ctx.draw_text(cmds, node.name, ui_font_sm, cx + 4.0, cy + 4.0, name_color)
+    // Level display
     let level_text = "Lv " +
       node.level.to_string() +
       "/" +
@@ -567,42 +720,50 @@ fn GameState::render_skills_ui(
       cmds,
       level_text,
       ui_font_sm,
-      sw - 120.0,
-      row_y + 4.0,
+      cx + 4.0,
+      cy + 16.0,
       0xCCCCCC,
     )
-    ctx.draw_text(
-      cmds,
-      "Via Level Up",
-      ui_font_sm,
-      p + 32.0,
-      row_y + 18.0,
-      0x666666,
-    )
-    // Progress bar
+    // Level bar
     if node.max_level > 0 {
-      let bar_w = 80.0
-      let bar_x = sw - 120.0
+      let bar_w = node_w - 8.0
       let bar_ratio = node.level.to_double() / node.max_level.to_double()
       ctx.draw_rect(
         cmds,
-        bar_x,
-        row_y + 20.0,
+        cx + 4.0,
+        cy + node_h - 12.0,
         bar_w,
-        8.0,
+        6.0,
         @hud.hex_color(0x333333),
       )
       if bar_ratio > 0.0 {
+        let bar_color = if node.level >= node.max_level {
+          0x44CCAA
+        } else {
+          0x44AA44
+        }
         ctx.draw_rect(
           cmds,
-          bar_x,
-          row_y + 20.0,
+          cx + 4.0,
+          cy + node_h - 12.0,
           bar_w * bar_ratio,
-          8.0,
-          @hud.hex_color(0x44AA44),
+          6.0,
+          @hud.hex_color(bar_color),
         )
       }
     }
+  }
+  // Column labels
+  let labels = ["MELEE", "UTILITY", "SPELL", "SPELL"]
+  for i, label in labels {
+    ctx.draw_text(
+      cmds,
+      label,
+      ui_font_sm,
+      tree_x0 + i.to_double() * cell_w + 4.0,
+      sh - 14.0,
+      0x444466,
+    )
   }
 }
 

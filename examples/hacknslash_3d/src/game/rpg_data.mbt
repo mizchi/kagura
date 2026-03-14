@@ -549,6 +549,8 @@ pub(all) struct SkillNode {
   cost : Int
   icon_id : Int
   prereqs : Array[SkillId]
+  tree_col : Int // column position in skill tree layout (0-3)
+  tree_row : Int // row position in skill tree layout (0-4)
 }
 
 ///|
@@ -561,6 +563,7 @@ pub(all) struct SkillTree {
 pub fn SkillTree::new() -> SkillTree {
   {
     nodes: [
+      // Row 0: Melee tree root
       {
         id: PowerStrike,
         name: "Power Strike",
@@ -569,7 +572,10 @@ pub fn SkillTree::new() -> SkillTree {
         cost: 1,
         icon_id: 10,
         prereqs: [],
+        tree_col: 0,
+        tree_row: 0,
       },
+      // Row 1: Melee branches
       {
         id: Whirlwind,
         name: "Whirlwind",
@@ -578,7 +584,10 @@ pub fn SkillTree::new() -> SkillTree {
         cost: 2,
         icon_id: 11,
         prereqs: [PowerStrike],
+        tree_col: 0,
+        tree_row: 1,
       },
+      // Row 0: Utility tree
       {
         id: DashMastery,
         name: "Dash Mastery",
@@ -587,6 +596,8 @@ pub fn SkillTree::new() -> SkillTree {
         cost: 1,
         icon_id: 12,
         prereqs: [],
+        tree_col: 1,
+        tree_row: 0,
       },
       {
         id: Vitality,
@@ -596,7 +607,10 @@ pub fn SkillTree::new() -> SkillTree {
         cost: 1,
         icon_id: 13,
         prereqs: [],
+        tree_col: 1,
+        tree_row: 1,
       },
+      // Row 1: Melee-Utility junction
       {
         id: CriticalHit,
         name: "Critical Hit",
@@ -605,7 +619,10 @@ pub fn SkillTree::new() -> SkillTree {
         cost: 2,
         icon_id: 14,
         prereqs: [PowerStrike],
+        tree_col: 0,
+        tree_row: 2,
       },
+      // Row 2: Convergence
       {
         id: LifeSteal,
         name: "Life Steal",
@@ -614,7 +631,10 @@ pub fn SkillTree::new() -> SkillTree {
         cost: 3,
         icon_id: 15,
         prereqs: [CriticalHit, Vitality],
+        tree_col: 1,
+        tree_row: 2,
       },
+      // Row 0-1: Spell tree (right side)
       {
         id: ChainLightning,
         name: "Chain Lightning",
@@ -623,6 +643,8 @@ pub fn SkillTree::new() -> SkillTree {
         cost: 1,
         icon_id: 16,
         prereqs: [],
+        tree_col: 2,
+        tree_row: 0,
       },
       {
         id: SplittingFireball,
@@ -632,6 +654,8 @@ pub fn SkillTree::new() -> SkillTree {
         cost: 1,
         icon_id: 17,
         prereqs: [],
+        tree_col: 3,
+        tree_row: 0,
       },
       {
         id: IceNova,
@@ -641,6 +665,8 @@ pub fn SkillTree::new() -> SkillTree {
         cost: 1,
         icon_id: 18,
         prereqs: [],
+        tree_col: 2,
+        tree_row: 1,
       },
       {
         id: HomingMissile,
@@ -650,6 +676,8 @@ pub fn SkillTree::new() -> SkillTree {
         cost: 1,
         icon_id: 19,
         prereqs: [],
+        tree_col: 3,
+        tree_row: 1,
       },
     ],
     skill_points: 0,

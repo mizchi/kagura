@@ -7,13 +7,13 @@ fn Meshes3D::new() -> Meshes3D {
     projectile: @mesh3d.Mesh3D::sphere(0.15, 4, 3),
     arrow: make_arrow_mesh(0.5, 0.04),
     floor_tile: @mesh3d.Mesh3D::plane(1.0, 1.0),
-    wall: make_wall_mesh(1.0, 0.4, 1.0),
-    wall_low: make_wall_mesh(1.0, 0.25, 1.0),
-    wall_tall: make_wall_mesh(1.0, 0.6, 1.0),
-    ledge: make_wall_mesh(1.0, 0.15, 1.0),
-    pillar: make_pillar_mesh(0.12, 0.8),
-    debris: make_wall_mesh(0.15, 0.06, 0.15),
-    crate: make_wall_mesh(0.3, 0.25, 0.3),
+    wall: make_wall_mesh(1.0, 1.2, 1.0),
+    wall_low: make_wall_mesh(1.0, 0.8, 1.0),
+    wall_tall: make_wall_mesh(1.0, 1.8, 1.0),
+    ledge: make_wall_mesh(1.0, 0.2, 1.0),
+    pillar: make_pillar_mesh(0.15, 1.5),
+    debris: make_wall_mesh(0.2, 0.08, 0.2),
+    crate: make_wall_mesh(0.35, 0.3, 0.35),
   }
 }
 

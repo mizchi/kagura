@@ -75,9 +75,9 @@ fn GameState::new_with_params_and_ssao(
       init_y,
       world.player.y / tile_size,
     ),
-    16.0, // closer to player
+    22.0, // pulled back for wider view
     0.785, // yaw 45 degrees
-    0.96, // pitch ~55 degrees
+    1.1, // pitch ~63 degrees (more top-down like PoE)
     @math.PI / 5.0,
     sw / sh,
     0.1,
@@ -102,10 +102,10 @@ fn GameState::new_with_params_and_ssao(
   let icon_atlas = create_icon_atlas()
   let shadow_config = @shadow3d.ShadowConfig::new(
     1024, // map_size
-    14.0, // half_extent
+    18.0, // half_extent (wider for pulled-back camera)
     0.1, // near
-    60.0, // far
-    30.0, // distance
+    80.0, // far
+    40.0, // distance
     @math3d.Vec3::new(
       world.player.x / tile_size,
       0.0,

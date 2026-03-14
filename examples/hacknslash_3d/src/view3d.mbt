@@ -3,25 +3,25 @@
 // Colors (RGBA, 0-1 range) — natural field palette
 
 ///|
-let color_floor : @math3d.Vec4 = @math3d.Vec4::new(0.32, 0.40, 0.24, 1.0)
+let color_floor : @math3d.Vec4 = @math3d.Vec4::new(0.28, 0.26, 0.22, 1.0) // dark stone
 
 ///|
-let color_corridor : @math3d.Vec4 = @math3d.Vec4::new(0.34, 0.31, 0.24, 1.0)
+let color_corridor : @math3d.Vec4 = @math3d.Vec4::new(0.22, 0.20, 0.18, 1.0) // darker passage
 
 ///|
-let color_wall : @math3d.Vec4 = @math3d.Vec4::new(0.45, 0.40, 0.32, 1.0)
+let color_wall : @math3d.Vec4 = @math3d.Vec4::new(0.35, 0.30, 0.25, 1.0) // warm rock
 
 ///|
-let color_door : @math3d.Vec4 = @math3d.Vec4::new(0.50, 0.42, 0.20, 1.0)
+let color_door : @math3d.Vec4 = @math3d.Vec4::new(0.40, 0.32, 0.18, 1.0) // aged wood
 
 ///|
-let color_pillar : @math3d.Vec4 = @math3d.Vec4::new(0.50, 0.45, 0.35, 1.0)
+let color_pillar : @math3d.Vec4 = @math3d.Vec4::new(0.38, 0.34, 0.28, 1.0) // carved stone
 
 ///|
-let color_exterior : @math3d.Vec4 = @math3d.Vec4::new(0.12, 0.11, 0.10, 1.0)
+let color_exterior : @math3d.Vec4 = @math3d.Vec4::new(0.08, 0.07, 0.06, 1.0) // near-black ground
 
 ///|
-let color_debris : @math3d.Vec4 = @math3d.Vec4::new(0.30, 0.28, 0.22, 1.0)
+let color_debris : @math3d.Vec4 = @math3d.Vec4::new(0.25, 0.22, 0.18, 1.0) // rubble
 
 ///|
 let color_player : @math3d.Vec4 = @math3d.Vec4::new(0.0, 1.0, 0.8, 1.0)

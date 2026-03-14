@@ -14,6 +14,7 @@ fn Meshes3D::new() -> Meshes3D {
     pillar: make_pillar_mesh(0.15, 1.5),
     debris: make_wall_mesh(0.2, 0.08, 0.2),
     crate: make_wall_mesh(0.35, 0.3, 0.35),
+    loot_beam: make_loot_beam_mesh(0.06, 3.0),
   }
 }
 
@@ -111,6 +112,27 @@ fn make_arrow_mesh(length : Double, thickness : Double) -> @mesh3d.Mesh3D {
   indices.push(9)
   indices.push(10)
   indices.push(11)
+  @mesh3d.Mesh3D::new(data, indices)
+}
+
+///|
+fn make_loot_beam_mesh(width : Double, height : Double) -> @mesh3d.Mesh3D {
+  let hw = width / 2.0
+  let data : Array[Double] = []
+  let indices : Array[Int] = []
+  // Two crossed vertical planes for visibility from any angle
+  // Plane 1: aligned with X axis
+  push_vert(data, -hw, 0.0, 0.0, 0.0, 0.0, 1.0, 0.0, 1.0)
+  push_vert(data, hw, 0.0, 0.0, 0.0, 0.0, 1.0, 1.0, 1.0)
+  push_vert(data, hw, height, 0.0, 0.0, 0.0, 1.0, 1.0, 0.0)
+  push_vert(data, -hw, height, 0.0, 0.0, 0.0, 1.0, 0.0, 0.0)
+  push_quad(indices, 0)
+  // Plane 2: aligned with Z axis
+  push_vert(data, 0.0, 0.0, -hw, 1.0, 0.0, 0.0, 0.0, 1.0)
+  push_vert(data, 0.0, 0.0, hw, 1.0, 0.0, 0.0, 1.0, 1.0)
+  push_vert(data, 0.0, height, hw, 1.0, 0.0, 0.0, 1.0, 0.0)
+  push_vert(data, 0.0, height, -hw, 1.0, 0.0, 0.0, 0.0, 0.0)
+  push_quad(indices, 4)
   @mesh3d.Mesh3D::new(data, indices)
 }
 

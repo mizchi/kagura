@@ -1,6 +1,7 @@
 ///|
 struct EntityInstanceScratch {
   item_instances : Array[@scene3d.InstanceData]
+  loot_beam_instances : Array[@scene3d.InstanceData]
   enemy_projectile_instances : Array[@scene3d.InstanceData]
   arrow_instances : Array[@scene3d.InstanceData]
   fireball_instances : Array[@scene3d.InstanceData]
@@ -11,6 +12,7 @@ struct EntityInstanceScratch {
 fn default_entity_instance_scratch() -> EntityInstanceScratch {
   {
     item_instances: [],
+    loot_beam_instances: [],
     enemy_projectile_instances: [],
     arrow_instances: [],
     fireball_instances: [],
@@ -37,6 +39,7 @@ fn GameState::rebuild_entity_instance_scratch(
   region : VisibleRegion,
 ) -> Unit {
   self.entity_instance_scratch.item_instances.clear()
+  self.entity_instance_scratch.loot_beam_instances.clear()
   self.entity_instance_scratch.enemy_projectile_instances.clear()
   self.entity_instance_scratch.arrow_instances.clear()
   self.entity_instance_scratch.fireball_instances.clear()
@@ -71,6 +74,34 @@ fn GameState::rebuild_entity_instance_scratch(
           color~,
         ),
       )
+      // Loot beam ("茶柱") for equipment drops - height and brightness by rarity
+      match item.kind {
+        @game.Equipment(data) => {
+          let beam_color = match data.rarity {
+            @game.Common => @math3d.Vec4::new(0.6, 0.6, 0.5, 1.0)
+            @game.Uncommon => @math3d.Vec4::new(0.3, 0.7, 1.0, 1.0)
+            @game.Rare => @math3d.Vec4::new(1.0, 0.85, 0.2, 1.0)
+            @game.Epic => @math3d.Vec4::new(0.8, 0.3, 1.0, 1.0)
+          }
+          let beam_scale_y = match data.rarity {
+            @game.Common => 0.5
+            @game.Uncommon => 0.7
+            @game.Rare => 1.0
+            @game.Epic => 1.3
+          }
+          self.entity_instance_scratch.loot_beam_instances.push(
+            @scene3d.InstanceData::new(
+              transform=@transform3d.Transform3D::from_position(
+                @math3d.Vec3::new(ix, base_y, iz),
+              ).with_scale(
+                @math3d.Vec3::new(1.0, beam_scale_y, 1.0),
+              ),
+              color=beam_color,
+            ),
+          )
+        }
+        _ => ()
+      }
     }
   }
   for proj in self.world.projectiles {
@@ -413,6 +444,48 @@ fn push_homing_missile_instance_cmds(
 }
 
 ///|
+///|
+fn push_loot_beam_instance_cmds(
+  state : GameState,
+  view_projection : @math3d.Mat4,
+  dst : @gfx.ImageHandle,
+  screen_w : Int,
+  screen_h : Int,
+  cmds : Array[@gfx.DrawTrianglesCommand],
+) -> Unit {
+  let instances = state.entity_instance_scratch.loot_beam_instances
+  if instances.length() == 0 {
+    return
+  }
+  let dst_region = @gfx.new_dst_region(
+    0,
+    0,
+    screen_w,
+    screen_h,
+    state.meshes.loot_beam.indices.length(),
+  )
+  for inst in instances {
+    cmds.push(
+      @draw3d.new_lit_colored_mesh_draw_command(
+        dst,
+        state.shader3d_colored,
+        dst_region,
+        0,
+        0,
+        0,
+        @gfx.blend_mode_from_int(1), // additive blend
+        state.meshes.loot_beam,
+        inst.transform.to_mat4(),
+        view_projection,
+        state.lighting,
+        inst.color,
+        [],
+      ),
+    )
+  }
+}
+
+///|
 fn push_entity_instanced_cmds(
   state : GameState,
   region : VisibleRegion,
@@ -424,6 +497,9 @@ fn push_entity_instanced_cmds(
 ) -> Unit {
   state.rebuild_entity_instance_scratch(region)
   let view_projection = camera.view_projection_matrix()
+  push_loot_beam_instance_cmds(
+    state, view_projection, dst, screen_w, screen_h, cmds,
+  )
   push_item_instance_cmds(state, view_projection, dst, screen_w, screen_h, cmds)
   push_arrow_instance_cmds(
     state, view_projection, dst, screen_w, screen_h, cmds,

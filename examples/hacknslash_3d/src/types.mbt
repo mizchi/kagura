@@ -13,6 +13,7 @@ struct Meshes3D {
   pillar : @mesh3d.Mesh3D
   debris : @mesh3d.Mesh3D
   crate : @mesh3d.Mesh3D
+  loot_beam : @mesh3d.Mesh3D
 }
 
 ///|

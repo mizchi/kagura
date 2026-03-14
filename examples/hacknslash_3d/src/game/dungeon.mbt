@@ -327,14 +327,14 @@ fn tinykeep_config_for_floor(
 }
 
 ///|
-pub fn generate_dungeon(
+fn generate_layout_for_kind(
+  kind : DungeonGeneratorKind,
   seed : Int,
-  floor? : Int = 1,
-  params? : BalanceParams = BalanceParams::default(),
-) -> DungeonData {
-  let rng = @terrain.make_rng(seed.to_uint())
-  let result : GeneratedDungeonLayout = match
-    dungeon_generator_kind_for_floor(seed~, floor) {
+  floor : Int,
+  params : BalanceParams,
+  rng : @terrain.RNG,
+) -> GeneratedDungeonLayout {
+  match kind {
     ArenaChain => {
       let config = arena_chain_config_for_floor(seed~, floor, params)
       let generated = @arena_chain.generate(config, rng)
@@ -364,7 +364,6 @@ pub fn generate_dungeon(
         cellular_config_for_floor(seed~, floor, params),
         rng,
       )
-      // Cellular automata doesn't produce rooms, create synthetic ones
       let rooms = extract_rooms_from_grid(generated.grid)
       { grid: generated.grid, rooms }
     }
@@ -376,9 +375,45 @@ pub fn generate_dungeon(
       { grid: generated.grid, rooms: generated.rooms }
     }
   }
-  // Build height map: each room at a different elevation
+}
+
+///|
+fn is_layout_traversable(layout : GeneratedDungeonLayout) -> Bool {
+  if layout.rooms.length() < 2 {
+    return false
+  }
+  // Check pathfinding from room 0 center to room 1 center
+  let start = layout.rooms[0].rect.center()
+  let goal = layout.rooms[1].rect.center()
+  match @pathfind.find_path(layout.grid, start, goal) {
+    Some(_) => true
+    None => false
+  }
+}
+
+///|
+pub fn generate_dungeon(
+  seed : Int,
+  floor? : Int = 1,
+  params? : BalanceParams = BalanceParams::default(),
+) -> DungeonData {
+  let kind = dungeon_generator_kind_for_floor(seed~, floor)
+  let rng = @terrain.make_rng(seed.to_uint())
+  let mut result = generate_layout_for_kind(kind, seed, floor, params, rng)
+  // Validate: must have rooms and be traversable
+  if not(is_layout_traversable(result)) {
+    // Retry with different seed
+    let rng2 = @terrain.make_rng((seed + 9999).to_uint())
+    result = generate_layout_for_kind(kind, seed + 9999, floor, params, rng2)
+    if not(is_layout_traversable(result)) {
+      // Fallback to ArenaChain (always produces connected layouts)
+      let rng3 = @terrain.make_rng((seed + 7777).to_uint())
+      result = generate_layout_for_kind(
+        ArenaChain, seed + 7777, floor, params, rng3,
+      )
+    }
+  }
   let height_map = build_height_map(result.grid, result.rooms, seed)
-  // Find start room (entrance)
   let start_room = result.rooms[0]
   let center = start_room.rect.center()
   {

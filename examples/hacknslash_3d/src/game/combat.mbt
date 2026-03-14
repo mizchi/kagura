@@ -251,28 +251,27 @@ fn apply_enemy_death_rewards(world : GameWorld, enemy : Enemy) -> Unit {
     Tank => 80
     _ => 40
   }
-  if drop_roll >= drop_chance {
-    return
-  }
-  let drop_count = if enemy.kind == Boss {
-    3
-  } else if enemy.kind == Tank {
-    drop_seed % 2 + 1
-  } else {
-    1
-  }
-  for di = 0; di < drop_count; di = di + 1 {
-    let item_seed = drop_seed + di * 31
-    let angle = (item_seed % 628).to_double() / 100.0
-    let scatter_speed = 1.5 + (item_seed % 100).to_double() / 100.0
-    spawn_scatter_item(
-      world,
-      enemy.x,
-      enemy.y,
-      roll_drop_item_kind(world, item_seed + di * 13),
-      angle,
-      scatter_speed,
-    )
+  if drop_roll < drop_chance {
+    let drop_count = if enemy.kind == Boss {
+      3
+    } else if enemy.kind == Tank {
+      drop_seed % 2 + 1
+    } else {
+      1
+    }
+    for di = 0; di < drop_count; di = di + 1 {
+      let item_seed = drop_seed + di * 31
+      let angle = (item_seed % 628).to_double() / 100.0
+      let scatter_speed = 1.5 + (item_seed % 100).to_double() / 100.0
+      spawn_scatter_item(
+        world,
+        enemy.x,
+        enemy.y,
+        roll_drop_item_kind(world, item_seed + di * 13),
+        angle,
+        scatter_speed,
+      )
+    }
   }
   if world.level_progress.pending_choices > 0 {
     world.open_levelup_ui_if_needed()

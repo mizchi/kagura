@@ -510,17 +510,14 @@ fn auto_play_input_with_nav_grid(
         world, nav_grid, goal_tile, enemy_idx, enemy_dist_sq,
       )
     }
-    // If close enough for bow, strafe slightly; otherwise approach
+    // If close enough for bow, strafe with wall awareness
     if enemy_dist_sq < 80.0 * 80.0 {
-      // In bow range — orbit around enemy at medium distance
       let edx = enemy.x - world.player.x
       let edy = enemy.y - world.player.y
       let dist = enemy_dist_sq.sqrt()
       if dist > 0.001 {
-        // Strafe perpendicular to enemy direction (clockwise)
         let nx = edx / dist
         let ny = edy / dist
-        // If too close, back away; if too far, close in
         let desired_range = 60.0
         let range_factor = if dist < desired_range * 0.6 {
           -0.5 // back away
@@ -529,6 +526,28 @@ fn auto_play_input_with_nav_grid(
         } else {
           0.0 // hold distance
         }
+        // Check if player is touching a wall (bounding box + 4px margin)
+        let touching_wall = check_wall_collision(
+          nav_grid,
+          world.player.x,
+          world.player.y,
+          world.player.size + 4.0,
+        )
+        if touching_wall {
+          // Near wall: back away from enemy to escape corner
+          let escape_dx = -nx + range_factor * nx
+          let escape_dy = -ny + range_factor * ny
+          let escape_mag = (escape_dx * escape_dx + escape_dy * escape_dy).sqrt()
+          if escape_mag > 0.001 {
+            return (
+              escape_dx / escape_mag,
+              escape_dy / escape_mag,
+              enemy_idx,
+              enemy_dist_sq,
+            )
+          }
+        }
+        // Normal strafe (clockwise)
         let dx = -ny * 0.7 + nx * range_factor
         let dy = nx * 0.7 + ny * range_factor
         let mag = (dx * dx + dy * dy).sqrt()

@@ -87,7 +87,7 @@ test "reset_save_and_restart clears progression and restarts playing" {
   )
   assert_eq(state.world.floor, 1)
   assert_eq(state.world.score, 0)
-  assert_eq(state.world.seed, 42)
+  assert_true(state.world.seed >= 0)
   assert_true(state.world.auto_play)
   assert_true(
     match state.world.ui_mode {

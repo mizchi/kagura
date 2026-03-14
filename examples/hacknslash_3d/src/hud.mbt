@@ -315,8 +315,8 @@ fn GameState::build_hud_static_cmds(
   match self.text_renderer {
     Some(tr) => {
       let _ = tr
-      // HP label at bottom-left
-      ctx.draw_text(cmds, "HP", 14.0, 8.0, sh - 30.0, 0xFFFFFF)
+      // HP label at bottom-left (above skill bar)
+      ctx.draw_text(cmds, "HP", 12.0, 8.0, sh - 48.0, 0xFFFFFF)
       // FLOOR at top-center
       ctx.draw_text_centered(
         cmds,
@@ -329,7 +329,7 @@ fn GameState::build_hud_static_cmds(
     }
     None => {
       let fallback = @scene.fragment([
-        @scene.label(x=24.0, y=sh - 30.0, content="HP", color=0xFFFFFF),
+        @scene.label(x=24.0, y=sh - 48.0, content="HP", color=0xFFFFFF),
         @scene.label(
           x=sw / 2.0,
           y=8.0,
@@ -545,22 +545,22 @@ fn GameState::render_hud_cmds(
   let ctx = self.make_hud_ctx(dst, shader)
   self.ensure_hud_static_cache(ctx)
   let sh = screen_h.to_double()
-  // HP bar at bottom-left
-  let hp_y = sh - 28.0
+  // HP bar at bottom-left (above skill bar)
+  let hp_y = sh - 46.0
   ctx.draw_rect(
     cmds,
     8.0,
     hp_y,
-    124.0,
-    16.0,
+    140.0,
+    14.0,
     @hud.hex_color(0x440000, alpha=0.8),
   )
   ctx.draw_rect(
     cmds,
     10.0,
     hp_y + 2.0,
-    60.0 * hp_ratio * 2.0,
-    12.0,
+    68.0 * hp_ratio * 2.0,
+    10.0,
     @hud.hex_color(hp_color),
   )
   for cmd in self.hud_static_cmds {
@@ -569,11 +569,11 @@ fn GameState::render_hud_cmds(
   match self.text_renderer {
     Some(tr) => {
       let _ = tr
-      // Score + enemy count at top-left
+      // Score + enemy count at top-left (clear of minimap)
       ctx.draw_text(
         cmds,
-        self.world.score.to_string(),
-        20.0,
+        self.world.score.to_string() + "G",
+        16.0,
         8.0,
         8.0,
         0xFFCC00,
@@ -581,18 +581,18 @@ fn GameState::render_hud_cmds(
       ctx.draw_text(
         cmds,
         "x" + alive_count.to_string(),
-        14.0,
+        12.0,
         8.0,
-        28.0,
+        24.0,
         0xCC2222,
       )
       // HP text next to HP bar (bottom-left)
       ctx.draw_text(
         cmds,
         hp_status_text(self.world.player.hp, self.world.player.max_hp),
-        14.0,
-        136.0,
-        hp_y,
+        12.0,
+        152.0,
+        hp_y + 1.0,
         0xFFFFFF,
       )
       // Floor announce overlay
@@ -622,9 +622,9 @@ fn GameState::render_hud_cmds(
       ctx.draw_text(
         cmds,
         hp_status_text(self.world.player.hp, self.world.player.max_hp),
-        14.0,
-        136.0,
-        hp_y,
+        12.0,
+        152.0,
+        hp_y + 1.0,
         0xFFFFFF,
       )
     }
@@ -647,7 +647,7 @@ fn GameState::render_hud_cmds(
   }
   // Auto-play indicator at top-left
   if self.world.auto_play {
-    ctx.draw_text(cmds, "AUTO", 14.0, 8.0, 44.0, 0x00FFAA)
+    ctx.draw_text(cmds, "AUTO", 10.0, 8.0, 38.0, 0x00FFAA)
   }
   if self.audio_muted {
     ctx.draw_text(

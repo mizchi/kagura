@@ -920,9 +920,21 @@ pub fn GameWorld::tick_with_enemy_ai_grid(
   if self.floor_announce_timer > 0 {
     self.floor_announce_timer = self.floor_announce_timer - 1
   }
-  // 3. Update facing angle from dx/dy
-  if dx != 0.0 || dy != 0.0 {
-    self.player.facing_angle = @math.atan2(dy, dx)
+  // 3. Update facing angle: aim at nearest enemy (twin-stick style)
+  // Fall back to movement direction only when no enemy is in range
+  let aim_target = find_nearest_enemy(self, self.params.arrow_range)
+  match aim_target {
+    Some(enemy) => {
+      let adx = enemy.x - self.player.x
+      let ady = enemy.y - self.player.y
+      if adx * adx + ady * ady > 0.001 {
+        self.player.facing_angle = @math.atan2(ady, adx)
+      }
+    }
+    None =>
+      if dx != 0.0 || dy != 0.0 {
+        self.player.facing_angle = @math.atan2(dy, dx)
+      }
   }
   // 4. Dash cooldown decrement
   if self.player.dash_cooldown_timer > 0 {

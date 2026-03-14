@@ -1,6 +1,48 @@
 // Enemy AI: chase + pathfinding + patrol + ranged + boss
 
 ///|
+fn enemy_margin_aware_waypoint(
+  grid : @terrain.Grid2D,
+  wp : @terrain.Point,
+  entity_half : Double,
+) -> (Double, Double) {
+  let cx = wp.x.to_double() * tile_size + tile_size / 2.0
+  let cy = wp.y.to_double() * tile_size + tile_size / 2.0
+  let margin = entity_half + 1.0
+  let mut ox = 0.0
+  let mut oy = 0.0
+  if wp.x > 0 && grid.get(wp.x - 1, wp.y) == @terrain.Wall {
+    let wall_edge = wp.x.to_double() * tile_size
+    let desired = wall_edge + margin
+    if cx < desired {
+      ox = ox + (desired - cx)
+    }
+  }
+  if wp.x + 1 < grid.width && grid.get(wp.x + 1, wp.y) == @terrain.Wall {
+    let wall_edge = (wp.x + 1).to_double() * tile_size
+    let desired = wall_edge - margin
+    if cx > desired {
+      ox = ox - (cx - desired)
+    }
+  }
+  if wp.y > 0 && grid.get(wp.x, wp.y - 1) == @terrain.Wall {
+    let wall_edge = wp.y.to_double() * tile_size
+    let desired = wall_edge + margin
+    if cy < desired {
+      oy = oy + (desired - cy)
+    }
+  }
+  if wp.y + 1 < grid.height && grid.get(wp.x, wp.y + 1) == @terrain.Wall {
+    let wall_edge = (wp.y + 1).to_double() * tile_size
+    let desired = wall_edge - margin
+    if cy > desired {
+      oy = oy - (cy - desired)
+    }
+  }
+  (cx + ox, cy + oy)
+}
+
+///|
 fn enemy_direct_chase_path_blocked(
   grid : @terrain.Grid2D,
   enemy_x : Double,
@@ -325,8 +367,9 @@ pub fn update_enemy_ai(
     if enemy.path_cache.length() > 0 &&
       enemy.path_index < enemy.path_cache.length() {
       let target = enemy.path_cache[enemy.path_index]
-      let tx = target.x.to_double() * tile_size + tile_size / 2.0
-      let ty = target.y.to_double() * tile_size + tile_size / 2.0
+      let (tx, ty) = enemy_margin_aware_waypoint(
+        grid, target, enemy.size / 2.0,
+      )
       let pdx = tx - enemy.x
       let pdy = ty - enemy.y
       let pdist = (pdx * pdx + pdy * pdy).sqrt()

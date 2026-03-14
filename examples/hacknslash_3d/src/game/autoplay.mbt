@@ -329,6 +329,58 @@ fn resolve_autoplay_goal_path(
 }
 
 ///|
+/// Compute a wall-margin-aware world coordinate for a tile waypoint.
+/// At path turns, offset the target position away from the inner corner wall
+/// to prevent the entity from scraping the wall when changing direction.
+fn margin_aware_waypoint(
+  nav_grid : @terrain.Grid2D,
+  wp : @terrain.Point,
+  entity_half : Double,
+) -> (Double, Double) {
+  let cx = wp.x.to_double() * tile_size + tile_size / 2.0
+  let cy = wp.y.to_double() * tile_size + tile_size / 2.0
+  let margin = entity_half + 1.0
+  let mut ox = 0.0
+  let mut oy = 0.0
+  // Push away from adjacent walls
+  // Left wall
+  if wp.x > 0 && nav_grid.get(wp.x - 1, wp.y) == @terrain.Wall {
+    let wall_edge = wp.x.to_double() * tile_size
+    let desired = wall_edge + margin
+    if cx < desired {
+      ox = ox + (desired - cx)
+    }
+  }
+  // Right wall
+  if wp.x + 1 < nav_grid.width &&
+    nav_grid.get(wp.x + 1, wp.y) == @terrain.Wall {
+    let wall_edge = (wp.x + 1).to_double() * tile_size
+    let desired = wall_edge - margin
+    if cx > desired {
+      ox = ox - (cx - desired)
+    }
+  }
+  // Top wall
+  if wp.y > 0 && nav_grid.get(wp.x, wp.y - 1) == @terrain.Wall {
+    let wall_edge = wp.y.to_double() * tile_size
+    let desired = wall_edge + margin
+    if cy < desired {
+      oy = oy + (desired - cy)
+    }
+  }
+  // Bottom wall
+  if wp.y + 1 < nav_grid.height &&
+    nav_grid.get(wp.x, wp.y + 1) == @terrain.Wall {
+    let wall_edge = (wp.y + 1).to_double() * tile_size
+    let desired = wall_edge - margin
+    if cy > desired {
+      oy = oy - (cy - desired)
+    }
+  }
+  (cx + ox, cy + oy)
+}
+
+///|
 fn auto_play_direction_to_goal_tile(
   world : GameWorld,
   nav_grid : @terrain.Grid2D,
@@ -363,10 +415,10 @@ fn auto_play_direction_to_goal_tile(
       }
     }
   }
+  let player_half = world.player.size / 2.0
   if world.auto_nav_index < world.auto_nav_path.length() {
     let wp = world.auto_nav_path[world.auto_nav_index]
-    let wx = wp.x.to_double() * tile_size + tile_size / 2.0
-    let wy = wp.y.to_double() * tile_size + tile_size / 2.0
+    let (wx, wy) = margin_aware_waypoint(nav_grid, wp, player_half)
     let pdx = wx - world.player.x
     let pdy = wy - world.player.y
     let pdist = (pdx * pdx + pdy * pdy).sqrt()
@@ -374,8 +426,7 @@ fn auto_play_direction_to_goal_tile(
       world.auto_nav_index = world.auto_nav_index + 1
       if world.auto_nav_index < world.auto_nav_path.length() {
         let nwp = world.auto_nav_path[world.auto_nav_index]
-        let nwx = nwp.x.to_double() * tile_size + tile_size / 2.0
-        let nwy = nwp.y.to_double() * tile_size + tile_size / 2.0
+        let (nwx, nwy) = margin_aware_waypoint(nav_grid, nwp, player_half)
         let ndx = nwx - world.player.x
         let ndy = nwy - world.player.y
         let ndist = (ndx * ndx + ndy * ndy).sqrt()

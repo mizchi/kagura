@@ -86,12 +86,12 @@ fn GameState::new_with_params_and_ssao(
   let lighting = @light3d.LightingEnvironment::new(
     @light3d.DirectionalLight::new(
       @math3d.Vec3::new(-0.4, -1.0, -0.6),
-      @math3d.Vec3::new(1.0, 0.9, 0.7), // warm directional
-      1.0,
+      @math3d.Vec3::new(1.0, 0.9, 0.7), // warm directional light
+      0.85,
     ),
     @light3d.AmbientLight::new(
-      @math3d.Vec3::new(0.35, 0.38, 0.5), // cool ambient, moderate darkness
-      0.18,
+      @math3d.Vec3::new(0.6, 0.65, 0.8), // cool blue ambient
+      0.2,
     ),
   )
   let meshes = Meshes3D::new()

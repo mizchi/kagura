@@ -279,18 +279,18 @@ fn GameState::draw_playing(
   } else {
     self.scene_target.id
   }
-  // === Fog pass: blend scene toward dark fog based on depth ===
+  // === Fog pass: subtle distance fog ===
   cmds.push(
     @postfx.new_fog_command(
       self.post_target,
       self.fog_sh,
       bloom_input_id,
       self.camera_depth_target.id,
-      0.03, // fog R
-      0.04, // fog G
-      0.06, // fog B
-      0.7, // fog start - no fog until 70% of depth range
-      0.98, // fog end - fully fogged at far edge only
+      0.02, // fog R (very dark blue)
+      0.02, // fog G
+      0.04, // fog B
+      0.85, // fog start - only far distance
+      0.99, // fog end
     ),
   )
   let fog_output_id = self.post_target.id

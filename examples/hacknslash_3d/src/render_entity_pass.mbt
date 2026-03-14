@@ -161,7 +161,7 @@ fn GameState::rebuild_entity_instance_scratch(
                     -@math.atan2(proj.vy, proj.vx),
                   ),
                 ).with_scale(@math3d.Vec3::new(0.95, 0.95, 1.35)),
-                color=@math3d.Vec4::new(1.0, 0.58, 0.22, 1.0),
+                color=@math3d.Vec4::new(0.2, 0.7, 1.0, 1.0), // cyan homing missile
               ),
             )
           }

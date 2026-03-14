@@ -62,7 +62,8 @@ let color_projectile_outline : @math3d.Vec4 = @math3d.Vec4::new(
 ) // white-ish outline
 
 ///|
-let color_fireball : @math3d.Vec4 = @math3d.Vec4::new(1.0, 0.48, 0.10, 1.0)
+// Player attacks: blue/cyan to contrast with red enemy attacks
+let color_fireball : @math3d.Vec4 = @math3d.Vec4::new(0.3, 0.6, 1.0, 1.0) // blue fireball
 
 ///|
 fn hex_to_vec4(hex : Int) -> @math3d.Vec4 {
@@ -73,7 +74,7 @@ fn hex_to_vec4(hex : Int) -> @math3d.Vec4 {
 }
 
 ///|
-let color_arrow : @math3d.Vec4 = @math3d.Vec4::new(0.9, 0.85, 0.3, 1.0)
+let color_arrow : @math3d.Vec4 = @math3d.Vec4::new(0.4, 0.9, 0.6, 1.0) // green-cyan arrow
 
 ///|
 struct ShadowFrameState {

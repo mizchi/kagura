@@ -870,16 +870,17 @@ pub fn skill_level_damage_multiplier(id : SkillId, level : Int) -> Double {
   if level <= 0 {
     return 1.0
   }
-  let growth = match id {
-    PowerStrike => 0.25
-    Whirlwind => 0.3
-    ChainLightning => 0.35
-    SplittingFireball => 0.3
-    IceNova => 0.3
-    HomingMissile => 0.35
-    _ => 0.0
+  // Base multiplier at level 1 + growth per additional level
+  let (base, growth) = match id {
+    PowerStrike => (2.0, 0.5) // Lv1=2.0, Lv2=2.5, Lv3=3.0, Lv5=4.0
+    Whirlwind => (1.5, 0.5) // Lv1=1.5, Lv2=2.0, Lv3=2.5
+    ChainLightning => (1.5, 0.4) // Lv1=1.5, Lv2=1.9, Lv3=2.3
+    SplittingFireball => (1.5, 0.4)
+    IceNova => (1.5, 0.4)
+    HomingMissile => (1.5, 0.4)
+    _ => (1.0, 0.0)
   }
-  1.0 + (level - 1).to_double() * growth
+  base + (level - 1).to_double() * growth
 }
 
 ///|

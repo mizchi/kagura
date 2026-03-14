@@ -86,12 +86,12 @@ fn GameState::new_with_params_and_ssao(
   let lighting = @light3d.LightingEnvironment::new(
     @light3d.DirectionalLight::new(
       @math3d.Vec3::new(-0.4, -1.0, -0.6),
-      @math3d.Vec3::new(1.0, 0.9, 0.7), // warm directional light
-      0.85,
+      @math3d.Vec3::new(1.0, 0.85, 0.6), // warm directional, stronger contrast
+      1.1,
     ),
     @light3d.AmbientLight::new(
-      @math3d.Vec3::new(0.6, 0.65, 0.8), // cool blue ambient
-      0.2,
+      @math3d.Vec3::new(0.15, 0.18, 0.25), // very dark cool ambient
+      0.12,
     ),
   )
   let meshes = Meshes3D::new()
@@ -220,6 +220,7 @@ fn GameState::new_with_params_and_ssao(
     fxaa_enabled: false,
     fxaa_sh: @gfx.new_shader_handle(304, @postfx.fxaa_wgsl()),
     tonemap_sh: @gfx.new_shader_handle(305, @postfx.tonemap_wgsl(@postfx.ACES)),
+    fog_sh: @gfx.new_shader_handle(308, @postfx.fog_wgsl()),
     // Camera depth (for SSAO)
     camera_depth_target: @gfx.new_image_handle(305, screen_w, screen_h),
     camera_depth_shader: @gfx.new_shader_handle(

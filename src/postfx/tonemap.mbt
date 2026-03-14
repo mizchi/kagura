@@ -36,7 +36,11 @@ pub fn tonemap_wgsl(op : ToneMapOperator) -> String {
   "  let hdr_color = textureSampleLevel(tex, tex_sampler, in.uv, 0.0).rgb;\n" +
   "  let exposed = hdr_color * uniforms.exposure.x;\n" +
   "  let ldr_color = tonemap(exposed);\n" +
-  "  return vec4<f32>(ldr_color, 1.0);\n" +
+  "  // Vignette: darken edges for atmospheric framing\n" +
+  "  let vignette_uv = in.uv * 2.0 - 1.0;\n" +
+  "  let vignette_dist = dot(vignette_uv, vignette_uv);\n" +
+  "  let vignette = smoothstep(1.4, 0.4, vignette_dist);\n" +
+  "  return vec4<f32>(ldr_color * vignette, 1.0);\n" +
   "}\n"
 }
 

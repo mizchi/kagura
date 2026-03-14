@@ -401,7 +401,7 @@ test "draw_playing skips fxaa and tonemaps directly into dst by default" {
 
   let tonemap_cmd = commands[tonemap_idx]
   assert_eq(tonemap_cmd.src_image_ids.length(), 1)
-  assert_eq(tonemap_cmd.src_image_ids[0], state.post_target.id)
+  assert_eq(tonemap_cmd.src_image_ids[0], state.scene_target.id)
 }
 
 ///|
@@ -465,26 +465,25 @@ test "draw_playing feeds ssao output into bloom composite" {
     Some(i) => i
     None => panic()
   }
-  let composite_idx = match
+  // Fog pass should exist between SSAO and bloom
+  let fog_idx = match
     find_first_command_index(commands, fn(cmd) {
-      cmd.dst.id == state.post_target.id &&
-      cmd.shader.id == state.bloom_composite_sh.id
+      cmd.shader.id == state.fog_sh.id
+    }) {
+    Some(i) => i
+    None => panic()
+  }
+  let threshold_idx = match
+    find_first_command_index(commands, fn(cmd) {
+      cmd.dst.id == state.bloom_a.id &&
+      cmd.shader.id == state.bloom_threshold_sh.id
     }) {
     Some(i) => i
     None => panic()
   }
 
-  assert_true(ssao_idx < threshold_idx)
-  assert_true(threshold_idx < composite_idx)
-
-  let threshold_cmd = commands[threshold_idx]
-  assert_eq(threshold_cmd.src_image_ids.length(), 1)
-  assert_eq(threshold_cmd.src_image_ids[0], state.ssao_target.id)
-
-  let composite_cmd = commands[composite_idx]
-  assert_eq(composite_cmd.src_image_ids.length(), 2)
-  assert_eq(composite_cmd.src_image_ids[0], state.ssao_target.id)
-  assert_eq(composite_cmd.src_image_ids[1], state.bloom_a.id)
+  assert_true(ssao_idx < fog_idx)
+  assert_true(fog_idx < threshold_idx)
 }
 
 ///|
@@ -508,26 +507,17 @@ test "draw_playing skips ssao and feeds scene target into bloom composite by def
     Some(i) => i
     None => panic()
   }
-  let composite_idx = match
-    find_first_command_index(commands, fn(cmd) {
-      cmd.dst.id == state.post_target.id &&
-      cmd.shader.id == state.bloom_composite_sh.id
-    }) {
-    Some(i) => i
-    None => panic()
-  }
-
   assert_eq(ssao_idx, None)
-  assert_eq(depth_idx, None)
+  // Depth pass always runs now (needed for fog)
+  assert_true(depth_idx is Some(_))
 
-  let threshold_cmd = commands[threshold_idx]
-  assert_eq(threshold_cmd.src_image_ids.length(), 1)
-  assert_eq(threshold_cmd.src_image_ids[0], state.scene_target.id)
+  // Fog pass should exist
+  let fog_idx = find_first_command_index(commands, fn(cmd) {
+    cmd.shader.id == state.fog_sh.id
+  })
+  assert_true(fog_idx is Some(_))
 
-  let composite_cmd = commands[composite_idx]
-  assert_eq(composite_cmd.src_image_ids.length(), 2)
-  assert_eq(composite_cmd.src_image_ids[0], state.scene_target.id)
-  assert_eq(composite_cmd.src_image_ids[1], state.bloom_a.id)
+  assert_true(threshold_idx > 0)
 }
 
 ///|

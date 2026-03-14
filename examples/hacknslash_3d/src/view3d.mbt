@@ -244,24 +244,24 @@ fn GameState::draw_playing(
     ctx.screen_h,
     self.world.frame_count,
   )
-  let bloom_input_id = if self.ssao_config.enabled {
-    // === Pass 7: Camera depth for SSAO ===
-    let casters : Array[@shadow3d.ShadowCaster] = []
-    if visible_dungeon_cache.all_mesh.indices.length() > 0 {
-      casters.push(
-        @shadow3d.ShadowCaster::new(visible_dungeon_cache.all_mesh, identity),
-      )
-    }
-    let depth_cmds = @shadow3d.camera_depth_pass_commands(
-      self.camera_depth_target,
-      self.camera_depth_shader,
-      casters,
-      view_projection,
+  // === Camera depth pass (needed for SSAO and fog) ===
+  let casters : Array[@shadow3d.ShadowCaster] = []
+  if visible_dungeon_cache.all_mesh.indices.length() > 0 {
+    casters.push(
+      @shadow3d.ShadowCaster::new(visible_dungeon_cache.all_mesh, identity),
     )
-    for cmd in depth_cmds {
-      cmds.push(cmd)
-    }
-    // === Pass 8: SSAO ===
+  }
+  let depth_cmds = @shadow3d.camera_depth_pass_commands(
+    self.camera_depth_target,
+    self.camera_depth_shader,
+    casters,
+    view_projection,
+  )
+  for cmd in depth_cmds {
+    cmds.push(cmd)
+  }
+  let bloom_input_id = if self.ssao_config.enabled {
+    // === SSAO pass ===
     cmds.push(
       @postfx.new_ssao_command(
         self.ssao_target,
@@ -279,10 +279,25 @@ fn GameState::draw_playing(
   } else {
     self.scene_target.id
   }
+  // === Fog pass: blend scene toward dark fog based on depth ===
+  cmds.push(
+    @postfx.new_fog_command(
+      self.post_target,
+      self.fog_sh,
+      bloom_input_id,
+      self.camera_depth_target.id,
+      0.02, // fog R
+      0.03, // fog G
+      0.05, // fog B
+      0.15, // fog start (near)
+      0.85, // fog end (far)
+    ),
+  )
+  let fog_output_id = self.post_target.id
   // === Pass 9: Bloom (threshold → hblur → vblur → composite) ===
   let bloom_cmds = @postfx.bloom_commands(
-    self.post_target,
-    bloom_input_id,
+    self.scene_target, // reuse scene_target as bloom output (fog already in post_target)
+    fog_output_id,
     self.bloom_a,
     self.bloom_b,
     self.bloom_threshold_sh,
@@ -303,7 +318,7 @@ fn GameState::draw_playing(
       @postfx.new_tonemap_command(
         self.bloom_b,
         self.tonemap_sh,
-        self.post_target.id,
+        self.scene_target.id,
         1.0,
       ),
     )
@@ -321,7 +336,7 @@ fn GameState::draw_playing(
       @postfx.new_tonemap_command(
         ctx.dst,
         self.tonemap_sh,
-        self.post_target.id,
+        self.scene_target.id,
         1.0,
       ),
     )

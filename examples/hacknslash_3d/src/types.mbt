@@ -155,6 +155,7 @@ struct GameState {
   mut fxaa_enabled : Bool
   fxaa_sh : @gfx.ShaderHandle
   tonemap_sh : @gfx.ShaderHandle
+  fog_sh : @gfx.ShaderHandle
   // Camera depth (for SSAO)
   camera_depth_target : @gfx.ImageHandle
   camera_depth_shader : @gfx.ShaderHandle

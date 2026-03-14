@@ -18,9 +18,8 @@ pub fn fog_wgsl() -> String {
   "  let fog_color = uniforms.fog_color_and_start.rgb;\n" +
   "  let fog_start = uniforms.fog_color_and_start.w;\n" +
   "  let fog_end = uniforms.fog_params.x;\n" +
-  "  // Linearize depth: remap [0,1] depth to [near, far] range\n" +
-  "  let linear_depth = fog_start + depth_raw * (fog_end - fog_start);\n" +
-  "  let fog_factor = smoothstep(fog_start, fog_end, linear_depth);\n" +
+  "  // depth_raw: 0=near, 1=far. Apply fog between start and end thresholds.\n" +
+  "  let fog_factor = smoothstep(fog_start, fog_end, depth_raw);\n" +
   "  let final_color = mix(scene_color, fog_color, fog_factor);\n" +
   "  return vec4<f32>(final_color, 1.0);\n" +
   "}\n"

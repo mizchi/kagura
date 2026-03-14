@@ -289,8 +289,8 @@ fn GameState::draw_playing(
       0.03, // fog R
       0.04, // fog G
       0.06, // fog B
-      0.4, // fog start (near) - start fading at 40% depth
-      0.95, // fog end (far) - fully fogged at 95% depth
+      0.7, // fog start - no fog until 70% of depth range
+      0.98, // fog end - fully fogged at far edge only
     ),
   )
   let fog_output_id = self.post_target.id

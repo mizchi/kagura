@@ -279,25 +279,10 @@ fn GameState::draw_playing(
   } else {
     self.scene_target.id
   }
-  // === Fog pass: subtle distance fog ===
-  cmds.push(
-    @postfx.new_fog_command(
-      self.post_target,
-      self.fog_sh,
-      bloom_input_id,
-      self.camera_depth_target.id,
-      0.02, // fog R (very dark blue)
-      0.02, // fog G
-      0.04, // fog B
-      0.85, // fog start - only far distance
-      0.99, // fog end
-    ),
-  )
-  let fog_output_id = self.post_target.id
   // === Pass 9: Bloom (threshold → hblur → vblur → composite) ===
   let bloom_cmds = @postfx.bloom_commands(
-    self.scene_target, // reuse scene_target as bloom output (fog already in post_target)
-    fog_output_id,
+    self.post_target,
+    bloom_input_id,
     self.bloom_a,
     self.bloom_b,
     self.bloom_threshold_sh,
@@ -318,7 +303,7 @@ fn GameState::draw_playing(
       @postfx.new_tonemap_command(
         self.bloom_b,
         self.tonemap_sh,
-        self.scene_target.id,
+        self.post_target.id,
         1.0,
       ),
     )
@@ -336,7 +321,7 @@ fn GameState::draw_playing(
       @postfx.new_tonemap_command(
         ctx.dst,
         self.tonemap_sh,
-        self.scene_target.id,
+        self.post_target.id,
         1.0,
       ),
     )

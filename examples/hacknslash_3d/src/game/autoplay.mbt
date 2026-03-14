@@ -429,6 +429,20 @@ fn auto_play_input_with_nav_grid(
   )
   if enemy_idx >= 0 {
     let enemy = world.enemies[enemy_idx]
+    // When just hit, briefly retreat from the closest enemy (not necessarily the target)
+    if world.player.iframe_timer > 0 &&
+      world.player.iframe_timer >= world.params.iframe_duration.to_int() - 8 {
+      let (closest_idx, closest_dist_sq) = find_nearest_alive_enemy(world)
+      if closest_idx >= 0 && closest_dist_sq < 40.0 * 40.0 {
+        let ce = world.enemies[closest_idx]
+        let cdx = world.player.x - ce.x
+        let cdy = world.player.y - ce.y
+        let cdist = closest_dist_sq.sqrt()
+        if cdist > 0.001 {
+          return (cdx / cdist, cdy / cdist, enemy_idx, enemy_dist_sq)
+        }
+      }
+    }
     if enemy_direct_chase_path_blocked(
         nav_grid,
         world.player.x,

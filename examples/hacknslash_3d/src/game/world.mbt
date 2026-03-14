@@ -861,6 +861,27 @@ pub fn GameWorld::tick_player_enemy_separation_phase(self : GameWorld) -> Unit {
 }
 
 ///|
+pub fn GameWorld::tick_meteor_damage_phase(self : GameWorld) -> Unit {
+  for event in self.events {
+    match event {
+      MeteorImpact(x, y, radius) => {
+        let pdx = self.player.x - x
+        let pdy = self.player.y - y
+        if pdx * pdx + pdy * pdy <= radius * radius &&
+          self.player.iframe_timer <= 0 {
+          let meteor_dmg = self.params.scale_enemy_damage_for_floor(
+            self.params.enemy_contact_damage.to_int() * meteor_damage_mult,
+            self.floor,
+          )
+          self.deal_player_damage(meteor_dmg)
+        }
+      }
+      _ => ()
+    }
+  }
+}
+
+///|
 pub fn GameWorld::tick_floor_completion_phase(self : GameWorld) -> Unit {
   let mut all_dead = true
   for enemy in self.enemies {
@@ -1000,6 +1021,8 @@ pub fn GameWorld::tick_with_enemy_ai_grid(
   }
   // 10. Update enemy AI
   self.tick_enemy_ai_phase_with_grid(enemy_ai_grid)
+  // 10b. Process meteor impacts (damage in game logic, not render layer)
+  self.tick_meteor_damage_phase()
   // 11. Enemy movement + contact damage
   self.tick_enemy_movement_and_contact_phase()
   // 12-13. Projectiles

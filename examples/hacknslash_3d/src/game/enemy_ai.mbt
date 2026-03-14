@@ -267,7 +267,7 @@ pub fn update_enemy_ai(
         )
       }
       if enemy.meteor_cast_timer == 0 {
-        // Meteor lands!
+        // Meteor lands! Emit impact event (damage handled in tick_meteor_phase)
         events.push(
           MeteorImpact(
             enemy.meteor_target_x,

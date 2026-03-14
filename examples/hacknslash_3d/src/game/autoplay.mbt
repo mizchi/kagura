@@ -461,6 +461,112 @@ fn auto_play_direction_to_world_target(
   (0.0, 0.0, enemy_idx, enemy_dist_sq)
 }
 
+///|
+/// Compute kiting movement direction for twin-stick style combat.
+/// Auto-aim handles shooting, so movement focuses on survival:
+/// 1. Repel from nearby enemies (stronger when closer)
+/// 2. Repel from walls (prevent cornering)
+/// 3. Attract toward desired combat range from primary target
+fn compute_kite_direction(
+  world : GameWorld,
+  nav_grid : @terrain.Grid2D,
+  primary_enemy_idx : Int,
+) -> (Double, Double) {
+  let px = world.player.x
+  let py = world.player.y
+  let mut force_x = 0.0
+  let mut force_y = 0.0
+  let arrow_range = world.params.arrow_range
+  let desired_range = arrow_range * 0.4 // stay at ~40% of arrow range
+  // Force 1: Repel from ALL nearby enemies (inverse-distance weighted)
+  let repel_range = arrow_range * 0.5
+  for i, enemy in world.enemies {
+    if not(enemy.alive) {
+      continue
+    }
+    let edx = px - enemy.x
+    let edy = py - enemy.y
+    let edist_sq = edx * edx + edy * edy
+    if edist_sq < repel_range * repel_range && edist_sq > 0.001 {
+      let edist = edist_sq.sqrt()
+      // Stronger repulsion when closer (1.0 at contact, 0.0 at repel_range)
+      let strength = (1.0 - edist / repel_range)
+      let weight = if i == primary_enemy_idx {
+        strength * 0.8 // primary target: moderate repel
+      } else {
+        strength * 1.2 // other enemies: strong repel (avoid getting surrounded)
+      }
+      force_x = force_x + edx / edist * weight
+      force_y = force_y + edy / edist * weight
+    }
+  }
+  // Force 2: Attract toward desired range from primary enemy
+  let pe = world.enemies[primary_enemy_idx]
+  let pe_dx = pe.x - px
+  let pe_dy = pe.y - py
+  let pe_dist = (pe_dx * pe_dx + pe_dy * pe_dy).sqrt()
+  if pe_dist > 0.001 {
+    let range_error = pe_dist - desired_range
+    // Positive = too far, negative = too close
+    let attract = if range_error > 20.0 {
+      0.5 // approach
+    } else if range_error < -10.0 {
+      -0.3 // back away (but enemy repel already handles this)
+    } else {
+      0.0 // in sweet spot
+    }
+    force_x = force_x + pe_dx / pe_dist * attract
+    force_y = force_y + pe_dy / pe_dist * attract
+  }
+  // Force 3: Repel from walls (check 4 directions)
+  let wall_probe = world.player.size / 2.0 + 4.0
+  let wall_force = 0.6
+  // Left wall
+  if check_wall_collision(
+      nav_grid,
+      px - wall_probe,
+      py,
+      world.player.size * 0.5,
+    ) {
+    force_x = force_x + wall_force
+  }
+  // Right wall
+  if check_wall_collision(
+      nav_grid,
+      px + wall_probe,
+      py,
+      world.player.size * 0.5,
+    ) {
+    force_x = force_x - wall_force
+  }
+  // Top wall
+  if check_wall_collision(
+      nav_grid,
+      px,
+      py - wall_probe,
+      world.player.size * 0.5,
+    ) {
+    force_y = force_y + wall_force
+  }
+  // Bottom wall
+  if check_wall_collision(
+      nav_grid,
+      px,
+      py + wall_probe,
+      world.player.size * 0.5,
+    ) {
+    force_y = force_y - wall_force
+  }
+  // Normalize
+  let mag = (force_x * force_x + force_y * force_y).sqrt()
+  if mag > 0.001 {
+    (force_x / mag, force_y / mag)
+  } else {
+    // No forces: hold position
+    (0.0, 0.0)
+  }
+}
+
 // Auto-play: compute desired movement direction
 // Returns (dx, dy, enemy_idx, enemy_dist_sq) — also returns vision result to avoid recomputation
 
@@ -480,23 +586,7 @@ fn auto_play_input_with_nav_grid(
   )
   if enemy_idx >= 0 {
     let enemy = world.enemies[enemy_idx]
-    // Kiting: when just hit by a close enemy, back away while staying in
-    // arrow range so auto-aim keeps shooting (hit-and-run pattern)
-    if world.player.iframe_timer > 0 &&
-      world.player.iframe_timer >= world.params.iframe_duration.to_int() - 10 {
-      let (closest_idx, closest_dist_sq) = find_nearest_alive_enemy(world)
-      if closest_idx >= 0 && closest_dist_sq < 50.0 * 50.0 {
-        let ce = world.enemies[closest_idx]
-        let cdist = closest_dist_sq.sqrt()
-        if cdist > 0.001 {
-          let flee_dx = world.player.x - ce.x
-          let flee_dy = world.player.y - ce.y
-          return (
-            flee_dx / cdist, flee_dy / cdist, enemy_idx, enemy_dist_sq,
-          )
-        }
-      }
-    }
+    // Path-blocked: use pathfinding to reach enemy
     if enemy_direct_chase_path_blocked(
         nav_grid,
         world.player.x,
@@ -513,60 +603,11 @@ fn auto_play_input_with_nav_grid(
         world, nav_grid, goal_tile, enemy_idx, enemy_dist_sq,
       )
     }
-    // If close enough for bow, strafe with wall awareness
-    if enemy_dist_sq < 80.0 * 80.0 {
-      let edx = enemy.x - world.player.x
-      let edy = enemy.y - world.player.y
-      let dist = enemy_dist_sq.sqrt()
-      if dist > 0.001 {
-        let nx = edx / dist
-        let ny = edy / dist
-        let desired_range = 60.0
-        let range_factor = if dist < desired_range * 0.6 {
-          -0.5 // back away
-        } else if dist > desired_range * 1.2 {
-          0.8 // close in
-        } else {
-          0.0 // hold distance
-        }
-        // Check if player is touching a wall (bounding box + 4px margin)
-        let touching_wall = check_wall_collision(
-          nav_grid,
-          world.player.x,
-          world.player.y,
-          world.player.size + 4.0,
-        )
-        if touching_wall {
-          // Near wall: back away from enemy to escape corner
-          let escape_dx = -nx + range_factor * nx
-          let escape_dy = -ny + range_factor * ny
-          let escape_mag = (escape_dx * escape_dx + escape_dy * escape_dy).sqrt()
-          if escape_mag > 0.001 {
-            return (
-              escape_dx / escape_mag,
-              escape_dy / escape_mag,
-              enemy_idx,
-              enemy_dist_sq,
-            )
-          }
-        }
-        // Normal strafe (clockwise)
-        let dx = -ny * 0.7 + nx * range_factor
-        let dy = nx * 0.7 + ny * range_factor
-        let mag = (dx * dx + dy * dy).sqrt()
-        if mag > 0.001 {
-          return (dx / mag, dy / mag, enemy_idx, enemy_dist_sq)
-        }
-      }
-    } else {
-      // Out of bow range — approach directly
-      let edx = enemy.x - world.player.x
-      let edy = enemy.y - world.player.y
-      let dist = enemy_dist_sq.sqrt()
-      if dist > 0.001 {
-        return (edx / dist, edy / dist, enemy_idx, enemy_dist_sq)
-      }
-    }
+    // Twin-stick movement: auto-aim handles shooting independently,
+    // so movement is purely survival-focused (kiting).
+    // Compute combined force: repel from close enemies + repel from walls
+    let move_dir = compute_kite_direction(world, nav_grid, enemy_idx)
+    return (move_dir.0, move_dir.1, enemy_idx, enemy_dist_sq)
   }
   // 2. No visible enemies — move toward nearby equipment pickup first
   match find_nearest_autoplay_pickup_item(world) {

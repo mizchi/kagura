@@ -720,7 +720,7 @@ test "summarize_draw_playing_commands tracks instancing workload" {
       pending_bolt_target_x: px,
       pending_bolt_target_y: py,
       charge_timer: 0,
-      charge_cooldown: 0,
+      charge_cooldown: 0, meteor_cast_timer: 0, meteor_target_x: 0.0, meteor_target_y: 0.0,
     },
     {
       x: px + tile_size * 0.5,
@@ -742,7 +742,7 @@ test "summarize_draw_playing_commands tracks instancing workload" {
       pending_bolt_target_x: px + tile_size * 0.5,
       pending_bolt_target_y: py,
       charge_timer: 0,
-      charge_cooldown: 0,
+      charge_cooldown: 0, meteor_cast_timer: 0, meteor_target_x: 0.0, meteor_target_y: 0.0,
     },
   ]
 
@@ -816,7 +816,7 @@ test "push_enemy_character_commands emits skinned commands for visible enemies" 
       pending_bolt_target_x: px,
       pending_bolt_target_y: py,
       charge_timer: 0,
-      charge_cooldown: 0,
+      charge_cooldown: 0, meteor_cast_timer: 0, meteor_target_x: 0.0, meteor_target_y: 0.0,
     },
     {
       x: px + tile_size * 0.5,
@@ -838,7 +838,7 @@ test "push_enemy_character_commands emits skinned commands for visible enemies" 
       pending_bolt_target_x: px + tile_size * 0.5,
       pending_bolt_target_y: py,
       charge_timer: 0,
-      charge_cooldown: 0,
+      charge_cooldown: 0, meteor_cast_timer: 0, meteor_target_x: 0.0, meteor_target_y: 0.0,
     },
   ]
   let vis_region = compute_visible_region(
@@ -959,7 +959,7 @@ test "rebuild_enemy_render_buckets clears stale enemy groups" {
       pending_bolt_target_x: px,
       pending_bolt_target_y: py,
       charge_timer: 0,
-      charge_cooldown: 0,
+      charge_cooldown: 0, meteor_cast_timer: 0, meteor_target_x: 0.0, meteor_target_y: 0.0,
     },
   ]
 

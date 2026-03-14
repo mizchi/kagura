@@ -251,6 +251,35 @@ pub fn update_enemy_ai(
     if not(enemy.alive) {
       continue
     }
+    // Meteor casting: channeled, interruptible by killing the caster
+    if enemy.meteor_cast_timer > 0 {
+      enemy.meteor_cast_timer = enemy.meteor_cast_timer - 1
+      enemy.vx = 0.0
+      enemy.vy = 0.0
+      // Periodic telegraph pulses during cast
+      if enemy.meteor_cast_timer % 30 == 0 && enemy.meteor_cast_timer > 0 {
+        events.push(
+          GroundTelegraphRing(
+            enemy.meteor_target_x,
+            enemy.meteor_target_y,
+            meteor_radius,
+          ),
+        )
+      }
+      if enemy.meteor_cast_timer == 0 {
+        // Meteor lands!
+        events.push(
+          MeteorImpact(
+            enemy.meteor_target_x,
+            enemy.meteor_target_y,
+            meteor_radius,
+          ),
+        )
+        enemy.shoot_cooldown = meteor_cooldown_frames
+      }
+      tick_enemy_pattern_cooldowns(enemy)
+      continue
+    }
     if update_enemy_bolt_castup(
         enemy, projectiles, events, player, params, floor,
       ) {
@@ -299,11 +328,27 @@ pub fn update_enemy_ai(
       tick_enemy_pattern_cooldowns(enemy)
       continue
     }
-    // Ranged enemy: shoot if in range but far enough
+    // Ranged enemy: shoot or cast meteor if in range
     if enemy.kind == Ranged && dist_sq > 3600.0 { // 60.0^2
       if dist_sq > 0.000001 {
         let dist = dist_sq.sqrt()
         if enemy.shoot_cooldown <= 0 {
+          // 25% chance to cast meteor instead of normal barrage
+          let meteor_roll = (frame_count * 31 + enemy.x.to_int() * 7) % 100
+          if meteor_roll < 25 {
+            // Start meteor cast
+            enemy.meteor_cast_timer = meteor_cast_frames
+            enemy.meteor_target_x = player.x
+            enemy.meteor_target_y = player.y
+            events.push(
+              MeteorCastStart(player.x, player.y, meteor_radius),
+            )
+            events.push(
+              GroundTelegraphRing(player.x, player.y, meteor_radius),
+            )
+            tick_enemy_pattern_cooldowns(enemy)
+            continue
+          }
           enemy.shoot_cooldown = params.ranged_shot_cooldown_frames()
           enemy.pending_bolt_timer = enemy_bolt_telegraph_frames
           enemy.pending_bolt_target_x = player.x

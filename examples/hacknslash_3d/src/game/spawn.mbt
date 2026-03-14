@@ -30,6 +30,9 @@ pub fn make_enemy(
     pending_bolt_target_y: cy,
     charge_timer: 0,
     charge_cooldown: 0,
+    meteor_cast_timer: 0,
+    meteor_target_x: cx,
+    meteor_target_y: cy,
   }
 }
 

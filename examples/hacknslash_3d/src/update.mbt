@@ -529,6 +529,30 @@ fn GameState::update_playing(self : GameState) -> Unit {
       @game.FireballBurst(x, y) => self.queue_fireball_burst_effect(x, y)
       @game.IceNovaCast(x, y, radius) =>
         self.queue_ice_nova_effect(x, y, radius)
+      @game.MeteorCastStart(x, y, radius) => {
+        // Large warning telegraph at cast start
+        self.queue_ground_ring_telegraph_effect(x, y, radius)
+        self.queue_ground_ring_telegraph_effect(x, y, radius * 0.5)
+      }
+      @game.MeteorImpact(x, y, radius) => {
+        // Huge explosion effect
+        spawn_death_burst(self.particle_manager, x, y)
+        spawn_death_burst(self.particle_manager, x, y)
+        self.queue_fireball_burst_effect(x, y)
+        self.queue_ground_ring_telegraph_effect(x, y, radius)
+        // Damage player if in radius
+        let pdx = self.world.player.x - x
+        let pdy = self.world.player.y - y
+        if pdx * pdx + pdy * pdy <= radius * radius &&
+          self.world.player.iframe_timer <= 0 {
+          let meteor_dmg = self.world.params.scale_enemy_damage_for_floor(
+            self.world.params.enemy_contact_damage.to_int() *
+            @game.meteor_damage_mult,
+            self.world.floor,
+          )
+          self.world.deal_player_damage(meteor_dmg)
+        }
+      }
       @game.AttackTriggered => self.character.trigger_attack()
       @game.HurtTriggered => self.character.trigger_hurt()
       @game.FloorComplete => {

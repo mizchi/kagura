@@ -142,6 +142,18 @@ pub let homing_missile_arc_frames : Int = 24
 pub let homing_missile_telegraph_radius : Double = 18.0
 
 ///|
+pub let meteor_cast_frames : Int = 120 // 2 seconds to cast
+
+///|
+pub let meteor_radius : Double = 48.0 // large AoE radius
+
+///|
+pub let meteor_cooldown_frames : Int = 300 // 5 seconds between meteors
+
+///|
+pub let meteor_damage_mult : Int = 4 // multiplier on base contact damage
+
+///|
 pub let enemy_bolt_telegraph_frames : Int = 14
 
 ///|

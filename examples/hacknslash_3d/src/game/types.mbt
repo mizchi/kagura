@@ -38,6 +38,9 @@ pub(all) struct Enemy {
   mut pending_bolt_target_y : Double
   mut charge_timer : Int
   mut charge_cooldown : Int
+  mut meteor_cast_timer : Int // >0 = casting meteor, counts down
+  mut meteor_target_x : Double
+  mut meteor_target_y : Double
 }
 
 ///|
@@ -141,6 +144,8 @@ pub(all) enum GameEvent {
   FireballTrail(Double, Double)
   FireballBurst(Double, Double)
   IceNovaCast(Double, Double, Double)
+  MeteorCastStart(Double, Double, Double) // x, y, radius - casting begins
+  MeteorImpact(Double, Double, Double) // x, y, radius - meteor lands
   AttackTriggered
   HurtTriggered
   FloorComplete

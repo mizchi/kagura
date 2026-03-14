@@ -340,7 +340,12 @@ fn auto_play_direction_to_goal_tile(
     None => true
     Some(t) => t.x != goal_tile.x || t.y != goal_tile.y
   }
-  if need_repath || world.auto_nav_index >= world.auto_nav_path.length() {
+  // Repath when just hit (iframe started) to escape danger
+  let just_hit = world.player.iframe_timer > 0 &&
+    world.player.iframe_timer >= world.params.iframe_duration.to_int() - 2
+  if need_repath ||
+    just_hit ||
+    world.auto_nav_index >= world.auto_nav_path.length() {
     let px = (world.player.x / tile_size).to_int()
     let py = (world.player.y / tile_size).to_int()
     let start : @terrain.Point = { x: px, y: py }

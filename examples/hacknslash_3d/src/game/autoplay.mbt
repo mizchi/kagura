@@ -480,17 +480,20 @@ fn auto_play_input_with_nav_grid(
   )
   if enemy_idx >= 0 {
     let enemy = world.enemies[enemy_idx]
-    // When just hit, briefly retreat from the closest enemy (not necessarily the target)
+    // Kiting: when just hit by a close enemy, back away while staying in
+    // arrow range so auto-aim keeps shooting (hit-and-run pattern)
     if world.player.iframe_timer > 0 &&
-      world.player.iframe_timer >= world.params.iframe_duration.to_int() - 8 {
+      world.player.iframe_timer >= world.params.iframe_duration.to_int() - 10 {
       let (closest_idx, closest_dist_sq) = find_nearest_alive_enemy(world)
-      if closest_idx >= 0 && closest_dist_sq < 40.0 * 40.0 {
+      if closest_idx >= 0 && closest_dist_sq < 50.0 * 50.0 {
         let ce = world.enemies[closest_idx]
-        let cdx = world.player.x - ce.x
-        let cdy = world.player.y - ce.y
         let cdist = closest_dist_sq.sqrt()
         if cdist > 0.001 {
-          return (cdx / cdist, cdy / cdist, enemy_idx, enemy_dist_sq)
+          let flee_dx = world.player.x - ce.x
+          let flee_dy = world.player.y - ce.y
+          return (
+            flee_dx / cdist, flee_dy / cdist, enemy_idx, enemy_dist_sq,
+          )
         }
       }
     }

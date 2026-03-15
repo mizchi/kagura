@@ -209,9 +209,9 @@ fn GameState::update_skills_ui(self : GameState) -> Unit {
       let dy = my - ny
       let dist = (dx * dx + dy * dy).sqrt()
       let hit_radius = match node.node_size {
-        2 => 18.0
-        1 => 14.0
-        _ => 10.0
+        2 => 28.0
+        1 => 22.0
+        _ => 18.0
       }
       if dist < hit_radius && dist < hover_best_dist {
         hover_best_dist = dist

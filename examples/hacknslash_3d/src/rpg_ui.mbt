@@ -222,10 +222,29 @@ fn GameState::update_skills_ui(self : GameState) -> Unit {
       self.world.ui_cursor = hover_best
     }
   }
-  // Mouse click: select hovered node (left mouse button)
-  if @inpututil.is_mouse_button_just_pressed(self.input.mouse_state, 0) {
-    // Cursor is already on the node from hover above
-    // No additional action needed - selection is the hover
+  // Mouse click or Space/Enter: learn the selected skill
+  let try_learn = @inpututil.is_mouse_button_just_pressed(
+      self.input.mouse_state,
+      0,
+    ) ||
+    @inpututil.is_confirm_just_pressed(self.input)
+  if try_learn {
+    let sel_idx = self.world.ui_cursor
+    if sel_idx >= 0 && sel_idx < nodes.length() {
+      let skill_id = nodes[sel_idx].id
+      if self.world.skills.learn(skill_id) {
+        self.world.player_stats = @game.compute_player_stats(
+          self.world.equipment,
+          self.world.skills,
+          base_hp=self.world.params.player_base_hp.to_int(),
+          archetype=Some(self.world.archetype),
+        )
+        self.world.player.hp = @cmp.minimum(
+          self.world.player.hp,
+          self.world.player_stats.max_hp,
+        )
+      }
+    }
   }
   let cur_x = nodes[self.world.ui_cursor].tree_x
   let cur_y = nodes[self.world.ui_cursor].tree_y
@@ -668,6 +687,13 @@ fn GameState::render_skills_ui(
   }
   // Header
   ctx.draw_text(cmds, "PASSIVE TREE", ui_font_lg, p, p, 0xBBA855)
+  let sp_text = "SP:" + self.world.skills.skill_points.to_string()
+  let sp_color = if self.world.skills.skill_points > 0 {
+    0x44FF44
+  } else {
+    0x666666
+  }
+  ctx.draw_text(cmds, sp_text, ui_font, sw / 2.0 - 20.0, p + 2.0, sp_color)
   ctx.draw_text(
     cmds,
     "LV " + self.world.level_progress.level.to_string(),

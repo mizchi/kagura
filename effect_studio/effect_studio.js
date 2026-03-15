@@ -1,21 +1,41 @@
+class $PanicError extends Error {}
+function $panic() {
+  throw new $PanicError();
+}
 const $reinterpret_view = new DataView(new ArrayBuffer(8));
 function $f32_reinterpret_i32(a) {
   $reinterpret_view.setInt32(0, a, true);
   return $reinterpret_view.getFloat32(0, true);
 }
+function _M0TP36mizchi6kagura6engine14LifecycleHooks(param0, param1) {
+  this.on_start = param0;
+  this.on_stop = param1;
+}
 const $_4503599627370496L = { hi: -1048576, lo: 0 };
 const $9218868437227405312L = { hi: 2146435072, lo: 0 };
-class $PanicError extends Error {}
-function $panic() {
-  throw new $PanicError();
-}
 function $bound_check(arr, index) {
   if (index < 0 || index >= arr.length) throw new Error("Index out of bounds");
+}
+function _M0TPB13StringBuilder(param0) {
+  this.val = param0;
+}
+function _M0TPC16string10StringView(param0, param1, param2) {
+  this.str = param0;
+  this.start = param1;
+  this.end = param2;
+}
+function _M0TPB13SourceLocRepr(param0, param1, param2, param3, param4, param5) {
+  this.pkg = param0;
+  this.filename = param1;
+  this.start_line = param2;
+  this.start_column = param3;
+  this.end_line = param4;
+  this.end_column = param5;
 }
 function $compare_int(a, b) {
   return (a >= b) - (a <= b);
 }
-const _M0FP311moonbitlang4core7builtin12random__seed = () => {
+const _M0FPB12random__seed = () => {
   if (globalThis.crypto?.getRandomValues) {
     const array = new Uint32Array(1);
     globalThis.crypto.getRandomValues(array);
@@ -24,34 +44,132 @@ const _M0FP311moonbitlang4core7builtin12random__seed = () => {
     return Math.floor(Math.random() * 0x100000000) | 0; // Fallback to Math.random
   }
 };
-function Result$Err$0$(param0) {
-  this._0 = param0;
+function _M0TPB6Hasher(param0) {
+  this.acc = param0;
 }
-Result$Err$0$.prototype.$tag = 0;
-Result$Err$0$.prototype.$name = "Err";
-function Result$Ok$0$(param0) {
-  this._0 = param0;
-}
-Result$Ok$0$.prototype.$tag = 1;
-Result$Ok$0$.prototype.$name = "Ok";
-const Error$moonbitlang$47$core$47$builtin$46$CreatingViewError$46$IndexOutOfBounds = { $tag: 1, $name: "moonbitlang/core/builtin.CreatingViewError.IndexOutOfBounds" };
-const Error$moonbitlang$47$core$47$builtin$46$CreatingViewError$46$InvalidIndex = { $tag: 0, $name: "moonbitlang/core/builtin.CreatingViewError.InvalidIndex" };
-const _M0FP311moonbitlang4core7builtin19int__to__string__js = (x, radix) => {
+const _M0FPB19int__to__string__js = (x, radix) => {
   return x.toString(radix);
 };
+function _M0TPC13ref3RefGiE(param0) {
+  this.val = param0;
+}
 function $make_array_len_and_init(a, b) {
   const arr = new Array(a);
   arr.fill(b);
   return arr;
 }
-const _M0MP311moonbitlang4core7builtin7JSArray4push = (arr, val) => { arr.push(val); };
-const Option$None$1$ = { $tag: 0, $name: "None" };
-function Option$Some$1$(param0) {
+const _M0MPB7JSArray4push = (arr, val) => { arr.push(val); };
+function _M0TPB3MapGiRPB5ArrayGRP36mizchi6kagura4text9GlyphQuadEE(param0, param1, param2, param3, param4, param5, param6) {
+  this.entries = param0;
+  this.size = param1;
+  this.capacity = param2;
+  this.capacity_mask = param3;
+  this.grow_at = param4;
+  this.head = param5;
+  this.tail = param6;
+}
+function _M0TPB3MapGiRP36mizchi6kagura4text15GlyphCacheEntryE(param0, param1, param2, param3, param4, param5, param6) {
+  this.entries = param0;
+  this.size = param1;
+  this.capacity = param2;
+  this.capacity_mask = param3;
+  this.grow_at = param4;
+  this.head = param5;
+  this.tail = param6;
+}
+function _M0TPB3MapGsRP26mizchi3svg6SymbolE(param0, param1, param2, param3, param4, param5, param6) {
+  this.entries = param0;
+  this.size = param1;
+  this.capacity = param2;
+  this.capacity_mask = param3;
+  this.grow_at = param4;
+  this.head = param5;
+  this.tail = param6;
+}
+function _M0TPB5EntryGiRPB5ArrayGRP36mizchi6kagura4text9GlyphQuadEE(param0, param1, param2, param3, param4, param5) {
+  this.prev = param0;
+  this.next = param1;
+  this.psl = param2;
+  this.hash = param3;
+  this.key = param4;
+  this.value = param5;
+}
+function _M0TPB5EntryGiRP36mizchi6kagura4text15GlyphCacheEntryE(param0, param1, param2, param3, param4, param5) {
+  this.prev = param0;
+  this.next = param1;
+  this.psl = param2;
+  this.hash = param3;
+  this.key = param4;
+  this.value = param5;
+}
+function _M0TPB5EntryGsRP26mizchi3svg6SymbolE(param0, param1, param2, param3, param4, param5) {
+  this.prev = param0;
+  this.next = param1;
+  this.psl = param2;
+  this.hash = param3;
+  this.key = param4;
+  this.value = param5;
+}
+function _M0TPB5EntryGsRP26mizchi3svg7SVGNodeE(param0, param1, param2, param3, param4, param5) {
+  this.prev = param0;
+  this.next = param1;
+  this.psl = param2;
+  this.hash = param3;
+  this.key = param4;
+  this.value = param5;
+}
+function _M0TPB5EntryGsRP26mizchi3svg8ClipPathE(param0, param1, param2, param3, param4, param5) {
+  this.prev = param0;
+  this.next = param1;
+  this.psl = param2;
+  this.hash = param3;
+  this.key = param4;
+  this.value = param5;
+}
+function _M0TPB5EntryGsRP26mizchi3svg4MaskE(param0, param1, param2, param3, param4, param5) {
+  this.prev = param0;
+  this.next = param1;
+  this.psl = param2;
+  this.hash = param3;
+  this.key = param4;
+  this.value = param5;
+}
+function _M0TPB5EntryGsRP26mizchi3svg7PatternE(param0, param1, param2, param3, param4, param5) {
+  this.prev = param0;
+  this.next = param1;
+  this.psl = param2;
+  this.hash = param3;
+  this.key = param4;
+  this.value = param5;
+}
+function _M0TPB5EntryGsRP26mizchi3svg8GradientE(param0, param1, param2, param3, param4, param5) {
+  this.prev = param0;
+  this.next = param1;
+  this.psl = param2;
+  this.hash = param3;
+  this.key = param4;
+  this.value = param5;
+}
+function _M0TPB5EntryGsRP26mizchi3svg6MarkerE(param0, param1, param2, param3, param4, param5) {
+  this.prev = param0;
+  this.next = param1;
+  this.psl = param2;
+  this.hash = param3;
+  this.key = param4;
+  this.value = param5;
+}
+function _M0DTPC16option6OptionGRPB5ArrayGRP36mizchi6kagura4text9GlyphQuadEE4None() {}
+_M0DTPC16option6OptionGRPB5ArrayGRP36mizchi6kagura4text9GlyphQuadEE4None.prototype.$tag = 0;
+const _M0DTPC16option6OptionGRPB5ArrayGRP36mizchi6kagura4text9GlyphQuadEE4None__ = new _M0DTPC16option6OptionGRPB5ArrayGRP36mizchi6kagura4text9GlyphQuadEE4None();
+function _M0DTPC16option6OptionGRPB5ArrayGRP36mizchi6kagura4text9GlyphQuadEE4Some(param0) {
   this._0 = param0;
 }
-Option$Some$1$.prototype.$tag = 1;
-Option$Some$1$.prototype.$name = "Some";
-const _M0MP311moonbitlang4core7builtin7MyInt6423reinterpret__as__double = function f(a) {
+_M0DTPC16option6OptionGRPB5ArrayGRP36mizchi6kagura4text9GlyphQuadEE4Some.prototype.$tag = 1;
+function _M0TPB7MyInt64(param0, param1) {
+  this.hi = param0;
+  this.lo = param1;
+}
+const _M0MPB7MyInt6423reinterpret__as__double = function f(a) {
   let view = f._view;
   if (view === undefined) {
     view = f._view = new DataView(new ArrayBuffer(8));
@@ -60,7 +178,7 @@ const _M0MP311moonbitlang4core7builtin7MyInt6423reinterpret__as__double = functi
   view.setUint32(4, a.lo);
   return view.getFloat64(0);
 };
-const _M0MP311moonbitlang4core7builtin7MyInt6419reinterpret__double = function f(a) {
+const _M0MPB7MyInt6419reinterpret__double = function f(a) {
   let view = f._view;
   if (view === undefined) {
     view = f._view = new DataView(new ArrayBuffer(8));
@@ -70,144 +188,541 @@ const _M0MP311moonbitlang4core7builtin7MyInt6419reinterpret__double = function f
   const lo = view.getInt32(4);
   return { hi, lo };
 };
-const _M0MP311moonbitlang4core7builtin7JSArray4copy = (arr) => arr.slice(0);
-const _M0FP311moonbitlang4core7builtin15ryu__to__string = (number) => number.toString();
-const _M0MP311moonbitlang4core7builtin7JSArray11set__length = (arr, len) => { arr.length = len; };
-const _M0MP311moonbitlang4core7builtin7JSArray3pop = (arr) => arr.pop();
-const _M0MP311moonbitlang4core7builtin7JSArray6splice = (arr, idx, cnt) => arr.splice(idx, cnt);
+const _M0MPB7JSArray4copy = (arr) => arr.slice(0);
+const _M0FPB15ryu__to__string = (number) => number.toString();
+function _M0TPB9ArrayViewGiE(param0, param1, param2) {
+  this.buf = param0;
+  this.start = param1;
+  this.end = param2;
+}
+const _M0MPB7JSArray11set__length = (arr, len) => { arr.length = len; };
+const _M0MPB7JSArray3pop = (arr) => arr.pop();
+const _M0MPB7JSArray6splice = (arr, idx, cnt) => arr.splice(idx, cnt);
+function _M0TPC13ref3RefGdE(param0) {
+  this.val = param0;
+}
+function _M0TPC13ref3RefGORP36mizchi6kagura6engine14LifecycleHooksE(param0) {
+  this.val = param0;
+}
+function _M0TPC13ref3RefGbE(param0) {
+  this.val = param0;
+}
+function _M0TPC13ref3RefGsE(param0) {
+  this.val = param0;
+}
 function $i32_reinterpret_f32(a) {
   $reinterpret_view.setFloat32(0, a, true);
   return $reinterpret_view.getInt32(0, true);
 }
-const $64$mizchi$47$kagura$47$camera3d$46$ProjectionMode$Perspective = { $tag: 0, $name: "Perspective" };
-function $64$mizchi$47$kagura$47$camera3d$46$ProjectionMode$Orthographic(param0, param1, param2, param3) {
+function _M0TP36mizchi6kagura6math3d4Vec3(param0, param1, param2) {
+  this.x = param0;
+  this.y = param1;
+  this.z = param2;
+}
+function _M0TP36mizchi6kagura6math3d4Vec4(param0, param1, param2, param3) {
+  this.x = param0;
+  this.y = param1;
+  this.z = param2;
+  this.w = param3;
+}
+function _M0TP36mizchi6kagura6math3d4Mat4(param0) {
+  this.elements = param0;
+}
+function _M0TP36mizchi6kagura8camera3d8Camera3D(param0, param1, param2, param3, param4, param5, param6, param7) {
+  this.position = param0;
+  this.target = param1;
+  this.up = param2;
+  this.fov_y_rad = param3;
+  this.aspect = param4;
+  this.near = param5;
+  this.far = param6;
+  this.projection_mode = param7;
+}
+function _M0DTP36mizchi6kagura8camera3d14ProjectionMode11Perspective() {}
+_M0DTP36mizchi6kagura8camera3d14ProjectionMode11Perspective.prototype.$tag = 0;
+const _M0DTP36mizchi6kagura8camera3d14ProjectionMode11Perspective__ = new _M0DTP36mizchi6kagura8camera3d14ProjectionMode11Perspective();
+function _M0DTP36mizchi6kagura8camera3d14ProjectionMode12Orthographic(param0, param1, param2, param3) {
   this._0 = param0;
   this._1 = param1;
   this._2 = param2;
   this._3 = param3;
 }
-$64$mizchi$47$kagura$47$camera3d$46$ProjectionMode$Orthographic.prototype.$tag = 1;
-$64$mizchi$47$kagura$47$camera3d$46$ProjectionMode$Orthographic.prototype.$name = "Orthographic";
-function Result$Err$2$(param0) {
+_M0DTP36mizchi6kagura8camera3d14ProjectionMode12Orthographic.prototype.$tag = 1;
+function _M0TP36mizchi6kagura8camera3d11OrbitCamera(param0, param1, param2, param3, param4, param5, param6, param7) {
+  this.target = param0;
+  this.distance = param1;
+  this.yaw = param2;
+  this.pitch = param3;
+  this.fov_y_rad = param4;
+  this.aspect = param5;
+  this.near = param6;
+  this.far = param7;
+}
+function _M0TP36mizchi6kagura4core11OutsideSize(param0, param1) {
+  this.width = param0;
+  this.height = param1;
+}
+function _M0TP36mizchi6kagura4core10TouchPoint(param0, param1, param2, param3) {
+  this.id = param0;
+  this.x = param1;
+  this.y = param2;
+  this.source = param3;
+}
+function _M0TP36mizchi6kagura4core15GamepadSnapshot(param0, param1, param2) {
+  this.id = param0;
+  this.axes = param1;
+  this.pressed_buttons = param2;
+}
+function _M0TP36mizchi6kagura4core13InputSnapshot(param0, param1, param2, param3, param4, param5, param6, param7) {
+  this.cursor_x = param0;
+  this.cursor_y = param1;
+  this.wheel_x = param2;
+  this.wheel_y = param3;
+  this.pressed_keys = param4;
+  this.pressed_mouse_buttons = param5;
+  this.touches = param6;
+  this.gamepads = param7;
+}
+function _M0TP36mizchi6kagura8platform14WebCanvasHooks(param0, param1, param2, param3, param4, param5, param6, param7, param8, param9, param10, param11, param12, param13, param14, param15, param16, param17, param18, param19) {
+  this.try_initialize = param0;
+  this.poll = param1;
+  this.should_close = param2;
+  this.outside_size = param3;
+  this.current_surface = param4;
+  this.capture_input = param5;
+  this.set_fullscreen = param6;
+  this.is_fullscreen = param7;
+  this.set_cursor_mode = param8;
+  this.cursor_mode = param9;
+  this.set_device_scale_factor = param10;
+  this.device_scale_factor = param11;
+  this.set_vsync_enabled = param12;
+  this.is_vsync_enabled = param13;
+  this.close_window = param14;
+  this.request_attention = param15;
+  this.set_mouse_touch_fallback = param16;
+  this.mouse_touch_fallback_enabled = param17;
+  this.fullscreen_request_status = param18;
+  this.cursor_mode_request_status = param19;
+}
+function _M0TP36mizchi6kagura8platform12SurfaceToken(param0, param1, param2, param3, param4) {
+  this.kind = param0;
+  this.opaque_id = param1;
+  this.width = param2;
+  this.height = param3;
+  this.device_scale_factor = param4;
+}
+function _M0DTPC16result6ResultGRP36mizchi6kagura8platform12SurfaceTokenRPC15error5ErrorE3Err(param0) {
   this._0 = param0;
 }
-Result$Err$2$.prototype.$tag = 0;
-Result$Err$2$.prototype.$name = "Err";
-function Result$Ok$2$(param0) {
+_M0DTPC16result6ResultGRP36mizchi6kagura8platform12SurfaceTokenRPC15error5ErrorE3Err.prototype.$tag = 0;
+function _M0DTPC16result6ResultGRP36mizchi6kagura8platform12SurfaceTokenRPC15error5ErrorE2Ok(param0) {
   this._0 = param0;
 }
-Result$Ok$2$.prototype.$tag = 1;
-Result$Ok$2$.prototype.$name = "Ok";
-function Result$Err$3$(param0) {
+_M0DTPC16result6ResultGRP36mizchi6kagura8platform12SurfaceTokenRPC15error5ErrorE2Ok.prototype.$tag = 1;
+function _M0TP36mizchi6kagura8platform13WindowOptions(param0, param1, param2, param3, param4, param5) {
+  this.title = param0;
+  this.width = param1;
+  this.height = param2;
+  this.transparent = param3;
+  this.resizable = param4;
+  this.focused = param5;
+}
+function _M0TP36mizchi6kagura8platform17WebCanvasPlatform(param0, param1, param2, param3, param4, param5, param6, param7, param8, param9, param10, param11, param12, param13, param14, param15) {
+  this.canvas_selector = param0;
+  this.initialized = param1;
+  this.poll_count = param2;
+  this.close_after_polls = param3;
+  this.web_active = param4;
+  this.options = param5;
+  this.current_input = param6;
+  this.fullscreen = param7;
+  this.cursor_mode = param8;
+  this.device_scale_factor = param9;
+  this.vsync_enabled = param10;
+  this.close_requested = param11;
+  this.attention_requests = param12;
+  this.mouse_touch_fallback = param13;
+  this.fullscreen_request_status = param14;
+  this.cursor_mode_request_status = param15;
+}
+function _M0DTPC16result6ResultGuRPC15error5ErrorE3Err(param0) {
   this._0 = param0;
 }
-Result$Err$3$.prototype.$tag = 0;
-Result$Err$3$.prototype.$name = "Err";
-function Result$Ok$3$(param0) {
+_M0DTPC16result6ResultGuRPC15error5ErrorE3Err.prototype.$tag = 0;
+function _M0DTPC16result6ResultGuRPC15error5ErrorE2Ok(param0) {
   this._0 = param0;
 }
-Result$Ok$3$.prototype.$tag = 1;
-Result$Ok$3$.prototype.$name = "Ok";
+_M0DTPC16result6ResultGuRPC15error5ErrorE2Ok.prototype.$tag = 1;
 const $1L = { hi: 0, lo: 1 };
 const $2047L = { hi: 0, lo: 2047 };
 const $4503599627370495L = { hi: 1048575, lo: -1 };
 const $0L = { hi: 0, lo: 0 };
-const $64$mizchi$47$kagura$47$gfx$46$BlendMode$Copy = { $tag: 0, $name: "Copy" };
-const $64$mizchi$47$kagura$47$gfx$46$BlendMode$Alpha = { $tag: 1, $name: "Alpha" };
-const $64$mizchi$47$kagura$47$gfx$46$BlendMode$Add = { $tag: 2, $name: "Add" };
-const $64$mizchi$47$kagura$47$gfx$46$BlendMode$Multiply = { $tag: 3, $name: "Multiply" };
-function $64$mizchi$47$kagura$47$gfx$46$BlendMode$Custom(param0) {
+function _M0TP36mizchi6kagura3gfx16BuiltinShaderKey(param0, param1, param2) {
+  this.filter = param0;
+  this.address = param1;
+  this.use_color_m = param2;
+}
+function _M0TP36mizchi6kagura3gfx9DstRegion(param0, param1, param2, param3, param4) {
+  this.x = param0;
+  this.y = param1;
+  this.width = param2;
+  this.height = param3;
+  this.index_count = param4;
+}
+function _M0TP36mizchi6kagura3gfx5Color(param0, param1, param2, param3) {
+  this.r = param0;
+  this.g = param1;
+  this.b = param2;
+  this.a = param3;
+}
+function _M0TP36mizchi6kagura3gfx14RenderPassDesc(param0, param1, param2) {
+  this.clear_color = param0;
+  this.clear_enabled = param1;
+  this.present = param2;
+}
+function _M0DTP36mizchi6kagura3gfx9BlendMode4Copy() {}
+_M0DTP36mizchi6kagura3gfx9BlendMode4Copy.prototype.$tag = 0;
+const _M0DTP36mizchi6kagura3gfx9BlendMode4Copy__ = new _M0DTP36mizchi6kagura3gfx9BlendMode4Copy();
+function _M0DTP36mizchi6kagura3gfx9BlendMode5Alpha() {}
+_M0DTP36mizchi6kagura3gfx9BlendMode5Alpha.prototype.$tag = 1;
+const _M0DTP36mizchi6kagura3gfx9BlendMode5Alpha__ = new _M0DTP36mizchi6kagura3gfx9BlendMode5Alpha();
+function _M0DTP36mizchi6kagura3gfx9BlendMode3Add() {}
+_M0DTP36mizchi6kagura3gfx9BlendMode3Add.prototype.$tag = 2;
+const _M0DTP36mizchi6kagura3gfx9BlendMode3Add__ = new _M0DTP36mizchi6kagura3gfx9BlendMode3Add();
+function _M0DTP36mizchi6kagura3gfx9BlendMode8Multiply() {}
+_M0DTP36mizchi6kagura3gfx9BlendMode8Multiply.prototype.$tag = 3;
+const _M0DTP36mizchi6kagura3gfx9BlendMode8Multiply__ = new _M0DTP36mizchi6kagura3gfx9BlendMode8Multiply();
+function _M0DTP36mizchi6kagura3gfx9BlendMode6Custom(param0) {
   this._0 = param0;
 }
-$64$mizchi$47$kagura$47$gfx$46$BlendMode$Custom.prototype.$tag = 4;
-$64$mizchi$47$kagura$47$gfx$46$BlendMode$Custom.prototype.$name = "Custom";
-const Option$None$4$ = { $tag: 0, $name: "None" };
-function Option$Some$4$(param0) {
+_M0DTP36mizchi6kagura3gfx9BlendMode6Custom.prototype.$tag = 4;
+function _M0TP36mizchi6kagura3gfx11ImageHandle(param0, param1, param2) {
+  this.id = param0;
+  this.width = param1;
+  this.height = param2;
+}
+function _M0TP36mizchi6kagura3gfx12ShaderHandle(param0, param1) {
+  this.id = param0;
+  this.source = param1;
+}
+function _M0TP36mizchi6kagura3gfx20DrawTrianglesCommand(param0, param1, param2, param3, param4, param5, param6, param7, param8, param9, param10, param11, param12) {
+  this.dst = param0;
+  this.shader = param1;
+  this.dst_regions = param2;
+  this.index_offset = param3;
+  this.pipeline_id = param4;
+  this.uniform_hash = param5;
+  this.blend = param6;
+  this.vertex_data = param7;
+  this.indices = param8;
+  this.src_image_ids = param9;
+  this.uniform_dwords = param10;
+  this.instance_count = param11;
+  this.resource_cache_key = param12;
+}
+function _M0DTPC16option6OptionGRPB5ArrayGiEE4None() {}
+_M0DTPC16option6OptionGRPB5ArrayGiEE4None.prototype.$tag = 0;
+const _M0DTPC16option6OptionGRPB5ArrayGiEE4None__ = new _M0DTPC16option6OptionGRPB5ArrayGiEE4None();
+function _M0DTPC16option6OptionGRPB5ArrayGiEE4Some(param0) {
   this._0 = param0;
 }
-Option$Some$4$.prototype.$tag = 1;
-Option$Some$4$.prototype.$name = "Some";
-function Result$Err$5$(param0) {
+_M0DTPC16option6OptionGRPB5ArrayGiEE4Some.prototype.$tag = 1;
+function _M0TP36mizchi6kagura3gfx16WebGraphicsHooks(param0, param1, param2, param3, param4, param5) {
+  this.try_initialize = param0;
+  this.on_begin = param1;
+  this.on_end = param2;
+  this.on_draw = param3;
+  this.on_resize = param4;
+  this.on_read_pixels = param5;
+}
+function _M0TP36mizchi6kagura3gfx19NativeGraphicsHooks(param0, param1, param2, param3, param4, param5, param6) {
+  this.try_initialize = param0;
+  this.on_begin = param1;
+  this.on_end = param2;
+  this.on_draw = param3;
+  this.on_resize = param4;
+  this.on_read_pixels = param5;
+  this.on_new_image = param6;
+}
+function _M0TP36mizchi6kagura3gfx22GraphicsBackendOptions(param0, param1, param2) {
+  this.enable_validation = param0;
+  this.prefer_low_power = param1;
+  this.enable_vsync = param2;
+}
+function _M0TP36mizchi6kagura3gfx18StubGraphicsDriver(param0, param1, param2, param3, param4, param5, param6, param7, param8, param9, param10, param11, param12, param13) {
+  this.backend = param0;
+  this.width = param1;
+  this.height = param2;
+  this.initialized = param3;
+  this.native_active = param4;
+  this.web_active = param5;
+  this.next_id = param6;
+  this.begin_count = param7;
+  this.end_count = param8;
+  this.draw_count = param9;
+  this.resize_count = param10;
+  this.resize_suppressed_count = param11;
+  this.last_resize_duration_ms = param12;
+  this.total_resize_duration_ms = param13;
+}
+function _M0DTPC16result6ResultGRP36mizchi6kagura3gfx11ImageHandleRPC15error5ErrorE3Err(param0) {
   this._0 = param0;
 }
-Result$Err$5$.prototype.$tag = 0;
-Result$Err$5$.prototype.$name = "Err";
-function Result$Ok$5$(param0) {
+_M0DTPC16result6ResultGRP36mizchi6kagura3gfx11ImageHandleRPC15error5ErrorE3Err.prototype.$tag = 0;
+function _M0DTPC16result6ResultGRP36mizchi6kagura3gfx11ImageHandleRPC15error5ErrorE2Ok(param0) {
   this._0 = param0;
 }
-Result$Ok$5$.prototype.$tag = 1;
-Result$Ok$5$.prototype.$name = "Ok";
-function Result$Err$6$(param0) {
+_M0DTPC16result6ResultGRP36mizchi6kagura3gfx11ImageHandleRPC15error5ErrorE2Ok.prototype.$tag = 1;
+function _M0DTPC16result6ResultGRP36mizchi6kagura3gfx12ShaderHandleRPC15error5ErrorE3Err(param0) {
   this._0 = param0;
 }
-Result$Err$6$.prototype.$tag = 0;
-Result$Err$6$.prototype.$name = "Err";
-function Result$Ok$6$(param0) {
+_M0DTPC16result6ResultGRP36mizchi6kagura3gfx12ShaderHandleRPC15error5ErrorE3Err.prototype.$tag = 0;
+function _M0DTPC16result6ResultGRP36mizchi6kagura3gfx12ShaderHandleRPC15error5ErrorE2Ok(param0) {
   this._0 = param0;
 }
-Result$Ok$6$.prototype.$tag = 1;
-Result$Ok$6$.prototype.$name = "Ok";
+_M0DTPC16result6ResultGRP36mizchi6kagura3gfx12ShaderHandleRPC15error5ErrorE2Ok.prototype.$tag = 1;
+function _M0TP36mizchi6kagura9inpututil13KeyInputState(param0, param1, param2, param3, param4) {
+  this.prev_pressed_keys = param0;
+  this.pressed_keys = param1;
+  this.just_pressed_keys = param2;
+  this.just_released_keys = param3;
+  this.durations = param4;
+}
+function _M0TP36mizchi6kagura9inpututil21MouseButtonInputState(param0, param1, param2, param3, param4) {
+  this.prev_pressed_buttons = param0;
+  this.pressed_buttons = param1;
+  this.just_pressed_buttons = param2;
+  this.just_released_buttons = param3;
+  this.durations = param4;
+}
+function _M0TP36mizchi6kagura9inpututil16KeyDurationEntry(param0, param1) {
+  this.key = param0;
+  this.duration = param1;
+}
+function _M0TP36mizchi6kagura9inpututil24MouseButtonDurationEntry(param0, param1) {
+  this.button = param0;
+  this.duration = param1;
+}
+function _M0TP36mizchi6kagura7light3d16DirectionalLight(param0, param1, param2) {
+  this.direction = param0;
+  this.color = param1;
+  this.intensity = param2;
+}
+function _M0TP36mizchi6kagura7light3d12AmbientLight(param0, param1) {
+  this.color = param0;
+  this.intensity = param1;
+}
+function _M0TP36mizchi6kagura7light3d19LightingEnvironment(param0, param1, param2, param3) {
+  this.directional = param0;
+  this.ambient = param1;
+  this.point_lights = param2;
+  this.spot_lights = param3;
+}
+function _M0TP36mizchi6kagura6mesh3d12MeshBounds3D(param0, param1, param2, param3, param4, param5) {
+  this.min_x = param0;
+  this.min_y = param1;
+  this.min_z = param2;
+  this.max_x = param3;
+  this.max_y = param4;
+  this.max_z = param5;
+}
+function _M0TP36mizchi6kagura6mesh3d6Mesh3D(param0, param1, param2) {
+  this.vertex_data = param0;
+  this.indices = param1;
+  this.bounds = param2;
+}
+function _M0TPC13ref3RefGfE(param0) {
+  this.val = param0;
+}
+function _M0TP36mizchi6kagura5audio11AudioFormat(param0, param1, param2) {
+  this.sample_rate = param0;
+  this.channels = param1;
+  this.bits_per_sample = param2;
+}
+function _M0TP36mizchi6kagura5audio16AudioOutputHooks(param0, param1, param2, param3, param4, param5) {
+  this.try_initialize = param0;
+  this.write_frames = param1;
+  this.suspend = param2;
+  this.resume_playback = param3;
+  this.close = param4;
+  this.output_latency = param5;
+}
 const _M0FP36mizchi6kagura6engine29js__request__animation__frame = (f) => { requestAnimationFrame(() => f()); };
 const _M0FP36mizchi6kagura6engine20js__on__beforeunload = (f) => { window.addEventListener("beforeunload", () => f()); };
 const _M0FP36mizchi6kagura6engine20js__performance__now = () => (globalThis.performance?.now?.() ?? Date.now());
-const $64$mizchi$47$svg$46$Paint$None = { $tag: 0, $name: "None" };
-function $64$mizchi$47$svg$46$Paint$SolidColor(param0) {
+function _M0TP36mizchi6kagura6engine13EngineContext(param0, param1, param2, param3) {
+  this.dst = param0;
+  this.shader = param1;
+  this.screen_w = param2;
+  this.screen_h = param3;
+}
+function _M0TP26mizchi3svg5Color(param0, param1, param2, param3) {
+  this.r = param0;
+  this.g = param1;
+  this.b = param2;
+  this.a = param3;
+}
+function _M0TP26mizchi3svg19PreserveAspectRatio(param0, param1) {
+  this.align = param0;
+  this.meet_or_slice = param1;
+}
+function _M0TP26mizchi3svg9Transform(param0, param1, param2, param3, param4, param5) {
+  this.a = param0;
+  this.b = param1;
+  this.c = param2;
+  this.d = param3;
+  this.e = param4;
+  this.f = param5;
+}
+function _M0TP26mizchi3svg14LinearGradient(param0, param1, param2, param3, param4, param5, param6, param7) {
+  this.x1 = param0;
+  this.y1 = param1;
+  this.x2 = param2;
+  this.y2 = param3;
+  this.stops = param4;
+  this.spread_method = param5;
+  this.units = param6;
+  this.transform = param7;
+}
+function _M0TPC13ref3RefGRP26mizchi3svg12GradientStopE(param0) {
+  this.val = param0;
+}
+function _M0TP26mizchi3svg11StrokeStyle(param0, param1, param2, param3, param4, param5, param6) {
+  this.paint = param0;
+  this.width = param1;
+  this.linecap = param2;
+  this.linejoin = param3;
+  this.miterlimit = param4;
+  this.dasharray = param5;
+  this.dashoffset = param6;
+}
+function _M0DTP26mizchi3svg5Paint4None() {}
+_M0DTP26mizchi3svg5Paint4None.prototype.$tag = 0;
+const _M0DTP26mizchi3svg5Paint4None__ = new _M0DTP26mizchi3svg5Paint4None();
+function _M0DTP26mizchi3svg5Paint10SolidColor(param0) {
   this._0 = param0;
 }
-$64$mizchi$47$svg$46$Paint$SolidColor.prototype.$tag = 1;
-$64$mizchi$47$svg$46$Paint$SolidColor.prototype.$name = "SolidColor";
-function $64$mizchi$47$svg$46$Paint$LinearGrad(param0) {
+_M0DTP26mizchi3svg5Paint10SolidColor.prototype.$tag = 1;
+function _M0DTP26mizchi3svg5Paint10LinearGrad(param0) {
   this._0 = param0;
 }
-$64$mizchi$47$svg$46$Paint$LinearGrad.prototype.$tag = 2;
-$64$mizchi$47$svg$46$Paint$LinearGrad.prototype.$name = "LinearGrad";
-function $64$mizchi$47$svg$46$Paint$RadialGrad(param0) {
+_M0DTP26mizchi3svg5Paint10LinearGrad.prototype.$tag = 2;
+function _M0DTP26mizchi3svg5Paint10RadialGrad(param0) {
   this._0 = param0;
 }
-$64$mizchi$47$svg$46$Paint$RadialGrad.prototype.$tag = 3;
-$64$mizchi$47$svg$46$Paint$RadialGrad.prototype.$name = "RadialGrad";
-const $64$mizchi$47$svg$46$Paint$CurrentColor = { $tag: 4, $name: "CurrentColor" };
-function $64$mizchi$47$svg$46$Paint$PaintServerRef(param0, param1) {
+_M0DTP26mizchi3svg5Paint10RadialGrad.prototype.$tag = 3;
+function _M0DTP26mizchi3svg5Paint12CurrentColor() {}
+_M0DTP26mizchi3svg5Paint12CurrentColor.prototype.$tag = 4;
+const _M0DTP26mizchi3svg5Paint12CurrentColor__ = new _M0DTP26mizchi3svg5Paint12CurrentColor();
+function _M0DTP26mizchi3svg5Paint14PaintServerRef(param0, param1) {
   this._0 = param0;
   this._1 = param1;
 }
-$64$mizchi$47$svg$46$Paint$PaintServerRef.prototype.$tag = 5;
-$64$mizchi$47$svg$46$Paint$PaintServerRef.prototype.$name = "PaintServerRef";
-const Option$None$7$ = { $tag: 0, $name: "None" };
-function Option$Some$7$(param0) {
+_M0DTP26mizchi3svg5Paint14PaintServerRef.prototype.$tag = 5;
+function _M0DTPC16option6OptionGRPB5ArrayGdEE4None() {}
+_M0DTPC16option6OptionGRPB5ArrayGdEE4None.prototype.$tag = 0;
+const _M0DTPC16option6OptionGRPB5ArrayGdEE4None__ = new _M0DTPC16option6OptionGRPB5ArrayGdEE4None();
+function _M0DTPC16option6OptionGRPB5ArrayGdEE4Some(param0) {
   this._0 = param0;
 }
-Option$Some$7$.prototype.$tag = 1;
-Option$Some$7$.prototype.$name = "Some";
-const Option$None$8$ = { $tag: 0, $name: "None" };
-function Option$Some$8$(param0) {
+_M0DTPC16option6OptionGRPB5ArrayGdEE4Some.prototype.$tag = 1;
+function _M0TP26mizchi3svg10PaintOrder(param0) {
+  this.order = param0;
+}
+function _M0TP26mizchi3svg7SVGNode(param0, param1, param2, param3, param4, param5, param6, param7, param8, param9, param10, param11, param12, param13, param14, param15, param16, param17, param18, param19, param20, param21, param22, param23, param24, param25, param26, param27, param28, param29, param30, param31, param32, param33) {
+  this.id = param0;
+  this.shape = param1;
+  this.transform = param2;
+  this.view_box = param3;
+  this.viewport_width = param4;
+  this.viewport_height = param5;
+  this.preserve_aspect_ratio = param6;
+  this.preserve_aspect_ratio_is_set = param7;
+  this.fill = param8;
+  this.fill_is_set = param9;
+  this.color = param10;
+  this.color_is_set = param11;
+  this.paint_order = param12;
+  this.fill_rule = param13;
+  this.fill_opacity = param14;
+  this.stroke = param15;
+  this.stroke_paint_is_set = param16;
+  this.stroke_width_is_set = param17;
+  this.stroke_opacity = param18;
+  this.opacity = param19;
+  this.marker_start = param20;
+  this.marker_start_is_set = param21;
+  this.marker_mid = param22;
+  this.marker_mid_is_set = param23;
+  this.marker_end = param24;
+  this.marker_end_is_set = param25;
+  this.z_index = param26;
+  this.node_dirty = param27;
+  this.prev_bounds = param28;
+  this.filters = param29;
+  this.mask_id = param30;
+  this.clip_path_id = param31;
+  this.clip_overflow = param32;
+  this.children = param33;
+}
+function _M0DTPC16option6OptionGdE4None() {}
+_M0DTPC16option6OptionGdE4None.prototype.$tag = 0;
+const _M0DTPC16option6OptionGdE4None__ = new _M0DTPC16option6OptionGdE4None();
+function _M0DTPC16option6OptionGdE4Some(param0) {
   this._0 = param0;
 }
-Option$Some$8$.prototype.$tag = 1;
-Option$Some$8$.prototype.$name = "Some";
-function $64$mizchi$47$svg$46$PathCommand$MoveTo(param0, param1) {
+_M0DTPC16option6OptionGdE4Some.prototype.$tag = 1;
+function _M0TP26mizchi3svg11BoundingBox(param0, param1, param2, param3) {
+  this.min_x = param0;
+  this.min_y = param1;
+  this.max_x = param2;
+  this.max_y = param3;
+}
+function _M0TP26mizchi3svg8ClipRect(param0, param1, param2, param3) {
+  this.x = param0;
+  this.y = param1;
+  this.width = param2;
+  this.height = param3;
+}
+function _M0TP26mizchi3svg14RadialGradient(param0, param1, param2, param3, param4, param5, param6, param7, param8) {
+  this.cx = param0;
+  this.cy = param1;
+  this.fx = param2;
+  this.fy = param3;
+  this.r = param4;
+  this.stops = param5;
+  this.spread_method = param6;
+  this.units = param7;
+  this.transform = param8;
+}
+function _M0TP26mizchi3svg10PathParser(param0, param1, param2) {
+  this.data = param0;
+  this.pos = param1;
+  this.len = param2;
+}
+function _M0TPC13ref3RefGcE(param0) {
+  this.val = param0;
+}
+function _M0DTP26mizchi3svg11PathCommand6MoveTo(param0, param1) {
   this._0 = param0;
   this._1 = param1;
 }
-$64$mizchi$47$svg$46$PathCommand$MoveTo.prototype.$tag = 0;
-$64$mizchi$47$svg$46$PathCommand$MoveTo.prototype.$name = "MoveTo";
-function $64$mizchi$47$svg$46$PathCommand$LineTo(param0, param1) {
+_M0DTP26mizchi3svg11PathCommand6MoveTo.prototype.$tag = 0;
+function _M0DTP26mizchi3svg11PathCommand6LineTo(param0, param1) {
   this._0 = param0;
   this._1 = param1;
 }
-$64$mizchi$47$svg$46$PathCommand$LineTo.prototype.$tag = 1;
-$64$mizchi$47$svg$46$PathCommand$LineTo.prototype.$name = "LineTo";
-function $64$mizchi$47$svg$46$PathCommand$HorizontalLineTo(param0) {
+_M0DTP26mizchi3svg11PathCommand6LineTo.prototype.$tag = 1;
+function _M0DTP26mizchi3svg11PathCommand16HorizontalLineTo(param0) {
   this._0 = param0;
 }
-$64$mizchi$47$svg$46$PathCommand$HorizontalLineTo.prototype.$tag = 2;
-$64$mizchi$47$svg$46$PathCommand$HorizontalLineTo.prototype.$name = "HorizontalLineTo";
-function $64$mizchi$47$svg$46$PathCommand$VerticalLineTo(param0) {
+_M0DTP26mizchi3svg11PathCommand16HorizontalLineTo.prototype.$tag = 2;
+function _M0DTP26mizchi3svg11PathCommand14VerticalLineTo(param0) {
   this._0 = param0;
 }
-$64$mizchi$47$svg$46$PathCommand$VerticalLineTo.prototype.$tag = 3;
-$64$mizchi$47$svg$46$PathCommand$VerticalLineTo.prototype.$name = "VerticalLineTo";
-function $64$mizchi$47$svg$46$PathCommand$CurveTo(param0, param1, param2, param3, param4, param5) {
+_M0DTP26mizchi3svg11PathCommand14VerticalLineTo.prototype.$tag = 3;
+function _M0DTP26mizchi3svg11PathCommand7CurveTo(param0, param1, param2, param3, param4, param5) {
   this._0 = param0;
   this._1 = param1;
   this._2 = param2;
@@ -215,31 +730,27 @@ function $64$mizchi$47$svg$46$PathCommand$CurveTo(param0, param1, param2, param3
   this._4 = param4;
   this._5 = param5;
 }
-$64$mizchi$47$svg$46$PathCommand$CurveTo.prototype.$tag = 4;
-$64$mizchi$47$svg$46$PathCommand$CurveTo.prototype.$name = "CurveTo";
-function $64$mizchi$47$svg$46$PathCommand$SmoothCurveTo(param0, param1, param2, param3) {
+_M0DTP26mizchi3svg11PathCommand7CurveTo.prototype.$tag = 4;
+function _M0DTP26mizchi3svg11PathCommand13SmoothCurveTo(param0, param1, param2, param3) {
   this._0 = param0;
   this._1 = param1;
   this._2 = param2;
   this._3 = param3;
 }
-$64$mizchi$47$svg$46$PathCommand$SmoothCurveTo.prototype.$tag = 5;
-$64$mizchi$47$svg$46$PathCommand$SmoothCurveTo.prototype.$name = "SmoothCurveTo";
-function $64$mizchi$47$svg$46$PathCommand$QuadraticCurveTo(param0, param1, param2, param3) {
+_M0DTP26mizchi3svg11PathCommand13SmoothCurveTo.prototype.$tag = 5;
+function _M0DTP26mizchi3svg11PathCommand16QuadraticCurveTo(param0, param1, param2, param3) {
   this._0 = param0;
   this._1 = param1;
   this._2 = param2;
   this._3 = param3;
 }
-$64$mizchi$47$svg$46$PathCommand$QuadraticCurveTo.prototype.$tag = 6;
-$64$mizchi$47$svg$46$PathCommand$QuadraticCurveTo.prototype.$name = "QuadraticCurveTo";
-function $64$mizchi$47$svg$46$PathCommand$SmoothQuadraticCurveTo(param0, param1) {
+_M0DTP26mizchi3svg11PathCommand16QuadraticCurveTo.prototype.$tag = 6;
+function _M0DTP26mizchi3svg11PathCommand22SmoothQuadraticCurveTo(param0, param1) {
   this._0 = param0;
   this._1 = param1;
 }
-$64$mizchi$47$svg$46$PathCommand$SmoothQuadraticCurveTo.prototype.$tag = 7;
-$64$mizchi$47$svg$46$PathCommand$SmoothQuadraticCurveTo.prototype.$name = "SmoothQuadraticCurveTo";
-function $64$mizchi$47$svg$46$PathCommand$ArcTo(param0, param1, param2, param3, param4, param5, param6) {
+_M0DTP26mizchi3svg11PathCommand22SmoothQuadraticCurveTo.prototype.$tag = 7;
+function _M0DTP26mizchi3svg11PathCommand5ArcTo(param0, param1, param2, param3, param4, param5, param6) {
   this._0 = param0;
   this._1 = param1;
   this._2 = param2;
@@ -248,32 +759,29 @@ function $64$mizchi$47$svg$46$PathCommand$ArcTo(param0, param1, param2, param3, 
   this._5 = param5;
   this._6 = param6;
 }
-$64$mizchi$47$svg$46$PathCommand$ArcTo.prototype.$tag = 8;
-$64$mizchi$47$svg$46$PathCommand$ArcTo.prototype.$name = "ArcTo";
-const $64$mizchi$47$svg$46$PathCommand$ClosePath = { $tag: 9, $name: "ClosePath" };
-function $64$mizchi$47$svg$46$PathCommand$MoveToRel(param0, param1) {
+_M0DTP26mizchi3svg11PathCommand5ArcTo.prototype.$tag = 8;
+function _M0DTP26mizchi3svg11PathCommand9ClosePath() {}
+_M0DTP26mizchi3svg11PathCommand9ClosePath.prototype.$tag = 9;
+const _M0DTP26mizchi3svg11PathCommand9ClosePath__ = new _M0DTP26mizchi3svg11PathCommand9ClosePath();
+function _M0DTP26mizchi3svg11PathCommand9MoveToRel(param0, param1) {
   this._0 = param0;
   this._1 = param1;
 }
-$64$mizchi$47$svg$46$PathCommand$MoveToRel.prototype.$tag = 10;
-$64$mizchi$47$svg$46$PathCommand$MoveToRel.prototype.$name = "MoveToRel";
-function $64$mizchi$47$svg$46$PathCommand$LineToRel(param0, param1) {
+_M0DTP26mizchi3svg11PathCommand9MoveToRel.prototype.$tag = 10;
+function _M0DTP26mizchi3svg11PathCommand9LineToRel(param0, param1) {
   this._0 = param0;
   this._1 = param1;
 }
-$64$mizchi$47$svg$46$PathCommand$LineToRel.prototype.$tag = 11;
-$64$mizchi$47$svg$46$PathCommand$LineToRel.prototype.$name = "LineToRel";
-function $64$mizchi$47$svg$46$PathCommand$HorizontalLineToRel(param0) {
+_M0DTP26mizchi3svg11PathCommand9LineToRel.prototype.$tag = 11;
+function _M0DTP26mizchi3svg11PathCommand19HorizontalLineToRel(param0) {
   this._0 = param0;
 }
-$64$mizchi$47$svg$46$PathCommand$HorizontalLineToRel.prototype.$tag = 12;
-$64$mizchi$47$svg$46$PathCommand$HorizontalLineToRel.prototype.$name = "HorizontalLineToRel";
-function $64$mizchi$47$svg$46$PathCommand$VerticalLineToRel(param0) {
+_M0DTP26mizchi3svg11PathCommand19HorizontalLineToRel.prototype.$tag = 12;
+function _M0DTP26mizchi3svg11PathCommand17VerticalLineToRel(param0) {
   this._0 = param0;
 }
-$64$mizchi$47$svg$46$PathCommand$VerticalLineToRel.prototype.$tag = 13;
-$64$mizchi$47$svg$46$PathCommand$VerticalLineToRel.prototype.$name = "VerticalLineToRel";
-function $64$mizchi$47$svg$46$PathCommand$CurveToRel(param0, param1, param2, param3, param4, param5) {
+_M0DTP26mizchi3svg11PathCommand17VerticalLineToRel.prototype.$tag = 13;
+function _M0DTP26mizchi3svg11PathCommand10CurveToRel(param0, param1, param2, param3, param4, param5) {
   this._0 = param0;
   this._1 = param1;
   this._2 = param2;
@@ -281,31 +789,27 @@ function $64$mizchi$47$svg$46$PathCommand$CurveToRel(param0, param1, param2, par
   this._4 = param4;
   this._5 = param5;
 }
-$64$mizchi$47$svg$46$PathCommand$CurveToRel.prototype.$tag = 14;
-$64$mizchi$47$svg$46$PathCommand$CurveToRel.prototype.$name = "CurveToRel";
-function $64$mizchi$47$svg$46$PathCommand$SmoothCurveToRel(param0, param1, param2, param3) {
+_M0DTP26mizchi3svg11PathCommand10CurveToRel.prototype.$tag = 14;
+function _M0DTP26mizchi3svg11PathCommand16SmoothCurveToRel(param0, param1, param2, param3) {
   this._0 = param0;
   this._1 = param1;
   this._2 = param2;
   this._3 = param3;
 }
-$64$mizchi$47$svg$46$PathCommand$SmoothCurveToRel.prototype.$tag = 15;
-$64$mizchi$47$svg$46$PathCommand$SmoothCurveToRel.prototype.$name = "SmoothCurveToRel";
-function $64$mizchi$47$svg$46$PathCommand$QuadraticCurveToRel(param0, param1, param2, param3) {
+_M0DTP26mizchi3svg11PathCommand16SmoothCurveToRel.prototype.$tag = 15;
+function _M0DTP26mizchi3svg11PathCommand19QuadraticCurveToRel(param0, param1, param2, param3) {
   this._0 = param0;
   this._1 = param1;
   this._2 = param2;
   this._3 = param3;
 }
-$64$mizchi$47$svg$46$PathCommand$QuadraticCurveToRel.prototype.$tag = 16;
-$64$mizchi$47$svg$46$PathCommand$QuadraticCurveToRel.prototype.$name = "QuadraticCurveToRel";
-function $64$mizchi$47$svg$46$PathCommand$SmoothQuadraticCurveToRel(param0, param1) {
+_M0DTP26mizchi3svg11PathCommand19QuadraticCurveToRel.prototype.$tag = 16;
+function _M0DTP26mizchi3svg11PathCommand25SmoothQuadraticCurveToRel(param0, param1) {
   this._0 = param0;
   this._1 = param1;
 }
-$64$mizchi$47$svg$46$PathCommand$SmoothQuadraticCurveToRel.prototype.$tag = 17;
-$64$mizchi$47$svg$46$PathCommand$SmoothQuadraticCurveToRel.prototype.$name = "SmoothQuadraticCurveToRel";
-function $64$mizchi$47$svg$46$PathCommand$ArcToRel(param0, param1, param2, param3, param4, param5, param6) {
+_M0DTP26mizchi3svg11PathCommand25SmoothQuadraticCurveToRel.prototype.$tag = 17;
+function _M0DTP26mizchi3svg11PathCommand8ArcToRel(param0, param1, param2, param3, param4, param5, param6) {
   this._0 = param0;
   this._1 = param1;
   this._2 = param2;
@@ -314,23 +818,170 @@ function $64$mizchi$47$svg$46$PathCommand$ArcToRel(param0, param1, param2, param
   this._5 = param5;
   this._6 = param6;
 }
-$64$mizchi$47$svg$46$PathCommand$ArcToRel.prototype.$tag = 18;
-$64$mizchi$47$svg$46$PathCommand$ArcToRel.prototype.$name = "ArcToRel";
-const $64$mizchi$47$svg$46$MarkerOrient$Auto = { $tag: 0, $name: "Auto" };
-const $64$mizchi$47$svg$46$MarkerOrient$AutoStartReverse = { $tag: 1, $name: "AutoStartReverse" };
-function $64$mizchi$47$svg$46$MarkerOrient$Angle(param0) {
+_M0DTP26mizchi3svg11PathCommand8ArcToRel.prototype.$tag = 18;
+function _M0TP26mizchi3svg5Image(param0, param1, param2) {
+  this.width = param0;
+  this.height = param1;
+  this.pixels = param2;
+}
+function _M0TP26mizchi3svg8ClipPath(param0, param1, param2, param3, param4) {
+  this.id = param0;
+  this.shape = param1;
+  this.transform = param2;
+  this.clip_rule = param3;
+  this.units = param4;
+}
+function _M0TP26mizchi3svg16ClipPathRegistry(param0) {
+  this.clips = param0;
+}
+function _M0TPB9ArrayViewGUsRP26mizchi3svg8ClipPathEE(param0, param1, param2) {
+  this.buf = param0;
+  this.start = param1;
+  this.end = param2;
+}
+function _M0TP26mizchi3svg4Mask(param0, param1, param2, param3, param4, param5, param6, param7, param8, param9, param10, param11, param12) {
+  this.id = param0;
+  this.content = param1;
+  this.x = param2;
+  this.y = param3;
+  this.width = param4;
+  this.height = param5;
+  this.x_is_percent = param6;
+  this.y_is_percent = param7;
+  this.width_is_percent = param8;
+  this.height_is_percent = param9;
+  this.mask_units = param10;
+  this.mask_content_units = param11;
+  this.mask_type = param12;
+}
+function _M0TP26mizchi3svg12MaskRegistry(param0) {
+  this.masks = param0;
+}
+function _M0TPB9ArrayViewGUsRP26mizchi3svg4MaskEE(param0, param1, param2) {
+  this.buf = param0;
+  this.start = param1;
+  this.end = param2;
+}
+function _M0TP26mizchi3svg16GradientRegistry(param0) {
+  this.gradients = param0;
+}
+function _M0TPB9ArrayViewGUsRP26mizchi3svg8GradientEE(param0, param1, param2) {
+  this.buf = param0;
+  this.start = param1;
+  this.end = param2;
+}
+function _M0TP26mizchi3svg14MarkerRegistry(param0) {
+  this.markers = param0;
+}
+function _M0TPB9ArrayViewGUsRP26mizchi3svg6MarkerEE(param0, param1, param2) {
+  this.buf = param0;
+  this.start = param1;
+  this.end = param2;
+}
+function _M0TP26mizchi3svg15PatternRegistry(param0) {
+  this.patterns = param0;
+}
+function _M0TPB9ArrayViewGUsRP26mizchi3svg7PatternEE(param0, param1, param2) {
+  this.buf = param0;
+  this.start = param1;
+  this.end = param2;
+}
+function _M0TP26mizchi3svg14SymbolRegistry(param0) {
+  this.symbols = param0;
+}
+function _M0TPB9ArrayViewGUsRP26mizchi3svg6SymbolEE(param0, param1, param2) {
+  this.buf = param0;
+  this.start = param1;
+  this.end = param2;
+}
+function _M0TP26mizchi3svg7Pattern(param0, param1, param2, param3, param4, param5, param6, param7, param8) {
+  this.id = param0;
+  this.width = param1;
+  this.height = param2;
+  this.content = param3;
+  this.pattern_units = param4;
+  this.pattern_content_units = param5;
+  this.transform = param6;
+  this.view_box = param7;
+  this.preserve_aspect_ratio = param8;
+}
+function _M0TP26mizchi3svg6Symbol(param0, param1, param2, param3, param4, param5, param6) {
+  this.id = param0;
+  this.content = param1;
+  this.view_box = param2;
+  this.width = param3;
+  this.height = param4;
+  this.preserve_aspect_ratio = param5;
+  this.display_none = param6;
+}
+function _M0TP26mizchi3svg10UseElement(param0, param1, param2, param3, param4, param5) {
+  this.href = param0;
+  this.x = param1;
+  this.y = param2;
+  this.width = param3;
+  this.height = param4;
+  this.transform = param5;
+}
+function _M0TP26mizchi3svg12DefsRegistry(param0) {
+  this.elements = param0;
+}
+function _M0TPB9ArrayViewGUsRP26mizchi3svg7SVGNodeEE(param0, param1, param2) {
+  this.buf = param0;
+  this.start = param1;
+  this.end = param2;
+}
+function _M0TP26mizchi3svg7ViewBox(param0, param1, param2, param3) {
+  this.min_x = param0;
+  this.min_y = param1;
+  this.width = param2;
+  this.height = param3;
+}
+function _M0TP26mizchi3svg6Marker(param0, param1, param2, param3, param4, param5, param6, param7, param8, param9, param10) {
+  this.id = param0;
+  this.content = param1;
+  this.ref_x = param2;
+  this.ref_y = param3;
+  this.marker_width = param4;
+  this.marker_height = param5;
+  this.orient = param6;
+  this.marker_units = param7;
+  this.view_box = param8;
+  this.preserve_aspect_ratio = param9;
+  this.clip_overflow = param10;
+}
+function _M0DTP26mizchi3svg12MarkerOrient4Auto() {}
+_M0DTP26mizchi3svg12MarkerOrient4Auto.prototype.$tag = 0;
+const _M0DTP26mizchi3svg12MarkerOrient4Auto__ = new _M0DTP26mizchi3svg12MarkerOrient4Auto();
+function _M0DTP26mizchi3svg12MarkerOrient16AutoStartReverse() {}
+_M0DTP26mizchi3svg12MarkerOrient16AutoStartReverse.prototype.$tag = 1;
+const _M0DTP26mizchi3svg12MarkerOrient16AutoStartReverse__ = new _M0DTP26mizchi3svg12MarkerOrient16AutoStartReverse();
+function _M0DTP26mizchi3svg12MarkerOrient5Angle(param0) {
   this._0 = param0;
 }
-$64$mizchi$47$svg$46$MarkerOrient$Angle.prototype.$tag = 2;
-$64$mizchi$47$svg$46$MarkerOrient$Angle.prototype.$name = "Angle";
-const $64$mizchi$47$svg$46$PaintFallback$NoPaint = { $tag: 0, $name: "NoPaint" };
-function $64$mizchi$47$svg$46$PaintFallback$SolidColor(param0) {
+_M0DTP26mizchi3svg12MarkerOrient5Angle.prototype.$tag = 2;
+function _M0TP26mizchi3svg10MarkedLine(param0, param1, param2, param3) {
+  this.points = param0;
+  this.marker_start = param1;
+  this.marker_mid = param2;
+  this.marker_end = param3;
+}
+function _M0TPC13ref3RefGRPB13StringBuilderE(param0) {
+  this.val = param0;
+}
+function _M0DTP26mizchi3svg13PaintFallback7NoPaint() {}
+_M0DTP26mizchi3svg13PaintFallback7NoPaint.prototype.$tag = 0;
+const _M0DTP26mizchi3svg13PaintFallback7NoPaint__ = new _M0DTP26mizchi3svg13PaintFallback7NoPaint();
+function _M0DTP26mizchi3svg13PaintFallback10SolidColor(param0) {
   this._0 = param0;
 }
-$64$mizchi$47$svg$46$PaintFallback$SolidColor.prototype.$tag = 1;
-$64$mizchi$47$svg$46$PaintFallback$SolidColor.prototype.$name = "SolidColor";
-const $64$mizchi$47$svg$46$PaintFallback$CurrentColor = { $tag: 2, $name: "CurrentColor" };
-function $64$mizchi$47$svg$46$Shape$Rect(param0, param1, param2, param3, param4, param5) {
+_M0DTP26mizchi3svg13PaintFallback10SolidColor.prototype.$tag = 1;
+function _M0DTP26mizchi3svg13PaintFallback12CurrentColor() {}
+_M0DTP26mizchi3svg13PaintFallback12CurrentColor.prototype.$tag = 2;
+const _M0DTP26mizchi3svg13PaintFallback12CurrentColor__ = new _M0DTP26mizchi3svg13PaintFallback12CurrentColor();
+function _M0TPC13ref3RefGRP26mizchi3svg9TransformE(param0) {
+  this.val = param0;
+}
+function _M0DTP26mizchi3svg5Shape4Rect(param0, param1, param2, param3, param4, param5) {
   this._0 = param0;
   this._1 = param1;
   this._2 = param2;
@@ -338,105 +989,387 @@ function $64$mizchi$47$svg$46$Shape$Rect(param0, param1, param2, param3, param4,
   this._4 = param4;
   this._5 = param5;
 }
-$64$mizchi$47$svg$46$Shape$Rect.prototype.$tag = 0;
-$64$mizchi$47$svg$46$Shape$Rect.prototype.$name = "Rect";
-function $64$mizchi$47$svg$46$Shape$Circle(param0, param1, param2) {
+_M0DTP26mizchi3svg5Shape4Rect.prototype.$tag = 0;
+function _M0DTP26mizchi3svg5Shape6Circle(param0, param1, param2) {
   this._0 = param0;
   this._1 = param1;
   this._2 = param2;
 }
-$64$mizchi$47$svg$46$Shape$Circle.prototype.$tag = 1;
-$64$mizchi$47$svg$46$Shape$Circle.prototype.$name = "Circle";
-function $64$mizchi$47$svg$46$Shape$Ellipse(param0, param1, param2, param3) {
-  this._0 = param0;
-  this._1 = param1;
-  this._2 = param2;
-  this._3 = param3;
-}
-$64$mizchi$47$svg$46$Shape$Ellipse.prototype.$tag = 2;
-$64$mizchi$47$svg$46$Shape$Ellipse.prototype.$name = "Ellipse";
-function $64$mizchi$47$svg$46$Shape$Line(param0, param1, param2, param3) {
+_M0DTP26mizchi3svg5Shape6Circle.prototype.$tag = 1;
+function _M0DTP26mizchi3svg5Shape7Ellipse(param0, param1, param2, param3) {
   this._0 = param0;
   this._1 = param1;
   this._2 = param2;
   this._3 = param3;
 }
-$64$mizchi$47$svg$46$Shape$Line.prototype.$tag = 3;
-$64$mizchi$47$svg$46$Shape$Line.prototype.$name = "Line";
-function $64$mizchi$47$svg$46$Shape$Polyline(param0) {
-  this._0 = param0;
-}
-$64$mizchi$47$svg$46$Shape$Polyline.prototype.$tag = 4;
-$64$mizchi$47$svg$46$Shape$Polyline.prototype.$name = "Polyline";
-function $64$mizchi$47$svg$46$Shape$Polygon(param0) {
-  this._0 = param0;
-}
-$64$mizchi$47$svg$46$Shape$Polygon.prototype.$tag = 5;
-$64$mizchi$47$svg$46$Shape$Polygon.prototype.$name = "Polygon";
-function $64$mizchi$47$svg$46$Shape$Path(param0) {
-  this._0 = param0;
-}
-$64$mizchi$47$svg$46$Shape$Path.prototype.$tag = 6;
-$64$mizchi$47$svg$46$Shape$Path.prototype.$name = "Path";
-function $64$mizchi$47$svg$46$Shape$Text(param0, param1, param2, param3) {
+_M0DTP26mizchi3svg5Shape7Ellipse.prototype.$tag = 2;
+function _M0DTP26mizchi3svg5Shape4Line(param0, param1, param2, param3) {
   this._0 = param0;
   this._1 = param1;
   this._2 = param2;
   this._3 = param3;
 }
-$64$mizchi$47$svg$46$Shape$Text.prototype.$tag = 7;
-$64$mizchi$47$svg$46$Shape$Text.prototype.$name = "Text";
-function $64$mizchi$47$svg$46$Shape$Image(param0, param1, param2, param3, param4) {
+_M0DTP26mizchi3svg5Shape4Line.prototype.$tag = 3;
+function _M0DTP26mizchi3svg5Shape8Polyline(param0) {
+  this._0 = param0;
+}
+_M0DTP26mizchi3svg5Shape8Polyline.prototype.$tag = 4;
+function _M0DTP26mizchi3svg5Shape7Polygon(param0) {
+  this._0 = param0;
+}
+_M0DTP26mizchi3svg5Shape7Polygon.prototype.$tag = 5;
+function _M0DTP26mizchi3svg5Shape4Path(param0) {
+  this._0 = param0;
+}
+_M0DTP26mizchi3svg5Shape4Path.prototype.$tag = 6;
+function _M0DTP26mizchi3svg5Shape4Text(param0, param1, param2, param3) {
+  this._0 = param0;
+  this._1 = param1;
+  this._2 = param2;
+  this._3 = param3;
+}
+_M0DTP26mizchi3svg5Shape4Text.prototype.$tag = 7;
+function _M0DTP26mizchi3svg5Shape5Image(param0, param1, param2, param3, param4) {
   this._0 = param0;
   this._1 = param1;
   this._2 = param2;
   this._3 = param3;
   this._4 = param4;
 }
-$64$mizchi$47$svg$46$Shape$Image.prototype.$tag = 8;
-$64$mizchi$47$svg$46$Shape$Image.prototype.$name = "Image";
-const $64$mizchi$47$svg$46$Shape$Group = { $tag: 9, $name: "Group" };
-function $64$mizchi$47$svg$46$Gradient$Linear(param0) {
+_M0DTP26mizchi3svg5Shape5Image.prototype.$tag = 8;
+function _M0DTP26mizchi3svg5Shape5Group() {}
+_M0DTP26mizchi3svg5Shape5Group.prototype.$tag = 9;
+const _M0DTP26mizchi3svg5Shape5Group__ = new _M0DTP26mizchi3svg5Shape5Group();
+function _M0TP26mizchi3svg14InheritedStyle(param0, param1, param2) {
+  this.fill = param0;
+  this.stroke = param1;
+  this.color = param2;
+}
+function _M0TPC13ref3RefGRP26mizchi3svg5ColorE(param0) {
+  this.val = param0;
+}
+function _M0TP26mizchi3svg12GradientStop(param0, param1) {
+  this.offset = param0;
+  this.color = param1;
+}
+function _M0DTP26mizchi3svg8Gradient6Linear(param0) {
   this._0 = param0;
 }
-$64$mizchi$47$svg$46$Gradient$Linear.prototype.$tag = 0;
-$64$mizchi$47$svg$46$Gradient$Linear.prototype.$name = "Linear";
-function $64$mizchi$47$svg$46$Gradient$Radial(param0) {
+_M0DTP26mizchi3svg8Gradient6Linear.prototype.$tag = 0;
+function _M0DTP26mizchi3svg8Gradient6Radial(param0) {
   this._0 = param0;
 }
-$64$mizchi$47$svg$46$Gradient$Radial.prototype.$tag = 1;
-$64$mizchi$47$svg$46$Gradient$Radial.prototype.$name = "Radial";
-const $64$mizchi$47$svg$46$ResolvedPaint$None = { $tag: 0, $name: "None" };
-function $64$mizchi$47$svg$46$ResolvedPaint$SolidColor(param0) {
+_M0DTP26mizchi3svg8Gradient6Radial.prototype.$tag = 1;
+function _M0TPC13ref3RefGRP26mizchi3svg11MarkerUnitsE(param0) {
+  this.val = param0;
+}
+function _M0TPC13ref3RefGRP26mizchi3svg12MarkerOrientE(param0) {
+  this.val = param0;
+}
+function _M0TPC13ref3RefGORP26mizchi3svg7ViewBoxE(param0) {
+  this.val = param0;
+}
+function _M0TPC13ref3RefGRP26mizchi3svg19PreserveAspectRatioE(param0) {
+  this.val = param0;
+}
+function _M0TP26mizchi3svg15SVGParseContext(param0, param1, param2, param3, param4, param5, param6, param7, param8) {
+  this.symbols = param0;
+  this.defs = param1;
+  this.clips = param2;
+  this.masks = param3;
+  this.patterns = param4;
+  this.gradients = param5;
+  this.markers = param6;
+  this.style_stack = param7;
+  this.viewport_stack = param8;
+}
+function _M0TP26mizchi3svg9SVGParser(param0, param1, param2) {
+  this.data = param0;
+  this.pos = param1;
+  this.len = param2;
+}
+function _M0TP26mizchi3svg11SVGDocument(param0, param1, param2, param3, param4, param5, param6) {
+  this.root = param0;
+  this.symbols = param1;
+  this.clips = param2;
+  this.masks = param3;
+  this.patterns = param4;
+  this.gradients = param5;
+  this.markers = param6;
+}
+function _M0TPC13ref3RefGORP26mizchi3svg5ShapeE(param0) {
+  this.val = param0;
+}
+function _M0TPC13ref3RefGOdE(param0) {
+  this.val = param0;
+}
+function _M0TP26mizchi3svg13RenderContext(param0, param1, param2, param3, param4, param5) {
+  this.setter = param0;
+  this.width = param1;
+  this.height = param2;
+  this.flatness = param3;
+  this.clip = param4;
+  this.text_to_paths = param5;
+}
+function _M0TP26mizchi3svg11PixelSetter(param0) {
+  this.set = param0;
+}
+function _M0TP26mizchi3svg11PathContext(param0, param1, param2, param3, param4, param5, param6, param7) {
+  this.x = param0;
+  this.y = param1;
+  this.start_x = param2;
+  this.start_y = param3;
+  this.last_ctrl_x = param4;
+  this.last_ctrl_y = param5;
+  this.last_cmd_was_curve = param6;
+  this.last_cmd_was_quad = param7;
+}
+function _M0TPC13ref3RefGRPB5ArrayGUddEEE(param0) {
+  this.val = param0;
+}
+function _M0TPC13ref3RefGRP26mizchi3svg11BoundingBoxE(param0) {
+  this.val = param0;
+}
+function _M0DTP26mizchi3svg13ResolvedPaint4None() {}
+_M0DTP26mizchi3svg13ResolvedPaint4None.prototype.$tag = 0;
+const _M0DTP26mizchi3svg13ResolvedPaint4None__ = new _M0DTP26mizchi3svg13ResolvedPaint4None();
+function _M0DTP26mizchi3svg13ResolvedPaint10SolidColor(param0) {
   this._0 = param0;
 }
-$64$mizchi$47$svg$46$ResolvedPaint$SolidColor.prototype.$tag = 1;
-$64$mizchi$47$svg$46$ResolvedPaint$SolidColor.prototype.$name = "SolidColor";
-function $64$mizchi$47$svg$46$ResolvedPaint$LinearGrad(param0) {
+_M0DTP26mizchi3svg13ResolvedPaint10SolidColor.prototype.$tag = 1;
+function _M0DTP26mizchi3svg13ResolvedPaint10LinearGrad(param0) {
   this._0 = param0;
 }
-$64$mizchi$47$svg$46$ResolvedPaint$LinearGrad.prototype.$tag = 2;
-$64$mizchi$47$svg$46$ResolvedPaint$LinearGrad.prototype.$name = "LinearGrad";
-function $64$mizchi$47$svg$46$ResolvedPaint$RadialGrad(param0) {
+_M0DTP26mizchi3svg13ResolvedPaint10LinearGrad.prototype.$tag = 2;
+function _M0DTP26mizchi3svg13ResolvedPaint10RadialGrad(param0) {
   this._0 = param0;
 }
-$64$mizchi$47$svg$46$ResolvedPaint$RadialGrad.prototype.$tag = 3;
-$64$mizchi$47$svg$46$ResolvedPaint$RadialGrad.prototype.$name = "RadialGrad";
-function $64$mizchi$47$svg$46$ResolvedPaint$Pattern(param0) {
+_M0DTP26mizchi3svg13ResolvedPaint10RadialGrad.prototype.$tag = 3;
+function _M0DTP26mizchi3svg13ResolvedPaint7Pattern(param0) {
   this._0 = param0;
 }
-$64$mizchi$47$svg$46$ResolvedPaint$Pattern.prototype.$tag = 4;
-$64$mizchi$47$svg$46$ResolvedPaint$Pattern.prototype.$name = "Pattern";
-function Result$Err$9$(param0) {
+_M0DTP26mizchi3svg13ResolvedPaint7Pattern.prototype.$tag = 4;
+function _M0TP26mizchi3svg11MarkerPoint(param0, param1, param2, param3, param4, param5, param6, param7) {
+  this.x = param0;
+  this.y = param1;
+  this.has_in = param2;
+  this.in_dx = param3;
+  this.in_dy = param4;
+  this.has_out = param5;
+  this.out_dx = param6;
+  this.out_dy = param7;
+}
+function _M0TPC13ref3RefGRPB5ArrayGRP26mizchi3svg11MarkerPointEE(param0) {
+  this.val = param0;
+}
+function _M0TP26mizchi3svg13MarkerSubpath(param0) {
+  this.points = param0;
+}
+function _M0TP26mizchi3svg15RenderResources(param0, param1, param2, param3, param4) {
+  this.clips = param0;
+  this.masks = param1;
+  this.patterns = param2;
+  this.gradients = param3;
+  this.markers = param4;
+}
+function _M0TPC13ref3RefGRP26mizchi3svg13RenderContextE(param0) {
+  this.val = param0;
+}
+function _M0TP26mizchi4font12BinaryReader(param0, param1) {
+  this.data = param0;
+  this.pos = param1;
+}
+function _M0TP26mizchi4font7CSState(param0, param1, param2, param3, param4, param5, param6, param7, param8, param9) {
+  this.x = param0;
+  this.y = param1;
+  this.has_width = param2;
+  this.num_stems = param3;
+  this.first_move = param4;
+  this.ended = param5;
+  this.is_cff2 = param6;
+  this.storage = param7;
+  this.vsindex = param8;
+  this.scalars = param9;
+}
+function _M0TP26mizchi4font10GlyphPoint(param0, param1, param2) {
+  this.x = param0;
+  this.y = param1;
+  this.on_curve = param2;
+}
+function _M0TP26mizchi4font9GlyphBBox(param0, param1, param2, param3) {
+  this.x_min = param0;
+  this.y_min = param1;
+  this.x_max = param2;
+  this.y_max = param3;
+}
+function _M0TP26mizchi4font12GlyphMetrics(param0, param1, param2) {
+  this.advance_width = param0;
+  this.left_side_bearing = param1;
+  this.bbox = param2;
+}
+function _M0TP26mizchi4font13GlyphPosition(param0, param1, param2, param3, param4) {
+  this.codepoint = param0;
+  this.glyph_id = param1;
+  this.x_offset = param2;
+  this.y_offset = param3;
+  this.x_advance = param4;
+}
+function _M0TP36mizchi6kagura4text10GlyphCache(param0, param1, param2, param3, param4, param5, param6) {
+  this.entries = param0;
+  this.next_x = param1;
+  this.next_y = param2;
+  this.row_height = param3;
+  this.atlas_width = param4;
+  this.atlas_height = param5;
+  this.atlas_page_id = param6;
+}
+function _M0TPB9ArrayViewGUiRP36mizchi6kagura4text15GlyphCacheEntryEE(param0, param1, param2) {
+  this.buf = param0;
+  this.start = param1;
+  this.end = param2;
+}
+function _M0TP36mizchi6kagura4text15GlyphCacheEntry(param0, param1, param2, param3, param4, param5) {
+  this.glyph_id = param0;
+  this.atlas_x = param1;
+  this.atlas_y = param2;
+  this.atlas_w = param3;
+  this.atlas_h = param4;
+  this.atlas_page_id = param5;
+}
+function _M0TP36mizchi6kagura4text10GlyphAtlas(param0, param1, param2, param3, param4, param5) {
+  this.cache = param0;
+  this.width = param1;
+  this.height = param2;
+  this.pixels = param3;
+  this.dirty = param4;
+  this.last_used_generation = param5;
+}
+function _M0TP36mizchi6kagura4text22SimpleTextBatchBuilder(param0, param1) {
+  this.cache = param0;
+  this.pipeline_id = param1;
+}
+function _M0DTPC16result6ResultGRPB5ArrayGRP36mizchi6kagura3gfx20DrawTrianglesCommandERPC15error5ErrorE3Err(param0) {
   this._0 = param0;
 }
-Result$Err$9$.prototype.$tag = 0;
-Result$Err$9$.prototype.$name = "Err";
-function Result$Ok$9$(param0) {
+_M0DTPC16result6ResultGRPB5ArrayGRP36mizchi6kagura3gfx20DrawTrianglesCommandERPC15error5ErrorE3Err.prototype.$tag = 0;
+function _M0DTPC16result6ResultGRPB5ArrayGRP36mizchi6kagura3gfx20DrawTrianglesCommandERPC15error5ErrorE2Ok(param0) {
   this._0 = param0;
 }
-Result$Ok$9$.prototype.$tag = 1;
-Result$Ok$9$.prototype.$name = "Ok";
+_M0DTPC16result6ResultGRPB5ArrayGRP36mizchi6kagura3gfx20DrawTrianglesCommandERPC15error5ErrorE2Ok.prototype.$tag = 1;
+function _M0TP36mizchi6kagura4text11GlyphBitmap(param0, param1, param2) {
+  this.width = param0;
+  this.height = param1;
+  this.pixels = param2;
+}
+function _M0TPB9ArrayViewGUiRPB5ArrayGRP36mizchi6kagura4text9GlyphQuadEEE(param0, param1, param2) {
+  this.buf = param0;
+  this.start = param1;
+  this.end = param2;
+}
+function _M0TP36mizchi6kagura4text9GlyphQuad(param0, param1, param2, param3, param4, param5, param6, param7, param8) {
+  this.glyph_id = param0;
+  this.atlas_x = param1;
+  this.atlas_y = param2;
+  this.atlas_w = param3;
+  this.atlas_h = param4;
+  this.dst_x = param5;
+  this.dst_y = param6;
+  this.dst_w = param7;
+  this.dst_h = param8;
+}
+function _M0TP36mizchi6kagura4text13FontLoadHooks(param0) {
+  this.load_font_data = param0;
+}
+function _M0TP36mizchi6kagura10particle3d15ParticleEmitter(param0, param1, param2, param3) {
+  this.config = param0;
+  this.particles = param1;
+  this.spawn_accumulator = param2;
+  this.frame_count = param3;
+}
+function _M0TP36mizchi6kagura10particle3d8Particle(param0, param1, param2, param3, param4, param5) {
+  this.position = param0;
+  this.velocity = param1;
+  this.age = param2;
+  this.max_age = param3;
+  this.color = param4;
+  this.size = param5;
+}
+function _M0TP26mizchi22kagura__effect__studio17TimelineTrackLane(param0, param1, param2, param3, param4, param5, param6) {
+  this.id = param0;
+  this.label = param1;
+  this.start_ratio = param2;
+  this.duration_ratio = param3;
+  this.active = param4;
+  this.marker_ratios = param5;
+  this.accent_color = param6;
+}
+function _M0TP26mizchi22kagura__effect__studio12TimelineView(param0, param1, param2, param3) {
+  this.duration = param0;
+  this.normalized_time = param1;
+  this.playhead_ratio = param2;
+  this.lanes = param3;
+}
+function _M0TP36mizchi6kagura10particle3d13EmitterConfig(param0, param1, param2, param3, param4, param5, param6, param7, param8, param9, param10, param11) {
+  this.position = param0;
+  this.spawn_rate = param1;
+  this.initial_velocity_min = param2;
+  this.initial_velocity_max = param3;
+  this.lifetime_min = param4;
+  this.lifetime_max = param5;
+  this.size_min = param6;
+  this.size_max = param7;
+  this.color_start = param8;
+  this.color_end = param9;
+  this.gravity = param10;
+  this.max_particles = param11;
+}
+function _M0TP26mizchi22kagura__effect__studio20ScheduledEffectBurst(param0, param1, param2, param3, param4) {
+  this.track_id = param0;
+  this.track_label = param1;
+  this.spawn_time = param2;
+  this.age = param3;
+  this.config = param4;
+}
+function _M0TP26mizchi22kagura__effect__studio17EffectRuntimePlan(param0, param1, param2, param3, param4) {
+  this.preview_time = param0;
+  this.normalized_time = param1;
+  this.active_track_ids = param2;
+  this.total_particles = param3;
+  this.scheduled_bursts = param4;
+}
+function _M0TP26mizchi22kagura__effect__studio11EffectTrack(param0, param1, param2, param3, param4, param5, param6, param7, param8, param9, param10, param11, param12, param13, param14, param15, param16, param17, param18, param19) {
+  this.id = param0;
+  this.label = param1;
+  this.start_time = param2;
+  this.duration = param3;
+  this.burst_interval = param4;
+  this.burst_particles = param5;
+  this.pattern = param6;
+  this.origin = param7;
+  this.secondary_origin = param8;
+  this.spread_radius = param9;
+  this.initial_velocity_min = param10;
+  this.initial_velocity_max = param11;
+  this.lifetime_min = param12;
+  this.lifetime_max = param13;
+  this.size_min = param14;
+  this.size_max = param15;
+  this.color_start = param16;
+  this.color_end = param17;
+  this.gravity = param18;
+  this.enabled = param19;
+}
+function _M0TP26mizchi22kagura__effect__studio14EffectDocument(param0, param1, param2, param3, param4, param5) {
+  this.name = param0;
+  this.duration = param1;
+  this.looping = param2;
+  this.notes = param3;
+  this.ai_edit_goal = param4;
+  this.tracks = param5;
+}
+function _M0TPC13ref3RefGORP26mizchi19web__runtime__hooks21SourceImageCacheEntryE(param0) {
+  this.val = param0;
+}
 const _M0FP26mizchi19web__runtime__hooks20js__prepare__surface = (selector, fallbackWidth, fallbackHeight) => {
    const root = globalThis;
    const state = root.__kaguraWebRuntime ?? (root.__kaguraWebRuntime = {
@@ -1910,6 +2843,21 @@ const _M0FP26mizchi19web__runtime__hooks26js__audio__output__latency = () => {
    if (a?.ctx) return a.ctx.outputLatency || 0;
    return 0;
  };
+function _M0TP36mizchi6kagura3hud10HudContext(param0, param1, param2, param3, param4) {
+  this.dst = param0;
+  this.shader = param1;
+  this.screen_w = param2;
+  this.screen_h = param3;
+  this.text_renderer = param4;
+}
+function _M0TP26mizchi14effect__studio24EffectStudioOverlayModel(param0, param1, param2, param3, param4, param5) {
+  this.status_label = param0;
+  this.lane_count = param1;
+  this.scheduled_burst_count = param2;
+  this.scheduled_particle_count = param3;
+  this.active_track_count = param4;
+  this.playhead_ratio = param5;
+}
 const _M0FP26mizchi14effect__studio36js__publish__effect__studio__context = (contextJson, summary) => {
    let parsed = null;
    try {
@@ -1965,17 +2913,29 @@ const _M0FP26mizchi14effect__studio36js__publish__effect__studio__exports = (bun
      },
    };
  };;
-const _M0FP095_40moonbitlang_2fcore_2fbuiltin_2eStringBuilder_24as_24_40moonbitlang_2fcore_2fbuiltin_2eLogger = { method_0: _M0IP311moonbitlang4core7builtin13StringBuilderP311moonbitlang4core7builtin6Logger13write__string, method_1: _M0IP016_24default__implP311moonbitlang4core7builtin6Logger16write__substringGRP311moonbitlang4core7builtin13StringBuilderE, method_2: _M0IP311moonbitlang4core7builtin13StringBuilderP311moonbitlang4core7builtin6Logger11write__view, method_3: _M0IP311moonbitlang4core7builtin13StringBuilderP311moonbitlang4core7builtin6Logger11write__char };
-function _M0FP15Error10to__string(_e) {
-  if (_e.$tag === 0) {
-    return _M0IP016_24default__implP311moonbitlang4core7builtin4Show10to__stringGRP311moonbitlang4core7builtin17CreatingViewErrorE(_e);
-  } else {
-    return _M0IP016_24default__implP311moonbitlang4core7builtin4Show10to__stringGRP311moonbitlang4core7builtin17CreatingViewErrorE(_e);
-  }
+function _M0TP26mizchi14effect__studio17EffectStudioState(param0, param1, param2, param3, param4, param5, param6, param7, param8, param9, param10, param11, param12, param13) {
+  this.doc = param0;
+  this.preview_time = param1;
+  this.playing = param2;
+  this.frame_count = param3;
+  this.camera = param4;
+  this.prev_cursor_x = param5;
+  this.prev_cursor_y = param6;
+  this.key_state = param7;
+  this.mouse_state = param8;
+  this.particle_shader = param9;
+  this.lit_colored_shader = param10;
+  this.lighting = param11;
+  this.floor_mesh = param12;
+  this.pedestal_mesh = param13;
 }
-const _M0FP311moonbitlang4core5float10min__value = $f32_reinterpret_i32(-8388609);
-const _M0FP311moonbitlang4core5float10max__value = $f32_reinterpret_i32(2139095039);
-const _M0FP311moonbitlang4core5float14not__a__number = $f32_reinterpret_i32(2143289344);
+const _M0FP092moonbitlang_2fcore_2fbuiltin_2fStringBuilder_24as_24_40moonbitlang_2fcore_2fbuiltin_2eLogger = { method_0: _M0IPB13StringBuilderPB6Logger13write__string, method_1: _M0IP016_24default__implPB6Logger16write__substringGRPB13StringBuilderE, method_2: _M0IPB13StringBuilderPB6Logger11write__view, method_3: _M0IPB13StringBuilderPB6Logger11write__char };
+function _M0FP15Error10to__string(_e) {
+  return $panic();
+}
+const _M0FPC15float10min__value = $f32_reinterpret_i32(-8388609);
+const _M0FPC15float10max__value = $f32_reinterpret_i32(2139095039);
+const _M0FPC15float14not__a__number = $f32_reinterpret_i32(2143289344);
 const _M0FP36mizchi6kagura6mesh3d16vertex3d__stride = 8;
 const _M0FP26mizchi14effect__studio9screen__h = 640;
 const _M0FP26mizchi14effect__studio9screen__w = 960;
@@ -1987,69 +2947,54 @@ const _M0FP26mizchi14effect__studio6key__r = 82;
 const _M0FP26mizchi14effect__studio10key__right = 39;
 const _M0FP26mizchi14effect__studio10key__shift = 16;
 const _M0FP26mizchi14effect__studio10key__space = 32;
-const _M0FP36mizchi6kagura6engine16lifecycle__hooks = _M0MP311moonbitlang4core3ref3Ref3newGORP36mizchi6kagura6engine14LifecycleHooksE(undefined);
-const _M0FP26mizchi19web__runtime__hooks21web__canvas__selector = _M0MP311moonbitlang4core3ref3Ref3newGsE("#app");
-const _M0FP26mizchi19web__runtime__hooks21web__hooks__installed = _M0MP311moonbitlang4core3ref3Ref3newGbE(false);
-const _M0FP36mizchi6kagura5audio20audio__output__hooks = _M0MP311moonbitlang4core3ref3Ref3newGRP36mizchi6kagura5audio16AudioOutputHooksE(_M0FP36mizchi6kagura5audio29default__audio__output__hooks());
-const _M0FP311moonbitlang4core7builtin33brute__force__find_2econstr_2f325 = 0;
-const _M0FP311moonbitlang4core7builtin43boyer__moore__horspool__find_2econstr_2f311 = 0;
-const _M0FP26mizchi19web__runtime__hooks20source__image__cache = _M0MP311moonbitlang4core3ref3Ref3newGRP311moonbitlang4core7builtin5ArrayGRP26mizchi19web__runtime__hooks21SourceImageCacheEntryEE([]);
-const _M0FP26mizchi19web__runtime__hooks19gpu__texture__dirty = _M0MP311moonbitlang4core3ref3Ref3newGRP311moonbitlang4core7builtin5ArrayGiEE([]);
-const _M0FP36mizchi6kagura3gfx20web__graphics__hooks = _M0MP311moonbitlang4core3ref3Ref3newGRP36mizchi6kagura3gfx16WebGraphicsHooksE(_M0FP36mizchi6kagura3gfx29default__web__graphics__hooks());
-const _M0FP26mizchi19web__runtime__hooks27synced__source__generations = _M0MP311moonbitlang4core3ref3Ref3newGRP311moonbitlang4core7builtin5ArrayGRP26mizchi19web__runtime__hooks22SyncedSourceGenerationEE([]);
-const _M0FP36mizchi6kagura4text17font__load__hooks = _M0MP311moonbitlang4core3ref3Ref3newGRP36mizchi6kagura4text13FontLoadHooksE(_M0FP36mizchi6kagura4text26default__font__load__hooks());
-const _M0FP36mizchi6kagura8platform18web__canvas__hooks = _M0MP311moonbitlang4core3ref3Ref3newGRP36mizchi6kagura8platform14WebCanvasHooksE(_M0FP36mizchi6kagura8platform27default__web__canvas__hooks());
+const _M0FP36mizchi6kagura6engine16lifecycle__hooks = _M0MPC13ref3Ref3newGORP36mizchi6kagura6engine14LifecycleHooksE(undefined);
+const _M0FP26mizchi19web__runtime__hooks21web__canvas__selector = _M0MPC13ref3Ref3newGsE("#app");
+const _M0FP26mizchi19web__runtime__hooks21web__hooks__installed = _M0MPC13ref3Ref3newGbE(false);
+const _M0FP36mizchi6kagura5audio20audio__output__hooks = _M0MPC13ref3Ref3newGsE(_M0FP36mizchi6kagura5audio29default__audio__output__hooks());
+const _M0FPB33brute__force__find_2econstr_2f314 = 0;
+const _M0FPB43boyer__moore__horspool__find_2econstr_2f300 = 0;
+const _M0FP26mizchi19web__runtime__hooks20source__image__cache = _M0MPC13ref3Ref3newGORP36mizchi6kagura6engine14LifecycleHooksE([]);
+const _M0FP26mizchi19web__runtime__hooks19gpu__texture__dirty = _M0MPC13ref3Ref3newGORP36mizchi6kagura6engine14LifecycleHooksE([]);
+const _M0FP36mizchi6kagura3gfx20web__graphics__hooks = _M0MPC13ref3Ref3newGsE(_M0FP36mizchi6kagura3gfx29default__web__graphics__hooks());
+const _M0FP26mizchi19web__runtime__hooks27synced__source__generations = _M0MPC13ref3Ref3newGORP36mizchi6kagura6engine14LifecycleHooksE([]);
+const _M0FP36mizchi6kagura4text17font__load__hooks = _M0MPC13ref3Ref3newGsE(_M0FP36mizchi6kagura4text26default__font__load__hooks());
+const _M0FP36mizchi6kagura8platform18web__canvas__hooks = _M0MPC13ref3Ref3newGsE(_M0FP36mizchi6kagura8platform27default__web__canvas__hooks());
 (() => {
-  _M0FP36mizchi6kagura6engine21set__lifecycle__hooks({ on_start: (canvas, _title) => {
+  _M0FP36mizchi6kagura6engine21set__lifecycle__hooks(new _M0TP36mizchi6kagura6engine14LifecycleHooks((canvas, _title) => {
     _M0FP26mizchi19web__runtime__hooks7install(canvas);
-  }, on_stop: () => {
+  }, () => {
     _M0FP26mizchi19web__runtime__hooks8shutdown();
-  } });
+  }));
 })();
-const _M0FP311moonbitlang4core7builtin4seed = _M0FP311moonbitlang4core7builtin12random__seed();
-const _M0FP311moonbitlang4core6double13neg__infinity = _M0MP311moonbitlang4core5int645Int6423reinterpret__as__double($_4503599627370496L);
-const _M0FP311moonbitlang4core6double8infinity = _M0MP311moonbitlang4core5int645Int6423reinterpret__as__double($9218868437227405312L);
-const _M0FP311moonbitlang4core4math35trig__reduce_2etwo__over__pi_2f1525 = [0, 683565275, -1819212470, 2131351028, 2102212464, 920167782, 1326507024, 0];
-const _M0FP36mizchi6kagura3gfx25graphics__clock__provider = _M0MP311moonbitlang4core3ref3Ref3newGWEdE(_M0FP36mizchi6kagura3gfx23default__clock__now__ms);
-const _M0FP36mizchi6kagura3gfx23native__graphics__hooks = _M0MP311moonbitlang4core3ref3Ref3newGRP36mizchi6kagura3gfx19NativeGraphicsHooksE(_M0FP36mizchi6kagura3gfx32default__native__graphics__hooks());
-function _M0FP311moonbitlang4core5abort5abortGRP311moonbitlang4core6string10StringViewE(msg) {
+const _M0FPB4seed = _M0FPB12random__seed();
+const _M0FPC16double13neg__infinity = _M0MPC15int645Int6423reinterpret__as__double($_4503599627370496L);
+const _M0FPC16double8infinity = _M0MPC15int645Int6423reinterpret__as__double($9218868437227405312L);
+const _M0FPC14math35trig__reduce_2etwo__over__pi_2f1513 = [0, 683565275, -1819212470, 2131351028, 2102212464, 920167782, 1326507024, 0];
+const _M0FP36mizchi6kagura3gfx25graphics__clock__provider = _M0MPC13ref3Ref3newGsE(_M0FP36mizchi6kagura3gfx23default__clock__now__ms);
+const _M0FP36mizchi6kagura3gfx23native__graphics__hooks = _M0MPC13ref3Ref3newGsE(_M0FP36mizchi6kagura3gfx32default__native__graphics__hooks());
+function _M0FPC15abort5abortGRPC16string10StringViewE(msg) {
   return $panic();
 }
-function _M0FP311moonbitlang4core5abort5abortGRP311moonbitlang4core7builtin9ArrayViewGiEE(msg) {
+function _M0FPC15abort5abortGdE(msg) {
   return $panic();
 }
-function _M0FP311moonbitlang4core5abort5abortGdE(msg) {
-  return $panic();
-}
-function _M0IP311moonbitlang4core7builtin17CreatingViewErrorP311moonbitlang4core7builtin4Show6output(_x_5142, _x_5143) {
-  if (_x_5142.$tag === 1) {
-    _x_5143.method_table.method_0(_x_5143.self, "IndexOutOfBounds");
-    return;
-  } else {
-    _x_5143.method_table.method_0(_x_5143.self, "InvalidIndex");
-    return;
-  }
-}
-function _M0FP311moonbitlang4core7builtin4rotl(x, r) {
+function _M0FPB4rotl(x, r) {
   return x << r | (x >>> (32 - r | 0) | 0);
 }
-function _M0MP311moonbitlang4core7builtin6Hasher8consume4(self, input) {
-  self.acc = Math.imul(_M0FP311moonbitlang4core7builtin4rotl((self.acc >>> 0) + ((Math.imul(input, -1028477379) | 0) >>> 0) | 0, 17), 668265263) | 0;
+function _M0MPB6Hasher8consume4(self, input) {
+  self.acc = Math.imul(_M0FPB4rotl((self.acc >>> 0) + ((Math.imul(input, -1028477379) | 0) >>> 0) | 0, 17), 668265263) | 0;
 }
-function _M0MP311moonbitlang4core7builtin6Hasher13combine__uint(self, value) {
+function _M0MPB6Hasher13combine__uint(self, value) {
   self.acc = (self.acc >>> 0) + (4 >>> 0) | 0;
-  _M0MP311moonbitlang4core7builtin6Hasher8consume4(self, value);
+  _M0MPB6Hasher8consume4(self, value);
 }
-function _M0FP311moonbitlang4core7builtin5abortGRP311moonbitlang4core6string10StringViewE(string, loc) {
-  return _M0FP311moonbitlang4core5abort5abortGRP311moonbitlang4core6string10StringViewE(`${_M0IP311moonbitlang4core6string6StringP311moonbitlang4core7builtin4Show10to__string(string)}\n  at ${_M0IP016_24default__implP311moonbitlang4core7builtin4Show10to__stringGRP311moonbitlang4core7builtin9SourceLocE(loc)}\n`);
+function _M0FPB5abortGRPC16string10StringViewE(string, loc) {
+  return _M0FPC15abort5abortGRPC16string10StringViewE(`${_M0IPC16string6StringPB4Show10to__string(string)}\n  at ${_M0IP016_24default__implPB4Show10to__stringGRPB9SourceLocE(loc)}\n`);
 }
-function _M0FP311moonbitlang4core7builtin5abortGRP311moonbitlang4core7builtin9ArrayViewGiEE(string, loc) {
-  return _M0FP311moonbitlang4core5abort5abortGRP311moonbitlang4core7builtin9ArrayViewGiEE(`${_M0IP311moonbitlang4core6string6StringP311moonbitlang4core7builtin4Show10to__string(string)}\n  at ${_M0IP016_24default__implP311moonbitlang4core7builtin4Show10to__stringGRP311moonbitlang4core7builtin9SourceLocE(loc)}\n`);
+function _M0FPB5abortGdE(string, loc) {
+  return _M0FPC15abort5abortGdE(`${_M0IPC16string6StringPB4Show10to__string(string)}\n  at ${_M0IP016_24default__implPB4Show10to__stringGRPB9SourceLocE(loc)}\n`);
 }
-function _M0FP311moonbitlang4core7builtin5abortGdE(string, loc) {
-  return _M0FP311moonbitlang4core5abort5abortGdE(`${_M0IP311moonbitlang4core6string6StringP311moonbitlang4core7builtin4Show10to__string(string)}\n  at ${_M0IP016_24default__implP311moonbitlang4core7builtin4Show10to__stringGRP311moonbitlang4core7builtin9SourceLocE(loc)}\n`);
-}
-function _M0MP311moonbitlang4core5array10FixedArray12unsafe__blitGRP311moonbitlang4core7builtin17UnsafeMaybeUninitGiEE(dst, dst_offset, src, src_offset, len) {
+function _M0MPC15array10FixedArray12unsafe__blitGRPB17UnsafeMaybeUninitGiEE(dst, dst_offset, src, src_offset, len) {
   if (dst === src && dst_offset < src_offset) {
     let _tmp = 0;
     while (true) {
@@ -2084,32 +3029,31 @@ function _M0MP311moonbitlang4core5array10FixedArray12unsafe__blitGRP311moonbitla
     }
   }
 }
-function _M0MP311moonbitlang4core7builtin18UninitializedArray12unsafe__blitGiE(dst, dst_offset, src, src_offset, len) {
-  _M0MP311moonbitlang4core5array10FixedArray12unsafe__blitGRP311moonbitlang4core7builtin17UnsafeMaybeUninitGiEE(dst, dst_offset, src, src_offset, len);
+function _M0MPB18UninitializedArray12unsafe__blitGiE(dst, dst_offset, src, src_offset, len) {
+  _M0MPC15array10FixedArray12unsafe__blitGRPB17UnsafeMaybeUninitGiEE(dst, dst_offset, src, src_offset, len);
 }
-function _M0MP311moonbitlang4core7builtin13StringBuilder11new_2einner(size_hint) {
-  return { val: "" };
+function _M0MPB13StringBuilder11new_2einner(size_hint) {
+  return new _M0TPB13StringBuilder("");
 }
-function _M0MP311moonbitlang4core7builtin13StringBuilder10to__string(self) {
+function _M0MPB13StringBuilder10to__string(self) {
   return self.val;
 }
-function _M0IP311moonbitlang4core7builtin13StringBuilderP311moonbitlang4core7builtin6Logger11write__char(self, ch) {
-  const _bind = self;
-  _bind.val = `${_bind.val}${String.fromCodePoint(ch)}`;
+function _M0IPB13StringBuilderPB6Logger11write__char(self, ch) {
+  self.val = `${self.val}${String.fromCodePoint(ch)}`;
 }
-function _M0MP311moonbitlang4core6uint166UInt1622is__leading__surrogate(self) {
-  return _M0IP016_24default__implP311moonbitlang4core7builtin7Compare6op__geGkE(self, 55296) && _M0IP016_24default__implP311moonbitlang4core7builtin7Compare6op__leGkE(self, 56319);
+function _M0MPC16uint166UInt1622is__leading__surrogate(self) {
+  return _M0IP016_24default__implPB7Compare6op__geGkE(self, 55296) && _M0IP016_24default__implPB7Compare6op__leGkE(self, 56319);
 }
-function _M0MP311moonbitlang4core6uint166UInt1623is__trailing__surrogate(self) {
-  return _M0IP016_24default__implP311moonbitlang4core7builtin7Compare6op__geGkE(self, 56320) && _M0IP016_24default__implP311moonbitlang4core7builtin7Compare6op__leGkE(self, 57343);
+function _M0MPC16uint166UInt1623is__trailing__surrogate(self) {
+  return _M0IP016_24default__implPB7Compare6op__geGkE(self, 56320) && _M0IP016_24default__implPB7Compare6op__leGkE(self, 57343);
 }
-function _M0FP311moonbitlang4core7builtin32code__point__of__surrogate__pair(leading, trailing) {
+function _M0FPB32code__point__of__surrogate__pair(leading, trailing) {
   return (((Math.imul(leading - 55296 | 0, 1024) | 0) + trailing | 0) - 56320 | 0) + 65536 | 0;
 }
-function _M0MP311moonbitlang4core6uint166UInt1616unsafe__to__char(self) {
+function _M0MPC16uint166UInt1616unsafe__to__char(self) {
   return self;
 }
-function _M0MP311moonbitlang4core5array5Array2atGiE(self, index) {
+function _M0MPC15array5Array2atGiE(self, index) {
   const len = self.length;
   if (index >= 0 && index < len) {
     $bound_check(self, index);
@@ -2118,7 +3062,7 @@ function _M0MP311moonbitlang4core5array5Array2atGiE(self, index) {
     return $panic();
   }
 }
-function _M0MP311moonbitlang4core5array5Array2atGdE(self, index) {
+function _M0MPC15array5Array2atGdE(self, index) {
   const len = self.length;
   if (index >= 0 && index < len) {
     $bound_check(self, index);
@@ -2127,7 +3071,7 @@ function _M0MP311moonbitlang4core5array5Array2atGdE(self, index) {
     return $panic();
   }
 }
-function _M0MP311moonbitlang4core5array5Array2atGRP26mizchi22kagura__effect__studio11EffectTrackE(self, index) {
+function _M0MPC15array5Array2atGRP26mizchi22kagura__effect__studio11EffectTrackE(self, index) {
   const len = self.length;
   if (index >= 0 && index < len) {
     $bound_check(self, index);
@@ -2136,7 +3080,7 @@ function _M0MP311moonbitlang4core5array5Array2atGRP26mizchi22kagura__effect__stu
     return $panic();
   }
 }
-function _M0MP311moonbitlang4core5array5Array2atGRP26mizchi22kagura__effect__studio17TimelineTrackLaneE(self, index) {
+function _M0MPC15array5Array2atGRPB5ArrayGUddEEE(self, index) {
   const len = self.length;
   if (index >= 0 && index < len) {
     $bound_check(self, index);
@@ -2145,173 +3089,11 @@ function _M0MP311moonbitlang4core5array5Array2atGRP26mizchi22kagura__effect__stu
     return $panic();
   }
 }
-function _M0MP311moonbitlang4core5array5Array2atGRP26mizchi22kagura__effect__studio20ScheduledEffectBurstE(self, index) {
-  const len = self.length;
-  if (index >= 0 && index < len) {
-    $bound_check(self, index);
-    return self[index];
-  } else {
-    return $panic();
-  }
-}
-function _M0MP311moonbitlang4core5array5Array2atGRP36mizchi6kagura10particle3d8ParticleE(self, index) {
-  const len = self.length;
-  if (index >= 0 && index < len) {
-    $bound_check(self, index);
-    return self[index];
-  } else {
-    return $panic();
-  }
-}
-function _M0MP311moonbitlang4core5array5Array2atGRP36mizchi6kagura6math3d4Vec3E(self, index) {
-  const len = self.length;
-  if (index >= 0 && index < len) {
-    $bound_check(self, index);
-    return self[index];
-  } else {
-    return $panic();
-  }
-}
-function _M0MP311moonbitlang4core5array5Array2atGRP36mizchi6kagura4text10GlyphAtlasE(self, index) {
-  const len = self.length;
-  if (index >= 0 && index < len) {
-    $bound_check(self, index);
-    return self[index];
-  } else {
-    return $panic();
-  }
-}
-function _M0MP311moonbitlang4core5array5Array2atGRP26mizchi3svg5ColorE(self, index) {
-  const len = self.length;
-  if (index >= 0 && index < len) {
-    $bound_check(self, index);
-    return self[index];
-  } else {
-    return $panic();
-  }
-}
-function _M0MP311moonbitlang4core5array5Array2atGsE(self, index) {
-  const len = self.length;
-  if (index >= 0 && index < len) {
-    $bound_check(self, index);
-    return self[index];
-  } else {
-    return $panic();
-  }
-}
-function _M0MP311moonbitlang4core5array5Array2atGRP26mizchi4font17ItemVariationDataE(self, index) {
-  const len = self.length;
-  if (index >= 0 && index < len) {
-    $bound_check(self, index);
-    return self[index];
-  } else {
-    return $panic();
-  }
-}
-function _M0MP311moonbitlang4core5array5Array2atGRP26mizchi4font9VarRegionE(self, index) {
-  const len = self.length;
-  if (index >= 0 && index < len) {
-    $bound_check(self, index);
-    return self[index];
-  } else {
-    return $panic();
-  }
-}
-function _M0MP311moonbitlang4core5array5Array2atGRP26mizchi3svg14InheritedStyleE(self, index) {
-  const len = self.length;
-  if (index >= 0 && index < len) {
-    $bound_check(self, index);
-    return self[index];
-  } else {
-    return $panic();
-  }
-}
-function _M0MP311moonbitlang4core5array5Array2atGUddEE(self, index) {
-  const len = self.length;
-  if (index >= 0 && index < len) {
-    $bound_check(self, index);
-    return self[index];
-  } else {
-    return $panic();
-  }
-}
-function _M0MP311moonbitlang4core5array5Array2atGUiiEE(self, index) {
-  const len = self.length;
-  if (index >= 0 && index < len) {
-    $bound_check(self, index);
-    return self[index];
-  } else {
-    return $panic();
-  }
-}
-function _M0MP311moonbitlang4core5array5Array2atGRP26mizchi3svg7SVGNodeE(self, index) {
-  const len = self.length;
-  if (index >= 0 && index < len) {
-    $bound_check(self, index);
-    return self[index];
-  } else {
-    return $panic();
-  }
-}
-function _M0MP311moonbitlang4core5array5Array2atGRP26mizchi4font13VarRegionAxisE(self, index) {
-  const len = self.length;
-  if (index >= 0 && index < len) {
-    $bound_check(self, index);
-    return self[index];
-  } else {
-    return $panic();
-  }
-}
-function _M0MP311moonbitlang4core5array5Array2atGRP26mizchi3svg13MarkerSubpathE(self, index) {
-  const len = self.length;
-  if (index >= 0 && index < len) {
-    $bound_check(self, index);
-    return self[index];
-  } else {
-    return $panic();
-  }
-}
-function _M0MP311moonbitlang4core5array5Array2atGRP26mizchi3svg11MarkerPointE(self, index) {
-  const len = self.length;
-  if (index >= 0 && index < len) {
-    $bound_check(self, index);
-    return self[index];
-  } else {
-    return $panic();
-  }
-}
-function _M0MP311moonbitlang4core5array5Array2atGRP311moonbitlang4core7builtin5ArrayGUddEEE(self, index) {
-  const len = self.length;
-  if (index >= 0 && index < len) {
-    $bound_check(self, index);
-    return self[index];
-  } else {
-    return $panic();
-  }
-}
-function _M0MP311moonbitlang4core5array5Array2atGRP26mizchi4font10GlyphPointE(self, index) {
-  const len = self.length;
-  if (index >= 0 && index < len) {
-    $bound_check(self, index);
-    return self[index];
-  } else {
-    return $panic();
-  }
-}
-function _M0MP311moonbitlang4core5array5Array2atGRP26mizchi3svg12GradientStopE(self, index) {
-  const len = self.length;
-  if (index >= 0 && index < len) {
-    $bound_check(self, index);
-    return self[index];
-  } else {
-    return $panic();
-  }
-}
-function _M0MP311moonbitlang4core7builtin13SourceLocRepr5parse(repr) {
-  const _bind = { str: repr, start: 0, end: repr.length };
-  const _data = _M0MP311moonbitlang4core6string10StringView4data(_bind);
-  const _start = _M0MP311moonbitlang4core6string10StringView13start__offset(_bind);
-  const _end = _start + _M0MP311moonbitlang4core6string10StringView6length(_bind) | 0;
+function _M0MPB13SourceLocRepr5parse(repr) {
+  const _bind = new _M0TPC16string10StringView(repr, 0, repr.length);
+  const _data = _M0MPC16string10StringView4data(_bind);
+  const _start = _M0MPC16string10StringView13start__offset(_bind);
+  const _end = _start + _M0MPC16string10StringView6length(_bind) | 0;
   let _cursor = _start;
   let accept_state = -1;
   let match_end = -1;
@@ -2330,17 +3112,15 @@ function _M0MP311moonbitlang4core7builtin13SourceLocRepr5parse(repr) {
   let tag_4 = -1;
   _L: {
     if (_cursor < _end) {
-      const next_char = _M0MP311moonbitlang4core6string6String20unsafe__charcode__at(_data, _cursor);
-      _cursor = _cursor + 1 | 0;
-      if (next_char === 64) {
+      if (_M0MPC16string6String20unsafe__charcode__at(_data, _cursor) === 64) {
+        _cursor = _cursor + 1 | 0;
         _L$2: while (true) {
           tag_0 = _cursor;
           if (_cursor < _end) {
-            const next_char$2 = _M0MP311moonbitlang4core6string6String20unsafe__charcode__at(_data, _cursor);
+            const next_char = _M0MPC16string6String20unsafe__charcode__at(_data, _cursor);
             _cursor = _cursor + 1 | 0;
-            if (next_char$2 === 58) {
+            if (next_char === 58) {
               if (_cursor < _end) {
-                _M0MP311moonbitlang4core6string6String20unsafe__charcode__at(_data, _cursor);
                 _cursor = _cursor + 1 | 0;
                 let _tmp = 0;
                 _L$3: while (true) {
@@ -2354,10 +3134,10 @@ function _M0MP311moonbitlang4core7builtin13SourceLocRepr5parse(repr) {
                           tag_1 = _cursor;
                           if (_cursor < _end) {
                             _L$6: {
-                              const next_char$3 = _M0MP311moonbitlang4core6string6String20unsafe__charcode__at(_data, _cursor);
+                              const next_char$2 = _M0MPC16string6String20unsafe__charcode__at(_data, _cursor);
                               _cursor = _cursor + 1 | 0;
-                              if (next_char$3 < 58) {
-                                if (next_char$3 < 48) {
+                              if (next_char$2 < 58) {
+                                if (next_char$2 < 48) {
                                   break _L$6;
                                 } else {
                                   tag_1 = _cursor;
@@ -2366,17 +3146,17 @@ function _M0MP311moonbitlang4core7builtin13SourceLocRepr5parse(repr) {
                                   tag_3 = _cursor;
                                   if (_cursor < _end) {
                                     _L$7: {
-                                      const next_char$4 = _M0MP311moonbitlang4core6string6String20unsafe__charcode__at(_data, _cursor);
+                                      const next_char$3 = _M0MPC16string6String20unsafe__charcode__at(_data, _cursor);
                                       _cursor = _cursor + 1 | 0;
-                                      if (next_char$4 < 48) {
-                                        if (next_char$4 === 45) {
+                                      if (next_char$3 < 48) {
+                                        if (next_char$3 === 45) {
                                           break _L$4;
                                         } else {
                                           break _L$7;
                                         }
                                       } else {
-                                        if (next_char$4 > 57) {
-                                          if (next_char$4 < 59) {
+                                        if (next_char$3 > 57) {
+                                          if (next_char$3 < 59) {
                                             _tmp = 3;
                                             continue _L$3;
                                           } else {
@@ -2395,7 +3175,7 @@ function _M0MP311moonbitlang4core7builtin13SourceLocRepr5parse(repr) {
                                   }
                                 }
                               } else {
-                                if (next_char$3 > 58) {
+                                if (next_char$2 > 58) {
                                   break _L$6;
                                 } else {
                                   _tmp = 1;
@@ -2414,17 +3194,17 @@ function _M0MP311moonbitlang4core7builtin13SourceLocRepr5parse(repr) {
                           tag_2 = _cursor;
                           if (_cursor < _end) {
                             _L$6: {
-                              const next_char$3 = _M0MP311moonbitlang4core6string6String20unsafe__charcode__at(_data, _cursor);
+                              const next_char$2 = _M0MPC16string6String20unsafe__charcode__at(_data, _cursor);
                               _cursor = _cursor + 1 | 0;
-                              if (next_char$3 < 58) {
-                                if (next_char$3 < 48) {
+                              if (next_char$2 < 58) {
+                                if (next_char$2 < 48) {
                                   break _L$6;
                                 } else {
                                   _tmp = 2;
                                   continue _L$3;
                                 }
                               } else {
-                                if (next_char$3 > 58) {
+                                if (next_char$2 > 58) {
                                   break _L$6;
                                 } else {
                                   _tmp = 3;
@@ -2441,9 +3221,9 @@ function _M0MP311moonbitlang4core7builtin13SourceLocRepr5parse(repr) {
                         case 0: {
                           tag_1 = _cursor;
                           if (_cursor < _end) {
-                            const next_char$3 = _M0MP311moonbitlang4core6string6String20unsafe__charcode__at(_data, _cursor);
+                            const next_char$2 = _M0MPC16string6String20unsafe__charcode__at(_data, _cursor);
                             _cursor = _cursor + 1 | 0;
-                            if (next_char$3 === 58) {
+                            if (next_char$2 === 58) {
                               _tmp = 1;
                               continue _L$3;
                             } else {
@@ -2459,17 +3239,17 @@ function _M0MP311moonbitlang4core7builtin13SourceLocRepr5parse(repr) {
                           tag_4 = _cursor;
                           if (_cursor < _end) {
                             _L$6: {
-                              const next_char$3 = _M0MP311moonbitlang4core6string6String20unsafe__charcode__at(_data, _cursor);
+                              const next_char$2 = _M0MPC16string6String20unsafe__charcode__at(_data, _cursor);
                               _cursor = _cursor + 1 | 0;
-                              if (next_char$3 < 58) {
-                                if (next_char$3 < 48) {
+                              if (next_char$2 < 58) {
+                                if (next_char$2 < 48) {
                                   break _L$6;
                                 } else {
                                   _tmp = 4;
                                   continue _L$3;
                                 }
                               } else {
-                                if (next_char$3 > 58) {
+                                if (next_char$2 > 58) {
                                   break _L$6;
                                 } else {
                                   tag_1_2 = tag_1_1;
@@ -2477,10 +3257,10 @@ function _M0MP311moonbitlang4core7builtin13SourceLocRepr5parse(repr) {
                                   tag_1 = _cursor;
                                   if (_cursor < _end) {
                                     _L$7: {
-                                      const next_char$4 = _M0MP311moonbitlang4core6string6String20unsafe__charcode__at(_data, _cursor);
+                                      const next_char$3 = _M0MPC16string6String20unsafe__charcode__at(_data, _cursor);
                                       _cursor = _cursor + 1 | 0;
-                                      if (next_char$4 < 58) {
-                                        if (next_char$4 < 48) {
+                                      if (next_char$3 < 58) {
+                                        if (next_char$3 < 48) {
                                           break _L$7;
                                         } else {
                                           tag_1 = _cursor;
@@ -2488,17 +3268,17 @@ function _M0MP311moonbitlang4core7builtin13SourceLocRepr5parse(repr) {
                                           tag_2 = _cursor;
                                           if (_cursor < _end) {
                                             _L$8: {
-                                              const next_char$5 = _M0MP311moonbitlang4core6string6String20unsafe__charcode__at(_data, _cursor);
+                                              const next_char$4 = _M0MPC16string6String20unsafe__charcode__at(_data, _cursor);
                                               _cursor = _cursor + 1 | 0;
-                                              if (next_char$5 < 58) {
-                                                if (next_char$5 < 48) {
+                                              if (next_char$4 < 58) {
+                                                if (next_char$4 < 48) {
                                                   break _L$8;
                                                 } else {
                                                   _tmp = 5;
                                                   continue _L$3;
                                                 }
                                               } else {
-                                                if (next_char$5 > 58) {
+                                                if (next_char$4 > 58) {
                                                   break _L$8;
                                                 } else {
                                                   _tmp = 3;
@@ -2513,7 +3293,7 @@ function _M0MP311moonbitlang4core7builtin13SourceLocRepr5parse(repr) {
                                           }
                                         }
                                       } else {
-                                        if (next_char$4 > 58) {
+                                        if (next_char$3 > 58) {
                                           break _L$7;
                                         } else {
                                           _tmp = 1;
@@ -2540,17 +3320,17 @@ function _M0MP311moonbitlang4core7builtin13SourceLocRepr5parse(repr) {
                           tag_2 = _cursor;
                           if (_cursor < _end) {
                             _L$6: {
-                              const next_char$3 = _M0MP311moonbitlang4core6string6String20unsafe__charcode__at(_data, _cursor);
+                              const next_char$2 = _M0MPC16string6String20unsafe__charcode__at(_data, _cursor);
                               _cursor = _cursor + 1 | 0;
-                              if (next_char$3 < 58) {
-                                if (next_char$3 < 48) {
+                              if (next_char$2 < 58) {
+                                if (next_char$2 < 48) {
                                   break _L$6;
                                 } else {
                                   _tmp = 5;
                                   continue _L$3;
                                 }
                               } else {
-                                if (next_char$3 > 58) {
+                                if (next_char$2 > 58) {
                                   break _L$6;
                                 } else {
                                   _tmp = 3;
@@ -2570,17 +3350,17 @@ function _M0MP311moonbitlang4core7builtin13SourceLocRepr5parse(repr) {
                           tag_3 = _cursor;
                           if (_cursor < _end) {
                             _L$6: {
-                              const next_char$3 = _M0MP311moonbitlang4core6string6String20unsafe__charcode__at(_data, _cursor);
+                              const next_char$2 = _M0MPC16string6String20unsafe__charcode__at(_data, _cursor);
                               _cursor = _cursor + 1 | 0;
-                              if (next_char$3 < 48) {
-                                if (next_char$3 === 45) {
+                              if (next_char$2 < 48) {
+                                if (next_char$2 === 45) {
                                   break _L$4;
                                 } else {
                                   break _L$6;
                                 }
                               } else {
-                                if (next_char$3 > 57) {
-                                  if (next_char$3 < 59) {
+                                if (next_char$2 > 57) {
+                                  if (next_char$2 < 59) {
                                     _tmp = 3;
                                     continue _L$3;
                                   } else {
@@ -2603,17 +3383,17 @@ function _M0MP311moonbitlang4core7builtin13SourceLocRepr5parse(repr) {
                           tag_1 = _cursor;
                           if (_cursor < _end) {
                             _L$6: {
-                              const next_char$3 = _M0MP311moonbitlang4core6string6String20unsafe__charcode__at(_data, _cursor);
+                              const next_char$2 = _M0MPC16string6String20unsafe__charcode__at(_data, _cursor);
                               _cursor = _cursor + 1 | 0;
-                              if (next_char$3 < 58) {
-                                if (next_char$3 < 48) {
+                              if (next_char$2 < 58) {
+                                if (next_char$2 < 48) {
                                   break _L$6;
                                 } else {
                                   _tmp = 2;
                                   continue _L$3;
                                 }
                               } else {
-                                if (next_char$3 > 58) {
+                                if (next_char$2 > 58) {
                                   break _L$6;
                                 } else {
                                   _tmp = 1;
@@ -2648,17 +3428,17 @@ function _M0MP311moonbitlang4core7builtin13SourceLocRepr5parse(repr) {
                   tag_2 = tag_2_1;
                   if (_cursor < _end) {
                     _L$5: {
-                      const next_char$3 = _M0MP311moonbitlang4core6string6String20unsafe__charcode__at(_data, _cursor);
+                      const next_char$2 = _M0MPC16string6String20unsafe__charcode__at(_data, _cursor);
                       _cursor = _cursor + 1 | 0;
-                      if (next_char$3 < 58) {
-                        if (next_char$3 < 48) {
+                      if (next_char$2 < 58) {
+                        if (next_char$2 < 48) {
                           break _L$5;
                         } else {
                           _tmp = 4;
                           continue;
                         }
                       } else {
-                        if (next_char$3 > 58) {
+                        if (next_char$2 > 58) {
                           break _L$5;
                         } else {
                           _tmp = 1;
@@ -2690,61 +3470,60 @@ function _M0MP311moonbitlang4core7builtin13SourceLocRepr5parse(repr) {
     }
   }
   if (accept_state === 0) {
-    const start_line = _M0MP311moonbitlang4core6string6String4view(_data, match_tag_saver_1 + 1 | 0, match_tag_saver_2);
-    const start_column = _M0MP311moonbitlang4core6string6String4view(_data, match_tag_saver_2 + 1 | 0, match_tag_saver_3);
-    const pkg = _M0MP311moonbitlang4core6string6String4view(_data, _start + 1 | 0, match_tag_saver_0);
-    const filename = _M0MP311moonbitlang4core6string6String4view(_data, match_tag_saver_0 + 1 | 0, match_tag_saver_1);
-    const end_line = _M0MP311moonbitlang4core6string6String4view(_data, match_tag_saver_3 + 1 | 0, match_tag_saver_4);
-    const end_column = _M0MP311moonbitlang4core6string6String4view(_data, match_tag_saver_4 + 1 | 0, match_end);
-    return { pkg: pkg, filename: filename, start_line: start_line, start_column: start_column, end_line: end_line, end_column: end_column };
+    const start_line = _M0MPC16string6String4view(_data, match_tag_saver_1 + 1 | 0, match_tag_saver_2);
+    const start_column = _M0MPC16string6String4view(_data, match_tag_saver_2 + 1 | 0, match_tag_saver_3);
+    const pkg = _M0MPC16string6String4view(_data, _start + 1 | 0, match_tag_saver_0);
+    const filename = _M0MPC16string6String4view(_data, match_tag_saver_0 + 1 | 0, match_tag_saver_1);
+    const end_line = _M0MPC16string6String4view(_data, match_tag_saver_3 + 1 | 0, match_tag_saver_4);
+    const end_column = _M0MPC16string6String4view(_data, match_tag_saver_4 + 1 | 0, match_end);
+    return new _M0TPB13SourceLocRepr(pkg, filename, start_line, start_column, end_line, end_column);
   } else {
     return $panic();
   }
 }
-function _M0IP311moonbitlang4core7builtin13StringBuilderP311moonbitlang4core7builtin6Logger13write__string(self, str) {
-  const _bind = self;
-  _bind.val = `${_bind.val}${str}`;
+function _M0IPB13StringBuilderPB6Logger13write__string(self, str) {
+  self.val = `${self.val}${str}`;
 }
-function _M0MP311moonbitlang4core7builtin7MyInt647to__int(self) {
+function _M0MPB7MyInt647to__int(self) {
   return self.lo;
 }
-function _M0IP311moonbitlang4core6uint166UInt16P311moonbitlang4core7builtin2Eq5equal(self, that) {
+function _M0IPC16uint166UInt16PB2Eq5equal(self, that) {
   return self === that;
 }
-function _M0IP311moonbitlang4core6uint166UInt16P311moonbitlang4core7builtin2Eq10not__equal(self, that) {
+function _M0IPC16uint166UInt16PB2Eq10not__equal(self, that) {
   return self !== that;
 }
-function _M0IP311moonbitlang4core6uint166UInt16P311moonbitlang4core7builtin7Compare7compare(self, that) {
+function _M0IPC16uint166UInt16PB7Compare7compare(self, that) {
   return $compare_int(self, that);
 }
-function _M0MP311moonbitlang4core7builtin6Hasher12combine__int(self, value) {
-  _M0MP311moonbitlang4core7builtin6Hasher13combine__uint(self, value);
+function _M0MPB6Hasher12combine__int(self, value) {
+  _M0MPB6Hasher13combine__uint(self, value);
 }
-function _M0MP311moonbitlang4core7builtin6Hasher7combineGiE(self, value) {
-  _M0IP311moonbitlang4core3int3IntP311moonbitlang4core7builtin4Hash13hash__combine(value, self);
+function _M0MPB6Hasher7combineGiE(self, value) {
+  _M0IPC13int3IntPB4Hash13hash__combine(value, self);
 }
-function _M0MP311moonbitlang4core7builtin6Hasher7combineGsE(self, value) {
-  _M0IP311moonbitlang4core6string6StringP311moonbitlang4core7builtin4Hash13hash__combine(value, self);
+function _M0MPB6Hasher7combineGsE(self, value) {
+  _M0IPC16string6StringPB4Hash13hash__combine(value, self);
 }
-function _M0IP016_24default__implP311moonbitlang4core7builtin2Eq10not__equalGsE(x, y) {
+function _M0IP016_24default__implPB2Eq10not__equalGsE(x, y) {
   return !(x === y);
 }
-function _M0IP016_24default__implP311moonbitlang4core7builtin2Eq10not__equalGRP26mizchi5audio10VoiceStateE(x, y) {
-  return !_M0IP26mizchi5audio10VoiceStateP311moonbitlang4core7builtin2Eq5equal(x, y);
+function _M0IP016_24default__implPB2Eq10not__equalGRP26mizchi5audio10VoiceStateE(x, y) {
+  return !_M0IP26mizchi5audio10VoiceStatePB2Eq5equal(x, y);
 }
-function _M0IP016_24default__implP311moonbitlang4core7builtin2Eq10not__equalGlE(x, y) {
-  return !_M0IP311moonbitlang4core5int645Int64P311moonbitlang4core7builtin2Eq5equal(x, y);
+function _M0IP016_24default__implPB2Eq10not__equalGlE(x, y) {
+  return !_M0IPC15int645Int64PB2Eq5equal(x, y);
 }
-function _M0IP016_24default__implP311moonbitlang4core7builtin2Eq10not__equalGbE(x, y) {
+function _M0IP016_24default__implPB2Eq10not__equalGbE(x, y) {
   return !(x === y);
 }
-function _M0IP016_24default__implP311moonbitlang4core7builtin7Compare6op__leGkE(x, y) {
-  return _M0IP311moonbitlang4core6uint166UInt16P311moonbitlang4core7builtin7Compare7compare(x, y) <= 0;
+function _M0IP016_24default__implPB7Compare6op__leGkE(x, y) {
+  return _M0IPC16uint166UInt16PB7Compare7compare(x, y) <= 0;
 }
-function _M0IP016_24default__implP311moonbitlang4core7builtin7Compare6op__geGkE(x, y) {
-  return _M0IP311moonbitlang4core6uint166UInt16P311moonbitlang4core7builtin7Compare7compare(x, y) >= 0;
+function _M0IP016_24default__implPB7Compare6op__geGkE(x, y) {
+  return _M0IPC16uint166UInt16PB7Compare7compare(x, y) >= 0;
 }
-function _M0MP311moonbitlang4core7builtin6Hasher9avalanche(self) {
+function _M0MPB6Hasher9avalanche(self) {
   let acc = self.acc;
   acc = acc ^ (acc >>> 15 | 0);
   acc = Math.imul(acc, -2048144777) | 0;
@@ -2753,33 +3532,33 @@ function _M0MP311moonbitlang4core7builtin6Hasher9avalanche(self) {
   acc = acc ^ (acc >>> 16 | 0);
   return acc;
 }
-function _M0MP311moonbitlang4core7builtin6Hasher8finalize(self) {
-  return _M0MP311moonbitlang4core7builtin6Hasher9avalanche(self);
+function _M0MPB6Hasher8finalize(self) {
+  return _M0MPB6Hasher9avalanche(self);
 }
-function _M0MP311moonbitlang4core7builtin6Hasher11new_2einner(seed) {
-  return { acc: (seed >>> 0) + (374761393 >>> 0) | 0 };
+function _M0MPB6Hasher11new_2einner(seed) {
+  return new _M0TPB6Hasher((seed >>> 0) + (374761393 >>> 0) | 0);
 }
-function _M0MP311moonbitlang4core7builtin6Hasher3new(seed$46$opt) {
+function _M0MPB6Hasher3new(seed$46$opt) {
   let seed;
   if (seed$46$opt === undefined) {
-    seed = _M0FP311moonbitlang4core7builtin4seed;
+    seed = _M0FPB4seed;
   } else {
     const _Some = seed$46$opt;
     seed = _Some;
   }
-  return _M0MP311moonbitlang4core7builtin6Hasher11new_2einner(seed);
+  return _M0MPB6Hasher11new_2einner(seed);
 }
-function _M0IP016_24default__implP311moonbitlang4core7builtin4Hash4hashGiE(self) {
-  const h = _M0MP311moonbitlang4core7builtin6Hasher3new(undefined);
-  _M0MP311moonbitlang4core7builtin6Hasher7combineGiE(h, self);
-  return _M0MP311moonbitlang4core7builtin6Hasher8finalize(h);
+function _M0IP016_24default__implPB4Hash4hashGiE(self) {
+  const h = _M0MPB6Hasher3new(undefined);
+  _M0MPB6Hasher7combineGiE(h, self);
+  return _M0MPB6Hasher8finalize(h);
 }
-function _M0IP016_24default__implP311moonbitlang4core7builtin4Hash4hashGsE(self) {
-  const h = _M0MP311moonbitlang4core7builtin6Hasher3new(undefined);
-  _M0MP311moonbitlang4core7builtin6Hasher7combineGsE(h, self);
-  return _M0MP311moonbitlang4core7builtin6Hasher8finalize(h);
+function _M0IP016_24default__implPB4Hash4hashGsE(self) {
+  const h = _M0MPB6Hasher3new(undefined);
+  _M0MPB6Hasher7combineGsE(h, self);
+  return _M0MPB6Hasher8finalize(h);
 }
-function _M0MP311moonbitlang4core6string6String11sub_2einner(self, start, end) {
+function _M0MPC16string6String11sub_2einner(self, start, end) {
   const len = self.length;
   let end$2;
   if (end === undefined) {
@@ -2791,141 +3570,125 @@ function _M0MP311moonbitlang4core6string6String11sub_2einner(self, start, end) {
   }
   const start$2 = start < 0 ? len + start | 0 : start;
   if (start$2 >= 0 && (start$2 <= end$2 && end$2 <= len)) {
-    if (start$2 < len && _M0MP311moonbitlang4core6uint166UInt1623is__trailing__surrogate(self.charCodeAt(start$2))) {
-      return new Result$Err$0$(Error$moonbitlang$47$core$47$builtin$46$CreatingViewError$46$InvalidIndex);
-    }
-    if (end$2 < len && _M0MP311moonbitlang4core6uint166UInt1623is__trailing__surrogate(self.charCodeAt(end$2))) {
-      return new Result$Err$0$(Error$moonbitlang$47$core$47$builtin$46$CreatingViewError$46$InvalidIndex);
-    }
-    return new Result$Ok$0$({ str: self, start: start$2, end: end$2 });
-  } else {
-    return new Result$Err$0$(Error$moonbitlang$47$core$47$builtin$46$CreatingViewError$46$IndexOutOfBounds);
-  }
-}
-function _M0IP016_24default__implP311moonbitlang4core7builtin6Logger16write__substringGRP311moonbitlang4core7builtin13StringBuilderE(self, value, start, len) {
-  let _tmp;
-  let _try_err;
-  _L: {
-    _L$2: {
-      const _bind = _M0MP311moonbitlang4core6string6String11sub_2einner(value, start, start + len | 0);
-      if (_bind.$tag === 1) {
-        const _ok = _bind;
-        _tmp = _ok._0;
+    if (start$2 < len) {
+      if (!_M0MPC16uint166UInt1623is__trailing__surrogate(self.charCodeAt(start$2))) {
       } else {
-        const _err = _bind;
-        _try_err = _err._0;
-        break _L$2;
+        $panic();
       }
-      break _L;
     }
-    _tmp = $panic();
+    if (end$2 < len) {
+      if (!_M0MPC16uint166UInt1623is__trailing__surrogate(self.charCodeAt(end$2))) {
+      } else {
+        $panic();
+      }
+    }
+    return new _M0TPC16string10StringView(self, start$2, end$2);
+  } else {
+    return $panic();
   }
-  _M0IP311moonbitlang4core7builtin13StringBuilderP311moonbitlang4core7builtin6Logger11write__view(self, _tmp);
 }
-function _M0MP311moonbitlang4core6string10StringView4data(self) {
+function _M0IP016_24default__implPB6Logger16write__substringGRPB13StringBuilderE(self, value, start, len) {
+  _M0IPB13StringBuilderPB6Logger11write__view(self, _M0MPC16string6String11sub_2einner(value, start, start + len | 0));
+}
+function _M0MPC16string10StringView4data(self) {
   return self.str;
 }
-function _M0MP311moonbitlang4core6string10StringView6length(self) {
+function _M0MPC16string10StringView6length(self) {
   return self.end - self.start | 0;
 }
-function _M0MP311moonbitlang4core6string10StringView13start__offset(self) {
+function _M0MPC16string10StringView13start__offset(self) {
   return self.start;
 }
-function _M0IP016_24default__implP311moonbitlang4core7builtin4Show10to__stringGRP311moonbitlang4core5error5ErrorE(self) {
-  const logger = _M0MP311moonbitlang4core7builtin13StringBuilder11new_2einner(0);
-  _M0IP311moonbitlang4core5error5ErrorP311moonbitlang4core7builtin4Show6output(self, { self: logger, method_table: _M0FP095_40moonbitlang_2fcore_2fbuiltin_2eStringBuilder_24as_24_40moonbitlang_2fcore_2fbuiltin_2eLogger });
-  return _M0MP311moonbitlang4core7builtin13StringBuilder10to__string(logger);
+function _M0IP016_24default__implPB4Show10to__stringGRPC15error5ErrorE(self) {
+  const logger = _M0MPB13StringBuilder11new_2einner(0);
+  _M0IPC15error5ErrorPB4Show6output(self, { self: logger, method_table: _M0FP092moonbitlang_2fcore_2fbuiltin_2fStringBuilder_24as_24_40moonbitlang_2fcore_2fbuiltin_2eLogger });
+  return _M0MPB13StringBuilder10to__string(logger);
 }
-function _M0IP016_24default__implP311moonbitlang4core7builtin4Show10to__stringGRP311moonbitlang4core7builtin9SourceLocE(self) {
-  const logger = _M0MP311moonbitlang4core7builtin13StringBuilder11new_2einner(0);
-  _M0IP311moonbitlang4core7builtin9SourceLocP311moonbitlang4core7builtin4Show6output(self, { self: logger, method_table: _M0FP095_40moonbitlang_2fcore_2fbuiltin_2eStringBuilder_24as_24_40moonbitlang_2fcore_2fbuiltin_2eLogger });
-  return _M0MP311moonbitlang4core7builtin13StringBuilder10to__string(logger);
+function _M0IP016_24default__implPB4Show10to__stringGRPB9SourceLocE(self) {
+  const logger = _M0MPB13StringBuilder11new_2einner(0);
+  _M0IPB9SourceLocPB4Show6output(self, { self: logger, method_table: _M0FP092moonbitlang_2fcore_2fbuiltin_2fStringBuilder_24as_24_40moonbitlang_2fcore_2fbuiltin_2eLogger });
+  return _M0MPB13StringBuilder10to__string(logger);
 }
-function _M0IP016_24default__implP311moonbitlang4core7builtin4Show10to__stringGiE(self) {
-  const logger = _M0MP311moonbitlang4core7builtin13StringBuilder11new_2einner(0);
-  _M0IP311moonbitlang4core3int3IntP311moonbitlang4core7builtin4Show6output(self, { self: logger, method_table: _M0FP095_40moonbitlang_2fcore_2fbuiltin_2eStringBuilder_24as_24_40moonbitlang_2fcore_2fbuiltin_2eLogger });
-  return _M0MP311moonbitlang4core7builtin13StringBuilder10to__string(logger);
+function _M0IP016_24default__implPB4Show10to__stringGiE(self) {
+  const logger = _M0MPB13StringBuilder11new_2einner(0);
+  _M0IPC13int3IntPB4Show6output(self, { self: logger, method_table: _M0FP092moonbitlang_2fcore_2fbuiltin_2fStringBuilder_24as_24_40moonbitlang_2fcore_2fbuiltin_2eLogger });
+  return _M0MPB13StringBuilder10to__string(logger);
 }
-function _M0IP016_24default__implP311moonbitlang4core7builtin4Show10to__stringGRP311moonbitlang4core7builtin17CreatingViewErrorE(self) {
-  const logger = _M0MP311moonbitlang4core7builtin13StringBuilder11new_2einner(0);
-  _M0IP311moonbitlang4core7builtin17CreatingViewErrorP311moonbitlang4core7builtin4Show6output(self, { self: logger, method_table: _M0FP095_40moonbitlang_2fcore_2fbuiltin_2eStringBuilder_24as_24_40moonbitlang_2fcore_2fbuiltin_2eLogger });
-  return _M0MP311moonbitlang4core7builtin13StringBuilder10to__string(logger);
-}
-function _M0MP311moonbitlang4core7builtin4Iter4nextGcE(self) {
+function _M0MPB4Iter4nextGcE(self) {
   const _func = self;
   return _func();
 }
-function _M0MP311moonbitlang4core7builtin4Iter4nextGUicEE(self) {
+function _M0MPB4Iter4nextGUicEE(self) {
   const _func = self;
   return _func();
 }
-function _M0MP311moonbitlang4core3int3Int18to__string_2einner(self, radix) {
-  return _M0FP311moonbitlang4core7builtin19int__to__string__js(self, radix);
+function _M0MPC13int3Int18to__string_2einner(self, radix) {
+  return _M0FPB19int__to__string__js(self, radix);
 }
-function _M0MP311moonbitlang4core6string10StringView11unsafe__get(self, index) {
+function _M0MPC16string10StringView11unsafe__get(self, index) {
   return self.str.charCodeAt(self.start + index | 0);
 }
-function _M0MP311moonbitlang4core7builtin4Iter3newGcE(f) {
+function _M0MPB4Iter3newGcE(f) {
   return f;
 }
-function _M0MP311moonbitlang4core7builtin4Iter3newGUicEE(f) {
+function _M0MPB4Iter3newGUicEE(f) {
   return f;
 }
-function _M0MP311moonbitlang4core6string10StringView12view_2einner(self, start_offset, end_offset) {
+function _M0MPC16string10StringView12view_2einner(self, start_offset, end_offset) {
   let end_offset$2;
   if (end_offset === undefined) {
-    end_offset$2 = _M0MP311moonbitlang4core6string10StringView6length(self);
+    end_offset$2 = _M0MPC16string10StringView6length(self);
   } else {
     const _Some = end_offset;
     end_offset$2 = _Some;
   }
-  return start_offset >= 0 && (start_offset <= end_offset$2 && end_offset$2 <= _M0MP311moonbitlang4core6string10StringView6length(self)) ? { str: self.str, start: self.start + start_offset | 0, end: self.start + end_offset$2 | 0 } : _M0FP311moonbitlang4core7builtin5abortGRP311moonbitlang4core6string10StringViewE("Invalid index for View", "@moonbitlang/core/builtin:stringview.mbt:113:5-113:36");
+  return start_offset >= 0 && (start_offset <= end_offset$2 && end_offset$2 <= _M0MPC16string10StringView6length(self)) ? new _M0TPC16string10StringView(self.str, self.start + start_offset | 0, self.start + end_offset$2 | 0) : _M0FPB5abortGRPC16string10StringViewE("Invalid index for View", "@moonbitlang/core/builtin:stringview.mbt:113:5-113:36");
 }
-function _M0IP311moonbitlang4core6string10StringViewP311moonbitlang4core7builtin4Show10to__string(self) {
+function _M0IPC16string10StringViewPB4Show10to__string(self) {
   return self.str.substring(self.start, self.end);
 }
-function _M0MP311moonbitlang4core6string10StringView4iter(self) {
+function _M0MPC16string10StringView4iter(self) {
   const start = self.start;
   const end = self.end;
-  const index = { val: start };
-  return _M0MP311moonbitlang4core7builtin4Iter3newGcE(() => {
+  const index = new _M0TPC13ref3RefGiE(start);
+  return _M0MPB4Iter3newGcE(() => {
     if (index.val < end) {
       const c1 = self.str.charCodeAt(index.val);
-      if (_M0MP311moonbitlang4core6uint166UInt1622is__leading__surrogate(c1) && (index.val + 1 | 0) < self.end) {
+      if (_M0MPC16uint166UInt1622is__leading__surrogate(c1) && (index.val + 1 | 0) < self.end) {
         const c2 = self.str.charCodeAt(index.val + 1 | 0);
-        if (_M0MP311moonbitlang4core6uint166UInt1623is__trailing__surrogate(c2)) {
+        if (_M0MPC16uint166UInt1623is__trailing__surrogate(c2)) {
           index.val = index.val + 2 | 0;
-          return _M0FP311moonbitlang4core7builtin32code__point__of__surrogate__pair(c1, c2);
+          return _M0FPB32code__point__of__surrogate__pair(c1, c2);
         }
       }
       index.val = index.val + 1 | 0;
-      return _M0MP311moonbitlang4core6uint166UInt1616unsafe__to__char(c1);
+      return _M0MPC16uint166UInt1616unsafe__to__char(c1);
     } else {
       return -1;
     }
   });
 }
-function _M0MP311moonbitlang4core7builtin5Iter23newGicE(f) {
-  return _M0MP311moonbitlang4core7builtin4Iter3newGUicEE(f);
+function _M0MPB5Iter23newGicE(f) {
+  return _M0MPB4Iter3newGUicEE(f);
 }
-function _M0MP311moonbitlang4core6string10StringView5iter2(self) {
+function _M0MPC16string10StringView5iter2(self) {
   const start = self.start;
   const end = self.end;
-  const index = { val: start };
-  const char_index = { val: 0 };
-  return _M0MP311moonbitlang4core7builtin5Iter23newGicE(() => {
+  const index = new _M0TPC13ref3RefGiE(start);
+  const char_index = new _M0TPC13ref3RefGiE(0);
+  return _M0MPB5Iter23newGicE(() => {
     if (index.val < end) {
       const c1 = self.str.charCodeAt(index.val);
-      if (_M0MP311moonbitlang4core6uint166UInt1622is__leading__surrogate(c1) && (index.val + 1 | 0) < self.end) {
+      if (_M0MPC16uint166UInt1622is__leading__surrogate(c1) && (index.val + 1 | 0) < self.end) {
         const c2 = self.str.charCodeAt(index.val + 1 | 0);
-        if (_M0MP311moonbitlang4core6uint166UInt1623is__trailing__surrogate(c2)) {
-          const result = { _0: char_index.val, _1: _M0FP311moonbitlang4core7builtin32code__point__of__surrogate__pair(c1, c2) };
+        if (_M0MPC16uint166UInt1623is__trailing__surrogate(c2)) {
+          const result = { _0: char_index.val, _1: _M0FPB32code__point__of__surrogate__pair(c1, c2) };
           index.val = index.val + 2 | 0;
           char_index.val = char_index.val + 1 | 0;
           return result;
         }
       }
-      const result = { _0: char_index.val, _1: _M0MP311moonbitlang4core6uint166UInt1616unsafe__to__char(c1) };
+      const result = { _0: char_index.val, _1: _M0MPC16uint166UInt1616unsafe__to__char(c1) };
       index.val = index.val + 1 | 0;
       char_index.val = char_index.val + 1 | 0;
       return result;
@@ -2934,7 +3697,7 @@ function _M0MP311moonbitlang4core6string10StringView5iter2(self) {
     }
   });
 }
-function _M0MP311moonbitlang4core6string6String12view_2einner(self, start_offset, end_offset) {
+function _M0MPC16string6String12view_2einner(self, start_offset, end_offset) {
   let end_offset$2;
   if (end_offset === undefined) {
     end_offset$2 = self.length;
@@ -2942,9 +3705,9 @@ function _M0MP311moonbitlang4core6string6String12view_2einner(self, start_offset
     const _Some = end_offset;
     end_offset$2 = _Some;
   }
-  return start_offset >= 0 && (start_offset <= end_offset$2 && end_offset$2 <= self.length) ? { str: self, start: start_offset, end: end_offset$2 } : _M0FP311moonbitlang4core7builtin5abortGRP311moonbitlang4core6string10StringViewE("Invalid index for View", "@moonbitlang/core/builtin:stringview.mbt:399:5-399:36");
+  return start_offset >= 0 && (start_offset <= end_offset$2 && end_offset$2 <= self.length) ? new _M0TPC16string10StringView(self, start_offset, end_offset$2) : _M0FPB5abortGRPC16string10StringViewE("Invalid index for View", "@moonbitlang/core/builtin:stringview.mbt:399:5-399:36");
 }
-function _M0MP311moonbitlang4core6string6String4view(self, start_offset$46$opt, end_offset) {
+function _M0MPC16string6String4view(self, start_offset$46$opt, end_offset) {
   let start_offset;
   if (start_offset$46$opt === undefined) {
     start_offset = 0;
@@ -2952,51 +3715,26 @@ function _M0MP311moonbitlang4core6string6String4view(self, start_offset$46$opt, 
     const _Some = start_offset$46$opt;
     start_offset = _Some;
   }
-  return _M0MP311moonbitlang4core6string6String12view_2einner(self, start_offset, end_offset);
+  return _M0MPC16string6String12view_2einner(self, start_offset, end_offset);
 }
-function _M0MP311moonbitlang4core5array9ArrayView6lengthGUiRP311moonbitlang4core7builtin5ArrayGRP36mizchi6kagura4text9GlyphQuadEEE(self) {
+function _M0MPC15array9ArrayView6lengthGUiRPB5ArrayGRP36mizchi6kagura4text9GlyphQuadEEE(self) {
   return self.end - self.start | 0;
 }
-function _M0MP311moonbitlang4core5array9ArrayView6lengthGUiRP36mizchi6kagura4text15GlyphCacheEntryEE(self) {
-  return self.end - self.start | 0;
+function _M0IPB13StringBuilderPB6Logger11write__view(self, str) {
+  self.val = `${self.val}${_M0IPC16string10StringViewPB4Show10to__string(str)}`;
 }
-function _M0MP311moonbitlang4core5array9ArrayView6lengthGUsRP26mizchi3svg6SymbolEE(self) {
-  return self.end - self.start | 0;
-}
-function _M0MP311moonbitlang4core5array9ArrayView6lengthGUsRP26mizchi3svg7SVGNodeEE(self) {
-  return self.end - self.start | 0;
-}
-function _M0MP311moonbitlang4core5array9ArrayView6lengthGUsRP26mizchi3svg8ClipPathEE(self) {
-  return self.end - self.start | 0;
-}
-function _M0MP311moonbitlang4core5array9ArrayView6lengthGUsRP26mizchi3svg4MaskEE(self) {
-  return self.end - self.start | 0;
-}
-function _M0MP311moonbitlang4core5array9ArrayView6lengthGUsRP26mizchi3svg7PatternEE(self) {
-  return self.end - self.start | 0;
-}
-function _M0MP311moonbitlang4core5array9ArrayView6lengthGUsRP26mizchi3svg8GradientEE(self) {
-  return self.end - self.start | 0;
-}
-function _M0MP311moonbitlang4core5array9ArrayView6lengthGUsRP26mizchi3svg6MarkerEE(self) {
-  return self.end - self.start | 0;
-}
-function _M0IP311moonbitlang4core7builtin13StringBuilderP311moonbitlang4core7builtin6Logger11write__view(self, str) {
-  const _bind = self;
-  _bind.val = `${_bind.val}${_M0IP311moonbitlang4core6string10StringViewP311moonbitlang4core7builtin4Show10to__string(str)}`;
-}
-function _M0FP311moonbitlang4core7builtin28boyer__moore__horspool__find(haystack, needle) {
-  const haystack_len = _M0MP311moonbitlang4core6string10StringView6length(haystack);
-  const needle_len = _M0MP311moonbitlang4core6string10StringView6length(needle);
+function _M0FPB28boyer__moore__horspool__find(haystack, needle) {
+  const haystack_len = _M0MPC16string10StringView6length(haystack);
+  const needle_len = _M0MPC16string10StringView6length(needle);
   if (needle_len > 0) {
     if (haystack_len >= needle_len) {
       const skip_table = $make_array_len_and_init(256, needle_len);
-      const _end4308 = needle_len - 1 | 0;
+      const _bind = needle_len - 1 | 0;
       let _tmp = 0;
       while (true) {
         const i = _tmp;
-        if (i < _end4308) {
-          const _tmp$2 = _M0MP311moonbitlang4core6string10StringView11unsafe__get(needle, i) & 255;
+        if (i < _bind) {
+          const _tmp$2 = _M0MPC16string10StringView11unsafe__get(needle, i) & 255;
           $bound_check(skip_table, _tmp$2);
           skip_table[_tmp$2] = (needle_len - 1 | 0) - i | 0;
           _tmp = i + 1 | 0;
@@ -3009,12 +3747,12 @@ function _M0FP311moonbitlang4core7builtin28boyer__moore__horspool__find(haystack
       while (true) {
         const i = _tmp$2;
         if (i <= (haystack_len - needle_len | 0)) {
-          const _end4314 = needle_len - 1 | 0;
+          const _bind$2 = needle_len - 1 | 0;
           let _tmp$3 = 0;
           while (true) {
             const j = _tmp$3;
-            if (j <= _end4314) {
-              if (_M0IP311moonbitlang4core6uint166UInt16P311moonbitlang4core7builtin2Eq10not__equal(_M0MP311moonbitlang4core6string10StringView11unsafe__get(haystack, i + j | 0), _M0MP311moonbitlang4core6string10StringView11unsafe__get(needle, j))) {
+            if (j <= _bind$2) {
+              if (_M0IPC16uint166UInt16PB2Eq10not__equal(_M0MPC16string10StringView11unsafe__get(haystack, i + j | 0), _M0MPC16string10StringView11unsafe__get(needle, j))) {
                 break;
               }
               _tmp$3 = j + 1 | 0;
@@ -3023,7 +3761,7 @@ function _M0FP311moonbitlang4core7builtin28boyer__moore__horspool__find(haystack
               return i;
             }
           }
-          const _tmp$4 = _M0MP311moonbitlang4core6string10StringView11unsafe__get(haystack, (i + needle_len | 0) - 1 | 0) & 255;
+          const _tmp$4 = _M0MPC16string10StringView11unsafe__get(haystack, (i + needle_len | 0) - 1 | 0) & 255;
           $bound_check(skip_table, _tmp$4);
           _tmp$2 = i + skip_table[_tmp$4] | 0;
           continue;
@@ -3036,21 +3774,21 @@ function _M0FP311moonbitlang4core7builtin28boyer__moore__horspool__find(haystack
       return undefined;
     }
   } else {
-    return _M0FP311moonbitlang4core7builtin43boyer__moore__horspool__find_2econstr_2f311;
+    return _M0FPB43boyer__moore__horspool__find_2econstr_2f300;
   }
 }
-function _M0FP311moonbitlang4core7builtin18brute__force__find(haystack, needle) {
-  const haystack_len = _M0MP311moonbitlang4core6string10StringView6length(haystack);
-  const needle_len = _M0MP311moonbitlang4core6string10StringView6length(needle);
+function _M0FPB18brute__force__find(haystack, needle) {
+  const haystack_len = _M0MPC16string10StringView6length(haystack);
+  const needle_len = _M0MPC16string10StringView6length(needle);
   if (needle_len > 0) {
     if (haystack_len >= needle_len) {
-      const needle_first = _M0MP311moonbitlang4core6string10StringView11unsafe__get(needle, 0);
+      const needle_first = _M0MPC16string10StringView11unsafe__get(needle, 0);
       const forward_len = haystack_len - needle_len | 0;
       let i = 0;
       while (true) {
         if (i <= forward_len) {
           while (true) {
-            if (i <= forward_len && _M0IP311moonbitlang4core6uint166UInt16P311moonbitlang4core7builtin2Eq10not__equal(_M0MP311moonbitlang4core6string10StringView11unsafe__get(haystack, i), needle_first)) {
+            if (i <= forward_len && _M0IPC16uint166UInt16PB2Eq10not__equal(_M0MPC16string10StringView11unsafe__get(haystack, i), needle_first)) {
               i = i + 1 | 0;
               continue;
             } else {
@@ -3062,7 +3800,7 @@ function _M0FP311moonbitlang4core7builtin18brute__force__find(haystack, needle) 
             while (true) {
               const j = _tmp;
               if (j < needle_len) {
-                if (_M0IP311moonbitlang4core6uint166UInt16P311moonbitlang4core7builtin2Eq10not__equal(_M0MP311moonbitlang4core6string10StringView11unsafe__get(haystack, i + j | 0), _M0MP311moonbitlang4core6string10StringView11unsafe__get(needle, j))) {
+                if (_M0IPC16uint166UInt16PB2Eq10not__equal(_M0MPC16string10StringView11unsafe__get(haystack, i + j | 0), _M0MPC16string10StringView11unsafe__get(needle, j))) {
                   break;
                 }
                 _tmp = j + 1 | 0;
@@ -3083,19 +3821,19 @@ function _M0FP311moonbitlang4core7builtin18brute__force__find(haystack, needle) 
       return undefined;
     }
   } else {
-    return _M0FP311moonbitlang4core7builtin33brute__force__find_2econstr_2f325;
+    return _M0FPB33brute__force__find_2econstr_2f314;
   }
 }
-function _M0MP311moonbitlang4core6string10StringView4find(self, str) {
-  return _M0MP311moonbitlang4core6string10StringView6length(str) <= 4 ? _M0FP311moonbitlang4core7builtin18brute__force__find(self, str) : _M0FP311moonbitlang4core7builtin28boyer__moore__horspool__find(self, str);
+function _M0MPC16string10StringView4find(self, str) {
+  return _M0MPC16string10StringView6length(str) <= 4 ? _M0FPB18brute__force__find(self, str) : _M0FPB28boyer__moore__horspool__find(self, str);
 }
-function _M0MP311moonbitlang4core6string6String4find(self, str) {
-  return _M0MP311moonbitlang4core6string10StringView4find({ str: self, start: 0, end: self.length }, str);
+function _M0MPC16string6String4find(self, str) {
+  return _M0MPC16string10StringView4find(new _M0TPC16string10StringView(self, 0, self.length), str);
 }
-function _M0MP311moonbitlang4core6string10StringView8find__by(self, pred) {
-  const _it = _M0MP311moonbitlang4core6string10StringView5iter2(self);
+function _M0MPC16string10StringView8find__by(self, pred) {
+  const _it = _M0MPC16string10StringView5iter2(self);
   while (true) {
-    const _bind = _M0MP311moonbitlang4core7builtin5Iter24nextGicE(_it);
+    const _bind = _M0MPB5Iter24nextGicE(_it);
     if (_bind === undefined) {
       break;
     } else {
@@ -3111,177 +3849,99 @@ function _M0MP311moonbitlang4core6string10StringView8find__by(self, pred) {
   }
   return undefined;
 }
-function _M0MP311moonbitlang4core6string6String8find__by(self, pred) {
-  return _M0MP311moonbitlang4core6string10StringView8find__by({ str: self, start: 0, end: self.length }, pred);
+function _M0MPC16string6String8find__by(self, pred) {
+  return _M0MPC16string10StringView8find__by(new _M0TPC16string10StringView(self, 0, self.length), pred);
 }
-function _M0MP311moonbitlang4core5array5Array11new_2einnerGiE(capacity) {
+function _M0MPC15array5Array11new_2einnerGiE(capacity) {
   return [];
 }
-function _M0MP311moonbitlang4core5array5Array4pushGiE(self, value) {
-  _M0MP311moonbitlang4core7builtin7JSArray4push(self, value);
+function _M0MPC15array5Array4pushGiE(self, value) {
+  _M0MPB7JSArray4push(self, value);
 }
-function _M0MP311moonbitlang4core5array5Array4pushGRP36mizchi6kagura4core10TouchPointE(self, value) {
-  _M0MP311moonbitlang4core7builtin7JSArray4push(self, value);
+function _M0MPC15array5Array4pushGRP36mizchi6kagura4core10TouchPointE(self, value) {
+  _M0MPB7JSArray4push(self, value);
 }
-function _M0MP311moonbitlang4core5array5Array4pushGdE(self, value) {
-  _M0MP311moonbitlang4core7builtin7JSArray4push(self, value);
+function _M0MPC15array5Array4pushGdE(self, value) {
+  _M0MPB7JSArray4push(self, value);
 }
-function _M0MP311moonbitlang4core5array5Array4pushGRP36mizchi6kagura4core15GamepadSnapshotE(self, value) {
-  _M0MP311moonbitlang4core7builtin7JSArray4push(self, value);
+function _M0MPC15array5Array4pushGRPB5ArrayGUiiEEE(self, value) {
+  _M0MPB7JSArray4push(self, value);
 }
-function _M0MP311moonbitlang4core5array5Array4pushGRP36mizchi6kagura9inpututil16KeyDurationEntryE(self, value) {
-  _M0MP311moonbitlang4core7builtin7JSArray4push(self, value);
+function _M0MPC15array5Array4pushGRP26mizchi3svg14PaintOrderItemE(self, value) {
+  _M0MPB7JSArray4push(self, value);
 }
-function _M0MP311moonbitlang4core5array5Array4pushGRP36mizchi6kagura9inpututil24MouseButtonDurationEntryE(self, value) {
-  _M0MP311moonbitlang4core7builtin7JSArray4push(self, value);
-}
-function _M0MP311moonbitlang4core5array5Array4pushGRP36mizchi6kagura3gfx20DrawTrianglesCommandE(self, value) {
-  _M0MP311moonbitlang4core7builtin7JSArray4push(self, value);
-}
-function _M0MP311moonbitlang4core5array5Array4pushGsE(self, value) {
-  _M0MP311moonbitlang4core7builtin7JSArray4push(self, value);
-}
-function _M0MP311moonbitlang4core5array5Array4pushGRP26mizchi22kagura__effect__studio20ScheduledEffectBurstE(self, value) {
-  _M0MP311moonbitlang4core7builtin7JSArray4push(self, value);
-}
-function _M0MP311moonbitlang4core5array5Array4pushGRP26mizchi22kagura__effect__studio17TimelineTrackLaneE(self, value) {
-  _M0MP311moonbitlang4core7builtin7JSArray4push(self, value);
-}
-function _M0MP311moonbitlang4core5array5Array4pushGRP36mizchi6kagura10particle3d8ParticleE(self, value) {
-  _M0MP311moonbitlang4core7builtin7JSArray4push(self, value);
-}
-function _M0MP311moonbitlang4core5array5Array4pushGRP36mizchi6kagura4text10GlyphAtlasE(self, value) {
-  _M0MP311moonbitlang4core7builtin7JSArray4push(self, value);
-}
-function _M0MP311moonbitlang4core5array5Array4pushGRP36mizchi6kagura4text9GlyphQuadE(self, value) {
-  _M0MP311moonbitlang4core7builtin7JSArray4push(self, value);
-}
-function _M0MP311moonbitlang4core5array5Array4pushGRP26mizchi5audio5VoiceE(self, value) {
-  _M0MP311moonbitlang4core7builtin7JSArray4push(self, value);
-}
-function _M0MP311moonbitlang4core5array5Array4pushGURP36mizchi6kagura5audio8PlayerIdRP26mizchi5audio7VoiceIdEE(self, value) {
-  _M0MP311moonbitlang4core7builtin7JSArray4push(self, value);
-}
-function _M0MP311moonbitlang4core5array5Array4pushGRP26mizchi4font13GlyphPositionE(self, value) {
-  _M0MP311moonbitlang4core7builtin7JSArray4push(self, value);
-}
-function _M0MP311moonbitlang4core5array5Array4pushGRP26mizchi3svg11PathCommandE(self, value) {
-  _M0MP311moonbitlang4core7builtin7JSArray4push(self, value);
-}
-function _M0MP311moonbitlang4core5array5Array4pushGUddEE(self, value) {
-  _M0MP311moonbitlang4core7builtin7JSArray4push(self, value);
-}
-function _M0MP311moonbitlang4core5array5Array4pushGUssEE(self, value) {
-  _M0MP311moonbitlang4core7builtin7JSArray4push(self, value);
-}
-function _M0MP311moonbitlang4core5array5Array4pushGRP26mizchi3svg14InheritedStyleE(self, value) {
-  _M0MP311moonbitlang4core7builtin7JSArray4push(self, value);
-}
-function _M0MP311moonbitlang4core5array5Array4pushGRP26mizchi3svg7SVGNodeE(self, value) {
-  _M0MP311moonbitlang4core7builtin7JSArray4push(self, value);
-}
-function _M0MP311moonbitlang4core5array5Array4pushGRP26mizchi3svg12GradientStopE(self, value) {
-  _M0MP311moonbitlang4core7builtin7JSArray4push(self, value);
-}
-function _M0MP311moonbitlang4core5array5Array4pushGRP26mizchi3svg6FilterE(self, value) {
-  _M0MP311moonbitlang4core7builtin7JSArray4push(self, value);
-}
-function _M0MP311moonbitlang4core5array5Array4pushGRP311moonbitlang4core7builtin5ArrayGUiiEEE(self, value) {
-  _M0MP311moonbitlang4core7builtin7JSArray4push(self, value);
-}
-function _M0MP311moonbitlang4core5array5Array4pushGRP26mizchi3svg14PaintOrderItemE(self, value) {
-  _M0MP311moonbitlang4core7builtin7JSArray4push(self, value);
-}
-function _M0MP311moonbitlang4core5array5Array4pushGRP311moonbitlang4core7builtin5ArrayGUddEEE(self, value) {
-  _M0MP311moonbitlang4core7builtin7JSArray4push(self, value);
-}
-function _M0MP311moonbitlang4core5array5Array4pushGUiiEE(self, value) {
-  _M0MP311moonbitlang4core7builtin7JSArray4push(self, value);
-}
-function _M0MP311moonbitlang4core5array5Array4pushGRP26mizchi4font10GlyphPointE(self, value) {
-  _M0MP311moonbitlang4core7builtin7JSArray4push(self, value);
-}
-function _M0MP311moonbitlang4core5array5Array4pushGRP311moonbitlang4core7builtin5ArrayGRP26mizchi4font10GlyphPointEE(self, value) {
-  _M0MP311moonbitlang4core7builtin7JSArray4push(self, value);
-}
-function _M0MP311moonbitlang4core5array5Array4pushGRP26mizchi3svg11MarkerPointE(self, value) {
-  _M0MP311moonbitlang4core7builtin7JSArray4push(self, value);
-}
-function _M0MP311moonbitlang4core5array5Array4pushGRP26mizchi3svg13MarkerSubpathE(self, value) {
-  _M0MP311moonbitlang4core7builtin7JSArray4push(self, value);
-}
-function _M0MP311moonbitlang4core6string10StringView8contains(self, str) {
-  const _bind = _M0MP311moonbitlang4core6string10StringView4find(self, str);
+function _M0MPC16string10StringView8contains(self, str) {
+  const _bind = _M0MPC16string10StringView4find(self, str);
   return !(_bind === undefined);
 }
-function _M0MP311moonbitlang4core6string6String8contains(self, str) {
-  return _M0MP311moonbitlang4core6string10StringView8contains({ str: self, start: 0, end: self.length }, str);
+function _M0MPC16string6String8contains(self, str) {
+  return _M0MPC16string10StringView8contains(new _M0TPC16string10StringView(self, 0, self.length), str);
 }
-function _M0MP311moonbitlang4core6string6String4iter(self) {
+function _M0MPC16string6String4iter(self) {
   const len = self.length;
-  const index = { val: 0 };
-  return _M0MP311moonbitlang4core7builtin4Iter3newGcE(() => {
+  const index = new _M0TPC13ref3RefGiE(0);
+  return _M0MPB4Iter3newGcE(() => {
     if (index.val < len) {
       const c1 = self.charCodeAt(index.val);
-      if (_M0MP311moonbitlang4core6uint166UInt1622is__leading__surrogate(c1) && (index.val + 1 | 0) < len) {
+      if (_M0MPC16uint166UInt1622is__leading__surrogate(c1) && (index.val + 1 | 0) < len) {
         const c2 = self.charCodeAt(index.val + 1 | 0);
-        if (_M0MP311moonbitlang4core6uint166UInt1623is__trailing__surrogate(c2)) {
-          const c = _M0FP311moonbitlang4core7builtin32code__point__of__surrogate__pair(c1, c2);
+        if (_M0MPC16uint166UInt1623is__trailing__surrogate(c2)) {
+          const c = _M0FPB32code__point__of__surrogate__pair(c1, c2);
           index.val = index.val + 2 | 0;
           return c;
         }
       }
       index.val = index.val + 1 | 0;
-      return _M0MP311moonbitlang4core6uint166UInt1616unsafe__to__char(c1);
+      return _M0MPC16uint166UInt1616unsafe__to__char(c1);
     } else {
       return -1;
     }
   });
 }
-function _M0IP311moonbitlang4core4char4CharP311moonbitlang4core7builtin4Show10to__string(self) {
+function _M0IPC14char4CharPB4Show10to__string(self) {
   return String.fromCodePoint(self);
 }
-function _M0MP311moonbitlang4core6string6String12replace__all(self, old, new_) {
+function _M0MPC16string6String12replace__all(self, old, new_) {
   const len = self.length;
-  const buf = _M0MP311moonbitlang4core7builtin13StringBuilder11new_2einner(len);
-  const old_len = _M0MP311moonbitlang4core6string10StringView6length(old);
-  const new$2 = _M0IP311moonbitlang4core6string10StringViewP311moonbitlang4core7builtin4Show10to__string(new_);
+  const buf = _M0MPB13StringBuilder11new_2einner(len);
+  const old_len = _M0MPC16string10StringView6length(old);
+  const new$2 = _M0IPC16string10StringViewPB4Show10to__string(new_);
   if (old_len === 0) {
-    _M0IP311moonbitlang4core7builtin13StringBuilderP311moonbitlang4core7builtin6Logger13write__string(buf, new$2);
-    const _it = _M0MP311moonbitlang4core6string6String4iter(self);
+    _M0IPB13StringBuilderPB6Logger13write__string(buf, new$2);
+    const _it = _M0MPC16string6String4iter(self);
     while (true) {
-      const _bind = _M0MP311moonbitlang4core7builtin4Iter4nextGcE(_it);
+      const _bind = _M0MPB4Iter4nextGcE(_it);
       if (_bind === -1) {
         break;
       } else {
         const _Some = _bind;
         const _c = _Some;
-        _M0IP311moonbitlang4core7builtin13StringBuilderP311moonbitlang4core7builtin6Logger11write__char(buf, _c);
-        _M0IP311moonbitlang4core7builtin13StringBuilderP311moonbitlang4core7builtin6Logger13write__string(buf, new$2);
+        _M0IPB13StringBuilderPB6Logger11write__char(buf, _c);
+        _M0IPB13StringBuilderPB6Logger13write__string(buf, new$2);
         continue;
       }
     }
-    return _M0MP311moonbitlang4core7builtin13StringBuilder10to__string(buf);
+    return _M0MPB13StringBuilder10to__string(buf);
   } else {
-    const first_end = _M0MP311moonbitlang4core6string6String4find(self, old);
+    const first_end = _M0MPC16string6String4find(self, old);
     if (first_end === undefined) {
       return self;
     } else {
       const _Some = first_end;
       const _end = _Some;
-      let _tmp = { str: self, start: 0, end: self.length };
+      let _tmp = new _M0TPC16string10StringView(self, 0, self.length);
       let _tmp$2 = _end;
       while (true) {
         const view = _tmp;
         const end = _tmp$2;
-        const seg = _M0MP311moonbitlang4core6string10StringView12view_2einner(view, 0, end);
-        _M0IP016_24default__implP311moonbitlang4core7builtin6Logger16write__substringGRP311moonbitlang4core7builtin13StringBuilderE(buf, _M0MP311moonbitlang4core6string10StringView4data(seg), _M0MP311moonbitlang4core6string10StringView13start__offset(seg), _M0MP311moonbitlang4core6string10StringView6length(seg));
-        _M0IP311moonbitlang4core7builtin13StringBuilderP311moonbitlang4core7builtin6Logger13write__string(buf, new$2);
+        const seg = _M0MPC16string10StringView12view_2einner(view, 0, end);
+        _M0IP016_24default__implPB6Logger16write__substringGRPB13StringBuilderE(buf, _M0MPC16string10StringView4data(seg), _M0MPC16string10StringView13start__offset(seg), _M0MPC16string10StringView6length(seg));
+        _M0IPB13StringBuilderPB6Logger13write__string(buf, new$2);
         if ((end + old_len | 0) <= len) {
-          const next_view = _M0MP311moonbitlang4core6string10StringView12view_2einner(view, end + old_len | 0, undefined);
-          const _bind = _M0MP311moonbitlang4core6string10StringView4find(next_view, old);
+          const next_view = _M0MPC16string10StringView12view_2einner(view, end + old_len | 0, undefined);
+          const _bind = _M0MPC16string10StringView4find(next_view, old);
           if (_bind === undefined) {
-            _M0IP016_24default__implP311moonbitlang4core7builtin6Logger16write__substringGRP311moonbitlang4core7builtin13StringBuilderE(buf, _M0MP311moonbitlang4core6string10StringView4data(next_view), _M0MP311moonbitlang4core6string10StringView13start__offset(next_view), _M0MP311moonbitlang4core6string10StringView6length(next_view));
+            _M0IP016_24default__implPB6Logger16write__substringGRPB13StringBuilderE(buf, _M0MPC16string10StringView4data(next_view), _M0MPC16string10StringView13start__offset(next_view), _M0MPC16string10StringView6length(next_view));
             break;
           } else {
             const _Some$2 = _bind;
@@ -3294,53 +3954,53 @@ function _M0MP311moonbitlang4core6string6String12replace__all(self, old, new_) {
           break;
         }
       }
-      return _M0MP311moonbitlang4core7builtin13StringBuilder10to__string(buf);
+      return _M0MPB13StringBuilder10to__string(buf);
     }
   }
 }
-function _M0MP311moonbitlang4core4char4Char20is__ascii__uppercase(self) {
+function _M0MPC14char4Char20is__ascii__uppercase(self) {
   return self >= 65 && self <= 90;
 }
-function _M0MP311moonbitlang4core6string6String9to__lower(self) {
-  const _bind = _M0MP311moonbitlang4core6string6String8find__by(self, (x) => _M0MP311moonbitlang4core4char4Char20is__ascii__uppercase(x));
+function _M0MPC16string6String9to__lower(self) {
+  const _bind = _M0MPC16string6String8find__by(self, (x) => _M0MPC14char4Char20is__ascii__uppercase(x));
   if (_bind === undefined) {
     return self;
   } else {
     const _Some = _bind;
     const _idx = _Some;
-    const buf = _M0MP311moonbitlang4core7builtin13StringBuilder11new_2einner(self.length);
-    const head = _M0MP311moonbitlang4core6string6String12view_2einner(self, 0, _idx);
-    _M0IP016_24default__implP311moonbitlang4core7builtin6Logger16write__substringGRP311moonbitlang4core7builtin13StringBuilderE(buf, _M0MP311moonbitlang4core6string10StringView4data(head), _M0MP311moonbitlang4core6string10StringView13start__offset(head), _M0MP311moonbitlang4core6string10StringView6length(head));
-    const _it = _M0MP311moonbitlang4core6string10StringView4iter(_M0MP311moonbitlang4core6string6String12view_2einner(self, _idx, undefined));
+    const buf = _M0MPB13StringBuilder11new_2einner(self.length);
+    const head = _M0MPC16string6String12view_2einner(self, 0, _idx);
+    _M0IP016_24default__implPB6Logger16write__substringGRPB13StringBuilderE(buf, _M0MPC16string10StringView4data(head), _M0MPC16string10StringView13start__offset(head), _M0MPC16string10StringView6length(head));
+    const _it = _M0MPC16string10StringView4iter(_M0MPC16string6String12view_2einner(self, _idx, undefined));
     while (true) {
-      const _bind$2 = _M0MP311moonbitlang4core7builtin4Iter4nextGcE(_it);
+      const _bind$2 = _M0MPB4Iter4nextGcE(_it);
       if (_bind$2 === -1) {
         break;
       } else {
         const _Some$2 = _bind$2;
         const _c = _Some$2;
-        if (_M0MP311moonbitlang4core4char4Char20is__ascii__uppercase(_c)) {
-          _M0IP311moonbitlang4core7builtin13StringBuilderP311moonbitlang4core7builtin6Logger11write__char(buf, _c + 32 | 0);
+        if (_M0MPC14char4Char20is__ascii__uppercase(_c)) {
+          _M0IPB13StringBuilderPB6Logger11write__char(buf, _c + 32 | 0);
         } else {
-          _M0IP311moonbitlang4core7builtin13StringBuilderP311moonbitlang4core7builtin6Logger11write__char(buf, _c);
+          _M0IPB13StringBuilderPB6Logger11write__char(buf, _c);
         }
         continue;
       }
     }
-    return _M0MP311moonbitlang4core7builtin13StringBuilder10to__string(buf);
+    return _M0MPB13StringBuilder10to__string(buf);
   }
 }
-function _M0IP311moonbitlang4core3int3IntP311moonbitlang4core7builtin4Show6output(self, logger) {
-  logger.method_table.method_0(logger.self, _M0MP311moonbitlang4core3int3Int18to__string_2einner(self, 10));
+function _M0IPC13int3IntPB4Show6output(self, logger) {
+  logger.method_table.method_0(logger.self, _M0MPC13int3Int18to__string_2einner(self, 10));
 }
-function _M0IP311moonbitlang4core6string6StringP311moonbitlang4core7builtin4Show10to__string(self) {
+function _M0IPC16string6StringPB4Show10to__string(self) {
   return self;
 }
-function _M0MP311moonbitlang4core5array13ReadOnlyArray2atGjE(self, index) {
+function _M0MPC15array13ReadOnlyArray2atGjE(self, index) {
   $bound_check(self, index);
   return self[index];
 }
-function _M0MP311moonbitlang4core6option6Option6unwrapGRP311moonbitlang4core7builtin5EntryGiRP311moonbitlang4core7builtin5ArrayGRP36mizchi6kagura4text9GlyphQuadEEE(self) {
+function _M0MPC16option6Option6unwrapGRPB5EntryGiRPB5ArrayGRP36mizchi6kagura4text9GlyphQuadEEE(self) {
   if (self === undefined) {
     return $panic();
   } else {
@@ -3348,15 +4008,7 @@ function _M0MP311moonbitlang4core6option6Option6unwrapGRP311moonbitlang4core7bui
     return _Some;
   }
 }
-function _M0MP311moonbitlang4core6option6Option6unwrapGRP311moonbitlang4core7builtin5EntryGiRP36mizchi6kagura4text15GlyphCacheEntryEE(self) {
-  if (self === undefined) {
-    return $panic();
-  } else {
-    const _Some = self;
-    return _Some;
-  }
-}
-function _M0MP311moonbitlang4core6option6Option6unwrapGdE(self) {
+function _M0MPC16option6Option6unwrapGdE(self) {
   if (self.$tag === 0) {
     return $panic();
   } else {
@@ -3364,63 +4016,7 @@ function _M0MP311moonbitlang4core6option6Option6unwrapGdE(self) {
     return _Some._0;
   }
 }
-function _M0MP311moonbitlang4core6option6Option6unwrapGRP311moonbitlang4core7builtin5EntryGsRP26mizchi3svg6SymbolEE(self) {
-  if (self === undefined) {
-    return $panic();
-  } else {
-    const _Some = self;
-    return _Some;
-  }
-}
-function _M0MP311moonbitlang4core6option6Option6unwrapGRP311moonbitlang4core7builtin5EntryGsRP26mizchi3svg7SVGNodeEE(self) {
-  if (self === undefined) {
-    return $panic();
-  } else {
-    const _Some = self;
-    return _Some;
-  }
-}
-function _M0MP311moonbitlang4core6option6Option6unwrapGRP311moonbitlang4core7builtin5EntryGsRP26mizchi3svg8ClipPathEE(self) {
-  if (self === undefined) {
-    return $panic();
-  } else {
-    const _Some = self;
-    return _Some;
-  }
-}
-function _M0MP311moonbitlang4core6option6Option6unwrapGRP311moonbitlang4core7builtin5EntryGsRP26mizchi3svg4MaskEE(self) {
-  if (self === undefined) {
-    return $panic();
-  } else {
-    const _Some = self;
-    return _Some;
-  }
-}
-function _M0MP311moonbitlang4core6option6Option6unwrapGRP311moonbitlang4core7builtin5EntryGsRP26mizchi3svg7PatternEE(self) {
-  if (self === undefined) {
-    return $panic();
-  } else {
-    const _Some = self;
-    return _Some;
-  }
-}
-function _M0MP311moonbitlang4core6option6Option6unwrapGRP311moonbitlang4core7builtin5EntryGsRP26mizchi3svg8GradientEE(self) {
-  if (self === undefined) {
-    return $panic();
-  } else {
-    const _Some = self;
-    return _Some;
-  }
-}
-function _M0MP311moonbitlang4core6option6Option6unwrapGRP311moonbitlang4core7builtin5EntryGsRP26mizchi3svg6MarkerEE(self) {
-  if (self === undefined) {
-    return $panic();
-  } else {
-    const _Some = self;
-    return _Some;
-  }
-}
-function _M0MP311moonbitlang4core6option6Option10unwrap__orGiE(self, default_) {
+function _M0MPC16option6Option10unwrap__orGiE(self, default_) {
   if (self === undefined) {
     return default_;
   } else {
@@ -3428,7 +4024,7 @@ function _M0MP311moonbitlang4core6option6Option10unwrap__orGiE(self, default_) {
     return _Some;
   }
 }
-function _M0MP311moonbitlang4core6option6Option10unwrap__orGsE(self, default_) {
+function _M0MPC16option6Option10unwrap__orGsE(self, default_) {
   if (self === undefined) {
     return default_;
   } else {
@@ -3436,7 +4032,7 @@ function _M0MP311moonbitlang4core6option6Option10unwrap__orGsE(self, default_) {
     return _Some;
   }
 }
-function _M0MP311moonbitlang4core6option6Option3mapGRP26mizchi3svg11SVGDocumentRP26mizchi3svg5ImageE(self, f) {
+function _M0MPC16option6Option3mapGRP26mizchi3svg11SVGDocumentRP26mizchi3svg5ImageE(self, f) {
   if (self === undefined) {
     return undefined;
   } else {
@@ -3445,7 +4041,7 @@ function _M0MP311moonbitlang4core6option6Option3mapGRP26mizchi3svg11SVGDocumentR
     return f(_t);
   }
 }
-function _M0MP311moonbitlang4core5array5Array4makeGiE(len, elem) {
+function _M0MPC15array5Array4makeGiE(len, elem) {
   const arr = new Array(len);
   let _tmp = 0;
   while (true) {
@@ -3460,7 +4056,7 @@ function _M0MP311moonbitlang4core5array5Array4makeGiE(len, elem) {
   }
   return arr;
 }
-function _M0MP311moonbitlang4core5array5Array4makeGdE(len, elem) {
+function _M0MPC15array5Array4makeGdE(len, elem) {
   const arr = new Array(len);
   let _tmp = 0;
   while (true) {
@@ -3475,7 +4071,7 @@ function _M0MP311moonbitlang4core5array5Array4makeGdE(len, elem) {
   }
   return arr;
 }
-function _M0MP311moonbitlang4core5array5Array4makeGRP26mizchi3svg5ColorE(len, elem) {
+function _M0MPC15array5Array4makeGRP26mizchi3svg5ColorE(len, elem) {
   const arr = new Array(len);
   let _tmp = 0;
   while (true) {
@@ -3490,7 +4086,7 @@ function _M0MP311moonbitlang4core5array5Array4makeGRP26mizchi3svg5ColorE(len, el
   }
   return arr;
 }
-function _M0MP311moonbitlang4core5array5Array3setGiE(self, index, value) {
+function _M0MPC15array5Array3setGiE(self, index, value) {
   const len = self.length;
   if (index >= 0 && index < len) {
     $bound_check(self, index);
@@ -3501,7 +4097,7 @@ function _M0MP311moonbitlang4core5array5Array3setGiE(self, index, value) {
     return;
   }
 }
-function _M0MP311moonbitlang4core5array5Array3setGRP36mizchi6kagura10particle3d8ParticleE(self, index, value) {
+function _M0MPC15array5Array3setGRP36mizchi6kagura10particle3d8ParticleE(self, index, value) {
   const len = self.length;
   if (index >= 0 && index < len) {
     $bound_check(self, index);
@@ -3512,7 +4108,7 @@ function _M0MP311moonbitlang4core5array5Array3setGRP36mizchi6kagura10particle3d8
     return;
   }
 }
-function _M0MP311moonbitlang4core5array5Array3setGdE(self, index, value) {
+function _M0MPC15array5Array3setGdE(self, index, value) {
   const len = self.length;
   if (index >= 0 && index < len) {
     $bound_check(self, index);
@@ -3523,46 +4119,13 @@ function _M0MP311moonbitlang4core5array5Array3setGdE(self, index, value) {
     return;
   }
 }
-function _M0MP311moonbitlang4core5array5Array3setGRP26mizchi3svg5ColorE(self, index, value) {
-  const len = self.length;
-  if (index >= 0 && index < len) {
-    $bound_check(self, index);
-    self[index] = value;
-    return;
-  } else {
-    $panic();
-    return;
-  }
-}
-function _M0MP311moonbitlang4core5array5Array3setGRP26mizchi3svg7SVGNodeE(self, index, value) {
-  const len = self.length;
-  if (index >= 0 && index < len) {
-    $bound_check(self, index);
-    self[index] = value;
-    return;
-  } else {
-    $panic();
-    return;
-  }
-}
-function _M0MP311moonbitlang4core5array5Array3setGUiiEE(self, index, value) {
-  const len = self.length;
-  if (index >= 0 && index < len) {
-    $bound_check(self, index);
-    self[index] = value;
-    return;
-  } else {
-    $panic();
-    return;
-  }
-}
-function _M0FP311moonbitlang4core7builtin21calc__grow__threshold(capacity) {
+function _M0FPB21calc__grow__threshold(capacity) {
   if (16 === 0) {
     $panic();
   }
   return (Math.imul(capacity, 13) | 0) / 16 | 0;
 }
-function _M0MP311moonbitlang4core3int3Int20next__power__of__two(self) {
+function _M0MPC13int3Int20next__power__of__two(self) {
   if (self >= 0) {
     if (self <= 1) {
       return 1;
@@ -3575,86 +4138,38 @@ function _M0MP311moonbitlang4core3int3Int20next__power__of__two(self) {
     return $panic();
   }
 }
-function _M0MP311moonbitlang4core7builtin3Map11new_2einnerGiRP311moonbitlang4core7builtin5ArrayGRP36mizchi6kagura4text9GlyphQuadEE(capacity) {
-  const capacity$2 = _M0MP311moonbitlang4core3int3Int20next__power__of__two(capacity);
+function _M0MPB3Map11new_2einnerGiRPB5ArrayGRP36mizchi6kagura4text9GlyphQuadEE(capacity) {
+  const capacity$2 = _M0MPC13int3Int20next__power__of__two(capacity);
   const _bind = capacity$2 - 1 | 0;
-  const _bind$2 = _M0FP311moonbitlang4core7builtin21calc__grow__threshold(capacity$2);
+  const _bind$2 = _M0FPB21calc__grow__threshold(capacity$2);
   const _bind$3 = $make_array_len_and_init(capacity$2, undefined);
   const _bind$4 = undefined;
-  return { entries: _bind$3, size: 0, capacity: capacity$2, capacity_mask: _bind, grow_at: _bind$2, head: _bind$4, tail: -1 };
+  return new _M0TPB3MapGiRPB5ArrayGRP36mizchi6kagura4text9GlyphQuadEE(_bind$3, 0, capacity$2, _bind, _bind$2, _bind$4, -1);
 }
-function _M0MP311moonbitlang4core7builtin3Map11new_2einnerGiRP36mizchi6kagura4text15GlyphCacheEntryE(capacity) {
-  const capacity$2 = _M0MP311moonbitlang4core3int3Int20next__power__of__two(capacity);
+function _M0MPB3Map11new_2einnerGiRP36mizchi6kagura4text15GlyphCacheEntryE(capacity) {
+  const capacity$2 = _M0MPC13int3Int20next__power__of__two(capacity);
   const _bind = capacity$2 - 1 | 0;
-  const _bind$2 = _M0FP311moonbitlang4core7builtin21calc__grow__threshold(capacity$2);
+  const _bind$2 = _M0FPB21calc__grow__threshold(capacity$2);
   const _bind$3 = $make_array_len_and_init(capacity$2, undefined);
   const _bind$4 = undefined;
-  return { entries: _bind$3, size: 0, capacity: capacity$2, capacity_mask: _bind, grow_at: _bind$2, head: _bind$4, tail: -1 };
+  return new _M0TPB3MapGiRP36mizchi6kagura4text15GlyphCacheEntryE(_bind$3, 0, capacity$2, _bind, _bind$2, _bind$4, -1);
 }
-function _M0MP311moonbitlang4core7builtin3Map11new_2einnerGsRP26mizchi3svg6SymbolE(capacity) {
-  const capacity$2 = _M0MP311moonbitlang4core3int3Int20next__power__of__two(capacity);
+function _M0MPB3Map11new_2einnerGsRP26mizchi3svg6SymbolE(capacity) {
+  const capacity$2 = _M0MPC13int3Int20next__power__of__two(capacity);
   const _bind = capacity$2 - 1 | 0;
-  const _bind$2 = _M0FP311moonbitlang4core7builtin21calc__grow__threshold(capacity$2);
+  const _bind$2 = _M0FPB21calc__grow__threshold(capacity$2);
   const _bind$3 = $make_array_len_and_init(capacity$2, undefined);
   const _bind$4 = undefined;
-  return { entries: _bind$3, size: 0, capacity: capacity$2, capacity_mask: _bind, grow_at: _bind$2, head: _bind$4, tail: -1 };
+  return new _M0TPB3MapGsRP26mizchi3svg6SymbolE(_bind$3, 0, capacity$2, _bind, _bind$2, _bind$4, -1);
 }
-function _M0MP311moonbitlang4core7builtin3Map11new_2einnerGsRP26mizchi3svg7SVGNodeE(capacity) {
-  const capacity$2 = _M0MP311moonbitlang4core3int3Int20next__power__of__two(capacity);
-  const _bind = capacity$2 - 1 | 0;
-  const _bind$2 = _M0FP311moonbitlang4core7builtin21calc__grow__threshold(capacity$2);
-  const _bind$3 = $make_array_len_and_init(capacity$2, undefined);
-  const _bind$4 = undefined;
-  return { entries: _bind$3, size: 0, capacity: capacity$2, capacity_mask: _bind, grow_at: _bind$2, head: _bind$4, tail: -1 };
-}
-function _M0MP311moonbitlang4core7builtin3Map11new_2einnerGsRP26mizchi3svg8ClipPathE(capacity) {
-  const capacity$2 = _M0MP311moonbitlang4core3int3Int20next__power__of__two(capacity);
-  const _bind = capacity$2 - 1 | 0;
-  const _bind$2 = _M0FP311moonbitlang4core7builtin21calc__grow__threshold(capacity$2);
-  const _bind$3 = $make_array_len_and_init(capacity$2, undefined);
-  const _bind$4 = undefined;
-  return { entries: _bind$3, size: 0, capacity: capacity$2, capacity_mask: _bind, grow_at: _bind$2, head: _bind$4, tail: -1 };
-}
-function _M0MP311moonbitlang4core7builtin3Map11new_2einnerGsRP26mizchi3svg4MaskE(capacity) {
-  const capacity$2 = _M0MP311moonbitlang4core3int3Int20next__power__of__two(capacity);
-  const _bind = capacity$2 - 1 | 0;
-  const _bind$2 = _M0FP311moonbitlang4core7builtin21calc__grow__threshold(capacity$2);
-  const _bind$3 = $make_array_len_and_init(capacity$2, undefined);
-  const _bind$4 = undefined;
-  return { entries: _bind$3, size: 0, capacity: capacity$2, capacity_mask: _bind, grow_at: _bind$2, head: _bind$4, tail: -1 };
-}
-function _M0MP311moonbitlang4core7builtin3Map11new_2einnerGsRP26mizchi3svg7PatternE(capacity) {
-  const capacity$2 = _M0MP311moonbitlang4core3int3Int20next__power__of__two(capacity);
-  const _bind = capacity$2 - 1 | 0;
-  const _bind$2 = _M0FP311moonbitlang4core7builtin21calc__grow__threshold(capacity$2);
-  const _bind$3 = $make_array_len_and_init(capacity$2, undefined);
-  const _bind$4 = undefined;
-  return { entries: _bind$3, size: 0, capacity: capacity$2, capacity_mask: _bind, grow_at: _bind$2, head: _bind$4, tail: -1 };
-}
-function _M0MP311moonbitlang4core7builtin3Map11new_2einnerGsRP26mizchi3svg8GradientE(capacity) {
-  const capacity$2 = _M0MP311moonbitlang4core3int3Int20next__power__of__two(capacity);
-  const _bind = capacity$2 - 1 | 0;
-  const _bind$2 = _M0FP311moonbitlang4core7builtin21calc__grow__threshold(capacity$2);
-  const _bind$3 = $make_array_len_and_init(capacity$2, undefined);
-  const _bind$4 = undefined;
-  return { entries: _bind$3, size: 0, capacity: capacity$2, capacity_mask: _bind, grow_at: _bind$2, head: _bind$4, tail: -1 };
-}
-function _M0MP311moonbitlang4core7builtin3Map11new_2einnerGsRP26mizchi3svg6MarkerE(capacity) {
-  const capacity$2 = _M0MP311moonbitlang4core3int3Int20next__power__of__two(capacity);
-  const _bind = capacity$2 - 1 | 0;
-  const _bind$2 = _M0FP311moonbitlang4core7builtin21calc__grow__threshold(capacity$2);
-  const _bind$3 = $make_array_len_and_init(capacity$2, undefined);
-  const _bind$4 = undefined;
-  return { entries: _bind$3, size: 0, capacity: capacity$2, capacity_mask: _bind, grow_at: _bind$2, head: _bind$4, tail: -1 };
-}
-function _M0MP311moonbitlang4core7builtin3Map20add__entry__to__tailGiRP311moonbitlang4core7builtin5ArrayGRP36mizchi6kagura4text9GlyphQuadEE(self, idx, entry) {
+function _M0MPB3Map20add__entry__to__tailGiRPB5ArrayGRP36mizchi6kagura4text9GlyphQuadEE(self, idx, entry) {
   const _bind = self.tail;
   if (_bind === -1) {
     self.head = entry;
   } else {
     const _tmp = self.entries;
     $bound_check(_tmp, _bind);
-    _M0MP311moonbitlang4core6option6Option6unwrapGRP311moonbitlang4core7builtin5EntryGiRP311moonbitlang4core7builtin5ArrayGRP36mizchi6kagura4text9GlyphQuadEEE(_tmp[_bind]).next = entry;
+    _M0MPC16option6Option6unwrapGRPB5EntryGiRPB5ArrayGRP36mizchi6kagura4text9GlyphQuadEEE(_tmp[_bind]).next = entry;
   }
   self.tail = idx;
   const _tmp = self.entries;
@@ -3662,14 +4177,14 @@ function _M0MP311moonbitlang4core7builtin3Map20add__entry__to__tailGiRP311moonbi
   _tmp[idx] = entry;
   self.size = self.size + 1 | 0;
 }
-function _M0MP311moonbitlang4core7builtin3Map20add__entry__to__tailGiRP36mizchi6kagura4text15GlyphCacheEntryE(self, idx, entry) {
+function _M0MPB3Map20add__entry__to__tailGiRP36mizchi6kagura4text15GlyphCacheEntryE(self, idx, entry) {
   const _bind = self.tail;
   if (_bind === -1) {
     self.head = entry;
   } else {
     const _tmp = self.entries;
     $bound_check(_tmp, _bind);
-    _M0MP311moonbitlang4core6option6Option6unwrapGRP311moonbitlang4core7builtin5EntryGiRP36mizchi6kagura4text15GlyphCacheEntryEE(_tmp[_bind]).next = entry;
+    _M0MPC16option6Option6unwrapGRPB5EntryGiRPB5ArrayGRP36mizchi6kagura4text9GlyphQuadEEE(_tmp[_bind]).next = entry;
   }
   self.tail = idx;
   const _tmp = self.entries;
@@ -3677,14 +4192,14 @@ function _M0MP311moonbitlang4core7builtin3Map20add__entry__to__tailGiRP36mizchi6
   _tmp[idx] = entry;
   self.size = self.size + 1 | 0;
 }
-function _M0MP311moonbitlang4core7builtin3Map20add__entry__to__tailGsRP26mizchi3svg6SymbolE(self, idx, entry) {
+function _M0MPB3Map20add__entry__to__tailGsRP26mizchi3svg6SymbolE(self, idx, entry) {
   const _bind = self.tail;
   if (_bind === -1) {
     self.head = entry;
   } else {
     const _tmp = self.entries;
     $bound_check(_tmp, _bind);
-    _M0MP311moonbitlang4core6option6Option6unwrapGRP311moonbitlang4core7builtin5EntryGsRP26mizchi3svg6SymbolEE(_tmp[_bind]).next = entry;
+    _M0MPC16option6Option6unwrapGRPB5EntryGiRPB5ArrayGRP36mizchi6kagura4text9GlyphQuadEEE(_tmp[_bind]).next = entry;
   }
   self.tail = idx;
   const _tmp = self.entries;
@@ -3692,97 +4207,7 @@ function _M0MP311moonbitlang4core7builtin3Map20add__entry__to__tailGsRP26mizchi3
   _tmp[idx] = entry;
   self.size = self.size + 1 | 0;
 }
-function _M0MP311moonbitlang4core7builtin3Map20add__entry__to__tailGsRP26mizchi3svg7SVGNodeE(self, idx, entry) {
-  const _bind = self.tail;
-  if (_bind === -1) {
-    self.head = entry;
-  } else {
-    const _tmp = self.entries;
-    $bound_check(_tmp, _bind);
-    _M0MP311moonbitlang4core6option6Option6unwrapGRP311moonbitlang4core7builtin5EntryGsRP26mizchi3svg7SVGNodeEE(_tmp[_bind]).next = entry;
-  }
-  self.tail = idx;
-  const _tmp = self.entries;
-  $bound_check(_tmp, idx);
-  _tmp[idx] = entry;
-  self.size = self.size + 1 | 0;
-}
-function _M0MP311moonbitlang4core7builtin3Map20add__entry__to__tailGsRP26mizchi3svg8ClipPathE(self, idx, entry) {
-  const _bind = self.tail;
-  if (_bind === -1) {
-    self.head = entry;
-  } else {
-    const _tmp = self.entries;
-    $bound_check(_tmp, _bind);
-    _M0MP311moonbitlang4core6option6Option6unwrapGRP311moonbitlang4core7builtin5EntryGsRP26mizchi3svg8ClipPathEE(_tmp[_bind]).next = entry;
-  }
-  self.tail = idx;
-  const _tmp = self.entries;
-  $bound_check(_tmp, idx);
-  _tmp[idx] = entry;
-  self.size = self.size + 1 | 0;
-}
-function _M0MP311moonbitlang4core7builtin3Map20add__entry__to__tailGsRP26mizchi3svg4MaskE(self, idx, entry) {
-  const _bind = self.tail;
-  if (_bind === -1) {
-    self.head = entry;
-  } else {
-    const _tmp = self.entries;
-    $bound_check(_tmp, _bind);
-    _M0MP311moonbitlang4core6option6Option6unwrapGRP311moonbitlang4core7builtin5EntryGsRP26mizchi3svg4MaskEE(_tmp[_bind]).next = entry;
-  }
-  self.tail = idx;
-  const _tmp = self.entries;
-  $bound_check(_tmp, idx);
-  _tmp[idx] = entry;
-  self.size = self.size + 1 | 0;
-}
-function _M0MP311moonbitlang4core7builtin3Map20add__entry__to__tailGsRP26mizchi3svg7PatternE(self, idx, entry) {
-  const _bind = self.tail;
-  if (_bind === -1) {
-    self.head = entry;
-  } else {
-    const _tmp = self.entries;
-    $bound_check(_tmp, _bind);
-    _M0MP311moonbitlang4core6option6Option6unwrapGRP311moonbitlang4core7builtin5EntryGsRP26mizchi3svg7PatternEE(_tmp[_bind]).next = entry;
-  }
-  self.tail = idx;
-  const _tmp = self.entries;
-  $bound_check(_tmp, idx);
-  _tmp[idx] = entry;
-  self.size = self.size + 1 | 0;
-}
-function _M0MP311moonbitlang4core7builtin3Map20add__entry__to__tailGsRP26mizchi3svg8GradientE(self, idx, entry) {
-  const _bind = self.tail;
-  if (_bind === -1) {
-    self.head = entry;
-  } else {
-    const _tmp = self.entries;
-    $bound_check(_tmp, _bind);
-    _M0MP311moonbitlang4core6option6Option6unwrapGRP311moonbitlang4core7builtin5EntryGsRP26mizchi3svg8GradientEE(_tmp[_bind]).next = entry;
-  }
-  self.tail = idx;
-  const _tmp = self.entries;
-  $bound_check(_tmp, idx);
-  _tmp[idx] = entry;
-  self.size = self.size + 1 | 0;
-}
-function _M0MP311moonbitlang4core7builtin3Map20add__entry__to__tailGsRP26mizchi3svg6MarkerE(self, idx, entry) {
-  const _bind = self.tail;
-  if (_bind === -1) {
-    self.head = entry;
-  } else {
-    const _tmp = self.entries;
-    $bound_check(_tmp, _bind);
-    _M0MP311moonbitlang4core6option6Option6unwrapGRP311moonbitlang4core7builtin5EntryGsRP26mizchi3svg6MarkerEE(_tmp[_bind]).next = entry;
-  }
-  self.tail = idx;
-  const _tmp = self.entries;
-  $bound_check(_tmp, idx);
-  _tmp[idx] = entry;
-  self.size = self.size + 1 | 0;
-}
-function _M0MP311moonbitlang4core7builtin3Map10set__entryGiRP311moonbitlang4core7builtin5ArrayGRP36mizchi6kagura4text9GlyphQuadEE(self, entry, new_idx) {
+function _M0MPB3Map10set__entryGiRPB5ArrayGRP36mizchi6kagura4text9GlyphQuadEE(self, entry, new_idx) {
   const _tmp = self.entries;
   $bound_check(_tmp, new_idx);
   _tmp[new_idx] = entry;
@@ -3797,7 +4222,7 @@ function _M0MP311moonbitlang4core7builtin3Map10set__entryGiRP311moonbitlang4core
     return;
   }
 }
-function _M0MP311moonbitlang4core7builtin3Map10set__entryGiRP36mizchi6kagura4text15GlyphCacheEntryE(self, entry, new_idx) {
+function _M0MPB3Map10set__entryGiRP36mizchi6kagura4text15GlyphCacheEntryE(self, entry, new_idx) {
   const _tmp = self.entries;
   $bound_check(_tmp, new_idx);
   _tmp[new_idx] = entry;
@@ -3812,7 +4237,7 @@ function _M0MP311moonbitlang4core7builtin3Map10set__entryGiRP36mizchi6kagura4tex
     return;
   }
 }
-function _M0MP311moonbitlang4core7builtin3Map10set__entryGsRP26mizchi3svg6SymbolE(self, entry, new_idx) {
+function _M0MPB3Map10set__entryGsRP26mizchi3svg6SymbolE(self, entry, new_idx) {
   const _tmp = self.entries;
   $bound_check(_tmp, new_idx);
   _tmp[new_idx] = entry;
@@ -3827,97 +4252,7 @@ function _M0MP311moonbitlang4core7builtin3Map10set__entryGsRP26mizchi3svg6Symbol
     return;
   }
 }
-function _M0MP311moonbitlang4core7builtin3Map10set__entryGsRP26mizchi3svg7SVGNodeE(self, entry, new_idx) {
-  const _tmp = self.entries;
-  $bound_check(_tmp, new_idx);
-  _tmp[new_idx] = entry;
-  const _bind = entry.next;
-  if (_bind === undefined) {
-    self.tail = new_idx;
-    return;
-  } else {
-    const _Some = _bind;
-    const _next = _Some;
-    _next.prev = new_idx;
-    return;
-  }
-}
-function _M0MP311moonbitlang4core7builtin3Map10set__entryGsRP26mizchi3svg8ClipPathE(self, entry, new_idx) {
-  const _tmp = self.entries;
-  $bound_check(_tmp, new_idx);
-  _tmp[new_idx] = entry;
-  const _bind = entry.next;
-  if (_bind === undefined) {
-    self.tail = new_idx;
-    return;
-  } else {
-    const _Some = _bind;
-    const _next = _Some;
-    _next.prev = new_idx;
-    return;
-  }
-}
-function _M0MP311moonbitlang4core7builtin3Map10set__entryGsRP26mizchi3svg4MaskE(self, entry, new_idx) {
-  const _tmp = self.entries;
-  $bound_check(_tmp, new_idx);
-  _tmp[new_idx] = entry;
-  const _bind = entry.next;
-  if (_bind === undefined) {
-    self.tail = new_idx;
-    return;
-  } else {
-    const _Some = _bind;
-    const _next = _Some;
-    _next.prev = new_idx;
-    return;
-  }
-}
-function _M0MP311moonbitlang4core7builtin3Map10set__entryGsRP26mizchi3svg7PatternE(self, entry, new_idx) {
-  const _tmp = self.entries;
-  $bound_check(_tmp, new_idx);
-  _tmp[new_idx] = entry;
-  const _bind = entry.next;
-  if (_bind === undefined) {
-    self.tail = new_idx;
-    return;
-  } else {
-    const _Some = _bind;
-    const _next = _Some;
-    _next.prev = new_idx;
-    return;
-  }
-}
-function _M0MP311moonbitlang4core7builtin3Map10set__entryGsRP26mizchi3svg8GradientE(self, entry, new_idx) {
-  const _tmp = self.entries;
-  $bound_check(_tmp, new_idx);
-  _tmp[new_idx] = entry;
-  const _bind = entry.next;
-  if (_bind === undefined) {
-    self.tail = new_idx;
-    return;
-  } else {
-    const _Some = _bind;
-    const _next = _Some;
-    _next.prev = new_idx;
-    return;
-  }
-}
-function _M0MP311moonbitlang4core7builtin3Map10set__entryGsRP26mizchi3svg6MarkerE(self, entry, new_idx) {
-  const _tmp = self.entries;
-  $bound_check(_tmp, new_idx);
-  _tmp[new_idx] = entry;
-  const _bind = entry.next;
-  if (_bind === undefined) {
-    self.tail = new_idx;
-    return;
-  } else {
-    const _Some = _bind;
-    const _next = _Some;
-    _next.prev = new_idx;
-    return;
-  }
-}
-function _M0MP311moonbitlang4core7builtin3Map10push__awayGiRP311moonbitlang4core7builtin5ArrayGRP36mizchi6kagura4text9GlyphQuadEE(self, idx, entry) {
+function _M0MPB3Map10push__awayGiRPB5ArrayGRP36mizchi6kagura4text9GlyphQuadEE(self, idx, entry) {
   let _tmp = entry.psl + 1 | 0;
   let _tmp$2 = (idx + 1 | 0) & self.capacity_mask;
   let _tmp$3 = entry;
@@ -3930,14 +4265,14 @@ function _M0MP311moonbitlang4core7builtin3Map10push__awayGiRP311moonbitlang4core
     const _bind = _tmp$4[idx$2];
     if (_bind === undefined) {
       entry$2.psl = psl;
-      _M0MP311moonbitlang4core7builtin3Map10set__entryGiRP311moonbitlang4core7builtin5ArrayGRP36mizchi6kagura4text9GlyphQuadEE(self, entry$2, idx$2);
-      break;
+      _M0MPB3Map10set__entryGiRPB5ArrayGRP36mizchi6kagura4text9GlyphQuadEE(self, entry$2, idx$2);
+      return;
     } else {
       const _Some = _bind;
       const _curr_entry = _Some;
       if (psl > _curr_entry.psl) {
         entry$2.psl = psl;
-        _M0MP311moonbitlang4core7builtin3Map10set__entryGiRP311moonbitlang4core7builtin5ArrayGRP36mizchi6kagura4text9GlyphQuadEE(self, entry$2, idx$2);
+        _M0MPB3Map10set__entryGiRPB5ArrayGRP36mizchi6kagura4text9GlyphQuadEE(self, entry$2, idx$2);
         _tmp = _curr_entry.psl + 1 | 0;
         _tmp$2 = (idx$2 + 1 | 0) & self.capacity_mask;
         _tmp$3 = _curr_entry;
@@ -3950,7 +4285,7 @@ function _M0MP311moonbitlang4core7builtin3Map10push__awayGiRP311moonbitlang4core
     }
   }
 }
-function _M0MP311moonbitlang4core7builtin3Map10push__awayGiRP36mizchi6kagura4text15GlyphCacheEntryE(self, idx, entry) {
+function _M0MPB3Map10push__awayGiRP36mizchi6kagura4text15GlyphCacheEntryE(self, idx, entry) {
   let _tmp = entry.psl + 1 | 0;
   let _tmp$2 = (idx + 1 | 0) & self.capacity_mask;
   let _tmp$3 = entry;
@@ -3963,14 +4298,14 @@ function _M0MP311moonbitlang4core7builtin3Map10push__awayGiRP36mizchi6kagura4tex
     const _bind = _tmp$4[idx$2];
     if (_bind === undefined) {
       entry$2.psl = psl;
-      _M0MP311moonbitlang4core7builtin3Map10set__entryGiRP36mizchi6kagura4text15GlyphCacheEntryE(self, entry$2, idx$2);
-      break;
+      _M0MPB3Map10set__entryGiRP36mizchi6kagura4text15GlyphCacheEntryE(self, entry$2, idx$2);
+      return;
     } else {
       const _Some = _bind;
       const _curr_entry = _Some;
       if (psl > _curr_entry.psl) {
         entry$2.psl = psl;
-        _M0MP311moonbitlang4core7builtin3Map10set__entryGiRP36mizchi6kagura4text15GlyphCacheEntryE(self, entry$2, idx$2);
+        _M0MPB3Map10set__entryGiRP36mizchi6kagura4text15GlyphCacheEntryE(self, entry$2, idx$2);
         _tmp = _curr_entry.psl + 1 | 0;
         _tmp$2 = (idx$2 + 1 | 0) & self.capacity_mask;
         _tmp$3 = _curr_entry;
@@ -3983,7 +4318,7 @@ function _M0MP311moonbitlang4core7builtin3Map10push__awayGiRP36mizchi6kagura4tex
     }
   }
 }
-function _M0MP311moonbitlang4core7builtin3Map10push__awayGsRP26mizchi3svg6SymbolE(self, idx, entry) {
+function _M0MPB3Map10push__awayGsRP26mizchi3svg6SymbolE(self, idx, entry) {
   let _tmp = entry.psl + 1 | 0;
   let _tmp$2 = (idx + 1 | 0) & self.capacity_mask;
   let _tmp$3 = entry;
@@ -3996,14 +4331,14 @@ function _M0MP311moonbitlang4core7builtin3Map10push__awayGsRP26mizchi3svg6Symbol
     const _bind = _tmp$4[idx$2];
     if (_bind === undefined) {
       entry$2.psl = psl;
-      _M0MP311moonbitlang4core7builtin3Map10set__entryGsRP26mizchi3svg6SymbolE(self, entry$2, idx$2);
-      break;
+      _M0MPB3Map10set__entryGsRP26mizchi3svg6SymbolE(self, entry$2, idx$2);
+      return;
     } else {
       const _Some = _bind;
       const _curr_entry = _Some;
       if (psl > _curr_entry.psl) {
         entry$2.psl = psl;
-        _M0MP311moonbitlang4core7builtin3Map10set__entryGsRP26mizchi3svg6SymbolE(self, entry$2, idx$2);
+        _M0MPB3Map10set__entryGsRP26mizchi3svg6SymbolE(self, entry$2, idx$2);
         _tmp = _curr_entry.psl + 1 | 0;
         _tmp$2 = (idx$2 + 1 | 0) & self.capacity_mask;
         _tmp$3 = _curr_entry;
@@ -4016,205 +4351,7 @@ function _M0MP311moonbitlang4core7builtin3Map10push__awayGsRP26mizchi3svg6Symbol
     }
   }
 }
-function _M0MP311moonbitlang4core7builtin3Map10push__awayGsRP26mizchi3svg7SVGNodeE(self, idx, entry) {
-  let _tmp = entry.psl + 1 | 0;
-  let _tmp$2 = (idx + 1 | 0) & self.capacity_mask;
-  let _tmp$3 = entry;
-  while (true) {
-    const psl = _tmp;
-    const idx$2 = _tmp$2;
-    const entry$2 = _tmp$3;
-    const _tmp$4 = self.entries;
-    $bound_check(_tmp$4, idx$2);
-    const _bind = _tmp$4[idx$2];
-    if (_bind === undefined) {
-      entry$2.psl = psl;
-      _M0MP311moonbitlang4core7builtin3Map10set__entryGsRP26mizchi3svg7SVGNodeE(self, entry$2, idx$2);
-      break;
-    } else {
-      const _Some = _bind;
-      const _curr_entry = _Some;
-      if (psl > _curr_entry.psl) {
-        entry$2.psl = psl;
-        _M0MP311moonbitlang4core7builtin3Map10set__entryGsRP26mizchi3svg7SVGNodeE(self, entry$2, idx$2);
-        _tmp = _curr_entry.psl + 1 | 0;
-        _tmp$2 = (idx$2 + 1 | 0) & self.capacity_mask;
-        _tmp$3 = _curr_entry;
-        continue;
-      } else {
-        _tmp = psl + 1 | 0;
-        _tmp$2 = (idx$2 + 1 | 0) & self.capacity_mask;
-        continue;
-      }
-    }
-  }
-}
-function _M0MP311moonbitlang4core7builtin3Map10push__awayGsRP26mizchi3svg8ClipPathE(self, idx, entry) {
-  let _tmp = entry.psl + 1 | 0;
-  let _tmp$2 = (idx + 1 | 0) & self.capacity_mask;
-  let _tmp$3 = entry;
-  while (true) {
-    const psl = _tmp;
-    const idx$2 = _tmp$2;
-    const entry$2 = _tmp$3;
-    const _tmp$4 = self.entries;
-    $bound_check(_tmp$4, idx$2);
-    const _bind = _tmp$4[idx$2];
-    if (_bind === undefined) {
-      entry$2.psl = psl;
-      _M0MP311moonbitlang4core7builtin3Map10set__entryGsRP26mizchi3svg8ClipPathE(self, entry$2, idx$2);
-      break;
-    } else {
-      const _Some = _bind;
-      const _curr_entry = _Some;
-      if (psl > _curr_entry.psl) {
-        entry$2.psl = psl;
-        _M0MP311moonbitlang4core7builtin3Map10set__entryGsRP26mizchi3svg8ClipPathE(self, entry$2, idx$2);
-        _tmp = _curr_entry.psl + 1 | 0;
-        _tmp$2 = (idx$2 + 1 | 0) & self.capacity_mask;
-        _tmp$3 = _curr_entry;
-        continue;
-      } else {
-        _tmp = psl + 1 | 0;
-        _tmp$2 = (idx$2 + 1 | 0) & self.capacity_mask;
-        continue;
-      }
-    }
-  }
-}
-function _M0MP311moonbitlang4core7builtin3Map10push__awayGsRP26mizchi3svg4MaskE(self, idx, entry) {
-  let _tmp = entry.psl + 1 | 0;
-  let _tmp$2 = (idx + 1 | 0) & self.capacity_mask;
-  let _tmp$3 = entry;
-  while (true) {
-    const psl = _tmp;
-    const idx$2 = _tmp$2;
-    const entry$2 = _tmp$3;
-    const _tmp$4 = self.entries;
-    $bound_check(_tmp$4, idx$2);
-    const _bind = _tmp$4[idx$2];
-    if (_bind === undefined) {
-      entry$2.psl = psl;
-      _M0MP311moonbitlang4core7builtin3Map10set__entryGsRP26mizchi3svg4MaskE(self, entry$2, idx$2);
-      break;
-    } else {
-      const _Some = _bind;
-      const _curr_entry = _Some;
-      if (psl > _curr_entry.psl) {
-        entry$2.psl = psl;
-        _M0MP311moonbitlang4core7builtin3Map10set__entryGsRP26mizchi3svg4MaskE(self, entry$2, idx$2);
-        _tmp = _curr_entry.psl + 1 | 0;
-        _tmp$2 = (idx$2 + 1 | 0) & self.capacity_mask;
-        _tmp$3 = _curr_entry;
-        continue;
-      } else {
-        _tmp = psl + 1 | 0;
-        _tmp$2 = (idx$2 + 1 | 0) & self.capacity_mask;
-        continue;
-      }
-    }
-  }
-}
-function _M0MP311moonbitlang4core7builtin3Map10push__awayGsRP26mizchi3svg7PatternE(self, idx, entry) {
-  let _tmp = entry.psl + 1 | 0;
-  let _tmp$2 = (idx + 1 | 0) & self.capacity_mask;
-  let _tmp$3 = entry;
-  while (true) {
-    const psl = _tmp;
-    const idx$2 = _tmp$2;
-    const entry$2 = _tmp$3;
-    const _tmp$4 = self.entries;
-    $bound_check(_tmp$4, idx$2);
-    const _bind = _tmp$4[idx$2];
-    if (_bind === undefined) {
-      entry$2.psl = psl;
-      _M0MP311moonbitlang4core7builtin3Map10set__entryGsRP26mizchi3svg7PatternE(self, entry$2, idx$2);
-      break;
-    } else {
-      const _Some = _bind;
-      const _curr_entry = _Some;
-      if (psl > _curr_entry.psl) {
-        entry$2.psl = psl;
-        _M0MP311moonbitlang4core7builtin3Map10set__entryGsRP26mizchi3svg7PatternE(self, entry$2, idx$2);
-        _tmp = _curr_entry.psl + 1 | 0;
-        _tmp$2 = (idx$2 + 1 | 0) & self.capacity_mask;
-        _tmp$3 = _curr_entry;
-        continue;
-      } else {
-        _tmp = psl + 1 | 0;
-        _tmp$2 = (idx$2 + 1 | 0) & self.capacity_mask;
-        continue;
-      }
-    }
-  }
-}
-function _M0MP311moonbitlang4core7builtin3Map10push__awayGsRP26mizchi3svg8GradientE(self, idx, entry) {
-  let _tmp = entry.psl + 1 | 0;
-  let _tmp$2 = (idx + 1 | 0) & self.capacity_mask;
-  let _tmp$3 = entry;
-  while (true) {
-    const psl = _tmp;
-    const idx$2 = _tmp$2;
-    const entry$2 = _tmp$3;
-    const _tmp$4 = self.entries;
-    $bound_check(_tmp$4, idx$2);
-    const _bind = _tmp$4[idx$2];
-    if (_bind === undefined) {
-      entry$2.psl = psl;
-      _M0MP311moonbitlang4core7builtin3Map10set__entryGsRP26mizchi3svg8GradientE(self, entry$2, idx$2);
-      break;
-    } else {
-      const _Some = _bind;
-      const _curr_entry = _Some;
-      if (psl > _curr_entry.psl) {
-        entry$2.psl = psl;
-        _M0MP311moonbitlang4core7builtin3Map10set__entryGsRP26mizchi3svg8GradientE(self, entry$2, idx$2);
-        _tmp = _curr_entry.psl + 1 | 0;
-        _tmp$2 = (idx$2 + 1 | 0) & self.capacity_mask;
-        _tmp$3 = _curr_entry;
-        continue;
-      } else {
-        _tmp = psl + 1 | 0;
-        _tmp$2 = (idx$2 + 1 | 0) & self.capacity_mask;
-        continue;
-      }
-    }
-  }
-}
-function _M0MP311moonbitlang4core7builtin3Map10push__awayGsRP26mizchi3svg6MarkerE(self, idx, entry) {
-  let _tmp = entry.psl + 1 | 0;
-  let _tmp$2 = (idx + 1 | 0) & self.capacity_mask;
-  let _tmp$3 = entry;
-  while (true) {
-    const psl = _tmp;
-    const idx$2 = _tmp$2;
-    const entry$2 = _tmp$3;
-    const _tmp$4 = self.entries;
-    $bound_check(_tmp$4, idx$2);
-    const _bind = _tmp$4[idx$2];
-    if (_bind === undefined) {
-      entry$2.psl = psl;
-      _M0MP311moonbitlang4core7builtin3Map10set__entryGsRP26mizchi3svg6MarkerE(self, entry$2, idx$2);
-      break;
-    } else {
-      const _Some = _bind;
-      const _curr_entry = _Some;
-      if (psl > _curr_entry.psl) {
-        entry$2.psl = psl;
-        _M0MP311moonbitlang4core7builtin3Map10set__entryGsRP26mizchi3svg6MarkerE(self, entry$2, idx$2);
-        _tmp = _curr_entry.psl + 1 | 0;
-        _tmp$2 = (idx$2 + 1 | 0) & self.capacity_mask;
-        _tmp$3 = _curr_entry;
-        continue;
-      } else {
-        _tmp = psl + 1 | 0;
-        _tmp$2 = (idx$2 + 1 | 0) & self.capacity_mask;
-        continue;
-      }
-    }
-  }
-}
-function _M0MP311moonbitlang4core7builtin3Map15set__with__hashGiRP311moonbitlang4core7builtin5ArrayGRP36mizchi6kagura4text9GlyphQuadEE(self, key, value, hash) {
+function _M0MPB3Map15set__with__hashGiRPB5ArrayGRP36mizchi6kagura4text9GlyphQuadEE(self, key, value, hash) {
   let _tmp = 0;
   let _tmp$2 = hash & self.capacity_mask;
   while (true) {
@@ -4225,15 +4362,15 @@ function _M0MP311moonbitlang4core7builtin3Map15set__with__hashGiRP311moonbitlang
     const _bind = _tmp$3[idx];
     if (_bind === undefined) {
       if (self.size >= self.grow_at) {
-        _M0MP311moonbitlang4core7builtin3Map4growGiRP311moonbitlang4core7builtin5ArrayGRP36mizchi6kagura4text9GlyphQuadEE(self);
+        _M0MPB3Map4growGiRPB5ArrayGRP36mizchi6kagura4text9GlyphQuadEE(self);
         _tmp = 0;
         _tmp$2 = hash & self.capacity_mask;
         continue;
       }
       const _bind$2 = self.tail;
       const _bind$3 = undefined;
-      const entry = { prev: _bind$2, next: _bind$3, psl: psl, hash: hash, key: key, value: value };
-      _M0MP311moonbitlang4core7builtin3Map20add__entry__to__tailGiRP311moonbitlang4core7builtin5ArrayGRP36mizchi6kagura4text9GlyphQuadEE(self, idx, entry);
+      const entry = new _M0TPB5EntryGiRPB5ArrayGRP36mizchi6kagura4text9GlyphQuadEE(_bind$2, _bind$3, psl, hash, key, value);
+      _M0MPB3Map20add__entry__to__tailGiRPB5ArrayGRP36mizchi6kagura4text9GlyphQuadEE(self, idx, entry);
       return undefined;
     } else {
       const _Some = _bind;
@@ -4244,16 +4381,16 @@ function _M0MP311moonbitlang4core7builtin3Map15set__with__hashGiRP311moonbitlang
       }
       if (psl > _curr_entry.psl) {
         if (self.size >= self.grow_at) {
-          _M0MP311moonbitlang4core7builtin3Map4growGiRP311moonbitlang4core7builtin5ArrayGRP36mizchi6kagura4text9GlyphQuadEE(self);
+          _M0MPB3Map4growGiRPB5ArrayGRP36mizchi6kagura4text9GlyphQuadEE(self);
           _tmp = 0;
           _tmp$2 = hash & self.capacity_mask;
           continue;
         }
-        _M0MP311moonbitlang4core7builtin3Map10push__awayGiRP311moonbitlang4core7builtin5ArrayGRP36mizchi6kagura4text9GlyphQuadEE(self, idx, _curr_entry);
+        _M0MPB3Map10push__awayGiRPB5ArrayGRP36mizchi6kagura4text9GlyphQuadEE(self, idx, _curr_entry);
         const _bind$2 = self.tail;
         const _bind$3 = undefined;
-        const entry = { prev: _bind$2, next: _bind$3, psl: psl, hash: hash, key: key, value: value };
-        _M0MP311moonbitlang4core7builtin3Map20add__entry__to__tailGiRP311moonbitlang4core7builtin5ArrayGRP36mizchi6kagura4text9GlyphQuadEE(self, idx, entry);
+        const entry = new _M0TPB5EntryGiRPB5ArrayGRP36mizchi6kagura4text9GlyphQuadEE(_bind$2, _bind$3, psl, hash, key, value);
+        _M0MPB3Map20add__entry__to__tailGiRPB5ArrayGRP36mizchi6kagura4text9GlyphQuadEE(self, idx, entry);
         return undefined;
       }
       _tmp = psl + 1 | 0;
@@ -4262,7 +4399,7 @@ function _M0MP311moonbitlang4core7builtin3Map15set__with__hashGiRP311moonbitlang
     }
   }
 }
-function _M0MP311moonbitlang4core7builtin3Map15set__with__hashGiRP36mizchi6kagura4text15GlyphCacheEntryE(self, key, value, hash) {
+function _M0MPB3Map15set__with__hashGiRP36mizchi6kagura4text15GlyphCacheEntryE(self, key, value, hash) {
   let _tmp = 0;
   let _tmp$2 = hash & self.capacity_mask;
   while (true) {
@@ -4273,15 +4410,15 @@ function _M0MP311moonbitlang4core7builtin3Map15set__with__hashGiRP36mizchi6kagur
     const _bind = _tmp$3[idx];
     if (_bind === undefined) {
       if (self.size >= self.grow_at) {
-        _M0MP311moonbitlang4core7builtin3Map4growGiRP36mizchi6kagura4text15GlyphCacheEntryE(self);
+        _M0MPB3Map4growGiRP36mizchi6kagura4text15GlyphCacheEntryE(self);
         _tmp = 0;
         _tmp$2 = hash & self.capacity_mask;
         continue;
       }
       const _bind$2 = self.tail;
       const _bind$3 = undefined;
-      const entry = { prev: _bind$2, next: _bind$3, psl: psl, hash: hash, key: key, value: value };
-      _M0MP311moonbitlang4core7builtin3Map20add__entry__to__tailGiRP36mizchi6kagura4text15GlyphCacheEntryE(self, idx, entry);
+      const entry = new _M0TPB5EntryGiRP36mizchi6kagura4text15GlyphCacheEntryE(_bind$2, _bind$3, psl, hash, key, value);
+      _M0MPB3Map20add__entry__to__tailGiRP36mizchi6kagura4text15GlyphCacheEntryE(self, idx, entry);
       return undefined;
     } else {
       const _Some = _bind;
@@ -4292,16 +4429,16 @@ function _M0MP311moonbitlang4core7builtin3Map15set__with__hashGiRP36mizchi6kagur
       }
       if (psl > _curr_entry.psl) {
         if (self.size >= self.grow_at) {
-          _M0MP311moonbitlang4core7builtin3Map4growGiRP36mizchi6kagura4text15GlyphCacheEntryE(self);
+          _M0MPB3Map4growGiRP36mizchi6kagura4text15GlyphCacheEntryE(self);
           _tmp = 0;
           _tmp$2 = hash & self.capacity_mask;
           continue;
         }
-        _M0MP311moonbitlang4core7builtin3Map10push__awayGiRP36mizchi6kagura4text15GlyphCacheEntryE(self, idx, _curr_entry);
+        _M0MPB3Map10push__awayGiRP36mizchi6kagura4text15GlyphCacheEntryE(self, idx, _curr_entry);
         const _bind$2 = self.tail;
         const _bind$3 = undefined;
-        const entry = { prev: _bind$2, next: _bind$3, psl: psl, hash: hash, key: key, value: value };
-        _M0MP311moonbitlang4core7builtin3Map20add__entry__to__tailGiRP36mizchi6kagura4text15GlyphCacheEntryE(self, idx, entry);
+        const entry = new _M0TPB5EntryGiRP36mizchi6kagura4text15GlyphCacheEntryE(_bind$2, _bind$3, psl, hash, key, value);
+        _M0MPB3Map20add__entry__to__tailGiRP36mizchi6kagura4text15GlyphCacheEntryE(self, idx, entry);
         return undefined;
       }
       _tmp = psl + 1 | 0;
@@ -4310,7 +4447,7 @@ function _M0MP311moonbitlang4core7builtin3Map15set__with__hashGiRP36mizchi6kagur
     }
   }
 }
-function _M0MP311moonbitlang4core7builtin3Map15set__with__hashGsRP26mizchi3svg6SymbolE(self, key, value, hash) {
+function _M0MPB3Map15set__with__hashGsRP26mizchi3svg6SymbolE(self, key, value, hash) {
   let _tmp = 0;
   let _tmp$2 = hash & self.capacity_mask;
   while (true) {
@@ -4321,15 +4458,15 @@ function _M0MP311moonbitlang4core7builtin3Map15set__with__hashGsRP26mizchi3svg6S
     const _bind = _tmp$3[idx];
     if (_bind === undefined) {
       if (self.size >= self.grow_at) {
-        _M0MP311moonbitlang4core7builtin3Map4growGsRP26mizchi3svg6SymbolE(self);
+        _M0MPB3Map4growGsRP26mizchi3svg6SymbolE(self);
         _tmp = 0;
         _tmp$2 = hash & self.capacity_mask;
         continue;
       }
       const _bind$2 = self.tail;
       const _bind$3 = undefined;
-      const entry = { prev: _bind$2, next: _bind$3, psl: psl, hash: hash, key: key, value: value };
-      _M0MP311moonbitlang4core7builtin3Map20add__entry__to__tailGsRP26mizchi3svg6SymbolE(self, idx, entry);
+      const entry = new _M0TPB5EntryGsRP26mizchi3svg6SymbolE(_bind$2, _bind$3, psl, hash, key, value);
+      _M0MPB3Map20add__entry__to__tailGsRP26mizchi3svg6SymbolE(self, idx, entry);
       return undefined;
     } else {
       const _Some = _bind;
@@ -4340,16 +4477,16 @@ function _M0MP311moonbitlang4core7builtin3Map15set__with__hashGsRP26mizchi3svg6S
       }
       if (psl > _curr_entry.psl) {
         if (self.size >= self.grow_at) {
-          _M0MP311moonbitlang4core7builtin3Map4growGsRP26mizchi3svg6SymbolE(self);
+          _M0MPB3Map4growGsRP26mizchi3svg6SymbolE(self);
           _tmp = 0;
           _tmp$2 = hash & self.capacity_mask;
           continue;
         }
-        _M0MP311moonbitlang4core7builtin3Map10push__awayGsRP26mizchi3svg6SymbolE(self, idx, _curr_entry);
+        _M0MPB3Map10push__awayGsRP26mizchi3svg6SymbolE(self, idx, _curr_entry);
         const _bind$2 = self.tail;
         const _bind$3 = undefined;
-        const entry = { prev: _bind$2, next: _bind$3, psl: psl, hash: hash, key: key, value: value };
-        _M0MP311moonbitlang4core7builtin3Map20add__entry__to__tailGsRP26mizchi3svg6SymbolE(self, idx, entry);
+        const entry = new _M0TPB5EntryGsRP26mizchi3svg6SymbolE(_bind$2, _bind$3, psl, hash, key, value);
+        _M0MPB3Map20add__entry__to__tailGsRP26mizchi3svg6SymbolE(self, idx, entry);
         return undefined;
       }
       _tmp = psl + 1 | 0;
@@ -4358,7 +4495,7 @@ function _M0MP311moonbitlang4core7builtin3Map15set__with__hashGsRP26mizchi3svg6S
     }
   }
 }
-function _M0MP311moonbitlang4core7builtin3Map15set__with__hashGsRP26mizchi3svg7SVGNodeE(self, key, value, hash) {
+function _M0MPB3Map15set__with__hashGsRP26mizchi3svg7SVGNodeE(self, key, value, hash) {
   let _tmp = 0;
   let _tmp$2 = hash & self.capacity_mask;
   while (true) {
@@ -4369,15 +4506,15 @@ function _M0MP311moonbitlang4core7builtin3Map15set__with__hashGsRP26mizchi3svg7S
     const _bind = _tmp$3[idx];
     if (_bind === undefined) {
       if (self.size >= self.grow_at) {
-        _M0MP311moonbitlang4core7builtin3Map4growGsRP26mizchi3svg7SVGNodeE(self);
+        _M0MPB3Map4growGsRP26mizchi3svg7SVGNodeE(self);
         _tmp = 0;
         _tmp$2 = hash & self.capacity_mask;
         continue;
       }
       const _bind$2 = self.tail;
       const _bind$3 = undefined;
-      const entry = { prev: _bind$2, next: _bind$3, psl: psl, hash: hash, key: key, value: value };
-      _M0MP311moonbitlang4core7builtin3Map20add__entry__to__tailGsRP26mizchi3svg7SVGNodeE(self, idx, entry);
+      const entry = new _M0TPB5EntryGsRP26mizchi3svg7SVGNodeE(_bind$2, _bind$3, psl, hash, key, value);
+      _M0MPB3Map20add__entry__to__tailGsRP26mizchi3svg6SymbolE(self, idx, entry);
       return undefined;
     } else {
       const _Some = _bind;
@@ -4388,16 +4525,16 @@ function _M0MP311moonbitlang4core7builtin3Map15set__with__hashGsRP26mizchi3svg7S
       }
       if (psl > _curr_entry.psl) {
         if (self.size >= self.grow_at) {
-          _M0MP311moonbitlang4core7builtin3Map4growGsRP26mizchi3svg7SVGNodeE(self);
+          _M0MPB3Map4growGsRP26mizchi3svg7SVGNodeE(self);
           _tmp = 0;
           _tmp$2 = hash & self.capacity_mask;
           continue;
         }
-        _M0MP311moonbitlang4core7builtin3Map10push__awayGsRP26mizchi3svg7SVGNodeE(self, idx, _curr_entry);
+        _M0MPB3Map10push__awayGsRP26mizchi3svg6SymbolE(self, idx, _curr_entry);
         const _bind$2 = self.tail;
         const _bind$3 = undefined;
-        const entry = { prev: _bind$2, next: _bind$3, psl: psl, hash: hash, key: key, value: value };
-        _M0MP311moonbitlang4core7builtin3Map20add__entry__to__tailGsRP26mizchi3svg7SVGNodeE(self, idx, entry);
+        const entry = new _M0TPB5EntryGsRP26mizchi3svg7SVGNodeE(_bind$2, _bind$3, psl, hash, key, value);
+        _M0MPB3Map20add__entry__to__tailGsRP26mizchi3svg6SymbolE(self, idx, entry);
         return undefined;
       }
       _tmp = psl + 1 | 0;
@@ -4406,7 +4543,7 @@ function _M0MP311moonbitlang4core7builtin3Map15set__with__hashGsRP26mizchi3svg7S
     }
   }
 }
-function _M0MP311moonbitlang4core7builtin3Map15set__with__hashGsRP26mizchi3svg8ClipPathE(self, key, value, hash) {
+function _M0MPB3Map15set__with__hashGsRP26mizchi3svg8ClipPathE(self, key, value, hash) {
   let _tmp = 0;
   let _tmp$2 = hash & self.capacity_mask;
   while (true) {
@@ -4417,15 +4554,15 @@ function _M0MP311moonbitlang4core7builtin3Map15set__with__hashGsRP26mizchi3svg8C
     const _bind = _tmp$3[idx];
     if (_bind === undefined) {
       if (self.size >= self.grow_at) {
-        _M0MP311moonbitlang4core7builtin3Map4growGsRP26mizchi3svg8ClipPathE(self);
+        _M0MPB3Map4growGsRP26mizchi3svg8ClipPathE(self);
         _tmp = 0;
         _tmp$2 = hash & self.capacity_mask;
         continue;
       }
       const _bind$2 = self.tail;
       const _bind$3 = undefined;
-      const entry = { prev: _bind$2, next: _bind$3, psl: psl, hash: hash, key: key, value: value };
-      _M0MP311moonbitlang4core7builtin3Map20add__entry__to__tailGsRP26mizchi3svg8ClipPathE(self, idx, entry);
+      const entry = new _M0TPB5EntryGsRP26mizchi3svg8ClipPathE(_bind$2, _bind$3, psl, hash, key, value);
+      _M0MPB3Map20add__entry__to__tailGsRP26mizchi3svg6SymbolE(self, idx, entry);
       return undefined;
     } else {
       const _Some = _bind;
@@ -4436,16 +4573,16 @@ function _M0MP311moonbitlang4core7builtin3Map15set__with__hashGsRP26mizchi3svg8C
       }
       if (psl > _curr_entry.psl) {
         if (self.size >= self.grow_at) {
-          _M0MP311moonbitlang4core7builtin3Map4growGsRP26mizchi3svg8ClipPathE(self);
+          _M0MPB3Map4growGsRP26mizchi3svg8ClipPathE(self);
           _tmp = 0;
           _tmp$2 = hash & self.capacity_mask;
           continue;
         }
-        _M0MP311moonbitlang4core7builtin3Map10push__awayGsRP26mizchi3svg8ClipPathE(self, idx, _curr_entry);
+        _M0MPB3Map10push__awayGsRP26mizchi3svg6SymbolE(self, idx, _curr_entry);
         const _bind$2 = self.tail;
         const _bind$3 = undefined;
-        const entry = { prev: _bind$2, next: _bind$3, psl: psl, hash: hash, key: key, value: value };
-        _M0MP311moonbitlang4core7builtin3Map20add__entry__to__tailGsRP26mizchi3svg8ClipPathE(self, idx, entry);
+        const entry = new _M0TPB5EntryGsRP26mizchi3svg8ClipPathE(_bind$2, _bind$3, psl, hash, key, value);
+        _M0MPB3Map20add__entry__to__tailGsRP26mizchi3svg6SymbolE(self, idx, entry);
         return undefined;
       }
       _tmp = psl + 1 | 0;
@@ -4454,7 +4591,7 @@ function _M0MP311moonbitlang4core7builtin3Map15set__with__hashGsRP26mizchi3svg8C
     }
   }
 }
-function _M0MP311moonbitlang4core7builtin3Map15set__with__hashGsRP26mizchi3svg4MaskE(self, key, value, hash) {
+function _M0MPB3Map15set__with__hashGsRP26mizchi3svg4MaskE(self, key, value, hash) {
   let _tmp = 0;
   let _tmp$2 = hash & self.capacity_mask;
   while (true) {
@@ -4465,15 +4602,15 @@ function _M0MP311moonbitlang4core7builtin3Map15set__with__hashGsRP26mizchi3svg4M
     const _bind = _tmp$3[idx];
     if (_bind === undefined) {
       if (self.size >= self.grow_at) {
-        _M0MP311moonbitlang4core7builtin3Map4growGsRP26mizchi3svg4MaskE(self);
+        _M0MPB3Map4growGsRP26mizchi3svg4MaskE(self);
         _tmp = 0;
         _tmp$2 = hash & self.capacity_mask;
         continue;
       }
       const _bind$2 = self.tail;
       const _bind$3 = undefined;
-      const entry = { prev: _bind$2, next: _bind$3, psl: psl, hash: hash, key: key, value: value };
-      _M0MP311moonbitlang4core7builtin3Map20add__entry__to__tailGsRP26mizchi3svg4MaskE(self, idx, entry);
+      const entry = new _M0TPB5EntryGsRP26mizchi3svg4MaskE(_bind$2, _bind$3, psl, hash, key, value);
+      _M0MPB3Map20add__entry__to__tailGsRP26mizchi3svg6SymbolE(self, idx, entry);
       return undefined;
     } else {
       const _Some = _bind;
@@ -4484,16 +4621,16 @@ function _M0MP311moonbitlang4core7builtin3Map15set__with__hashGsRP26mizchi3svg4M
       }
       if (psl > _curr_entry.psl) {
         if (self.size >= self.grow_at) {
-          _M0MP311moonbitlang4core7builtin3Map4growGsRP26mizchi3svg4MaskE(self);
+          _M0MPB3Map4growGsRP26mizchi3svg4MaskE(self);
           _tmp = 0;
           _tmp$2 = hash & self.capacity_mask;
           continue;
         }
-        _M0MP311moonbitlang4core7builtin3Map10push__awayGsRP26mizchi3svg4MaskE(self, idx, _curr_entry);
+        _M0MPB3Map10push__awayGsRP26mizchi3svg6SymbolE(self, idx, _curr_entry);
         const _bind$2 = self.tail;
         const _bind$3 = undefined;
-        const entry = { prev: _bind$2, next: _bind$3, psl: psl, hash: hash, key: key, value: value };
-        _M0MP311moonbitlang4core7builtin3Map20add__entry__to__tailGsRP26mizchi3svg4MaskE(self, idx, entry);
+        const entry = new _M0TPB5EntryGsRP26mizchi3svg4MaskE(_bind$2, _bind$3, psl, hash, key, value);
+        _M0MPB3Map20add__entry__to__tailGsRP26mizchi3svg6SymbolE(self, idx, entry);
         return undefined;
       }
       _tmp = psl + 1 | 0;
@@ -4502,7 +4639,7 @@ function _M0MP311moonbitlang4core7builtin3Map15set__with__hashGsRP26mizchi3svg4M
     }
   }
 }
-function _M0MP311moonbitlang4core7builtin3Map15set__with__hashGsRP26mizchi3svg7PatternE(self, key, value, hash) {
+function _M0MPB3Map15set__with__hashGsRP26mizchi3svg7PatternE(self, key, value, hash) {
   let _tmp = 0;
   let _tmp$2 = hash & self.capacity_mask;
   while (true) {
@@ -4513,15 +4650,15 @@ function _M0MP311moonbitlang4core7builtin3Map15set__with__hashGsRP26mizchi3svg7P
     const _bind = _tmp$3[idx];
     if (_bind === undefined) {
       if (self.size >= self.grow_at) {
-        _M0MP311moonbitlang4core7builtin3Map4growGsRP26mizchi3svg7PatternE(self);
+        _M0MPB3Map4growGsRP26mizchi3svg7PatternE(self);
         _tmp = 0;
         _tmp$2 = hash & self.capacity_mask;
         continue;
       }
       const _bind$2 = self.tail;
       const _bind$3 = undefined;
-      const entry = { prev: _bind$2, next: _bind$3, psl: psl, hash: hash, key: key, value: value };
-      _M0MP311moonbitlang4core7builtin3Map20add__entry__to__tailGsRP26mizchi3svg7PatternE(self, idx, entry);
+      const entry = new _M0TPB5EntryGsRP26mizchi3svg7PatternE(_bind$2, _bind$3, psl, hash, key, value);
+      _M0MPB3Map20add__entry__to__tailGsRP26mizchi3svg6SymbolE(self, idx, entry);
       return undefined;
     } else {
       const _Some = _bind;
@@ -4532,16 +4669,16 @@ function _M0MP311moonbitlang4core7builtin3Map15set__with__hashGsRP26mizchi3svg7P
       }
       if (psl > _curr_entry.psl) {
         if (self.size >= self.grow_at) {
-          _M0MP311moonbitlang4core7builtin3Map4growGsRP26mizchi3svg7PatternE(self);
+          _M0MPB3Map4growGsRP26mizchi3svg7PatternE(self);
           _tmp = 0;
           _tmp$2 = hash & self.capacity_mask;
           continue;
         }
-        _M0MP311moonbitlang4core7builtin3Map10push__awayGsRP26mizchi3svg7PatternE(self, idx, _curr_entry);
+        _M0MPB3Map10push__awayGsRP26mizchi3svg6SymbolE(self, idx, _curr_entry);
         const _bind$2 = self.tail;
         const _bind$3 = undefined;
-        const entry = { prev: _bind$2, next: _bind$3, psl: psl, hash: hash, key: key, value: value };
-        _M0MP311moonbitlang4core7builtin3Map20add__entry__to__tailGsRP26mizchi3svg7PatternE(self, idx, entry);
+        const entry = new _M0TPB5EntryGsRP26mizchi3svg7PatternE(_bind$2, _bind$3, psl, hash, key, value);
+        _M0MPB3Map20add__entry__to__tailGsRP26mizchi3svg6SymbolE(self, idx, entry);
         return undefined;
       }
       _tmp = psl + 1 | 0;
@@ -4550,7 +4687,7 @@ function _M0MP311moonbitlang4core7builtin3Map15set__with__hashGsRP26mizchi3svg7P
     }
   }
 }
-function _M0MP311moonbitlang4core7builtin3Map15set__with__hashGsRP26mizchi3svg8GradientE(self, key, value, hash) {
+function _M0MPB3Map15set__with__hashGsRP26mizchi3svg8GradientE(self, key, value, hash) {
   let _tmp = 0;
   let _tmp$2 = hash & self.capacity_mask;
   while (true) {
@@ -4561,15 +4698,15 @@ function _M0MP311moonbitlang4core7builtin3Map15set__with__hashGsRP26mizchi3svg8G
     const _bind = _tmp$3[idx];
     if (_bind === undefined) {
       if (self.size >= self.grow_at) {
-        _M0MP311moonbitlang4core7builtin3Map4growGsRP26mizchi3svg8GradientE(self);
+        _M0MPB3Map4growGsRP26mizchi3svg8GradientE(self);
         _tmp = 0;
         _tmp$2 = hash & self.capacity_mask;
         continue;
       }
       const _bind$2 = self.tail;
       const _bind$3 = undefined;
-      const entry = { prev: _bind$2, next: _bind$3, psl: psl, hash: hash, key: key, value: value };
-      _M0MP311moonbitlang4core7builtin3Map20add__entry__to__tailGsRP26mizchi3svg8GradientE(self, idx, entry);
+      const entry = new _M0TPB5EntryGsRP26mizchi3svg8GradientE(_bind$2, _bind$3, psl, hash, key, value);
+      _M0MPB3Map20add__entry__to__tailGsRP26mizchi3svg6SymbolE(self, idx, entry);
       return undefined;
     } else {
       const _Some = _bind;
@@ -4580,16 +4717,16 @@ function _M0MP311moonbitlang4core7builtin3Map15set__with__hashGsRP26mizchi3svg8G
       }
       if (psl > _curr_entry.psl) {
         if (self.size >= self.grow_at) {
-          _M0MP311moonbitlang4core7builtin3Map4growGsRP26mizchi3svg8GradientE(self);
+          _M0MPB3Map4growGsRP26mizchi3svg8GradientE(self);
           _tmp = 0;
           _tmp$2 = hash & self.capacity_mask;
           continue;
         }
-        _M0MP311moonbitlang4core7builtin3Map10push__awayGsRP26mizchi3svg8GradientE(self, idx, _curr_entry);
+        _M0MPB3Map10push__awayGsRP26mizchi3svg6SymbolE(self, idx, _curr_entry);
         const _bind$2 = self.tail;
         const _bind$3 = undefined;
-        const entry = { prev: _bind$2, next: _bind$3, psl: psl, hash: hash, key: key, value: value };
-        _M0MP311moonbitlang4core7builtin3Map20add__entry__to__tailGsRP26mizchi3svg8GradientE(self, idx, entry);
+        const entry = new _M0TPB5EntryGsRP26mizchi3svg8GradientE(_bind$2, _bind$3, psl, hash, key, value);
+        _M0MPB3Map20add__entry__to__tailGsRP26mizchi3svg6SymbolE(self, idx, entry);
         return undefined;
       }
       _tmp = psl + 1 | 0;
@@ -4598,7 +4735,7 @@ function _M0MP311moonbitlang4core7builtin3Map15set__with__hashGsRP26mizchi3svg8G
     }
   }
 }
-function _M0MP311moonbitlang4core7builtin3Map15set__with__hashGsRP26mizchi3svg6MarkerE(self, key, value, hash) {
+function _M0MPB3Map15set__with__hashGsRP26mizchi3svg6MarkerE(self, key, value, hash) {
   let _tmp = 0;
   let _tmp$2 = hash & self.capacity_mask;
   while (true) {
@@ -4609,15 +4746,15 @@ function _M0MP311moonbitlang4core7builtin3Map15set__with__hashGsRP26mizchi3svg6M
     const _bind = _tmp$3[idx];
     if (_bind === undefined) {
       if (self.size >= self.grow_at) {
-        _M0MP311moonbitlang4core7builtin3Map4growGsRP26mizchi3svg6MarkerE(self);
+        _M0MPB3Map4growGsRP26mizchi3svg6MarkerE(self);
         _tmp = 0;
         _tmp$2 = hash & self.capacity_mask;
         continue;
       }
       const _bind$2 = self.tail;
       const _bind$3 = undefined;
-      const entry = { prev: _bind$2, next: _bind$3, psl: psl, hash: hash, key: key, value: value };
-      _M0MP311moonbitlang4core7builtin3Map20add__entry__to__tailGsRP26mizchi3svg6MarkerE(self, idx, entry);
+      const entry = new _M0TPB5EntryGsRP26mizchi3svg6MarkerE(_bind$2, _bind$3, psl, hash, key, value);
+      _M0MPB3Map20add__entry__to__tailGsRP26mizchi3svg6SymbolE(self, idx, entry);
       return undefined;
     } else {
       const _Some = _bind;
@@ -4628,16 +4765,16 @@ function _M0MP311moonbitlang4core7builtin3Map15set__with__hashGsRP26mizchi3svg6M
       }
       if (psl > _curr_entry.psl) {
         if (self.size >= self.grow_at) {
-          _M0MP311moonbitlang4core7builtin3Map4growGsRP26mizchi3svg6MarkerE(self);
+          _M0MPB3Map4growGsRP26mizchi3svg6MarkerE(self);
           _tmp = 0;
           _tmp$2 = hash & self.capacity_mask;
           continue;
         }
-        _M0MP311moonbitlang4core7builtin3Map10push__awayGsRP26mizchi3svg6MarkerE(self, idx, _curr_entry);
+        _M0MPB3Map10push__awayGsRP26mizchi3svg6SymbolE(self, idx, _curr_entry);
         const _bind$2 = self.tail;
         const _bind$3 = undefined;
-        const entry = { prev: _bind$2, next: _bind$3, psl: psl, hash: hash, key: key, value: value };
-        _M0MP311moonbitlang4core7builtin3Map20add__entry__to__tailGsRP26mizchi3svg6MarkerE(self, idx, entry);
+        const entry = new _M0TPB5EntryGsRP26mizchi3svg6MarkerE(_bind$2, _bind$3, psl, hash, key, value);
+        _M0MPB3Map20add__entry__to__tailGsRP26mizchi3svg6SymbolE(self, idx, entry);
         return undefined;
       }
       _tmp = psl + 1 | 0;
@@ -4646,13 +4783,13 @@ function _M0MP311moonbitlang4core7builtin3Map15set__with__hashGsRP26mizchi3svg6M
     }
   }
 }
-function _M0MP311moonbitlang4core7builtin3Map4growGiRP311moonbitlang4core7builtin5ArrayGRP36mizchi6kagura4text9GlyphQuadEE(self) {
+function _M0MPB3Map4growGiRPB5ArrayGRP36mizchi6kagura4text9GlyphQuadEE(self) {
   const old_head = self.head;
   const new_capacity = self.capacity << 1;
   self.entries = $make_array_len_and_init(new_capacity, undefined);
   self.capacity = new_capacity;
   self.capacity_mask = new_capacity - 1 | 0;
-  self.grow_at = _M0FP311moonbitlang4core7builtin21calc__grow__threshold(self.capacity);
+  self.grow_at = _M0FPB21calc__grow__threshold(self.capacity);
   self.size = 0;
   self.head = undefined;
   self.tail = -1;
@@ -4668,19 +4805,19 @@ function _M0MP311moonbitlang4core7builtin3Map4growGiRP311moonbitlang4core7builti
       const _key = _x.key;
       const _value = _x.value;
       const _hash = _x.hash;
-      _M0MP311moonbitlang4core7builtin3Map15set__with__hashGiRP311moonbitlang4core7builtin5ArrayGRP36mizchi6kagura4text9GlyphQuadEE(self, _key, _value, _hash);
+      _M0MPB3Map15set__with__hashGiRPB5ArrayGRP36mizchi6kagura4text9GlyphQuadEE(self, _key, _value, _hash);
       _tmp = _next;
       continue;
     }
   }
 }
-function _M0MP311moonbitlang4core7builtin3Map4growGiRP36mizchi6kagura4text15GlyphCacheEntryE(self) {
+function _M0MPB3Map4growGiRP36mizchi6kagura4text15GlyphCacheEntryE(self) {
   const old_head = self.head;
   const new_capacity = self.capacity << 1;
   self.entries = $make_array_len_and_init(new_capacity, undefined);
   self.capacity = new_capacity;
   self.capacity_mask = new_capacity - 1 | 0;
-  self.grow_at = _M0FP311moonbitlang4core7builtin21calc__grow__threshold(self.capacity);
+  self.grow_at = _M0FPB21calc__grow__threshold(self.capacity);
   self.size = 0;
   self.head = undefined;
   self.tail = -1;
@@ -4696,19 +4833,19 @@ function _M0MP311moonbitlang4core7builtin3Map4growGiRP36mizchi6kagura4text15Glyp
       const _key = _x.key;
       const _value = _x.value;
       const _hash = _x.hash;
-      _M0MP311moonbitlang4core7builtin3Map15set__with__hashGiRP36mizchi6kagura4text15GlyphCacheEntryE(self, _key, _value, _hash);
+      _M0MPB3Map15set__with__hashGiRP36mizchi6kagura4text15GlyphCacheEntryE(self, _key, _value, _hash);
       _tmp = _next;
       continue;
     }
   }
 }
-function _M0MP311moonbitlang4core7builtin3Map4growGsRP26mizchi3svg6SymbolE(self) {
+function _M0MPB3Map4growGsRP26mizchi3svg6SymbolE(self) {
   const old_head = self.head;
   const new_capacity = self.capacity << 1;
   self.entries = $make_array_len_and_init(new_capacity, undefined);
   self.capacity = new_capacity;
   self.capacity_mask = new_capacity - 1 | 0;
-  self.grow_at = _M0FP311moonbitlang4core7builtin21calc__grow__threshold(self.capacity);
+  self.grow_at = _M0FPB21calc__grow__threshold(self.capacity);
   self.size = 0;
   self.head = undefined;
   self.tail = -1;
@@ -4724,19 +4861,19 @@ function _M0MP311moonbitlang4core7builtin3Map4growGsRP26mizchi3svg6SymbolE(self)
       const _key = _x.key;
       const _value = _x.value;
       const _hash = _x.hash;
-      _M0MP311moonbitlang4core7builtin3Map15set__with__hashGsRP26mizchi3svg6SymbolE(self, _key, _value, _hash);
+      _M0MPB3Map15set__with__hashGsRP26mizchi3svg6SymbolE(self, _key, _value, _hash);
       _tmp = _next;
       continue;
     }
   }
 }
-function _M0MP311moonbitlang4core7builtin3Map4growGsRP26mizchi3svg7SVGNodeE(self) {
+function _M0MPB3Map4growGsRP26mizchi3svg7SVGNodeE(self) {
   const old_head = self.head;
   const new_capacity = self.capacity << 1;
   self.entries = $make_array_len_and_init(new_capacity, undefined);
   self.capacity = new_capacity;
   self.capacity_mask = new_capacity - 1 | 0;
-  self.grow_at = _M0FP311moonbitlang4core7builtin21calc__grow__threshold(self.capacity);
+  self.grow_at = _M0FPB21calc__grow__threshold(self.capacity);
   self.size = 0;
   self.head = undefined;
   self.tail = -1;
@@ -4752,19 +4889,19 @@ function _M0MP311moonbitlang4core7builtin3Map4growGsRP26mizchi3svg7SVGNodeE(self
       const _key = _x.key;
       const _value = _x.value;
       const _hash = _x.hash;
-      _M0MP311moonbitlang4core7builtin3Map15set__with__hashGsRP26mizchi3svg7SVGNodeE(self, _key, _value, _hash);
+      _M0MPB3Map15set__with__hashGsRP26mizchi3svg7SVGNodeE(self, _key, _value, _hash);
       _tmp = _next;
       continue;
     }
   }
 }
-function _M0MP311moonbitlang4core7builtin3Map4growGsRP26mizchi3svg8ClipPathE(self) {
+function _M0MPB3Map4growGsRP26mizchi3svg8ClipPathE(self) {
   const old_head = self.head;
   const new_capacity = self.capacity << 1;
   self.entries = $make_array_len_and_init(new_capacity, undefined);
   self.capacity = new_capacity;
   self.capacity_mask = new_capacity - 1 | 0;
-  self.grow_at = _M0FP311moonbitlang4core7builtin21calc__grow__threshold(self.capacity);
+  self.grow_at = _M0FPB21calc__grow__threshold(self.capacity);
   self.size = 0;
   self.head = undefined;
   self.tail = -1;
@@ -4780,19 +4917,19 @@ function _M0MP311moonbitlang4core7builtin3Map4growGsRP26mizchi3svg8ClipPathE(sel
       const _key = _x.key;
       const _value = _x.value;
       const _hash = _x.hash;
-      _M0MP311moonbitlang4core7builtin3Map15set__with__hashGsRP26mizchi3svg8ClipPathE(self, _key, _value, _hash);
+      _M0MPB3Map15set__with__hashGsRP26mizchi3svg8ClipPathE(self, _key, _value, _hash);
       _tmp = _next;
       continue;
     }
   }
 }
-function _M0MP311moonbitlang4core7builtin3Map4growGsRP26mizchi3svg4MaskE(self) {
+function _M0MPB3Map4growGsRP26mizchi3svg4MaskE(self) {
   const old_head = self.head;
   const new_capacity = self.capacity << 1;
   self.entries = $make_array_len_and_init(new_capacity, undefined);
   self.capacity = new_capacity;
   self.capacity_mask = new_capacity - 1 | 0;
-  self.grow_at = _M0FP311moonbitlang4core7builtin21calc__grow__threshold(self.capacity);
+  self.grow_at = _M0FPB21calc__grow__threshold(self.capacity);
   self.size = 0;
   self.head = undefined;
   self.tail = -1;
@@ -4808,19 +4945,19 @@ function _M0MP311moonbitlang4core7builtin3Map4growGsRP26mizchi3svg4MaskE(self) {
       const _key = _x.key;
       const _value = _x.value;
       const _hash = _x.hash;
-      _M0MP311moonbitlang4core7builtin3Map15set__with__hashGsRP26mizchi3svg4MaskE(self, _key, _value, _hash);
+      _M0MPB3Map15set__with__hashGsRP26mizchi3svg4MaskE(self, _key, _value, _hash);
       _tmp = _next;
       continue;
     }
   }
 }
-function _M0MP311moonbitlang4core7builtin3Map4growGsRP26mizchi3svg7PatternE(self) {
+function _M0MPB3Map4growGsRP26mizchi3svg7PatternE(self) {
   const old_head = self.head;
   const new_capacity = self.capacity << 1;
   self.entries = $make_array_len_and_init(new_capacity, undefined);
   self.capacity = new_capacity;
   self.capacity_mask = new_capacity - 1 | 0;
-  self.grow_at = _M0FP311moonbitlang4core7builtin21calc__grow__threshold(self.capacity);
+  self.grow_at = _M0FPB21calc__grow__threshold(self.capacity);
   self.size = 0;
   self.head = undefined;
   self.tail = -1;
@@ -4836,19 +4973,19 @@ function _M0MP311moonbitlang4core7builtin3Map4growGsRP26mizchi3svg7PatternE(self
       const _key = _x.key;
       const _value = _x.value;
       const _hash = _x.hash;
-      _M0MP311moonbitlang4core7builtin3Map15set__with__hashGsRP26mizchi3svg7PatternE(self, _key, _value, _hash);
+      _M0MPB3Map15set__with__hashGsRP26mizchi3svg7PatternE(self, _key, _value, _hash);
       _tmp = _next;
       continue;
     }
   }
 }
-function _M0MP311moonbitlang4core7builtin3Map4growGsRP26mizchi3svg8GradientE(self) {
+function _M0MPB3Map4growGsRP26mizchi3svg8GradientE(self) {
   const old_head = self.head;
   const new_capacity = self.capacity << 1;
   self.entries = $make_array_len_and_init(new_capacity, undefined);
   self.capacity = new_capacity;
   self.capacity_mask = new_capacity - 1 | 0;
-  self.grow_at = _M0FP311moonbitlang4core7builtin21calc__grow__threshold(self.capacity);
+  self.grow_at = _M0FPB21calc__grow__threshold(self.capacity);
   self.size = 0;
   self.head = undefined;
   self.tail = -1;
@@ -4864,19 +5001,19 @@ function _M0MP311moonbitlang4core7builtin3Map4growGsRP26mizchi3svg8GradientE(sel
       const _key = _x.key;
       const _value = _x.value;
       const _hash = _x.hash;
-      _M0MP311moonbitlang4core7builtin3Map15set__with__hashGsRP26mizchi3svg8GradientE(self, _key, _value, _hash);
+      _M0MPB3Map15set__with__hashGsRP26mizchi3svg8GradientE(self, _key, _value, _hash);
       _tmp = _next;
       continue;
     }
   }
 }
-function _M0MP311moonbitlang4core7builtin3Map4growGsRP26mizchi3svg6MarkerE(self) {
+function _M0MPB3Map4growGsRP26mizchi3svg6MarkerE(self) {
   const old_head = self.head;
   const new_capacity = self.capacity << 1;
   self.entries = $make_array_len_and_init(new_capacity, undefined);
   self.capacity = new_capacity;
   self.capacity_mask = new_capacity - 1 | 0;
-  self.grow_at = _M0FP311moonbitlang4core7builtin21calc__grow__threshold(self.capacity);
+  self.grow_at = _M0FPB21calc__grow__threshold(self.capacity);
   self.size = 0;
   self.head = undefined;
   self.tail = -1;
@@ -4892,54 +5029,54 @@ function _M0MP311moonbitlang4core7builtin3Map4growGsRP26mizchi3svg6MarkerE(self)
       const _key = _x.key;
       const _value = _x.value;
       const _hash = _x.hash;
-      _M0MP311moonbitlang4core7builtin3Map15set__with__hashGsRP26mizchi3svg6MarkerE(self, _key, _value, _hash);
+      _M0MPB3Map15set__with__hashGsRP26mizchi3svg6MarkerE(self, _key, _value, _hash);
       _tmp = _next;
       continue;
     }
   }
 }
-function _M0MP311moonbitlang4core7builtin3Map3setGiRP311moonbitlang4core7builtin5ArrayGRP36mizchi6kagura4text9GlyphQuadEE(self, key, value) {
-  _M0MP311moonbitlang4core7builtin3Map15set__with__hashGiRP311moonbitlang4core7builtin5ArrayGRP36mizchi6kagura4text9GlyphQuadEE(self, key, value, _M0IP016_24default__implP311moonbitlang4core7builtin4Hash4hashGiE(key));
+function _M0MPB3Map3setGiRPB5ArrayGRP36mizchi6kagura4text9GlyphQuadEE(self, key, value) {
+  _M0MPB3Map15set__with__hashGiRPB5ArrayGRP36mizchi6kagura4text9GlyphQuadEE(self, key, value, _M0IP016_24default__implPB4Hash4hashGiE(key));
 }
-function _M0MP311moonbitlang4core7builtin3Map3setGiRP36mizchi6kagura4text15GlyphCacheEntryE(self, key, value) {
-  _M0MP311moonbitlang4core7builtin3Map15set__with__hashGiRP36mizchi6kagura4text15GlyphCacheEntryE(self, key, value, _M0IP016_24default__implP311moonbitlang4core7builtin4Hash4hashGiE(key));
+function _M0MPB3Map3setGiRP36mizchi6kagura4text15GlyphCacheEntryE(self, key, value) {
+  _M0MPB3Map15set__with__hashGiRP36mizchi6kagura4text15GlyphCacheEntryE(self, key, value, _M0IP016_24default__implPB4Hash4hashGiE(key));
 }
-function _M0MP311moonbitlang4core7builtin3Map3setGsRP26mizchi3svg6SymbolE(self, key, value) {
-  _M0MP311moonbitlang4core7builtin3Map15set__with__hashGsRP26mizchi3svg6SymbolE(self, key, value, _M0IP016_24default__implP311moonbitlang4core7builtin4Hash4hashGsE(key));
+function _M0MPB3Map3setGsRP26mizchi3svg6SymbolE(self, key, value) {
+  _M0MPB3Map15set__with__hashGsRP26mizchi3svg6SymbolE(self, key, value, _M0IP016_24default__implPB4Hash4hashGsE(key));
 }
-function _M0MP311moonbitlang4core7builtin3Map3setGsRP26mizchi3svg7SVGNodeE(self, key, value) {
-  _M0MP311moonbitlang4core7builtin3Map15set__with__hashGsRP26mizchi3svg7SVGNodeE(self, key, value, _M0IP016_24default__implP311moonbitlang4core7builtin4Hash4hashGsE(key));
+function _M0MPB3Map3setGsRP26mizchi3svg7SVGNodeE(self, key, value) {
+  _M0MPB3Map15set__with__hashGsRP26mizchi3svg7SVGNodeE(self, key, value, _M0IP016_24default__implPB4Hash4hashGsE(key));
 }
-function _M0MP311moonbitlang4core7builtin3Map3setGsRP26mizchi3svg8ClipPathE(self, key, value) {
-  _M0MP311moonbitlang4core7builtin3Map15set__with__hashGsRP26mizchi3svg8ClipPathE(self, key, value, _M0IP016_24default__implP311moonbitlang4core7builtin4Hash4hashGsE(key));
+function _M0MPB3Map3setGsRP26mizchi3svg8ClipPathE(self, key, value) {
+  _M0MPB3Map15set__with__hashGsRP26mizchi3svg8ClipPathE(self, key, value, _M0IP016_24default__implPB4Hash4hashGsE(key));
 }
-function _M0MP311moonbitlang4core7builtin3Map3setGsRP26mizchi3svg4MaskE(self, key, value) {
-  _M0MP311moonbitlang4core7builtin3Map15set__with__hashGsRP26mizchi3svg4MaskE(self, key, value, _M0IP016_24default__implP311moonbitlang4core7builtin4Hash4hashGsE(key));
+function _M0MPB3Map3setGsRP26mizchi3svg4MaskE(self, key, value) {
+  _M0MPB3Map15set__with__hashGsRP26mizchi3svg4MaskE(self, key, value, _M0IP016_24default__implPB4Hash4hashGsE(key));
 }
-function _M0MP311moonbitlang4core7builtin3Map3setGsRP26mizchi3svg7PatternE(self, key, value) {
-  _M0MP311moonbitlang4core7builtin3Map15set__with__hashGsRP26mizchi3svg7PatternE(self, key, value, _M0IP016_24default__implP311moonbitlang4core7builtin4Hash4hashGsE(key));
+function _M0MPB3Map3setGsRP26mizchi3svg7PatternE(self, key, value) {
+  _M0MPB3Map15set__with__hashGsRP26mizchi3svg7PatternE(self, key, value, _M0IP016_24default__implPB4Hash4hashGsE(key));
 }
-function _M0MP311moonbitlang4core7builtin3Map3setGsRP26mizchi3svg8GradientE(self, key, value) {
-  _M0MP311moonbitlang4core7builtin3Map15set__with__hashGsRP26mizchi3svg8GradientE(self, key, value, _M0IP016_24default__implP311moonbitlang4core7builtin4Hash4hashGsE(key));
+function _M0MPB3Map3setGsRP26mizchi3svg8GradientE(self, key, value) {
+  _M0MPB3Map15set__with__hashGsRP26mizchi3svg8GradientE(self, key, value, _M0IP016_24default__implPB4Hash4hashGsE(key));
 }
-function _M0MP311moonbitlang4core7builtin3Map3setGsRP26mizchi3svg6MarkerE(self, key, value) {
-  _M0MP311moonbitlang4core7builtin3Map15set__with__hashGsRP26mizchi3svg6MarkerE(self, key, value, _M0IP016_24default__implP311moonbitlang4core7builtin4Hash4hashGsE(key));
+function _M0MPB3Map3setGsRP26mizchi3svg6MarkerE(self, key, value) {
+  _M0MPB3Map15set__with__hashGsRP26mizchi3svg6MarkerE(self, key, value, _M0IP016_24default__implPB4Hash4hashGsE(key));
 }
-function _M0MP311moonbitlang4core7builtin3Map11from__arrayGiRP311moonbitlang4core7builtin5ArrayGRP36mizchi6kagura4text9GlyphQuadEE(arr) {
-  const length = _M0MP311moonbitlang4core5array9ArrayView6lengthGUiRP311moonbitlang4core7builtin5ArrayGRP36mizchi6kagura4text9GlyphQuadEEE(arr);
-  let capacity = _M0MP311moonbitlang4core3int3Int20next__power__of__two(length);
-  if (length > _M0FP311moonbitlang4core7builtin21calc__grow__threshold(capacity)) {
+function _M0MPB3Map11from__arrayGiRPB5ArrayGRP36mizchi6kagura4text9GlyphQuadEE(arr) {
+  const length = _M0MPC15array9ArrayView6lengthGUiRPB5ArrayGRP36mizchi6kagura4text9GlyphQuadEEE(arr);
+  let capacity = _M0MPC13int3Int20next__power__of__two(length);
+  if (length > _M0FPB21calc__grow__threshold(capacity)) {
     capacity = Math.imul(capacity, 2) | 0;
   }
-  const m = _M0MP311moonbitlang4core7builtin3Map11new_2einnerGiRP311moonbitlang4core7builtin5ArrayGRP36mizchi6kagura4text9GlyphQuadEE(capacity);
-  const _len = _M0MP311moonbitlang4core5array9ArrayView6lengthGUiRP311moonbitlang4core7builtin5ArrayGRP36mizchi6kagura4text9GlyphQuadEEE(arr);
+  const m = _M0MPB3Map11new_2einnerGiRPB5ArrayGRP36mizchi6kagura4text9GlyphQuadEE(capacity);
+  const _bind = arr.end - arr.start | 0;
   let _tmp = 0;
   while (true) {
-    const _i = _tmp;
-    if (_i < _len) {
-      const e = arr.buf[arr.start + _i | 0];
-      _M0MP311moonbitlang4core7builtin3Map3setGiRP311moonbitlang4core7builtin5ArrayGRP36mizchi6kagura4text9GlyphQuadEE(m, e._0, e._1);
-      _tmp = _i + 1 | 0;
+    const _ = _tmp;
+    if (_ < _bind) {
+      const e = arr.buf[arr.start + _ | 0];
+      _M0MPB3Map3setGiRPB5ArrayGRP36mizchi6kagura4text9GlyphQuadEE(m, e._0, e._1);
+      _tmp = _ + 1 | 0;
       continue;
     } else {
       break;
@@ -4947,21 +5084,21 @@ function _M0MP311moonbitlang4core7builtin3Map11from__arrayGiRP311moonbitlang4cor
   }
   return m;
 }
-function _M0MP311moonbitlang4core7builtin3Map11from__arrayGiRP36mizchi6kagura4text15GlyphCacheEntryE(arr) {
-  const length = _M0MP311moonbitlang4core5array9ArrayView6lengthGUiRP36mizchi6kagura4text15GlyphCacheEntryEE(arr);
-  let capacity = _M0MP311moonbitlang4core3int3Int20next__power__of__two(length);
-  if (length > _M0FP311moonbitlang4core7builtin21calc__grow__threshold(capacity)) {
+function _M0MPB3Map11from__arrayGiRP36mizchi6kagura4text15GlyphCacheEntryE(arr) {
+  const length = _M0MPC15array9ArrayView6lengthGUiRPB5ArrayGRP36mizchi6kagura4text9GlyphQuadEEE(arr);
+  let capacity = _M0MPC13int3Int20next__power__of__two(length);
+  if (length > _M0FPB21calc__grow__threshold(capacity)) {
     capacity = Math.imul(capacity, 2) | 0;
   }
-  const m = _M0MP311moonbitlang4core7builtin3Map11new_2einnerGiRP36mizchi6kagura4text15GlyphCacheEntryE(capacity);
-  const _len = _M0MP311moonbitlang4core5array9ArrayView6lengthGUiRP36mizchi6kagura4text15GlyphCacheEntryEE(arr);
+  const m = _M0MPB3Map11new_2einnerGiRP36mizchi6kagura4text15GlyphCacheEntryE(capacity);
+  const _bind = arr.end - arr.start | 0;
   let _tmp = 0;
   while (true) {
-    const _i = _tmp;
-    if (_i < _len) {
-      const e = arr.buf[arr.start + _i | 0];
-      _M0MP311moonbitlang4core7builtin3Map3setGiRP36mizchi6kagura4text15GlyphCacheEntryE(m, e._0, e._1);
-      _tmp = _i + 1 | 0;
+    const _ = _tmp;
+    if (_ < _bind) {
+      const e = arr.buf[arr.start + _ | 0];
+      _M0MPB3Map3setGiRP36mizchi6kagura4text15GlyphCacheEntryE(m, e._0, e._1);
+      _tmp = _ + 1 | 0;
       continue;
     } else {
       break;
@@ -4969,21 +5106,21 @@ function _M0MP311moonbitlang4core7builtin3Map11from__arrayGiRP36mizchi6kagura4te
   }
   return m;
 }
-function _M0MP311moonbitlang4core7builtin3Map11from__arrayGsRP26mizchi3svg6SymbolE(arr) {
-  const length = _M0MP311moonbitlang4core5array9ArrayView6lengthGUsRP26mizchi3svg6SymbolEE(arr);
-  let capacity = _M0MP311moonbitlang4core3int3Int20next__power__of__two(length);
-  if (length > _M0FP311moonbitlang4core7builtin21calc__grow__threshold(capacity)) {
+function _M0MPB3Map11from__arrayGsRP26mizchi3svg6SymbolE(arr) {
+  const length = _M0MPC15array9ArrayView6lengthGUiRPB5ArrayGRP36mizchi6kagura4text9GlyphQuadEEE(arr);
+  let capacity = _M0MPC13int3Int20next__power__of__two(length);
+  if (length > _M0FPB21calc__grow__threshold(capacity)) {
     capacity = Math.imul(capacity, 2) | 0;
   }
-  const m = _M0MP311moonbitlang4core7builtin3Map11new_2einnerGsRP26mizchi3svg6SymbolE(capacity);
-  const _len = _M0MP311moonbitlang4core5array9ArrayView6lengthGUsRP26mizchi3svg6SymbolEE(arr);
+  const m = _M0MPB3Map11new_2einnerGsRP26mizchi3svg6SymbolE(capacity);
+  const _bind = arr.end - arr.start | 0;
   let _tmp = 0;
   while (true) {
-    const _i = _tmp;
-    if (_i < _len) {
-      const e = arr.buf[arr.start + _i | 0];
-      _M0MP311moonbitlang4core7builtin3Map3setGsRP26mizchi3svg6SymbolE(m, e._0, e._1);
-      _tmp = _i + 1 | 0;
+    const _ = _tmp;
+    if (_ < _bind) {
+      const e = arr.buf[arr.start + _ | 0];
+      _M0MPB3Map3setGsRP26mizchi3svg6SymbolE(m, e._0, e._1);
+      _tmp = _ + 1 | 0;
       continue;
     } else {
       break;
@@ -4991,21 +5128,21 @@ function _M0MP311moonbitlang4core7builtin3Map11from__arrayGsRP26mizchi3svg6Symbo
   }
   return m;
 }
-function _M0MP311moonbitlang4core7builtin3Map11from__arrayGsRP26mizchi3svg7SVGNodeE(arr) {
-  const length = _M0MP311moonbitlang4core5array9ArrayView6lengthGUsRP26mizchi3svg7SVGNodeEE(arr);
-  let capacity = _M0MP311moonbitlang4core3int3Int20next__power__of__two(length);
-  if (length > _M0FP311moonbitlang4core7builtin21calc__grow__threshold(capacity)) {
+function _M0MPB3Map11from__arrayGsRP26mizchi3svg7SVGNodeE(arr) {
+  const length = _M0MPC15array9ArrayView6lengthGUiRPB5ArrayGRP36mizchi6kagura4text9GlyphQuadEEE(arr);
+  let capacity = _M0MPC13int3Int20next__power__of__two(length);
+  if (length > _M0FPB21calc__grow__threshold(capacity)) {
     capacity = Math.imul(capacity, 2) | 0;
   }
-  const m = _M0MP311moonbitlang4core7builtin3Map11new_2einnerGsRP26mizchi3svg7SVGNodeE(capacity);
-  const _len = _M0MP311moonbitlang4core5array9ArrayView6lengthGUsRP26mizchi3svg7SVGNodeEE(arr);
+  const m = _M0MPB3Map11new_2einnerGsRP26mizchi3svg6SymbolE(capacity);
+  const _bind = arr.end - arr.start | 0;
   let _tmp = 0;
   while (true) {
-    const _i = _tmp;
-    if (_i < _len) {
-      const e = arr.buf[arr.start + _i | 0];
-      _M0MP311moonbitlang4core7builtin3Map3setGsRP26mizchi3svg7SVGNodeE(m, e._0, e._1);
-      _tmp = _i + 1 | 0;
+    const _ = _tmp;
+    if (_ < _bind) {
+      const e = arr.buf[arr.start + _ | 0];
+      _M0MPB3Map3setGsRP26mizchi3svg7SVGNodeE(m, e._0, e._1);
+      _tmp = _ + 1 | 0;
       continue;
     } else {
       break;
@@ -5013,21 +5150,21 @@ function _M0MP311moonbitlang4core7builtin3Map11from__arrayGsRP26mizchi3svg7SVGNo
   }
   return m;
 }
-function _M0MP311moonbitlang4core7builtin3Map11from__arrayGsRP26mizchi3svg8ClipPathE(arr) {
-  const length = _M0MP311moonbitlang4core5array9ArrayView6lengthGUsRP26mizchi3svg8ClipPathEE(arr);
-  let capacity = _M0MP311moonbitlang4core3int3Int20next__power__of__two(length);
-  if (length > _M0FP311moonbitlang4core7builtin21calc__grow__threshold(capacity)) {
+function _M0MPB3Map11from__arrayGsRP26mizchi3svg8ClipPathE(arr) {
+  const length = _M0MPC15array9ArrayView6lengthGUiRPB5ArrayGRP36mizchi6kagura4text9GlyphQuadEEE(arr);
+  let capacity = _M0MPC13int3Int20next__power__of__two(length);
+  if (length > _M0FPB21calc__grow__threshold(capacity)) {
     capacity = Math.imul(capacity, 2) | 0;
   }
-  const m = _M0MP311moonbitlang4core7builtin3Map11new_2einnerGsRP26mizchi3svg8ClipPathE(capacity);
-  const _len = _M0MP311moonbitlang4core5array9ArrayView6lengthGUsRP26mizchi3svg8ClipPathEE(arr);
+  const m = _M0MPB3Map11new_2einnerGsRP26mizchi3svg6SymbolE(capacity);
+  const _bind = arr.end - arr.start | 0;
   let _tmp = 0;
   while (true) {
-    const _i = _tmp;
-    if (_i < _len) {
-      const e = arr.buf[arr.start + _i | 0];
-      _M0MP311moonbitlang4core7builtin3Map3setGsRP26mizchi3svg8ClipPathE(m, e._0, e._1);
-      _tmp = _i + 1 | 0;
+    const _ = _tmp;
+    if (_ < _bind) {
+      const e = arr.buf[arr.start + _ | 0];
+      _M0MPB3Map3setGsRP26mizchi3svg8ClipPathE(m, e._0, e._1);
+      _tmp = _ + 1 | 0;
       continue;
     } else {
       break;
@@ -5035,21 +5172,21 @@ function _M0MP311moonbitlang4core7builtin3Map11from__arrayGsRP26mizchi3svg8ClipP
   }
   return m;
 }
-function _M0MP311moonbitlang4core7builtin3Map11from__arrayGsRP26mizchi3svg4MaskE(arr) {
-  const length = _M0MP311moonbitlang4core5array9ArrayView6lengthGUsRP26mizchi3svg4MaskEE(arr);
-  let capacity = _M0MP311moonbitlang4core3int3Int20next__power__of__two(length);
-  if (length > _M0FP311moonbitlang4core7builtin21calc__grow__threshold(capacity)) {
+function _M0MPB3Map11from__arrayGsRP26mizchi3svg4MaskE(arr) {
+  const length = _M0MPC15array9ArrayView6lengthGUiRPB5ArrayGRP36mizchi6kagura4text9GlyphQuadEEE(arr);
+  let capacity = _M0MPC13int3Int20next__power__of__two(length);
+  if (length > _M0FPB21calc__grow__threshold(capacity)) {
     capacity = Math.imul(capacity, 2) | 0;
   }
-  const m = _M0MP311moonbitlang4core7builtin3Map11new_2einnerGsRP26mizchi3svg4MaskE(capacity);
-  const _len = _M0MP311moonbitlang4core5array9ArrayView6lengthGUsRP26mizchi3svg4MaskEE(arr);
+  const m = _M0MPB3Map11new_2einnerGsRP26mizchi3svg6SymbolE(capacity);
+  const _bind = arr.end - arr.start | 0;
   let _tmp = 0;
   while (true) {
-    const _i = _tmp;
-    if (_i < _len) {
-      const e = arr.buf[arr.start + _i | 0];
-      _M0MP311moonbitlang4core7builtin3Map3setGsRP26mizchi3svg4MaskE(m, e._0, e._1);
-      _tmp = _i + 1 | 0;
+    const _ = _tmp;
+    if (_ < _bind) {
+      const e = arr.buf[arr.start + _ | 0];
+      _M0MPB3Map3setGsRP26mizchi3svg4MaskE(m, e._0, e._1);
+      _tmp = _ + 1 | 0;
       continue;
     } else {
       break;
@@ -5057,21 +5194,21 @@ function _M0MP311moonbitlang4core7builtin3Map11from__arrayGsRP26mizchi3svg4MaskE
   }
   return m;
 }
-function _M0MP311moonbitlang4core7builtin3Map11from__arrayGsRP26mizchi3svg7PatternE(arr) {
-  const length = _M0MP311moonbitlang4core5array9ArrayView6lengthGUsRP26mizchi3svg7PatternEE(arr);
-  let capacity = _M0MP311moonbitlang4core3int3Int20next__power__of__two(length);
-  if (length > _M0FP311moonbitlang4core7builtin21calc__grow__threshold(capacity)) {
+function _M0MPB3Map11from__arrayGsRP26mizchi3svg7PatternE(arr) {
+  const length = _M0MPC15array9ArrayView6lengthGUiRPB5ArrayGRP36mizchi6kagura4text9GlyphQuadEEE(arr);
+  let capacity = _M0MPC13int3Int20next__power__of__two(length);
+  if (length > _M0FPB21calc__grow__threshold(capacity)) {
     capacity = Math.imul(capacity, 2) | 0;
   }
-  const m = _M0MP311moonbitlang4core7builtin3Map11new_2einnerGsRP26mizchi3svg7PatternE(capacity);
-  const _len = _M0MP311moonbitlang4core5array9ArrayView6lengthGUsRP26mizchi3svg7PatternEE(arr);
+  const m = _M0MPB3Map11new_2einnerGsRP26mizchi3svg6SymbolE(capacity);
+  const _bind = arr.end - arr.start | 0;
   let _tmp = 0;
   while (true) {
-    const _i = _tmp;
-    if (_i < _len) {
-      const e = arr.buf[arr.start + _i | 0];
-      _M0MP311moonbitlang4core7builtin3Map3setGsRP26mizchi3svg7PatternE(m, e._0, e._1);
-      _tmp = _i + 1 | 0;
+    const _ = _tmp;
+    if (_ < _bind) {
+      const e = arr.buf[arr.start + _ | 0];
+      _M0MPB3Map3setGsRP26mizchi3svg7PatternE(m, e._0, e._1);
+      _tmp = _ + 1 | 0;
       continue;
     } else {
       break;
@@ -5079,21 +5216,21 @@ function _M0MP311moonbitlang4core7builtin3Map11from__arrayGsRP26mizchi3svg7Patte
   }
   return m;
 }
-function _M0MP311moonbitlang4core7builtin3Map11from__arrayGsRP26mizchi3svg8GradientE(arr) {
-  const length = _M0MP311moonbitlang4core5array9ArrayView6lengthGUsRP26mizchi3svg8GradientEE(arr);
-  let capacity = _M0MP311moonbitlang4core3int3Int20next__power__of__two(length);
-  if (length > _M0FP311moonbitlang4core7builtin21calc__grow__threshold(capacity)) {
+function _M0MPB3Map11from__arrayGsRP26mizchi3svg8GradientE(arr) {
+  const length = _M0MPC15array9ArrayView6lengthGUiRPB5ArrayGRP36mizchi6kagura4text9GlyphQuadEEE(arr);
+  let capacity = _M0MPC13int3Int20next__power__of__two(length);
+  if (length > _M0FPB21calc__grow__threshold(capacity)) {
     capacity = Math.imul(capacity, 2) | 0;
   }
-  const m = _M0MP311moonbitlang4core7builtin3Map11new_2einnerGsRP26mizchi3svg8GradientE(capacity);
-  const _len = _M0MP311moonbitlang4core5array9ArrayView6lengthGUsRP26mizchi3svg8GradientEE(arr);
+  const m = _M0MPB3Map11new_2einnerGsRP26mizchi3svg6SymbolE(capacity);
+  const _bind = arr.end - arr.start | 0;
   let _tmp = 0;
   while (true) {
-    const _i = _tmp;
-    if (_i < _len) {
-      const e = arr.buf[arr.start + _i | 0];
-      _M0MP311moonbitlang4core7builtin3Map3setGsRP26mizchi3svg8GradientE(m, e._0, e._1);
-      _tmp = _i + 1 | 0;
+    const _ = _tmp;
+    if (_ < _bind) {
+      const e = arr.buf[arr.start + _ | 0];
+      _M0MPB3Map3setGsRP26mizchi3svg8GradientE(m, e._0, e._1);
+      _tmp = _ + 1 | 0;
       continue;
     } else {
       break;
@@ -5101,21 +5238,21 @@ function _M0MP311moonbitlang4core7builtin3Map11from__arrayGsRP26mizchi3svg8Gradi
   }
   return m;
 }
-function _M0MP311moonbitlang4core7builtin3Map11from__arrayGsRP26mizchi3svg6MarkerE(arr) {
-  const length = _M0MP311moonbitlang4core5array9ArrayView6lengthGUsRP26mizchi3svg6MarkerEE(arr);
-  let capacity = _M0MP311moonbitlang4core3int3Int20next__power__of__two(length);
-  if (length > _M0FP311moonbitlang4core7builtin21calc__grow__threshold(capacity)) {
+function _M0MPB3Map11from__arrayGsRP26mizchi3svg6MarkerE(arr) {
+  const length = _M0MPC15array9ArrayView6lengthGUiRPB5ArrayGRP36mizchi6kagura4text9GlyphQuadEEE(arr);
+  let capacity = _M0MPC13int3Int20next__power__of__two(length);
+  if (length > _M0FPB21calc__grow__threshold(capacity)) {
     capacity = Math.imul(capacity, 2) | 0;
   }
-  const m = _M0MP311moonbitlang4core7builtin3Map11new_2einnerGsRP26mizchi3svg6MarkerE(capacity);
-  const _len = _M0MP311moonbitlang4core5array9ArrayView6lengthGUsRP26mizchi3svg6MarkerEE(arr);
+  const m = _M0MPB3Map11new_2einnerGsRP26mizchi3svg6SymbolE(capacity);
+  const _bind = arr.end - arr.start | 0;
   let _tmp = 0;
   while (true) {
-    const _i = _tmp;
-    if (_i < _len) {
-      const e = arr.buf[arr.start + _i | 0];
-      _M0MP311moonbitlang4core7builtin3Map3setGsRP26mizchi3svg6MarkerE(m, e._0, e._1);
-      _tmp = _i + 1 | 0;
+    const _ = _tmp;
+    if (_ < _bind) {
+      const e = arr.buf[arr.start + _ | 0];
+      _M0MPB3Map3setGsRP26mizchi3svg6MarkerE(m, e._0, e._1);
+      _tmp = _ + 1 | 0;
       continue;
     } else {
       break;
@@ -5123,8 +5260,8 @@ function _M0MP311moonbitlang4core7builtin3Map11from__arrayGsRP26mizchi3svg6Marke
   }
   return m;
 }
-function _M0MP311moonbitlang4core7builtin3Map3getGiRP311moonbitlang4core7builtin5ArrayGRP36mizchi6kagura4text9GlyphQuadEE(self, key) {
-  const hash = _M0IP016_24default__implP311moonbitlang4core7builtin4Hash4hashGiE(key);
+function _M0MPB3Map3getGiRPB5ArrayGRP36mizchi6kagura4text9GlyphQuadEE(self, key) {
+  const hash = _M0IP016_24default__implPB4Hash4hashGiE(key);
   let _tmp = 0;
   let _tmp$2 = hash & self.capacity_mask;
   while (true) {
@@ -5134,15 +5271,15 @@ function _M0MP311moonbitlang4core7builtin3Map3getGiRP311moonbitlang4core7builtin
     $bound_check(_tmp$3, idx);
     const _bind = _tmp$3[idx];
     if (_bind === undefined) {
-      return Option$None$1$;
+      return _M0DTPC16option6OptionGRPB5ArrayGRP36mizchi6kagura4text9GlyphQuadEE4None__;
     } else {
       const _Some = _bind;
       const _entry = _Some;
       if (_entry.hash === hash && _entry.key === key) {
-        return new Option$Some$1$(_entry.value);
+        return new _M0DTPC16option6OptionGRPB5ArrayGRP36mizchi6kagura4text9GlyphQuadEE4Some(_entry.value);
       }
       if (i > _entry.psl) {
-        return Option$None$1$;
+        return _M0DTPC16option6OptionGRPB5ArrayGRP36mizchi6kagura4text9GlyphQuadEE4None__;
       }
       _tmp = i + 1 | 0;
       _tmp$2 = (idx + 1 | 0) & self.capacity_mask;
@@ -5150,8 +5287,8 @@ function _M0MP311moonbitlang4core7builtin3Map3getGiRP311moonbitlang4core7builtin
     }
   }
 }
-function _M0MP311moonbitlang4core7builtin3Map3getGiRP36mizchi6kagura4text15GlyphCacheEntryE(self, key) {
-  const hash = _M0IP016_24default__implP311moonbitlang4core7builtin4Hash4hashGiE(key);
+function _M0MPB3Map3getGiRP36mizchi6kagura4text15GlyphCacheEntryE(self, key) {
+  const hash = _M0IP016_24default__implPB4Hash4hashGiE(key);
   let _tmp = 0;
   let _tmp$2 = hash & self.capacity_mask;
   while (true) {
@@ -5177,8 +5314,8 @@ function _M0MP311moonbitlang4core7builtin3Map3getGiRP36mizchi6kagura4text15Glyph
     }
   }
 }
-function _M0MP311moonbitlang4core7builtin3Map3getGiiE(self, key) {
-  const hash = _M0IP016_24default__implP311moonbitlang4core7builtin4Hash4hashGiE(key);
+function _M0MPB3Map3getGiiE(self, key) {
+  const hash = _M0IP016_24default__implPB4Hash4hashGiE(key);
   let _tmp = 0;
   let _tmp$2 = hash & self.capacity_mask;
   while (true) {
@@ -5204,8 +5341,8 @@ function _M0MP311moonbitlang4core7builtin3Map3getGiiE(self, key) {
     }
   }
 }
-function _M0MP311moonbitlang4core7builtin3Map3getGsRP26mizchi3svg7SVGNodeE(self, key) {
-  const hash = _M0IP016_24default__implP311moonbitlang4core7builtin4Hash4hashGsE(key);
+function _M0MPB3Map3getGsRP26mizchi3svg7SVGNodeE(self, key) {
+  const hash = _M0IP016_24default__implPB4Hash4hashGsE(key);
   let _tmp = 0;
   let _tmp$2 = hash & self.capacity_mask;
   while (true) {
@@ -5231,8 +5368,8 @@ function _M0MP311moonbitlang4core7builtin3Map3getGsRP26mizchi3svg7SVGNodeE(self,
     }
   }
 }
-function _M0MP311moonbitlang4core7builtin3Map3getGsRP26mizchi3svg8ClipPathE(self, key) {
-  const hash = _M0IP016_24default__implP311moonbitlang4core7builtin4Hash4hashGsE(key);
+function _M0MPB3Map3getGsRP26mizchi3svg8ClipPathE(self, key) {
+  const hash = _M0IP016_24default__implPB4Hash4hashGsE(key);
   let _tmp = 0;
   let _tmp$2 = hash & self.capacity_mask;
   while (true) {
@@ -5258,8 +5395,8 @@ function _M0MP311moonbitlang4core7builtin3Map3getGsRP26mizchi3svg8ClipPathE(self
     }
   }
 }
-function _M0MP311moonbitlang4core7builtin3Map3getGsRP26mizchi3svg4MaskE(self, key) {
-  const hash = _M0IP016_24default__implP311moonbitlang4core7builtin4Hash4hashGsE(key);
+function _M0MPB3Map3getGsRP26mizchi3svg4MaskE(self, key) {
+  const hash = _M0IP016_24default__implPB4Hash4hashGsE(key);
   let _tmp = 0;
   let _tmp$2 = hash & self.capacity_mask;
   while (true) {
@@ -5285,8 +5422,8 @@ function _M0MP311moonbitlang4core7builtin3Map3getGsRP26mizchi3svg4MaskE(self, ke
     }
   }
 }
-function _M0MP311moonbitlang4core7builtin3Map3getGsRP26mizchi3svg6SymbolE(self, key) {
-  const hash = _M0IP016_24default__implP311moonbitlang4core7builtin4Hash4hashGsE(key);
+function _M0MPB3Map3getGsRP26mizchi3svg6SymbolE(self, key) {
+  const hash = _M0IP016_24default__implPB4Hash4hashGsE(key);
   let _tmp = 0;
   let _tmp$2 = hash & self.capacity_mask;
   while (true) {
@@ -5312,8 +5449,8 @@ function _M0MP311moonbitlang4core7builtin3Map3getGsRP26mizchi3svg6SymbolE(self, 
     }
   }
 }
-function _M0MP311moonbitlang4core7builtin3Map3getGsRP26mizchi3svg8GradientE(self, key) {
-  const hash = _M0IP016_24default__implP311moonbitlang4core7builtin4Hash4hashGsE(key);
+function _M0MPB3Map3getGsRP26mizchi3svg8GradientE(self, key) {
+  const hash = _M0IP016_24default__implPB4Hash4hashGsE(key);
   let _tmp = 0;
   let _tmp$2 = hash & self.capacity_mask;
   while (true) {
@@ -5339,8 +5476,8 @@ function _M0MP311moonbitlang4core7builtin3Map3getGsRP26mizchi3svg8GradientE(self
     }
   }
 }
-function _M0MP311moonbitlang4core7builtin3Map3getGsRP26mizchi3svg7PatternE(self, key) {
-  const hash = _M0IP016_24default__implP311moonbitlang4core7builtin4Hash4hashGsE(key);
+function _M0MPB3Map3getGsRP26mizchi3svg7PatternE(self, key) {
+  const hash = _M0IP016_24default__implPB4Hash4hashGsE(key);
   let _tmp = 0;
   let _tmp$2 = hash & self.capacity_mask;
   while (true) {
@@ -5366,8 +5503,8 @@ function _M0MP311moonbitlang4core7builtin3Map3getGsRP26mizchi3svg7PatternE(self,
     }
   }
 }
-function _M0MP311moonbitlang4core7builtin3Map3getGsRP26mizchi3svg6MarkerE(self, key) {
-  const hash = _M0IP016_24default__implP311moonbitlang4core7builtin4Hash4hashGsE(key);
+function _M0MPB3Map3getGsRP26mizchi3svg6MarkerE(self, key) {
+  const hash = _M0IP016_24default__implPB4Hash4hashGsE(key);
   let _tmp = 0;
   let _tmp$2 = hash & self.capacity_mask;
   while (true) {
@@ -5393,7 +5530,7 @@ function _M0MP311moonbitlang4core7builtin3Map3getGsRP26mizchi3svg6MarkerE(self, 
     }
   }
 }
-function _M0MP311moonbitlang4core7builtin3Map4eachGiRP311moonbitlang4core7builtin5ArrayGRP36mizchi6kagura4text9GlyphQuadEE(self, f) {
+function _M0MPB3Map4eachGiRPB5ArrayGRP36mizchi6kagura4text9GlyphQuadEE(self, f) {
   let _tmp = self.head;
   while (true) {
     const _param = _tmp;
@@ -5411,7 +5548,7 @@ function _M0MP311moonbitlang4core7builtin3Map4eachGiRP311moonbitlang4core7builti
     }
   }
 }
-function _M0MP311moonbitlang4core5array10FixedArray12fill_2einnerGfE(self, value, start, end) {
+function _M0MPC15array10FixedArray12fill_2einnerGfE(self, value, start, end) {
   const array_length = self.length;
   if (array_length > 0) {
     if (start >= 0 && start < array_length) {
@@ -5433,7 +5570,7 @@ function _M0MP311moonbitlang4core5array10FixedArray12fill_2einnerGfE(self, value
     return;
   }
 }
-function _M0MP311moonbitlang4core5array10FixedArray12fill_2einnerGORP311moonbitlang4core7builtin5EntryGiRP36mizchi6kagura4text15GlyphCacheEntryEE(self, value, start, end) {
+function _M0MPC15array10FixedArray12fill_2einnerGORPB5EntryGiRP36mizchi6kagura4text15GlyphCacheEntryEE(self, value, start, end) {
   const array_length = self.length;
   if (array_length > 0) {
     if (start >= 0 && start < array_length) {
@@ -5455,34 +5592,34 @@ function _M0MP311moonbitlang4core5array10FixedArray12fill_2einnerGORP311moonbitl
     return;
   }
 }
-function _M0MP311moonbitlang4core7builtin3Map5clearGiRP36mizchi6kagura4text15GlyphCacheEntryE(self) {
-  _M0MP311moonbitlang4core5array10FixedArray12fill_2einnerGORP311moonbitlang4core7builtin5EntryGiRP36mizchi6kagura4text15GlyphCacheEntryEE(self.entries, undefined, 0, undefined);
+function _M0MPB3Map5clearGiRP36mizchi6kagura4text15GlyphCacheEntryE(self) {
+  _M0MPC15array10FixedArray12fill_2einnerGORPB5EntryGiRP36mizchi6kagura4text15GlyphCacheEntryEE(self.entries, undefined, 0, undefined);
   self.size = 0;
   self.head = undefined;
   self.tail = -1;
 }
-function _M0MP311moonbitlang4core7builtin7MyInt6414extend__i32__u(value) {
-  return { hi: 0, lo: value };
+function _M0MPB7MyInt6414extend__i32__u(value) {
+  return new _M0TPB7MyInt64(0, value);
 }
-function _M0MP311moonbitlang4core6uint646UInt6412extend__uint(value) {
-  return _M0MP311moonbitlang4core7builtin7MyInt6414extend__i32__u(value);
+function _M0MPC16uint646UInt6412extend__uint(value) {
+  return _M0MPB7MyInt6414extend__i32__u(value);
 }
-function _M0MP311moonbitlang4core4uint4UInt10to__uint64(self) {
-  return _M0MP311moonbitlang4core6uint646UInt6412extend__uint(self);
+function _M0MPC14uint4UInt10to__uint64(self) {
+  return _M0MPC16uint646UInt6412extend__uint(self);
 }
-function _M0MP311moonbitlang4core5int645Int6423reinterpret__as__double(self) {
-  return _M0MP311moonbitlang4core7builtin7MyInt6423reinterpret__as__double(self);
+function _M0MPC15int645Int6423reinterpret__as__double(self) {
+  return _M0MPB7MyInt6423reinterpret__as__double(self);
 }
-function _M0MP311moonbitlang4core5array5Array3mapGUddEUiiEE(self, f) {
+function _M0MPC15array5Array3mapGUddEUiiEE(self, f) {
   const arr = new Array(self.length);
-  const _len = self.length;
+  const _bind = self.length;
   let _tmp = 0;
   while (true) {
-    const _i = _tmp;
-    if (_i < _len) {
-      const v = self[_i];
-      arr[_i] = f(v);
-      _tmp = _i + 1 | 0;
+    const i = _tmp;
+    if (i < _bind) {
+      const v = self[i];
+      arr[i] = f(v);
+      _tmp = i + 1 | 0;
       continue;
     } else {
       break;
@@ -5490,16 +5627,16 @@ function _M0MP311moonbitlang4core5array5Array3mapGUddEUiiEE(self, f) {
   }
   return arr;
 }
-function _M0MP311moonbitlang4core5array5Array3mapGUddEUddEE(self, f) {
+function _M0MPC15array5Array3mapGUddEUddEE(self, f) {
   const arr = new Array(self.length);
-  const _len = self.length;
+  const _bind = self.length;
   let _tmp = 0;
   while (true) {
-    const _i = _tmp;
-    if (_i < _len) {
-      const v = self[_i];
-      arr[_i] = f(v);
-      _tmp = _i + 1 | 0;
+    const i = _tmp;
+    if (i < _bind) {
+      const v = self[i];
+      arr[i] = f(v);
+      _tmp = i + 1 | 0;
       continue;
     } else {
       break;
@@ -5507,13 +5644,13 @@ function _M0MP311moonbitlang4core5array5Array3mapGUddEUddEE(self, f) {
   }
   return arr;
 }
-function _M0MP311moonbitlang4core7builtin5Iter24nextGicE(self) {
-  return _M0MP311moonbitlang4core7builtin4Iter4nextGUicEE(self);
+function _M0MPB5Iter24nextGicE(self) {
+  return _M0MPB4Iter4nextGUicEE(self);
 }
-function _M0MP311moonbitlang4core6string6String20unsafe__charcode__at(self, idx) {
+function _M0MPC16string6String20unsafe__charcode__at(self, idx) {
   return self.charCodeAt(idx);
 }
-function _M0IP311moonbitlang4core7builtin7MyInt64P311moonbitlang4core7builtin3Mul3mul(self, other) {
+function _M0IPB7MyInt64PB3Mul3mul(self, other) {
   const _ahi = self.hi;
   const _alo = self.lo;
   const _bhi = other.hi;
@@ -5550,52 +5687,52 @@ function _M0IP311moonbitlang4core7builtin7MyInt64P311moonbitlang4core7builtin3Mu
   const c32$8 = c32$7 & 65535;
   const c48$4 = (((((((c48$3 >>> 0) + ((Math.imul(a48, b00) | 0) >>> 0) | 0) >>> 0) + ((Math.imul(a32, b16) | 0) >>> 0) | 0) >>> 0) + ((Math.imul(a16, b32) | 0) >>> 0) | 0) >>> 0) + ((Math.imul(a00, b48) | 0) >>> 0) | 0;
   const c48$5 = c48$4 & 65535;
-  return { hi: c48$5 << 16 | c32$8, lo: c16$5 << 16 | c00$2 };
+  return new _M0TPB7MyInt64(c48$5 << 16 | c32$8, c16$5 << 16 | c00$2);
 }
-function _M0MP311moonbitlang4core7builtin7MyInt644land(self, other) {
-  return { hi: self.hi & other.hi, lo: self.lo & other.lo };
+function _M0MPB7MyInt644land(self, other) {
+  return new _M0TPB7MyInt64(self.hi & other.hi, self.lo & other.lo);
 }
-function _M0MP311moonbitlang4core7builtin7MyInt643lsr(self, shift) {
+function _M0MPB7MyInt643lsr(self, shift) {
   const shift$2 = shift & 63;
-  return shift$2 === 0 ? self : shift$2 < 32 ? { hi: self.hi >>> shift$2 | 0, lo: self.lo >>> shift$2 | 0 | self.hi << (32 - shift$2 | 0) } : { hi: 0, lo: self.hi >>> (shift$2 - 32 | 0) | 0 };
+  return shift$2 === 0 ? self : shift$2 < 32 ? new _M0TPB7MyInt64(self.hi >>> shift$2 | 0, self.lo >>> shift$2 | 0 | self.hi << (32 - shift$2 | 0)) : new _M0TPB7MyInt64(0, self.hi >>> (shift$2 - 32 | 0) | 0);
 }
-function _M0IP311moonbitlang4core7builtin7MyInt64P311moonbitlang4core7builtin2Eq5equal(self, other) {
+function _M0IPB7MyInt64PB2Eq5equal(self, other) {
   return self.hi === other.hi && self.lo === other.lo;
 }
-function _M0MP311moonbitlang4core7builtin7MyInt648to__uint(self) {
+function _M0MPB7MyInt648to__uint(self) {
   return self.lo;
 }
-function _M0IP311moonbitlang4core5int645Int64P311moonbitlang4core7builtin6BitAnd4land(self, other) {
-  return _M0MP311moonbitlang4core7builtin7MyInt644land(self, other);
+function _M0IPC15int645Int64PB6BitAnd4land(self, other) {
+  return _M0MPB7MyInt644land(self, other);
 }
-function _M0IP311moonbitlang4core5int645Int64P311moonbitlang4core7builtin2Eq5equal(self, other) {
-  return _M0IP311moonbitlang4core7builtin7MyInt64P311moonbitlang4core7builtin2Eq5equal(self, other);
+function _M0IPC15int645Int64PB2Eq5equal(self, other) {
+  return _M0IPB7MyInt64PB2Eq5equal(self, other);
 }
-function _M0MP311moonbitlang4core5int645Int647to__int(self) {
-  return _M0MP311moonbitlang4core7builtin7MyInt647to__int(self);
+function _M0MPC15int645Int647to__int(self) {
+  return _M0MPB7MyInt647to__int(self);
 }
-function _M0MP311moonbitlang4core6double6Double22reinterpret__as__int64(self) {
-  return _M0MP311moonbitlang4core7builtin7MyInt6419reinterpret__double(self);
+function _M0MPC16double6Double22reinterpret__as__int64(self) {
+  return _M0MPB7MyInt6419reinterpret__double(self);
 }
-function _M0IP311moonbitlang4core6uint646UInt64P311moonbitlang4core7builtin3Mul3mul(self, other) {
-  return _M0IP311moonbitlang4core7builtin7MyInt64P311moonbitlang4core7builtin3Mul3mul(self, other);
+function _M0IPC16uint646UInt64PB3Mul3mul(self, other) {
+  return _M0IPB7MyInt64PB3Mul3mul(self, other);
 }
-function _M0MP311moonbitlang4core6uint646UInt648to__uint(self) {
-  return _M0MP311moonbitlang4core7builtin7MyInt648to__uint(self);
+function _M0MPC16uint646UInt648to__uint(self) {
+  return _M0MPB7MyInt648to__uint(self);
 }
-function _M0IP311moonbitlang4core6uint646UInt64P311moonbitlang4core7builtin6BitAnd4land(self, other) {
-  return _M0MP311moonbitlang4core7builtin7MyInt644land(self, other);
+function _M0IPC16uint646UInt64PB6BitAnd4land(self, other) {
+  return _M0MPB7MyInt644land(self, other);
 }
-function _M0IP311moonbitlang4core6uint646UInt64P311moonbitlang4core7builtin3Shr3shr(self, shift) {
-  return _M0MP311moonbitlang4core7builtin7MyInt643lsr(self, shift);
+function _M0IPC16uint646UInt64PB3Shr3shr(self, shift) {
+  return _M0MPB7MyInt643lsr(self, shift);
 }
-function _M0MP311moonbitlang4core7builtin6Hasher15combine__string(self, value) {
-  const _end2501 = value.length;
+function _M0MPB6Hasher15combine__string(self, value) {
+  const _bind = value.length;
   let _tmp = 0;
   while (true) {
     const i = _tmp;
-    if (i < _end2501) {
-      _M0MP311moonbitlang4core7builtin6Hasher13combine__uint(self, value.charCodeAt(i));
+    if (i < _bind) {
+      _M0MPB6Hasher13combine__uint(self, value.charCodeAt(i));
       _tmp = i + 1 | 0;
       continue;
     } else {
@@ -5603,32 +5740,32 @@ function _M0MP311moonbitlang4core7builtin6Hasher15combine__string(self, value) {
     }
   }
 }
-function _M0IP311moonbitlang4core6string6StringP311moonbitlang4core7builtin4Hash13hash__combine(self, hasher) {
-  _M0MP311moonbitlang4core7builtin6Hasher15combine__string(hasher, self);
+function _M0IPC16string6StringPB4Hash13hash__combine(self, hasher) {
+  _M0MPB6Hasher15combine__string(hasher, self);
 }
-function _M0IP311moonbitlang4core3int3IntP311moonbitlang4core7builtin4Hash13hash__combine(self, hasher) {
-  _M0MP311moonbitlang4core7builtin6Hasher12combine__int(hasher, self);
+function _M0IPC13int3IntPB4Hash13hash__combine(self, hasher) {
+  _M0MPB6Hasher12combine__int(hasher, self);
 }
-function _M0MP311moonbitlang4core6double6Double7to__int(self) {
+function _M0MPC16double6Double7to__int(self) {
   return self !== self ? 0 : self >= 2147483647 ? 2147483647 : self <= -2147483648 ? -2147483648 : self | 0;
 }
-function _M0MP311moonbitlang4core6double6Double4ceil(_tmp) {
+function _M0MPC16double6Double4ceil(_tmp) {
   return Math.ceil(_tmp);
 }
-function _M0MP311moonbitlang4core6double6Double5floor(_tmp) {
+function _M0MPC16double6Double5floor(_tmp) {
   return Math.floor(_tmp);
 }
-function _M0MP311moonbitlang4core6double6Double10to__string(self) {
-  return _M0FP311moonbitlang4core7builtin15ryu__to__string(self);
+function _M0MPC16double6Double10to__string(self) {
+  return _M0FPB15ryu__to__string(self);
 }
-function _M0FP311moonbitlang4core7builtin7printlnGsE(input) {
-  console.log(_M0IP311moonbitlang4core6string6StringP311moonbitlang4core7builtin4Show10to__string(input));
+function _M0FPB7printlnGsE(input) {
+  console.log(_M0IPC16string6StringPB4Show10to__string(input));
 }
-function _M0IP311moonbitlang4core7builtin13SourceLocReprP311moonbitlang4core7builtin4Show6output(self, logger) {
+function _M0IPB13SourceLocReprPB4Show6output(self, logger) {
   const pkg = self.pkg;
-  const _data = _M0MP311moonbitlang4core6string10StringView4data(pkg);
-  const _start = _M0MP311moonbitlang4core6string10StringView13start__offset(pkg);
-  const _end = _start + _M0MP311moonbitlang4core6string10StringView6length(pkg) | 0;
+  const _data = _M0MPC16string10StringView4data(pkg);
+  const _start = _M0MPC16string10StringView13start__offset(pkg);
+  const _end = _start + _M0MPC16string10StringView6length(pkg) | 0;
   let _cursor = _start;
   let accept_state = -1;
   let match_end = -1;
@@ -5639,18 +5776,17 @@ function _M0IP311moonbitlang4core7builtin13SourceLocReprP311moonbitlang4core7bui
     _L$2: {
       _L$3: while (true) {
         if (_cursor < _end) {
-          const next_char = _M0MP311moonbitlang4core6string6String20unsafe__charcode__at(_data, _cursor);
+          const next_char = _M0MPC16string6String20unsafe__charcode__at(_data, _cursor);
           _cursor = _cursor + 1 | 0;
           if (next_char === 47) {
             _L$4: while (true) {
               tag_0 = _cursor;
               if (_cursor < _end) {
-                const next_char$2 = _M0MP311moonbitlang4core6string6String20unsafe__charcode__at(_data, _cursor);
+                const next_char$2 = _M0MPC16string6String20unsafe__charcode__at(_data, _cursor);
                 _cursor = _cursor + 1 | 0;
                 if (next_char$2 === 47) {
                   while (true) {
                     if (_cursor < _end) {
-                      _M0MP311moonbitlang4core6string6String20unsafe__charcode__at(_data, _cursor);
                       _cursor = _cursor + 1 | 0;
                       continue;
                     } else {
@@ -5677,8 +5813,8 @@ function _M0IP311moonbitlang4core7builtin13SourceLocReprP311moonbitlang4core7bui
       break _L;
     }
     if (accept_state === 0) {
-      const package_name = _M0MP311moonbitlang4core6string6String4view(_data, match_tag_saver_0 + 1 | 0, match_end);
-      const module_name = _M0MP311moonbitlang4core6string6String4view(_data, _start, match_tag_saver_0);
+      const package_name = _M0MPC16string6String4view(_data, match_tag_saver_0 + 1 | 0, match_end);
+      const module_name = _M0MPC16string6String4view(_data, _start, match_tag_saver_0);
       _bind = { _0: module_name, _1: package_name };
     } else {
       _bind = { _0: pkg, _1: undefined };
@@ -5705,10 +5841,10 @@ function _M0IP311moonbitlang4core7builtin13SourceLocReprP311moonbitlang4core7bui
   logger.method_table.method_3(logger.self, 64);
   logger.method_table.method_2(logger.self, _module_name);
 }
-function _M0IP311moonbitlang4core7builtin9SourceLocP311moonbitlang4core7builtin4Show6output(self, logger) {
-  _M0IP311moonbitlang4core7builtin13SourceLocReprP311moonbitlang4core7builtin4Show6output(_M0MP311moonbitlang4core7builtin13SourceLocRepr5parse(self), logger);
+function _M0IPB9SourceLocPB4Show6output(self, logger) {
+  _M0IPB13SourceLocReprPB4Show6output(_M0MPB13SourceLocRepr5parse(self), logger);
 }
-function _M0MP311moonbitlang4core5array5Array12view_2einnerGiE(self, start, end) {
+function _M0MPC15array5Array12view_2einnerGiE(self, start, end) {
   const len = self.length;
   let end$2;
   if (end === undefined) {
@@ -5722,73 +5858,51 @@ function _M0MP311moonbitlang4core5array5Array12view_2einnerGiE(self, start, end)
   if (start$2 >= 0 && (start$2 <= end$2 && end$2 <= len)) {
     const _bind = self;
     const _bind$2 = end$2 - start$2 | 0;
-    return { buf: _bind, start: start$2, end: start$2 + _bind$2 | 0 };
+    return new _M0TPB9ArrayViewGiE(_bind, start$2, start$2 + _bind$2 | 0);
   } else {
-    return _M0FP311moonbitlang4core7builtin5abortGRP311moonbitlang4core7builtin9ArrayViewGiEE("View index out of bounds", "@moonbitlang/core/builtin:arrayview.mbt:252:5-252:38");
+    return _M0FPB5abortGRPC16string10StringViewE("View index out of bounds", "@moonbitlang/core/builtin:arrayview.mbt:263:5-263:38");
   }
 }
-function _M0MP311moonbitlang4core5array5Array28unsafe__truncate__to__lengthGdE(self, new_len) {
-  _M0MP311moonbitlang4core7builtin7JSArray11set__length(self, new_len);
+function _M0MPC15array5Array28unsafe__truncate__to__lengthGdE(self, new_len) {
+  _M0MPB7JSArray11set__length(self, new_len);
 }
-function _M0MP311moonbitlang4core5array5Array11unsafe__popGRP36mizchi6kagura10particle3d8ParticleE(self) {
-  return _M0MP311moonbitlang4core7builtin7JSArray3pop(self);
+function _M0MPC15array5Array11unsafe__popGRP36mizchi6kagura10particle3d8ParticleE(self) {
+  return _M0MPB7JSArray3pop(self);
 }
-function _M0MP311moonbitlang4core5array5Array11unsafe__popGUddEE(self) {
-  return _M0MP311moonbitlang4core7builtin7JSArray3pop(self);
+function _M0MPC15array5Array11unsafe__popGdE(self) {
+  return _M0MPB7JSArray3pop(self);
 }
-function _M0MP311moonbitlang4core5array5Array11unsafe__popGRP26mizchi3svg14InheritedStyleE(self) {
-  return _M0MP311moonbitlang4core7builtin7JSArray3pop(self);
-}
-function _M0MP311moonbitlang4core5array5Array11unsafe__popGdE(self) {
-  return _M0MP311moonbitlang4core7builtin7JSArray3pop(self);
-}
-function _M0MP311moonbitlang4core5array5Array3popGRP36mizchi6kagura10particle3d8ParticleE(self) {
+function _M0MPC15array5Array3popGRP36mizchi6kagura10particle3d8ParticleE(self) {
   if (self.length === 0) {
     return undefined;
   } else {
-    const v = _M0MP311moonbitlang4core5array5Array11unsafe__popGRP36mizchi6kagura10particle3d8ParticleE(self);
+    const v = _M0MPC15array5Array11unsafe__popGRP36mizchi6kagura10particle3d8ParticleE(self);
     return v;
   }
 }
-function _M0MP311moonbitlang4core5array5Array3popGUddEE(self) {
-  if (self.length === 0) {
-    return undefined;
-  } else {
-    const v = _M0MP311moonbitlang4core5array5Array11unsafe__popGUddEE(self);
-    return v;
-  }
-}
-function _M0MP311moonbitlang4core5array5Array3popGRP26mizchi3svg14InheritedStyleE(self) {
-  if (self.length === 0) {
-    return undefined;
-  } else {
-    const v = _M0MP311moonbitlang4core5array5Array11unsafe__popGRP26mizchi3svg14InheritedStyleE(self);
-    return v;
-  }
-}
-function _M0MP311moonbitlang4core5array5Array6removeGdE(self, index) {
+function _M0MPC15array5Array6removeGdE(self, index) {
   if (index >= 0 && index < self.length) {
     $bound_check(self, index);
     const value = self[index];
-    _M0MP311moonbitlang4core7builtin7JSArray6splice(self, index, 1);
+    _M0MPB7JSArray6splice(self, index, 1);
     return value;
   } else {
-    return _M0FP311moonbitlang4core7builtin5abortGdE(`index out of bounds: the len is from 0 to ${_M0IP016_24default__implP311moonbitlang4core7builtin4Show10to__stringGiE(self.length)} but the index is ${_M0IP016_24default__implP311moonbitlang4core7builtin4Show10to__stringGiE(index)}`, "@moonbitlang/core/builtin:arraycore_js.mbt:251:5-253:6");
+    return _M0FPB5abortGdE(`index out of bounds: the len is from 0 to ${_M0IP016_24default__implPB4Show10to__stringGiE(self.length)} but the index is ${_M0IP016_24default__implPB4Show10to__stringGiE(index)}`, "@moonbitlang/core/builtin:arraycore_js.mbt:251:5-253:6");
   }
 }
-function _M0MP311moonbitlang4core5array5Array24unsafe__grow__to__lengthGiE(self, new_len) {
+function _M0MPC15array5Array24unsafe__grow__to__lengthGiE(self, new_len) {
   if (new_len >= self.length) {
-    _M0MP311moonbitlang4core7builtin7JSArray11set__length(self, new_len);
+    _M0MPB7JSArray11set__length(self, new_len);
     return;
   } else {
     $panic();
     return;
   }
 }
-function _M0MP311moonbitlang4core5array5Array4copyGRP26mizchi3svg7SVGNodeE(self) {
-  return _M0MP311moonbitlang4core7builtin7JSArray4copy(self);
+function _M0MPC15array5Array4copyGRP26mizchi3svg7SVGNodeE(self) {
+  return _M0MPB7JSArray4copy(self);
 }
-function _M0MP311moonbitlang4core5array5Array4foldGddE(self, init, f) {
+function _M0MPC15array5Array4foldGddE(self, init, f) {
   let _tmp = 0;
   let _tmp$2 = init;
   while (true) {
@@ -5796,41 +5910,41 @@ function _M0MP311moonbitlang4core5array5Array4foldGddE(self, init, f) {
     const acc = _tmp$2;
     if (i < self.length) {
       _tmp = i + 1 | 0;
-      _tmp$2 = f(acc, _M0MP311moonbitlang4core5array5Array2atGdE(self, i));
+      _tmp$2 = f(acc, _M0MPC15array5Array2atGdE(self, i));
       continue;
     } else {
       return acc;
     }
   }
 }
-function _M0MP311moonbitlang4core5array9ArrayView16blit__to_2einnerGiE(self, dst, dst_offset) {
+function _M0MPC15array9ArrayView16blit__to_2einnerGiE(self, dst, dst_offset) {
   const len = self.end - self.start | 0;
   if (dst_offset >= 0 && dst_offset <= dst.length) {
     if ((dst_offset + len | 0) > dst.length) {
-      _M0MP311moonbitlang4core5array5Array24unsafe__grow__to__lengthGiE(dst, dst_offset + len | 0);
+      _M0MPC15array5Array24unsafe__grow__to__lengthGiE(dst, dst_offset + len | 0);
     }
-    _M0MP311moonbitlang4core7builtin18UninitializedArray12unsafe__blitGiE(dst, dst_offset, self.buf, self.start, len);
+    _M0MPB18UninitializedArray12unsafe__blitGiE(dst, dst_offset, self.buf, self.start, len);
     return;
   } else {
     $panic();
     return;
   }
 }
-function _M0MP311moonbitlang4core5array5Array5clearGdE(self) {
-  _M0MP311moonbitlang4core5array5Array28unsafe__truncate__to__lengthGdE(self, 0);
+function _M0MPC15array5Array5clearGdE(self) {
+  _M0MPC15array5Array28unsafe__truncate__to__lengthGdE(self, 0);
 }
-function _M0MP311moonbitlang4core5array5Array6filterGRP26mizchi5audio5VoiceE(self, f) {
+function _M0MPC15array5Array6filterGRP26mizchi5audio5VoiceE(self, f) {
   const arr = [];
-  const _len = self.length;
+  const _bind = self.length;
   let _tmp = 0;
   while (true) {
-    const _i = _tmp;
-    if (_i < _len) {
-      const v = self[_i];
+    const _ = _tmp;
+    if (_ < _bind) {
+      const v = self[_];
       if (f(v)) {
-        _M0MP311moonbitlang4core5array5Array4pushGRP26mizchi5audio5VoiceE(arr, v);
+        _M0MPC15array5Array4pushGRP36mizchi6kagura4core10TouchPointE(arr, v);
       }
-      _tmp = _i + 1 | 0;
+      _tmp = _ + 1 | 0;
       continue;
     } else {
       break;
@@ -5838,18 +5952,18 @@ function _M0MP311moonbitlang4core5array5Array6filterGRP26mizchi5audio5VoiceE(sel
   }
   return arr;
 }
-function _M0MP311moonbitlang4core5array5Array6filterGURP36mizchi6kagura5audio8PlayerIdRP26mizchi5audio7VoiceIdEE(self, f) {
+function _M0MPC15array5Array6filterGURP36mizchi6kagura5audio8PlayerIdRP26mizchi5audio7VoiceIdEE(self, f) {
   const arr = [];
-  const _len = self.length;
+  const _bind = self.length;
   let _tmp = 0;
   while (true) {
-    const _i = _tmp;
-    if (_i < _len) {
-      const v = self[_i];
+    const _ = _tmp;
+    if (_ < _bind) {
+      const v = self[_];
       if (f(v)) {
-        _M0MP311moonbitlang4core5array5Array4pushGURP36mizchi6kagura5audio8PlayerIdRP26mizchi5audio7VoiceIdEE(arr, v);
+        _M0MPC15array5Array4pushGRP36mizchi6kagura4core10TouchPointE(arr, v);
       }
-      _tmp = _i + 1 | 0;
+      _tmp = _ + 1 | 0;
       continue;
     } else {
       break;
@@ -5857,126 +5971,96 @@ function _M0MP311moonbitlang4core5array5Array6filterGURP36mizchi6kagura5audio8Pl
   }
   return arr;
 }
-function _M0MP311moonbitlang4core5array5Array9is__emptyGiE(self) {
+function _M0MPC15array5Array9is__emptyGiE(self) {
   return self.length === 0;
 }
-function _M0MP311moonbitlang4core5array5Array9is__emptyGRP26mizchi4font10GlyphPointE(self) {
+function _M0MPC15array5Array9is__emptyGRP26mizchi4font10GlyphPointE(self) {
   return self.length === 0;
 }
-function _M0MP311moonbitlang4core5array5Array9is__emptyGdE(self) {
+function _M0MPC15array5Array9is__emptyGdE(self) {
   return self.length === 0;
 }
-function _M0MP311moonbitlang4core5array5Array9is__emptyGRP26mizchi3svg12GradientStopE(self) {
-  return self.length === 0;
-}
-function _M0MP311moonbitlang4core5array5Array8containsGRP26mizchi3svg14PaintOrderItemE(self, value) {
-  const _len = self.length;
+function _M0MPC15array5Array8containsGRP26mizchi3svg14PaintOrderItemE(self, value) {
+  const _bind = self.length;
   let _tmp = 0;
   while (true) {
-    const _i = _tmp;
-    if (_i < _len) {
-      const v = self[_i];
-      if (_M0IP26mizchi3svg14PaintOrderItemP311moonbitlang4core7builtin2Eq5equal(v, value)) {
+    const _ = _tmp;
+    if (_ < _bind) {
+      const v = self[_];
+      if (_M0IP26mizchi3svg14PaintOrderItemPB2Eq5equal(v, value)) {
         return true;
       }
-      _tmp = _i + 1 | 0;
+      _tmp = _ + 1 | 0;
       continue;
     } else {
       return false;
     }
   }
 }
-function _M0MP311moonbitlang4core5float5Float7to__int(self) {
+function _M0MPC15float5Float7to__int(self) {
   return Math.fround(self !== self) ? 0 : Math.fround(self >= Math.fround(2147483647)) ? 2147483647 : Math.fround(self <= Math.fround(-2147483648)) ? -2147483648 : self | 0;
 }
-function _M0MP311moonbitlang4core5float5Float12is__neg__inf(self) {
-  return Math.fround(self < _M0FP311moonbitlang4core5float10min__value);
+function _M0MPC15float5Float12is__neg__inf(self) {
+  return Math.fround(self < _M0FPC15float10min__value);
 }
-function _M0MP311moonbitlang4core5float5Float12is__pos__inf(self) {
-  return Math.fround(self > _M0FP311moonbitlang4core5float10max__value);
+function _M0MPC15float5Float12is__pos__inf(self) {
+  return Math.fround(self > _M0FPC15float10max__value);
 }
-function _M0MP311moonbitlang4core5float5Float7is__inf(self) {
-  return _M0MP311moonbitlang4core5float5Float12is__pos__inf(self) || _M0MP311moonbitlang4core5float5Float12is__neg__inf(self);
+function _M0MPC15float5Float7is__inf(self) {
+  return _M0MPC15float5Float12is__pos__inf(self) || _M0MPC15float5Float12is__neg__inf(self);
 }
-function _M0MP311moonbitlang4core5float5Float7is__nan(self) {
+function _M0MPC15float5Float7is__nan(self) {
   return Math.fround(self !== self);
 }
-function _M0IP311moonbitlang4core5error5ErrorP311moonbitlang4core7builtin4Show6output(self, logger) {
+function _M0MPC13ref3Ref3newGiE(x) {
+  return new _M0TPC13ref3RefGiE(x);
+}
+function _M0MPC13ref3Ref3newGdE(x) {
+  return new _M0TPC13ref3RefGdE(x);
+}
+function _M0MPC13ref3Ref3newGORP36mizchi6kagura6engine14LifecycleHooksE(x) {
+  return new _M0TPC13ref3RefGORP36mizchi6kagura6engine14LifecycleHooksE(x);
+}
+function _M0MPC13ref3Ref3newGbE(x) {
+  return new _M0TPC13ref3RefGbE(x);
+}
+function _M0MPC13ref3Ref3newGsE(x) {
+  return new _M0TPC13ref3RefGsE(x);
+}
+function _M0IPC15error5ErrorPB4Show6output(self, logger) {
   logger.method_table.method_0(logger.self, _M0FP15Error10to__string(self));
 }
-function _M0MP311moonbitlang4core3ref3Ref3newGiE(x) {
-  return { val: x };
-}
-function _M0MP311moonbitlang4core3ref3Ref3newGdE(x) {
-  return { val: x };
-}
-function _M0MP311moonbitlang4core3ref3Ref3newGORP36mizchi6kagura6engine14LifecycleHooksE(x) {
-  return { val: x };
-}
-function _M0MP311moonbitlang4core3ref3Ref3newGbE(x) {
-  return { val: x };
-}
-function _M0MP311moonbitlang4core3ref3Ref3newGsE(x) {
-  return { val: x };
-}
-function _M0MP311moonbitlang4core3ref3Ref3newGRP311moonbitlang4core7builtin5ArrayGRP26mizchi19web__runtime__hooks21SourceImageCacheEntryEE(x) {
-  return { val: x };
-}
-function _M0MP311moonbitlang4core3ref3Ref3newGRP311moonbitlang4core7builtin5ArrayGRP26mizchi19web__runtime__hooks22SyncedSourceGenerationEE(x) {
-  return { val: x };
-}
-function _M0MP311moonbitlang4core3ref3Ref3newGRP311moonbitlang4core7builtin5ArrayGiEE(x) {
-  return { val: x };
-}
-function _M0MP311moonbitlang4core3ref3Ref3newGRP36mizchi6kagura8platform14WebCanvasHooksE(x) {
-  return { val: x };
-}
-function _M0MP311moonbitlang4core3ref3Ref3newGRP36mizchi6kagura3gfx16WebGraphicsHooksE(x) {
-  return { val: x };
-}
-function _M0MP311moonbitlang4core3ref3Ref3newGRP36mizchi6kagura4text13FontLoadHooksE(x) {
-  return { val: x };
-}
-function _M0MP311moonbitlang4core3ref3Ref3newGRP36mizchi6kagura5audio16AudioOutputHooksE(x) {
-  return { val: x };
-}
-function _M0MP311moonbitlang4core3ref3Ref3newGWEdE(x) {
-  return { val: x };
-}
-function _M0MP311moonbitlang4core3ref3Ref3newGRP36mizchi6kagura3gfx19NativeGraphicsHooksE(x) {
-  return { val: x };
-}
-function _M0FP311moonbitlang4core3cmp7maximumGiE(x, y) {
+function _M0FPC13cmp7maximumGiE(x, y) {
   return x > y ? x : y;
 }
-function _M0FP311moonbitlang4core4math3sin(_tmp) {
+function _M0FPC14math3sin(_tmp) {
   return Math.sin(_tmp);
 }
-function _M0FP311moonbitlang4core4math3cos(_tmp) {
+function _M0FPC14math3cos(_tmp) {
   return Math.cos(_tmp);
 }
-function _M0FP311moonbitlang4core4math3tan(_tmp) {
+function _M0FPC14math3tan(_tmp) {
   return Math.tan(_tmp);
 }
-function _M0FP311moonbitlang4core4math4acos(_tmp) {
+function _M0FPC14math4acos(_tmp) {
   return Math.acos(_tmp);
 }
-function _M0FP311moonbitlang4core4math5atan2(_tmp, _tmp$2) {
+function _M0FPC14math5atan2(_tmp, _tmp$2) {
   return Math.atan2(_tmp, _tmp$2);
 }
-function _M0FP311moonbitlang4core4math4mulh(a, b) {
-  const a$2 = _M0MP311moonbitlang4core4uint4UInt10to__uint64(a);
-  const b$2 = _M0MP311moonbitlang4core4uint4UInt10to__uint64(b);
-  const res = _M0IP311moonbitlang4core6uint646UInt64P311moonbitlang4core7builtin3Mul3mul(a$2, b$2);
-  return _M0MP311moonbitlang4core6uint646UInt648to__uint(_M0IP311moonbitlang4core6uint646UInt64P311moonbitlang4core7builtin3Shr3shr(res, 32));
+function _M0FPC14math4mulh(a, b) {
+  const a$2 = _M0MPC14uint4UInt10to__uint64(a);
+  const b$2 = _M0MPC14uint4UInt10to__uint64(b);
+  const res = _M0IPC16uint646UInt64PB3Mul3mul(a$2, b$2);
+  return _M0MPC16uint646UInt648to__uint(_M0IPC16uint646UInt64PB3Shr3shr(res, 32));
 }
-function _M0FP311moonbitlang4core4math3mul(a, b) {
-  const a$2 = _M0MP311moonbitlang4core4uint4UInt10to__uint64(a);
-  const b$2 = _M0MP311moonbitlang4core4uint4UInt10to__uint64(b);
-  const res = _M0IP311moonbitlang4core6uint646UInt64P311moonbitlang4core7builtin3Mul3mul(a$2, b$2);
-  return { _0: _M0MP311moonbitlang4core6uint646UInt648to__uint(_M0IP311moonbitlang4core6uint646UInt64P311moonbitlang4core7builtin3Shr3shr(res, 32)), _1: _M0MP311moonbitlang4core6uint646UInt648to__uint(res) };
+function _M0FPC14math3mul(a, b) {
+  const a$2 = _M0MPC14uint4UInt10to__uint64(a);
+  const b$2 = _M0MPC14uint4UInt10to__uint64(b);
+  const res = _M0IPC16uint646UInt64PB3Mul3mul(a$2, b$2);
+  return { _0: _M0MPC16uint646UInt648to__uint(_M0IPC16uint646UInt64PB3Shr3shr(res, 32)), _1: _M0MPC16uint646UInt648to__uint(res) };
 }
-function _M0FP311moonbitlang4core4math12trig__reduce(x, switch_over) {
+function _M0FPC14math12trig__reduce(x, switch_over) {
   if (Math.fround(Math.fround(Math.abs(x)) <= switch_over)) {
     let j = Math.fround(0);
     let r = Math.fround(0);
@@ -5985,27 +6069,27 @@ function _M0FP311moonbitlang4core4math12trig__reduce(x, switch_over) {
     r = Math.fround(x - Math.fround(j * $f32_reinterpret_i32(1070141312)));
     r = Math.fround(r - Math.fround(j * $f32_reinterpret_i32(926237760)));
     r = Math.fround(r - Math.fround(j * $f32_reinterpret_i32(741630234)));
-    return { _0: r, _1: _M0MP311moonbitlang4core5float5Float7to__int(j) };
+    return { _0: r, _1: _M0MPC15float5Float7to__int(j) };
   }
   const xispos = Math.fround(x > Math.fround(0));
   let exp = ($i32_reinterpret_f32(x) >> 23 & 255) - 126 | 0;
   const ix = ($i32_reinterpret_f32(x) & 8388607) << 8 | -2147483648;
   const ind = exp >> 5;
   exp = exp & 31;
-  let hi = _M0MP311moonbitlang4core5array13ReadOnlyArray2atGjE(_M0FP311moonbitlang4core4math35trig__reduce_2etwo__over__pi_2f1525, ind);
-  let mi = _M0MP311moonbitlang4core5array13ReadOnlyArray2atGjE(_M0FP311moonbitlang4core4math35trig__reduce_2etwo__over__pi_2f1525, ind + 1 | 0);
-  let lo = _M0MP311moonbitlang4core5array13ReadOnlyArray2atGjE(_M0FP311moonbitlang4core4math35trig__reduce_2etwo__over__pi_2f1525, ind + 2 | 0);
-  const tp = _M0MP311moonbitlang4core5array13ReadOnlyArray2atGjE(_M0FP311moonbitlang4core4math35trig__reduce_2etwo__over__pi_2f1525, ind + 3 | 0);
+  let hi = _M0MPC15array13ReadOnlyArray2atGjE(_M0FPC14math35trig__reduce_2etwo__over__pi_2f1513, ind);
+  let mi = _M0MPC15array13ReadOnlyArray2atGjE(_M0FPC14math35trig__reduce_2etwo__over__pi_2f1513, ind + 1 | 0);
+  let lo = _M0MPC15array13ReadOnlyArray2atGjE(_M0FPC14math35trig__reduce_2etwo__over__pi_2f1513, ind + 2 | 0);
+  const tp = _M0MPC15array13ReadOnlyArray2atGjE(_M0FPC14math35trig__reduce_2etwo__over__pi_2f1513, ind + 3 | 0);
   if (exp > 0) {
     hi = hi << exp | (mi >>> (32 - exp | 0) | 0);
     mi = mi << exp | (lo >>> (32 - exp | 0) | 0);
     lo = lo << exp | (tp >>> (32 - exp | 0) | 0);
   }
-  const _bind = _M0FP311moonbitlang4core4math3mul(ix, lo);
+  const _bind = _M0FPC14math3mul(ix, lo);
   const _h = _bind._0;
   const _l = _bind._1;
   const phi = (_h >>> 0) + ((_l >>> 0 < _l >>> 0 ? 1 : 0) >>> 0) | 0;
-  const _bind$2 = _M0FP311moonbitlang4core4math3mul(ix, mi);
+  const _bind$2 = _M0FPC14math3mul(ix, mi);
   const _h$2 = _bind$2._0;
   const _l$2 = _bind$2._1;
   let plo = (phi >>> 0) + (_l$2 >>> 0) | 0;
@@ -6035,7 +6119,7 @@ function _M0FP311moonbitlang4core4math12trig__reduce(x, switch_over) {
       break;
     }
   }
-  phi$3 = _M0FP311moonbitlang4core4math4mulh(phi$3, -921707870);
+  phi$3 = _M0FPC14math4mulh(phi$3, -921707870);
   if (phi$3 >>> 0 < -2147483648 >>> 0) {
     phi$3 = phi$3 << 1;
     exp = exp - 1 | 0;
@@ -6048,7 +6132,7 @@ function _M0FP311moonbitlang4core4math12trig__reduce(x, switch_over) {
   const r$2 = $f32_reinterpret_i32(r);
   return { _0: r$2, _1: q };
 }
-function _M0FP311moonbitlang4core4math10sinf__poly(x) {
+function _M0FPC14math10sinf__poly(x) {
   const s = Math.fround(x * x);
   let r = $f32_reinterpret_i32(910184448);
   r = Math.fround(Math.fround(r * s) - $f32_reinterpret_i32(961557638));
@@ -6058,7 +6142,7 @@ function _M0FP311moonbitlang4core4math10sinf__poly(x) {
   r = Math.fround(Math.fround(r * t) + x);
   return r;
 }
-function _M0FP311moonbitlang4core4math10cosf__poly(x) {
+function _M0FPC14math10cosf__poly(x) {
   const s = Math.fround(x * x);
   let r = $f32_reinterpret_i32(936198144);
   r = Math.fround(Math.fround(r * s) - $f32_reinterpret_i32(985007997));
@@ -6067,63 +6151,63 @@ function _M0FP311moonbitlang4core4math10cosf__poly(x) {
   r = Math.fround(Math.fround(r * s) + $f32_reinterpret_i32(1065353216));
   return r;
 }
-function _M0FP311moonbitlang4core4math14sin__cos__core(x, q) {
-  let r = (q & 1) !== 0 ? _M0FP311moonbitlang4core4math10cosf__poly(x) : _M0FP311moonbitlang4core4math10sinf__poly(x);
+function _M0FPC14math14sin__cos__core(x, q) {
+  let r = (q & 1) !== 0 ? _M0FPC14math10cosf__poly(x) : _M0FPC14math10sinf__poly(x);
   if ((q & 2) !== 0) {
     r = -r;
   }
   return r;
 }
-function _M0FP311moonbitlang4core4math4sinf(x) {
-  if (_M0MP311moonbitlang4core5float5Float7is__nan(x) || _M0MP311moonbitlang4core5float5Float7is__inf(x)) {
-    return _M0FP311moonbitlang4core5float14not__a__number;
+function _M0FPC14math4sinf(x) {
+  if (_M0MPC15float5Float7is__nan(x) || _M0MPC15float5Float7is__inf(x)) {
+    return _M0FPC15float14not__a__number;
   }
   if (Math.fround(x === Math.fround(0))) {
     return x;
   }
-  const _bind = _M0FP311moonbitlang4core4math12trig__reduce(x, Math.fround(201.15625));
+  const _bind = _M0FPC14math12trig__reduce(x, Math.fround(201.15625));
   const _x = _bind._0;
   const _q = _bind._1;
-  return _M0FP311moonbitlang4core4math14sin__cos__core(_x, _q);
+  return _M0FPC14math14sin__cos__core(_x, _q);
 }
-function _M0FP311moonbitlang4core4math4cosf(x) {
-  if (_M0MP311moonbitlang4core5float5Float7is__nan(x) || _M0MP311moonbitlang4core5float5Float7is__inf(x)) {
-    return _M0FP311moonbitlang4core5float14not__a__number;
+function _M0FPC14math4cosf(x) {
+  if (_M0MPC15float5Float7is__nan(x) || _M0MPC15float5Float7is__inf(x)) {
+    return _M0FPC15float14not__a__number;
   }
   if (Math.fround(x === Math.fround(0))) {
     return Math.fround(1);
   }
-  const _bind = _M0FP311moonbitlang4core4math12trig__reduce(x, Math.fround(142.90625));
+  const _bind = _M0FPC14math12trig__reduce(x, Math.fround(142.90625));
   const _x = _bind._0;
   const _q = _bind._1;
-  return _M0FP311moonbitlang4core4math14sin__cos__core(_x, _q + 1 | 0);
+  return _M0FPC14math14sin__cos__core(_x, _q + 1 | 0);
 }
 function _M0MP36mizchi6kagura6math3d4Vec33new(x, y, z) {
-  return { x: x, y: y, z: z };
+  return new _M0TP36mizchi6kagura6math3d4Vec3(x, y, z);
 }
 function _M0MP36mizchi6kagura6math3d4Vec34zero() {
-  return { x: 0, y: 0, z: 0 };
+  return new _M0TP36mizchi6kagura6math3d4Vec3(0, 0, 0);
 }
 function _M0MP36mizchi6kagura6math3d4Vec33one() {
-  return { x: 1, y: 1, z: 1 };
+  return new _M0TP36mizchi6kagura6math3d4Vec3(1, 1, 1);
 }
 function _M0MP36mizchi6kagura6math3d4Vec37unit__y() {
-  return { x: 0, y: 1, z: 0 };
+  return new _M0TP36mizchi6kagura6math3d4Vec3(0, 1, 0);
 }
 function _M0MP36mizchi6kagura6math3d4Vec33add(self, other) {
-  return { x: self.x + other.x, y: self.y + other.y, z: self.z + other.z };
+  return new _M0TP36mizchi6kagura6math3d4Vec3(self.x + other.x, self.y + other.y, self.z + other.z);
 }
 function _M0MP36mizchi6kagura6math3d4Vec33sub(self, other) {
-  return { x: self.x - other.x, y: self.y - other.y, z: self.z - other.z };
+  return new _M0TP36mizchi6kagura6math3d4Vec3(self.x - other.x, self.y - other.y, self.z - other.z);
 }
 function _M0MP36mizchi6kagura6math3d4Vec35scale(self, s) {
-  return { x: self.x * s, y: self.y * s, z: self.z * s };
+  return new _M0TP36mizchi6kagura6math3d4Vec3(self.x * s, self.y * s, self.z * s);
 }
 function _M0MP36mizchi6kagura6math3d4Vec33dot(self, other) {
   return self.x * other.x + self.y * other.y + self.z * other.z;
 }
 function _M0MP36mizchi6kagura6math3d4Vec35cross(self, other) {
-  return { x: self.y * other.z - self.z * other.y, y: self.z * other.x - self.x * other.z, z: self.x * other.y - self.y * other.x };
+  return new _M0TP36mizchi6kagura6math3d4Vec3(self.y * other.z - self.z * other.y, self.z * other.x - self.x * other.z, self.x * other.y - self.y * other.x);
 }
 function _M0MP36mizchi6kagura6math3d4Vec315length__squared(self) {
   return self.x * self.x + self.y * self.y + self.z * self.z;
@@ -6136,13 +6220,13 @@ function _M0MP36mizchi6kagura6math3d4Vec39normalize(self) {
   return len < 1e-12 ? _M0MP36mizchi6kagura6math3d4Vec34zero() : _M0MP36mizchi6kagura6math3d4Vec35scale(self, 1 / len);
 }
 function _M0MP36mizchi6kagura6math3d4Vec43new(x, y, z, w) {
-  return { x: x, y: y, z: z, w: w };
+  return new _M0TP36mizchi6kagura6math3d4Vec4(x, y, z, w);
 }
 function _M0MP36mizchi6kagura6math3d4Mat48identity() {
-  return { elements: [1, 0, 0, 0, 0, 1, 0, 0, 0, 0, 1, 0, 0, 0, 0, 1] };
+  return new _M0TP36mizchi6kagura6math3d4Mat4([1, 0, 0, 0, 0, 1, 0, 0, 0, 0, 1, 0, 0, 0, 0, 1]);
 }
 function _M0MP36mizchi6kagura6math3d4Mat44zero() {
-  return { elements: [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0] };
+  return new _M0TP36mizchi6kagura6math3d4Mat4([0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0]);
 }
 function _M0MP36mizchi6kagura6math3d4Mat42at(self, row, col) {
   const _tmp = self.elements;
@@ -6158,25 +6242,25 @@ function _M0MP36mizchi6kagura6math3d4Mat43set(self, row, col, value) {
 }
 function _M0MP36mizchi6kagura6math3d4Mat48multiply(self, other) {
   const result = _M0MP36mizchi6kagura6math3d4Mat44zero();
-  const _start210 = 0;
-  const _end211 = 4;
-  let _tmp = _start210;
+  const _bind = 0;
+  const _bind$2 = 4;
+  let _tmp = _bind;
   while (true) {
     const col = _tmp;
-    if (col < _end211) {
-      const _start215 = 0;
-      const _end216 = 4;
-      let _tmp$2 = _start215;
+    if (col < _bind$2) {
+      const _bind$3 = 0;
+      const _bind$4 = 4;
+      let _tmp$2 = _bind$3;
       while (true) {
         const row = _tmp$2;
-        if (row < _end216) {
-          const sum = { val: 0 };
-          const _start221 = 0;
-          const _end222 = 4;
-          let _tmp$3 = _start221;
+        if (row < _bind$4) {
+          const sum = new _M0TPC13ref3RefGdE(0);
+          const _bind$5 = 0;
+          const _bind$6 = 4;
+          let _tmp$3 = _bind$5;
           while (true) {
             const k = _tmp$3;
-            if (k < _end222) {
+            if (k < _bind$6) {
               sum.val = sum.val + _M0MP36mizchi6kagura6math3d4Mat42at(self, row, k) * _M0MP36mizchi6kagura6math3d4Mat42at(other, k, col);
               _tmp$3 = k + 1 | 0;
               continue;
@@ -6201,18 +6285,18 @@ function _M0MP36mizchi6kagura6math3d4Mat48multiply(self, other) {
 }
 function _M0MP36mizchi6kagura6math3d4Mat49transpose(self) {
   const result = _M0MP36mizchi6kagura6math3d4Mat44zero();
-  const _start195 = 0;
-  const _end196 = 4;
-  let _tmp = _start195;
+  const _bind = 0;
+  const _bind$2 = 4;
+  let _tmp = _bind;
   while (true) {
     const row = _tmp;
-    if (row < _end196) {
-      const _start200 = 0;
-      const _end201 = 4;
-      let _tmp$2 = _start200;
+    if (row < _bind$2) {
+      const _bind$3 = 0;
+      const _bind$4 = 4;
+      let _tmp$2 = _bind$3;
       while (true) {
         const col = _tmp$2;
-        if (col < _end201) {
+        if (col < _bind$4) {
           _M0MP36mizchi6kagura6math3d4Mat43set(result, row, col, _M0MP36mizchi6kagura6math3d4Mat42at(self, col, row));
           _tmp$2 = col + 1 | 0;
           continue;
@@ -6360,7 +6444,7 @@ function _M0MP36mizchi6kagura6math3d4Mat47scaling(x, y, z) {
   return m;
 }
 function _M0MP36mizchi6kagura6math3d4Mat411perspective(fov_y_rad, aspect, near, far) {
-  const f = 1 / _M0FP311moonbitlang4core4math3tan(fov_y_rad / 2);
+  const f = 1 / _M0FPC14math3tan(fov_y_rad / 2);
   const nf = 1 / (near - far);
   const m = _M0MP36mizchi6kagura6math3d4Mat44zero();
   const _tmp = m.elements;
@@ -6452,28 +6536,28 @@ function _M0MP36mizchi6kagura6math3d4Mat48look__at(eye, target, up) {
   return m;
 }
 function _M0MP36mizchi6kagura8camera3d8Camera3D16new__perspective(position, target, up, fov_y_rad, aspect, near, far) {
-  return { position: position, target: target, up: up, fov_y_rad: fov_y_rad, aspect: aspect, near: near, far: far, projection_mode: $64$mizchi$47$kagura$47$camera3d$46$ProjectionMode$Perspective };
+  return new _M0TP36mizchi6kagura8camera3d8Camera3D(position, target, up, fov_y_rad, aspect, near, far, _M0DTP36mizchi6kagura8camera3d14ProjectionMode11Perspective__);
 }
 function _M0FP36mizchi6kagura8camera3d12clamp__pitch(pitch) {
   const limit = 1.56079632679489655;
   return pitch > limit ? limit : pitch < -limit ? -limit : pitch;
 }
 function _M0MP36mizchi6kagura8camera3d11OrbitCamera3new(target, distance, yaw, pitch, fov_y_rad, aspect, near, far) {
-  return { target: target, distance: distance, yaw: yaw, pitch: _M0FP36mizchi6kagura8camera3d12clamp__pitch(pitch), fov_y_rad: fov_y_rad, aspect: aspect, near: near, far: far };
+  return new _M0TP36mizchi6kagura8camera3d11OrbitCamera(target, distance, yaw, _M0FP36mizchi6kagura8camera3d12clamp__pitch(pitch), fov_y_rad, aspect, near, far);
 }
 function _M0MP36mizchi6kagura8camera3d11OrbitCamera5orbit(self, delta_yaw, delta_pitch) {
-  return { ...self, yaw: self.yaw + delta_yaw, pitch: _M0FP36mizchi6kagura8camera3d12clamp__pitch(self.pitch + delta_pitch) };
+  return new _M0TP36mizchi6kagura8camera3d11OrbitCamera(self.target, self.distance, self.yaw + delta_yaw, _M0FP36mizchi6kagura8camera3d12clamp__pitch(self.pitch + delta_pitch), self.fov_y_rad, self.aspect, self.near, self.far);
 }
 function _M0MP36mizchi6kagura8camera3d11OrbitCamera4zoom(self, delta) {
   const d = self.distance + delta;
   const clamped = d < 0.1 ? 0.1 : d;
-  return { ...self, distance: clamped };
+  return new _M0TP36mizchi6kagura8camera3d11OrbitCamera(self.target, clamped, self.yaw, self.pitch, self.fov_y_rad, self.aspect, self.near, self.far);
 }
 function _M0MP36mizchi6kagura8camera3d11OrbitCamera8position(self) {
-  const cp = _M0FP311moonbitlang4core4math3cos(self.pitch);
-  const sp = _M0FP311moonbitlang4core4math3sin(self.pitch);
-  const cy = _M0FP311moonbitlang4core4math3cos(self.yaw);
-  const sy = _M0FP311moonbitlang4core4math3sin(self.yaw);
+  const cp = _M0FPC14math3cos(self.pitch);
+  const sp = _M0FPC14math3sin(self.pitch);
+  const cy = _M0FPC14math3cos(self.yaw);
+  const sy = _M0FPC14math3sin(self.yaw);
   const offset = _M0MP36mizchi6kagura6math3d4Vec33new(self.distance * cp * sy, self.distance * sp, self.distance * cp * cy);
   return _M0MP36mizchi6kagura6math3d4Vec33add(self.target, offset);
 }
@@ -6511,16 +6595,16 @@ function _M0MP36mizchi6kagura8camera3d8Camera3D24view__projection__matrix(self) 
   return _M0MP36mizchi6kagura6math3d4Mat48multiply(_M0MP36mizchi6kagura8camera3d8Camera3D18projection__matrix(self), _M0MP36mizchi6kagura8camera3d8Camera3D12view__matrix(self));
 }
 function _M0FP36mizchi6kagura4core18new__outside__size(width, height) {
-  return { width: width, height: height };
+  return new _M0TP36mizchi6kagura4core11OutsideSize(width, height);
 }
 function _M0FP36mizchi6kagura4core17new__touch__point(id, x, y) {
-  return { id: id, x: x, y: y, source: 3 };
+  return new _M0TP36mizchi6kagura4core10TouchPoint(id, x, y, 3);
 }
 function _M0FP36mizchi6kagura4core22new__gamepad__snapshot(id, axes, pressed_buttons) {
-  return { id: id, axes: axes, pressed_buttons: pressed_buttons };
+  return new _M0TP36mizchi6kagura4core15GamepadSnapshot(id, axes, pressed_buttons);
 }
 function _M0FP36mizchi6kagura4core26new__input__snapshot__full(cursor_x, cursor_y, wheel_x, wheel_y, pressed_keys, pressed_mouse_buttons, touches, gamepads) {
-  return { cursor_x: cursor_x, cursor_y: cursor_y, wheel_x: wheel_x, wheel_y: wheel_y, pressed_keys: pressed_keys, pressed_mouse_buttons: pressed_mouse_buttons, touches: touches, gamepads: gamepads };
+  return new _M0TP36mizchi6kagura4core13InputSnapshot(cursor_x, cursor_y, wheel_x, wheel_y, pressed_keys, pressed_mouse_buttons, touches, gamepads);
 }
 function _M0FP36mizchi6kagura4core20new__input__snapshot(cursor_x, cursor_y, wheel_x, wheel_y, pressed_keys) {
   return _M0FP36mizchi6kagura4core26new__input__snapshot__full(cursor_x, cursor_y, wheel_x, wheel_y, pressed_keys, [], [], []);
@@ -6529,7 +6613,7 @@ function _M0FP36mizchi6kagura4core22empty__input__snapshot() {
   return _M0FP36mizchi6kagura4core20new__input__snapshot(0, 0, 0, 0, []);
 }
 function _M0FP36mizchi6kagura8platform23new__web__canvas__hooks(try_initialize, poll, should_close, outside_size, current_surface, capture_input, set_fullscreen, is_fullscreen, set_cursor_mode, cursor_mode, set_device_scale_factor, device_scale_factor, set_vsync_enabled, is_vsync_enabled, close_window, request_attention, set_mouse_touch_fallback, mouse_touch_fallback_enabled, fullscreen_request_status, cursor_mode_request_status) {
-  return { try_initialize: try_initialize, poll: poll, should_close: should_close, outside_size: outside_size, current_surface: current_surface, capture_input: capture_input, set_fullscreen: set_fullscreen, is_fullscreen: is_fullscreen, set_cursor_mode: set_cursor_mode, cursor_mode: cursor_mode, set_device_scale_factor: set_device_scale_factor, device_scale_factor: device_scale_factor, set_vsync_enabled: set_vsync_enabled, is_vsync_enabled: is_vsync_enabled, close_window: close_window, request_attention: request_attention, set_mouse_touch_fallback: set_mouse_touch_fallback, mouse_touch_fallback_enabled: mouse_touch_fallback_enabled, fullscreen_request_status: fullscreen_request_status, cursor_mode_request_status: cursor_mode_request_status };
+  return new _M0TP36mizchi6kagura8platform14WebCanvasHooks(try_initialize, poll, should_close, outside_size, current_surface, capture_input, set_fullscreen, is_fullscreen, set_cursor_mode, cursor_mode, set_device_scale_factor, device_scale_factor, set_vsync_enabled, is_vsync_enabled, close_window, request_attention, set_mouse_touch_fallback, mouse_touch_fallback_enabled, fullscreen_request_status, cursor_mode_request_status);
 }
 function _M0FP36mizchi6kagura8platform29default__web__try__initialize(_canvas_selector, _options) {
   return false;
@@ -6542,7 +6626,7 @@ function _M0FP36mizchi6kagura8platform27default__web__outside__size(width, heigh
   return _M0FP36mizchi6kagura4core18new__outside__size(width + 0, height + 0);
 }
 function _M0FP36mizchi6kagura8platform30default__web__current__surface(_canvas_selector, options) {
-  return { kind: 1, opaque_id: 2, width: options.width, height: options.height, device_scale_factor: 1 };
+  return new _M0TP36mizchi6kagura8platform12SurfaceToken(1, 2, options.width, options.height, 1);
 }
 function _M0FP36mizchi6kagura8platform28default__web__capture__input(_active, _tick) {
   return _M0FP36mizchi6kagura4core22empty__input__snapshot();
@@ -6629,13 +6713,13 @@ function _M0FP36mizchi6kagura8platform23web__is__vsync__enabled(canvas_selector,
   return _func(canvas_selector, active, current);
 }
 function _M0FP36mizchi6kagura8platform33create__offscreen__surface__token(width, height) {
-  return { kind: 3, opaque_id: 0, width: width, height: height, device_scale_factor: 1 };
+  return new _M0TP36mizchi6kagura8platform12SurfaceToken(3, 0, width, height, 1);
 }
 function _M0FP36mizchi6kagura8platform30create__webgpu__surface__token(opaque_id, width, height, device_scale_factor) {
-  return { kind: 1, opaque_id: opaque_id, width: width, height: height, device_scale_factor: device_scale_factor };
+  return new _M0TP36mizchi6kagura8platform12SurfaceToken(1, opaque_id, width, height, device_scale_factor);
 }
 function _M0IP36mizchi6kagura8platform17WebCanvasPlatformP36mizchi6kagura8platform15SurfaceProvider16current__surface(self) {
-  return new Result$Ok$2$(self.web_active ? _M0FP36mizchi6kagura8platform21web__current__surface(self.canvas_selector, self.options) : { kind: 1, opaque_id: 2, width: self.options.width, height: self.options.height, device_scale_factor: 1 });
+  return new _M0DTPC16result6ResultGRP36mizchi6kagura8platform12SurfaceTokenRPC15error5ErrorE2Ok(self.web_active ? _M0FP36mizchi6kagura8platform21web__current__surface(self.canvas_selector, self.options) : new _M0TP36mizchi6kagura8platform12SurfaceToken(1, 2, self.options.width, self.options.height, 1));
 }
 function _M0FP36mizchi6kagura8platform21cursor__mode__to__int(mode) {
   switch (mode) {
@@ -6664,10 +6748,10 @@ function _M0FP36mizchi6kagura8platform23cursor__mode__from__int(mode) {
   }
 }
 function _M0FP36mizchi6kagura8platform28new__window__options_2einner(title, width, height, transparent, resizable, focused) {
-  return { title: title, width: width, height: height, transparent: transparent, resizable: resizable, focused: focused };
+  return new _M0TP36mizchi6kagura8platform13WindowOptions(title, width, height, transparent, resizable, focused);
 }
 function _M0FP36mizchi6kagura8platform29create__web__canvas__platform(canvas_selector) {
-  return { canvas_selector: canvas_selector, initialized: false, poll_count: 0, close_after_polls: 2, web_active: false, options: { title: "kagura-web", width: 800, height: 600, transparent: true, resizable: true, focused: true }, current_input: _M0FP36mizchi6kagura4core22empty__input__snapshot(), fullscreen: false, cursor_mode: 0, device_scale_factor: 1, vsync_enabled: true, close_requested: false, attention_requests: 0, mouse_touch_fallback: false, fullscreen_request_status: 0, cursor_mode_request_status: 0 };
+  return new _M0TP36mizchi6kagura8platform17WebCanvasPlatform(canvas_selector, false, 0, 2, false, new _M0TP36mizchi6kagura8platform13WindowOptions("kagura-web", 800, 600, true, true, true), _M0FP36mizchi6kagura4core22empty__input__snapshot(), false, 0, 1, true, false, 0, false, 0, 0);
 }
 function _M0IP36mizchi6kagura8platform17WebCanvasPlatformP36mizchi6kagura8platform14PlatformDriver10initialize(self, options) {
   self.options = options;
@@ -6680,7 +6764,7 @@ function _M0IP36mizchi6kagura8platform17WebCanvasPlatformP36mizchi6kagura8platfo
   self.cursor_mode = _M0FP36mizchi6kagura8platform17web__cursor__mode(self.canvas_selector, self.web_active, self.cursor_mode);
   self.device_scale_factor = _M0FP36mizchi6kagura8platform26web__device__scale__factor(self.canvas_selector, self.web_active, self.device_scale_factor);
   self.vsync_enabled = _M0FP36mizchi6kagura8platform23web__is__vsync__enabled(self.canvas_selector, self.web_active, self.vsync_enabled);
-  return new Result$Ok$3$(undefined);
+  return new _M0DTPC16result6ResultGuRPC15error5ErrorE2Ok(undefined);
 }
 function _M0IP36mizchi6kagura8platform17WebCanvasPlatformP36mizchi6kagura8platform14PlatformDriver12poll__events(self) {
   if (self.initialized) {
@@ -6699,13 +6783,13 @@ function _M0IP36mizchi6kagura8platform17WebCanvasPlatformP36mizchi6kagura8platfo
   return self.current_input;
 }
 function _M0FP36mizchi6kagura3gfx21double__to__f32__bits(v) {
-  const bits = _M0MP311moonbitlang4core6double6Double22reinterpret__as__int64(v);
+  const bits = _M0MPC16double6Double22reinterpret__as__int64(v);
   const ubits = bits;
-  const sign = _M0MP311moonbitlang4core5int645Int647to__int(_M0IP311moonbitlang4core6uint646UInt64P311moonbitlang4core7builtin6BitAnd4land(_M0IP311moonbitlang4core6uint646UInt64P311moonbitlang4core7builtin3Shr3shr(ubits, 63), $1L));
-  const exp = _M0MP311moonbitlang4core5int645Int647to__int(_M0IP311moonbitlang4core6uint646UInt64P311moonbitlang4core7builtin6BitAnd4land(_M0IP311moonbitlang4core6uint646UInt64P311moonbitlang4core7builtin3Shr3shr(ubits, 52), $2047L));
-  const mantissa = _M0IP311moonbitlang4core5int645Int64P311moonbitlang4core7builtin6BitAnd4land(bits, $4503599627370495L);
+  const sign = _M0MPC15int645Int647to__int(_M0IPC16uint646UInt64PB6BitAnd4land(_M0IPC16uint646UInt64PB3Shr3shr(ubits, 63), $1L));
+  const exp = _M0MPC15int645Int647to__int(_M0IPC16uint646UInt64PB6BitAnd4land(_M0IPC16uint646UInt64PB3Shr3shr(ubits, 52), $2047L));
+  const mantissa = _M0IPC15int645Int64PB6BitAnd4land(bits, $4503599627370495L);
   if (exp === 2047) {
-    return _M0IP016_24default__implP311moonbitlang4core7builtin2Eq10not__equalGlE(mantissa, $0L) ? sign << 31 | 2143289344 : sign << 31 | 2139095040;
+    return _M0IP016_24default__implPB2Eq10not__equalGlE(mantissa, $0L) ? sign << 31 | 2143289344 : sign << 31 | 2139095040;
   } else {
     if (exp === 0) {
       return sign << 31;
@@ -6717,7 +6801,7 @@ function _M0FP36mizchi6kagura3gfx21double__to__f32__bits(v) {
         if (f32_exp <= 0) {
           return sign << 31;
         } else {
-          const f32_mantissa = _M0MP311moonbitlang4core5int645Int647to__int(_M0IP311moonbitlang4core6uint646UInt64P311moonbitlang4core7builtin3Shr3shr(mantissa, 29));
+          const f32_mantissa = _M0MPC15int645Int647to__int(_M0IPC16uint646UInt64PB3Shr3shr(mantissa, 29));
           return sign << 31 | f32_exp << 23 | f32_mantissa;
         }
       }
@@ -6789,30 +6873,30 @@ function _M0FP36mizchi6kagura3gfx24builtin__sample__snippet(filter) {
   }
 }
 function _M0FP36mizchi6kagura3gfx26builtin__color__m__snippet(use_color_m) {
-  return use_color_m ? `let color_m = mat4x4f(\n    vec4f(1.0, 0.0, 0.0, 0.0),\n    vec4f(0.0, 1.0, 0.0, 0.0),\n    vec4f(0.0, 0.0, 1.0, 0.0),\n    vec4f(0.0, 0.0, 0.0, 1.0),\n  );\n  color = color_m * color;` : "// color matrix disabled";
+  return use_color_m ? "let color_m = mat4x4f(\n    vec4f(1.0, 0.0, 0.0, 0.0),\n    vec4f(0.0, 1.0, 0.0, 0.0),\n    vec4f(0.0, 0.0, 1.0, 0.0),\n    vec4f(0.0, 0.0, 0.0, 1.0),\n  );\n  color = color_m * color;" : "// color matrix disabled";
 }
 function _M0FP36mizchi6kagura3gfx30build__builtin__shader__source(key) {
   const address_snippet = _M0FP36mizchi6kagura3gfx25builtin__address__snippet(key.address);
   const sample_snippet = _M0FP36mizchi6kagura3gfx24builtin__sample__snippet(key.filter);
   const color_m_snippet = _M0FP36mizchi6kagura3gfx26builtin__color__m__snippet(key.use_color_m);
   const color_m_tag = key.use_color_m ? "on" : "off";
-  const header = `// kagura builtin shader\n// filter:${_M0IP311moonbitlang4core6string6StringP311moonbitlang4core7builtin4Show10to__string(_M0FP36mizchi6kagura3gfx20builtin__filter__tag(key.filter))}\n// address:${_M0IP311moonbitlang4core6string6StringP311moonbitlang4core7builtin4Show10to__string(_M0FP36mizchi6kagura3gfx21builtin__address__tag(key.address))}\n// color_m:${_M0IP311moonbitlang4core6string6StringP311moonbitlang4core7builtin4Show10to__string(color_m_tag)}\n`;
-  const bindings = `@group(0) @binding(0) var tex: texture_2d<f32>;\n@group(0) @binding(1) var nearest_sampler: sampler;\n@group(0) @binding(2) var linear_sampler: sampler;\n\n`;
-  const structs = `struct VertexOutput {\n  @builtin(position) pos: vec4f,\n  @location(0) uv: vec2f,\n};\n\n`;
-  const body = `@fragment\nfn fs_main(in: VertexOutput) -> @location(0) vec4f {\n  let uv = in.uv;\n  ${_M0IP311moonbitlang4core6string6StringP311moonbitlang4core7builtin4Show10to__string(address_snippet)}\n  var color = ${_M0IP311moonbitlang4core6string6StringP311moonbitlang4core7builtin4Show10to__string(sample_snippet)};\n  ${_M0IP311moonbitlang4core6string6StringP311moonbitlang4core7builtin4Show10to__string(color_m_snippet)}\n  return color;\n}\n`;
+  const header = `// kagura builtin shader\n// filter:${_M0IPC16string6StringPB4Show10to__string(_M0FP36mizchi6kagura3gfx20builtin__filter__tag(key.filter))}\n// address:${_M0IPC16string6StringPB4Show10to__string(_M0FP36mizchi6kagura3gfx21builtin__address__tag(key.address))}\n// color_m:${_M0IPC16string6StringPB4Show10to__string(color_m_tag)}\n`;
+  const bindings = "@group(0) @binding(0) var tex: texture_2d<f32>;\n@group(0) @binding(1) var nearest_sampler: sampler;\n@group(0) @binding(2) var linear_sampler: sampler;\n\n";
+  const structs = "struct VertexOutput {\n  @builtin(position) pos: vec4f,\n  @location(0) uv: vec2f,\n};\n\n";
+  const body = `@fragment\nfn fs_main(in: VertexOutput) -> @location(0) vec4f {\n  let uv = in.uv;\n  ${_M0IPC16string6StringPB4Show10to__string(address_snippet)}\n  var color = ${_M0IPC16string6StringPB4Show10to__string(sample_snippet)};\n  ${_M0IPC16string6StringPB4Show10to__string(color_m_snippet)}\n  return color;\n}\n`;
   return `${header}${bindings}${structs}${body}`;
 }
 function _M0FP36mizchi6kagura3gfx32default__builtin__shader__source() {
-  return _M0FP36mizchi6kagura3gfx30build__builtin__shader__source({ filter: 0, address: 0, use_color_m: false });
+  return _M0FP36mizchi6kagura3gfx30build__builtin__shader__source(new _M0TP36mizchi6kagura3gfx16BuiltinShaderKey(0, 0, false));
 }
 function _M0FP36mizchi6kagura3gfx16new__dst__region(x, y, width, height, index_count) {
-  return { x: x, y: y, width: width, height: height, index_count: index_count };
+  return new _M0TP36mizchi6kagura3gfx9DstRegion(x, y, width, height, index_count);
 }
 function _M0FP36mizchi6kagura3gfx10new__color(r, g, b, a) {
-  return { r: r, g: g, b: b, a: a };
+  return new _M0TP36mizchi6kagura3gfx5Color(r, g, b, a);
 }
 function _M0FP36mizchi6kagura3gfx31new__render__pass__desc_2einner(clear_color, clear_enabled, present) {
-  return { clear_color: clear_color, clear_enabled: clear_enabled, present: present };
+  return new _M0TP36mizchi6kagura3gfx14RenderPassDesc(clear_color, clear_enabled, present);
 }
 function _M0FP36mizchi6kagura3gfx20blend__mode__to__int(mode) {
   switch (mode.$tag) {
@@ -6836,45 +6920,44 @@ function _M0FP36mizchi6kagura3gfx20blend__mode__to__int(mode) {
 function _M0FP36mizchi6kagura3gfx22blend__mode__from__int(mode) {
   switch (mode) {
     case 0: {
-      return $64$mizchi$47$kagura$47$gfx$46$BlendMode$Copy;
+      return _M0DTP36mizchi6kagura3gfx9BlendMode4Copy__;
     }
     case 1: {
-      return $64$mizchi$47$kagura$47$gfx$46$BlendMode$Alpha;
+      return _M0DTP36mizchi6kagura3gfx9BlendMode5Alpha__;
     }
     case 2: {
-      return $64$mizchi$47$kagura$47$gfx$46$BlendMode$Add;
+      return _M0DTP36mizchi6kagura3gfx9BlendMode3Add__;
     }
     case 3: {
-      return $64$mizchi$47$kagura$47$gfx$46$BlendMode$Multiply;
+      return _M0DTP36mizchi6kagura3gfx9BlendMode8Multiply__;
     }
     default: {
-      return $64$mizchi$47$kagura$47$gfx$46$BlendMode$Alpha;
+      return _M0DTP36mizchi6kagura3gfx9BlendMode5Alpha__;
     }
   }
 }
 function _M0FP36mizchi6kagura3gfx18new__image__handle(id, width, height) {
-  return { id: id, width: width, height: height };
+  return new _M0TP36mizchi6kagura3gfx11ImageHandle(id, width, height);
 }
 function _M0FP36mizchi6kagura3gfx19new__shader__handle(id, source) {
-  return { id: id, source: source };
+  return new _M0TP36mizchi6kagura3gfx12ShaderHandle(id, source);
 }
 function _M0FP36mizchi6kagura3gfx37new__draw__triangles__command_2einner(dst, shader, dst_regions, index_offset, pipeline_id, uniform_hash, blend, vertex_data, indices, src_image_ids, uniform_dwords, instance_count, resource_cache_key) {
-  return { dst: dst, shader: shader, dst_regions: dst_regions, index_offset: index_offset, pipeline_id: pipeline_id, uniform_hash: uniform_hash, blend: blend, vertex_data: vertex_data, indices: indices, src_image_ids: src_image_ids, uniform_dwords: uniform_dwords, instance_count: instance_count, resource_cache_key: resource_cache_key };
+  return new _M0TP36mizchi6kagura3gfx20DrawTrianglesCommand(dst, shader, dst_regions, index_offset, pipeline_id, uniform_hash, blend, vertex_data, indices, src_image_ids, uniform_dwords, instance_count, resource_cache_key);
 }
 function _M0FP36mizchi6kagura3gfx25mix__resource__cache__key(seed, value) {
   return ((Math.imul(seed, 16777619) | 0) + value | 0) + 31 | 0;
 }
 function _M0FP36mizchi6kagura3gfx27build__resource__cache__key(seed, values) {
-  const hash = { val: seed === 0 ? 146959810 : seed };
-  const _arr = values;
-  const _len = _arr.length;
+  const hash = new _M0TPC13ref3RefGiE(seed === 0 ? 146959810 : seed);
+  const _bind = values.length;
   let _tmp = 0;
   while (true) {
-    const _i = _tmp;
-    if (_i < _len) {
-      const value = _arr[_i];
+    const _ = _tmp;
+    if (_ < _bind) {
+      const value = values[_];
       hash.val = _M0FP36mizchi6kagura3gfx25mix__resource__cache__key(hash.val, value);
-      _tmp = _i + 1 | 0;
+      _tmp = _ + 1 | 0;
       continue;
     } else {
       break;
@@ -6883,10 +6966,10 @@ function _M0FP36mizchi6kagura3gfx27build__resource__cache__key(seed, values) {
   return hash.val === 0 ? 1 : hash.val;
 }
 function _M0FP36mizchi6kagura3gfx30default__web__on__read__pixels(_active, _kind, _x, _y, _width, _height) {
-  return Option$None$4$;
+  return _M0DTPC16option6OptionGRPB5ArrayGiEE4None__;
 }
 function _M0FP36mizchi6kagura3gfx25new__web__graphics__hooks(try_initialize, on_begin, on_end, on_draw, on_resize) {
-  return { try_initialize: try_initialize, on_begin: on_begin, on_end: on_end, on_draw: on_draw, on_resize: on_resize, on_read_pixels: _M0FP36mizchi6kagura3gfx30default__web__on__read__pixels };
+  return new _M0TP36mizchi6kagura3gfx16WebGraphicsHooks(try_initialize, on_begin, on_end, on_draw, on_resize, _M0FP36mizchi6kagura3gfx30default__web__on__read__pixels);
 }
 function _M0FP36mizchi6kagura3gfx29default__web__try__initialize(_kind, _width, _height) {
   return false;
@@ -6926,10 +7009,10 @@ function _M0FP36mizchi6kagura3gfx25web__graphics__on__resize(active, kind, width
 }
 function _M0FP36mizchi6kagura3gfx31default__native__on__new__image(_active, _image_id, _width, _height) {}
 function _M0FP36mizchi6kagura3gfx33default__native__on__read__pixels(_active, _x, _y, _width, _height) {
-  return Option$None$4$;
+  return _M0DTPC16option6OptionGRPB5ArrayGiEE4None__;
 }
 function _M0FP36mizchi6kagura3gfx28new__native__graphics__hooks(try_initialize, on_begin, on_end, on_draw, on_resize) {
-  return { try_initialize: try_initialize, on_begin: on_begin, on_end: on_end, on_draw: on_draw, on_resize: on_resize, on_read_pixels: _M0FP36mizchi6kagura3gfx33default__native__on__read__pixels, on_new_image: _M0FP36mizchi6kagura3gfx31default__native__on__new__image };
+  return new _M0TP36mizchi6kagura3gfx19NativeGraphicsHooks(try_initialize, on_begin, on_end, on_draw, on_resize, _M0FP36mizchi6kagura3gfx33default__native__on__read__pixels, _M0FP36mizchi6kagura3gfx31default__native__on__new__image);
 }
 function _M0FP36mizchi6kagura3gfx32default__native__try__initialize(_width, _height) {
   return false;
@@ -6966,17 +7049,17 @@ function _M0FP36mizchi6kagura3gfx22native__on__new__image(active, image_id, widt
   _func(active, image_id, width, height);
 }
 function _M0FP36mizchi6kagura3gfx35default__graphics__backend__options() {
-  return { enable_validation: true, prefer_low_power: false, enable_vsync: true };
+  return new _M0TP36mizchi6kagura3gfx22GraphicsBackendOptions(true, false, true);
 }
 function _M0FP36mizchi6kagura3gfx23default__clock__now__ms() {
   return 0;
 }
 function _M0FP36mizchi6kagura3gfx24create__webgpu__graphics(surface, options) {
-  return { backend: 1, width: surface.width, height: surface.height, initialized: false, native_active: false, web_active: false, next_id: 0, begin_count: 0, end_count: 0, draw_count: 0, resize_count: 0, resize_suppressed_count: 0, last_resize_duration_ms: 0, total_resize_duration_ms: 0 };
+  return new _M0TP36mizchi6kagura3gfx18StubGraphicsDriver(1, surface.width, surface.height, false, false, false, 0, 0, 0, 0, 0, 0, 0, 0);
 }
 function _M0IP36mizchi6kagura3gfx18StubGraphicsDriverP36mizchi6kagura3gfx14GraphicsDriver10initialize(self) {
   if (self.initialized) {
-    return new Result$Ok$3$(undefined);
+    return new _M0DTPC16result6ResultGuRPC15error5ErrorE2Ok(undefined);
   }
   _L: {
     _L$2: {
@@ -6998,7 +7081,7 @@ function _M0IP36mizchi6kagura3gfx18StubGraphicsDriverP36mizchi6kagura3gfx14Graph
     self.web_active = _M0FP36mizchi6kagura3gfx30web__graphics__try__initialize(self.backend, self.width, self.height);
   }
   self.initialized = true;
-  return new Result$Ok$3$(undefined);
+  return new _M0DTPC16result6ResultGuRPC15error5ErrorE2Ok(undefined);
 }
 function _M0IP36mizchi6kagura3gfx18StubGraphicsDriverP36mizchi6kagura3gfx14GraphicsDriver5begin(self, pass) {
   self.backend;
@@ -7024,7 +7107,7 @@ function _M0IP36mizchi6kagura3gfx18StubGraphicsDriverP36mizchi6kagura3gfx14Graph
     _M0FP36mizchi6kagura3gfx17native__on__begin(self.native_active, pass);
     _M0FP36mizchi6kagura3gfx24web__graphics__on__begin(self.web_active, self.backend, pass);
   }
-  return new Result$Ok$3$(undefined);
+  return new _M0DTPC16result6ResultGuRPC15error5ErrorE2Ok(undefined);
 }
 function _M0IP36mizchi6kagura3gfx18StubGraphicsDriverP36mizchi6kagura3gfx14GraphicsDriver3end(self, present) {
   if (self.initialized) {
@@ -7032,14 +7115,14 @@ function _M0IP36mizchi6kagura3gfx18StubGraphicsDriverP36mizchi6kagura3gfx14Graph
     _M0FP36mizchi6kagura3gfx15native__on__end(self.native_active, present);
     _M0FP36mizchi6kagura3gfx22web__graphics__on__end(self.web_active, self.backend, present);
   }
-  return new Result$Ok$3$(undefined);
+  return new _M0DTPC16result6ResultGuRPC15error5ErrorE2Ok(undefined);
 }
 function _M0IP36mizchi6kagura3gfx18StubGraphicsDriverP36mizchi6kagura3gfx14GraphicsDriver6resize(self, width, height) {
   const next_width = width <= 0 ? 1 : width;
   const next_height = height <= 0 ? 1 : height;
   if (self.width === next_width && self.height === next_height) {
     self.resize_suppressed_count = self.resize_suppressed_count + 1 | 0;
-    return new Result$Ok$3$(undefined);
+    return new _M0DTPC16result6ResultGuRPC15error5ErrorE2Ok(undefined);
   }
   const _func = _M0FP36mizchi6kagura3gfx25graphics__clock__provider.val;
   const t0 = _func();
@@ -7055,16 +7138,16 @@ function _M0IP36mizchi6kagura3gfx18StubGraphicsDriverP36mizchi6kagura3gfx14Graph
   const duration = t1 - t0;
   self.last_resize_duration_ms = duration;
   self.total_resize_duration_ms = self.total_resize_duration_ms + duration;
-  return new Result$Ok$3$(undefined);
+  return new _M0DTPC16result6ResultGuRPC15error5ErrorE2Ok(undefined);
 }
 function _M0IP36mizchi6kagura3gfx18StubGraphicsDriverP36mizchi6kagura3gfx14GraphicsDriver10new__image(self, width, height) {
   self.next_id = self.next_id + 1 | 0;
   _M0FP36mizchi6kagura3gfx22native__on__new__image(self.native_active, self.next_id, width, height);
-  return new Result$Ok$5$({ id: self.next_id, width: width, height: height });
+  return new _M0DTPC16result6ResultGRP36mizchi6kagura3gfx11ImageHandleRPC15error5ErrorE2Ok(new _M0TP36mizchi6kagura3gfx11ImageHandle(self.next_id, width, height));
 }
 function _M0IP36mizchi6kagura3gfx18StubGraphicsDriverP36mizchi6kagura3gfx14GraphicsDriver11new__shader(self, source) {
   self.next_id = self.next_id + 1 | 0;
-  return new Result$Ok$6$({ id: self.next_id, source: source });
+  return new _M0DTPC16result6ResultGRP36mizchi6kagura3gfx12ShaderHandleRPC15error5ErrorE2Ok(new _M0TP36mizchi6kagura3gfx12ShaderHandle(self.next_id, source));
 }
 function _M0IP36mizchi6kagura3gfx18StubGraphicsDriverP36mizchi6kagura3gfx14GraphicsDriver15draw__triangles(self, command) {
   if (self.initialized) {
@@ -7072,21 +7155,20 @@ function _M0IP36mizchi6kagura3gfx18StubGraphicsDriverP36mizchi6kagura3gfx14Graph
     _M0FP36mizchi6kagura3gfx16native__on__draw(self.native_active, command);
     _M0FP36mizchi6kagura3gfx23web__graphics__on__draw(self.web_active, self.backend, command);
   }
-  return new Result$Ok$3$(undefined);
+  return new _M0DTPC16result6ResultGuRPC15error5ErrorE2Ok(undefined);
 }
 function _M0FP36mizchi6kagura9inpututil13contains__key(keys, key) {
-  const found = { val: false };
-  const _arr = keys;
-  const _len = _arr.length;
+  const found = new _M0TPC13ref3RefGbE(false);
+  const _bind = keys.length;
   let _tmp = 0;
   while (true) {
-    const _i = _tmp;
-    if (_i < _len) {
-      const current = _arr[_i];
+    const _ = _tmp;
+    if (_ < _bind) {
+      const current = keys[_];
       if (current === key) {
         found.val = true;
       }
-      _tmp = _i + 1 | 0;
+      _tmp = _ + 1 | 0;
       continue;
     } else {
       break;
@@ -7096,17 +7178,16 @@ function _M0FP36mizchi6kagura9inpututil13contains__key(keys, key) {
 }
 function _M0FP36mizchi6kagura9inpututil24normalize__pressed__keys(keys) {
   const out = [];
-  const _arr = keys;
-  const _len = _arr.length;
+  const _bind = keys.length;
   let _tmp = 0;
   while (true) {
-    const _i = _tmp;
-    if (_i < _len) {
-      const key = _arr[_i];
+    const _ = _tmp;
+    if (_ < _bind) {
+      const key = keys[_];
       if (!_M0FP36mizchi6kagura9inpututil13contains__key(out, key)) {
-        _M0MP311moonbitlang4core5array5Array4pushGiE(out, key);
+        _M0MPC15array5Array4pushGiE(out, key);
       }
-      _tmp = _i + 1 | 0;
+      _tmp = _ + 1 | 0;
       continue;
     } else {
       break;
@@ -7115,18 +7196,17 @@ function _M0FP36mizchi6kagura9inpututil24normalize__pressed__keys(keys) {
   return out;
 }
 function _M0FP36mizchi6kagura9inpututil18duration__for__key(entries, key) {
-  const out = { val: 0 };
-  const _arr = entries;
-  const _len = _arr.length;
+  const out = new _M0TPC13ref3RefGiE(0);
+  const _bind = entries.length;
   let _tmp = 0;
   while (true) {
-    const _i = _tmp;
-    if (_i < _len) {
-      const entry = _arr[_i];
+    const _ = _tmp;
+    if (_ < _bind) {
+      const entry = entries[_];
       if (entry.key === key) {
         out.val = entry.duration;
       }
-      _tmp = _i + 1 | 0;
+      _tmp = _ + 1 | 0;
       continue;
     } else {
       break;
@@ -7135,21 +7215,20 @@ function _M0FP36mizchi6kagura9inpututil18duration__for__key(entries, key) {
   return out.val;
 }
 function _M0FP36mizchi6kagura9inpututil22new__key__input__state() {
-  return { prev_pressed_keys: [], pressed_keys: [], just_pressed_keys: [], just_released_keys: [], durations: [] };
+  return new _M0TP36mizchi6kagura9inpututil13KeyInputState([], [], [], [], []);
 }
 function _M0FP36mizchi6kagura9inpututil28duration__for__mouse__button(entries, button) {
-  const out = { val: 0 };
-  const _arr = entries;
-  const _len = _arr.length;
+  const out = new _M0TPC13ref3RefGiE(0);
+  const _bind = entries.length;
   let _tmp = 0;
   while (true) {
-    const _i = _tmp;
-    if (_i < _len) {
-      const entry = _arr[_i];
+    const _ = _tmp;
+    if (_ < _bind) {
+      const entry = entries[_];
       if (entry.button === button) {
         out.val = entry.duration;
       }
-      _tmp = _i + 1 | 0;
+      _tmp = _ + 1 | 0;
       continue;
     } else {
       break;
@@ -7158,56 +7237,53 @@ function _M0FP36mizchi6kagura9inpututil28duration__for__mouse__button(entries, b
   return out.val;
 }
 function _M0FP36mizchi6kagura9inpututil24new__mouse__input__state() {
-  return { prev_pressed_buttons: [], pressed_buttons: [], just_pressed_buttons: [], just_released_buttons: [], durations: [] };
+  return new _M0TP36mizchi6kagura9inpututil21MouseButtonInputState([], [], [], [], []);
 }
 function _M0FP36mizchi6kagura9inpututil25update__key__input__state(state, snapshot) {
   const prev_pressed = state.pressed_keys;
   const next_pressed = _M0FP36mizchi6kagura9inpututil24normalize__pressed__keys(snapshot.pressed_keys);
   const just_pressed = [];
-  const _arr = next_pressed;
-  const _len = _arr.length;
+  const _bind = next_pressed.length;
   let _tmp = 0;
   while (true) {
-    const _i = _tmp;
-    if (_i < _len) {
-      const key = _arr[_i];
+    const _ = _tmp;
+    if (_ < _bind) {
+      const key = next_pressed[_];
       if (!_M0FP36mizchi6kagura9inpututil13contains__key(prev_pressed, key)) {
-        _M0MP311moonbitlang4core5array5Array4pushGiE(just_pressed, key);
+        _M0MPC15array5Array4pushGiE(just_pressed, key);
       }
-      _tmp = _i + 1 | 0;
+      _tmp = _ + 1 | 0;
       continue;
     } else {
       break;
     }
   }
   const just_released = [];
-  const _arr$2 = prev_pressed;
-  const _len$2 = _arr$2.length;
+  const _bind$2 = prev_pressed.length;
   let _tmp$2 = 0;
   while (true) {
-    const _i = _tmp$2;
-    if (_i < _len$2) {
-      const key = _arr$2[_i];
+    const _ = _tmp$2;
+    if (_ < _bind$2) {
+      const key = prev_pressed[_];
       if (!_M0FP36mizchi6kagura9inpututil13contains__key(next_pressed, key)) {
-        _M0MP311moonbitlang4core5array5Array4pushGiE(just_released, key);
+        _M0MPC15array5Array4pushGiE(just_released, key);
       }
-      _tmp$2 = _i + 1 | 0;
+      _tmp$2 = _ + 1 | 0;
       continue;
     } else {
       break;
     }
   }
   const next_durations = [];
-  const _arr$3 = next_pressed;
-  const _len$3 = _arr$3.length;
+  const _bind$3 = next_pressed.length;
   let _tmp$3 = 0;
   while (true) {
-    const _i = _tmp$3;
-    if (_i < _len$3) {
-      const key = _arr$3[_i];
+    const _ = _tmp$3;
+    if (_ < _bind$3) {
+      const key = next_pressed[_];
       const duration = _M0FP36mizchi6kagura9inpututil13contains__key(prev_pressed, key) ? _M0FP36mizchi6kagura9inpututil18duration__for__key(state.durations, key) + 1 | 0 : 1;
-      _M0MP311moonbitlang4core5array5Array4pushGRP36mizchi6kagura9inpututil16KeyDurationEntryE(next_durations, { key: key, duration: duration });
-      _tmp$3 = _i + 1 | 0;
+      _M0MPC15array5Array4pushGRP36mizchi6kagura4core10TouchPointE(next_durations, new _M0TP36mizchi6kagura9inpututil16KeyDurationEntry(key, duration));
+      _tmp$3 = _ + 1 | 0;
       continue;
     } else {
       break;
@@ -7223,50 +7299,47 @@ function _M0FP36mizchi6kagura9inpututil27update__mouse__input__state(state, snap
   const prev_pressed = state.pressed_buttons;
   const next_pressed = _M0FP36mizchi6kagura9inpututil24normalize__pressed__keys(snapshot.pressed_mouse_buttons);
   const just_pressed = [];
-  const _arr = next_pressed;
-  const _len = _arr.length;
+  const _bind = next_pressed.length;
   let _tmp = 0;
   while (true) {
-    const _i = _tmp;
-    if (_i < _len) {
-      const button = _arr[_i];
+    const _ = _tmp;
+    if (_ < _bind) {
+      const button = next_pressed[_];
       if (!_M0FP36mizchi6kagura9inpututil13contains__key(prev_pressed, button)) {
-        _M0MP311moonbitlang4core5array5Array4pushGiE(just_pressed, button);
+        _M0MPC15array5Array4pushGiE(just_pressed, button);
       }
-      _tmp = _i + 1 | 0;
+      _tmp = _ + 1 | 0;
       continue;
     } else {
       break;
     }
   }
   const just_released = [];
-  const _arr$2 = prev_pressed;
-  const _len$2 = _arr$2.length;
+  const _bind$2 = prev_pressed.length;
   let _tmp$2 = 0;
   while (true) {
-    const _i = _tmp$2;
-    if (_i < _len$2) {
-      const button = _arr$2[_i];
+    const _ = _tmp$2;
+    if (_ < _bind$2) {
+      const button = prev_pressed[_];
       if (!_M0FP36mizchi6kagura9inpututil13contains__key(next_pressed, button)) {
-        _M0MP311moonbitlang4core5array5Array4pushGiE(just_released, button);
+        _M0MPC15array5Array4pushGiE(just_released, button);
       }
-      _tmp$2 = _i + 1 | 0;
+      _tmp$2 = _ + 1 | 0;
       continue;
     } else {
       break;
     }
   }
   const next_durations = [];
-  const _arr$3 = next_pressed;
-  const _len$3 = _arr$3.length;
+  const _bind$3 = next_pressed.length;
   let _tmp$3 = 0;
   while (true) {
-    const _i = _tmp$3;
-    if (_i < _len$3) {
-      const button = _arr$3[_i];
+    const _ = _tmp$3;
+    if (_ < _bind$3) {
+      const button = next_pressed[_];
       const duration = _M0FP36mizchi6kagura9inpututil13contains__key(prev_pressed, button) ? _M0FP36mizchi6kagura9inpututil28duration__for__mouse__button(state.durations, button) + 1 | 0 : 1;
-      _M0MP311moonbitlang4core5array5Array4pushGRP36mizchi6kagura9inpututil24MouseButtonDurationEntryE(next_durations, { button: button, duration: duration });
-      _tmp$3 = _i + 1 | 0;
+      _M0MPC15array5Array4pushGRP36mizchi6kagura4core10TouchPointE(next_durations, new _M0TP36mizchi6kagura9inpututil24MouseButtonDurationEntry(button, duration));
+      _tmp$3 = _ + 1 | 0;
       continue;
     } else {
       break;
@@ -7484,7 +7557,7 @@ function _M0FP36mizchi6kagura9debugutil14glyph__pattern(ch) {
   return [1, 1, 1, 1, 0, 1, 1, 1, 1, 0, 0, 1, 1, 1, 1];
 }
 function _M0FP36mizchi6kagura9debugutil26color__to__uniform__dwords(color) {
-  return [_M0MP311moonbitlang4core6double6Double7to__int(color.r * 255), _M0MP311moonbitlang4core6double6Double7to__int(color.g * 255), _M0MP311moonbitlang4core6double6Double7to__int(color.b * 255), _M0MP311moonbitlang4core6double6Double7to__int(color.a * 255)];
+  return [_M0MPC16double6Double7to__int(color.r * 255), _M0MPC16double6Double7to__int(color.g * 255), _M0MPC16double6Double7to__int(color.b * 255), _M0MPC16double6Double7to__int(color.a * 255)];
 }
 function _M0FP36mizchi6kagura9debugutil25ndc__rect__fill__vertices(px, py, pw, ph, screen_w, screen_h) {
   const x0 = px / screen_w * 2 - 1;
@@ -7507,7 +7580,7 @@ function _M0FP36mizchi6kagura9debugutil29new__ndc__rect__fill__command(dst, shad
     break _L;
   }
   const uniform = _M0FP36mizchi6kagura9debugutil26color__to__uniform__dwords(color);
-  return _M0FP36mizchi6kagura3gfx37new__draw__triangles__command_2einner(dst, shader, [_M0FP36mizchi6kagura3gfx16new__dst__region(0, 0, _M0MP311moonbitlang4core6double6Double7to__int(screen_w), _M0MP311moonbitlang4core6double6Double7to__int(screen_h), 6)], 0, pipeline_id, 0, _M0FP36mizchi6kagura3gfx22blend__mode__from__int(1), vertices, indices, [], uniform, 1, 0);
+  return _M0FP36mizchi6kagura3gfx37new__draw__triangles__command_2einner(dst, shader, [_M0FP36mizchi6kagura3gfx16new__dst__region(0, 0, _M0MPC16double6Double7to__int(screen_w), _M0MPC16double6Double7to__int(screen_h), 6)], 0, pipeline_id, 0, _M0FP36mizchi6kagura3gfx22blend__mode__from__int(1), vertices, indices, [], uniform, 1, 0);
 }
 function _M0FP36mizchi6kagura9debugutil15draw__dot__text(cmds, dst, shader, chars, cx, cy, sw, sh, color, scale) {
   const px_size = 3 * scale;
@@ -7521,7 +7594,7 @@ function _M0FP36mizchi6kagura9debugutil15draw__dot__text(cmds, dst, shader, char
   while (true) {
     const i = _tmp;
     if (i < chars.length) {
-      const pattern = _M0FP36mizchi6kagura9debugutil14glyph__pattern(_M0MP311moonbitlang4core5array5Array2atGiE(chars, i));
+      const pattern = _M0FP36mizchi6kagura9debugutil14glyph__pattern(_M0MPC15array5Array2atGiE(chars, i));
       const ox = start_x + (i + 0) * (char_w + gap);
       let _tmp$2 = 0;
       while (true) {
@@ -7531,10 +7604,10 @@ function _M0FP36mizchi6kagura9debugutil15draw__dot__text(cmds, dst, shader, char
           while (true) {
             const col = _tmp$3;
             if (col < 3) {
-              if (_M0MP311moonbitlang4core5array5Array2atGiE(pattern, (Math.imul(row, 3) | 0) + col | 0) === 1) {
+              if (_M0MPC15array5Array2atGiE(pattern, (Math.imul(row, 3) | 0) + col | 0) === 1) {
                 const x = ox + (col + 0) * px_size;
                 const y = start_y + (row + 0) * px_size;
-                _M0MP311moonbitlang4core5array5Array4pushGRP36mizchi6kagura3gfx20DrawTrianglesCommandE(cmds, _M0FP36mizchi6kagura9debugutil29new__ndc__rect__fill__command(dst, shader, x, y, px_size, px_size, sw, sh, color, 0));
+                _M0MPC15array5Array4pushGRP36mizchi6kagura4core10TouchPointE(cmds, _M0FP36mizchi6kagura9debugutil29new__ndc__rect__fill__command(dst, shader, x, y, px_size, px_size, sw, sh, color, 0));
               }
               _tmp$3 = col + 1 | 0;
               continue;
@@ -7580,21 +7653,20 @@ function _M0FP36mizchi6kagura9debugutil16render__commandsGRP36mizchi6kagura3gfx1
   } else {
     return _bind;
   }
-  const _arr = cmds;
-  const _len = _arr.length;
+  const _bind$2 = cmds.length;
   let _tmp = 0;
   while (true) {
-    const _i = _tmp;
-    if (_i < _len) {
-      const cmd = _arr[_i];
-      const _bind$2 = _M0IP36mizchi6kagura3gfx18StubGraphicsDriverP36mizchi6kagura3gfx14GraphicsDriver15draw__triangles(graphics, cmd);
-      if (_bind$2.$tag === 1) {
-        const _ok = _bind$2;
+    const _ = _tmp;
+    if (_ < _bind$2) {
+      const cmd = cmds[_];
+      const _bind$3 = _M0IP36mizchi6kagura3gfx18StubGraphicsDriverP36mizchi6kagura3gfx14GraphicsDriver15draw__triangles(graphics, cmd);
+      if (_bind$3.$tag === 1) {
+        const _ok = _bind$3;
         _ok._0;
       } else {
-        return _bind$2;
+        return _bind$3;
       }
-      _tmp = _i + 1 | 0;
+      _tmp = _ + 1 | 0;
       continue;
     } else {
       break;
@@ -7603,13 +7675,13 @@ function _M0FP36mizchi6kagura9debugutil16render__commandsGRP36mizchi6kagura3gfx1
   return _M0IP36mizchi6kagura3gfx18StubGraphicsDriverP36mizchi6kagura3gfx14GraphicsDriver3end(graphics, true);
 }
 function _M0MP36mizchi6kagura7light3d16DirectionalLight7default() {
-  return { direction: _M0MP36mizchi6kagura6math3d4Vec33new(0, -1, 0), color: _M0MP36mizchi6kagura6math3d4Vec33one(), intensity: 1 };
+  return new _M0TP36mizchi6kagura7light3d16DirectionalLight(_M0MP36mizchi6kagura6math3d4Vec33new(0, -1, 0), _M0MP36mizchi6kagura6math3d4Vec33one(), 1);
 }
 function _M0MP36mizchi6kagura7light3d12AmbientLight7default() {
-  return { color: _M0MP36mizchi6kagura6math3d4Vec33one(), intensity: 0.2 };
+  return new _M0TP36mizchi6kagura7light3d12AmbientLight(_M0MP36mizchi6kagura6math3d4Vec33one(), 0.2);
 }
 function _M0MP36mizchi6kagura7light3d19LightingEnvironment7default() {
-  return { directional: _M0MP36mizchi6kagura7light3d16DirectionalLight7default(), ambient: _M0MP36mizchi6kagura7light3d12AmbientLight7default(), point_lights: [], spot_lights: [] };
+  return new _M0TP36mizchi6kagura7light3d19LightingEnvironment(_M0MP36mizchi6kagura7light3d16DirectionalLight7default(), _M0MP36mizchi6kagura7light3d12AmbientLight7default(), [], []);
 }
 function _M0FP36mizchi6kagura7light3d3f32(v) {
   return _M0FP36mizchi6kagura3gfx21double__to__f32__bits(v);
@@ -7653,14 +7725,14 @@ function _M0FP36mizchi6kagura7light3d31normal__matrix__uniform__dwords(model) {
   return [_tmp$2, _tmp$4, _tmp$6, _tmp$7, _tmp$9, _tmp$11, _tmp$13, _tmp$14, _tmp$16, _tmp$18, _M0FP36mizchi6kagura7light3d3f32(_tmp$19[10]), _M0FP36mizchi6kagura7light3d3f32(0)];
 }
 function _M0FP36mizchi6kagura6mesh3d12push__vertex(data, px, py, pz, nx, ny, nz, u, v) {
-  _M0MP311moonbitlang4core5array5Array4pushGdE(data, px);
-  _M0MP311moonbitlang4core5array5Array4pushGdE(data, py);
-  _M0MP311moonbitlang4core5array5Array4pushGdE(data, pz);
-  _M0MP311moonbitlang4core5array5Array4pushGdE(data, nx);
-  _M0MP311moonbitlang4core5array5Array4pushGdE(data, ny);
-  _M0MP311moonbitlang4core5array5Array4pushGdE(data, nz);
-  _M0MP311moonbitlang4core5array5Array4pushGdE(data, u);
-  _M0MP311moonbitlang4core5array5Array4pushGdE(data, v);
+  _M0MPC15array5Array4pushGdE(data, px);
+  _M0MPC15array5Array4pushGdE(data, py);
+  _M0MPC15array5Array4pushGdE(data, pz);
+  _M0MPC15array5Array4pushGdE(data, nx);
+  _M0MPC15array5Array4pushGdE(data, ny);
+  _M0MPC15array5Array4pushGdE(data, nz);
+  _M0MPC15array5Array4pushGdE(data, u);
+  _M0MPC15array5Array4pushGdE(data, v);
 }
 function _M0FP36mizchi6kagura6mesh3d21compute__mesh__bounds(vertex_data) {
   if (_M0FP36mizchi6kagura6mesh3d16vertex3d__stride === 0) {
@@ -7668,24 +7740,23 @@ function _M0FP36mizchi6kagura6mesh3d21compute__mesh__bounds(vertex_data) {
   }
   const vertex_count = vertex_data.length / _M0FP36mizchi6kagura6mesh3d16vertex3d__stride | 0;
   if (vertex_count === 0) {
-    return { min_x: 0, min_y: 0, min_z: 0, max_x: 0, max_y: 0, max_z: 0 };
+    return new _M0TP36mizchi6kagura6mesh3d12MeshBounds3D(0, 0, 0, 0, 0, 0);
   }
-  const min_x = { val: _M0MP311moonbitlang4core5array5Array2atGdE(vertex_data, 0) };
-  const min_y = { val: _M0MP311moonbitlang4core5array5Array2atGdE(vertex_data, 1) };
-  const min_z = { val: _M0MP311moonbitlang4core5array5Array2atGdE(vertex_data, 2) };
-  const max_x = { val: min_x.val };
-  const max_y = { val: min_y.val };
-  const max_z = { val: min_z.val };
-  const _start101 = 1;
-  const _end102 = vertex_count;
-  let _tmp = _start101;
+  const min_x = new _M0TPC13ref3RefGdE(_M0MPC15array5Array2atGdE(vertex_data, 0));
+  const min_y = new _M0TPC13ref3RefGdE(_M0MPC15array5Array2atGdE(vertex_data, 1));
+  const min_z = new _M0TPC13ref3RefGdE(_M0MPC15array5Array2atGdE(vertex_data, 2));
+  const max_x = new _M0TPC13ref3RefGdE(min_x.val);
+  const max_y = new _M0TPC13ref3RefGdE(min_y.val);
+  const max_z = new _M0TPC13ref3RefGdE(min_z.val);
+  const _bind = 1;
+  let _tmp = _bind;
   while (true) {
     const i = _tmp;
-    if (i < _end102) {
+    if (i < vertex_count) {
       const base = Math.imul(i, _M0FP36mizchi6kagura6mesh3d16vertex3d__stride) | 0;
-      const x = _M0MP311moonbitlang4core5array5Array2atGdE(vertex_data, base);
-      const y = _M0MP311moonbitlang4core5array5Array2atGdE(vertex_data, base + 1 | 0);
-      const z = _M0MP311moonbitlang4core5array5Array2atGdE(vertex_data, base + 2 | 0);
+      const x = _M0MPC15array5Array2atGdE(vertex_data, base);
+      const y = _M0MPC15array5Array2atGdE(vertex_data, base + 1 | 0);
+      const z = _M0MPC15array5Array2atGdE(vertex_data, base + 2 | 0);
       if (x < min_x.val) {
         min_x.val = x;
       }
@@ -7710,94 +7781,94 @@ function _M0FP36mizchi6kagura6mesh3d21compute__mesh__bounds(vertex_data) {
       break;
     }
   }
-  return { min_x: min_x.val, min_y: min_y.val, min_z: min_z.val, max_x: max_x.val, max_y: max_y.val, max_z: max_z.val };
+  return new _M0TP36mizchi6kagura6mesh3d12MeshBounds3D(min_x.val, min_y.val, min_z.val, max_x.val, max_y.val, max_z.val);
 }
 function _M0MP36mizchi6kagura6mesh3d6Mesh3D3new(vertex_data, indices) {
-  return { vertex_data: vertex_data, indices: indices, bounds: _M0FP36mizchi6kagura6mesh3d21compute__mesh__bounds(vertex_data) };
+  return new _M0TP36mizchi6kagura6mesh3d6Mesh3D(vertex_data, indices, _M0FP36mizchi6kagura6mesh3d21compute__mesh__bounds(vertex_data));
 }
 function _M0MP36mizchi6kagura6mesh3d6Mesh3D4cube(size) {
   const h = size / 2;
   const data = [];
   const indices = [];
-  const base = { val: 0 };
+  const base = new _M0TPC13ref3RefGiE(0);
   _M0FP36mizchi6kagura6mesh3d12push__vertex(data, -h, -h, h, 0, 0, 1, 0, 1);
   _M0FP36mizchi6kagura6mesh3d12push__vertex(data, h, -h, h, 0, 0, 1, 1, 1);
   _M0FP36mizchi6kagura6mesh3d12push__vertex(data, h, h, h, 0, 0, 1, 1, 0);
   _M0FP36mizchi6kagura6mesh3d12push__vertex(data, -h, h, h, 0, 0, 1, 0, 0);
-  _M0MP311moonbitlang4core5array5Array4pushGiE(indices, base.val);
-  _M0MP311moonbitlang4core5array5Array4pushGiE(indices, base.val + 1 | 0);
-  _M0MP311moonbitlang4core5array5Array4pushGiE(indices, base.val + 2 | 0);
-  _M0MP311moonbitlang4core5array5Array4pushGiE(indices, base.val + 2 | 0);
-  _M0MP311moonbitlang4core5array5Array4pushGiE(indices, base.val + 3 | 0);
-  _M0MP311moonbitlang4core5array5Array4pushGiE(indices, base.val);
+  _M0MPC15array5Array4pushGiE(indices, base.val);
+  _M0MPC15array5Array4pushGiE(indices, base.val + 1 | 0);
+  _M0MPC15array5Array4pushGiE(indices, base.val + 2 | 0);
+  _M0MPC15array5Array4pushGiE(indices, base.val + 2 | 0);
+  _M0MPC15array5Array4pushGiE(indices, base.val + 3 | 0);
+  _M0MPC15array5Array4pushGiE(indices, base.val);
   base.val = base.val + 4 | 0;
   _M0FP36mizchi6kagura6mesh3d12push__vertex(data, h, -h, -h, 0, 0, -1, 0, 1);
   _M0FP36mizchi6kagura6mesh3d12push__vertex(data, -h, -h, -h, 0, 0, -1, 1, 1);
   _M0FP36mizchi6kagura6mesh3d12push__vertex(data, -h, h, -h, 0, 0, -1, 1, 0);
   _M0FP36mizchi6kagura6mesh3d12push__vertex(data, h, h, -h, 0, 0, -1, 0, 0);
-  _M0MP311moonbitlang4core5array5Array4pushGiE(indices, base.val);
-  _M0MP311moonbitlang4core5array5Array4pushGiE(indices, base.val + 1 | 0);
-  _M0MP311moonbitlang4core5array5Array4pushGiE(indices, base.val + 2 | 0);
-  _M0MP311moonbitlang4core5array5Array4pushGiE(indices, base.val + 2 | 0);
-  _M0MP311moonbitlang4core5array5Array4pushGiE(indices, base.val + 3 | 0);
-  _M0MP311moonbitlang4core5array5Array4pushGiE(indices, base.val);
+  _M0MPC15array5Array4pushGiE(indices, base.val);
+  _M0MPC15array5Array4pushGiE(indices, base.val + 1 | 0);
+  _M0MPC15array5Array4pushGiE(indices, base.val + 2 | 0);
+  _M0MPC15array5Array4pushGiE(indices, base.val + 2 | 0);
+  _M0MPC15array5Array4pushGiE(indices, base.val + 3 | 0);
+  _M0MPC15array5Array4pushGiE(indices, base.val);
   base.val = base.val + 4 | 0;
   _M0FP36mizchi6kagura6mesh3d12push__vertex(data, h, -h, h, 1, 0, 0, 0, 1);
   _M0FP36mizchi6kagura6mesh3d12push__vertex(data, h, -h, -h, 1, 0, 0, 1, 1);
   _M0FP36mizchi6kagura6mesh3d12push__vertex(data, h, h, -h, 1, 0, 0, 1, 0);
   _M0FP36mizchi6kagura6mesh3d12push__vertex(data, h, h, h, 1, 0, 0, 0, 0);
-  _M0MP311moonbitlang4core5array5Array4pushGiE(indices, base.val);
-  _M0MP311moonbitlang4core5array5Array4pushGiE(indices, base.val + 1 | 0);
-  _M0MP311moonbitlang4core5array5Array4pushGiE(indices, base.val + 2 | 0);
-  _M0MP311moonbitlang4core5array5Array4pushGiE(indices, base.val + 2 | 0);
-  _M0MP311moonbitlang4core5array5Array4pushGiE(indices, base.val + 3 | 0);
-  _M0MP311moonbitlang4core5array5Array4pushGiE(indices, base.val);
+  _M0MPC15array5Array4pushGiE(indices, base.val);
+  _M0MPC15array5Array4pushGiE(indices, base.val + 1 | 0);
+  _M0MPC15array5Array4pushGiE(indices, base.val + 2 | 0);
+  _M0MPC15array5Array4pushGiE(indices, base.val + 2 | 0);
+  _M0MPC15array5Array4pushGiE(indices, base.val + 3 | 0);
+  _M0MPC15array5Array4pushGiE(indices, base.val);
   base.val = base.val + 4 | 0;
   _M0FP36mizchi6kagura6mesh3d12push__vertex(data, -h, -h, -h, -1, 0, 0, 0, 1);
   _M0FP36mizchi6kagura6mesh3d12push__vertex(data, -h, -h, h, -1, 0, 0, 1, 1);
   _M0FP36mizchi6kagura6mesh3d12push__vertex(data, -h, h, h, -1, 0, 0, 1, 0);
   _M0FP36mizchi6kagura6mesh3d12push__vertex(data, -h, h, -h, -1, 0, 0, 0, 0);
-  _M0MP311moonbitlang4core5array5Array4pushGiE(indices, base.val);
-  _M0MP311moonbitlang4core5array5Array4pushGiE(indices, base.val + 1 | 0);
-  _M0MP311moonbitlang4core5array5Array4pushGiE(indices, base.val + 2 | 0);
-  _M0MP311moonbitlang4core5array5Array4pushGiE(indices, base.val + 2 | 0);
-  _M0MP311moonbitlang4core5array5Array4pushGiE(indices, base.val + 3 | 0);
-  _M0MP311moonbitlang4core5array5Array4pushGiE(indices, base.val);
+  _M0MPC15array5Array4pushGiE(indices, base.val);
+  _M0MPC15array5Array4pushGiE(indices, base.val + 1 | 0);
+  _M0MPC15array5Array4pushGiE(indices, base.val + 2 | 0);
+  _M0MPC15array5Array4pushGiE(indices, base.val + 2 | 0);
+  _M0MPC15array5Array4pushGiE(indices, base.val + 3 | 0);
+  _M0MPC15array5Array4pushGiE(indices, base.val);
   base.val = base.val + 4 | 0;
   _M0FP36mizchi6kagura6mesh3d12push__vertex(data, -h, h, h, 0, 1, 0, 0, 1);
   _M0FP36mizchi6kagura6mesh3d12push__vertex(data, h, h, h, 0, 1, 0, 1, 1);
   _M0FP36mizchi6kagura6mesh3d12push__vertex(data, h, h, -h, 0, 1, 0, 1, 0);
   _M0FP36mizchi6kagura6mesh3d12push__vertex(data, -h, h, -h, 0, 1, 0, 0, 0);
-  _M0MP311moonbitlang4core5array5Array4pushGiE(indices, base.val);
-  _M0MP311moonbitlang4core5array5Array4pushGiE(indices, base.val + 1 | 0);
-  _M0MP311moonbitlang4core5array5Array4pushGiE(indices, base.val + 2 | 0);
-  _M0MP311moonbitlang4core5array5Array4pushGiE(indices, base.val + 2 | 0);
-  _M0MP311moonbitlang4core5array5Array4pushGiE(indices, base.val + 3 | 0);
-  _M0MP311moonbitlang4core5array5Array4pushGiE(indices, base.val);
+  _M0MPC15array5Array4pushGiE(indices, base.val);
+  _M0MPC15array5Array4pushGiE(indices, base.val + 1 | 0);
+  _M0MPC15array5Array4pushGiE(indices, base.val + 2 | 0);
+  _M0MPC15array5Array4pushGiE(indices, base.val + 2 | 0);
+  _M0MPC15array5Array4pushGiE(indices, base.val + 3 | 0);
+  _M0MPC15array5Array4pushGiE(indices, base.val);
   base.val = base.val + 4 | 0;
   _M0FP36mizchi6kagura6mesh3d12push__vertex(data, -h, -h, -h, 0, -1, 0, 0, 1);
   _M0FP36mizchi6kagura6mesh3d12push__vertex(data, h, -h, -h, 0, -1, 0, 1, 1);
   _M0FP36mizchi6kagura6mesh3d12push__vertex(data, h, -h, h, 0, -1, 0, 1, 0);
   _M0FP36mizchi6kagura6mesh3d12push__vertex(data, -h, -h, h, 0, -1, 0, 0, 0);
-  _M0MP311moonbitlang4core5array5Array4pushGiE(indices, base.val);
-  _M0MP311moonbitlang4core5array5Array4pushGiE(indices, base.val + 1 | 0);
-  _M0MP311moonbitlang4core5array5Array4pushGiE(indices, base.val + 2 | 0);
-  _M0MP311moonbitlang4core5array5Array4pushGiE(indices, base.val + 2 | 0);
-  _M0MP311moonbitlang4core5array5Array4pushGiE(indices, base.val + 3 | 0);
-  _M0MP311moonbitlang4core5array5Array4pushGiE(indices, base.val);
+  _M0MPC15array5Array4pushGiE(indices, base.val);
+  _M0MPC15array5Array4pushGiE(indices, base.val + 1 | 0);
+  _M0MPC15array5Array4pushGiE(indices, base.val + 2 | 0);
+  _M0MPC15array5Array4pushGiE(indices, base.val + 2 | 0);
+  _M0MPC15array5Array4pushGiE(indices, base.val + 3 | 0);
+  _M0MPC15array5Array4pushGiE(indices, base.val);
   return _M0MP36mizchi6kagura6mesh3d6Mesh3D3new(data, indices);
 }
 function _M0FP36mizchi6kagura6draw3d25mat4__to__uniform__dwords(m) {
   const dwords = [];
-  const _start410 = 0;
-  const _end411 = 16;
-  let _tmp = _start410;
+  const _bind = 0;
+  const _bind$2 = 16;
+  let _tmp = _bind;
   while (true) {
     const i = _tmp;
-    if (i < _end411) {
+    if (i < _bind$2) {
       const _tmp$2 = m.elements;
       $bound_check(_tmp$2, i);
-      _M0MP311moonbitlang4core5array5Array4pushGiE(dwords, _M0FP36mizchi6kagura3gfx21double__to__f32__bits(_tmp$2[i]));
+      _M0MPC15array5Array4pushGiE(dwords, _M0FP36mizchi6kagura3gfx21double__to__f32__bits(_tmp$2[i]));
       _tmp = i + 1 | 0;
       continue;
     } else {
@@ -7807,20 +7878,20 @@ function _M0FP36mizchi6kagura6draw3d25mat4__to__uniform__dwords(m) {
   return dwords;
 }
 function _M0FP36mizchi6kagura6draw3d28shader3d__lit__colored__wgsl() {
-  return `struct ColoredUniforms {\n  mvp: mat4x4<f32>,\n  model: mat4x4<f32>,\n  normal0: vec4<f32>,\n  normal1: vec4<f32>,\n  normal2: vec4<f32>,\n  light_dir: vec4<f32>,\n  light_color: vec4<f32>,\n  ambient_color: vec4<f32>,\n  base_color: vec4<f32>,\n};\n\n@group(0) @binding(0) var<uniform> uniforms: ColoredUniforms;\n\nstruct VertexInput {\n  @location(0) position: vec3<f32>,\n  @location(1) normal: vec3<f32>,\n  @location(2) uv: vec2<f32>,\n};\n\nstruct VertexOutput {\n  @builtin(position) clip_position: vec4<f32>,\n  @location(0) world_normal: vec3<f32>,\n};\n\n@vertex fn vs_main(input: VertexInput) -> VertexOutput {\n  var out: VertexOutput;\n  out.clip_position = uniforms.mvp * vec4<f32>(input.position, 1.0);\n  let normal_mat = mat3x3<f32>(uniforms.normal0.xyz, uniforms.normal1.xyz, uniforms.normal2.xyz);\n  out.world_normal = normalize(normal_mat * input.normal);\n  return out;\n}\n\n@fragment fn fs_main(in: VertexOutput) -> @location(0) vec4<f32> {\n  let normal = normalize(in.world_normal);\n  let light_dir = normalize(-uniforms.light_dir.xyz);\n  let ndotl = max(dot(normal, light_dir), 0.0);\n  let diffuse = uniforms.light_color.xyz * ndotl;\n  let ambient = uniforms.ambient_color.xyz;\n  let lit_color = uniforms.base_color.rgb * (diffuse + ambient);\n  return vec4<f32>(lit_color, uniforms.base_color.a);\n}\n`;
+  return "struct ColoredUniforms {\n  mvp: mat4x4<f32>,\n  model: mat4x4<f32>,\n  normal0: vec4<f32>,\n  normal1: vec4<f32>,\n  normal2: vec4<f32>,\n  light_dir: vec4<f32>,\n  light_color: vec4<f32>,\n  ambient_color: vec4<f32>,\n  base_color: vec4<f32>,\n};\n\n@group(0) @binding(0) var<uniform> uniforms: ColoredUniforms;\n\nstruct VertexInput {\n  @location(0) position: vec3<f32>,\n  @location(1) normal: vec3<f32>,\n  @location(2) uv: vec2<f32>,\n};\n\nstruct VertexOutput {\n  @builtin(position) clip_position: vec4<f32>,\n  @location(0) world_normal: vec3<f32>,\n};\n\n@vertex fn vs_main(input: VertexInput) -> VertexOutput {\n  var out: VertexOutput;\n  out.clip_position = uniforms.mvp * vec4<f32>(input.position, 1.0);\n  let normal_mat = mat3x3<f32>(uniforms.normal0.xyz, uniforms.normal1.xyz, uniforms.normal2.xyz);\n  out.world_normal = normalize(normal_mat * input.normal);\n  return out;\n}\n\n@fragment fn fs_main(in: VertexOutput) -> @location(0) vec4<f32> {\n  let normal = normalize(in.world_normal);\n  let light_dir = normalize(-uniforms.light_dir.xyz);\n  let ndotl = max(dot(normal, light_dir), 0.0);\n  let diffuse = uniforms.light_color.xyz * ndotl;\n  let ambient = uniforms.ambient_color.xyz;\n  let lit_color = uniforms.base_color.rgb * (diffuse + ambient);\n  return vec4<f32>(lit_color, uniforms.base_color.a);\n}\n";
 }
 function _M0FP36mizchi6kagura6draw3d20lit__uniform__dwords(model, view_projection, lighting) {
   const mvp = _M0MP36mizchi6kagura6math3d4Mat48multiply(view_projection, model);
   const dwords = _M0FP36mizchi6kagura6draw3d25mat4__to__uniform__dwords(mvp);
-  const _start376 = 0;
-  const _end377 = 16;
-  let _tmp = _start376;
+  const _bind = 0;
+  const _bind$2 = 16;
+  let _tmp = _bind;
   while (true) {
     const i = _tmp;
-    if (i < _end377) {
+    if (i < _bind$2) {
       const _tmp$2 = model.elements;
       $bound_check(_tmp$2, i);
-      _M0MP311moonbitlang4core5array5Array4pushGiE(dwords, _M0FP36mizchi6kagura3gfx21double__to__f32__bits(_tmp$2[i]));
+      _M0MPC15array5Array4pushGiE(dwords, _M0FP36mizchi6kagura3gfx21double__to__f32__bits(_tmp$2[i]));
       _tmp = i + 1 | 0;
       continue;
     } else {
@@ -7828,13 +7899,13 @@ function _M0FP36mizchi6kagura6draw3d20lit__uniform__dwords(model, view_projectio
     }
   }
   const normal_dw = _M0FP36mizchi6kagura7light3d31normal__matrix__uniform__dwords(model);
-  const _start382 = 0;
-  const _end383 = normal_dw.length;
-  let _tmp$2 = _start382;
+  const _bind$3 = 0;
+  const _bind$4 = normal_dw.length;
+  let _tmp$2 = _bind$3;
   while (true) {
     const i = _tmp$2;
-    if (i < _end383) {
-      _M0MP311moonbitlang4core5array5Array4pushGiE(dwords, _M0MP311moonbitlang4core5array5Array2atGiE(normal_dw, i));
+    if (i < _bind$4) {
+      _M0MPC15array5Array4pushGiE(dwords, _M0MPC15array5Array2atGiE(normal_dw, i));
       _tmp$2 = i + 1 | 0;
       continue;
     } else {
@@ -7842,13 +7913,13 @@ function _M0FP36mizchi6kagura6draw3d20lit__uniform__dwords(model, view_projectio
     }
   }
   const light_dw = _M0FP36mizchi6kagura7light3d22light__uniform__dwords(lighting);
-  const _start388 = 0;
-  const _end389 = light_dw.length;
-  let _tmp$3 = _start388;
+  const _bind$5 = 0;
+  const _bind$6 = light_dw.length;
+  let _tmp$3 = _bind$5;
   while (true) {
     const i = _tmp$3;
-    if (i < _end389) {
-      _M0MP311moonbitlang4core5array5Array4pushGiE(dwords, _M0MP311moonbitlang4core5array5Array2atGiE(light_dw, i));
+    if (i < _bind$6) {
+      _M0MPC15array5Array4pushGiE(dwords, _M0MPC15array5Array2atGiE(light_dw, i));
       _tmp$3 = i + 1 | 0;
       continue;
     } else {
@@ -7859,10 +7930,10 @@ function _M0FP36mizchi6kagura6draw3d20lit__uniform__dwords(model, view_projectio
 }
 function _M0FP36mizchi6kagura6draw3d29lit__colored__uniform__dwords(model, view_projection, lighting, base_color) {
   const dwords = _M0FP36mizchi6kagura6draw3d20lit__uniform__dwords(model, view_projection, lighting);
-  _M0MP311moonbitlang4core5array5Array4pushGiE(dwords, _M0FP36mizchi6kagura3gfx21double__to__f32__bits(base_color.x));
-  _M0MP311moonbitlang4core5array5Array4pushGiE(dwords, _M0FP36mizchi6kagura3gfx21double__to__f32__bits(base_color.y));
-  _M0MP311moonbitlang4core5array5Array4pushGiE(dwords, _M0FP36mizchi6kagura3gfx21double__to__f32__bits(base_color.z));
-  _M0MP311moonbitlang4core5array5Array4pushGiE(dwords, _M0FP36mizchi6kagura3gfx21double__to__f32__bits(base_color.w));
+  _M0MPC15array5Array4pushGiE(dwords, _M0FP36mizchi6kagura3gfx21double__to__f32__bits(base_color.x));
+  _M0MPC15array5Array4pushGiE(dwords, _M0FP36mizchi6kagura3gfx21double__to__f32__bits(base_color.y));
+  _M0MPC15array5Array4pushGiE(dwords, _M0FP36mizchi6kagura3gfx21double__to__f32__bits(base_color.z));
+  _M0MPC15array5Array4pushGiE(dwords, _M0FP36mizchi6kagura3gfx21double__to__f32__bits(base_color.w));
   return dwords;
 }
 function _M0FP36mizchi6kagura6draw3d38new__lit__colored__mesh__draw__command(dst, shader, dst_region, index_offset, pipeline_id, uniform_hash, blend, mesh, model_matrix, view_projection, lighting, base_color, src_image_ids) {
@@ -7870,7 +7941,7 @@ function _M0FP36mizchi6kagura6draw3d38new__lit__colored__mesh__draw__command(dst
   return _M0FP36mizchi6kagura3gfx37new__draw__triangles__command_2einner(dst, shader, [dst_region], index_offset, pipeline_id, uniform_hash, blend, mesh.vertex_data, mesh.indices, src_image_ids, uniform_dwords, 1, 0);
 }
 function _M0FP36mizchi6kagura6draw3d24shader3d__particle__wgsl() {
-  return `struct Uniforms {\n  mvp: mat4x4<f32>,\n};\n\n@group(0) @binding(0) var<uniform> uniforms: Uniforms;\n\nstruct VertexInput {\n  @location(0) position: vec3<f32>,\n  @location(1) normal: vec3<f32>,\n  @location(2) uv: vec2<f32>,\n};\n\nstruct VertexOutput {\n  @builtin(position) clip_position: vec4<f32>,\n  @location(0) color: vec3<f32>,\n  @location(1) alpha: f32,\n};\n\n@vertex fn vs_main(input: VertexInput) -> VertexOutput {\n  var out: VertexOutput;\n  out.clip_position = uniforms.mvp * vec4<f32>(input.position, 1.0);\n  out.color = input.normal;\n  out.alpha = input.uv.x;\n  return out;\n}\n\n@fragment fn fs_main(in: VertexOutput) -> @location(0) vec4<f32> {\n  return vec4<f32>(in.color, in.alpha);\n}\n`;
+  return "struct Uniforms {\n  mvp: mat4x4<f32>,\n};\n\n@group(0) @binding(0) var<uniform> uniforms: Uniforms;\n\nstruct VertexInput {\n  @location(0) position: vec3<f32>,\n  @location(1) normal: vec3<f32>,\n  @location(2) uv: vec2<f32>,\n};\n\nstruct VertexOutput {\n  @builtin(position) clip_position: vec4<f32>,\n  @location(0) color: vec3<f32>,\n  @location(1) alpha: f32,\n};\n\n@vertex fn vs_main(input: VertexInput) -> VertexOutput {\n  var out: VertexOutput;\n  out.clip_position = uniforms.mvp * vec4<f32>(input.position, 1.0);\n  out.color = input.normal;\n  out.alpha = input.uv.x;\n  return out;\n}\n\n@fragment fn fs_main(in: VertexOutput) -> @location(0) vec4<f32> {\n  return vec4<f32>(in.color, in.alpha);\n}\n";
 }
 function _M0FP36mizchi6kagura6draw3d25particle__uniform__dwords(vp) {
   return _M0FP36mizchi6kagura6draw3d25mat4__to__uniform__dwords(vp);
@@ -7879,38 +7950,38 @@ function _M0FP36mizchi6kagura6draw3d28new__particle__draw__command(dst, shader, 
   const uniform_dwords = _M0FP36mizchi6kagura6draw3d25particle__uniform__dwords(view_projection);
   return _M0FP36mizchi6kagura3gfx37new__draw__triangles__command_2einner(dst, shader, [dst_region], index_offset, pipeline_id, uniform_hash, blend, vertex_data, indices, src_image_ids, uniform_dwords, 1, 0);
 }
-function _M0IP26mizchi5audio13EnvelopePhaseP311moonbitlang4core7builtin2Eq5equal(_x_1440, _x_1441) {
-  switch (_x_1440) {
+function _M0IP26mizchi5audio13EnvelopePhasePB2Eq5equal(_x_1064, _x_1065) {
+  switch (_x_1064) {
     case 0: {
-      if (_x_1441 === 0) {
+      if (_x_1065 === 0) {
         return true;
       } else {
         return false;
       }
     }
     case 1: {
-      if (_x_1441 === 1) {
+      if (_x_1065 === 1) {
         return true;
       } else {
         return false;
       }
     }
     case 2: {
-      if (_x_1441 === 2) {
+      if (_x_1065 === 2) {
         return true;
       } else {
         return false;
       }
     }
     case 3: {
-      if (_x_1441 === 3) {
+      if (_x_1065 === 3) {
         return true;
       } else {
         return false;
       }
     }
     default: {
-      if (_x_1441 === 4) {
+      if (_x_1065 === 4) {
         return true;
       } else {
         return false;
@@ -7918,24 +7989,24 @@ function _M0IP26mizchi5audio13EnvelopePhaseP311moonbitlang4core7builtin2Eq5equal
     }
   }
 }
-function _M0IP26mizchi5audio10VoiceStateP311moonbitlang4core7builtin2Eq5equal(_x_1408, _x_1409) {
-  switch (_x_1408) {
+function _M0IP26mizchi5audio10VoiceStatePB2Eq5equal(_x_1032, _x_1033) {
+  switch (_x_1032) {
     case 0: {
-      if (_x_1409 === 0) {
+      if (_x_1033 === 0) {
         return true;
       } else {
         return false;
       }
     }
     case 1: {
-      if (_x_1409 === 1) {
+      if (_x_1033 === 1) {
         return true;
       } else {
         return false;
       }
     }
     default: {
-      if (_x_1409 === 2) {
+      if (_x_1033 === 2) {
         return true;
       } else {
         return false;
@@ -7943,21 +8014,21 @@ function _M0IP26mizchi5audio10VoiceStateP311moonbitlang4core7builtin2Eq5equal(_x
     }
   }
 }
-function _M0IP26mizchi5audio7VoiceIdP311moonbitlang4core7builtin2Eq5equal(_x_1326, _x_1327) {
-  return _x_1326 === _x_1327;
+function _M0IP26mizchi5audio7VoiceIdPB2Eq5equal(_x_950, _x_951) {
+  return _x_950 === _x_951;
 }
 function _M0FP26mizchi5audio11find__voice(mixer, id) {
-  const _arr = mixer.voices;
-  const _len = _arr.length;
+  const _bind = mixer.voices;
+  const _bind$2 = _bind.length;
   let _tmp = 0;
   while (true) {
-    const _i = _tmp;
-    if (_i < _len) {
-      const voice = _arr[_i];
-      if (_M0IP26mizchi5audio7VoiceIdP311moonbitlang4core7builtin2Eq5equal(voice.id, id)) {
+    const _ = _tmp;
+    if (_ < _bind$2) {
+      const voice = _bind[_];
+      if (_M0IP26mizchi5audio7VoiceIdPB2Eq5equal(voice.id, id)) {
         return voice;
       }
-      _tmp = _i + 1 | 0;
+      _tmp = _ + 1 | 0;
       continue;
     } else {
       break;
@@ -8037,7 +8108,7 @@ function _M0FP26mizchi5audio20read__source__sample(source, frame, channel) {
   return _M0FP26mizchi5audio10ring__peek(s.ring, frame, channel);
 }
 function _M0FP26mizchi5audio15resample__cubic(source, position, channel, frame_count) {
-  const floor_pos = _M0MP311moonbitlang4core5float5Float7to__int(position);
+  const floor_pos = _M0MPC15float5Float7to__int(position);
   const frac = Math.fround(position - Math.fround(floor_pos));
   const i0 = _M0FP26mizchi5audio12clamp__frame(floor_pos - 1 | 0, frame_count);
   const i1 = _M0FP26mizchi5audio12clamp__frame(floor_pos, frame_count);
@@ -8054,7 +8125,7 @@ function _M0FP26mizchi5audio15resample__cubic(source, position, channel, frame_c
   return Math.fround(Math.fround(Math.fround(Math.fround(Math.fround(Math.fround(c3 * frac) + c2) * frac) + c1) * frac) + c0);
 }
 function _M0FP26mizchi5audio16resample__linear(source, position, channel, frame_count) {
-  const floor_pos = _M0MP311moonbitlang4core5float5Float7to__int(position);
+  const floor_pos = _M0MPC15float5Float7to__int(position);
   const frac = Math.fround(position - Math.fround(floor_pos));
   const i0 = _M0FP26mizchi5audio12clamp__frame(floor_pos, frame_count);
   const i1 = _M0FP26mizchi5audio12clamp__frame(floor_pos + 1 | 0, frame_count);
@@ -8063,7 +8134,7 @@ function _M0FP26mizchi5audio16resample__linear(source, position, channel, frame_
   return Math.fround(s0 + Math.fround(Math.fround(s1 - s0) * frac));
 }
 function _M0FP26mizchi5audio17resample__nearest(source, position, channel, frame_count) {
-  const frame = _M0FP26mizchi5audio12clamp__frame(_M0MP311moonbitlang4core5float5Float7to__int(Math.fround(position + Math.fround(0.5))), frame_count);
+  const frame = _M0FP26mizchi5audio12clamp__frame(_M0MPC15float5Float7to__int(Math.fround(position + Math.fround(0.5))), frame_count);
   return _M0FP26mizchi5audio20read__source__sample(source, frame, channel);
 }
 function _M0FP26mizchi5audio15resample__frame(quality, source, position, channel, frame_count) {
@@ -8082,8 +8153,8 @@ function _M0FP26mizchi5audio15resample__frame(quality, source, position, channel
 function _M0FP26mizchi5audio10pan__gains(pan) {
   const half_pi = Math.fround(1.57079632679489656);
   const angle = Math.fround(Math.fround(Math.fround(pan + Math.fround(1)) * Math.fround(0.5)) * half_pi);
-  const left = _M0FP311moonbitlang4core4math4cosf(angle);
-  const right = _M0FP311moonbitlang4core4math4sinf(angle);
+  const left = _M0FPC14math4cosf(angle);
+  const right = _M0FPC14math4sinf(angle);
   return { _0: left, _1: right };
 }
 function _M0FP26mizchi5audio15biquad__process(state, input) {
@@ -8143,16 +8214,15 @@ function _M0FP26mizchi5audio15effect__process(node, sample) {
   return _M0FP26mizchi5audio14delay__process(state, sample);
 }
 function _M0FP26mizchi5audio23effects__chain__process(effects, sample) {
-  const result = { val: sample };
-  const _arr = effects;
-  const _len = _arr.length;
+  const result = new _M0TPC13ref3RefGfE(sample);
+  const _bind = effects.length;
   let _tmp = 0;
   while (true) {
-    const _i = _tmp;
-    if (_i < _len) {
-      const effect = _arr[_i];
+    const _ = _tmp;
+    if (_ < _bind) {
+      const effect = effects[_];
       result.val = _M0FP26mizchi5audio15effect__process(effect, result.val);
-      _tmp = _i + 1 | 0;
+      _tmp = _ + 1 | 0;
       continue;
     } else {
       break;
@@ -8164,7 +8234,7 @@ function _M0FP26mizchi5audio14envelope__tick(env) {
   const _bind = env.phase;
   switch (_bind) {
     case 0: {
-      const attack_samples = _M0MP311moonbitlang4core5float5Float7to__int(Math.fround(env.config.attack * Math.fround(env.sample_rate)));
+      const attack_samples = _M0MPC15float5Float7to__int(Math.fround(env.config.attack * Math.fround(env.sample_rate)));
       if (attack_samples <= 0) {
         env.level = Math.fround(1);
         env.phase = 1;
@@ -8181,7 +8251,7 @@ function _M0FP26mizchi5audio14envelope__tick(env) {
       return env.level;
     }
     case 1: {
-      const decay_samples = _M0MP311moonbitlang4core5float5Float7to__int(Math.fround(env.config.decay * Math.fround(env.sample_rate)));
+      const decay_samples = _M0MPC15float5Float7to__int(Math.fround(env.config.decay * Math.fround(env.sample_rate)));
       if (decay_samples <= 0) {
         env.level = env.config.sustain;
         env.phase = 2;
@@ -8203,7 +8273,7 @@ function _M0FP26mizchi5audio14envelope__tick(env) {
       return env.level;
     }
     case 3: {
-      const release_samples = _M0MP311moonbitlang4core5float5Float7to__int(Math.fround(env.config.release_time * Math.fround(env.sample_rate)));
+      const release_samples = _M0MPC15float5Float7to__int(Math.fround(env.config.release_time * Math.fround(env.sample_rate)));
       if (release_samples <= 0) {
         env.level = Math.fround(0);
         env.phase = 4;
@@ -8269,16 +8339,16 @@ function _M0FP26mizchi5audio20source__frame__count(source) {
   return s.ring.frames_available;
 }
 function _M0FP26mizchi5audio4tick(mixer, frames, output) {
-  _M0MP311moonbitlang4core5array10FixedArray12fill_2einnerGfE(output, Math.fround(0), 0, Math.imul(frames, 2) | 0);
-  const _arr = mixer.voices;
-  const _len = _arr.length;
+  _M0MPC15array10FixedArray12fill_2einnerGfE(output, Math.fround(0), 0, Math.imul(frames, 2) | 0);
+  const _bind = mixer.voices;
+  const _bind$2 = _bind.length;
   let _tmp = 0;
   while (true) {
-    const _i = _tmp;
-    if (_i < _len) {
+    const _ = _tmp;
+    if (_ < _bind$2) {
+      const voice = _bind[_];
       _L: {
-        const voice = _arr[_i];
-        if (_M0IP016_24default__implP311moonbitlang4core7builtin2Eq10not__equalGRP26mizchi5audio10VoiceStateE(voice.state, 0)) {
+        if (_M0IP016_24default__implPB2Eq10not__equalGRP26mizchi5audio10VoiceStateE(voice.state, 0)) {
           break _L;
         }
         const src = voice.source;
@@ -8287,22 +8357,21 @@ function _M0FP26mizchi5audio4tick(mixer, frames, output) {
         let pan_l;
         let pan_r;
         _L$2: {
-          const _bind = _M0FP26mizchi5audio10pan__gains(voice.pan);
-          const _pan_l = _bind._0;
-          const _pan_r = _bind._1;
+          const _bind$3 = _M0FP26mizchi5audio10pan__gains(voice.pan);
+          const _pan_l = _bind$3._0;
+          const _pan_r = _bind$3._1;
           pan_l = _pan_l;
           pan_r = _pan_r;
           break _L$2;
         }
         const voice_gain = voice.gain;
         const ratio = _M0FP26mizchi5audio15resample__ratio(voice.sample_rate, mixer.sample_rate);
-        const _start279 = 0;
-        const _end280 = frames;
-        let _tmp$2 = _start279;
+        const _bind$3 = 0;
+        let _tmp$2 = _bind$3;
         while (true) {
           const f = _tmp$2;
-          if (f < _end280) {
-            const int_pos = _M0MP311moonbitlang4core5float5Float7to__int(voice.position);
+          if (f < frames) {
+            const int_pos = _M0MPC15float5Float7to__int(voice.position);
             const end_frame = voice.loop_end > 0 ? voice.loop_end : src_frames;
             if (int_pos >= end_frame) {
               if (voice.looping) {
@@ -8316,11 +8385,11 @@ function _M0FP26mizchi5audio4tick(mixer, frames, output) {
             let env;
             _L$3: {
               _L$4: {
-                const _bind = voice.envelope;
-                if (_bind === undefined) {
+                const _bind$4 = voice.envelope;
+                if (_bind$4 === undefined) {
                   env_gain = Math.fround(1);
                 } else {
-                  const _Some = _bind;
+                  const _Some = _bind$4;
                   const _env = _Some;
                   env = _env;
                   break _L$4;
@@ -8328,7 +8397,7 @@ function _M0FP26mizchi5audio4tick(mixer, frames, output) {
                 break _L$3;
               }
               const g = _M0FP26mizchi5audio14envelope__tick(env);
-              if (_M0IP26mizchi5audio13EnvelopePhaseP311moonbitlang4core7builtin2Eq5equal(env.phase, 4)) {
+              if (_M0IP26mizchi5audio13EnvelopePhasePB2Eq5equal(env.phase, 4)) {
                 voice.state = 2;
                 break;
               }
@@ -8357,19 +8426,19 @@ function _M0FP26mizchi5audio4tick(mixer, frames, output) {
         }
         break _L;
       }
-      _tmp = _i + 1 | 0;
+      _tmp = _ + 1 | 0;
       continue;
     } else {
       break;
     }
   }
   if (Math.fround(mixer.master_gain !== Math.fround(1))) {
-    const _start295 = 0;
-    const _end296 = Math.imul(frames, 2) | 0;
-    let _tmp$2 = _start295;
+    const _bind$3 = 0;
+    const _bind$4 = Math.imul(frames, 2) | 0;
+    let _tmp$2 = _bind$3;
     while (true) {
       const i = _tmp$2;
-      if (i < _end296) {
+      if (i < _bind$4) {
         $bound_check(output, i);
         $bound_check(output, i);
         output[i] = Math.fround(output[i] * mixer.master_gain);
@@ -8384,19 +8453,19 @@ function _M0FP26mizchi5audio4tick(mixer, frames, output) {
   }
 }
 function _M0FP26mizchi5audio16collect__stopped(mixer) {
-  mixer.voices = _M0MP311moonbitlang4core5array5Array6filterGRP26mizchi5audio5VoiceE(mixer.voices, (v) => _M0IP016_24default__implP311moonbitlang4core7builtin2Eq10not__equalGRP26mizchi5audio10VoiceStateE(v.state, 2));
+  mixer.voices = _M0MPC15array5Array6filterGRP26mizchi5audio5VoiceE(mixer.voices, (v) => _M0IP016_24default__implPB2Eq10not__equalGRP26mizchi5audio10VoiceStateE(v.state, 2));
 }
 function _M0FP36mizchi6kagura5audio22default__audio__format() {
-  return { sample_rate: 44100, channels: 2, bits_per_sample: 16 };
+  return new _M0TP36mizchi6kagura5audio11AudioFormat(44100, 2, 16);
 }
 function _M0MP36mizchi6kagura5audio17MixerAudioContext15find__voice__id(self, id) {
-  const _arr = self.player_map;
-  const _len = _arr.length;
+  const _bind = self.player_map;
+  const _bind$2 = _bind.length;
   let _tmp = 0;
   while (true) {
-    const _i = _tmp;
-    if (_i < _len) {
-      const pair = _arr[_i];
+    const _ = _tmp;
+    if (_ < _bind$2) {
+      const pair = _bind[_];
       let pid;
       let vid;
       _L: {
@@ -8409,7 +8478,7 @@ function _M0MP36mizchi6kagura5audio17MixerAudioContext15find__voice__id(self, id
       if (pid.value === id.value) {
         return vid;
       }
-      _tmp = _i + 1 | 0;
+      _tmp = _ + 1 | 0;
       continue;
     } else {
       break;
@@ -8422,7 +8491,7 @@ function _M0IP36mizchi6kagura5audio17MixerAudioContextP36mizchi6kagura5audio12Au
   _L: {
     const _bind = _M0MP36mizchi6kagura5audio17MixerAudioContext15find__voice__id(self, id);
     if (_bind === undefined) {
-      return new Result$Ok$3$(undefined);
+      return new _M0DTPC16result6ResultGuRPC15error5ErrorE2Ok(undefined);
     } else {
       const _Some = _bind;
       const _vid = _Some;
@@ -8431,7 +8500,7 @@ function _M0IP36mizchi6kagura5audio17MixerAudioContextP36mizchi6kagura5audio12Au
     }
   }
   _M0FP26mizchi5audio11stop__voice(self.mixer, vid);
-  return new Result$Ok$3$(undefined);
+  return new _M0DTPC16result6ResultGuRPC15error5ErrorE2Ok(undefined);
 }
 function _M0IP36mizchi6kagura5audio17MixerAudioContextP36mizchi6kagura5audio12AudioContext11set__volume(self, id, volume) {
   let vid;
@@ -8475,7 +8544,7 @@ function _M0IP36mizchi6kagura5audio17MixerAudioContextP36mizchi6kagura5audio12Au
     }
   }
   _M0FP26mizchi5audio11stop__voice(self.mixer, vid);
-  self.player_map = _M0MP311moonbitlang4core5array5Array6filterGURP36mizchi6kagura5audio8PlayerIdRP26mizchi5audio7VoiceIdEE(self.player_map, (pair) => {
+  self.player_map = _M0MPC15array5Array6filterGURP36mizchi6kagura5audio8PlayerIdRP26mizchi5audio7VoiceIdEE(self.player_map, (pair) => {
     let pid;
     _L$2: {
       const _pid = pair._0;
@@ -8487,13 +8556,13 @@ function _M0IP36mizchi6kagura5audio17MixerAudioContextP36mizchi6kagura5audio12Au
 }
 function _M0MP36mizchi6kagura5audio17MixerAudioContext6render(self, frames, output) {
   _M0FP26mizchi5audio4tick(self.mixer, frames, output);
-  const _arr = self.player_map;
-  const _len = _arr.length;
+  const _bind = self.player_map;
+  const _bind$2 = _bind.length;
   let _tmp = 0;
   while (true) {
-    const _i = _tmp;
-    if (_i < _len) {
-      const pair = _arr[_i];
+    const _ = _tmp;
+    if (_ < _bind$2) {
+      const pair = _bind[_];
       let vid;
       _L: {
         const _vid = pair._1;
@@ -8503,21 +8572,21 @@ function _M0MP36mizchi6kagura5audio17MixerAudioContext6render(self, frames, outp
       let voice;
       _L$2: {
         _L$3: {
-          const _bind = _M0FP26mizchi5audio11find__voice(self.mixer, vid);
-          if (_bind === undefined) {
+          const _bind$3 = _M0FP26mizchi5audio11find__voice(self.mixer, vid);
+          if (_bind$3 === undefined) {
           } else {
-            const _Some = _bind;
+            const _Some = _bind$3;
             const _voice = _Some;
             voice = _voice;
             break _L$3;
           }
           break _L$2;
         }
-        if (_M0IP26mizchi5audio10VoiceStateP311moonbitlang4core7builtin2Eq5equal(voice.state, 2)) {
+        if (_M0IP26mizchi5audio10VoiceStatePB2Eq5equal(voice.state, 2)) {
           voice.state = 1;
         }
       }
-      _tmp = _i + 1 | 0;
+      _tmp = _ + 1 | 0;
       continue;
     } else {
       break;
@@ -8627,10 +8696,10 @@ function _M0FP36mizchi6kagura5audio31default__audio__output__latency() {
   return 0;
 }
 function _M0FP36mizchi6kagura5audio25new__audio__output__hooks(try_initialize, write_frames, suspend, resume_playback, close) {
-  return { try_initialize: try_initialize, write_frames: write_frames, suspend: suspend, resume_playback: resume_playback, close: close, output_latency: _M0FP36mizchi6kagura5audio31default__audio__output__latency };
+  return new _M0TP36mizchi6kagura5audio16AudioOutputHooks(try_initialize, write_frames, suspend, resume_playback, close, _M0FP36mizchi6kagura5audio31default__audio__output__latency);
 }
 function _M0FP36mizchi6kagura5audio31new__audio__output__hooks__full(try_initialize, write_frames, suspend, resume_playback, close, output_latency) {
-  return { try_initialize: try_initialize, write_frames: write_frames, suspend: suspend, resume_playback: resume_playback, close: close, output_latency: output_latency };
+  return new _M0TP36mizchi6kagura5audio16AudioOutputHooks(try_initialize, write_frames, suspend, resume_playback, close, output_latency);
 }
 function _M0FP36mizchi6kagura5audio31default__audio__try__initialize(_format) {
   return false;
@@ -8736,7 +8805,7 @@ function _M0FP36mizchi6kagura6engine11run_2einner(update, draw, on_frame, after_
       break _L$2;
     }
     const e = _try_err$2;
-    _M0FP311moonbitlang4core7builtin7printlnGsE(`[engine] platform.initialize failed: ${_M0IP016_24default__implP311moonbitlang4core7builtin4Show10to__stringGRP311moonbitlang4core5error5ErrorE(e)}`);
+    _M0FPB7printlnGsE(`[engine] platform.initialize failed: ${_M0IP016_24default__implPB4Show10to__stringGRPC15error5ErrorE(e)}`);
   }
   let _try_err$3;
   _L$3: {
@@ -8753,7 +8822,7 @@ function _M0FP36mizchi6kagura6engine11run_2einner(update, draw, on_frame, after_
       break _L$3;
     }
     const e = _try_err$3;
-    _M0FP311moonbitlang4core7builtin7printlnGsE(`[engine] graphics.initialize failed: ${_M0IP016_24default__implP311moonbitlang4core7builtin4Show10to__stringGRP311moonbitlang4core5error5ErrorE(e)}`);
+    _M0FPB7printlnGsE(`[engine] graphics.initialize failed: ${_M0IP016_24default__implPB4Show10to__stringGRPC15error5ErrorE(e)}`);
   }
   const shader_source = _M0FP36mizchi6kagura3gfx32default__builtin__shader__source();
   let dst;
@@ -8772,7 +8841,7 @@ function _M0FP36mizchi6kagura6engine11run_2einner(update, draw, on_frame, after_
       break _L$4;
     }
     const e = _try_err$4;
-    _M0FP311moonbitlang4core7builtin7printlnGsE(`[engine] graphics.new_image failed: ${_M0IP016_24default__implP311moonbitlang4core7builtin4Show10to__stringGRP311moonbitlang4core5error5ErrorE(e)}`);
+    _M0FPB7printlnGsE(`[engine] graphics.new_image failed: ${_M0IP016_24default__implPB4Show10to__stringGRPC15error5ErrorE(e)}`);
     dst = _M0FP36mizchi6kagura3gfx18new__image__handle(1, width, height);
   }
   let shader;
@@ -8791,23 +8860,23 @@ function _M0FP36mizchi6kagura6engine11run_2einner(update, draw, on_frame, after_
       break _L$5;
     }
     const e = _try_err$5;
-    _M0FP311moonbitlang4core7builtin7printlnGsE(`[engine] graphics.new_shader failed: ${_M0IP016_24default__implP311moonbitlang4core7builtin4Show10to__stringGRP311moonbitlang4core5error5ErrorE(e)}`);
+    _M0FPB7printlnGsE(`[engine] graphics.new_shader failed: ${_M0IP016_24default__implPB4Show10to__stringGRPC15error5ErrorE(e)}`);
     shader = _M0FP36mizchi6kagura3gfx19new__shader__handle(1, shader_source);
   }
-  const ctx = { dst: dst, shader: shader, screen_w: width, screen_h: height };
-  const tick = _M0MP311moonbitlang4core3ref3Ref3newGiE(0);
+  const ctx = new _M0TP36mizchi6kagura6engine13EngineContext(dst, shader, width, height);
+  const tick = _M0MPC13ref3Ref3newGiE(0);
   if (audio_ctx === undefined) {
   } else {
     _M0FP36mizchi6kagura5audio22audio__try__initialize(_M0FP36mizchi6kagura5audio22default__audio__format());
   }
   const audio_tick_ms = (audio_frames_per_tick + 0) / 44100 * 1000;
-  const audio_accum = _M0MP311moonbitlang4core3ref3Ref3newGdE(0);
-  const prev_time = _M0MP311moonbitlang4core3ref3Ref3newGdE(_M0FP36mizchi6kagura6engine20js__performance__now());
+  const audio_accum = _M0MPC13ref3Ref3newGdE(0);
+  const prev_time = _M0MPC13ref3Ref3newGdE(_M0FP36mizchi6kagura6engine20js__performance__now());
   const frame = () => {
     _M0IP36mizchi6kagura8platform17WebCanvasPlatformP36mizchi6kagura8platform14PlatformDriver12poll__events(platform);
     const outside = _M0IP36mizchi6kagura8platform17WebCanvasPlatformP36mizchi6kagura8platform14PlatformDriver13outside__size(platform);
-    const new_w = _M0MP311moonbitlang4core6double6Double7to__int(outside.width);
-    const new_h = _M0MP311moonbitlang4core6double6Double7to__int(outside.height);
+    const new_w = _M0MPC16double6Double7to__int(outside.width);
+    const new_h = _M0MPC16double6Double7to__int(outside.height);
     if (new_w > 0 && (new_h > 0 && (new_w !== ctx.screen_w || new_h !== ctx.screen_h))) {
       let _try_err$6;
       _L$6: {
@@ -8824,7 +8893,7 @@ function _M0FP36mizchi6kagura6engine11run_2einner(update, draw, on_frame, after_
           break _L$6;
         }
         const e = _try_err$6;
-        _M0FP311moonbitlang4core7builtin7printlnGsE(`[engine] graphics.resize failed: ${_M0IP016_24default__implP311moonbitlang4core7builtin4Show10to__stringGRP311moonbitlang4core5error5ErrorE(e)}`);
+        _M0FPB7printlnGsE(`[engine] graphics.resize failed: ${_M0IP016_24default__implPB4Show10to__stringGRPC15error5ErrorE(e)}`);
       }
       ctx.screen_w = new_w;
       ctx.screen_h = new_h;
@@ -8844,7 +8913,7 @@ function _M0FP36mizchi6kagura6engine11run_2einner(update, draw, on_frame, after_
           break _L$7;
         }
         const e = _try_err$7;
-        _M0FP311moonbitlang4core7builtin7printlnGsE(`[engine] graphics.new_image (resize) failed: ${_M0IP016_24default__implP311moonbitlang4core7builtin4Show10to__stringGRP311moonbitlang4core5error5ErrorE(e)}`);
+        _M0FPB7printlnGsE(`[engine] graphics.new_image (resize) failed: ${_M0IP016_24default__implPB4Show10to__stringGRPC15error5ErrorE(e)}`);
         _tmp = _M0FP36mizchi6kagura3gfx18new__image__handle(ctx.dst.id, new_w, new_h);
       }
       ctx.dst = _tmp;
@@ -8885,7 +8954,7 @@ function _M0FP36mizchi6kagura6engine11run_2einner(update, draw, on_frame, after_
         break _L$7;
       }
       const e = _try_err$6;
-      _M0FP311moonbitlang4core7builtin7printlnGsE(`[engine] render_commands failed: ${_M0IP016_24default__implP311moonbitlang4core7builtin4Show10to__stringGRP311moonbitlang4core5error5ErrorE(e)}`);
+      _M0FPB7printlnGsE(`[engine] render_commands failed: ${_M0IP016_24default__implPB4Show10to__stringGRPC15error5ErrorE(e)}`);
     }
     const render_end = _M0FP36mizchi6kagura6engine20js__performance__now();
     let f$2;
@@ -8940,24 +9009,24 @@ function _M0FP36mizchi6kagura6engine11run_2einner(update, draw, on_frame, after_
 function _M0FP36mizchi6kagura6engine21set__lifecycle__hooks(hooks) {
   _M0FP36mizchi6kagura6engine16lifecycle__hooks.val = hooks;
 }
-function _M0IP26mizchi3svg14PaintOrderItemP311moonbitlang4core7builtin2Eq5equal(_x_5367, _x_5368) {
-  switch (_x_5367) {
+function _M0IP26mizchi3svg14PaintOrderItemPB2Eq5equal(_x_4653, _x_4654) {
+  switch (_x_4653) {
     case 0: {
-      if (_x_5368 === 0) {
+      if (_x_4654 === 0) {
         return true;
       } else {
         return false;
       }
     }
     case 1: {
-      if (_x_5368 === 1) {
+      if (_x_4654 === 1) {
         return true;
       } else {
         return false;
       }
     }
     default: {
-      if (_x_5368 === 2) {
+      if (_x_4654 === 2) {
         return true;
       } else {
         return false;
@@ -8966,22 +9035,22 @@ function _M0IP26mizchi3svg14PaintOrderItemP311moonbitlang4core7builtin2Eq5equal(
   }
 }
 function _M0MP26mizchi3svg5Color3rgb(r, g, b) {
-  return { r: r, g: g, b: b, a: 255 };
+  return new _M0TP26mizchi3svg5Color(r, g, b, 255);
 }
 function _M0MP26mizchi3svg5Color4rgba(r, g, b, a) {
-  return { r: r, g: g, b: b, a: a };
+  return new _M0TP26mizchi3svg5Color(r, g, b, a);
 }
 function _M0MP26mizchi3svg5Color11transparent() {
-  return { r: 0, g: 0, b: 0, a: 0 };
+  return new _M0TP26mizchi3svg5Color(0, 0, 0, 0);
 }
 function _M0MP26mizchi3svg5Color5black() {
-  return { r: 0, g: 0, b: 0, a: 255 };
+  return new _M0TP26mizchi3svg5Color(0, 0, 0, 255);
 }
 function _M0MP26mizchi3svg5Color5white() {
-  return { r: 255, g: 255, b: 255, a: 255 };
+  return new _M0TP26mizchi3svg5Color(255, 255, 255, 255);
 }
 function _M0MP26mizchi3svg19PreserveAspectRatio7default() {
-  return { align: 5, meet_or_slice: 0 };
+  return new _M0TP26mizchi3svg19PreserveAspectRatio(5, 0);
 }
 function _M0FP26mizchi3svg23get__alignment__factors(align) {
   switch (align) {
@@ -9018,7 +9087,7 @@ function _M0FP26mizchi3svg23get__alignment__factors(align) {
   }
 }
 function _M0MP26mizchi3svg9Transform8identity() {
-  return { a: 1, b: 0, c: 0, d: 1, e: 0, f: 0 };
+  return new _M0TP26mizchi3svg9Transform(1, 0, 0, 1, 0, 0);
 }
 function _M0MP26mizchi3svg7ViewBox14get__transform(self, viewport_width, viewport_height, preserve_aspect_ratio) {
   if (self.width <= 0 || self.height <= 0) {
@@ -9069,17 +9138,17 @@ function _M0MP26mizchi3svg7ViewBox14get__transform(self, viewport_width, viewpor
     ty = _ty;
     break _L;
   }
-  return { a: sx, b: 0, c: 0, d: sy, e: tx, f: ty };
+  return new _M0TP26mizchi3svg9Transform(sx, 0, 0, sy, tx, ty);
 }
 function _M0MP26mizchi3svg14LinearGradient3new(x1, y1, x2, y2, stops) {
-  return { x1: x1, y1: y1, x2: x2, y2: y2, stops: stops, spread_method: 0, units: 1, transform: _M0MP26mizchi3svg9Transform8identity() };
+  return new _M0TP26mizchi3svg14LinearGradient(x1, y1, x2, y2, stops, 0, 1, _M0MP26mizchi3svg9Transform8identity());
 }
 function _M0MP26mizchi3svg14LinearGradient9color__at(self, t) {
   if (self.stops.length === 0) {
     return _M0MP26mizchi3svg5Color5black();
   }
   if (self.stops.length === 1) {
-    return _M0MP311moonbitlang4core5array5Array2atGRP26mizchi3svg12GradientStopE(self.stops, 0).color;
+    return _M0MPC15array5Array2atGRP26mizchi22kagura__effect__studio11EffectTrackE(self.stops, 0).color;
   }
   const _bind = self.spread_method;
   let t$2;
@@ -9089,31 +9158,31 @@ function _M0MP26mizchi3svg14LinearGradient9color__at(self, t) {
       break;
     }
     case 1: {
-      const t2 = t - _M0MP311moonbitlang4core6double6Double5floor(t);
+      const t2 = t - _M0MPC16double6Double5floor(t);
       t$2 = t2 < 0 ? t2 + 1 : t2;
       break;
     }
     default: {
-      const t2$2 = t - _M0MP311moonbitlang4core6double6Double5floor(t);
+      const t2$2 = t - _M0MPC16double6Double5floor(t);
       const t2$3 = t2$2 < 0 ? t2$2 + 1 : t2$2;
       if (2 === 0) {
         $panic();
       }
-      const cycle = _M0MP311moonbitlang4core6double6Double7to__int(_M0MP311moonbitlang4core6double6Double5floor(t)) % 2 | 0;
+      const cycle = _M0MPC16double6Double7to__int(_M0MPC16double6Double5floor(t)) % 2 | 0;
       t$2 = cycle === 1 ? 1 - t2$3 : t2$3;
     }
   }
-  const prev_stop = { val: _M0MP311moonbitlang4core5array5Array2atGRP26mizchi3svg12GradientStopE(self.stops, 0) };
-  const next_stop = { val: _M0MP311moonbitlang4core5array5Array2atGRP26mizchi3svg12GradientStopE(self.stops, self.stops.length - 1 | 0) };
-  const _start5117 = 0;
-  const _end5118 = self.stops.length - 1 | 0;
-  let _tmp = _start5117;
+  const prev_stop = new _M0TPC13ref3RefGRP26mizchi3svg12GradientStopE(_M0MPC15array5Array2atGRP26mizchi22kagura__effect__studio11EffectTrackE(self.stops, 0));
+  const next_stop = new _M0TPC13ref3RefGRP26mizchi3svg12GradientStopE(_M0MPC15array5Array2atGRP26mizchi22kagura__effect__studio11EffectTrackE(self.stops, self.stops.length - 1 | 0));
+  const _bind$2 = 0;
+  const _bind$3 = self.stops.length - 1 | 0;
+  let _tmp = _bind$2;
   while (true) {
     const i = _tmp;
-    if (i < _end5118) {
-      if (t$2 >= _M0MP311moonbitlang4core5array5Array2atGRP26mizchi3svg12GradientStopE(self.stops, i).offset && t$2 <= _M0MP311moonbitlang4core5array5Array2atGRP26mizchi3svg12GradientStopE(self.stops, i + 1 | 0).offset) {
-        prev_stop.val = _M0MP311moonbitlang4core5array5Array2atGRP26mizchi3svg12GradientStopE(self.stops, i);
-        next_stop.val = _M0MP311moonbitlang4core5array5Array2atGRP26mizchi3svg12GradientStopE(self.stops, i + 1 | 0);
+    if (i < _bind$3) {
+      if (t$2 >= _M0MPC15array5Array2atGRP26mizchi22kagura__effect__studio11EffectTrackE(self.stops, i).offset && t$2 <= _M0MPC15array5Array2atGRP26mizchi22kagura__effect__studio11EffectTrackE(self.stops, i + 1 | 0).offset) {
+        prev_stop.val = _M0MPC15array5Array2atGRP26mizchi22kagura__effect__studio11EffectTrackE(self.stops, i);
+        next_stop.val = _M0MPC15array5Array2atGRP26mizchi22kagura__effect__studio11EffectTrackE(self.stops, i + 1 | 0);
         break;
       }
       _tmp = i + 1 | 0;
@@ -9127,18 +9196,17 @@ function _M0MP26mizchi3svg14LinearGradient9color__at(self, t) {
     return prev_stop.val.color;
   }
   const local_t = (t$2 - prev_stop.val.offset) / range;
-  return _M0MP26mizchi3svg5Color4rgba(_M0MP311moonbitlang4core6double6Double7to__int((prev_stop.val.color.r + 0) * (1 - local_t) + (next_stop.val.color.r + 0) * local_t), _M0MP311moonbitlang4core6double6Double7to__int((prev_stop.val.color.g + 0) * (1 - local_t) + (next_stop.val.color.g + 0) * local_t), _M0MP311moonbitlang4core6double6Double7to__int((prev_stop.val.color.b + 0) * (1 - local_t) + (next_stop.val.color.b + 0) * local_t), _M0MP311moonbitlang4core6double6Double7to__int((prev_stop.val.color.a + 0) * (1 - local_t) + (next_stop.val.color.a + 0) * local_t));
+  return _M0MP26mizchi3svg5Color4rgba(_M0MPC16double6Double7to__int((prev_stop.val.color.r + 0) * (1 - local_t) + (next_stop.val.color.r + 0) * local_t), _M0MPC16double6Double7to__int((prev_stop.val.color.g + 0) * (1 - local_t) + (next_stop.val.color.g + 0) * local_t), _M0MPC16double6Double7to__int((prev_stop.val.color.b + 0) * (1 - local_t) + (next_stop.val.color.b + 0) * local_t), _M0MPC16double6Double7to__int((prev_stop.val.color.a + 0) * (1 - local_t) + (next_stop.val.color.a + 0) * local_t));
 }
 function _M0MP26mizchi3svg14LinearGradient10build__lut(self, size) {
-  const lut = _M0MP311moonbitlang4core5array5Array4makeGRP26mizchi3svg5ColorE(size, _M0MP26mizchi3svg5Color5black());
-  const _start5102 = 0;
-  const _end5103 = size;
-  let _tmp = _start5102;
+  const lut = _M0MPC15array5Array4makeGRP26mizchi3svg5ColorE(size, _M0MP26mizchi3svg5Color5black());
+  const _bind = 0;
+  let _tmp = _bind;
   while (true) {
     const i = _tmp;
-    if (i < _end5103) {
+    if (i < size) {
       const t = (i + 0) / ((size - 1 | 0) + 0);
-      _M0MP311moonbitlang4core5array5Array3setGRP26mizchi3svg5ColorE(lut, i, _M0MP26mizchi3svg14LinearGradient9color__at(self, t));
+      _M0MPC15array5Array3setGRP36mizchi6kagura10particle3d8ParticleE(lut, i, _M0MP26mizchi3svg14LinearGradient9color__at(self, t));
       _tmp = i + 1 | 0;
       continue;
     } else {
@@ -9152,18 +9220,18 @@ function _M0FP26mizchi3svg14lut__color__at(lut, t) {
   if (size === 0) {
     return _M0MP26mizchi3svg5Color5black();
   }
-  const idx = _M0MP311moonbitlang4core6double6Double7to__int(t * ((size - 1 | 0) + 0));
+  const idx = _M0MPC16double6Double7to__int(t * ((size - 1 | 0) + 0));
   const idx$2 = idx < 0 ? 0 : idx >= size ? size - 1 | 0 : idx;
-  return _M0MP311moonbitlang4core5array5Array2atGRP26mizchi3svg5ColorE(lut, idx$2);
+  return _M0MPC15array5Array2atGRP26mizchi22kagura__effect__studio11EffectTrackE(lut, idx$2);
 }
 function _M0MP26mizchi3svg11StrokeStyle7default() {
-  return { paint: $64$mizchi$47$svg$46$Paint$None, width: 1, linecap: 0, linejoin: 0, miterlimit: 4, dasharray: Option$None$7$, dashoffset: 0 };
+  return new _M0TP26mizchi3svg11StrokeStyle(_M0DTP26mizchi3svg5Paint4None__, 1, 0, 0, 4, _M0DTPC16option6OptionGRPB5ArrayGdEE4None__, 0);
 }
 function _M0MP26mizchi3svg10PaintOrder7default() {
-  return { order: [0, 1, 2] };
+  return new _M0TP26mizchi3svg10PaintOrder([0, 1, 2]);
 }
 function _M0MP26mizchi3svg7SVGNode3new(shape) {
-  return { id: "", shape: shape, transform: _M0MP26mizchi3svg9Transform8identity(), view_box: undefined, viewport_width: Option$None$8$, viewport_height: Option$None$8$, preserve_aspect_ratio: _M0MP26mizchi3svg19PreserveAspectRatio7default(), preserve_aspect_ratio_is_set: false, fill: new $64$mizchi$47$svg$46$Paint$SolidColor(_M0MP26mizchi3svg5Color5black()), fill_is_set: false, color: undefined, color_is_set: false, paint_order: _M0MP26mizchi3svg10PaintOrder7default(), fill_rule: 0, fill_opacity: 1, stroke: _M0MP26mizchi3svg11StrokeStyle7default(), stroke_paint_is_set: false, stroke_width_is_set: false, stroke_opacity: 1, opacity: 1, marker_start: undefined, marker_start_is_set: false, marker_mid: undefined, marker_mid_is_set: false, marker_end: undefined, marker_end_is_set: false, z_index: 0, node_dirty: true, prev_bounds: undefined, filters: [], mask_id: undefined, clip_path_id: undefined, clip_overflow: true, children: [] };
+  return new _M0TP26mizchi3svg7SVGNode("", shape, _M0MP26mizchi3svg9Transform8identity(), undefined, _M0DTPC16option6OptionGdE4None__, _M0DTPC16option6OptionGdE4None__, _M0MP26mizchi3svg19PreserveAspectRatio7default(), false, new _M0DTP26mizchi3svg5Paint10SolidColor(_M0MP26mizchi3svg5Color5black()), false, undefined, false, _M0MP26mizchi3svg10PaintOrder7default(), 0, 1, _M0MP26mizchi3svg11StrokeStyle7default(), false, false, 1, 1, undefined, false, undefined, false, undefined, false, 0, true, undefined, [], undefined, undefined, true, []);
 }
 function _M0MP26mizchi3svg7SVGNode11mark__dirty(self) {
   self.node_dirty = true;
@@ -9183,10 +9251,10 @@ function _M0FP26mizchi3svg3max(a, b) {
   return a > b ? a : b;
 }
 function _M0MP26mizchi3svg11BoundingBox5empty() {
-  return { min_x: _M0FP311moonbitlang4core6double8infinity, min_y: _M0FP311moonbitlang4core6double8infinity, max_x: _M0FP311moonbitlang4core6double13neg__infinity, max_y: _M0FP311moonbitlang4core6double13neg__infinity };
+  return new _M0TP26mizchi3svg11BoundingBox(_M0FPC16double8infinity, _M0FPC16double8infinity, _M0FPC16double13neg__infinity, _M0FPC16double13neg__infinity);
 }
 function _M0MP26mizchi3svg11BoundingBox10from__rect(x, y, w, h) {
-  return { min_x: x, min_y: y, max_x: x + w, max_y: y + h };
+  return new _M0TP26mizchi3svg11BoundingBox(x, y, x + w, y + h);
 }
 function _M0MP26mizchi3svg11BoundingBox5width(self) {
   return self.max_x - self.min_x;
@@ -9198,22 +9266,22 @@ function _M0MP26mizchi3svg11BoundingBox9is__empty(self) {
   return self.min_x > self.max_x || self.min_y > self.max_y;
 }
 function _M0MP26mizchi3svg11BoundingBox5union(self, other) {
-  return _M0MP26mizchi3svg11BoundingBox9is__empty(self) ? other : _M0MP26mizchi3svg11BoundingBox9is__empty(other) ? self : { min_x: _M0FP26mizchi3svg3min(self.min_x, other.min_x), min_y: _M0FP26mizchi3svg3min(self.min_y, other.min_y), max_x: _M0FP26mizchi3svg3max(self.max_x, other.max_x), max_y: _M0FP26mizchi3svg3max(self.max_y, other.max_y) };
+  return _M0MP26mizchi3svg11BoundingBox9is__empty(self) ? other : _M0MP26mizchi3svg11BoundingBox9is__empty(other) ? self : new _M0TP26mizchi3svg11BoundingBox(_M0FP26mizchi3svg3min(self.min_x, other.min_x), _M0FP26mizchi3svg3min(self.min_y, other.min_y), _M0FP26mizchi3svg3max(self.max_x, other.max_x), _M0FP26mizchi3svg3max(self.max_y, other.max_y));
 }
 function _M0MP26mizchi3svg11BoundingBox17expand__by__point(self, x, y) {
-  return { min_x: _M0FP26mizchi3svg3min(self.min_x, x), min_y: _M0FP26mizchi3svg3min(self.min_y, y), max_x: _M0FP26mizchi3svg3max(self.max_x, x), max_y: _M0FP26mizchi3svg3max(self.max_y, y) };
+  return new _M0TP26mizchi3svg11BoundingBox(_M0FP26mizchi3svg3min(self.min_x, x), _M0FP26mizchi3svg3min(self.min_y, y), _M0FP26mizchi3svg3max(self.max_x, x), _M0FP26mizchi3svg3max(self.max_y, y));
 }
 function _M0MP26mizchi3svg11BoundingBox10intersects(self, other) {
   return _M0MP26mizchi3svg11BoundingBox9is__empty(self) || _M0MP26mizchi3svg11BoundingBox9is__empty(other) ? false : self.min_x <= other.max_x && (self.max_x >= other.min_x && (self.min_y <= other.max_y && self.max_y >= other.min_y));
 }
 function _M0MP26mizchi3svg8ClipRect3new(x, y, width, height) {
-  return { x: x, y: y, width: width, height: height };
+  return new _M0TP26mizchi3svg8ClipRect(x, y, width, height);
 }
 function _M0MP26mizchi3svg8ClipRect8contains(self, x, y) {
   return x >= self.x && (x < (self.x + self.width | 0) && (y >= self.y && y < (self.y + self.height | 0)));
 }
 function _M0MP26mizchi3svg8ClipRect8to__bbox(self) {
-  return { min_x: self.x + 0, min_y: self.y + 0, max_x: (self.x + self.width | 0) + 0, max_y: (self.y + self.height | 0) + 0 };
+  return new _M0TP26mizchi3svg11BoundingBox(self.x + 0, self.y + 0, (self.x + self.width | 0) + 0, (self.y + self.height | 0) + 0);
 }
 function _M0FP26mizchi3svg15hit__test__rect(px, py, x, y, width, height) {
   if (width <= 0 || height <= 0) {
@@ -9242,20 +9310,19 @@ function _M0FP26mizchi3svg18hit__test__polygon(px, py, points) {
   if (n < 3) {
     return false;
   }
-  const inside = { val: false };
-  const j = { val: n - 1 | 0 };
-  const _start4993 = 0;
-  const _end4994 = n;
-  let _tmp = _start4993;
+  const inside = new _M0TPC13ref3RefGbE(false);
+  const j = new _M0TPC13ref3RefGiE(n - 1 | 0);
+  const _bind = 0;
+  let _tmp = _bind;
   while (true) {
     const i = _tmp;
-    if (i < _end4994) {
+    if (i < n) {
       let xi;
       let yi;
       _L: {
-        const _bind = _M0MP311moonbitlang4core5array5Array2atGUddEE(points, i);
-        const _xi = _bind._0;
-        const _yi = _bind._1;
+        const _bind$2 = _M0MPC15array5Array2atGRP26mizchi22kagura__effect__studio11EffectTrackE(points, i);
+        const _xi = _bind$2._0;
+        const _yi = _bind$2._1;
         xi = _xi;
         yi = _yi;
         break _L;
@@ -9263,14 +9330,14 @@ function _M0FP26mizchi3svg18hit__test__polygon(px, py, points) {
       let xj;
       let yj;
       _L$2: {
-        const _bind = _M0MP311moonbitlang4core5array5Array2atGUddEE(points, j.val);
-        const _xj = _bind._0;
-        const _yj = _bind._1;
+        const _bind$2 = _M0MPC15array5Array2atGRP26mizchi22kagura__effect__studio11EffectTrackE(points, j.val);
+        const _xj = _bind$2._0;
+        const _yj = _bind$2._1;
         xj = _xj;
         yj = _yj;
         break _L$2;
       }
-      if (_M0IP016_24default__implP311moonbitlang4core7builtin2Eq10not__equalGbE(yi > py, yj > py) && px < (xj - xi) * (py - yi) / (yj - yi) + xi) {
+      if (_M0IP016_24default__implPB2Eq10not__equalGbE(yi > py, yj > py) && px < (xj - xi) * (py - yi) / (yj - yi) + xi) {
         inside.val = !inside.val;
       }
       j.val = i;
@@ -9430,18 +9497,18 @@ function _M0FP26mizchi3svg16hit__test__shape(px, py, shape) {
           }
           return _M0FP26mizchi3svg15hit__test__line(px, py, x1, y1, x2, y2, 2);
         }
-        const _start4951 = 0;
-        const _end4952 = points$2.length - 1 | 0;
-        let _tmp = _start4951;
+        const _bind = 0;
+        const _bind$2 = points$2.length - 1 | 0;
+        let _tmp = _bind;
         while (true) {
           const i = _tmp;
-          if (i < _end4952) {
+          if (i < _bind$2) {
             let x1;
             let y1;
             _L$5: {
-              const _bind = _M0MP311moonbitlang4core5array5Array2atGUddEE(points$2, i);
-              const _x1 = _bind._0;
-              const _y1 = _bind._1;
+              const _bind$3 = _M0MPC15array5Array2atGRP26mizchi22kagura__effect__studio11EffectTrackE(points$2, i);
+              const _x1 = _bind$3._0;
+              const _y1 = _bind$3._1;
               x1 = _x1;
               y1 = _y1;
               break _L$5;
@@ -9449,9 +9516,9 @@ function _M0FP26mizchi3svg16hit__test__shape(px, py, shape) {
             let x2;
             let y2;
             _L$6: {
-              const _bind = _M0MP311moonbitlang4core5array5Array2atGUddEE(points$2, i + 1 | 0);
-              const _x2 = _bind._0;
-              const _y2 = _bind._1;
+              const _bind$3 = _M0MPC15array5Array2atGRP26mizchi22kagura__effect__studio11EffectTrackE(points$2, i + 1 | 0);
+              const _x2 = _bind$3._0;
+              const _y2 = _bind$3._1;
               x2 = _x2;
               y2 = _y2;
               break _L$6;
@@ -9489,16 +9556,16 @@ function _M0MP26mizchi3svg9Transform7inverse(self) {
     return _M0MP26mizchi3svg9Transform8identity();
   }
   const inv_det = 1 / det;
-  return { a: self.d * inv_det, b: -self.b * inv_det, c: -self.c * inv_det, d: self.a * inv_det, e: (self.c * self.f - self.d * self.e) * inv_det, f: (self.b * self.e - self.a * self.f) * inv_det };
+  return new _M0TP26mizchi3svg9Transform(self.d * inv_det, -self.b * inv_det, -self.c * inv_det, self.a * inv_det, (self.c * self.f - self.d * self.e) * inv_det, (self.b * self.e - self.a * self.f) * inv_det);
 }
 function _M0MP26mizchi3svg9Transform8multiply(self, other) {
-  return { a: self.a * other.a + self.c * other.b, b: self.b * other.a + self.d * other.b, c: self.a * other.c + self.c * other.d, d: self.b * other.c + self.d * other.d, e: self.a * other.e + self.c * other.f + self.e, f: self.b * other.e + self.d * other.f + self.f };
+  return new _M0TP26mizchi3svg9Transform(self.a * other.a + self.c * other.b, self.b * other.a + self.d * other.b, self.a * other.c + self.c * other.d, self.b * other.c + self.d * other.d, self.a * other.e + self.c * other.f + self.e, self.b * other.e + self.d * other.f + self.f);
 }
 function _M0FP26mizchi3svg4lerp(a, b, t) {
   return a + (b - a) * t;
 }
 function _M0FP26mizchi3svg11lerp__color(c0, c1, t) {
-  return { r: _M0MP311moonbitlang4core6double6Double7to__int(_M0FP26mizchi3svg4lerp(c0.r + 0, c1.r + 0, t)), g: _M0MP311moonbitlang4core6double6Double7to__int(_M0FP26mizchi3svg4lerp(c0.g + 0, c1.g + 0, t)), b: _M0MP311moonbitlang4core6double6Double7to__int(_M0FP26mizchi3svg4lerp(c0.b + 0, c1.b + 0, t)), a: _M0MP311moonbitlang4core6double6Double7to__int(_M0FP26mizchi3svg4lerp(c0.a + 0, c1.a + 0, t)) };
+  return new _M0TP26mizchi3svg5Color(_M0MPC16double6Double7to__int(_M0FP26mizchi3svg4lerp(c0.r + 0, c1.r + 0, t)), _M0MPC16double6Double7to__int(_M0FP26mizchi3svg4lerp(c0.g + 0, c1.g + 0, t)), _M0MPC16double6Double7to__int(_M0FP26mizchi3svg4lerp(c0.b + 0, c1.b + 0, t)), _M0MPC16double6Double7to__int(_M0FP26mizchi3svg4lerp(c0.a + 0, c1.a + 0, t)));
 }
 function _M0MP26mizchi3svg9Transform10get__scale(self) {
   const sx = Math.sqrt(self.a * self.a + self.b * self.b);
@@ -9506,15 +9573,15 @@ function _M0MP26mizchi3svg9Transform10get__scale(self) {
   return { _0: sx, _1: sy };
 }
 function _M0MP26mizchi3svg9Transform6rotate(angle) {
-  const cos_a = _M0FP311moonbitlang4core4math3cos(angle);
-  const sin_a = _M0FP311moonbitlang4core4math3sin(angle);
-  return { a: cos_a, b: sin_a, c: -sin_a, d: cos_a, e: 0, f: 0 };
+  const cos_a = _M0FPC14math3cos(angle);
+  const sin_a = _M0FPC14math3sin(angle);
+  return new _M0TP26mizchi3svg9Transform(cos_a, sin_a, -sin_a, cos_a, 0, 0);
 }
 function _M0MP26mizchi3svg9Transform5scale(sx, sy) {
-  return { a: sx, b: 0, c: 0, d: sy, e: 0, f: 0 };
+  return new _M0TP26mizchi3svg9Transform(sx, 0, 0, sy, 0, 0);
 }
 function _M0MP26mizchi3svg9Transform9translate(tx, ty) {
-  return { a: 1, b: 0, c: 0, d: 1, e: tx, f: ty };
+  return new _M0TP26mizchi3svg9Transform(1, 0, 0, 1, tx, ty);
 }
 function _M0MP26mizchi3svg9Transform11apply__bbox(self, bbox) {
   if (_M0MP26mizchi3svg11BoundingBox9is__empty(bbox)) {
@@ -9564,51 +9631,49 @@ function _M0MP26mizchi3svg9Transform11apply__bbox(self, bbox) {
   const max_x = _M0FP26mizchi3svg3max(_M0FP26mizchi3svg3max(x1, x2), _M0FP26mizchi3svg3max(x3, x4));
   const min_y = _M0FP26mizchi3svg3min(_M0FP26mizchi3svg3min(y1, y2), _M0FP26mizchi3svg3min(y3, y4));
   const max_y = _M0FP26mizchi3svg3max(_M0FP26mizchi3svg3max(y1, y2), _M0FP26mizchi3svg3max(y3, y4));
-  return { min_x: min_x, min_y: min_y, max_x: max_x, max_y: max_y };
+  return new _M0TP26mizchi3svg11BoundingBox(min_x, min_y, max_x, max_y);
 }
 function _M0MP26mizchi3svg14RadialGradient3new(cx, cy, r, stops) {
-  return { cx: cx, cy: cy, fx: cx, fy: cy, r: r, stops: stops, spread_method: 0, units: 1, transform: _M0MP26mizchi3svg9Transform8identity() };
+  return new _M0TP26mizchi3svg14RadialGradient(cx, cy, cx, cy, r, stops, 0, 1, _M0MP26mizchi3svg9Transform8identity());
 }
 function _M0FP26mizchi3svg28interpolate__gradient__color(t, stops) {
-  if (_M0MP311moonbitlang4core5array5Array9is__emptyGRP26mizchi3svg12GradientStopE(stops)) {
+  if (_M0MPC15array5Array9is__emptyGRP26mizchi4font10GlyphPointE(stops)) {
     return _M0MP26mizchi3svg5Color5black();
   }
   if (stops.length === 1) {
-    return _M0MP311moonbitlang4core5array5Array2atGRP26mizchi3svg12GradientStopE(stops, 0).color;
+    return _M0MPC15array5Array2atGRP26mizchi22kagura__effect__studio11EffectTrackE(stops, 0).color;
   }
-  const prev_stop = { val: _M0MP311moonbitlang4core5array5Array2atGRP26mizchi3svg12GradientStopE(stops, 0) };
-  const next_stop = { val: _M0MP311moonbitlang4core5array5Array2atGRP26mizchi3svg12GradientStopE(stops, stops.length - 1 | 0) };
-  const _arr = stops;
-  const _len = _arr.length;
+  const prev_stop = new _M0TPC13ref3RefGRP26mizchi3svg12GradientStopE(_M0MPC15array5Array2atGRP26mizchi22kagura__effect__studio11EffectTrackE(stops, 0));
+  const next_stop = new _M0TPC13ref3RefGRP26mizchi3svg12GradientStopE(_M0MPC15array5Array2atGRP26mizchi22kagura__effect__studio11EffectTrackE(stops, stops.length - 1 | 0));
+  const _bind = stops.length;
   let _tmp = 0;
   while (true) {
-    const _i = _tmp;
-    if (_i < _len) {
-      const stop = _arr[_i];
+    const _ = _tmp;
+    if (_ < _bind) {
+      const stop = stops[_];
       if (stop.offset <= t) {
         prev_stop.val = stop;
       }
       if (stop.offset >= t && next_stop.val.offset < stop.offset) {
         next_stop.val = stop;
       }
-      _tmp = _i + 1 | 0;
+      _tmp = _ + 1 | 0;
       continue;
     } else {
       break;
     }
   }
-  const _arr$2 = stops;
-  const _len$2 = _arr$2.length;
+  const _bind$2 = stops.length;
   let _tmp$2 = 0;
   while (true) {
-    const _i = _tmp$2;
-    if (_i < _len$2) {
-      const stop = _arr$2[_i];
+    const _ = _tmp$2;
+    if (_ < _bind$2) {
+      const stop = stops[_];
       if (stop.offset >= t) {
         next_stop.val = stop;
         break;
       }
-      _tmp$2 = _i + 1 | 0;
+      _tmp$2 = _ + 1 | 0;
       continue;
     } else {
       break;
@@ -9621,15 +9686,14 @@ function _M0FP26mizchi3svg28interpolate__gradient__color(t, stops) {
   return _M0FP26mizchi3svg11lerp__color(prev_stop.val.color, next_stop.val.color, local_t);
 }
 function _M0MP26mizchi3svg14RadialGradient10build__lut(self, size) {
-  const lut = _M0MP311moonbitlang4core5array5Array4makeGRP26mizchi3svg5ColorE(size, _M0MP26mizchi3svg5Color5black());
-  const _start4589 = 0;
-  const _end4590 = size;
-  let _tmp = _start4589;
+  const lut = _M0MPC15array5Array4makeGRP26mizchi3svg5ColorE(size, _M0MP26mizchi3svg5Color5black());
+  const _bind = 0;
+  let _tmp = _bind;
   while (true) {
     const i = _tmp;
-    if (i < _end4590) {
+    if (i < size) {
       const t = (i + 0) / ((size - 1 | 0) + 0);
-      _M0MP311moonbitlang4core5array5Array3setGRP26mizchi3svg5ColorE(lut, i, _M0FP26mizchi3svg28interpolate__gradient__color(t, self.stops));
+      _M0MPC15array5Array3setGRP36mizchi6kagura10particle3d8ParticleE(lut, i, _M0FP26mizchi3svg28interpolate__gradient__color(t, self.stops));
       _tmp = i + 1 | 0;
       continue;
     } else {
@@ -9657,7 +9721,7 @@ function _M0MP26mizchi3svg10PathParser7is__end(self) {
   return self.pos >= self.len;
 }
 function _M0MP26mizchi3svg10PathParser3new(data) {
-  return { data: data, pos: 0, len: data.length };
+  return new _M0TP26mizchi3svg10PathParser(data, 0, data.length);
 }
 function _M0MP26mizchi3svg10PathParser4peek(self) {
   if (self.pos < self.len) {
@@ -9676,7 +9740,7 @@ function _M0MP26mizchi3svg10PathParser28skip__whitespace__and__comma(self) {
       if (c === 32 || (c === 9 || (c === 10 || (c === 13 || c === 44)))) {
         _M0MP26mizchi3svg10PathParser7advance(self);
       } else {
-        break;
+        return;
       }
       continue;
     } else {
@@ -9697,11 +9761,11 @@ function _M0FP26mizchi3svg9is__digit(c) {
 }
 function _M0FP26mizchi3svg13parse__double(s) {
   if (s.length === 0) {
-    return Option$None$8$;
+    return _M0DTPC16option6OptionGdE4None__;
   }
-  const result = { val: 0 };
-  const sign = { val: 1 };
-  const i = { val: 0 };
+  const result = new _M0TPC13ref3RefGdE(0);
+  const sign = new _M0TPC13ref3RefGdE(1);
+  const i = new _M0TPC13ref3RefGiE(0);
   const len = s.length;
   const char_at = (str, idx) => {
     $bound_check(str, idx);
@@ -9729,7 +9793,7 @@ function _M0FP26mizchi3svg13parse__double(s) {
   }
   if (i.val < len && char_at(s, i.val) === 46) {
     i.val = i.val + 1 | 0;
-    const frac = { val: 0.1 };
+    const frac = new _M0TPC13ref3RefGdE(0.1);
     while (true) {
       if (i.val < len && _M0FP26mizchi3svg9is__digit(char_at(s, i.val))) {
         const _tmp = result.val;
@@ -9746,7 +9810,7 @@ function _M0FP26mizchi3svg13parse__double(s) {
   }
   if (i.val < len && (char_at(s, i.val) === 101 || char_at(s, i.val) === 69)) {
     i.val = i.val + 1 | 0;
-    const exp_sign = { val: 1 };
+    const exp_sign = new _M0TPC13ref3RefGiE(1);
     if (i.val < len && char_at(s, i.val) === 45) {
       exp_sign.val = -1;
       i.val = i.val + 1 | 0;
@@ -9755,7 +9819,7 @@ function _M0FP26mizchi3svg13parse__double(s) {
         i.val = i.val + 1 | 0;
       }
     }
-    const exp = { val: 0 };
+    const exp = new _M0TPC13ref3RefGiE(0);
     while (true) {
       if (i.val < len && _M0FP26mizchi3svg9is__digit(char_at(s, i.val))) {
         const _tmp = Math.imul(exp.val, 10) | 0;
@@ -9768,13 +9832,13 @@ function _M0FP26mizchi3svg13parse__double(s) {
         break;
       }
     }
-    const exp_mult = { val: 1 };
-    const _start1070 = 0;
-    const _end1071 = exp.val;
-    let _tmp = _start1070;
+    const exp_mult = new _M0TPC13ref3RefGdE(1);
+    const _bind = 0;
+    const _bind$2 = exp.val;
+    let _tmp = _bind;
     while (true) {
       const k = _tmp;
-      if (k < _end1071) {
+      if (k < _bind$2) {
         exp_mult.val = exp_mult.val * 10;
         _tmp = k + 1 | 0;
         continue;
@@ -9788,19 +9852,19 @@ function _M0FP26mizchi3svg13parse__double(s) {
       result.val = result.val * exp_mult.val;
     }
   }
-  return new Option$Some$8$(sign.val * result.val);
+  return new _M0DTPC16option6OptionGdE4Some(sign.val * result.val);
 }
 function _M0MP26mizchi3svg10PathParser13parse__number(self) {
   _M0MP26mizchi3svg10PathParser28skip__whitespace__and__comma(self);
   if (_M0MP26mizchi3svg10PathParser7is__end(self)) {
-    return Option$None$8$;
+    return _M0DTPC16option6OptionGdE4None__;
   }
   const start = self.pos;
   const c = _M0MP26mizchi3svg10PathParser4peek(self);
   if (c === 45 || c === 43) {
     _M0MP26mizchi3svg10PathParser7advance(self);
   }
-  const has_digits = { val: false };
+  const has_digits = new _M0TPC13ref3RefGbE(false);
   while (true) {
     if (!_M0MP26mizchi3svg10PathParser7is__end(self) && _M0FP26mizchi3svg9is__digit(_M0MP26mizchi3svg10PathParser4peek(self))) {
       _M0MP26mizchi3svg10PathParser7advance(self);
@@ -9841,26 +9905,25 @@ function _M0MP26mizchi3svg10PathParser13parse__number(self) {
     }
   }
   if (!has_digits.val || self.pos === start) {
-    return Option$None$8$;
+    return _M0DTPC16option6OptionGdE4None__;
   }
-  const buf = _M0MP311moonbitlang4core7builtin13StringBuilder11new_2einner(0);
-  const _start1149 = start;
-  const _end1150 = self.pos;
-  let _tmp = _start1149;
+  const buf = _M0MPB13StringBuilder11new_2einner(0);
+  const _bind = self.pos;
+  let _tmp = start;
   while (true) {
     const i = _tmp;
-    if (i < _end1150) {
+    if (i < _bind) {
       const _tmp$2 = self.data;
       $bound_check(_tmp$2, i);
       const c$2 = _tmp$2.charCodeAt(i);
-      _M0IP311moonbitlang4core7builtin13StringBuilderP311moonbitlang4core7builtin6Logger11write__char(buf, c$2);
+      _M0IPB13StringBuilderPB6Logger11write__char(buf, c$2);
       _tmp = i + 1 | 0;
       continue;
     } else {
       break;
     }
   }
-  return _M0FP26mizchi3svg13parse__double(_M0MP311moonbitlang4core7builtin13StringBuilder10to__string(buf));
+  return _M0FP26mizchi3svg13parse__double(_M0MPB13StringBuilder10to__string(buf));
 }
 function _M0MP26mizchi3svg10PathParser16skip__whitespace(self) {
   while (true) {
@@ -9869,7 +9932,7 @@ function _M0MP26mizchi3svg10PathParser16skip__whitespace(self) {
       if (c === 32 || (c === 9 || (c === 10 || c === 13))) {
         _M0MP26mizchi3svg10PathParser7advance(self);
       } else {
-        break;
+        return;
       }
       continue;
     } else {
@@ -9880,7 +9943,7 @@ function _M0MP26mizchi3svg10PathParser16skip__whitespace(self) {
 function _M0FP26mizchi3svg11parse__path(data) {
   const parser = _M0MP26mizchi3svg10PathParser3new(data);
   const commands = [];
-  const last_cmd = { val: 77 };
+  const last_cmd = new _M0TPC13ref3RefGcE(77);
   _L: while (true) {
     if (!_M0MP26mizchi3svg10PathParser7is__end(parser)) {
       _M0MP26mizchi3svg10PathParser16skip__whitespace(parser);
@@ -9933,7 +9996,7 @@ function _M0FP26mizchi3svg11parse__path(data) {
                       break _L$5;
                     }
                   }
-                  _M0MP311moonbitlang4core5array5Array4pushGRP26mizchi3svg11PathCommandE(commands, new $64$mizchi$47$svg$46$PathCommand$MoveTo(x, y));
+                  _M0MPC15array5Array4pushGRP36mizchi6kagura4core10TouchPointE(commands, new _M0DTP26mizchi3svg11PathCommand6MoveTo(x, y));
                   break _L$4;
                 }
                 break _L;
@@ -9964,7 +10027,7 @@ function _M0FP26mizchi3svg11parse__path(data) {
                       break _L$6;
                     }
                   }
-                  _M0MP311moonbitlang4core5array5Array4pushGRP26mizchi3svg11PathCommandE(commands, new $64$mizchi$47$svg$46$PathCommand$MoveToRel(dx, dy));
+                  _M0MPC15array5Array4pushGRP36mizchi6kagura4core10TouchPointE(commands, new _M0DTP26mizchi3svg11PathCommand9MoveToRel(dx, dy));
                   break _L$5;
                 }
                 break _L;
@@ -9995,7 +10058,7 @@ function _M0FP26mizchi3svg11parse__path(data) {
                       break _L$7;
                     }
                   }
-                  _M0MP311moonbitlang4core5array5Array4pushGRP26mizchi3svg11PathCommandE(commands, new $64$mizchi$47$svg$46$PathCommand$LineTo(x, y));
+                  _M0MPC15array5Array4pushGRP36mizchi6kagura4core10TouchPointE(commands, new _M0DTP26mizchi3svg11PathCommand6LineTo(x, y));
                   break _L$6;
                 }
                 break _L;
@@ -10026,7 +10089,7 @@ function _M0FP26mizchi3svg11parse__path(data) {
                       break _L$8;
                     }
                   }
-                  _M0MP311moonbitlang4core5array5Array4pushGRP26mizchi3svg11PathCommandE(commands, new $64$mizchi$47$svg$46$PathCommand$LineToRel(dx, dy));
+                  _M0MPC15array5Array4pushGRP36mizchi6kagura4core10TouchPointE(commands, new _M0DTP26mizchi3svg11PathCommand9LineToRel(dx, dy));
                   break _L$7;
                 }
                 break _L;
@@ -10046,7 +10109,7 @@ function _M0FP26mizchi3svg11parse__path(data) {
                   break _L;
                 }
               }
-              _M0MP311moonbitlang4core5array5Array4pushGRP26mizchi3svg11PathCommandE(commands, new $64$mizchi$47$svg$46$PathCommand$HorizontalLineTo(x));
+              _M0MPC15array5Array4pushGRP36mizchi6kagura4core10TouchPointE(commands, new _M0DTP26mizchi3svg11PathCommand16HorizontalLineTo(x));
               break;
             }
             case 104: {
@@ -10062,7 +10125,7 @@ function _M0FP26mizchi3svg11parse__path(data) {
                   break _L;
                 }
               }
-              _M0MP311moonbitlang4core5array5Array4pushGRP26mizchi3svg11PathCommandE(commands, new $64$mizchi$47$svg$46$PathCommand$HorizontalLineToRel(dx));
+              _M0MPC15array5Array4pushGRP36mizchi6kagura4core10TouchPointE(commands, new _M0DTP26mizchi3svg11PathCommand19HorizontalLineToRel(dx));
               break;
             }
             case 86: {
@@ -10078,7 +10141,7 @@ function _M0FP26mizchi3svg11parse__path(data) {
                   break _L;
                 }
               }
-              _M0MP311moonbitlang4core5array5Array4pushGRP26mizchi3svg11PathCommandE(commands, new $64$mizchi$47$svg$46$PathCommand$VerticalLineTo(y));
+              _M0MPC15array5Array4pushGRP36mizchi6kagura4core10TouchPointE(commands, new _M0DTP26mizchi3svg11PathCommand14VerticalLineTo(y));
               break;
             }
             case 118: {
@@ -10094,7 +10157,7 @@ function _M0FP26mizchi3svg11parse__path(data) {
                   break _L;
                 }
               }
-              _M0MP311moonbitlang4core5array5Array4pushGRP26mizchi3svg11PathCommandE(commands, new $64$mizchi$47$svg$46$PathCommand$VerticalLineToRel(dy));
+              _M0MPC15array5Array4pushGRP36mizchi6kagura4core10TouchPointE(commands, new _M0DTP26mizchi3svg11PathCommand17VerticalLineToRel(dy));
               break;
             }
             case 67: {
@@ -10157,7 +10220,7 @@ function _M0FP26mizchi3svg11parse__path(data) {
                       break _L$13;
                     }
                   }
-                  _M0MP311moonbitlang4core5array5Array4pushGRP26mizchi3svg11PathCommandE(commands, new $64$mizchi$47$svg$46$PathCommand$CurveTo(x1, y1, x2, y2, x$2, y$2));
+                  _M0MPC15array5Array4pushGRP36mizchi6kagura4core10TouchPointE(commands, new _M0DTP26mizchi3svg11PathCommand7CurveTo(x1, y1, x2, y2, x$2, y$2));
                   break _L$12;
                 }
                 break _L;
@@ -10224,7 +10287,7 @@ function _M0FP26mizchi3svg11parse__path(data) {
                       break _L$14;
                     }
                   }
-                  _M0MP311moonbitlang4core5array5Array4pushGRP26mizchi3svg11PathCommandE(commands, new $64$mizchi$47$svg$46$PathCommand$CurveToRel(dx1, dy1, dx2, dy2, dx$2, dy$2));
+                  _M0MPC15array5Array4pushGRP36mizchi6kagura4core10TouchPointE(commands, new _M0DTP26mizchi3svg11PathCommand10CurveToRel(dx1, dy1, dx2, dy2, dx$2, dy$2));
                   break _L$13;
                 }
                 break _L;
@@ -10273,7 +10336,7 @@ function _M0FP26mizchi3svg11parse__path(data) {
                       break _L$15;
                     }
                   }
-                  _M0MP311moonbitlang4core5array5Array4pushGRP26mizchi3svg11PathCommandE(commands, new $64$mizchi$47$svg$46$PathCommand$SmoothCurveTo(x2, y2, x$2, y$2));
+                  _M0MPC15array5Array4pushGRP36mizchi6kagura4core10TouchPointE(commands, new _M0DTP26mizchi3svg11PathCommand13SmoothCurveTo(x2, y2, x$2, y$2));
                   break _L$14;
                 }
                 break _L;
@@ -10322,7 +10385,7 @@ function _M0FP26mizchi3svg11parse__path(data) {
                       break _L$16;
                     }
                   }
-                  _M0MP311moonbitlang4core5array5Array4pushGRP26mizchi3svg11PathCommandE(commands, new $64$mizchi$47$svg$46$PathCommand$SmoothCurveToRel(dx2, dy2, dx$2, dy$2));
+                  _M0MPC15array5Array4pushGRP36mizchi6kagura4core10TouchPointE(commands, new _M0DTP26mizchi3svg11PathCommand16SmoothCurveToRel(dx2, dy2, dx$2, dy$2));
                   break _L$15;
                 }
                 break _L;
@@ -10371,7 +10434,7 @@ function _M0FP26mizchi3svg11parse__path(data) {
                       break _L$17;
                     }
                   }
-                  _M0MP311moonbitlang4core5array5Array4pushGRP26mizchi3svg11PathCommandE(commands, new $64$mizchi$47$svg$46$PathCommand$QuadraticCurveTo(x1, y1, x$2, y$2));
+                  _M0MPC15array5Array4pushGRP36mizchi6kagura4core10TouchPointE(commands, new _M0DTP26mizchi3svg11PathCommand16QuadraticCurveTo(x1, y1, x$2, y$2));
                   break _L$16;
                 }
                 break _L;
@@ -10420,7 +10483,7 @@ function _M0FP26mizchi3svg11parse__path(data) {
                       break _L$18;
                     }
                   }
-                  _M0MP311moonbitlang4core5array5Array4pushGRP26mizchi3svg11PathCommandE(commands, new $64$mizchi$47$svg$46$PathCommand$QuadraticCurveToRel(dx1, dy1, dx$2, dy$2));
+                  _M0MPC15array5Array4pushGRP36mizchi6kagura4core10TouchPointE(commands, new _M0DTP26mizchi3svg11PathCommand19QuadraticCurveToRel(dx1, dy1, dx$2, dy$2));
                   break _L$17;
                 }
                 break _L;
@@ -10451,7 +10514,7 @@ function _M0FP26mizchi3svg11parse__path(data) {
                       break _L$19;
                     }
                   }
-                  _M0MP311moonbitlang4core5array5Array4pushGRP26mizchi3svg11PathCommandE(commands, new $64$mizchi$47$svg$46$PathCommand$SmoothQuadraticCurveTo(x$2, y$2));
+                  _M0MPC15array5Array4pushGRP36mizchi6kagura4core10TouchPointE(commands, new _M0DTP26mizchi3svg11PathCommand22SmoothQuadraticCurveTo(x$2, y$2));
                   break _L$18;
                 }
                 break _L;
@@ -10482,7 +10545,7 @@ function _M0FP26mizchi3svg11parse__path(data) {
                       break _L$20;
                     }
                   }
-                  _M0MP311moonbitlang4core5array5Array4pushGRP26mizchi3svg11PathCommandE(commands, new $64$mizchi$47$svg$46$PathCommand$SmoothQuadraticCurveToRel(dx$2, dy$2));
+                  _M0MPC15array5Array4pushGRP36mizchi6kagura4core10TouchPointE(commands, new _M0DTP26mizchi3svg11PathCommand25SmoothQuadraticCurveToRel(dx$2, dy$2));
                   break _L$19;
                 }
                 break _L;
@@ -10558,7 +10621,7 @@ function _M0FP26mizchi3svg11parse__path(data) {
                       break _L$21;
                     }
                   }
-                  _M0MP311moonbitlang4core5array5Array4pushGRP26mizchi3svg11PathCommandE(commands, new $64$mizchi$47$svg$46$PathCommand$ArcTo(rx, ry, rotation, large_arc, sweep, x$2, y$2));
+                  _M0MPC15array5Array4pushGRP36mizchi6kagura4core10TouchPointE(commands, new _M0DTP26mizchi3svg11PathCommand5ArcTo(rx, ry, rotation, large_arc, sweep, x$2, y$2));
                   break _L$20;
                 }
                 break _L;
@@ -10634,7 +10697,7 @@ function _M0FP26mizchi3svg11parse__path(data) {
                       break _L$22;
                     }
                   }
-                  _M0MP311moonbitlang4core5array5Array4pushGRP26mizchi3svg11PathCommandE(commands, new $64$mizchi$47$svg$46$PathCommand$ArcToRel(rx, ry, rotation, large_arc, sweep, dx$2, dy$2));
+                  _M0MPC15array5Array4pushGRP36mizchi6kagura4core10TouchPointE(commands, new _M0DTP26mizchi3svg11PathCommand8ArcToRel(rx, ry, rotation, large_arc, sweep, dx$2, dy$2));
                   break _L$21;
                 }
                 break _L;
@@ -10653,7 +10716,7 @@ function _M0FP26mizchi3svg11parse__path(data) {
           }
           break _L$2;
         }
-        _M0MP311moonbitlang4core5array5Array4pushGRP26mizchi3svg11PathCommandE(commands, $64$mizchi$47$svg$46$PathCommand$ClosePath);
+        _M0MPC15array5Array4pushGRP36mizchi6kagura4core10TouchPointE(commands, _M0DTP26mizchi3svg11PathCommand9ClosePath__);
       }
       continue;
     } else {
@@ -10666,23 +10729,23 @@ function _M0MP26mizchi3svg5Image10get__pixel(self, x, y) {
   if (x < 0 || (x >= self.width || (y < 0 || y >= self.height))) {
     return _M0MP26mizchi3svg5Color11transparent();
   }
-  return _M0MP311moonbitlang4core5array5Array2atGRP26mizchi3svg5ColorE(self.pixels, (Math.imul(y, self.width) | 0) + x | 0);
+  return _M0MPC15array5Array2atGRP26mizchi22kagura__effect__studio11EffectTrackE(self.pixels, (Math.imul(y, self.width) | 0) + x | 0);
 }
 function _M0MP26mizchi3svg5Image3new(width, height) {
   const total = Math.imul(width, height) | 0;
-  const pixels = _M0MP311moonbitlang4core5array5Array4makeGRP26mizchi3svg5ColorE(total, _M0MP26mizchi3svg5Color11transparent());
-  return { width: width, height: height, pixels: pixels };
+  const pixels = _M0MPC15array5Array4makeGRP26mizchi3svg5ColorE(total, _M0MP26mizchi3svg5Color11transparent());
+  return new _M0TP26mizchi3svg5Image(width, height, pixels);
 }
 function _M0MP26mizchi3svg5Image10set__pixel(self, x, y, color) {
   if (x >= 0 && (x < self.width && (y >= 0 && y < self.height))) {
-    _M0MP311moonbitlang4core5array5Array3setGRP26mizchi3svg5ColorE(self.pixels, (Math.imul(y, self.width) | 0) + x | 0, color);
+    _M0MPC15array5Array3setGRP36mizchi6kagura10particle3d8ParticleE(self.pixels, (Math.imul(y, self.width) | 0) + x | 0, color);
     return;
   } else {
     return;
   }
 }
 function _M0MP26mizchi3svg8ClipPath15with__transform(id, shape, transform) {
-  return { id: id, shape: shape, transform: transform, clip_rule: 0, units: 0 };
+  return new _M0TP26mizchi3svg8ClipPath(id, shape, transform, 0, 0);
 }
 function _M0MP26mizchi3svg8ClipPath8contains(self, x, y) {
   const inv = _M0MP26mizchi3svg9Transform7inverse(self.transform);
@@ -10700,19 +10763,19 @@ function _M0MP26mizchi3svg8ClipPath8contains(self, x, y) {
 }
 function _M0MP26mizchi3svg16ClipPathRegistry3new() {
   const _bind = [];
-  return { clips: _M0MP311moonbitlang4core7builtin3Map11from__arrayGsRP26mizchi3svg8ClipPathE({ buf: _bind, start: 0, end: 0 }) };
+  return new _M0TP26mizchi3svg16ClipPathRegistry(_M0MPB3Map11from__arrayGsRP26mizchi3svg8ClipPathE(new _M0TPB9ArrayViewGUsRP26mizchi3svg8ClipPathEE(_bind, 0, 0)));
 }
 function _M0MP26mizchi3svg16ClipPathRegistry3add(self, clip) {
-  _M0MP311moonbitlang4core7builtin3Map3setGsRP26mizchi3svg8ClipPathE(self.clips, clip.id, clip);
+  _M0MPB3Map3setGsRP26mizchi3svg8ClipPathE(self.clips, clip.id, clip);
 }
 function _M0MP26mizchi3svg16ClipPathRegistry3get(self, id) {
-  return _M0MP311moonbitlang4core7builtin3Map3getGsRP26mizchi3svg8ClipPathE(self.clips, id);
+  return _M0MPB3Map3getGsRP26mizchi3svg8ClipPathE(self.clips, id);
 }
 function _M0MP26mizchi3svg4Mask3new(id, content) {
-  return { id: id, content: content, x: -0.1, y: -0.1, width: 1.2, height: 1.2, x_is_percent: true, y_is_percent: true, width_is_percent: true, height_is_percent: true, mask_units: 1, mask_content_units: 0, mask_type: 0 };
+  return new _M0TP26mizchi3svg4Mask(id, content, -0.1, -0.1, 1.2, 1.2, true, true, true, true, 1, 0, 0);
 }
 function _M0MP26mizchi3svg4Mask12with__bounds(id, content, x, y, width, height) {
-  return { id: id, content: content, x: x, y: y, width: width, height: height, x_is_percent: false, y_is_percent: false, width_is_percent: false, height_is_percent: false, mask_units: 1, mask_content_units: 0, mask_type: 0 };
+  return new _M0TP26mizchi3svg4Mask(id, content, x, y, width, height, false, false, false, false, 1, 0, 0);
 }
 function _M0FP26mizchi3svg18compute__luminance(color) {
   const r = (color.r + 0) / 255;
@@ -10726,13 +10789,13 @@ function _M0FP26mizchi3svg20compute__alpha__mask(color) {
 }
 function _M0MP26mizchi3svg12MaskRegistry3new() {
   const _bind = [];
-  return { masks: _M0MP311moonbitlang4core7builtin3Map11from__arrayGsRP26mizchi3svg4MaskE({ buf: _bind, start: 0, end: 0 }) };
+  return new _M0TP26mizchi3svg12MaskRegistry(_M0MPB3Map11from__arrayGsRP26mizchi3svg4MaskE(new _M0TPB9ArrayViewGUsRP26mizchi3svg4MaskEE(_bind, 0, 0)));
 }
 function _M0MP26mizchi3svg12MaskRegistry3add(self, mask) {
-  _M0MP311moonbitlang4core7builtin3Map3setGsRP26mizchi3svg4MaskE(self.masks, mask.id, mask);
+  _M0MPB3Map3setGsRP26mizchi3svg4MaskE(self.masks, mask.id, mask);
 }
 function _M0MP26mizchi3svg12MaskRegistry3get(self, id) {
-  return _M0MP311moonbitlang4core7builtin3Map3getGsRP26mizchi3svg4MaskE(self.masks, id);
+  return _M0MPB3Map3getGsRP26mizchi3svg4MaskE(self.masks, id);
 }
 function _M0FP26mizchi3svg20resolve__mask__coord(value, is_percent, min, size) {
   return is_percent ? min + value * size : value;
@@ -10742,26 +10805,26 @@ function _M0FP26mizchi3svg19resolve__mask__size(value, is_percent, size) {
 }
 function _M0MP26mizchi3svg16GradientRegistry3new() {
   const _bind = [];
-  return { gradients: _M0MP311moonbitlang4core7builtin3Map11from__arrayGsRP26mizchi3svg8GradientE({ buf: _bind, start: 0, end: 0 }) };
+  return new _M0TP26mizchi3svg16GradientRegistry(_M0MPB3Map11from__arrayGsRP26mizchi3svg8GradientE(new _M0TPB9ArrayViewGUsRP26mizchi3svg8GradientEE(_bind, 0, 0)));
 }
 function _M0MP26mizchi3svg14MarkerRegistry3new() {
   const _bind = [];
-  return { markers: _M0MP311moonbitlang4core7builtin3Map11from__arrayGsRP26mizchi3svg6MarkerE({ buf: _bind, start: 0, end: 0 }) };
+  return new _M0TP26mizchi3svg14MarkerRegistry(_M0MPB3Map11from__arrayGsRP26mizchi3svg6MarkerE(new _M0TPB9ArrayViewGUsRP26mizchi3svg6MarkerEE(_bind, 0, 0)));
 }
 function _M0MP26mizchi3svg15PatternRegistry3new() {
   const _bind = [];
-  return { patterns: _M0MP311moonbitlang4core7builtin3Map11from__arrayGsRP26mizchi3svg7PatternE({ buf: _bind, start: 0, end: 0 }) };
+  return new _M0TP26mizchi3svg15PatternRegistry(_M0MPB3Map11from__arrayGsRP26mizchi3svg7PatternE(new _M0TPB9ArrayViewGUsRP26mizchi3svg7PatternEE(_bind, 0, 0)));
 }
 function _M0MP26mizchi3svg14SymbolRegistry3new() {
   const _bind = [];
-  return { symbols: _M0MP311moonbitlang4core7builtin3Map11from__arrayGsRP26mizchi3svg6SymbolE({ buf: _bind, start: 0, end: 0 }) };
+  return new _M0TP26mizchi3svg14SymbolRegistry(_M0MPB3Map11from__arrayGsRP26mizchi3svg6SymbolE(new _M0TPB9ArrayViewGUsRP26mizchi3svg6SymbolEE(_bind, 0, 0)));
 }
 function _M0MP26mizchi3svg4Mask17get__mask__bounds(self, target) {
   const _bind = self.mask_units;
   if (_bind === 1) {
     const tw = target.max_x - target.min_x;
     const th = target.max_y - target.min_y;
-    return { min_x: target.min_x + self.x * tw, min_y: target.min_y + self.y * th, max_x: target.min_x + (self.x + self.width) * tw, max_y: target.min_y + (self.y + self.height) * th };
+    return new _M0TP26mizchi3svg11BoundingBox(target.min_x + self.x * tw, target.min_y + self.y * th, target.min_x + (self.x + self.width) * tw, target.min_y + (self.y + self.height) * th);
   } else {
     const tw = target.max_x - target.min_x;
     const th = target.max_y - target.min_y;
@@ -10769,23 +10832,23 @@ function _M0MP26mizchi3svg4Mask17get__mask__bounds(self, target) {
     const min_y = _M0FP26mizchi3svg20resolve__mask__coord(self.y, self.y_is_percent, target.min_y, th);
     const w = _M0FP26mizchi3svg19resolve__mask__size(self.width, self.width_is_percent, tw);
     const h = _M0FP26mizchi3svg19resolve__mask__size(self.height, self.height_is_percent, th);
-    return { min_x: min_x, min_y: min_y, max_x: min_x + w, max_y: min_y + h };
+    return new _M0TP26mizchi3svg11BoundingBox(min_x, min_y, min_x + w, min_y + h);
   }
 }
 function _M0FP26mizchi3svg22apply__mask__to__image(image, mask_buffer, mask_type) {
   const result = _M0MP26mizchi3svg5Image3new(image.width, image.height);
-  const _start3748 = 0;
-  const _end3749 = image.height;
-  let _tmp = _start3748;
+  const _bind = 0;
+  const _bind$2 = image.height;
+  let _tmp = _bind;
   while (true) {
     const y = _tmp;
-    if (y < _end3749) {
-      const _start3753 = 0;
-      const _end3754 = image.width;
-      let _tmp$2 = _start3753;
+    if (y < _bind$2) {
+      const _bind$3 = 0;
+      const _bind$4 = image.width;
+      let _tmp$2 = _bind$3;
       while (true) {
         const x = _tmp$2;
-        if (x < _end3754) {
+        if (x < _bind$4) {
           const src_color = _M0MP26mizchi3svg5Image10get__pixel(image, x, y);
           if (image.width === 0) {
             $panic();
@@ -10802,7 +10865,7 @@ function _M0FP26mizchi3svg22apply__mask__to__image(image, mask_buffer, mask_type
           } else {
             mask_value = _M0FP26mizchi3svg20compute__alpha__mask(mask_color);
           }
-          const new_alpha = _M0MP311moonbitlang4core6double6Double7to__int((src_color.a + 0) * mask_value);
+          const new_alpha = _M0MPC16double6Double7to__int((src_color.a + 0) * mask_value);
           _M0MP26mizchi3svg5Image10set__pixel(result, x, y, _M0MP26mizchi3svg5Color4rgba(src_color.r, src_color.g, src_color.b, new_alpha));
           _tmp$2 = x + 1 | 0;
           continue;
@@ -10819,7 +10882,7 @@ function _M0FP26mizchi3svg22apply__mask__to__image(image, mask_buffer, mask_type
   return result;
 }
 function _M0MP26mizchi3svg7Pattern3new(id, width, height, content) {
-  return { id: id, width: width, height: height, content: content, pattern_units: 1, pattern_content_units: 0, transform: _M0MP26mizchi3svg9Transform8identity(), view_box: undefined, preserve_aspect_ratio: _M0MP26mizchi3svg19PreserveAspectRatio7default() };
+  return new _M0TP26mizchi3svg7Pattern(id, width, height, content, 1, 0, _M0MP26mizchi3svg9Transform8identity(), undefined, _M0MP26mizchi3svg19PreserveAspectRatio7default());
 }
 function _M0MP26mizchi3svg9Transform14is__invertible(self) {
   const det = _M0MP26mizchi3svg9Transform11determinant(self);
@@ -10843,8 +10906,8 @@ function _M0MP26mizchi3svg7Pattern14get__color__at(self, x, y, bbox) {
   if (pw <= 0 || ph <= 0) {
     return undefined;
   }
-  const px = x - _M0MP311moonbitlang4core6double6Double5floor(x / pw) * pw;
-  const py = y - _M0MP311moonbitlang4core6double6Double5floor(y / ph) * ph;
+  const px = x - _M0MPC16double6Double5floor(x / pw) * pw;
+  const py = y - _M0MPC16double6Double5floor(y / ph) * ph;
   let cx;
   let cy;
   _L$2: {
@@ -10894,20 +10957,20 @@ function _M0MP26mizchi3svg7Pattern14get__color__at(self, x, y, bbox) {
     cy$2 = _cy;
     break _L$3;
   }
-  const _arr = self.content;
-  const _len = _arr.length;
+  const _bind = self.content;
+  const _bind$2 = _bind.length;
   let _tmp = 0;
   while (true) {
-    const _i = _tmp;
-    if (_i < _len) {
+    const _ = _tmp;
+    if (_ < _bind$2) {
+      const node = _bind[_];
       _L$4: {
-        const node = _arr[_i];
         if (_M0FP26mizchi3svg16hit__test__shape(cx$2, cy$2, node.shape)) {
           let color;
           _L$5: {
-            const _bind = node.fill;
-            if (_bind.$tag === 1) {
-              const _SolidColor = _bind;
+            const _bind$3 = node.fill;
+            if (_bind$3.$tag === 1) {
+              const _SolidColor = _bind$3;
               const _color = _SolidColor._0;
               color = _color;
               break _L$5;
@@ -10919,7 +10982,7 @@ function _M0MP26mizchi3svg7Pattern14get__color__at(self, x, y, bbox) {
         }
         break _L$4;
       }
-      _tmp = _i + 1 | 0;
+      _tmp = _ + 1 | 0;
       continue;
     } else {
       break;
@@ -10928,33 +10991,33 @@ function _M0MP26mizchi3svg7Pattern14get__color__at(self, x, y, bbox) {
   return undefined;
 }
 function _M0MP26mizchi3svg15PatternRegistry3add(self, pattern) {
-  _M0MP311moonbitlang4core7builtin3Map3setGsRP26mizchi3svg7PatternE(self.patterns, pattern.id, pattern);
+  _M0MPB3Map3setGsRP26mizchi3svg7PatternE(self.patterns, pattern.id, pattern);
 }
 function _M0MP26mizchi3svg15PatternRegistry3get(self, id) {
-  return _M0MP311moonbitlang4core7builtin3Map3getGsRP26mizchi3svg7PatternE(self.patterns, id);
+  return _M0MPB3Map3getGsRP26mizchi3svg7PatternE(self.patterns, id);
 }
 function _M0MP26mizchi3svg16GradientRegistry3add(self, id, gradient) {
-  _M0MP311moonbitlang4core7builtin3Map3setGsRP26mizchi3svg8GradientE(self.gradients, id, gradient);
+  _M0MPB3Map3setGsRP26mizchi3svg8GradientE(self.gradients, id, gradient);
 }
 function _M0MP26mizchi3svg16GradientRegistry3get(self, id) {
-  return _M0MP311moonbitlang4core7builtin3Map3getGsRP26mizchi3svg8GradientE(self.gradients, id);
+  return _M0MPB3Map3getGsRP26mizchi3svg8GradientE(self.gradients, id);
 }
 function _M0MP26mizchi3svg6Symbol3new(id, content) {
-  return { id: id, content: content, view_box: undefined, width: Option$None$8$, height: Option$None$8$, preserve_aspect_ratio: _M0MP26mizchi3svg19PreserveAspectRatio7default(), display_none: false };
+  return new _M0TP26mizchi3svg6Symbol(id, content, undefined, _M0DTPC16option6OptionGdE4None__, _M0DTPC16option6OptionGdE4None__, _M0MP26mizchi3svg19PreserveAspectRatio7default(), false);
 }
 function _M0MP26mizchi3svg6Symbol13with__viewbox(id, content, view_box) {
-  return { id: id, content: content, view_box: view_box, width: Option$None$8$, height: Option$None$8$, preserve_aspect_ratio: _M0MP26mizchi3svg19PreserveAspectRatio7default(), display_none: false };
+  return new _M0TP26mizchi3svg6Symbol(id, content, view_box, _M0DTPC16option6OptionGdE4None__, _M0DTPC16option6OptionGdE4None__, _M0MP26mizchi3svg19PreserveAspectRatio7default(), false);
 }
 function _M0MP26mizchi3svg10UseElement3new(href, x, y) {
-  return { href: href, x: x, y: y, width: Option$None$8$, height: Option$None$8$, transform: _M0MP26mizchi3svg9Transform8identity() };
+  return new _M0TP26mizchi3svg10UseElement(href, x, y, _M0DTPC16option6OptionGdE4None__, _M0DTPC16option6OptionGdE4None__, _M0MP26mizchi3svg9Transform8identity());
 }
 function _M0FP26mizchi3svg10hex__value(c) {
   return c >= 48 && c <= 57 ? c - 48 | 0 : c >= 97 && c <= 102 ? 10 + (c - 97 | 0) | 0 : c >= 65 && c <= 70 ? 10 + (c - 65 | 0) | 0 : undefined;
 }
 function _M0FP26mizchi3svg15decode__percent(s) {
-  const i = { val: 0 };
+  const i = new _M0TPC13ref3RefGiE(0);
   const len = s.length;
-  const buf = _M0MP311moonbitlang4core7builtin13StringBuilder11new_2einner(0);
+  const buf = _M0MPB13StringBuilder11new_2einner(0);
   while (true) {
     if (i.val < len) {
       const _tmp = i.val;
@@ -10989,102 +11052,102 @@ function _M0FP26mizchi3svg15decode__percent(s) {
             break _L;
           }
           const v = (Math.imul(h1, 16) | 0) + h2 | 0;
-          _M0IP311moonbitlang4core7builtin13StringBuilderP311moonbitlang4core7builtin6Logger11write__char(buf, v);
+          _M0IPB13StringBuilderPB6Logger11write__char(buf, v);
           i.val = i.val + 3 | 0;
           continue;
         }
       }
-      _M0IP311moonbitlang4core7builtin13StringBuilderP311moonbitlang4core7builtin6Logger11write__char(buf, c);
+      _M0IPB13StringBuilderPB6Logger11write__char(buf, c);
       i.val = i.val + 1 | 0;
       continue;
     } else {
       break;
     }
   }
-  return _M0MP311moonbitlang4core7builtin13StringBuilder10to__string(buf);
+  return _M0MPB13StringBuilder10to__string(buf);
 }
 function _M0MP26mizchi3svg10UseElement7get__id(self) {
   let _tmp;
   if (self.href.length > 0) {
     const _tmp$2 = self.href;
     $bound_check(_tmp$2, 0);
-    _tmp = _M0MP311moonbitlang4core6uint166UInt1616unsafe__to__char(_tmp$2.charCodeAt(0)) === 35;
+    _tmp = _M0MPC16uint166UInt1616unsafe__to__char(_tmp$2.charCodeAt(0)) === 35;
   } else {
     _tmp = false;
   }
   if (_tmp) {
-    const buf = _M0MP311moonbitlang4core7builtin13StringBuilder11new_2einner(0);
-    const _start3604 = 1;
-    const _end3605 = self.href.length;
-    let _tmp$2 = _start3604;
+    const buf = _M0MPB13StringBuilder11new_2einner(0);
+    const _bind = 1;
+    const _bind$2 = self.href.length;
+    let _tmp$2 = _bind;
     while (true) {
       const i = _tmp$2;
-      if (i < _end3605) {
+      if (i < _bind$2) {
         const _tmp$3 = self.href;
         $bound_check(_tmp$3, i);
-        _M0IP311moonbitlang4core7builtin13StringBuilderP311moonbitlang4core7builtin6Logger11write__char(buf, _M0MP311moonbitlang4core6uint166UInt1616unsafe__to__char(_tmp$3.charCodeAt(i)));
+        _M0IPB13StringBuilderPB6Logger11write__char(buf, _M0MPC16uint166UInt1616unsafe__to__char(_tmp$3.charCodeAt(i)));
         _tmp$2 = i + 1 | 0;
         continue;
       } else {
         break;
       }
     }
-    return _M0FP26mizchi3svg15decode__percent(_M0MP311moonbitlang4core7builtin13StringBuilder10to__string(buf));
+    return _M0FP26mizchi3svg15decode__percent(_M0MPB13StringBuilder10to__string(buf));
   } else {
     return self.href;
   }
 }
 function _M0MP26mizchi3svg14SymbolRegistry3add(self, symbol) {
-  _M0MP311moonbitlang4core7builtin3Map3setGsRP26mizchi3svg6SymbolE(self.symbols, symbol.id, symbol);
+  _M0MPB3Map3setGsRP26mizchi3svg6SymbolE(self.symbols, symbol.id, symbol);
 }
 function _M0MP26mizchi3svg14SymbolRegistry3get(self, id) {
-  return _M0MP311moonbitlang4core7builtin3Map3getGsRP26mizchi3svg6SymbolE(self.symbols, id);
+  return _M0MPB3Map3getGsRP26mizchi3svg6SymbolE(self.symbols, id);
 }
 function _M0MP26mizchi3svg12DefsRegistry3new() {
   const _bind = [];
-  return { elements: _M0MP311moonbitlang4core7builtin3Map11from__arrayGsRP26mizchi3svg7SVGNodeE({ buf: _bind, start: 0, end: 0 }) };
+  return new _M0TP26mizchi3svg12DefsRegistry(_M0MPB3Map11from__arrayGsRP26mizchi3svg7SVGNodeE(new _M0TPB9ArrayViewGUsRP26mizchi3svg7SVGNodeEE(_bind, 0, 0)));
 }
 function _M0MP26mizchi3svg12DefsRegistry3add(self, id, node) {
   if (id.length === 0) {
     return undefined;
   }
-  _M0MP311moonbitlang4core7builtin3Map3setGsRP26mizchi3svg7SVGNodeE(self.elements, id, node);
+  _M0MPB3Map3setGsRP26mizchi3svg7SVGNodeE(self.elements, id, node);
 }
 function _M0MP26mizchi3svg12DefsRegistry3get(self, id) {
-  return _M0MP311moonbitlang4core7builtin3Map3getGsRP26mizchi3svg7SVGNodeE(self.elements, id);
+  return _M0MPB3Map3getGsRP26mizchi3svg7SVGNodeE(self.elements, id);
 }
 function _M0MP26mizchi3svg7SVGNode5clone(self) {
   const children = [];
-  const _arr = self.children;
-  const _len = _arr.length;
+  const _bind = self.children;
+  const _bind$2 = _bind.length;
   let _tmp = 0;
   while (true) {
-    const _i = _tmp;
-    if (_i < _len) {
-      const child = _arr[_i];
-      _M0MP311moonbitlang4core5array5Array4pushGRP26mizchi3svg7SVGNodeE(children, _M0MP26mizchi3svg7SVGNode5clone(child));
-      _tmp = _i + 1 | 0;
+    const _ = _tmp;
+    if (_ < _bind$2) {
+      const child = _bind[_];
+      _M0MPC15array5Array4pushGRP36mizchi6kagura4core10TouchPointE(children, _M0MP26mizchi3svg7SVGNode5clone(child));
+      _tmp = _ + 1 | 0;
       continue;
     } else {
       break;
     }
   }
   const filters = [];
-  const _arr$2 = self.filters;
-  const _len$2 = _arr$2.length;
+  const _bind$3 = self.filters;
+  const _bind$4 = _bind$3.length;
   let _tmp$2 = 0;
   while (true) {
-    const _i = _tmp$2;
-    if (_i < _len$2) {
-      const f = _arr$2[_i];
-      _M0MP311moonbitlang4core5array5Array4pushGRP26mizchi3svg6FilterE(filters, f);
-      _tmp$2 = _i + 1 | 0;
+    const _ = _tmp$2;
+    if (_ < _bind$4) {
+      const f = _bind$3[_];
+      _M0MPC15array5Array4pushGRP36mizchi6kagura4core10TouchPointE(filters, f);
+      _tmp$2 = _ + 1 | 0;
       continue;
     } else {
       break;
     }
   }
-  return { id: self.id, shape: self.shape, transform: self.transform, view_box: self.view_box, viewport_width: self.viewport_width, viewport_height: self.viewport_height, preserve_aspect_ratio: self.preserve_aspect_ratio, preserve_aspect_ratio_is_set: self.preserve_aspect_ratio_is_set, fill: self.fill, fill_is_set: self.fill_is_set, color: self.color, color_is_set: self.color_is_set, paint_order: self.paint_order, fill_rule: self.fill_rule, fill_opacity: self.fill_opacity, stroke: self.stroke, stroke_paint_is_set: self.stroke_paint_is_set, stroke_width_is_set: self.stroke_width_is_set, stroke_opacity: self.stroke_opacity, opacity: self.opacity, marker_start: self.marker_start, marker_start_is_set: self.marker_start_is_set, marker_mid: self.marker_mid, marker_mid_is_set: self.marker_mid_is_set, marker_end: self.marker_end, marker_end_is_set: self.marker_end_is_set, z_index: self.z_index, node_dirty: self.node_dirty, prev_bounds: self.prev_bounds, filters: filters, mask_id: self.mask_id, clip_path_id: self.clip_path_id, clip_overflow: self.clip_overflow, children: children };
+  return new _M0TP26mizchi3svg7SVGNode(self.id, self.shape, self.transform, self.view_box, self.viewport_width, self.viewport_height, self.preserve_aspect_ratio, self.preserve_aspect_ratio_is_set, self.fill, self.fill_is_set, self.color, self.color_is_set, self.paint_order, self.fill_rule, self.fill_opacity, self.stroke, self.stroke_paint_is_set, self.stroke_width_is_set, self.stroke_opacity, self.opacity, self.marker_start, self.marker_start_is_set, self.marker_mid, self.marker_mid_is_set, self.marker_end, self.marker_end_is_set, self.z_index, self.node_dirty, self.prev_bounds, filters, self.mask_id, self.clip_path_id, self.clip_overflow, children);
 }
 function _M0MP26mizchi3svg10UseElement11instantiate(self, registry) {
   const id = _M0MP26mizchi3svg10UseElement7get__id(self);
@@ -11136,7 +11199,7 @@ function _M0MP26mizchi3svg10UseElement11instantiate(self, registry) {
                   break _L$6;
                 }
               }
-              _bind = { _0: { min_x: 0, min_y: 0, width: w, height: h }, _1: true };
+              _bind = { _0: new _M0TP26mizchi3svg7ViewBox(0, 0, w, h), _1: true };
               break _L$5;
             }
             _bind = { _0: undefined, _1: false };
@@ -11172,7 +11235,7 @@ function _M0MP26mizchi3svg10UseElement11instantiate(self, registry) {
       }
       break _L$3;
     }
-    vw = new Option$Some$8$(w);
+    vw = new _M0DTPC16option6OptionGdE4Some(w);
   }
   let vh;
   let h;
@@ -11189,11 +11252,11 @@ function _M0MP26mizchi3svg10UseElement11instantiate(self, registry) {
       }
       break _L$4;
     }
-    vh = new Option$Some$8$(h);
+    vh = new _M0DTPC16option6OptionGdE4Some(h);
   }
   node.view_box = vb;
   if (force_non_uniform) {
-    node.preserve_aspect_ratio = { align: 0, meet_or_slice: 0 };
+    node.preserve_aspect_ratio = new _M0TP26mizchi3svg19PreserveAspectRatio(0, 0);
   }
   node.viewport_width = vw;
   node.viewport_height = vh;
@@ -11203,19 +11266,19 @@ function _M0MP26mizchi3svg10UseElement11instantiate(self, registry) {
   return node;
 }
 function _M0MP26mizchi3svg6Marker3new(id, content) {
-  return { id: id, content: content, ref_x: 0, ref_y: 0, marker_width: 3, marker_height: 3, orient: new $64$mizchi$47$svg$46$MarkerOrient$Angle(0), marker_units: 0, view_box: undefined, preserve_aspect_ratio: _M0MP26mizchi3svg19PreserveAspectRatio7default(), clip_overflow: true };
+  return new _M0TP26mizchi3svg6Marker(id, content, 0, 0, 3, 3, new _M0DTP26mizchi3svg12MarkerOrient5Angle(0), 0, undefined, _M0MP26mizchi3svg19PreserveAspectRatio7default(), true);
 }
 function _M0FP26mizchi3svg20degrees__to__radians(degrees) {
   return degrees * 3.14159265358979312 / 180;
 }
 function _M0MP26mizchi3svg14MarkerRegistry3add(self, marker) {
-  _M0MP311moonbitlang4core7builtin3Map3setGsRP26mizchi3svg6MarkerE(self.markers, marker.id, marker);
+  _M0MPB3Map3setGsRP26mizchi3svg6MarkerE(self.markers, marker.id, marker);
 }
 function _M0MP26mizchi3svg14MarkerRegistry3get(self, id) {
-  return _M0MP311moonbitlang4core7builtin3Map3getGsRP26mizchi3svg6MarkerE(self.markers, id);
+  return _M0MPB3Map3getGsRP26mizchi3svg6MarkerE(self.markers, id);
 }
 function _M0MP26mizchi3svg10MarkedLine3new(points) {
-  return { points: points, marker_start: undefined, marker_mid: undefined, marker_end: undefined };
+  return new _M0TP26mizchi3svg10MarkedLine(points, undefined, undefined, undefined);
 }
 function _M0MP26mizchi3svg10MarkedLine14get__angle__at(self, index) {
   const len = self.points.length;
@@ -11223,24 +11286,23 @@ function _M0MP26mizchi3svg10MarkedLine14get__angle__at(self, index) {
     return 0;
   }
   const eps = 0.0001;
-  const angle_from = (dx, dy) => _M0FP311moonbitlang4core4math5atan2(dy, dx);
+  const angle_from = (dx, dy) => _M0FPC14math5atan2(dy, dx);
   const normalize = (dx, dy) => {
     const len$2 = Math.sqrt(dx * dx + dy * dy);
     return len$2 < eps ? { _0: 0, _1: 0, _2: len$2 } : { _0: dx / len$2, _1: dy / len$2, _2: len$2 };
   };
   if (index === 0) {
-    const _start3507 = 1;
-    const _end3508 = len;
-    let _tmp = _start3507;
+    const _bind = 1;
+    let _tmp = _bind;
     while (true) {
       const i = _tmp;
-      if (i < _end3508) {
-        const dx = _M0MP311moonbitlang4core5array5Array2atGUddEE(self.points, i)._0 - _M0MP311moonbitlang4core5array5Array2atGUddEE(self.points, 0)._0;
-        const dy = _M0MP311moonbitlang4core5array5Array2atGUddEE(self.points, i)._1 - _M0MP311moonbitlang4core5array5Array2atGUddEE(self.points, 0)._1;
+      if (i < len) {
+        const dx = _M0MPC15array5Array2atGRP26mizchi22kagura__effect__studio11EffectTrackE(self.points, i)._0 - _M0MPC15array5Array2atGRP26mizchi22kagura__effect__studio11EffectTrackE(self.points, 0)._0;
+        const dy = _M0MPC15array5Array2atGRP26mizchi22kagura__effect__studio11EffectTrackE(self.points, i)._1 - _M0MPC15array5Array2atGRP26mizchi22kagura__effect__studio11EffectTrackE(self.points, 0)._1;
         let l;
         _L: {
-          const _bind = normalize(dx, dy);
-          const _l = _bind._2;
+          const _bind$2 = normalize(dx, dy);
+          const _l = _bind$2._2;
           l = _l;
           break _L;
         }
@@ -11260,8 +11322,8 @@ function _M0MP26mizchi3svg10MarkedLine14get__angle__at(self, index) {
       while (true) {
         const i = _tmp;
         if (i > 0) {
-          const dx = _M0MP311moonbitlang4core5array5Array2atGUddEE(self.points, i)._0 - _M0MP311moonbitlang4core5array5Array2atGUddEE(self.points, i - 1 | 0)._0;
-          const dy = _M0MP311moonbitlang4core5array5Array2atGUddEE(self.points, i)._1 - _M0MP311moonbitlang4core5array5Array2atGUddEE(self.points, i - 1 | 0)._1;
+          const dx = _M0MPC15array5Array2atGRP26mizchi22kagura__effect__studio11EffectTrackE(self.points, i)._0 - _M0MPC15array5Array2atGRP26mizchi22kagura__effect__studio11EffectTrackE(self.points, i - 1 | 0)._0;
+          const dy = _M0MPC15array5Array2atGRP26mizchi22kagura__effect__studio11EffectTrackE(self.points, i)._1 - _M0MPC15array5Array2atGRP26mizchi22kagura__effect__studio11EffectTrackE(self.points, i - 1 | 0)._1;
           let l;
           _L: {
             const _bind = normalize(dx, dy);
@@ -11280,10 +11342,10 @@ function _M0MP26mizchi3svg10MarkedLine14get__angle__at(self, index) {
       }
       return 0;
     } else {
-      const dx1 = _M0MP311moonbitlang4core5array5Array2atGUddEE(self.points, index)._0 - _M0MP311moonbitlang4core5array5Array2atGUddEE(self.points, index - 1 | 0)._0;
-      const dy1 = _M0MP311moonbitlang4core5array5Array2atGUddEE(self.points, index)._1 - _M0MP311moonbitlang4core5array5Array2atGUddEE(self.points, index - 1 | 0)._1;
-      const dx2 = _M0MP311moonbitlang4core5array5Array2atGUddEE(self.points, index + 1 | 0)._0 - _M0MP311moonbitlang4core5array5Array2atGUddEE(self.points, index)._0;
-      const dy2 = _M0MP311moonbitlang4core5array5Array2atGUddEE(self.points, index + 1 | 0)._1 - _M0MP311moonbitlang4core5array5Array2atGUddEE(self.points, index)._1;
+      const dx1 = _M0MPC15array5Array2atGRP26mizchi22kagura__effect__studio11EffectTrackE(self.points, index)._0 - _M0MPC15array5Array2atGRP26mizchi22kagura__effect__studio11EffectTrackE(self.points, index - 1 | 0)._0;
+      const dy1 = _M0MPC15array5Array2atGRP26mizchi22kagura__effect__studio11EffectTrackE(self.points, index)._1 - _M0MPC15array5Array2atGRP26mizchi22kagura__effect__studio11EffectTrackE(self.points, index - 1 | 0)._1;
+      const dx2 = _M0MPC15array5Array2atGRP26mizchi22kagura__effect__studio11EffectTrackE(self.points, index + 1 | 0)._0 - _M0MPC15array5Array2atGRP26mizchi22kagura__effect__studio11EffectTrackE(self.points, index)._0;
+      const dy2 = _M0MPC15array5Array2atGRP26mizchi22kagura__effect__studio11EffectTrackE(self.points, index + 1 | 0)._1 - _M0MPC15array5Array2atGRP26mizchi22kagura__effect__studio11EffectTrackE(self.points, index)._1;
       let uy1;
       let ux1;
       let l1;
@@ -11332,35 +11394,33 @@ function _M0MP26mizchi3svg9Transform14rotate__around(angle, cx, cy) {
   return _M0MP26mizchi3svg9Transform8multiply(t2, _M0MP26mizchi3svg9Transform8multiply(r, t1));
 }
 function _M0MP26mizchi3svg9Transform7skew__x(angle) {
-  return { a: 1, b: 0, c: _M0FP311moonbitlang4core4math3tan(angle), d: 1, e: 0, f: 0 };
+  return new _M0TP26mizchi3svg9Transform(1, 0, _M0FPC14math3tan(angle), 1, 0, 0);
 }
 function _M0MP26mizchi3svg9Transform7skew__y(angle) {
-  return { a: 1, b: _M0FP311moonbitlang4core4math3tan(angle), c: 0, d: 1, e: 0, f: 0 };
+  return new _M0TP26mizchi3svg9Transform(1, _M0FPC14math3tan(angle), 0, 1, 0, 0);
 }
 function _M0MP26mizchi3svg9Transform6matrix(a, b, c, d, e, f) {
-  return { a: a, b: b, c: c, d: d, e: e, f: f };
+  return new _M0TP26mizchi3svg9Transform(a, b, c, d, e, f);
 }
 function _M0FP26mizchi3svg16build__substring(s, start, end) {
-  const buf = _M0MP311moonbitlang4core7builtin13StringBuilder11new_2einner(0);
-  const _start62 = start;
-  const _end63 = end;
-  let _tmp = _start62;
+  const buf = _M0MPB13StringBuilder11new_2einner(0);
+  let _tmp = start;
   while (true) {
     const i = _tmp;
-    if (i < _end63) {
+    if (i < end) {
       $bound_check(s, i);
-      _M0IP311moonbitlang4core7builtin13StringBuilderP311moonbitlang4core7builtin6Logger11write__char(buf, s.charCodeAt(i));
+      _M0IPB13StringBuilderPB6Logger11write__char(buf, s.charCodeAt(i));
       _tmp = i + 1 | 0;
       continue;
     } else {
       break;
     }
   }
-  return _M0MP311moonbitlang4core7builtin13StringBuilder10to__string(buf);
+  return _M0MPB13StringBuilder10to__string(buf);
 }
 function _M0FP26mizchi3svg12trim__string(s) {
-  const start = { val: 0 };
-  const end = { val: s.length };
+  const start = new _M0TPC13ref3RefGiE(0);
+  const end = new _M0TPC13ref3RefGiE(s.length);
   while (true) {
     if (start.val < end.val) {
       const _tmp = start.val;
@@ -11394,13 +11454,13 @@ function _M0FP26mizchi3svg12trim__string(s) {
   return _M0FP26mizchi3svg16build__substring(s, start.val, end.val);
 }
 function _M0FP26mizchi3svg19parse__style__entry(entry, pairs) {
-  const colon_index = { val: -1 };
-  const _start599 = 0;
-  const _end600 = entry.length;
-  let _tmp = _start599;
+  const colon_index = new _M0TPC13ref3RefGiE(-1);
+  const _bind = 0;
+  const _bind$2 = entry.length;
+  let _tmp = _bind;
   while (true) {
     const i = _tmp;
-    if (i < _end600) {
+    if (i < _bind$2) {
       $bound_check(entry, i);
       const c = entry.charCodeAt(i);
       if (c === 58) {
@@ -11419,7 +11479,7 @@ function _M0FP26mizchi3svg19parse__style__entry(entry, pairs) {
   const key = _M0FP26mizchi3svg12trim__string(_M0FP26mizchi3svg16build__substring(entry, 0, colon_index.val));
   const value = _M0FP26mizchi3svg12trim__string(_M0FP26mizchi3svg16build__substring(entry, colon_index.val + 1 | 0, entry.length));
   if (key.length > 0) {
-    _M0MP311moonbitlang4core5array5Array4pushGUssEE(pairs, { _0: key, _1: value });
+    _M0MPC15array5Array4pushGRP36mizchi6kagura4core10TouchPointE(pairs, { _0: key, _1: value });
     return;
   } else {
     return;
@@ -11427,23 +11487,23 @@ function _M0FP26mizchi3svg19parse__style__entry(entry, pairs) {
 }
 function _M0FP26mizchi3svg19parse__style__pairs(value) {
   const pairs = [];
-  const buf = { val: _M0MP311moonbitlang4core7builtin13StringBuilder11new_2einner(0) };
-  const _start610 = 0;
-  const _end611 = value.length;
-  let _tmp = _start610;
+  const buf = new _M0TPC13ref3RefGRPB13StringBuilderE(_M0MPB13StringBuilder11new_2einner(0));
+  const _bind = 0;
+  const _bind$2 = value.length;
+  let _tmp = _bind;
   while (true) {
     const i = _tmp;
-    if (i < _end611) {
+    if (i < _bind$2) {
       $bound_check(value, i);
       const c = value.charCodeAt(i);
       if (c === 59) {
-        const entry = _M0FP26mizchi3svg12trim__string(_M0MP311moonbitlang4core7builtin13StringBuilder10to__string(buf.val));
+        const entry = _M0FP26mizchi3svg12trim__string(_M0MPB13StringBuilder10to__string(buf.val));
         if (entry.length > 0) {
           _M0FP26mizchi3svg19parse__style__entry(entry, pairs);
         }
-        buf.val = _M0MP311moonbitlang4core7builtin13StringBuilder11new_2einner(0);
+        buf.val = _M0MPB13StringBuilder11new_2einner(0);
       } else {
-        _M0IP311moonbitlang4core7builtin13StringBuilderP311moonbitlang4core7builtin6Logger11write__char(buf.val, c);
+        _M0IPB13StringBuilderPB6Logger11write__char(buf.val, c);
       }
       _tmp = i + 1 | 0;
       continue;
@@ -11451,7 +11511,7 @@ function _M0FP26mizchi3svg19parse__style__pairs(value) {
       break;
     }
   }
-  const entry = _M0FP26mizchi3svg12trim__string(_M0MP311moonbitlang4core7builtin13StringBuilder10to__string(buf.val));
+  const entry = _M0FP26mizchi3svg12trim__string(_M0MPB13StringBuilder10to__string(buf.val));
   if (entry.length > 0) {
     _M0FP26mizchi3svg19parse__style__entry(entry, pairs);
   }
@@ -11484,9 +11544,9 @@ function _M0FP26mizchi3svg13parse__number(s) {
   if (s$2.length === 0) {
     return 0;
   }
-  const result = { val: 0 };
-  const sign = { val: 1 };
-  const i = { val: 0 };
+  const result = new _M0TPC13ref3RefGdE(0);
+  const sign = new _M0TPC13ref3RefGdE(1);
+  const i = new _M0TPC13ref3RefGiE(0);
   const len = s$2.length;
   const char_at = (str, idx) => {
     $bound_check(str, idx);
@@ -11516,7 +11576,7 @@ function _M0FP26mizchi3svg13parse__number(s) {
   }
   if (i.val < len && char_at(s$2, i.val) === 46) {
     i.val = i.val + 1 | 0;
-    const frac = { val: 0.1 };
+    const frac = new _M0TPC13ref3RefGdE(0.1);
     while (true) {
       if (i.val < len) {
         const c = char_at(s$2, i.val);
@@ -11536,7 +11596,7 @@ function _M0FP26mizchi3svg13parse__number(s) {
   return sign.val * result.val;
 }
 function _M0FP26mizchi3svg17parse__rgb__color(value) {
-  const start = { val: 0 };
+  const start = new _M0TPC13ref3RefGiE(0);
   while (true) {
     let _tmp;
     if (start.val < value.length) {
@@ -11554,7 +11614,7 @@ function _M0FP26mizchi3svg17parse__rgb__color(value) {
     }
   }
   start.val = start.val + 1 | 0;
-  const end = { val: start.val };
+  const end = new _M0TPC13ref3RefGiE(start.val);
   while (true) {
     let _tmp;
     if (end.val < value.length) {
@@ -11575,7 +11635,7 @@ function _M0FP26mizchi3svg17parse__rgb__color(value) {
     return _M0MP26mizchi3svg5Color5black();
   }
   const nums = [];
-  const num_start = { val: start.val };
+  const num_start = new _M0TPC13ref3RefGiE(start.val);
   let _tmp = start.val;
   while (true) {
     const i = _tmp;
@@ -11590,7 +11650,7 @@ function _M0FP26mizchi3svg17parse__rgb__color(value) {
       if (c === 44 || c === 41) {
         if (num_start.val < i) {
           const num_str = _M0FP26mizchi3svg16build__substring(value, num_start.val, i);
-          _M0MP311moonbitlang4core5array5Array4pushGiE(nums, _M0MP311moonbitlang4core6double6Double7to__int(_M0FP26mizchi3svg13parse__number(num_str)));
+          _M0MPC15array5Array4pushGiE(nums, _M0MPC16double6Double7to__int(_M0FP26mizchi3svg13parse__number(num_str)));
         }
         num_start.val = i + 1 | 0;
       }
@@ -11600,22 +11660,22 @@ function _M0FP26mizchi3svg17parse__rgb__color(value) {
       break;
     }
   }
-  return nums.length >= 3 ? _M0MP26mizchi3svg5Color3rgb(_M0MP311moonbitlang4core5array5Array2atGiE(nums, 0), _M0MP311moonbitlang4core5array5Array2atGiE(nums, 1), _M0MP311moonbitlang4core5array5Array2atGiE(nums, 2)) : _M0MP26mizchi3svg5Color5black();
+  return nums.length >= 3 ? _M0MP26mizchi3svg5Color3rgb(_M0MPC15array5Array2atGiE(nums, 0), _M0MPC15array5Array2atGiE(nums, 1), _M0MPC15array5Array2atGiE(nums, 2)) : _M0MP26mizchi3svg5Color5black();
 }
 function _M0FP26mizchi3svg20string__starts__with(s, prefix) {
   if (prefix.length > s.length) {
     return false;
   }
-  const _start149 = 0;
-  const _end150 = prefix.length;
-  let _tmp = _start149;
+  const _bind = 0;
+  const _bind$2 = prefix.length;
+  let _tmp = _bind;
   while (true) {
     const i = _tmp;
-    if (i < _end150) {
+    if (i < _bind$2) {
       $bound_check(s, i);
       const _tmp$2 = s.charCodeAt(i);
       $bound_check(prefix, i);
-      if (_M0IP311moonbitlang4core6uint166UInt16P311moonbitlang4core7builtin2Eq10not__equal(_tmp$2, prefix.charCodeAt(i))) {
+      if (_M0IPC16uint166UInt16PB2Eq10not__equal(_tmp$2, prefix.charCodeAt(i))) {
         return false;
       }
       _tmp = i + 1 | 0;
@@ -11699,15 +11759,15 @@ function _M0FP26mizchi3svg12parse__color(value) {
 function _M0FP26mizchi3svg16parse__dasharray(value) {
   const v = _M0FP26mizchi3svg12trim__string(value);
   if (v === "none" || v.length === 0) {
-    return Option$None$7$;
+    return _M0DTPC16option6OptionGRPB5ArrayGdEE4None__;
   }
   const result = [];
-  const current = { val: "" };
-  const _it = _M0MP311moonbitlang4core6string6String4iter(v);
+  const current = new _M0TPC13ref3RefGsE("");
+  const _it = _M0MPC16string6String4iter(v);
   while (true) {
     let c;
     _L: {
-      const _bind = _M0MP311moonbitlang4core7builtin4Iter4nextGcE(_it);
+      const _bind = _M0MPB4Iter4nextGcE(_it);
       if (_bind === -1) {
         break;
       } else {
@@ -11719,18 +11779,18 @@ function _M0FP26mizchi3svg16parse__dasharray(value) {
     }
     if (c === 44 || c === 32) {
       if (current.val.length > 0) {
-        _M0MP311moonbitlang4core5array5Array4pushGdE(result, _M0FP26mizchi3svg13parse__number(current.val));
+        _M0MPC15array5Array4pushGdE(result, _M0FP26mizchi3svg13parse__number(current.val));
         current.val = "";
       }
     } else {
-      current.val = `${current.val}${_M0IP311moonbitlang4core4char4CharP311moonbitlang4core7builtin4Show10to__string(c)}`;
+      current.val = `${current.val}${_M0IPC14char4CharPB4Show10to__string(c)}`;
     }
     continue;
   }
   if (current.val.length > 0) {
-    _M0MP311moonbitlang4core5array5Array4pushGdE(result, _M0FP26mizchi3svg13parse__number(current.val));
+    _M0MPC15array5Array4pushGdE(result, _M0FP26mizchi3svg13parse__number(current.val));
   }
-  return _M0MP311moonbitlang4core5array5Array9is__emptyGdE(result) ? Option$None$7$ : new Option$Some$7$(result);
+  return _M0MPC15array5Array9is__emptyGdE(result) ? _M0DTPC16option6OptionGRPB5ArrayGdEE4None__ : new _M0DTPC16option6OptionGRPB5ArrayGdEE4Some(result);
 }
 function _M0FP26mizchi3svg17parse__fill__rule(value) {
   const v = _M0FP26mizchi3svg12trim__string(value);
@@ -11741,12 +11801,12 @@ function _M0FP26mizchi3svg17parse__fill__rule(value) {
   }
 }
 function _M0FP26mizchi3svg11find__first(s, target) {
-  const _start134 = 0;
-  const _end135 = s.length;
-  let _tmp = _start134;
+  const _bind = 0;
+  const _bind$2 = s.length;
+  let _tmp = _bind;
   while (true) {
     const i = _tmp;
-    if (i < _end135) {
+    if (i < _bind$2) {
       $bound_check(s, i);
       if (s.charCodeAt(i) === target) {
         return i;
@@ -11764,17 +11824,17 @@ function _M0FP26mizchi3svg18string__ends__with(s, suffix) {
     return false;
   }
   const start = s.length - suffix.length | 0;
-  const _start142 = 0;
-  const _end143 = suffix.length;
-  let _tmp = _start142;
+  const _bind = 0;
+  const _bind$2 = suffix.length;
+  let _tmp = _bind;
   while (true) {
     const i = _tmp;
-    if (i < _end143) {
+    if (i < _bind$2) {
       const _tmp$2 = start + i | 0;
       $bound_check(s, _tmp$2);
       const _tmp$3 = s.charCodeAt(_tmp$2);
       $bound_check(suffix, i);
-      if (_M0IP311moonbitlang4core6uint166UInt16P311moonbitlang4core7builtin2Eq10not__equal(_tmp$3, suffix.charCodeAt(i))) {
+      if (_M0IPC16uint166UInt16PB2Eq10not__equal(_tmp$3, suffix.charCodeAt(i))) {
         return false;
       }
       _tmp = i + 1 | 0;
@@ -11870,23 +11930,23 @@ function _M0FP26mizchi3svg18parse__marker__ref(value) {
 function _M0FP26mizchi3svg22parse__paint__fallback(value) {
   const value$2 = _M0FP26mizchi3svg12trim__string(value);
   if (value$2.length === 0 || value$2 === "none") {
-    return $64$mizchi$47$svg$46$PaintFallback$NoPaint;
+    return _M0DTP26mizchi3svg13PaintFallback7NoPaint__;
   }
   if (value$2 === "currentColor") {
-    return $64$mizchi$47$svg$46$PaintFallback$CurrentColor;
+    return _M0DTP26mizchi3svg13PaintFallback12CurrentColor__;
   }
-  return new $64$mizchi$47$svg$46$PaintFallback$SolidColor(_M0FP26mizchi3svg12parse__color(value$2));
+  return new _M0DTP26mizchi3svg13PaintFallback10SolidColor(_M0FP26mizchi3svg12parse__color(value$2));
 }
 function _M0FP26mizchi3svg12parse__paint(value) {
   const value$2 = _M0FP26mizchi3svg12trim__string(value);
   if (value$2.length === 0) {
-    return $64$mizchi$47$svg$46$Paint$None;
+    return _M0DTP26mizchi3svg5Paint4None__;
   }
   if (value$2 === "none") {
-    return $64$mizchi$47$svg$46$Paint$None;
+    return _M0DTP26mizchi3svg5Paint4None__;
   }
   if (value$2 === "currentColor") {
-    return $64$mizchi$47$svg$46$Paint$CurrentColor;
+    return _M0DTP26mizchi3svg5Paint12CurrentColor__;
   }
   if (_M0FP26mizchi3svg20string__starts__with(value$2, "url(")) {
     const close_index = _M0FP26mizchi3svg11find__first(value$2, 41);
@@ -11906,32 +11966,32 @@ function _M0FP26mizchi3svg12parse__paint(value) {
           }
           break _L;
         }
-        const fallback = rest.length === 0 ? $64$mizchi$47$svg$46$PaintFallback$NoPaint : _M0FP26mizchi3svg22parse__paint__fallback(rest);
-        return new $64$mizchi$47$svg$46$Paint$PaintServerRef(id, fallback);
+        const fallback = rest.length === 0 ? _M0DTP26mizchi3svg13PaintFallback7NoPaint__ : _M0FP26mizchi3svg22parse__paint__fallback(rest);
+        return new _M0DTP26mizchi3svg5Paint14PaintServerRef(id, fallback);
       }
     }
   }
   const color = _M0FP26mizchi3svg12parse__color(value$2);
-  return new $64$mizchi$47$svg$46$Paint$SolidColor(color);
+  return new _M0DTP26mizchi3svg5Paint10SolidColor(color);
 }
 function _M0FP26mizchi3svg13split__tokens(value) {
   const tokens = [];
-  const buf = { val: _M0MP311moonbitlang4core7builtin13StringBuilder11new_2einner(0) };
-  const _start571 = 0;
-  const _end572 = value.length;
-  let _tmp = _start571;
+  const buf = new _M0TPC13ref3RefGRPB13StringBuilderE(_M0MPB13StringBuilder11new_2einner(0));
+  const _bind = 0;
+  const _bind$2 = value.length;
+  let _tmp = _bind;
   while (true) {
     const i = _tmp;
-    if (i < _end572) {
+    if (i < _bind$2) {
       $bound_check(value, i);
       const c = value.charCodeAt(i);
       if (c === 32 || (c === 10 || (c === 13 || c === 9))) {
-        if (_M0MP311moonbitlang4core7builtin13StringBuilder10to__string(buf.val).length > 0) {
-          _M0MP311moonbitlang4core5array5Array4pushGsE(tokens, _M0MP311moonbitlang4core7builtin13StringBuilder10to__string(buf.val));
-          buf.val = _M0MP311moonbitlang4core7builtin13StringBuilder11new_2einner(0);
+        if (_M0MPB13StringBuilder10to__string(buf.val).length > 0) {
+          _M0MPC15array5Array4pushGRP36mizchi6kagura4core10TouchPointE(tokens, _M0MPB13StringBuilder10to__string(buf.val));
+          buf.val = _M0MPB13StringBuilder11new_2einner(0);
         }
       } else {
-        _M0IP311moonbitlang4core7builtin13StringBuilderP311moonbitlang4core7builtin6Logger11write__char(buf.val, c);
+        _M0IPB13StringBuilderPB6Logger11write__char(buf.val, c);
       }
       _tmp = i + 1 | 0;
       continue;
@@ -11939,8 +11999,8 @@ function _M0FP26mizchi3svg13split__tokens(value) {
       break;
     }
   }
-  if (_M0MP311moonbitlang4core7builtin13StringBuilder10to__string(buf.val).length > 0) {
-    _M0MP311moonbitlang4core5array5Array4pushGsE(tokens, _M0MP311moonbitlang4core7builtin13StringBuilder10to__string(buf.val));
+  if (_M0MPB13StringBuilder10to__string(buf.val).length > 0) {
+    _M0MPC15array5Array4pushGRP36mizchi6kagura4core10TouchPointE(tokens, _M0MPB13StringBuilder10to__string(buf.val));
   }
   return tokens;
 }
@@ -11954,34 +12014,33 @@ function _M0FP26mizchi3svg19parse__paint__order(value) {
     return _M0MP26mizchi3svg10PaintOrder7default();
   }
   const order = [];
-  const _arr = tokens;
-  const _len = _arr.length;
+  const _bind = tokens.length;
   let _tmp = 0;
   while (true) {
-    const _i = _tmp;
-    if (_i < _len) {
-      const t = _arr[_i];
+    const _ = _tmp;
+    if (_ < _bind) {
+      const t = tokens[_];
       switch (t) {
         case "fill": {
-          if (!_M0MP311moonbitlang4core5array5Array8containsGRP26mizchi3svg14PaintOrderItemE(order, 0)) {
-            _M0MP311moonbitlang4core5array5Array4pushGRP26mizchi3svg14PaintOrderItemE(order, 0);
+          if (!_M0MPC15array5Array8containsGRP26mizchi3svg14PaintOrderItemE(order, 0)) {
+            _M0MPC15array5Array4pushGRP26mizchi3svg14PaintOrderItemE(order, 0);
           }
           break;
         }
         case "stroke": {
-          if (!_M0MP311moonbitlang4core5array5Array8containsGRP26mizchi3svg14PaintOrderItemE(order, 1)) {
-            _M0MP311moonbitlang4core5array5Array4pushGRP26mizchi3svg14PaintOrderItemE(order, 1);
+          if (!_M0MPC15array5Array8containsGRP26mizchi3svg14PaintOrderItemE(order, 1)) {
+            _M0MPC15array5Array4pushGRP26mizchi3svg14PaintOrderItemE(order, 1);
           }
           break;
         }
         case "markers": {
-          if (!_M0MP311moonbitlang4core5array5Array8containsGRP26mizchi3svg14PaintOrderItemE(order, 2)) {
-            _M0MP311moonbitlang4core5array5Array4pushGRP26mizchi3svg14PaintOrderItemE(order, 2);
+          if (!_M0MPC15array5Array8containsGRP26mizchi3svg14PaintOrderItemE(order, 2)) {
+            _M0MPC15array5Array4pushGRP26mizchi3svg14PaintOrderItemE(order, 2);
           }
           break;
         }
       }
-      _tmp = _i + 1 | 0;
+      _tmp = _ + 1 | 0;
       continue;
     } else {
       break;
@@ -11990,36 +12049,36 @@ function _M0FP26mizchi3svg19parse__paint__order(value) {
   if (order.length === 0) {
     return _M0MP26mizchi3svg10PaintOrder7default();
   }
-  if (!_M0MP311moonbitlang4core5array5Array8containsGRP26mizchi3svg14PaintOrderItemE(order, 0)) {
-    _M0MP311moonbitlang4core5array5Array4pushGRP26mizchi3svg14PaintOrderItemE(order, 0);
+  if (!_M0MPC15array5Array8containsGRP26mizchi3svg14PaintOrderItemE(order, 0)) {
+    _M0MPC15array5Array4pushGRP26mizchi3svg14PaintOrderItemE(order, 0);
   }
-  if (!_M0MP311moonbitlang4core5array5Array8containsGRP26mizchi3svg14PaintOrderItemE(order, 1)) {
-    _M0MP311moonbitlang4core5array5Array4pushGRP26mizchi3svg14PaintOrderItemE(order, 1);
+  if (!_M0MPC15array5Array8containsGRP26mizchi3svg14PaintOrderItemE(order, 1)) {
+    _M0MPC15array5Array4pushGRP26mizchi3svg14PaintOrderItemE(order, 1);
   }
-  if (!_M0MP311moonbitlang4core5array5Array8containsGRP26mizchi3svg14PaintOrderItemE(order, 2)) {
-    _M0MP311moonbitlang4core5array5Array4pushGRP26mizchi3svg14PaintOrderItemE(order, 2);
+  if (!_M0MPC15array5Array8containsGRP26mizchi3svg14PaintOrderItemE(order, 2)) {
+    _M0MPC15array5Array4pushGRP26mizchi3svg14PaintOrderItemE(order, 2);
   }
-  return { order: order };
+  return new _M0TP26mizchi3svg10PaintOrder(order);
 }
 function _M0FP26mizchi3svg13parse__points(value) {
   const result = [];
   const nums = [];
-  const buf = { val: _M0MP311moonbitlang4core7builtin13StringBuilder11new_2einner(0) };
-  const _start51 = 0;
-  const _end52 = value.length;
-  let _tmp = _start51;
+  const buf = new _M0TPC13ref3RefGRPB13StringBuilderE(_M0MPB13StringBuilder11new_2einner(0));
+  const _bind = 0;
+  const _bind$2 = value.length;
+  let _tmp = _bind;
   while (true) {
     const i = _tmp;
-    if (i < _end52) {
+    if (i < _bind$2) {
       $bound_check(value, i);
       const c = value.charCodeAt(i);
       if (c === 32 || (c === 44 || (c === 10 || (c === 13 || c === 9)))) {
-        if (_M0MP311moonbitlang4core7builtin13StringBuilder10to__string(buf.val).length > 0) {
-          _M0MP311moonbitlang4core5array5Array4pushGdE(nums, _M0FP26mizchi3svg13parse__number(_M0MP311moonbitlang4core7builtin13StringBuilder10to__string(buf.val)));
-          buf.val = _M0MP311moonbitlang4core7builtin13StringBuilder11new_2einner(0);
+        if (_M0MPB13StringBuilder10to__string(buf.val).length > 0) {
+          _M0MPC15array5Array4pushGdE(nums, _M0FP26mizchi3svg13parse__number(_M0MPB13StringBuilder10to__string(buf.val)));
+          buf.val = _M0MPB13StringBuilder11new_2einner(0);
         }
       } else {
-        _M0IP311moonbitlang4core7builtin13StringBuilderP311moonbitlang4core7builtin6Logger11write__char(buf.val, c);
+        _M0IPB13StringBuilderPB6Logger11write__char(buf.val, c);
       }
       _tmp = i + 1 | 0;
       continue;
@@ -12027,13 +12086,13 @@ function _M0FP26mizchi3svg13parse__points(value) {
       break;
     }
   }
-  if (_M0MP311moonbitlang4core7builtin13StringBuilder10to__string(buf.val).length > 0) {
-    _M0MP311moonbitlang4core5array5Array4pushGdE(nums, _M0FP26mizchi3svg13parse__number(_M0MP311moonbitlang4core7builtin13StringBuilder10to__string(buf.val)));
+  if (_M0MPB13StringBuilder10to__string(buf.val).length > 0) {
+    _M0MPC15array5Array4pushGdE(nums, _M0FP26mizchi3svg13parse__number(_M0MPB13StringBuilder10to__string(buf.val)));
   }
-  const i = { val: 0 };
+  const i = new _M0TPC13ref3RefGiE(0);
   while (true) {
     if ((i.val + 1 | 0) < nums.length) {
-      _M0MP311moonbitlang4core5array5Array4pushGUddEE(result, { _0: _M0MP311moonbitlang4core5array5Array2atGdE(nums, i.val), _1: _M0MP311moonbitlang4core5array5Array2atGdE(nums, i.val + 1 | 0) });
+      _M0MPC15array5Array4pushGRP36mizchi6kagura4core10TouchPointE(result, { _0: _M0MPC15array5Array2atGdE(nums, i.val), _1: _M0MPC15array5Array2atGdE(nums, i.val + 1 | 0) });
       i.val = i.val + 2 | 0;
       continue;
     } else {
@@ -12051,10 +12110,10 @@ function _M0FP26mizchi3svg30parse__preserve__aspect__ratio(value) {
   if (tokens.length === 0) {
     return _M0MP26mizchi3svg19PreserveAspectRatio7default();
   }
-  if (_M0MP311moonbitlang4core5array5Array2atGsE(tokens, 0) === "none") {
-    return { align: 0, meet_or_slice: 0 };
+  if (_M0MPC15array5Array2atGRP26mizchi22kagura__effect__studio11EffectTrackE(tokens, 0) === "none") {
+    return new _M0TP26mizchi3svg19PreserveAspectRatio(0, 0);
   }
-  const _bind = _M0MP311moonbitlang4core5array5Array2atGsE(tokens, 0);
+  const _bind = _M0MPC15array5Array2atGRP26mizchi22kagura__effect__studio11EffectTrackE(tokens, 0);
   let align;
   switch (_bind) {
     case "xMinYMin": {
@@ -12099,7 +12158,7 @@ function _M0FP26mizchi3svg30parse__preserve__aspect__ratio(value) {
   }
   let meet_or_slice;
   if (tokens.length > 1) {
-    const _bind$2 = _M0MP311moonbitlang4core5array5Array2atGsE(tokens, 1);
+    const _bind$2 = _M0MPC15array5Array2atGRP26mizchi22kagura__effect__studio11EffectTrackE(tokens, 1);
     if (_bind$2 === "slice") {
       meet_or_slice = 1;
     } else {
@@ -12108,26 +12167,26 @@ function _M0FP26mizchi3svg30parse__preserve__aspect__ratio(value) {
   } else {
     meet_or_slice = 0;
   }
-  return { align: align, meet_or_slice: meet_or_slice };
+  return new _M0TP26mizchi3svg19PreserveAspectRatio(align, meet_or_slice);
 }
 function _M0FP26mizchi3svg22parse__transform__args(s) {
   const result = [];
-  const buf = { val: _M0MP311moonbitlang4core7builtin13StringBuilder11new_2einner(0) };
-  const _start30 = 0;
-  const _end31 = s.length;
-  let _tmp = _start30;
+  const buf = new _M0TPC13ref3RefGRPB13StringBuilderE(_M0MPB13StringBuilder11new_2einner(0));
+  const _bind = 0;
+  const _bind$2 = s.length;
+  let _tmp = _bind;
   while (true) {
     const i = _tmp;
-    if (i < _end31) {
+    if (i < _bind$2) {
       $bound_check(s, i);
       const c = s.charCodeAt(i);
       if (c === 32 || c === 44) {
-        if (_M0MP311moonbitlang4core7builtin13StringBuilder10to__string(buf.val).length > 0) {
-          _M0MP311moonbitlang4core5array5Array4pushGdE(result, _M0FP26mizchi3svg13parse__number(_M0MP311moonbitlang4core7builtin13StringBuilder10to__string(buf.val)));
-          buf.val = _M0MP311moonbitlang4core7builtin13StringBuilder11new_2einner(0);
+        if (_M0MPB13StringBuilder10to__string(buf.val).length > 0) {
+          _M0MPC15array5Array4pushGdE(result, _M0FP26mizchi3svg13parse__number(_M0MPB13StringBuilder10to__string(buf.val)));
+          buf.val = _M0MPB13StringBuilder11new_2einner(0);
         }
       } else {
-        _M0IP311moonbitlang4core7builtin13StringBuilderP311moonbitlang4core7builtin6Logger11write__char(buf.val, c);
+        _M0IPB13StringBuilderPB6Logger11write__char(buf.val, c);
       }
       _tmp = i + 1 | 0;
       continue;
@@ -12135,14 +12194,14 @@ function _M0FP26mizchi3svg22parse__transform__args(s) {
       break;
     }
   }
-  if (_M0MP311moonbitlang4core7builtin13StringBuilder10to__string(buf.val).length > 0) {
-    _M0MP311moonbitlang4core5array5Array4pushGdE(result, _M0FP26mizchi3svg13parse__number(_M0MP311moonbitlang4core7builtin13StringBuilder10to__string(buf.val)));
+  if (_M0MPB13StringBuilder10to__string(buf.val).length > 0) {
+    _M0MPC15array5Array4pushGdE(result, _M0FP26mizchi3svg13parse__number(_M0MPB13StringBuilder10to__string(buf.val)));
   }
   return result;
 }
 function _M0FP26mizchi3svg16parse__transform(value) {
-  const result = { val: _M0MP26mizchi3svg9Transform8identity() };
-  const i = { val: 0 };
+  const result = new _M0TPC13ref3RefGRP26mizchi3svg9TransformE(_M0MP26mizchi3svg9Transform8identity());
+  const i = new _M0TPC13ref3RefGiE(0);
   while (true) {
     if (i.val < value.length) {
       while (true) {
@@ -12220,27 +12279,27 @@ function _M0FP26mizchi3svg16parse__transform(value) {
       let t;
       switch (name) {
         case "translate": {
-          t = args.length >= 2 ? _M0MP26mizchi3svg9Transform9translate(_M0MP311moonbitlang4core5array5Array2atGdE(args, 0), _M0MP311moonbitlang4core5array5Array2atGdE(args, 1)) : args.length >= 1 ? _M0MP26mizchi3svg9Transform9translate(_M0MP311moonbitlang4core5array5Array2atGdE(args, 0), 0) : _M0MP26mizchi3svg9Transform8identity();
+          t = args.length >= 2 ? _M0MP26mizchi3svg9Transform9translate(_M0MPC15array5Array2atGdE(args, 0), _M0MPC15array5Array2atGdE(args, 1)) : args.length >= 1 ? _M0MP26mizchi3svg9Transform9translate(_M0MPC15array5Array2atGdE(args, 0), 0) : _M0MP26mizchi3svg9Transform8identity();
           break;
         }
         case "scale": {
-          t = args.length >= 2 ? _M0MP26mizchi3svg9Transform5scale(_M0MP311moonbitlang4core5array5Array2atGdE(args, 0), _M0MP311moonbitlang4core5array5Array2atGdE(args, 1)) : args.length >= 1 ? _M0MP26mizchi3svg9Transform5scale(_M0MP311moonbitlang4core5array5Array2atGdE(args, 0), _M0MP311moonbitlang4core5array5Array2atGdE(args, 0)) : _M0MP26mizchi3svg9Transform8identity();
+          t = args.length >= 2 ? _M0MP26mizchi3svg9Transform5scale(_M0MPC15array5Array2atGdE(args, 0), _M0MPC15array5Array2atGdE(args, 1)) : args.length >= 1 ? _M0MP26mizchi3svg9Transform5scale(_M0MPC15array5Array2atGdE(args, 0), _M0MPC15array5Array2atGdE(args, 0)) : _M0MP26mizchi3svg9Transform8identity();
           break;
         }
         case "rotate": {
-          t = args.length >= 3 ? _M0MP26mizchi3svg9Transform14rotate__around(_M0FP26mizchi3svg20degrees__to__radians(_M0MP311moonbitlang4core5array5Array2atGdE(args, 0)), _M0MP311moonbitlang4core5array5Array2atGdE(args, 1), _M0MP311moonbitlang4core5array5Array2atGdE(args, 2)) : args.length >= 1 ? _M0MP26mizchi3svg9Transform6rotate(_M0FP26mizchi3svg20degrees__to__radians(_M0MP311moonbitlang4core5array5Array2atGdE(args, 0))) : _M0MP26mizchi3svg9Transform8identity();
+          t = args.length >= 3 ? _M0MP26mizchi3svg9Transform14rotate__around(_M0FP26mizchi3svg20degrees__to__radians(_M0MPC15array5Array2atGdE(args, 0)), _M0MPC15array5Array2atGdE(args, 1), _M0MPC15array5Array2atGdE(args, 2)) : args.length >= 1 ? _M0MP26mizchi3svg9Transform6rotate(_M0FP26mizchi3svg20degrees__to__radians(_M0MPC15array5Array2atGdE(args, 0))) : _M0MP26mizchi3svg9Transform8identity();
           break;
         }
         case "skewX": {
-          t = args.length >= 1 ? _M0MP26mizchi3svg9Transform7skew__x(_M0FP26mizchi3svg20degrees__to__radians(_M0MP311moonbitlang4core5array5Array2atGdE(args, 0))) : _M0MP26mizchi3svg9Transform8identity();
+          t = args.length >= 1 ? _M0MP26mizchi3svg9Transform7skew__x(_M0FP26mizchi3svg20degrees__to__radians(_M0MPC15array5Array2atGdE(args, 0))) : _M0MP26mizchi3svg9Transform8identity();
           break;
         }
         case "skewY": {
-          t = args.length >= 1 ? _M0MP26mizchi3svg9Transform7skew__y(_M0FP26mizchi3svg20degrees__to__radians(_M0MP311moonbitlang4core5array5Array2atGdE(args, 0))) : _M0MP26mizchi3svg9Transform8identity();
+          t = args.length >= 1 ? _M0MP26mizchi3svg9Transform7skew__y(_M0FP26mizchi3svg20degrees__to__radians(_M0MPC15array5Array2atGdE(args, 0))) : _M0MP26mizchi3svg9Transform8identity();
           break;
         }
         case "matrix": {
-          t = args.length >= 6 ? _M0MP26mizchi3svg9Transform6matrix(_M0MP311moonbitlang4core5array5Array2atGdE(args, 0), _M0MP311moonbitlang4core5array5Array2atGdE(args, 1), _M0MP311moonbitlang4core5array5Array2atGdE(args, 2), _M0MP311moonbitlang4core5array5Array2atGdE(args, 3), _M0MP311moonbitlang4core5array5Array2atGdE(args, 4), _M0MP311moonbitlang4core5array5Array2atGdE(args, 5)) : _M0MP26mizchi3svg9Transform8identity();
+          t = args.length >= 6 ? _M0MP26mizchi3svg9Transform6matrix(_M0MPC15array5Array2atGdE(args, 0), _M0MPC15array5Array2atGdE(args, 1), _M0MPC15array5Array2atGdE(args, 2), _M0MPC15array5Array2atGdE(args, 3), _M0MPC15array5Array2atGdE(args, 4), _M0MPC15array5Array2atGdE(args, 5)) : _M0MP26mizchi3svg9Transform8identity();
           break;
         }
         default: {
@@ -12257,22 +12316,22 @@ function _M0FP26mizchi3svg16parse__transform(value) {
 }
 function _M0FP26mizchi3svg19parse__number__list(value) {
   const nums = [];
-  const buf = { val: _M0MP311moonbitlang4core7builtin13StringBuilder11new_2einner(0) };
-  const _start580 = 0;
-  const _end581 = value.length;
-  let _tmp = _start580;
+  const buf = new _M0TPC13ref3RefGRPB13StringBuilderE(_M0MPB13StringBuilder11new_2einner(0));
+  const _bind = 0;
+  const _bind$2 = value.length;
+  let _tmp = _bind;
   while (true) {
     const i = _tmp;
-    if (i < _end581) {
+    if (i < _bind$2) {
       $bound_check(value, i);
       const c = value.charCodeAt(i);
       if (c === 32 || (c === 44 || (c === 10 || (c === 13 || c === 9)))) {
-        if (_M0MP311moonbitlang4core7builtin13StringBuilder10to__string(buf.val).length > 0) {
-          _M0MP311moonbitlang4core5array5Array4pushGdE(nums, _M0FP26mizchi3svg13parse__number(_M0MP311moonbitlang4core7builtin13StringBuilder10to__string(buf.val)));
-          buf.val = _M0MP311moonbitlang4core7builtin13StringBuilder11new_2einner(0);
+        if (_M0MPB13StringBuilder10to__string(buf.val).length > 0) {
+          _M0MPC15array5Array4pushGdE(nums, _M0FP26mizchi3svg13parse__number(_M0MPB13StringBuilder10to__string(buf.val)));
+          buf.val = _M0MPB13StringBuilder11new_2einner(0);
         }
       } else {
-        _M0IP311moonbitlang4core7builtin13StringBuilderP311moonbitlang4core7builtin6Logger11write__char(buf.val, c);
+        _M0IPB13StringBuilderPB6Logger11write__char(buf.val, c);
       }
       _tmp = i + 1 | 0;
       continue;
@@ -12280,8 +12339,8 @@ function _M0FP26mizchi3svg19parse__number__list(value) {
       break;
     }
   }
-  if (_M0MP311moonbitlang4core7builtin13StringBuilder10to__string(buf.val).length > 0) {
-    _M0MP311moonbitlang4core5array5Array4pushGdE(nums, _M0FP26mizchi3svg13parse__number(_M0MP311moonbitlang4core7builtin13StringBuilder10to__string(buf.val)));
+  if (_M0MPB13StringBuilder10to__string(buf.val).length > 0) {
+    _M0MPC15array5Array4pushGdE(nums, _M0FP26mizchi3svg13parse__number(_M0MPB13StringBuilder10to__string(buf.val)));
   }
   return nums;
 }
@@ -12290,7 +12349,7 @@ function _M0FP26mizchi3svg16parse__view__box(value) {
   if (nums.length < 4) {
     return undefined;
   }
-  return { min_x: _M0MP311moonbitlang4core5array5Array2atGdE(nums, 0), min_y: _M0MP311moonbitlang4core5array5Array2atGdE(nums, 1), width: _M0MP311moonbitlang4core5array5Array2atGdE(nums, 2), height: _M0MP311moonbitlang4core5array5Array2atGdE(nums, 3) };
+  return new _M0TP26mizchi3svg7ViewBox(_M0MPC15array5Array2atGdE(nums, 0), _M0MPC15array5Array2atGdE(nums, 1), _M0MPC15array5Array2atGdE(nums, 2), _M0MPC15array5Array2atGdE(nums, 3));
 }
 function _M0FP26mizchi3svg16apply__attribute(node, name, value) {
   switch (name) {
@@ -12369,10 +12428,10 @@ function _M0FP26mizchi3svg16apply__attribute(node, name, value) {
             }
           }
         }
-        node.shape = new $64$mizchi$47$svg$46$Shape$Rect(_M0FP26mizchi3svg13parse__length(value), r._1, r._2, r._3, r._4, r._5);
+        node.shape = new _M0DTP26mizchi3svg5Shape4Rect(_M0FP26mizchi3svg13parse__length(value), r._1, r._2, r._3, r._4, r._5);
         return;
       }
-      node.shape = new $64$mizchi$47$svg$46$Shape$Image(_M0FP26mizchi3svg13parse__length(value), i._1, i._2, i._3, i._4);
+      node.shape = new _M0DTP26mizchi3svg5Shape5Image(_M0FP26mizchi3svg13parse__length(value), i._1, i._2, i._3, i._4);
       return;
     }
     case "y": {
@@ -12397,10 +12456,10 @@ function _M0FP26mizchi3svg16apply__attribute(node, name, value) {
             }
           }
         }
-        node.shape = new $64$mizchi$47$svg$46$Shape$Rect(r._0, _M0FP26mizchi3svg13parse__length(value), r._2, r._3, r._4, r._5);
+        node.shape = new _M0DTP26mizchi3svg5Shape4Rect(r._0, _M0FP26mizchi3svg13parse__length(value), r._2, r._3, r._4, r._5);
         return;
       }
-      node.shape = new $64$mizchi$47$svg$46$Shape$Image(i$2._0, _M0FP26mizchi3svg13parse__length(value), i$2._2, i$2._3, i$2._4);
+      node.shape = new _M0DTP26mizchi3svg5Shape5Image(i$2._0, _M0FP26mizchi3svg13parse__length(value), i$2._2, i$2._3, i$2._4);
       return;
     }
     case "width": {
@@ -12425,10 +12484,10 @@ function _M0FP26mizchi3svg16apply__attribute(node, name, value) {
             }
           }
         }
-        node.shape = new $64$mizchi$47$svg$46$Shape$Rect(r._0, r._1, _M0FP26mizchi3svg13parse__length(value), r._3, r._4, r._5);
+        node.shape = new _M0DTP26mizchi3svg5Shape4Rect(r._0, r._1, _M0FP26mizchi3svg13parse__length(value), r._3, r._4, r._5);
         return;
       }
-      node.shape = new $64$mizchi$47$svg$46$Shape$Image(i$3._0, i$3._1, _M0FP26mizchi3svg13parse__length(value), i$3._3, i$3._4);
+      node.shape = new _M0DTP26mizchi3svg5Shape5Image(i$3._0, i$3._1, _M0FP26mizchi3svg13parse__length(value), i$3._3, i$3._4);
       return;
     }
     case "height": {
@@ -12453,10 +12512,10 @@ function _M0FP26mizchi3svg16apply__attribute(node, name, value) {
             }
           }
         }
-        node.shape = new $64$mizchi$47$svg$46$Shape$Rect(r._0, r._1, r._2, _M0FP26mizchi3svg13parse__length(value), r._4, r._5);
+        node.shape = new _M0DTP26mizchi3svg5Shape4Rect(r._0, r._1, r._2, _M0FP26mizchi3svg13parse__length(value), r._4, r._5);
         return;
       }
-      node.shape = new $64$mizchi$47$svg$46$Shape$Image(i$4._0, i$4._1, i$4._2, _M0FP26mizchi3svg13parse__length(value), i$4._4);
+      node.shape = new _M0DTP26mizchi3svg5Shape5Image(i$4._0, i$4._1, i$4._2, _M0FP26mizchi3svg13parse__length(value), i$4._4);
       return;
     }
     case "rx": {
@@ -12481,10 +12540,10 @@ function _M0FP26mizchi3svg16apply__attribute(node, name, value) {
             }
           }
         }
-        node.shape = new $64$mizchi$47$svg$46$Shape$Rect(r._0, r._1, r._2, r._3, _M0FP26mizchi3svg13parse__length(value), r._5);
+        node.shape = new _M0DTP26mizchi3svg5Shape4Rect(r._0, r._1, r._2, r._3, _M0FP26mizchi3svg13parse__length(value), r._5);
         return;
       }
-      node.shape = new $64$mizchi$47$svg$46$Shape$Ellipse(e._0, e._1, _M0FP26mizchi3svg13parse__length(value), e._3);
+      node.shape = new _M0DTP26mizchi3svg5Shape7Ellipse(e._0, e._1, _M0FP26mizchi3svg13parse__length(value), e._3);
       return;
     }
     case "ry": {
@@ -12509,10 +12568,10 @@ function _M0FP26mizchi3svg16apply__attribute(node, name, value) {
             }
           }
         }
-        node.shape = new $64$mizchi$47$svg$46$Shape$Rect(r._0, r._1, r._2, r._3, r._4, _M0FP26mizchi3svg13parse__length(value));
+        node.shape = new _M0DTP26mizchi3svg5Shape4Rect(r._0, r._1, r._2, r._3, r._4, _M0FP26mizchi3svg13parse__length(value));
         return;
       }
-      node.shape = new $64$mizchi$47$svg$46$Shape$Ellipse(e$2._0, e$2._1, e$2._2, _M0FP26mizchi3svg13parse__length(value));
+      node.shape = new _M0DTP26mizchi3svg5Shape7Ellipse(e$2._0, e$2._1, e$2._2, _M0FP26mizchi3svg13parse__length(value));
       return;
     }
     case "cx": {
@@ -12537,10 +12596,10 @@ function _M0FP26mizchi3svg16apply__attribute(node, name, value) {
             }
           }
         }
-        node.shape = new $64$mizchi$47$svg$46$Shape$Circle(_M0FP26mizchi3svg13parse__length(value), c._1, c._2);
+        node.shape = new _M0DTP26mizchi3svg5Shape6Circle(_M0FP26mizchi3svg13parse__length(value), c._1, c._2);
         return;
       }
-      node.shape = new $64$mizchi$47$svg$46$Shape$Ellipse(_M0FP26mizchi3svg13parse__length(value), e$3._1, e$3._2, e$3._3);
+      node.shape = new _M0DTP26mizchi3svg5Shape7Ellipse(_M0FP26mizchi3svg13parse__length(value), e$3._1, e$3._2, e$3._3);
       return;
     }
     case "cy": {
@@ -12565,10 +12624,10 @@ function _M0FP26mizchi3svg16apply__attribute(node, name, value) {
             }
           }
         }
-        node.shape = new $64$mizchi$47$svg$46$Shape$Circle(c._0, _M0FP26mizchi3svg13parse__length(value), c._2);
+        node.shape = new _M0DTP26mizchi3svg5Shape6Circle(c._0, _M0FP26mizchi3svg13parse__length(value), c._2);
         return;
       }
-      node.shape = new $64$mizchi$47$svg$46$Shape$Ellipse(e$4._0, _M0FP26mizchi3svg13parse__length(value), e$4._2, e$4._3);
+      node.shape = new _M0DTP26mizchi3svg5Shape7Ellipse(e$4._0, _M0FP26mizchi3svg13parse__length(value), e$4._2, e$4._3);
       return;
     }
     case "r": {
@@ -12583,7 +12642,7 @@ function _M0FP26mizchi3svg16apply__attribute(node, name, value) {
           return;
         }
       }
-      node.shape = new $64$mizchi$47$svg$46$Shape$Circle(c._0, c._1, _M0FP26mizchi3svg13parse__length(value));
+      node.shape = new _M0DTP26mizchi3svg5Shape6Circle(c._0, c._1, _M0FP26mizchi3svg13parse__length(value));
       return;
     }
     case "x1": {
@@ -12598,7 +12657,7 @@ function _M0FP26mizchi3svg16apply__attribute(node, name, value) {
           return;
         }
       }
-      node.shape = new $64$mizchi$47$svg$46$Shape$Line(_M0FP26mizchi3svg13parse__length(value), l._1, l._2, l._3);
+      node.shape = new _M0DTP26mizchi3svg5Shape4Line(_M0FP26mizchi3svg13parse__length(value), l._1, l._2, l._3);
       return;
     }
     case "y1": {
@@ -12613,7 +12672,7 @@ function _M0FP26mizchi3svg16apply__attribute(node, name, value) {
           return;
         }
       }
-      node.shape = new $64$mizchi$47$svg$46$Shape$Line(l$2._0, _M0FP26mizchi3svg13parse__length(value), l$2._2, l$2._3);
+      node.shape = new _M0DTP26mizchi3svg5Shape4Line(l$2._0, _M0FP26mizchi3svg13parse__length(value), l$2._2, l$2._3);
       return;
     }
     case "x2": {
@@ -12628,7 +12687,7 @@ function _M0FP26mizchi3svg16apply__attribute(node, name, value) {
           return;
         }
       }
-      node.shape = new $64$mizchi$47$svg$46$Shape$Line(l$3._0, l$3._1, _M0FP26mizchi3svg13parse__length(value), l$3._3);
+      node.shape = new _M0DTP26mizchi3svg5Shape4Line(l$3._0, l$3._1, _M0FP26mizchi3svg13parse__length(value), l$3._3);
       return;
     }
     case "y2": {
@@ -12643,13 +12702,13 @@ function _M0FP26mizchi3svg16apply__attribute(node, name, value) {
           return;
         }
       }
-      node.shape = new $64$mizchi$47$svg$46$Shape$Line(l$4._0, l$4._1, l$4._2, _M0FP26mizchi3svg13parse__length(value));
+      node.shape = new _M0DTP26mizchi3svg5Shape4Line(l$4._0, l$4._1, l$4._2, _M0FP26mizchi3svg13parse__length(value));
       return;
     }
     case "d": {
       const _bind = node.shape;
       if (_bind.$tag === 6) {
-        node.shape = new $64$mizchi$47$svg$46$Shape$Path(_M0FP26mizchi3svg11parse__path(value));
+        node.shape = new _M0DTP26mizchi3svg5Shape4Path(_M0FP26mizchi3svg11parse__path(value));
         return;
       } else {
         return;
@@ -12659,11 +12718,11 @@ function _M0FP26mizchi3svg16apply__attribute(node, name, value) {
       const _bind$2 = node.shape;
       switch (_bind$2.$tag) {
         case 4: {
-          node.shape = new $64$mizchi$47$svg$46$Shape$Polyline(_M0FP26mizchi3svg13parse__points(value));
+          node.shape = new _M0DTP26mizchi3svg5Shape8Polyline(_M0FP26mizchi3svg13parse__points(value));
           return;
         }
         case 5: {
-          node.shape = new $64$mizchi$47$svg$46$Shape$Polygon(_M0FP26mizchi3svg13parse__points(value));
+          node.shape = new _M0DTP26mizchi3svg5Shape7Polygon(_M0FP26mizchi3svg13parse__points(value));
           return;
         }
         default: {
@@ -12686,13 +12745,13 @@ function _M0FP26mizchi3svg16apply__attribute(node, name, value) {
       return;
     }
     case "stroke": {
-      node.stroke = { paint: _M0FP26mizchi3svg12parse__paint(value), width: node.stroke.width, linecap: node.stroke.linecap, linejoin: node.stroke.linejoin, miterlimit: node.stroke.miterlimit, dasharray: node.stroke.dasharray, dashoffset: node.stroke.dashoffset };
+      node.stroke = new _M0TP26mizchi3svg11StrokeStyle(_M0FP26mizchi3svg12parse__paint(value), node.stroke.width, node.stroke.linecap, node.stroke.linejoin, node.stroke.miterlimit, node.stroke.dasharray, node.stroke.dashoffset);
       node.stroke_paint_is_set = true;
       return;
     }
     case "stroke-width": {
       node.stroke_width_is_set = true;
-      node.stroke = { paint: node.stroke.paint, width: _M0FP26mizchi3svg13parse__length(value), linecap: node.stroke.linecap, linejoin: node.stroke.linejoin, miterlimit: node.stroke.miterlimit, dasharray: node.stroke.dasharray, dashoffset: node.stroke.dashoffset };
+      node.stroke = new _M0TP26mizchi3svg11StrokeStyle(node.stroke.paint, _M0FP26mizchi3svg13parse__length(value), node.stroke.linecap, node.stroke.linejoin, node.stroke.miterlimit, node.stroke.dasharray, node.stroke.dashoffset);
       return;
     }
     case "opacity": {
@@ -12712,23 +12771,28 @@ function _M0FP26mizchi3svg16apply__attribute(node, name, value) {
       return;
     }
     case "stroke-linecap": {
-      node.stroke = { ...node.stroke, linecap: _M0FP26mizchi3svg14parse__linecap(value) };
+      const _tmp = node.stroke;
+      node.stroke = new _M0TP26mizchi3svg11StrokeStyle(_tmp.paint, _tmp.width, _M0FP26mizchi3svg14parse__linecap(value), _tmp.linejoin, _tmp.miterlimit, _tmp.dasharray, _tmp.dashoffset);
       return;
     }
     case "stroke-linejoin": {
-      node.stroke = { ...node.stroke, linejoin: _M0FP26mizchi3svg15parse__linejoin(value) };
+      const _tmp$2 = node.stroke;
+      node.stroke = new _M0TP26mizchi3svg11StrokeStyle(_tmp$2.paint, _tmp$2.width, _tmp$2.linecap, _M0FP26mizchi3svg15parse__linejoin(value), _tmp$2.miterlimit, _tmp$2.dasharray, _tmp$2.dashoffset);
       return;
     }
     case "stroke-miterlimit": {
-      node.stroke = { ...node.stroke, miterlimit: _M0FP26mizchi3svg13parse__number(value) };
+      const _tmp$3 = node.stroke;
+      node.stroke = new _M0TP26mizchi3svg11StrokeStyle(_tmp$3.paint, _tmp$3.width, _tmp$3.linecap, _tmp$3.linejoin, _M0FP26mizchi3svg13parse__number(value), _tmp$3.dasharray, _tmp$3.dashoffset);
       return;
     }
     case "stroke-dasharray": {
-      node.stroke = { ...node.stroke, dasharray: _M0FP26mizchi3svg16parse__dasharray(value) };
+      const _tmp$4 = node.stroke;
+      node.stroke = new _M0TP26mizchi3svg11StrokeStyle(_tmp$4.paint, _tmp$4.width, _tmp$4.linecap, _tmp$4.linejoin, _tmp$4.miterlimit, _M0FP26mizchi3svg16parse__dasharray(value), _tmp$4.dashoffset);
       return;
     }
     case "stroke-dashoffset": {
-      node.stroke = { ...node.stroke, dashoffset: _M0FP26mizchi3svg13parse__number(value) };
+      const _tmp$5 = node.stroke;
+      node.stroke = new _M0TP26mizchi3svg11StrokeStyle(_tmp$5.paint, _tmp$5.width, _tmp$5.linecap, _tmp$5.linejoin, _tmp$5.miterlimit, _tmp$5.dasharray, _M0FP26mizchi3svg13parse__number(value));
       return;
     }
     case "marker-start": {
@@ -12788,22 +12852,21 @@ function _M0FP26mizchi3svg16apply__attribute(node, name, value) {
 }
 function _M0FP26mizchi3svg24apply__style__attributes(node, value) {
   const pairs = _M0FP26mizchi3svg19parse__style__pairs(value);
-  const _arr = pairs;
-  const _len = _arr.length;
+  const _bind = pairs.length;
   let _tmp = 0;
   while (true) {
-    const _i = _tmp;
-    if (_i < _len) {
+    const _ = _tmp;
+    if (_ < _bind) {
+      const pair = pairs[_];
       _L: {
-        const pair = _arr[_i];
-        const name = _M0MP311moonbitlang4core6string6String9to__lower(pair._0);
+        const name = _M0MPC16string6String9to__lower(pair._0);
         if (name === "style") {
           break _L;
         }
         _M0FP26mizchi3svg16apply__attribute(node, name, pair._1);
         break _L;
       }
-      _tmp = _i + 1 | 0;
+      _tmp = _ + 1 | 0;
       continue;
     } else {
       return;
@@ -12817,15 +12880,14 @@ function _M0FP26mizchi3svg30apply__presentation__attribute(node, name, value) {
   _M0FP26mizchi3svg16apply__attribute(node, name, value);
 }
 function _M0FP26mizchi3svg17apply__attributes(node, attrs) {
-  const _arr = attrs;
-  const _len = _arr.length;
+  const _bind = attrs.length;
   let _tmp = 0;
   while (true) {
-    const _i = _tmp;
-    if (_i < _len) {
-      const attr = _arr[_i];
+    const _ = _tmp;
+    if (_ < _bind) {
+      const attr = attrs[_];
       _M0FP26mizchi3svg30apply__presentation__attribute(node, attr._0, attr._1);
-      _tmp = _i + 1 | 0;
+      _tmp = _ + 1 | 0;
       continue;
     } else {
       return;
@@ -12835,43 +12897,42 @@ function _M0FP26mizchi3svg17apply__attributes(node, attrs) {
 function _M0FP26mizchi3svg22create__node__for__tag(tag_name) {
   switch (tag_name) {
     case "rect": {
-      return _M0MP26mizchi3svg7SVGNode3new(new $64$mizchi$47$svg$46$Shape$Rect(0, 0, 0, 0, 0, 0));
+      return _M0MP26mizchi3svg7SVGNode3new(new _M0DTP26mizchi3svg5Shape4Rect(0, 0, 0, 0, 0, 0));
     }
     case "circle": {
-      return _M0MP26mizchi3svg7SVGNode3new(new $64$mizchi$47$svg$46$Shape$Circle(0, 0, 0));
+      return _M0MP26mizchi3svg7SVGNode3new(new _M0DTP26mizchi3svg5Shape6Circle(0, 0, 0));
     }
     case "ellipse": {
-      return _M0MP26mizchi3svg7SVGNode3new(new $64$mizchi$47$svg$46$Shape$Ellipse(0, 0, 0, 0));
+      return _M0MP26mizchi3svg7SVGNode3new(new _M0DTP26mizchi3svg5Shape7Ellipse(0, 0, 0, 0));
     }
     case "line": {
-      return _M0MP26mizchi3svg7SVGNode3new(new $64$mizchi$47$svg$46$Shape$Line(0, 0, 0, 0));
+      return _M0MP26mizchi3svg7SVGNode3new(new _M0DTP26mizchi3svg5Shape4Line(0, 0, 0, 0));
     }
     case "polyline": {
-      return _M0MP26mizchi3svg7SVGNode3new(new $64$mizchi$47$svg$46$Shape$Polyline([]));
+      return _M0MP26mizchi3svg7SVGNode3new(new _M0DTP26mizchi3svg5Shape8Polyline([]));
     }
     case "polygon": {
-      return _M0MP26mizchi3svg7SVGNode3new(new $64$mizchi$47$svg$46$Shape$Polygon([]));
+      return _M0MP26mizchi3svg7SVGNode3new(new _M0DTP26mizchi3svg5Shape7Polygon([]));
     }
     case "path": {
-      return _M0MP26mizchi3svg7SVGNode3new(new $64$mizchi$47$svg$46$Shape$Path([]));
+      return _M0MP26mizchi3svg7SVGNode3new(new _M0DTP26mizchi3svg5Shape4Path([]));
     }
     default: {
-      return _M0MP26mizchi3svg7SVGNode3new($64$mizchi$47$svg$46$Shape$Group);
+      return _M0MP26mizchi3svg7SVGNode3new(_M0DTP26mizchi3svg5Shape5Group__);
     }
   }
 }
 function _M0FP26mizchi3svg9get__attr(attrs, name) {
-  const _arr = attrs;
-  const _len = _arr.length;
+  const _bind = attrs.length;
   let _tmp = 0;
   while (true) {
-    const _i = _tmp;
-    if (_i < _len) {
-      const attr = _arr[_i];
+    const _ = _tmp;
+    if (_ < _bind) {
+      const attr = attrs[_];
       if (attr._0 === name) {
         return attr._1;
       }
-      _tmp = _i + 1 | 0;
+      _tmp = _ + 1 | 0;
       continue;
     } else {
       break;
@@ -12913,16 +12974,16 @@ function _M0MP26mizchi3svg9SVGParser12expect__char(self, expected) {
   }
 }
 function _M0MP26mizchi3svg9SVGParser11read__until(self, stop) {
-  const buf = _M0MP311moonbitlang4core7builtin13StringBuilder11new_2einner(0);
+  const buf = _M0MPB13StringBuilder11new_2einner(0);
   while (true) {
     if (!_M0MP26mizchi3svg9SVGParser7is__end(self) && _M0MP26mizchi3svg9SVGParser4peek(self) !== stop) {
-      _M0IP311moonbitlang4core7builtin13StringBuilderP311moonbitlang4core7builtin6Logger11write__char(buf, _M0MP26mizchi3svg9SVGParser7advance(self));
+      _M0IPB13StringBuilderPB6Logger11write__char(buf, _M0MP26mizchi3svg9SVGParser7advance(self));
       continue;
     } else {
       break;
     }
   }
-  return _M0MP311moonbitlang4core7builtin13StringBuilder10to__string(buf);
+  return _M0MPB13StringBuilder10to__string(buf);
 }
 function _M0MP26mizchi3svg9SVGParser16skip__whitespace(self) {
   while (true) {
@@ -12931,7 +12992,7 @@ function _M0MP26mizchi3svg9SVGParser16skip__whitespace(self) {
       if (c === 32 || (c === 9 || (c === 10 || c === 13))) {
         _M0MP26mizchi3svg9SVGParser7advance(self);
       } else {
-        break;
+        return;
       }
       continue;
     } else {
@@ -12958,12 +13019,12 @@ function _M0FP26mizchi3svg14is__name__char(c) {
   return c >= 97 && c <= 122 || (c >= 65 && c <= 90 || (c >= 48 && c <= 57 || (c === 45 || (c === 95 || c === 58))));
 }
 function _M0MP26mizchi3svg9SVGParser10read__name(self) {
-  const buf = _M0MP311moonbitlang4core7builtin13StringBuilder11new_2einner(0);
+  const buf = _M0MPB13StringBuilder11new_2einner(0);
   while (true) {
     if (!_M0MP26mizchi3svg9SVGParser7is__end(self)) {
       const c = _M0MP26mizchi3svg9SVGParser4peek(self);
       if (_M0FP26mizchi3svg14is__name__char(c)) {
-        _M0IP311moonbitlang4core7builtin13StringBuilderP311moonbitlang4core7builtin6Logger11write__char(buf, _M0MP26mizchi3svg9SVGParser7advance(self));
+        _M0IPB13StringBuilderPB6Logger11write__char(buf, _M0MP26mizchi3svg9SVGParser7advance(self));
       } else {
         break;
       }
@@ -12972,7 +13033,7 @@ function _M0MP26mizchi3svg9SVGParser10read__name(self) {
       break;
     }
   }
-  return _M0MP311moonbitlang4core7builtin13StringBuilder10to__string(buf);
+  return _M0MPB13StringBuilder10to__string(buf);
 }
 function _M0FP26mizchi3svg17parse__attributes(parser) {
   const attrs = [];
@@ -12988,7 +13049,7 @@ function _M0FP26mizchi3svg17parse__attributes(parser) {
         break;
       }
       const attr_value = _M0MP26mizchi3svg9SVGParser17read__attr__value(parser);
-      _M0MP311moonbitlang4core5array5Array4pushGUssEE(attrs, { _0: attr_name, _1: attr_value });
+      _M0MPC15array5Array4pushGRP36mizchi6kagura4core10TouchPointE(attrs, { _0: attr_name, _1: attr_value });
       continue;
     } else {
       break;
@@ -13015,10 +13076,12 @@ function _M0FP26mizchi3svg23apply__inherited__style(node, inherited) {
     node.fill = inherited.fill;
   }
   if (!node.stroke_paint_is_set) {
-    node.stroke = { ...node.stroke, paint: inherited.stroke.paint };
+    const _tmp = node.stroke;
+    node.stroke = new _M0TP26mizchi3svg11StrokeStyle(inherited.stroke.paint, _tmp.width, _tmp.linecap, _tmp.linejoin, _tmp.miterlimit, _tmp.dasharray, _tmp.dashoffset);
   }
   if (!node.stroke_width_is_set) {
-    node.stroke = { ...node.stroke, width: inherited.stroke.width };
+    const _tmp = node.stroke;
+    node.stroke = new _M0TP26mizchi3svg11StrokeStyle(_tmp.paint, inherited.stroke.width, _tmp.linecap, _tmp.linejoin, _tmp.miterlimit, _tmp.dasharray, _tmp.dashoffset);
   }
   if (!node.color_is_set) {
     node.color = inherited.color;
@@ -13028,13 +13091,13 @@ function _M0FP26mizchi3svg23apply__inherited__style(node, inherited) {
   }
 }
 function _M0FP26mizchi3svg28inherited__style__from__node(node) {
-  return { fill: node.fill, stroke: node.stroke, color: node.color };
+  return new _M0TP26mizchi3svg14InheritedStyle(node.fill, node.stroke, node.color);
 }
 function _M0FP26mizchi3svg23skip__comment__or__decl(parser) {
   while (true) {
     if (!_M0MP26mizchi3svg9SVGParser7is__end(parser)) {
       if (_M0MP26mizchi3svg9SVGParser7advance(parser) === 62) {
-        break;
+        return;
       }
       continue;
     } else {
@@ -13043,10 +13106,10 @@ function _M0FP26mizchi3svg23skip__comment__or__decl(parser) {
   }
 }
 function _M0MP26mizchi3svg14InheritedStyle7default() {
-  return { fill: new $64$mizchi$47$svg$46$Paint$SolidColor(_M0MP26mizchi3svg5Color5black()), stroke: _M0MP26mizchi3svg11StrokeStyle7default(), color: undefined };
+  return new _M0TP26mizchi3svg14InheritedStyle(new _M0DTP26mizchi3svg5Paint10SolidColor(_M0MP26mizchi3svg5Color5black()), _M0MP26mizchi3svg11StrokeStyle7default(), undefined);
 }
 function _M0MP26mizchi3svg15SVGParseContext14current__style(self) {
-  return self.style_stack.length === 0 ? _M0MP26mizchi3svg14InheritedStyle7default() : _M0MP311moonbitlang4core5array5Array2atGRP26mizchi3svg14InheritedStyleE(self.style_stack, self.style_stack.length - 1 | 0);
+  return self.style_stack.length === 0 ? _M0MP26mizchi3svg14InheritedStyle7default() : _M0MPC15array5Array2atGRP26mizchi22kagura__effect__studio11EffectTrackE(self.style_stack, self.style_stack.length - 1 | 0);
 }
 function _M0FP26mizchi3svg24parse__clip__path__units(value) {
   const _bind = _M0FP26mizchi3svg12trim__string(value);
@@ -13120,7 +13183,7 @@ function _M0FP26mizchi3svg30parse__clip__path__from__attrs(attrs, ctx) {
     }
     units = _M0FP26mizchi3svg24parse__clip__path__units(v$3);
   }
-  const clip = { id: id, shape: $64$mizchi$47$svg$46$Shape$Group, transform: transform, clip_rule: clip_rule, units: units };
+  const clip = new _M0TP26mizchi3svg8ClipPath(id, _M0DTP26mizchi3svg5Shape5Group__, transform, clip_rule, units);
   _M0MP26mizchi3svg16ClipPathRegistry3add(ctx.clips, clip);
 }
 function _M0FP26mizchi3svg20base64__value__local(c) {
@@ -13131,15 +13194,15 @@ function _M0FP26mizchi3svg21is__base64__ws__local(c) {
 }
 function _M0FP26mizchi3svg21decode__base64__local(value) {
   const len = value.length;
-  const buf = _M0MP311moonbitlang4core7builtin13StringBuilder11new_2einner(0);
-  const q0 = { val: 0 };
-  const q1 = { val: 0 };
-  const q2 = { val: 0 };
-  const q3 = { val: 0 };
-  const qlen = { val: 0 };
-  const pad = { val: 0 };
-  const finished = { val: false };
-  const i = { val: 0 };
+  const buf = _M0MPB13StringBuilder11new_2einner(0);
+  const q0 = new _M0TPC13ref3RefGiE(0);
+  const q1 = new _M0TPC13ref3RefGiE(0);
+  const q2 = new _M0TPC13ref3RefGiE(0);
+  const q3 = new _M0TPC13ref3RefGiE(0);
+  const qlen = new _M0TPC13ref3RefGiE(0);
+  const pad = new _M0TPC13ref3RefGiE(0);
+  const finished = new _M0TPC13ref3RefGbE(false);
+  const i = new _M0TPC13ref3RefGiE(0);
   while (true) {
     if (i.val < len) {
       const _tmp = i.val;
@@ -13191,9 +13254,9 @@ function _M0FP26mizchi3svg21decode__base64__local(value) {
           const b0 = q0.val << 2 | q1.val >> 4;
           const b1 = (q1.val & 15) << 4 | q2.val >> 2;
           const b2 = (q2.val & 3) << 6 | q3.val;
-          _M0IP311moonbitlang4core7builtin13StringBuilderP311moonbitlang4core7builtin6Logger11write__char(buf, b0);
-          _M0IP311moonbitlang4core7builtin13StringBuilderP311moonbitlang4core7builtin6Logger11write__char(buf, b1);
-          _M0IP311moonbitlang4core7builtin13StringBuilderP311moonbitlang4core7builtin6Logger11write__char(buf, b2);
+          _M0IPB13StringBuilderPB6Logger11write__char(buf, b0);
+          _M0IPB13StringBuilderPB6Logger11write__char(buf, b1);
+          _M0IPB13StringBuilderPB6Logger11write__char(buf, b2);
         } else {
           if (pad.val === 1) {
             if (q2.val < 0 || q3.val >= 0) {
@@ -13201,8 +13264,8 @@ function _M0FP26mizchi3svg21decode__base64__local(value) {
             }
             const b0 = q0.val << 2 | q1.val >> 4;
             const b1 = (q1.val & 15) << 4 | q2.val >> 2;
-            _M0IP311moonbitlang4core7builtin13StringBuilderP311moonbitlang4core7builtin6Logger11write__char(buf, b0);
-            _M0IP311moonbitlang4core7builtin13StringBuilderP311moonbitlang4core7builtin6Logger11write__char(buf, b1);
+            _M0IPB13StringBuilderPB6Logger11write__char(buf, b0);
+            _M0IPB13StringBuilderPB6Logger11write__char(buf, b1);
             finished.val = true;
           } else {
             if (pad.val === 2) {
@@ -13210,7 +13273,7 @@ function _M0FP26mizchi3svg21decode__base64__local(value) {
                 return undefined;
               }
               const b0 = q0.val << 2 | q1.val >> 4;
-              _M0IP311moonbitlang4core7builtin13StringBuilderP311moonbitlang4core7builtin6Logger11write__char(buf, b0);
+              _M0IPB13StringBuilderPB6Logger11write__char(buf, b0);
               finished.val = true;
             } else {
               return undefined;
@@ -13229,12 +13292,12 @@ function _M0FP26mizchi3svg21decode__base64__local(value) {
   if (qlen.val !== 0) {
     return undefined;
   }
-  return _M0MP311moonbitlang4core7builtin13StringBuilder10to__string(buf);
+  return _M0MPB13StringBuilder10to__string(buf);
 }
 function _M0FP26mizchi3svg22decode__html__entities(value) {
-  const i = { val: 0 };
+  const i = new _M0TPC13ref3RefGiE(0);
   const len = value.length;
-  const buf = _M0MP311moonbitlang4core7builtin13StringBuilder11new_2einner(0);
+  const buf = _M0MPB13StringBuilder11new_2einner(0);
   while (true) {
     if (i.val < len) {
       const _tmp = i.val;
@@ -13246,14 +13309,14 @@ function _M0FP26mizchi3svg22decode__html__entities(value) {
           let _tmp$3;
           const _tmp$4 = i.val + 1 | 0;
           $bound_check(value, _tmp$4);
-          if (_M0IP311moonbitlang4core6uint166UInt16P311moonbitlang4core7builtin2Eq5equal(value.charCodeAt(_tmp$4), 108)) {
+          if (_M0IPC16uint166UInt16PB2Eq5equal(value.charCodeAt(_tmp$4), 108)) {
             let _tmp$5;
             const _tmp$6 = i.val + 2 | 0;
             $bound_check(value, _tmp$6);
-            if (_M0IP311moonbitlang4core6uint166UInt16P311moonbitlang4core7builtin2Eq5equal(value.charCodeAt(_tmp$6), 116)) {
+            if (_M0IPC16uint166UInt16PB2Eq5equal(value.charCodeAt(_tmp$6), 116)) {
               const _tmp$7 = i.val + 3 | 0;
               $bound_check(value, _tmp$7);
-              _tmp$5 = _M0IP311moonbitlang4core6uint166UInt16P311moonbitlang4core7builtin2Eq5equal(value.charCodeAt(_tmp$7), 59);
+              _tmp$5 = _M0IPC16uint166UInt16PB2Eq5equal(value.charCodeAt(_tmp$7), 59);
             } else {
               _tmp$5 = false;
             }
@@ -13266,7 +13329,7 @@ function _M0FP26mizchi3svg22decode__html__entities(value) {
           _tmp$2 = false;
         }
         if (_tmp$2) {
-          _M0IP311moonbitlang4core7builtin13StringBuilderP311moonbitlang4core7builtin6Logger11write__char(buf, 60);
+          _M0IPB13StringBuilderPB6Logger11write__char(buf, 60);
           i.val = i.val + 4 | 0;
           continue;
         }
@@ -13275,14 +13338,14 @@ function _M0FP26mizchi3svg22decode__html__entities(value) {
           let _tmp$4;
           const _tmp$5 = i.val + 1 | 0;
           $bound_check(value, _tmp$5);
-          if (_M0IP311moonbitlang4core6uint166UInt16P311moonbitlang4core7builtin2Eq5equal(value.charCodeAt(_tmp$5), 103)) {
+          if (_M0IPC16uint166UInt16PB2Eq5equal(value.charCodeAt(_tmp$5), 103)) {
             let _tmp$6;
             const _tmp$7 = i.val + 2 | 0;
             $bound_check(value, _tmp$7);
-            if (_M0IP311moonbitlang4core6uint166UInt16P311moonbitlang4core7builtin2Eq5equal(value.charCodeAt(_tmp$7), 116)) {
+            if (_M0IPC16uint166UInt16PB2Eq5equal(value.charCodeAt(_tmp$7), 116)) {
               const _tmp$8 = i.val + 3 | 0;
               $bound_check(value, _tmp$8);
-              _tmp$6 = _M0IP311moonbitlang4core6uint166UInt16P311moonbitlang4core7builtin2Eq5equal(value.charCodeAt(_tmp$8), 59);
+              _tmp$6 = _M0IPC16uint166UInt16PB2Eq5equal(value.charCodeAt(_tmp$8), 59);
             } else {
               _tmp$6 = false;
             }
@@ -13295,7 +13358,7 @@ function _M0FP26mizchi3svg22decode__html__entities(value) {
           _tmp$3 = false;
         }
         if (_tmp$3) {
-          _M0IP311moonbitlang4core7builtin13StringBuilderP311moonbitlang4core7builtin6Logger11write__char(buf, 62);
+          _M0IPB13StringBuilderPB6Logger11write__char(buf, 62);
           i.val = i.val + 4 | 0;
           continue;
         }
@@ -13304,18 +13367,18 @@ function _M0FP26mizchi3svg22decode__html__entities(value) {
           let _tmp$5;
           const _tmp$6 = i.val + 1 | 0;
           $bound_check(value, _tmp$6);
-          if (_M0IP311moonbitlang4core6uint166UInt16P311moonbitlang4core7builtin2Eq5equal(value.charCodeAt(_tmp$6), 97)) {
+          if (_M0IPC16uint166UInt16PB2Eq5equal(value.charCodeAt(_tmp$6), 97)) {
             let _tmp$7;
             const _tmp$8 = i.val + 2 | 0;
             $bound_check(value, _tmp$8);
-            if (_M0IP311moonbitlang4core6uint166UInt16P311moonbitlang4core7builtin2Eq5equal(value.charCodeAt(_tmp$8), 109)) {
+            if (_M0IPC16uint166UInt16PB2Eq5equal(value.charCodeAt(_tmp$8), 109)) {
               let _tmp$9;
               const _tmp$10 = i.val + 3 | 0;
               $bound_check(value, _tmp$10);
-              if (_M0IP311moonbitlang4core6uint166UInt16P311moonbitlang4core7builtin2Eq5equal(value.charCodeAt(_tmp$10), 112)) {
+              if (_M0IPC16uint166UInt16PB2Eq5equal(value.charCodeAt(_tmp$10), 112)) {
                 const _tmp$11 = i.val + 4 | 0;
                 $bound_check(value, _tmp$11);
-                _tmp$9 = _M0IP311moonbitlang4core6uint166UInt16P311moonbitlang4core7builtin2Eq5equal(value.charCodeAt(_tmp$11), 59);
+                _tmp$9 = _M0IPC16uint166UInt16PB2Eq5equal(value.charCodeAt(_tmp$11), 59);
               } else {
                 _tmp$9 = false;
               }
@@ -13332,7 +13395,7 @@ function _M0FP26mizchi3svg22decode__html__entities(value) {
           _tmp$4 = false;
         }
         if (_tmp$4) {
-          _M0IP311moonbitlang4core7builtin13StringBuilderP311moonbitlang4core7builtin6Logger11write__char(buf, 38);
+          _M0IPB13StringBuilderPB6Logger11write__char(buf, 38);
           i.val = i.val + 5 | 0;
           continue;
         }
@@ -13341,22 +13404,22 @@ function _M0FP26mizchi3svg22decode__html__entities(value) {
           let _tmp$6;
           const _tmp$7 = i.val + 1 | 0;
           $bound_check(value, _tmp$7);
-          if (_M0IP311moonbitlang4core6uint166UInt16P311moonbitlang4core7builtin2Eq5equal(value.charCodeAt(_tmp$7), 113)) {
+          if (_M0IPC16uint166UInt16PB2Eq5equal(value.charCodeAt(_tmp$7), 113)) {
             let _tmp$8;
             const _tmp$9 = i.val + 2 | 0;
             $bound_check(value, _tmp$9);
-            if (_M0IP311moonbitlang4core6uint166UInt16P311moonbitlang4core7builtin2Eq5equal(value.charCodeAt(_tmp$9), 117)) {
+            if (_M0IPC16uint166UInt16PB2Eq5equal(value.charCodeAt(_tmp$9), 117)) {
               let _tmp$10;
               const _tmp$11 = i.val + 3 | 0;
               $bound_check(value, _tmp$11);
-              if (_M0IP311moonbitlang4core6uint166UInt16P311moonbitlang4core7builtin2Eq5equal(value.charCodeAt(_tmp$11), 111)) {
+              if (_M0IPC16uint166UInt16PB2Eq5equal(value.charCodeAt(_tmp$11), 111)) {
                 let _tmp$12;
                 const _tmp$13 = i.val + 4 | 0;
                 $bound_check(value, _tmp$13);
-                if (_M0IP311moonbitlang4core6uint166UInt16P311moonbitlang4core7builtin2Eq5equal(value.charCodeAt(_tmp$13), 116)) {
+                if (_M0IPC16uint166UInt16PB2Eq5equal(value.charCodeAt(_tmp$13), 116)) {
                   const _tmp$14 = i.val + 5 | 0;
                   $bound_check(value, _tmp$14);
-                  _tmp$12 = _M0IP311moonbitlang4core6uint166UInt16P311moonbitlang4core7builtin2Eq5equal(value.charCodeAt(_tmp$14), 59);
+                  _tmp$12 = _M0IPC16uint166UInt16PB2Eq5equal(value.charCodeAt(_tmp$14), 59);
                 } else {
                   _tmp$12 = false;
                 }
@@ -13377,7 +13440,7 @@ function _M0FP26mizchi3svg22decode__html__entities(value) {
           _tmp$5 = false;
         }
         if (_tmp$5) {
-          _M0IP311moonbitlang4core7builtin13StringBuilderP311moonbitlang4core7builtin6Logger11write__char(buf, 34);
+          _M0IPB13StringBuilderPB6Logger11write__char(buf, 34);
           i.val = i.val + 6 | 0;
           continue;
         }
@@ -13386,22 +13449,22 @@ function _M0FP26mizchi3svg22decode__html__entities(value) {
           let _tmp$7;
           const _tmp$8 = i.val + 1 | 0;
           $bound_check(value, _tmp$8);
-          if (_M0IP311moonbitlang4core6uint166UInt16P311moonbitlang4core7builtin2Eq5equal(value.charCodeAt(_tmp$8), 97)) {
+          if (_M0IPC16uint166UInt16PB2Eq5equal(value.charCodeAt(_tmp$8), 97)) {
             let _tmp$9;
             const _tmp$10 = i.val + 2 | 0;
             $bound_check(value, _tmp$10);
-            if (_M0IP311moonbitlang4core6uint166UInt16P311moonbitlang4core7builtin2Eq5equal(value.charCodeAt(_tmp$10), 112)) {
+            if (_M0IPC16uint166UInt16PB2Eq5equal(value.charCodeAt(_tmp$10), 112)) {
               let _tmp$11;
               const _tmp$12 = i.val + 3 | 0;
               $bound_check(value, _tmp$12);
-              if (_M0IP311moonbitlang4core6uint166UInt16P311moonbitlang4core7builtin2Eq5equal(value.charCodeAt(_tmp$12), 111)) {
+              if (_M0IPC16uint166UInt16PB2Eq5equal(value.charCodeAt(_tmp$12), 111)) {
                 let _tmp$13;
                 const _tmp$14 = i.val + 4 | 0;
                 $bound_check(value, _tmp$14);
-                if (_M0IP311moonbitlang4core6uint166UInt16P311moonbitlang4core7builtin2Eq5equal(value.charCodeAt(_tmp$14), 115)) {
+                if (_M0IPC16uint166UInt16PB2Eq5equal(value.charCodeAt(_tmp$14), 115)) {
                   const _tmp$15 = i.val + 5 | 0;
                   $bound_check(value, _tmp$15);
-                  _tmp$13 = _M0IP311moonbitlang4core6uint166UInt16P311moonbitlang4core7builtin2Eq5equal(value.charCodeAt(_tmp$15), 59);
+                  _tmp$13 = _M0IPC16uint166UInt16PB2Eq5equal(value.charCodeAt(_tmp$15), 59);
                 } else {
                   _tmp$13 = false;
                 }
@@ -13422,27 +13485,27 @@ function _M0FP26mizchi3svg22decode__html__entities(value) {
           _tmp$6 = false;
         }
         if (_tmp$6) {
-          _M0IP311moonbitlang4core7builtin13StringBuilderP311moonbitlang4core7builtin6Logger11write__char(buf, 39);
+          _M0IPB13StringBuilderPB6Logger11write__char(buf, 39);
           i.val = i.val + 6 | 0;
           continue;
         }
       }
-      _M0IP311moonbitlang4core7builtin13StringBuilderP311moonbitlang4core7builtin6Logger11write__char(buf, c);
+      _M0IPB13StringBuilderPB6Logger11write__char(buf, c);
       i.val = i.val + 1 | 0;
       continue;
     } else {
       break;
     }
   }
-  return _M0MP311moonbitlang4core7builtin13StringBuilder10to__string(buf);
+  return _M0MPB13StringBuilder10to__string(buf);
 }
 function _M0FP26mizchi3svg17hex__value__local(c) {
   return c >= 48 && c <= 57 ? c - 48 | 0 : c >= 97 && c <= 102 ? 10 + (c - 97 | 0) | 0 : c >= 65 && c <= 70 ? 10 + (c - 65 | 0) | 0 : undefined;
 }
 function _M0FP26mizchi3svg22decode__percent__local(value) {
   const len = value.length;
-  const buf = _M0MP311moonbitlang4core7builtin13StringBuilder11new_2einner(0);
-  const i = { val: 0 };
+  const buf = _M0MPB13StringBuilder11new_2einner(0);
+  const i = new _M0TPC13ref3RefGiE(0);
   while (true) {
     if (i.val < len) {
       const _tmp = i.val;
@@ -13477,19 +13540,19 @@ function _M0FP26mizchi3svg22decode__percent__local(value) {
             break _L;
           }
           const v = (Math.imul(h1, 16) | 0) + h2 | 0;
-          _M0IP311moonbitlang4core7builtin13StringBuilderP311moonbitlang4core7builtin6Logger11write__char(buf, v);
+          _M0IPB13StringBuilderPB6Logger11write__char(buf, v);
           i.val = i.val + 3 | 0;
           continue;
         }
       }
-      _M0IP311moonbitlang4core7builtin13StringBuilderP311moonbitlang4core7builtin6Logger11write__char(buf, c);
+      _M0IPB13StringBuilderPB6Logger11write__char(buf, c);
       i.val = i.val + 1 | 0;
       continue;
     } else {
       break;
     }
   }
-  return _M0MP311moonbitlang4core7builtin13StringBuilder10to__string(buf);
+  return _M0MPB13StringBuilder10to__string(buf);
 }
 function _M0FP26mizchi3svg17decode__data__svg(href) {
   const v = _M0FP26mizchi3svg12trim__string(href);
@@ -13502,9 +13565,9 @@ function _M0FP26mizchi3svg17decode__data__svg(href) {
   }
   const meta = _M0FP26mizchi3svg16build__substring(v, 0, comma);
   const data = _M0FP26mizchi3svg16build__substring(v, comma + 1 | 0, v.length);
-  const meta_lower = _M0MP311moonbitlang4core6string6String9to__lower(meta);
-  const has_base64 = { val: false };
-  const start = { val: 0 };
+  const meta_lower = _M0MPC16string6String9to__lower(meta);
+  const has_base64 = new _M0TPC13ref3RefGbE(false);
+  const start = new _M0TPC13ref3RefGiE(0);
   let _tmp = 0;
   while (true) {
     const i = _tmp;
@@ -13613,7 +13676,7 @@ function _M0FP26mizchi3svg12parse__image(attrs) {
     }
     _tmp = _M0FP26mizchi3svg13parse__length(v$4);
   }
-  const width = { val: _tmp };
+  const width = new _M0TPC13ref3RefGdE(_tmp);
   let _tmp$2;
   let v$5;
   _L$5: {
@@ -13631,7 +13694,7 @@ function _M0FP26mizchi3svg12parse__image(attrs) {
     }
     _tmp$2 = _M0FP26mizchi3svg13parse__length(v$5);
   }
-  const height = { val: _tmp$2 };
+  const height = new _M0TPC13ref3RefGdE(_tmp$2);
   if (height.val <= 0 && width.val > 0) {
     height.val = width.val;
   }
@@ -13647,7 +13710,7 @@ function _M0FP26mizchi3svg12parse__image(attrs) {
     const _data = _Some;
     svg_data = _data;
   }
-  const node = _M0MP26mizchi3svg7SVGNode3new(new $64$mizchi$47$svg$46$Shape$Image(x, y, width.val, height.val, svg_data));
+  const node = _M0MP26mizchi3svg7SVGNode3new(new _M0DTP26mizchi3svg5Shape5Image(x, y, width.val, height.val, svg_data));
   _M0FP26mizchi3svg17apply__attributes(node, attrs);
   let img;
   _L$6: {
@@ -13660,7 +13723,7 @@ function _M0FP26mizchi3svg12parse__image(attrs) {
       }
       break _L$6;
     }
-    node.shape = new $64$mizchi$47$svg$46$Shape$Image(img._0, img._1, img._2, img._3, svg_data);
+    node.shape = new _M0DTP26mizchi3svg5Shape5Image(img._0, img._1, img._2, img._3, svg_data);
   }
   return node;
 }
@@ -13696,8 +13759,8 @@ function _M0FP26mizchi3svg21parse__gradient__stop(attrs) {
     }
     offset = _M0FP26mizchi3svg23parse__gradient__offset(v);
   }
-  const color = { val: _M0MP26mizchi3svg5Color5black() };
-  const opacity = { val: 1 };
+  const color = new _M0TPC13ref3RefGRP26mizchi3svg5ColorE(_M0MP26mizchi3svg5Color5black());
+  const opacity = new _M0TPC13ref3RefGdE(1);
   let v$2;
   _L$2: {
     _L$3: {
@@ -13742,14 +13805,13 @@ function _M0FP26mizchi3svg21parse__gradient__stop(attrs) {
       break _L$4;
     }
     const pairs = _M0FP26mizchi3svg19parse__style__pairs(style);
-    const _arr = pairs;
-    const _len = _arr.length;
+    const _bind = pairs.length;
     let _tmp = 0;
     while (true) {
-      const _i = _tmp;
-      if (_i < _len) {
-        const pair = _arr[_i];
-        const key = _M0MP311moonbitlang4core6string6String9to__lower(pair._0);
+      const _ = _tmp;
+      if (_ < _bind) {
+        const pair = pairs[_];
+        const key = _M0MPC16string6String9to__lower(pair._0);
         if (key === "stop-color") {
           color.val = _M0FP26mizchi3svg12parse__color(pair._1);
         } else {
@@ -13757,7 +13819,7 @@ function _M0FP26mizchi3svg21parse__gradient__stop(attrs) {
             opacity.val = _M0FP26mizchi3svg13parse__number(pair._1);
           }
         }
-        _tmp = _i + 1 | 0;
+        _tmp = _ + 1 | 0;
         continue;
       } else {
         break;
@@ -13770,8 +13832,8 @@ function _M0FP26mizchi3svg21parse__gradient__stop(attrs) {
   if (opacity.val > 1) {
     opacity.val = 1;
   }
-  const final_color = opacity.val < 1 ? _M0MP26mizchi3svg5Color4rgba(color.val.r, color.val.g, color.val.b, _M0MP311moonbitlang4core6double6Double7to__int((color.val.a + 0) * opacity.val)) : color.val;
-  return { offset: offset, color: final_color };
+  const final_color = opacity.val < 1 ? _M0MP26mizchi3svg5Color4rgba(color.val.r, color.val.g, color.val.b, _M0MPC16double6Double7to__int((color.val.a + 0) * opacity.val)) : color.val;
+  return new _M0TP26mizchi3svg12GradientStop(offset, final_color);
 }
 function _M0FP26mizchi3svg18skip__to__end__tag(parser, _tag_name) {
   while (true) {
@@ -13783,7 +13845,7 @@ function _M0FP26mizchi3svg18skip__to__end__tag(parser, _tag_name) {
           _M0MP26mizchi3svg9SVGParser10read__name(parser);
           _M0MP26mizchi3svg9SVGParser16skip__whitespace(parser);
           _M0MP26mizchi3svg9SVGParser12expect__char(parser, 62);
-          break;
+          return;
         }
       } else {
         _M0MP26mizchi3svg9SVGParser7advance(parser);
@@ -13838,7 +13900,7 @@ function _M0FP26mizchi3svg22parse__gradient__stops(parser, parent_tag) {
       }
       const attrs = _M0FP26mizchi3svg17parse__attributes(parser);
       _M0MP26mizchi3svg9SVGParser16skip__whitespace(parser);
-      const self_closing = { val: false };
+      const self_closing = new _M0TPC13ref3RefGbE(false);
       if (_M0MP26mizchi3svg9SVGParser4peek(parser) === 47) {
         _M0MP26mizchi3svg9SVGParser7advance(parser);
         _M0MP26mizchi3svg9SVGParser12expect__char(parser, 62);
@@ -13847,7 +13909,7 @@ function _M0FP26mizchi3svg22parse__gradient__stops(parser, parent_tag) {
         _M0MP26mizchi3svg9SVGParser12expect__char(parser, 62);
       }
       if (tag_name === "stop") {
-        _M0MP311moonbitlang4core5array5Array4pushGRP26mizchi3svg12GradientStopE(stops, _M0FP26mizchi3svg21parse__gradient__stop(attrs));
+        _M0MPC15array5Array4pushGRP36mizchi6kagura4core10TouchPointE(stops, _M0FP26mizchi3svg21parse__gradient__stop(attrs));
       }
       if (!self_closing.val) {
         _M0FP26mizchi3svg18skip__to__end__tag(parser, tag_name);
@@ -13980,8 +14042,9 @@ function _M0FP26mizchi3svg36parse__linear__gradient__with__stops(attrs, stops, c
     }
     transform = _M0FP26mizchi3svg16parse__transform(v$3);
   }
-  const grad = { ..._M0MP26mizchi3svg14LinearGradient3new(x1, y1, x2, y2, stops), spread_method: spread_method, units: units, transform: transform };
-  _M0MP26mizchi3svg16GradientRegistry3add(ctx.gradients, id, new $64$mizchi$47$svg$46$Gradient$Linear(grad));
+  const _tmp = _M0MP26mizchi3svg14LinearGradient3new(x1, y1, x2, y2, stops);
+  const grad = new _M0TP26mizchi3svg14LinearGradient(_tmp.x1, _tmp.y1, _tmp.x2, _tmp.y2, _tmp.stops, spread_method, units, transform);
+  _M0MP26mizchi3svg16GradientRegistry3add(ctx.gradients, id, new _M0DTP26mizchi3svg8Gradient6Linear(grad));
 }
 function _M0FP26mizchi3svg23parse__linear__gradient(parser, attrs, ctx, tag_name, parent_tag) {
   if (!_M0FP26mizchi3svg26is__paint__server__context(parent_tag)) {
@@ -14000,13 +14063,13 @@ function _M0FP26mizchi3svg36parse__linear__gradient__from__attrs(attrs, ctx, par
 function _M0FP26mizchi3svg21parse__marker__orient(value) {
   const v = _M0FP26mizchi3svg12trim__string(value);
   if (v === "auto") {
-    return $64$mizchi$47$svg$46$MarkerOrient$Auto;
+    return _M0DTP26mizchi3svg12MarkerOrient4Auto__;
   } else {
     if (v === "auto-start-reverse") {
-      return $64$mizchi$47$svg$46$MarkerOrient$AutoStartReverse;
+      return _M0DTP26mizchi3svg12MarkerOrient16AutoStartReverse__;
     } else {
       const angle = _M0FP26mizchi3svg18string__ends__with(v, "deg") ? _M0FP26mizchi3svg13parse__number(_M0FP26mizchi3svg16build__substring(v, 0, v.length - 3 | 0)) : _M0FP26mizchi3svg13parse__number(v);
-      return new $64$mizchi$47$svg$46$MarkerOrient$Angle(angle);
+      return new _M0DTP26mizchi3svg12MarkerOrient5Angle(angle);
     }
   }
 }
@@ -14037,15 +14100,15 @@ function _M0FP26mizchi3svg28parse__marker__with__content(attrs, content, ctx) {
   if (id.length === 0) {
     return undefined;
   }
-  const ref_x = { val: 0 };
-  const ref_y = { val: 0 };
-  const marker_width = { val: 3 };
-  const marker_height = { val: 3 };
-  const marker_units = { val: 0 };
-  const orient = { val: new $64$mizchi$47$svg$46$MarkerOrient$Angle(0) };
-  const view_box = { val: undefined };
-  const preserve_aspect_ratio = { val: _M0MP26mizchi3svg19PreserveAspectRatio7default() };
-  const overflow_visible = { val: false };
+  const ref_x = new _M0TPC13ref3RefGdE(0);
+  const ref_y = new _M0TPC13ref3RefGdE(0);
+  const marker_width = new _M0TPC13ref3RefGdE(3);
+  const marker_height = new _M0TPC13ref3RefGdE(3);
+  const marker_units = new _M0TPC13ref3RefGRP26mizchi3svg11MarkerUnitsE(0);
+  const orient = new _M0TPC13ref3RefGRP26mizchi3svg12MarkerOrientE(new _M0DTP26mizchi3svg12MarkerOrient5Angle(0));
+  const view_box = new _M0TPC13ref3RefGORP26mizchi3svg7ViewBoxE(undefined);
+  const preserve_aspect_ratio = new _M0TPC13ref3RefGRP26mizchi3svg19PreserveAspectRatioE(_M0MP26mizchi3svg19PreserveAspectRatio7default());
+  const overflow_visible = new _M0TPC13ref3RefGbE(false);
   let v;
   _L: {
     _L$2: {
@@ -14181,18 +14244,19 @@ function _M0FP26mizchi3svg28parse__marker__with__content(attrs, content, ctx) {
     }
     overflow_visible.val = _M0FP26mizchi3svg12trim__string(v$9) === "visible";
   }
-  content.viewport_width = new Option$Some$8$(marker_width.val);
-  content.viewport_height = new Option$Some$8$(marker_height.val);
+  content.viewport_width = new _M0DTPC16option6OptionGdE4Some(marker_width.val);
+  content.viewport_height = new _M0DTPC16option6OptionGdE4Some(marker_height.val);
   content.view_box = undefined;
   content.preserve_aspect_ratio = _M0MP26mizchi3svg19PreserveAspectRatio7default();
   content.preserve_aspect_ratio_is_set = false;
   content.clip_overflow = false;
   const clip_overflow = !overflow_visible.val;
-  const marker = { ..._M0MP26mizchi3svg6Marker3new(id, content), ref_x: ref_x.val, ref_y: ref_y.val, marker_width: marker_width.val, marker_height: marker_height.val, marker_units: marker_units.val, orient: orient.val, view_box: view_box.val, preserve_aspect_ratio: preserve_aspect_ratio.val, clip_overflow: clip_overflow };
+  const _tmp = _M0MP26mizchi3svg6Marker3new(id, content);
+  const marker = new _M0TP26mizchi3svg6Marker(_tmp.id, _tmp.content, ref_x.val, ref_y.val, marker_width.val, marker_height.val, orient.val, marker_units.val, view_box.val, preserve_aspect_ratio.val, clip_overflow);
   _M0MP26mizchi3svg14MarkerRegistry3add(ctx.markers, marker);
 }
 function _M0FP26mizchi3svg26parse__marker__from__attrs(attrs, ctx, _parent_tag) {
-  const node = _M0MP26mizchi3svg7SVGNode3new($64$mizchi$47$svg$46$Shape$Group);
+  const node = _M0MP26mizchi3svg7SVGNode3new(_M0DTP26mizchi3svg5Shape5Group__);
   _M0FP26mizchi3svg17apply__attributes(node, attrs);
   _M0FP26mizchi3svg23apply__inherited__style(node, _M0MP26mizchi3svg15SVGParseContext14current__style(ctx));
   _M0FP26mizchi3svg28parse__marker__with__content(attrs, node, ctx);
@@ -14300,15 +14364,15 @@ function _M0FP26mizchi3svg26parse__mask__with__content(attrs, content, ctx) {
     }
     mask_type = _M0FP26mizchi3svg17parse__mask__type(v$3);
   }
-  const has_bounds = { val: false };
-  const x = { val: 0 };
-  const y = { val: 0 };
-  const width = { val: 0 };
-  const height = { val: 0 };
-  const x_is_percent = { val: false };
-  const y_is_percent = { val: false };
-  const width_is_percent = { val: false };
-  const height_is_percent = { val: false };
+  const has_bounds = new _M0TPC13ref3RefGbE(false);
+  const x = new _M0TPC13ref3RefGdE(0);
+  const y = new _M0TPC13ref3RefGdE(0);
+  const width = new _M0TPC13ref3RefGdE(0);
+  const height = new _M0TPC13ref3RefGdE(0);
+  const x_is_percent = new _M0TPC13ref3RefGbE(false);
+  const y_is_percent = new _M0TPC13ref3RefGbE(false);
+  const width_is_percent = new _M0TPC13ref3RefGbE(false);
+  const height_is_percent = new _M0TPC13ref3RefGbE(false);
   let v$4;
   _L$4: {
     _L$5: {
@@ -14418,7 +14482,7 @@ function _M0FP26mizchi3svg26parse__mask__with__content(attrs, content, ctx) {
     has_bounds.val = true;
   }
   const base = has_bounds.val ? _M0MP26mizchi3svg4Mask12with__bounds(id, content, x.val, y.val, width.val, height.val) : _M0MP26mizchi3svg4Mask3new(id, content);
-  const mask = has_bounds.val ? { ...base, x_is_percent: x_is_percent.val, y_is_percent: y_is_percent.val, width_is_percent: width_is_percent.val, height_is_percent: height_is_percent.val, mask_units: mask_units, mask_content_units: mask_content_units, mask_type: mask_type } : { ...base, mask_units: mask_units, mask_content_units: mask_content_units, mask_type: mask_type };
+  const mask = has_bounds.val ? new _M0TP26mizchi3svg4Mask(base.id, base.content, base.x, base.y, base.width, base.height, x_is_percent.val, y_is_percent.val, width_is_percent.val, height_is_percent.val, mask_units, mask_content_units, mask_type) : new _M0TP26mizchi3svg4Mask(base.id, base.content, base.x, base.y, base.width, base.height, base.x_is_percent, base.y_is_percent, base.width_is_percent, base.height_is_percent, mask_units, mask_content_units, mask_type);
   _M0MP26mizchi3svg12MaskRegistry3add(ctx.masks, mask);
 }
 function _M0FP26mizchi3svg24parse__mask__from__attrs(attrs, ctx) {
@@ -14451,8 +14515,8 @@ function _M0FP26mizchi3svg29parse__pattern__with__content(attrs, content, ctx) {
   if (id.length === 0) {
     return undefined;
   }
-  const width = { val: 0 };
-  const height = { val: 0 };
+  const width = new _M0TPC13ref3RefGdE(0);
+  const height = new _M0TPC13ref3RefGdE(0);
   let v;
   _L: {
     _L$2: {
@@ -14565,7 +14629,8 @@ function _M0FP26mizchi3svg29parse__pattern__with__content(attrs, content, ctx) {
     }
     view_box = _M0FP26mizchi3svg16parse__view__box(v$6);
   }
-  const pattern = { ..._M0MP26mizchi3svg7Pattern3new(id, width.val, height.val, content), pattern_units: pattern_units, pattern_content_units: pattern_content_units, transform: transform, view_box: view_box };
+  const _tmp = _M0MP26mizchi3svg7Pattern3new(id, width.val, height.val, content);
+  const pattern = new _M0TP26mizchi3svg7Pattern(_tmp.id, _tmp.width, _tmp.height, _tmp.content, pattern_units, pattern_content_units, transform, view_box, _tmp.preserve_aspect_ratio);
   _M0MP26mizchi3svg15PatternRegistry3add(ctx.patterns, pattern);
 }
 function _M0FP26mizchi3svg27parse__pattern__from__attrs(attrs, ctx, parent_tag) {
@@ -14675,8 +14740,9 @@ function _M0FP26mizchi3svg36parse__radial__gradient__with__stops(attrs, stops, c
     }
     transform = _M0FP26mizchi3svg16parse__transform(v$5);
   }
-  const grad = { ..._M0MP26mizchi3svg14RadialGradient3new(cx, cy, r, stops), fx: fx, fy: fy, spread_method: spread_method, units: units, transform: transform };
-  _M0MP26mizchi3svg16GradientRegistry3add(ctx.gradients, id, new $64$mizchi$47$svg$46$Gradient$Radial(grad));
+  const _tmp = _M0MP26mizchi3svg14RadialGradient3new(cx, cy, r, stops);
+  const grad = new _M0TP26mizchi3svg14RadialGradient(_tmp.cx, _tmp.cy, fx, fy, _tmp.r, _tmp.stops, spread_method, units, transform);
+  _M0MP26mizchi3svg16GradientRegistry3add(ctx.gradients, id, new _M0DTP26mizchi3svg8Gradient6Radial(grad));
 }
 function _M0FP26mizchi3svg23parse__radial__gradient(parser, attrs, ctx, tag_name, parent_tag) {
   if (!_M0FP26mizchi3svg26is__paint__server__context(parent_tag)) {
@@ -14694,15 +14760,15 @@ function _M0FP26mizchi3svg36parse__radial__gradient__from__attrs(attrs, ctx, par
 }
 function _M0FP26mizchi3svg30apply__paint__order__recursive(node, order) {
   node.paint_order = order;
-  const _arr = node.children;
-  const _len = _arr.length;
+  const _bind = node.children;
+  const _bind$2 = _bind.length;
   let _tmp = 0;
   while (true) {
-    const _i = _tmp;
-    if (_i < _len) {
-      const child = _arr[_i];
+    const _ = _tmp;
+    if (_ < _bind$2) {
+      const child = _bind[_];
       _M0FP26mizchi3svg30apply__paint__order__recursive(child, order);
-      _tmp = _i + 1 | 0;
+      _tmp = _ + 1 | 0;
       continue;
     } else {
       return;
@@ -14711,22 +14777,21 @@ function _M0FP26mizchi3svg30apply__paint__order__recursive(node, order) {
 }
 function _M0FP26mizchi3svg34apply__style__attributes__filtered(node, value) {
   const pairs = _M0FP26mizchi3svg19parse__style__pairs(value);
-  const _arr = pairs;
-  const _len = _arr.length;
+  const _bind = pairs.length;
   let _tmp = 0;
   while (true) {
-    const _i = _tmp;
-    if (_i < _len) {
+    const _ = _tmp;
+    if (_ < _bind) {
+      const pair = pairs[_];
       _L: {
-        const pair = _arr[_i];
-        const name = _M0MP311moonbitlang4core6string6String9to__lower(pair._0);
+        const name = _M0MPC16string6String9to__lower(pair._0);
         if (name === "style" || (name === "transform" || (name === "x" || (name === "y" || (name === "width" || name === "height"))))) {
           break _L;
         }
         _M0FP26mizchi3svg16apply__attribute(node, name, pair._1);
         break _L;
       }
-      _tmp = _i + 1 | 0;
+      _tmp = _ + 1 | 0;
       continue;
     } else {
       return;
@@ -14734,14 +14799,13 @@ function _M0FP26mizchi3svg34apply__style__attributes__filtered(node, value) {
   }
 }
 function _M0FP26mizchi3svg31apply__presentation__attributes(node, attrs) {
-  const _arr = attrs;
-  const _len = _arr.length;
+  const _bind = attrs.length;
   let _tmp = 0;
   while (true) {
-    const _i = _tmp;
-    if (_i < _len) {
+    const _ = _tmp;
+    if (_ < _bind) {
+      const attr = attrs[_];
       _L: {
-        const attr = _arr[_i];
         const name = attr._0;
         if (name === "id" || (name === "x" || (name === "y" || (name === "width" || (name === "height" || (name === "href" || (name === "xlink:href" || name === "transform"))))))) {
           break _L;
@@ -14753,7 +14817,7 @@ function _M0FP26mizchi3svg31apply__presentation__attributes(node, attrs) {
         }
         break _L;
       }
-      _tmp = _i + 1 | 0;
+      _tmp = _ + 1 | 0;
       continue;
     } else {
       return;
@@ -14790,18 +14854,17 @@ function _M0FP26mizchi3svg21extract__paint__order(attrs) {
       break _L$2;
     }
     const pairs = _M0FP26mizchi3svg19parse__style__pairs(style);
-    const _arr = pairs;
-    const _len = _arr.length;
+    const _bind = pairs.length;
     let _tmp = 0;
     while (true) {
-      const _i = _tmp;
-      if (_i < _len) {
-        const pair = _arr[_i];
-        const name = _M0MP311moonbitlang4core6string6String9to__lower(pair._0);
+      const _ = _tmp;
+      if (_ < _bind) {
+        const pair = pairs[_];
+        const name = _M0MPC16string6String9to__lower(pair._0);
         if (name === "paint-order") {
           return _M0FP26mizchi3svg19parse__paint__order(pair._1);
         }
-        _tmp = _i + 1 | 0;
+        _tmp = _ + 1 | 0;
         continue;
       } else {
         break;
@@ -14814,20 +14877,20 @@ function _M0FP26mizchi3svg18find__node__by__id(node, id) {
   if (node.id === id) {
     return node;
   }
-  const _arr = node.children;
-  const _len = _arr.length;
+  const _bind = node.children;
+  const _bind$2 = _bind.length;
   let _tmp = 0;
   while (true) {
-    const _i = _tmp;
-    if (_i < _len) {
-      const child = _arr[_i];
+    const _ = _tmp;
+    if (_ < _bind$2) {
+      const child = _bind[_];
       let found;
       _L: {
         _L$2: {
-          const _bind = _M0FP26mizchi3svg18find__node__by__id(child, id);
-          if (_bind === undefined) {
+          const _bind$3 = _M0FP26mizchi3svg18find__node__by__id(child, id);
+          if (_bind$3 === undefined) {
           } else {
-            const _Some = _bind;
+            const _Some = _bind$3;
             const _found = _Some;
             found = _found;
             break _L$2;
@@ -14836,7 +14899,7 @@ function _M0FP26mizchi3svg18find__node__by__id(node, id) {
         }
         return found;
       }
-      _tmp = _i + 1 | 0;
+      _tmp = _ + 1 | 0;
       continue;
     } else {
       break;
@@ -14855,13 +14918,13 @@ function _M0FP26mizchi3svg21split__href__fragment(href) {
   }
 }
 function _M0MP26mizchi3svg15SVGParseContext17current__viewport(self) {
-  return self.viewport_stack.length === 0 ? undefined : _M0MP311moonbitlang4core5array5Array2atGUddEE(self.viewport_stack, self.viewport_stack.length - 1 | 0);
+  return self.viewport_stack.length === 0 ? undefined : _M0MPC15array5Array2atGRP26mizchi22kagura__effect__studio11EffectTrackE(self.viewport_stack, self.viewport_stack.length - 1 | 0);
 }
 function _M0MP26mizchi3svg15SVGParseContext3new() {
-  return { symbols: _M0MP26mizchi3svg14SymbolRegistry3new(), defs: _M0MP26mizchi3svg12DefsRegistry3new(), clips: _M0MP26mizchi3svg16ClipPathRegistry3new(), masks: _M0MP26mizchi3svg12MaskRegistry3new(), patterns: _M0MP26mizchi3svg15PatternRegistry3new(), gradients: _M0MP26mizchi3svg16GradientRegistry3new(), markers: _M0MP26mizchi3svg14MarkerRegistry3new(), style_stack: [], viewport_stack: [] };
+  return new _M0TP26mizchi3svg15SVGParseContext(_M0MP26mizchi3svg14SymbolRegistry3new(), _M0MP26mizchi3svg12DefsRegistry3new(), _M0MP26mizchi3svg16ClipPathRegistry3new(), _M0MP26mizchi3svg12MaskRegistry3new(), _M0MP26mizchi3svg15PatternRegistry3new(), _M0MP26mizchi3svg16GradientRegistry3new(), _M0MP26mizchi3svg14MarkerRegistry3new(), [], []);
 }
 function _M0MP26mizchi3svg9SVGParser3new(data) {
-  return { data: data, pos: 0, len: data.length };
+  return new _M0TP26mizchi3svg9SVGParser(data, 0, data.length);
 }
 function _M0FP26mizchi3svg20parse__svg__document(svg_str) {
   const parser = _M0MP26mizchi3svg9SVGParser3new(svg_str);
@@ -14878,7 +14941,7 @@ function _M0FP26mizchi3svg20parse__svg__document(svg_str) {
       break _L;
     }
   }
-  return { root: root, symbols: ctx.symbols, clips: ctx.clips, masks: ctx.masks, patterns: ctx.patterns, gradients: ctx.gradients, markers: ctx.markers };
+  return new _M0TP26mizchi3svg11SVGDocument(root, ctx.symbols, ctx.clips, ctx.masks, ctx.patterns, ctx.gradients, ctx.markers);
 }
 function _M0FP26mizchi3svg14parse__element(parser, ctx, parent_tag) {
   _M0MP26mizchi3svg9SVGParser16skip__whitespace(parser);
@@ -14909,7 +14972,7 @@ function _M0FP26mizchi3svg14parse__element(parser, ctx, parent_tag) {
   }
   const attrs = _M0FP26mizchi3svg17parse__attributes(parser);
   _M0MP26mizchi3svg9SVGParser16skip__whitespace(parser);
-  const self_closing = { val: false };
+  const self_closing = new _M0TPC13ref3RefGbE(false);
   if (_M0MP26mizchi3svg9SVGParser4peek(parser) === 47) {
     _M0MP26mizchi3svg9SVGParser7advance(parser);
     _M0MP26mizchi3svg9SVGParser12expect__char(parser, 62);
@@ -14920,13 +14983,13 @@ function _M0FP26mizchi3svg14parse__element(parser, ctx, parent_tag) {
   switch (tag_name) {
     case "defs": {
       if (!self_closing.val) {
-        const temp = _M0MP26mizchi3svg7SVGNode3new($64$mizchi$47$svg$46$Shape$Group);
+        const temp = _M0MP26mizchi3svg7SVGNode3new(_M0DTP26mizchi3svg5Shape5Group__);
         _M0FP26mizchi3svg15parse__children(parser, temp, tag_name, ctx);
       }
-      return _M0MP26mizchi3svg7SVGNode3new($64$mizchi$47$svg$46$Shape$Group);
+      return _M0MP26mizchi3svg7SVGNode3new(_M0DTP26mizchi3svg5Shape5Group__);
     }
     case "symbol": {
-      const symbol_node = _M0MP26mizchi3svg7SVGNode3new($64$mizchi$47$svg$46$Shape$Group);
+      const symbol_node = _M0MP26mizchi3svg7SVGNode3new(_M0DTP26mizchi3svg5Shape5Group__);
       let id;
       const _bind = _M0FP26mizchi3svg9get__attr(attrs, "id");
       if (_bind === undefined) {
@@ -14960,7 +15023,7 @@ function _M0FP26mizchi3svg14parse__element(parser, ctx, parent_tag) {
         _L$3: {
           const _bind$2 = _M0FP26mizchi3svg9get__attr(attrs, "width");
           if (_bind$2 === undefined) {
-            width = Option$None$8$;
+            width = _M0DTPC16option6OptionGdE4None__;
           } else {
             const _Some = _bind$2;
             const _v = _Some;
@@ -14969,7 +15032,7 @@ function _M0FP26mizchi3svg14parse__element(parser, ctx, parent_tag) {
           }
           break _L$2;
         }
-        width = new Option$Some$8$(_M0FP26mizchi3svg13parse__length(v$2));
+        width = new _M0DTPC16option6OptionGdE4Some(_M0FP26mizchi3svg13parse__length(v$2));
       }
       let height;
       let v$3;
@@ -14977,7 +15040,7 @@ function _M0FP26mizchi3svg14parse__element(parser, ctx, parent_tag) {
         _L$4: {
           const _bind$2 = _M0FP26mizchi3svg9get__attr(attrs, "height");
           if (_bind$2 === undefined) {
-            height = Option$None$8$;
+            height = _M0DTPC16option6OptionGdE4None__;
           } else {
             const _Some = _bind$2;
             const _v = _Some;
@@ -14986,7 +15049,7 @@ function _M0FP26mizchi3svg14parse__element(parser, ctx, parent_tag) {
           }
           break _L$3;
         }
-        height = new Option$Some$8$(_M0FP26mizchi3svg13parse__length(v$3));
+        height = new _M0DTPC16option6OptionGdE4Some(_M0FP26mizchi3svg13parse__length(v$3));
       }
       let display_none;
       let v$4;
@@ -15030,7 +15093,8 @@ function _M0FP26mizchi3svg14parse__element(parser, ctx, parent_tag) {
       _L$6: {
         _L$7: {
           if (view_box === undefined) {
-            symbol = { ..._M0MP26mizchi3svg6Symbol3new(id, symbol_node), preserve_aspect_ratio: preserve };
+            const _tmp = _M0MP26mizchi3svg6Symbol3new(id, symbol_node);
+            symbol = new _M0TP26mizchi3svg6Symbol(_tmp.id, _tmp.content, _tmp.view_box, _tmp.width, _tmp.height, preserve, _tmp.display_none);
           } else {
             const _Some = view_box;
             const _vb = _Some;
@@ -15039,11 +15103,12 @@ function _M0FP26mizchi3svg14parse__element(parser, ctx, parent_tag) {
           }
           break _L$6;
         }
-        symbol = { ..._M0MP26mizchi3svg6Symbol13with__viewbox(id, symbol_node, vb), preserve_aspect_ratio: preserve };
+        const _tmp = _M0MP26mizchi3svg6Symbol13with__viewbox(id, symbol_node, vb);
+        symbol = new _M0TP26mizchi3svg6Symbol(_tmp.id, _tmp.content, _tmp.view_box, _tmp.width, _tmp.height, preserve, _tmp.display_none);
       }
-      const symbol$2 = { ...symbol, width: width, height: height, display_none: display_none };
+      const symbol$2 = new _M0TP26mizchi3svg6Symbol(symbol.id, symbol.content, symbol.view_box, width, height, symbol.preserve_aspect_ratio, display_none);
       _M0MP26mizchi3svg14SymbolRegistry3add(ctx.symbols, symbol$2);
-      return _M0MP26mizchi3svg7SVGNode3new($64$mizchi$47$svg$46$Shape$Group);
+      return _M0MP26mizchi3svg7SVGNode3new(_M0DTP26mizchi3svg5Shape5Group__);
     }
     case "clipPath": {
       if (!self_closing.val) {
@@ -15051,7 +15116,7 @@ function _M0FP26mizchi3svg14parse__element(parser, ctx, parent_tag) {
       } else {
         _M0FP26mizchi3svg30parse__clip__path__from__attrs(attrs, ctx);
       }
-      return _M0MP26mizchi3svg7SVGNode3new($64$mizchi$47$svg$46$Shape$Group);
+      return _M0MP26mizchi3svg7SVGNode3new(_M0DTP26mizchi3svg5Shape5Group__);
     }
     case "mask": {
       if (!self_closing.val) {
@@ -15059,7 +15124,7 @@ function _M0FP26mizchi3svg14parse__element(parser, ctx, parent_tag) {
       } else {
         _M0FP26mizchi3svg24parse__mask__from__attrs(attrs, ctx);
       }
-      return _M0MP26mizchi3svg7SVGNode3new($64$mizchi$47$svg$46$Shape$Group);
+      return _M0MP26mizchi3svg7SVGNode3new(_M0DTP26mizchi3svg5Shape5Group__);
     }
     case "marker": {
       if (!self_closing.val) {
@@ -15067,7 +15132,7 @@ function _M0FP26mizchi3svg14parse__element(parser, ctx, parent_tag) {
       } else {
         _M0FP26mizchi3svg26parse__marker__from__attrs(attrs, ctx, parent_tag);
       }
-      return _M0MP26mizchi3svg7SVGNode3new($64$mizchi$47$svg$46$Shape$Group);
+      return _M0MP26mizchi3svg7SVGNode3new(_M0DTP26mizchi3svg5Shape5Group__);
     }
     case "image": {
       const node = _M0FP26mizchi3svg12parse__image(attrs);
@@ -15082,7 +15147,7 @@ function _M0FP26mizchi3svg14parse__element(parser, ctx, parent_tag) {
       } else {
         _M0FP26mizchi3svg27parse__pattern__from__attrs(attrs, ctx, parent_tag);
       }
-      return _M0MP26mizchi3svg7SVGNode3new($64$mizchi$47$svg$46$Shape$Group);
+      return _M0MP26mizchi3svg7SVGNode3new(_M0DTP26mizchi3svg5Shape5Group__);
     }
     case "linearGradient": {
       if (!self_closing.val) {
@@ -15090,7 +15155,7 @@ function _M0FP26mizchi3svg14parse__element(parser, ctx, parent_tag) {
       } else {
         _M0FP26mizchi3svg36parse__linear__gradient__from__attrs(attrs, ctx, parent_tag);
       }
-      return _M0MP26mizchi3svg7SVGNode3new($64$mizchi$47$svg$46$Shape$Group);
+      return _M0MP26mizchi3svg7SVGNode3new(_M0DTP26mizchi3svg5Shape5Group__);
     }
     case "radialGradient": {
       if (!self_closing.val) {
@@ -15098,20 +15163,20 @@ function _M0FP26mizchi3svg14parse__element(parser, ctx, parent_tag) {
       } else {
         _M0FP26mizchi3svg36parse__radial__gradient__from__attrs(attrs, ctx, parent_tag);
       }
-      return _M0MP26mizchi3svg7SVGNode3new($64$mizchi$47$svg$46$Shape$Group);
+      return _M0MP26mizchi3svg7SVGNode3new(_M0DTP26mizchi3svg5Shape5Group__);
     }
     case "use": {
       const node$2 = _M0FP26mizchi3svg10parse__use(attrs, ctx);
       if (!self_closing.val) {
         _M0FP26mizchi3svg18skip__to__end__tag(parser, tag_name);
       }
-      return node$2 === undefined ? _M0MP26mizchi3svg7SVGNode3new($64$mizchi$47$svg$46$Shape$Group) : node$2;
+      return node$2 === undefined ? _M0MP26mizchi3svg7SVGNode3new(_M0DTP26mizchi3svg5Shape5Group__) : node$2;
     }
     default: {
       const node$3 = _M0FP26mizchi3svg22create__node__for__tag(tag_name);
       _M0FP26mizchi3svg17apply__attributes(node$3, attrs);
       if (tag_name === "svg") {
-        if (_M0IP016_24default__implP311moonbitlang4core7builtin2Eq10not__equalGsE(parent_tag, "")) {
+        if (_M0IP016_24default__implPB2Eq10not__equalGsE(parent_tag, "")) {
           let v$6;
           _L$7: {
             _L$8: {
@@ -15125,7 +15190,7 @@ function _M0FP26mizchi3svg14parse__element(parser, ctx, parent_tag) {
               }
               break _L$7;
             }
-            node$3.viewport_width = new Option$Some$8$(_M0FP26mizchi3svg13parse__length(v$6));
+            node$3.viewport_width = new _M0DTPC16option6OptionGdE4Some(_M0FP26mizchi3svg13parse__length(v$6));
           }
           let v$7;
           _L$8: {
@@ -15140,7 +15205,7 @@ function _M0FP26mizchi3svg14parse__element(parser, ctx, parent_tag) {
               }
               break _L$8;
             }
-            node$3.viewport_height = new Option$Some$8$(_M0FP26mizchi3svg13parse__length(v$7));
+            node$3.viewport_height = new _M0DTPC16option6OptionGdE4Some(_M0FP26mizchi3svg13parse__length(v$7));
           }
         }
         let v$6;
@@ -15198,7 +15263,7 @@ function _M0FP26mizchi3svg14parse__element(parser, ctx, parent_tag) {
           node$3.transform = _M0MP26mizchi3svg9Transform8multiply(_M0MP26mizchi3svg9Transform9translate(x, y), node$3.transform);
         }
       }
-      const pushed = { val: false };
+      const pushed = new _M0TPC13ref3RefGbE(false);
       if (tag_name === "svg" && !self_closing.val) {
         let w;
         let h;
@@ -15219,7 +15284,7 @@ function _M0FP26mizchi3svg14parse__element(parser, ctx, parent_tag) {
             }
             break _L$7;
           }
-          _M0MP311moonbitlang4core5array5Array4pushGUddEE(ctx.viewport_stack, { _0: w, _1: h });
+          _M0MPC15array5Array4pushGRP36mizchi6kagura4core10TouchPointE(ctx.viewport_stack, { _0: w, _1: h });
           pushed.val = true;
         }
       }
@@ -15232,7 +15297,7 @@ function _M0FP26mizchi3svg14parse__element(parser, ctx, parent_tag) {
         }
       }
       if (pushed.val) {
-        _M0MP311moonbitlang4core5array5Array3popGUddEE(ctx.viewport_stack);
+        _M0MPC15array5Array3popGRP36mizchi6kagura10particle3d8ParticleE(ctx.viewport_stack);
       }
       return node$3;
     }
@@ -15241,7 +15306,7 @@ function _M0FP26mizchi3svg14parse__element(parser, ctx, parent_tag) {
 function _M0FP26mizchi3svg15parse__children(parser, parent, parent_tag, ctx) {
   const parent_style = _M0MP26mizchi3svg15SVGParseContext14current__style(ctx);
   _M0FP26mizchi3svg23apply__inherited__style(parent, parent_style);
-  _M0MP311moonbitlang4core5array5Array4pushGRP26mizchi3svg14InheritedStyleE(ctx.style_stack, _M0FP26mizchi3svg28inherited__style__from__node(parent));
+  _M0MPC15array5Array4pushGRP36mizchi6kagura4core10TouchPointE(ctx.style_stack, _M0FP26mizchi3svg28inherited__style__from__node(parent));
   while (true) {
     if (!_M0MP26mizchi3svg9SVGParser7is__end(parser)) {
       _M0MP26mizchi3svg9SVGParser16skip__whitespace(parser);
@@ -15294,7 +15359,7 @@ function _M0FP26mizchi3svg15parse__children(parser, parent, parent_tag, ctx) {
       const child_node = child;
       _M0FP26mizchi3svg23apply__inherited__style(child_node, _M0MP26mizchi3svg15SVGParseContext14current__style(ctx));
       _M0FP26mizchi3svg25apply__inherited__markers(child_node, parent);
-      _M0MP311moonbitlang4core5array5Array4pushGRP26mizchi3svg7SVGNodeE(parent.children, child_node);
+      _M0MPC15array5Array4pushGRP36mizchi6kagura4core10TouchPointE(parent.children, child_node);
       if (child_node.id.length > 0) {
         _M0MP26mizchi3svg12DefsRegistry3add(ctx.defs, child_node.id, child_node);
       }
@@ -15303,10 +15368,10 @@ function _M0FP26mizchi3svg15parse__children(parser, parent, parent_tag, ctx) {
       break;
     }
   }
-  _M0MP311moonbitlang4core5array5Array3popGRP26mizchi3svg14InheritedStyleE(ctx.style_stack);
+  _M0MPC15array5Array3popGRP36mizchi6kagura10particle3d8ParticleE(ctx.style_stack);
 }
 function _M0FP26mizchi3svg17parse__clip__path(parser, attrs, ctx, tag_name) {
-  const temp = _M0MP26mizchi3svg7SVGNode3new($64$mizchi$47$svg$46$Shape$Group);
+  const temp = _M0MP26mizchi3svg7SVGNode3new(_M0DTP26mizchi3svg5Shape5Group__);
   _M0FP26mizchi3svg15parse__children(parser, temp, tag_name, ctx);
   let id;
   const _bind = _M0FP26mizchi3svg9get__attr(attrs, "id");
@@ -15371,23 +15436,23 @@ function _M0FP26mizchi3svg17parse__clip__path(parser, attrs, ctx, tag_name) {
     }
     units = _M0FP26mizchi3svg24parse__clip__path__units(v$3);
   }
-  const shape = { val: undefined };
-  const child_transform = { val: _M0MP26mizchi3svg9Transform8identity() };
-  const _arr = temp.children;
-  const _len = _arr.length;
+  const shape = new _M0TPC13ref3RefGORP26mizchi3svg5ShapeE(undefined);
+  const child_transform = new _M0TPC13ref3RefGRP26mizchi3svg9TransformE(_M0MP26mizchi3svg9Transform8identity());
+  const _bind$2 = temp.children;
+  const _bind$3 = _bind$2.length;
   let _tmp = 0;
   while (true) {
-    const _i = _tmp;
-    if (_i < _len) {
-      const child = _arr[_i];
-      const _bind$2 = child.shape;
-      if (_bind$2.$tag === 9) {
+    const _ = _tmp;
+    if (_ < _bind$3) {
+      const child = _bind$2[_];
+      const _bind$4 = child.shape;
+      if (_bind$4.$tag === 9) {
       } else {
         shape.val = child.shape;
         child_transform.val = child.transform;
         break;
       }
-      _tmp = _i + 1 | 0;
+      _tmp = _ + 1 | 0;
       continue;
     } else {
       break;
@@ -15395,29 +15460,29 @@ function _M0FP26mizchi3svg17parse__clip__path(parser, attrs, ctx, tag_name) {
   }
   let s;
   _L$4: {
-    const _bind$2 = shape.val;
-    if (_bind$2 === undefined) {
+    const _bind$4 = shape.val;
+    if (_bind$4 === undefined) {
       return;
     } else {
-      const _Some = _bind$2;
+      const _Some = _bind$4;
       const _s = _Some;
       s = _s;
       break _L$4;
     }
   }
   const combined = _M0MP26mizchi3svg9Transform8multiply(transform, child_transform.val);
-  const clip = { id: id, shape: s, transform: combined, clip_rule: clip_rule, units: units };
+  const clip = new _M0TP26mizchi3svg8ClipPath(id, s, combined, clip_rule, units);
   _M0MP26mizchi3svg16ClipPathRegistry3add(ctx.clips, clip);
 }
 function _M0FP26mizchi3svg13parse__marker(parser, attrs, ctx, tag_name, _parent_tag) {
-  const temp = _M0MP26mizchi3svg7SVGNode3new($64$mizchi$47$svg$46$Shape$Group);
+  const temp = _M0MP26mizchi3svg7SVGNode3new(_M0DTP26mizchi3svg5Shape5Group__);
   _M0FP26mizchi3svg17apply__attributes(temp, attrs);
   _M0FP26mizchi3svg23apply__inherited__style(temp, _M0MP26mizchi3svg15SVGParseContext14current__style(ctx));
   _M0FP26mizchi3svg15parse__children(parser, temp, tag_name, ctx);
   _M0FP26mizchi3svg28parse__marker__with__content(attrs, temp, ctx);
 }
 function _M0FP26mizchi3svg11parse__mask(parser, attrs, ctx, tag_name) {
-  const temp = _M0MP26mizchi3svg7SVGNode3new($64$mizchi$47$svg$46$Shape$Group);
+  const temp = _M0MP26mizchi3svg7SVGNode3new(_M0DTP26mizchi3svg5Shape5Group__);
   _M0FP26mizchi3svg15parse__children(parser, temp, tag_name, ctx);
   _M0FP26mizchi3svg26parse__mask__with__content(attrs, temp.children, ctx);
 }
@@ -15426,7 +15491,7 @@ function _M0FP26mizchi3svg14parse__pattern(parser, attrs, ctx, tag_name, parent_
     _M0FP26mizchi3svg18skip__to__end__tag(parser, tag_name);
     return undefined;
   }
-  const temp = _M0MP26mizchi3svg7SVGNode3new($64$mizchi$47$svg$46$Shape$Group);
+  const temp = _M0MP26mizchi3svg7SVGNode3new(_M0DTP26mizchi3svg5Shape5Group__);
   _M0FP26mizchi3svg15parse__children(parser, temp, tag_name, ctx);
   _M0FP26mizchi3svg29parse__pattern__with__content(attrs, temp.children, ctx);
 }
@@ -15496,7 +15561,7 @@ function _M0FP26mizchi3svg10parse__use(attrs, ctx) {
     _L$5: {
       const _bind = _M0FP26mizchi3svg9get__attr(attrs, "width");
       if (_bind === undefined) {
-        width = Option$None$8$;
+        width = _M0DTPC16option6OptionGdE4None__;
       } else {
         const _Some = _bind;
         const _v = _Some;
@@ -15505,7 +15570,7 @@ function _M0FP26mizchi3svg10parse__use(attrs, ctx) {
       }
       break _L$4;
     }
-    width = new Option$Some$8$(_M0FP26mizchi3svg13parse__length(v$4));
+    width = new _M0DTPC16option6OptionGdE4Some(_M0FP26mizchi3svg13parse__length(v$4));
   }
   let height;
   let v$5;
@@ -15513,7 +15578,7 @@ function _M0FP26mizchi3svg10parse__use(attrs, ctx) {
     _L$6: {
       const _bind = _M0FP26mizchi3svg9get__attr(attrs, "height");
       if (_bind === undefined) {
-        height = Option$None$8$;
+        height = _M0DTPC16option6OptionGdE4None__;
       } else {
         const _Some = _bind;
         const _v = _Some;
@@ -15522,7 +15587,7 @@ function _M0FP26mizchi3svg10parse__use(attrs, ctx) {
       }
       break _L$5;
     }
-    height = new Option$Some$8$(_M0FP26mizchi3svg13parse__length(v$5));
+    height = new _M0DTPC16option6OptionGdE4Some(_M0FP26mizchi3svg13parse__length(v$5));
   }
   let width$2;
   let height$2;
@@ -15542,25 +15607,24 @@ function _M0FP26mizchi3svg10parse__use(attrs, ctx) {
         }
         break _L$7;
       }
-      const w = { val: width };
-      const h = { val: height };
+      const w = new _M0TPC13ref3RefGOdE(width);
+      const h = new _M0TPC13ref3RefGOdE(height);
       const pairs = _M0FP26mizchi3svg19parse__style__pairs(style);
-      const _arr = pairs;
-      const _len = _arr.length;
+      const _bind$2 = pairs.length;
       let _tmp = 0;
       while (true) {
-        const _i = _tmp;
-        if (_i < _len) {
-          const pair = _arr[_i];
-          const name = _M0MP311moonbitlang4core6string6String9to__lower(pair._0);
+        const _ = _tmp;
+        if (_ < _bind$2) {
+          const pair = pairs[_];
+          const name = _M0MPC16string6String9to__lower(pair._0);
           if (name === "width") {
-            w.val = new Option$Some$8$(_M0FP26mizchi3svg13parse__length(pair._1));
+            w.val = new _M0DTPC16option6OptionGdE4Some(_M0FP26mizchi3svg13parse__length(pair._1));
           } else {
             if (name === "height") {
-              h.val = new Option$Some$8$(_M0FP26mizchi3svg13parse__length(pair._1));
+              h.val = new _M0DTPC16option6OptionGdE4Some(_M0FP26mizchi3svg13parse__length(pair._1));
             }
           }
-          _tmp = _i + 1 | 0;
+          _tmp = _ + 1 | 0;
           continue;
         } else {
           break;
@@ -15575,7 +15639,7 @@ function _M0FP26mizchi3svg10parse__use(attrs, ctx) {
     break _L$6;
   }
   const _bind = _M0MP26mizchi3svg10UseElement3new(href$2, x, y);
-  const use_elem = { href: _bind.href, x: _bind.x, y: _bind.y, width: width$2, height: height$2, transform: _bind.transform };
+  const use_elem = new _M0TP26mizchi3svg10UseElement(_bind.href, _bind.x, _bind.y, width$2, height$2, _bind.transform);
   let use_elem$2;
   let v$6;
   _L$7: {
@@ -15591,7 +15655,7 @@ function _M0FP26mizchi3svg10parse__use(attrs, ctx) {
       }
       break _L$7;
     }
-    use_elem$2 = { href: use_elem.href, x: use_elem.x, y: use_elem.y, width: use_elem.width, height: use_elem.height, transform: _M0FP26mizchi3svg16parse__transform(v$6) };
+    use_elem$2 = new _M0TP26mizchi3svg10UseElement(use_elem.href, use_elem.x, use_elem.y, use_elem.width, use_elem.height, _M0FP26mizchi3svg16parse__transform(v$6));
   }
   const viewport_fallback = _M0MP26mizchi3svg15SVGParseContext17current__viewport(ctx);
   let base_href;
@@ -15694,7 +15758,7 @@ function _M0FP26mizchi3svg10parse__use(attrs, ctx) {
                     break _L$17;
                   }
                 }
-                _bind$2 = { _0: { min_x: 0, min_y: 0, width: w, height: h }, _1: true };
+                _bind$2 = { _0: new _M0TP26mizchi3svg7ViewBox(0, 0, w, h), _1: true };
                 break _L$16;
               }
               let vw;
@@ -15714,7 +15778,7 @@ function _M0FP26mizchi3svg10parse__use(attrs, ctx) {
                   }
                   break _L$18;
                 }
-                _bind$2 = { _0: { min_x: 0, min_y: 0, width: vw, height: vh }, _1: true };
+                _bind$2 = { _0: new _M0TP26mizchi3svg7ViewBox(0, 0, vw, vh), _1: true };
               }
             }
           } else {
@@ -15734,7 +15798,7 @@ function _M0FP26mizchi3svg10parse__use(attrs, ctx) {
       break _L$13;
     }
     if (force_non_uniform) {
-      node.preserve_aspect_ratio = { align: 0, meet_or_slice: 0 };
+      node.preserve_aspect_ratio = new _M0TP26mizchi3svg19PreserveAspectRatio(0, 0);
     }
     let vw;
     let w;
@@ -15761,7 +15825,7 @@ function _M0FP26mizchi3svg10parse__use(attrs, ctx) {
                 _L$18: {
                   _L$19: {
                     if (viewport_fallback === undefined) {
-                      vw = Option$None$8$;
+                      vw = _M0DTPC16option6OptionGdE4None__;
                     } else {
                       const _Some = viewport_fallback;
                       const _x = _Some;
@@ -15771,17 +15835,17 @@ function _M0FP26mizchi3svg10parse__use(attrs, ctx) {
                     }
                     break _L$18;
                   }
-                  vw = new Option$Some$8$(vw$2);
+                  vw = new _M0DTPC16option6OptionGdE4Some(vw$2);
                 }
               }
               break _L$16;
             }
-            vw = new Option$Some$8$(w$2);
+            vw = new _M0DTPC16option6OptionGdE4Some(w$2);
           }
         }
         break _L$14;
       }
-      vw = new Option$Some$8$(w);
+      vw = new _M0DTPC16option6OptionGdE4Some(w);
     }
     let vh;
     let h;
@@ -15808,7 +15872,7 @@ function _M0FP26mizchi3svg10parse__use(attrs, ctx) {
                 _L$19: {
                   _L$20: {
                     if (viewport_fallback === undefined) {
-                      vh = Option$None$8$;
+                      vh = _M0DTPC16option6OptionGdE4None__;
                     } else {
                       const _Some = viewport_fallback;
                       const _x = _Some;
@@ -15818,17 +15882,17 @@ function _M0FP26mizchi3svg10parse__use(attrs, ctx) {
                     }
                     break _L$19;
                   }
-                  vh = new Option$Some$8$(vh$2);
+                  vh = new _M0DTPC16option6OptionGdE4Some(vh$2);
                 }
               }
               break _L$17;
             }
-            vh = new Option$Some$8$(h$2);
+            vh = new _M0DTPC16option6OptionGdE4Some(h$2);
           }
         }
         break _L$15;
       }
-      vh = new Option$Some$8$(h);
+      vh = new _M0DTPC16option6OptionGdE4Some(h);
     }
     node.view_box = vb;
     node.viewport_width = vw;
@@ -15836,7 +15900,7 @@ function _M0FP26mizchi3svg10parse__use(attrs, ctx) {
     const translate = _M0MP26mizchi3svg9Transform9translate(use_elem$2.x, use_elem$2.y);
     const base = _M0MP26mizchi3svg9Transform8multiply(translate, use_elem$2.transform);
     node.transform = _M0MP26mizchi3svg9Transform8multiply(base, node.transform);
-    node.id = _M0MP311moonbitlang4core6option6Option10unwrap__orGsE(_M0FP26mizchi3svg9get__attr(attrs, "id"), "");
+    node.id = _M0MPC16option6Option10unwrap__orGsE(_M0FP26mizchi3svg9get__attr(attrs, "id"), "");
     _M0FP26mizchi3svg31apply__presentation__attributes(node, attrs);
     let order;
     _L$16: {
@@ -15905,7 +15969,7 @@ function _M0FP26mizchi3svg10parse__use(attrs, ctx) {
                       break _L$16;
                     }
                   }
-                  _bind$3 = { _0: { min_x: 0, min_y: 0, width: w, height: h }, _1: true };
+                  _bind$3 = { _0: new _M0TP26mizchi3svg7ViewBox(0, 0, w, h), _1: true };
                   break _L$15;
                 }
                 let vw;
@@ -15925,7 +15989,7 @@ function _M0FP26mizchi3svg10parse__use(attrs, ctx) {
                     }
                     break _L$17;
                   }
-                  _bind$3 = { _0: { min_x: 0, min_y: 0, width: vw, height: vh }, _1: true };
+                  _bind$3 = { _0: new _M0TP26mizchi3svg7ViewBox(0, 0, vw, vh), _1: true };
                 }
               }
             } else {
@@ -15945,7 +16009,7 @@ function _M0FP26mizchi3svg10parse__use(attrs, ctx) {
         break _L$12;
       }
       if (force_non_uniform) {
-        node$2.preserve_aspect_ratio = { align: 0, meet_or_slice: 0 };
+        node$2.preserve_aspect_ratio = new _M0TP26mizchi3svg19PreserveAspectRatio(0, 0);
       }
       let vw;
       let w;
@@ -15972,7 +16036,7 @@ function _M0FP26mizchi3svg10parse__use(attrs, ctx) {
                   _L$17: {
                     _L$18: {
                       if (viewport_fallback === undefined) {
-                        vw = Option$None$8$;
+                        vw = _M0DTPC16option6OptionGdE4None__;
                       } else {
                         const _Some = viewport_fallback;
                         const _x = _Some;
@@ -15982,17 +16046,17 @@ function _M0FP26mizchi3svg10parse__use(attrs, ctx) {
                       }
                       break _L$17;
                     }
-                    vw = new Option$Some$8$(vw$2);
+                    vw = new _M0DTPC16option6OptionGdE4Some(vw$2);
                   }
                 }
                 break _L$15;
               }
-              vw = new Option$Some$8$(w$2);
+              vw = new _M0DTPC16option6OptionGdE4Some(w$2);
             }
           }
           break _L$13;
         }
-        vw = new Option$Some$8$(w);
+        vw = new _M0DTPC16option6OptionGdE4Some(w);
       }
       let vh;
       let h;
@@ -16019,7 +16083,7 @@ function _M0FP26mizchi3svg10parse__use(attrs, ctx) {
                   _L$18: {
                     _L$19: {
                       if (viewport_fallback === undefined) {
-                        vh = Option$None$8$;
+                        vh = _M0DTPC16option6OptionGdE4None__;
                       } else {
                         const _Some = viewport_fallback;
                         const _x = _Some;
@@ -16029,17 +16093,17 @@ function _M0FP26mizchi3svg10parse__use(attrs, ctx) {
                       }
                       break _L$18;
                     }
-                    vh = new Option$Some$8$(vh$2);
+                    vh = new _M0DTPC16option6OptionGdE4Some(vh$2);
                   }
                 }
                 break _L$16;
               }
-              vh = new Option$Some$8$(h$2);
+              vh = new _M0DTPC16option6OptionGdE4Some(h$2);
             }
           }
           break _L$14;
         }
-        vh = new Option$Some$8$(h);
+        vh = new _M0DTPC16option6OptionGdE4Some(h);
       }
       node$2.view_box = vb;
       node$2.viewport_width = vw;
@@ -16047,7 +16111,7 @@ function _M0FP26mizchi3svg10parse__use(attrs, ctx) {
       const translate = _M0MP26mizchi3svg9Transform9translate(use_elem$2.x, use_elem$2.y);
       const base = _M0MP26mizchi3svg9Transform8multiply(translate, use_elem$2.transform);
       node$2.transform = _M0MP26mizchi3svg9Transform8multiply(base, node$2.transform);
-      node$2.id = _M0MP311moonbitlang4core6option6Option10unwrap__orGsE(_M0FP26mizchi3svg9get__attr(attrs, "id"), "");
+      node$2.id = _M0MPC16option6Option10unwrap__orGsE(_M0FP26mizchi3svg9get__attr(attrs, "id"), "");
       _M0FP26mizchi3svg31apply__presentation__attributes(node$2, attrs);
       let order;
       _L$15: {
@@ -16090,11 +16154,11 @@ function _M0FP26mizchi3svg10parse__use(attrs, ctx) {
     }
     const _bind$2 = node.viewport_width;
     if (_bind$2.$tag === 0) {
-      node.viewport_width = new Option$Some$8$(vw);
+      node.viewport_width = new _M0DTPC16option6OptionGdE4Some(vw);
     }
     const _bind$3 = node.viewport_height;
     if (_bind$3.$tag === 0) {
-      node.viewport_height = new Option$Some$8$(vh);
+      node.viewport_height = new _M0DTPC16option6OptionGdE4Some(vh);
     }
     const _bind$4 = node.view_box;
     if (_bind$4 === undefined) {
@@ -16102,13 +16166,13 @@ function _M0FP26mizchi3svg10parse__use(attrs, ctx) {
       if (_bind$5.$tag === 1) {
         const _bind$6 = node.viewport_height;
         if (_bind$6.$tag === 1) {
-          node.view_box = { min_x: 0, min_y: 0, width: _M0MP311moonbitlang4core6option6Option6unwrapGdE(node.viewport_width), height: _M0MP311moonbitlang4core6option6Option6unwrapGdE(node.viewport_height) };
-          node.preserve_aspect_ratio = { align: 0, meet_or_slice: 0 };
+          node.view_box = new _M0TP26mizchi3svg7ViewBox(0, 0, _M0MPC16option6Option6unwrapGdE(node.viewport_width), _M0MPC16option6Option6unwrapGdE(node.viewport_height));
+          node.preserve_aspect_ratio = new _M0TP26mizchi3svg19PreserveAspectRatio(0, 0);
         }
       }
     }
   }
-  node.id = _M0MP311moonbitlang4core6option6Option10unwrap__orGsE(_M0FP26mizchi3svg9get__attr(attrs, "id"), "");
+  node.id = _M0MPC16option6Option10unwrap__orGsE(_M0FP26mizchi3svg9get__attr(attrs, "id"), "");
   _M0FP26mizchi3svg31apply__presentation__attributes(node, attrs);
   let order;
   _L$12: {
@@ -16128,7 +16192,7 @@ function _M0FP26mizchi3svg10parse__use(attrs, ctx) {
   return node;
 }
 function _M0MP26mizchi3svg13RenderContext3new(setter, width, height) {
-  return { setter: setter, width: width, height: height, flatness: 0.5, clip: undefined, text_to_paths: undefined };
+  return new _M0TP26mizchi3svg13RenderContext(setter, width, height, 0.5, undefined, undefined);
 }
 function _M0MP26mizchi3svg11PixelSetter5pixel(self, x, y, color) {
   const _func = self.set;
@@ -16148,9 +16212,9 @@ function _M0FP26mizchi3svg17apply__clip__path(ctx, clip, element_transform, bbox
     base_transform = _M0MP26mizchi3svg9Transform8multiply(element_transform, _M0MP26mizchi3svg9Transform8multiply(translate, scale));
   }
   const combined = _M0MP26mizchi3svg9Transform8multiply(base_transform, clip.transform);
-  const clip$2 = { id: clip.id, shape: clip.shape, transform: combined, clip_rule: clip.clip_rule, units: clip.units };
+  const clip$2 = new _M0TP26mizchi3svg8ClipPath(clip.id, clip.shape, combined, clip.clip_rule, clip.units);
   const inner = ctx.setter;
-  const setter = { set: (x, y, color) => {
+  const setter = new _M0TP26mizchi3svg11PixelSetter((x, y, color) => {
     const px = x + 0 + 0.5;
     const py = y + 0 + 0.5;
     if (_M0MP26mizchi3svg8ClipPath8contains(clip$2, px, py)) {
@@ -16159,11 +16223,11 @@ function _M0FP26mizchi3svg17apply__clip__path(ctx, clip, element_transform, bbox
     } else {
       return;
     }
-  } };
-  return { setter: setter, width: ctx.width, height: ctx.height, flatness: ctx.flatness, clip: ctx.clip, text_to_paths: ctx.text_to_paths };
+  });
+  return new _M0TP26mizchi3svg13RenderContext(setter, ctx.width, ctx.height, ctx.flatness, ctx.clip, ctx.text_to_paths);
 }
 function _M0FP26mizchi3svg13ceil__to__int(value) {
-  const i = _M0MP311moonbitlang4core6double6Double7to__int(value);
+  const i = _M0MPC16double6Double7to__int(value);
   return value > i + 0 ? i + 1 | 0 : i;
 }
 function _M0FP26mizchi3svg14angle__between(ux, uy, vx, vy) {
@@ -16174,14 +16238,14 @@ function _M0FP26mizchi3svg14angle__between(ux, uy, vx, vy) {
   if (len_prod === 0) {
     return 0;
   }
-  const cos_angle = { val: dot / len_prod };
+  const cos_angle = new _M0TPC13ref3RefGdE(dot / len_prod);
   if (cos_angle.val > 1) {
     cos_angle.val = 1;
   }
   if (cos_angle.val < -1) {
     cos_angle.val = -1;
   }
-  const angle = _M0FP311moonbitlang4core4math4acos(cos_angle.val);
+  const angle = _M0FPC14math4acos(cos_angle.val);
   const cross = ux * vy - uy * vx;
   return cross < 0 ? -angle : angle;
 }
@@ -16190,14 +16254,14 @@ function _M0FP26mizchi3svg8max__int(a, b) {
 }
 function _M0FP26mizchi3svg12flatten__arc(x1, y1, rx_in, ry_in, rotation_degrees, large_arc, sweep, x2, y2, flatness, points) {
   if (x1 === x2 && y1 === y2 || (rx_in === 0 || ry_in === 0)) {
-    _M0MP311moonbitlang4core5array5Array4pushGUddEE(points, { _0: x2, _1: y2 });
+    _M0MPC15array5Array4pushGRP36mizchi6kagura4core10TouchPointE(points, { _0: x2, _1: y2 });
     return undefined;
   }
-  const rx = { val: rx_in < 0 ? -rx_in : rx_in };
-  const ry = { val: ry_in < 0 ? -ry_in : ry_in };
+  const rx = new _M0TPC13ref3RefGdE(rx_in < 0 ? -rx_in : rx_in);
+  const ry = new _M0TPC13ref3RefGdE(ry_in < 0 ? -ry_in : ry_in);
   const phi = _M0FP26mizchi3svg20degrees__to__radians(rotation_degrees);
-  const cos_phi = _M0FP311moonbitlang4core4math3cos(phi);
-  const sin_phi = _M0FP311moonbitlang4core4math3sin(phi);
+  const cos_phi = _M0FPC14math3cos(phi);
+  const sin_phi = _M0FPC14math3sin(phi);
   const dx = (x1 - x2) / 2;
   const dy = (y1 - y2) / 2;
   const x1p = cos_phi * dx + sin_phi * dy;
@@ -16220,7 +16284,7 @@ function _M0FP26mizchi3svg12flatten__arc(x1, y1, rx_in, ry_in, rotation_degrees,
   const cx = cos_phi * cxp - sin_phi * cyp + (x1 + x2) / 2;
   const cy = sin_phi * cxp + cos_phi * cyp + (y1 + y2) / 2;
   const theta1 = _M0FP26mizchi3svg14angle__between(1, 0, (x1p - cxp) / rx.val, (y1p - cyp) / ry.val);
-  const dtheta = { val: _M0FP26mizchi3svg14angle__between((x1p - cxp) / rx.val, (y1p - cyp) / ry.val, (-x1p - cxp) / rx.val, (-y1p - cyp) / ry.val) };
+  const dtheta = new _M0TPC13ref3RefGdE(_M0FP26mizchi3svg14angle__between((x1p - cxp) / rx.val, (y1p - cyp) / ry.val, (-x1p - cxp) / rx.val, (-y1p - cyp) / ry.val));
   const pi = 3.14159265358979312;
   if (!sweep && dtheta.val > 0) {
     dtheta.val = dtheta.val - 2 * pi;
@@ -16229,20 +16293,19 @@ function _M0FP26mizchi3svg12flatten__arc(x1, y1, rx_in, ry_in, rotation_degrees,
       dtheta.val = dtheta.val + 2 * pi;
     }
   }
-  const n = _M0FP26mizchi3svg8max__int(_M0MP311moonbitlang4core6double6Double7to__int(Math.abs(dtheta.val / flatness) / 0.5), 2);
-  const _start861 = 1;
-  const _end862 = n;
-  let _tmp = _start861;
+  const n = _M0FP26mizchi3svg8max__int(_M0MPC16double6Double7to__int(Math.abs(dtheta.val / flatness) / 0.5), 2);
+  const _bind = 1;
+  let _tmp = _bind;
   while (true) {
     const i = _tmp;
-    if (i <= _end862) {
+    if (i <= n) {
       const t = (i + 0) / (n + 0);
       const theta = theta1 + t * dtheta.val;
-      const cos_t = _M0FP311moonbitlang4core4math3cos(theta);
-      const sin_t = _M0FP311moonbitlang4core4math3sin(theta);
+      const cos_t = _M0FPC14math3cos(theta);
+      const sin_t = _M0FPC14math3sin(theta);
       const x = cos_phi * rx.val * cos_t - sin_phi * ry.val * sin_t + cx;
       const y = sin_phi * rx.val * cos_t + cos_phi * ry.val * sin_t + cy;
-      _M0MP311moonbitlang4core5array5Array4pushGUddEE(points, { _0: x, _1: y });
+      _M0MPC15array5Array4pushGRP36mizchi6kagura4core10TouchPointE(points, { _0: x, _1: y });
       _tmp = i + 1 | 0;
       continue;
     } else {
@@ -16275,7 +16338,7 @@ function _M0FP26mizchi3svg25flatten__cubic__recursive(x0, y0, x1, y1, x2, y2, x3
     const points$2 = _tmp$10;
     const depth$2 = _tmp$11;
     if (depth$2 > 16) {
-      _M0MP311moonbitlang4core5array5Array4pushGUddEE(points$2, { _0: x3$2, _1: y3$2 });
+      _M0MPC15array5Array4pushGRP36mizchi6kagura4core10TouchPointE(points$2, { _0: x3$2, _1: y3$2 });
       return undefined;
     }
     const dx = x3$2 - x0$2;
@@ -16304,7 +16367,7 @@ function _M0FP26mizchi3svg25flatten__cubic__recursive(x0, y0, x1, y1, x2, y2, x3
       d2 = _M0FP26mizchi3svg3max(d1x * d1x + d1y * d1y, d2x * d2x + d2y * d2y);
     }
     if (d2 <= flatness$2 * flatness$2) {
-      _M0MP311moonbitlang4core5array5Array4pushGUddEE(points$2, { _0: x3$2, _1: y3$2 });
+      _M0MPC15array5Array4pushGRP36mizchi6kagura4core10TouchPointE(points$2, { _0: x3$2, _1: y3$2 });
       return;
     } else {
       const x01 = (x0$2 + x1$2) / 2;
@@ -16355,7 +16418,7 @@ function _M0FP26mizchi3svg29flatten__quadratic__recursive(x0, y0, x1, y1, x2, y2
     const points$2 = _tmp$8;
     const depth$2 = _tmp$9;
     if (depth$2 > 16) {
-      _M0MP311moonbitlang4core5array5Array4pushGUddEE(points$2, { _0: x2$2, _1: y2$2 });
+      _M0MPC15array5Array4pushGRP36mizchi6kagura4core10TouchPointE(points$2, { _0: x2$2, _1: y2$2 });
       return undefined;
     }
     const dx = x2$2 - x0$2;
@@ -16375,7 +16438,7 @@ function _M0FP26mizchi3svg29flatten__quadratic__recursive(x0, y0, x1, y1, x2, y2
       d2 = d1x * d1x + d1y * d1y;
     }
     if (d2 <= flatness$2 * flatness$2) {
-      _M0MP311moonbitlang4core5array5Array4pushGUddEE(points$2, { _0: x2$2, _1: y2$2 });
+      _M0MPC15array5Array4pushGRP36mizchi6kagura4core10TouchPointE(points$2, { _0: x2$2, _1: y2$2 });
       return;
     } else {
       const x01 = (x0$2 + x1$2) / 2;
@@ -16398,19 +16461,18 @@ function _M0FP26mizchi3svg18flatten__quadratic(x0, y0, x1, y1, x2, y2, flatness,
   _M0FP26mizchi3svg29flatten__quadratic__recursive(x0, y0, x1, y1, x2, y2, flatness, points, 0);
 }
 function _M0MP26mizchi3svg11PathContext3new() {
-  return { x: 0, y: 0, start_x: 0, start_y: 0, last_ctrl_x: 0, last_ctrl_y: 0, last_cmd_was_curve: false, last_cmd_was_quad: false };
+  return new _M0TP26mizchi3svg11PathContext(0, 0, 0, 0, 0, 0, false, false);
 }
 function _M0FP26mizchi3svg19path__to__polylines(commands, flatness) {
   const ctx = _M0MP26mizchi3svg11PathContext3new();
   const result = [];
-  const current_path = { val: [] };
-  const _arr = commands;
-  const _len = _arr.length;
+  const current_path = new _M0TPC13ref3RefGRPB5ArrayGUddEEE([]);
+  const _bind = commands.length;
   let _tmp = 0;
   while (true) {
-    const _i = _tmp;
-    if (_i < _len) {
-      const cmd = _arr[_i];
+    const _ = _tmp;
+    if (_ < _bind) {
+      const cmd = commands[_];
       let dx;
       let large_arc;
       let ry;
@@ -16696,7 +16758,7 @@ function _M0FP26mizchi3svg19path__to__polylines(commands, flatness) {
                                                                                 }
                                                                                 default: {
                                                                                   if (current_path.val.length > 0) {
-                                                                                    _M0MP311moonbitlang4core5array5Array4pushGUddEE(current_path.val, { _0: ctx.start_x, _1: ctx.start_y });
+                                                                                    _M0MPC15array5Array4pushGRP36mizchi6kagura4core10TouchPointE(current_path.val, { _0: ctx.start_x, _1: ctx.start_y });
                                                                                   }
                                                                                   ctx.x = ctx.start_x;
                                                                                   ctx.y = ctx.start_y;
@@ -16707,7 +16769,7 @@ function _M0FP26mizchi3svg19path__to__polylines(commands, flatness) {
                                                                               break _L$35;
                                                                             }
                                                                             if (current_path.val.length > 0) {
-                                                                              _M0MP311moonbitlang4core5array5Array4pushGRP311moonbitlang4core7builtin5ArrayGUddEEE(result, current_path.val);
+                                                                              _M0MPC15array5Array4pushGRPB5ArrayGUiiEEE(result, current_path.val);
                                                                             }
                                                                             current_path.val = [{ _0: x$8, _1: y$8 }];
                                                                             ctx.x = x$8;
@@ -16722,7 +16784,7 @@ function _M0FP26mizchi3svg19path__to__polylines(commands, flatness) {
                                                                         const x$8 = ctx.x + dx$8;
                                                                         const y$8 = ctx.y + dy$8;
                                                                         if (current_path.val.length > 0) {
-                                                                          _M0MP311moonbitlang4core5array5Array4pushGRP311moonbitlang4core7builtin5ArrayGUddEEE(result, current_path.val);
+                                                                          _M0MPC15array5Array4pushGRPB5ArrayGUiiEEE(result, current_path.val);
                                                                         }
                                                                         current_path.val = [{ _0: x$8, _1: y$8 }];
                                                                         ctx.x = x$8;
@@ -16734,7 +16796,7 @@ function _M0FP26mizchi3svg19path__to__polylines(commands, flatness) {
                                                                       }
                                                                       break _L$31;
                                                                     }
-                                                                    _M0MP311moonbitlang4core5array5Array4pushGUddEE(current_path.val, { _0: x$7, _1: y$7 });
+                                                                    _M0MPC15array5Array4pushGRP36mizchi6kagura4core10TouchPointE(current_path.val, { _0: x$7, _1: y$7 });
                                                                     ctx.x = x$7;
                                                                     ctx.y = y$7;
                                                                     ctx.last_cmd_was_curve = false;
@@ -16744,7 +16806,7 @@ function _M0FP26mizchi3svg19path__to__polylines(commands, flatness) {
                                                                 }
                                                                 const x$7 = ctx.x + dx$7;
                                                                 const y$7 = ctx.y + dy$7;
-                                                                _M0MP311moonbitlang4core5array5Array4pushGUddEE(current_path.val, { _0: x$7, _1: y$7 });
+                                                                _M0MPC15array5Array4pushGRP36mizchi6kagura4core10TouchPointE(current_path.val, { _0: x$7, _1: y$7 });
                                                                 ctx.x = x$7;
                                                                 ctx.y = y$7;
                                                                 ctx.last_cmd_was_curve = false;
@@ -16752,7 +16814,7 @@ function _M0FP26mizchi3svg19path__to__polylines(commands, flatness) {
                                                               }
                                                               break _L$27;
                                                             }
-                                                            _M0MP311moonbitlang4core5array5Array4pushGUddEE(current_path.val, { _0: x$6, _1: ctx.y });
+                                                            _M0MPC15array5Array4pushGRP36mizchi6kagura4core10TouchPointE(current_path.val, { _0: x$6, _1: ctx.y });
                                                             ctx.x = x$6;
                                                             ctx.last_cmd_was_curve = false;
                                                             ctx.last_cmd_was_quad = false;
@@ -16760,14 +16822,14 @@ function _M0FP26mizchi3svg19path__to__polylines(commands, flatness) {
                                                           break _L$25;
                                                         }
                                                         const x$6 = ctx.x + dx$6;
-                                                        _M0MP311moonbitlang4core5array5Array4pushGUddEE(current_path.val, { _0: x$6, _1: ctx.y });
+                                                        _M0MPC15array5Array4pushGRP36mizchi6kagura4core10TouchPointE(current_path.val, { _0: x$6, _1: ctx.y });
                                                         ctx.x = x$6;
                                                         ctx.last_cmd_was_curve = false;
                                                         ctx.last_cmd_was_quad = false;
                                                       }
                                                       break _L$23;
                                                     }
-                                                    _M0MP311moonbitlang4core5array5Array4pushGUddEE(current_path.val, { _0: ctx.x, _1: y$6 });
+                                                    _M0MPC15array5Array4pushGRP36mizchi6kagura4core10TouchPointE(current_path.val, { _0: ctx.x, _1: y$6 });
                                                     ctx.y = y$6;
                                                     ctx.last_cmd_was_curve = false;
                                                     ctx.last_cmd_was_quad = false;
@@ -16775,7 +16837,7 @@ function _M0FP26mizchi3svg19path__to__polylines(commands, flatness) {
                                                   break _L$21;
                                                 }
                                                 const y$6 = ctx.y + dy$6;
-                                                _M0MP311moonbitlang4core5array5Array4pushGUddEE(current_path.val, { _0: ctx.x, _1: y$6 });
+                                                _M0MPC15array5Array4pushGRP36mizchi6kagura4core10TouchPointE(current_path.val, { _0: ctx.x, _1: y$6 });
                                                 ctx.y = y$6;
                                                 ctx.last_cmd_was_curve = false;
                                                 ctx.last_cmd_was_quad = false;
@@ -16902,42 +16964,40 @@ function _M0FP26mizchi3svg19path__to__polylines(commands, flatness) {
         ctx.last_cmd_was_curve = false;
         ctx.last_cmd_was_quad = false;
       }
-      _tmp = _i + 1 | 0;
+      _tmp = _ + 1 | 0;
       continue;
     } else {
       break;
     }
   }
   if (current_path.val.length > 0) {
-    _M0MP311moonbitlang4core5array5Array4pushGRP311moonbitlang4core7builtin5ArrayGUddEEE(result, current_path.val);
+    _M0MPC15array5Array4pushGRPB5ArrayGUiiEEE(result, current_path.val);
   }
   return result;
 }
 function _M0FP26mizchi3svg10path__bbox(commands) {
   const polylines = _M0FP26mizchi3svg19path__to__polylines(commands, 1);
-  const bbox = { val: _M0MP26mizchi3svg11BoundingBox5empty() };
-  const _arr = polylines;
-  const _len = _arr.length;
+  const bbox = new _M0TPC13ref3RefGRP26mizchi3svg11BoundingBoxE(_M0MP26mizchi3svg11BoundingBox5empty());
+  const _bind = polylines.length;
   let _tmp = 0;
   while (true) {
-    const _i = _tmp;
-    if (_i < _len) {
-      const polyline = _arr[_i];
-      const _arr$2 = polyline;
-      const _len$2 = _arr$2.length;
+    const _ = _tmp;
+    if (_ < _bind) {
+      const polyline = polylines[_];
+      const _bind$2 = polyline.length;
       let _tmp$2 = 0;
       while (true) {
-        const _i$2 = _tmp$2;
-        if (_i$2 < _len$2) {
-          const point = _arr$2[_i$2];
+        const _$2 = _tmp$2;
+        if (_$2 < _bind$2) {
+          const point = polyline[_$2];
           bbox.val = _M0MP26mizchi3svg11BoundingBox17expand__by__point(bbox.val, point._0, point._1);
-          _tmp$2 = _i$2 + 1 | 0;
+          _tmp$2 = _$2 + 1 | 0;
           continue;
         } else {
           break;
         }
       }
-      _tmp = _i + 1 | 0;
+      _tmp = _ + 1 | 0;
       continue;
     } else {
       break;
@@ -17079,21 +17139,20 @@ function _M0FP26mizchi3svg18get__shape__bounds(shape) {
             }
             return rx <= 0 || ry <= 0 ? _M0MP26mizchi3svg11BoundingBox5empty() : _M0MP26mizchi3svg11BoundingBox10from__rect(cx - rx, cy - ry, rx * 2, ry * 2);
           }
-          const bbox = { val: _M0MP26mizchi3svg11BoundingBox5empty() };
+          const bbox = new _M0TPC13ref3RefGRP26mizchi3svg11BoundingBoxE(_M0MP26mizchi3svg11BoundingBox5empty());
           bbox.val = _M0MP26mizchi3svg11BoundingBox17expand__by__point(bbox.val, x1, y1);
           bbox.val = _M0MP26mizchi3svg11BoundingBox17expand__by__point(bbox.val, x2, y2);
           return bbox.val;
         }
-        const bbox = { val: _M0MP26mizchi3svg11BoundingBox5empty() };
-        const _arr = points;
-        const _len = _arr.length;
+        const bbox = new _M0TPC13ref3RefGRP26mizchi3svg11BoundingBoxE(_M0MP26mizchi3svg11BoundingBox5empty());
+        const _bind = points.length;
         let _tmp = 0;
         while (true) {
-          const _i = _tmp;
-          if (_i < _len) {
-            const p = _arr[_i];
+          const _ = _tmp;
+          if (_ < _bind) {
+            const p = points[_];
             bbox.val = _M0MP26mizchi3svg11BoundingBox17expand__by__point(bbox.val, p._0, p._1);
-            _tmp = _i + 1 | 0;
+            _tmp = _ + 1 | 0;
             continue;
           } else {
             break;
@@ -17112,20 +17171,20 @@ function _M0FP26mizchi3svg18get__shape__bounds(shape) {
 }
 function _M0FP26mizchi3svg15compute__bounds(node, parent_transform) {
   const transform = _M0MP26mizchi3svg9Transform8multiply(parent_transform, node.transform);
-  const bbox = { val: _M0FP26mizchi3svg18get__shape__bounds(node.shape) };
+  const bbox = new _M0TPC13ref3RefGRP26mizchi3svg11BoundingBoxE(_M0FP26mizchi3svg18get__shape__bounds(node.shape));
   if (!_M0MP26mizchi3svg11BoundingBox9is__empty(bbox.val)) {
     bbox.val = _M0MP26mizchi3svg9Transform11apply__bbox(transform, bbox.val);
   }
-  const _arr = node.children;
-  const _len = _arr.length;
+  const _bind = node.children;
+  const _bind$2 = _bind.length;
   let _tmp = 0;
   while (true) {
-    const _i = _tmp;
-    if (_i < _len) {
-      const child = _arr[_i];
+    const _ = _tmp;
+    if (_ < _bind$2) {
+      const child = _bind[_];
       const child_bbox = _M0FP26mizchi3svg15compute__bounds(child, transform);
       bbox.val = _M0MP26mizchi3svg11BoundingBox5union(bbox.val, child_bbox);
-      _tmp = _i + 1 | 0;
+      _tmp = _ + 1 | 0;
       continue;
     } else {
       break;
@@ -17135,20 +17194,20 @@ function _M0FP26mizchi3svg15compute__bounds(node, parent_transform) {
 }
 function _M0FP26mizchi3svg41compute__bounds__without__self__transform(node, parent_transform) {
   const transform = parent_transform;
-  const bbox = { val: _M0FP26mizchi3svg18get__shape__bounds(node.shape) };
+  const bbox = new _M0TPC13ref3RefGRP26mizchi3svg11BoundingBoxE(_M0FP26mizchi3svg18get__shape__bounds(node.shape));
   if (!_M0MP26mizchi3svg11BoundingBox9is__empty(bbox.val)) {
     bbox.val = _M0MP26mizchi3svg9Transform11apply__bbox(transform, bbox.val);
   }
-  const _arr = node.children;
-  const _len = _arr.length;
+  const _bind = node.children;
+  const _bind$2 = _bind.length;
   let _tmp = 0;
   while (true) {
-    const _i = _tmp;
-    if (_i < _len) {
-      const child = _arr[_i];
+    const _ = _tmp;
+    if (_ < _bind$2) {
+      const child = _bind[_];
       const child_bbox = _M0FP26mizchi3svg15compute__bounds(child, transform);
       bbox.val = _M0MP26mizchi3svg11BoundingBox5union(bbox.val, child_bbox);
-      _tmp = _i + 1 | 0;
+      _tmp = _ + 1 | 0;
       continue;
     } else {
       break;
@@ -17157,7 +17216,7 @@ function _M0FP26mizchi3svg41compute__bounds__without__self__transform(node, pare
   return bbox.val;
 }
 function _M0FP26mizchi3svg14floor__to__int(value) {
-  return _M0MP311moonbitlang4core6double6Double7to__int(_M0MP311moonbitlang4core6double6Double5floor(value));
+  return _M0MPC16double6Double7to__int(_M0MPC16double6Double5floor(value));
 }
 function _M0FP26mizchi3svg15intersect__clip(a, b) {
   const x0 = a.x > b.x ? a.x : b.x;
@@ -17185,24 +17244,24 @@ function _M0FP26mizchi3svg11is__visible(bbox, ctx) {
   return _M0MP26mizchi3svg11BoundingBox10intersects(bbox, _M0MP26mizchi3svg8ClipRect8to__bbox(clip));
 }
 function _M0FP26mizchi3svg14apply__opacity(color, opacity) {
-  return opacity >= 1 ? color : opacity <= 0 ? _M0MP26mizchi3svg5Color11transparent() : { r: color.r, g: color.g, b: color.b, a: _M0MP311moonbitlang4core6double6Double7to__int((color.a + 0) * opacity) };
+  return opacity >= 1 ? color : opacity <= 0 ? _M0MP26mizchi3svg5Color11transparent() : new _M0TP26mizchi3svg5Color(color.r, color.g, color.b, _M0MPC16double6Double7to__int((color.a + 0) * opacity));
 }
 function _M0FP26mizchi3svg20raster__circle__fill(cx, cy, r, color, setter) {
   if (r <= 0) {
     _M0MP26mizchi3svg11PixelSetter5pixel(setter, cx, cy, color);
     return undefined;
   }
-  const x = { val: r };
-  const y = { val: 0 };
-  const err = { val: 1 - r | 0 };
+  const x = new _M0TPC13ref3RefGiE(r);
+  const y = new _M0TPC13ref3RefGiE(0);
+  const err = new _M0TPC13ref3RefGiE(1 - r | 0);
   while (true) {
     if (x.val >= y.val) {
-      const _start1363 = cx - x.val | 0;
-      const _end1364 = cx + x.val | 0;
-      let _tmp = _start1363;
+      const _bind = cx - x.val | 0;
+      const _bind$2 = cx + x.val | 0;
+      let _tmp = _bind;
       while (true) {
         const px = _tmp;
-        if (px <= _end1364) {
+        if (px <= _bind$2) {
           _M0MP26mizchi3svg11PixelSetter5pixel(setter, px, cy + y.val | 0, color);
           _M0MP26mizchi3svg11PixelSetter5pixel(setter, px, cy - y.val | 0, color);
           _tmp = px + 1 | 0;
@@ -17211,12 +17270,12 @@ function _M0FP26mizchi3svg20raster__circle__fill(cx, cy, r, color, setter) {
           break;
         }
       }
-      const _start1368 = cx - y.val | 0;
-      const _end1369 = cx + y.val | 0;
-      let _tmp$2 = _start1368;
+      const _bind$3 = cx - y.val | 0;
+      const _bind$4 = cx + y.val | 0;
+      let _tmp$2 = _bind$3;
       while (true) {
         const px = _tmp$2;
-        if (px <= _end1369) {
+        if (px <= _bind$4) {
           _M0MP26mizchi3svg11PixelSetter5pixel(setter, px, cy + x.val | 0, color);
           _M0MP26mizchi3svg11PixelSetter5pixel(setter, px, cy - x.val | 0, color);
           _tmp$2 = px + 1 | 0;
@@ -17244,14 +17303,14 @@ function _M0FP26mizchi3svg21apply__spread__inline(t, spread) {
       return t < 0 ? 0 : t > 1 ? 1 : t;
     }
     case 1: {
-      return t - _M0MP311moonbitlang4core6double6Double5floor(t);
+      return t - _M0MPC16double6Double5floor(t);
     }
     default: {
-      const t2 = t - _M0MP311moonbitlang4core6double6Double5floor(t);
+      const t2 = t - _M0MPC16double6Double5floor(t);
       if (2 === 0) {
         $panic();
       }
-      if ((_M0MP311moonbitlang4core6double6Double7to__int(t) % 2 | 0) === 0) {
+      if ((_M0MPC16double6Double7to__int(t) % 2 | 0) === 0) {
         return t2;
       } else {
         return 1 - t2;
@@ -17271,21 +17330,21 @@ function _M0FP26mizchi3svg32raster__circle__radial__gradient(cx, cy, r, grad, op
   const gy = grad.cy - 0.5;
   const gr = grad.r;
   const inv_gr = gr > 0 ? 1 / gr : 0;
-  const _start1485 = cy - r | 0;
-  const _end1486 = cy + r | 0;
-  let _tmp = _start1485;
+  const _bind = cy - r | 0;
+  const _bind$2 = cy + r | 0;
+  let _tmp = _bind;
   while (true) {
     const py = _tmp;
-    if (py <= _end1486) {
+    if (py <= _bind$2) {
       const dy = py - cy | 0;
       const dy_sq = Math.imul(dy, dy) | 0;
       const ny_offset = (dy + 0) * inv_2r - gy;
-      const _start1493 = cx - r | 0;
-      const _end1494 = cx + r | 0;
-      let _tmp$2 = _start1493;
+      const _bind$3 = cx - r | 0;
+      const _bind$4 = cx + r | 0;
+      let _tmp$2 = _bind$3;
       while (true) {
         const px = _tmp$2;
-        if (px <= _end1494) {
+        if (px <= _bind$4) {
           const dx = px - cx | 0;
           const dist_sq = (Math.imul(dx, dx) | 0) + dy_sq | 0;
           if (dist_sq <= r_sq) {
@@ -17294,7 +17353,7 @@ function _M0FP26mizchi3svg32raster__circle__radial__gradient(cx, cy, r, grad, op
             const t = grad_dist * inv_gr;
             const t$2 = _M0FP26mizchi3svg21apply__spread__inline(t, grad.spread_method);
             const color = _M0FP26mizchi3svg14lut__color__at(lut, t$2);
-            const final_color = opacity < 1 ? _M0MP26mizchi3svg5Color4rgba(color.r, color.g, color.b, _M0MP311moonbitlang4core6double6Double7to__int((color.a + 0) * opacity)) : color;
+            const final_color = opacity < 1 ? _M0MP26mizchi3svg5Color4rgba(color.r, color.g, color.b, _M0MPC16double6Double7to__int((color.a + 0) * opacity)) : color;
             _M0MP26mizchi3svg11PixelSetter5pixel(setter, px, py, final_color);
           }
           _tmp$2 = px + 1 | 0;
@@ -17315,9 +17374,9 @@ function _M0FP26mizchi3svg22raster__circle__stroke(cx, cy, r, color, setter) {
     _M0MP26mizchi3svg11PixelSetter5pixel(setter, cx, cy, color);
     return undefined;
   }
-  const x = { val: r };
-  const y = { val: 0 };
-  const err = { val: 1 - r | 0 };
+  const x = new _M0TPC13ref3RefGiE(r);
+  const y = new _M0TPC13ref3RefGiE(0);
+  const err = new _M0TPC13ref3RefGiE(1 - r | 0);
   while (true) {
     if (x.val >= y.val) {
       _M0MP26mizchi3svg11PixelSetter5pixel(setter, cx + x.val | 0, cy + y.val | 0, color);
@@ -17342,13 +17401,13 @@ function _M0FP26mizchi3svg22raster__circle__stroke(cx, cy, r, color, setter) {
   }
 }
 function _M0FP26mizchi3svg20render__paint__order(order, draw_fill, draw_stroke, draw_markers) {
-  const _arr = order.order;
-  const _len = _arr.length;
+  const _bind = order.order;
+  const _bind$2 = _bind.length;
   let _tmp = 0;
   while (true) {
-    const _i = _tmp;
-    if (_i < _len) {
-      const item = _arr[_i];
+    const _ = _tmp;
+    if (_ < _bind$2) {
+      const item = _bind[_];
       switch (item) {
         case 0: {
           draw_fill();
@@ -17362,7 +17421,7 @@ function _M0FP26mizchi3svg20render__paint__order(order, draw_fill, draw_stroke, 
           draw_markers();
         }
       }
-      _tmp = _i + 1 | 0;
+      _tmp = _ + 1 | 0;
       continue;
     } else {
       return;
@@ -17375,10 +17434,10 @@ function _M0FP26mizchi3svg21render__pattern__fill(shape, transform, ctx, pattern
     return undefined;
   }
   const bbox_world = _M0MP26mizchi3svg9Transform11apply__bbox(transform, bbox_local);
-  const ix = { val: _M0FP26mizchi3svg14floor__to__int(bbox_world.min_x) };
-  const iy = { val: _M0FP26mizchi3svg14floor__to__int(bbox_world.min_y) };
-  const iw = { val: _M0FP26mizchi3svg13ceil__to__int(bbox_world.max_x - bbox_world.min_x) };
-  const ih = { val: _M0FP26mizchi3svg13ceil__to__int(bbox_world.max_y - bbox_world.min_y) };
+  const ix = new _M0TPC13ref3RefGiE(_M0FP26mizchi3svg14floor__to__int(bbox_world.min_x));
+  const iy = new _M0TPC13ref3RefGiE(_M0FP26mizchi3svg14floor__to__int(bbox_world.min_y));
+  const iw = new _M0TPC13ref3RefGiE(_M0FP26mizchi3svg13ceil__to__int(bbox_world.max_x - bbox_world.min_x));
+  const ih = new _M0TPC13ref3RefGiE(_M0FP26mizchi3svg13ceil__to__int(bbox_world.max_y - bbox_world.min_y));
   if (iw.val <= 0 || ih.val <= 0) {
     return undefined;
   }
@@ -17401,26 +17460,26 @@ function _M0FP26mizchi3svg21render__pattern__fill(shape, transform, ctx, pattern
   }
   const inv = _M0MP26mizchi3svg9Transform7inverse(transform);
   const pattern_inv = _M0MP26mizchi3svg9Transform7inverse(pattern.transform);
-  const _start2941 = iy.val;
-  const _end2942 = iy.val + ih.val | 0;
-  let _tmp = _start2941;
+  const _bind = iy.val;
+  const _bind$2 = iy.val + ih.val | 0;
+  let _tmp = _bind;
   while (true) {
     const y = _tmp;
-    if (y < _end2942) {
-      const _start2946 = ix.val;
-      const _end2947 = ix.val + iw.val | 0;
-      let _tmp$2 = _start2946;
+    if (y < _bind$2) {
+      const _bind$3 = ix.val;
+      const _bind$4 = ix.val + iw.val | 0;
+      let _tmp$2 = _bind$3;
       while (true) {
         const x = _tmp$2;
-        if (x < _end2947) {
+        if (x < _bind$4) {
           const wx = x + 0 + 0.5;
           const wy = y + 0 + 0.5;
           let lx;
           let ly;
           _L: {
-            const _bind = _M0MP26mizchi3svg9Transform5apply(inv, wx, wy);
-            const _lx = _bind._0;
-            const _ly = _bind._1;
+            const _bind$5 = _M0MP26mizchi3svg9Transform5apply(inv, wx, wy);
+            const _lx = _bind$5._0;
+            const _ly = _bind$5._1;
             lx = _lx;
             ly = _ly;
             break _L;
@@ -17429,9 +17488,9 @@ function _M0FP26mizchi3svg21render__pattern__fill(shape, transform, ctx, pattern
             let px;
             let py;
             _L$2: {
-              const _bind = _M0MP26mizchi3svg9Transform5apply(pattern_inv, lx, ly);
-              const _px = _bind._0;
-              const _py = _bind._1;
+              const _bind$5 = _M0MP26mizchi3svg9Transform5apply(pattern_inv, lx, ly);
+              const _px = _bind$5._0;
+              const _py = _bind$5._1;
               px = _px;
               py = _py;
               break _L$2;
@@ -17439,10 +17498,10 @@ function _M0FP26mizchi3svg21render__pattern__fill(shape, transform, ctx, pattern
             let color;
             _L$3: {
               _L$4: {
-                const _bind = _M0MP26mizchi3svg7Pattern14get__color__at(pattern, px, py, bbox_local);
-                if (_bind === undefined) {
+                const _bind$5 = _M0MP26mizchi3svg7Pattern14get__color__at(pattern, px, py, bbox_local);
+                if (_bind$5 === undefined) {
                 } else {
-                  const _Some = _bind;
+                  const _Some = _bind$5;
                   const _color = _Some;
                   color = _color;
                   break _L$4;
@@ -17479,7 +17538,7 @@ function _M0FP26mizchi3svg24resolve__paint__fallback(fallback, node_color) {
   _L: {
     switch (fallback.$tag) {
       case 0: {
-        return $64$mizchi$47$svg$46$ResolvedPaint$None;
+        return _M0DTP26mizchi3svg13ResolvedPaint4None__;
       }
       case 1: {
         const _SolidColor = fallback;
@@ -17488,11 +17547,11 @@ function _M0FP26mizchi3svg24resolve__paint__fallback(fallback, node_color) {
         break _L;
       }
       default: {
-        return new $64$mizchi$47$svg$46$ResolvedPaint$SolidColor(node_color);
+        return new _M0DTP26mizchi3svg13ResolvedPaint10SolidColor(node_color);
       }
     }
   }
-  return new $64$mizchi$47$svg$46$ResolvedPaint$SolidColor(color);
+  return new _M0DTP26mizchi3svg13ResolvedPaint10SolidColor(color);
 }
 function _M0FP26mizchi3svg27resolve__paint__for__render(paint, node_color, resources) {
   let id;
@@ -17506,7 +17565,7 @@ function _M0FP26mizchi3svg27resolve__paint__for__render(paint, node_color, resou
         _L$4: {
           switch (paint.$tag) {
             case 0: {
-              return $64$mizchi$47$svg$46$ResolvedPaint$None;
+              return _M0DTP26mizchi3svg13ResolvedPaint4None__;
             }
             case 1: {
               const _SolidColor = paint;
@@ -17527,7 +17586,7 @@ function _M0FP26mizchi3svg27resolve__paint__for__render(paint, node_color, resou
               break _L$2;
             }
             case 4: {
-              return new $64$mizchi$47$svg$46$ResolvedPaint$SolidColor(node_color);
+              return new _M0DTP26mizchi3svg13ResolvedPaint10SolidColor(node_color);
             }
             default: {
               const _PaintServerRef = paint;
@@ -17539,11 +17598,11 @@ function _M0FP26mizchi3svg27resolve__paint__for__render(paint, node_color, resou
             }
           }
         }
-        return new $64$mizchi$47$svg$46$ResolvedPaint$SolidColor(color);
+        return new _M0DTP26mizchi3svg13ResolvedPaint10SolidColor(color);
       }
-      return grad$2.stops.length === 0 ? $64$mizchi$47$svg$46$ResolvedPaint$None : new $64$mizchi$47$svg$46$ResolvedPaint$LinearGrad(grad$2);
+      return grad$2.stops.length === 0 ? _M0DTP26mizchi3svg13ResolvedPaint4None__ : new _M0DTP26mizchi3svg13ResolvedPaint10LinearGrad(grad$2);
     }
-    return grad.stops.length === 0 ? $64$mizchi$47$svg$46$ResolvedPaint$None : new $64$mizchi$47$svg$46$ResolvedPaint$RadialGrad(grad);
+    return grad.stops.length === 0 ? _M0DTP26mizchi3svg13ResolvedPaint4None__ : new _M0DTP26mizchi3svg13ResolvedPaint10RadialGrad(grad);
   }
   let grad;
   _L$2: {
@@ -17563,7 +17622,7 @@ function _M0FP26mizchi3svg27resolve__paint__for__render(paint, node_color, resou
             break _L$4;
           }
         }
-        return _M0FP26mizchi3svg18pattern__is__valid(pattern) ? new $64$mizchi$47$svg$46$ResolvedPaint$Pattern(pattern) : _M0FP26mizchi3svg24resolve__paint__fallback(fallback, node_color);
+        return _M0FP26mizchi3svg18pattern__is__valid(pattern) ? new _M0DTP26mizchi3svg13ResolvedPaint7Pattern(pattern) : _M0FP26mizchi3svg24resolve__paint__fallback(fallback, node_color);
       } else {
         const _Some = _bind;
         const _x = _Some;
@@ -17580,9 +17639,9 @@ function _M0FP26mizchi3svg27resolve__paint__for__render(paint, node_color, resou
         }
       }
     }
-    return !_M0MP26mizchi3svg9Transform14is__invertible(grad$2.transform) ? _M0FP26mizchi3svg24resolve__paint__fallback(fallback, node_color) : grad$2.stops.length === 0 ? $64$mizchi$47$svg$46$ResolvedPaint$None : new $64$mizchi$47$svg$46$ResolvedPaint$LinearGrad(grad$2);
+    return !_M0MP26mizchi3svg9Transform14is__invertible(grad$2.transform) ? _M0FP26mizchi3svg24resolve__paint__fallback(fallback, node_color) : grad$2.stops.length === 0 ? _M0DTP26mizchi3svg13ResolvedPaint4None__ : new _M0DTP26mizchi3svg13ResolvedPaint10LinearGrad(grad$2);
   }
-  return !_M0MP26mizchi3svg9Transform14is__invertible(grad.transform) ? _M0FP26mizchi3svg24resolve__paint__fallback(fallback, node_color) : grad.stops.length === 0 ? $64$mizchi$47$svg$46$ResolvedPaint$None : new $64$mizchi$47$svg$46$ResolvedPaint$RadialGrad(grad);
+  return !_M0MP26mizchi3svg9Transform14is__invertible(grad.transform) ? _M0FP26mizchi3svg24resolve__paint__fallback(fallback, node_color) : grad.stops.length === 0 ? _M0DTP26mizchi3svg13ResolvedPaint4None__ : new _M0DTP26mizchi3svg13ResolvedPaint10RadialGrad(grad);
 }
 function _M0FP26mizchi3svg14render__circle(cx, cy, r, node, transform, ctx, resources, node_color) {
   if (r <= 0) {
@@ -17608,12 +17667,12 @@ function _M0FP26mizchi3svg14render__circle(cx, cy, r, node, transform, ctx, reso
     sy = _sy;
     break _L$2;
   }
-  const tr = _M0MP311moonbitlang4core6double6Double7to__int(r * (sx + sy) / 2);
+  const tr = _M0MPC16double6Double7to__int(r * (sx + sy) / 2);
   if (tr <= 0) {
     return undefined;
   }
-  const icx = _M0MP311moonbitlang4core6double6Double7to__int(tx);
-  const icy = _M0MP311moonbitlang4core6double6Double7to__int(ty);
+  const icx = _M0MPC16double6Double7to__int(tx);
+  const icy = _M0MPC16double6Double7to__int(ty);
   const draw_fill = () => {
     let pattern;
     _L$3: {
@@ -17732,7 +17791,7 @@ function _M0FP26mizchi3svg21raster__ellipse__fill(cx, cy, rx, ry, color, setter)
       const y_frac = (dy + 0) / (ry + 0);
       const x_extent_sq = 1 - y_frac * y_frac;
       if (x_extent_sq >= 0) {
-        const x_extent = _M0MP311moonbitlang4core6double6Double7to__int(Math.sqrt(x_extent_sq) * (rx + 0));
+        const x_extent = _M0MPC16double6Double7to__int(Math.sqrt(x_extent_sq) * (rx + 0));
         let _tmp$2 = -x_extent | 0;
         while (true) {
           const dx = _tmp$2;
@@ -17765,21 +17824,21 @@ function _M0FP26mizchi3svg33raster__ellipse__radial__gradient(cx, cy, rx, ry, gr
   const gy = grad.cy - 0.5;
   const gr = grad.r;
   const inv_gr = gr > 0 ? 1 / gr : 0;
-  const _start1450 = cy - ry | 0;
-  const _end1451 = cy + ry | 0;
-  let _tmp = _start1450;
+  const _bind = cy - ry | 0;
+  const _bind$2 = cy + ry | 0;
+  let _tmp = _bind;
   while (true) {
     const py = _tmp;
-    if (py <= _end1451) {
+    if (py <= _bind$2) {
       const dy_norm = ((py - cy | 0) + 0) * inv_ry;
       const dy_sq = dy_norm * dy_norm;
       const ny_offset = ((py - cy | 0) + 0) * inv_2ry - gy;
-      const _start1458 = cx - rx | 0;
-      const _end1459 = cx + rx | 0;
-      let _tmp$2 = _start1458;
+      const _bind$3 = cx - rx | 0;
+      const _bind$4 = cx + rx | 0;
+      let _tmp$2 = _bind$3;
       while (true) {
         const px = _tmp$2;
-        if (px <= _end1459) {
+        if (px <= _bind$4) {
           const dx_norm = ((px - cx | 0) + 0) * inv_rx;
           const dist_sq = dx_norm * dx_norm + dy_sq;
           if (dist_sq <= 1) {
@@ -17788,7 +17847,7 @@ function _M0FP26mizchi3svg33raster__ellipse__radial__gradient(cx, cy, rx, ry, gr
             const t = grad_dist * inv_gr;
             const t$2 = _M0FP26mizchi3svg21apply__spread__inline(t, grad.spread_method);
             const color = _M0FP26mizchi3svg14lut__color__at(lut, t$2);
-            const final_color = opacity < 1 ? _M0MP26mizchi3svg5Color4rgba(color.r, color.g, color.b, _M0MP311moonbitlang4core6double6Double7to__int((color.a + 0) * opacity)) : color;
+            const final_color = opacity < 1 ? _M0MP26mizchi3svg5Color4rgba(color.r, color.g, color.b, _M0MPC16double6Double7to__int((color.a + 0) * opacity)) : color;
             _M0MP26mizchi3svg11PixelSetter5pixel(setter, px, py, final_color);
           }
           _tmp$2 = px + 1 | 0;
@@ -17810,12 +17869,12 @@ function _M0FP26mizchi3svg23raster__ellipse__stroke(cx, cy, rx, ry, color, sette
     return undefined;
   }
   if (rx <= 0) {
-    const _start1336 = cy - ry | 0;
-    const _end1337 = cy + ry | 0;
-    let _tmp = _start1336;
+    const _bind = cy - ry | 0;
+    const _bind$2 = cy + ry | 0;
+    let _tmp = _bind;
     while (true) {
       const y = _tmp;
-      if (y <= _end1337) {
+      if (y <= _bind$2) {
         _M0MP26mizchi3svg11PixelSetter5pixel(setter, cx, y, color);
         _tmp = y + 1 | 0;
         continue;
@@ -17826,12 +17885,12 @@ function _M0FP26mizchi3svg23raster__ellipse__stroke(cx, cy, rx, ry, color, sette
     return undefined;
   }
   if (ry <= 0) {
-    const _start1341 = cx - rx | 0;
-    const _end1342 = cx + rx | 0;
-    let _tmp = _start1341;
+    const _bind = cx - rx | 0;
+    const _bind$2 = cx + rx | 0;
+    let _tmp = _bind;
     while (true) {
       const x = _tmp;
-      if (x <= _end1342) {
+      if (x <= _bind$2) {
         _M0MP26mizchi3svg11PixelSetter5pixel(setter, x, cy, color);
         _tmp = x + 1 | 0;
         continue;
@@ -17845,10 +17904,10 @@ function _M0FP26mizchi3svg23raster__ellipse__stroke(cx, cy, rx, ry, color, sette
   const ry2 = Math.imul(ry, ry) | 0;
   const two_rx2 = Math.imul(2, rx2) | 0;
   const two_ry2 = Math.imul(2, ry2) | 0;
-  const x = { val: 0 };
-  const y = { val: ry };
-  const px = { val: 0 };
-  const py = { val: Math.imul(two_rx2, y.val) | 0 };
+  const x = new _M0TPC13ref3RefGiE(0);
+  const y = new _M0TPC13ref3RefGiE(ry);
+  const px = new _M0TPC13ref3RefGiE(0);
+  const py = new _M0TPC13ref3RefGiE(Math.imul(two_rx2, y.val) | 0);
   _M0MP26mizchi3svg11PixelSetter5pixel(setter, cx + x.val | 0, cy + y.val | 0, color);
   _M0MP26mizchi3svg11PixelSetter5pixel(setter, cx - x.val | 0, cy + y.val | 0, color);
   _M0MP26mizchi3svg11PixelSetter5pixel(setter, cx + x.val | 0, cy - y.val | 0, color);
@@ -17857,7 +17916,7 @@ function _M0FP26mizchi3svg23raster__ellipse__stroke(cx, cy, rx, ry, color, sette
   if (4 === 0) {
     $panic();
   }
-  const p = { val: _tmp + (rx2 / 4 | 0) | 0 };
+  const p = new _M0TPC13ref3RefGiE(_tmp + (rx2 / 4 | 0) | 0);
   while (true) {
     if (px.val < py.val) {
       x.val = x.val + 1 | 0;
@@ -17927,13 +17986,13 @@ function _M0FP26mizchi3svg15render__ellipse(cx, cy, rx, ry, node, transform, ctx
     sy = _sy;
     break _L$2;
   }
-  const trx = _M0MP311moonbitlang4core6double6Double7to__int(rx * sx);
-  const try_ = _M0MP311moonbitlang4core6double6Double7to__int(ry * sy);
+  const trx = _M0MPC16double6Double7to__int(rx * sx);
+  const try_ = _M0MPC16double6Double7to__int(ry * sy);
   if (trx <= 0 || try_ <= 0) {
     return undefined;
   }
-  const icx = _M0MP311moonbitlang4core6double6Double7to__int(tx);
-  const icy = _M0MP311moonbitlang4core6double6Double7to__int(ty);
+  const icx = _M0MPC16double6Double7to__int(tx);
+  const icy = _M0MPC16double6Double7to__int(ty);
   const draw_fill = () => {
     let pattern;
     _L$3: {
@@ -18014,14 +18073,14 @@ function _M0FP26mizchi3svg15render__ellipse(cx, cy, rx, ry, node, transform, ctx
 }
 function _M0MP26mizchi3svg11PixelSetter10with__clip(self, clip) {
   const inner_set = self.set;
-  return { set: (x, y, color) => {
+  return new _M0TP26mizchi3svg11PixelSetter((x, y, color) => {
     if (_M0MP26mizchi3svg8ClipRect8contains(clip, x, y)) {
       inner_set(x, y, color);
       return;
     } else {
       return;
     }
-  } };
+  });
 }
 function _M0FP26mizchi3svg24blit__image__to__context(image, ctx, offset_x, offset_y) {
   let setter;
@@ -18041,18 +18100,18 @@ function _M0FP26mizchi3svg24blit__image__to__context(image, ctx, offset_x, offse
     }
     setter = _M0MP26mizchi3svg11PixelSetter10with__clip(ctx.setter, clip);
   }
-  const _start2999 = 0;
-  const _end3000 = image.height;
-  let _tmp = _start2999;
+  const _bind = 0;
+  const _bind$2 = image.height;
+  let _tmp = _bind;
   while (true) {
     const y = _tmp;
-    if (y < _end3000) {
-      const _start3004 = 0;
-      const _end3005 = image.width;
-      let _tmp$2 = _start3004;
+    if (y < _bind$2) {
+      const _bind$3 = 0;
+      const _bind$4 = image.width;
+      let _tmp$2 = _bind$3;
       while (true) {
         const x = _tmp$2;
-        if (x < _end3005) {
+        if (x < _bind$4) {
           const color = _M0MP26mizchi3svg5Image10get__pixel(image, x, y);
           if (color.a > 0) {
             _M0MP26mizchi3svg11PixelSetter5pixel(setter, x + offset_x | 0, y + offset_y | 0, color);
@@ -18071,21 +18130,21 @@ function _M0FP26mizchi3svg24blit__image__to__context(image, ctx, offset_x, offse
   }
 }
 function _M0FP26mizchi3svg23build__substring__local(s, start, end) {
-  const buf = _M0MP311moonbitlang4core7builtin13StringBuilder11new_2einner(0);
-  const i = { val: start };
+  const buf = _M0MPB13StringBuilder11new_2einner(0);
+  const i = new _M0TPC13ref3RefGiE(start);
   const len = s.length;
   while (true) {
     if (i.val < end && i.val < len) {
       const _tmp = i.val;
       $bound_check(s, _tmp);
-      _M0IP311moonbitlang4core7builtin13StringBuilderP311moonbitlang4core7builtin6Logger11write__char(buf, s.charCodeAt(_tmp));
+      _M0IPB13StringBuilderPB6Logger11write__char(buf, s.charCodeAt(_tmp));
       i.val = i.val + 1 | 0;
       continue;
     } else {
       break;
     }
   }
-  return _M0MP311moonbitlang4core7builtin13StringBuilder10to__string(buf);
+  return _M0MPB13StringBuilder10to__string(buf);
 }
 function _M0FP26mizchi3svg8char__at(s, i) {
   $bound_check(s, i);
@@ -18098,17 +18157,17 @@ function _M0FP26mizchi3svg9match__at(s, idx, pat) {
   if ((idx + pat.length | 0) > s.length) {
     return false;
   }
-  const _start2874 = 0;
-  const _end2875 = pat.length;
-  let _tmp = _start2874;
+  const _bind = 0;
+  const _bind$2 = pat.length;
+  let _tmp = _bind;
   while (true) {
     const i = _tmp;
-    if (i < _end2875) {
+    if (i < _bind$2) {
       const _tmp$2 = idx + i | 0;
       $bound_check(s, _tmp$2);
       const _tmp$3 = s.charCodeAt(_tmp$2);
       $bound_check(pat, i);
-      if (_M0IP311moonbitlang4core6uint166UInt16P311moonbitlang4core7builtin2Eq10not__equal(_tmp$3, pat.charCodeAt(i))) {
+      if (_M0IPC16uint166UInt16PB2Eq10not__equal(_tmp$3, pat.charCodeAt(i))) {
         return false;
       }
       _tmp = i + 1 | 0;
@@ -18121,13 +18180,12 @@ function _M0FP26mizchi3svg9match__at(s, idx, pat) {
 }
 function _M0FP26mizchi3svg17find__attr__value(svg, name) {
   const len = svg.length;
-  const end = { val: len };
-  const _start2861 = 0;
-  const _end2862 = len;
-  let _tmp = _start2861;
+  const end = new _M0TPC13ref3RefGiE(len);
+  const _bind = 0;
+  let _tmp = _bind;
   while (true) {
     const i = _tmp;
-    if (i < _end2862) {
+    if (i < len) {
       if (_M0FP26mizchi3svg8char__at(svg, i) === 62) {
         end.val = i;
         break;
@@ -18138,11 +18196,11 @@ function _M0FP26mizchi3svg17find__attr__value(svg, name) {
       break;
     }
   }
-  const i = { val: 0 };
+  const i = new _M0TPC13ref3RefGiE(0);
   while (true) {
     if (i.val < end.val) {
       if (_M0FP26mizchi3svg9match__at(svg, i.val, name)) {
-        const j = { val: i.val + name.length | 0 };
+        const j = new _M0TPC13ref3RefGiE(i.val + name.length | 0);
         while (true) {
           if (j.val < end.val && _M0FP26mizchi3svg15is__space__char(_M0FP26mizchi3svg8char__at(svg, j.val))) {
             j.val = j.val + 1 | 0;
@@ -18206,8 +18264,8 @@ function _M0FP26mizchi3svg17find__attr__value(svg, name) {
   return undefined;
 }
 function _M0FP26mizchi3svg19trim__string__local(s) {
-  const start = { val: 0 };
-  const end = { val: s.length };
+  const start = new _M0TPC13ref3RefGiE(0);
+  const end = new _M0TPC13ref3RefGiE(s.length);
   while (true) {
     if (start.val < end.val) {
       const _tmp = start.val;
@@ -18245,9 +18303,9 @@ function _M0FP26mizchi3svg21parse__simple__number(s) {
   if (s$2.length === 0) {
     return 0;
   }
-  const result = { val: 0 };
-  const sign = { val: 1 };
-  const i = { val: 0 };
+  const result = new _M0TPC13ref3RefGdE(0);
+  const sign = new _M0TPC13ref3RefGdE(1);
+  const i = new _M0TPC13ref3RefGiE(0);
   const len = s$2.length;
   const first = _M0FP26mizchi3svg8char__at(s$2, i.val);
   if (first === 45) {
@@ -18274,7 +18332,7 @@ function _M0FP26mizchi3svg21parse__simple__number(s) {
   }
   if (i.val < len && _M0FP26mizchi3svg8char__at(s$2, i.val) === 46) {
     i.val = i.val + 1 | 0;
-    const frac = { val: 0.1 };
+    const frac = new _M0TPC13ref3RefGdE(0.1);
     while (true) {
       if (i.val < len) {
         const c = _M0FP26mizchi3svg8char__at(s$2, i.val);
@@ -18298,17 +18356,17 @@ function _M0FP26mizchi3svg25string__ends__with__local(s, suffix) {
     return false;
   }
   const start = s.length - suffix.length | 0;
-  const _start2917 = 0;
-  const _end2918 = suffix.length;
-  let _tmp = _start2917;
+  const _bind = 0;
+  const _bind$2 = suffix.length;
+  let _tmp = _bind;
   while (true) {
     const i = _tmp;
-    if (i < _end2918) {
+    if (i < _bind$2) {
       const _tmp$2 = start + i | 0;
       $bound_check(s, _tmp$2);
       const _tmp$3 = s.charCodeAt(_tmp$2);
       $bound_check(suffix, i);
-      if (_M0IP311moonbitlang4core6uint166UInt16P311moonbitlang4core7builtin2Eq10not__equal(_tmp$3, suffix.charCodeAt(i))) {
+      if (_M0IPC16uint166UInt16PB2Eq10not__equal(_tmp$3, suffix.charCodeAt(i))) {
         return false;
       }
       _tmp = i + 1 | 0;
@@ -18363,8 +18421,8 @@ function _M0FP26mizchi3svg18extract__svg__size(svg) {
 }
 function _M0FP26mizchi3svg24replace__viewport__units(value, vw, vh) {
   const len = value.length;
-  const buf = _M0MP311moonbitlang4core7builtin13StringBuilder11new_2einner(0);
-  const i = { val: 0 };
+  const buf = _M0MPB13StringBuilder11new_2einner(0);
+  const i = new _M0TPC13ref3RefGiE(0);
   while (true) {
     if (i.val < len) {
       const c = _M0FP26mizchi3svg8char__at(value, i.val);
@@ -18391,35 +18449,35 @@ function _M0FP26mizchi3svg24replace__viewport__units(value, vw, vh) {
           if (unit === 119 || unit === 104) {
             const num = _M0FP26mizchi3svg21parse__simple__number(num_str);
             const val = unit === 119 ? num * vw / 100 : num * vh / 100;
-            _M0IP311moonbitlang4core7builtin13StringBuilderP311moonbitlang4core7builtin6Logger13write__string(buf, _M0MP311moonbitlang4core6double6Double10to__string(val));
+            _M0IPB13StringBuilderPB6Logger13write__string(buf, _M0MPC16double6Double10to__string(val));
             i.val = i.val + 2 | 0;
             continue;
           }
         }
-        _M0IP311moonbitlang4core7builtin13StringBuilderP311moonbitlang4core7builtin6Logger13write__string(buf, num_str);
+        _M0IPB13StringBuilderPB6Logger13write__string(buf, num_str);
         continue;
       }
-      _M0IP311moonbitlang4core7builtin13StringBuilderP311moonbitlang4core7builtin6Logger11write__char(buf, c);
+      _M0IPB13StringBuilderPB6Logger11write__char(buf, c);
       i.val = i.val + 1 | 0;
       continue;
     } else {
       break;
     }
   }
-  return _M0MP311moonbitlang4core7builtin13StringBuilder10to__string(buf);
+  return _M0MPB13StringBuilder10to__string(buf);
 }
 function _M0FP26mizchi3svg12raster__line(x0, y0, x1, y1, color, setter) {
-  const x0$2 = { val: x0 };
-  const y0$2 = { val: y0 };
+  const x0$2 = new _M0TPC13ref3RefGiE(x0);
+  const y0$2 = new _M0TPC13ref3RefGiE(y0);
   const dx = x1 > x0$2.val ? x1 - x0$2.val | 0 : x0$2.val - x1 | 0;
   const dy = y1 > y0$2.val ? y1 - y0$2.val | 0 : y0$2.val - y1 | 0;
   const sx = x0$2.val < x1 ? 1 : -1;
   const sy = y0$2.val < y1 ? 1 : -1;
-  const err = { val: dx - dy | 0 };
+  const err = new _M0TPC13ref3RefGiE(dx - dy | 0);
   while (true) {
     _M0MP26mizchi3svg11PixelSetter5pixel(setter, x0$2.val, y0$2.val, color);
     if (x0$2.val === x1 && y0$2.val === y1) {
-      break;
+      return;
     }
     const e2 = Math.imul(2, err.val) | 0;
     if (e2 > (-dy | 0)) {
@@ -18435,24 +18493,23 @@ function _M0FP26mizchi3svg12raster__line(x0, y0, x1, y1, color, setter) {
 }
 function _M0FP26mizchi3svg19sort__intersections(arr) {
   const n = arr.length;
-  const _start1225 = 1;
-  const _end1226 = n;
-  let _tmp = _start1225;
+  const _bind = 1;
+  let _tmp = _bind;
   while (true) {
     const i = _tmp;
-    if (i < _end1226) {
-      const key = _M0MP311moonbitlang4core5array5Array2atGUiiEE(arr, i);
-      const j = { val: i - 1 | 0 };
+    if (i < n) {
+      const key = _M0MPC15array5Array2atGRP26mizchi22kagura__effect__studio11EffectTrackE(arr, i);
+      const j = new _M0TPC13ref3RefGiE(i - 1 | 0);
       while (true) {
-        if (j.val >= 0 && _M0MP311moonbitlang4core5array5Array2atGUiiEE(arr, j.val)._0 > key._0) {
-          _M0MP311moonbitlang4core5array5Array3setGUiiEE(arr, j.val + 1 | 0, _M0MP311moonbitlang4core5array5Array2atGUiiEE(arr, j.val));
+        if (j.val >= 0 && _M0MPC15array5Array2atGRP26mizchi22kagura__effect__studio11EffectTrackE(arr, j.val)._0 > key._0) {
+          _M0MPC15array5Array3setGRP36mizchi6kagura10particle3d8ParticleE(arr, j.val + 1 | 0, _M0MPC15array5Array2atGRP26mizchi22kagura__effect__studio11EffectTrackE(arr, j.val));
           j.val = j.val - 1 | 0;
           continue;
         } else {
           break;
         }
       }
-      _M0MP311moonbitlang4core5array5Array3setGUiiEE(arr, j.val + 1 | 0, key);
+      _M0MPC15array5Array3setGRP36mizchi6kagura10particle3d8ParticleE(arr, j.val + 1 | 0, key);
       _tmp = i + 1 | 0;
       continue;
     } else {
@@ -18464,27 +18521,26 @@ function _M0FP26mizchi3svg28raster__polygons__fill__rule(polygons, color, rule, 
   if (polygons.length === 0) {
     return undefined;
   }
-  const has_point = { val: false };
-  const min_y = { val: 0 };
-  const max_y = { val: 0 };
-  const _arr = polygons;
-  const _len = _arr.length;
+  const has_point = new _M0TPC13ref3RefGbE(false);
+  const min_y = new _M0TPC13ref3RefGiE(0);
+  const max_y = new _M0TPC13ref3RefGiE(0);
+  const _bind = polygons.length;
   let _tmp = 0;
   while (true) {
-    const _i = _tmp;
-    if (_i < _len) {
+    const _ = _tmp;
+    if (_ < _bind) {
+      const poly = polygons[_];
       _L: {
-        const poly = _arr[_i];
         if (poly.length < 3) {
           break _L;
         }
-        const _start1268 = 0;
-        const _end1269 = poly.length;
-        let _tmp$2 = _start1268;
+        const _bind$2 = 0;
+        const _bind$3 = poly.length;
+        let _tmp$2 = _bind$2;
         while (true) {
           const i = _tmp$2;
-          if (i < _end1269) {
-            const y = _M0MP311moonbitlang4core5array5Array2atGUiiEE(poly, i)._1;
+          if (i < _bind$3) {
+            const y = _M0MPC15array5Array2atGRP26mizchi22kagura__effect__studio11EffectTrackE(poly, i)._1;
             if (!has_point.val) {
               min_y.val = y;
               max_y.val = y;
@@ -18505,7 +18561,7 @@ function _M0FP26mizchi3svg28raster__polygons__fill__rule(polygons, color, rule, 
         }
         break _L;
       }
-      _tmp = _i + 1 | 0;
+      _tmp = _ + 1 | 0;
       continue;
     } else {
       break;
@@ -18520,24 +18576,22 @@ function _M0FP26mizchi3svg28raster__polygons__fill__rule(polygons, color, rule, 
     if (y <= max_y.val) {
       _L: {
         const intersections = [];
-        const _arr$2 = polygons;
-        const _len$2 = _arr$2.length;
+        const _bind$2 = polygons.length;
         let _tmp$3 = 0;
         while (true) {
-          const _i = _tmp$3;
-          if (_i < _len$2) {
+          const _ = _tmp$3;
+          if (_ < _bind$2) {
+            const poly = polygons[_];
             _L$2: {
-              const poly = _arr$2[_i];
               const n = poly.length;
               if (n < 3) {
                 break _L$2;
               }
-              const _start1281 = 0;
-              const _end1282 = n;
-              let _tmp$4 = _start1281;
+              const _bind$3 = 0;
+              let _tmp$4 = _bind$3;
               while (true) {
                 const i = _tmp$4;
-                if (i < _end1282) {
+                if (i < n) {
                   if (n === 0) {
                     $panic();
                   }
@@ -18545,9 +18599,9 @@ function _M0FP26mizchi3svg28raster__polygons__fill__rule(polygons, color, rule, 
                   let x1;
                   let y1;
                   _L$3: {
-                    const _bind = _M0MP311moonbitlang4core5array5Array2atGUiiEE(poly, i);
-                    const _x1 = _bind._0;
-                    const _y1 = _bind._1;
+                    const _bind$4 = _M0MPC15array5Array2atGRP26mizchi22kagura__effect__studio11EffectTrackE(poly, i);
+                    const _x1 = _bind$4._0;
+                    const _y1 = _bind$4._1;
                     x1 = _x1;
                     y1 = _y1;
                     break _L$3;
@@ -18555,9 +18609,9 @@ function _M0FP26mizchi3svg28raster__polygons__fill__rule(polygons, color, rule, 
                   let x2;
                   let y2;
                   _L$4: {
-                    const _bind = _M0MP311moonbitlang4core5array5Array2atGUiiEE(poly, j);
-                    const _x2 = _bind._0;
-                    const _y2 = _bind._1;
+                    const _bind$4 = _M0MPC15array5Array2atGRP26mizchi22kagura__effect__studio11EffectTrackE(poly, j);
+                    const _x2 = _bind$4._0;
+                    const _y2 = _bind$4._1;
                     x2 = _x2;
                     y2 = _y2;
                     break _L$4;
@@ -18568,7 +18622,7 @@ function _M0FP26mizchi3svg28raster__polygons__fill__rule(polygons, color, rule, 
                     }
                     const x = x1 + ((Math.imul(y - y1 | 0, x2 - x1 | 0) | 0) / (y2 - y1 | 0) | 0) | 0;
                     const winding = y1 < y2 ? 1 : -1;
-                    _M0MP311moonbitlang4core5array5Array4pushGUiiEE(intersections, { _0: x, _1: winding });
+                    _M0MPC15array5Array4pushGRP36mizchi6kagura4core10TouchPointE(intersections, { _0: x, _1: winding });
                   }
                   _tmp$4 = i + 1 | 0;
                   continue;
@@ -18578,7 +18632,7 @@ function _M0FP26mizchi3svg28raster__polygons__fill__rule(polygons, color, rule, 
               }
               break _L$2;
             }
-            _tmp$3 = _i + 1 | 0;
+            _tmp$3 = _ + 1 | 0;
             continue;
           } else {
             break;
@@ -18589,17 +18643,15 @@ function _M0FP26mizchi3svg28raster__polygons__fill__rule(polygons, color, rule, 
         }
         _M0FP26mizchi3svg19sort__intersections(intersections);
         if (rule === 1) {
-          const i = { val: 0 };
+          const i = new _M0TPC13ref3RefGiE(0);
           while (true) {
             if ((i.val + 1 | 0) < intersections.length) {
-              const x_start = _M0MP311moonbitlang4core5array5Array2atGUiiEE(intersections, i.val)._0;
-              const x_end = _M0MP311moonbitlang4core5array5Array2atGUiiEE(intersections, i.val + 1 | 0)._0;
-              const _start1296 = x_start;
-              const _end1297 = x_end;
-              let _tmp$4 = _start1296;
+              const x_start = _M0MPC15array5Array2atGRP26mizchi22kagura__effect__studio11EffectTrackE(intersections, i.val)._0;
+              const x_end = _M0MPC15array5Array2atGRP26mizchi22kagura__effect__studio11EffectTrackE(intersections, i.val + 1 | 0)._0;
+              let _tmp$4 = x_start;
               while (true) {
                 const x = _tmp$4;
-                if (x <= _end1297) {
+                if (x <= x_end) {
                   _M0MP26mizchi3svg11PixelSetter5pixel(setter, x, y, color);
                   _tmp$4 = x + 1 | 0;
                   continue;
@@ -18614,20 +18666,18 @@ function _M0FP26mizchi3svg28raster__polygons__fill__rule(polygons, color, rule, 
             }
           }
         } else {
-          const winding = { val: 0 };
-          const i = { val: 0 };
+          const winding = new _M0TPC13ref3RefGiE(0);
+          const i = new _M0TPC13ref3RefGiE(0);
           while (true) {
             if ((i.val + 1 | 0) < intersections.length) {
-              winding.val = winding.val + _M0MP311moonbitlang4core5array5Array2atGUiiEE(intersections, i.val)._1 | 0;
+              winding.val = winding.val + _M0MPC15array5Array2atGRP26mizchi22kagura__effect__studio11EffectTrackE(intersections, i.val)._1 | 0;
               if (winding.val !== 0) {
-                const x_start = _M0MP311moonbitlang4core5array5Array2atGUiiEE(intersections, i.val)._0;
-                const x_end = _M0MP311moonbitlang4core5array5Array2atGUiiEE(intersections, i.val + 1 | 0)._0;
-                const _start1305 = x_start;
-                const _end1306 = x_end;
-                let _tmp$4 = _start1305;
+                const x_start = _M0MPC15array5Array2atGRP26mizchi22kagura__effect__studio11EffectTrackE(intersections, i.val)._0;
+                const x_end = _M0MPC15array5Array2atGRP26mizchi22kagura__effect__studio11EffectTrackE(intersections, i.val + 1 | 0)._0;
+                let _tmp$4 = x_start;
                 while (true) {
                   const x = _tmp$4;
-                  if (x <= _end1306) {
+                  if (x <= x_end) {
                     _M0MP26mizchi3svg11PixelSetter5pixel(setter, x, y, color);
                     _tmp$4 = x + 1 | 0;
                     continue;
@@ -18674,8 +18724,8 @@ function _M0FP26mizchi3svg19raster__thick__line(x0, y0, x1, y1, width, color, se
     _M0FP26mizchi3svg20raster__circle__fill(x0, y0, half_w, color, setter);
     return undefined;
   }
-  const px = _M0MP311moonbitlang4core6double6Double7to__int(-(dy + 0) / len * (half_w + 0));
-  const py = _M0MP311moonbitlang4core6double6Double7to__int((dx + 0) / len * (half_w + 0));
+  const px = _M0MPC16double6Double7to__int(-(dy + 0) / len * (half_w + 0));
+  const py = _M0MPC16double6Double7to__int((dx + 0) / len * (half_w + 0));
   const points = [{ _0: x0 + px | 0, _1: y0 + py | 0 }, { _0: x1 + px | 0, _1: y1 + py | 0 }, { _0: x1 - px | 0, _1: y1 - py | 0 }, { _0: x0 - px | 0, _1: y0 - py | 0 }];
   _M0FP26mizchi3svg21raster__polygon__fill(points, color, setter);
 }
@@ -18714,8 +18764,8 @@ function _M0FP26mizchi3svg16draw__line__caps(x0, y0, x1, y1, width, linecap, col
         $panic();
       }
       const half_w$2 = width / 2 | 0;
-      const ex = _M0MP311moonbitlang4core6double6Double7to__int(ux * (half_w$2 + 0));
-      const ey = _M0MP311moonbitlang4core6double6Double7to__int(uy * (half_w$2 + 0));
+      const ex = _M0MPC16double6Double7to__int(ux * (half_w$2 + 0));
+      const ey = _M0MPC16double6Double7to__int(uy * (half_w$2 + 0));
       _M0FP26mizchi3svg19raster__thick__line(x0 - ex | 0, y0 - ey | 0, x0, y0, width, color, setter);
       _M0FP26mizchi3svg19raster__thick__line(x1, y1, x1 + ex | 0, y1 + ey | 0, width, color, setter);
       return;
@@ -18733,8 +18783,8 @@ function _M0FP26mizchi3svg20raster__line__dashed(x0, y0, x1, y1, color, dasharra
   if (total_len < 0.5) {
     return undefined;
   }
-  const dash_pos = { val: -dashoffset };
-  const total_dash = _M0MP311moonbitlang4core5array5Array4foldGddE(dasharray, 0, (acc, v) => acc + v);
+  const dash_pos = new _M0TPC13ref3RefGdE(-dashoffset);
+  const total_dash = _M0MPC15array5Array4foldGddE(dasharray, 0, (acc, v) => acc + v);
   while (true) {
     if (dash_pos.val < 0) {
       dash_pos.val = dash_pos.val + total_dash;
@@ -18751,19 +18801,19 @@ function _M0FP26mizchi3svg20raster__line__dashed(x0, y0, x1, y1, color, dasharra
       break;
     }
   }
-  const x = { val: x0 };
-  const y = { val: y0 };
+  const x = new _M0TPC13ref3RefGiE(x0);
+  const y = new _M0TPC13ref3RefGiE(y0);
   const dx = x1 > x0 ? x1 - x0 | 0 : x0 - x1 | 0;
   const dy = y1 > y0 ? y1 - y0 | 0 : y0 - y1 | 0;
   const sx = x0 < x1 ? 1 : -1;
   const sy = y0 < y1 ? 1 : -1;
-  const err = { val: dx - dy | 0 };
+  const err = new _M0TPC13ref3RefGiE(dx - dy | 0);
   while (true) {
     const cur_dx = (x.val - x0 | 0) + 0;
     const cur_dy = (y.val - y0 | 0) + 0;
     const cur_dist = Math.sqrt(cur_dx * cur_dx + cur_dy * cur_dy);
     const travel = cur_dist;
-    const pos_in_pattern = { val: dash_pos.val + travel };
+    const pos_in_pattern = new _M0TPC13ref3RefGdE(dash_pos.val + travel);
     while (true) {
       if (pos_in_pattern.val >= total_dash) {
         pos_in_pattern.val = pos_in_pattern.val - total_dash;
@@ -18772,19 +18822,19 @@ function _M0FP26mizchi3svg20raster__line__dashed(x0, y0, x1, y1, color, dasharra
         break;
       }
     }
-    const cum = { val: 0 };
-    const cur_idx = { val: 0 };
-    const _start1762 = 0;
-    const _end1763 = dasharray.length;
-    let _tmp = _start1762;
+    const cum = new _M0TPC13ref3RefGdE(0);
+    const cur_idx = new _M0TPC13ref3RefGiE(0);
+    const _bind = 0;
+    const _bind$2 = dasharray.length;
+    let _tmp = _bind;
     while (true) {
       const i = _tmp;
-      if (i < _end1763) {
-        if (cum.val + _M0MP311moonbitlang4core5array5Array2atGdE(dasharray, i) > pos_in_pattern.val) {
+      if (i < _bind$2) {
+        if (cum.val + _M0MPC15array5Array2atGdE(dasharray, i) > pos_in_pattern.val) {
           cur_idx.val = i;
           break;
         }
-        cum.val = cum.val + _M0MP311moonbitlang4core5array5Array2atGdE(dasharray, i);
+        cum.val = cum.val + _M0MPC15array5Array2atGdE(dasharray, i);
         _tmp = i + 1 | 0;
         continue;
       } else {
@@ -18799,7 +18849,7 @@ function _M0FP26mizchi3svg20raster__line__dashed(x0, y0, x1, y1, color, dasharra
       _M0MP26mizchi3svg11PixelSetter5pixel(setter, x.val, y.val, color);
     }
     if (x.val === x1 && y.val === y1) {
-      break;
+      return;
     }
     const e2 = Math.imul(2, err.val) | 0;
     if (e2 > (-dy | 0)) {
@@ -18933,10 +18983,10 @@ function _M0FP26mizchi3svg27marker__viewport__transform(marker, x, y, angle, sca
   return _M0MP26mizchi3svg9Transform8multiply(_M0MP26mizchi3svg9Transform8multiply(_M0MP26mizchi3svg9Transform8multiply(t1, r), s), ref_t);
 }
 function _M0FP26mizchi3svg20make__image__context(image, width, height, flatness) {
-  const setter = { set: (x, y, color) => {
+  const setter = new _M0TP26mizchi3svg11PixelSetter((x, y, color) => {
     _M0MP26mizchi3svg5Image10set__pixel(image, x, y, color);
-  } };
-  return { setter: setter, width: width, height: height, flatness: flatness, clip: undefined, text_to_paths: undefined };
+  });
+  return new _M0TP26mizchi3svg13RenderContext(setter, width, height, flatness, undefined, undefined);
 }
 function _M0FP26mizchi3svg15draw__line__cap(p0, p1, width, linecap, color, setter, is_start) {
   if (width <= 1) {
@@ -18998,8 +19048,8 @@ function _M0FP26mizchi3svg15draw__line__cap(p0, p1, width, linecap, color, sette
         $panic();
       }
       const half_w = width / 2 | 0;
-      const ex = _M0MP311moonbitlang4core6double6Double7to__int(ux * (half_w + 0));
-      const ey = _M0MP311moonbitlang4core6double6Double7to__int(uy * (half_w + 0));
+      const ex = _M0MPC16double6Double7to__int(ux * (half_w + 0));
+      const ey = _M0MPC16double6Double7to__int(uy * (half_w + 0));
       if (is_start) {
         _M0FP26mizchi3svg19raster__thick__line(x0 - ex | 0, y0 - ey | 0, x0, y0, width, color, setter);
         return;
@@ -19022,7 +19072,7 @@ function _M0FP26mizchi3svg17draw__bevel__join(x1, y1, ux0, uy0, ux1, uy1, side, 
   const oy0 = y1 + 0 + side * ux0 * half;
   const ox1 = x1 + 0 + side * -uy1 * half;
   const oy1 = y1 + 0 + side * ux1 * half;
-  const points = [{ _0: _M0MP311moonbitlang4core6double6Double7to__int(ox0), _1: _M0MP311moonbitlang4core6double6Double7to__int(oy0) }, { _0: _M0MP311moonbitlang4core6double6Double7to__int(ox1), _1: _M0MP311moonbitlang4core6double6Double7to__int(oy1) }, { _0: x1, _1: y1 }];
+  const points = [{ _0: _M0MPC16double6Double7to__int(ox0), _1: _M0MPC16double6Double7to__int(oy0) }, { _0: _M0MPC16double6Double7to__int(ox1), _1: _M0MPC16double6Double7to__int(oy1) }, { _0: x1, _1: y1 }];
   _M0FP26mizchi3svg21raster__polygon__fill(points, color, setter);
 }
 function _M0FP26mizchi3svg17draw__miter__join(x1, y1, ux0, uy0, ux1, uy1, side, width, miterlimit, color, setter) {
@@ -19050,7 +19100,7 @@ function _M0FP26mizchi3svg17draw__miter__join(x1, y1, ux0, uy0, ux1, uy1, side, 
     _M0FP26mizchi3svg17draw__bevel__join(x1, y1, ux0, uy0, ux1, uy1, side, width, color, setter);
     return undefined;
   }
-  const points = [{ _0: _M0MP311moonbitlang4core6double6Double7to__int(ox0), _1: _M0MP311moonbitlang4core6double6Double7to__int(oy0) }, { _0: _M0MP311moonbitlang4core6double6Double7to__int(ix), _1: _M0MP311moonbitlang4core6double6Double7to__int(iy) }, { _0: _M0MP311moonbitlang4core6double6Double7to__int(ox1), _1: _M0MP311moonbitlang4core6double6Double7to__int(oy1) }];
+  const points = [{ _0: _M0MPC16double6Double7to__int(ox0), _1: _M0MPC16double6Double7to__int(oy0) }, { _0: _M0MPC16double6Double7to__int(ix), _1: _M0MPC16double6Double7to__int(iy) }, { _0: _M0MPC16double6Double7to__int(ox1), _1: _M0MPC16double6Double7to__int(oy1) }];
   _M0FP26mizchi3svg21raster__polygon__fill(points, color, setter);
 }
 function _M0FP26mizchi3svg30compute__miter__len__for__side(x1, y1, ux0, uy0, ux1, uy1, side, half) {
@@ -19152,7 +19202,7 @@ function _M0FP26mizchi3svg20is__closed__polyline(points) {
     let x0;
     let y0;
     _L: {
-      const _bind = _M0MP311moonbitlang4core5array5Array2atGUiiEE(points, 0);
+      const _bind = _M0MPC15array5Array2atGRP26mizchi22kagura__effect__studio11EffectTrackE(points, 0);
       const _x0 = _bind._0;
       const _y0 = _bind._1;
       x0 = _x0;
@@ -19162,7 +19212,7 @@ function _M0FP26mizchi3svg20is__closed__polyline(points) {
     let x1;
     let y1;
     _L$2: {
-      const _bind = _M0MP311moonbitlang4core5array5Array2atGUiiEE(points, last);
+      const _bind = _M0MPC15array5Array2atGRP26mizchi22kagura__effect__studio11EffectTrackE(points, last);
       const _x1 = _bind._0;
       const _y1 = _bind._1;
       x1 = _x1;
@@ -19177,22 +19227,22 @@ function _M0FP26mizchi3svg27draw__polyline__joins__caps(points, stroke_px, linec
     return undefined;
   }
   if (closed) {
-    const count = { val: points.length };
+    const count = new _M0TPC13ref3RefGiE(points.length);
     if (_M0FP26mizchi3svg20is__closed__polyline(points)) {
       count.val = count.val - 1 | 0;
     }
     if (count.val < 2) {
       return undefined;
     }
-    const _start2147 = 0;
-    const _end2148 = count.val;
-    let _tmp = _start2147;
+    const _bind = 0;
+    const _bind$2 = count.val;
+    let _tmp = _bind;
     while (true) {
       const i = _tmp;
-      if (i < _end2148) {
-        const prev = i === 0 ? _M0MP311moonbitlang4core5array5Array2atGUiiEE(points, count.val - 1 | 0) : _M0MP311moonbitlang4core5array5Array2atGUiiEE(points, i - 1 | 0);
-        const cur = _M0MP311moonbitlang4core5array5Array2atGUiiEE(points, i);
-        const next = (i + 1 | 0) === count.val ? _M0MP311moonbitlang4core5array5Array2atGUiiEE(points, 0) : _M0MP311moonbitlang4core5array5Array2atGUiiEE(points, i + 1 | 0);
+      if (i < _bind$2) {
+        const prev = i === 0 ? _M0MPC15array5Array2atGRP26mizchi22kagura__effect__studio11EffectTrackE(points, count.val - 1 | 0) : _M0MPC15array5Array2atGRP26mizchi22kagura__effect__studio11EffectTrackE(points, i - 1 | 0);
+        const cur = _M0MPC15array5Array2atGRP26mizchi22kagura__effect__studio11EffectTrackE(points, i);
+        const next = (i + 1 | 0) === count.val ? _M0MPC15array5Array2atGRP26mizchi22kagura__effect__studio11EffectTrackE(points, 0) : _M0MPC15array5Array2atGRP26mizchi22kagura__effect__studio11EffectTrackE(points, i + 1 | 0);
         _M0FP26mizchi3svg16draw__line__join(prev, cur, next, stroke_px, linejoin, miterlimit, color, setter);
         _tmp = i + 1 | 0;
         continue;
@@ -19205,16 +19255,16 @@ function _M0FP26mizchi3svg27draw__polyline__joins__caps(points, stroke_px, linec
     while (true) {
       const i = _tmp;
       if (i < (points.length - 1 | 0)) {
-        _M0FP26mizchi3svg16draw__line__join(_M0MP311moonbitlang4core5array5Array2atGUiiEE(points, i - 1 | 0), _M0MP311moonbitlang4core5array5Array2atGUiiEE(points, i), _M0MP311moonbitlang4core5array5Array2atGUiiEE(points, i + 1 | 0), stroke_px, linejoin, miterlimit, color, setter);
+        _M0FP26mizchi3svg16draw__line__join(_M0MPC15array5Array2atGRP26mizchi22kagura__effect__studio11EffectTrackE(points, i - 1 | 0), _M0MPC15array5Array2atGRP26mizchi22kagura__effect__studio11EffectTrackE(points, i), _M0MPC15array5Array2atGRP26mizchi22kagura__effect__studio11EffectTrackE(points, i + 1 | 0), stroke_px, linejoin, miterlimit, color, setter);
         _tmp = i + 1 | 0;
         continue;
       } else {
         break;
       }
     }
-    _M0FP26mizchi3svg22draw__line__cap__start(_M0MP311moonbitlang4core5array5Array2atGUiiEE(points, 0), _M0MP311moonbitlang4core5array5Array2atGUiiEE(points, 1), stroke_px, linecap, color, setter);
+    _M0FP26mizchi3svg22draw__line__cap__start(_M0MPC15array5Array2atGRP26mizchi22kagura__effect__studio11EffectTrackE(points, 0), _M0MPC15array5Array2atGRP26mizchi22kagura__effect__studio11EffectTrackE(points, 1), stroke_px, linecap, color, setter);
     const last = points.length - 1 | 0;
-    _M0FP26mizchi3svg20draw__line__cap__end(_M0MP311moonbitlang4core5array5Array2atGUiiEE(points, last - 1 | 0), _M0MP311moonbitlang4core5array5Array2atGUiiEE(points, last), stroke_px, linecap, color, setter);
+    _M0FP26mizchi3svg20draw__line__cap__end(_M0MPC15array5Array2atGRP26mizchi22kagura__effect__studio11EffectTrackE(points, last - 1 | 0), _M0MPC15array5Array2atGRP26mizchi22kagura__effect__studio11EffectTrackE(points, last), stroke_px, linecap, color, setter);
     return;
   }
 }
@@ -19222,20 +19272,19 @@ function _M0FP26mizchi3svg18polygon__area__int(points) {
   if (points.length < 3) {
     return 0;
   }
-  const area = { val: 0 };
+  const area = new _M0TPC13ref3RefGiE(0);
   const last = points.length - 1 | 0;
-  const _start2160 = 0;
-  const _end2161 = last;
-  let _tmp = _start2160;
+  const _bind = 0;
+  let _tmp = _bind;
   while (true) {
     const i = _tmp;
-    if (i < _end2161) {
+    if (i < last) {
       let x0;
       let y0;
       _L: {
-        const _bind = _M0MP311moonbitlang4core5array5Array2atGUiiEE(points, i);
-        const _x0 = _bind._0;
-        const _y0 = _bind._1;
+        const _bind$2 = _M0MPC15array5Array2atGRP26mizchi22kagura__effect__studio11EffectTrackE(points, i);
+        const _x0 = _bind$2._0;
+        const _y0 = _bind$2._1;
         x0 = _x0;
         y0 = _y0;
         break _L;
@@ -19243,9 +19292,9 @@ function _M0FP26mizchi3svg18polygon__area__int(points) {
       let x1;
       let y1;
       _L$2: {
-        const _bind = _M0MP311moonbitlang4core5array5Array2atGUiiEE(points, i + 1 | 0);
-        const _x1 = _bind._0;
-        const _y1 = _bind._1;
+        const _bind$2 = _M0MPC15array5Array2atGRP26mizchi22kagura__effect__studio11EffectTrackE(points, i + 1 | 0);
+        const _x1 = _bind$2._0;
+        const _y1 = _bind$2._1;
         x1 = _x1;
         y1 = _y1;
         break _L$2;
@@ -19260,9 +19309,9 @@ function _M0FP26mizchi3svg18polygon__area__int(points) {
   let lx;
   let ly;
   _L: {
-    const _bind = _M0MP311moonbitlang4core5array5Array2atGUiiEE(points, last);
-    const _lx = _bind._0;
-    const _ly = _bind._1;
+    const _bind$2 = _M0MPC15array5Array2atGRP26mizchi22kagura__effect__studio11EffectTrackE(points, last);
+    const _lx = _bind$2._0;
+    const _ly = _bind$2._1;
     lx = _lx;
     ly = _ly;
     break _L;
@@ -19270,9 +19319,9 @@ function _M0FP26mizchi3svg18polygon__area__int(points) {
   let fx;
   let fy;
   _L$2: {
-    const _bind = _M0MP311moonbitlang4core5array5Array2atGUiiEE(points, 0);
-    const _fx = _bind._0;
-    const _fy = _bind._1;
+    const _bind$2 = _M0MPC15array5Array2atGRP26mizchi22kagura__effect__studio11EffectTrackE(points, 0);
+    const _fx = _bind$2._0;
+    const _fy = _bind$2._1;
     fx = _fx;
     fy = _fy;
     break _L$2;
@@ -19294,7 +19343,7 @@ function _M0FP26mizchi3svg16raster__polyline(points, color, setter) {
       let x1;
       let y1;
       _L: {
-        const _bind = _M0MP311moonbitlang4core5array5Array2atGUiiEE(points, i);
+        const _bind = _M0MPC15array5Array2atGRP26mizchi22kagura__effect__studio11EffectTrackE(points, i);
         const _x1 = _bind._0;
         const _y1 = _bind._1;
         x1 = _x1;
@@ -19304,7 +19353,7 @@ function _M0FP26mizchi3svg16raster__polyline(points, color, setter) {
       let x2;
       let y2;
       _L$2: {
-        const _bind = _M0MP311moonbitlang4core5array5Array2atGUiiEE(points, i + 1 | 0);
+        const _bind = _M0MPC15array5Array2atGRP26mizchi22kagura__effect__studio11EffectTrackE(points, i + 1 | 0);
         const _x2 = _bind._0;
         const _y2 = _bind._1;
         x2 = _x2;
@@ -19327,20 +19376,20 @@ function _M0FP26mizchi3svg19angle__between__vec(ux, uy, vx, vy) {
   if (len_prod === 0) {
     return 0;
   }
-  const cos_angle = { val: dot / len_prod };
+  const cos_angle = new _M0TPC13ref3RefGdE(dot / len_prod);
   if (cos_angle.val > 1) {
     cos_angle.val = 1;
   }
   if (cos_angle.val < -1) {
     cos_angle.val = -1;
   }
-  const angle = _M0FP311moonbitlang4core4math4acos(cos_angle.val);
+  const angle = _M0FPC14math4acos(cos_angle.val);
   const cross = ux * vy - uy * vx;
   return cross < 0 ? -angle : angle;
 }
 function _M0FP26mizchi3svg16arc__tangent__at(theta, cos_phi, sin_phi, rx, ry) {
-  const sin_t = _M0FP311moonbitlang4core4math3sin(theta);
-  const cos_t = _M0FP311moonbitlang4core4math3cos(theta);
+  const sin_t = _M0FPC14math3sin(theta);
+  const cos_t = _M0FPC14math3cos(theta);
   const dx = -cos_phi * rx * sin_t - sin_phi * ry * cos_t;
   const dy = -sin_phi * rx * sin_t + cos_phi * ry * cos_t;
   return { _0: dx, _1: dy };
@@ -19351,11 +19400,11 @@ function _M0FP26mizchi3svg22compute__arc__tangents(x1, y1, rx_in, ry_in, rotatio
   if (x1 === x2 && y1 === y2 || (rx_in === 0 || ry_in === 0)) {
     return { _0: dx_line, _1: dy_line, _2: dx_line, _3: dy_line };
   }
-  const rx = { val: rx_in < 0 ? -rx_in : rx_in };
-  const ry = { val: ry_in < 0 ? -ry_in : ry_in };
+  const rx = new _M0TPC13ref3RefGdE(rx_in < 0 ? -rx_in : rx_in);
+  const ry = new _M0TPC13ref3RefGdE(ry_in < 0 ? -ry_in : ry_in);
   const phi = _M0FP26mizchi3svg20degrees__to__radians(rotation_degrees);
-  const cos_phi = _M0FP311moonbitlang4core4math3cos(phi);
-  const sin_phi = _M0FP311moonbitlang4core4math3sin(phi);
+  const cos_phi = _M0FPC14math3cos(phi);
+  const sin_phi = _M0FPC14math3sin(phi);
   const dx = (x1 - x2) / 2;
   const dy = (y1 - y2) / 2;
   const x1p = cos_phi * dx + sin_phi * dy;
@@ -19376,7 +19425,7 @@ function _M0FP26mizchi3svg22compute__arc__tangents(x1, y1, rx_in, ry_in, rotatio
   const cxp = coef * rx.val * y1p / ry.val;
   const cyp = -coef * ry.val * x1p / rx.val;
   const theta1 = _M0FP26mizchi3svg19angle__between__vec(1, 0, (x1p - cxp) / rx.val, (y1p - cyp) / ry.val);
-  const dtheta = { val: _M0FP26mizchi3svg19angle__between__vec((x1p - cxp) / rx.val, (y1p - cyp) / ry.val, (-x1p - cxp) / rx.val, (-y1p - cyp) / ry.val) };
+  const dtheta = new _M0TPC13ref3RefGdE(_M0FP26mizchi3svg19angle__between__vec((x1p - cxp) / rx.val, (y1p - cyp) / ry.val, (-x1p - cxp) / rx.val, (-y1p - cyp) / ry.val));
   const pi = 3.14159265358979312;
   if (!sweep && dtheta.val > 0) {
     dtheta.val = dtheta.val - 2 * pi;
@@ -19410,20 +19459,20 @@ function _M0FP26mizchi3svg22compute__arc__tangents(x1, y1, rx_in, ry_in, rotatio
   return { _0: sx * sign, _1: sy * sign, _2: ex * sign, _3: ey * sign };
 }
 function _M0MP26mizchi3svg11MarkerPoint3new(x, y) {
-  return { x: x, y: y, has_in: false, in_dx: 0, in_dy: 0, has_out: false, out_dx: 0, out_dy: 0 };
+  return new _M0TP26mizchi3svg11MarkerPoint(x, y, false, 0, 0, false, 0, 0);
 }
 function _M0FP26mizchi3svg23build__marker__subpaths(commands) {
   const subpaths = [];
-  const points = { val: [] };
-  const closed = { val: false };
-  const cur_x = { val: 0 };
-  const cur_y = { val: 0 };
-  const start_x = { val: 0 };
-  const start_y = { val: 0 };
-  const last_ctrl_x = { val: 0 };
-  const last_ctrl_y = { val: 0 };
-  const last_cmd_was_curve = { val: false };
-  const last_cmd_was_quad = { val: false };
+  const points = new _M0TPC13ref3RefGRPB5ArrayGRP26mizchi3svg11MarkerPointEE([]);
+  const closed = new _M0TPC13ref3RefGbE(false);
+  const cur_x = new _M0TPC13ref3RefGdE(0);
+  const cur_y = new _M0TPC13ref3RefGdE(0);
+  const start_x = new _M0TPC13ref3RefGdE(0);
+  const start_y = new _M0TPC13ref3RefGdE(0);
+  const last_ctrl_x = new _M0TPC13ref3RefGdE(0);
+  const last_ctrl_y = new _M0TPC13ref3RefGdE(0);
+  const last_cmd_was_curve = new _M0TPC13ref3RefGbE(false);
+  const last_cmd_was_quad = new _M0TPC13ref3RefGbE(false);
   const eps = 0.0001;
   const finish_subpath = (subpaths$2, points$2, closed$2) => {
     if (points$2.length === 0) {
@@ -19431,23 +19480,23 @@ function _M0FP26mizchi3svg23build__marker__subpaths(commands) {
     }
     const out_points = points$2;
     if (closed$2) {
-      const first = _M0MP311moonbitlang4core5array5Array2atGRP26mizchi3svg11MarkerPointE(out_points, 0);
+      const first = _M0MPC15array5Array2atGRP26mizchi22kagura__effect__studio11EffectTrackE(out_points, 0);
       const dup = _M0MP26mizchi3svg11MarkerPoint3new(first.x, first.y);
       if (first.has_in) {
         dup.has_in = true;
         dup.in_dx = first.in_dx;
         dup.in_dy = first.in_dy;
       }
-      _M0MP311moonbitlang4core5array5Array4pushGRP26mizchi3svg11MarkerPointE(out_points, dup);
+      _M0MPC15array5Array4pushGRP36mizchi6kagura4core10TouchPointE(out_points, dup);
     }
-    _M0MP311moonbitlang4core5array5Array4pushGRP26mizchi3svg13MarkerSubpathE(subpaths$2, { points: out_points });
+    _M0MPC15array5Array4pushGRP36mizchi6kagura4core10TouchPointE(subpaths$2, new _M0TP26mizchi3svg13MarkerSubpath(out_points));
   };
   const record_out = (points$2, idx, dx, dy, eps$2) => {
     const len = Math.sqrt(dx * dx + dy * dy);
     if (len >= eps$2) {
-      _M0MP311moonbitlang4core5array5Array2atGRP26mizchi3svg11MarkerPointE(points$2, idx).has_out = true;
-      _M0MP311moonbitlang4core5array5Array2atGRP26mizchi3svg11MarkerPointE(points$2, idx).out_dx = dx;
-      _M0MP311moonbitlang4core5array5Array2atGRP26mizchi3svg11MarkerPointE(points$2, idx).out_dy = dy;
+      _M0MPC15array5Array2atGRP26mizchi22kagura__effect__studio11EffectTrackE(points$2, idx).has_out = true;
+      _M0MPC15array5Array2atGRP26mizchi22kagura__effect__studio11EffectTrackE(points$2, idx).out_dx = dx;
+      _M0MPC15array5Array2atGRP26mizchi22kagura__effect__studio11EffectTrackE(points$2, idx).out_dy = dy;
       return;
     } else {
       return;
@@ -19456,9 +19505,9 @@ function _M0FP26mizchi3svg23build__marker__subpaths(commands) {
   const record_in = (points$2, idx, dx, dy, eps$2) => {
     const len = Math.sqrt(dx * dx + dy * dy);
     if (len >= eps$2) {
-      _M0MP311moonbitlang4core5array5Array2atGRP26mizchi3svg11MarkerPointE(points$2, idx).has_in = true;
-      _M0MP311moonbitlang4core5array5Array2atGRP26mizchi3svg11MarkerPointE(points$2, idx).in_dx = dx;
-      _M0MP311moonbitlang4core5array5Array2atGRP26mizchi3svg11MarkerPointE(points$2, idx).in_dy = dy;
+      _M0MPC15array5Array2atGRP26mizchi22kagura__effect__studio11EffectTrackE(points$2, idx).has_in = true;
+      _M0MPC15array5Array2atGRP26mizchi22kagura__effect__studio11EffectTrackE(points$2, idx).in_dx = dx;
+      _M0MPC15array5Array2atGRP26mizchi22kagura__effect__studio11EffectTrackE(points$2, idx).in_dy = dy;
       return;
     } else {
       return;
@@ -19466,7 +19515,7 @@ function _M0FP26mizchi3svg23build__marker__subpaths(commands) {
   };
   const add_segment = (points$2, cur_x$2, cur_y$2, end_x, end_y, out_dx, out_dy, in_dx, in_dy, eps$2) => {
     if (points$2.length === 0) {
-      _M0MP311moonbitlang4core5array5Array4pushGRP26mizchi3svg11MarkerPointE(points$2, _M0MP26mizchi3svg11MarkerPoint3new(cur_x$2, cur_y$2));
+      _M0MPC15array5Array4pushGRP36mizchi6kagura4core10TouchPointE(points$2, _M0MP26mizchi3svg11MarkerPoint3new(cur_x$2, cur_y$2));
     }
     const last_idx = points$2.length - 1 | 0;
     record_out(points$2, last_idx, out_dx, out_dy, eps$2);
@@ -19477,15 +19526,14 @@ function _M0FP26mizchi3svg23build__marker__subpaths(commands) {
       end_point.in_dx = in_dx;
       end_point.in_dy = in_dy;
     }
-    _M0MP311moonbitlang4core5array5Array4pushGRP26mizchi3svg11MarkerPointE(points$2, end_point);
+    _M0MPC15array5Array4pushGRP36mizchi6kagura4core10TouchPointE(points$2, end_point);
   };
-  const _arr = commands;
-  const _len = _arr.length;
+  const _bind = commands.length;
   let _tmp = 0;
   while (true) {
-    const _i = _tmp;
-    if (_i < _len) {
-      const cmd = _arr[_i];
+    const _ = _tmp;
+    if (_ < _bind) {
+      const cmd = commands[_];
       let dx;
       let large_arc;
       let ry;
@@ -19864,8 +19912,8 @@ function _M0FP26mizchi3svg23build__marker__subpaths(commands) {
                                               }
                                               break _L$19;
                                             }
-                                            const sx = { val: x1$2 - cur_x.val };
-                                            const sy = { val: y1$2 - cur_y.val };
+                                            const sx = new _M0TPC13ref3RefGdE(x1$2 - cur_x.val);
+                                            const sy = new _M0TPC13ref3RefGdE(y1$2 - cur_y.val);
                                             if (Math.sqrt(sx.val * sx.val + sy.val * sy.val) < eps) {
                                               sx.val = x2$2 - cur_x.val;
                                               sy.val = y2$2 - cur_y.val;
@@ -19874,8 +19922,8 @@ function _M0FP26mizchi3svg23build__marker__subpaths(commands) {
                                               sx.val = x$5 - cur_x.val;
                                               sy.val = y$5 - cur_y.val;
                                             }
-                                            const ex = { val: x$5 - x2$2 };
-                                            const ey = { val: y$5 - y2$2 };
+                                            const ex = new _M0TPC13ref3RefGdE(x$5 - x2$2);
+                                            const ey = new _M0TPC13ref3RefGdE(y$5 - y2$2);
                                             if (Math.sqrt(ex.val * ex.val + ey.val * ey.val) < eps) {
                                               ex.val = x$5 - x1$2;
                                               ey.val = y$5 - y1$2;
@@ -19900,8 +19948,8 @@ function _M0FP26mizchi3svg23build__marker__subpaths(commands) {
                                         const y2$2 = cur_y.val + dy2$2;
                                         const x$5 = cur_x.val + dx$5;
                                         const y$5 = cur_y.val + dy$5;
-                                        const sx = { val: x1$2 - cur_x.val };
-                                        const sy = { val: y1$2 - cur_y.val };
+                                        const sx = new _M0TPC13ref3RefGdE(x1$2 - cur_x.val);
+                                        const sy = new _M0TPC13ref3RefGdE(y1$2 - cur_y.val);
                                         if (Math.sqrt(sx.val * sx.val + sy.val * sy.val) < eps) {
                                           sx.val = x2$2 - cur_x.val;
                                           sy.val = y2$2 - cur_y.val;
@@ -19910,8 +19958,8 @@ function _M0FP26mizchi3svg23build__marker__subpaths(commands) {
                                           sx.val = x$5 - cur_x.val;
                                           sy.val = y$5 - cur_y.val;
                                         }
-                                        const ex = { val: x$5 - x2$2 };
-                                        const ey = { val: y$5 - y2$2 };
+                                        const ex = new _M0TPC13ref3RefGdE(x$5 - x2$2);
+                                        const ey = new _M0TPC13ref3RefGdE(y$5 - y2$2);
                                         if (Math.sqrt(ex.val * ex.val + ey.val * ey.val) < eps) {
                                           ex.val = x$5 - x1$2;
                                           ey.val = y$5 - y1$2;
@@ -19932,8 +19980,8 @@ function _M0FP26mizchi3svg23build__marker__subpaths(commands) {
                                     }
                                     const x1$2 = last_cmd_was_curve.val ? 2 * cur_x.val - last_ctrl_x.val : cur_x.val;
                                     const y1$2 = last_cmd_was_curve.val ? 2 * cur_y.val - last_ctrl_y.val : cur_y.val;
-                                    const sx = { val: x1$2 - cur_x.val };
-                                    const sy = { val: y1$2 - cur_y.val };
+                                    const sx = new _M0TPC13ref3RefGdE(x1$2 - cur_x.val);
+                                    const sy = new _M0TPC13ref3RefGdE(y1$2 - cur_y.val);
                                     if (Math.sqrt(sx.val * sx.val + sy.val * sy.val) < eps) {
                                       sx.val = x2 - cur_x.val;
                                       sy.val = y2 - cur_y.val;
@@ -19942,8 +19990,8 @@ function _M0FP26mizchi3svg23build__marker__subpaths(commands) {
                                       sx.val = x$4 - cur_x.val;
                                       sy.val = y$4 - cur_y.val;
                                     }
-                                    const ex = { val: x$4 - x2 };
-                                    const ey = { val: y$4 - y2 };
+                                    const ex = new _M0TPC13ref3RefGdE(x$4 - x2);
+                                    const ey = new _M0TPC13ref3RefGdE(y$4 - y2);
                                     if (Math.sqrt(ex.val * ex.val + ey.val * ey.val) < eps) {
                                       ex.val = x$4 - x1$2;
                                       ey.val = y$4 - y1$2;
@@ -19968,8 +20016,8 @@ function _M0FP26mizchi3svg23build__marker__subpaths(commands) {
                                 const y2 = cur_y.val + dy2;
                                 const x$4 = cur_x.val + dx$4;
                                 const y$4 = cur_y.val + dy$4;
-                                const sx = { val: x1$2 - cur_x.val };
-                                const sy = { val: y1$2 - cur_y.val };
+                                const sx = new _M0TPC13ref3RefGdE(x1$2 - cur_x.val);
+                                const sy = new _M0TPC13ref3RefGdE(y1$2 - cur_y.val);
                                 if (Math.sqrt(sx.val * sx.val + sy.val * sy.val) < eps) {
                                   sx.val = x2 - cur_x.val;
                                   sy.val = y2 - cur_y.val;
@@ -19978,8 +20026,8 @@ function _M0FP26mizchi3svg23build__marker__subpaths(commands) {
                                   sx.val = x$4 - cur_x.val;
                                   sy.val = y$4 - cur_y.val;
                                 }
-                                const ex = { val: x$4 - x2 };
-                                const ey = { val: y$4 - y2 };
+                                const ex = new _M0TPC13ref3RefGdE(x$4 - x2);
+                                const ey = new _M0TPC13ref3RefGdE(y$4 - y2);
                                 if (Math.sqrt(ex.val * ex.val + ey.val * ey.val) < eps) {
                                   ex.val = x$4 - x1$2;
                                   ey.val = y$4 - y1$2;
@@ -19998,14 +20046,14 @@ function _M0FP26mizchi3svg23build__marker__subpaths(commands) {
                               }
                               break _L$11;
                             }
-                            const sx = { val: x1 - cur_x.val };
-                            const sy = { val: y1 - cur_y.val };
+                            const sx = new _M0TPC13ref3RefGdE(x1 - cur_x.val);
+                            const sy = new _M0TPC13ref3RefGdE(y1 - cur_y.val);
                             if (Math.sqrt(sx.val * sx.val + sy.val * sy.val) < eps) {
                               sx.val = x$3 - cur_x.val;
                               sy.val = y$3 - cur_y.val;
                             }
-                            const ex = { val: x$3 - x1 };
-                            const ey = { val: y$3 - y1 };
+                            const ex = new _M0TPC13ref3RefGdE(x$3 - x1);
+                            const ey = new _M0TPC13ref3RefGdE(y$3 - y1);
                             if (Math.sqrt(ex.val * ex.val + ey.val * ey.val) < eps) {
                               ex.val = x$3 - cur_x.val;
                               ey.val = y$3 - cur_y.val;
@@ -20024,14 +20072,14 @@ function _M0FP26mizchi3svg23build__marker__subpaths(commands) {
                         const y1 = cur_y.val + dy1;
                         const x$3 = cur_x.val + dx$3;
                         const y$3 = cur_y.val + dy$3;
-                        const sx = { val: x1 - cur_x.val };
-                        const sy = { val: y1 - cur_y.val };
+                        const sx = new _M0TPC13ref3RefGdE(x1 - cur_x.val);
+                        const sy = new _M0TPC13ref3RefGdE(y1 - cur_y.val);
                         if (Math.sqrt(sx.val * sx.val + sy.val * sy.val) < eps) {
                           sx.val = x$3 - cur_x.val;
                           sy.val = y$3 - cur_y.val;
                         }
-                        const ex = { val: x$3 - x1 };
-                        const ey = { val: y$3 - y1 };
+                        const ex = new _M0TPC13ref3RefGdE(x$3 - x1);
+                        const ey = new _M0TPC13ref3RefGdE(y$3 - y1);
                         if (Math.sqrt(ex.val * ex.val + ey.val * ey.val) < eps) {
                           ex.val = x$3 - cur_x.val;
                           ey.val = y$3 - cur_y.val;
@@ -20048,14 +20096,14 @@ function _M0FP26mizchi3svg23build__marker__subpaths(commands) {
                     }
                     const x1 = last_cmd_was_quad.val ? 2 * cur_x.val - last_ctrl_x.val : cur_x.val;
                     const y1 = last_cmd_was_quad.val ? 2 * cur_y.val - last_ctrl_y.val : cur_y.val;
-                    const sx = { val: x1 - cur_x.val };
-                    const sy = { val: y1 - cur_y.val };
+                    const sx = new _M0TPC13ref3RefGdE(x1 - cur_x.val);
+                    const sy = new _M0TPC13ref3RefGdE(y1 - cur_y.val);
                     if (Math.sqrt(sx.val * sx.val + sy.val * sy.val) < eps) {
                       sx.val = x$2 - cur_x.val;
                       sy.val = y$2 - cur_y.val;
                     }
-                    const ex = { val: x$2 - x1 };
-                    const ey = { val: y$2 - y1 };
+                    const ex = new _M0TPC13ref3RefGdE(x$2 - x1);
+                    const ey = new _M0TPC13ref3RefGdE(y$2 - y1);
                     if (Math.sqrt(ex.val * ex.val + ey.val * ey.val) < eps) {
                       ex.val = x$2 - cur_x.val;
                       ey.val = y$2 - cur_y.val;
@@ -20074,14 +20122,14 @@ function _M0FP26mizchi3svg23build__marker__subpaths(commands) {
                 const y1 = last_cmd_was_quad.val ? 2 * cur_y.val - last_ctrl_y.val : cur_y.val;
                 const x$2 = cur_x.val + dx$2;
                 const y$2 = cur_y.val + dy$2;
-                const sx = { val: x1 - cur_x.val };
-                const sy = { val: y1 - cur_y.val };
+                const sx = new _M0TPC13ref3RefGdE(x1 - cur_x.val);
+                const sy = new _M0TPC13ref3RefGdE(y1 - cur_y.val);
                 if (Math.sqrt(sx.val * sx.val + sy.val * sy.val) < eps) {
                   sx.val = x$2 - cur_x.val;
                   sy.val = y$2 - cur_y.val;
                 }
-                const ex = { val: x$2 - x1 };
-                const ey = { val: y$2 - y1 };
+                const ex = new _M0TPC13ref3RefGdE(x$2 - x1);
+                const ey = new _M0TPC13ref3RefGdE(y$2 - y1);
                 if (Math.sqrt(ex.val * ex.val + ey.val * ey.val) < eps) {
                   ex.val = x$2 - cur_x.val;
                   ey.val = y$2 - cur_y.val;
@@ -20101,11 +20149,11 @@ function _M0FP26mizchi3svg23build__marker__subpaths(commands) {
             let sy;
             let ey;
             _L$5: {
-              const _bind = _M0FP26mizchi3svg22compute__arc__tangents(cur_x.val, cur_y.val, rx$2, ry$2, rotation$2, large_arc$2, sweep$2, x, y);
-              const _sx = _bind._0;
-              const _sy = _bind._1;
-              const _ex = _bind._2;
-              const _ey = _bind._3;
+              const _bind$2 = _M0FP26mizchi3svg22compute__arc__tangents(cur_x.val, cur_y.val, rx$2, ry$2, rotation$2, large_arc$2, sweep$2, x, y);
+              const _sx = _bind$2._0;
+              const _sy = _bind$2._1;
+              const _ex = _bind$2._2;
+              const _ey = _bind$2._3;
               ex = _ex;
               sx = _sx;
               sy = _sy;
@@ -20127,11 +20175,11 @@ function _M0FP26mizchi3svg23build__marker__subpaths(commands) {
         let sy;
         let ey;
         _L$3: {
-          const _bind = _M0FP26mizchi3svg22compute__arc__tangents(cur_x.val, cur_y.val, rx, ry, rotation, large_arc, sweep, x, y);
-          const _sx = _bind._0;
-          const _sy = _bind._1;
-          const _ex = _bind._2;
-          const _ey = _bind._3;
+          const _bind$2 = _M0FP26mizchi3svg22compute__arc__tangents(cur_x.val, cur_y.val, rx, ry, rotation, large_arc, sweep, x, y);
+          const _sx = _bind$2._0;
+          const _sy = _bind$2._1;
+          const _ex = _bind$2._2;
+          const _ey = _bind$2._3;
           ex = _ex;
           sx = _sx;
           sy = _sy;
@@ -20144,7 +20192,7 @@ function _M0FP26mizchi3svg23build__marker__subpaths(commands) {
         last_cmd_was_curve.val = false;
         last_cmd_was_quad.val = false;
       }
-      _tmp = _i + 1 | 0;
+      _tmp = _ + 1 | 0;
       continue;
     } else {
       break;
@@ -20158,12 +20206,11 @@ function _M0FP26mizchi3svg23raster__polygon__stroke(points, color, setter) {
   if (n < 2) {
     return undefined;
   }
-  const _start1247 = 0;
-  const _end1248 = n;
-  let _tmp = _start1247;
+  const _bind = 0;
+  let _tmp = _bind;
   while (true) {
     const i = _tmp;
-    if (i < _end1248) {
+    if (i < n) {
       if (n === 0) {
         $panic();
       }
@@ -20171,9 +20218,9 @@ function _M0FP26mizchi3svg23raster__polygon__stroke(points, color, setter) {
       let x1;
       let y1;
       _L: {
-        const _bind = _M0MP311moonbitlang4core5array5Array2atGUiiEE(points, i);
-        const _x1 = _bind._0;
-        const _y1 = _bind._1;
+        const _bind$2 = _M0MPC15array5Array2atGRP26mizchi22kagura__effect__studio11EffectTrackE(points, i);
+        const _x1 = _bind$2._0;
+        const _y1 = _bind$2._1;
         x1 = _x1;
         y1 = _y1;
         break _L;
@@ -20181,9 +20228,9 @@ function _M0FP26mizchi3svg23raster__polygon__stroke(points, color, setter) {
       let x2;
       let y2;
       _L$2: {
-        const _bind = _M0MP311moonbitlang4core5array5Array2atGUiiEE(points, j);
-        const _x2 = _bind._0;
-        const _y2 = _bind._1;
+        const _bind$2 = _M0MPC15array5Array2atGRP26mizchi22kagura__effect__studio11EffectTrackE(points, j);
+        const _x2 = _bind$2._0;
+        const _y2 = _bind$2._1;
         x2 = _x2;
         y2 = _y2;
         break _L$2;
@@ -20204,7 +20251,7 @@ function _M0FP26mizchi3svg28is__closed__polyline__double(points) {
     let x0;
     let y0;
     _L: {
-      const _bind = _M0MP311moonbitlang4core5array5Array2atGUddEE(points, 0);
+      const _bind = _M0MPC15array5Array2atGRP26mizchi22kagura__effect__studio11EffectTrackE(points, 0);
       const _x0 = _bind._0;
       const _y0 = _bind._1;
       x0 = _x0;
@@ -20214,7 +20261,7 @@ function _M0FP26mizchi3svg28is__closed__polyline__double(points) {
     let x1;
     let y1;
     _L$2: {
-      const _bind = _M0MP311moonbitlang4core5array5Array2atGUddEE(points, last);
+      const _bind = _M0MPC15array5Array2atGRP26mizchi22kagura__effect__studio11EffectTrackE(points, last);
       const _x1 = _bind._0;
       const _y1 = _bind._1;
       x1 = _x1;
@@ -20232,19 +20279,19 @@ function _M0FP26mizchi3svg24raster__polyline__dashed(points, color, dasharray, d
     _M0FP26mizchi3svg16raster__polyline(points, color, setter);
     return undefined;
   }
-  const offset = { val: dashoffset };
-  const _start1718 = 0;
-  const _end1719 = points.length - 1 | 0;
-  let _tmp = _start1718;
+  const offset = new _M0TPC13ref3RefGdE(dashoffset);
+  const _bind = 0;
+  const _bind$2 = points.length - 1 | 0;
+  let _tmp = _bind;
   while (true) {
     const i = _tmp;
-    if (i < _end1719) {
+    if (i < _bind$2) {
       let x0;
       let y0;
       _L: {
-        const _bind = _M0MP311moonbitlang4core5array5Array2atGUiiEE(points, i);
-        const _x0 = _bind._0;
-        const _y0 = _bind._1;
+        const _bind$3 = _M0MPC15array5Array2atGRP26mizchi22kagura__effect__studio11EffectTrackE(points, i);
+        const _x0 = _bind$3._0;
+        const _y0 = _bind$3._1;
         x0 = _x0;
         y0 = _y0;
         break _L;
@@ -20252,9 +20299,9 @@ function _M0FP26mizchi3svg24raster__polyline__dashed(points, color, dasharray, d
       let x1;
       let y1;
       _L$2: {
-        const _bind = _M0MP311moonbitlang4core5array5Array2atGUiiEE(points, i + 1 | 0);
-        const _x1 = _bind._0;
-        const _y1 = _bind._1;
+        const _bind$3 = _M0MPC15array5Array2atGRP26mizchi22kagura__effect__studio11EffectTrackE(points, i + 1 | 0);
+        const _x1 = _bind$3._0;
+        const _y1 = _bind$3._1;
         x1 = _x1;
         y1 = _y1;
         break _L$2;
@@ -20264,7 +20311,7 @@ function _M0FP26mizchi3svg24raster__polyline__dashed(points, color, dasharray, d
       const dy = (y1 - y0 | 0) + 0;
       const len = Math.sqrt(dx * dx + dy * dy);
       offset.val = offset.val + len;
-      const total_dash = _M0MP311moonbitlang4core5array5Array4foldGddE(dasharray, 0, (acc, v) => acc + v);
+      const total_dash = _M0MPC15array5Array4foldGddE(dasharray, 0, (acc, v) => acc + v);
       while (true) {
         if (offset.val >= total_dash) {
           offset.val = offset.val - total_dash;
@@ -20284,18 +20331,16 @@ function _M0FP26mizchi3svg18raster__rect__fill(x, y, w, h, color, setter) {
   if (w <= 0 || h <= 0) {
     return undefined;
   }
-  const _start1676 = y;
-  const _end1677 = y + h | 0;
-  let _tmp = _start1676;
+  const _bind = y + h | 0;
+  let _tmp = y;
   while (true) {
     const py = _tmp;
-    if (py < _end1677) {
-      const _start1681 = x;
-      const _end1682 = x + w | 0;
-      let _tmp$2 = _start1681;
+    if (py < _bind) {
+      const _bind$2 = x + w | 0;
+      let _tmp$2 = x;
       while (true) {
         const px = _tmp$2;
-        if (px < _end1682) {
+        if (px < _bind$2) {
           _M0MP26mizchi3svg11PixelSetter5pixel(setter, px, py, color);
           _tmp$2 = px + 1 | 0;
           continue;
@@ -20325,24 +20370,22 @@ function _M0FP26mizchi3svg22raster__rect__gradient(x, y, w, h, grad, opacity, se
   const inv_w = w > 1 ? 1 / ((w - 1 | 0) + 0) : 0;
   const inv_h = h > 1 ? 1 / ((h - 1 | 0) + 0) : 0;
   const inv_glen_sq = glen_sq > 0.0001 ? 1 / glen_sq : 0;
-  const _start1561 = y;
-  const _end1562 = y + h | 0;
-  let _tmp = _start1561;
+  const _bind = y + h | 0;
+  let _tmp = y;
   while (true) {
     const py = _tmp;
-    if (py < _end1562) {
+    if (py < _bind) {
       const ny = h > 1 ? ((py - y | 0) + 0) * inv_h : 0.5;
       const base_y = (ny - gy1) * gdy;
-      const _start1568 = x;
-      const _end1569 = x + w | 0;
-      let _tmp$2 = _start1568;
+      const _bind$2 = x + w | 0;
+      let _tmp$2 = x;
       while (true) {
         const px = _tmp$2;
-        if (px < _end1569) {
+        if (px < _bind$2) {
           const nx = w > 1 ? ((px - x | 0) + 0) * inv_w : 0.5;
           const t = ((nx - gx1) * gdx + base_y) * inv_glen_sq;
           const color = _M0FP26mizchi3svg14lut__color__at(lut, t);
-          const final_color = opacity < 1 ? _M0MP26mizchi3svg5Color4rgba(color.r, color.g, color.b, _M0MP311moonbitlang4core6double6Double7to__int((color.a + 0) * opacity)) : color;
+          const final_color = opacity < 1 ? _M0MP26mizchi3svg5Color4rgba(color.r, color.g, color.b, _M0MPC16double6Double7to__int((color.a + 0) * opacity)) : color;
           _M0MP26mizchi3svg11PixelSetter5pixel(setter, px, py, final_color);
           _tmp$2 = px + 1 | 0;
           continue;
@@ -20368,28 +20411,26 @@ function _M0FP26mizchi3svg30raster__rect__radial__gradient(x, y, w, h, grad, opa
   const inv_gr = gr > 0 ? 1 / gr : 0;
   const inv_w = w > 1 ? 1 / ((w - 1 | 0) + 0) : 0;
   const inv_h = h > 1 ? 1 / ((h - 1 | 0) + 0) : 0;
-  const _start1523 = y;
-  const _end1524 = y + h | 0;
-  let _tmp = _start1523;
+  const _bind = y + h | 0;
+  let _tmp = y;
   while (true) {
     const py = _tmp;
-    if (py < _end1524) {
+    if (py < _bind) {
       const ny = h > 1 ? ((py - y | 0) + 0) * inv_h : 0.5;
       const dy = ny - gy;
       const dy_sq = dy * dy;
-      const _start1531 = x;
-      const _end1532 = x + w | 0;
-      let _tmp$2 = _start1531;
+      const _bind$2 = x + w | 0;
+      let _tmp$2 = x;
       while (true) {
         const px = _tmp$2;
-        if (px < _end1532) {
+        if (px < _bind$2) {
           const nx = w > 1 ? ((px - x | 0) + 0) * inv_w : 0.5;
           const dx = nx - gx;
           const dist = Math.sqrt(dx * dx + dy_sq);
           const t = dist * inv_gr;
           const t$2 = _M0FP26mizchi3svg21apply__spread__inline(t, grad.spread_method);
           const color = _M0FP26mizchi3svg14lut__color__at(lut, t$2);
-          const final_color = opacity < 1 ? _M0MP26mizchi3svg5Color4rgba(color.r, color.g, color.b, _M0MP311moonbitlang4core6double6Double7to__int((color.a + 0) * opacity)) : color;
+          const final_color = opacity < 1 ? _M0MP26mizchi3svg5Color4rgba(color.r, color.g, color.b, _M0MPC16double6Double7to__int((color.a + 0) * opacity)) : color;
           _M0MP26mizchi3svg11PixelSetter5pixel(setter, px, py, final_color);
           _tmp$2 = px + 1 | 0;
           continue;
@@ -20405,7 +20446,7 @@ function _M0FP26mizchi3svg30raster__rect__radial__gradient(x, y, w, h, grad, opa
   }
 }
 function _M0FP26mizchi3svg21ceil__to__int__raster(value) {
-  const i = _M0MP311moonbitlang4core6double6Double7to__int(value);
+  const i = _M0MPC16double6Double7to__int(value);
   return value > i + 0 ? i + 1 | 0 : i;
 }
 function _M0FP26mizchi3svg24point__in__rounded__rect(px, py, x, y, w, h, rx, ry) {
@@ -20453,16 +20494,16 @@ function _M0FP26mizchi3svg17draw__corner__arc(cx, cy, rx, ry, quadrant, color, s
   const ry2 = Math.imul(ry, ry) | 0;
   const two_rx2 = Math.imul(2, rx2) | 0;
   const two_ry2 = Math.imul(2, ry2) | 0;
-  const x = { val: 0 };
-  const y = { val: ry };
-  const px = { val: 0 };
-  const py = { val: Math.imul(two_rx2, y.val) | 0 };
+  const x = new _M0TPC13ref3RefGiE(0);
+  const y = new _M0TPC13ref3RefGiE(ry);
+  const px = new _M0TPC13ref3RefGiE(0);
+  const py = new _M0TPC13ref3RefGiE(Math.imul(two_rx2, y.val) | 0);
   _M0FP26mizchi3svg19plot__corner__point(cx, cy, x.val, y.val, quadrant, color, setter);
   const _tmp = ry2 - (Math.imul(rx2, ry) | 0) | 0;
   if (4 === 0) {
     $panic();
   }
-  const p = { val: _tmp + (rx2 / 4 | 0) | 0 };
+  const p = new _M0TPC13ref3RefGiE(_tmp + (rx2 / 4 | 0) | 0);
   while (true) {
     if (px.val < py.val) {
       x.val = x.val + 1 | 0;
@@ -20509,12 +20550,11 @@ function _M0FP26mizchi3svg20raster__rect__stroke(x, y, w, h, color, setter) {
   if (w <= 0 || h <= 0) {
     return undefined;
   }
-  const _start1692 = x;
-  const _end1693 = x + w | 0;
-  let _tmp = _start1692;
+  const _bind = x + w | 0;
+  let _tmp = x;
   while (true) {
     const px = _tmp;
-    if (px < _end1693) {
+    if (px < _bind) {
       _M0MP26mizchi3svg11PixelSetter5pixel(setter, px, y, color);
       _tmp = px + 1 | 0;
       continue;
@@ -20522,12 +20562,11 @@ function _M0FP26mizchi3svg20raster__rect__stroke(x, y, w, h, color, setter) {
       break;
     }
   }
-  const _start1697 = x;
-  const _end1698 = x + w | 0;
-  let _tmp$2 = _start1697;
+  const _bind$2 = x + w | 0;
+  let _tmp$2 = x;
   while (true) {
     const px = _tmp$2;
-    if (px < _end1698) {
+    if (px < _bind$2) {
       _M0MP26mizchi3svg11PixelSetter5pixel(setter, px, (y + h | 0) - 1 | 0, color);
       _tmp$2 = px + 1 | 0;
       continue;
@@ -20535,12 +20574,12 @@ function _M0FP26mizchi3svg20raster__rect__stroke(x, y, w, h, color, setter) {
       break;
     }
   }
-  const _start1702 = y + 1 | 0;
-  const _end1703 = (y + h | 0) - 1 | 0;
-  let _tmp$3 = _start1702;
+  const _bind$3 = y + 1 | 0;
+  const _bind$4 = (y + h | 0) - 1 | 0;
+  let _tmp$3 = _bind$3;
   while (true) {
     const py = _tmp$3;
-    if (py < _end1703) {
+    if (py < _bind$4) {
       _M0MP26mizchi3svg11PixelSetter5pixel(setter, x, py, color);
       _tmp$3 = py + 1 | 0;
       continue;
@@ -20548,12 +20587,12 @@ function _M0FP26mizchi3svg20raster__rect__stroke(x, y, w, h, color, setter) {
       break;
     }
   }
-  const _start1707 = y + 1 | 0;
-  const _end1708 = (y + h | 0) - 1 | 0;
-  let _tmp$4 = _start1707;
+  const _bind$5 = y + 1 | 0;
+  const _bind$6 = (y + h | 0) - 1 | 0;
+  let _tmp$4 = _bind$5;
   while (true) {
     const py = _tmp$4;
-    if (py < _end1708) {
+    if (py < _bind$6) {
       _M0MP26mizchi3svg11PixelSetter5pixel(setter, (x + w | 0) - 1 | 0, py, color);
       _tmp$4 = py + 1 | 0;
       continue;
@@ -20578,12 +20617,12 @@ function _M0FP26mizchi3svg29raster__rounded__rect__stroke(x, y, w, h, rx, ry, co
     _M0FP26mizchi3svg20raster__rect__stroke(x, y, w, h, color, setter);
     return undefined;
   }
-  const _start1414 = x + rx$2 | 0;
-  const _end1415 = (x + w | 0) - rx$2 | 0;
-  let _tmp = _start1414;
+  const _bind = x + rx$2 | 0;
+  const _bind$2 = (x + w | 0) - rx$2 | 0;
+  let _tmp = _bind;
   while (true) {
     const px = _tmp;
-    if (px < _end1415) {
+    if (px < _bind$2) {
       _M0MP26mizchi3svg11PixelSetter5pixel(setter, px, y, color);
       _tmp = px + 1 | 0;
       continue;
@@ -20591,12 +20630,12 @@ function _M0FP26mizchi3svg29raster__rounded__rect__stroke(x, y, w, h, rx, ry, co
       break;
     }
   }
-  const _start1419 = x + rx$2 | 0;
-  const _end1420 = (x + w | 0) - rx$2 | 0;
-  let _tmp$2 = _start1419;
+  const _bind$3 = x + rx$2 | 0;
+  const _bind$4 = (x + w | 0) - rx$2 | 0;
+  let _tmp$2 = _bind$3;
   while (true) {
     const px = _tmp$2;
-    if (px < _end1420) {
+    if (px < _bind$4) {
       _M0MP26mizchi3svg11PixelSetter5pixel(setter, px, (y + h | 0) - 1 | 0, color);
       _tmp$2 = px + 1 | 0;
       continue;
@@ -20604,12 +20643,12 @@ function _M0FP26mizchi3svg29raster__rounded__rect__stroke(x, y, w, h, rx, ry, co
       break;
     }
   }
-  const _start1424 = y + ry$2 | 0;
-  const _end1425 = (y + h | 0) - ry$2 | 0;
-  let _tmp$3 = _start1424;
+  const _bind$5 = y + ry$2 | 0;
+  const _bind$6 = (y + h | 0) - ry$2 | 0;
+  let _tmp$3 = _bind$5;
   while (true) {
     const py = _tmp$3;
-    if (py < _end1425) {
+    if (py < _bind$6) {
       _M0MP26mizchi3svg11PixelSetter5pixel(setter, x, py, color);
       _tmp$3 = py + 1 | 0;
       continue;
@@ -20617,12 +20656,12 @@ function _M0FP26mizchi3svg29raster__rounded__rect__stroke(x, y, w, h, rx, ry, co
       break;
     }
   }
-  const _start1429 = y + ry$2 | 0;
-  const _end1430 = (y + h | 0) - ry$2 | 0;
-  let _tmp$4 = _start1429;
+  const _bind$7 = y + ry$2 | 0;
+  const _bind$8 = (y + h | 0) - ry$2 | 0;
+  let _tmp$4 = _bind$7;
   while (true) {
     const py = _tmp$4;
-    if (py < _end1430) {
+    if (py < _bind$8) {
       _M0MP26mizchi3svg11PixelSetter5pixel(setter, (x + w | 0) - 1 | 0, py, color);
       _tmp$4 = py + 1 | 0;
       continue;
@@ -20658,23 +20697,19 @@ function _M0FP26mizchi3svg36raster__rounded__rect__stroke__thick(x, y, w, h, rx,
   const inner_y = y + 0 + half;
   const inner_rx = base_rx > 0 ? _M0FP26mizchi3svg3max(0, base_rx - half) : 0;
   const inner_ry = base_ry > 0 ? _M0FP26mizchi3svg3max(0, base_ry - half) : 0;
-  const min_x = _M0MP311moonbitlang4core6double6Double7to__int(_M0MP311moonbitlang4core6double6Double5floor(outer_x));
-  const min_y = _M0MP311moonbitlang4core6double6Double7to__int(_M0MP311moonbitlang4core6double6Double5floor(outer_y));
+  const min_x = _M0MPC16double6Double7to__int(_M0MPC16double6Double5floor(outer_x));
+  const min_y = _M0MPC16double6Double7to__int(_M0MPC16double6Double5floor(outer_y));
   const max_x = _M0FP26mizchi3svg21ceil__to__int__raster(outer_x + outer_w);
   const max_y = _M0FP26mizchi3svg21ceil__to__int__raster(outer_y + outer_h);
-  const _start1605 = min_y;
-  const _end1606 = max_y;
-  let _tmp = _start1605;
+  let _tmp = min_y;
   while (true) {
     const py = _tmp;
-    if (py < _end1606) {
+    if (py < max_y) {
       const cy = py + 0 + 0.5;
-      const _start1611 = min_x;
-      const _end1612 = max_x;
-      let _tmp$2 = _start1611;
+      let _tmp$2 = min_x;
       while (true) {
         const px = _tmp$2;
-        if (px < _end1612) {
+        if (px < max_x) {
           const cx = px + 0 + 0.5;
           if (_M0FP26mizchi3svg24point__in__rounded__rect(cx, cy, outer_x, outer_y, outer_w, outer_h, outer_rx, outer_ry)) {
             if (inner_w <= 0 || inner_h <= 0) {
@@ -20723,19 +20758,17 @@ function _M0FP26mizchi3svg27raster__rounded__rect__fill(x, y, w, h, rx, ry, colo
   const fh = h + 0;
   const frx = rx$2 + 0;
   const fry = ry$2 + 0;
-  const _start1640 = y;
-  const _end1641 = y + h | 0;
-  let _tmp = _start1640;
+  const _bind = y + h | 0;
+  let _tmp = y;
   while (true) {
     const py = _tmp;
-    if (py < _end1641) {
+    if (py < _bind) {
       const cy = py + 0 + 0.5;
-      const _start1646 = x;
-      const _end1647 = x + w | 0;
-      let _tmp$2 = _start1646;
+      const _bind$2 = x + w | 0;
+      let _tmp$2 = x;
       while (true) {
         const px = _tmp$2;
-        if (px < _end1647) {
+        if (px < _bind$2) {
           const cx = px + 0 + 0.5;
           if (_M0FP26mizchi3svg24point__in__rounded__rect(cx, cy, fx, fy, fw, fh, frx, fry)) {
             _M0MP26mizchi3svg11PixelSetter5pixel(setter, px, py, color);
@@ -20798,8 +20831,8 @@ function _M0FP26mizchi3svg12render__rect(x, y, width, height, rx, ry, node, tran
     sy = _sy;
     break _L$3;
   }
-  const irx = _M0MP311moonbitlang4core6double6Double7to__int(rx * sx);
-  const iry = _M0MP311moonbitlang4core6double6Double7to__int(ry * sy);
+  const irx = _M0MPC16double6Double7to__int(rx * sx);
+  const iry = _M0MPC16double6Double7to__int(ry * sy);
   const draw_fill = () => {
     let pattern;
     _L$4: {
@@ -20923,18 +20956,17 @@ function _M0FP26mizchi3svg12raster__path(commands, fill_color, stroke_color, fla
       }
       break _L;
     }
-    const _arr = polylines;
-    const _len = _arr.length;
+    const _bind = polylines.length;
     let _tmp = 0;
     while (true) {
-      const _i = _tmp;
-      if (_i < _len) {
-        const polyline = _arr[_i];
-        const int_points = _M0MP311moonbitlang4core5array5Array3mapGUddEUiiEE(polyline, (p) => ({ _0: _M0MP311moonbitlang4core6double6Double7to__int(p._0), _1: _M0MP311moonbitlang4core6double6Double7to__int(p._1) }));
+      const _ = _tmp;
+      if (_ < _bind) {
+        const polyline = polylines[_];
+        const int_points = _M0MPC15array5Array3mapGUddEUiiEE(polyline, (p) => ({ _0: _M0MPC16double6Double7to__int(p._0), _1: _M0MPC16double6Double7to__int(p._1) }));
         if (int_points.length >= 3) {
           _M0FP26mizchi3svg21raster__polygon__fill(int_points, color, setter);
         }
-        _tmp = _i + 1 | 0;
+        _tmp = _ + 1 | 0;
         continue;
       } else {
         break;
@@ -20952,16 +20984,15 @@ function _M0FP26mizchi3svg12raster__path(commands, fill_color, stroke_color, fla
       break _L$2;
     }
   }
-  const _arr = polylines;
-  const _len = _arr.length;
+  const _bind = polylines.length;
   let _tmp = 0;
   while (true) {
-    const _i = _tmp;
-    if (_i < _len) {
-      const polyline = _arr[_i];
-      const int_points = _M0MP311moonbitlang4core5array5Array3mapGUddEUiiEE(polyline, (p) => ({ _0: _M0MP311moonbitlang4core6double6Double7to__int(p._0), _1: _M0MP311moonbitlang4core6double6Double7to__int(p._1) }));
+    const _ = _tmp;
+    if (_ < _bind) {
+      const polyline = polylines[_];
+      const int_points = _M0MPC15array5Array3mapGUddEUiiEE(polyline, (p) => ({ _0: _M0MPC16double6Double7to__int(p._0), _1: _M0MPC16double6Double7to__int(p._1) }));
       _M0FP26mizchi3svg16raster__polyline(int_points, color$2, setter);
-      _tmp = _i + 1 | 0;
+      _tmp = _ + 1 | 0;
       continue;
     } else {
       return;
@@ -21273,44 +21304,42 @@ function _M0FP26mizchi3svg12raster__text(x, y, text, font_size, color, setter) {
   const char_width = Math.imul(5, scale) | 0;
   const char_height = Math.imul(7, scale) | 0;
   const spacing = scale;
-  const cursor_x = { val: x };
+  const cursor_x = new _M0TPC13ref3RefGiE(x);
   const start_y = y - char_height | 0;
-  const _start1177 = 0;
-  const _end1178 = text.length;
-  let _tmp = _start1177;
+  const _bind = 0;
+  const _bind$2 = text.length;
+  let _tmp = _bind;
   while (true) {
     const i = _tmp;
-    if (i < _end1178) {
+    if (i < _bind$2) {
       $bound_check(text, i);
-      const c = _M0MP311moonbitlang4core6uint166UInt1616unsafe__to__char(text.charCodeAt(i));
+      const c = _M0MPC16uint166UInt1616unsafe__to__char(text.charCodeAt(i));
       const bitmap = _M0FP26mizchi3svg17get__char__bitmap(c);
-      const _start1184 = 0;
-      const _end1185 = 7;
-      let _tmp$2 = _start1184;
+      const _bind$3 = 0;
+      const _bind$4 = 7;
+      let _tmp$2 = _bind$3;
       while (true) {
         const row = _tmp$2;
-        if (row < _end1185) {
-          const row_bits = _M0MP311moonbitlang4core5array5Array2atGiE(bitmap, row);
-          const _start1190 = 0;
-          const _end1191 = 5;
-          let _tmp$3 = _start1190;
+        if (row < _bind$4) {
+          const row_bits = _M0MPC15array5Array2atGiE(bitmap, row);
+          const _bind$5 = 0;
+          const _bind$6 = 5;
+          let _tmp$3 = _bind$5;
           while (true) {
             const col = _tmp$3;
-            if (col < _end1191) {
+            if (col < _bind$6) {
               const bit_mask = 16 >> col;
               if ((row_bits & bit_mask) !== 0) {
-                const _start1196 = 0;
-                const _end1197 = scale;
-                let _tmp$4 = _start1196;
+                const _bind$7 = 0;
+                let _tmp$4 = _bind$7;
                 while (true) {
                   const sy = _tmp$4;
-                  if (sy < _end1197) {
-                    const _start1201 = 0;
-                    const _end1202 = scale;
-                    let _tmp$5 = _start1201;
+                  if (sy < scale) {
+                    const _bind$8 = 0;
+                    let _tmp$5 = _bind$8;
                     while (true) {
                       const sx = _tmp$5;
-                      if (sx < _end1202) {
+                      if (sx < scale) {
                         const px = (cursor_x.val + (Math.imul(col, scale) | 0) | 0) + sx | 0;
                         const py = (start_y + (Math.imul(row, scale) | 0) | 0) + sy | 0;
                         _M0MP26mizchi3svg11PixelSetter5pixel(setter, px, py, color);
@@ -21349,13 +21378,12 @@ function _M0FP26mizchi3svg12raster__text(x, y, text, font_size, color, setter) {
 }
 function _M0FP26mizchi3svg25translate__path__commands(commands, dx, dy) {
   const result = [];
-  const _arr = commands;
-  const _len = _arr.length;
+  const _bind = commands.length;
   let _tmp = 0;
   while (true) {
-    const _i = _tmp;
-    if (_i < _len) {
-      const cmd = _arr[_i];
+    const _ = _tmp;
+    if (_ < _bind) {
+      const cmd = commands[_];
       let translated;
       let x;
       let cx2;
@@ -21425,7 +21453,7 @@ function _M0FP26mizchi3svg25translate__path__commands(commands, dx, dy) {
                           break _L$2;
                         }
                         case 9: {
-                          translated = $64$mizchi$47$svg$46$PathCommand$ClosePath;
+                          translated = _M0DTP26mizchi3svg11PathCommand9ClosePath__;
                           break;
                         }
                         default: {
@@ -21434,22 +21462,22 @@ function _M0FP26mizchi3svg25translate__path__commands(commands, dx, dy) {
                       }
                       break _L$7;
                     }
-                    translated = new $64$mizchi$47$svg$46$PathCommand$MoveTo(x$4 + dx, y$4 + dy);
+                    translated = new _M0DTP26mizchi3svg11PathCommand6MoveTo(x$4 + dx, y$4 + dy);
                   }
                   break _L$5;
                 }
-                translated = new $64$mizchi$47$svg$46$PathCommand$LineTo(x$3 + dx, y$3 + dy);
+                translated = new _M0DTP26mizchi3svg11PathCommand6LineTo(x$3 + dx, y$3 + dy);
               }
               break _L$3;
             }
-            translated = new $64$mizchi$47$svg$46$PathCommand$QuadraticCurveTo(cx + dx, cy + dy, x$2 + dx, y$2 + dy);
+            translated = new _M0DTP26mizchi3svg11PathCommand16QuadraticCurveTo(cx + dx, cy + dy, x$2 + dx, y$2 + dy);
           }
           break _L;
         }
-        translated = new $64$mizchi$47$svg$46$PathCommand$CurveTo(cx1 + dx, cy1 + dy, cx2 + dx, cy2 + dy, x + dx, y + dy);
+        translated = new _M0DTP26mizchi3svg11PathCommand7CurveTo(cx1 + dx, cy1 + dy, cx2 + dx, cy2 + dy, x + dx, y + dy);
       }
-      _M0MP311moonbitlang4core5array5Array4pushGRP26mizchi3svg11PathCommandE(result, translated);
-      _tmp = _i + 1 | 0;
+      _M0MPC15array5Array4pushGRP36mizchi6kagura4core10TouchPointE(result, translated);
+      _tmp = _ + 1 | 0;
       continue;
     } else {
       break;
@@ -21475,7 +21503,7 @@ function _M0FP26mizchi3svg12render__text(x, y, text, font_size, node, transform,
     sx = _sx;
     break _L$2;
   }
-  const scaled_size = _M0MP311moonbitlang4core6double6Double7to__int(font_size * sx);
+  const scaled_size = _M0MPC16double6Double7to__int(font_size * sx);
   const fill_paint = _M0FP26mizchi3svg27resolve__paint__for__render(node.fill, node_color, resources);
   let to_paths;
   _L$3: {
@@ -21505,7 +21533,7 @@ function _M0FP26mizchi3svg12render__text(x, y, text, font_size, node, transform,
         }
         if (node.fill_opacity > 0) {
           const fill_color = _M0FP26mizchi3svg14apply__opacity(color, node.fill_opacity * node.opacity);
-          _M0FP26mizchi3svg12raster__text(_M0MP311moonbitlang4core6double6Double7to__int(tx), _M0MP311moonbitlang4core6double6Double7to__int(ty), text, scaled_size, fill_color, ctx.setter);
+          _M0FP26mizchi3svg12raster__text(_M0MPC16double6Double7to__int(tx), _M0MPC16double6Double7to__int(ty), text, scaled_size, fill_color, ctx.setter);
           return;
         } else {
           return;
@@ -21540,21 +21568,21 @@ function _M0FP26mizchi3svg12render__text(x, y, text, font_size, node, transform,
     }
     fill_color = node.fill_opacity > 0 ? _M0FP26mizchi3svg14apply__opacity(color, node.fill_opacity * node.opacity) : undefined;
   }
-  const cursor_x = { val: tx };
-  const _start1895 = 0;
-  const _end1896 = text.length;
-  let _tmp = _start1895;
+  const cursor_x = new _M0TPC13ref3RefGdE(tx);
+  const _bind = 0;
+  const _bind$2 = text.length;
+  let _tmp = _bind;
   while (true) {
     const i = _tmp;
-    if (i < _end1896) {
+    if (i < _bind$2) {
       $bound_check(text, i);
-      const codepoint = _M0MP311moonbitlang4core6uint166UInt1616unsafe__to__char(text.charCodeAt(i));
+      const codepoint = _M0MPC16uint166UInt1616unsafe__to__char(text.charCodeAt(i));
       let cmds;
       let advance;
       _L$5: {
-        const _bind = to_paths(codepoint, font_size * sx);
-        const _cmds = _bind._0;
-        const _advance = _bind._1;
+        const _bind$3 = to_paths(codepoint, font_size * sx);
+        const _cmds = _bind$3._0;
+        const _advance = _bind$3._1;
         cmds = _cmds;
         advance = _advance;
         break _L$5;
@@ -21573,25 +21601,25 @@ function _M0FP26mizchi3svg18sort__by__z__index(nodes) {
   if (nodes.length <= 1) {
     return nodes;
   }
-  const result = _M0MP311moonbitlang4core5array5Array4copyGRP26mizchi3svg7SVGNodeE(nodes);
-  const _start2983 = 1;
-  const _end2984 = result.length;
-  let _tmp = _start2983;
+  const result = _M0MPC15array5Array4copyGRP26mizchi3svg7SVGNodeE(nodes);
+  const _bind = 1;
+  const _bind$2 = result.length;
+  let _tmp = _bind;
   while (true) {
     const i = _tmp;
-    if (i < _end2984) {
-      const current = _M0MP311moonbitlang4core5array5Array2atGRP26mizchi3svg7SVGNodeE(result, i);
-      const j = { val: i - 1 | 0 };
+    if (i < _bind$2) {
+      const current = _M0MPC15array5Array2atGRP26mizchi22kagura__effect__studio11EffectTrackE(result, i);
+      const j = new _M0TPC13ref3RefGiE(i - 1 | 0);
       while (true) {
-        if (j.val >= 0 && _M0MP311moonbitlang4core5array5Array2atGRP26mizchi3svg7SVGNodeE(result, j.val).z_index > current.z_index) {
-          _M0MP311moonbitlang4core5array5Array3setGRP26mizchi3svg7SVGNodeE(result, j.val + 1 | 0, _M0MP311moonbitlang4core5array5Array2atGRP26mizchi3svg7SVGNodeE(result, j.val));
+        if (j.val >= 0 && _M0MPC15array5Array2atGRP26mizchi22kagura__effect__studio11EffectTrackE(result, j.val).z_index > current.z_index) {
+          _M0MPC15array5Array3setGRP36mizchi6kagura10particle3d8ParticleE(result, j.val + 1 | 0, _M0MPC15array5Array2atGRP26mizchi22kagura__effect__studio11EffectTrackE(result, j.val));
           j.val = j.val - 1 | 0;
           continue;
         } else {
           break;
         }
       }
-      _M0MP311moonbitlang4core5array5Array3setGRP26mizchi3svg7SVGNodeE(result, j.val + 1 | 0, current);
+      _M0MPC15array5Array3setGRP36mizchi6kagura10particle3d8ParticleE(result, j.val + 1 | 0, current);
       _tmp = i + 1 | 0;
       continue;
     } else {
@@ -21601,7 +21629,7 @@ function _M0FP26mizchi3svg18sort__by__z__index(nodes) {
   return result;
 }
 function _M0MP26mizchi3svg11SVGDocument6render(self, ctx) {
-  const resources = { clips: self.clips, masks: self.masks, patterns: self.patterns, gradients: self.gradients, markers: self.markers };
+  const resources = new _M0TP26mizchi3svg15RenderResources(self.clips, self.masks, self.patterns, self.gradients, self.markers);
   let vb;
   _L: {
     const _bind = self.root.view_box;
@@ -21740,10 +21768,10 @@ function _M0FP26mizchi3svg12render__node(node, parent_transform, ctx, resources,
       }
       const viewport_bbox = _M0MP26mizchi3svg11BoundingBox10from__rect(0, 0, vw, vh);
       const world_bbox = _M0MP26mizchi3svg9Transform11apply__bbox(base_transform, viewport_bbox);
-      const clip_x = { val: _M0FP26mizchi3svg14floor__to__int(world_bbox.min_x) };
-      const clip_y = { val: _M0FP26mizchi3svg14floor__to__int(world_bbox.min_y) };
-      const clip_w = { val: _M0FP26mizchi3svg13ceil__to__int(world_bbox.max_x - world_bbox.min_x) };
-      const clip_h = { val: _M0FP26mizchi3svg13ceil__to__int(world_bbox.max_y - world_bbox.min_y) };
+      const clip_x = new _M0TPC13ref3RefGiE(_M0FP26mizchi3svg14floor__to__int(world_bbox.min_x));
+      const clip_y = new _M0TPC13ref3RefGiE(_M0FP26mizchi3svg14floor__to__int(world_bbox.min_y));
+      const clip_w = new _M0TPC13ref3RefGiE(_M0FP26mizchi3svg13ceil__to__int(world_bbox.max_x - world_bbox.min_x));
+      const clip_h = new _M0TPC13ref3RefGiE(_M0FP26mizchi3svg13ceil__to__int(world_bbox.max_y - world_bbox.min_y));
       if (clip_x.val < 0) {
         clip_w.val = clip_w.val + clip_x.val | 0;
         clip_x.val = 0;
@@ -21791,7 +21819,7 @@ function _M0FP26mizchi3svg12render__node(node, parent_transform, ctx, resources,
         }
       }
       const setter = _M0MP26mizchi3svg11PixelSetter10with__clip(ctx_for_node.setter, clip);
-      ctx_for_node$2 = { setter: setter, width: ctx_for_node.width, height: ctx_for_node.height, flatness: ctx_for_node.flatness, clip: clip, text_to_paths: ctx_for_node.text_to_paths };
+      ctx_for_node$2 = new _M0TP26mizchi3svg13RenderContext(setter, ctx_for_node.width, ctx_for_node.height, ctx_for_node.flatness, clip, ctx_for_node.text_to_paths);
       break _L$3;
     }
     ctx_for_node$2 = ctx_for_node;
@@ -21832,15 +21860,15 @@ function _M0FP26mizchi3svg12render__node(node, parent_transform, ctx, resources,
   if (!_M0MP26mizchi3svg11BoundingBox9is__empty(shape_bbox)) {
     const transformed_bbox = _M0MP26mizchi3svg9Transform11apply__bbox(transform, shape_bbox);
     if (!_M0FP26mizchi3svg11is__visible(transformed_bbox, ctx_for_node$2)) {
-      const _arr = node.children;
-      const _len = _arr.length;
+      const _bind$2 = node.children;
+      const _bind$3 = _bind$2.length;
       let _tmp = 0;
       while (true) {
-        const _i = _tmp;
-        if (_i < _len) {
-          const child = _arr[_i];
+        const _ = _tmp;
+        if (_ < _bind$3) {
+          const child = _bind$2[_];
           _M0FP26mizchi3svg12render__node(child, transform, ctx_for_node$2, resources, true, node_color);
-          _tmp = _i + 1 | 0;
+          _tmp = _ + 1 | 0;
           continue;
         } else {
           break;
@@ -22030,15 +22058,14 @@ function _M0FP26mizchi3svg12render__node(node, parent_transform, ctx, resources,
     _M0FP26mizchi3svg13render__image(x, y, width, height, href, transform, ctx_for_node$2, node.preserve_aspect_ratio, node.preserve_aspect_ratio_is_set);
   }
   const sorted_children = _M0FP26mizchi3svg18sort__by__z__index(node.children);
-  const _arr = sorted_children;
-  const _len = _arr.length;
+  const _bind$2 = sorted_children.length;
   let _tmp = 0;
   while (true) {
-    const _i = _tmp;
-    if (_i < _len) {
-      const child = _arr[_i];
+    const _ = _tmp;
+    if (_ < _bind$2) {
+      const child = sorted_children[_];
       _M0FP26mizchi3svg12render__node(child, transform, ctx_for_node$2, resources, true, node_color);
-      _tmp = _i + 1 | 0;
+      _tmp = _ + 1 | 0;
       continue;
     } else {
       return;
@@ -22112,13 +22139,13 @@ function _M0FP26mizchi3svg13render__image(x, y, width, height, href, transform, 
       break _L$4;
     }
     if (svg_w > 0 && svg_h > 0) {
-      doc.root.view_box = { min_x: 0, min_y: 0, width: svg_w, height: svg_h };
+      doc.root.view_box = new _M0TP26mizchi3svg7ViewBox(0, 0, svg_w, svg_h);
     }
   }
   const image = _M0MP26mizchi3svg5Image3new(iw, ih);
-  const setter = { set: (px, py, color) => {
+  const setter = new _M0TP26mizchi3svg11PixelSetter((px, py, color) => {
     _M0MP26mizchi3svg5Image10set__pixel(image, px, py, color);
-  } };
+  });
   const image_ctx = _M0MP26mizchi3svg13RenderContext3new(setter, iw, ih);
   _M0MP26mizchi3svg11SVGDocument6render(doc, image_ctx);
   _M0FP26mizchi3svg24blit__image__to__context(image, ctx, ix, iy);
@@ -22159,7 +22186,7 @@ function _M0FP26mizchi3svg12render__line(x1, y1, x2, y2, node, transform, ctx, r
     }
     if (node.stroke_opacity > 0 && node.stroke.width > 0) {
       const stroke_color = _M0FP26mizchi3svg14apply__opacity(color, node.stroke_opacity * node.opacity);
-      const stroke_px = _M0MP311moonbitlang4core6double6Double7to__int(node.stroke.width);
+      const stroke_px = _M0MPC16double6Double7to__int(node.stroke.width);
       let dasharray;
       _L$4: {
         const _bind = node.stroke.dasharray;
@@ -22170,16 +22197,16 @@ function _M0FP26mizchi3svg12render__line(x1, y1, x2, y2, node, transform, ctx, r
           break _L$4;
         } else {
           if (node.stroke.width <= 1) {
-            _M0FP26mizchi3svg12raster__line(_M0MP311moonbitlang4core6double6Double7to__int(tx1), _M0MP311moonbitlang4core6double6Double7to__int(ty1), _M0MP311moonbitlang4core6double6Double7to__int(tx2), _M0MP311moonbitlang4core6double6Double7to__int(ty2), stroke_color, ctx.setter);
+            _M0FP26mizchi3svg12raster__line(_M0MPC16double6Double7to__int(tx1), _M0MPC16double6Double7to__int(ty1), _M0MPC16double6Double7to__int(tx2), _M0MPC16double6Double7to__int(ty2), stroke_color, ctx.setter);
             return;
           } else {
-            _M0FP26mizchi3svg19raster__thick__line(_M0MP311moonbitlang4core6double6Double7to__int(tx1), _M0MP311moonbitlang4core6double6Double7to__int(ty1), _M0MP311moonbitlang4core6double6Double7to__int(tx2), _M0MP311moonbitlang4core6double6Double7to__int(ty2), stroke_px, stroke_color, ctx.setter);
-            _M0FP26mizchi3svg16draw__line__caps(_M0MP311moonbitlang4core6double6Double7to__int(tx1), _M0MP311moonbitlang4core6double6Double7to__int(ty1), _M0MP311moonbitlang4core6double6Double7to__int(tx2), _M0MP311moonbitlang4core6double6Double7to__int(ty2), stroke_px, node.stroke.linecap, stroke_color, ctx.setter);
+            _M0FP26mizchi3svg19raster__thick__line(_M0MPC16double6Double7to__int(tx1), _M0MPC16double6Double7to__int(ty1), _M0MPC16double6Double7to__int(tx2), _M0MPC16double6Double7to__int(ty2), stroke_px, stroke_color, ctx.setter);
+            _M0FP26mizchi3svg16draw__line__caps(_M0MPC16double6Double7to__int(tx1), _M0MPC16double6Double7to__int(ty1), _M0MPC16double6Double7to__int(tx2), _M0MPC16double6Double7to__int(ty2), stroke_px, node.stroke.linecap, stroke_color, ctx.setter);
             return;
           }
         }
       }
-      _M0FP26mizchi3svg20raster__line__dashed(_M0MP311moonbitlang4core6double6Double7to__int(tx1), _M0MP311moonbitlang4core6double6Double7to__int(ty1), _M0MP311moonbitlang4core6double6Double7to__int(tx2), _M0MP311moonbitlang4core6double6Double7to__int(ty2), stroke_color, dasharray, node.stroke.dashoffset, ctx.setter);
+      _M0FP26mizchi3svg20raster__line__dashed(_M0MPC16double6Double7to__int(tx1), _M0MPC16double6Double7to__int(ty1), _M0MPC16double6Double7to__int(tx2), _M0MPC16double6Double7to__int(ty2), stroke_color, dasharray, node.stroke.dashoffset, ctx.setter);
       return;
     } else {
       return;
@@ -22217,23 +22244,23 @@ function _M0FP26mizchi3svg28render__markers__for__points(points, node, transform
   }
   const skew = transform.a * transform.c + transform.b * transform.d;
   const use_transformed = Math.abs(sx - sy) > 0.0001 || Math.abs(skew) > 0.0001;
-  const angle_points = use_transformed ? _M0MP311moonbitlang4core5array5Array3mapGUddEUddEE(points, (p) => _M0MP26mizchi3svg9Transform5apply(transform, p._0, p._1)) : points;
+  const angle_points = use_transformed ? _M0MPC15array5Array3mapGUddEUddEE(points, (p) => _M0MP26mizchi3svg9Transform5apply(transform, p._0, p._1)) : points;
   const line = _M0MP26mizchi3svg10MarkedLine3new(angle_points);
   const inv = _M0MP26mizchi3svg9Transform7inverse(transform);
   const to_local_angle = (angle) => {
-    const dx = _M0FP311moonbitlang4core4math3cos(angle);
-    const dy = _M0FP311moonbitlang4core4math3sin(angle);
+    const dx = _M0FPC14math3cos(angle);
+    const dy = _M0FPC14math3sin(angle);
     const lx = inv.a * dx + inv.c * dy;
     const ly = inv.b * dx + inv.d * dy;
-    return _M0FP311moonbitlang4core4math5atan2(ly, lx);
+    return _M0FPC14math5atan2(ly, lx);
   };
   const last = points.length - 1 | 0;
-  const _start2634 = 0;
-  const _end2635 = points.length;
-  let _tmp = _start2634;
+  const _bind$2 = 0;
+  const _bind$3 = points.length;
+  let _tmp = _bind$2;
   while (true) {
     const i = _tmp;
-    if (i < _end2635) {
+    if (i < _bind$3) {
       const marker_id = i === 0 ? node.marker_start : i === last ? node.marker_end : node.marker_mid;
       let id;
       _L$2: {
@@ -22250,10 +22277,10 @@ function _M0FP26mizchi3svg28render__markers__for__points(points, node, transform
         let marker;
         _L$4: {
           _L$5: {
-            const _bind$2 = _M0MP26mizchi3svg14MarkerRegistry3get(resources.markers, id);
-            if (_bind$2 === undefined) {
+            const _bind$4 = _M0MP26mizchi3svg14MarkerRegistry3get(resources.markers, id);
+            if (_bind$4 === undefined) {
             } else {
-              const _Some = _bind$2;
+              const _Some = _bind$4;
               const _marker = _Some;
               marker = _marker;
               break _L$5;
@@ -22263,9 +22290,9 @@ function _M0FP26mizchi3svg28render__markers__for__points(points, node, transform
           let x;
           let y;
           _L$6: {
-            const _bind$2 = _M0MP311moonbitlang4core5array5Array2atGUddEE(points, i);
-            const _x = _bind$2._0;
-            const _y = _bind$2._1;
+            const _bind$4 = _M0MPC15array5Array2atGRP26mizchi22kagura__effect__studio11EffectTrackE(points, i);
+            const _x = _bind$4._0;
+            const _y = _bind$4._1;
             x = _x;
             y = _y;
             break _L$6;
@@ -22306,11 +22333,11 @@ function _M0FP26mizchi3svg24render__marker__instance(marker, x, y, angle, node, 
   const marker_transform = _M0FP26mizchi3svg35marker__transform__with__ref__ratio(marker, x, y, angle, marker_scale, ref_ratio);
   const viewport_transform = _M0FP26mizchi3svg27marker__viewport__transform(marker, x, y, angle, marker_scale, ref_ratio);
   const parent_transform = _M0MP26mizchi3svg9Transform8multiply(transform, marker_transform);
-  const ctx_for_marker = { val: ctx };
+  const ctx_for_marker = new _M0TPC13ref3RefGRP26mizchi3svg13RenderContextE(ctx);
   if (marker.clip_overflow && (marker.marker_width > 0 && marker.marker_height > 0)) {
     const viewport_bbox = _M0MP26mizchi3svg11BoundingBox10from__rect(0, 0, marker.marker_width, marker.marker_height);
     const clip_transform = _M0MP26mizchi3svg9Transform8multiply(transform, viewport_transform);
-    const clip_shape = new $64$mizchi$47$svg$46$Shape$Rect(viewport_bbox.min_x, viewport_bbox.min_y, _M0MP26mizchi3svg11BoundingBox5width(viewport_bbox), _M0MP26mizchi3svg11BoundingBox6height(viewport_bbox), 0, 0);
+    const clip_shape = new _M0DTP26mizchi3svg5Shape4Rect(viewport_bbox.min_x, viewport_bbox.min_y, _M0MP26mizchi3svg11BoundingBox5width(viewport_bbox), _M0MP26mizchi3svg11BoundingBox6height(viewport_bbox), 0, 0);
     const clip = _M0MP26mizchi3svg8ClipPath15with__transform("marker-viewport", clip_shape, clip_transform);
     ctx_for_marker.val = _M0FP26mizchi3svg17apply__clip__path(ctx_for_marker.val, clip, _M0MP26mizchi3svg9Transform8identity(), _M0MP26mizchi3svg11BoundingBox5empty());
   }
@@ -22341,10 +22368,10 @@ function _M0FP26mizchi3svg20render__masked__node(node, parent_transform, ctx, re
   const mask_ctx = _M0FP26mizchi3svg20make__image__context(mask_image, width, height, ctx.flatness);
   const mask_bounds_local = _M0MP26mizchi3svg4Mask17get__mask__bounds(mask, bbox_local);
   const mask_bounds = _M0MP26mizchi3svg9Transform11apply__bbox(element_transform, mask_bounds_local);
-  const clip_min_x = { val: _M0FP26mizchi3svg14floor__to__int(mask_bounds.min_x) - min_x | 0 };
-  const clip_min_y = { val: _M0FP26mizchi3svg14floor__to__int(mask_bounds.min_y) - min_y | 0 };
-  const clip_max_x = { val: _M0FP26mizchi3svg13ceil__to__int(mask_bounds.max_x) - min_x | 0 };
-  const clip_max_y = { val: _M0FP26mizchi3svg13ceil__to__int(mask_bounds.max_y) - min_y | 0 };
+  const clip_min_x = new _M0TPC13ref3RefGiE(_M0FP26mizchi3svg14floor__to__int(mask_bounds.min_x) - min_x | 0);
+  const clip_min_y = new _M0TPC13ref3RefGiE(_M0FP26mizchi3svg14floor__to__int(mask_bounds.min_y) - min_y | 0);
+  const clip_max_x = new _M0TPC13ref3RefGiE(_M0FP26mizchi3svg13ceil__to__int(mask_bounds.max_x) - min_x | 0);
+  const clip_max_y = new _M0TPC13ref3RefGiE(_M0FP26mizchi3svg13ceil__to__int(mask_bounds.max_y) - min_y | 0);
   if (clip_min_x.val < 0) {
     clip_min_x.val = 0;
   }
@@ -22362,7 +22389,7 @@ function _M0FP26mizchi3svg20render__masked__node(node, parent_transform, ctx, re
   let mask_ctx$2;
   if (clip_w > 0 && clip_h > 0) {
     const clip = _M0MP26mizchi3svg8ClipRect3new(clip_min_x.val, clip_min_y.val, clip_w, clip_h);
-    mask_ctx$2 = { setter: _M0MP26mizchi3svg11PixelSetter10with__clip(mask_ctx.setter, clip), width: mask_ctx.width, height: mask_ctx.height, flatness: mask_ctx.flatness, clip: clip, text_to_paths: mask_ctx.text_to_paths };
+    mask_ctx$2 = new _M0TP26mizchi3svg13RenderContext(_M0MP26mizchi3svg11PixelSetter10with__clip(mask_ctx.setter, clip), mask_ctx.width, mask_ctx.height, mask_ctx.flatness, clip, mask_ctx.text_to_paths);
   } else {
     mask_ctx$2 = mask_ctx;
   }
@@ -22376,15 +22403,15 @@ function _M0FP26mizchi3svg20render__masked__node(node, parent_transform, ctx, re
   } else {
     mask_parent = _M0MP26mizchi3svg9Transform8multiply(offset, element_transform);
   }
-  const _arr = mask.content;
-  const _len = _arr.length;
+  const _bind$2 = mask.content;
+  const _bind$3 = _bind$2.length;
   let _tmp = 0;
   while (true) {
-    const _i = _tmp;
-    if (_i < _len) {
-      const content_node = _arr[_i];
+    const _ = _tmp;
+    if (_ < _bind$3) {
+      const content_node = _bind$2[_];
       _M0FP26mizchi3svg12render__node(content_node, mask_parent, mask_ctx$2, resources, false, parent_color);
-      _tmp = _i + 1 | 0;
+      _tmp = _ + 1 | 0;
       continue;
     } else {
       break;
@@ -22396,28 +22423,27 @@ function _M0FP26mizchi3svg20render__masked__node(node, parent_transform, ctx, re
 function _M0FP26mizchi3svg12render__path(commands, node, transform, ctx, node_color, resources) {
   const polylines = _M0FP26mizchi3svg19path__to__polylines(commands, ctx.flatness);
   const transformed_polylines = [];
-  const _arr = polylines;
-  const _len = _arr.length;
+  const _bind = polylines.length;
   let _tmp = 0;
   while (true) {
-    const _i = _tmp;
-    if (_i < _len) {
-      const polyline = _arr[_i];
-      const transformed = _M0MP311moonbitlang4core5array5Array3mapGUddEUiiEE(polyline, (p) => {
+    const _ = _tmp;
+    if (_ < _bind) {
+      const polyline = polylines[_];
+      const transformed = _M0MPC15array5Array3mapGUddEUiiEE(polyline, (p) => {
         let x;
         let y;
         _L: {
-          const _bind = _M0MP26mizchi3svg9Transform5apply(transform, p._0, p._1);
-          const _x = _bind._0;
-          const _y = _bind._1;
+          const _bind$2 = _M0MP26mizchi3svg9Transform5apply(transform, p._0, p._1);
+          const _x = _bind$2._0;
+          const _y = _bind$2._1;
           x = _x;
           y = _y;
           break _L;
         }
-        return { _0: _M0MP311moonbitlang4core6double6Double7to__int(x), _1: _M0MP311moonbitlang4core6double6Double7to__int(y) };
+        return { _0: _M0MPC16double6Double7to__int(x), _1: _M0MPC16double6Double7to__int(y) };
       });
-      _M0MP311moonbitlang4core5array5Array4pushGRP311moonbitlang4core7builtin5ArrayGUiiEEE(transformed_polylines, transformed);
-      _tmp = _i + 1 | 0;
+      _M0MPC15array5Array4pushGRPB5ArrayGUiiEEE(transformed_polylines, transformed);
+      _tmp = _ + 1 | 0;
       continue;
     } else {
       break;
@@ -22428,16 +22454,16 @@ function _M0FP26mizchi3svg12render__path(commands, node, transform, ctx, node_co
     _L: {
       let color;
       _L$2: {
-        const _bind = _M0FP26mizchi3svg27resolve__paint__for__render(node.fill, node_color, resources);
-        switch (_bind.$tag) {
+        const _bind$2 = _M0FP26mizchi3svg27resolve__paint__for__render(node.fill, node_color, resources);
+        switch (_bind$2.$tag) {
           case 1: {
-            const _SolidColor = _bind;
+            const _SolidColor = _bind$2;
             const _color = _SolidColor._0;
             color = _color;
             break _L$2;
           }
           case 4: {
-            const _Pattern = _bind;
+            const _Pattern = _bind$2;
             const _pattern = _Pattern._0;
             pattern = _pattern;
             break _L;
@@ -22450,24 +22476,23 @@ function _M0FP26mizchi3svg12render__path(commands, node, transform, ctx, node_co
       if (node.fill_opacity > 0) {
         const fill_color = _M0FP26mizchi3svg14apply__opacity(color, node.fill_opacity * node.opacity);
         const fill_polylines = [];
-        const _arr$2 = transformed_polylines;
-        const _len$2 = _arr$2.length;
+        const _bind$2 = transformed_polylines.length;
         let _tmp$2 = 0;
         while (true) {
-          const _i = _tmp$2;
-          if (_i < _len$2) {
+          const _ = _tmp$2;
+          if (_ < _bind$2) {
+            const polyline = transformed_polylines[_];
             _L$3: {
-              const polyline = _arr$2[_i];
               if (polyline.length >= 3) {
                 const area = _M0FP26mizchi3svg18polygon__area__int(polyline);
                 if (area === 0) {
                   break _L$3;
                 }
-                _M0MP311moonbitlang4core5array5Array4pushGRP311moonbitlang4core7builtin5ArrayGUiiEEE(fill_polylines, polyline);
+                _M0MPC15array5Array4pushGRPB5ArrayGUiiEEE(fill_polylines, polyline);
               }
               break _L$3;
             }
-            _tmp$2 = _i + 1 | 0;
+            _tmp$2 = _ + 1 | 0;
             continue;
           } else {
             break;
@@ -22494,27 +22519,26 @@ function _M0FP26mizchi3svg12render__path(commands, node, transform, ctx, node_co
     let sx;
     let sy;
     _L: {
-      const _bind = _M0MP26mizchi3svg9Transform10get__scale(transform);
-      const _sx = _bind._0;
-      const _sy = _bind._1;
+      const _bind$2 = _M0MP26mizchi3svg9Transform10get__scale(transform);
+      const _sx = _bind$2._0;
+      const _sy = _bind$2._1;
       sx = _sx;
       sy = _sy;
       break _L;
     }
     const stroke_px = node.stroke.width > 0 ? _M0FP26mizchi3svg13ceil__to__int(node.stroke.width * (sx + sy) / 2) : 0;
-    const _arr$2 = transformed_polylines;
-    const _len$2 = _arr$2.length;
+    const _bind$2 = transformed_polylines.length;
     let _tmp$2 = 0;
     while (true) {
-      const _i = _tmp$2;
-      if (_i < _len$2) {
-        const polyline = _arr$2[_i];
+      const _ = _tmp$2;
+      if (_ < _bind$2) {
+        const polyline = transformed_polylines[_];
         let color;
         _L$2: {
           _L$3: {
-            const _bind = _M0FP26mizchi3svg27resolve__paint__for__render(node.stroke.paint, node_color, resources);
-            if (_bind.$tag === 1) {
-              const _SolidColor = _bind;
+            const _bind$3 = _M0FP26mizchi3svg27resolve__paint__for__render(node.stroke.paint, node_color, resources);
+            if (_bind$3.$tag === 1) {
+              const _SolidColor = _bind$3;
               const _color = _SolidColor._0;
               color = _color;
               break _L$3;
@@ -22533,9 +22557,9 @@ function _M0FP26mizchi3svg12render__path(commands, node, transform, ctx, node_co
                   let x1;
                   let y1;
                   _L$4: {
-                    const _bind = _M0MP311moonbitlang4core5array5Array2atGUiiEE(polyline, i);
-                    const _x1 = _bind._0;
-                    const _y1 = _bind._1;
+                    const _bind$3 = _M0MPC15array5Array2atGRP26mizchi22kagura__effect__studio11EffectTrackE(polyline, i);
+                    const _x1 = _bind$3._0;
+                    const _y1 = _bind$3._1;
                     x1 = _x1;
                     y1 = _y1;
                     break _L$4;
@@ -22543,9 +22567,9 @@ function _M0FP26mizchi3svg12render__path(commands, node, transform, ctx, node_co
                   let x2;
                   let y2;
                   _L$5: {
-                    const _bind = _M0MP311moonbitlang4core5array5Array2atGUiiEE(polyline, i + 1 | 0);
-                    const _x2 = _bind._0;
-                    const _y2 = _bind._1;
+                    const _bind$3 = _M0MPC15array5Array2atGRP26mizchi22kagura__effect__studio11EffectTrackE(polyline, i + 1 | 0);
+                    const _x2 = _bind$3._0;
+                    const _y2 = _bind$3._1;
                     x2 = _x2;
                     y2 = _y2;
                     break _L$5;
@@ -22562,7 +22586,7 @@ function _M0FP26mizchi3svg12render__path(commands, node, transform, ctx, node_co
             }
           }
         }
-        _tmp$2 = _i + 1 | 0;
+        _tmp$2 = _ + 1 | 0;
         continue;
       } else {
         return;
@@ -22604,11 +22628,11 @@ function _M0FP26mizchi3svg36render__markers__for__path__commands(commands, node,
   const use_transformed = Math.abs(sx - sy) > eps || Math.abs(skew) > eps;
   const inv = _M0MP26mizchi3svg9Transform7inverse(transform);
   const to_local_angle = (angle) => {
-    const dx = _M0FP311moonbitlang4core4math3cos(angle);
-    const dy = _M0FP311moonbitlang4core4math3sin(angle);
+    const dx = _M0FPC14math3cos(angle);
+    const dy = _M0FPC14math3sin(angle);
     const lx = inv.a * dx + inv.c * dy;
     const ly = inv.b * dx + inv.d * dy;
-    return _M0FP311moonbitlang4core4math5atan2(ly, lx);
+    return _M0FPC14math5atan2(ly, lx);
   };
   const apply_vec = (dx, dy, t, use_t) => use_t ? { _0: t.a * dx + t.c * dy, _1: t.b * dx + t.d * dy } : { _0: dx, _1: dy };
   const normalize = (dx, dy, eps$2) => {
@@ -22626,7 +22650,7 @@ function _M0FP26mizchi3svg36render__markers__for__path__commands(commands, node,
       vy = _vy;
       break _L$2;
     }
-    const ang = _M0FP311moonbitlang4core4math5atan2(vy, vx);
+    const ang = _M0FPC14math5atan2(vy, vx);
     return use_t ? to_local_angle(ang) : ang;
   };
   const angle_mid_vec = (in_dx, in_dy, out_dx, out_dy, eps$2) => {
@@ -22660,37 +22684,37 @@ function _M0FP26mizchi3svg36render__markers__for__path__commands(commands, node,
       return 0;
     } else {
       if (l1 < eps$2) {
-        return _M0FP311moonbitlang4core4math5atan2(out_dy, out_dx);
+        return _M0FPC14math5atan2(out_dy, out_dx);
       } else {
         if (l2 < eps$2) {
-          return _M0FP311moonbitlang4core4math5atan2(in_dy, in_dx);
+          return _M0FPC14math5atan2(in_dy, in_dx);
         } else {
           const sx$2 = ux1 + ux2;
           const sy$2 = uy1 + uy2;
-          return sx$2 * sx$2 + sy$2 * sy$2 < eps$2 * eps$2 ? _M0FP311moonbitlang4core4math5atan2(out_dx, -out_dy) : _M0FP311moonbitlang4core4math5atan2(sy$2, sx$2);
+          return sx$2 * sx$2 + sy$2 * sy$2 < eps$2 * eps$2 ? _M0FPC14math5atan2(out_dx, -out_dy) : _M0FPC14math5atan2(sy$2, sx$2);
         }
       }
     }
   };
   const sub_last = subpaths.length - 1 | 0;
-  const _start2231 = 0;
-  const _end2232 = subpaths.length;
-  let _tmp = _start2231;
+  const _bind$2 = 0;
+  const _bind$3 = subpaths.length;
+  let _tmp = _bind$2;
   while (true) {
     const sub_idx = _tmp;
-    if (sub_idx < _end2232) {
+    if (sub_idx < _bind$3) {
       _L$2: {
-        const sub = _M0MP311moonbitlang4core5array5Array2atGRP26mizchi3svg13MarkerSubpathE(subpaths, sub_idx);
+        const sub = _M0MPC15array5Array2atGRP26mizchi22kagura__effect__studio11EffectTrackE(subpaths, sub_idx);
         if (sub.points.length < 2) {
           break _L$2;
         }
         const last = sub.points.length - 1 | 0;
-        const _start2238 = 0;
-        const _end2239 = sub.points.length;
-        let _tmp$2 = _start2238;
+        const _bind$4 = 0;
+        const _bind$5 = sub.points.length;
+        let _tmp$2 = _bind$4;
         while (true) {
           const i = _tmp$2;
-          if (i < _end2239) {
+          if (i < _bind$5) {
             const marker_id = sub_idx === 0 && i === 0 ? node.marker_start : sub_idx === sub_last && i === last ? node.marker_end : node.marker_mid;
             let id;
             _L$3: {
@@ -22707,26 +22731,26 @@ function _M0FP26mizchi3svg36render__markers__for__path__commands(commands, node,
               let marker;
               _L$5: {
                 _L$6: {
-                  const _bind$2 = _M0MP26mizchi3svg14MarkerRegistry3get(resources.markers, id);
-                  if (_bind$2 === undefined) {
+                  const _bind$6 = _M0MP26mizchi3svg14MarkerRegistry3get(resources.markers, id);
+                  if (_bind$6 === undefined) {
                   } else {
-                    const _Some = _bind$2;
+                    const _Some = _bind$6;
                     const _marker = _Some;
                     marker = _marker;
                     break _L$6;
                   }
                   break _L$5;
                 }
-                const p = _M0MP311moonbitlang4core5array5Array2atGRP26mizchi3svg11MarkerPointE(sub.points, i);
+                const p = _M0MPC15array5Array2atGRP26mizchi22kagura__effect__studio11EffectTrackE(sub.points, i);
                 let angle;
                 if (i === 0) {
                   if (p.has_in && p.has_out) {
                     let in_dx;
                     let in_dy;
                     _L$7: {
-                      const _bind$2 = apply_vec(p.in_dx, p.in_dy, transform, use_transformed);
-                      const _in_dx = _bind$2._0;
-                      const _in_dy = _bind$2._1;
+                      const _bind$6 = apply_vec(p.in_dx, p.in_dy, transform, use_transformed);
+                      const _in_dx = _bind$6._0;
+                      const _in_dy = _bind$6._1;
                       in_dx = _in_dx;
                       in_dy = _in_dy;
                       break _L$7;
@@ -22734,9 +22758,9 @@ function _M0FP26mizchi3svg36render__markers__for__path__commands(commands, node,
                     let out_dx;
                     let out_dy;
                     _L$8: {
-                      const _bind$2 = apply_vec(p.out_dx, p.out_dy, transform, use_transformed);
-                      const _out_dx = _bind$2._0;
-                      const _out_dy = _bind$2._1;
+                      const _bind$6 = apply_vec(p.out_dx, p.out_dy, transform, use_transformed);
+                      const _out_dx = _bind$6._0;
+                      const _out_dy = _bind$6._1;
                       out_dx = _out_dx;
                       out_dy = _out_dy;
                       break _L$8;
@@ -22754,9 +22778,9 @@ function _M0FP26mizchi3svg36render__markers__for__path__commands(commands, node,
                       let in_dx;
                       let in_dy;
                       _L$7: {
-                        const _bind$2 = apply_vec(p.in_dx, p.in_dy, transform, use_transformed);
-                        const _in_dx = _bind$2._0;
-                        const _in_dy = _bind$2._1;
+                        const _bind$6 = apply_vec(p.in_dx, p.in_dy, transform, use_transformed);
+                        const _in_dx = _bind$6._0;
+                        const _in_dy = _bind$6._1;
                         in_dx = _in_dx;
                         in_dy = _in_dy;
                         break _L$7;
@@ -22764,9 +22788,9 @@ function _M0FP26mizchi3svg36render__markers__for__path__commands(commands, node,
                       let out_dx;
                       let out_dy;
                       _L$8: {
-                        const _bind$2 = apply_vec(p.out_dx, p.out_dy, transform, use_transformed);
-                        const _out_dx = _bind$2._0;
-                        const _out_dy = _bind$2._1;
+                        const _bind$6 = apply_vec(p.out_dx, p.out_dy, transform, use_transformed);
+                        const _out_dx = _bind$6._0;
+                        const _out_dy = _bind$6._1;
                         out_dx = _out_dx;
                         out_dy = _out_dy;
                         break _L$8;
@@ -22800,7 +22824,7 @@ function _M0FP26mizchi3svg15render__polygon(points, node, transform, ctx, node_c
   if (points.length < 3) {
     return undefined;
   }
-  const transformed = _M0MP311moonbitlang4core5array5Array3mapGUddEUiiEE(points, (p) => {
+  const transformed = _M0MPC15array5Array3mapGUddEUiiEE(points, (p) => {
     let x;
     let y;
     _L: {
@@ -22811,7 +22835,7 @@ function _M0FP26mizchi3svg15render__polygon(points, node, transform, ctx, node_c
       y = _y;
       break _L;
     }
-    return { _0: _M0MP311moonbitlang4core6double6Double7to__int(x), _1: _M0MP311moonbitlang4core6double6Double7to__int(y) };
+    return { _0: _M0MPC16double6Double7to__int(x), _1: _M0MPC16double6Double7to__int(y) };
   });
   let sx;
   let sy;
@@ -22883,12 +22907,11 @@ function _M0FP26mizchi3svg15render__polygon(points, node, transform, ctx, node_c
         return;
       } else {
         const n = transformed.length;
-        const _start1972 = 0;
-        const _end1973 = n;
-        let _tmp = _start1972;
+        const _bind = 0;
+        let _tmp = _bind;
         while (true) {
           const i = _tmp;
-          if (i < _end1973) {
+          if (i < n) {
             if (n === 0) {
               $panic();
             }
@@ -22896,9 +22919,9 @@ function _M0FP26mizchi3svg15render__polygon(points, node, transform, ctx, node_c
             let x1;
             let y1;
             _L$3: {
-              const _bind = _M0MP311moonbitlang4core5array5Array2atGUiiEE(transformed, i);
-              const _x1 = _bind._0;
-              const _y1 = _bind._1;
+              const _bind$2 = _M0MPC15array5Array2atGRP26mizchi22kagura__effect__studio11EffectTrackE(transformed, i);
+              const _x1 = _bind$2._0;
+              const _y1 = _bind$2._1;
               x1 = _x1;
               y1 = _y1;
               break _L$3;
@@ -22906,9 +22929,9 @@ function _M0FP26mizchi3svg15render__polygon(points, node, transform, ctx, node_c
             let x2;
             let y2;
             _L$4: {
-              const _bind = _M0MP311moonbitlang4core5array5Array2atGUiiEE(transformed, j);
-              const _x2 = _bind._0;
-              const _y2 = _bind._1;
+              const _bind$2 = _M0MPC15array5Array2atGRP26mizchi22kagura__effect__studio11EffectTrackE(transformed, j);
+              const _x2 = _bind$2._0;
+              const _y2 = _bind$2._1;
               x2 = _x2;
               y2 = _y2;
               break _L$4;
@@ -22946,15 +22969,15 @@ function _M0FP26mizchi3svg31render__markers__for__polylines(polylines, node, tra
   if (polylines.length === 0) {
     return undefined;
   }
-  const first_idx = { val: -1 };
-  const last_idx = { val: -1 };
-  const _start2517 = 0;
-  const _end2518 = polylines.length;
-  let _tmp = _start2517;
+  const first_idx = new _M0TPC13ref3RefGiE(-1);
+  const last_idx = new _M0TPC13ref3RefGiE(-1);
+  const _bind$2 = 0;
+  const _bind$3 = polylines.length;
+  let _tmp = _bind$2;
   while (true) {
     const i = _tmp;
-    if (i < _end2518) {
-      if (_M0MP311moonbitlang4core5array5Array2atGRP311moonbitlang4core7builtin5ArrayGUddEEE(polylines, i).length >= 2) {
+    if (i < _bind$3) {
+      if (_M0MPC15array5Array2atGRPB5ArrayGUddEEE(polylines, i).length >= 2) {
         if (first_idx.val < 0) {
           first_idx.val = i;
         }
@@ -22973,9 +22996,9 @@ function _M0FP26mizchi3svg31render__markers__for__polylines(polylines, node, tra
   let sx;
   let sy;
   _L: {
-    const _bind$2 = _M0MP26mizchi3svg9Transform10get__scale(transform);
-    const _sx = _bind$2._0;
-    const _sy = _bind$2._1;
+    const _bind$4 = _M0MP26mizchi3svg9Transform10get__scale(transform);
+    const _sx = _bind$4._0;
+    const _sy = _bind$4._1;
     sx = _sx;
     sy = _sy;
     break _L;
@@ -22987,9 +23010,9 @@ function _M0FP26mizchi3svg31render__markers__for__polylines(polylines, node, tra
     if (use_transformed) {
       const lx = inv.a * dx + inv.c * dy;
       const ly = inv.b * dx + inv.d * dy;
-      return _M0FP311moonbitlang4core4math5atan2(ly, lx);
+      return _M0FPC14math5atan2(ly, lx);
     } else {
-      return _M0FP311moonbitlang4core4math5atan2(dy, dx);
+      return _M0FPC14math5atan2(dy, dx);
     }
   };
   const normalize = (dx, dy) => {
@@ -23000,18 +23023,18 @@ function _M0FP26mizchi3svg31render__markers__for__polylines(polylines, node, tra
     if (points.length < 2) {
       return 0;
     }
-    const _start2541 = 1;
-    const _end2542 = points.length;
-    let _tmp$2 = _start2541;
+    const _bind$4 = 1;
+    const _bind$5 = points.length;
+    let _tmp$2 = _bind$4;
     while (true) {
       const i = _tmp$2;
-      if (i < _end2542) {
-        const dx = _M0MP311moonbitlang4core5array5Array2atGUddEE(points, i)._0 - _M0MP311moonbitlang4core5array5Array2atGUddEE(points, 0)._0;
-        const dy = _M0MP311moonbitlang4core5array5Array2atGUddEE(points, i)._1 - _M0MP311moonbitlang4core5array5Array2atGUddEE(points, 0)._1;
+      if (i < _bind$5) {
+        const dx = _M0MPC15array5Array2atGRP26mizchi22kagura__effect__studio11EffectTrackE(points, i)._0 - _M0MPC15array5Array2atGRP26mizchi22kagura__effect__studio11EffectTrackE(points, 0)._0;
+        const dy = _M0MPC15array5Array2atGRP26mizchi22kagura__effect__studio11EffectTrackE(points, i)._1 - _M0MPC15array5Array2atGRP26mizchi22kagura__effect__studio11EffectTrackE(points, 0)._1;
         let l;
         _L$2: {
-          const _bind$2 = normalize(dx, dy);
-          const _l = _bind$2._2;
+          const _bind$6 = normalize(dx, dy);
+          const _l = _bind$6._2;
           l = _l;
           break _L$2;
         }
@@ -23034,12 +23057,12 @@ function _M0FP26mizchi3svg31render__markers__for__polylines(polylines, node, tra
     while (true) {
       const i = _tmp$2;
       if (i > 0) {
-        const dx = _M0MP311moonbitlang4core5array5Array2atGUddEE(points, i)._0 - _M0MP311moonbitlang4core5array5Array2atGUddEE(points, i - 1 | 0)._0;
-        const dy = _M0MP311moonbitlang4core5array5Array2atGUddEE(points, i)._1 - _M0MP311moonbitlang4core5array5Array2atGUddEE(points, i - 1 | 0)._1;
+        const dx = _M0MPC15array5Array2atGRP26mizchi22kagura__effect__studio11EffectTrackE(points, i)._0 - _M0MPC15array5Array2atGRP26mizchi22kagura__effect__studio11EffectTrackE(points, i - 1 | 0)._0;
+        const dy = _M0MPC15array5Array2atGRP26mizchi22kagura__effect__studio11EffectTrackE(points, i)._1 - _M0MPC15array5Array2atGRP26mizchi22kagura__effect__studio11EffectTrackE(points, i - 1 | 0)._1;
         let l;
         _L$2: {
-          const _bind$2 = normalize(dx, dy);
-          const _l = _bind$2._2;
+          const _bind$4 = normalize(dx, dy);
+          const _l = _bind$4._2;
           l = _l;
           break _L$2;
         }
@@ -23060,18 +23083,17 @@ function _M0FP26mizchi3svg31render__markers__for__polylines(polylines, node, tra
       return 0;
     }
     if (!closed && index === 0) {
-      const _start2559 = 1;
-      const _end2560 = len;
-      let _tmp$2 = _start2559;
+      const _bind$4 = 1;
+      let _tmp$2 = _bind$4;
       while (true) {
         const i = _tmp$2;
-        if (i < _end2560) {
-          const dx = _M0MP311moonbitlang4core5array5Array2atGUddEE(points, i)._0 - _M0MP311moonbitlang4core5array5Array2atGUddEE(points, 0)._0;
-          const dy = _M0MP311moonbitlang4core5array5Array2atGUddEE(points, i)._1 - _M0MP311moonbitlang4core5array5Array2atGUddEE(points, 0)._1;
+        if (i < len) {
+          const dx = _M0MPC15array5Array2atGRP26mizchi22kagura__effect__studio11EffectTrackE(points, i)._0 - _M0MPC15array5Array2atGRP26mizchi22kagura__effect__studio11EffectTrackE(points, 0)._0;
+          const dy = _M0MPC15array5Array2atGRP26mizchi22kagura__effect__studio11EffectTrackE(points, i)._1 - _M0MPC15array5Array2atGRP26mizchi22kagura__effect__studio11EffectTrackE(points, 0)._1;
           let l;
           _L$2: {
-            const _bind$2 = normalize(dx, dy);
-            const _l = _bind$2._2;
+            const _bind$5 = normalize(dx, dy);
+            const _l = _bind$5._2;
             l = _l;
             break _L$2;
           }
@@ -23091,12 +23113,12 @@ function _M0FP26mizchi3svg31render__markers__for__polylines(polylines, node, tra
       while (true) {
         const i = _tmp$2;
         if (i > 0) {
-          const dx = _M0MP311moonbitlang4core5array5Array2atGUddEE(points, i)._0 - _M0MP311moonbitlang4core5array5Array2atGUddEE(points, i - 1 | 0)._0;
-          const dy = _M0MP311moonbitlang4core5array5Array2atGUddEE(points, i)._1 - _M0MP311moonbitlang4core5array5Array2atGUddEE(points, i - 1 | 0)._1;
+          const dx = _M0MPC15array5Array2atGRP26mizchi22kagura__effect__studio11EffectTrackE(points, i)._0 - _M0MPC15array5Array2atGRP26mizchi22kagura__effect__studio11EffectTrackE(points, i - 1 | 0)._0;
+          const dy = _M0MPC15array5Array2atGRP26mizchi22kagura__effect__studio11EffectTrackE(points, i)._1 - _M0MPC15array5Array2atGRP26mizchi22kagura__effect__studio11EffectTrackE(points, i - 1 | 0)._1;
           let l;
           _L$2: {
-            const _bind$2 = normalize(dx, dy);
-            const _l = _bind$2._2;
+            const _bind$4 = normalize(dx, dy);
+            const _l = _bind$4._2;
             l = _l;
             break _L$2;
           }
@@ -23113,18 +23135,18 @@ function _M0FP26mizchi3svg31render__markers__for__polylines(polylines, node, tra
     }
     const prev = has_duplicate && closed ? (index === 0 || index === (len - 1 | 0) ? (len > 1 ? len - 2 | 0 : 0) : index - 1 | 0) : index === 0 ? len - 1 | 0 : index - 1 | 0;
     const next = has_duplicate && closed ? (index === (len - 1 | 0) ? (len > 1 ? 1 : 0) : (index + 1 | 0) === len ? 0 : index + 1 | 0) : (index + 1 | 0) === len ? 0 : index + 1 | 0;
-    const dx1 = _M0MP311moonbitlang4core5array5Array2atGUddEE(points, index)._0 - _M0MP311moonbitlang4core5array5Array2atGUddEE(points, prev)._0;
-    const dy1 = _M0MP311moonbitlang4core5array5Array2atGUddEE(points, index)._1 - _M0MP311moonbitlang4core5array5Array2atGUddEE(points, prev)._1;
-    const dx2 = _M0MP311moonbitlang4core5array5Array2atGUddEE(points, next)._0 - _M0MP311moonbitlang4core5array5Array2atGUddEE(points, index)._0;
-    const dy2 = _M0MP311moonbitlang4core5array5Array2atGUddEE(points, next)._1 - _M0MP311moonbitlang4core5array5Array2atGUddEE(points, index)._1;
+    const dx1 = _M0MPC15array5Array2atGRP26mizchi22kagura__effect__studio11EffectTrackE(points, index)._0 - _M0MPC15array5Array2atGRP26mizchi22kagura__effect__studio11EffectTrackE(points, prev)._0;
+    const dy1 = _M0MPC15array5Array2atGRP26mizchi22kagura__effect__studio11EffectTrackE(points, index)._1 - _M0MPC15array5Array2atGRP26mizchi22kagura__effect__studio11EffectTrackE(points, prev)._1;
+    const dx2 = _M0MPC15array5Array2atGRP26mizchi22kagura__effect__studio11EffectTrackE(points, next)._0 - _M0MPC15array5Array2atGRP26mizchi22kagura__effect__studio11EffectTrackE(points, index)._0;
+    const dy2 = _M0MPC15array5Array2atGRP26mizchi22kagura__effect__studio11EffectTrackE(points, next)._1 - _M0MPC15array5Array2atGRP26mizchi22kagura__effect__studio11EffectTrackE(points, index)._1;
     let uy1;
     let ux1;
     let l1;
     _L$2: {
-      const _bind$2 = normalize(dx1, dy1);
-      const _ux1 = _bind$2._0;
-      const _uy1 = _bind$2._1;
-      const _l1 = _bind$2._2;
+      const _bind$4 = normalize(dx1, dy1);
+      const _ux1 = _bind$4._0;
+      const _uy1 = _bind$4._1;
+      const _l1 = _bind$4._2;
       uy1 = _uy1;
       ux1 = _ux1;
       l1 = _l1;
@@ -23134,10 +23156,10 @@ function _M0FP26mizchi3svg31render__markers__for__polylines(polylines, node, tra
     let ux2;
     let l2;
     _L$3: {
-      const _bind$2 = normalize(dx2, dy2);
-      const _ux2 = _bind$2._0;
-      const _uy2 = _bind$2._1;
-      const _l2 = _bind$2._2;
+      const _bind$4 = normalize(dx2, dy2);
+      const _ux2 = _bind$4._0;
+      const _uy2 = _bind$4._1;
+      const _l2 = _bind$4._2;
       uy2 = _uy2;
       ux2 = _ux2;
       l2 = _l2;
@@ -23156,27 +23178,27 @@ function _M0FP26mizchi3svg31render__markers__for__polylines(polylines, node, tra
     const sy$2 = uy1 + uy2;
     return sx$2 * sx$2 + sy$2 * sy$2 < eps * eps ? angle_from(dx2, dy2) : angle_from(sx$2, sy$2);
   };
-  const _start2585 = 0;
-  const _end2586 = polylines.length;
-  let _tmp$2 = _start2585;
+  const _bind$4 = 0;
+  const _bind$5 = polylines.length;
+  let _tmp$2 = _bind$4;
   while (true) {
     const poly_idx = _tmp$2;
-    if (poly_idx < _end2586) {
+    if (poly_idx < _bind$5) {
       _L$2: {
-        const points = _M0MP311moonbitlang4core5array5Array2atGRP311moonbitlang4core7builtin5ArrayGUddEEE(polylines, poly_idx);
+        const points = _M0MPC15array5Array2atGRPB5ArrayGUddEEE(polylines, poly_idx);
         if (points.length < 2) {
           break _L$2;
         }
-        const angle_points = use_transformed ? _M0MP311moonbitlang4core5array5Array3mapGUddEUddEE(points, (p) => _M0MP26mizchi3svg9Transform5apply(transform, p._0, p._1)) : points;
+        const angle_points = use_transformed ? _M0MPC15array5Array3mapGUddEUddEE(points, (p) => _M0MP26mizchi3svg9Transform5apply(transform, p._0, p._1)) : points;
         const closed = _M0FP26mizchi3svg28is__closed__polyline__double(points);
         const has_duplicate = closed;
         const last = points.length - 1 | 0;
-        const _start2596 = 0;
-        const _end2597 = points.length;
-        let _tmp$3 = _start2596;
+        const _bind$6 = 0;
+        const _bind$7 = points.length;
+        let _tmp$3 = _bind$6;
         while (true) {
           const i = _tmp$3;
-          if (i < _end2597) {
+          if (i < _bind$7) {
             const marker_id = poly_idx === first_idx.val && i === 0 ? node.marker_start : poly_idx === last_idx.val && i === last ? node.marker_end : node.marker_mid;
             let id;
             _L$3: {
@@ -23193,10 +23215,10 @@ function _M0FP26mizchi3svg31render__markers__for__polylines(polylines, node, tra
               let marker;
               _L$5: {
                 _L$6: {
-                  const _bind$2 = _M0MP26mizchi3svg14MarkerRegistry3get(resources.markers, id);
-                  if (_bind$2 === undefined) {
+                  const _bind$8 = _M0MP26mizchi3svg14MarkerRegistry3get(resources.markers, id);
+                  if (_bind$8 === undefined) {
                   } else {
-                    const _Some = _bind$2;
+                    const _Some = _bind$8;
                     const _marker = _Some;
                     marker = _marker;
                     break _L$6;
@@ -23206,9 +23228,9 @@ function _M0FP26mizchi3svg31render__markers__for__polylines(polylines, node, tra
                 let x;
                 let y;
                 _L$7: {
-                  const _bind$2 = _M0MP311moonbitlang4core5array5Array2atGUddEE(points, i);
-                  const _x = _bind$2._0;
-                  const _y = _bind$2._1;
+                  const _bind$8 = _M0MPC15array5Array2atGRP26mizchi22kagura__effect__studio11EffectTrackE(points, i);
+                  const _x = _bind$8._0;
+                  const _y = _bind$8._1;
                   x = _x;
                   y = _y;
                   break _L$7;
@@ -23236,7 +23258,7 @@ function _M0FP26mizchi3svg16render__polyline(points, node, transform, ctx, resou
   if (points.length < 2) {
     return undefined;
   }
-  const transformed = _M0MP311moonbitlang4core5array5Array3mapGUddEUiiEE(points, (p) => {
+  const transformed = _M0MPC15array5Array3mapGUddEUiiEE(points, (p) => {
     let x;
     let y;
     _L: {
@@ -23247,7 +23269,7 @@ function _M0FP26mizchi3svg16render__polyline(points, node, transform, ctx, resou
       y = _y;
       break _L;
     }
-    return { _0: _M0MP311moonbitlang4core6double6Double7to__int(x), _1: _M0MP311moonbitlang4core6double6Double7to__int(y) };
+    return { _0: _M0MPC16double6Double7to__int(x), _1: _M0MPC16double6Double7to__int(y) };
   });
   let sx;
   let sy;
@@ -23299,7 +23321,7 @@ function _M0FP26mizchi3svg16render__polyline(points, node, transform, ctx, resou
             let x1;
             let y1;
             _L$3: {
-              const _bind = _M0MP311moonbitlang4core5array5Array2atGUiiEE(transformed, i);
+              const _bind = _M0MPC15array5Array2atGRP26mizchi22kagura__effect__studio11EffectTrackE(transformed, i);
               const _x1 = _bind._0;
               const _y1 = _bind._1;
               x1 = _x1;
@@ -23309,7 +23331,7 @@ function _M0FP26mizchi3svg16render__polyline(points, node, transform, ctx, resou
             let x2;
             let y2;
             _L$4: {
-              const _bind = _M0MP311moonbitlang4core5array5Array2atGUiiEE(transformed, i + 1 | 0);
+              const _bind = _M0MPC15array5Array2atGRP26mizchi22kagura__effect__studio11EffectTrackE(transformed, i + 1 | 0);
               const _x2 = _bind._0;
               const _y2 = _bind._1;
               x2 = _x2;
@@ -23338,15 +23360,15 @@ function _M0FP26mizchi3svg16render__polyline(points, node, transform, ctx, resou
 }
 function _M0FP26mizchi3svg32render__svg__document__to__image(doc, width, height) {
   const image = _M0MP26mizchi3svg5Image3new(width, height);
-  const setter = { set: (x, y, color) => {
+  const setter = new _M0TP26mizchi3svg11PixelSetter((x, y, color) => {
     _M0MP26mizchi3svg5Image10set__pixel(image, x, y, color);
-  } };
+  });
   const ctx = _M0MP26mizchi3svg13RenderContext3new(setter, width, height);
   _M0MP26mizchi3svg11SVGDocument6render(doc, ctx);
   return image;
 }
 function _M0FP26mizchi3svg22render__svg__to__image(svg_str, width, height) {
-  return _M0MP311moonbitlang4core6option6Option3mapGRP26mizchi3svg11SVGDocumentRP26mizchi3svg5ImageE(_M0FP26mizchi3svg20parse__svg__document(svg_str), (doc) => _M0FP26mizchi3svg32render__svg__document__to__image(doc, width, height));
+  return _M0MPC16option6Option3mapGRP26mizchi3svg11SVGDocumentRP26mizchi3svg5ImageE(_M0FP26mizchi3svg20parse__svg__document(svg_str), (doc) => _M0FP26mizchi3svg32render__svg__document__to__image(doc, width, height));
 }
 function _M0MP26mizchi4font12BinaryReader11read__uint8(self) {
   const _tmp = self.data;
@@ -23369,7 +23391,7 @@ function _M0MP26mizchi4font12BinaryReader12read__uint16(self) {
   return b0 << 8 | b1;
 }
 function _M0MP26mizchi4font12BinaryReader2at(data, pos) {
-  return { data: data, pos: pos };
+  return new _M0TP26mizchi4font12BinaryReader(data, pos);
 }
 function _M0MP26mizchi4font12BinaryReader8position(self) {
   return self.pos;
@@ -23393,12 +23415,12 @@ function _M0MP26mizchi4font8CFFIndex5count(self) {
   return self.offsets.length <= 1 ? 0 : self.offsets.length - 1 | 0;
 }
 function _M0MP26mizchi4font8CFFIndex5entry(self, i) {
-  const start = self.data_offset + _M0MP311moonbitlang4core5array5Array2atGiE(self.offsets, i) | 0;
-  const len = _M0MP311moonbitlang4core5array5Array2atGiE(self.offsets, i + 1 | 0) - _M0MP311moonbitlang4core5array5Array2atGiE(self.offsets, i) | 0;
+  const start = self.data_offset + _M0MPC15array5Array2atGiE(self.offsets, i) | 0;
+  const len = _M0MPC15array5Array2atGiE(self.offsets, i + 1 | 0) - _M0MPC15array5Array2atGiE(self.offsets, i) | 0;
   return { _0: start, _1: len };
 }
 function _M0MP26mizchi4font6TTFont12glyph__index(self, codepoint) {
-  return _M0MP311moonbitlang4core6option6Option10unwrap__orGiE(_M0MP311moonbitlang4core7builtin3Map3getGiiE(self.cmap, codepoint), 0);
+  return _M0MPC16option6Option10unwrap__orGiE(_M0MPB3Map3getGiiE(self.cmap, codepoint), 0);
 }
 function _M0FP26mizchi4font16calc__subr__bias(count) {
   return count < 1240 ? 107 : count < 33900 ? 1131 : 32768;
@@ -23406,7 +23428,7 @@ function _M0FP26mizchi4font16calc__subr__bias(count) {
 function _M0FP26mizchi4font12check__width(stack, state, expected) {
   if (!state.has_width) {
     if (!state.is_cff2 && stack.length > expected) {
-      _M0MP311moonbitlang4core5array5Array6removeGdE(stack, 0);
+      _M0MPC15array5Array6removeGdE(stack, 0);
     }
     state.has_width = true;
     return;
@@ -23417,63 +23439,63 @@ function _M0FP26mizchi4font12check__width(stack, state, expected) {
 function _M0FP26mizchi4font18exec__operator__12(b1, commands, stack, state) {
   switch (b1) {
     case 3: {
-      const b = _M0MP311moonbitlang4core5array5Array11unsafe__popGdE(stack);
-      const a = _M0MP311moonbitlang4core5array5Array11unsafe__popGdE(stack);
-      _M0MP311moonbitlang4core5array5Array4pushGdE(stack, a !== 0 && b !== 0 ? 1 : 0);
+      const b = _M0MPC15array5Array11unsafe__popGdE(stack);
+      const a = _M0MPC15array5Array11unsafe__popGdE(stack);
+      _M0MPC15array5Array4pushGdE(stack, a !== 0 && b !== 0 ? 1 : 0);
       return;
     }
     case 4: {
-      const b$2 = _M0MP311moonbitlang4core5array5Array11unsafe__popGdE(stack);
-      const a$2 = _M0MP311moonbitlang4core5array5Array11unsafe__popGdE(stack);
-      _M0MP311moonbitlang4core5array5Array4pushGdE(stack, a$2 !== 0 || b$2 !== 0 ? 1 : 0);
+      const b$2 = _M0MPC15array5Array11unsafe__popGdE(stack);
+      const a$2 = _M0MPC15array5Array11unsafe__popGdE(stack);
+      _M0MPC15array5Array4pushGdE(stack, a$2 !== 0 || b$2 !== 0 ? 1 : 0);
       return;
     }
     case 5: {
-      const a$3 = _M0MP311moonbitlang4core5array5Array11unsafe__popGdE(stack);
-      _M0MP311moonbitlang4core5array5Array4pushGdE(stack, a$3 === 0 ? 1 : 0);
+      const a$3 = _M0MPC15array5Array11unsafe__popGdE(stack);
+      _M0MPC15array5Array4pushGdE(stack, a$3 === 0 ? 1 : 0);
       return;
     }
     case 9: {
-      const a$4 = _M0MP311moonbitlang4core5array5Array11unsafe__popGdE(stack);
-      _M0MP311moonbitlang4core5array5Array4pushGdE(stack, Math.abs(a$4));
+      const a$4 = _M0MPC15array5Array11unsafe__popGdE(stack);
+      _M0MPC15array5Array4pushGdE(stack, Math.abs(a$4));
       return;
     }
     case 10: {
-      const b$3 = _M0MP311moonbitlang4core5array5Array11unsafe__popGdE(stack);
-      const a$5 = _M0MP311moonbitlang4core5array5Array11unsafe__popGdE(stack);
-      _M0MP311moonbitlang4core5array5Array4pushGdE(stack, a$5 + b$3);
+      const b$3 = _M0MPC15array5Array11unsafe__popGdE(stack);
+      const a$5 = _M0MPC15array5Array11unsafe__popGdE(stack);
+      _M0MPC15array5Array4pushGdE(stack, a$5 + b$3);
       return;
     }
     case 11: {
-      const b$4 = _M0MP311moonbitlang4core5array5Array11unsafe__popGdE(stack);
-      const a$6 = _M0MP311moonbitlang4core5array5Array11unsafe__popGdE(stack);
-      _M0MP311moonbitlang4core5array5Array4pushGdE(stack, a$6 - b$4);
+      const b$4 = _M0MPC15array5Array11unsafe__popGdE(stack);
+      const a$6 = _M0MPC15array5Array11unsafe__popGdE(stack);
+      _M0MPC15array5Array4pushGdE(stack, a$6 - b$4);
       return;
     }
     case 12: {
-      const b$5 = _M0MP311moonbitlang4core5array5Array11unsafe__popGdE(stack);
-      const a$7 = _M0MP311moonbitlang4core5array5Array11unsafe__popGdE(stack);
-      _M0MP311moonbitlang4core5array5Array4pushGdE(stack, a$7 / b$5);
+      const b$5 = _M0MPC15array5Array11unsafe__popGdE(stack);
+      const a$7 = _M0MPC15array5Array11unsafe__popGdE(stack);
+      _M0MPC15array5Array4pushGdE(stack, a$7 / b$5);
       return;
     }
     case 14: {
-      const a$8 = _M0MP311moonbitlang4core5array5Array11unsafe__popGdE(stack);
-      _M0MP311moonbitlang4core5array5Array4pushGdE(stack, -a$8);
+      const a$8 = _M0MPC15array5Array11unsafe__popGdE(stack);
+      _M0MPC15array5Array4pushGdE(stack, -a$8);
       return;
     }
     case 15: {
-      const b$6 = _M0MP311moonbitlang4core5array5Array11unsafe__popGdE(stack);
-      const a$9 = _M0MP311moonbitlang4core5array5Array11unsafe__popGdE(stack);
-      _M0MP311moonbitlang4core5array5Array4pushGdE(stack, a$9 === b$6 ? 1 : 0);
+      const b$6 = _M0MPC15array5Array11unsafe__popGdE(stack);
+      const a$9 = _M0MPC15array5Array11unsafe__popGdE(stack);
+      _M0MPC15array5Array4pushGdE(stack, a$9 === b$6 ? 1 : 0);
       return;
     }
     case 18: {
-      _M0MP311moonbitlang4core5array5Array11unsafe__popGdE(stack);
+      _M0MPC15array5Array11unsafe__popGdE(stack);
       return;
     }
     case 20: {
-      const i = _M0MP311moonbitlang4core6double6Double7to__int(_M0MP311moonbitlang4core5array5Array11unsafe__popGdE(stack));
-      const val = _M0MP311moonbitlang4core5array5Array11unsafe__popGdE(stack);
+      const i = _M0MPC16double6Double7to__int(_M0MPC15array5Array11unsafe__popGdE(stack));
+      const val = _M0MPC15array5Array11unsafe__popGdE(stack);
       if (i >= 0 && i < state.storage.length) {
         const _tmp = state.storage;
         $bound_check(_tmp, i);
@@ -23484,66 +23506,66 @@ function _M0FP26mizchi4font18exec__operator__12(b1, commands, stack, state) {
       }
     }
     case 21: {
-      const i$2 = _M0MP311moonbitlang4core6double6Double7to__int(_M0MP311moonbitlang4core5array5Array11unsafe__popGdE(stack));
+      const i$2 = _M0MPC16double6Double7to__int(_M0MPC15array5Array11unsafe__popGdE(stack));
       if (i$2 >= 0 && i$2 < state.storage.length) {
         const _tmp = state.storage;
         $bound_check(_tmp, i$2);
-        _M0MP311moonbitlang4core5array5Array4pushGdE(stack, _tmp[i$2]);
+        _M0MPC15array5Array4pushGdE(stack, _tmp[i$2]);
         return;
       } else {
-        _M0MP311moonbitlang4core5array5Array4pushGdE(stack, 0);
+        _M0MPC15array5Array4pushGdE(stack, 0);
         return;
       }
     }
     case 22: {
-      const v2 = _M0MP311moonbitlang4core5array5Array11unsafe__popGdE(stack);
-      const v1 = _M0MP311moonbitlang4core5array5Array11unsafe__popGdE(stack);
-      const s2 = _M0MP311moonbitlang4core5array5Array11unsafe__popGdE(stack);
-      const s1 = _M0MP311moonbitlang4core5array5Array11unsafe__popGdE(stack);
-      _M0MP311moonbitlang4core5array5Array4pushGdE(stack, v1 <= v2 ? s1 : s2);
+      const v2 = _M0MPC15array5Array11unsafe__popGdE(stack);
+      const v1 = _M0MPC15array5Array11unsafe__popGdE(stack);
+      const s2 = _M0MPC15array5Array11unsafe__popGdE(stack);
+      const s1 = _M0MPC15array5Array11unsafe__popGdE(stack);
+      _M0MPC15array5Array4pushGdE(stack, v1 <= v2 ? s1 : s2);
       return;
     }
     case 23: {
-      _M0MP311moonbitlang4core5array5Array4pushGdE(stack, 1);
+      _M0MPC15array5Array4pushGdE(stack, 1);
       return;
     }
     case 24: {
-      const b$7 = _M0MP311moonbitlang4core5array5Array11unsafe__popGdE(stack);
-      const a$10 = _M0MP311moonbitlang4core5array5Array11unsafe__popGdE(stack);
-      _M0MP311moonbitlang4core5array5Array4pushGdE(stack, a$10 * b$7);
+      const b$7 = _M0MPC15array5Array11unsafe__popGdE(stack);
+      const a$10 = _M0MPC15array5Array11unsafe__popGdE(stack);
+      _M0MPC15array5Array4pushGdE(stack, a$10 * b$7);
       return;
     }
     case 26: {
-      const a$11 = _M0MP311moonbitlang4core5array5Array11unsafe__popGdE(stack);
-      _M0MP311moonbitlang4core5array5Array4pushGdE(stack, Math.sqrt(a$11));
+      const a$11 = _M0MPC15array5Array11unsafe__popGdE(stack);
+      _M0MPC15array5Array4pushGdE(stack, Math.sqrt(a$11));
       return;
     }
     case 27: {
-      const a$12 = _M0MP311moonbitlang4core5array5Array11unsafe__popGdE(stack);
-      _M0MP311moonbitlang4core5array5Array4pushGdE(stack, a$12);
-      _M0MP311moonbitlang4core5array5Array4pushGdE(stack, a$12);
+      const a$12 = _M0MPC15array5Array11unsafe__popGdE(stack);
+      _M0MPC15array5Array4pushGdE(stack, a$12);
+      _M0MPC15array5Array4pushGdE(stack, a$12);
       return;
     }
     case 28: {
-      const b$8 = _M0MP311moonbitlang4core5array5Array11unsafe__popGdE(stack);
-      const a$13 = _M0MP311moonbitlang4core5array5Array11unsafe__popGdE(stack);
-      _M0MP311moonbitlang4core5array5Array4pushGdE(stack, b$8);
-      _M0MP311moonbitlang4core5array5Array4pushGdE(stack, a$13);
+      const b$8 = _M0MPC15array5Array11unsafe__popGdE(stack);
+      const a$13 = _M0MPC15array5Array11unsafe__popGdE(stack);
+      _M0MPC15array5Array4pushGdE(stack, b$8);
+      _M0MPC15array5Array4pushGdE(stack, a$13);
       return;
     }
     case 29: {
-      const i$3 = _M0MP311moonbitlang4core6double6Double7to__int(_M0MP311moonbitlang4core5array5Array11unsafe__popGdE(stack));
+      const i$3 = _M0MPC16double6Double7to__int(_M0MPC15array5Array11unsafe__popGdE(stack));
       const idx = i$3 < 0 ? 0 : i$3;
       if (idx < stack.length) {
-        _M0MP311moonbitlang4core5array5Array4pushGdE(stack, _M0MP311moonbitlang4core5array5Array2atGdE(stack, (stack.length - 1 | 0) - idx | 0));
+        _M0MPC15array5Array4pushGdE(stack, _M0MPC15array5Array2atGdE(stack, (stack.length - 1 | 0) - idx | 0));
         return;
       } else {
         return;
       }
     }
     case 30: {
-      const j = _M0MP311moonbitlang4core6double6Double7to__int(_M0MP311moonbitlang4core5array5Array11unsafe__popGdE(stack));
-      const n = _M0MP311moonbitlang4core6double6Double7to__int(_M0MP311moonbitlang4core5array5Array11unsafe__popGdE(stack));
+      const j = _M0MPC16double6Double7to__int(_M0MPC15array5Array11unsafe__popGdE(stack));
+      const n = _M0MPC16double6Double7to__int(_M0MPC15array5Array11unsafe__popGdE(stack));
       if (n > 0 && n <= stack.length) {
         const base = stack.length - n | 0;
         const temp = [];
@@ -23551,7 +23573,7 @@ function _M0FP26mizchi4font18exec__operator__12(b1, commands, stack, state) {
         while (true) {
           const i$4 = _tmp;
           if (i$4 < n) {
-            _M0MP311moonbitlang4core5array5Array4pushGdE(temp, _M0MP311moonbitlang4core5array5Array2atGdE(stack, base + i$4 | 0));
+            _M0MPC15array5Array4pushGdE(temp, _M0MPC15array5Array2atGdE(stack, base + i$4 | 0));
             _tmp = i$4 + 1 | 0;
             continue;
           } else {
@@ -23573,7 +23595,7 @@ function _M0FP26mizchi4font18exec__operator__12(b1, commands, stack, state) {
             if (n === 0) {
               $panic();
             }
-            _M0MP311moonbitlang4core5array5Array3setGdE(stack, _tmp$3, _M0MP311moonbitlang4core5array5Array2atGdE(temp, ((i$4 + n | 0) - shift | 0) % n | 0));
+            _M0MPC15array5Array3setGdE(stack, _tmp$3, _M0MPC15array5Array2atGdE(temp, ((i$4 + n | 0) - shift | 0) % n | 0));
             _tmp$2 = i$4 + 1 | 0;
             continue;
           } else {
@@ -23586,13 +23608,13 @@ function _M0FP26mizchi4font18exec__operator__12(b1, commands, stack, state) {
     }
     case 34: {
       if (stack.length >= 7) {
-        const dx1 = _M0MP311moonbitlang4core5array5Array2atGdE(stack, 0);
-        const dx2 = _M0MP311moonbitlang4core5array5Array2atGdE(stack, 1);
-        const dy2 = _M0MP311moonbitlang4core5array5Array2atGdE(stack, 2);
-        const dx3 = _M0MP311moonbitlang4core5array5Array2atGdE(stack, 3);
-        const dx4 = _M0MP311moonbitlang4core5array5Array2atGdE(stack, 4);
-        const dx5 = _M0MP311moonbitlang4core5array5Array2atGdE(stack, 5);
-        const dx6 = _M0MP311moonbitlang4core5array5Array2atGdE(stack, 6);
+        const dx1 = _M0MPC15array5Array2atGdE(stack, 0);
+        const dx2 = _M0MPC15array5Array2atGdE(stack, 1);
+        const dy2 = _M0MPC15array5Array2atGdE(stack, 2);
+        const dx3 = _M0MPC15array5Array2atGdE(stack, 3);
+        const dx4 = _M0MPC15array5Array2atGdE(stack, 4);
+        const dx5 = _M0MPC15array5Array2atGdE(stack, 5);
+        const dx6 = _M0MPC15array5Array2atGdE(stack, 6);
         const cx1 = state.x + dx1;
         const cy1 = state.y;
         const cx2 = cx1 + dx2;
@@ -23604,64 +23626,64 @@ function _M0FP26mizchi4font18exec__operator__12(b1, commands, stack, state) {
         const cx4 = cx3 + dx5;
         const cy4 = cy3 - dy2;
         state.x = cx4 + dx6;
-        _M0MP311moonbitlang4core5array5Array4pushGRP26mizchi3svg11PathCommandE(commands, new $64$mizchi$47$svg$46$PathCommand$CurveTo(cx1, cy1, cx2, cy2, jx, jy));
-        _M0MP311moonbitlang4core5array5Array4pushGRP26mizchi3svg11PathCommandE(commands, new $64$mizchi$47$svg$46$PathCommand$CurveTo(cx3, cy3, cx4, cy4, state.x, state.y));
+        _M0MPC15array5Array4pushGRP36mizchi6kagura4core10TouchPointE(commands, new _M0DTP26mizchi3svg11PathCommand7CurveTo(cx1, cy1, cx2, cy2, jx, jy));
+        _M0MPC15array5Array4pushGRP36mizchi6kagura4core10TouchPointE(commands, new _M0DTP26mizchi3svg11PathCommand7CurveTo(cx3, cy3, cx4, cy4, state.x, state.y));
       }
-      _M0MP311moonbitlang4core5array5Array5clearGdE(stack);
+      _M0MPC15array5Array5clearGdE(stack);
       return;
     }
     case 35: {
       if (stack.length >= 13) {
-        const cx1 = state.x + _M0MP311moonbitlang4core5array5Array2atGdE(stack, 0);
-        const cy1 = state.y + _M0MP311moonbitlang4core5array5Array2atGdE(stack, 1);
-        const cx2 = cx1 + _M0MP311moonbitlang4core5array5Array2atGdE(stack, 2);
-        const cy2 = cy1 + _M0MP311moonbitlang4core5array5Array2atGdE(stack, 3);
-        const mx = cx2 + _M0MP311moonbitlang4core5array5Array2atGdE(stack, 4);
-        const my = cy2 + _M0MP311moonbitlang4core5array5Array2atGdE(stack, 5);
-        _M0MP311moonbitlang4core5array5Array4pushGRP26mizchi3svg11PathCommandE(commands, new $64$mizchi$47$svg$46$PathCommand$CurveTo(cx1, cy1, cx2, cy2, mx, my));
-        const cx3 = mx + _M0MP311moonbitlang4core5array5Array2atGdE(stack, 6);
-        const cy3 = my + _M0MP311moonbitlang4core5array5Array2atGdE(stack, 7);
-        const cx4 = cx3 + _M0MP311moonbitlang4core5array5Array2atGdE(stack, 8);
-        const cy4 = cy3 + _M0MP311moonbitlang4core5array5Array2atGdE(stack, 9);
-        state.x = cx4 + _M0MP311moonbitlang4core5array5Array2atGdE(stack, 10);
-        state.y = cy4 + _M0MP311moonbitlang4core5array5Array2atGdE(stack, 11);
-        _M0MP311moonbitlang4core5array5Array4pushGRP26mizchi3svg11PathCommandE(commands, new $64$mizchi$47$svg$46$PathCommand$CurveTo(cx3, cy3, cx4, cy4, state.x, state.y));
+        const cx1 = state.x + _M0MPC15array5Array2atGdE(stack, 0);
+        const cy1 = state.y + _M0MPC15array5Array2atGdE(stack, 1);
+        const cx2 = cx1 + _M0MPC15array5Array2atGdE(stack, 2);
+        const cy2 = cy1 + _M0MPC15array5Array2atGdE(stack, 3);
+        const mx = cx2 + _M0MPC15array5Array2atGdE(stack, 4);
+        const my = cy2 + _M0MPC15array5Array2atGdE(stack, 5);
+        _M0MPC15array5Array4pushGRP36mizchi6kagura4core10TouchPointE(commands, new _M0DTP26mizchi3svg11PathCommand7CurveTo(cx1, cy1, cx2, cy2, mx, my));
+        const cx3 = mx + _M0MPC15array5Array2atGdE(stack, 6);
+        const cy3 = my + _M0MPC15array5Array2atGdE(stack, 7);
+        const cx4 = cx3 + _M0MPC15array5Array2atGdE(stack, 8);
+        const cy4 = cy3 + _M0MPC15array5Array2atGdE(stack, 9);
+        state.x = cx4 + _M0MPC15array5Array2atGdE(stack, 10);
+        state.y = cy4 + _M0MPC15array5Array2atGdE(stack, 11);
+        _M0MPC15array5Array4pushGRP36mizchi6kagura4core10TouchPointE(commands, new _M0DTP26mizchi3svg11PathCommand7CurveTo(cx3, cy3, cx4, cy4, state.x, state.y));
       }
-      _M0MP311moonbitlang4core5array5Array5clearGdE(stack);
+      _M0MPC15array5Array5clearGdE(stack);
       return;
     }
     case 36: {
       if (stack.length >= 9) {
-        const cx1 = state.x + _M0MP311moonbitlang4core5array5Array2atGdE(stack, 0);
-        const cy1 = state.y + _M0MP311moonbitlang4core5array5Array2atGdE(stack, 1);
-        const cx2 = cx1 + _M0MP311moonbitlang4core5array5Array2atGdE(stack, 2);
-        const cy2 = cy1 + _M0MP311moonbitlang4core5array5Array2atGdE(stack, 3);
-        const mx = cx2 + _M0MP311moonbitlang4core5array5Array2atGdE(stack, 4);
+        const cx1 = state.x + _M0MPC15array5Array2atGdE(stack, 0);
+        const cy1 = state.y + _M0MPC15array5Array2atGdE(stack, 1);
+        const cx2 = cx1 + _M0MPC15array5Array2atGdE(stack, 2);
+        const cy2 = cy1 + _M0MPC15array5Array2atGdE(stack, 3);
+        const mx = cx2 + _M0MPC15array5Array2atGdE(stack, 4);
         const my = cy2;
-        const cx3 = mx + _M0MP311moonbitlang4core5array5Array2atGdE(stack, 5);
+        const cx3 = mx + _M0MPC15array5Array2atGdE(stack, 5);
         const cy3 = my;
-        const cx4 = cx3 + _M0MP311moonbitlang4core5array5Array2atGdE(stack, 6);
-        const cy4 = cy3 + _M0MP311moonbitlang4core5array5Array2atGdE(stack, 7);
-        state.x = cx4 + _M0MP311moonbitlang4core5array5Array2atGdE(stack, 8);
-        _M0MP311moonbitlang4core5array5Array4pushGRP26mizchi3svg11PathCommandE(commands, new $64$mizchi$47$svg$46$PathCommand$CurveTo(cx1, cy1, cx2, cy2, mx, my));
-        _M0MP311moonbitlang4core5array5Array4pushGRP26mizchi3svg11PathCommandE(commands, new $64$mizchi$47$svg$46$PathCommand$CurveTo(cx3, cy3, cx4, cy4, state.x, state.y));
+        const cx4 = cx3 + _M0MPC15array5Array2atGdE(stack, 6);
+        const cy4 = cy3 + _M0MPC15array5Array2atGdE(stack, 7);
+        state.x = cx4 + _M0MPC15array5Array2atGdE(stack, 8);
+        _M0MPC15array5Array4pushGRP36mizchi6kagura4core10TouchPointE(commands, new _M0DTP26mizchi3svg11PathCommand7CurveTo(cx1, cy1, cx2, cy2, mx, my));
+        _M0MPC15array5Array4pushGRP36mizchi6kagura4core10TouchPointE(commands, new _M0DTP26mizchi3svg11PathCommand7CurveTo(cx3, cy3, cx4, cy4, state.x, state.y));
       }
-      _M0MP311moonbitlang4core5array5Array5clearGdE(stack);
+      _M0MPC15array5Array5clearGdE(stack);
       return;
     }
     case 37: {
       if (stack.length >= 11) {
-        const cx1 = state.x + _M0MP311moonbitlang4core5array5Array2atGdE(stack, 0);
-        const cy1 = state.y + _M0MP311moonbitlang4core5array5Array2atGdE(stack, 1);
-        const cx2 = cx1 + _M0MP311moonbitlang4core5array5Array2atGdE(stack, 2);
-        const cy2 = cy1 + _M0MP311moonbitlang4core5array5Array2atGdE(stack, 3);
-        const mx = cx2 + _M0MP311moonbitlang4core5array5Array2atGdE(stack, 4);
-        const my = cy2 + _M0MP311moonbitlang4core5array5Array2atGdE(stack, 5);
-        const cx3 = mx + _M0MP311moonbitlang4core5array5Array2atGdE(stack, 6);
-        const cy3 = my + _M0MP311moonbitlang4core5array5Array2atGdE(stack, 7);
-        const cx4 = cx3 + _M0MP311moonbitlang4core5array5Array2atGdE(stack, 8);
-        const cy4 = cy3 + _M0MP311moonbitlang4core5array5Array2atGdE(stack, 9);
-        const d6 = _M0MP311moonbitlang4core5array5Array2atGdE(stack, 10);
+        const cx1 = state.x + _M0MPC15array5Array2atGdE(stack, 0);
+        const cy1 = state.y + _M0MPC15array5Array2atGdE(stack, 1);
+        const cx2 = cx1 + _M0MPC15array5Array2atGdE(stack, 2);
+        const cy2 = cy1 + _M0MPC15array5Array2atGdE(stack, 3);
+        const mx = cx2 + _M0MPC15array5Array2atGdE(stack, 4);
+        const my = cy2 + _M0MPC15array5Array2atGdE(stack, 5);
+        const cx3 = mx + _M0MPC15array5Array2atGdE(stack, 6);
+        const cy3 = my + _M0MPC15array5Array2atGdE(stack, 7);
+        const cx4 = cx3 + _M0MPC15array5Array2atGdE(stack, 8);
+        const cy4 = cy3 + _M0MPC15array5Array2atGdE(stack, 9);
+        const d6 = _M0MPC15array5Array2atGdE(stack, 10);
         const adx = Math.abs(cx4 - state.x);
         const ady = Math.abs(cy4 - state.y);
         if (adx > ady) {
@@ -23671,42 +23693,42 @@ function _M0FP26mizchi4font18exec__operator__12(b1, commands, stack, state) {
           state.x = cx4;
           state.y = cy4 + d6;
         }
-        _M0MP311moonbitlang4core5array5Array4pushGRP26mizchi3svg11PathCommandE(commands, new $64$mizchi$47$svg$46$PathCommand$CurveTo(cx1, cy1, cx2, cy2, mx, my));
-        _M0MP311moonbitlang4core5array5Array4pushGRP26mizchi3svg11PathCommandE(commands, new $64$mizchi$47$svg$46$PathCommand$CurveTo(cx3, cy3, cx4, cy4, state.x, state.y));
+        _M0MPC15array5Array4pushGRP36mizchi6kagura4core10TouchPointE(commands, new _M0DTP26mizchi3svg11PathCommand7CurveTo(cx1, cy1, cx2, cy2, mx, my));
+        _M0MPC15array5Array4pushGRP36mizchi6kagura4core10TouchPointE(commands, new _M0DTP26mizchi3svg11PathCommand7CurveTo(cx3, cy3, cx4, cy4, state.x, state.y));
       }
-      _M0MP311moonbitlang4core5array5Array5clearGdE(stack);
+      _M0MPC15array5Array5clearGdE(stack);
       return;
     }
     default: {
-      _M0MP311moonbitlang4core5array5Array5clearGdE(stack);
+      _M0MPC15array5Array5clearGdE(stack);
       return;
     }
   }
 }
 function _M0FP26mizchi4font16exec__vh__curves(commands, stack, state, start_vertical) {
   const n = stack.length;
-  const i = { val: 0 };
-  const phase = { val: start_vertical };
+  const i = new _M0TPC13ref3RefGiE(0);
+  const phase = new _M0TPC13ref3RefGbE(start_vertical);
   while (true) {
     if ((i.val + 3 | 0) < n) {
       const remaining = n - i.val | 0;
       if (phase.val) {
         const cx1 = state.x;
-        const cy1 = state.y + _M0MP311moonbitlang4core5array5Array2atGdE(stack, i.val);
-        const cx2 = cx1 + _M0MP311moonbitlang4core5array5Array2atGdE(stack, i.val + 1 | 0);
-        const cy2 = cy1 + _M0MP311moonbitlang4core5array5Array2atGdE(stack, i.val + 2 | 0);
-        state.x = cx2 + _M0MP311moonbitlang4core5array5Array2atGdE(stack, i.val + 3 | 0);
-        state.y = cy2 + (remaining === 5 ? _M0MP311moonbitlang4core5array5Array2atGdE(stack, i.val + 4 | 0) : 0);
-        _M0MP311moonbitlang4core5array5Array4pushGRP26mizchi3svg11PathCommandE(commands, new $64$mizchi$47$svg$46$PathCommand$CurveTo(cx1, cy1, cx2, cy2, state.x, state.y));
+        const cy1 = state.y + _M0MPC15array5Array2atGdE(stack, i.val);
+        const cx2 = cx1 + _M0MPC15array5Array2atGdE(stack, i.val + 1 | 0);
+        const cy2 = cy1 + _M0MPC15array5Array2atGdE(stack, i.val + 2 | 0);
+        state.x = cx2 + _M0MPC15array5Array2atGdE(stack, i.val + 3 | 0);
+        state.y = cy2 + (remaining === 5 ? _M0MPC15array5Array2atGdE(stack, i.val + 4 | 0) : 0);
+        _M0MPC15array5Array4pushGRP36mizchi6kagura4core10TouchPointE(commands, new _M0DTP26mizchi3svg11PathCommand7CurveTo(cx1, cy1, cx2, cy2, state.x, state.y));
         i.val = (i.val + 4 | 0) + (remaining === 5 ? 1 : 0) | 0;
       } else {
-        const cx1 = state.x + _M0MP311moonbitlang4core5array5Array2atGdE(stack, i.val);
+        const cx1 = state.x + _M0MPC15array5Array2atGdE(stack, i.val);
         const cy1 = state.y;
-        const cx2 = cx1 + _M0MP311moonbitlang4core5array5Array2atGdE(stack, i.val + 1 | 0);
-        const cy2 = cy1 + _M0MP311moonbitlang4core5array5Array2atGdE(stack, i.val + 2 | 0);
-        state.x = cx2 + (remaining === 5 ? _M0MP311moonbitlang4core5array5Array2atGdE(stack, i.val + 4 | 0) : 0);
-        state.y = cy2 + _M0MP311moonbitlang4core5array5Array2atGdE(stack, i.val + 3 | 0);
-        _M0MP311moonbitlang4core5array5Array4pushGRP26mizchi3svg11PathCommandE(commands, new $64$mizchi$47$svg$46$PathCommand$CurveTo(cx1, cy1, cx2, cy2, state.x, state.y));
+        const cx2 = cx1 + _M0MPC15array5Array2atGdE(stack, i.val + 1 | 0);
+        const cy2 = cy1 + _M0MPC15array5Array2atGdE(stack, i.val + 2 | 0);
+        state.x = cx2 + (remaining === 5 ? _M0MPC15array5Array2atGdE(stack, i.val + 4 | 0) : 0);
+        state.y = cy2 + _M0MPC15array5Array2atGdE(stack, i.val + 3 | 0);
+        _M0MPC15array5Array4pushGRP36mizchi6kagura4core10TouchPointE(commands, new _M0DTP26mizchi3svg11PathCommand7CurveTo(cx1, cy1, cx2, cy2, state.x, state.y));
         i.val = (i.val + 4 | 0) + (remaining === 5 ? 1 : 0) | 0;
       }
       phase.val = !phase.val;
@@ -23715,17 +23737,17 @@ function _M0FP26mizchi4font16exec__vh__curves(commands, stack, state, start_vert
       break;
     }
   }
-  _M0MP311moonbitlang4core5array5Array5clearGdE(stack);
+  _M0MPC15array5Array5clearGdE(stack);
 }
 function _M0FP26mizchi4font23compute__region__scalar(region, coords) {
-  const scalar = { val: 1 };
+  const scalar = new _M0TPC13ref3RefGdE(1);
   let _tmp = 0;
   while (true) {
     const i = _tmp;
     if (i < region.axes.length) {
       _L: {
-        const ra = _M0MP311moonbitlang4core5array5Array2atGRP26mizchi4font13VarRegionAxisE(region.axes, i);
-        const coord = i < coords.length ? _M0MP311moonbitlang4core5array5Array2atGdE(coords, i) : 0;
+        const ra = _M0MPC15array5Array2atGRP26mizchi22kagura__effect__studio11EffectTrackE(region.axes, i);
+        const coord = i < coords.length ? _M0MPC15array5Array2atGdE(coords, i) : 0;
         if (ra.peak_coord === 0) {
           break _L;
         }
@@ -23754,21 +23776,21 @@ function _M0FP26mizchi4font19precompute__scalars(ivs, vsindex, coords) {
   if (vsindex < 0 || vsindex >= ivs.data.length) {
     return [];
   }
-  const ivd = _M0MP311moonbitlang4core5array5Array2atGRP26mizchi4font17ItemVariationDataE(ivs.data, vsindex);
+  const ivd = _M0MPC15array5Array2atGRP26mizchi22kagura__effect__studio11EffectTrackE(ivs.data, vsindex);
   const scalars = [];
-  const _arr = ivd.region_indices;
-  const _len = _arr.length;
+  const _bind = ivd.region_indices;
+  const _bind$2 = _bind.length;
   let _tmp = 0;
   while (true) {
-    const _i = _tmp;
-    if (_i < _len) {
-      const ri = _arr[_i];
+    const _ = _tmp;
+    if (_ < _bind$2) {
+      const ri = _bind[_];
       if (ri >= 0 && ri < ivs.regions.length) {
-        _M0MP311moonbitlang4core5array5Array4pushGdE(scalars, _M0FP26mizchi4font23compute__region__scalar(_M0MP311moonbitlang4core5array5Array2atGRP26mizchi4font9VarRegionE(ivs.regions, ri), coords));
+        _M0MPC15array5Array4pushGdE(scalars, _M0FP26mizchi4font23compute__region__scalar(_M0MPC15array5Array2atGRP26mizchi22kagura__effect__studio11EffectTrackE(ivs.regions, ri), coords));
       } else {
-        _M0MP311moonbitlang4core5array5Array4pushGdE(scalars, 0);
+        _M0MPC15array5Array4pushGdE(scalars, 0);
       }
-      _tmp = _i + 1 | 0;
+      _tmp = _ + 1 | 0;
       continue;
     } else {
       break;
@@ -23790,24 +23812,24 @@ function _M0FP26mizchi4font21interpret__charstring(data, offset, length, cff, co
         const lo = _M0MP26mizchi4font12BinaryReader11read__uint8(reader);
         const val = hi << 8 | lo;
         const signed = val >= 32768 ? val - 65536 | 0 : val;
-        _M0MP311moonbitlang4core5array5Array4pushGdE(stack, signed + 0);
+        _M0MPC15array5Array4pushGdE(stack, signed + 0);
       } else {
         if (b0 === 255) {
           const hi = _M0MP26mizchi4font12BinaryReader11read__int16(reader);
           const lo = _M0MP26mizchi4font12BinaryReader12read__uint16(reader);
           const raw = (Math.imul(hi, 65536) | 0) + lo | 0;
-          _M0MP311moonbitlang4core5array5Array4pushGdE(stack, (raw + 0) / 65536);
+          _M0MPC15array5Array4pushGdE(stack, (raw + 0) / 65536);
         } else {
           if (b0 >= 32 && b0 <= 246) {
-            _M0MP311moonbitlang4core5array5Array4pushGdE(stack, (b0 - 139 | 0) + 0);
+            _M0MPC15array5Array4pushGdE(stack, (b0 - 139 | 0) + 0);
           } else {
             if (b0 >= 247 && b0 <= 250) {
               const b1 = _M0MP26mizchi4font12BinaryReader11read__uint8(reader);
-              _M0MP311moonbitlang4core5array5Array4pushGdE(stack, (((Math.imul(b0 - 247 | 0, 256) | 0) + b1 | 0) + 108 | 0) + 0);
+              _M0MPC15array5Array4pushGdE(stack, (((Math.imul(b0 - 247 | 0, 256) | 0) + b1 | 0) + 108 | 0) + 0);
             } else {
               if (b0 >= 251 && b0 <= 254) {
                 const b1 = _M0MP26mizchi4font12BinaryReader11read__uint8(reader);
-                _M0MP311moonbitlang4core5array5Array4pushGdE(stack, (((Math.imul(-(b0 - 251 | 0) | 0, 256) | 0) - b1 | 0) - 108 | 0) + 0);
+                _M0MPC15array5Array4pushGdE(stack, (((Math.imul(-(b0 - 251 | 0) | 0, 256) | 0) - b1 | 0) - 108 | 0) + 0);
               } else {
                 _M0FP26mizchi4font14exec__operator(data, b0, reader, cff, commands, stack, state, depth);
                 if (state.ended) {
@@ -23843,44 +23865,44 @@ function _M0FP26mizchi4font14exec__operator(data, b0, reader, cff, commands, sta
         case 4: {
           _M0FP26mizchi4font12check__width(stack, state, 1);
           if (!state.first_move) {
-            _M0MP311moonbitlang4core5array5Array4pushGRP26mizchi3svg11PathCommandE(commands, $64$mizchi$47$svg$46$PathCommand$ClosePath);
+            _M0MPC15array5Array4pushGRP36mizchi6kagura4core10TouchPointE(commands, _M0DTP26mizchi3svg11PathCommand9ClosePath__);
           }
           state.first_move = false;
-          state.y = state.y + _M0MP311moonbitlang4core5array5Array2atGdE(stack, 0);
-          _M0MP311moonbitlang4core5array5Array4pushGRP26mizchi3svg11PathCommandE(commands, new $64$mizchi$47$svg$46$PathCommand$MoveTo(state.x, state.y));
-          _M0MP311moonbitlang4core5array5Array5clearGdE(stack);
+          state.y = state.y + _M0MPC15array5Array2atGdE(stack, 0);
+          _M0MPC15array5Array4pushGRP36mizchi6kagura4core10TouchPointE(commands, new _M0DTP26mizchi3svg11PathCommand6MoveTo(state.x, state.y));
+          _M0MPC15array5Array5clearGdE(stack);
           return;
         }
         case 5: {
-          const i = { val: 0 };
+          const i = new _M0TPC13ref3RefGiE(0);
           while (true) {
             if ((i.val + 1 | 0) < stack.length) {
-              state.x = state.x + _M0MP311moonbitlang4core5array5Array2atGdE(stack, i.val);
-              state.y = state.y + _M0MP311moonbitlang4core5array5Array2atGdE(stack, i.val + 1 | 0);
-              _M0MP311moonbitlang4core5array5Array4pushGRP26mizchi3svg11PathCommandE(commands, new $64$mizchi$47$svg$46$PathCommand$LineTo(state.x, state.y));
+              state.x = state.x + _M0MPC15array5Array2atGdE(stack, i.val);
+              state.y = state.y + _M0MPC15array5Array2atGdE(stack, i.val + 1 | 0);
+              _M0MPC15array5Array4pushGRP36mizchi6kagura4core10TouchPointE(commands, new _M0DTP26mizchi3svg11PathCommand6LineTo(state.x, state.y));
               i.val = i.val + 2 | 0;
               continue;
             } else {
               break;
             }
           }
-          _M0MP311moonbitlang4core5array5Array5clearGdE(stack);
+          _M0MPC15array5Array5clearGdE(stack);
           return;
         }
         case 6: {
-          const horiz = { val: true };
-          const _start136 = 0;
-          const _end137 = stack.length;
-          let _tmp = _start136;
+          const horiz = new _M0TPC13ref3RefGbE(true);
+          const _bind = 0;
+          const _bind$2 = stack.length;
+          let _tmp = _bind;
           while (true) {
             const i$2 = _tmp;
-            if (i$2 < _end137) {
+            if (i$2 < _bind$2) {
               if (horiz.val) {
-                state.x = state.x + _M0MP311moonbitlang4core5array5Array2atGdE(stack, i$2);
+                state.x = state.x + _M0MPC15array5Array2atGdE(stack, i$2);
               } else {
-                state.y = state.y + _M0MP311moonbitlang4core5array5Array2atGdE(stack, i$2);
+                state.y = state.y + _M0MPC15array5Array2atGdE(stack, i$2);
               }
-              _M0MP311moonbitlang4core5array5Array4pushGRP26mizchi3svg11PathCommandE(commands, new $64$mizchi$47$svg$46$PathCommand$LineTo(state.x, state.y));
+              _M0MPC15array5Array4pushGRP36mizchi6kagura4core10TouchPointE(commands, new _M0DTP26mizchi3svg11PathCommand6LineTo(state.x, state.y));
               horiz.val = !horiz.val;
               _tmp = i$2 + 1 | 0;
               continue;
@@ -23888,23 +23910,23 @@ function _M0FP26mizchi4font14exec__operator(data, b0, reader, cff, commands, sta
               break;
             }
           }
-          _M0MP311moonbitlang4core5array5Array5clearGdE(stack);
+          _M0MPC15array5Array5clearGdE(stack);
           return;
         }
         case 7: {
-          const horiz$2 = { val: false };
-          const _start142 = 0;
-          const _end143 = stack.length;
-          let _tmp$2 = _start142;
+          const horiz$2 = new _M0TPC13ref3RefGbE(false);
+          const _bind$3 = 0;
+          const _bind$4 = stack.length;
+          let _tmp$2 = _bind$3;
           while (true) {
             const i$2 = _tmp$2;
-            if (i$2 < _end143) {
+            if (i$2 < _bind$4) {
               if (horiz$2.val) {
-                state.x = state.x + _M0MP311moonbitlang4core5array5Array2atGdE(stack, i$2);
+                state.x = state.x + _M0MPC15array5Array2atGdE(stack, i$2);
               } else {
-                state.y = state.y + _M0MP311moonbitlang4core5array5Array2atGdE(stack, i$2);
+                state.y = state.y + _M0MPC15array5Array2atGdE(stack, i$2);
               }
-              _M0MP311moonbitlang4core5array5Array4pushGRP26mizchi3svg11PathCommandE(commands, new $64$mizchi$47$svg$46$PathCommand$LineTo(state.x, state.y));
+              _M0MPC15array5Array4pushGRP36mizchi6kagura4core10TouchPointE(commands, new _M0DTP26mizchi3svg11PathCommand6LineTo(state.x, state.y));
               horiz$2.val = !horiz$2.val;
               _tmp$2 = i$2 + 1 | 0;
               continue;
@@ -23912,38 +23934,38 @@ function _M0FP26mizchi4font14exec__operator(data, b0, reader, cff, commands, sta
               break;
             }
           }
-          _M0MP311moonbitlang4core5array5Array5clearGdE(stack);
+          _M0MPC15array5Array5clearGdE(stack);
           return;
         }
         case 8: {
-          const i$2 = { val: 0 };
+          const i$2 = new _M0TPC13ref3RefGiE(0);
           while (true) {
             if ((i$2.val + 5 | 0) < stack.length) {
-              const cx1 = state.x + _M0MP311moonbitlang4core5array5Array2atGdE(stack, i$2.val);
-              const cy1 = state.y + _M0MP311moonbitlang4core5array5Array2atGdE(stack, i$2.val + 1 | 0);
-              const cx2 = cx1 + _M0MP311moonbitlang4core5array5Array2atGdE(stack, i$2.val + 2 | 0);
-              const cy2 = cy1 + _M0MP311moonbitlang4core5array5Array2atGdE(stack, i$2.val + 3 | 0);
-              state.x = cx2 + _M0MP311moonbitlang4core5array5Array2atGdE(stack, i$2.val + 4 | 0);
-              state.y = cy2 + _M0MP311moonbitlang4core5array5Array2atGdE(stack, i$2.val + 5 | 0);
-              _M0MP311moonbitlang4core5array5Array4pushGRP26mizchi3svg11PathCommandE(commands, new $64$mizchi$47$svg$46$PathCommand$CurveTo(cx1, cy1, cx2, cy2, state.x, state.y));
+              const cx1 = state.x + _M0MPC15array5Array2atGdE(stack, i$2.val);
+              const cy1 = state.y + _M0MPC15array5Array2atGdE(stack, i$2.val + 1 | 0);
+              const cx2 = cx1 + _M0MPC15array5Array2atGdE(stack, i$2.val + 2 | 0);
+              const cy2 = cy1 + _M0MPC15array5Array2atGdE(stack, i$2.val + 3 | 0);
+              state.x = cx2 + _M0MPC15array5Array2atGdE(stack, i$2.val + 4 | 0);
+              state.y = cy2 + _M0MPC15array5Array2atGdE(stack, i$2.val + 5 | 0);
+              _M0MPC15array5Array4pushGRP36mizchi6kagura4core10TouchPointE(commands, new _M0DTP26mizchi3svg11PathCommand7CurveTo(cx1, cy1, cx2, cy2, state.x, state.y));
               i$2.val = i$2.val + 6 | 0;
               continue;
             } else {
               break;
             }
           }
-          _M0MP311moonbitlang4core5array5Array5clearGdE(stack);
+          _M0MPC15array5Array5clearGdE(stack);
           return;
         }
         case 10: {
-          const idx = _M0MP311moonbitlang4core6double6Double7to__int(_M0MP311moonbitlang4core5array5Array11unsafe__popGdE(stack)) + _M0FP26mizchi4font16calc__subr__bias(_M0MP26mizchi4font8CFFIndex5count(cff.local_subrs)) | 0;
+          const idx = _M0MPC16double6Double7to__int(_M0MPC15array5Array11unsafe__popGdE(stack)) + _M0FP26mizchi4font16calc__subr__bias(_M0MP26mizchi4font8CFFIndex5count(cff.local_subrs)) | 0;
           if (idx >= 0 && idx < _M0MP26mizchi4font8CFFIndex5count(cff.local_subrs)) {
             let sub_off;
             let sub_len;
             _L$3: {
-              const _bind = _M0MP26mizchi4font8CFFIndex5entry(cff.local_subrs, idx);
-              const _sub_off = _bind._0;
-              const _sub_len = _bind._1;
+              const _bind$5 = _M0MP26mizchi4font8CFFIndex5entry(cff.local_subrs, idx);
+              const _sub_off = _bind$5._0;
+              const _sub_len = _bind$5._1;
               sub_off = _sub_off;
               sub_len = _sub_len;
               break _L$3;
@@ -23965,31 +23987,31 @@ function _M0FP26mizchi4font14exec__operator(data, b0, reader, cff, commands, sta
         case 14: {
           _M0FP26mizchi4font12check__width(stack, state, 0);
           if (!state.first_move) {
-            _M0MP311moonbitlang4core5array5Array4pushGRP26mizchi3svg11PathCommandE(commands, $64$mizchi$47$svg$46$PathCommand$ClosePath);
+            _M0MPC15array5Array4pushGRP36mizchi6kagura4core10TouchPointE(commands, _M0DTP26mizchi3svg11PathCommand9ClosePath__);
           }
-          _M0MP311moonbitlang4core5array5Array5clearGdE(stack);
+          _M0MPC15array5Array5clearGdE(stack);
           state.ended = true;
           return;
         }
         case 15: {
           if (state.is_cff2 && stack.length > 0) {
-            state.vsindex = _M0MP311moonbitlang4core6double6Double7to__int(_M0MP311moonbitlang4core5array5Array11unsafe__popGdE(stack));
+            state.vsindex = _M0MPC16double6Double7to__int(_M0MPC15array5Array11unsafe__popGdE(stack));
             let ivs;
             _L$3: {
-              const _bind = cff.ivs;
-              if (_bind === undefined) {
+              const _bind$5 = cff.ivs;
+              if (_bind$5 === undefined) {
                 return;
               } else {
-                const _Some = _bind;
+                const _Some = _bind$5;
                 const _ivs = _Some;
                 ivs = _ivs;
                 break _L$3;
               }
             }
-            const _bind = state.scalars;
-            if (_bind.$tag === 1) {
+            const _bind$5 = state.scalars;
+            if (_bind$5.$tag === 1) {
               const new_scalars = _M0FP26mizchi4font19precompute__scalars(ivs, state.vsindex, []);
-              state.scalars = new Option$Some$7$(new_scalars);
+              state.scalars = new _M0DTPC16option6OptionGRPB5ArrayGdEE4Some(new_scalars);
               return;
             } else {
               return;
@@ -24000,12 +24022,12 @@ function _M0FP26mizchi4font14exec__operator(data, b0, reader, cff, commands, sta
         }
         case 16: {
           if (state.is_cff2 && stack.length > 0) {
-            const n = _M0MP311moonbitlang4core6double6Double7to__int(_M0MP311moonbitlang4core5array5Array11unsafe__popGdE(stack));
+            const n = _M0MPC16double6Double7to__int(_M0MPC15array5Array11unsafe__popGdE(stack));
             let scalars;
             _L$3: {
-              const _bind = state.scalars;
-              if (_bind.$tag === 1) {
-                const _Some = _bind;
+              const _bind$5 = state.scalars;
+              if (_bind$5.$tag === 1) {
+                const _Some = _bind$5;
                 const _scalars = _Some._0;
                 scalars = _scalars;
                 break _L$3;
@@ -24019,19 +24041,19 @@ function _M0FP26mizchi4font14exec__operator(data, b0, reader, cff, commands, sta
             while (true) {
               const i$3 = _tmp$3;
               if (i$3 < n) {
-                const blended = { val: _M0MP311moonbitlang4core5array5Array2atGdE(stack, base_start + i$3 | 0) };
+                const blended = new _M0TPC13ref3RefGdE(_M0MPC15array5Array2atGdE(stack, base_start + i$3 | 0));
                 let _tmp$4 = 0;
                 while (true) {
                   const j = _tmp$4;
                   if (j < k) {
-                    blended.val = blended.val + _M0MP311moonbitlang4core5array5Array2atGdE(stack, ((base_start + n | 0) + (Math.imul(i$3, k) | 0) | 0) + j | 0) * _M0MP311moonbitlang4core5array5Array2atGdE(scalars, j);
+                    blended.val = blended.val + _M0MPC15array5Array2atGdE(stack, ((base_start + n | 0) + (Math.imul(i$3, k) | 0) | 0) + j | 0) * _M0MPC15array5Array2atGdE(scalars, j);
                     _tmp$4 = j + 1 | 0;
                     continue;
                   } else {
                     break;
                   }
                 }
-                _M0MP311moonbitlang4core5array5Array3setGdE(stack, base_start + i$3 | 0, blended.val);
+                _M0MPC15array5Array3setGdE(stack, base_start + i$3 | 0, blended.val);
                 _tmp$3 = i$3 + 1 | 0;
                 continue;
               } else {
@@ -24041,7 +24063,7 @@ function _M0FP26mizchi4font14exec__operator(data, b0, reader, cff, commands, sta
             const new_len = stack.length - (Math.imul(n, k) | 0) | 0;
             while (true) {
               if (stack.length > new_len) {
-                _M0MP311moonbitlang4core5array5Array11unsafe__popGdE(stack);
+                _M0MPC15array5Array11unsafe__popGdE(stack);
                 continue;
               } else {
                 return;
@@ -24060,94 +24082,94 @@ function _M0FP26mizchi4font14exec__operator(data, b0, reader, cff, commands, sta
         case 21: {
           _M0FP26mizchi4font12check__width(stack, state, 2);
           if (!state.first_move) {
-            _M0MP311moonbitlang4core5array5Array4pushGRP26mizchi3svg11PathCommandE(commands, $64$mizchi$47$svg$46$PathCommand$ClosePath);
+            _M0MPC15array5Array4pushGRP36mizchi6kagura4core10TouchPointE(commands, _M0DTP26mizchi3svg11PathCommand9ClosePath__);
           }
           state.first_move = false;
-          state.x = state.x + _M0MP311moonbitlang4core5array5Array2atGdE(stack, 0);
-          state.y = state.y + _M0MP311moonbitlang4core5array5Array2atGdE(stack, 1);
-          _M0MP311moonbitlang4core5array5Array4pushGRP26mizchi3svg11PathCommandE(commands, new $64$mizchi$47$svg$46$PathCommand$MoveTo(state.x, state.y));
-          _M0MP311moonbitlang4core5array5Array5clearGdE(stack);
+          state.x = state.x + _M0MPC15array5Array2atGdE(stack, 0);
+          state.y = state.y + _M0MPC15array5Array2atGdE(stack, 1);
+          _M0MPC15array5Array4pushGRP36mizchi6kagura4core10TouchPointE(commands, new _M0DTP26mizchi3svg11PathCommand6MoveTo(state.x, state.y));
+          _M0MPC15array5Array5clearGdE(stack);
           return;
         }
         case 22: {
           _M0FP26mizchi4font12check__width(stack, state, 1);
           if (!state.first_move) {
-            _M0MP311moonbitlang4core5array5Array4pushGRP26mizchi3svg11PathCommandE(commands, $64$mizchi$47$svg$46$PathCommand$ClosePath);
+            _M0MPC15array5Array4pushGRP36mizchi6kagura4core10TouchPointE(commands, _M0DTP26mizchi3svg11PathCommand9ClosePath__);
           }
           state.first_move = false;
-          state.x = state.x + _M0MP311moonbitlang4core5array5Array2atGdE(stack, 0);
-          _M0MP311moonbitlang4core5array5Array4pushGRP26mizchi3svg11PathCommandE(commands, new $64$mizchi$47$svg$46$PathCommand$MoveTo(state.x, state.y));
-          _M0MP311moonbitlang4core5array5Array5clearGdE(stack);
+          state.x = state.x + _M0MPC15array5Array2atGdE(stack, 0);
+          _M0MPC15array5Array4pushGRP36mizchi6kagura4core10TouchPointE(commands, new _M0DTP26mizchi3svg11PathCommand6MoveTo(state.x, state.y));
+          _M0MPC15array5Array5clearGdE(stack);
           return;
         }
         case 24: {
           const n = stack.length;
-          const i$3 = { val: 0 };
+          const i$3 = new _M0TPC13ref3RefGiE(0);
           while (true) {
             if ((i$3.val + 5 | 0) < (n - 2 | 0)) {
-              const cx1 = state.x + _M0MP311moonbitlang4core5array5Array2atGdE(stack, i$3.val);
-              const cy1 = state.y + _M0MP311moonbitlang4core5array5Array2atGdE(stack, i$3.val + 1 | 0);
-              const cx2 = cx1 + _M0MP311moonbitlang4core5array5Array2atGdE(stack, i$3.val + 2 | 0);
-              const cy2 = cy1 + _M0MP311moonbitlang4core5array5Array2atGdE(stack, i$3.val + 3 | 0);
-              state.x = cx2 + _M0MP311moonbitlang4core5array5Array2atGdE(stack, i$3.val + 4 | 0);
-              state.y = cy2 + _M0MP311moonbitlang4core5array5Array2atGdE(stack, i$3.val + 5 | 0);
-              _M0MP311moonbitlang4core5array5Array4pushGRP26mizchi3svg11PathCommandE(commands, new $64$mizchi$47$svg$46$PathCommand$CurveTo(cx1, cy1, cx2, cy2, state.x, state.y));
+              const cx1 = state.x + _M0MPC15array5Array2atGdE(stack, i$3.val);
+              const cy1 = state.y + _M0MPC15array5Array2atGdE(stack, i$3.val + 1 | 0);
+              const cx2 = cx1 + _M0MPC15array5Array2atGdE(stack, i$3.val + 2 | 0);
+              const cy2 = cy1 + _M0MPC15array5Array2atGdE(stack, i$3.val + 3 | 0);
+              state.x = cx2 + _M0MPC15array5Array2atGdE(stack, i$3.val + 4 | 0);
+              state.y = cy2 + _M0MPC15array5Array2atGdE(stack, i$3.val + 5 | 0);
+              _M0MPC15array5Array4pushGRP36mizchi6kagura4core10TouchPointE(commands, new _M0DTP26mizchi3svg11PathCommand7CurveTo(cx1, cy1, cx2, cy2, state.x, state.y));
               i$3.val = i$3.val + 6 | 0;
               continue;
             } else {
               break;
             }
           }
-          state.x = state.x + _M0MP311moonbitlang4core5array5Array2atGdE(stack, n - 2 | 0);
-          state.y = state.y + _M0MP311moonbitlang4core5array5Array2atGdE(stack, n - 1 | 0);
-          _M0MP311moonbitlang4core5array5Array4pushGRP26mizchi3svg11PathCommandE(commands, new $64$mizchi$47$svg$46$PathCommand$LineTo(state.x, state.y));
-          _M0MP311moonbitlang4core5array5Array5clearGdE(stack);
+          state.x = state.x + _M0MPC15array5Array2atGdE(stack, n - 2 | 0);
+          state.y = state.y + _M0MPC15array5Array2atGdE(stack, n - 1 | 0);
+          _M0MPC15array5Array4pushGRP36mizchi6kagura4core10TouchPointE(commands, new _M0DTP26mizchi3svg11PathCommand6LineTo(state.x, state.y));
+          _M0MPC15array5Array5clearGdE(stack);
           return;
         }
         case 25: {
           const n$2 = stack.length;
-          const i$4 = { val: 0 };
+          const i$4 = new _M0TPC13ref3RefGiE(0);
           while (true) {
             if ((i$4.val + 1 | 0) < (n$2 - 6 | 0)) {
-              state.x = state.x + _M0MP311moonbitlang4core5array5Array2atGdE(stack, i$4.val);
-              state.y = state.y + _M0MP311moonbitlang4core5array5Array2atGdE(stack, i$4.val + 1 | 0);
-              _M0MP311moonbitlang4core5array5Array4pushGRP26mizchi3svg11PathCommandE(commands, new $64$mizchi$47$svg$46$PathCommand$LineTo(state.x, state.y));
+              state.x = state.x + _M0MPC15array5Array2atGdE(stack, i$4.val);
+              state.y = state.y + _M0MPC15array5Array2atGdE(stack, i$4.val + 1 | 0);
+              _M0MPC15array5Array4pushGRP36mizchi6kagura4core10TouchPointE(commands, new _M0DTP26mizchi3svg11PathCommand6LineTo(state.x, state.y));
               i$4.val = i$4.val + 2 | 0;
               continue;
             } else {
               break;
             }
           }
-          const cx1 = state.x + _M0MP311moonbitlang4core5array5Array2atGdE(stack, n$2 - 6 | 0);
-          const cy1 = state.y + _M0MP311moonbitlang4core5array5Array2atGdE(stack, n$2 - 5 | 0);
-          const cx2 = cx1 + _M0MP311moonbitlang4core5array5Array2atGdE(stack, n$2 - 4 | 0);
-          const cy2 = cy1 + _M0MP311moonbitlang4core5array5Array2atGdE(stack, n$2 - 3 | 0);
-          state.x = cx2 + _M0MP311moonbitlang4core5array5Array2atGdE(stack, n$2 - 2 | 0);
-          state.y = cy2 + _M0MP311moonbitlang4core5array5Array2atGdE(stack, n$2 - 1 | 0);
-          _M0MP311moonbitlang4core5array5Array4pushGRP26mizchi3svg11PathCommandE(commands, new $64$mizchi$47$svg$46$PathCommand$CurveTo(cx1, cy1, cx2, cy2, state.x, state.y));
-          _M0MP311moonbitlang4core5array5Array5clearGdE(stack);
+          const cx1 = state.x + _M0MPC15array5Array2atGdE(stack, n$2 - 6 | 0);
+          const cy1 = state.y + _M0MPC15array5Array2atGdE(stack, n$2 - 5 | 0);
+          const cx2 = cx1 + _M0MPC15array5Array2atGdE(stack, n$2 - 4 | 0);
+          const cy2 = cy1 + _M0MPC15array5Array2atGdE(stack, n$2 - 3 | 0);
+          state.x = cx2 + _M0MPC15array5Array2atGdE(stack, n$2 - 2 | 0);
+          state.y = cy2 + _M0MPC15array5Array2atGdE(stack, n$2 - 1 | 0);
+          _M0MPC15array5Array4pushGRP36mizchi6kagura4core10TouchPointE(commands, new _M0DTP26mizchi3svg11PathCommand7CurveTo(cx1, cy1, cx2, cy2, state.x, state.y));
+          _M0MPC15array5Array5clearGdE(stack);
           return;
         }
         case 26: {
           const n$3 = stack.length;
-          const i$5 = { val: 0 };
-          const dx1 = { val: 0 };
+          const i$5 = new _M0TPC13ref3RefGiE(0);
+          const dx1 = new _M0TPC13ref3RefGdE(0);
           if (4 === 0) {
             $panic();
           }
           if ((n$3 % 4 | 0) !== 0) {
-            dx1.val = _M0MP311moonbitlang4core5array5Array2atGdE(stack, 0);
+            dx1.val = _M0MPC15array5Array2atGdE(stack, 0);
             i$5.val = 1;
           }
           while (true) {
             if ((i$5.val + 3 | 0) < n$3) {
-              const cy1$2 = state.y + _M0MP311moonbitlang4core5array5Array2atGdE(stack, i$5.val);
+              const cy1$2 = state.y + _M0MPC15array5Array2atGdE(stack, i$5.val);
               const cx1$2 = state.x + dx1.val;
-              const cx2$2 = cx1$2 + _M0MP311moonbitlang4core5array5Array2atGdE(stack, i$5.val + 1 | 0);
-              const cy2$2 = cy1$2 + _M0MP311moonbitlang4core5array5Array2atGdE(stack, i$5.val + 2 | 0);
+              const cx2$2 = cx1$2 + _M0MPC15array5Array2atGdE(stack, i$5.val + 1 | 0);
+              const cy2$2 = cy1$2 + _M0MPC15array5Array2atGdE(stack, i$5.val + 2 | 0);
               state.x = cx2$2;
-              state.y = cy2$2 + _M0MP311moonbitlang4core5array5Array2atGdE(stack, i$5.val + 3 | 0);
-              _M0MP311moonbitlang4core5array5Array4pushGRP26mizchi3svg11PathCommandE(commands, new $64$mizchi$47$svg$46$PathCommand$CurveTo(cx1$2, cy1$2, cx2$2, cy2$2, state.x, state.y));
+              state.y = cy2$2 + _M0MPC15array5Array2atGdE(stack, i$5.val + 3 | 0);
+              _M0MPC15array5Array4pushGRP36mizchi6kagura4core10TouchPointE(commands, new _M0DTP26mizchi3svg11PathCommand7CurveTo(cx1$2, cy1$2, cx2$2, cy2$2, state.x, state.y));
               i$5.val = i$5.val + 4 | 0;
               dx1.val = 0;
               continue;
@@ -24155,29 +24177,29 @@ function _M0FP26mizchi4font14exec__operator(data, b0, reader, cff, commands, sta
               break;
             }
           }
-          _M0MP311moonbitlang4core5array5Array5clearGdE(stack);
+          _M0MPC15array5Array5clearGdE(stack);
           return;
         }
         case 27: {
           const n$4 = stack.length;
-          const i$6 = { val: 0 };
-          const dy1 = { val: 0 };
+          const i$6 = new _M0TPC13ref3RefGiE(0);
+          const dy1 = new _M0TPC13ref3RefGdE(0);
           if (4 === 0) {
             $panic();
           }
           if ((n$4 % 4 | 0) !== 0) {
-            dy1.val = _M0MP311moonbitlang4core5array5Array2atGdE(stack, 0);
+            dy1.val = _M0MPC15array5Array2atGdE(stack, 0);
             i$6.val = 1;
           }
           while (true) {
             if ((i$6.val + 3 | 0) < n$4) {
-              const cx1$2 = state.x + _M0MP311moonbitlang4core5array5Array2atGdE(stack, i$6.val);
+              const cx1$2 = state.x + _M0MPC15array5Array2atGdE(stack, i$6.val);
               const cy1$2 = state.y + dy1.val;
-              const cx2$2 = cx1$2 + _M0MP311moonbitlang4core5array5Array2atGdE(stack, i$6.val + 1 | 0);
-              const cy2$2 = cy1$2 + _M0MP311moonbitlang4core5array5Array2atGdE(stack, i$6.val + 2 | 0);
-              state.x = cx2$2 + _M0MP311moonbitlang4core5array5Array2atGdE(stack, i$6.val + 3 | 0);
+              const cx2$2 = cx1$2 + _M0MPC15array5Array2atGdE(stack, i$6.val + 1 | 0);
+              const cy2$2 = cy1$2 + _M0MPC15array5Array2atGdE(stack, i$6.val + 2 | 0);
+              state.x = cx2$2 + _M0MPC15array5Array2atGdE(stack, i$6.val + 3 | 0);
               state.y = cy2$2;
-              _M0MP311moonbitlang4core5array5Array4pushGRP26mizchi3svg11PathCommandE(commands, new $64$mizchi$47$svg$46$PathCommand$CurveTo(cx1$2, cy1$2, cx2$2, cy2$2, state.x, state.y));
+              _M0MPC15array5Array4pushGRP36mizchi6kagura4core10TouchPointE(commands, new _M0DTP26mizchi3svg11PathCommand7CurveTo(cx1$2, cy1$2, cx2$2, cy2$2, state.x, state.y));
               i$6.val = i$6.val + 4 | 0;
               dy1.val = 0;
               continue;
@@ -24185,18 +24207,18 @@ function _M0FP26mizchi4font14exec__operator(data, b0, reader, cff, commands, sta
               break;
             }
           }
-          _M0MP311moonbitlang4core5array5Array5clearGdE(stack);
+          _M0MPC15array5Array5clearGdE(stack);
           return;
         }
         case 29: {
-          const idx$2 = _M0MP311moonbitlang4core6double6Double7to__int(_M0MP311moonbitlang4core5array5Array11unsafe__popGdE(stack)) + _M0FP26mizchi4font16calc__subr__bias(_M0MP26mizchi4font8CFFIndex5count(cff.global_subrs)) | 0;
+          const idx$2 = _M0MPC16double6Double7to__int(_M0MPC15array5Array11unsafe__popGdE(stack)) + _M0FP26mizchi4font16calc__subr__bias(_M0MP26mizchi4font8CFFIndex5count(cff.global_subrs)) | 0;
           if (idx$2 >= 0 && idx$2 < _M0MP26mizchi4font8CFFIndex5count(cff.global_subrs)) {
             let sub_off;
             let sub_len;
             _L$3: {
-              const _bind = _M0MP26mizchi4font8CFFIndex5entry(cff.global_subrs, idx$2);
-              const _sub_off = _bind._0;
-              const _sub_len = _bind._1;
+              const _bind$5 = _M0MP26mizchi4font8CFFIndex5entry(cff.global_subrs, idx$2);
+              const _sub_off = _bind$5._0;
+              const _sub_len = _bind$5._1;
               sub_off = _sub_off;
               sub_len = _sub_len;
               break _L$3;
@@ -24216,7 +24238,7 @@ function _M0FP26mizchi4font14exec__operator(data, b0, reader, cff, commands, sta
           return;
         }
         default: {
-          _M0MP311moonbitlang4core5array5Array5clearGdE(stack);
+          _M0MPC15array5Array5clearGdE(stack);
           return;
         }
       }
@@ -24231,7 +24253,7 @@ function _M0FP26mizchi4font14exec__operator(data, b0, reader, cff, commands, sta
       $panic();
     }
     state.num_stems = _tmp + (stack.length / 2 | 0) | 0;
-    _M0MP311moonbitlang4core5array5Array5clearGdE(stack);
+    _M0MPC15array5Array5clearGdE(stack);
     return;
   }
   if (2 === 0) {
@@ -24244,7 +24266,7 @@ function _M0FP26mizchi4font14exec__operator(data, b0, reader, cff, commands, sta
     $panic();
   }
   state.num_stems = _tmp + (stack.length / 2 | 0) | 0;
-  _M0MP311moonbitlang4core5array5Array5clearGdE(stack);
+  _M0MPC15array5Array5clearGdE(stack);
   if (8 === 0) {
     $panic();
   }
@@ -24267,10 +24289,10 @@ function _M0FP26mizchi4font19cff__glyph__outline(data, cff, glyph_id) {
   }
   const commands = [];
   const stack = [];
-  const state = { x: 0, y: 0, has_width: false, num_stems: 0, first_move: true, ended: false, is_cff2: cff.is_cff2, storage: $make_array_len_and_init(32, 0), vsindex: 0, scalars: Option$None$7$ };
+  const state = new _M0TP26mizchi4font7CSState(0, 0, false, 0, true, false, cff.is_cff2, $make_array_len_and_init(32, 0), 0, _M0DTPC16option6OptionGRPB5ArrayGdEE4None__);
   _M0FP26mizchi4font21interpret__charstring(data, cs_offset, cs_length, cff, commands, stack, state, 0);
   if (cff.is_cff2 && (!state.ended && !state.first_move)) {
-    _M0MP311moonbitlang4core5array5Array4pushGRP26mizchi3svg11PathCommandE(commands, $64$mizchi$47$svg$46$PathCommand$ClosePath);
+    _M0MPC15array5Array4pushGRP36mizchi6kagura4core10TouchPointE(commands, _M0DTP26mizchi3svg11PathCommand9ClosePath__);
   }
   return commands;
 }
@@ -24290,10 +24312,10 @@ function _M0FP26mizchi4font24cff__glyph__outline__var(data, cff, glyph_id, scala
   }
   const commands = [];
   const stack = [];
-  const state = { x: 0, y: 0, has_width: false, num_stems: 0, first_move: true, ended: false, is_cff2: true, storage: $make_array_len_and_init(32, 0), vsindex: 0, scalars: new Option$Some$7$(scalars) };
+  const state = new _M0TP26mizchi4font7CSState(0, 0, false, 0, true, false, true, $make_array_len_and_init(32, 0), 0, new _M0DTPC16option6OptionGRPB5ArrayGdEE4Some(scalars));
   _M0FP26mizchi4font21interpret__charstring(data, cs_offset, cs_length, cff, commands, stack, state, 0);
   if (!state.ended && !state.first_move) {
-    _M0MP311moonbitlang4core5array5Array4pushGRP26mizchi3svg11PathCommandE(commands, $64$mizchi$47$svg$46$PathCommand$ClosePath);
+    _M0MPC15array5Array4pushGRP36mizchi6kagura4core10TouchPointE(commands, _M0DTP26mizchi3svg11PathCommand9ClosePath__);
   }
   return commands;
 }
@@ -24302,8 +24324,8 @@ function _M0FP26mizchi4font17contour__to__path(contour, commands) {
   if (n === 0) {
     return undefined;
   }
-  const first = _M0MP311moonbitlang4core5array5Array2atGRP26mizchi4font10GlyphPointE(contour, 0);
-  const last = _M0MP311moonbitlang4core5array5Array2atGRP26mizchi4font10GlyphPointE(contour, n - 1 | 0);
+  const first = _M0MPC15array5Array2atGRP26mizchi22kagura__effect__studio11EffectTrackE(contour, 0);
+  const last = _M0MPC15array5Array2atGRP26mizchi22kagura__effect__studio11EffectTrackE(contour, n - 1 | 0);
   let start_x;
   let start_y;
   let start_idx;
@@ -24329,13 +24351,13 @@ function _M0FP26mizchi4font17contour__to__path(contour, commands) {
       }
     }
   }
-  _M0MP311moonbitlang4core5array5Array4pushGRP26mizchi3svg11PathCommandE(commands, new $64$mizchi$47$svg$46$PathCommand$MoveTo(start_x, start_y));
-  const i = { val: start_idx };
+  _M0MPC15array5Array4pushGRP36mizchi6kagura4core10TouchPointE(commands, new _M0DTP26mizchi3svg11PathCommand6MoveTo(start_x, start_y));
+  const i = new _M0TPC13ref3RefGiE(start_idx);
   while (true) {
     if (i.val < n) {
-      const p = _M0MP311moonbitlang4core5array5Array2atGRP26mizchi4font10GlyphPointE(contour, i.val);
+      const p = _M0MPC15array5Array2atGRP26mizchi22kagura__effect__studio11EffectTrackE(contour, i.val);
       if (p.on_curve) {
-        _M0MP311moonbitlang4core5array5Array4pushGRP26mizchi3svg11PathCommandE(commands, new $64$mizchi$47$svg$46$PathCommand$LineTo(p.x + 0, p.y + 0));
+        _M0MPC15array5Array4pushGRP36mizchi6kagura4core10TouchPointE(commands, new _M0DTP26mizchi3svg11PathCommand6LineTo(p.x + 0, p.y + 0));
         i.val = i.val + 1 | 0;
       } else {
         const ctrl_x = p.x + 0;
@@ -24344,14 +24366,14 @@ function _M0FP26mizchi4font17contour__to__path(contour, commands) {
           $panic();
         }
         const next_idx = (i.val + 1 | 0) % n | 0;
-        const next = _M0MP311moonbitlang4core5array5Array2atGRP26mizchi4font10GlyphPointE(contour, next_idx);
+        const next = _M0MPC15array5Array2atGRP26mizchi22kagura__effect__studio11EffectTrackE(contour, next_idx);
         if (next.on_curve) {
-          _M0MP311moonbitlang4core5array5Array4pushGRP26mizchi3svg11PathCommandE(commands, new $64$mizchi$47$svg$46$PathCommand$QuadraticCurveTo(ctrl_x, ctrl_y, next.x + 0, next.y + 0));
+          _M0MPC15array5Array4pushGRP36mizchi6kagura4core10TouchPointE(commands, new _M0DTP26mizchi3svg11PathCommand16QuadraticCurveTo(ctrl_x, ctrl_y, next.x + 0, next.y + 0));
           i.val = i.val + 2 | 0;
         } else {
           const mid_x = (ctrl_x + (next.x + 0)) / 2;
           const mid_y = (ctrl_y + (next.y + 0)) / 2;
-          _M0MP311moonbitlang4core5array5Array4pushGRP26mizchi3svg11PathCommandE(commands, new $64$mizchi$47$svg$46$PathCommand$QuadraticCurveTo(ctrl_x, ctrl_y, mid_x, mid_y));
+          _M0MPC15array5Array4pushGRP36mizchi6kagura4core10TouchPointE(commands, new _M0DTP26mizchi3svg11PathCommand16QuadraticCurveTo(ctrl_x, ctrl_y, mid_x, mid_y));
           i.val = i.val + 1 | 0;
         }
       }
@@ -24360,25 +24382,24 @@ function _M0FP26mizchi4font17contour__to__path(contour, commands) {
       break;
     }
   }
-  _M0MP311moonbitlang4core5array5Array4pushGRP26mizchi3svg11PathCommandE(commands, $64$mizchi$47$svg$46$PathCommand$ClosePath);
+  _M0MPC15array5Array4pushGRP36mizchi6kagura4core10TouchPointE(commands, _M0DTP26mizchi3svg11PathCommand9ClosePath__);
 }
 function _M0FP26mizchi4font28contours__to__path__commands(contours) {
   const commands = [];
-  const _arr = contours;
-  const _len = _arr.length;
+  const _bind = contours.length;
   let _tmp = 0;
   while (true) {
-    const _i = _tmp;
-    if (_i < _len) {
+    const _ = _tmp;
+    if (_ < _bind) {
+      const contour = contours[_];
       _L: {
-        const contour = _arr[_i];
-        if (_M0MP311moonbitlang4core5array5Array9is__emptyGRP26mizchi4font10GlyphPointE(contour)) {
+        if (_M0MPC15array5Array9is__emptyGRP26mizchi4font10GlyphPointE(contour)) {
           break _L;
         }
         _M0FP26mizchi4font17contour__to__path(contour, commands);
         break _L;
       }
-      _tmp = _i + 1 | 0;
+      _tmp = _ + 1 | 0;
       continue;
     } else {
       break;
@@ -24388,13 +24409,12 @@ function _M0FP26mizchi4font28contours__to__path__commands(contours) {
 }
 function _M0FP26mizchi4font19transform__commands(commands, dx, dy, sx, sy) {
   const result = [];
-  const _arr = commands;
-  const _len = _arr.length;
+  const _bind = commands.length;
   let _tmp = 0;
   while (true) {
-    const _i = _tmp;
-    if (_i < _len) {
-      const cmd = _arr[_i];
+    const _ = _tmp;
+    if (_ < _bind) {
+      const cmd = commands[_];
       let transformed;
       let x;
       let cx2;
@@ -24464,7 +24484,7 @@ function _M0FP26mizchi4font19transform__commands(commands, dx, dy, sx, sy) {
                           break _L$2;
                         }
                         case 9: {
-                          transformed = $64$mizchi$47$svg$46$PathCommand$ClosePath;
+                          transformed = _M0DTP26mizchi3svg11PathCommand9ClosePath__;
                           break;
                         }
                         default: {
@@ -24473,22 +24493,22 @@ function _M0FP26mizchi4font19transform__commands(commands, dx, dy, sx, sy) {
                       }
                       break _L$7;
                     }
-                    transformed = new $64$mizchi$47$svg$46$PathCommand$MoveTo(x$4 * sx + dx, y$4 * sy + dy);
+                    transformed = new _M0DTP26mizchi3svg11PathCommand6MoveTo(x$4 * sx + dx, y$4 * sy + dy);
                   }
                   break _L$5;
                 }
-                transformed = new $64$mizchi$47$svg$46$PathCommand$LineTo(x$3 * sx + dx, y$3 * sy + dy);
+                transformed = new _M0DTP26mizchi3svg11PathCommand6LineTo(x$3 * sx + dx, y$3 * sy + dy);
               }
               break _L$3;
             }
-            transformed = new $64$mizchi$47$svg$46$PathCommand$QuadraticCurveTo(cx * sx + dx, cy * sy + dy, x$2 * sx + dx, y$2 * sy + dy);
+            transformed = new _M0DTP26mizchi3svg11PathCommand16QuadraticCurveTo(cx * sx + dx, cy * sy + dy, x$2 * sx + dx, y$2 * sy + dy);
           }
           break _L;
         }
-        transformed = new $64$mizchi$47$svg$46$PathCommand$CurveTo(cx1 * sx + dx, cy1 * sy + dy, cx2 * sx + dx, cy2 * sy + dy, x * sx + dx, y * sy + dy);
+        transformed = new _M0DTP26mizchi3svg11PathCommand7CurveTo(cx1 * sx + dx, cy1 * sy + dy, cx2 * sx + dx, cy2 * sy + dy, x * sx + dx, y * sy + dy);
       }
-      _M0MP311moonbitlang4core5array5Array4pushGRP26mizchi3svg11PathCommandE(result, transformed);
-      _tmp = _i + 1 | 0;
+      _M0MPC15array5Array4pushGRP36mizchi6kagura4core10TouchPointE(result, transformed);
+      _tmp = _ + 1 | 0;
       continue;
     } else {
       break;
@@ -24498,29 +24518,28 @@ function _M0FP26mizchi4font19transform__commands(commands, dx, dy, sx, sy) {
 }
 function _M0FP26mizchi4font18assemble__contours(x_coords, y_coords, flags, end_points) {
   const contours = [];
-  const start = { val: 0 };
-  const _arr = end_points;
-  const _len = _arr.length;
+  const start = new _M0TPC13ref3RefGiE(0);
+  const _bind = end_points.length;
   let _tmp = 0;
   while (true) {
-    const _i = _tmp;
-    if (_i < _len) {
-      const ep = _arr[_i];
+    const _ = _tmp;
+    if (_ < _bind) {
+      const ep = end_points[_];
       const contour = [];
       let _tmp$2 = start.val;
       while (true) {
         const j = _tmp$2;
         if (j <= ep) {
-          _M0MP311moonbitlang4core5array5Array4pushGRP26mizchi4font10GlyphPointE(contour, { x: _M0MP311moonbitlang4core5array5Array2atGiE(x_coords, j), y: _M0MP311moonbitlang4core5array5Array2atGiE(y_coords, j), on_curve: (_M0MP311moonbitlang4core5array5Array2atGiE(flags, j) & 1) !== 0 });
+          _M0MPC15array5Array4pushGRP36mizchi6kagura4core10TouchPointE(contour, new _M0TP26mizchi4font10GlyphPoint(_M0MPC15array5Array2atGiE(x_coords, j), _M0MPC15array5Array2atGiE(y_coords, j), (_M0MPC15array5Array2atGiE(flags, j) & 1) !== 0));
           _tmp$2 = j + 1 | 0;
           continue;
         } else {
           break;
         }
       }
-      _M0MP311moonbitlang4core5array5Array4pushGRP311moonbitlang4core7builtin5ArrayGRP26mizchi4font10GlyphPointEE(contours, contour);
+      _M0MPC15array5Array4pushGRPB5ArrayGUiiEEE(contours, contour);
       start.val = ep + 1 | 0;
-      _tmp = _i + 1 | 0;
+      _tmp = _ + 1 | 0;
       continue;
     } else {
       break;
@@ -24529,34 +24548,34 @@ function _M0FP26mizchi4font18assemble__contours(x_coords, y_coords, flags, end_p
   return contours;
 }
 function _M0FP26mizchi4font20parse__glyph__points(reader, num_contours) {
-  const end_points = _M0MP311moonbitlang4core5array5Array11new_2einnerGiE(num_contours);
+  const end_points = _M0MPC15array5Array11new_2einnerGiE(num_contours);
   let _tmp = 0;
   while (true) {
     const i = _tmp;
     if (i < num_contours) {
-      _M0MP311moonbitlang4core5array5Array4pushGiE(end_points, _M0MP26mizchi4font12BinaryReader12read__uint16(reader));
+      _M0MPC15array5Array4pushGiE(end_points, _M0MP26mizchi4font12BinaryReader12read__uint16(reader));
       _tmp = i + 1 | 0;
       continue;
     } else {
       break;
     }
   }
-  const num_points = num_contours > 0 ? _M0MP311moonbitlang4core5array5Array2atGiE(end_points, num_contours - 1 | 0) + 1 | 0 : 0;
+  const num_points = num_contours > 0 ? _M0MPC15array5Array2atGiE(end_points, num_contours - 1 | 0) + 1 | 0 : 0;
   const instruction_length = _M0MP26mizchi4font12BinaryReader12read__uint16(reader);
   _M0MP26mizchi4font12BinaryReader4skip(reader, instruction_length);
-  const flags = _M0MP311moonbitlang4core5array5Array11new_2einnerGiE(num_points);
-  const i = { val: 0 };
+  const flags = _M0MPC15array5Array11new_2einnerGiE(num_points);
+  const i = new _M0TPC13ref3RefGiE(0);
   while (true) {
     if (i.val < num_points) {
       const flag = _M0MP26mizchi4font12BinaryReader11read__uint8(reader);
-      _M0MP311moonbitlang4core5array5Array4pushGiE(flags, flag);
+      _M0MPC15array5Array4pushGiE(flags, flag);
       if ((flag & 8) !== 0) {
         const repeat_count = _M0MP26mizchi4font12BinaryReader11read__uint8(reader);
         let _tmp$2 = 0;
         while (true) {
           const _j = _tmp$2;
           if (_j < repeat_count) {
-            _M0MP311moonbitlang4core5array5Array4pushGiE(flags, flag);
+            _M0MPC15array5Array4pushGiE(flags, flag);
             _tmp$2 = _j + 1 | 0;
             continue;
           } else {
@@ -24571,13 +24590,13 @@ function _M0FP26mizchi4font20parse__glyph__points(reader, num_contours) {
       break;
     }
   }
-  const x_coords = _M0MP311moonbitlang4core5array5Array11new_2einnerGiE(num_points);
-  const x = { val: 0 };
+  const x_coords = _M0MPC15array5Array11new_2einnerGiE(num_points);
+  const x = new _M0TPC13ref3RefGiE(0);
   let _tmp$2 = 0;
   while (true) {
     const i$2 = _tmp$2;
     if (i$2 < num_points) {
-      const flag = _M0MP311moonbitlang4core5array5Array2atGiE(flags, i$2);
+      const flag = _M0MPC15array5Array2atGiE(flags, i$2);
       const x_short = (flag & 2) !== 0;
       const x_same = (flag & 16) !== 0;
       if (x_short) {
@@ -24593,20 +24612,20 @@ function _M0FP26mizchi4font20parse__glyph__points(reader, num_contours) {
           x.val = x.val + _M0MP26mizchi4font12BinaryReader11read__int16(reader) | 0;
         }
       }
-      _M0MP311moonbitlang4core5array5Array4pushGiE(x_coords, x.val);
+      _M0MPC15array5Array4pushGiE(x_coords, x.val);
       _tmp$2 = i$2 + 1 | 0;
       continue;
     } else {
       break;
     }
   }
-  const y_coords = _M0MP311moonbitlang4core5array5Array11new_2einnerGiE(num_points);
-  const y = { val: 0 };
+  const y_coords = _M0MPC15array5Array11new_2einnerGiE(num_points);
+  const y = new _M0TPC13ref3RefGiE(0);
   let _tmp$3 = 0;
   while (true) {
     const i$2 = _tmp$3;
     if (i$2 < num_points) {
-      const flag = _M0MP311moonbitlang4core5array5Array2atGiE(flags, i$2);
+      const flag = _M0MPC15array5Array2atGiE(flags, i$2);
       const y_short = (flag & 4) !== 0;
       const y_same = (flag & 32) !== 0;
       if (y_short) {
@@ -24622,7 +24641,7 @@ function _M0FP26mizchi4font20parse__glyph__points(reader, num_contours) {
           y.val = y.val + _M0MP26mizchi4font12BinaryReader11read__int16(reader) | 0;
         }
       }
-      _M0MP311moonbitlang4core5array5Array4pushGiE(y_coords, y.val);
+      _M0MPC15array5Array4pushGiE(y_coords, y.val);
       _tmp$3 = i$2 + 1 | 0;
       continue;
     } else {
@@ -24682,8 +24701,8 @@ function _M0FP26mizchi4font22glyph__outline__by__id(font, glyph_id) {
   return _M0FP26mizchi4font24cff__glyph__outline__var(font.data, cff, glyph_id, scalars);
 }
 function _M0FP26mizchi4font21glyf__outline__by__id(font, glyph_id) {
-  const glyf_offset = _M0MP311moonbitlang4core5array5Array2atGiE(font.loca, glyph_id);
-  const next_offset = _M0MP311moonbitlang4core5array5Array2atGiE(font.loca, glyph_id + 1 | 0);
+  const glyf_offset = _M0MPC15array5Array2atGiE(font.loca, glyph_id);
+  const next_offset = _M0MPC15array5Array2atGiE(font.loca, glyph_id + 1 | 0);
   if (glyf_offset === next_offset) {
     return [];
   }
@@ -24703,13 +24722,13 @@ function _M0FP26mizchi4font21glyf__outline__by__id(font, glyph_id) {
 }
 function _M0FP26mizchi4font22parse__compound__glyph(font, reader) {
   const commands = [];
-  const has_more = { val: true };
+  const has_more = new _M0TPC13ref3RefGbE(true);
   while (true) {
     if (has_more.val) {
       const flags = _M0MP26mizchi4font12BinaryReader12read__uint16(reader);
       const glyph_index = _M0MP26mizchi4font12BinaryReader12read__uint16(reader);
-      const dx = { val: 0 };
-      const dy = { val: 0 };
+      const dx = new _M0TPC13ref3RefGdE(0);
+      const dy = new _M0TPC13ref3RefGdE(0);
       const arg1_and_2_are_words = (flags & 1) !== 0;
       const args_are_xy = (flags & 2) !== 0;
       if (arg1_and_2_are_words) {
@@ -24729,8 +24748,8 @@ function _M0FP26mizchi4font22parse__compound__glyph(font, reader) {
           _M0MP26mizchi4font12BinaryReader11read__uint8(reader);
         }
       }
-      const sx = { val: 1 };
-      const sy = { val: 1 };
+      const sx = new _M0TPC13ref3RefGdE(1);
+      const sy = new _M0TPC13ref3RefGdE(1);
       const we_have_a_scale = (flags & 8) !== 0;
       const we_have_an_x_and_y_scale = (flags & 64) !== 0;
       const we_have_a_two_by_two = (flags & 128) !== 0;
@@ -24752,15 +24771,14 @@ function _M0FP26mizchi4font22parse__compound__glyph(font, reader) {
       }
       const component_cmds = _M0FP26mizchi4font22glyph__outline__by__id(font, glyph_index);
       const transformed = _M0FP26mizchi4font19transform__commands(component_cmds, dx.val, dy.val, sx.val, sy.val);
-      const _arr = transformed;
-      const _len = _arr.length;
+      const _bind = transformed.length;
       let _tmp = 0;
       while (true) {
-        const _i = _tmp;
-        if (_i < _len) {
-          const cmd = _arr[_i];
-          _M0MP311moonbitlang4core5array5Array4pushGRP26mizchi3svg11PathCommandE(commands, cmd);
-          _tmp = _i + 1 | 0;
+        const _ = _tmp;
+        if (_ < _bind) {
+          const cmd = transformed[_];
+          _M0MPC15array5Array4pushGRP36mizchi6kagura4core10TouchPointE(commands, cmd);
+          _tmp = _ + 1 | 0;
           continue;
         } else {
           break;
@@ -24782,14 +24800,14 @@ function _M0MP26mizchi4font6TTFont13char__outline(self, codepoint) {
   return _M0MP26mizchi4font6TTFont14glyph__outline(self, gid);
 }
 function _M0MP26mizchi4font6TTFont14glyph__metrics(self, glyph_id) {
-  const advance = glyph_id < self.advance_widths.length ? _M0MP311moonbitlang4core5array5Array2atGiE(self.advance_widths, glyph_id) : 0;
-  const lsb = glyph_id < self.left_side_bearings.length ? _M0MP311moonbitlang4core5array5Array2atGiE(self.left_side_bearings, glyph_id) : 0;
+  const advance = glyph_id < self.advance_widths.length ? _M0MPC15array5Array2atGiE(self.advance_widths, glyph_id) : 0;
+  const lsb = glyph_id < self.left_side_bearings.length ? _M0MPC15array5Array2atGiE(self.left_side_bearings, glyph_id) : 0;
   const _bind = self.cff;
   let bbox;
   if (_bind === undefined) {
     if (glyph_id < self.num_glyphs && glyph_id < (self.loca.length - 1 | 0)) {
-      const glyf_off = _M0MP311moonbitlang4core5array5Array2atGiE(self.loca, glyph_id);
-      const next_off = _M0MP311moonbitlang4core5array5Array2atGiE(self.loca, glyph_id + 1 | 0);
+      const glyf_off = _M0MPC15array5Array2atGiE(self.loca, glyph_id);
+      const next_off = _M0MPC15array5Array2atGiE(self.loca, glyph_id + 1 | 0);
       if (glyf_off !== next_off) {
         const offset = self.glyf_offset + glyf_off | 0;
         const r = _M0MP26mizchi4font12BinaryReader2at(self.data, offset);
@@ -24798,28 +24816,27 @@ function _M0MP26mizchi4font6TTFont14glyph__metrics(self, glyph_id) {
         const y_min = _M0MP26mizchi4font12BinaryReader11read__int16(r);
         const x_max = _M0MP26mizchi4font12BinaryReader11read__int16(r);
         const y_max = _M0MP26mizchi4font12BinaryReader11read__int16(r);
-        bbox = { x_min: x_min, y_min: y_min, x_max: x_max, y_max: y_max };
+        bbox = new _M0TP26mizchi4font9GlyphBBox(x_min, y_min, x_max, y_max);
       } else {
-        bbox = { x_min: 0, y_min: 0, x_max: 0, y_max: 0 };
+        bbox = new _M0TP26mizchi4font9GlyphBBox(0, 0, 0, 0);
       }
     } else {
-      bbox = { x_min: 0, y_min: 0, x_max: 0, y_max: 0 };
+      bbox = new _M0TP26mizchi4font9GlyphBBox(0, 0, 0, 0);
     }
   } else {
-    bbox = { x_min: 0, y_min: 0, x_max: 0, y_max: 0 };
+    bbox = new _M0TP26mizchi4font9GlyphBBox(0, 0, 0, 0);
   }
-  return { advance_width: advance, left_side_bearing: lsb, bbox: bbox };
+  return new _M0TP26mizchi4font12GlyphMetrics(advance, lsb, bbox);
 }
 function _M0FP26mizchi4font15scale__commands(commands, scale, flip_y) {
   const result = [];
   const ys = flip_y ? -scale : scale;
-  const _arr = commands;
-  const _len = _arr.length;
+  const _bind = commands.length;
   let _tmp = 0;
   while (true) {
-    const _i = _tmp;
-    if (_i < _len) {
-      const cmd = _arr[_i];
+    const _ = _tmp;
+    if (_ < _bind) {
+      const cmd = commands[_];
       let scaled;
       let x;
       let cx2;
@@ -24889,7 +24906,7 @@ function _M0FP26mizchi4font15scale__commands(commands, scale, flip_y) {
                           break _L$2;
                         }
                         case 9: {
-                          scaled = $64$mizchi$47$svg$46$PathCommand$ClosePath;
+                          scaled = _M0DTP26mizchi3svg11PathCommand9ClosePath__;
                           break;
                         }
                         default: {
@@ -24898,22 +24915,22 @@ function _M0FP26mizchi4font15scale__commands(commands, scale, flip_y) {
                       }
                       break _L$7;
                     }
-                    scaled = new $64$mizchi$47$svg$46$PathCommand$MoveTo(x$4 * scale, y$4 * ys);
+                    scaled = new _M0DTP26mizchi3svg11PathCommand6MoveTo(x$4 * scale, y$4 * ys);
                   }
                   break _L$5;
                 }
-                scaled = new $64$mizchi$47$svg$46$PathCommand$LineTo(x$3 * scale, y$3 * ys);
+                scaled = new _M0DTP26mizchi3svg11PathCommand6LineTo(x$3 * scale, y$3 * ys);
               }
               break _L$3;
             }
-            scaled = new $64$mizchi$47$svg$46$PathCommand$QuadraticCurveTo(cx * scale, cy * ys, x$2 * scale, y$2 * ys);
+            scaled = new _M0DTP26mizchi3svg11PathCommand16QuadraticCurveTo(cx * scale, cy * ys, x$2 * scale, y$2 * ys);
           }
           break _L;
         }
-        scaled = new $64$mizchi$47$svg$46$PathCommand$CurveTo(cx1 * scale, cy1 * ys, cx2 * scale, cy2 * ys, x * scale, y * ys);
+        scaled = new _M0DTP26mizchi3svg11PathCommand7CurveTo(cx1 * scale, cy1 * ys, cx2 * scale, cy2 * ys, x * scale, y * ys);
       }
-      _M0MP311moonbitlang4core5array5Array4pushGRP26mizchi3svg11PathCommandE(result, scaled);
-      _tmp = _i + 1 | 0;
+      _M0MPC15array5Array4pushGRP36mizchi6kagura4core10TouchPointE(result, scaled);
+      _tmp = _ + 1 | 0;
       continue;
     } else {
       break;
@@ -24928,12 +24945,12 @@ function _M0MP26mizchi4font6TTFont15scaled__outline(self, codepoint, font_size) 
 }
 function _M0MP26mizchi4font6TTFont10kern__pair(self, left_gid, right_gid) {
   const key = left_gid << 16 | right_gid;
-  return _M0MP311moonbitlang4core6option6Option10unwrap__orGiE(_M0MP311moonbitlang4core7builtin3Map3getGiiE(self.kern_pairs, key), 0);
+  return _M0MPC16option6Option10unwrap__orGiE(_M0MPB3Map3getGiiE(self.kern_pairs, key), 0);
 }
 function _M0FP26mizchi4font22string__to__codepoints(s) {
   const result = [];
   const len = s.length;
-  const i = { val: 0 };
+  const i = new _M0TPC13ref3RefGiE(0);
   while (true) {
     if (i.val < len) {
       const _tmp = i.val;
@@ -24945,12 +24962,12 @@ function _M0FP26mizchi4font22string__to__codepoints(s) {
         const lo = s.charCodeAt(_tmp$2);
         if (lo >= 56320 && lo <= 57343) {
           const cp = (65536 + ((c - 55296 | 0) << 10) | 0) + (lo - 56320 | 0) | 0;
-          _M0MP311moonbitlang4core5array5Array4pushGiE(result, cp);
+          _M0MPC15array5Array4pushGiE(result, cp);
           i.val = i.val + 2 | 0;
           continue;
         }
       }
-      _M0MP311moonbitlang4core5array5Array4pushGiE(result, c);
+      _M0MPC15array5Array4pushGiE(result, c);
       i.val = i.val + 1 | 0;
       continue;
     } else {
@@ -24963,26 +24980,25 @@ function _M0MP26mizchi4font6TTFont12layout__text(self, text, font_size) {
   const scale = font_size / (self.units_per_em + 0);
   const codepoints = _M0FP26mizchi4font22string__to__codepoints(text);
   const positions = [];
-  const x = { val: 0 };
-  const prev_gid = { val: -1 };
-  const _arr = codepoints;
-  const _len = _arr.length;
+  const x = new _M0TPC13ref3RefGdE(0);
+  const prev_gid = new _M0TPC13ref3RefGiE(-1);
+  const _bind = codepoints.length;
   let _tmp = 0;
   while (true) {
-    const _i = _tmp;
-    if (_i < _len) {
-      const cp = _arr[_i];
+    const _ = _tmp;
+    if (_ < _bind) {
+      const cp = codepoints[_];
       const gid = _M0MP26mizchi4font6TTFont12glyph__index(self, cp);
       if (prev_gid.val >= 0) {
         const kern = _M0MP26mizchi4font6TTFont10kern__pair(self, prev_gid.val, gid);
         x.val = x.val + (kern + 0) * scale;
       }
-      const advance = gid < self.advance_widths.length ? _M0MP311moonbitlang4core5array5Array2atGiE(self.advance_widths, gid) : 0;
+      const advance = gid < self.advance_widths.length ? _M0MPC15array5Array2atGiE(self.advance_widths, gid) : 0;
       const x_advance = (advance + 0) * scale;
-      _M0MP311moonbitlang4core5array5Array4pushGRP26mizchi4font13GlyphPositionE(positions, { codepoint: cp, glyph_id: gid, x_offset: x.val, y_offset: 0, x_advance: x_advance });
+      _M0MPC15array5Array4pushGRP36mizchi6kagura4core10TouchPointE(positions, new _M0TP26mizchi4font13GlyphPosition(cp, gid, x.val, 0, x_advance));
       x.val = x.val + x_advance;
       prev_gid.val = gid;
-      _tmp = _i + 1 | 0;
+      _tmp = _ + 1 | 0;
       continue;
     } else {
       break;
@@ -24991,20 +25007,20 @@ function _M0MP26mizchi4font6TTFont12layout__text(self, text, font_size) {
   return positions;
 }
 function _M0FP36mizchi6kagura4text23make__glyph__cache__key(glyph_id, size_px) {
-  const size_quantized = _M0MP311moonbitlang4core6double6Double7to__int(size_px * 10 + 0.5);
+  const size_quantized = _M0MPC16double6Double7to__int(size_px * 10 + 0.5);
   return (Math.imul(glyph_id, 40960) | 0) + size_quantized | 0;
 }
 function _M0MP36mizchi6kagura4text10GlyphCache3new(atlas_width, atlas_height, atlas_page_id) {
   const _bind = [];
-  return { entries: _M0MP311moonbitlang4core7builtin3Map11from__arrayGiRP36mizchi6kagura4text15GlyphCacheEntryE({ buf: _bind, start: 0, end: 0 }), next_x: 0, next_y: 0, row_height: 0, atlas_width: atlas_width, atlas_height: atlas_height, atlas_page_id: atlas_page_id };
+  return new _M0TP36mizchi6kagura4text10GlyphCache(_M0MPB3Map11from__arrayGiRP36mizchi6kagura4text15GlyphCacheEntryE(new _M0TPB9ArrayViewGUiRP36mizchi6kagura4text15GlyphCacheEntryEE(_bind, 0, 0)), 0, 0, 0, atlas_width, atlas_height, atlas_page_id);
 }
 function _M0MP36mizchi6kagura4text10GlyphCache3get(self, glyph_id) {
-  return _M0MP311moonbitlang4core7builtin3Map3getGiRP36mizchi6kagura4text15GlyphCacheEntryE(self.entries, glyph_id);
+  return _M0MPB3Map3getGiRP36mizchi6kagura4text15GlyphCacheEntryE(self.entries, glyph_id);
 }
 function _M0MP36mizchi6kagura4text10GlyphCache8allocate(self, glyph_id, width, height) {
   let entry;
   _L: {
-    const _bind = _M0MP311moonbitlang4core7builtin3Map3getGiRP36mizchi6kagura4text15GlyphCacheEntryE(self.entries, glyph_id);
+    const _bind = _M0MPB3Map3getGiRP36mizchi6kagura4text15GlyphCacheEntryE(self.entries, glyph_id);
     if (_bind === undefined) {
       const padding = 1;
       const padded_w = width + padding;
@@ -25017,8 +25033,8 @@ function _M0MP36mizchi6kagura4text10GlyphCache8allocate(self, glyph_id, width, h
       if (self.next_y + padded_h > self.atlas_height) {
         return undefined;
       }
-      const entry$2 = { glyph_id: glyph_id, atlas_x: self.next_x, atlas_y: self.next_y, atlas_w: width, atlas_h: height, atlas_page_id: self.atlas_page_id };
-      _M0MP311moonbitlang4core7builtin3Map3setGiRP36mizchi6kagura4text15GlyphCacheEntryE(self.entries, glyph_id, entry$2);
+      const entry$2 = new _M0TP36mizchi6kagura4text15GlyphCacheEntry(glyph_id, self.next_x, self.next_y, width, height, self.atlas_page_id);
+      _M0MPB3Map3setGiRP36mizchi6kagura4text15GlyphCacheEntryE(self.entries, glyph_id, entry$2);
       self.next_x = self.next_x + padded_w;
       if (padded_h > self.row_height) {
         self.row_height = padded_h;
@@ -25034,7 +25050,7 @@ function _M0MP36mizchi6kagura4text10GlyphCache8allocate(self, glyph_id, width, h
   return entry;
 }
 function _M0MP36mizchi6kagura4text10GlyphCache5clear(self) {
-  _M0MP311moonbitlang4core7builtin3Map5clearGiRP36mizchi6kagura4text15GlyphCacheEntryE(self.entries);
+  _M0MPB3Map5clearGiRP36mizchi6kagura4text15GlyphCacheEntryE(self.entries);
   self.next_x = 0;
   self.next_y = 0;
   self.row_height = 0;
@@ -25058,8 +25074,8 @@ function _M0FP36mizchi6kagura4text15blit__to__atlas(atlas_pixels, atlas_width, s
   }
   const src_x_start = dst_x < 0 ? -dst_x | 0 : 0;
   const src_y_start = dst_y < 0 ? -dst_y | 0 : 0;
-  const src_x_end = { val: src.width };
-  const src_y_end = { val: src.height };
+  const src_x_end = new _M0TPC13ref3RefGiE(src.width);
+  const src_y_end = new _M0TPC13ref3RefGiE(src.height);
   if ((dst_x + src_x_end.val | 0) > atlas_width) {
     src_x_end.val = atlas_width - dst_x | 0;
   }
@@ -25071,15 +25087,14 @@ function _M0FP36mizchi6kagura4text15blit__to__atlas(atlas_pixels, atlas_width, s
   }
   const copy_width = src_x_end.val - src_x_start | 0;
   const row_copy_len = Math.imul(copy_width, 4) | 0;
-  const _start248 = src_y_start;
-  const _end249 = src_y_end.val;
-  let _tmp = _start248;
+  const _bind = src_y_end.val;
+  let _tmp = src_y_start;
   while (true) {
     const row = _tmp;
-    if (row < _end249) {
+    if (row < _bind) {
       const src_offset = Math.imul((Math.imul(row, src.width) | 0) + src_x_start | 0, 4) | 0;
       const dst_offset = Math.imul((Math.imul(dst_y + row | 0, atlas_width) | 0) + (dst_x + src_x_start | 0) | 0, 4) | 0;
-      _M0MP311moonbitlang4core5array9ArrayView16blit__to_2einnerGiE(_M0MP311moonbitlang4core5array5Array12view_2einnerGiE(src.pixels, src_offset, src_offset + row_copy_len | 0), atlas_pixels, dst_offset);
+      _M0MPC15array9ArrayView16blit__to_2einnerGiE(_M0MPC15array5Array12view_2einnerGiE(src.pixels, src_offset, src_offset + row_copy_len | 0), atlas_pixels, dst_offset);
       _tmp = row + 1 | 0;
       continue;
     } else {
@@ -25089,51 +25104,48 @@ function _M0FP36mizchi6kagura4text15blit__to__atlas(atlas_pixels, atlas_width, s
 }
 function _M0MP36mizchi6kagura4text10GlyphAtlas3new(width, height, page_id) {
   const total = Math.imul(Math.imul(width, height) | 0, 4) | 0;
-  const pixels = _M0MP311moonbitlang4core5array5Array4makeGiE(total, 0);
-  return { cache: _M0MP36mizchi6kagura4text10GlyphCache3new(width + 0, height + 0, page_id), width: width, height: height, pixels: pixels, dirty: false, last_used_generation: 0 };
+  const pixels = _M0MPC15array5Array4makeGiE(total, 0);
+  return new _M0TP36mizchi6kagura4text10GlyphAtlas(_M0MP36mizchi6kagura4text10GlyphCache3new(width + 0, height + 0, page_id), width, height, pixels, false, 0);
 }
 function _M0MP36mizchi6kagura4text22SimpleTextBatchBuilder3new(cache, pipeline_id) {
-  return { cache: cache, pipeline_id: pipeline_id };
+  return new _M0TP36mizchi6kagura4text22SimpleTextBatchBuilder(cache, pipeline_id);
 }
 function _M0FP36mizchi6kagura4text41simple__text__batch__resource__cache__key(target, shader, pipeline_id, region, src_image_ids, vertex_data, indices) {
   const values = [target.id, target.width, target.height, shader.id, pipeline_id, region.x, region.y, region.width, region.height, region.index_count, src_image_ids.length, vertex_data.length, indices.length];
-  const _arr = src_image_ids;
-  const _len = _arr.length;
+  const _bind = src_image_ids.length;
   let _tmp = 0;
   while (true) {
-    const _i = _tmp;
-    if (_i < _len) {
-      const image_id = _arr[_i];
-      _M0MP311moonbitlang4core5array5Array4pushGiE(values, image_id);
-      _tmp = _i + 1 | 0;
+    const _ = _tmp;
+    if (_ < _bind) {
+      const image_id = src_image_ids[_];
+      _M0MPC15array5Array4pushGiE(values, image_id);
+      _tmp = _ + 1 | 0;
       continue;
     } else {
       break;
     }
   }
-  const _arr$2 = vertex_data;
-  const _len$2 = _arr$2.length;
+  const _bind$2 = vertex_data.length;
   let _tmp$2 = 0;
   while (true) {
-    const _i = _tmp$2;
-    if (_i < _len$2) {
-      const v = _arr$2[_i];
-      _M0MP311moonbitlang4core5array5Array4pushGiE(values, _M0FP36mizchi6kagura3gfx21double__to__f32__bits(v));
-      _tmp$2 = _i + 1 | 0;
+    const _ = _tmp$2;
+    if (_ < _bind$2) {
+      const v = vertex_data[_];
+      _M0MPC15array5Array4pushGiE(values, _M0FP36mizchi6kagura3gfx21double__to__f32__bits(v));
+      _tmp$2 = _ + 1 | 0;
       continue;
     } else {
       break;
     }
   }
-  const _arr$3 = indices;
-  const _len$3 = _arr$3.length;
+  const _bind$3 = indices.length;
   let _tmp$3 = 0;
   while (true) {
-    const _i = _tmp$3;
-    if (_i < _len$3) {
-      const index = _arr$3[_i];
-      _M0MP311moonbitlang4core5array5Array4pushGiE(values, index);
-      _tmp$3 = _i + 1 | 0;
+    const _ = _tmp$3;
+    if (_ < _bind$3) {
+      const index = indices[_];
+      _M0MPC15array5Array4pushGiE(values, index);
+      _tmp$3 = _ + 1 | 0;
       continue;
     } else {
       break;
@@ -25143,42 +25155,41 @@ function _M0FP36mizchi6kagura4text41simple__text__batch__resource__cache__key(ta
 }
 function _M0IP36mizchi6kagura4text22SimpleTextBatchBuilderP36mizchi6kagura4text16TextBatchBuilder21build__draw__commands(self, target, glyphs, shader) {
   if (glyphs.length === 0) {
-    return new Result$Ok$9$([]);
+    return new _M0DTPC16result6ResultGRPB5ArrayGRP36mizchi6kagura3gfx20DrawTrianglesCommandERPC15error5ErrorE2Ok([]);
   }
-  const vertex_data = _M0MP311moonbitlang4core5array5Array4makeGdE(Math.imul(glyphs.length, 16) | 0, 0);
-  const indices = _M0MP311moonbitlang4core5array5Array4makeGiE(Math.imul(glyphs.length, 6) | 0, 0);
+  const vertex_data = _M0MPC15array5Array4makeGdE(Math.imul(glyphs.length, 16) | 0, 0);
+  const indices = _M0MPC15array5Array4makeGiE(Math.imul(glyphs.length, 6) | 0, 0);
   const inv_atlas_w = 1 / self.cache.atlas_width;
   const inv_atlas_h = 1 / self.cache.atlas_height;
-  const vertex_offset = { val: 0 };
-  const index_offset = { val: 0 };
-  const vertex_base = { val: 0 };
-  const has_region = { val: false };
-  const min_x = { val: 0 };
-  const min_y = { val: 0 };
-  const max_x = { val: 0 };
-  const max_y = { val: 0 };
-  const src_image_id = { val: -1 };
-  const _arr = glyphs;
-  const _len = _arr.length;
+  const vertex_offset = new _M0TPC13ref3RefGiE(0);
+  const index_offset = new _M0TPC13ref3RefGiE(0);
+  const vertex_base = new _M0TPC13ref3RefGiE(0);
+  const has_region = new _M0TPC13ref3RefGbE(false);
+  const min_x = new _M0TPC13ref3RefGiE(0);
+  const min_y = new _M0TPC13ref3RefGiE(0);
+  const max_x = new _M0TPC13ref3RefGiE(0);
+  const max_y = new _M0TPC13ref3RefGiE(0);
+  const src_image_id = new _M0TPC13ref3RefGiE(-1);
+  const _bind = glyphs.length;
   let _tmp = 0;
   while (true) {
-    const _i = _tmp;
-    if (_i < _len) {
+    const _ = _tmp;
+    if (_ < _bind) {
+      const glyph = glyphs[_];
       _L: {
-        const glyph = _arr[_i];
         let entry;
-        const _bind = _M0MP36mizchi6kagura4text10GlyphCache3get(self.cache, glyph.glyph_id);
-        if (_bind === undefined) {
-          const _bind$2 = _M0MP36mizchi6kagura4text10GlyphCache8allocate(self.cache, glyph.glyph_id, glyph.dst_w, glyph.dst_h);
-          if (_bind$2 === undefined) {
+        const _bind$2 = _M0MP36mizchi6kagura4text10GlyphCache3get(self.cache, glyph.glyph_id);
+        if (_bind$2 === undefined) {
+          const _bind$3 = _M0MP36mizchi6kagura4text10GlyphCache8allocate(self.cache, glyph.glyph_id, glyph.dst_w, glyph.dst_h);
+          if (_bind$3 === undefined) {
             break _L;
           } else {
-            const _Some = _bind$2;
+            const _Some = _bind$3;
             const _e = _Some;
             entry = _e;
           }
         } else {
-          const _Some = _bind;
+          const _Some = _bind$2;
           const _e = _Some;
           entry = _e;
         }
@@ -25190,10 +25201,10 @@ function _M0IP36mizchi6kagura4text22SimpleTextBatchBuilderP36mizchi6kagura4text1
         const top = glyph.dst_y;
         const right = glyph.dst_x + glyph.dst_w;
         const bottom = glyph.dst_y + glyph.dst_h;
-        const left_i = _M0MP311moonbitlang4core6double6Double7to__int(left);
-        const top_i = _M0MP311moonbitlang4core6double6Double7to__int(top);
-        const right_i = _M0MP311moonbitlang4core6double6Double7to__int(right);
-        const bottom_i = _M0MP311moonbitlang4core6double6Double7to__int(bottom);
+        const left_i = _M0MPC16double6Double7to__int(left);
+        const top_i = _M0MPC16double6Double7to__int(top);
+        const right_i = _M0MPC16double6Double7to__int(right);
+        const bottom_i = _M0MPC16double6Double7to__int(bottom);
         if (!has_region.val) {
           min_x.val = left_i;
           min_y.val = top_i;
@@ -25214,49 +25225,49 @@ function _M0IP36mizchi6kagura4text22SimpleTextBatchBuilderP36mizchi6kagura4text1
             max_y.val = bottom_i;
           }
         }
-        _M0MP311moonbitlang4core5array5Array3setGdE(vertex_data, vertex_offset.val, left);
+        _M0MPC15array5Array3setGdE(vertex_data, vertex_offset.val, left);
         vertex_offset.val = vertex_offset.val + 1 | 0;
-        _M0MP311moonbitlang4core5array5Array3setGdE(vertex_data, vertex_offset.val, top);
+        _M0MPC15array5Array3setGdE(vertex_data, vertex_offset.val, top);
         vertex_offset.val = vertex_offset.val + 1 | 0;
-        _M0MP311moonbitlang4core5array5Array3setGdE(vertex_data, vertex_offset.val, u0);
+        _M0MPC15array5Array3setGdE(vertex_data, vertex_offset.val, u0);
         vertex_offset.val = vertex_offset.val + 1 | 0;
-        _M0MP311moonbitlang4core5array5Array3setGdE(vertex_data, vertex_offset.val, v0);
+        _M0MPC15array5Array3setGdE(vertex_data, vertex_offset.val, v0);
         vertex_offset.val = vertex_offset.val + 1 | 0;
-        _M0MP311moonbitlang4core5array5Array3setGdE(vertex_data, vertex_offset.val, right);
+        _M0MPC15array5Array3setGdE(vertex_data, vertex_offset.val, right);
         vertex_offset.val = vertex_offset.val + 1 | 0;
-        _M0MP311moonbitlang4core5array5Array3setGdE(vertex_data, vertex_offset.val, top);
+        _M0MPC15array5Array3setGdE(vertex_data, vertex_offset.val, top);
         vertex_offset.val = vertex_offset.val + 1 | 0;
-        _M0MP311moonbitlang4core5array5Array3setGdE(vertex_data, vertex_offset.val, u1);
+        _M0MPC15array5Array3setGdE(vertex_data, vertex_offset.val, u1);
         vertex_offset.val = vertex_offset.val + 1 | 0;
-        _M0MP311moonbitlang4core5array5Array3setGdE(vertex_data, vertex_offset.val, v0);
+        _M0MPC15array5Array3setGdE(vertex_data, vertex_offset.val, v0);
         vertex_offset.val = vertex_offset.val + 1 | 0;
-        _M0MP311moonbitlang4core5array5Array3setGdE(vertex_data, vertex_offset.val, right);
+        _M0MPC15array5Array3setGdE(vertex_data, vertex_offset.val, right);
         vertex_offset.val = vertex_offset.val + 1 | 0;
-        _M0MP311moonbitlang4core5array5Array3setGdE(vertex_data, vertex_offset.val, bottom);
+        _M0MPC15array5Array3setGdE(vertex_data, vertex_offset.val, bottom);
         vertex_offset.val = vertex_offset.val + 1 | 0;
-        _M0MP311moonbitlang4core5array5Array3setGdE(vertex_data, vertex_offset.val, u1);
+        _M0MPC15array5Array3setGdE(vertex_data, vertex_offset.val, u1);
         vertex_offset.val = vertex_offset.val + 1 | 0;
-        _M0MP311moonbitlang4core5array5Array3setGdE(vertex_data, vertex_offset.val, v1);
+        _M0MPC15array5Array3setGdE(vertex_data, vertex_offset.val, v1);
         vertex_offset.val = vertex_offset.val + 1 | 0;
-        _M0MP311moonbitlang4core5array5Array3setGdE(vertex_data, vertex_offset.val, left);
+        _M0MPC15array5Array3setGdE(vertex_data, vertex_offset.val, left);
         vertex_offset.val = vertex_offset.val + 1 | 0;
-        _M0MP311moonbitlang4core5array5Array3setGdE(vertex_data, vertex_offset.val, bottom);
+        _M0MPC15array5Array3setGdE(vertex_data, vertex_offset.val, bottom);
         vertex_offset.val = vertex_offset.val + 1 | 0;
-        _M0MP311moonbitlang4core5array5Array3setGdE(vertex_data, vertex_offset.val, u0);
+        _M0MPC15array5Array3setGdE(vertex_data, vertex_offset.val, u0);
         vertex_offset.val = vertex_offset.val + 1 | 0;
-        _M0MP311moonbitlang4core5array5Array3setGdE(vertex_data, vertex_offset.val, v1);
+        _M0MPC15array5Array3setGdE(vertex_data, vertex_offset.val, v1);
         vertex_offset.val = vertex_offset.val + 1 | 0;
-        _M0MP311moonbitlang4core5array5Array3setGiE(indices, index_offset.val, vertex_base.val);
+        _M0MPC15array5Array3setGiE(indices, index_offset.val, vertex_base.val);
         index_offset.val = index_offset.val + 1 | 0;
-        _M0MP311moonbitlang4core5array5Array3setGiE(indices, index_offset.val, vertex_base.val + 1 | 0);
+        _M0MPC15array5Array3setGiE(indices, index_offset.val, vertex_base.val + 1 | 0);
         index_offset.val = index_offset.val + 1 | 0;
-        _M0MP311moonbitlang4core5array5Array3setGiE(indices, index_offset.val, vertex_base.val + 2 | 0);
+        _M0MPC15array5Array3setGiE(indices, index_offset.val, vertex_base.val + 2 | 0);
         index_offset.val = index_offset.val + 1 | 0;
-        _M0MP311moonbitlang4core5array5Array3setGiE(indices, index_offset.val, vertex_base.val + 2 | 0);
+        _M0MPC15array5Array3setGiE(indices, index_offset.val, vertex_base.val + 2 | 0);
         index_offset.val = index_offset.val + 1 | 0;
-        _M0MP311moonbitlang4core5array5Array3setGiE(indices, index_offset.val, vertex_base.val + 3 | 0);
+        _M0MPC15array5Array3setGiE(indices, index_offset.val, vertex_base.val + 3 | 0);
         index_offset.val = index_offset.val + 1 | 0;
-        _M0MP311moonbitlang4core5array5Array3setGiE(indices, index_offset.val, vertex_base.val);
+        _M0MPC15array5Array3setGiE(indices, index_offset.val, vertex_base.val);
         index_offset.val = index_offset.val + 1 | 0;
         if (src_image_id.val < 0) {
           src_image_id.val = entry.atlas_page_id;
@@ -25264,7 +25275,7 @@ function _M0IP36mizchi6kagura4text22SimpleTextBatchBuilderP36mizchi6kagura4text1
         vertex_base.val = vertex_base.val + 4 | 0;
         break _L;
       }
-      _tmp = _i + 1 | 0;
+      _tmp = _ + 1 | 0;
       continue;
     } else {
       break;
@@ -25279,13 +25290,13 @@ function _M0IP36mizchi6kagura4text22SimpleTextBatchBuilderP36mizchi6kagura4text1
       command_vertex_data = vertex_data;
     } else {
       const out = [];
-      const _start43 = 0;
-      const _end44 = vertex_offset.val;
-      let _tmp$3 = _start43;
+      const _bind$2 = 0;
+      const _bind$3 = vertex_offset.val;
+      let _tmp$3 = _bind$2;
       while (true) {
         const i = _tmp$3;
-        if (i < _end44) {
-          _M0MP311moonbitlang4core5array5Array4pushGdE(out, _M0MP311moonbitlang4core5array5Array2atGdE(vertex_data, i));
+        if (i < _bind$3) {
+          _M0MPC15array5Array4pushGdE(out, _M0MPC15array5Array2atGdE(vertex_data, i));
           _tmp$3 = i + 1 | 0;
           continue;
         } else {
@@ -25299,13 +25310,13 @@ function _M0IP36mizchi6kagura4text22SimpleTextBatchBuilderP36mizchi6kagura4text1
       command_indices = indices;
     } else {
       const out = [];
-      const _start50 = 0;
-      const _end51 = index_offset.val;
-      let _tmp$3 = _start50;
+      const _bind$2 = 0;
+      const _bind$3 = index_offset.val;
+      let _tmp$3 = _bind$2;
       while (true) {
         const i = _tmp$3;
-        if (i < _end51) {
-          _M0MP311moonbitlang4core5array5Array4pushGiE(out, _M0MP311moonbitlang4core5array5Array2atGiE(indices, i));
+        if (i < _bind$3) {
+          _M0MPC15array5Array4pushGiE(out, _M0MPC15array5Array2atGiE(indices, i));
           _tmp$3 = i + 1 | 0;
           continue;
         } else {
@@ -25320,20 +25331,19 @@ function _M0IP36mizchi6kagura4text22SimpleTextBatchBuilderP36mizchi6kagura4text1
     const merged_region = _M0FP36mizchi6kagura3gfx16new__dst__region(min_x.val, min_y.val, region_width, region_height, index_offset.val);
     _tmp$2 = [_M0FP36mizchi6kagura3gfx37new__draw__triangles__command_2einner(target, shader, [merged_region], 0, self.pipeline_id, 0, _M0FP36mizchi6kagura3gfx22blend__mode__from__int(1), command_vertex_data, command_indices, src_image_ids, [], 1, _M0FP36mizchi6kagura4text41simple__text__batch__resource__cache__key(target, shader, self.pipeline_id, merged_region, src_image_ids, command_vertex_data, command_indices))];
   }
-  return new Result$Ok$9$(_tmp$2);
+  return new _M0DTPC16result6ResultGRPB5ArrayGRP36mizchi6kagura3gfx20DrawTrianglesCommandERPC15error5ErrorE2Ok(_tmp$2);
 }
 function _M0MP36mizchi6kagura4text10GlyphAtlas10get__cache(self) {
   return self.cache;
 }
 function _M0FP36mizchi6kagura4text26path__commands__to__svg__d(commands) {
   const parts = [];
-  const _arr = commands;
-  const _len = _arr.length;
+  const _bind = commands.length;
   let _tmp = 0;
   while (true) {
-    const _i = _tmp;
-    if (_i < _len) {
-      const cmd = _arr[_i];
+    const _ = _tmp;
+    if (_ < _bind) {
+      const cmd = commands[_];
       let x;
       let cx2;
       let cx1;
@@ -25402,46 +25412,44 @@ function _M0FP36mizchi6kagura4text26path__commands__to__svg__d(commands) {
                           break _L$2;
                         }
                         case 9: {
-                          _M0MP311moonbitlang4core5array5Array4pushGsE(parts, "Z");
+                          _M0MPC15array5Array4pushGRP36mizchi6kagura4core10TouchPointE(parts, "Z");
                           break;
                         }
                       }
                       break _L$7;
                     }
-                    _M0MP311moonbitlang4core5array5Array4pushGsE(parts, `M ${_M0MP311moonbitlang4core6double6Double10to__string(x$4)} ${_M0MP311moonbitlang4core6double6Double10to__string(y$4)}`);
+                    _M0MPC15array5Array4pushGRP36mizchi6kagura4core10TouchPointE(parts, `M ${_M0MPC16double6Double10to__string(x$4)} ${_M0MPC16double6Double10to__string(y$4)}`);
                   }
                   break _L$5;
                 }
-                _M0MP311moonbitlang4core5array5Array4pushGsE(parts, `L ${_M0MP311moonbitlang4core6double6Double10to__string(x$3)} ${_M0MP311moonbitlang4core6double6Double10to__string(y$3)}`);
+                _M0MPC15array5Array4pushGRP36mizchi6kagura4core10TouchPointE(parts, `L ${_M0MPC16double6Double10to__string(x$3)} ${_M0MPC16double6Double10to__string(y$3)}`);
               }
               break _L$3;
             }
-            _M0MP311moonbitlang4core5array5Array4pushGsE(parts, `Q ${_M0MP311moonbitlang4core6double6Double10to__string(cx)} ${_M0MP311moonbitlang4core6double6Double10to__string(cy)} ${_M0MP311moonbitlang4core6double6Double10to__string(x$2)} ${_M0MP311moonbitlang4core6double6Double10to__string(y$2)}`);
+            _M0MPC15array5Array4pushGRP36mizchi6kagura4core10TouchPointE(parts, `Q ${_M0MPC16double6Double10to__string(cx)} ${_M0MPC16double6Double10to__string(cy)} ${_M0MPC16double6Double10to__string(x$2)} ${_M0MPC16double6Double10to__string(y$2)}`);
           }
           break _L;
         }
-        _M0MP311moonbitlang4core5array5Array4pushGsE(parts, `C ${_M0MP311moonbitlang4core6double6Double10to__string(cx1)} ${_M0MP311moonbitlang4core6double6Double10to__string(cy1)} ${_M0MP311moonbitlang4core6double6Double10to__string(cx2)} ${_M0MP311moonbitlang4core6double6Double10to__string(cy2)} ${_M0MP311moonbitlang4core6double6Double10to__string(x)} ${_M0MP311moonbitlang4core6double6Double10to__string(y)}`);
+        _M0MPC15array5Array4pushGRP36mizchi6kagura4core10TouchPointE(parts, `C ${_M0MPC16double6Double10to__string(cx1)} ${_M0MPC16double6Double10to__string(cy1)} ${_M0MPC16double6Double10to__string(cx2)} ${_M0MPC16double6Double10to__string(cy2)} ${_M0MPC16double6Double10to__string(x)} ${_M0MPC16double6Double10to__string(y)}`);
       }
-      _tmp = _i + 1 | 0;
+      _tmp = _ + 1 | 0;
       continue;
     } else {
       break;
     }
   }
-  const result = { val: "" };
-  const _arr$2 = parts;
-  const _len$2 = _arr$2.length;
+  const result = new _M0TPC13ref3RefGsE("");
+  const _bind$2 = parts.length;
   let _tmp$2 = 0;
   while (true) {
-    const _i = _tmp$2;
-    if (_i < _len$2) {
-      const i = _i;
-      const p = _arr$2[_i];
+    const i = _tmp$2;
+    if (i < _bind$2) {
+      const p = parts[i];
       if (i > 0) {
         result.val = `${result.val} `;
       }
       result.val = `${result.val}${p}`;
-      _tmp$2 = _i + 1 | 0;
+      _tmp$2 = i + 1 | 0;
       continue;
     } else {
       break;
@@ -25450,17 +25458,16 @@ function _M0FP36mizchi6kagura4text26path__commands__to__svg__d(commands) {
   return result.val;
 }
 function _M0FP36mizchi6kagura4text13outline__bbox(commands) {
-  const x_min = { val: 10000000000 };
-  const y_min = { val: 10000000000 };
-  const x_max = { val: -10000000000 };
-  const y_max = { val: -10000000000 };
-  const _arr = commands;
-  const _len = _arr.length;
+  const x_min = new _M0TPC13ref3RefGdE(10000000000);
+  const y_min = new _M0TPC13ref3RefGdE(10000000000);
+  const x_max = new _M0TPC13ref3RefGdE(-10000000000);
+  const y_max = new _M0TPC13ref3RefGdE(-10000000000);
+  const _bind = commands.length;
   let _tmp = 0;
   while (true) {
-    const _i = _tmp;
-    if (_i < _len) {
-      const cmd = _arr[_i];
+    const _ = _tmp;
+    if (_ < _bind) {
+      const cmd = commands[_];
       let points;
       let x;
       let cx2;
@@ -25549,13 +25556,12 @@ function _M0FP36mizchi6kagura4text13outline__bbox(commands) {
         }
         points = [{ _0: cx1, _1: cy1 }, { _0: cx2, _1: cy2 }, { _0: x, _1: y }];
       }
-      const _arr$2 = points;
-      const _len$2 = _arr$2.length;
+      const _bind$2 = points.length;
       let _tmp$2 = 0;
       while (true) {
-        const _i$2 = _tmp$2;
-        if (_i$2 < _len$2) {
-          const pt = _arr$2[_i$2];
+        const _$2 = _tmp$2;
+        if (_$2 < _bind$2) {
+          const pt = points[_$2];
           let px;
           let py;
           _L$2: {
@@ -25577,13 +25583,13 @@ function _M0FP36mizchi6kagura4text13outline__bbox(commands) {
           if (py > y_max.val) {
             y_max.val = py;
           }
-          _tmp$2 = _i$2 + 1 | 0;
+          _tmp$2 = _$2 + 1 | 0;
           continue;
         } else {
           break;
         }
       }
-      _tmp = _i + 1 | 0;
+      _tmp = _ + 1 | 0;
       continue;
     } else {
       break;
@@ -25616,15 +25622,15 @@ function _M0FP36mizchi6kagura4text16rasterize__glyph(font, codepoint, size_px) {
     return undefined;
   }
   const pad = 1;
-  const w = _M0MP311moonbitlang4core6double6Double7to__int(_M0MP311moonbitlang4core6double6Double4ceil(x_max - x_min + pad * 2));
-  const h = _M0MP311moonbitlang4core6double6Double7to__int(_M0MP311moonbitlang4core6double6Double4ceil(y_max - _y_min + pad * 2));
+  const w = _M0MPC16double6Double7to__int(_M0MPC16double6Double4ceil(x_max - x_min + pad * 2));
+  const h = _M0MPC16double6Double7to__int(_M0MPC16double6Double4ceil(y_max - _y_min + pad * 2));
   if (w <= 0 || h <= 0) {
     return undefined;
   }
   const d = _M0FP36mizchi6kagura4text26path__commands__to__svg__d(outline);
-  const tx = _M0MP311moonbitlang4core6double6Double10to__string(-x_min + pad);
-  const ty = _M0MP311moonbitlang4core6double6Double10to__string(y_max + pad);
-  const svg = `<svg xmlns=\"http://www.w3.org/2000/svg\" width=\"${_M0MP311moonbitlang4core3int3Int18to__string_2einner(w, 10)}\" height=\"${_M0MP311moonbitlang4core3int3Int18to__string_2einner(h, 10)}\"><g transform=\"translate(${tx}, ${ty}) scale(1, -1)\"><path d=\"${d}\" fill=\"white\"/></g></svg>`;
+  const tx = _M0MPC16double6Double10to__string(-x_min + pad);
+  const ty = _M0MPC16double6Double10to__string(y_max + pad);
+  const svg = `<svg xmlns=\"http://www.w3.org/2000/svg\" width=\"${_M0MPC13int3Int18to__string_2einner(w, 10)}\" height=\"${_M0MPC13int3Int18to__string_2einner(h, 10)}\"><g transform=\"translate(${tx}, ${ty}) scale(1, -1)\"><path d=\"${d}\" fill=\"white\"/></g></svg>`;
   let img;
   _L$2: {
     const _bind = _M0FP26mizchi3svg22render__svg__to__image(svg, w, h);
@@ -25642,18 +25648,18 @@ function _M0FP36mizchi6kagura4text16rasterize__glyph(font, codepoint, size_px) {
   while (true) {
     const i = _tmp;
     if (i < img.pixels.length) {
-      const color = _M0MP311moonbitlang4core5array5Array2atGRP26mizchi3svg5ColorE(img.pixels, i);
-      _M0MP311moonbitlang4core5array5Array4pushGiE(pixels, color.r);
-      _M0MP311moonbitlang4core5array5Array4pushGiE(pixels, color.g);
-      _M0MP311moonbitlang4core5array5Array4pushGiE(pixels, color.b);
-      _M0MP311moonbitlang4core5array5Array4pushGiE(pixels, color.a);
+      const color = _M0MPC15array5Array2atGRP26mizchi22kagura__effect__studio11EffectTrackE(img.pixels, i);
+      _M0MPC15array5Array4pushGiE(pixels, color.r);
+      _M0MPC15array5Array4pushGiE(pixels, color.g);
+      _M0MPC15array5Array4pushGiE(pixels, color.b);
+      _M0MPC15array5Array4pushGiE(pixels, color.a);
       _tmp = i + 1 | 0;
       continue;
     } else {
       break;
     }
   }
-  return { width: img.width, height: img.height, pixels: pixels };
+  return new _M0TP36mizchi6kagura4text11GlyphBitmap(img.width, img.height, pixels);
 }
 function _M0MP36mizchi6kagura4text10GlyphAtlas16rasterize__glyph(self, font, codepoint, size_px) {
   const glyph_id = _M0MP26mizchi4font6TTFont12glyph__index(font, codepoint);
@@ -25697,7 +25703,7 @@ function _M0MP36mizchi6kagura4text10GlyphAtlas16rasterize__glyph(self, font, cod
       break _L$3;
     }
   }
-  _M0FP36mizchi6kagura4text15blit__to__atlas(self.pixels, self.width, bitmap, _M0MP311moonbitlang4core6double6Double7to__int(entry$2.atlas_x), _M0MP311moonbitlang4core6double6Double7to__int(entry$2.atlas_y));
+  _M0FP36mizchi6kagura4text15blit__to__atlas(self.pixels, self.width, bitmap, _M0MPC16double6Double7to__int(entry$2.atlas_x), _M0MPC16double6Double7to__int(entry$2.atlas_y));
   self.dirty = true;
   return entry$2;
 }
@@ -25706,59 +25712,56 @@ function _M0MP36mizchi6kagura4text12TextRenderer12render__text(self, text, size_
   const scale = size_px / (self.font.units_per_em + 0);
   const positions = _M0MP26mizchi4font6TTFont12layout__text(self.font, text, size_px);
   const _bind = [];
-  const page_quads = _M0MP311moonbitlang4core7builtin3Map11from__arrayGiRP311moonbitlang4core7builtin5ArrayGRP36mizchi6kagura4text9GlyphQuadEE({ buf: _bind, start: 0, end: 0 });
-  const _arr = positions;
-  const _len = _arr.length;
+  const page_quads = _M0MPB3Map11from__arrayGiRPB5ArrayGRP36mizchi6kagura4text9GlyphQuadEE(new _M0TPB9ArrayViewGUiRPB5ArrayGRP36mizchi6kagura4text9GlyphQuadEEE(_bind, 0, 0));
+  const _bind$2 = positions.length;
   let _tmp = 0;
   while (true) {
-    const _i = _tmp;
-    if (_i < _len) {
+    const _ = _tmp;
+    if (_ < _bind$2) {
+      const pos = positions[_];
       _L: {
-        const pos = _arr[_i];
         if (pos.glyph_id === 0) {
           break _L;
         }
         const codepoint = pos.codepoint;
         const cache_key = _M0FP36mizchi6kagura4text23make__glyph__cache__key(pos.glyph_id, size_px);
-        const found_page_index = { val: -1 };
-        const _arr$2 = self.pages;
-        const _len$2 = _arr$2.length;
+        const found_page_index = new _M0TPC13ref3RefGiE(-1);
+        const _bind$3 = self.pages;
+        const _bind$4 = _bind$3.length;
         let _tmp$2 = 0;
         while (true) {
-          const _i$2 = _tmp$2;
-          if (_i$2 < _len$2) {
-            const i = _i$2;
-            const page = _arr$2[_i$2];
-            const _bind$2 = _M0MP36mizchi6kagura4text10GlyphCache3get(page.cache, cache_key);
-            if (_bind$2 === undefined) {
+          const i = _tmp$2;
+          if (i < _bind$4) {
+            const page = _bind$3[i];
+            const _bind$5 = _M0MP36mizchi6kagura4text10GlyphCache3get(page.cache, cache_key);
+            if (_bind$5 === undefined) {
             } else {
               page.last_used_generation = self.generation;
               found_page_index.val = i;
               break;
             }
-            _tmp$2 = _i$2 + 1 | 0;
+            _tmp$2 = i + 1 | 0;
             continue;
           } else {
             break;
           }
         }
         if (found_page_index.val < 0) {
-          const _arr$3 = self.pages;
-          const _len$3 = _arr$3.length;
+          const _bind$5 = self.pages;
+          const _bind$6 = _bind$5.length;
           let _tmp$3 = 0;
           while (true) {
-            const _i$2 = _tmp$3;
-            if (_i$2 < _len$3) {
-              const i = _i$2;
-              const page = _arr$3[_i$2];
-              const _bind$2 = _M0MP36mizchi6kagura4text10GlyphAtlas16rasterize__glyph(page, self.font, codepoint, size_px);
-              if (_bind$2 === undefined) {
+            const i = _tmp$3;
+            if (i < _bind$6) {
+              const page = _bind$5[i];
+              const _bind$7 = _M0MP36mizchi6kagura4text10GlyphAtlas16rasterize__glyph(page, self.font, codepoint, size_px);
+              if (_bind$7 === undefined) {
               } else {
                 page.last_used_generation = self.generation;
                 found_page_index.val = i;
                 break;
               }
-              _tmp$3 = _i$2 + 1 | 0;
+              _tmp$3 = i + 1 | 0;
               continue;
             } else {
               break;
@@ -25769,23 +25772,23 @@ function _M0MP36mizchi6kagura4text12TextRenderer12render__text(self, text, size_
           if (self.pages.length < self.max_pages) {
             const new_page_id = self.base_page_id + self.pages.length | 0;
             const new_page = _M0MP36mizchi6kagura4text10GlyphAtlas3new(self.atlas_size, self.atlas_size, new_page_id);
-            _M0MP311moonbitlang4core5array5Array4pushGRP36mizchi6kagura4text10GlyphAtlasE(self.pages, new_page);
+            _M0MPC15array5Array4pushGRP36mizchi6kagura4core10TouchPointE(self.pages, new_page);
             const new_idx = self.pages.length - 1 | 0;
-            const _bind$2 = _M0MP36mizchi6kagura4text10GlyphAtlas16rasterize__glyph(_M0MP311moonbitlang4core5array5Array2atGRP36mizchi6kagura4text10GlyphAtlasE(self.pages, new_idx), self.font, codepoint, size_px);
-            if (_bind$2 === undefined) {
+            const _bind$5 = _M0MP36mizchi6kagura4text10GlyphAtlas16rasterize__glyph(_M0MPC15array5Array2atGRP26mizchi22kagura__effect__studio11EffectTrackE(self.pages, new_idx), self.font, codepoint, size_px);
+            if (_bind$5 === undefined) {
             } else {
-              _M0MP311moonbitlang4core5array5Array2atGRP36mizchi6kagura4text10GlyphAtlasE(self.pages, new_idx).last_used_generation = self.generation;
+              _M0MPC15array5Array2atGRP26mizchi22kagura__effect__studio11EffectTrackE(self.pages, new_idx).last_used_generation = self.generation;
               found_page_index.val = new_idx;
             }
           } else {
-            const oldest_idx = { val: 0 };
-            const oldest_gen = { val: _M0MP311moonbitlang4core5array5Array2atGRP36mizchi6kagura4text10GlyphAtlasE(self.pages, 0).last_used_generation };
+            const oldest_idx = new _M0TPC13ref3RefGiE(0);
+            const oldest_gen = new _M0TPC13ref3RefGiE(_M0MPC15array5Array2atGRP26mizchi22kagura__effect__studio11EffectTrackE(self.pages, 0).last_used_generation);
             let _tmp$3 = 1;
             while (true) {
               const i = _tmp$3;
               if (i < self.pages.length) {
-                if (_M0MP311moonbitlang4core5array5Array2atGRP36mizchi6kagura4text10GlyphAtlasE(self.pages, i).last_used_generation < oldest_gen.val) {
-                  oldest_gen.val = _M0MP311moonbitlang4core5array5Array2atGRP36mizchi6kagura4text10GlyphAtlasE(self.pages, i).last_used_generation;
+                if (_M0MPC15array5Array2atGRP26mizchi22kagura__effect__studio11EffectTrackE(self.pages, i).last_used_generation < oldest_gen.val) {
+                  oldest_gen.val = _M0MPC15array5Array2atGRP26mizchi22kagura__effect__studio11EffectTrackE(self.pages, i).last_used_generation;
                   oldest_idx.val = i;
                 }
                 _tmp$3 = i + 1 | 0;
@@ -25794,15 +25797,15 @@ function _M0MP36mizchi6kagura4text12TextRenderer12render__text(self, text, size_
                 break;
               }
             }
-            const evicted = _M0MP311moonbitlang4core5array5Array2atGRP36mizchi6kagura4text10GlyphAtlasE(self.pages, oldest_idx.val);
+            const evicted = _M0MPC15array5Array2atGRP26mizchi22kagura__effect__studio11EffectTrackE(self.pages, oldest_idx.val);
             _M0MP36mizchi6kagura4text10GlyphCache5clear(evicted.cache);
-            const _start172 = 0;
-            const _end173 = evicted.pixels.length;
-            let _tmp$4 = _start172;
+            const _bind$5 = 0;
+            const _bind$6 = evicted.pixels.length;
+            let _tmp$4 = _bind$5;
             while (true) {
               const j = _tmp$4;
-              if (j < _end173) {
-                _M0MP311moonbitlang4core5array5Array3setGiE(evicted.pixels, j, 0);
+              if (j < _bind$6) {
+                _M0MPC15array5Array3setGiE(evicted.pixels, j, 0);
                 _tmp$4 = j + 1 | 0;
                 continue;
               } else {
@@ -25810,8 +25813,8 @@ function _M0MP36mizchi6kagura4text12TextRenderer12render__text(self, text, size_
               }
             }
             evicted.dirty = true;
-            const _bind$2 = _M0MP36mizchi6kagura4text10GlyphAtlas16rasterize__glyph(evicted, self.font, codepoint, size_px);
-            if (_bind$2 === undefined) {
+            const _bind$7 = _M0MP36mizchi6kagura4text10GlyphAtlas16rasterize__glyph(evicted, self.font, codepoint, size_px);
+            if (_bind$7 === undefined) {
             } else {
               evicted.last_used_generation = self.generation;
               found_page_index.val = oldest_idx.val;
@@ -25821,7 +25824,7 @@ function _M0MP36mizchi6kagura4text12TextRenderer12render__text(self, text, size_
         if (found_page_index.val < 0) {
           break _L;
         }
-        const page = _M0MP311moonbitlang4core5array5Array2atGRP36mizchi6kagura4text10GlyphAtlasE(self.pages, found_page_index.val);
+        const page = _M0MPC15array5Array2atGRP26mizchi22kagura__effect__studio11EffectTrackE(self.pages, found_page_index.val);
         const entry = _M0MP36mizchi6kagura4text10GlyphCache3get(page.cache, cache_key);
         let entry$2;
         _L$2: {
@@ -25838,48 +25841,48 @@ function _M0MP36mizchi6kagura4text12TextRenderer12render__text(self, text, size_
         const bbox = metrics.bbox;
         const dst_x = pos.x_offset + (metrics.left_side_bearing + 0) * scale + x;
         const dst_y = -((bbox.y_max + 0) * scale) + y;
-        const quad = { glyph_id: cache_key, atlas_x: entry$2.atlas_x, atlas_y: entry$2.atlas_y, atlas_w: entry$2.atlas_w, atlas_h: entry$2.atlas_h, dst_x: dst_x, dst_y: dst_y, dst_w: entry$2.atlas_w, dst_h: entry$2.atlas_h };
+        const quad = new _M0TP36mizchi6kagura4text9GlyphQuad(cache_key, entry$2.atlas_x, entry$2.atlas_y, entry$2.atlas_w, entry$2.atlas_h, dst_x, dst_y, entry$2.atlas_w, entry$2.atlas_h);
         let arr;
         _L$3: {
           _L$4: {
-            const _bind$2 = _M0MP311moonbitlang4core7builtin3Map3getGiRP311moonbitlang4core7builtin5ArrayGRP36mizchi6kagura4text9GlyphQuadEE(page_quads, found_page_index.val);
-            if (_bind$2.$tag === 1) {
-              const _Some = _bind$2;
-              const _arr$3 = _Some._0;
-              arr = _arr$3;
+            const _bind$5 = _M0MPB3Map3getGiRPB5ArrayGRP36mizchi6kagura4text9GlyphQuadEE(page_quads, found_page_index.val);
+            if (_bind$5.$tag === 1) {
+              const _Some = _bind$5;
+              const _arr = _Some._0;
+              arr = _arr;
               break _L$4;
             } else {
-              _M0MP311moonbitlang4core7builtin3Map3setGiRP311moonbitlang4core7builtin5ArrayGRP36mizchi6kagura4text9GlyphQuadEE(page_quads, found_page_index.val, [quad]);
+              _M0MPB3Map3setGiRPB5ArrayGRP36mizchi6kagura4text9GlyphQuadEE(page_quads, found_page_index.val, [quad]);
             }
             break _L$3;
           }
-          _M0MP311moonbitlang4core5array5Array4pushGRP36mizchi6kagura4text9GlyphQuadE(arr, quad);
+          _M0MPC15array5Array4pushGRP36mizchi6kagura4core10TouchPointE(arr, quad);
         }
         break _L;
       }
-      _tmp = _i + 1 | 0;
+      _tmp = _ + 1 | 0;
       continue;
     } else {
       break;
     }
   }
   const all_commands = [];
-  _M0MP311moonbitlang4core7builtin3Map4eachGiRP311moonbitlang4core7builtin5ArrayGRP36mizchi6kagura4text9GlyphQuadEE(page_quads, (page_idx, quads) => {
+  _M0MPB3Map4eachGiRPB5ArrayGRP36mizchi6kagura4text9GlyphQuadEE(page_quads, (page_idx, quads) => {
     if (quads.length === 0) {
       return undefined;
     }
-    const page = _M0MP311moonbitlang4core5array5Array2atGRP36mizchi6kagura4text10GlyphAtlasE(self.pages, page_idx);
+    const page = _M0MPC15array5Array2atGRP26mizchi22kagura__effect__studio11EffectTrackE(self.pages, page_idx);
     const builder = _M0MP36mizchi6kagura4text22SimpleTextBatchBuilder3new(_M0MP36mizchi6kagura4text10GlyphAtlas10get__cache(page), self.pipeline_id);
     let commands;
     let _try_err;
     _L: {
       _L$2: {
-        const _bind$2 = _M0IP36mizchi6kagura4text22SimpleTextBatchBuilderP36mizchi6kagura4text16TextBatchBuilder21build__draw__commands(builder, dst, quads, shader);
-        if (_bind$2.$tag === 1) {
-          const _ok = _bind$2;
+        const _bind$3 = _M0IP36mizchi6kagura4text22SimpleTextBatchBuilderP36mizchi6kagura4text16TextBatchBuilder21build__draw__commands(builder, dst, quads, shader);
+        if (_bind$3.$tag === 1) {
+          const _ok = _bind$3;
           commands = _ok._0;
         } else {
-          const _err = _bind$2;
+          const _err = _bind$3;
           _try_err = _err._0;
           break _L$2;
         }
@@ -25888,30 +25891,28 @@ function _M0MP36mizchi6kagura4text12TextRenderer12render__text(self, text, size_
       return undefined;
     }
     if (uniform_dwords.length > 0) {
-      const _arr$2 = commands;
-      const _len$2 = _arr$2.length;
+      const _bind$3 = commands.length;
       let _tmp$2 = 0;
       while (true) {
-        const _i = _tmp$2;
-        if (_i < _len$2) {
-          const cmd = _arr$2[_i];
-          _M0MP311moonbitlang4core5array5Array4pushGRP36mizchi6kagura3gfx20DrawTrianglesCommandE(all_commands, _M0FP36mizchi6kagura3gfx37new__draw__triangles__command_2einner(cmd.dst, cmd.shader, cmd.dst_regions, cmd.index_offset, cmd.pipeline_id, cmd.uniform_hash, blend, cmd.vertex_data, cmd.indices, cmd.src_image_ids, uniform_dwords, 1, 0));
-          _tmp$2 = _i + 1 | 0;
+        const _ = _tmp$2;
+        if (_ < _bind$3) {
+          const cmd = commands[_];
+          _M0MPC15array5Array4pushGRP36mizchi6kagura4core10TouchPointE(all_commands, _M0FP36mizchi6kagura3gfx37new__draw__triangles__command_2einner(cmd.dst, cmd.shader, cmd.dst_regions, cmd.index_offset, cmd.pipeline_id, cmd.uniform_hash, blend, cmd.vertex_data, cmd.indices, cmd.src_image_ids, uniform_dwords, 1, 0));
+          _tmp$2 = _ + 1 | 0;
           continue;
         } else {
           return;
         }
       }
     } else {
-      const _arr$2 = commands;
-      const _len$2 = _arr$2.length;
+      const _bind$3 = commands.length;
       let _tmp$2 = 0;
       while (true) {
-        const _i = _tmp$2;
-        if (_i < _len$2) {
-          const cmd = _arr$2[_i];
-          _M0MP311moonbitlang4core5array5Array4pushGRP36mizchi6kagura3gfx20DrawTrianglesCommandE(all_commands, cmd);
-          _tmp$2 = _i + 1 | 0;
+        const _ = _tmp$2;
+        if (_ < _bind$3) {
+          const cmd = commands[_];
+          _M0MPC15array5Array4pushGRP36mizchi6kagura4core10TouchPointE(all_commands, cmd);
+          _tmp$2 = _ + 1 | 0;
           continue;
         } else {
           return;
@@ -25922,13 +25923,13 @@ function _M0MP36mizchi6kagura4text12TextRenderer12render__text(self, text, size_
   return all_commands;
 }
 function _M0FP36mizchi6kagura4text22new__font__load__hooks(load_font_data) {
-  return { load_font_data: load_font_data };
+  return new _M0TP36mizchi6kagura4text13FontLoadHooks(load_font_data);
 }
 function _M0FP36mizchi6kagura4text25default__load__font__data(_name) {
-  return Option$None$4$;
+  return _M0DTPC16option6OptionGRPB5ArrayGiEE4None__;
 }
 function _M0FP36mizchi6kagura4text26default__font__load__hooks() {
-  return { load_font_data: _M0FP36mizchi6kagura4text25default__load__font__data };
+  return new _M0TP36mizchi6kagura4text13FontLoadHooks(_M0FP36mizchi6kagura4text25default__load__font__data);
 }
 function _M0FP36mizchi6kagura4text22set__font__load__hooks(hooks) {
   _M0FP36mizchi6kagura4text17font__load__hooks.val = hooks;
@@ -25951,11 +25952,11 @@ function _M0MP36mizchi6kagura3hud10HudContext10draw__text(self, cmds, text, size
     const _bind = self.text_renderer;
     if (_bind === undefined) {
       const chars = [];
-      const _it = _M0MP311moonbitlang4core6string6String4iter(text);
+      const _it = _M0MPC16string6String4iter(text);
       while (true) {
         let ch;
         _L$2: {
-          const _bind$2 = _M0MP311moonbitlang4core7builtin4Iter4nextGcE(_it);
+          const _bind$2 = _M0MPB4Iter4nextGcE(_it);
           if (_bind$2 === -1) {
             break;
           } else {
@@ -25967,7 +25968,7 @@ function _M0MP36mizchi6kagura3hud10HudContext10draw__text(self, cmds, text, size
         }
         const c = ch;
         const c$2 = c >= 97 && c <= 122 ? c - 32 | 0 : c;
-        _M0MP311moonbitlang4core5array5Array4pushGiE(chars, c$2);
+        _M0MPC15array5Array4pushGiE(chars, c$2);
         continue;
       }
       if (chars.length === 0) {
@@ -25990,15 +25991,14 @@ function _M0MP36mizchi6kagura3hud10HudContext10draw__text(self, cmds, text, size
   }
   const blend = _M0FP36mizchi6kagura3gfx22blend__mode__from__int(1);
   const text_cmds = _M0MP36mizchi6kagura4text12TextRenderer12render__text(tr, text, size, x, y, self.dst, self.shader, blend, _M0FP36mizchi6kagura3hud24hex__to__uniform_2einner(color_hex, 255));
-  const _arr = text_cmds;
-  const _len = _arr.length;
+  const _bind = text_cmds.length;
   let _tmp = 0;
   while (true) {
-    const _i = _tmp;
-    if (_i < _len) {
-      const cmd = _arr[_i];
-      _M0MP311moonbitlang4core5array5Array4pushGRP36mizchi6kagura3gfx20DrawTrianglesCommandE(cmds, cmd);
-      _tmp = _i + 1 | 0;
+    const _ = _tmp;
+    if (_ < _bind) {
+      const cmd = text_cmds[_];
+      _M0MPC15array5Array4pushGRP36mizchi6kagura4core10TouchPointE(cmds, cmd);
+      _tmp = _ + 1 | 0;
       continue;
     } else {
       return;
@@ -26006,13 +26006,13 @@ function _M0MP36mizchi6kagura3hud10HudContext10draw__text(self, cmds, text, size
   }
 }
 function _M0MP36mizchi6kagura3hud10HudContext10draw__rect(self, cmds, x, y, w, h, color) {
-  _M0MP311moonbitlang4core5array5Array4pushGRP36mizchi6kagura3gfx20DrawTrianglesCommandE(cmds, _M0FP36mizchi6kagura9debugutil29new__ndc__rect__fill__command(self.dst, self.shader, x, y, w, h, self.screen_w, self.screen_h, color, 0));
+  _M0MPC15array5Array4pushGRP36mizchi6kagura4core10TouchPointE(cmds, _M0FP36mizchi6kagura9debugutil29new__ndc__rect__fill__command(self.dst, self.shader, x, y, w, h, self.screen_w, self.screen_h, color, 0));
 }
 function _M0MP36mizchi6kagura10particle3d15ParticleEmitter3new(config) {
-  return { config: config, particles: [], spawn_accumulator: 0, frame_count: 0 };
+  return new _M0TP36mizchi6kagura10particle3d15ParticleEmitter(config, [], 0, 0);
 }
 function _M0FP36mizchi6kagura10particle3d9hash__u32(seed) {
-  const h = { val: seed };
+  const h = new _M0TPC13ref3RefGiE(seed);
   h.val = h.val ^ (h.val >>> 16 | 0);
   h.val = Math.imul(h.val, 73244475) | 0;
   h.val = h.val ^ (h.val >>> 16 | 0);
@@ -26030,17 +26030,17 @@ function _M0FP36mizchi6kagura10particle3d10hash__lerp(seed, min, max) {
 function _M0MP36mizchi6kagura10particle3d15ParticleEmitter6update(self, dt) {
   self.frame_count = self.frame_count + 1 | 0;
   const gravity = self.config.gravity;
-  const i = { val: 0 };
+  const i = new _M0TPC13ref3RefGiE(0);
   while (true) {
     if (i.val < self.particles.length) {
-      const p = _M0MP311moonbitlang4core5array5Array2atGRP36mizchi6kagura10particle3d8ParticleE(self.particles, i.val);
+      const p = _M0MPC15array5Array2atGRP26mizchi22kagura__effect__studio11EffectTrackE(self.particles, i.val);
       p.age = p.age + dt;
       if (p.age >= p.max_age) {
         const last = self.particles.length - 1 | 0;
         if (i.val < last) {
-          _M0MP311moonbitlang4core5array5Array3setGRP36mizchi6kagura10particle3d8ParticleE(self.particles, i.val, _M0MP311moonbitlang4core5array5Array2atGRP36mizchi6kagura10particle3d8ParticleE(self.particles, last));
+          _M0MPC15array5Array3setGRP36mizchi6kagura10particle3d8ParticleE(self.particles, i.val, _M0MPC15array5Array2atGRP26mizchi22kagura__effect__studio11EffectTrackE(self.particles, last));
         }
-        _M0MP311moonbitlang4core5array5Array3popGRP36mizchi6kagura10particle3d8ParticleE(self.particles);
+        _M0MPC15array5Array3popGRP36mizchi6kagura10particle3d8ParticleE(self.particles);
       } else {
         p.velocity = _M0MP36mizchi6kagura6math3d4Vec33add(p.velocity, _M0MP36mizchi6kagura6math3d4Vec35scale(gravity, dt));
         p.position = _M0MP36mizchi6kagura6math3d4Vec33add(p.position, _M0MP36mizchi6kagura6math3d4Vec35scale(p.velocity, dt));
@@ -26052,7 +26052,7 @@ function _M0MP36mizchi6kagura10particle3d15ParticleEmitter6update(self, dt) {
     }
   }
   self.spawn_accumulator = self.spawn_accumulator + self.config.spawn_rate * dt;
-  const to_spawn = _M0MP311moonbitlang4core6double6Double7to__int(self.spawn_accumulator);
+  const to_spawn = _M0MPC16double6Double7to__int(self.spawn_accumulator);
   self.spawn_accumulator = self.spawn_accumulator - (to_spawn + 0);
   const available = self.config.max_particles - self.particles.length | 0;
   const actual_spawn = to_spawn < available ? to_spawn : available;
@@ -26066,7 +26066,7 @@ function _M0MP36mizchi6kagura10particle3d15ParticleEmitter6update(self, dt) {
       const vz = _M0FP36mizchi6kagura10particle3d10hash__lerp(seed_base + 2 | 0, self.config.initial_velocity_min.z, self.config.initial_velocity_max.z);
       const lifetime = _M0FP36mizchi6kagura10particle3d10hash__lerp(seed_base + 3 | 0, self.config.lifetime_min, self.config.lifetime_max);
       const size = _M0FP36mizchi6kagura10particle3d10hash__lerp(seed_base + 4 | 0, self.config.size_min, self.config.size_max);
-      _M0MP311moonbitlang4core5array5Array4pushGRP36mizchi6kagura10particle3d8ParticleE(self.particles, { position: self.config.position, velocity: _M0MP36mizchi6kagura6math3d4Vec33new(vx, vy, vz), age: 0, max_age: lifetime, color: self.config.color_start, size: size });
+      _M0MPC15array5Array4pushGRP36mizchi6kagura4core10TouchPointE(self.particles, new _M0TP36mizchi6kagura10particle3d8Particle(self.config.position, _M0MP36mizchi6kagura6math3d4Vec33new(vx, vy, vz), 0, lifetime, self.config.color_start, size));
       _tmp = j + 1 | 0;
       continue;
     } else {
@@ -26076,17 +26076,17 @@ function _M0MP36mizchi6kagura10particle3d15ParticleEmitter6update(self, dt) {
 }
 function _M0MP36mizchi6kagura10particle3d15ParticleEmitter21update__physics__only(self, dt) {
   const gravity = self.config.gravity;
-  const i = { val: 0 };
+  const i = new _M0TPC13ref3RefGiE(0);
   while (true) {
     if (i.val < self.particles.length) {
-      const p = _M0MP311moonbitlang4core5array5Array2atGRP36mizchi6kagura10particle3d8ParticleE(self.particles, i.val);
+      const p = _M0MPC15array5Array2atGRP26mizchi22kagura__effect__studio11EffectTrackE(self.particles, i.val);
       p.age = p.age + dt;
       if (p.age >= p.max_age) {
         const last = self.particles.length - 1 | 0;
         if (i.val < last) {
-          _M0MP311moonbitlang4core5array5Array3setGRP36mizchi6kagura10particle3d8ParticleE(self.particles, i.val, _M0MP311moonbitlang4core5array5Array2atGRP36mizchi6kagura10particle3d8ParticleE(self.particles, last));
+          _M0MPC15array5Array3setGRP36mizchi6kagura10particle3d8ParticleE(self.particles, i.val, _M0MPC15array5Array2atGRP26mizchi22kagura__effect__studio11EffectTrackE(self.particles, last));
         }
-        _M0MP311moonbitlang4core5array5Array3popGRP36mizchi6kagura10particle3d8ParticleE(self.particles);
+        _M0MPC15array5Array3popGRP36mizchi6kagura10particle3d8ParticleE(self.particles);
       } else {
         p.velocity = _M0MP36mizchi6kagura6math3d4Vec33add(p.velocity, _M0MP36mizchi6kagura6math3d4Vec35scale(gravity, dt));
         p.position = _M0MP36mizchi6kagura6math3d4Vec33add(p.position, _M0MP36mizchi6kagura6math3d4Vec35scale(p.velocity, dt));
@@ -26109,7 +26109,7 @@ function _M0MP36mizchi6kagura10particle3d15ParticleEmitter27append__billboard__v
   while (true) {
     const i = _tmp;
     if (i < self.particles.length) {
-      const p = _M0MP311moonbitlang4core5array5Array2atGRP36mizchi6kagura10particle3d8ParticleE(self.particles, i);
+      const p = _M0MPC15array5Array2atGRP26mizchi22kagura__effect__studio11EffectTrackE(self.particles, i);
       const t = p.max_age > 0 ? p.age / p.max_age : 1;
       const r = cs.x + (ce.x - cs.x) * t;
       const g = cs.y + (ce.y - cs.y) * t;
@@ -26124,27 +26124,27 @@ function _M0MP36mizchi6kagura10particle3d15ParticleEmitter27append__billboard__v
       while (true) {
         const c = _tmp$2;
         if (c < 4) {
-          const pos = _M0MP311moonbitlang4core5array5Array2atGRP36mizchi6kagura6math3d4Vec3E(corners, c);
-          _M0MP311moonbitlang4core5array5Array4pushGdE(vertex_data, pos.x);
-          _M0MP311moonbitlang4core5array5Array4pushGdE(vertex_data, pos.y);
-          _M0MP311moonbitlang4core5array5Array4pushGdE(vertex_data, pos.z);
-          _M0MP311moonbitlang4core5array5Array4pushGdE(vertex_data, r);
-          _M0MP311moonbitlang4core5array5Array4pushGdE(vertex_data, g);
-          _M0MP311moonbitlang4core5array5Array4pushGdE(vertex_data, b);
-          _M0MP311moonbitlang4core5array5Array4pushGdE(vertex_data, a);
-          _M0MP311moonbitlang4core5array5Array4pushGdE(vertex_data, 0);
+          const pos = _M0MPC15array5Array2atGRP26mizchi22kagura__effect__studio11EffectTrackE(corners, c);
+          _M0MPC15array5Array4pushGdE(vertex_data, pos.x);
+          _M0MPC15array5Array4pushGdE(vertex_data, pos.y);
+          _M0MPC15array5Array4pushGdE(vertex_data, pos.z);
+          _M0MPC15array5Array4pushGdE(vertex_data, r);
+          _M0MPC15array5Array4pushGdE(vertex_data, g);
+          _M0MPC15array5Array4pushGdE(vertex_data, b);
+          _M0MPC15array5Array4pushGdE(vertex_data, a);
+          _M0MPC15array5Array4pushGdE(vertex_data, 0);
           _tmp$2 = c + 1 | 0;
           continue;
         } else {
           break;
         }
       }
-      _M0MP311moonbitlang4core5array5Array4pushGiE(indices, base_idx);
-      _M0MP311moonbitlang4core5array5Array4pushGiE(indices, base_idx + 1 | 0);
-      _M0MP311moonbitlang4core5array5Array4pushGiE(indices, base_idx + 2 | 0);
-      _M0MP311moonbitlang4core5array5Array4pushGiE(indices, base_idx);
-      _M0MP311moonbitlang4core5array5Array4pushGiE(indices, base_idx + 2 | 0);
-      _M0MP311moonbitlang4core5array5Array4pushGiE(indices, base_idx + 3 | 0);
+      _M0MPC15array5Array4pushGiE(indices, base_idx);
+      _M0MPC15array5Array4pushGiE(indices, base_idx + 1 | 0);
+      _M0MPC15array5Array4pushGiE(indices, base_idx + 2 | 0);
+      _M0MPC15array5Array4pushGiE(indices, base_idx);
+      _M0MPC15array5Array4pushGiE(indices, base_idx + 2 | 0);
+      _M0MPC15array5Array4pushGiE(indices, base_idx + 3 | 0);
       _tmp = i + 1 | 0;
       continue;
     } else {
@@ -26169,7 +26169,7 @@ function _M0FP26mizchi22kagura__effect__studio22effect__document__time(doc, prev
       return 0;
     } else {
       if (doc.looping) {
-        const loops = _M0MP311moonbitlang4core6double6Double7to__int(preview_time / doc.duration);
+        const loops = _M0MPC16double6Double7to__int(preview_time / doc.duration);
         return preview_time - (loops + 0) * doc.duration;
       } else {
         return preview_time > doc.duration ? doc.duration : preview_time;
@@ -26184,21 +26184,21 @@ function _M0FP26mizchi22kagura__effect__studio21build__timeline__view(doc, previ
   const normalized_time = _M0FP26mizchi22kagura__effect__studio22effect__document__time(doc, preview_time);
   const duration = doc.duration <= 1e-06 ? 1 : doc.duration;
   const lanes = [];
-  const _arr = doc.tracks;
-  const _len = _arr.length;
+  const _bind = doc.tracks;
+  const _bind$2 = _bind.length;
   let _tmp = 0;
   while (true) {
-    const _i = _tmp;
-    if (_i < _len) {
-      const track = _arr[_i];
+    const _ = _tmp;
+    if (_ < _bind$2) {
+      const track = _bind[_];
       const markers = [];
       const interval = track.burst_interval <= 1e-06 ? track.duration + 1 : track.burst_interval;
       const end_time = _M0FP26mizchi22kagura__effect__studio24effect__track__end__time(track);
-      const burst_index = { val: 0 };
-      const spawn_time = { val: track.start_time };
+      const burst_index = new _M0TPC13ref3RefGiE(0);
+      const spawn_time = new _M0TPC13ref3RefGdE(track.start_time);
       while (true) {
         if (spawn_time.val <= end_time + 1e-06) {
-          _M0MP311moonbitlang4core5array5Array4pushGdE(markers, _M0FP26mizchi22kagura__effect__studio12clamp__ratio(spawn_time.val / duration));
+          _M0MPC15array5Array4pushGdE(markers, _M0FP26mizchi22kagura__effect__studio12clamp__ratio(spawn_time.val / duration));
           burst_index.val = burst_index.val + 1 | 0;
           spawn_time.val = track.start_time + (burst_index.val + 0) * interval;
           continue;
@@ -26206,17 +26206,17 @@ function _M0FP26mizchi22kagura__effect__studio21build__timeline__view(doc, previ
           break;
         }
       }
-      _M0MP311moonbitlang4core5array5Array4pushGRP26mizchi22kagura__effect__studio17TimelineTrackLaneE(lanes, { id: track.id, label: track.label, start_ratio: _M0FP26mizchi22kagura__effect__studio12clamp__ratio(track.start_time / duration), duration_ratio: _M0FP26mizchi22kagura__effect__studio12clamp__ratio(track.duration / duration), active: track.enabled && (normalized_time >= track.start_time && normalized_time <= end_time), marker_ratios: markers, accent_color: track.color_start });
-      _tmp = _i + 1 | 0;
+      _M0MPC15array5Array4pushGRP36mizchi6kagura4core10TouchPointE(lanes, new _M0TP26mizchi22kagura__effect__studio17TimelineTrackLane(track.id, track.label, _M0FP26mizchi22kagura__effect__studio12clamp__ratio(track.start_time / duration), _M0FP26mizchi22kagura__effect__studio12clamp__ratio(track.duration / duration), track.enabled && (normalized_time >= track.start_time && normalized_time <= end_time), markers, track.color_start));
+      _tmp = _ + 1 | 0;
       continue;
     } else {
       break;
     }
   }
-  return { duration: duration, normalized_time: normalized_time, playhead_ratio: _M0FP26mizchi22kagura__effect__studio12clamp__ratio(normalized_time / duration), lanes: lanes };
+  return new _M0TP26mizchi22kagura__effect__studio12TimelineView(duration, normalized_time, _M0FP26mizchi22kagura__effect__studio12clamp__ratio(normalized_time / duration), lanes);
 }
 function _M0FP26mizchi22kagura__effect__studio9hash__u32(seed) {
-  const h = { val: seed };
+  const h = new _M0TPC13ref3RefGiE(seed);
   h.val = h.val ^ (h.val >>> 16 | 0);
   h.val = Math.imul(h.val, 73244475) | 0;
   h.val = h.val ^ (h.val >>> 16 | 0);
@@ -26235,7 +26235,7 @@ function _M0FP26mizchi22kagura__effect__studio11max__double(a, b) {
 }
 function _M0FP26mizchi22kagura__effect__studio18line__burst__ratio(track, burst_index) {
   const interval = _M0FP26mizchi22kagura__effect__studio11max__double(track.burst_interval, 1e-06);
-  const burst_count = _M0FP311moonbitlang4core3cmp7maximumGiE(1, _M0MP311moonbitlang4core6double6Double7to__int(track.duration / interval) + 1 | 0);
+  const burst_count = _M0FPC13cmp7maximumGiE(1, _M0MPC16double6Double7to__int(track.duration / interval) + 1 | 0);
   return burst_count <= 1 ? 0 : (burst_index + 0) / ((burst_count - 1 | 0) + 0);
 }
 function _M0FP26mizchi22kagura__effect__studio13burst__origin(track, burst_index) {
@@ -26246,8 +26246,8 @@ function _M0FP26mizchi22kagura__effect__studio13burst__origin(track, burst_index
     }
     case 1: {
       const angle = (burst_index + 0) * 2.39996322972865306;
-      const dx = _M0FP311moonbitlang4core4math3cos(angle) * track.spread_radius;
-      const dz = _M0FP311moonbitlang4core4math3sin(angle) * track.spread_radius;
+      const dx = _M0FPC14math3cos(angle) * track.spread_radius;
+      const dz = _M0FPC14math3sin(angle) * track.spread_radius;
       return _M0MP36mizchi6kagura6math3d4Vec33add(track.origin, _M0MP36mizchi6kagura6math3d4Vec33new(dx, 0, dz));
     }
     case 2: {
@@ -26268,7 +26268,7 @@ function _M0FP26mizchi22kagura__effect__studio22emitter__velocity__min(track, bu
   const _bind = track.pattern;
   if (_bind === 1) {
     const angle = (burst_index + 0) * 2.39996322972865306;
-    const outward = _M0MP36mizchi6kagura6math3d4Vec33new(_M0FP311moonbitlang4core4math3cos(angle), 0.15, _M0FP311moonbitlang4core4math3sin(angle));
+    const outward = _M0MP36mizchi6kagura6math3d4Vec33new(_M0FPC14math3cos(angle), 0.15, _M0FPC14math3sin(angle));
     return _M0MP36mizchi6kagura6math3d4Vec33add(track.initial_velocity_min, _M0MP36mizchi6kagura6math3d4Vec35scale(outward, 0.4));
   } else {
     return track.initial_velocity_min;
@@ -26279,7 +26279,7 @@ function _M0FP26mizchi22kagura__effect__studio22emitter__velocity__max(track, bu
   switch (_bind) {
     case 1: {
       const angle = (burst_index + 0) * 2.39996322972865306;
-      const outward = _M0MP36mizchi6kagura6math3d4Vec33new(_M0FP311moonbitlang4core4math3cos(angle), 0.25, _M0FP311moonbitlang4core4math3sin(angle));
+      const outward = _M0MP36mizchi6kagura6math3d4Vec33new(_M0FPC14math3cos(angle), 0.25, _M0FPC14math3sin(angle));
       return _M0MP36mizchi6kagura6math3d4Vec33add(track.initial_velocity_max, _M0MP36mizchi6kagura6math3d4Vec35scale(outward, 0.6));
     }
     case 2: {
@@ -26294,40 +26294,40 @@ function _M0FP26mizchi22kagura__effect__studio22emitter__velocity__max(track, bu
   }
 }
 function _M0FP26mizchi22kagura__effect__studio24scheduled__burst__config(track, burst_index) {
-  return { position: _M0FP26mizchi22kagura__effect__studio13burst__origin(track, burst_index), spawn_rate: track.burst_particles + 0, initial_velocity_min: _M0FP26mizchi22kagura__effect__studio22emitter__velocity__min(track, burst_index), initial_velocity_max: _M0FP26mizchi22kagura__effect__studio22emitter__velocity__max(track, burst_index), lifetime_min: track.lifetime_min, lifetime_max: track.lifetime_max, size_min: track.size_min, size_max: track.size_max, color_start: track.color_start, color_end: track.color_end, gravity: track.gravity, max_particles: track.burst_particles };
+  return new _M0TP36mizchi6kagura10particle3d13EmitterConfig(_M0FP26mizchi22kagura__effect__studio13burst__origin(track, burst_index), track.burst_particles + 0, _M0FP26mizchi22kagura__effect__studio22emitter__velocity__min(track, burst_index), _M0FP26mizchi22kagura__effect__studio22emitter__velocity__max(track, burst_index), track.lifetime_min, track.lifetime_max, track.size_min, track.size_max, track.color_start, track.color_end, track.gravity, track.burst_particles);
 }
 function _M0FP26mizchi22kagura__effect__studio28build__effect__runtime__plan(doc, preview_time) {
   const normalized_time = _M0FP26mizchi22kagura__effect__studio22effect__document__time(doc, preview_time);
   const active_track_ids = [];
   const scheduled_bursts = [];
-  const total_particles = { val: 0 };
-  const _arr = doc.tracks;
-  const _len = _arr.length;
+  const total_particles = new _M0TPC13ref3RefGiE(0);
+  const _bind = doc.tracks;
+  const _bind$2 = _bind.length;
   let _tmp = 0;
   while (true) {
-    const _i = _tmp;
-    if (_i < _len) {
+    const _ = _tmp;
+    if (_ < _bind$2) {
+      const track = _bind[_];
       _L: {
-        const track = _arr[_i];
         if (!track.enabled) {
           break _L;
         }
         const end_time = _M0FP26mizchi22kagura__effect__studio24effect__track__end__time(track);
         if (normalized_time >= track.start_time && normalized_time <= end_time) {
-          _M0MP311moonbitlang4core5array5Array4pushGsE(active_track_ids, track.id);
+          _M0MPC15array5Array4pushGRP36mizchi6kagura4core10TouchPointE(active_track_ids, track.id);
         }
         if (normalized_time + 1e-06 < track.start_time) {
           break _L;
         }
         const interval = _M0FP26mizchi22kagura__effect__studio11max__double(track.burst_interval, 1e-06);
         const emission_end = normalized_time < end_time ? normalized_time : end_time;
-        const burst_index = { val: 0 };
-        const spawn_time = { val: track.start_time };
+        const burst_index = new _M0TPC13ref3RefGiE(0);
+        const spawn_time = new _M0TPC13ref3RefGdE(track.start_time);
         while (true) {
           if (spawn_time.val <= emission_end + 1e-06) {
             const age = normalized_time - spawn_time.val;
             if (age <= track.lifetime_max + 1e-06) {
-              _M0MP311moonbitlang4core5array5Array4pushGRP26mizchi22kagura__effect__studio20ScheduledEffectBurstE(scheduled_bursts, { track_id: track.id, track_label: track.label, spawn_time: spawn_time.val, age: age, config: _M0FP26mizchi22kagura__effect__studio24scheduled__burst__config(track, burst_index.val) });
+              _M0MPC15array5Array4pushGRP36mizchi6kagura4core10TouchPointE(scheduled_bursts, new _M0TP26mizchi22kagura__effect__studio20ScheduledEffectBurst(track.id, track.label, spawn_time.val, age, _M0FP26mizchi22kagura__effect__studio24scheduled__burst__config(track, burst_index.val)));
               total_particles.val = total_particles.val + track.burst_particles | 0;
             }
             burst_index.val = burst_index.val + 1 | 0;
@@ -26339,25 +26339,25 @@ function _M0FP26mizchi22kagura__effect__studio28build__effect__runtime__plan(doc
         }
         break _L;
       }
-      _tmp = _i + 1 | 0;
+      _tmp = _ + 1 | 0;
       continue;
     } else {
       break;
     }
   }
-  return { preview_time: preview_time, normalized_time: normalized_time, active_track_ids: active_track_ids, total_particles: total_particles.val, scheduled_bursts: scheduled_bursts };
+  return new _M0TP26mizchi22kagura__effect__studio17EffectRuntimePlan(preview_time, normalized_time, active_track_ids, total_particles.val, scheduled_bursts);
 }
 function _M0FP26mizchi22kagura__effect__studio12ember__track() {
-  return { id: "embers_ring", label: "Ember Ring", start_time: 0.08, duration: 0.64, burst_interval: 0.12, burst_particles: 10, pattern: 1, origin: _M0MP36mizchi6kagura6math3d4Vec33new(0, 0.18, 0), secondary_origin: _M0MP36mizchi6kagura6math3d4Vec33new(0, 0.18, 0), spread_radius: 0.32, initial_velocity_min: _M0MP36mizchi6kagura6math3d4Vec33new(-0.2, 1.2, -0.2), initial_velocity_max: _M0MP36mizchi6kagura6math3d4Vec33new(0.2, 2.2, 0.2), lifetime_min: 0.45, lifetime_max: 0.85, size_min: 0.05, size_max: 0.12, color_start: _M0MP36mizchi6kagura6math3d4Vec43new(1, 0.65, 0.18, 1), color_end: _M0MP36mizchi6kagura6math3d4Vec43new(0.9, 0.15, 0.05, 0), gravity: _M0MP36mizchi6kagura6math3d4Vec33new(0, -2.8, 0), enabled: true };
+  return new _M0TP26mizchi22kagura__effect__studio11EffectTrack("embers_ring", "Ember Ring", 0.08, 0.64, 0.12, 10, 1, _M0MP36mizchi6kagura6math3d4Vec33new(0, 0.18, 0), _M0MP36mizchi6kagura6math3d4Vec33new(0, 0.18, 0), 0.32, _M0MP36mizchi6kagura6math3d4Vec33new(-0.2, 1.2, -0.2), _M0MP36mizchi6kagura6math3d4Vec33new(0.2, 2.2, 0.2), 0.45, 0.85, 0.05, 0.12, _M0MP36mizchi6kagura6math3d4Vec43new(1, 0.65, 0.18, 1), _M0MP36mizchi6kagura6math3d4Vec43new(0.9, 0.15, 0.05, 0), _M0MP36mizchi6kagura6math3d4Vec33new(0, -2.8, 0), true);
 }
 function _M0FP26mizchi22kagura__effect__studio12flash__track() {
-  return { id: "core_flash", label: "Core Flash", start_time: 0, duration: 0.18, burst_interval: 0.32, burst_particles: 24, pattern: 0, origin: _M0MP36mizchi6kagura6math3d4Vec33new(0, 0.28, 0), secondary_origin: _M0MP36mizchi6kagura6math3d4Vec33new(0, 0.28, 0), spread_radius: 0, initial_velocity_min: _M0MP36mizchi6kagura6math3d4Vec33new(-0.1, 0.8, -0.1), initial_velocity_max: _M0MP36mizchi6kagura6math3d4Vec33new(0.1, 1.8, 0.1), lifetime_min: 0.12, lifetime_max: 0.22, size_min: 0.1, size_max: 0.22, color_start: _M0MP36mizchi6kagura6math3d4Vec43new(1, 0.95, 0.65, 1), color_end: _M0MP36mizchi6kagura6math3d4Vec43new(1, 0.45, 0.1, 0), gravity: _M0MP36mizchi6kagura6math3d4Vec33new(0, -1.4, 0), enabled: true };
+  return new _M0TP26mizchi22kagura__effect__studio11EffectTrack("core_flash", "Core Flash", 0, 0.18, 0.32, 24, 0, _M0MP36mizchi6kagura6math3d4Vec33new(0, 0.28, 0), _M0MP36mizchi6kagura6math3d4Vec33new(0, 0.28, 0), 0, _M0MP36mizchi6kagura6math3d4Vec33new(-0.1, 0.8, -0.1), _M0MP36mizchi6kagura6math3d4Vec33new(0.1, 1.8, 0.1), 0.12, 0.22, 0.1, 0.22, _M0MP36mizchi6kagura6math3d4Vec43new(1, 0.95, 0.65, 1), _M0MP36mizchi6kagura6math3d4Vec43new(1, 0.45, 0.1, 0), _M0MP36mizchi6kagura6math3d4Vec33new(0, -1.4, 0), true);
 }
 function _M0FP26mizchi22kagura__effect__studio12smoke__track() {
-  return { id: "smoke_column", label: "Smoke Column", start_time: 0.16, duration: 1, burst_interval: 0.2, burst_particles: 8, pattern: 2, origin: _M0MP36mizchi6kagura6math3d4Vec33new(0, 0.12, 0), secondary_origin: _M0MP36mizchi6kagura6math3d4Vec33new(0, 0.12, 0), spread_radius: 0.14, initial_velocity_min: _M0MP36mizchi6kagura6math3d4Vec33new(-0.05, 0.6, -0.05), initial_velocity_max: _M0MP36mizchi6kagura6math3d4Vec33new(0.05, 1.2, 0.05), lifetime_min: 0.8, lifetime_max: 1.3, size_min: 0.14, size_max: 0.24, color_start: _M0MP36mizchi6kagura6math3d4Vec43new(0.65, 0.68, 0.74, 0.6), color_end: _M0MP36mizchi6kagura6math3d4Vec43new(0.12, 0.15, 0.2, 0), gravity: _M0MP36mizchi6kagura6math3d4Vec33new(0, -0.4, 0), enabled: true };
+  return new _M0TP26mizchi22kagura__effect__studio11EffectTrack("smoke_column", "Smoke Column", 0.16, 1, 0.2, 8, 2, _M0MP36mizchi6kagura6math3d4Vec33new(0, 0.12, 0), _M0MP36mizchi6kagura6math3d4Vec33new(0, 0.12, 0), 0.14, _M0MP36mizchi6kagura6math3d4Vec33new(-0.05, 0.6, -0.05), _M0MP36mizchi6kagura6math3d4Vec33new(0.05, 1.2, 0.05), 0.8, 1.3, 0.14, 0.24, _M0MP36mizchi6kagura6math3d4Vec43new(0.65, 0.68, 0.74, 0.6), _M0MP36mizchi6kagura6math3d4Vec43new(0.12, 0.15, 0.2, 0), _M0MP36mizchi6kagura6math3d4Vec33new(0, -0.4, 0), true);
 }
 function _M0FP26mizchi22kagura__effect__studio25default__effect__document() {
-  return { name: "forge_burst", duration: 1.8, looping: true, notes: "Short forge impact with flash, embers, and smoke.", ai_edit_goal: "Keep the timing readable in the timeline and make the burst feel punchy at 0.0-0.2s.", tracks: [_M0FP26mizchi22kagura__effect__studio12flash__track(), _M0FP26mizchi22kagura__effect__studio12ember__track(), _M0FP26mizchi22kagura__effect__studio12smoke__track()] };
+  return new _M0TP26mizchi22kagura__effect__studio14EffectDocument("forge_burst", 1.8, true, "Short forge impact with flash, embers, and smoke.", "Keep the timing readable in the timeline and make the burst feel punchy at 0.0-0.2s.", [_M0FP26mizchi22kagura__effect__studio12flash__track(), _M0FP26mizchi22kagura__effect__studio12ember__track(), _M0FP26mizchi22kagura__effect__studio12smoke__track()]);
 }
 function _M0FP26mizchi22kagura__effect__studio28effect__spawn__pattern__name(pattern) {
   switch (pattern) {
@@ -26382,18 +26382,18 @@ function _M0FP26mizchi19web__runtime__hooks34clear__synced__source__generations(
   _M0FP26mizchi19web__runtime__hooks27synced__source__generations.val = [];
 }
 function _M0FP26mizchi19web__runtime__hooks31source__image__cache__entry__at(image_id) {
-  const out = { val: undefined };
-  const _arr = _M0FP26mizchi19web__runtime__hooks20source__image__cache.val;
-  const _len = _arr.length;
+  const out = new _M0TPC13ref3RefGORP26mizchi19web__runtime__hooks21SourceImageCacheEntryE(undefined);
+  const _bind = _M0FP26mizchi19web__runtime__hooks20source__image__cache.val;
+  const _bind$2 = _bind.length;
   let _tmp = 0;
   while (true) {
-    const _i = _tmp;
-    if (_i < _len) {
-      const entry = _arr[_i];
+    const _ = _tmp;
+    if (_ < _bind$2) {
+      const entry = _bind[_];
       if (entry.image_id === image_id) {
         out.val = entry;
       }
-      _tmp = _i + 1 | 0;
+      _tmp = _ + 1 | 0;
       continue;
     } else {
       break;
@@ -26419,18 +26419,16 @@ function _M0FP26mizchi19web__runtime__hooks30bridge__audio__try__initialize(form
 function _M0FP26mizchi19web__runtime__hooks28bridge__audio__write__frames(output, frames) {
   const channels = 2;
   const write_pos = _M0FP26mizchi19web__runtime__hooks26js__audio__get__write__pos();
-  const _start102 = 0;
-  const _end103 = frames;
-  let _tmp = _start102;
+  const _bind = 0;
+  let _tmp = _bind;
   while (true) {
     const i = _tmp;
-    if (i < _end103) {
-      const _start107 = 0;
-      const _end108 = channels;
-      let _tmp$2 = _start107;
+    if (i < frames) {
+      const _bind$2 = 0;
+      let _tmp$2 = _bind$2;
       while (true) {
         const ch = _tmp$2;
-        if (ch < _end108) {
+        if (ch < channels) {
           const idx = (Math.imul(i, channels) | 0) + ch | 0;
           let value;
           if (idx < output.length) {
@@ -26459,36 +26457,34 @@ function _M0FP26mizchi19web__runtime__hooks28bridge__audio__write__frames(output
 function _M0FP26mizchi19web__runtime__hooks24bridge__load__font__data(name) {
   const size = _M0FP26mizchi19web__runtime__hooks20js__load__font__data(name);
   if (size <= 0) {
-    return Option$None$4$;
+    return _M0DTPC16option6OptionGRPB5ArrayGiEE4None__;
   }
-  const data = _M0MP311moonbitlang4core5array5Array4makeGiE(size, 0);
-  const _start125 = 0;
-  const _end126 = size;
-  let _tmp = _start125;
+  const data = _M0MPC15array5Array4makeGiE(size, 0);
+  const _bind = 0;
+  let _tmp = _bind;
   while (true) {
     const i = _tmp;
-    if (i < _end126) {
-      _M0MP311moonbitlang4core5array5Array3setGiE(data, i, _M0FP26mizchi19web__runtime__hooks26js__load__font__data__byte(i));
+    if (i < size) {
+      _M0MPC15array5Array3setGiE(data, i, _M0FP26mizchi19web__runtime__hooks26js__load__font__data__byte(i));
       _tmp = i + 1 | 0;
       continue;
     } else {
       break;
     }
   }
-  return new Option$Some$4$(data);
+  return new _M0DTPC16option6OptionGRPB5ArrayGiEE4Some(data);
 }
 function _M0FP26mizchi19web__runtime__hooks27bridge__web__capture__input(active, _tick) {
   if (active) {
     _M0FP26mizchi19web__runtime__hooks25js__ensure__window__state(_M0FP26mizchi19web__runtime__hooks21web__canvas__selector.val);
     const pressed_keys = [];
     const key_count = _M0FP26mizchi19web__runtime__hooks30js__input__pressed__key__count();
-    const _start164 = 0;
-    const _end165 = key_count;
-    let _tmp = _start164;
+    const _bind = 0;
+    let _tmp = _bind;
     while (true) {
       const i = _tmp;
-      if (i < _end165) {
-        _M0MP311moonbitlang4core5array5Array4pushGiE(pressed_keys, _M0FP26mizchi19web__runtime__hooks27js__input__pressed__key__at(i));
+      if (i < key_count) {
+        _M0MPC15array5Array4pushGiE(pressed_keys, _M0FP26mizchi19web__runtime__hooks27js__input__pressed__key__at(i));
         _tmp = i + 1 | 0;
         continue;
       } else {
@@ -26497,15 +26493,14 @@ function _M0FP26mizchi19web__runtime__hooks27bridge__web__capture__input(active,
     }
     const pressed_mouse_buttons = [];
     const mouse_button_count = _M0FP26mizchi19web__runtime__hooks40js__input__pressed__mouse__button__count();
-    const _start171 = 0;
-    const _end172 = mouse_button_count;
-    let _tmp$2 = _start171;
+    const _bind$2 = 0;
+    let _tmp$2 = _bind$2;
     while (true) {
       const i = _tmp$2;
-      if (i < _end172) {
+      if (i < mouse_button_count) {
         const button = _M0FP26mizchi19web__runtime__hooks37js__input__pressed__mouse__button__at(i);
         if (button >= 0) {
-          _M0MP311moonbitlang4core5array5Array4pushGiE(pressed_mouse_buttons, button);
+          _M0MPC15array5Array4pushGiE(pressed_mouse_buttons, button);
         }
         _tmp$2 = i + 1 | 0;
         continue;
@@ -26515,13 +26510,12 @@ function _M0FP26mizchi19web__runtime__hooks27bridge__web__capture__input(active,
     }
     const touches = [];
     const touch_count = _M0FP26mizchi19web__runtime__hooks23js__input__touch__count();
-    const _start179 = 0;
-    const _end180 = touch_count;
-    let _tmp$3 = _start179;
+    const _bind$3 = 0;
+    let _tmp$3 = _bind$3;
     while (true) {
       const i = _tmp$3;
-      if (i < _end180) {
-        _M0MP311moonbitlang4core5array5Array4pushGRP36mizchi6kagura4core10TouchPointE(touches, _M0FP36mizchi6kagura4core17new__touch__point(_M0FP26mizchi19web__runtime__hooks24js__input__touch__id__at(i), _M0FP26mizchi19web__runtime__hooks23js__input__touch__x__at(i), _M0FP26mizchi19web__runtime__hooks23js__input__touch__y__at(i)));
+      if (i < touch_count) {
+        _M0MPC15array5Array4pushGRP36mizchi6kagura4core10TouchPointE(touches, _M0FP36mizchi6kagura4core17new__touch__point(_M0FP26mizchi19web__runtime__hooks24js__input__touch__id__at(i), _M0FP26mizchi19web__runtime__hooks23js__input__touch__x__at(i), _M0FP26mizchi19web__runtime__hooks23js__input__touch__y__at(i)));
         _tmp$3 = i + 1 | 0;
         continue;
       } else {
@@ -26530,21 +26524,19 @@ function _M0FP26mizchi19web__runtime__hooks27bridge__web__capture__input(active,
     }
     const gamepads = [];
     const gamepad_count = _M0FP26mizchi19web__runtime__hooks25js__input__gamepad__count();
-    const _start186 = 0;
-    const _end187 = gamepad_count;
-    let _tmp$4 = _start186;
+    const _bind$4 = 0;
+    let _tmp$4 = _bind$4;
     while (true) {
       const i = _tmp$4;
-      if (i < _end187) {
+      if (i < gamepad_count) {
         const axes = [];
         const axis_count = _M0FP26mizchi19web__runtime__hooks31js__input__gamepad__axis__count(i);
-        const _start193 = 0;
-        const _end194 = axis_count;
-        let _tmp$5 = _start193;
+        const _bind$5 = 0;
+        let _tmp$5 = _bind$5;
         while (true) {
           const j = _tmp$5;
-          if (j < _end194) {
-            _M0MP311moonbitlang4core5array5Array4pushGdE(axes, _M0FP26mizchi19web__runtime__hooks28js__input__gamepad__axis__at(i, j));
+          if (j < axis_count) {
+            _M0MPC15array5Array4pushGdE(axes, _M0FP26mizchi19web__runtime__hooks28js__input__gamepad__axis__at(i, j));
             _tmp$5 = j + 1 | 0;
             continue;
           } else {
@@ -26553,15 +26545,14 @@ function _M0FP26mizchi19web__runtime__hooks27bridge__web__capture__input(active,
         }
         const pressed_buttons = [];
         const button_count = _M0FP26mizchi19web__runtime__hooks42js__input__gamepad__pressed__button__count(i);
-        const _start200 = 0;
-        const _end201 = button_count;
-        let _tmp$6 = _start200;
+        const _bind$6 = 0;
+        let _tmp$6 = _bind$6;
         while (true) {
           const j = _tmp$6;
-          if (j < _end201) {
+          if (j < button_count) {
             const button_id = _M0FP26mizchi19web__runtime__hooks39js__input__gamepad__pressed__button__at(i, j);
             if (button_id >= 0) {
-              _M0MP311moonbitlang4core5array5Array4pushGiE(pressed_buttons, button_id);
+              _M0MPC15array5Array4pushGiE(pressed_buttons, button_id);
             }
             _tmp$6 = j + 1 | 0;
             continue;
@@ -26569,7 +26560,7 @@ function _M0FP26mizchi19web__runtime__hooks27bridge__web__capture__input(active,
             break;
           }
         }
-        _M0MP311moonbitlang4core5array5Array4pushGRP36mizchi6kagura4core15GamepadSnapshotE(gamepads, _M0FP36mizchi6kagura4core22new__gamepad__snapshot(_M0FP26mizchi19web__runtime__hooks26js__input__gamepad__id__at(i), axes, pressed_buttons));
+        _M0MPC15array5Array4pushGRP36mizchi6kagura4core10TouchPointE(gamepads, _M0FP36mizchi6kagura4core22new__gamepad__snapshot(_M0FP26mizchi19web__runtime__hooks26js__input__gamepad__id__at(i), axes, pressed_buttons));
         _tmp$4 = i + 1 | 0;
         continue;
       } else {
@@ -26623,20 +26614,19 @@ function _M0FP26mizchi19web__runtime__hooks27bridge__web__gfx__on__begin(active,
   if (active) {
     _M0FP26mizchi19web__runtime__hooks17js__webgpu__begin(pass.clear_color.r, pass.clear_color.g, pass.clear_color.b, pass.clear_color.a);
     const dirty = _M0FP26mizchi19web__runtime__hooks19gpu__texture__dirty.val;
-    const _arr = dirty;
-    const _len = _arr.length;
+    const _bind = dirty.length;
     let _tmp = 0;
     while (true) {
-      const _i = _tmp;
-      if (_i < _len) {
-        const image_id = _arr[_i];
+      const _ = _tmp;
+      if (_ < _bind) {
+        const image_id = dirty[_];
         let entry;
         _L: {
           _L$2: {
-            const _bind = _M0FP26mizchi19web__runtime__hooks31source__image__cache__entry__at(image_id);
-            if (_bind === undefined) {
+            const _bind$2 = _M0FP26mizchi19web__runtime__hooks31source__image__cache__entry__at(image_id);
+            if (_bind$2 === undefined) {
             } else {
-              const _Some = _bind;
+              const _Some = _bind$2;
               const _entry = _Some;
               entry = _entry;
               break _L$2;
@@ -26654,7 +26644,7 @@ function _M0FP26mizchi19web__runtime__hooks27bridge__web__gfx__on__begin(active,
               const i = _tmp$2;
               if (i < pixel_count) {
                 const base = Math.imul(i, 4) | 0;
-                _M0FP26mizchi19web__runtime__hooks31js__gfx__upload__texture__pixel(i, _M0MP311moonbitlang4core5array5Array2atGiE(px, base), _M0MP311moonbitlang4core5array5Array2atGiE(px, base + 1 | 0), _M0MP311moonbitlang4core5array5Array2atGiE(px, base + 2 | 0), _M0MP311moonbitlang4core5array5Array2atGiE(px, base + 3 | 0));
+                _M0FP26mizchi19web__runtime__hooks31js__gfx__upload__texture__pixel(i, _M0MPC15array5Array2atGiE(px, base), _M0MPC15array5Array2atGiE(px, base + 1 | 0), _M0MPC15array5Array2atGiE(px, base + 2 | 0), _M0MPC15array5Array2atGiE(px, base + 3 | 0));
                 _tmp$2 = i + 1 | 0;
                 continue;
               } else {
@@ -26664,7 +26654,7 @@ function _M0FP26mizchi19web__runtime__hooks27bridge__web__gfx__on__begin(active,
             _M0FP26mizchi19web__runtime__hooks29js__gfx__upload__texture__end();
           }
         }
-        _tmp = _i + 1 | 0;
+        _tmp = _ + 1 | 0;
         continue;
       } else {
         break;
@@ -26680,7 +26670,7 @@ function _M0FP26mizchi19web__runtime__hooks26bridge__web__gfx__on__draw(active, 
   if (active) {
     const _tmp = command.shader.source;
     const _bind = "@vertex";
-    if (_M0MP311moonbitlang4core6string6String8contains(_tmp, { str: _bind, start: 0, end: _bind.length })) {
+    if (_M0MPC16string6String8contains(_tmp, new _M0TPC16string10StringView(_bind, 0, _bind.length))) {
       const vf_count = command.vertex_data.length;
       const ic = command.indices.length;
       const u_count = command.uniform_dwords.length;
@@ -26691,7 +26681,7 @@ function _M0FP26mizchi19web__runtime__hooks26bridge__web__gfx__on__draw(active, 
       while (true) {
         const i = _tmp$2;
         if (i < vf_count) {
-          _M0FP26mizchi19web__runtime__hooks36js__gfx__custom__draw__vertex__float(i, _M0MP311moonbitlang4core5array5Array2atGdE(command.vertex_data, i));
+          _M0FP26mizchi19web__runtime__hooks36js__gfx__custom__draw__vertex__float(i, _M0MPC15array5Array2atGdE(command.vertex_data, i));
           _tmp$2 = i + 1 | 0;
           continue;
         } else {
@@ -26702,7 +26692,7 @@ function _M0FP26mizchi19web__runtime__hooks26bridge__web__gfx__on__draw(active, 
       while (true) {
         const i = _tmp$3;
         if (i < ic) {
-          _M0FP26mizchi19web__runtime__hooks20js__gfx__draw__index(i, _M0MP311moonbitlang4core5array5Array2atGiE(command.indices, i));
+          _M0FP26mizchi19web__runtime__hooks20js__gfx__draw__index(i, _M0MPC15array5Array2atGiE(command.indices, i));
           _tmp$3 = i + 1 | 0;
           continue;
         } else {
@@ -26713,7 +26703,7 @@ function _M0FP26mizchi19web__runtime__hooks26bridge__web__gfx__on__draw(active, 
       while (true) {
         const i = _tmp$4;
         if (i < u_count) {
-          _M0FP26mizchi19web__runtime__hooks30js__gfx__custom__draw__uniform(i, _M0MP311moonbitlang4core5array5Array2atGiE(command.uniform_dwords, i));
+          _M0FP26mizchi19web__runtime__hooks30js__gfx__custom__draw__uniform(i, _M0MPC15array5Array2atGiE(command.uniform_dwords, i));
           _tmp$4 = i + 1 | 0;
           continue;
         } else {
@@ -26724,7 +26714,7 @@ function _M0FP26mizchi19web__runtime__hooks26bridge__web__gfx__on__draw(active, 
       while (true) {
         const i = _tmp$5;
         if (i < src_count) {
-          _M0FP26mizchi19web__runtime__hooks33js__gfx__custom__draw__src__image(i, _M0MP311moonbitlang4core5array5Array2atGiE(command.src_image_ids, i));
+          _M0FP26mizchi19web__runtime__hooks33js__gfx__custom__draw__src__image(i, _M0MPC15array5Array2atGiE(command.src_image_ids, i));
           _tmp$5 = i + 1 | 0;
           continue;
         } else {
@@ -26734,11 +26724,11 @@ function _M0FP26mizchi19web__runtime__hooks26bridge__web__gfx__on__draw(active, 
       _M0FP26mizchi19web__runtime__hooks18js__gfx__draw__end();
       return;
     } else {
-      const src_id = command.src_image_ids.length > 0 ? _M0MP311moonbitlang4core5array5Array2atGiE(command.src_image_ids, 0) : 0;
-      const ur = command.uniform_dwords.length > 0 ? _M0MP311moonbitlang4core5array5Array2atGiE(command.uniform_dwords, 0) : 255;
-      const ug = command.uniform_dwords.length > 1 ? _M0MP311moonbitlang4core5array5Array2atGiE(command.uniform_dwords, 1) : 255;
-      const ub = command.uniform_dwords.length > 2 ? _M0MP311moonbitlang4core5array5Array2atGiE(command.uniform_dwords, 2) : 255;
-      const ua = command.uniform_dwords.length > 3 ? _M0MP311moonbitlang4core5array5Array2atGiE(command.uniform_dwords, 3) : 255;
+      const src_id = command.src_image_ids.length > 0 ? _M0MPC15array5Array2atGiE(command.src_image_ids, 0) : 0;
+      const ur = command.uniform_dwords.length > 0 ? _M0MPC15array5Array2atGiE(command.uniform_dwords, 0) : 255;
+      const ug = command.uniform_dwords.length > 1 ? _M0MPC15array5Array2atGiE(command.uniform_dwords, 1) : 255;
+      const ub = command.uniform_dwords.length > 2 ? _M0MPC15array5Array2atGiE(command.uniform_dwords, 2) : 255;
+      const ua = command.uniform_dwords.length > 3 ? _M0MPC15array5Array2atGiE(command.uniform_dwords, 3) : 255;
       if (4 === 0) {
         $panic();
       }
@@ -26750,7 +26740,7 @@ function _M0FP26mizchi19web__runtime__hooks26bridge__web__gfx__on__draw(active, 
         const i = _tmp$2;
         if (i < vc) {
           const base = Math.imul(i, 4) | 0;
-          _M0FP26mizchi19web__runtime__hooks21js__gfx__draw__vertex(i, _M0MP311moonbitlang4core5array5Array2atGdE(command.vertex_data, base), _M0MP311moonbitlang4core5array5Array2atGdE(command.vertex_data, base + 1 | 0), _M0MP311moonbitlang4core5array5Array2atGdE(command.vertex_data, base + 2 | 0), _M0MP311moonbitlang4core5array5Array2atGdE(command.vertex_data, base + 3 | 0));
+          _M0FP26mizchi19web__runtime__hooks21js__gfx__draw__vertex(i, _M0MPC15array5Array2atGdE(command.vertex_data, base), _M0MPC15array5Array2atGdE(command.vertex_data, base + 1 | 0), _M0MPC15array5Array2atGdE(command.vertex_data, base + 2 | 0), _M0MPC15array5Array2atGdE(command.vertex_data, base + 3 | 0));
           _tmp$2 = i + 1 | 0;
           continue;
         } else {
@@ -26761,7 +26751,7 @@ function _M0FP26mizchi19web__runtime__hooks26bridge__web__gfx__on__draw(active, 
       while (true) {
         const i = _tmp$3;
         if (i < ic) {
-          _M0FP26mizchi19web__runtime__hooks20js__gfx__draw__index(i, _M0MP311moonbitlang4core5array5Array2atGiE(command.indices, i));
+          _M0FP26mizchi19web__runtime__hooks20js__gfx__draw__index(i, _M0MPC15array5Array2atGiE(command.indices, i));
           _tmp$3 = i + 1 | 0;
           continue;
         } else {
@@ -26872,7 +26862,7 @@ function _M0FP26mizchi19web__runtime__hooks26bridge__web__should__close() {
   return _M0FP26mizchi19web__runtime__hooks24js__should__close__state();
 }
 function _M0FP26mizchi19web__runtime__hooks28bridge__web__try__initialize(canvas_selector, options) {
-  if (!_M0FP26mizchi19web__runtime__hooks21web__hooks__installed.val || _M0IP016_24default__implP311moonbitlang4core7builtin2Eq10not__equalGsE(canvas_selector, _M0FP26mizchi19web__runtime__hooks21web__canvas__selector.val)) {
+  if (!_M0FP26mizchi19web__runtime__hooks21web__hooks__installed.val || _M0IP016_24default__implPB2Eq10not__equalGsE(canvas_selector, _M0FP26mizchi19web__runtime__hooks21web__canvas__selector.val)) {
     return false;
   } else {
     _M0FP26mizchi19web__runtime__hooks25js__ensure__window__state(canvas_selector);
@@ -26918,36 +26908,34 @@ function _M0FP26mizchi14effect__studio15vec4__to__color(color) {
   return _M0FP36mizchi6kagura3gfx10new__color(color.x, color.y, color.z, color.w);
 }
 function _M0FP26mizchi14effect__studio14make__hud__ctx(dst, shader) {
-  return { dst: dst, shader: shader, screen_w: _M0FP26mizchi14effect__studio9screen__w + 0, screen_h: _M0FP26mizchi14effect__studio9screen__h + 0, text_renderer: undefined };
+  return new _M0TP36mizchi6kagura3hud10HudContext(dst, shader, _M0FP26mizchi14effect__studio9screen__w + 0, _M0FP26mizchi14effect__studio9screen__h + 0, undefined);
 }
 function _M0FP26mizchi14effect__studio26append__particle__geometry(vertex_data, indices, appended_vertex_data, appended_indices) {
   if (8 === 0) {
     $panic();
   }
   const base_vertex = vertex_data.length / 8 | 0;
-  const _arr = appended_vertex_data;
-  const _len = _arr.length;
+  const _bind = appended_vertex_data.length;
   let _tmp = 0;
   while (true) {
-    const _i = _tmp;
-    if (_i < _len) {
-      const value = _arr[_i];
-      _M0MP311moonbitlang4core5array5Array4pushGdE(vertex_data, value);
-      _tmp = _i + 1 | 0;
+    const _ = _tmp;
+    if (_ < _bind) {
+      const value = appended_vertex_data[_];
+      _M0MPC15array5Array4pushGdE(vertex_data, value);
+      _tmp = _ + 1 | 0;
       continue;
     } else {
       break;
     }
   }
-  const _arr$2 = appended_indices;
-  const _len$2 = _arr$2.length;
+  const _bind$2 = appended_indices.length;
   let _tmp$2 = 0;
   while (true) {
-    const _i = _tmp$2;
-    if (_i < _len$2) {
-      const index = _arr$2[_i];
-      _M0MP311moonbitlang4core5array5Array4pushGiE(indices, base_vertex + index | 0);
-      _tmp$2 = _i + 1 | 0;
+    const _ = _tmp$2;
+    if (_ < _bind$2) {
+      const index = appended_indices[_];
+      _M0MPC15array5Array4pushGiE(indices, base_vertex + index | 0);
+      _tmp$2 = _ + 1 | 0;
       continue;
     } else {
       return;
@@ -26958,10 +26946,10 @@ function _M0FP26mizchi14effect__studio20draw__preview__scene(state, cmds, ctx, c
   const vp = _M0MP36mizchi6kagura8camera3d8Camera3D24view__projection__matrix(camera);
   const floor_region = _M0FP36mizchi6kagura3gfx16new__dst__region(0, 0, ctx.screen_w, ctx.screen_h, state.floor_mesh.indices.length);
   const floor_model = _M0MP36mizchi6kagura6math3d4Mat48multiply(_M0MP36mizchi6kagura6math3d4Mat411translation(0, -0.06, 0), _M0MP36mizchi6kagura6math3d4Mat47scaling(6, 0.12, 6));
-  _M0MP311moonbitlang4core5array5Array4pushGRP36mizchi6kagura3gfx20DrawTrianglesCommandE(cmds, _M0FP36mizchi6kagura6draw3d38new__lit__colored__mesh__draw__command(ctx.dst, state.lit_colored_shader, floor_region, 0, state.lit_colored_shader.id, 100 + state.frame_count | 0, _M0FP36mizchi6kagura3gfx22blend__mode__from__int(1), state.floor_mesh, floor_model, vp, state.lighting, _M0MP36mizchi6kagura6math3d4Vec43new(0.12, 0.13, 0.16, 1), []));
+  _M0MPC15array5Array4pushGRP36mizchi6kagura4core10TouchPointE(cmds, _M0FP36mizchi6kagura6draw3d38new__lit__colored__mesh__draw__command(ctx.dst, state.lit_colored_shader, floor_region, 0, state.lit_colored_shader.id, 100 + state.frame_count | 0, _M0FP36mizchi6kagura3gfx22blend__mode__from__int(1), state.floor_mesh, floor_model, vp, state.lighting, _M0MP36mizchi6kagura6math3d4Vec43new(0.12, 0.13, 0.16, 1), []));
   const pedestal_region = _M0FP36mizchi6kagura3gfx16new__dst__region(0, 0, ctx.screen_w, ctx.screen_h, state.pedestal_mesh.indices.length);
   const pedestal_model = _M0MP36mizchi6kagura6math3d4Mat48multiply(_M0MP36mizchi6kagura6math3d4Mat411translation(0, 0.08, 0), _M0MP36mizchi6kagura6math3d4Mat47scaling(0.9, 0.16, 0.9));
-  _M0MP311moonbitlang4core5array5Array4pushGRP36mizchi6kagura3gfx20DrawTrianglesCommandE(cmds, _M0FP36mizchi6kagura6draw3d38new__lit__colored__mesh__draw__command(ctx.dst, state.lit_colored_shader, pedestal_region, 0, state.lit_colored_shader.id, 200 + state.frame_count | 0, _M0FP36mizchi6kagura3gfx22blend__mode__from__int(1), state.pedestal_mesh, pedestal_model, vp, state.lighting, _M0MP36mizchi6kagura6math3d4Vec43new(0.18, 0.22, 0.28, 1), []));
+  _M0MPC15array5Array4pushGRP36mizchi6kagura4core10TouchPointE(cmds, _M0FP36mizchi6kagura6draw3d38new__lit__colored__mesh__draw__command(ctx.dst, state.lit_colored_shader, pedestal_region, 0, state.lit_colored_shader.id, 200 + state.frame_count | 0, _M0FP36mizchi6kagura3gfx22blend__mode__from__int(1), state.pedestal_mesh, pedestal_model, vp, state.lighting, _M0MP36mizchi6kagura6math3d4Vec43new(0.18, 0.22, 0.28, 1), []));
 }
 function _M0FP26mizchi14effect__studio25append__effect__particles(state, cmds, ctx, camera) {
   const runtime = _M0FP26mizchi22kagura__effect__studio28build__effect__runtime__plan(state.doc, state.preview_time);
@@ -26986,13 +26974,13 @@ function _M0FP26mizchi14effect__studio25append__effect__particles(state, cmds, c
   const cam_up = _M0MP36mizchi6kagura6math3d4Vec33new(_tmp$7, _tmp$9, _tmp$10[9]);
   const vertex_data = [];
   const indices = [];
-  const _arr = runtime.scheduled_bursts;
-  const _len = _arr.length;
+  const _bind = runtime.scheduled_bursts;
+  const _bind$2 = _bind.length;
   let _tmp$11 = 0;
   while (true) {
-    const _i = _tmp$11;
-    if (_i < _len) {
-      const burst = _arr[_i];
+    const _ = _tmp$11;
+    if (_ < _bind$2) {
+      const burst = _bind[_];
       const emitter = _M0MP36mizchi6kagura10particle3d15ParticleEmitter3new(burst.config);
       _M0MP36mizchi6kagura10particle3d15ParticleEmitter6update(emitter, 1);
       if (burst.age > 0) {
@@ -27001,30 +26989,30 @@ function _M0FP26mizchi14effect__studio25append__effect__particles(state, cmds, c
       let burst_vertex_data;
       let burst_indices;
       _L: {
-        const _bind = _M0MP36mizchi6kagura10particle3d15ParticleEmitter26build__billboard__vertices(emitter, cam_right, cam_up);
-        const _burst_vertex_data = _bind._0;
-        const _burst_indices = _bind._1;
+        const _bind$3 = _M0MP36mizchi6kagura10particle3d15ParticleEmitter26build__billboard__vertices(emitter, cam_right, cam_up);
+        const _burst_vertex_data = _bind$3._0;
+        const _burst_indices = _bind$3._1;
         burst_vertex_data = _burst_vertex_data;
         burst_indices = _burst_indices;
         break _L;
       }
       _M0FP26mizchi14effect__studio26append__particle__geometry(vertex_data, indices, burst_vertex_data, burst_indices);
-      _tmp$11 = _i + 1 | 0;
+      _tmp$11 = _ + 1 | 0;
       continue;
     } else {
       break;
     }
   }
-  if (_M0MP311moonbitlang4core5array5Array9is__emptyGiE(indices)) {
+  if (_M0MPC15array5Array9is__emptyGiE(indices)) {
     return undefined;
   }
   const region = _M0FP36mizchi6kagura3gfx16new__dst__region(0, 0, ctx.screen_w, ctx.screen_h, indices.length);
-  _M0MP311moonbitlang4core5array5Array4pushGRP36mizchi6kagura3gfx20DrawTrianglesCommandE(cmds, _M0FP36mizchi6kagura6draw3d28new__particle__draw__command(ctx.dst, state.particle_shader, region, 0, state.particle_shader.id, state.frame_count, _M0FP36mizchi6kagura3gfx22blend__mode__from__int(2), vertex_data, indices, _M0MP36mizchi6kagura8camera3d8Camera3D24view__projection__matrix(camera), []));
+  _M0MPC15array5Array4pushGRP36mizchi6kagura4core10TouchPointE(cmds, _M0FP36mizchi6kagura6draw3d28new__particle__draw__command(ctx.dst, state.particle_shader, region, 0, state.particle_shader.id, state.frame_count, _M0FP36mizchi6kagura3gfx22blend__mode__from__int(2), vertex_data, indices, _M0MP36mizchi6kagura8camera3d8Camera3D24view__projection__matrix(camera), []));
 }
 function _M0FP26mizchi14effect__studio37build__effect__studio__overlay__model(doc, preview_time, playing) {
   const runtime = _M0FP26mizchi22kagura__effect__studio28build__effect__runtime__plan(doc, preview_time);
   const timeline = _M0FP26mizchi22kagura__effect__studio21build__timeline__view(doc, preview_time);
-  return { status_label: playing ? "playing" : "paused", lane_count: timeline.lanes.length, scheduled_burst_count: runtime.scheduled_bursts.length, scheduled_particle_count: runtime.total_particles, active_track_count: runtime.active_track_ids.length, playhead_ratio: timeline.playhead_ratio };
+  return new _M0TP26mizchi14effect__studio24EffectStudioOverlayModel(playing ? "playing" : "paused", timeline.lanes.length, runtime.scheduled_bursts.length, runtime.total_particles, runtime.active_track_ids.length, timeline.playhead_ratio);
 }
 function _M0FP26mizchi14effect__studio23draw__timeline__overlay(state, cmds, ctx) {
   const hud_ctx = _M0FP26mizchi14effect__studio14make__hud__ctx(ctx.dst, ctx.shader);
@@ -27035,18 +27023,18 @@ function _M0FP26mizchi14effect__studio23draw__timeline__overlay(state, cmds, ctx
   _M0MP36mizchi6kagura3hud10HudContext10draw__text(hud_ctx, cmds, "EFFECT STUDIO", 20, 20, panel_y + 12, 14280447);
   _M0MP36mizchi6kagura3hud10HudContext10draw__text(hud_ctx, cmds, `${state.doc.name} / ${overlay.status_label}`, 16, 20, panel_y + 40, 8828927);
   _M0MP36mizchi6kagura3hud10HudContext10draw__text(hud_ctx, cmds, "AI edits the effect_doc; J downloads bundle, L downloads review prompt.", 14, 20, panel_y + 62, 8031397);
-  _M0MP36mizchi6kagura3hud10HudContext10draw__text(hud_ctx, cmds, `bursts ${_M0MP311moonbitlang4core3int3Int18to__string_2einner(overlay.scheduled_burst_count, 10)} / particles ${_M0MP311moonbitlang4core3int3Int18to__string_2einner(overlay.scheduled_particle_count, 10)}`, 14, _M0FP26mizchi14effect__studio9screen__w + 0 - 270, panel_y + 18, 16765562);
+  _M0MP36mizchi6kagura3hud10HudContext10draw__text(hud_ctx, cmds, `bursts ${_M0MPC13int3Int18to__string_2einner(overlay.scheduled_burst_count, 10)} / particles ${_M0MPC13int3Int18to__string_2einner(overlay.scheduled_particle_count, 10)}`, 14, _M0FP26mizchi14effect__studio9screen__w + 0 - 270, panel_y + 18, 16765562);
   const timeline_left = 180;
   const timeline_top = panel_y + 92;
   const timeline_w = _M0FP26mizchi14effect__studio9screen__w + 0 - timeline_left - 24;
   const lane_h = 22;
   _M0MP36mizchi6kagura3hud10HudContext10draw__rect(hud_ctx, cmds, timeline_left, timeline_top - 10, timeline_w, (timeline.lanes.length + 0) * lane_h + 20, _M0FP36mizchi6kagura3hud18hex__color_2einner(1054498, 0.96));
-  const _start135 = 0;
-  const _end136 = 5;
-  let _tmp = _start135;
+  const _bind = 0;
+  const _bind$2 = 5;
+  let _tmp = _bind;
   while (true) {
     const i = _tmp;
-    if (i < _end136) {
+    if (i < _bind$2) {
       const ratio = (i + 0) / 4;
       const x = timeline_left + timeline_w * ratio;
       _M0MP36mizchi6kagura3hud10HudContext10draw__rect(hud_ctx, cmds, x, timeline_top - 10, 1, (timeline.lanes.length + 0) * lane_h + 20, _M0FP36mizchi6kagura3hud18hex__color_2einner(2503233, 0.9));
@@ -27056,26 +27044,26 @@ function _M0FP26mizchi14effect__studio23draw__timeline__overlay(state, cmds, ctx
       break;
     }
   }
-  const _start142 = 0;
-  const _end143 = timeline.lanes.length;
-  let _tmp$2 = _start142;
+  const _bind$3 = 0;
+  const _bind$4 = timeline.lanes.length;
+  let _tmp$2 = _bind$3;
   while (true) {
     const i = _tmp$2;
-    if (i < _end143) {
-      const lane = _M0MP311moonbitlang4core5array5Array2atGRP26mizchi22kagura__effect__studio17TimelineTrackLaneE(timeline.lanes, i);
+    if (i < _bind$4) {
+      const lane = _M0MPC15array5Array2atGRP26mizchi22kagura__effect__studio11EffectTrackE(timeline.lanes, i);
       const y = timeline_top + (i + 0) * lane_h;
       _M0MP36mizchi6kagura3hud10HudContext10draw__text(hud_ctx, cmds, lane.label, 14, 20, y + 2, 13621475);
       _M0MP36mizchi6kagura3hud10HudContext10draw__rect(hud_ctx, cmds, timeline_left, y, timeline_w, 16, _M0FP36mizchi6kagura3hud18hex__color_2einner(1384491, 0.92));
       _M0MP36mizchi6kagura3hud10HudContext10draw__rect(hud_ctx, cmds, timeline_left + timeline_w * lane.start_ratio, y, timeline_w * lane.duration_ratio, 16, _M0FP26mizchi14effect__studio15vec4__to__color(lane.active ? lane.accent_color : _M0MP36mizchi6kagura6math3d4Vec43new(lane.accent_color.x * 0.35, lane.accent_color.y * 0.35, lane.accent_color.z * 0.35, 0.85)));
-      const _arr = lane.marker_ratios;
-      const _len = _arr.length;
+      const _bind$5 = lane.marker_ratios;
+      const _bind$6 = _bind$5.length;
       let _tmp$3 = 0;
       while (true) {
-        const _i = _tmp$3;
-        if (_i < _len) {
-          const marker = _arr[_i];
+        const _ = _tmp$3;
+        if (_ < _bind$6) {
+          const marker = _bind$5[_];
           _M0MP36mizchi6kagura3hud10HudContext10draw__rect(hud_ctx, cmds, timeline_left + timeline_w * marker, y - 2, 2, 20, _M0FP36mizchi6kagura3hud18hex__color_2einner(16054267, 0.85));
-          _tmp$3 = _i + 1 | 0;
+          _tmp$3 = _ + 1 | 0;
           continue;
         } else {
           break;
@@ -27105,274 +27093,274 @@ function _M0FP26mizchi14effect__studio25effect__doc__target__file() {
   return "tools/effect-studio/src/effect_doc.mbt";
 }
 function _M0FP26mizchi14effect__studio10vec3__code(v) {
-  const buf = _M0MP311moonbitlang4core7builtin13StringBuilder11new_2einner(0);
-  _M0IP311moonbitlang4core7builtin13StringBuilderP311moonbitlang4core7builtin6Logger13write__string(buf, "@math3d.Vec3::new(");
-  _M0IP311moonbitlang4core7builtin13StringBuilderP311moonbitlang4core7builtin6Logger13write__string(buf, _M0MP311moonbitlang4core6double6Double10to__string(v.x));
-  _M0IP311moonbitlang4core7builtin13StringBuilderP311moonbitlang4core7builtin6Logger13write__string(buf, ", ");
-  _M0IP311moonbitlang4core7builtin13StringBuilderP311moonbitlang4core7builtin6Logger13write__string(buf, _M0MP311moonbitlang4core6double6Double10to__string(v.y));
-  _M0IP311moonbitlang4core7builtin13StringBuilderP311moonbitlang4core7builtin6Logger13write__string(buf, ", ");
-  _M0IP311moonbitlang4core7builtin13StringBuilderP311moonbitlang4core7builtin6Logger13write__string(buf, _M0MP311moonbitlang4core6double6Double10to__string(v.z));
-  _M0IP311moonbitlang4core7builtin13StringBuilderP311moonbitlang4core7builtin6Logger13write__string(buf, ")");
-  return _M0MP311moonbitlang4core7builtin13StringBuilder10to__string(buf);
+  const buf = _M0MPB13StringBuilder11new_2einner(0);
+  _M0IPB13StringBuilderPB6Logger13write__string(buf, "@math3d.Vec3::new(");
+  _M0IPB13StringBuilderPB6Logger13write__string(buf, _M0MPC16double6Double10to__string(v.x));
+  _M0IPB13StringBuilderPB6Logger13write__string(buf, ", ");
+  _M0IPB13StringBuilderPB6Logger13write__string(buf, _M0MPC16double6Double10to__string(v.y));
+  _M0IPB13StringBuilderPB6Logger13write__string(buf, ", ");
+  _M0IPB13StringBuilderPB6Logger13write__string(buf, _M0MPC16double6Double10to__string(v.z));
+  _M0IPB13StringBuilderPB6Logger13write__string(buf, ")");
+  return _M0MPB13StringBuilder10to__string(buf);
 }
 function _M0FP26mizchi14effect__studio10vec4__code(v) {
-  const buf = _M0MP311moonbitlang4core7builtin13StringBuilder11new_2einner(0);
-  _M0IP311moonbitlang4core7builtin13StringBuilderP311moonbitlang4core7builtin6Logger13write__string(buf, "@math3d.Vec4::new(");
-  _M0IP311moonbitlang4core7builtin13StringBuilderP311moonbitlang4core7builtin6Logger13write__string(buf, _M0MP311moonbitlang4core6double6Double10to__string(v.x));
-  _M0IP311moonbitlang4core7builtin13StringBuilderP311moonbitlang4core7builtin6Logger13write__string(buf, ", ");
-  _M0IP311moonbitlang4core7builtin13StringBuilderP311moonbitlang4core7builtin6Logger13write__string(buf, _M0MP311moonbitlang4core6double6Double10to__string(v.y));
-  _M0IP311moonbitlang4core7builtin13StringBuilderP311moonbitlang4core7builtin6Logger13write__string(buf, ", ");
-  _M0IP311moonbitlang4core7builtin13StringBuilderP311moonbitlang4core7builtin6Logger13write__string(buf, _M0MP311moonbitlang4core6double6Double10to__string(v.z));
-  _M0IP311moonbitlang4core7builtin13StringBuilderP311moonbitlang4core7builtin6Logger13write__string(buf, ", ");
-  _M0IP311moonbitlang4core7builtin13StringBuilderP311moonbitlang4core7builtin6Logger13write__string(buf, _M0MP311moonbitlang4core6double6Double10to__string(v.w));
-  _M0IP311moonbitlang4core7builtin13StringBuilderP311moonbitlang4core7builtin6Logger13write__string(buf, ")");
-  return _M0MP311moonbitlang4core7builtin13StringBuilder10to__string(buf);
+  const buf = _M0MPB13StringBuilder11new_2einner(0);
+  _M0IPB13StringBuilderPB6Logger13write__string(buf, "@math3d.Vec4::new(");
+  _M0IPB13StringBuilderPB6Logger13write__string(buf, _M0MPC16double6Double10to__string(v.x));
+  _M0IPB13StringBuilderPB6Logger13write__string(buf, ", ");
+  _M0IPB13StringBuilderPB6Logger13write__string(buf, _M0MPC16double6Double10to__string(v.y));
+  _M0IPB13StringBuilderPB6Logger13write__string(buf, ", ");
+  _M0IPB13StringBuilderPB6Logger13write__string(buf, _M0MPC16double6Double10to__string(v.z));
+  _M0IPB13StringBuilderPB6Logger13write__string(buf, ", ");
+  _M0IPB13StringBuilderPB6Logger13write__string(buf, _M0MPC16double6Double10to__string(v.w));
+  _M0IPB13StringBuilderPB6Logger13write__string(buf, ")");
+  return _M0MPB13StringBuilder10to__string(buf);
 }
 function _M0FP26mizchi14effect__studio30effect__track__patch__scaffold(track, index) {
-  const buf = _M0MP311moonbitlang4core7builtin13StringBuilder11new_2einner(0);
-  _M0IP311moonbitlang4core7builtin13StringBuilderP311moonbitlang4core7builtin6Logger13write__string(buf, "// track[");
-  _M0IP311moonbitlang4core7builtin13StringBuilderP311moonbitlang4core7builtin6Logger13write__string(buf, _M0MP311moonbitlang4core3int3Int18to__string_2einner(index, 10));
-  _M0IP311moonbitlang4core7builtin13StringBuilderP311moonbitlang4core7builtin6Logger13write__string(buf, "] ");
-  _M0IP311moonbitlang4core7builtin13StringBuilderP311moonbitlang4core7builtin6Logger13write__string(buf, track.id);
-  _M0IP311moonbitlang4core7builtin13StringBuilderP311moonbitlang4core7builtin6Logger13write__string(buf, "\n{\n");
-  _M0IP311moonbitlang4core7builtin13StringBuilderP311moonbitlang4core7builtin6Logger13write__string(buf, "  id: \"");
-  _M0IP311moonbitlang4core7builtin13StringBuilderP311moonbitlang4core7builtin6Logger13write__string(buf, track.id);
-  _M0IP311moonbitlang4core7builtin13StringBuilderP311moonbitlang4core7builtin6Logger13write__string(buf, "\",\n");
-  _M0IP311moonbitlang4core7builtin13StringBuilderP311moonbitlang4core7builtin6Logger13write__string(buf, "  label: \"");
-  _M0IP311moonbitlang4core7builtin13StringBuilderP311moonbitlang4core7builtin6Logger13write__string(buf, track.label);
-  _M0IP311moonbitlang4core7builtin13StringBuilderP311moonbitlang4core7builtin6Logger13write__string(buf, "\",\n");
-  _M0IP311moonbitlang4core7builtin13StringBuilderP311moonbitlang4core7builtin6Logger13write__string(buf, "  start_time: ");
-  _M0IP311moonbitlang4core7builtin13StringBuilderP311moonbitlang4core7builtin6Logger13write__string(buf, _M0MP311moonbitlang4core6double6Double10to__string(track.start_time));
-  _M0IP311moonbitlang4core7builtin13StringBuilderP311moonbitlang4core7builtin6Logger13write__string(buf, ",\n");
-  _M0IP311moonbitlang4core7builtin13StringBuilderP311moonbitlang4core7builtin6Logger13write__string(buf, "  duration: ");
-  _M0IP311moonbitlang4core7builtin13StringBuilderP311moonbitlang4core7builtin6Logger13write__string(buf, _M0MP311moonbitlang4core6double6Double10to__string(track.duration));
-  _M0IP311moonbitlang4core7builtin13StringBuilderP311moonbitlang4core7builtin6Logger13write__string(buf, ",\n");
-  _M0IP311moonbitlang4core7builtin13StringBuilderP311moonbitlang4core7builtin6Logger13write__string(buf, "  burst_interval: ");
-  _M0IP311moonbitlang4core7builtin13StringBuilderP311moonbitlang4core7builtin6Logger13write__string(buf, _M0MP311moonbitlang4core6double6Double10to__string(track.burst_interval));
-  _M0IP311moonbitlang4core7builtin13StringBuilderP311moonbitlang4core7builtin6Logger13write__string(buf, ",\n");
-  _M0IP311moonbitlang4core7builtin13StringBuilderP311moonbitlang4core7builtin6Logger13write__string(buf, "  burst_particles: ");
-  _M0IP311moonbitlang4core7builtin13StringBuilderP311moonbitlang4core7builtin6Logger13write__string(buf, _M0MP311moonbitlang4core3int3Int18to__string_2einner(track.burst_particles, 10));
-  _M0IP311moonbitlang4core7builtin13StringBuilderP311moonbitlang4core7builtin6Logger13write__string(buf, ",\n");
-  _M0IP311moonbitlang4core7builtin13StringBuilderP311moonbitlang4core7builtin6Logger13write__string(buf, "  pattern: @effect.");
+  const buf = _M0MPB13StringBuilder11new_2einner(0);
+  _M0IPB13StringBuilderPB6Logger13write__string(buf, "// track[");
+  _M0IPB13StringBuilderPB6Logger13write__string(buf, _M0MPC13int3Int18to__string_2einner(index, 10));
+  _M0IPB13StringBuilderPB6Logger13write__string(buf, "] ");
+  _M0IPB13StringBuilderPB6Logger13write__string(buf, track.id);
+  _M0IPB13StringBuilderPB6Logger13write__string(buf, "\n{\n");
+  _M0IPB13StringBuilderPB6Logger13write__string(buf, "  id: \"");
+  _M0IPB13StringBuilderPB6Logger13write__string(buf, track.id);
+  _M0IPB13StringBuilderPB6Logger13write__string(buf, "\",\n");
+  _M0IPB13StringBuilderPB6Logger13write__string(buf, "  label: \"");
+  _M0IPB13StringBuilderPB6Logger13write__string(buf, track.label);
+  _M0IPB13StringBuilderPB6Logger13write__string(buf, "\",\n");
+  _M0IPB13StringBuilderPB6Logger13write__string(buf, "  start_time: ");
+  _M0IPB13StringBuilderPB6Logger13write__string(buf, _M0MPC16double6Double10to__string(track.start_time));
+  _M0IPB13StringBuilderPB6Logger13write__string(buf, ",\n");
+  _M0IPB13StringBuilderPB6Logger13write__string(buf, "  duration: ");
+  _M0IPB13StringBuilderPB6Logger13write__string(buf, _M0MPC16double6Double10to__string(track.duration));
+  _M0IPB13StringBuilderPB6Logger13write__string(buf, ",\n");
+  _M0IPB13StringBuilderPB6Logger13write__string(buf, "  burst_interval: ");
+  _M0IPB13StringBuilderPB6Logger13write__string(buf, _M0MPC16double6Double10to__string(track.burst_interval));
+  _M0IPB13StringBuilderPB6Logger13write__string(buf, ",\n");
+  _M0IPB13StringBuilderPB6Logger13write__string(buf, "  burst_particles: ");
+  _M0IPB13StringBuilderPB6Logger13write__string(buf, _M0MPC13int3Int18to__string_2einner(track.burst_particles, 10));
+  _M0IPB13StringBuilderPB6Logger13write__string(buf, ",\n");
+  _M0IPB13StringBuilderPB6Logger13write__string(buf, "  pattern: @effect.");
   const _bind = track.pattern;
   switch (_bind) {
     case 0: {
-      _M0IP311moonbitlang4core7builtin13StringBuilderP311moonbitlang4core7builtin6Logger13write__string(buf, "Point");
+      _M0IPB13StringBuilderPB6Logger13write__string(buf, "Point");
       break;
     }
     case 1: {
-      _M0IP311moonbitlang4core7builtin13StringBuilderP311moonbitlang4core7builtin6Logger13write__string(buf, "Ring");
+      _M0IPB13StringBuilderPB6Logger13write__string(buf, "Ring");
       break;
     }
     case 2: {
-      _M0IP311moonbitlang4core7builtin13StringBuilderP311moonbitlang4core7builtin6Logger13write__string(buf, "Column");
+      _M0IPB13StringBuilderPB6Logger13write__string(buf, "Column");
       break;
     }
     default: {
-      _M0IP311moonbitlang4core7builtin13StringBuilderP311moonbitlang4core7builtin6Logger13write__string(buf, "Line");
+      _M0IPB13StringBuilderPB6Logger13write__string(buf, "Line");
     }
   }
-  _M0IP311moonbitlang4core7builtin13StringBuilderP311moonbitlang4core7builtin6Logger13write__string(buf, ",\n");
-  _M0IP311moonbitlang4core7builtin13StringBuilderP311moonbitlang4core7builtin6Logger13write__string(buf, "  origin: ");
-  _M0IP311moonbitlang4core7builtin13StringBuilderP311moonbitlang4core7builtin6Logger13write__string(buf, _M0FP26mizchi14effect__studio10vec3__code(track.origin));
-  _M0IP311moonbitlang4core7builtin13StringBuilderP311moonbitlang4core7builtin6Logger13write__string(buf, ",\n");
-  _M0IP311moonbitlang4core7builtin13StringBuilderP311moonbitlang4core7builtin6Logger13write__string(buf, "  spread_radius: ");
-  _M0IP311moonbitlang4core7builtin13StringBuilderP311moonbitlang4core7builtin6Logger13write__string(buf, _M0MP311moonbitlang4core6double6Double10to__string(track.spread_radius));
-  _M0IP311moonbitlang4core7builtin13StringBuilderP311moonbitlang4core7builtin6Logger13write__string(buf, ",\n");
-  _M0IP311moonbitlang4core7builtin13StringBuilderP311moonbitlang4core7builtin6Logger13write__string(buf, "  initial_velocity_min: ");
-  _M0IP311moonbitlang4core7builtin13StringBuilderP311moonbitlang4core7builtin6Logger13write__string(buf, _M0FP26mizchi14effect__studio10vec3__code(track.initial_velocity_min));
-  _M0IP311moonbitlang4core7builtin13StringBuilderP311moonbitlang4core7builtin6Logger13write__string(buf, ",\n");
-  _M0IP311moonbitlang4core7builtin13StringBuilderP311moonbitlang4core7builtin6Logger13write__string(buf, "  initial_velocity_max: ");
-  _M0IP311moonbitlang4core7builtin13StringBuilderP311moonbitlang4core7builtin6Logger13write__string(buf, _M0FP26mizchi14effect__studio10vec3__code(track.initial_velocity_max));
-  _M0IP311moonbitlang4core7builtin13StringBuilderP311moonbitlang4core7builtin6Logger13write__string(buf, ",\n");
-  _M0IP311moonbitlang4core7builtin13StringBuilderP311moonbitlang4core7builtin6Logger13write__string(buf, "  lifetime_min: ");
-  _M0IP311moonbitlang4core7builtin13StringBuilderP311moonbitlang4core7builtin6Logger13write__string(buf, _M0MP311moonbitlang4core6double6Double10to__string(track.lifetime_min));
-  _M0IP311moonbitlang4core7builtin13StringBuilderP311moonbitlang4core7builtin6Logger13write__string(buf, ",\n");
-  _M0IP311moonbitlang4core7builtin13StringBuilderP311moonbitlang4core7builtin6Logger13write__string(buf, "  lifetime_max: ");
-  _M0IP311moonbitlang4core7builtin13StringBuilderP311moonbitlang4core7builtin6Logger13write__string(buf, _M0MP311moonbitlang4core6double6Double10to__string(track.lifetime_max));
-  _M0IP311moonbitlang4core7builtin13StringBuilderP311moonbitlang4core7builtin6Logger13write__string(buf, ",\n");
-  _M0IP311moonbitlang4core7builtin13StringBuilderP311moonbitlang4core7builtin6Logger13write__string(buf, "  size_min: ");
-  _M0IP311moonbitlang4core7builtin13StringBuilderP311moonbitlang4core7builtin6Logger13write__string(buf, _M0MP311moonbitlang4core6double6Double10to__string(track.size_min));
-  _M0IP311moonbitlang4core7builtin13StringBuilderP311moonbitlang4core7builtin6Logger13write__string(buf, ",\n");
-  _M0IP311moonbitlang4core7builtin13StringBuilderP311moonbitlang4core7builtin6Logger13write__string(buf, "  size_max: ");
-  _M0IP311moonbitlang4core7builtin13StringBuilderP311moonbitlang4core7builtin6Logger13write__string(buf, _M0MP311moonbitlang4core6double6Double10to__string(track.size_max));
-  _M0IP311moonbitlang4core7builtin13StringBuilderP311moonbitlang4core7builtin6Logger13write__string(buf, ",\n");
-  _M0IP311moonbitlang4core7builtin13StringBuilderP311moonbitlang4core7builtin6Logger13write__string(buf, "  color_start: ");
-  _M0IP311moonbitlang4core7builtin13StringBuilderP311moonbitlang4core7builtin6Logger13write__string(buf, _M0FP26mizchi14effect__studio10vec4__code(track.color_start));
-  _M0IP311moonbitlang4core7builtin13StringBuilderP311moonbitlang4core7builtin6Logger13write__string(buf, ",\n");
-  _M0IP311moonbitlang4core7builtin13StringBuilderP311moonbitlang4core7builtin6Logger13write__string(buf, "  color_end: ");
-  _M0IP311moonbitlang4core7builtin13StringBuilderP311moonbitlang4core7builtin6Logger13write__string(buf, _M0FP26mizchi14effect__studio10vec4__code(track.color_end));
-  _M0IP311moonbitlang4core7builtin13StringBuilderP311moonbitlang4core7builtin6Logger13write__string(buf, ",\n");
-  _M0IP311moonbitlang4core7builtin13StringBuilderP311moonbitlang4core7builtin6Logger13write__string(buf, "  gravity: ");
-  _M0IP311moonbitlang4core7builtin13StringBuilderP311moonbitlang4core7builtin6Logger13write__string(buf, _M0FP26mizchi14effect__studio10vec3__code(track.gravity));
-  _M0IP311moonbitlang4core7builtin13StringBuilderP311moonbitlang4core7builtin6Logger13write__string(buf, ",\n");
-  _M0IP311moonbitlang4core7builtin13StringBuilderP311moonbitlang4core7builtin6Logger13write__string(buf, "  enabled: ");
-  _M0IP311moonbitlang4core7builtin13StringBuilderP311moonbitlang4core7builtin6Logger13write__string(buf, track.enabled ? "true" : "false");
-  _M0IP311moonbitlang4core7builtin13StringBuilderP311moonbitlang4core7builtin6Logger13write__string(buf, ",\n");
-  _M0IP311moonbitlang4core7builtin13StringBuilderP311moonbitlang4core7builtin6Logger13write__string(buf, "}");
-  return _M0MP311moonbitlang4core7builtin13StringBuilder10to__string(buf);
+  _M0IPB13StringBuilderPB6Logger13write__string(buf, ",\n");
+  _M0IPB13StringBuilderPB6Logger13write__string(buf, "  origin: ");
+  _M0IPB13StringBuilderPB6Logger13write__string(buf, _M0FP26mizchi14effect__studio10vec3__code(track.origin));
+  _M0IPB13StringBuilderPB6Logger13write__string(buf, ",\n");
+  _M0IPB13StringBuilderPB6Logger13write__string(buf, "  spread_radius: ");
+  _M0IPB13StringBuilderPB6Logger13write__string(buf, _M0MPC16double6Double10to__string(track.spread_radius));
+  _M0IPB13StringBuilderPB6Logger13write__string(buf, ",\n");
+  _M0IPB13StringBuilderPB6Logger13write__string(buf, "  initial_velocity_min: ");
+  _M0IPB13StringBuilderPB6Logger13write__string(buf, _M0FP26mizchi14effect__studio10vec3__code(track.initial_velocity_min));
+  _M0IPB13StringBuilderPB6Logger13write__string(buf, ",\n");
+  _M0IPB13StringBuilderPB6Logger13write__string(buf, "  initial_velocity_max: ");
+  _M0IPB13StringBuilderPB6Logger13write__string(buf, _M0FP26mizchi14effect__studio10vec3__code(track.initial_velocity_max));
+  _M0IPB13StringBuilderPB6Logger13write__string(buf, ",\n");
+  _M0IPB13StringBuilderPB6Logger13write__string(buf, "  lifetime_min: ");
+  _M0IPB13StringBuilderPB6Logger13write__string(buf, _M0MPC16double6Double10to__string(track.lifetime_min));
+  _M0IPB13StringBuilderPB6Logger13write__string(buf, ",\n");
+  _M0IPB13StringBuilderPB6Logger13write__string(buf, "  lifetime_max: ");
+  _M0IPB13StringBuilderPB6Logger13write__string(buf, _M0MPC16double6Double10to__string(track.lifetime_max));
+  _M0IPB13StringBuilderPB6Logger13write__string(buf, ",\n");
+  _M0IPB13StringBuilderPB6Logger13write__string(buf, "  size_min: ");
+  _M0IPB13StringBuilderPB6Logger13write__string(buf, _M0MPC16double6Double10to__string(track.size_min));
+  _M0IPB13StringBuilderPB6Logger13write__string(buf, ",\n");
+  _M0IPB13StringBuilderPB6Logger13write__string(buf, "  size_max: ");
+  _M0IPB13StringBuilderPB6Logger13write__string(buf, _M0MPC16double6Double10to__string(track.size_max));
+  _M0IPB13StringBuilderPB6Logger13write__string(buf, ",\n");
+  _M0IPB13StringBuilderPB6Logger13write__string(buf, "  color_start: ");
+  _M0IPB13StringBuilderPB6Logger13write__string(buf, _M0FP26mizchi14effect__studio10vec4__code(track.color_start));
+  _M0IPB13StringBuilderPB6Logger13write__string(buf, ",\n");
+  _M0IPB13StringBuilderPB6Logger13write__string(buf, "  color_end: ");
+  _M0IPB13StringBuilderPB6Logger13write__string(buf, _M0FP26mizchi14effect__studio10vec4__code(track.color_end));
+  _M0IPB13StringBuilderPB6Logger13write__string(buf, ",\n");
+  _M0IPB13StringBuilderPB6Logger13write__string(buf, "  gravity: ");
+  _M0IPB13StringBuilderPB6Logger13write__string(buf, _M0FP26mizchi14effect__studio10vec3__code(track.gravity));
+  _M0IPB13StringBuilderPB6Logger13write__string(buf, ",\n");
+  _M0IPB13StringBuilderPB6Logger13write__string(buf, "  enabled: ");
+  _M0IPB13StringBuilderPB6Logger13write__string(buf, track.enabled ? "true" : "false");
+  _M0IPB13StringBuilderPB6Logger13write__string(buf, ",\n");
+  _M0IPB13StringBuilderPB6Logger13write__string(buf, "}");
+  return _M0MPB13StringBuilder10to__string(buf);
 }
 function _M0FP26mizchi14effect__studio33effect__document__patch__scaffold(doc) {
-  const buf = _M0MP311moonbitlang4core7builtin13StringBuilder11new_2einner(0);
-  _M0IP311moonbitlang4core7builtin13StringBuilderP311moonbitlang4core7builtin6Logger13write__string(buf, "fn apply_ai_patch(doc : @effect.EffectDocument) -> @effect.EffectDocument {\n");
-  _M0IP311moonbitlang4core7builtin13StringBuilderP311moonbitlang4core7builtin6Logger13write__string(buf, "  {\n");
-  _M0IP311moonbitlang4core7builtin13StringBuilderP311moonbitlang4core7builtin6Logger13write__string(buf, "    ..doc,\n");
-  _M0IP311moonbitlang4core7builtin13StringBuilderP311moonbitlang4core7builtin6Logger13write__string(buf, "    name: \"");
-  _M0IP311moonbitlang4core7builtin13StringBuilderP311moonbitlang4core7builtin6Logger13write__string(buf, doc.name);
-  _M0IP311moonbitlang4core7builtin13StringBuilderP311moonbitlang4core7builtin6Logger13write__string(buf, "\",\n");
-  _M0IP311moonbitlang4core7builtin13StringBuilderP311moonbitlang4core7builtin6Logger13write__string(buf, "    duration: ");
-  _M0IP311moonbitlang4core7builtin13StringBuilderP311moonbitlang4core7builtin6Logger13write__string(buf, _M0MP311moonbitlang4core6double6Double10to__string(doc.duration));
-  _M0IP311moonbitlang4core7builtin13StringBuilderP311moonbitlang4core7builtin6Logger13write__string(buf, ",\n");
-  _M0IP311moonbitlang4core7builtin13StringBuilderP311moonbitlang4core7builtin6Logger13write__string(buf, "    looping: ");
-  _M0IP311moonbitlang4core7builtin13StringBuilderP311moonbitlang4core7builtin6Logger13write__string(buf, doc.looping ? "true" : "false");
-  _M0IP311moonbitlang4core7builtin13StringBuilderP311moonbitlang4core7builtin6Logger13write__string(buf, ",\n");
-  _M0IP311moonbitlang4core7builtin13StringBuilderP311moonbitlang4core7builtin6Logger13write__string(buf, "    notes: \"");
-  _M0IP311moonbitlang4core7builtin13StringBuilderP311moonbitlang4core7builtin6Logger13write__string(buf, doc.notes);
-  _M0IP311moonbitlang4core7builtin13StringBuilderP311moonbitlang4core7builtin6Logger13write__string(buf, "\",\n");
-  _M0IP311moonbitlang4core7builtin13StringBuilderP311moonbitlang4core7builtin6Logger13write__string(buf, "    ai_edit_goal: \"");
-  _M0IP311moonbitlang4core7builtin13StringBuilderP311moonbitlang4core7builtin6Logger13write__string(buf, doc.ai_edit_goal);
-  _M0IP311moonbitlang4core7builtin13StringBuilderP311moonbitlang4core7builtin6Logger13write__string(buf, "\",\n");
-  _M0IP311moonbitlang4core7builtin13StringBuilderP311moonbitlang4core7builtin6Logger13write__string(buf, "    tracks: [\n");
-  const _start89 = 0;
-  const _end90 = doc.tracks.length;
-  let _tmp = _start89;
+  const buf = _M0MPB13StringBuilder11new_2einner(0);
+  _M0IPB13StringBuilderPB6Logger13write__string(buf, "fn apply_ai_patch(doc : @effect.EffectDocument) -> @effect.EffectDocument {\n");
+  _M0IPB13StringBuilderPB6Logger13write__string(buf, "  {\n");
+  _M0IPB13StringBuilderPB6Logger13write__string(buf, "    ..doc,\n");
+  _M0IPB13StringBuilderPB6Logger13write__string(buf, "    name: \"");
+  _M0IPB13StringBuilderPB6Logger13write__string(buf, doc.name);
+  _M0IPB13StringBuilderPB6Logger13write__string(buf, "\",\n");
+  _M0IPB13StringBuilderPB6Logger13write__string(buf, "    duration: ");
+  _M0IPB13StringBuilderPB6Logger13write__string(buf, _M0MPC16double6Double10to__string(doc.duration));
+  _M0IPB13StringBuilderPB6Logger13write__string(buf, ",\n");
+  _M0IPB13StringBuilderPB6Logger13write__string(buf, "    looping: ");
+  _M0IPB13StringBuilderPB6Logger13write__string(buf, doc.looping ? "true" : "false");
+  _M0IPB13StringBuilderPB6Logger13write__string(buf, ",\n");
+  _M0IPB13StringBuilderPB6Logger13write__string(buf, "    notes: \"");
+  _M0IPB13StringBuilderPB6Logger13write__string(buf, doc.notes);
+  _M0IPB13StringBuilderPB6Logger13write__string(buf, "\",\n");
+  _M0IPB13StringBuilderPB6Logger13write__string(buf, "    ai_edit_goal: \"");
+  _M0IPB13StringBuilderPB6Logger13write__string(buf, doc.ai_edit_goal);
+  _M0IPB13StringBuilderPB6Logger13write__string(buf, "\",\n");
+  _M0IPB13StringBuilderPB6Logger13write__string(buf, "    tracks: [\n");
+  const _bind = 0;
+  const _bind$2 = doc.tracks.length;
+  let _tmp = _bind;
   while (true) {
     const i = _tmp;
-    if (i < _end90) {
+    if (i < _bind$2) {
       if (i > 0) {
-        _M0IP311moonbitlang4core7builtin13StringBuilderP311moonbitlang4core7builtin6Logger13write__string(buf, ",\n");
+        _M0IPB13StringBuilderPB6Logger13write__string(buf, ",\n");
       }
-      _M0IP311moonbitlang4core7builtin13StringBuilderP311moonbitlang4core7builtin6Logger13write__string(buf, _M0FP26mizchi14effect__studio30effect__track__patch__scaffold(_M0MP311moonbitlang4core5array5Array2atGRP26mizchi22kagura__effect__studio11EffectTrackE(doc.tracks, i), i));
+      _M0IPB13StringBuilderPB6Logger13write__string(buf, _M0FP26mizchi14effect__studio30effect__track__patch__scaffold(_M0MPC15array5Array2atGRP26mizchi22kagura__effect__studio11EffectTrackE(doc.tracks, i), i));
       _tmp = i + 1 | 0;
       continue;
     } else {
       break;
     }
   }
-  _M0IP311moonbitlang4core7builtin13StringBuilderP311moonbitlang4core7builtin6Logger13write__string(buf, "\n    ],\n");
-  _M0IP311moonbitlang4core7builtin13StringBuilderP311moonbitlang4core7builtin6Logger13write__string(buf, "  }\n");
-  _M0IP311moonbitlang4core7builtin13StringBuilderP311moonbitlang4core7builtin6Logger13write__string(buf, "}\n");
-  return _M0MP311moonbitlang4core7builtin13StringBuilder10to__string(buf);
+  _M0IPB13StringBuilderPB6Logger13write__string(buf, "\n    ],\n");
+  _M0IPB13StringBuilderPB6Logger13write__string(buf, "  }\n");
+  _M0IPB13StringBuilderPB6Logger13write__string(buf, "}\n");
+  return _M0MPB13StringBuilder10to__string(buf);
 }
 function _M0FP26mizchi14effect__studio23effect__studio__summary(doc, preview_time, playing) {
   const overlay = _M0FP26mizchi14effect__studio37build__effect__studio__overlay__model(doc, preview_time, playing);
-  const buf = _M0MP311moonbitlang4core7builtin13StringBuilder11new_2einner(0);
-  _M0IP311moonbitlang4core7builtin13StringBuilderP311moonbitlang4core7builtin6Logger13write__string(buf, "EFFECT ");
-  _M0IP311moonbitlang4core7builtin13StringBuilderP311moonbitlang4core7builtin6Logger13write__string(buf, doc.name);
-  _M0IP311moonbitlang4core7builtin13StringBuilderP311moonbitlang4core7builtin6Logger13write__string(buf, "\nstatus: ");
-  _M0IP311moonbitlang4core7builtin13StringBuilderP311moonbitlang4core7builtin6Logger13write__string(buf, overlay.status_label);
-  _M0IP311moonbitlang4core7builtin13StringBuilderP311moonbitlang4core7builtin6Logger13write__string(buf, ", time: ");
-  _M0IP311moonbitlang4core7builtin13StringBuilderP311moonbitlang4core7builtin6Logger13write__string(buf, _M0MP311moonbitlang4core6double6Double10to__string(preview_time));
-  _M0IP311moonbitlang4core7builtin13StringBuilderP311moonbitlang4core7builtin6Logger13write__string(buf, ", tracks: ");
-  _M0IP311moonbitlang4core7builtin13StringBuilderP311moonbitlang4core7builtin6Logger13write__string(buf, _M0MP311moonbitlang4core3int3Int18to__string_2einner(overlay.lane_count, 10));
-  _M0IP311moonbitlang4core7builtin13StringBuilderP311moonbitlang4core7builtin6Logger13write__string(buf, ", active: ");
-  _M0IP311moonbitlang4core7builtin13StringBuilderP311moonbitlang4core7builtin6Logger13write__string(buf, _M0MP311moonbitlang4core3int3Int18to__string_2einner(overlay.active_track_count, 10));
-  _M0IP311moonbitlang4core7builtin13StringBuilderP311moonbitlang4core7builtin6Logger13write__string(buf, ", bursts: ");
-  _M0IP311moonbitlang4core7builtin13StringBuilderP311moonbitlang4core7builtin6Logger13write__string(buf, _M0MP311moonbitlang4core3int3Int18to__string_2einner(overlay.scheduled_burst_count, 10));
-  _M0IP311moonbitlang4core7builtin13StringBuilderP311moonbitlang4core7builtin6Logger13write__string(buf, ", particles: ");
-  _M0IP311moonbitlang4core7builtin13StringBuilderP311moonbitlang4core7builtin6Logger13write__string(buf, _M0MP311moonbitlang4core3int3Int18to__string_2einner(overlay.scheduled_particle_count, 10));
-  _M0IP311moonbitlang4core7builtin13StringBuilderP311moonbitlang4core7builtin6Logger13write__string(buf, "\nai-edit: edit ");
-  _M0IP311moonbitlang4core7builtin13StringBuilderP311moonbitlang4core7builtin6Logger13write__string(buf, _M0FP26mizchi14effect__studio25effect__doc__target__file());
-  _M0IP311moonbitlang4core7builtin13StringBuilderP311moonbitlang4core7builtin6Logger13write__string(buf, " using the patch_scaffold payload; treat the timeline as feedback, not the source of truth.");
-  return _M0MP311moonbitlang4core7builtin13StringBuilder10to__string(buf);
+  const buf = _M0MPB13StringBuilder11new_2einner(0);
+  _M0IPB13StringBuilderPB6Logger13write__string(buf, "EFFECT ");
+  _M0IPB13StringBuilderPB6Logger13write__string(buf, doc.name);
+  _M0IPB13StringBuilderPB6Logger13write__string(buf, "\nstatus: ");
+  _M0IPB13StringBuilderPB6Logger13write__string(buf, overlay.status_label);
+  _M0IPB13StringBuilderPB6Logger13write__string(buf, ", time: ");
+  _M0IPB13StringBuilderPB6Logger13write__string(buf, _M0MPC16double6Double10to__string(preview_time));
+  _M0IPB13StringBuilderPB6Logger13write__string(buf, ", tracks: ");
+  _M0IPB13StringBuilderPB6Logger13write__string(buf, _M0MPC13int3Int18to__string_2einner(overlay.lane_count, 10));
+  _M0IPB13StringBuilderPB6Logger13write__string(buf, ", active: ");
+  _M0IPB13StringBuilderPB6Logger13write__string(buf, _M0MPC13int3Int18to__string_2einner(overlay.active_track_count, 10));
+  _M0IPB13StringBuilderPB6Logger13write__string(buf, ", bursts: ");
+  _M0IPB13StringBuilderPB6Logger13write__string(buf, _M0MPC13int3Int18to__string_2einner(overlay.scheduled_burst_count, 10));
+  _M0IPB13StringBuilderPB6Logger13write__string(buf, ", particles: ");
+  _M0IPB13StringBuilderPB6Logger13write__string(buf, _M0MPC13int3Int18to__string_2einner(overlay.scheduled_particle_count, 10));
+  _M0IPB13StringBuilderPB6Logger13write__string(buf, "\nai-edit: edit ");
+  _M0IPB13StringBuilderPB6Logger13write__string(buf, _M0FP26mizchi14effect__studio25effect__doc__target__file());
+  _M0IPB13StringBuilderPB6Logger13write__string(buf, " using the patch_scaffold payload; treat the timeline as feedback, not the source of truth.");
+  return _M0MPB13StringBuilder10to__string(buf);
 }
 function _M0FP26mizchi14effect__studio26effect__track__edit__focus(track) {
-  const buf = _M0MP311moonbitlang4core7builtin13StringBuilder11new_2einner(0);
-  _M0IP311moonbitlang4core7builtin13StringBuilderP311moonbitlang4core7builtin6Logger13write__string(buf, "Adjust timing, particle count, motion envelope, and color arc for ");
-  _M0IP311moonbitlang4core7builtin13StringBuilderP311moonbitlang4core7builtin6Logger13write__string(buf, track.id);
-  _M0IP311moonbitlang4core7builtin13StringBuilderP311moonbitlang4core7builtin6Logger13write__string(buf, " while keeping id/label stable and preserving timeline readability.");
-  return _M0MP311moonbitlang4core7builtin13StringBuilder10to__string(buf);
+  const buf = _M0MPB13StringBuilder11new_2einner(0);
+  _M0IPB13StringBuilderPB6Logger13write__string(buf, "Adjust timing, particle count, motion envelope, and color arc for ");
+  _M0IPB13StringBuilderPB6Logger13write__string(buf, track.id);
+  _M0IPB13StringBuilderPB6Logger13write__string(buf, " while keeping id/label stable and preserving timeline readability.");
+  return _M0MPB13StringBuilder10to__string(buf);
 }
 function _M0FP26mizchi14effect__studio12json__escape(text) {
   const _bind = "\\";
-  const _tmp = { str: _bind, start: 0, end: _bind.length };
+  const _tmp = new _M0TPC16string10StringView(_bind, 0, _bind.length);
   const _bind$2 = "\\\\";
-  const _tmp$2 = _M0MP311moonbitlang4core6string6String12replace__all(text, _tmp, { str: _bind$2, start: 0, end: _bind$2.length });
+  const _tmp$2 = _M0MPC16string6String12replace__all(text, _tmp, new _M0TPC16string10StringView(_bind$2, 0, _bind$2.length));
   const _bind$3 = "\"";
-  const _tmp$3 = { str: _bind$3, start: 0, end: _bind$3.length };
+  const _tmp$3 = new _M0TPC16string10StringView(_bind$3, 0, _bind$3.length);
   const _bind$4 = "\\\"";
-  const _tmp$4 = _M0MP311moonbitlang4core6string6String12replace__all(_tmp$2, _tmp$3, { str: _bind$4, start: 0, end: _bind$4.length });
+  const _tmp$4 = _M0MPC16string6String12replace__all(_tmp$2, _tmp$3, new _M0TPC16string10StringView(_bind$4, 0, _bind$4.length));
   const _bind$5 = "\n";
-  const _tmp$5 = { str: _bind$5, start: 0, end: _bind$5.length };
+  const _tmp$5 = new _M0TPC16string10StringView(_bind$5, 0, _bind$5.length);
   const _bind$6 = "\\n";
-  const _tmp$6 = _M0MP311moonbitlang4core6string6String12replace__all(_tmp$4, _tmp$5, { str: _bind$6, start: 0, end: _bind$6.length });
+  const _tmp$6 = _M0MPC16string6String12replace__all(_tmp$4, _tmp$5, new _M0TPC16string10StringView(_bind$6, 0, _bind$6.length));
   const _bind$7 = "\r";
-  const _tmp$7 = { str: _bind$7, start: 0, end: _bind$7.length };
+  const _tmp$7 = new _M0TPC16string10StringView(_bind$7, 0, _bind$7.length);
   const _bind$8 = "\\r";
-  const _tmp$8 = _M0MP311moonbitlang4core6string6String12replace__all(_tmp$6, _tmp$7, { str: _bind$8, start: 0, end: _bind$8.length });
+  const _tmp$8 = _M0MPC16string6String12replace__all(_tmp$6, _tmp$7, new _M0TPC16string10StringView(_bind$8, 0, _bind$8.length));
   const _bind$9 = "\t";
-  const _tmp$9 = { str: _bind$9, start: 0, end: _bind$9.length };
+  const _tmp$9 = new _M0TPC16string10StringView(_bind$9, 0, _bind$9.length);
   const _bind$10 = "\\t";
-  return _M0MP311moonbitlang4core6string6String12replace__all(_tmp$8, _tmp$9, { str: _bind$10, start: 0, end: _bind$10.length });
+  return _M0MPC16string6String12replace__all(_tmp$8, _tmp$9, new _M0TPC16string10StringView(_bind$10, 0, _bind$10.length));
 }
 function _M0FP26mizchi14effect__studio44append__effect__patch__bundle__payload__json(buf, doc, preview_time, playing) {
   const runtime = _M0FP26mizchi22kagura__effect__studio28build__effect__runtime__plan(doc, preview_time);
   const summary = _M0FP26mizchi14effect__studio23effect__studio__summary(doc, preview_time, playing);
-  _M0IP311moonbitlang4core7builtin13StringBuilderP311moonbitlang4core7builtin6Logger13write__string(buf, "{");
-  _M0IP311moonbitlang4core7builtin13StringBuilderP311moonbitlang4core7builtin6Logger13write__string(buf, "\"target_file\":\"");
-  _M0IP311moonbitlang4core7builtin13StringBuilderP311moonbitlang4core7builtin6Logger13write__string(buf, _M0FP26mizchi14effect__studio25effect__doc__target__file());
-  _M0IP311moonbitlang4core7builtin13StringBuilderP311moonbitlang4core7builtin6Logger13write__string(buf, "\",\"context_summary\":\"");
-  _M0IP311moonbitlang4core7builtin13StringBuilderP311moonbitlang4core7builtin6Logger13write__string(buf, _M0FP26mizchi14effect__studio12json__escape(summary));
-  _M0IP311moonbitlang4core7builtin13StringBuilderP311moonbitlang4core7builtin6Logger13write__string(buf, "\",\"edit_goal\":\"");
-  _M0IP311moonbitlang4core7builtin13StringBuilderP311moonbitlang4core7builtin6Logger13write__string(buf, _M0FP26mizchi14effect__studio12json__escape(doc.ai_edit_goal));
-  _M0IP311moonbitlang4core7builtin13StringBuilderP311moonbitlang4core7builtin6Logger13write__string(buf, "\",\"constraints\":[");
-  _M0IP311moonbitlang4core7builtin13StringBuilderP311moonbitlang4core7builtin6Logger13write__string(buf, "\"Keep track ids and labels stable\"");
-  _M0IP311moonbitlang4core7builtin13StringBuilderP311moonbitlang4core7builtin6Logger13write__string(buf, ",\"Prefer track-local edits over document-wide rewrites\"");
-  _M0IP311moonbitlang4core7builtin13StringBuilderP311moonbitlang4core7builtin6Logger13write__string(buf, ",\"Preserve a readable timing silhouette in the timeline\"");
-  _M0IP311moonbitlang4core7builtin13StringBuilderP311moonbitlang4core7builtin6Logger13write__string(buf, ",\"Use tools/effect-studio/src/effect_doc.mbt as the source of truth\"");
-  _M0IP311moonbitlang4core7builtin13StringBuilderP311moonbitlang4core7builtin6Logger13write__string(buf, "],\"current_state\":{");
-  _M0IP311moonbitlang4core7builtin13StringBuilderP311moonbitlang4core7builtin6Logger13write__string(buf, "\"preview_time\":");
-  _M0IP311moonbitlang4core7builtin13StringBuilderP311moonbitlang4core7builtin6Logger13write__string(buf, _M0MP311moonbitlang4core6double6Double10to__string(preview_time));
-  _M0IP311moonbitlang4core7builtin13StringBuilderP311moonbitlang4core7builtin6Logger13write__string(buf, ",\"normalized_time\":");
-  _M0IP311moonbitlang4core7builtin13StringBuilderP311moonbitlang4core7builtin6Logger13write__string(buf, _M0MP311moonbitlang4core6double6Double10to__string(runtime.normalized_time));
-  _M0IP311moonbitlang4core7builtin13StringBuilderP311moonbitlang4core7builtin6Logger13write__string(buf, ",\"playing\":");
-  _M0IP311moonbitlang4core7builtin13StringBuilderP311moonbitlang4core7builtin6Logger13write__string(buf, playing ? "true" : "false");
-  _M0IP311moonbitlang4core7builtin13StringBuilderP311moonbitlang4core7builtin6Logger13write__string(buf, ",\"scheduled_particle_count\":");
-  _M0IP311moonbitlang4core7builtin13StringBuilderP311moonbitlang4core7builtin6Logger13write__string(buf, _M0MP311moonbitlang4core3int3Int18to__string_2einner(runtime.total_particles, 10));
-  _M0IP311moonbitlang4core7builtin13StringBuilderP311moonbitlang4core7builtin6Logger13write__string(buf, "},\"document_patch_scaffold\":\"");
-  _M0IP311moonbitlang4core7builtin13StringBuilderP311moonbitlang4core7builtin6Logger13write__string(buf, _M0FP26mizchi14effect__studio12json__escape(_M0FP26mizchi14effect__studio33effect__document__patch__scaffold(doc)));
-  _M0IP311moonbitlang4core7builtin13StringBuilderP311moonbitlang4core7builtin6Logger13write__string(buf, "\",\"track_targets\":[");
-  const _start76 = 0;
-  const _end77 = doc.tracks.length;
-  let _tmp = _start76;
+  _M0IPB13StringBuilderPB6Logger13write__string(buf, "{");
+  _M0IPB13StringBuilderPB6Logger13write__string(buf, "\"target_file\":\"");
+  _M0IPB13StringBuilderPB6Logger13write__string(buf, _M0FP26mizchi14effect__studio25effect__doc__target__file());
+  _M0IPB13StringBuilderPB6Logger13write__string(buf, "\",\"context_summary\":\"");
+  _M0IPB13StringBuilderPB6Logger13write__string(buf, _M0FP26mizchi14effect__studio12json__escape(summary));
+  _M0IPB13StringBuilderPB6Logger13write__string(buf, "\",\"edit_goal\":\"");
+  _M0IPB13StringBuilderPB6Logger13write__string(buf, _M0FP26mizchi14effect__studio12json__escape(doc.ai_edit_goal));
+  _M0IPB13StringBuilderPB6Logger13write__string(buf, "\",\"constraints\":[");
+  _M0IPB13StringBuilderPB6Logger13write__string(buf, "\"Keep track ids and labels stable\"");
+  _M0IPB13StringBuilderPB6Logger13write__string(buf, ",\"Prefer track-local edits over document-wide rewrites\"");
+  _M0IPB13StringBuilderPB6Logger13write__string(buf, ",\"Preserve a readable timing silhouette in the timeline\"");
+  _M0IPB13StringBuilderPB6Logger13write__string(buf, ",\"Use tools/effect-studio/src/effect_doc.mbt as the source of truth\"");
+  _M0IPB13StringBuilderPB6Logger13write__string(buf, "],\"current_state\":{");
+  _M0IPB13StringBuilderPB6Logger13write__string(buf, "\"preview_time\":");
+  _M0IPB13StringBuilderPB6Logger13write__string(buf, _M0MPC16double6Double10to__string(preview_time));
+  _M0IPB13StringBuilderPB6Logger13write__string(buf, ",\"normalized_time\":");
+  _M0IPB13StringBuilderPB6Logger13write__string(buf, _M0MPC16double6Double10to__string(runtime.normalized_time));
+  _M0IPB13StringBuilderPB6Logger13write__string(buf, ",\"playing\":");
+  _M0IPB13StringBuilderPB6Logger13write__string(buf, playing ? "true" : "false");
+  _M0IPB13StringBuilderPB6Logger13write__string(buf, ",\"scheduled_particle_count\":");
+  _M0IPB13StringBuilderPB6Logger13write__string(buf, _M0MPC13int3Int18to__string_2einner(runtime.total_particles, 10));
+  _M0IPB13StringBuilderPB6Logger13write__string(buf, "},\"document_patch_scaffold\":\"");
+  _M0IPB13StringBuilderPB6Logger13write__string(buf, _M0FP26mizchi14effect__studio12json__escape(_M0FP26mizchi14effect__studio33effect__document__patch__scaffold(doc)));
+  _M0IPB13StringBuilderPB6Logger13write__string(buf, "\",\"track_targets\":[");
+  const _bind = 0;
+  const _bind$2 = doc.tracks.length;
+  let _tmp = _bind;
   while (true) {
     const i = _tmp;
-    if (i < _end77) {
+    if (i < _bind$2) {
       if (i > 0) {
-        _M0IP311moonbitlang4core7builtin13StringBuilderP311moonbitlang4core7builtin6Logger13write__string(buf, ",");
+        _M0IPB13StringBuilderPB6Logger13write__string(buf, ",");
       }
-      const track = _M0MP311moonbitlang4core5array5Array2atGRP26mizchi22kagura__effect__studio11EffectTrackE(doc.tracks, i);
-      _M0IP311moonbitlang4core7builtin13StringBuilderP311moonbitlang4core7builtin6Logger13write__string(buf, "{\"track_id\":\"");
-      _M0IP311moonbitlang4core7builtin13StringBuilderP311moonbitlang4core7builtin6Logger13write__string(buf, _M0FP26mizchi14effect__studio12json__escape(track.id));
-      _M0IP311moonbitlang4core7builtin13StringBuilderP311moonbitlang4core7builtin6Logger13write__string(buf, "\",\"index\":");
-      _M0IP311moonbitlang4core7builtin13StringBuilderP311moonbitlang4core7builtin6Logger13write__string(buf, _M0MP311moonbitlang4core3int3Int18to__string_2einner(i, 10));
-      _M0IP311moonbitlang4core7builtin13StringBuilderP311moonbitlang4core7builtin6Logger13write__string(buf, ",\"focus\":\"");
-      _M0IP311moonbitlang4core7builtin13StringBuilderP311moonbitlang4core7builtin6Logger13write__string(buf, _M0FP26mizchi14effect__studio12json__escape(_M0FP26mizchi14effect__studio26effect__track__edit__focus(track)));
-      _M0IP311moonbitlang4core7builtin13StringBuilderP311moonbitlang4core7builtin6Logger13write__string(buf, "\",\"scaffold\":\"");
-      _M0IP311moonbitlang4core7builtin13StringBuilderP311moonbitlang4core7builtin6Logger13write__string(buf, _M0FP26mizchi14effect__studio12json__escape(_M0FP26mizchi14effect__studio30effect__track__patch__scaffold(track, i)));
-      _M0IP311moonbitlang4core7builtin13StringBuilderP311moonbitlang4core7builtin6Logger13write__string(buf, "\"}");
+      const track = _M0MPC15array5Array2atGRP26mizchi22kagura__effect__studio11EffectTrackE(doc.tracks, i);
+      _M0IPB13StringBuilderPB6Logger13write__string(buf, "{\"track_id\":\"");
+      _M0IPB13StringBuilderPB6Logger13write__string(buf, _M0FP26mizchi14effect__studio12json__escape(track.id));
+      _M0IPB13StringBuilderPB6Logger13write__string(buf, "\",\"index\":");
+      _M0IPB13StringBuilderPB6Logger13write__string(buf, _M0MPC13int3Int18to__string_2einner(i, 10));
+      _M0IPB13StringBuilderPB6Logger13write__string(buf, ",\"focus\":\"");
+      _M0IPB13StringBuilderPB6Logger13write__string(buf, _M0FP26mizchi14effect__studio12json__escape(_M0FP26mizchi14effect__studio26effect__track__edit__focus(track)));
+      _M0IPB13StringBuilderPB6Logger13write__string(buf, "\",\"scaffold\":\"");
+      _M0IPB13StringBuilderPB6Logger13write__string(buf, _M0FP26mizchi14effect__studio12json__escape(_M0FP26mizchi14effect__studio30effect__track__patch__scaffold(track, i)));
+      _M0IPB13StringBuilderPB6Logger13write__string(buf, "\"}");
       _tmp = i + 1 | 0;
       continue;
     } else {
       break;
     }
   }
-  _M0IP311moonbitlang4core7builtin13StringBuilderP311moonbitlang4core7builtin6Logger13write__string(buf, "]}");
+  _M0IPB13StringBuilderPB6Logger13write__string(buf, "]}");
 }
 function _M0FP26mizchi14effect__studio20effect__bundle__slug(doc) {
   const _tmp = doc.name;
   const _bind = " ";
-  const _tmp$2 = { str: _bind, start: 0, end: _bind.length };
+  const _tmp$2 = new _M0TPC16string10StringView(_bind, 0, _bind.length);
   const _bind$2 = "-";
-  return _M0MP311moonbitlang4core6string6String12replace__all(_tmp, _tmp$2, { str: _bind$2, start: 0, end: _bind$2.length });
+  return _M0MPC16string6String12replace__all(_tmp, _tmp$2, new _M0TPC16string10StringView(_bind$2, 0, _bind$2.length));
 }
 function _M0FP26mizchi14effect__studio39effect__studio__patch__bundle__filename(doc) {
   return `${_M0FP26mizchi14effect__studio20effect__bundle__slug(doc)}-effect-bundle.json`;
 }
 function _M0FP26mizchi14effect__studio35effect__studio__patch__bundle__json(doc, preview_time, playing) {
-  const buf = _M0MP311moonbitlang4core7builtin13StringBuilder11new_2einner(0);
+  const buf = _M0MPB13StringBuilder11new_2einner(0);
   _M0FP26mizchi14effect__studio44append__effect__patch__bundle__payload__json(buf, doc, preview_time, playing);
-  return _M0MP311moonbitlang4core7builtin13StringBuilder10to__string(buf);
+  return _M0MPB13StringBuilder10to__string(buf);
 }
 function _M0FP26mizchi14effect__studio40effect__studio__review__prompt__filename(doc) {
   return `${_M0FP26mizchi14effect__studio20effect__bundle__slug(doc)}-effect-review.md`;
@@ -27380,69 +27368,69 @@ function _M0FP26mizchi14effect__studio40effect__studio__review__prompt__filename
 function _M0FP26mizchi14effect__studio40effect__studio__review__prompt__markdown(doc, preview_time, playing) {
   const runtime = _M0FP26mizchi22kagura__effect__studio28build__effect__runtime__plan(doc, preview_time);
   const overlay = _M0FP26mizchi14effect__studio37build__effect__studio__overlay__model(doc, preview_time, playing);
-  const buf = _M0MP311moonbitlang4core7builtin13StringBuilder11new_2einner(0);
-  _M0IP311moonbitlang4core7builtin13StringBuilderP311moonbitlang4core7builtin6Logger13write__string(buf, "# Effect Studio AI Review\n\n");
-  _M0IP311moonbitlang4core7builtin13StringBuilderP311moonbitlang4core7builtin6Logger13write__string(buf, "- Target: `");
-  _M0IP311moonbitlang4core7builtin13StringBuilderP311moonbitlang4core7builtin6Logger13write__string(buf, _M0FP26mizchi14effect__studio25effect__doc__target__file());
-  _M0IP311moonbitlang4core7builtin13StringBuilderP311moonbitlang4core7builtin6Logger13write__string(buf, "`\n");
-  _M0IP311moonbitlang4core7builtin13StringBuilderP311moonbitlang4core7builtin6Logger13write__string(buf, "- Effect: `");
-  _M0IP311moonbitlang4core7builtin13StringBuilderP311moonbitlang4core7builtin6Logger13write__string(buf, doc.name);
-  _M0IP311moonbitlang4core7builtin13StringBuilderP311moonbitlang4core7builtin6Logger13write__string(buf, "`\n");
-  _M0IP311moonbitlang4core7builtin13StringBuilderP311moonbitlang4core7builtin6Logger13write__string(buf, "- Preview time: `");
-  _M0IP311moonbitlang4core7builtin13StringBuilderP311moonbitlang4core7builtin6Logger13write__string(buf, _M0MP311moonbitlang4core6double6Double10to__string(preview_time));
-  _M0IP311moonbitlang4core7builtin13StringBuilderP311moonbitlang4core7builtin6Logger13write__string(buf, "`\n");
-  _M0IP311moonbitlang4core7builtin13StringBuilderP311moonbitlang4core7builtin6Logger13write__string(buf, "- Normalized time: `");
-  _M0IP311moonbitlang4core7builtin13StringBuilderP311moonbitlang4core7builtin6Logger13write__string(buf, _M0MP311moonbitlang4core6double6Double10to__string(runtime.normalized_time));
-  _M0IP311moonbitlang4core7builtin13StringBuilderP311moonbitlang4core7builtin6Logger13write__string(buf, "`\n");
-  _M0IP311moonbitlang4core7builtin13StringBuilderP311moonbitlang4core7builtin6Logger13write__string(buf, "- Status: `");
-  _M0IP311moonbitlang4core7builtin13StringBuilderP311moonbitlang4core7builtin6Logger13write__string(buf, overlay.status_label);
-  _M0IP311moonbitlang4core7builtin13StringBuilderP311moonbitlang4core7builtin6Logger13write__string(buf, "`\n\n");
-  _M0IP311moonbitlang4core7builtin13StringBuilderP311moonbitlang4core7builtin6Logger13write__string(buf, "## Edit Goal\n\n");
-  _M0IP311moonbitlang4core7builtin13StringBuilderP311moonbitlang4core7builtin6Logger13write__string(buf, doc.ai_edit_goal);
-  _M0IP311moonbitlang4core7builtin13StringBuilderP311moonbitlang4core7builtin6Logger13write__string(buf, "\n\n");
-  _M0IP311moonbitlang4core7builtin13StringBuilderP311moonbitlang4core7builtin6Logger13write__string(buf, "## Constraints\n\n");
-  _M0IP311moonbitlang4core7builtin13StringBuilderP311moonbitlang4core7builtin6Logger13write__string(buf, "- Keep track ids and labels stable.\n");
-  _M0IP311moonbitlang4core7builtin13StringBuilderP311moonbitlang4core7builtin6Logger13write__string(buf, "- Prefer track-local edits over document-wide rewrites.\n");
-  _M0IP311moonbitlang4core7builtin13StringBuilderP311moonbitlang4core7builtin6Logger13write__string(buf, "- Preserve a readable timing silhouette in the timeline.\n");
-  _M0IP311moonbitlang4core7builtin13StringBuilderP311moonbitlang4core7builtin6Logger13write__string(buf, "- Use `");
-  _M0IP311moonbitlang4core7builtin13StringBuilderP311moonbitlang4core7builtin6Logger13write__string(buf, _M0FP26mizchi14effect__studio25effect__doc__target__file());
-  _M0IP311moonbitlang4core7builtin13StringBuilderP311moonbitlang4core7builtin6Logger13write__string(buf, "` as the source of truth.\n\n");
-  _M0IP311moonbitlang4core7builtin13StringBuilderP311moonbitlang4core7builtin6Logger13write__string(buf, "## Track Targets\n\n");
-  const _start60 = 0;
-  const _end61 = doc.tracks.length;
-  let _tmp = _start60;
+  const buf = _M0MPB13StringBuilder11new_2einner(0);
+  _M0IPB13StringBuilderPB6Logger13write__string(buf, "# Effect Studio AI Review\n\n");
+  _M0IPB13StringBuilderPB6Logger13write__string(buf, "- Target: `");
+  _M0IPB13StringBuilderPB6Logger13write__string(buf, _M0FP26mizchi14effect__studio25effect__doc__target__file());
+  _M0IPB13StringBuilderPB6Logger13write__string(buf, "`\n");
+  _M0IPB13StringBuilderPB6Logger13write__string(buf, "- Effect: `");
+  _M0IPB13StringBuilderPB6Logger13write__string(buf, doc.name);
+  _M0IPB13StringBuilderPB6Logger13write__string(buf, "`\n");
+  _M0IPB13StringBuilderPB6Logger13write__string(buf, "- Preview time: `");
+  _M0IPB13StringBuilderPB6Logger13write__string(buf, _M0MPC16double6Double10to__string(preview_time));
+  _M0IPB13StringBuilderPB6Logger13write__string(buf, "`\n");
+  _M0IPB13StringBuilderPB6Logger13write__string(buf, "- Normalized time: `");
+  _M0IPB13StringBuilderPB6Logger13write__string(buf, _M0MPC16double6Double10to__string(runtime.normalized_time));
+  _M0IPB13StringBuilderPB6Logger13write__string(buf, "`\n");
+  _M0IPB13StringBuilderPB6Logger13write__string(buf, "- Status: `");
+  _M0IPB13StringBuilderPB6Logger13write__string(buf, overlay.status_label);
+  _M0IPB13StringBuilderPB6Logger13write__string(buf, "`\n\n");
+  _M0IPB13StringBuilderPB6Logger13write__string(buf, "## Edit Goal\n\n");
+  _M0IPB13StringBuilderPB6Logger13write__string(buf, doc.ai_edit_goal);
+  _M0IPB13StringBuilderPB6Logger13write__string(buf, "\n\n");
+  _M0IPB13StringBuilderPB6Logger13write__string(buf, "## Constraints\n\n");
+  _M0IPB13StringBuilderPB6Logger13write__string(buf, "- Keep track ids and labels stable.\n");
+  _M0IPB13StringBuilderPB6Logger13write__string(buf, "- Prefer track-local edits over document-wide rewrites.\n");
+  _M0IPB13StringBuilderPB6Logger13write__string(buf, "- Preserve a readable timing silhouette in the timeline.\n");
+  _M0IPB13StringBuilderPB6Logger13write__string(buf, "- Use `");
+  _M0IPB13StringBuilderPB6Logger13write__string(buf, _M0FP26mizchi14effect__studio25effect__doc__target__file());
+  _M0IPB13StringBuilderPB6Logger13write__string(buf, "` as the source of truth.\n\n");
+  _M0IPB13StringBuilderPB6Logger13write__string(buf, "## Track Targets\n\n");
+  const _bind = 0;
+  const _bind$2 = doc.tracks.length;
+  let _tmp = _bind;
   while (true) {
     const i = _tmp;
-    if (i < _end61) {
-      const track = _M0MP311moonbitlang4core5array5Array2atGRP26mizchi22kagura__effect__studio11EffectTrackE(doc.tracks, i);
-      _M0IP311moonbitlang4core7builtin13StringBuilderP311moonbitlang4core7builtin6Logger13write__string(buf, "### ");
-      _M0IP311moonbitlang4core7builtin13StringBuilderP311moonbitlang4core7builtin6Logger13write__string(buf, track.id);
-      _M0IP311moonbitlang4core7builtin13StringBuilderP311moonbitlang4core7builtin6Logger13write__string(buf, "\n\n");
-      _M0IP311moonbitlang4core7builtin13StringBuilderP311moonbitlang4core7builtin6Logger13write__string(buf, _M0FP26mizchi14effect__studio26effect__track__edit__focus(track));
-      _M0IP311moonbitlang4core7builtin13StringBuilderP311moonbitlang4core7builtin6Logger13write__string(buf, "\n\n```moonbit\n");
-      _M0IP311moonbitlang4core7builtin13StringBuilderP311moonbitlang4core7builtin6Logger13write__string(buf, _M0FP26mizchi14effect__studio30effect__track__patch__scaffold(track, i));
-      _M0IP311moonbitlang4core7builtin13StringBuilderP311moonbitlang4core7builtin6Logger13write__string(buf, "\n```\n\n");
+    if (i < _bind$2) {
+      const track = _M0MPC15array5Array2atGRP26mizchi22kagura__effect__studio11EffectTrackE(doc.tracks, i);
+      _M0IPB13StringBuilderPB6Logger13write__string(buf, "### ");
+      _M0IPB13StringBuilderPB6Logger13write__string(buf, track.id);
+      _M0IPB13StringBuilderPB6Logger13write__string(buf, "\n\n");
+      _M0IPB13StringBuilderPB6Logger13write__string(buf, _M0FP26mizchi14effect__studio26effect__track__edit__focus(track));
+      _M0IPB13StringBuilderPB6Logger13write__string(buf, "\n\n```moonbit\n");
+      _M0IPB13StringBuilderPB6Logger13write__string(buf, _M0FP26mizchi14effect__studio30effect__track__patch__scaffold(track, i));
+      _M0IPB13StringBuilderPB6Logger13write__string(buf, "\n```\n\n");
       _tmp = i + 1 | 0;
       continue;
     } else {
       break;
     }
   }
-  _M0IP311moonbitlang4core7builtin13StringBuilderP311moonbitlang4core7builtin6Logger13write__string(buf, "## Document Scaffold\n\n```moonbit\n");
-  _M0IP311moonbitlang4core7builtin13StringBuilderP311moonbitlang4core7builtin6Logger13write__string(buf, _M0FP26mizchi14effect__studio33effect__document__patch__scaffold(doc));
-  _M0IP311moonbitlang4core7builtin13StringBuilderP311moonbitlang4core7builtin6Logger13write__string(buf, "\n```\n");
-  return _M0MP311moonbitlang4core7builtin13StringBuilder10to__string(buf);
+  _M0IPB13StringBuilderPB6Logger13write__string(buf, "## Document Scaffold\n\n```moonbit\n");
+  _M0IPB13StringBuilderPB6Logger13write__string(buf, _M0FP26mizchi14effect__studio33effect__document__patch__scaffold(doc));
+  _M0IPB13StringBuilderPB6Logger13write__string(buf, "\n```\n");
+  return _M0MPB13StringBuilder10to__string(buf);
 }
 function _M0FP26mizchi14effect__studio10vec3__json(v) {
-  const buf = _M0MP311moonbitlang4core7builtin13StringBuilder11new_2einner(0);
-  _M0IP311moonbitlang4core7builtin13StringBuilderP311moonbitlang4core7builtin6Logger13write__string(buf, "{\"x\":");
-  _M0IP311moonbitlang4core7builtin13StringBuilderP311moonbitlang4core7builtin6Logger13write__string(buf, _M0MP311moonbitlang4core6double6Double10to__string(v.x));
-  _M0IP311moonbitlang4core7builtin13StringBuilderP311moonbitlang4core7builtin6Logger13write__string(buf, ",\"y\":");
-  _M0IP311moonbitlang4core7builtin13StringBuilderP311moonbitlang4core7builtin6Logger13write__string(buf, _M0MP311moonbitlang4core6double6Double10to__string(v.y));
-  _M0IP311moonbitlang4core7builtin13StringBuilderP311moonbitlang4core7builtin6Logger13write__string(buf, ",\"z\":");
-  _M0IP311moonbitlang4core7builtin13StringBuilderP311moonbitlang4core7builtin6Logger13write__string(buf, _M0MP311moonbitlang4core6double6Double10to__string(v.z));
-  _M0IP311moonbitlang4core7builtin13StringBuilderP311moonbitlang4core7builtin6Logger13write__string(buf, "}");
-  return _M0MP311moonbitlang4core7builtin13StringBuilder10to__string(buf);
+  const buf = _M0MPB13StringBuilder11new_2einner(0);
+  _M0IPB13StringBuilderPB6Logger13write__string(buf, "{\"x\":");
+  _M0IPB13StringBuilderPB6Logger13write__string(buf, _M0MPC16double6Double10to__string(v.x));
+  _M0IPB13StringBuilderPB6Logger13write__string(buf, ",\"y\":");
+  _M0IPB13StringBuilderPB6Logger13write__string(buf, _M0MPC16double6Double10to__string(v.y));
+  _M0IPB13StringBuilderPB6Logger13write__string(buf, ",\"z\":");
+  _M0IPB13StringBuilderPB6Logger13write__string(buf, _M0MPC16double6Double10to__string(v.z));
+  _M0IPB13StringBuilderPB6Logger13write__string(buf, "}");
+  return _M0MPB13StringBuilder10to__string(buf);
 }
 function _M0FP26mizchi14effect__studio29effect__studio__context__json(doc, preview_time, playing) {
   const runtime = _M0FP26mizchi22kagura__effect__studio28build__effect__runtime__plan(doc, preview_time);
@@ -27450,169 +27438,169 @@ function _M0FP26mizchi14effect__studio29effect__studio__context__json(doc, previ
   const overlay = _M0FP26mizchi14effect__studio37build__effect__studio__overlay__model(doc, preview_time, playing);
   const patch_bundle_json = _M0FP26mizchi14effect__studio35effect__studio__patch__bundle__json(doc, preview_time, playing);
   const review_prompt_markdown = _M0FP26mizchi14effect__studio40effect__studio__review__prompt__markdown(doc, preview_time, playing);
-  const buf = _M0MP311moonbitlang4core7builtin13StringBuilder11new_2einner(0);
-  _M0IP311moonbitlang4core7builtin13StringBuilderP311moonbitlang4core7builtin6Logger13write__string(buf, "{\"name\":\"");
-  _M0IP311moonbitlang4core7builtin13StringBuilderP311moonbitlang4core7builtin6Logger13write__string(buf, _M0FP26mizchi14effect__studio12json__escape(doc.name));
-  _M0IP311moonbitlang4core7builtin13StringBuilderP311moonbitlang4core7builtin6Logger13write__string(buf, "\",\"notes\":\"");
-  _M0IP311moonbitlang4core7builtin13StringBuilderP311moonbitlang4core7builtin6Logger13write__string(buf, _M0FP26mizchi14effect__studio12json__escape(doc.notes));
-  _M0IP311moonbitlang4core7builtin13StringBuilderP311moonbitlang4core7builtin6Logger13write__string(buf, "\",\"ai_edit_goal\":\"");
-  _M0IP311moonbitlang4core7builtin13StringBuilderP311moonbitlang4core7builtin6Logger13write__string(buf, _M0FP26mizchi14effect__studio12json__escape(doc.ai_edit_goal));
-  _M0IP311moonbitlang4core7builtin13StringBuilderP311moonbitlang4core7builtin6Logger13write__string(buf, "\",\"duration\":");
-  _M0IP311moonbitlang4core7builtin13StringBuilderP311moonbitlang4core7builtin6Logger13write__string(buf, _M0MP311moonbitlang4core6double6Double10to__string(doc.duration));
-  _M0IP311moonbitlang4core7builtin13StringBuilderP311moonbitlang4core7builtin6Logger13write__string(buf, ",\"looping\":");
-  _M0IP311moonbitlang4core7builtin13StringBuilderP311moonbitlang4core7builtin6Logger13write__string(buf, doc.looping ? "true" : "false");
-  _M0IP311moonbitlang4core7builtin13StringBuilderP311moonbitlang4core7builtin6Logger13write__string(buf, ",\"preview_time\":");
-  _M0IP311moonbitlang4core7builtin13StringBuilderP311moonbitlang4core7builtin6Logger13write__string(buf, _M0MP311moonbitlang4core6double6Double10to__string(preview_time));
-  _M0IP311moonbitlang4core7builtin13StringBuilderP311moonbitlang4core7builtin6Logger13write__string(buf, ",\"normalized_time\":");
-  _M0IP311moonbitlang4core7builtin13StringBuilderP311moonbitlang4core7builtin6Logger13write__string(buf, _M0MP311moonbitlang4core6double6Double10to__string(runtime.normalized_time));
-  _M0IP311moonbitlang4core7builtin13StringBuilderP311moonbitlang4core7builtin6Logger13write__string(buf, ",\"playing\":");
-  _M0IP311moonbitlang4core7builtin13StringBuilderP311moonbitlang4core7builtin6Logger13write__string(buf, playing ? "true" : "false");
-  _M0IP311moonbitlang4core7builtin13StringBuilderP311moonbitlang4core7builtin6Logger13write__string(buf, ",\"overlay\":{");
-  _M0IP311moonbitlang4core7builtin13StringBuilderP311moonbitlang4core7builtin6Logger13write__string(buf, "\"status_label\":\"");
-  _M0IP311moonbitlang4core7builtin13StringBuilderP311moonbitlang4core7builtin6Logger13write__string(buf, overlay.status_label);
-  _M0IP311moonbitlang4core7builtin13StringBuilderP311moonbitlang4core7builtin6Logger13write__string(buf, "\",\"lane_count\":");
-  _M0IP311moonbitlang4core7builtin13StringBuilderP311moonbitlang4core7builtin6Logger13write__string(buf, _M0MP311moonbitlang4core3int3Int18to__string_2einner(overlay.lane_count, 10));
-  _M0IP311moonbitlang4core7builtin13StringBuilderP311moonbitlang4core7builtin6Logger13write__string(buf, ",\"scheduled_burst_count\":");
-  _M0IP311moonbitlang4core7builtin13StringBuilderP311moonbitlang4core7builtin6Logger13write__string(buf, _M0MP311moonbitlang4core3int3Int18to__string_2einner(overlay.scheduled_burst_count, 10));
-  _M0IP311moonbitlang4core7builtin13StringBuilderP311moonbitlang4core7builtin6Logger13write__string(buf, ",\"scheduled_particle_count\":");
-  _M0IP311moonbitlang4core7builtin13StringBuilderP311moonbitlang4core7builtin6Logger13write__string(buf, _M0MP311moonbitlang4core3int3Int18to__string_2einner(overlay.scheduled_particle_count, 10));
-  _M0IP311moonbitlang4core7builtin13StringBuilderP311moonbitlang4core7builtin6Logger13write__string(buf, ",\"active_track_count\":");
-  _M0IP311moonbitlang4core7builtin13StringBuilderP311moonbitlang4core7builtin6Logger13write__string(buf, _M0MP311moonbitlang4core3int3Int18to__string_2einner(overlay.active_track_count, 10));
-  _M0IP311moonbitlang4core7builtin13StringBuilderP311moonbitlang4core7builtin6Logger13write__string(buf, ",\"playhead_ratio\":");
-  _M0IP311moonbitlang4core7builtin13StringBuilderP311moonbitlang4core7builtin6Logger13write__string(buf, _M0MP311moonbitlang4core6double6Double10to__string(overlay.playhead_ratio));
-  _M0IP311moonbitlang4core7builtin13StringBuilderP311moonbitlang4core7builtin6Logger13write__string(buf, "},\"tracks\":[");
-  const _start30 = 0;
-  const _end31 = doc.tracks.length;
-  let _tmp = _start30;
+  const buf = _M0MPB13StringBuilder11new_2einner(0);
+  _M0IPB13StringBuilderPB6Logger13write__string(buf, "{\"name\":\"");
+  _M0IPB13StringBuilderPB6Logger13write__string(buf, _M0FP26mizchi14effect__studio12json__escape(doc.name));
+  _M0IPB13StringBuilderPB6Logger13write__string(buf, "\",\"notes\":\"");
+  _M0IPB13StringBuilderPB6Logger13write__string(buf, _M0FP26mizchi14effect__studio12json__escape(doc.notes));
+  _M0IPB13StringBuilderPB6Logger13write__string(buf, "\",\"ai_edit_goal\":\"");
+  _M0IPB13StringBuilderPB6Logger13write__string(buf, _M0FP26mizchi14effect__studio12json__escape(doc.ai_edit_goal));
+  _M0IPB13StringBuilderPB6Logger13write__string(buf, "\",\"duration\":");
+  _M0IPB13StringBuilderPB6Logger13write__string(buf, _M0MPC16double6Double10to__string(doc.duration));
+  _M0IPB13StringBuilderPB6Logger13write__string(buf, ",\"looping\":");
+  _M0IPB13StringBuilderPB6Logger13write__string(buf, doc.looping ? "true" : "false");
+  _M0IPB13StringBuilderPB6Logger13write__string(buf, ",\"preview_time\":");
+  _M0IPB13StringBuilderPB6Logger13write__string(buf, _M0MPC16double6Double10to__string(preview_time));
+  _M0IPB13StringBuilderPB6Logger13write__string(buf, ",\"normalized_time\":");
+  _M0IPB13StringBuilderPB6Logger13write__string(buf, _M0MPC16double6Double10to__string(runtime.normalized_time));
+  _M0IPB13StringBuilderPB6Logger13write__string(buf, ",\"playing\":");
+  _M0IPB13StringBuilderPB6Logger13write__string(buf, playing ? "true" : "false");
+  _M0IPB13StringBuilderPB6Logger13write__string(buf, ",\"overlay\":{");
+  _M0IPB13StringBuilderPB6Logger13write__string(buf, "\"status_label\":\"");
+  _M0IPB13StringBuilderPB6Logger13write__string(buf, overlay.status_label);
+  _M0IPB13StringBuilderPB6Logger13write__string(buf, "\",\"lane_count\":");
+  _M0IPB13StringBuilderPB6Logger13write__string(buf, _M0MPC13int3Int18to__string_2einner(overlay.lane_count, 10));
+  _M0IPB13StringBuilderPB6Logger13write__string(buf, ",\"scheduled_burst_count\":");
+  _M0IPB13StringBuilderPB6Logger13write__string(buf, _M0MPC13int3Int18to__string_2einner(overlay.scheduled_burst_count, 10));
+  _M0IPB13StringBuilderPB6Logger13write__string(buf, ",\"scheduled_particle_count\":");
+  _M0IPB13StringBuilderPB6Logger13write__string(buf, _M0MPC13int3Int18to__string_2einner(overlay.scheduled_particle_count, 10));
+  _M0IPB13StringBuilderPB6Logger13write__string(buf, ",\"active_track_count\":");
+  _M0IPB13StringBuilderPB6Logger13write__string(buf, _M0MPC13int3Int18to__string_2einner(overlay.active_track_count, 10));
+  _M0IPB13StringBuilderPB6Logger13write__string(buf, ",\"playhead_ratio\":");
+  _M0IPB13StringBuilderPB6Logger13write__string(buf, _M0MPC16double6Double10to__string(overlay.playhead_ratio));
+  _M0IPB13StringBuilderPB6Logger13write__string(buf, "},\"tracks\":[");
+  const _bind = 0;
+  const _bind$2 = doc.tracks.length;
+  let _tmp = _bind;
   while (true) {
     const i = _tmp;
-    if (i < _end31) {
+    if (i < _bind$2) {
       if (i > 0) {
-        _M0IP311moonbitlang4core7builtin13StringBuilderP311moonbitlang4core7builtin6Logger13write__string(buf, ",");
+        _M0IPB13StringBuilderPB6Logger13write__string(buf, ",");
       }
-      const track = _M0MP311moonbitlang4core5array5Array2atGRP26mizchi22kagura__effect__studio11EffectTrackE(doc.tracks, i);
-      _M0IP311moonbitlang4core7builtin13StringBuilderP311moonbitlang4core7builtin6Logger13write__string(buf, "{\"id\":\"");
-      _M0IP311moonbitlang4core7builtin13StringBuilderP311moonbitlang4core7builtin6Logger13write__string(buf, _M0FP26mizchi14effect__studio12json__escape(track.id));
-      _M0IP311moonbitlang4core7builtin13StringBuilderP311moonbitlang4core7builtin6Logger13write__string(buf, "\",\"label\":\"");
-      _M0IP311moonbitlang4core7builtin13StringBuilderP311moonbitlang4core7builtin6Logger13write__string(buf, _M0FP26mizchi14effect__studio12json__escape(track.label));
-      _M0IP311moonbitlang4core7builtin13StringBuilderP311moonbitlang4core7builtin6Logger13write__string(buf, "\",\"start_time\":");
-      _M0IP311moonbitlang4core7builtin13StringBuilderP311moonbitlang4core7builtin6Logger13write__string(buf, _M0MP311moonbitlang4core6double6Double10to__string(track.start_time));
-      _M0IP311moonbitlang4core7builtin13StringBuilderP311moonbitlang4core7builtin6Logger13write__string(buf, ",\"duration\":");
-      _M0IP311moonbitlang4core7builtin13StringBuilderP311moonbitlang4core7builtin6Logger13write__string(buf, _M0MP311moonbitlang4core6double6Double10to__string(track.duration));
-      _M0IP311moonbitlang4core7builtin13StringBuilderP311moonbitlang4core7builtin6Logger13write__string(buf, ",\"burst_interval\":");
-      _M0IP311moonbitlang4core7builtin13StringBuilderP311moonbitlang4core7builtin6Logger13write__string(buf, _M0MP311moonbitlang4core6double6Double10to__string(track.burst_interval));
-      _M0IP311moonbitlang4core7builtin13StringBuilderP311moonbitlang4core7builtin6Logger13write__string(buf, ",\"burst_particles\":");
-      _M0IP311moonbitlang4core7builtin13StringBuilderP311moonbitlang4core7builtin6Logger13write__string(buf, _M0MP311moonbitlang4core3int3Int18to__string_2einner(track.burst_particles, 10));
-      _M0IP311moonbitlang4core7builtin13StringBuilderP311moonbitlang4core7builtin6Logger13write__string(buf, ",\"pattern\":\"");
-      _M0IP311moonbitlang4core7builtin13StringBuilderP311moonbitlang4core7builtin6Logger13write__string(buf, _M0FP26mizchi22kagura__effect__studio28effect__spawn__pattern__name(track.pattern));
-      _M0IP311moonbitlang4core7builtin13StringBuilderP311moonbitlang4core7builtin6Logger13write__string(buf, "\",\"origin\":");
-      _M0IP311moonbitlang4core7builtin13StringBuilderP311moonbitlang4core7builtin6Logger13write__string(buf, _M0FP26mizchi14effect__studio10vec3__json(track.origin));
-      _M0IP311moonbitlang4core7builtin13StringBuilderP311moonbitlang4core7builtin6Logger13write__string(buf, ",\"enabled\":");
-      _M0IP311moonbitlang4core7builtin13StringBuilderP311moonbitlang4core7builtin6Logger13write__string(buf, track.enabled ? "true" : "false");
-      _M0IP311moonbitlang4core7builtin13StringBuilderP311moonbitlang4core7builtin6Logger13write__string(buf, "}");
+      const track = _M0MPC15array5Array2atGRP26mizchi22kagura__effect__studio11EffectTrackE(doc.tracks, i);
+      _M0IPB13StringBuilderPB6Logger13write__string(buf, "{\"id\":\"");
+      _M0IPB13StringBuilderPB6Logger13write__string(buf, _M0FP26mizchi14effect__studio12json__escape(track.id));
+      _M0IPB13StringBuilderPB6Logger13write__string(buf, "\",\"label\":\"");
+      _M0IPB13StringBuilderPB6Logger13write__string(buf, _M0FP26mizchi14effect__studio12json__escape(track.label));
+      _M0IPB13StringBuilderPB6Logger13write__string(buf, "\",\"start_time\":");
+      _M0IPB13StringBuilderPB6Logger13write__string(buf, _M0MPC16double6Double10to__string(track.start_time));
+      _M0IPB13StringBuilderPB6Logger13write__string(buf, ",\"duration\":");
+      _M0IPB13StringBuilderPB6Logger13write__string(buf, _M0MPC16double6Double10to__string(track.duration));
+      _M0IPB13StringBuilderPB6Logger13write__string(buf, ",\"burst_interval\":");
+      _M0IPB13StringBuilderPB6Logger13write__string(buf, _M0MPC16double6Double10to__string(track.burst_interval));
+      _M0IPB13StringBuilderPB6Logger13write__string(buf, ",\"burst_particles\":");
+      _M0IPB13StringBuilderPB6Logger13write__string(buf, _M0MPC13int3Int18to__string_2einner(track.burst_particles, 10));
+      _M0IPB13StringBuilderPB6Logger13write__string(buf, ",\"pattern\":\"");
+      _M0IPB13StringBuilderPB6Logger13write__string(buf, _M0FP26mizchi22kagura__effect__studio28effect__spawn__pattern__name(track.pattern));
+      _M0IPB13StringBuilderPB6Logger13write__string(buf, "\",\"origin\":");
+      _M0IPB13StringBuilderPB6Logger13write__string(buf, _M0FP26mizchi14effect__studio10vec3__json(track.origin));
+      _M0IPB13StringBuilderPB6Logger13write__string(buf, ",\"enabled\":");
+      _M0IPB13StringBuilderPB6Logger13write__string(buf, track.enabled ? "true" : "false");
+      _M0IPB13StringBuilderPB6Logger13write__string(buf, "}");
       _tmp = i + 1 | 0;
       continue;
     } else {
       break;
     }
   }
-  _M0IP311moonbitlang4core7builtin13StringBuilderP311moonbitlang4core7builtin6Logger13write__string(buf, "],\"timeline\":[");
-  const _start36 = 0;
-  const _end37 = timeline.lanes.length;
-  let _tmp$2 = _start36;
+  _M0IPB13StringBuilderPB6Logger13write__string(buf, "],\"timeline\":[");
+  const _bind$3 = 0;
+  const _bind$4 = timeline.lanes.length;
+  let _tmp$2 = _bind$3;
   while (true) {
     const i = _tmp$2;
-    if (i < _end37) {
+    if (i < _bind$4) {
       if (i > 0) {
-        _M0IP311moonbitlang4core7builtin13StringBuilderP311moonbitlang4core7builtin6Logger13write__string(buf, ",");
+        _M0IPB13StringBuilderPB6Logger13write__string(buf, ",");
       }
-      const lane = _M0MP311moonbitlang4core5array5Array2atGRP26mizchi22kagura__effect__studio17TimelineTrackLaneE(timeline.lanes, i);
-      _M0IP311moonbitlang4core7builtin13StringBuilderP311moonbitlang4core7builtin6Logger13write__string(buf, "{\"id\":\"");
-      _M0IP311moonbitlang4core7builtin13StringBuilderP311moonbitlang4core7builtin6Logger13write__string(buf, _M0FP26mizchi14effect__studio12json__escape(lane.id));
-      _M0IP311moonbitlang4core7builtin13StringBuilderP311moonbitlang4core7builtin6Logger13write__string(buf, "\",\"active\":");
-      _M0IP311moonbitlang4core7builtin13StringBuilderP311moonbitlang4core7builtin6Logger13write__string(buf, lane.active ? "true" : "false");
-      _M0IP311moonbitlang4core7builtin13StringBuilderP311moonbitlang4core7builtin6Logger13write__string(buf, ",\"start_ratio\":");
-      _M0IP311moonbitlang4core7builtin13StringBuilderP311moonbitlang4core7builtin6Logger13write__string(buf, _M0MP311moonbitlang4core6double6Double10to__string(lane.start_ratio));
-      _M0IP311moonbitlang4core7builtin13StringBuilderP311moonbitlang4core7builtin6Logger13write__string(buf, ",\"duration_ratio\":");
-      _M0IP311moonbitlang4core7builtin13StringBuilderP311moonbitlang4core7builtin6Logger13write__string(buf, _M0MP311moonbitlang4core6double6Double10to__string(lane.duration_ratio));
-      _M0IP311moonbitlang4core7builtin13StringBuilderP311moonbitlang4core7builtin6Logger13write__string(buf, ",\"marker_count\":");
-      _M0IP311moonbitlang4core7builtin13StringBuilderP311moonbitlang4core7builtin6Logger13write__string(buf, _M0MP311moonbitlang4core3int3Int18to__string_2einner(lane.marker_ratios.length, 10));
-      _M0IP311moonbitlang4core7builtin13StringBuilderP311moonbitlang4core7builtin6Logger13write__string(buf, "}");
+      const lane = _M0MPC15array5Array2atGRP26mizchi22kagura__effect__studio11EffectTrackE(timeline.lanes, i);
+      _M0IPB13StringBuilderPB6Logger13write__string(buf, "{\"id\":\"");
+      _M0IPB13StringBuilderPB6Logger13write__string(buf, _M0FP26mizchi14effect__studio12json__escape(lane.id));
+      _M0IPB13StringBuilderPB6Logger13write__string(buf, "\",\"active\":");
+      _M0IPB13StringBuilderPB6Logger13write__string(buf, lane.active ? "true" : "false");
+      _M0IPB13StringBuilderPB6Logger13write__string(buf, ",\"start_ratio\":");
+      _M0IPB13StringBuilderPB6Logger13write__string(buf, _M0MPC16double6Double10to__string(lane.start_ratio));
+      _M0IPB13StringBuilderPB6Logger13write__string(buf, ",\"duration_ratio\":");
+      _M0IPB13StringBuilderPB6Logger13write__string(buf, _M0MPC16double6Double10to__string(lane.duration_ratio));
+      _M0IPB13StringBuilderPB6Logger13write__string(buf, ",\"marker_count\":");
+      _M0IPB13StringBuilderPB6Logger13write__string(buf, _M0MPC13int3Int18to__string_2einner(lane.marker_ratios.length, 10));
+      _M0IPB13StringBuilderPB6Logger13write__string(buf, "}");
       _tmp$2 = i + 1 | 0;
       continue;
     } else {
       break;
     }
   }
-  _M0IP311moonbitlang4core7builtin13StringBuilderP311moonbitlang4core7builtin6Logger13write__string(buf, "],\"scheduled_bursts\":[");
-  const _start42 = 0;
-  const _end43 = runtime.scheduled_bursts.length;
-  let _tmp$3 = _start42;
+  _M0IPB13StringBuilderPB6Logger13write__string(buf, "],\"scheduled_bursts\":[");
+  const _bind$5 = 0;
+  const _bind$6 = runtime.scheduled_bursts.length;
+  let _tmp$3 = _bind$5;
   while (true) {
     const i = _tmp$3;
-    if (i < _end43) {
+    if (i < _bind$6) {
       if (i > 0) {
-        _M0IP311moonbitlang4core7builtin13StringBuilderP311moonbitlang4core7builtin6Logger13write__string(buf, ",");
+        _M0IPB13StringBuilderPB6Logger13write__string(buf, ",");
       }
-      const burst = _M0MP311moonbitlang4core5array5Array2atGRP26mizchi22kagura__effect__studio20ScheduledEffectBurstE(runtime.scheduled_bursts, i);
-      _M0IP311moonbitlang4core7builtin13StringBuilderP311moonbitlang4core7builtin6Logger13write__string(buf, "{\"track_id\":\"");
-      _M0IP311moonbitlang4core7builtin13StringBuilderP311moonbitlang4core7builtin6Logger13write__string(buf, _M0FP26mizchi14effect__studio12json__escape(burst.track_id));
-      _M0IP311moonbitlang4core7builtin13StringBuilderP311moonbitlang4core7builtin6Logger13write__string(buf, "\",\"spawn_time\":");
-      _M0IP311moonbitlang4core7builtin13StringBuilderP311moonbitlang4core7builtin6Logger13write__string(buf, _M0MP311moonbitlang4core6double6Double10to__string(burst.spawn_time));
-      _M0IP311moonbitlang4core7builtin13StringBuilderP311moonbitlang4core7builtin6Logger13write__string(buf, ",\"age\":");
-      _M0IP311moonbitlang4core7builtin13StringBuilderP311moonbitlang4core7builtin6Logger13write__string(buf, _M0MP311moonbitlang4core6double6Double10to__string(burst.age));
-      _M0IP311moonbitlang4core7builtin13StringBuilderP311moonbitlang4core7builtin6Logger13write__string(buf, "}");
+      const burst = _M0MPC15array5Array2atGRP26mizchi22kagura__effect__studio11EffectTrackE(runtime.scheduled_bursts, i);
+      _M0IPB13StringBuilderPB6Logger13write__string(buf, "{\"track_id\":\"");
+      _M0IPB13StringBuilderPB6Logger13write__string(buf, _M0FP26mizchi14effect__studio12json__escape(burst.track_id));
+      _M0IPB13StringBuilderPB6Logger13write__string(buf, "\",\"spawn_time\":");
+      _M0IPB13StringBuilderPB6Logger13write__string(buf, _M0MPC16double6Double10to__string(burst.spawn_time));
+      _M0IPB13StringBuilderPB6Logger13write__string(buf, ",\"age\":");
+      _M0IPB13StringBuilderPB6Logger13write__string(buf, _M0MPC16double6Double10to__string(burst.age));
+      _M0IPB13StringBuilderPB6Logger13write__string(buf, "}");
       _tmp$3 = i + 1 | 0;
       continue;
     } else {
       break;
     }
   }
-  _M0IP311moonbitlang4core7builtin13StringBuilderP311moonbitlang4core7builtin6Logger13write__string(buf, "],\"patch_scaffold\":{");
-  _M0IP311moonbitlang4core7builtin13StringBuilderP311moonbitlang4core7builtin6Logger13write__string(buf, "\"target_file\":\"");
-  _M0IP311moonbitlang4core7builtin13StringBuilderP311moonbitlang4core7builtin6Logger13write__string(buf, _M0FP26mizchi14effect__studio25effect__doc__target__file());
-  _M0IP311moonbitlang4core7builtin13StringBuilderP311moonbitlang4core7builtin6Logger13write__string(buf, "\",\"edit_contract\":\"");
-  _M0IP311moonbitlang4core7builtin13StringBuilderP311moonbitlang4core7builtin6Logger13write__string(buf, "Edit the effect document in code. Keep timeline order readable and prefer track-local changes.");
-  _M0IP311moonbitlang4core7builtin13StringBuilderP311moonbitlang4core7builtin6Logger13write__string(buf, "\",\"document_patch_scaffold\":\"");
-  _M0IP311moonbitlang4core7builtin13StringBuilderP311moonbitlang4core7builtin6Logger13write__string(buf, _M0FP26mizchi14effect__studio12json__escape(_M0FP26mizchi14effect__studio33effect__document__patch__scaffold(doc)));
-  _M0IP311moonbitlang4core7builtin13StringBuilderP311moonbitlang4core7builtin6Logger13write__string(buf, "\",\"track_patch_scaffolds\":[");
-  const _start48 = 0;
-  const _end49 = doc.tracks.length;
-  let _tmp$4 = _start48;
+  _M0IPB13StringBuilderPB6Logger13write__string(buf, "],\"patch_scaffold\":{");
+  _M0IPB13StringBuilderPB6Logger13write__string(buf, "\"target_file\":\"");
+  _M0IPB13StringBuilderPB6Logger13write__string(buf, _M0FP26mizchi14effect__studio25effect__doc__target__file());
+  _M0IPB13StringBuilderPB6Logger13write__string(buf, "\",\"edit_contract\":\"");
+  _M0IPB13StringBuilderPB6Logger13write__string(buf, "Edit the effect document in code. Keep timeline order readable and prefer track-local changes.");
+  _M0IPB13StringBuilderPB6Logger13write__string(buf, "\",\"document_patch_scaffold\":\"");
+  _M0IPB13StringBuilderPB6Logger13write__string(buf, _M0FP26mizchi14effect__studio12json__escape(_M0FP26mizchi14effect__studio33effect__document__patch__scaffold(doc)));
+  _M0IPB13StringBuilderPB6Logger13write__string(buf, "\",\"track_patch_scaffolds\":[");
+  const _bind$7 = 0;
+  const _bind$8 = doc.tracks.length;
+  let _tmp$4 = _bind$7;
   while (true) {
     const i = _tmp$4;
-    if (i < _end49) {
+    if (i < _bind$8) {
       if (i > 0) {
-        _M0IP311moonbitlang4core7builtin13StringBuilderP311moonbitlang4core7builtin6Logger13write__string(buf, ",");
+        _M0IPB13StringBuilderPB6Logger13write__string(buf, ",");
       }
-      const track = _M0MP311moonbitlang4core5array5Array2atGRP26mizchi22kagura__effect__studio11EffectTrackE(doc.tracks, i);
-      _M0IP311moonbitlang4core7builtin13StringBuilderP311moonbitlang4core7builtin6Logger13write__string(buf, "{\"track_id\":\"");
-      _M0IP311moonbitlang4core7builtin13StringBuilderP311moonbitlang4core7builtin6Logger13write__string(buf, _M0FP26mizchi14effect__studio12json__escape(track.id));
-      _M0IP311moonbitlang4core7builtin13StringBuilderP311moonbitlang4core7builtin6Logger13write__string(buf, "\",\"index\":");
-      _M0IP311moonbitlang4core7builtin13StringBuilderP311moonbitlang4core7builtin6Logger13write__string(buf, _M0MP311moonbitlang4core3int3Int18to__string_2einner(i, 10));
-      _M0IP311moonbitlang4core7builtin13StringBuilderP311moonbitlang4core7builtin6Logger13write__string(buf, ",\"scaffold\":\"");
-      _M0IP311moonbitlang4core7builtin13StringBuilderP311moonbitlang4core7builtin6Logger13write__string(buf, _M0FP26mizchi14effect__studio12json__escape(_M0FP26mizchi14effect__studio30effect__track__patch__scaffold(track, i)));
-      _M0IP311moonbitlang4core7builtin13StringBuilderP311moonbitlang4core7builtin6Logger13write__string(buf, "\"}");
+      const track = _M0MPC15array5Array2atGRP26mizchi22kagura__effect__studio11EffectTrackE(doc.tracks, i);
+      _M0IPB13StringBuilderPB6Logger13write__string(buf, "{\"track_id\":\"");
+      _M0IPB13StringBuilderPB6Logger13write__string(buf, _M0FP26mizchi14effect__studio12json__escape(track.id));
+      _M0IPB13StringBuilderPB6Logger13write__string(buf, "\",\"index\":");
+      _M0IPB13StringBuilderPB6Logger13write__string(buf, _M0MPC13int3Int18to__string_2einner(i, 10));
+      _M0IPB13StringBuilderPB6Logger13write__string(buf, ",\"scaffold\":\"");
+      _M0IPB13StringBuilderPB6Logger13write__string(buf, _M0FP26mizchi14effect__studio12json__escape(_M0FP26mizchi14effect__studio30effect__track__patch__scaffold(track, i)));
+      _M0IPB13StringBuilderPB6Logger13write__string(buf, "\"}");
       _tmp$4 = i + 1 | 0;
       continue;
     } else {
       break;
     }
   }
-  _M0IP311moonbitlang4core7builtin13StringBuilderP311moonbitlang4core7builtin6Logger13write__string(buf, "]},\"patch_bundle\":");
+  _M0IPB13StringBuilderPB6Logger13write__string(buf, "]},\"patch_bundle\":");
   _M0FP26mizchi14effect__studio44append__effect__patch__bundle__payload__json(buf, doc, preview_time, playing);
-  _M0IP311moonbitlang4core7builtin13StringBuilderP311moonbitlang4core7builtin6Logger13write__string(buf, ",\"exports\":{");
-  _M0IP311moonbitlang4core7builtin13StringBuilderP311moonbitlang4core7builtin6Logger13write__string(buf, "\"bundle_filename\":\"");
-  _M0IP311moonbitlang4core7builtin13StringBuilderP311moonbitlang4core7builtin6Logger13write__string(buf, _M0FP26mizchi14effect__studio39effect__studio__patch__bundle__filename(doc));
-  _M0IP311moonbitlang4core7builtin13StringBuilderP311moonbitlang4core7builtin6Logger13write__string(buf, "\",\"bundle_json\":\"");
-  _M0IP311moonbitlang4core7builtin13StringBuilderP311moonbitlang4core7builtin6Logger13write__string(buf, _M0FP26mizchi14effect__studio12json__escape(patch_bundle_json));
-  _M0IP311moonbitlang4core7builtin13StringBuilderP311moonbitlang4core7builtin6Logger13write__string(buf, "\",\"review_filename\":\"");
-  _M0IP311moonbitlang4core7builtin13StringBuilderP311moonbitlang4core7builtin6Logger13write__string(buf, _M0FP26mizchi14effect__studio40effect__studio__review__prompt__filename(doc));
-  _M0IP311moonbitlang4core7builtin13StringBuilderP311moonbitlang4core7builtin6Logger13write__string(buf, "\",\"review_markdown\":\"");
-  _M0IP311moonbitlang4core7builtin13StringBuilderP311moonbitlang4core7builtin6Logger13write__string(buf, _M0FP26mizchi14effect__studio12json__escape(review_prompt_markdown));
-  _M0IP311moonbitlang4core7builtin13StringBuilderP311moonbitlang4core7builtin6Logger13write__string(buf, "\"}");
-  _M0IP311moonbitlang4core7builtin13StringBuilderP311moonbitlang4core7builtin6Logger13write__string(buf, "}");
-  return _M0MP311moonbitlang4core7builtin13StringBuilder10to__string(buf);
+  _M0IPB13StringBuilderPB6Logger13write__string(buf, ",\"exports\":{");
+  _M0IPB13StringBuilderPB6Logger13write__string(buf, "\"bundle_filename\":\"");
+  _M0IPB13StringBuilderPB6Logger13write__string(buf, _M0FP26mizchi14effect__studio39effect__studio__patch__bundle__filename(doc));
+  _M0IPB13StringBuilderPB6Logger13write__string(buf, "\",\"bundle_json\":\"");
+  _M0IPB13StringBuilderPB6Logger13write__string(buf, _M0FP26mizchi14effect__studio12json__escape(patch_bundle_json));
+  _M0IPB13StringBuilderPB6Logger13write__string(buf, "\",\"review_filename\":\"");
+  _M0IPB13StringBuilderPB6Logger13write__string(buf, _M0FP26mizchi14effect__studio40effect__studio__review__prompt__filename(doc));
+  _M0IPB13StringBuilderPB6Logger13write__string(buf, "\",\"review_markdown\":\"");
+  _M0IPB13StringBuilderPB6Logger13write__string(buf, _M0FP26mizchi14effect__studio12json__escape(review_prompt_markdown));
+  _M0IPB13StringBuilderPB6Logger13write__string(buf, "\"}");
+  _M0IPB13StringBuilderPB6Logger13write__string(buf, "}");
+  return _M0MPB13StringBuilder10to__string(buf);
 }
 function _M0MP26mizchi14effect__studio17EffectStudioState13context__json(self) {
   return _M0FP26mizchi14effect__studio29effect__studio__context__json(self.doc, self.preview_time, self.playing);
@@ -27622,7 +27610,7 @@ function _M0MP26mizchi14effect__studio17EffectStudioState16context__summary(self
 }
 function _M0MP26mizchi14effect__studio17EffectStudioState3new() {
   const aspect = (_M0FP26mizchi14effect__studio9screen__w + 0) / (_M0FP26mizchi14effect__studio9screen__h + 0);
-  return { doc: _M0FP26mizchi22kagura__effect__studio25default__effect__document(), preview_time: 0, playing: true, frame_count: 0, camera: _M0MP36mizchi6kagura8camera3d11OrbitCamera3new(_M0MP36mizchi6kagura6math3d4Vec33new(0, 0.45, 0), 5.4, 0.2, 0.45, 0.897597901025655176, aspect, 0.1, 100), prev_cursor_x: 0, prev_cursor_y: 0, key_state: _M0FP36mizchi6kagura9inpututil22new__key__input__state(), mouse_state: _M0FP36mizchi6kagura9inpututil24new__mouse__input__state(), particle_shader: _M0FP36mizchi6kagura3gfx19new__shader__handle(8702, _M0FP36mizchi6kagura6draw3d24shader3d__particle__wgsl()), lit_colored_shader: _M0FP36mizchi6kagura3gfx19new__shader__handle(8703, _M0FP36mizchi6kagura6draw3d28shader3d__lit__colored__wgsl()), lighting: _M0MP36mizchi6kagura7light3d19LightingEnvironment7default(), floor_mesh: _M0MP36mizchi6kagura6mesh3d6Mesh3D4cube(1), pedestal_mesh: _M0MP36mizchi6kagura6mesh3d6Mesh3D4cube(1) };
+  return new _M0TP26mizchi14effect__studio17EffectStudioState(_M0FP26mizchi22kagura__effect__studio25default__effect__document(), 0, true, 0, _M0MP36mizchi6kagura8camera3d11OrbitCamera3new(_M0MP36mizchi6kagura6math3d4Vec33new(0, 0.45, 0), 5.4, 0.2, 0.45, 0.897597901025655176, aspect, 0.1, 100), 0, 0, _M0FP36mizchi6kagura9inpututil22new__key__input__state(), _M0FP36mizchi6kagura9inpututil24new__mouse__input__state(), _M0FP36mizchi6kagura3gfx19new__shader__handle(8702, _M0FP36mizchi6kagura6draw3d24shader3d__particle__wgsl()), _M0FP36mizchi6kagura3gfx19new__shader__handle(8703, _M0FP36mizchi6kagura6draw3d28shader3d__lit__colored__wgsl()), _M0MP36mizchi6kagura7light3d19LightingEnvironment7default(), _M0MP36mizchi6kagura6mesh3d6Mesh3D4cube(1), _M0MP36mizchi6kagura6mesh3d6Mesh3D4cube(1));
 }
 function _M0MP26mizchi14effect__studio17EffectStudioState23patch__bundle__filename(self) {
   return _M0FP26mizchi14effect__studio39effect__studio__patch__bundle__filename(self.doc);

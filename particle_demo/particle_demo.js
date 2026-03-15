@@ -1,31 +1,31 @@
+class $PanicError extends Error {}
+function $panic() {
+  throw new $PanicError();
+}
 const $reinterpret_view = new DataView(new ArrayBuffer(8));
 function $f32_reinterpret_i32(a) {
   $reinterpret_view.setInt32(0, a, true);
   return $reinterpret_view.getFloat32(0, true);
 }
+function _M0TP36mizchi6kagura6engine14LifecycleHooks(param0, param1) {
+  this.on_start = param0;
+  this.on_stop = param1;
+}
+function _M0TPB13StringBuilder(param0) {
+  this.val = param0;
+}
 function $bound_check(arr, index) {
   if (index < 0 || index >= arr.length) throw new Error("Index out of bounds");
-}
-class $PanicError extends Error {}
-function $panic() {
-  throw new $PanicError();
 }
 function $compare_int(a, b) {
   return (a >= b) - (a <= b);
 }
-function Result$Err$0$(param0) {
-  this._0 = param0;
+function _M0TPC16string10StringView(param0, param1, param2) {
+  this.str = param0;
+  this.start = param1;
+  this.end = param2;
 }
-Result$Err$0$.prototype.$tag = 0;
-Result$Err$0$.prototype.$name = "Err";
-function Result$Ok$0$(param0) {
-  this._0 = param0;
-}
-Result$Ok$0$.prototype.$tag = 1;
-Result$Ok$0$.prototype.$name = "Ok";
-const Error$moonbitlang$47$core$47$builtin$46$CreatingViewError$46$IndexOutOfBounds = { $tag: 1, $name: "moonbitlang/core/builtin.CreatingViewError.IndexOutOfBounds" };
-const Error$moonbitlang$47$core$47$builtin$46$CreatingViewError$46$InvalidIndex = { $tag: 0, $name: "moonbitlang/core/builtin.CreatingViewError.InvalidIndex" };
-const _M0FP311moonbitlang4core7builtin19int__to__string__js = (x, radix) => {
+const _M0FPB19int__to__string__js = (x, radix) => {
   return x.toString(radix);
 };
 function $make_array_len_and_init(a, b) {
@@ -33,8 +33,12 @@ function $make_array_len_and_init(a, b) {
   arr.fill(b);
   return arr;
 }
-const _M0MP311moonbitlang4core7builtin7JSArray4push = (arr, val) => { arr.push(val); };
-const _M0MP311moonbitlang4core7builtin7MyInt6419reinterpret__double = function f(a) {
+const _M0MPB7JSArray4push = (arr, val) => { arr.push(val); };
+function _M0TPB7MyInt64(param0, param1) {
+  this.hi = param0;
+  this.lo = param1;
+}
+const _M0MPB7MyInt6419reinterpret__double = function f(a) {
   let view = f._view;
   if (view === undefined) {
     view = f._view = new DataView(new ArrayBuffer(8));
@@ -44,82 +48,339 @@ const _M0MP311moonbitlang4core7builtin7MyInt6419reinterpret__double = function f
   const lo = view.getInt32(4);
   return { hi, lo };
 };
-const _M0MP311moonbitlang4core7builtin7JSArray3pop = (arr) => arr.pop();
+const _M0MPB7JSArray3pop = (arr) => arr.pop();
+function _M0TPC13ref3RefGiE(param0) {
+  this.val = param0;
+}
+function _M0TPC13ref3RefGdE(param0) {
+  this.val = param0;
+}
+function _M0TPC13ref3RefGORP36mizchi6kagura6engine14LifecycleHooksE(param0) {
+  this.val = param0;
+}
+function _M0TPC13ref3RefGbE(param0) {
+  this.val = param0;
+}
+function _M0TPC13ref3RefGsE(param0) {
+  this.val = param0;
+}
 function $i32_reinterpret_f32(a) {
   $reinterpret_view.setFloat32(0, a, true);
   return $reinterpret_view.getInt32(0, true);
 }
-const $64$mizchi$47$kagura$47$camera3d$46$ProjectionMode$Perspective = { $tag: 0, $name: "Perspective" };
-function $64$mizchi$47$kagura$47$camera3d$46$ProjectionMode$Orthographic(param0, param1, param2, param3) {
+function _M0TP36mizchi6kagura6math3d4Vec3(param0, param1, param2) {
+  this.x = param0;
+  this.y = param1;
+  this.z = param2;
+}
+function _M0TP36mizchi6kagura6math3d4Vec4(param0, param1, param2, param3) {
+  this.x = param0;
+  this.y = param1;
+  this.z = param2;
+  this.w = param3;
+}
+function _M0TP36mizchi6kagura6math3d4Mat4(param0) {
+  this.elements = param0;
+}
+function _M0TP36mizchi6kagura8camera3d8Camera3D(param0, param1, param2, param3, param4, param5, param6, param7) {
+  this.position = param0;
+  this.target = param1;
+  this.up = param2;
+  this.fov_y_rad = param3;
+  this.aspect = param4;
+  this.near = param5;
+  this.far = param6;
+  this.projection_mode = param7;
+}
+function _M0DTP36mizchi6kagura8camera3d14ProjectionMode11Perspective() {}
+_M0DTP36mizchi6kagura8camera3d14ProjectionMode11Perspective.prototype.$tag = 0;
+const _M0DTP36mizchi6kagura8camera3d14ProjectionMode11Perspective__ = new _M0DTP36mizchi6kagura8camera3d14ProjectionMode11Perspective();
+function _M0DTP36mizchi6kagura8camera3d14ProjectionMode12Orthographic(param0, param1, param2, param3) {
   this._0 = param0;
   this._1 = param1;
   this._2 = param2;
   this._3 = param3;
 }
-$64$mizchi$47$kagura$47$camera3d$46$ProjectionMode$Orthographic.prototype.$tag = 1;
-$64$mizchi$47$kagura$47$camera3d$46$ProjectionMode$Orthographic.prototype.$name = "Orthographic";
-function Result$Err$1$(param0) {
+_M0DTP36mizchi6kagura8camera3d14ProjectionMode12Orthographic.prototype.$tag = 1;
+function _M0TP36mizchi6kagura8camera3d11OrbitCamera(param0, param1, param2, param3, param4, param5, param6, param7) {
+  this.target = param0;
+  this.distance = param1;
+  this.yaw = param2;
+  this.pitch = param3;
+  this.fov_y_rad = param4;
+  this.aspect = param5;
+  this.near = param6;
+  this.far = param7;
+}
+function _M0TP36mizchi6kagura4core11OutsideSize(param0, param1) {
+  this.width = param0;
+  this.height = param1;
+}
+function _M0TP36mizchi6kagura4core10TouchPoint(param0, param1, param2, param3) {
+  this.id = param0;
+  this.x = param1;
+  this.y = param2;
+  this.source = param3;
+}
+function _M0TP36mizchi6kagura4core15GamepadSnapshot(param0, param1, param2) {
+  this.id = param0;
+  this.axes = param1;
+  this.pressed_buttons = param2;
+}
+function _M0TP36mizchi6kagura4core13InputSnapshot(param0, param1, param2, param3, param4, param5, param6, param7) {
+  this.cursor_x = param0;
+  this.cursor_y = param1;
+  this.wheel_x = param2;
+  this.wheel_y = param3;
+  this.pressed_keys = param4;
+  this.pressed_mouse_buttons = param5;
+  this.touches = param6;
+  this.gamepads = param7;
+}
+function _M0TP36mizchi6kagura8platform14WebCanvasHooks(param0, param1, param2, param3, param4, param5, param6, param7, param8, param9, param10, param11, param12, param13, param14, param15, param16, param17, param18, param19) {
+  this.try_initialize = param0;
+  this.poll = param1;
+  this.should_close = param2;
+  this.outside_size = param3;
+  this.current_surface = param4;
+  this.capture_input = param5;
+  this.set_fullscreen = param6;
+  this.is_fullscreen = param7;
+  this.set_cursor_mode = param8;
+  this.cursor_mode = param9;
+  this.set_device_scale_factor = param10;
+  this.device_scale_factor = param11;
+  this.set_vsync_enabled = param12;
+  this.is_vsync_enabled = param13;
+  this.close_window = param14;
+  this.request_attention = param15;
+  this.set_mouse_touch_fallback = param16;
+  this.mouse_touch_fallback_enabled = param17;
+  this.fullscreen_request_status = param18;
+  this.cursor_mode_request_status = param19;
+}
+function _M0TP36mizchi6kagura8platform12SurfaceToken(param0, param1, param2, param3, param4) {
+  this.kind = param0;
+  this.opaque_id = param1;
+  this.width = param2;
+  this.height = param3;
+  this.device_scale_factor = param4;
+}
+function _M0DTPC16result6ResultGRP36mizchi6kagura8platform12SurfaceTokenRPC15error5ErrorE3Err(param0) {
   this._0 = param0;
 }
-Result$Err$1$.prototype.$tag = 0;
-Result$Err$1$.prototype.$name = "Err";
-function Result$Ok$1$(param0) {
+_M0DTPC16result6ResultGRP36mizchi6kagura8platform12SurfaceTokenRPC15error5ErrorE3Err.prototype.$tag = 0;
+function _M0DTPC16result6ResultGRP36mizchi6kagura8platform12SurfaceTokenRPC15error5ErrorE2Ok(param0) {
   this._0 = param0;
 }
-Result$Ok$1$.prototype.$tag = 1;
-Result$Ok$1$.prototype.$name = "Ok";
-function Result$Err$2$(param0) {
+_M0DTPC16result6ResultGRP36mizchi6kagura8platform12SurfaceTokenRPC15error5ErrorE2Ok.prototype.$tag = 1;
+function _M0TP36mizchi6kagura8platform13WindowOptions(param0, param1, param2, param3, param4, param5) {
+  this.title = param0;
+  this.width = param1;
+  this.height = param2;
+  this.transparent = param3;
+  this.resizable = param4;
+  this.focused = param5;
+}
+function _M0TP36mizchi6kagura8platform17WebCanvasPlatform(param0, param1, param2, param3, param4, param5, param6, param7, param8, param9, param10, param11, param12, param13, param14, param15) {
+  this.canvas_selector = param0;
+  this.initialized = param1;
+  this.poll_count = param2;
+  this.close_after_polls = param3;
+  this.web_active = param4;
+  this.options = param5;
+  this.current_input = param6;
+  this.fullscreen = param7;
+  this.cursor_mode = param8;
+  this.device_scale_factor = param9;
+  this.vsync_enabled = param10;
+  this.close_requested = param11;
+  this.attention_requests = param12;
+  this.mouse_touch_fallback = param13;
+  this.fullscreen_request_status = param14;
+  this.cursor_mode_request_status = param15;
+}
+function _M0DTPC16result6ResultGuRPC15error5ErrorE3Err(param0) {
   this._0 = param0;
 }
-Result$Err$2$.prototype.$tag = 0;
-Result$Err$2$.prototype.$name = "Err";
-function Result$Ok$2$(param0) {
+_M0DTPC16result6ResultGuRPC15error5ErrorE3Err.prototype.$tag = 0;
+function _M0DTPC16result6ResultGuRPC15error5ErrorE2Ok(param0) {
   this._0 = param0;
 }
-Result$Ok$2$.prototype.$tag = 1;
-Result$Ok$2$.prototype.$name = "Ok";
+_M0DTPC16result6ResultGuRPC15error5ErrorE2Ok.prototype.$tag = 1;
 const $1L = { hi: 0, lo: 1 };
 const $2047L = { hi: 0, lo: 2047 };
 const $4503599627370495L = { hi: 1048575, lo: -1 };
 const $0L = { hi: 0, lo: 0 };
-const $64$mizchi$47$kagura$47$gfx$46$BlendMode$Copy = { $tag: 0, $name: "Copy" };
-const $64$mizchi$47$kagura$47$gfx$46$BlendMode$Alpha = { $tag: 1, $name: "Alpha" };
-const $64$mizchi$47$kagura$47$gfx$46$BlendMode$Add = { $tag: 2, $name: "Add" };
-const $64$mizchi$47$kagura$47$gfx$46$BlendMode$Multiply = { $tag: 3, $name: "Multiply" };
-function $64$mizchi$47$kagura$47$gfx$46$BlendMode$Custom(param0) {
+function _M0TP36mizchi6kagura3gfx16BuiltinShaderKey(param0, param1, param2) {
+  this.filter = param0;
+  this.address = param1;
+  this.use_color_m = param2;
+}
+function _M0TP36mizchi6kagura3gfx9DstRegion(param0, param1, param2, param3, param4) {
+  this.x = param0;
+  this.y = param1;
+  this.width = param2;
+  this.height = param3;
+  this.index_count = param4;
+}
+function _M0TP36mizchi6kagura3gfx5Color(param0, param1, param2, param3) {
+  this.r = param0;
+  this.g = param1;
+  this.b = param2;
+  this.a = param3;
+}
+function _M0TP36mizchi6kagura3gfx14RenderPassDesc(param0, param1, param2) {
+  this.clear_color = param0;
+  this.clear_enabled = param1;
+  this.present = param2;
+}
+function _M0DTP36mizchi6kagura3gfx9BlendMode4Copy() {}
+_M0DTP36mizchi6kagura3gfx9BlendMode4Copy.prototype.$tag = 0;
+const _M0DTP36mizchi6kagura3gfx9BlendMode4Copy__ = new _M0DTP36mizchi6kagura3gfx9BlendMode4Copy();
+function _M0DTP36mizchi6kagura3gfx9BlendMode5Alpha() {}
+_M0DTP36mizchi6kagura3gfx9BlendMode5Alpha.prototype.$tag = 1;
+const _M0DTP36mizchi6kagura3gfx9BlendMode5Alpha__ = new _M0DTP36mizchi6kagura3gfx9BlendMode5Alpha();
+function _M0DTP36mizchi6kagura3gfx9BlendMode3Add() {}
+_M0DTP36mizchi6kagura3gfx9BlendMode3Add.prototype.$tag = 2;
+const _M0DTP36mizchi6kagura3gfx9BlendMode3Add__ = new _M0DTP36mizchi6kagura3gfx9BlendMode3Add();
+function _M0DTP36mizchi6kagura3gfx9BlendMode8Multiply() {}
+_M0DTP36mizchi6kagura3gfx9BlendMode8Multiply.prototype.$tag = 3;
+const _M0DTP36mizchi6kagura3gfx9BlendMode8Multiply__ = new _M0DTP36mizchi6kagura3gfx9BlendMode8Multiply();
+function _M0DTP36mizchi6kagura3gfx9BlendMode6Custom(param0) {
   this._0 = param0;
 }
-$64$mizchi$47$kagura$47$gfx$46$BlendMode$Custom.prototype.$tag = 4;
-$64$mizchi$47$kagura$47$gfx$46$BlendMode$Custom.prototype.$name = "Custom";
-const Option$None$3$ = { $tag: 0, $name: "None" };
-function Option$Some$3$(param0) {
+_M0DTP36mizchi6kagura3gfx9BlendMode6Custom.prototype.$tag = 4;
+function _M0TP36mizchi6kagura3gfx11ImageHandle(param0, param1, param2) {
+  this.id = param0;
+  this.width = param1;
+  this.height = param2;
+}
+function _M0TP36mizchi6kagura3gfx12ShaderHandle(param0, param1) {
+  this.id = param0;
+  this.source = param1;
+}
+function _M0TP36mizchi6kagura3gfx20DrawTrianglesCommand(param0, param1, param2, param3, param4, param5, param6, param7, param8, param9, param10, param11, param12) {
+  this.dst = param0;
+  this.shader = param1;
+  this.dst_regions = param2;
+  this.index_offset = param3;
+  this.pipeline_id = param4;
+  this.uniform_hash = param5;
+  this.blend = param6;
+  this.vertex_data = param7;
+  this.indices = param8;
+  this.src_image_ids = param9;
+  this.uniform_dwords = param10;
+  this.instance_count = param11;
+  this.resource_cache_key = param12;
+}
+function _M0DTPC16option6OptionGRPB5ArrayGiEE4None() {}
+_M0DTPC16option6OptionGRPB5ArrayGiEE4None.prototype.$tag = 0;
+const _M0DTPC16option6OptionGRPB5ArrayGiEE4None__ = new _M0DTPC16option6OptionGRPB5ArrayGiEE4None();
+function _M0DTPC16option6OptionGRPB5ArrayGiEE4Some(param0) {
   this._0 = param0;
 }
-Option$Some$3$.prototype.$tag = 1;
-Option$Some$3$.prototype.$name = "Some";
-function Result$Err$4$(param0) {
+_M0DTPC16option6OptionGRPB5ArrayGiEE4Some.prototype.$tag = 1;
+function _M0TP36mizchi6kagura3gfx16WebGraphicsHooks(param0, param1, param2, param3, param4, param5) {
+  this.try_initialize = param0;
+  this.on_begin = param1;
+  this.on_end = param2;
+  this.on_draw = param3;
+  this.on_resize = param4;
+  this.on_read_pixels = param5;
+}
+function _M0TP36mizchi6kagura3gfx19NativeGraphicsHooks(param0, param1, param2, param3, param4, param5, param6) {
+  this.try_initialize = param0;
+  this.on_begin = param1;
+  this.on_end = param2;
+  this.on_draw = param3;
+  this.on_resize = param4;
+  this.on_read_pixels = param5;
+  this.on_new_image = param6;
+}
+function _M0TP36mizchi6kagura3gfx22GraphicsBackendOptions(param0, param1, param2) {
+  this.enable_validation = param0;
+  this.prefer_low_power = param1;
+  this.enable_vsync = param2;
+}
+function _M0TP36mizchi6kagura3gfx18StubGraphicsDriver(param0, param1, param2, param3, param4, param5, param6, param7, param8, param9, param10, param11, param12, param13) {
+  this.backend = param0;
+  this.width = param1;
+  this.height = param2;
+  this.initialized = param3;
+  this.native_active = param4;
+  this.web_active = param5;
+  this.next_id = param6;
+  this.begin_count = param7;
+  this.end_count = param8;
+  this.draw_count = param9;
+  this.resize_count = param10;
+  this.resize_suppressed_count = param11;
+  this.last_resize_duration_ms = param12;
+  this.total_resize_duration_ms = param13;
+}
+function _M0DTPC16result6ResultGRP36mizchi6kagura3gfx11ImageHandleRPC15error5ErrorE3Err(param0) {
   this._0 = param0;
 }
-Result$Err$4$.prototype.$tag = 0;
-Result$Err$4$.prototype.$name = "Err";
-function Result$Ok$4$(param0) {
+_M0DTPC16result6ResultGRP36mizchi6kagura3gfx11ImageHandleRPC15error5ErrorE3Err.prototype.$tag = 0;
+function _M0DTPC16result6ResultGRP36mizchi6kagura3gfx11ImageHandleRPC15error5ErrorE2Ok(param0) {
   this._0 = param0;
 }
-Result$Ok$4$.prototype.$tag = 1;
-Result$Ok$4$.prototype.$name = "Ok";
-function Result$Err$5$(param0) {
+_M0DTPC16result6ResultGRP36mizchi6kagura3gfx11ImageHandleRPC15error5ErrorE2Ok.prototype.$tag = 1;
+function _M0DTPC16result6ResultGRP36mizchi6kagura3gfx12ShaderHandleRPC15error5ErrorE3Err(param0) {
   this._0 = param0;
 }
-Result$Err$5$.prototype.$tag = 0;
-Result$Err$5$.prototype.$name = "Err";
-function Result$Ok$5$(param0) {
+_M0DTPC16result6ResultGRP36mizchi6kagura3gfx12ShaderHandleRPC15error5ErrorE3Err.prototype.$tag = 0;
+function _M0DTPC16result6ResultGRP36mizchi6kagura3gfx12ShaderHandleRPC15error5ErrorE2Ok(param0) {
   this._0 = param0;
 }
-Result$Ok$5$.prototype.$tag = 1;
-Result$Ok$5$.prototype.$name = "Ok";
+_M0DTPC16result6ResultGRP36mizchi6kagura3gfx12ShaderHandleRPC15error5ErrorE2Ok.prototype.$tag = 1;
+function _M0TPC13ref3RefGfE(param0) {
+  this.val = param0;
+}
+function _M0TP36mizchi6kagura5audio11AudioFormat(param0, param1, param2) {
+  this.sample_rate = param0;
+  this.channels = param1;
+  this.bits_per_sample = param2;
+}
+function _M0TP36mizchi6kagura5audio16AudioOutputHooks(param0, param1, param2, param3, param4, param5) {
+  this.try_initialize = param0;
+  this.write_frames = param1;
+  this.suspend = param2;
+  this.resume_playback = param3;
+  this.close = param4;
+  this.output_latency = param5;
+}
 const _M0FP36mizchi6kagura6engine29js__request__animation__frame = (f) => { requestAnimationFrame(() => f()); };
 const _M0FP36mizchi6kagura6engine20js__on__beforeunload = (f) => { window.addEventListener("beforeunload", () => f()); };
 const _M0FP36mizchi6kagura6engine20js__performance__now = () => (globalThis.performance?.now?.() ?? Date.now());
+function _M0TP36mizchi6kagura6engine13EngineContext(param0, param1, param2, param3) {
+  this.dst = param0;
+  this.shader = param1;
+  this.screen_w = param2;
+  this.screen_h = param3;
+}
+function _M0TP36mizchi6kagura10particle3d15ParticleEmitter(param0, param1, param2, param3) {
+  this.config = param0;
+  this.particles = param1;
+  this.spawn_accumulator = param2;
+  this.frame_count = param3;
+}
+function _M0TP36mizchi6kagura10particle3d8Particle(param0, param1, param2, param3, param4, param5) {
+  this.position = param0;
+  this.velocity = param1;
+  this.age = param2;
+  this.max_age = param3;
+  this.color = param4;
+  this.size = param5;
+}
+function _M0TP36mizchi6kagura4text13FontLoadHooks(param0) {
+  this.load_font_data = param0;
+}
+function _M0TPC13ref3RefGORP26mizchi19web__runtime__hooks21SourceImageCacheEntryE(param0) {
+  this.val = param0;
+}
 const _M0FP26mizchi19web__runtime__hooks20js__prepare__surface = (selector, fallbackWidth, fallbackHeight) => {
    const root = globalThis;
    const state = root.__kaguraWebRuntime ?? (root.__kaguraWebRuntime = {
@@ -1593,64 +1854,75 @@ const _M0FP26mizchi19web__runtime__hooks26js__audio__output__latency = () => {
    if (a?.ctx) return a.ctx.outputLatency || 0;
    return 0;
  };
-const _M0FP095_40moonbitlang_2fcore_2fbuiltin_2eStringBuilder_24as_24_40moonbitlang_2fcore_2fbuiltin_2eLogger = { method_0: _M0IP311moonbitlang4core7builtin13StringBuilderP311moonbitlang4core7builtin6Logger13write__string, method_1: _M0IP016_24default__implP311moonbitlang4core7builtin6Logger16write__substringGRP311moonbitlang4core7builtin13StringBuilderE, method_2: _M0IP311moonbitlang4core7builtin13StringBuilderP311moonbitlang4core7builtin6Logger11write__view, method_3: _M0IP311moonbitlang4core7builtin13StringBuilderP311moonbitlang4core7builtin6Logger11write__char };
-function _M0FP15Error10to__string(_e) {
-  if (_e.$tag === 0) {
-    return _M0IP016_24default__implP311moonbitlang4core7builtin4Show10to__stringGRP311moonbitlang4core7builtin17CreatingViewErrorE(_e);
-  } else {
-    return _M0IP016_24default__implP311moonbitlang4core7builtin4Show10to__stringGRP311moonbitlang4core7builtin17CreatingViewErrorE(_e);
-  }
+function _M0TP36mizchi6kagura10particle3d13EmitterConfig(param0, param1, param2, param3, param4, param5, param6, param7, param8, param9, param10, param11) {
+  this.position = param0;
+  this.spawn_rate = param1;
+  this.initial_velocity_min = param2;
+  this.initial_velocity_max = param3;
+  this.lifetime_min = param4;
+  this.lifetime_max = param5;
+  this.size_min = param6;
+  this.size_max = param7;
+  this.color_start = param8;
+  this.color_end = param9;
+  this.gravity = param10;
+  this.max_particles = param11;
 }
-const _M0FP311moonbitlang4core5float10min__value = $f32_reinterpret_i32(-8388609);
-const _M0FP311moonbitlang4core5float10max__value = $f32_reinterpret_i32(2139095039);
-const _M0FP311moonbitlang4core5float14not__a__number = $f32_reinterpret_i32(2143289344);
+function _M0TP26mizchi14particle__demo9DemoState(param0, param1, param2, param3, param4, param5, param6, param7, param8) {
+  this.camera = param0;
+  this.emitters = param1;
+  this.particle_shader = param2;
+  this.time = param3;
+  this.frame_count = param4;
+  this.fps_timer = param5;
+  this.last_fps = param6;
+  this.prev_cursor_x = param7;
+  this.prev_cursor_y = param8;
+}
+const _M0FP092moonbitlang_2fcore_2fbuiltin_2fStringBuilder_24as_24_40moonbitlang_2fcore_2fbuiltin_2eLogger = { method_0: _M0IPB13StringBuilderPB6Logger13write__string, method_1: _M0IP016_24default__implPB6Logger16write__substringGRPB13StringBuilderE, method_2: _M0IPB13StringBuilderPB6Logger11write__view, method_3: _M0IPB13StringBuilderPB6Logger11write__char };
+function _M0FP15Error10to__string(_e) {
+  return $panic();
+}
+const _M0FPC15float10min__value = $f32_reinterpret_i32(-8388609);
+const _M0FPC15float10max__value = $f32_reinterpret_i32(2139095039);
+const _M0FPC15float14not__a__number = $f32_reinterpret_i32(2143289344);
 const _M0FP26mizchi14particle__demo9screen__h = 480;
 const _M0FP26mizchi14particle__demo9screen__w = 640;
-const _M0FP36mizchi6kagura6engine16lifecycle__hooks = _M0MP311moonbitlang4core3ref3Ref3newGORP36mizchi6kagura6engine14LifecycleHooksE(undefined);
-const _M0FP26mizchi19web__runtime__hooks21web__canvas__selector = _M0MP311moonbitlang4core3ref3Ref3newGsE("#app");
-const _M0FP26mizchi19web__runtime__hooks21web__hooks__installed = _M0MP311moonbitlang4core3ref3Ref3newGbE(false);
-const _M0FP36mizchi6kagura5audio20audio__output__hooks = _M0MP311moonbitlang4core3ref3Ref3newGRP36mizchi6kagura5audio16AudioOutputHooksE(_M0FP36mizchi6kagura5audio29default__audio__output__hooks());
-const _M0FP311moonbitlang4core7builtin33brute__force__find_2econstr_2f108 = 0;
-const _M0FP311moonbitlang4core7builtin42boyer__moore__horspool__find_2econstr_2f94 = 0;
-const _M0FP26mizchi19web__runtime__hooks20source__image__cache = _M0MP311moonbitlang4core3ref3Ref3newGRP311moonbitlang4core7builtin5ArrayGRP26mizchi19web__runtime__hooks21SourceImageCacheEntryEE([]);
-const _M0FP26mizchi19web__runtime__hooks19gpu__texture__dirty = _M0MP311moonbitlang4core3ref3Ref3newGRP311moonbitlang4core7builtin5ArrayGiEE([]);
-const _M0FP36mizchi6kagura3gfx20web__graphics__hooks = _M0MP311moonbitlang4core3ref3Ref3newGRP36mizchi6kagura3gfx16WebGraphicsHooksE(_M0FP36mizchi6kagura3gfx29default__web__graphics__hooks());
-const _M0FP26mizchi19web__runtime__hooks27synced__source__generations = _M0MP311moonbitlang4core3ref3Ref3newGRP311moonbitlang4core7builtin5ArrayGRP26mizchi19web__runtime__hooks22SyncedSourceGenerationEE([]);
-const _M0FP36mizchi6kagura4text17font__load__hooks = _M0MP311moonbitlang4core3ref3Ref3newGRP36mizchi6kagura4text13FontLoadHooksE(_M0FP36mizchi6kagura4text26default__font__load__hooks());
-const _M0FP36mizchi6kagura8platform18web__canvas__hooks = _M0MP311moonbitlang4core3ref3Ref3newGRP36mizchi6kagura8platform14WebCanvasHooksE(_M0FP36mizchi6kagura8platform27default__web__canvas__hooks());
+const _M0FP36mizchi6kagura6engine16lifecycle__hooks = _M0MPC13ref3Ref3newGORP36mizchi6kagura6engine14LifecycleHooksE(undefined);
+const _M0FP26mizchi19web__runtime__hooks21web__canvas__selector = _M0MPC13ref3Ref3newGsE("#app");
+const _M0FP26mizchi19web__runtime__hooks21web__hooks__installed = _M0MPC13ref3Ref3newGbE(false);
+const _M0FP36mizchi6kagura5audio20audio__output__hooks = _M0MPC13ref3Ref3newGsE(_M0FP36mizchi6kagura5audio29default__audio__output__hooks());
+const _M0FPB32brute__force__find_2econstr_2f99 = 0;
+const _M0FPB42boyer__moore__horspool__find_2econstr_2f85 = 0;
+const _M0FP26mizchi19web__runtime__hooks20source__image__cache = _M0MPC13ref3Ref3newGORP36mizchi6kagura6engine14LifecycleHooksE([]);
+const _M0FP26mizchi19web__runtime__hooks19gpu__texture__dirty = _M0MPC13ref3Ref3newGORP36mizchi6kagura6engine14LifecycleHooksE([]);
+const _M0FP36mizchi6kagura3gfx20web__graphics__hooks = _M0MPC13ref3Ref3newGsE(_M0FP36mizchi6kagura3gfx29default__web__graphics__hooks());
+const _M0FP26mizchi19web__runtime__hooks27synced__source__generations = _M0MPC13ref3Ref3newGORP36mizchi6kagura6engine14LifecycleHooksE([]);
+const _M0FP36mizchi6kagura4text17font__load__hooks = _M0MPC13ref3Ref3newGsE(_M0FP36mizchi6kagura4text26default__font__load__hooks());
+const _M0FP36mizchi6kagura8platform18web__canvas__hooks = _M0MPC13ref3Ref3newGsE(_M0FP36mizchi6kagura8platform27default__web__canvas__hooks());
 (() => {
-  _M0FP36mizchi6kagura6engine21set__lifecycle__hooks({ on_start: (canvas, _title) => {
+  _M0FP36mizchi6kagura6engine21set__lifecycle__hooks(new _M0TP36mizchi6kagura6engine14LifecycleHooks((canvas, _title) => {
     _M0FP26mizchi19web__runtime__hooks7install(canvas);
-  }, on_stop: () => {
+  }, () => {
     _M0FP26mizchi19web__runtime__hooks8shutdown();
-  } });
+  }));
 })();
-const _M0FP311moonbitlang4core4math34trig__reduce_2etwo__over__pi_2f305 = [0, 683565275, -1819212470, 2131351028, 2102212464, 920167782, 1326507024, 0];
-const _M0FP36mizchi6kagura3gfx25graphics__clock__provider = _M0MP311moonbitlang4core3ref3Ref3newGWEdE(_M0FP36mizchi6kagura3gfx23default__clock__now__ms);
-const _M0FP36mizchi6kagura3gfx23native__graphics__hooks = _M0MP311moonbitlang4core3ref3Ref3newGRP36mizchi6kagura3gfx19NativeGraphicsHooksE(_M0FP36mizchi6kagura3gfx32default__native__graphics__hooks());
-function _M0IP311moonbitlang4core7builtin17CreatingViewErrorP311moonbitlang4core7builtin4Show6output(_x_5142, _x_5143) {
-  if (_x_5142.$tag === 1) {
-    _x_5143.method_table.method_0(_x_5143.self, "IndexOutOfBounds");
-    return;
-  } else {
-    _x_5143.method_table.method_0(_x_5143.self, "InvalidIndex");
-    return;
-  }
+const _M0FPC14math34trig__reduce_2etwo__over__pi_2f296 = [0, 683565275, -1819212470, 2131351028, 2102212464, 920167782, 1326507024, 0];
+const _M0FP36mizchi6kagura3gfx25graphics__clock__provider = _M0MPC13ref3Ref3newGsE(_M0FP36mizchi6kagura3gfx23default__clock__now__ms);
+const _M0FP36mizchi6kagura3gfx23native__graphics__hooks = _M0MPC13ref3Ref3newGsE(_M0FP36mizchi6kagura3gfx32default__native__graphics__hooks());
+function _M0MPB13StringBuilder11new_2einner(size_hint) {
+  return new _M0TPB13StringBuilder("");
 }
-function _M0MP311moonbitlang4core7builtin13StringBuilder11new_2einner(size_hint) {
-  return { val: "" };
-}
-function _M0MP311moonbitlang4core7builtin13StringBuilder10to__string(self) {
+function _M0MPB13StringBuilder10to__string(self) {
   return self.val;
 }
-function _M0IP311moonbitlang4core7builtin13StringBuilderP311moonbitlang4core7builtin6Logger11write__char(self, ch) {
-  const _bind = self;
-  _bind.val = `${_bind.val}${String.fromCodePoint(ch)}`;
+function _M0IPB13StringBuilderPB6Logger11write__char(self, ch) {
+  self.val = `${self.val}${String.fromCodePoint(ch)}`;
 }
-function _M0MP311moonbitlang4core6uint166UInt1623is__trailing__surrogate(self) {
-  return _M0IP016_24default__implP311moonbitlang4core7builtin7Compare6op__geGkE(self, 56320) && _M0IP016_24default__implP311moonbitlang4core7builtin7Compare6op__leGkE(self, 57343);
+function _M0MPC16uint166UInt1623is__trailing__surrogate(self) {
+  return _M0IP016_24default__implPB7Compare6op__geGkE(self, 56320) && _M0IP016_24default__implPB7Compare6op__leGkE(self, 57343);
 }
-function _M0MP311moonbitlang4core5array5Array2atGiE(self, index) {
+function _M0MPC15array5Array2atGiE(self, index) {
   const len = self.length;
   if (index >= 0 && index < len) {
     $bound_check(self, index);
@@ -1659,7 +1931,7 @@ function _M0MP311moonbitlang4core5array5Array2atGiE(self, index) {
     return $panic();
   }
 }
-function _M0MP311moonbitlang4core5array5Array2atGdE(self, index) {
+function _M0MPC15array5Array2atGdE(self, index) {
   const len = self.length;
   if (index >= 0 && index < len) {
     $bound_check(self, index);
@@ -1668,7 +1940,7 @@ function _M0MP311moonbitlang4core5array5Array2atGdE(self, index) {
     return $panic();
   }
 }
-function _M0MP311moonbitlang4core5array5Array2atGRP36mizchi6kagura10particle3d8ParticleE(self, index) {
+function _M0MPC15array5Array2atGRP36mizchi6kagura10particle3d8ParticleE(self, index) {
   const len = self.length;
   if (index >= 0 && index < len) {
     $bound_check(self, index);
@@ -1677,44 +1949,34 @@ function _M0MP311moonbitlang4core5array5Array2atGRP36mizchi6kagura10particle3d8P
     return $panic();
   }
 }
-function _M0MP311moonbitlang4core5array5Array2atGRP36mizchi6kagura6math3d4Vec3E(self, index) {
-  const len = self.length;
-  if (index >= 0 && index < len) {
-    $bound_check(self, index);
-    return self[index];
-  } else {
-    return $panic();
-  }
+function _M0IPB13StringBuilderPB6Logger13write__string(self, str) {
+  self.val = `${self.val}${str}`;
 }
-function _M0IP311moonbitlang4core7builtin13StringBuilderP311moonbitlang4core7builtin6Logger13write__string(self, str) {
-  const _bind = self;
-  _bind.val = `${_bind.val}${str}`;
-}
-function _M0MP311moonbitlang4core7builtin7MyInt647to__int(self) {
+function _M0MPB7MyInt647to__int(self) {
   return self.lo;
 }
-function _M0IP311moonbitlang4core6uint166UInt16P311moonbitlang4core7builtin2Eq10not__equal(self, that) {
+function _M0IPC16uint166UInt16PB2Eq10not__equal(self, that) {
   return self !== that;
 }
-function _M0IP311moonbitlang4core6uint166UInt16P311moonbitlang4core7builtin7Compare7compare(self, that) {
+function _M0IPC16uint166UInt16PB7Compare7compare(self, that) {
   return $compare_int(self, that);
 }
-function _M0IP016_24default__implP311moonbitlang4core7builtin2Eq10not__equalGsE(x, y) {
+function _M0IP016_24default__implPB2Eq10not__equalGsE(x, y) {
   return !(x === y);
 }
-function _M0IP016_24default__implP311moonbitlang4core7builtin2Eq10not__equalGRP26mizchi5audio10VoiceStateE(x, y) {
-  return !_M0IP26mizchi5audio10VoiceStateP311moonbitlang4core7builtin2Eq5equal(x, y);
+function _M0IP016_24default__implPB2Eq10not__equalGRP26mizchi5audio10VoiceStateE(x, y) {
+  return !_M0IP26mizchi5audio10VoiceStatePB2Eq5equal(x, y);
 }
-function _M0IP016_24default__implP311moonbitlang4core7builtin2Eq10not__equalGlE(x, y) {
-  return !_M0IP311moonbitlang4core5int645Int64P311moonbitlang4core7builtin2Eq5equal(x, y);
+function _M0IP016_24default__implPB2Eq10not__equalGlE(x, y) {
+  return !_M0IPC15int645Int64PB2Eq5equal(x, y);
 }
-function _M0IP016_24default__implP311moonbitlang4core7builtin7Compare6op__leGkE(x, y) {
-  return _M0IP311moonbitlang4core6uint166UInt16P311moonbitlang4core7builtin7Compare7compare(x, y) <= 0;
+function _M0IP016_24default__implPB7Compare6op__leGkE(x, y) {
+  return _M0IPC16uint166UInt16PB7Compare7compare(x, y) <= 0;
 }
-function _M0IP016_24default__implP311moonbitlang4core7builtin7Compare6op__geGkE(x, y) {
-  return _M0IP311moonbitlang4core6uint166UInt16P311moonbitlang4core7builtin7Compare7compare(x, y) >= 0;
+function _M0IP016_24default__implPB7Compare6op__geGkE(x, y) {
+  return _M0IPC16uint166UInt16PB7Compare7compare(x, y) >= 0;
 }
-function _M0MP311moonbitlang4core6string6String11sub_2einner(self, start, end) {
+function _M0MPC16string6String11sub_2einner(self, start, end) {
   const len = self.length;
   let end$2;
   if (end === undefined) {
@@ -1726,75 +1988,58 @@ function _M0MP311moonbitlang4core6string6String11sub_2einner(self, start, end) {
   }
   const start$2 = start < 0 ? len + start | 0 : start;
   if (start$2 >= 0 && (start$2 <= end$2 && end$2 <= len)) {
-    if (start$2 < len && _M0MP311moonbitlang4core6uint166UInt1623is__trailing__surrogate(self.charCodeAt(start$2))) {
-      return new Result$Err$0$(Error$moonbitlang$47$core$47$builtin$46$CreatingViewError$46$InvalidIndex);
-    }
-    if (end$2 < len && _M0MP311moonbitlang4core6uint166UInt1623is__trailing__surrogate(self.charCodeAt(end$2))) {
-      return new Result$Err$0$(Error$moonbitlang$47$core$47$builtin$46$CreatingViewError$46$InvalidIndex);
-    }
-    return new Result$Ok$0$({ str: self, start: start$2, end: end$2 });
-  } else {
-    return new Result$Err$0$(Error$moonbitlang$47$core$47$builtin$46$CreatingViewError$46$IndexOutOfBounds);
-  }
-}
-function _M0IP016_24default__implP311moonbitlang4core7builtin6Logger16write__substringGRP311moonbitlang4core7builtin13StringBuilderE(self, value, start, len) {
-  let _tmp;
-  let _try_err;
-  _L: {
-    _L$2: {
-      const _bind = _M0MP311moonbitlang4core6string6String11sub_2einner(value, start, start + len | 0);
-      if (_bind.$tag === 1) {
-        const _ok = _bind;
-        _tmp = _ok._0;
+    if (start$2 < len) {
+      if (!_M0MPC16uint166UInt1623is__trailing__surrogate(self.charCodeAt(start$2))) {
       } else {
-        const _err = _bind;
-        _try_err = _err._0;
-        break _L$2;
+        $panic();
       }
-      break _L;
     }
-    _tmp = $panic();
+    if (end$2 < len) {
+      if (!_M0MPC16uint166UInt1623is__trailing__surrogate(self.charCodeAt(end$2))) {
+      } else {
+        $panic();
+      }
+    }
+    return new _M0TPC16string10StringView(self, start$2, end$2);
+  } else {
+    return $panic();
   }
-  _M0IP311moonbitlang4core7builtin13StringBuilderP311moonbitlang4core7builtin6Logger11write__view(self, _tmp);
 }
-function _M0MP311moonbitlang4core6string10StringView6length(self) {
+function _M0IP016_24default__implPB6Logger16write__substringGRPB13StringBuilderE(self, value, start, len) {
+  _M0IPB13StringBuilderPB6Logger11write__view(self, _M0MPC16string6String11sub_2einner(value, start, start + len | 0));
+}
+function _M0MPC16string10StringView6length(self) {
   return self.end - self.start | 0;
 }
-function _M0IP016_24default__implP311moonbitlang4core7builtin4Show10to__stringGRP311moonbitlang4core5error5ErrorE(self) {
-  const logger = _M0MP311moonbitlang4core7builtin13StringBuilder11new_2einner(0);
-  _M0IP311moonbitlang4core5error5ErrorP311moonbitlang4core7builtin4Show6output(self, { self: logger, method_table: _M0FP095_40moonbitlang_2fcore_2fbuiltin_2eStringBuilder_24as_24_40moonbitlang_2fcore_2fbuiltin_2eLogger });
-  return _M0MP311moonbitlang4core7builtin13StringBuilder10to__string(logger);
+function _M0IP016_24default__implPB4Show10to__stringGRPC15error5ErrorE(self) {
+  const logger = _M0MPB13StringBuilder11new_2einner(0);
+  _M0IPC15error5ErrorPB4Show6output(self, { self: logger, method_table: _M0FP092moonbitlang_2fcore_2fbuiltin_2fStringBuilder_24as_24_40moonbitlang_2fcore_2fbuiltin_2eLogger });
+  return _M0MPB13StringBuilder10to__string(logger);
 }
-function _M0IP016_24default__implP311moonbitlang4core7builtin4Show10to__stringGRP311moonbitlang4core7builtin17CreatingViewErrorE(self) {
-  const logger = _M0MP311moonbitlang4core7builtin13StringBuilder11new_2einner(0);
-  _M0IP311moonbitlang4core7builtin17CreatingViewErrorP311moonbitlang4core7builtin4Show6output(self, { self: logger, method_table: _M0FP095_40moonbitlang_2fcore_2fbuiltin_2eStringBuilder_24as_24_40moonbitlang_2fcore_2fbuiltin_2eLogger });
-  return _M0MP311moonbitlang4core7builtin13StringBuilder10to__string(logger);
+function _M0MPC13int3Int18to__string_2einner(self, radix) {
+  return _M0FPB19int__to__string__js(self, radix);
 }
-function _M0MP311moonbitlang4core3int3Int18to__string_2einner(self, radix) {
-  return _M0FP311moonbitlang4core7builtin19int__to__string__js(self, radix);
-}
-function _M0MP311moonbitlang4core6string10StringView11unsafe__get(self, index) {
+function _M0MPC16string10StringView11unsafe__get(self, index) {
   return self.str.charCodeAt(self.start + index | 0);
 }
-function _M0IP311moonbitlang4core6string10StringViewP311moonbitlang4core7builtin4Show10to__string(self) {
+function _M0IPC16string10StringViewPB4Show10to__string(self) {
   return self.str.substring(self.start, self.end);
 }
-function _M0IP311moonbitlang4core7builtin13StringBuilderP311moonbitlang4core7builtin6Logger11write__view(self, str) {
-  const _bind = self;
-  _bind.val = `${_bind.val}${_M0IP311moonbitlang4core6string10StringViewP311moonbitlang4core7builtin4Show10to__string(str)}`;
+function _M0IPB13StringBuilderPB6Logger11write__view(self, str) {
+  self.val = `${self.val}${_M0IPC16string10StringViewPB4Show10to__string(str)}`;
 }
-function _M0FP311moonbitlang4core7builtin28boyer__moore__horspool__find(haystack, needle) {
-  const haystack_len = _M0MP311moonbitlang4core6string10StringView6length(haystack);
-  const needle_len = _M0MP311moonbitlang4core6string10StringView6length(needle);
+function _M0FPB28boyer__moore__horspool__find(haystack, needle) {
+  const haystack_len = _M0MPC16string10StringView6length(haystack);
+  const needle_len = _M0MPC16string10StringView6length(needle);
   if (needle_len > 0) {
     if (haystack_len >= needle_len) {
       const skip_table = $make_array_len_and_init(256, needle_len);
-      const _end4308 = needle_len - 1 | 0;
+      const _bind = needle_len - 1 | 0;
       let _tmp = 0;
       while (true) {
         const i = _tmp;
-        if (i < _end4308) {
-          const _tmp$2 = _M0MP311moonbitlang4core6string10StringView11unsafe__get(needle, i) & 255;
+        if (i < _bind) {
+          const _tmp$2 = _M0MPC16string10StringView11unsafe__get(needle, i) & 255;
           $bound_check(skip_table, _tmp$2);
           skip_table[_tmp$2] = (needle_len - 1 | 0) - i | 0;
           _tmp = i + 1 | 0;
@@ -1807,12 +2052,12 @@ function _M0FP311moonbitlang4core7builtin28boyer__moore__horspool__find(haystack
       while (true) {
         const i = _tmp$2;
         if (i <= (haystack_len - needle_len | 0)) {
-          const _end4314 = needle_len - 1 | 0;
+          const _bind$2 = needle_len - 1 | 0;
           let _tmp$3 = 0;
           while (true) {
             const j = _tmp$3;
-            if (j <= _end4314) {
-              if (_M0IP311moonbitlang4core6uint166UInt16P311moonbitlang4core7builtin2Eq10not__equal(_M0MP311moonbitlang4core6string10StringView11unsafe__get(haystack, i + j | 0), _M0MP311moonbitlang4core6string10StringView11unsafe__get(needle, j))) {
+            if (j <= _bind$2) {
+              if (_M0IPC16uint166UInt16PB2Eq10not__equal(_M0MPC16string10StringView11unsafe__get(haystack, i + j | 0), _M0MPC16string10StringView11unsafe__get(needle, j))) {
                 break;
               }
               _tmp$3 = j + 1 | 0;
@@ -1821,7 +2066,7 @@ function _M0FP311moonbitlang4core7builtin28boyer__moore__horspool__find(haystack
               return i;
             }
           }
-          const _tmp$4 = _M0MP311moonbitlang4core6string10StringView11unsafe__get(haystack, (i + needle_len | 0) - 1 | 0) & 255;
+          const _tmp$4 = _M0MPC16string10StringView11unsafe__get(haystack, (i + needle_len | 0) - 1 | 0) & 255;
           $bound_check(skip_table, _tmp$4);
           _tmp$2 = i + skip_table[_tmp$4] | 0;
           continue;
@@ -1834,21 +2079,21 @@ function _M0FP311moonbitlang4core7builtin28boyer__moore__horspool__find(haystack
       return undefined;
     }
   } else {
-    return _M0FP311moonbitlang4core7builtin42boyer__moore__horspool__find_2econstr_2f94;
+    return _M0FPB42boyer__moore__horspool__find_2econstr_2f85;
   }
 }
-function _M0FP311moonbitlang4core7builtin18brute__force__find(haystack, needle) {
-  const haystack_len = _M0MP311moonbitlang4core6string10StringView6length(haystack);
-  const needle_len = _M0MP311moonbitlang4core6string10StringView6length(needle);
+function _M0FPB18brute__force__find(haystack, needle) {
+  const haystack_len = _M0MPC16string10StringView6length(haystack);
+  const needle_len = _M0MPC16string10StringView6length(needle);
   if (needle_len > 0) {
     if (haystack_len >= needle_len) {
-      const needle_first = _M0MP311moonbitlang4core6string10StringView11unsafe__get(needle, 0);
+      const needle_first = _M0MPC16string10StringView11unsafe__get(needle, 0);
       const forward_len = haystack_len - needle_len | 0;
       let i = 0;
       while (true) {
         if (i <= forward_len) {
           while (true) {
-            if (i <= forward_len && _M0IP311moonbitlang4core6uint166UInt16P311moonbitlang4core7builtin2Eq10not__equal(_M0MP311moonbitlang4core6string10StringView11unsafe__get(haystack, i), needle_first)) {
+            if (i <= forward_len && _M0IPC16uint166UInt16PB2Eq10not__equal(_M0MPC16string10StringView11unsafe__get(haystack, i), needle_first)) {
               i = i + 1 | 0;
               continue;
             } else {
@@ -1860,7 +2105,7 @@ function _M0FP311moonbitlang4core7builtin18brute__force__find(haystack, needle) 
             while (true) {
               const j = _tmp;
               if (j < needle_len) {
-                if (_M0IP311moonbitlang4core6uint166UInt16P311moonbitlang4core7builtin2Eq10not__equal(_M0MP311moonbitlang4core6string10StringView11unsafe__get(haystack, i + j | 0), _M0MP311moonbitlang4core6string10StringView11unsafe__get(needle, j))) {
+                if (_M0IPC16uint166UInt16PB2Eq10not__equal(_M0MPC16string10StringView11unsafe__get(haystack, i + j | 0), _M0MPC16string10StringView11unsafe__get(needle, j))) {
                   break;
                 }
                 _tmp = j + 1 | 0;
@@ -1881,54 +2126,36 @@ function _M0FP311moonbitlang4core7builtin18brute__force__find(haystack, needle) 
       return undefined;
     }
   } else {
-    return _M0FP311moonbitlang4core7builtin33brute__force__find_2econstr_2f108;
+    return _M0FPB32brute__force__find_2econstr_2f99;
   }
 }
-function _M0MP311moonbitlang4core6string10StringView4find(self, str) {
-  return _M0MP311moonbitlang4core6string10StringView6length(str) <= 4 ? _M0FP311moonbitlang4core7builtin18brute__force__find(self, str) : _M0FP311moonbitlang4core7builtin28boyer__moore__horspool__find(self, str);
+function _M0MPC16string10StringView4find(self, str) {
+  return _M0MPC16string10StringView6length(str) <= 4 ? _M0FPB18brute__force__find(self, str) : _M0FPB28boyer__moore__horspool__find(self, str);
 }
-function _M0MP311moonbitlang4core5array5Array4pushGRP36mizchi6kagura10particle3d15ParticleEmitterE(self, value) {
-  _M0MP311moonbitlang4core7builtin7JSArray4push(self, value);
+function _M0MPC15array5Array4pushGRP36mizchi6kagura10particle3d15ParticleEmitterE(self, value) {
+  _M0MPB7JSArray4push(self, value);
 }
-function _M0MP311moonbitlang4core5array5Array4pushGRP36mizchi6kagura3gfx20DrawTrianglesCommandE(self, value) {
-  _M0MP311moonbitlang4core7builtin7JSArray4push(self, value);
+function _M0MPC15array5Array4pushGiE(self, value) {
+  _M0MPB7JSArray4push(self, value);
 }
-function _M0MP311moonbitlang4core5array5Array4pushGiE(self, value) {
-  _M0MP311moonbitlang4core7builtin7JSArray4push(self, value);
+function _M0MPC15array5Array4pushGdE(self, value) {
+  _M0MPB7JSArray4push(self, value);
 }
-function _M0MP311moonbitlang4core5array5Array4pushGRP36mizchi6kagura4core10TouchPointE(self, value) {
-  _M0MP311moonbitlang4core7builtin7JSArray4push(self, value);
-}
-function _M0MP311moonbitlang4core5array5Array4pushGdE(self, value) {
-  _M0MP311moonbitlang4core7builtin7JSArray4push(self, value);
-}
-function _M0MP311moonbitlang4core5array5Array4pushGRP36mizchi6kagura4core15GamepadSnapshotE(self, value) {
-  _M0MP311moonbitlang4core7builtin7JSArray4push(self, value);
-}
-function _M0MP311moonbitlang4core5array5Array4pushGRP36mizchi6kagura10particle3d8ParticleE(self, value) {
-  _M0MP311moonbitlang4core7builtin7JSArray4push(self, value);
-}
-function _M0MP311moonbitlang4core5array5Array4pushGRP26mizchi5audio5VoiceE(self, value) {
-  _M0MP311moonbitlang4core7builtin7JSArray4push(self, value);
-}
-function _M0MP311moonbitlang4core5array5Array4pushGURP36mizchi6kagura5audio8PlayerIdRP26mizchi5audio7VoiceIdEE(self, value) {
-  _M0MP311moonbitlang4core7builtin7JSArray4push(self, value);
-}
-function _M0MP311moonbitlang4core6string10StringView8contains(self, str) {
-  const _bind = _M0MP311moonbitlang4core6string10StringView4find(self, str);
+function _M0MPC16string10StringView8contains(self, str) {
+  const _bind = _M0MPC16string10StringView4find(self, str);
   return !(_bind === undefined);
 }
-function _M0MP311moonbitlang4core6string6String8contains(self, str) {
-  return _M0MP311moonbitlang4core6string10StringView8contains({ str: self, start: 0, end: self.length }, str);
+function _M0MPC16string6String8contains(self, str) {
+  return _M0MPC16string10StringView8contains(new _M0TPC16string10StringView(self, 0, self.length), str);
 }
-function _M0IP311moonbitlang4core6string6StringP311moonbitlang4core7builtin4Show10to__string(self) {
+function _M0IPC16string6StringPB4Show10to__string(self) {
   return self;
 }
-function _M0MP311moonbitlang4core5array13ReadOnlyArray2atGjE(self, index) {
+function _M0MPC15array13ReadOnlyArray2atGjE(self, index) {
   $bound_check(self, index);
   return self[index];
 }
-function _M0MP311moonbitlang4core5array5Array4makeGiE(len, elem) {
+function _M0MPC15array5Array4makeGiE(len, elem) {
   const arr = new Array(len);
   let _tmp = 0;
   while (true) {
@@ -1943,7 +2170,7 @@ function _M0MP311moonbitlang4core5array5Array4makeGiE(len, elem) {
   }
   return arr;
 }
-function _M0MP311moonbitlang4core5array5Array3setGiE(self, index, value) {
+function _M0MPC15array5Array3setGiE(self, index, value) {
   const len = self.length;
   if (index >= 0 && index < len) {
     $bound_check(self, index);
@@ -1954,7 +2181,7 @@ function _M0MP311moonbitlang4core5array5Array3setGiE(self, index, value) {
     return;
   }
 }
-function _M0MP311moonbitlang4core5array5Array3setGRP36mizchi6kagura10particle3d8ParticleE(self, index, value) {
+function _M0MPC15array5Array3setGRP36mizchi6kagura10particle3d8ParticleE(self, index, value) {
   const len = self.length;
   if (index >= 0 && index < len) {
     $bound_check(self, index);
@@ -1965,7 +2192,7 @@ function _M0MP311moonbitlang4core5array5Array3setGRP36mizchi6kagura10particle3d8
     return;
   }
 }
-function _M0MP311moonbitlang4core5array10FixedArray12fill_2einnerGfE(self, value, start, end) {
+function _M0MPC15array10FixedArray12fill_2einnerGfE(self, value, start, end) {
   const array_length = self.length;
   if (array_length > 0) {
     if (start >= 0 && start < array_length) {
@@ -1987,16 +2214,16 @@ function _M0MP311moonbitlang4core5array10FixedArray12fill_2einnerGfE(self, value
     return;
   }
 }
-function _M0MP311moonbitlang4core7builtin7MyInt6414extend__i32__u(value) {
-  return { hi: 0, lo: value };
+function _M0MPB7MyInt6414extend__i32__u(value) {
+  return new _M0TPB7MyInt64(0, value);
 }
-function _M0MP311moonbitlang4core6uint646UInt6412extend__uint(value) {
-  return _M0MP311moonbitlang4core7builtin7MyInt6414extend__i32__u(value);
+function _M0MPC16uint646UInt6412extend__uint(value) {
+  return _M0MPB7MyInt6414extend__i32__u(value);
 }
-function _M0MP311moonbitlang4core4uint4UInt10to__uint64(self) {
-  return _M0MP311moonbitlang4core6uint646UInt6412extend__uint(self);
+function _M0MPC14uint4UInt10to__uint64(self) {
+  return _M0MPC16uint646UInt6412extend__uint(self);
 }
-function _M0IP311moonbitlang4core7builtin7MyInt64P311moonbitlang4core7builtin3Mul3mul(self, other) {
+function _M0IPB7MyInt64PB3Mul3mul(self, other) {
   const _ahi = self.hi;
   const _alo = self.lo;
   const _bhi = other.hi;
@@ -2033,74 +2260,74 @@ function _M0IP311moonbitlang4core7builtin7MyInt64P311moonbitlang4core7builtin3Mu
   const c32$8 = c32$7 & 65535;
   const c48$4 = (((((((c48$3 >>> 0) + ((Math.imul(a48, b00) | 0) >>> 0) | 0) >>> 0) + ((Math.imul(a32, b16) | 0) >>> 0) | 0) >>> 0) + ((Math.imul(a16, b32) | 0) >>> 0) | 0) >>> 0) + ((Math.imul(a00, b48) | 0) >>> 0) | 0;
   const c48$5 = c48$4 & 65535;
-  return { hi: c48$5 << 16 | c32$8, lo: c16$5 << 16 | c00$2 };
+  return new _M0TPB7MyInt64(c48$5 << 16 | c32$8, c16$5 << 16 | c00$2);
 }
-function _M0MP311moonbitlang4core7builtin7MyInt644land(self, other) {
-  return { hi: self.hi & other.hi, lo: self.lo & other.lo };
+function _M0MPB7MyInt644land(self, other) {
+  return new _M0TPB7MyInt64(self.hi & other.hi, self.lo & other.lo);
 }
-function _M0MP311moonbitlang4core7builtin7MyInt643lsr(self, shift) {
+function _M0MPB7MyInt643lsr(self, shift) {
   const shift$2 = shift & 63;
-  return shift$2 === 0 ? self : shift$2 < 32 ? { hi: self.hi >>> shift$2 | 0, lo: self.lo >>> shift$2 | 0 | self.hi << (32 - shift$2 | 0) } : { hi: 0, lo: self.hi >>> (shift$2 - 32 | 0) | 0 };
+  return shift$2 === 0 ? self : shift$2 < 32 ? new _M0TPB7MyInt64(self.hi >>> shift$2 | 0, self.lo >>> shift$2 | 0 | self.hi << (32 - shift$2 | 0)) : new _M0TPB7MyInt64(0, self.hi >>> (shift$2 - 32 | 0) | 0);
 }
-function _M0IP311moonbitlang4core7builtin7MyInt64P311moonbitlang4core7builtin2Eq5equal(self, other) {
+function _M0IPB7MyInt64PB2Eq5equal(self, other) {
   return self.hi === other.hi && self.lo === other.lo;
 }
-function _M0MP311moonbitlang4core7builtin7MyInt648to__uint(self) {
+function _M0MPB7MyInt648to__uint(self) {
   return self.lo;
 }
-function _M0IP311moonbitlang4core5int645Int64P311moonbitlang4core7builtin6BitAnd4land(self, other) {
-  return _M0MP311moonbitlang4core7builtin7MyInt644land(self, other);
+function _M0IPC15int645Int64PB6BitAnd4land(self, other) {
+  return _M0MPB7MyInt644land(self, other);
 }
-function _M0IP311moonbitlang4core5int645Int64P311moonbitlang4core7builtin2Eq5equal(self, other) {
-  return _M0IP311moonbitlang4core7builtin7MyInt64P311moonbitlang4core7builtin2Eq5equal(self, other);
+function _M0IPC15int645Int64PB2Eq5equal(self, other) {
+  return _M0IPB7MyInt64PB2Eq5equal(self, other);
 }
-function _M0MP311moonbitlang4core5int645Int647to__int(self) {
-  return _M0MP311moonbitlang4core7builtin7MyInt647to__int(self);
+function _M0MPC15int645Int647to__int(self) {
+  return _M0MPB7MyInt647to__int(self);
 }
-function _M0MP311moonbitlang4core6double6Double22reinterpret__as__int64(self) {
-  return _M0MP311moonbitlang4core7builtin7MyInt6419reinterpret__double(self);
+function _M0MPC16double6Double22reinterpret__as__int64(self) {
+  return _M0MPB7MyInt6419reinterpret__double(self);
 }
-function _M0IP311moonbitlang4core6uint646UInt64P311moonbitlang4core7builtin3Mul3mul(self, other) {
-  return _M0IP311moonbitlang4core7builtin7MyInt64P311moonbitlang4core7builtin3Mul3mul(self, other);
+function _M0IPC16uint646UInt64PB3Mul3mul(self, other) {
+  return _M0IPB7MyInt64PB3Mul3mul(self, other);
 }
-function _M0MP311moonbitlang4core6uint646UInt648to__uint(self) {
-  return _M0MP311moonbitlang4core7builtin7MyInt648to__uint(self);
+function _M0MPC16uint646UInt648to__uint(self) {
+  return _M0MPB7MyInt648to__uint(self);
 }
-function _M0IP311moonbitlang4core6uint646UInt64P311moonbitlang4core7builtin6BitAnd4land(self, other) {
-  return _M0MP311moonbitlang4core7builtin7MyInt644land(self, other);
+function _M0IPC16uint646UInt64PB6BitAnd4land(self, other) {
+  return _M0MPB7MyInt644land(self, other);
 }
-function _M0IP311moonbitlang4core6uint646UInt64P311moonbitlang4core7builtin3Shr3shr(self, shift) {
-  return _M0MP311moonbitlang4core7builtin7MyInt643lsr(self, shift);
+function _M0IPC16uint646UInt64PB3Shr3shr(self, shift) {
+  return _M0MPB7MyInt643lsr(self, shift);
 }
-function _M0MP311moonbitlang4core6double6Double7to__int(self) {
+function _M0MPC16double6Double7to__int(self) {
   return self !== self ? 0 : self >= 2147483647 ? 2147483647 : self <= -2147483648 ? -2147483648 : self | 0;
 }
-function _M0FP311moonbitlang4core7builtin7printlnGsE(input) {
-  console.log(_M0IP311moonbitlang4core6string6StringP311moonbitlang4core7builtin4Show10to__string(input));
+function _M0FPB7printlnGsE(input) {
+  console.log(_M0IPC16string6StringPB4Show10to__string(input));
 }
-function _M0MP311moonbitlang4core5array5Array11unsafe__popGRP36mizchi6kagura10particle3d8ParticleE(self) {
-  return _M0MP311moonbitlang4core7builtin7JSArray3pop(self);
+function _M0MPC15array5Array11unsafe__popGRP36mizchi6kagura10particle3d8ParticleE(self) {
+  return _M0MPB7JSArray3pop(self);
 }
-function _M0MP311moonbitlang4core5array5Array3popGRP36mizchi6kagura10particle3d8ParticleE(self) {
+function _M0MPC15array5Array3popGRP36mizchi6kagura10particle3d8ParticleE(self) {
   if (self.length === 0) {
     return undefined;
   } else {
-    const v = _M0MP311moonbitlang4core5array5Array11unsafe__popGRP36mizchi6kagura10particle3d8ParticleE(self);
+    const v = _M0MPC15array5Array11unsafe__popGRP36mizchi6kagura10particle3d8ParticleE(self);
     return v;
   }
 }
-function _M0MP311moonbitlang4core5array5Array6filterGRP26mizchi5audio5VoiceE(self, f) {
+function _M0MPC15array5Array6filterGRP26mizchi5audio5VoiceE(self, f) {
   const arr = [];
-  const _len = self.length;
+  const _bind = self.length;
   let _tmp = 0;
   while (true) {
-    const _i = _tmp;
-    if (_i < _len) {
-      const v = self[_i];
+    const _ = _tmp;
+    if (_ < _bind) {
+      const v = self[_];
       if (f(v)) {
-        _M0MP311moonbitlang4core5array5Array4pushGRP26mizchi5audio5VoiceE(arr, v);
+        _M0MPC15array5Array4pushGRP36mizchi6kagura10particle3d15ParticleEmitterE(arr, v);
       }
-      _tmp = _i + 1 | 0;
+      _tmp = _ + 1 | 0;
       continue;
     } else {
       break;
@@ -2108,18 +2335,18 @@ function _M0MP311moonbitlang4core5array5Array6filterGRP26mizchi5audio5VoiceE(sel
   }
   return arr;
 }
-function _M0MP311moonbitlang4core5array5Array6filterGURP36mizchi6kagura5audio8PlayerIdRP26mizchi5audio7VoiceIdEE(self, f) {
+function _M0MPC15array5Array6filterGURP36mizchi6kagura5audio8PlayerIdRP26mizchi5audio7VoiceIdEE(self, f) {
   const arr = [];
-  const _len = self.length;
+  const _bind = self.length;
   let _tmp = 0;
   while (true) {
-    const _i = _tmp;
-    if (_i < _len) {
-      const v = self[_i];
+    const _ = _tmp;
+    if (_ < _bind) {
+      const v = self[_];
       if (f(v)) {
-        _M0MP311moonbitlang4core5array5Array4pushGURP36mizchi6kagura5audio8PlayerIdRP26mizchi5audio7VoiceIdEE(arr, v);
+        _M0MPC15array5Array4pushGRP36mizchi6kagura10particle3d15ParticleEmitterE(arr, v);
       }
-      _tmp = _i + 1 | 0;
+      _tmp = _ + 1 | 0;
       continue;
     } else {
       break;
@@ -2127,88 +2354,61 @@ function _M0MP311moonbitlang4core5array5Array6filterGURP36mizchi6kagura5audio8Pl
   }
   return arr;
 }
-function _M0MP311moonbitlang4core5float5Float7to__int(self) {
+function _M0MPC15float5Float7to__int(self) {
   return Math.fround(self !== self) ? 0 : Math.fround(self >= Math.fround(2147483647)) ? 2147483647 : Math.fround(self <= Math.fround(-2147483648)) ? -2147483648 : self | 0;
 }
-function _M0MP311moonbitlang4core5float5Float12is__neg__inf(self) {
-  return Math.fround(self < _M0FP311moonbitlang4core5float10min__value);
+function _M0MPC15float5Float12is__neg__inf(self) {
+  return Math.fround(self < _M0FPC15float10min__value);
 }
-function _M0MP311moonbitlang4core5float5Float12is__pos__inf(self) {
-  return Math.fround(self > _M0FP311moonbitlang4core5float10max__value);
+function _M0MPC15float5Float12is__pos__inf(self) {
+  return Math.fround(self > _M0FPC15float10max__value);
 }
-function _M0MP311moonbitlang4core5float5Float7is__inf(self) {
-  return _M0MP311moonbitlang4core5float5Float12is__pos__inf(self) || _M0MP311moonbitlang4core5float5Float12is__neg__inf(self);
+function _M0MPC15float5Float7is__inf(self) {
+  return _M0MPC15float5Float12is__pos__inf(self) || _M0MPC15float5Float12is__neg__inf(self);
 }
-function _M0MP311moonbitlang4core5float5Float7is__nan(self) {
+function _M0MPC15float5Float7is__nan(self) {
   return Math.fround(self !== self);
 }
-function _M0IP311moonbitlang4core5error5ErrorP311moonbitlang4core7builtin4Show6output(self, logger) {
+function _M0MPC13ref3Ref3newGiE(x) {
+  return new _M0TPC13ref3RefGiE(x);
+}
+function _M0MPC13ref3Ref3newGdE(x) {
+  return new _M0TPC13ref3RefGdE(x);
+}
+function _M0MPC13ref3Ref3newGORP36mizchi6kagura6engine14LifecycleHooksE(x) {
+  return new _M0TPC13ref3RefGORP36mizchi6kagura6engine14LifecycleHooksE(x);
+}
+function _M0MPC13ref3Ref3newGbE(x) {
+  return new _M0TPC13ref3RefGbE(x);
+}
+function _M0MPC13ref3Ref3newGsE(x) {
+  return new _M0TPC13ref3RefGsE(x);
+}
+function _M0IPC15error5ErrorPB4Show6output(self, logger) {
   logger.method_table.method_0(logger.self, _M0FP15Error10to__string(self));
 }
-function _M0MP311moonbitlang4core3ref3Ref3newGiE(x) {
-  return { val: x };
-}
-function _M0MP311moonbitlang4core3ref3Ref3newGdE(x) {
-  return { val: x };
-}
-function _M0MP311moonbitlang4core3ref3Ref3newGORP36mizchi6kagura6engine14LifecycleHooksE(x) {
-  return { val: x };
-}
-function _M0MP311moonbitlang4core3ref3Ref3newGbE(x) {
-  return { val: x };
-}
-function _M0MP311moonbitlang4core3ref3Ref3newGsE(x) {
-  return { val: x };
-}
-function _M0MP311moonbitlang4core3ref3Ref3newGRP311moonbitlang4core7builtin5ArrayGRP26mizchi19web__runtime__hooks21SourceImageCacheEntryEE(x) {
-  return { val: x };
-}
-function _M0MP311moonbitlang4core3ref3Ref3newGRP311moonbitlang4core7builtin5ArrayGRP26mizchi19web__runtime__hooks22SyncedSourceGenerationEE(x) {
-  return { val: x };
-}
-function _M0MP311moonbitlang4core3ref3Ref3newGRP311moonbitlang4core7builtin5ArrayGiEE(x) {
-  return { val: x };
-}
-function _M0MP311moonbitlang4core3ref3Ref3newGRP36mizchi6kagura8platform14WebCanvasHooksE(x) {
-  return { val: x };
-}
-function _M0MP311moonbitlang4core3ref3Ref3newGRP36mizchi6kagura3gfx16WebGraphicsHooksE(x) {
-  return { val: x };
-}
-function _M0MP311moonbitlang4core3ref3Ref3newGRP36mizchi6kagura4text13FontLoadHooksE(x) {
-  return { val: x };
-}
-function _M0MP311moonbitlang4core3ref3Ref3newGRP36mizchi6kagura5audio16AudioOutputHooksE(x) {
-  return { val: x };
-}
-function _M0MP311moonbitlang4core3ref3Ref3newGWEdE(x) {
-  return { val: x };
-}
-function _M0MP311moonbitlang4core3ref3Ref3newGRP36mizchi6kagura3gfx19NativeGraphicsHooksE(x) {
-  return { val: x };
-}
-function _M0FP311moonbitlang4core4math3sin(_tmp) {
+function _M0FPC14math3sin(_tmp) {
   return Math.sin(_tmp);
 }
-function _M0FP311moonbitlang4core4math3cos(_tmp) {
+function _M0FPC14math3cos(_tmp) {
   return Math.cos(_tmp);
 }
-function _M0FP311moonbitlang4core4math3tan(_tmp) {
+function _M0FPC14math3tan(_tmp) {
   return Math.tan(_tmp);
 }
-function _M0FP311moonbitlang4core4math4mulh(a, b) {
-  const a$2 = _M0MP311moonbitlang4core4uint4UInt10to__uint64(a);
-  const b$2 = _M0MP311moonbitlang4core4uint4UInt10to__uint64(b);
-  const res = _M0IP311moonbitlang4core6uint646UInt64P311moonbitlang4core7builtin3Mul3mul(a$2, b$2);
-  return _M0MP311moonbitlang4core6uint646UInt648to__uint(_M0IP311moonbitlang4core6uint646UInt64P311moonbitlang4core7builtin3Shr3shr(res, 32));
+function _M0FPC14math4mulh(a, b) {
+  const a$2 = _M0MPC14uint4UInt10to__uint64(a);
+  const b$2 = _M0MPC14uint4UInt10to__uint64(b);
+  const res = _M0IPC16uint646UInt64PB3Mul3mul(a$2, b$2);
+  return _M0MPC16uint646UInt648to__uint(_M0IPC16uint646UInt64PB3Shr3shr(res, 32));
 }
-function _M0FP311moonbitlang4core4math3mul(a, b) {
-  const a$2 = _M0MP311moonbitlang4core4uint4UInt10to__uint64(a);
-  const b$2 = _M0MP311moonbitlang4core4uint4UInt10to__uint64(b);
-  const res = _M0IP311moonbitlang4core6uint646UInt64P311moonbitlang4core7builtin3Mul3mul(a$2, b$2);
-  return { _0: _M0MP311moonbitlang4core6uint646UInt648to__uint(_M0IP311moonbitlang4core6uint646UInt64P311moonbitlang4core7builtin3Shr3shr(res, 32)), _1: _M0MP311moonbitlang4core6uint646UInt648to__uint(res) };
+function _M0FPC14math3mul(a, b) {
+  const a$2 = _M0MPC14uint4UInt10to__uint64(a);
+  const b$2 = _M0MPC14uint4UInt10to__uint64(b);
+  const res = _M0IPC16uint646UInt64PB3Mul3mul(a$2, b$2);
+  return { _0: _M0MPC16uint646UInt648to__uint(_M0IPC16uint646UInt64PB3Shr3shr(res, 32)), _1: _M0MPC16uint646UInt648to__uint(res) };
 }
-function _M0FP311moonbitlang4core4math12trig__reduce(x, switch_over) {
+function _M0FPC14math12trig__reduce(x, switch_over) {
   if (Math.fround(Math.fround(Math.abs(x)) <= switch_over)) {
     let j = Math.fround(0);
     let r = Math.fround(0);
@@ -2217,27 +2417,27 @@ function _M0FP311moonbitlang4core4math12trig__reduce(x, switch_over) {
     r = Math.fround(x - Math.fround(j * $f32_reinterpret_i32(1070141312)));
     r = Math.fround(r - Math.fround(j * $f32_reinterpret_i32(926237760)));
     r = Math.fround(r - Math.fround(j * $f32_reinterpret_i32(741630234)));
-    return { _0: r, _1: _M0MP311moonbitlang4core5float5Float7to__int(j) };
+    return { _0: r, _1: _M0MPC15float5Float7to__int(j) };
   }
   const xispos = Math.fround(x > Math.fround(0));
   let exp = ($i32_reinterpret_f32(x) >> 23 & 255) - 126 | 0;
   const ix = ($i32_reinterpret_f32(x) & 8388607) << 8 | -2147483648;
   const ind = exp >> 5;
   exp = exp & 31;
-  let hi = _M0MP311moonbitlang4core5array13ReadOnlyArray2atGjE(_M0FP311moonbitlang4core4math34trig__reduce_2etwo__over__pi_2f305, ind);
-  let mi = _M0MP311moonbitlang4core5array13ReadOnlyArray2atGjE(_M0FP311moonbitlang4core4math34trig__reduce_2etwo__over__pi_2f305, ind + 1 | 0);
-  let lo = _M0MP311moonbitlang4core5array13ReadOnlyArray2atGjE(_M0FP311moonbitlang4core4math34trig__reduce_2etwo__over__pi_2f305, ind + 2 | 0);
-  const tp = _M0MP311moonbitlang4core5array13ReadOnlyArray2atGjE(_M0FP311moonbitlang4core4math34trig__reduce_2etwo__over__pi_2f305, ind + 3 | 0);
+  let hi = _M0MPC15array13ReadOnlyArray2atGjE(_M0FPC14math34trig__reduce_2etwo__over__pi_2f296, ind);
+  let mi = _M0MPC15array13ReadOnlyArray2atGjE(_M0FPC14math34trig__reduce_2etwo__over__pi_2f296, ind + 1 | 0);
+  let lo = _M0MPC15array13ReadOnlyArray2atGjE(_M0FPC14math34trig__reduce_2etwo__over__pi_2f296, ind + 2 | 0);
+  const tp = _M0MPC15array13ReadOnlyArray2atGjE(_M0FPC14math34trig__reduce_2etwo__over__pi_2f296, ind + 3 | 0);
   if (exp > 0) {
     hi = hi << exp | (mi >>> (32 - exp | 0) | 0);
     mi = mi << exp | (lo >>> (32 - exp | 0) | 0);
     lo = lo << exp | (tp >>> (32 - exp | 0) | 0);
   }
-  const _bind = _M0FP311moonbitlang4core4math3mul(ix, lo);
+  const _bind = _M0FPC14math3mul(ix, lo);
   const _h = _bind._0;
   const _l = _bind._1;
   const phi = (_h >>> 0) + ((_l >>> 0 < _l >>> 0 ? 1 : 0) >>> 0) | 0;
-  const _bind$2 = _M0FP311moonbitlang4core4math3mul(ix, mi);
+  const _bind$2 = _M0FPC14math3mul(ix, mi);
   const _h$2 = _bind$2._0;
   const _l$2 = _bind$2._1;
   let plo = (phi >>> 0) + (_l$2 >>> 0) | 0;
@@ -2267,7 +2467,7 @@ function _M0FP311moonbitlang4core4math12trig__reduce(x, switch_over) {
       break;
     }
   }
-  phi$3 = _M0FP311moonbitlang4core4math4mulh(phi$3, -921707870);
+  phi$3 = _M0FPC14math4mulh(phi$3, -921707870);
   if (phi$3 >>> 0 < -2147483648 >>> 0) {
     phi$3 = phi$3 << 1;
     exp = exp - 1 | 0;
@@ -2280,7 +2480,7 @@ function _M0FP311moonbitlang4core4math12trig__reduce(x, switch_over) {
   const r$2 = $f32_reinterpret_i32(r);
   return { _0: r$2, _1: q };
 }
-function _M0FP311moonbitlang4core4math10sinf__poly(x) {
+function _M0FPC14math10sinf__poly(x) {
   const s = Math.fround(x * x);
   let r = $f32_reinterpret_i32(910184448);
   r = Math.fround(Math.fround(r * s) - $f32_reinterpret_i32(961557638));
@@ -2290,7 +2490,7 @@ function _M0FP311moonbitlang4core4math10sinf__poly(x) {
   r = Math.fround(Math.fround(r * t) + x);
   return r;
 }
-function _M0FP311moonbitlang4core4math10cosf__poly(x) {
+function _M0FPC14math10cosf__poly(x) {
   const s = Math.fround(x * x);
   let r = $f32_reinterpret_i32(936198144);
   r = Math.fround(Math.fround(r * s) - $f32_reinterpret_i32(985007997));
@@ -2299,60 +2499,60 @@ function _M0FP311moonbitlang4core4math10cosf__poly(x) {
   r = Math.fround(Math.fround(r * s) + $f32_reinterpret_i32(1065353216));
   return r;
 }
-function _M0FP311moonbitlang4core4math14sin__cos__core(x, q) {
-  let r = (q & 1) !== 0 ? _M0FP311moonbitlang4core4math10cosf__poly(x) : _M0FP311moonbitlang4core4math10sinf__poly(x);
+function _M0FPC14math14sin__cos__core(x, q) {
+  let r = (q & 1) !== 0 ? _M0FPC14math10cosf__poly(x) : _M0FPC14math10sinf__poly(x);
   if ((q & 2) !== 0) {
     r = -r;
   }
   return r;
 }
-function _M0FP311moonbitlang4core4math4sinf(x) {
-  if (_M0MP311moonbitlang4core5float5Float7is__nan(x) || _M0MP311moonbitlang4core5float5Float7is__inf(x)) {
-    return _M0FP311moonbitlang4core5float14not__a__number;
+function _M0FPC14math4sinf(x) {
+  if (_M0MPC15float5Float7is__nan(x) || _M0MPC15float5Float7is__inf(x)) {
+    return _M0FPC15float14not__a__number;
   }
   if (Math.fround(x === Math.fround(0))) {
     return x;
   }
-  const _bind = _M0FP311moonbitlang4core4math12trig__reduce(x, Math.fround(201.15625));
+  const _bind = _M0FPC14math12trig__reduce(x, Math.fround(201.15625));
   const _x = _bind._0;
   const _q = _bind._1;
-  return _M0FP311moonbitlang4core4math14sin__cos__core(_x, _q);
+  return _M0FPC14math14sin__cos__core(_x, _q);
 }
-function _M0FP311moonbitlang4core4math4cosf(x) {
-  if (_M0MP311moonbitlang4core5float5Float7is__nan(x) || _M0MP311moonbitlang4core5float5Float7is__inf(x)) {
-    return _M0FP311moonbitlang4core5float14not__a__number;
+function _M0FPC14math4cosf(x) {
+  if (_M0MPC15float5Float7is__nan(x) || _M0MPC15float5Float7is__inf(x)) {
+    return _M0FPC15float14not__a__number;
   }
   if (Math.fround(x === Math.fround(0))) {
     return Math.fround(1);
   }
-  const _bind = _M0FP311moonbitlang4core4math12trig__reduce(x, Math.fround(142.90625));
+  const _bind = _M0FPC14math12trig__reduce(x, Math.fround(142.90625));
   const _x = _bind._0;
   const _q = _bind._1;
-  return _M0FP311moonbitlang4core4math14sin__cos__core(_x, _q + 1 | 0);
+  return _M0FPC14math14sin__cos__core(_x, _q + 1 | 0);
 }
 function _M0MP36mizchi6kagura6math3d4Vec33new(x, y, z) {
-  return { x: x, y: y, z: z };
+  return new _M0TP36mizchi6kagura6math3d4Vec3(x, y, z);
 }
 function _M0MP36mizchi6kagura6math3d4Vec34zero() {
-  return { x: 0, y: 0, z: 0 };
+  return new _M0TP36mizchi6kagura6math3d4Vec3(0, 0, 0);
 }
 function _M0MP36mizchi6kagura6math3d4Vec37unit__y() {
-  return { x: 0, y: 1, z: 0 };
+  return new _M0TP36mizchi6kagura6math3d4Vec3(0, 1, 0);
 }
 function _M0MP36mizchi6kagura6math3d4Vec33add(self, other) {
-  return { x: self.x + other.x, y: self.y + other.y, z: self.z + other.z };
+  return new _M0TP36mizchi6kagura6math3d4Vec3(self.x + other.x, self.y + other.y, self.z + other.z);
 }
 function _M0MP36mizchi6kagura6math3d4Vec33sub(self, other) {
-  return { x: self.x - other.x, y: self.y - other.y, z: self.z - other.z };
+  return new _M0TP36mizchi6kagura6math3d4Vec3(self.x - other.x, self.y - other.y, self.z - other.z);
 }
 function _M0MP36mizchi6kagura6math3d4Vec35scale(self, s) {
-  return { x: self.x * s, y: self.y * s, z: self.z * s };
+  return new _M0TP36mizchi6kagura6math3d4Vec3(self.x * s, self.y * s, self.z * s);
 }
 function _M0MP36mizchi6kagura6math3d4Vec33dot(self, other) {
   return self.x * other.x + self.y * other.y + self.z * other.z;
 }
 function _M0MP36mizchi6kagura6math3d4Vec35cross(self, other) {
-  return { x: self.y * other.z - self.z * other.y, y: self.z * other.x - self.x * other.z, z: self.x * other.y - self.y * other.x };
+  return new _M0TP36mizchi6kagura6math3d4Vec3(self.y * other.z - self.z * other.y, self.z * other.x - self.x * other.z, self.x * other.y - self.y * other.x);
 }
 function _M0MP36mizchi6kagura6math3d4Vec315length__squared(self) {
   return self.x * self.x + self.y * self.y + self.z * self.z;
@@ -2365,13 +2565,13 @@ function _M0MP36mizchi6kagura6math3d4Vec39normalize(self) {
   return len < 1e-12 ? _M0MP36mizchi6kagura6math3d4Vec34zero() : _M0MP36mizchi6kagura6math3d4Vec35scale(self, 1 / len);
 }
 function _M0MP36mizchi6kagura6math3d4Vec43new(x, y, z, w) {
-  return { x: x, y: y, z: z, w: w };
+  return new _M0TP36mizchi6kagura6math3d4Vec4(x, y, z, w);
 }
 function _M0MP36mizchi6kagura6math3d4Mat48identity() {
-  return { elements: [1, 0, 0, 0, 0, 1, 0, 0, 0, 0, 1, 0, 0, 0, 0, 1] };
+  return new _M0TP36mizchi6kagura6math3d4Mat4([1, 0, 0, 0, 0, 1, 0, 0, 0, 0, 1, 0, 0, 0, 0, 1]);
 }
 function _M0MP36mizchi6kagura6math3d4Mat44zero() {
-  return { elements: [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0] };
+  return new _M0TP36mizchi6kagura6math3d4Mat4([0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0]);
 }
 function _M0MP36mizchi6kagura6math3d4Mat42at(self, row, col) {
   const _tmp = self.elements;
@@ -2387,25 +2587,25 @@ function _M0MP36mizchi6kagura6math3d4Mat43set(self, row, col, value) {
 }
 function _M0MP36mizchi6kagura6math3d4Mat48multiply(self, other) {
   const result = _M0MP36mizchi6kagura6math3d4Mat44zero();
-  const _start210 = 0;
-  const _end211 = 4;
-  let _tmp = _start210;
+  const _bind = 0;
+  const _bind$2 = 4;
+  let _tmp = _bind;
   while (true) {
     const col = _tmp;
-    if (col < _end211) {
-      const _start215 = 0;
-      const _end216 = 4;
-      let _tmp$2 = _start215;
+    if (col < _bind$2) {
+      const _bind$3 = 0;
+      const _bind$4 = 4;
+      let _tmp$2 = _bind$3;
       while (true) {
         const row = _tmp$2;
-        if (row < _end216) {
-          const sum = { val: 0 };
-          const _start221 = 0;
-          const _end222 = 4;
-          let _tmp$3 = _start221;
+        if (row < _bind$4) {
+          const sum = new _M0TPC13ref3RefGdE(0);
+          const _bind$5 = 0;
+          const _bind$6 = 4;
+          let _tmp$3 = _bind$5;
           while (true) {
             const k = _tmp$3;
-            if (k < _end222) {
+            if (k < _bind$6) {
               sum.val = sum.val + _M0MP36mizchi6kagura6math3d4Mat42at(self, row, k) * _M0MP36mizchi6kagura6math3d4Mat42at(other, k, col);
               _tmp$3 = k + 1 | 0;
               continue;
@@ -2429,7 +2629,7 @@ function _M0MP36mizchi6kagura6math3d4Mat48multiply(self, other) {
   return result;
 }
 function _M0MP36mizchi6kagura6math3d4Mat411perspective(fov_y_rad, aspect, near, far) {
-  const f = 1 / _M0FP311moonbitlang4core4math3tan(fov_y_rad / 2);
+  const f = 1 / _M0FPC14math3tan(fov_y_rad / 2);
   const nf = 1 / (near - far);
   const m = _M0MP36mizchi6kagura6math3d4Mat44zero();
   const _tmp = m.elements;
@@ -2521,28 +2721,28 @@ function _M0MP36mizchi6kagura6math3d4Mat48look__at(eye, target, up) {
   return m;
 }
 function _M0MP36mizchi6kagura8camera3d8Camera3D16new__perspective(position, target, up, fov_y_rad, aspect, near, far) {
-  return { position: position, target: target, up: up, fov_y_rad: fov_y_rad, aspect: aspect, near: near, far: far, projection_mode: $64$mizchi$47$kagura$47$camera3d$46$ProjectionMode$Perspective };
+  return new _M0TP36mizchi6kagura8camera3d8Camera3D(position, target, up, fov_y_rad, aspect, near, far, _M0DTP36mizchi6kagura8camera3d14ProjectionMode11Perspective__);
 }
 function _M0FP36mizchi6kagura8camera3d12clamp__pitch(pitch) {
   const limit = 1.56079632679489655;
   return pitch > limit ? limit : pitch < -limit ? -limit : pitch;
 }
 function _M0MP36mizchi6kagura8camera3d11OrbitCamera3new(target, distance, yaw, pitch, fov_y_rad, aspect, near, far) {
-  return { target: target, distance: distance, yaw: yaw, pitch: _M0FP36mizchi6kagura8camera3d12clamp__pitch(pitch), fov_y_rad: fov_y_rad, aspect: aspect, near: near, far: far };
+  return new _M0TP36mizchi6kagura8camera3d11OrbitCamera(target, distance, yaw, _M0FP36mizchi6kagura8camera3d12clamp__pitch(pitch), fov_y_rad, aspect, near, far);
 }
 function _M0MP36mizchi6kagura8camera3d11OrbitCamera5orbit(self, delta_yaw, delta_pitch) {
-  return { ...self, yaw: self.yaw + delta_yaw, pitch: _M0FP36mizchi6kagura8camera3d12clamp__pitch(self.pitch + delta_pitch) };
+  return new _M0TP36mizchi6kagura8camera3d11OrbitCamera(self.target, self.distance, self.yaw + delta_yaw, _M0FP36mizchi6kagura8camera3d12clamp__pitch(self.pitch + delta_pitch), self.fov_y_rad, self.aspect, self.near, self.far);
 }
 function _M0MP36mizchi6kagura8camera3d11OrbitCamera4zoom(self, delta) {
   const d = self.distance + delta;
   const clamped = d < 0.1 ? 0.1 : d;
-  return { ...self, distance: clamped };
+  return new _M0TP36mizchi6kagura8camera3d11OrbitCamera(self.target, clamped, self.yaw, self.pitch, self.fov_y_rad, self.aspect, self.near, self.far);
 }
 function _M0MP36mizchi6kagura8camera3d11OrbitCamera8position(self) {
-  const cp = _M0FP311moonbitlang4core4math3cos(self.pitch);
-  const sp = _M0FP311moonbitlang4core4math3sin(self.pitch);
-  const cy = _M0FP311moonbitlang4core4math3cos(self.yaw);
-  const sy = _M0FP311moonbitlang4core4math3sin(self.yaw);
+  const cp = _M0FPC14math3cos(self.pitch);
+  const sp = _M0FPC14math3sin(self.pitch);
+  const cy = _M0FPC14math3cos(self.yaw);
+  const sy = _M0FPC14math3sin(self.yaw);
   const offset = _M0MP36mizchi6kagura6math3d4Vec33new(self.distance * cp * sy, self.distance * sp, self.distance * cp * cy);
   return _M0MP36mizchi6kagura6math3d4Vec33add(self.target, offset);
 }
@@ -2580,16 +2780,16 @@ function _M0MP36mizchi6kagura8camera3d8Camera3D24view__projection__matrix(self) 
   return _M0MP36mizchi6kagura6math3d4Mat48multiply(_M0MP36mizchi6kagura8camera3d8Camera3D18projection__matrix(self), _M0MP36mizchi6kagura8camera3d8Camera3D12view__matrix(self));
 }
 function _M0FP36mizchi6kagura4core18new__outside__size(width, height) {
-  return { width: width, height: height };
+  return new _M0TP36mizchi6kagura4core11OutsideSize(width, height);
 }
 function _M0FP36mizchi6kagura4core17new__touch__point(id, x, y) {
-  return { id: id, x: x, y: y, source: 3 };
+  return new _M0TP36mizchi6kagura4core10TouchPoint(id, x, y, 3);
 }
 function _M0FP36mizchi6kagura4core22new__gamepad__snapshot(id, axes, pressed_buttons) {
-  return { id: id, axes: axes, pressed_buttons: pressed_buttons };
+  return new _M0TP36mizchi6kagura4core15GamepadSnapshot(id, axes, pressed_buttons);
 }
 function _M0FP36mizchi6kagura4core26new__input__snapshot__full(cursor_x, cursor_y, wheel_x, wheel_y, pressed_keys, pressed_mouse_buttons, touches, gamepads) {
-  return { cursor_x: cursor_x, cursor_y: cursor_y, wheel_x: wheel_x, wheel_y: wheel_y, pressed_keys: pressed_keys, pressed_mouse_buttons: pressed_mouse_buttons, touches: touches, gamepads: gamepads };
+  return new _M0TP36mizchi6kagura4core13InputSnapshot(cursor_x, cursor_y, wheel_x, wheel_y, pressed_keys, pressed_mouse_buttons, touches, gamepads);
 }
 function _M0FP36mizchi6kagura4core20new__input__snapshot(cursor_x, cursor_y, wheel_x, wheel_y, pressed_keys) {
   return _M0FP36mizchi6kagura4core26new__input__snapshot__full(cursor_x, cursor_y, wheel_x, wheel_y, pressed_keys, [], [], []);
@@ -2598,7 +2798,7 @@ function _M0FP36mizchi6kagura4core22empty__input__snapshot() {
   return _M0FP36mizchi6kagura4core20new__input__snapshot(0, 0, 0, 0, []);
 }
 function _M0FP36mizchi6kagura8platform23new__web__canvas__hooks(try_initialize, poll, should_close, outside_size, current_surface, capture_input, set_fullscreen, is_fullscreen, set_cursor_mode, cursor_mode, set_device_scale_factor, device_scale_factor, set_vsync_enabled, is_vsync_enabled, close_window, request_attention, set_mouse_touch_fallback, mouse_touch_fallback_enabled, fullscreen_request_status, cursor_mode_request_status) {
-  return { try_initialize: try_initialize, poll: poll, should_close: should_close, outside_size: outside_size, current_surface: current_surface, capture_input: capture_input, set_fullscreen: set_fullscreen, is_fullscreen: is_fullscreen, set_cursor_mode: set_cursor_mode, cursor_mode: cursor_mode, set_device_scale_factor: set_device_scale_factor, device_scale_factor: device_scale_factor, set_vsync_enabled: set_vsync_enabled, is_vsync_enabled: is_vsync_enabled, close_window: close_window, request_attention: request_attention, set_mouse_touch_fallback: set_mouse_touch_fallback, mouse_touch_fallback_enabled: mouse_touch_fallback_enabled, fullscreen_request_status: fullscreen_request_status, cursor_mode_request_status: cursor_mode_request_status };
+  return new _M0TP36mizchi6kagura8platform14WebCanvasHooks(try_initialize, poll, should_close, outside_size, current_surface, capture_input, set_fullscreen, is_fullscreen, set_cursor_mode, cursor_mode, set_device_scale_factor, device_scale_factor, set_vsync_enabled, is_vsync_enabled, close_window, request_attention, set_mouse_touch_fallback, mouse_touch_fallback_enabled, fullscreen_request_status, cursor_mode_request_status);
 }
 function _M0FP36mizchi6kagura8platform29default__web__try__initialize(_canvas_selector, _options) {
   return false;
@@ -2611,7 +2811,7 @@ function _M0FP36mizchi6kagura8platform27default__web__outside__size(width, heigh
   return _M0FP36mizchi6kagura4core18new__outside__size(width + 0, height + 0);
 }
 function _M0FP36mizchi6kagura8platform30default__web__current__surface(_canvas_selector, options) {
-  return { kind: 1, opaque_id: 2, width: options.width, height: options.height, device_scale_factor: 1 };
+  return new _M0TP36mizchi6kagura8platform12SurfaceToken(1, 2, options.width, options.height, 1);
 }
 function _M0FP36mizchi6kagura8platform28default__web__capture__input(_active, _tick) {
   return _M0FP36mizchi6kagura4core22empty__input__snapshot();
@@ -2698,13 +2898,13 @@ function _M0FP36mizchi6kagura8platform23web__is__vsync__enabled(canvas_selector,
   return _func(canvas_selector, active, current);
 }
 function _M0FP36mizchi6kagura8platform33create__offscreen__surface__token(width, height) {
-  return { kind: 3, opaque_id: 0, width: width, height: height, device_scale_factor: 1 };
+  return new _M0TP36mizchi6kagura8platform12SurfaceToken(3, 0, width, height, 1);
 }
 function _M0FP36mizchi6kagura8platform30create__webgpu__surface__token(opaque_id, width, height, device_scale_factor) {
-  return { kind: 1, opaque_id: opaque_id, width: width, height: height, device_scale_factor: device_scale_factor };
+  return new _M0TP36mizchi6kagura8platform12SurfaceToken(1, opaque_id, width, height, device_scale_factor);
 }
 function _M0IP36mizchi6kagura8platform17WebCanvasPlatformP36mizchi6kagura8platform15SurfaceProvider16current__surface(self) {
-  return new Result$Ok$1$(self.web_active ? _M0FP36mizchi6kagura8platform21web__current__surface(self.canvas_selector, self.options) : { kind: 1, opaque_id: 2, width: self.options.width, height: self.options.height, device_scale_factor: 1 });
+  return new _M0DTPC16result6ResultGRP36mizchi6kagura8platform12SurfaceTokenRPC15error5ErrorE2Ok(self.web_active ? _M0FP36mizchi6kagura8platform21web__current__surface(self.canvas_selector, self.options) : new _M0TP36mizchi6kagura8platform12SurfaceToken(1, 2, self.options.width, self.options.height, 1));
 }
 function _M0FP36mizchi6kagura8platform21cursor__mode__to__int(mode) {
   switch (mode) {
@@ -2733,10 +2933,10 @@ function _M0FP36mizchi6kagura8platform23cursor__mode__from__int(mode) {
   }
 }
 function _M0FP36mizchi6kagura8platform28new__window__options_2einner(title, width, height, transparent, resizable, focused) {
-  return { title: title, width: width, height: height, transparent: transparent, resizable: resizable, focused: focused };
+  return new _M0TP36mizchi6kagura8platform13WindowOptions(title, width, height, transparent, resizable, focused);
 }
 function _M0FP36mizchi6kagura8platform29create__web__canvas__platform(canvas_selector) {
-  return { canvas_selector: canvas_selector, initialized: false, poll_count: 0, close_after_polls: 2, web_active: false, options: { title: "kagura-web", width: 800, height: 600, transparent: true, resizable: true, focused: true }, current_input: _M0FP36mizchi6kagura4core22empty__input__snapshot(), fullscreen: false, cursor_mode: 0, device_scale_factor: 1, vsync_enabled: true, close_requested: false, attention_requests: 0, mouse_touch_fallback: false, fullscreen_request_status: 0, cursor_mode_request_status: 0 };
+  return new _M0TP36mizchi6kagura8platform17WebCanvasPlatform(canvas_selector, false, 0, 2, false, new _M0TP36mizchi6kagura8platform13WindowOptions("kagura-web", 800, 600, true, true, true), _M0FP36mizchi6kagura4core22empty__input__snapshot(), false, 0, 1, true, false, 0, false, 0, 0);
 }
 function _M0IP36mizchi6kagura8platform17WebCanvasPlatformP36mizchi6kagura8platform14PlatformDriver10initialize(self, options) {
   self.options = options;
@@ -2749,7 +2949,7 @@ function _M0IP36mizchi6kagura8platform17WebCanvasPlatformP36mizchi6kagura8platfo
   self.cursor_mode = _M0FP36mizchi6kagura8platform17web__cursor__mode(self.canvas_selector, self.web_active, self.cursor_mode);
   self.device_scale_factor = _M0FP36mizchi6kagura8platform26web__device__scale__factor(self.canvas_selector, self.web_active, self.device_scale_factor);
   self.vsync_enabled = _M0FP36mizchi6kagura8platform23web__is__vsync__enabled(self.canvas_selector, self.web_active, self.vsync_enabled);
-  return new Result$Ok$2$(undefined);
+  return new _M0DTPC16result6ResultGuRPC15error5ErrorE2Ok(undefined);
 }
 function _M0IP36mizchi6kagura8platform17WebCanvasPlatformP36mizchi6kagura8platform14PlatformDriver12poll__events(self) {
   if (self.initialized) {
@@ -2768,13 +2968,13 @@ function _M0IP36mizchi6kagura8platform17WebCanvasPlatformP36mizchi6kagura8platfo
   return self.current_input;
 }
 function _M0FP36mizchi6kagura3gfx21double__to__f32__bits(v) {
-  const bits = _M0MP311moonbitlang4core6double6Double22reinterpret__as__int64(v);
+  const bits = _M0MPC16double6Double22reinterpret__as__int64(v);
   const ubits = bits;
-  const sign = _M0MP311moonbitlang4core5int645Int647to__int(_M0IP311moonbitlang4core6uint646UInt64P311moonbitlang4core7builtin6BitAnd4land(_M0IP311moonbitlang4core6uint646UInt64P311moonbitlang4core7builtin3Shr3shr(ubits, 63), $1L));
-  const exp = _M0MP311moonbitlang4core5int645Int647to__int(_M0IP311moonbitlang4core6uint646UInt64P311moonbitlang4core7builtin6BitAnd4land(_M0IP311moonbitlang4core6uint646UInt64P311moonbitlang4core7builtin3Shr3shr(ubits, 52), $2047L));
-  const mantissa = _M0IP311moonbitlang4core5int645Int64P311moonbitlang4core7builtin6BitAnd4land(bits, $4503599627370495L);
+  const sign = _M0MPC15int645Int647to__int(_M0IPC16uint646UInt64PB6BitAnd4land(_M0IPC16uint646UInt64PB3Shr3shr(ubits, 63), $1L));
+  const exp = _M0MPC15int645Int647to__int(_M0IPC16uint646UInt64PB6BitAnd4land(_M0IPC16uint646UInt64PB3Shr3shr(ubits, 52), $2047L));
+  const mantissa = _M0IPC15int645Int64PB6BitAnd4land(bits, $4503599627370495L);
   if (exp === 2047) {
-    return _M0IP016_24default__implP311moonbitlang4core7builtin2Eq10not__equalGlE(mantissa, $0L) ? sign << 31 | 2143289344 : sign << 31 | 2139095040;
+    return _M0IP016_24default__implPB2Eq10not__equalGlE(mantissa, $0L) ? sign << 31 | 2143289344 : sign << 31 | 2139095040;
   } else {
     if (exp === 0) {
       return sign << 31;
@@ -2786,7 +2986,7 @@ function _M0FP36mizchi6kagura3gfx21double__to__f32__bits(v) {
         if (f32_exp <= 0) {
           return sign << 31;
         } else {
-          const f32_mantissa = _M0MP311moonbitlang4core5int645Int647to__int(_M0IP311moonbitlang4core6uint646UInt64P311moonbitlang4core7builtin3Shr3shr(mantissa, 29));
+          const f32_mantissa = _M0MPC15int645Int647to__int(_M0IPC16uint646UInt64PB3Shr3shr(mantissa, 29));
           return sign << 31 | f32_exp << 23 | f32_mantissa;
         }
       }
@@ -2858,30 +3058,30 @@ function _M0FP36mizchi6kagura3gfx24builtin__sample__snippet(filter) {
   }
 }
 function _M0FP36mizchi6kagura3gfx26builtin__color__m__snippet(use_color_m) {
-  return use_color_m ? `let color_m = mat4x4f(\n    vec4f(1.0, 0.0, 0.0, 0.0),\n    vec4f(0.0, 1.0, 0.0, 0.0),\n    vec4f(0.0, 0.0, 1.0, 0.0),\n    vec4f(0.0, 0.0, 0.0, 1.0),\n  );\n  color = color_m * color;` : "// color matrix disabled";
+  return use_color_m ? "let color_m = mat4x4f(\n    vec4f(1.0, 0.0, 0.0, 0.0),\n    vec4f(0.0, 1.0, 0.0, 0.0),\n    vec4f(0.0, 0.0, 1.0, 0.0),\n    vec4f(0.0, 0.0, 0.0, 1.0),\n  );\n  color = color_m * color;" : "// color matrix disabled";
 }
 function _M0FP36mizchi6kagura3gfx30build__builtin__shader__source(key) {
   const address_snippet = _M0FP36mizchi6kagura3gfx25builtin__address__snippet(key.address);
   const sample_snippet = _M0FP36mizchi6kagura3gfx24builtin__sample__snippet(key.filter);
   const color_m_snippet = _M0FP36mizchi6kagura3gfx26builtin__color__m__snippet(key.use_color_m);
   const color_m_tag = key.use_color_m ? "on" : "off";
-  const header = `// kagura builtin shader\n// filter:${_M0IP311moonbitlang4core6string6StringP311moonbitlang4core7builtin4Show10to__string(_M0FP36mizchi6kagura3gfx20builtin__filter__tag(key.filter))}\n// address:${_M0IP311moonbitlang4core6string6StringP311moonbitlang4core7builtin4Show10to__string(_M0FP36mizchi6kagura3gfx21builtin__address__tag(key.address))}\n// color_m:${_M0IP311moonbitlang4core6string6StringP311moonbitlang4core7builtin4Show10to__string(color_m_tag)}\n`;
-  const bindings = `@group(0) @binding(0) var tex: texture_2d<f32>;\n@group(0) @binding(1) var nearest_sampler: sampler;\n@group(0) @binding(2) var linear_sampler: sampler;\n\n`;
-  const structs = `struct VertexOutput {\n  @builtin(position) pos: vec4f,\n  @location(0) uv: vec2f,\n};\n\n`;
-  const body = `@fragment\nfn fs_main(in: VertexOutput) -> @location(0) vec4f {\n  let uv = in.uv;\n  ${_M0IP311moonbitlang4core6string6StringP311moonbitlang4core7builtin4Show10to__string(address_snippet)}\n  var color = ${_M0IP311moonbitlang4core6string6StringP311moonbitlang4core7builtin4Show10to__string(sample_snippet)};\n  ${_M0IP311moonbitlang4core6string6StringP311moonbitlang4core7builtin4Show10to__string(color_m_snippet)}\n  return color;\n}\n`;
+  const header = `// kagura builtin shader\n// filter:${_M0IPC16string6StringPB4Show10to__string(_M0FP36mizchi6kagura3gfx20builtin__filter__tag(key.filter))}\n// address:${_M0IPC16string6StringPB4Show10to__string(_M0FP36mizchi6kagura3gfx21builtin__address__tag(key.address))}\n// color_m:${_M0IPC16string6StringPB4Show10to__string(color_m_tag)}\n`;
+  const bindings = "@group(0) @binding(0) var tex: texture_2d<f32>;\n@group(0) @binding(1) var nearest_sampler: sampler;\n@group(0) @binding(2) var linear_sampler: sampler;\n\n";
+  const structs = "struct VertexOutput {\n  @builtin(position) pos: vec4f,\n  @location(0) uv: vec2f,\n};\n\n";
+  const body = `@fragment\nfn fs_main(in: VertexOutput) -> @location(0) vec4f {\n  let uv = in.uv;\n  ${_M0IPC16string6StringPB4Show10to__string(address_snippet)}\n  var color = ${_M0IPC16string6StringPB4Show10to__string(sample_snippet)};\n  ${_M0IPC16string6StringPB4Show10to__string(color_m_snippet)}\n  return color;\n}\n`;
   return `${header}${bindings}${structs}${body}`;
 }
 function _M0FP36mizchi6kagura3gfx32default__builtin__shader__source() {
-  return _M0FP36mizchi6kagura3gfx30build__builtin__shader__source({ filter: 0, address: 0, use_color_m: false });
+  return _M0FP36mizchi6kagura3gfx30build__builtin__shader__source(new _M0TP36mizchi6kagura3gfx16BuiltinShaderKey(0, 0, false));
 }
 function _M0FP36mizchi6kagura3gfx16new__dst__region(x, y, width, height, index_count) {
-  return { x: x, y: y, width: width, height: height, index_count: index_count };
+  return new _M0TP36mizchi6kagura3gfx9DstRegion(x, y, width, height, index_count);
 }
 function _M0FP36mizchi6kagura3gfx10new__color(r, g, b, a) {
-  return { r: r, g: g, b: b, a: a };
+  return new _M0TP36mizchi6kagura3gfx5Color(r, g, b, a);
 }
 function _M0FP36mizchi6kagura3gfx31new__render__pass__desc_2einner(clear_color, clear_enabled, present) {
-  return { clear_color: clear_color, clear_enabled: clear_enabled, present: present };
+  return new _M0TP36mizchi6kagura3gfx14RenderPassDesc(clear_color, clear_enabled, present);
 }
 function _M0FP36mizchi6kagura3gfx20blend__mode__to__int(mode) {
   switch (mode.$tag) {
@@ -2905,36 +3105,36 @@ function _M0FP36mizchi6kagura3gfx20blend__mode__to__int(mode) {
 function _M0FP36mizchi6kagura3gfx22blend__mode__from__int(mode) {
   switch (mode) {
     case 0: {
-      return $64$mizchi$47$kagura$47$gfx$46$BlendMode$Copy;
+      return _M0DTP36mizchi6kagura3gfx9BlendMode4Copy__;
     }
     case 1: {
-      return $64$mizchi$47$kagura$47$gfx$46$BlendMode$Alpha;
+      return _M0DTP36mizchi6kagura3gfx9BlendMode5Alpha__;
     }
     case 2: {
-      return $64$mizchi$47$kagura$47$gfx$46$BlendMode$Add;
+      return _M0DTP36mizchi6kagura3gfx9BlendMode3Add__;
     }
     case 3: {
-      return $64$mizchi$47$kagura$47$gfx$46$BlendMode$Multiply;
+      return _M0DTP36mizchi6kagura3gfx9BlendMode8Multiply__;
     }
     default: {
-      return $64$mizchi$47$kagura$47$gfx$46$BlendMode$Alpha;
+      return _M0DTP36mizchi6kagura3gfx9BlendMode5Alpha__;
     }
   }
 }
 function _M0FP36mizchi6kagura3gfx18new__image__handle(id, width, height) {
-  return { id: id, width: width, height: height };
+  return new _M0TP36mizchi6kagura3gfx11ImageHandle(id, width, height);
 }
 function _M0FP36mizchi6kagura3gfx19new__shader__handle(id, source) {
-  return { id: id, source: source };
+  return new _M0TP36mizchi6kagura3gfx12ShaderHandle(id, source);
 }
 function _M0FP36mizchi6kagura3gfx37new__draw__triangles__command_2einner(dst, shader, dst_regions, index_offset, pipeline_id, uniform_hash, blend, vertex_data, indices, src_image_ids, uniform_dwords, instance_count, resource_cache_key) {
-  return { dst: dst, shader: shader, dst_regions: dst_regions, index_offset: index_offset, pipeline_id: pipeline_id, uniform_hash: uniform_hash, blend: blend, vertex_data: vertex_data, indices: indices, src_image_ids: src_image_ids, uniform_dwords: uniform_dwords, instance_count: instance_count, resource_cache_key: resource_cache_key };
+  return new _M0TP36mizchi6kagura3gfx20DrawTrianglesCommand(dst, shader, dst_regions, index_offset, pipeline_id, uniform_hash, blend, vertex_data, indices, src_image_ids, uniform_dwords, instance_count, resource_cache_key);
 }
 function _M0FP36mizchi6kagura3gfx30default__web__on__read__pixels(_active, _kind, _x, _y, _width, _height) {
-  return Option$None$3$;
+  return _M0DTPC16option6OptionGRPB5ArrayGiEE4None__;
 }
 function _M0FP36mizchi6kagura3gfx25new__web__graphics__hooks(try_initialize, on_begin, on_end, on_draw, on_resize) {
-  return { try_initialize: try_initialize, on_begin: on_begin, on_end: on_end, on_draw: on_draw, on_resize: on_resize, on_read_pixels: _M0FP36mizchi6kagura3gfx30default__web__on__read__pixels };
+  return new _M0TP36mizchi6kagura3gfx16WebGraphicsHooks(try_initialize, on_begin, on_end, on_draw, on_resize, _M0FP36mizchi6kagura3gfx30default__web__on__read__pixels);
 }
 function _M0FP36mizchi6kagura3gfx29default__web__try__initialize(_kind, _width, _height) {
   return false;
@@ -2974,10 +3174,10 @@ function _M0FP36mizchi6kagura3gfx25web__graphics__on__resize(active, kind, width
 }
 function _M0FP36mizchi6kagura3gfx31default__native__on__new__image(_active, _image_id, _width, _height) {}
 function _M0FP36mizchi6kagura3gfx33default__native__on__read__pixels(_active, _x, _y, _width, _height) {
-  return Option$None$3$;
+  return _M0DTPC16option6OptionGRPB5ArrayGiEE4None__;
 }
 function _M0FP36mizchi6kagura3gfx28new__native__graphics__hooks(try_initialize, on_begin, on_end, on_draw, on_resize) {
-  return { try_initialize: try_initialize, on_begin: on_begin, on_end: on_end, on_draw: on_draw, on_resize: on_resize, on_read_pixels: _M0FP36mizchi6kagura3gfx33default__native__on__read__pixels, on_new_image: _M0FP36mizchi6kagura3gfx31default__native__on__new__image };
+  return new _M0TP36mizchi6kagura3gfx19NativeGraphicsHooks(try_initialize, on_begin, on_end, on_draw, on_resize, _M0FP36mizchi6kagura3gfx33default__native__on__read__pixels, _M0FP36mizchi6kagura3gfx31default__native__on__new__image);
 }
 function _M0FP36mizchi6kagura3gfx32default__native__try__initialize(_width, _height) {
   return false;
@@ -3014,17 +3214,17 @@ function _M0FP36mizchi6kagura3gfx22native__on__new__image(active, image_id, widt
   _func(active, image_id, width, height);
 }
 function _M0FP36mizchi6kagura3gfx35default__graphics__backend__options() {
-  return { enable_validation: true, prefer_low_power: false, enable_vsync: true };
+  return new _M0TP36mizchi6kagura3gfx22GraphicsBackendOptions(true, false, true);
 }
 function _M0FP36mizchi6kagura3gfx23default__clock__now__ms() {
   return 0;
 }
 function _M0FP36mizchi6kagura3gfx24create__webgpu__graphics(surface, options) {
-  return { backend: 1, width: surface.width, height: surface.height, initialized: false, native_active: false, web_active: false, next_id: 0, begin_count: 0, end_count: 0, draw_count: 0, resize_count: 0, resize_suppressed_count: 0, last_resize_duration_ms: 0, total_resize_duration_ms: 0 };
+  return new _M0TP36mizchi6kagura3gfx18StubGraphicsDriver(1, surface.width, surface.height, false, false, false, 0, 0, 0, 0, 0, 0, 0, 0);
 }
 function _M0IP36mizchi6kagura3gfx18StubGraphicsDriverP36mizchi6kagura3gfx14GraphicsDriver10initialize(self) {
   if (self.initialized) {
-    return new Result$Ok$2$(undefined);
+    return new _M0DTPC16result6ResultGuRPC15error5ErrorE2Ok(undefined);
   }
   _L: {
     _L$2: {
@@ -3046,7 +3246,7 @@ function _M0IP36mizchi6kagura3gfx18StubGraphicsDriverP36mizchi6kagura3gfx14Graph
     self.web_active = _M0FP36mizchi6kagura3gfx30web__graphics__try__initialize(self.backend, self.width, self.height);
   }
   self.initialized = true;
-  return new Result$Ok$2$(undefined);
+  return new _M0DTPC16result6ResultGuRPC15error5ErrorE2Ok(undefined);
 }
 function _M0IP36mizchi6kagura3gfx18StubGraphicsDriverP36mizchi6kagura3gfx14GraphicsDriver5begin(self, pass) {
   self.backend;
@@ -3072,7 +3272,7 @@ function _M0IP36mizchi6kagura3gfx18StubGraphicsDriverP36mizchi6kagura3gfx14Graph
     _M0FP36mizchi6kagura3gfx17native__on__begin(self.native_active, pass);
     _M0FP36mizchi6kagura3gfx24web__graphics__on__begin(self.web_active, self.backend, pass);
   }
-  return new Result$Ok$2$(undefined);
+  return new _M0DTPC16result6ResultGuRPC15error5ErrorE2Ok(undefined);
 }
 function _M0IP36mizchi6kagura3gfx18StubGraphicsDriverP36mizchi6kagura3gfx14GraphicsDriver3end(self, present) {
   if (self.initialized) {
@@ -3080,14 +3280,14 @@ function _M0IP36mizchi6kagura3gfx18StubGraphicsDriverP36mizchi6kagura3gfx14Graph
     _M0FP36mizchi6kagura3gfx15native__on__end(self.native_active, present);
     _M0FP36mizchi6kagura3gfx22web__graphics__on__end(self.web_active, self.backend, present);
   }
-  return new Result$Ok$2$(undefined);
+  return new _M0DTPC16result6ResultGuRPC15error5ErrorE2Ok(undefined);
 }
 function _M0IP36mizchi6kagura3gfx18StubGraphicsDriverP36mizchi6kagura3gfx14GraphicsDriver6resize(self, width, height) {
   const next_width = width <= 0 ? 1 : width;
   const next_height = height <= 0 ? 1 : height;
   if (self.width === next_width && self.height === next_height) {
     self.resize_suppressed_count = self.resize_suppressed_count + 1 | 0;
-    return new Result$Ok$2$(undefined);
+    return new _M0DTPC16result6ResultGuRPC15error5ErrorE2Ok(undefined);
   }
   const _func = _M0FP36mizchi6kagura3gfx25graphics__clock__provider.val;
   const t0 = _func();
@@ -3103,16 +3303,16 @@ function _M0IP36mizchi6kagura3gfx18StubGraphicsDriverP36mizchi6kagura3gfx14Graph
   const duration = t1 - t0;
   self.last_resize_duration_ms = duration;
   self.total_resize_duration_ms = self.total_resize_duration_ms + duration;
-  return new Result$Ok$2$(undefined);
+  return new _M0DTPC16result6ResultGuRPC15error5ErrorE2Ok(undefined);
 }
 function _M0IP36mizchi6kagura3gfx18StubGraphicsDriverP36mizchi6kagura3gfx14GraphicsDriver10new__image(self, width, height) {
   self.next_id = self.next_id + 1 | 0;
   _M0FP36mizchi6kagura3gfx22native__on__new__image(self.native_active, self.next_id, width, height);
-  return new Result$Ok$4$({ id: self.next_id, width: width, height: height });
+  return new _M0DTPC16result6ResultGRP36mizchi6kagura3gfx11ImageHandleRPC15error5ErrorE2Ok(new _M0TP36mizchi6kagura3gfx11ImageHandle(self.next_id, width, height));
 }
 function _M0IP36mizchi6kagura3gfx18StubGraphicsDriverP36mizchi6kagura3gfx14GraphicsDriver11new__shader(self, source) {
   self.next_id = self.next_id + 1 | 0;
-  return new Result$Ok$5$({ id: self.next_id, source: source });
+  return new _M0DTPC16result6ResultGRP36mizchi6kagura3gfx12ShaderHandleRPC15error5ErrorE2Ok(new _M0TP36mizchi6kagura3gfx12ShaderHandle(self.next_id, source));
 }
 function _M0IP36mizchi6kagura3gfx18StubGraphicsDriverP36mizchi6kagura3gfx14GraphicsDriver15draw__triangles(self, command) {
   if (self.initialized) {
@@ -3120,19 +3320,19 @@ function _M0IP36mizchi6kagura3gfx18StubGraphicsDriverP36mizchi6kagura3gfx14Graph
     _M0FP36mizchi6kagura3gfx16native__on__draw(self.native_active, command);
     _M0FP36mizchi6kagura3gfx23web__graphics__on__draw(self.web_active, self.backend, command);
   }
-  return new Result$Ok$2$(undefined);
+  return new _M0DTPC16result6ResultGuRPC15error5ErrorE2Ok(undefined);
 }
 function _M0FP36mizchi6kagura6draw3d25mat4__to__uniform__dwords(m) {
   const dwords = [];
-  const _start410 = 0;
-  const _end411 = 16;
-  let _tmp = _start410;
+  const _bind = 0;
+  const _bind$2 = 16;
+  let _tmp = _bind;
   while (true) {
     const i = _tmp;
-    if (i < _end411) {
+    if (i < _bind$2) {
       const _tmp$2 = m.elements;
       $bound_check(_tmp$2, i);
-      _M0MP311moonbitlang4core5array5Array4pushGiE(dwords, _M0FP36mizchi6kagura3gfx21double__to__f32__bits(_tmp$2[i]));
+      _M0MPC15array5Array4pushGiE(dwords, _M0FP36mizchi6kagura3gfx21double__to__f32__bits(_tmp$2[i]));
       _tmp = i + 1 | 0;
       continue;
     } else {
@@ -3142,7 +3342,7 @@ function _M0FP36mizchi6kagura6draw3d25mat4__to__uniform__dwords(m) {
   return dwords;
 }
 function _M0FP36mizchi6kagura6draw3d24shader3d__particle__wgsl() {
-  return `struct Uniforms {\n  mvp: mat4x4<f32>,\n};\n\n@group(0) @binding(0) var<uniform> uniforms: Uniforms;\n\nstruct VertexInput {\n  @location(0) position: vec3<f32>,\n  @location(1) normal: vec3<f32>,\n  @location(2) uv: vec2<f32>,\n};\n\nstruct VertexOutput {\n  @builtin(position) clip_position: vec4<f32>,\n  @location(0) color: vec3<f32>,\n  @location(1) alpha: f32,\n};\n\n@vertex fn vs_main(input: VertexInput) -> VertexOutput {\n  var out: VertexOutput;\n  out.clip_position = uniforms.mvp * vec4<f32>(input.position, 1.0);\n  out.color = input.normal;\n  out.alpha = input.uv.x;\n  return out;\n}\n\n@fragment fn fs_main(in: VertexOutput) -> @location(0) vec4<f32> {\n  return vec4<f32>(in.color, in.alpha);\n}\n`;
+  return "struct Uniforms {\n  mvp: mat4x4<f32>,\n};\n\n@group(0) @binding(0) var<uniform> uniforms: Uniforms;\n\nstruct VertexInput {\n  @location(0) position: vec3<f32>,\n  @location(1) normal: vec3<f32>,\n  @location(2) uv: vec2<f32>,\n};\n\nstruct VertexOutput {\n  @builtin(position) clip_position: vec4<f32>,\n  @location(0) color: vec3<f32>,\n  @location(1) alpha: f32,\n};\n\n@vertex fn vs_main(input: VertexInput) -> VertexOutput {\n  var out: VertexOutput;\n  out.clip_position = uniforms.mvp * vec4<f32>(input.position, 1.0);\n  out.color = input.normal;\n  out.alpha = input.uv.x;\n  return out;\n}\n\n@fragment fn fs_main(in: VertexOutput) -> @location(0) vec4<f32> {\n  return vec4<f32>(in.color, in.alpha);\n}\n";
 }
 function _M0FP36mizchi6kagura6draw3d25particle__uniform__dwords(vp) {
   return _M0FP36mizchi6kagura6draw3d25mat4__to__uniform__dwords(vp);
@@ -3151,38 +3351,38 @@ function _M0FP36mizchi6kagura6draw3d28new__particle__draw__command(dst, shader, 
   const uniform_dwords = _M0FP36mizchi6kagura6draw3d25particle__uniform__dwords(view_projection);
   return _M0FP36mizchi6kagura3gfx37new__draw__triangles__command_2einner(dst, shader, [dst_region], index_offset, pipeline_id, uniform_hash, blend, vertex_data, indices, src_image_ids, uniform_dwords, 1, 0);
 }
-function _M0IP26mizchi5audio13EnvelopePhaseP311moonbitlang4core7builtin2Eq5equal(_x_1440, _x_1441) {
-  switch (_x_1440) {
+function _M0IP26mizchi5audio13EnvelopePhasePB2Eq5equal(_x_1064, _x_1065) {
+  switch (_x_1064) {
     case 0: {
-      if (_x_1441 === 0) {
+      if (_x_1065 === 0) {
         return true;
       } else {
         return false;
       }
     }
     case 1: {
-      if (_x_1441 === 1) {
+      if (_x_1065 === 1) {
         return true;
       } else {
         return false;
       }
     }
     case 2: {
-      if (_x_1441 === 2) {
+      if (_x_1065 === 2) {
         return true;
       } else {
         return false;
       }
     }
     case 3: {
-      if (_x_1441 === 3) {
+      if (_x_1065 === 3) {
         return true;
       } else {
         return false;
       }
     }
     default: {
-      if (_x_1441 === 4) {
+      if (_x_1065 === 4) {
         return true;
       } else {
         return false;
@@ -3190,24 +3390,24 @@ function _M0IP26mizchi5audio13EnvelopePhaseP311moonbitlang4core7builtin2Eq5equal
     }
   }
 }
-function _M0IP26mizchi5audio10VoiceStateP311moonbitlang4core7builtin2Eq5equal(_x_1408, _x_1409) {
-  switch (_x_1408) {
+function _M0IP26mizchi5audio10VoiceStatePB2Eq5equal(_x_1032, _x_1033) {
+  switch (_x_1032) {
     case 0: {
-      if (_x_1409 === 0) {
+      if (_x_1033 === 0) {
         return true;
       } else {
         return false;
       }
     }
     case 1: {
-      if (_x_1409 === 1) {
+      if (_x_1033 === 1) {
         return true;
       } else {
         return false;
       }
     }
     default: {
-      if (_x_1409 === 2) {
+      if (_x_1033 === 2) {
         return true;
       } else {
         return false;
@@ -3215,21 +3415,21 @@ function _M0IP26mizchi5audio10VoiceStateP311moonbitlang4core7builtin2Eq5equal(_x
     }
   }
 }
-function _M0IP26mizchi5audio7VoiceIdP311moonbitlang4core7builtin2Eq5equal(_x_1326, _x_1327) {
-  return _x_1326 === _x_1327;
+function _M0IP26mizchi5audio7VoiceIdPB2Eq5equal(_x_950, _x_951) {
+  return _x_950 === _x_951;
 }
 function _M0FP26mizchi5audio11find__voice(mixer, id) {
-  const _arr = mixer.voices;
-  const _len = _arr.length;
+  const _bind = mixer.voices;
+  const _bind$2 = _bind.length;
   let _tmp = 0;
   while (true) {
-    const _i = _tmp;
-    if (_i < _len) {
-      const voice = _arr[_i];
-      if (_M0IP26mizchi5audio7VoiceIdP311moonbitlang4core7builtin2Eq5equal(voice.id, id)) {
+    const _ = _tmp;
+    if (_ < _bind$2) {
+      const voice = _bind[_];
+      if (_M0IP26mizchi5audio7VoiceIdPB2Eq5equal(voice.id, id)) {
         return voice;
       }
-      _tmp = _i + 1 | 0;
+      _tmp = _ + 1 | 0;
       continue;
     } else {
       break;
@@ -3309,7 +3509,7 @@ function _M0FP26mizchi5audio20read__source__sample(source, frame, channel) {
   return _M0FP26mizchi5audio10ring__peek(s.ring, frame, channel);
 }
 function _M0FP26mizchi5audio15resample__cubic(source, position, channel, frame_count) {
-  const floor_pos = _M0MP311moonbitlang4core5float5Float7to__int(position);
+  const floor_pos = _M0MPC15float5Float7to__int(position);
   const frac = Math.fround(position - Math.fround(floor_pos));
   const i0 = _M0FP26mizchi5audio12clamp__frame(floor_pos - 1 | 0, frame_count);
   const i1 = _M0FP26mizchi5audio12clamp__frame(floor_pos, frame_count);
@@ -3326,7 +3526,7 @@ function _M0FP26mizchi5audio15resample__cubic(source, position, channel, frame_c
   return Math.fround(Math.fround(Math.fround(Math.fround(Math.fround(Math.fround(c3 * frac) + c2) * frac) + c1) * frac) + c0);
 }
 function _M0FP26mizchi5audio16resample__linear(source, position, channel, frame_count) {
-  const floor_pos = _M0MP311moonbitlang4core5float5Float7to__int(position);
+  const floor_pos = _M0MPC15float5Float7to__int(position);
   const frac = Math.fround(position - Math.fround(floor_pos));
   const i0 = _M0FP26mizchi5audio12clamp__frame(floor_pos, frame_count);
   const i1 = _M0FP26mizchi5audio12clamp__frame(floor_pos + 1 | 0, frame_count);
@@ -3335,7 +3535,7 @@ function _M0FP26mizchi5audio16resample__linear(source, position, channel, frame_
   return Math.fround(s0 + Math.fround(Math.fround(s1 - s0) * frac));
 }
 function _M0FP26mizchi5audio17resample__nearest(source, position, channel, frame_count) {
-  const frame = _M0FP26mizchi5audio12clamp__frame(_M0MP311moonbitlang4core5float5Float7to__int(Math.fround(position + Math.fround(0.5))), frame_count);
+  const frame = _M0FP26mizchi5audio12clamp__frame(_M0MPC15float5Float7to__int(Math.fround(position + Math.fround(0.5))), frame_count);
   return _M0FP26mizchi5audio20read__source__sample(source, frame, channel);
 }
 function _M0FP26mizchi5audio15resample__frame(quality, source, position, channel, frame_count) {
@@ -3354,8 +3554,8 @@ function _M0FP26mizchi5audio15resample__frame(quality, source, position, channel
 function _M0FP26mizchi5audio10pan__gains(pan) {
   const half_pi = Math.fround(1.57079632679489656);
   const angle = Math.fround(Math.fround(Math.fround(pan + Math.fround(1)) * Math.fround(0.5)) * half_pi);
-  const left = _M0FP311moonbitlang4core4math4cosf(angle);
-  const right = _M0FP311moonbitlang4core4math4sinf(angle);
+  const left = _M0FPC14math4cosf(angle);
+  const right = _M0FPC14math4sinf(angle);
   return { _0: left, _1: right };
 }
 function _M0FP26mizchi5audio15biquad__process(state, input) {
@@ -3415,16 +3615,15 @@ function _M0FP26mizchi5audio15effect__process(node, sample) {
   return _M0FP26mizchi5audio14delay__process(state, sample);
 }
 function _M0FP26mizchi5audio23effects__chain__process(effects, sample) {
-  const result = { val: sample };
-  const _arr = effects;
-  const _len = _arr.length;
+  const result = new _M0TPC13ref3RefGfE(sample);
+  const _bind = effects.length;
   let _tmp = 0;
   while (true) {
-    const _i = _tmp;
-    if (_i < _len) {
-      const effect = _arr[_i];
+    const _ = _tmp;
+    if (_ < _bind) {
+      const effect = effects[_];
       result.val = _M0FP26mizchi5audio15effect__process(effect, result.val);
-      _tmp = _i + 1 | 0;
+      _tmp = _ + 1 | 0;
       continue;
     } else {
       break;
@@ -3436,7 +3635,7 @@ function _M0FP26mizchi5audio14envelope__tick(env) {
   const _bind = env.phase;
   switch (_bind) {
     case 0: {
-      const attack_samples = _M0MP311moonbitlang4core5float5Float7to__int(Math.fround(env.config.attack * Math.fround(env.sample_rate)));
+      const attack_samples = _M0MPC15float5Float7to__int(Math.fround(env.config.attack * Math.fround(env.sample_rate)));
       if (attack_samples <= 0) {
         env.level = Math.fround(1);
         env.phase = 1;
@@ -3453,7 +3652,7 @@ function _M0FP26mizchi5audio14envelope__tick(env) {
       return env.level;
     }
     case 1: {
-      const decay_samples = _M0MP311moonbitlang4core5float5Float7to__int(Math.fround(env.config.decay * Math.fround(env.sample_rate)));
+      const decay_samples = _M0MPC15float5Float7to__int(Math.fround(env.config.decay * Math.fround(env.sample_rate)));
       if (decay_samples <= 0) {
         env.level = env.config.sustain;
         env.phase = 2;
@@ -3475,7 +3674,7 @@ function _M0FP26mizchi5audio14envelope__tick(env) {
       return env.level;
     }
     case 3: {
-      const release_samples = _M0MP311moonbitlang4core5float5Float7to__int(Math.fround(env.config.release_time * Math.fround(env.sample_rate)));
+      const release_samples = _M0MPC15float5Float7to__int(Math.fround(env.config.release_time * Math.fround(env.sample_rate)));
       if (release_samples <= 0) {
         env.level = Math.fround(0);
         env.phase = 4;
@@ -3541,16 +3740,16 @@ function _M0FP26mizchi5audio20source__frame__count(source) {
   return s.ring.frames_available;
 }
 function _M0FP26mizchi5audio4tick(mixer, frames, output) {
-  _M0MP311moonbitlang4core5array10FixedArray12fill_2einnerGfE(output, Math.fround(0), 0, Math.imul(frames, 2) | 0);
-  const _arr = mixer.voices;
-  const _len = _arr.length;
+  _M0MPC15array10FixedArray12fill_2einnerGfE(output, Math.fround(0), 0, Math.imul(frames, 2) | 0);
+  const _bind = mixer.voices;
+  const _bind$2 = _bind.length;
   let _tmp = 0;
   while (true) {
-    const _i = _tmp;
-    if (_i < _len) {
+    const _ = _tmp;
+    if (_ < _bind$2) {
+      const voice = _bind[_];
       _L: {
-        const voice = _arr[_i];
-        if (_M0IP016_24default__implP311moonbitlang4core7builtin2Eq10not__equalGRP26mizchi5audio10VoiceStateE(voice.state, 0)) {
+        if (_M0IP016_24default__implPB2Eq10not__equalGRP26mizchi5audio10VoiceStateE(voice.state, 0)) {
           break _L;
         }
         const src = voice.source;
@@ -3559,22 +3758,21 @@ function _M0FP26mizchi5audio4tick(mixer, frames, output) {
         let pan_l;
         let pan_r;
         _L$2: {
-          const _bind = _M0FP26mizchi5audio10pan__gains(voice.pan);
-          const _pan_l = _bind._0;
-          const _pan_r = _bind._1;
+          const _bind$3 = _M0FP26mizchi5audio10pan__gains(voice.pan);
+          const _pan_l = _bind$3._0;
+          const _pan_r = _bind$3._1;
           pan_l = _pan_l;
           pan_r = _pan_r;
           break _L$2;
         }
         const voice_gain = voice.gain;
         const ratio = _M0FP26mizchi5audio15resample__ratio(voice.sample_rate, mixer.sample_rate);
-        const _start279 = 0;
-        const _end280 = frames;
-        let _tmp$2 = _start279;
+        const _bind$3 = 0;
+        let _tmp$2 = _bind$3;
         while (true) {
           const f = _tmp$2;
-          if (f < _end280) {
-            const int_pos = _M0MP311moonbitlang4core5float5Float7to__int(voice.position);
+          if (f < frames) {
+            const int_pos = _M0MPC15float5Float7to__int(voice.position);
             const end_frame = voice.loop_end > 0 ? voice.loop_end : src_frames;
             if (int_pos >= end_frame) {
               if (voice.looping) {
@@ -3588,11 +3786,11 @@ function _M0FP26mizchi5audio4tick(mixer, frames, output) {
             let env;
             _L$3: {
               _L$4: {
-                const _bind = voice.envelope;
-                if (_bind === undefined) {
+                const _bind$4 = voice.envelope;
+                if (_bind$4 === undefined) {
                   env_gain = Math.fround(1);
                 } else {
-                  const _Some = _bind;
+                  const _Some = _bind$4;
                   const _env = _Some;
                   env = _env;
                   break _L$4;
@@ -3600,7 +3798,7 @@ function _M0FP26mizchi5audio4tick(mixer, frames, output) {
                 break _L$3;
               }
               const g = _M0FP26mizchi5audio14envelope__tick(env);
-              if (_M0IP26mizchi5audio13EnvelopePhaseP311moonbitlang4core7builtin2Eq5equal(env.phase, 4)) {
+              if (_M0IP26mizchi5audio13EnvelopePhasePB2Eq5equal(env.phase, 4)) {
                 voice.state = 2;
                 break;
               }
@@ -3629,19 +3827,19 @@ function _M0FP26mizchi5audio4tick(mixer, frames, output) {
         }
         break _L;
       }
-      _tmp = _i + 1 | 0;
+      _tmp = _ + 1 | 0;
       continue;
     } else {
       break;
     }
   }
   if (Math.fround(mixer.master_gain !== Math.fround(1))) {
-    const _start295 = 0;
-    const _end296 = Math.imul(frames, 2) | 0;
-    let _tmp$2 = _start295;
+    const _bind$3 = 0;
+    const _bind$4 = Math.imul(frames, 2) | 0;
+    let _tmp$2 = _bind$3;
     while (true) {
       const i = _tmp$2;
-      if (i < _end296) {
+      if (i < _bind$4) {
         $bound_check(output, i);
         $bound_check(output, i);
         output[i] = Math.fround(output[i] * mixer.master_gain);
@@ -3656,19 +3854,19 @@ function _M0FP26mizchi5audio4tick(mixer, frames, output) {
   }
 }
 function _M0FP26mizchi5audio16collect__stopped(mixer) {
-  mixer.voices = _M0MP311moonbitlang4core5array5Array6filterGRP26mizchi5audio5VoiceE(mixer.voices, (v) => _M0IP016_24default__implP311moonbitlang4core7builtin2Eq10not__equalGRP26mizchi5audio10VoiceStateE(v.state, 2));
+  mixer.voices = _M0MPC15array5Array6filterGRP26mizchi5audio5VoiceE(mixer.voices, (v) => _M0IP016_24default__implPB2Eq10not__equalGRP26mizchi5audio10VoiceStateE(v.state, 2));
 }
 function _M0FP36mizchi6kagura5audio22default__audio__format() {
-  return { sample_rate: 44100, channels: 2, bits_per_sample: 16 };
+  return new _M0TP36mizchi6kagura5audio11AudioFormat(44100, 2, 16);
 }
 function _M0MP36mizchi6kagura5audio17MixerAudioContext15find__voice__id(self, id) {
-  const _arr = self.player_map;
-  const _len = _arr.length;
+  const _bind = self.player_map;
+  const _bind$2 = _bind.length;
   let _tmp = 0;
   while (true) {
-    const _i = _tmp;
-    if (_i < _len) {
-      const pair = _arr[_i];
+    const _ = _tmp;
+    if (_ < _bind$2) {
+      const pair = _bind[_];
       let pid;
       let vid;
       _L: {
@@ -3681,7 +3879,7 @@ function _M0MP36mizchi6kagura5audio17MixerAudioContext15find__voice__id(self, id
       if (pid.value === id.value) {
         return vid;
       }
-      _tmp = _i + 1 | 0;
+      _tmp = _ + 1 | 0;
       continue;
     } else {
       break;
@@ -3694,7 +3892,7 @@ function _M0IP36mizchi6kagura5audio17MixerAudioContextP36mizchi6kagura5audio12Au
   _L: {
     const _bind = _M0MP36mizchi6kagura5audio17MixerAudioContext15find__voice__id(self, id);
     if (_bind === undefined) {
-      return new Result$Ok$2$(undefined);
+      return new _M0DTPC16result6ResultGuRPC15error5ErrorE2Ok(undefined);
     } else {
       const _Some = _bind;
       const _vid = _Some;
@@ -3703,7 +3901,7 @@ function _M0IP36mizchi6kagura5audio17MixerAudioContextP36mizchi6kagura5audio12Au
     }
   }
   _M0FP26mizchi5audio11stop__voice(self.mixer, vid);
-  return new Result$Ok$2$(undefined);
+  return new _M0DTPC16result6ResultGuRPC15error5ErrorE2Ok(undefined);
 }
 function _M0IP36mizchi6kagura5audio17MixerAudioContextP36mizchi6kagura5audio12AudioContext11set__volume(self, id, volume) {
   let vid;
@@ -3747,7 +3945,7 @@ function _M0IP36mizchi6kagura5audio17MixerAudioContextP36mizchi6kagura5audio12Au
     }
   }
   _M0FP26mizchi5audio11stop__voice(self.mixer, vid);
-  self.player_map = _M0MP311moonbitlang4core5array5Array6filterGURP36mizchi6kagura5audio8PlayerIdRP26mizchi5audio7VoiceIdEE(self.player_map, (pair) => {
+  self.player_map = _M0MPC15array5Array6filterGURP36mizchi6kagura5audio8PlayerIdRP26mizchi5audio7VoiceIdEE(self.player_map, (pair) => {
     let pid;
     _L$2: {
       const _pid = pair._0;
@@ -3759,13 +3957,13 @@ function _M0IP36mizchi6kagura5audio17MixerAudioContextP36mizchi6kagura5audio12Au
 }
 function _M0MP36mizchi6kagura5audio17MixerAudioContext6render(self, frames, output) {
   _M0FP26mizchi5audio4tick(self.mixer, frames, output);
-  const _arr = self.player_map;
-  const _len = _arr.length;
+  const _bind = self.player_map;
+  const _bind$2 = _bind.length;
   let _tmp = 0;
   while (true) {
-    const _i = _tmp;
-    if (_i < _len) {
-      const pair = _arr[_i];
+    const _ = _tmp;
+    if (_ < _bind$2) {
+      const pair = _bind[_];
       let vid;
       _L: {
         const _vid = pair._1;
@@ -3775,21 +3973,21 @@ function _M0MP36mizchi6kagura5audio17MixerAudioContext6render(self, frames, outp
       let voice;
       _L$2: {
         _L$3: {
-          const _bind = _M0FP26mizchi5audio11find__voice(self.mixer, vid);
-          if (_bind === undefined) {
+          const _bind$3 = _M0FP26mizchi5audio11find__voice(self.mixer, vid);
+          if (_bind$3 === undefined) {
           } else {
-            const _Some = _bind;
+            const _Some = _bind$3;
             const _voice = _Some;
             voice = _voice;
             break _L$3;
           }
           break _L$2;
         }
-        if (_M0IP26mizchi5audio10VoiceStateP311moonbitlang4core7builtin2Eq5equal(voice.state, 2)) {
+        if (_M0IP26mizchi5audio10VoiceStatePB2Eq5equal(voice.state, 2)) {
           voice.state = 1;
         }
       }
-      _tmp = _i + 1 | 0;
+      _tmp = _ + 1 | 0;
       continue;
     } else {
       break;
@@ -3899,10 +4097,10 @@ function _M0FP36mizchi6kagura5audio31default__audio__output__latency() {
   return 0;
 }
 function _M0FP36mizchi6kagura5audio25new__audio__output__hooks(try_initialize, write_frames, suspend, resume_playback, close) {
-  return { try_initialize: try_initialize, write_frames: write_frames, suspend: suspend, resume_playback: resume_playback, close: close, output_latency: _M0FP36mizchi6kagura5audio31default__audio__output__latency };
+  return new _M0TP36mizchi6kagura5audio16AudioOutputHooks(try_initialize, write_frames, suspend, resume_playback, close, _M0FP36mizchi6kagura5audio31default__audio__output__latency);
 }
 function _M0FP36mizchi6kagura5audio31new__audio__output__hooks__full(try_initialize, write_frames, suspend, resume_playback, close, output_latency) {
-  return { try_initialize: try_initialize, write_frames: write_frames, suspend: suspend, resume_playback: resume_playback, close: close, output_latency: output_latency };
+  return new _M0TP36mizchi6kagura5audio16AudioOutputHooks(try_initialize, write_frames, suspend, resume_playback, close, output_latency);
 }
 function _M0FP36mizchi6kagura5audio31default__audio__try__initialize(_format) {
   return false;
@@ -3965,21 +4163,20 @@ function _M0FP36mizchi6kagura9debugutil16render__commandsGRP36mizchi6kagura3gfx1
   } else {
     return _bind;
   }
-  const _arr = cmds;
-  const _len = _arr.length;
+  const _bind$2 = cmds.length;
   let _tmp = 0;
   while (true) {
-    const _i = _tmp;
-    if (_i < _len) {
-      const cmd = _arr[_i];
-      const _bind$2 = _M0IP36mizchi6kagura3gfx18StubGraphicsDriverP36mizchi6kagura3gfx14GraphicsDriver15draw__triangles(graphics, cmd);
-      if (_bind$2.$tag === 1) {
-        const _ok = _bind$2;
+    const _ = _tmp;
+    if (_ < _bind$2) {
+      const cmd = cmds[_];
+      const _bind$3 = _M0IP36mizchi6kagura3gfx18StubGraphicsDriverP36mizchi6kagura3gfx14GraphicsDriver15draw__triangles(graphics, cmd);
+      if (_bind$3.$tag === 1) {
+        const _ok = _bind$3;
         _ok._0;
       } else {
-        return _bind$2;
+        return _bind$3;
       }
-      _tmp = _i + 1 | 0;
+      _tmp = _ + 1 | 0;
       continue;
     } else {
       break;
@@ -4055,7 +4252,7 @@ function _M0FP36mizchi6kagura6engine11run_2einner(update, draw, on_frame, after_
       break _L$2;
     }
     const e = _try_err$2;
-    _M0FP311moonbitlang4core7builtin7printlnGsE(`[engine] platform.initialize failed: ${_M0IP016_24default__implP311moonbitlang4core7builtin4Show10to__stringGRP311moonbitlang4core5error5ErrorE(e)}`);
+    _M0FPB7printlnGsE(`[engine] platform.initialize failed: ${_M0IP016_24default__implPB4Show10to__stringGRPC15error5ErrorE(e)}`);
   }
   let _try_err$3;
   _L$3: {
@@ -4072,7 +4269,7 @@ function _M0FP36mizchi6kagura6engine11run_2einner(update, draw, on_frame, after_
       break _L$3;
     }
     const e = _try_err$3;
-    _M0FP311moonbitlang4core7builtin7printlnGsE(`[engine] graphics.initialize failed: ${_M0IP016_24default__implP311moonbitlang4core7builtin4Show10to__stringGRP311moonbitlang4core5error5ErrorE(e)}`);
+    _M0FPB7printlnGsE(`[engine] graphics.initialize failed: ${_M0IP016_24default__implPB4Show10to__stringGRPC15error5ErrorE(e)}`);
   }
   const shader_source = _M0FP36mizchi6kagura3gfx32default__builtin__shader__source();
   let dst;
@@ -4091,7 +4288,7 @@ function _M0FP36mizchi6kagura6engine11run_2einner(update, draw, on_frame, after_
       break _L$4;
     }
     const e = _try_err$4;
-    _M0FP311moonbitlang4core7builtin7printlnGsE(`[engine] graphics.new_image failed: ${_M0IP016_24default__implP311moonbitlang4core7builtin4Show10to__stringGRP311moonbitlang4core5error5ErrorE(e)}`);
+    _M0FPB7printlnGsE(`[engine] graphics.new_image failed: ${_M0IP016_24default__implPB4Show10to__stringGRPC15error5ErrorE(e)}`);
     dst = _M0FP36mizchi6kagura3gfx18new__image__handle(1, width, height);
   }
   let shader;
@@ -4110,23 +4307,23 @@ function _M0FP36mizchi6kagura6engine11run_2einner(update, draw, on_frame, after_
       break _L$5;
     }
     const e = _try_err$5;
-    _M0FP311moonbitlang4core7builtin7printlnGsE(`[engine] graphics.new_shader failed: ${_M0IP016_24default__implP311moonbitlang4core7builtin4Show10to__stringGRP311moonbitlang4core5error5ErrorE(e)}`);
+    _M0FPB7printlnGsE(`[engine] graphics.new_shader failed: ${_M0IP016_24default__implPB4Show10to__stringGRPC15error5ErrorE(e)}`);
     shader = _M0FP36mizchi6kagura3gfx19new__shader__handle(1, shader_source);
   }
-  const ctx = { dst: dst, shader: shader, screen_w: width, screen_h: height };
-  const tick = _M0MP311moonbitlang4core3ref3Ref3newGiE(0);
+  const ctx = new _M0TP36mizchi6kagura6engine13EngineContext(dst, shader, width, height);
+  const tick = _M0MPC13ref3Ref3newGiE(0);
   if (audio_ctx === undefined) {
   } else {
     _M0FP36mizchi6kagura5audio22audio__try__initialize(_M0FP36mizchi6kagura5audio22default__audio__format());
   }
   const audio_tick_ms = (audio_frames_per_tick + 0) / 44100 * 1000;
-  const audio_accum = _M0MP311moonbitlang4core3ref3Ref3newGdE(0);
-  const prev_time = _M0MP311moonbitlang4core3ref3Ref3newGdE(_M0FP36mizchi6kagura6engine20js__performance__now());
+  const audio_accum = _M0MPC13ref3Ref3newGdE(0);
+  const prev_time = _M0MPC13ref3Ref3newGdE(_M0FP36mizchi6kagura6engine20js__performance__now());
   const frame = () => {
     _M0IP36mizchi6kagura8platform17WebCanvasPlatformP36mizchi6kagura8platform14PlatformDriver12poll__events(platform);
     const outside = _M0IP36mizchi6kagura8platform17WebCanvasPlatformP36mizchi6kagura8platform14PlatformDriver13outside__size(platform);
-    const new_w = _M0MP311moonbitlang4core6double6Double7to__int(outside.width);
-    const new_h = _M0MP311moonbitlang4core6double6Double7to__int(outside.height);
+    const new_w = _M0MPC16double6Double7to__int(outside.width);
+    const new_h = _M0MPC16double6Double7to__int(outside.height);
     if (new_w > 0 && (new_h > 0 && (new_w !== ctx.screen_w || new_h !== ctx.screen_h))) {
       let _try_err$6;
       _L$6: {
@@ -4143,7 +4340,7 @@ function _M0FP36mizchi6kagura6engine11run_2einner(update, draw, on_frame, after_
           break _L$6;
         }
         const e = _try_err$6;
-        _M0FP311moonbitlang4core7builtin7printlnGsE(`[engine] graphics.resize failed: ${_M0IP016_24default__implP311moonbitlang4core7builtin4Show10to__stringGRP311moonbitlang4core5error5ErrorE(e)}`);
+        _M0FPB7printlnGsE(`[engine] graphics.resize failed: ${_M0IP016_24default__implPB4Show10to__stringGRPC15error5ErrorE(e)}`);
       }
       ctx.screen_w = new_w;
       ctx.screen_h = new_h;
@@ -4163,7 +4360,7 @@ function _M0FP36mizchi6kagura6engine11run_2einner(update, draw, on_frame, after_
           break _L$7;
         }
         const e = _try_err$7;
-        _M0FP311moonbitlang4core7builtin7printlnGsE(`[engine] graphics.new_image (resize) failed: ${_M0IP016_24default__implP311moonbitlang4core7builtin4Show10to__stringGRP311moonbitlang4core5error5ErrorE(e)}`);
+        _M0FPB7printlnGsE(`[engine] graphics.new_image (resize) failed: ${_M0IP016_24default__implPB4Show10to__stringGRPC15error5ErrorE(e)}`);
         _tmp = _M0FP36mizchi6kagura3gfx18new__image__handle(ctx.dst.id, new_w, new_h);
       }
       ctx.dst = _tmp;
@@ -4204,7 +4401,7 @@ function _M0FP36mizchi6kagura6engine11run_2einner(update, draw, on_frame, after_
         break _L$7;
       }
       const e = _try_err$6;
-      _M0FP311moonbitlang4core7builtin7printlnGsE(`[engine] render_commands failed: ${_M0IP016_24default__implP311moonbitlang4core7builtin4Show10to__stringGRP311moonbitlang4core5error5ErrorE(e)}`);
+      _M0FPB7printlnGsE(`[engine] render_commands failed: ${_M0IP016_24default__implPB4Show10to__stringGRPC15error5ErrorE(e)}`);
     }
     const render_end = _M0FP36mizchi6kagura6engine20js__performance__now();
     let f$2;
@@ -4260,13 +4457,13 @@ function _M0FP36mizchi6kagura6engine21set__lifecycle__hooks(hooks) {
   _M0FP36mizchi6kagura6engine16lifecycle__hooks.val = hooks;
 }
 function _M0MP36mizchi6kagura10particle3d15ParticleEmitter3new(config) {
-  return { config: config, particles: [], spawn_accumulator: 0, frame_count: 0 };
+  return new _M0TP36mizchi6kagura10particle3d15ParticleEmitter(config, [], 0, 0);
 }
 function _M0MP36mizchi6kagura10particle3d15ParticleEmitter15particle__count(self) {
   return self.particles.length;
 }
 function _M0FP36mizchi6kagura10particle3d9hash__u32(seed) {
-  const h = { val: seed };
+  const h = new _M0TPC13ref3RefGiE(seed);
   h.val = h.val ^ (h.val >>> 16 | 0);
   h.val = Math.imul(h.val, 73244475) | 0;
   h.val = h.val ^ (h.val >>> 16 | 0);
@@ -4284,17 +4481,17 @@ function _M0FP36mizchi6kagura10particle3d10hash__lerp(seed, min, max) {
 function _M0MP36mizchi6kagura10particle3d15ParticleEmitter6update(self, dt) {
   self.frame_count = self.frame_count + 1 | 0;
   const gravity = self.config.gravity;
-  const i = { val: 0 };
+  const i = new _M0TPC13ref3RefGiE(0);
   while (true) {
     if (i.val < self.particles.length) {
-      const p = _M0MP311moonbitlang4core5array5Array2atGRP36mizchi6kagura10particle3d8ParticleE(self.particles, i.val);
+      const p = _M0MPC15array5Array2atGRP36mizchi6kagura10particle3d8ParticleE(self.particles, i.val);
       p.age = p.age + dt;
       if (p.age >= p.max_age) {
         const last = self.particles.length - 1 | 0;
         if (i.val < last) {
-          _M0MP311moonbitlang4core5array5Array3setGRP36mizchi6kagura10particle3d8ParticleE(self.particles, i.val, _M0MP311moonbitlang4core5array5Array2atGRP36mizchi6kagura10particle3d8ParticleE(self.particles, last));
+          _M0MPC15array5Array3setGRP36mizchi6kagura10particle3d8ParticleE(self.particles, i.val, _M0MPC15array5Array2atGRP36mizchi6kagura10particle3d8ParticleE(self.particles, last));
         }
-        _M0MP311moonbitlang4core5array5Array3popGRP36mizchi6kagura10particle3d8ParticleE(self.particles);
+        _M0MPC15array5Array3popGRP36mizchi6kagura10particle3d8ParticleE(self.particles);
       } else {
         p.velocity = _M0MP36mizchi6kagura6math3d4Vec33add(p.velocity, _M0MP36mizchi6kagura6math3d4Vec35scale(gravity, dt));
         p.position = _M0MP36mizchi6kagura6math3d4Vec33add(p.position, _M0MP36mizchi6kagura6math3d4Vec35scale(p.velocity, dt));
@@ -4306,7 +4503,7 @@ function _M0MP36mizchi6kagura10particle3d15ParticleEmitter6update(self, dt) {
     }
   }
   self.spawn_accumulator = self.spawn_accumulator + self.config.spawn_rate * dt;
-  const to_spawn = _M0MP311moonbitlang4core6double6Double7to__int(self.spawn_accumulator);
+  const to_spawn = _M0MPC16double6Double7to__int(self.spawn_accumulator);
   self.spawn_accumulator = self.spawn_accumulator - (to_spawn + 0);
   const available = self.config.max_particles - self.particles.length | 0;
   const actual_spawn = to_spawn < available ? to_spawn : available;
@@ -4320,7 +4517,7 @@ function _M0MP36mizchi6kagura10particle3d15ParticleEmitter6update(self, dt) {
       const vz = _M0FP36mizchi6kagura10particle3d10hash__lerp(seed_base + 2 | 0, self.config.initial_velocity_min.z, self.config.initial_velocity_max.z);
       const lifetime = _M0FP36mizchi6kagura10particle3d10hash__lerp(seed_base + 3 | 0, self.config.lifetime_min, self.config.lifetime_max);
       const size = _M0FP36mizchi6kagura10particle3d10hash__lerp(seed_base + 4 | 0, self.config.size_min, self.config.size_max);
-      _M0MP311moonbitlang4core5array5Array4pushGRP36mizchi6kagura10particle3d8ParticleE(self.particles, { position: self.config.position, velocity: _M0MP36mizchi6kagura6math3d4Vec33new(vx, vy, vz), age: 0, max_age: lifetime, color: self.config.color_start, size: size });
+      _M0MPC15array5Array4pushGRP36mizchi6kagura10particle3d15ParticleEmitterE(self.particles, new _M0TP36mizchi6kagura10particle3d8Particle(self.config.position, _M0MP36mizchi6kagura6math3d4Vec33new(vx, vy, vz), 0, lifetime, self.config.color_start, size));
       _tmp = j + 1 | 0;
       continue;
     } else {
@@ -4339,7 +4536,7 @@ function _M0MP36mizchi6kagura10particle3d15ParticleEmitter27append__billboard__v
   while (true) {
     const i = _tmp;
     if (i < self.particles.length) {
-      const p = _M0MP311moonbitlang4core5array5Array2atGRP36mizchi6kagura10particle3d8ParticleE(self.particles, i);
+      const p = _M0MPC15array5Array2atGRP36mizchi6kagura10particle3d8ParticleE(self.particles, i);
       const t = p.max_age > 0 ? p.age / p.max_age : 1;
       const r = cs.x + (ce.x - cs.x) * t;
       const g = cs.y + (ce.y - cs.y) * t;
@@ -4354,27 +4551,27 @@ function _M0MP36mizchi6kagura10particle3d15ParticleEmitter27append__billboard__v
       while (true) {
         const c = _tmp$2;
         if (c < 4) {
-          const pos = _M0MP311moonbitlang4core5array5Array2atGRP36mizchi6kagura6math3d4Vec3E(corners, c);
-          _M0MP311moonbitlang4core5array5Array4pushGdE(vertex_data, pos.x);
-          _M0MP311moonbitlang4core5array5Array4pushGdE(vertex_data, pos.y);
-          _M0MP311moonbitlang4core5array5Array4pushGdE(vertex_data, pos.z);
-          _M0MP311moonbitlang4core5array5Array4pushGdE(vertex_data, r);
-          _M0MP311moonbitlang4core5array5Array4pushGdE(vertex_data, g);
-          _M0MP311moonbitlang4core5array5Array4pushGdE(vertex_data, b);
-          _M0MP311moonbitlang4core5array5Array4pushGdE(vertex_data, a);
-          _M0MP311moonbitlang4core5array5Array4pushGdE(vertex_data, 0);
+          const pos = _M0MPC15array5Array2atGRP36mizchi6kagura10particle3d8ParticleE(corners, c);
+          _M0MPC15array5Array4pushGdE(vertex_data, pos.x);
+          _M0MPC15array5Array4pushGdE(vertex_data, pos.y);
+          _M0MPC15array5Array4pushGdE(vertex_data, pos.z);
+          _M0MPC15array5Array4pushGdE(vertex_data, r);
+          _M0MPC15array5Array4pushGdE(vertex_data, g);
+          _M0MPC15array5Array4pushGdE(vertex_data, b);
+          _M0MPC15array5Array4pushGdE(vertex_data, a);
+          _M0MPC15array5Array4pushGdE(vertex_data, 0);
           _tmp$2 = c + 1 | 0;
           continue;
         } else {
           break;
         }
       }
-      _M0MP311moonbitlang4core5array5Array4pushGiE(indices, base_idx);
-      _M0MP311moonbitlang4core5array5Array4pushGiE(indices, base_idx + 1 | 0);
-      _M0MP311moonbitlang4core5array5Array4pushGiE(indices, base_idx + 2 | 0);
-      _M0MP311moonbitlang4core5array5Array4pushGiE(indices, base_idx);
-      _M0MP311moonbitlang4core5array5Array4pushGiE(indices, base_idx + 2 | 0);
-      _M0MP311moonbitlang4core5array5Array4pushGiE(indices, base_idx + 3 | 0);
+      _M0MPC15array5Array4pushGiE(indices, base_idx);
+      _M0MPC15array5Array4pushGiE(indices, base_idx + 1 | 0);
+      _M0MPC15array5Array4pushGiE(indices, base_idx + 2 | 0);
+      _M0MPC15array5Array4pushGiE(indices, base_idx);
+      _M0MPC15array5Array4pushGiE(indices, base_idx + 2 | 0);
+      _M0MPC15array5Array4pushGiE(indices, base_idx + 3 | 0);
       _tmp = i + 1 | 0;
       continue;
     } else {
@@ -4389,13 +4586,13 @@ function _M0MP36mizchi6kagura10particle3d15ParticleEmitter26build__billboard__ve
   return { _0: vertex_data, _1: indices };
 }
 function _M0FP36mizchi6kagura4text22new__font__load__hooks(load_font_data) {
-  return { load_font_data: load_font_data };
+  return new _M0TP36mizchi6kagura4text13FontLoadHooks(load_font_data);
 }
 function _M0FP36mizchi6kagura4text25default__load__font__data(_name) {
-  return Option$None$3$;
+  return _M0DTPC16option6OptionGRPB5ArrayGiEE4None__;
 }
 function _M0FP36mizchi6kagura4text26default__font__load__hooks() {
-  return { load_font_data: _M0FP36mizchi6kagura4text25default__load__font__data };
+  return new _M0TP36mizchi6kagura4text13FontLoadHooks(_M0FP36mizchi6kagura4text25default__load__font__data);
 }
 function _M0FP36mizchi6kagura4text22set__font__load__hooks(hooks) {
   _M0FP36mizchi6kagura4text17font__load__hooks.val = hooks;
@@ -4410,18 +4607,18 @@ function _M0FP26mizchi19web__runtime__hooks34clear__synced__source__generations(
   _M0FP26mizchi19web__runtime__hooks27synced__source__generations.val = [];
 }
 function _M0FP26mizchi19web__runtime__hooks31source__image__cache__entry__at(image_id) {
-  const out = { val: undefined };
-  const _arr = _M0FP26mizchi19web__runtime__hooks20source__image__cache.val;
-  const _len = _arr.length;
+  const out = new _M0TPC13ref3RefGORP26mizchi19web__runtime__hooks21SourceImageCacheEntryE(undefined);
+  const _bind = _M0FP26mizchi19web__runtime__hooks20source__image__cache.val;
+  const _bind$2 = _bind.length;
   let _tmp = 0;
   while (true) {
-    const _i = _tmp;
-    if (_i < _len) {
-      const entry = _arr[_i];
+    const _ = _tmp;
+    if (_ < _bind$2) {
+      const entry = _bind[_];
       if (entry.image_id === image_id) {
         out.val = entry;
       }
-      _tmp = _i + 1 | 0;
+      _tmp = _ + 1 | 0;
       continue;
     } else {
       break;
@@ -4447,18 +4644,16 @@ function _M0FP26mizchi19web__runtime__hooks30bridge__audio__try__initialize(form
 function _M0FP26mizchi19web__runtime__hooks28bridge__audio__write__frames(output, frames) {
   const channels = 2;
   const write_pos = _M0FP26mizchi19web__runtime__hooks26js__audio__get__write__pos();
-  const _start102 = 0;
-  const _end103 = frames;
-  let _tmp = _start102;
+  const _bind = 0;
+  let _tmp = _bind;
   while (true) {
     const i = _tmp;
-    if (i < _end103) {
-      const _start107 = 0;
-      const _end108 = channels;
-      let _tmp$2 = _start107;
+    if (i < frames) {
+      const _bind$2 = 0;
+      let _tmp$2 = _bind$2;
       while (true) {
         const ch = _tmp$2;
-        if (ch < _end108) {
+        if (ch < channels) {
           const idx = (Math.imul(i, channels) | 0) + ch | 0;
           let value;
           if (idx < output.length) {
@@ -4487,36 +4682,34 @@ function _M0FP26mizchi19web__runtime__hooks28bridge__audio__write__frames(output
 function _M0FP26mizchi19web__runtime__hooks24bridge__load__font__data(name) {
   const size = _M0FP26mizchi19web__runtime__hooks20js__load__font__data(name);
   if (size <= 0) {
-    return Option$None$3$;
+    return _M0DTPC16option6OptionGRPB5ArrayGiEE4None__;
   }
-  const data = _M0MP311moonbitlang4core5array5Array4makeGiE(size, 0);
-  const _start125 = 0;
-  const _end126 = size;
-  let _tmp = _start125;
+  const data = _M0MPC15array5Array4makeGiE(size, 0);
+  const _bind = 0;
+  let _tmp = _bind;
   while (true) {
     const i = _tmp;
-    if (i < _end126) {
-      _M0MP311moonbitlang4core5array5Array3setGiE(data, i, _M0FP26mizchi19web__runtime__hooks26js__load__font__data__byte(i));
+    if (i < size) {
+      _M0MPC15array5Array3setGiE(data, i, _M0FP26mizchi19web__runtime__hooks26js__load__font__data__byte(i));
       _tmp = i + 1 | 0;
       continue;
     } else {
       break;
     }
   }
-  return new Option$Some$3$(data);
+  return new _M0DTPC16option6OptionGRPB5ArrayGiEE4Some(data);
 }
 function _M0FP26mizchi19web__runtime__hooks27bridge__web__capture__input(active, _tick) {
   if (active) {
     _M0FP26mizchi19web__runtime__hooks25js__ensure__window__state(_M0FP26mizchi19web__runtime__hooks21web__canvas__selector.val);
     const pressed_keys = [];
     const key_count = _M0FP26mizchi19web__runtime__hooks30js__input__pressed__key__count();
-    const _start164 = 0;
-    const _end165 = key_count;
-    let _tmp = _start164;
+    const _bind = 0;
+    let _tmp = _bind;
     while (true) {
       const i = _tmp;
-      if (i < _end165) {
-        _M0MP311moonbitlang4core5array5Array4pushGiE(pressed_keys, _M0FP26mizchi19web__runtime__hooks27js__input__pressed__key__at(i));
+      if (i < key_count) {
+        _M0MPC15array5Array4pushGiE(pressed_keys, _M0FP26mizchi19web__runtime__hooks27js__input__pressed__key__at(i));
         _tmp = i + 1 | 0;
         continue;
       } else {
@@ -4525,15 +4718,14 @@ function _M0FP26mizchi19web__runtime__hooks27bridge__web__capture__input(active,
     }
     const pressed_mouse_buttons = [];
     const mouse_button_count = _M0FP26mizchi19web__runtime__hooks40js__input__pressed__mouse__button__count();
-    const _start171 = 0;
-    const _end172 = mouse_button_count;
-    let _tmp$2 = _start171;
+    const _bind$2 = 0;
+    let _tmp$2 = _bind$2;
     while (true) {
       const i = _tmp$2;
-      if (i < _end172) {
+      if (i < mouse_button_count) {
         const button = _M0FP26mizchi19web__runtime__hooks37js__input__pressed__mouse__button__at(i);
         if (button >= 0) {
-          _M0MP311moonbitlang4core5array5Array4pushGiE(pressed_mouse_buttons, button);
+          _M0MPC15array5Array4pushGiE(pressed_mouse_buttons, button);
         }
         _tmp$2 = i + 1 | 0;
         continue;
@@ -4543,13 +4735,12 @@ function _M0FP26mizchi19web__runtime__hooks27bridge__web__capture__input(active,
     }
     const touches = [];
     const touch_count = _M0FP26mizchi19web__runtime__hooks23js__input__touch__count();
-    const _start179 = 0;
-    const _end180 = touch_count;
-    let _tmp$3 = _start179;
+    const _bind$3 = 0;
+    let _tmp$3 = _bind$3;
     while (true) {
       const i = _tmp$3;
-      if (i < _end180) {
-        _M0MP311moonbitlang4core5array5Array4pushGRP36mizchi6kagura4core10TouchPointE(touches, _M0FP36mizchi6kagura4core17new__touch__point(_M0FP26mizchi19web__runtime__hooks24js__input__touch__id__at(i), _M0FP26mizchi19web__runtime__hooks23js__input__touch__x__at(i), _M0FP26mizchi19web__runtime__hooks23js__input__touch__y__at(i)));
+      if (i < touch_count) {
+        _M0MPC15array5Array4pushGRP36mizchi6kagura10particle3d15ParticleEmitterE(touches, _M0FP36mizchi6kagura4core17new__touch__point(_M0FP26mizchi19web__runtime__hooks24js__input__touch__id__at(i), _M0FP26mizchi19web__runtime__hooks23js__input__touch__x__at(i), _M0FP26mizchi19web__runtime__hooks23js__input__touch__y__at(i)));
         _tmp$3 = i + 1 | 0;
         continue;
       } else {
@@ -4558,21 +4749,19 @@ function _M0FP26mizchi19web__runtime__hooks27bridge__web__capture__input(active,
     }
     const gamepads = [];
     const gamepad_count = _M0FP26mizchi19web__runtime__hooks25js__input__gamepad__count();
-    const _start186 = 0;
-    const _end187 = gamepad_count;
-    let _tmp$4 = _start186;
+    const _bind$4 = 0;
+    let _tmp$4 = _bind$4;
     while (true) {
       const i = _tmp$4;
-      if (i < _end187) {
+      if (i < gamepad_count) {
         const axes = [];
         const axis_count = _M0FP26mizchi19web__runtime__hooks31js__input__gamepad__axis__count(i);
-        const _start193 = 0;
-        const _end194 = axis_count;
-        let _tmp$5 = _start193;
+        const _bind$5 = 0;
+        let _tmp$5 = _bind$5;
         while (true) {
           const j = _tmp$5;
-          if (j < _end194) {
-            _M0MP311moonbitlang4core5array5Array4pushGdE(axes, _M0FP26mizchi19web__runtime__hooks28js__input__gamepad__axis__at(i, j));
+          if (j < axis_count) {
+            _M0MPC15array5Array4pushGdE(axes, _M0FP26mizchi19web__runtime__hooks28js__input__gamepad__axis__at(i, j));
             _tmp$5 = j + 1 | 0;
             continue;
           } else {
@@ -4581,15 +4770,14 @@ function _M0FP26mizchi19web__runtime__hooks27bridge__web__capture__input(active,
         }
         const pressed_buttons = [];
         const button_count = _M0FP26mizchi19web__runtime__hooks42js__input__gamepad__pressed__button__count(i);
-        const _start200 = 0;
-        const _end201 = button_count;
-        let _tmp$6 = _start200;
+        const _bind$6 = 0;
+        let _tmp$6 = _bind$6;
         while (true) {
           const j = _tmp$6;
-          if (j < _end201) {
+          if (j < button_count) {
             const button_id = _M0FP26mizchi19web__runtime__hooks39js__input__gamepad__pressed__button__at(i, j);
             if (button_id >= 0) {
-              _M0MP311moonbitlang4core5array5Array4pushGiE(pressed_buttons, button_id);
+              _M0MPC15array5Array4pushGiE(pressed_buttons, button_id);
             }
             _tmp$6 = j + 1 | 0;
             continue;
@@ -4597,7 +4785,7 @@ function _M0FP26mizchi19web__runtime__hooks27bridge__web__capture__input(active,
             break;
           }
         }
-        _M0MP311moonbitlang4core5array5Array4pushGRP36mizchi6kagura4core15GamepadSnapshotE(gamepads, _M0FP36mizchi6kagura4core22new__gamepad__snapshot(_M0FP26mizchi19web__runtime__hooks26js__input__gamepad__id__at(i), axes, pressed_buttons));
+        _M0MPC15array5Array4pushGRP36mizchi6kagura10particle3d15ParticleEmitterE(gamepads, _M0FP36mizchi6kagura4core22new__gamepad__snapshot(_M0FP26mizchi19web__runtime__hooks26js__input__gamepad__id__at(i), axes, pressed_buttons));
         _tmp$4 = i + 1 | 0;
         continue;
       } else {
@@ -4651,20 +4839,19 @@ function _M0FP26mizchi19web__runtime__hooks27bridge__web__gfx__on__begin(active,
   if (active) {
     _M0FP26mizchi19web__runtime__hooks17js__webgpu__begin(pass.clear_color.r, pass.clear_color.g, pass.clear_color.b, pass.clear_color.a);
     const dirty = _M0FP26mizchi19web__runtime__hooks19gpu__texture__dirty.val;
-    const _arr = dirty;
-    const _len = _arr.length;
+    const _bind = dirty.length;
     let _tmp = 0;
     while (true) {
-      const _i = _tmp;
-      if (_i < _len) {
-        const image_id = _arr[_i];
+      const _ = _tmp;
+      if (_ < _bind) {
+        const image_id = dirty[_];
         let entry;
         _L: {
           _L$2: {
-            const _bind = _M0FP26mizchi19web__runtime__hooks31source__image__cache__entry__at(image_id);
-            if (_bind === undefined) {
+            const _bind$2 = _M0FP26mizchi19web__runtime__hooks31source__image__cache__entry__at(image_id);
+            if (_bind$2 === undefined) {
             } else {
-              const _Some = _bind;
+              const _Some = _bind$2;
               const _entry = _Some;
               entry = _entry;
               break _L$2;
@@ -4682,7 +4869,7 @@ function _M0FP26mizchi19web__runtime__hooks27bridge__web__gfx__on__begin(active,
               const i = _tmp$2;
               if (i < pixel_count) {
                 const base = Math.imul(i, 4) | 0;
-                _M0FP26mizchi19web__runtime__hooks31js__gfx__upload__texture__pixel(i, _M0MP311moonbitlang4core5array5Array2atGiE(px, base), _M0MP311moonbitlang4core5array5Array2atGiE(px, base + 1 | 0), _M0MP311moonbitlang4core5array5Array2atGiE(px, base + 2 | 0), _M0MP311moonbitlang4core5array5Array2atGiE(px, base + 3 | 0));
+                _M0FP26mizchi19web__runtime__hooks31js__gfx__upload__texture__pixel(i, _M0MPC15array5Array2atGiE(px, base), _M0MPC15array5Array2atGiE(px, base + 1 | 0), _M0MPC15array5Array2atGiE(px, base + 2 | 0), _M0MPC15array5Array2atGiE(px, base + 3 | 0));
                 _tmp$2 = i + 1 | 0;
                 continue;
               } else {
@@ -4692,7 +4879,7 @@ function _M0FP26mizchi19web__runtime__hooks27bridge__web__gfx__on__begin(active,
             _M0FP26mizchi19web__runtime__hooks29js__gfx__upload__texture__end();
           }
         }
-        _tmp = _i + 1 | 0;
+        _tmp = _ + 1 | 0;
         continue;
       } else {
         break;
@@ -4708,7 +4895,7 @@ function _M0FP26mizchi19web__runtime__hooks26bridge__web__gfx__on__draw(active, 
   if (active) {
     const _tmp = command.shader.source;
     const _bind = "@vertex";
-    if (_M0MP311moonbitlang4core6string6String8contains(_tmp, { str: _bind, start: 0, end: _bind.length })) {
+    if (_M0MPC16string6String8contains(_tmp, new _M0TPC16string10StringView(_bind, 0, _bind.length))) {
       const vf_count = command.vertex_data.length;
       const ic = command.indices.length;
       const u_count = command.uniform_dwords.length;
@@ -4719,7 +4906,7 @@ function _M0FP26mizchi19web__runtime__hooks26bridge__web__gfx__on__draw(active, 
       while (true) {
         const i = _tmp$2;
         if (i < vf_count) {
-          _M0FP26mizchi19web__runtime__hooks36js__gfx__custom__draw__vertex__float(i, _M0MP311moonbitlang4core5array5Array2atGdE(command.vertex_data, i));
+          _M0FP26mizchi19web__runtime__hooks36js__gfx__custom__draw__vertex__float(i, _M0MPC15array5Array2atGdE(command.vertex_data, i));
           _tmp$2 = i + 1 | 0;
           continue;
         } else {
@@ -4730,7 +4917,7 @@ function _M0FP26mizchi19web__runtime__hooks26bridge__web__gfx__on__draw(active, 
       while (true) {
         const i = _tmp$3;
         if (i < ic) {
-          _M0FP26mizchi19web__runtime__hooks20js__gfx__draw__index(i, _M0MP311moonbitlang4core5array5Array2atGiE(command.indices, i));
+          _M0FP26mizchi19web__runtime__hooks20js__gfx__draw__index(i, _M0MPC15array5Array2atGiE(command.indices, i));
           _tmp$3 = i + 1 | 0;
           continue;
         } else {
@@ -4741,7 +4928,7 @@ function _M0FP26mizchi19web__runtime__hooks26bridge__web__gfx__on__draw(active, 
       while (true) {
         const i = _tmp$4;
         if (i < u_count) {
-          _M0FP26mizchi19web__runtime__hooks30js__gfx__custom__draw__uniform(i, _M0MP311moonbitlang4core5array5Array2atGiE(command.uniform_dwords, i));
+          _M0FP26mizchi19web__runtime__hooks30js__gfx__custom__draw__uniform(i, _M0MPC15array5Array2atGiE(command.uniform_dwords, i));
           _tmp$4 = i + 1 | 0;
           continue;
         } else {
@@ -4752,7 +4939,7 @@ function _M0FP26mizchi19web__runtime__hooks26bridge__web__gfx__on__draw(active, 
       while (true) {
         const i = _tmp$5;
         if (i < src_count) {
-          _M0FP26mizchi19web__runtime__hooks33js__gfx__custom__draw__src__image(i, _M0MP311moonbitlang4core5array5Array2atGiE(command.src_image_ids, i));
+          _M0FP26mizchi19web__runtime__hooks33js__gfx__custom__draw__src__image(i, _M0MPC15array5Array2atGiE(command.src_image_ids, i));
           _tmp$5 = i + 1 | 0;
           continue;
         } else {
@@ -4762,11 +4949,11 @@ function _M0FP26mizchi19web__runtime__hooks26bridge__web__gfx__on__draw(active, 
       _M0FP26mizchi19web__runtime__hooks18js__gfx__draw__end();
       return;
     } else {
-      const src_id = command.src_image_ids.length > 0 ? _M0MP311moonbitlang4core5array5Array2atGiE(command.src_image_ids, 0) : 0;
-      const ur = command.uniform_dwords.length > 0 ? _M0MP311moonbitlang4core5array5Array2atGiE(command.uniform_dwords, 0) : 255;
-      const ug = command.uniform_dwords.length > 1 ? _M0MP311moonbitlang4core5array5Array2atGiE(command.uniform_dwords, 1) : 255;
-      const ub = command.uniform_dwords.length > 2 ? _M0MP311moonbitlang4core5array5Array2atGiE(command.uniform_dwords, 2) : 255;
-      const ua = command.uniform_dwords.length > 3 ? _M0MP311moonbitlang4core5array5Array2atGiE(command.uniform_dwords, 3) : 255;
+      const src_id = command.src_image_ids.length > 0 ? _M0MPC15array5Array2atGiE(command.src_image_ids, 0) : 0;
+      const ur = command.uniform_dwords.length > 0 ? _M0MPC15array5Array2atGiE(command.uniform_dwords, 0) : 255;
+      const ug = command.uniform_dwords.length > 1 ? _M0MPC15array5Array2atGiE(command.uniform_dwords, 1) : 255;
+      const ub = command.uniform_dwords.length > 2 ? _M0MPC15array5Array2atGiE(command.uniform_dwords, 2) : 255;
+      const ua = command.uniform_dwords.length > 3 ? _M0MPC15array5Array2atGiE(command.uniform_dwords, 3) : 255;
       if (4 === 0) {
         $panic();
       }
@@ -4778,7 +4965,7 @@ function _M0FP26mizchi19web__runtime__hooks26bridge__web__gfx__on__draw(active, 
         const i = _tmp$2;
         if (i < vc) {
           const base = Math.imul(i, 4) | 0;
-          _M0FP26mizchi19web__runtime__hooks21js__gfx__draw__vertex(i, _M0MP311moonbitlang4core5array5Array2atGdE(command.vertex_data, base), _M0MP311moonbitlang4core5array5Array2atGdE(command.vertex_data, base + 1 | 0), _M0MP311moonbitlang4core5array5Array2atGdE(command.vertex_data, base + 2 | 0), _M0MP311moonbitlang4core5array5Array2atGdE(command.vertex_data, base + 3 | 0));
+          _M0FP26mizchi19web__runtime__hooks21js__gfx__draw__vertex(i, _M0MPC15array5Array2atGdE(command.vertex_data, base), _M0MPC15array5Array2atGdE(command.vertex_data, base + 1 | 0), _M0MPC15array5Array2atGdE(command.vertex_data, base + 2 | 0), _M0MPC15array5Array2atGdE(command.vertex_data, base + 3 | 0));
           _tmp$2 = i + 1 | 0;
           continue;
         } else {
@@ -4789,7 +4976,7 @@ function _M0FP26mizchi19web__runtime__hooks26bridge__web__gfx__on__draw(active, 
       while (true) {
         const i = _tmp$3;
         if (i < ic) {
-          _M0FP26mizchi19web__runtime__hooks20js__gfx__draw__index(i, _M0MP311moonbitlang4core5array5Array2atGiE(command.indices, i));
+          _M0FP26mizchi19web__runtime__hooks20js__gfx__draw__index(i, _M0MPC15array5Array2atGiE(command.indices, i));
           _tmp$3 = i + 1 | 0;
           continue;
         } else {
@@ -4900,7 +5087,7 @@ function _M0FP26mizchi19web__runtime__hooks26bridge__web__should__close() {
   return _M0FP26mizchi19web__runtime__hooks24js__should__close__state();
 }
 function _M0FP26mizchi19web__runtime__hooks28bridge__web__try__initialize(canvas_selector, options) {
-  if (!_M0FP26mizchi19web__runtime__hooks21web__hooks__installed.val || _M0IP016_24default__implP311moonbitlang4core7builtin2Eq10not__equalGsE(canvas_selector, _M0FP26mizchi19web__runtime__hooks21web__canvas__selector.val)) {
+  if (!_M0FP26mizchi19web__runtime__hooks21web__hooks__installed.val || _M0IP016_24default__implPB2Eq10not__equalGsE(canvas_selector, _M0FP26mizchi19web__runtime__hooks21web__canvas__selector.val)) {
     return false;
   } else {
     _M0FP26mizchi19web__runtime__hooks25js__ensure__window__state(canvas_selector);
@@ -4965,29 +5152,29 @@ function _M0MP26mizchi14particle__demo9DemoState4draw(self, ctx) {
   $bound_check(_tmp$10, 9);
   const cam_up = _M0MP36mizchi6kagura6math3d4Vec33new(_tmp$7, _tmp$9, _tmp$10[9]);
   const commands = [];
-  const _arr = self.emitters;
-  const _len = _arr.length;
+  const _bind = self.emitters;
+  const _bind$2 = _bind.length;
   let _tmp$11 = 0;
   while (true) {
-    const _i = _tmp$11;
-    if (_i < _len) {
-      const emitter = _arr[_i];
+    const _ = _tmp$11;
+    if (_ < _bind$2) {
+      const emitter = _bind[_];
       let vertex_data;
       let indices;
       _L: {
-        const _bind = _M0MP36mizchi6kagura10particle3d15ParticleEmitter26build__billboard__vertices(emitter, cam_right, cam_up);
-        const _vertex_data = _bind._0;
-        const _indices = _bind._1;
+        const _bind$3 = _M0MP36mizchi6kagura10particle3d15ParticleEmitter26build__billboard__vertices(emitter, cam_right, cam_up);
+        const _vertex_data = _bind$3._0;
+        const _indices = _bind$3._1;
         vertex_data = _vertex_data;
         indices = _indices;
         break _L;
       }
       if (indices.length > 0) {
         const region = _M0FP36mizchi6kagura3gfx16new__dst__region(0, 0, ctx.screen_w, ctx.screen_h, indices.length);
-        const cmd = _M0FP36mizchi6kagura6draw3d28new__particle__draw__command(ctx.dst, self.particle_shader, region, 0, 200, _M0MP311moonbitlang4core6double6Double7to__int(self.time), _M0FP36mizchi6kagura3gfx22blend__mode__from__int(2), vertex_data, indices, vp, []);
-        _M0MP311moonbitlang4core5array5Array4pushGRP36mizchi6kagura3gfx20DrawTrianglesCommandE(commands, cmd);
+        const cmd = _M0FP36mizchi6kagura6draw3d28new__particle__draw__command(ctx.dst, self.particle_shader, region, 0, 200, _M0MPC16double6Double7to__int(self.time), _M0FP36mizchi6kagura3gfx22blend__mode__from__int(2), vertex_data, indices, vp, []);
+        _M0MPC15array5Array4pushGRP36mizchi6kagura10particle3d15ParticleEmitterE(commands, cmd);
       }
-      _tmp$11 = _i + 1 | 0;
+      _tmp$11 = _ + 1 | 0;
       continue;
     } else {
       break;
@@ -5009,10 +5196,10 @@ function _M0MP26mizchi14particle__demo9DemoState3new() {
         $panic();
       }
       const radius = 2 + ((i % 3 | 0) + 0);
-      const x = _M0FP311moonbitlang4core4math3cos(angle) * radius;
-      const z = _M0FP311moonbitlang4core4math3sin(angle) * radius;
-      const config = { position: _M0MP36mizchi6kagura6math3d4Vec33new(x, 0, z), spawn_rate: 500, initial_velocity_min: _M0MP36mizchi6kagura6math3d4Vec33new(-0.5, 2, -0.5), initial_velocity_max: _M0MP36mizchi6kagura6math3d4Vec33new(0.5, 5, 0.5), lifetime_min: 0.5, lifetime_max: 2, size_min: 0.03, size_max: 0.15, color_start: _M0MP36mizchi6kagura6math3d4Vec43new(1, 0.9, 0.3, 1), color_end: _M0MP36mizchi6kagura6math3d4Vec43new(1, 0.1, 0, 0), gravity: _M0MP36mizchi6kagura6math3d4Vec33new(0, -3, 0), max_particles: 2048 };
-      _M0MP311moonbitlang4core5array5Array4pushGRP36mizchi6kagura10particle3d15ParticleEmitterE(emitters, _M0MP36mizchi6kagura10particle3d15ParticleEmitter3new(config));
+      const x = _M0FPC14math3cos(angle) * radius;
+      const z = _M0FPC14math3sin(angle) * radius;
+      const config = new _M0TP36mizchi6kagura10particle3d13EmitterConfig(_M0MP36mizchi6kagura6math3d4Vec33new(x, 0, z), 500, _M0MP36mizchi6kagura6math3d4Vec33new(-0.5, 2, -0.5), _M0MP36mizchi6kagura6math3d4Vec33new(0.5, 5, 0.5), 0.5, 2, 0.03, 0.15, _M0MP36mizchi6kagura6math3d4Vec43new(1, 0.9, 0.3, 1), _M0MP36mizchi6kagura6math3d4Vec43new(1, 0.1, 0, 0), _M0MP36mizchi6kagura6math3d4Vec33new(0, -3, 0), 2048);
+      _M0MPC15array5Array4pushGRP36mizchi6kagura10particle3d15ParticleEmitterE(emitters, _M0MP36mizchi6kagura10particle3d15ParticleEmitter3new(config));
       _tmp = i + 1 | 0;
       continue;
     } else {
@@ -5020,7 +5207,7 @@ function _M0MP26mizchi14particle__demo9DemoState3new() {
     }
   }
   const particle_shader = _M0FP36mizchi6kagura3gfx19new__shader__handle(20, _M0FP36mizchi6kagura6draw3d24shader3d__particle__wgsl());
-  return { camera: camera, emitters: emitters, particle_shader: particle_shader, time: 0, frame_count: 0, fps_timer: 0, last_fps: 0, prev_cursor_x: 0, prev_cursor_y: 0 };
+  return new _M0TP26mizchi14particle__demo9DemoState(camera, emitters, particle_shader, 0, 0, 0, 0, 0, 0);
 }
 function _M0MP26mizchi14particle__demo9DemoState6update(self, input) {
   const dt = 0.0166666666666666664;
@@ -5029,22 +5216,22 @@ function _M0MP26mizchi14particle__demo9DemoState6update(self, input) {
   self.fps_timer = self.fps_timer + dt;
   if (self.fps_timer >= 1) {
     self.last_fps = (self.frame_count + 0) / self.fps_timer;
-    const total_particles = { val: 0 };
-    const _arr = self.emitters;
-    const _len = _arr.length;
+    const total_particles = new _M0TPC13ref3RefGiE(0);
+    const _bind = self.emitters;
+    const _bind$2 = _bind.length;
     let _tmp = 0;
     while (true) {
-      const _i = _tmp;
-      if (_i < _len) {
-        const emitter = _arr[_i];
+      const _ = _tmp;
+      if (_ < _bind$2) {
+        const emitter = _bind[_];
         total_particles.val = total_particles.val + _M0MP36mizchi6kagura10particle3d15ParticleEmitter15particle__count(emitter) | 0;
-        _tmp = _i + 1 | 0;
+        _tmp = _ + 1 | 0;
         continue;
       } else {
         break;
       }
     }
-    _M0FP311moonbitlang4core7builtin7printlnGsE(`[particle_bench] fps=${_M0MP311moonbitlang4core3int3Int18to__string_2einner(_M0MP311moonbitlang4core6double6Double7to__int(self.last_fps), 10)} particles=${_M0MP311moonbitlang4core3int3Int18to__string_2einner(total_particles.val, 10)} emitters=${_M0MP311moonbitlang4core3int3Int18to__string_2einner(self.emitters.length, 10)}`);
+    _M0FPB7printlnGsE(`[particle_bench] fps=${_M0MPC13int3Int18to__string_2einner(_M0MPC16double6Double7to__int(self.last_fps), 10)} particles=${_M0MPC13int3Int18to__string_2einner(total_particles.val, 10)} emitters=${_M0MPC13int3Int18to__string_2einner(self.emitters.length, 10)}`);
     self.frame_count = 0;
     self.fps_timer = 0;
   }
@@ -5052,19 +5239,19 @@ function _M0MP26mizchi14particle__demo9DemoState6update(self, input) {
   const dy = input.cursor_y - self.prev_cursor_y;
   self.prev_cursor_x = input.cursor_x;
   self.prev_cursor_y = input.cursor_y;
-  const lmb = { val: false };
-  const _arr = input.pressed_mouse_buttons;
-  const _len = _arr.length;
+  const lmb = new _M0TPC13ref3RefGbE(false);
+  const _bind = input.pressed_mouse_buttons;
+  const _bind$2 = _bind.length;
   let _tmp = 0;
   while (true) {
-    const _i = _tmp;
-    if (_i < _len) {
-      const b = _arr[_i];
+    const _ = _tmp;
+    if (_ < _bind$2) {
+      const b = _bind[_];
       if (b === 0) {
         lmb.val = true;
         break;
       }
-      _tmp = _i + 1 | 0;
+      _tmp = _ + 1 | 0;
       continue;
     } else {
       break;
@@ -5076,15 +5263,15 @@ function _M0MP26mizchi14particle__demo9DemoState6update(self, input) {
   if (input.wheel_y !== 0) {
     self.camera = _M0MP36mizchi6kagura8camera3d11OrbitCamera4zoom(self.camera, input.wheel_y * 0.05);
   }
-  const _arr$2 = self.emitters;
-  const _len$2 = _arr$2.length;
+  const _bind$3 = self.emitters;
+  const _bind$4 = _bind$3.length;
   let _tmp$2 = 0;
   while (true) {
-    const _i = _tmp$2;
-    if (_i < _len$2) {
-      const emitter = _arr$2[_i];
+    const _ = _tmp$2;
+    if (_ < _bind$4) {
+      const emitter = _bind$3[_];
       _M0MP36mizchi6kagura10particle3d15ParticleEmitter6update(emitter, dt);
-      _tmp$2 = _i + 1 | 0;
+      _tmp$2 = _ + 1 | 0;
       continue;
     } else {
       return;

@@ -16,7 +16,7 @@ async function init() {
   installAudioHelpers();
   installGfxHelpers();
   try {
-    await loadGameScript("./flappy_bird.js?v=5e8cb15");
+    await loadGameScript("./flappy_bird.js?v=76842f6");
   } catch (e) {
     showStartupError(
       "#app",

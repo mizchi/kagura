@@ -179,7 +179,7 @@ pub fn spawn_enemies_in_rooms_with_params(
   } else {
     (0, 0)
   }
-  let safe_distance = 15 // tiles from player room center
+  let safe_distance = 8 // tiles from player room center
   // Find largest non-player room for elite/mini-boss placement
   let mut largest_room_idx = -1
   let mut largest_area = 0

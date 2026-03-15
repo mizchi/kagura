@@ -5,7 +5,7 @@ fn Meshes3D::new() -> Meshes3D {
   {
     item: @mesh3d.Mesh3D::sphere(0.2, 5, 3),
     projectile: @mesh3d.Mesh3D::sphere(0.15, 4, 3),
-    arrow: make_arrow_mesh(0.5, 0.04),
+    arrow: make_arrow_mesh(0.65, 0.05),
     floor_tile: @mesh3d.Mesh3D::plane(1.0, 1.0),
     wall: make_wall_mesh(1.0, 0.5, 1.0),
     wall_low: make_wall_mesh(1.0, 0.3, 1.0),
@@ -83,35 +83,67 @@ fn make_arrow_mesh(length : Double, thickness : Double) -> @mesh3d.Mesh3D {
   let indices : Array[Int] = []
   let hl = length / 2.0
   let t = thickness
-  // Tip (+X)
-  // Top face: tip, left-back, right-back
-  push_vert(data, hl, 0.0, 0.0, 0.0, 1.0, 0.0, 0.5, 0.0)
-  push_vert(data, -hl, t, -t, 0.0, 1.0, 0.0, 0.0, 1.0)
-  push_vert(data, -hl, t, t, 0.0, 1.0, 0.0, 1.0, 1.0)
+  let head_w = t * 2.5 // wider arrowhead
+  let head_len = length * 0.3 // front 30% is the head
+  let tail_t = t * 0.4 // thin tail
+  // === Arrowhead (front, wider diamond) ===
+  // Top
+  push_vert(data, hl, 0.0, 0.0, 0.0, 1.0, 0.0, 0.5, 0.0) // 0: tip
+  push_vert(data, hl - head_len, head_w, -head_w, 0.0, 1.0, 0.0, 0.0, 1.0) // 1
+  push_vert(data, hl - head_len, head_w, head_w, 0.0, 1.0, 0.0, 1.0, 1.0) // 2
   indices.push(0)
   indices.push(1)
   indices.push(2)
-  // Bottom face
-  push_vert(data, hl, 0.0, 0.0, 0.0, -1.0, 0.0, 0.5, 0.0)
-  push_vert(data, -hl, -t, t, 0.0, -1.0, 0.0, 0.0, 1.0)
-  push_vert(data, -hl, -t, -t, 0.0, -1.0, 0.0, 1.0, 1.0)
+  // Bottom
+  push_vert(data, hl, 0.0, 0.0, 0.0, -1.0, 0.0, 0.5, 0.0) // 3
+  push_vert(data, hl - head_len, -head_w, head_w, 0.0, -1.0, 0.0, 0.0, 1.0) // 4
+  push_vert(data, hl - head_len, -head_w, -head_w, 0.0, -1.0, 0.0, 1.0, 1.0) // 5
   indices.push(3)
   indices.push(4)
   indices.push(5)
-  // Right face (+Z)
-  push_vert(data, hl, 0.0, 0.0, 0.0, 0.0, 1.0, 0.5, 0.0)
-  push_vert(data, -hl, t, t, 0.0, 0.0, 1.0, 0.0, 1.0)
-  push_vert(data, -hl, -t, t, 0.0, 0.0, 1.0, 1.0, 1.0)
+  // Right
+  push_vert(data, hl, 0.0, 0.0, 0.0, 0.0, 1.0, 0.5, 0.0) // 6
+  push_vert(data, hl - head_len, head_w, head_w, 0.0, 0.0, 1.0, 0.0, 1.0) // 7
+  push_vert(data, hl - head_len, -head_w, head_w, 0.0, 0.0, 1.0, 1.0, 1.0) // 8
   indices.push(6)
   indices.push(7)
   indices.push(8)
-  // Left face (-Z)
-  push_vert(data, hl, 0.0, 0.0, 0.0, 0.0, -1.0, 0.5, 0.0)
-  push_vert(data, -hl, -t, -t, 0.0, 0.0, -1.0, 0.0, 1.0)
-  push_vert(data, -hl, t, -t, 0.0, 0.0, -1.0, 1.0, 1.0)
+  // Left
+  push_vert(data, hl, 0.0, 0.0, 0.0, 0.0, -1.0, 0.5, 0.0) // 9
+  push_vert(data, hl - head_len, -head_w, -head_w, 0.0, 0.0, -1.0, 0.0, 1.0) // 10
+  push_vert(data, hl - head_len, head_w, -head_w, 0.0, 0.0, -1.0, 1.0, 1.0) // 11
   indices.push(9)
   indices.push(10)
   indices.push(11)
+  // === Shaft (thin body to tail) ===
+  // Top
+  push_vert(data, hl - head_len, t, -t, 0.0, 1.0, 0.0, 0.0, 0.0) // 12
+  push_vert(data, hl - head_len, t, t, 0.0, 1.0, 0.0, 1.0, 0.0) // 13
+  push_vert(data, -hl, tail_t, tail_t, 0.0, 1.0, 0.0, 1.0, 1.0) // 14
+  push_vert(data, -hl, tail_t, -tail_t, 0.0, 1.0, 0.0, 0.0, 1.0) // 15
+  push_quad(indices, 12)
+  // Bottom
+  push_vert(data, hl - head_len, -t, t, 0.0, -1.0, 0.0, 0.0, 0.0) // 16
+  push_vert(data, hl - head_len, -t, -t, 0.0, -1.0, 0.0, 1.0, 0.0) // 17
+  push_vert(data, -hl, -tail_t, -tail_t, 0.0, -1.0, 0.0, 1.0, 1.0) // 18
+  push_vert(data, -hl, -tail_t, tail_t, 0.0, -1.0, 0.0, 0.0, 1.0) // 19
+  push_quad(indices, 16)
+  // === Tail fins (small fletchings) ===
+  let fin = t * 3.0
+  // Vertical fin
+  push_vert(data, -hl, -fin, 0.0, 0.0, 0.0, 1.0, 0.0, 1.0) // 20
+  push_vert(data, -hl + length * 0.12, 0.0, 0.0, 0.0, 0.0, 1.0, 0.5, 0.0) // 21
+  push_vert(data, -hl, fin, 0.0, 0.0, 0.0, 1.0, 1.0, 1.0) // 22
+  indices.push(20)
+  indices.push(21)
+  indices.push(22)
+  // Horizontal fin
+  push_vert(data, -hl, 0.0, -fin, 0.0, 1.0, 0.0, 0.0, 1.0) // 23
+  push_vert(data, -hl + length * 0.12, 0.0, 0.0, 0.0, 1.0, 0.0, 0.5, 0.0) // 24
+  push_vert(data, -hl, 0.0, fin, 0.0, 1.0, 0.0, 1.0, 1.0) // 25
+  indices.push(23)
+  indices.push(24)
+  indices.push(25)
   @mesh3d.Mesh3D::new(data, indices)
 }
 

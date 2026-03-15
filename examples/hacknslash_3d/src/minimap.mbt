@@ -301,6 +301,7 @@ fn GameState::render_hud_cmds(
       0xFF8899,
     )
   }
+  self.draw_telegraph_markers(ctx, cmds)
   self.draw_damage_popups(ctx, cmds)
   self.draw_item_drop_labels(ctx, cmds)
   // Minimap

@@ -151,8 +151,8 @@ pub(all) enum GameEvent {
   FireballTrail(Double, Double)
   FireballBurst(Double, Double)
   IceNovaCast(Double, Double, Double)
-  MeteorCastStart(Double, Double, Double) // x, y, radius - casting begins
-  MeteorImpact(Double, Double, Double) // x, y, radius - meteor lands
+  MeteorCastStart(Double, Double, Double)
+  MeteorImpact(Double, Double, Double)
   AttackTriggered
   HurtTriggered
   FloorComplete

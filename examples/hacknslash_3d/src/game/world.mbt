@@ -39,6 +39,7 @@ pub(all) struct GameWorld {
   mut select_cursor : Int
   mut cursor_x : Double
   mut cursor_y : Double
+  mut telegraph_markers : Array[TelegraphMarker]
   mut events : Array[GameEvent]
   mut enemy_separation_cell_heads : Array[Int]
   mut enemy_separation_next_indices : Array[Int]
@@ -136,6 +137,7 @@ pub fn GameWorld::new(
     select_cursor: 0,
     cursor_x: 0.0,
     cursor_y: 0.0,
+    telegraph_markers: [],
     events: [],
     enemy_separation_cell_heads: Array::make(
       enemy_separation_grid_cols() * enemy_separation_grid_rows(),
@@ -868,6 +870,14 @@ pub fn GameWorld::tick_player_enemy_separation_phase(self : GameWorld) -> Unit {
 pub fn GameWorld::tick_meteor_damage_phase(self : GameWorld) -> Unit {
   for event in self.events {
     match event {
+      // Create persistent telegraph markers from events
+      MeteorCastStart(x, y, radius) =>
+        add_telegraph_circle(self, x, y, radius, meteor_cast_frames)
+      EnemyTelegraphRing(x, y, radius) =>
+        // Short telegraph for quick attacks (bolt, tackle, fire nova)
+        add_telegraph_circle(self, x, y, radius, 20)
+      GroundTelegraphLine(x0, y0, x1, y1) =>
+        add_telegraph_line(self, x0, y0, x1, y1, 8.0, 20)
       MeteorImpact(x, y, radius) => {
         let pdx = self.player.x - x
         let pdy = self.player.y - y
@@ -1027,6 +1037,8 @@ pub fn GameWorld::tick_with_enemy_ai_grid(
   self.tick_enemy_ai_phase_with_grid(enemy_ai_grid)
   // 10b. Process meteor impacts (damage in game logic, not render layer)
   self.tick_meteor_damage_phase()
+  // 10c. Tick telegraph markers
+  tick_telegraph_markers(self)
   // 11. Enemy movement + contact damage
   self.tick_enemy_movement_and_contact_phase()
   // 12-13. Projectiles

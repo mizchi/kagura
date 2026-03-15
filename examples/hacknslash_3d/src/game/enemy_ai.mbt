@@ -315,7 +315,17 @@ pub fn update_enemy_ai(
     let dist_sq = cdx * cdx + cdy * cdy
     let enemy_room = find_room_at(rooms, enemy.x, enemy.y)
     let same_room_visible = player_room >= 0 && enemy_room == player_room
-    // Dispatch special behaviors via composable behavior table
+    // Patrol if out of chase range (BEFORE behavior dispatch)
+    if dist_sq > chase_range_sq {
+      let angle = ((frame_count + enemy.x.to_int()) % 360).to_double() *
+        @math.PI /
+        180.0
+      enemy.vx = @math.cos(angle) * enemy.speed * 0.3
+      enemy.vy = @math.sin(angle) * enemy.speed * 0.3
+      tick_enemy_pattern_cooldowns(enemy)
+      continue
+    }
+    // Dispatch special behaviors (only when in chase range)
     let ctx : EnemyAIContext = {
       enemy,
       player,
@@ -339,16 +349,6 @@ pub fn update_enemy_ai(
       }
     }
     if behavior_consumed {
-      tick_enemy_pattern_cooldowns(enemy)
-      continue
-    }
-    // Patrol if out of chase range
-    if dist_sq > chase_range_sq {
-      let angle = ((frame_count + enemy.x.to_int()) % 360).to_double() *
-        @math.PI /
-        180.0
-      enemy.vx = @math.cos(angle) * enemy.speed * 0.3
-      enemy.vy = @math.sin(angle) * enemy.speed * 0.3
       tick_enemy_pattern_cooldowns(enemy)
       continue
     }

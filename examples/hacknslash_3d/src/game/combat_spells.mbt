@@ -458,7 +458,6 @@ pub fn activate_skill(world : GameWorld, slot : Int) -> Unit {
       let level = world.skills.get_level(PowerStrike)
       if level > 0 && world.attack_timer <= 0 {
         world.attack_timer = world.params.attack_cooldown.to_int()
-        world.screen_flash = 2
         let a = world.player.facing_angle
         // 3-way spread
         for i = -1; i <= 1; i = i + 1 {
@@ -486,7 +485,6 @@ pub fn activate_skill(world : GameWorld, slot : Int) -> Unit {
       let level = world.skills.get_level(Whirlwind)
       if level > 0 && world.attack_timer <= 0 {
         world.attack_timer = world.params.attack_cooldown.to_int() + 5
-        world.screen_flash = 3
         for i = 0; i < 8; i = i + 1 {
           let a = i.to_double() * @math.PI / 4.0
           world.projectiles.push({

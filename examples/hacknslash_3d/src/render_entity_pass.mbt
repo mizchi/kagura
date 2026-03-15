@@ -117,12 +117,24 @@ fn GameState::rebuild_entity_instance_scratch(
     }
   }
   // Telegraph markers: 3D floor shapes that fill gradually with cast progress
+  // Fade out in last 5 frames before execution so the actual spell effect is visible
+  let telegraph_fadeout_frames = 5.0
   for marker in self.world.telegraph_markers {
     let progress = marker.progress()
     let eased = progress * progress
     let r = 0.7 + progress * 0.3
     let g = 0.25 * (1.0 - progress)
-    let a = 0.06 + eased * 0.14
+    let base_a = 0.06 + eased * 0.14
+    // Fade out near expiry so spell VFX takes over
+    let fadeout = if marker.frames_remaining.to_double() < telegraph_fadeout_frames {
+      marker.frames_remaining.to_double() / telegraph_fadeout_frames
+    } else {
+      1.0
+    }
+    let a = base_a * fadeout
+    if a < 0.005 {
+      continue
+    }
     match marker.shape {
       @game.Circle => {
         let mx = marker.x / tile_size
@@ -139,7 +151,7 @@ fn GameState::rebuild_entity_instance_scratch(
             transform=@transform3d.Transform3D::from_position(
               @math3d.Vec3::new(mx, my, mz),
             ).with_scale(@math3d.Vec3::new(full_scale, 1.0, full_scale)),
-            color=@math3d.Vec4::new(0.8, 0.2, 0.05, 0.08),
+            color=@math3d.Vec4::new(0.8, 0.2, 0.05, 0.08 * fadeout),
           ),
         )
         // Growing fill
@@ -178,7 +190,7 @@ fn GameState::rebuild_entity_instance_scratch(
             (marker.y + (marker.end_y - marker.y) * t).to_int(),
           ) + 0.02
           let is_filled = s < filled_steps
-          let disc_a = if is_filled { a } else { 0.04 }
+          let disc_a = (if is_filled { a } else { 0.04 }) * fadeout
           let disc_r = if is_filled { r } else { 0.5 }
           let disc_g = if is_filled { g } else { 0.15 }
           self.entity_instance_scratch.telegraph_instances.push(

@@ -8,6 +8,8 @@ pub enum EffectPresetId {
   IceNova
   GroundTelegraphRing
   GroundTelegraphLine
+  BeamLightning
+  MeteorFall
 } derive(Eq, Show)
 
 ///|
@@ -21,6 +23,8 @@ pub fn effect_preset_id_name(id : EffectPresetId) -> String {
     IceNova => "ice_nova"
     GroundTelegraphRing => "ground_telegraph_ring"
     GroundTelegraphLine => "ground_telegraph_line"
+    BeamLightning => "beam_lightning"
+    MeteorFall => "meteor_fall"
   }
 }
 
@@ -944,5 +948,255 @@ pub fn effect_preset_document(id : EffectPresetId) -> EffectDocument {
     IceNova => ice_nova_effect_document()
     GroundTelegraphRing => ground_telegraph_ring_effect_document()
     GroundTelegraphLine => ground_telegraph_line_effect_document()
+    BeamLightning => beam_lightning_effect_document()
+    MeteorFall => meteor_fall_effect_document()
+  }
+}
+
+///|
+fn beam_lightning_core_track() -> EffectTrack {
+  {
+    id: "beam_core",
+    label: "Beam Core",
+    start_time: 0.0,
+    duration: 0.22,
+    burst_interval: 0.02,
+    burst_particles: 16,
+    pattern: Line,
+    origin: @math3d.Vec3::new(0.0, 0.35, 0.0),
+    secondary_origin: @math3d.Vec3::new(1.0, 0.35, 0.0),
+    spread_radius: 0.03,
+    initial_velocity_min: @math3d.Vec3::new(-0.06, 0.08, -0.06),
+    initial_velocity_max: @math3d.Vec3::new(0.06, 0.5, 0.06),
+    lifetime_min: 0.06,
+    lifetime_max: 0.14,
+    size_min: 0.06,
+    size_max: 0.16,
+    color_start: @math3d.Vec4::new(1.0, 1.0, 0.9, 1.0),
+    color_end: @math3d.Vec4::new(1.0, 0.85, 0.2, 0.0),
+    gravity: @math3d.Vec3::new(0.0, -0.3, 0.0),
+    enabled: true,
+  }
+}
+
+///|
+fn beam_lightning_arc_track() -> EffectTrack {
+  {
+    id: "beam_arc",
+    label: "Beam Arc",
+    start_time: 0.0,
+    duration: 0.18,
+    burst_interval: 0.024,
+    burst_particles: 12,
+    pattern: Line,
+    origin: @math3d.Vec3::new(0.0, 0.32, 0.0),
+    secondary_origin: @math3d.Vec3::new(1.0, 0.38, 0.0),
+    spread_radius: 0.06,
+    initial_velocity_min: @math3d.Vec3::new(-0.3, 0.1, -0.3),
+    initial_velocity_max: @math3d.Vec3::new(0.3, 1.0, 0.3),
+    lifetime_min: 0.05,
+    lifetime_max: 0.12,
+    size_min: 0.03,
+    size_max: 0.07,
+    color_start: @math3d.Vec4::new(1.0, 0.95, 0.5, 0.9),
+    color_end: @math3d.Vec4::new(1.0, 0.6, 0.1, 0.0),
+    gravity: @math3d.Vec3::new(0.0, -0.8, 0.0),
+    enabled: true,
+  }
+}
+
+///|
+fn beam_lightning_glow_track() -> EffectTrack {
+  {
+    id: "beam_glow",
+    label: "Beam Glow",
+    start_time: 0.0,
+    duration: 0.24,
+    burst_interval: 0.04,
+    burst_particles: 8,
+    pattern: Line,
+    origin: @math3d.Vec3::new(0.0, 0.3, 0.0),
+    secondary_origin: @math3d.Vec3::new(1.0, 0.3, 0.0),
+    spread_radius: 0.1,
+    initial_velocity_min: @math3d.Vec3::new(-0.1, 0.05, -0.1),
+    initial_velocity_max: @math3d.Vec3::new(0.1, 0.4, 0.1),
+    lifetime_min: 0.1,
+    lifetime_max: 0.2,
+    size_min: 0.08,
+    size_max: 0.18,
+    color_start: @math3d.Vec4::new(1.0, 0.9, 0.3, 0.5),
+    color_end: @math3d.Vec4::new(0.9, 0.6, 0.05, 0.0),
+    gravity: @math3d.Vec3::new(0.0, -0.2, 0.0),
+    enabled: true,
+  }
+}
+
+///|
+fn beam_lightning_sparks_track() -> EffectTrack {
+  {
+    id: "beam_sparks",
+    label: "Beam Sparks",
+    start_time: 0.01,
+    duration: 0.2,
+    burst_interval: 0.03,
+    burst_particles: 10,
+    pattern: Line,
+    origin: @math3d.Vec3::new(0.0, 0.33, 0.0),
+    secondary_origin: @math3d.Vec3::new(1.0, 0.33, 0.0),
+    spread_radius: 0.14,
+    initial_velocity_min: @math3d.Vec3::new(-0.7, 0.15, -0.7),
+    initial_velocity_max: @math3d.Vec3::new(0.7, 1.5, 0.7),
+    lifetime_min: 0.08,
+    lifetime_max: 0.2,
+    size_min: 0.02,
+    size_max: 0.06,
+    color_start: @math3d.Vec4::new(1.0, 0.95, 0.6, 0.85),
+    color_end: @math3d.Vec4::new(1.0, 0.5, 0.0, 0.0),
+    gravity: @math3d.Vec3::new(0.0, -1.4, 0.0),
+    enabled: true,
+  }
+}
+
+///|
+pub fn beam_lightning_effect_document() -> EffectDocument {
+  {
+    name: "beam_lightning",
+    duration: 0.3,
+    looping: false,
+    notes: "Yellow lightning beam with bright core, jagged arcs, and orange sparks.",
+    ai_edit_goal: "Bright yellow-white core with orange-gold secondary particles for a dramatic beam strike.",
+    tracks: [
+      beam_lightning_core_track(),
+      beam_lightning_arc_track(),
+      beam_lightning_glow_track(),
+      beam_lightning_sparks_track(),
+    ],
+  }
+}
+
+// === Meteor Fall effect: fireball descending from above + ground explosion ===
+
+///|
+fn meteor_fall_fireball_track() -> EffectTrack {
+  // Main fireball descending from high above to ground
+  {
+    id: "meteor_fireball",
+    label: "Meteor Fireball",
+    start_time: 0.0,
+    duration: 0.3,
+    burst_interval: 0.02,
+    burst_particles: 12,
+    pattern: Line,
+    origin: @math3d.Vec3::new(0.3, 4.0, -0.3), // high above, slightly offset
+    secondary_origin: @math3d.Vec3::new(0.0, 0.3, 0.0), // ground impact point
+    spread_radius: 0.08,
+    initial_velocity_min: @math3d.Vec3::new(-0.15, -0.5, -0.15),
+    initial_velocity_max: @math3d.Vec3::new(0.15, 0.2, 0.15),
+    lifetime_min: 0.1,
+    lifetime_max: 0.25,
+    size_min: 0.1,
+    size_max: 0.28,
+    color_start: @math3d.Vec4::new(1.0, 0.85, 0.3, 1.0),
+    color_end: @math3d.Vec4::new(1.0, 0.3, 0.05, 0.0),
+    gravity: @math3d.Vec3::new(0.0, -2.0, 0.0),
+    enabled: true,
+  }
+}
+
+///|
+fn meteor_fall_trail_track() -> EffectTrack {
+  // Smoke/ember trail behind the falling meteor
+  {
+    id: "meteor_trail",
+    label: "Meteor Trail",
+    start_time: 0.0,
+    duration: 0.25,
+    burst_interval: 0.03,
+    burst_particles: 8,
+    pattern: Line,
+    origin: @math3d.Vec3::new(0.3, 4.0, -0.3),
+    secondary_origin: @math3d.Vec3::new(0.1, 1.5, -0.1),
+    spread_radius: 0.15,
+    initial_velocity_min: @math3d.Vec3::new(-0.3, -0.1, -0.3),
+    initial_velocity_max: @math3d.Vec3::new(0.3, 0.8, 0.3),
+    lifetime_min: 0.15,
+    lifetime_max: 0.35,
+    size_min: 0.06,
+    size_max: 0.14,
+    color_start: @math3d.Vec4::new(1.0, 0.6, 0.15, 0.7),
+    color_end: @math3d.Vec4::new(0.4, 0.15, 0.05, 0.0),
+    gravity: @math3d.Vec3::new(0.0, -0.5, 0.0),
+    enabled: true,
+  }
+}
+
+///|
+fn meteor_impact_burst_track() -> EffectTrack {
+  // Ground explosion on impact — radiating outward
+  {
+    id: "meteor_impact",
+    label: "Meteor Impact",
+    start_time: 0.25,
+    duration: 0.2,
+    burst_interval: 0.02,
+    burst_particles: 20,
+    pattern: Point,
+    origin: @math3d.Vec3::new(0.0, 0.25, 0.0),
+    secondary_origin: @math3d.Vec3::new(0.0, 0.25, 0.0),
+    spread_radius: 0.2,
+    initial_velocity_min: @math3d.Vec3::new(-1.5, 0.3, -1.5),
+    initial_velocity_max: @math3d.Vec3::new(1.5, 2.5, 1.5),
+    lifetime_min: 0.12,
+    lifetime_max: 0.3,
+    size_min: 0.08,
+    size_max: 0.22,
+    color_start: @math3d.Vec4::new(1.0, 0.7, 0.2, 1.0),
+    color_end: @math3d.Vec4::new(0.8, 0.2, 0.05, 0.0),
+    gravity: @math3d.Vec3::new(0.0, -3.0, 0.0),
+    enabled: true,
+  }
+}
+
+///|
+fn meteor_impact_flash_track() -> EffectTrack {
+  // Bright white-yellow flash at impact point
+  {
+    id: "meteor_flash",
+    label: "Meteor Flash",
+    start_time: 0.25,
+    duration: 0.1,
+    burst_interval: 0.02,
+    burst_particles: 6,
+    pattern: Point,
+    origin: @math3d.Vec3::new(0.0, 0.3, 0.0),
+    secondary_origin: @math3d.Vec3::new(0.0, 0.3, 0.0),
+    spread_radius: 0.05,
+    initial_velocity_min: @math3d.Vec3::new(-0.3, 0.5, -0.3),
+    initial_velocity_max: @math3d.Vec3::new(0.3, 1.5, 0.3),
+    lifetime_min: 0.06,
+    lifetime_max: 0.12,
+    size_min: 0.15,
+    size_max: 0.35,
+    color_start: @math3d.Vec4::new(1.0, 1.0, 0.85, 1.0),
+    color_end: @math3d.Vec4::new(1.0, 0.8, 0.3, 0.0),
+    gravity: @math3d.Vec3::new(0.0, -1.0, 0.0),
+    enabled: true,
+  }
+}
+
+///|
+pub fn meteor_fall_effect_document() -> EffectDocument {
+  {
+    name: "meteor_fall",
+    duration: 0.5,
+    looping: false,
+    notes: "Fireball descends from above with ember trail, then explodes on impact with radial burst and flash.",
+    ai_edit_goal: "Dramatic meteor descent with visible trail, followed by a satisfying ground explosion.",
+    tracks: [
+      meteor_fall_fireball_track(),
+      meteor_fall_trail_track(),
+      meteor_impact_burst_track(),
+      meteor_impact_flash_track(),
+    ],
   }
 }

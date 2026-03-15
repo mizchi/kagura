@@ -127,6 +127,37 @@ fn GameState::queue_chain_lightning_effect(
 }
 
 ///|
+fn GameState::queue_beam_lightning_effect(
+  self : GameState,
+  start_x : Double,
+  start_y : Double,
+  end_x : Double,
+  end_y : Double,
+) -> Unit {
+  queue_active_effect(
+    self,
+    "beam_lightning",
+    @effect.beam_lightning_effect_document(),
+    chain_lightning_effect_placement(start_x, start_y, end_x, end_y),
+  )
+}
+
+///|
+fn GameState::queue_meteor_fall_effect(
+  self : GameState,
+  x : Double,
+  y : Double,
+  radius : Double,
+) -> Unit {
+  queue_active_effect(
+    self,
+    "meteor_fall",
+    @effect.meteor_fall_effect_document(),
+    fireball_burst_effect_placement(x, y, @cmp.maximum(1.0, radius / tile_size)),
+  )
+}
+
+///|
 fn GameState::queue_homing_missile_effect(
   self : GameState,
   start_x : Double,

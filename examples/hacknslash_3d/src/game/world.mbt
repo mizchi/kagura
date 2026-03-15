@@ -16,7 +16,7 @@ pub(all) struct GameWorld {
   mut projectiles : Array[Projectile]
   dungeon : DungeonData
   mut attack_timer : Int
-  mut screen_flash : Int
+  mut screen_flash : Double
   mut floor_announce_timer : Int
   mut chain_lightning_cooldown_timer : Int
   mut homing_missile_cooldown_timer : Int
@@ -114,7 +114,7 @@ pub fn GameWorld::new(
     projectiles: [],
     dungeon,
     attack_timer: 0,
-    screen_flash: 0,
+    screen_flash: 0.0,
     floor_announce_timer: 0,
     chain_lightning_cooldown_timer: 0,
     homing_missile_cooldown_timer: 0,
@@ -188,7 +188,7 @@ pub fn GameWorld::deal_player_damage(self : GameWorld, raw_dmg : Int) -> Unit {
   self.player.hp = self.player.hp - actual_dmg
   self.player.damage_timer = damage_flash_duration
   self.player.iframe_timer = self.params.iframe_duration.to_int()
-  self.screen_flash = 3
+  self.screen_flash = 1.0
   self.events.push(PlayerHurt(self.player.x, self.player.y))
   self.events.push(PlayerDamageNumber(self.player.x, self.player.y, actual_dmg))
   self.events.push(HurtTriggered)
@@ -969,8 +969,10 @@ pub fn GameWorld::tick_player_timers_phase(self : GameWorld) -> Unit {
   if self.player.iframe_timer > 0 {
     self.player.iframe_timer = self.player.iframe_timer - 1
   }
-  if self.screen_flash > 0 {
-    self.screen_flash = self.screen_flash - 1
+  if self.screen_flash > 0.01 {
+    self.screen_flash = self.screen_flash * 0.92
+  } else {
+    self.screen_flash = 0.0
   }
   if self.chain_lightning_cooldown_timer > 0 {
     self.chain_lightning_cooldown_timer = self.chain_lightning_cooldown_timer -

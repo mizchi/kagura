@@ -310,6 +310,7 @@ fn GameState::draw_playing(
     cmds.push(cmd)
   }
   // === PostFX: tonemap → optional FXAA ===
+  let hit_flash = self.world.screen_flash
   if self.fxaa_enabled {
     cmds.push(
       @postfx.new_tonemap_command(
@@ -317,6 +318,7 @@ fn GameState::draw_playing(
         self.tonemap_sh,
         self.post_target.id,
         1.0,
+        hit_flash=hit_flash,
       ),
     )
     cmds.push(
@@ -335,6 +337,7 @@ fn GameState::draw_playing(
         self.tonemap_sh,
         self.post_target.id,
         1.0,
+        hit_flash=hit_flash,
       ),
     )
   }

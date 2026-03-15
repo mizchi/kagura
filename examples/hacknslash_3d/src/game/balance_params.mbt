@@ -78,10 +78,10 @@ pub fn balance_preset_from_name(name : String) -> BalancePreset {
 ///|
 pub fn BalanceParams::default() -> BalanceParams {
   {
-    player_speed: 1.19,
-    enemy_speed_basic: 0.8,
-    enemy_speed_fast: 1.19,
-    enemy_speed_tank: 0.4,
+    player_speed: 1.8,
+    enemy_speed_basic: 1.1,
+    enemy_speed_fast: 1.7,
+    enemy_speed_tank: 0.6,
     attack_cooldown: 23.18,
     arrow_speed: 4.0,
     arrow_range: 180.0,

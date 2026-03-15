@@ -91,6 +91,11 @@ pub(all) enum EnemyKind {
   Tank
   Ranged
   Boss
+  Exploder // charges at player, explodes on death dealing massive AoE
+  Summoner // periodically spawns Basic minions
+  Berserker // gets faster and stronger as HP decreases
+  Teleporter // blinks behind player periodically
+  Swarm // tiny, weak, spawns in large groups
 } derive(Eq)
 
 ///|

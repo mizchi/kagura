@@ -157,10 +157,10 @@ fn apply_life_steal(world : GameWorld, damage : Int) -> Unit {
 ///|
 fn enemy_xp_reward(enemy : Enemy) -> Int {
   match enemy.kind {
-    Basic => 1
-    Fast => 1
-    Tank => 2
-    Ranged => 2
+    Basic | Swarm => 1
+    Fast | Exploder => 1
+    Tank | Berserker => 2
+    Ranged | Summoner | Teleporter => 2
     Boss => 8
   }
 }
@@ -196,6 +196,25 @@ fn roll_drop_item_kind(world : GameWorld, item_seed : Int) -> ItemKind {
 ///|
 fn apply_enemy_death_rewards(world : GameWorld, enemy : Enemy) -> Unit {
   world.events.push(DeathBurst(enemy.x, enemy.y))
+  // Exploder: massive AoE on death (larger radius, more damage)
+  if enemy.kind == Exploder {
+    world.events.push(FireballBurst(enemy.x, enemy.y))
+    world.events.push(FireballBurst(enemy.x, enemy.y))
+    let explode_radius = enemy_death_explosion_radius * 1.5
+    let dx = world.player.x - enemy.x
+    let dy = world.player.y - enemy.y
+    if dx * dx + dy * dy <= explode_radius * explode_radius &&
+      world.player.iframe_timer <= 0 {
+      let explosion_damage = world.params.scale_enemy_damage_for_floor(
+        world.params.enemy_contact_damage.to_int() * 3,
+        world.floor,
+      )
+      world.deal_player_damage(explosion_damage)
+    }
+    world.events.push(
+      EnemyTelegraphRing(enemy.x, enemy.y, explode_radius),
+    )
+  }
   if enemy.kind == Tank || enemy.kind == Boss {
     world.events.push(FireballBurst(enemy.x, enemy.y))
     let dx = world.player.x - enemy.x
@@ -248,7 +267,8 @@ fn apply_enemy_death_rewards(world : GameWorld, enemy : Enemy) -> Unit {
   let drop_roll = (drop_seed * 31 + 17) % 100
   let drop_chance = match enemy.kind {
     Boss => 100
-    Tank => 80
+    Tank | Summoner | Berserker => 80
+    Swarm => 10
     _ => 40
   }
   if drop_roll < drop_chance {

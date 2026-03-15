@@ -93,9 +93,11 @@ fn GameState::rebuild_enemy_render_buckets(
         color_player_hurt
       } else {
         match enemy.kind {
-          @game.Fast => color_enemy_fast
-          @game.Tank => color_enemy_tank
-          @game.Ranged => color_enemy_ranged
+          @game.Fast | @game.Teleporter => color_enemy_fast
+          @game.Exploder => @math3d.Vec4::new(1.0, 0.4, 0.1, 1.0) // orange
+          @game.Tank | @game.Berserker => color_enemy_tank
+          @game.Ranged | @game.Summoner => color_enemy_ranged
+          @game.Swarm => @math3d.Vec4::new(0.5, 0.5, 0.3, 1.0) // pale
           @game.Boss => color_enemy_boss
           @game.Basic => color_enemy_basic
         }
@@ -104,15 +106,15 @@ fn GameState::rebuild_enemy_render_buckets(
       let dy = self.world.player.y - enemy.y
       let model = enemy_facing_model_matrix(ex, ey, ez, dx, dy)
       match enemy.kind {
-        @game.Fast => {
+        @game.Fast | @game.Exploder | @game.Teleporter => {
           buckets.fast_matrices.push(model)
           buckets.fast_colors.push(color)
         }
-        @game.Tank => {
+        @game.Tank | @game.Berserker => {
           buckets.tank_matrices.push(model)
           buckets.tank_colors.push(color)
         }
-        @game.Ranged => {
+        @game.Ranged | @game.Summoner => {
           buckets.ranged_matrices.push(model)
           buckets.ranged_colors.push(color)
         }
@@ -120,7 +122,7 @@ fn GameState::rebuild_enemy_render_buckets(
           buckets.boss_matrices.push(model)
           buckets.boss_colors.push(color)
         }
-        @game.Basic => {
+        @game.Basic | @game.Swarm => {
           buckets.basic_matrices.push(model)
           buckets.basic_colors.push(color)
         }

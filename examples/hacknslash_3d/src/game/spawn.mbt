@@ -223,34 +223,74 @@ pub fn spawn_enemies_in_rooms_with_params(
       let cy = room.rect.y.to_double() * tile_size +
         rng.rand_range(1, room.rect.h - 1).to_double() * tile_size +
         tile_size / 2.0
-      let kind_roll = rng.next_int(10)
-      let (kind, hp, spd, sz) = if kind_roll < 4 {
+      let kind_roll = rng.next_int(20)
+      let (kind, hp, spd, sz) = if kind_roll < 5 {
         (
           Basic,
           params.scale_enemy_hp_for_floor(params.basic_hp.to_int(), floor),
           params.scale_enemy_speed_for_floor(params.enemy_speed_basic, floor),
           10.0,
         )
-      } else if kind_roll < 7 {
+      } else if kind_roll < 8 {
         (
           Fast,
           params.scale_enemy_hp_for_floor(params.fast_hp.to_int(), floor),
           params.scale_enemy_speed_for_floor(params.enemy_speed_fast, floor),
           8.0,
         )
-      } else if kind_roll < 9 {
+      } else if kind_roll < 10 {
         (
           Tank,
           params.scale_enemy_hp_for_floor(params.tank_hp.to_int(), floor),
           params.scale_enemy_speed_for_floor(params.enemy_speed_tank, floor),
           14.0,
         )
-      } else {
+      } else if kind_roll < 12 {
         (
           Ranged,
           params.scale_enemy_hp_for_floor(params.ranged_hp.to_int(), floor),
           params.scale_enemy_speed_for_floor(0.5, floor),
           8.0,
+        )
+      } else if kind_roll < 14 {
+        // Exploder: fast, fragile, deadly on death
+        (
+          Exploder,
+          params.scale_enemy_hp_for_floor(params.fast_hp.to_int(), floor),
+          params.scale_enemy_speed_for_floor(params.enemy_speed_fast * 1.2, floor),
+          7.0,
+        )
+      } else if kind_roll < 16 {
+        // Berserker: medium HP, gets stronger as hurt
+        (
+          Berserker,
+          params.scale_enemy_hp_for_floor(params.tank_hp.to_int(), floor),
+          params.scale_enemy_speed_for_floor(params.enemy_speed_basic, floor),
+          12.0,
+        )
+      } else if kind_roll < 17 {
+        // Summoner: squishy, spawns minions
+        (
+          Summoner,
+          params.scale_enemy_hp_for_floor(params.ranged_hp.to_int(), floor),
+          params.scale_enemy_speed_for_floor(0.4, floor),
+          9.0,
+        )
+      } else if kind_roll < 18 {
+        // Teleporter: appears behind you
+        (
+          Teleporter,
+          params.scale_enemy_hp_for_floor(params.fast_hp.to_int(), floor),
+          params.scale_enemy_speed_for_floor(params.enemy_speed_basic, floor),
+          8.0,
+        )
+      } else {
+        // Swarm: tiny and weak but numerous
+        (
+          Swarm,
+          params.scale_enemy_hp_for_floor(1, floor),
+          params.scale_enemy_speed_for_floor(params.enemy_speed_fast, floor),
+          5.0,
         )
       }
       enemies.push(make_enemy(cx, cy, kind, hp, spd, sz))

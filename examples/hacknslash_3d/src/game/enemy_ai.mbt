@@ -256,37 +256,8 @@ pub fn update_enemy_ai(
       enemy.meteor_cast_timer = enemy.meteor_cast_timer - 1
       enemy.vx = 0.0
       enemy.vy = 0.0
-      // Frequent telegraph pulses for high visibility (every 10 frames)
-      if enemy.meteor_cast_timer % 10 == 0 && enemy.meteor_cast_timer > 0 {
-        // Outer ring (full radius)
-        events.push(
-          EnemyTelegraphRing(
-            enemy.meteor_target_x,
-            enemy.meteor_target_y,
-            meteor_radius,
-          ),
-        )
-        // Inner ring (shrinks as cast progresses = urgency)
-        let progress = 1.0 -
-          enemy.meteor_cast_timer.to_double() / meteor_cast_frames.to_double()
-        let inner_radius = meteor_radius * (1.0 - progress * 0.7)
-        events.push(
-          EnemyTelegraphRing(
-            enemy.meteor_target_x,
-            enemy.meteor_target_y,
-            inner_radius,
-          ),
-        )
-        // Line from caster to target
-        events.push(
-          GroundTelegraphLine(
-            enemy.x,
-            enemy.y,
-            enemy.meteor_target_x,
-            enemy.meteor_target_y,
-          ),
-        )
-      }
+      // Persistent telegraph marker handles visualization;
+      // no per-frame pulse events needed
       if enemy.meteor_cast_timer == 0 {
         events.push(
           MeteorImpact(

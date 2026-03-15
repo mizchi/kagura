@@ -556,8 +556,10 @@ fn GameState::update_playing(self : GameState) -> Unit {
       @game.IceNovaCast(x, y, radius) =>
         self.queue_ice_nova_effect(x, y, radius)
       @game.MeteorCastStart(x, y, radius) => {
+        // Triple ring for maximum visibility
         self.queue_enemy_telegraph_effect(x, y, radius)
-        self.queue_enemy_telegraph_effect(x, y, radius * 0.5)
+        self.queue_enemy_telegraph_effect(x, y, radius * 0.7)
+        self.queue_enemy_telegraph_effect(x, y, radius * 0.4)
       }
       @game.MeteorImpact(x, y, radius) => {
         // Huge explosion effect (damage already applied in game logic)

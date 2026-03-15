@@ -645,6 +645,24 @@ fn GameState::render_hud_cmds(
       @hud.hex_color(0x66DDFF, alpha=0.6),
     )
   }
+  // Meteor warning: flash when any enemy is casting
+  let mut meteor_active = false
+  for enemy in self.world.enemies {
+    if enemy.alive && enemy.meteor_cast_timer > 0 {
+      meteor_active = true
+      break
+    }
+  }
+  if meteor_active && self.world.frame_count / 15 % 2 == 0 {
+    ctx.draw_text_centered(
+      cmds,
+      "!! METEOR !!",
+      20.0,
+      sw / 2.0,
+      sh / 2.0 - 60.0,
+      0xFF2222,
+    )
+  }
   // Auto-play indicator at top-left
   if self.world.auto_play {
     ctx.draw_text(cmds, "AUTO", 10.0, 8.0, 38.0, 0x00FFAA)

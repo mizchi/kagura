@@ -99,15 +99,15 @@ fn dungeon_generator_kind_for_floor(
   if floor > 1 && floor % 5 == 0 {
     return TinyKeep
   }
-  // Rotate through generators based on floor + seed for variety
-  let gen_roll = ((seed * 7 + floor * 13) % 6 + 6) % 6
+  // Rotate through generators that produce wide, open layouts
+  // Excluded: Cellular (too many narrow passages)
+  let gen_roll = ((seed * 7 + floor * 13) % 5 + 5) % 5
   match gen_roll {
     0 => ArenaChain
     1 => TinyKeep
     2 => Diablo
     3 => BSP
-    4 => Cellular
-    5 => Rogue
+    4 => Rogue
     _ => ArenaChain
   }
 }
@@ -120,14 +120,14 @@ fn arena_chain_config_for_floor(
 ) -> @arena_chain.ArenaChainConfig {
   let boss_floor = floor % 5 == 0
   let arena_min_size = if boss_floor {
-    13
+    18
   } else {
-    11 + @cmp.minimum(2, floor / 4)
+    14 + @cmp.minimum(3, floor / 3)
   }
   let arena_max_size = if boss_floor {
-    19
+    28
   } else {
-    17 + @cmp.minimum(2, floor / 3)
+    22 + @cmp.minimum(4, floor / 3)
   }
   let room_count_scale = @cmp.maximum(0.75, params.map_room_count_scale)
   let room_size_scale = @cmp.maximum(0.8, params.map_room_size_scale)
@@ -136,9 +136,9 @@ fn arena_chain_config_for_floor(
     width: map_cols,
     height: map_rows,
     num_arenas: if boss_floor {
-      ((3 + seed % 2).to_double() * room_count_scale).to_int()
+      ((4 + seed % 2).to_double() * room_count_scale).to_int()
     } else {
-      ((5 + (seed + floor) % 2).to_double() * room_count_scale).to_int()
+      ((6 + (seed + floor) % 3).to_double() * room_count_scale).to_int()
     },
     arena_min_size: @cmp.maximum(
       7,
@@ -149,19 +149,19 @@ fn arena_chain_config_for_floor(
       (arena_max_size.to_double() * room_size_scale).to_int(),
     ),
     corridor_width: if boss_floor {
-      (4.0 + corridor_width_bonus).to_int()
+      (5.0 + corridor_width_bonus).to_int()
     } else {
-      (3.0 + corridor_width_bonus).to_int()
+      (4.0 + corridor_width_bonus).to_int()
     },
     side_room_chance: if boss_floor {
       0.15
     } else {
       0.25
     },
-    side_room_min_size: @cmp.maximum(4, (5.0 * room_size_scale).to_int()),
+    side_room_min_size: @cmp.maximum(6, (8.0 * room_size_scale).to_int()),
     side_room_max_size: @cmp.maximum(
-      @cmp.maximum(4, (5.0 * room_size_scale).to_int()),
-      (8.0 * room_size_scale).to_int(),
+      @cmp.maximum(6, (8.0 * room_size_scale).to_int()),
+      (14.0 * room_size_scale).to_int(),
     ),
     max_placement_attempts: 80,
   })
@@ -178,13 +178,13 @@ fn diablo_config_for_floor(
   {
     width: map_cols,
     height: map_rows,
-    spine_length: ((4 + (seed + floor) % 3).to_double() * room_count_scale).to_int(),
-    branch_chance: 0.5,
-    loop_chance: 0.2,
-    room_min_size: @cmp.maximum(4, (5.0 * room_size_scale).to_int()),
-    room_max_size: @cmp.maximum(6, (12.0 * room_size_scale).to_int()),
-    room_padding: 2,
-    max_placement_attempts: 80,
+    spine_length: ((5 + (seed + floor) % 3).to_double() * room_count_scale).to_int(),
+    branch_chance: 0.6,
+    loop_chance: 0.25,
+    room_min_size: @cmp.maximum(8, (10.0 * room_size_scale).to_int()),
+    room_max_size: @cmp.maximum(12, (20.0 * room_size_scale).to_int()),
+    room_padding: 3,
+    max_placement_attempts: 100,
   }
 }
 
@@ -200,7 +200,7 @@ fn bsp_config_for_floor(
   {
     width: map_cols,
     height: map_rows,
-    min_room_size: @cmp.maximum(4, (5.0 * room_size_scale).to_int()),
+    min_room_size: @cmp.maximum(8, (10.0 * room_size_scale).to_int()),
     max_depth: 4,
   }
 }
@@ -236,11 +236,11 @@ fn rogue_config_for_floor(
   {
     width: map_cols,
     height: map_rows,
-    grid_cols: 3,
+    grid_cols: 4,
     grid_rows: 3,
-    room_min_ratio: 0.4 * room_size_scale,
-    room_max_ratio: 0.8 * room_size_scale,
-    skip_chance: 0.1,
+    room_min_ratio: 0.5 * room_size_scale,
+    room_max_ratio: 0.85 * room_size_scale,
+    skip_chance: 0.08,
   }
 }
 
@@ -314,15 +314,15 @@ fn tinykeep_config_for_floor(
   validated_tinykeep_config({
     width: map_cols,
     height: map_rows,
-    num_rooms: ((22 + (seed + floor) % 8).to_double() * room_count_scale).to_int(),
-    room_min_size: @cmp.maximum(4, (6.0 * room_size_scale).to_int()),
+    num_rooms: ((30 + (seed + floor) % 10).to_double() * room_count_scale).to_int(),
+    room_min_size: @cmp.maximum(6, (8.0 * room_size_scale).to_int()),
     room_max_size: @cmp.maximum(
-      @cmp.maximum(4, (6.0 * room_size_scale).to_int()),
-      (14.0 * room_size_scale).to_int(),
+      @cmp.maximum(6, (8.0 * room_size_scale).to_int()),
+      (20.0 * room_size_scale).to_int(),
     ),
-    main_room_threshold: @cmp.maximum(5, (8.0 * room_size_scale).to_int()),
-    extra_edge_chance: 0.08,
-    separation_iterations: 60,
+    main_room_threshold: @cmp.maximum(7, (10.0 * room_size_scale).to_int()),
+    extra_edge_chance: 0.15,
+    separation_iterations: 80,
   })
 }
 

@@ -10,16 +10,16 @@ pub let screen_h : Int = 480
 pub let tile_size : Double = 16.0
 
 ///|
-pub let map_cols : Int = 60
+pub let map_cols : Int = 100
 
 ///|
-pub let map_rows : Int = 45
+pub let map_rows : Int = 80
 
 ///|
-pub let world_w : Double = 960.0
+pub let world_w : Double = 1600.0
 
 ///|
-pub let world_h : Double = 720.0
+pub let world_h : Double = 1280.0
 
 ///|
 pub let player_speed : Double = 2.0

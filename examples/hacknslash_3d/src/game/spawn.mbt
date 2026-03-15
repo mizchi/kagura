@@ -190,7 +190,7 @@ pub fn spawn_enemies_in_rooms_with_params(
     }
     let room = rooms[i]
     let area = room.rect.w * room.rect.h
-    let base_count = @cmp.minimum(3, @cmp.maximum(1, area / 20))
+    let base_count = @cmp.minimum(5, @cmp.maximum(1, area / 15))
     let large_room_bonus = if area >= 100 {
       params.pack_large_room_bonus
     } else {

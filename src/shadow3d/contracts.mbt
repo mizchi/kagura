@@ -301,15 +301,20 @@ fn shadow_calc_wgsl() -> String {
   "  let current_depth = clamp(proj_coords.z, 0.0, 1.0);\n" +
   "  let bias = uniforms.shadow_params.x;\n" +
   "  let texel_size = uniforms.shadow_params.y;\n" +
+  "  // 4-sample Poisson disk PCF (faster than 3x3=9 samples)\n" +
+  "  let poisson = array<vec2<f32>, 4>(\n" +
+  "    vec2<f32>(-0.94, -0.34),\n" +
+  "    vec2<f32>( 0.94,  0.34),\n" +
+  "    vec2<f32>(-0.34,  0.94),\n" +
+  "    vec2<f32>( 0.34, -0.94),\n" +
+  "  );\n" +
   "  var shadow = 0.0;\n" +
-  "  for (var x = -1; x <= 1; x = x + 1) {\n" +
-  "    for (var y = -1; y <= 1; y = y + 1) {\n" +
-  "      let offset = vec2<f32>(f32(x), f32(y)) * texel_size;\n" +
-  "      let closest_depth = textureSampleLevel(shadow_map, shadow_sampler, shadow_uv + offset, 0.0).r;\n" +
-  "      shadow = shadow + select(0.0, 1.0, current_depth - bias > closest_depth);\n" +
-  "    }\n" +
+  "  for (var i = 0u; i < 4u; i = i + 1u) {\n" +
+  "    let offset = poisson[i] * texel_size;\n" +
+  "    let closest_depth = textureSampleLevel(shadow_map, shadow_sampler, shadow_uv + offset, 0.0).r;\n" +
+  "    shadow = shadow + select(0.0, 1.0, current_depth - bias > closest_depth);\n" +
   "  }\n" +
-  "  return 1.0 - shadow / 9.0;\n" +
+  "  return 1.0 - shadow * 0.25;\n" +
   "}\n\n"
 }
 

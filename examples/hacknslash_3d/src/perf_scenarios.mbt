@@ -15,7 +15,7 @@ fn stress_enemy_stats(kind : @game.EnemyKind) -> (Int, Double, Double) {
     @game.Basic | @game.Swarm => (3, 1.0, 10.0)
     @game.Fast | @game.Exploder | @game.Teleporter => (2, 1.4, 8.0)
     @game.Tank | @game.Berserker => (5, 0.7, 14.0)
-    @game.Ranged | @game.Summoner => (2, 0.5, 8.0)
+    @game.Ranged | @game.Summoner | @game.Caster => (2, 0.5, 8.0)
     @game.Boss => (12, 0.6, 20.0)
   }
 }

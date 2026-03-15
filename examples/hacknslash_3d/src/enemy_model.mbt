@@ -419,7 +419,7 @@ fn EnemyModels::get_mesh_data(
   match kind {
     @game.Fast | @game.Exploder | @game.Teleporter => self.fast
     @game.Tank | @game.Berserker => self.tank
-    @game.Ranged | @game.Summoner => self.ranged
+    @game.Ranged | @game.Summoner | @game.Caster => self.ranged
     @game.Boss => self.boss
     @game.Basic | @game.Swarm => self.basic
   }
@@ -529,7 +529,7 @@ fn EnemyModels::get_skinned_mesh(
   match kind {
     @game.Fast | @game.Exploder | @game.Teleporter => self.cached_skinned_fast
     @game.Tank | @game.Berserker => self.cached_skinned_tank
-    @game.Ranged | @game.Summoner => self.cached_skinned_ranged
+    @game.Ranged | @game.Summoner | @game.Caster => self.cached_skinned_ranged
     @game.Boss => self.cached_skinned_boss
     @game.Basic | @game.Swarm => self.cached_skinned_basic
   }

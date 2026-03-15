@@ -529,6 +529,22 @@ fn compute_kite_direction(
   let mut force_y = 0.0
   let arrow_range = world.params.arrow_range
   let desired_range = arrow_range * 0.4 // stay at ~40% of arrow range
+  // Force 0: Flee from active meteor target zones (highest priority)
+  for enemy in world.enemies {
+    if enemy.alive && enemy.meteor_cast_timer > 0 {
+      let mdx = px - enemy.meteor_target_x
+      let mdy = py - enemy.meteor_target_y
+      let mdist_sq = mdx * mdx + mdy * mdy
+      let danger_radius = meteor_radius * 1.3
+      if mdist_sq < danger_radius * danger_radius {
+        let mdist = mdist_sq.sqrt().max(0.001)
+        // Very strong repulsion from meteor zone
+        let urgency = 3.0 * (1.0 - mdist / danger_radius)
+        force_x = force_x + mdx / mdist * urgency
+        force_y = force_y + mdy / mdist * urgency
+      }
+    }
+  }
   // Force 1: Repel from ALL nearby enemies (inverse-distance weighted)
   let repel_range = arrow_range * 0.5
   for i, enemy in world.enemies {

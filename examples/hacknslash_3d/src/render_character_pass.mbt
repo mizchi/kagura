@@ -97,6 +97,7 @@ fn GameState::rebuild_enemy_render_buckets(
           @game.Exploder => @math3d.Vec4::new(1.0, 0.4, 0.1, 1.0) // orange
           @game.Tank | @game.Berserker => color_enemy_tank
           @game.Ranged | @game.Summoner => color_enemy_ranged
+          @game.Caster => @math3d.Vec4::new(0.6, 0.2, 0.8, 1.0) // purple
           @game.Swarm => @math3d.Vec4::new(0.5, 0.5, 0.3, 1.0) // pale
           @game.Boss => color_enemy_boss
           @game.Basic => color_enemy_basic
@@ -114,7 +115,7 @@ fn GameState::rebuild_enemy_render_buckets(
           buckets.tank_matrices.push(model)
           buckets.tank_colors.push(color)
         }
-        @game.Ranged | @game.Summoner => {
+        @game.Ranged | @game.Summoner | @game.Caster => {
           buckets.ranged_matrices.push(model)
           buckets.ranged_colors.push(color)
         }

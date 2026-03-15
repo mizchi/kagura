@@ -284,6 +284,14 @@ pub fn spawn_enemies_in_rooms_with_params(
           params.scale_enemy_speed_for_floor(params.enemy_speed_basic, floor),
           8.0,
         )
+      } else if kind_roll < 19 {
+        // Caster: channels area damage, must be interrupted
+        (
+          Caster,
+          params.scale_enemy_hp_for_floor(params.ranged_hp.to_int() + 1, floor),
+          params.scale_enemy_speed_for_floor(0.35, floor),
+          9.0,
+        )
       } else {
         // Swarm: tiny and weak but numerous
         (

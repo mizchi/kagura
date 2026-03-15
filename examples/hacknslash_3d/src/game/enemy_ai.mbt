@@ -370,6 +370,19 @@ pub fn update_enemy_ai(
       tick_enemy_pattern_cooldowns(enemy)
       continue
     }
+    // Caster: always tries to cast meteor when in range
+    if enemy.kind == Caster &&
+      enemy.shoot_cooldown <= 0 &&
+      dist_sq < chase_range_sq &&
+      dist_sq > 900.0 { // 30^2 - minimum distance
+      enemy.meteor_cast_timer = meteor_cast_frames
+      enemy.meteor_target_x = player.x
+      enemy.meteor_target_y = player.y
+      events.push(MeteorCastStart(player.x, player.y, meteor_radius))
+      events.push(EnemyTelegraphRing(player.x, player.y, meteor_radius))
+      tick_enemy_pattern_cooldowns(enemy)
+      continue
+    }
     // Summoner: periodically spawn a Basic minion
     if enemy.kind == Summoner &&
       enemy.shoot_cooldown <= 0 &&

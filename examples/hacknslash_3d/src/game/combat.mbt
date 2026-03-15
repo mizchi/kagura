@@ -160,7 +160,7 @@ fn enemy_xp_reward(enemy : Enemy) -> Int {
     Basic | Swarm => 1
     Fast | Exploder => 1
     Tank | Berserker => 2
-    Ranged | Summoner | Teleporter => 2
+    Ranged | Summoner | Teleporter | Caster => 2
     Boss => 8
   }
 }
@@ -267,7 +267,7 @@ fn apply_enemy_death_rewards(world : GameWorld, enemy : Enemy) -> Unit {
   let drop_roll = (drop_seed * 31 + 17) % 100
   let drop_chance = match enemy.kind {
     Boss => 100
-    Tank | Summoner | Berserker => 80
+    Tank | Summoner | Berserker | Caster => 80
     Swarm => 10
     _ => 40
   }

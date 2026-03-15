@@ -96,6 +96,7 @@ pub(all) enum EnemyKind {
   Berserker // gets faster and stronger as HP decreases
   Teleporter // blinks behind player periodically
   Swarm // tiny, weak, spawns in large groups
+  Caster // channels area damage spells, must be interrupted
 } derive(Eq)
 
 ///|

@@ -657,9 +657,9 @@ fn GameState::render_hud_cmds(
     ctx.draw_text_centered(
       cmds,
       "!! METEOR !!",
-      20.0,
+      16.0,
       sw / 2.0,
-      sh / 2.0 - 60.0,
+      sh - 60.0,
       0xFF2222,
     )
   }

@@ -171,6 +171,15 @@ pub fn spawn_enemies_in_rooms_with_params(
 ) -> Array[Enemy] {
   let enemies : Array[Enemy] = []
   let rng = @terrain.make_rng(seed.to_uint() + 7777)
+  // Safe zone: player room + nearby rooms (within distance threshold)
+  let player_room_center = if player_room_idx >= 0 &&
+    player_room_idx < rooms.length() {
+    let r = rooms[player_room_idx].rect
+    (r.x + r.w / 2, r.y + r.h / 2)
+  } else {
+    (0, 0)
+  }
+  let safe_distance = 15 // tiles from player room center
   // Find largest non-player room for elite/mini-boss placement
   let mut largest_room_idx = -1
   let mut largest_area = 0
@@ -178,7 +187,15 @@ pub fn spawn_enemies_in_rooms_with_params(
     if i == player_room_idx {
       continue
     }
-    let area = rooms[i].rect.w * rooms[i].rect.h
+    let rc = rooms[i].rect
+    let rcx = rc.x + rc.w / 2
+    let rcy = rc.y + rc.h / 2
+    let dx = (rcx - player_room_center.0).abs()
+    let dy = (rcy - player_room_center.1).abs()
+    if dx + dy < safe_distance {
+      continue // too close to player start
+    }
+    let area = rc.w * rc.h
     if area > largest_area {
       largest_area = area
       largest_room_idx = i
@@ -186,6 +203,15 @@ pub fn spawn_enemies_in_rooms_with_params(
   }
   for i = 0; i < rooms.length(); i = i + 1 {
     if i == player_room_idx {
+      continue
+    }
+    // Skip rooms in safe zone near player spawn
+    let rc = rooms[i].rect
+    let rcx = rc.x + rc.w / 2
+    let rcy = rc.y + rc.h / 2
+    let dx = (rcx - player_room_center.0).abs()
+    let dy = (rcy - player_room_center.1).abs()
+    if dx + dy < safe_distance {
       continue
     }
     let room = rooms[i]

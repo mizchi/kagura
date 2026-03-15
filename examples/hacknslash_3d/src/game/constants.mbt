@@ -171,6 +171,12 @@ pub let beam_damage_mult : Int = 3 // damage multiplier
 pub let beam_cooldown_frames : Int = 180 // 3 seconds
 
 ///|
+pub let counter_duration_frames : Int = 120 // 2 seconds active
+
+///|
+pub let counter_cooldown_frames : Int = 300 // 5 seconds cooldown
+
+///|
 pub let enemy_bolt_telegraph_frames : Int = 14
 
 ///|

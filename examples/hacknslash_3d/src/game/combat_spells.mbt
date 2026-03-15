@@ -454,56 +454,110 @@ pub fn process_player_projectiles(
 pub fn activate_skill(world : GameWorld, slot : Int) -> Unit {
   match slot {
     0 => {
-      // Slot 1: Power Strike — burst of 3 arrows
+      // Slot 1: Power Strike
       let level = world.skills.get_level(PowerStrike)
       if level > 0 && world.attack_timer <= 0 {
         world.attack_timer = world.params.attack_cooldown.to_int()
-        let a = world.player.facing_angle
-        // 3-way spread
-        for i = -1; i <= 1; i = i + 1 {
-          let spread = a + i.to_double() * 0.3
-          world.projectiles.push({
-            x: world.player.x,
-            y: world.player.y,
-            vx: @math.cos(spread) * world.params.arrow_speed,
-            vy: @math.sin(spread) * world.params.arrow_speed,
-            age: 0,
-            alive: true,
-            damage: (player_basic_attack_damage(
+        match world.archetype {
+          Melee => {
+            // Melee: enhanced circular AoE with damage multiplier
+            let damage = (player_basic_attack_damage(
               world.player_stats,
               world.archetype,
-            ).to_double() * skill_level_damage_multiplier(PowerStrike, level)).to_int().max(1),
-            is_player: true,
-            kind: Arrow,
-          })
+            ).to_double() * skill_level_damage_multiplier(PowerStrike, level)).to_int().max(1)
+            let radius = melee_slash_radius * 1.3
+            let r_sq = radius * radius
+            let px = world.player.x
+            let py = world.player.y
+            for enemy in world.enemies {
+              if not(enemy.alive) {
+                continue
+              }
+              let dx = enemy.x - px
+              let dy = enemy.y - py
+              if dx * dx + dy * dy <= r_sq + enemy.size * enemy.size {
+                apply_player_damage_to_enemy(world, enemy, damage, px, py)
+              }
+            }
+            world.events.push(MeleeSlash(px, py, radius))
+          }
+          _ => {
+            // Ranged: burst of 3 arrows
+            let a = world.player.facing_angle
+            for i = -1; i <= 1; i = i + 1 {
+              let spread = a + i.to_double() * 0.3
+              world.projectiles.push({
+                x: world.player.x,
+                y: world.player.y,
+                vx: @math.cos(spread) * world.params.arrow_speed,
+                vy: @math.sin(spread) * world.params.arrow_speed,
+                age: 0,
+                alive: true,
+                damage: (player_basic_attack_damage(
+                  world.player_stats,
+                  world.archetype,
+                ).to_double() * skill_level_damage_multiplier(PowerStrike, level)).to_int().max(1),
+                is_player: true,
+                kind: Arrow,
+              })
+            }
+          }
         }
         world.events.push(AttackTriggered)
       }
     }
     1 => {
-      // Slot 2: Whirlwind — 8-way arrow burst
+      // Slot 2: Whirlwind
       let level = world.skills.get_level(Whirlwind)
       if level > 0 && world.attack_timer <= 0 {
         world.attack_timer = world.params.attack_cooldown.to_int() + 5
-        for i = 0; i < 8; i = i + 1 {
-          let a = i.to_double() * @math.PI / 4.0
-          world.projectiles.push({
-            x: world.player.x,
-            y: world.player.y,
-            vx: @math.cos(a) * world.params.arrow_speed,
-            vy: @math.sin(a) * world.params.arrow_speed,
-            age: 0,
-            alive: true,
-            damage: (player_basic_attack_damage(
+        match world.archetype {
+          Melee => {
+            // Melee: large 360-degree AoE slash
+            let damage = (player_basic_attack_damage(
               world.player_stats,
               world.archetype,
-            ).to_double() * skill_level_damage_multiplier(Whirlwind, level)).to_int().max(1),
-            is_player: true,
-            kind: Arrow,
-          })
+            ).to_double() * skill_level_damage_multiplier(Whirlwind, level)).to_int().max(1)
+            let radius = melee_slash_radius * 1.8
+            let r_sq = radius * radius
+            let px = world.player.x
+            let py = world.player.y
+            for enemy in world.enemies {
+              if not(enemy.alive) {
+                continue
+              }
+              let dx = enemy.x - px
+              let dy = enemy.y - py
+              if dx * dx + dy * dy <= r_sq + enemy.size * enemy.size {
+                apply_player_damage_to_enemy(world, enemy, damage, px, py)
+              }
+            }
+            world.events.push(MeleeSlash(px, py, radius))
+            world.events.push(DeathBurst(px, py))
+          }
+          _ => {
+            // Ranged: 8-way arrow burst
+            for i = 0; i < 8; i = i + 1 {
+              let a = i.to_double() * @math.PI / 4.0
+              world.projectiles.push({
+                x: world.player.x,
+                y: world.player.y,
+                vx: @math.cos(a) * world.params.arrow_speed,
+                vy: @math.sin(a) * world.params.arrow_speed,
+                age: 0,
+                alive: true,
+                damage: (player_basic_attack_damage(
+                  world.player_stats,
+                  world.archetype,
+                ).to_double() * skill_level_damage_multiplier(Whirlwind, level)).to_int().max(1),
+                is_player: true,
+                kind: Arrow,
+              })
+            }
+            world.events.push(DeathBurst(world.player.x, world.player.y))
+          }
         }
         world.events.push(AttackTriggered)
-        world.events.push(DeathBurst(world.player.x, world.player.y))
       }
     }
     2 => {
@@ -519,6 +573,17 @@ pub fn activate_skill(world : GameWorld, slot : Int) -> Unit {
     4 => ignore(cast_splitting_fireball(world))
     5 => ignore(cast_ice_nova(world))
     6 => ignore(cast_homing_missile(world))
+    7 => {
+      // Counter stance: invincible + reflect projectiles
+      let level = world.skills.get_level(Counter)
+      if level > 0 &&
+        world.player.counter_timer <= 0 &&
+        world.player.counter_cooldown_timer <= 0 {
+        world.player.counter_timer = counter_duration_frames
+        world.player.counter_cooldown_timer = counter_cooldown_frames
+        world.events.push(DeathBurst(world.player.x, world.player.y))
+      }
+    }
     _ => ()
   }
 }

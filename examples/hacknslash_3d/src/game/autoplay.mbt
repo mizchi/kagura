@@ -518,6 +518,55 @@ fn auto_play_direction_to_world_target(
 /// 1. Repel from nearby enemies (stronger when closer)
 /// 2. Repel from walls (prevent cornering)
 /// 3. Attract toward desired combat range from primary target
+/// Compute ideal engagement range from equipped skills.
+/// Melee-heavy builds want to close in; ranged builds want to kite at distance.
+fn compute_ideal_combat_range(world : GameWorld) -> Double {
+  let skills = world.skills
+  // Tally melee vs ranged weight from unlocked skills
+  let mut melee_weight = 0.0
+  let mut ranged_weight = 0.0
+  // Melee skills: want close range
+  if skills.get_level(PowerStrike) > 0 {
+    melee_weight = melee_weight + 2.0
+  }
+  if skills.get_level(Whirlwind) > 0 {
+    melee_weight = melee_weight + 2.0
+  }
+  if skills.get_level(Counter) > 0 {
+    melee_weight = melee_weight + 1.0
+  }
+  if skills.get_level(LifeSteal) > 0 {
+    melee_weight = melee_weight + 1.0
+  }
+  // Ranged skills: want far range
+  if skills.get_level(ChainLightning) > 0 {
+    ranged_weight = ranged_weight + 2.0
+  }
+  if skills.get_level(SplittingFireball) > 0 {
+    ranged_weight = ranged_weight + 2.0
+  }
+  if skills.get_level(HomingMissile) > 0 {
+    ranged_weight = ranged_weight + 1.5
+  }
+  if skills.get_level(IceNova) > 0 {
+    ranged_weight = ranged_weight + 1.0
+  }
+  if skills.get_level(CriticalHit) > 0 {
+    ranged_weight = ranged_weight + 0.5
+  }
+  let total = melee_weight + ranged_weight
+  if total < 0.001 {
+    return world.params.arrow_range * 0.4 // default: mid-range
+  }
+  // Ratio: 0.0 = pure melee, 1.0 = pure ranged
+  let ranged_ratio = ranged_weight / total
+  // Melee: melee_slash_radius * 0.8, Ranged: arrow_range * 0.5
+  let close_range = melee_slash_radius * 0.8
+  let far_range = world.params.arrow_range * 0.5
+  close_range + (far_range - close_range) * ranged_ratio
+}
+
+///|
 fn compute_kite_direction(
   world : GameWorld,
   nav_grid : @terrain.Grid2D,
@@ -528,7 +577,7 @@ fn compute_kite_direction(
   let mut force_x = 0.0
   let mut force_y = 0.0
   let arrow_range = world.params.arrow_range
-  let desired_range = arrow_range * 0.4 // stay at ~40% of arrow range
+  let desired_range = compute_ideal_combat_range(world)
   // Force 0: Flee from active meteor target zones (highest priority)
   for enemy in world.enemies {
     if enemy.alive && enemy.meteor_cast_timer > 0 {
@@ -546,7 +595,15 @@ fn compute_kite_direction(
     }
   }
   // Force 1: Repel from ALL nearby enemies (inverse-distance weighted)
-  let repel_range = arrow_range * 0.5
+  // Melee builds have weaker repulsion to stay in fight
+  let is_melee_build = desired_range < melee_slash_radius * 1.5
+  let repel_range = if is_melee_build {
+    arrow_range * 0.2
+  } else {
+    arrow_range * 0.5
+  }
+  let repel_primary_mult = if is_melee_build { 0.2 } else { 0.8 }
+  let repel_others_mult = if is_melee_build { 0.6 } else { 1.2 }
   for i, enemy in world.enemies {
     if not(enemy.alive) {
       continue
@@ -556,12 +613,11 @@ fn compute_kite_direction(
     let edist_sq = edx * edx + edy * edy
     if edist_sq < repel_range * repel_range && edist_sq > 0.001 {
       let edist = edist_sq.sqrt()
-      // Stronger repulsion when closer (1.0 at contact, 0.0 at repel_range)
       let strength = (1.0 - edist / repel_range)
       let weight = if i == primary_enemy_idx {
-        strength * 0.8 // primary target: moderate repel
+        strength * repel_primary_mult
       } else {
-        strength * 1.2 // other enemies: strong repel (avoid getting surrounded)
+        strength * repel_others_mult
       }
       force_x = force_x + edx / edist * weight
       force_y = force_y + edy / edist * weight
@@ -575,12 +631,15 @@ fn compute_kite_direction(
   if pe_dist > 0.001 {
     let range_error = pe_dist - desired_range
     // Positive = too far, negative = too close
-    let attract = if range_error > 20.0 {
-      0.5 // approach
-    } else if range_error < -10.0 {
-      -0.3 // back away (but enemy repel already handles this)
+    // Proportional force: always moving toward desired range, no dead zone
+    let attract = if range_error > 0.0 {
+      // Too far: approach with force proportional to distance
+      let approach_max = if is_melee_build { 1.5 } else { 0.6 }
+      (range_error / desired_range.max(1.0)).min(1.0) * approach_max
     } else {
-      0.0 // in sweet spot
+      // Too close: gentle retreat (melee barely retreats)
+      let retreat_max = if is_melee_build { -0.05 } else { -0.3 }
+      -((-range_error) / desired_range.max(1.0)).min(1.0) * (-retreat_max)
     }
     force_x = force_x + pe_dx / pe_dist * attract
     force_y = force_y + pe_dy / pe_dist * attract
@@ -623,6 +682,79 @@ fn compute_kite_direction(
       world.player.size * 0.5,
     ) {
     force_y = force_y - wall_force
+  }
+  // Force 4: Dodge enemy projectiles — sidestep perpendicular to incoming trajectory
+  let dodge_range = 60.0
+  let dodge_force = 1.8
+  for proj in world.projectiles {
+    if not(proj.alive) || proj.is_player {
+      continue
+    }
+    let pdx = proj.x - px
+    let pdy = proj.y - py
+    let pdist_sq = pdx * pdx + pdy * pdy
+    if pdist_sq > dodge_range * dodge_range || pdist_sq < 1.0 {
+      continue
+    }
+    // Check if projectile is heading toward us (dot product of velocity and direction to player)
+    let approaching = proj.vx * (-pdx) + proj.vy * (-pdy)
+    if approaching <= 0.0 {
+      continue // moving away from us
+    }
+    let pdist = pdist_sq.sqrt()
+    // Perpendicular dodge direction (cross product sign determines side)
+    let cross = pdx * proj.vy - pdy * proj.vx
+    let perp_sign = if cross >= 0.0 { 1.0 } else { -1.0 }
+    // Perpendicular to projectile velocity
+    let vlen = (proj.vx * proj.vx + proj.vy * proj.vy).sqrt()
+    if vlen < 0.001 {
+      continue
+    }
+    let perp_x = -proj.vy / vlen * perp_sign
+    let perp_y = proj.vx / vlen * perp_sign
+    let urgency = dodge_force * (1.0 - pdist / dodge_range)
+    force_x = force_x + perp_x * urgency
+    force_y = force_y + perp_y * urgency
+  }
+  // Force 5: Avoid beam charge lines — sidestep perpendicular to casting beam direction
+  let beam_dodge_force = 2.5
+  for enemy in world.enemies {
+    if not(enemy.alive) || enemy.beam_cast_timer <= 0 {
+      continue
+    }
+    // Beam line from enemy to its target
+    let bx0 = enemy.x
+    let by0 = enemy.y
+    let bx1 = enemy.beam_target_x
+    let by1 = enemy.beam_target_y
+    let bdx = bx1 - bx0
+    let bdy = by1 - by0
+    let blen_sq = bdx * bdx + bdy * bdy
+    if blen_sq < 1.0 {
+      continue
+    }
+    let blen = blen_sq.sqrt()
+    let bnx = bdx / blen
+    let bny = bdy / blen
+    // Project player onto beam line
+    let to_px = px - bx0
+    let to_py = py - by0
+    let proj_along = to_px * bnx + to_py * bny
+    if proj_along < 0.0 || proj_along > blen {
+      continue // player is not alongside the beam
+    }
+    let perp_dist = to_px * bny - to_py * bnx
+    let abs_perp = perp_dist.abs()
+    let danger_width = beam_width * 2.0
+    if abs_perp > danger_width {
+      continue
+    }
+    // Push perpendicular, away from beam center
+    let perp_sign = if perp_dist >= 0.0 { 1.0 } else { -1.0 }
+    let urgency = beam_dodge_force * (1.0 - abs_perp / danger_width)
+    // Perpendicular to beam direction
+    force_x = force_x + bny * perp_sign * urgency
+    force_y = force_y + -bnx * perp_sign * urgency
   }
   // Normalize
   let mag = (force_x * force_x + force_y * force_y).sqrt()
@@ -787,5 +919,24 @@ pub fn GameWorld::auto_activate_spell_slots(
   if self.skills.get_level(SplittingFireball) > 0 &&
     enemy_dist_sq <= self.params.arrow_range * self.params.arrow_range {
     ignore(cast_splitting_fireball(self))
+  }
+  // Auto-activate Counter when enemy projectiles are nearby
+  if self.skills.get_level(Counter) > 0 &&
+    self.player.counter_timer <= 0 &&
+    self.player.counter_cooldown_timer <= 0 {
+    let mut threat = false
+    for proj in self.projectiles {
+      if proj.alive && not(proj.is_player) {
+        let dx = proj.x - self.player.x
+        let dy = proj.y - self.player.y
+        if dx * dx + dy * dy < 60.0 * 60.0 {
+          threat = true
+          break
+        }
+      }
+    }
+    if threat {
+      activate_skill(self, 7)
+    }
   }
 }

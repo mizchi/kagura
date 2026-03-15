@@ -90,6 +90,8 @@ pub fn GameWorld::new(
     dash_cooldown_timer: 0,
     dash_vx: 0.0,
     dash_vy: 0.0,
+    counter_timer: 0,
+    counter_cooldown_timer: 0,
   }
   let enemies = spawn_enemies_in_rooms_with_params(
     dungeon.rooms,
@@ -186,6 +188,10 @@ pub fn GameWorld::drain_events(self : GameWorld) -> Array[GameEvent] {
 
 ///|
 pub fn GameWorld::deal_player_damage(self : GameWorld, raw_dmg : Int) -> Unit {
+  // Counter stance: immune to all damage
+  if self.player.counter_timer > 0 {
+    return
+  }
   let actual_dmg = @cmp.maximum(1, raw_dmg - self.player_stats.def)
   self.player.hp = self.player.hp - actual_dmg
   self.player.damage_timer = damage_flash_duration
@@ -709,8 +715,17 @@ pub fn GameWorld::tick_projectiles_phase(self : GameWorld) -> Unit {
         let pdx = proj.x - self.player.x
         let pdy = proj.y - self.player.y
         if pdx * pdx + pdy * pdy < pickup_radius_sq {
-          self.deal_player_damage(proj.damage)
-          proj.alive = false
+          if self.player.counter_timer > 0 {
+            // Counter: reflect the projectile back
+            proj.vx = -proj.vx
+            proj.vy = -proj.vy
+            proj.is_player = true
+            proj.damage = proj.damage * 2
+            self.events.push(HitSparks(proj.x, proj.y))
+          } else {
+            self.deal_player_damage(proj.damage)
+            proj.alive = false
+          }
         }
       }
     }
@@ -974,6 +989,12 @@ pub fn GameWorld::tick_player_timers_phase(self : GameWorld) -> Unit {
   if self.player.iframe_timer > 0 {
     self.player.iframe_timer = self.player.iframe_timer - 1
   }
+  if self.player.counter_timer > 0 {
+    self.player.counter_timer = self.player.counter_timer - 1
+  }
+  if self.player.counter_cooldown_timer > 0 {
+    self.player.counter_cooldown_timer = self.player.counter_cooldown_timer - 1
+  }
   if self.screen_flash > 0.01 {
     self.screen_flash = self.screen_flash * 0.92
   } else {
@@ -1112,17 +1133,33 @@ pub fn GameWorld::tick_with_enemy_ai_grid(
   // 8. Auto-cast spell slots based on nearest visible enemy
   let (skill_enemy_idx, skill_enemy_dist_sq) = find_nearest_visible_enemy(self)
   self.auto_activate_spell_slots(skill_enemy_idx, skill_enemy_dist_sq)
-  // 9. Auto-shoot: find_nearest_enemy -> shoot_arrow + push AttackTriggered
+  // 9. Auto-attack: melee slash (Melee) or ranged arrow (others)
   if self.attack_timer > 0 {
     self.attack_timer = self.attack_timer - 1
   } else {
-    let target = find_nearest_enemy(self, self.params.arrow_range)
-    if target is Some(_) {
-      let cdr = self.player_stats.cooldown_reduction
-      let effective_cd = self.params.bow_cooldown * (1.0 - cdr)
-      self.attack_timer = @cmp.maximum(3, effective_cd.to_int())
-      shoot_arrow(self, target)
-      self.events.push(AttackTriggered)
+    match self.archetype {
+      Melee => {
+        // Melee: circular AoE slash around player
+        let target = find_nearest_enemy(self, melee_slash_radius)
+        if target is Some(_) {
+          let cdr = self.player_stats.cooldown_reduction
+          let effective_cd = self.params.bow_cooldown * (1.0 - cdr)
+          self.attack_timer = @cmp.maximum(3, effective_cd.to_int())
+          melee_slash(self)
+          self.events.push(AttackTriggered)
+        }
+      }
+      _ => {
+        // Ranged: shoot arrow at target
+        let target = find_nearest_enemy(self, self.params.arrow_range)
+        if target is Some(_) {
+          let cdr = self.player_stats.cooldown_reduction
+          let effective_cd = self.params.bow_cooldown * (1.0 - cdr)
+          self.attack_timer = @cmp.maximum(3, effective_cd.to_int())
+          shoot_arrow(self, target)
+          self.events.push(AttackTriggered)
+        }
+      }
     }
   }
   // 10. Update enemy AI

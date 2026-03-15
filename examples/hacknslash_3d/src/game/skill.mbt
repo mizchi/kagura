@@ -12,7 +12,8 @@ pub(all) enum SkillId {
   SplittingFireball
   IceNova
   HomingMissile
-}
+  Counter
+} derive(Eq)
 
 ///|
 pub(all) struct SkillNode {
@@ -45,7 +46,7 @@ pub fn SkillTree::new() -> SkillTree {
         max_level: 5, level: 0, cost: 1, icon_id: 10,
         prereqs: [],
         tree_x: 0.18, tree_y: 0.25, node_size: 1,
-        connections: [Whirlwind, CriticalHit, DashMastery],
+        connections: [Whirlwind, CriticalHit, DashMastery, Counter],
       },
       {
         id: Whirlwind, name: "Whirlwind",
@@ -111,6 +112,13 @@ pub fn SkillTree::new() -> SkillTree {
         max_level: 3, level: 0, cost: 1, icon_id: 19,
         prereqs: [],
         tree_x: 0.88, tree_y: 0.65, node_size: 1,
+        connections: [],
+      },
+      {
+        id: Counter, name: "Counter",
+        max_level: 3, level: 0, cost: 2, icon_id: 20,
+        prereqs: [PowerStrike],
+        tree_x: 0.22, tree_y: 0.7, node_size: 1,
         connections: [],
       },
     ],
@@ -200,6 +208,7 @@ pub fn skill_id_to_int(id : SkillId) -> Int {
     SplittingFireball => 7
     IceNova => 8
     HomingMissile => 9
+    Counter => 10
   }
 }
 

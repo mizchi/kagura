@@ -119,6 +119,8 @@ fn GameState::reset_save_and_restart(self : GameState) -> Unit {
   self.world.player.dash_cooldown_timer = 0
   self.world.player.dash_vx = 0.0
   self.world.player.dash_vy = 0.0
+  self.world.player.counter_timer = 0
+  self.world.player.counter_cooldown_timer = 0
   self.world.ui_mode = @game.UIMode::None
   self.world.ui_cursor = 0
   for i in 0..<self.world.inventory.capacity {

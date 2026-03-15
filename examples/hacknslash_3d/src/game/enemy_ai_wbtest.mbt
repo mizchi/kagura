@@ -30,6 +30,8 @@ test "update_enemy_ai falls back to pathfinding when same-room direct chase is b
     dash_cooldown_timer: 0,
     dash_vx: 0.0,
     dash_vy: 0.0,
+    counter_timer: 0,
+    counter_cooldown_timer: 0,
   }
   let enemies = [
     make_enemy(4.5 * tile_size, 1.5 * tile_size, Basic, 3, 1.0, 10.0),
@@ -62,6 +64,8 @@ test "update_enemy_ai telegraphs ranged bolt before spawning projectile" {
     dash_cooldown_timer: 0,
     dash_vx: 0.0,
     dash_vy: 0.0,
+    counter_timer: 0,
+    counter_cooldown_timer: 0,
   }
   let enemies = [
     make_enemy(6.5 * tile_size, 1.5 * tile_size, Ranged, 3, 1.0, 10.0),
@@ -122,6 +126,8 @@ test "update_enemy_ai uses ranged pressure parameters for bolt damage and cooldo
     dash_cooldown_timer: 0,
     dash_vx: 0.0,
     dash_vy: 0.0,
+    counter_timer: 0,
+    counter_cooldown_timer: 0,
   }
   let enemies = [
     make_enemy(6.5 * tile_size, 1.5 * tile_size, Ranged, 3, 1.0, 10.0),
@@ -173,6 +179,8 @@ test "update_enemy_ai telegraphs fast tackle and then lunges toward player" {
     dash_cooldown_timer: 0,
     dash_vx: 0.0,
     dash_vy: 0.0,
+    counter_timer: 0,
+    counter_cooldown_timer: 0,
   }
   let enemies = [
     make_enemy(4.5 * tile_size, 1.5 * tile_size, Fast, 4, 1.2, 8.0),
@@ -230,6 +238,8 @@ test "update_enemy_ai telegraphs tank fire nova and emits radial bolts" {
     dash_cooldown_timer: 0,
     dash_vx: 0.0,
     dash_vy: 0.0,
+    counter_timer: 0,
+    counter_cooldown_timer: 0,
   }
   let enemies = [
     make_enemy(2.6 * tile_size, 1.5 * tile_size, Tank, 8, 0.4, 14.0),

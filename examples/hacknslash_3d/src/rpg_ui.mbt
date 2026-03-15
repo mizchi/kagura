@@ -232,7 +232,8 @@ fn GameState::update_skills_ui(self : GameState) -> Unit {
     let sel_idx = self.world.ui_cursor
     if sel_idx >= 0 && sel_idx < nodes.length() {
       let skill_id = nodes[sel_idx].id
-      if self.world.skills.learn(skill_id) {
+      if self.world.archetype.can_learn_skill(skill_id) &&
+        self.world.skills.learn(skill_id) {
         self.world.player_stats = @game.compute_player_stats(
           self.world.equipment,
           self.world.skills,
@@ -745,7 +746,8 @@ fn GameState::render_skills_ui(
     let nx = margin + node.tree_x * (sw - margin * 2.0)
     let ny = margin + 20.0 + node.tree_y * (sh - margin * 2.0 - 20.0)
     let sel = i == self.world.ui_cursor
-    let can_learn = self.world.skills.can_learn(node.id)
+    let archetype_allowed = self.world.archetype.can_learn_skill(node.id)
+    let can_learn = archetype_allowed && self.world.skills.can_learn(node.id)
     // Node radius by size
     let base_r = match node.node_size {
       2 => 14.0 // keystone
@@ -766,7 +768,9 @@ fn GameState::render_skills_ui(
       draw_circle_node(ctx, cmds, nx, ny, base_r + 4.0, 0xCCAA33)
     }
     // Node border
-    let border_color = if node.level > 0 {
+    let border_color = if not(archetype_allowed) {
+      0x1A1A22 // locked: very dim
+    } else if node.level > 0 {
       0x88AA66
     } else if can_learn {
       0x997733
@@ -775,7 +779,9 @@ fn GameState::render_skills_ui(
     }
     draw_circle_node(ctx, cmds, nx, ny, base_r, border_color)
     // Node fill
-    let fill_color = if node.level > 0 {
+    let fill_color = if not(archetype_allowed) {
+      0x0A0A10 // locked: nearly invisible
+    } else if node.level > 0 {
       0x2A3A1A
     } else {
       0x12121E
@@ -793,7 +799,9 @@ fn GameState::render_skills_ui(
       }
     }
     // Name label below node
-    let name_color = if node.level > 0 {
+    let name_color = if not(archetype_allowed) {
+      0x222233
+    } else if node.level > 0 {
       0x88DD88
     } else if can_learn {
       0xCCAA44

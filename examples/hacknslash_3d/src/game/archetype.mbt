@@ -145,6 +145,32 @@ pub fn CharacterArchetype::starting_skill_ids(
 }
 
 ///|
+/// Skills available to each archetype. Skills not in this list cannot be learned.
+pub fn CharacterArchetype::allowed_skills(
+  self : CharacterArchetype,
+) -> Array[SkillId] {
+  match self {
+    Melee => [PowerStrike, Whirlwind, DashMastery, Vitality, CriticalHit, LifeSteal, Counter]
+    Mage => [ChainLightning, SplittingFireball, IceNova, DashMastery, Vitality, HomingMissile]
+    Summoner => [HomingMissile, IceNova, ChainLightning, DashMastery, Vitality, LifeSteal]
+    Ranger => [CriticalHit, DashMastery, Vitality, LifeSteal, PowerStrike, HomingMissile]
+  }
+}
+
+///|
+pub fn CharacterArchetype::can_learn_skill(
+  self : CharacterArchetype,
+  id : SkillId,
+) -> Bool {
+  for skill in self.allowed_skills() {
+    if skill == id {
+      return true
+    }
+  }
+  false
+}
+
+///|
 pub fn CharacterArchetype::offer_priority(
   self : CharacterArchetype,
   id : SkillId,
@@ -152,15 +178,16 @@ pub fn CharacterArchetype::offer_priority(
   match self {
     Melee => match id {
       PowerStrike => 0
-      Whirlwind => 1
-      Vitality => 2
-      CriticalHit => 3
-      LifeSteal => 4
-      DashMastery => 5
-      HomingMissile => 6
-      ChainLightning => 7
-      IceNova => 8
-      SplittingFireball => 9
+      Counter => 1
+      Whirlwind => 2
+      Vitality => 3
+      CriticalHit => 4
+      LifeSteal => 5
+      DashMastery => 6
+      HomingMissile => 7
+      ChainLightning => 8
+      IceNova => 9
+      SplittingFireball => 10
     }
     Mage => match id {
       ChainLightning => 0
@@ -173,6 +200,7 @@ pub fn CharacterArchetype::offer_priority(
       LifeSteal => 7
       PowerStrike => 8
       Whirlwind => 9
+      Counter => 10
     }
     Summoner => match id {
       HomingMissile => 0
@@ -185,6 +213,7 @@ pub fn CharacterArchetype::offer_priority(
       CriticalHit => 7
       PowerStrike => 8
       Whirlwind => 9
+      Counter => 10
     }
     Ranger => match id {
       CriticalHit => 0
@@ -197,6 +226,7 @@ pub fn CharacterArchetype::offer_priority(
       SplittingFireball => 7
       IceNova => 8
       Whirlwind => 9
+      Counter => 10
     }
   }
 }
@@ -233,7 +263,7 @@ pub fn CharacterArchetype::skill_damage_multiplier(
 ) -> Double {
   match self {
     Melee => match id {
-      PowerStrike | Whirlwind => 1.35
+      PowerStrike | Whirlwind | Counter => 1.35
       ChainLightning | SplittingFireball | IceNova => 0.7
       HomingMissile => 0.8
       _ => 1.0

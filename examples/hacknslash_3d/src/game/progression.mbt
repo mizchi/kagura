@@ -107,7 +107,14 @@ fn build_levelup_offers(
   build_policy : ArchetypeBuildPolicy,
   offer_seed : Int,
 ) -> Array[SkillId] {
-  let available = skills.available_levelup_skill_ids()
+  let all_available = skills.available_levelup_skill_ids()
+  // Filter by archetype-allowed skills
+  let available : Array[SkillId] = []
+  for id in all_available {
+    if archetype.can_learn_skill(id) {
+      available.push(id)
+    }
+  }
   if available.length() == 0 {
     return []
   }

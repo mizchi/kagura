@@ -527,6 +527,9 @@ fn GameState::update_playing(self : GameState) -> Unit {
     if @inpututil.is_key_just_pressed(self.input.key_state, key_7) {
       @game.activate_skill(self.world, 6)
     }
+    if @inpututil.is_key_just_pressed(self.input.key_state, key_8) {
+      @game.activate_skill(self.world, 7)
+    }
     // Tick world with movement
     match self.build_generated_prop_enemy_ai_grid() {
       Some(collision_grid) =>
@@ -598,6 +601,10 @@ fn GameState::update_playing(self : GameState) -> Unit {
       }
       @game.EnemyTelegraphRing(x, y, radius) =>
         self.queue_enemy_telegraph_effect(x, y, radius)
+      @game.MeleeSlash(x, y, _radius) => {
+        spawn_death_burst(self.particle_manager, x, y)
+        spawn_hit_sparks(self.particle_manager, x, y)
+      }
       @game.AttackTriggered => self.character.trigger_attack()
       @game.HurtTriggered => self.character.trigger_hurt()
       @game.FloorComplete => {

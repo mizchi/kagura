@@ -14,6 +14,8 @@ pub(all) struct Player {
   mut dash_cooldown_timer : Int
   mut dash_vx : Double
   mut dash_vy : Double
+  mut counter_timer : Int // >0 = counter stance active (invincible + reflect)
+  mut counter_cooldown_timer : Int
 }
 
 ///|
@@ -72,8 +74,8 @@ pub(all) struct Projectile {
   mut vy : Double
   mut age : Int
   mut alive : Bool
-  damage : Int
-  is_player : Bool
+  mut damage : Int
+  mut is_player : Bool
   kind : ProjectileKind
 }
 
@@ -164,6 +166,7 @@ pub(all) enum GameEvent {
   MeteorCastStart(Double, Double, Double)
   MeteorImpact(Double, Double, Double)
   BeamFire(Double, Double, Double, Double, Bool) // x0, y0, x1, y1, is_player
+  MeleeSlash(Double, Double, Double) // x, y, radius
   AttackTriggered
   HurtTriggered
   FloorComplete

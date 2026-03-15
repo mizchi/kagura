@@ -122,6 +122,34 @@ pub fn shoot_arrow(world : GameWorld, target : Enemy?) -> Unit {
 }
 
 ///|
+let melee_slash_radius : Double = 28.0
+
+///|
+pub fn melee_slash(world : GameWorld) -> Unit {
+  let stats = world.player_stats
+  let crit_roll = (world.frame_count * 31 + world.seed * 7) % 100
+  let is_crit = crit_roll.to_double() / 100.0 < stats.crit_chance
+  let base_damage = if is_crit { stats.atk * 2 } else { stats.atk }
+  let damage = (base_damage.to_double() * world.archetype.basic_attack_multiplier()).to_int().max(
+    1,
+  )
+  let px = world.player.x
+  let py = world.player.y
+  let r_sq = melee_slash_radius * melee_slash_radius
+  for enemy in world.enemies {
+    if not(enemy.alive) {
+      continue
+    }
+    let dx = enemy.x - px
+    let dy = enemy.y - py
+    if dx * dx + dy * dy <= r_sq + enemy.size * enemy.size {
+      apply_player_damage_to_enemy(world, enemy, damage, px, py)
+    }
+  }
+  world.events.push(MeleeSlash(px, py, melee_slash_radius))
+}
+
+///|
 pub fn spawn_ground_item(
   world : GameWorld,
   x : Double,

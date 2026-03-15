@@ -34,6 +34,12 @@ fn is_tile_visible(region : VisibleRegion, col : Int, row : Int) -> Bool {
 
 ///|
 fn height_at_tile(dungeon : @game.DungeonData, col : Int, row : Int) -> Double {
+  if col < 0 ||
+    col >= dungeon.grid.width ||
+    row < 0 ||
+    row >= dungeon.grid.height {
+    return 0.0
+  }
   dungeon.height_map[row * dungeon.grid.width + col]
 }
 

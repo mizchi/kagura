@@ -9,13 +9,13 @@ let color_floor : @math3d.Vec4 = @math3d.Vec4::new(0.28, 0.26, 0.22, 1.0) // dar
 let color_corridor : @math3d.Vec4 = @math3d.Vec4::new(0.22, 0.20, 0.18, 1.0) // darker passage
 
 ///|
-let color_wall : @math3d.Vec4 = @math3d.Vec4::new(0.35, 0.30, 0.25, 1.0) // warm rock
+let color_wall : @math3d.Vec4 = @math3d.Vec4::new(0.35, 0.30, 0.25, 0.7) // warm rock, semi-transparent
 
 ///|
 let color_door : @math3d.Vec4 = @math3d.Vec4::new(0.40, 0.32, 0.18, 1.0) // aged wood
 
 ///|
-let color_pillar : @math3d.Vec4 = @math3d.Vec4::new(0.38, 0.34, 0.28, 1.0) // carved stone
+let color_pillar : @math3d.Vec4 = @math3d.Vec4::new(0.38, 0.34, 0.28, 0.7) // carved stone, semi-transparent
 
 ///|
 let color_exterior : @math3d.Vec4 = @math3d.Vec4::new(0.08, 0.07, 0.06, 1.0) // near-black ground

@@ -7,6 +7,7 @@ struct EntityInstanceScratch {
   arrow_instances : Array[@scene3d.InstanceData]
   fireball_instances : Array[@scene3d.InstanceData]
   homing_missile_instances : Array[@scene3d.InstanceData]
+  telegraph_instances : Array[@scene3d.InstanceData]
 }
 
 ///|
@@ -19,6 +20,7 @@ fn default_entity_instance_scratch() -> EntityInstanceScratch {
     arrow_instances: [],
     fireball_instances: [],
     homing_missile_instances: [],
+    telegraph_instances: [],
   }
 }
 
@@ -42,6 +44,7 @@ fn GameState::rebuild_entity_instance_scratch(
 ) -> Unit {
   self.entity_instance_scratch.item_instances.clear()
   self.entity_instance_scratch.loot_beam_instances.clear()
+  self.entity_instance_scratch.telegraph_instances.clear()
   self.entity_instance_scratch.enemy_projectile_instances.clear()
   self.entity_instance_scratch.enemy_projectile_outline_instances.clear()
   self.entity_instance_scratch.arrow_instances.clear()
@@ -106,6 +109,33 @@ fn GameState::rebuild_entity_instance_scratch(
         _ => ()
       }
     }
+  }
+  // Telegraph markers: 3D floor discs that grow with cast progress
+  for marker in self.world.telegraph_markers {
+    let mx = marker.x / tile_size
+    let mz = marker.y / tile_size
+    let my = height_at_tile(
+      self.world.dungeon,
+      (marker.x / tile_size).to_int(),
+      (marker.y / tile_size).to_int(),
+    ) +
+      0.02 // just above floor
+    let progress = marker.progress()
+    // Scale grows from 30% to 100% of radius
+    let scale = marker.radius / tile_size * (0.3 + progress * 0.7)
+    // Color: orange → red as progress increases
+    let r = 0.8 + progress * 0.2
+    let g = 0.3 * (1.0 - progress)
+    let b = 0.05
+    let a = 0.3 + progress * 0.4
+    self.entity_instance_scratch.telegraph_instances.push(
+      @scene3d.InstanceData::new(
+        transform=@transform3d.Transform3D::from_position(
+          @math3d.Vec3::new(mx, my, mz),
+        ).with_scale(@math3d.Vec3::new(scale, 1.0, scale)),
+        color=@math3d.Vec4::new(r, g, b, a),
+      ),
+    )
   }
   for proj in self.world.projectiles {
     let col = (proj.x / tile_size).to_int()
@@ -510,6 +540,36 @@ fn push_entity_instanced_cmds(
 ) -> Unit {
   state.rebuild_entity_instance_scratch(region)
   let view_projection = camera.view_projection_matrix()
+  // Telegraph ground discs (rendered first, below everything)
+  let telegraph_instances = state.entity_instance_scratch.telegraph_instances
+  if telegraph_instances.length() > 0 {
+    let dst_region = @gfx.new_dst_region(
+      0,
+      0,
+      screen_w,
+      screen_h,
+      state.meshes.telegraph_disc.indices.length(),
+    )
+    for inst in telegraph_instances {
+      cmds.push(
+        @draw3d.new_lit_colored_mesh_draw_command(
+          dst,
+          state.shader3d_colored,
+          dst_region,
+          0,
+          0,
+          0,
+          @gfx.blend_mode_from_int(1), // alpha blend
+          state.meshes.telegraph_disc,
+          inst.transform.to_mat4(),
+          view_projection,
+          state.lighting,
+          inst.color,
+          [],
+        ),
+      )
+    }
+  }
   push_loot_beam_instance_cmds(
     state, view_projection, dst, screen_w, screen_h, cmds,
   )

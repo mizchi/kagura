@@ -14,6 +14,7 @@ struct Meshes3D {
   debris : @mesh3d.Mesh3D
   crate : @mesh3d.Mesh3D
   loot_beam : @mesh3d.Mesh3D
+  telegraph_disc : @mesh3d.Mesh3D
 }
 
 ///|

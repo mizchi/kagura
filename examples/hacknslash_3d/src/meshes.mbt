@@ -15,6 +15,7 @@ fn Meshes3D::new() -> Meshes3D {
     debris: make_wall_mesh(0.2, 0.08, 0.2),
     crate: make_wall_mesh(0.35, 0.3, 0.35),
     loot_beam: make_loot_beam_mesh(0.06, 3.0),
+    telegraph_disc: @mesh3d.Mesh3D::plane(1.0, 1.0), // unit plane, scaled per marker
   }
 }
 

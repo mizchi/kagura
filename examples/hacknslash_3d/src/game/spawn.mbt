@@ -162,6 +162,25 @@ pub fn spawn_enemies_in_rooms(
 }
 
 ///|
+///|
+fn pick_enemy_type(rng : @terrain.RNG) -> EnemyTypeConfig {
+  let configs = enemy_type_configs()
+  let mut total_weight = 0
+  for config in configs {
+    total_weight = total_weight + config.spawn_weight
+  }
+  let roll = rng.next_int(total_weight)
+  let mut acc = 0
+  for config in configs {
+    acc = acc + config.spawn_weight
+    if roll < acc {
+      return config
+    }
+  }
+  configs[0]
+}
+
+///|
 pub fn spawn_enemies_in_rooms_with_params(
   rooms : Array[@terrain.Room],
   player_room_idx : Int,
@@ -179,7 +198,7 @@ pub fn spawn_enemies_in_rooms_with_params(
   } else {
     (0, 0)
   }
-  let safe_distance = 8 // tiles from player room center
+  let safe_distance = spawn_safe_distance
   // Find largest non-player room for elite/mini-boss placement
   let mut largest_room_idx = -1
   let mut largest_area = 0
@@ -216,7 +235,10 @@ pub fn spawn_enemies_in_rooms_with_params(
     }
     let room = rooms[i]
     let area = room.rect.w * room.rect.h
-    let base_count = @cmp.minimum(5, @cmp.maximum(1, area / 15))
+    let base_count = @cmp.minimum(
+      spawn_base_count_max,
+      @cmp.maximum(1, area / spawn_area_divisor),
+    )
     let large_room_bonus = if area >= 100 {
       params.pack_large_room_bonus
     } else {
@@ -249,84 +271,16 @@ pub fn spawn_enemies_in_rooms_with_params(
       let cy = room.rect.y.to_double() * tile_size +
         rng.rand_range(1, room.rect.h - 1).to_double() * tile_size +
         tile_size / 2.0
-      let kind_roll = rng.next_int(20)
-      let (kind, hp, spd, sz) = if kind_roll < 5 {
-        (
-          Basic,
-          params.scale_enemy_hp_for_floor(params.basic_hp.to_int(), floor),
-          params.scale_enemy_speed_for_floor(params.enemy_speed_basic, floor),
-          10.0,
-        )
-      } else if kind_roll < 8 {
-        (
-          Fast,
-          params.scale_enemy_hp_for_floor(params.fast_hp.to_int(), floor),
-          params.scale_enemy_speed_for_floor(params.enemy_speed_fast, floor),
-          8.0,
-        )
-      } else if kind_roll < 10 {
-        (
-          Tank,
-          params.scale_enemy_hp_for_floor(params.tank_hp.to_int(), floor),
-          params.scale_enemy_speed_for_floor(params.enemy_speed_tank, floor),
-          14.0,
-        )
-      } else if kind_roll < 12 {
-        (
-          Ranged,
-          params.scale_enemy_hp_for_floor(params.ranged_hp.to_int(), floor),
-          params.scale_enemy_speed_for_floor(0.5, floor),
-          8.0,
-        )
-      } else if kind_roll < 14 {
-        // Exploder: fast, fragile, deadly on death
-        (
-          Exploder,
-          params.scale_enemy_hp_for_floor(params.fast_hp.to_int(), floor),
-          params.scale_enemy_speed_for_floor(params.enemy_speed_fast * 1.2, floor),
-          7.0,
-        )
-      } else if kind_roll < 16 {
-        // Berserker: medium HP, gets stronger as hurt
-        (
-          Berserker,
-          params.scale_enemy_hp_for_floor(params.tank_hp.to_int(), floor),
-          params.scale_enemy_speed_for_floor(params.enemy_speed_basic, floor),
-          12.0,
-        )
-      } else if kind_roll < 17 {
-        // Summoner: squishy, spawns minions
-        (
-          Summoner,
-          params.scale_enemy_hp_for_floor(params.ranged_hp.to_int(), floor),
-          params.scale_enemy_speed_for_floor(0.4, floor),
-          9.0,
-        )
-      } else if kind_roll < 18 {
-        // Teleporter: appears behind you
-        (
-          Teleporter,
-          params.scale_enemy_hp_for_floor(params.fast_hp.to_int(), floor),
-          params.scale_enemy_speed_for_floor(params.enemy_speed_basic, floor),
-          8.0,
-        )
-      } else if kind_roll < 19 {
-        // Caster: channels area damage, must be interrupted
-        (
-          Caster,
-          params.scale_enemy_hp_for_floor(params.ranged_hp.to_int() + 1, floor),
-          params.scale_enemy_speed_for_floor(0.35, floor),
-          9.0,
-        )
-      } else {
-        // Swarm: tiny and weak but numerous
-        (
-          Swarm,
-          params.scale_enemy_hp_for_floor(1, floor),
-          params.scale_enemy_speed_for_floor(params.enemy_speed_fast, floor),
-          5.0,
-        )
-      }
+      // Pick enemy type from weighted config table
+      let config = pick_enemy_type(rng)
+      let base_hp = (params.basic_hp * config.hp_param).to_int().max(1)
+      let hp = params.scale_enemy_hp_for_floor(base_hp, floor)
+      let spd = params.scale_enemy_speed_for_floor(
+        params.enemy_speed_basic * config.speed_param,
+        floor,
+      )
+      let kind = config.kind
+      let sz = config.size
       enemies.push(make_enemy(cx, cy, kind, hp, spd, sz))
     }
   }

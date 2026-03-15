@@ -33,7 +33,7 @@ pub fn behavior_tackle(ctx : EnemyAIContext) -> Bool {
 pub fn behavior_berserker_rage(ctx : EnemyAIContext) -> Bool {
   let hp_ratio = ctx.enemy.hp.to_double() /
     ctx.enemy.max_hp.to_double().max(1.0)
-  let rage_mult = 1.0 + (1.0 - hp_ratio) * 1.5
+  let rage_mult = 1.0 + (1.0 - hp_ratio) * berserker_rage_max_mult
   ctx.enemy.vx = ctx.enemy.vx * rage_mult
   ctx.enemy.vy = ctx.enemy.vy * rage_mult
   false // doesn't consume frame, just modifies velocity
@@ -46,8 +46,8 @@ pub fn behavior_teleport_behind(ctx : EnemyAIContext) -> Bool {
   }
   let cdx = ctx.player.x - ctx.enemy.x
   let cdy = ctx.player.y - ctx.enemy.y
-  let behind_angle = @math.atan2(-cdy, -cdx) + 0.3
-  let tp_dist = 30.0
+  let behind_angle = @math.atan2(-cdy, -cdx) + teleporter_angle_offset
+  let tp_dist = teleporter_blink_distance
   let new_x = ctx.player.x + @math.cos(behind_angle) * tp_dist
   let new_y = ctx.player.y + @math.sin(behind_angle) * tp_dist
   if not(check_wall_collision(ctx.grid, new_x, new_y, ctx.enemy.size)) {
@@ -55,7 +55,7 @@ pub fn behavior_teleport_behind(ctx : EnemyAIContext) -> Bool {
     ctx.enemy.y = new_y
     ctx.events.push(DeathBurst(ctx.enemy.x, ctx.enemy.y))
   }
-  ctx.enemy.shoot_cooldown = 180
+  ctx.enemy.shoot_cooldown = teleporter_blink_cooldown
   true
 }
 
@@ -63,7 +63,7 @@ pub fn behavior_teleport_behind(ctx : EnemyAIContext) -> Bool {
 pub fn behavior_cast_meteor(ctx : EnemyAIContext) -> Bool {
   if ctx.enemy.shoot_cooldown > 0 ||
     ctx.dist_sq >= ctx.chase_range_sq ||
-    ctx.dist_sq < 900.0 {
+    ctx.dist_sq < caster_min_distance_sq {
     return false
   }
   ctx.enemy.meteor_cast_timer = meteor_cast_frames
@@ -81,11 +81,11 @@ pub fn behavior_summon_minion(ctx : EnemyAIContext) -> Bool {
   if ctx.enemy.shoot_cooldown > 0 || ctx.dist_sq >= ctx.chase_range_sq {
     return false
   }
-  ctx.enemy.shoot_cooldown = 240
+  ctx.enemy.shoot_cooldown = summoner_cooldown
   let summon_x = ctx.enemy.x +
-    ((ctx.frame_count * 17) % 20 - 10).to_double()
+    ((ctx.frame_count * 17) % (summoner_spawn_offset * 2) - summoner_spawn_offset).to_double()
   let summon_y = ctx.enemy.y +
-    ((ctx.frame_count * 13) % 20 - 10).to_double()
+    ((ctx.frame_count * 13) % (summoner_spawn_offset * 2) - summoner_spawn_offset).to_double()
   let summon_hp = ctx.params.scale_enemy_hp_for_floor(
     ctx.params.basic_hp.to_int(),
     ctx.floor,
@@ -95,7 +95,7 @@ pub fn behavior_summon_minion(ctx : EnemyAIContext) -> Bool {
     ctx.floor,
   )
   ctx.enemies.push(
-    make_enemy(summon_x, summon_y, Swarm, summon_hp / 2, summon_speed * 1.2, 6.0),
+    make_enemy(summon_x, summon_y, Swarm, summon_hp / 2, summon_speed * summoner_minion_speed_mult, summoner_minion_size),
   )
   ctx.events.push(DeathBurst(ctx.enemy.x, ctx.enemy.y))
   true
@@ -103,7 +103,7 @@ pub fn behavior_summon_minion(ctx : EnemyAIContext) -> Bool {
 
 ///|
 pub fn behavior_ranged_barrage(ctx : EnemyAIContext) -> Bool {
-  if ctx.dist_sq <= 3600.0 || ctx.dist_sq < 0.000001 {
+  if ctx.dist_sq <= ranged_min_distance_sq || ctx.dist_sq < 0.000001 {
     return false
   }
   let dist = ctx.dist_sq.sqrt()
@@ -111,13 +111,13 @@ pub fn behavior_ranged_barrage(ctx : EnemyAIContext) -> Bool {
     // Slight retreat while on cooldown
     let cdx = ctx.player.x - ctx.enemy.x
     let cdy = ctx.player.y - ctx.enemy.y
-    ctx.enemy.vx = -(cdx / dist) * ctx.enemy.speed * 0.3
-    ctx.enemy.vy = -(cdy / dist) * ctx.enemy.speed * 0.3
+    ctx.enemy.vx = -(cdx / dist) * ctx.enemy.speed * ranged_retreat_speed
+    ctx.enemy.vy = -(cdy / dist) * ctx.enemy.speed * ranged_retreat_speed
     return true
   }
-  // 25% chance to cast meteor instead (if Ranged)
+  // Chance to cast meteor instead of barrage
   let meteor_roll = (ctx.frame_count * 31 + ctx.enemy.x.to_int() * 7) % 100
-  if meteor_roll < 25 {
+  if meteor_roll < ranged_meteor_chance {
     return behavior_cast_meteor(ctx)
   }
   ctx.enemy.shoot_cooldown = ctx.params.ranged_shot_cooldown_frames()
@@ -136,8 +136,8 @@ pub fn behavior_ranged_barrage(ctx : EnemyAIContext) -> Bool {
   )
   let cdx = ctx.player.x - ctx.enemy.x
   let cdy = ctx.player.y - ctx.enemy.y
-  ctx.enemy.vx = -(cdx / dist) * ctx.enemy.speed * 0.3
-  ctx.enemy.vy = -(cdy / dist) * ctx.enemy.speed * 0.3
+  ctx.enemy.vx = -(cdx / dist) * ctx.enemy.speed * ranged_retreat_speed
+  ctx.enemy.vy = -(cdy / dist) * ctx.enemy.speed * ranged_retreat_speed
   true
 }
 

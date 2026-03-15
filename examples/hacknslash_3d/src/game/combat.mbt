@@ -156,13 +156,10 @@ fn apply_life_steal(world : GameWorld, damage : Int) -> Unit {
 
 ///|
 fn enemy_xp_reward(enemy : Enemy) -> Int {
-  match enemy.kind {
-    Basic | Swarm => 1
-    Fast | Exploder => 1
-    Tank | Berserker => 2
-    Ranged | Summoner | Teleporter | Caster => 2
-    Boss => 8
+  if enemy.kind == Boss {
+    return 8
   }
+  find_enemy_type_config(enemy.kind).xp_reward
 }
 
 ///|
@@ -200,13 +197,13 @@ fn apply_enemy_death_rewards(world : GameWorld, enemy : Enemy) -> Unit {
   if enemy.kind == Exploder {
     world.events.push(FireballBurst(enemy.x, enemy.y))
     world.events.push(FireballBurst(enemy.x, enemy.y))
-    let explode_radius = enemy_death_explosion_radius * 1.5
+    let explode_radius = enemy_death_explosion_radius * exploder_radius_mult
     let dx = world.player.x - enemy.x
     let dy = world.player.y - enemy.y
     if dx * dx + dy * dy <= explode_radius * explode_radius &&
       world.player.iframe_timer <= 0 {
       let explosion_damage = world.params.scale_enemy_damage_for_floor(
-        world.params.enemy_contact_damage.to_int() * 3,
+        world.params.enemy_contact_damage.to_int() * exploder_damage_mult,
         world.floor,
       )
       world.deal_player_damage(explosion_damage)
@@ -265,11 +262,10 @@ fn apply_enemy_death_rewards(world : GameWorld, enemy : Enemy) -> Unit {
     enemy.y.to_int() * 17
   // Drop chance: Boss always, Tank 80%, others 40%
   let drop_roll = (drop_seed * 31 + 17) % 100
-  let drop_chance = match enemy.kind {
-    Boss => 100
-    Tank | Summoner | Berserker | Caster => 80
-    Swarm => 10
-    _ => 40
+  let drop_chance = if enemy.kind == Boss {
+    100
+  } else {
+    find_enemy_type_config(enemy.kind).drop_chance
   }
   if drop_roll < drop_chance {
     let drop_count = if enemy.kind == Boss {

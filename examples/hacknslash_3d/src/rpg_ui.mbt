@@ -189,17 +189,16 @@ fn GameState::update_skills_ui(self : GameState) -> Unit {
     self.world.ui_cursor = 0
     return
   }
-  let cur_col = nodes[cur].tree_col
-  let cur_row = nodes[cur].tree_row
-  // Navigate by tree position
+  let cur_x = nodes[cur].tree_x
+  let cur_y = nodes[cur].tree_y
+  // Navigate to nearest node in the pressed direction
   if is_up_just_pressed(self.input) {
-    // Find nearest node in row above
     let mut best = -1
-    let mut best_dist = 9999
+    let mut best_dist = 9999.0
     for i, node in nodes {
-      if node.tree_row < cur_row {
-        let dist = (node.tree_col - cur_col).abs() +
-          (cur_row - node.tree_row) * 4
+      if node.tree_y < cur_y - 0.01 {
+        let dist = (node.tree_x - cur_x).abs() +
+          (cur_y - node.tree_y) * 2.0
         if dist < best_dist {
           best_dist = dist
           best = i
@@ -212,11 +211,11 @@ fn GameState::update_skills_ui(self : GameState) -> Unit {
   }
   if is_down_just_pressed(self.input) {
     let mut best = -1
-    let mut best_dist = 9999
+    let mut best_dist = 9999.0
     for i, node in nodes {
-      if node.tree_row > cur_row {
-        let dist = (node.tree_col - cur_col).abs() +
-          (node.tree_row - cur_row) * 4
+      if node.tree_y > cur_y + 0.01 {
+        let dist = (node.tree_x - cur_x).abs() +
+          (node.tree_y - cur_y) * 2.0
         if dist < best_dist {
           best_dist = dist
           best = i
@@ -236,11 +235,11 @@ fn GameState::update_skills_ui(self : GameState) -> Unit {
       @inpututil.key_left_web,
     ) {
     let mut best = -1
-    let mut best_dist = 9999
+    let mut best_dist = 9999.0
     for i, node in nodes {
-      if node.tree_col < cur_col {
-        let dist = (cur_col - node.tree_col) * 4 +
-          (node.tree_row - cur_row).abs()
+      if node.tree_x < cur_x - 0.01 {
+        let dist = (cur_x - node.tree_x) * 2.0 +
+          (node.tree_y - cur_y).abs()
         if dist < best_dist {
           best_dist = dist
           best = i
@@ -260,11 +259,11 @@ fn GameState::update_skills_ui(self : GameState) -> Unit {
       @inpututil.key_right_web,
     ) {
     let mut best = -1
-    let mut best_dist = 9999
+    let mut best_dist = 9999.0
     for i, node in nodes {
-      if node.tree_col > cur_col {
-        let dist = (node.tree_col - cur_col) * 4 +
-          (node.tree_row - cur_row).abs()
+      if node.tree_x > cur_x + 0.01 {
+        let dist = (node.tree_x - cur_x) * 2.0 +
+          (node.tree_y - cur_y).abs()
         if dist < best_dist {
           best_dist = dist
           best = i
@@ -582,6 +581,33 @@ fn GameState::render_inventory_ui(
 }
 
 ///|
+///|
+fn draw_circle_node(
+  ctx : @hud.HudContext,
+  cmds : Array[@gfx.DrawTrianglesCommand],
+  cx : Double,
+  cy : Double,
+  radius : Double,
+  color : Int,
+) -> Unit {
+  // Approximate circle with overlapping rects (cross pattern)
+  let r = radius
+  let r2 = r * 0.7
+  ctx.draw_rect(cmds, cx - r, cy - r2, r * 2.0, r2 * 2.0, @hud.hex_color(color))
+  ctx.draw_rect(cmds, cx - r2, cy - r, r2 * 2.0, r * 2.0, @hud.hex_color(color))
+  // Corner fills for rounder shape
+  let r3 = r * 0.5
+  ctx.draw_rect(
+    cmds,
+    cx - r * 0.85,
+    cy - r * 0.85,
+    r * 1.7,
+    r * 1.7,
+    @hud.hex_color(color),
+  )
+}
+
+///|
 fn GameState::render_skills_ui(
   self : GameState,
   dst : @gfx.ImageHandle,
@@ -592,177 +618,131 @@ fn GameState::render_skills_ui(
   let sw = screen_w.to_double()
   let sh = screen_h.to_double()
   let p = ui_pad
-  // Fully opaque backdrop
-  ctx.draw_rect(cmds, 0.0, 0.0, sw, sh, @hud.hex_color(0x0D0D1A))
+  let margin = 30.0
+  // Dark starfield background
+  ctx.draw_rect(cmds, 0.0, 0.0, sw, sh, @hud.hex_color(0x050510))
+  // Scatter subtle background stars
+  for star_i = 0; star_i < 40; star_i = star_i + 1 {
+    let sx = ((star_i * 137 + 29) % 620).to_double() + 10.0
+    let sy = ((star_i * 97 + 53) % 460).to_double() + 10.0
+    let brightness = 0x181825 + (star_i * 7) % 0x10
+    ctx.draw_rect(cmds, sx, sy, 1.0, 1.0, @hud.hex_color(brightness))
+  }
   // Header
-  ctx.draw_text(cmds, "SKILL TREE", ui_font_lg, p, p, 0xFFCC00)
+  ctx.draw_text(cmds, "PASSIVE TREE", ui_font_lg, p, p, 0xBBA855)
   ctx.draw_text(
     cmds,
-    "LV:" +
-    self.world.level_progress.level.to_string() +
-    " XP:" +
-    self.world.level_progress.xp.to_string() +
-    "/" +
-    self.world.level_progress.next_level_xp.to_string(),
+    "LV " + self.world.level_progress.level.to_string(),
     ui_font,
-    sw - 180.0,
-    p + 4.0,
-    0xFFCC00,
+    sw - 60.0,
+    p + 2.0,
+    0xBBA855,
   )
-  ctx.draw_text(cmds, "K:CLOSE", ui_font_sm, sw - 60.0, p + 18.0, 0x555555)
-  // Tree layout: 4 columns × 3 rows grid
-  let tree_x0 = 20.0
-  let tree_y0 = 40.0
-  let cell_w = (sw - 40.0) / 4.0
-  let cell_h = (sh - 80.0) / 3.0
-  let node_w = cell_w - 8.0
-  let node_h = cell_h - 8.0
-  // Draw prerequisite connection lines first (behind nodes)
+  ctx.draw_text(cmds, "K:CLOSE", ui_font_sm, sw - 60.0, p + 16.0, 0x444455)
+  // === Draw connection lines (behind nodes) ===
   for node in self.world.skills.nodes {
-    let nx = tree_x0 + node.tree_col.to_double() * cell_w + cell_w / 2.0
-    let ny = tree_y0 + node.tree_row.to_double() * cell_h + cell_h / 2.0
+    let nx = margin + node.tree_x * (sw - margin * 2.0)
+    let ny = margin + 20.0 + node.tree_y * (sh - margin * 2.0 - 20.0)
     for prereq_id in node.prereqs {
       match self.world.skills.find(prereq_id) {
-        Some(prereq_node) => {
-          let px = tree_x0 +
-            prereq_node.tree_col.to_double() * cell_w +
-            cell_w / 2.0
-          let py = tree_y0 +
-            prereq_node.tree_row.to_double() * cell_h +
-            cell_h / 2.0
-          let line_color = if prereq_node.level > 0 {
-            0x446644
+        Some(pn) => {
+          let px = margin + pn.tree_x * (sw - margin * 2.0)
+          let py = margin + 20.0 + pn.tree_y * (sh - margin * 2.0 - 20.0)
+          // Line color: golden if both allocated, dim otherwise
+          let line_color = if pn.level > 0 && node.level > 0 {
+            0x8B7530
+          } else if pn.level > 0 {
+            0x443820
           } else {
-            0x222233
+            0x1A1A28
           }
-          // Draw line as thin rect (horizontal then vertical)
-          let mid_y = (py + ny) / 2.0
-          ctx.draw_rect(
-            cmds,
-            @cmp.minimum(px, nx) - 1.0,
-            mid_y - 1.0,
-            (px - nx).abs() + 2.0,
-            2.0,
-            @hud.hex_color(line_color),
-          )
-          ctx.draw_rect(
-            cmds,
-            px - 1.0,
-            @cmp.minimum(py, mid_y),
-            2.0,
-            (py - mid_y).abs(),
-            @hud.hex_color(line_color),
-          )
-          ctx.draw_rect(
-            cmds,
-            nx - 1.0,
-            @cmp.minimum(ny, mid_y),
-            2.0,
-            (ny - mid_y).abs(),
-            @hud.hex_color(line_color),
-          )
+          // Draw line segments (subdivide for smoother look)
+          let steps = 8
+          for s = 0; s < steps; s = s + 1 {
+            let t0 = s.to_double() / steps.to_double()
+            let t1 = (s + 1).to_double() / steps.to_double()
+            let x0 = px + (nx - px) * t0
+            let y0 = py + (ny - py) * t0
+            let x1 = px + (nx - px) * t1
+            let y1 = py + (ny - py) * t1
+            let lx = @cmp.minimum(x0, x1)
+            let ly = @cmp.minimum(y0, y1)
+            let lw = (x1 - x0).abs().max(1.5)
+            let lh = (y1 - y0).abs().max(1.5)
+            ctx.draw_rect(cmds, lx, ly, lw, lh, @hud.hex_color(line_color))
+          }
         }
         None => ()
       }
     }
   }
-  // Draw skill nodes
+  // === Draw nodes ===
   for i, node in self.world.skills.nodes {
-    let cx = tree_x0 + node.tree_col.to_double() * cell_w + 4.0
-    let cy = tree_y0 + node.tree_row.to_double() * cell_h + 4.0
+    let nx = margin + node.tree_x * (sw - margin * 2.0)
+    let ny = margin + 20.0 + node.tree_y * (sh - margin * 2.0 - 20.0)
     let sel = i == self.world.ui_cursor
     let can_learn = self.world.skills.can_learn(node.id)
-    // Node background
-    let bg = if sel {
-      0x2233AA
-    } else if node.level > 0 {
-      0x1A2A1A
-    } else {
-      0x141420
+    // Node radius by size
+    let base_r = match node.node_size {
+      2 => 14.0 // keystone
+      1 => 10.0 // notable
+      _ => 7.0 // small passive
     }
-    ctx.draw_rect(cmds, cx, cy, node_w, node_h, @hud.hex_color(bg))
-    // Selection border
+    // Outer glow ring for allocated nodes
+    if node.level > 0 {
+      let glow_color = if node.level >= node.max_level {
+        0x44BBAA // maxed: cyan glow
+      } else {
+        0x448844 // partial: green glow
+      }
+      draw_circle_node(ctx, cmds, nx, ny, base_r + 3.0, glow_color)
+    }
+    // Selection highlight ring
     if sel {
-      ctx.draw_rect(cmds, cx, cy, node_w, 2.0, @hud.hex_color(0xFFCC00))
-      ctx.draw_rect(
-        cmds,
-        cx,
-        cy + node_h - 2.0,
-        node_w,
-        2.0,
-        @hud.hex_color(0xFFCC00),
-      )
-      ctx.draw_rect(cmds, cx, cy, 2.0, node_h, @hud.hex_color(0xFFCC00))
-      ctx.draw_rect(
-        cmds,
-        cx + node_w - 2.0,
-        cy,
-        2.0,
-        node_h,
-        @hud.hex_color(0xFFCC00),
-      )
+      draw_circle_node(ctx, cmds, nx, ny, base_r + 4.0, 0xCCAA33)
     }
-    // Skill name
-    let name_color = if node.level > 0 {
-      0x44FF44
+    // Node border
+    let border_color = if node.level > 0 {
+      0x88AA66
     } else if can_learn {
-      0xFFCC00
+      0x997733
     } else {
-      0x555566
+      0x333344
     }
-    ctx.draw_text(cmds, node.name, ui_font_sm, cx + 4.0, cy + 4.0, name_color)
-    // Level display
-    let level_text = "Lv " +
-      node.level.to_string() +
-      "/" +
-      node.max_level.to_string()
-    ctx.draw_text(
-      cmds,
-      level_text,
-      ui_font_sm,
-      cx + 4.0,
-      cy + 16.0,
-      0xCCCCCC,
-    )
-    // Level bar
-    if node.max_level > 0 {
-      let bar_w = node_w - 8.0
-      let bar_ratio = node.level.to_double() / node.max_level.to_double()
-      ctx.draw_rect(
-        cmds,
-        cx + 4.0,
-        cy + node_h - 12.0,
-        bar_w,
-        6.0,
-        @hud.hex_color(0x333333),
-      )
-      if bar_ratio > 0.0 {
-        let bar_color = if node.level >= node.max_level {
-          0x44CCAA
-        } else {
-          0x44AA44
-        }
-        ctx.draw_rect(
-          cmds,
-          cx + 4.0,
-          cy + node_h - 12.0,
-          bar_w * bar_ratio,
-          6.0,
-          @hud.hex_color(bar_color),
-        )
+    draw_circle_node(ctx, cmds, nx, ny, base_r, border_color)
+    // Node fill
+    let fill_color = if node.level > 0 {
+      0x2A3A1A
+    } else {
+      0x12121E
+    }
+    draw_circle_node(ctx, cmds, nx, ny, base_r - 2.0, fill_color)
+    // Level pips inside node (small dots)
+    if node.max_level > 1 {
+      let pip_count = node.max_level
+      let pip_w = @cmp.minimum(base_r * 1.2, (pip_count * 4).to_double())
+      let pip_start = nx - pip_w / 2.0
+      for pip = 0; pip < pip_count; pip = pip + 1 {
+        let pip_x = pip_start + pip.to_double() * (pip_w / pip_count.to_double())
+        let pip_color = if pip < node.level { 0x66FF66 } else { 0x333344 }
+        ctx.draw_rect(cmds, pip_x, ny + 2.0, 2.0, 2.0, @hud.hex_color(pip_color))
       }
     }
-  }
-  // Column labels
-  let labels = ["MELEE", "UTILITY", "SPELL", "SPELL"]
-  for i, label in labels {
-    ctx.draw_text(
+    // Name label below node
+    let name_color = if node.level > 0 {
+      0x88DD88
+    } else if can_learn {
+      0xCCAA44
+    } else {
+      0x445566
+    }
+    ctx.draw_text_centered(
       cmds,
-      label,
+      node.name,
       ui_font_sm,
-      tree_x0 + i.to_double() * cell_w + 4.0,
-      sh - 14.0,
-      0x444466,
+      nx,
+      ny + base_r + 4.0,
+      name_color,
     )
   }
 }

@@ -549,8 +549,9 @@ pub(all) struct SkillNode {
   cost : Int
   icon_id : Int
   prereqs : Array[SkillId]
-  tree_col : Int // column position in skill tree layout (0-3)
-  tree_row : Int // row position in skill tree layout (0-4)
+  tree_x : Double // x position in skill tree (0.0-1.0 normalized)
+  tree_y : Double // y position in skill tree (0.0-1.0 normalized)
+  node_size : Int // 0=small passive, 1=notable, 2=keystone
 }
 
 ///|
@@ -563,121 +564,79 @@ pub(all) struct SkillTree {
 pub fn SkillTree::new() -> SkillTree {
   {
     nodes: [
-      // Row 0: Melee tree root
+      // === MELEE cluster (left) ===
       {
         id: PowerStrike,
         name: "Power Strike",
-        max_level: 5,
-        level: 0,
-        cost: 1,
-        icon_id: 10,
+        max_level: 5, level: 0, cost: 1, icon_id: 10,
         prereqs: [],
-        tree_col: 0,
-        tree_row: 0,
+        tree_x: 0.18, tree_y: 0.25, node_size: 1,
       },
-      // Row 1: Melee branches
       {
         id: Whirlwind,
         name: "Whirlwind",
-        max_level: 3,
-        level: 0,
-        cost: 2,
-        icon_id: 11,
+        max_level: 3, level: 0, cost: 2, icon_id: 11,
         prereqs: [PowerStrike],
-        tree_col: 0,
-        tree_row: 1,
+        tree_x: 0.08, tree_y: 0.45, node_size: 1,
       },
-      // Row 0: Utility tree
+      // === UTILITY cluster (center-left) ===
       {
         id: DashMastery,
         name: "Dash Mastery",
-        max_level: 3,
-        level: 0,
-        cost: 1,
-        icon_id: 12,
+        max_level: 3, level: 0, cost: 1, icon_id: 12,
         prereqs: [],
-        tree_col: 1,
-        tree_row: 0,
+        tree_x: 0.35, tree_y: 0.12, node_size: 0,
       },
       {
         id: Vitality,
         name: "Vitality",
-        max_level: 5,
-        level: 0,
-        cost: 1,
-        icon_id: 13,
+        max_level: 5, level: 0, cost: 1, icon_id: 13,
         prereqs: [],
-        tree_col: 1,
-        tree_row: 1,
+        tree_x: 0.38, tree_y: 0.55, node_size: 0,
       },
-      // Row 1: Melee-Utility junction
+      // === CONVERGENCE (center) ===
       {
         id: CriticalHit,
         name: "Critical Hit",
-        max_level: 3,
-        level: 0,
-        cost: 2,
-        icon_id: 14,
+        max_level: 3, level: 0, cost: 2, icon_id: 14,
         prereqs: [PowerStrike],
-        tree_col: 0,
-        tree_row: 2,
+        tree_x: 0.28, tree_y: 0.65, node_size: 1,
       },
-      // Row 2: Convergence
       {
         id: LifeSteal,
         name: "Life Steal",
-        max_level: 3,
-        level: 0,
-        cost: 3,
-        icon_id: 15,
+        max_level: 3, level: 0, cost: 3, icon_id: 15,
         prereqs: [CriticalHit, Vitality],
-        tree_col: 1,
-        tree_row: 2,
+        tree_x: 0.50, tree_y: 0.50, node_size: 2, // keystone
       },
-      // Row 0-1: Spell tree (right side)
+      // === SPELL cluster (right) ===
       {
         id: ChainLightning,
         name: "Chain Lightning",
-        max_level: 3,
-        level: 0,
-        cost: 1,
-        icon_id: 16,
+        max_level: 3, level: 0, cost: 1, icon_id: 16,
         prereqs: [],
-        tree_col: 2,
-        tree_row: 0,
+        tree_x: 0.68, tree_y: 0.20, node_size: 1,
       },
       {
         id: SplittingFireball,
         name: "Splitting Fireball",
-        max_level: 3,
-        level: 0,
-        cost: 1,
-        icon_id: 17,
+        max_level: 3, level: 0, cost: 1, icon_id: 17,
         prereqs: [],
-        tree_col: 3,
-        tree_row: 0,
+        tree_x: 0.88, tree_y: 0.30, node_size: 1,
       },
       {
         id: IceNova,
         name: "Ice Nova",
-        max_level: 3,
-        level: 0,
-        cost: 1,
-        icon_id: 18,
+        max_level: 3, level: 0, cost: 1, icon_id: 18,
         prereqs: [],
-        tree_col: 2,
-        tree_row: 1,
+        tree_x: 0.72, tree_y: 0.65, node_size: 1,
       },
       {
         id: HomingMissile,
         name: "Homing Missile",
-        max_level: 3,
-        level: 0,
-        cost: 1,
-        icon_id: 19,
+        max_level: 3, level: 0, cost: 1, icon_id: 19,
         prereqs: [],
-        tree_col: 3,
-        tree_row: 1,
+        tree_x: 0.90, tree_y: 0.70, node_size: 1,
       },
     ],
     skill_points: 0,

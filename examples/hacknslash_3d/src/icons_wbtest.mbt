@@ -29,8 +29,9 @@ fn test_skill(icon_id : Int) -> @game.SkillNode {
     cost: 1,
     icon_id,
     prereqs: [],
-    tree_col: 0,
-    tree_row: 0,
+    tree_x: 0.5,
+    tree_y: 0.5,
+    node_size: 0,
   }
 }
 

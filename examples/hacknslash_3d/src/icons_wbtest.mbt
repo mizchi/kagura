@@ -32,6 +32,7 @@ fn test_skill(icon_id : Int) -> @game.SkillNode {
     tree_x: 0.5,
     tree_y: 0.5,
     node_size: 0,
+    connections: [],
   }
 }
 

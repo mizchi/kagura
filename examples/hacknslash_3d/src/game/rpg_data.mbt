@@ -552,6 +552,7 @@ pub(all) struct SkillNode {
   tree_x : Double // x position in skill tree (0.0-1.0 normalized)
   tree_y : Double // y position in skill tree (0.0-1.0 normalized)
   node_size : Int // 0=small passive, 1=notable, 2=keystone
+  connections : Array[SkillId] // visual connections (lines in skill tree UI)
 }
 
 ///|
@@ -566,77 +567,77 @@ pub fn SkillTree::new() -> SkillTree {
     nodes: [
       // === MELEE cluster (left) ===
       {
-        id: PowerStrike,
-        name: "Power Strike",
+        id: PowerStrike, name: "Power Strike",
         max_level: 5, level: 0, cost: 1, icon_id: 10,
         prereqs: [],
         tree_x: 0.18, tree_y: 0.25, node_size: 1,
+        connections: [Whirlwind, CriticalHit, DashMastery],
       },
       {
-        id: Whirlwind,
-        name: "Whirlwind",
+        id: Whirlwind, name: "Whirlwind",
         max_level: 3, level: 0, cost: 2, icon_id: 11,
         prereqs: [PowerStrike],
-        tree_x: 0.08, tree_y: 0.45, node_size: 1,
+        tree_x: 0.08, tree_y: 0.48, node_size: 1,
+        connections: [],
       },
-      // === UTILITY cluster (center-left) ===
+      // === UTILITY cluster (center) ===
       {
-        id: DashMastery,
-        name: "Dash Mastery",
+        id: DashMastery, name: "Dash Mastery",
         max_level: 3, level: 0, cost: 1, icon_id: 12,
         prereqs: [],
-        tree_x: 0.35, tree_y: 0.12, node_size: 0,
+        tree_x: 0.38, tree_y: 0.12, node_size: 0,
+        connections: [Vitality],
       },
       {
-        id: Vitality,
-        name: "Vitality",
+        id: Vitality, name: "Vitality",
         max_level: 5, level: 0, cost: 1, icon_id: 13,
         prereqs: [],
-        tree_x: 0.38, tree_y: 0.55, node_size: 0,
+        tree_x: 0.42, tree_y: 0.48, node_size: 0,
+        connections: [LifeSteal],
       },
       // === CONVERGENCE (center) ===
       {
-        id: CriticalHit,
-        name: "Critical Hit",
+        id: CriticalHit, name: "Critical Hit",
         max_level: 3, level: 0, cost: 2, icon_id: 14,
         prereqs: [PowerStrike],
-        tree_x: 0.28, tree_y: 0.65, node_size: 1,
+        tree_x: 0.25, tree_y: 0.68, node_size: 1,
+        connections: [LifeSteal],
       },
       {
-        id: LifeSteal,
-        name: "Life Steal",
+        id: LifeSteal, name: "Life Steal",
         max_level: 3, level: 0, cost: 3, icon_id: 15,
         prereqs: [CriticalHit, Vitality],
-        tree_x: 0.50, tree_y: 0.50, node_size: 2, // keystone
+        tree_x: 0.50, tree_y: 0.42, node_size: 2,
+        connections: [ChainLightning],
       },
       // === SPELL cluster (right) ===
       {
-        id: ChainLightning,
-        name: "Chain Lightning",
+        id: ChainLightning, name: "Chain Lightning",
         max_level: 3, level: 0, cost: 1, icon_id: 16,
         prereqs: [],
-        tree_x: 0.68, tree_y: 0.20, node_size: 1,
+        tree_x: 0.65, tree_y: 0.22, node_size: 1,
+        connections: [SplittingFireball, IceNova],
       },
       {
-        id: SplittingFireball,
-        name: "Splitting Fireball",
+        id: SplittingFireball, name: "Splitting Fireball",
         max_level: 3, level: 0, cost: 1, icon_id: 17,
         prereqs: [],
-        tree_x: 0.88, tree_y: 0.30, node_size: 1,
+        tree_x: 0.85, tree_y: 0.18, node_size: 1,
+        connections: [],
       },
       {
-        id: IceNova,
-        name: "Ice Nova",
+        id: IceNova, name: "Ice Nova",
         max_level: 3, level: 0, cost: 1, icon_id: 18,
         prereqs: [],
-        tree_x: 0.72, tree_y: 0.65, node_size: 1,
+        tree_x: 0.68, tree_y: 0.58, node_size: 1,
+        connections: [HomingMissile],
       },
       {
-        id: HomingMissile,
-        name: "Homing Missile",
+        id: HomingMissile, name: "Homing Missile",
         max_level: 3, level: 0, cost: 1, icon_id: 19,
         prereqs: [],
-        tree_x: 0.90, tree_y: 0.70, node_size: 1,
+        tree_x: 0.88, tree_y: 0.65, node_size: 1,
+        connections: [],
       },
     ],
     skill_points: 0,

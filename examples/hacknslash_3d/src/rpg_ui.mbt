@@ -193,9 +193,13 @@ fn GameState::update_skills_ui(self : GameState) -> Unit {
   let sw = screen_w.to_double()
   let sh = screen_h.to_double()
   let margin = 30.0
+  // cursor_x/cursor_y are CSS pixels relative to canvas top-left.
+  // Scale to logical game coordinates (screen_w x screen_h).
+  // The CSS canvas size may differ from logical size due to DPR scaling,
+  // but cursor coords are already in CSS space which maps 1:1 to logical.
   let mx = self.world.cursor_x
   let my = self.world.cursor_y
-  if mx > 0.0 || my > 0.0 {
+  if mx > 1.0 || my > 1.0 {
     let mut hover_best = -1
     let mut hover_best_dist = 9999.0
     for i, node in nodes {
@@ -677,8 +681,8 @@ fn GameState::render_skills_ui(
   for node in self.world.skills.nodes {
     let nx = margin + node.tree_x * (sw - margin * 2.0)
     let ny = margin + 20.0 + node.tree_y * (sh - margin * 2.0 - 20.0)
-    for prereq_id in node.prereqs {
-      match self.world.skills.find(prereq_id) {
+    for conn_id in node.connections {
+      match self.world.skills.find(conn_id) {
         Some(pn) => {
           let px = margin + pn.tree_x * (sw - margin * 2.0)
           let py = margin + 20.0 + pn.tree_y * (sh - margin * 2.0 - 20.0)

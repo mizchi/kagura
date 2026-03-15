@@ -37,6 +37,8 @@ pub(all) struct GameWorld {
   mut discovered_rooms : Array[Bool]
   mut discovered_rooms_version : Int
   mut select_cursor : Int
+  mut cursor_x : Double
+  mut cursor_y : Double
   mut events : Array[GameEvent]
   mut enemy_separation_cell_heads : Array[Int]
   mut enemy_separation_next_indices : Array[Int]
@@ -132,6 +134,8 @@ pub fn GameWorld::new(
     discovered_rooms,
     discovered_rooms_version,
     select_cursor: 0,
+    cursor_x: 0.0,
+    cursor_y: 0.0,
     events: [],
     enemy_separation_cell_heads: Array::make(
       enemy_separation_grid_cols() * enemy_separation_grid_rows(),

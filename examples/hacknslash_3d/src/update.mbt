@@ -258,6 +258,8 @@ fn GameState::new_with_params_and_ssao(
 ///|
 fn GameState::update(self : GameState, input : @core.InputSnapshot) -> Unit {
   self.world.frame_count = self.world.frame_count + 1
+  self.world.cursor_x = input.cursor_x
+  self.world.cursor_y = input.cursor_y
   @inpututil.update_input_helper(self.input, input)
   // Profiler toggle (works in any mode)
   if @inpututil.is_key_just_pressed(self.input.key_state, key_f3) {

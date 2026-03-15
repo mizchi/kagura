@@ -189,8 +189,42 @@ fn GameState::update_skills_ui(self : GameState) -> Unit {
     self.world.ui_cursor = 0
     return
   }
-  let cur_x = nodes[cur].tree_x
-  let cur_y = nodes[cur].tree_y
+  // Mouse hover: find nearest node to cursor
+  let sw = screen_w.to_double()
+  let sh = screen_h.to_double()
+  let margin = 30.0
+  let mx = self.world.cursor_x
+  let my = self.world.cursor_y
+  if mx > 0.0 || my > 0.0 {
+    let mut hover_best = -1
+    let mut hover_best_dist = 9999.0
+    for i, node in nodes {
+      let nx = margin + node.tree_x * (sw - margin * 2.0)
+      let ny = margin + 20.0 + node.tree_y * (sh - margin * 2.0 - 20.0)
+      let dx = mx - nx
+      let dy = my - ny
+      let dist = (dx * dx + dy * dy).sqrt()
+      let hit_radius = match node.node_size {
+        2 => 18.0
+        1 => 14.0
+        _ => 10.0
+      }
+      if dist < hit_radius && dist < hover_best_dist {
+        hover_best_dist = dist
+        hover_best = i
+      }
+    }
+    if hover_best >= 0 {
+      self.world.ui_cursor = hover_best
+    }
+  }
+  // Mouse click: select hovered node (left mouse button)
+  if @inpututil.is_mouse_button_just_pressed(self.input.mouse_state, 0) {
+    // Cursor is already on the node from hover above
+    // No additional action needed - selection is the hover
+  }
+  let cur_x = nodes[self.world.ui_cursor].tree_x
+  let cur_y = nodes[self.world.ui_cursor].tree_y
   // Navigate to nearest node in the pressed direction
   if is_up_just_pressed(self.input) {
     let mut best = -1

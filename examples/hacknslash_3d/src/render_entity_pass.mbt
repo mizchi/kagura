@@ -110,7 +110,7 @@ fn GameState::rebuild_entity_instance_scratch(
       }
     }
   }
-  // Telegraph markers: 3D floor discs that grow with cast progress
+  // Telegraph markers: 3D floor discs that fill gradually with cast progress
   for marker in self.world.telegraph_markers {
     let mx = marker.x / tile_size
     let mz = marker.y / tile_size
@@ -119,23 +119,36 @@ fn GameState::rebuild_entity_instance_scratch(
       (marker.x / tile_size).to_int(),
       (marker.y / tile_size).to_int(),
     ) +
-      0.02 // just above floor
+      0.02
     let progress = marker.progress()
-    // Scale grows from 30% to 100% of radius
-    let scale = marker.radius / tile_size * (0.3 + progress * 0.7)
-    // Color: orange → red as progress increases
-    let r = 0.8 + progress * 0.2
-    let g = 0.3 * (1.0 - progress)
-    let b = 0.05
-    let a = 0.3 + progress * 0.4
+    let full_scale = marker.radius / tile_size
+    // Outer ring: always at full size, very faint border
     self.entity_instance_scratch.telegraph_instances.push(
       @scene3d.InstanceData::new(
         transform=@transform3d.Transform3D::from_position(
           @math3d.Vec3::new(mx, my, mz),
-        ).with_scale(@math3d.Vec3::new(scale, 1.0, scale)),
-        color=@math3d.Vec4::new(r, g, b, a),
+        ).with_scale(@math3d.Vec3::new(full_scale, 1.0, full_scale)),
+        color=@math3d.Vec4::new(0.8, 0.2, 0.05, 0.08),
       ),
     )
+    // Fill disc: grows from 0% to 100% with eased curve
+    // Slow start, accelerating toward the end (quadratic ease-in)
+    let eased = progress * progress
+    let fill_scale = full_scale * eased
+    if fill_scale > 0.01 {
+      // Color shifts from soft orange to bright red at the end
+      let r = 0.7 + progress * 0.3
+      let g = 0.25 * (1.0 - progress)
+      let a = 0.06 + eased * 0.14
+      self.entity_instance_scratch.telegraph_instances.push(
+        @scene3d.InstanceData::new(
+          transform=@transform3d.Transform3D::from_position(
+            @math3d.Vec3::new(mx, my + 0.01, mz),
+          ).with_scale(@math3d.Vec3::new(fill_scale, 1.0, fill_scale)),
+          color=@math3d.Vec4::new(r, g, 0.02, a),
+        ),
+      )
+    }
   }
   for proj in self.world.projectiles {
     let col = (proj.x / tile_size).to_int()

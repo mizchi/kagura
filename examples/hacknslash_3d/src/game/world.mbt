@@ -874,10 +874,9 @@ pub fn GameWorld::tick_meteor_damage_phase(self : GameWorld) -> Unit {
       MeteorCastStart(x, y, radius) =>
         add_telegraph_circle(self, x, y, radius, meteor_cast_frames)
       EnemyTelegraphRing(x, y, radius) =>
-        // Short telegraph for quick attacks (bolt, tackle, fire nova)
-        add_telegraph_circle(self, x, y, radius, 20)
+        add_telegraph_circle(self, x, y, radius, 40)
       GroundTelegraphLine(x0, y0, x1, y1) =>
-        add_telegraph_line(self, x0, y0, x1, y1, 8.0, 20)
+        add_telegraph_line(self, x0, y0, x1, y1, 8.0, 40)
       MeteorImpact(x, y, radius) => {
         let pdx = self.player.x - x
         let pdy = self.player.y - y

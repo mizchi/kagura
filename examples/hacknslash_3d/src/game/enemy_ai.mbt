@@ -315,70 +315,32 @@ pub fn update_enemy_ai(
     let dist_sq = cdx * cdx + cdy * cdy
     let enemy_room = find_room_at(rooms, enemy.x, enemy.y)
     let same_room_visible = player_room >= 0 && enemy_room == player_room
-    match enemy.kind {
-      Boss => {
-        if try_start_enemy_fire_nova(enemy, player, events) {
-          tick_enemy_pattern_cooldowns(enemy)
-          continue
-        }
-        if try_start_enemy_tackle(enemy, player, events) {
-          tick_enemy_pattern_cooldowns(enemy)
-          continue
-        }
+    // Dispatch special behaviors via composable behavior table
+    let ctx : EnemyAIContext = {
+      enemy,
+      player,
+      grid,
+      enemies,
+      projectiles,
+      events,
+      params,
+      floor,
+      frame_count,
+      dist_sq,
+      chase_range_sq,
+      same_room_visible,
+    }
+    let behaviors = get_special_behaviors(enemy.kind)
+    let mut behavior_consumed = false
+    for behavior in behaviors {
+      if behavior(ctx) {
+        behavior_consumed = true
+        break
       }
-      Tank =>
-        if try_start_enemy_fire_nova(enemy, player, events) {
-          tick_enemy_pattern_cooldowns(enemy)
-          continue
-        }
-      Fast | Exploder =>
-        // Exploder always charges toward player; Fast uses tackle
-        if try_start_enemy_tackle(enemy, player, events) {
-          tick_enemy_pattern_cooldowns(enemy)
-          continue
-        }
-      Berserker => {
-        // Berserker gets faster as HP decreases
-        let hp_ratio = enemy.hp.to_double() /
-          enemy.max_hp.to_double().max(1.0)
-        let rage_mult = 1.0 + (1.0 - hp_ratio) * 1.5
-        enemy.vx = enemy.vx * rage_mult
-        enemy.vy = enemy.vy * rage_mult
-        if try_start_enemy_tackle(enemy, player, events) {
-          tick_enemy_pattern_cooldowns(enemy)
-          continue
-        }
-      }
-      Summoner =>
-        // Summoner behavior: uses ranged attack pattern (handled below)
-        ()
-      Teleporter => {
-        // Teleport behind player every 3 seconds
-        if enemy.shoot_cooldown <= 0 && dist_sq < chase_range_sq {
-          let behind_angle = @math.atan2(
-              -cdy,
-              -cdx,
-            ) +
-            0.3
-          let tp_dist = 30.0
-          let new_x = player.x + @math.cos(behind_angle) * tp_dist
-          let new_y = player.y + @math.sin(behind_angle) * tp_dist
-          if not(
-              check_wall_collision(
-                grid,
-                new_x,
-                new_y,
-                enemy.size,
-              ),
-            ) {
-            enemy.x = new_x
-            enemy.y = new_y
-            events.push(DeathBurst(enemy.x, enemy.y))
-          }
-          enemy.shoot_cooldown = 180 // 3 second cooldown
-        }
-      }
-      _ => ()
+    }
+    if behavior_consumed {
+      tick_enemy_pattern_cooldowns(enemy)
+      continue
     }
     // Patrol if out of chase range
     if dist_sq > chase_range_sq {
@@ -387,76 +349,6 @@ pub fn update_enemy_ai(
         180.0
       enemy.vx = @math.cos(angle) * enemy.speed * 0.3
       enemy.vy = @math.sin(angle) * enemy.speed * 0.3
-      tick_enemy_pattern_cooldowns(enemy)
-      continue
-    }
-    // Caster: always tries to cast meteor when in range
-    if enemy.kind == Caster &&
-      enemy.shoot_cooldown <= 0 &&
-      dist_sq < chase_range_sq &&
-      dist_sq > 900.0 { // 30^2 - minimum distance
-      enemy.meteor_cast_timer = meteor_cast_frames
-      enemy.meteor_target_x = player.x
-      enemy.meteor_target_y = player.y
-      events.push(MeteorCastStart(player.x, player.y, meteor_radius))
-      events.push(EnemyTelegraphRing(player.x, player.y, meteor_radius))
-      tick_enemy_pattern_cooldowns(enemy)
-      continue
-    }
-    // Summoner: periodically spawn a Basic minion
-    if enemy.kind == Summoner &&
-      enemy.shoot_cooldown <= 0 &&
-      dist_sq < chase_range_sq {
-      enemy.shoot_cooldown = 240 // 4 seconds between summons
-      let summon_x = enemy.x + ((frame_count * 17) % 20 - 10).to_double()
-      let summon_y = enemy.y + ((frame_count * 13) % 20 - 10).to_double()
-      let summon_hp = params.scale_enemy_hp_for_floor(
-        params.basic_hp.to_int(),
-        floor,
-      )
-      let summon_speed = params.scale_enemy_speed_for_floor(
-        params.enemy_speed_basic,
-        floor,
-      )
-      enemies.push(make_enemy(summon_x, summon_y, Swarm, summon_hp / 2, summon_speed * 1.2, 6.0))
-      events.push(DeathBurst(enemy.x, enemy.y))
-      tick_enemy_pattern_cooldowns(enemy)
-      continue
-    }
-    // Ranged enemy: shoot or cast meteor if in range
-    if enemy.kind == Ranged && dist_sq > 3600.0 { // 60.0^2
-      if dist_sq > 0.000001 {
-        let dist = dist_sq.sqrt()
-        if enemy.shoot_cooldown <= 0 {
-          // 25% chance to cast meteor instead of normal barrage
-          let meteor_roll = (frame_count * 31 + enemy.x.to_int() * 7) % 100
-          if meteor_roll < 25 {
-            // Start meteor cast
-            enemy.meteor_cast_timer = meteor_cast_frames
-            enemy.meteor_target_x = player.x
-            enemy.meteor_target_y = player.y
-            events.push(
-              MeteorCastStart(player.x, player.y, meteor_radius),
-            )
-            events.push(
-              EnemyTelegraphRing(player.x, player.y, meteor_radius),
-            )
-            tick_enemy_pattern_cooldowns(enemy)
-            continue
-          }
-          enemy.shoot_cooldown = params.ranged_shot_cooldown_frames()
-          enemy.pending_bolt_timer = enemy_bolt_telegraph_frames
-          enemy.pending_bolt_target_x = player.x
-          enemy.pending_bolt_target_y = player.y
-          events.push(GroundTelegraphLine(enemy.x, enemy.y, player.x, player.y))
-          events.push(
-            EnemyTelegraphRing(player.x, player.y, enemy_bolt_telegraph_radius),
-          )
-        }
-        // Ranged enemies don't chase when shooting, slight retreat
-        enemy.vx = -(cdx / dist) * enemy.speed * 0.3
-        enemy.vy = -(cdy / dist) * enemy.speed * 0.3
-      }
       tick_enemy_pattern_cooldowns(enemy)
       continue
     }

@@ -965,7 +965,7 @@ function _M0TP36mizchi14hacknslash__3d4game11DungeonData(param0, param1, param2,
   this.start_y = param3;
   this.height_map = param4;
 }
-function _M0TP36mizchi14hacknslash__3d4game5Enemy(param0, param1, param2, param3, param4, param5, param6, param7, param8, param9, param10, param11, param12, param13, param14, param15, param16, param17, param18, param19, param20, param21, param22) {
+function _M0TP36mizchi14hacknslash__3d4game5Enemy(param0, param1, param2, param3, param4, param5, param6, param7, param8, param9, param10, param11, param12, param13, param14, param15, param16, param17, param18, param19, param20, param21, param22, param23, param24, param25) {
   this.x = param0;
   this.y = param1;
   this.vx = param2;
@@ -989,6 +989,19 @@ function _M0TP36mizchi14hacknslash__3d4game5Enemy(param0, param1, param2, param3
   this.meteor_cast_timer = param20;
   this.meteor_target_x = param21;
   this.meteor_target_y = param22;
+  this.beam_cast_timer = param23;
+  this.beam_target_x = param24;
+  this.beam_target_y = param25;
+}
+function _M0TP36mizchi14hacknslash__3d4game15EnemyTypeConfig(param0, param1, param2, param3, param4, param5, param6, param7) {
+  this.kind = param0;
+  this.hp_param = param1;
+  this.speed_param = param2;
+  this.size = param3;
+  this.spawn_weight = param4;
+  this.xp_reward = param5;
+  this.drop_chance = param6;
+  this.drop_count_max = param7;
 }
 function _M0TP36mizchi6kagura11progression13LevelUpConfig(param0, param1) {
   this.xp_base = param0;
@@ -1041,7 +1054,7 @@ function _M0TP36mizchi14hacknslash__3d4game6Player(param0, param1, param2, param
   this.dash_vx = param10;
   this.dash_vy = param11;
 }
-function _M0TP36mizchi14hacknslash__3d4game9GameWorld(param0, param1, param2, param3, param4, param5, param6, param7, param8, param9, param10, param11, param12, param13, param14, param15, param16, param17, param18, param19, param20, param21, param22, param23, param24, param25, param26, param27, param28, param29, param30, param31, param32, param33, param34, param35, param36, param37, param38, param39, param40) {
+function _M0TP36mizchi14hacknslash__3d4game9GameWorld(param0, param1, param2, param3, param4, param5, param6, param7, param8, param9, param10, param11, param12, param13, param14, param15, param16, param17, param18, param19, param20, param21, param22, param23, param24, param25, param26, param27, param28, param29, param30, param31, param32, param33, param34, param35, param36, param37, param38, param39, param40, param41, param42) {
   this.params = param0;
   this.archetype = param1;
   this.build_policy = param2;
@@ -1079,10 +1092,12 @@ function _M0TP36mizchi14hacknslash__3d4game9GameWorld(param0, param1, param2, pa
   this.select_cursor = param34;
   this.cursor_x = param35;
   this.cursor_y = param36;
-  this.events = param37;
-  this.enemy_separation_cell_heads = param38;
-  this.enemy_separation_next_indices = param39;
-  this.enemy_separation_cell_indices = param40;
+  this.telegraph_markers = param37;
+  this.item_log = param38;
+  this.events = param39;
+  this.enemy_separation_cell_heads = param40;
+  this.enemy_separation_next_indices = param41;
+  this.enemy_separation_cell_indices = param42;
 }
 function _M0DTP36mizchi14hacknslash__3d4game9GameEvent9HitSparks(param0, param1) {
   this._0 = param0;
@@ -1200,14 +1215,22 @@ function _M0DTP36mizchi14hacknslash__3d4game9GameEvent12MeteorImpact(param0, par
   this._2 = param2;
 }
 _M0DTP36mizchi14hacknslash__3d4game9GameEvent12MeteorImpact.prototype.$tag = 19;
+function _M0DTP36mizchi14hacknslash__3d4game9GameEvent8BeamFire(param0, param1, param2, param3, param4) {
+  this._0 = param0;
+  this._1 = param1;
+  this._2 = param2;
+  this._3 = param3;
+  this._4 = param4;
+}
+_M0DTP36mizchi14hacknslash__3d4game9GameEvent8BeamFire.prototype.$tag = 20;
 function _M0DTP36mizchi14hacknslash__3d4game9GameEvent15AttackTriggered() {}
-_M0DTP36mizchi14hacknslash__3d4game9GameEvent15AttackTriggered.prototype.$tag = 20;
+_M0DTP36mizchi14hacknslash__3d4game9GameEvent15AttackTriggered.prototype.$tag = 21;
 const _M0DTP36mizchi14hacknslash__3d4game9GameEvent15AttackTriggered__ = new _M0DTP36mizchi14hacknslash__3d4game9GameEvent15AttackTriggered();
 function _M0DTP36mizchi14hacknslash__3d4game9GameEvent13HurtTriggered() {}
-_M0DTP36mizchi14hacknslash__3d4game9GameEvent13HurtTriggered.prototype.$tag = 21;
+_M0DTP36mizchi14hacknslash__3d4game9GameEvent13HurtTriggered.prototype.$tag = 22;
 const _M0DTP36mizchi14hacknslash__3d4game9GameEvent13HurtTriggered__ = new _M0DTP36mizchi14hacknslash__3d4game9GameEvent13HurtTriggered();
 function _M0DTP36mizchi14hacknslash__3d4game9GameEvent13FloorComplete() {}
-_M0DTP36mizchi14hacknslash__3d4game9GameEvent13FloorComplete.prototype.$tag = 22;
+_M0DTP36mizchi14hacknslash__3d4game9GameEvent13FloorComplete.prototype.$tag = 23;
 const _M0DTP36mizchi14hacknslash__3d4game9GameEvent13FloorComplete__ = new _M0DTP36mizchi14hacknslash__3d4game9GameEvent13FloorComplete();
 function _M0TP36mizchi14hacknslash__3d4game10Projectile(param0, param1, param2, param3, param4, param5, param6, param7, param8) {
   this.x = param0;
@@ -1233,6 +1256,20 @@ const _M0DTP36mizchi14hacknslash__3d4game14ProjectileKind13HomingMissile__ = new
 function _M0DTP36mizchi14hacknslash__3d4game14ProjectileKind9EnemyBolt() {}
 _M0DTP36mizchi14hacknslash__3d4game14ProjectileKind9EnemyBolt.prototype.$tag = 3;
 const _M0DTP36mizchi14hacknslash__3d4game14ProjectileKind9EnemyBolt__ = new _M0DTP36mizchi14hacknslash__3d4game14ProjectileKind9EnemyBolt();
+function _M0TP36mizchi14hacknslash__3d4game14EnemyAIContext(param0, param1, param2, param3, param4, param5, param6, param7, param8, param9, param10, param11) {
+  this.enemy = param0;
+  this.player = param1;
+  this.grid = param2;
+  this.enemies = param3;
+  this.projectiles = param4;
+  this.events = param5;
+  this.params = param6;
+  this.floor = param7;
+  this.frame_count = param8;
+  this.dist_sq = param9;
+  this.chase_range_sq = param10;
+  this.same_room_visible = param11;
+}
 function _M0TP36mizchi14hacknslash__3d4game5Affix(param0, param1, param2, param3, param4, param5, param6, param7, param8, param9, param10, param11, param12, param13, param14, param15) {
   this.name = param0;
   this.atk = param1;
@@ -1309,6 +1346,21 @@ function _M0TP36mizchi14hacknslash__3d4game8ItemDrop(param0, param1, param2, par
   this.kind = param4;
   this.alive = param5;
   this.spawn_frame = param6;
+}
+function _M0TP36mizchi14hacknslash__3d4game12ItemLogEntry(param0, param1, param2) {
+  this.text = param0;
+  this.color = param1;
+  this.frames_remaining = param2;
+}
+function _M0TP36mizchi14hacknslash__3d4game15TelegraphMarker(param0, param1, param2, param3, param4, param5, param6, param7) {
+  this.x = param0;
+  this.y = param1;
+  this.radius = param2;
+  this.shape = param3;
+  this.frames_remaining = param4;
+  this.total_frames = param5;
+  this.end_x = param6;
+  this.end_y = param7;
 }
 function _M0TPC13ref3RefGORP36mizchi14hacknslash__3d4game8ItemDropE(param0) {
   this.val = param0;
@@ -4802,7 +4854,7 @@ function _M0TP26mizchi14hacknslash__3d18EnemyRenderBuckets(param0, param1, param
   this.boss_matrices = param8;
   this.boss_colors = param9;
 }
-function _M0TP26mizchi14hacknslash__3d21EntityInstanceScratch(param0, param1, param2, param3, param4, param5, param6) {
+function _M0TP26mizchi14hacknslash__3d21EntityInstanceScratch(param0, param1, param2, param3, param4, param5, param6, param7) {
   this.item_instances = param0;
   this.loot_beam_instances = param1;
   this.enemy_projectile_instances = param2;
@@ -4810,6 +4862,7 @@ function _M0TP26mizchi14hacknslash__3d21EntityInstanceScratch(param0, param1, pa
   this.arrow_instances = param4;
   this.fireball_instances = param5;
   this.homing_missile_instances = param6;
+  this.telegraph_instances = param7;
 }
 function _M0TP26mizchi14hacknslash__3d16GameAudioPlayers(param0, param1, param2, param3, param4, param5, param6, param7, param8) {
   this.attack = param0;
@@ -4874,7 +4927,7 @@ function _M0TP26mizchi14hacknslash__3d11EnemyModels(param0, param1, param2, para
   this.ranged = param21;
   this.boss = param22;
 }
-function _M0TP26mizchi14hacknslash__3d8Meshes3D(param0, param1, param2, param3, param4, param5, param6, param7, param8, param9, param10, param11) {
+function _M0TP26mizchi14hacknslash__3d8Meshes3D(param0, param1, param2, param3, param4, param5, param6, param7, param8, param9, param10, param11, param12) {
   this.item = param0;
   this.projectile = param1;
   this.arrow = param2;
@@ -4887,6 +4940,7 @@ function _M0TP26mizchi14hacknslash__3d8Meshes3D(param0, param1, param2, param3, 
   this.debris = param9;
   this.crate = param10;
   this.loot_beam = param11;
+  this.telegraph_disc = param12;
 }
 function _M0TP26mizchi14hacknslash__3d15PlayerCharacter(param0, param1, param2, param3, param4, param5, param6, param7, param8, param9, param10, param11, param12) {
   this.skeleton = param0;
@@ -4903,7 +4957,7 @@ function _M0TP26mizchi14hacknslash__3d15PlayerCharacter(param0, param1, param2, 
   this.skinning_cache_dirty = param11;
   this.skinning_cache_builds = param12;
 }
-function _M0TP26mizchi14hacknslash__3d9GameState(param0, param1, param2, param3, param4, param5, param6, param7, param8, param9, param10, param11, param12, param13, param14, param15, param16, param17, param18, param19, param20, param21, param22, param23, param24, param25, param26, param27, param28, param29, param30, param31, param32, param33, param34, param35, param36, param37, param38, param39, param40, param41, param42, param43, param44, param45, param46, param47, param48, param49, param50, param51, param52, param53, param54, param55, param56, param57, param58, param59, param60, param61, param62, param63, param64, param65, param66, param67, param68, param69, param70, param71, param72, param73, param74, param75, param76, param77, param78, param79, param80, param81) {
+function _M0TP26mizchi14hacknslash__3d9GameState(param0, param1, param2, param3, param4, param5, param6, param7, param8, param9, param10, param11, param12, param13, param14, param15, param16, param17, param18, param19, param20, param21, param22, param23, param24, param25, param26, param27, param28, param29, param30, param31, param32, param33, param34, param35, param36, param37, param38, param39, param40, param41, param42, param43, param44, param45, param46, param47, param48, param49, param50, param51, param52, param53, param54, param55, param56, param57, param58, param59, param60, param61, param62, param63, param64, param65, param66, param67, param68, param69, param70, param71, param72, param73, param74, param75, param76, param77, param78, param79, param80, param81, param82) {
   this.world = param0;
   this.input = param1;
   this.show_profiler = param2;
@@ -4986,6 +5040,7 @@ function _M0TP26mizchi14hacknslash__3d9GameState(param0, param1, param2, param3,
   this.hud_static_cache_shader_id = param79;
   this.hud_static_cache_text_mode = param80;
   this.hud_static_cache_builds = param81;
+  this.paused = param82;
 }
 function _M0TP26mizchi14hacknslash__3d23VisibleDungeonMeshCache(param0, param1) {
   this.groups = param0;
@@ -5347,68 +5402,68 @@ const _M0FPC17strconv17parse__scientificN8exp__numS241 = $0L;
 const _M0FPC17strconv13parse__numberN11exp__numberS222 = $0L;
 const _M0FPC17strconv12double__info = new _M0TPC17strconv9FloatInfo(52, 11, -1023);
 const _M0FPC17strconv6powtab = [1, 3, 6, 9, 13, 16, 19, 23, 26, 29, 33, 36, 39, 43, 46, 49, 53, 56, 59];
-const _M0FPC17strconv34left__shift__cheats_2etuple_2f2945 = { _0: 0, _1: "" };
-const _M0FPC17strconv34left__shift__cheats_2etuple_2f2946 = { _0: 1, _1: "5" };
-const _M0FPC17strconv34left__shift__cheats_2etuple_2f2947 = { _0: 1, _1: "25" };
-const _M0FPC17strconv34left__shift__cheats_2etuple_2f2948 = { _0: 1, _1: "125" };
-const _M0FPC17strconv34left__shift__cheats_2etuple_2f2949 = { _0: 2, _1: "625" };
-const _M0FPC17strconv34left__shift__cheats_2etuple_2f2950 = { _0: 2, _1: "3125" };
-const _M0FPC17strconv34left__shift__cheats_2etuple_2f2951 = { _0: 2, _1: "15625" };
-const _M0FPC17strconv34left__shift__cheats_2etuple_2f2952 = { _0: 3, _1: "78125" };
-const _M0FPC17strconv34left__shift__cheats_2etuple_2f2953 = { _0: 3, _1: "390625" };
-const _M0FPC17strconv34left__shift__cheats_2etuple_2f2954 = { _0: 3, _1: "1953125" };
-const _M0FPC17strconv34left__shift__cheats_2etuple_2f2955 = { _0: 4, _1: "9765625" };
-const _M0FPC17strconv34left__shift__cheats_2etuple_2f2956 = { _0: 4, _1: "48828125" };
-const _M0FPC17strconv34left__shift__cheats_2etuple_2f2957 = { _0: 4, _1: "244140625" };
-const _M0FPC17strconv34left__shift__cheats_2etuple_2f2958 = { _0: 4, _1: "1220703125" };
-const _M0FPC17strconv34left__shift__cheats_2etuple_2f2959 = { _0: 5, _1: "6103515625" };
-const _M0FPC17strconv34left__shift__cheats_2etuple_2f2960 = { _0: 5, _1: "30517578125" };
-const _M0FPC17strconv34left__shift__cheats_2etuple_2f2961 = { _0: 5, _1: "152587890625" };
-const _M0FPC17strconv34left__shift__cheats_2etuple_2f2962 = { _0: 6, _1: "762939453125" };
-const _M0FPC17strconv34left__shift__cheats_2etuple_2f2963 = { _0: 6, _1: "3814697265625" };
-const _M0FPC17strconv34left__shift__cheats_2etuple_2f2964 = { _0: 6, _1: "19073486328125" };
-const _M0FPC17strconv34left__shift__cheats_2etuple_2f2965 = { _0: 7, _1: "95367431640625" };
-const _M0FPC17strconv34left__shift__cheats_2etuple_2f2966 = { _0: 7, _1: "476837158203125" };
-const _M0FPC17strconv34left__shift__cheats_2etuple_2f2967 = { _0: 7, _1: "2384185791015625" };
-const _M0FPC17strconv34left__shift__cheats_2etuple_2f2968 = { _0: 7, _1: "11920928955078125" };
-const _M0FPC17strconv34left__shift__cheats_2etuple_2f2969 = { _0: 8, _1: "59604644775390625" };
-const _M0FPC17strconv34left__shift__cheats_2etuple_2f2970 = { _0: 8, _1: "298023223876953125" };
-const _M0FPC17strconv34left__shift__cheats_2etuple_2f2971 = { _0: 8, _1: "1490116119384765625" };
-const _M0FPC17strconv34left__shift__cheats_2etuple_2f2972 = { _0: 9, _1: "7450580596923828125" };
-const _M0FPC17strconv34left__shift__cheats_2etuple_2f2973 = { _0: 9, _1: "37252902984619140625" };
-const _M0FPC17strconv34left__shift__cheats_2etuple_2f2974 = { _0: 9, _1: "186264514923095703125" };
-const _M0FPC17strconv34left__shift__cheats_2etuple_2f2975 = { _0: 10, _1: "931322574615478515625" };
-const _M0FPC17strconv34left__shift__cheats_2etuple_2f2976 = { _0: 10, _1: "4656612873077392578125" };
-const _M0FPC17strconv34left__shift__cheats_2etuple_2f2977 = { _0: 10, _1: "23283064365386962890625" };
-const _M0FPC17strconv34left__shift__cheats_2etuple_2f2978 = { _0: 10, _1: "116415321826934814453125" };
-const _M0FPC17strconv34left__shift__cheats_2etuple_2f2979 = { _0: 11, _1: "582076609134674072265625" };
-const _M0FPC17strconv34left__shift__cheats_2etuple_2f2980 = { _0: 11, _1: "2910383045673370361328125" };
-const _M0FPC17strconv34left__shift__cheats_2etuple_2f2981 = { _0: 11, _1: "14551915228366851806640625" };
-const _M0FPC17strconv34left__shift__cheats_2etuple_2f2982 = { _0: 12, _1: "72759576141834259033203125" };
-const _M0FPC17strconv34left__shift__cheats_2etuple_2f2983 = { _0: 12, _1: "363797880709171295166015625" };
-const _M0FPC17strconv34left__shift__cheats_2etuple_2f2984 = { _0: 12, _1: "1818989403545856475830078125" };
-const _M0FPC17strconv34left__shift__cheats_2etuple_2f2985 = { _0: 13, _1: "9094947017729282379150390625" };
-const _M0FPC17strconv34left__shift__cheats_2etuple_2f2986 = { _0: 13, _1: "45474735088646411895751953125" };
-const _M0FPC17strconv34left__shift__cheats_2etuple_2f2987 = { _0: 13, _1: "227373675443232059478759765625" };
-const _M0FPC17strconv34left__shift__cheats_2etuple_2f2988 = { _0: 13, _1: "1136868377216160297393798828125" };
-const _M0FPC17strconv34left__shift__cheats_2etuple_2f2989 = { _0: 14, _1: "5684341886080801486968994140625" };
-const _M0FPC17strconv34left__shift__cheats_2etuple_2f2990 = { _0: 14, _1: "28421709430404007434844970703125" };
-const _M0FPC17strconv34left__shift__cheats_2etuple_2f2991 = { _0: 14, _1: "142108547152020037174224853515625" };
-const _M0FPC17strconv34left__shift__cheats_2etuple_2f2992 = { _0: 15, _1: "710542735760100185871124267578125" };
-const _M0FPC17strconv34left__shift__cheats_2etuple_2f2993 = { _0: 15, _1: "3552713678800500929355621337890625" };
-const _M0FPC17strconv34left__shift__cheats_2etuple_2f2994 = { _0: 15, _1: "17763568394002504646778106689453125" };
-const _M0FPC17strconv34left__shift__cheats_2etuple_2f2995 = { _0: 16, _1: "88817841970012523233890533447265625" };
-const _M0FPC17strconv34left__shift__cheats_2etuple_2f2996 = { _0: 16, _1: "444089209850062616169452667236328125" };
-const _M0FPC17strconv34left__shift__cheats_2etuple_2f2997 = { _0: 16, _1: "2220446049250313080847263336181640625" };
-const _M0FPC17strconv34left__shift__cheats_2etuple_2f2998 = { _0: 16, _1: "11102230246251565404236316680908203125" };
-const _M0FPC17strconv34left__shift__cheats_2etuple_2f2999 = { _0: 17, _1: "55511151231257827021181583404541015625" };
-const _M0FPC17strconv34left__shift__cheats_2etuple_2f3000 = { _0: 17, _1: "277555756156289135105907917022705078125" };
-const _M0FPC17strconv34left__shift__cheats_2etuple_2f3001 = { _0: 17, _1: "1387778780781445675529539585113525390625" };
-const _M0FPC17strconv34left__shift__cheats_2etuple_2f3002 = { _0: 18, _1: "6938893903907228377647697925567626953125" };
-const _M0FPC17strconv34left__shift__cheats_2etuple_2f3003 = { _0: 18, _1: "34694469519536141888238489627838134765625" };
-const _M0FPC17strconv34left__shift__cheats_2etuple_2f3004 = { _0: 18, _1: "173472347597680709441192448139190673828125" };
-const _M0FPC17strconv34left__shift__cheats_2etuple_2f3005 = { _0: 19, _1: "867361737988403547205962240695953369140625" };
-const _M0FPC17strconv19left__shift__cheats = [_M0FPC17strconv34left__shift__cheats_2etuple_2f2945, _M0FPC17strconv34left__shift__cheats_2etuple_2f2946, _M0FPC17strconv34left__shift__cheats_2etuple_2f2947, _M0FPC17strconv34left__shift__cheats_2etuple_2f2948, _M0FPC17strconv34left__shift__cheats_2etuple_2f2949, _M0FPC17strconv34left__shift__cheats_2etuple_2f2950, _M0FPC17strconv34left__shift__cheats_2etuple_2f2951, _M0FPC17strconv34left__shift__cheats_2etuple_2f2952, _M0FPC17strconv34left__shift__cheats_2etuple_2f2953, _M0FPC17strconv34left__shift__cheats_2etuple_2f2954, _M0FPC17strconv34left__shift__cheats_2etuple_2f2955, _M0FPC17strconv34left__shift__cheats_2etuple_2f2956, _M0FPC17strconv34left__shift__cheats_2etuple_2f2957, _M0FPC17strconv34left__shift__cheats_2etuple_2f2958, _M0FPC17strconv34left__shift__cheats_2etuple_2f2959, _M0FPC17strconv34left__shift__cheats_2etuple_2f2960, _M0FPC17strconv34left__shift__cheats_2etuple_2f2961, _M0FPC17strconv34left__shift__cheats_2etuple_2f2962, _M0FPC17strconv34left__shift__cheats_2etuple_2f2963, _M0FPC17strconv34left__shift__cheats_2etuple_2f2964, _M0FPC17strconv34left__shift__cheats_2etuple_2f2965, _M0FPC17strconv34left__shift__cheats_2etuple_2f2966, _M0FPC17strconv34left__shift__cheats_2etuple_2f2967, _M0FPC17strconv34left__shift__cheats_2etuple_2f2968, _M0FPC17strconv34left__shift__cheats_2etuple_2f2969, _M0FPC17strconv34left__shift__cheats_2etuple_2f2970, _M0FPC17strconv34left__shift__cheats_2etuple_2f2971, _M0FPC17strconv34left__shift__cheats_2etuple_2f2972, _M0FPC17strconv34left__shift__cheats_2etuple_2f2973, _M0FPC17strconv34left__shift__cheats_2etuple_2f2974, _M0FPC17strconv34left__shift__cheats_2etuple_2f2975, _M0FPC17strconv34left__shift__cheats_2etuple_2f2976, _M0FPC17strconv34left__shift__cheats_2etuple_2f2977, _M0FPC17strconv34left__shift__cheats_2etuple_2f2978, _M0FPC17strconv34left__shift__cheats_2etuple_2f2979, _M0FPC17strconv34left__shift__cheats_2etuple_2f2980, _M0FPC17strconv34left__shift__cheats_2etuple_2f2981, _M0FPC17strconv34left__shift__cheats_2etuple_2f2982, _M0FPC17strconv34left__shift__cheats_2etuple_2f2983, _M0FPC17strconv34left__shift__cheats_2etuple_2f2984, _M0FPC17strconv34left__shift__cheats_2etuple_2f2985, _M0FPC17strconv34left__shift__cheats_2etuple_2f2986, _M0FPC17strconv34left__shift__cheats_2etuple_2f2987, _M0FPC17strconv34left__shift__cheats_2etuple_2f2988, _M0FPC17strconv34left__shift__cheats_2etuple_2f2989, _M0FPC17strconv34left__shift__cheats_2etuple_2f2990, _M0FPC17strconv34left__shift__cheats_2etuple_2f2991, _M0FPC17strconv34left__shift__cheats_2etuple_2f2992, _M0FPC17strconv34left__shift__cheats_2etuple_2f2993, _M0FPC17strconv34left__shift__cheats_2etuple_2f2994, _M0FPC17strconv34left__shift__cheats_2etuple_2f2995, _M0FPC17strconv34left__shift__cheats_2etuple_2f2996, _M0FPC17strconv34left__shift__cheats_2etuple_2f2997, _M0FPC17strconv34left__shift__cheats_2etuple_2f2998, _M0FPC17strconv34left__shift__cheats_2etuple_2f2999, _M0FPC17strconv34left__shift__cheats_2etuple_2f3000, _M0FPC17strconv34left__shift__cheats_2etuple_2f3001, _M0FPC17strconv34left__shift__cheats_2etuple_2f3002, _M0FPC17strconv34left__shift__cheats_2etuple_2f3003, _M0FPC17strconv34left__shift__cheats_2etuple_2f3004, _M0FPC17strconv34left__shift__cheats_2etuple_2f3005];
+const _M0FPC17strconv34left__shift__cheats_2etuple_2f2966 = { _0: 0, _1: "" };
+const _M0FPC17strconv34left__shift__cheats_2etuple_2f2967 = { _0: 1, _1: "5" };
+const _M0FPC17strconv34left__shift__cheats_2etuple_2f2968 = { _0: 1, _1: "25" };
+const _M0FPC17strconv34left__shift__cheats_2etuple_2f2969 = { _0: 1, _1: "125" };
+const _M0FPC17strconv34left__shift__cheats_2etuple_2f2970 = { _0: 2, _1: "625" };
+const _M0FPC17strconv34left__shift__cheats_2etuple_2f2971 = { _0: 2, _1: "3125" };
+const _M0FPC17strconv34left__shift__cheats_2etuple_2f2972 = { _0: 2, _1: "15625" };
+const _M0FPC17strconv34left__shift__cheats_2etuple_2f2973 = { _0: 3, _1: "78125" };
+const _M0FPC17strconv34left__shift__cheats_2etuple_2f2974 = { _0: 3, _1: "390625" };
+const _M0FPC17strconv34left__shift__cheats_2etuple_2f2975 = { _0: 3, _1: "1953125" };
+const _M0FPC17strconv34left__shift__cheats_2etuple_2f2976 = { _0: 4, _1: "9765625" };
+const _M0FPC17strconv34left__shift__cheats_2etuple_2f2977 = { _0: 4, _1: "48828125" };
+const _M0FPC17strconv34left__shift__cheats_2etuple_2f2978 = { _0: 4, _1: "244140625" };
+const _M0FPC17strconv34left__shift__cheats_2etuple_2f2979 = { _0: 4, _1: "1220703125" };
+const _M0FPC17strconv34left__shift__cheats_2etuple_2f2980 = { _0: 5, _1: "6103515625" };
+const _M0FPC17strconv34left__shift__cheats_2etuple_2f2981 = { _0: 5, _1: "30517578125" };
+const _M0FPC17strconv34left__shift__cheats_2etuple_2f2982 = { _0: 5, _1: "152587890625" };
+const _M0FPC17strconv34left__shift__cheats_2etuple_2f2983 = { _0: 6, _1: "762939453125" };
+const _M0FPC17strconv34left__shift__cheats_2etuple_2f2984 = { _0: 6, _1: "3814697265625" };
+const _M0FPC17strconv34left__shift__cheats_2etuple_2f2985 = { _0: 6, _1: "19073486328125" };
+const _M0FPC17strconv34left__shift__cheats_2etuple_2f2986 = { _0: 7, _1: "95367431640625" };
+const _M0FPC17strconv34left__shift__cheats_2etuple_2f2987 = { _0: 7, _1: "476837158203125" };
+const _M0FPC17strconv34left__shift__cheats_2etuple_2f2988 = { _0: 7, _1: "2384185791015625" };
+const _M0FPC17strconv34left__shift__cheats_2etuple_2f2989 = { _0: 7, _1: "11920928955078125" };
+const _M0FPC17strconv34left__shift__cheats_2etuple_2f2990 = { _0: 8, _1: "59604644775390625" };
+const _M0FPC17strconv34left__shift__cheats_2etuple_2f2991 = { _0: 8, _1: "298023223876953125" };
+const _M0FPC17strconv34left__shift__cheats_2etuple_2f2992 = { _0: 8, _1: "1490116119384765625" };
+const _M0FPC17strconv34left__shift__cheats_2etuple_2f2993 = { _0: 9, _1: "7450580596923828125" };
+const _M0FPC17strconv34left__shift__cheats_2etuple_2f2994 = { _0: 9, _1: "37252902984619140625" };
+const _M0FPC17strconv34left__shift__cheats_2etuple_2f2995 = { _0: 9, _1: "186264514923095703125" };
+const _M0FPC17strconv34left__shift__cheats_2etuple_2f2996 = { _0: 10, _1: "931322574615478515625" };
+const _M0FPC17strconv34left__shift__cheats_2etuple_2f2997 = { _0: 10, _1: "4656612873077392578125" };
+const _M0FPC17strconv34left__shift__cheats_2etuple_2f2998 = { _0: 10, _1: "23283064365386962890625" };
+const _M0FPC17strconv34left__shift__cheats_2etuple_2f2999 = { _0: 10, _1: "116415321826934814453125" };
+const _M0FPC17strconv34left__shift__cheats_2etuple_2f3000 = { _0: 11, _1: "582076609134674072265625" };
+const _M0FPC17strconv34left__shift__cheats_2etuple_2f3001 = { _0: 11, _1: "2910383045673370361328125" };
+const _M0FPC17strconv34left__shift__cheats_2etuple_2f3002 = { _0: 11, _1: "14551915228366851806640625" };
+const _M0FPC17strconv34left__shift__cheats_2etuple_2f3003 = { _0: 12, _1: "72759576141834259033203125" };
+const _M0FPC17strconv34left__shift__cheats_2etuple_2f3004 = { _0: 12, _1: "363797880709171295166015625" };
+const _M0FPC17strconv34left__shift__cheats_2etuple_2f3005 = { _0: 12, _1: "1818989403545856475830078125" };
+const _M0FPC17strconv34left__shift__cheats_2etuple_2f3006 = { _0: 13, _1: "9094947017729282379150390625" };
+const _M0FPC17strconv34left__shift__cheats_2etuple_2f3007 = { _0: 13, _1: "45474735088646411895751953125" };
+const _M0FPC17strconv34left__shift__cheats_2etuple_2f3008 = { _0: 13, _1: "227373675443232059478759765625" };
+const _M0FPC17strconv34left__shift__cheats_2etuple_2f3009 = { _0: 13, _1: "1136868377216160297393798828125" };
+const _M0FPC17strconv34left__shift__cheats_2etuple_2f3010 = { _0: 14, _1: "5684341886080801486968994140625" };
+const _M0FPC17strconv34left__shift__cheats_2etuple_2f3011 = { _0: 14, _1: "28421709430404007434844970703125" };
+const _M0FPC17strconv34left__shift__cheats_2etuple_2f3012 = { _0: 14, _1: "142108547152020037174224853515625" };
+const _M0FPC17strconv34left__shift__cheats_2etuple_2f3013 = { _0: 15, _1: "710542735760100185871124267578125" };
+const _M0FPC17strconv34left__shift__cheats_2etuple_2f3014 = { _0: 15, _1: "3552713678800500929355621337890625" };
+const _M0FPC17strconv34left__shift__cheats_2etuple_2f3015 = { _0: 15, _1: "17763568394002504646778106689453125" };
+const _M0FPC17strconv34left__shift__cheats_2etuple_2f3016 = { _0: 16, _1: "88817841970012523233890533447265625" };
+const _M0FPC17strconv34left__shift__cheats_2etuple_2f3017 = { _0: 16, _1: "444089209850062616169452667236328125" };
+const _M0FPC17strconv34left__shift__cheats_2etuple_2f3018 = { _0: 16, _1: "2220446049250313080847263336181640625" };
+const _M0FPC17strconv34left__shift__cheats_2etuple_2f3019 = { _0: 16, _1: "11102230246251565404236316680908203125" };
+const _M0FPC17strconv34left__shift__cheats_2etuple_2f3020 = { _0: 17, _1: "55511151231257827021181583404541015625" };
+const _M0FPC17strconv34left__shift__cheats_2etuple_2f3021 = { _0: 17, _1: "277555756156289135105907917022705078125" };
+const _M0FPC17strconv34left__shift__cheats_2etuple_2f3022 = { _0: 17, _1: "1387778780781445675529539585113525390625" };
+const _M0FPC17strconv34left__shift__cheats_2etuple_2f3023 = { _0: 18, _1: "6938893903907228377647697925567626953125" };
+const _M0FPC17strconv34left__shift__cheats_2etuple_2f3024 = { _0: 18, _1: "34694469519536141888238489627838134765625" };
+const _M0FPC17strconv34left__shift__cheats_2etuple_2f3025 = { _0: 18, _1: "173472347597680709441192448139190673828125" };
+const _M0FPC17strconv34left__shift__cheats_2etuple_2f3026 = { _0: 19, _1: "867361737988403547205962240695953369140625" };
+const _M0FPC17strconv19left__shift__cheats = [_M0FPC17strconv34left__shift__cheats_2etuple_2f2966, _M0FPC17strconv34left__shift__cheats_2etuple_2f2967, _M0FPC17strconv34left__shift__cheats_2etuple_2f2968, _M0FPC17strconv34left__shift__cheats_2etuple_2f2969, _M0FPC17strconv34left__shift__cheats_2etuple_2f2970, _M0FPC17strconv34left__shift__cheats_2etuple_2f2971, _M0FPC17strconv34left__shift__cheats_2etuple_2f2972, _M0FPC17strconv34left__shift__cheats_2etuple_2f2973, _M0FPC17strconv34left__shift__cheats_2etuple_2f2974, _M0FPC17strconv34left__shift__cheats_2etuple_2f2975, _M0FPC17strconv34left__shift__cheats_2etuple_2f2976, _M0FPC17strconv34left__shift__cheats_2etuple_2f2977, _M0FPC17strconv34left__shift__cheats_2etuple_2f2978, _M0FPC17strconv34left__shift__cheats_2etuple_2f2979, _M0FPC17strconv34left__shift__cheats_2etuple_2f2980, _M0FPC17strconv34left__shift__cheats_2etuple_2f2981, _M0FPC17strconv34left__shift__cheats_2etuple_2f2982, _M0FPC17strconv34left__shift__cheats_2etuple_2f2983, _M0FPC17strconv34left__shift__cheats_2etuple_2f2984, _M0FPC17strconv34left__shift__cheats_2etuple_2f2985, _M0FPC17strconv34left__shift__cheats_2etuple_2f2986, _M0FPC17strconv34left__shift__cheats_2etuple_2f2987, _M0FPC17strconv34left__shift__cheats_2etuple_2f2988, _M0FPC17strconv34left__shift__cheats_2etuple_2f2989, _M0FPC17strconv34left__shift__cheats_2etuple_2f2990, _M0FPC17strconv34left__shift__cheats_2etuple_2f2991, _M0FPC17strconv34left__shift__cheats_2etuple_2f2992, _M0FPC17strconv34left__shift__cheats_2etuple_2f2993, _M0FPC17strconv34left__shift__cheats_2etuple_2f2994, _M0FPC17strconv34left__shift__cheats_2etuple_2f2995, _M0FPC17strconv34left__shift__cheats_2etuple_2f2996, _M0FPC17strconv34left__shift__cheats_2etuple_2f2997, _M0FPC17strconv34left__shift__cheats_2etuple_2f2998, _M0FPC17strconv34left__shift__cheats_2etuple_2f2999, _M0FPC17strconv34left__shift__cheats_2etuple_2f3000, _M0FPC17strconv34left__shift__cheats_2etuple_2f3001, _M0FPC17strconv34left__shift__cheats_2etuple_2f3002, _M0FPC17strconv34left__shift__cheats_2etuple_2f3003, _M0FPC17strconv34left__shift__cheats_2etuple_2f3004, _M0FPC17strconv34left__shift__cheats_2etuple_2f3005, _M0FPC17strconv34left__shift__cheats_2etuple_2f3006, _M0FPC17strconv34left__shift__cheats_2etuple_2f3007, _M0FPC17strconv34left__shift__cheats_2etuple_2f3008, _M0FPC17strconv34left__shift__cheats_2etuple_2f3009, _M0FPC17strconv34left__shift__cheats_2etuple_2f3010, _M0FPC17strconv34left__shift__cheats_2etuple_2f3011, _M0FPC17strconv34left__shift__cheats_2etuple_2f3012, _M0FPC17strconv34left__shift__cheats_2etuple_2f3013, _M0FPC17strconv34left__shift__cheats_2etuple_2f3014, _M0FPC17strconv34left__shift__cheats_2etuple_2f3015, _M0FPC17strconv34left__shift__cheats_2etuple_2f3016, _M0FPC17strconv34left__shift__cheats_2etuple_2f3017, _M0FPC17strconv34left__shift__cheats_2etuple_2f3018, _M0FPC17strconv34left__shift__cheats_2etuple_2f3019, _M0FPC17strconv34left__shift__cheats_2etuple_2f3020, _M0FPC17strconv34left__shift__cheats_2etuple_2f3021, _M0FPC17strconv34left__shift__cheats_2etuple_2f3022, _M0FPC17strconv34left__shift__cheats_2etuple_2f3023, _M0FPC17strconv34left__shift__cheats_2etuple_2f3024, _M0FPC17strconv34left__shift__cheats_2etuple_2f3025, _M0FPC17strconv34left__shift__cheats_2etuple_2f3026];
 const _M0FPC17strconv10int__pow10 = [$1L, $10L, $100L, $1000L, $10000L, $100000L, $1000000L, $10000000L, $100000000L, $1000000000L, $10000000000L, $100000000000L, $1000000000000L, $10000000000000L, $100000000000000L, $1000000000000000L];
 const _M0FPC17strconv25max__exponent__fast__path = $22L;
 const _M0FPC17strconv5table = [1, 10, 100, 1000, 10000, 100000, 1000000, 10000000, 100000000, 1000000000, 10000000000, 100000000000, 1e+12, 1e+13, 1e+14, 1e+15, 1e+16, 1e+17, 1e+18, 1e+19, 1e+20, 1e+21, 1e+22, 0, 0, 0, 0, 0, 0, 0, 0, 0];
@@ -5422,21 +5477,38 @@ const _M0FP36mizchi14hacknslash__3d4game8world__w = 1600;
 const _M0FP36mizchi14hacknslash__3d4game8world__h = 1280;
 const _M0FP36mizchi14hacknslash__3d4game9map__cols = 100;
 const _M0FP36mizchi14hacknslash__3d4game9map__rows = 80;
+const _M0FP36mizchi14hacknslash__3d4game20spawn__area__divisor = 15;
+const _M0FP36mizchi14hacknslash__3d4game23spawn__base__count__max = 5;
+const _M0FP36mizchi14hacknslash__3d4game21spawn__safe__distance = 8;
 const _M0FP36mizchi14hacknslash__3d4game23damage__flash__duration = 10;
-const _M0FP36mizchi14hacknslash__3d4game30enemy__bolt__telegraph__frames = 14;
-const _M0FP36mizchi14hacknslash__3d4game30enemy__bolt__telegraph__radius = 14;
+const _M0FP36mizchi14hacknslash__3d4game18beam__cast__frames = 60;
+const _M0FP36mizchi14hacknslash__3d4game22beam__cooldown__frames = 180;
+const _M0FP36mizchi14hacknslash__3d4game26berserker__rage__max__mult = 1.5;
+const _M0FP36mizchi14hacknslash__3d4game25caster__min__distance__sq = 900;
 const _M0FP36mizchi14hacknslash__3d4game20meteor__cast__frames = 120;
-const _M0FP36mizchi14hacknslash__3d4game24meteor__cooldown__frames = 300;
 const _M0FP36mizchi14hacknslash__3d4game14meteor__radius = 48;
-const _M0FP36mizchi14hacknslash__3d4game22path__update__interval = 60;
 const _M0FP36mizchi14hacknslash__3d4game31enemy__fire__nova__cast__frames = 16;
 const _M0FP36mizchi14hacknslash__3d4game35enemy__fire__nova__cooldown__frames = 90;
 const _M0FP36mizchi14hacknslash__3d4game25enemy__fire__nova__radius = 32;
 const _M0FP36mizchi14hacknslash__3d4game33enemy__fire__nova__trigger__range = 56;
+const _M0FP36mizchi14hacknslash__3d4game30enemy__bolt__telegraph__frames = 14;
+const _M0FP36mizchi14hacknslash__3d4game30enemy__bolt__telegraph__radius = 14;
+const _M0FP36mizchi14hacknslash__3d4game22ranged__meteor__chance = 25;
+const _M0FP36mizchi14hacknslash__3d4game25ranged__min__distance__sq = 3600;
+const _M0FP36mizchi14hacknslash__3d4game22ranged__retreat__speed = 0.3;
+const _M0FP36mizchi14hacknslash__3d4game18summoner__cooldown = 240;
+const _M0FP36mizchi14hacknslash__3d4game22summoner__minion__size = 6;
+const _M0FP36mizchi14hacknslash__3d4game29summoner__minion__speed__mult = 1.2;
+const _M0FP36mizchi14hacknslash__3d4game23summoner__spawn__offset = 10;
 const _M0FP36mizchi14hacknslash__3d4game29enemy__tackle__trigger__range = 96;
 const _M0FP36mizchi14hacknslash__3d4game29enemy__tackle__active__frames = 9;
 const _M0FP36mizchi14hacknslash__3d4game32enemy__tackle__telegraph__frames = 12;
 const _M0FP36mizchi14hacknslash__3d4game32enemy__tackle__telegraph__radius = 16;
+const _M0FP36mizchi14hacknslash__3d4game25teleporter__angle__offset = 0.3;
+const _M0FP36mizchi14hacknslash__3d4game27teleporter__blink__cooldown = 180;
+const _M0FP36mizchi14hacknslash__3d4game27teleporter__blink__distance = 30;
+const _M0FP36mizchi14hacknslash__3d4game24meteor__cooldown__frames = 300;
+const _M0FP36mizchi14hacknslash__3d4game22path__update__interval = 60;
 const _M0FP36mizchi14hacknslash__3d4game33enemy__barrage__projectile__count = 5;
 const _M0FP36mizchi14hacknslash__3d4game29enemy__barrage__spread__angle = 0.18;
 const _M0FP36mizchi14hacknslash__3d4game36enemy__fire__nova__projectile__count = 8;
@@ -5452,7 +5524,13 @@ const _M0FP36mizchi14hacknslash__3d4game27homing__missile__turn__rate = 0.36;
 const _M0FP36mizchi14hacknslash__3d4game18pickup__radius__sq = 64;
 const _M0FP36mizchi14hacknslash__3d4game42enemy__death__explosion__projectile__count = 8;
 const _M0FP36mizchi14hacknslash__3d4game31enemy__death__explosion__radius = 26;
+const _M0FP36mizchi14hacknslash__3d4game22exploder__damage__mult = 3;
+const _M0FP36mizchi14hacknslash__3d4game22exploder__radius__mult = 1.5;
 const _M0FP36mizchi14hacknslash__3d4game36splitting__fireball__trail__interval = 3;
+const _M0FP36mizchi14hacknslash__3d4game19item__log__duration = 180;
+const _M0FP36mizchi14hacknslash__3d4game23item__log__max__entries = 8;
+const _M0FP36mizchi14hacknslash__3d4game18beam__damage__mult = 3;
+const _M0FP36mizchi14hacknslash__3d4game11beam__width = 16;
 const _M0FP36mizchi14hacknslash__3d4game20meteor__damage__mult = 4;
 const _M0FP36mizchi14hacknslash__3d4game33spell__cast__attack__lock__frames = 18;
 const _M0FP36mizchi14hacknslash__3d4game23chain__lightning__range = 112;
@@ -5535,6 +5613,7 @@ const _M0FP26mizchi14hacknslash__3d10ui__row__h = 20;
 const _M0FP26mizchi14hacknslash__3d14ui__icon__size = 16;
 const _M0FP26mizchi14hacknslash__3d21skill__icon__base__id = 10;
 const _M0FP26mizchi14hacknslash__3d6key__m = 77;
+const _M0FP26mizchi14hacknslash__3d6key__p = 80;
 const _M0FP26mizchi14hacknslash__3d7key__f3 = 114;
 const _M0FP26mizchi14hacknslash__3d7key__f4 = 115;
 const _M0FP26mizchi14hacknslash__3d7key__f5 = 116;
@@ -5560,8 +5639,8 @@ const _M0FP36mizchi6kagura6engine16lifecycle__hooks = _M0MPC13ref3Ref3newGORP36m
 const _M0FP26mizchi19web__runtime__hooks21web__canvas__selector = _M0MPC13ref3Ref3newGRP36mizchi6kagura4core13InputSnapshotE("#app");
 const _M0FP26mizchi19web__runtime__hooks21web__hooks__installed = _M0MPC13ref3Ref3newGbE(false);
 const _M0FP36mizchi6kagura5audio20audio__output__hooks = _M0MPC13ref3Ref3newGRP36mizchi6kagura4core13InputSnapshotE(_M0FP36mizchi6kagura5audio29default__audio__output__hooks());
-const _M0FPB33brute__force__find_2econstr_2f613 = 0;
-const _M0FPB43boyer__moore__horspool__find_2econstr_2f599 = 0;
+const _M0FPB33brute__force__find_2econstr_2f619 = 0;
+const _M0FPB43boyer__moore__horspool__find_2econstr_2f605 = 0;
 const _M0FP26mizchi19web__runtime__hooks20source__image__cache = _M0MPC13ref3Ref3newGORP36mizchi6kagura6engine14LifecycleHooksE([]);
 const _M0FP26mizchi19web__runtime__hooks19gpu__texture__dirty = _M0MPC13ref3Ref3newGORP36mizchi6kagura6engine14LifecycleHooksE([]);
 const _M0FP36mizchi6kagura3gfx20web__graphics__hooks = _M0MPC13ref3Ref3newGRP36mizchi6kagura4core13InputSnapshotE(_M0FP36mizchi6kagura3gfx29default__web__graphics__hooks());
@@ -5593,7 +5672,7 @@ const _M0FPC16double13neg__infinity = _M0MPC15int645Int6423reinterpret__as__doub
 const _M0FPC16double14not__a__number = _M0MPC15int645Int6423reinterpret__as__double($9221120237041090561L);
 const _M0FPC16double8infinity = _M0MPC15int645Int6423reinterpret__as__double($9218868437227405312L);
 const _M0FPC17strconv25max__mantissa__fast__path = _M0IPC16uint646UInt64PB3Shl3shl($2L, 52);
-const _M0FPC17strconv28checked__mul_2econstr_2f3422 = $0L;
+const _M0FPC17strconv28checked__mul_2econstr_2f3443 = $0L;
 const _M0FP36mizchi6kagura5asset18fetch__id__counter = _M0MPC13ref3Ref3newGiE(0);
 const _M0FP26mizchi14hacknslash__3d14dash__cooldown = _M0FP36mizchi14hacknslash__3d4game14dash__cooldown;
 const _M0FP26mizchi14hacknslash__3d18color__item__score = _M0MP36mizchi6kagura6math3d4Vec43new(0, 1, 1, 1);
@@ -5610,7 +5689,7 @@ const _M0FP26mizchi14hacknslash__3d18color__enemy__fast = _M0MP36mizchi6kagura6m
 const _M0FP26mizchi14hacknslash__3d19color__enemy__basic = _M0MP36mizchi6kagura6math3d4Vec43new(0.8, 0.13, 0.13, 1);
 const _M0FP26mizchi14hacknslash__3d13color__player = _M0MP36mizchi6kagura6math3d4Vec43new(0, 1, 0.8, 1);
 const _M0FP26mizchi14hacknslash__3d19color__player__dash = _M0MP36mizchi6kagura6math3d4Vec43new(0.4, 0.87, 1, 1);
-const _M0FPC14math35trig__reduce_2etwo__over__pi_2f3702 = [0, 683565275, -1819212470, 2131351028, 2102212464, 920167782, 1326507024, 0];
+const _M0FPC14math35trig__reduce_2etwo__over__pi_2f3723 = [0, 683565275, -1819212470, 2131351028, 2102212464, 920167782, 1326507024, 0];
 const _M0FP36mizchi6kagura3gfx25graphics__clock__provider = _M0MPC13ref3Ref3newGRP36mizchi6kagura4core13InputSnapshotE(_M0FP36mizchi6kagura3gfx23default__clock__now__ms);
 const _M0FP36mizchi6kagura3gfx23native__graphics__hooks = _M0MPC13ref3Ref3newGRP36mizchi6kagura4core13InputSnapshotE(_M0FP36mizchi6kagura3gfx32default__native__graphics__hooks());
 const _M0FP26mizchi4zlib12crc32__table = _M0FP26mizchi4zlib19build__crc32__table();
@@ -6961,7 +7040,7 @@ function _M0FPB28boyer__moore__horspool__find(haystack, needle) {
       return undefined;
     }
   } else {
-    return _M0FPB43boyer__moore__horspool__find_2econstr_2f599;
+    return _M0FPB43boyer__moore__horspool__find_2econstr_2f605;
   }
 }
 function _M0FPB18brute__force__find(haystack, needle) {
@@ -7008,7 +7087,7 @@ function _M0FPB18brute__force__find(haystack, needle) {
       return undefined;
     }
   } else {
-    return _M0FPB33brute__force__find_2econstr_2f613;
+    return _M0FPB33brute__force__find_2econstr_2f619;
   }
 }
 function _M0MPC16string10StringView4find(self, str) {
@@ -10982,7 +11061,7 @@ function _M0MPC15array5Array3popGRP36mizchi6kagura10particle3d8ParticleE(self) {
     return v;
   }
 }
-function _M0MPC15array5Array6removeGRP36mizchi6kagura14sprite__packer4RectE(self, index) {
+function _M0MPC15array5Array6removeGRP36mizchi14hacknslash__3d4game12ItemLogEntryE(self, index) {
   if (index >= 0 && index < self.length) {
     $bound_check(self, index);
     const value = self[index];
@@ -11120,7 +11199,7 @@ function _M0FPB23fixed__bubble__sort__byGUiRP36mizchi6kagura14sprite__packer11Sp
     }
   }
 }
-function _M0FPB41fixed__choose__pivot__by_2esort__2_2f2652(_env, a, b) {
+function _M0FPB41fixed__choose__pivot__by_2esort__2_2f2665(_env, a, b) {
   const swaps = _env._2;
   const arr = _env._1;
   const cmp = _env._0;
@@ -11132,10 +11211,10 @@ function _M0FPB41fixed__choose__pivot__by_2esort__2_2f2652(_env, a, b) {
     return;
   }
 }
-function _M0FPB41fixed__choose__pivot__by_2esort__3_2f2653(_env, a, b, c$2) {
-  _M0FPB41fixed__choose__pivot__by_2esort__2_2f2652(_env, a, b);
-  _M0FPB41fixed__choose__pivot__by_2esort__2_2f2652(_env, b, c$2);
-  _M0FPB41fixed__choose__pivot__by_2esort__2_2f2652(_env, a, b);
+function _M0FPB41fixed__choose__pivot__by_2esort__3_2f2666(_env, a, b, c$2) {
+  _M0FPB41fixed__choose__pivot__by_2esort__2_2f2665(_env, a, b);
+  _M0FPB41fixed__choose__pivot__by_2esort__2_2f2665(_env, b, c$2);
+  _M0FPB41fixed__choose__pivot__by_2esort__2_2f2665(_env, a, b);
 }
 function _M0FPB24fixed__choose__pivot__byGUiRP36mizchi6kagura14sprite__packer11SpriteInputEE(arr, cmp) {
   const len = _M0MPC15array12MutArrayView6lengthGUiRP36mizchi6kagura14sprite__packer11SpriteInputEE(arr);
@@ -11155,11 +11234,11 @@ function _M0FPB24fixed__choose__pivot__byGUiRP36mizchi6kagura14sprite__packer11S
     const c$2 = Math.imul(len / 4 | 0, 3) | 0;
     const _env = { _0: cmp, _1: arr, _2: swaps };
     if (len > 50) {
-      _M0FPB41fixed__choose__pivot__by_2esort__3_2f2653(_env, a - 1 | 0, a, a + 1 | 0);
-      _M0FPB41fixed__choose__pivot__by_2esort__3_2f2653(_env, b - 1 | 0, b, b + 1 | 0);
-      _M0FPB41fixed__choose__pivot__by_2esort__3_2f2653(_env, c$2 - 1 | 0, c$2, c$2 + 1 | 0);
+      _M0FPB41fixed__choose__pivot__by_2esort__3_2f2666(_env, a - 1 | 0, a, a + 1 | 0);
+      _M0FPB41fixed__choose__pivot__by_2esort__3_2f2666(_env, b - 1 | 0, b, b + 1 | 0);
+      _M0FPB41fixed__choose__pivot__by_2esort__3_2f2666(_env, c$2 - 1 | 0, c$2, c$2 + 1 | 0);
     }
-    _M0FPB41fixed__choose__pivot__by_2esort__3_2f2653(_env, a, b, c$2);
+    _M0FPB41fixed__choose__pivot__by_2esort__3_2f2666(_env, a, b, c$2);
   }
   if (swaps.val === 12) {
     _M0MPC15array12MutArrayView14rev__in__placeGUiRP36mizchi6kagura14sprite__packer11SpriteInputEE(arr);
@@ -13733,7 +13812,7 @@ function _M0MPC17strconv7Decimal16to__double__priv(self) {
 }
 function _M0FPC17strconv12checked__mul(a, b) {
   if (_M0IPC16uint646UInt64PB2Eq5equal(a, $0L) || _M0IPC16uint646UInt64PB2Eq5equal(b, $0L)) {
-    return _M0FPC17strconv28checked__mul_2econstr_2f3422;
+    return _M0FPC17strconv28checked__mul_2econstr_2f3443;
   }
   if (_M0IPC16uint646UInt64PB2Eq5equal(a, $1L)) {
     return b;
@@ -15073,10 +15152,10 @@ function _M0FPC14math12trig__reduce(x, switch_over) {
   const ix = ($i32_reinterpret_f32(x) & 8388607) << 8 | -2147483648;
   const ind = exp >> 5;
   exp = exp & 31;
-  let hi = _M0MPC15array13ReadOnlyArray2atGjE(_M0FPC14math35trig__reduce_2etwo__over__pi_2f3702, ind);
-  let mi = _M0MPC15array13ReadOnlyArray2atGjE(_M0FPC14math35trig__reduce_2etwo__over__pi_2f3702, ind + 1 | 0);
-  let lo = _M0MPC15array13ReadOnlyArray2atGjE(_M0FPC14math35trig__reduce_2etwo__over__pi_2f3702, ind + 2 | 0);
-  const tp = _M0MPC15array13ReadOnlyArray2atGjE(_M0FPC14math35trig__reduce_2etwo__over__pi_2f3702, ind + 3 | 0);
+  let hi = _M0MPC15array13ReadOnlyArray2atGjE(_M0FPC14math35trig__reduce_2etwo__over__pi_2f3723, ind);
+  let mi = _M0MPC15array13ReadOnlyArray2atGjE(_M0FPC14math35trig__reduce_2etwo__over__pi_2f3723, ind + 1 | 0);
+  let lo = _M0MPC15array13ReadOnlyArray2atGjE(_M0FPC14math35trig__reduce_2etwo__over__pi_2f3723, ind + 2 | 0);
+  const tp = _M0MPC15array13ReadOnlyArray2atGjE(_M0FPC14math35trig__reduce_2etwo__over__pi_2f3723, ind + 3 | 0);
   if (exp > 0) {
     hi = hi << exp | (mi >>> (32 - exp | 0) | 0);
     mi = mi << exp | (lo >>> (32 - exp | 0) | 0);
@@ -18250,40 +18329,40 @@ function _M0FP36mizchi7terrain8tinykeep8generate(config, rng) {
   }
   return new _M0TP36mizchi7terrain8tinykeep14TinyKeepResult(grid, rooms, result_edges);
 }
-function _M0IP36mizchi14hacknslash__3d4game14ProjectileKindPB2Eq5equal(_x_1444, _x_1445) {
-  let _x0_1446;
-  let _y0_1447;
+function _M0IP36mizchi14hacknslash__3d4game14ProjectileKindPB2Eq5equal(_x_1534, _x_1535) {
+  let _x0_1536;
+  let _y0_1537;
   _L: {
-    switch (_x_1444.$tag) {
+    switch (_x_1534.$tag) {
       case 0: {
-        if (_x_1445.$tag === 0) {
+        if (_x_1535.$tag === 0) {
           return true;
         } else {
           return false;
         }
       }
       case 1: {
-        const _Fireball = _x_1444;
-        const _$42$x0_1446 = _Fireball._0;
-        if (_x_1445.$tag === 1) {
-          const _Fireball$2 = _x_1445;
-          const _$42$y0_1447 = _Fireball$2._0;
-          _x0_1446 = _$42$x0_1446;
-          _y0_1447 = _$42$y0_1447;
+        const _Fireball = _x_1534;
+        const _$42$x0_1536 = _Fireball._0;
+        if (_x_1535.$tag === 1) {
+          const _Fireball$2 = _x_1535;
+          const _$42$y0_1537 = _Fireball$2._0;
+          _x0_1536 = _$42$x0_1536;
+          _y0_1537 = _$42$y0_1537;
           break _L;
         } else {
           return false;
         }
       }
       case 2: {
-        if (_x_1445.$tag === 2) {
+        if (_x_1535.$tag === 2) {
           return true;
         } else {
           return false;
         }
       }
       default: {
-        if (_x_1445.$tag === 3) {
+        if (_x_1535.$tag === 3) {
           return true;
         } else {
           return false;
@@ -18291,33 +18370,33 @@ function _M0IP36mizchi14hacknslash__3d4game14ProjectileKindPB2Eq5equal(_x_1444, 
       }
     }
   }
-  return _x0_1446 === _y0_1447;
+  return _x0_1536 === _y0_1537;
 }
-function _M0IP36mizchi14hacknslash__3d4game6UIModePB2Eq5equal(_x_1434, _x_1435) {
-  switch (_x_1434) {
+function _M0IP36mizchi14hacknslash__3d4game6UIModePB2Eq5equal(_x_1524, _x_1525) {
+  switch (_x_1524) {
     case 0: {
-      if (_x_1435 === 0) {
+      if (_x_1525 === 0) {
         return true;
       } else {
         return false;
       }
     }
     case 1: {
-      if (_x_1435 === 1) {
+      if (_x_1525 === 1) {
         return true;
       } else {
         return false;
       }
     }
     case 2: {
-      if (_x_1435 === 2) {
+      if (_x_1525 === 2) {
         return true;
       } else {
         return false;
       }
     }
     default: {
-      if (_x_1435 === 3) {
+      if (_x_1525 === 3) {
         return true;
       } else {
         return false;
@@ -18325,80 +18404,80 @@ function _M0IP36mizchi14hacknslash__3d4game6UIModePB2Eq5equal(_x_1434, _x_1435) 
     }
   }
 }
-function _M0IP36mizchi14hacknslash__3d4game9EnemyKindPB2Eq5equal(_x_1430, _x_1431) {
-  switch (_x_1430) {
+function _M0IP36mizchi14hacknslash__3d4game9EnemyKindPB2Eq5equal(_x_1520, _x_1521) {
+  switch (_x_1520) {
     case 0: {
-      if (_x_1431 === 0) {
+      if (_x_1521 === 0) {
         return true;
       } else {
         return false;
       }
     }
     case 1: {
-      if (_x_1431 === 1) {
+      if (_x_1521 === 1) {
         return true;
       } else {
         return false;
       }
     }
     case 2: {
-      if (_x_1431 === 2) {
+      if (_x_1521 === 2) {
         return true;
       } else {
         return false;
       }
     }
     case 3: {
-      if (_x_1431 === 3) {
+      if (_x_1521 === 3) {
         return true;
       } else {
         return false;
       }
     }
     case 4: {
-      if (_x_1431 === 4) {
+      if (_x_1521 === 4) {
         return true;
       } else {
         return false;
       }
     }
     case 5: {
-      if (_x_1431 === 5) {
+      if (_x_1521 === 5) {
         return true;
       } else {
         return false;
       }
     }
     case 6: {
-      if (_x_1431 === 6) {
+      if (_x_1521 === 6) {
         return true;
       } else {
         return false;
       }
     }
     case 7: {
-      if (_x_1431 === 7) {
+      if (_x_1521 === 7) {
         return true;
       } else {
         return false;
       }
     }
     case 8: {
-      if (_x_1431 === 8) {
+      if (_x_1521 === 8) {
         return true;
       } else {
         return false;
       }
     }
     case 9: {
-      if (_x_1431 === 9) {
+      if (_x_1521 === 9) {
         return true;
       } else {
         return false;
       }
     }
     default: {
-      if (_x_1431 === 10) {
+      if (_x_1521 === 10) {
         return true;
       } else {
         return false;
@@ -18406,31 +18485,31 @@ function _M0IP36mizchi14hacknslash__3d4game9EnemyKindPB2Eq5equal(_x_1430, _x_143
     }
   }
 }
-function _M0IP36mizchi14hacknslash__3d4game8GameModePB2Eq5equal(_x_1426, _x_1427) {
-  switch (_x_1426) {
+function _M0IP36mizchi14hacknslash__3d4game8GameModePB2Eq5equal(_x_1516, _x_1517) {
+  switch (_x_1516) {
     case 0: {
-      if (_x_1427 === 0) {
+      if (_x_1517 === 0) {
         return true;
       } else {
         return false;
       }
     }
     case 1: {
-      if (_x_1427 === 1) {
+      if (_x_1517 === 1) {
         return true;
       } else {
         return false;
       }
     }
     case 2: {
-      if (_x_1427 === 2) {
+      if (_x_1517 === 2) {
         return true;
       } else {
         return false;
       }
     }
     default: {
-      if (_x_1427 === 3) {
+      if (_x_1517 === 3) {
         return true;
       } else {
         return false;
@@ -19562,7 +19641,46 @@ function _M0FP36mizchi14hacknslash__3d4game25generate__dungeon_2einner(seed, flo
   return new _M0TP36mizchi14hacknslash__3d4game11DungeonData(result.val.grid, result.val.rooms, (center.x + 0) * _M0FP36mizchi14hacknslash__3d4game10tile__size + _M0FP36mizchi14hacknslash__3d4game10tile__size / 2, (center.y + 0) * _M0FP36mizchi14hacknslash__3d4game10tile__size + _M0FP36mizchi14hacknslash__3d4game10tile__size / 2, height_map);
 }
 function _M0FP36mizchi14hacknslash__3d4game11make__enemy(cx, cy, kind, hp, speed, size) {
-  return new _M0TP36mizchi14hacknslash__3d4game5Enemy(cx, cy, 0, 0, hp, hp, speed, size, true, 0, kind, [], 0, 0, 0, 0, cx, cy, 0, 0, 0, cx, cy);
+  return new _M0TP36mizchi14hacknslash__3d4game5Enemy(cx, cy, 0, 0, hp, hp, speed, size, true, 0, kind, [], 0, 0, 0, 0, cx, cy, 0, 0, 0, cx, cy, 0, cx, cy);
+}
+function _M0FP36mizchi14hacknslash__3d4game20enemy__type__configs() {
+  return [new _M0TP36mizchi14hacknslash__3d4game15EnemyTypeConfig(0, 1, 1, 10, 5, 1, 40, 1), new _M0TP36mizchi14hacknslash__3d4game15EnemyTypeConfig(1, 0.67, 1.5, 8, 3, 1, 40, 1), new _M0TP36mizchi14hacknslash__3d4game15EnemyTypeConfig(2, 2.5, 0.5, 14, 2, 2, 80, 2), new _M0TP36mizchi14hacknslash__3d4game15EnemyTypeConfig(3, 0.67, 0.4, 8, 2, 2, 40, 1), new _M0TP36mizchi14hacknslash__3d4game15EnemyTypeConfig(5, 0.67, 1.8, 7, 2, 1, 40, 1), new _M0TP36mizchi14hacknslash__3d4game15EnemyTypeConfig(7, 2.5, 1, 12, 2, 2, 80, 1), new _M0TP36mizchi14hacknslash__3d4game15EnemyTypeConfig(6, 0.67, 0.35, 9, 1, 2, 80, 1), new _M0TP36mizchi14hacknslash__3d4game15EnemyTypeConfig(8, 0.67, 1, 8, 1, 2, 40, 1), new _M0TP36mizchi14hacknslash__3d4game15EnemyTypeConfig(10, 1, 0.35, 9, 1, 2, 80, 1), new _M0TP36mizchi14hacknslash__3d4game15EnemyTypeConfig(9, 0.33, 1.5, 5, 1, 1, 10, 1)];
+}
+function _M0FP36mizchi14hacknslash__3d4game17pick__enemy__type(rng) {
+  const configs = _M0FP36mizchi14hacknslash__3d4game20enemy__type__configs();
+  const total_weight = new _M0TPC13ref3RefGiE(0);
+  const _bind$3 = configs.length;
+  let _tmp$2 = 0;
+  while (true) {
+    const _ = _tmp$2;
+    if (_ < _bind$3) {
+      const config = configs[_];
+      total_weight.val = total_weight.val + config.spawn_weight | 0;
+      _tmp$2 = _ + 1 | 0;
+      continue;
+    } else {
+      break;
+    }
+  }
+  const roll = _M0MP36mizchi7terrain5types3RNG9next__int(rng, total_weight.val);
+  const acc = new _M0TPC13ref3RefGiE(0);
+  const _bind$4 = configs.length;
+  let _tmp$3 = 0;
+  while (true) {
+    const _ = _tmp$3;
+    if (_ < _bind$4) {
+      const config = configs[_];
+      acc.val = acc.val + config.spawn_weight | 0;
+      if (roll < acc.val) {
+        return config;
+      }
+      _tmp$3 = _ + 1 | 0;
+      continue;
+    } else {
+      break;
+    }
+  }
+  return _M0MPC15array5Array2atGRP26mizchi14hacknslash__3d22GeneratedPropPlacementE(configs, 0);
 }
 function _M0MP36mizchi14hacknslash__3d4game13BalanceParams28scale__enemy__hp__for__floor(self, base_hp, floor) {
   const scale = 1 + (_M0FPC13cmp7maximumGiE(0, floor - 1 | 0) + 0) * self.enemy_hp_floor_scale;
@@ -19590,7 +19708,7 @@ function _M0FP36mizchi14hacknslash__3d4game47spawn__enemies__in__rooms__with__pa
   } else {
     player_room_center = { _0: 0, _1: 0 };
   }
-  const safe_distance = 8;
+  const safe_distance = _M0FP36mizchi14hacknslash__3d4game21spawn__safe__distance;
   const largest_room_idx = new _M0TPC13ref3RefGiE(-1);
   const largest_area = new _M0TPC13ref3RefGiE(0);
   let _tmp$2 = 0;
@@ -19656,10 +19774,10 @@ function _M0FP36mizchi14hacknslash__3d4game47spawn__enemies__in__rooms__with__pa
         }
         const room = _M0MPC15array5Array2atGRP26mizchi14hacknslash__3d22GeneratedPropPlacementE(rooms, i);
         const area = Math.imul(room.rect.w, room.rect.h) | 0;
-        if (15 === 0) {
+        if (_M0FP36mizchi14hacknslash__3d4game20spawn__area__divisor === 0) {
           $panic();
         }
-        const base_count = _M0FPC13cmp7minimumGiE(5, _M0FPC13cmp7maximumGiE(1, area / 15 | 0));
+        const base_count = _M0FPC13cmp7minimumGiE(_M0FP36mizchi14hacknslash__3d4game23spawn__base__count__max, _M0FPC13cmp7maximumGiE(1, area / _M0FP36mizchi14hacknslash__3d4game20spawn__area__divisor | 0));
         const large_room_bonus = area >= 100 ? params.pack_large_room_bonus : 0;
         const count = _M0FPC13cmp7maximumGiE(1, _M0MPC16double6Double7to__int((base_count + 0) * params.spawn_density * (1 + large_room_bonus)));
         if (i === largest_room_idx.val) {
@@ -19682,90 +19800,12 @@ function _M0FP36mizchi14hacknslash__3d4game47spawn__enemies__in__rooms__with__pa
           if (_j < count) {
             const cx = (room.rect.x + 0) * _M0FP36mizchi14hacknslash__3d4game10tile__size + (_M0MP36mizchi7terrain5types3RNG11rand__range(rng, 1, room.rect.w - 1 | 0) + 0) * _M0FP36mizchi14hacknslash__3d4game10tile__size + _M0FP36mizchi14hacknslash__3d4game10tile__size / 2;
             const cy = (room.rect.y + 0) * _M0FP36mizchi14hacknslash__3d4game10tile__size + (_M0MP36mizchi7terrain5types3RNG11rand__range(rng, 1, room.rect.h - 1 | 0) + 0) * _M0FP36mizchi14hacknslash__3d4game10tile__size + _M0FP36mizchi14hacknslash__3d4game10tile__size / 2;
-            const kind_roll = _M0MP36mizchi7terrain5types3RNG9next__int(rng, 20);
-            let kind;
-            let hp;
-            let spd;
-            let sz;
-            _L$2: {
-              if (kind_roll < 5) {
-                kind = 0;
-                hp = _M0MP36mizchi14hacknslash__3d4game13BalanceParams28scale__enemy__hp__for__floor(params, _M0MPC16double6Double7to__int(params.basic_hp), floor);
-                spd = _M0MP36mizchi14hacknslash__3d4game13BalanceParams31scale__enemy__speed__for__floor(params, params.enemy_speed_basic, floor);
-                sz = 10;
-                break _L$2;
-              } else {
-                if (kind_roll < 8) {
-                  kind = 1;
-                  hp = _M0MP36mizchi14hacknslash__3d4game13BalanceParams28scale__enemy__hp__for__floor(params, _M0MPC16double6Double7to__int(params.fast_hp), floor);
-                  spd = _M0MP36mizchi14hacknslash__3d4game13BalanceParams31scale__enemy__speed__for__floor(params, params.enemy_speed_fast, floor);
-                  sz = 8;
-                  break _L$2;
-                } else {
-                  if (kind_roll < 10) {
-                    kind = 2;
-                    hp = _M0MP36mizchi14hacknslash__3d4game13BalanceParams28scale__enemy__hp__for__floor(params, _M0MPC16double6Double7to__int(params.tank_hp), floor);
-                    spd = _M0MP36mizchi14hacknslash__3d4game13BalanceParams31scale__enemy__speed__for__floor(params, params.enemy_speed_tank, floor);
-                    sz = 14;
-                    break _L$2;
-                  } else {
-                    if (kind_roll < 12) {
-                      kind = 3;
-                      hp = _M0MP36mizchi14hacknslash__3d4game13BalanceParams28scale__enemy__hp__for__floor(params, _M0MPC16double6Double7to__int(params.ranged_hp), floor);
-                      spd = _M0MP36mizchi14hacknslash__3d4game13BalanceParams31scale__enemy__speed__for__floor(params, 0.5, floor);
-                      sz = 8;
-                      break _L$2;
-                    } else {
-                      if (kind_roll < 14) {
-                        kind = 5;
-                        hp = _M0MP36mizchi14hacknslash__3d4game13BalanceParams28scale__enemy__hp__for__floor(params, _M0MPC16double6Double7to__int(params.fast_hp), floor);
-                        spd = _M0MP36mizchi14hacknslash__3d4game13BalanceParams31scale__enemy__speed__for__floor(params, params.enemy_speed_fast * 1.2, floor);
-                        sz = 7;
-                        break _L$2;
-                      } else {
-                        if (kind_roll < 16) {
-                          kind = 7;
-                          hp = _M0MP36mizchi14hacknslash__3d4game13BalanceParams28scale__enemy__hp__for__floor(params, _M0MPC16double6Double7to__int(params.tank_hp), floor);
-                          spd = _M0MP36mizchi14hacknslash__3d4game13BalanceParams31scale__enemy__speed__for__floor(params, params.enemy_speed_basic, floor);
-                          sz = 12;
-                          break _L$2;
-                        } else {
-                          if (kind_roll < 17) {
-                            kind = 6;
-                            hp = _M0MP36mizchi14hacknslash__3d4game13BalanceParams28scale__enemy__hp__for__floor(params, _M0MPC16double6Double7to__int(params.ranged_hp), floor);
-                            spd = _M0MP36mizchi14hacknslash__3d4game13BalanceParams31scale__enemy__speed__for__floor(params, 0.4, floor);
-                            sz = 9;
-                            break _L$2;
-                          } else {
-                            if (kind_roll < 18) {
-                              kind = 8;
-                              hp = _M0MP36mizchi14hacknslash__3d4game13BalanceParams28scale__enemy__hp__for__floor(params, _M0MPC16double6Double7to__int(params.fast_hp), floor);
-                              spd = _M0MP36mizchi14hacknslash__3d4game13BalanceParams31scale__enemy__speed__for__floor(params, params.enemy_speed_basic, floor);
-                              sz = 8;
-                              break _L$2;
-                            } else {
-                              if (kind_roll < 19) {
-                                kind = 10;
-                                hp = _M0MP36mizchi14hacknslash__3d4game13BalanceParams28scale__enemy__hp__for__floor(params, _M0MPC16double6Double7to__int(params.ranged_hp) + 1 | 0, floor);
-                                spd = _M0MP36mizchi14hacknslash__3d4game13BalanceParams31scale__enemy__speed__for__floor(params, 0.35, floor);
-                                sz = 9;
-                                break _L$2;
-                              } else {
-                                kind = 9;
-                                hp = _M0MP36mizchi14hacknslash__3d4game13BalanceParams28scale__enemy__hp__for__floor(params, 1, floor);
-                                spd = _M0MP36mizchi14hacknslash__3d4game13BalanceParams31scale__enemy__speed__for__floor(params, params.enemy_speed_fast, floor);
-                                sz = 5;
-                                break _L$2;
-                              }
-                            }
-                          }
-                        }
-                      }
-                    }
-                  }
-                }
-              }
-            }
+            const config = _M0FP36mizchi14hacknslash__3d4game17pick__enemy__type(rng);
+            const base_hp = _M0MPC13int3Int3max(_M0MPC16double6Double7to__int(params.basic_hp * config.hp_param), 1);
+            const hp = _M0MP36mizchi14hacknslash__3d4game13BalanceParams28scale__enemy__hp__for__floor(params, base_hp, floor);
+            const spd = _M0MP36mizchi14hacknslash__3d4game13BalanceParams31scale__enemy__speed__for__floor(params, params.enemy_speed_basic * config.speed_param, floor);
+            const kind = config.kind;
+            const sz = config.size;
             _M0MPC15array5Array4pushGRP36mizchi6kagura4core10TouchPointE(enemies, _M0FP36mizchi14hacknslash__3d4game11make__enemy(cx, cy, kind, hp, spd, sz));
             _tmp$6 = _j + 1 | 0;
             continue;
@@ -19883,7 +19923,7 @@ function _M0MP36mizchi14hacknslash__3d4game9GameWorld11new_2einner(seed, params,
     discovered_rooms_version = _discovered_rooms_version;
     break _L;
   }
-  return new _M0TP36mizchi14hacknslash__3d4game9GameWorld(params, archetype, build_policy, 0, 0, seed, 1, 0, player, enemies, [], [], dungeon, 0, 0, 0, 0, 0, 0, 0, _M0MP36mizchi14hacknslash__3d4game9Inventory3new(20), equipment, skills, level_progress, player_stats, 0, 0, false, undefined, [], 0, _M0MPC15array5Array4makeGbE(dungeon.rooms.length, false), discovered_rooms, discovered_rooms_version, 0, 0, 0, [], _M0MPC15array5Array4makeGiE(Math.imul(_M0FP36mizchi14hacknslash__3d4game29enemy__separation__grid__cols(), _M0FP36mizchi14hacknslash__3d4game29enemy__separation__grid__rows()) | 0, -1), [], []);
+  return new _M0TP36mizchi14hacknslash__3d4game9GameWorld(params, archetype, build_policy, 0, 0, seed, 1, 0, player, enemies, [], [], dungeon, 0, 0, 0, 0, 0, 0, 0, _M0MP36mizchi14hacknslash__3d4game9Inventory3new(20), equipment, skills, level_progress, player_stats, 0, 0, false, undefined, [], 0, _M0MPC15array5Array4makeGbE(dungeon.rooms.length, false), discovered_rooms, discovered_rooms_version, 0, 0, 0, [], [], [], _M0MPC15array5Array4makeGiE(Math.imul(_M0FP36mizchi14hacknslash__3d4game29enemy__separation__grid__cols(), _M0FP36mizchi14hacknslash__3d4game29enemy__separation__grid__rows()) | 0, -1), [], []);
 }
 function _M0MP36mizchi14hacknslash__3d4game9GameWorld16apply__archetype(self, archetype) {
   self.archetype = archetype;
@@ -19932,7 +19972,7 @@ function _M0MP36mizchi14hacknslash__3d4game9GameWorld20deal__player__damage(self
   self.player.hp = self.player.hp - actual_dmg | 0;
   self.player.damage_timer = _M0FP36mizchi14hacknslash__3d4game23damage__flash__duration;
   self.player.iframe_timer = _M0MPC16double6Double7to__int(self.params.iframe_duration);
-  self.screen_flash = 3;
+  self.screen_flash = 1;
   _M0MPC15array5Array4pushGRP36mizchi6kagura4core10TouchPointE(self.events, new _M0DTP36mizchi14hacknslash__3d4game9GameEvent10PlayerHurt(self.player.x, self.player.y));
   _M0MPC15array5Array4pushGRP36mizchi6kagura4core10TouchPointE(self.events, new _M0DTP36mizchi14hacknslash__3d4game9GameEvent18PlayerDamageNumber(self.player.x, self.player.y, actual_dmg));
   _M0MPC15array5Array4pushGRP36mizchi6kagura4core10TouchPointE(self.events, _M0DTP36mizchi14hacknslash__3d4game9GameEvent13HurtTriggered__);
@@ -20714,16 +20754,34 @@ function _M0FP36mizchi14hacknslash__3d4game30enemy__margin__aware__waypoint(grid
   }
   return { _0: cx + ox.val, _1: cy + oy.val };
 }
-function _M0FP36mizchi14hacknslash__3d4game31tick__enemy__pattern__cooldowns(enemy) {
-  if (enemy.shoot_cooldown > 0) {
-    enemy.shoot_cooldown = enemy.shoot_cooldown - 1 | 0;
+function _M0FP36mizchi14hacknslash__3d4game22behavior__beam__attack(ctx) {
+  if (ctx.enemy.shoot_cooldown > 0 || (ctx.dist_sq >= ctx.chase_range_sq || ctx.dist_sq < 900)) {
+    return false;
   }
-  if (enemy.charge_cooldown > 0) {
-    enemy.charge_cooldown = enemy.charge_cooldown - 1 | 0;
-    return;
-  } else {
-    return;
+  ctx.enemy.beam_cast_timer = _M0FP36mizchi14hacknslash__3d4game18beam__cast__frames;
+  ctx.enemy.beam_target_x = ctx.player.x;
+  ctx.enemy.beam_target_y = ctx.player.y;
+  _M0MPC15array5Array4pushGRP36mizchi6kagura4core10TouchPointE(ctx.events, new _M0DTP36mizchi14hacknslash__3d4game9GameEvent19GroundTelegraphLine(ctx.enemy.x, ctx.enemy.y, ctx.player.x, ctx.player.y));
+  ctx.enemy.shoot_cooldown = _M0FP36mizchi14hacknslash__3d4game22beam__cooldown__frames;
+  return true;
+}
+function _M0FP36mizchi14hacknslash__3d4game25behavior__berserker__rage(ctx) {
+  const hp_ratio = (ctx.enemy.hp + 0) / _M0MPC16double6Double3max(ctx.enemy.max_hp + 0, 1);
+  const rage_mult = 1 + (1 - hp_ratio) * _M0FP36mizchi14hacknslash__3d4game26berserker__rage__max__mult;
+  ctx.enemy.vx = ctx.enemy.vx * rage_mult;
+  ctx.enemy.vy = ctx.enemy.vy * rage_mult;
+  return false;
+}
+function _M0FP36mizchi14hacknslash__3d4game22behavior__cast__meteor(ctx) {
+  if (ctx.enemy.shoot_cooldown > 0 || (ctx.dist_sq >= ctx.chase_range_sq || ctx.dist_sq < _M0FP36mizchi14hacknslash__3d4game25caster__min__distance__sq)) {
+    return false;
   }
+  ctx.enemy.meteor_cast_timer = _M0FP36mizchi14hacknslash__3d4game20meteor__cast__frames;
+  ctx.enemy.meteor_target_x = ctx.player.x;
+  ctx.enemy.meteor_target_y = ctx.player.y;
+  _M0MPC15array5Array4pushGRP36mizchi6kagura4core10TouchPointE(ctx.events, new _M0DTP36mizchi14hacknslash__3d4game9GameEvent15MeteorCastStart(ctx.player.x, ctx.player.y, _M0FP36mizchi14hacknslash__3d4game14meteor__radius));
+  _M0MPC15array5Array4pushGRP36mizchi6kagura4core10TouchPointE(ctx.events, new _M0DTP36mizchi14hacknslash__3d4game9GameEvent18EnemyTelegraphRing(ctx.player.x, ctx.player.y, _M0FP36mizchi14hacknslash__3d4game14meteor__radius));
+  return true;
 }
 function _M0FP36mizchi14hacknslash__3d4game29try__start__enemy__fire__nova(enemy, player, events) {
   const dx = player.x - enemy.x;
@@ -20739,6 +20797,68 @@ function _M0FP36mizchi14hacknslash__3d4game29try__start__enemy__fire__nova(enemy
   enemy.pending_bolt_target_x = player.x;
   enemy.pending_bolt_target_y = player.y;
   _M0MPC15array5Array4pushGRP36mizchi6kagura4core10TouchPointE(events, new _M0DTP36mizchi14hacknslash__3d4game9GameEvent18EnemyTelegraphRing(enemy.x, enemy.y, _M0FP36mizchi14hacknslash__3d4game25enemy__fire__nova__radius));
+  return true;
+}
+function _M0FP36mizchi14hacknslash__3d4game20behavior__fire__nova(ctx) {
+  return _M0FP36mizchi14hacknslash__3d4game29try__start__enemy__fire__nova(ctx.enemy, ctx.player, ctx.events);
+}
+function _M0MP36mizchi14hacknslash__3d4game13BalanceParams30ranged__shot__cooldown__frames(self) {
+  return _M0FPC13cmp7maximumGiE(1, _M0MPC16double6Double7to__int(self.ranged_shot_cooldown));
+}
+function _M0FP36mizchi14hacknslash__3d4game25behavior__ranged__barrage(ctx) {
+  if (ctx.dist_sq <= _M0FP36mizchi14hacknslash__3d4game25ranged__min__distance__sq || ctx.dist_sq < 1e-06) {
+    return false;
+  }
+  const dist = Math.sqrt(ctx.dist_sq);
+  if (ctx.enemy.shoot_cooldown > 0) {
+    const cdx = ctx.player.x - ctx.enemy.x;
+    const cdy = ctx.player.y - ctx.enemy.y;
+    ctx.enemy.vx = -(cdx / dist) * ctx.enemy.speed * _M0FP36mizchi14hacknslash__3d4game22ranged__retreat__speed;
+    ctx.enemy.vy = -(cdy / dist) * ctx.enemy.speed * _M0FP36mizchi14hacknslash__3d4game22ranged__retreat__speed;
+    return true;
+  }
+  if (100 === 0) {
+    $panic();
+  }
+  const meteor_roll = ((Math.imul(ctx.frame_count, 31) | 0) + (Math.imul(_M0MPC16double6Double7to__int(ctx.enemy.x), 7) | 0) | 0) % 100 | 0;
+  if (meteor_roll < _M0FP36mizchi14hacknslash__3d4game22ranged__meteor__chance) {
+    return _M0FP36mizchi14hacknslash__3d4game22behavior__cast__meteor(ctx);
+  }
+  ctx.enemy.shoot_cooldown = _M0MP36mizchi14hacknslash__3d4game13BalanceParams30ranged__shot__cooldown__frames(ctx.params);
+  ctx.enemy.pending_bolt_timer = _M0FP36mizchi14hacknslash__3d4game30enemy__bolt__telegraph__frames;
+  ctx.enemy.pending_bolt_target_x = ctx.player.x;
+  ctx.enemy.pending_bolt_target_y = ctx.player.y;
+  _M0MPC15array5Array4pushGRP36mizchi6kagura4core10TouchPointE(ctx.events, new _M0DTP36mizchi14hacknslash__3d4game9GameEvent19GroundTelegraphLine(ctx.enemy.x, ctx.enemy.y, ctx.player.x, ctx.player.y));
+  _M0MPC15array5Array4pushGRP36mizchi6kagura4core10TouchPointE(ctx.events, new _M0DTP36mizchi14hacknslash__3d4game9GameEvent18EnemyTelegraphRing(ctx.player.x, ctx.player.y, _M0FP36mizchi14hacknslash__3d4game30enemy__bolt__telegraph__radius));
+  const cdx = ctx.player.x - ctx.enemy.x;
+  const cdy = ctx.player.y - ctx.enemy.y;
+  ctx.enemy.vx = -(cdx / dist) * ctx.enemy.speed * _M0FP36mizchi14hacknslash__3d4game22ranged__retreat__speed;
+  ctx.enemy.vy = -(cdy / dist) * ctx.enemy.speed * _M0FP36mizchi14hacknslash__3d4game22ranged__retreat__speed;
+  return true;
+}
+function _M0FP36mizchi14hacknslash__3d4game24behavior__summon__minion(ctx) {
+  if (ctx.enemy.shoot_cooldown > 0 || ctx.dist_sq >= ctx.chase_range_sq) {
+    return false;
+  }
+  ctx.enemy.shoot_cooldown = _M0FP36mizchi14hacknslash__3d4game18summoner__cooldown;
+  const _tmp$2 = ctx.enemy.x;
+  if ((Math.imul(_M0FP36mizchi14hacknslash__3d4game23summoner__spawn__offset, 2) | 0) === 0) {
+    $panic();
+  }
+  const summon_x = _tmp$2 + ((((Math.imul(ctx.frame_count, 17) | 0) % (Math.imul(_M0FP36mizchi14hacknslash__3d4game23summoner__spawn__offset, 2) | 0) | 0) - _M0FP36mizchi14hacknslash__3d4game23summoner__spawn__offset | 0) + 0);
+  const _tmp$3 = ctx.enemy.y;
+  if ((Math.imul(_M0FP36mizchi14hacknslash__3d4game23summoner__spawn__offset, 2) | 0) === 0) {
+    $panic();
+  }
+  const summon_y = _tmp$3 + ((((Math.imul(ctx.frame_count, 13) | 0) % (Math.imul(_M0FP36mizchi14hacknslash__3d4game23summoner__spawn__offset, 2) | 0) | 0) - _M0FP36mizchi14hacknslash__3d4game23summoner__spawn__offset | 0) + 0);
+  const summon_hp = _M0MP36mizchi14hacknslash__3d4game13BalanceParams28scale__enemy__hp__for__floor(ctx.params, _M0MPC16double6Double7to__int(ctx.params.basic_hp), ctx.floor);
+  const summon_speed = _M0MP36mizchi14hacknslash__3d4game13BalanceParams31scale__enemy__speed__for__floor(ctx.params, ctx.params.enemy_speed_basic, ctx.floor);
+  const _tmp$4 = ctx.enemies;
+  if (2 === 0) {
+    $panic();
+  }
+  _M0MPC15array5Array4pushGRP36mizchi6kagura4core10TouchPointE(_tmp$4, _M0FP36mizchi14hacknslash__3d4game11make__enemy(summon_x, summon_y, 9, summon_hp / 2 | 0, summon_speed * _M0FP36mizchi14hacknslash__3d4game29summoner__minion__speed__mult, _M0FP36mizchi14hacknslash__3d4game22summoner__minion__size));
+  _M0MPC15array5Array4pushGRP36mizchi6kagura4core10TouchPointE(ctx.events, new _M0DTP36mizchi14hacknslash__3d4game9GameEvent10DeathBurst(ctx.enemy.x, ctx.enemy.y));
   return true;
 }
 function _M0FP36mizchi14hacknslash__3d4game20start__enemy__tackle(enemy, player, events) {
@@ -20760,6 +20880,81 @@ function _M0FP36mizchi14hacknslash__3d4game25try__start__enemy__tackle(enemy, pl
   }
   _M0FP36mizchi14hacknslash__3d4game20start__enemy__tackle(enemy, player, events);
   return true;
+}
+function _M0FP36mizchi14hacknslash__3d4game16behavior__tackle(ctx) {
+  return _M0FP36mizchi14hacknslash__3d4game25try__start__enemy__tackle(ctx.enemy, ctx.player, ctx.events);
+}
+function _M0FP36mizchi14hacknslash__3d4game26behavior__teleport__behind(ctx) {
+  if (ctx.enemy.shoot_cooldown > 0 || ctx.dist_sq >= ctx.chase_range_sq) {
+    return false;
+  }
+  const cdx = ctx.player.x - ctx.enemy.x;
+  const cdy = ctx.player.y - ctx.enemy.y;
+  const behind_angle = _M0FPC14math5atan2(-cdy, -cdx) + _M0FP36mizchi14hacknslash__3d4game25teleporter__angle__offset;
+  const tp_dist = _M0FP36mizchi14hacknslash__3d4game27teleporter__blink__distance;
+  const new_x = ctx.player.x + _M0FPC14math3cos(behind_angle) * tp_dist;
+  const new_y = ctx.player.y + _M0FPC14math3sin(behind_angle) * tp_dist;
+  if (!_M0FP36mizchi14hacknslash__3d4game22check__wall__collision(ctx.grid, new_x, new_y, ctx.enemy.size)) {
+    ctx.enemy.x = new_x;
+    ctx.enemy.y = new_y;
+    _M0MPC15array5Array4pushGRP36mizchi6kagura4core10TouchPointE(ctx.events, new _M0DTP36mizchi14hacknslash__3d4game9GameEvent10DeathBurst(ctx.enemy.x, ctx.enemy.y));
+  }
+  ctx.enemy.shoot_cooldown = _M0FP36mizchi14hacknslash__3d4game27teleporter__blink__cooldown;
+  return true;
+}
+function _M0FP36mizchi14hacknslash__3d4game23get__special__behaviors(kind) {
+  _L: {
+    _L$2: {
+      switch (kind) {
+        case 4: {
+          return [_M0FP36mizchi14hacknslash__3d4game20behavior__fire__nova, _M0FP36mizchi14hacknslash__3d4game22behavior__beam__attack, _M0FP36mizchi14hacknslash__3d4game16behavior__tackle];
+        }
+        case 2: {
+          return [_M0FP36mizchi14hacknslash__3d4game20behavior__fire__nova];
+        }
+        case 1: {
+          break _L$2;
+        }
+        case 5: {
+          break _L$2;
+        }
+        case 7: {
+          return [_M0FP36mizchi14hacknslash__3d4game25behavior__berserker__rage, _M0FP36mizchi14hacknslash__3d4game16behavior__tackle];
+        }
+        case 8: {
+          return [_M0FP36mizchi14hacknslash__3d4game26behavior__teleport__behind];
+        }
+        case 10: {
+          return [_M0FP36mizchi14hacknslash__3d4game22behavior__cast__meteor, _M0FP36mizchi14hacknslash__3d4game22behavior__beam__attack];
+        }
+        case 6: {
+          return [_M0FP36mizchi14hacknslash__3d4game24behavior__summon__minion];
+        }
+        case 3: {
+          return [_M0FP36mizchi14hacknslash__3d4game25behavior__ranged__barrage];
+        }
+        case 0: {
+          break _L;
+        }
+        default: {
+          break _L;
+        }
+      }
+    }
+    return [_M0FP36mizchi14hacknslash__3d4game16behavior__tackle];
+  }
+  return [];
+}
+function _M0FP36mizchi14hacknslash__3d4game31tick__enemy__pattern__cooldowns(enemy) {
+  if (enemy.shoot_cooldown > 0) {
+    enemy.shoot_cooldown = enemy.shoot_cooldown - 1 | 0;
+  }
+  if (enemy.charge_cooldown > 0) {
+    enemy.charge_cooldown = enemy.charge_cooldown - 1 | 0;
+    return;
+  } else {
+    return;
+  }
 }
 function _M0MP36mizchi14hacknslash__3d4game13BalanceParams24enemy__bolt__damage__int(self) {
   return _M0FPC13cmp7maximumGiE(1, _M0MPC16double6Double7to__int(self.enemy_bolt_damage));
@@ -20864,9 +21059,6 @@ function _M0FP36mizchi14hacknslash__3d4game21update__enemy__tackle(enemy) {
   }
   return true;
 }
-function _M0MP36mizchi14hacknslash__3d4game13BalanceParams30ranged__shot__cooldown__frames(self) {
-  return _M0FPC13cmp7maximumGiE(1, _M0MPC16double6Double7to__int(self.ranged_shot_cooldown));
-}
 function _M0FP36mizchi14hacknslash__3d4game25update__enemy__ai_2einner(enemies, player, grid, rooms, frame_count, projectiles, events, params, floor) {
   const player_tile_x = _M0MPC16double6Double7to__int(player.x / _M0FP36mizchi14hacknslash__3d4game10tile__size);
   const player_tile_y = _M0MPC16double6Double7to__int(player.y / _M0FP36mizchi14hacknslash__3d4game10tile__size);
@@ -20886,25 +21078,19 @@ function _M0FP36mizchi14hacknslash__3d4game25update__enemy__ai_2einner(enemies, 
           enemy.meteor_cast_timer = enemy.meteor_cast_timer - 1 | 0;
           enemy.vx = 0;
           enemy.vy = 0;
-          let _tmp$3;
-          if (10 === 0) {
-            $panic();
-          }
-          if ((enemy.meteor_cast_timer % 10 | 0) === 0) {
-            _tmp$3 = enemy.meteor_cast_timer > 0;
-          } else {
-            _tmp$3 = false;
-          }
-          if (_tmp$3) {
-            _M0MPC15array5Array4pushGRP36mizchi6kagura4core10TouchPointE(events, new _M0DTP36mizchi14hacknslash__3d4game9GameEvent18EnemyTelegraphRing(enemy.meteor_target_x, enemy.meteor_target_y, _M0FP36mizchi14hacknslash__3d4game14meteor__radius));
-            const progress = 1 - (enemy.meteor_cast_timer + 0) / (_M0FP36mizchi14hacknslash__3d4game20meteor__cast__frames + 0);
-            const inner_radius = _M0FP36mizchi14hacknslash__3d4game14meteor__radius * (1 - progress * 0.7);
-            _M0MPC15array5Array4pushGRP36mizchi6kagura4core10TouchPointE(events, new _M0DTP36mizchi14hacknslash__3d4game9GameEvent18EnemyTelegraphRing(enemy.meteor_target_x, enemy.meteor_target_y, inner_radius));
-            _M0MPC15array5Array4pushGRP36mizchi6kagura4core10TouchPointE(events, new _M0DTP36mizchi14hacknslash__3d4game9GameEvent19GroundTelegraphLine(enemy.x, enemy.y, enemy.meteor_target_x, enemy.meteor_target_y));
-          }
           if (enemy.meteor_cast_timer === 0) {
             _M0MPC15array5Array4pushGRP36mizchi6kagura4core10TouchPointE(events, new _M0DTP36mizchi14hacknslash__3d4game9GameEvent12MeteorImpact(enemy.meteor_target_x, enemy.meteor_target_y, _M0FP36mizchi14hacknslash__3d4game14meteor__radius));
             enemy.shoot_cooldown = _M0FP36mizchi14hacknslash__3d4game24meteor__cooldown__frames;
+          }
+          _M0FP36mizchi14hacknslash__3d4game31tick__enemy__pattern__cooldowns(enemy);
+          break _L;
+        }
+        if (enemy.beam_cast_timer > 0) {
+          enemy.beam_cast_timer = enemy.beam_cast_timer - 1 | 0;
+          enemy.vx = 0;
+          enemy.vy = 0;
+          if (enemy.beam_cast_timer === 0) {
+            _M0MPC15array5Array4pushGRP36mizchi6kagura4core10TouchPointE(events, new _M0DTP36mizchi14hacknslash__3d4game9GameEvent8BeamFire(enemy.x, enemy.y, enemy.beam_target_x, enemy.beam_target_y, false));
           }
           _M0FP36mizchi14hacknslash__3d4game31tick__enemy__pattern__cooldowns(enemy);
           break _L;
@@ -20922,71 +21108,6 @@ function _M0FP36mizchi14hacknslash__3d4game25update__enemy__ai_2einner(enemies, 
         const dist_sq = cdx * cdx + cdy * cdy;
         const enemy_room = _M0FP36mizchi14hacknslash__3d4game14find__room__at(rooms, enemy.x, enemy.y);
         const same_room_visible = player_room >= 0 && enemy_room === player_room;
-        _L$2: {
-          _L$3: {
-            const _bind$4 = enemy.kind;
-            switch (_bind$4) {
-              case 4: {
-                if (_M0FP36mizchi14hacknslash__3d4game29try__start__enemy__fire__nova(enemy, player, events)) {
-                  _M0FP36mizchi14hacknslash__3d4game31tick__enemy__pattern__cooldowns(enemy);
-                  break _L;
-                }
-                if (_M0FP36mizchi14hacknslash__3d4game25try__start__enemy__tackle(enemy, player, events)) {
-                  _M0FP36mizchi14hacknslash__3d4game31tick__enemy__pattern__cooldowns(enemy);
-                  break _L;
-                }
-                break;
-              }
-              case 2: {
-                if (_M0FP36mizchi14hacknslash__3d4game29try__start__enemy__fire__nova(enemy, player, events)) {
-                  _M0FP36mizchi14hacknslash__3d4game31tick__enemy__pattern__cooldowns(enemy);
-                  break _L;
-                }
-                break;
-              }
-              case 1: {
-                break _L$3;
-              }
-              case 5: {
-                break _L$3;
-              }
-              case 7: {
-                const hp_ratio = (enemy.hp + 0) / _M0MPC16double6Double3max(enemy.max_hp + 0, 1);
-                const rage_mult = 1 + (1 - hp_ratio) * 1.5;
-                enemy.vx = enemy.vx * rage_mult;
-                enemy.vy = enemy.vy * rage_mult;
-                if (_M0FP36mizchi14hacknslash__3d4game25try__start__enemy__tackle(enemy, player, events)) {
-                  _M0FP36mizchi14hacknslash__3d4game31tick__enemy__pattern__cooldowns(enemy);
-                  break _L;
-                }
-                break;
-              }
-              case 6: {
-                break;
-              }
-              case 8: {
-                if (enemy.shoot_cooldown <= 0 && dist_sq < chase_range_sq) {
-                  const behind_angle = _M0FPC14math5atan2(-cdy, -cdx) + 0.3;
-                  const tp_dist = 30;
-                  const new_x = player.x + _M0FPC14math3cos(behind_angle) * tp_dist;
-                  const new_y = player.y + _M0FPC14math3sin(behind_angle) * tp_dist;
-                  if (!_M0FP36mizchi14hacknslash__3d4game22check__wall__collision(grid, new_x, new_y, enemy.size)) {
-                    enemy.x = new_x;
-                    enemy.y = new_y;
-                    _M0MPC15array5Array4pushGRP36mizchi6kagura4core10TouchPointE(events, new _M0DTP36mizchi14hacknslash__3d4game9GameEvent10DeathBurst(enemy.x, enemy.y));
-                  }
-                  enemy.shoot_cooldown = 180;
-                }
-                break;
-              }
-            }
-            break _L$2;
-          }
-          if (_M0FP36mizchi14hacknslash__3d4game25try__start__enemy__tackle(enemy, player, events)) {
-            _M0FP36mizchi14hacknslash__3d4game31tick__enemy__pattern__cooldowns(enemy);
-            break _L;
-          }
-        }
         if (dist_sq > chase_range_sq) {
           if (360 === 0) {
             $panic();
@@ -20997,64 +21118,26 @@ function _M0FP36mizchi14hacknslash__3d4game25update__enemy__ai_2einner(enemies, 
           _M0FP36mizchi14hacknslash__3d4game31tick__enemy__pattern__cooldowns(enemy);
           break _L;
         }
-        if (_M0IP36mizchi14hacknslash__3d4game9EnemyKindPB2Eq5equal(enemy.kind, 10) && (enemy.shoot_cooldown <= 0 && (dist_sq < chase_range_sq && dist_sq > 900))) {
-          enemy.meteor_cast_timer = _M0FP36mizchi14hacknslash__3d4game20meteor__cast__frames;
-          enemy.meteor_target_x = player.x;
-          enemy.meteor_target_y = player.y;
-          _M0MPC15array5Array4pushGRP36mizchi6kagura4core10TouchPointE(events, new _M0DTP36mizchi14hacknslash__3d4game9GameEvent15MeteorCastStart(player.x, player.y, _M0FP36mizchi14hacknslash__3d4game14meteor__radius));
-          _M0MPC15array5Array4pushGRP36mizchi6kagura4core10TouchPointE(events, new _M0DTP36mizchi14hacknslash__3d4game9GameEvent18EnemyTelegraphRing(player.x, player.y, _M0FP36mizchi14hacknslash__3d4game14meteor__radius));
-          _M0FP36mizchi14hacknslash__3d4game31tick__enemy__pattern__cooldowns(enemy);
-          break _L;
-        }
-        if (_M0IP36mizchi14hacknslash__3d4game9EnemyKindPB2Eq5equal(enemy.kind, 6) && (enemy.shoot_cooldown <= 0 && dist_sq < chase_range_sq)) {
-          enemy.shoot_cooldown = 240;
-          const _tmp$3 = enemy.x;
-          if (20 === 0) {
-            $panic();
-          }
-          const summon_x = _tmp$3 + ((((Math.imul(frame_count, 17) | 0) % 20 | 0) - 10 | 0) + 0);
-          const _tmp$4 = enemy.y;
-          if (20 === 0) {
-            $panic();
-          }
-          const summon_y = _tmp$4 + ((((Math.imul(frame_count, 13) | 0) % 20 | 0) - 10 | 0) + 0);
-          const summon_hp = _M0MP36mizchi14hacknslash__3d4game13BalanceParams28scale__enemy__hp__for__floor(params, _M0MPC16double6Double7to__int(params.basic_hp), floor);
-          const summon_speed = _M0MP36mizchi14hacknslash__3d4game13BalanceParams31scale__enemy__speed__for__floor(params, params.enemy_speed_basic, floor);
-          if (2 === 0) {
-            $panic();
-          }
-          _M0MPC15array5Array4pushGRP36mizchi6kagura4core10TouchPointE(enemies, _M0FP36mizchi14hacknslash__3d4game11make__enemy(summon_x, summon_y, 9, summon_hp / 2 | 0, summon_speed * 1.2, 6));
-          _M0MPC15array5Array4pushGRP36mizchi6kagura4core10TouchPointE(events, new _M0DTP36mizchi14hacknslash__3d4game9GameEvent10DeathBurst(enemy.x, enemy.y));
-          _M0FP36mizchi14hacknslash__3d4game31tick__enemy__pattern__cooldowns(enemy);
-          break _L;
-        }
-        if (_M0IP36mizchi14hacknslash__3d4game9EnemyKindPB2Eq5equal(enemy.kind, 3) && dist_sq > 3600) {
-          if (dist_sq > 1e-06) {
-            const dist = Math.sqrt(dist_sq);
-            if (enemy.shoot_cooldown <= 0) {
-              if (100 === 0) {
-                $panic();
-              }
-              const meteor_roll = ((Math.imul(frame_count, 31) | 0) + (Math.imul(_M0MPC16double6Double7to__int(enemy.x), 7) | 0) | 0) % 100 | 0;
-              if (meteor_roll < 25) {
-                enemy.meteor_cast_timer = _M0FP36mizchi14hacknslash__3d4game20meteor__cast__frames;
-                enemy.meteor_target_x = player.x;
-                enemy.meteor_target_y = player.y;
-                _M0MPC15array5Array4pushGRP36mizchi6kagura4core10TouchPointE(events, new _M0DTP36mizchi14hacknslash__3d4game9GameEvent15MeteorCastStart(player.x, player.y, _M0FP36mizchi14hacknslash__3d4game14meteor__radius));
-                _M0MPC15array5Array4pushGRP36mizchi6kagura4core10TouchPointE(events, new _M0DTP36mizchi14hacknslash__3d4game9GameEvent18EnemyTelegraphRing(player.x, player.y, _M0FP36mizchi14hacknslash__3d4game14meteor__radius));
-                _M0FP36mizchi14hacknslash__3d4game31tick__enemy__pattern__cooldowns(enemy);
-                break _L;
-              }
-              enemy.shoot_cooldown = _M0MP36mizchi14hacknslash__3d4game13BalanceParams30ranged__shot__cooldown__frames(params);
-              enemy.pending_bolt_timer = _M0FP36mizchi14hacknslash__3d4game30enemy__bolt__telegraph__frames;
-              enemy.pending_bolt_target_x = player.x;
-              enemy.pending_bolt_target_y = player.y;
-              _M0MPC15array5Array4pushGRP36mizchi6kagura4core10TouchPointE(events, new _M0DTP36mizchi14hacknslash__3d4game9GameEvent19GroundTelegraphLine(enemy.x, enemy.y, player.x, player.y));
-              _M0MPC15array5Array4pushGRP36mizchi6kagura4core10TouchPointE(events, new _M0DTP36mizchi14hacknslash__3d4game9GameEvent18EnemyTelegraphRing(player.x, player.y, _M0FP36mizchi14hacknslash__3d4game30enemy__bolt__telegraph__radius));
+        const ctx = new _M0TP36mizchi14hacknslash__3d4game14EnemyAIContext(enemy, player, grid, enemies, projectiles, events, params, floor, frame_count, dist_sq, chase_range_sq, same_room_visible);
+        const behaviors = _M0FP36mizchi14hacknslash__3d4game23get__special__behaviors(enemy.kind);
+        const behavior_consumed = new _M0TPC13ref3RefGbE(false);
+        const _bind$4 = behaviors.length;
+        let _tmp$3 = 0;
+        while (true) {
+          const _$2 = _tmp$3;
+          if (_$2 < _bind$4) {
+            const behavior = behaviors[_$2];
+            if (behavior(ctx)) {
+              behavior_consumed.val = true;
+              break;
             }
-            enemy.vx = -(cdx / dist) * enemy.speed * 0.3;
-            enemy.vy = -(cdy / dist) * enemy.speed * 0.3;
+            _tmp$3 = _$2 + 1 | 0;
+            continue;
+          } else {
+            break;
           }
+        }
+        if (behavior_consumed.val) {
           _M0FP36mizchi14hacknslash__3d4game31tick__enemy__pattern__cooldowns(enemy);
           break _L;
         }
@@ -21079,19 +21162,19 @@ function _M0FP36mizchi14hacknslash__3d4game25update__enemy__ai_2einner(enemies, 
           const start = new _M0TP36mizchi7terrain5types5Point(enemy_tile_x, enemy_tile_y);
           const goal = new _M0TP36mizchi7terrain5types5Point(player_tile_x, player_tile_y);
           let path;
-          _L$3: {
-            _L$4: {
-              const _bind$4 = _M0FP36mizchi6kagura8pathfind10find__path(grid, start, goal, undefined);
-              if (_bind$4.$tag === 1) {
-                const _Some = _bind$4;
+          _L$2: {
+            _L$3: {
+              const _bind$5 = _M0FP36mizchi6kagura8pathfind10find__path(grid, start, goal, undefined);
+              if (_bind$5.$tag === 1) {
+                const _Some = _bind$5;
                 const _path = _Some._0;
                 path = _path;
-                break _L$4;
+                break _L$3;
               } else {
                 enemy.path_cache = [];
                 enemy.path_index = 0;
               }
-              break _L$3;
+              break _L$2;
             }
             enemy.path_cache = path;
             enemy.path_index = 1;
@@ -21103,13 +21186,13 @@ function _M0FP36mizchi14hacknslash__3d4game25update__enemy__ai_2einner(enemies, 
           const target = _M0MPC15array5Array2atGRP26mizchi14hacknslash__3d22GeneratedPropPlacementE(enemy.path_cache, enemy.path_index);
           let tx;
           let ty;
-          _L$3: {
-            const _bind$4 = _M0FP36mizchi14hacknslash__3d4game30enemy__margin__aware__waypoint(grid, target, enemy.size / 2);
-            const _tx = _bind$4._0;
-            const _ty = _bind$4._1;
+          _L$2: {
+            const _bind$5 = _M0FP36mizchi14hacknslash__3d4game30enemy__margin__aware__waypoint(grid, target, enemy.size / 2);
+            const _tx = _bind$5._0;
+            const _ty = _bind$5._1;
             tx = _tx;
             ty = _ty;
-            break _L$3;
+            break _L$2;
           }
           const pdx = tx - enemy.x;
           const pdy = ty - enemy.y;
@@ -21241,43 +21324,30 @@ function _M0FP36mizchi14hacknslash__3d4game40find__nearest__enemy__index__from__
   }
   return nearest_idx;
 }
-function _M0FP36mizchi14hacknslash__3d4game17enemy__xp__reward(enemy) {
-  const _bind$3 = enemy.kind;
-  switch (_bind$3) {
-    case 0: {
-      return 1;
-    }
-    case 9: {
-      return 1;
-    }
-    case 1: {
-      return 1;
-    }
-    case 5: {
-      return 1;
-    }
-    case 2: {
-      return 2;
-    }
-    case 7: {
-      return 2;
-    }
-    case 3: {
-      return 2;
-    }
-    case 6: {
-      return 2;
-    }
-    case 8: {
-      return 2;
-    }
-    case 10: {
-      return 2;
-    }
-    default: {
-      return 8;
+function _M0FP36mizchi14hacknslash__3d4game25find__enemy__type__config(kind) {
+  const configs = _M0FP36mizchi14hacknslash__3d4game20enemy__type__configs();
+  const _bind$3 = configs.length;
+  let _tmp$2 = 0;
+  while (true) {
+    const _ = _tmp$2;
+    if (_ < _bind$3) {
+      const config = configs[_];
+      if (_M0IP36mizchi14hacknslash__3d4game9EnemyKindPB2Eq5equal(config.kind, kind)) {
+        return config;
+      }
+      _tmp$2 = _ + 1 | 0;
+      continue;
+    } else {
+      break;
     }
   }
+  return _M0MPC15array5Array2atGRP26mizchi14hacknslash__3d22GeneratedPropPlacementE(configs, 0);
+}
+function _M0FP36mizchi14hacknslash__3d4game17enemy__xp__reward(enemy) {
+  if (_M0IP36mizchi14hacknslash__3d4game9EnemyKindPB2Eq5equal(enemy.kind, 4)) {
+    return 8;
+  }
+  return _M0FP36mizchi14hacknslash__3d4game25find__enemy__type__config(enemy.kind).xp_reward;
 }
 function _M0FP36mizchi14hacknslash__3d4game23equip__slot__icon__base(slot) {
   switch (slot) {
@@ -21724,11 +21794,11 @@ function _M0FP36mizchi14hacknslash__3d4game28apply__enemy__death__rewards(world,
   if (_M0IP36mizchi14hacknslash__3d4game9EnemyKindPB2Eq5equal(enemy.kind, 5)) {
     _M0MPC15array5Array4pushGRP36mizchi6kagura4core10TouchPointE(world.events, new _M0DTP36mizchi14hacknslash__3d4game9GameEvent13FireballBurst(enemy.x, enemy.y));
     _M0MPC15array5Array4pushGRP36mizchi6kagura4core10TouchPointE(world.events, new _M0DTP36mizchi14hacknslash__3d4game9GameEvent13FireballBurst(enemy.x, enemy.y));
-    const explode_radius = _M0FP36mizchi14hacknslash__3d4game31enemy__death__explosion__radius * 1.5;
+    const explode_radius = _M0FP36mizchi14hacknslash__3d4game31enemy__death__explosion__radius * _M0FP36mizchi14hacknslash__3d4game22exploder__radius__mult;
     const dx = world.player.x - enemy.x;
     const dy = world.player.y - enemy.y;
     if (dx * dx + dy * dy <= explode_radius * explode_radius && world.player.iframe_timer <= 0) {
-      const explosion_damage = _M0MP36mizchi14hacknslash__3d4game13BalanceParams32scale__enemy__damage__for__floor(world.params, Math.imul(_M0MPC16double6Double7to__int(world.params.enemy_contact_damage), 3) | 0, world.floor);
+      const explosion_damage = _M0MP36mizchi14hacknslash__3d4game13BalanceParams32scale__enemy__damage__for__floor(world.params, Math.imul(_M0MPC16double6Double7to__int(world.params.enemy_contact_damage), _M0FP36mizchi14hacknslash__3d4game22exploder__damage__mult) | 0, world.floor);
       _M0MP36mizchi14hacknslash__3d4game9GameWorld20deal__player__damage(world, explosion_damage);
     }
     _M0MPC15array5Array4pushGRP36mizchi6kagura4core10TouchPointE(world.events, new _M0DTP36mizchi14hacknslash__3d4game9GameEvent18EnemyTelegraphRing(enemy.x, enemy.y, explode_radius));
@@ -21763,37 +21833,7 @@ function _M0FP36mizchi14hacknslash__3d4game28apply__enemy__death__rewards(world,
     $panic();
   }
   const drop_roll = ((Math.imul(drop_seed, 31) | 0) + 17 | 0) % 100 | 0;
-  const _bind$3 = enemy.kind;
-  let drop_chance;
-  switch (_bind$3) {
-    case 4: {
-      drop_chance = 100;
-      break;
-    }
-    case 2: {
-      drop_chance = 80;
-      break;
-    }
-    case 6: {
-      drop_chance = 80;
-      break;
-    }
-    case 7: {
-      drop_chance = 80;
-      break;
-    }
-    case 10: {
-      drop_chance = 80;
-      break;
-    }
-    case 9: {
-      drop_chance = 10;
-      break;
-    }
-    default: {
-      drop_chance = 40;
-    }
-  }
+  const drop_chance = _M0IP36mizchi14hacknslash__3d4game9EnemyKindPB2Eq5equal(enemy.kind, 4) ? 100 : _M0FP36mizchi14hacknslash__3d4game25find__enemy__type__config(enemy.kind).drop_chance;
   if (drop_roll < drop_chance) {
     let drop_count;
     if (_M0IP36mizchi14hacknslash__3d4game9EnemyKindPB2Eq5equal(enemy.kind, 4)) {
@@ -22333,6 +22373,32 @@ function _M0MP36mizchi14hacknslash__3d4game9GameWorld26collect__equipment__picku
   const plan = _M0FP36mizchi6kagura10gameplay2d23plan__equipment__pickup(_tmp$2, _tmp$3, _tmp$4, !(_bind$3 === undefined));
   return _M0MP36mizchi14hacknslash__3d4game9GameWorld30apply__equipment__pickup__plan(self, item, plan);
 }
+function _M0MP36mizchi14hacknslash__3d4game9GameWorld15push__item__log(self, text, color) {
+  _M0MPC15array5Array4pushGRP36mizchi6kagura4core10TouchPointE(self.item_log, new _M0TP36mizchi14hacknslash__3d4game12ItemLogEntry(text, color, _M0FP36mizchi14hacknslash__3d4game19item__log__duration));
+  while (true) {
+    if (self.item_log.length <= _M0FP36mizchi14hacknslash__3d4game23item__log__max__entries) {
+      return;
+    }
+    _M0MPC15array5Array6removeGRP36mizchi14hacknslash__3d4game12ItemLogEntryE(self.item_log, 0);
+    continue;
+  }
+}
+function _M0MP36mizchi14hacknslash__3d4game10ItemRarity5color(self) {
+  switch (self) {
+    case 0: {
+      return 11184810;
+    }
+    case 1: {
+      return 52224;
+    }
+    case 2: {
+      return 3368703;
+    }
+    default: {
+      return 13369599;
+    }
+  }
+}
 function _M0MP36mizchi14hacknslash__3d4game9GameWorld18tick__items__phase(self) {
   const _bind$3 = self.items;
   const _bind$4 = _bind$3.length;
@@ -22382,7 +22448,7 @@ function _M0MP36mizchi14hacknslash__3d4game9GameWorld18tick__items__phase(self) 
                       _L$5: {
                         const _bind$6 = _M0FP36mizchi6kagura10gameplay2d33apply__builtin__pickup__to__actor(1, self.player.hp, self.player_stats.max_hp, self.score, rewards);
                         if (_bind$6 === undefined) {
-                          _M0FPB5abortGuE("health pickup should always resolve", "@mizchi/hacknslash_3d/game:world.mbt:772:23-772:67");
+                          _M0FPB5abortGuE("health pickup should always resolve", "@mizchi/hacknslash_3d/game:world.mbt:777:23-777:67");
                         } else {
                           const _Some = _bind$6;
                           const _application = _Some;
@@ -22395,6 +22461,7 @@ function _M0MP36mizchi14hacknslash__3d4game9GameWorld18tick__items__phase(self) 
                       _M0MPC15array5Array4pushGRP36mizchi6kagura4core10TouchPointE(self.events, new _M0DTP36mizchi14hacknslash__3d4game9GameEvent10ItemPickup(item.x, item.y, application.heal_feedback));
                       self.player.hp = application.next_hp;
                       self.score = application.next_score;
+                      _M0MP36mizchi14hacknslash__3d4game9GameWorld15push__item__log(self, "+Health", 4513092);
                     }
                     break;
                   }
@@ -22405,7 +22472,7 @@ function _M0MP36mizchi14hacknslash__3d4game9GameWorld18tick__items__phase(self) 
                       _L$6: {
                         const _bind$6 = _M0FP36mizchi6kagura10gameplay2d33apply__builtin__pickup__to__actor(0, self.player.hp, self.player_stats.max_hp, self.score, rewards$2);
                         if (_bind$6 === undefined) {
-                          _M0FPB5abortGuE("score pickup should always resolve", "@mizchi/hacknslash_3d/game:world.mbt:796:23-796:66");
+                          _M0FPB5abortGuE("score pickup should always resolve", "@mizchi/hacknslash_3d/game:world.mbt:802:23-802:66");
                         } else {
                           const _Some = _bind$6;
                           const _application = _Some;
@@ -22418,6 +22485,7 @@ function _M0MP36mizchi14hacknslash__3d4game9GameWorld18tick__items__phase(self) 
                       _M0MPC15array5Array4pushGRP36mizchi6kagura4core10TouchPointE(self.events, new _M0DTP36mizchi14hacknslash__3d4game9GameEvent10ItemPickup(item.x, item.y, application$2.heal_feedback));
                       self.player.hp = application$2.next_hp;
                       self.score = application$2.next_score;
+                      _M0MP36mizchi14hacknslash__3d4game9GameWorld15push__item__log(self, "+Score", 14540100);
                     }
                     break;
                   }
@@ -22433,6 +22501,7 @@ function _M0MP36mizchi14hacknslash__3d4game9GameWorld18tick__items__phase(self) 
               if (_M0MP36mizchi14hacknslash__3d4game9GameWorld26collect__equipment__pickup(self, data)) {
                 item.alive = false;
                 _M0MPC15array5Array4pushGRP36mizchi6kagura4core10TouchPointE(self.events, new _M0DTP36mizchi14hacknslash__3d4game9GameEvent10ItemPickup(item.x, item.y, false));
+                _M0MP36mizchi14hacknslash__3d4game9GameWorld15push__item__log(self, data.name, _M0MP36mizchi14hacknslash__3d4game10ItemRarity5color(data.rarity));
               }
             }
           }
@@ -22494,6 +22563,12 @@ function _M0MP36mizchi14hacknslash__3d4game9GameWorld38tick__player__enemy__sepa
     }
   }
 }
+function _M0FP36mizchi14hacknslash__3d4game22add__telegraph__circle(world, x, y, radius, cast_frames) {
+  _M0MPC15array5Array4pushGRP36mizchi6kagura4core10TouchPointE(world.telegraph_markers, new _M0TP36mizchi14hacknslash__3d4game15TelegraphMarker(x, y, radius, 0, cast_frames, cast_frames, x, y));
+}
+function _M0FP36mizchi14hacknslash__3d4game20add__telegraph__line(world, start_x, start_y, end_x, end_y, width, cast_frames) {
+  _M0MPC15array5Array4pushGRP36mizchi6kagura4core10TouchPointE(world.telegraph_markers, new _M0TP36mizchi14hacknslash__3d4game15TelegraphMarker(start_x, start_y, width, 1, cast_frames, cast_frames, end_x, end_y));
+}
 function _M0MP36mizchi14hacknslash__3d4game9GameWorld27tick__meteor__damage__phase(self) {
   const _bind$3 = self.events;
   const _bind$4 = _bind$3.length;
@@ -22507,15 +22582,159 @@ function _M0MP36mizchi14hacknslash__3d4game9GameWorld27tick__meteor__damage__pha
       let radius;
       _L: {
         _L$2: {
-          if (event.$tag === 19) {
-            const _MeteorImpact = event;
-            const _x = _MeteorImpact._0;
-            const _y = _MeteorImpact._1;
-            const _radius = _MeteorImpact._2;
-            y = _y;
-            x = _x;
-            radius = _radius;
-            break _L$2;
+          let y1;
+          let y0;
+          let x0;
+          let x1;
+          let is_player;
+          _L$3: {
+            _L$4: {
+              let x1$2;
+              let x0$2;
+              let y0$2;
+              let y1$2;
+              _L$5: {
+                _L$6: {
+                  let y$2;
+                  let x$2;
+                  let radius$2;
+                  _L$7: {
+                    _L$8: {
+                      let y$3;
+                      let x$3;
+                      let radius$3;
+                      _L$9: {
+                        _L$10: {
+                          switch (event.$tag) {
+                            case 18: {
+                              const _MeteorCastStart = event;
+                              const _x = _MeteorCastStart._0;
+                              const _y = _MeteorCastStart._1;
+                              const _radius = _MeteorCastStart._2;
+                              y$3 = _y;
+                              x$3 = _x;
+                              radius$3 = _radius;
+                              break _L$10;
+                            }
+                            case 9: {
+                              const _EnemyTelegraphRing = event;
+                              const _x$2 = _EnemyTelegraphRing._0;
+                              const _y$2 = _EnemyTelegraphRing._1;
+                              const _radius$2 = _EnemyTelegraphRing._2;
+                              y$2 = _y$2;
+                              x$2 = _x$2;
+                              radius$2 = _radius$2;
+                              break _L$8;
+                            }
+                            case 8: {
+                              const _GroundTelegraphLine = event;
+                              const _x0 = _GroundTelegraphLine._0;
+                              const _y0 = _GroundTelegraphLine._1;
+                              const _x1 = _GroundTelegraphLine._2;
+                              const _y1 = _GroundTelegraphLine._3;
+                              x1$2 = _x1;
+                              x0$2 = _x0;
+                              y0$2 = _y0;
+                              y1$2 = _y1;
+                              break _L$6;
+                            }
+                            case 20: {
+                              const _BeamFire = event;
+                              const _x0$2 = _BeamFire._0;
+                              const _y0$2 = _BeamFire._1;
+                              const _x1$2 = _BeamFire._2;
+                              const _y1$2 = _BeamFire._3;
+                              const _is_player = _BeamFire._4;
+                              y1 = _y1$2;
+                              y0 = _y0$2;
+                              x0 = _x0$2;
+                              x1 = _x1$2;
+                              is_player = _is_player;
+                              break _L$4;
+                            }
+                            case 19: {
+                              const _MeteorImpact = event;
+                              const _x$3 = _MeteorImpact._0;
+                              const _y$3 = _MeteorImpact._1;
+                              const _radius$3 = _MeteorImpact._2;
+                              y = _y$3;
+                              x = _x$3;
+                              radius = _radius$3;
+                              break _L$2;
+                            }
+                          }
+                          break _L$9;
+                        }
+                        _M0FP36mizchi14hacknslash__3d4game22add__telegraph__circle(self, x$3, y$3, radius$3, _M0FP36mizchi14hacknslash__3d4game20meteor__cast__frames);
+                      }
+                      break _L$7;
+                    }
+                    _M0FP36mizchi14hacknslash__3d4game22add__telegraph__circle(self, x$2, y$2, radius$2, 40);
+                  }
+                  break _L$5;
+                }
+                _M0FP36mizchi14hacknslash__3d4game20add__telegraph__line(self, x0$2, y0$2, x1$2, y1$2, _M0FP36mizchi14hacknslash__3d4game11beam__width, _M0FP36mizchi14hacknslash__3d4game18beam__cast__frames);
+              }
+              break _L$3;
+            }
+            if (!is_player) {
+              const beam_dx = x1 - x0;
+              const beam_dy = y1 - y0;
+              const beam_len_sq = beam_dx * beam_dx + beam_dy * beam_dy;
+              if (beam_len_sq > 0.001) {
+                const beam_len = Math.sqrt(beam_len_sq);
+                const nx = beam_dx / beam_len;
+                const ny = beam_dy / beam_len;
+                const px = self.player.x - x0;
+                const py = self.player.y - y0;
+                const proj = px * nx + py * ny;
+                if (proj > 0 && proj < beam_len) {
+                  const perp = Math.abs(px * ny - py * nx);
+                  if (perp < _M0FP36mizchi14hacknslash__3d4game11beam__width / 2 && self.player.iframe_timer <= 0) {
+                    const dmg = _M0MP36mizchi14hacknslash__3d4game13BalanceParams32scale__enemy__damage__for__floor(self.params, Math.imul(_M0MPC16double6Double7to__int(self.params.enemy_contact_damage), _M0FP36mizchi14hacknslash__3d4game18beam__damage__mult) | 0, self.floor);
+                    _M0MP36mizchi14hacknslash__3d4game9GameWorld20deal__player__damage(self, dmg);
+                  }
+                }
+              }
+            } else {
+              const beam_dx = x1 - x0;
+              const beam_dy = y1 - y0;
+              const beam_len_sq = beam_dx * beam_dx + beam_dy * beam_dy;
+              if (beam_len_sq > 0.001) {
+                const beam_len = Math.sqrt(beam_len_sq);
+                const nx = beam_dx / beam_len;
+                const ny = beam_dy / beam_len;
+                const _bind$5 = self.enemies;
+                const _bind$6 = _bind$5.length;
+                let _tmp$3 = 0;
+                while (true) {
+                  const _$2 = _tmp$3;
+                  if (_$2 < _bind$6) {
+                    const enemy = _bind$5[_$2];
+                    _L$5: {
+                      if (!enemy.alive) {
+                        break _L$5;
+                      }
+                      const ex = enemy.x - x0;
+                      const ey = enemy.y - y0;
+                      const proj = ex * nx + ey * ny;
+                      if (proj > 0 && proj < beam_len) {
+                        const perp = Math.abs(ex * ny - ey * nx);
+                        if (perp < _M0FP36mizchi14hacknslash__3d4game11beam__width / 2 + enemy.size / 2) {
+                          const dmg = Math.imul(self.player_stats.spell_power, _M0FP36mizchi14hacknslash__3d4game18beam__damage__mult) | 0;
+                          _M0FP36mizchi14hacknslash__3d4game32apply__player__damage__to__enemy(self, enemy, dmg, x0, y0);
+                        }
+                      }
+                      break _L$5;
+                    }
+                    _tmp$3 = _$2 + 1 | 0;
+                    continue;
+                  } else {
+                    break;
+                  }
+                }
+              }
+            }
           }
           break _L;
         }
@@ -22567,8 +22786,10 @@ function _M0MP36mizchi14hacknslash__3d4game9GameWorld27tick__player__timers__pha
   if (self.player.iframe_timer > 0) {
     self.player.iframe_timer = self.player.iframe_timer - 1 | 0;
   }
-  if (self.screen_flash > 0) {
-    self.screen_flash = self.screen_flash - 1 | 0;
+  if (self.screen_flash > 0.01) {
+    self.screen_flash = self.screen_flash * 0.92;
+  } else {
+    self.screen_flash = 0;
   }
   if (self.chain_lightning_cooldown_timer > 0) {
     self.chain_lightning_cooldown_timer = self.chain_lightning_cooldown_timer - 1 | 0;
@@ -22585,6 +22806,27 @@ function _M0MP36mizchi14hacknslash__3d4game9GameWorld27tick__player__timers__pha
   } else {
     return;
   }
+}
+function _M0MP36mizchi14hacknslash__3d4game9GameWorld15tick__item__log(self) {
+  const still_active = [];
+  const _bind$3 = self.item_log;
+  const _bind$4 = _bind$3.length;
+  let _tmp$2 = 0;
+  while (true) {
+    const _ = _tmp$2;
+    if (_ < _bind$4) {
+      const entry = _bind$3[_];
+      entry.frames_remaining = entry.frames_remaining - 1 | 0;
+      if (entry.frames_remaining > 0) {
+        _M0MPC15array5Array4pushGRP36mizchi6kagura4core10TouchPointE(still_active, entry);
+      }
+      _tmp$2 = _ + 1 | 0;
+      continue;
+    } else {
+      break;
+    }
+  }
+  self.item_log = still_active;
 }
 function _M0FP36mizchi14hacknslash__3d4game20find__nearest__enemy(world, max_range) {
   let index;
@@ -22658,6 +22900,27 @@ function _M0FP36mizchi14hacknslash__3d4game12shoot__arrow(world, target) {
     break _L;
   }
   _M0MPC15array5Array4pushGRP36mizchi6kagura4core10TouchPointE(world.projectiles, new _M0TP36mizchi14hacknslash__3d4game10Projectile(world.player.x, world.player.y, vx, vy, 0, true, damage, true, _M0DTP36mizchi14hacknslash__3d4game14ProjectileKind5Arrow__));
+}
+function _M0FP36mizchi14hacknslash__3d4game24tick__telegraph__markers(world) {
+  const still_active = [];
+  const _bind$3 = world.telegraph_markers;
+  const _bind$4 = _bind$3.length;
+  let _tmp$2 = 0;
+  while (true) {
+    const _ = _tmp$2;
+    if (_ < _bind$4) {
+      const marker = _bind$3[_];
+      marker.frames_remaining = marker.frames_remaining - 1 | 0;
+      if (marker.frames_remaining > 0) {
+        _M0MPC15array5Array4pushGRP36mizchi6kagura4core10TouchPointE(still_active, marker);
+      }
+      _tmp$2 = _ + 1 | 0;
+      continue;
+    } else {
+      break;
+    }
+  }
+  world.telegraph_markers = still_active;
 }
 function _M0FP36mizchi14hacknslash__3d4game26apply__spell__attack__lock(world) {
   if (world.attack_timer < _M0FP36mizchi14hacknslash__3d4game33spell__cast__attack__lock__frames) {
@@ -23301,6 +23564,8 @@ function _M0MP36mizchi14hacknslash__3d4game9GameWorld27tick__with__enemy__ai__gr
   }
   _M0MP36mizchi14hacknslash__3d4game9GameWorld34tick__enemy__ai__phase__with__grid(self, enemy_ai_grid);
   _M0MP36mizchi14hacknslash__3d4game9GameWorld27tick__meteor__damage__phase(self);
+  _M0FP36mizchi14hacknslash__3d4game24tick__telegraph__markers(self);
+  _M0MP36mizchi14hacknslash__3d4game9GameWorld15tick__item__log(self);
   _M0MP36mizchi14hacknslash__3d4game9GameWorld42tick__enemy__movement__and__contact__phase(self);
   _M0MP36mizchi14hacknslash__3d4game9GameWorld24tick__projectiles__phase(self);
   _M0MP36mizchi14hacknslash__3d4game9GameWorld18tick__items__phase(self);
@@ -23872,7 +24137,6 @@ function _M0FP36mizchi14hacknslash__3d4game15activate__skill(world, slot) {
       const level = _M0MP36mizchi14hacknslash__3d4game9SkillTree10get__level(world.skills, 0);
       if (level > 0 && world.attack_timer <= 0) {
         world.attack_timer = _M0MPC16double6Double7to__int(world.params.attack_cooldown);
-        world.screen_flash = 2;
         const a = world.player.facing_angle;
         let _tmp$2 = -1;
         while (true) {
@@ -23896,7 +24160,6 @@ function _M0FP36mizchi14hacknslash__3d4game15activate__skill(world, slot) {
       const level$2 = _M0MP36mizchi14hacknslash__3d4game9SkillTree10get__level(world.skills, 1);
       if (level$2 > 0 && world.attack_timer <= 0) {
         world.attack_timer = _M0MPC16double6Double7to__int(world.params.attack_cooldown) + 5 | 0;
-        world.screen_flash = 3;
         let _tmp$2 = 0;
         while (true) {
           const i = _tmp$2;
@@ -24204,56 +24467,9 @@ function _M0MP36mizchi14hacknslash__3d4game9GameWorld33tick__auto__with__enemy__
 function _M0MP36mizchi14hacknslash__3d4game9GameWorld10tick__auto(self) {
   _M0MP36mizchi14hacknslash__3d4game9GameWorld33tick__auto__with__enemy__ai__grid(self, self.dungeon.grid);
 }
-function _M0MP36mizchi14hacknslash__3d4game10ItemRarity5color(self) {
-  switch (self) {
-    case 0: {
-      return 11184810;
-    }
-    case 1: {
-      return 52224;
-    }
-    case 2: {
-      return 3368703;
-    }
-    default: {
-      return 13369599;
-    }
-  }
-}
-function _M0MP36mizchi14hacknslash__3d4game8ItemData13display__name(self) {
-  const n = new _M0TPC13ref3RefGsE("");
-  let a;
-  _L: {
-    _L$2: {
-      const _bind$3 = self.prefix;
-      if (_bind$3 === undefined) {
-      } else {
-        const _Some = _bind$3;
-        const _a = _Some;
-        a = _a;
-        break _L$2;
-      }
-      break _L;
-    }
-    n.val = `${a.name} `;
-  }
-  n.val = `${n.val}${self.name}`;
-  let a$2;
-  _L$2: {
-    _L$3: {
-      const _bind$3 = self.suffix;
-      if (_bind$3 === undefined) {
-      } else {
-        const _Some = _bind$3;
-        const _a = _Some;
-        a$2 = _a;
-        break _L$3;
-      }
-      break _L$2;
-    }
-    n.val = `${n.val} ${a$2.name}`;
-  }
-  return n.val;
+function _M0MP36mizchi14hacknslash__3d4game15TelegraphMarker8progress(self) {
+  const elapsed = (self.total_frames - self.frames_remaining | 0) + 0;
+  return elapsed / _M0MPC16double6Double3max(self.total_frames + 0, 1);
 }
 function _M0FP36mizchi14hacknslash__3d4game20skill__id__from__int(id) {
   switch (id) {
@@ -24343,6 +24559,41 @@ function _M0FP36mizchi14hacknslash__3d4game29generate__item__with__profile(seed,
 }
 function _M0FP36mizchi14hacknslash__3d4game14generate__item(seed, floor) {
   return _M0FP36mizchi14hacknslash__3d4game29generate__item__with__profile(seed, floor, 0);
+}
+function _M0MP36mizchi14hacknslash__3d4game8ItemData13display__name(self) {
+  const n = new _M0TPC13ref3RefGsE("");
+  let a;
+  _L: {
+    _L$2: {
+      const _bind$3 = self.prefix;
+      if (_bind$3 === undefined) {
+      } else {
+        const _Some = _bind$3;
+        const _a = _Some;
+        a = _a;
+        break _L$2;
+      }
+      break _L;
+    }
+    n.val = `${a.name} `;
+  }
+  n.val = `${n.val}${self.name}`;
+  let a$2;
+  _L$2: {
+    _L$3: {
+      const _bind$3 = self.suffix;
+      if (_bind$3 === undefined) {
+      } else {
+        const _Some = _bind$3;
+        const _a = _Some;
+        a$2 = _a;
+        break _L$3;
+      }
+      break _L$2;
+    }
+    n.val = `${n.val} ${a$2.name}`;
+  }
+  return n.val;
 }
 function _M0FP36mizchi14hacknslash__3d4game17get__tile__height(dungeon, x, y) {
   const col = _M0MPC16double6Double7to__int(x / _M0FP36mizchi14hacknslash__3d4game10tile__size);
@@ -52949,10 +53200,10 @@ function _M0FP36mizchi6kagura6postfx13tonemap__wgsl(op) {
   } else {
     tonemap_fn = "fn tonemap(color: vec3<f32>) -> vec3<f32> {\n  let a = 2.51;\n  let b = 0.03;\n  let c = 2.43;\n  let d = 0.59;\n  let e = 0.14;\n  return clamp((color * (a * color + b)) / (color * (c * color + d) + e), vec3<f32>(0.0), vec3<f32>(1.0));\n}\n\n";
   }
-  return `${_M0FP36mizchi6kagura6postfx24fullscreen__vertex__wgsl()}struct Uniforms {\n  exposure: vec4<f32>,\n};\n\n@group(0) @binding(0) var<uniform> uniforms: Uniforms;\n@group(0) @binding(1) var tex: texture_2d<f32>;\n@group(0) @binding(2) var tex_sampler: sampler;\n\n${tonemap_fn}@fragment fn fs_main(in: VertexOutput) -> @location(0) vec4<f32> {\n  let hdr_color = textureSampleLevel(tex, tex_sampler, in.uv, 0.0).rgb;\n  let exposed = hdr_color * uniforms.exposure.x;\n  let ldr_color = tonemap(exposed);\n  // Vignette: darken edges for atmospheric framing\n  let vignette_uv = in.uv * 2.0 - 1.0;\n  let vignette_dist = dot(vignette_uv, vignette_uv);\n  let vignette = smoothstep(2.0, 0.7, vignette_dist);\n  return vec4<f32>(ldr_color * vignette, 1.0);\n}\n`;
+  return `${_M0FP36mizchi6kagura6postfx24fullscreen__vertex__wgsl()}struct Uniforms {\n  exposure: vec4<f32>,\n};\n\n@group(0) @binding(0) var<uniform> uniforms: Uniforms;\n@group(0) @binding(1) var tex: texture_2d<f32>;\n@group(0) @binding(2) var tex_sampler: sampler;\n\n${tonemap_fn}@fragment fn fs_main(in: VertexOutput) -> @location(0) vec4<f32> {\n  let hdr_color = textureSampleLevel(tex, tex_sampler, in.uv, 0.0).rgb;\n  let exposed = hdr_color * uniforms.exposure.x;\n  let ldr_color = tonemap(exposed);\n  // Vignette: darken edges for atmospheric framing\n  let vignette_uv = in.uv * 2.0 - 1.0;\n  let vignette_dist = dot(vignette_uv, vignette_uv);\n  let vignette = smoothstep(2.0, 0.7, vignette_dist);\n  var final_color = ldr_color * vignette;\n  // Hit flash: mix red tint based on uniforms.exposure.y\n  let flash = uniforms.exposure.y;\n  if (flash > 0.0) {\n    let edge_boost = smoothstep(0.3, 1.2, vignette_dist);\n    let red_tint = vec3<f32>(0.6, 0.05, 0.05);\n    final_color = mix(final_color, red_tint, flash * 0.25 * (1.0 + edge_boost));\n  }\n  return vec4<f32>(final_color, 1.0);\n}\n`;
 }
-function _M0FP36mizchi6kagura6postfx24tonemap__uniform__dwords(exposure) {
-  return [_M0FP36mizchi6kagura3gfx21double__to__f32__bits(exposure), 0, 0, 0];
+function _M0FP36mizchi6kagura6postfx32tonemap__uniform__dwords_2einner(exposure, hit_flash) {
+  return [_M0FP36mizchi6kagura3gfx21double__to__f32__bits(exposure), _M0FP36mizchi6kagura3gfx21double__to__f32__bits(hit_flash), 0, 0];
 }
 function _M0FP36mizchi6kagura6postfx25fullscreen__quad__indices() {
   return [0, 1, 2, 2, 3, 0];
@@ -52994,8 +53245,8 @@ function _M0FP36mizchi6kagura6postfx30new__fullscreen__quad__command(dst, shader
   const dst_region = _M0FP36mizchi6kagura3gfx16new__dst__region(0, 0, dst.width, dst.height, 6);
   return _M0FP36mizchi6kagura3gfx37new__draw__triangles__command_2einner(dst, shader, [dst_region], 0, 0, 0, blend, _M0FP36mizchi6kagura6postfx30fullscreen__quad__vertex__data(), _M0FP36mizchi6kagura6postfx25fullscreen__quad__indices(), src_image_ids, uniform_dwords, 1, _M0FP36mizchi6kagura6postfx38fullscreen__quad__resource__cache__key(dst, shader, src_image_ids, uniform_dwords, blend));
 }
-function _M0FP36mizchi6kagura6postfx21new__tonemap__command(dst, shader, src_image_id, exposure) {
-  return _M0FP36mizchi6kagura6postfx30new__fullscreen__quad__command(dst, shader, [src_image_id], _M0FP36mizchi6kagura6postfx24tonemap__uniform__dwords(exposure), _M0FP36mizchi6kagura3gfx22blend__mode__from__int(0));
+function _M0FP36mizchi6kagura6postfx29new__tonemap__command_2einner(dst, shader, src_image_id, exposure, hit_flash) {
+  return _M0FP36mizchi6kagura6postfx30new__fullscreen__quad__command(dst, shader, [src_image_id], _M0FP36mizchi6kagura6postfx32tonemap__uniform__dwords_2einner(exposure, hit_flash), _M0FP36mizchi6kagura3gfx22blend__mode__from__int(0));
 }
 function _M0FP36mizchi6kagura6postfx10ssao__wgsl() {
   return `${_M0FP36mizchi6kagura6postfx24fullscreen__vertex__wgsl()}struct Uniforms {\n  params: vec4<f32>,\n  screen: vec4<f32>,\n};\n\n@group(0) @binding(0) var<uniform> uniforms: Uniforms;\n@group(0) @binding(1) var color_tex: texture_2d<f32>;\n@group(0) @binding(2) var color_sampler: sampler;\n@group(0) @binding(3) var depth_tex: texture_2d<f32>;\n@group(0) @binding(4) var depth_sampler: sampler;\n\nfn hash(p: vec2<f32>) -> f32 {\n  let h = dot(p, vec2<f32>(127.1, 311.7));\n  return fract(sin(h) * 43758.5453);\n}\n\n@fragment fn fs_main(in: VertexOutput) -> @location(0) vec4<f32> {\n  let color = textureSampleLevel(color_tex, color_sampler, in.uv, 0.0);\n  let depth = textureSampleLevel(depth_tex, depth_sampler, in.uv, 0.0).r;\n  let radius = uniforms.params.x;\n  let bias = uniforms.params.y;\n  let intensity = uniforms.params.z;\n  let texel = vec2<f32>(1.0 / uniforms.screen.x, 1.0 / uniforms.screen.y);\n  var occlusion = 0.0;\n  let samples = 8;\n  let golden_angle = 2.39996;\n  for (var i = 0; i < samples; i++) {\n    let fi = f32(i);\n    let angle = fi * golden_angle + hash(in.uv * 1000.0 + fi);\n    let r = radius * (fi + 1.0) / f32(samples);\n    let offset = vec2<f32>(cos(angle), sin(angle)) * r * texel;\n    let sample_depth = textureSampleLevel(depth_tex, depth_sampler, in.uv + offset, 0.0).r;\n    let range_check = smoothstep(0.0, 1.0, radius / (abs(depth - sample_depth) + 0.001));\n    occlusion += select(0.0, 1.0, sample_depth < depth - bias) * range_check;\n  }\n  occlusion = 1.0 - (occlusion / f32(samples)) * intensity;\n  return vec4<f32>(color.rgb * occlusion, color.a);\n}\n`;
@@ -53590,7 +53841,7 @@ function _M0FP36mizchi6kagura8shadow3d34shadow__lit__uniform__struct__wgsl() {
   return "struct Uniforms {\n  mvp: mat4x4<f32>,\n  model: mat4x4<f32>,\n  normal_col0: vec4<f32>,\n  normal_col1: vec4<f32>,\n  normal_col2: vec4<f32>,\n  light_dir: vec4<f32>,\n  light_color: vec4<f32>,\n  ambient_color: vec4<f32>,\n  light_vp: mat4x4<f32>,\n  shadow_params: vec4<f32>,\n};\n\n";
 }
 function _M0FP36mizchi6kagura8shadow3d18shadow__calc__wgsl() {
-  return "fn calc_shadow(world_pos: vec3<f32>) -> f32 {\n  let light_space = uniforms.light_vp * vec4<f32>(world_pos, 1.0);\n  let proj_coords = light_space.xyz / light_space.w;\n  let shadow_uv = vec2<f32>(proj_coords.x * 0.5 + 0.5, 1.0 - (proj_coords.y * 0.5 + 0.5));\n  if (shadow_uv.x < 0.0 || shadow_uv.x > 1.0 || shadow_uv.y < 0.0 || shadow_uv.y > 1.0) {\n    return 1.0;\n  }\n  let current_depth = clamp(proj_coords.z, 0.0, 1.0);\n  let bias = uniforms.shadow_params.x;\n  let texel_size = uniforms.shadow_params.y;\n  var shadow = 0.0;\n  for (var x = -1; x <= 1; x = x + 1) {\n    for (var y = -1; y <= 1; y = y + 1) {\n      let offset = vec2<f32>(f32(x), f32(y)) * texel_size;\n      let closest_depth = textureSampleLevel(shadow_map, shadow_sampler, shadow_uv + offset, 0.0).r;\n      shadow = shadow + select(0.0, 1.0, current_depth - bias > closest_depth);\n    }\n  }\n  return 1.0 - shadow / 9.0;\n}\n\n";
+  return "fn calc_shadow(world_pos: vec3<f32>) -> f32 {\n  let light_space = uniforms.light_vp * vec4<f32>(world_pos, 1.0);\n  let proj_coords = light_space.xyz / light_space.w;\n  let shadow_uv = vec2<f32>(proj_coords.x * 0.5 + 0.5, 1.0 - (proj_coords.y * 0.5 + 0.5));\n  if (shadow_uv.x < 0.0 || shadow_uv.x > 1.0 || shadow_uv.y < 0.0 || shadow_uv.y > 1.0) {\n    return 1.0;\n  }\n  let current_depth = clamp(proj_coords.z, 0.0, 1.0);\n  let bias = uniforms.shadow_params.x;\n  let texel_size = uniforms.shadow_params.y;\n  // 4-sample Poisson disk PCF (faster than 3x3=9 samples)\n  let poisson = array<vec2<f32>, 4>(\n    vec2<f32>(-0.94, -0.34),\n    vec2<f32>( 0.94,  0.34),\n    vec2<f32>(-0.34,  0.94),\n    vec2<f32>( 0.34, -0.94),\n  );\n  var shadow = 0.0;\n  for (var i = 0u; i < 4u; i = i + 1u) {\n    let offset = poisson[i] * texel_size;\n    let closest_depth = textureSampleLevel(shadow_map, shadow_sampler, shadow_uv + offset, 0.0).r;\n    shadow = shadow + select(0.0, 1.0, current_depth - bias > closest_depth);\n  }\n  return 1.0 - shadow * 0.25;\n}\n\n";
 }
 function _M0FP36mizchi6kagura8shadow3d22lit__normal__mat__wgsl() {
   return "  let normal_mat = mat3x3<f32>(\n    uniforms.normal_col0.xyz,\n    uniforms.normal_col1.xyz,\n    uniforms.normal_col2.xyz,\n  );\n";
@@ -53874,7 +54125,7 @@ function _M0FP36mizchi6kagura14sprite__packer16prune__contained(alloc) {
         }
       }
       if (contained.val) {
-        _M0MPC15array5Array6removeGRP36mizchi6kagura14sprite__packer4RectE(alloc.free_rects, i.val);
+        _M0MPC15array5Array6removeGRP36mizchi14hacknslash__3d4game12ItemLogEntryE(alloc.free_rects, i.val);
       } else {
         i.val = i.val + 1 | 0;
       }
@@ -53894,7 +54145,7 @@ function _M0FP36mizchi6kagura14sprite__packer18split__free__rects(alloc, placed)
     if (i.val < alloc.free_rects.length) {
       const fr = _M0MPC15array5Array2atGRP26mizchi14hacknslash__3d22GeneratedPropPlacementE(alloc.free_rects, i.val);
       if (_M0FP36mizchi6kagura14sprite__packer8overlaps(fr, placed)) {
-        _M0MPC15array5Array6removeGRP36mizchi6kagura14sprite__packer4RectE(alloc.free_rects, i.val);
+        _M0MPC15array5Array6removeGRP36mizchi14hacknslash__3d4game12ItemLogEntryE(alloc.free_rects, i.val);
         if (placed.x > fr.x) {
           _M0MPC15array5Array4pushGRP36mizchi6kagura4core10TouchPointE(new_rects, new _M0TP36mizchi6kagura14sprite__packer4Rect(fr.x, fr.y, placed.x - fr.x | 0, fr.height));
         }
@@ -54401,6 +54652,36 @@ function _M0FP26mizchi22kagura__effect__studio36ground__telegraph__line__glow__t
 }
 function _M0FP26mizchi22kagura__effect__studio41ground__telegraph__line__effect__document() {
   return new _M0TP26mizchi22kagura__effect__studio14EffectDocument("ground_telegraph_line", 0.28, false, "Short hostile line telegraph pinned to the floor.", "Keep the line bright and floor-hugging so melee and ranged attack paths read clearly from the gameplay camera.", [_M0FP26mizchi22kagura__effect__studio36ground__telegraph__line__core__track(), _M0FP26mizchi22kagura__effect__studio36ground__telegraph__line__glow__track()]);
+}
+function _M0FP26mizchi22kagura__effect__studio27beam__lightning__arc__track() {
+  return new _M0TP26mizchi22kagura__effect__studio11EffectTrack("beam_arc", "Beam Arc", 0, 0.18, 0.024, 12, 3, _M0MP36mizchi6kagura6math3d4Vec33new(0, 0.32, 0), _M0MP36mizchi6kagura6math3d4Vec33new(1, 0.38, 0), 0.06, _M0MP36mizchi6kagura6math3d4Vec33new(-0.3, 0.1, -0.3), _M0MP36mizchi6kagura6math3d4Vec33new(0.3, 1, 0.3), 0.05, 0.12, 0.03, 0.07, _M0MP36mizchi6kagura6math3d4Vec43new(1, 0.95, 0.5, 0.9), _M0MP36mizchi6kagura6math3d4Vec43new(1, 0.6, 0.1, 0), _M0MP36mizchi6kagura6math3d4Vec33new(0, -0.8, 0), true);
+}
+function _M0FP26mizchi22kagura__effect__studio28beam__lightning__core__track() {
+  return new _M0TP26mizchi22kagura__effect__studio11EffectTrack("beam_core", "Beam Core", 0, 0.22, 0.02, 16, 3, _M0MP36mizchi6kagura6math3d4Vec33new(0, 0.35, 0), _M0MP36mizchi6kagura6math3d4Vec33new(1, 0.35, 0), 0.03, _M0MP36mizchi6kagura6math3d4Vec33new(-0.06, 0.08, -0.06), _M0MP36mizchi6kagura6math3d4Vec33new(0.06, 0.5, 0.06), 0.06, 0.14, 0.06, 0.16, _M0MP36mizchi6kagura6math3d4Vec43new(1, 1, 0.9, 1), _M0MP36mizchi6kagura6math3d4Vec43new(1, 0.85, 0.2, 0), _M0MP36mizchi6kagura6math3d4Vec33new(0, -0.3, 0), true);
+}
+function _M0FP26mizchi22kagura__effect__studio28beam__lightning__glow__track() {
+  return new _M0TP26mizchi22kagura__effect__studio11EffectTrack("beam_glow", "Beam Glow", 0, 0.24, 0.04, 8, 3, _M0MP36mizchi6kagura6math3d4Vec33new(0, 0.3, 0), _M0MP36mizchi6kagura6math3d4Vec33new(1, 0.3, 0), 0.1, _M0MP36mizchi6kagura6math3d4Vec33new(-0.1, 0.05, -0.1), _M0MP36mizchi6kagura6math3d4Vec33new(0.1, 0.4, 0.1), 0.1, 0.2, 0.08, 0.18, _M0MP36mizchi6kagura6math3d4Vec43new(1, 0.9, 0.3, 0.5), _M0MP36mizchi6kagura6math3d4Vec43new(0.9, 0.6, 0.05, 0), _M0MP36mizchi6kagura6math3d4Vec33new(0, -0.2, 0), true);
+}
+function _M0FP26mizchi22kagura__effect__studio30beam__lightning__sparks__track() {
+  return new _M0TP26mizchi22kagura__effect__studio11EffectTrack("beam_sparks", "Beam Sparks", 0.01, 0.2, 0.03, 10, 3, _M0MP36mizchi6kagura6math3d4Vec33new(0, 0.33, 0), _M0MP36mizchi6kagura6math3d4Vec33new(1, 0.33, 0), 0.14, _M0MP36mizchi6kagura6math3d4Vec33new(-0.7, 0.15, -0.7), _M0MP36mizchi6kagura6math3d4Vec33new(0.7, 1.5, 0.7), 0.08, 0.2, 0.02, 0.06, _M0MP36mizchi6kagura6math3d4Vec43new(1, 0.95, 0.6, 0.85), _M0MP36mizchi6kagura6math3d4Vec43new(1, 0.5, 0, 0), _M0MP36mizchi6kagura6math3d4Vec33new(0, -1.4, 0), true);
+}
+function _M0FP26mizchi22kagura__effect__studio33beam__lightning__effect__document() {
+  return new _M0TP26mizchi22kagura__effect__studio14EffectDocument("beam_lightning", 0.3, false, "Yellow lightning beam with bright core, jagged arcs, and orange sparks.", "Bright yellow-white core with orange-gold secondary particles for a dramatic beam strike.", [_M0FP26mizchi22kagura__effect__studio28beam__lightning__core__track(), _M0FP26mizchi22kagura__effect__studio27beam__lightning__arc__track(), _M0FP26mizchi22kagura__effect__studio28beam__lightning__glow__track(), _M0FP26mizchi22kagura__effect__studio30beam__lightning__sparks__track()]);
+}
+function _M0FP26mizchi22kagura__effect__studio29meteor__fall__fireball__track() {
+  return new _M0TP26mizchi22kagura__effect__studio11EffectTrack("meteor_fireball", "Meteor Fireball", 0, 0.3, 0.02, 12, 3, _M0MP36mizchi6kagura6math3d4Vec33new(0.3, 4, -0.3), _M0MP36mizchi6kagura6math3d4Vec33new(0, 0.3, 0), 0.08, _M0MP36mizchi6kagura6math3d4Vec33new(-0.15, -0.5, -0.15), _M0MP36mizchi6kagura6math3d4Vec33new(0.15, 0.2, 0.15), 0.1, 0.25, 0.1, 0.28, _M0MP36mizchi6kagura6math3d4Vec43new(1, 0.85, 0.3, 1), _M0MP36mizchi6kagura6math3d4Vec43new(1, 0.3, 0.05, 0), _M0MP36mizchi6kagura6math3d4Vec33new(0, -2, 0), true);
+}
+function _M0FP26mizchi22kagura__effect__studio26meteor__fall__trail__track() {
+  return new _M0TP26mizchi22kagura__effect__studio11EffectTrack("meteor_trail", "Meteor Trail", 0, 0.25, 0.03, 8, 3, _M0MP36mizchi6kagura6math3d4Vec33new(0.3, 4, -0.3), _M0MP36mizchi6kagura6math3d4Vec33new(0.1, 1.5, -0.1), 0.15, _M0MP36mizchi6kagura6math3d4Vec33new(-0.3, -0.1, -0.3), _M0MP36mizchi6kagura6math3d4Vec33new(0.3, 0.8, 0.3), 0.15, 0.35, 0.06, 0.14, _M0MP36mizchi6kagura6math3d4Vec43new(1, 0.6, 0.15, 0.7), _M0MP36mizchi6kagura6math3d4Vec43new(0.4, 0.15, 0.05, 0), _M0MP36mizchi6kagura6math3d4Vec33new(0, -0.5, 0), true);
+}
+function _M0FP26mizchi22kagura__effect__studio28meteor__impact__burst__track() {
+  return new _M0TP26mizchi22kagura__effect__studio11EffectTrack("meteor_impact", "Meteor Impact", 0.25, 0.2, 0.02, 20, 0, _M0MP36mizchi6kagura6math3d4Vec33new(0, 0.25, 0), _M0MP36mizchi6kagura6math3d4Vec33new(0, 0.25, 0), 0.2, _M0MP36mizchi6kagura6math3d4Vec33new(-1.5, 0.3, -1.5), _M0MP36mizchi6kagura6math3d4Vec33new(1.5, 2.5, 1.5), 0.12, 0.3, 0.08, 0.22, _M0MP36mizchi6kagura6math3d4Vec43new(1, 0.7, 0.2, 1), _M0MP36mizchi6kagura6math3d4Vec43new(0.8, 0.2, 0.05, 0), _M0MP36mizchi6kagura6math3d4Vec33new(0, -3, 0), true);
+}
+function _M0FP26mizchi22kagura__effect__studio28meteor__impact__flash__track() {
+  return new _M0TP26mizchi22kagura__effect__studio11EffectTrack("meteor_flash", "Meteor Flash", 0.25, 0.1, 0.02, 6, 0, _M0MP36mizchi6kagura6math3d4Vec33new(0, 0.3, 0), _M0MP36mizchi6kagura6math3d4Vec33new(0, 0.3, 0), 0.05, _M0MP36mizchi6kagura6math3d4Vec33new(-0.3, 0.5, -0.3), _M0MP36mizchi6kagura6math3d4Vec33new(0.3, 1.5, 0.3), 0.06, 0.12, 0.15, 0.35, _M0MP36mizchi6kagura6math3d4Vec43new(1, 1, 0.85, 1), _M0MP36mizchi6kagura6math3d4Vec43new(1, 0.8, 0.3, 0), _M0MP36mizchi6kagura6math3d4Vec33new(0, -1, 0), true);
+}
+function _M0FP26mizchi22kagura__effect__studio30meteor__fall__effect__document() {
+  return new _M0TP26mizchi22kagura__effect__studio14EffectDocument("meteor_fall", 0.5, false, "Fireball descends from above with ember trail, then explodes on impact with radial burst and flash.", "Dramatic meteor descent with visible trail, followed by a satisfying ground explosion.", [_M0FP26mizchi22kagura__effect__studio29meteor__fall__fireball__track(), _M0FP26mizchi22kagura__effect__studio26meteor__fall__trail__track(), _M0FP26mizchi22kagura__effect__studio28meteor__impact__burst__track(), _M0FP26mizchi22kagura__effect__studio28meteor__impact__flash__track()]);
 }
 function _M0FP26mizchi19web__runtime__hooks25mark__gpu__texture__dirty(image_id) {
   const _bind$3 = _M0FP26mizchi19web__runtime__hooks19gpu__texture__dirty.val;
@@ -55244,31 +55525,31 @@ function _M0FP26mizchi19web__runtime__hooks20sync__source__images(bindings) {
   }
   return count.val;
 }
-function _M0IP26mizchi14hacknslash__3d13CharAnimStatePB2Eq5equal(_x_2129, _x_2130) {
-  switch (_x_2129) {
+function _M0IP26mizchi14hacknslash__3d13CharAnimStatePB2Eq5equal(_x_2196, _x_2197) {
+  switch (_x_2196) {
     case 0: {
-      if (_x_2130 === 0) {
+      if (_x_2197 === 0) {
         return true;
       } else {
         return false;
       }
     }
     case 1: {
-      if (_x_2130 === 1) {
+      if (_x_2197 === 1) {
         return true;
       } else {
         return false;
       }
     }
     case 2: {
-      if (_x_2130 === 2) {
+      if (_x_2197 === 2) {
         return true;
       } else {
         return false;
       }
     }
     default: {
-      if (_x_2130 === 3) {
+      if (_x_2197 === 3) {
         return true;
       } else {
         return false;
@@ -55770,7 +56051,7 @@ function _M0FP26mizchi14hacknslash__3d31default__enemy__render__buckets() {
   return new _M0TP26mizchi14hacknslash__3d18EnemyRenderBuckets([], [], [], [], [], [], [], [], [], []);
 }
 function _M0FP26mizchi14hacknslash__3d34default__entity__instance__scratch() {
-  return new _M0TP26mizchi14hacknslash__3d21EntityInstanceScratch([], [], [], [], [], [], []);
+  return new _M0TP26mizchi14hacknslash__3d21EntityInstanceScratch([], [], [], [], [], [], [], []);
 }
 function _M0FP26mizchi14hacknslash__3d29default__game__audio__players() {
   return new _M0TP26mizchi14hacknslash__3d16GameAudioPlayers(undefined, undefined, undefined, undefined, undefined, undefined, undefined, undefined, undefined);
@@ -56244,7 +56525,7 @@ function _M0FP26mizchi14hacknslash__3d18make__pillar__mesh(radius, height) {
   return _M0FP26mizchi14hacknslash__3d16make__wall__mesh(radius * 2, height, radius * 2);
 }
 function _M0MP26mizchi14hacknslash__3d8Meshes3D3new() {
-  return new _M0TP26mizchi14hacknslash__3d8Meshes3D(_M0MP36mizchi6kagura6mesh3d6Mesh3D6sphere(0.2, 5, 3), _M0MP36mizchi6kagura6mesh3d6Mesh3D6sphere(0.15, 4, 3), _M0FP26mizchi14hacknslash__3d17make__arrow__mesh(0.65, 0.05), _M0MP36mizchi6kagura6mesh3d6Mesh3D13plane_2einner(1, 1, 4), _M0FP26mizchi14hacknslash__3d16make__wall__mesh(1, 0.5, 1), _M0FP26mizchi14hacknslash__3d16make__wall__mesh(1, 0.3, 1), _M0FP26mizchi14hacknslash__3d16make__wall__mesh(1, 0.7, 1), _M0FP26mizchi14hacknslash__3d16make__wall__mesh(1, 0.2, 1), _M0FP26mizchi14hacknslash__3d18make__pillar__mesh(0.15, 0.7), _M0FP26mizchi14hacknslash__3d16make__wall__mesh(0.2, 0.08, 0.2), _M0FP26mizchi14hacknslash__3d16make__wall__mesh(0.35, 0.3, 0.35), _M0FP26mizchi14hacknslash__3d22make__loot__beam__mesh(0.06, 3));
+  return new _M0TP26mizchi14hacknslash__3d8Meshes3D(_M0MP36mizchi6kagura6mesh3d6Mesh3D6sphere(0.2, 5, 3), _M0MP36mizchi6kagura6mesh3d6Mesh3D6sphere(0.15, 4, 3), _M0FP26mizchi14hacknslash__3d17make__arrow__mesh(0.65, 0.05), _M0MP36mizchi6kagura6mesh3d6Mesh3D13plane_2einner(1, 1, 4), _M0FP26mizchi14hacknslash__3d16make__wall__mesh(1, 0.5, 1), _M0FP26mizchi14hacknslash__3d16make__wall__mesh(1, 0.3, 1), _M0FP26mizchi14hacknslash__3d16make__wall__mesh(1, 0.7, 1), _M0FP26mizchi14hacknslash__3d16make__wall__mesh(1, 0.2, 1), _M0FP26mizchi14hacknslash__3d18make__pillar__mesh(0.15, 0.7), _M0FP26mizchi14hacknslash__3d16make__wall__mesh(0.2, 0.08, 0.2), _M0FP26mizchi14hacknslash__3d16make__wall__mesh(0.35, 0.3, 0.35), _M0FP26mizchi14hacknslash__3d22make__loot__beam__mesh(0.06, 3), _M0MP36mizchi6kagura6mesh3d6Mesh3D13plane_2einner(1, 1, 4));
 }
 function _M0FP26mizchi14hacknslash__3d24build__attack__animation() {
   const channels = [];
@@ -56589,7 +56870,7 @@ function _M0MP26mizchi14hacknslash__3d9GameState36new__with__params__and__ssao_2
   const dungeon_tinted_lighting_cache = _M0FP26mizchi14hacknslash__3d39build__dungeon__tinted__lighting__cache(lighting);
   const icon_atlas = _M0FP26mizchi14hacknslash__3d19create__icon__atlas(undefined);
   const shadow_config = _M0MP36mizchi6kagura8shadow3d12ShadowConfig3new(1024, 18, 0.1, 80, 40, _M0MP36mizchi6kagura6math3d4Vec33new(world.player.x / _M0FP26mizchi14hacknslash__3d10tile__size, 0, world.player.y / _M0FP26mizchi14hacknslash__3d10tile__size), 0.005);
-  return new _M0TP26mizchi14hacknslash__3d9GameState(world, _M0FP36mizchi6kagura9inpututil18new__input__helper(), false, _M0FP36mizchi6kagura9debugutil23default__frame__profile(), camera, lighting, _M0FP36mizchi6kagura3gfx19new__shader__handle(100, _M0FP36mizchi6kagura6draw3d31shader3d__lit__untextured__wgsl()), _M0FP36mizchi6kagura3gfx19new__shader__handle(107, _M0FP36mizchi6kagura6draw3d19shader3d__lit__wgsl()), _M0FP36mizchi6kagura3gfx19new__shader__handle(108, _M0FP36mizchi6kagura6draw3d31shader3d__pbr__untextured__wgsl()), _M0FP36mizchi6kagura3gfx19new__shader__handle(109, _M0FP36mizchi6kagura6draw3d19shader3d__pbr__wgsl()), _M0FP36mizchi6kagura3gfx19new__shader__handle(103, _M0FP36mizchi6kagura6draw3d28shader3d__lit__colored__wgsl()), _M0FP36mizchi6kagura3gfx19new__shader__handle(102, _M0FP36mizchi6kagura6draw3d30shader3d__lit__instanced__wgsl()), _M0FP36mizchi6kagura3gfx19new__shader__handle(106, _M0FP36mizchi6kagura6draw3d42shader3d__lit__instanced__monochrome__wgsl()), _M0FP36mizchi6kagura3gfx19new__shader__handle(101, _M0FP36mizchi6kagura6draw3d28shader3d__lit__skinned__wgsl()), _M0FP36mizchi6kagura3gfx19new__shader__handle(104, _M0FP36mizchi6kagura6draw3d39shader3d__lit__skinned__instanced__wgsl()), _M0FP36mizchi6kagura3gfx19new__shader__handle(105, _M0FP36mizchi6kagura6draw3d51shader3d__lit__skinned__instanced__monochrome__wgsl()), meshes, _M0MP26mizchi14hacknslash__3d15PlayerCharacter3new(), _M0MP26mizchi14hacknslash__3d11EnemyModels3new(), _M0FP26mizchi14hacknslash__3d31default__enemy__render__buckets(), _M0FP36mizchi6kagura3gfx18new__image__handle(200, 1024, 1024), _M0FP36mizchi6kagura3gfx19new__shader__handle(200, _M0FP36mizchi6kagura8shadow3d27shader__shadow__depth__wgsl()), _M0FP36mizchi6kagura3gfx19new__shader__handle(201, _M0FP36mizchi6kagura8shadow3d39shader3d__shadow__lit__untextured__wgsl()), _M0FP36mizchi6kagura3gfx19new__shader__handle(202, _M0FP36mizchi6kagura8shadow3d27shader3d__shadow__lit__wgsl()), false, shadow_config, dungeon_chunks, dungeon_tinted_lighting_cache, [], -1, -1, 0, new _M0TP26mizchi14hacknslash__3d23VisibleDungeonMeshCache([], _M0MP36mizchi6kagura6mesh3d6Mesh3D3new([], [])), -1, -1, 0, [], [], [], _M0MP36mizchi6kagura5audio17MixerAudioContext3new(44100), false, _M0FP26mizchi14hacknslash__3d29default__game__audio__players(), [], "", "", undefined, undefined, _M0FP36mizchi6kagura3gfx18new__image__handle(300, _M0FP26mizchi14hacknslash__3d9screen__w, _M0FP26mizchi14hacknslash__3d9screen__h), _M0FP36mizchi6kagura3gfx18new__image__handle(301, bloom_w, bloom_h), _M0FP36mizchi6kagura3gfx18new__image__handle(302, bloom_w, bloom_h), _M0FP36mizchi6kagura3gfx18new__image__handle(303, _M0FP26mizchi14hacknslash__3d9screen__w, _M0FP26mizchi14hacknslash__3d9screen__h), _M0FP36mizchi6kagura3gfx19new__shader__handle(300, _M0FP36mizchi6kagura6postfx22bloom__threshold__wgsl()), _M0FP36mizchi6kagura3gfx19new__shader__handle(301, _M0FP36mizchi6kagura6postfx17bloom__blur__wgsl(true)), _M0FP36mizchi6kagura3gfx19new__shader__handle(302, _M0FP36mizchi6kagura6postfx17bloom__blur__wgsl(false)), _M0FP36mizchi6kagura3gfx19new__shader__handle(303, _M0FP36mizchi6kagura6postfx22bloom__composite__wgsl()), false, _M0FP36mizchi6kagura3gfx19new__shader__handle(304, _M0FP36mizchi6kagura6postfx10fxaa__wgsl()), _M0FP36mizchi6kagura3gfx19new__shader__handle(305, _M0FP36mizchi6kagura6postfx13tonemap__wgsl(1)), _M0FP36mizchi6kagura3gfx19new__shader__handle(308, _M0FP36mizchi6kagura6postfx9fog__wgsl()), _M0FP36mizchi6kagura3gfx18new__image__handle(305, _M0FP26mizchi14hacknslash__3d9screen__w, _M0FP26mizchi14hacknslash__3d9screen__h), _M0FP36mizchi6kagura3gfx19new__shader__handle(307, _M0FP36mizchi6kagura8shadow3d27shader__camera__depth__wgsl()), ssao_config, _M0FP36mizchi6kagura3gfx19new__shader__handle(306, _M0FP36mizchi6kagura6postfx10ssao__wgsl()), _M0FP36mizchi6kagura3gfx18new__image__handle(304, _M0FP26mizchi14hacknslash__3d9screen__w, _M0FP26mizchi14hacknslash__3d9screen__h), _M0MP36mizchi6kagura10particle3d15ParticleManager3new(400), icon_atlas, undefined, _M0FP26mizchi14hacknslash__3d34default__entity__instance__scratch(), [], -1, -1, -1, -1, -1, -1, 0, [], -1, -1, -1, -1, 0);
+  return new _M0TP26mizchi14hacknslash__3d9GameState(world, _M0FP36mizchi6kagura9inpututil18new__input__helper(), false, _M0FP36mizchi6kagura9debugutil23default__frame__profile(), camera, lighting, _M0FP36mizchi6kagura3gfx19new__shader__handle(100, _M0FP36mizchi6kagura6draw3d31shader3d__lit__untextured__wgsl()), _M0FP36mizchi6kagura3gfx19new__shader__handle(107, _M0FP36mizchi6kagura6draw3d19shader3d__lit__wgsl()), _M0FP36mizchi6kagura3gfx19new__shader__handle(108, _M0FP36mizchi6kagura6draw3d31shader3d__pbr__untextured__wgsl()), _M0FP36mizchi6kagura3gfx19new__shader__handle(109, _M0FP36mizchi6kagura6draw3d19shader3d__pbr__wgsl()), _M0FP36mizchi6kagura3gfx19new__shader__handle(103, _M0FP36mizchi6kagura6draw3d28shader3d__lit__colored__wgsl()), _M0FP36mizchi6kagura3gfx19new__shader__handle(102, _M0FP36mizchi6kagura6draw3d30shader3d__lit__instanced__wgsl()), _M0FP36mizchi6kagura3gfx19new__shader__handle(106, _M0FP36mizchi6kagura6draw3d42shader3d__lit__instanced__monochrome__wgsl()), _M0FP36mizchi6kagura3gfx19new__shader__handle(101, _M0FP36mizchi6kagura6draw3d28shader3d__lit__skinned__wgsl()), _M0FP36mizchi6kagura3gfx19new__shader__handle(104, _M0FP36mizchi6kagura6draw3d39shader3d__lit__skinned__instanced__wgsl()), _M0FP36mizchi6kagura3gfx19new__shader__handle(105, _M0FP36mizchi6kagura6draw3d51shader3d__lit__skinned__instanced__monochrome__wgsl()), meshes, _M0MP26mizchi14hacknslash__3d15PlayerCharacter3new(), _M0MP26mizchi14hacknslash__3d11EnemyModels3new(), _M0FP26mizchi14hacknslash__3d31default__enemy__render__buckets(), _M0FP36mizchi6kagura3gfx18new__image__handle(200, 1024, 1024), _M0FP36mizchi6kagura3gfx19new__shader__handle(200, _M0FP36mizchi6kagura8shadow3d27shader__shadow__depth__wgsl()), _M0FP36mizchi6kagura3gfx19new__shader__handle(201, _M0FP36mizchi6kagura8shadow3d39shader3d__shadow__lit__untextured__wgsl()), _M0FP36mizchi6kagura3gfx19new__shader__handle(202, _M0FP36mizchi6kagura8shadow3d27shader3d__shadow__lit__wgsl()), false, shadow_config, dungeon_chunks, dungeon_tinted_lighting_cache, [], -1, -1, 0, new _M0TP26mizchi14hacknslash__3d23VisibleDungeonMeshCache([], _M0MP36mizchi6kagura6mesh3d6Mesh3D3new([], [])), -1, -1, 0, [], [], [], _M0MP36mizchi6kagura5audio17MixerAudioContext3new(44100), false, _M0FP26mizchi14hacknslash__3d29default__game__audio__players(), [], "", "", undefined, undefined, _M0FP36mizchi6kagura3gfx18new__image__handle(300, _M0FP26mizchi14hacknslash__3d9screen__w, _M0FP26mizchi14hacknslash__3d9screen__h), _M0FP36mizchi6kagura3gfx18new__image__handle(301, bloom_w, bloom_h), _M0FP36mizchi6kagura3gfx18new__image__handle(302, bloom_w, bloom_h), _M0FP36mizchi6kagura3gfx18new__image__handle(303, _M0FP26mizchi14hacknslash__3d9screen__w, _M0FP26mizchi14hacknslash__3d9screen__h), _M0FP36mizchi6kagura3gfx19new__shader__handle(300, _M0FP36mizchi6kagura6postfx22bloom__threshold__wgsl()), _M0FP36mizchi6kagura3gfx19new__shader__handle(301, _M0FP36mizchi6kagura6postfx17bloom__blur__wgsl(true)), _M0FP36mizchi6kagura3gfx19new__shader__handle(302, _M0FP36mizchi6kagura6postfx17bloom__blur__wgsl(false)), _M0FP36mizchi6kagura3gfx19new__shader__handle(303, _M0FP36mizchi6kagura6postfx22bloom__composite__wgsl()), false, _M0FP36mizchi6kagura3gfx19new__shader__handle(304, _M0FP36mizchi6kagura6postfx10fxaa__wgsl()), _M0FP36mizchi6kagura3gfx19new__shader__handle(305, _M0FP36mizchi6kagura6postfx13tonemap__wgsl(1)), _M0FP36mizchi6kagura3gfx19new__shader__handle(308, _M0FP36mizchi6kagura6postfx9fog__wgsl()), _M0FP36mizchi6kagura3gfx18new__image__handle(305, _M0FP26mizchi14hacknslash__3d9screen__w, _M0FP26mizchi14hacknslash__3d9screen__h), _M0FP36mizchi6kagura3gfx19new__shader__handle(307, _M0FP36mizchi6kagura8shadow3d27shader__camera__depth__wgsl()), ssao_config, _M0FP36mizchi6kagura3gfx19new__shader__handle(306, _M0FP36mizchi6kagura6postfx10ssao__wgsl()), _M0FP36mizchi6kagura3gfx18new__image__handle(304, _M0FP26mizchi14hacknslash__3d9screen__w, _M0FP26mizchi14hacknslash__3d9screen__h), _M0MP36mizchi6kagura10particle3d15ParticleManager3new(400), icon_atlas, undefined, _M0FP26mizchi14hacknslash__3d34default__entity__instance__scratch(), [], -1, -1, -1, -1, -1, -1, 0, [], -1, -1, -1, -1, 0, false);
 }
 function _M0MP26mizchi14hacknslash__3d10SSAOConfig16enabled__default() {
   return new _M0TP26mizchi14hacknslash__3d10SSAOConfig(true, 0.5, 0.025, 1);
@@ -56876,6 +57157,9 @@ function _M0FP26mizchi14hacknslash__3d32push__loot__beam__instance__cmds(state, 
   }
 }
 function _M0FP26mizchi14hacknslash__3d16height__at__tile(dungeon, col, row) {
+  if (col < 0 || (col >= dungeon.grid.width || (row < 0 || row >= dungeon.grid.height))) {
+    return 0;
+  }
   return _M0MPC15array5Array2atGdE(dungeon.height_map, (Math.imul(row, dungeon.grid.width) | 0) + col | 0);
 }
 function _M0FP26mizchi14hacknslash__3d13hex__to__vec4(hex) {
@@ -56890,6 +57174,7 @@ function _M0FP26mizchi14hacknslash__3d17is__tile__visible(region, col, row) {
 function _M0MP26mizchi14hacknslash__3d9GameState34rebuild__entity__instance__scratch(self, region) {
   _M0MPC15array5Array5clearGRP26mizchi14hacknslash__3d20ActiveEffectInstanceE(self.entity_instance_scratch.item_instances);
   _M0MPC15array5Array5clearGRP26mizchi14hacknslash__3d20ActiveEffectInstanceE(self.entity_instance_scratch.loot_beam_instances);
+  _M0MPC15array5Array5clearGRP26mizchi14hacknslash__3d20ActiveEffectInstanceE(self.entity_instance_scratch.telegraph_instances);
   _M0MPC15array5Array5clearGRP26mizchi14hacknslash__3d20ActiveEffectInstanceE(self.entity_instance_scratch.enemy_projectile_instances);
   _M0MPC15array5Array5clearGRP26mizchi14hacknslash__3d20ActiveEffectInstanceE(self.entity_instance_scratch.enemy_projectile_outline_instances);
   _M0MPC15array5Array5clearGRP26mizchi14hacknslash__3d20ActiveEffectInstanceE(self.entity_instance_scratch.arrow_instances);
@@ -56996,13 +57281,82 @@ function _M0MP26mizchi14hacknslash__3d9GameState34rebuild__entity__instance__scr
       break;
     }
   }
-  const _bind$5 = self.world.projectiles;
+  const telegraph_fadeout_frames = 5;
+  const _bind$5 = self.world.telegraph_markers;
   const _bind$6 = _bind$5.length;
   let _tmp$3 = 0;
   while (true) {
     const _ = _tmp$3;
     if (_ < _bind$6) {
-      const proj = _bind$5[_];
+      const marker = _bind$5[_];
+      _L: {
+        const progress = _M0MP36mizchi14hacknslash__3d4game15TelegraphMarker8progress(marker);
+        const eased = progress * progress;
+        const r = 0.7 + progress * 0.3;
+        const g = 0.25 * (1 - progress);
+        const base_a = 0.06 + eased * 0.14;
+        const fadeout = marker.frames_remaining + 0 < telegraph_fadeout_frames ? (marker.frames_remaining + 0) / telegraph_fadeout_frames : 1;
+        const a = base_a * fadeout;
+        if (a < 0.005) {
+          break _L;
+        }
+        const _bind$7 = marker.shape;
+        if (_bind$7 === 0) {
+          const mx = marker.x / _M0FP26mizchi14hacknslash__3d10tile__size;
+          const mz = marker.y / _M0FP26mizchi14hacknslash__3d10tile__size;
+          const my = _M0FP26mizchi14hacknslash__3d16height__at__tile(self.world.dungeon, _M0MPC16double6Double7to__int(marker.x / _M0FP26mizchi14hacknslash__3d10tile__size), _M0MPC16double6Double7to__int(marker.y / _M0FP26mizchi14hacknslash__3d10tile__size)) + 0.02;
+          const full_scale = marker.radius / _M0FP26mizchi14hacknslash__3d10tile__size;
+          _M0MPC15array5Array4pushGRP36mizchi6kagura4core10TouchPointE(self.entity_instance_scratch.telegraph_instances, _M0MP36mizchi6kagura7scene3d12InstanceData11new_2einner(_M0MP36mizchi6kagura11transform3d11Transform3D11with__scale(_M0MP36mizchi6kagura11transform3d11Transform3D14from__position(_M0MP36mizchi6kagura6math3d4Vec33new(mx, my, mz)), _M0MP36mizchi6kagura6math3d4Vec33new(full_scale, 1, full_scale)), _M0MP36mizchi6kagura6math3d4Vec43new(0.8, 0.2, 0.05, 0.08 * fadeout)));
+          const fill_scale = full_scale * eased;
+          if (fill_scale > 0.01) {
+            _M0MPC15array5Array4pushGRP36mizchi6kagura4core10TouchPointE(self.entity_instance_scratch.telegraph_instances, _M0MP36mizchi6kagura7scene3d12InstanceData11new_2einner(_M0MP36mizchi6kagura11transform3d11Transform3D11with__scale(_M0MP36mizchi6kagura11transform3d11Transform3D14from__position(_M0MP36mizchi6kagura6math3d4Vec33new(mx, my + 0.01, mz)), _M0MP36mizchi6kagura6math3d4Vec33new(fill_scale, 1, fill_scale)), _M0MP36mizchi6kagura6math3d4Vec43new(r, g, 0.02, a)));
+          }
+        } else {
+          const x0 = marker.x / _M0FP26mizchi14hacknslash__3d10tile__size;
+          const z0 = marker.y / _M0FP26mizchi14hacknslash__3d10tile__size;
+          const x1 = marker.end_x / _M0FP26mizchi14hacknslash__3d10tile__size;
+          const z1 = marker.end_y / _M0FP26mizchi14hacknslash__3d10tile__size;
+          const dx = x1 - x0;
+          const dz = z1 - z0;
+          const len = Math.sqrt(dx * dx + dz * dz);
+          const steps = _M0MPC13int3Int3min(_M0MPC13int3Int3max(_M0MPC16double6Double7to__int(len * 3), 3), 20);
+          const disc_scale = marker.radius / _M0FP26mizchi14hacknslash__3d10tile__size * 0.5;
+          const filled_steps = _M0MPC13int3Int3max(_M0MPC16double6Double7to__int((steps + 0) * eased), 1);
+          let _tmp$4 = 0;
+          while (true) {
+            const s = _tmp$4;
+            if (s < steps) {
+              const t$2 = (s + 0) / (steps + 0);
+              const px = x0 + dx * t$2;
+              const pz = z0 + dz * t$2;
+              const py = _M0FP26mizchi14hacknslash__3d16height__at__tile(self.world.dungeon, _M0MPC16double6Double7to__int(marker.x + (marker.end_x - marker.x) * t$2), _M0MPC16double6Double7to__int(marker.y + (marker.end_y - marker.y) * t$2)) + 0.02;
+              const is_filled = s < filled_steps;
+              const disc_a = (is_filled ? a : 0.04) * fadeout;
+              const disc_r = is_filled ? r : 0.5;
+              const disc_g = is_filled ? g : 0.15;
+              _M0MPC15array5Array4pushGRP36mizchi6kagura4core10TouchPointE(self.entity_instance_scratch.telegraph_instances, _M0MP36mizchi6kagura7scene3d12InstanceData11new_2einner(_M0MP36mizchi6kagura11transform3d11Transform3D11with__scale(_M0MP36mizchi6kagura11transform3d11Transform3D14from__position(_M0MP36mizchi6kagura6math3d4Vec33new(px, py, pz)), _M0MP36mizchi6kagura6math3d4Vec33new(disc_scale, 1, disc_scale)), _M0MP36mizchi6kagura6math3d4Vec43new(disc_r, disc_g, 0.02, disc_a)));
+              _tmp$4 = s + 1 | 0;
+              continue;
+            } else {
+              break;
+            }
+          }
+        }
+        break _L;
+      }
+      _tmp$3 = _ + 1 | 0;
+      continue;
+    } else {
+      break;
+    }
+  }
+  const _bind$7 = self.world.projectiles;
+  const _bind$8 = _bind$7.length;
+  let _tmp$4 = 0;
+  while (true) {
+    const _ = _tmp$4;
+    if (_ < _bind$8) {
+      const proj = _bind$7[_];
       const col = _M0MPC16double6Double7to__int(proj.x / _M0FP26mizchi14hacknslash__3d10tile__size);
       const row = _M0MPC16double6Double7to__int(proj.y / _M0FP26mizchi14hacknslash__3d10tile__size);
       if (proj.alive && (col >= 0 && (col < grid_w && (row >= 0 && (row < grid_h && _M0FP26mizchi14hacknslash__3d17is__tile__visible(region, col, row)))))) {
@@ -57010,8 +57364,8 @@ function _M0MP26mizchi14hacknslash__3d9GameState34rebuild__entity__instance__scr
         const prz = proj.y / _M0FP26mizchi14hacknslash__3d10tile__size;
         const base_y = _M0FP26mizchi14hacknslash__3d16height__at__tile(self.world.dungeon, col, row);
         if (proj.is_player) {
-          const _bind$7 = proj.kind;
-          switch (_bind$7.$tag) {
+          const _bind$9 = proj.kind;
+          switch (_bind$9.$tag) {
             case 0: {
               const angle = _M0FPC14math5atan2(proj.vy, proj.vx);
               const rot = _M0MP36mizchi6kagura6math3d10Quaternion17from__axis__angle(_M0MP36mizchi6kagura6math3d4Vec37unit__y(), -angle);
@@ -57034,7 +57388,7 @@ function _M0MP26mizchi14hacknslash__3d9GameState34rebuild__entity__instance__scr
           _M0MPC15array5Array4pushGRP36mizchi6kagura4core10TouchPointE(self.entity_instance_scratch.enemy_projectile_instances, _M0MP36mizchi6kagura7scene3d12InstanceData11new_2einner(_M0MP36mizchi6kagura11transform3d11Transform3D11with__scale(_M0MP36mizchi6kagura11transform3d11Transform3D14from__position(_M0MP36mizchi6kagura6math3d4Vec33new(prx, base_y + 0.3, prz)), _M0MP36mizchi6kagura6math3d4Vec33new(1.3, 1.3, 1.3)), _M0FP26mizchi14hacknslash__3d17color__projectile));
         }
       }
-      _tmp$3 = _ + 1 | 0;
+      _tmp$4 = _ + 1 | 0;
       continue;
     } else {
       return;
@@ -57044,6 +57398,23 @@ function _M0MP26mizchi14hacknslash__3d9GameState34rebuild__entity__instance__scr
 function _M0FP26mizchi14hacknslash__3d29push__entity__instanced__cmds(state, region, camera, dst, screen_w, screen_h, cmds) {
   _M0MP26mizchi14hacknslash__3d9GameState34rebuild__entity__instance__scratch(state, region);
   const view_projection = _M0MP36mizchi6kagura8camera3d8Camera3D24view__projection__matrix(camera);
+  const telegraph_instances = state.entity_instance_scratch.telegraph_instances;
+  if (telegraph_instances.length > 0) {
+    const dst_region = _M0FP36mizchi6kagura3gfx16new__dst__region(0, 0, screen_w, screen_h, state.meshes.telegraph_disc.indices.length);
+    const _bind$3 = telegraph_instances.length;
+    let _tmp$2 = 0;
+    while (true) {
+      const _ = _tmp$2;
+      if (_ < _bind$3) {
+        const inst = telegraph_instances[_];
+        _M0MPC15array5Array4pushGRP36mizchi6kagura4core10TouchPointE(cmds, _M0FP36mizchi6kagura6draw3d38new__lit__colored__mesh__draw__command(dst, state.shader3d_colored, dst_region, 0, 0, 0, _M0FP36mizchi6kagura3gfx22blend__mode__from__int(1), state.meshes.telegraph_disc, _M0MP36mizchi6kagura11transform3d11Transform3D8to__mat4(inst.transform), view_projection, state.lighting, inst.color, []));
+        _tmp$2 = _ + 1 | 0;
+        continue;
+      } else {
+        break;
+      }
+    }
+  }
   _M0FP26mizchi14hacknslash__3d32push__loot__beam__instance__cmds(state, view_projection, dst, screen_w, screen_h, cmds);
   _M0FP26mizchi14hacknslash__3d26push__item__instance__cmds(state, view_projection, dst, screen_w, screen_h, cmds);
   _M0FP26mizchi14hacknslash__3d27push__arrow__instance__cmds(state, view_projection, dst, screen_w, screen_h, cmds);
@@ -57918,6 +58289,30 @@ function _M0MP26mizchi14hacknslash__3d9GameState24draw__item__drop__labels(self,
     }
   }
 }
+function _M0MP26mizchi14hacknslash__3d9GameState15draw__item__log(self, ctx, cmds) {
+  const log = self.world.item_log;
+  if (log.length === 0) {
+    return undefined;
+  }
+  const log_x = ctx.screen_w - 108;
+  const log_top = 116;
+  const line_height = 14;
+  const font_size = 10;
+  const _bind$3 = log.length;
+  let _tmp$2 = 0;
+  while (true) {
+    const i = _tmp$2;
+    if (i < _bind$3) {
+      const entry = log[i];
+      const y = log_top + (i + 0) * line_height;
+      _M0MP36mizchi6kagura3hud10HudContext10draw__text(ctx, cmds, entry.text, font_size, log_x, y, entry.color);
+      _tmp$2 = i + 1 | 0;
+      continue;
+    } else {
+      return;
+    }
+  }
+}
 function _M0FP26mizchi14hacknslash__3d22cooldown__tenths__text(timer) {
   if (6 === 0) {
     $panic();
@@ -58343,6 +58738,9 @@ function _M0MP26mizchi14hacknslash__3d9GameState17render__hud__cmds(self, dst, s
   if (_tmp$5) {
     _M0MP36mizchi6kagura3hud10HudContext20draw__text__centered(ctx, cmds, "!! METEOR !!", 16, sw / 2, sh - 60, 16720418);
   }
+  if (self.paused) {
+    _M0MP36mizchi6kagura3hud10HudContext20draw__text__centered(ctx, cmds, "PAUSED", 24, sw / 2, sh / 2 - 20, 16777215);
+  }
   if (self.world.auto_play) {
     _M0MP36mizchi6kagura3hud10HudContext10draw__text(ctx, cmds, "AUTO", 10, 8, 38, 65450);
   }
@@ -58352,6 +58750,7 @@ function _M0MP26mizchi14hacknslash__3d9GameState17render__hud__cmds(self, dst, s
   _M0MP26mizchi14hacknslash__3d9GameState20draw__damage__popups(self, ctx, cmds);
   _M0MP26mizchi14hacknslash__3d9GameState24draw__item__drop__labels(self, ctx, cmds);
   _M0MP26mizchi14hacknslash__3d9GameState15render__minimap(self, ctx, cmds);
+  _M0MP26mizchi14hacknslash__3d9GameState15draw__item__log(self, ctx, cmds);
   return cmds;
 }
 function _M0FP26mizchi14hacknslash__3d11diff__color(diff) {
@@ -59049,11 +59448,12 @@ function _M0MP26mizchi14hacknslash__3d9GameState13draw__playing(self, ctx) {
       break;
     }
   }
+  const hit_flash = self.world.screen_flash;
   if (self.fxaa_enabled) {
-    _M0MPC15array5Array4pushGRP36mizchi6kagura4core10TouchPointE(cmds, _M0FP36mizchi6kagura6postfx21new__tonemap__command(self.bloom_b, self.tonemap_sh, self.post_target.id, 1));
+    _M0MPC15array5Array4pushGRP36mizchi6kagura4core10TouchPointE(cmds, _M0FP36mizchi6kagura6postfx29new__tonemap__command_2einner(self.bloom_b, self.tonemap_sh, self.post_target.id, 1, hit_flash));
     _M0MPC15array5Array4pushGRP36mizchi6kagura4core10TouchPointE(cmds, _M0FP36mizchi6kagura6postfx18new__fxaa__command(ctx.dst, self.fxaa_sh, self.bloom_b.id, ctx.screen_w, ctx.screen_h));
   } else {
-    _M0MPC15array5Array4pushGRP36mizchi6kagura4core10TouchPointE(cmds, _M0FP36mizchi6kagura6postfx21new__tonemap__command(ctx.dst, self.tonemap_sh, self.post_target.id, 1));
+    _M0MPC15array5Array4pushGRP36mizchi6kagura4core10TouchPointE(cmds, _M0FP36mizchi6kagura6postfx29new__tonemap__command_2einner(ctx.dst, self.tonemap_sh, self.post_target.id, 1, hit_flash));
   }
   const hud_cmds = _M0MP26mizchi14hacknslash__3d9GameState17render__hud__cmds(self, ctx.dst, ctx.shader);
   const _bind$5 = hud_cmds.length;
@@ -59750,6 +60150,7 @@ function _M0MP26mizchi14hacknslash__3d9GameState25reset__save__and__restart(self
   _M0MP36mizchi14hacknslash__3d4game9GameWorld14apply__dungeon(self.world, self.world.seed, 1);
   self.world.attack_timer = 0;
   self.world.screen_flash = 0;
+  self.world.item_log = [];
   self.world.floor_announce_timer = 0;
   self.world.chain_lightning_cooldown_timer = 0;
   self.world.homing_missile_cooldown_timer = 0;
@@ -60240,10 +60641,10 @@ function _M0MP26mizchi14hacknslash__3d9GameState39build__generated__prop__enemy_
 }
 function _M0FP26mizchi14hacknslash__3d22sound__cue__for__event(event) {
   switch (event.$tag) {
-    case 20: {
+    case 21: {
       return 0;
     }
-    case 21: {
+    case 22: {
       return 1;
     }
     case 6: {
@@ -60267,7 +60668,7 @@ function _M0FP26mizchi14hacknslash__3d22sound__cue__for__event(event) {
     case 17: {
       return 6;
     }
-    case 22: {
+    case 23: {
       return 8;
     }
     default: {
@@ -60394,6 +60795,9 @@ function _M0FP26mizchi14hacknslash__3d35chain__lightning__effect__placement(star
 function _M0FP26mizchi14hacknslash__3d21queue__active__effect(state, label, doc, placement) {
   _M0MPC15array5Array4pushGRP36mizchi6kagura4core10TouchPointE(state.active_effects, new _M0TP26mizchi14hacknslash__3d20ActiveEffectInstance(label, doc, placement, 0));
 }
+function _M0MP26mizchi14hacknslash__3d9GameState30queue__beam__lightning__effect(self, start_x, start_y, end_x, end_y) {
+  _M0FP26mizchi14hacknslash__3d21queue__active__effect(self, "beam_lightning", _M0FP26mizchi22kagura__effect__studio33beam__lightning__effect__document(), _M0FP26mizchi14hacknslash__3d35chain__lightning__effect__placement(start_x, start_y, end_x, end_y));
+}
 function _M0MP26mizchi14hacknslash__3d9GameState31queue__chain__lightning__effect(self, start_x, start_y, end_x, end_y) {
   _M0FP26mizchi14hacknslash__3d21queue__active__effect(self, "chain_lightning", _M0FP26mizchi22kagura__effect__studio34chain__lightning__effect__document(), _M0FP26mizchi14hacknslash__3d35chain__lightning__effect__placement(start_x, start_y, end_x, end_y));
 }
@@ -60438,6 +60842,9 @@ function _M0FP26mizchi14hacknslash__3d28ice__nova__effect__placement(x, y, radiu
 }
 function _M0MP26mizchi14hacknslash__3d9GameState24queue__ice__nova__effect(self, x, y, radius) {
   _M0FP26mizchi14hacknslash__3d21queue__active__effect(self, "ice_nova", _M0FP26mizchi22kagura__effect__studio27ice__nova__effect__document(), _M0FP26mizchi14hacknslash__3d28ice__nova__effect__placement(x, y, radius));
+}
+function _M0MP26mizchi14hacknslash__3d9GameState27queue__meteor__fall__effect(self, x, y, radius) {
+  _M0FP26mizchi14hacknslash__3d21queue__active__effect(self, "meteor_fall", _M0FP26mizchi22kagura__effect__studio30meteor__fall__effect__document(), _M0FP26mizchi14hacknslash__3d34fireball__burst__effect__placement(x, y, _M0FPC13cmp7maximumGdE(1, radius / _M0FP26mizchi14hacknslash__3d10tile__size)));
 }
 function _M0FP26mizchi14hacknslash__3d13join__strings(parts, sep) {
   const buf = _M0MPB13StringBuilder11new_2einner(0);
@@ -61040,6 +61447,9 @@ function _M0MP26mizchi14hacknslash__3d9GameState15update__playing(self) {
     _M0MP26mizchi14hacknslash__3d9GameState10update__ui(self);
     return undefined;
   }
+  if (self.paused) {
+    return undefined;
+  }
   if (self.world.auto_play) {
     let collision_grid;
     _L: {
@@ -61148,31 +61558,32 @@ function _M0MP26mizchi14hacknslash__3d9GameState15update__playing(self) {
               let radius$3;
               _L$5: {
                 _L$6: {
-                  let y$4;
-                  let x$4;
-                  let radius$4;
+                  let y1;
+                  let y0;
+                  let x0;
+                  let x1;
+                  let _is_player;
                   _L$7: {
                     _L$8: {
-                      let x$5;
-                      let y$5;
+                      let y$4;
+                      let x$4;
+                      let radius$4;
                       _L$9: {
                         _L$10: {
-                          let x$6;
-                          let y$6;
+                          let x$5;
+                          let y$5;
                           _L$11: {
                             _L$12: {
-                              let x$7;
-                              let y$7;
+                              let x$6;
+                              let y$6;
                               _L$13: {
                                 _L$14: {
-                                  let x$8;
-                                  let y$8;
+                                  let x$7;
+                                  let y$7;
                                   _L$15: {
                                     _L$16: {
-                                      let x1;
-                                      let x0;
-                                      let y0;
-                                      let y1;
+                                      let x$8;
+                                      let y$8;
                                       _L$17: {
                                         _L$18: {
                                           let x1$2;
@@ -61193,287 +61604,311 @@ function _M0MP26mizchi14hacknslash__3d9GameState15update__playing(self) {
                                                   let y1$4;
                                                   _L$23: {
                                                     _L$24: {
-                                                      let y$9;
-                                                      let x$9;
-                                                      let radius$5;
+                                                      let x1$5;
+                                                      let x0$5;
+                                                      let y0$5;
+                                                      let y1$5;
                                                       _L$25: {
                                                         _L$26: {
-                                                          let y$10;
-                                                          let x$10;
-                                                          let is_health;
+                                                          let y$9;
+                                                          let x$9;
+                                                          let radius$5;
                                                           _L$27: {
                                                             _L$28: {
-                                                              let y$11;
-                                                              let x$11;
-                                                              let amount;
+                                                              let y$10;
+                                                              let x$10;
+                                                              let is_health;
                                                               _L$29: {
                                                                 _L$30: {
-                                                                  let y$12;
-                                                                  let x$12;
-                                                                  let amount$2;
+                                                                  let y$11;
+                                                                  let x$11;
+                                                                  let amount;
                                                                   _L$31: {
                                                                     _L$32: {
-                                                                      let x$13;
-                                                                      let y$13;
+                                                                      let y$12;
+                                                                      let x$12;
+                                                                      let amount$2;
                                                                       _L$33: {
                                                                         _L$34: {
-                                                                          let x$14;
-                                                                          let y$14;
+                                                                          let x$13;
+                                                                          let y$13;
                                                                           _L$35: {
                                                                             _L$36: {
-                                                                              let x$15;
-                                                                              let y$15;
+                                                                              let x$14;
+                                                                              let y$14;
                                                                               _L$37: {
                                                                                 _L$38: {
-                                                                                  let x$16;
-                                                                                  let y$16;
+                                                                                  let x$15;
+                                                                                  let y$15;
                                                                                   _L$39: {
                                                                                     _L$40: {
-                                                                                      switch (event.$tag) {
-                                                                                        case 0: {
-                                                                                          const _HitSparks = event;
-                                                                                          const _x = _HitSparks._0;
-                                                                                          const _y = _HitSparks._1;
-                                                                                          x$16 = _x;
-                                                                                          y$16 = _y;
-                                                                                          break _L$40;
+                                                                                      let x$16;
+                                                                                      let y$16;
+                                                                                      _L$41: {
+                                                                                        _L$42: {
+                                                                                          switch (event.$tag) {
+                                                                                            case 0: {
+                                                                                              const _HitSparks = event;
+                                                                                              const _x = _HitSparks._0;
+                                                                                              const _y = _HitSparks._1;
+                                                                                              x$16 = _x;
+                                                                                              y$16 = _y;
+                                                                                              break _L$42;
+                                                                                            }
+                                                                                            case 1: {
+                                                                                              const _DeathBurst = event;
+                                                                                              const _x$2 = _DeathBurst._0;
+                                                                                              const _y$2 = _DeathBurst._1;
+                                                                                              x$15 = _x$2;
+                                                                                              y$15 = _y$2;
+                                                                                              break _L$40;
+                                                                                            }
+                                                                                            case 2: {
+                                                                                              const _DashTrail = event;
+                                                                                              const _x$3 = _DashTrail._0;
+                                                                                              const _y$3 = _DashTrail._1;
+                                                                                              x$14 = _x$3;
+                                                                                              y$14 = _y$3;
+                                                                                              break _L$38;
+                                                                                            }
+                                                                                            case 3: {
+                                                                                              const _PlayerHurt = event;
+                                                                                              const _x$4 = _PlayerHurt._0;
+                                                                                              const _y$4 = _PlayerHurt._1;
+                                                                                              x$13 = _x$4;
+                                                                                              y$13 = _y$4;
+                                                                                              break _L$36;
+                                                                                            }
+                                                                                            case 4: {
+                                                                                              const _PlayerDamageNumber = event;
+                                                                                              const _x$5 = _PlayerDamageNumber._0;
+                                                                                              const _y$5 = _PlayerDamageNumber._1;
+                                                                                              const _amount = _PlayerDamageNumber._2;
+                                                                                              y$12 = _y$5;
+                                                                                              x$12 = _x$5;
+                                                                                              amount$2 = _amount;
+                                                                                              break _L$34;
+                                                                                            }
+                                                                                            case 5: {
+                                                                                              const _EnemyDamageNumber = event;
+                                                                                              const _x$6 = _EnemyDamageNumber._0;
+                                                                                              const _y$6 = _EnemyDamageNumber._1;
+                                                                                              const _amount$2 = _EnemyDamageNumber._2;
+                                                                                              y$11 = _y$6;
+                                                                                              x$11 = _x$6;
+                                                                                              amount = _amount$2;
+                                                                                              break _L$32;
+                                                                                            }
+                                                                                            case 6: {
+                                                                                              const _ItemPickup = event;
+                                                                                              const _x$7 = _ItemPickup._0;
+                                                                                              const _y$7 = _ItemPickup._1;
+                                                                                              const _is_health = _ItemPickup._2;
+                                                                                              y$10 = _y$7;
+                                                                                              x$10 = _x$7;
+                                                                                              is_health = _is_health;
+                                                                                              break _L$30;
+                                                                                            }
+                                                                                            case 7: {
+                                                                                              const _GroundTelegraphRing = event;
+                                                                                              const _x$8 = _GroundTelegraphRing._0;
+                                                                                              const _y$8 = _GroundTelegraphRing._1;
+                                                                                              const _radius = _GroundTelegraphRing._2;
+                                                                                              y$9 = _y$8;
+                                                                                              x$9 = _x$8;
+                                                                                              radius$5 = _radius;
+                                                                                              break _L$28;
+                                                                                            }
+                                                                                            case 8: {
+                                                                                              const _GroundTelegraphLine = event;
+                                                                                              const _x0 = _GroundTelegraphLine._0;
+                                                                                              const _y0 = _GroundTelegraphLine._1;
+                                                                                              const _x1 = _GroundTelegraphLine._2;
+                                                                                              const _y1 = _GroundTelegraphLine._3;
+                                                                                              x1$5 = _x1;
+                                                                                              x0$5 = _x0;
+                                                                                              y0$5 = _y0;
+                                                                                              y1$5 = _y1;
+                                                                                              break _L$26;
+                                                                                            }
+                                                                                            case 10: {
+                                                                                              const _ChainLightningArc = event;
+                                                                                              const _x0$2 = _ChainLightningArc._0;
+                                                                                              const _y0$2 = _ChainLightningArc._1;
+                                                                                              const _x1$2 = _ChainLightningArc._2;
+                                                                                              const _y1$2 = _ChainLightningArc._3;
+                                                                                              x1$4 = _x1$2;
+                                                                                              x0$4 = _x0$2;
+                                                                                              y0$4 = _y0$2;
+                                                                                              y1$4 = _y1$2;
+                                                                                              break _L$24;
+                                                                                            }
+                                                                                            case 11: {
+                                                                                              const _HomingMissileLaunch = event;
+                                                                                              const _x0$3 = _HomingMissileLaunch._0;
+                                                                                              const _y0$3 = _HomingMissileLaunch._1;
+                                                                                              const _x1$3 = _HomingMissileLaunch._2;
+                                                                                              const _y1$3 = _HomingMissileLaunch._3;
+                                                                                              x1$3 = _x1$3;
+                                                                                              x0$3 = _x0$3;
+                                                                                              y0$3 = _y0$3;
+                                                                                              y1$3 = _y1$3;
+                                                                                              break _L$22;
+                                                                                            }
+                                                                                            case 12: {
+                                                                                              const _HomingMissileTrail = event;
+                                                                                              const _x0$4 = _HomingMissileTrail._0;
+                                                                                              const _y0$4 = _HomingMissileTrail._1;
+                                                                                              const _x1$4 = _HomingMissileTrail._2;
+                                                                                              const _y1$4 = _HomingMissileTrail._3;
+                                                                                              x1$2 = _x1$4;
+                                                                                              x0$2 = _x0$4;
+                                                                                              y0$2 = _y0$4;
+                                                                                              y1$2 = _y1$4;
+                                                                                              break _L$20;
+                                                                                            }
+                                                                                            case 13: {
+                                                                                              const _HomingMissileImpact = event;
+                                                                                              const _x$9 = _HomingMissileImpact._0;
+                                                                                              const _y$9 = _HomingMissileImpact._1;
+                                                                                              x$8 = _x$9;
+                                                                                              y$8 = _y$9;
+                                                                                              break _L$18;
+                                                                                            }
+                                                                                            case 14: {
+                                                                                              const _FireballCast = event;
+                                                                                              const _x$10 = _FireballCast._0;
+                                                                                              const _y$10 = _FireballCast._1;
+                                                                                              x$7 = _x$10;
+                                                                                              y$7 = _y$10;
+                                                                                              break _L$16;
+                                                                                            }
+                                                                                            case 15: {
+                                                                                              const _FireballTrail = event;
+                                                                                              const _x$11 = _FireballTrail._0;
+                                                                                              const _y$11 = _FireballTrail._1;
+                                                                                              x$6 = _x$11;
+                                                                                              y$6 = _y$11;
+                                                                                              break _L$14;
+                                                                                            }
+                                                                                            case 16: {
+                                                                                              const _FireballBurst = event;
+                                                                                              const _x$12 = _FireballBurst._0;
+                                                                                              const _y$12 = _FireballBurst._1;
+                                                                                              x$5 = _x$12;
+                                                                                              y$5 = _y$12;
+                                                                                              break _L$12;
+                                                                                            }
+                                                                                            case 17: {
+                                                                                              const _IceNovaCast = event;
+                                                                                              const _x$13 = _IceNovaCast._0;
+                                                                                              const _y$13 = _IceNovaCast._1;
+                                                                                              const _radius$2 = _IceNovaCast._2;
+                                                                                              y$4 = _y$13;
+                                                                                              x$4 = _x$13;
+                                                                                              radius$4 = _radius$2;
+                                                                                              break _L$10;
+                                                                                            }
+                                                                                            case 20: {
+                                                                                              const _BeamFire = event;
+                                                                                              const _x0$5 = _BeamFire._0;
+                                                                                              const _y0$5 = _BeamFire._1;
+                                                                                              const _x1$5 = _BeamFire._2;
+                                                                                              const _y1$5 = _BeamFire._3;
+                                                                                              const __is_player = _BeamFire._4;
+                                                                                              y1 = _y1$5;
+                                                                                              y0 = _y0$5;
+                                                                                              x0 = _x0$5;
+                                                                                              x1 = _x1$5;
+                                                                                              _is_player = __is_player;
+                                                                                              break _L$8;
+                                                                                            }
+                                                                                            case 18: {
+                                                                                              const _MeteorCastStart = event;
+                                                                                              const _x$14 = _MeteorCastStart._0;
+                                                                                              const _y$14 = _MeteorCastStart._1;
+                                                                                              const _radius$3 = _MeteorCastStart._2;
+                                                                                              y$3 = _y$14;
+                                                                                              x$3 = _x$14;
+                                                                                              radius$3 = _radius$3;
+                                                                                              break _L$6;
+                                                                                            }
+                                                                                            case 19: {
+                                                                                              const _MeteorImpact = event;
+                                                                                              const _x$15 = _MeteorImpact._0;
+                                                                                              const _y$15 = _MeteorImpact._1;
+                                                                                              const _radius$4 = _MeteorImpact._2;
+                                                                                              y$2 = _y$15;
+                                                                                              x$2 = _x$15;
+                                                                                              radius$2 = _radius$4;
+                                                                                              break _L$4;
+                                                                                            }
+                                                                                            case 9: {
+                                                                                              const _EnemyTelegraphRing = event;
+                                                                                              const _x$16 = _EnemyTelegraphRing._0;
+                                                                                              const _y$16 = _EnemyTelegraphRing._1;
+                                                                                              const _radius$5 = _EnemyTelegraphRing._2;
+                                                                                              y = _y$16;
+                                                                                              x = _x$16;
+                                                                                              radius = _radius$5;
+                                                                                              break _L$2;
+                                                                                            }
+                                                                                            case 21: {
+                                                                                              _M0MP26mizchi14hacknslash__3d15PlayerCharacter15trigger__attack(self.character);
+                                                                                              break;
+                                                                                            }
+                                                                                            case 22: {
+                                                                                              _M0MP26mizchi14hacknslash__3d15PlayerCharacter13trigger__hurt(self.character);
+                                                                                              break;
+                                                                                            }
+                                                                                            default: {
+                                                                                              _M0MP26mizchi14hacknslash__3d9GameState27rebuild__dungeon__rendering(self);
+                                                                                              _M0MP26mizchi14hacknslash__3d9GameState10save__game(self);
+                                                                                            }
+                                                                                          }
+                                                                                          break _L$41;
                                                                                         }
-                                                                                        case 1: {
-                                                                                          const _DeathBurst = event;
-                                                                                          const _x$2 = _DeathBurst._0;
-                                                                                          const _y$2 = _DeathBurst._1;
-                                                                                          x$15 = _x$2;
-                                                                                          y$15 = _y$2;
-                                                                                          break _L$38;
-                                                                                        }
-                                                                                        case 2: {
-                                                                                          const _DashTrail = event;
-                                                                                          const _x$3 = _DashTrail._0;
-                                                                                          const _y$3 = _DashTrail._1;
-                                                                                          x$14 = _x$3;
-                                                                                          y$14 = _y$3;
-                                                                                          break _L$36;
-                                                                                        }
-                                                                                        case 3: {
-                                                                                          const _PlayerHurt = event;
-                                                                                          const _x$4 = _PlayerHurt._0;
-                                                                                          const _y$4 = _PlayerHurt._1;
-                                                                                          x$13 = _x$4;
-                                                                                          y$13 = _y$4;
-                                                                                          break _L$34;
-                                                                                        }
-                                                                                        case 4: {
-                                                                                          const _PlayerDamageNumber = event;
-                                                                                          const _x$5 = _PlayerDamageNumber._0;
-                                                                                          const _y$5 = _PlayerDamageNumber._1;
-                                                                                          const _amount = _PlayerDamageNumber._2;
-                                                                                          y$12 = _y$5;
-                                                                                          x$12 = _x$5;
-                                                                                          amount$2 = _amount;
-                                                                                          break _L$32;
-                                                                                        }
-                                                                                        case 5: {
-                                                                                          const _EnemyDamageNumber = event;
-                                                                                          const _x$6 = _EnemyDamageNumber._0;
-                                                                                          const _y$6 = _EnemyDamageNumber._1;
-                                                                                          const _amount$2 = _EnemyDamageNumber._2;
-                                                                                          y$11 = _y$6;
-                                                                                          x$11 = _x$6;
-                                                                                          amount = _amount$2;
-                                                                                          break _L$30;
-                                                                                        }
-                                                                                        case 6: {
-                                                                                          const _ItemPickup = event;
-                                                                                          const _x$7 = _ItemPickup._0;
-                                                                                          const _y$7 = _ItemPickup._1;
-                                                                                          const _is_health = _ItemPickup._2;
-                                                                                          y$10 = _y$7;
-                                                                                          x$10 = _x$7;
-                                                                                          is_health = _is_health;
-                                                                                          break _L$28;
-                                                                                        }
-                                                                                        case 7: {
-                                                                                          const _GroundTelegraphRing = event;
-                                                                                          const _x$8 = _GroundTelegraphRing._0;
-                                                                                          const _y$8 = _GroundTelegraphRing._1;
-                                                                                          const _radius = _GroundTelegraphRing._2;
-                                                                                          y$9 = _y$8;
-                                                                                          x$9 = _x$8;
-                                                                                          radius$5 = _radius;
-                                                                                          break _L$26;
-                                                                                        }
-                                                                                        case 8: {
-                                                                                          const _GroundTelegraphLine = event;
-                                                                                          const _x0 = _GroundTelegraphLine._0;
-                                                                                          const _y0 = _GroundTelegraphLine._1;
-                                                                                          const _x1 = _GroundTelegraphLine._2;
-                                                                                          const _y1 = _GroundTelegraphLine._3;
-                                                                                          x1$4 = _x1;
-                                                                                          x0$4 = _x0;
-                                                                                          y0$4 = _y0;
-                                                                                          y1$4 = _y1;
-                                                                                          break _L$24;
-                                                                                        }
-                                                                                        case 10: {
-                                                                                          const _ChainLightningArc = event;
-                                                                                          const _x0$2 = _ChainLightningArc._0;
-                                                                                          const _y0$2 = _ChainLightningArc._1;
-                                                                                          const _x1$2 = _ChainLightningArc._2;
-                                                                                          const _y1$2 = _ChainLightningArc._3;
-                                                                                          x1$3 = _x1$2;
-                                                                                          x0$3 = _x0$2;
-                                                                                          y0$3 = _y0$2;
-                                                                                          y1$3 = _y1$2;
-                                                                                          break _L$22;
-                                                                                        }
-                                                                                        case 11: {
-                                                                                          const _HomingMissileLaunch = event;
-                                                                                          const _x0$3 = _HomingMissileLaunch._0;
-                                                                                          const _y0$3 = _HomingMissileLaunch._1;
-                                                                                          const _x1$3 = _HomingMissileLaunch._2;
-                                                                                          const _y1$3 = _HomingMissileLaunch._3;
-                                                                                          x1$2 = _x1$3;
-                                                                                          x0$2 = _x0$3;
-                                                                                          y0$2 = _y0$3;
-                                                                                          y1$2 = _y1$3;
-                                                                                          break _L$20;
-                                                                                        }
-                                                                                        case 12: {
-                                                                                          const _HomingMissileTrail = event;
-                                                                                          const _x0$4 = _HomingMissileTrail._0;
-                                                                                          const _y0$4 = _HomingMissileTrail._1;
-                                                                                          const _x1$4 = _HomingMissileTrail._2;
-                                                                                          const _y1$4 = _HomingMissileTrail._3;
-                                                                                          x1 = _x1$4;
-                                                                                          x0 = _x0$4;
-                                                                                          y0 = _y0$4;
-                                                                                          y1 = _y1$4;
-                                                                                          break _L$18;
-                                                                                        }
-                                                                                        case 13: {
-                                                                                          const _HomingMissileImpact = event;
-                                                                                          const _x$9 = _HomingMissileImpact._0;
-                                                                                          const _y$9 = _HomingMissileImpact._1;
-                                                                                          x$8 = _x$9;
-                                                                                          y$8 = _y$9;
-                                                                                          break _L$16;
-                                                                                        }
-                                                                                        case 14: {
-                                                                                          const _FireballCast = event;
-                                                                                          const _x$10 = _FireballCast._0;
-                                                                                          const _y$10 = _FireballCast._1;
-                                                                                          x$7 = _x$10;
-                                                                                          y$7 = _y$10;
-                                                                                          break _L$14;
-                                                                                        }
-                                                                                        case 15: {
-                                                                                          const _FireballTrail = event;
-                                                                                          const _x$11 = _FireballTrail._0;
-                                                                                          const _y$11 = _FireballTrail._1;
-                                                                                          x$6 = _x$11;
-                                                                                          y$6 = _y$11;
-                                                                                          break _L$12;
-                                                                                        }
-                                                                                        case 16: {
-                                                                                          const _FireballBurst = event;
-                                                                                          const _x$12 = _FireballBurst._0;
-                                                                                          const _y$12 = _FireballBurst._1;
-                                                                                          x$5 = _x$12;
-                                                                                          y$5 = _y$12;
-                                                                                          break _L$10;
-                                                                                        }
-                                                                                        case 17: {
-                                                                                          const _IceNovaCast = event;
-                                                                                          const _x$13 = _IceNovaCast._0;
-                                                                                          const _y$13 = _IceNovaCast._1;
-                                                                                          const _radius$2 = _IceNovaCast._2;
-                                                                                          y$4 = _y$13;
-                                                                                          x$4 = _x$13;
-                                                                                          radius$4 = _radius$2;
-                                                                                          break _L$8;
-                                                                                        }
-                                                                                        case 18: {
-                                                                                          const _MeteorCastStart = event;
-                                                                                          const _x$14 = _MeteorCastStart._0;
-                                                                                          const _y$14 = _MeteorCastStart._1;
-                                                                                          const _radius$3 = _MeteorCastStart._2;
-                                                                                          y$3 = _y$14;
-                                                                                          x$3 = _x$14;
-                                                                                          radius$3 = _radius$3;
-                                                                                          break _L$6;
-                                                                                        }
-                                                                                        case 19: {
-                                                                                          const _MeteorImpact = event;
-                                                                                          const _x$15 = _MeteorImpact._0;
-                                                                                          const _y$15 = _MeteorImpact._1;
-                                                                                          const _radius$4 = _MeteorImpact._2;
-                                                                                          y$2 = _y$15;
-                                                                                          x$2 = _x$15;
-                                                                                          radius$2 = _radius$4;
-                                                                                          break _L$4;
-                                                                                        }
-                                                                                        case 9: {
-                                                                                          const _EnemyTelegraphRing = event;
-                                                                                          const _x$16 = _EnemyTelegraphRing._0;
-                                                                                          const _y$16 = _EnemyTelegraphRing._1;
-                                                                                          const _radius$5 = _EnemyTelegraphRing._2;
-                                                                                          y = _y$16;
-                                                                                          x = _x$16;
-                                                                                          radius = _radius$5;
-                                                                                          break _L$2;
-                                                                                        }
-                                                                                        case 20: {
-                                                                                          _M0MP26mizchi14hacknslash__3d15PlayerCharacter15trigger__attack(self.character);
-                                                                                          break;
-                                                                                        }
-                                                                                        case 21: {
-                                                                                          _M0MP26mizchi14hacknslash__3d15PlayerCharacter13trigger__hurt(self.character);
-                                                                                          break;
-                                                                                        }
-                                                                                        default: {
-                                                                                          _M0MP26mizchi14hacknslash__3d9GameState27rebuild__dungeon__rendering(self);
-                                                                                          _M0MP26mizchi14hacknslash__3d9GameState10save__game(self);
-                                                                                        }
+                                                                                        _M0FP26mizchi14hacknslash__3d18spawn__hit__sparks(self.particle_manager, x$16, y$16);
                                                                                       }
                                                                                       break _L$39;
                                                                                     }
-                                                                                    _M0FP26mizchi14hacknslash__3d18spawn__hit__sparks(self.particle_manager, x$16, y$16);
+                                                                                    _M0FP26mizchi14hacknslash__3d19spawn__death__burst(self.particle_manager, x$15, y$15);
                                                                                   }
                                                                                   break _L$37;
                                                                                 }
-                                                                                _M0FP26mizchi14hacknslash__3d19spawn__death__burst(self.particle_manager, x$15, y$15);
+                                                                                _M0FP26mizchi14hacknslash__3d18spawn__dash__trail(self.particle_manager, x$14, y$14);
                                                                               }
                                                                               break _L$35;
                                                                             }
-                                                                            _M0FP26mizchi14hacknslash__3d18spawn__dash__trail(self.particle_manager, x$14, y$14);
+                                                                            _M0FP26mizchi14hacknslash__3d19spawn__player__hurt(self.particle_manager, x$13, y$13);
                                                                           }
                                                                           break _L$33;
                                                                         }
-                                                                        _M0FP26mizchi14hacknslash__3d19spawn__player__hurt(self.particle_manager, x$13, y$13);
+                                                                        _M0MP26mizchi14hacknslash__3d9GameState20spawn__damage__popup(self, x$12, y$12, amount$2, 16742263);
                                                                       }
                                                                       break _L$31;
                                                                     }
-                                                                    _M0MP26mizchi14hacknslash__3d9GameState20spawn__damage__popup(self, x$12, y$12, amount$2, 16742263);
+                                                                    _M0MP26mizchi14hacknslash__3d9GameState20spawn__damage__popup(self, x$11, y$11, amount, 16729156);
                                                                   }
                                                                   break _L$29;
                                                                 }
-                                                                _M0MP26mizchi14hacknslash__3d9GameState20spawn__damage__popup(self, x$11, y$11, amount, 16729156);
+                                                                _M0FP26mizchi14hacknslash__3d19spawn__item__pickup(self.particle_manager, x$10, y$10, is_health);
                                                               }
                                                               break _L$27;
                                                             }
-                                                            _M0FP26mizchi14hacknslash__3d19spawn__item__pickup(self.particle_manager, x$10, y$10, is_health);
+                                                            _M0MP26mizchi14hacknslash__3d9GameState38queue__ground__ring__telegraph__effect(self, x$9, y$9, radius$5);
                                                           }
                                                           break _L$25;
                                                         }
-                                                        _M0MP26mizchi14hacknslash__3d9GameState38queue__ground__ring__telegraph__effect(self, x$9, y$9, radius$5);
+                                                        _M0MP26mizchi14hacknslash__3d9GameState38queue__ground__line__telegraph__effect(self, x0$5, y0$5, x1$5, y1$5);
                                                       }
                                                       break _L$23;
                                                     }
-                                                    _M0MP26mizchi14hacknslash__3d9GameState38queue__ground__line__telegraph__effect(self, x0$4, y0$4, x1$4, y1$4);
+                                                    _M0MP26mizchi14hacknslash__3d9GameState31queue__chain__lightning__effect(self, x0$4, y0$4, x1$4, y1$4);
                                                   }
                                                   break _L$21;
                                                 }
-                                                _M0MP26mizchi14hacknslash__3d9GameState31queue__chain__lightning__effect(self, x0$3, y0$3, x1$3, y1$3);
+                                                _M0MP26mizchi14hacknslash__3d9GameState30queue__homing__missile__effect(self, x0$3, y0$3, x1$3, y1$3);
                                               }
                                               break _L$19;
                                             }
@@ -61481,27 +61916,45 @@ function _M0MP26mizchi14hacknslash__3d9GameState15update__playing(self) {
                                           }
                                           break _L$17;
                                         }
-                                        _M0MP26mizchi14hacknslash__3d9GameState30queue__homing__missile__effect(self, x0, y0, x1, y1);
+                                        _M0MP26mizchi14hacknslash__3d9GameState38queue__homing__missile__impact__effect(self, x$8, y$8);
                                       }
                                       break _L$15;
                                     }
-                                    _M0MP26mizchi14hacknslash__3d9GameState38queue__homing__missile__impact__effect(self, x$8, y$8);
+                                    _M0MP26mizchi14hacknslash__3d9GameState29queue__fireball__cast__effect(self, x$7, y$7);
                                   }
                                   break _L$13;
                                 }
-                                _M0MP26mizchi14hacknslash__3d9GameState29queue__fireball__cast__effect(self, x$7, y$7);
+                                _M0FP26mizchi14hacknslash__3d22spawn__fireball__trail(self.particle_manager, x$6, y$6);
                               }
                               break _L$11;
                             }
-                            _M0FP26mizchi14hacknslash__3d22spawn__fireball__trail(self.particle_manager, x$6, y$6);
+                            _M0MP26mizchi14hacknslash__3d9GameState30queue__fireball__burst__effect(self, x$5, y$5);
                           }
                           break _L$9;
                         }
-                        _M0MP26mizchi14hacknslash__3d9GameState30queue__fireball__burst__effect(self, x$5, y$5);
+                        _M0MP26mizchi14hacknslash__3d9GameState24queue__ice__nova__effect(self, x$4, y$4, radius$4);
                       }
                       break _L$7;
                     }
-                    _M0MP26mizchi14hacknslash__3d9GameState24queue__ice__nova__effect(self, x$4, y$4, radius$4);
+                    _M0MP26mizchi14hacknslash__3d9GameState23play__sound__for__event(self, new _M0DTP36mizchi14hacknslash__3d4game9GameEvent17ChainLightningArc(x0, y0, x1, y1));
+                    _M0MP26mizchi14hacknslash__3d9GameState30queue__beam__lightning__effect(self, x0, y0, x1, y1);
+                    _M0MP26mizchi14hacknslash__3d9GameState30queue__beam__lightning__effect(self, x0, y0, x1, y1);
+                    _M0MP26mizchi14hacknslash__3d9GameState30queue__beam__lightning__effect(self, x0, y0, x1, y1);
+                    const steps = 6;
+                    let _tmp$3 = 0;
+                    while (true) {
+                      const s = _tmp$3;
+                      if (s < steps) {
+                        const t$2 = ((s + 1 | 0) + 0) / (steps + 0);
+                        const bx = x0 + (x1 - x0) * t$2;
+                        const by = y0 + (y1 - y0) * t$2;
+                        _M0FP26mizchi14hacknslash__3d18spawn__hit__sparks(self.particle_manager, bx, by);
+                        _tmp$3 = s + 1 | 0;
+                        continue;
+                      } else {
+                        break;
+                      }
+                    }
                   }
                   break _L$5;
                 }
@@ -61511,10 +61964,10 @@ function _M0MP26mizchi14hacknslash__3d9GameState15update__playing(self) {
               }
               break _L$3;
             }
+            _M0MP26mizchi14hacknslash__3d9GameState27queue__meteor__fall__effect(self, x$2, y$2, radius$2);
             _M0FP26mizchi14hacknslash__3d19spawn__death__burst(self.particle_manager, x$2, y$2);
             _M0FP26mizchi14hacknslash__3d19spawn__death__burst(self.particle_manager, x$2, y$2);
             _M0MP26mizchi14hacknslash__3d9GameState30queue__fireball__burst__effect(self, x$2, y$2);
-            _M0MP26mizchi14hacknslash__3d9GameState31queue__enemy__telegraph__effect(self, x$2, y$2, radius$2);
           }
           break _L;
         }
@@ -61859,6 +62312,9 @@ function _M0MP26mizchi14hacknslash__3d9GameState6update(self, input) {
   }
   if (_M0FP36mizchi6kagura9inpututil22is__key__just__pressed(self.input.key_state, _M0FP26mizchi14hacknslash__3d6key__m)) {
     _M0MP26mizchi14hacknslash__3d9GameState20toggle__audio__muted(self);
+  }
+  if (_M0FP36mizchi6kagura9inpututil22is__key__just__pressed(self.input.key_state, _M0FP26mizchi14hacknslash__3d6key__p) && _M0IP36mizchi14hacknslash__3d4game8GameModePB2Eq5equal(self.world.mode, 2)) {
+    self.paused = !self.paused;
   }
   const _bind$3 = self.world.mode;
   switch (_bind$3) {

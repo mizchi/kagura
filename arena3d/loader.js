@@ -16,7 +16,7 @@ async function init() {
   installAudioHelpers();
   installGfxHelpers();
   try {
-    await loadGameScript("./arena3d.js?v=76842f6");
+    await loadGameScript("./arena3d.js?v=977dd8b");
   } catch (e) {
     showStartupError(
       "#app",

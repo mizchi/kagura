@@ -17,7 +17,7 @@ async function init() {
   installGfxHelpers();
   await loadFonts([["assets/Tiny5-Regular.ttf","./assets/Tiny5-Regular.ttf"]]);
   try {
-    await loadGameScript("./hacknslash_3d.js?v=76842f6");
+    await loadGameScript("./hacknslash_3d.js?v=977dd8b");
   } catch (e) {
     showStartupError(
       "#app",

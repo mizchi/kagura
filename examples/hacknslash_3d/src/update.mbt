@@ -555,6 +555,26 @@ fn GameState::update_playing(self : GameState) -> Unit {
       @game.FireballBurst(x, y) => self.queue_fireball_burst_effect(x, y)
       @game.IceNovaCast(x, y, radius) =>
         self.queue_ice_nova_effect(x, y, radius)
+      @game.BeamFire(x0, y0, x1, y1, is_player) => {
+        // Red beam line effect (enemy) or blue (player)
+        let color_event = if is_player {
+          @game.ChainLightningArc(x0, y0, x1, y1)
+        } else {
+          @game.ChainLightningArc(x0, y0, x1, y1)
+        }
+        // Fire multiple arcs for thick beam visual
+        self.play_sound_for_event(color_event)
+        self.queue_chain_lightning_effect(x0, y0, x1, y1)
+        self.queue_chain_lightning_effect(x0, y0, x1, y1)
+        // Death bursts along the beam path
+        let steps = 4
+        for s = 0; s < steps; s = s + 1 {
+          let t = (s + 1).to_double() / steps.to_double()
+          let bx = x0 + (x1 - x0) * t
+          let by = y0 + (y1 - y0) * t
+          spawn_hit_sparks(self.particle_manager, bx, by)
+        }
+      }
       @game.MeteorCastStart(x, y, radius) => {
         // Triple ring for maximum visibility
         self.queue_enemy_telegraph_effect(x, y, radius)

@@ -141,6 +141,29 @@ pub fn behavior_ranged_barrage(ctx : EnemyAIContext) -> Bool {
   true
 }
 
+///|
+pub fn behavior_beam_attack(ctx : EnemyAIContext) -> Bool {
+  if ctx.enemy.shoot_cooldown > 0 ||
+    ctx.dist_sq >= ctx.chase_range_sq ||
+    ctx.dist_sq < 900.0 {
+    return false
+  }
+  ctx.enemy.beam_cast_timer = beam_cast_frames
+  ctx.enemy.beam_target_x = ctx.player.x
+  ctx.enemy.beam_target_y = ctx.player.y
+  // Line telegraph event (converted to marker in world.mbt)
+  ctx.events.push(
+    GroundTelegraphLine(
+      ctx.enemy.x,
+      ctx.enemy.y,
+      ctx.player.x,
+      ctx.player.y,
+    ),
+  )
+  ctx.enemy.shoot_cooldown = beam_cooldown_frames
+  true
+}
+
 // === Behavior dispatch per enemy kind ===
 
 ///|
@@ -148,12 +171,12 @@ pub fn get_special_behaviors(
   kind : EnemyKind,
 ) -> Array[(EnemyAIContext) -> Bool] {
   match kind {
-    Boss => [behavior_fire_nova, behavior_tackle]
+    Boss => [behavior_fire_nova, behavior_beam_attack, behavior_tackle]
     Tank => [behavior_fire_nova]
     Fast | Exploder => [behavior_tackle]
     Berserker => [behavior_berserker_rage, behavior_tackle]
     Teleporter => [behavior_teleport_behind]
-    Caster => [behavior_cast_meteor]
+    Caster => [behavior_cast_meteor, behavior_beam_attack]
     Summoner => [behavior_summon_minion]
     Ranged => [behavior_ranged_barrage]
     Basic | Swarm => []

@@ -41,6 +41,9 @@ pub(all) struct Enemy {
   mut meteor_cast_timer : Int // >0 = casting meteor, counts down
   mut meteor_target_x : Double
   mut meteor_target_y : Double
+  mut beam_cast_timer : Int // >0 = charging beam
+  mut beam_target_x : Double
+  mut beam_target_y : Double
 }
 
 ///|
@@ -153,6 +156,7 @@ pub(all) enum GameEvent {
   IceNovaCast(Double, Double, Double)
   MeteorCastStart(Double, Double, Double)
   MeteorImpact(Double, Double, Double)
+  BeamFire(Double, Double, Double, Double, Bool) // x0, y0, x1, y1, is_player
   AttackTriggered
   HurtTriggered
   FloorComplete

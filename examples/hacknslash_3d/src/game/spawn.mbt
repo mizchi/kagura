@@ -33,6 +33,9 @@ pub fn make_enemy(
     meteor_cast_timer: 0,
     meteor_target_x: cx,
     meteor_target_y: cy,
+    beam_cast_timer: 0,
+    beam_target_x: cx,
+    beam_target_y: cy,
   }
 }
 

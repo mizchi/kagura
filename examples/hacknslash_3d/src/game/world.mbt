@@ -876,7 +876,59 @@ pub fn GameWorld::tick_meteor_damage_phase(self : GameWorld) -> Unit {
       EnemyTelegraphRing(x, y, radius) =>
         add_telegraph_circle(self, x, y, radius, 40)
       GroundTelegraphLine(x0, y0, x1, y1) =>
-        add_telegraph_line(self, x0, y0, x1, y1, 8.0, 40)
+        add_telegraph_line(self, x0, y0, x1, y1, beam_width, beam_cast_frames)
+      BeamFire(x0, y0, x1, y1, is_player) =>
+        if not(is_player) {
+          // Enemy beam: damage player if within beam width
+          let beam_dx = x1 - x0
+          let beam_dy = y1 - y0
+          let beam_len_sq = beam_dx * beam_dx + beam_dy * beam_dy
+          if beam_len_sq > 0.001 {
+            let beam_len = beam_len_sq.sqrt()
+            let nx = beam_dx / beam_len
+            let ny = beam_dy / beam_len
+            let px = self.player.x - x0
+            let py = self.player.y - y0
+            let proj = px * nx + py * ny
+            if proj > 0.0 && proj < beam_len {
+              let perp = (px * ny - py * nx).abs()
+              if perp < beam_width / 2.0 && self.player.iframe_timer <= 0 {
+                let dmg = self.params.scale_enemy_damage_for_floor(
+                  self.params.enemy_contact_damage.to_int() * beam_damage_mult,
+                  self.floor,
+                )
+                self.deal_player_damage(dmg)
+              }
+            }
+          }
+        } else {
+          // Player beam: damage enemies along the line
+          let beam_dx = x1 - x0
+          let beam_dy = y1 - y0
+          let beam_len_sq = beam_dx * beam_dx + beam_dy * beam_dy
+          if beam_len_sq > 0.001 {
+            let beam_len = beam_len_sq.sqrt()
+            let nx = beam_dx / beam_len
+            let ny = beam_dy / beam_len
+            for enemy in self.enemies {
+              if not(enemy.alive) {
+                continue
+              }
+              let ex = enemy.x - x0
+              let ey = enemy.y - y0
+              let proj = ex * nx + ey * ny
+              if proj > 0.0 && proj < beam_len {
+                let perp = (ex * ny - ey * nx).abs()
+                if perp < beam_width / 2.0 + enemy.size / 2.0 {
+                  let dmg = self.player_stats.spell_power * beam_damage_mult
+                  apply_player_damage_to_enemy(
+                    self, enemy, dmg, x0, y0,
+                  )
+                }
+              }
+            }
+          }
+        }
       MeteorImpact(x, y, radius) => {
         let pdx = self.player.x - x
         let pdy = self.player.y - y

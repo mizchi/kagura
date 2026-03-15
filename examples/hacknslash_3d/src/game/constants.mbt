@@ -154,6 +154,23 @@ pub let meteor_cooldown_frames : Int = 300 // 5 seconds between meteors
 pub let meteor_damage_mult : Int = 4 // multiplier on base contact damage
 
 ///|
+// Beam attack: straight-line AoE with charge time
+///|
+pub let beam_cast_frames : Int = 60 // 1 second charge
+
+///|
+pub let beam_range : Double = 200.0 // max beam length
+
+///|
+pub let beam_width : Double = 16.0 // width of damage area
+
+///|
+pub let beam_damage_mult : Int = 3 // damage multiplier
+
+///|
+pub let beam_cooldown_frames : Int = 180 // 3 seconds
+
+///|
 pub let enemy_bolt_telegraph_frames : Int = 14
 
 ///|

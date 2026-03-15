@@ -117,7 +117,7 @@ fn bench_state_with_visible_enemy() -> GameState {
       pending_bolt_target_x: px,
       pending_bolt_target_y: py,
       charge_timer: 0,
-      charge_cooldown: 0, meteor_cast_timer: 0, meteor_target_x: 0.0, meteor_target_y: 0.0,
+      charge_cooldown: 0, meteor_cast_timer: 0, meteor_target_x: 0.0, meteor_target_y: 0.0, beam_cast_timer: 0, beam_target_x: 0.0, beam_target_y: 0.0,
     },
   ]
   state

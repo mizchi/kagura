@@ -271,6 +271,26 @@ pub fn update_enemy_ai(
       tick_enemy_pattern_cooldowns(enemy)
       continue
     }
+    // Beam charging: channeled, fires on completion
+    if enemy.beam_cast_timer > 0 {
+      enemy.beam_cast_timer = enemy.beam_cast_timer - 1
+      enemy.vx = 0.0
+      enemy.vy = 0.0
+      if enemy.beam_cast_timer == 0 {
+        // Beam fires!
+        events.push(
+          BeamFire(
+            enemy.x,
+            enemy.y,
+            enemy.beam_target_x,
+            enemy.beam_target_y,
+            false,
+          ),
+        )
+      }
+      tick_enemy_pattern_cooldowns(enemy)
+      continue
+    }
     if update_enemy_bolt_castup(
         enemy, projectiles, events, player, params, floor,
       ) {

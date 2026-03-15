@@ -110,44 +110,83 @@ fn GameState::rebuild_entity_instance_scratch(
       }
     }
   }
-  // Telegraph markers: 3D floor discs that fill gradually with cast progress
+  // Telegraph markers: 3D floor shapes that fill gradually with cast progress
   for marker in self.world.telegraph_markers {
-    let mx = marker.x / tile_size
-    let mz = marker.y / tile_size
-    let my = height_at_tile(
-      self.world.dungeon,
-      (marker.x / tile_size).to_int(),
-      (marker.y / tile_size).to_int(),
-    ) +
-      0.02
     let progress = marker.progress()
-    let full_scale = marker.radius / tile_size
-    // Outer ring: always at full size, very faint border
-    self.entity_instance_scratch.telegraph_instances.push(
-      @scene3d.InstanceData::new(
-        transform=@transform3d.Transform3D::from_position(
-          @math3d.Vec3::new(mx, my, mz),
-        ).with_scale(@math3d.Vec3::new(full_scale, 1.0, full_scale)),
-        color=@math3d.Vec4::new(0.8, 0.2, 0.05, 0.08),
-      ),
-    )
-    // Fill disc: grows from 0% to 100% with eased curve
-    // Slow start, accelerating toward the end (quadratic ease-in)
     let eased = progress * progress
-    let fill_scale = full_scale * eased
-    if fill_scale > 0.01 {
-      // Color shifts from soft orange to bright red at the end
-      let r = 0.7 + progress * 0.3
-      let g = 0.25 * (1.0 - progress)
-      let a = 0.06 + eased * 0.14
-      self.entity_instance_scratch.telegraph_instances.push(
-        @scene3d.InstanceData::new(
-          transform=@transform3d.Transform3D::from_position(
-            @math3d.Vec3::new(mx, my + 0.01, mz),
-          ).with_scale(@math3d.Vec3::new(fill_scale, 1.0, fill_scale)),
-          color=@math3d.Vec4::new(r, g, 0.02, a),
-        ),
-      )
+    let r = 0.7 + progress * 0.3
+    let g = 0.25 * (1.0 - progress)
+    let a = 0.06 + eased * 0.14
+    match marker.shape {
+      @game.Circle => {
+        let mx = marker.x / tile_size
+        let mz = marker.y / tile_size
+        let my = height_at_tile(
+          self.world.dungeon,
+          (marker.x / tile_size).to_int(),
+          (marker.y / tile_size).to_int(),
+        ) + 0.02
+        let full_scale = marker.radius / tile_size
+        // Faint outer ring
+        self.entity_instance_scratch.telegraph_instances.push(
+          @scene3d.InstanceData::new(
+            transform=@transform3d.Transform3D::from_position(
+              @math3d.Vec3::new(mx, my, mz),
+            ).with_scale(@math3d.Vec3::new(full_scale, 1.0, full_scale)),
+            color=@math3d.Vec4::new(0.8, 0.2, 0.05, 0.08),
+          ),
+        )
+        // Growing fill
+        let fill_scale = full_scale * eased
+        if fill_scale > 0.01 {
+          self.entity_instance_scratch.telegraph_instances.push(
+            @scene3d.InstanceData::new(
+              transform=@transform3d.Transform3D::from_position(
+                @math3d.Vec3::new(mx, my + 0.01, mz),
+              ).with_scale(@math3d.Vec3::new(fill_scale, 1.0, fill_scale)),
+              color=@math3d.Vec4::new(r, g, 0.02, a),
+            ),
+          )
+        }
+      }
+      @game.Line => {
+        // Line telegraph: series of small discs along the beam path
+        let x0 = marker.x / tile_size
+        let z0 = marker.y / tile_size
+        let x1 = marker.end_x / tile_size
+        let z1 = marker.end_y / tile_size
+        let dx = x1 - x0
+        let dz = z1 - z0
+        let len = (dx * dx + dz * dz).sqrt()
+        let steps = (len * 3.0).to_int().max(3).min(20)
+        let disc_scale = marker.radius / tile_size * 0.5
+        // Show discs up to the current progress along the line
+        let filled_steps = (steps.to_double() * eased).to_int().max(1)
+        for s = 0; s < steps; s = s + 1 {
+          let t = s.to_double() / steps.to_double()
+          let px = x0 + dx * t
+          let pz = z0 + dz * t
+          let py = height_at_tile(
+            self.world.dungeon,
+            (marker.x + (marker.end_x - marker.x) * t).to_int(),
+            (marker.y + (marker.end_y - marker.y) * t).to_int(),
+          ) + 0.02
+          let is_filled = s < filled_steps
+          let disc_a = if is_filled { a } else { 0.04 }
+          let disc_r = if is_filled { r } else { 0.5 }
+          let disc_g = if is_filled { g } else { 0.15 }
+          self.entity_instance_scratch.telegraph_instances.push(
+            @scene3d.InstanceData::new(
+              transform=@transform3d.Transform3D::from_position(
+                @math3d.Vec3::new(px, py, pz),
+              ).with_scale(
+                @math3d.Vec3::new(disc_scale, 1.0, disc_scale),
+              ),
+              color=@math3d.Vec4::new(disc_r, disc_g, 0.02, disc_a),
+            ),
+          )
+        }
+      }
     }
   }
   for proj in self.world.projectiles {

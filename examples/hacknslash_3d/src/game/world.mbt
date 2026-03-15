@@ -40,6 +40,7 @@ pub(all) struct GameWorld {
   mut cursor_x : Double
   mut cursor_y : Double
   mut telegraph_markers : Array[TelegraphMarker]
+  mut item_log : Array[ItemLogEntry]
   mut events : Array[GameEvent]
   mut enemy_separation_cell_heads : Array[Int]
   mut enemy_separation_next_indices : Array[Int]
@@ -138,6 +139,7 @@ pub fn GameWorld::new(
     cursor_x: 0.0,
     cursor_y: 0.0,
     telegraph_markers: [],
+    item_log: [],
     events: [],
     enemy_separation_cell_heads: Array::make(
       enemy_separation_grid_cols() * enemy_separation_grid_rows(),
@@ -770,6 +772,7 @@ pub fn GameWorld::tick_items_phase(self : GameWorld) -> Unit {
                 )
                 self.player.hp = application.next_hp
                 self.score = application.next_score
+                self.push_item_log("+Health", 0x44DD44)
               }
               None => abort("health pickup should always resolve")
             }
@@ -794,6 +797,7 @@ pub fn GameWorld::tick_items_phase(self : GameWorld) -> Unit {
                 )
                 self.player.hp = application.next_hp
                 self.score = application.next_score
+                self.push_item_log("+Score", 0xDDDD44)
               }
               None => abort("score pickup should always resolve")
             }
@@ -802,6 +806,7 @@ pub fn GameWorld::tick_items_phase(self : GameWorld) -> Unit {
             if self.collect_equipment_pickup(data) {
               item.alive = false
               self.events.push(ItemPickup(item.x, item.y, false))
+              self.push_item_log(data.name, data.rarity.color())
             }
         }
       }
@@ -991,6 +996,40 @@ pub fn GameWorld::tick_player_timers_phase(self : GameWorld) -> Unit {
 }
 
 ///|
+let item_log_duration : Int = 180 // ~3 seconds at 60fps
+
+///|
+let item_log_max_entries : Int = 8
+
+///|
+pub fn GameWorld::push_item_log(
+  self : GameWorld,
+  text : String,
+  color : Int,
+) -> Unit {
+  self.item_log.push({ text, color, frames_remaining: item_log_duration })
+  // Trim oldest if over limit
+  for ;; {
+    if self.item_log.length() <= item_log_max_entries {
+      break
+    }
+    ignore(self.item_log.remove(0))
+  }
+}
+
+///|
+pub fn GameWorld::tick_item_log(self : GameWorld) -> Unit {
+  let still_active : Array[ItemLogEntry] = []
+  for entry in self.item_log {
+    entry.frames_remaining = entry.frames_remaining - 1
+    if entry.frames_remaining > 0 {
+      still_active.push(entry)
+    }
+  }
+  self.item_log = still_active
+}
+
+///|
 pub fn GameWorld::tick(self : GameWorld, dx : Double, dy : Double) -> Unit {
   self.tick_with_enemy_ai_grid(dx, dy, self.dungeon.grid)
 }
@@ -1092,6 +1131,8 @@ pub fn GameWorld::tick_with_enemy_ai_grid(
   self.tick_meteor_damage_phase()
   // 10c. Tick telegraph markers
   tick_telegraph_markers(self)
+  // 10d. Tick item log
+  self.tick_item_log()
   // 11. Enemy movement + contact damage
   self.tick_enemy_movement_and_contact_phase()
   // 12-13. Projectiles

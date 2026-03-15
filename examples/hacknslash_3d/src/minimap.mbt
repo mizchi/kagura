@@ -287,6 +287,10 @@ fn GameState::render_hud_cmds(
       0xFF2222,
     )
   }
+  // Pause indicator
+  if self.paused {
+    ctx.draw_text_centered(cmds, "PAUSED", 24.0, sw / 2.0, sh / 2.0 - 20.0, 0xFFFFFF)
+  }
   // Auto-play indicator at top-left
   if self.world.auto_play {
     ctx.draw_text(cmds, "AUTO", 10.0, 8.0, 38.0, 0x00FFAA)
@@ -305,6 +309,8 @@ fn GameState::render_hud_cmds(
   self.draw_item_drop_labels(ctx, cmds)
   // Minimap
   self.render_minimap(ctx, cmds)
+  // Item acquisition log (below minimap, flows top to bottom)
+  self.draw_item_log(ctx, cmds)
   cmds
 }
 
@@ -385,4 +391,25 @@ fn GameState::render_minimap(
     cell_size + 2.0,
     @hud.hex_color(0x00FFCC),
   )
+}
+
+///|
+fn GameState::draw_item_log(
+  self : GameState,
+  ctx : @hud.HudContext,
+  cmds : Array[@gfx.DrawTrianglesCommand],
+) -> Unit {
+  let log = self.world.item_log
+  if log.length() == 0 {
+    return
+  }
+  // Position: right side, below minimap (minimap is at top-right, 100x100 + 8px padding)
+  let log_x = ctx.screen_w - 108.0
+  let log_top = 116.0 // 8 (minimap top) + 100 (minimap size) + 8 (gap)
+  let line_height = 14.0
+  let font_size = 10.0
+  for i, entry in log {
+    let y = log_top + i.to_double() * line_height
+    ctx.draw_text(cmds, entry.text, font_size, log_x, y, entry.color)
+  }
 }

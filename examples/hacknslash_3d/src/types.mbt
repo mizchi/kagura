@@ -193,4 +193,5 @@ struct GameState {
   mut hud_static_cache_shader_id : Int
   mut hud_static_cache_text_mode : Int
   mut hud_static_cache_builds : Int
+  mut paused : Bool
 }

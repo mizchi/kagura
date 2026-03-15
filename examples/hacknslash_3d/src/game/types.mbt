@@ -47,6 +47,13 @@ pub(all) struct Enemy {
 }
 
 ///|
+pub(all) struct ItemLogEntry {
+  text : String
+  color : Int // hex color from rarity
+  mut frames_remaining : Int
+}
+
+///|
 pub(all) struct ItemDrop {
   mut x : Double
   mut y : Double

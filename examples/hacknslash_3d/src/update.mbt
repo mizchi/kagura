@@ -9,6 +9,9 @@ fn half_res_target_size(size : Int) -> Int {
 let key_m : Int = 77
 
 ///|
+let key_p : Int = 80
+
+///|
 fn GameState::new(seed~ : Int) -> GameState {
   GameState::new_with_params_and_ssao(
     seed~,
@@ -252,6 +255,7 @@ fn GameState::new_with_params_and_ssao(
     hud_static_cache_shader_id: -1,
     hud_static_cache_text_mode: -1,
     hud_static_cache_builds: 0,
+    paused: false,
   }
 }
 
@@ -299,6 +303,11 @@ fn GameState::update(self : GameState, input : @core.InputSnapshot) -> Unit {
   }
   if @inpututil.is_key_just_pressed(self.input.key_state, key_m) {
     self.toggle_audio_muted()
+  }
+  // Pause toggle (only during Playing)
+  if @inpututil.is_key_just_pressed(self.input.key_state, key_p) &&
+    self.world.mode == @game.Playing {
+    self.paused = not(self.paused)
   }
   match self.world.mode {
     @game.Title => self.update_title(input)
@@ -419,7 +428,7 @@ fn GameState::update_playing(self : GameState) -> Unit {
     self.update_ui()
     return
   }
-  // UI toggle
+  // UI toggle (works while paused)
   if @inpututil.is_key_just_pressed(self.input.key_state, key_i) {
     self.world.ui_mode = if self.world.ui_mode == @game.Inventory {
       @game.UIMode::None
@@ -443,9 +452,13 @@ fn GameState::update_playing(self : GameState) -> Unit {
     self.world.ui_mode = @game.UIMode::None
     return
   }
-  // UI interaction mode
+  // UI interaction mode (works while paused)
   if self.world.ui_mode != @game.UIMode::None {
     self.update_ui()
+    return
+  }
+  // Skip game tick while paused
+  if self.paused {
     return
   }
   // Determine movement input

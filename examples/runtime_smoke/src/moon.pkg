@@ -18,6 +18,7 @@ warnings = "-29"
 
 options(
   "is-main": true,
+  "supported-targets": [ "js" ],
   targets: {
     "main_js.mbt": [ "js", "wasm", "wasm-gc", "llvm" ],
     "main_native.mbt": [ "native" ],

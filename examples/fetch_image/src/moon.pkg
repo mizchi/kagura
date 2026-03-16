@@ -10,6 +10,7 @@ warnings = "-1-2-29-71"
 
 options(
   "is-main": true,
+  "supported-targets": [ "js" ],
   targets: {
     "main.mbt": [ "js" ],
     "main_stub.mbt": [ "native", "wasm", "wasm-gc", "llvm" ],

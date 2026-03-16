@@ -99,7 +99,7 @@ let sleep_time_threshold : Double = 0.5 // seconds at rest before sleeping
 fn uf_find(parent : Array[Int], i : Int) -> Int {
   let mut x = i
   // Path compression loop (no recursion to avoid stack issues)
-  for {
+  for ;; {
     if parent[x] == x {
       break x
     }

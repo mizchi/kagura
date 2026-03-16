@@ -1,3 +1,4 @@
+///|
 test "tier_curve_value applies per-floor growth after floor 1" {
   let curve = TierCurve::{ base: 1.0, per_floor: 0.25 }
   assert_eq(tier_curve_value(curve, 1), 1.0)
@@ -10,8 +11,8 @@ test "roll_loot_rarity becomes stronger with floor bias" {
     ..LootRarityRollConfig::default(),
     rarity_bonus_per_floor: 2.0,
   }
-  let low = roll_loot_rarity(123, 1, config=config)
-  let high = roll_loot_rarity(123, 12, config=config)
+  let low = roll_loot_rarity(123, 1, config~)
+  let high = roll_loot_rarity(123, 12, config~)
   assert_true(loot_rarity_rank(high) >= loot_rarity_rank(low))
 }
 

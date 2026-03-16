@@ -18,12 +18,7 @@ test "resolve_anchor_position picks largest non start room" {
     AnchorCandidate::new(96.0, 16.0, 120, false),
   ]
   assert_eq(
-    resolve_anchor_position(
-      anchors,
-      LargestNonStartRoomCenter,
-      16.0,
-      16.0,
-    ),
+    resolve_anchor_position(anchors, LargestNonStartRoomCenter, 16.0, 16.0),
     (96.0, 16.0),
   )
   assert_eq(
@@ -49,12 +44,7 @@ test "resolve_anchor_position picks farthest non start room for treasure" {
 test "resolve_anchor_position falls back to start point when only start exists" {
   let anchors = [AnchorCandidate::new(16.0, 16.0, 100, true)]
   assert_eq(
-    resolve_anchor_position(
-      anchors,
-      LargestNonStartRoomCenter,
-      16.0,
-      16.0,
-    ),
+    resolve_anchor_position(anchors, LargestNonStartRoomCenter, 16.0, 16.0),
     (16.0, 16.0),
   )
   assert_eq(

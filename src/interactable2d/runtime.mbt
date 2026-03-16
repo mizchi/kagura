@@ -37,14 +37,15 @@ pub fn resolve_circular_blockers_for_actor(
     if not(interactable_role_is_solid(interactable.role)) {
       continue
     }
-    match resolve_circular_interactable_block(
-      next_x,
-      next_y,
-      actor_size,
-      interactable.x,
-      interactable.y,
-      interactable.radius,
-    ) {
+    match
+      resolve_circular_interactable_block(
+        next_x,
+        next_y,
+        actor_size,
+        interactable.x,
+        interactable.y,
+        interactable.radius,
+      ) {
       Some((blocked_x, blocked_y)) => {
         if can_stand(blocked_x, next_y, actor_size) {
           next_x = blocked_x
@@ -92,20 +93,13 @@ pub fn resolve_circular_interactable_frame(
   can_stand : (Double, Double, Double) -> Bool,
 ) -> CircularInteractableFrameResult {
   let (resolved_x, resolved_y) = resolve_circular_blockers_for_actor(
-    interactables,
-    actor_x,
-    actor_y,
-    actor_size,
-    can_stand,
+    interactables, actor_x, actor_y, actor_size, can_stand,
   )
   {
     actor_x: resolved_x,
     actor_y: resolved_y,
     pickup_contact_index: find_first_circular_pickup_contact_index(
-      interactables,
-      resolved_x,
-      resolved_y,
-      pickup_radius_sq,
+      interactables, resolved_x, resolved_y, pickup_radius_sq,
     ),
   }
 }

@@ -37,12 +37,7 @@ test "find_first_circular_pickup_contact_index returns first pickup in range" {
     CircularInteractable::new(34.0, 48.0, 8.0, Pickup),
   ]
   assert_eq(
-    find_first_circular_pickup_contact_index(
-      interactables,
-      32.0,
-      48.0,
-      400.0,
-    ),
+    find_first_circular_pickup_contact_index(interactables, 32.0, 48.0, 400.0),
     Some(1),
   )
 }
@@ -51,12 +46,7 @@ test "find_first_circular_pickup_contact_index returns first pickup in range" {
 test "find_first_circular_pickup_contact_index ignores non pickup roles" {
   let interactables = [CircularInteractable::new(36.0, 48.0, 8.0, Blocking)]
   assert_eq(
-    find_first_circular_pickup_contact_index(
-      interactables,
-      32.0,
-      48.0,
-      400.0,
-    ),
+    find_first_circular_pickup_contact_index(interactables, 32.0, 48.0, 400.0),
     None,
   )
 }

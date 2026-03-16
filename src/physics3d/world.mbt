@@ -91,7 +91,7 @@ let sleep_time_threshold3d : Double = 0.5
 ///|
 fn uf_find3d(parent : Array[Int], i : Int) -> Int {
   let mut x = i
-  for {
+  for ;; {
     if parent[x] == x {
       break x
     }

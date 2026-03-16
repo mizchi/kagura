@@ -281,7 +281,7 @@ test "shader3d_shadow_lit_wgsl contains shadow map and PCF" {
   assert_true(src.contains("bias"))
   assert_true(src.contains("@binding(3)"))
   assert_true(src.contains("@binding(4)"))
-  assert_true(src.contains("9.0"))
+  assert_true(src.contains("poisson"))
   assert_true(src.contains("vs_main"))
   assert_true(src.contains("fs_main"))
   assert_true(src.contains("textureSample"))

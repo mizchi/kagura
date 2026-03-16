@@ -51,7 +51,7 @@ pub fn StatusBar::render(
     hex_color(self.bg_color, alpha=0.8),
   )
   // Fill
-  let fill_w = self.width * self.ratio.clamp(0.0, 1.0)
+  let fill_w = self.width * self.ratio.clamp(min=0.0, max=1.0)
   if fill_w > 0.0 {
     ctx.draw_rect(
       cmds,
@@ -104,17 +104,5 @@ pub fn StatusBar::render(
       cy,
       self.label_color,
     )
-  }
-}
-
-///|
-/// Helper: clamp a Double to [min, max].
-fn Double::clamp(self : Double, min : Double, max : Double) -> Double {
-  if self < min {
-    min
-  } else if self > max {
-    max
-  } else {
-    self
   }
 }

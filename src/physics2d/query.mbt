@@ -96,13 +96,7 @@ pub fn grid_line_of_sight_clear(
 ) -> Bool {
   not(
     grid_segment_hits_wall(
-      grid,
-      start_x,
-      start_y,
-      end_x,
-      end_y,
-      size,
-      tile_size,
+      grid, start_x, start_y, end_x, end_y, size, tile_size,
     ),
   )
 }
@@ -133,13 +127,7 @@ pub fn grid_find_nearest_visible_candidate_index(
     let dist_sq = dx * dx + dy * dy
     if dist_sq < nearest_dist_sq &&
       grid_line_of_sight_clear(
-        grid,
-        origin_x,
-        origin_y,
-        candidate_x,
-        candidate_y,
-        viewer_size,
-        tile_size,
+        grid, origin_x, origin_y, candidate_x, candidate_y, viewer_size, tile_size,
       ) {
       nearest_dist_sq = dist_sq
       nearest_idx = idx
@@ -181,10 +169,22 @@ pub fn append_circular_wall_blocker(
 ) -> Unit {
   let tile_half = tile_size / 2.0
   let effective_radius = radius + tile_half
-  let min_col = @cmp.maximum(0, tile_index_at(center_x - effective_radius, tile_size) - 1)
-  let max_col = @cmp.minimum(grid.width - 1, tile_index_at(center_x + effective_radius, tile_size) + 1)
-  let min_row = @cmp.maximum(0, tile_index_at(center_y - effective_radius, tile_size) - 1)
-  let max_row = @cmp.minimum(grid.height - 1, tile_index_at(center_y + effective_radius, tile_size) + 1)
+  let min_col = @cmp.maximum(
+    0,
+    tile_index_at(center_x - effective_radius, tile_size) - 1,
+  )
+  let max_col = @cmp.minimum(
+    grid.width - 1,
+    tile_index_at(center_x + effective_radius, tile_size) + 1,
+  )
+  let min_row = @cmp.maximum(
+    0,
+    tile_index_at(center_y - effective_radius, tile_size) - 1,
+  )
+  let max_row = @cmp.minimum(
+    grid.height - 1,
+    tile_index_at(center_y + effective_radius, tile_size) + 1,
+  )
   let effective_radius_sq = effective_radius * effective_radius
   for row = min_row; row <= max_row; row = row + 1 {
     for col = min_col; col <= max_col; col = col + 1 {

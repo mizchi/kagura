@@ -1,3 +1,4 @@
+///|
 pub type PickupEffect = @interactable2d.InteractablePickupEffect
 
 ///|
@@ -96,11 +97,8 @@ pub fn apply_builtin_pickup_to_actor(
   rewards : PickupRewardConfig,
 ) -> BuiltinPickupApplication? {
   match apply_builtin_pickup_effect(effect, actor_hp, actor_max_hp, rewards) {
-    Some((next_hp, score_delta, heal_feedback)) => Some({
-      next_hp,
-      next_score: actor_score + score_delta,
-      heal_feedback,
-    })
+    Some((next_hp, score_delta, heal_feedback)) =>
+      Some({ next_hp, next_score: actor_score + score_delta, heal_feedback })
     None => None
   }
 }
@@ -117,22 +115,21 @@ pub fn resolve_pickup_resolution(
   has_previous_equipped~ : Bool,
 ) -> PickupResolution {
   match effect {
-    ScorePickup | HealthPickup => {
-      match apply_builtin_pickup_effect(effect, actor_hp, actor_max_hp, rewards) {
+    ScorePickup | HealthPickup =>
+      match
+        apply_builtin_pickup_effect(effect, actor_hp, actor_max_hp, rewards) {
         Some((next_hp, score_delta, heal_feedback)) =>
           Builtin(next_hp, score_delta, heal_feedback)
         None => abort("builtin pickup effect must resolve")
       }
-    }
-    EquipmentPickup => {
+    EquipmentPickup =>
       Equipment(
         plan_equipment_pickup(
-          auto_play=auto_play,
-          should_equip=should_equip,
-          inventory_has_space=inventory_has_space,
-          has_previous_equipped=has_previous_equipped,
+          auto_play~,
+          should_equip~,
+          inventory_has_space~,
+          has_previous_equipped~,
         ),
       )
-    }
   }
 }

@@ -26,11 +26,7 @@ fn largest_non_start_anchor(
       continue
     }
     match best {
-      Some(current) => {
-        if anchor.area > current.area {
-          best = Some(anchor)
-        }
-      }
+      Some(current) => if anchor.area > current.area { best = Some(anchor) }
       None => best = Some(anchor)
     }
   }
@@ -69,17 +65,15 @@ pub fn resolve_anchor_position(
 ) -> (Double, Double) {
   match anchor {
     StartRoomCenter => (start_x, start_y)
-    LargestNonStartRoomCenter | BossRoomCenter => {
+    LargestNonStartRoomCenter | BossRoomCenter =>
       match largest_non_start_anchor(anchors) {
         Some(room) => (room.center_x, room.center_y)
         None => (start_x, start_y)
       }
-    }
-    TreasureRoomCenter => {
+    TreasureRoomCenter =>
       match farthest_non_start_anchor(anchors, start_x, start_y) {
         Some(room) => (room.center_x, room.center_y)
         None => (start_x, start_y)
       }
-    }
   }
 }

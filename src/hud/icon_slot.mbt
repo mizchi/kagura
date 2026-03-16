@@ -39,7 +39,7 @@ pub fn IconSlot::render(
   // Right
   ctx.draw_rect(cmds, self.x + s - bw, self.y, bw, s, color)
   // Cooldown overlay (from bottom to top)
-  let cd = self.cooldown_ratio.clamp(0.0, 1.0)
+  let cd = self.cooldown_ratio.clamp(min=0.0, max=1.0)
   if cd > 0.0 {
     let cd_h = s * cd
     ctx.draw_rect(

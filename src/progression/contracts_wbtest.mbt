@@ -1,3 +1,4 @@
+///|
 test "LevelProgression gains xp and increments pending choices" {
   let progression = LevelProgression::new()
   let leveled = progression.gain_xp(10, LevelUpConfig::default())

@@ -13,7 +13,9 @@ test "grid_check_wall_collision detects box overlap with wall tiles" {
   let grid = @terrain.Grid2D::make(5, 5, @terrain.Floor)
   grid.set(3, 2, @terrain.Wall)
 
-  assert_true(grid_check_wall_collision(grid, 3.5 * 16.0, 2.5 * 16.0, 14.0, 16.0))
+  assert_true(
+    grid_check_wall_collision(grid, 3.5 * 16.0, 2.5 * 16.0, 14.0, 16.0),
+  )
   assert_false(
     grid_check_wall_collision(grid, 1.5 * 16.0, 1.5 * 16.0, 14.0, 16.0),
   )

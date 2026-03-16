@@ -56,7 +56,7 @@ pub fn tonemap_wgsl(op : ToneMapOperator) -> String {
 /// Encode tone map uniform as 4 dwords (vec4 alignment).
 pub fn tonemap_uniform_dwords(
   exposure : Double,
-  hit_flash~ : Double = 0.0,
+  hit_flash? : Double = 0.0,
 ) -> Array[Int] {
   [@gfx.double_to_f32_bits(exposure), @gfx.double_to_f32_bits(hit_flash), 0, 0]
 }
@@ -68,13 +68,13 @@ pub fn new_tonemap_command(
   shader : @gfx.ShaderHandle,
   src_image_id : Int,
   exposure : Double,
-  hit_flash~ : Double = 0.0,
+  hit_flash? : Double = 0.0,
 ) -> @gfx.DrawTrianglesCommand {
   new_fullscreen_quad_command(
     dst,
     shader,
     [src_image_id],
-    tonemap_uniform_dwords(exposure, hit_flash=hit_flash),
+    tonemap_uniform_dwords(exposure, hit_flash~),
     @gfx.blend_mode_from_int(0),
   )
 }

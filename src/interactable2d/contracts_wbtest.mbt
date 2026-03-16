@@ -8,7 +8,10 @@ test "interactable_role_from_string parses known roles" {
 
 ///|
 test "interactable_anchor_from_string parses known anchors" {
-  assert_eq(interactable_anchor_from_string("start_room"), Some(StartRoomCenter))
+  assert_eq(
+    interactable_anchor_from_string("start_room"),
+    Some(StartRoomCenter),
+  )
   assert_eq(
     interactable_anchor_from_string("largest_non_start_room"),
     Some(LargestNonStartRoomCenter),
@@ -24,7 +27,10 @@ test "interactable_anchor_from_string parses known anchors" {
 ///|
 test "interactable_pickup_effect_from_string parses known effects" {
   assert_eq(interactable_pickup_effect_from_string("score"), Some(ScorePickup))
-  assert_eq(interactable_pickup_effect_from_string("health"), Some(HealthPickup))
+  assert_eq(
+    interactable_pickup_effect_from_string("health"),
+    Some(HealthPickup),
+  )
   assert_eq(
     interactable_pickup_effect_from_string("equipment"),
     Some(EquipmentPickup),

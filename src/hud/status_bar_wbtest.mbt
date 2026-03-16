@@ -65,7 +65,7 @@ test "StatusBar zero ratio no fill" {
 
 ///|
 test "clamp method" {
-  assert_eq(0.5.clamp(0.0, 1.0), 0.5)
-  assert_eq((-0.1).clamp(0.0, 1.0), 0.0)
-  assert_eq(1.5.clamp(0.0, 1.0), 1.0)
+  assert_eq(0.5.clamp(min=0.0, max=1.0), 0.5)
+  assert_eq((-0.1).clamp(min=0.0, max=1.0), 0.0)
+  assert_eq(1.5.clamp(min=0.0, max=1.0), 1.0)
 }

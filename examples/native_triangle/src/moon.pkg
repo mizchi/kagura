@@ -6,6 +6,7 @@ warnings = "-29"
 
 options(
   "is-main": true,
+  "supported-targets": [ "native" ],
   link: {
     "native": {
       "cc": "../../scripts/moon-native-cc.sh",

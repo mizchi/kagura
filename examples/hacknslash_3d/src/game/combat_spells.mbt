@@ -123,7 +123,7 @@ pub fn cast_chain_lightning(world : GameWorld) -> Bool {
     skill_level=cl_level,
   )
   let max_targets = chain_lightning_targets_for_level(cl_level) +
-    world.player_stats.chain_bonus
+    effective_extra_chain_targets(world.player_stats, ChainLightning)
   for _step = 0; _step < max_targets; _step = _step + 1 {
     let next_index = find_next_chain_target(
       world,
@@ -217,8 +217,11 @@ pub fn cast_ice_nova(world : GameWorld) -> Bool {
   if world.ice_nova_cooldown_timer > 0 {
     return false
   }
+  let nova_radius = effective_aoe_radius(
+    world.player_stats, IceNova, ice_nova_radius,
+  )
   world.events.push(
-    GroundTelegraphRing(world.player.x, world.player.y, ice_nova_radius),
+    GroundTelegraphRing(world.player.x, world.player.y, nova_radius),
   )
   let damage = player_spell_damage(
     world.player_stats,
@@ -228,7 +231,7 @@ pub fn cast_ice_nova(world : GameWorld) -> Bool {
     skill_level=world.skills.get_level(IceNova),
   )
   let mut hit_any = false
-  let radius_sq = ice_nova_radius * ice_nova_radius
+  let radius_sq = nova_radius * nova_radius
   for enemy in world.enemies {
     if not(enemy.alive) {
       continue
@@ -247,7 +250,7 @@ pub fn cast_ice_nova(world : GameWorld) -> Bool {
     }
   }
   world.events.push(
-    IceNovaCast(world.player.x, world.player.y, ice_nova_radius),
+    IceNovaCast(world.player.x, world.player.y, nova_radius),
   )
   world.ice_nova_cooldown_timer = world.params.ice_nova_cooldown_frames()
   apply_spell_attack_lock(world)
@@ -518,7 +521,9 @@ pub fn activate_skill(world : GameWorld, slot : Int) -> Unit {
               world.player_stats,
               world.archetype,
             ).to_double() * skill_level_damage_multiplier(Whirlwind, level)).to_int().max(1)
-            let radius = melee_slash_radius * 1.8
+            let radius = effective_aoe_radius(
+              world.player_stats, Whirlwind, melee_slash_radius * 1.8,
+            )
             let r_sq = radius * radius
             let px = world.player.x
             let py = world.player.y

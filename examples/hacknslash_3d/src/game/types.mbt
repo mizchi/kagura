@@ -46,6 +46,7 @@ pub(all) struct Enemy {
   mut beam_cast_timer : Int // >0 = charging beam
   mut beam_target_x : Double
   mut beam_target_y : Double
+  room_index : Int // which room this enemy was spawned in (-1 = unknown)
 }
 
 ///|
@@ -167,6 +168,7 @@ pub(all) enum GameEvent {
   MeteorImpact(Double, Double, Double)
   BeamFire(Double, Double, Double, Double, Bool) // x0, y0, x1, y1, is_player
   MeleeSlash(Double, Double, Double) // x, y, radius
+  RoomCleared(Int, Double, Double) // room_index, center_x, center_y
   AttackTriggered
   HurtTriggered
   FloorComplete

@@ -352,6 +352,7 @@ test "tick_items_phase in auto_play replaces oldest inventory item and auto equi
           dex_scaling: 0.0,
           spell_damage_pct: 0.0,
           chain_bonus: 0,
+          tag_bonuses: [],
         }),
         suffix: None,
         icon_id: 3,

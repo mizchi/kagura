@@ -34,6 +34,7 @@ pub(all) struct GameWorld {
   mut auto_nav_path : Array[@terrain.Point]
   mut auto_nav_index : Int
   mut auto_cleared_rooms : Array[Bool]
+  mut reward_cleared_rooms : Array[Bool]
   mut discovered_rooms : Array[Bool]
   mut discovered_rooms_version : Int
   mut select_cursor : Int
@@ -135,6 +136,7 @@ pub fn GameWorld::new(
     auto_nav_path: [],
     auto_nav_index: 0,
     auto_cleared_rooms: Array::make(dungeon.rooms.length(), false),
+    reward_cleared_rooms: Array::make(dungeon.rooms.length(), false),
     discovered_rooms,
     discovered_rooms_version,
     select_cursor: 0,
@@ -240,6 +242,7 @@ pub fn GameWorld::apply_dungeon(
   self.ice_nova_cooldown_timer = 0
   // Reset auto-play navigation
   self.auto_cleared_rooms = Array::make(self.dungeon.rooms.length(), false)
+  self.reward_cleared_rooms = Array::make(self.dungeon.rooms.length(), false)
   let (discovered_rooms, discovered_rooms_version) = initial_discovered_rooms_for_dungeon(
     self.dungeon,
   )
@@ -982,6 +985,71 @@ pub fn GameWorld::tick_floor_completion_phase(self : GameWorld) -> Unit {
 }
 
 ///|
+let room_clear_reward_area_threshold : Int = 80
+
+///|
+let room_clear_large_area_threshold : Int = 150
+
+///|
+pub fn GameWorld::tick_room_clear_rewards(self : GameWorld) -> Unit {
+  // Check each room to see if all its enemies are dead
+  for room_idx = 0; room_idx < self.dungeon.rooms.length(); room_idx = room_idx +
+    1 {
+    if self.reward_cleared_rooms[room_idx] {
+      continue
+    }
+    let room = self.dungeon.rooms[room_idx]
+    let area = room.rect.w * room.rect.h
+    if area < room_clear_reward_area_threshold {
+      continue // small rooms don't get rewards
+    }
+    // Check if any enemy in this room is still alive
+    let mut has_alive = false
+    let mut had_enemies = false
+    for enemy in self.enemies {
+      if enemy.room_index == room_idx {
+        had_enemies = true
+        if enemy.alive {
+          has_alive = true
+          break
+        }
+      }
+    }
+    if not(had_enemies) || has_alive {
+      continue
+    }
+    // Room cleared! Mark and spawn rewards
+    self.reward_cleared_rooms[room_idx] = true
+    let cx = (room.rect.x.to_double() + room.rect.w.to_double() / 2.0) *
+      tile_size
+    let cy = (room.rect.y.to_double() + room.rect.h.to_double() / 2.0) *
+      tile_size
+    self.events.push(RoomCleared(room_idx, cx, cy))
+    // Reward: scale with room size
+    let reward_count = if area >= room_clear_large_area_threshold {
+      4 // large room: generous loot
+    } else {
+      2 // medium room: modest reward
+    }
+    let drop_seed = self.seed * 31 + room_idx * 97 + self.floor * 13
+    for di = 0; di < reward_count; di = di + 1 {
+      let item_seed = drop_seed + di * 37
+      let angle = (item_seed % 628).to_double() / 100.0
+      let scatter_speed = 1.0 + (item_seed % 80).to_double() / 100.0
+      spawn_scatter_item(
+        self,
+        cx,
+        cy,
+        roll_drop_item_kind(self, item_seed),
+        angle,
+        scatter_speed,
+      )
+    }
+    self.push_item_log("ROOM CLEAR!", 0xFFDD44)
+  }
+}
+
+///|
 pub fn GameWorld::tick_player_timers_phase(self : GameWorld) -> Unit {
   if self.player.damage_timer > 0 {
     self.player.damage_timer = self.player.damage_timer - 1
@@ -1133,7 +1201,7 @@ pub fn GameWorld::tick_with_enemy_ai_grid(
   // 8. Auto-cast spell slots based on nearest visible enemy
   let (skill_enemy_idx, skill_enemy_dist_sq) = find_nearest_visible_enemy(self)
   self.auto_activate_spell_slots(skill_enemy_idx, skill_enemy_dist_sq)
-  // 9. Auto-attack: melee slash (Melee) or ranged arrow (others)
+  // 9. Auto-attack: archetype-specific basic attack
   if self.attack_timer > 0 {
     self.attack_timer = self.attack_timer - 1
   } else {
@@ -1147,6 +1215,15 @@ pub fn GameWorld::tick_with_enemy_ai_grid(
           self.attack_timer = @cmp.maximum(3, effective_cd.to_int())
           melee_slash(self)
           self.events.push(AttackTriggered)
+        }
+      }
+      Mage => {
+        // Mage: chain lightning as basic attack
+        let target = find_nearest_enemy(self, chain_lightning_range)
+        if target is Some(_) {
+          if cast_chain_lightning(self) {
+            self.events.push(AttackTriggered)
+          }
         }
       }
       _ => {
@@ -1180,6 +1257,8 @@ pub fn GameWorld::tick_with_enemy_ai_grid(
   self.tick_player_enemy_separation_phase()
   // 17. Enemy-enemy separation
   self.resolve_enemy_enemy_separation()
+  // 17b. Room clear rewards (treasure drops for cleared large rooms)
+  self.tick_room_clear_rewards()
   // 18. Floor completion check
   self.tick_floor_completion_phase()
   // 19. Decrement player damage_timer and iframe_timer

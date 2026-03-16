@@ -16,6 +16,7 @@ fn mk_affix(
   dex_scale? : Double = 0.0,
   spell_dmg? : Double = 0.0,
   chain? : Int = 0,
+  tags? : Array[TagBonusEntry] = [],
 ) -> Affix {
   {
     name,
@@ -34,6 +35,7 @@ fn mk_affix(
     dex_scaling: dex_scale,
     spell_damage_pct: spell_dmg,
     chain_bonus: chain,
+    tag_bonuses: tags,
   }
 }
 
@@ -351,6 +353,7 @@ test "player damage helpers map skills to different core stats" {
     life_steal: 0.0,
     speed_bonus: 0.0,
     cooldown_reduction: 0.0, spell_damage_pct: 0.0, chain_bonus: 0,
+    tag_bonuses: new_tag_bonuses_array(),
   }
   let params = { ..BalanceParams::default(), spell_damage_mult: 1.0 }
   assert_true(
@@ -377,6 +380,7 @@ test "archetype affinity boosts aligned damage and punishes offspec damage" {
     life_steal: 0.0,
     speed_bonus: 0.0,
     cooldown_reduction: 0.0, spell_damage_pct: 0.0, chain_bonus: 0,
+    tag_bonuses: new_tag_bonuses_array(),
   }
   let params = { ..BalanceParams::default(), spell_damage_mult: 1.0 }
   assert_true(

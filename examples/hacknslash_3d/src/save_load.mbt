@@ -166,6 +166,7 @@ fn deserialize_affix(s : String) -> @game.Affix? {
     } else {
       0
     },
+    tag_bonuses: [],
   })
 }
 

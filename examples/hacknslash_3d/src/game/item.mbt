@@ -1,5 +1,40 @@
 // RPG data structures: inventory, skills, equipment, stats
 
+// --- Tag Bonus System ---
+
+///|
+pub(all) struct TagBonus {
+  mut damage_pct : Double
+  mut cooldown_reduction : Double
+  mut extra_targets : Int
+  mut aoe_radius_pct : Double
+  mut crit_bonus : Double
+}
+
+///|
+pub fn TagBonus::zero() -> TagBonus {
+  { damage_pct: 0.0, cooldown_reduction: 0.0, extra_targets: 0, aoe_radius_pct: 0.0, crit_bonus: 0.0 }
+}
+
+///|
+pub(all) struct TagBonusEntry {
+  tag : SkillTag
+  damage_pct : Double
+  cooldown_reduction : Double
+  extra_targets : Int
+  aoe_radius_pct : Double
+  crit_bonus : Double
+}
+
+///|
+pub fn new_tag_bonuses_array() -> Array[TagBonus] {
+  let arr : Array[TagBonus] = []
+  for _i in 0..<skill_tag_count {
+    arr.push(TagBonus::zero())
+  }
+  arr
+}
+
 // --- Item System ---
 
 ///|
@@ -43,8 +78,9 @@ pub(all) struct Affix {
   str_scaling : Double
   int_scaling : Double
   dex_scaling : Double
-  spell_damage_pct : Double // +% spell damage (e.g. 0.15 = +15%)
-  chain_bonus : Int // +chain targets for ChainLightning
+  spell_damage_pct : Double // +% spell damage (legacy, converted to tag bonus)
+  chain_bonus : Int // +chain targets (legacy, converted to tag bonus)
+  tag_bonuses : Array[TagBonusEntry]
 }
 
 ///|

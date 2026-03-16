@@ -8,6 +8,7 @@ pub fn make_enemy(
   hp : Int,
   speed : Double,
   size : Double,
+  room_index~ : Int = -1,
 ) -> Enemy {
   {
     x: cx,
@@ -36,6 +37,7 @@ pub fn make_enemy(
     beam_cast_timer: 0,
     beam_target_x: cx,
     beam_target_y: cy,
+    room_index,
   }
 }
 
@@ -265,7 +267,7 @@ pub fn spawn_enemies_in_rooms_with_params(
         floor,
       )
       let mini_boss_speed = params.scale_enemy_speed_for_floor(0.5, floor)
-      enemies.push(make_enemy(bcx, bcy, Boss, mini_boss_hp, mini_boss_speed, 16.0))
+      enemies.push(make_enemy(bcx, bcy, Boss, mini_boss_hp, mini_boss_speed, 16.0, room_index=i))
     }
     for _j = 0; _j < count; _j = _j + 1 {
       let cx = room.rect.x.to_double() * tile_size +
@@ -284,7 +286,29 @@ pub fn spawn_enemies_in_rooms_with_params(
       )
       let kind = config.kind
       let sz = config.size
-      enemies.push(make_enemy(cx, cy, kind, hp, spd, sz))
+      enemies.push(make_enemy(cx, cy, kind, hp, spd, sz, room_index=i))
+    }
+    // Large rooms (area >= 120): add elite guards for bonus challenge
+    if area >= 120 && i != largest_room_idx {
+      let elite_count = @cmp.minimum(3, area / 80)
+      for _e = 0; _e < elite_count; _e = _e + 1 {
+        let ecx = room.rect.x.to_double() * tile_size +
+          rng.rand_range(2, room.rect.w - 2).to_double() * tile_size +
+          tile_size / 2.0
+        let ecy = room.rect.y.to_double() * tile_size +
+          rng.rand_range(2, room.rect.h - 2).to_double() * tile_size +
+          tile_size / 2.0
+        // Elite: Tank with boosted HP
+        let elite_hp = params.scale_enemy_hp_for_floor(
+          (params.basic_hp * 3.0).to_int().max(3),
+          floor,
+        )
+        let elite_spd = params.scale_enemy_speed_for_floor(
+          params.enemy_speed_basic * 0.7,
+          floor,
+        )
+        enemies.push(make_enemy(ecx, ecy, Tank, elite_hp, elite_spd, 14.0, room_index=i))
+      }
     }
   }
   enemies

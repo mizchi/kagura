@@ -1,6 +1,35 @@
 // --- Skill System ---
 
 ///|
+pub(all) enum SkillTag {
+  Lightning
+  Fire
+  Cold
+  Physical
+  Projectile
+  AoE
+  Defense
+  Utility
+} derive(Eq)
+
+///|
+pub fn skill_tag_to_int(tag : SkillTag) -> Int {
+  match tag {
+    Lightning => 0
+    Fire => 1
+    Cold => 2
+    Physical => 3
+    Projectile => 4
+    AoE => 5
+    Defense => 6
+    Utility => 7
+  }
+}
+
+///|
+pub let skill_tag_count : Int = 8
+
+///|
 pub(all) enum SkillId {
   PowerStrike
   Whirlwind
@@ -13,6 +42,12 @@ pub(all) enum SkillId {
   IceNova
   HomingMissile
   Counter
+  LightningMastery
+  FireMastery
+  ColdMastery
+  PhysicalMastery
+  ProjectileMastery
+  AoEMastery
 } derive(Eq)
 
 ///|
@@ -121,6 +156,49 @@ pub fn SkillTree::new() -> SkillTree {
         tree_x: 0.22, tree_y: 0.7, node_size: 1,
         connections: [],
       },
+      // === MASTERY cluster (bottom row) ===
+      {
+        id: PhysicalMastery, name: "Physical Mastery",
+        max_level: 3, level: 0, cost: 1, icon_id: 21,
+        prereqs: [PowerStrike],
+        tree_x: 0.10, tree_y: 0.88, node_size: 0,
+        connections: [],
+      },
+      {
+        id: AoEMastery, name: "AoE Mastery",
+        max_level: 3, level: 0, cost: 1, icon_id: 22,
+        prereqs: [Whirlwind],
+        tree_x: 0.25, tree_y: 0.92, node_size: 0,
+        connections: [],
+      },
+      {
+        id: LightningMastery, name: "Lightning Mastery",
+        max_level: 3, level: 0, cost: 1, icon_id: 23,
+        prereqs: [ChainLightning],
+        tree_x: 0.58, tree_y: 0.82, node_size: 0,
+        connections: [],
+      },
+      {
+        id: FireMastery, name: "Fire Mastery",
+        max_level: 3, level: 0, cost: 1, icon_id: 24,
+        prereqs: [SplittingFireball],
+        tree_x: 0.92, tree_y: 0.38, node_size: 0,
+        connections: [],
+      },
+      {
+        id: ColdMastery, name: "Cold Mastery",
+        max_level: 3, level: 0, cost: 1, icon_id: 25,
+        prereqs: [IceNova],
+        tree_x: 0.75, tree_y: 0.82, node_size: 0,
+        connections: [],
+      },
+      {
+        id: ProjectileMastery, name: "Projectile Mastery",
+        max_level: 3, level: 0, cost: 1, icon_id: 26,
+        prereqs: [HomingMissile],
+        tree_x: 0.92, tree_y: 0.85, node_size: 0,
+        connections: [],
+      },
     ],
     skill_points: 0,
   }
@@ -209,6 +287,12 @@ pub fn skill_id_to_int(id : SkillId) -> Int {
     IceNova => 8
     HomingMissile => 9
     Counter => 10
+    LightningMastery => 11
+    FireMastery => 12
+    ColdMastery => 13
+    PhysicalMastery => 14
+    ProjectileMastery => 15
+    AoEMastery => 16
   }
 }
 
@@ -225,7 +309,37 @@ pub fn skill_id_from_int(id : Int) -> SkillId? {
     7 => Some(SplittingFireball)
     8 => Some(IceNova)
     9 => Some(HomingMissile)
+    10 => Some(Counter)
+    11 => Some(LightningMastery)
+    12 => Some(FireMastery)
+    13 => Some(ColdMastery)
+    14 => Some(PhysicalMastery)
+    15 => Some(ProjectileMastery)
+    16 => Some(AoEMastery)
     _ => None
+  }
+}
+
+///|
+pub fn skill_tags(id : SkillId) -> Array[SkillTag] {
+  match id {
+    PowerStrike => [Physical]
+    Whirlwind => [Physical, AoE]
+    Counter => [Physical, Defense]
+    ChainLightning => [Lightning, Projectile]
+    SplittingFireball => [Fire, Projectile, AoE]
+    IceNova => [Cold, AoE]
+    HomingMissile => [Projectile]
+    DashMastery => [Utility]
+    Vitality => [Defense]
+    CriticalHit => [Utility, Physical]
+    LifeSteal => [Utility]
+    LightningMastery => [Lightning]
+    FireMastery => [Fire]
+    ColdMastery => [Cold]
+    PhysicalMastery => [Physical]
+    ProjectileMastery => [Projectile]
+    AoEMastery => [AoE]
   }
 }
 

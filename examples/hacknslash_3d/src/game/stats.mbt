@@ -16,8 +16,9 @@ pub(all) struct PlayerStats {
   life_steal : Double
   speed_bonus : Double // total movement speed bonus from equipment
   cooldown_reduction : Double // total attack cooldown reduction from equipment
-  spell_damage_pct : Double // total +% spell damage from equipment
-  chain_bonus : Int // total +chain targets from equipment
+  spell_damage_pct : Double // total +% spell damage (legacy)
+  chain_bonus : Int // total +chain targets (legacy)
+  tag_bonuses : Array[TagBonus] // per-tag bonuses (indexed by skill_tag_to_int)
 }
 
 ///|
@@ -80,6 +81,63 @@ pub fn chain_lightning_targets_for_level(level : Int) -> Int {
 }
 
 ///|
+pub fn tag_damage_multiplier(stats : PlayerStats, skill : SkillId) -> Double {
+  let tags = skill_tags(skill)
+  // damage_pct: take MAX across tags (prevent double-dipping)
+  let mut max_damage_pct = 0.0
+  // crit_bonus: additive across tags
+  let mut _total_crit = 0.0
+  for tag in tags {
+    let idx = skill_tag_to_int(tag)
+    if idx < stats.tag_bonuses.length() {
+      let bonus = stats.tag_bonuses[idx]
+      if bonus.damage_pct > max_damage_pct {
+        max_damage_pct = bonus.damage_pct
+      }
+      _total_crit = _total_crit + bonus.crit_bonus
+    }
+  }
+  // Also include legacy spell_damage_pct (take max with tag bonus)
+  if stats.spell_damage_pct > max_damage_pct {
+    max_damage_pct = stats.spell_damage_pct
+  }
+  1.0 + max_damage_pct
+}
+
+///|
+pub fn effective_aoe_radius(
+  stats : PlayerStats,
+  skill : SkillId,
+  base_radius : Double,
+) -> Double {
+  let tags = skill_tags(skill)
+  let mut total_aoe_pct = 0.0
+  for tag in tags {
+    let idx = skill_tag_to_int(tag)
+    if idx < stats.tag_bonuses.length() {
+      total_aoe_pct = total_aoe_pct + stats.tag_bonuses[idx].aoe_radius_pct
+    }
+  }
+  base_radius * (1.0 + total_aoe_pct)
+}
+
+///|
+pub fn effective_extra_chain_targets(
+  stats : PlayerStats,
+  skill : SkillId,
+) -> Int {
+  let tags = skill_tags(skill)
+  let mut total = stats.chain_bonus // legacy
+  for tag in tags {
+    let idx = skill_tag_to_int(tag)
+    if idx < stats.tag_bonuses.length() {
+      total = total + stats.tag_bonuses[idx].extra_targets
+    }
+  }
+  total
+}
+
+///|
 pub fn player_spell_damage(
   stats : PlayerStats,
   params : BalanceParams,
@@ -96,10 +154,10 @@ pub fn player_spell_damage(
   }
   let scaled = params.scale_spell_damage(base_damage)
   let level_mult = skill_level_damage_multiplier(skill, skill_level)
-  let spell_pct = 1.0 + stats.spell_damage_pct
+  let tag_mult = tag_damage_multiplier(stats, skill)
   @cmp.maximum(
     1,
-    (scaled.to_double() * archetype.skill_damage_multiplier(skill) * level_mult * spell_pct).to_int(),
+    (scaled.to_double() * archetype.skill_damage_multiplier(skill) * level_mult * tag_mult).to_int(),
   )
 }
 
@@ -159,6 +217,69 @@ pub fn compute_player_stats(
     dexterity,
     0.2 + equipment.total_dex_scaling(),
   )
+  // Aggregate tag bonuses from equipment affixes and mastery skills
+  let tag_bonuses = new_tag_bonuses_array()
+  // Collect from equipment affixes
+  let equip_items : Array[ItemData?] = [
+    equipment.weapon, equipment.armor, equipment.accessory,
+  ]
+  for opt_item in equip_items {
+    match opt_item {
+      Some(item) => {
+        let affixes : Array[Affix?] = [item.prefix, item.suffix]
+        for opt_affix in affixes {
+          match opt_affix {
+            Some(affix) =>
+              for entry in affix.tag_bonuses {
+                let idx = skill_tag_to_int(entry.tag)
+                tag_bonuses[idx].damage_pct = tag_bonuses[idx].damage_pct +
+                  entry.damage_pct
+                tag_bonuses[idx].cooldown_reduction = tag_bonuses[idx].cooldown_reduction +
+                  entry.cooldown_reduction
+                tag_bonuses[idx].extra_targets = tag_bonuses[idx].extra_targets +
+                  entry.extra_targets
+                tag_bonuses[idx].aoe_radius_pct = tag_bonuses[idx].aoe_radius_pct +
+                  entry.aoe_radius_pct
+                tag_bonuses[idx].crit_bonus = tag_bonuses[idx].crit_bonus +
+                  entry.crit_bonus
+              }
+            None => ()
+          }
+        }
+      }
+      None => ()
+    }
+  }
+  // Convert legacy spell_damage_pct/chain_bonus into tag bonuses
+  // (legacy spell_damage_pct stays on PlayerStats for backward compat)
+  // Mastery skill bonuses
+  let mastery_skills : Array[(SkillId, Int)] = [
+    (LightningMastery, skill_tag_to_int(Lightning)),
+    (FireMastery, skill_tag_to_int(Fire)),
+    (ColdMastery, skill_tag_to_int(Cold)),
+    (PhysicalMastery, skill_tag_to_int(Physical)),
+    (ProjectileMastery, skill_tag_to_int(Projectile)),
+    (AoEMastery, skill_tag_to_int(AoE)),
+  ]
+  for pair in mastery_skills {
+    let (mastery_id, tag_idx) = pair
+    let mastery_level = skills.get_level(mastery_id)
+    if mastery_level > 0 {
+      let per_level_dmg = 0.08 // +8% damage per level
+      let per_level_crit = 0.02 // +2% crit per level
+      tag_bonuses[tag_idx].damage_pct = tag_bonuses[tag_idx].damage_pct +
+        mastery_level.to_double() * per_level_dmg
+      tag_bonuses[tag_idx].crit_bonus = tag_bonuses[tag_idx].crit_bonus +
+        mastery_level.to_double() * per_level_crit
+    }
+  }
+  // AoE mastery also adds aoe_radius_pct
+  let aoe_mastery_level = skills.get_level(AoEMastery)
+  if aoe_mastery_level > 0 {
+    let aoe_idx = skill_tag_to_int(AoE)
+    tag_bonuses[aoe_idx].aoe_radius_pct = tag_bonuses[aoe_idx].aoe_radius_pct +
+      aoe_mastery_level.to_double() * 0.10
+  }
   {
     max_hp: {
       let hp_mod = match archetype {
@@ -188,6 +309,7 @@ pub fn compute_player_stats(
     cooldown_reduction: equipment.total_cooldown_reduction(),
     spell_damage_pct: equipment.total_spell_damage_pct(),
     chain_bonus: equipment.total_chain_bonus(),
+    tag_bonuses,
   }
 }
 
@@ -238,7 +360,8 @@ pub fn compute_skill_dps(
         ChainLightning,
         skill_level=level,
       )
-      let targets = chain_lightning_targets_for_level(level) + stats.chain_bonus
+      let targets = chain_lightning_targets_for_level(level) +
+        effective_extra_chain_targets(stats, ChainLightning)
       (dmg, targets, params.chain_lightning_cooldown_frames())
     }
     SplittingFireball => {

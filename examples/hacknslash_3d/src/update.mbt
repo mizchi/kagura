@@ -605,6 +605,12 @@ fn GameState::update_playing(self : GameState) -> Unit {
         spawn_death_burst(self.particle_manager, x, y)
         spawn_hit_sparks(self.particle_manager, x, y)
       }
+      @game.RoomCleared(_room_idx, x, y) => {
+        // Celebration burst for room clear
+        spawn_death_burst(self.particle_manager, x, y)
+        spawn_death_burst(self.particle_manager, x, y)
+        self.queue_fireball_burst_effect(x, y)
+      }
       @game.AttackTriggered => self.character.trigger_attack()
       @game.HurtTriggered => self.character.trigger_hurt()
       @game.FloorComplete => {

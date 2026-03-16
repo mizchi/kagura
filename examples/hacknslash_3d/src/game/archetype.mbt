@@ -150,10 +150,10 @@ pub fn CharacterArchetype::allowed_skills(
   self : CharacterArchetype,
 ) -> Array[SkillId] {
   match self {
-    Melee => [PowerStrike, Whirlwind, DashMastery, Vitality, CriticalHit, LifeSteal, Counter]
-    Mage => [ChainLightning, SplittingFireball, IceNova, DashMastery, Vitality, HomingMissile]
-    Summoner => [HomingMissile, IceNova, ChainLightning, DashMastery, Vitality, LifeSteal]
-    Ranger => [CriticalHit, DashMastery, Vitality, LifeSteal, PowerStrike, HomingMissile]
+    Melee => [PowerStrike, Whirlwind, DashMastery, Vitality, CriticalHit, LifeSteal, Counter, PhysicalMastery, AoEMastery]
+    Mage => [ChainLightning, SplittingFireball, IceNova, DashMastery, Vitality, HomingMissile, LightningMastery, FireMastery, ColdMastery]
+    Summoner => [HomingMissile, IceNova, ChainLightning, DashMastery, Vitality, LifeSteal, ProjectileMastery, ColdMastery]
+    Ranger => [CriticalHit, DashMastery, Vitality, LifeSteal, PowerStrike, HomingMissile, ProjectileMastery, PhysicalMastery]
   }
 }
 
@@ -180,53 +180,66 @@ pub fn CharacterArchetype::offer_priority(
       PowerStrike => 0
       Counter => 1
       Whirlwind => 2
-      Vitality => 3
-      CriticalHit => 4
-      LifeSteal => 5
-      DashMastery => 6
-      HomingMissile => 7
-      ChainLightning => 8
-      IceNova => 9
-      SplittingFireball => 10
+      PhysicalMastery => 3
+      AoEMastery => 4
+      Vitality => 5
+      CriticalHit => 6
+      LifeSteal => 7
+      DashMastery => 8
+      HomingMissile => 9
+      ChainLightning => 10
+      IceNova => 11
+      SplittingFireball => 12
+      _ => 20
     }
     Mage => match id {
       ChainLightning => 0
       SplittingFireball => 1
       IceNova => 2
-      Vitality => 3
-      DashMastery => 4
-      HomingMissile => 5
-      CriticalHit => 6
-      LifeSteal => 7
-      PowerStrike => 8
-      Whirlwind => 9
-      Counter => 10
+      LightningMastery => 3
+      FireMastery => 4
+      ColdMastery => 5
+      Vitality => 6
+      DashMastery => 7
+      HomingMissile => 8
+      CriticalHit => 9
+      LifeSteal => 10
+      PowerStrike => 11
+      Whirlwind => 12
+      Counter => 13
+      _ => 20
     }
     Summoner => match id {
       HomingMissile => 0
       IceNova => 1
-      Vitality => 2
-      DashMastery => 3
-      ChainLightning => 4
-      LifeSteal => 5
-      SplittingFireball => 6
-      CriticalHit => 7
-      PowerStrike => 8
-      Whirlwind => 9
-      Counter => 10
+      ProjectileMastery => 2
+      ColdMastery => 3
+      Vitality => 4
+      DashMastery => 5
+      ChainLightning => 6
+      LifeSteal => 7
+      SplittingFireball => 8
+      CriticalHit => 9
+      PowerStrike => 10
+      Whirlwind => 11
+      Counter => 12
+      _ => 20
     }
     Ranger => match id {
       CriticalHit => 0
       DashMastery => 1
-      Vitality => 2
-      LifeSteal => 3
-      HomingMissile => 4
-      PowerStrike => 5
-      ChainLightning => 6
-      SplittingFireball => 7
-      IceNova => 8
-      Whirlwind => 9
-      Counter => 10
+      ProjectileMastery => 2
+      PhysicalMastery => 3
+      Vitality => 4
+      LifeSteal => 5
+      HomingMissile => 6
+      PowerStrike => 7
+      ChainLightning => 8
+      SplittingFireball => 9
+      IceNova => 10
+      Whirlwind => 11
+      Counter => 12
+      _ => 20
     }
   }
 }
@@ -266,6 +279,8 @@ pub fn CharacterArchetype::skill_damage_multiplier(
       PowerStrike | Whirlwind | Counter => 1.35
       ChainLightning | SplittingFireball | IceNova => 0.7
       HomingMissile => 0.8
+      LightningMastery | FireMastery | ColdMastery | PhysicalMastery |
+      ProjectileMastery | AoEMastery => 1.0
       _ => 1.0
     }
     Mage => match id {
@@ -273,18 +288,24 @@ pub fn CharacterArchetype::skill_damage_multiplier(
       SplittingFireball | IceNova => 1.0
       HomingMissile => 0.65
       PowerStrike | Whirlwind => 0.55
+      LightningMastery | FireMastery | ColdMastery | PhysicalMastery |
+      ProjectileMastery | AoEMastery => 1.0
       _ => 1.0
     }
     Summoner => match id {
       HomingMissile => 1.4
       ChainLightning | SplittingFireball => 0.8
       PowerStrike | Whirlwind => 0.7
+      LightningMastery | FireMastery | ColdMastery | PhysicalMastery |
+      ProjectileMastery | AoEMastery => 1.0
       _ => 1.0
     }
     Ranger => match id {
       HomingMissile => 1.05
       ChainLightning | SplittingFireball | IceNova => 0.75
       PowerStrike | Whirlwind => 0.85
+      LightningMastery | FireMastery | ColdMastery | PhysicalMastery |
+      ProjectileMastery | AoEMastery => 1.0
       _ => 1.0
     }
   }

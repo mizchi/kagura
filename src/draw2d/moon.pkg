@@ -1,4 +1,0 @@
-import {
-  "mizchi/kagura/asset" @asset,
-  "mizchi/kagura/gfx" @gfx,
-}

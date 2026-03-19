@@ -1,0 +1,4 @@
+import {
+  "moonbitlang/core/math" @math,
+  "mizchi/kagura/core/math3d" @math3d,
+}

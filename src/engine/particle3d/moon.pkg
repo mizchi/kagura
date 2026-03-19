@@ -1,0 +1,6 @@
+import {
+  "mizchi/kagura/core/camera3d" @camera3d,
+  "mizchi/kagura/engine/draw3d" @draw3d,
+  "mizchi/kagura/engine/gfx" @gfx,
+  "mizchi/kagura/core/math3d" @math3d,
+}

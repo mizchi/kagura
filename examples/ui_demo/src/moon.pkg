@@ -1,10 +1,10 @@
 import {
   "mizchi/kagura/core" @core,
-  "mizchi/kagura/debugutil" @debugutil,
+  "mizchi/kagura/engine/debugutil" @debugutil,
   "mizchi/kagura/engine" @engine,
-  "mizchi/kagura/gfx" @gfx,
-  "mizchi/kagura/inpututil" @inpututil,
-  "mizchi/kagura/ui" @ui,
+  "mizchi/kagura/engine/gfx" @gfx,
+  "mizchi/kagura/core/inpututil" @inpututil,
+  "mizchi/kagura/engine/ui" @ui,
   "mizchi/web_runtime_hooks" @web_hooks,
 }
 

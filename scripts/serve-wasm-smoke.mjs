@@ -81,7 +81,7 @@ const VRT_EXAMPLES = [
   "fps_demo", "arena3d", "collision3d_demo", "physics2d_demo",
   "physics3d_demo", "postfx_demo", "shadow3d_demo", "skeletal_anim",
   "ragdoll_demo", "obj_viewer", "gltf_viewer", "fetch_image",
-  "hacknslash_3d", "effect_studio",
+  "hacknslash_3d", "effect_studio", "draw2d_ui_demo",
 ];
 
 for (const name of VRT_EXAMPLES) {
@@ -127,6 +127,7 @@ const ASSET_EXAMPLES = {
   fetch_image: [["assets/sample.png", "/examples/fetch_image/assets/sample.png"]],
   gltf_viewer: [["assets/test_scene.glb", "/examples/gltf_viewer/assets/test_scene.glb"]],
   obj_viewer: [["assets/bunny.obj", "/examples/obj_viewer/assets/bunny.obj"]],
+  draw2d_ui_demo: [["assets/Tiny5-Regular.ttf", "/examples/draw2d_ui_demo/assets/Tiny5-Regular.ttf"]],
 };
 
 const generateVrtHtml = (name) => {

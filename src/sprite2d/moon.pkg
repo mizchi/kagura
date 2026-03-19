@@ -1,6 +1,0 @@
-import {
-  "moonbitlang/core/bench" @bench,
-  "mizchi/kagura/asset" @asset,
-  "mizchi/kagura/draw2d" @draw2d,
-  "mizchi/kagura/gfx" @gfx,
-}

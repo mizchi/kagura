@@ -1,14 +1,14 @@
 import {
-  "mizchi/kagura/asset" @asset,
-  "mizchi/kagura/audio" @audio,
+  "mizchi/kagura/engine/asset" @asset,
+  "mizchi/kagura/engine/audio" @audio,
   "mizchi/kagura/core" @core,
   "mizchi/kagura/engine" @engine,
-  "mizchi/kagura/gfx" @gfx,
-  "mizchi/kagura/gfx_wgpu_native" @wgpu_native,
-  "mizchi/kagura/image_palette" @image_palette,
-  "mizchi/kagura/payload2d" @payload2d,
-  "mizchi/kagura/platform" @platform,
-  "mizchi/kagura/text" @text,
+  "mizchi/kagura/engine/gfx" @gfx,
+  "mizchi/kagura/engine/gfx_wgpu_native" @wgpu_native,
+  "mizchi/kagura/core/image_palette" @image_palette,
+  "mizchi/kagura/core/payload2d" @payload2d,
+  "mizchi/kagura/engine/platform" @platform,
+  "mizchi/kagura/engine/text" @text,
 }
 
 warnings = "-1-7-29"

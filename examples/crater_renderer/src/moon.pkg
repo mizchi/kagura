@@ -1,0 +1,20 @@
+import {
+  "mizchi/kagura/engine" @engine,
+  "mizchi/kagura/engine/gfx" @gfx,
+  "mizchi/kagura/engine/asset" @asset,
+  "mizchi/kagura/engine/debugutil" @debugutil,
+  "mizchi/kagura/engine/draw2d_ui" @draw2d_ui,
+  "mizchi/kagura/engine/text" @text,
+  "mizchi/kagura/core/image_palette" @image_palette,
+  "mizchi/crater/renderer" @renderer,
+  "mizchi/crater/paint" @paint,
+  "mizchi/crater/types" @crater_types,
+  "mizchi/web_runtime_hooks" @web_hooks,
+}
+
+warnings = "-1-2-29"
+
+options(
+  "is-main": true,
+  "supported-targets": [ "js" ],
+)

@@ -1,0 +1,10 @@
+import {
+  "mizchi/kagura/core" @core,
+  "mizchi/kagura/engine/gfx" @gfx,
+  "mizchi/kagura/core/inpututil" @inpututil,
+  "mizchi/kagura/engine/platform" @platform,
+}
+
+options(
+  "native-stub": [ "runtime_clock_native.c" ],
+)

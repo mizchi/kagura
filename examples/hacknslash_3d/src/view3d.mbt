@@ -201,7 +201,7 @@ fn GameState::draw_playing(
   )
   let lighting = self.lighting
   let cmds : Array[@gfx.DrawTrianglesCommand] = []
-  let rt = self.scene_target
+  let rt = self.pipeline.scene_target
   let identity = @math3d.Mat4::identity()
   let visible_dungeon_cache = self.get_visible_dungeon_mesh_cache_for_player()
   // === Pass 1-2: Dungeon shadow/depth + shaded geometry ===
@@ -256,90 +256,23 @@ fn GameState::draw_playing(
     ctx.screen_h,
     self.world.frame_count,
   )
-  // === Camera depth pass (needed for SSAO and fog) ===
-  let casters : Array[@shadow3d.ShadowCaster] = []
+  // === PostFX pipeline: camera depth → SSAO → bloom → tonemap → FXAA ===
+  let depth_casters : Array[@shadow3d.ShadowCaster] = []
   if visible_dungeon_cache.all_mesh.indices.length() > 0 {
-    casters.push(
+    depth_casters.push(
       @shadow3d.ShadowCaster::new(visible_dungeon_cache.all_mesh, identity),
     )
   }
-  let depth_cmds = @shadow3d.camera_depth_pass_commands(
-    self.camera_depth_target,
-    self.camera_depth_shader,
-    casters,
+  let postfx_cmds = self.pipeline.compose_postfx(
+    ctx.dst,
+    depth_casters,
     view_projection,
-  )
-  for cmd in depth_cmds {
-    cmds.push(cmd)
-  }
-  let bloom_input_id = if self.ssao_config.enabled {
-    // === SSAO pass ===
-    cmds.push(
-      @postfx.new_ssao_command(
-        self.ssao_target,
-        self.ssao_sh,
-        self.scene_target.id,
-        self.camera_depth_target.id,
-        self.ssao_config.radius,
-        self.ssao_config.bias,
-        self.ssao_config.intensity,
-        ctx.screen_w,
-        ctx.screen_h,
-      ),
-    )
-    self.ssao_target.id
-  } else {
-    self.scene_target.id
-  }
-  // === Pass 9: Bloom (threshold → hblur → vblur → composite) ===
-  let bloom_cmds = @postfx.bloom_commands(
-    self.post_target,
-    bloom_input_id,
-    self.bloom_a,
-    self.bloom_b,
-    self.bloom_threshold_sh,
-    self.bloom_hblur_sh,
-    self.bloom_vblur_sh,
-    self.bloom_composite_sh,
-    0.8,
-    0.3,
     ctx.screen_w,
     ctx.screen_h,
+    hit_flash=self.world.screen_flash,
   )
-  for cmd in bloom_cmds {
+  for cmd in postfx_cmds {
     cmds.push(cmd)
-  }
-  // === PostFX: tonemap → optional FXAA ===
-  let hit_flash = self.world.screen_flash
-  if self.fxaa_enabled {
-    cmds.push(
-      @postfx.new_tonemap_command(
-        self.bloom_b,
-        self.tonemap_sh,
-        self.post_target.id,
-        1.0,
-        hit_flash=hit_flash,
-      ),
-    )
-    cmds.push(
-      @postfx.new_fxaa_command(
-        ctx.dst,
-        self.fxaa_sh,
-        self.bloom_b.id,
-        ctx.screen_w,
-        ctx.screen_h,
-      ),
-    )
-  } else {
-    cmds.push(
-      @postfx.new_tonemap_command(
-        ctx.dst,
-        self.tonemap_sh,
-        self.post_target.id,
-        1.0,
-        hit_flash=hit_flash,
-      ),
-    )
   }
   // 2D HUD overlay
   let hud_cmds = self.render_hud_cmds(ctx.dst, ctx.shader)

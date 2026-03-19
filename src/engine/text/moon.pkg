@@ -1,0 +1,6 @@
+import {
+  "moonbitlang/core/bench" @bench,
+  "mizchi/kagura/engine/gfx" @gfx,
+  "mizchi/font" @font,
+  "mizchi/svg" @msvg,
+}

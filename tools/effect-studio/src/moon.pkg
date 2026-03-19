@@ -1,7 +1,7 @@
 import {
   "moonbitlang/core/math" @math,
-  "mizchi/kagura/math3d" @math3d,
-  "mizchi/kagura/particle3d" @particle3d,
+  "mizchi/kagura/core/math3d" @math3d,
+  "mizchi/kagura/engine/particle3d" @particle3d,
 }
 
 warnings = "-1-2-29-71"

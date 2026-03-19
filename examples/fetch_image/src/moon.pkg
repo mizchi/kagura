@@ -1,8 +1,8 @@
 import {
-  "mizchi/kagura/asset" @asset,
+  "mizchi/kagura/engine/asset" @asset,
   "mizchi/kagura/engine" @engine,
-  "mizchi/kagura/gfx" @gfx,
-  "mizchi/kagura/sprite2d" @sprite2d,
+  "mizchi/kagura/engine/gfx" @gfx,
+  "mizchi/kagura/engine/sprite2d" @sprite2d,
   "mizchi/web_runtime_hooks" @web_hooks,
 }
 

@@ -2,7 +2,7 @@ import {
   "mizchi/signals" @signals,
   "mizchi/kagura/scene" @scene,
   "mizchi/kagura/core" @core,
-  "mizchi/kagura/inpututil" @inpututil,
+  "mizchi/kagura/core/inpututil" @inpututil,
   "mizchi/web_runtime_hooks" @web_hooks,
 }
 

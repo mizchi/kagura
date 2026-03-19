@@ -21,8 +21,11 @@ fn bench_visible_region(state : GameState) -> VisibleRegion {
 
 ///|
 fn bench_state_with_all_effects_enabled() -> GameState {
-  let state = GameState::new_with_ssao(seed=42, SSAOConfig::enabled_default())
-  state.fxaa_enabled = true
+  let state = GameState::new_with_ssao(
+    seed=42,
+    @render_pipeline3d.SSAOConfig::enabled_default(),
+  )
+  state.pipeline.set_fxaa_enabled(true)
   state.shadows_enabled = true
   state
 }
@@ -377,7 +380,7 @@ test "bench hacknslash_3d entities_pass default" (b : @bench.T) {
       state,
       vis_region,
       camera,
-      state.scene_target,
+      state.pipeline.scene_target,
       ctx.screen_w,
       ctx.screen_h,
       commands,
@@ -414,7 +417,7 @@ test "bench hacknslash_3d entities_items_draw default" (b : @bench.T) {
     push_item_instance_cmds(
       state,
       view_projection,
-      state.scene_target,
+      state.pipeline.scene_target,
       ctx.screen_w,
       ctx.screen_h,
       commands,
@@ -436,7 +439,7 @@ test "bench hacknslash_3d entities_arrows_draw default" (b : @bench.T) {
     push_arrow_instance_cmds(
       state,
       view_projection,
-      state.scene_target,
+      state.pipeline.scene_target,
       ctx.screen_w,
       ctx.screen_h,
       commands,
@@ -460,7 +463,7 @@ test "bench hacknslash_3d entities_enemy_projectiles_draw default" (
     push_enemy_projectile_instance_cmds(
       state,
       view_projection,
-      state.scene_target,
+      state.pipeline.scene_target,
       ctx.screen_w,
       ctx.screen_h,
       commands,
@@ -481,7 +484,7 @@ test "bench hacknslash_3d character_pass default" (b : @bench.T) {
     state.push_character_commands(
       vis_region,
       camera,
-      state.scene_target,
+      state.pipeline.scene_target,
       ctx.screen_w,
       ctx.screen_h,
       commands,
@@ -502,7 +505,7 @@ test "bench hacknslash_3d enemy_character_pass default" (b : @bench.T) {
     state.push_enemy_character_commands(
       vis_region,
       camera,
-      state.scene_target,
+      state.pipeline.scene_target,
       ctx.screen_w,
       ctx.screen_h,
       commands,
@@ -523,7 +526,7 @@ test "bench hacknslash_3d enemy_character_pass stress_enemies_64" (b : @bench.T)
     state.push_enemy_character_commands(
       vis_region,
       camera,
-      state.scene_target,
+      state.pipeline.scene_target,
       ctx.screen_w,
       ctx.screen_h,
       commands,
@@ -546,7 +549,7 @@ test "bench hacknslash_3d enemy_character_pass stress_enemies_256" (
     state.push_enemy_character_commands(
       vis_region,
       camera,
-      state.scene_target,
+      state.pipeline.scene_target,
       ctx.screen_w,
       ctx.screen_h,
       commands,
@@ -802,7 +805,7 @@ test "bench hacknslash_3d enemy_character_groups_draw stress_enemies_64" (
       state.enemy_render_buckets,
       enemy_skinning,
       view_projection,
-      state.scene_target,
+      state.pipeline.scene_target,
       ctx.screen_w,
       ctx.screen_h,
       commands,
@@ -828,7 +831,7 @@ test "bench hacknslash_3d enemy_character_groups_draw stress_enemies_256" (
       state.enemy_render_buckets,
       enemy_skinning,
       view_projection,
-      state.scene_target,
+      state.pipeline.scene_target,
       ctx.screen_w,
       ctx.screen_h,
       commands,
@@ -847,7 +850,7 @@ test "bench hacknslash_3d player_character_pass default" (b : @bench.T) {
     let commands : Array[@gfx.DrawTrianglesCommand] = []
     state.push_player_character_commands(
       camera,
-      state.scene_target,
+      state.pipeline.scene_target,
       ctx.screen_w,
       ctx.screen_h,
       commands,
@@ -876,7 +879,7 @@ test "bench hacknslash_3d dungeon_pass default" (b : @bench.T) {
       visible_dungeon_cache.all_mesh,
       view_projection,
       shadow_state,
-      state.scene_target,
+      state.pipeline.scene_target,
       commands,
     )
     b.keep(commands.length())
@@ -893,7 +896,7 @@ test "bench hacknslash_3d particles_pass active" (b : @bench.T) {
     let commands : Array[@gfx.DrawTrianglesCommand] = []
     state.particle_manager.append_draw_commands(
       commands,
-      state.scene_target,
+      state.pipeline.scene_target,
       camera,
       ctx.screen_w,
       ctx.screen_h,
@@ -934,7 +937,7 @@ test "bench hacknslash_3d dungeon_pass shadows" (b : @bench.T) {
       visible_dungeon_cache.all_mesh,
       view_projection,
       shadow_state,
-      state.scene_target,
+      state.pipeline.scene_target,
       commands,
     )
     b.keep(commands.length())

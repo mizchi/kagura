@@ -149,26 +149,9 @@ struct GameState {
   mut audio_last_played_state : String
   mut dungeon_floor_texture_image_id : Int?
   mut dungeon_wall_texture_image_id : Int?
-  // PostFX
-  scene_target : @gfx.ImageHandle
-  bloom_a : @gfx.ImageHandle
-  bloom_b : @gfx.ImageHandle
-  post_target : @gfx.ImageHandle
-  bloom_threshold_sh : @gfx.ShaderHandle
-  bloom_hblur_sh : @gfx.ShaderHandle
-  bloom_vblur_sh : @gfx.ShaderHandle
-  bloom_composite_sh : @gfx.ShaderHandle
-  mut fxaa_enabled : Bool
-  fxaa_sh : @gfx.ShaderHandle
-  tonemap_sh : @gfx.ShaderHandle
+  // PostFX pipeline
+  pipeline : @render_pipeline3d.RenderPipeline3D
   fog_sh : @gfx.ShaderHandle
-  // Camera depth (for SSAO)
-  camera_depth_target : @gfx.ImageHandle
-  camera_depth_shader : @gfx.ShaderHandle
-  // SSAO
-  ssao_config : SSAOConfig
-  ssao_sh : @gfx.ShaderHandle
-  ssao_target : @gfx.ImageHandle
   // Particles
   particle_manager : @particle3d.ParticleManager
   // UI icons

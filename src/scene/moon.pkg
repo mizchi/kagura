@@ -1,11 +1,11 @@
 import {
   "mizchi/signals/ui" @ui,
   "mizchi/kagura/core" @core,
-  "mizchi/kagura/gfx" @gfx,
-  "mizchi/kagura/audio" @audio,
-  "mizchi/kagura/debugutil" @debugutil,
-  "mizchi/kagura/platform" @platform,
-  "mizchi/kagura/runtime" @runtime,
+  "mizchi/kagura/engine/gfx" @gfx,
+  "mizchi/kagura/engine/audio" @audio,
+  "mizchi/kagura/engine/debugutil" @debugutil,
+  "mizchi/kagura/engine/platform" @platform,
+  "mizchi/kagura/engine/runtime" @runtime,
   "mizchi/kagura/engine" @engine,
 }
 

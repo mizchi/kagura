@@ -19,19 +19,10 @@ struct DemoState {
   cube_mesh : @mesh3d.Mesh3D
   sphere_mesh : @mesh3d.Mesh3D
   ground_mesh : @mesh3d.Mesh3D
-  // PostFX render targets
-  scene_target : @gfx.ImageHandle
-  bloom_a : @gfx.ImageHandle
-  bloom_b : @gfx.ImageHandle
-  post_target : @gfx.ImageHandle
   // Shaders
   shader3d : @gfx.ShaderHandle
-  bloom_threshold_sh : @gfx.ShaderHandle
-  bloom_hblur_sh : @gfx.ShaderHandle
-  bloom_vblur_sh : @gfx.ShaderHandle
-  bloom_composite_sh : @gfx.ShaderHandle
-  fxaa_sh : @gfx.ShaderHandle
-  tonemap_sh : @gfx.ShaderHandle
+  // PostFX pipeline
+  pipeline : @render_pipeline3d.RenderPipeline3D
   // Scene
   mut camera : @camera3d.OrbitCamera
   lighting : @light3d.LightingEnvironment
@@ -41,31 +32,9 @@ struct DemoState {
 
 ///|
 fn DemoState::new() -> DemoState {
-  // Intermediate render targets
-  let scene_target = @gfx.new_image_handle(100, screen_w, screen_h)
-  let bloom_a = @gfx.new_image_handle(101, screen_w, screen_h)
-  let bloom_b = @gfx.new_image_handle(102, screen_w, screen_h)
-  let post_target = @gfx.new_image_handle(103, screen_w, screen_h)
   // 3D lit shader
   let shader3d = @gfx.new_shader_handle(
     10, @draw3d.shader3d_lit_untextured_wgsl(),
-  )
-  // PostFX shaders
-  let bloom_threshold_sh = @gfx.new_shader_handle(
-    100, @postfx.bloom_threshold_wgsl(),
-  )
-  let bloom_hblur_sh = @gfx.new_shader_handle(
-    101, @postfx.bloom_blur_wgsl(true),
-  )
-  let bloom_vblur_sh = @gfx.new_shader_handle(
-    102, @postfx.bloom_blur_wgsl(false),
-  )
-  let bloom_composite_sh = @gfx.new_shader_handle(
-    103, @postfx.bloom_composite_wgsl(),
-  )
-  let fxaa_sh = @gfx.new_shader_handle(104, @postfx.fxaa_wgsl())
-  let tonemap_sh = @gfx.new_shader_handle(
-    105, @postfx.tonemap_wgsl(@postfx.ACES),
   )
   let camera = @camera3d.OrbitCamera::new(
     @math3d.Vec3::new(0.0, 1.0, 0.0),
@@ -90,17 +59,18 @@ fn DemoState::new() -> DemoState {
     cube_mesh: @mesh3d.Mesh3D::cube(1.0),
     sphere_mesh: @mesh3d.Mesh3D::sphere(0.7, 8, 6),
     ground_mesh: @mesh3d.Mesh3D::plane(16.0, 16.0),
-    scene_target,
-    bloom_a,
-    bloom_b,
-    post_target,
     shader3d,
-    bloom_threshold_sh,
-    bloom_hblur_sh,
-    bloom_vblur_sh,
-    bloom_composite_sh,
-    fxaa_sh,
-    tonemap_sh,
+    pipeline: @render_pipeline3d.RenderPipeline3D::new(
+      100,
+      screen_w,
+      screen_h,
+      @render_pipeline3d.PostFXConfig::{
+        fxaa_enabled: true,
+        ssao_config: @render_pipeline3d.SSAOConfig::disabled_default(),
+        bloom_threshold: 0.4,
+        bloom_intensity: 2.0,
+      },
+    ),
     camera,
     lighting,
     input: @inpututil.new_input_helper(),
@@ -184,41 +154,25 @@ fn DemoState::draw(
   ctx : @engine.EngineContext,
 ) -> Array[@gfx.DrawTrianglesCommand] {
   let all_cmds : Array[@gfx.DrawTrianglesCommand] = []
-  // 1. Render scene to intermediate target
+  // 1. Render scene to pipeline's scene target
   let scene = self.build_scene()
   let scene_cmds = @scene3d.render_scene3d_gpu(
-    scene, self.scene_target, self.shader3d, ctx.screen_w, ctx.screen_h,
+    scene, self.pipeline.scene_target, self.shader3d, ctx.screen_w, ctx.screen_h,
   )
   for cmd in scene_cmds {
     all_cmds.push(cmd)
   }
-  // 2. Bloom: scene_target -> post_target
-  let bloom_cmds = @postfx.bloom_commands(
-    self.post_target,
-    self.scene_target.id,
-    self.bloom_a,
-    self.bloom_b,
-    self.bloom_threshold_sh,
-    self.bloom_hblur_sh,
-    self.bloom_vblur_sh,
-    self.bloom_composite_sh,
-    0.4,
-    2.0,
-    screen_w,
-    screen_h,
+  // 2. PostFX: bloom → tonemap → FXAA
+  let view_projection = self.camera.to_camera3d().view_projection_matrix()
+  let postfx_cmds = self.pipeline.compose_postfx(
+    ctx.dst,
+    [], // no depth casters
+    view_projection,
+    ctx.screen_w,
+    ctx.screen_h,
   )
-  for cmd in bloom_cmds {
+  for cmd in postfx_cmds {
     all_cmds.push(cmd)
   }
-  // 3. Tonemap: post_target -> scene_target (reuse as intermediate)
-  let tonemap_cmd = @postfx.new_tonemap_command(
-    self.scene_target, self.tonemap_sh, self.post_target.id, 1.0,
-  )
-  all_cmds.push(tonemap_cmd)
-  // 4. FXAA: scene_target -> final output (ctx.dst)
-  let fxaa_cmd = @postfx.new_fxaa_command(
-    ctx.dst, self.fxaa_sh, self.scene_target.id, screen_w, screen_h,
-  )
-  all_cmds.push(fxaa_cmd)
   all_cmds
 }

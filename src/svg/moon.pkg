@@ -1,4 +1,0 @@
-import {
-  "mizchi/kagura/vector" @vector,
-  "mizchi/svg" @msvg,
-}

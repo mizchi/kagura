@@ -1,0 +1,12 @@
+import {
+  "mizchi/kagura/engine/asset" @asset,
+  "mizchi/kagura/engine/gfx" @gfx,
+}
+
+options(
+  targets: {
+    "contracts.mbt": [ "js" ],
+    "contracts_wbtest.mbt": [ "js" ],
+    "streamer_wbtest.mbt": [ "js" ],
+  },
+)

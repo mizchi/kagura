@@ -1,10 +1,10 @@
 import {
   "mizchi/kagura/ecs" @ecs,
-  "mizchi/kagura/math3d" @math3d,
-  "mizchi/kagura/transform3d" @transform3d,
+  "mizchi/kagura/core/math3d" @math3d,
+  "mizchi/kagura/core/transform3d" @transform3d,
   "mizchi/kagura/scene" @scene,
   "mizchi/kagura/core" @core,
-  "mizchi/kagura/inpututil" @inpututil,
+  "mizchi/kagura/core/inpututil" @inpututil,
   "mizchi/web_runtime_hooks" @web_hooks,
 }
 

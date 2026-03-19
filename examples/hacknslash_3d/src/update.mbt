@@ -1,11 +1,6 @@
 // Game state construction, update logic, reset
 
 ///|
-fn half_res_target_size(size : Int) -> Int {
-  Int::max(1, size / 2)
-}
-
-///|
 let key_m : Int = 77
 
 ///|
@@ -13,21 +8,26 @@ let key_p : Int = 80
 
 ///|
 fn GameState::new(seed~ : Int) -> GameState {
-  GameState::new_with_params_and_ssao(
+  GameState::new_with_params(
     seed~,
     @game.BalanceParams::default(),
-    SSAOConfig::disabled_default(),
     archetype=@game.default_character_archetype(),
     build_policy=@game.default_archetype_build_policy(),
   )
 }
 
 ///|
-fn GameState::new_with_ssao(seed~ : Int, ssao_config : SSAOConfig) -> GameState {
-  GameState::new_with_params_and_ssao(
+fn GameState::new_with_ssao(
+  seed~ : Int,
+  ssao_config : @render_pipeline3d.SSAOConfig,
+) -> GameState {
+  GameState::new_with_params(
     seed~,
     @game.BalanceParams::default(),
-    ssao_config,
+    postfx_config=@render_pipeline3d.PostFXConfig::{
+      ..@render_pipeline3d.PostFXConfig::default(),
+      ssao_config,
+    },
     archetype=@game.default_character_archetype(),
     build_policy=@game.default_archetype_build_policy(),
   )
@@ -37,23 +37,7 @@ fn GameState::new_with_ssao(seed~ : Int, ssao_config : SSAOConfig) -> GameState 
 fn GameState::new_with_params(
   seed~ : Int,
   params : @game.BalanceParams,
-  archetype? : @game.CharacterArchetype = @game.default_character_archetype(),
-  build_policy? : @game.ArchetypeBuildPolicy = @game.default_archetype_build_policy(),
-) -> GameState {
-  GameState::new_with_params_and_ssao(
-    seed~,
-    params,
-    SSAOConfig::disabled_default(),
-    archetype=archetype,
-    build_policy=build_policy,
-  )
-}
-
-///|
-fn GameState::new_with_params_and_ssao(
-  seed~ : Int,
-  params : @game.BalanceParams,
-  ssao_config : SSAOConfig,
+  postfx_config? : @render_pipeline3d.PostFXConfig = @render_pipeline3d.PostFXConfig::default(),
   archetype? : @game.CharacterArchetype = @game.default_character_archetype(),
   build_policy? : @game.ArchetypeBuildPolicy = @game.default_archetype_build_policy(),
 ) -> GameState {
@@ -65,8 +49,6 @@ fn GameState::new_with_params_and_ssao(
   )
   let sw = screen_w.to_double()
   let sh = screen_h.to_double()
-  let bloom_w = half_res_target_size(screen_w)
-  let bloom_h = half_res_target_size(screen_h)
   let init_y = @game.get_tile_height(
     world.dungeon,
     world.player.x,
@@ -204,36 +186,14 @@ fn GameState::new_with_params_and_ssao(
     audio_last_played_state: "",
     dungeon_floor_texture_image_id: None,
     dungeon_wall_texture_image_id: None,
-    // PostFX render targets
-    scene_target: @gfx.new_image_handle(300, screen_w, screen_h),
-    bloom_a: @gfx.new_image_handle(301, bloom_w, bloom_h),
-    bloom_b: @gfx.new_image_handle(302, bloom_w, bloom_h),
-    post_target: @gfx.new_image_handle(303, screen_w, screen_h),
-    // PostFX shaders
-    bloom_threshold_sh: @gfx.new_shader_handle(
+    // PostFX pipeline
+    pipeline: @render_pipeline3d.RenderPipeline3D::new(
       300,
-      @postfx.bloom_threshold_wgsl(),
+      screen_w,
+      screen_h,
+      postfx_config,
     ),
-    bloom_hblur_sh: @gfx.new_shader_handle(301, @postfx.bloom_blur_wgsl(true)),
-    bloom_vblur_sh: @gfx.new_shader_handle(302, @postfx.bloom_blur_wgsl(false)),
-    bloom_composite_sh: @gfx.new_shader_handle(
-      303,
-      @postfx.bloom_composite_wgsl(),
-    ),
-    fxaa_enabled: false,
-    fxaa_sh: @gfx.new_shader_handle(304, @postfx.fxaa_wgsl()),
-    tonemap_sh: @gfx.new_shader_handle(305, @postfx.tonemap_wgsl(@postfx.ACES)),
     fog_sh: @gfx.new_shader_handle(308, @postfx.fog_wgsl()),
-    // Camera depth (for SSAO)
-    camera_depth_target: @gfx.new_image_handle(305, screen_w, screen_h),
-    camera_depth_shader: @gfx.new_shader_handle(
-      307,
-      @shadow3d.shader_camera_depth_wgsl(),
-    ),
-    // SSAO
-    ssao_config,
-    ssao_sh: @gfx.new_shader_handle(306, @postfx.ssao_wgsl()),
-    ssao_target: @gfx.new_image_handle(304, screen_w, screen_h),
     // Particles
     particle_manager: @particle3d.ParticleManager::new(400),
     // UI icons
@@ -295,7 +255,7 @@ fn GameState::update(self : GameState, input : @core.InputSnapshot) -> Unit {
   }
   // FXAA toggle for visual/perf comparison
   if @inpututil.is_key_just_pressed(self.input.key_state, key_f4) {
-    self.fxaa_enabled = not(self.fxaa_enabled)
+    self.pipeline.set_fxaa_enabled(not(self.pipeline.config.fxaa_enabled))
   }
   // Shadow toggle for visual/perf comparison
   if @inpututil.is_key_just_pressed(self.input.key_state, key_f5) {

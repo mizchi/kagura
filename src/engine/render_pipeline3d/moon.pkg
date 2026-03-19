@@ -1,0 +1,8 @@
+import {
+  "mizchi/kagura/engine/gfx" @gfx,
+  "mizchi/kagura/core/math3d" @math3d,
+  "mizchi/kagura/engine/postfx" @postfx,
+  "mizchi/kagura/engine/shadow3d" @shadow3d,
+}
+
+warnings = "-1"

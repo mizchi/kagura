@@ -1,5 +1,5 @@
 import {
-  "mizchi/kagura/gfx" @gfx,
-  "mizchi/kagura/debugutil" @debugutil,
-  "mizchi/kagura/text" @text,
+  "mizchi/kagura/engine/gfx" @gfx,
+  "mizchi/kagura/engine/debugutil" @debugutil,
+  "mizchi/kagura/engine/text" @text,
 }

@@ -10,13 +10,16 @@ fn test_engine_context() -> @engine.EngineContext {
 
 ///|
 fn state_with_ssao_enabled() -> GameState {
-  GameState::new_with_ssao(seed=42, SSAOConfig::enabled_default())
+  GameState::new_with_ssao(
+    seed=42,
+    @render_pipeline3d.SSAOConfig::enabled_default(),
+  )
 }
 
 ///|
 fn state_with_ssao_and_fxaa_enabled() -> GameState {
   let state = state_with_ssao_enabled()
-  state.fxaa_enabled = true
+  state.pipeline.set_fxaa_enabled(true)
   state
 }
 
@@ -340,29 +343,29 @@ test "draw_playing wires camera depth into ssao postfx chain with fxaa enabled" 
 
   let depth_idx = match
     find_last_command_index(commands, fn(cmd) {
-      cmd.dst.id == state.camera_depth_target.id &&
-      cmd.shader.id == state.camera_depth_shader.id
+      cmd.dst.id == state.pipeline.camera_depth_target.id &&
+      cmd.shader.id == state.pipeline.camera_depth_shader.id
     }) {
     Some(i) => i
     None => panic()
   }
   let ssao_idx = match
     find_first_command_index(commands, fn(cmd) {
-      cmd.dst.id == state.ssao_target.id && cmd.shader.id == state.ssao_sh.id
+      cmd.dst.id == state.pipeline.ssao_target.id && cmd.shader.id == state.pipeline.ssao_sh.id
     }) {
     Some(i) => i
     None => panic()
   }
   let tonemap_idx = match
     find_first_command_index(commands, fn(cmd) {
-      cmd.dst.id == state.bloom_b.id && cmd.shader.id == state.tonemap_sh.id
+      cmd.dst.id == state.pipeline.bloom_b.id && cmd.shader.id == state.pipeline.tonemap_sh.id
     }) {
     Some(i) => i
     None => panic()
   }
   let fxaa_idx = match
     find_first_command_index(commands, fn(cmd) {
-      cmd.dst.id == ctx.dst.id && cmd.shader.id == state.fxaa_sh.id
+      cmd.dst.id == ctx.dst.id && cmd.shader.id == state.pipeline.fxaa_sh.id
     }) {
     Some(i) => i
     None => panic()
@@ -374,8 +377,8 @@ test "draw_playing wires camera depth into ssao postfx chain with fxaa enabled" 
 
   let ssao_cmd = commands[ssao_idx]
   assert_eq(ssao_cmd.src_image_ids.length(), 2)
-  assert_eq(ssao_cmd.src_image_ids[0], state.scene_target.id)
-  assert_eq(ssao_cmd.src_image_ids[1], state.camera_depth_target.id)
+  assert_eq(ssao_cmd.src_image_ids[0], state.pipeline.scene_target.id)
+  assert_eq(ssao_cmd.src_image_ids[1], state.pipeline.camera_depth_target.id)
   assert_true(ssao_cmd.src_image_ids[1] != state.shadow_map.id)
 }
 
@@ -388,20 +391,20 @@ test "draw_playing skips fxaa and tonemaps directly into dst by default" {
 
   let tonemap_idx = match
     find_first_command_index(commands, fn(cmd) {
-      cmd.dst.id == ctx.dst.id && cmd.shader.id == state.tonemap_sh.id
+      cmd.dst.id == ctx.dst.id && cmd.shader.id == state.pipeline.tonemap_sh.id
     }) {
     Some(i) => i
     None => panic()
   }
   let fxaa_idx = find_first_command_index(commands, fn(cmd) {
-    cmd.dst.id == ctx.dst.id && cmd.shader.id == state.fxaa_sh.id
+    cmd.dst.id == ctx.dst.id && cmd.shader.id == state.pipeline.fxaa_sh.id
   })
 
   assert_eq(fxaa_idx, None)
 
   let tonemap_cmd = commands[tonemap_idx]
   assert_eq(tonemap_cmd.src_image_ids.length(), 1)
-  assert_eq(tonemap_cmd.src_image_ids[0], state.post_target.id)
+  assert_eq(tonemap_cmd.src_image_ids[0], state.pipeline.post_target.id)
 }
 
 ///|
@@ -452,23 +455,23 @@ test "draw_playing feeds ssao output into bloom composite" {
 
   let ssao_idx = match
     find_first_command_index(commands, fn(cmd) {
-      cmd.dst.id == state.ssao_target.id && cmd.shader.id == state.ssao_sh.id
+      cmd.dst.id == state.pipeline.ssao_target.id && cmd.shader.id == state.pipeline.ssao_sh.id
     }) {
     Some(i) => i
     None => panic()
   }
   let threshold_idx = match
     find_first_command_index(commands, fn(cmd) {
-      cmd.dst.id == state.bloom_a.id &&
-      cmd.shader.id == state.bloom_threshold_sh.id
+      cmd.dst.id == state.pipeline.bloom_a.id &&
+      cmd.shader.id == state.pipeline.bloom_threshold_sh.id
     }) {
     Some(i) => i
     None => panic()
   }
   let threshold_idx = match
     find_first_command_index(commands, fn(cmd) {
-      cmd.dst.id == state.bloom_a.id &&
-      cmd.shader.id == state.bloom_threshold_sh.id
+      cmd.dst.id == state.pipeline.bloom_a.id &&
+      cmd.shader.id == state.pipeline.bloom_threshold_sh.id
     }) {
     Some(i) => i
     None => panic()
@@ -484,16 +487,16 @@ test "draw_playing skips ssao and feeds scene target into bloom composite by def
   let commands = state.draw_playing(test_engine_context())
 
   let ssao_idx = find_first_command_index(commands, fn(cmd) {
-    cmd.dst.id == state.ssao_target.id && cmd.shader.id == state.ssao_sh.id
+    cmd.dst.id == state.pipeline.ssao_target.id && cmd.shader.id == state.pipeline.ssao_sh.id
   })
   let depth_idx = find_last_command_index(commands, fn(cmd) {
-    cmd.dst.id == state.camera_depth_target.id &&
-    cmd.shader.id == state.camera_depth_shader.id
+    cmd.dst.id == state.pipeline.camera_depth_target.id &&
+    cmd.shader.id == state.pipeline.camera_depth_shader.id
   })
   let threshold_idx = match
     find_first_command_index(commands, fn(cmd) {
-      cmd.dst.id == state.bloom_a.id &&
-      cmd.shader.id == state.bloom_threshold_sh.id
+      cmd.dst.id == state.pipeline.bloom_a.id &&
+      cmd.shader.id == state.pipeline.bloom_threshold_sh.id
     }) {
     Some(i) => i
     None => panic()
@@ -509,14 +512,14 @@ test "draw_playing skips ssao and feeds scene target into bloom composite by def
 test "game state allocates bloom targets at half resolution" {
   let state = GameState::new(seed=42)
 
-  assert_eq(state.scene_target.width, screen_w)
-  assert_eq(state.scene_target.height, screen_h)
-  assert_eq(state.bloom_a.width, screen_w / 2)
-  assert_eq(state.bloom_a.height, screen_h / 2)
-  assert_eq(state.bloom_b.width, screen_w / 2)
-  assert_eq(state.bloom_b.height, screen_h / 2)
-  assert_eq(state.post_target.width, screen_w)
-  assert_eq(state.post_target.height, screen_h)
+  assert_eq(state.pipeline.scene_target.width, screen_w)
+  assert_eq(state.pipeline.scene_target.height, screen_h)
+  assert_eq(state.pipeline.bloom_a.width, screen_w / 2)
+  assert_eq(state.pipeline.bloom_a.height, screen_h / 2)
+  assert_eq(state.pipeline.bloom_b.width, screen_w / 2)
+  assert_eq(state.pipeline.bloom_b.height, screen_h / 2)
+  assert_eq(state.pipeline.post_target.width, screen_w)
+  assert_eq(state.pipeline.post_target.height, screen_h)
 }
 
 ///|
@@ -774,7 +777,7 @@ test "push_character_commands emits skinned commands for player path" {
   state.push_character_commands(
     vis_region,
     state.camera.to_camera3d(),
-    state.scene_target,
+    state.pipeline.scene_target,
     ctx.screen_w,
     ctx.screen_h,
     commands,
@@ -852,7 +855,7 @@ test "push_enemy_character_commands emits skinned commands for visible enemies" 
   state.push_enemy_character_commands(
     vis_region,
     state.camera.to_camera3d(),
-    state.scene_target,
+    state.pipeline.scene_target,
     ctx.screen_w,
     ctx.screen_h,
     commands,
@@ -885,7 +888,7 @@ test "push_enemy_character_commands keeps stress enemies batched by kind" {
   state.push_enemy_character_commands(
     vis_region,
     state.camera.to_camera3d(),
-    state.scene_target,
+    state.pipeline.scene_target,
     ctx.screen_w,
     ctx.screen_h,
     commands,
@@ -916,7 +919,7 @@ test "push_player_character_commands emits one skinned command for player" {
   let commands : Array[@gfx.DrawTrianglesCommand] = []
   state.push_player_character_commands(
     state.camera.to_camera3d(),
-    state.scene_target,
+    state.pipeline.scene_target,
     ctx.screen_w,
     ctx.screen_h,
     commands,
@@ -1056,7 +1059,7 @@ test "entity subpass helpers emit one instanced command each from scratch" {
   push_item_instance_cmds(
     state,
     view_projection,
-    state.scene_target,
+    state.pipeline.scene_target,
     screen_w,
     screen_h,
     cmds,
@@ -1064,7 +1067,7 @@ test "entity subpass helpers emit one instanced command each from scratch" {
   push_arrow_instance_cmds(
     state,
     view_projection,
-    state.scene_target,
+    state.pipeline.scene_target,
     screen_w,
     screen_h,
     cmds,
@@ -1072,7 +1075,7 @@ test "entity subpass helpers emit one instanced command each from scratch" {
   push_enemy_projectile_instance_cmds(
     state,
     view_projection,
-    state.scene_target,
+    state.pipeline.scene_target,
     screen_w,
     screen_h,
     cmds,

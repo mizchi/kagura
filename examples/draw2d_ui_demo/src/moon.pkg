@@ -1,0 +1,14 @@
+import {
+  "mizchi/kagura/engine" @engine,
+  "mizchi/kagura/engine/gfx" @gfx,
+  "mizchi/kagura/engine/debugutil" @debugutil,
+  "mizchi/kagura/engine/draw2d_ui" @draw2d_ui,
+  "mizchi/web_runtime_hooks" @web_hooks,
+}
+
+warnings = "-29"
+
+options(
+  "is-main": true,
+  "supported-targets": [ "js" ],
+)

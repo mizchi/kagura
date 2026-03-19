@@ -47,7 +47,7 @@ fn summarize_draw_playing_commands(
     if cmd.shader.id == state.shadow_lit_shader.id {
       shadow_lit_commands = shadow_lit_commands + 1
     }
-    if cmd.dst.id == state.scene_target.id &&
+    if cmd.dst.id == state.pipeline.scene_target.id &&
       (
         cmd.shader.id == state.shader3d.id ||
         cmd.shader.id == state.shader3d_colored.id
@@ -75,19 +75,19 @@ fn summarize_draw_playing_commands(
       cmd.shader.id == state.shader3d_skinned_instanced_monochrome.id {
       skinned_commands = skinned_commands + 1
     }
-    if cmd.dst.id == state.ssao_target.id && cmd.shader.id == state.ssao_sh.id {
+    if cmd.dst.id == state.pipeline.ssao_target.id && cmd.shader.id == state.pipeline.ssao_sh.id {
       ssao_commands = ssao_commands + 1
     }
-    if cmd.shader.id == state.bloom_threshold_sh.id ||
-      cmd.shader.id == state.bloom_hblur_sh.id ||
-      cmd.shader.id == state.bloom_vblur_sh.id ||
-      cmd.shader.id == state.bloom_composite_sh.id {
+    if cmd.shader.id == state.pipeline.bloom_threshold_sh.id ||
+      cmd.shader.id == state.pipeline.bloom_hblur_sh.id ||
+      cmd.shader.id == state.pipeline.bloom_vblur_sh.id ||
+      cmd.shader.id == state.pipeline.bloom_composite_sh.id {
       bloom_commands = bloom_commands + 1
     }
-    if cmd.shader.id == state.tonemap_sh.id {
+    if cmd.shader.id == state.pipeline.tonemap_sh.id {
       tonemap_commands = tonemap_commands + 1
     }
-    if cmd.shader.id == state.fxaa_sh.id {
+    if cmd.shader.id == state.pipeline.fxaa_sh.id {
       fxaa_commands = fxaa_commands + 1
     }
     if cmd.dst.id == final_dst.id {

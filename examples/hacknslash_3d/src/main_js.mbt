@@ -292,24 +292,23 @@ fn build_initial_state() -> GameState {
     get_initial_build_policy_name(),
   )
   let seed = js_random_seed()
-  let state = if get_initial_ssao_enabled() {
-    GameState::new_with_params_and_ssao(
-      seed~,
-      initial_balance_params,
-      SSAOConfig::enabled_default(),
-      archetype=initial_archetype,
-      build_policy=initial_build_policy,
-    )
+  let postfx_config = if get_initial_ssao_enabled() {
+    @render_pipeline3d.PostFXConfig::{
+      ..@render_pipeline3d.PostFXConfig::default(),
+      ssao_config: @render_pipeline3d.SSAOConfig::enabled_default(),
+    }
   } else {
-    GameState::new_with_params(
-      seed~,
-      initial_balance_params,
-      archetype=initial_archetype,
-      build_policy=initial_build_policy,
-    )
+    @render_pipeline3d.PostFXConfig::default()
   }
+  let state = GameState::new_with_params(
+    seed~,
+    initial_balance_params,
+    postfx_config=postfx_config,
+    archetype=initial_archetype,
+    build_policy=initial_build_policy,
+  )
   state.show_profiler = get_initial_profiler_enabled()
-  state.fxaa_enabled = get_initial_fxaa_enabled()
+  state.pipeline.set_fxaa_enabled(get_initial_fxaa_enabled())
   state.shadows_enabled = get_initial_shadows_enabled()
   let stress_enemy_count = get_initial_stress_enemy_count()
   if stress_enemy_count > 0 {
@@ -482,9 +481,9 @@ fn run_game_js(state : GameState, perf_capture_enabled : Bool) -> Unit {
         state.profile.vertex_count,
         state.profile.asset_inflight,
         state.world.frame_count,
-        state.fxaa_enabled,
+        state.pipeline.config.fxaa_enabled,
         state.shadows_enabled,
-        state.ssao_config.enabled,
+        state.pipeline.config.ssao_config.enabled,
       )
       js_publish_runtime_state(
         state.world.frame_count,

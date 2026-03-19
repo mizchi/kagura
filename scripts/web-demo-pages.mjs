@@ -449,6 +449,21 @@ const RAW_DEMO_PAGES = [
     width: 640,
     height: 480,
   },
+  {
+    name: "crater_renderer",
+    title: "Crater Renderer",
+    group: "2D / UI",
+    summary: "HTML/CSS rendered to WebGPU via crater layout engine.",
+    start: "Loads automatically — renders an HTML dashboard.",
+    controls: [
+      "No input required",
+      "Demonstrates crater HTML/CSS parsing + kagura WebGPU rendering",
+    ],
+    tags: ["2D", "HTML", "CSS", "Text"],
+    sourcePath: "examples/crater_renderer/src/main.mbt",
+    width: 800,
+    height: 480,
+  },
 ];
 
 export const DEMO_PAGES = RAW_DEMO_PAGES

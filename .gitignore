@@ -1,6 +1,7 @@
 _build
 _site
 target
+.DS_Store
 .mooncakes
 node_modules
 test-results

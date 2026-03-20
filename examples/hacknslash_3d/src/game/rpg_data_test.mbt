@@ -473,9 +473,9 @@ test "inventory add_fifo keeps newest items when capacity is full" {
 }
 
 ///|
-test "available_levelup_skill_ids excludes locked and maxed skills" {
+test "available_level_up_skill_ids excludes locked and maxed skills" {
   let skills = SkillTree::new()
-  let offers0 = skills.available_levelup_skill_ids()
+  let offers0 = skills.available_level_up_skill_ids()
   assert_eq(offers0.length(), 7)
   assert_true(contains_skill_id(offers0, PowerStrike))
   assert_true(contains_skill_id(offers0, DashMastery))
@@ -485,19 +485,19 @@ test "available_levelup_skill_ids excludes locked and maxed skills" {
   assert_true(contains_skill_id(offers0, IceNova))
   assert_true(contains_skill_id(offers0, HomingMissile))
   assert_false(contains_skill_id(offers0, Whirlwind))
-  skills.learn_from_levelup(Vitality) |> ignore
-  skills.learn_from_levelup(PowerStrike) |> ignore
-  let offers1 = skills.available_levelup_skill_ids()
+  skills.learn_level_up_skill(Vitality) |> ignore
+  skills.learn_level_up_skill(PowerStrike) |> ignore
+  let offers1 = skills.available_level_up_skill_ids()
   assert_true(contains_skill_id(offers1, Whirlwind))
   assert_true(contains_skill_id(offers1, CriticalHit))
 }
 
 ///|
-test "level_progression gain_xp creates three offers and choosing one learns it" {
+test "level_progression add_xp creates three offers and choosing one learns it" {
   let skills = SkillTree::new()
   let progress = LevelProgression::new()
   let config = LevelUpConfig::default()
-  let leveled = progress.gain_xp(
+  let leveled = progress.add_xp(
     skills,
     Melee,
     ArchetypeAligned,
@@ -524,7 +524,7 @@ test "level progression favors archetype-aligned offers" {
   let progress = LevelProgression::new()
   let config = LevelUpConfig::default()
   ignore(
-    progress.gain_xp(mage, Mage, ArchetypeAligned, 12, 0, config),
+    progress.add_xp(mage, Mage, ArchetypeAligned, 12, 0, config),
   )
   assert_true(progress.current_offers.length() > 0)
   let mut has_spell = false

@@ -7,7 +7,7 @@ pub(all) struct CircularInteractable {
 }
 
 ///|
-pub(all) struct CircularInteractableFrameResult {
+pub(all) struct CircularInteractionFrame {
   actor_x : Double
   actor_y : Double
   pickup_contact_index : Int?
@@ -24,7 +24,7 @@ pub fn CircularInteractable::new(
 }
 
 ///|
-pub fn resolve_circular_blockers_for_actor(
+pub fn resolve_actor_circular_blockers(
   interactables : Array[CircularInteractable],
   actor_x : Double,
   actor_y : Double,
@@ -34,11 +34,11 @@ pub fn resolve_circular_blockers_for_actor(
   let mut next_x = actor_x
   let mut next_y = actor_y
   for interactable in interactables {
-    if not(interactable_role_is_solid(interactable.role)) {
+    if not(interactable_role_blocks_movement(interactable.role)) {
       continue
     }
     match
-      resolve_circular_interactable_block(
+      resolve_circular_blocker_overlap(
         next_x,
         next_y,
         actor_size,
@@ -61,7 +61,7 @@ pub fn resolve_circular_blockers_for_actor(
 }
 
 ///|
-pub fn find_first_circular_pickup_contact_index(
+pub fn find_first_circular_pickup_index(
   interactables : Array[CircularInteractable],
   actor_x : Double,
   actor_y : Double,
@@ -70,7 +70,7 @@ pub fn find_first_circular_pickup_contact_index(
   for i = 0; i < interactables.length(); i = i + 1 {
     let interactable = interactables[i]
     if interactable_role_is_pickup(interactable.role) &&
-      circular_interactable_can_pickup(
+      is_circular_pickup_in_range(
         actor_x,
         actor_y,
         interactable.x,
@@ -84,21 +84,21 @@ pub fn find_first_circular_pickup_contact_index(
 }
 
 ///|
-pub fn resolve_circular_interactable_frame(
+pub fn resolve_circular_interaction_frame(
   interactables : Array[CircularInteractable],
   actor_x : Double,
   actor_y : Double,
   actor_size : Double,
   pickup_radius_sq : Double,
   can_stand : (Double, Double, Double) -> Bool,
-) -> CircularInteractableFrameResult {
-  let (resolved_x, resolved_y) = resolve_circular_blockers_for_actor(
+) -> CircularInteractionFrame {
+  let (resolved_x, resolved_y) = resolve_actor_circular_blockers(
     interactables, actor_x, actor_y, actor_size, can_stand,
   )
   {
     actor_x: resolved_x,
     actor_y: resolved_y,
-    pickup_contact_index: find_first_circular_pickup_contact_index(
+    pickup_contact_index: find_first_circular_pickup_index(
       interactables, resolved_x, resolved_y, pickup_radius_sq,
     ),
   }

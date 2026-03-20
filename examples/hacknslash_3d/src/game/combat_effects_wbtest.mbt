@@ -140,7 +140,7 @@ fn projectile_enemy_bolt_count(projectiles : Array[Projectile]) -> Int {
 
 ///|
 fn unlock_spell_for_combat_test(world : GameWorld, id : SkillId) -> Unit {
-  ignore(world.skills.learn_from_levelup(id))
+  ignore(world.skills.learn_level_up_skill(id))
 }
 
 ///|

@@ -20,10 +20,10 @@ pub struct SceneManager {
   mut transitioning : Bool
 }
 pub fn SceneManager::draw(Self, @engine.EngineContext) -> Array[@gfx.DrawTrianglesCommand]
-pub fn SceneManager::fade_alpha(Self) -> Double
 pub fn SceneManager::is_transitioning(Self) -> Bool
 pub fn SceneManager::new(&Scene) -> Self
-pub fn SceneManager::progress(Self) -> Double
+pub fn SceneManager::transition_overlay_alpha(Self) -> Double
+pub fn SceneManager::transition_progress(Self) -> Double
 pub fn SceneManager::transition_to(Self, &Scene, duration? : Double) -> Unit
 pub fn SceneManager::update(Self, @core.InputSnapshot, dt? : Double) -> Unit
 

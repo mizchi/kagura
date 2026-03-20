@@ -21,7 +21,7 @@ pub(all) enum InteractablePickupEffect {
 } derive(Eq, Show)
 
 ///|
-pub fn interactable_role_from_string(value : String) -> InteractableRole? {
+pub fn parse_interactable_role(value : String) -> InteractableRole? {
   match value {
     "decoration" | "decor" => Some(Decoration)
     "blocking" | "blocker" => Some(Blocking)
@@ -31,7 +31,7 @@ pub fn interactable_role_from_string(value : String) -> InteractableRole? {
 }
 
 ///|
-pub fn interactable_anchor_from_string(value : String) -> InteractableAnchor? {
+pub fn parse_interactable_anchor(value : String) -> InteractableAnchor? {
   match value {
     "start_room" | "start" => Some(StartRoomCenter)
     "largest_non_start_room" | "largest_room" => Some(LargestNonStartRoomCenter)
@@ -42,7 +42,7 @@ pub fn interactable_anchor_from_string(value : String) -> InteractableAnchor? {
 }
 
 ///|
-pub fn interactable_pickup_effect_from_string(
+pub fn parse_interactable_pickup_effect(
   value : String,
 ) -> InteractablePickupEffect? {
   match value {
@@ -54,7 +54,7 @@ pub fn interactable_pickup_effect_from_string(
 }
 
 ///|
-pub fn interactable_role_is_solid(role : InteractableRole) -> Bool {
+pub fn interactable_role_blocks_movement(role : InteractableRole) -> Bool {
   role == Blocking
 }
 
@@ -64,7 +64,7 @@ pub fn interactable_role_is_pickup(role : InteractableRole) -> Bool {
 }
 
 ///|
-pub fn circular_interactable_can_pickup(
+pub fn is_circular_pickup_in_range(
   actor_x : Double,
   actor_y : Double,
   target_x : Double,
@@ -77,7 +77,7 @@ pub fn circular_interactable_can_pickup(
 }
 
 ///|
-pub fn resolve_circular_interactable_block(
+pub fn resolve_circular_blocker_overlap(
   actor_x : Double,
   actor_y : Double,
   actor_size : Double,

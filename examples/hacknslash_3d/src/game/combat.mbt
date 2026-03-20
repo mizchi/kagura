@@ -276,7 +276,7 @@ fn apply_enemy_death_rewards(world : GameWorld, enemy : Enemy) -> Unit {
   let kill_score = if enemy.kind == Boss { 100 } else { 10 }
   world.score = world.score + kill_score
   ignore(
-    world.level_progress.gain_xp(
+    world.level_progress.add_xp(
       world.skills,
       world.archetype,
       world.build_policy,

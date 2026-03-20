@@ -25,8 +25,8 @@ pub fn LevelProgression::new(
 }
 
 ///|
-fn next_level_xp_for(level : Int, config : LevelUpConfig) -> Int {
-  @progression.next_level_xp_for(level, config)
+fn xp_required_for_level(level : Int, config : LevelUpConfig) -> Int {
+  @progression.xp_required_for_level(level, config)
 }
 
 ///|
@@ -53,7 +53,7 @@ fn LevelProgression::sync_from_core(
 }
 
 ///|
-pub fn SkillTree::can_learn_from_levelup(
+pub fn SkillTree::can_learn_level_up_skill(
   self : SkillTree,
   id : SkillId,
 ) -> Bool {
@@ -75,12 +75,12 @@ pub fn SkillTree::can_learn_from_levelup(
 }
 
 ///|
-pub fn SkillTree::available_levelup_skill_ids(
+pub fn SkillTree::available_level_up_skill_ids(
   self : SkillTree,
 ) -> Array[SkillId] {
   let ids : Array[SkillId] = []
   for node in self.nodes {
-    if self.can_learn_from_levelup(node.id) {
+    if self.can_learn_level_up_skill(node.id) {
       ids.push(node.id)
     }
   }
@@ -88,8 +88,8 @@ pub fn SkillTree::available_levelup_skill_ids(
 }
 
 ///|
-pub fn SkillTree::learn_from_levelup(self : SkillTree, id : SkillId) -> Bool {
-  if not(self.can_learn_from_levelup(id)) {
+pub fn SkillTree::learn_level_up_skill(self : SkillTree, id : SkillId) -> Bool {
+  if not(self.can_learn_level_up_skill(id)) {
     return false
   }
   let index = self.find_index(id)
@@ -101,13 +101,13 @@ pub fn SkillTree::learn_from_levelup(self : SkillTree, id : SkillId) -> Bool {
 }
 
 ///|
-fn build_levelup_offers(
+fn build_level_up_offers(
   skills : SkillTree,
   archetype : CharacterArchetype,
   build_policy : ArchetypeBuildPolicy,
   offer_seed : Int,
 ) -> Array[SkillId] {
-  let all_available = skills.available_levelup_skill_ids()
+  let all_available = skills.available_level_up_skill_ids()
   // Filter by archetype-allowed skills
   let available : Array[SkillId] = []
   for id in all_available {
@@ -140,7 +140,7 @@ fn build_levelup_offers(
 }
 
 ///|
-pub fn LevelProgression::gain_xp(
+pub fn LevelProgression::add_xp(
   self : LevelProgression,
   skills : SkillTree,
   archetype : CharacterArchetype,
@@ -150,10 +150,10 @@ pub fn LevelProgression::gain_xp(
   config : LevelUpConfig,
 ) -> Bool {
   let core = self.to_core()
-  let leveled = core.gain_xp(gained_xp, config)
+  let leveled = core.add_xp(gained_xp, config)
   self.sync_from_core(core)
   if self.current_offers.length() == 0 && self.pending_choices > 0 {
-    self.current_offers = build_levelup_offers(
+    self.current_offers = build_level_up_offers(
       skills,
       archetype,
       build_policy,
@@ -179,15 +179,15 @@ pub fn LevelProgression::choose_offer(
     return false
   }
   let chosen = self.current_offers[offer_index]
-  if not(skills.learn_from_levelup(chosen)) {
+  if not(skills.learn_level_up_skill(chosen)) {
     return false
   }
   let core = self.to_core()
-  ignore(core.consume_choice())
+  ignore(core.consume_pending_choice())
   self.sync_from_core(core)
   self.current_offers = []
   if self.pending_choices > 0 {
-    self.current_offers = build_levelup_offers(
+    self.current_offers = build_level_up_offers(
       skills,
       archetype,
       build_policy,

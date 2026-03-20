@@ -74,7 +74,7 @@ test "SceneManager transition progress advances" {
   // dt = 0.25, duration = 1.0 => progress = 0.25
   manager.update(input, dt=0.25)
   assert_true(manager.is_transitioning())
-  let p = manager.progress()
+  let p = manager.transition_progress()
   assert_true(p > 0.24 && p < 0.26)
 }
 
@@ -99,12 +99,12 @@ test "SceneManager fade_alpha peaks at midpoint" {
   let scene2 = TestScene::new()
   let manager = SceneManager::new(scene1)
   // No transition => 0
-  assert_true(manager.fade_alpha() < 0.001)
+  assert_true(manager.transition_overlay_alpha() < 0.001)
   manager.transition_to(scene2, duration=1.0)
   let input = make_test_input()
   // At progress 0.5 => alpha should be 1.0
   manager.update(input, dt=0.5)
-  let alpha = manager.fade_alpha()
+  let alpha = manager.transition_overlay_alpha()
   assert_true(alpha > 0.9)
 }
 

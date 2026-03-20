@@ -264,7 +264,7 @@ fn apply_debug_skill_unlocks(state : GameState, unlock_spells : Bool) -> Unit {
     return
   }
   for skill_id in @game.spell_skill_ids() {
-    ignore(state.world.skills.learn_from_levelup(skill_id))
+    ignore(state.world.skills.learn_level_up_skill(skill_id))
   }
   state.world.refresh_player_stats()
 }

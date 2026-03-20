@@ -776,7 +776,7 @@ pub fn GameWorld::tick_items_phase(self : GameWorld) -> Unit {
               heal_amount=2,
             )
             match
-              @gameplay2d.apply_builtin_pickup_to_actor(
+              @gameplay2d.apply_builtin_pickup(
                 HealthPickup,
                 self.player.hp,
                 self.player_stats.max_hp,
@@ -801,7 +801,7 @@ pub fn GameWorld::tick_items_phase(self : GameWorld) -> Unit {
               heal_amount=2,
             )
             match
-              @gameplay2d.apply_builtin_pickup_to_actor(
+              @gameplay2d.apply_builtin_pickup(
                 ScorePickup,
                 self.player.hp,
                 self.player_stats.max_hp,

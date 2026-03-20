@@ -100,7 +100,7 @@ pub fn SceneManager::is_transitioning(self : SceneManager) -> Bool {
 
 ///|
 /// Returns the current transition progress (0.0 to 1.0).
-pub fn SceneManager::progress(self : SceneManager) -> Double {
+pub fn SceneManager::transition_progress(self : SceneManager) -> Double {
   self.transition_progress
 }
 
@@ -108,7 +108,7 @@ pub fn SceneManager::progress(self : SceneManager) -> Double {
 /// Returns the fade alpha for overlay rendering.
 /// 0.0 = fully transparent, 1.0 = fully opaque.
 /// Fades out (0->1) in first half, fades in (1->0) in second half.
-pub fn SceneManager::fade_alpha(self : SceneManager) -> Double {
+pub fn SceneManager::transition_overlay_alpha(self : SceneManager) -> Double {
   if not(self.transitioning) {
     return 0.0
   }

@@ -40,7 +40,10 @@ pub fn DropTableConfig::default() -> DropTableConfig {
 
 ///|
 fn item_tier_value(base : Double, per_floor : Double, floor : Int) -> Double {
-  @progression.tier_curve_value(@progression.TierCurve::new(base, per_floor), floor)
+  @progression.evaluate_tier_curve(
+    @progression.TierCurve::new(base, per_floor),
+    floor,
+  )
 }
 
 ///|
@@ -50,7 +53,12 @@ fn scaled_base_item_stat(
   rarity_mult : Int,
   modifier_tier : Double,
 ) -> Int {
-  @progression.scale_base_stat(base_value, tier_value, rarity_mult, modifier_tier)
+  @progression.scale_loot_stat(
+    base_value,
+    tier_value,
+    rarity_mult,
+    modifier_tier,
+  )
 }
 
 ///|
@@ -94,7 +102,7 @@ pub fn roll_item_rarity(
   config : DropTableConfig,
 ) -> ItemRarity {
   loot_rarity_to_item_rarity(
-    @progression.roll_loot_rarity(seed, floor, config={
+    @progression.sample_loot_rarity(seed, floor, config={
       rarity_bonus_per_floor: config.rarity_bonus_per_floor,
       common_max: 50,
       uncommon_max: 80,
@@ -105,7 +113,7 @@ pub fn roll_item_rarity(
 
 ///|
 fn weighted_slot_pick(seed : Int, config : DropTableConfig) -> EquipSlot {
-  let index = @progression.weighted_pick_index(seed, [
+  let index = @progression.pick_weighted_index(seed, [
     @cmp.maximum(0, config.weapon_weight),
     @cmp.maximum(0, config.armor_weight),
     @cmp.maximum(0, config.accessory_weight),

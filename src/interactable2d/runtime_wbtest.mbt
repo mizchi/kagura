@@ -1,10 +1,10 @@
 ///|
-test "resolve_circular_blockers_for_actor applies blocking in sequence" {
+test "resolve_actor_circular_blockers applies blocking in sequence" {
   let interactables = [
     CircularInteractable::new(32.0, 48.0, 8.0, Blocking),
     CircularInteractable::new(48.0, 48.0, 8.0, Blocking),
   ]
-  let (x, y) = resolve_circular_blockers_for_actor(
+  let (x, y) = resolve_actor_circular_blockers(
     interactables,
     32.0,
     48.0,
@@ -16,9 +16,9 @@ test "resolve_circular_blockers_for_actor applies blocking in sequence" {
 }
 
 ///|
-test "resolve_circular_blockers_for_actor respects can_stand callback" {
+test "resolve_actor_circular_blockers respects can_stand callback" {
   let interactables = [CircularInteractable::new(32.0, 48.0, 8.0, Blocking)]
-  let (x, y) = resolve_circular_blockers_for_actor(
+  let (x, y) = resolve_actor_circular_blockers(
     interactables,
     32.0,
     48.0,
@@ -30,34 +30,34 @@ test "resolve_circular_blockers_for_actor respects can_stand callback" {
 }
 
 ///|
-test "find_first_circular_pickup_contact_index returns first pickup in range" {
+test "find_first_circular_pickup_index returns first pickup in range" {
   let interactables = [
     CircularInteractable::new(32.0, 48.0, 8.0, Decoration),
     CircularInteractable::new(36.0, 48.0, 8.0, Pickup),
     CircularInteractable::new(34.0, 48.0, 8.0, Pickup),
   ]
   assert_eq(
-    find_first_circular_pickup_contact_index(interactables, 32.0, 48.0, 400.0),
+    find_first_circular_pickup_index(interactables, 32.0, 48.0, 400.0),
     Some(1),
   )
 }
 
 ///|
-test "find_first_circular_pickup_contact_index ignores non pickup roles" {
+test "find_first_circular_pickup_index ignores non pickup roles" {
   let interactables = [CircularInteractable::new(36.0, 48.0, 8.0, Blocking)]
   assert_eq(
-    find_first_circular_pickup_contact_index(interactables, 32.0, 48.0, 400.0),
+    find_first_circular_pickup_index(interactables, 32.0, 48.0, 400.0),
     None,
   )
 }
 
 ///|
-test "resolve_circular_interactable_frame returns resolved actor position and pickup contact" {
+test "resolve_circular_interaction_frame returns resolved actor position and pickup contact" {
   let interactables = [
     CircularInteractable::new(32.0, 48.0, 8.0, Blocking),
     CircularInteractable::new(52.0, 48.0, 8.0, Pickup),
   ]
-  let result = resolve_circular_interactable_frame(
+  let result = resolve_circular_interaction_frame(
     interactables,
     32.0,
     48.0,
@@ -71,9 +71,9 @@ test "resolve_circular_interactable_frame returns resolved actor position and pi
 }
 
 ///|
-test "resolve_circular_interactable_frame returns none when no pickup is in range" {
+test "resolve_circular_interaction_frame returns none when no pickup is in range" {
   let interactables = [CircularInteractable::new(32.0, 48.0, 8.0, Blocking)]
-  let result = resolve_circular_interactable_frame(
+  let result = resolve_circular_interaction_frame(
     interactables,
     32.0,
     48.0,

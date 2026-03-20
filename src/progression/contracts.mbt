@@ -24,18 +24,18 @@ pub fn LevelProgression::new(
   {
     level: 1,
     xp: 0,
-    next_level_xp: next_level_xp_for(1, config),
+    next_level_xp: xp_required_for_level(1, config),
     pending_choices: 0,
   }
 }
 
 ///|
-pub fn next_level_xp_for(level : Int, config : LevelUpConfig) -> Int {
+pub fn xp_required_for_level(level : Int, config : LevelUpConfig) -> Int {
   @cmp.maximum(1, config.xp_base + (level - 1) * config.xp_growth)
 }
 
 ///|
-pub fn LevelProgression::gain_xp(
+pub fn LevelProgression::add_xp(
   self : LevelProgression,
   gained_xp : Int,
   config : LevelUpConfig,
@@ -48,7 +48,7 @@ pub fn LevelProgression::gain_xp(
   while self.xp >= self.next_level_xp {
     self.xp = self.xp - self.next_level_xp
     self.level = self.level + 1
-    self.next_level_xp = next_level_xp_for(self.level, config)
+    self.next_level_xp = xp_required_for_level(self.level, config)
     self.pending_choices = self.pending_choices + 1
     leveled = true
   }
@@ -56,7 +56,9 @@ pub fn LevelProgression::gain_xp(
 }
 
 ///|
-pub fn LevelProgression::consume_choice(self : LevelProgression) -> Bool {
+pub fn LevelProgression::consume_pending_choice(
+  self : LevelProgression,
+) -> Bool {
   if self.pending_choices <= 0 {
     return false
   }
@@ -80,7 +82,7 @@ pub fn TierCurve::new(base : Double, per_floor : Double) -> TierCurve {
 }
 
 ///|
-pub fn tier_curve_value(curve : TierCurve, floor : Int) -> Double {
+pub fn evaluate_tier_curve(curve : TierCurve, floor : Int) -> Double {
   curve.base + @cmp.maximum(0, floor - 1).to_double() * curve.per_floor
 }
 
@@ -131,7 +133,7 @@ pub fn loot_rarity_multiplier(rarity : LootRarity) -> Int {
 }
 
 ///|
-pub fn roll_loot_rarity(
+pub fn sample_loot_rarity(
   seed : Int,
   floor : Int,
   config? : LootRarityRollConfig = LootRarityRollConfig::default(),
@@ -154,7 +156,7 @@ pub fn roll_loot_rarity(
 }
 
 ///|
-pub fn weighted_pick_index(seed : Int, weights : Array[Int]) -> Int {
+pub fn pick_weighted_index(seed : Int, weights : Array[Int]) -> Int {
   let mut total_weight = 0
   for weight in weights {
     total_weight = total_weight + @cmp.maximum(0, weight)
@@ -175,7 +177,7 @@ pub fn weighted_pick_index(seed : Int, weights : Array[Int]) -> Int {
 }
 
 ///|
-pub fn scale_base_stat(
+pub fn scale_loot_stat(
   base_value : Int,
   tier_value : Double,
   rarity_multiplier : Int,

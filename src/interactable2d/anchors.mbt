@@ -57,7 +57,7 @@ fn farthest_non_start_anchor(
 }
 
 ///|
-pub fn resolve_anchor_position(
+pub fn pick_anchor_position(
   anchors : Array[AnchorCandidate],
   anchor : InteractableAnchor,
   start_x : Double,

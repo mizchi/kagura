@@ -55,7 +55,7 @@ fn find_same_room_point_near_distance(
 
 ///|
 fn unlock_spell_for_world_test(world : GameWorld, id : SkillId) -> Unit {
-  ignore(world.skills.learn_from_levelup(id))
+  ignore(world.skills.learn_level_up_skill(id))
 }
 
 ///|

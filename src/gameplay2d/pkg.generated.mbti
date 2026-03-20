@@ -6,24 +6,24 @@ import {
 }
 
 // Values
-pub fn apply_builtin_pickup_effect(@interactable2d.InteractablePickupEffect, Int, Int, PickupRewardConfig) -> (Int, Int, Bool)?
-
-pub fn apply_builtin_pickup_to_actor(@interactable2d.InteractablePickupEffect, Int, Int, Int, PickupRewardConfig) -> BuiltinPickupApplication?
+pub fn apply_builtin_pickup(@interactable2d.InteractablePickupEffect, Int, Int, Int, PickupRewardConfig) -> BuiltinPickupResult?
 
 pub fn plan_equipment_pickup(auto_play~ : Bool, should_equip~ : Bool, inventory_has_space~ : Bool, has_previous_equipped~ : Bool) -> EquipmentPickupPlan
 
-pub fn resolve_pickup_resolution(@interactable2d.InteractablePickupEffect, Int, Int, PickupRewardConfig, auto_play~ : Bool, should_equip~ : Bool, inventory_has_space~ : Bool, has_previous_equipped~ : Bool) -> PickupResolution
+pub fn resolve_builtin_pickup_effect(@interactable2d.InteractablePickupEffect, Int, Int, PickupRewardConfig) -> (Int, Int, Bool)?
+
+pub fn resolve_pickup(@interactable2d.InteractablePickupEffect, Int, Int, PickupRewardConfig, auto_play~ : Bool, should_equip~ : Bool, inventory_has_space~ : Bool, has_previous_equipped~ : Bool) -> PickupResolution
 
 // Errors
 
 // Types and methods
-pub(all) struct BuiltinPickupApplication {
+pub(all) struct BuiltinPickupResult {
   next_hp : Int
   next_score : Int
   heal_feedback : Bool
 }
-pub impl Eq for BuiltinPickupApplication
-pub impl Show for BuiltinPickupApplication
+pub impl Eq for BuiltinPickupResult
+pub impl Show for BuiltinPickupResult
 
 pub(all) struct EquipmentPickupPlan {
   store_incoming : Bool

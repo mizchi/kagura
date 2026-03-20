@@ -2,19 +2,19 @@
 package "mizchi/kagura/progression"
 
 // Values
+pub fn evaluate_tier_curve(TierCurve, Int) -> Double
+
 pub fn loot_rarity_multiplier(LootRarity) -> Int
 
 pub fn loot_rarity_rank(LootRarity) -> Int
 
-pub fn next_level_xp_for(Int, LevelUpConfig) -> Int
+pub fn pick_weighted_index(Int, Array[Int]) -> Int
 
-pub fn roll_loot_rarity(Int, Int, config? : LootRarityRollConfig) -> LootRarity
+pub fn sample_loot_rarity(Int, Int, config? : LootRarityRollConfig) -> LootRarity
 
-pub fn scale_base_stat(Int, Double, Int, Double) -> Int
+pub fn scale_loot_stat(Int, Double, Int, Double) -> Int
 
-pub fn tier_curve_value(TierCurve, Int) -> Double
-
-pub fn weighted_pick_index(Int, Array[Int]) -> Int
+pub fn xp_required_for_level(Int, LevelUpConfig) -> Int
 
 // Errors
 
@@ -25,8 +25,8 @@ pub(all) struct LevelProgression {
   mut next_level_xp : Int
   mut pending_choices : Int
 }
-pub fn LevelProgression::consume_choice(Self) -> Bool
-pub fn LevelProgression::gain_xp(Self, Int, LevelUpConfig) -> Bool
+pub fn LevelProgression::add_xp(Self, Int, LevelUpConfig) -> Bool
+pub fn LevelProgression::consume_pending_choice(Self) -> Bool
 pub fn LevelProgression::new(config? : LevelUpConfig) -> Self
 
 pub(all) struct LevelUpConfig {

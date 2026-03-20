@@ -8,7 +8,7 @@ pub(all) struct PickupRewardConfig {
 } derive(Eq, Show)
 
 ///|
-pub(all) struct BuiltinPickupApplication {
+pub(all) struct BuiltinPickupResult {
   next_hp : Int
   next_score : Int
   heal_feedback : Bool
@@ -68,7 +68,7 @@ pub fn plan_equipment_pickup(
 }
 
 ///|
-pub fn apply_builtin_pickup_effect(
+pub fn resolve_builtin_pickup_effect(
   effect : PickupEffect,
   actor_hp : Int,
   actor_max_hp : Int,
@@ -89,14 +89,14 @@ pub fn apply_builtin_pickup_effect(
 }
 
 ///|
-pub fn apply_builtin_pickup_to_actor(
+pub fn apply_builtin_pickup(
   effect : PickupEffect,
   actor_hp : Int,
   actor_max_hp : Int,
   actor_score : Int,
   rewards : PickupRewardConfig,
-) -> BuiltinPickupApplication? {
-  match apply_builtin_pickup_effect(effect, actor_hp, actor_max_hp, rewards) {
+) -> BuiltinPickupResult? {
+  match resolve_builtin_pickup_effect(effect, actor_hp, actor_max_hp, rewards) {
     Some((next_hp, score_delta, heal_feedback)) =>
       Some({ next_hp, next_score: actor_score + score_delta, heal_feedback })
     None => None
@@ -104,7 +104,7 @@ pub fn apply_builtin_pickup_to_actor(
 }
 
 ///|
-pub fn resolve_pickup_resolution(
+pub fn resolve_pickup(
   effect : PickupEffect,
   actor_hp : Int,
   actor_max_hp : Int,
@@ -117,7 +117,7 @@ pub fn resolve_pickup_resolution(
   match effect {
     ScorePickup | HealthPickup =>
       match
-        apply_builtin_pickup_effect(effect, actor_hp, actor_max_hp, rewards) {
+        resolve_builtin_pickup_effect(effect, actor_hp, actor_max_hp, rewards) {
         Some((next_hp, score_delta, heal_feedback)) =>
           Builtin(next_hp, score_delta, heal_feedback)
         None => abort("builtin pickup effect must resolve")

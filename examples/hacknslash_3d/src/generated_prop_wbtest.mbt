@@ -186,12 +186,12 @@ test "resolve_generated_prop_player_block pushes player out on exact overlap" {
 ///|
 test "generated_prop_player_can_pickup returns true inside pickup radius" {
   assert_true(
-    @interactable2d.circular_interactable_can_pickup(
+    @interactable2d.is_circular_pickup_in_range(
       32.0, 48.0, 36.0, 48.0, pickup_radius_sq,
     ),
   )
   assert_false(
-    @interactable2d.circular_interactable_can_pickup(
+    @interactable2d.is_circular_pickup_in_range(
       32.0, 48.0, 64.0, 48.0, pickup_radius_sq,
     ),
   )

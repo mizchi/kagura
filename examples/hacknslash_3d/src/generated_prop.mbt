@@ -54,19 +54,19 @@ fn default_generated_prop_manifest_for_floor(
 
 ///|
 fn generated_prop_anchor_from_string(value : String) -> GeneratedPropAnchor? {
-  @interactable2d.interactable_anchor_from_string(value)
+  @interactable2d.parse_interactable_anchor(value)
 }
 
 ///|
 fn generated_prop_role_from_string(value : String) -> GeneratedPropRole? {
-  @interactable2d.interactable_role_from_string(value)
+  @interactable2d.parse_interactable_role(value)
 }
 
 ///|
 fn generated_prop_pickup_effect_from_string(
   value : String,
 ) -> GeneratedPropPickupEffect? {
-  @interactable2d.interactable_pickup_effect_from_string(value)
+  @interactable2d.parse_interactable_pickup_effect(value)
 }
 
 ///|
@@ -92,7 +92,7 @@ fn generated_prop_item_slot_from_string(value : String) -> @game.EquipSlot? {
 
 ///|
 fn generated_prop_role_is_solid(role : GeneratedPropRole) -> Bool {
-  @interactable2d.interactable_role_is_solid(role)
+  @interactable2d.interactable_role_blocks_movement(role)
 }
 
 ///|
@@ -220,7 +220,7 @@ fn generated_prop_anchor_center_world(
   world : @game.GameWorld,
   anchor : GeneratedPropAnchor,
 ) -> (Double, Double) {
-  @interactable2d.resolve_anchor_position(
+  @interactable2d.pick_anchor_position(
     generated_prop_anchor_candidates(world),
     anchor,
     world.dungeon.start_x,
@@ -283,7 +283,7 @@ fn GameState::build_generated_prop_enemy_ai_grid(
   )
   let mut has_blocker = false
   for interactable in floor_interactables {
-    if @interactable2d.interactable_role_is_solid(interactable.role) {
+    if @interactable2d.interactable_role_blocks_movement(interactable.role) {
       has_blocker = true
       break
     }
@@ -292,7 +292,7 @@ fn GameState::build_generated_prop_enemy_ai_grid(
     return None
   }
   let grid = clone_generated_prop_collision_grid(self.world.dungeon.grid)
-  @interactable2d.append_circular_interactable_blockers_to_grid(
+  @interactable2d.stamp_circular_blockers_on_grid(
     grid, floor_interactables, tile_size,
   )
   Some(grid)
@@ -321,7 +321,7 @@ fn resolve_generated_prop_actor_block(
   prop_y : Double,
   prop_radius : Double,
 ) -> (Double, Double)? {
-  @interactable2d.resolve_circular_interactable_block(
+  @interactable2d.resolve_circular_blocker_overlap(
     actor_x, actor_y, actor_size, prop_x, prop_y, prop_radius,
   )
 }
@@ -416,7 +416,7 @@ fn GameState::apply_generated_prop_roles_for_current_floor(
     self.world,
     self.generated_props,
   )
-  let player_frame = @interactable2d.resolve_circular_interactable_frame(
+  let player_frame = @interactable2d.resolve_circular_interaction_frame(
     floor_interactables,
     player_x,
     player_y,
@@ -455,7 +455,7 @@ fn GameState::apply_generated_prop_roles_for_current_floor(
     if not(enemy.alive) {
       continue
     }
-    let (resolved_enemy_x, resolved_enemy_y) = @interactable2d.resolve_circular_blockers_for_actor(
+    let (resolved_enemy_x, resolved_enemy_y) = @interactable2d.resolve_actor_circular_blockers(
       floor_interactables,
       enemy.x,
       enemy.y,
@@ -493,7 +493,7 @@ fn GameState::apply_generated_prop_roles_for_current_floor(
     }
     if generated_prop_role_is_pickup(prop.placement.role) && interacted {
       match
-        @gameplay2d.apply_builtin_pickup_to_actor(
+        @gameplay2d.apply_builtin_pickup(
           prop.placement.pickup_effect,
           self.world.player.hp,
           self.world.player_stats.max_hp,

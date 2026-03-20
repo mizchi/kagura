@@ -13,7 +13,7 @@ options(
   "supported-targets": [ "js", "native" ],
   link: {
     "native": {
-      "cc": "../../scripts/moon-native-cc.sh",
+      "cc": "${build.KAGURA_NATIVE_CC}",
       "cc-link-flags": "-L../../deps/wgpu-native/lib -lwgpu_native ${build.KAGURA_NATIVE_GLFW_LIBS} -Wl,-rpath,../../deps/wgpu-native/lib ${build.KAGURA_NATIVE_PLATFORM_LIBS}",
     },
   },

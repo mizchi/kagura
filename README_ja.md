@@ -35,10 +35,10 @@ vector/        ベクトル演算
 |-----------|-------------|---------|
 | Web (全 OS) | WebGPU | 対応済み |
 | Native macOS | wgpu-native + Metal + GLFW | 対応済み |
-| Native Linux | wgpu-native + Vulkan + GLFW | 未対応（予定あり） |
-| Native Windows | wgpu-native + D3D12/Vulkan + GLFW | 未対応（予定あり） |
+| Native Linux | wgpu-native + Vulkan + GLFW | 対応済み（CI: check + test + build） |
+| Native Windows | wgpu-native + D3D12/Vulkan + GLFW | 部分対応（CI: check + build、runtime 実機確認は限定的） |
 
-> JS ビルド（ブラウザ）は OS を問わず動作します。Native ビルドは現在 macOS のみです。
+> JS ビルド（ブラウザ）は OS を問わず動作します。Native ビルドは macOS / Linux をサポートし、Windows は `-lm` 問題への repo 側 workaround を入れた段階です。
 
 ## クイックスタート
 
@@ -57,7 +57,7 @@ pnpm install
 # JS smoke テスト
 (cd examples/runtime_smoke && moon run src --target js)
 
-# Native smoke テスト（macOS -- wgpu-native のセットアップが必要）
+# Native smoke テスト（wgpu-native のセットアップが必要）
 bash scripts/setup-wgpu-native.sh
 just run-native runtime_smoke_native
 

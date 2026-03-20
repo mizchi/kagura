@@ -40,6 +40,9 @@ jobs:
       - name: Install JS deps
         if: matrix.target == 'js'
         run: pnpm install --frozen-lockfile
+      - name: Test native prebuild scripts
+        if: matrix.target == 'js'
+        run: node --test scripts/moon-prebuild-native-link-flags.test.mjs
       - name: Update MoonBit registry
         run: moon update
       - name: Setup wgpu-native and glfw
@@ -161,7 +164,8 @@ jobs:
     runs-on: windows-latest
     env:
       MOON_CC: clang
-      CPATH: C:\vcpkg\installed\x64-windows-static\include
+      VCPKG_INSTALLED_DIR: C:\vcpkg\installed
+      VCPKG_DEFAULT_TRIPLET: x64-windows-static
     steps:
       - uses: actions/checkout@v4
       - name: Checkout terrain path dependency
@@ -182,7 +186,8 @@ jobs:
         run: moon update
       - name: Check
         run: moon check --target native
-      # moon build skipped: MoonBit runtime unconditionally links -lm which doesn't exist on Windows (m.lib)
+      - name: Build Native Triangle
+        run: cd examples/native_triangle && moon build src --target native
 
   native-macos:
     runs-on: macos-latest

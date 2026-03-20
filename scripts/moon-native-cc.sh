@@ -30,4 +30,5 @@ if [ -n "${glfw_prefix}" ]; then
   fi
 fi
 
-exec clang "$@"
+compiler="${MOON_CC:-clang}"
+exec "$compiler" "$@"

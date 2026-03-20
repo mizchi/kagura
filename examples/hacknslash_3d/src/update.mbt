@@ -220,30 +220,11 @@ fn GameState::new_with_params(
 }
 
 ///|
-///|
-extern "js" fn js_canvas_css_width() -> Double =
-  #| () => {
-  #|   const state = globalThis.__kaguraWebRuntime;
-  #|   if (state == null || state.canvas == null) return 640;
-  #|   const rect = state.canvas.getBoundingClientRect();
-  #|   return rect.width > 0 ? rect.width : 640;
-  #| }
-
-///|
-extern "js" fn js_canvas_css_height() -> Double =
-  #| () => {
-  #|   const state = globalThis.__kaguraWebRuntime;
-  #|   if (state == null || state.canvas == null) return 480;
-  #|   const rect = state.canvas.getBoundingClientRect();
-  #|   return rect.height > 0 ? rect.height : 480;
-  #| }
-
-///|
 fn GameState::update(self : GameState, input : @core.InputSnapshot) -> Unit {
   self.world.frame_count = self.world.frame_count + 1
   // Scale CSS cursor coordinates to logical game coordinates
-  let css_w = js_canvas_css_width()
-  let css_h = js_canvas_css_height()
+  let css_w = canvas_css_width()
+  let css_h = canvas_css_height()
   let scale_x = screen_w.to_double() / css_w
   let scale_y = screen_h.to_double() / css_h
   self.world.cursor_x = input.cursor_x * scale_x

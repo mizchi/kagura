@@ -43,9 +43,9 @@ Expected output:
 runtime_smoke(js): ok (hooked)
 ```
 
-## Native Run (macOS only)
+## Native Run
 
-> Native builds currently support macOS only. Windows and Linux support is planned.
+> Native builds support macOS and Linux. Windows is still experimental, but the repo includes a build workaround for the upstream `-lm` linker issue.
 
 ```bash
 bash scripts/setup-wgpu-native.sh

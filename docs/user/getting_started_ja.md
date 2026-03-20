@@ -43,9 +43,9 @@ just dev scene_demo
 runtime_smoke(js): ok (hooked)
 ```
 
-## Native 実行（macOS のみ）
+## Native 実行
 
-> Native ビルドは現在 macOS のみ対応しています。Windows / Linux 対応は計画中です。
+> Native ビルドは macOS / Linux に対応しています。Windows は experimental ですが、upstream の `-lm` 問題を回避する build workaround を repo 側で持っています。
 
 ```bash
 bash scripts/setup-wgpu-native.sh

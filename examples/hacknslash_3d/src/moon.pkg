@@ -47,14 +47,18 @@ options(
   "is-main": true,
   link: {
     "native": {
-      "cc": "../../scripts/moon-native-cc.sh",
+      "cc": "${build.KAGURA_NATIVE_CC}",
       "cc-link-flags": "-L../../deps/wgpu-native/lib -lwgpu_native ${build.KAGURA_NATIVE_GLFW_LIBS} -Wl,-rpath,../../deps/wgpu-native/lib ${build.KAGURA_NATIVE_PLATFORM_LIBS}",
     },
   },
   "supported-targets": [ "js", "native" ],
   targets: {
     "audio_bootstrap_js.mbt": [ "js" ],
+    "audio_bootstrap_js_wbtest.mbt": [ "js" ],
+    "canvas_css_js.mbt": [ "js" ],
+    "canvas_css_native.mbt": [ "native" ],
     "main_js.mbt": [ "js" ],
+    "main_js_wbtest.mbt": [ "js" ],
     "main_native.mbt": [ "native" ],
     "save_load.mbt": [ "js" ],
     "save_load_native.mbt": [ "native" ],

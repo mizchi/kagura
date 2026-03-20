@@ -1,7 +1,10 @@
 #!/usr/bin/env node
 
+const fs = require("node:fs");
+const path = require("node:path");
 const { execFileSync } = require("node:child_process");
-const os = process.platform;
+const os = process.env.KAGURA_FORCE_OS || process.platform;
+const cwd = process.env.KAGURA_FORCE_CWD || process.cwd();
 
 let platformLibs = "";
 let audioLibs = "";
@@ -18,6 +21,12 @@ function tryExec(cmd, args) {
 }
 
 function resolveGlfwCflags() {
+  if (os === "win32") {
+    const root = resolveVcpkgGlfwRoot();
+    if (root) {
+      return `-I${path.join(root, "include")}`;
+    }
+  }
   const cflags = tryExec("pkg-config", ["--cflags", "glfw3"]);
   if (cflags) {
     return cflags;
@@ -32,6 +41,13 @@ function resolveGlfwCflags() {
 }
 
 function resolveGlfwLibs() {
+  if (os === "win32") {
+    const root = resolveVcpkgGlfwRoot();
+    if (root) {
+      return `-L${path.join(root, "lib")} -lglfw3`;
+    }
+    return "-lglfw3";
+  }
   const libs = tryExec("pkg-config", ["--libs", "glfw3"]);
   if (libs) {
     return libs;
@@ -43,6 +59,36 @@ function resolveGlfwLibs() {
     }
   }
   return "-lglfw";
+}
+
+function resolveVcpkgGlfwRoot() {
+  const triplet =
+    process.env.KAGURA_VCPKG_TRIPLET ||
+    process.env.VCPKG_DEFAULT_TRIPLET ||
+    "x64-windows-static";
+  const installedDirCandidates = [
+    process.env.KAGURA_VCPKG_INSTALLED_DIR,
+    process.env.VCPKG_INSTALLED_DIR,
+    process.env.VCPKG_ROOT ? path.join(process.env.VCPKG_ROOT, "installed") : "",
+    "C:\\vcpkg\\installed",
+  ].filter(Boolean);
+  for (const installedDir of installedDirCandidates) {
+    const root = path.join(installedDir, triplet);
+    if (
+      fs.existsSync(path.join(root, "include", "GLFW", "glfw3.h")) ||
+      fs.existsSync(path.join(root, "lib", "glfw3.lib")) ||
+      fs.existsSync(path.join(root, "lib", "libglfw3.a"))
+    ) {
+      return root;
+    }
+  }
+  return "";
+}
+
+function resolveNativeCc() {
+  const scriptDir = path.relative(cwd, __dirname) || ".";
+  const wrapperName = os === "win32" ? "moon-native-cc.cmd" : "moon-native-cc.sh";
+  return path.join(scriptDir, wrapperName);
 }
 
 const glfwCflags = resolveGlfwCflags();
@@ -61,6 +107,7 @@ if (os === "darwin") {
 
 const payload = {
   vars: {
+    KAGURA_NATIVE_CC: resolveNativeCc(),
     KAGURA_NATIVE_GLFW_CFLAGS: glfwCflags,
     KAGURA_NATIVE_GLFW_LIBS: glfwLibs,
     KAGURA_NATIVE_PLATFORM_LIBS: platformLibs,

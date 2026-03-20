@@ -36,10 +36,10 @@ vector/        Vector math
 | Web (all OS) | WebGPU | Supported |
 | Native macOS | wgpu-native + Metal + GLFW | Supported |
 | Native Linux | wgpu-native + Vulkan + GLFW | Supported (CI: check + test + build) |
-| Native Windows | wgpu-native + D3D12/Vulkan + GLFW | Partial (check only; `moon build` blocked by upstream `-lm` issue) |
+| Native Windows | wgpu-native + D3D12/Vulkan + GLFW | Partial (CI: check + build workaround; runtime validation pending) |
 | WASM Guest | Shared-memory binary protocol | Supported (MoonBit / Rust / Zig) |
 
-> JS builds (browser) work on any OS. Native builds support macOS and Linux. Windows native build is blocked by an upstream MoonBit toolchain issue.
+> JS builds (browser) work on any OS. Native builds support macOS and Linux. Windows native build uses a repo-side workaround for the upstream `-lm` issue, but runtime validation is still limited.
 
 ## Quick Start
 
@@ -59,7 +59,7 @@ just dev flappy_bird
 
 Builds and serves at `http://localhost:8080`. Browser demos currently require WebGPU (Chrome 113+, Edge 113+).
 
-### Native (macOS only)
+### Native
 
 ```bash
 bash scripts/setup-wgpu-native.sh

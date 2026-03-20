@@ -106,6 +106,9 @@ if (os === "darwin") {
   audioLibs = `${platformLibs} -lwinmm`;
 }
 
+// Windows linker doesn't support -Wl,-rpath
+const wgpuRpath = os === "win32" ? "" : "-Wl,-rpath,../../deps/wgpu-native/lib";
+
 const payload = {
   vars: {
     KAGURA_NATIVE_CC: resolveNativeCc(),
@@ -113,6 +116,7 @@ const payload = {
     KAGURA_NATIVE_GLFW_LIBS: glfwLibs,
     KAGURA_NATIVE_PLATFORM_LIBS: platformLibs,
     KAGURA_NATIVE_AUDIO_LIBS: audioLibs,
+    KAGURA_NATIVE_WGPU_RPATH: wgpuRpath,
   },
 };
 

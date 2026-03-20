@@ -106,7 +106,7 @@ if (os === "darwin") {
   audioLibs = `${platformLibs} -lasound`;
 } else if (os === "win32") {
   // GLFW static linking on Windows needs OpenGL import libs in addition to the Win32 system libs.
-  platformLibs = "-lgdi32 -luser32 -lkernel32 -lshell32 -lole32 -luuid -lopengl32";
+  platformLibs = "-lgdi32 -luser32 -lkernel32 -lshell32 -lole32 -luuid -lopengl32 -lws2_32 -luserenv -lntdll -lbcrypt -ladvapi32 -lpropsys -liphlpapi";
   audioLibs = `${platformLibs} -lwinmm`;
 }
 

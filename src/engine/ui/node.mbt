@@ -110,7 +110,11 @@ pub fn UITree::node_count(self : UITree) -> Int {
 ///|
 fn ui_clamp(value : Double, min_val : Double, max_val : Double) -> Double {
   let clamped = if value > max_val { max_val } else { value }
-  if clamped < min_val { min_val } else { clamped }
+  if clamped < min_val {
+    min_val
+  } else {
+    clamped
+  }
 }
 
 ///|

@@ -24,7 +24,7 @@ function resolveGlfwCflags() {
   if (os === "win32") {
     const root = resolveVcpkgGlfwRoot();
     if (root) {
-      return `-I${path.join(root, "include")}`;
+      return `-I${toForwardSlash(path.join(root, "include"))}`;
     }
   }
   const cflags = tryExec("pkg-config", ["--cflags", "glfw3"]);
@@ -40,11 +40,15 @@ function resolveGlfwCflags() {
   return "";
 }
 
+function toForwardSlash(p) {
+  return p.replace(/\\/g, "/");
+}
+
 function resolveGlfwLibs() {
   if (os === "win32") {
     const root = resolveVcpkgGlfwRoot();
     if (root) {
-      return `-L${path.join(root, "lib")} -lglfw3`;
+      return `-L${toForwardSlash(path.join(root, "lib"))} -lglfw3`;
     }
     return "-lglfw3";
   }
@@ -88,7 +92,7 @@ function resolveVcpkgGlfwRoot() {
 function resolveNativeCc() {
   const scriptDir = path.relative(cwd, __dirname) || ".";
   const wrapperName = os === "win32" ? "moon-native-cc.cmd" : "moon-native-cc.sh";
-  return path.join(scriptDir, wrapperName);
+  return toForwardSlash(path.join(scriptDir, wrapperName));
 }
 
 const glfwCflags = resolveGlfwCflags();

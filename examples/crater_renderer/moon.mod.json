@@ -7,7 +7,7 @@
     "mizchi/kagura": { "path": "../.." },
     "mizchi/web_runtime_hooks": { "path": "../web_runtime_hooks" },
     "mizchi/native_runtime_hooks": { "path": "../native_runtime_hooks" },
-    "mizchi/crater": "0.9.0"
+    "mizchi/crater": "0.9.1"
   },
   "--moonbit-unstable-prebuild": "../../scripts/moon-prebuild-native-link-flags.cjs"
 }

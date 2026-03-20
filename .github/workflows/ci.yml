@@ -172,8 +172,7 @@ jobs:
     runs-on: windows-latest
     env:
       KAGURA_WGPU_WINDOWS_TOOLCHAIN: msvc
-      MOON_CC: ${{ github.workspace }}/scripts/moon-native-cc.cmd
-      KAGURA_CC: clang
+      MOON_CC: clang
       VCPKG_INSTALLED_DIR: C:\vcpkg\installed
       VCPKG_DEFAULT_TRIPLET: x64-windows-static
     steps:
@@ -196,6 +195,12 @@ jobs:
           echo "LIBRARY_PATH=$(pwd)/deps/wgpu-native/lib:${LIBRARY_PATH:-}" >> "$GITHUB_ENV"
       - name: Update MoonBit registry
         run: moon update
+      - name: Stub macOS Objective-C files for Windows
+        shell: bash
+        run: |
+          for f in $(find src vendor -name "*.m" 2>/dev/null); do
+            echo "/* stubbed for Windows */" > "$f"
+          done
       - name: Check
         run: moon check --target native
       - name: Build Native Triangle

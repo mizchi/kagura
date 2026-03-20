@@ -42,6 +42,16 @@ case "$OS" in
   mingw*|msys*|cygwin*)
     WINDOWS_TOOLCHAIN="${KAGURA_WGPU_WINDOWS_TOOLCHAIN:-}"
     if [ -z "$WINDOWS_TOOLCHAIN" ]; then
+      case "${VCPKG_DEFAULT_TRIPLET:-}" in
+        *mingw*)
+          WINDOWS_TOOLCHAIN="gnu"
+          ;;
+        *windows*)
+          WINDOWS_TOOLCHAIN="msvc"
+          ;;
+      esac
+    fi
+    if [ -z "$WINDOWS_TOOLCHAIN" ]; then
       case "${MSYSTEM:-}" in
         MINGW*|CLANG*)
           WINDOWS_TOOLCHAIN="gnu"

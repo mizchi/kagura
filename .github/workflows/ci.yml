@@ -163,6 +163,7 @@ jobs:
   native-windows:
     runs-on: windows-latest
     env:
+      KAGURA_WGPU_WINDOWS_TOOLCHAIN: msvc
       MOON_CC: clang
       VCPKG_INSTALLED_DIR: C:\vcpkg\installed
       VCPKG_DEFAULT_TRIPLET: x64-windows-static

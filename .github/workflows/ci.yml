@@ -202,21 +202,27 @@ jobs:
             echo "/* stubbed for Windows */" > "$f"
           done
       - name: Create clang wrapper that filters Windows-incompatible flags
-        shell: bash
+        shell: pwsh
         run: |
-          CLANG_DIR=$(dirname "$(which clang)")
-          cat > "$CLANG_DIR/kagura-cc" <<'WRAPPER'
-          #!/usr/bin/env bash
-          args=()
-          for arg in "$@"; do
-            [[ "$arg" == "-lm" ]] && continue
-            [[ "$arg" == -Wl,-rpath,* ]] && continue
-            args+=("$arg")
-          done
-          exec clang "${args[@]}"
-          WRAPPER
-          chmod +x "$CLANG_DIR/kagura-cc"
-          echo "MOON_CC=$CLANG_DIR/kagura-cc" >> "$GITHUB_ENV"
+          $clangPath = (Get-Command clang).Source
+          $clangDir = Split-Path $clangPath
+          $wrapperPath = Join-Path $clangDir "kagura-cc.cmd"
+          @"
+          @echo off
+          setlocal EnableExtensions
+          node "%~dp0kagura-cc-filter.cjs" %*
+          exit /b %ERRORLEVEL%
+          "@ | Out-File -Encoding ascii $wrapperPath
+          $filterPath = Join-Path $clangDir "kagura-cc-filter.cjs"
+          @"
+          const { spawnSync } = require("child_process");
+          const args = process.argv.slice(2)
+            .filter(a => a !== "-lm")
+            .filter(a => !a.startsWith("-Wl,-rpath,"));
+          const r = spawnSync("clang", args, { stdio: "inherit" });
+          process.exit(r.status ?? 1);
+          "@ | Out-File -Encoding ascii $filterPath
+          echo "MOON_CC=$wrapperPath" >> $env:GITHUB_ENV
       - name: Check
         run: moon check --target native
       - name: Build Native Triangle

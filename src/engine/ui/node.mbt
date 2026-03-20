@@ -21,6 +21,20 @@ pub(all) enum UIFlexWrap {
 } derive(Show)
 
 ///|
+pub(all) enum UIAlignment {
+  Start
+  End
+  FlexStart
+  FlexEnd
+  Center
+  SpaceBetween
+  SpaceAround
+  SpaceEvenly
+  Stretch
+  Baseline
+} derive(Show, Eq)
+
+///|
 pub(all) struct UINodeStyle {
   direction : UIDirection
   width : UISizing
@@ -30,8 +44,8 @@ pub(all) struct UINodeStyle {
   padding_top : Double
   padding_bottom : Double
   gap : Double
-  align : @layout_types.Alignment
-  justify_content : @layout_types.Alignment
+  align : UIAlignment
+  justify_content : UIAlignment
   flex_wrap : UIFlexWrap
 } derive(Show)
 
@@ -46,8 +60,8 @@ pub fn default_node_style() -> UINodeStyle {
     padding_top: 0.0,
     padding_bottom: 0.0,
     gap: 0.0,
-    align: @layout_types.Alignment::Start,
-    justify_content: @layout_types.Alignment::Start,
+    align: UIAlignment::Start,
+    justify_content: UIAlignment::Start,
     flex_wrap: UIFlexWrap::NoWrap,
   }
 }
@@ -91,4 +105,60 @@ pub fn UITree::get_node(self : UITree, id : UINodeId) -> UINode? {
 ///|
 pub fn UITree::node_count(self : UITree) -> Int {
   self.nodes.length()
+}
+
+///|
+fn ui_clamp(value : Double, min_val : Double, max_val : Double) -> Double {
+  let clamped = if value > max_val { max_val } else { value }
+  if clamped < min_val { min_val } else { clamped }
+}
+
+///|
+fn ui_compute_justify(
+  justify : UIAlignment,
+  free_space : Double,
+  item_count : Int,
+) -> (Double, Double) {
+  if item_count == 0 {
+    return (0.0, 0.0)
+  }
+  if free_space < 0.0 {
+    match justify {
+      SpaceBetween | SpaceAround | SpaceEvenly => return (0.0, 0.0)
+      _ => ()
+    }
+  }
+  match justify {
+    Start | FlexStart => (0.0, 0.0)
+    End | FlexEnd => (free_space, 0.0)
+    Center => (free_space / 2.0, 0.0)
+    SpaceBetween =>
+      if item_count == 1 {
+        (0.0, 0.0)
+      } else {
+        (0.0, free_space / (item_count - 1).to_double())
+      }
+    SpaceAround => {
+      let gap = free_space / item_count.to_double()
+      (gap / 2.0, gap)
+    }
+    SpaceEvenly => {
+      let gap = free_space / (item_count + 1).to_double()
+      (gap, gap)
+    }
+    Stretch | Baseline => (0.0, 0.0)
+  }
+}
+
+///|
+fn ui_compute_align_offset(align : UIAlignment, free_space : Double) -> Double {
+  if free_space <= 0.0 {
+    return 0.0
+  }
+  match align {
+    Start | FlexStart => 0.0
+    End | FlexEnd => free_space
+    Center | SpaceAround | SpaceEvenly => free_space / 2.0
+    SpaceBetween | Stretch | Baseline => 0.0
+  }
 }

@@ -524,7 +524,7 @@ test "justify-content Center" {
     direction: UIDirection::Row,
     width: UISizing::Fixed(200.0),
     height: UISizing::Fixed(100.0),
-    justify_content: @layout_types.Alignment::Center,
+    justify_content: UIAlignment::Center,
   }
   let root = tree.add_node(parent_style, [c1, c2])
   let engine = SimpleLayoutEngine::new(tree)
@@ -556,7 +556,7 @@ test "justify-content SpaceBetween" {
     direction: UIDirection::Row,
     width: UISizing::Fixed(200.0),
     height: UISizing::Fixed(50.0),
-    justify_content: @layout_types.Alignment::SpaceBetween,
+    justify_content: UIAlignment::SpaceBetween,
   }
   let root = tree.add_node(parent_style, [c1, c2, c3])
   let engine = SimpleLayoutEngine::new(tree)
@@ -586,7 +586,7 @@ test "justify-content End" {
     direction: UIDirection::Row,
     width: UISizing::Fixed(100.0),
     height: UISizing::Fixed(50.0),
-    justify_content: @layout_types.Alignment::End,
+    justify_content: UIAlignment::End,
   }
   let root = tree.add_node(parent_style, [c1])
   let engine = SimpleLayoutEngine::new(tree)
@@ -624,7 +624,7 @@ test "align-items Center (row)" {
     direction: UIDirection::Row,
     width: UISizing::Fixed(200.0),
     height: UISizing::Fixed(100.0),
-    align: @layout_types.Alignment::Center,
+    align: UIAlignment::Center,
   }
   let root = tree.add_node(parent_style, [c1, c2])
   let engine = SimpleLayoutEngine::new(tree)
@@ -665,7 +665,7 @@ test "align-items End (column)" {
     direction: UIDirection::Column,
     width: UISizing::Fixed(200.0),
     height: UISizing::Fixed(100.0),
-    align: @layout_types.Alignment::End,
+    align: UIAlignment::End,
   }
   let root = tree.add_node(parent_style, [c1, c2])
   let engine = SimpleLayoutEngine::new(tree)
@@ -788,8 +788,8 @@ test "flex-wrap with justify-content and align-items" {
     width: UISizing::Fixed(100.0),
     height: UISizing::Fixed(100.0),
     flex_wrap: UIFlexWrap::Wrap,
-    justify_content: @layout_types.Alignment::Center,
-    align: @layout_types.Alignment::Center,
+    justify_content: UIAlignment::Center,
+    align: UIAlignment::Center,
   }
   let root = tree.add_node(parent_style, [c1, c2, c3])
   let engine = SimpleLayoutEngine::new(tree)
@@ -1035,7 +1035,7 @@ test "justify-content SpaceAround" {
     direction: UIDirection::Row,
     width: UISizing::Fixed(100.0),
     height: UISizing::Fixed(50.0),
-    justify_content: @layout_types.Alignment::SpaceAround,
+    justify_content: UIAlignment::SpaceAround,
   }
   let root = tree.add_node(parent_style, [c1, c2])
   let engine = SimpleLayoutEngine::new(tree)
@@ -1069,7 +1069,7 @@ test "justify-content Column direction" {
     direction: UIDirection::Column,
     width: UISizing::Fixed(40.0),
     height: UISizing::Fixed(100.0),
-    justify_content: @layout_types.Alignment::Center,
+    justify_content: UIAlignment::Center,
   }
   let root = tree.add_node(parent_style, [c1, c2])
   let engine = SimpleLayoutEngine::new(tree)

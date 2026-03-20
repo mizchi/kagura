@@ -114,12 +114,12 @@ fn layout_node(
   let content_h = resolve_size(style.height, avail_h)
   let inner_w = content_w - style.padding_left - style.padding_right
   let inner_h = content_h - style.padding_top - style.padding_bottom
-  let clamped_w = @layout.clamp_value(
+  let clamped_w = ui_clamp(
     inner_w,
     0.0,
     avail_w - style.padding_left - style.padding_right,
   )
-  let clamped_h = @layout.clamp_value(
+  let clamped_h = ui_clamp(
     inner_h,
     0.0,
     avail_h - style.padding_top - style.padding_bottom,
@@ -219,7 +219,7 @@ fn layout_node(
       cross_offset = cross_offset + style.gap
     }
     let free_main = actual_main - line.main_size
-    let (main_start, main_extra_gap) = @layout.compute_justify(
+    let (main_start, main_extra_gap) = ui_compute_justify(
       style.justify_content,
       if free_main > 0.0 {
         free_main
@@ -232,7 +232,7 @@ fn layout_node(
     for _, item in line.items {
       let (child_idx, item_main, item_cross) = item
       let free_cross = line.cross_size - item_cross
-      let cross_align = @layout.compute_align_offset(
+      let cross_align = ui_compute_align_offset(
         style.align,
         if free_cross > 0.0 {
           free_cross

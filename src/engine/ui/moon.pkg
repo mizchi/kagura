@@ -2,6 +2,4 @@ import {
   "mizchi/kagura/core" @core,
   "mizchi/kagura/engine/gfx" @gfx,
   "mizchi/kagura/core/inpututil" @inpututil,
-  "mizchi/layout" @layout,
-  "mizchi/layout/types" @layout_types,
 }

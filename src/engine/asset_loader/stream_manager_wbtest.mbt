@@ -62,7 +62,7 @@ fn complete_mock(fetcher : MockFetcher, req_index : Int, data : Bytes?) -> Unit 
 ///|
 test "priority ordering: Critical before Low" {
   let fetcher = new_mock_fetcher()
-  let manager = new_asset_stream_manager(fetcher, max_concurrent=1)
+  let manager = AssetStreamManager::new(fetcher, max_concurrent=1)
   let order : Array[String] = []
   ignore(manager.enqueue("low.png", Low, fn(_) { order.push("low") }))
   ignore(
@@ -88,7 +88,7 @@ test "priority ordering: Critical before Low" {
 ///|
 test "max_concurrent limits active requests" {
   let fetcher = new_mock_fetcher()
-  let manager = new_asset_stream_manager(fetcher, max_concurrent=2)
+  let manager = AssetStreamManager::new(fetcher, max_concurrent=2)
   ignore(manager.enqueue("a.png", Normal, fn(_) {  }))
   ignore(manager.enqueue("b.png", Normal, fn(_) {  }))
   ignore(manager.enqueue("c.png", Normal, fn(_) {  }))
@@ -102,7 +102,7 @@ test "max_concurrent limits active requests" {
 ///|
 test "cancel pending request" {
   let fetcher = new_mock_fetcher()
-  let manager = new_asset_stream_manager(fetcher, max_concurrent=1)
+  let manager = AssetStreamManager::new(fetcher, max_concurrent=1)
   let id = manager.enqueue("cancel-me.png", Normal, fn(_) { panic() })
   manager.cancel(id)
   manager.update()
@@ -114,7 +114,7 @@ test "cancel pending request" {
 ///|
 test "cancel active request" {
   let fetcher = new_mock_fetcher()
-  let manager = new_asset_stream_manager(fetcher, max_concurrent=2)
+  let manager = AssetStreamManager::new(fetcher, max_concurrent=2)
   let id = manager.enqueue("active.png", Normal, fn(_) { panic() })
   manager.update()
   assert_eq(manager.progress().active, 1)
@@ -126,7 +126,7 @@ test "cancel active request" {
 ///|
 test "progress tracking" {
   let fetcher = new_mock_fetcher()
-  let manager = new_asset_stream_manager(fetcher, max_concurrent=4)
+  let manager = AssetStreamManager::new(fetcher, max_concurrent=4)
   ignore(manager.enqueue("a.png", Normal, fn(_) {  }))
   ignore(manager.enqueue("b.png", Normal, fn(_) {  }))
   ignore(manager.enqueue("c.png", Normal, fn(_) {  }))
@@ -143,4 +143,27 @@ test "progress tracking" {
   assert_eq(p2.completed, 1)
   assert_eq(p2.failed, 1)
   assert_eq(p2.active, 1)
+}
+
+///|
+test "image_fetch_fn adapts bytes fetches to image specs" {
+  let fetcher = new_mock_fetcher()
+  let manager = AssetStreamManager::new(fetcher, max_concurrent=1)
+  let fetch_image = manager.image_fetch_fn(priority=High)
+  let mut decoded : @asset.ImageSpec? = None
+  fetch_image("sprite.png", fn(spec_opt) { decoded = spec_opt })
+  manager.update()
+  let source = @asset.image_spec_with_rgba8(1, 1, [255, 0, 0, 255])
+  let png = @asset.encode_image_spec(source, @asset.raster_image_format_png()) catch {
+    _ => panic()
+  }
+  complete_mock(fetcher, 0, Some(png))
+  manager.update()
+  match decoded {
+    Some(spec) => {
+      assert_eq(spec.width, 1)
+      assert_eq(spec.height, 1)
+    }
+    None => panic()
+  }
 }

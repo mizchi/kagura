@@ -7,8 +7,8 @@ pub enum AsyncImageStatus {
 } derive(Show)
 
 ///|
-pub fn async_image_status_to_int(status : AsyncImageStatus) -> Int {
-  match status {
+pub fn AsyncImageStatus::to_int(self : AsyncImageStatus) -> Int {
+  match self {
     AsyncImageStatus::Pending => 0
     AsyncImageStatus::Loading => 1
     AsyncImageStatus::Succeeded => 2
@@ -44,7 +44,7 @@ pub struct AsyncImageLoader {
 }
 
 ///|
-pub fn new_async_image_loader(
+pub fn AsyncImageLoader::new(
   fetch_image_fn? : (String, (@asset.ImageSpec?) -> Unit) -> Unit = @asset.fetch_image,
 ) -> AsyncImageLoader {
   {
@@ -57,7 +57,7 @@ pub fn new_async_image_loader(
 }
 
 ///|
-pub fn AsyncImageLoader::enqueue_image(
+pub fn AsyncImageLoader::enqueue(
   self : AsyncImageLoader,
   key : @asset.AssetKey,
   url : String,
@@ -111,7 +111,7 @@ pub fn AsyncImageLoader::start_pending(self : AsyncImageLoader) -> Int {
 }
 
 ///|
-pub fn AsyncImageLoader::get_request(
+pub fn AsyncImageLoader::request(
   self : AsyncImageLoader,
   id : Int,
 ) -> AsyncImageRequest? {
@@ -151,7 +151,7 @@ pub fn AsyncImageLoader::progress(
 }
 
 ///|
-pub fn AsyncImageLoader::commit_loaded_image(
+pub fn AsyncImageLoader::commit_image(
   self : AsyncImageLoader,
   id : Int,
   repo : @asset.SimpleImageRepository,

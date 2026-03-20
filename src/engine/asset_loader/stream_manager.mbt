@@ -47,7 +47,7 @@ pub struct AssetStreamManager {
 }
 
 ///|
-pub fn new_asset_stream_manager(
+pub fn AssetStreamManager::new(
   fetcher : &@asset.BytesFetcher,
   max_concurrent? : Int = 4,
 ) -> AssetStreamManager {
@@ -150,14 +150,14 @@ pub fn AssetStreamManager::update(self : AssetStreamManager) -> Unit {
 }
 
 ///|
-/// Creates a fetch_image_fn compatible with AsyncImageLoader from a stream manager.
-pub fn make_stream_fetch_image_fn(
-  manager : AssetStreamManager,
+/// Creates an AsyncImageLoader-compatible fetch_image_fn from this stream manager.
+pub fn AssetStreamManager::image_fetch_fn(
+  self : AssetStreamManager,
   priority? : AssetPriority = Normal,
 ) -> (String, (@asset.ImageSpec?) -> Unit) -> Unit {
   fn(url, callback) {
     ignore(
-      manager.enqueue(url, priority, fn(bytes_opt) {
+      self.enqueue(url, priority, fn(bytes_opt) {
         match bytes_opt {
           None => callback(None)
           Some(bytes) =>

@@ -1,7 +1,10 @@
 ///|
 test "AssetStreamer: basic request and update" {
   let fetcher = new_mock_fetcher()
-  let streamer = new_asset_streamer(fetcher, config=default_streamer_config())
+  let streamer = AssetStreamer::new(
+    fetcher,
+    config=AssetStreamerConfig::default(),
+  )
   let mut received = false
   let key = @asset.new_asset_key("test")
   ignore(
@@ -22,7 +25,10 @@ test "AssetStreamer: basic request and update" {
 ///|
 test "AssetStreamer: duplicate request returns same id" {
   let fetcher = new_mock_fetcher()
-  let streamer = new_asset_streamer(fetcher, config=default_streamer_config())
+  let streamer = AssetStreamer::new(
+    fetcher,
+    config=AssetStreamerConfig::default(),
+  )
   let key = @asset.new_asset_key("dup")
   let id1 = streamer.request("a.png", key, Normal, fn(_) {  })
   let id2 = streamer.request("a.png", key, Normal, fn(_) {  })
@@ -35,7 +41,10 @@ test "AssetStreamer: duplicate request returns same id" {
 ///|
 test "AssetStreamer: duplicate request fans out completion callbacks" {
   let fetcher = new_mock_fetcher()
-  let streamer = new_asset_streamer(fetcher, config=default_streamer_config())
+  let streamer = AssetStreamer::new(
+    fetcher,
+    config=AssetStreamerConfig::default(),
+  )
   let key = @asset.new_asset_key("dup-fanout")
   let completions : Array[String] = []
   ignore(
@@ -63,11 +72,11 @@ test "AssetStreamer: duplicate request fans out completion callbacks" {
 ///|
 test "AssetStreamer: distance-based priority" {
   let fetcher = new_mock_fetcher()
-  let streamer = new_asset_streamer(fetcher, config={
-    ..default_streamer_config(),
+  let streamer = AssetStreamer::new(fetcher, config={
+    ..AssetStreamerConfig::default(),
     max_concurrent: 1,
   })
-  let thresholds = default_distance_thresholds()
+  let thresholds = DistanceThresholds::default()
   // Request far object first, then close object
   ignore(
     streamer.request_by_distance(
@@ -95,7 +104,10 @@ test "AssetStreamer: distance-based priority" {
 ///|
 test "AssetStreamer: LOD skip duplicate" {
   let fetcher = new_mock_fetcher()
-  let streamer = new_asset_streamer(fetcher, config=default_streamer_config())
+  let streamer = AssetStreamer::new(
+    fetcher,
+    config=AssetStreamerConfig::default(),
+  )
   let key = @asset.new_asset_key("model")
   let id1 = streamer.request_lod("model_lod2.obj", key, 2, Normal, fn(_) {  })
   // Request same or lower LOD → should return same id
@@ -106,7 +118,10 @@ test "AssetStreamer: LOD skip duplicate" {
 ///|
 test "AssetStreamer: LOD upgrade" {
   let fetcher = new_mock_fetcher()
-  let streamer = new_asset_streamer(fetcher, config=default_streamer_config())
+  let streamer = AssetStreamer::new(
+    fetcher,
+    config=AssetStreamerConfig::default(),
+  )
   let key = @asset.new_asset_key("model")
   let id1 = streamer.request_lod("model_lod1.obj", key, 1, Normal, fn(_) {  })
   // Request higher LOD → should create new request
@@ -123,7 +138,7 @@ test "AssetStreamer: eviction" {
     eviction_interval: 1, // sweep every frame
   }
   let fetcher = new_mock_fetcher()
-  let streamer = new_asset_streamer(fetcher, config~, on_evict=fn(key) {
+  let streamer = AssetStreamer::new(fetcher, config~, on_evict=fn(key) {
     evicted.push(key.value)
   })
   // Add 3 entries
@@ -150,7 +165,7 @@ test "AssetStreamer: eviction" {
 test "AssetStreamer: manual evict" {
   let evicted : Array[String] = []
   let fetcher = new_mock_fetcher()
-  let streamer = new_asset_streamer(fetcher, on_evict=fn(key) {
+  let streamer = AssetStreamer::new(fetcher, on_evict=fn(key) {
     evicted.push(key.value)
   })
   let key = @asset.new_asset_key("manual")
@@ -162,7 +177,10 @@ test "AssetStreamer: manual evict" {
 ///|
 test "AssetStreamer: payload released after callbacks fire (Delivered state)" {
   let fetcher = new_mock_fetcher()
-  let streamer = new_asset_streamer(fetcher, config=default_streamer_config())
+  let streamer = AssetStreamer::new(
+    fetcher,
+    config=AssetStreamerConfig::default(),
+  )
   let key = @asset.new_asset_key("release")
   let mut first_received = false
   ignore(
@@ -189,7 +207,10 @@ test "AssetStreamer: payload released after callbacks fire (Delivered state)" {
 ///|
 test "AssetStreamer: fetch failure delivers None to callbacks" {
   let fetcher = new_mock_fetcher()
-  let streamer = new_asset_streamer(fetcher, config=default_streamer_config())
+  let streamer = AssetStreamer::new(
+    fetcher,
+    config=AssetStreamerConfig::default(),
+  )
   let key = @asset.new_asset_key("fail")
   let mut received_data : Bytes? = Some(b"initial")
   ignore(
@@ -206,7 +227,7 @@ test "AssetStreamer: fetch failure delivers None to callbacks" {
 test "AssetStreamer: eviction of in-flight request cancels fetch" {
   let evicted : Array[String] = []
   let fetcher = new_mock_fetcher()
-  let streamer = new_asset_streamer(fetcher, on_evict=fn(key) {
+  let streamer = AssetStreamer::new(fetcher, on_evict=fn(key) {
     evicted.push(key.value)
   })
   let key = @asset.new_asset_key("inflight")
@@ -223,7 +244,10 @@ test "AssetStreamer: eviction of in-flight request cancels fetch" {
 ///|
 test "AssetStreamer: LOD upgrade cancels previous in-flight fetch" {
   let fetcher = new_mock_fetcher()
-  let streamer = new_asset_streamer(fetcher, config=default_streamer_config())
+  let streamer = AssetStreamer::new(
+    fetcher,
+    config=AssetStreamerConfig::default(),
+  )
   let key = @asset.new_asset_key("lod-cancel")
   ignore(streamer.request_lod("model_lod1.obj", key, 1, Normal, fn(_) {  }))
   streamer.update()
@@ -237,7 +261,7 @@ test "AssetStreamer: LOD upgrade cancels previous in-flight fetch" {
 ///|
 test "reprioritize pending request" {
   let fetcher = new_mock_fetcher()
-  let manager = new_asset_stream_manager(fetcher, max_concurrent=1)
+  let manager = AssetStreamManager::new(fetcher, max_concurrent=1)
   // Enqueue two Low requests, then reprioritize second to Critical
   let _id1 = manager.enqueue("first.png", Low, fn(_) {  })
   let id2 = manager.enqueue("second.png", Low, fn(_) {  })
@@ -251,7 +275,22 @@ test "reprioritize pending request" {
 ///|
 test "reprioritize non-existent returns false" {
   let fetcher = new_mock_fetcher()
-  let manager = new_asset_stream_manager(fetcher, max_concurrent=1)
+  let manager = AssetStreamManager::new(fetcher, max_concurrent=1)
   let ok = manager.reprioritize(999, Critical)
   assert_false(ok)
+}
+
+///|
+test "AssetStreamer: stream_manager exposes underlying progress" {
+  let fetcher = new_mock_fetcher()
+  let streamer = AssetStreamer::new(fetcher)
+  ignore(
+    streamer.request("manager.png", @asset.new_asset_key("manager"), Normal, fn(
+      _,
+    ) {
+      ()
+    }),
+  )
+  streamer.update()
+  assert_eq(streamer.stream_manager().progress().active, 1)
 }

@@ -6,7 +6,7 @@ pub(all) struct AssetStreamerConfig {
 } derive(Show)
 
 ///|
-pub fn default_streamer_config() -> AssetStreamerConfig {
+pub fn AssetStreamerConfig::default() -> AssetStreamerConfig {
   { max_concurrent: 4, max_cached: 128, eviction_interval: 60 }
 }
 
@@ -18,7 +18,7 @@ pub(all) struct DistanceThresholds {
 } derive(Show)
 
 ///|
-pub fn default_distance_thresholds() -> DistanceThresholds {
+pub fn DistanceThresholds::default() -> DistanceThresholds {
   { critical: 10.0, high: 30.0, normal: 60.0 }
 }
 
@@ -67,13 +67,13 @@ pub struct AssetStreamer {
 }
 
 ///|
-pub fn new_asset_streamer(
+pub fn AssetStreamer::new(
   fetcher : &@asset.BytesFetcher,
-  config? : AssetStreamerConfig = default_streamer_config(),
+  config? : AssetStreamerConfig = AssetStreamerConfig::default(),
   on_evict? : (@asset.AssetKey) -> Unit = fn(_) {  },
 ) -> AssetStreamer {
   {
-    manager: new_asset_stream_manager(
+    manager: AssetStreamManager::new(
       fetcher,
       max_concurrent=config.max_concurrent,
     ),
@@ -136,7 +136,7 @@ pub fn AssetStreamer::request_by_distance(
   url : String,
   key : @asset.AssetKey,
   distance : Double,
-  thresholds? : DistanceThresholds = default_distance_thresholds(),
+  thresholds? : DistanceThresholds = DistanceThresholds::default(),
   on_complete~ : (Bytes?) -> Unit,
 ) -> Int {
   let priority = distance_to_priority(distance, thresholds)
@@ -272,6 +272,8 @@ pub fn AssetStreamer::progress(self : AssetStreamer) -> StreamProgress {
 }
 
 ///|
-pub fn AssetStreamer::get_manager(self : AssetStreamer) -> AssetStreamManager {
+pub fn AssetStreamer::stream_manager(
+  self : AssetStreamer,
+) -> AssetStreamManager {
   self.manager
 }

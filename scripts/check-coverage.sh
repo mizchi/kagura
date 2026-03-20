@@ -17,33 +17,36 @@ echo "=== Coverage Analysis ==="
 COVERAGE_OUTPUT=$(moon coverage analyze 2>&1)
 
 # Critical packages and their max-uncovered-line thresholds
-# These thresholds are intentionally generous to start — tighten as tests grow.
+# Paths reflect the 3-layer module structure: src/core/, src/engine/, src/
 declare -A THRESHOLDS=(
-  [core]=10
-  [runtime]=15
-  [gfx]=60
-  [scene]=90
-  [asset_loader]=30
-  [asset]=80
-  [platform]=30
-  [engine]=40
-  [ui]=15
-  [ecs]=20
+  [src/core/]=115
+  [src/engine/runtime/]=15
+  [src/engine/gfx/]=60
+  [src/scene/]=90
+  [src/engine/asset_loader/]=30
+  [src/engine/asset/]=80
+  [src/engine/platform/]=30
+  [src/engine/]=540
+  [src/engine/ui/]=15
+  [src/ecs/]=20
 )
 
 FAILED=0
 
-for pkg in "${!THRESHOLDS[@]}"; do
-  threshold=${THRESHOLDS[$pkg]}
-  # Sum uncovered lines for all files in src/$pkg/
-  uncovered=$(echo "$COVERAGE_OUTPUT" | grep "uncovered line(s) in src/$pkg/" | \
-    sed 's/^ *\([0-9]*\) .*/\1/' | awk '{s+=$1} END {print s+0}')
+for pkg_path in "${!THRESHOLDS[@]}"; do
+  threshold=${THRESHOLDS[$pkg_path]}
+  uncovered=$(printf '%s\n' "$COVERAGE_OUTPUT" | \
+    awk -v needle="uncovered line(s) in $pkg_path" '
+      index($0, needle) { s += $1 }
+      END { print s + 0 }
+    ')
 
   if [ "$uncovered" -gt "$threshold" ]; then
-    echo "FAIL: src/$pkg/ has $uncovered uncovered lines (threshold: $threshold)"
+    echo "FAIL: $pkg_path has $uncovered uncovered lines (threshold: $threshold)"
+    echo "::error file=scripts/check-coverage.sh,title=Coverage threshold exceeded::$pkg_path has $uncovered uncovered lines (threshold: $threshold)"
     FAILED=1
   else
-    echo "  OK: src/$pkg/ has $uncovered uncovered lines (threshold: $threshold)"
+    echo "  OK: $pkg_path has $uncovered uncovered lines (threshold: $threshold)"
   fi
 done
 

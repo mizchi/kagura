@@ -38,6 +38,7 @@ test("prebuild emits Windows-specific cc wrapper and vcpkg glfw flags", () => {
   assert.match(payload.vars.KAGURA_NATIVE_GLFW_LIBS, /-lglfw3/);
   assert.match(payload.vars.KAGURA_NATIVE_GLFW_LIBS, /x64-windows-static/);
   assert.match(payload.vars.KAGURA_NATIVE_PLATFORM_LIBS, /-lgdi32/);
+  assert.match(payload.vars.KAGURA_NATIVE_PLATFORM_LIBS, /-lopengl32/);
 });
 
 test("prebuild emits Unix wrapper on non-Windows", () => {

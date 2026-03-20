@@ -71,48 +71,29 @@ struct DemoState {
 }
 
 ///|
-fn main {
-  @web_hooks.install("#app")
-  // Try loading TTF font via web runtime hooks
-  let text_renderer = @text.load_text_renderer(
-    "assets/Tiny5-Regular.ttf", 512, 500, 0,
+fn draw_frame(
+  engine_ctx : @engine.EngineContext,
+  demo : DemoState,
+) -> Array[@gfx.DrawTrianglesCommand] {
+  let cmds : Array[@gfx.DrawTrianglesCommand] = []
+  let sw = engine_ctx.screen_w.to_double()
+  let sh = engine_ctx.screen_h.to_double()
+  let scissor = @draw2d_ui.ScissorStack::new(
+    engine_ctx.screen_w, engine_ctx.screen_h,
   )
-  let demo = DemoState::{ text_renderer }
-  @engine.run(
-    update=fn(_input) {  },
-    draw=fn(engine_ctx) {
-      let cmds : Array[@gfx.DrawTrianglesCommand] = []
-      let sw = engine_ctx.screen_w.to_double()
-      let sh = engine_ctx.screen_h.to_double()
-      let scissor = @draw2d_ui.ScissorStack::new(
-        engine_ctx.screen_w, engine_ctx.screen_h,
-      )
-      // Parse HTML with actual screen dimensions
-      let render_ctx : @renderer.RenderContext = {
-        viewport_width: sw,
-        viewport_height: sh,
-        root_font_size: 16.0,
-        color_scheme: Light,
-      }
-      let node = @renderer.render_to_node(demo_html, render_ctx)
-      let layout = @renderer.render(demo_html, render_ctx)
-      let paint_root = @paint.from_node_and_layout(node, layout)
-      // Clear background
-      let (bg_v, bg_i) = @draw2d_ui.filled_rect_vertices(
-        0.0, 0.0, sw, sh, sw, sh,
-      )
-      cmds.push(make_cmd(engine_ctx, scissor, bg_v, bg_i, 0x000000))
-      // Render paint tree
-      render_paint_node(cmds, engine_ctx, demo, scissor, paint_root, 0.0, 0.0)
-      // Flush text atlas to GPU
-      flush_text_atlas(demo)
-      cmds
-    },
-    width=screen_w,
-    height=screen_h,
-    title="Crater Renderer",
-    canvas="#app",
-  )
+  let render_ctx : @renderer.RenderContext = {
+    viewport_width: sw,
+    viewport_height: sh,
+    root_font_size: 16.0,
+    color_scheme: Light,
+  }
+  let node = @renderer.render_to_node(demo_html, render_ctx)
+  let layout = @renderer.render(demo_html, render_ctx)
+  let paint_root = @paint.from_node_and_layout(node, layout)
+  let (bg_v, bg_i) = @draw2d_ui.filled_rect_vertices(0.0, 0.0, sw, sh, sw, sh)
+  cmds.push(make_cmd(engine_ctx, scissor, bg_v, bg_i, 0x000000))
+  render_paint_node(cmds, engine_ctx, demo, scissor, paint_root, 0.0, 0.0)
+  cmds
 }
 
 ///|
@@ -133,7 +114,6 @@ fn render_paint_node(
   let w = node.width
   let h = node.height
   let paint = node.paint
-  // Draw background
   if w > 0.0 && h > 0.0 {
     let bg = paint.background_color
     if bg.a > 0.0 {
@@ -143,7 +123,6 @@ fn render_paint_node(
       cmds.push(make_cmd(ctx, scissor, v, i, crater_color_to_hex(bg)))
     }
   }
-  // Draw text
   match node.text {
     Some(text) =>
       if text.length() > 0 {
@@ -152,7 +131,6 @@ fn render_paint_node(
       }
     None => ()
   }
-  // Handle overflow clipping
   let clips = w > 0.0 &&
     h > 0.0 &&
     (node.overflow_x != @crater_types.Visible ||
@@ -168,7 +146,6 @@ fn render_paint_node(
       return
     }
   }
-  // Render children
   for child in node.children {
     render_paint_node(cmds, ctx, demo, scissor, child, x, y)
   }
@@ -208,7 +185,6 @@ fn push_text(
       }
     }
     None => {
-      // Fallback to dot-matrix
       let chars : Array[Int] = []
       for ch in text {
         let mut code = ch.to_int()
@@ -238,38 +214,6 @@ fn push_text(
         @debugutil.color_from_hex(color_hex), scale,
       )
     }
-  }
-}
-
-///|
-fn flush_text_atlas(demo : DemoState) -> Unit {
-  let renderer = match demo.text_renderer {
-    Some(r) => r
-    None => return
-  }
-  let dirty_pages = renderer.flush_dirty_pages()
-  if dirty_pages.length() > 0 {
-    let bindings : Array[@asset.SourceImageBinding] = []
-    for page_info in dirty_pages {
-      let page_idx = page_info.page_id - renderer.get_page_id()
-      let page = renderer.get_page(page_idx)
-      bindings.push(
-        @asset.new_source_image_binding(
-          page_info.page_id,
-          page_info.width,
-          page_info.height,
-          1,
-          Some(
-            @asset.new_source_image_dirty_rect(
-              0, 0, page_info.width, page_info.height,
-            ),
-          ),
-          @image_palette.checker_palette_from_seed(page_info.page_id),
-          page.get_pixels(),
-        ),
-      )
-    }
-    let _ = @web_hooks.sync_source_images(bindings)
   }
 }
 

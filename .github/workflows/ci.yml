@@ -24,6 +24,8 @@ jobs:
       - uses: actions/checkout@v4
       - name: Checkout terrain path dependency
         run: git clone --depth=1 https://github.com/mizchi/terrain.git ../terrain
+      - name: Checkout crater path dependency
+        run: git clone --depth=1 https://github.com/mizchi/crater.git ../crater
       - name: Install MoonBit CLI
         run: |
           curl -fsSL https://cli.moonbitlang.com/install/unix.sh | bash
@@ -42,7 +44,7 @@ jobs:
         run: pnpm install --frozen-lockfile
       - name: Test native prebuild scripts
         if: matrix.target == 'js'
-        run: node --test scripts/moon-prebuild-native-link-flags.test.mjs
+        run: node --test scripts/moon-native-cc-win.test.mjs scripts/moon-prebuild-native-link-flags.test.mjs
       - name: Update MoonBit registry
         run: moon update
       - name: Setup wgpu-native and glfw
@@ -62,6 +64,8 @@ jobs:
       - uses: actions/checkout@v4
       - name: Checkout terrain path dependency
         run: git clone --depth=1 https://github.com/mizchi/terrain.git ../terrain
+      - name: Checkout crater path dependency
+        run: git clone --depth=1 https://github.com/mizchi/crater.git ../crater
       - name: Install MoonBit CLI
         run: |
           curl -fsSL https://cli.moonbitlang.com/install/unix.sh | bash
@@ -93,6 +97,8 @@ jobs:
       - uses: actions/checkout@v4
       - name: Checkout terrain path dependency
         run: git clone --depth=1 https://github.com/mizchi/terrain.git ../terrain
+      - name: Checkout crater path dependency
+        run: git clone --depth=1 https://github.com/mizchi/crater.git ../crater
       - name: Install MoonBit CLI
         run: |
           curl -fsSL https://cli.moonbitlang.com/install/unix.sh | bash
@@ -136,6 +142,8 @@ jobs:
       - uses: actions/checkout@v4
       - name: Checkout terrain path dependency
         run: git clone --depth=1 https://github.com/mizchi/terrain.git ../terrain
+      - name: Checkout crater path dependency
+        run: git clone --depth=1 https://github.com/mizchi/crater.git ../crater
       - name: Install system dependencies
         run: |
           sudo apt-get update
@@ -171,6 +179,8 @@ jobs:
       - uses: actions/checkout@v4
       - name: Checkout terrain path dependency
         run: git clone --depth=1 https://github.com/mizchi/terrain.git ../terrain
+      - name: Checkout crater path dependency
+        run: git clone --depth=1 https://github.com/mizchi/crater.git ../crater
       - name: Install MoonBit CLI
         run: |
           Set-ExecutionPolicy RemoteSigned -Scope CurrentUser
@@ -201,6 +211,8 @@ jobs:
       - uses: actions/checkout@v4
       - name: Checkout terrain path dependency
         run: git clone --depth=1 https://github.com/mizchi/terrain.git ../terrain
+      - name: Checkout crater path dependency
+        run: git clone --depth=1 https://github.com/mizchi/crater.git ../crater
       - name: Install MoonBit CLI
         run: |
           curl -fsSL https://cli.moonbitlang.com/install/unix.sh | bash

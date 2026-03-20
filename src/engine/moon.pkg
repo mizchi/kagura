@@ -10,8 +10,8 @@ warnings = "-6-53-68"
 
 options(
   targets: {
+    "game_api.mbt": [ "js", "native" ],
     "run_js.mbt": [ "js" ],
     "run_native.mbt": [ "native" ],
-    "game_api.mbt": [ "js", "native" ],
   },
 )

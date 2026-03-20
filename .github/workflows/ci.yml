@@ -172,7 +172,7 @@ jobs:
     runs-on: windows-latest
     env:
       KAGURA_WGPU_WINDOWS_TOOLCHAIN: msvc
-      MOON_CC: scripts/moon-native-cc.cmd
+      MOON_CC: ${{ github.workspace }}/scripts/moon-native-cc.cmd
       KAGURA_CC: clang
       VCPKG_INSTALLED_DIR: C:\vcpkg\installed
       VCPKG_DEFAULT_TRIPLET: x64-windows-static

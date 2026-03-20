@@ -222,6 +222,12 @@ jobs:
           const r = spawnSync("clang", args, { stdio: "inherit" });
           process.exit(r.status ?? 1);
           "@ | Out-File -Encoding ascii $filterPath
+          # Create ar symlink so MoonBit finds it next to kagura-cc.cmd
+          $llvmAr = Join-Path $clangDir "llvm-ar.exe"
+          $arLink = Join-Path $clangDir "ar.exe"
+          if ((Test-Path $llvmAr) -and -not (Test-Path $arLink)) {
+            Copy-Item $llvmAr $arLink
+          }
           echo "MOON_CC=$wrapperPath" >> $env:GITHUB_ENV
       - name: Check
         run: moon check --target native

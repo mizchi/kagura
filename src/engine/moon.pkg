@@ -9,5 +9,9 @@ import {
 warnings = "-6-53-68"
 
 options(
-  targets: { "run_js.mbt": [ "js" ], "run_native.mbt": [ "native" ] },
+  targets: {
+    "run_js.mbt": [ "js" ],
+    "run_native.mbt": [ "native" ],
+    "game_api.mbt": [ "js", "native" ],
+  },
 )

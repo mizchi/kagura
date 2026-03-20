@@ -97,8 +97,6 @@ fn main {
       let node = @renderer.render_to_node(demo_html, render_ctx)
       let layout = @renderer.render(demo_html, render_ctx)
       let paint_root = @paint.from_node_and_layout(node, layout)
-      // Debug: dump paint tree on first frame
-      dump_paint_node(paint_root, 0, 0.0, 0.0)
       // Clear background
       let (bg_v, bg_i) = @draw2d_ui.filled_rect_vertices(
         0.0, 0.0, sw, sh, sw, sh,
@@ -178,48 +176,6 @@ fn render_paint_node(
     scissor.pop()
   }
 }
-
-///|
-///|
-let dump_done : Ref[Bool] = Ref::new(false)
-
-///|
-fn dump_paint_node(
-  node : @paint.PaintNode,
-  depth : Int,
-  px : Double,
-  py : Double,
-) -> Unit {
-  if dump_done.val {
-    return
-  }
-  let indent = String::make(depth * 2, ' ')
-  let x = px + node.x
-  let y = py + node.y
-  let text = match node.text {
-    Some(t) => "\"" + t + "\""
-    None => ""
-  }
-  let bg = node.paint.background_color
-  let bg_str = if bg.a > 0.0 {
-    " bg=#" + crater_color_to_hex(bg).to_string()
-  } else {
-    ""
-  }
-  js_log(
-    indent + node.tag + " (" + x.to_string() + "," + y.to_string() + " " + node.width.to_string() + "x" + node.height.to_string() + ")" + bg_str + " " + text + " children=" + node.children.length().to_string(),
-  )
-  for child in node.children {
-    dump_paint_node(child, depth + 1, x, y)
-  }
-  if depth == 0 {
-    dump_done.val = true
-  }
-}
-
-///|
-extern "js" fn js_log(msg : String) -> Unit =
-  #| (msg) => console.log(msg)
 
 ///|
 fn crater_color_to_hex(color : @crater_types.Color) -> Int {

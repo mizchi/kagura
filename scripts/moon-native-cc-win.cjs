@@ -22,24 +22,9 @@ function buildCompilerArgs(args, env = process.env) {
     .filter((arg) => !arg.startsWith("-Wl,-rpath,"));
 }
 
-function hasObjCSource(args) {
-  return args.some((arg) => arg.endsWith(".m"));
-}
-
 function main() {
+  const compiler = process.env.MOON_CC || "clang";
   const args = buildCompilerArgs(process.argv.slice(2));
-
-  // Skip Objective-C files on Windows (macOS only)
-  if (hasObjCSource(args)) {
-    // Create an empty .obj file so the build doesn't fail on missing output
-    const outputIdx = args.indexOf("-o");
-    if (outputIdx >= 0 && outputIdx + 1 < args.length) {
-      require("node:fs").writeFileSync(args[outputIdx + 1], "");
-    }
-    process.exit(0);
-  }
-
-  const compiler = process.env.KAGURA_CC || "clang";
   const result = spawnSync(compiler, args, {
     stdio: "inherit",
     windowsHide: false,

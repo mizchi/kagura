@@ -1,0 +1,56 @@
+// Generated using `moon info`, DON'T EDIT IT
+package "mizchi/kagura/gameplay2d"
+
+import {
+  "mizchi/kagura/interactable2d",
+}
+
+// Values
+pub fn apply_builtin_pickup_effect(@interactable2d.InteractablePickupEffect, Int, Int, PickupRewardConfig) -> (Int, Int, Bool)?
+
+pub fn apply_builtin_pickup_to_actor(@interactable2d.InteractablePickupEffect, Int, Int, Int, PickupRewardConfig) -> BuiltinPickupApplication?
+
+pub fn plan_equipment_pickup(auto_play~ : Bool, should_equip~ : Bool, inventory_has_space~ : Bool, has_previous_equipped~ : Bool) -> EquipmentPickupPlan
+
+pub fn resolve_pickup_resolution(@interactable2d.InteractablePickupEffect, Int, Int, PickupRewardConfig, auto_play~ : Bool, should_equip~ : Bool, inventory_has_space~ : Bool, has_previous_equipped~ : Bool) -> PickupResolution
+
+// Errors
+
+// Types and methods
+pub(all) struct BuiltinPickupApplication {
+  next_hp : Int
+  next_score : Int
+  heal_feedback : Bool
+}
+pub impl Eq for BuiltinPickupApplication
+pub impl Show for BuiltinPickupApplication
+
+pub(all) struct EquipmentPickupPlan {
+  store_incoming : Bool
+  store_previous_equipped : Bool
+  equip_incoming : Bool
+  use_fifo_storage : Bool
+}
+pub impl Eq for EquipmentPickupPlan
+pub impl Show for EquipmentPickupPlan
+
+pub(all) enum PickupResolution {
+  Builtin(Int, Int, Bool)
+  Equipment(EquipmentPickupPlan)
+}
+pub impl Eq for PickupResolution
+pub impl Show for PickupResolution
+
+pub(all) struct PickupRewardConfig {
+  score_amount : Int
+  heal_amount : Int
+}
+pub fn PickupRewardConfig::new(score_amount~ : Int, heal_amount~ : Int) -> Self
+pub impl Eq for PickupRewardConfig
+pub impl Show for PickupRewardConfig
+
+// Type aliases
+pub using @interactable2d {type InteractablePickupEffect as PickupEffect}
+
+// Traits
+

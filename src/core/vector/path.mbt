@@ -260,6 +260,63 @@ fn flatten_cubic(
 ///|
 /// Generate stroke (outline) vertices from flattened path points.
 /// Returns (vertex_data, indices) where each vertex is [x, y, u, v].
+fn append_path_vertex(
+  vertices : Array[Double],
+  position : Vec2,
+  u : Double,
+  v : Double,
+) -> Unit {
+  vertices.push(position.x)
+  vertices.push(position.y)
+  vertices.push(u)
+  vertices.push(v)
+}
+
+///|
+fn stroke_segment_is_degenerate(p0 : Vec2, p1 : Vec2) -> Bool {
+  p1.sub(p0).length_squared() < 1.0e-12
+}
+
+///|
+fn count_non_degenerate_stroke_segments(points : Array[Vec2]) -> Int {
+  let mut count = 0
+  for i in 0..<(points.length() - 1) {
+    if not(stroke_segment_is_degenerate(points[i], points[i + 1])) {
+      count += 1
+    }
+  }
+  count
+}
+
+///|
+fn append_stroke_quad(
+  vertices : Array[Double],
+  indices : Array[Int],
+  p0 : Vec2,
+  p1 : Vec2,
+  half_width : Double,
+  u : Double,
+  u_next : Double,
+  vert_index : Int,
+) -> Int {
+  let dir = p1.sub(p0).normalize()
+  let perp = dir.perpendicular().scale(half_width)
+  append_path_vertex(vertices, p0.add(perp), u, 0.0)
+  append_path_vertex(vertices, p1.add(perp), u_next, 0.0)
+  append_path_vertex(vertices, p1.sub(perp), u_next, 1.0)
+  append_path_vertex(vertices, p0.sub(perp), u, 1.0)
+  indices.push(vert_index)
+  indices.push(vert_index + 1)
+  indices.push(vert_index + 2)
+  indices.push(vert_index + 2)
+  indices.push(vert_index + 3)
+  indices.push(vert_index)
+  vert_index + 4
+}
+
+///|
+/// Generate stroke (outline) vertices from flattened path points.
+/// Returns (vertex_data, indices) where each vertex is [x, y, u, v].
 pub fn stroke_path(
   points : Array[Vec2],
   width : Double,
@@ -267,42 +324,27 @@ pub fn stroke_path(
   let vertices : Array[Double] = []
   let indices : Array[Int] = []
   let half_w = width / 2.0
-  let n = points.length()
-  if n < 2 {
+  if points.length() < 2 {
+    return (vertices, indices)
+  }
+  let segment_count = count_non_degenerate_stroke_segments(points)
+  if segment_count == 0 {
     return (vertices, indices)
   }
   let mut vert_index = 0
-  for i = 0; i < n - 1; i = i + 1 {
+  let mut emitted_segments = 0
+  for i in 0..<(points.length() - 1) {
     let p0 = points[i]
     let p1 = points[i + 1]
-    let dir = p1.sub(p0).normalize()
-    let perp = dir.perpendicular().scale(half_w)
-    // Four corners of the line quad
-    let u = i.to_double() / (n - 1).to_double()
-    let u_next = (i + 1).to_double() / (n - 1).to_double()
-    vertices.push(p0.x + perp.x)
-    vertices.push(p0.y + perp.y)
-    vertices.push(u)
-    vertices.push(0.0)
-    vertices.push(p1.x + perp.x)
-    vertices.push(p1.y + perp.y)
-    vertices.push(u_next)
-    vertices.push(0.0)
-    vertices.push(p1.x - perp.x)
-    vertices.push(p1.y - perp.y)
-    vertices.push(u_next)
-    vertices.push(1.0)
-    vertices.push(p0.x - perp.x)
-    vertices.push(p0.y - perp.y)
-    vertices.push(u)
-    vertices.push(1.0)
-    indices.push(vert_index)
-    indices.push(vert_index + 1)
-    indices.push(vert_index + 2)
-    indices.push(vert_index + 2)
-    indices.push(vert_index + 3)
-    indices.push(vert_index)
-    vert_index = vert_index + 4
+    if stroke_segment_is_degenerate(p0, p1) {
+      continue
+    }
+    let u = emitted_segments.to_double() / segment_count.to_double()
+    let u_next = (emitted_segments + 1).to_double() / segment_count.to_double()
+    vert_index = append_stroke_quad(
+      vertices, indices, p0, p1, half_w, u, u_next, vert_index,
+    )
+    emitted_segments += 1
   }
   (vertices, indices)
 }

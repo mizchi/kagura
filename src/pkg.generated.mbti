@@ -3,8 +3,8 @@ package "mizchi/kagura"
 
 import {
   "mizchi/kagura/core",
-  "mizchi/kagura/gfx",
-  "mizchi/kagura/platform",
+  "mizchi/kagura/engine/gfx",
+  "mizchi/kagura/engine/platform",
 }
 
 // Values

@@ -69,10 +69,7 @@ pub fn ScissorStack::current(self : ScissorStack) -> ScissorRect {
 ///|
 /// Push a child scissor rect. The effective clip is the intersection
 /// of the current clip and the new rect. Returns false if fully clipped.
-pub fn ScissorStack::push(
-  self : ScissorStack,
-  rect : ScissorRect,
-) -> Bool {
+pub fn ScissorStack::push(self : ScissorStack, rect : ScissorRect) -> Bool {
   let current = self.current()
   match current.intersect(rect) {
     Some(clipped) => {
@@ -92,7 +89,6 @@ pub fn ScissorStack::push(
 pub fn ScissorStack::pop(self : ScissorStack) -> Unit {
   if self.stack.length() > 1 {
     let _ = self.stack.pop()
-
   }
 }
 

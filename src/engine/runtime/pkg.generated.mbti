@@ -1,11 +1,11 @@
 // Generated using `moon info`, DON'T EDIT IT
-package "mizchi/kagura/runtime"
+package "mizchi/kagura/engine/runtime"
 
 import {
   "mizchi/kagura/core",
-  "mizchi/kagura/gfx",
-  "mizchi/kagura/inpututil",
-  "mizchi/kagura/platform",
+  "mizchi/kagura/core/inpututil",
+  "mizchi/kagura/engine/gfx",
+  "mizchi/kagura/engine/platform",
 }
 
 // Values

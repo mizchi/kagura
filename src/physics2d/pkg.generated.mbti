@@ -2,15 +2,32 @@
 package "mizchi/kagura/physics2d"
 
 import {
-  "mizchi/kagura/vector",
+  "mizchi/kagura/core/vector",
+  "mizchi/terrain/types",
 }
 
 // Values
+pub fn append_circular_wall_blocker(@types.Grid2D, Double, Double, Double, Double) -> Unit
+
 pub fn apply_position_correction2d(RigidBody2D, RigidBody2D, Contact2D, Double) -> (RigidBody2D, RigidBody2D)
 
 pub fn ccd_sweep_body(Int, Array[RigidBody2D], Double) -> Double?
 
+pub fn clone_terrain_grid(@types.Grid2D) -> @types.Grid2D
+
 pub fn generate_contact2d(RigidBody2D, RigidBody2D) -> Contact2D?
+
+pub fn grid_check_wall_collision(@types.Grid2D, Double, Double, Double, Double) -> Bool
+
+pub fn grid_find_nearest_visible_candidate_index(@types.Grid2D, Double, Double, Double, Double, Int, (Int) -> Bool, (Int) -> Double, (Int) -> Double, Double) -> (Int, Double)
+
+pub fn grid_is_wall_at(@types.Grid2D, Double, Double, Double) -> Bool
+
+pub fn grid_line_of_sight_clear(@types.Grid2D, Double, Double, Double, Double, Double, Double) -> Bool
+
+pub fn grid_segment_hits_wall(@types.Grid2D, Double, Double, Double, Double, Double, Double) -> Bool
+
+pub fn grid_slide_move(@types.Grid2D, Double, Double, Double, Double, Double, Double) -> (Double, Double)
 
 pub fn precompute_distance_joint(DistanceJoint2D, Array[RigidBody2D], Double) -> DistanceJointConstraint2D?
 

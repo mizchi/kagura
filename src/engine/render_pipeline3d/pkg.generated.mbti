@@ -1,0 +1,56 @@
+// Generated using `moon info`, DON'T EDIT IT
+package "mizchi/kagura/engine/render_pipeline3d"
+
+import {
+  "mizchi/kagura/core/math3d",
+  "mizchi/kagura/engine/gfx",
+  "mizchi/kagura/engine/shadow3d",
+}
+
+// Values
+
+// Errors
+
+// Types and methods
+pub(all) struct PostFXConfig {
+  fxaa_enabled : Bool
+  ssao_config : SSAOConfig
+  bloom_threshold : Double
+  bloom_intensity : Double
+}
+pub fn PostFXConfig::default() -> Self
+
+pub struct RenderPipeline3D {
+  scene_target : @gfx.ImageHandle
+  bloom_a : @gfx.ImageHandle
+  bloom_b : @gfx.ImageHandle
+  post_target : @gfx.ImageHandle
+  camera_depth_target : @gfx.ImageHandle
+  ssao_target : @gfx.ImageHandle
+  bloom_threshold_sh : @gfx.ShaderHandle
+  bloom_hblur_sh : @gfx.ShaderHandle
+  bloom_vblur_sh : @gfx.ShaderHandle
+  bloom_composite_sh : @gfx.ShaderHandle
+  tonemap_sh : @gfx.ShaderHandle
+  fxaa_sh : @gfx.ShaderHandle
+  ssao_sh : @gfx.ShaderHandle
+  camera_depth_shader : @gfx.ShaderHandle
+  mut config : PostFXConfig
+}
+pub fn RenderPipeline3D::compose_postfx(Self, @gfx.ImageHandle, Array[@shadow3d.ShadowCaster], @math3d.Mat4, Int, Int, hit_flash? : Double) -> Array[@gfx.DrawTrianglesCommand]
+pub fn RenderPipeline3D::new(Int, Int, Int, PostFXConfig) -> Self
+pub fn RenderPipeline3D::set_fxaa_enabled(Self, Bool) -> Unit
+
+pub(all) struct SSAOConfig {
+  enabled : Bool
+  radius : Double
+  bias : Double
+  intensity : Double
+}
+pub fn SSAOConfig::disabled_default() -> Self
+pub fn SSAOConfig::enabled_default() -> Self
+
+// Type aliases
+
+// Traits
+

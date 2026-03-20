@@ -60,9 +60,7 @@ test "filled_rect_vertices generates single quad in NDC" {
 
 ///|
 test "filled_rect_vertices center pixel maps to NDC origin" {
-  let (vertices, _) = filled_rect_vertices(
-    320.0, 240.0, 0.0, 0.0, 640.0, 480.0,
-  )
+  let (vertices, _) = filled_rect_vertices(320.0, 240.0, 0.0, 0.0, 640.0, 480.0)
   assert_true((vertices[0] - 0.0).abs() < 1.0e-10)
   assert_true((vertices[1] - 0.0).abs() < 1.0e-10)
 }

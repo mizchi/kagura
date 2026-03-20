@@ -1,10 +1,10 @@
 // Generated using `moon info`, DON'T EDIT IT
-package "mizchi/kagura/particle3d"
+package "mizchi/kagura/engine/particle3d"
 
 import {
-  "mizchi/kagura/camera3d",
-  "mizchi/kagura/gfx",
-  "mizchi/kagura/math3d",
+  "mizchi/kagura/core/camera3d",
+  "mizchi/kagura/core/math3d",
+  "mizchi/kagura/engine/gfx",
 }
 
 // Values
@@ -60,6 +60,7 @@ pub(all) struct ParticleManager {
   mut vertex_scratch : Array[Double]
   mut index_scratch : Array[Int]
 }
+pub fn ParticleManager::append_draw_commands(Self, Array[@gfx.DrawTrianglesCommand], @gfx.ImageHandle, @camera3d.Camera3D, Int, Int, Int) -> Unit
 pub fn ParticleManager::draw(Self, @gfx.ImageHandle, @camera3d.Camera3D, Int, Int, Int) -> Array[@gfx.DrawTrianglesCommand]
 pub fn ParticleManager::new(Int) -> Self
 pub fn ParticleManager::spawn(Self, EmitterConfig) -> Unit

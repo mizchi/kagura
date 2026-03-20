@@ -2,7 +2,7 @@
 package "mizchi/kagura/terrain3d"
 
 import {
-  "mizchi/kagura/mesh3d",
+  "mizchi/kagura/core/mesh3d",
   "mizchi/terrain/types",
 }
 

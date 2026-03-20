@@ -1,9 +1,9 @@
 // Generated using `moon info`, DON'T EDIT IT
-package "mizchi/kagura/draw2d"
+package "mizchi/kagura/engine/draw2d"
 
 import {
-  "mizchi/kagura/asset",
-  "mizchi/kagura/gfx",
+  "mizchi/kagura/engine/asset",
+  "mizchi/kagura/engine/gfx",
 }
 
 // Values

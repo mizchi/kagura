@@ -260,12 +260,21 @@ fn Game::view(self : Game) -> @scene.SceneNode {
 }
 
 ///|
+impl @scene.SceneGame for Game with update_game(self, input) {
+  self.update(input)
+}
+
+///|
+impl @scene.SceneGame for Game with view_game(self) {
+  self.view()
+}
+
+///|
 fn main {
   @web_hooks.install("#app")
   let game = Game::new()
-  @scene.run(
-    view=fn() { game.view() },
-    update=fn(input) { game.update(input) },
+  @scene.run_game(
+    game,
     width=screen_w,
     height=screen_h,
     title="ECS Demo",

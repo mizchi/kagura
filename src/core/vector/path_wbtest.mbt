@@ -161,6 +161,19 @@ test "stroke_path empty returns empty" {
 }
 
 ///|
+test "stroke_path skips degenerate repeated points" {
+  let points : Array[Vec2] = [
+    Vec2::new(0.0, 0.0),
+    Vec2::new(0.0, 0.0),
+    Vec2::new(10.0, 0.0),
+  ]
+  let (vertices, indices) = stroke_path(points, 2.0)
+  // Only one visible segment should remain.
+  assert_eq(vertices.length(), 16)
+  assert_eq(indices.length(), 6)
+}
+
+///|
 test "fill_path pentagon" {
   let pi = 3.14159265358979323846
   let points : Array[Vec2] = []

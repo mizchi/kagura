@@ -1,8 +1,8 @@
 // Generated using `moon info`, DON'T EDIT IT
-package "mizchi/kagura/transform3d"
+package "mizchi/kagura/core/transform3d"
 
 import {
-  "mizchi/kagura/math3d",
+  "mizchi/kagura/core/math3d",
 }
 
 // Values

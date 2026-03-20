@@ -1,9 +1,18 @@
 ///|
+impl @scene.SceneGame for ShowcaseState with update_game(self, input) {
+  self.update(input)
+}
+
+///|
+impl @scene.SceneGame for ShowcaseState with view_game(self) {
+  self.view()
+}
+
+///|
 fn main {
   let state = ShowcaseState::new()
-  @scene.run(
-    view=fn() { state.view() },
-    update=fn(input) { state.update(input) },
+  @scene.run_game(
+    state,
     on_frame=fn(cmds, dst, shader, sw, sh) {
       state.render_text_hud(cmds, dst, shader, sw, sh)
     },

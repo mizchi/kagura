@@ -1,16 +1,20 @@
 // Generated using `moon info`, DON'T EDIT IT
-package "mizchi/kagura/draw3d"
+package "mizchi/kagura/engine/draw3d"
 
 import {
-  "mizchi/kagura/gfx",
-  "mizchi/kagura/light3d",
-  "mizchi/kagura/math3d",
-  "mizchi/kagura/mesh3d",
-  "mizchi/kagura/skeleton3d",
+  "mizchi/kagura/core/math3d",
+  "mizchi/kagura/core/mesh3d",
+  "mizchi/kagura/core/skeleton3d",
+  "mizchi/kagura/engine/gfx",
+  "mizchi/kagura/engine/light3d",
 }
 
 // Values
 pub fn instanced_lit_uniform_dwords(@math3d.Mat4, @light3d.LightingEnvironment, Array[@math3d.Mat4], Array[@math3d.Vec4]) -> Array[Int]
+
+pub fn instanced_monochrome_lit_uniform_dwords(@math3d.Mat4, @light3d.LightingEnvironment, Array[@math3d.Mat4], @math3d.Vec4) -> Array[Int]
+
+pub fn instanced_monochrome_max_instances() -> Int
 
 pub fn lit_colored_uniform_dwords(@math3d.Mat4, @math3d.Mat4, @light3d.LightingEnvironment, @math3d.Vec4) -> Array[Int]
 
@@ -21,6 +25,8 @@ pub fn mat4_to_uniform_dwords(@math3d.Mat4) -> Array[Int]
 pub fn mvp_uniform_dwords(@math3d.Mat4, @math3d.Mat4) -> Array[Int]
 
 pub fn new_instanced_lit_mesh_draw_command(@gfx.ImageHandle, @gfx.ShaderHandle, @gfx.DstRegion, @gfx.BlendMode, @mesh3d.Mesh3D, @math3d.Mat4, @light3d.LightingEnvironment, Array[@math3d.Mat4], Array[@math3d.Vec4], src_image_ids? : Array[Int]) -> @gfx.DrawTrianglesCommand
+
+pub fn new_instanced_monochrome_lit_mesh_draw_command(@gfx.ImageHandle, @gfx.ShaderHandle, @gfx.DstRegion, @gfx.BlendMode, @mesh3d.Mesh3D, @math3d.Mat4, @light3d.LightingEnvironment, Array[@math3d.Mat4], @math3d.Vec4, src_image_ids? : Array[Int]) -> @gfx.DrawTrianglesCommand
 
 pub fn new_lit_colored_mesh_draw_command(@gfx.ImageHandle, @gfx.ShaderHandle, @gfx.DstRegion, Int, Int, Int, @gfx.BlendMode, @mesh3d.Mesh3D, @math3d.Mat4, @math3d.Mat4, @light3d.LightingEnvironment, @math3d.Vec4, Array[Int]) -> @gfx.DrawTrianglesCommand
 
@@ -36,6 +42,8 @@ pub fn new_pbr_mesh_draw_command(@gfx.ImageHandle, @gfx.ShaderHandle, @gfx.DstRe
 
 pub fn new_skinned_instanced_lit_mesh_draw_command(@gfx.ImageHandle, @gfx.ShaderHandle, @gfx.DstRegion, @gfx.BlendMode, Array[Double], Array[Int], @math3d.Mat4, @light3d.LightingEnvironment, Array[@math3d.Mat4], Array[@math3d.Mat4], Array[@math3d.Vec4], src_image_ids? : Array[Int]) -> @gfx.DrawTrianglesCommand
 
+pub fn new_skinned_instanced_monochrome_lit_mesh_draw_command(@gfx.ImageHandle, @gfx.ShaderHandle, @gfx.DstRegion, @gfx.BlendMode, Array[Double], Array[Int], @math3d.Mat4, @light3d.LightingEnvironment, Array[@math3d.Mat4], Array[@math3d.Mat4], @math3d.Vec4, src_image_ids? : Array[Int]) -> @gfx.DrawTrianglesCommand
+
 pub fn new_skinned_lit_mesh_draw_command(@gfx.ImageHandle, @gfx.ShaderHandle, @gfx.DstRegion, Int, Int, Int, @gfx.BlendMode, Array[Double], Array[Int], @math3d.Mat4, @math3d.Mat4, @light3d.LightingEnvironment, Array[@math3d.Mat4], Array[Int]) -> @gfx.DrawTrianglesCommand
 
 pub fn new_skinned_lit_mesh_draw_command_from_skin(@gfx.ImageHandle, @gfx.ShaderHandle, @gfx.DstRegion, Int, Int, Int, @gfx.BlendMode, @mesh3d.Mesh3D, @skeleton3d.SkinData, @math3d.Mat4, @math3d.Mat4, @light3d.LightingEnvironment, Array[@math3d.Mat4], Array[Int]) -> @gfx.DrawTrianglesCommand
@@ -46,9 +54,13 @@ pub fn pbr_uniform_dwords(@math3d.Mat4, @math3d.Mat4, @light3d.LightingEnvironme
 
 pub fn shader3d_lit_colored_wgsl() -> String
 
+pub fn shader3d_lit_instanced_monochrome_wgsl() -> String
+
 pub fn shader3d_lit_instanced_wgsl() -> String
 
 pub fn shader3d_lit_normalmap_wgsl() -> String
+
+pub fn shader3d_lit_skinned_instanced_monochrome_wgsl() -> String
 
 pub fn shader3d_lit_skinned_instanced_wgsl() -> String
 
@@ -65,6 +77,10 @@ pub fn shader3d_pbr_untextured_wgsl() -> String
 pub fn shader3d_pbr_wgsl() -> String
 
 pub fn skinned_instanced_lit_uniform_dwords(@math3d.Mat4, @light3d.LightingEnvironment, Array[@math3d.Mat4], Array[@math3d.Mat4], Array[@math3d.Vec4]) -> Array[Int]
+
+pub fn skinned_instanced_max_instances() -> Int
+
+pub fn skinned_instanced_monochrome_lit_uniform_dwords(@math3d.Mat4, @light3d.LightingEnvironment, Array[@math3d.Mat4], Array[@math3d.Mat4], @math3d.Vec4) -> Array[Int]
 
 pub fn skinned_lit_uniform_dwords() -> Int
 

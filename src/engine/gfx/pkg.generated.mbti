@@ -1,8 +1,8 @@
 // Generated using `moon info`, DON'T EDIT IT
-package "mizchi/kagura/gfx"
+package "mizchi/kagura/engine/gfx"
 
 import {
-  "mizchi/kagura/platform",
+  "mizchi/kagura/engine/platform",
 }
 
 // Values
@@ -25,6 +25,8 @@ pub fn build_builtin_shader_source_ex(BuiltinShaderKeyEx) -> String
 pub fn[T : UniformCanonicalizer] build_canonical_uniforms(T, UniformLayout, Array[NamedUniform], PreservedUniformContext, ShaderIR) -> PackedUniforms raise
 
 pub fn build_draw_command_dispatch(DrawTrianglesCommand) -> DrawCommandDispatch
+
+pub fn build_resource_cache_key(Int, Array[Int]) -> Int
 
 pub fn builtin_address_from_int(Int) -> BuiltinShaderAddress
 
@@ -96,7 +98,7 @@ pub fn new_basic_uniform_canonicalizer() -> BasicUniformCanonicalizer
 
 pub fn new_color(Double, Double, Double, Double) -> Color
 
-pub fn new_draw_triangles_command(ImageHandle, ShaderHandle, Array[DstRegion], Int, Int, Int, BlendMode, Array[Double], Array[Int], Array[Int], Array[Int], instance_count? : Int) -> DrawTrianglesCommand
+pub fn new_draw_triangles_command(ImageHandle, ShaderHandle, Array[DstRegion], Int, Int, Int, BlendMode, Array[Double], Array[Int], Array[Int], Array[Int], instance_count? : Int, resource_cache_key? : Int) -> DrawTrianglesCommand
 
 pub fn new_dst_region(Int, Int, Int, Int, Int) -> DstRegion
 
@@ -286,6 +288,7 @@ pub struct DrawTrianglesCommand {
   src_image_ids : Array[Int]
   uniform_dwords : Array[Int]
   instance_count : Int
+  resource_cache_key : Int
 }
 
 pub struct DstRegion {

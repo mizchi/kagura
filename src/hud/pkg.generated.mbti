@@ -2,8 +2,8 @@
 package "mizchi/kagura/hud"
 
 import {
-  "mizchi/kagura/gfx",
-  "mizchi/kagura/text",
+  "mizchi/kagura/engine/gfx",
+  "mizchi/kagura/engine/text",
 }
 
 // Values
@@ -21,10 +21,12 @@ pub(all) struct HudContext {
   screen_h : Double
   text_renderer : @text.TextRenderer?
 }
+pub fn HudContext::append_rect_batch_geometry(Self, Array[Double], Array[Int], Double, Double, Double, Double) -> Unit
 pub fn HudContext::draw_rect(Self, Array[@gfx.DrawTrianglesCommand], Double, Double, Double, Double, @gfx.Color) -> Unit
 pub fn HudContext::draw_text(Self, Array[@gfx.DrawTrianglesCommand], String, Double, Double, Double, Int) -> Unit
 pub fn HudContext::draw_text_centered(Self, Array[@gfx.DrawTrianglesCommand], String, Double, Double, Double, Int) -> Unit
 pub fn HudContext::measure_text(Self, String, Double) -> (Double, Double)
+pub fn HudContext::push_rect_batch_command(Self, Array[@gfx.DrawTrianglesCommand], Array[Double], Array[Int], @gfx.Color) -> Unit
 
 pub(all) struct IconSlot {
   x : Double

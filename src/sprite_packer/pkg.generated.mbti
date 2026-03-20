@@ -2,7 +2,7 @@
 package "mizchi/kagura/sprite_packer"
 
 import {
-  "mizchi/kagura/asset",
+  "mizchi/kagura/engine/asset",
   "mizchi/kagura/tilemap2d",
 }
 

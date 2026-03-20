@@ -2,9 +2,9 @@
 package "mizchi/kagura/scene"
 
 import {
-  "mizchi/kagura/audio",
   "mizchi/kagura/core",
-  "mizchi/kagura/gfx",
+  "mizchi/kagura/engine/audio",
+  "mizchi/kagura/engine/gfx",
   "mizchi/signals/ui",
 }
 
@@ -29,6 +29,8 @@ pub fn render_scene(@ui.Node[Unit, SceneAttrValue], @gfx.ImageHandle, @gfx.Shade
 
 pub fn run(view~ : () -> @ui.Node[Unit, SceneAttrValue], update~ : (@core.InputSnapshot) -> Unit, on_frame? : (Array[@gfx.DrawTrianglesCommand], @gfx.ImageHandle, @gfx.ShaderHandle, Double, Double) -> Unit, audio_ctx? : @audio.MixerAudioContext, width? : Int, height? : Int, title? : String, canvas? : String) -> Unit
 
+pub fn[T : SceneGame] run_game(T, on_frame? : (Array[@gfx.DrawTrianglesCommand], @gfx.ImageHandle, @gfx.ShaderHandle, Double, Double) -> Unit, audio_ctx? : @audio.MixerAudioContext, width? : Int, height? : Int, title? : String, canvas? : String) -> Unit
+
 pub fn show(() -> Bool, () -> @ui.Node[Unit, SceneAttrValue]) -> @ui.Node[Unit, SceneAttrValue]
 
 pub fn switch_(cases~ : Array[@ui.MatchCase[Unit, SceneAttrValue]], fallback? : (() -> @ui.Node[Unit, SceneAttrValue])?) -> @ui.Node[Unit, SceneAttrValue]
@@ -47,4 +49,8 @@ pub impl Show for SceneAttrValue
 pub type SceneNode = @ui.Node[Unit, SceneAttrValue]
 
 // Traits
+pub(open) trait SceneGame {
+  update_game(Self, @core.InputSnapshot) -> Unit
+  view_game(Self) -> @ui.Node[Unit, SceneAttrValue]
+}
 

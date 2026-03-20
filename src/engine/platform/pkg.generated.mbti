@@ -1,5 +1,5 @@
 // Generated using `moon info`, DON'T EDIT IT
-package "mizchi/kagura/platform"
+package "mizchi/kagura/engine/platform"
 
 import {
   "mizchi/kagura/core",

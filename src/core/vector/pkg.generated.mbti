@@ -1,5 +1,5 @@
 // Generated using `moon info`, DON'T EDIT IT
-package "mizchi/kagura/vector"
+package "mizchi/kagura/core/vector"
 
 // Values
 pub fn aabb_overlap(Double, Double, Double, Double, Double, Double, Double, Double) -> Bool

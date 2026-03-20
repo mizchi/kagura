@@ -1,7 +1,11 @@
 // Generated using `moon info`, DON'T EDIT IT
-package "mizchi/kagura/mesh3d"
+package "mizchi/kagura/core/mesh3d"
 
 // Values
+pub fn push_quad(Array[Int], Int) -> Unit
+
+pub fn push_vertex(Array[Double], Double, Double, Double, Double, Double, Double, Double, Double) -> Unit
+
 pub let vertex3d_stride : Int
 
 // Errors
@@ -13,6 +17,7 @@ pub struct Mesh3D {
   bounds : MeshBounds3D
 }
 pub fn Mesh3D::bounds(Self) -> MeshBounds3D
+pub fn Mesh3D::box(Double, Double, Double) -> Self
 pub fn Mesh3D::cube(Double) -> Self
 pub fn Mesh3D::from_obj(String) -> Self
 pub fn Mesh3D::new(Array[Double], Array[Int]) -> Self

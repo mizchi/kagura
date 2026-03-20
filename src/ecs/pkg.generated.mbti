@@ -2,10 +2,10 @@
 package "mizchi/kagura/ecs"
 
 import {
-  "mizchi/kagura/animation3d",
+  "mizchi/kagura/core/animation3d",
+  "mizchi/kagura/core/transform3d",
+  "mizchi/kagura/engine/scene3d",
   "mizchi/kagura/physics3d",
-  "mizchi/kagura/scene3d",
-  "mizchi/kagura/transform3d",
 }
 
 // Values

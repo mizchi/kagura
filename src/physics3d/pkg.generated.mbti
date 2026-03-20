@@ -3,7 +3,7 @@ package "mizchi/kagura/physics3d"
 
 import {
   "mizchi/kagura/collision3d",
-  "mizchi/kagura/math3d",
+  "mizchi/kagura/core/math3d",
 }
 
 // Values

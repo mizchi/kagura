@@ -1,5 +1,9 @@
 // Generated using `moon info`, DON'T EDIT IT
-package "mizchi/kagura/audio"
+package "mizchi/kagura/engine/audio"
+
+import {
+  "moonbitlang/core/ref",
+}
 
 // Values
 pub fn audio_buffer_to_clip(@mizchi/audio.AudioBuffer, Bool) -> AudioClip
@@ -52,7 +56,9 @@ pub fn new_audio_output_hooks((AudioFormat) -> Bool, (FixedArray[Float], Int) ->
 
 pub fn new_audio_output_hooks_full((AudioFormat) -> Bool, (FixedArray[Float], Int) -> Int, () -> Unit, () -> Unit, () -> Unit, () -> Double) -> AudioOutputHooks
 
-pub fn new_tracked_audio_output_hooks(AudioOutputHooks, Ref[AudioOutputStats]) -> AudioOutputHooks
+pub fn new_tracked_audio_output_hooks(AudioOutputHooks, @ref.Ref[AudioOutputStats]) -> AudioOutputHooks
+
+pub fn pcm16_format(Int, Int) -> AudioFormat
 
 pub fn reset_audio_output_hooks() -> Unit
 

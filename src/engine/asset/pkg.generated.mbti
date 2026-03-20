@@ -1,10 +1,10 @@
 // Generated using `moon info`, DON'T EDIT IT
-package "mizchi/kagura/asset"
+package "mizchi/kagura/engine/asset"
 
 import {
   "mizchi/image",
-  "mizchi/kagura/gfx",
-  "mizchi/kagura/image_palette",
+  "mizchi/kagura/core/image_palette",
+  "mizchi/kagura/engine/gfx",
 }
 
 // Values

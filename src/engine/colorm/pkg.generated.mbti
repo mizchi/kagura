@@ -1,8 +1,8 @@
 // Generated using `moon info`, DON'T EDIT IT
-package "mizchi/kagura/colorm"
+package "mizchi/kagura/engine/colorm"
 
 import {
-  "mizchi/kagura/gfx",
+  "mizchi/kagura/engine/gfx",
 }
 
 // Values

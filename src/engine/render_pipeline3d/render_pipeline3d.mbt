@@ -178,7 +178,7 @@ pub fn RenderPipeline3D::compose_postfx(
         self.tonemap_sh,
         self.post_target.id,
         1.0,
-        hit_flash=hit_flash,
+        hit_flash~,
       ),
     )
     cmds.push(
@@ -197,7 +197,7 @@ pub fn RenderPipeline3D::compose_postfx(
         self.tonemap_sh,
         self.post_target.id,
         1.0,
-        hit_flash=hit_flash,
+        hit_flash~,
       ),
     )
   }
@@ -211,4 +211,3 @@ pub fn RenderPipeline3D::set_fxaa_enabled(
 ) -> Unit {
   self.config = { ..self.config, fxaa_enabled: enabled }
 }
-

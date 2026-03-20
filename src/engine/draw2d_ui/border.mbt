@@ -47,29 +47,29 @@ pub fn border_vertices(
   let iy1 = y + h - border.bottom
   if border.top > 0.0 {
     push_ndc_quad(
-      vertices, indices, base, ox0, oy0, ox1, oy0, ix1, iy0, ix0, iy0,
-      screen_w, screen_h,
+      vertices, indices, base, ox0, oy0, ox1, oy0, ix1, iy0, ix0, iy0, screen_w,
+      screen_h,
     )
     base = base + 4
   }
   if border.right > 0.0 {
     push_ndc_quad(
-      vertices, indices, base, ox1, oy0, ox1, oy1, ix1, iy1, ix1, iy0,
-      screen_w, screen_h,
+      vertices, indices, base, ox1, oy0, ox1, oy1, ix1, iy1, ix1, iy0, screen_w,
+      screen_h,
     )
     base = base + 4
   }
   if border.bottom > 0.0 {
     push_ndc_quad(
-      vertices, indices, base, ix0, iy1, ix1, iy1, ox1, oy1, ox0, oy1,
-      screen_w, screen_h,
+      vertices, indices, base, ix0, iy1, ix1, iy1, ox1, oy1, ox0, oy1, screen_w,
+      screen_h,
     )
     base = base + 4
   }
   if border.left > 0.0 {
     push_ndc_quad(
-      vertices, indices, base, ox0, oy1, ox0, oy0, ix0, iy0, ix0, iy1,
-      screen_w, screen_h,
+      vertices, indices, base, ox0, oy1, ox0, oy0, ix0, iy0, ix0, iy1, screen_w,
+      screen_h,
     )
     base = base + 4
   }
@@ -90,8 +90,19 @@ pub fn filled_rect_vertices(
   let vertices : Array[Double] = []
   let indices : Array[Int] = []
   push_ndc_quad(
-    vertices, indices, 0, x, y, x + w, y, x + w, y + h, x, y + h,
-    screen_w, screen_h,
+    vertices,
+    indices,
+    0,
+    x,
+    y,
+    x + w,
+    y,
+    x + w,
+    y + h,
+    x,
+    y + h,
+    screen_w,
+    screen_h,
   )
   (vertices, indices)
 }

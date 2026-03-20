@@ -2,8 +2,8 @@
 package "mizchi/kagura/tilemap2d"
 
 import {
-  "mizchi/kagura/asset",
-  "mizchi/kagura/gfx",
+  "mizchi/kagura/engine/asset",
+  "mizchi/kagura/engine/gfx",
 }
 
 // Values
@@ -68,6 +68,15 @@ pub struct TileAtlasTable {
   entries : Array[TileAtlasEntry]
 }
 pub impl Show for TileAtlasTable
+
+pub(all) struct TileChunkBatchCache {
+  chunk_size : Int
+  mut previous_tile_indices : Array[Int]
+  mut previous_visible_chunk : TileChunkRect?
+}
+pub fn TileChunkBatchCache::append_visible_dirty_chunk_batched_draw_commands(Self, Array[@gfx.DrawTrianglesCommand], TileAtlasTable, @asset.SimpleAtlasImageRepository, @gfx.ImageHandle, @gfx.ShaderHandle, Int, Int, @gfx.BlendMode, @gfx.DstRegion, Array[Int], Int, TileChunkRect, Double, Double, Double, Double, Array[Int]) -> Int
+pub fn TileChunkBatchCache::invalidate(Self) -> Unit
+pub fn TileChunkBatchCache::new(Int, Array[Int]) -> Self
 
 type TileChunkOrigin
 pub impl Show for TileChunkOrigin

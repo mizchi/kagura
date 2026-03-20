@@ -1,14 +1,16 @@
 // Generated using `moon info`, DON'T EDIT IT
-package "mizchi/kagura/skeleton3d"
+package "mizchi/kagura/core/skeleton3d"
 
 import {
-  "mizchi/kagura/math3d",
-  "mizchi/kagura/mesh3d",
-  "mizchi/kagura/transform3d",
+  "mizchi/kagura/core/math3d",
+  "mizchi/kagura/core/mesh3d",
+  "mizchi/kagura/core/transform3d",
 }
 
 // Values
 pub fn apply_skin(@mesh3d.Mesh3D, SkinData, Array[@math3d.Mat4]) -> @mesh3d.Mesh3D
+
+pub fn apply_skin_into(@mesh3d.Mesh3D, SkinData, Array[@math3d.Mat4], Array[Double]) -> Unit
 
 pub fn build_skinned_vertex_data(@mesh3d.Mesh3D, SkinData) -> Array[Double]
 

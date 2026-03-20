@@ -1,9 +1,9 @@
 // Generated using `moon info`, DON'T EDIT IT
-package "mizchi/kagura/audio3d"
+package "mizchi/kagura/engine/audio3d"
 
 import {
-  "mizchi/kagura/audio",
-  "mizchi/kagura/math3d",
+  "mizchi/kagura/core/math3d",
+  "mizchi/kagura/engine/audio",
 }
 
 // Values

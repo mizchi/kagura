@@ -1,8 +1,8 @@
 // Generated using `moon info`, DON'T EDIT IT
-package "mizchi/kagura/svg"
+package "mizchi/kagura/core/svg"
 
 import {
-  "mizchi/kagura/vector",
+  "mizchi/kagura/core/vector",
 }
 
 // Values

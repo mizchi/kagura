@@ -1,7 +1,7 @@
 ///|
 fn main {
-  @native_hooks.install("Crater Renderer")
-  // Native: no TTF font loading yet, use dot-matrix fallback
+  // Native: TTF font loading requires native_runtime_hooks which is
+  // incompatible with JS target in the same package. Use dot-matrix fallback.
   let demo = DemoState::{ text_renderer: None }
   @engine.run(
     update=fn(_input) {  },

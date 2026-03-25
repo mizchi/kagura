@@ -2792,19 +2792,6 @@ void moonbit_render_frame_with_staged_plan(
   WGPUCommandEncoder encoder = wgpuDeviceCreateCommandEncoder(device, &encoderDesc);
 
   // Debug: dump planned commands
-  printf("[STAGED] command_count=%d\n", g_planned_draw_command_count);
-  for (int32_t di = 0; di < g_planned_draw_command_count && di < 5; di++) {
-    printf("[STAGED]   cmd[%d] payload=%d dc=%d dst=%d  ax=%.2f ay=%.2f bx=%.2f by=%.2f cx=%.2f cy=%.2f  r=%.2f g=%.2f b=%.2f a=%.2f tex=%d\n",
-           di, g_planned_draw_commands[di].has_triangle_payload,
-           g_planned_draw_commands[di].draw_calls,
-           g_planned_draw_commands[di].dst_image_id,
-           g_planned_draw_commands[di].ax, g_planned_draw_commands[di].ay,
-           g_planned_draw_commands[di].bx, g_planned_draw_commands[di].by,
-           g_planned_draw_commands[di].cx, g_planned_draw_commands[di].cy,
-           g_planned_draw_commands[di].uniform_r, g_planned_draw_commands[di].uniform_g,
-           g_planned_draw_commands[di].uniform_b, g_planned_draw_commands[di].uniform_a,
-           g_planned_draw_commands[di].texture_seed);
-  }
   // Pre-count total vertices for both passes to ensure shared GPU buffer capacity
   uint32_t total_all_verts = 0;
   for (int32_t ci = 0; ci < g_planned_draw_command_count; ci++) {
@@ -2943,7 +2930,6 @@ void moonbit_render_frame_with_staged_plan(
 
       if (first_cmd->has_triangle_payload == 0) {
         int32_t draw_calls = first_cmd->draw_calls <= 0 ? 1 : first_cmd->draw_calls;
-        printf("[BUILTIN] cmd[%d] has_payload=0 draw_calls=%d (DRAWING BUILTIN TRIANGLE)\n", command_index, draw_calls);
         wgpuRenderPassEncoderSetPipeline(pass, pipeline);
         for (int32_t i = 0; i < draw_calls; i++) {
           wgpuRenderPassEncoderDraw(pass, 3, 1, 0, 0);
@@ -2967,14 +2953,11 @@ void moonbit_render_frame_with_staged_plan(
         moonbit_get_or_create_planned_payload_pipeline(
           device, g_configured_surface_format, first_cmd);
       if (cached_payload_pipeline != NULL) {
-        if (batch_start == 0) printf("[DRAW] batch start=%d count=%d pipeline=%p\n", batch_start, batch_count, (void*)cached_payload_pipeline);
         uint32_t verts_used = moonbit_draw_batched_payload(
           device, queue, pass, cached_payload_pipeline,
           g_planned_draw_commands, batch_start, batch_count, gpu_vert_offset);
         gpu_vert_offset += verts_used;
-        if (batch_start == 0) printf("[DRAW] verts_used=%u\n", verts_used);
       } else {
-        if (batch_start == 0) printf("[DRAW] pipeline is NULL for batch start=%d\n", batch_start);
       }
 
       command_index = batch_end;
@@ -2983,7 +2966,6 @@ void moonbit_render_frame_with_staged_plan(
 
   wgpuRenderPassEncoderEnd(pass);
   wgpuRenderPassEncoderRelease(pass);
-  printf("[DRAW] screen pass total_verts=%u\n", gpu_vert_offset);
 
   // Readback: encode copy command into same encoder (before finish)
   {

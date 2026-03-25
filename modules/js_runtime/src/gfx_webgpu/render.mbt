@@ -395,8 +395,15 @@ pub fn draw_custom_command(
   let shader_id = cmd._get("shaderId").cast_int()
   let shader_source = cmd._get("shaderSource").cast_string()
   let blend_mode = cmd._get("blendMode").cast_int()
+  let stride_hint_raw = cmd._get("vertexStrideHint")
+  let vertex_stride_hint = if @core.is_nullish(stride_hint_raw) {
+    0
+  } else {
+    stride_hint_raw.cast_int()
+  }
   let pipeline_info = get_or_create_custom_pipeline(
     state, device, shader_id, shader_source, blend_mode, format,
+    vertex_stride_hint~,
   )
   let queue = ffi_queue(device)
   let uniform_dwords = cmd._get("uniformDwords")
@@ -679,8 +686,17 @@ pub fn render_gpu(
     let target_id = cmd._get("dstImageId").cast_int()
     let is_custom_cmd = not(@core.is_nullish(cmd._get("isCustom"))) &&
       cmd._get("isCustom").cast_bool()
-    let needs_depth = is_custom_cmd &&
-      is_3d_shader(cmd._get("shaderSource").cast_string())
+    let needs_depth = if is_custom_cmd {
+      let hint_raw = cmd._get("vertexStrideHint")
+      let hint = if @core.is_nullish(hint_raw) { 0 } else { hint_raw.cast_int() }
+      if hint > 0 {
+        hint >= 8
+      } else {
+        is_3d_shader(cmd._get("shaderSource").cast_string())
+      }
+    } else {
+      false
+    }
     if target_id != current_pass_target || needs_depth != current_pass_has_depth {
       match current_pass {
         Some(p) => p._call("end", []) |> ignore

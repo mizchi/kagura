@@ -181,6 +181,7 @@ fn queue_test_command(
     uniform_dwords: [],
     instance_count: 1,
     resource_cache_key: 0,
+    vertex_stride_hint: 0,
   }
 }
 
@@ -209,6 +210,7 @@ fn queue_test_command_with_source_ids(
     uniform_dwords: [],
     instance_count: 1,
     resource_cache_key: 0,
+    vertex_stride_hint: 0,
   }
 }
 
@@ -238,6 +240,7 @@ fn queue_test_command_with_sources_and_uniforms(
     uniform_dwords,
     instance_count: 1,
     resource_cache_key: 0,
+    vertex_stride_hint: 0,
   }
 }
 
@@ -290,6 +293,7 @@ test "native graphics hooks can be overridden and reset" {
     uniform_dwords: [],
     instance_count: 1,
     resource_cache_key: 0,
+    vertex_stride_hint: 0,
   }
   let pass = new_render_pass_desc(new_color(0.0, 0.0, 0.0, 1.0), true)
 
@@ -336,6 +340,7 @@ test "native graphics hooks can be overridden and reset" {
     uniform_dwords: [],
     instance_count: 1,
     resource_cache_key: 0,
+    vertex_stride_hint: 0,
   })
   driver2.end(true)
   driver2.resize(320, 200)
@@ -389,6 +394,7 @@ test "web graphics hooks can be overridden and reset" {
     uniform_dwords: [],
     instance_count: 1,
     resource_cache_key: 0,
+    vertex_stride_hint: 0,
   }
   let pass = new_render_pass_desc(new_color(0.0, 0.0, 0.0, 1.0), true)
 
@@ -435,6 +441,7 @@ test "web graphics hooks can be overridden and reset" {
     uniform_dwords: [],
     instance_count: 1,
     resource_cache_key: 0,
+    vertex_stride_hint: 0,
   })
   driver2.end(true)
   driver2.resize(400, 225)
@@ -470,6 +477,7 @@ test "command queue flush calls driver draw" {
     uniform_dwords: [],
     instance_count: 1,
     resource_cache_key: 0,
+    vertex_stride_hint: 0,
   })
 
   flush_commands(driver, queue, true)
@@ -677,6 +685,7 @@ test "estimated_draw_call_count uses region index_count as triangle budget" {
     uniform_dwords: [],
     instance_count: 1,
     resource_cache_key: 0,
+    vertex_stride_hint: 0,
   }
 
   assert_eq(estimated_draw_call_count(command), 6)
@@ -698,6 +707,7 @@ test "estimated_draw_call_count is zero for empty regions" {
     uniform_dwords: [],
     instance_count: 1,
     resource_cache_key: 0,
+    vertex_stride_hint: 0,
   }
 
   assert_eq(estimated_draw_call_count(command), 0)
@@ -753,6 +763,7 @@ test "draw command dispatch captures backend boundary payload" {
     uniform_dwords: [1, 2, 3],
     instance_count: 1,
     resource_cache_key: 0,
+    vertex_stride_hint: 0,
   }
 
   let dispatch = build_draw_command_dispatch(command)
@@ -790,6 +801,7 @@ test "draw command dispatch falls back index count to region totals" {
     uniform_dwords: [],
     instance_count: 1,
     resource_cache_key: 0,
+    vertex_stride_hint: 0,
   }
 
   let dispatch = build_draw_command_dispatch(command)
@@ -990,6 +1002,7 @@ test "command queue does not merge when custom blend differs" {
     uniform_dwords: [],
     instance_count: 1,
     resource_cache_key: 0,
+    vertex_stride_hint: 0,
   }
   queue.enqueue_draw_triangles(base)
   queue.enqueue_draw_triangles({ ..base, blend: BlendMode::Custom(eq2) })
@@ -1234,6 +1247,7 @@ fn queue_test_quad_command(
     uniform_dwords: [],
     instance_count: 1,
     resource_cache_key: 0,
+    vertex_stride_hint: 0,
   }
 }
 
@@ -1326,6 +1340,7 @@ test "command queue does not merge explicit geometry exceeding budget" {
     uniform_dwords: [],
     instance_count: 1,
     resource_cache_key: 0,
+    vertex_stride_hint: 0,
   }
   queue.enqueue_draw_triangles(cmd1)
   // Second command would push over the limit

@@ -519,3 +519,14 @@ GLFWwindow* moonbit_glfw_create_window_safe(int32_t width, int32_t height, uint1
 
   return window;
 }
+
+GLFWwindow* moonbit_glfw_create_hidden_window(int32_t width, int32_t height) {
+  glfwWindowHint(0x00022001, 0);  // GLFW_CLIENT_API = GLFW_NO_API
+  glfwWindowHint(0x00020003, 0);  // GLFW_RESIZABLE = GLFW_FALSE
+  glfwWindowHint(0x00020004, 0);  // GLFW_VISIBLE = GLFW_FALSE
+
+  GLFWwindow* window = glfwCreateWindow(width, height, "headless", NULL, NULL);
+  // Reset hints to defaults for subsequent window creation
+  glfwWindowHint(0x00020004, 1);  // GLFW_VISIBLE = GLFW_TRUE
+  return window;
+}

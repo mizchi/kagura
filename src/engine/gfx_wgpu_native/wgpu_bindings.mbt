@@ -731,6 +731,17 @@ pub fn capture_offscreen_target_readback(image_id : Int) -> Bool {
 }
 
 ///|
+#borrow(path)
+extern "C" fn moonbit_write_readback_bmp(path : String) -> Int = "moonbit_write_readback_bmp"
+
+///|
+/// Save the current readback framebuffer to a BMP file.
+/// Returns true if the file was written successfully.
+pub fn write_readback_bmp(path : String) -> Bool {
+  moonbit_write_readback_bmp(path) != 0
+}
+
+///|
 pub fn render_frame_with_plan_payload(
   surface : WGPUSurface,
   device : WGPUDevice,

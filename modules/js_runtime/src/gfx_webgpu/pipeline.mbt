@@ -311,6 +311,7 @@ pub fn get_or_create_custom_pipeline(
   shader_source : String,
   blend_mode : Int,
   format : String,
+  vertex_stride_hint? : Int = 0,
 ) -> CustomPipelineEntry {
   let key = "\{shader_id}_\{format}_\{blend_mode}"
   match state.custom_pipelines.get(key) {
@@ -320,15 +321,26 @@ pub fn get_or_create_custom_pipeline(
   let sm_desc = @core.new_object()
   sm_desc._set("code", @core.any(shader_source))
   let shader_module = ffi_create_shader_module(device, sm_desc)
-  let stride64 = is_stride64(shader_source)
-  let stride32 = is_stride32(shader_source)
-  let is_3d = is_3d_shader(shader_source)
-  let vertex_layout = if stride64 {
-    build_skinned_3d_vertex_layout()
-  } else if stride32 {
-    build_3d_vertex_layout()
+  // Use explicit stride hint when available, fall back to shader regex detection
+  let (is_3d, vertex_layout) = if vertex_stride_hint >= 16 {
+    (true, build_skinned_3d_vertex_layout())
+  } else if vertex_stride_hint >= 8 {
+    (true, build_3d_vertex_layout())
+  } else if vertex_stride_hint > 0 {
+    (false, build_2d_vertex_layout())
   } else {
-    build_2d_vertex_layout()
+    // Legacy fallback: infer from shader source
+    let stride64 = is_stride64(shader_source)
+    let stride32 = is_stride32(shader_source)
+    let is_3d = stride32 || stride64
+    let layout = if stride64 {
+      build_skinned_3d_vertex_layout()
+    } else if stride32 {
+      build_3d_vertex_layout()
+    } else {
+      build_2d_vertex_layout()
+    }
+    (is_3d, layout)
   }
   let buffers = @core.new_array()
   buffers._call("push", [vertex_layout]) |> ignore

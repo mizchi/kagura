@@ -1,5 +1,5 @@
 ///|
-/// 3D mesh data with stride-8 vertex layout (px,py,pz, nx,ny,nz, u,v).
+/// 3D mesh data with configurable vertex layout.
 
 ///|
 pub let vertex3d_stride : Int = 8
@@ -19,16 +19,39 @@ pub struct Mesh3D {
   vertex_data : Array[Double]
   indices : Array[Int]
   bounds : MeshBounds3D
+  format : VertexFormat
 } derive(Show)
 
 ///|
+/// Create a Mesh3D with standard_3d format (stride 8).
 pub fn Mesh3D::new(vertex_data : Array[Double], indices : Array[Int]) -> Mesh3D {
-  { vertex_data, indices, bounds: compute_mesh_bounds(vertex_data) }
+  let format = VertexFormat::standard_3d()
+  {
+    vertex_data,
+    indices,
+    bounds: compute_mesh_bounds(vertex_data, format.stride()),
+    format,
+  }
+}
+
+///|
+/// Create a Mesh3D with an explicit vertex format.
+pub fn Mesh3D::new_with_format(
+  vertex_data : Array[Double],
+  indices : Array[Int],
+  format : VertexFormat,
+) -> Mesh3D {
+  {
+    vertex_data,
+    indices,
+    bounds: compute_mesh_bounds(vertex_data, format.stride()),
+    format,
+  }
 }
 
 ///|
 pub fn Mesh3D::vertex_count(self : Mesh3D) -> Int {
-  self.vertex_data.length() / vertex3d_stride
+  self.vertex_data.length() / self.format.stride()
 }
 
 ///|
@@ -42,8 +65,11 @@ pub fn Mesh3D::bounds(self : Mesh3D) -> MeshBounds3D {
 }
 
 ///|
-fn compute_mesh_bounds(vertex_data : Array[Double]) -> MeshBounds3D {
-  let vertex_count = vertex_data.length() / vertex3d_stride
+fn compute_mesh_bounds(
+  vertex_data : Array[Double],
+  stride : Int,
+) -> MeshBounds3D {
+  let vertex_count = vertex_data.length() / stride
   if vertex_count == 0 {
     return {
       min_x: 0.0,
@@ -61,7 +87,7 @@ fn compute_mesh_bounds(vertex_data : Array[Double]) -> MeshBounds3D {
   let mut max_y = min_y
   let mut max_z = min_z
   for i in 1..<vertex_count {
-    let base = i * vertex3d_stride
+    let base = i * stride
     let x = vertex_data[base]
     let y = vertex_data[base + 1]
     let z = vertex_data[base + 2]

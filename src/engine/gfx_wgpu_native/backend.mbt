@@ -285,6 +285,47 @@ pub fn shutdown_triangle_context(ctx : TriangleContext) -> Unit {
 }
 
 ///|
+/// Initialize a headless (invisible window) context for offscreen rendering.
+/// Suitable for screenshot generation and CI testing without a display.
+pub fn try_init_headless_context(
+  width : Int,
+  height : Int,
+) -> TriangleContext? {
+  if !@glfw.glfw_init() {
+    None
+  } else {
+    let window = @glfw.create_hidden_window(width, height)
+    let instance = create_instance()
+    let surface = create_surface_from_glfw(instance, window)
+    let adapter = request_adapter(instance, surface)
+    let device = request_device(adapter)
+    let queue = device_get_queue(device)
+    configure_surface(surface, device, adapter, width, height)
+    let shader = create_shader_module(device, triangle_wgsl())
+    let pipeline = create_render_pipeline(device, shader, 24)
+    Some({ window, instance, surface, adapter, device, queue, shader, pipeline })
+  }
+}
+
+///|
+/// Initialize a headless context, panicking on failure.
+pub fn init_headless_context(width : Int, height : Int) -> TriangleContext {
+  match try_init_headless_context(width, height) {
+    Some(ctx) => ctx
+    None => {
+      assert_true_or_panic(false, "headless init failed")
+      panic()
+    }
+  }
+}
+
+///|
+/// Save the current readback framebuffer to a BMP file.
+pub fn save_screenshot(path : String) -> Bool {
+  write_readback_bmp(path)
+}
+
+///|
 pub fn run_triangle_demo() -> Unit {
   let ctx = init_triangle_context(800, 600, "kagura: triangle")
   while should_continue(ctx) {

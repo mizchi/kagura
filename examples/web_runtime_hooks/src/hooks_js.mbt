@@ -1411,8 +1411,9 @@ extern "js" fn js_gfx_custom_draw_begin(
   dst_height : Int,
   blend_mode : Int,
   instance_count : Int,
+  vertex_stride_hint : Int,
 ) -> Unit =
-  #| (shaderId, shaderSource, vfCount, iCount, uCount, srcCount, dstId, dstW, dstH, blendMode, instanceCount) => {
+  #| (shaderId, shaderSource, vfCount, iCount, uCount, srcCount, dstId, dstW, dstH, blendMode, instanceCount, vertexStrideHint) => {
   #|   const state = globalThis.__kaguraWebRuntime;
   #|   if (state == null) return;
   #|   const gpu = state.webgpu;
@@ -1430,6 +1431,7 @@ extern "js" fn js_gfx_custom_draw_begin(
   #|     dstHeight: Math.max(1, dstH | 0),
   #|     blendMode: blendMode | 0,
   #|     instanceCount: instanceCount | 0,
+  #|     vertexStrideHint: vertexStrideHint | 0,
   #|   };
   #| }
 
@@ -2747,6 +2749,7 @@ fn bridge_web_gfx_on_draw(
         command.dst.height,
         blend,
         command.instance_count,
+        command.vertex_stride_hint,
       )
       for i = 0; i < vf_count; i = i + 1 {
         js_gfx_custom_draw_vertex_float(i, command.vertex_data[i])

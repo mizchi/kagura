@@ -25,8 +25,14 @@
 
 - [x] 頂点フォーマットのハードコード stride を定数化する
   `* 8` / `/ 8` リテラルを `vertex3d_stride` 定数に置換済み（gltf, mesh3d, particle3d）。
-- [ ] 頂点フォーマットを柔軟化する（次ステップ）
-  定数化は完了。スキンメッシュや将来の拡張頂点属性を動的に扱うには、vertex layout descriptor の導入が必要。
+- [x] 頂点フォーマットを柔軟化する
+  `VertexAttribute` enum + `VertexFormat` struct を `mesh3d` に導入。
+  - `Mesh3D` に `format` フィールドを追加（デフォルト = `standard_3d`、stride 8）
+  - `Mesh3D::new_with_format()` で任意フォーマットのメッシュを作成可能
+  - `vertex_count()` / `compute_mesh_bounds()` が format.stride() を使用
+  - `skeleton3d` の skinned buffer 構築が `VertexFormat::skinned_3d()` を使用
+  - `DrawTrianglesCommand` に `vertex_stride_hint` を追加、WebGPU pipeline が hint 優先・shader regex フォールバック
+  - 将来の拡張属性 (Tangent4, Color4) も enum に定義済み
 
 ### P2: Package Boundary / Deferred
 

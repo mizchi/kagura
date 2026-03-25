@@ -301,6 +301,7 @@ pub struct DrawTrianglesCommand {
   uniform_dwords : Array[Int]
   instance_count : Int // 1 = default (non-instanced)
   resource_cache_key : Int // 0 = disabled, non-zero allows backend payload cache reuse
+  vertex_stride_hint : Int // 0 = auto-detect from shader, >0 = explicit stride (4=2D, 8=3D, 16=skinned)
 }
 
 ///|
@@ -318,6 +319,7 @@ pub fn new_draw_triangles_command(
   uniform_dwords : Array[Int],
   instance_count? : Int = 1,
   resource_cache_key? : Int = 0,
+  vertex_stride_hint? : Int = 0,
 ) -> DrawTrianglesCommand {
   {
     dst,
@@ -333,6 +335,7 @@ pub fn new_draw_triangles_command(
     uniform_dwords,
     instance_count,
     resource_cache_key,
+    vertex_stride_hint,
   }
 }
 
@@ -690,6 +693,7 @@ fn merge_draw_triangles_range(
       uniform_dwords: base.uniform_dwords,
       instance_count: base.instance_count,
       resource_cache_key: base.resource_cache_key,
+      vertex_stride_hint: base.vertex_stride_hint,
     }
   } else {
     let mut merged_vertex_float_count = 0
@@ -732,6 +736,7 @@ fn merge_draw_triangles_range(
       uniform_dwords: base.uniform_dwords,
       instance_count: base.instance_count,
       resource_cache_key: base.resource_cache_key,
+      vertex_stride_hint: base.vertex_stride_hint,
     }
   }
 }

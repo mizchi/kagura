@@ -3206,6 +3206,87 @@ int32_t moonbit_read_pixels_channel(int32_t offset) {
   return (int32_t)g_readback_data[offset];
 }
 
+// BMP writer: save readback RGBA data to a BMP file
+int32_t moonbit_write_readback_bmp(uint16_t* path_utf16) {
+  if (!g_readback_valid || g_readback_data == NULL || path_utf16 == NULL) {
+    return 0;
+  }
+
+  // UTF-16 to UTF-8 (ASCII range)
+  char path[1024] = {0};
+  int i = 0;
+  while (i < 1023 && path_utf16[i] != 0) {
+    if (path_utf16[i] < 0x80) {
+      path[i] = (char)path_utf16[i];
+    } else {
+      path[i] = '_';
+    }
+    i++;
+  }
+  path[i] = '\0';
+
+  uint32_t w = g_readback_width;
+  uint32_t h = g_readback_height;
+  uint32_t row_stride = (w * 3 + 3) & ~3u; // BMP rows are 4-byte aligned
+  uint32_t pixel_data_size = row_stride * h;
+  uint32_t file_size = 54 + pixel_data_size;
+
+  FILE* f = fopen(path, "wb");
+  if (f == NULL) {
+    return 0;
+  }
+
+  // BMP header (14 bytes)
+  uint8_t header[54] = {0};
+  header[0] = 'B'; header[1] = 'M';
+  header[2] = (uint8_t)(file_size);
+  header[3] = (uint8_t)(file_size >> 8);
+  header[4] = (uint8_t)(file_size >> 16);
+  header[5] = (uint8_t)(file_size >> 24);
+  header[10] = 54; // pixel data offset
+
+  // DIB header (40 bytes)
+  header[14] = 40; // DIB header size
+  header[18] = (uint8_t)(w);
+  header[19] = (uint8_t)(w >> 8);
+  header[20] = (uint8_t)(w >> 16);
+  header[21] = (uint8_t)(w >> 24);
+  header[22] = (uint8_t)(h);
+  header[23] = (uint8_t)(h >> 8);
+  header[24] = (uint8_t)(h >> 16);
+  header[25] = (uint8_t)(h >> 24);
+  header[26] = 1;  // color planes
+  header[28] = 24; // bits per pixel
+  header[34] = (uint8_t)(pixel_data_size);
+  header[35] = (uint8_t)(pixel_data_size >> 8);
+  header[36] = (uint8_t)(pixel_data_size >> 16);
+  header[37] = (uint8_t)(pixel_data_size >> 24);
+
+  fwrite(header, 1, 54, f);
+
+  // BMP stores rows bottom-to-top, BGR order
+  uint8_t* row_buf = (uint8_t*)malloc(row_stride);
+  if (row_buf == NULL) {
+    fclose(f);
+    return 0;
+  }
+  memset(row_buf, 0, row_stride);
+
+  for (uint32_t y = 0; y < h; y++) {
+    const uint8_t* src_row = g_readback_data + (h - 1 - y) * w * 4;
+    for (uint32_t x = 0; x < w; x++) {
+      row_buf[x * 3 + 0] = src_row[x * 4 + 2]; // B
+      row_buf[x * 3 + 1] = src_row[x * 4 + 1]; // G
+      row_buf[x * 3 + 2] = src_row[x * 4 + 0]; // R
+    }
+    fwrite(row_buf, 1, row_stride, f);
+  }
+
+  free(row_buf);
+  fclose(f);
+  return 1;
+}
+
 int32_t moonbit_capture_offscreen_target_readback(int32_t image_id) {
   if (image_id <= 0 || g_device == NULL) {
     g_readback_valid = 0;

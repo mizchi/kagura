@@ -206,6 +206,18 @@ pub fn create_window(width : Int, height : Int, title : String) -> GLFWwindow {
 }
 
 ///|
+extern "C" fn moonbit_glfw_create_hidden_window(
+  width : Int,
+  height : Int,
+) -> GLFWwindow = "moonbit_glfw_create_hidden_window"
+
+///|
+/// Create a hidden (invisible) GLFW window for headless rendering.
+pub fn create_hidden_window(width : Int, height : Int) -> GLFWwindow {
+  moonbit_glfw_create_hidden_window(width, height)
+}
+
+///|
 pub fn destroy_window(window : GLFWwindow) -> Unit {
   glfwDestroyWindow(window)
 }

@@ -248,6 +248,25 @@ pub fn ensure_runtime_context(
 }
 
 ///|
+/// Initialize a headless runtime context (hidden window, no display).
+pub fn ensure_headless_runtime_context(width : Int, height : Int) -> Bool {
+  if has_runtime_context() {
+    true
+  } else {
+    match try_init_headless_context(width, height) {
+      Some(ctx) => {
+        let (w, h) = clamp_runtime_render_size(width, height)
+        configured_surface_width.val = w
+        configured_surface_height.val = h
+        runtime_context.val = Some(ctx)
+        true
+      }
+      None => false
+    }
+  }
+}
+
+///|
 pub fn runtime_poll_events() -> Unit {
   match runtime_context.val {
     Some(ctx) => poll(ctx)

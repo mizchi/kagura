@@ -52,6 +52,7 @@ pub fn new_mesh_draw_command(
     mesh.indices,
     src_image_ids,
     uniform_dwords,
+    vertex_stride_hint=mesh.format.stride(),
   )
 }
 
@@ -279,6 +280,7 @@ pub fn new_lit_mesh_draw_command(
     mesh.indices,
     src_image_ids,
     uniform_dwords,
+    vertex_stride_hint=mesh.format.stride(),
   )
 }
 
@@ -314,6 +316,7 @@ pub fn new_lit_colored_mesh_draw_command(
     mesh.indices,
     src_image_ids,
     uniform_dwords,
+    vertex_stride_hint=mesh.format.stride(),
   )
 }
 
@@ -414,6 +417,7 @@ pub fn new_lit_normalmap_mesh_draw_command(
     mesh.indices,
     [diffuse_image_id, normal_map_image_id],
     uniform_dwords,
+    vertex_stride_hint=mesh.format.stride(),
   )
 }
 
@@ -819,6 +823,7 @@ pub fn new_skinned_lit_mesh_draw_command(
     indices,
     src_image_ids,
     dwords,
+    vertex_stride_hint=@mesh3d.VertexFormat::skinned_3d().stride(),
   )
 }
 
@@ -863,6 +868,7 @@ pub fn new_skinned_instanced_lit_mesh_draw_command(
     src_image_ids,
     dwords,
     instance_count=clamped_count,
+    vertex_stride_hint=@mesh3d.VertexFormat::skinned_3d().stride(),
   )
 }
 
@@ -902,6 +908,7 @@ pub fn new_skinned_instanced_monochrome_lit_mesh_draw_command(
     src_image_ids,
     dwords,
     instance_count=count,
+    vertex_stride_hint=@mesh3d.VertexFormat::skinned_3d().stride(),
   )
 }
 
@@ -1195,6 +1202,7 @@ pub fn new_particle_draw_command(
     indices,
     src_image_ids,
     uniform_dwords,
+    vertex_stride_hint=@mesh3d.vertex3d_stride,
   )
 }
 
@@ -1235,6 +1243,7 @@ pub fn new_pbr_mesh_draw_command(
     mesh.indices,
     src_image_ids,
     uniform_dwords,
+    vertex_stride_hint=mesh.format.stride(),
   )
 }
 
@@ -1464,6 +1473,7 @@ pub fn new_instanced_lit_mesh_draw_command(
     src_image_ids,
     uniform_dwords,
     instance_count=count,
+    vertex_stride_hint=mesh.format.stride(),
   )
 }
 
@@ -1502,5 +1512,6 @@ pub fn new_instanced_monochrome_lit_mesh_draw_command(
     src_image_ids,
     uniform_dwords,
     instance_count=count,
+    vertex_stride_hint=mesh.format.stride(),
   )
 }

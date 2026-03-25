@@ -30,7 +30,7 @@ pub fn apply_skin_into(
       out.push(0.0)
     }
   }
-  let stride = @mesh3d.vertex3d_stride
+  let stride = bind_mesh.format.stride()
   let vertex_count = bind_mesh.vertex_count()
   let skinned_vertex_count = if skin.vertex_count < vertex_count {
     skin.vertex_count
@@ -110,14 +110,15 @@ pub fn apply_skin_into(
 }
 
 ///|
-/// Build GPU skinning vertex payload with stride 16:
+/// Build GPU skinning vertex payload with skinned_3d format (stride 16):
 /// position(3) + normal(3) + uv(2) + joints(4) + weights(4).
 pub fn build_skinned_vertex_data(
   bind_mesh : @mesh3d.Mesh3D,
   skin : SkinData,
 ) -> Array[Double] {
-  let src_stride = @mesh3d.vertex3d_stride
-  let dst_stride = 16
+  let src_stride = bind_mesh.format.stride()
+  let dst_format = @mesh3d.VertexFormat::skinned_3d()
+  let dst_stride = dst_format.stride()
   let vertex_count = bind_mesh.vertex_count()
   let out : Array[Double] = Array::make(vertex_count * dst_stride, 0.0)
   for v in 0..<vertex_count {

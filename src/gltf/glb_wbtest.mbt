@@ -83,7 +83,7 @@ test "parse_glb round-trip with normals" {
   assert_eq(mesh.vertex_count(), 3)
   let vd = mesh.vertex_data
   for i in 0..<3 {
-    let nz = vd[i * 8 + 5]
+    let nz = vd[i * @mesh3d.vertex3d_stride + 5]
     assert_true((nz - 1.0).abs() < 1.0e-5)
   }
 }

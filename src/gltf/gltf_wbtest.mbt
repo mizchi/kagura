@@ -189,9 +189,10 @@ test "from_gltf flat normals auto-computed" {
   let mesh = mesh_from_gltf(json, buffers)
   let vd = mesh.vertex_data
   for i in 0..<3 {
-    let nx = vd[i * 8 + 3]
-    let ny = vd[i * 8 + 4]
-    let nz = vd[i * 8 + 5]
+    let s = @mesh3d.vertex3d_stride
+    let nx = vd[i * s + 3]
+    let ny = vd[i * s + 4]
+    let nz = vd[i * s + 5]
     assert_true((nx - 0.0).abs() < 1.0e-5)
     assert_true((ny - 0.0).abs() < 1.0e-5)
     assert_true((nz - 1.0).abs() < 1.0e-5)
@@ -205,7 +206,7 @@ test "from_gltf with normals" {
   assert_eq(mesh.vertex_count(), 3)
   let vd = mesh.vertex_data
   for i in 0..<3 {
-    let nz = vd[i * 8 + 5]
+    let nz = vd[i * @mesh3d.vertex3d_stride + 5]
     assert_true((nz - 1.0).abs() < 1.0e-5)
   }
 }

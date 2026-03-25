@@ -311,15 +311,16 @@ fn compute_flat_normals(
     let i0 = indices[t * 3]
     let i1 = indices[t * 3 + 1]
     let i2 = indices[t * 3 + 2]
-    let p0x = vertex_data[i0 * 8]
-    let p0y = vertex_data[i0 * 8 + 1]
-    let p0z = vertex_data[i0 * 8 + 2]
-    let p1x = vertex_data[i1 * 8]
-    let p1y = vertex_data[i1 * 8 + 1]
-    let p1z = vertex_data[i1 * 8 + 2]
-    let p2x = vertex_data[i2 * 8]
-    let p2y = vertex_data[i2 * 8 + 1]
-    let p2z = vertex_data[i2 * 8 + 2]
+    let stride = @mesh3d.vertex3d_stride
+    let p0x = vertex_data[i0 * stride]
+    let p0y = vertex_data[i0 * stride + 1]
+    let p0z = vertex_data[i0 * stride + 2]
+    let p1x = vertex_data[i1 * stride]
+    let p1y = vertex_data[i1 * stride + 1]
+    let p1z = vertex_data[i1 * stride + 2]
+    let p2x = vertex_data[i2 * stride]
+    let p2y = vertex_data[i2 * stride + 1]
+    let p2z = vertex_data[i2 * stride + 2]
     let e1x = p1x - p0x
     let e1y = p1y - p0y
     let e1z = p1z - p0z
@@ -337,9 +338,9 @@ fn compute_flat_normals(
     }
     for vi in 0..<3 {
       let idx = indices[t * 3 + vi]
-      vertex_data[idx * 8 + 3] = nx
-      vertex_data[idx * 8 + 4] = ny
-      vertex_data[idx * 8 + 5] = nz
+      vertex_data[idx * stride + 3] = nx
+      vertex_data[idx * stride + 4] = ny
+      vertex_data[idx * stride + 5] = nz
     }
   }
 }
@@ -358,7 +359,7 @@ fn build_mesh(
   let all_indices : Array[Int] = []
   for prim in mesh.primitives {
     let m = build_mesh_from_primitive(doc, prim, buffers)
-    let base = all_vertex_data.length() / 8
+    let base = all_vertex_data.length() / @mesh3d.vertex3d_stride
     for v in m.vertex_data {
       all_vertex_data.push(v)
     }

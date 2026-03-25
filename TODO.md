@@ -17,18 +17,30 @@
 
 ### P0: Toolchain / Platform
 
-- [ ] Windows native build workaround を GitHub Actions / 実機で確定する
-  repo 側で OS 別の `cc` wrapper 切り替えと `vcpkg` の `glfw3` 解決を追加した。ローカルでは `just target=native check` と `examples/native_triangle` の build まで通っているので、残りは `windows-latest` runner と実機での確認。
+- [x] Windows native build workaround を GitHub Actions / 実機で確定する
+  CI で check + test + build が通る状態になった。`moon test --target native` を追加済み。
+  実際の描画実行テストはヘッドレス GPU 不在のため CI では非対応（build 確認のみ）。
 
 ### P1: Engine Architecture
 
-- [ ] 頂点フォーマットを柔軟化する
-  現在は stride=8 前提の箇所が残っている。スキンメッシュや将来の拡張頂点属性を載せられる表現へ整理する。
+- [x] 頂点フォーマットのハードコード stride を定数化する
+  `* 8` / `/ 8` リテラルを `vertex3d_stride` 定数に置換済み（gltf, mesh3d, particle3d）。
+- [ ] 頂点フォーマットを柔軟化する（次ステップ）
+  定数化は完了。スキンメッシュや将来の拡張頂点属性を動的に扱うには、vertex layout descriptor の導入が必要。
 
 ### P2: Package Boundary / Deferred
 
 - [ ] glTF/OBJ ローダーを別パッケージへ切り出す
-  現状は `mesh3d` / `scene3d` / `skeleton3d` / `animation3d` など複数パッケージへ強く依存している。基盤パッケージの独立とテクスチャパイプライン安定後に着手する。
+  **依存分析結果:**
+  - `gltf` → `scene3d` 依存は `scene_builder.mbt` の1ファイルのみ（`SceneGraph`, `Material`, `scene_node`）
+  - `gltf` → `skeleton3d` / `animation3d` 依存は `skin_builder.mbt` の1ファイルのみ
+  - `gltf` → `mesh3d` / `math3d` / `transform3d` はコア依存（切り離し不要）
+  **切り出し方針:**
+  1. `gltf` パッケージを `gltf_core`（パーサ + メッシュビルダ）と `gltf_scene`（シーンビルダ）に分離
+  2. `gltf_core` は `mesh3d` / `math3d` / `transform3d` のみに依存（`scene3d` 非依存）
+  3. `gltf_scene` は `gltf_core` + `scene3d` + `skeleton3d` + `animation3d` に依存
+  4. OBJ ローダーは既に `mesh3d` 内にあり独立している（切り出し不要）
+  テクスチャパイプライン安定後に着手する。
 
 ## ベンチマーク方針
 

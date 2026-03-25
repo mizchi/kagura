@@ -189,6 +189,8 @@ jobs:
         run: moon update
       - name: Check
         run: moon check --target native
+      - name: Test
+        run: moon test --target native
       - name: Build Native Triangle
         run: cd examples/native_triangle && moon build src --target native
 

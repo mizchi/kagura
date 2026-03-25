@@ -362,16 +362,16 @@ pub fn Mesh3D::from_obj(source : String) -> Mesh3D {
       let i0 = indices[idx_start]
       let i1 = indices[idx_start + 1]
       let i2 = indices[idx_start + 2]
-      // Get positions from vertex_data (stride 8)
-      let p0x = vertex_data[i0 * 8]
-      let p0y = vertex_data[i0 * 8 + 1]
-      let p0z = vertex_data[i0 * 8 + 2]
-      let p1x = vertex_data[i1 * 8]
-      let p1y = vertex_data[i1 * 8 + 1]
-      let p1z = vertex_data[i1 * 8 + 2]
-      let p2x = vertex_data[i2 * 8]
-      let p2y = vertex_data[i2 * 8 + 1]
-      let p2z = vertex_data[i2 * 8 + 2]
+      let stride = vertex3d_stride
+      let p0x = vertex_data[i0 * stride]
+      let p0y = vertex_data[i0 * stride + 1]
+      let p0z = vertex_data[i0 * stride + 2]
+      let p1x = vertex_data[i1 * stride]
+      let p1y = vertex_data[i1 * stride + 1]
+      let p1z = vertex_data[i1 * stride + 2]
+      let p2x = vertex_data[i2 * stride]
+      let p2y = vertex_data[i2 * stride + 1]
+      let p2z = vertex_data[i2 * stride + 2]
       // edge1 = p1 - p0, edge2 = p2 - p0
       let e1x = p1x - p0x
       let e1y = p1y - p0y
@@ -395,9 +395,9 @@ pub fn Mesh3D::from_obj(source : String) -> Mesh3D {
         let base = idx_start + ti * 3
         for vi in 0..<3 {
           let idx = indices[base + vi]
-          vertex_data[idx * 8 + 3] = nx
-          vertex_data[idx * 8 + 4] = ny
-          vertex_data[idx * 8 + 5] = nz
+          vertex_data[idx * stride + 3] = nx
+          vertex_data[idx * stride + 4] = ny
+          vertex_data[idx * stride + 5] = nz
         }
       }
     }

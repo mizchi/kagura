@@ -92,7 +92,7 @@ test "ParticleEmitter::build_billboard_vertices generates correct geometry" {
   let up = @math3d.Vec3::unit_y()
   let (vertex_data, indices) = emitter.build_billboard_vertices(right, up)
   // 4 vertices per particle, 8 doubles per vertex
-  assert_eq(vertex_data.length(), count * 4 * 8)
+  assert_eq(vertex_data.length(), count * 4 * @mesh3d.vertex3d_stride)
   // 6 indices per particle (2 triangles)
   assert_eq(indices.length(), count * 6)
 }

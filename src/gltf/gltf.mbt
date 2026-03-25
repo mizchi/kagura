@@ -14,7 +14,7 @@ pub fn mesh_from_gltf(
   let all_indices : Array[Int] = []
   for i in 0..<doc.meshes.length() {
     let m = build_mesh(doc, i, buffers)
-    let base = all_vertex_data.length() / 8
+    let base = all_vertex_data.length() / @mesh3d.vertex3d_stride
     for v in m.vertex_data {
       all_vertex_data.push(v)
     }

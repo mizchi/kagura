@@ -206,7 +206,7 @@ fn ParticleEmitter::append_billboard_vertices(
 ) -> Unit {
   let cs = self.config.color_start
   let ce = self.config.color_end
-  let base_vertex = vertex_data.length() / 8
+  let base_vertex = vertex_data.length() / @mesh3d.vertex3d_stride
   for i = 0; i < self.particles.length(); i = i + 1 {
     let p = self.particles[i]
     let t = if p.max_age > 0.0 { p.age / p.max_age } else { 1.0 }

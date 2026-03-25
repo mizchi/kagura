@@ -24,6 +24,11 @@ pub fn initialize_context(_width : Int, _height : Int, _title : String) -> Bool 
 }
 
 ///|
+pub fn initialize_headless_context(_width : Int, _height : Int) -> Bool {
+  false
+}
+
+///|
 pub fn should_close() -> Bool {
   true
 }

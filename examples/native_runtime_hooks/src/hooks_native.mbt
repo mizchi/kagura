@@ -695,6 +695,13 @@ pub fn initialize_context(width : Int, height : Int, title : String) -> Bool {
 }
 
 ///|
+/// Initialize a headless context (hidden window) for offscreen rendering.
+pub fn initialize_headless_context(width : Int, height : Int) -> Bool {
+  install("headless")
+  @wgpu_native.ensure_headless_runtime_context(width, height)
+}
+
+///|
 pub fn should_close() -> Bool {
   @wgpu_native.runtime_should_close()
 }

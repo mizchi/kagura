@@ -86,6 +86,12 @@ e2e-vrt:
 e2e-vrt-update:
     pnpm exec playwright test e2e/vrt.spec.ts --update-snapshots
 
+native-vrt:
+    cd examples/native_vrt && moon run src --target native
+
+native-vrt-update:
+    cd examples/native_vrt && touch .update_baselines && moon run src --target native && rm -f .update_baselines
+
 hacknslash3d-gpu-perf port="8282" samples="120" warmup="30" extra="--headed":
     node scripts/hacknslash_3d_gpu_perf.mjs --serve --port {{port}} --samples {{samples}} --warmup {{warmup}} {{extra}}
 

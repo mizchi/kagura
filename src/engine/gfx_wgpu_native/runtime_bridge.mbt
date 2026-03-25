@@ -1214,6 +1214,27 @@ pub fn runtime_render_frame() -> Bool {
 }
 
 ///|
+/// Render a frame with explicit clear color and draw calls.
+/// Used for VRT/snapshot testing.
+pub fn runtime_render_frame_with_plan(
+  clear_r : Double,
+  clear_g : Double,
+  clear_b : Double,
+  clear_a : Double,
+  draw_calls : Int,
+) -> Bool {
+  match runtime_context.val {
+    Some(ctx) =>  {
+      render_triangle_frame_with_plan(
+        ctx, clear_r, clear_g, clear_b, clear_a, draw_calls,
+      )
+      true
+    }
+    None => false
+  }
+}
+
+///|
 pub fn runtime_present_planned_frame() -> Bool {
   match runtime_context.val {
     Some(ctx) => {

@@ -358,39 +358,7 @@ fn bridge_gfx_on_draw(
     let indices = command.indices
     let tri_count = indices.length() / 3
     for t = 0; t < tri_count; t = t + 1 {
-      let base = t * 3
-      let sub_indices = [indices[base], indices[base + 1], indices[base + 2]]
-      let payload = @payload2d.decode_triangle_payload(
-        command.vertex_data,
-        sub_indices,
-        command.uniform_dwords,
-        command.src_image_ids,
-      )
-      // Skip triangles without payload (they would draw built-in triangle)
-      if not(payload.has_payload) {
-        continue
-      }
-      // Set payload first so command captures has_triangle_payload=true
-      @wgpu_native.runtime_record_draw_triangle_payload(
-        payload.ax,
-        payload.ay,
-        payload.bx,
-        payload.by,
-        payload.cx,
-        payload.cy,
-        payload.au,
-        payload.av,
-        payload.bu,
-        payload.bv,
-        payload.cu,
-        payload.cv,
-        payload.uniform_r,
-        payload.uniform_g,
-        payload.uniform_b,
-        payload.uniform_a,
-        payload.texture_seed,
-      )
-      // Now push command (captures current payload state)
+      // Push command first (has_payload=false by default)
       @wgpu_native.runtime_record_draw_command(
         1,
         dispatch.pipeline_id,
@@ -406,6 +374,36 @@ fn bridge_gfx_on_draw(
         dispatch.src_image_count,
         dispatch.uniform_dword_count,
       )
+      // Then payload updates last command to has_payload=true with vertex data
+      let base = t * 3
+      let sub_indices = [indices[base], indices[base + 1], indices[base + 2]]
+      let payload = @payload2d.decode_triangle_payload(
+        command.vertex_data,
+        sub_indices,
+        command.uniform_dwords,
+        command.src_image_ids,
+      )
+      if payload.has_payload {
+        @wgpu_native.runtime_record_draw_triangle_payload(
+          payload.ax,
+          payload.ay,
+          payload.bx,
+          payload.by,
+          payload.cx,
+          payload.cy,
+          payload.au,
+          payload.av,
+          payload.bu,
+          payload.bv,
+          payload.cu,
+          payload.cv,
+          payload.uniform_r,
+          payload.uniform_g,
+          payload.uniform_b,
+          payload.uniform_a,
+          payload.texture_seed,
+        )
+      }
     }
   }
 }

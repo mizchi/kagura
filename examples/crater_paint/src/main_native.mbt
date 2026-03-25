@@ -28,6 +28,8 @@ let config_path : String = "/tmp/crater_paint_config.txt"
 struct RenderState {
   text_renderer : @text.TextRenderer?
   bold_text_renderer : @text.TextRenderer?
+  font_map : Map[String, @text.TextRenderer] // family name → renderer
+  bold_font_map : Map[String, @text.TextRenderer]
 }
 
 ///|
@@ -55,10 +57,28 @@ fn main {
     return
   }
 
-  // Load fonts (regular + bold)
+  // Load fonts (regular + bold, with family mapping)
   let text_renderer = load_font(regular_font_candidates)
   let bold_text_renderer = load_font(bold_font_candidates)
-  let state = RenderState::{ text_renderer, bold_text_renderer }
+  let font_map : Map[String, @text.TextRenderer] = {}
+  let bold_font_map : Map[String, @text.TextRenderer] = {}
+  // Load additional fonts for family matching
+  load_font_family(font_map, bold_font_map, "verdana", [
+    "/System/Library/Fonts/Supplemental/Verdana.ttf",
+  ], [
+    "/System/Library/Fonts/Supplemental/Verdana Bold.ttf",
+  ])
+  load_font_family(font_map, bold_font_map, "georgia", [
+    "/System/Library/Fonts/Supplemental/Georgia.ttf",
+  ], [
+    "/System/Library/Fonts/Supplemental/Georgia Bold.ttf",
+  ])
+  load_font_family(font_map, bold_font_map, "times new roman", [
+    "/System/Library/Fonts/Supplemental/Times New Roman.ttf",
+  ], [
+    "/System/Library/Fonts/Supplemental/Times New Roman Bold.ttf",
+  ])
+  let state = RenderState::{ text_renderer, bold_text_renderer, font_map, bold_font_map }
 
   // Install font metrics for layout (bold-aware)
   match text_renderer {
@@ -146,6 +166,8 @@ fn main {
   }
   upload_atlas(state.text_renderer)
   upload_atlas(state.bold_text_renderer)
+  state.font_map.each(fn(_family, tr) { upload_atlas(Some(tr)) })
+  state.bold_font_map.each(fn(_family, tr) { upload_atlas(Some(tr)) })
 
   // Render frame
   let _ = @native_hooks.render_frame_from_commands(cmds, 1.0, 1.0, 1.0, 1.0)
@@ -326,16 +348,10 @@ fn render_paint_node(
       if text.length() > 0 {
         let size_px = paint.font_size
         let is_bold = paint.is_bold
+        let font_family = paint.font_family
         let text_color = crater_color_to_hex(paint.color)
-        // Select renderer: bold or regular
-        let active_renderer = if is_bold {
-          match state.bold_text_renderer {
-            Some(_) => state.bold_text_renderer
-            None => state.text_renderer
-          }
-        } else {
-          state.text_renderer
-        }
+        // Select renderer based on font-family and weight
+        let active_renderer = select_renderer(state, font_family, is_bold)
         let ascent_offset = match active_renderer {
           Some(tr) => {
             let ascent = tr.font.ascent.to_double()
@@ -526,6 +542,58 @@ fn split_words(text : String) -> Array[String] {
     words.push(buf.to_string())
   }
   words
+}
+
+///|
+fn load_font_family(
+  font_map : Map[String, @text.TextRenderer],
+  bold_font_map : Map[String, @text.TextRenderer],
+  family : String,
+  regular_paths : Array[String],
+  bold_paths : Array[String],
+) -> Unit {
+  match load_font(regular_paths) {
+    Some(tr) => {
+      font_map.set(family, tr)
+      println("[font] Family '" + family + "' loaded")
+    }
+    None => ()
+  }
+  match load_font(bold_paths) {
+    Some(tr) => bold_font_map.set(family, tr)
+    None => ()
+  }
+}
+
+///|
+/// Select renderer based on font_family and is_bold from paint properties.
+fn select_renderer(
+  state : RenderState,
+  font_family : String,
+  is_bold : Bool,
+) -> @text.TextRenderer? {
+  // Try exact family match first
+  if font_family.length() > 0 {
+    if is_bold {
+      match state.bold_font_map.get(font_family) {
+        Some(tr) => return Some(tr)
+        None => ()
+      }
+    }
+    match state.font_map.get(font_family) {
+      Some(tr) => return Some(tr)
+      None => ()
+    }
+  }
+  // Fallback to default
+  if is_bold {
+    match state.bold_text_renderer {
+      Some(_) => state.bold_text_renderer
+      None => state.text_renderer
+    }
+  } else {
+    state.text_renderer
+  }
 }
 
 ///|

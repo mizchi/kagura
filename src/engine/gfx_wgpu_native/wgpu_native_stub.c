@@ -1516,8 +1516,8 @@ static int moonbit_create_seed_texture_resources(
     .addressModeU = WGPUAddressMode_Repeat,
     .addressModeV = WGPUAddressMode_Repeat,
     .addressModeW = WGPUAddressMode_Repeat,
-    .magFilter = WGPUFilterMode_Linear,
-    .minFilter = WGPUFilterMode_Linear,
+    .magFilter = WGPUFilterMode_Nearest,
+    .minFilter = WGPUFilterMode_Nearest,
     .mipmapFilter = WGPUMipmapFilterMode_Linear,
     .lodMinClamp = 0.0f,
     .lodMaxClamp = 32.0f,
@@ -1978,7 +1978,8 @@ static int moonbit_build_payload_wgsl(
       "fn fs_main(@location(0) in_uv: vec2f) -> @location(0) vec4f {\n"
       "  let sampled = textureSample(tex, tex_sampler, in_uv);\n"
       "  let tint = vec3f(%f, %f, %f);\n"
-      "  return vec4f(sampled.rgb * tint, sampled.a * %f);\n"
+      "  let linear = sampled.rgb * tint;\n"
+      "  return vec4f(pow(linear, vec3f(2.2)), sampled.a * %f);\n"
       "}\n",
       command->uniform_r,
       command->uniform_g,
@@ -2012,13 +2013,18 @@ static int moonbit_build_payload_wgsl(
       "fn fs_main(@location(0) in_uv: vec2f) -> @location(0) vec4f {\n"
       "  let sampled = textureSample(tex, tex_sampler, in_uv);\n"
       "  let tint = vec3f(%f, %f, %f);\n"
-      "  return vec4f(tint * sampled.a, sampled.a * %f);\n"
+      "  let tc = tint * sampled.a;\n"
+      "  return vec4f(pow(tc, vec3f(2.2)), sampled.a * %f);\n"
       "}\n",
       command->uniform_r,
       command->uniform_g,
       command->uniform_b,
       command->uniform_a
     );
+  }
+  if (command->texture_seed != 0) {
+    printf("[wgsl] seed=%d tint=(%f,%f,%f) alpha=%f\n",
+           command->texture_seed, command->uniform_r, command->uniform_g, command->uniform_b, command->uniform_a);
   }
   return n > 0 && (size_t)n < wgsl_buffer_size;
 }

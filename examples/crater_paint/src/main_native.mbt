@@ -242,11 +242,18 @@ fn render_paint_node(
       if text.length() > 0 {
         let size_px = paint.font_size
         let text_color = crater_color_to_hex(paint.color)
-        let end = if text.length() > 30 { 30 } else { text.length() }
-        println(
-          "[text] \"" + text.substring(start=0, end=end) + "\" fs=" + size_px.to_string() + " at (" + x.to_string() + "," + y.to_string() + ") color=" + text_color.to_string(),
-        )
-        push_text(cmds, ctx, state, text, size_px, x, y, text_color)
+        // Add ascent offset: text node y is box top, but render_text
+        // expects baseline-relative y. Ascent moves text down from top.
+        let ascent_offset = match state.text_renderer {
+          Some(tr) => {
+            let info = tr.font
+            let ascent = info.ascent.to_double()
+            let upm = info.units_per_em.to_double()
+            ascent / upm * size_px
+          }
+          None => size_px * 0.8
+        }
+        push_text(cmds, ctx, state, text, size_px, x, y + ascent_offset, text_color)
       }
     None => ()
   }

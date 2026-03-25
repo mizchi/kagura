@@ -2010,8 +2010,7 @@ static int moonbit_build_payload_wgsl(
       "}\n\n"
       "@fragment\n"
       "fn fs_main(@location(0) in_uv: vec2f) -> @location(0) vec4f {\n"
-      "  let flipped_uv = vec2f(in_uv.x, 1.0 - in_uv.y);\n"
-      "  let sampled = textureSample(tex, tex_sampler, flipped_uv);\n"
+      "  let sampled = textureSample(tex, tex_sampler, in_uv);\n"
       "  let tint = vec3f(%f, %f, %f);\n"
       "  return vec4f(tint * sampled.a, sampled.a * %f);\n"
       "}\n",

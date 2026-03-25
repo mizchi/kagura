@@ -652,10 +652,22 @@ void* moonbit_create_render_pipeline(
     .buffers = NULL
   };
 
-  // Fragment state
+  // Fragment state with alpha blending
+  static WGPUBlendState alphaBlend = {
+    .color = {
+      .operation = WGPUBlendOperation_Add,
+      .srcFactor = WGPUBlendFactor_SrcAlpha,
+      .dstFactor = WGPUBlendFactor_OneMinusSrcAlpha,
+    },
+    .alpha = {
+      .operation = WGPUBlendOperation_Add,
+      .srcFactor = WGPUBlendFactor_One,
+      .dstFactor = WGPUBlendFactor_OneMinusSrcAlpha,
+    },
+  };
   WGPUColorTargetState colorTarget = {
     .format = format,
-    .blend = NULL,
+    .blend = &alphaBlend,
     .writeMask = WGPUColorWriteMask_All
   };
 

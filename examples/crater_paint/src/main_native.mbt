@@ -1,21 +1,28 @@
 ///|
 /// Headless crater paint renderer.
 ///
-/// Renders a fixed example-com HTML to PNG using crater layout + kagura wgpu.
-/// Output: crater_paint_output.png
+/// Reads HTML from an input file, renders via crater layout + kagura wgpu,
+/// and writes BMP output.
 ///
-/// This is a proof-of-concept for the native paint pipeline.
-/// TODO: Read HTML from file, parameterize width/height/font.
+/// Input/output paths and viewport are configured via fixed paths:
+///   Input:  /tmp/crater_paint_input.html
+///   Output: /tmp/crater_paint_output.bmp
+///   Config: /tmp/crater_paint_config.txt (optional: "width height", default "800 600")
 
 ///|
-let screen_w : Int = 800
+let default_w : Int = 800
 
 ///|
-let screen_h : Int = 600
+let default_h : Int = 600
 
 ///|
-let example_html : String =
-  #|<html><head><style>body{background:#eee;width:60vw;margin:15vh auto;font-family:system-ui,sans-serif}h1{font-size:1.5em}div{opacity:0.8}a:link,a:visited{color:#348}</style></head><body><div><h1>Example Domain</h1><p>This domain is for use in documentation examples without needing permission. Avoid use in operations.</p><p><a href="https://iana.org/domains/example">Learn more</a></p></div></body></html>
+let input_path : String = "/tmp/crater_paint_input.html"
+
+///|
+let output_path : String = "/tmp/crater_paint_output.bmp"
+
+///|
+let config_path : String = "/tmp/crater_paint_config.txt"
 
 ///|
 struct RenderState {
@@ -24,22 +31,40 @@ struct RenderState {
 
 ///|
 fn main {
+  // Read viewport config
+  let (screen_w, screen_h) = read_config()
+
+  // Read HTML input
+  let html = match read_file_as_string(input_path) {
+    Some(s) => s
+    None => {
+      println("Error: cannot read " + input_path)
+      return
+    }
+  }
+
+  if html.length() == 0 {
+    println("Error: empty input HTML")
+    return
+  }
+
+  // Initialize headless GPU
   if not(@native_hooks.initialize_headless_context(screen_w, screen_h)) {
     println("Error: failed to initialize headless GPU context")
     return
   }
 
-  // Try to load a system font
+  // Load font
   let text_renderer = load_font()
   let state = RenderState::{ text_renderer, }
 
-  // Set up font-based text metrics for crater layout
+  // Install font metrics for layout
   match text_renderer {
     Some(tr) => install_font_metrics_provider(tr.font)
     None => println("[warn] No font loaded, using monospace fallback")
   }
 
-  // Render HTML to paint tree
+  // Render HTML → layout → paint tree
   let sw = screen_w.to_double()
   let sh = screen_h.to_double()
   let render_ctx : @renderer.RenderContext = {
@@ -48,8 +73,8 @@ fn main {
     root_font_size: 16.0,
     color_scheme: Light,
   }
-  let node = @renderer.render_to_node(example_html, render_ctx)
-  let layout = @renderer.render(example_html, render_ctx)
+  let node = @renderer.render_to_node(html, render_ctx)
+  let layout = @renderer.render(html, render_ctx)
   let paint_root = match @paint.from_node_and_layout_with_viewport(
     node, layout, 0.0, sh, 0.0,
   ) {
@@ -75,15 +100,12 @@ fn main {
   // Render paint tree
   render_paint_node(cmds, engine_ctx, state, scissor, paint_root, 0.0, 0.0)
 
-  println("Draw commands: " + cmds.length().to_string())
-
-  // GPU render (render twice for double-buffered swap chain)
-  let _ = @native_hooks.render_frame_from_commands(cmds, 1.0, 1.0, 1.0, 1.0)
+  // Render frame
   let _ = @native_hooks.render_frame_from_commands(cmds, 1.0, 1.0, 1.0, 1.0)
 
-  // Read pixels and save
-  if @wgpu_native.save_screenshot("crater_paint_output.bmp") {
-    println("Saved crater_paint_output.bmp (" + screen_w.to_string() + "x" + screen_h.to_string() + ")")
+  // Save output
+  if @wgpu_native.save_screenshot(output_path) {
+    println("OK " + screen_w.to_string() + "x" + screen_h.to_string())
   } else {
     println("Error: screenshot save failed")
   }
@@ -92,9 +114,40 @@ fn main {
 }
 
 ///|
+fn read_config() -> (Int, Int) {
+  match read_file_as_string(config_path) {
+    Some(s) => {
+      let parts = s.trim().split(" ").collect()
+      if parts.length() >= 2 {
+        let w = @strconv.parse_int(parts[0]) catch { _ => return (default_w, default_h) }
+        let h = @strconv.parse_int(parts[1]) catch { _ => return (default_w, default_h) }
+        (w, h)
+      } else {
+        (default_w, default_h)
+      }
+    }
+    None => (default_w, default_h)
+  }
+}
+
+///|
+fn read_file_as_string(path : String) -> String? {
+  match @wgpu_native.read_file_bytes(path) {
+    Some(bytes) => {
+      let buf = StringBuilder::new()
+      for i = 0; i < bytes.length(); i = i + 1 {
+        buf.write_char(bytes[i].to_int().unsafe_to_char())
+      }
+      Some(buf.to_string())
+    }
+    None => None
+  }
+}
+
+///|
 fn install_font_metrics_provider(font : @font.TTFont) -> Unit {
   let provider = @renderer.TextMetricsProvider::new(
-    fn(text, font_size, line_height, _white_space, _writing_mode) {
+    fn(text, font_size, line_height, _white_space, _writing_mode, _font_weight) {
       let measured_width = font.measure_text(text, font_size)
       let effective_height = if line_height > 0.0 {
         line_height

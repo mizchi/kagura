@@ -370,6 +370,30 @@ fn push_text(
         tr, text, size_px, x, y, ctx.dst, ctx.shader, color_hex, sw, sh,
       )
       for cmd in text_cmds {
+        // Swap V between top and bottom vertices of each glyph quad
+        // to correct Y-mirror (font Y-up stored in Y-down atlas).
+        // Each quad = 4 vertices, stride=4 (x,y,u,v):
+        //   [0]=top-left, [1]=top-right, [2]=bottom-right, [3]=bottom-left
+        let vdata = cmd.vertex_data
+        let quad_stride = 4 * 4 // 4 vertices × 4 floats
+        for q = 0; q < vdata.length(); q = q + quad_stride {
+          // Swap V of vertex 0 (top-left) with vertex 3 (bottom-left)
+          let v0_idx = q + 3 // v of vertex 0
+          let v3_idx = q + 3 * 4 + 3 // v of vertex 3
+          if v3_idx < vdata.length() {
+            let tmp = vdata[v0_idx]
+            vdata[v0_idx] = vdata[v3_idx]
+            vdata[v3_idx] = tmp
+          }
+          // Swap V of vertex 1 (top-right) with vertex 2 (bottom-right)
+          let v1_idx = q + 1 * 4 + 3
+          let v2_idx = q + 2 * 4 + 3
+          if v2_idx < vdata.length() {
+            let tmp = vdata[v1_idx]
+            vdata[v1_idx] = vdata[v2_idx]
+            vdata[v2_idx] = tmp
+          }
+        }
         cmds.push(cmd)
       }
     }

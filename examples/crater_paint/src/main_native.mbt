@@ -91,11 +91,18 @@ fn main {
   let cmds : Array[@gfx.DrawTrianglesCommand] = []
   let scissor = @draw2d_ui.ScissorStack::new(screen_w, screen_h)
 
-  // White background
+  // Canvas background: CSS spec propagates body background to viewport
+  // when html has no explicit background.
+  let canvas_bg = paint_root.paint.background_color
+  let canvas_hex = if canvas_bg.a > 0.0 {
+    crater_color_to_hex(canvas_bg)
+  } else {
+    0xFFFFFF
+  }
   let (bg_v, bg_i) = @draw2d_ui.filled_rect_vertices(
     0.0, 0.0, sw, sh, sw, sh,
   )
-  cmds.push(make_draw_cmd(engine_ctx, scissor, bg_v, bg_i, 0xFFFFFF))
+  cmds.push(make_draw_cmd(engine_ctx, scissor, bg_v, bg_i, canvas_hex))
 
   // Render paint tree
   render_paint_node(cmds, engine_ctx, state, scissor, paint_root, 0.0, 0.0)
@@ -235,6 +242,10 @@ fn render_paint_node(
       if text.length() > 0 {
         let size_px = paint.font_size
         let text_color = crater_color_to_hex(paint.color)
+        let end = if text.length() > 30 { 30 } else { text.length() }
+        println(
+          "[text] \"" + text.substring(start=0, end=end) + "\" fs=" + size_px.to_string() + " at (" + x.to_string() + "," + y.to_string() + ") color=" + text_color.to_string(),
+        )
         push_text(cmds, ctx, state, text, size_px, x, y, text_color)
       }
     None => ()

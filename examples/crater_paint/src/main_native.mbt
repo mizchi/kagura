@@ -228,7 +228,9 @@ fn load_font() -> @text.TextRenderer? {
         match @text.parse_font_bytes(data) {
           Some(font) => {
             println("[font] Loaded: " + path)
-            return Some(@text.TextRenderer::new(font, 1024, 0, 0))
+            // base_page_id must be > 0 to avoid texture_seed=0
+            // (which falls back to solid-color white texture)
+            return Some(@text.TextRenderer::new(font, 1024, 1, 0))
           }
           None => continue
         }

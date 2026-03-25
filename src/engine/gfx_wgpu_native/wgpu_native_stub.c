@@ -2058,9 +2058,21 @@ static WGPURenderPipeline moonbit_create_payload_render_pipeline(
     .buffers = buffers
   };
 
+  static WGPUBlendState payloadAlphaBlend = {
+    .color = {
+      .operation = WGPUBlendOperation_Add,
+      .srcFactor = WGPUBlendFactor_SrcAlpha,
+      .dstFactor = WGPUBlendFactor_OneMinusSrcAlpha,
+    },
+    .alpha = {
+      .operation = WGPUBlendOperation_Add,
+      .srcFactor = WGPUBlendFactor_One,
+      .dstFactor = WGPUBlendFactor_OneMinusSrcAlpha,
+    },
+  };
   WGPUColorTargetState colorTarget = {
     .format = format,
-    .blend = NULL,
+    .blend = &payloadAlphaBlend,
     .writeMask = WGPUColorWriteMask_All
   };
 

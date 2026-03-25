@@ -36,18 +36,6 @@
 
 ### P2: Package Boundary / Deferred
 
-- [ ] glTF/OBJ ローダーを別パッケージへ切り出す
-  **依存分析結果:**
-  - `gltf` → `scene3d` 依存は `scene_builder.mbt` の1ファイルのみ（`SceneGraph`, `Material`, `scene_node`）
-  - `gltf` → `skeleton3d` / `animation3d` 依存は `skin_builder.mbt` の1ファイルのみ
-  - `gltf` → `mesh3d` / `math3d` / `transform3d` はコア依存（切り離し不要）
-  **切り出し方針:**
-  1. `gltf` パッケージを `gltf_core`（パーサ + メッシュビルダ）と `gltf_scene`（シーンビルダ）に分離
-  2. `gltf_core` は `mesh3d` / `math3d` / `transform3d` のみに依存（`scene3d` 非依存）
-  3. `gltf_scene` は `gltf_core` + `scene3d` + `skeleton3d` + `animation3d` に依存
-  4. OBJ ローダーは既に `mesh3d` 内にあり独立している（切り出し不要）
-  テクスチャパイプライン安定後に着手する。
-
 - [ ] Paint パイプラインのモジュール分界を整理する
   **現状の問題:**
   `PaintNode → DrawTrianglesCommand` のブリッジ層が `examples/crater_paint/` に閉じており再利用できない。

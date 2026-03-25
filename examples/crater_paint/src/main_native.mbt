@@ -107,6 +107,45 @@ fn main {
   // Render paint tree
   render_paint_node(cmds, engine_ctx, state, scissor, paint_root, 0.0, 0.0)
 
+  // Upload glyph atlas textures to GPU before rendering
+  match state.text_renderer {
+    Some(tr) => {
+      let dirty_pages = tr.flush_dirty_pages()
+      for info in dirty_pages {
+        let page_idx = info.page_id - tr.base_page_id
+        if page_idx >= 0 && page_idx < tr.pages.length() {
+          let page = tr.pages[page_idx]
+          @wgpu_native.begin_planned_source_image_upload(
+            info.page_id, info.width, info.height,
+          )
+          for y = 0; y < info.height; y = y + 1 {
+            for x = 0; x < info.width; x = x + 1 {
+              let idx = (y * info.width + x) * 4
+              @wgpu_native.set_planned_source_image_pixel(
+                info.page_id, x, y,
+                page.pixels[idx],
+                page.pixels[idx + 1],
+                page.pixels[idx + 2],
+                page.pixels[idx + 3],
+              )
+            }
+          }
+          @wgpu_native.end_planned_source_image_upload(info.page_id)
+          println(
+            "[atlas] Uploaded page " +
+            info.page_id.to_string() +
+            " (" +
+            info.width.to_string() +
+            "x" +
+            info.height.to_string() +
+            ")",
+          )
+        }
+      }
+    }
+    None => ()
+  }
+
   // Render frame
   let _ = @native_hooks.render_frame_from_commands(cmds, 1.0, 1.0, 1.0, 1.0)
 

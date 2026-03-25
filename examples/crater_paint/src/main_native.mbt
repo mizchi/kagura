@@ -236,24 +236,52 @@ fn render_paint_node(
     }
   }
 
-  // Text rendering
+  // Text rendering with word wrap
   match node.text {
     Some(text) =>
       if text.length() > 0 {
         let size_px = paint.font_size
         let text_color = crater_color_to_hex(paint.color)
-        // Add ascent offset: text node y is box top, but render_text
-        // expects baseline-relative y. Ascent moves text down from top.
         let ascent_offset = match state.text_renderer {
           Some(tr) => {
-            let info = tr.font
-            let ascent = info.ascent.to_double()
-            let upm = info.units_per_em.to_double()
+            let ascent = tr.font.ascent.to_double()
+            let upm = tr.font.units_per_em.to_double()
             ascent / upm * size_px
           }
           None => size_px * 0.8
         }
-        push_text(cmds, ctx, state, text, size_px, x, y + ascent_offset, text_color)
+        let line_height = if paint.font_size > 0.0 { paint.font_size } else { 16.0 }
+        // Word wrap using font metrics (matching layout engine)
+        let max_width = w
+        let words = split_words(text)
+        let mut cur_x = x
+        let mut cur_y = y
+        let space_w = match state.text_renderer {
+          Some(tr) => tr.font.measure_text(" ", size_px)
+          None => size_px * 0.5
+        }
+        for i, word in words {
+          if word == "\n" {
+            cur_x = x
+            cur_y = cur_y + line_height
+            continue
+          }
+          let word_w = match state.text_renderer {
+            Some(tr) => tr.font.measure_text(word, size_px)
+            None => word.length().to_double() * size_px * 0.5
+          }
+          // Wrap if needed
+          if max_width > 0.0 && cur_x + word_w > x + max_width && cur_x > x + 0.01 {
+            cur_x = x
+            cur_y = cur_y + line_height
+          }
+          // Space before word
+          if i > 0 && word != "\n" && cur_x > x + 0.01 {
+            cur_x = cur_x + space_w
+          }
+          push_text(cmds, ctx, state, word, size_px, cur_x, cur_y + ascent_offset, text_color)
+          cur_x = cur_x + word_w
+        }
       }
     None => ()
   }
@@ -332,6 +360,32 @@ fn push_text(
       )
     }
   }
+}
+
+///|
+fn split_words(text : String) -> Array[String] {
+  let words : Array[String] = []
+  let buf = StringBuilder::new()
+  for c in text {
+    if c == '\n' {
+      if buf.to_string().length() > 0 {
+        words.push(buf.to_string())
+        buf.reset()
+      }
+      words.push("\n")
+    } else if c == ' ' || c == '\t' || c == '\r' {
+      if buf.to_string().length() > 0 {
+        words.push(buf.to_string())
+        buf.reset()
+      }
+    } else {
+      buf.write_char(c)
+    }
+  }
+  if buf.to_string().length() > 0 {
+    words.push(buf.to_string())
+  }
+  words
 }
 
 ///|

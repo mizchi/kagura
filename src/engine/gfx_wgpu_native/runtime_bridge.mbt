@@ -1235,6 +1235,50 @@ pub fn runtime_render_frame_with_plan(
 }
 
 ///|
+/// Present planned frame without surface size check (for headless).
+pub fn present_planned_frame_direct(
+  clear_r : Double,
+  clear_g : Double,
+  clear_b : Double,
+  clear_a : Double,
+) -> Bool {
+  match runtime_context.val {
+    Some(ctx) => {
+      reset_triangle_draw_plan_queue()
+      for command in planned_draw_commands.val {
+        stage_triangle_draw_plan_command(
+          command.draw_calls,
+          command.has_triangle_payload,
+          command.ax,
+          command.ay,
+          command.bx,
+          command.by,
+          command.cx,
+          command.cy,
+          command.au,
+          command.av,
+          command.bu,
+          command.bv,
+          command.cu,
+          command.cv,
+          command.uniform_r,
+          command.uniform_g,
+          command.uniform_b,
+          command.uniform_a,
+          command.texture_seed,
+          command.dst_image_id,
+        )
+      }
+      render_triangle_frame_with_staged_plan(ctx, clear_r, clear_g, clear_b, clear_a)
+      planned_draw_calls.val = 0
+      planned_draw_commands.val = []
+      true
+    }
+    None => false
+  }
+}
+
+///|
 pub fn runtime_present_planned_frame() -> Bool {
   match runtime_context.val {
     Some(ctx) => {

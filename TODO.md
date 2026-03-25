@@ -48,6 +48,39 @@
   4. OBJ ローダーは既に `mesh3d` 内にあり独立している（切り出し不要）
   テクスチャパイプライン安定後に着手する。
 
+- [ ] Paint パイプラインのモジュール分界を整理する
+  **現状の問題:**
+  `PaintNode → DrawTrianglesCommand` のブリッジ層が `examples/crater_paint/` に閉じており再利用できない。
+  ```
+  crater (セマンティクス層)
+    html/css/dom → style → layout → Node + Layout ツリー
+         ↓
+  crater/paint (変換層) ← crater 内、crater の型にのみ依存。適切
+    Node + Layout → PaintNode ツリー
+         ↓
+  examples/crater_paint (ブリッジ層) ← 宙ぶらりん
+    PaintNode → kagura DrawTrianglesCommand
+         ↓
+  kagura (レンダリング層)
+    DrawTrianglesCommand → wgpu GPU 描画
+  ```
+  **選択肢:**
+  - A) kagura 側に `src/engine/crater_bridge/` を追加 — kagura が crater に依存（重い）
+  - B) 独立パッケージ `mizchi/crater_paint` を新設 — crater と kagura の両方に依存するグルー
+  - C) crater 側に `PaintBackend` trait を定義 — kagura 側で実装を提供（最も正しい分離）
+  **前提タスク:**
+  - [ ] crater を mooncakes に publish する（B, C いずれも必要）
+  - [ ] `examples/crater_paint/` のローカルパス依存 (`../../../crater`) を解消
+  **移動対象コード（examples/crater_paint → 新パッケージ）:**
+  - `render_paint_node()` — PaintNode ツリーを再帰的に描画コマンドに変換
+  - `make_draw_cmd()` / `make_draw_cmd_alpha()` — DrawTrianglesCommand 生成ヘルパー
+  - `crater_color_to_hex()` — crater Color → hex 変換
+  - `push_text()` — テキスト描画（TextRenderer / ドットフォント fallback）
+  - `install_font_metrics_provider()` — crater レイアウト用フォントメトリクス接続
+  **native_runtime_hooks の変更（済）:**
+  - [x] `get_engine_context()` — ヘッドレス描画用 EngineContext 取得
+  - [x] `render_frame_from_commands()` — コマンド配列から1フレーム GPU レンダリング
+
 ## ベンチマーク方針
 
 - ベンチマークゲームは Isometric Hack & Slash ARPG を継続する

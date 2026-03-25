@@ -352,14 +352,45 @@ fn bridge_gfx_on_draw(
   if active {
     let dispatch = @gfx.build_draw_command_dispatch(command)
     // Split draw command into individual triangles (3 indices each).
-    // Each triangle needs its own command entry paired with its payload,
-    // because runtime_record_draw_triangle_payload overwrites the last
-    // entry in planned_draw_commands. Without per-triangle command entries,
-    // quads (4 vertices, 6 indices = 2 triangles) would lose their first
-    // triangle's payload.
+    // IMPORTANT: Set payload BEFORE pushing command, because
+    // runtime_record_draw_command captures the current payload state
+    // via planned_has_triangle_payload at push time.
     let indices = command.indices
     let tri_count = indices.length() / 3
     for t = 0; t < tri_count; t = t + 1 {
+      let base = t * 3
+      let sub_indices = [indices[base], indices[base + 1], indices[base + 2]]
+      let payload = @payload2d.decode_triangle_payload(
+        command.vertex_data,
+        sub_indices,
+        command.uniform_dwords,
+        command.src_image_ids,
+      )
+      // Skip triangles without payload (they would draw built-in triangle)
+      if not(payload.has_payload) {
+        continue
+      }
+      // Set payload first so command captures has_triangle_payload=true
+      @wgpu_native.runtime_record_draw_triangle_payload(
+        payload.ax,
+        payload.ay,
+        payload.bx,
+        payload.by,
+        payload.cx,
+        payload.cy,
+        payload.au,
+        payload.av,
+        payload.bu,
+        payload.bv,
+        payload.cu,
+        payload.cv,
+        payload.uniform_r,
+        payload.uniform_g,
+        payload.uniform_b,
+        payload.uniform_a,
+        payload.texture_seed,
+      )
+      // Now push command (captures current payload state)
       @wgpu_native.runtime_record_draw_command(
         1,
         dispatch.pipeline_id,
@@ -375,35 +406,6 @@ fn bridge_gfx_on_draw(
         dispatch.src_image_count,
         dispatch.uniform_dword_count,
       )
-      let base = t * 3
-      let sub_indices = [indices[base], indices[base + 1], indices[base + 2]]
-      let payload = @payload2d.decode_triangle_payload(
-        command.vertex_data,
-        sub_indices,
-        command.uniform_dwords,
-        command.src_image_ids,
-      )
-      if payload.has_payload {
-        @wgpu_native.runtime_record_draw_triangle_payload(
-          payload.ax,
-          payload.ay,
-          payload.bx,
-          payload.by,
-          payload.cx,
-          payload.cy,
-          payload.au,
-          payload.av,
-          payload.bu,
-          payload.bv,
-          payload.cu,
-          payload.cv,
-          payload.uniform_r,
-          payload.uniform_g,
-          payload.uniform_b,
-          payload.uniform_a,
-          payload.texture_seed,
-        )
-      }
     }
   }
 }
@@ -726,7 +728,8 @@ pub fn shutdown_context() -> Unit {
 /// Get an EngineContext for building draw commands in headless mode.
 /// Must be called after initialize_headless_context().
 pub fn get_engine_context(width : Int, height : Int) -> @engine.EngineContext {
-  let dst = @gfx.new_image_handle(1, width, height)
+  // id=0 targets the swap chain surface (not an offscreen target)
+  let dst = @gfx.new_image_handle(0, width, height)
   let shader = @gfx.new_shader_handle(
     1, @gfx.default_builtin_shader_source(),
   )
@@ -735,7 +738,9 @@ pub fn get_engine_context(width : Int, height : Int) -> @engine.EngineContext {
 
 ///|
 /// Render a single frame from draw commands and present.
-/// Returns true if rendering succeeded.
+/// Records commands into the planned pipeline and renders using the
+/// TriangleContext directly (bypasses runtime_present_planned_frame which
+/// can fail with headless surface size queries).
 pub fn render_frame_from_commands(
   cmds : Array[@gfx.DrawTrianglesCommand],
   clear_r : Double,
@@ -743,20 +748,20 @@ pub fn render_frame_from_commands(
   clear_b : Double,
   clear_a : Double,
 ) -> Bool {
-  // Begin frame with clear color
+  // Record commands via bridge pipeline
   bridge_gfx_on_begin(
     true,
     @gfx.new_render_pass_desc(
       @gfx.new_color(clear_r, clear_g, clear_b, clear_a), true,
     ),
   )
-  // Submit each draw command
   for cmd in cmds {
     bridge_gfx_on_draw(true, cmd)
   }
-  // End frame and present
-  bridge_gfx_on_end(true, true)
-  true
+  // Use render_triangle_frame_with_staged_plan directly on the context
+  // instead of runtime_present_planned_frame (which calls
+  // ensure_runtime_surface_size and can fail in headless mode)
+  @wgpu_native.present_planned_frame_direct(clear_r, clear_g, clear_b, clear_a)
 }
 
 ///|

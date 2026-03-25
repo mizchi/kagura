@@ -1,15 +1,13 @@
 {
   "name": "mizchi/kagura",
-  "version": "0.3.0",
+  "version": "0.3.1",
   "deps": {
     "mizchi/image": "0.1.1",
     "mizchi/font": "0.3.1",
     "mizchi/audio": "0.1.0",
     "mizchi/svg": "0.1.9",
     "mizchi/signals": "0.6.3",
-    "mizchi/glfw": {
-      "path": "vendor/glfw"
-    },
+    "mizchi/glfw": "0.2.2",
     "mizchi/terrain": "0.1.1"
   },
   "readme": "README.mbt.md",

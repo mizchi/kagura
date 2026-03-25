@@ -1974,7 +1974,8 @@ static int moonbit_build_payload_wgsl(
       command->uniform_a
     );
   } else {
-    const double texture_frequency = (double)((command->texture_seed % 11) + 1);
+    // Textured: use texture alpha as mask, apply tint color
+    // For glyph atlases: white glyphs on transparent bg, alpha = glyph shape
     n = snprintf(
       wgsl_buffer,
       wgsl_buffer_size,
@@ -1997,16 +1998,10 @@ static int moonbit_build_payload_wgsl(
       "}\n\n"
       "@fragment\n"
       "fn fs_main(@location(0) in_uv: vec2f) -> @location(0) vec4f {\n"
-      "  let fu = floor(in_uv.x * %f);\n"
-      "  let fv = floor(in_uv.y * %f);\n"
-      "  let checker = step(0.5, fract((fu + fv) * 0.5));\n"
       "  let sampled = textureSample(tex, tex_sampler, in_uv);\n"
-      "  let tex_rgb = sampled.rgb * (0.35 + checker * 0.65);\n"
       "  let tint = vec3f(%f, %f, %f);\n"
-      "  return vec4f(tex_rgb * tint, sampled.a * %f);\n"
+      "  return vec4f(tint * sampled.a, sampled.a * %f);\n"
       "}\n",
-      texture_frequency,
-      texture_frequency,
       command->uniform_r,
       command->uniform_g,
       command->uniform_b,

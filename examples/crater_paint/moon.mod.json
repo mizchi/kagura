@@ -1,0 +1,14 @@
+{
+  "name": "mizchi/crater_paint",
+  "version": "0.1.0",
+  "source": "src",
+  "warn-list": "-6-29-53-68",
+  "deps": {
+    "mizchi/kagura": { "path": "../.." },
+    "mizchi/native_runtime_hooks": { "path": "../native_runtime_hooks" },
+    "mizchi/crater": { "path": "../../../crater" },
+    "mizchi/font": "0.3.1",
+    "mizchi/image": "0.1.1"
+  },
+  "--moonbit-unstable-prebuild": "../../scripts/moon-prebuild-native-link-flags.cjs"
+}

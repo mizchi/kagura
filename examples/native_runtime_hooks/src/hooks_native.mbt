@@ -723,6 +723,43 @@ pub fn shutdown_context() -> Unit {
 }
 
 ///|
+/// Get an EngineContext for building draw commands in headless mode.
+/// Must be called after initialize_headless_context().
+pub fn get_engine_context(width : Int, height : Int) -> @engine.EngineContext {
+  let dst = @gfx.new_image_handle(1, width, height)
+  let shader = @gfx.new_shader_handle(
+    1, @gfx.default_builtin_shader_source(),
+  )
+  { dst, shader, screen_w: width, screen_h: height }
+}
+
+///|
+/// Render a single frame from draw commands and present.
+/// Returns true if rendering succeeded.
+pub fn render_frame_from_commands(
+  cmds : Array[@gfx.DrawTrianglesCommand],
+  clear_r : Double,
+  clear_g : Double,
+  clear_b : Double,
+  clear_a : Double,
+) -> Bool {
+  // Begin frame with clear color
+  bridge_gfx_on_begin(
+    true,
+    @gfx.new_render_pass_desc(
+      @gfx.new_color(clear_r, clear_g, clear_b, clear_a), true,
+    ),
+  )
+  // Submit each draw command
+  for cmd in cmds {
+    bridge_gfx_on_draw(true, cmd)
+  }
+  // End frame and present
+  bridge_gfx_on_end(true, true)
+  true
+}
+
+///|
 fn init {
   @engine.set_lifecycle_hooks({
     on_start: fn(_canvas, title) { install(title) },

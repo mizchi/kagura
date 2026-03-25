@@ -371,13 +371,19 @@ fn render_paint_node(
           }
           // Space before word
           if i > 0 && word != "\n" && cur_x > x + 0.01 {
-            cur_x = cur_x + space_w
+            // Render space + word together so inter-word spacing is correct
+            push_text_with_renderer(
+              cmds, ctx, active_renderer, " " + word, size_px,
+              cur_x, cur_y + ascent_offset, text_color,
+            )
+            cur_x = cur_x + space_w + word_w
+          } else {
+            push_text_with_renderer(
+              cmds, ctx, active_renderer, word, size_px,
+              cur_x, cur_y + ascent_offset, text_color,
+            )
+            cur_x = cur_x + word_w
           }
-          push_text_with_renderer(
-            cmds, ctx, active_renderer, word, size_px,
-            cur_x, cur_y + ascent_offset, text_color,
-          )
-          cur_x = cur_x + word_w
         }
       }
     None => ()

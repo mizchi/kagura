@@ -1939,44 +1939,80 @@ static int moonbit_build_payload_wgsl(
   if (wgsl_buffer == NULL || wgsl_buffer_size == 0 || command == NULL) {
     return 0;
   }
-  const double texture_frequency = (double)((command->texture_seed % 11) + 1);
-  const int n = snprintf(
-    wgsl_buffer,
-    wgsl_buffer_size,
-    "struct VsIn {\n"
-    "  @location(0) position: vec2f,\n"
-    "  @location(1) uv: vec2f,\n"
-    "};\n\n"
-    "struct VsOut {\n"
-    "  @builtin(position) position: vec4f,\n"
-    "  @location(0) uv: vec2f,\n"
-    "};\n\n"
-    "@group(0) @binding(0) var tex_sampler: sampler;\n"
-    "@group(0) @binding(1) var tex: texture_2d<f32>;\n\n"
-    "@vertex\n"
-    "fn vs_main(in: VsIn) -> VsOut {\n"
-    "  var out : VsOut;\n"
-    "  out.position = vec4f(in.position, 0.0, 1.0);\n"
-    "  out.uv = in.uv;\n"
-    "  return out;\n"
-    "}\n\n"
-    "@fragment\n"
-    "fn fs_main(@location(0) in_uv: vec2f) -> @location(0) vec4f {\n"
-    "  let fu = floor(in_uv.x * %f);\n"
-    "  let fv = floor(in_uv.y * %f);\n"
-    "  let checker = step(0.5, fract((fu + fv) * 0.5));\n"
-    "  let sampled = textureSample(tex, tex_sampler, in_uv);\n"
-    "  let tex_rgb = sampled.rgb * (0.35 + checker * 0.65);\n"
-    "  let tint = vec3f(%f, %f, %f);\n"
-    "  return vec4f(tex_rgb * tint, sampled.a * %f);\n"
-    "}\n",
-    texture_frequency,
-    texture_frequency,
-    command->uniform_r,
-    command->uniform_g,
-    command->uniform_b,
-    command->uniform_a
-  );
+  int n;
+  if (command->texture_seed == 0) {
+    // Solid color: sample white texture × tint, no checker pattern
+    n = snprintf(
+      wgsl_buffer,
+      wgsl_buffer_size,
+      "struct VsIn {\n"
+      "  @location(0) position: vec2f,\n"
+      "  @location(1) uv: vec2f,\n"
+      "};\n\n"
+      "struct VsOut {\n"
+      "  @builtin(position) position: vec4f,\n"
+      "  @location(0) uv: vec2f,\n"
+      "};\n\n"
+      "@group(0) @binding(0) var tex_sampler: sampler;\n"
+      "@group(0) @binding(1) var tex: texture_2d<f32>;\n\n"
+      "@vertex\n"
+      "fn vs_main(in: VsIn) -> VsOut {\n"
+      "  var out : VsOut;\n"
+      "  out.position = vec4f(in.position, 0.0, 1.0);\n"
+      "  out.uv = in.uv;\n"
+      "  return out;\n"
+      "}\n\n"
+      "@fragment\n"
+      "fn fs_main(@location(0) in_uv: vec2f) -> @location(0) vec4f {\n"
+      "  let sampled = textureSample(tex, tex_sampler, in_uv);\n"
+      "  let tint = vec3f(%f, %f, %f);\n"
+      "  return vec4f(sampled.rgb * tint, sampled.a * %f);\n"
+      "}\n",
+      command->uniform_r,
+      command->uniform_g,
+      command->uniform_b,
+      command->uniform_a
+    );
+  } else {
+    const double texture_frequency = (double)((command->texture_seed % 11) + 1);
+    n = snprintf(
+      wgsl_buffer,
+      wgsl_buffer_size,
+      "struct VsIn {\n"
+      "  @location(0) position: vec2f,\n"
+      "  @location(1) uv: vec2f,\n"
+      "};\n\n"
+      "struct VsOut {\n"
+      "  @builtin(position) position: vec4f,\n"
+      "  @location(0) uv: vec2f,\n"
+      "};\n\n"
+      "@group(0) @binding(0) var tex_sampler: sampler;\n"
+      "@group(0) @binding(1) var tex: texture_2d<f32>;\n\n"
+      "@vertex\n"
+      "fn vs_main(in: VsIn) -> VsOut {\n"
+      "  var out : VsOut;\n"
+      "  out.position = vec4f(in.position, 0.0, 1.0);\n"
+      "  out.uv = in.uv;\n"
+      "  return out;\n"
+      "}\n\n"
+      "@fragment\n"
+      "fn fs_main(@location(0) in_uv: vec2f) -> @location(0) vec4f {\n"
+      "  let fu = floor(in_uv.x * %f);\n"
+      "  let fv = floor(in_uv.y * %f);\n"
+      "  let checker = step(0.5, fract((fu + fv) * 0.5));\n"
+      "  let sampled = textureSample(tex, tex_sampler, in_uv);\n"
+      "  let tex_rgb = sampled.rgb * (0.35 + checker * 0.65);\n"
+      "  let tint = vec3f(%f, %f, %f);\n"
+      "  return vec4f(tex_rgb * tint, sampled.a * %f);\n"
+      "}\n",
+      texture_frequency,
+      texture_frequency,
+      command->uniform_r,
+      command->uniform_g,
+      command->uniform_b,
+      command->uniform_a
+    );
+  }
   return n > 0 && (size_t)n < wgsl_buffer_size;
 }
 
@@ -3281,12 +3317,14 @@ int32_t moonbit_write_readback_bmp(uint16_t* path_utf16) {
   }
   memset(row_buf, 0, row_stride);
 
+  // g_readback_data is already RGBA (BGRA→RGBA swizzle done in readback).
+  // BMP stores pixels in BGR order, so swap R and B channels.
   for (uint32_t y = 0; y < h; y++) {
     const uint8_t* src_row = g_readback_data + (h - 1 - y) * w * 4;
     for (uint32_t x = 0; x < w; x++) {
-      row_buf[x * 3 + 0] = src_row[x * 4 + 2]; // B
-      row_buf[x * 3 + 1] = src_row[x * 4 + 1]; // G
-      row_buf[x * 3 + 2] = src_row[x * 4 + 0]; // R
+      row_buf[x * 3 + 0] = src_row[x * 4 + 2]; // BMP B ← RGBA B
+      row_buf[x * 3 + 1] = src_row[x * 4 + 1]; // BMP G ← RGBA G
+      row_buf[x * 3 + 2] = src_row[x * 4 + 0]; // BMP R ← RGBA R
     }
     fwrite(row_buf, 1, row_stride, f);
   }

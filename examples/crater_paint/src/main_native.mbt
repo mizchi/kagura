@@ -27,6 +27,7 @@ let config_path : String = "/tmp/crater_paint_config.txt"
 ///|
 struct RenderState {
   text_renderer : @text.TextRenderer?
+  bold_text_renderer : @text.TextRenderer?
 }
 
 ///|
@@ -54,13 +55,18 @@ fn main {
     return
   }
 
-  // Load font
-  let text_renderer = load_font()
-  let state = RenderState::{ text_renderer, }
+  // Load fonts (regular + bold)
+  let text_renderer = load_font(regular_font_candidates)
+  let bold_text_renderer = load_font(bold_font_candidates)
+  let state = RenderState::{ text_renderer, bold_text_renderer }
 
-  // Install font metrics for layout
+  // Install font metrics for layout (bold-aware)
   match text_renderer {
-    Some(tr) => install_font_metrics_provider(tr.font)
+    Some(tr) =>
+      match bold_text_renderer {
+        Some(bold_tr) => install_font_metrics_provider_with_bold(tr.font, bold_tr.font)
+        None => install_font_metrics_provider(tr.font)
+      }
     None => println("[warn] No font loaded, using monospace fallback")
   }
 
@@ -108,43 +114,38 @@ fn main {
   render_paint_node(cmds, engine_ctx, state, scissor, paint_root, 0.0, 0.0)
 
   // Upload glyph atlas textures to GPU before rendering
-  match state.text_renderer {
-    Some(tr) => {
-      let dirty_pages = tr.flush_dirty_pages()
-      for info in dirty_pages {
-        let page_idx = info.page_id - tr.base_page_id
-        if page_idx >= 0 && page_idx < tr.pages.length() {
-          let page = tr.pages[page_idx]
-          @wgpu_native.begin_planned_source_image_upload(
-            info.page_id, info.width, info.height,
-          )
-          for y = 0; y < info.height; y = y + 1 {
-            for x = 0; x < info.width; x = x + 1 {
-              let idx = (y * info.width + x) * 4
-              @wgpu_native.set_planned_source_image_pixel(
-                info.page_id, x, y,
-                page.pixels[idx],
-                page.pixels[idx + 1],
-                page.pixels[idx + 2],
-                page.pixels[idx + 3],
-              )
+  fn upload_atlas(renderer : @text.TextRenderer?) -> Unit {
+    match renderer {
+      Some(tr) => {
+        let dirty_pages = tr.flush_dirty_pages()
+        for info in dirty_pages {
+          let page_idx = info.page_id - tr.base_page_id
+          if page_idx >= 0 && page_idx < tr.pages.length() {
+            let page = tr.pages[page_idx]
+            @wgpu_native.begin_planned_source_image_upload(
+              info.page_id, info.width, info.height,
+            )
+            for y = 0; y < info.height; y = y + 1 {
+              for x = 0; x < info.width; x = x + 1 {
+                let idx = (y * info.width + x) * 4
+                @wgpu_native.set_planned_source_image_pixel(
+                  info.page_id, x, y,
+                  page.pixels[idx],
+                  page.pixels[idx + 1],
+                  page.pixels[idx + 2],
+                  page.pixels[idx + 3],
+                )
+              }
             }
+            @wgpu_native.end_planned_source_image_upload(info.page_id)
           }
-          @wgpu_native.end_planned_source_image_upload(info.page_id)
-          println(
-            "[atlas] Uploaded page " +
-            info.page_id.to_string() +
-            " (" +
-            info.width.to_string() +
-            "x" +
-            info.height.to_string() +
-            ")",
-          )
         }
       }
+      None => ()
     }
-    None => ()
   }
+  upload_atlas(state.text_renderer)
+  upload_atlas(state.bold_text_renderer)
 
   // Render frame
   let _ = @native_hooks.render_frame_from_commands(cmds, 1.0, 1.0, 1.0, 1.0)
@@ -216,21 +217,34 @@ fn install_font_metrics_provider(font : @font.TTFont) -> Unit {
 }
 
 ///|
-fn load_font() -> @text.TextRenderer? {
-  let candidates = [
-    "/System/Library/Fonts/Supplemental/Arial.ttf",
-    "/usr/share/fonts/truetype/dejavu/DejaVuSans.ttf",
-    "/usr/share/fonts/liberation-sans/LiberationSans-Regular.ttf",
-  ]
+let regular_font_candidates : Array[String] = [
+  "/System/Library/Fonts/Supplemental/Arial.ttf",
+  "/usr/share/fonts/truetype/dejavu/DejaVuSans.ttf",
+  "/usr/share/fonts/liberation-sans/LiberationSans-Regular.ttf",
+]
+
+///|
+let bold_font_candidates : Array[String] = [
+  "/System/Library/Fonts/Supplemental/Arial Bold.ttf",
+  "/usr/share/fonts/truetype/dejavu/DejaVuSans-Bold.ttf",
+  "/usr/share/fonts/liberation-sans/LiberationSans-Bold.ttf",
+]
+
+///|
+/// next_page_id tracks atlas page IDs to avoid texture_seed=0 collision
+let next_page_id : Ref[Int] = { val: 1 }
+
+///|
+fn load_font(candidates : Array[String]) -> @text.TextRenderer? {
   for path in candidates {
     match @wgpu_native.read_file_bytes(path) {
       Some(data) =>
         match @text.parse_font_bytes(data) {
           Some(font) => {
             println("[font] Loaded: " + path)
-            // base_page_id must be > 0 to avoid texture_seed=0
-            // (which falls back to solid-color white texture)
-            return Some(@text.TextRenderer::new(font, 1024, 1, 0))
+            let page_id = next_page_id.val
+            next_page_id.val = page_id + 10 // reserve range for atlas pages
+            return Some(@text.TextRenderer::new(font, 1024, page_id, 0))
           }
           None => continue
         }
@@ -238,6 +252,35 @@ fn load_font() -> @text.TextRenderer? {
     }
   }
   None
+}
+
+///|
+fn install_font_metrics_provider_with_bold(
+  regular : @font.TTFont,
+  bold : @font.TTFont,
+) -> Unit {
+  let provider = @renderer.TextMetricsProvider::new(
+    fn(text, font_size, line_height, _white_space, _writing_mode, font_weight) {
+      let font = if font_weight >= 700.0 { bold } else { regular }
+      let measured_width = font.measure_text(text, font_size)
+      let effective_height = if line_height > 0.0 {
+        line_height
+      } else {
+        font_size
+      }
+      {
+        func: fn(_available_width, _available_height) {
+          {
+            min_width: measured_width,
+            max_width: measured_width,
+            min_height: effective_height,
+            max_height: effective_height,
+          }
+        },
+      }
+    },
+  )
+  @renderer.set_text_metrics_provider(provider)
 }
 
 ///|
@@ -282,8 +325,18 @@ fn render_paint_node(
     Some(text) =>
       if text.length() > 0 {
         let size_px = paint.font_size
+        let is_bold = paint.is_bold
         let text_color = crater_color_to_hex(paint.color)
-        let ascent_offset = match state.text_renderer {
+        // Select renderer: bold or regular
+        let active_renderer = if is_bold {
+          match state.bold_text_renderer {
+            Some(_) => state.bold_text_renderer
+            None => state.text_renderer
+          }
+        } else {
+          state.text_renderer
+        }
+        let ascent_offset = match active_renderer {
           Some(tr) => {
             let ascent = tr.font.ascent.to_double()
             let upm = tr.font.units_per_em.to_double()
@@ -292,7 +345,7 @@ fn render_paint_node(
           None => size_px * 0.8
         }
         let line_height = if paint.font_size > 0.0 { paint.font_size } else { 16.0 }
-        // Word wrap using font metrics (matching layout engine)
+        // Word wrap using regular font metrics (matching layout engine)
         let max_width = w
         let words = split_words(text)
         let mut cur_x = x
@@ -320,7 +373,10 @@ fn render_paint_node(
           if i > 0 && word != "\n" && cur_x > x + 0.01 {
             cur_x = cur_x + space_w
           }
-          push_text(cmds, ctx, state, word, size_px, cur_x, cur_y + ascent_offset, text_color)
+          push_text_with_renderer(
+            cmds, ctx, active_renderer, word, size_px,
+            cur_x, cur_y + ascent_offset, text_color,
+          )
           cur_x = cur_x + word_w
         }
       }
@@ -352,17 +408,17 @@ fn render_paint_node(
 }
 
 ///|
-fn push_text(
+fn push_text_with_renderer(
   cmds : Array[@gfx.DrawTrianglesCommand],
   ctx : @engine.EngineContext,
-  state : RenderState,
+  renderer : @text.TextRenderer?,
   text : String,
   size_px : Double,
   x : Double,
   y : Double,
   color_hex : Int,
 ) -> Unit {
-  match state.text_renderer {
+  match renderer {
     Some(tr) => {
       let sw = ctx.screen_w.to_double()
       let sh = ctx.screen_h.to_double()

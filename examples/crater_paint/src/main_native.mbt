@@ -350,8 +350,18 @@ fn render_paint_node(
         let words = split_words(text)
         let mut cur_x = x
         let mut cur_y = y
-        let space_w = match state.text_renderer {
+        // Layout wrap uses regular font (matching layout engine)
+        let layout_space_w = match state.text_renderer {
           Some(tr) => tr.font.measure_text(" ", size_px)
+          None => size_px * 0.5
+        }
+        // Render advance uses actual font (bold or regular)
+        let render_font = match active_renderer {
+          Some(tr) => Some(tr.font)
+          None => None
+        }
+        let render_space_w = match render_font {
+          Some(f) => f.measure_text(" ", size_px)
           None => size_px * 0.5
         }
         for i, word in words {
@@ -360,30 +370,33 @@ fn render_paint_node(
             cur_y = cur_y + line_height
             continue
           }
-          let word_w = match state.text_renderer {
+          // Layout width for wrap decision (regular font)
+          let layout_word_w = match state.text_renderer {
             Some(tr) => tr.font.measure_text(word, size_px)
             None => word.length().to_double() * size_px * 0.5
           }
-          // Wrap if needed
-          if max_width > 0.0 && cur_x + word_w > x + max_width && cur_x > x + 0.01 {
+          // Render width for cursor advance (actual font)
+          let render_word_w = match render_font {
+            Some(f) => f.measure_text(word, size_px)
+            None => layout_word_w
+          }
+          // Wrap check uses layout font
+          if max_width > 0.0 &&
+            cur_x + layout_word_w > x + max_width &&
+            cur_x > x + 0.01 {
             cur_x = x
             cur_y = cur_y + line_height
           }
           // Space before word
           if i > 0 && word != "\n" && cur_x > x + 0.01 {
-            // Render space + word together so inter-word spacing is correct
-            push_text_with_renderer(
-              cmds, ctx, active_renderer, " " + word, size_px,
-              cur_x, cur_y + ascent_offset, text_color,
-            )
-            cur_x = cur_x + space_w + word_w
-          } else {
-            push_text_with_renderer(
-              cmds, ctx, active_renderer, word, size_px,
-              cur_x, cur_y + ascent_offset, text_color,
-            )
-            cur_x = cur_x + word_w
+            cur_x = cur_x + render_space_w
           }
+          // Render word
+          push_text_with_renderer(
+            cmds, ctx, active_renderer, word, size_px,
+            cur_x, cur_y + ascent_offset, text_color,
+          )
+          cur_x = cur_x + render_word_w
         }
       }
     None => ()

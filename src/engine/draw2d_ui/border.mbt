@@ -108,6 +108,114 @@ pub fn filled_rect_vertices(
 }
 
 ///|
+/// Generate NDC vertices for a filled rounded rectangle.
+/// Each corner is approximated with `segments` triangle-fan triangles.
+pub fn filled_rounded_rect_vertices(
+  x : Double,
+  y : Double,
+  w : Double,
+  h : Double,
+  tl : Double,
+  tr : Double,
+  br : Double,
+  bl : Double,
+  screen_w : Double,
+  screen_h : Double,
+) -> (Array[Double], Array[Int]) {
+  let segments = 6 // segments per corner arc
+  // If all radii are zero, fall back to simple rect
+  if tl <= 0.0 && tr <= 0.0 && br <= 0.0 && bl <= 0.0 {
+    return filled_rect_vertices(x, y, w, h, screen_w, screen_h)
+  }
+  // Clamp radii to half dimensions
+  let max_r = @math.minimum(w / 2.0, h / 2.0)
+  let tl = @math.minimum(tl, max_r)
+  let tr = @math.minimum(tr, max_r)
+  let br = @math.minimum(br, max_r)
+  let bl = @math.minimum(bl, max_r)
+  let vertices : Array[Double] = []
+  let indices : Array[Int] = []
+  // Center vertex (index 0)
+  let cx = x + w / 2.0
+  let cy = y + h / 2.0
+  vertices.push(px_to_ndc_x(cx, screen_w))
+  vertices.push(px_to_ndc_y(cy, screen_h))
+  vertices.push(0.5)
+  vertices.push(0.5)
+  let mut idx = 1
+  // Helper: push a vertex and return its index
+  fn push_v(px : Double, py : Double) -> Int {
+    vertices.push(px_to_ndc_x(px, screen_w))
+    vertices.push(px_to_ndc_y(py, screen_h))
+    vertices.push(0.0)
+    vertices.push(0.0)
+    let i = idx
+    idx = idx + 1
+    i
+  }
+  // Build perimeter vertices: top-left corner → top-right → bottom-right → bottom-left
+  let perimeter : Array[Int] = []
+  // Top-left corner arc (center at x+tl, y+tl, from PI to PI*1.5)
+  if tl > 0.0 {
+    for i = 0; i <= segments; i = i + 1 {
+      let angle = 3.14159265 +
+        i.to_double() / segments.to_double() * 3.14159265 / 2.0
+      let px = x + tl + tl * @math.cos(angle)
+      let py = y + tl + tl * @math.sin(angle)
+      perimeter.push(push_v(px, py))
+    }
+  } else {
+    perimeter.push(push_v(x, y))
+  }
+  // Top-right corner arc (center at x+w-tr, y+tr, from PI*1.5 to PI*2)
+  if tr > 0.0 {
+    for i = 0; i <= segments; i = i + 1 {
+      let angle = 3.14159265 * 1.5 +
+        i.to_double() / segments.to_double() * 3.14159265 / 2.0
+      let px = x + w - tr + tr * @math.cos(angle)
+      let py = y + tr + tr * @math.sin(angle)
+      perimeter.push(push_v(px, py))
+    }
+  } else {
+    perimeter.push(push_v(x + w, y))
+  }
+  // Bottom-right corner arc (center at x+w-br, y+h-br, from 0 to PI*0.5)
+  if br > 0.0 {
+    for i = 0; i <= segments; i = i + 1 {
+      let angle = i.to_double() / segments.to_double() * 3.14159265 / 2.0
+      let px = x + w - br + br * @math.cos(angle)
+      let py = y + h - br + br * @math.sin(angle)
+      perimeter.push(push_v(px, py))
+    }
+  } else {
+    perimeter.push(push_v(x + w, y + h))
+  }
+  // Bottom-left corner arc (center at x+bl, y+h-bl, from PI*0.5 to PI)
+  if bl > 0.0 {
+    for i = 0; i <= segments; i = i + 1 {
+      let angle = 3.14159265 / 2.0 +
+        i.to_double() / segments.to_double() * 3.14159265 / 2.0
+      let px = x + bl + bl * @math.cos(angle)
+      let py = y + h - bl + bl * @math.sin(angle)
+      perimeter.push(push_v(px, py))
+    }
+  } else {
+    perimeter.push(push_v(x, y + h))
+  }
+  // Build triangle fan from center (index 0) to perimeter
+  for i = 0; i < perimeter.length() - 1; i = i + 1 {
+    indices.push(0)
+    indices.push(perimeter[i])
+    indices.push(perimeter[i + 1])
+  }
+  // Close the fan
+  indices.push(0)
+  indices.push(perimeter[perimeter.length() - 1])
+  indices.push(perimeter[0])
+  (vertices, indices)
+}
+
+///|
 fn px_to_ndc_x(px : Double, screen_w : Double) -> Double {
   px / screen_w * 2.0 - 1.0
 }

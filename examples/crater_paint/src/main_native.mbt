@@ -417,11 +417,19 @@ fn render_paint_node(
   let sw = ctx.screen_w.to_double()
   let sh = ctx.screen_h.to_double()
 
-  // Background fill
+  // Background fill (with border-radius support)
   if w > 0.0 && h > 0.0 {
     let bg = paint.background_color
     if bg.a > 0.0 {
-      let (v, i) = @draw2d_ui.filled_rect_vertices(x, y, w, h, sw, sh)
+      let tl = paint.border_top_left_radius
+      let tr = paint.border_top_right_radius
+      let br = paint.border_bottom_right_radius
+      let bl = paint.border_bottom_left_radius
+      let (v, i) = if tl > 0.0 || tr > 0.0 || br > 0.0 || bl > 0.0 {
+        @draw2d_ui.filled_rounded_rect_vertices(x, y, w, h, tl, tr, br, bl, sw, sh)
+      } else {
+        @draw2d_ui.filled_rect_vertices(x, y, w, h, sw, sh)
+      }
       cmds.push(
         make_draw_cmd_alpha(
           ctx, scissor, v, i, crater_color_to_hex(bg), paint.opacity * bg.a,

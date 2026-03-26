@@ -216,20 +216,65 @@ fn read_file_as_string(path : String) -> String? {
 ///|
 fn install_font_metrics_provider(font : @font.TTFont) -> Unit {
   let provider = @renderer.TextMetricsProvider::new(
-    fn(text, font_size, line_height, _white_space, _writing_mode, _font_weight) {
-      let measured_width = font.measure_text(text, font_size)
-      let effective_height = if line_height > 0.0 {
+    fn(text, font_size, line_height, white_space, _writing_mode, _font_weight) {
+      let effective_line_height = if line_height > 0.0 {
         line_height
       } else {
         font_size
       }
+      let max_width = font.measure_text(text, font_size)
+      // Compute min_width (widest single word)
+      let words = split_words(text)
+      let mut min_word_width = 0.0
+      for word in words {
+        if word == "\n" {
+          continue
+        }
+        let w = font.measure_text(word, font_size)
+        if w > min_word_width {
+          min_word_width = w
+        }
+      }
+      let ws_str = white_space.to_string()
+      let no_wrap = ws_str == "nowrap" || ws_str == "pre"
       {
-        func: fn(_available_width, _available_height) {
-          {
-            min_width: measured_width,
-            max_width: measured_width,
-            min_height: effective_height,
-            max_height: effective_height,
+        func: fn(available_width, _available_height) {
+          if no_wrap || available_width <= 0.0 {
+            {
+              min_width: min_word_width,
+              max_width,
+              min_height: effective_line_height,
+              max_height: effective_line_height,
+            }
+          } else {
+            // Word-wrap calculation
+            let space_w = font.measure_text(" ", font_size)
+            let mut wrapped_lines = 0
+            let mut cur_width = 0.0
+            for word in words {
+              if word == "\n" {
+                wrapped_lines += 1
+                cur_width = 0.0
+                continue
+              }
+              let word_w = font.measure_text(word, font_size)
+              if cur_width == 0.0 {
+                cur_width = word_w
+              } else if cur_width + space_w + word_w <= available_width + 0.01 {
+                cur_width = cur_width + space_w + word_w
+              } else {
+                wrapped_lines += 1
+                cur_width = word_w
+              }
+            }
+            wrapped_lines += 1
+            let max_h = wrapped_lines.to_double() * effective_line_height
+            {
+              min_width: min_word_width,
+              max_width,
+              min_height: effective_line_height,
+              max_height: max_h,
+            }
           }
         },
       }
@@ -282,21 +327,64 @@ fn install_font_metrics_provider_with_bold(
   bold : @font.TTFont,
 ) -> Unit {
   let provider = @renderer.TextMetricsProvider::new(
-    fn(text, font_size, line_height, _white_space, _writing_mode, font_weight) {
+    fn(text, font_size, line_height, white_space, _writing_mode, font_weight) {
       let font = if font_weight >= 700.0 { bold } else { regular }
-      let measured_width = font.measure_text(text, font_size)
-      let effective_height = if line_height > 0.0 {
+      let effective_line_height = if line_height > 0.0 {
         line_height
       } else {
         font_size
       }
+      let max_width = font.measure_text(text, font_size)
+      let words = split_words(text)
+      let mut min_word_width = 0.0
+      for word in words {
+        if word == "\n" {
+          continue
+        }
+        let w = font.measure_text(word, font_size)
+        if w > min_word_width {
+          min_word_width = w
+        }
+      }
+      let ws_str = white_space.to_string()
+      let no_wrap = ws_str == "nowrap" || ws_str == "pre"
       {
-        func: fn(_available_width, _available_height) {
-          {
-            min_width: measured_width,
-            max_width: measured_width,
-            min_height: effective_height,
-            max_height: effective_height,
+        func: fn(available_width, _available_height) {
+          if no_wrap || available_width <= 0.0 {
+            {
+              min_width: min_word_width,
+              max_width,
+              min_height: effective_line_height,
+              max_height: effective_line_height,
+            }
+          } else {
+            let space_w = font.measure_text(" ", font_size)
+            let mut wrapped_lines = 0
+            let mut cur_width = 0.0
+            for word in words {
+              if word == "\n" {
+                wrapped_lines += 1
+                cur_width = 0.0
+                continue
+              }
+              let word_w = font.measure_text(word, font_size)
+              if cur_width == 0.0 {
+                cur_width = word_w
+              } else if cur_width + space_w + word_w <= available_width + 0.01 {
+                cur_width = cur_width + space_w + word_w
+              } else {
+                wrapped_lines += 1
+                cur_width = word_w
+              }
+            }
+            wrapped_lines += 1
+            let max_h = wrapped_lines.to_double() * effective_line_height
+            {
+              min_width: min_word_width,
+              max_width,
+              min_height: effective_line_height,
+              max_height: max_h,
+            }
           }
         },
       }

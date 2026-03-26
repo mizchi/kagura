@@ -3,7 +3,7 @@
   "version": "0.3.1",
   "deps": {
     "mizchi/image": "0.1.1",
-    "mizchi/font": "0.4.0",
+    "mizchi/font": "0.5.0",
     "mizchi/audio": "0.1.0",
     "mizchi/svg": "0.1.9",
     "mizchi/signals": "0.6.3",

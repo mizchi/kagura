@@ -80,6 +80,10 @@ fn main {
   ])
   let state = RenderState::{ text_renderer, bold_text_renderer, font_map, bold_font_map }
 
+  // Load glyph cache from disk
+  load_glyph_cache(state.text_renderer, "/tmp/crater_glyph_cache_regular.bin")
+  load_glyph_cache(state.bold_text_renderer, "/tmp/crater_glyph_cache_bold.bin")
+
   // Install font metrics for layout (bold-aware)
   match text_renderer {
     Some(tr) =>
@@ -172,6 +176,10 @@ fn main {
   // Render frame
   let _ = @native_hooks.render_frame_from_commands(cmds, 1.0, 1.0, 1.0, 1.0)
 
+  // Save glyph cache to disk for next run
+  save_glyph_cache(state.text_renderer, "/tmp/crater_glyph_cache_regular.bin")
+  save_glyph_cache(state.bold_text_renderer, "/tmp/crater_glyph_cache_bold.bin")
+
   // Save output
   if @wgpu_native.save_screenshot(output_path) {
     println("OK " + screen_w.to_string() + "x" + screen_h.to_string())
@@ -197,6 +205,81 @@ fn read_config() -> (Int, Int) {
     }
     None => (default_w, default_h)
   }
+}
+
+///|
+/// Save glyph atlas (entries + pixels) to cache file.
+fn save_glyph_cache(renderer : @text.TextRenderer?, path : String) -> Unit {
+  match renderer {
+    Some(tr) => {
+      if tr.glyph_count() > 0 {
+        let ints = tr.pages[0].serialize_to_ints()
+        let bytes = ints_to_bytes(ints)
+        if @wgpu_native.write_file_bytes(path, bytes) {
+          println(
+            "[cache] Saved " +
+            tr.glyph_count().to_string() +
+            " glyphs (" +
+            bytes.length().to_string() +
+            " bytes) to " +
+            path,
+          )
+        }
+      }
+    }
+    None => ()
+  }
+}
+
+///|
+/// Load glyph atlas from cache file (entries + pixels).
+fn load_glyph_cache(renderer : @text.TextRenderer?, path : String) -> Unit {
+  match renderer {
+    Some(tr) =>
+      match @wgpu_native.read_file_bytes(path) {
+        Some(bytes) => {
+          let ints = bytes_to_ints(bytes)
+          if tr.load_atlas_cache(ints) {
+            println(
+              "[cache] Loaded " +
+              tr.glyph_count().to_string() +
+              " glyphs from " +
+              path,
+            )
+          }
+        }
+        None => ()
+      }
+    None => ()
+  }
+}
+
+///|
+fn ints_to_bytes(ints : Array[Int]) -> Bytes {
+  let arr : Array[Byte] = []
+  for v in ints {
+    arr.push((v & 0xFF).to_byte())
+    arr.push(((v >> 8) & 0xFF).to_byte())
+    arr.push(((v >> 16) & 0xFF).to_byte())
+    arr.push(((v >> 24) & 0xFF).to_byte())
+  }
+  Bytes::from_array(arr)
+}
+
+///|
+fn bytes_to_ints(bytes : Bytes) -> Array[Int] {
+  let ints : Array[Int] = []
+  let count = bytes.length() / 4
+  for i = 0; i < count; i = i + 1 {
+    let o = i * 4
+    ints.push(
+      bytes[o].to_int() |
+        (bytes[o + 1].to_int() << 8) |
+        (bytes[o + 2].to_int() << 16) |
+        (bytes[o + 3].to_int() << 24),
+    )
+  }
+  ints
 }
 
 ///|

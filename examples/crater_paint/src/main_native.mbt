@@ -410,6 +410,14 @@ fn render_paint_node(
   if not(paint.should_render()) {
     return
   }
+  // Early viewport culling: skip nodes entirely below or above viewport
+  let abs_y = parent_y + node.y
+  let abs_x = parent_x + node.x
+  let sw = ctx.screen_w.to_double()
+  let sh = ctx.screen_h.to_double()
+  if abs_y > sh || abs_y + node.height < 0.0 || abs_x > sw || abs_x + node.width < 0.0 {
+    return
+  }
   let x = parent_x + node.x
   let y = parent_y + node.y
   let w = node.width

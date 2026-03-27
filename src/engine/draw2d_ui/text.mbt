@@ -57,6 +57,6 @@ pub fn measure_text(
   text_renderer : @text.TextRenderer,
   text : String,
   size_px : Double,
-) -> @text.TextMetrics {
+) -> @font.TextMetrics {
   text_renderer.measure(text, size_px)
 }

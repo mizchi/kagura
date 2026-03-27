@@ -5,7 +5,6 @@ import {
   "mizchi/kagura/core",
   "mizchi/kagura/core/inpututil",
   "mizchi/kagura/engine/gfx",
-  "mizchi/layout/types",
 }
 
 // Values
@@ -67,6 +66,21 @@ pub struct SimpleUIRenderAdapter {
 }
 pub fn SimpleUIRenderAdapter::new(@gfx.ShaderHandle, Int) -> Self
 pub impl UIRenderAdapter for SimpleUIRenderAdapter
+
+pub(all) enum UIAlignment {
+  Start
+  End
+  FlexStart
+  FlexEnd
+  Center
+  SpaceBetween
+  SpaceAround
+  SpaceEvenly
+  Stretch
+  Baseline
+}
+pub impl Eq for UIAlignment
+pub impl Show for UIAlignment
 
 pub(all) enum UIDirection {
   Row
@@ -130,8 +144,8 @@ pub(all) struct UINodeStyle {
   padding_top : Double
   padding_bottom : Double
   gap : Double
-  align : @types.Alignment
-  justify_content : @types.Alignment
+  align : UIAlignment
+  justify_content : UIAlignment
   flex_wrap : UIFlexWrap
 }
 pub impl Show for UINodeStyle

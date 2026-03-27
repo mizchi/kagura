@@ -7,7 +7,7 @@ let runtime_smoke_text_page_id : Int = 900
 ///|
 pub struct RuntimeSmokeDrawPlan {
   atlas_repository : @asset.SimpleAtlasImageRepository
-  text_atlas : @text.GlyphAtlas
+  text_atlas : @font.GlyphAtlas
   commands : Array[@gfx.DrawTrianglesCommand]
   sprite_command_index : Int
   text_command_index : Int

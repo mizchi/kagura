@@ -287,10 +287,7 @@ pub fn shutdown_triangle_context(ctx : TriangleContext) -> Unit {
 ///|
 /// Initialize a headless (invisible window) context for offscreen rendering.
 /// Suitable for screenshot generation and CI testing without a display.
-pub fn try_init_headless_context(
-  width : Int,
-  height : Int,
-) -> TriangleContext? {
+pub fn try_init_headless_context(width : Int, height : Int) -> TriangleContext? {
   if !@glfw.glfw_init() {
     None
   } else {

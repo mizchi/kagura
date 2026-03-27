@@ -1,36 +1,6 @@
 ///|
-/// Baseline benchmark for atlas blitting hot path.
-test "bench blit_to_atlas full copy" (b : @bench.T) {
-  let atlas = GlyphAtlas::new(1024, 1024, 1)
-  let bitmap : GlyphBitmap = {
-    width: 64,
-    height: 64,
-    pixels: Array::make(64 * 64 * 4, 255),
-  }
-  b.bench(name="blit_to_atlas/full_copy_64x64", fn() {
-    blit_to_atlas(atlas.pixels, atlas.width, bitmap, 128, 128)
-    b.keep(atlas.pixels[(128 * atlas.width + 128) * 4])
-  })
-}
-
-///|
-/// Benchmark for partially clipped blits near atlas edge.
-test "bench blit_to_atlas edge clip" (b : @bench.T) {
-  let atlas = GlyphAtlas::new(1024, 1024, 1)
-  let bitmap : GlyphBitmap = {
-    width: 64,
-    height: 64,
-    pixels: Array::make(64 * 64 * 4, 255),
-  }
-  b.bench(name="blit_to_atlas/edge_clip_64x64", fn() {
-    blit_to_atlas(atlas.pixels, atlas.width, bitmap, 1000, 1000)
-    b.keep(atlas.pixels[(1000 * atlas.width + 1000) * 4])
-  })
-}
-
-///|
-fn make_bench_glyphs(count : Int) -> Array[GlyphQuad] {
-  let glyphs : Array[GlyphQuad] = []
+fn make_bench_glyphs(count : Int) -> Array[@font.GlyphQuad] {
+  let glyphs : Array[@font.GlyphQuad] = []
   for i in 0..<count {
     let x = (i % 64).to_double() * 12.0
     let y = (i / 64).to_double() * 12.0
@@ -84,14 +54,12 @@ fn pipeline_dispatch_checksum(
 }
 
 ///|
-/// Benchmark text draw command build in warm-cache condition.
 test "bench build_draw_commands warm cache 512" (b : @bench.T) {
-  let cache = GlyphCache::new(4096.0, 4096.0, 1)
+  let cache = @font.GlyphCache::new(4096.0, 4096.0, 1)
   let builder = SimpleTextBatchBuilder::new(cache, 0)
   let glyphs = make_bench_glyphs(512)
   let target = @gfx.new_image_handle(1, 1024, 1024)
   let shader = @gfx.new_shader_handle(1, "text_shader")
-  // Warm up cache once.
   let _ = builder.build_draw_commands(target, glyphs, shader) catch { _ => [] }
   b.bench(name="build_draw_commands/warm_cache_512", fn() {
     let commands = builder.build_draw_commands(target, glyphs, shader) catch {
@@ -102,13 +70,12 @@ test "bench build_draw_commands warm cache 512" (b : @bench.T) {
 }
 
 ///|
-/// Benchmark text draw command build in cold-cache condition.
 test "bench build_draw_commands cold cache 512" (b : @bench.T) {
   let glyphs = make_bench_glyphs(512)
   let target = @gfx.new_image_handle(1, 1024, 1024)
   let shader = @gfx.new_shader_handle(1, "text_shader")
   b.bench(name="build_draw_commands/cold_cache_512", fn() {
-    let cache = GlyphCache::new(4096.0, 4096.0, 1)
+    let cache = @font.GlyphCache::new(4096.0, 4096.0, 1)
     let builder = SimpleTextBatchBuilder::new(cache, 0)
     let commands = builder.build_draw_commands(target, glyphs, shader) catch {
       _ => []
@@ -118,9 +85,8 @@ test "bench build_draw_commands cold cache 512" (b : @bench.T) {
 }
 
 ///|
-/// End-to-end benchmark: build commands + queue merge + dispatch build (warm cache).
 test "bench draw pipeline warm cache 512" (b : @bench.T) {
-  let cache = GlyphCache::new(4096.0, 4096.0, 1)
+  let cache = @font.GlyphCache::new(4096.0, 4096.0, 1)
   let builder = SimpleTextBatchBuilder::new(cache, 0)
   let glyphs = make_bench_glyphs(512)
   let target = @gfx.new_image_handle(1, 1024, 1024)
@@ -135,13 +101,12 @@ test "bench draw pipeline warm cache 512" (b : @bench.T) {
 }
 
 ///|
-/// End-to-end benchmark: build commands + queue merge + dispatch build (cold cache).
 test "bench draw pipeline cold cache 512" (b : @bench.T) {
   let glyphs = make_bench_glyphs(512)
   let target = @gfx.new_image_handle(1, 1024, 1024)
   let shader = @gfx.new_shader_handle(1, "text_shader")
   b.bench(name="draw_pipeline/cold_cache_512", fn() {
-    let cache = GlyphCache::new(4096.0, 4096.0, 1)
+    let cache = @font.GlyphCache::new(4096.0, 4096.0, 1)
     let builder = SimpleTextBatchBuilder::new(cache, 0)
     let commands = builder.build_draw_commands(target, glyphs, shader) catch {
       _ => []

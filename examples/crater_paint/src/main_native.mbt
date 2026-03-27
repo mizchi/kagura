@@ -10,6 +10,15 @@
 ///   Config: /tmp/crater_paint_config.txt (optional: "width height", default "800 600")
 
 ///|
+extern "C" fn clock() -> Int64 = "clock"
+
+///|
+fn clock_ms() -> Double {
+  // CLOCKS_PER_SEC is 1000000 on macOS
+  clock().to_double() / 1000.0
+}
+
+///|
 let default_w : Int = 800
 
 ///|
@@ -88,8 +97,8 @@ fn main {
   match text_renderer {
     Some(tr) =>
       match bold_text_renderer {
-        Some(bold_tr) => install_font_metrics_provider_with_bold(tr.font, bold_tr.font)
-        None => install_font_metrics_provider(tr.font)
+        Some(bold_tr) => install_font_metrics_provider_with_bold(tr.inner.font, bold_tr.inner.font)
+        None => install_font_metrics_provider(tr.inner.font)
       }
     None => println("[warn] No font loaded, using monospace fallback")
   }
@@ -103,8 +112,22 @@ fn main {
     root_font_size: 16.0,
     color_scheme: Light,
   }
-  let node = @renderer.render_to_node(html, render_ctx)
-  let layout = @renderer.render(html, render_ctx)
+  // Phase 1: HTML parse
+  let t0 = clock_ms()
+  let doc = @html.parse_document(html)
+  let t1 = clock_ms()
+  // Phase 2: CSS parse + style resolution
+  let prepared = @renderer.prepare_render_document(doc, render_ctx, [])
+  let t2 = clock_ms()
+  // Phase 3: build render node tree
+  let node = @renderer.build_render_root_node(doc, render_ctx, prepared)
+  let t3 = clock_ms()
+  // Phase 4: layout
+  let layout = @renderer.compute_layout_from_render_root(
+    node, prepared, render_ctx,
+  )
+  let t4 = clock_ms()
+  // Phase 5: paint tree
   let paint_root = match @paint.from_node_and_layout_with_viewport(
     node, layout, 0.0, sh, 0.0,
   ) {
@@ -115,6 +138,54 @@ fn main {
       return
     }
   }
+  let t5 = clock_ms()
+  println(
+    "[perf] html_parse=" +
+    (t1 - t0).to_int().to_string() +
+    "ms css+style=" +
+    (t2 - t1).to_int().to_string() +
+    "ms build_node=" +
+    (t3 - t2).to_int().to_string() +
+    "ms layout=" +
+    (t4 - t3).to_int().to_string() +
+    "ms paint_tree=" +
+    (t5 - t4).to_int().to_string() +
+    "ms total=" +
+    (t5 - t0).to_int().to_string() +
+    "ms"
+  )
+  // DOM stats
+  fn count_elements(e : @html.Element) -> (Int, Int) {
+    let mut total = 1
+    let mut max_depth = 0
+    for child in e.children {
+      match child {
+        @html.Node::Element(ce) => {
+          let (c, d) = count_elements(ce)
+          total += c
+          if d + 1 > max_depth { max_depth = d + 1 }
+        }
+        _ => ()
+      }
+    }
+    (total, max_depth)
+  }
+  let (elem_count, max_depth) = count_elements(doc.root)
+  println(
+    "[perf] dom_elements=" + elem_count.to_string() +
+    " max_depth=" + max_depth.to_string()
+  )
+  println(
+    "[perf] selector_build=" +
+    (@renderer.perf_selector_build_us.val / 1000L).to_string() +
+    "ms pre_checks=" +
+    (@renderer.perf_pre_checks_us.val / 1000L).to_string() +
+    "ms pseudo=" +
+    (@renderer.perf_pseudo_us.val / 1000L).to_string() +
+    "ms child_loop=" +
+    (@renderer.perf_child_loop_us.val / 1000L).to_string() +
+    "ms"
+  )
 
   // Build draw commands
   let engine_ctx = @native_hooks.get_engine_context(screen_w, screen_h)
@@ -143,9 +214,9 @@ fn main {
       Some(tr) => {
         let dirty_pages = tr.flush_dirty_pages()
         for info in dirty_pages {
-          let page_idx = info.page_id - tr.base_page_id
-          if page_idx >= 0 && page_idx < tr.pages.length() {
-            let page = tr.pages[page_idx]
+          let page_idx = info.page_id - tr.inner.base_page_id
+          if page_idx >= 0 && page_idx < tr.inner.pages.length() {
+            let page = tr.inner.pages[page_idx]
             @wgpu_native.begin_planned_source_image_upload(
               info.page_id, info.width, info.height,
             )
@@ -213,7 +284,7 @@ fn save_glyph_cache(renderer : @text.TextRenderer?, path : String) -> Unit {
   match renderer {
     Some(tr) => {
       if tr.glyph_count() > 0 {
-        let ints = tr.pages[0].serialize_to_ints()
+        let ints = tr.inner.pages[0].serialize()
         let bytes = ints_to_bytes(ints)
         if @wgpu_native.write_file_bytes(path, bytes) {
           println(
@@ -298,8 +369,20 @@ fn read_file_as_string(path : String) -> String? {
 
 ///|
 fn install_font_metrics_provider(font : @font.TTFont) -> Unit {
+  let metrics_cache : Map[String, @crater_types.MeasureFunc] = {}
   let provider = @renderer.TextMetricsProvider::new(
     fn(text, font_size, line_height, white_space, _writing_mode, _font_weight) {
+      let cache_key = text +
+        "|" +
+        font_size.to_string() +
+        "|" +
+        white_space.to_string() +
+        "|" +
+        line_height.to_string()
+      match metrics_cache.get(cache_key) {
+        Some(cached) => return cached
+        None => ()
+      }
       let effective_line_height = if line_height > 0.0 {
         line_height
       } else {
@@ -308,19 +391,23 @@ fn install_font_metrics_provider(font : @font.TTFont) -> Unit {
       let max_width = font.measure_text(text, font_size)
       // Compute min_width (widest single word)
       let words = split_words(text)
+      let word_widths : Array[Double] = []
       let mut min_word_width = 0.0
       for word in words {
         if word == "\n" {
+          word_widths.push(0.0)
           continue
         }
         let w = font.measure_text(word, font_size)
+        word_widths.push(w)
         if w > min_word_width {
           min_word_width = w
         }
       }
+      let space_w = font.measure_text(" ", font_size)
       let ws_str = white_space.to_string()
       let no_wrap = ws_str == "nowrap" || ws_str == "pre"
-      {
+      let result : @crater_types.MeasureFunc = {
         func: fn(available_width, _available_height) {
           if no_wrap || available_width <= 0.0 {
             {
@@ -331,16 +418,15 @@ fn install_font_metrics_provider(font : @font.TTFont) -> Unit {
             }
           } else {
             // Word-wrap calculation
-            let space_w = font.measure_text(" ", font_size)
             let mut wrapped_lines = 0
             let mut cur_width = 0.0
-            for word in words {
+            for i, word in words {
               if word == "\n" {
                 wrapped_lines += 1
                 cur_width = 0.0
                 continue
               }
-              let word_w = font.measure_text(word, font_size)
+              let word_w = word_widths[i]
               if cur_width == 0.0 {
                 cur_width = word_w
               } else if cur_width + space_w + word_w <= available_width + 0.01 {
@@ -361,6 +447,8 @@ fn install_font_metrics_provider(font : @font.TTFont) -> Unit {
           }
         },
       }
+      metrics_cache[cache_key] = result
+      result
     },
   )
   @renderer.set_text_metrics_provider(provider)
@@ -409,8 +497,22 @@ fn install_font_metrics_provider_with_bold(
   regular : @font.TTFont,
   bold : @font.TTFont,
 ) -> Unit {
+  let metrics_cache : Map[String, @crater_types.MeasureFunc] = {}
   let provider = @renderer.TextMetricsProvider::new(
     fn(text, font_size, line_height, white_space, _writing_mode, font_weight) {
+      let cache_key = text +
+        "|" +
+        font_size.to_string() +
+        "|" +
+        font_weight.to_string() +
+        "|" +
+        white_space.to_string() +
+        "|" +
+        line_height.to_string()
+      match metrics_cache.get(cache_key) {
+        Some(cached) => return cached
+        None => ()
+      }
       let font = if font_weight >= 700.0 { bold } else { regular }
       let effective_line_height = if line_height > 0.0 {
         line_height
@@ -419,19 +521,23 @@ fn install_font_metrics_provider_with_bold(
       }
       let max_width = font.measure_text(text, font_size)
       let words = split_words(text)
+      let word_widths : Array[Double] = []
       let mut min_word_width = 0.0
       for word in words {
         if word == "\n" {
+          word_widths.push(0.0)
           continue
         }
         let w = font.measure_text(word, font_size)
+        word_widths.push(w)
         if w > min_word_width {
           min_word_width = w
         }
       }
+      let space_w = font.measure_text(" ", font_size)
       let ws_str = white_space.to_string()
       let no_wrap = ws_str == "nowrap" || ws_str == "pre"
-      {
+      let result : @crater_types.MeasureFunc = {
         func: fn(available_width, _available_height) {
           if no_wrap || available_width <= 0.0 {
             {
@@ -441,16 +547,15 @@ fn install_font_metrics_provider_with_bold(
               max_height: effective_line_height,
             }
           } else {
-            let space_w = font.measure_text(" ", font_size)
             let mut wrapped_lines = 0
             let mut cur_width = 0.0
-            for word in words {
+            for i, word in words {
               if word == "\n" {
                 wrapped_lines += 1
                 cur_width = 0.0
                 continue
               }
-              let word_w = font.measure_text(word, font_size)
+              let word_w = word_widths[i]
               if cur_width == 0.0 {
                 cur_width = word_w
               } else if cur_width + space_w + word_w <= available_width + 0.01 {
@@ -471,6 +576,8 @@ fn install_font_metrics_provider_with_bold(
           }
         },
       }
+      metrics_cache[cache_key] = result
+      result
     },
   )
   @renderer.set_text_metrics_provider(provider)
@@ -541,8 +648,8 @@ fn render_paint_node(
         let active_renderer = select_renderer(state, font_family, is_bold)
         let ascent_offset = match active_renderer {
           Some(tr) => {
-            let ascent = tr.font.ascent.to_double()
-            let upm = tr.font.units_per_em.to_double()
+            let ascent = tr.inner.font.ascent.to_double()
+            let upm = tr.inner.font.units_per_em.to_double()
             ascent / upm * size_px
           }
           None => size_px * 0.8
@@ -555,12 +662,12 @@ fn render_paint_node(
         let mut cur_y = y
         // Layout wrap uses regular font (matching layout engine)
         let layout_space_w = match state.text_renderer {
-          Some(tr) => tr.font.measure_text(" ", size_px)
+          Some(tr) => tr.inner.font.measure_text(" ", size_px)
           None => size_px * 0.5
         }
         // Render advance uses actual font (bold or regular)
         let render_font = match active_renderer {
-          Some(tr) => Some(tr.font)
+          Some(tr) => Some(tr.inner.font)
           None => None
         }
         let render_space_w = match render_font {
@@ -575,7 +682,7 @@ fn render_paint_node(
           }
           // Layout width for wrap decision (regular font)
           let layout_word_w = match state.text_renderer {
-            Some(tr) => tr.font.measure_text(word, size_px)
+            Some(tr) => tr.inner.font.measure_text(word, size_px)
             None => word.length().to_double() * size_px * 0.5
           }
           // Render width for cursor advance (actual font)

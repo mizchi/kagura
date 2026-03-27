@@ -15,12 +15,14 @@ pub struct Mesh3D {
   vertex_data : Array[Double]
   indices : Array[Int]
   bounds : MeshBounds3D
+  format : VertexFormat
 }
 pub fn Mesh3D::bounds(Self) -> MeshBounds3D
 pub fn Mesh3D::box(Double, Double, Double) -> Self
 pub fn Mesh3D::cube(Double) -> Self
 pub fn Mesh3D::from_obj(String) -> Self
 pub fn Mesh3D::new(Array[Double], Array[Int]) -> Self
+pub fn Mesh3D::new_with_format(Array[Double], Array[Int], VertexFormat) -> Self
 pub fn Mesh3D::plane(Double, Double, subdivisions? : Int) -> Self
 pub fn Mesh3D::sphere(Double, Int, Int) -> Self
 pub fn Mesh3D::triangle_count(Self) -> Int
@@ -36,6 +38,29 @@ pub struct MeshBounds3D {
   max_z : Double
 }
 pub impl Show for MeshBounds3D
+
+pub enum VertexAttribute {
+  Position3
+  Normal3
+  TexCoord2
+  Joints4
+  Weights4
+  Tangent4
+  Color4
+}
+pub fn VertexAttribute::size(Self) -> Int
+pub impl Eq for VertexAttribute
+pub impl Show for VertexAttribute
+
+pub struct VertexFormat {
+  attributes : Array[VertexAttribute]
+}
+pub fn VertexFormat::has(Self, VertexAttribute) -> Bool
+pub fn VertexFormat::offset_of(Self, VertexAttribute) -> Int
+pub fn VertexFormat::skinned_3d() -> Self
+pub fn VertexFormat::standard_3d() -> Self
+pub fn VertexFormat::stride(Self) -> Int
+pub impl Show for VertexFormat
 
 // Type aliases
 

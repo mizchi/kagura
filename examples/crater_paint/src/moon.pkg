@@ -8,6 +8,7 @@ import {
   "mizchi/kagura/engine/text" @text,
   "mizchi/native_runtime_hooks" @native_hooks,
   "mizchi/crater/renderer" @renderer,
+  "mizchi/crater/html" @html,
   "mizchi/crater/paint" @paint,
   "mizchi/crater/types" @crater_types,
   "mizchi/font" @font,

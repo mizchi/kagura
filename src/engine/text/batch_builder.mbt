@@ -3,13 +3,13 @@
 
 ///|
 pub struct SimpleTextBatchBuilder {
-  cache : GlyphCache
+  cache : @font.GlyphCache
   pipeline_id : Int
 }
 
 ///|
 pub fn SimpleTextBatchBuilder::new(
-  cache : GlyphCache,
+  cache : @font.GlyphCache,
   pipeline_id : Int,
 ) -> SimpleTextBatchBuilder {
   { cache, pipeline_id }

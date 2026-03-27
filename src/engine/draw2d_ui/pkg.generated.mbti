@@ -2,6 +2,7 @@
 package "mizchi/kagura/engine/draw2d_ui"
 
 import {
+  "mizchi/font",
   "mizchi/kagura/engine/gfx",
   "mizchi/kagura/engine/text",
 }
@@ -11,7 +12,9 @@ pub fn border_vertices(Double, Double, Double, Double, BorderWidths, Double, Dou
 
 pub fn filled_rect_vertices(Double, Double, Double, Double, Double, Double) -> (Array[Double], Array[Int])
 
-pub fn measure_text(@text.TextRenderer, String, Double) -> @text.TextMetrics
+pub fn filled_rounded_rect_vertices(Double, Double, Double, Double, Double, Double, Double, Double, Double, Double) -> (Array[Double], Array[Int])
+
+pub fn measure_text(@text.TextRenderer, String, Double) -> @font.TextMetrics
 
 pub fn render_text(@text.TextRenderer, String, Double, Double, Double, @gfx.ImageHandle, @gfx.ShaderHandle, Int, Double, Double) -> Array[@gfx.DrawTrianglesCommand]
 

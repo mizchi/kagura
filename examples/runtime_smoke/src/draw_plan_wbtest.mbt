@@ -43,7 +43,7 @@ test "build_runtime_smoke_tile_draw_plan returns tile sprite and text commands" 
 
 ///|
 test "rasterize_text I returns 1 quad with valid atlas coords" {
-  let text_atlas = @text.GlyphAtlas::new(64, 64, 900)
+  let text_atlas = @font.GlyphAtlas::new(64, 64, 900)
   let font_data = Bytes::from_array(smoke_test_font_otf[:])
   let font = @text.parse_font_bytes(font_data)
   match font {
@@ -66,7 +66,7 @@ test "rasterize_text I returns 1 quad with valid atlas coords" {
 
 ///|
 test "rasterize_text III returns 3 quads with advancing x" {
-  let text_atlas = @text.GlyphAtlas::new(128, 128, 900)
+  let text_atlas = @font.GlyphAtlas::new(128, 128, 900)
   let font_data = Bytes::from_array(smoke_test_font_otf[:])
   let font = @text.parse_font_bytes(font_data)
   match font {
@@ -93,8 +93,8 @@ test "rasterize_text III returns 3 quads with advancing x" {
 
 ///|
 test "rasterize_text at different sizes produces different glyph dimensions" {
-  let atlas_small = @text.GlyphAtlas::new(128, 128, 901)
-  let atlas_large = @text.GlyphAtlas::new(128, 128, 902)
+  let atlas_small = @font.GlyphAtlas::new(128, 128, 901)
+  let atlas_large = @font.GlyphAtlas::new(128, 128, 902)
   let font_data = Bytes::from_array(smoke_test_font_otf[:])
   let font = @text.parse_font_bytes(font_data)
   match font {
@@ -116,8 +116,8 @@ test "SimpleFontEngine measure with embedded font" {
   let fe = @text.load_font_engine_from_bytes(font_data)
   match fe {
     Some(engine) => {
-      let style = @text.default_text_style("test", 24.0)
-      let run = @text.new_text_run("Hello", style)
+      let style = @font.default_text_style("test", 24.0)
+      let run = @font.new_text_run("Hello", style)
       let metrics = engine.measure(run)
       assert_true(metrics.width > 0.0)
       assert_true(metrics.height > 0.0)
@@ -130,7 +130,7 @@ test "SimpleFontEngine measure with embedded font" {
 
 ///|
 test "SimpleTextBatchBuilder with quads from rasterize_text" {
-  let text_atlas = @text.GlyphAtlas::new(128, 128, 903)
+  let text_atlas = @font.GlyphAtlas::new(128, 128, 903)
   let font_data = Bytes::from_array(smoke_test_font_otf[:])
   let font = @text.parse_font_bytes(font_data)
   match font {
@@ -348,8 +348,8 @@ test "TextRenderer multiple render_text calls share glyph cache" {
 
 ///|
 test "rasterize_text matches rasterize_glyph UV for single I" {
-  let atlas_glyph = @text.GlyphAtlas::new(64, 64, 910)
-  let atlas_text = @text.GlyphAtlas::new(64, 64, 911)
+  let atlas_glyph = @font.GlyphAtlas::new(64, 64, 910)
+  let atlas_text = @font.GlyphAtlas::new(64, 64, 911)
   let font_data = Bytes::from_array(smoke_test_font_otf[:])
   let font = @text.parse_font_bytes(font_data)
   match font {

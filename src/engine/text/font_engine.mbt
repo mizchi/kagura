@@ -27,7 +27,7 @@ pub impl FontEngine for SimpleFontEngine with shape(self, run) {
   let size = run.style.size_px
   let positions = self.font.layout_text(run.text, size)
   let scale = size / self.font.units_per_em.to_double()
-  let quads : Array[GlyphQuad] = []
+  let quads : Array[@font.GlyphQuad] = []
   for pos in positions {
     let glyph_id = pos.glyph_id
     if glyph_id == 0 {
@@ -43,7 +43,7 @@ pub impl FontEngine for SimpleFontEngine with shape(self, run) {
     let dst_x = pos.x_offset + metrics.left_side_bearing.to_double() * scale
     let dst_y = -(bbox.y_max.to_double() * scale)
     quads.push({
-      glyph_id: make_glyph_cache_key(glyph_id, size),
+      glyph_id: @font.make_glyph_cache_key(glyph_id, size),
       atlas_x: 0.0,
       atlas_y: 0.0,
       atlas_w: gw,

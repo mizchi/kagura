@@ -1224,7 +1224,7 @@ pub fn runtime_render_frame_with_plan(
   draw_calls : Int,
 ) -> Bool {
   match runtime_context.val {
-    Some(ctx) =>  {
+    Some(ctx) => {
       render_triangle_frame_with_plan(
         ctx, clear_r, clear_g, clear_b, clear_a, draw_calls,
       )
@@ -1269,7 +1269,9 @@ pub fn present_planned_frame_direct(
           command.dst_image_id,
         )
       }
-      render_triangle_frame_with_staged_plan(ctx, clear_r, clear_g, clear_b, clear_a)
+      render_triangle_frame_with_staged_plan(
+        ctx, clear_r, clear_g, clear_b, clear_a,
+      )
       planned_draw_calls.val = 0
       planned_draw_commands.val = []
       true

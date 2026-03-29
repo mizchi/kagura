@@ -8,9 +8,9 @@ let card_h : Double = 90.0
 let card_gap : Double = 8.0
 
 ///|
-/// Main game struct wrapping battle state with UI state
+/// Main game struct wrapping run state with UI state
 pub(all) struct Game {
-  battle : @signals.Signal[BattleState]
+  run : @signals.Signal[RunState]
   selected_card : @signals.Signal[Int] // -1 = none
   target_enemy : @signals.Signal[Int] // -1 = none
   input : @inpututil.InputHelper
@@ -21,12 +21,9 @@ pub(all) struct Game {
 
 ///|
 fn Game::new() -> Game {
-  let battle = BattleState::from_encounter(SingleJawWorm, relics=[
-    BurningBlood,
-    Vajra,
-  ])
+  let run = RunState::new()
   {
-    battle: @signals.signal(battle),
+    run: @signals.signal(run),
     selected_card: @signals.signal(-1),
     target_enemy: @signals.signal(-1),
     input: @inpututil.new_input_helper(),
@@ -49,73 +46,134 @@ fn Game::update(self : Game, input : @core.InputSnapshot) -> Unit {
     return
   }
   @signals.batch(fn() {
-    let state = self.battle.get()
-    match state.phase {
-      Victory | Defeat => {
-        let new_state = BattleState::from_encounter(
-          SingleJawWorm,
-          seed=state.rng_seed + 1,
-          relics=state.relics,
-        )
-        self.battle.set(new_state)
+    let run = self.run.get()
+    let cx = self.cursor_x
+    let cy = self.cursor_y
+    match run.phase {
+      RunVictory | RunDefeat => {
+        // Restart a new run
+        let new_run = RunState::new(seed=run.rng_seed + 1)
+        self.run.set(new_run)
         self.selected_card.set(-1)
-        self.target_enemy.set(-1)
         self.need_target = false
       }
-      PlayerTurn => {
-        let cx = self.cursor_x
-        let cy = self.cursor_y
-        if hit_test_end_turn(cx, cy) {
-          end_player_turn(state)
-          self.battle.set(state)
+      RestSite => {
+        // Click anywhere to rest and heal
+        rest_heal(run)
+        self.run.set(run)
+      }
+      CardReward => {
+        // Check if user clicked a reward card or skip
+        let choice = hit_test_card_reward(run, cx, cy)
+        if choice >= -1 {
+          // -1 = skip, 0-2 = pick card
+          pick_card_reward(run, choice)
+          self.run.set(run)
           self.selected_card.set(-1)
           self.need_target = false
-          return
-        }
-        if self.need_target {
-          let enemy_idx = hit_test_enemy(state, cx, cy)
-          if enemy_idx >= 0 {
-            let card_idx = self.selected_card.get()
-            let result = play_card(state, card_idx, enemy_idx)
-            if result == Ok {
-              self.battle.set(state)
-            }
-            self.selected_card.set(-1)
-            self.need_target = false
-          } else {
-            self.selected_card.set(-1)
-            self.need_target = false
-          }
-        } else {
-          let card_idx = hit_test_card(state, cx, cy)
-          if card_idx >= 0 {
-            let card_id = state.hand[card_idx]
-            let def = card_def(card_id)
-            if state.player.energy >= def.cost {
-              if card_needs_target(card_id) {
-                if alive_enemy_count(state) == 1 {
-                  let target = first_alive_enemy(state)
-                  let result = play_card(state, card_idx, target)
-                  if result == Ok {
-                    self.battle.set(state)
-                  }
-                } else {
-                  self.selected_card.set(card_idx)
-                  self.need_target = true
-                }
-              } else {
-                let result = play_card(state, card_idx, 0)
-                if result == Ok {
-                  self.battle.set(state)
-                }
-              }
-            }
-          }
         }
       }
-      _ => ()
+      Battle =>
+        match run.battle {
+          Some(state) =>
+            match state.phase {
+              Victory => {
+                on_battle_victory(run)
+                self.run.set(run)
+                self.selected_card.set(-1)
+                self.need_target = false
+              }
+              Defeat => {
+                on_battle_defeat(run)
+                self.run.set(run)
+              }
+              PlayerTurn => {
+                if hit_test_end_turn(cx, cy) {
+                  end_player_turn(state)
+                  self.run.set(run)
+                  self.selected_card.set(-1)
+                  self.need_target = false
+                  return
+                }
+                if self.need_target {
+                  let enemy_idx = hit_test_enemy(state, cx, cy)
+                  if enemy_idx >= 0 {
+                    let card_idx = self.selected_card.get()
+                    let result = play_card(state, card_idx, enemy_idx)
+                    if result == Ok {
+                      self.run.set(run)
+                    }
+                    self.selected_card.set(-1)
+                    self.need_target = false
+                  } else {
+                    self.selected_card.set(-1)
+                    self.need_target = false
+                  }
+                } else {
+                  let card_idx = hit_test_card(state, cx, cy)
+                  if card_idx >= 0 {
+                    let card_id = state.hand[card_idx]
+                    let def = card_def(card_id)
+                    if state.player.energy >= def.cost {
+                      if card_needs_target(card_id) {
+                        if alive_enemy_count(state) == 1 {
+                          let target = first_alive_enemy(state)
+                          let result = play_card(state, card_idx, target)
+                          if result == Ok {
+                            self.run.set(run)
+                          }
+                        } else {
+                          self.selected_card.set(card_idx)
+                          self.need_target = true
+                        }
+                      } else {
+                        let result = play_card(state, card_idx, 0)
+                        if result == Ok {
+                          self.run.set(run)
+                        }
+                      }
+                    }
+                  }
+                }
+              }
+              _ => ()
+            }
+          None => ()
+        }
     }
   })
+}
+
+///|
+/// Hit test for card reward selection (returns -2 if no hit, -1 for skip, 0-2 for card)
+fn hit_test_card_reward(
+  run : RunState,
+  cx : Double,
+  cy : Double,
+) -> Int {
+  let sw = screen_w.to_double()
+  let reward_w = 80.0
+  let reward_h = 110.0
+  let gap = 16.0
+  let count = run.card_rewards.length()
+  let total_w = count.to_double() * reward_w + (count - 1).to_double() * gap
+  let start_x = (sw - total_w) / 2.0
+  let card_y = 100.0
+  let mut i = 0
+  while i < count {
+    let x = start_x + i.to_double() * (reward_w + gap)
+    if cx >= x && cx <= x + reward_w && cy >= card_y && cy <= card_y + reward_h {
+      return i
+    }
+    i += 1
+  }
+  // Skip button
+  let skip_x = sw / 2.0 - 40.0
+  let skip_y = 240.0
+  if cx >= skip_x && cx <= skip_x + 80.0 && cy >= skip_y && cy <= skip_y + 30.0 {
+    return -1
+  }
+  -2 // No hit
 }
 
 ///|
@@ -174,31 +232,66 @@ fn hit_test_end_turn(cx : Double, cy : Double) -> Bool {
 fn Game::view(self : Game) -> @scene.SceneNode {
   let sw = screen_w.to_double()
   let sh = screen_h.to_double()
-  let state = self.battle.get()
+  let run = self.run.get()
   @scene.fragment([
     @scene.rect(w=sw, h=sh, fill=0x1a1a2e),
-    view_enemies(state),
-    view_player_info(state),
-    view_relics(state),
-    view_hand(state, self.selected_card.get()),
-    @scene.show(fn() { self.battle.get().phase == PlayerTurn }, fn() {
-      view_end_turn_button()
+    // Floor indicator (always visible)
+    view_floor_bar(run),
+    // Phase-specific views
+    @scene.show(fn() { self.run.get().phase == Battle }, fn() {
+      let r = self.run.get()
+      match r.battle {
+        Some(state) =>
+          @scene.fragment([
+            view_enemies(state),
+            view_player_info_from_run(r),
+            view_relics(state),
+            view_hand(state, self.selected_card.get()),
+            @scene.show(fn() {
+              match self.run.get().battle {
+                Some(b) => b.phase == PlayerTurn
+                None => false
+              }
+            }, fn() { view_end_turn_button() }),
+            @scene.show(fn() { self.need_target }, fn() {
+              @scene.label(
+                x=sw / 2.0 - 40.0,
+                y=sh / 2.0 - 10.0,
+                content="Select target",
+                color=0xFFFF00,
+              )
+            }),
+            view_logs(state),
+            @scene.show(
+              fn() {
+                match self.run.get().battle {
+                  Some(b) => b.phase == Victory || b.phase == Defeat
+                  None => false
+                }
+              },
+              fn() {
+                match self.run.get().battle {
+                  Some(b) => view_battle_result(b)
+                  None => @scene.fragment([])
+                }
+              },
+            ),
+          ])
+        None => @scene.fragment([])
+      }
     }),
-    @scene.show(fn() { self.need_target }, fn() {
-      @scene.label(
-        x=sw / 2.0 - 40.0,
-        y=sh / 2.0 - 10.0,
-        content="Select target",
-        color=0xFFFF00,
-      )
+    @scene.show(fn() { self.run.get().phase == CardReward }, fn() {
+      view_card_reward(self.run.get())
     }),
-    view_logs(state),
+    @scene.show(fn() { self.run.get().phase == RestSite }, fn() {
+      view_rest_site(self.run.get())
+    }),
     @scene.show(
       fn() {
-        let p = self.battle.get().phase
-        p == Victory || p == Defeat
+        let p = self.run.get().phase
+        p == RunVictory || p == RunDefeat
       },
-      fn() { view_game_over(self.battle.get()) },
+      fn() { view_run_over(self.run.get()) },
     ),
   ])
 }
@@ -659,12 +752,12 @@ fn view_logs(state : BattleState) -> @scene.SceneNode {
 }
 
 ///|
-fn view_game_over(state : BattleState) -> @scene.SceneNode {
+fn view_battle_result(state : BattleState) -> @scene.SceneNode {
   let sw = screen_w.to_double()
   let sh = screen_h.to_double()
   let (text, color) = match state.phase {
     Victory => ("VICTORY!", 0x44FF44)
-    Defeat => ("DEFEAT", 0xFF4444)
+    Defeat => ("DEFEATED", 0xFF4444)
     _ => ("", 0xFFFFFF)
   }
   @scene.fragment([
@@ -677,10 +770,295 @@ fn view_game_over(state : BattleState) -> @scene.SceneNode {
       scale=2.0,
     ),
     @scene.label(
-      x=sw / 2.0 - 40.0,
+      x=sw / 2.0 - 50.0,
       y=sh / 2.0 + 20.0,
-      content="Click to restart",
+      content="Click to continue",
       scale=0.7,
+    ),
+  ])
+}
+
+///|
+fn view_floor_bar(run : RunState) -> @scene.SceneNode {
+  let sw = screen_w.to_double()
+  let bar_h = 16.0
+  let nodes : Array[@scene.SceneNode] = []
+  nodes.push(@scene.rect(w=sw, h=bar_h, fill=0x222244))
+  // Floor dots
+  let dot_size = 10.0
+  let dot_gap = 6.0
+  let total = max_floor.to_double() * dot_size +
+    (max_floor - 1).to_double() * dot_gap
+  let start_x = (sw - total) / 2.0
+  let mut i = 1
+  while i <= max_floor {
+    let x = start_x + (i - 1).to_double() * (dot_size + dot_gap)
+    let color = if i < run.floor {
+      0x44AA44 // completed
+    } else if i == run.floor {
+      0xFFDD44 // current
+    } else {
+      0x444466 // future
+    }
+    nodes.push(@scene.rect(x~, y=3.0, w=dot_size, h=dot_size, fill=color))
+    // Floor type indicator
+    let label = match floor_type(i) {
+      Combat(Easy) => "E"
+      Combat(Normal) => "N"
+      Combat(Elite) => "!"
+      Rest => "R"
+      Boss => "B"
+    }
+    nodes.push(
+      @scene.label(x=x + 1.0, y=3.0, content=label, scale=0.45, color=0x000000),
+    )
+    i += 1
+  }
+  // HP display on the right
+  nodes.push(
+    @scene.label(
+      x=sw - 80.0,
+      y=1.0,
+      content="HP " +
+        run.player_hp.to_string() +
+        "/" +
+        run.player_max_hp.to_string(),
+      scale=0.55,
+      color=0xCC4444,
+    ),
+  )
+  @scene.fragment(nodes)
+}
+
+///|
+fn view_player_info_from_run(run : RunState) -> @scene.SceneNode {
+  match run.battle {
+    Some(state) => view_player_info(state)
+    None => @scene.fragment([])
+  }
+}
+
+///|
+fn view_card_reward(run : RunState) -> @scene.SceneNode {
+  let sw = screen_w.to_double()
+  let nodes : Array[@scene.SceneNode] = []
+  // Title
+  nodes.push(
+    @scene.label(
+      x=sw / 2.0 - 60.0,
+      y=30.0,
+      content="Choose a Card",
+      scale=1.2,
+      color=0xFFDD44,
+    ),
+  )
+  nodes.push(
+    @scene.label(
+      x=sw / 2.0 - 80.0,
+      y=55.0,
+      content="Deck: " + run.deck.length().to_string() + " cards",
+      scale=0.6,
+      color=0x888888,
+    ),
+  )
+  // Card rewards
+  let reward_w = 80.0
+  let reward_h = 110.0
+  let gap = 16.0
+  let count = run.card_rewards.length()
+  let total_w = count.to_double() * reward_w + (count - 1).to_double() * gap
+  let start_x = (sw - total_w) / 2.0
+  let card_y = 100.0
+  let mut i = 0
+  while i < count {
+    let card_id = run.card_rewards[i]
+    let def = card_def(card_id)
+    let x = start_x + i.to_double() * (reward_w + gap)
+    // Card background
+    let bg_color = match def.card_type {
+      Attack => 0x884444
+      Skill => 0x448844
+      Power => 0x444488
+    }
+    nodes.push(
+      @scene.rect(x~, y=card_y, w=reward_w, h=reward_h, fill=bg_color),
+    )
+    nodes.push(
+      @scene.rect_outline(
+        x~,
+        y=card_y,
+        w=reward_w,
+        h=reward_h,
+        color=0xAA8844,
+      ),
+    )
+    // Cost
+    nodes.push(@scene.rect(x~, y=card_y, w=18.0, h=18.0, fill=0x2244AA))
+    nodes.push(
+      @scene.label(
+        x=x + 4.0,
+        y=card_y + 2.0,
+        content=def.cost.to_string(),
+        color=0xFFDD44,
+        scale=0.7,
+      ),
+    )
+    // Name
+    nodes.push(
+      @scene.label(
+        x=x + 4.0,
+        y=card_y + 22.0,
+        content=def.name,
+        scale=0.6,
+      ),
+    )
+    // Description
+    nodes.push(
+      @scene.label(
+        x=x + 4.0,
+        y=card_y + 44.0,
+        content=def.description,
+        scale=0.35,
+        color=0xCCCCCC,
+      ),
+    )
+    // Type
+    let type_str = match def.card_type {
+      Attack => "Attack"
+      Skill => "Skill"
+      Power => "Power"
+    }
+    nodes.push(
+      @scene.label(
+        x=x + 4.0,
+        y=card_y + reward_h - 16.0,
+        content=type_str,
+        scale=0.4,
+        color=0x999999,
+      ),
+    )
+    if def.exhaust {
+      nodes.push(
+        @scene.label(
+          x=x + 4.0,
+          y=card_y + reward_h - 28.0,
+          content="Exhaust",
+          scale=0.35,
+          color=0xFF6666,
+        ),
+      )
+    }
+    i += 1
+  }
+  // Skip button
+  let skip_x = sw / 2.0 - 40.0
+  let skip_y = 240.0
+  nodes.push(
+    @scene.rect(x=skip_x, y=skip_y, w=80.0, h=30.0, fill=0x553333),
+  )
+  nodes.push(
+    @scene.rect_outline(
+      x=skip_x,
+      y=skip_y,
+      w=80.0,
+      h=30.0,
+      color=0x774444,
+    ),
+  )
+  nodes.push(
+    @scene.label(
+      x=skip_x + 18.0,
+      y=skip_y + 6.0,
+      content="Skip",
+      scale=0.7,
+    ),
+  )
+  @scene.fragment(nodes)
+}
+
+///|
+fn view_rest_site(run : RunState) -> @scene.SceneNode {
+  let sw = screen_w.to_double()
+  let sh = screen_h.to_double()
+  let heal = run.player_max_hp * 3 / 10
+  @scene.fragment([
+    @scene.label(
+      x=sw / 2.0 - 40.0,
+      y=sh / 2.0 - 60.0,
+      content="Rest Site",
+      scale=1.5,
+      color=0x88CCFF,
+    ),
+    @scene.rect(
+      x=sw / 2.0 - 30.0,
+      y=sh / 2.0 - 20.0,
+      w=60.0,
+      h=60.0,
+      fill=0x334455,
+    ),
+    @scene.label(
+      x=sw / 2.0 - 22.0,
+      y=sh / 2.0 - 5.0,
+      content="Rest",
+      scale=1.0,
+      color=0x88CCFF,
+    ),
+    @scene.label(
+      x=sw / 2.0 - 28.0,
+      y=sh / 2.0 + 15.0,
+      content="+" + heal.to_string() + " HP",
+      scale=0.7,
+      color=0x44CC44,
+    ),
+    @scene.label(
+      x=sw / 2.0 - 40.0,
+      y=sh / 2.0 + 50.0,
+      content="Click to rest",
+      scale=0.6,
+      color=0x888888,
+    ),
+  ])
+}
+
+///|
+fn view_run_over(run : RunState) -> @scene.SceneNode {
+  let sw = screen_w.to_double()
+  let sh = screen_h.to_double()
+  let (text, color) = match run.phase {
+    RunVictory => ("RUN COMPLETE!", 0x44FF44)
+    RunDefeat => ("RUN FAILED", 0xFF4444)
+    _ => ("", 0xFFFFFF)
+  }
+  let floor_text = "Reached Floor " + run.floor.to_string()
+  let deck_text = "Deck: " + run.deck.length().to_string() + " cards"
+  @scene.fragment([
+    @scene.rect(w=sw, h=sh, fill=0x000000, alpha=0.8),
+    @scene.label(
+      x=sw / 2.0 - 60.0,
+      y=sh / 2.0 - 30.0,
+      content=text,
+      color~,
+      scale=1.8,
+    ),
+    @scene.label(
+      x=sw / 2.0 - 40.0,
+      y=sh / 2.0 + 10.0,
+      content=floor_text,
+      scale=0.7,
+      color=0xCCCCCC,
+    ),
+    @scene.label(
+      x=sw / 2.0 - 40.0,
+      y=sh / 2.0 + 26.0,
+      content=deck_text,
+      scale=0.6,
+      color=0x888888,
+    ),
+    @scene.label(
+      x=sw / 2.0 - 50.0,
+      y=sh / 2.0 + 50.0,
+      content="Click to start new run",
+      scale=0.65,
     ),
   ])
 }

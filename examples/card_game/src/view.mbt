@@ -21,7 +21,7 @@ pub(all) struct Game {
 
 ///|
 fn Game::new() -> Game {
-  let battle = BattleState::new([JawWorm])
+  let battle = BattleState::new([JawWorm], relics=[BurningBlood, Vajra])
   {
     battle: @signals.signal(battle),
     selected_card: @signals.signal(-1),
@@ -49,8 +49,11 @@ fn Game::update(self : Game, input : @core.InputSnapshot) -> Unit {
     let state = self.battle.get()
     match state.phase {
       Victory | Defeat => {
-        // Restart on click
-        let new_state = BattleState::new([JawWorm], seed=state.rng_seed + 1)
+        let new_state = BattleState::new(
+          [JawWorm],
+          seed=state.rng_seed + 1,
+          relics=state.relics,
+        )
         self.battle.set(new_state)
         self.selected_card.set(-1)
         self.target_enemy.set(-1)
@@ -59,7 +62,6 @@ fn Game::update(self : Game, input : @core.InputSnapshot) -> Unit {
       PlayerTurn => {
         let cx = self.cursor_x
         let cy = self.cursor_y
-        // Check end turn button
         if hit_test_end_turn(cx, cy) {
           end_player_turn(state)
           self.battle.set(state)
@@ -68,7 +70,6 @@ fn Game::update(self : Game, input : @core.InputSnapshot) -> Unit {
           return
         }
         if self.need_target {
-          // Waiting for enemy target selection
           let enemy_idx = hit_test_enemy(state, cx, cy)
           if enemy_idx >= 0 {
             let card_idx = self.selected_card.get()
@@ -79,21 +80,17 @@ fn Game::update(self : Game, input : @core.InputSnapshot) -> Unit {
             self.selected_card.set(-1)
             self.need_target = false
           } else {
-            // Cancel targeting
             self.selected_card.set(-1)
             self.need_target = false
           }
         } else {
-          // Check card click
           let card_idx = hit_test_card(state, cx, cy)
           if card_idx >= 0 {
             let card_id = state.hand[card_idx]
             let def = card_def(card_id)
             if state.player.energy >= def.cost {
-              if def.card_type == Attack && def.id != Cleave {
-                // Need target
+              if card_needs_target(card_id) {
                 if alive_enemy_count(state) == 1 {
-                  // Auto-target single enemy
                   let target = first_alive_enemy(state)
                   let result = play_card(state, card_idx, target)
                   if result == Ok {
@@ -104,7 +101,6 @@ fn Game::update(self : Game, input : @core.InputSnapshot) -> Unit {
                   self.need_target = true
                 }
               } else {
-                // No target needed (Skill/Power/Cleave)
                 let result = play_card(state, card_idx, 0)
                 if result == Ok {
                   self.battle.set(state)
@@ -177,19 +173,14 @@ fn Game::view(self : Game) -> @scene.SceneNode {
   let sh = screen_h.to_double()
   let state = self.battle.get()
   @scene.fragment([
-    // Background
     @scene.rect(w=sw, h=sh, fill=0x1a1a2e),
-    // Enemies
     view_enemies(state),
-    // Player info
     view_player_info(state),
-    // Hand
+    view_relics(state),
     view_hand(state, self.selected_card.get()),
-    // End turn button
     @scene.show(fn() { self.battle.get().phase == PlayerTurn }, fn() {
       view_end_turn_button()
     }),
-    // Target prompt
     @scene.show(fn() { self.need_target }, fn() {
       @scene.label(
         x=sw / 2.0 - 40.0,
@@ -198,9 +189,7 @@ fn Game::view(self : Game) -> @scene.SceneNode {
         color=0xFFFF00,
       )
     }),
-    // Battle log (last 3 messages)
     view_logs(state),
-    // Game over overlay
     @scene.show(
       fn() {
         let p = self.battle.get().phase
@@ -226,7 +215,6 @@ fn view_enemies(state : BattleState) -> @scene.SceneNode {
       let enemy = state.enemies[i]
       let x = start_x + i.to_double() * (enemy_w + 20.0)
       if not(enemy.fighter.is_dead()) {
-        // Enemy body
         let body_color = if enemy.fighter.status.vulnerable > 0 {
           0xFF6666
         } else {
@@ -235,7 +223,6 @@ fn view_enemies(state : BattleState) -> @scene.SceneNode {
         nodes.push(
           @scene.rect(x~, y=enemy_y, w=enemy_w, h=enemy_h, fill=body_color),
         )
-        // Enemy name
         nodes.push(
           @scene.label(
             x=x + 2.0,
@@ -244,7 +231,7 @@ fn view_enemies(state : BattleState) -> @scene.SceneNode {
             scale=0.6,
           ),
         )
-        // HP bar background
+        // HP bar
         nodes.push(
           @scene.rect(
             x~,
@@ -254,7 +241,6 @@ fn view_enemies(state : BattleState) -> @scene.SceneNode {
             fill=0x333333,
           ),
         )
-        // HP bar fill
         let hp_ratio = enemy.fighter.hp.to_double() /
           enemy.fighter.max_hp.to_double()
         nodes.push(
@@ -266,7 +252,6 @@ fn view_enemies(state : BattleState) -> @scene.SceneNode {
             fill=0x44CC44,
           ),
         )
-        // HP text
         nodes.push(
           @scene.label(
             x=x + 2.0,
@@ -277,7 +262,7 @@ fn view_enemies(state : BattleState) -> @scene.SceneNode {
             scale=0.5,
           ),
         )
-        // Block indicator
+        // Block
         if enemy.fighter.block > 0 {
           nodes.push(
             @scene.rect(
@@ -297,7 +282,7 @@ fn view_enemies(state : BattleState) -> @scene.SceneNode {
             ),
           )
         }
-        // Intent display
+        // Intent
         let intent_text = match enemy.intent {
           AttackIntent(n) => "ATK " + n.to_string()
           DefendIntent(n) => "DEF " + n.to_string()
@@ -314,24 +299,38 @@ fn view_enemies(state : BattleState) -> @scene.SceneNode {
           ),
         )
         // Status effects
+        let mut status_x = x + 2.0
         if enemy.fighter.status.strength > 0 {
           nodes.push(
             @scene.label(
-              x=x + 2.0,
+              x=status_x,
               y=enemy_y + enemy_h + 14.0,
               content="STR+" + enemy.fighter.status.strength.to_string(),
               color=0xFF4444,
               scale=0.5,
             ),
           )
+          status_x += 30.0
         }
         if enemy.fighter.status.vulnerable > 0 {
           nodes.push(
             @scene.label(
-              x=x + 30.0,
+              x=status_x,
               y=enemy_y + enemy_h + 14.0,
               content="VUL" + enemy.fighter.status.vulnerable.to_string(),
               color=0xFFAA00,
+              scale=0.5,
+            ),
+          )
+          status_x += 28.0
+        }
+        if enemy.fighter.status.weak > 0 {
+          nodes.push(
+            @scene.label(
+              x=status_x,
+              y=enemy_y + enemy_h + 14.0,
+              content="WK" + enemy.fighter.status.weak.to_string(),
+              color=0xAA88FF,
               scale=0.5,
             ),
           )
@@ -349,9 +348,8 @@ fn view_player_info(state : BattleState) -> @scene.SceneNode {
   let info_x = 10.0
   let info_y = screen_h.to_double() - card_h - 60.0
   @scene.fragment([
-    // Player HP bar bg
+    // HP bar
     @scene.rect(x=info_x, y=info_y, w=100.0, h=12.0, fill=0x333333),
-    // Player HP bar fill
     @scene.rect(
       x=info_x,
       y=info_y,
@@ -392,15 +390,47 @@ fn view_player_info(state : BattleState) -> @scene.SceneNode {
         ),
       ])
     }),
-    // Strength
-    @scene.show(fn() { state.player.status.strength > 0 }, fn() {
-      @scene.label(
-        x=info_x,
-        y=info_y + 40.0,
-        content="STR+" + state.player.status.strength.to_string(),
-        color=0xFF4444,
-        scale=0.6,
-      )
+    // Status effects
+    @scene.for_each(fn() {
+      let nodes : Array[@scene.SceneNode] = []
+      let mut sx = info_x
+      let sy = info_y + 40.0
+      if state.player.status.strength > 0 {
+        nodes.push(
+          @scene.label(
+            x=sx,
+            y=sy,
+            content="STR+" + state.player.status.strength.to_string(),
+            color=0xFF4444,
+            scale=0.5,
+          ),
+        )
+        sx += 35.0
+      }
+      if state.player.status.weak > 0 {
+        nodes.push(
+          @scene.label(
+            x=sx,
+            y=sy,
+            content="WK" + state.player.status.weak.to_string(),
+            color=0xAA88FF,
+            scale=0.5,
+          ),
+        )
+        sx += 25.0
+      }
+      if state.player.status.vulnerable > 0 {
+        nodes.push(
+          @scene.label(
+            x=sx,
+            y=sy,
+            content="VUL" + state.player.status.vulnerable.to_string(),
+            color=0xFFAA00,
+            scale=0.5,
+          ),
+        )
+      }
+      nodes
     }),
     // Deck info
     @scene.label(
@@ -417,7 +447,76 @@ fn view_player_info(state : BattleState) -> @scene.SceneNode {
       scale=0.5,
       color=0x888888,
     ),
+    @scene.label(
+      x=info_x + 110.0,
+      y=info_y + 20.0,
+      content="Exh:" + state.exhaust_pile.length().to_string(),
+      scale=0.5,
+      color=0x666666,
+    ),
   ])
+}
+
+///|
+fn view_relics(state : BattleState) -> @scene.SceneNode {
+  let relic_y = screen_h.to_double() - card_h - 80.0
+  let relic_size = 16.0
+  let gap = 4.0
+  @scene.for_each(fn() {
+    let nodes : Array[@scene.SceneNode] = []
+    let mut i = 0
+    let base_x = screen_w.to_double() - 100.0
+    while i < state.relics.length() {
+      let def = relic_def(state.relics[i])
+      let x = base_x + i.to_double() * (relic_size + gap)
+      let color = relic_color(state.relics[i])
+      nodes.push(
+        @scene.rect(x~, y=relic_y, w=relic_size, h=relic_size, fill=color),
+      )
+      nodes.push(
+        @scene.rect_outline(
+          x~,
+          y=relic_y,
+          w=relic_size,
+          h=relic_size,
+          color=0xAAAAAA,
+        ),
+      )
+      // First letter as icon
+      let initial = def.name[:1].to_string()
+      nodes.push(
+        @scene.label(x=x + 2.0, y=relic_y + 1.0, content=initial, scale=0.5),
+      )
+      i += 1
+    }
+    // Label
+    if state.relics.length() > 0 {
+      nodes.push(
+        @scene.label(
+          x=base_x,
+          y=relic_y - 12.0,
+          content="Relics",
+          scale=0.45,
+          color=0x888888,
+        ),
+      )
+    }
+    nodes
+  })
+}
+
+///|
+fn relic_color(id : RelicId) -> Int {
+  match id {
+    BurningBlood => 0x882222
+    Vajra => 0x884422
+    Anchor => 0x224488
+    Orichalcum => 0x448844
+    BagOfMarbles => 0x664488
+    Lantern => 0x888844
+    PenNib => 0x444488
+    MeatOnTheBone => 0x884444
+  }
 }
 
 ///|
@@ -448,7 +547,6 @@ fn view_hand(state : BattleState, selected : Int) -> @scene.SceneNode {
         }
       }
       nodes.push(@scene.rect(x~, y~, w=card_w, h=card_h, fill=bg_color))
-      // Card border
       let border_color = if i == selected { 0xFFFF00 } else { 0x666666 }
       nodes.push(
         @scene.rect_outline(x~, y~, w=card_w, h=card_h, color=border_color),
@@ -468,7 +566,7 @@ fn view_hand(state : BattleState, selected : Int) -> @scene.SceneNode {
           scale=0.7,
         ),
       )
-      // Description (simplified - one line)
+      // Description
       nodes.push(
         @scene.label(
           x=x + 3.0,
@@ -478,6 +576,18 @@ fn view_hand(state : BattleState, selected : Int) -> @scene.SceneNode {
           color=0xCCCCCC,
         ),
       )
+      // Exhaust indicator
+      if def.exhaust {
+        nodes.push(
+          @scene.label(
+            x=x + 3.0,
+            y=y + card_h - 14.0,
+            content="Exhaust",
+            scale=0.35,
+            color=0xFF6666,
+          ),
+        )
+      }
       i += 1
     }
     nodes
@@ -494,6 +604,15 @@ fn short_desc(def : CardDef) -> String {
     Pommel_Strike => "DMG 9 +1"
     Shrug_It_Off => "BLK 8 +1"
     Inflame => "STR +2"
+    Body_Slam => "DMG=BLK"
+    Twin_Strike => "DMG 5x2"
+    Clothesline => "DMG 12 WK2"
+    Iron_Wave => "BLK5 DMG5"
+    Bloodletting => "-3HP +2E"
+    Offering => "-6HP +2E +3"
+    Uppercut => "D13 WK1 VU1"
+    Seeing_Red => "+2 Energy"
+    Armaments => "BLK 5"
   }
 }
 

@@ -31,6 +31,8 @@ pub(all) enum ActionResult {
 pub(all) struct BattleState {
   player : Fighter
   enemies : Array[Enemy]
+  relics : Array[RelicId]
+  relic_state : RelicState
   draw_pile : Array[CardId]
   hand : Array[CardId]
   discard_pile : Array[CardId]
@@ -66,6 +68,7 @@ fn shuffle(state : BattleState, cards : Array[CardId]) -> Unit {
 fn BattleState::new(
   enemy_ids : Array[EnemyId],
   seed? : Int = 42,
+  relics? : Array[RelicId] = [],
 ) -> BattleState {
   let enemies : Array[Enemy] = []
   for id in enemy_ids {
@@ -75,6 +78,8 @@ fn BattleState::new(
   let state : BattleState = {
     player: Fighter::new("Ironclad", 80, max_energy=3),
     enemies,
+    relics,
+    relic_state: RelicState::new(),
     draw_pile: deck,
     hand: [],
     discard_pile: [],
@@ -84,12 +89,26 @@ fn BattleState::new(
     logs: [],
     rng_seed: seed,
   }
+  // Apply relic battle start effects
+  let relic_logs = relics_on_battle_start(
+    state.relics,
+    state.player,
+    state.enemies,
+  )
+  for log in relic_logs {
+    state.logs.push(log)
+  }
   // Shuffle and draw initial hand
   shuffle(state, state.draw_pile)
   draw_cards(state, hand_size)
   state.player.energy = state.player.max_energy
   state.turn = 1
   state.logs.push("Battle Start! Turn 1")
+  // Apply turn 1 relic effects
+  let turn_logs = relics_on_turn_start(state.relics, state.player, 1)
+  for log in turn_logs {
+    state.logs.push(log)
+  }
   state
 }
 
@@ -140,8 +159,8 @@ fn play_card(
   if state.player.energy < def.cost {
     return NotEnoughEnergy
   }
-  // Validate target for attacks
-  if def.card_type == Attack && def.id != Cleave {
+  // Validate target for single-target attacks
+  if def.card_type == Attack && not(is_aoe_card(card_id)) {
     if target_index < 0 || target_index >= state.enemies.length() {
       return InvalidTarget
     }
@@ -155,17 +174,36 @@ fn play_card(
   let removed = remove_at(state.hand, hand_index)
   // Execute card effect
   execute_card(state, removed, target_index)
-  // Discard (unless exhausted)
-  state.discard_pile.push(removed)
+  // Exhaust or discard
+  if def.exhaust {
+    state.exhaust_pile.push(removed)
+  } else {
+    state.discard_pile.push(removed)
+  }
   // Check for victory
   check_battle_end(state)
   Ok
 }
 
 ///|
+/// Check if a card hits all enemies
+fn is_aoe_card(id : CardId) -> Bool {
+  match id {
+    Cleave => true
+    _ => false
+  }
+}
+
+///|
+/// Check if a card needs a target
+fn card_needs_target(id : CardId) -> Bool {
+  let def = card_def(id)
+  def.card_type == Attack && not(is_aoe_card(id))
+}
+
+///|
 fn remove_at(arr : Array[CardId], index : Int) -> CardId {
   let card = arr[index]
-  // Shift remaining elements
   let mut i = index
   while i < arr.length() - 1 {
     arr[i] = arr[i + 1]
@@ -178,6 +216,25 @@ fn remove_at(arr : Array[CardId], index : Int) -> CardId {
 }
 
 ///|
+/// Apply attack damage with relic modifiers
+fn apply_attack_with_relics(
+  state : BattleState,
+  base_damage : Int,
+  target : Fighter,
+) -> Int {
+  let damage = calculate_attack_damage(base_damage, state.player)
+  let (modified, relic_logs) = relics_on_attack(
+    state.relics,
+    state.relic_state,
+    damage,
+  )
+  for log in relic_logs {
+    state.logs.push(log)
+  }
+  apply_damage(target, modified)
+}
+
+///|
 /// Execute the effect of a card
 fn execute_card(
   state : BattleState,
@@ -187,8 +244,11 @@ fn execute_card(
   let def = card_def(card_id)
   match card_id {
     Strike => {
-      let damage = calculate_attack_damage(def.base_damage, state.player)
-      let actual = apply_damage(state.enemies[target_index].fighter, damage)
+      let actual = apply_attack_with_relics(
+        state,
+        def.base_damage,
+        state.enemies[target_index].fighter,
+      )
       state.logs.push("Play Strike: " + actual.to_string() + " damage!")
     }
     Defend => {
@@ -198,21 +258,30 @@ fn execute_card(
       )
     }
     Bash => {
-      let damage = calculate_attack_damage(def.base_damage, state.player)
-      let actual = apply_damage(state.enemies[target_index].fighter, damage)
+      let actual = apply_attack_with_relics(
+        state,
+        def.base_damage,
+        state.enemies[target_index].fighter,
+      )
       state.enemies[target_index].fighter.status.vulnerable += 2
       state.logs.push(
-        "Play Bash: " +
-        actual.to_string() +
-        " damage! Target is Vulnerable for 2 turns.",
+        "Play Bash: " + actual.to_string() + " damage! Vulnerable 2.",
       )
     }
     Cleave => {
       let damage = calculate_attack_damage(def.base_damage, state.player)
+      let (modified, relic_logs) = relics_on_attack(
+        state.relics,
+        state.relic_state,
+        damage,
+      )
+      for log in relic_logs {
+        state.logs.push(log)
+      }
       let mut i = 0
       while i < state.enemies.length() {
         if not(state.enemies[i].fighter.is_dead()) {
-          let actual = apply_damage(state.enemies[i].fighter, damage)
+          let actual = apply_damage(state.enemies[i].fighter, modified)
           state.logs.push(
             "Cleave hits " +
             state.enemies[i].fighter.name +
@@ -225,8 +294,11 @@ fn execute_card(
       }
     }
     Pommel_Strike => {
-      let damage = calculate_attack_damage(def.base_damage, state.player)
-      let actual = apply_damage(state.enemies[target_index].fighter, damage)
+      let actual = apply_attack_with_relics(
+        state,
+        def.base_damage,
+        state.enemies[target_index].fighter,
+      )
       state.logs.push("Pommel Strike: " + actual.to_string() + " damage!")
       draw_cards(state, 1)
       state.logs.push("Draw 1 card.")
@@ -243,6 +315,93 @@ fn execute_card(
       state.player.status.strength += 2
       state.logs.push("Inflame: gain 2 Strength!")
     }
+    Body_Slam => {
+      let base = state.player.block
+      let actual = apply_attack_with_relics(
+        state,
+        base,
+        state.enemies[target_index].fighter,
+      )
+      state.logs.push("Body Slam: " + actual.to_string() + " damage!")
+    }
+    Twin_Strike => {
+      let actual1 = apply_attack_with_relics(
+        state,
+        def.base_damage,
+        state.enemies[target_index].fighter,
+      )
+      let actual2 = apply_attack_with_relics(
+        state,
+        def.base_damage,
+        state.enemies[target_index].fighter,
+      )
+      state.logs.push(
+        "Twin Strike: " +
+        actual1.to_string() +
+        " + " +
+        actual2.to_string() +
+        " damage!",
+      )
+    }
+    Clothesline => {
+      let actual = apply_attack_with_relics(
+        state,
+        def.base_damage,
+        state.enemies[target_index].fighter,
+      )
+      state.enemies[target_index].fighter.status.weak += 2
+      state.logs.push("Clothesline: " + actual.to_string() + " damage! Weak 2.")
+    }
+    Iron_Wave => {
+      add_block(state.player, def.base_block)
+      let actual = apply_attack_with_relics(
+        state,
+        def.base_damage,
+        state.enemies[target_index].fighter,
+      )
+      state.logs.push(
+        "Iron Wave: gain 5 Block, " + actual.to_string() + " damage!",
+      )
+    }
+    Bloodletting => {
+      state.player.hp -= 3
+      if state.player.hp < 0 {
+        state.player.hp = 0
+      }
+      state.player.energy += 2
+      state.logs.push("Bloodletting: lose 3 HP, gain 2 Energy!")
+    }
+    Offering => {
+      state.player.hp -= 6
+      if state.player.hp < 0 {
+        state.player.hp = 0
+      }
+      state.player.energy += 2
+      draw_cards(state, 3)
+      state.logs.push("Offering: lose 6 HP, gain 2 Energy, draw 3!")
+    }
+    Uppercut => {
+      let actual = apply_attack_with_relics(
+        state,
+        def.base_damage,
+        state.enemies[target_index].fighter,
+      )
+      state.enemies[target_index].fighter.status.weak += 1
+      state.enemies[target_index].fighter.status.vulnerable += 1
+      state.logs.push(
+        "Uppercut: " + actual.to_string() + " damage! Weak 1, Vulnerable 1.",
+      )
+    }
+    Seeing_Red => {
+      state.player.energy += 2
+      state.logs.push("Seeing Red: gain 2 Energy!")
+    }
+    Armaments => {
+      add_block(state.player, def.base_block)
+      state.logs.push(
+        "Armaments: gain " + def.base_block.to_string() + " Block.",
+      )
+    }
   }
 }
 
@@ -251,6 +410,11 @@ fn execute_card(
 fn end_player_turn(state : BattleState) -> Unit {
   if state.phase != PlayerTurn {
     return
+  }
+  // Relic end-of-turn effects (before discarding)
+  let relic_logs = relics_on_turn_end(state.relics, state.player)
+  for log in relic_logs {
+    state.logs.push(log)
   }
   // Discard remaining hand
   while state.hand.length() > 0 {
@@ -303,6 +467,11 @@ fn start_player_turn(state : BattleState) -> Unit {
   reset_block(state.player)
   draw_cards(state, hand_size)
   state.logs.push("Turn " + state.turn.to_string())
+  // Relic turn-start effects
+  let relic_logs = relics_on_turn_start(state.relics, state.player, state.turn)
+  for log in relic_logs {
+    state.logs.push(log)
+  }
 }
 
 ///|
@@ -317,6 +486,11 @@ fn check_battle_end(state : BattleState) -> Unit {
   if all_dead {
     state.phase = Victory
     state.logs.push("Victory!")
+    // Apply victory relic effects
+    let relic_logs = relics_on_victory(state.relics, state.player)
+    for log in relic_logs {
+      state.logs.push(log)
+    }
   }
 }
 

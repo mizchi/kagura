@@ -1,0 +1,20 @@
+import {
+  "mizchi/signals" @signals,
+  "mizchi/kagura/scene" @scene,
+  "mizchi/kagura/core" @core,
+  "mizchi/kagura/core/inpututil" @inpututil,
+  "mizchi/web_runtime_hooks" @web_hooks,
+}
+
+warnings = "-29-71"
+
+options(
+  "is-main": true,
+  link: {
+    "native": {
+      "cc": "${build.KAGURA_NATIVE_CC}",
+      "cc-link-flags": "-L../../deps/wgpu-native/lib -lwgpu_native ${build.KAGURA_NATIVE_GLFW_LIBS} ${build.KAGURA_NATIVE_WGPU_RPATH} ${build.KAGURA_NATIVE_PLATFORM_LIBS}",
+    },
+  },
+  "supported-targets": [ "js", "native" ],
+)

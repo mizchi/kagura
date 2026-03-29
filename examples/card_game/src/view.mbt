@@ -21,7 +21,10 @@ pub(all) struct Game {
 
 ///|
 fn Game::new() -> Game {
-  let battle = BattleState::new([JawWorm], relics=[BurningBlood, Vajra])
+  let battle = BattleState::from_encounter(SingleJawWorm, relics=[
+    BurningBlood,
+    Vajra,
+  ])
   {
     battle: @signals.signal(battle),
     selected_card: @signals.signal(-1),
@@ -49,8 +52,8 @@ fn Game::update(self : Game, input : @core.InputSnapshot) -> Unit {
     let state = self.battle.get()
     match state.phase {
       Victory | Defeat => {
-        let new_state = BattleState::new(
-          [JawWorm],
+        let new_state = BattleState::from_encounter(
+          SingleJawWorm,
           seed=state.rng_seed + 1,
           relics=state.relics,
         )
@@ -288,6 +291,7 @@ fn view_enemies(state : BattleState) -> @scene.SceneNode {
           DefendIntent(n) => "DEF " + n.to_string()
           BuffIntent => "BUFF"
           MultiAttack(n, t) => "ATK " + n.to_string() + "x" + t.to_string()
+          DebuffIntent => "DEBUFF"
         }
         nodes.push(
           @scene.label(

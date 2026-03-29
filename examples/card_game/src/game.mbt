@@ -74,6 +74,25 @@ fn BattleState::new(
   for id in enemy_ids {
     enemies.push(spawn_enemy(id))
   }
+  BattleState::init(enemies, seed, relics)
+}
+
+///|
+/// Create battle from encounter preset
+fn BattleState::from_encounter(
+  encounter : EncounterId,
+  seed? : Int = 42,
+  relics? : Array[RelicId] = [],
+) -> BattleState {
+  BattleState::new(encounter_enemies(encounter), seed~, relics~)
+}
+
+///|
+fn BattleState::init(
+  enemies : Array[Enemy],
+  seed : Int,
+  relics : Array[RelicId],
+) -> BattleState {
   let deck = starter_deck()
   let state : BattleState = {
     player: Fighter::new("Ironclad", 80, max_energy=3),

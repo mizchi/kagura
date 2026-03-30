@@ -533,125 +533,499 @@ fn log2(x : Double) -> Double {
 }
 
 ///|
-/// Print a formatted fun metrics report
+/// === プレイヤー体験目標値（Player Experience Targets） ===
+///
+/// StS 実プレイの「楽しい」を7軸で定量化。
+/// 各指標の目標値は「プレイヤーが最も面白いと感じるゾーン」を定義する。
+///
+/// ─── 目標値の設計根拠 ───
+///
+/// 1. TENSION（緊張感）
+///    ・体験: "残りHP3で勝った！" "あと1ターン遅かったら死んでた"
+///    ・tension_ratio (HP<25%になる戦闘の割合)
+///      - 0-10%: 退屈。余裕がありすぎて手に汗握らない
+///      - 15-35%: 最適。3-4回に1回の戦闘で「危なかった」を体験
+///      - 40%+: ストレス。常にギリギリで疲弊する
+///    ・lethal_proximity (勝利ランの最低HP平均)
+///      - 30+: 安全すぎ。ボスに余裕で勝てる感覚
+///      - 8-25: 最適。"死にかけたけど立て直した"の記憶が残る
+///      - <5: 運ゲー。実力でどうにもならない感覚
+///    ・close_win_rate (HP<20での勝利割合)
+///      - 10-25%: 最適。勝利の1/5が「ギリギリ」= 印象に残る勝ち体験
+///
+/// 2. DRAW VARIANCE（ドローの揺らぎ）
+///    ・体験: "Offering引いてれば勝てたのに" "完璧なドロー！"
+///    ・outcome_entropy (勝敗のShannonエントロピー)
+///      - <0.5: 退屈。勝つか負けるか開始時に分かる
+///      - 0.7-0.95: 最適。実力で傾けられるが運も絡む
+///      - >0.98: 純粋コイントス。実力関係ない
+///    ・win_rate_variance (シードグループ間の勝率分散)
+///      - <0.005: 均一すぎ。ドロー影響なし
+///      - 0.01-0.05: 最適。「今回はいいドローだった」を感じる範囲
+///      - >0.1: ドロー依存すぎ
+///
+/// 3. SYNERGY EXPLOSION（ビルドが噛み合った時の爆発力）
+///    ・体験: "Limit Break + Demon Form でSTR32！" "Corruption最高！"
+///    ・synergy_multiplier (後半DPT / 序盤DPT)
+///      - <1.3: 成長感なし。スターターデッキとほぼ同じ
+///      - 1.8-3.0: 最適。"自分のビルドが完成した"感覚
+///      - >4.0: インフレ。敵が紙になり作業化する
+///    ・power_curve_slope (フロアあたりDPT成長)
+///      - 0.5-1.5: 最適。フロアごとに着実に強くなる実感
+///
+/// 4. RESOURCE TRADEOFF（リソースの取引）
+///    ・体験: "Offering打つ？HP6失うけど…" "Feed で最大HP増やしたい"
+///    ・hp_trade_frequency (HP消費カード使用数/ラン)
+///      - 0: 安全すぎ。HPをリソースとして使えていない
+///      - 0.5-2.0: 最適。1-2回の「HP vs パワー」判断がランに含まれる
+///      - >3.0: 多すぎ。HP消費が必須になりジレンマでなくなる
+///
+/// 5. ENEMY DIFFERENTIATION（敵による戦略変化）
+///    ・体験: "Nobだ！Skill使えない！" "Sentryは速攻で片方倒す"
+///    ・strategy_divergence (攻撃/防御勝率差の分散)
+///      - <0.005: 全敵同じ。最適戦略が1つ
+///      - 0.02-0.15: 最適。敵ごとにプレイを変える楽しさ
+///      - >0.3: 極端。特定敵に対して勝ち目なし
+///
+/// 6. DECISION WEIGHT（判断の重み）
+///    ・体験: "あそこでBashじゃなくDefend選んでたら…"
+///    ・decision_impact (Smart勝率 - Aggressive勝率)
+///      - <5%: 判断不要。何を選んでも結果同じ
+///      - 15-40%: 最適。上手い人と下手な人で結果が変わる
+///      - >60%: 厳しすぎ。最適解以外が罰ゲーム
+///
+/// 7. COMEBACK POTENTIAL（逆転可能性）
+///    ・体験: "HP8だけど Impervious + Body Slam で逆転！"
+///    ・comeback_rate (低HP<25からの勝率)
+///      - 0%: 絶望。低HPは即負け
+///      - 30-60%: 最適。厳しいが手段はある = 最後まで諦めない
+///      - >80%: 低HPにリスクがない（= Tensionが死ぬ）
+
+///|
+/// Target ranges for each fun metric (what players find enjoyable)
+pub(all) struct FunTargets {
+  // 1. Tension
+  tension_ratio_min : Double // 0.15
+  tension_ratio_max : Double // 0.35
+  lethal_proximity_min : Double // 8.0
+  lethal_proximity_max : Double // 25.0
+  close_win_rate_min : Double // 0.10
+  close_win_rate_max : Double // 0.25
+  // 2. Draw Variance
+  entropy_min : Double // 0.70
+  entropy_max : Double // 0.95
+  variance_min : Double // 0.01
+  variance_max : Double // 0.05
+  // 3. Synergy Explosion
+  synergy_min : Double // 1.8
+  synergy_max : Double // 3.0
+  slope_min : Double // 0.5
+  slope_max : Double // 1.5
+  // 4. Resource Tradeoff
+  hp_trade_min : Double // 0.5
+  hp_trade_max : Double // 2.0
+  // 5. Enemy Differentiation
+  divergence_min : Double // 0.02
+  divergence_max : Double // 0.15
+  // 6. Decision Weight
+  decision_min : Double // 0.15
+  decision_max : Double // 0.40
+  // 7. Comeback
+  comeback_min : Double // 0.30
+  comeback_max : Double // 0.60
+} derive(Show)
+
+///|
+pub fn default_targets() -> FunTargets {
+  {
+    tension_ratio_min: 0.15,
+    tension_ratio_max: 0.35,
+    lethal_proximity_min: 8.0,
+    lethal_proximity_max: 25.0,
+    close_win_rate_min: 0.10,
+    close_win_rate_max: 0.25,
+    entropy_min: 0.70,
+    entropy_max: 0.95,
+    variance_min: 0.01,
+    variance_max: 0.05,
+    synergy_min: 1.8,
+    synergy_max: 3.0,
+    slope_min: 0.5,
+    slope_max: 1.5,
+    hp_trade_min: 0.5,
+    hp_trade_max: 2.0,
+    divergence_min: 0.02,
+    divergence_max: 0.15,
+    decision_min: 0.15,
+    decision_max: 0.40,
+    comeback_min: 0.30,
+    comeback_max: 0.60,
+  }
+}
+
+///|
+/// Grade a single metric: IN_ZONE / TOO_LOW / TOO_HIGH
+fn grade(value : Double, min : Double, max : Double) -> String {
+  if value >= min && value <= max {
+    "IN_ZONE"
+  } else if value < min {
+    "TOO_LOW"
+  } else {
+    "TOO_HIGH"
+  }
+}
+
+///|
+/// Score: 0.0 (worst) to 1.0 (center of zone). Quadratic falloff outside zone.
+fn zone_score(value : Double, min : Double, max : Double) -> Double {
+  if value >= min && value <= max {
+    // Inside zone: 0.7-1.0 based on proximity to center
+    let center = (min + max) / 2.0
+    let half = (max - min) / 2.0
+    if half > 0.0 {
+      let dist = (value - center).abs() / half
+      1.0 - dist * 0.3 // 1.0 at center, 0.7 at edges
+    } else {
+      1.0
+    }
+  } else if value < min {
+    // Below zone: linear falloff
+    let deficit = min - value
+    let range = if min > 0.0 { min } else { 0.1 }
+    let ratio = deficit / range
+    let score = 0.7 - ratio * 0.7
+    if score < 0.0 {
+      0.0
+    } else {
+      score
+    }
+  } else {
+    // Above zone: linear falloff
+    let excess = value - max
+    let range = if max > 0.0 { max } else { 0.1 }
+    let ratio = excess / range
+    let score = 0.7 - ratio * 0.7
+    if score < 0.0 {
+      0.0
+    } else {
+      score
+    }
+  }
+}
+
+///|
+/// Comprehensive fun score with per-axis breakdown
+pub(all) struct FunScorecard {
+  // Per-axis scores (0.0-1.0)
+  tension_score : Double
+  draw_variance_score : Double
+  synergy_score : Double
+  resource_score : Double
+  enemy_diff_score : Double
+  decision_score : Double
+  comeback_score : Double
+  // Per-axis grades
+  tension_grade : String
+  draw_grade : String
+  synergy_grade : String
+  resource_grade : String
+  enemy_grade : String
+  decision_grade : String
+  comeback_grade : String
+  // Overall
+  total_score : Double // weighted average (0-100)
+  overall_grade : String // S / A / B / C / D
+} derive(Show)
+
+///|
+pub fn score_fun_metrics(m : FunMetrics) -> FunScorecard {
+  let t = default_targets()
+
+  // 1. Tension: average of 3 sub-metrics
+  let s_tension = (
+      zone_score(m.tension_ratio, t.tension_ratio_min, t.tension_ratio_max) +
+      zone_score(
+        m.lethal_proximity,
+        t.lethal_proximity_min,
+        t.lethal_proximity_max,
+      ) +
+      zone_score(m.close_win_rate, t.close_win_rate_min, t.close_win_rate_max)
+    ) /
+    3.0
+  let g_tension = grade(
+    m.tension_ratio,
+    t.tension_ratio_min,
+    t.tension_ratio_max,
+  )
+
+  // 2. Draw Variance: average of entropy and variance
+  let s_draw = (
+      zone_score(m.outcome_entropy, t.entropy_min, t.entropy_max) +
+      zone_score(m.win_rate_variance, t.variance_min, t.variance_max)
+    ) /
+    2.0
+  let g_draw = grade(m.outcome_entropy, t.entropy_min, t.entropy_max)
+
+  // 3. Synergy: average of multiplier and slope
+  let s_synergy = (
+      zone_score(m.synergy_multiplier, t.synergy_min, t.synergy_max) +
+      zone_score(m.power_curve_slope, t.slope_min, t.slope_max)
+    ) /
+    2.0
+  let g_synergy = grade(m.synergy_multiplier, t.synergy_min, t.synergy_max)
+
+  // 4. Resource
+  let s_resource = zone_score(
+    m.hp_trade_frequency,
+    t.hp_trade_min,
+    t.hp_trade_max,
+  )
+  let g_resource = grade(m.hp_trade_frequency, t.hp_trade_min, t.hp_trade_max)
+
+  // 5. Enemy diff
+  let s_enemy = zone_score(
+    m.strategy_divergence,
+    t.divergence_min,
+    t.divergence_max,
+  )
+  let g_enemy = grade(m.strategy_divergence, t.divergence_min, t.divergence_max)
+
+  // 6. Decision
+  let s_decision = zone_score(m.decision_impact, t.decision_min, t.decision_max)
+  let g_decision = grade(m.decision_impact, t.decision_min, t.decision_max)
+
+  // 7. Comeback (if no low-HP battles, score based on whether tension is also too low)
+  let s_comeback = if m.comeback_rate <= 0.0 &&
+    m.tension_ratio < t.tension_ratio_min {
+    0.2 // No low-HP battles because game is too easy
+  } else {
+    zone_score(m.comeback_rate, t.comeback_min, t.comeback_max)
+  }
+  let g_comeback = if m.comeback_rate <= 0.0 &&
+    m.tension_ratio < t.tension_ratio_min {
+    "N/A (要Tension改善)"
+  } else {
+    grade(m.comeback_rate, t.comeback_min, t.comeback_max)
+  }
+
+  // Weighted total (weights reflect importance to player experience)
+  // Tension and Decision are most important for "fun"
+  let weights : Array[(Double, Double)] = [
+    (s_tension, 20.0), // 緊張感 — 最重要
+    (s_draw, 15.0), // ドロー揺らぎ — 重要
+    (s_synergy, 15.0), // ビルド爆発力 — 重要
+    (s_resource, 10.0), // リソースジレンマ
+    (s_enemy, 10.0), // 敵の個性
+    (s_decision, 20.0), // 判断の重み — 最重要
+    (s_comeback, 10.0), // 逆転可能性
+  ]
+  let mut weighted_sum = 0.0
+  let mut weight_total = 0.0
+  for pair in weights {
+    let (score, weight) = pair
+    weighted_sum += score * weight
+    weight_total += weight
+  }
+  let total = if weight_total > 0.0 {
+    weighted_sum / weight_total * 100.0
+  } else {
+    0.0
+  }
+
+  let overall = if total >= 85.0 {
+    "S - 理想的なバランス"
+  } else if total >= 70.0 {
+    "A - ほぼ最適、微調整で到達"
+  } else if total >= 55.0 {
+    "B - 楽しいが改善の余地あり"
+  } else if total >= 40.0 {
+    "C - 基本構造はあるが調整が必要"
+  } else {
+    "D - 大幅な調整が必要"
+  }
+
+  {
+    tension_score: s_tension,
+    draw_variance_score: s_draw,
+    synergy_score: s_synergy,
+    resource_score: s_resource,
+    enemy_diff_score: s_enemy,
+    decision_score: s_decision,
+    comeback_score: s_comeback,
+    tension_grade: g_tension,
+    draw_grade: g_draw,
+    synergy_grade: g_synergy,
+    resource_grade: g_resource,
+    enemy_grade: g_enemy,
+    decision_grade: g_decision,
+    comeback_grade: g_comeback,
+    total_score: total,
+    overall_grade: overall,
+  }
+}
+
+///|
+/// Format scorecard as a visual report
+pub fn format_scorecard(sc : FunScorecard) -> String {
+  let buf = StringBuilder::new()
+  buf.write_string("=== FUN SCORECARD ===\n\n")
+  // Bar chart helper
+  fn bar(score : Double) -> String {
+    let filled = (score * 10.0).to_int()
+    let mut s = ""
+    let mut i = 0
+    while i < 10 {
+      s = s + (if i < filled { "█" } else { "░" })
+      i += 1
+    }
+    s
+  }
+
+  fn line(
+    buf : StringBuilder,
+    name : String,
+    score : Double,
+    grade : String,
+    weight : String,
+  ) {
+    buf.write_string("  ")
+    buf.write_string(name)
+    buf.write_string(": ")
+    buf.write_string(bar(score))
+    buf.write_string(" ")
+    let pct = (score * 100.0).to_int()
+    buf.write_string(pct.to_string())
+    buf.write_string("% [")
+    buf.write_string(grade)
+    buf.write_string("] (x")
+    buf.write_string(weight)
+    buf.write_string(")\n")
+  }
+
+  line(buf, "1.緊張感    ", sc.tension_score, sc.tension_grade, "20")
+  line(buf, "2.ドロー揺らぎ", sc.draw_variance_score, sc.draw_grade, "15")
+  line(buf, "3.ビルド爆発力", sc.synergy_score, sc.synergy_grade, "15")
+  line(buf, "4.HP取引    ", sc.resource_score, sc.resource_grade, "10")
+  line(buf, "5.敵の個性   ", sc.enemy_diff_score, sc.enemy_grade, "10")
+  line(buf, "6.判断の重み  ", sc.decision_score, sc.decision_grade, "20")
+  line(buf, "7.逆転可能性  ", sc.comeback_score, sc.comeback_grade, "10")
+  buf.write_string("\n  TOTAL: ")
+  let total_int = sc.total_score.to_int()
+  buf.write_string(total_int.to_string())
+  buf.write_string("/100  ")
+  buf.write_string(sc.overall_grade)
+  buf.write_string("\n")
+  buf.to_string()
+}
+
+///|
+/// Print a formatted fun metrics report with raw data + scorecard
 pub fn format_fun_report(m : FunMetrics) -> String {
+  let t = default_targets()
   let buf = StringBuilder::new()
   buf.write_string("=== Fun Metrics Report ===\n\n")
 
+  // 1. Tension
   buf.write_string("1. TENSION (適切な緊張感)\n")
   buf.write_string("   HP<25%になる戦闘の割合: ")
   buf.write_string(pct_str(m.tension_ratio))
-  buf.write_string("\n")
+  buf.write_string(" (目標: ")
+  buf.write_string(pct_str(t.tension_ratio_min))
+  buf.write_string("-")
+  buf.write_string(pct_str(t.tension_ratio_max))
+  buf.write_string(")\n")
   buf.write_string("   勝利ランの最低到達HP平均: ")
   buf.write_string(m.lethal_proximity.to_string())
-  buf.write_string("\n")
+  buf.write_string(" (目標: ")
+  buf.write_string(t.lethal_proximity_min.to_string())
+  buf.write_string("-")
+  buf.write_string(t.lethal_proximity_max.to_string())
+  buf.write_string(")\n")
   buf.write_string("   ギリギリ勝利(HP<20)の割合: ")
   buf.write_string(pct_str(m.close_win_rate))
-  buf.write_string("\n")
-  let tension_grade = if m.tension_ratio >= 0.15 && m.tension_ratio <= 0.4 {
-    "GOOD"
-  } else if m.tension_ratio < 0.15 {
-    "TOO EASY"
-  } else {
-    "TOO HARD"
-  }
-  buf.write_string("   評価: ")
-  buf.write_string(tension_grade)
-  buf.write_string("\n\n")
+  buf.write_string(" (目標: ")
+  buf.write_string(pct_str(t.close_win_rate_min))
+  buf.write_string("-")
+  buf.write_string(pct_str(t.close_win_rate_max))
+  buf.write_string(")\n\n")
 
+  // 2. Draw Variance
   buf.write_string("2. DRAW VARIANCE (ドローによる揺らぎ)\n")
-  buf.write_string("   勝率の分散(シードグループ間): ")
-  buf.write_string(m.win_rate_variance.to_string())
-  buf.write_string("\n")
   buf.write_string("   勝敗エントロピー: ")
   buf.write_string(m.outcome_entropy.to_string())
-  buf.write_string(" (理想: ~0.9-1.0)\n")
-  let entropy_grade = if m.outcome_entropy >= 0.7 {
-    "GOOD"
-  } else if m.outcome_entropy >= 0.4 {
-    "MODERATE"
-  } else {
-    "TOO PREDICTABLE"
-  }
-  buf.write_string("   評価: ")
-  buf.write_string(entropy_grade)
-  buf.write_string("\n\n")
+  buf.write_string(" (目標: ")
+  buf.write_string(t.entropy_min.to_string())
+  buf.write_string("-")
+  buf.write_string(t.entropy_max.to_string())
+  buf.write_string(")\n")
+  buf.write_string("   勝率の分散: ")
+  buf.write_string(m.win_rate_variance.to_string())
+  buf.write_string(" (目標: ")
+  buf.write_string(t.variance_min.to_string())
+  buf.write_string("-")
+  buf.write_string(t.variance_max.to_string())
+  buf.write_string(")\n\n")
 
+  // 3. Synergy
   buf.write_string("3. SYNERGY EXPLOSION (ビルド爆発力)\n")
-  buf.write_string("   後半DPT / 序盤DPT倍率: ")
+  buf.write_string("   後半/序盤DPT倍率: ")
   buf.write_string(m.synergy_multiplier.to_string())
-  buf.write_string("x\n")
-  buf.write_string("   フロアあたりDPT成長: ")
+  buf.write_string("x (目標: ")
+  buf.write_string(t.synergy_min.to_string())
+  buf.write_string("-")
+  buf.write_string(t.synergy_max.to_string())
+  buf.write_string("x)\n")
+  buf.write_string("   DPT成長/floor: ")
   buf.write_string(m.power_curve_slope.to_string())
-  buf.write_string("/floor\n")
-  let synergy_grade = if m.synergy_multiplier >= 1.5 {
-    "GOOD"
-  } else if m.synergy_multiplier >= 1.2 {
-    "MODERATE"
-  } else {
-    "WEAK - ビルドが成長しない"
-  }
-  buf.write_string("   評価: ")
-  buf.write_string(synergy_grade)
-  buf.write_string("\n\n")
+  buf.write_string(" (目標: ")
+  buf.write_string(t.slope_min.to_string())
+  buf.write_string("-")
+  buf.write_string(t.slope_max.to_string())
+  buf.write_string(")\n\n")
 
+  // 4. Resource
   buf.write_string("4. RESOURCE TRADEOFF (HP対パワーの取引)\n")
   buf.write_string("   HP消費カード使用数/ラン: ")
   buf.write_string(m.hp_trade_frequency.to_string())
-  buf.write_string("\n")
-  let trade_grade = if m.hp_trade_frequency >= 0.5 {
-    "GOOD - HPをリソースとして使えている"
-  } else {
-    "LOW - HP消費カードの価値が足りない"
-  }
-  buf.write_string("   評価: ")
-  buf.write_string(trade_grade)
-  buf.write_string("\n\n")
+  buf.write_string(" (目標: ")
+  buf.write_string(t.hp_trade_min.to_string())
+  buf.write_string("-")
+  buf.write_string(t.hp_trade_max.to_string())
+  buf.write_string(")\n\n")
 
+  // 5. Enemy Diff
   buf.write_string("5. ENEMY DIFFERENTIATION (敵ごとの戦略差)\n")
-  buf.write_string("   攻撃的/防御的勝率差の分散: ")
+  buf.write_string("   戦略分散: ")
   buf.write_string(m.strategy_divergence.to_string())
-  buf.write_string("\n")
-  let diff_grade = if m.strategy_divergence >= 0.01 {
-    "GOOD - 敵によって最適戦略が異なる"
-  } else {
-    "LOW - 全敵に同じ戦略で勝てる"
-  }
-  buf.write_string("   評価: ")
-  buf.write_string(diff_grade)
-  buf.write_string("\n\n")
+  buf.write_string(" (目標: ")
+  buf.write_string(t.divergence_min.to_string())
+  buf.write_string("-")
+  buf.write_string(t.divergence_max.to_string())
+  buf.write_string(")\n\n")
 
+  // 6. Decision Weight
   buf.write_string("6. DECISION WEIGHT (意思決定の重み)\n")
-  buf.write_string("   Smart勝率 - Aggressive勝率: ")
+  buf.write_string("   Smart - Aggressive 勝率差: ")
   buf.write_string(pct_str(m.decision_impact))
-  buf.write_string("\n")
-  let decision_grade = if m.decision_impact >= 0.1 {
-    "GOOD - 賢いプレイが報われる"
-  } else if m.decision_impact >= 0.03 {
-    "MODERATE"
-  } else {
-    "LOW - 戦略の差が出にくい"
-  }
-  buf.write_string("   評価: ")
-  buf.write_string(decision_grade)
-  buf.write_string("\n\n")
+  buf.write_string(" (目標: ")
+  buf.write_string(pct_str(t.decision_min))
+  buf.write_string("-")
+  buf.write_string(pct_str(t.decision_max))
+  buf.write_string(")\n\n")
 
+  // 7. Comeback
   buf.write_string("7. COMEBACK POTENTIAL (逆転可能性)\n")
-  buf.write_string("   低HP(<25)から勝利する割合: ")
+  buf.write_string("   低HP(<25)からの勝率: ")
   buf.write_string(pct_str(m.comeback_rate))
-  buf.write_string("\n")
-  let comeback_grade = if m.comeback_rate >= 0.5 {
-    "GOOD - 低HPでも勝機あり"
-  } else if m.comeback_rate >= 0.3 {
-    "MODERATE"
-  } else if m.comeback_rate > 0.0 {
-    "LOW - 低HPだとほぼ負け"
-  } else {
-    "N/A - 低HPバトルなし"
-  }
-  buf.write_string("   評価: ")
-  buf.write_string(comeback_grade)
-  buf.write_string("\n")
+  buf.write_string(" (目標: ")
+  buf.write_string(pct_str(t.comeback_min))
+  buf.write_string("-")
+  buf.write_string(pct_str(t.comeback_max))
+  buf.write_string(")\n\n")
+
+  // Scorecard
+  let sc = score_fun_metrics(m)
+  buf.write_string(format_scorecard(sc))
 
   buf.to_string()
 }

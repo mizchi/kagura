@@ -143,9 +143,20 @@ pub fn simulate_detailed_run(
   let battles : Array[BattleStats] = []
   let cards_added : Array[CardId] = []
   let mut cards_skipped = 0
+  // Track archetype at Act 1 boundary
+  let mut act1_archetype : Archetype = Balanced
+  let mut act1_deck_size = 10
+  let mut prev_act = 1
   let mut safety = 0
-  while safety < 100 {
+  while safety < 200 {
     safety += 1
+    // Detect act boundary: snapshot archetype when crossing from Act 1 to Act 2
+    let cur_act = floor_act(run.floor)
+    if cur_act != prev_act && cur_act == 2 {
+      act1_archetype = detect_archetype(run.deck)
+      act1_deck_size = run.deck.length()
+    }
+    prev_act = cur_act
     match run.phase {
       Battle =>
         match run.battle {
@@ -175,8 +186,12 @@ pub fn simulate_detailed_run(
             let mut total_streaks = 0
             let mut total_streak_len = 0
             let mut battle_safety = 0
-            while state.phase == PlayerTurn && battle_safety < 300 {
+            while state.phase == PlayerTurn && battle_safety < 200 {
               battle_safety += 1
+              // Cap logs to prevent memory issues in long fights
+              if state.logs.length() > 500 {
+                state.logs.clear()
+              }
               // Try potions at start of each turn
               if potions_copy.length() > 0 {
                 let used = try_use_potions(state, potions_copy)
@@ -188,7 +203,12 @@ pub fn simulate_detailed_run(
               let hp_before_turn = state.player.hp
               // Play all cards this turn
               let mut turn_done = false
-              while not(turn_done) {
+              let mut plays_this_turn = 0
+              while not(turn_done) && plays_this_turn < 20 {
+                plays_this_turn += 1
+                if state.logs.length() > 200 {
+                  state.logs.clear()
+                }
                 let choice = pick_card(state, strategy)
                 match choice {
                   Some((hand_idx, target)) => {
@@ -392,66 +412,55 @@ pub fn simulate_detailed_run(
       RunVictory | RunDefeat => break
     }
   }
-  // Build act snapshots
+  // Build act snapshots from battle records
   let act_snapshots : Array[ActSnapshot] = []
-  // Act 1: floors 1-15
-  let mut act1_cards = 0
-  let mut act1_wins = 0
-  let mut act1_total = 0
-  let act1_hp_start = 80
-  let mut act1_hp_end = 80
-  let act2_cards = 0
-  let mut act2_wins = 0
-  let mut act2_total = 0
-  let mut act2_hp_start = 0
-  let mut act2_hp_end = 0
-  let mut act2_started = false
+  let mut a1_wins = 0
+  let mut a1_total = 0
+  let mut a1_hp_end = 80
+  let mut a2_wins = 0
+  let mut a2_total = 0
+  let mut a2_hp_start = 0
+  let mut a2_hp_end = 0
+  let mut a2_started = false
   for battle in battles {
     if floor_act(battle.floor) == 1 {
-      act1_total += 1
-      if battle.won { act1_wins += 1 }
-      act1_hp_end = battle.hp_after
+      a1_total += 1
+      if battle.won { a1_wins += 1 }
+      a1_hp_end = battle.hp_after
     } else {
-      if not(act2_started) {
-        act2_hp_start = battle.hp_before
-        act2_started = true
+      if not(a2_started) {
+        a2_hp_start = battle.hp_before
+        a2_started = true
       }
-      act2_total += 1
-      if battle.won { act2_wins += 1 }
-      act2_hp_end = battle.hp_after
+      a2_total += 1
+      if battle.won { a2_wins += 1 }
+      a2_hp_end = battle.hp_after
     }
   }
-  for card in cards_added {
-    // Approximate: count cards added in each act by deck growth
-    // Simple heuristic: first N cards are act 1
-    let _ = card
-    act1_cards += 1
-  }
-  // Determine archetype at end of Act 1
-  // Use deck size at floor 15 as proxy: starter(10) + act1 cards
-  let act1_deck_size = 10 + act1_cards
-  let act1_archetype = detect_archetype(run.deck) // approximate
+  // act1_archetype and act1_deck_size captured at Act boundary in the loop
+  let act1_cards_added = act1_deck_size - 10 // starter deck is 10
   act_snapshots.push({
     act: 1,
     archetype: act1_archetype,
     deck_size: act1_deck_size,
-    hp_at_start: act1_hp_start,
-    hp_at_end: act1_hp_end,
-    cards_added: act1_cards,
-    battles_won: act1_wins,
-    battles_total: act1_total,
+    hp_at_start: 80,
+    hp_at_end: a1_hp_end,
+    cards_added: act1_cards_added,
+    battles_won: a1_wins,
+    battles_total: a1_total,
   })
-  if act2_started {
+  if a2_started {
     let act2_archetype = detect_archetype(run.deck)
+    let act2_cards_added = run.deck.length() - act1_deck_size
     act_snapshots.push({
       act: 2,
       archetype: act2_archetype,
       deck_size: run.deck.length(),
-      hp_at_start: act2_hp_start,
-      hp_at_end: act2_hp_end,
-      cards_added: act2_cards,
-      battles_won: act2_wins,
-      battles_total: act2_total,
+      hp_at_start: a2_hp_start,
+      hp_at_end: a2_hp_end,
+      cards_added: act2_cards_added,
+      battles_won: a2_wins,
+      battles_total: a2_total,
     })
   }
   let final_arch = detect_archetype(run.deck)
@@ -725,7 +734,7 @@ pub fn analyze_fun_metrics(run_count : Int) -> FunMetrics {
   let mut low_hp_wins = 0
   for run in detailed_runs {
     for battle in run.battles {
-      if battle.hp_before < 35 { // entering battle at <~40% HP
+      if battle.hp_before < 25 { // entering battle at <~30% HP
         low_hp_battles += 1
         if battle.won {
           low_hp_wins += 1

@@ -119,27 +119,27 @@ pub fn spawn_enemy(id : EnemyId) -> Enemy {
     TheGuardian =>
       {
         id,
-        // Guardian: 160 HP. Mode Shift at 30 DMG taken → defensive mode
-        // Offensive: Twin Slam(2x7), Fierce Bash(24), Whirlwind(4x4)
+        // Guardian: 140 HP. Mode Shift at 30 DMG taken → defensive mode
+        // Offensive: Twin Slam(2x7), Fierce Bash(22), Whirlwind(4x4)
         // Defensive: Charge Up (+9 block), Roll Attack(9)
-        fighter: Fighter::new("The Guardian", 160),
+        fighter: Fighter::new("The Guardian", 140),
         intent: MultiAttack(7, 2), // Twin Slam first
         pattern_index: 0,
       }
     Hexaghost =>
       {
         id,
-        // Hexaghost: 160 HP. Activate first turn, then escalating attacks
-        // Divider(6×4), Sear(6), Tackle(5+2), Inflame(+2 STR), Inferno(6×2)
-        fighter: Fighter::new("Hexaghost", 160),
+        // Hexaghost: 140 HP. Activate first turn, then escalating attacks
+        // Divider(5×4), Sear(6), Tackle(5+2), Inflame(+2 STR), Inferno(6×2)
+        fighter: Fighter::new("Hexaghost", 140),
         intent: BuffIntent, // Activate: no damage turn 1
         pattern_index: 0,
       }
     Chosen =>
       {
         id,
-        // Chosen: 91 HP. Hex (debuff), then Poke(12), then big Drain(18)
-        fighter: Fighter::new("Chosen", 91),
+        // Chosen: 75 HP. Hex (debuff), then Poke(12), then big Drain(18)
+        fighter: Fighter::new("Chosen", 75),
         intent: DebuffIntent, // Hex: apply Vulnerable + Weak
         pattern_index: 0,
       }
@@ -154,16 +154,16 @@ pub fn spawn_enemy(id : EnemyId) -> Enemy {
     BookOfStabbing =>
       {
         id,
-        // BookOfStabbing: 120 HP. Multi-stab that escalates
-        fighter: Fighter::new("Book of Stabbing", 120),
+        // BookOfStabbing: 130 HP. Multi-stab that escalates
+        fighter: Fighter::new("Book of Stabbing", 130),
         intent: MultiAttack(6, 2), // starts with 2 stabs
         pattern_index: 0,
       }
     BronzeAutomaton =>
       {
         id,
-        // BronzeAutomaton: 220 HP. Flail, then Boost, then Hyper Beam
-        fighter: Fighter::new("Bronze Automaton", 220),
+        // BronzeAutomaton: 200 HP. Flail, then Boost, then Hyper Beam
+        fighter: Fighter::new("Bronze Automaton", 200),
         intent: AttackIntent(8), // Flail
         pattern_index: 0,
       }
@@ -236,7 +236,7 @@ fn next_intent(enemy : Enemy) -> Intent {
       // Offensive mode: Twin Slam, Fierce Bash, Whirlwind, then Charge Up
       match idx % 5 {
         0 => MultiAttack(7, 2) // Twin Slam (2×7)
-        1 => AttackIntent(24) // Fierce Bash
+        1 => AttackIntent(22) // Fierce Bash
         2 => MultiAttack(4, 4) // Whirlwind (4×4)
         3 => DefendIntent(9) // Charge Up (enter defensive)
         _ => AttackIntent(9) // Roll Attack (back to offensive)
@@ -418,9 +418,9 @@ pub fn encounter_enemies(id : EncounterId) -> Array[EnemyId] {
     // Act 2
     SingleChosen => [Chosen]
     SnakePlantFight => [SnakePlant]
-    ChosenSlaver => [Chosen, SlaverRed]
+    ChosenSlaver => [Chosen, GreenLouse]
     Act2EliteBook => [BookOfStabbing]
-    Act2EliteSentryTrio => [Sentry, Sentry, Sentry]
+    Act2EliteSentryTrio => [Sentry, Sentry]
     BossAutomaton => [BronzeAutomaton]
   }
 }

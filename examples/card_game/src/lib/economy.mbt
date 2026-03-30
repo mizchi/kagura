@@ -430,7 +430,7 @@ fn encounter_difficulty(id : EncounterId) -> Double {
       SlaverRed => (14.0 + 14.0 + 9.0 + 0.0) / 4.0
       Sentry => (9.0 + 9.0 + 10.0) / 3.0
       GremlinNob => (0.0 + 14.0 + 6.0) / 3.0 // + enrage scaling
-      TheGuardian => (14.0 + 24.0 + 16.0 + 0.0 + 9.0) / 5.0
+      TheGuardian => (14.0 + 22.0 + 16.0 + 0.0 + 9.0) / 5.0
       Hexaghost => (20.0 + 6.0 + 10.0 + 0.0 + 12.0) / 5.0
       // Act 2 enemies
       Chosen => (0.0 + 12.0 + 18.0) / 3.0
@@ -486,7 +486,7 @@ pub fn simulate_run(seed : Int, strategy : PlayStrategy) -> RunSimResult {
   let deck_history : Array[Int] = [run.deck.length()]
   let cards_added : Array[CardId] = []
   let mut safety = 0
-  while safety < 100 {
+  while safety < 200 {
     safety += 1
     match run.phase {
       Battle =>
@@ -498,8 +498,12 @@ pub fn simulate_run(seed : Int, strategy : PlayStrategy) -> RunSimResult {
               potions_copy.push(p)
             }
             let mut battle_safety = 0
-            while state.phase == PlayerTurn && battle_safety < 300 {
+            while state.phase == PlayerTurn && battle_safety < 200 {
               battle_safety += 1
+              // Prevent log OOM in long fights
+              if state.logs.length() > 200 {
+                state.logs.clear()
+              }
               // Try potions
               if potions_copy.length() > 0 {
                 try_use_potions(state, potions_copy) |> ignore

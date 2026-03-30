@@ -37,10 +37,10 @@ pub fn detect_archetype(deck : Array[CardId]) -> Archetype {
     match card {
       // Strength archetype
       Inflame | Demon_Form | Flex | Limit_Break => str_score += 3
-      Twin_Strike | Sword_Boomerang | Heavy_Blade => str_score += 2
+      Twin_Strike | Sword_Boomerang | Heavy_Blade | Pummel => str_score += 2
       Headbutt | Rampage => str_score += 1
       // Block archetype
-      Barricade | Metallicize => blk_score += 3
+      Barricade | Metallicize | Entrench => blk_score += 3
       Body_Slam | Impervious => blk_score += 2
       Shrug_It_Off | Iron_Wave | True_Grit | Armaments => blk_score += 1
       // Exhaust archetype

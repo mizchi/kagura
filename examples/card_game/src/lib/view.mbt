@@ -744,6 +744,11 @@ fn short_desc(def : CardDef) -> String {
     Feed => "D10 +3MHP"
     Fiend_Fire => "Exh hand"
     Limit_Break => "STR x2"
+    Carnage => "D20 Ether"
+    Immolate => "D21 ALL"
+    Reaper => "D4 ALL+Heal"
+    Entrench => "BLK x2"
+    Pummel => "D2 x4"
   }
 }
 

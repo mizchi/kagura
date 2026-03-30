@@ -288,6 +288,10 @@ fn evaluate_card(id : CardId) -> CardValue {
     Fiend_Fire => 7.0 * 4.0 // ~4 cards exhausted average
     Whirlwind => 5.0 * 3.0 // ~3 energy average
     Heavy_Blade => 14.0 + 6.0 // STR bonus estimate
+    Pummel => 2.0 * 4.0 // 4 hits
+    Immolate => 21.0 + 10.0 // AoE bonus
+    Reaper => 4.0 * 3.0 + 5.0 // AoE + heal
+    Carnage => 20.0 // big single hit
     _ => def.base_damage.to_double()
   }
   let raw_block = def.base_block.to_double()
@@ -323,16 +327,20 @@ fn evaluate_card(id : CardId) -> CardValue {
     Rampage => 5.0 * 3.0 // grows each play
     Limit_Break => 20.0 // double STR is explosive
     Feed => 3.0 * 3.0 // +3 max HP per kill compounds
+    Entrench => 12.0 // Block doubling is powerful scaling
     _ => 0.0
   }
   let synergy_multiplier : Double = match id {
-    Twin_Strike | Sword_Boomerang | Heavy_Blade => 1.3 // STR synergy
+    Twin_Strike | Sword_Boomerang | Heavy_Blade | Pummel => 1.3 // STR synergy
     Body_Slam => 1.5 // Block synergy
     Inflame | Demon_Form | Limit_Break => 1.5 // Enables STR archetype
     Offering | True_Grit | Feel_No_Pain | Corruption | Fiend_Fire => 1.4 // Exhaust archetype
     Bash | Shockwave => 1.3 // Vuln synergy
-    Barricade | Metallicize => 1.4 // Block archetype
+    Barricade | Metallicize | Entrench => 1.4 // Block archetype
     Impervious => 1.3 // Block archetype
+    Immolate => 1.3 // AoE heavy hitter
+    Reaper => 1.3 // AoE + sustain
+    Carnage => 1.1 // Ethereal risk
     Whirlwind => 1.3 // AoE + energy dump
     Feed => 1.2 // HP growth
     _ => 1.0
@@ -541,8 +549,10 @@ pub fn simulate_run(seed : Int, strategy : PlayStrategy) -> RunSimResult {
               (Strength, Demon_Form) => 10.0
               (Strength, Limit_Break) => 12.0
               (Strength, Flex) => 3.0
+              (Strength, Pummel) => 6.0
               // Block archetype: bonus for block-related cards
               (Block, Barricade) => 10.0
+              (Block, Entrench) => 10.0
               (Block, Metallicize) => 8.0
               (Block, Body_Slam) => 7.0
               (Block, Impervious) => 6.0

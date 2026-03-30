@@ -389,6 +389,7 @@ fn common_pool() -> Array[CardId] {
     True_Grit,
     Flex,
     Heavy_Blade,
+    Pummel,
   ]
 }
 
@@ -408,6 +409,8 @@ fn uncommon_pool() -> Array[CardId] {
     Disarm,
     Inflame,
     Metallicize,
+    Carnage,
+    Entrench,
   ]
 }
 
@@ -424,5 +427,7 @@ fn rare_pool() -> Array[CardId] {
     Feed,
     Fiend_Fire,
     Limit_Break,
+    Immolate,
+    Reaper,
   ]
 }

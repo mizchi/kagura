@@ -306,6 +306,13 @@ fn card_smart_value(
     Disarm => return 148
     _ => ()
   }
+  // Entrench: double Block — great when already blocking
+  if def.id == Entrench {
+    if state.player.block >= 10 {
+      return 180 // Double 10+ block is huge
+    }
+    return 30 // Not useful without existing block
+  }
   // Impervious: amazing when facing big damage
   if def.id == Impervious {
     if unblocked_damage > 15 {
@@ -384,6 +391,10 @@ fn effective_damage(def : CardDef) -> Int {
     Whirlwind => def.base_damage * 3 // ~3 energy worth of AoE
     Feed => def.base_damage + 5 // kill bonus value
     Fiend_Fire => def.base_damage * 4 // ~4 cards in hand average
+    Pummel => def.base_damage * 4 // 4 hits
+    Carnage => def.base_damage // 20 is already high
+    Immolate => def.base_damage + 10 // AoE value
+    Reaper => def.base_damage * 3 + 5 // AoE + heal value
     _ => def.base_damage
   }
 }

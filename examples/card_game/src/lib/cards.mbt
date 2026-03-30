@@ -50,6 +50,12 @@ pub(all) enum CardId {
   Corruption // 3 cost: Skills cost 0, but Exhaust
   // Common Attacks (cont.)
   Heavy_Blade // 2 cost: 14 dmg, STR applies 3x
+  // Heavy/peaky additions
+  Carnage // 2 cost: 20 dmg, Ethereal (exhaust if not played)
+  Immolate // 2 cost: 21 dmg to ALL enemies
+  Reaper // 2 cost: 4 dmg to ALL, heal for damage dealt
+  Entrench // 2 cost: double current Block
+  Pummel // 1 cost: 2 dmg × 4 hits (STR scaling)
 } derive(Show, Eq)
 
 ///|
@@ -492,6 +498,61 @@ pub fn card_def(id : CardId) -> CardDef {
         exhaust: true,
         description: "Double your Strength. Exhaust.",
       }
+    Carnage =>
+      {
+        id: Carnage,
+        name: "Carnage",
+        cost: 2,
+        card_type: Attack,
+        base_damage: 20,
+        base_block: 0,
+        exhaust: false, // Ethereal handled in game logic
+        description: "Ethereal. Deal 20 damage.",
+      }
+    Immolate =>
+      {
+        id: Immolate,
+        name: "Immolate",
+        cost: 2,
+        card_type: Attack,
+        base_damage: 21,
+        base_block: 0,
+        exhaust: false,
+        description: "Deal 21 damage to ALL enemies.",
+      }
+    Reaper =>
+      {
+        id: Reaper,
+        name: "Reaper",
+        cost: 2,
+        card_type: Attack,
+        base_damage: 4,
+        base_block: 0,
+        exhaust: true,
+        description: "Deal 4 damage to ALL. Heal HP equal to unblocked damage. Exhaust.",
+      }
+    Entrench =>
+      {
+        id: Entrench,
+        name: "Entrench",
+        cost: 2,
+        card_type: Skill,
+        base_damage: 0,
+        base_block: 0,
+        exhaust: false,
+        description: "Double your current Block.",
+      }
+    Pummel =>
+      {
+        id: Pummel,
+        name: "Pummel",
+        cost: 1,
+        card_type: Attack,
+        base_damage: 2,
+        base_block: 0,
+        exhaust: true,
+        description: "Deal 2 damage 4 times. Exhaust.",
+      }
   }
 }
 
@@ -540,8 +601,11 @@ fn card_rarity(id : CardId) -> CardRarity {
     | Whirlwind
     | Feed
     | Fiend_Fire
-    | Limit_Break => Rare
-    Heavy_Blade => Common
+    | Limit_Break
+    | Immolate
+    | Reaper => Rare
+    Heavy_Blade | Pummel => Common
+    Carnage | Entrench => Uncommon
   }
 }
 

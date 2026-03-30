@@ -260,7 +260,7 @@ pub fn play_card(
 /// Check if a card hits all enemies
 fn is_aoe_card(id : CardId) -> Bool {
   match id {
-    Cleave | Shockwave | Whirlwind => true
+    Cleave | Shockwave | Whirlwind | Immolate | Reaper => true
     _ => false
   }
 }
@@ -280,7 +280,8 @@ fn is_self_card(id : CardId) -> Bool {
     | Offering
     | Seeing_Red
     | Battle_Trance
-    | Impervious => true
+    | Impervious
+    | Entrench => true
     // Self-targeting skills
     Limit_Break => true
     // Powers
@@ -291,7 +292,7 @@ fn is_self_card(id : CardId) -> Bool {
     | Feel_No_Pain
     | Corruption => true
     // AoE
-    Cleave | Shockwave | Whirlwind => true
+    Cleave | Shockwave | Whirlwind | Immolate | Reaper => true
     // Disarm targets enemy but isn't an attack
     _ => def.card_type == Skill && def.base_damage == 0 && def.base_block > 0
   }
@@ -729,6 +730,95 @@ fn execute_card(
       } else {
         state.logs.push("Limit Break: no Strength to double.")
       }
+    }
+    Carnage => {
+      // Ethereal: 20 damage. Ethereal exhaust handled at end of turn.
+      let actual = apply_attack_with_relics(
+        state,
+        def.base_damage,
+        state.enemies[target_index].fighter,
+      )
+      state.logs.push("Carnage: " + actual.to_string() + " damage!")
+    }
+    Immolate => {
+      // 21 damage to ALL enemies
+      let damage = calculate_attack_damage(def.base_damage, state.player)
+      let (modified, relic_logs) = relics_on_attack(
+        state.relics,
+        state.relic_state,
+        state.player,
+        damage,
+      )
+      for log in relic_logs {
+        state.logs.push(log)
+      }
+      let mut total = 0
+      for enemy in state.enemies {
+        if not(enemy.fighter.is_dead()) {
+          let actual = apply_damage(enemy.fighter, modified)
+          total += actual
+        }
+      }
+      state.logs.push("Immolate: " + total.to_string() + " damage to ALL!")
+    }
+    Reaper => {
+      // 4 damage to ALL, heal for unblocked damage dealt
+      let damage = calculate_attack_damage(def.base_damage, state.player)
+      let (modified, relic_logs) = relics_on_attack(
+        state.relics,
+        state.relic_state,
+        state.player,
+        damage,
+      )
+      for log in relic_logs {
+        state.logs.push(log)
+      }
+      let mut heal_total = 0
+      for enemy in state.enemies {
+        if not(enemy.fighter.is_dead()) {
+          let hp_before = enemy.fighter.hp
+          let _ = apply_damage(enemy.fighter, modified)
+          let hp_after = enemy.fighter.hp
+          let actual_dmg = hp_before - hp_after
+          heal_total += actual_dmg
+        }
+      }
+      // Heal player for damage dealt
+      if heal_total > 0 {
+        state.player.hp = if state.player.hp + heal_total > state.player.max_hp {
+          state.player.max_hp
+        } else {
+          state.player.hp + heal_total
+        }
+      }
+      state.logs.push(
+        "Reaper: healed " + heal_total.to_string() + " HP from ALL enemies!",
+      )
+    }
+    Entrench => {
+      // Double current Block
+      let current = state.player.block
+      state.player.block += current
+      state.logs.push(
+        "Entrench: Block doubled to " + state.player.block.to_string() + "!",
+      )
+    }
+    Pummel => {
+      // 2 damage × 4 hits
+      let mut total = 0
+      let mut hit = 0
+      while hit < 4 {
+        let actual = apply_attack_with_relics(
+          state,
+          def.base_damage,
+          state.enemies[target_index].fighter,
+        )
+        total += actual
+        hit += 1
+      }
+      state.logs.push(
+        "Pummel: 4 hits for " + total.to_string() + " total damage!",
+      )
     }
   }
 }

@@ -311,14 +311,18 @@ pub fn simulate_detailed_run(
             let base_val = evaluate_card(card).total
             let synergy = match (archetype, card) {
               (Strength, Twin_Strike) | (Strength, Sword_Boomerang) => 5.0
+              (Strength, Pummel) => 6.0
               (Strength, Inflame) => 8.0
               (Strength, Demon_Form) => 10.0
               (Block, Barricade) => 10.0
+              (Block, Entrench) => 10.0
               (Block, Metallicize) => 8.0
               (Block, Body_Slam) => 7.0
               (Exhaust, Feel_No_Pain) => 10.0
               (Exhaust, True_Grit) | (Exhaust, Offering) => 5.0
               (_, Shockwave) => 4.0
+              (_, Immolate) => 4.0
+              (_, Reaper) => 4.0
               (_, Battle_Trance) => 3.0
               _ => 0.0
             }

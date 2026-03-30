@@ -739,33 +739,48 @@ pub fn analyze_fun_metrics(run_count : Int) -> FunMetrics {
     0.0
   }
 
-  // === 8. Attrition ===
+  // === 8. Attrition (per-act calculation) ===
   let mut attrition_sum = 0.0
   let mut attrition_count = 0
   let mut gross_attrition_sum = 0.0
   let mut net_attrition_sum = 0.0
-  let mut attrition_runs = 0
+  let mut attrition_acts = 0
   for run in detailed_runs {
-    let mut run_damage = 0.0
+    // Per-battle attrition
     for battle in run.battles {
       if battle.won {
-        let max_hp = if battle.hp_before > 0 {
-          80.0 // use base max HP
-        } else {
-          80.0
-        }
+        let max_hp = 80.0
         let loss = battle.damage_taken.to_double() / max_hp
         attrition_sum += loss
         attrition_count += 1
-        run_damage += battle.damage_taken.to_double()
       }
     }
-    if run.battles.length() > 0 {
-      gross_attrition_sum += run_damage / 80.0
-      let first_hp = run.battles[0].hp_before.to_double()
-      let last_hp = run.battles[run.battles.length() - 1].hp_after.to_double()
-      net_attrition_sum += (first_hp - last_hp) / 80.0
-      attrition_runs += 1
+    // Per-act gross/net attrition (average across acts in this run)
+    let mut act = 1
+    while act <= 2 {
+      let mut act_damage = 0.0
+      let mut act_first_hp = -1.0
+      let mut act_last_hp = 0.0
+      let mut has_battles = false
+      for battle in run.battles {
+        if floor_act(battle.floor) == act {
+          if not(has_battles) {
+            act_first_hp = battle.hp_before.to_double()
+            has_battles = true
+          }
+          if battle.won {
+            act_damage += battle.damage_taken.to_double()
+          }
+          act_last_hp = battle.hp_after.to_double()
+        }
+      }
+      if has_battles {
+        let max_hp = 80.0
+        gross_attrition_sum += act_damage / max_hp
+        net_attrition_sum += (act_first_hp - act_last_hp) / max_hp
+        attrition_acts += 1
+      }
+      act += 1
     }
   }
   let per_battle_attrition = if attrition_count > 0 {
@@ -773,13 +788,13 @@ pub fn analyze_fun_metrics(run_count : Int) -> FunMetrics {
   } else {
     0.0
   }
-  let act_gross_attrition = if attrition_runs > 0 {
-    gross_attrition_sum / attrition_runs.to_double()
+  let act_gross_attrition = if attrition_acts > 0 {
+    gross_attrition_sum / attrition_acts.to_double()
   } else {
     0.0
   }
-  let act_net_attrition = if attrition_runs > 0 {
-    net_attrition_sum / attrition_runs.to_double()
+  let act_net_attrition = if attrition_acts > 0 {
+    net_attrition_sum / attrition_acts.to_double()
   } else {
     0.0
   }

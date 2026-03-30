@@ -87,7 +87,12 @@ fn pick_aggressive(state : BattleState, target : Int) -> (Int, Int)? {
   let mut i = 0
   while i < state.hand.length() {
     let def = card_def(state.hand[i])
-    if state.player.energy >= def.cost {
+    let cost = if state.powers.corruption && def.card_type == Skill {
+      0
+    } else {
+      def.cost
+    }
+    if state.player.energy >= cost {
       let value = match def.card_type {
         Attack => 100 + def.base_damage
         Power => 90
@@ -121,7 +126,12 @@ fn pick_defensive(state : BattleState, target : Int) -> (Int, Int)? {
   let mut i = 0
   while i < state.hand.length() {
     let def = card_def(state.hand[i])
-    if state.player.energy >= def.cost {
+    let cost = if state.powers.corruption && def.card_type == Skill {
+      0
+    } else {
+      def.cost
+    }
+    if state.player.energy >= cost {
       let value = match def.card_type {
         Skill => 100 + def.base_block
         Power => 90
@@ -209,7 +219,14 @@ fn pick_smart(state : BattleState, _default_target : Int) -> (Int, Int)? {
   let mut i = 0
   while i < state.hand.length() {
     let def = card_def(state.hand[i])
-    if state.player.energy >= def.cost {
+    let cost = if state.powers.corruption && def.card_type == Skill {
+      0
+    } else if state.hand[i] == Whirlwind {
+      0
+    } else {
+      def.cost
+    }
+    if state.player.energy >= cost {
       let value = card_smart_value(
         def, need_defense, nob_present, unblocked, state,
       )
@@ -258,10 +275,21 @@ fn card_smart_value(
   match def.id {
     Demon_Form => return 175
     Inflame => return 170
+    Corruption => return 170 // Extremely powerful: free Skills
     Metallicize => return 168
     Barricade => return 165
     Feel_No_Pain => return 163
     _ => ()
+  }
+  // Limit Break: double strength — amazing when STR > 0
+  if def.id == Limit_Break {
+    if state.player.status.strength >= 3 {
+      return 200 // Double 3+ STR is game-changing
+    }
+    if state.player.status.strength >= 1 {
+      return 160
+    }
+    return 10 // Not useful with 0 STR
   }
   // AoE debuffs
   match def.id {
@@ -352,6 +380,10 @@ fn effective_damage(def : CardDef) -> Int {
     Bludgeon => def.base_damage // 32 is already high
     Anger => def.base_damage + 3 // free + copy value
     Rampage => def.base_damage + 10 // scaling value
+    Heavy_Blade => def.base_damage + 10 // STR scaling value
+    Whirlwind => def.base_damage * 3 // ~3 energy worth of AoE
+    Feed => def.base_damage + 5 // kill bonus value
+    Fiend_Fire => def.base_damage * 4 // ~4 cards in hand average
     _ => def.base_damage
   }
 }

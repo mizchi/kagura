@@ -113,8 +113,7 @@ fn advance_floor(state : RunState) -> Unit {
     }
     Rest => state.phase = RestSite
     Boss => {
-      // Use elite for now as "boss"
-      let encounter = pick_encounter(state, Elite)
+      let encounter = pick_encounter(state, Boss)
       let battle = start_run_battle(state, encounter)
       state.battle = Some(battle)
       state.phase = Battle
@@ -184,6 +183,7 @@ fn start_run_battle(state : RunState, encounter : EncounterId) -> BattleState {
   // Apply relic battle start effects
   let relic_logs = relics_on_battle_start(
     battle.relics,
+    battle.relic_state,
     battle.player,
     battle.enemies,
   )
@@ -197,7 +197,12 @@ fn start_run_battle(state : RunState, encounter : EncounterId) -> BattleState {
   battle.logs.push(
     "Floor " + state.floor.to_string() + " - Battle Start! Turn 1",
   )
-  let turn_logs = relics_on_turn_start(battle.relics, battle.player, 1)
+  let turn_logs = relics_on_turn_start(
+    battle.relics,
+    battle.relic_state,
+    battle.player,
+    1,
+  )
   for log in turn_logs {
     battle.logs.push(log)
   }
@@ -210,7 +215,15 @@ fn on_battle_victory(state : RunState) -> Unit {
   match state.battle {
     Some(battle) => {
       state.player_hp = battle.player.hp
+      // Update max_hp (Feed may have increased it)
+      state.player_max_hp = battle.player.max_hp
       state.rng_seed = battle.rng_seed
+      // Award relic after Elite/Boss floors
+      let ft = floor_type(state.floor)
+      match ft {
+        Combat(Elite) | Combat(Boss) | Boss => award_relic(state)
+        _ => ()
+      }
       // Generate 3 card rewards with rarity distribution
       state.card_rewards.clear()
       let rewards = generate_reward_pool(state)
@@ -220,6 +233,40 @@ fn on_battle_victory(state : RunState) -> Unit {
       state.phase = CardReward
     }
     None => ()
+  }
+}
+
+///|
+/// Available relics for rewards (excluding starting relic)
+fn relic_reward_pool() -> Array[RelicId] {
+  [
+    Vajra,
+    Anchor,
+    Orichalcum,
+    BagOfMarbles,
+    Lantern,
+    PenNib,
+    MeatOnTheBone,
+    RedSkull,
+    Akabeko,
+    OrnamentalFan,
+    HappyFlower,
+  ]
+}
+
+///|
+/// Award a random relic the player doesn't already have
+fn award_relic(state : RunState) -> Unit {
+  let pool = relic_reward_pool()
+  let available : Array[RelicId] = []
+  for r in pool {
+    if not(has_relic(state.relics, r)) {
+      available.push(r)
+    }
+  }
+  if available.length() > 0 {
+    let idx = run_random(state).abs() % available.length()
+    state.relics.push(available[idx])
   }
 }
 
@@ -324,6 +371,7 @@ fn common_pool() -> Array[CardId] {
     Armaments,
     True_Grit,
     Flex,
+    Heavy_Blade,
   ]
 }
 
@@ -348,5 +396,16 @@ fn uncommon_pool() -> Array[CardId] {
 
 ///|
 fn rare_pool() -> Array[CardId] {
-  [Bludgeon, Impervious, Demon_Form, Barricade, Feel_No_Pain]
+  [
+    Bludgeon,
+    Impervious,
+    Demon_Form,
+    Barricade,
+    Feel_No_Pain,
+    Corruption,
+    Whirlwind,
+    Feed,
+    Fiend_Fire,
+    Limit_Break,
+  ]
 }

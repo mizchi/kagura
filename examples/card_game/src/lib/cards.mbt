@@ -37,10 +37,19 @@ pub(all) enum CardId {
   Bludgeon
   // Rare Skills
   Impervious
+  // Rare Attacks (cont.)
+  Whirlwind // X-cost: deal 5 to ALL X times
+  Feed // 1 cost: 10 dmg, if kill +3 max HP. Exhaust
+  Fiend_Fire // 2 cost: exhaust hand, 7 per card exhausted
+  // Rare Skills
+  Limit_Break // 1 cost: double Strength. Exhaust
   // Rare Powers
   Demon_Form
   Barricade
   Feel_No_Pain
+  Corruption // 3 cost: Skills cost 0, but Exhaust
+  // Common Attacks (cont.)
+  Heavy_Blade // 2 cost: 14 dmg, STR applies 3x
 } derive(Show, Eq)
 
 ///|
@@ -417,6 +426,72 @@ pub fn card_def(id : CardId) -> CardDef {
         exhaust: false,
         description: "Whenever a card is Exhausted, gain 3 Block.",
       }
+    Corruption =>
+      {
+        id: Corruption,
+        name: "Corruption",
+        cost: 3,
+        card_type: Power,
+        base_damage: 0,
+        base_block: 0,
+        exhaust: false,
+        description: "Skills cost 0. Whenever you play a Skill, Exhaust it.",
+      }
+    Heavy_Blade =>
+      {
+        id: Heavy_Blade,
+        name: "Heavy Blade",
+        cost: 2,
+        card_type: Attack,
+        base_damage: 14,
+        base_block: 0,
+        exhaust: false,
+        description: "Deal 14 damage. Strength applies 3x.",
+      }
+    Whirlwind =>
+      {
+        id: Whirlwind,
+        name: "Whirlwind",
+        cost: 0,
+        card_type: Attack,
+        base_damage: 5,
+        base_block: 0,
+        exhaust: false,
+        description: "Deal 5 damage to ALL enemies X times. (X = Energy)",
+      }
+    Feed =>
+      {
+        id: Feed,
+        name: "Feed",
+        cost: 1,
+        card_type: Attack,
+        base_damage: 10,
+        base_block: 0,
+        exhaust: true,
+        description: "Deal 10 damage. If fatal, gain 3 Max HP. Exhaust.",
+      }
+    Fiend_Fire =>
+      {
+        id: Fiend_Fire,
+        name: "Fiend Fire",
+        cost: 2,
+        card_type: Attack,
+        base_damage: 7,
+        base_block: 0,
+        exhaust: true,
+        description: "Exhaust your hand. Deal 7 for each Exhausted. Exhaust.",
+      }
+    Limit_Break =>
+      {
+        id: Limit_Break,
+        name: "Limit Break",
+        cost: 1,
+        card_type: Skill,
+        base_damage: 0,
+        base_block: 0,
+        exhaust: true,
+        description: "Double your Strength. Exhaust.",
+      }
   }
 }
 
@@ -456,7 +531,17 @@ fn card_rarity(id : CardId) -> CardRarity {
     | Disarm
     | Inflame
     | Metallicize => Uncommon
-    Bludgeon | Impervious | Demon_Form | Barricade | Feel_No_Pain => Rare
+    Bludgeon
+    | Impervious
+    | Demon_Form
+    | Barricade
+    | Feel_No_Pain
+    | Corruption
+    | Whirlwind
+    | Feed
+    | Fiend_Fire
+    | Limit_Break => Rare
+    Heavy_Blade => Common
   }
 }
 

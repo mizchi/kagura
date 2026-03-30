@@ -622,6 +622,10 @@ fn relic_color(id : RelicId) -> Int {
     Lantern => 0x888844
     PenNib => 0x444488
     MeatOnTheBone => 0x884444
+    RedSkull => 0xAA2222
+    Akabeko => 0xAA6622
+    OrnamentalFan => 0x226688
+    HappyFlower => 0x448822
   }
 }
 
@@ -734,6 +738,12 @@ fn short_desc(def : CardDef) -> String {
     Demon_Form => "+2STR/turn"
     Barricade => "Keep BLK"
     Feel_No_Pain => "+3BLK/exh"
+    Corruption => "Free SKL"
+    Heavy_Blade => "D14 STRx3"
+    Whirlwind => "D5xE ALL"
+    Feed => "D10 +3MHP"
+    Fiend_Fire => "Exh hand"
+    Limit_Break => "STR x2"
   }
 }
 

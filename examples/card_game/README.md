@@ -61,7 +61,7 @@ examples/card_game/
 | 14 | Rest | HP 30% 回復 |
 | 15 | **Boss** | **The Guardian (240HP) / Hexaghost (250HP)** |
 
-### カード一覧（31枚）
+### カード一覧（37枚）
 
 **スターター (3種)**
 
@@ -71,7 +71,7 @@ examples/card_game/
 | Defend | 1 | Skill | 5 ブロック |
 | Bash | 2 | Attack | 8 ダメージ, Vulnerable 2 |
 
-**コモン Attack (6種)**
+**コモン Attack (7種)**
 
 | カード | コスト | 効果 |
 |--------|--------|------|
@@ -81,6 +81,7 @@ examples/card_game/
 | Iron Wave | 1 | 5 ダメージ + 5 ブロック |
 | Anger | 0 | 6 ダメージ, 捨て札にコピー追加 |
 | Headbutt | 1 | 9 ダメージ, 捨て札→山札トップ |
+| Heavy Blade | 2 | 14 ダメージ, 筋力3倍適用 |
 
 **コモン Skill (4種)**
 
@@ -119,15 +120,20 @@ examples/card_game/
 | Inflame | 1 | +2 筋力（永続） |
 | Metallicize | 1 | ターン終了時 +3 ブロック |
 
-**レア (5種)**
+**レア (11種)**
 
 | カード | コスト | 種別 | 効果 |
 |--------|--------|------|------|
 | Bludgeon | 3 | Attack | 32 ダメージ |
+| Whirlwind | X | Attack | 全敵に5ダメージ×X回（X=残エナジー） |
+| Feed | 1 | Attack | 10 ダメージ, 撃破時+3最大HP [消耗] |
+| Fiend Fire | 2 | Attack | 手札を全消耗, 1枚につき7ダメージ [消耗] |
+| Limit Break | 1 | Skill | 筋力を2倍にする [消耗] |
 | Impervious | 2 | Skill | 30 ブロック [消耗] |
 | Demon Form | 3 | Power | ターン開始時 +2 筋力 |
 | Barricade | 3 | Power | ブロックがターン間で維持 |
 | Feel No Pain | 1 | Power | 消耗時 +3 ブロック |
+| Corruption | 3 | Power | Skillのコスト0, 使用時に消耗 |
 
 ### 敵一覧
 
@@ -174,6 +180,12 @@ examples/card_game/
 | Lantern | ターン1で +1 エナジー |
 | Pen Nib | 10回目の攻撃でダメージ2倍 |
 | Meat on the Bone | 戦闘終了時 HP≤50% なら 12 回復 |
+| **Red Skull** | **HP≤50%の間、筋力+3（リスク報酬）** |
+| **Akabeko** | **各戦闘の最初の攻撃 +8 ダメージ** |
+| **Ornamental Fan** | **3回目の攻撃ごとに +4 ブロック** |
+| **Happy Flower** | **3ターンごとに +1 エナジー** |
+
+**レリック獲得**: Elite/Boss 撃破時に未所持レリックから1つ自動獲得
 
 ## AI戦略
 
@@ -253,21 +265,20 @@ Joris Dormans の Machinations フレームワークに基づくリソースフ�
   [FAIL] Hexaghost (Boss): smart=0% ensemble=0% avg_hp=0
 
 --- Run Simulation (30 runs, Smart AI) ---
-  Win rate: 80% (24/30)
-  Avg floors: 14
+  Win rate: 50% (15/30)
+  Avg floors: 15
   Avg deck size: 18
 
 --- Sample Run Trace (seed=42) ---
   Floor 1: HP=80 Deck=10
   ...
-  Floor 15: HP=70 Deck=19
-  Floor 16: HP=50 Deck=19
-  Result: VICTORY (reached floor 16)
+  Floor 15: HP=80 Deck=18
+  Result: DEFEAT (reached floor 15)
 
-=== ALL CHECKS PASSED ===
+=== SOME CHECKS FAILED ===
 ```
 
-**ボスはスターターデッキでは倒せない（0%）が、ラン全体ではデッキ構築により約80%勝利** — StS の設計思想と一致。
+**ボスはスターターデッキでは倒せない（0%）が、ラン全体ではデッキ構築により約50%勝利** — StS Act 1 の実際の勝率に近い。Boss 撃破にはビルドが噛み合う必要がある。
 
 ## Fun Metrics — StS の面白さの定量分析 (`fun_metrics.mbt`)
 
@@ -292,42 +303,42 @@ StS の面白さを構成する7つの仮説それぞれに計測可能な指標
 ### 現在の計測結果と StS との乖離分析
 
 ```
-1. TENSION: 0.9% (TOO EASY) — StS ではElite/Bossで頻繁にHP危険域に入るが、
-   現モデルのSmart AIが最適に近いため緊張感が低い
-   → 改善案: 敵ダメージ上方修正、またはAIに意図的な非最適行動を混ぜる
+1. TENSION: 7% (改善中) — Boss実装+レリック報酬により危機的状況が発生するように
+   勝利ランの最低HP平均: 18 (StS的には適正範囲)
+   ギリギリ勝利(HP<20): 16.6%
 
-2. DRAW VARIANCE: entropy=0.29 (TOO PREDICTABLE) — 勝率80%が高すぎて
-   ドローによる結果変動が見えにくい
-   → 改善案: 敵を強化して勝率60-70%に調整、ドロー依存カードを増やす
+2. DRAW VARIANCE: entropy=0.97 (GOOD) — 勝率50%でドロー運による揺らぎが可視化
+   勝敗がほぼ半々のため最大エントロピーに近い
 
-3. SYNERGY EXPLOSION: 1.6x (GOOD) — フロア進行でDPTが約1.6倍に成長
-   StS の実データ（2-3x）にはやや届かないが基本構造は再現
+3. SYNERGY EXPLOSION: 1.9x (GOOD) — Heavy Blade, Limit Break, Corruption等の
+   ピーキーカードにより後半DPTが約2倍に成長
 
-4. RESOURCE TRADEOFF: 0.7/run (GOOD) — Offering/Bloodlettingが適切に使われている
+4. RESOURCE TRADEOFF: 1.1/run (GOOD) — Offering/Bloodlettingに加え
+   Feed(HP獲得)やCorruption(Skill消耗)のトレードオフが機能
 
 5. ENEMY DIFFERENTIATION: 0.137 (GOOD) — Nob, Sentryなど特殊な最適戦略が存在
 
-6. DECISION WEIGHT: 0% (LOW) — Smart vs Aggressiveの差がない
-   → 原因: 個別戦闘が簡単すぎてどの戦略でも勝てる。ラン全体での差を測るべき
+6. DECISION WEIGHT: 44.9% (GOOD) — Smart AI vs Aggressive AIで勝率に大きな差
+   Boss戦が追加され、賢いプレイが報われるようになった
 
-7. COMEBACK POTENTIAL: N/A — HP<25のバトルがほぼ発生しない（1と連動）
+7. COMEBACK POTENTIAL: (計測中) — Boss戦で低HPバトルが発生し始めている
 ```
 
 ### StS 模倣度サマリー
 
 | 面白さの要素 | 模倣度 | 評価 |
 |-------------|--------|------|
-| ビルドの成長感 | GOOD | スターター→特化デッキへの成長パスが機能 |
-| リソースジレンマ | GOOD | HP消費カードのトレードオフが存在 |
-| 敵の個性 | GOOD | Nob=Attack縛り、Sentry=高火力等の差別化あり |
-| ドキドキ感 | LOW | Smart AIが強すぎて危機的状況が少ない |
-| ドロー運の影響 | LOW | 勝率が高すぎて揺らぎが見えない |
-| 判断力の差 | LOW | 敵が弱く、雑なプレイでも勝てる |
-| 逆転劇 | N/A | そもそも危機的状況が発生しない |
+| ビルドの成長感 | **GOOD** | スターター→特化デッキへの成長パスが機能 |
+| リソースジレンマ | **GOOD** | HP消費カード+ピーキーカードのトレードオフ |
+| 敵の個性 | **GOOD** | Nob=Attack縛り、Sentry=高火力等の差別化あり |
+| ドキドキ感 | **改善** | Boss戦でHP危険域に入る場面が発生 |
+| ドロー運の影響 | **GOOD** | 勝率50%でドロー次第の展開が明確に |
+| 判断力の差 | **GOOD** | Smart AIが44.9%の勝率優位を持つ |
+| 逆転劇 | 改善中 | Boss戦で低HPからの挽回パターンが出現 |
 
-**総合**: シナジー構築・リソース管理・敵の差別化は StS の構造を良く再現しているが、
-**難易度が低すぎるために「ギリギリ感」「ドローの理不尽さ」「巧みなプレイの報酬」が不足**。
-次のステップは Normal/Elite 敵のダメージ+HP を 20-30% 上方修正し、勝率を 60-70% に調整すること。
+**総合**: ボス実装+ピーキーカード+レリック報酬の追加により、7指標中5つがGOOD。
+残る改善点はTENSION（7%→15-40%目標）とCOMEBACK。
+Normal敵の微調整で緊張感をさらに高める余地がある。
 
 ## 設計思想
 

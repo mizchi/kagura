@@ -285,6 +285,9 @@ fn evaluate_card(id : CardId) -> CardValue {
   let cost = def.cost.to_double()
   let raw_damage : Double = match id {
     Body_Slam => 10.0 // avg block when played ≈ 10
+    Fiend_Fire => 7.0 * 4.0 // ~4 cards exhausted average
+    Whirlwind => 5.0 * 3.0 // ~3 energy average
+    Heavy_Blade => 14.0 + 6.0 // STR bonus estimate
     _ => def.base_damage.to_double()
   }
   let raw_block = def.base_block.to_double()
@@ -315,18 +318,23 @@ fn evaluate_card(id : CardId) -> CardValue {
     Metallicize => 3.0 * 8.0 // +3 block × remaining turns
     Barricade => 20.0 // enables block stacking
     Feel_No_Pain => 15.0 // synergy with exhaust
+    Corruption => 30.0 // free Skills is massive
     Flex => 2.0 * 2.0 // temporary but 0-cost
     Rampage => 5.0 * 3.0 // grows each play
+    Limit_Break => 20.0 // double STR is explosive
+    Feed => 3.0 * 3.0 // +3 max HP per kill compounds
     _ => 0.0
   }
   let synergy_multiplier : Double = match id {
-    Twin_Strike | Sword_Boomerang => 1.3 // STR synergy (multi-hit)
+    Twin_Strike | Sword_Boomerang | Heavy_Blade => 1.3 // STR synergy
     Body_Slam => 1.5 // Block synergy
-    Inflame | Demon_Form => 1.5 // Enables STR archetype
-    Offering | True_Grit | Feel_No_Pain => 1.4 // Exhaust archetype
+    Inflame | Demon_Form | Limit_Break => 1.5 // Enables STR archetype
+    Offering | True_Grit | Feel_No_Pain | Corruption | Fiend_Fire => 1.4 // Exhaust archetype
     Bash | Shockwave => 1.3 // Vuln synergy
     Barricade | Metallicize => 1.4 // Block archetype
     Impervious => 1.3 // Block archetype
+    Whirlwind => 1.3 // AoE + energy dump
+    Feed => 1.2 // HP growth
     _ => 1.0
   }
   let adjusted_damage = match id {
@@ -512,8 +520,10 @@ pub fn simulate_run(seed : Int, strategy : PlayStrategy) -> RunSimResult {
               // Strength archetype: bonus for multi-hit and STR cards
               (Strength, Twin_Strike) => 5.0
               (Strength, Sword_Boomerang) => 5.0
+              (Strength, Heavy_Blade) => 8.0
               (Strength, Inflame) => 8.0
               (Strength, Demon_Form) => 10.0
+              (Strength, Limit_Break) => 12.0
               (Strength, Flex) => 3.0
               // Block archetype: bonus for block-related cards
               (Block, Barricade) => 10.0
@@ -523,12 +533,16 @@ pub fn simulate_run(seed : Int, strategy : PlayStrategy) -> RunSimResult {
               (Block, Shrug_It_Off) => 3.0
               // Exhaust archetype
               (Exhaust, Feel_No_Pain) => 10.0
+              (Exhaust, Corruption) => 12.0
+              (Exhaust, Fiend_Fire) => 8.0
               (Exhaust, True_Grit) => 5.0
               (Exhaust, Offering) => 5.0
               // Universal good cards
               (_, Shockwave) => 4.0
               (_, Bash) => 2.0
               (_, Battle_Trance) => 3.0
+              (_, Feed) => 3.0
+              (_, Whirlwind) => 4.0
               _ => 0.0
             }
             let val = base_val + synergy

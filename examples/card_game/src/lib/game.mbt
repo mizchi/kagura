@@ -38,6 +38,7 @@ pub(all) struct PowerState {
   mut feel_no_pain : Int // Block gained on exhaust
   mut flex_loss : Int // Strength to lose at end of turn
   mut rampage_bonus : Int // Accumulated Rampage damage bonus
+  mut corruption : Bool // Skills cost 0 and exhaust
 } derive(Show)
 
 ///|
@@ -49,6 +50,7 @@ fn PowerState::new() -> PowerState {
     feel_no_pain: 0,
     flex_loss: 0,
     rampage_bonus: 0,
+    corruption: false,
   }
 }
 
@@ -138,6 +140,7 @@ fn BattleState::init(
   // Apply relic battle start effects
   let relic_logs = relics_on_battle_start(
     state.relics,
+    state.relic_state,
     state.player,
     state.enemies,
   )
@@ -151,7 +154,12 @@ fn BattleState::init(
   state.turn = 1
   state.logs.push("Battle Start! Turn 1")
   // Apply turn 1 relic effects
-  let turn_logs = relics_on_turn_start(state.relics, state.player, 1)
+  let turn_logs = relics_on_turn_start(
+    state.relics,
+    state.relic_state,
+    state.player,
+    1,
+  )
   for log in turn_logs {
     state.logs.push(log)
   }
@@ -201,8 +209,16 @@ pub fn play_card(
   }
   let card_id = state.hand[hand_index]
   let def = card_def(card_id)
+  // Corruption: Skills cost 0
+  let effective_cost = if state.powers.corruption && def.card_type == Skill {
+    0
+  } else if card_id == Whirlwind {
+    0 // X-cost: handled in execute_card
+  } else {
+    def.cost
+  }
   // Check energy
-  if state.player.energy < def.cost {
+  if state.player.energy < effective_cost {
     return NotEnoughEnergy
   }
   // Validate target for cards that need a target
@@ -215,7 +231,7 @@ pub fn play_card(
     }
   }
   // Spend energy
-  state.player.energy -= def.cost
+  state.player.energy -= effective_cost
   // Remove card from hand
   let removed = remove_at(state.hand, hand_index)
   // Execute card effect
@@ -224,8 +240,10 @@ pub fn play_card(
   if def.card_type == Skill || def.card_type == Power {
     trigger_nob_enrage(state)
   }
-  // Exhaust or discard
-  if def.exhaust {
+  // Exhaust or discard (Corruption forces Skills to exhaust)
+  let should_exhaust = def.exhaust ||
+    (state.powers.corruption && def.card_type == Skill)
+  if should_exhaust {
     state.exhaust_pile.push(removed)
     trigger_exhaust(state)
   } else {
@@ -240,7 +258,7 @@ pub fn play_card(
 /// Check if a card hits all enemies
 fn is_aoe_card(id : CardId) -> Bool {
   match id {
-    Cleave | Shockwave => true
+    Cleave | Shockwave | Whirlwind => true
     _ => false
   }
 }
@@ -261,10 +279,17 @@ fn is_self_card(id : CardId) -> Bool {
     | Seeing_Red
     | Battle_Trance
     | Impervious => true
+    // Self-targeting skills
+    Limit_Break => true
     // Powers
-    Inflame | Metallicize | Demon_Form | Barricade | Feel_No_Pain => true
+    Inflame
+    | Metallicize
+    | Demon_Form
+    | Barricade
+    | Feel_No_Pain
+    | Corruption => true
     // AoE
-    Cleave | Shockwave => true
+    Cleave | Shockwave | Whirlwind => true
     // Disarm targets enemy but isn't an attack
     _ => def.card_type == Skill && def.base_damage == 0 && def.base_block > 0
   }
@@ -307,6 +332,7 @@ fn apply_attack_with_relics(
   let (modified, relic_logs) = relics_on_attack(
     state.relics,
     state.relic_state,
+    state.player,
     damage,
   )
   for log in relic_logs {
@@ -352,6 +378,7 @@ fn execute_card(
       let (modified, relic_logs) = relics_on_attack(
         state.relics,
         state.relic_state,
+        state.player,
         damage,
       )
       for log in relic_logs {
@@ -599,6 +626,108 @@ fn execute_card(
       state.powers.feel_no_pain += 3
       state.logs.push("Feel No Pain: gain 3 Block on Exhaust!")
     }
+    Corruption => {
+      state.powers.corruption = true
+      state.logs.push("Corruption: Skills now cost 0 and Exhaust!")
+    }
+    Heavy_Blade => {
+      // STR applies 3x instead of 1x
+      let extra_str = state.player.status.strength * 2 // 2 extra applications
+      let base = def.base_damage + extra_str
+      let actual = apply_attack_with_relics(
+        state,
+        base,
+        state.enemies[target_index].fighter,
+      )
+      state.logs.push("Heavy Blade: " + actual.to_string() + " damage!")
+    }
+    Whirlwind => {
+      // X = remaining energy (already 0 cost, so all energy is available)
+      let x = state.player.energy
+      state.player.energy = 0
+      let damage = calculate_attack_damage(def.base_damage, state.player)
+      let (modified, relic_logs) = relics_on_attack(
+        state.relics,
+        state.relic_state,
+        state.player,
+        damage,
+      )
+      for log in relic_logs {
+        state.logs.push(log)
+      }
+      let mut hit = 0
+      while hit < x {
+        let mut i = 0
+        while i < state.enemies.length() {
+          if not(state.enemies[i].fighter.is_dead()) {
+            let _ = apply_damage(state.enemies[i].fighter, modified)
+          }
+          i += 1
+        }
+        hit += 1
+      }
+      state.logs.push("Whirlwind: " + x.to_string() + " hits to ALL enemies!")
+    }
+    Feed => {
+      let target_hp_before = state.enemies[target_index].fighter.hp
+      let actual = apply_attack_with_relics(
+        state,
+        def.base_damage,
+        state.enemies[target_index].fighter,
+      )
+      state.logs.push("Feed: " + actual.to_string() + " damage!")
+      // If this killed the enemy, gain 3 max HP
+      if target_hp_before > 0 && state.enemies[target_index].fighter.is_dead() {
+        state.player.max_hp += 3
+        state.player.hp += 3
+        state.logs.push("Feed: +3 Max HP!")
+      }
+    }
+    Fiend_Fire => {
+      // Exhaust all cards in hand, deal 7 per card to target
+      let cards_to_exhaust = state.hand.length()
+      while state.hand.length() > 0 {
+        match state.hand.pop() {
+          Some(card) => {
+            state.exhaust_pile.push(card)
+            trigger_exhaust(state)
+          }
+          None => ()
+        }
+      }
+      // Deal 7 damage per exhausted card
+      let mut total = 0
+      let mut i = 0
+      while i < cards_to_exhaust {
+        let actual = apply_attack_with_relics(
+          state,
+          def.base_damage,
+          state.enemies[target_index].fighter,
+        )
+        total += actual
+        i += 1
+      }
+      state.logs.push(
+        "Fiend Fire: " +
+        cards_to_exhaust.to_string() +
+        " cards exhausted, " +
+        total.to_string() +
+        " total damage!",
+      )
+    }
+    Limit_Break => {
+      let current_str = state.player.status.strength
+      if current_str > 0 {
+        state.player.status.strength += current_str
+        state.logs.push(
+          "Limit Break: Strength doubled to " +
+          state.player.status.strength.to_string() +
+          "!",
+        )
+      } else {
+        state.logs.push("Limit Break: no Strength to double.")
+      }
+    }
   }
 }
 
@@ -706,7 +835,12 @@ fn start_player_turn(state : BattleState) -> Unit {
   draw_cards(state, hand_size)
   state.logs.push("Turn " + state.turn.to_string())
   // Relic turn-start effects
-  let relic_logs = relics_on_turn_start(state.relics, state.player, state.turn)
+  let relic_logs = relics_on_turn_start(
+    state.relics,
+    state.relic_state,
+    state.player,
+    state.turn,
+  )
   for log in relic_logs {
     state.logs.push(log)
   }

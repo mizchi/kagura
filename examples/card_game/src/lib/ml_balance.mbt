@@ -36,16 +36,16 @@ pub fn detect_archetype(deck : Array[CardId]) -> Archetype {
   for card in deck {
     match card {
       // Strength archetype
-      Inflame | Demon_Form | Flex => str_score += 3
-      Twin_Strike | Sword_Boomerang => str_score += 2
+      Inflame | Demon_Form | Flex | Limit_Break => str_score += 3
+      Twin_Strike | Sword_Boomerang | Heavy_Blade => str_score += 2
       Headbutt | Rampage => str_score += 1
       // Block archetype
       Barricade | Metallicize => blk_score += 3
       Body_Slam | Impervious => blk_score += 2
       Shrug_It_Off | Iron_Wave | True_Grit | Armaments => blk_score += 1
       // Exhaust archetype
-      Feel_No_Pain => exh_score += 3
-      Offering | Bloodletting | Seeing_Red => exh_score += 2
+      Feel_No_Pain | Corruption => exh_score += 3
+      Offering | Bloodletting | Seeing_Red | Fiend_Fire => exh_score += 2
       True_Grit => exh_score += 1
       // Neutral
       _ => ()
@@ -157,7 +157,8 @@ fn extract_features(state : BattleState) -> GameFeatures {
   let powers_active = (if state.powers.metallicize > 0 { 1.0 } else { 0.0 }) +
     (if state.powers.demon_form > 0 { 1.0 } else { 0.0 }) +
     (if state.powers.barricade { 1.0 } else { 0.0 }) +
-    (if state.powers.feel_no_pain > 0 { 1.0 } else { 0.0 })
+    (if state.powers.feel_no_pain > 0 { 1.0 } else { 0.0 }) +
+    (if state.powers.corruption { 1.0 } else { 0.0 })
   let arch = detect_archetype(all_cards)
   let arch_score : Double = match arch {
     Balanced => 0.0

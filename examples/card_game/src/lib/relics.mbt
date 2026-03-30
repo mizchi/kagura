@@ -9,6 +9,10 @@ pub(all) enum RelicId {
   Lantern // +1 Energy on turn 1
   PenNib // Every 10th attack deals double damage
   MeatOnTheBone // If HP <= 50% at end of combat, heal 12
+  RedSkull // +3 Strength while HP <= 50%
+  Akabeko // First attack each combat deals +8 damage
+  OrnamentalFan // Every 3rd attack played, gain 4 Block
+  HappyFlower // Every 3 turns, gain 1 Energy
 } derive(Show, Eq)
 
 ///|
@@ -70,6 +74,30 @@ fn relic_def(id : RelicId) -> RelicDef {
         name: "Meat on the Bone",
         description: "If HP <= 50% at end of combat, heal 12 HP.",
       }
+    RedSkull =>
+      {
+        id: RedSkull,
+        name: "Red Skull",
+        description: "While HP <= 50%, gain 3 Strength.",
+      }
+    Akabeko =>
+      {
+        id: Akabeko,
+        name: "Akabeko",
+        description: "Your first Attack each combat deals 8 additional damage.",
+      }
+    OrnamentalFan =>
+      {
+        id: OrnamentalFan,
+        name: "Ornamental Fan",
+        description: "Every 3rd Attack played, gain 4 Block.",
+      }
+    HappyFlower =>
+      {
+        id: HappyFlower,
+        name: "Happy Flower",
+        description: "Every 3 turns, gain 1 Energy.",
+      }
   }
 }
 
@@ -77,11 +105,19 @@ fn relic_def(id : RelicId) -> RelicDef {
 /// Mutable relic runtime state
 pub(all) struct RelicState {
   mut pen_nib_counter : Int // Tracks attacks played for PenNib
+  mut akabeko_active : Bool // First attack this combat gets +8
+  mut fan_counter : Int // Counts attacks for OrnamentalFan
+  mut flower_counter : Int // Counts turns for HappyFlower
 } derive(Show)
 
 ///|
 fn RelicState::new() -> RelicState {
-  { pen_nib_counter: 0 }
+  {
+    pen_nib_counter: 0,
+    akabeko_active: true,
+    fan_counter: 0,
+    flower_counter: 0,
+  }
 }
 
 ///|
@@ -99,10 +135,15 @@ fn has_relic(relics : Array[RelicId], id : RelicId) -> Bool {
 /// Apply relic effects at combat start
 fn relics_on_battle_start(
   relics : Array[RelicId],
+  relic_state : RelicState,
   player : Fighter,
   enemies : Array[Enemy],
 ) -> Array[String] {
   let logs : Array[String] = []
+  // Reset per-combat relic state
+  relic_state.akabeko_active = true
+  relic_state.fan_counter = 0
+  relic_state.flower_counter = 0
   for r in relics {
     match r {
       Vajra => {
@@ -121,6 +162,11 @@ fn relics_on_battle_start(
         }
         logs.push("[Bag of Marbles] All enemies Vulnerable 1")
       }
+      RedSkull =>
+        if player.hp * 2 <= player.max_hp {
+          player.status.strength += 3
+          logs.push("[Red Skull] +3 Strength (HP <= 50%)")
+        }
       _ => ()
     }
   }
@@ -131,6 +177,7 @@ fn relics_on_battle_start(
 /// Apply relic effects at turn start
 fn relics_on_turn_start(
   relics : Array[RelicId],
+  relic_state : RelicState,
   player : Fighter,
   turn : Int,
 ) -> Array[String] {
@@ -142,6 +189,14 @@ fn relics_on_turn_start(
           player.energy += 1
           logs.push("[Lantern] +1 Energy")
         }
+      HappyFlower => {
+        relic_state.flower_counter += 1
+        if relic_state.flower_counter >= 3 {
+          relic_state.flower_counter = 0
+          player.energy += 1
+          logs.push("[Happy Flower] +1 Energy")
+        }
+      }
       _ => ()
     }
   }
@@ -173,16 +228,33 @@ fn relics_on_turn_end(
 fn relics_on_attack(
   relics : Array[RelicId],
   relic_state : RelicState,
+  player : Fighter,
   damage : Int,
 ) -> (Int, Array[String]) {
   let logs : Array[String] = []
   let mut result = damage
+  // Akabeko: first attack +8
+  if has_relic(relics, Akabeko) && relic_state.akabeko_active {
+    relic_state.akabeko_active = false
+    result += 8
+    logs.push("[Akabeko] +8 damage!")
+  }
+  // Pen Nib: every 10th attack double damage
   if has_relic(relics, PenNib) {
     relic_state.pen_nib_counter += 1
     if relic_state.pen_nib_counter >= 10 {
       relic_state.pen_nib_counter = 0
       result = result * 2
       logs.push("[Pen Nib] Double damage!")
+    }
+  }
+  // Ornamental Fan: every 3rd attack +4 block
+  if has_relic(relics, OrnamentalFan) {
+    relic_state.fan_counter += 1
+    if relic_state.fan_counter >= 3 {
+      relic_state.fan_counter = 0
+      add_block(player, 4)
+      logs.push("[Ornamental Fan] +4 Block!")
     }
   }
   (result, logs)

@@ -617,7 +617,7 @@ pub fn analyze_fun_metrics(run_count : Int) -> FunMetrics {
   let mut low_hp_wins = 0
   for run in detailed_runs {
     for battle in run.battles {
-      if battle.hp_before < 25 { // entering battle at <30% HP
+      if battle.hp_before < 35 { // entering battle at <~40% HP
         low_hp_battles += 1
         if battle.won {
           low_hp_wins += 1

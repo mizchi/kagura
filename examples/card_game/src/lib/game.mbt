@@ -877,10 +877,18 @@ pub fn end_player_turn(state : BattleState) -> Unit {
   for log in relic_logs {
     state.logs.push(log)
   }
-  // Discard remaining hand
+  // Discard remaining hand (Ethereal cards go to exhaust)
   while state.hand.length() > 0 {
     match state.hand.pop() {
-      Some(card) => state.discard_pile.push(card)
+      Some(card) =>
+        if card == Carnage {
+          // Ethereal: exhaust instead of discard
+          state.exhaust_pile.push(card)
+          trigger_exhaust(state)
+          state.logs.push("Carnage exhausted (Ethereal)!")
+        } else {
+          state.discard_pile.push(card)
+        }
       None => ()
     }
   }

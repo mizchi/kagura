@@ -74,14 +74,14 @@ test "skip card reward doesn't add card" {
 }
 
 ///|
-test "rest site heals 30 percent" {
+test "rest site heals 25 percent" {
   let run = RunState::new()
   run.player_hp = 50
   run.player_max_hp = 80
   run.floor = 3 // floor 4 is rest
   run.phase = RestSite
   rest_heal(run)
-  assert_eq(run.player_hp, 74) // 50 + 24 (30% of 80)
+  assert_eq(run.player_hp, 70) // 50 + 20 (25% of 80)
   assert_eq(run.floor, 4) // rest is floor 4, advance to 5
 }
 

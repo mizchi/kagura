@@ -312,9 +312,9 @@ fn pick_card_reward(state : RunState, index : Int) -> Unit {
 }
 
 ///|
-/// Rest at a rest site: heal 30% max HP
+/// Rest at a rest site: heal 25% max HP
 fn rest_heal(state : RunState) -> Unit {
-  let heal = state.player_max_hp * 3 / 10
+  let heal = state.player_max_hp / 4
   state.player_hp = state.player_hp + heal
   if state.player_hp > state.player_max_hp {
     state.player_hp = state.player_max_hp

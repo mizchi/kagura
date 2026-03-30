@@ -178,30 +178,40 @@ fn card_smart_value(def : CardDef, need_defense : Bool) -> Int {
   match def.id {
     Offering => return 200
     Bloodletting => return 190
+    Battle_Trance => return 185
     Seeing_Red => return 180
     _ => ()
   }
-  // Powers are second priority
-  if def.card_type == Power {
-    return 170
-  }
-  // Bash/Uppercut/Clothesline (debuff attacks) high priority
+  // Powers are high priority (permanent value)
   match def.id {
-    Bash => return 160
-    Uppercut => return 155
-    Clothesline => return 150
+    Demon_Form => return 175
+    Inflame => return 170
+    Metallicize => return 168
+    Barricade => return 165
+    Feel_No_Pain => return 163
     _ => ()
+  }
+  // AoE debuffs
+  match def.id {
+    Shockwave => return 160
+    _ => ()
+  }
+  // Debuff attacks
+  match def.id {
+    Bash => return 155
+    Uppercut => return 153
+    Clothesline => return 150
+    Disarm => return 148
+    _ => ()
+  }
+  // Impervious is amazing for defense
+  if def.id == Impervious && need_defense {
+    return 200
   }
   if need_defense {
     match def.card_type {
       Skill => 100 + def.base_block * 3
-      Attack =>
-        // Iron Wave is good when defending too
-        if def.id == Iron_Wave {
-          120
-        } else {
-          def.base_damage
-        }
+      Attack => if def.id == Iron_Wave { 120 } else { def.base_damage }
       _ => 50
     }
   } else {
@@ -209,7 +219,11 @@ fn card_smart_value(def : CardDef, need_defense : Bool) -> Int {
       Attack => 100 + effective_damage(def)
       Skill =>
         if def.id == Shrug_It_Off {
-          95 // Draw is valuable
+          95
+        } else if def.id == True_Grit {
+          90
+        } else if def.id == Flex {
+          88
         } else {
           def.base_block
         }
@@ -223,6 +237,10 @@ fn effective_damage(def : CardDef) -> Int {
   match def.id {
     Twin_Strike => def.base_damage * 2
     Pommel_Strike => def.base_damage + 5 // bonus for draw
+    Sword_Boomerang => def.base_damage * 3
+    Bludgeon => def.base_damage // 32 is already high
+    Anger => def.base_damage + 3 // free + copy value
+    Rampage => def.base_damage + 10 // scaling value
     _ => def.base_damage
   }
 }

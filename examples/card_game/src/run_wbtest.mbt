@@ -137,13 +137,13 @@ test "hp persists across battles" {
 
 ///|
 test "floor progression through full run" {
-  // Floor 1: Easy, 2: Easy, 3: Normal, 4: Rest, 5: Normal, 6: Elite, 7: Elite
+  // Floor 1: Easy, 2: Easy, 3: Normal, 4: Rest, 5: Normal, 6: Rest, 7: Elite
   assert_eq(floor_type(1), Combat(Easy))
   assert_eq(floor_type(2), Combat(Easy))
   assert_eq(floor_type(3), Combat(Normal))
   assert_eq(floor_type(4), Rest)
   assert_eq(floor_type(5), Combat(Normal))
-  assert_eq(floor_type(6), Combat(Elite))
+  assert_eq(floor_type(6), Rest)
   assert_eq(floor_type(7), Combat(Elite))
 }
 

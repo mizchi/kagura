@@ -39,6 +39,7 @@ let max_floor : Int = 7
 
 ///|
 /// Floor layout for Act 1
+/// Easy → Easy → Normal → Rest → Normal → Rest → Elite
 fn floor_type(floor : Int) -> FloorType {
   match floor {
     1 => Combat(Easy)
@@ -46,7 +47,7 @@ fn floor_type(floor : Int) -> FloorType {
     3 => Combat(Normal)
     4 => Rest
     5 => Combat(Normal)
-    6 => Combat(Elite)
+    6 => Rest
     7 => Combat(Elite)
     _ => Combat(Easy)
   }
@@ -145,6 +146,7 @@ fn start_run_battle(state : RunState, encounter : EncounterId) -> BattleState {
     enemies,
     relics: state.relics,
     relic_state: state.relic_state,
+    powers: PowerState::new(),
     draw_pile: deck,
     hand: [],
     discard_pile: [],
@@ -185,26 +187,11 @@ fn on_battle_victory(state : RunState) -> Unit {
     Some(battle) => {
       state.player_hp = battle.player.hp
       state.rng_seed = battle.rng_seed
-      // Generate 3 card rewards
+      // Generate 3 card rewards with rarity distribution
       state.card_rewards.clear()
-      let pool = reward_card_pool()
-      let mut i = 0
-      while i < 3 && pool.length() > 0 {
-        let idx = run_random(state) % pool.length()
-        let card = pool[idx]
-        // Avoid duplicates in rewards
-        let mut dup = false
-        for c in state.card_rewards {
-          if c == card {
-            dup = true
-          }
-        }
-        if not(dup) {
-          state.card_rewards.push(card)
-          i += 1
-        }
-        // Remove from pool to avoid infinite loop
-        let _ = pool.remove(idx)
+      let rewards = generate_reward_pool(state)
+      for card in rewards {
+        state.card_rewards.push(card)
       }
       state.phase = CardReward
     }
@@ -248,21 +235,94 @@ fn rest_heal(state : RunState) -> Unit {
 }
 
 ///|
-/// Pool of non-starter cards available as rewards
-fn reward_card_pool() -> Array[CardId] {
+/// Generate a card reward pool based on rarity distribution (StS Act 1)
+/// Common: 60%, Uncommon: 37%, Rare: 3%
+fn generate_reward_pool(state : RunState) -> Array[CardId] {
+  let pool : Array[CardId] = []
+  let r = run_random(state) % 100
+  // Determine rarity for each of the 3 cards
+  // StS: each card is rolled independently
+  let mut i = 0
+  while i < 3 {
+    let rarity_roll = run_random(state) % 100
+    let cards = if rarity_roll < 60 {
+      common_pool()
+    } else if rarity_roll < 97 {
+      uncommon_pool()
+    } else {
+      rare_pool()
+    }
+    let idx = r.abs() % cards.length()
+    let card = cards[idx]
+    // Avoid duplicates
+    let mut dup = false
+    for c in pool {
+      if c == card {
+        dup = true
+      }
+    }
+    if not(dup) {
+      pool.push(card)
+    }
+    i += 1
+  }
+  // Pad if we got duplicates
+  if pool.length() < 3 {
+    let all = common_pool()
+    for c in all {
+      if pool.length() >= 3 {
+        break
+      }
+      let mut dup = false
+      for existing in pool {
+        if existing == c {
+          dup = true
+        }
+      }
+      if not(dup) {
+        pool.push(c)
+      }
+    }
+  }
+  pool
+}
+
+///|
+fn common_pool() -> Array[CardId] {
   [
     Cleave,
     Pommel_Strike,
-    Shrug_It_Off,
-    Inflame,
-    Body_Slam,
     Twin_Strike,
-    Clothesline,
     Iron_Wave,
+    Anger,
+    Headbutt,
+    Shrug_It_Off,
+    Armaments,
+    True_Grit,
+    Flex,
+  ]
+}
+
+///|
+fn uncommon_pool() -> Array[CardId] {
+  [
+    Clothesline,
+    Uppercut,
+    Body_Slam,
+    Sword_Boomerang,
+    Rampage,
     Bloodletting,
     Offering,
-    Uppercut,
     Seeing_Red,
-    Armaments,
+    Battle_Trance,
+    Shockwave,
+    Disarm,
+    Inflame,
+    Metallicize,
   ]
+}
+
+///|
+fn rare_pool() -> Array[CardId] {
+  [Bludgeon, Impervious, Demon_Form, Barricade, Feel_No_Pain]
 }

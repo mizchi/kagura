@@ -28,11 +28,37 @@ pub(all) enum ActionResult {
 
 ///|
 /// Core battle state - all game mechanics operate on this
+
+///|
+/// Persistent power effects (from Power cards)
+pub(all) struct PowerState {
+  mut metallicize : Int // Block gained at end of turn
+  mut demon_form : Int // Strength gained at start of turn
+  mut barricade : Bool // Block persists between turns
+  mut feel_no_pain : Int // Block gained on exhaust
+  mut flex_loss : Int // Strength to lose at end of turn
+  mut rampage_bonus : Int // Accumulated Rampage damage bonus
+} derive(Show)
+
+///|
+fn PowerState::new() -> PowerState {
+  {
+    metallicize: 0,
+    demon_form: 0,
+    barricade: false,
+    feel_no_pain: 0,
+    flex_loss: 0,
+    rampage_bonus: 0,
+  }
+}
+
+///|
 pub(all) struct BattleState {
   player : Fighter
   enemies : Array[Enemy]
   relics : Array[RelicId]
   relic_state : RelicState
+  powers : PowerState
   draw_pile : Array[CardId]
   hand : Array[CardId]
   discard_pile : Array[CardId]
@@ -99,6 +125,7 @@ fn BattleState::init(
     enemies,
     relics,
     relic_state: RelicState::new(),
+    powers: PowerState::new(),
     draw_pile: deck,
     hand: [],
     discard_pile: [],
@@ -178,8 +205,8 @@ fn play_card(
   if state.player.energy < def.cost {
     return NotEnoughEnergy
   }
-  // Validate target for single-target attacks
-  if def.card_type == Attack && not(is_aoe_card(card_id)) {
+  // Validate target for cards that need a target
+  if card_needs_target(card_id) {
     if target_index < 0 || target_index >= state.enemies.length() {
       return InvalidTarget
     }
@@ -196,6 +223,7 @@ fn play_card(
   // Exhaust or discard
   if def.exhaust {
     state.exhaust_pile.push(removed)
+    trigger_exhaust(state)
   } else {
     state.discard_pile.push(removed)
   }
@@ -208,16 +236,46 @@ fn play_card(
 /// Check if a card hits all enemies
 fn is_aoe_card(id : CardId) -> Bool {
   match id {
-    Cleave => true
+    Cleave | Shockwave => true
     _ => false
+  }
+}
+
+///|
+/// Cards that don't need an enemy target at all (self-targeting skills/powers)
+fn is_self_card(id : CardId) -> Bool {
+  let def = card_def(id)
+  match id {
+    // Skills that only affect player
+    Defend
+    | Shrug_It_Off
+    | Armaments
+    | True_Grit
+    | Flex
+    | Bloodletting
+    | Offering
+    | Seeing_Red
+    | Battle_Trance
+    | Impervious => true
+    // Powers
+    Inflame | Metallicize | Demon_Form | Barricade | Feel_No_Pain => true
+    // AoE
+    Cleave | Shockwave => true
+    // Disarm targets enemy but isn't an attack
+    _ => def.card_type == Skill && def.base_damage == 0 && def.base_block > 0
   }
 }
 
 ///|
 /// Check if a card needs a target
 fn card_needs_target(id : CardId) -> Bool {
-  let def = card_def(id)
-  def.card_type == Attack && not(is_aoe_card(id))
+  match id {
+    Disarm => true // Targets specific enemy
+    _ => {
+      let def = card_def(id)
+      def.card_type == Attack && not(is_aoe_card(id))
+    }
+  }
 }
 
 ///|
@@ -262,19 +320,18 @@ fn execute_card(
 ) -> Unit {
   let def = card_def(card_id)
   match card_id {
+    // === Starter ===
     Strike => {
       let actual = apply_attack_with_relics(
         state,
         def.base_damage,
         state.enemies[target_index].fighter,
       )
-      state.logs.push("Play Strike: " + actual.to_string() + " damage!")
+      state.logs.push("Strike: " + actual.to_string() + " damage!")
     }
     Defend => {
       add_block(state.player, def.base_block)
-      state.logs.push(
-        "Play Defend: gain " + def.base_block.to_string() + " Block.",
-      )
+      state.logs.push("Defend: gain " + def.base_block.to_string() + " Block.")
     }
     Bash => {
       let actual = apply_attack_with_relics(
@@ -283,10 +340,9 @@ fn execute_card(
         state.enemies[target_index].fighter,
       )
       state.enemies[target_index].fighter.status.vulnerable += 2
-      state.logs.push(
-        "Play Bash: " + actual.to_string() + " damage! Vulnerable 2.",
-      )
+      state.logs.push("Bash: " + actual.to_string() + " damage! Vulnerable 2.")
     }
+    // === Common Attacks ===
     Cleave => {
       let damage = calculate_attack_damage(def.base_damage, state.player)
       let (modified, relic_logs) = relics_on_attack(
@@ -320,28 +376,6 @@ fn execute_card(
       )
       state.logs.push("Pommel Strike: " + actual.to_string() + " damage!")
       draw_cards(state, 1)
-      state.logs.push("Draw 1 card.")
-    }
-    Shrug_It_Off => {
-      add_block(state.player, def.base_block)
-      state.logs.push(
-        "Shrug It Off: gain " + def.base_block.to_string() + " Block.",
-      )
-      draw_cards(state, 1)
-      state.logs.push("Draw 1 card.")
-    }
-    Inflame => {
-      state.player.status.strength += 2
-      state.logs.push("Inflame: gain 2 Strength!")
-    }
-    Body_Slam => {
-      let base = state.player.block
-      let actual = apply_attack_with_relics(
-        state,
-        base,
-        state.enemies[target_index].fighter,
-      )
-      state.logs.push("Body Slam: " + actual.to_string() + " damage!")
     }
     Twin_Strike => {
       let actual1 = apply_attack_with_relics(
@@ -362,15 +396,6 @@ fn execute_card(
         " damage!",
       )
     }
-    Clothesline => {
-      let actual = apply_attack_with_relics(
-        state,
-        def.base_damage,
-        state.enemies[target_index].fighter,
-      )
-      state.enemies[target_index].fighter.status.weak += 2
-      state.logs.push("Clothesline: " + actual.to_string() + " damage! Weak 2.")
-    }
     Iron_Wave => {
       add_block(state.player, def.base_block)
       let actual = apply_attack_with_relics(
@@ -382,6 +407,121 @@ fn execute_card(
         "Iron Wave: gain 5 Block, " + actual.to_string() + " damage!",
       )
     }
+    Anger => {
+      let actual = apply_attack_with_relics(
+        state,
+        def.base_damage,
+        state.enemies[target_index].fighter,
+      )
+      state.logs.push("Anger: " + actual.to_string() + " damage!")
+      // Add a copy to discard pile
+      state.discard_pile.push(Anger)
+    }
+    Headbutt => {
+      let actual = apply_attack_with_relics(
+        state,
+        def.base_damage,
+        state.enemies[target_index].fighter,
+      )
+      state.logs.push("Headbutt: " + actual.to_string() + " damage!")
+      // Put a card from discard on top of draw pile (pick last discarded)
+      if state.discard_pile.length() > 0 {
+        match state.discard_pile.pop() {
+          Some(card) => state.draw_pile.push(card)
+          None => ()
+        }
+      }
+    }
+    // === Common Skills ===
+    Shrug_It_Off => {
+      add_block(state.player, def.base_block)
+      state.logs.push("Shrug It Off: gain 8 Block.")
+      draw_cards(state, 1)
+    }
+    Armaments => {
+      add_block(state.player, def.base_block)
+      state.logs.push("Armaments: gain 5 Block.")
+    }
+    True_Grit => {
+      add_block(state.player, def.base_block)
+      // Exhaust a random card from hand
+      if state.hand.length() > 0 {
+        let idx = next_random(state) % state.hand.length()
+        let exhausted = remove_at(state.hand, idx)
+        state.exhaust_pile.push(exhausted)
+        trigger_exhaust(state)
+        state.logs.push("True Grit: gain 7 Block, exhaust a card.")
+      } else {
+        state.logs.push("True Grit: gain 7 Block.")
+      }
+    }
+    Flex => {
+      state.player.status.strength += 2
+      state.powers.flex_loss += 2
+      state.logs.push("Flex: gain 2 temporary Strength!")
+    }
+    // === Uncommon Attacks ===
+    Clothesline => {
+      let actual = apply_attack_with_relics(
+        state,
+        def.base_damage,
+        state.enemies[target_index].fighter,
+      )
+      state.enemies[target_index].fighter.status.weak += 2
+      state.logs.push("Clothesline: " + actual.to_string() + " damage! Weak 2.")
+    }
+    Uppercut => {
+      let actual = apply_attack_with_relics(
+        state,
+        def.base_damage,
+        state.enemies[target_index].fighter,
+      )
+      state.enemies[target_index].fighter.status.weak += 1
+      state.enemies[target_index].fighter.status.vulnerable += 1
+      state.logs.push(
+        "Uppercut: " + actual.to_string() + " damage! Weak 1, Vulnerable 1.",
+      )
+    }
+    Body_Slam => {
+      let base = state.player.block
+      let actual = apply_attack_with_relics(
+        state,
+        base,
+        state.enemies[target_index].fighter,
+      )
+      state.logs.push("Body Slam: " + actual.to_string() + " damage!")
+    }
+    Sword_Boomerang => {
+      // Deal 3 damage to random enemy 3 times
+      let mut total = 0
+      let mut i = 0
+      while i < 3 {
+        let alive = first_alive_enemy(state)
+        if alive >= 0 {
+          let actual = apply_attack_with_relics(
+            state,
+            def.base_damage,
+            state.enemies[alive].fighter,
+          )
+          total += actual
+        }
+        i += 1
+      }
+      state.logs.push(
+        "Sword Boomerang: " + total.to_string() + " total damage!",
+      )
+    }
+    Rampage => {
+      let damage = def.base_damage + state.powers.rampage_bonus
+      let actual = apply_attack_with_relics(
+        state,
+        damage,
+        state.enemies[target_index].fighter,
+      )
+      state.powers.rampage_bonus += 5
+      state.logs.push("Rampage: " + actual.to_string() + " damage!")
+    }
+    // === Uncommon Skills ===
     Bloodletting => {
       state.player.hp -= 3
       if state.player.hp < 0 {
@@ -399,28 +539,73 @@ fn execute_card(
       draw_cards(state, 3)
       state.logs.push("Offering: lose 6 HP, gain 2 Energy, draw 3!")
     }
-    Uppercut => {
+    Seeing_Red => {
+      state.player.energy += 2
+      state.logs.push("Seeing Red: gain 2 Energy!")
+    }
+    Battle_Trance => {
+      draw_cards(state, 3)
+      state.logs.push("Battle Trance: draw 3 cards!")
+    }
+    Shockwave => {
+      for enemy in state.enemies {
+        if not(enemy.fighter.is_dead()) {
+          enemy.fighter.status.weak += 3
+          enemy.fighter.status.vulnerable += 3
+        }
+      }
+      state.logs.push("Shockwave: Weak 3 + Vulnerable 3 to ALL!")
+    }
+    Disarm =>
+      if target_index >= 0 && target_index < state.enemies.length() {
+        state.enemies[target_index].fighter.status.strength -= 2
+        state.logs.push("Disarm: enemy loses 2 Strength!")
+      }
+    // === Uncommon Powers ===
+    Inflame => {
+      state.player.status.strength += 2
+      state.logs.push("Inflame: gain 2 Strength!")
+    }
+    Metallicize => {
+      state.powers.metallicize += 3
+      state.logs.push("Metallicize: gain 3 Block at end of turn!")
+    }
+    // === Rare ===
+    Bludgeon => {
       let actual = apply_attack_with_relics(
         state,
         def.base_damage,
         state.enemies[target_index].fighter,
       )
-      state.enemies[target_index].fighter.status.weak += 1
-      state.enemies[target_index].fighter.status.vulnerable += 1
-      state.logs.push(
-        "Uppercut: " + actual.to_string() + " damage! Weak 1, Vulnerable 1.",
-      )
+      state.logs.push("Bludgeon: " + actual.to_string() + " damage!")
     }
-    Seeing_Red => {
-      state.player.energy += 2
-      state.logs.push("Seeing Red: gain 2 Energy!")
-    }
-    Armaments => {
+    Impervious => {
       add_block(state.player, def.base_block)
-      state.logs.push(
-        "Armaments: gain " + def.base_block.to_string() + " Block.",
-      )
+      state.logs.push("Impervious: gain 30 Block!")
     }
+    Demon_Form => {
+      state.powers.demon_form += 2
+      state.logs.push("Demon Form: gain 2 Strength each turn!")
+    }
+    Barricade => {
+      state.powers.barricade = true
+      state.logs.push("Barricade: Block no longer decays!")
+    }
+    Feel_No_Pain => {
+      state.powers.feel_no_pain += 3
+      state.logs.push("Feel No Pain: gain 3 Block on Exhaust!")
+    }
+  }
+}
+
+///|
+/// Trigger Feel No Pain when a card is exhausted
+fn trigger_exhaust(state : BattleState) -> Unit {
+  if state.powers.feel_no_pain > 0 {
+    add_block(state.player, state.powers.feel_no_pain)
+    state.logs.push(
+      "Feel No Pain: +" + state.powers.feel_no_pain.to_string() + " Block!",
+    )
   }
 }
 
@@ -429,6 +614,15 @@ fn execute_card(
 fn end_player_turn(state : BattleState) -> Unit {
   if state.phase != PlayerTurn {
     return
+  }
+  // Metallicize: gain block at end of turn
+  if state.powers.metallicize > 0 {
+    add_block(state.player, state.powers.metallicize)
+  }
+  // Flex: lose temporary strength
+  if state.powers.flex_loss > 0 {
+    state.player.status.strength -= state.powers.flex_loss
+    state.powers.flex_loss = 0
   }
   // Relic end-of-turn effects (before discarding)
   let relic_logs = relics_on_turn_end(state.relics, state.player)
@@ -483,7 +677,17 @@ fn start_player_turn(state : BattleState) -> Unit {
   state.turn += 1
   state.phase = PlayerTurn
   state.player.energy = state.player.max_energy
-  reset_block(state.player)
+  // Barricade: block persists
+  if not(state.powers.barricade) {
+    reset_block(state.player)
+  }
+  // Demon Form: gain strength each turn
+  if state.powers.demon_form > 0 {
+    state.player.status.strength += state.powers.demon_form
+    state.logs.push(
+      "Demon Form: +" + state.powers.demon_form.to_string() + " Strength!",
+    )
+  }
   draw_cards(state, hand_size)
   state.logs.push("Turn " + state.turn.to_string())
   // Relic turn-start effects

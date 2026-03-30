@@ -146,11 +146,7 @@ fn Game::update(self : Game, input : @core.InputSnapshot) -> Unit {
 
 ///|
 /// Hit test for card reward selection (returns -2 if no hit, -1 for skip, 0-2 for card)
-fn hit_test_card_reward(
-  run : RunState,
-  cx : Double,
-  cy : Double,
-) -> Int {
+fn hit_test_card_reward(run : RunState, cx : Double, cy : Double) -> Int {
   let sw = screen_w.to_double()
   let reward_w = 80.0
   let reward_h = 110.0
@@ -247,12 +243,15 @@ fn Game::view(self : Game) -> @scene.SceneNode {
             view_player_info_from_run(r),
             view_relics(state),
             view_hand(state, self.selected_card.get()),
-            @scene.show(fn() {
-              match self.run.get().battle {
-                Some(b) => b.phase == PlayerTurn
-                None => false
-              }
-            }, fn() { view_end_turn_button() }),
+            @scene.show(
+              fn() {
+                match self.run.get().battle {
+                  Some(b) => b.phase == PlayerTurn
+                  None => false
+                }
+              },
+              fn() { view_end_turn_button() },
+            ),
             @scene.show(fn() { self.need_target }, fn() {
               @scene.label(
                 x=sw / 2.0 - 40.0,
@@ -699,17 +698,32 @@ fn short_desc(def : CardDef) -> String {
     Bash => "DMG 8 VUL2"
     Cleave => "DMG 8 ALL"
     Pommel_Strike => "DMG 9 +1"
-    Shrug_It_Off => "BLK 8 +1"
-    Inflame => "STR +2"
-    Body_Slam => "DMG=BLK"
     Twin_Strike => "DMG 5x2"
-    Clothesline => "DMG 12 WK2"
     Iron_Wave => "BLK5 DMG5"
-    Bloodletting => "-3HP +2E"
-    Offering => "-6HP +2E +3"
-    Uppercut => "D13 WK1 VU1"
-    Seeing_Red => "+2 Energy"
+    Anger => "DMG 6 +copy"
+    Headbutt => "DMG 9 recur"
+    Shrug_It_Off => "BLK 8 +1"
     Armaments => "BLK 5"
+    True_Grit => "BLK 7 exh"
+    Flex => "+2 tmpSTR"
+    Clothesline => "D12 WK2"
+    Uppercut => "D13 WK1VU1"
+    Body_Slam => "DMG=BLK"
+    Sword_Boomerang => "D3x3 rng"
+    Rampage => "D8 +5/play"
+    Bloodletting => "-3HP +2E"
+    Offering => "-6HP+2E+3"
+    Seeing_Red => "+2 Energy"
+    Battle_Trance => "Draw 3"
+    Shockwave => "WK3VU3 ALL"
+    Disarm => "STR-2"
+    Inflame => "STR +2"
+    Metallicize => "+3BLK/turn"
+    Bludgeon => "DMG 32"
+    Impervious => "BLK 30"
+    Demon_Form => "+2STR/turn"
+    Barricade => "Keep BLK"
+    Feel_No_Pain => "+3BLK/exh"
   }
 }
 
@@ -880,17 +894,9 @@ fn view_card_reward(run : RunState) -> @scene.SceneNode {
       Skill => 0x448844
       Power => 0x444488
     }
+    nodes.push(@scene.rect(x~, y=card_y, w=reward_w, h=reward_h, fill=bg_color))
     nodes.push(
-      @scene.rect(x~, y=card_y, w=reward_w, h=reward_h, fill=bg_color),
-    )
-    nodes.push(
-      @scene.rect_outline(
-        x~,
-        y=card_y,
-        w=reward_w,
-        h=reward_h,
-        color=0xAA8844,
-      ),
+      @scene.rect_outline(x~, y=card_y, w=reward_w, h=reward_h, color=0xAA8844),
     )
     // Cost
     nodes.push(@scene.rect(x~, y=card_y, w=18.0, h=18.0, fill=0x2244AA))
@@ -905,12 +911,7 @@ fn view_card_reward(run : RunState) -> @scene.SceneNode {
     )
     // Name
     nodes.push(
-      @scene.label(
-        x=x + 4.0,
-        y=card_y + 22.0,
-        content=def.name,
-        scale=0.6,
-      ),
+      @scene.label(x=x + 4.0, y=card_y + 22.0, content=def.name, scale=0.6),
     )
     // Description
     nodes.push(
@@ -953,25 +954,12 @@ fn view_card_reward(run : RunState) -> @scene.SceneNode {
   // Skip button
   let skip_x = sw / 2.0 - 40.0
   let skip_y = 240.0
+  nodes.push(@scene.rect(x=skip_x, y=skip_y, w=80.0, h=30.0, fill=0x553333))
   nodes.push(
-    @scene.rect(x=skip_x, y=skip_y, w=80.0, h=30.0, fill=0x553333),
+    @scene.rect_outline(x=skip_x, y=skip_y, w=80.0, h=30.0, color=0x774444),
   )
   nodes.push(
-    @scene.rect_outline(
-      x=skip_x,
-      y=skip_y,
-      w=80.0,
-      h=30.0,
-      color=0x774444,
-    ),
-  )
-  nodes.push(
-    @scene.label(
-      x=skip_x + 18.0,
-      y=skip_y + 6.0,
-      content="Skip",
-      scale=0.7,
-    ),
+    @scene.label(x=skip_x + 18.0, y=skip_y + 6.0, content="Skip", scale=0.7),
   )
   @scene.fragment(nodes)
 }

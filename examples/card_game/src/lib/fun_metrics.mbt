@@ -1,0 +1,663 @@
+///|
+/// Fun Metrics — StS の面白さを定量化する指標群
+///
+/// === StS の面白さの7仮説と対応する計測指標 ===
+///
+/// 1. 適切な緊張感（Tension）
+///    → HP が危険域に入る頻度、ギリギリ勝利の割合
+///    指標: tension_ratio = 勝利時の(HP<20%の戦闘数) / 全戦闘数
+///          lethal_proximity = 勝利ランの最低HP の平均
+///
+/// 2. ドローによるうまくいかなさ（Draw Variance）
+///    → 同じデッキでもシード違いで結果が変わる度合い
+///    指標: seed_variance = 同一構成×異なるシードの勝率の分散
+///          hand_quality_spread = 各ターンの手札価値の標準偏差
+///
+/// 3. ビルドが噛み合った時の爆発力（Synergy Explosion）
+///    → アーキタイプ一致デッキ vs ランダムデッキの性能差
+///    指標: synergy_multiplier = (特化デッキDPT) / (スターターDPT)
+///          power_curve_slope = フロア進行に伴うDPTの増加率
+///
+/// 4. リソーストレードオフの深さ（Resource Tension）
+///    → HPを消費するカード(Offering等)の使用頻度と勝率への影響
+///    指標: hp_for_power_trades = HP消費カードの使用回数/ラン
+///
+/// 5. 敵パーソナリティの分化（Enemy Differentiation）
+///    → 敵ごとの最適戦略の違い度合い
+///    指標: strategy_divergence = 敵ごとの(攻撃的勝率 - 防御的勝率)の分散
+///
+/// 6. 意思決定の重み（Decision Weight）
+///    → Smart AI vs Random AI の勝率差
+///    指標: decision_impact = smart_win_rate - random_win_rate
+///
+/// 7. 逆転可能性（Comeback Potential）
+///    → 低HP状態からの勝利頻度
+///    指標: comeback_rate = (HP<30%から勝利した戦闘) / (HP<30%で開始した戦闘)
+
+///|
+/// Per-battle statistics for detailed analysis
+pub(all) struct BattleStats {
+  floor : Int
+  encounter : String
+  won : Bool
+  turns : Int
+  hp_before : Int
+  hp_after : Int
+  damage_dealt : Int
+  damage_taken : Int
+  block_generated : Int
+  cards_played : Int
+  min_hp_during : Int // lowest HP reached during battle
+} derive(Show)
+
+///|
+/// Detailed run result with per-battle stats
+pub(all) struct DetailedRunResult {
+  won : Bool
+  floors_reached : Int
+  battles : Array[BattleStats]
+  final_deck : Array[CardId]
+  archetype : Archetype
+  cards_added : Array[CardId]
+  cards_skipped : Int
+} derive(Show)
+
+///|
+/// Fun metrics extracted from a set of runs
+pub(all) struct FunMetrics {
+  // === 1. Tension ===
+  tension_ratio : Double // % of battles where HP dropped below 25%
+  lethal_proximity : Double // avg min-HP reached in winning runs
+  close_win_rate : Double // % of wins where final HP < 20
+
+  // === 2. Draw Variance ===
+  win_rate_variance : Double // variance of win rates across seed groups
+  outcome_entropy : Double // Shannon entropy of win/loss pattern
+
+  // === 3. Synergy Explosion ===
+  synergy_multiplier : Double // DPT ratio: built deck / starter deck
+  power_curve_slope : Double // avg DPT increase per floor
+
+  // === 4. Resource Tradeoff ===
+  hp_trade_frequency : Double // HP-cost cards played per run
+
+  // === 5. Enemy Differentiation ===
+  strategy_divergence : Double // variance of (aggressive_wr - defensive_wr) across encounters
+
+  // === 6. Decision Weight ===
+  decision_impact : Double // smart_win% - random_win%
+
+  // === 7. Comeback Potential ===
+  comeback_rate : Double // wins from <30% HP / battles started at <30% HP
+} derive(Show)
+
+///|
+/// Simulate a detailed run tracking per-battle stats
+pub fn simulate_detailed_run(
+  seed : Int,
+  strategy : PlayStrategy,
+) -> DetailedRunResult {
+  let run = RunState::new(seed~)
+  let battles : Array[BattleStats] = []
+  let cards_added : Array[CardId] = []
+  let mut cards_skipped = 0
+  let mut safety = 0
+  while safety < 100 {
+    safety += 1
+    match run.phase {
+      Battle =>
+        match run.battle {
+          Some(state) => {
+            let floor = run.floor
+            let hp_before = state.player.hp
+            let mut min_hp = hp_before
+            let mut damage_dealt = 0
+            let mut block_generated = 0
+            let mut n_cards_played = 0
+            // Track enemy HP for damage calculation
+            let mut enemy_hp_sum = 0
+            for e in state.enemies {
+              enemy_hp_sum += e.fighter.hp
+            }
+            let mut battle_safety = 0
+            while state.phase == PlayerTurn && battle_safety < 300 {
+              battle_safety += 1
+              // Track HP after each action
+              let choice = pick_card(state, strategy)
+              match choice {
+                Some((hand_idx, target)) => {
+                  let hp_pre = state.player.hp
+                  let mut enemy_hp_pre = 0
+                  for e in state.enemies {
+                    if not(e.fighter.is_dead()) {
+                      enemy_hp_pre += e.fighter.hp
+                    }
+                  }
+                  let result = play_card(state, hand_idx, target)
+                  if result == Ok {
+                    n_cards_played += 1
+                    // Damage dealt this card
+                    let mut enemy_hp_post = 0
+                    for e in state.enemies {
+                      if not(e.fighter.is_dead()) {
+                        enemy_hp_post += e.fighter.hp
+                      }
+                    }
+                    let dmg = enemy_hp_pre - enemy_hp_post
+                    if dmg > 0 {
+                      damage_dealt += dmg
+                    }
+                    // Block tracking
+                    let blk = state.player.block
+                    if blk > block_generated {
+                      block_generated = blk
+                    }
+                  } else {
+                    end_player_turn(state)
+                  }
+                  // Track min HP
+                  if state.player.hp < min_hp {
+                    min_hp = state.player.hp
+                  }
+                  let _ = hp_pre
+                }
+                None => {
+                  end_player_turn(state)
+                  if state.player.hp < min_hp {
+                    min_hp = state.player.hp
+                  }
+                }
+              }
+              if state.phase == Victory || state.phase == Defeat {
+                break
+              }
+            }
+            let hp_after = state.player.hp
+            let damage_taken = hp_before - hp_after
+            let enc_name = if state.enemies.length() > 0 {
+              state.enemies[0].fighter.name
+            } else {
+              "Unknown"
+            }
+            battles.push({
+              floor,
+              encounter: enc_name,
+              won: state.phase == Victory,
+              turns: state.turn,
+              hp_before,
+              hp_after,
+              damage_dealt,
+              damage_taken: if damage_taken > 0 {
+                damage_taken
+              } else {
+                0
+              },
+              block_generated,
+              cards_played: n_cards_played,
+              min_hp_during: if min_hp > 0 {
+                min_hp
+              } else {
+                0
+              },
+            })
+            if state.phase == Victory {
+              on_battle_victory(run)
+            } else {
+              on_battle_defeat(run)
+            }
+          }
+          None => break
+        }
+      CardReward =>
+        if run.card_rewards.length() > 0 {
+          let archetype = detect_archetype(run.deck)
+          let mut best_idx = 0
+          let mut best_val = 0.0
+          let mut i = 0
+          while i < run.card_rewards.length() {
+            let card = run.card_rewards[i]
+            let base_val = evaluate_card(card).total
+            let synergy = match (archetype, card) {
+              (Strength, Twin_Strike) | (Strength, Sword_Boomerang) => 5.0
+              (Strength, Inflame) => 8.0
+              (Strength, Demon_Form) => 10.0
+              (Block, Barricade) => 10.0
+              (Block, Metallicize) => 8.0
+              (Block, Body_Slam) => 7.0
+              (Exhaust, Feel_No_Pain) => 10.0
+              (Exhaust, True_Grit) | (Exhaust, Offering) => 5.0
+              (_, Shockwave) => 4.0
+              (_, Battle_Trance) => 3.0
+              _ => 0.0
+            }
+            let val = base_val + synergy
+            if val > best_val {
+              best_val = val
+              best_idx = i
+            }
+            i += 1
+          }
+          let skip_threshold = if run.deck.length() > 18 {
+            20.0
+          } else if run.deck.length() > 14 {
+            12.0
+          } else {
+            5.0
+          }
+          if best_val < skip_threshold {
+            cards_skipped += 1
+            pick_card_reward(run, -1)
+          } else {
+            cards_added.push(run.card_rewards[best_idx])
+            pick_card_reward(run, best_idx)
+          }
+        } else {
+          pick_card_reward(run, -1)
+        }
+      RestSite => rest_heal(run)
+      RunVictory | RunDefeat => break
+    }
+  }
+  {
+    won: run.phase == RunVictory,
+    floors_reached: run.floor,
+    battles,
+    final_deck: run.deck,
+    archetype: detect_archetype(run.deck),
+    cards_added,
+    cards_skipped,
+  }
+}
+
+///|
+/// Analyze fun metrics from multiple detailed runs
+pub fn analyze_fun_metrics(run_count : Int) -> FunMetrics {
+  let detailed_runs : Array[DetailedRunResult] = []
+  let mut i = 0
+  while i < run_count {
+    detailed_runs.push(simulate_detailed_run(i * 7 + 1, Smart))
+    i += 1
+  }
+
+  // === 1. Tension ===
+  let mut total_battles = 0
+  let mut tense_battles = 0 // HP dropped below 25% (20 HP)
+  let mut min_hp_sum = 0.0
+  let mut min_hp_count = 0
+  let mut close_wins = 0
+  let mut total_wins = 0
+  for run in detailed_runs {
+    for battle in run.battles {
+      total_battles += 1
+      if battle.min_hp_during < 20 {
+        tense_battles += 1
+      }
+      if battle.won {
+        if battle.hp_after < 20 {
+          close_wins += 1
+        }
+      }
+    }
+    if run.won {
+      total_wins += 1
+      // Find min HP across the entire run
+      let mut run_min = 80
+      for battle in run.battles {
+        if battle.min_hp_during < run_min {
+          run_min = battle.min_hp_during
+        }
+      }
+      min_hp_sum += run_min.to_double()
+      min_hp_count += 1
+    }
+  }
+  let tension_ratio = if total_battles > 0 {
+    tense_battles.to_double() / total_battles.to_double()
+  } else {
+    0.0
+  }
+  let lethal_proximity = if min_hp_count > 0 {
+    min_hp_sum / min_hp_count.to_double()
+  } else {
+    80.0
+  }
+  let close_win_rate = if total_wins > 0 {
+    close_wins.to_double() / total_wins.to_double()
+  } else {
+    0.0
+  }
+
+  // === 2. Draw Variance ===
+  // Compare win rates across different seed groups
+  let group_size = run_count / 5
+  let group_wins : Array[Double] = []
+  if group_size > 0 {
+    let mut g = 0
+    while g < 5 {
+      let mut wins = 0
+      let mut j = g * group_size
+      while j < (g + 1) * group_size && j < run_count {
+        if detailed_runs[j].won {
+          wins += 1
+        }
+        j += 1
+      }
+      group_wins.push(wins.to_double() / group_size.to_double())
+      g += 1
+    }
+  }
+  let win_rate_variance = if group_wins.length() > 1 {
+    let mut mean = 0.0
+    for wr in group_wins {
+      mean += wr
+    }
+    mean /= group_wins.length().to_double()
+    let mut variance = 0.0
+    for wr in group_wins {
+      let diff = wr - mean
+      variance += diff * diff
+    }
+    variance / group_wins.length().to_double()
+  } else {
+    0.0
+  }
+  // Outcome entropy: binary entropy of overall win rate
+  let overall_wr = if run_count > 0 {
+    total_wins.to_double() / run_count.to_double()
+  } else {
+    0.5
+  }
+  let outcome_entropy = if overall_wr > 0.0 && overall_wr < 1.0 {
+    -(overall_wr * log2(overall_wr) +
+    (1.0 - overall_wr) * log2(1.0 - overall_wr))
+  } else {
+    0.0
+  }
+
+  // === 3. Synergy Explosion ===
+  // Compare DPT at start vs end of run
+  let mut early_dpt_sum = 0.0
+  let mut early_dpt_count = 0
+  let mut late_dpt_sum = 0.0
+  let mut late_dpt_count = 0
+  for run in detailed_runs {
+    for battle in run.battles {
+      if battle.turns > 0 {
+        let dpt = battle.damage_dealt.to_double() / battle.turns.to_double()
+        if battle.floor <= 3 {
+          early_dpt_sum += dpt
+          early_dpt_count += 1
+        } else if battle.floor >= 13 {
+          late_dpt_sum += dpt
+          late_dpt_count += 1
+        }
+      }
+    }
+  }
+  let early_dpt = if early_dpt_count > 0 {
+    early_dpt_sum / early_dpt_count.to_double()
+  } else {
+    15.0
+  }
+  let late_dpt = if late_dpt_count > 0 {
+    late_dpt_sum / late_dpt_count.to_double()
+  } else {
+    15.0
+  }
+  let synergy_multiplier = if early_dpt > 0.0 {
+    late_dpt / early_dpt
+  } else {
+    1.0
+  }
+  // Power curve: how fast does DPT grow per floor?
+  let power_curve_slope = if late_dpt_count > 0 && early_dpt_count > 0 {
+    (late_dpt - early_dpt) / 12.0 // ~12 floors between early and late
+  } else {
+    0.0
+  }
+
+  // === 4. Resource Tradeoff ===
+  let mut hp_trade_total = 0.0
+  for run in detailed_runs {
+    let mut hp_trades = 0
+    for card in run.cards_added {
+      match card {
+        Bloodletting | Offering => hp_trades += 1
+        _ => ()
+      }
+    }
+    hp_trade_total += hp_trades.to_double()
+  }
+  let hp_trade_frequency = if run_count > 0 {
+    hp_trade_total / run_count.to_double()
+  } else {
+    0.0
+  }
+
+  // === 5. Enemy Differentiation ===
+  let test_encounters : Array[EncounterId] = [
+    SingleJawWorm,
+    TwoLouses,
+    SingleCultist,
+    FungiPair,
+    EliteNob,
+    SentryPair,
+  ]
+  let divergence_values : Array[Double] = []
+  for enc in test_encounters {
+    let agg = run_simulations(enc, Aggressive, 30)
+    let def = run_simulations(enc, Defensive, 30)
+    let agg_wr = agg.wins.to_double() / agg.total.to_double()
+    let def_wr = def.wins.to_double() / def.total.to_double()
+    divergence_values.push(agg_wr - def_wr)
+  }
+  let strategy_divergence = if divergence_values.length() > 1 {
+    let mut mean = 0.0
+    for v in divergence_values {
+      mean += v
+    }
+    mean /= divergence_values.length().to_double()
+    let mut variance = 0.0
+    for v in divergence_values {
+      let diff = v - mean
+      variance += diff * diff
+    }
+    variance / divergence_values.length().to_double()
+  } else {
+    0.0
+  }
+
+  // === 6. Decision Weight ===
+  // Compare Smart vs random (Aggressive as proxy for less-informed play)
+  let smart_total = total_wins
+  let smart_wr = if run_count > 0 {
+    smart_total.to_double() / run_count.to_double()
+  } else {
+    0.0
+  }
+  // Simulate same count with Aggressive strategy
+  let mut agg_wins = 0
+  let mut j = 0
+  while j < run_count {
+    let result = simulate_run(j * 7 + 1, Aggressive)
+    if result.won {
+      agg_wins += 1
+    }
+    j += 1
+  }
+  let agg_wr = if run_count > 0 {
+    agg_wins.to_double() / run_count.to_double()
+  } else {
+    0.0
+  }
+  let decision_impact = smart_wr - agg_wr
+
+  // === 7. Comeback Potential ===
+  let mut low_hp_battles = 0
+  let mut low_hp_wins = 0
+  for run in detailed_runs {
+    for battle in run.battles {
+      if battle.hp_before < 25 { // entering battle at <30% HP
+        low_hp_battles += 1
+        if battle.won {
+          low_hp_wins += 1
+        }
+      }
+    }
+  }
+  let comeback_rate = if low_hp_battles > 0 {
+    low_hp_wins.to_double() / low_hp_battles.to_double()
+  } else {
+    0.0
+  }
+
+  {
+    tension_ratio,
+    lethal_proximity,
+    close_win_rate,
+    win_rate_variance,
+    outcome_entropy,
+    synergy_multiplier,
+    power_curve_slope,
+    hp_trade_frequency,
+    strategy_divergence,
+    decision_impact,
+    comeback_rate,
+  }
+}
+
+///|
+fn log2(x : Double) -> Double {
+  // ln(x) / ln(2)
+  @math.ln(x) / @math.ln(2.0)
+}
+
+///|
+/// Print a formatted fun metrics report
+pub fn format_fun_report(m : FunMetrics) -> String {
+  let buf = StringBuilder::new()
+  buf.write_string("=== Fun Metrics Report ===\n\n")
+
+  buf.write_string("1. TENSION (適切な緊張感)\n")
+  buf.write_string("   HP<25%になる戦闘の割合: ")
+  buf.write_string(pct_str(m.tension_ratio))
+  buf.write_string("\n")
+  buf.write_string("   勝利ランの最低到達HP平均: ")
+  buf.write_string(m.lethal_proximity.to_string())
+  buf.write_string("\n")
+  buf.write_string("   ギリギリ勝利(HP<20)の割合: ")
+  buf.write_string(pct_str(m.close_win_rate))
+  buf.write_string("\n")
+  let tension_grade = if m.tension_ratio >= 0.15 && m.tension_ratio <= 0.4 {
+    "GOOD"
+  } else if m.tension_ratio < 0.15 {
+    "TOO EASY"
+  } else {
+    "TOO HARD"
+  }
+  buf.write_string("   評価: ")
+  buf.write_string(tension_grade)
+  buf.write_string("\n\n")
+
+  buf.write_string("2. DRAW VARIANCE (ドローによる揺らぎ)\n")
+  buf.write_string("   勝率の分散(シードグループ間): ")
+  buf.write_string(m.win_rate_variance.to_string())
+  buf.write_string("\n")
+  buf.write_string("   勝敗エントロピー: ")
+  buf.write_string(m.outcome_entropy.to_string())
+  buf.write_string(" (理想: ~0.9-1.0)\n")
+  let entropy_grade = if m.outcome_entropy >= 0.7 {
+    "GOOD"
+  } else if m.outcome_entropy >= 0.4 {
+    "MODERATE"
+  } else {
+    "TOO PREDICTABLE"
+  }
+  buf.write_string("   評価: ")
+  buf.write_string(entropy_grade)
+  buf.write_string("\n\n")
+
+  buf.write_string("3. SYNERGY EXPLOSION (ビルド爆発力)\n")
+  buf.write_string("   後半DPT / 序盤DPT倍率: ")
+  buf.write_string(m.synergy_multiplier.to_string())
+  buf.write_string("x\n")
+  buf.write_string("   フロアあたりDPT成長: ")
+  buf.write_string(m.power_curve_slope.to_string())
+  buf.write_string("/floor\n")
+  let synergy_grade = if m.synergy_multiplier >= 1.5 {
+    "GOOD"
+  } else if m.synergy_multiplier >= 1.2 {
+    "MODERATE"
+  } else {
+    "WEAK - ビルドが成長しない"
+  }
+  buf.write_string("   評価: ")
+  buf.write_string(synergy_grade)
+  buf.write_string("\n\n")
+
+  buf.write_string("4. RESOURCE TRADEOFF (HP対パワーの取引)\n")
+  buf.write_string("   HP消費カード使用数/ラン: ")
+  buf.write_string(m.hp_trade_frequency.to_string())
+  buf.write_string("\n")
+  let trade_grade = if m.hp_trade_frequency >= 0.5 {
+    "GOOD - HPをリソースとして使えている"
+  } else {
+    "LOW - HP消費カードの価値が足りない"
+  }
+  buf.write_string("   評価: ")
+  buf.write_string(trade_grade)
+  buf.write_string("\n\n")
+
+  buf.write_string("5. ENEMY DIFFERENTIATION (敵ごとの戦略差)\n")
+  buf.write_string("   攻撃的/防御的勝率差の分散: ")
+  buf.write_string(m.strategy_divergence.to_string())
+  buf.write_string("\n")
+  let diff_grade = if m.strategy_divergence >= 0.01 {
+    "GOOD - 敵によって最適戦略が異なる"
+  } else {
+    "LOW - 全敵に同じ戦略で勝てる"
+  }
+  buf.write_string("   評価: ")
+  buf.write_string(diff_grade)
+  buf.write_string("\n\n")
+
+  buf.write_string("6. DECISION WEIGHT (意思決定の重み)\n")
+  buf.write_string("   Smart勝率 - Aggressive勝率: ")
+  buf.write_string(pct_str(m.decision_impact))
+  buf.write_string("\n")
+  let decision_grade = if m.decision_impact >= 0.1 {
+    "GOOD - 賢いプレイが報われる"
+  } else if m.decision_impact >= 0.03 {
+    "MODERATE"
+  } else {
+    "LOW - 戦略の差が出にくい"
+  }
+  buf.write_string("   評価: ")
+  buf.write_string(decision_grade)
+  buf.write_string("\n\n")
+
+  buf.write_string("7. COMEBACK POTENTIAL (逆転可能性)\n")
+  buf.write_string("   低HP(<25)から勝利する割合: ")
+  buf.write_string(pct_str(m.comeback_rate))
+  buf.write_string("\n")
+  let comeback_grade = if m.comeback_rate >= 0.5 {
+    "GOOD - 低HPでも勝機あり"
+  } else if m.comeback_rate >= 0.3 {
+    "MODERATE"
+  } else if m.comeback_rate > 0.0 {
+    "LOW - 低HPだとほぼ負け"
+  } else {
+    "N/A - 低HPバトルなし"
+  }
+  buf.write_string("   評価: ")
+  buf.write_string(comeback_grade)
+  buf.write_string("\n")
+
+  buf.to_string()
+}
+
+///|
+fn pct_str(v : Double) -> String {
+  let pct = (v * 1000.0).to_int().to_double() / 10.0
+  pct.to_string() + "%"
+}

@@ -33,6 +33,7 @@ examples/card_game/
 │   │   ├── balance.mbt       # AI戦略（Aggressive/Defensive/Smart）
 │   │   ├── economy.mbt       # Machinations経済モデル・ラン全体シミュレーション
 │   │   ├── ml_balance.mbt    # ML用特徴量抽出・感度分析
+│   │   ├── fun_metrics.mbt   # Fun指標（7次元）・StS面白さ定量化
 │   │   ├── view.mbt          # UI描画（SceneNode ツリー）
 │   │   └── *_wbtest.mbt      # ホワイトボックステスト
 │   ├── headless/             # ヘッドレスランナー（moon run）
@@ -267,6 +268,66 @@ Joris Dormans の Machinations フレームワークに基づくリソースフ�
 ```
 
 **ボスはスターターデッキでは倒せない（0%）が、ラン全体ではデッキ構築により約80%勝利** — StS の設計思想と一致。
+
+## Fun Metrics — StS の面白さの定量分析 (`fun_metrics.mbt`)
+
+StS の面白さを構成する7つの仮説それぞれに計測可能な指標を定義し、シミュレーションから自動計測する。
+
+### 指標一覧
+
+| # | 次元 | 指標 | 計測方法 | 理想値 |
+|---|------|------|----------|--------|
+| 1 | **適切な緊張感** | tension_ratio | HP<25%になる戦闘の割合 | 15-40% |
+| | | lethal_proximity | 勝利ランの最低到達HP平均 | 10-30 |
+| | | close_win_rate | HP<20で勝利した割合 | 10-20% |
+| 2 | **ドローの揺らぎ** | win_rate_variance | シードグループ間の勝率分散 | >0.01 |
+| | | outcome_entropy | 勝敗のShannon エントロピー | 0.7-1.0 |
+| 3 | **シナジー爆発力** | synergy_multiplier | 後半DPT / 序盤DPT | >1.5x |
+| | | power_curve_slope | フロアあたりのDPT成長 | >0.3 |
+| 4 | **リソーストレードオフ** | hp_trade_frequency | HP消費カード使用数/ラン | >0.5 |
+| 5 | **敵パーソナリティ分化** | strategy_divergence | 攻撃的/防御的勝率差の分散 | >0.01 |
+| 6 | **意思決定の重み** | decision_impact | Smart勝率 - Aggressive勝率 | >10% |
+| 7 | **逆転可能性** | comeback_rate | 低HP(<25)からの勝率 | 30-60% |
+
+### 現在の計測結果と StS との乖離分析
+
+```
+1. TENSION: 0.9% (TOO EASY) — StS ではElite/Bossで頻繁にHP危険域に入るが、
+   現モデルのSmart AIが最適に近いため緊張感が低い
+   → 改善案: 敵ダメージ上方修正、またはAIに意図的な非最適行動を混ぜる
+
+2. DRAW VARIANCE: entropy=0.29 (TOO PREDICTABLE) — 勝率80%が高すぎて
+   ドローによる結果変動が見えにくい
+   → 改善案: 敵を強化して勝率60-70%に調整、ドロー依存カードを増やす
+
+3. SYNERGY EXPLOSION: 1.6x (GOOD) — フロア進行でDPTが約1.6倍に成長
+   StS の実データ（2-3x）にはやや届かないが基本構造は再現
+
+4. RESOURCE TRADEOFF: 0.7/run (GOOD) — Offering/Bloodlettingが適切に使われている
+
+5. ENEMY DIFFERENTIATION: 0.137 (GOOD) — Nob, Sentryなど特殊な最適戦略が存在
+
+6. DECISION WEIGHT: 0% (LOW) — Smart vs Aggressiveの差がない
+   → 原因: 個別戦闘が簡単すぎてどの戦略でも勝てる。ラン全体での差を測るべき
+
+7. COMEBACK POTENTIAL: N/A — HP<25のバトルがほぼ発生しない（1と連動）
+```
+
+### StS 模倣度サマリー
+
+| 面白さの要素 | 模倣度 | 評価 |
+|-------------|--------|------|
+| ビルドの成長感 | GOOD | スターター→特化デッキへの成長パスが機能 |
+| リソースジレンマ | GOOD | HP消費カードのトレードオフが存在 |
+| 敵の個性 | GOOD | Nob=Attack縛り、Sentry=高火力等の差別化あり |
+| ドキドキ感 | LOW | Smart AIが強すぎて危機的状況が少ない |
+| ドロー運の影響 | LOW | 勝率が高すぎて揺らぎが見えない |
+| 判断力の差 | LOW | 敵が弱く、雑なプレイでも勝てる |
+| 逆転劇 | N/A | そもそも危機的状況が発生しない |
+
+**総合**: シナジー構築・リソース管理・敵の差別化は StS の構造を良く再現しているが、
+**難易度が低すぎるために「ギリギリ感」「ドローの理不尽さ」「巧みなプレイの報酬」が不足**。
+次のステップは Normal/Elite 敵のダメージ+HP を 20-30% 上方修正し、勝率を 60-70% に調整すること。
 
 ## 設計思想
 

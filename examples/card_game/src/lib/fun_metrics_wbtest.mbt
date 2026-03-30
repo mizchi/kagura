@@ -16,12 +16,22 @@ test "fun: battle stats are populated" {
   assert_true(b.damage_dealt > 0)
   assert_true(b.cards_played > 0)
   assert_true(b.turns >= 1)
+  // Danger tracking should be populated
+  assert_true(b.danger_turns >= 0)
+  assert_true(b.resolved_turns >= 0)
+  assert_true(b.resolved_turns <= b.danger_turns)
 }
 
 ///|
 test "fun: metrics analysis runs without crash" {
   let m = analyze_fun_metrics(10)
-  // Tension should be between 0 and 1
+  // Danger metrics should be between 0 and 1
+  assert_true(m.danger_turn_ratio >= 0.0)
+  assert_true(m.danger_turn_ratio <= 1.0)
+  assert_true(m.danger_resolution_rate >= 0.0)
+  assert_true(m.danger_resolution_rate <= 1.0)
+  assert_true(m.avg_danger_streak >= 0.0)
+  // Legacy tension should be between 0 and 1
   assert_true(m.tension_ratio >= 0.0)
   assert_true(m.tension_ratio <= 1.0)
   // Synergy multiplier should be positive
@@ -39,7 +49,7 @@ test "fun: format report produces non-empty string" {
   let m = analyze_fun_metrics(5)
   let report = format_fun_report(m)
   assert_true(report.length() > 100)
-  // Should contain all 7 sections
+  // Should contain all 8 sections
   assert_true(report.contains("TENSION"))
   assert_true(report.contains("DRAW VARIANCE"))
   assert_true(report.contains("SYNERGY EXPLOSION"))
@@ -93,8 +103,9 @@ test "fun: zone_score out-of-zone returns lower score" {
 test "fun: default targets are internally consistent" {
   let t = default_targets()
   // All min < max
-  assert_true(t.tension_ratio_min < t.tension_ratio_max)
-  assert_true(t.lethal_proximity_min < t.lethal_proximity_max)
+  assert_true(t.danger_turn_ratio_min < t.danger_turn_ratio_max)
+  assert_true(t.danger_resolution_min < t.danger_resolution_max)
+  assert_true(t.danger_streak_min < t.danger_streak_max)
   assert_true(t.entropy_min < t.entropy_max)
   assert_true(t.synergy_min < t.synergy_max)
   assert_true(t.decision_min < t.decision_max)

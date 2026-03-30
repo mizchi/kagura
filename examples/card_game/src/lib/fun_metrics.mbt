@@ -3,10 +3,11 @@
 ///
 /// === StS の面白さの7仮説と対応する計測指標 ===
 ///
-/// 1. 適切な緊張感（Tension）
-///    → HP が危険域に入る頻度、ギリギリ勝利の割合
-///    指標: tension_ratio = 勝利時の(HP<20%の戦闘数) / 全戦闘数
-///          lethal_proximity = 勝利ランの最低HP の平均
+/// 1. 適切な緊張感（Tension: danger → resolution → relief）
+///    → HPをロストしそうな状態がどれだけ続くか、それを対処できた達成感
+///    指標: danger_turn_ratio = 敵の攻撃意図 > ブロック のターン割合
+///          danger_resolution_rate = 危険ターンでダメージを完全に防げた割合
+///          avg_danger_streak = 連続で危険にさらされるターン数の平均
 ///
 /// 2. ドローによるうまくいかなさ（Draw Variance）
 ///    → 同じデッキでもシード違いで結果が変わる度合い
@@ -48,6 +49,12 @@ pub(all) struct BattleStats {
   block_generated : Int
   cards_played : Int
   min_hp_during : Int // lowest HP reached during battle
+  // Danger/Resolution tracking
+  danger_turns : Int // turns where incoming > block (exposed to HP loss)
+  resolved_turns : Int // danger turns where player blocked all damage
+  max_danger_streak : Int // longest consecutive danger turns
+  total_danger_streaks : Int // number of danger streaks (for avg calculation)
+  total_danger_streak_len : Int // sum of all streak lengths
 } derive(Show)
 
 ///|
@@ -65,8 +72,11 @@ pub(all) struct DetailedRunResult {
 ///|
 /// Fun metrics extracted from a set of runs
 pub(all) struct FunMetrics {
-  // === 1. Tension ===
-  tension_ratio : Double // % of battles where HP dropped below 25%
+  // === 1. Tension (danger → resolution → relief) ===
+  danger_turn_ratio : Double // % of player turns exposed to unblocked damage
+  danger_resolution_rate : Double // % of danger turns where all damage was blocked
+  avg_danger_streak : Double // avg consecutive turns of sustained danger
+  tension_ratio : Double // (legacy) % of battles where HP dropped below 25%
   lethal_proximity : Double // avg min-HP reached in winning runs
   close_win_rate : Double // % of wins where final HP < 20
 
@@ -130,6 +140,13 @@ pub fn simulate_detailed_run(
               potions_copy.push(p)
             }
             let mut potions_used = 0
+            // Danger/resolution tracking
+            let mut danger_turns = 0
+            let mut resolved_turns = 0
+            let mut current_streak = 0
+            let mut max_streak = 0
+            let mut total_streaks = 0
+            let mut total_streak_len = 0
             let mut battle_safety = 0
             while state.phase == PlayerTurn && battle_safety < 300 {
               battle_safety += 1
@@ -141,54 +158,99 @@ pub fn simulate_detailed_run(
               if state.phase == Victory || state.phase == Defeat {
                 break
               }
-              // Track HP after each action
-              let choice = pick_card(state, strategy)
-              match choice {
-                Some((hand_idx, target)) => {
-                  let hp_pre = state.player.hp
-                  let mut enemy_hp_pre = 0
-                  for e in state.enemies {
-                    if not(e.fighter.is_dead()) {
-                      enemy_hp_pre += e.fighter.hp
-                    }
-                  }
-                  let result = play_card(state, hand_idx, target)
-                  if result == Ok {
-                    n_cards_played += 1
-                    // Damage dealt this card
-                    let mut enemy_hp_post = 0
+              // Assess danger: incoming damage vs current block before acting
+              let incoming = calc_incoming_damage(state)
+              let is_danger = incoming > state.player.block
+              let hp_before_turn = state.player.hp
+              // Play all cards this turn
+              let mut played_this_turn = false
+              let mut turn_done = false
+              while not(turn_done) {
+                let choice = pick_card(state, strategy)
+                match choice {
+                  Some((hand_idx, target)) => {
+                    let mut enemy_hp_pre = 0
                     for e in state.enemies {
                       if not(e.fighter.is_dead()) {
-                        enemy_hp_post += e.fighter.hp
+                        enemy_hp_pre += e.fighter.hp
                       }
                     }
-                    let dmg = enemy_hp_pre - enemy_hp_post
-                    if dmg > 0 {
-                      damage_dealt += dmg
+                    let result = play_card(state, hand_idx, target)
+                    if result == Ok {
+                      n_cards_played += 1
+                      played_this_turn = true
+                      let mut enemy_hp_post = 0
+                      for e in state.enemies {
+                        if not(e.fighter.is_dead()) {
+                          enemy_hp_post += e.fighter.hp
+                        }
+                      }
+                      let dmg = enemy_hp_pre - enemy_hp_post
+                      if dmg > 0 {
+                        damage_dealt += dmg
+                      }
+                      let blk = state.player.block
+                      if blk > block_generated {
+                        block_generated = blk
+                      }
+                    } else {
+                      turn_done = true
                     }
-                    // Block tracking
-                    let blk = state.player.block
-                    if blk > block_generated {
-                      block_generated = blk
+                  }
+                  None => turn_done = true
+                }
+                if state.phase == Victory || state.phase == Defeat {
+                  turn_done = true
+                }
+              }
+              let _ = played_this_turn
+              // End turn (triggers enemy attacks)
+              if state.phase == PlayerTurn {
+                end_player_turn(state)
+              }
+              // Track min HP after enemies attack
+              if state.player.hp < min_hp {
+                min_hp = state.player.hp
+              }
+              // Danger resolution check
+              if is_danger {
+                danger_turns += 1
+                let hp_lost = hp_before_turn - state.player.hp
+                if hp_lost <= 0 {
+                  // Player blocked all incoming damage = resolved!
+                  resolved_turns += 1
+                  // End streak
+                  if current_streak > 0 {
+                    total_streaks += 1
+                    total_streak_len += current_streak
+                    if current_streak > max_streak {
+                      max_streak = current_streak
                     }
-                  } else {
-                    end_player_turn(state)
+                    current_streak = 0
                   }
-                  // Track min HP
-                  if state.player.hp < min_hp {
-                    min_hp = state.player.hp
-                  }
-                  let _ = hp_pre
+                } else {
+                  // Took damage while in danger = streak continues
+                  current_streak += 1
                 }
-                None => {
-                  end_player_turn(state)
-                  if state.player.hp < min_hp {
-                    min_hp = state.player.hp
-                  }
+                // Not in danger — end any active streak
+              } else if current_streak > 0 {
+                total_streaks += 1
+                total_streak_len += current_streak
+                if current_streak > max_streak {
+                  max_streak = current_streak
                 }
+                current_streak = 0
               }
               if state.phase == Victory || state.phase == Defeat {
                 break
+              }
+            }
+            // Close any remaining streak
+            if current_streak > 0 {
+              total_streaks += 1
+              total_streak_len += current_streak
+              if current_streak > max_streak {
+                max_streak = current_streak
               }
             }
             let hp_after = state.player.hp
@@ -218,6 +280,11 @@ pub fn simulate_detailed_run(
               } else {
                 0
               },
+              danger_turns,
+              resolved_turns,
+              max_danger_streak: max_streak,
+              total_danger_streaks: total_streaks,
+              total_danger_streak_len: total_streak_len,
             })
             // Sync potions back
             run.potions.clear()
@@ -303,28 +370,35 @@ pub fn analyze_fun_metrics(run_count : Int) -> FunMetrics {
     i += 1
   }
 
-  // === 1. Tension ===
+  // === 1. Tension (danger → resolution → relief) ===
+  let mut total_turns = 0
+  let mut total_danger = 0
+  let mut total_resolved = 0
+  let mut total_streaks = 0
+  let mut total_streak_len = 0
   let mut total_battles = 0
-  let mut tense_battles = 0 // HP dropped below 25% (20 HP)
+  let mut total_wins = 0
+  let mut tense_battles = 0
   let mut min_hp_sum = 0.0
   let mut min_hp_count = 0
   let mut close_wins = 0
-  let mut total_wins = 0
   for run in detailed_runs {
     for battle in run.battles {
       total_battles += 1
+      total_turns += battle.turns
+      total_danger += battle.danger_turns
+      total_resolved += battle.resolved_turns
+      total_streaks += battle.total_danger_streaks
+      total_streak_len += battle.total_danger_streak_len
       if battle.min_hp_during < 20 {
         tense_battles += 1
       }
-      if battle.won {
-        if battle.hp_after < 20 {
-          close_wins += 1
-        }
+      if battle.won && battle.hp_after < 20 {
+        close_wins += 1
       }
     }
     if run.won {
       total_wins += 1
-      // Find min HP across the entire run
       let mut run_min = 80
       for battle in run.battles {
         if battle.min_hp_during < run_min {
@@ -335,6 +409,23 @@ pub fn analyze_fun_metrics(run_count : Int) -> FunMetrics {
       min_hp_count += 1
     }
   }
+  // New danger-based tension metrics
+  let danger_turn_ratio = if total_turns > 0 {
+    total_danger.to_double() / total_turns.to_double()
+  } else {
+    0.0
+  }
+  let danger_resolution_rate = if total_danger > 0 {
+    total_resolved.to_double() / total_danger.to_double()
+  } else {
+    0.0
+  }
+  let avg_danger_streak = if total_streaks > 0 {
+    total_streak_len.to_double() / total_streaks.to_double()
+  } else {
+    0.0
+  }
+  // Legacy metrics (still useful for context)
   let tension_ratio = if total_battles > 0 {
     tense_battles.to_double() / total_battles.to_double()
   } else {
@@ -581,6 +672,9 @@ pub fn analyze_fun_metrics(run_count : Int) -> FunMetrics {
   }
 
   {
+    danger_turn_ratio,
+    danger_resolution_rate,
+    avg_danger_streak,
     tension_ratio,
     lethal_proximity,
     close_win_rate,
@@ -612,18 +706,20 @@ fn log2(x : Double) -> Double {
 ///
 /// ─── 目標値の設計根拠 ───
 ///
-/// 1. TENSION（緊張感）
-///    ・体験: "残りHP3で勝った！" "あと1ターン遅かったら死んでた"
-///    ・tension_ratio (HP<25%になる戦闘の割合)
-///      - 0-10%: 退屈。余裕がありすぎて手に汗握らない
-///      - 15-35%: 最適。3-4回に1回の戦闘で「危なかった」を体験
-///      - 40%+: ストレス。常にギリギリで疲弊する
-///    ・lethal_proximity (勝利ランの最低HP平均)
-///      - 30+: 安全すぎ。ボスに余裕で勝てる感覚
-///      - 8-25: 最適。"死にかけたけど立て直した"の記憶が残る
-///      - <5: 運ゲー。実力でどうにもならない感覚
-///    ・close_win_rate (HP<20での勝利割合)
-///      - 10-25%: 最適。勝利の1/5が「ギリギリ」= 印象に残る勝ち体験
+/// 1. TENSION（危険→対処→安堵のサイクル）
+///    ・体験: "ブロック足りない！でもDefendで凌いだ！" "3ターン連続で殴られたけど立て直した"
+///    ・danger_turn_ratio (敵攻撃>ブロック のターン割合)
+///      - <30%: 退屈。ほとんどのターンが安全で緊張しない
+///      - 30-60%: 最適。半分程度のターンで「このままだとHP減る」という脅威を感じる
+///      - >60%: 圧倒的。常に殴られて無力感
+///    ・danger_resolution_rate (危険ターンでの対処成功率)
+///      - <40%: 無力。対処できないことが多すぎて達成感がない
+///      - 40-70%: 最適。「ギリギリ防げた！」の達成感と「防げなかった」の悔しさが共存
+///      - >70%: 簡単すぎ。危険に見えるだけで実際は安全
+///    ・avg_danger_streak (連続危険ターン数)
+///      - <1.5: 一瞬の危険。すぐ解決するので緊張が持続しない
+///      - 1.5-3.0: 最適。2-3ターン続く危機=戦術的判断の余地がある
+///      - >3.0: 長すぎる危機。対処不能感、「どうしようもない」
 ///
 /// 2. DRAW VARIANCE（ドローの揺らぎ）
 ///    ・体験: "Offering引いてれば勝てたのに" "完璧なドロー！"
@@ -676,13 +772,13 @@ fn log2(x : Double) -> Double {
 ///|
 /// Target ranges for each fun metric (what players find enjoyable)
 pub(all) struct FunTargets {
-  // 1. Tension
-  tension_ratio_min : Double // 0.15
-  tension_ratio_max : Double // 0.35
-  lethal_proximity_min : Double // 8.0
-  lethal_proximity_max : Double // 25.0
-  close_win_rate_min : Double // 0.10
-  close_win_rate_max : Double // 0.25
+  // 1. Tension (danger/resolution model)
+  danger_turn_ratio_min : Double // 0.30 — 30% of turns should feel dangerous
+  danger_turn_ratio_max : Double // 0.60 — above 60% is overwhelming
+  danger_resolution_min : Double // 0.40 — resolve at least 40% (not helpless)
+  danger_resolution_max : Double // 0.70 — above 70% = too easy
+  danger_streak_min : Double // 1.5 — streaks under 1.5 = no sustained tension
+  danger_streak_max : Double // 3.0 — above 3 = feels hopeless
   // 2. Draw Variance
   entropy_min : Double // 0.70
   entropy_max : Double // 0.95
@@ -715,12 +811,12 @@ pub(all) struct FunTargets {
 ///|
 pub fn default_targets() -> FunTargets {
   {
-    tension_ratio_min: 0.15,
-    tension_ratio_max: 0.35,
-    lethal_proximity_min: 8.0,
-    lethal_proximity_max: 25.0,
-    close_win_rate_min: 0.10,
-    close_win_rate_max: 0.25,
+    danger_turn_ratio_min: 0.30,
+    danger_turn_ratio_max: 0.60,
+    danger_resolution_min: 0.40,
+    danger_resolution_max: 0.70,
+    danger_streak_min: 1.5,
+    danger_streak_max: 3.0,
     entropy_min: 0.70,
     entropy_max: 0.95,
     variance_min: 0.01,
@@ -824,21 +920,25 @@ pub(all) struct FunScorecard {
 pub fn score_fun_metrics(m : FunMetrics) -> FunScorecard {
   let t = default_targets()
 
-  // 1. Tension: average of 3 sub-metrics
+  // 1. Tension: danger → resolution → relief cycle
   let s_tension = (
-      zone_score(m.tension_ratio, t.tension_ratio_min, t.tension_ratio_max) +
       zone_score(
-        m.lethal_proximity,
-        t.lethal_proximity_min,
-        t.lethal_proximity_max,
+        m.danger_turn_ratio,
+        t.danger_turn_ratio_min,
+        t.danger_turn_ratio_max,
       ) +
-      zone_score(m.close_win_rate, t.close_win_rate_min, t.close_win_rate_max)
+      zone_score(
+        m.danger_resolution_rate,
+        t.danger_resolution_min,
+        t.danger_resolution_max,
+      ) +
+      zone_score(m.avg_danger_streak, t.danger_streak_min, t.danger_streak_max)
     ) /
     3.0
   let g_tension = grade(
-    m.tension_ratio,
-    t.tension_ratio_min,
-    t.tension_ratio_max,
+    m.danger_turn_ratio,
+    t.danger_turn_ratio_min,
+    t.danger_turn_ratio_max,
   )
 
   // 2. Draw Variance: average of entropy and variance
@@ -877,15 +977,15 @@ pub fn score_fun_metrics(m : FunMetrics) -> FunScorecard {
   let s_decision = zone_score(m.decision_impact, t.decision_min, t.decision_max)
   let g_decision = grade(m.decision_impact, t.decision_min, t.decision_max)
 
-  // 7. Comeback (if no low-HP battles, score based on whether tension is also too low)
+  // 7. Comeback (if no low-HP battles, score based on whether danger is also too low)
   let s_comeback = if m.comeback_rate <= 0.0 &&
-    m.tension_ratio < t.tension_ratio_min {
+    m.danger_turn_ratio < t.danger_turn_ratio_min {
     0.2 // No low-HP battles because game is too easy
   } else {
     zone_score(m.comeback_rate, t.comeback_min, t.comeback_max)
   }
   let g_comeback = if m.comeback_rate <= 0.0 &&
-    m.tension_ratio < t.tension_ratio_min {
+    m.danger_turn_ratio < t.danger_turn_ratio_min {
     "N/A (要Tension改善)"
   } else {
     grade(m.comeback_rate, t.comeback_min, t.comeback_max)
@@ -1032,29 +1132,34 @@ pub fn format_fun_report(m : FunMetrics) -> String {
   let buf = StringBuilder::new()
   buf.write_string("=== Fun Metrics Report ===\n\n")
 
-  // 1. Tension
-  buf.write_string("1. TENSION (適切な緊張感)\n")
-  buf.write_string("   HP<25%になる戦闘の割合: ")
+  // 1. Tension (danger → resolution → relief)
+  buf.write_string("1. TENSION (危険→対処→安堵のサイクル)\n")
+  buf.write_string("   危険ターン割合: ")
+  buf.write_string(pct_str(m.danger_turn_ratio))
+  buf.write_string(" (目標: ")
+  buf.write_string(pct_str(t.danger_turn_ratio_min))
+  buf.write_string("-")
+  buf.write_string(pct_str(t.danger_turn_ratio_max))
+  buf.write_string(")\n")
+  buf.write_string("   危険対処成功率: ")
+  buf.write_string(pct_str(m.danger_resolution_rate))
+  buf.write_string(" (目標: ")
+  buf.write_string(pct_str(t.danger_resolution_min))
+  buf.write_string("-")
+  buf.write_string(pct_str(t.danger_resolution_max))
+  buf.write_string(")\n")
+  buf.write_string("   平均危険持続ターン: ")
+  buf.write_string(m.avg_danger_streak.to_string())
+  buf.write_string(" (目標: ")
+  buf.write_string(t.danger_streak_min.to_string())
+  buf.write_string("-")
+  buf.write_string(t.danger_streak_max.to_string())
+  buf.write_string(")\n")
+  buf.write_string("   [参考] HP<25%の戦闘割合: ")
   buf.write_string(pct_str(m.tension_ratio))
-  buf.write_string(" (目標: ")
-  buf.write_string(pct_str(t.tension_ratio_min))
-  buf.write_string("-")
-  buf.write_string(pct_str(t.tension_ratio_max))
-  buf.write_string(")\n")
-  buf.write_string("   勝利ランの最低到達HP平均: ")
-  buf.write_string(m.lethal_proximity.to_string())
-  buf.write_string(" (目標: ")
-  buf.write_string(t.lethal_proximity_min.to_string())
-  buf.write_string("-")
-  buf.write_string(t.lethal_proximity_max.to_string())
-  buf.write_string(")\n")
-  buf.write_string("   ギリギリ勝利(HP<20)の割合: ")
+  buf.write_string(" / ギリギリ勝利: ")
   buf.write_string(pct_str(m.close_win_rate))
-  buf.write_string(" (目標: ")
-  buf.write_string(pct_str(t.close_win_rate_min))
-  buf.write_string("-")
-  buf.write_string(pct_str(t.close_win_rate_max))
-  buf.write_string(")\n\n")
+  buf.write_string("\n\n")
 
   // 2. Draw Variance
   buf.write_string("2. DRAW VARIANCE (ドローによる揺らぎ)\n")

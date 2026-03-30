@@ -9,6 +9,7 @@ fn main {
   // --- 1. Balance Simulation (per-encounter) ---
   println("--- Balance Simulation (Smart AI, 50 runs each) ---")
   let encounters : Array[(@lib.EncounterId, String, String)] = [
+    // Act 1
     (@lib.SingleJawWorm, "Jaw Worm", "Easy"),
     (@lib.TwoLouses, "Two Louses", "Easy"),
     (@lib.SingleCultist, "Cultist", "Normal"),
@@ -19,6 +20,13 @@ fn main {
     (@lib.EliteNob, "Gremlin Nob", "Elite"),
     (@lib.BossGuardian, "The Guardian", "Boss"),
     (@lib.BossHexaghost, "Hexaghost", "Boss"),
+    // Act 2
+    (@lib.SingleChosen, "Chosen", "Normal"),
+    (@lib.SnakePlantFight, "Snake Plant", "Normal"),
+    (@lib.ChosenSlaver, "Chosen+Slaver", "Normal"),
+    (@lib.Act2EliteBook, "Book of Stabbing", "Elite"),
+    (@lib.Act2EliteSentryTrio, "Sentry Trio", "Elite"),
+    (@lib.BossAutomaton, "Bronze Automaton", "Boss"),
   ]
   let mut all_ok = true
   for entry in encounters {

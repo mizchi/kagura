@@ -34,6 +34,13 @@ pub(all) enum EnemyId {
   // Boss encounters
   TheGuardian // 240 HP, Mode Shift mechanic
   Hexaghost // 250 HP, multi-hit + scaling
+  // Act 2 Normal
+  Chosen // 91 HP, hex debuff + poke attack
+  SnakePlant // 75 HP, multi-bite + weaken
+  // Act 2 Elite
+  BookOfStabbing // 160 HP, escalating multi-stab
+  // Act 2 Boss
+  BronzeAutomaton // 300 HP, hyper beam + flail
 } derive(Show, Eq)
 
 ///|
@@ -41,8 +48,11 @@ fn enemy_tier(id : EnemyId) -> EncounterTier {
   match id {
     GreenLouse | RedLouse | JawWorm => Easy
     Cultist | FungiBeast | SlaverRed => Normal
+    Chosen | SnakePlant => Normal // Act 2 normal
     Sentry | GremlinNob => Elite
+    BookOfStabbing => Elite // Act 2 elite
     TheGuardian | Hexaghost => Boss
+    BronzeAutomaton => Boss // Act 2 boss
   }
 }
 
@@ -123,6 +133,38 @@ pub fn spawn_enemy(id : EnemyId) -> Enemy {
         // Inferno(6×2 scaling), Sear(6), Tackle(5+5), Inflame(+2 STR)
         fighter: Fighter::new("Hexaghost", 190),
         intent: BuffIntent, // Activate: no damage turn 1
+        pattern_index: 0,
+      }
+    Chosen =>
+      {
+        id,
+        // Chosen: 91 HP. Hex (debuff), then Poke(12), then big Drain(18)
+        fighter: Fighter::new("Chosen", 91),
+        intent: DebuffIntent, // Hex: apply Vulnerable + Weak
+        pattern_index: 0,
+      }
+    SnakePlant =>
+      {
+        id,
+        // SnakePlant: 75 HP. Bite-bite-chomp pattern
+        fighter: Fighter::new("Snake Plant", 75),
+        intent: AttackIntent(7), // Bite
+        pattern_index: 0,
+      }
+    BookOfStabbing =>
+      {
+        id,
+        // BookOfStabbing: 160 HP. Multi-stab that escalates
+        fighter: Fighter::new("Book of Stabbing", 160),
+        intent: MultiAttack(6, 2), // starts with 2 stabs
+        pattern_index: 0,
+      }
+    BronzeAutomaton =>
+      {
+        id,
+        // BronzeAutomaton: 300 HP. Flail, then Boost, then Hyper Beam
+        fighter: Fighter::new("Bronze Automaton", 300),
+        intent: AttackIntent(8), // Flail
         pattern_index: 0,
       }
   }
@@ -208,6 +250,38 @@ fn next_intent(enemy : Enemy) -> Intent {
         3 => BuffIntent // Inflame: +2 STR
         _ => MultiAttack(6, 2) // Inferno: 6×2 (scales with STR)
       }
+    "Chosen" =>
+      // Hex (debuff), Poke(12), Drain(18)
+      match idx % 3 {
+        0 => DebuffIntent // Hex: Vuln 2 + Weak 2
+        1 => AttackIntent(12) // Poke
+        _ => AttackIntent(18) // Drain: big hit
+      }
+    "Snake Plant" =>
+      // Bite(7), Bite(7), Chomp(18), Weaken
+      match idx % 4 {
+        0 => AttackIntent(7)
+        1 => AttackIntent(7)
+        2 => AttackIntent(18) // Chomp: big hit
+        _ => DebuffIntent // Weaken: apply Weak 2
+      }
+    "Book of Stabbing" =>
+      // Multi-stab that escalates: 2, 3, 4, 5 stabs of 6 dmg
+      match idx % 4 {
+        0 => MultiAttack(6, 2)
+        1 => MultiAttack(6, 3)
+        2 => MultiAttack(6, 4)
+        _ => MultiAttack(6, 5) // 30 damage!
+      }
+    "Bronze Automaton" =>
+      // Flail(8), Flail(8), Boost(+3 STR), Hyper Beam(45), Stun(0)
+      match idx % 5 {
+        0 => AttackIntent(8)
+        1 => AttackIntent(8)
+        2 => BuffIntent // Boost: +3 STR
+        3 => AttackIntent(45) // Hyper Beam
+        _ => DefendIntent(0) // Stun: does nothing (recovery)
+      }
     _ => AttackIntent(5)
   }
 }
@@ -244,6 +318,7 @@ fn execute_enemy_intent(enemy : Enemy, player : Fighter) -> Array[String] {
         "Red Louse" => 3 // Grow: +3 STR
         "Fungi Beast" => 3 // Grow: +3 STR
         "Gremlin Nob" => 2 // Bellow: +2 STR
+        "Bronze Automaton" => 3 // Boost: +3 STR
         _ => 2
       }
       enemy.fighter.status.strength += str_amount
@@ -280,6 +355,17 @@ fn execute_enemy_intent(enemy : Enemy, player : Fighter) -> Array[String] {
           player.status.vulnerable += 1
           logs.push(enemy.fighter.name + " entangles! Weak 1, Vulnerable 1.")
         }
+        "Chosen" => {
+          // Hex: apply Vulnerable 2 + Weak 2
+          player.status.vulnerable += 2
+          player.status.weak += 2
+          logs.push("Hex! Vulnerable 2, Weak 2!")
+        }
+        "Snake Plant" => {
+          // Weaken: apply Weak 2
+          player.status.weak += 2
+          logs.push(enemy.fighter.name + " weakens you! Weak 2!")
+        }
         _ => {
           player.status.weak += 1
           logs.push(enemy.fighter.name + " weakens you!")
@@ -295,6 +381,7 @@ fn execute_enemy_intent(enemy : Enemy, player : Fighter) -> Array[String] {
 ///|
 /// Predefined encounter configurations
 pub(all) enum EncounterId {
+  // Act 1
   SingleJawWorm // Easy: single enemy
   TwoLouses // Easy: two small enemies
   SingleCultist // Normal: scaling threat
@@ -303,13 +390,21 @@ pub(all) enum EncounterId {
   EliteSlaver // Elite: heavy hitter (same as SlaverFight but elite tier)
   SentryPair // Elite: two sentries
   EliteNob // Elite: punishes Skills
-  BossGuardian // Boss: The Guardian (240 HP)
-  BossHexaghost // Boss: Hexaghost (250 HP)
+  BossGuardian // Boss: The Guardian
+  BossHexaghost // Boss: Hexaghost
+  // Act 2
+  SingleChosen // Normal: hex debuff + poke
+  SnakePlantFight // Normal: multi-bite + weaken
+  ChosenSlaver // Normal: mixed debuff pair
+  Act2EliteBook // Elite: escalating multi-stab
+  Act2EliteSentryTrio // Elite: three sentries
+  BossAutomaton // Boss: Bronze Automaton
 } derive(Show, Eq)
 
 ///|
 pub fn encounter_enemies(id : EncounterId) -> Array[EnemyId] {
   match id {
+    // Act 1
     SingleJawWorm => [JawWorm]
     TwoLouses => [GreenLouse, RedLouse]
     SingleCultist => [Cultist]
@@ -320,6 +415,13 @@ pub fn encounter_enemies(id : EncounterId) -> Array[EnemyId] {
     EliteNob => [GremlinNob]
     BossGuardian => [TheGuardian]
     BossHexaghost => [Hexaghost]
+    // Act 2
+    SingleChosen => [Chosen]
+    SnakePlantFight => [SnakePlant]
+    ChosenSlaver => [Chosen, SlaverRed]
+    Act2EliteBook => [BookOfStabbing]
+    Act2EliteSentryTrio => [Sentry, Sentry, Sentry]
+    BossAutomaton => [BronzeAutomaton]
   }
 }
 
@@ -336,7 +438,10 @@ fn encounter_tier(id : EncounterId) -> EncounterTier {
   match id {
     SingleJawWorm | TwoLouses => Easy
     SingleCultist | FungiPair | SlaverFight => Normal
+    SingleChosen | SnakePlantFight | ChosenSlaver => Normal
     EliteSlaver | SentryPair | EliteNob => Elite
+    Act2EliteBook | Act2EliteSentryTrio => Elite
     BossGuardian | BossHexaghost => Boss
+    BossAutomaton => Boss
   }
 }

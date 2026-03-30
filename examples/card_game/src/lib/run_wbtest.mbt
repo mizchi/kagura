@@ -137,9 +137,7 @@ test "hp persists across battles" {
 
 ///|
 test "floor progression through full run" {
-  // Act 1: 15 floors
-  // 1-3: Easy, 4: Elite, 5: Rest, 6-8: Normal, 9: Rest,
-  // 10: Normal, 11: Elite, 12: Rest, 13: Normal, 14: Rest, 15: Boss
+  // Act 1: floors 1-15
   assert_eq(floor_type(1), Combat(Easy))
   assert_eq(floor_type(2), Combat(Easy))
   assert_eq(floor_type(3), Combat(Easy))
@@ -151,12 +149,24 @@ test "floor progression through full run" {
   assert_eq(floor_type(13), Combat(Normal))
   assert_eq(floor_type(14), Rest)
   assert_eq(floor_type(15), Boss)
+  // Act 2: floors 16-30
+  assert_eq(floor_type(16), Combat(Normal))
+  assert_eq(floor_type(18), Combat(Elite))
+  assert_eq(floor_type(19), Rest)
+  assert_eq(floor_type(25), Combat(Elite))
+  assert_eq(floor_type(29), Rest)
+  assert_eq(floor_type(30), Boss)
+  // Act helpers
+  assert_eq(floor_act(1), 1)
+  assert_eq(floor_act(15), 1)
+  assert_eq(floor_act(16), 2)
+  assert_eq(floor_act(30), 2)
 }
 
 ///|
 test "completing all floors wins the run" {
   let run = RunState::new()
-  run.floor = max_floor
+  run.floor = max_floor // 30
   run.phase = Battle
   // Simulate advancing past last floor
   advance_floor(run)

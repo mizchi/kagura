@@ -507,8 +507,11 @@ pub fn generate_balance_report(encounter : EncounterId) -> BalanceReport {
   let tier_name = match encounter {
     SingleJawWorm | TwoLouses => "Easy"
     SingleCultist | FungiPair | SlaverFight => "Normal"
+    SingleChosen | SnakePlantFight | ChosenSlaver => "Normal"
     EliteSlaver | SentryPair | EliteNob => "Elite"
+    Act2EliteBook | Act2EliteSentryTrio => "Elite"
     BossGuardian | BossHexaghost => "Boss"
+    BossAutomaton => "Boss"
   }
   let enc_name = match encounter {
     SingleJawWorm => "JawWorm"
@@ -521,6 +524,12 @@ pub fn generate_balance_report(encounter : EncounterId) -> BalanceReport {
     EliteNob => "GremlinNob"
     BossGuardian => "TheGuardian"
     BossHexaghost => "Hexaghost"
+    SingleChosen => "Chosen"
+    SnakePlantFight => "SnakePlant"
+    ChosenSlaver => "Chosen+Slaver"
+    Act2EliteBook => "BookOfStabbing"
+    Act2EliteSentryTrio => "SentryTrio"
+    BossAutomaton => "BronzeAutomaton"
   }
   {
     encounter: enc_name,

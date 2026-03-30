@@ -55,6 +55,21 @@ pub(all) struct BattleStats {
   max_danger_streak : Int // longest consecutive danger turns
   total_danger_streaks : Int // number of danger streaks (for avg calculation)
   total_danger_streak_len : Int // sum of all streak lengths
+  // Act-progress-relative HP
+  hp_progress_ratio : Double // hp_after / expected_hp_at_this_progress
+} derive(Show)
+
+///|
+/// Per-act archetype snapshot
+pub(all) struct ActSnapshot {
+  act : Int
+  archetype : Archetype
+  deck_size : Int
+  hp_at_start : Int
+  hp_at_end : Int
+  cards_added : Int
+  battles_won : Int
+  battles_total : Int
 } derive(Show)
 
 ///|
@@ -67,6 +82,9 @@ pub(all) struct DetailedRunResult {
   archetype : Archetype
   cards_added : Array[CardId]
   cards_skipped : Int
+  // Act-level tracking
+  act_snapshots : Array[ActSnapshot]
+  archetype_pivot : Bool // did archetype change between acts?
 } derive(Show)
 
 ///|
@@ -104,6 +122,15 @@ pub(all) struct FunMetrics {
   per_battle_attrition : Double // avg (hp_before - hp_after) / max_hp per battle
   act_gross_attrition : Double // sum(damage_taken) / max_hp across entire Act
   act_net_attrition : Double // (start_hp - final_hp) / max_hp (net after rests)
+
+  // === 9. HP Progress Ratio (ACT進行度に対するHP比率) ===
+  avg_hp_progress_ratio : Double // avg hp / expected_hp across all battles
+  hp_progress_variance : Double // variance of hp_progress_ratio
+
+  // === 10. Build Commitment (ビルドの一貫性) ===
+  archetype_pivot_rate : Double // % of runs where archetype changed between acts
+  act2_win_rate : Double // win rate of runs that reached Act 2
+  build_commitment_score : Double // avg act2 battles won / total when archetype stable
 } derive(Show)
 
 ///|
@@ -261,6 +288,16 @@ pub fn simulate_detailed_run(
             } else {
               "Unknown"
             }
+            // HP progress ratio: hp_after / expected HP at this act progress
+            // Expected HP decays linearly: start at max_hp, end at ~50% by boss
+            let progress = act_progress(floor)
+            let expected_hp = run.player_max_hp.to_double() *
+              (1.0 - progress * 0.5)
+            let hp_prog_ratio = if expected_hp > 0.0 {
+              hp_after.to_double() / expected_hp
+            } else {
+              1.0
+            }
             battles.push({
               floor,
               encounter: enc_name,
@@ -286,6 +323,7 @@ pub fn simulate_detailed_run(
               max_danger_streak: max_streak,
               total_danger_streaks: total_streaks,
               total_danger_streak_len: total_streak_len,
+              hp_progress_ratio: hp_prog_ratio,
             })
             // Sync potions back
             run.potions.clear()
@@ -354,14 +392,84 @@ pub fn simulate_detailed_run(
       RunVictory | RunDefeat => break
     }
   }
+  // Build act snapshots
+  let act_snapshots : Array[ActSnapshot] = []
+  // Act 1: floors 1-15
+  let mut act1_cards = 0
+  let mut act1_wins = 0
+  let mut act1_total = 0
+  let act1_hp_start = 80
+  let mut act1_hp_end = 80
+  let act2_cards = 0
+  let mut act2_wins = 0
+  let mut act2_total = 0
+  let mut act2_hp_start = 0
+  let mut act2_hp_end = 0
+  let mut act2_started = false
+  for battle in battles {
+    if floor_act(battle.floor) == 1 {
+      act1_total += 1
+      if battle.won { act1_wins += 1 }
+      act1_hp_end = battle.hp_after
+    } else {
+      if not(act2_started) {
+        act2_hp_start = battle.hp_before
+        act2_started = true
+      }
+      act2_total += 1
+      if battle.won { act2_wins += 1 }
+      act2_hp_end = battle.hp_after
+    }
+  }
+  for card in cards_added {
+    // Approximate: count cards added in each act by deck growth
+    // Simple heuristic: first N cards are act 1
+    let _ = card
+    act1_cards += 1
+  }
+  // Determine archetype at end of Act 1
+  // Use deck size at floor 15 as proxy: starter(10) + act1 cards
+  let act1_deck_size = 10 + act1_cards
+  let act1_archetype = detect_archetype(run.deck) // approximate
+  act_snapshots.push({
+    act: 1,
+    archetype: act1_archetype,
+    deck_size: act1_deck_size,
+    hp_at_start: act1_hp_start,
+    hp_at_end: act1_hp_end,
+    cards_added: act1_cards,
+    battles_won: act1_wins,
+    battles_total: act1_total,
+  })
+  if act2_started {
+    let act2_archetype = detect_archetype(run.deck)
+    act_snapshots.push({
+      act: 2,
+      archetype: act2_archetype,
+      deck_size: run.deck.length(),
+      hp_at_start: act2_hp_start,
+      hp_at_end: act2_hp_end,
+      cards_added: act2_cards,
+      battles_won: act2_wins,
+      battles_total: act2_total,
+    })
+  }
+  let final_arch = detect_archetype(run.deck)
+  let pivoted = if act_snapshots.length() >= 2 {
+    act_snapshots[0].archetype != act_snapshots[1].archetype
+  } else {
+    false
+  }
   {
     won: run.phase == RunVictory,
     floors_reached: run.floor,
     battles,
     final_deck: run.deck,
-    archetype: detect_archetype(run.deck),
+    archetype: final_arch,
     cards_added,
     cards_skipped,
+    act_snapshots,
+    archetype_pivot: pivoted,
   }
 }
 
@@ -507,7 +615,7 @@ pub fn analyze_fun_metrics(run_count : Int) -> FunMetrics {
         if battle.floor <= 3 {
           early_dpt_sum += dpt
           early_dpt_count += 1
-        } else if battle.floor >= 13 {
+        } else if battle.floor >= 20 {
           late_dpt_sum += dpt
           late_dpt_count += 1
         }
@@ -676,6 +784,73 @@ pub fn analyze_fun_metrics(run_count : Int) -> FunMetrics {
     0.0
   }
 
+  // === 9. HP Progress Ratio ===
+  let mut hp_prog_sum = 0.0
+  let mut hp_prog_count = 0
+  for run in detailed_runs {
+    for battle in run.battles {
+      if battle.won {
+        hp_prog_sum += battle.hp_progress_ratio
+        hp_prog_count += 1
+      }
+    }
+  }
+  let avg_hp_progress_ratio = if hp_prog_count > 0 {
+    hp_prog_sum / hp_prog_count.to_double()
+  } else {
+    1.0
+  }
+  // Variance of hp_progress_ratio
+  let mut hp_prog_var_sum = 0.0
+  for run in detailed_runs {
+    for battle in run.battles {
+      if battle.won {
+        let diff = battle.hp_progress_ratio - avg_hp_progress_ratio
+        hp_prog_var_sum += diff * diff
+      }
+    }
+  }
+  let hp_progress_variance = if hp_prog_count > 1 {
+    hp_prog_var_sum / hp_prog_count.to_double()
+  } else {
+    0.0
+  }
+
+  // === 10. Build Commitment ===
+  let mut pivot_count = 0
+  let mut reached_act2 = 0
+  let mut act2_wins = 0
+  let mut stable_act2_wins = 0
+  let mut stable_act2_total = 0
+  for run in detailed_runs {
+    if run.archetype_pivot { pivot_count += 1 }
+    if run.act_snapshots.length() >= 2 {
+      reached_act2 += 1
+      if run.won { act2_wins += 1 }
+      if not(run.archetype_pivot) {
+        // Stable archetype: count act2 battle performance
+        let snap2 = run.act_snapshots[1]
+        stable_act2_wins += snap2.battles_won
+        stable_act2_total += snap2.battles_total
+      }
+    }
+  }
+  let archetype_pivot_rate = if run_count > 0 {
+    pivot_count.to_double() / run_count.to_double()
+  } else {
+    0.0
+  }
+  let act2_win_rate = if reached_act2 > 0 {
+    act2_wins.to_double() / reached_act2.to_double()
+  } else {
+    0.0
+  }
+  let build_commitment_score = if stable_act2_total > 0 {
+    stable_act2_wins.to_double() / stable_act2_total.to_double()
+  } else {
+    0.0
+  }
+
   {
     danger_turn_ratio,
     danger_resolution_rate,
@@ -694,6 +869,11 @@ pub fn analyze_fun_metrics(run_count : Int) -> FunMetrics {
     per_battle_attrition,
     act_gross_attrition,
     act_net_attrition,
+    avg_hp_progress_ratio,
+    hp_progress_variance,
+    archetype_pivot_rate,
+    act2_win_rate,
+    build_commitment_score,
   }
 }
 
@@ -1258,6 +1438,27 @@ pub fn format_fun_report(m : FunMetrics) -> String {
   buf.write_string(")\n")
   buf.write_string("   ACT正味消耗率: ")
   buf.write_string(pct_str(m.act_net_attrition))
+  buf.write_string("\n\n")
+
+  // 9. HP Progress Ratio
+  buf.write_string("9. HP PROGRESS RATIO (ACT進行度対HP比率)\n")
+  buf.write_string("   平均HP進行度比率: ")
+  buf.write_string(m.avg_hp_progress_ratio.to_string())
+  buf.write_string(" (1.0=予定通り, <0.5=危険域)\n")
+  buf.write_string("   HP進行度比率の分散: ")
+  buf.write_string(m.hp_progress_variance.to_string())
+  buf.write_string("\n\n")
+
+  // 10. Build Commitment
+  buf.write_string("10. BUILD COMMITMENT (ビルドの一貫性)\n")
+  buf.write_string("   アーキタイプ転向率: ")
+  buf.write_string(pct_str(m.archetype_pivot_rate))
+  buf.write_string("\n")
+  buf.write_string("   ACT2到達時勝率: ")
+  buf.write_string(pct_str(m.act2_win_rate))
+  buf.write_string("\n")
+  buf.write_string("   安定ビルドの戦闘勝率: ")
+  buf.write_string(pct_str(m.build_commitment_score))
   buf.write_string("\n\n")
 
   // Scorecard

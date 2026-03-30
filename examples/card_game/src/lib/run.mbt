@@ -36,10 +36,12 @@ pub(all) struct RunState {
 } derive(Show)
 
 ///|
-let max_floor : Int = 15
+let max_floor : Int = 30
 
 ///|
-/// Floor layout for Act 1 (15 floors, modeled after StS)
+/// Floor layout for Act 1 (15 floors) + Act 2 (floors 16-30)
+///
+/// Act 1: Build core deck
 /// Floor 1-3: Easy combats (build deck basics)
 /// Floor 4: Elite (first test, risky but rewarding)
 /// Floor 5: Rest site (recover from elite)
@@ -51,8 +53,23 @@ let max_floor : Int = 15
 /// Floor 13: Normal combat (pre-boss breather)
 /// Floor 14: Rest site (prep for boss)
 /// Floor 15: BOSS
+///
+/// Act 2: Test build commitment + scaling
+/// Floor 16-17: Normal (Act 2 enemies, harder baseline)
+/// Floor 18: Elite (Book of Stabbing / Sentry Trio)
+/// Floor 19: Rest site
+/// Floor 20-22: Normal (mixed encounters)
+/// Floor 23: Rest site
+/// Floor 24: Normal
+/// Floor 25: Elite (second elite test)
+/// Floor 26: Rest site
+/// Floor 27: Normal (final gauntlet)
+/// Floor 28: Normal
+/// Floor 29: Rest site (prep for boss)
+/// Floor 30: BOSS (Bronze Automaton)
 fn floor_type(floor : Int) -> FloorType {
   match floor {
+    // Act 1
     1 => Combat(Easy)
     2 => Combat(Easy)
     3 => Combat(Easy)
@@ -68,7 +85,39 @@ fn floor_type(floor : Int) -> FloorType {
     13 => Combat(Normal)
     14 => Rest
     15 => Boss
+    // Act 2
+    16 => Combat(Normal)
+    17 => Combat(Normal)
+    18 => Combat(Elite)
+    19 => Rest
+    20 => Combat(Normal)
+    21 => Combat(Normal)
+    22 => Combat(Normal)
+    23 => Rest
+    24 => Combat(Normal)
+    25 => Combat(Elite)
+    26 => Rest
+    27 => Combat(Normal)
+    28 => Combat(Normal)
+    29 => Rest
+    30 => Boss
     _ => Combat(Easy)
+  }
+}
+
+///|
+/// Which act does a floor belong to?
+pub fn floor_act(floor : Int) -> Int {
+  if floor <= 15 { 1 } else { 2 }
+}
+
+///|
+/// Progress within the current act (0.0 at start, 1.0 at boss)
+pub fn act_progress(floor : Int) -> Double {
+  if floor <= 15 {
+    (floor - 1).to_double() / 14.0 // Act 1: floors 1-15
+  } else {
+    (floor - 16).to_double() / 14.0 // Act 2: floors 16-30
   }
 }
 
@@ -125,32 +174,58 @@ fn advance_floor(state : RunState) -> Unit {
 }
 
 ///|
-/// Pick a random encounter for a given tier
+/// Pick a random encounter for a given tier, considering current act
 fn pick_encounter(state : RunState, tier : EncounterTier) -> EncounterId {
   let r = run_random(state)
-  match tier {
-    Easy =>
-      match r % 2 {
-        0 => SingleJawWorm
-        _ => TwoLouses
-      }
-    Normal =>
-      match r % 3 {
-        0 => SingleCultist
-        1 => FungiPair
-        _ => SlaverFight
-      }
-    Elite =>
-      match r % 3 {
-        0 => EliteSlaver
-        1 => SentryPair
-        _ => EliteNob
-      }
-    Boss =>
-      match r % 2 {
-        0 => BossGuardian
-        _ => BossHexaghost
-      }
+  let act = floor_act(state.floor)
+  if act == 1 {
+    match tier {
+      Easy =>
+        match r % 2 {
+          0 => SingleJawWorm
+          _ => TwoLouses
+        }
+      Normal =>
+        match r % 3 {
+          0 => SingleCultist
+          1 => FungiPair
+          _ => SlaverFight
+        }
+      Elite =>
+        match r % 3 {
+          0 => EliteSlaver
+          1 => SentryPair
+          _ => EliteNob
+        }
+      Boss =>
+        match r % 2 {
+          0 => BossGuardian
+          _ => BossHexaghost
+        }
+    }
+  } else {
+    // Act 2: harder encounters
+    match tier {
+      Easy =>
+        // Act 2 has no easy; shouldn't happen, fallback to normal
+        match r % 3 {
+          0 => SingleChosen
+          1 => SnakePlantFight
+          _ => ChosenSlaver
+        }
+      Normal =>
+        match r % 3 {
+          0 => SingleChosen
+          1 => SnakePlantFight
+          _ => ChosenSlaver
+        }
+      Elite =>
+        match r % 2 {
+          0 => Act2EliteBook
+          _ => Act2EliteSentryTrio
+        }
+      Boss => BossAutomaton
+    }
   }
 }
 

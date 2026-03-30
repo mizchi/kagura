@@ -414,6 +414,8 @@ fn encounter_difficulty(id : EncounterId) -> Double {
       SlaverRed => (13.0 + 13.0 + 8.0 + 0.0) / 4.0
       Sentry => (9.0 + 9.0 + 10.0) / 3.0
       GremlinNob => (0.0 + 14.0 + 6.0) / 3.0 // + enrage scaling
+      TheGuardian => (16.0 + 32.0 + 20.0 + 0.0 + 9.0) / 5.0
+      Hexaghost => (36.0 + 6.0 + 10.0 + 0.0 + 12.0) / 5.0
     }
     total_dpt += avg_dmg
   }
@@ -496,21 +498,55 @@ pub fn simulate_run(seed : Int, strategy : PlayStrategy) -> RunSimResult {
           None => break
         }
       CardReward => {
-        // Smart card pick: choose highest value card
+        // Smart card pick: consider deck synergy and size
         if run.card_rewards.length() > 0 {
+          let archetype = detect_archetype(run.deck)
           let mut best_idx = 0
           let mut best_val = 0.0
           let mut i = 0
           while i < run.card_rewards.length() {
-            let val = evaluate_card(run.card_rewards[i]).total
+            let card = run.card_rewards[i]
+            let base_val = evaluate_card(card).total
+            // Synergy bonus: cards that match current archetype
+            let synergy = match (archetype, card) {
+              // Strength archetype: bonus for multi-hit and STR cards
+              (Strength, Twin_Strike) => 5.0
+              (Strength, Sword_Boomerang) => 5.0
+              (Strength, Inflame) => 8.0
+              (Strength, Demon_Form) => 10.0
+              (Strength, Flex) => 3.0
+              // Block archetype: bonus for block-related cards
+              (Block, Barricade) => 10.0
+              (Block, Metallicize) => 8.0
+              (Block, Body_Slam) => 7.0
+              (Block, Impervious) => 6.0
+              (Block, Shrug_It_Off) => 3.0
+              // Exhaust archetype
+              (Exhaust, Feel_No_Pain) => 10.0
+              (Exhaust, True_Grit) => 5.0
+              (Exhaust, Offering) => 5.0
+              // Universal good cards
+              (_, Shockwave) => 4.0
+              (_, Bash) => 2.0
+              (_, Battle_Trance) => 3.0
+              _ => 0.0
+            }
+            let val = base_val + synergy
             if val > best_val {
               best_val = val
               best_idx = i
             }
             i += 1
           }
-          // Skip if deck is already large (>15) and card isn't amazing
-          if run.deck.length() > 15 && best_val < 15.0 {
+          // Skip thresholds based on deck size
+          let skip_threshold = if run.deck.length() > 18 {
+            20.0 // Very selective when deck is large
+          } else if run.deck.length() > 14 {
+            12.0
+          } else {
+            5.0 // Take almost anything early
+          }
+          if best_val < skip_threshold {
             pick_card_reward(run, -1) // skip
           } else {
             cards_added.push(run.card_rewards[best_idx])

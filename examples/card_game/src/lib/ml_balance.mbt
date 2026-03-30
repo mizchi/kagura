@@ -505,17 +505,21 @@ pub fn generate_balance_report(encounter : EncounterId) -> BalanceReport {
   let difficulty = encounter_difficulty(encounter)
   let tier_name = match encounter {
     SingleJawWorm | TwoLouses => "Easy"
-    SingleCultist | FungiPair => "Normal"
+    SingleCultist | FungiPair | SlaverFight => "Normal"
     EliteSlaver | SentryPair | EliteNob => "Elite"
+    BossGuardian | BossHexaghost => "Boss"
   }
   let enc_name = match encounter {
     SingleJawWorm => "JawWorm"
     TwoLouses => "TwoLouses"
     SingleCultist => "Cultist"
     FungiPair => "FungiPair"
+    SlaverFight => "Slaver"
     EliteSlaver => "RedSlaver"
     SentryPair => "SentryPair"
     EliteNob => "GremlinNob"
+    BossGuardian => "TheGuardian"
+    BossHexaghost => "Hexaghost"
   }
   {
     encounter: enc_name,

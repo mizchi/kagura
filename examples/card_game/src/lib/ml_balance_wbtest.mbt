@@ -168,7 +168,7 @@ test "ml: run balance - win rate sanity check" {
     " avg_deck=" +
     summary.avg_deck_size.to_string(),
     content=(
-      #|Run win_rate=100% avg_floors=8 avg_deck=15
+      #|Run win_rate=80% avg_floors=14 avg_deck=18
     ),
   )
   // Basic sanity: should complete at least some runs

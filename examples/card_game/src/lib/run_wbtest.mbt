@@ -137,14 +137,19 @@ test "hp persists across battles" {
 
 ///|
 test "floor progression through full run" {
-  // Floor 1: Easy, 2: Easy, 3: Normal, 4: Rest, 5: Normal, 6: Rest, 7: Elite
+  // Act 1: 15 floors
+  // 1-3: Easy, 4: Elite, 5: Rest, 6-8: Normal, 9: Rest,
+  // 10-11: Normal, 12: Rest, 13: Elite, 14: Rest, 15: Boss
   assert_eq(floor_type(1), Combat(Easy))
   assert_eq(floor_type(2), Combat(Easy))
-  assert_eq(floor_type(3), Combat(Normal))
-  assert_eq(floor_type(4), Rest)
-  assert_eq(floor_type(5), Combat(Normal))
-  assert_eq(floor_type(6), Rest)
-  assert_eq(floor_type(7), Combat(Elite))
+  assert_eq(floor_type(3), Combat(Easy))
+  assert_eq(floor_type(4), Combat(Elite))
+  assert_eq(floor_type(5), Rest)
+  assert_eq(floor_type(6), Combat(Normal))
+  assert_eq(floor_type(9), Rest)
+  assert_eq(floor_type(13), Combat(Elite))
+  assert_eq(floor_type(14), Rest)
+  assert_eq(floor_type(15), Boss)
 }
 
 ///|

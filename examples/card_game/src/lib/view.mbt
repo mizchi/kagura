@@ -830,8 +830,8 @@ fn view_floor_bar(run : RunState) -> @scene.SceneNode {
       Combat(Easy) => "E"
       Combat(Normal) => "N"
       Combat(Elite) => "!"
+      Combat(Boss) | Boss => "B"
       Rest => "R"
-      Boss => "B"
     }
     nodes.push(
       @scene.label(x=x + 1.0, y=3.0, content=label, scale=0.45, color=0x000000),

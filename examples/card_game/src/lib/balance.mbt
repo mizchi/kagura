@@ -142,22 +142,77 @@ fn pick_defensive(state : BattleState, target : Int) -> (Int, Int)? {
 }
 
 ///|
-fn pick_smart(state : BattleState, target : Int) -> (Int, Int)? {
-  // Check enemy intent to decide strategy
-  let enemy = state.enemies[target]
-  let enemy_attacking = match enemy.intent {
-    AttackIntent(_) | MultiAttack(_, _) => true
-    _ => false
+/// Calculate total incoming damage from all enemy intents
+fn calc_incoming_damage(state : BattleState) -> Int {
+  let mut total = 0
+  for enemy in state.enemies {
+    if not(enemy.fighter.is_dead()) {
+      match enemy.intent {
+        AttackIntent(base) => {
+          let dmg = calculate_attack_damage(base, enemy.fighter)
+          total += dmg
+        }
+        MultiAttack(base, times) => {
+          let dmg = calculate_attack_damage(base, enemy.fighter)
+          total += dmg * times
+        }
+        _ => ()
+      }
+    }
   }
-  // If enemy is attacking heavy and we have low block, defend
-  let need_defense = enemy_attacking && state.player.block < 5
+  total
+}
+
+///|
+/// Check if any alive enemy is Gremlin Nob
+fn has_nob(state : BattleState) -> Bool {
+  for enemy in state.enemies {
+    if enemy.id == GremlinNob && not(enemy.fighter.is_dead()) {
+      return true
+    }
+  }
+  false
+}
+
+///|
+/// Find the best target (lowest HP alive enemy for faster kills)
+fn best_target(state : BattleState) -> Int {
+  let mut best = -1
+  let mut lowest_hp = 9999
+  let mut i = 0
+  while i < state.enemies.length() {
+    if not(state.enemies[i].fighter.is_dead()) {
+      if state.enemies[i].fighter.hp < lowest_hp {
+        lowest_hp = state.enemies[i].fighter.hp
+        best = i
+      }
+    }
+    i += 1
+  }
+  best
+}
+
+///|
+fn pick_smart(state : BattleState, _default_target : Int) -> (Int, Int)? {
+  let target = best_target(state)
+  if target < 0 {
+    return None
+  }
+  let incoming = calc_incoming_damage(state)
+  let unblocked = incoming - state.player.block
+  // Need defense if incoming damage exceeds current block significantly
+  let need_defense = unblocked > 5
+  // Against Nob: avoid Skills and Powers (they trigger Enrage +2 STR)
+  let nob_present = has_nob(state)
   let mut best_idx = -1
   let mut best_value = -1
   let mut i = 0
   while i < state.hand.length() {
     let def = card_def(state.hand[i])
     if state.player.energy >= def.cost {
-      let value = card_smart_value(def, need_defense)
+      let value = card_smart_value(
+        def, need_defense, nob_present, unblocked, state,
+      )
       if value > best_value {
         best_value = value
         best_idx = i
@@ -166,15 +221,32 @@ fn pick_smart(state : BattleState, target : Int) -> (Int, Int)? {
     i += 1
   }
   if best_idx >= 0 {
-    Some((best_idx, target))
+    // For targeted cards, pick the best target
+    let card_id = state.hand[best_idx]
+    let actual_target = if card_needs_target(card_id) { target } else { 0 }
+    Some((best_idx, actual_target))
   } else {
     None
   }
 }
 
 ///|
-fn card_smart_value(def : CardDef, need_defense : Bool) -> Int {
-  // Energy generators always high priority
+fn card_smart_value(
+  def : CardDef,
+  need_defense : Bool,
+  nob_present : Bool,
+  unblocked_damage : Int,
+  state : BattleState,
+) -> Int {
+  // Against Nob: heavily penalize Skills and Powers (they trigger Enrage)
+  if nob_present && (def.card_type == Skill || def.card_type == Power) {
+    // Only play Skills if we're about to die and need block
+    if need_defense && unblocked_damage > 15 && def.base_block > 0 {
+      return def.base_block // Low value, but better than dying
+    }
+    return -100 // Don't play Skills/Powers against Nob
+  }
+  // Energy generators: high priority but not against Nob (they're Skills/Powers)
   match def.id {
     Offering => return 200
     Bloodletting => return 190
@@ -182,7 +254,7 @@ fn card_smart_value(def : CardDef, need_defense : Bool) -> Int {
     Seeing_Red => return 180
     _ => ()
   }
-  // Powers are high priority (permanent value)
+  // Powers: invest in scaling (very high priority in long fights)
   match def.id {
     Demon_Form => return 175
     Inflame => return 170
@@ -196,30 +268,69 @@ fn card_smart_value(def : CardDef, need_defense : Bool) -> Int {
     Shockwave => return 160
     _ => ()
   }
-  // Debuff attacks
+  // Debuff attacks: apply vulnerability/weakness early
   match def.id {
-    Bash => return 155
+    Bash =>
+      // Higher value if enemy isn't already vulnerable
+      return 155
     Uppercut => return 153
     Clothesline => return 150
     Disarm => return 148
     _ => ()
   }
-  // Impervious is amazing for defense
-  if def.id == Impervious && need_defense {
-    return 200
+  // Impervious: amazing when facing big damage
+  if def.id == Impervious {
+    if unblocked_damage > 15 {
+      return 250
+    }
+    if need_defense {
+      return 200
+    }
+    return 50 // Don't waste it when not needed
   }
   if need_defense {
+    // Prioritize blocking proportional to unblocked damage
     match def.card_type {
-      Skill => 100 + def.base_block * 3
-      Attack => if def.id == Iron_Wave { 120 } else { def.base_damage }
+      Skill => {
+        let block_value = def.base_block
+        if block_value > 0 {
+          // Value block cards more when incoming damage is high
+          let urgency = if unblocked_damage > 20 { 4 } else { 3 }
+          100 + block_value * urgency
+        } else {
+          20
+        }
+      }
+      Attack =>
+        if def.id == Iron_Wave {
+          120 // Both block and damage
+        } else {
+          // Still play attacks, but lower priority than blocking
+          50 + effective_damage(def)
+        }
       _ => 50
     }
   } else {
+    // Offensive mode: prioritize damage
     match def.card_type {
-      Attack => 100 + effective_damage(def)
+      Attack => {
+        let eff = effective_damage(def)
+        // Bonus for vulnerability exploiters (multi-hit)
+        let vuln_bonus = if state.enemies.length() > 0 {
+          let t = best_target(state)
+          if t >= 0 && state.enemies[t].fighter.status.vulnerable > 0 {
+            eff / 3 // 33% bonus damage from vuln is valuable
+          } else {
+            0
+          }
+        } else {
+          0
+        }
+        100 + eff + vuln_bonus
+      }
       Skill =>
         if def.id == Shrug_It_Off {
-          95
+          95 // Draw + block is always good
         } else if def.id == True_Grit {
           90
         } else if def.id == Flex {

@@ -13,9 +13,12 @@ fn main {
     (@lib.TwoLouses, "Two Louses", "Easy"),
     (@lib.SingleCultist, "Cultist", "Normal"),
     (@lib.FungiPair, "Fungi Pair", "Normal"),
-    (@lib.EliteSlaver, "Red Slaver", "Elite"),
+    (@lib.SlaverFight, "Red Slaver", "Normal"),
+    (@lib.EliteSlaver, "Elite Slaver", "Elite"),
     (@lib.SentryPair, "Sentry Pair", "Elite"),
     (@lib.EliteNob, "Gremlin Nob", "Elite"),
+    (@lib.BossGuardian, "The Guardian", "Boss"),
+    (@lib.BossHexaghost, "Hexaghost", "Boss"),
   ]
   let mut all_ok = true
   for entry in encounters {

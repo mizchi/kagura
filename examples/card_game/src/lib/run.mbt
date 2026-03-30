@@ -35,20 +35,37 @@ pub(all) struct RunState {
 } derive(Show)
 
 ///|
-let max_floor : Int = 7
+let max_floor : Int = 15
 
 ///|
-/// Floor layout for Act 1
-/// Easy → Easy → Normal → Rest → Normal → Rest → Elite
+/// Floor layout for Act 1 (15 floors, modeled after StS)
+/// Floor 1-3: Easy combats (build deck basics)
+/// Floor 4: Elite (first test, risky but rewarding)
+/// Floor 5: Rest site (recover from elite)
+/// Floor 6-8: Normal combats (harder encounters)
+/// Floor 9: Rest site
+/// Floor 10-11: Normal combats
+/// Floor 12: Rest site
+/// Floor 13: Elite (second elite, major test)
+/// Floor 14: Rest site (prep for boss)
+/// Floor 15: BOSS
 fn floor_type(floor : Int) -> FloorType {
   match floor {
     1 => Combat(Easy)
     2 => Combat(Easy)
-    3 => Combat(Normal)
-    4 => Rest
-    5 => Combat(Normal)
-    6 => Rest
-    7 => Combat(Elite)
+    3 => Combat(Easy)
+    4 => Combat(Elite)
+    5 => Rest
+    6 => Combat(Normal)
+    7 => Combat(Normal)
+    8 => Combat(Normal)
+    9 => Rest
+    10 => Combat(Normal)
+    11 => Combat(Normal)
+    12 => Rest
+    13 => Combat(Elite)
+    14 => Rest
+    15 => Boss
     _ => Combat(Easy)
   }
 }
@@ -116,15 +133,21 @@ fn pick_encounter(state : RunState, tier : EncounterTier) -> EncounterId {
         _ => TwoLouses
       }
     Normal =>
-      match r % 2 {
+      match r % 3 {
         0 => SingleCultist
-        _ => FungiPair
+        1 => FungiPair
+        _ => SlaverFight
       }
     Elite =>
       match r % 3 {
         0 => EliteSlaver
         1 => SentryPair
         _ => EliteNob
+      }
+    Boss =>
+      match r % 2 {
+        0 => BossGuardian
+        _ => BossHexaghost
       }
   }
 }

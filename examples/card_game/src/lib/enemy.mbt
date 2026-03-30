@@ -27,26 +27,22 @@ pub(all) enum EnemyId {
   // Normal encounters
   Cultist
   FungiBeast
-  // Elite encounters
   SlaverRed
+  // Elite encounters
   Sentry
   GremlinNob // Enrages when player plays Skills
-} derive(Show, Eq)
-
-///|
-/// Encounter difficulty tier
-pub(all) enum EncounterTier {
-  Easy
-  Normal
-  Elite
+  // Boss encounters
+  TheGuardian // 240 HP, Mode Shift mechanic
+  Hexaghost // 250 HP, multi-hit + scaling
 } derive(Show, Eq)
 
 ///|
 fn enemy_tier(id : EnemyId) -> EncounterTier {
   match id {
     GreenLouse | RedLouse | JawWorm => Easy
-    Cultist | FungiBeast => Normal
-    SlaverRed | Sentry | GremlinNob => Elite
+    Cultist | FungiBeast | SlaverRed => Normal
+    Sentry | GremlinNob => Elite
+    TheGuardian | Hexaghost => Boss
   }
 }
 
@@ -108,6 +104,25 @@ pub fn spawn_enemy(id : EnemyId) -> Enemy {
         // Nob: 85 HP, Bellow first turn (+2 STR), enrages on player Skills
         fighter: Fighter::new("Gremlin Nob", 85),
         intent: BuffIntent, // Bellow turn 1
+        pattern_index: 0,
+      }
+    TheGuardian =>
+      {
+        id,
+        // Guardian: 240 HP. Mode Shift at 30 DMG taken → defensive mode
+        // Offensive: Twin Slam(2x8), Fierce Bash(32), Whirlwind(5x4)
+        // Defensive: Charge Up (+9 block), Roll Attack(9)
+        fighter: Fighter::new("The Guardian", 240),
+        intent: AttackIntent(8), // Twin Slam first
+        pattern_index: 0,
+      }
+    Hexaghost =>
+      {
+        id,
+        // Hexaghost: 250 HP. Activate first turn, then escalating attacks
+        // Inferno(6×2 scaling), Sear(6), Tackle(5+5), Inflame(+2 STR)
+        fighter: Fighter::new("Hexaghost", 250),
+        intent: BuffIntent, // Activate: no damage turn 1
         pattern_index: 0,
       }
   }
@@ -174,6 +189,24 @@ fn next_intent(enemy : Enemy) -> Intent {
         0 => BuffIntent // Bellow: +2 STR
         1 => AttackIntent(14) // Rush
         _ => AttackIntent(6) // Skull Bash (+ Vuln 2)
+      }
+    "The Guardian" =>
+      // Offensive mode: Twin Slam, Fierce Bash, Whirlwind, then Charge Up
+      match idx % 5 {
+        0 => MultiAttack(8, 2) // Twin Slam (2×8)
+        1 => AttackIntent(32) // Fierce Bash
+        2 => MultiAttack(5, 4) // Whirlwind (4×5)
+        3 => DefendIntent(9) // Charge Up (enter defensive)
+        _ => AttackIntent(9) // Roll Attack (back to offensive)
+      }
+    "Hexaghost" =>
+      // Activate → Divider(6×6) → Sear(6) → Tackle(5+5) → Inflame → Inferno(6×2)
+      match idx % 5 {
+        0 => MultiAttack(6, 6) // Divider: 6 hits of (player HP/12+1)
+        1 => AttackIntent(6) // Sear: 6 damage + burn
+        2 => MultiAttack(5, 2) // Tackle: 5×2
+        3 => BuffIntent // Inflame: +2 STR
+        _ => MultiAttack(6, 2) // Inferno: 6×2 (scales with STR)
       }
     _ => AttackIntent(5)
   }
@@ -266,9 +299,12 @@ pub(all) enum EncounterId {
   TwoLouses // Easy: two small enemies
   SingleCultist // Normal: scaling threat
   FungiPair // Normal: two fungi beasts
-  EliteSlaver // Elite: heavy hitter
+  SlaverFight // Normal: Red Slaver
+  EliteSlaver // Elite: heavy hitter (same as SlaverFight but elite tier)
   SentryPair // Elite: two sentries
   EliteNob // Elite: punishes Skills
+  BossGuardian // Boss: The Guardian (240 HP)
+  BossHexaghost // Boss: Hexaghost (250 HP)
 } derive(Show, Eq)
 
 ///|
@@ -278,17 +314,29 @@ pub fn encounter_enemies(id : EncounterId) -> Array[EnemyId] {
     TwoLouses => [GreenLouse, RedLouse]
     SingleCultist => [Cultist]
     FungiPair => [FungiBeast, FungiBeast]
+    SlaverFight => [SlaverRed]
     EliteSlaver => [SlaverRed]
     SentryPair => [Sentry, Sentry]
     EliteNob => [GremlinNob]
+    BossGuardian => [TheGuardian]
+    BossHexaghost => [Hexaghost]
   }
 }
+
+///|
+pub(all) enum EncounterTier {
+  Easy
+  Normal
+  Elite
+  Boss
+} derive(Show, Eq)
 
 ///|
 fn encounter_tier(id : EncounterId) -> EncounterTier {
   match id {
     SingleJawWorm | TwoLouses => Easy
-    SingleCultist | FungiPair => Normal
+    SingleCultist | FungiPair | SlaverFight => Normal
     EliteSlaver | SentryPair | EliteNob => Elite
+    BossGuardian | BossHexaghost => Boss
   }
 }

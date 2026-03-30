@@ -99,7 +99,7 @@ test "balance: red slaver elite encounter (smart)" {
     "%) avg_hp=" +
     summary.avg_hp_remaining.to_string(),
     content=(
-      #|RedSlaver: wins=50/50 (100%) avg_hp=64
+      #|RedSlaver: wins=50/50 (100%) avg_hp=61
     ),
   )
   assert_true(win_pct >= 30) // Elite: >= 30%
@@ -119,7 +119,7 @@ test "balance: sentry pair elite encounter (smart)" {
     "%) avg_hp=" +
     summary.avg_hp_remaining.to_string(),
     content=(
-      #|SentryPair: wins=50/50 (100%) avg_hp=16
+      #|SentryPair: wins=46/50 (92%) avg_hp=13
     ),
   )
   assert_true(win_pct >= 20) // Elite: tough

@@ -45,9 +45,10 @@ let max_floor : Int = 15
 /// Floor 5: Rest site (recover from elite)
 /// Floor 6-8: Normal combats (harder encounters)
 /// Floor 9: Rest site
-/// Floor 10-11: Normal combats
+/// Floor 10: Normal combat
+/// Floor 11: Elite (mid-Act pressure point)
 /// Floor 12: Rest site
-/// Floor 13: Elite (second elite, major test)
+/// Floor 13: Normal combat (pre-boss breather)
 /// Floor 14: Rest site (prep for boss)
 /// Floor 15: BOSS
 fn floor_type(floor : Int) -> FloorType {
@@ -62,9 +63,9 @@ fn floor_type(floor : Int) -> FloorType {
     8 => Combat(Normal)
     9 => Rest
     10 => Combat(Normal)
-    11 => Combat(Normal)
+    11 => Combat(Elite)
     12 => Rest
-    13 => Combat(Elite)
+    13 => Combat(Normal)
     14 => Rest
     15 => Boss
     _ => Combat(Easy)

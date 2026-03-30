@@ -87,41 +87,41 @@ pub fn spawn_enemy(id : EnemyId) -> Enemy {
     SlaverRed =>
       {
         id,
-        fighter: Fighter::new("Red Slaver", 46),
-        intent: AttackIntent(13), // Stab: 13 in StS
+        fighter: Fighter::new("Red Slaver", 50),
+        intent: AttackIntent(14), // Stab: 14
         pattern_index: 0,
       }
     Sentry =>
       {
         id,
-        fighter: Fighter::new("Sentry", 39),
-        intent: AttackIntent(9), // Bolt: 9 in StS
+        fighter: Fighter::new("Sentry", 42),
+        intent: AttackIntent(9), // Bolt: 9
         pattern_index: 0,
       }
     GremlinNob =>
       {
         id,
-        // Nob: 85 HP, Bellow first turn (+2 STR), enrages on player Skills
-        fighter: Fighter::new("Gremlin Nob", 85),
+        // Nob: 90 HP, Bellow first turn (+2 STR), enrages on player Skills
+        fighter: Fighter::new("Gremlin Nob", 90),
         intent: BuffIntent, // Bellow turn 1
         pattern_index: 0,
       }
     TheGuardian =>
       {
         id,
-        // Guardian: 240 HP. Mode Shift at 30 DMG taken → defensive mode
-        // Offensive: Twin Slam(2x8), Fierce Bash(32), Whirlwind(5x4)
+        // Guardian: 180 HP. Mode Shift at 30 DMG taken → defensive mode
+        // Offensive: Twin Slam(2x8), Fierce Bash(28), Whirlwind(5x4)
         // Defensive: Charge Up (+9 block), Roll Attack(9)
-        fighter: Fighter::new("The Guardian", 240),
+        fighter: Fighter::new("The Guardian", 180),
         intent: AttackIntent(8), // Twin Slam first
         pattern_index: 0,
       }
     Hexaghost =>
       {
         id,
-        // Hexaghost: 250 HP. Activate first turn, then escalating attacks
+        // Hexaghost: 190 HP. Activate first turn, then escalating attacks
         // Inferno(6×2 scaling), Sear(6), Tackle(5+5), Inflame(+2 STR)
-        fighter: Fighter::new("Hexaghost", 250),
+        fighter: Fighter::new("Hexaghost", 190),
         intent: BuffIntent, // Activate: no damage turn 1
         pattern_index: 0,
       }
@@ -169,11 +169,11 @@ fn next_intent(enemy : Enemy) -> Intent {
         _ => DebuffIntent // Apply Vulnerable 2
       }
     "Red Slaver" =>
-      // Stab(13), Stab(13), Scrape(8 + Weak 1), Entangle(debuff)
+      // Stab(14), Stab(14), Scrape(9 + Weak 1), Entangle(debuff)
       match idx % 4 {
-        0 => AttackIntent(13)
-        1 => AttackIntent(13)
-        2 => AttackIntent(8)
+        0 => AttackIntent(14)
+        1 => AttackIntent(14)
+        2 => AttackIntent(9)
         _ => DebuffIntent
       }
     "Sentry" =>
@@ -181,7 +181,7 @@ fn next_intent(enemy : Enemy) -> Intent {
       match idx % 3 {
         0 => AttackIntent(9)
         1 => AttackIntent(9)
-        _ => MultiAttack(5, 2) // Beam: lower damage, multiple hits
+        _ => MultiAttack(5, 2) // Beam: multiple hits
       }
     "Gremlin Nob" =>
       // Bellow(+2 STR), then Rush(14) / Skull Bash(6 + Vuln 2)
@@ -194,7 +194,7 @@ fn next_intent(enemy : Enemy) -> Intent {
       // Offensive mode: Twin Slam, Fierce Bash, Whirlwind, then Charge Up
       match idx % 5 {
         0 => MultiAttack(8, 2) // Twin Slam (2×8)
-        1 => AttackIntent(32) // Fierce Bash
+        1 => AttackIntent(28) // Fierce Bash
         2 => MultiAttack(5, 4) // Whirlwind (4×5)
         3 => DefendIntent(9) // Charge Up (enter defensive)
         _ => AttackIntent(9) // Roll Attack (back to offensive)

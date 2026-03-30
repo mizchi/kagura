@@ -29,6 +29,7 @@ pub(all) enum EnemyId {
   // Elite encounters
   SlaverRed
   Sentry
+  GremlinNob // Enrages when player plays Skills
 } derive(Show, Eq)
 
 ///|
@@ -44,7 +45,7 @@ fn enemy_tier(id : EnemyId) -> EncounterTier {
   match id {
     GreenLouse | RedLouse | JawWorm => Easy
     Cultist | FungiBeast => Normal
-    SlaverRed | Sentry => Elite
+    SlaverRed | Sentry | GremlinNob => Elite
   }
 }
 
@@ -53,44 +54,51 @@ fn spawn_enemy(id : EnemyId) -> Enemy {
   match id {
     GreenLouse =>
       {
-        fighter: Fighter::new("Green Louse", 18),
-        intent: DefendIntent(5), // Curl Up first
+        fighter: Fighter::new("Green Louse", 14),
+        intent: DefendIntent(4), // Curl Up first (3-7 in StS)
         pattern_index: 0,
       }
     RedLouse =>
       {
-        fighter: Fighter::new("Red Louse", 20),
-        intent: AttackIntent(10),
+        fighter: Fighter::new("Red Louse", 13),
+        intent: AttackIntent(6), // Bite 5-7 in StS
         pattern_index: 0,
       }
     JawWorm =>
       {
-        fighter: Fighter::new("Jaw Worm", 48),
-        intent: AttackIntent(14),
+        fighter: Fighter::new("Jaw Worm", 42),
+        intent: AttackIntent(11), // Chomp: 11-12 in StS
         pattern_index: 0,
       }
     Cultist =>
       {
-        fighter: Fighter::new("Cultist", 85),
-        intent: BuffIntent,
+        fighter: Fighter::new("Cultist", 50),
+        intent: BuffIntent, // Incantation: +3 Ritual (STR/turn!)
         pattern_index: 0,
       }
     FungiBeast =>
       {
-        fighter: Fighter::new("Fungi Beast", 46),
-        intent: AttackIntent(10),
+        fighter: Fighter::new("Fungi Beast", 24),
+        intent: AttackIntent(6), // Bite: 6 in StS
         pattern_index: 0,
       }
     SlaverRed =>
       {
-        fighter: Fighter::new("Red Slaver", 96),
-        intent: AttackIntent(20),
+        fighter: Fighter::new("Red Slaver", 46),
+        intent: AttackIntent(13), // Stab: 13 in StS
         pattern_index: 0,
       }
     Sentry =>
       {
-        fighter: Fighter::new("Sentry", 40),
-        intent: AttackIntent(11),
+        fighter: Fighter::new("Sentry", 39),
+        intent: AttackIntent(9), // Bolt: 9 in StS
+        pattern_index: 0,
+      }
+    GremlinNob =>
+      {
+        // Nob: 85 HP, Bellow first turn (+2 STR), enrages on player Skills
+        fighter: Fighter::new("Gremlin Nob", 85),
+        intent: BuffIntent, // Bellow turn 1
         pattern_index: 0,
       }
   }
@@ -102,53 +110,61 @@ fn next_intent(enemy : Enemy) -> Intent {
   let idx = enemy.pattern_index
   match enemy.fighter.name {
     "Green Louse" =>
-      // Curl Up, then bite repeatedly
+      // Curl Up first, then alternate bite and bite
       match idx % 3 {
-        0 => DefendIntent(5)
-        _ => AttackIntent(8)
+        0 => DefendIntent(4) // Curl Up (3-7 block)
+        _ => AttackIntent(6) // Bite (5-7)
       }
     "Red Louse" =>
-      // Attack, attack, grow (buff)
+      // Bite, Bite, Grow (+3 STR)
       match idx % 3 {
-        0 => AttackIntent(10)
-        1 => AttackIntent(10)
-        _ => BuffIntent
+        0 => AttackIntent(6)
+        1 => AttackIntent(6)
+        _ => BuffIntent // Grow: +3 STR
       }
     "Jaw Worm" =>
-      // Chomp(14), Bellow(block 7 + STR), Thrash(10)
+      // Chomp(11), Bellow(block 6 + STR 3), Thrash(7)
       match idx % 3 {
-        0 => AttackIntent(14)
-        1 => DefendIntent(7)
-        _ => AttackIntent(10)
+        0 => AttackIntent(11) // Chomp
+        1 => DefendIntent(6) // Bellow (also +3 STR)
+        _ => AttackIntent(7) // Thrash
       }
     "Cultist" =>
-      // Incantation(buff), Dark Strike x2, repeat
-      match idx % 3 {
-        0 => BuffIntent
-        _ => AttackIntent(9)
+      // Incantation(+3 Ritual/STR), Dark Strike(6), repeat
+      // Key: Ritual stacks — each Incantation adds +3 STR permanently
+      match idx % 2 {
+        0 => BuffIntent // Incantation: +3 Ritual (STR)
+        _ => AttackIntent(6) // Dark Strike
       }
     "Fungi Beast" =>
-      // Bite(10), Grow(buff), Bite(10), Debuff(vuln)
+      // Bite(6), Grow(+3 STR), Bite(6), Debuff(vuln 2)
       match idx % 4 {
-        0 => AttackIntent(10)
-        1 => BuffIntent
-        2 => AttackIntent(10)
-        _ => DebuffIntent
+        0 => AttackIntent(6)
+        1 => BuffIntent // Grow: +3 STR
+        2 => AttackIntent(6)
+        _ => DebuffIntent // Apply Vulnerable 2
       }
     "Red Slaver" =>
-      // Stab(20), Stab(20), Scrape(14+weak), Entangle(debuff)
+      // Stab(13), Stab(13), Scrape(8 + Weak 1), Entangle(debuff)
       match idx % 4 {
-        0 => AttackIntent(20)
-        1 => AttackIntent(20)
-        2 => AttackIntent(14)
+        0 => AttackIntent(13)
+        1 => AttackIntent(13)
+        2 => AttackIntent(8)
         _ => DebuffIntent
       }
     "Sentry" =>
-      // Beam(11), Beam(11), Bolt(7x2)
+      // Bolt(9), Bolt(9), Beam(attack + Daze status)
       match idx % 3 {
-        0 => AttackIntent(11)
-        1 => AttackIntent(11)
-        _ => MultiAttack(7, 2)
+        0 => AttackIntent(9)
+        1 => AttackIntent(9)
+        _ => MultiAttack(5, 2) // Beam: lower damage, multiple hits
+      }
+    "Gremlin Nob" =>
+      // Bellow(+2 STR), then Rush(14) / Skull Bash(6 + Vuln 2)
+      match idx % 3 {
+        0 => BuffIntent // Bellow: +2 STR
+        1 => AttackIntent(14) // Rush
+        _ => AttackIntent(6) // Skull Bash (+ Vuln 2)
       }
     _ => AttackIntent(5)
   }
@@ -165,20 +181,28 @@ fn execute_enemy_intent(enemy : Enemy, player : Fighter) -> Array[String] {
       logs.push(
         enemy.fighter.name + " attacks for " + actual.to_string() + " damage!",
       )
+      // Nob's Skull Bash (6 dmg base) applies Vulnerable 2
+      if enemy.fighter.name == "Gremlin Nob" && base_damage == 6 {
+        player.status.vulnerable += 2
+        logs.push("Skull Bash! Vulnerable 2!")
+      }
     }
     DefendIntent(amount) => {
       add_block(enemy.fighter, amount)
       logs.push(enemy.fighter.name + " gains " + amount.to_string() + " Block.")
-      // Jaw Worm Bellow also buffs strength
+      // Jaw Worm Bellow also buffs strength (+3 in StS)
       if enemy.fighter.name == "Jaw Worm" {
-        enemy.fighter.status.strength += 2
-        logs.push(enemy.fighter.name + " gains 2 Strength!")
+        enemy.fighter.status.strength += 3
+        logs.push(enemy.fighter.name + " gains 3 Strength!")
       }
     }
     BuffIntent => {
       let str_amount = match enemy.fighter.name {
-        "Cultist" => 5
-        _ => 3
+        "Cultist" => 3 // Ritual: +3 STR (stacks each cycle!)
+        "Red Louse" => 3 // Grow: +3 STR
+        "Fungi Beast" => 3 // Grow: +3 STR
+        "Gremlin Nob" => 2 // Bellow: +2 STR
+        _ => 2
       }
       enemy.fighter.status.strength += str_amount
       logs.push(
@@ -210,9 +234,9 @@ fn execute_enemy_intent(enemy : Enemy, player : Fighter) -> Array[String] {
           logs.push(enemy.fighter.name + " applies Vulnerable 2!")
         }
         "Red Slaver" => {
-          player.status.weak += 2
+          player.status.weak += 1
           player.status.vulnerable += 1
-          logs.push(enemy.fighter.name + " entangles! Weak 2, Vulnerable 1.")
+          logs.push(enemy.fighter.name + " entangles! Weak 1, Vulnerable 1.")
         }
         _ => {
           player.status.weak += 1
@@ -235,6 +259,7 @@ pub(all) enum EncounterId {
   FungiPair // Normal: two fungi beasts
   EliteSlaver // Elite: heavy hitter
   SentryPair // Elite: two sentries
+  EliteNob // Elite: punishes Skills
 } derive(Show, Eq)
 
 ///|
@@ -246,6 +271,7 @@ fn encounter_enemies(id : EncounterId) -> Array[EnemyId] {
     FungiPair => [FungiBeast, FungiBeast]
     EliteSlaver => [SlaverRed]
     SentryPair => [Sentry, Sentry]
+    EliteNob => [GremlinNob]
   }
 }
 
@@ -254,6 +280,6 @@ fn encounter_tier(id : EncounterId) -> EncounterTier {
   match id {
     SingleJawWorm | TwoLouses => Easy
     SingleCultist | FungiPair => Normal
-    EliteSlaver | SentryPair => Elite
+    EliteSlaver | SentryPair | EliteNob => Elite
   }
 }

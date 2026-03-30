@@ -213,10 +213,10 @@ test "balance: DPE analysis for all attack cards" {
 ///|
 test "green louse follows curl up pattern" {
   let enemy = spawn_enemy(GreenLouse)
-  assert_true(enemy.intent == DefendIntent(5))
+  assert_true(enemy.intent == DefendIntent(4))
   let player = Fighter::new("Test", 100)
   let _ = execute_enemy_intent(enemy, player)
-  assert_true(enemy.intent == AttackIntent(8))
+  assert_true(enemy.intent == AttackIntent(6))
 }
 
 ///|
@@ -224,9 +224,9 @@ test "fungi beast applies vulnerable on debuff turn" {
   let enemy = spawn_enemy(FungiBeast)
   let player = Fighter::new("Test", 100)
   // Advance to debuff turn (index 3)
-  let _ = execute_enemy_intent(enemy, player) // 0: attack(10)
+  let _ = execute_enemy_intent(enemy, player) // 0: attack(6)
   let _ = execute_enemy_intent(enemy, player) // 1: buff(+3 STR)
-  let _ = execute_enemy_intent(enemy, player) // 2: attack(10)
+  let _ = execute_enemy_intent(enemy, player) // 2: attack(6)
   let _ = execute_enemy_intent(enemy, player) // 3: debuff
   assert_true(player.status.vulnerable > 0)
 }
@@ -236,9 +236,9 @@ test "red slaver debuff applies weak and vulnerable" {
   let enemy = spawn_enemy(SlaverRed)
   let player = Fighter::new("Test", 100)
   // Advance to debuff turn (index 3)
-  let _ = execute_enemy_intent(enemy, player) // 0: attack 20
-  let _ = execute_enemy_intent(enemy, player) // 1: attack 20
-  let _ = execute_enemy_intent(enemy, player) // 2: attack 14
+  let _ = execute_enemy_intent(enemy, player) // 0: attack 13
+  let _ = execute_enemy_intent(enemy, player) // 1: attack 13
+  let _ = execute_enemy_intent(enemy, player) // 2: attack 8
   let _ = execute_enemy_intent(enemy, player) // 3: debuff
   assert_true(player.status.weak > 0)
   assert_true(player.status.vulnerable > 0)
@@ -248,20 +248,49 @@ test "red slaver debuff applies weak and vulnerable" {
 test "jaw worm bellow gives block and strength" {
   let enemy = spawn_enemy(JawWorm)
   let player = Fighter::new("Test", 100)
-  let _ = execute_enemy_intent(enemy, player) // 0: attack(14)
-  // Next intent should be DefendIntent(7)
-  assert_true(enemy.intent == DefendIntent(7))
+  let _ = execute_enemy_intent(enemy, player) // 0: attack(11)
+  // Next intent should be DefendIntent(6)
+  assert_true(enemy.intent == DefendIntent(6))
   let _ = execute_enemy_intent(enemy, player) // 1: bellow (block + STR)
-  assert_eq(enemy.fighter.block, 7)
-  assert_eq(enemy.fighter.status.strength, 2)
+  assert_eq(enemy.fighter.block, 6)
+  assert_eq(enemy.fighter.status.strength, 3)
 }
 
 ///|
-test "cultist buff gives 5 strength" {
+test "cultist ritual gives 3 strength (stacks each cycle)" {
   let enemy = spawn_enemy(Cultist)
   let player = Fighter::new("Test", 100)
-  let _ = execute_enemy_intent(enemy, player) // buff
-  assert_eq(enemy.fighter.status.strength, 5)
+  let _ = execute_enemy_intent(enemy, player) // buff: +3 STR
+  assert_eq(enemy.fighter.status.strength, 3)
+  let _ = execute_enemy_intent(enemy, player) // attack(6)
+  let _ = execute_enemy_intent(enemy, player) // buff again: +3 STR
+  assert_eq(enemy.fighter.status.strength, 6) // stacks!
+}
+
+///|
+test "nob enrages when player plays skill" {
+  let state = BattleState::new([GremlinNob])
+  // Play a Defend (Skill) — should trigger Nob's enrage
+  let initial_str = state.enemies[0].fighter.status.strength
+  let _ = play_card(state, 0, 0) // play first card in hand
+  // Depending on what card is drawn, Nob may or may not enrage
+  // But let's directly test: play Defend from hand
+  state.hand.clear()
+  state.hand.push(Defend)
+  let _ = play_card(state, 0, 0)
+  // Nob should have gained +2 STR from enrage
+  assert_true(state.enemies[0].fighter.status.strength >= initial_str + 2)
+}
+
+///|
+test "nob does not enrage on attack cards" {
+  let state = BattleState::new([GremlinNob])
+  state.hand.clear()
+  state.hand.push(Strike)
+  state.player.energy = 3
+  let str_before = state.enemies[0].fighter.status.strength
+  let _ = play_card(state, 0, 0)
+  assert_eq(state.enemies[0].fighter.status.strength, str_before)
 }
 
 ///|

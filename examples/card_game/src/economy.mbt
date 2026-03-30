@@ -406,13 +406,14 @@ fn encounter_difficulty(id : EncounterId) -> Double {
     total_hp += e.fighter.hp.to_double()
     // Estimate average damage per turn from intent pattern
     let avg_dmg = match eid {
-      JawWorm => (14.0 + 0.0 + 10.0) / 3.0 // chomp, bellow, thrash
-      GreenLouse => (0.0 + 8.0 + 8.0) / 3.0
-      RedLouse => (10.0 + 10.0 + 0.0) / 3.0
-      Cultist => (0.0 + 9.0 + 9.0) / 3.0 // + scaling STR
-      FungiBeast => (10.0 + 0.0 + 10.0 + 0.0) / 4.0
-      SlaverRed => (20.0 + 20.0 + 14.0 + 0.0) / 4.0
-      Sentry => (11.0 + 11.0 + 14.0) / 3.0 // beam, beam, bolt 7×2
+      JawWorm => (11.0 + 0.0 + 7.0) / 3.0 // chomp, bellow, thrash
+      GreenLouse => (0.0 + 6.0 + 6.0) / 3.0
+      RedLouse => (6.0 + 6.0 + 0.0) / 3.0
+      Cultist => (0.0 + 6.0) / 2.0 // + scaling STR makes this much worse
+      FungiBeast => (6.0 + 0.0 + 6.0 + 0.0) / 4.0
+      SlaverRed => (13.0 + 13.0 + 8.0 + 0.0) / 4.0
+      Sentry => (9.0 + 9.0 + 10.0) / 3.0
+      GremlinNob => (0.0 + 14.0 + 6.0) / 3.0 // + enrage scaling
     }
     total_dpt += avg_dmg
   }

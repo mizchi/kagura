@@ -246,11 +246,11 @@ test "defeat when player hp reaches zero" {
 ///|
 test "jaw worm follows attack pattern" {
   let enemy = spawn_enemy(JawWorm)
-  assert_true(enemy.intent == AttackIntent(14))
+  assert_true(enemy.intent == AttackIntent(11))
   let player = Fighter::new("Test", 100)
   let _ = execute_enemy_intent(enemy, player)
-  // Bellow: DefendIntent(7) + gains 2 STR
-  assert_true(enemy.intent == DefendIntent(7))
+  // Bellow: DefendIntent(6) + gains 3 STR
+  assert_true(enemy.intent == DefendIntent(6))
 }
 
 ///|
@@ -259,8 +259,8 @@ test "cultist starts with buff" {
   assert_true(enemy.intent == BuffIntent)
   let player = Fighter::new("Test", 100)
   let _ = execute_enemy_intent(enemy, player)
-  // Cultist incantation gives +5 Strength
-  assert_eq(enemy.fighter.status.strength, 5)
+  // Cultist incantation gives +3 Strength (Ritual)
+  assert_eq(enemy.fighter.status.strength, 3)
 }
 
 ///|

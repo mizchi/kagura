@@ -220,6 +220,10 @@ fn play_card(
   let removed = remove_at(state.hand, hand_index)
   // Execute card effect
   execute_card(state, removed, target_index)
+  // Nob's Enrage: gains +2 STR whenever player plays a Skill
+  if def.card_type == Skill || def.card_type == Power {
+    trigger_nob_enrage(state)
+  }
   // Exhaust or discard
   if def.exhaust {
     state.exhaust_pile.push(removed)
@@ -594,6 +598,17 @@ fn execute_card(
     Feel_No_Pain => {
       state.powers.feel_no_pain += 3
       state.logs.push("Feel No Pain: gain 3 Block on Exhaust!")
+    }
+  }
+}
+
+///|
+/// Trigger Nob's Enrage: +2 STR when player plays a Skill
+fn trigger_nob_enrage(state : BattleState) -> Unit {
+  for enemy in state.enemies {
+    if enemy.fighter.name == "Gremlin Nob" && not(enemy.fighter.is_dead()) {
+      enemy.fighter.status.strength += 2
+      state.logs.push("Nob Enrages! +2 Strength!")
     }
   }
 }

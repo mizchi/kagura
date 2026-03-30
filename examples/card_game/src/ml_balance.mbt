@@ -366,7 +366,7 @@ fn generate_balance_report(encounter : EncounterId) -> BalanceReport {
   let tier_name = match encounter {
     SingleJawWorm | TwoLouses => "Easy"
     SingleCultist | FungiPair => "Normal"
-    EliteSlaver | SentryPair => "Elite"
+    EliteSlaver | SentryPair | EliteNob => "Elite"
   }
   let enc_name = match encounter {
     SingleJawWorm => "JawWorm"
@@ -375,6 +375,7 @@ fn generate_balance_report(encounter : EncounterId) -> BalanceReport {
     FungiPair => "FungiPair"
     EliteSlaver => "RedSlaver"
     SentryPair => "SentryPair"
+    EliteNob => "GremlinNob"
   }
   {
     encounter: enc_name,

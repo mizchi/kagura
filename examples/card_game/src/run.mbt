@@ -121,9 +121,10 @@ fn pick_encounter(state : RunState, tier : EncounterTier) -> EncounterId {
         _ => FungiPair
       }
     Elite =>
-      match r % 2 {
+      match r % 3 {
         0 => EliteSlaver
-        _ => SentryPair
+        1 => SentryPair
+        _ => EliteNob
       }
   }
 }

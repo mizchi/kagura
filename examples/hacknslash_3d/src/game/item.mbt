@@ -13,7 +13,13 @@ pub(all) struct TagBonus {
 
 ///|
 pub fn TagBonus::zero() -> TagBonus {
-  { damage_pct: 0.0, cooldown_reduction: 0.0, extra_targets: 0, aoe_radius_pct: 0.0, crit_bonus: 0.0 }
+  {
+    damage_pct: 0.0,
+    cooldown_reduction: 0.0,
+    extra_targets: 0,
+    aoe_radius_pct: 0.0,
+    crit_bonus: 0.0,
+  }
 }
 
 ///|
@@ -232,24 +238,56 @@ pub fn ItemData::archetype_fit_score(
   let cdr = self.total_cooldown_reduction()
   match archetype {
     Melee =>
-      atk * 1.2 + def * 0.8 + hp * 0.35 + str_bonus * 4.0 +
-      dex_bonus * 0.75 + int_bonus * 0.2 + str_scaling * 90.0 +
-      dex_scaling * 20.0 + crit * 40.0 + ls * 55.0 + spd * 25.0 +
+      atk * 1.2 +
+      def * 0.8 +
+      hp * 0.35 +
+      str_bonus * 4.0 +
+      dex_bonus * 0.75 +
+      int_bonus * 0.2 +
+      str_scaling * 90.0 +
+      dex_scaling * 20.0 +
+      crit * 40.0 +
+      ls * 55.0 +
+      spd * 25.0 +
       cdr * 20.0
     Mage =>
-      atk * 0.75 + def * 0.35 + hp * 0.2 + int_bonus * 4.0 +
-      dex_bonus * 0.6 + str_bonus * 0.2 + int_scaling * 95.0 +
-      dex_scaling * 18.0 + crit * 25.0 + ls * 10.0 + spd * 30.0 +
+      atk * 0.75 +
+      def * 0.35 +
+      hp * 0.2 +
+      int_bonus * 4.0 +
+      dex_bonus * 0.6 +
+      str_bonus * 0.2 +
+      int_scaling * 95.0 +
+      dex_scaling * 18.0 +
+      crit * 25.0 +
+      ls * 10.0 +
+      spd * 30.0 +
       cdr * 85.0
     Summoner =>
-      atk * 0.9 + def * 0.45 + hp * 0.25 + int_bonus * 2.75 +
-      dex_bonus * 2.5 + str_bonus * 0.25 + int_scaling * 70.0 +
-      dex_scaling * 70.0 + crit * 45.0 + ls * 15.0 + spd * 40.0 +
+      atk * 0.9 +
+      def * 0.45 +
+      hp * 0.25 +
+      int_bonus * 2.75 +
+      dex_bonus * 2.5 +
+      str_bonus * 0.25 +
+      int_scaling * 70.0 +
+      dex_scaling * 70.0 +
+      crit * 45.0 +
+      ls * 15.0 +
+      spd * 40.0 +
       cdr * 65.0
     Ranger =>
-      atk * 1.0 + def * 0.4 + hp * 0.2 + dex_bonus * 4.0 +
-      int_bonus * 0.5 + str_bonus * 0.2 + dex_scaling * 95.0 +
-      int_scaling * 15.0 + crit * 90.0 + ls * 20.0 + spd * 55.0 +
+      atk * 1.0 +
+      def * 0.4 +
+      hp * 0.2 +
+      dex_bonus * 4.0 +
+      int_bonus * 0.5 +
+      str_bonus * 0.2 +
+      dex_scaling * 95.0 +
+      int_scaling * 15.0 +
+      crit * 90.0 +
+      ls * 20.0 +
+      spd * 55.0 +
       cdr * 35.0
   }
 }
@@ -559,4 +597,3 @@ pub fn Equipment::total_spell_damage_pct(self : Equipment) -> Double {
 pub fn Equipment::total_chain_bonus(self : Equipment) -> Int {
   equipment_sum(self, ItemData::total_chain_bonus)
 }
-

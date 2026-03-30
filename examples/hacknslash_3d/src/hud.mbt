@@ -591,7 +591,7 @@ fn GameState::render_character_select_cmds(
         nodes.push(
           @scene.label(
             x=sw / 2.0,
-            y=y,
+            y~,
             content=prefix + archetype.display_name(),
             scale=1.5,
             color=name_color,

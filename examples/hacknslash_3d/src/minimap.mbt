@@ -1,3 +1,4 @@
+///|
 fn minimap_layout(
   ctx : @hud.HudContext,
 ) -> (Double, Double, Double, Double, Int) {
@@ -233,13 +234,7 @@ fn GameState::render_hud_cmds(
     }
     None => {
       let hud_node = self.render_hud_scene_fallback_dynamic(alive_count)
-      let scene_cmds = @scene.render_scene(
-        hud_node,
-        dst,
-        shader,
-        sw,
-        sh,
-      )
+      let scene_cmds = @scene.render_scene(hud_node, dst, shader, sw, sh)
       for cmd in scene_cmds {
         cmds.push(cmd)
       }
@@ -289,21 +284,21 @@ fn GameState::render_hud_cmds(
   }
   // Pause indicator
   if self.paused {
-    ctx.draw_text_centered(cmds, "PAUSED", 24.0, sw / 2.0, sh / 2.0 - 20.0, 0xFFFFFF)
+    ctx.draw_text_centered(
+      cmds,
+      "PAUSED",
+      24.0,
+      sw / 2.0,
+      sh / 2.0 - 20.0,
+      0xFFFFFF,
+    )
   }
   // Auto-play indicator at top-left
   if self.world.auto_play {
     ctx.draw_text(cmds, "AUTO", 10.0, 8.0, 38.0, 0x00FFAA)
   }
   if self.audio_muted {
-    ctx.draw_text(
-      cmds,
-      "MUTE",
-      12.0,
-      sw - 56.0,
-      sh - 10.0,
-      0xFF8899,
-    )
+    ctx.draw_text(cmds, "MUTE", 12.0, sw - 56.0, sh - 10.0, 0xFF8899)
   }
   self.draw_damage_popups(ctx, cmds)
   self.draw_item_drop_labels(ctx, cmds)

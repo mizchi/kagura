@@ -17,25 +17,115 @@ pub(all) struct EnemyTypeConfig {
 pub fn enemy_type_configs() -> Array[EnemyTypeConfig] {
   [
     // Basic: standard melee grunt
-    { kind: Basic, hp_param: 1.0, speed_param: 1.0, size: 10.0, spawn_weight: 5, xp_reward: 1, drop_chance: 40, drop_count_max: 1 },
+    {
+      kind: Basic,
+      hp_param: 1.0,
+      speed_param: 1.0,
+      size: 10.0,
+      spawn_weight: 5,
+      xp_reward: 1,
+      drop_chance: 40,
+      drop_count_max: 1,
+    },
     // Fast: quick and fragile
-    { kind: Fast, hp_param: 0.67, speed_param: 1.5, size: 8.0, spawn_weight: 3, xp_reward: 1, drop_chance: 40, drop_count_max: 1 },
+    {
+      kind: Fast,
+      hp_param: 0.67,
+      speed_param: 1.5,
+      size: 8.0,
+      spawn_weight: 3,
+      xp_reward: 1,
+      drop_chance: 40,
+      drop_count_max: 1,
+    },
     // Tank: slow and tough, fire nova on death
-    { kind: Tank, hp_param: 2.5, speed_param: 0.5, size: 14.0, spawn_weight: 2, xp_reward: 2, drop_chance: 80, drop_count_max: 2 },
+    {
+      kind: Tank,
+      hp_param: 2.5,
+      speed_param: 0.5,
+      size: 14.0,
+      spawn_weight: 2,
+      xp_reward: 2,
+      drop_chance: 80,
+      drop_count_max: 2,
+    },
     // Ranged: shoots barrage, can cast meteor
-    { kind: Ranged, hp_param: 0.67, speed_param: 0.4, size: 8.0, spawn_weight: 2, xp_reward: 2, drop_chance: 40, drop_count_max: 1 },
+    {
+      kind: Ranged,
+      hp_param: 0.67,
+      speed_param: 0.4,
+      size: 8.0,
+      spawn_weight: 2,
+      xp_reward: 2,
+      drop_chance: 40,
+      drop_count_max: 1,
+    },
     // Exploder: charges then explodes on death
-    { kind: Exploder, hp_param: 0.67, speed_param: 1.8, size: 7.0, spawn_weight: 2, xp_reward: 1, drop_chance: 40, drop_count_max: 1 },
+    {
+      kind: Exploder,
+      hp_param: 0.67,
+      speed_param: 1.8,
+      size: 7.0,
+      spawn_weight: 2,
+      xp_reward: 1,
+      drop_chance: 40,
+      drop_count_max: 1,
+    },
     // Berserker: gets faster as HP decreases
-    { kind: Berserker, hp_param: 2.5, speed_param: 1.0, size: 12.0, spawn_weight: 2, xp_reward: 2, drop_chance: 80, drop_count_max: 1 },
+    {
+      kind: Berserker,
+      hp_param: 2.5,
+      speed_param: 1.0,
+      size: 12.0,
+      spawn_weight: 2,
+      xp_reward: 2,
+      drop_chance: 80,
+      drop_count_max: 1,
+    },
     // Summoner: spawns Swarm minions periodically
-    { kind: Summoner, hp_param: 0.67, speed_param: 0.35, size: 9.0, spawn_weight: 1, xp_reward: 2, drop_chance: 80, drop_count_max: 1 },
+    {
+      kind: Summoner,
+      hp_param: 0.67,
+      speed_param: 0.35,
+      size: 9.0,
+      spawn_weight: 1,
+      xp_reward: 2,
+      drop_chance: 80,
+      drop_count_max: 1,
+    },
     // Teleporter: blinks behind player
-    { kind: Teleporter, hp_param: 0.67, speed_param: 1.0, size: 8.0, spawn_weight: 1, xp_reward: 2, drop_chance: 40, drop_count_max: 1 },
+    {
+      kind: Teleporter,
+      hp_param: 0.67,
+      speed_param: 1.0,
+      size: 8.0,
+      spawn_weight: 1,
+      xp_reward: 2,
+      drop_chance: 40,
+      drop_count_max: 1,
+    },
     // Caster: channels meteor, must be interrupted
-    { kind: Caster, hp_param: 1.0, speed_param: 0.35, size: 9.0, spawn_weight: 1, xp_reward: 2, drop_chance: 80, drop_count_max: 1 },
+    {
+      kind: Caster,
+      hp_param: 1.0,
+      speed_param: 0.35,
+      size: 9.0,
+      spawn_weight: 1,
+      xp_reward: 2,
+      drop_chance: 80,
+      drop_count_max: 1,
+    },
     // Swarm: tiny, weak, spawns in groups
-    { kind: Swarm, hp_param: 0.33, speed_param: 1.5, size: 5.0, spawn_weight: 1, xp_reward: 1, drop_chance: 10, drop_count_max: 1 },
+    {
+      kind: Swarm,
+      hp_param: 0.33,
+      speed_param: 1.5,
+      size: 5.0,
+      spawn_weight: 1,
+      xp_reward: 1,
+      drop_chance: 10,
+      drop_count_max: 1,
+    },
   ]
 }
 

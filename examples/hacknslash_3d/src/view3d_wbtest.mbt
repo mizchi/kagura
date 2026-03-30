@@ -351,14 +351,16 @@ test "draw_playing wires camera depth into ssao postfx chain with fxaa enabled" 
   }
   let ssao_idx = match
     find_first_command_index(commands, fn(cmd) {
-      cmd.dst.id == state.pipeline.ssao_target.id && cmd.shader.id == state.pipeline.ssao_sh.id
+      cmd.dst.id == state.pipeline.ssao_target.id &&
+      cmd.shader.id == state.pipeline.ssao_sh.id
     }) {
     Some(i) => i
     None => panic()
   }
   let tonemap_idx = match
     find_first_command_index(commands, fn(cmd) {
-      cmd.dst.id == state.pipeline.bloom_b.id && cmd.shader.id == state.pipeline.tonemap_sh.id
+      cmd.dst.id == state.pipeline.bloom_b.id &&
+      cmd.shader.id == state.pipeline.tonemap_sh.id
     }) {
     Some(i) => i
     None => panic()
@@ -455,7 +457,8 @@ test "draw_playing feeds ssao output into bloom composite" {
 
   let ssao_idx = match
     find_first_command_index(commands, fn(cmd) {
-      cmd.dst.id == state.pipeline.ssao_target.id && cmd.shader.id == state.pipeline.ssao_sh.id
+      cmd.dst.id == state.pipeline.ssao_target.id &&
+      cmd.shader.id == state.pipeline.ssao_sh.id
     }) {
     Some(i) => i
     None => panic()
@@ -487,7 +490,8 @@ test "draw_playing skips ssao and feeds scene target into bloom composite by def
   let commands = state.draw_playing(test_engine_context())
 
   let ssao_idx = find_first_command_index(commands, fn(cmd) {
-    cmd.dst.id == state.pipeline.ssao_target.id && cmd.shader.id == state.pipeline.ssao_sh.id
+    cmd.dst.id == state.pipeline.ssao_target.id &&
+    cmd.shader.id == state.pipeline.ssao_sh.id
   })
   let depth_idx = find_last_command_index(commands, fn(cmd) {
     cmd.dst.id == state.pipeline.camera_depth_target.id &&
@@ -723,7 +727,14 @@ test "summarize_draw_playing_commands tracks instancing workload" {
       pending_bolt_target_x: px,
       pending_bolt_target_y: py,
       charge_timer: 0,
-      charge_cooldown: 0, meteor_cast_timer: 0, meteor_target_x: 0.0, meteor_target_y: 0.0, beam_cast_timer: 0, beam_target_x: 0.0, beam_target_y: 0.0, room_index: -1,
+      charge_cooldown: 0,
+      meteor_cast_timer: 0,
+      meteor_target_x: 0.0,
+      meteor_target_y: 0.0,
+      beam_cast_timer: 0,
+      beam_target_x: 0.0,
+      beam_target_y: 0.0,
+      room_index: -1,
     },
     {
       x: px + tile_size * 0.5,
@@ -745,7 +756,14 @@ test "summarize_draw_playing_commands tracks instancing workload" {
       pending_bolt_target_x: px + tile_size * 0.5,
       pending_bolt_target_y: py,
       charge_timer: 0,
-      charge_cooldown: 0, meteor_cast_timer: 0, meteor_target_x: 0.0, meteor_target_y: 0.0, beam_cast_timer: 0, beam_target_x: 0.0, beam_target_y: 0.0, room_index: -1,
+      charge_cooldown: 0,
+      meteor_cast_timer: 0,
+      meteor_target_x: 0.0,
+      meteor_target_y: 0.0,
+      beam_cast_timer: 0,
+      beam_target_x: 0.0,
+      beam_target_y: 0.0,
+      room_index: -1,
     },
   ]
 
@@ -819,7 +837,14 @@ test "push_enemy_character_commands emits skinned commands for visible enemies" 
       pending_bolt_target_x: px,
       pending_bolt_target_y: py,
       charge_timer: 0,
-      charge_cooldown: 0, meteor_cast_timer: 0, meteor_target_x: 0.0, meteor_target_y: 0.0, beam_cast_timer: 0, beam_target_x: 0.0, beam_target_y: 0.0, room_index: -1,
+      charge_cooldown: 0,
+      meteor_cast_timer: 0,
+      meteor_target_x: 0.0,
+      meteor_target_y: 0.0,
+      beam_cast_timer: 0,
+      beam_target_x: 0.0,
+      beam_target_y: 0.0,
+      room_index: -1,
     },
     {
       x: px + tile_size * 0.5,
@@ -841,7 +866,14 @@ test "push_enemy_character_commands emits skinned commands for visible enemies" 
       pending_bolt_target_x: px + tile_size * 0.5,
       pending_bolt_target_y: py,
       charge_timer: 0,
-      charge_cooldown: 0, meteor_cast_timer: 0, meteor_target_x: 0.0, meteor_target_y: 0.0, beam_cast_timer: 0, beam_target_x: 0.0, beam_target_y: 0.0, room_index: -1,
+      charge_cooldown: 0,
+      meteor_cast_timer: 0,
+      meteor_target_x: 0.0,
+      meteor_target_y: 0.0,
+      beam_cast_timer: 0,
+      beam_target_x: 0.0,
+      beam_target_y: 0.0,
+      room_index: -1,
     },
   ]
   let vis_region = compute_visible_region(
@@ -962,7 +994,14 @@ test "rebuild_enemy_render_buckets clears stale enemy groups" {
       pending_bolt_target_x: px,
       pending_bolt_target_y: py,
       charge_timer: 0,
-      charge_cooldown: 0, meteor_cast_timer: 0, meteor_target_x: 0.0, meteor_target_y: 0.0, beam_cast_timer: 0, beam_target_x: 0.0, beam_target_y: 0.0, room_index: -1,
+      charge_cooldown: 0,
+      meteor_cast_timer: 0,
+      meteor_target_x: 0.0,
+      meteor_target_y: 0.0,
+      beam_cast_timer: 0,
+      beam_target_x: 0.0,
+      beam_target_y: 0.0,
+      room_index: -1,
     },
   ]
 

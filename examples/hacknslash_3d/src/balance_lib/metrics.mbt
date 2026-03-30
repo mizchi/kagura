@@ -155,8 +155,8 @@ pub fn run_simulation(
     seed,
     max_frames,
     1,
-    archetype=archetype,
-    build_policy=build_policy,
+    archetype~,
+    build_policy~,
   )
 }
 
@@ -169,12 +169,7 @@ pub fn run_simulation_from_floor(
   archetype? : @game.CharacterArchetype = @game.default_character_archetype(),
   build_policy? : @game.ArchetypeBuildPolicy = @game.default_archetype_build_policy(),
 ) -> SimMetrics {
-  let world = @game.GameWorld::new(
-    seed~,
-    params~,
-    archetype=archetype,
-    build_policy=build_policy,
-  )
+  let world = @game.GameWorld::new(seed~, params~, archetype~, build_policy~)
   if start_floor > 1 {
     world.floor = start_floor
     world.apply_dungeon(seed + start_floor * 1000, start_floor)

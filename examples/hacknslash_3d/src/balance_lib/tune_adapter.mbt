@@ -123,8 +123,8 @@ pub fn make_autoplay_rebalance_sim(
       seed,
       max_frames,
       start_floor,
-      archetype=archetype,
-      build_policy=build_policy,
+      archetype~,
+      build_policy~,
     )
     sim.to_dec_metrics()
   }

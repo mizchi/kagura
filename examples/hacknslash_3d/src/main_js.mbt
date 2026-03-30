@@ -249,9 +249,7 @@ fn build_initial_archetype(name : String) -> @game.CharacterArchetype {
 }
 
 ///|
-fn build_initial_build_policy(
-  name : String,
-) -> @game.ArchetypeBuildPolicy {
+fn build_initial_build_policy(name : String) -> @game.ArchetypeBuildPolicy {
   match @game.archetype_build_policy_from_string(name) {
     Some(policy) => policy
     None => @game.default_archetype_build_policy()
@@ -278,6 +276,7 @@ fn apply_initial_audio_settings(
 }
 
 ///|
+
 ///|
 extern "js" fn js_random_seed() -> Int =
   #| () => (Math.random() * 2147483647) | 0
@@ -303,7 +302,7 @@ fn build_initial_state() -> GameState {
   let state = GameState::new_with_params(
     seed~,
     initial_balance_params,
-    postfx_config=postfx_config,
+    postfx_config~,
     archetype=initial_archetype,
     build_policy=initial_build_policy,
   )

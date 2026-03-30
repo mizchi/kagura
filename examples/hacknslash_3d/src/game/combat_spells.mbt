@@ -1,4 +1,3 @@
-
 ///|
 fn find_next_chain_target(
   world : GameWorld,
@@ -218,7 +217,9 @@ pub fn cast_ice_nova(world : GameWorld) -> Bool {
     return false
   }
   let nova_radius = effective_aoe_radius(
-    world.player_stats, IceNova, ice_nova_radius,
+    world.player_stats,
+    IceNova,
+    ice_nova_radius,
   )
   world.events.push(
     GroundTelegraphRing(world.player.x, world.player.y, nova_radius),
@@ -249,9 +250,7 @@ pub fn cast_ice_nova(world : GameWorld) -> Bool {
       hit_any = true
     }
   }
-  world.events.push(
-    IceNovaCast(world.player.x, world.player.y, nova_radius),
-  )
+  world.events.push(IceNovaCast(world.player.x, world.player.y, nova_radius))
   world.ice_nova_cooldown_timer = world.params.ice_nova_cooldown_frames()
   apply_spell_attack_lock(world)
   world.events.push(AttackTriggered)
@@ -465,9 +464,12 @@ pub fn activate_skill(world : GameWorld, slot : Int) -> Unit {
           Melee => {
             // Melee: enhanced circular AoE with damage multiplier
             let damage = (player_basic_attack_damage(
-              world.player_stats,
-              world.archetype,
-            ).to_double() * skill_level_damage_multiplier(PowerStrike, level)).to_int().max(1)
+                world.player_stats,
+                world.archetype,
+              ).to_double() *
+              skill_level_damage_multiplier(PowerStrike, level))
+              .to_int()
+              .max(1)
             let radius = melee_slash_radius * 1.3
             let r_sq = radius * radius
             let px = world.player.x
@@ -499,7 +501,10 @@ pub fn activate_skill(world : GameWorld, slot : Int) -> Unit {
                 damage: (player_basic_attack_damage(
                   world.player_stats,
                   world.archetype,
-                ).to_double() * skill_level_damage_multiplier(PowerStrike, level)).to_int().max(1),
+                ).to_double() *
+                skill_level_damage_multiplier(PowerStrike, level))
+                .to_int()
+                .max(1),
                 is_player: true,
                 kind: Arrow,
               })
@@ -518,11 +523,16 @@ pub fn activate_skill(world : GameWorld, slot : Int) -> Unit {
           Melee => {
             // Melee: large 360-degree AoE slash
             let damage = (player_basic_attack_damage(
-              world.player_stats,
-              world.archetype,
-            ).to_double() * skill_level_damage_multiplier(Whirlwind, level)).to_int().max(1)
+                world.player_stats,
+                world.archetype,
+              ).to_double() *
+              skill_level_damage_multiplier(Whirlwind, level))
+              .to_int()
+              .max(1)
             let radius = effective_aoe_radius(
-              world.player_stats, Whirlwind, melee_slash_radius * 1.8,
+              world.player_stats,
+              Whirlwind,
+              melee_slash_radius * 1.8,
             )
             let r_sq = radius * radius
             let px = world.player.x
@@ -554,7 +564,10 @@ pub fn activate_skill(world : GameWorld, slot : Int) -> Unit {
                 damage: (player_basic_attack_damage(
                   world.player_stats,
                   world.archetype,
-                ).to_double() * skill_level_damage_multiplier(Whirlwind, level)).to_int().max(1),
+                ).to_double() *
+                skill_level_damage_multiplier(Whirlwind, level))
+                .to_int()
+                .max(1),
                 is_player: true,
                 kind: Arrow,
               })

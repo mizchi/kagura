@@ -105,9 +105,7 @@ fn GameState::rebuild_entity_instance_scratch(
             @scene3d.InstanceData::new(
               transform=@transform3d.Transform3D::from_position(
                 @math3d.Vec3::new(ix, base_y, iz),
-              ).with_scale(
-                @math3d.Vec3::new(1.0, beam_scale_y, 1.0),
-              ),
+              ).with_scale(@math3d.Vec3::new(1.0, beam_scale_y, 1.0)),
               color=beam_color,
             ),
           )
@@ -126,7 +124,8 @@ fn GameState::rebuild_entity_instance_scratch(
     let g = 0.25 * (1.0 - progress)
     let base_a = 0.06 + eased * 0.14
     // Fade out near expiry so spell VFX takes over
-    let fadeout = if marker.frames_remaining.to_double() < telegraph_fadeout_frames {
+    let fadeout = if marker.frames_remaining.to_double() <
+      telegraph_fadeout_frames {
       marker.frames_remaining.to_double() / telegraph_fadeout_frames
     } else {
       1.0
@@ -140,10 +139,11 @@ fn GameState::rebuild_entity_instance_scratch(
         let mx = marker.x / tile_size
         let mz = marker.y / tile_size
         let my = height_at_tile(
-          self.world.dungeon,
-          (marker.x / tile_size).to_int(),
-          (marker.y / tile_size).to_int(),
-        ) + 0.02
+            self.world.dungeon,
+            (marker.x / tile_size).to_int(),
+            (marker.y / tile_size).to_int(),
+          ) +
+          0.02
         let full_scale = marker.radius / tile_size
         // Faint outer ring
         self.entity_instance_scratch.telegraph_instances.push(
@@ -185,10 +185,11 @@ fn GameState::rebuild_entity_instance_scratch(
           let px = x0 + dx * t
           let pz = z0 + dz * t
           let py = height_at_tile(
-            self.world.dungeon,
-            (marker.x + (marker.end_x - marker.x) * t).to_int(),
-            (marker.y + (marker.end_y - marker.y) * t).to_int(),
-          ) + 0.02
+              self.world.dungeon,
+              (marker.x + (marker.end_x - marker.x) * t).to_int(),
+              (marker.y + (marker.end_y - marker.y) * t).to_int(),
+            ) +
+            0.02
           let is_filled = s < filled_steps
           let disc_a = (if is_filled { a } else { 0.04 }) * fadeout
           let disc_r = if is_filled { r } else { 0.5 }
@@ -197,9 +198,7 @@ fn GameState::rebuild_entity_instance_scratch(
             @scene3d.InstanceData::new(
               transform=@transform3d.Transform3D::from_position(
                 @math3d.Vec3::new(px, py, pz),
-              ).with_scale(
-                @math3d.Vec3::new(disc_scale, 1.0, disc_scale),
-              ),
+              ).with_scale(@math3d.Vec3::new(disc_scale, 1.0, disc_scale)),
               color=@math3d.Vec4::new(disc_r, disc_g, 0.02, disc_a),
             ),
           )
@@ -557,6 +556,7 @@ fn push_homing_missile_instance_cmds(
 }
 
 ///|
+
 ///|
 fn push_loot_beam_instance_cmds(
   state : GameState,

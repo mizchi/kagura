@@ -263,19 +263,24 @@ fn extract_rooms_from_grid(grid : @terrain.Grid2D) -> Array[@terrain.Room] {
         visited[idx] = true
         while stack.length() > 0 {
           let (cx, cy) = stack.pop_exn()
-          if cx < min_x { min_x = cx }
-          if cx > max_x { max_x = cx }
-          if cy < min_y { min_y = cy }
-          if cy > max_y { max_y = cy }
+          if cx < min_x {
+            min_x = cx
+          }
+          if cx > max_x {
+            max_x = cx
+          }
+          if cy < min_y {
+            min_y = cy
+          }
+          if cy > max_y {
+            max_y = cy
+          }
           let dx_arr = [-1, 1, 0, 0]
           let dy_arr = [0, 0, -1, 1]
           for d = 0; d < 4; d = d + 1 {
             let nx = cx + dx_arr[d]
             let ny = cy + dy_arr[d]
-            if nx >= 0 &&
-              nx < grid.width &&
-              ny >= 0 &&
-              ny < grid.height {
+            if nx >= 0 && nx < grid.width && ny >= 0 && ny < grid.height {
               let ni = ny * grid.width + nx
               if not(visited[ni]) && grid.get(nx, ny) == @terrain.Floor {
                 visited[ni] = true
@@ -409,7 +414,11 @@ pub fn generate_dungeon(
       // Fallback to ArenaChain (always produces connected layouts)
       let rng3 = @terrain.make_rng((seed + 7777).to_uint())
       result = generate_layout_for_kind(
-        ArenaChain, seed + 7777, floor, params, rng3,
+        ArenaChain,
+        seed + 7777,
+        floor,
+        params,
+        rng3,
       )
     }
   }

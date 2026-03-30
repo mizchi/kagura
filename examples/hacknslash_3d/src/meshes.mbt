@@ -49,29 +49,109 @@ fn make_arrow_mesh(length : Double, thickness : Double) -> @mesh3d.Mesh3D {
   // === Arrowhead (front, wider diamond) ===
   // Top
   @mesh3d.push_vertex(data, hl, 0.0, 0.0, 0.0, 1.0, 0.0, 0.5, 0.0) // 0: tip
-  @mesh3d.push_vertex(data, hl - head_len, head_w, -head_w, 0.0, 1.0, 0.0, 0.0, 1.0) // 1
-  @mesh3d.push_vertex(data, hl - head_len, head_w, head_w, 0.0, 1.0, 0.0, 1.0, 1.0) // 2
+  @mesh3d.push_vertex(
+    data,
+    hl - head_len,
+    head_w,
+    -head_w,
+    0.0,
+    1.0,
+    0.0,
+    0.0,
+    1.0,
+  ) // 1
+  @mesh3d.push_vertex(
+    data,
+    hl - head_len,
+    head_w,
+    head_w,
+    0.0,
+    1.0,
+    0.0,
+    1.0,
+    1.0,
+  ) // 2
   indices.push(0)
   indices.push(1)
   indices.push(2)
   // Bottom
   @mesh3d.push_vertex(data, hl, 0.0, 0.0, 0.0, -1.0, 0.0, 0.5, 0.0) // 3
-  @mesh3d.push_vertex(data, hl - head_len, -head_w, head_w, 0.0, -1.0, 0.0, 0.0, 1.0) // 4
-  @mesh3d.push_vertex(data, hl - head_len, -head_w, -head_w, 0.0, -1.0, 0.0, 1.0, 1.0) // 5
+  @mesh3d.push_vertex(
+    data,
+    hl - head_len,
+    -head_w,
+    head_w,
+    0.0,
+    -1.0,
+    0.0,
+    0.0,
+    1.0,
+  ) // 4
+  @mesh3d.push_vertex(
+    data,
+    hl - head_len,
+    -head_w,
+    -head_w,
+    0.0,
+    -1.0,
+    0.0,
+    1.0,
+    1.0,
+  ) // 5
   indices.push(3)
   indices.push(4)
   indices.push(5)
   // Right
   @mesh3d.push_vertex(data, hl, 0.0, 0.0, 0.0, 0.0, 1.0, 0.5, 0.0) // 6
-  @mesh3d.push_vertex(data, hl - head_len, head_w, head_w, 0.0, 0.0, 1.0, 0.0, 1.0) // 7
-  @mesh3d.push_vertex(data, hl - head_len, -head_w, head_w, 0.0, 0.0, 1.0, 1.0, 1.0) // 8
+  @mesh3d.push_vertex(
+    data,
+    hl - head_len,
+    head_w,
+    head_w,
+    0.0,
+    0.0,
+    1.0,
+    0.0,
+    1.0,
+  ) // 7
+  @mesh3d.push_vertex(
+    data,
+    hl - head_len,
+    -head_w,
+    head_w,
+    0.0,
+    0.0,
+    1.0,
+    1.0,
+    1.0,
+  ) // 8
   indices.push(6)
   indices.push(7)
   indices.push(8)
   // Left
   @mesh3d.push_vertex(data, hl, 0.0, 0.0, 0.0, 0.0, -1.0, 0.5, 0.0) // 9
-  @mesh3d.push_vertex(data, hl - head_len, -head_w, -head_w, 0.0, 0.0, -1.0, 0.0, 1.0) // 10
-  @mesh3d.push_vertex(data, hl - head_len, head_w, -head_w, 0.0, 0.0, -1.0, 1.0, 1.0) // 11
+  @mesh3d.push_vertex(
+    data,
+    hl - head_len,
+    -head_w,
+    -head_w,
+    0.0,
+    0.0,
+    -1.0,
+    0.0,
+    1.0,
+  ) // 10
+  @mesh3d.push_vertex(
+    data,
+    hl - head_len,
+    head_w,
+    -head_w,
+    0.0,
+    0.0,
+    -1.0,
+    1.0,
+    1.0,
+  ) // 11
   indices.push(9)
   indices.push(10)
   indices.push(11)
@@ -92,14 +172,34 @@ fn make_arrow_mesh(length : Double, thickness : Double) -> @mesh3d.Mesh3D {
   let fin = t * 3.0
   // Vertical fin
   @mesh3d.push_vertex(data, -hl, -fin, 0.0, 0.0, 0.0, 1.0, 0.0, 1.0) // 20
-  @mesh3d.push_vertex(data, -hl + length * 0.12, 0.0, 0.0, 0.0, 0.0, 1.0, 0.5, 0.0) // 21
+  @mesh3d.push_vertex(
+    data,
+    -hl + length * 0.12,
+    0.0,
+    0.0,
+    0.0,
+    0.0,
+    1.0,
+    0.5,
+    0.0,
+  ) // 21
   @mesh3d.push_vertex(data, -hl, fin, 0.0, 0.0, 0.0, 1.0, 1.0, 1.0) // 22
   indices.push(20)
   indices.push(21)
   indices.push(22)
   // Horizontal fin
   @mesh3d.push_vertex(data, -hl, 0.0, -fin, 0.0, 1.0, 0.0, 0.0, 1.0) // 23
-  @mesh3d.push_vertex(data, -hl + length * 0.12, 0.0, 0.0, 0.0, 1.0, 0.0, 0.5, 0.0) // 24
+  @mesh3d.push_vertex(
+    data,
+    -hl + length * 0.12,
+    0.0,
+    0.0,
+    0.0,
+    1.0,
+    0.0,
+    0.5,
+    0.0,
+  ) // 24
   @mesh3d.push_vertex(data, -hl, 0.0, fin, 0.0, 1.0, 0.0, 1.0, 1.0) // 25
   indices.push(23)
   indices.push(24)
@@ -127,4 +227,3 @@ fn make_loot_beam_mesh(width : Double, height : Double) -> @mesh3d.Mesh3D {
   @mesh3d.push_quad(indices, 4)
   @mesh3d.Mesh3D::new(data, indices)
 }
-

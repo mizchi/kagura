@@ -54,10 +54,7 @@ fn scaled_base_item_stat(
   modifier_tier : Double,
 ) -> Int {
   @progression.scale_loot_stat(
-    base_value,
-    tier_value,
-    rarity_mult,
-    modifier_tier,
+    base_value, tier_value, rarity_mult, modifier_tier,
   )
 }
 

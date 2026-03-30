@@ -390,9 +390,7 @@ pub fn update_enemy_ai(
     if enemy.path_cache.length() > 0 &&
       enemy.path_index < enemy.path_cache.length() {
       let target = enemy.path_cache[enemy.path_index]
-      let (tx, ty) = enemy_margin_aware_waypoint(
-        grid, target, enemy.size / 2.0,
-      )
+      let (tx, ty) = enemy_margin_aware_waypoint(grid, target, enemy.size / 2.0)
       let pdx = tx - enemy.x
       let pdy = ty - enemy.y
       let pdist = (pdx * pdx + pdy * pdy).sqrt()

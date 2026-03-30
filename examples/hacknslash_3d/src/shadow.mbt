@@ -113,12 +113,12 @@ fn build_single_chunk(
           // Scatter debris in rooms (deterministic hash)
           let hash = (col * 7919 + row * 104729 + 31) % 100
           if hash < 8 {
-            let dx = ((hash * 37) % 80).to_double() / 100.0 - 0.4
-            let dz = ((hash * 53) % 80).to_double() / 100.0 - 0.4
+            let dx = (hash * 37 % 80).to_double() / 100.0 - 0.4
+            let dz = (hash * 53 % 80).to_double() / 100.0 - 0.4
             merge_mesh_at(decor_v, decor_i, meshes.debris, x + dx, y, z + dz)
           } else if hash < 12 {
-            let dx = ((hash * 41) % 60).to_double() / 100.0 - 0.3
-            let dz = ((hash * 67) % 60).to_double() / 100.0 - 0.3
+            let dx = (hash * 41 % 60).to_double() / 100.0 - 0.3
+            let dz = (hash * 67 % 60).to_double() / 100.0 - 0.3
             merge_mesh_at(decor_v, decor_i, meshes.crate, x + dx, y, z + dz)
             merge_mesh_at(all_v, all_i, meshes.crate, x + dx, y, z + dz)
           }
@@ -149,17 +149,9 @@ fn build_single_chunk(
             merge_mesh_at(wall_v, wall_i, wall_mesh, x, y, z)
             merge_mesh_at(all_v, all_i, wall_mesh, x, y, z)
           }
-        Empty => {
+        Empty =>
           // Exterior ground: dark plane at y=-0.1 for void areas
-          merge_mesh_at(
-            exterior_v,
-            exterior_i,
-            meshes.floor_tile,
-            x,
-            -0.1,
-            z,
-          )
-        }
+          merge_mesh_at(exterior_v, exterior_i, meshes.floor_tile, x, -0.1, z)
         _ => ()
       }
     }

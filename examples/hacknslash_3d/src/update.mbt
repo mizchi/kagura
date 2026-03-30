@@ -41,12 +41,7 @@ fn GameState::new_with_params(
   archetype? : @game.CharacterArchetype = @game.default_character_archetype(),
   build_policy? : @game.ArchetypeBuildPolicy = @game.default_archetype_build_policy(),
 ) -> GameState {
-  let world = @game.GameWorld::new(
-    seed~,
-    params~,
-    archetype=archetype,
-    build_policy=build_policy,
-  )
+  let world = @game.GameWorld::new(seed~, params~, archetype~, build_policy~)
   let sw = screen_w.to_double()
   let sh = screen_h.to_double()
   let init_y = @game.get_tile_height(
@@ -188,10 +183,7 @@ fn GameState::new_with_params(
     dungeon_wall_texture_image_id: None,
     // PostFX pipeline
     pipeline: @render_pipeline3d.RenderPipeline3D::new(
-      300,
-      screen_w,
-      screen_h,
-      postfx_config,
+      300, screen_w, screen_h, postfx_config,
     ),
     fog_sh: @gfx.new_shader_handle(308, @postfx.fog_wgsl()),
     // Particles

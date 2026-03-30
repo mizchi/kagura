@@ -121,7 +121,8 @@ fn build_level_up_offers(
   let ordered : Array[SkillId] = []
   for priority = 0; priority < 128; priority = priority + 1 {
     for candidate in available {
-      if archetype.offer_priority_with_policy(build_policy, candidate) == priority {
+      if archetype.offer_priority_with_policy(build_policy, candidate) ==
+        priority {
         ordered.push(candidate)
       }
     }
@@ -130,7 +131,7 @@ fn build_level_up_offers(
     return []
   }
   let len = ordered.length()
-  let offset = ((offer_seed % len) + len) % len
+  let offset = (offer_seed % len + len) % len
   let offers : Array[SkillId] = []
   let offer_count = @cmp.minimum(3, len)
   for i = 0; i < offer_count; i = i + 1 {

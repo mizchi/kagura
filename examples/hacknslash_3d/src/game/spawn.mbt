@@ -8,7 +8,7 @@ pub fn make_enemy(
   hp : Int,
   speed : Double,
   size : Double,
-  room_index~ : Int = -1,
+  room_index? : Int = -1,
 ) -> Enemy {
   {
     x: cx,
@@ -167,6 +167,7 @@ pub fn spawn_enemies_in_rooms(
 }
 
 ///|
+
 ///|
 fn pick_enemy_type(rng : @terrain.RNG) -> EnemyTypeConfig {
   let configs = enemy_type_configs()
@@ -256,10 +257,10 @@ pub fn spawn_enemies_in_rooms_with_params(
     // Place mini-boss in largest room (every floor)
     if i == largest_room_idx {
       let bcx = room.rect.x.to_double() * tile_size +
-        (room.rect.w.to_double() / 2.0) * tile_size +
+        room.rect.w.to_double() / 2.0 * tile_size +
         tile_size / 2.0
       let bcy = room.rect.y.to_double() * tile_size +
-        (room.rect.h.to_double() / 2.0) * tile_size +
+        room.rect.h.to_double() / 2.0 * tile_size +
         tile_size / 2.0
       let mini_boss_hp = params.scale_enemy_hp_for_floor(
         params.boss_hp_base.to_int() / 2 +
@@ -267,7 +268,17 @@ pub fn spawn_enemies_in_rooms_with_params(
         floor,
       )
       let mini_boss_speed = params.scale_enemy_speed_for_floor(0.5, floor)
-      enemies.push(make_enemy(bcx, bcy, Boss, mini_boss_hp, mini_boss_speed, 16.0, room_index=i))
+      enemies.push(
+        make_enemy(
+          bcx,
+          bcy,
+          Boss,
+          mini_boss_hp,
+          mini_boss_speed,
+          16.0,
+          room_index=i,
+        ),
+      )
     }
     for _j = 0; _j < count; _j = _j + 1 {
       let cx = room.rect.x.to_double() * tile_size +
@@ -307,7 +318,9 @@ pub fn spawn_enemies_in_rooms_with_params(
           params.enemy_speed_basic * 0.7,
           floor,
         )
-        enemies.push(make_enemy(ecx, ecy, Tank, elite_hp, elite_spd, 14.0, room_index=i))
+        enemies.push(
+          make_enemy(ecx, ecy, Tank, elite_hp, elite_spd, 14.0, room_index=i),
+        )
       }
     }
   }

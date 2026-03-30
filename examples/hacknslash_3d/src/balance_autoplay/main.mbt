@@ -36,11 +36,7 @@ fn main {
     40
   }
   let archetype_name = if args.length() >= 10 { args[9] } else { "melee" }
-  let build_policy_name = if args.length() >= 11 {
-    args[10]
-  } else {
-    "aligned"
-  }
+  let build_policy_name = if args.length() >= 11 { args[10] } else { "aligned" }
   let hypothesis = match @blib.balance_hypothesis_from_name(hypothesis_name) {
     Some(h) => h
     None => {
@@ -59,9 +55,8 @@ fn main {
       panic()
     }
   }
-  let build_policy = match @game.archetype_build_policy_from_string(
-    build_policy_name,
-  ) {
+  let build_policy = match
+    @game.archetype_build_policy_from_string(build_policy_name) {
     Some(value) => value
     None => {
       println("Unknown build policy: " + build_policy_name)
@@ -70,11 +65,7 @@ fn main {
     }
   }
   let sim = @blib.make_autoplay_rebalance_sim(
-    0,
-    sim_max_frames,
-    start_floor,
-    archetype,
-    build_policy,
+    0, sim_max_frames, start_floor, archetype, build_policy,
   )
   let initial = @dec.initial_params(specs)
   let (base_loss, base_metrics) = @dec.compute_loss_averaged(

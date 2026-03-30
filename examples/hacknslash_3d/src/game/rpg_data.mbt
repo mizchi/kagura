@@ -77,34 +77,46 @@ pub fn prefix_table_for(profile : AffixProfile) -> Array[Affix] {
     a("Arcane", atk=2, hp=2, crit=0.04),
     a("Crackling", int_=2, spell_dmg=0.12, chain=1),
     a("Volatile", atk=1, spell_dmg=0.15),
-    a(
-      "Thunderous",
-      int_=1,
-      tags=[
-        { tag: Lightning, damage_pct: 0.15, cooldown_reduction: 0.0, extra_targets: 1, aoe_radius_pct: 0.0, crit_bonus: 0.0 },
-      ],
-    ),
-    a(
-      "Glacial",
-      int_=1,
-      tags=[
-        { tag: Cold, damage_pct: 0.10, cooldown_reduction: 0.0, extra_targets: 0, aoe_radius_pct: 0.15, crit_bonus: 0.0 },
-      ],
-    ),
-    a(
-      "Infernal",
-      atk=2,
-      tags=[
-        { tag: Fire, damage_pct: 0.15, cooldown_reduction: 0.0, extra_targets: 0, aoe_radius_pct: 0.10, crit_bonus: 0.0 },
-      ],
-    ),
-    a(
-      "Vanguard",
-      str=1,
-      tags=[
-        { tag: Physical, damage_pct: 0.12, cooldown_reduction: 0.0, extra_targets: 0, aoe_radius_pct: 0.0, crit_bonus: 0.03 },
-      ],
-    ),
+    a("Thunderous", int_=1, tags=[
+      {
+        tag: Lightning,
+        damage_pct: 0.15,
+        cooldown_reduction: 0.0,
+        extra_targets: 1,
+        aoe_radius_pct: 0.0,
+        crit_bonus: 0.0,
+      },
+    ]),
+    a("Glacial", int_=1, tags=[
+      {
+        tag: Cold,
+        damage_pct: 0.10,
+        cooldown_reduction: 0.0,
+        extra_targets: 0,
+        aoe_radius_pct: 0.15,
+        crit_bonus: 0.0,
+      },
+    ]),
+    a("Infernal", atk=2, tags=[
+      {
+        tag: Fire,
+        damage_pct: 0.15,
+        cooldown_reduction: 0.0,
+        extra_targets: 0,
+        aoe_radius_pct: 0.10,
+        crit_bonus: 0.0,
+      },
+    ]),
+    a("Vanguard", str=1, tags=[
+      {
+        tag: Physical,
+        damage_pct: 0.12,
+        cooldown_reduction: 0.0,
+        extra_targets: 0,
+        aoe_radius_pct: 0.0,
+        crit_bonus: 0.03,
+      },
+    ]),
   ]
   match profile {
     Classic => classic
@@ -186,32 +198,46 @@ pub fn suffix_table_for(profile : AffixProfile) -> Array[Affix] {
     a("of Fortune", atk=1, def=1, hp=1, crit=0.03, ls=0.03),
     a("of Arcing", int_=1, chain=1, spell_dmg=0.08),
     a("of Storms", spell_dmg=0.2, int_=2),
-    a(
-      "of the Tempest",
-      int_=1,
-      tags=[
-        { tag: Lightning, damage_pct: 0.10, cooldown_reduction: 0.0, extra_targets: 1, aoe_radius_pct: 0.0, crit_bonus: 0.02 },
-      ],
-    ),
-    a(
-      "of Blizzards",
-      tags=[
-        { tag: Cold, damage_pct: 0.12, cooldown_reduction: 0.05, extra_targets: 0, aoe_radius_pct: 0.12, crit_bonus: 0.0 },
-      ],
-    ),
-    a(
-      "of Marksmanship",
-      dex=1,
-      tags=[
-        { tag: Projectile, damage_pct: 0.10, cooldown_reduction: 0.0, extra_targets: 0, aoe_radius_pct: 0.0, crit_bonus: 0.05 },
-      ],
-    ),
-    a(
-      "of Devastation",
-      tags=[
-        { tag: AoE, damage_pct: 0.10, cooldown_reduction: 0.0, extra_targets: 0, aoe_radius_pct: 0.15, crit_bonus: 0.0 },
-      ],
-    ),
+    a("of the Tempest", int_=1, tags=[
+      {
+        tag: Lightning,
+        damage_pct: 0.10,
+        cooldown_reduction: 0.0,
+        extra_targets: 1,
+        aoe_radius_pct: 0.0,
+        crit_bonus: 0.02,
+      },
+    ]),
+    a("of Blizzards", tags=[
+      {
+        tag: Cold,
+        damage_pct: 0.12,
+        cooldown_reduction: 0.05,
+        extra_targets: 0,
+        aoe_radius_pct: 0.12,
+        crit_bonus: 0.0,
+      },
+    ]),
+    a("of Marksmanship", dex=1, tags=[
+      {
+        tag: Projectile,
+        damage_pct: 0.10,
+        cooldown_reduction: 0.0,
+        extra_targets: 0,
+        aoe_radius_pct: 0.0,
+        crit_bonus: 0.05,
+      },
+    ]),
+    a("of Devastation", tags=[
+      {
+        tag: AoE,
+        damage_pct: 0.10,
+        cooldown_reduction: 0.0,
+        extra_targets: 0,
+        aoe_radius_pct: 0.15,
+        crit_bonus: 0.0,
+      },
+    ]),
   ]
   match profile {
     Classic => classic

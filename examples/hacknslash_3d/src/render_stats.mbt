@@ -75,7 +75,8 @@ fn summarize_draw_playing_commands(
       cmd.shader.id == state.shader3d_skinned_instanced_monochrome.id {
       skinned_commands = skinned_commands + 1
     }
-    if cmd.dst.id == state.pipeline.ssao_target.id && cmd.shader.id == state.pipeline.ssao_sh.id {
+    if cmd.dst.id == state.pipeline.ssao_target.id &&
+      cmd.shader.id == state.pipeline.ssao_sh.id {
       ssao_commands = ssao_commands + 1
     }
     if cmd.shader.id == state.pipeline.bloom_threshold_sh.id ||

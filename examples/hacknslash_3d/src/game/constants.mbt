@@ -155,6 +155,7 @@ pub let meteor_damage_mult : Int = 4 // multiplier on base contact damage
 
 ///|
 // Beam attack: straight-line AoE with charge time
+
 ///|
 pub let beam_cast_frames : Int = 60 // 1 second charge
 

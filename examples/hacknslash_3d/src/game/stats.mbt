@@ -52,8 +52,7 @@ pub fn player_basic_attack_damage(
 ) -> Int {
   @cmp.maximum(
     1,
-    (stats.ranged_power.to_double() * archetype.basic_attack_multiplier())
-      .to_int(),
+    (stats.ranged_power.to_double() * archetype.basic_attack_multiplier()).to_int(),
   )
 }
 
@@ -157,7 +156,10 @@ pub fn player_spell_damage(
   let tag_mult = tag_damage_multiplier(stats, skill)
   @cmp.maximum(
     1,
-    (scaled.to_double() * archetype.skill_damage_multiplier(skill) * level_mult * tag_mult).to_int(),
+    (scaled.to_double() *
+    archetype.skill_damage_multiplier(skill) *
+    level_mult *
+    tag_mult).to_int(),
   )
 }
 
@@ -199,9 +201,15 @@ pub fn compute_player_stats(
     Some(a) => a.base_dexterity()
     None => 10
   }
-  let strength = base_strength + equipment.total_str_bonus() + power_strike_level
-  let intelligence = base_intelligence + equipment.total_int_bonus() + spell_unlocks
-  let dexterity = base_dexterity + equipment.total_dex_bonus() + dash_mastery_level
+  let strength = base_strength +
+    equipment.total_str_bonus() +
+    power_strike_level
+  let intelligence = base_intelligence +
+    equipment.total_int_bonus() +
+    spell_unlocks
+  let dexterity = base_dexterity +
+    equipment.total_dex_bonus() +
+    dash_mastery_level
   let attack_power = soulslike_scaled_damage(
     base_atk + equipment.total_atk() + power_strike_level,
     strength,
@@ -221,7 +229,9 @@ pub fn compute_player_stats(
   let tag_bonuses = new_tag_bonuses_array()
   // Collect from equipment affixes
   let equip_items : Array[ItemData?] = [
-    equipment.weapon, equipment.armor, equipment.accessory,
+    equipment.weapon,
+    equipment.armor,
+    equipment.accessory,
   ]
   for opt_item in equip_items {
     match opt_item {
@@ -344,12 +354,16 @@ pub fn compute_skill_dps(
   let (damage, hits, cd) = match skill_id {
     PowerStrike => {
       let dmg = (player_basic_attack_damage(stats, archetype).to_double() *
-        skill_level_damage_multiplier(PowerStrike, level)).to_int().max(1)
+        skill_level_damage_multiplier(PowerStrike, level))
+        .to_int()
+        .max(1)
       (dmg, 3, params.attack_cooldown.to_int())
     }
     Whirlwind => {
       let dmg = (player_basic_attack_damage(stats, archetype).to_double() *
-        skill_level_damage_multiplier(Whirlwind, level)).to_int().max(1)
+        skill_level_damage_multiplier(Whirlwind, level))
+        .to_int()
+        .max(1)
       (dmg, 4, params.attack_cooldown.to_int() + 5) // 8-way, ~4 avg hits
     }
     ChainLightning => {
@@ -399,7 +413,13 @@ pub fn compute_skill_dps(
   let effective_cd = @cmp.maximum(1, cd)
   let casts_per_sec = 60.0 / effective_cd.to_double()
   let dps = damage.to_double() * hits.to_double() * casts_per_sec
-  { skill_id, damage_per_hit: damage, hits_per_cast: hits, cooldown_frames: cd, dps }
+  {
+    skill_id,
+    damage_per_hit: damage,
+    hits_per_cast: hits,
+    cooldown_frames: cd,
+    dps,
+  }
 }
 
 ///|
@@ -419,7 +439,11 @@ pub fn compute_total_dps(
   total = total + arrow_dmg.to_double() * 60.0 / bow_cd.to_double()
   // Skill DPS contributions
   let skill_ids : Array[SkillId] = [
-    PowerStrike, Whirlwind, ChainLightning, SplittingFireball, IceNova,
+    PowerStrike,
+    Whirlwind,
+    ChainLightning,
+    SplittingFireball,
+    IceNova,
     HomingMissile,
   ]
   for id in skill_ids {

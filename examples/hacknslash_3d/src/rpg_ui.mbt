@@ -96,8 +96,15 @@ fn draw_stat_with_diff(
       if diff != 0 {
         let diff_text = format_diff(diff)
         // Estimate text width: ~7px per char at ui_font size
-        let offset = (base_text.length().to_double()) * 7.0 + 2.0
-        ctx.draw_text(cmds, diff_text, ui_font_sm, x + offset, y + 2.0, diff_color(diff))
+        let offset = base_text.length().to_double() * 7.0 + 2.0
+        ctx.draw_text(
+          cmds,
+          diff_text,
+          ui_font_sm,
+          x + offset,
+          y + 2.0,
+          diff_color(diff),
+        )
       }
     }
     None => ()
@@ -122,8 +129,15 @@ fn draw_stat_pct_with_diff(
       let diff = pv - current_pct
       if diff != 0 {
         let diff_text = format_diff(diff)
-        let offset = (base_text.length().to_double()) * 7.0 + 2.0
-        ctx.draw_text(cmds, diff_text, ui_font_sm, x + offset, y + 2.0, diff_color(diff))
+        let offset = base_text.length().to_double() * 7.0 + 2.0
+        ctx.draw_text(
+          cmds,
+          diff_text,
+          ui_font_sm,
+          x + offset,
+          y + 2.0,
+          diff_color(diff),
+        )
       }
     }
     None => ()
@@ -255,8 +269,7 @@ fn GameState::update_skills_ui(self : GameState) -> Unit {
     let mut best_dist = 9999.0
     for i, node in nodes {
       if node.tree_y < cur_y - 0.01 {
-        let dist = (node.tree_x - cur_x).abs() +
-          (cur_y - node.tree_y) * 2.0
+        let dist = (node.tree_x - cur_x).abs() + (cur_y - node.tree_y) * 2.0
         if dist < best_dist {
           best_dist = dist
           best = i
@@ -272,8 +285,7 @@ fn GameState::update_skills_ui(self : GameState) -> Unit {
     let mut best_dist = 9999.0
     for i, node in nodes {
       if node.tree_y > cur_y + 0.01 {
-        let dist = (node.tree_x - cur_x).abs() +
-          (node.tree_y - cur_y) * 2.0
+        let dist = (node.tree_x - cur_x).abs() + (node.tree_y - cur_y) * 2.0
         if dist < best_dist {
           best_dist = dist
           best = i
@@ -284,10 +296,7 @@ fn GameState::update_skills_ui(self : GameState) -> Unit {
       self.world.ui_cursor = best
     }
   }
-  if @inpututil.is_key_just_pressed(
-      self.input.key_state,
-      @inpututil.key_a,
-    ) ||
+  if @inpututil.is_key_just_pressed(self.input.key_state, @inpututil.key_a) ||
     @inpututil.is_key_just_pressed(
       self.input.key_state,
       @inpututil.key_left_web,
@@ -296,8 +305,7 @@ fn GameState::update_skills_ui(self : GameState) -> Unit {
     let mut best_dist = 9999.0
     for i, node in nodes {
       if node.tree_x < cur_x - 0.01 {
-        let dist = (cur_x - node.tree_x) * 2.0 +
-          (node.tree_y - cur_y).abs()
+        let dist = (cur_x - node.tree_x) * 2.0 + (node.tree_y - cur_y).abs()
         if dist < best_dist {
           best_dist = dist
           best = i
@@ -308,10 +316,7 @@ fn GameState::update_skills_ui(self : GameState) -> Unit {
       self.world.ui_cursor = best
     }
   }
-  if @inpututil.is_key_just_pressed(
-      self.input.key_state,
-      @inpututil.key_d,
-    ) ||
+  if @inpututil.is_key_just_pressed(self.input.key_state, @inpututil.key_d) ||
     @inpututil.is_key_just_pressed(
       self.input.key_state,
       @inpututil.key_right_web,
@@ -320,8 +325,7 @@ fn GameState::update_skills_ui(self : GameState) -> Unit {
     let mut best_dist = 9999.0
     for i, node in nodes {
       if node.tree_x > cur_x + 0.01 {
-        let dist = (node.tree_x - cur_x) * 2.0 +
-          (node.tree_y - cur_y).abs()
+        let dist = (node.tree_x - cur_x) * 2.0 + (node.tree_y - cur_y).abs()
         if dist < best_dist {
           best_dist = dist
           best = i
@@ -470,43 +474,92 @@ fn GameState::render_inventory_ui(
     None
   }
   let stats_h = rh * 3.0 + 4.0
-  ctx.draw_rect(
-    cmds,
-    p,
-    y,
-    sw - p * 2.0,
-    stats_h,
-    @hud.hex_color(0x112211),
-  )
+  ctx.draw_rect(cmds, p, y, sw - p * 2.0, stats_h, @hud.hex_color(0x112211))
   ctx.draw_text(cmds, "STATS", ui_font_sm, p + 4.0, y + 2.0, 0x448844)
   // Row 1: core stats
   let row1_y = y + 14.0
-  draw_stat_with_diff(ctx, cmds, "STR", s.strength, preview.map(fn(ps) {
-    ps.strength
-  }), p + 4.0, row1_y, 0xFF8866)
-  draw_stat_with_diff(ctx, cmds, "INT", s.intelligence, preview.map(fn(ps) {
-    ps.intelligence
-  }), p + 100.0, row1_y, 0x66AAFF)
-  draw_stat_with_diff(ctx, cmds, "DEX", s.dexterity, preview.map(fn(ps) {
-    ps.dexterity
-  }), p + 196.0, row1_y, 0x66FF66)
-  draw_stat_with_diff(ctx, cmds, "HP", s.max_hp, preview.map(fn(ps) {
-    ps.max_hp
-  }), p + 292.0, row1_y, 0xFFFFFF)
+  draw_stat_with_diff(
+    ctx,
+    cmds,
+    "STR",
+    s.strength,
+    preview.map(fn(ps) { ps.strength }),
+    p + 4.0,
+    row1_y,
+    0xFF8866,
+  )
+  draw_stat_with_diff(
+    ctx,
+    cmds,
+    "INT",
+    s.intelligence,
+    preview.map(fn(ps) { ps.intelligence }),
+    p + 100.0,
+    row1_y,
+    0x66AAFF,
+  )
+  draw_stat_with_diff(
+    ctx,
+    cmds,
+    "DEX",
+    s.dexterity,
+    preview.map(fn(ps) { ps.dexterity }),
+    p + 196.0,
+    row1_y,
+    0x66FF66,
+  )
+  draw_stat_with_diff(
+    ctx,
+    cmds,
+    "HP",
+    s.max_hp,
+    preview.map(fn(ps) { ps.max_hp }),
+    p + 292.0,
+    row1_y,
+    0xFFFFFF,
+  )
   // Row 2: derived powers
   let row2_y = row1_y + rh
-  draw_stat_with_diff(ctx, cmds, "ATK", s.attack_power, preview.map(fn(ps) {
-    ps.attack_power
-  }), p + 4.0, row2_y, 0xFF8866)
-  draw_stat_with_diff(ctx, cmds, "SPL", s.spell_power, preview.map(fn(ps) {
-    ps.spell_power
-  }), p + 100.0, row2_y, 0x66AAFF)
-  draw_stat_with_diff(ctx, cmds, "RNG", s.ranged_power, preview.map(fn(ps) {
-    ps.ranged_power
-  }), p + 196.0, row2_y, 0x66FF66)
-  draw_stat_with_diff(ctx, cmds, "DEF", s.def, preview.map(fn(ps) {
-    ps.def
-  }), p + 292.0, row2_y, 0xFFFFFF)
+  draw_stat_with_diff(
+    ctx,
+    cmds,
+    "ATK",
+    s.attack_power,
+    preview.map(fn(ps) { ps.attack_power }),
+    p + 4.0,
+    row2_y,
+    0xFF8866,
+  )
+  draw_stat_with_diff(
+    ctx,
+    cmds,
+    "SPL",
+    s.spell_power,
+    preview.map(fn(ps) { ps.spell_power }),
+    p + 100.0,
+    row2_y,
+    0x66AAFF,
+  )
+  draw_stat_with_diff(
+    ctx,
+    cmds,
+    "RNG",
+    s.ranged_power,
+    preview.map(fn(ps) { ps.ranged_power }),
+    p + 196.0,
+    row2_y,
+    0x66FF66,
+  )
+  draw_stat_with_diff(
+    ctx,
+    cmds,
+    "DEF",
+    s.def,
+    preview.map(fn(ps) { ps.def }),
+    p + 292.0,
+    row2_y,
+    0xFFFFFF,
+  )
   // Row 3: secondary stats
   let row3_y = row2_y + rh
   let crit_pct = (s.crit_chance * 100.0).to_int()
@@ -514,28 +567,52 @@ fn GameState::render_inventory_ui(
     (ps.crit_chance * 100.0).to_int()
   })
   draw_stat_pct_with_diff(
-    ctx, cmds, "CRIT", crit_pct, preview_crit_pct, p + 4.0, row3_y, 0xFFCC00,
+    ctx,
+    cmds,
+    "CRIT",
+    crit_pct,
+    preview_crit_pct,
+    p + 4.0,
+    row3_y,
+    0xFFCC00,
   )
   let ls_pct = (s.life_steal * 100.0).to_int()
-  let preview_ls_pct = preview.map(fn(ps) {
-    (ps.life_steal * 100.0).to_int()
-  })
+  let preview_ls_pct = preview.map(fn(ps) { (ps.life_steal * 100.0).to_int() })
   draw_stat_pct_with_diff(
-    ctx, cmds, "LS", ls_pct, preview_ls_pct, p + 100.0, row3_y, 0xFF66AA,
+    ctx,
+    cmds,
+    "LS",
+    ls_pct,
+    preview_ls_pct,
+    p + 100.0,
+    row3_y,
+    0xFF66AA,
   )
   let spd_pct = (s.speed_bonus * 100.0).to_int()
-  let preview_spd_pct = preview.map(fn(ps) {
-    (ps.speed_bonus * 100.0).to_int()
-  })
+  let preview_spd_pct = preview.map(fn(ps) { (ps.speed_bonus * 100.0).to_int() })
   draw_stat_pct_with_diff(
-    ctx, cmds, "SPD", spd_pct, preview_spd_pct, p + 196.0, row3_y, 0x88DDFF,
+    ctx,
+    cmds,
+    "SPD",
+    spd_pct,
+    preview_spd_pct,
+    p + 196.0,
+    row3_y,
+    0x88DDFF,
   )
   let cdr_pct = (s.cooldown_reduction * 100.0).to_int()
   let preview_cdr_pct = preview.map(fn(ps) {
     (ps.cooldown_reduction * 100.0).to_int()
   })
   draw_stat_pct_with_diff(
-    ctx, cmds, "CDR", cdr_pct, preview_cdr_pct, p + 292.0, row3_y, 0xAAFF88,
+    ctx,
+    cmds,
+    "CDR",
+    cdr_pct,
+    preview_cdr_pct,
+    p + 292.0,
+    row3_y,
+    0xAAFF88,
   )
   y = y + stats_h + 4.0
   // ---- Item list ----
@@ -639,6 +716,7 @@ fn GameState::render_inventory_ui(
 }
 
 ///|
+
 ///|
 fn draw_circle_node(
   ctx : @hud.HudContext,
@@ -683,7 +761,7 @@ fn GameState::render_skills_ui(
   for star_i = 0; star_i < 40; star_i = star_i + 1 {
     let sx = ((star_i * 137 + 29) % 620).to_double() + 10.0
     let sy = ((star_i * 97 + 53) % 460).to_double() + 10.0
-    let brightness = 0x181825 + (star_i * 7) % 0x10
+    let brightness = 0x181825 + star_i * 7 % 0x10
     ctx.draw_rect(cmds, sx, sy, 1.0, 1.0, @hud.hex_color(brightness))
   }
   // Header
@@ -793,9 +871,17 @@ fn GameState::render_skills_ui(
       let pip_w = @cmp.minimum(base_r * 1.2, (pip_count * 4).to_double())
       let pip_start = nx - pip_w / 2.0
       for pip = 0; pip < pip_count; pip = pip + 1 {
-        let pip_x = pip_start + pip.to_double() * (pip_w / pip_count.to_double())
+        let pip_x = pip_start +
+          pip.to_double() * (pip_w / pip_count.to_double())
         let pip_color = if pip < node.level { 0x66FF66 } else { 0x333344 }
-        ctx.draw_rect(cmds, pip_x, ny + 2.0, 2.0, 2.0, @hud.hex_color(pip_color))
+        ctx.draw_rect(
+          cmds,
+          pip_x,
+          ny + 2.0,
+          2.0,
+          2.0,
+          @hud.hex_color(pip_color),
+        )
       }
     }
     // Name label below node

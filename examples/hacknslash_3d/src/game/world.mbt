@@ -299,8 +299,8 @@ pub fn GameWorld::apply_levelup_offer_choice(
         self.build_policy,
         offer_index,
         offer_seed,
-      )
-  ) {
+      ),
+    ) {
     return false
   }
   self.refresh_player_stats()
@@ -944,9 +944,7 @@ pub fn GameWorld::tick_meteor_damage_phase(self : GameWorld) -> Unit {
                 let perp = (ex * ny - ey * nx).abs()
                 if perp < beam_width / 2.0 + enemy.size / 2.0 {
                   let dmg = self.player_stats.spell_power * beam_damage_mult
-                  apply_player_damage_to_enemy(
-                    self, enemy, dmg, x0, y0,
-                  )
+                  apply_player_damage_to_enemy(self, enemy, dmg, x0, y0)
                 }
               }
             }
@@ -993,8 +991,9 @@ let room_clear_large_area_threshold : Int = 150
 ///|
 pub fn GameWorld::tick_room_clear_rewards(self : GameWorld) -> Unit {
   // Check each room to see if all its enemies are dead
-  for room_idx = 0; room_idx < self.dungeon.rooms.length(); room_idx = room_idx +
-    1 {
+  for room_idx = 0
+      room_idx < self.dungeon.rooms.length()
+      room_idx = room_idx + 1 {
     if self.reward_cleared_rooms[room_idx] {
       continue
     }

@@ -70,9 +70,7 @@ pub fn behavior_cast_meteor(ctx : EnemyAIContext) -> Bool {
   ctx.enemy.meteor_target_x = ctx.player.x
   ctx.enemy.meteor_target_y = ctx.player.y
   ctx.events.push(MeteorCastStart(ctx.player.x, ctx.player.y, meteor_radius))
-  ctx.events.push(
-    EnemyTelegraphRing(ctx.player.x, ctx.player.y, meteor_radius),
-  )
+  ctx.events.push(EnemyTelegraphRing(ctx.player.x, ctx.player.y, meteor_radius))
   true
 }
 
@@ -83,9 +81,9 @@ pub fn behavior_summon_minion(ctx : EnemyAIContext) -> Bool {
   }
   ctx.enemy.shoot_cooldown = summoner_cooldown
   let summon_x = ctx.enemy.x +
-    ((ctx.frame_count * 17) % (summoner_spawn_offset * 2) - summoner_spawn_offset).to_double()
+    (ctx.frame_count * 17 % (summoner_spawn_offset * 2) - summoner_spawn_offset).to_double()
   let summon_y = ctx.enemy.y +
-    ((ctx.frame_count * 13) % (summoner_spawn_offset * 2) - summoner_spawn_offset).to_double()
+    (ctx.frame_count * 13 % (summoner_spawn_offset * 2) - summoner_spawn_offset).to_double()
   let summon_hp = ctx.params.scale_enemy_hp_for_floor(
     ctx.params.basic_hp.to_int(),
     ctx.floor,
@@ -95,7 +93,14 @@ pub fn behavior_summon_minion(ctx : EnemyAIContext) -> Bool {
     ctx.floor,
   )
   ctx.enemies.push(
-    make_enemy(summon_x, summon_y, Swarm, summon_hp / 2, summon_speed * summoner_minion_speed_mult, summoner_minion_size),
+    make_enemy(
+      summon_x,
+      summon_y,
+      Swarm,
+      summon_hp / 2,
+      summon_speed * summoner_minion_speed_mult,
+      summoner_minion_size,
+    ),
   )
   ctx.events.push(DeathBurst(ctx.enemy.x, ctx.enemy.y))
   true
@@ -125,14 +130,10 @@ pub fn behavior_ranged_barrage(ctx : EnemyAIContext) -> Bool {
   ctx.enemy.pending_bolt_target_x = ctx.player.x
   ctx.enemy.pending_bolt_target_y = ctx.player.y
   ctx.events.push(
-    GroundTelegraphLine(
-      ctx.enemy.x, ctx.enemy.y, ctx.player.x, ctx.player.y,
-    ),
+    GroundTelegraphLine(ctx.enemy.x, ctx.enemy.y, ctx.player.x, ctx.player.y),
   )
   ctx.events.push(
-    EnemyTelegraphRing(
-      ctx.player.x, ctx.player.y, enemy_bolt_telegraph_radius,
-    ),
+    EnemyTelegraphRing(ctx.player.x, ctx.player.y, enemy_bolt_telegraph_radius),
   )
   let cdx = ctx.player.x - ctx.enemy.x
   let cdy = ctx.player.y - ctx.enemy.y
@@ -153,12 +154,7 @@ pub fn behavior_beam_attack(ctx : EnemyAIContext) -> Bool {
   ctx.enemy.beam_target_y = ctx.player.y
   // Line telegraph event (converted to marker in world.mbt)
   ctx.events.push(
-    GroundTelegraphLine(
-      ctx.enemy.x,
-      ctx.enemy.y,
-      ctx.player.x,
-      ctx.player.y,
-    ),
+    GroundTelegraphLine(ctx.enemy.x, ctx.enemy.y, ctx.player.x, ctx.player.y),
   )
   ctx.enemy.shoot_cooldown = beam_cooldown_frames
   true

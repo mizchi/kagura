@@ -303,10 +303,7 @@ test "compute_player_stats uses archetype-specific core stats" {
     equip,
     SkillTree::new_for_archetype(Summoner),
   )
-  let ranger = compute_player_stats(
-    equip,
-    SkillTree::new_for_archetype(Ranger),
-  )
+  let ranger = compute_player_stats(equip, SkillTree::new_for_archetype(Ranger))
   assert_true(melee.strength > mage.strength)
   assert_true(mage.intelligence > melee.intelligence)
   assert_true(ranger.dexterity > melee.dexterity)
@@ -352,7 +349,9 @@ test "player damage helpers map skills to different core stats" {
     crit_chance: 0.0,
     life_steal: 0.0,
     speed_bonus: 0.0,
-    cooldown_reduction: 0.0, spell_damage_pct: 0.0, chain_bonus: 0,
+    cooldown_reduction: 0.0,
+    spell_damage_pct: 0.0,
+    chain_bonus: 0,
     tag_bonuses: new_tag_bonuses_array(),
   }
   let params = { ..BalanceParams::default(), spell_damage_mult: 1.0 }
@@ -379,7 +378,9 @@ test "archetype affinity boosts aligned damage and punishes offspec damage" {
     crit_chance: 0.0,
     life_steal: 0.0,
     speed_bonus: 0.0,
-    cooldown_reduction: 0.0, spell_damage_pct: 0.0, chain_bonus: 0,
+    cooldown_reduction: 0.0,
+    spell_damage_pct: 0.0,
+    chain_bonus: 0,
     tag_bonuses: new_tag_bonuses_array(),
   }
   let params = { ..BalanceParams::default(), spell_damage_mult: 1.0 }
@@ -497,22 +498,13 @@ test "level_progression add_xp creates three offers and choosing one learns it" 
   let skills = SkillTree::new()
   let progress = LevelProgression::new()
   let config = LevelUpConfig::default()
-  let leveled = progress.add_xp(
-    skills,
-    Melee,
-    ArchetypeAligned,
-    12,
-    17,
-    config,
-  )
+  let leveled = progress.add_xp(skills, Melee, ArchetypeAligned, 12, 17, config)
   assert_true(leveled)
   assert_eq(progress.level, 2)
   assert_eq(progress.pending_choices, 1)
   assert_eq(progress.current_offers.length(), 3)
   let chosen = progress.current_offers[1]
-  assert_true(
-    progress.choose_offer(skills, Melee, ArchetypeAligned, 1, 33),
-  )
+  assert_true(progress.choose_offer(skills, Melee, ArchetypeAligned, 1, 33))
   assert_eq(skills.get_level(chosen), 1)
   assert_eq(progress.pending_choices, 0)
   assert_eq(progress.current_offers.length(), 0)
@@ -523,9 +515,7 @@ test "level progression favors archetype-aligned offers" {
   let mage = SkillTree::new_for_archetype(Mage)
   let progress = LevelProgression::new()
   let config = LevelUpConfig::default()
-  ignore(
-    progress.add_xp(mage, Mage, ArchetypeAligned, 12, 0, config),
-  )
+  ignore(progress.add_xp(mage, Mage, ArchetypeAligned, 12, 0, config))
   assert_true(progress.current_offers.length() > 0)
   let mut has_spell = false
   for offer in progress.current_offers {
@@ -680,7 +670,5 @@ test "equipment should_equip_for_build follows archetype policy" {
   assert_false(
     equip.should_equip_for_build(int_weapon, Melee, ArchetypeAligned),
   )
-  assert_true(
-    equip.should_equip_for_build(int_weapon, Melee, AntiSynergy),
-  )
+  assert_true(equip.should_equip_for_build(int_weapon, Melee, AntiSynergy))
 }

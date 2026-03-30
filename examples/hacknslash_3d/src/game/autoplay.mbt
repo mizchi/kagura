@@ -275,6 +275,7 @@ pub fn GameWorld::auto_equip_best(self : GameWorld) -> Unit {
 }
 
 ///|
+
 ///|
 pub fn GameWorld::auto_choose_levelup_offer(self : GameWorld) -> Unit {
   if self.level_progress.pending_choices <= 0 ||
@@ -403,8 +404,7 @@ fn margin_aware_waypoint(
     }
   }
   // Right wall
-  if wp.x + 1 < nav_grid.width &&
-    nav_grid.get(wp.x + 1, wp.y) == @terrain.Wall {
+  if wp.x + 1 < nav_grid.width && nav_grid.get(wp.x + 1, wp.y) == @terrain.Wall {
     let wall_edge = (wp.x + 1).to_double() * tile_size
     let desired = wall_edge - margin
     if cx > desired {
@@ -420,8 +420,7 @@ fn margin_aware_waypoint(
     }
   }
   // Bottom wall
-  if wp.y + 1 < nav_grid.height &&
-    nav_grid.get(wp.x, wp.y + 1) == @terrain.Wall {
+  if wp.y + 1 < nav_grid.height && nav_grid.get(wp.x, wp.y + 1) == @terrain.Wall {
     let wall_edge = (wp.y + 1).to_double() * tile_size
     let desired = wall_edge - margin
     if cy > desired {
@@ -613,7 +612,7 @@ fn compute_kite_direction(
     let edist_sq = edx * edx + edy * edy
     if edist_sq < repel_range * repel_range && edist_sq > 0.001 {
       let edist = edist_sq.sqrt()
-      let strength = (1.0 - edist / repel_range)
+      let strength = 1.0 - edist / repel_range
       let weight = if i == primary_enemy_idx {
         strength * repel_primary_mult
       } else {
@@ -639,7 +638,7 @@ fn compute_kite_direction(
     } else {
       // Too close: gentle retreat (melee barely retreats)
       let retreat_max = if is_melee_build { -0.05 } else { -0.3 }
-      -((-range_error) / desired_range.max(1.0)).min(1.0) * (-retreat_max)
+      -(-range_error / desired_range.max(1.0)).min(1.0) * -retreat_max
     }
     force_x = force_x + pe_dx / pe_dist * attract
     force_y = force_y + pe_dy / pe_dist * attract
@@ -697,7 +696,7 @@ fn compute_kite_direction(
       continue
     }
     // Check if projectile is heading toward us (dot product of velocity and direction to player)
-    let approaching = proj.vx * (-pdx) + proj.vy * (-pdy)
+    let approaching = proj.vx * -pdx + proj.vy * -pdy
     if approaching <= 0.0 {
       continue // moving away from us
     }

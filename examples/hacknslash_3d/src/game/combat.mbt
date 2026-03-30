@@ -130,9 +130,10 @@ pub fn melee_slash(world : GameWorld) -> Unit {
   let crit_roll = (world.frame_count * 31 + world.seed * 7) % 100
   let is_crit = crit_roll.to_double() / 100.0 < stats.crit_chance
   let base_damage = if is_crit { stats.atk * 2 } else { stats.atk }
-  let damage = (base_damage.to_double() * world.archetype.basic_attack_multiplier()).to_int().max(
-    1,
-  )
+  let damage = (base_damage.to_double() *
+    world.archetype.basic_attack_multiplier())
+    .to_int()
+    .max(1)
   let px = world.player.x
   let py = world.player.y
   let r_sq = melee_slash_radius * melee_slash_radius
@@ -236,9 +237,7 @@ fn apply_enemy_death_rewards(world : GameWorld, enemy : Enemy) -> Unit {
       )
       world.deal_player_damage(explosion_damage)
     }
-    world.events.push(
-      EnemyTelegraphRing(enemy.x, enemy.y, explode_radius),
-    )
+    world.events.push(EnemyTelegraphRing(enemy.x, enemy.y, explode_radius))
   }
   if enemy.kind == Tank || enemy.kind == Boss {
     world.events.push(FireballBurst(enemy.x, enemy.y))

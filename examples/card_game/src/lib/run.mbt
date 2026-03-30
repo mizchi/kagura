@@ -156,6 +156,11 @@ fn advance_floor(state : RunState) -> Unit {
     state.phase = RunVictory
     return
   }
+  // Act transition bonus: entering Act 2 grants +7 max HP and full heal
+  if state.floor == 16 {
+    state.player_max_hp += 7
+    state.player_hp = state.player_max_hp
+  }
   match floor_type(state.floor) {
     Combat(tier) => {
       let encounter = pick_encounter(state, tier)

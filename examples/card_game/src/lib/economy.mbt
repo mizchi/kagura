@@ -430,13 +430,13 @@ fn encounter_difficulty(id : EncounterId) -> Double {
       SlaverRed => (14.0 + 14.0 + 9.0 + 0.0) / 4.0
       Sentry => (9.0 + 9.0 + 10.0) / 3.0
       GremlinNob => (0.0 + 14.0 + 6.0) / 3.0 // + enrage scaling
-      TheGuardian => (16.0 + 28.0 + 20.0 + 0.0 + 9.0) / 5.0
-      Hexaghost => (36.0 + 6.0 + 10.0 + 0.0 + 12.0) / 5.0
+      TheGuardian => (14.0 + 24.0 + 16.0 + 0.0 + 9.0) / 5.0
+      Hexaghost => (20.0 + 6.0 + 10.0 + 0.0 + 12.0) / 5.0
       // Act 2 enemies
       Chosen => (0.0 + 12.0 + 18.0) / 3.0
       SnakePlant => (7.0 + 7.0 + 18.0 + 0.0) / 4.0
       BookOfStabbing => (12.0 + 18.0 + 24.0 + 30.0) / 4.0
-      BronzeAutomaton => (8.0 + 8.0 + 0.0 + 45.0 + 0.0) / 5.0
+      BronzeAutomaton => (8.0 + 8.0 + 0.0 + 38.0 + 0.0) / 5.0
     }
     total_dpt += avg_dmg
   }

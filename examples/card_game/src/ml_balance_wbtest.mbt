@@ -116,6 +116,44 @@ test "ml: run simulation captures HP curve" {
 }
 
 ///|
+test "ml: sensitivity analysis - enemy HP perturbation" {
+  let result = analyze_sensitivity(SingleJawWorm, EnemyHP(JawWorm), 10, 30)
+  // Increasing enemy HP by 10 should decrease win rate (negative sensitivity)
+  // or at least not increase it significantly
+  assert_true(result.base_win_rate >= 0.0)
+  assert_true(result.base_win_rate <= 1.0)
+  assert_true(result.perturbed_win_rate >= 0.0)
+  assert_true(result.perturbed_win_rate <= 1.0)
+  inspect(
+    "JawWorm +10HP: base=" +
+    result.base_win_rate.to_string() +
+    " pert=" +
+    result.perturbed_win_rate.to_string() +
+    " sens=" +
+    result.sensitivity.to_string(),
+    content=(
+      #|JawWorm +10HP: base=1 pert=1 sens=0
+    ),
+  )
+}
+
+///|
+test "ml: sensitivity analysis - player HP matters for elite" {
+  let result = analyze_sensitivity(SentryPair, PlayerHP, 20, 30)
+  // More player HP should help against elites
+  assert_true(result.perturbed_win_rate >= result.base_win_rate)
+  inspect(
+    "SentryPair +20HP: base=" +
+    result.base_win_rate.to_string() +
+    " pert=" +
+    result.perturbed_win_rate.to_string(),
+    content=(
+      #|SentryPair +20HP: base=0.4 pert=0.5333333333333333
+    ),
+  )
+}
+
+///|
 test "ml: run balance - win rate sanity check" {
   let summary = simulate_runs(30, Smart)
   // Report the actual win rate for balance tuning

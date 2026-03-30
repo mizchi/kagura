@@ -258,19 +258,151 @@ pub(all) struct SensitivityResult {
 } derive(Show)
 
 ///|
+/// Run a single battle with parameter perturbation applied post-creation
+fn simulate_battle_perturbed(
+  encounter : EncounterId,
+  strategy : PlayStrategy,
+  seed : Int,
+  param : BalanceParam,
+  delta : Int,
+) -> SimResult {
+  let enemy_ids = encounter_enemies(encounter)
+  let state = BattleState::new(enemy_ids, seed~)
+  // Apply perturbation to the created battle state
+  match param {
+    PlayerHP => {
+      state.player.max_hp += delta
+      state.player.hp += delta
+      if state.player.hp < 1 {
+        state.player.hp = 1
+      }
+    }
+    PlayerEnergy => {
+      state.player.max_energy += delta
+      state.player.energy += delta
+      if state.player.energy < 0 {
+        state.player.energy = 0
+      }
+    }
+    EnemyHP(eid) =>
+      for enemy in state.enemies {
+        if enemy.id == eid {
+          enemy.fighter.max_hp += delta
+          enemy.fighter.hp += delta
+          if enemy.fighter.hp < 1 {
+            enemy.fighter.hp = 1
+          }
+        }
+      }
+    EnemyDamage(eid) =>
+      for enemy in state.enemies {
+        if enemy.id == eid {
+          // Adjust intent damage directly
+          enemy.intent = match enemy.intent {
+            AttackIntent(n) => AttackIntent(n + delta)
+            MultiAttack(n, t) => MultiAttack(n + delta, t)
+            other => other
+          }
+        }
+      }
+    CardDamage(_) => () // Card perturbation handled at card_def level (future)
+    CardBlock(_) => () // Card perturbation handled at card_def level (future)
+  }
+  // Run the battle
+  let mut cards_played = 0
+  let mut safety = 0
+  while state.phase == PlayerTurn && safety < 200 {
+    safety += 1
+    let choice = pick_card(state, strategy)
+    match choice {
+      Some((hand_idx, target)) => {
+        let result = play_card(state, hand_idx, target)
+        if result == Ok {
+          cards_played += 1
+        } else {
+          end_player_turn(state)
+        }
+      }
+      None => end_player_turn(state)
+    }
+    if state.phase == Victory || state.phase == Defeat {
+      break
+    }
+  }
+  {
+    won: state.phase == Victory,
+    turns_taken: state.turn,
+    hp_remaining: state.player.hp,
+    max_hp: state.player.max_hp,
+    cards_played,
+  }
+}
+
+///|
+/// Run N perturbed simulations
+fn run_perturbed_simulations(
+  encounter : EncounterId,
+  strategy : PlayStrategy,
+  count : Int,
+  param : BalanceParam,
+  delta : Int,
+) -> SimSummary {
+  let mut wins = 0
+  let mut total_turns = 0
+  let mut total_hp = 0
+  let mut total_cards = 0
+  let mut min_hp = 999
+  let mut max_hp = 0
+  let mut i = 0
+  while i < count {
+    let result = simulate_battle_perturbed(
+      encounter, strategy, i * 7 + 13, param, delta,
+    )
+    if result.won {
+      wins += 1
+    }
+    total_turns += result.turns_taken
+    total_hp += result.hp_remaining
+    total_cards += result.cards_played
+    if result.hp_remaining < min_hp {
+      min_hp = result.hp_remaining
+    }
+    if result.hp_remaining > max_hp {
+      max_hp = result.hp_remaining
+    }
+    i += 1
+  }
+  {
+    total: count,
+    wins,
+    losses: count - wins,
+    avg_turns: total_turns / count,
+    avg_hp_remaining: total_hp / count,
+    avg_cards_played: total_cards / count,
+    min_hp,
+    max_hp,
+  }
+}
+
+///|
 /// Run sensitivity analysis by perturbing a parameter
-/// Returns how much win_rate changes per unit change in the parameter
+/// Uses finite-difference: sensitivity ≈ (win_rate(+δ) - win_rate(-δ)) / (2δ)
 fn analyze_sensitivity(
   encounter : EncounterId,
   param : BalanceParam,
-  _delta : Int,
+  delta : Int,
   sim_count : Int,
 ) -> SensitivityResult {
   // Base win rate
   let base = run_simulations(encounter, Smart, sim_count)
   let base_wr = base.wins.to_double() / base.total.to_double()
-  // For now, we report the base rate and indicate the parameter
-  // Full implementation would modify the parameter and re-simulate
+  // Perturbed win rate (+delta)
+  let perturbed = run_perturbed_simulations(
+    encounter, Smart, sim_count, param, delta,
+  )
+  let pert_wr = perturbed.wins.to_double() / perturbed.total.to_double()
+  // Sensitivity = change in win rate per unit parameter change
+  let sensitivity = (pert_wr - base_wr) / delta.to_double()
   let param_name = match param {
     PlayerHP => "PlayerHP"
     PlayerEnergy => "PlayerEnergy"
@@ -282,8 +414,8 @@ fn analyze_sensitivity(
   {
     param: param_name,
     base_win_rate: base_wr,
-    perturbed_win_rate: base_wr, // placeholder
-    sensitivity: 0.0, // placeholder
+    perturbed_win_rate: pert_wr,
+    sensitivity,
   }
 }
 

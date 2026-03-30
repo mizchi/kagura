@@ -28,6 +28,7 @@
 
 ### 優先 TODO で完了済み (退避)
 
+- P1-11: `collision3d.SpatialHashGrid::get_pairs` dense-case 改善（canonical overlap cell の start-mask で非 canonical bucket を丸ごとスキップし、scratch bench で `dense 512 = 89.86ms -> 2.16ms`、`sparse 512 = 12.13µs`）
 - P0-1: native 実 backend への draw command 接続（tile/sprite/text 3 command まで smoke 検証）
 - P0-2: WebGPU 実装を `WebCanvasPlatform`/`gfx` hook 経由で接続
 - P0-3: WebGL2 フォールバックは非目標として確定

@@ -311,6 +311,30 @@ test "get_pairs deduplicates across cells" {
 }
 
 ///|
+test "entry_overlap_start_mask marks matching axes" {
+  let entry : BroadphaseEntry = {
+    id: 0,
+    aabb: AABB::new(
+      @math3d.Vec3::new(0.0, -2.0, 4.0),
+      @math3d.Vec3::new(2.0, 1.0, 6.0),
+    ),
+    min_cx: 0,
+    min_cy: -1,
+    min_cz: 2,
+  }
+  assert_eq(entry_overlap_start_mask(entry, 0, -1, 2), 0b111)
+  assert_eq(entry_overlap_start_mask(entry, 1, -1, 2), 0b110)
+  assert_eq(entry_overlap_start_mask(entry, 1, 0, 3), 0)
+}
+
+///|
+test "bucket_mask_bits_can_emit_pairs only when masks cover all axes" {
+  assert_false(bucket_mask_bits_can_emit_pairs((1 << 6) | (1 << 0)))
+  assert_true(bucket_mask_bits_can_emit_pairs((1 << 6) | (1 << 1)))
+  assert_true(bucket_mask_bits_can_emit_pairs(1 << 7))
+}
+
+///|
 test "negative coordinates" {
   let grid = SpatialHashGrid::new(2.0)
   grid.insert(

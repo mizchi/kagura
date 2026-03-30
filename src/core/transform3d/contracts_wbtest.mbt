@@ -32,6 +32,30 @@ test "to_mat4 translation only" {
 }
 
 ///|
+test "is_translation_only_transform detects identity rotation and unit scale" {
+  assert_true(is_translation_only_transform(Transform3D::new()))
+  assert_true(
+    is_translation_only_transform(
+      Transform3D::from_position(@math3d.Vec3::new(1.0, 2.0, 3.0)),
+    ),
+  )
+  let pi = 3.14159265358979
+  assert_false(
+    is_translation_only_transform(
+      Transform3D::from_position_rotation(
+        @math3d.Vec3::zero(),
+        @math3d.Quaternion::from_axis_angle(@math3d.Vec3::unit_y(), pi / 2.0),
+      ),
+    ),
+  )
+  assert_false(
+    is_translation_only_transform(
+      Transform3D::new().with_scale(@math3d.Vec3::new(2.0, 1.0, 1.0)),
+    ),
+  )
+}
+
+///|
 test "to_mat4 scale only" {
   let t = Transform3D::new().with_scale(@math3d.Vec3::new(2.0, 3.0, 4.0))
   let m = t.to_mat4()

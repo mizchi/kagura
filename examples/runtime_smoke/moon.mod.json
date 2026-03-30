@@ -6,6 +6,6 @@
   "deps": {
     "mizchi/kagura": { "path": "../.." },
     "mizchi/web_runtime_hooks": { "path": "../web_runtime_hooks" },
-    "mizchi/font": "0.3.1"
+    "mizchi/font": "0.7.0"
   }
 }

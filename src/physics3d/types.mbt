@@ -79,6 +79,30 @@ pub(all) struct ContactConstraint3D {
 }
 
 ///|
+priv struct ContactConstraintRuntime3D {
+  idx_a : Int
+  idx_b : Int
+  contact : Contact
+  r_a : @math3d.Vec3
+  r_b : @math3d.Vec3
+  r_a_cross_n : @math3d.Vec3
+  r_b_cross_n : @math3d.Vec3
+  r_a_cross_t : @math3d.Vec3
+  r_b_cross_t : @math3d.Vec3
+  has_normal_angular : Bool
+  has_tangent_angular : Bool
+  normal_mass : Double
+  tangent_mass : Double
+  tangent_dir : @math3d.Vec3
+  friction : Double
+  gamma : Double
+  bias_coefficient : Double
+  restitution_bias : Double
+  mut acc_jn : Double
+  mut acc_jt : Double
+}
+
+///|
 
 ///|
 pub(all) struct ManifoldPoint3D {

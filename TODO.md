@@ -34,6 +34,20 @@
   - `DrawTrianglesCommand` に `vertex_stride_hint` を追加、WebGPU pipeline が hint 優先・shader regex フォールバック
   - 将来の拡張属性 (Tangent4, Color4) も enum に定義済み
 
+### P1: Engine Performance
+
+- [ ] `physics3d.PhysicsWorld::step` の substep hot path をさらに削る
+  `raw_contacts` / `new_cache` の中継除去、sleep island 判定の `Map` → 配列化、active world での sleep island early skip、contact solve 用 cross/friction の precompute、body write の 1 回化、runtime constraint field の direct mutate、zero-angular normal/friction fast path、soft constraint 定数の step 単位 precompute、zero-torque angular integration fast path は入れた。
+  `src/physics3d/world_bench.mbt` の段階 bench では `pairs dense 64 = 30-31µs`、`constraints dense 64 = 49-52µs`、`velocity dense 64 = 2.5-2.6µs`、`solve dense 64 = 75-80µs`、`solve_only dense 64 = 6.8-7.0µs`、`position dense 64 = 2.6µs`、`substeps dense 64 = 198-199µs`、`full dense 64 = 223-226µs`。
+  scratch bench の全体実行は揺れるが、最新再計測は `dense 64 = 240.57µs`、`sparse 64 = 69.20µs`。残りは `solve_constraint3d` の tangent/angular path と、persistent world で意味がある broadphase / constraint バッファ再利用の切り分け。
+
+- [ ] `scene3d` の object ごとの command 生成コストをさらに下げる
+  index sort 化、white tint fast path、plain unskinned object の common-case fast path、`Transform3D::to_mat4()` の translation-only fast path、translation-only normal matrix fast path、shared light dwords + exact-size uniform packing、`transform_aabb` の temp array 削減は入れた。再計測は 1024 object で best-run `930µs`、sorted は `1.07-1.10ms` 帯。
+  残りは `DstRegion` / `dst_regions` / `src_image_ids` の小配列割り当てと、PBR / skinned 経路の uniform packing。
+
+- [ ] explicit geometry の command merge 戦略を再設計する
+  `sprite2d` bench で `same_state 10000 = 2.84ms`、`alternating_texture_pages 10000 = 2.15ms`。CPU 側の全 vertex/index 連結が律速になっている。
+
 ### P2: Package Boundary / Deferred
 
 - [ ] Paint パイプラインのモジュール分界を整理する

@@ -145,6 +145,17 @@ test "lit_uniform_dwords with translation" {
 }
 
 ///|
+test "lit_uniform_dwords_with_light_dwords matches default packing" {
+  let model = @math3d.Mat4::translation(1.0, 2.0, 3.0)
+  let vp = @math3d.Mat4::identity()
+  let lighting = @light3d.LightingEnvironment::default()
+  let light_dwords = @light3d.light_uniform_dwords(lighting)
+  let dwords = lit_uniform_dwords(model, vp, lighting)
+  let packed = lit_uniform_dwords_with_light_dwords(model, vp, light_dwords)
+  assert_eq(packed, dwords)
+}
+
+///|
 test "new_lit_mesh_draw_command creates valid command" {
   let mesh = @mesh3d.Mesh3D::cube(1.0)
   let model = @math3d.Mat4::identity()

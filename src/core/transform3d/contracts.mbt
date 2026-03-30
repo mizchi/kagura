@@ -44,8 +44,26 @@ pub fn Transform3D::from_components(
 }
 
 ///|
+fn is_translation_only_transform(transform : Transform3D) -> Bool {
+  transform.rotation.x == 0.0 &&
+  transform.rotation.y == 0.0 &&
+  transform.rotation.z == 0.0 &&
+  transform.rotation.w == 1.0 &&
+  transform.scale.x == 1.0 &&
+  transform.scale.y == 1.0 &&
+  transform.scale.z == 1.0
+}
+
+///|
 /// Compute model matrix as T * R * S.
 pub fn Transform3D::to_mat4(self : Transform3D) -> @math3d.Mat4 {
+  if is_translation_only_transform(self) {
+    return @math3d.Mat4::translation(
+      self.position.x,
+      self.position.y,
+      self.position.z,
+    )
+  }
   let t = @math3d.Mat4::translation(
     self.position.x,
     self.position.y,

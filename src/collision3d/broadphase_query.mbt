@@ -1,4 +1,55 @@
 ///|
+fn cell_coords_from_key(key : Int64) -> (Int, Int, Int) {
+  let mask = cell_coord_mask.to_int64()
+  let x_bits = ((key >> 42) & mask).to_int()
+  let y_bits = ((key >> 21) & mask).to_int()
+  let z_bits = (key & mask).to_int()
+  (
+    cell_coord_from_bits(x_bits),
+    cell_coord_from_bits(y_bits),
+    cell_coord_from_bits(z_bits),
+  )
+}
+
+///|
+fn entry_overlap_start_mask(
+  entry : BroadphaseEntry,
+  cx : Int,
+  cy : Int,
+  cz : Int,
+) -> Int {
+  let mut mask = 0
+  if entry.min_cx == cx {
+    mask = mask | 1
+  }
+  if entry.min_cy == cy {
+    mask = mask | 2
+  }
+  if entry.min_cz == cz {
+    mask = mask | 4
+  }
+  mask
+}
+
+///|
+fn bucket_mask_bits_can_emit_pairs(mask_bits : Int) -> Bool {
+  for lhs = 0; lhs < 8; lhs = lhs + 1 {
+    if (mask_bits & (1 << lhs)) == 0 {
+      continue
+    }
+    for rhs = lhs; rhs < 8; rhs = rhs + 1 {
+      if (mask_bits & (1 << rhs)) == 0 {
+        continue
+      }
+      if (lhs | rhs) == 7 {
+        return true
+      }
+    }
+  }
+  false
+}
+
+///|
 pub fn SpatialHashGrid::query_aabb(
   self : SpatialHashGrid,
   aabb : AABB,
@@ -136,24 +187,34 @@ pub fn SpatialHashGrid::query_ray(
 
 ///|
 pub fn SpatialHashGrid::get_pairs(self : SpatialHashGrid) -> Array[(Int, Int)] {
-  let seen : Map[Int64, Unit] = {}
   let result : Array[(Int, Int)] = []
-  self.cells.each(fn(_key, bucket) {
+  self.cells.each(fn(key, bucket) {
+    if bucket.length() < 2 {
+      return
+    }
+    let (cx, cy, cz) = cell_coords_from_key(key)
+    let bucket_masks : Array[Int] = Array::make(bucket.length(), 0)
+    let mut mask_bits = 0
     for i = 0; i < bucket.length(); i = i + 1 {
+      let mask = entry_overlap_start_mask(self.entries[bucket[i]], cx, cy, cz)
+      bucket_masks[i] = mask
+      mask_bits = mask_bits | (1 << mask)
+    }
+    if not(bucket_mask_bits_can_emit_pairs(mask_bits)) {
+      return
+    }
+    for i = 0; i < bucket.length(); i = i + 1 {
+      let mask_i = bucket_masks[i]
       for j = i + 1; j < bucket.length(); j = j + 1 {
+        if (mask_i | bucket_masks[j]) != 7 {
+          continue
+        }
         let a = self.entries[bucket[i]]
         let b = self.entries[bucket[j]]
         let min_id = if a.id < b.id { a.id } else { b.id }
         let max_id = if a.id > b.id { a.id } else { b.id }
-        let pair_key = (min_id.to_int64() << 32) | max_id.to_int64()
-        match seen.get(pair_key) {
-          Some(_) => ()
-          None => {
-            seen[pair_key] = ()
-            if a.aabb.intersects_aabb(b.aabb) {
-              result.push((min_id, max_id))
-            }
-          }
+        if a.aabb.intersects_aabb(b.aabb) {
+          result.push((min_id, max_id))
         }
       }
     }

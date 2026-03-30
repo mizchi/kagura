@@ -99,6 +99,22 @@ test "render_scene3d_gpu culls objects far to the side" {
 }
 
 ///|
+test "transform_aabb handles translated negative scale" {
+  let model = @math3d.Mat4::translation(10.0, -2.0, 3.0).multiply(
+    @math3d.Mat4::scaling(-2.0, 3.0, 4.0),
+  )
+  let (min_x, min_y, min_z, max_x, max_y, max_z) = transform_aabb(
+    -1.0, -2.0, -3.0, 1.0, 2.0, 3.0, model,
+  )
+  assert_eq(min_x, 8.0)
+  assert_eq(max_x, 12.0)
+  assert_eq(min_y, -8.0)
+  assert_eq(max_y, 4.0)
+  assert_eq(min_z, -9.0)
+  assert_eq(max_z, 15.0)
+}
+
+///|
 test "render_scene3d_gpu: 1 object = 1 command (no batching)" {
   let dst = @gfx.new_image_handle(0, 640, 480)
   let shader3d = @gfx.new_shader_handle(10, "")
@@ -1030,6 +1046,48 @@ test "has_nonzero_sort_bias_gpu detects when sorting can be skipped" {
       object3d(mesh=cube, sort_bias=1.0),
     ]),
   )
+}
+
+///|
+test "sort_object_indices_for_gpu keeps stable order for equal biases" {
+  let cube = @mesh3d.Mesh3D::cube(1.0)
+  let indices = sort_object_indices_for_gpu([
+    object3d(mesh=cube, sort_bias=0.0),
+    object3d(mesh=cube, sort_bias=2.0),
+    object3d(mesh=cube, sort_bias=2.0),
+    object3d(mesh=cube, sort_bias=-1.0),
+  ])
+  assert_eq(indices.length(), 4)
+  assert_eq(indices[0], 1)
+  assert_eq(indices[1], 2)
+  assert_eq(indices[2], 0)
+  assert_eq(indices[3], 3)
+}
+
+///|
+test "tint_lighting_for_object reuses base lighting for white tint" {
+  let lighting = @light3d.LightingEnvironment::default()
+  let tinted = tint_lighting_for_object(
+    lighting,
+    @math3d.Vec4::new(1.0, 1.0, 1.0, 1.0),
+  )
+  assert_eq(tinted.directional.color.x, lighting.directional.color.x)
+  assert_eq(tinted.directional.color.y, lighting.directional.color.y)
+  assert_eq(tinted.directional.color.z, lighting.directional.color.z)
+  assert_eq(tinted.ambient.color.x, lighting.ambient.color.x)
+  assert_eq(tinted.ambient.color.y, lighting.ambient.color.y)
+  assert_eq(tinted.ambient.color.z, lighting.ambient.color.z)
+}
+
+///|
+test "can_use_simple_untextured_gpu_path only accepts plain unskinned objects" {
+  assert_true(can_use_simple_untextured_gpu_path(None, None))
+  assert_false(can_use_simple_untextured_gpu_path(Some(Material::new()), None))
+  let skinning = SkinningState::new(
+    @skeleton3d.SkinData::{ joint_indices: [], weights: [], vertex_count: 0 },
+    [],
+  )
+  assert_false(can_use_simple_untextured_gpu_path(None, Some(skinning)))
 }
 
 // ============================================================

@@ -25,6 +25,7 @@ pub fn render_scene3d_graph_gpu(
 ) -> Array[@gfx.DrawTrianglesCommand] {
   let vp = camera.view_projection_matrix()
   let frustum = Frustum::from_vp(vp)
+  let light_dwords = @light3d.light_uniform_dwords(lighting)
   let cmds : Array[@gfx.DrawTrianglesCommand] = []
   let identity = @math3d.Mat4::identity()
   for i in 0..<graph.roots.length() {
@@ -35,6 +36,7 @@ pub fn render_scene3d_graph_gpu(
       vp,
       frustum,
       lighting,
+      light_dwords,
       dst,
       shader3d,
       screen_w,
@@ -58,6 +60,7 @@ fn traverse_node_gpu(
   vp : @math3d.Mat4,
   frustum : Frustum,
   lighting : @light3d.LightingEnvironment,
+  light_dwords : Array[Int],
   dst : @gfx.ImageHandle,
   shader3d : @gfx.ShaderHandle,
   screen_w : Int,
@@ -84,6 +87,7 @@ fn traverse_node_gpu(
             vp,
             frustum,
             lighting,
+            light_dwords,
             dst,
             shader3d,
             screen_w,
@@ -105,6 +109,7 @@ fn traverse_node_gpu(
           vp,
           frustum,
           lighting,
+          light_dwords,
           dst,
           shader3d,
           screen_w,
@@ -171,33 +176,60 @@ pub fn push_scene3d_gpu_commands(
 ) -> Unit {
   let vp = camera.view_projection_matrix()
   let frustum = Frustum::from_vp(vp)
-  let ordered = if has_nonzero_sort_bias_gpu(objects) {
-    sort_objects_for_gpu(objects)
+  let camera_pos = camera.position
+  let light_dwords = @light3d.light_uniform_dwords(lighting)
+  if has_nonzero_sort_bias_gpu(objects) {
+    let ordered_indices = sort_object_indices_for_gpu(objects)
+    for index in ordered_indices {
+      let obj = objects[index]
+      let model = obj.transform.to_mat4()
+      render_object_gpu(
+        obj.mesh,
+        model,
+        obj.color,
+        obj.material,
+        obj.skinning,
+        vp,
+        frustum,
+        lighting,
+        light_dwords,
+        dst,
+        shader3d,
+        screen_w,
+        screen_h,
+        cmds,
+        shader3d_textured~,
+        shader3d_pbr~,
+        shader3d_pbr_textured~,
+        shader3d_skinned~,
+        camera_pos~,
+      )
+    }
   } else {
-    objects
-  }
-  for obj in ordered {
-    let model = obj.transform.to_mat4()
-    render_object_gpu(
-      obj.mesh,
-      model,
-      obj.color,
-      obj.material,
-      obj.skinning,
-      vp,
-      frustum,
-      lighting,
-      dst,
-      shader3d,
-      screen_w,
-      screen_h,
-      cmds,
-      shader3d_textured~,
-      shader3d_pbr~,
-      shader3d_pbr_textured~,
-      shader3d_skinned~,
-      camera_pos=camera.position,
-    )
+    for obj in objects {
+      let model = obj.transform.to_mat4()
+      render_object_gpu(
+        obj.mesh,
+        model,
+        obj.color,
+        obj.material,
+        obj.skinning,
+        vp,
+        frustum,
+        lighting,
+        light_dwords,
+        dst,
+        shader3d,
+        screen_w,
+        screen_h,
+        cmds,
+        shader3d_textured~,
+        shader3d_pbr~,
+        shader3d_pbr_textured~,
+        shader3d_skinned~,
+        camera_pos~,
+      )
+    }
   }
 }
 
@@ -1034,27 +1066,77 @@ fn has_nonzero_sort_bias_gpu(objects : Array[Object3D]) -> Bool {
 }
 
 ///|
-fn sort_objects_for_gpu(objects : Array[Object3D]) -> Array[Object3D] {
-  let ordered : Array[(Int, Object3D)] = []
+fn sort_object_indices_for_gpu(objects : Array[Object3D]) -> Array[Int] {
+  let ordered : Array[Int] = []
   for i in 0..<objects.length() {
-    ordered.push((i, objects[i]))
+    ordered.push(i)
   }
   ordered.sort_by(fn(a, b) {
-    let bias_a = a.1.sort_bias
-    let bias_b = b.1.sort_bias
+    let bias_a = objects[a].sort_bias
+    let bias_b = objects[b].sort_bias
     if bias_a > bias_b {
       -1
     } else if bias_a < bias_b {
       1
     } else {
-      a.0 - b.0
+      a - b
     }
   })
-  let sorted : Array[Object3D] = []
-  for entry in ordered {
-    sorted.push(entry.1)
+  ordered
+}
+
+///|
+fn has_identity_tint(color : @math3d.Vec4) -> Bool {
+  color.x == 1.0 && color.y == 1.0 && color.z == 1.0
+}
+
+///|
+let scene3d_alpha_blend_mode : @gfx.BlendMode = @gfx.blend_mode_from_int(1)
+
+///|
+let scene3d_empty_src_image_ids : Array[Int] = []
+
+///|
+fn can_use_simple_untextured_gpu_path(
+  material : Material?,
+  skinning : SkinningState?,
+) -> Bool {
+  match (material, skinning) {
+    (None, None) => true
+    _ => false
   }
-  sorted
+}
+
+///|
+fn tint_lighting_for_object(
+  lighting : @light3d.LightingEnvironment,
+  color : @math3d.Vec4,
+) -> @light3d.LightingEnvironment {
+  if has_identity_tint(color) {
+    lighting
+  } else {
+    @light3d.LightingEnvironment::new(
+      @light3d.DirectionalLight::new(
+        lighting.directional.direction,
+        @math3d.Vec3::new(
+          lighting.directional.color.x * color.x,
+          lighting.directional.color.y * color.y,
+          lighting.directional.color.z * color.z,
+        ),
+        lighting.directional.intensity,
+      ),
+      @light3d.AmbientLight::new(
+        @math3d.Vec3::new(
+          lighting.ambient.color.x * color.x,
+          lighting.ambient.color.y * color.y,
+          lighting.ambient.color.z * color.z,
+        ),
+        lighting.ambient.intensity,
+      ),
+      point_lights=lighting.point_lights,
+      spot_lights=lighting.spot_lights,
+    )
+  }
 }
 
 ///|
@@ -1067,6 +1149,7 @@ fn render_object_gpu(
   vp : @math3d.Mat4,
   frustum : Frustum,
   lighting : @light3d.LightingEnvironment,
+  light_dwords : Array[Int],
   dst : @gfx.ImageHandle,
   shader3d : @gfx.ShaderHandle,
   screen_w : Int,
@@ -1086,6 +1169,27 @@ fn render_object_gpu(
   if frustum_cull_aabb(frustum, wmin_x, wmin_y, wmin_z, wmax_x, wmax_y, wmax_z) {
     return
   }
+  let index_count = mesh.indices.length()
+  let dst_region = @gfx.new_dst_region(0, 0, screen_w, screen_h, index_count)
+  if can_use_simple_untextured_gpu_path(material, skinning) {
+    if has_identity_tint(color) {
+      cmds.push(
+        @draw3d.new_lit_mesh_draw_command_with_light_dwords(
+          dst, shader3d, dst_region, 0, 0, 0, scene3d_alpha_blend_mode, mesh, model,
+          vp, light_dwords, scene3d_empty_src_image_ids,
+        ),
+      )
+    } else {
+      let object_lighting = tint_lighting_for_object(lighting, color)
+      cmds.push(
+        @draw3d.new_lit_mesh_draw_command(
+          dst, shader3d, dst_region, 0, 0, 0, scene3d_alpha_blend_mode, mesh, model,
+          vp, object_lighting, scene3d_empty_src_image_ids,
+        ),
+      )
+    }
+    return
+  }
   // Resolve color and texture from material
   let (col, src_image_id, metallic, roughness, emissive) = match material {
     Some(mat) =>
@@ -1094,31 +1198,14 @@ fn render_object_gpu(
   }
   let has_texture = src_image_id >= 0
   let is_pbr = metallic > 0.0 || roughness != 0.5
-  // Build per-object lighting with object color baked into ambient/diffuse
-  let tinted_lighting = @light3d.LightingEnvironment::new(
-    @light3d.DirectionalLight::new(
-      lighting.directional.direction,
-      @math3d.Vec3::new(
-        lighting.directional.color.x * col.x,
-        lighting.directional.color.y * col.y,
-        lighting.directional.color.z * col.z,
-      ),
-      lighting.directional.intensity,
-    ),
-    @light3d.AmbientLight::new(
-      @math3d.Vec3::new(
-        lighting.ambient.color.x * col.x,
-        lighting.ambient.color.y * col.y,
-        lighting.ambient.color.z * col.z,
-      ),
-      lighting.ambient.intensity,
-    ),
-  )
-  let index_count = mesh.indices.length()
-  let dst_region = @gfx.new_dst_region(0, 0, screen_w, screen_h, index_count)
-  let src_image_ids : Array[Int] = if has_texture { [src_image_id] } else { [] }
+  let src_image_ids : Array[Int] = if has_texture {
+    [src_image_id]
+  } else {
+    scene3d_empty_src_image_ids
+  }
   // Select shader and build draw command based on material properties
   if is_pbr {
+    let tinted_lighting = tint_lighting_for_object(lighting, col)
     let shader = if has_texture {
       match shader3d_pbr_textured {
         Some(s) => s
@@ -1135,28 +1222,14 @@ fn render_object_gpu(
       }
     }
     let cmd = @draw3d.new_pbr_mesh_draw_command(
-      dst,
-      shader,
-      dst_region,
-      0,
-      0,
-      0,
-      @gfx.blend_mode_from_int(1),
-      mesh,
-      model,
-      vp,
-      tinted_lighting,
-      metallic,
-      roughness,
-      col,
-      emissive,
-      camera_pos,
-      src_image_ids,
+      dst, shader, dst_region, 0, 0, 0, scene3d_alpha_blend_mode, mesh, model, vp,
+      tinted_lighting, metallic, roughness, col, emissive, camera_pos, src_image_ids,
     )
     cmds.push(cmd)
   } else {
     match (skinning, shader3d_skinned) {
       (Some(sk), Some(skinned_shader)) => {
+        let tinted_lighting = tint_lighting_for_object(lighting, col)
         let cmd = match sk.packed_vertex_data {
           Some(packed_vertex_data) =>
             @draw3d.new_skinned_lit_mesh_draw_command(
@@ -1166,7 +1239,7 @@ fn render_object_gpu(
               0,
               0,
               0,
-              @gfx.blend_mode_from_int(1),
+              scene3d_alpha_blend_mode,
               packed_vertex_data,
               mesh.indices,
               model,
@@ -1183,7 +1256,7 @@ fn render_object_gpu(
               0,
               0,
               0,
-              @gfx.blend_mode_from_int(1),
+              scene3d_alpha_blend_mode,
               mesh,
               sk.skin,
               model,
@@ -1204,20 +1277,18 @@ fn render_object_gpu(
         } else {
           shader3d
         }
-        let cmd = @draw3d.new_lit_mesh_draw_command(
-          dst,
-          shader,
-          dst_region,
-          0,
-          0,
-          0,
-          @gfx.blend_mode_from_int(1),
-          mesh,
-          model,
-          vp,
-          tinted_lighting,
-          src_image_ids,
-        )
+        let cmd = if has_identity_tint(col) {
+          @draw3d.new_lit_mesh_draw_command_with_light_dwords(
+            dst, shader, dst_region, 0, 0, 0, scene3d_alpha_blend_mode, mesh, model,
+            vp, light_dwords, src_image_ids,
+          )
+        } else {
+          let tinted_lighting = tint_lighting_for_object(lighting, col)
+          @draw3d.new_lit_mesh_draw_command(
+            dst, shader, dst_region, 0, 0, 0, scene3d_alpha_blend_mode, mesh, model,
+            vp, tinted_lighting, src_image_ids,
+          )
+        }
         cmds.push(cmd)
       }
     }

@@ -116,6 +116,21 @@ fn compute_mesh_aabb(
 }
 
 ///|
+fn ordered_products(
+  coeff : Double,
+  min_value : Double,
+  max_value : Double,
+) -> (Double, Double) {
+  let a = coeff * min_value
+  let b = coeff * max_value
+  if a < b {
+    (a, b)
+  } else {
+    (b, a)
+  }
+}
+
+///|
 /// Transform an object-space AABB to world-space using Arvo's method.
 fn transform_aabb(
   min_x : Double,
@@ -134,37 +149,32 @@ fn transform_aabb(
   let mut wmax_x = wmin_x
   let mut wmax_y = wmin_y
   let mut wmax_z = wmin_z
-  // For each axis (column), accumulate min/max contributions
-  let mins = [min_x, min_y, min_z]
-  let maxs = [max_x, max_y, max_z]
-  for j in 0..<3 {
-    let a0 = e[j * 4] * mins[j]
-    let b0 = e[j * 4] * maxs[j]
-    if a0 < b0 {
-      wmin_x = wmin_x + a0
-      wmax_x = wmax_x + b0
-    } else {
-      wmin_x = wmin_x + b0
-      wmax_x = wmax_x + a0
-    }
-    let a1 = e[j * 4 + 1] * mins[j]
-    let b1 = e[j * 4 + 1] * maxs[j]
-    if a1 < b1 {
-      wmin_y = wmin_y + a1
-      wmax_y = wmax_y + b1
-    } else {
-      wmin_y = wmin_y + b1
-      wmax_y = wmax_y + a1
-    }
-    let a2 = e[j * 4 + 2] * mins[j]
-    let b2 = e[j * 4 + 2] * maxs[j]
-    if a2 < b2 {
-      wmin_z = wmin_z + a2
-      wmax_z = wmax_z + b2
-    } else {
-      wmin_z = wmin_z + b2
-      wmax_z = wmax_z + a2
-    }
-  }
+  let (x0_min, x0_max) = ordered_products(e[0], min_x, max_x)
+  let (y0_min, y0_max) = ordered_products(e[1], min_x, max_x)
+  let (z0_min, z0_max) = ordered_products(e[2], min_x, max_x)
+  wmin_x = wmin_x + x0_min
+  wmax_x = wmax_x + x0_max
+  wmin_y = wmin_y + y0_min
+  wmax_y = wmax_y + y0_max
+  wmin_z = wmin_z + z0_min
+  wmax_z = wmax_z + z0_max
+  let (x1_min, x1_max) = ordered_products(e[4], min_y, max_y)
+  let (y1_min, y1_max) = ordered_products(e[5], min_y, max_y)
+  let (z1_min, z1_max) = ordered_products(e[6], min_y, max_y)
+  wmin_x = wmin_x + x1_min
+  wmax_x = wmax_x + x1_max
+  wmin_y = wmin_y + y1_min
+  wmax_y = wmax_y + y1_max
+  wmin_z = wmin_z + z1_min
+  wmax_z = wmax_z + z1_max
+  let (x2_min, x2_max) = ordered_products(e[8], min_z, max_z)
+  let (y2_min, y2_max) = ordered_products(e[9], min_z, max_z)
+  let (z2_min, z2_max) = ordered_products(e[10], min_z, max_z)
+  wmin_x = wmin_x + x2_min
+  wmax_x = wmax_x + x2_max
+  wmin_y = wmin_y + y2_min
+  wmax_y = wmax_y + y2_max
+  wmin_z = wmin_z + z2_min
+  wmax_z = wmax_z + z2_max
   (wmin_x, wmin_y, wmin_z, wmax_x, wmax_y, wmax_z)
 }

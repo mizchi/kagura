@@ -1,4 +1,5 @@
 import {
+  "mizchi/font" @font,
   "mizchi/kagura/ai" @ai,
   "mizchi/kagura/engine/asset" @asset,
   "mizchi/kagura/engine/audio" @audio,

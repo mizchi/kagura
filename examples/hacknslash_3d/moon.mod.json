@@ -5,6 +5,7 @@
   "warn-list": "-6-29-53-68",
   "deps": {
     "mizchi/kagura": { "path": "../.." },
+    "mizchi/font": "0.7.0",
     "mizchi/kagura_effect_studio": { "path": "../../tools/effect-studio" },
     "mizchi/web_runtime_hooks": { "path": "../web_runtime_hooks" },
     "mizchi/terrain": "0.1.1",

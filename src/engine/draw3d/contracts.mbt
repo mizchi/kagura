@@ -7,9 +7,9 @@
 ///|
 /// Encode a Mat4 as 16 f32 dwords for uniform buffer.
 pub fn mat4_to_uniform_dwords(m : @math3d.Mat4) -> Array[Int] {
-  let dwords : Array[Int] = []
+  let dwords : Array[Int] = Array::make(16, 0)
   for i in 0..<16 {
-    dwords.push(@gfx.double_to_f32_bits(m.elements[i]))
+    dwords[i] = @gfx.double_to_f32_bits(m.elements[i])
   }
   dwords
 }
@@ -206,6 +206,26 @@ pub fn shader3d_lit_colored_wgsl() -> String {
 // ============================================================
 
 ///|
+fn lit_uniform_dwords_with_light_dwords(
+  model : @math3d.Mat4,
+  view_projection : @math3d.Mat4,
+  light_dwords : Array[Int],
+) -> Array[Int] {
+  let mvp = view_projection.multiply(model)
+  let dwords : Array[Int] = Array::make(56, 0)
+  for i in 0..<16 {
+    dwords[i] = @gfx.double_to_f32_bits(mvp.elements[i])
+    dwords[16 + i] = @gfx.double_to_f32_bits(model.elements[i])
+  }
+  let normal_dw = @light3d.normal_matrix_uniform_dwords(model)
+  for i in 0..<12 {
+    dwords[32 + i] = normal_dw[i]
+    dwords[44 + i] = light_dwords[i]
+  }
+  dwords
+}
+
+///|
 /// Encode lit uniform data as 56 dwords:
 /// MVP(16) + Model(16) + NormalMatrix(12) + Light(12).
 pub fn lit_uniform_dwords(
@@ -213,23 +233,8 @@ pub fn lit_uniform_dwords(
   view_projection : @math3d.Mat4,
   lighting : @light3d.LightingEnvironment,
 ) -> Array[Int] {
-  let mvp = view_projection.multiply(model)
-  let dwords = mat4_to_uniform_dwords(mvp)
-  // Model matrix (16 dwords)
-  for i in 0..<16 {
-    dwords.push(@gfx.double_to_f32_bits(model.elements[i]))
-  }
-  // Normal matrix (12 dwords)
-  let normal_dw = @light3d.normal_matrix_uniform_dwords(model)
-  for i in 0..<normal_dw.length() {
-    dwords.push(normal_dw[i])
-  }
-  // Light data (12 dwords)
   let light_dw = @light3d.light_uniform_dwords(lighting)
-  for i in 0..<light_dw.length() {
-    dwords.push(light_dw[i])
-  }
-  dwords
+  lit_uniform_dwords_with_light_dwords(model, view_projection, light_dw)
 }
 
 ///|
@@ -265,8 +270,31 @@ pub fn new_lit_mesh_draw_command(
   lighting : @light3d.LightingEnvironment,
   src_image_ids : Array[Int],
 ) -> @gfx.DrawTrianglesCommand {
-  let uniform_dwords = lit_uniform_dwords(
-    model_matrix, view_projection, lighting,
+  let light_dwords = @light3d.light_uniform_dwords(lighting)
+  new_lit_mesh_draw_command_with_light_dwords(
+    dst, shader, dst_region, index_offset, pipeline_id, uniform_hash, blend, mesh,
+    model_matrix, view_projection, light_dwords, src_image_ids,
+  )
+}
+
+///|
+/// Build a lit DrawTrianglesCommand from a 3D mesh with prepacked light dwords.
+pub fn new_lit_mesh_draw_command_with_light_dwords(
+  dst : @gfx.ImageHandle,
+  shader : @gfx.ShaderHandle,
+  dst_region : @gfx.DstRegion,
+  index_offset : Int,
+  pipeline_id : Int,
+  uniform_hash : Int,
+  blend : @gfx.BlendMode,
+  mesh : @mesh3d.Mesh3D,
+  model_matrix : @math3d.Mat4,
+  view_projection : @math3d.Mat4,
+  light_dwords : Array[Int],
+  src_image_ids : Array[Int],
+) -> @gfx.DrawTrianglesCommand {
+  let uniform_dwords = lit_uniform_dwords_with_light_dwords(
+    model_matrix, view_projection, light_dwords,
   )
   @gfx.new_draw_triangles_command(
     dst,

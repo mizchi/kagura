@@ -32,6 +32,8 @@ pub fn new_lit_colored_mesh_draw_command(@gfx.ImageHandle, @gfx.ShaderHandle, @g
 
 pub fn new_lit_mesh_draw_command(@gfx.ImageHandle, @gfx.ShaderHandle, @gfx.DstRegion, Int, Int, Int, @gfx.BlendMode, @mesh3d.Mesh3D, @math3d.Mat4, @math3d.Mat4, @light3d.LightingEnvironment, Array[Int]) -> @gfx.DrawTrianglesCommand
 
+pub fn new_lit_mesh_draw_command_with_light_dwords(@gfx.ImageHandle, @gfx.ShaderHandle, @gfx.DstRegion, Int, Int, Int, @gfx.BlendMode, @mesh3d.Mesh3D, @math3d.Mat4, @math3d.Mat4, Array[Int], Array[Int]) -> @gfx.DrawTrianglesCommand
+
 pub fn new_lit_normalmap_mesh_draw_command(@gfx.ImageHandle, @gfx.ShaderHandle, @gfx.DstRegion, Int, Int, Int, @gfx.BlendMode, @mesh3d.Mesh3D, @math3d.Mat4, @math3d.Mat4, @light3d.LightingEnvironment, Int, Int) -> @gfx.DrawTrianglesCommand
 
 pub fn new_mesh_draw_command(@gfx.ImageHandle, @gfx.ShaderHandle, @gfx.DstRegion, Int, Int, Int, @gfx.BlendMode, @mesh3d.Mesh3D, @math3d.Mat4, @math3d.Mat4, Array[Int]) -> @gfx.DrawTrianglesCommand

@@ -129,6 +129,23 @@ fn f32(v : Double) -> Int {
 }
 
 ///|
+fn is_translation_only_model(model : @math3d.Mat4) -> Bool {
+  model.elements[0] == 1.0 &&
+  model.elements[1] == 0.0 &&
+  model.elements[2] == 0.0 &&
+  model.elements[3] == 0.0 &&
+  model.elements[4] == 0.0 &&
+  model.elements[5] == 1.0 &&
+  model.elements[6] == 0.0 &&
+  model.elements[7] == 0.0 &&
+  model.elements[8] == 0.0 &&
+  model.elements[9] == 0.0 &&
+  model.elements[10] == 1.0 &&
+  model.elements[11] == 0.0 &&
+  model.elements[15] == 1.0
+}
+
+///|
 /// Encode lighting environment as 12 uniform dwords:
 /// [0-3]: direction.xyz + 0 (padding)
 /// [4-7]: color*intensity + intensity
@@ -156,6 +173,22 @@ pub fn light_uniform_dwords(env : LightingEnvironment) -> Array[Int] {
 /// Encode normal matrix (inverse-transpose of model's upper 3x3) as 12 dwords.
 /// Stored as 3 vec4f columns (xyz + padding).
 pub fn normal_matrix_uniform_dwords(model : @math3d.Mat4) -> Array[Int] {
+  if is_translation_only_model(model) {
+    return [
+      f32(1.0),
+      f32(0.0),
+      f32(0.0),
+      f32(0.0),
+      f32(0.0),
+      f32(1.0),
+      f32(0.0),
+      f32(0.0),
+      f32(0.0),
+      f32(0.0),
+      f32(1.0),
+      f32(0.0),
+    ]
+  }
   let inv = model.inverse()
   let inv_t = inv.transpose()
   // Extract upper 3x3 as three columns, each padded to vec4f

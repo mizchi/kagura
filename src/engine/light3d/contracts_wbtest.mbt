@@ -79,6 +79,15 @@ test "normal_matrix_uniform_dwords identity" {
 }
 
 ///|
+test "normal_matrix_uniform_dwords translation only stays identity" {
+  let model = @math3d.Mat4::translation(5.0, -2.0, 3.0)
+  let dw = normal_matrix_uniform_dwords(model)
+  assert_true(approx(decode(dw[0]), 1.0))
+  assert_true(approx(decode(dw[5]), 1.0))
+  assert_true(approx(decode(dw[10]), 1.0))
+}
+
+///|
 test "normal_matrix_uniform_dwords with uniform scale" {
   // For uniform scale, normal matrix = identity (inverse-transpose of scale cancels)
   let model = @math3d.Mat4::scaling(3.0, 3.0, 3.0)

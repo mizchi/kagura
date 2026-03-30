@@ -83,7 +83,15 @@ pub fn PhysicsWorld::add_ball_joint(
 let sleep_velocity_threshold3d : Double = 0.5
 
 ///|
+let sleep_velocity_threshold_sq3d : Double = sleep_velocity_threshold3d *
+  sleep_velocity_threshold3d
+
+///|
 let sleep_angular_threshold3d : Double = 0.2
+
+///|
+let sleep_angular_threshold_sq3d : Double = sleep_angular_threshold3d *
+  sleep_angular_threshold3d
 
 ///|
 let sleep_time_threshold3d : Double = 0.5
@@ -129,91 +137,92 @@ pub fn PhysicsWorld::step(self : PhysicsWorld, dt : Double) -> Unit {
   let config = self.solver_config
   let substeps = config.substeps
   let sub_dt = dt / substeps.to_double()
+  let body_count = self.bodies.length()
   // 1. Broadphase (once per frame)
   self.broadphase.clear()
-  for i = 0; i < self.bodies.length(); i = i + 1 {
+  for i = 0; i < body_count; i = i + 1 {
     self.broadphase.insert(i, self.bodies[i].world_aabb())
   }
   let pairs = self.broadphase.get_pairs()
-  // 2. Narrowphase: detect contacts once
-  let raw_contacts : Array[(Int, Int, Contact)] = []
-  for p = 0; p < pairs.length(); p = p + 1 {
+  let pair_count = pairs.length()
+  let (contact_gamma, contact_bias_coefficient) = soft_constraint_params3d(
+    config.contact_hertz,
+    config.contact_damping_ratio,
+    sub_dt,
+  )
+  // 2. Narrowphase + constraint precompute
+  let constraints : Array[ContactConstraintRuntime3D] = Array::new(
+    capacity=pair_count,
+  )
+  for p = 0; p < pair_count; p = p + 1 {
     let (idx_a, idx_b) = pairs[p]
     let body_a = self.bodies[idx_a]
     let body_b = self.bodies[idx_b]
     if body_a.inv_mass >= 1.0e-12 || body_b.inv_mass >= 1.0e-12 {
       match generate_contact(body_a, body_b) {
-        Some(contact) => raw_contacts.push((idx_a, idx_b, contact))
+        Some(contact) => {
+          let mut constraint = precompute_constraint3d(
+            body_a, body_b, idx_a, idx_b, contact, contact_gamma, contact_bias_coefficient,
+          )
+          // Warm starting: look up cached impulses from previous frame
+          let pair_key = contact_pair_key3d(body_a.id, body_b.id)
+          match self.contact_cache.get(pair_key) {
+            Some(cached) =>
+              if cached.normal.dot(contact.normal) > 0.9 {
+                if cached.points.length() > 0 {
+                  let pt = cached.points[0]
+                  let warm_factor = 0.8
+                  constraint = {
+                    ..constraint,
+                    acc_jn: pt.normal_impulse * warm_factor,
+                    acc_jt: pt.tangent_impulse * warm_factor,
+                  }
+                  let n = contact.normal
+                  let tangent = constraint.tangent_dir
+                  let jn = pt.normal_impulse * warm_factor
+                  let jt = pt.tangent_impulse * warm_factor
+                  if jn.abs() > 1.0e-15 || jt.abs() > 1.0e-15 {
+                    let impulse = n.scale(jn).add(tangent.scale(jt))
+                    self.bodies[idx_a] = {
+                      ..self.bodies[idx_a],
+                      velocity: self.bodies[idx_a].velocity.add(
+                        impulse.scale(body_a.inv_mass),
+                      ),
+                    }
+                    self.bodies[idx_b] = {
+                      ..self.bodies[idx_b],
+                      velocity: self.bodies[idx_b].velocity.sub(
+                        impulse.scale(body_b.inv_mass),
+                      ),
+                    }
+                  }
+                }
+              }
+            None => ()
+          }
+          constraints.push(constraint)
+        }
         None => ()
       }
     }
   }
-  // 3. Precompute constraints with warm starting from cache
-  let constraints : Array[ContactConstraint3D] = []
-  let new_cache : Map[Int64, ContactManifold3D] = {}
-  for c = 0; c < raw_contacts.length(); c = c + 1 {
-    let (idx_a, idx_b, contact) = raw_contacts[c]
-    let body_a = self.bodies[idx_a]
-    let body_b = self.bodies[idx_b]
-    let mut constraint = precompute_constraint3d(
-      body_a,
-      body_b,
-      idx_a,
-      idx_b,
-      contact,
-      config.contact_hertz,
-      config.contact_damping_ratio,
-      sub_dt,
-    )
-    // Warm starting: look up cached impulses from previous frame
-    let pair_key = contact_pair_key3d(body_a.id, body_b.id)
-    match self.contact_cache.get(pair_key) {
-      Some(cached) =>
-        if cached.normal.dot(contact.normal) > 0.9 {
-          if cached.points.length() > 0 {
-            let pt = cached.points[0]
-            let warm_factor = 0.8
-            constraint = {
-              ..constraint,
-              acc_jn: pt.normal_impulse * warm_factor,
-              acc_jt: pt.tangent_impulse * warm_factor,
-            }
-            let n = contact.normal
-            let tangent = constraint.tangent_dir
-            let jn = pt.normal_impulse * warm_factor
-            let jt = pt.tangent_impulse * warm_factor
-            if jn.abs() > 1.0e-15 || jt.abs() > 1.0e-15 {
-              let impulse = n.scale(jn).add(tangent.scale(jt))
-              self.bodies[idx_a] = {
-                ..self.bodies[idx_a],
-                velocity: self.bodies[idx_a].velocity.add(
-                  impulse.scale(body_a.inv_mass),
-                ),
-              }
-              self.bodies[idx_b] = {
-                ..self.bodies[idx_b],
-                velocity: self.bodies[idx_b].velocity.sub(
-                  impulse.scale(body_b.inv_mass),
-                ),
-              }
-            }
-          }
-        }
-      None => ()
-    }
-    constraints.push(constraint)
-  }
   // 3b. Precompute joint constraints
-  let dist_constraints : Array[DistanceJointConstraint3D] = []
-  for j = 0; j < self.joints_distance.length(); j = j + 1 {
+  let distance_joint_count = self.joints_distance.length()
+  let dist_constraints : Array[DistanceJointConstraint3D] = Array::new(
+    capacity=distance_joint_count,
+  )
+  for j = 0; j < distance_joint_count; j = j + 1 {
     match
       precompute_distance_joint3d(self.joints_distance[j], self.bodies, sub_dt) {
       Some(c) => dist_constraints.push(c)
       None => ()
     }
   }
-  let ball_constraints : Array[BallJointConstraint3D] = []
-  for j = 0; j < self.joints_ball.length(); j = j + 1 {
+  let ball_joint_count = self.joints_ball.length()
+  let ball_constraints : Array[BallJointConstraint3D] = Array::new(
+    capacity=ball_joint_count,
+  )
+  for j = 0; j < ball_joint_count; j = j + 1 {
     match precompute_ball_joint3d(self.joints_ball[j], self.bodies, sub_dt) {
       Some(c) => ball_constraints.push(c)
       None => ()
@@ -222,17 +231,23 @@ pub fn PhysicsWorld::step(self : PhysicsWorld, dt : Double) -> Unit {
   // 4. Substep loop
   for _s = 0; _s < substeps; _s = _s + 1 {
     // 4a. Velocity integration (dynamic, non-sleeping only)
-    for i = 0; i < self.bodies.length(); i = i + 1 {
+    for i = 0; i < body_count; i = i + 1 {
       let body = self.bodies[i]
       if body.is_dynamic() && not(body.is_sleeping) {
         let accel = self.gravity.add(body.force.scale(body.inv_mass))
         let new_vel = body.velocity
           .add(accel.scale(sub_dt))
           .scale(1.0 - body.linear_damping * sub_dt)
-        let angular_accel = body.torque.scale(body.inv_inertia)
-        let new_angular_vel = body.angular_velocity
+        let new_angular_vel = if body.angular_velocity.length_squared() <=
+          1.0e-24 &&
+          body.torque.length_squared() <= 1.0e-24 {
+          @math3d.Vec3::zero()
+        } else {
+          let angular_accel = body.torque.scale(body.inv_inertia)
+          body.angular_velocity
           .add(angular_accel.scale(sub_dt))
           .scale(1.0 - body.angular_damping * sub_dt)
+        }
         self.bodies[i] = {
           ..body,
           velocity: new_vel,
@@ -259,12 +274,13 @@ pub fn PhysicsWorld::step(self : PhysicsWorld, dt : Double) -> Unit {
     }
     // 4c. Position + rotation integration (dynamic, non-sleeping only)
     // For bullet bodies, check CCD before full position update
-    for i = 0; i < self.bodies.length(); i = i + 1 {
+    for i = 0; i < body_count; i = i + 1 {
       let body = self.bodies[i]
       if body.is_dynamic() && not(body.is_sleeping) {
         let omega = body.angular_velocity
-        let omega_len = omega.length()
-        let new_rotation = if omega_len > 1.0e-12 {
+        let omega_len_sq = omega.length_squared()
+        let new_rotation = if omega_len_sq > 1.0e-24 {
+          let omega_len = omega_len_sq.sqrt()
           let axis = omega.scale(1.0 / omega_len)
           let angle = omega_len * sub_dt
           body.rotation
@@ -277,7 +293,8 @@ pub fn PhysicsWorld::step(self : PhysicsWorld, dt : Double) -> Unit {
           match ccd_sweep_body3d(i, self.bodies, sub_dt) {
             Some(toi) => {
               let safe_toi = if toi > 0.01 { toi * 0.95 } else { 0.0 }
-              let safe_rotation = if omega_len > 1.0e-12 {
+              let safe_rotation = if omega_len_sq > 1.0e-24 {
+                let omega_len = omega_len_sq.sqrt()
                 let axis = omega.scale(1.0 / omega_len)
                 let angle = omega_len * sub_dt * safe_toi
                 body.rotation
@@ -312,6 +329,7 @@ pub fn PhysicsWorld::step(self : PhysicsWorld, dt : Double) -> Unit {
     }
   }
   // 5. Save constraint impulses to cache for next frame warm starting
+  self.contact_cache.clear()
   for c = 0; c < constraints.length(); c = c + 1 {
     let con = constraints[c]
     let body_a = self.bodies[con.idx_a]
@@ -319,7 +337,7 @@ pub fn PhysicsWorld::step(self : PhysicsWorld, dt : Double) -> Unit {
     let pair_key = contact_pair_key3d(body_a.id, body_b.id)
     let local_a = con.contact.contact_point.sub(body_a.position)
     let local_b = con.contact.contact_point.sub(body_b.position)
-    new_cache.set(pair_key, {
+    self.contact_cache.set(pair_key, {
       body_a_id: body_a.id,
       body_b_id: body_b.id,
       normal: con.contact.normal,
@@ -334,11 +352,8 @@ pub fn PhysicsWorld::step(self : PhysicsWorld, dt : Double) -> Unit {
       ],
     })
   }
-  // Replace old cache with new
-  self.contact_cache.clear()
-  new_cache.each(fn(k, v) { self.contact_cache.set(k, v) })
   // 6. Clear forces (once per frame)
-  for i = 0; i < self.bodies.length(); i = i + 1 {
+  for i = 0; i < body_count; i = i + 1 {
     let body = self.bodies[i]
     if body.is_dynamic() {
       self.bodies[i] = {
@@ -349,51 +364,57 @@ pub fn PhysicsWorld::step(self : PhysicsWorld, dt : Double) -> Unit {
     }
   }
   // 7. Sleeping: update sleep timers and detect islands
-  let n = self.bodies.length()
+  let n = body_count
   if n > 0 {
-    let parent : Array[Int] = Array::make(n, 0)
-    let rank : Array[Int] = Array::make(n, 0)
-    for i = 0; i < n; i = i + 1 {
-      parent[i] = i
-    }
-    for c = 0; c < constraints.length(); c = c + 1 {
-      let con = constraints[c]
-      uf_union3d(parent, rank, con.idx_a, con.idx_b)
-    }
+    let mut has_sleeping_body = false
+    let mut has_sleep_candidate = false
     // Update sleep timers per body
     for i = 0; i < n; i = i + 1 {
       let body = self.bodies[i]
       if body.is_dynamic() {
-        let speed = body.velocity.length()
-        let angular_speed = body.angular_velocity.length()
-        if speed < sleep_velocity_threshold3d &&
-          angular_speed < sleep_angular_threshold3d {
-          self.bodies[i] = { ..body, sleep_timer: body.sleep_timer + dt }
+        if body.is_sleeping {
+          has_sleeping_body = true
+        }
+        let speed_sq = body.velocity.length_squared()
+        let angular_speed_sq = body.angular_velocity.length_squared()
+        if speed_sq < sleep_velocity_threshold_sq3d &&
+          angular_speed_sq < sleep_angular_threshold_sq3d {
+          let sleep_timer = body.sleep_timer + dt
+          if sleep_timer >= sleep_time_threshold3d {
+            has_sleep_candidate = true
+          }
+          self.bodies[i] = { ..body, sleep_timer, }
         } else {
           self.bodies[i] = { ..body, is_sleeping: false, sleep_timer: 0.0 }
         }
       }
     }
-    // Check islands
-    let island_can_sleep : Map[Int, Bool] = {}
-    for i = 0; i < n; i = i + 1 {
-      let body = self.bodies[i]
-      if body.is_dynamic() {
-        let root = uf_find3d(parent, i)
-        let can_sleep = body.sleep_timer >= sleep_time_threshold3d
-        match island_can_sleep.get(root) {
-          Some(prev) => island_can_sleep.set(root, prev && can_sleep)
-          None => island_can_sleep.set(root, can_sleep)
+    if has_sleeping_body || has_sleep_candidate {
+      let parent : Array[Int] = Array::make(n, 0)
+      let rank : Array[Int] = Array::make(n, 0)
+      for i = 0; i < n; i = i + 1 {
+        parent[i] = i
+      }
+      for c = 0; c < constraints.length(); c = c + 1 {
+        let con = constraints[c]
+        uf_union3d(parent, rank, con.idx_a, con.idx_b)
+      }
+      // Check islands
+      let island_can_sleep : Array[Bool] = Array::make(n, true)
+      for i = 0; i < n; i = i + 1 {
+        let body = self.bodies[i]
+        if body.is_dynamic() {
+          let root = uf_find3d(parent, i)
+          island_can_sleep[root] = island_can_sleep[root] &&
+            body.sleep_timer >= sleep_time_threshold3d
         }
       }
-    }
-    // Apply sleep/wake per island
-    for i = 0; i < n; i = i + 1 {
-      let body = self.bodies[i]
-      if body.is_dynamic() {
-        let root = uf_find3d(parent, i)
-        match island_can_sleep.get(root) {
-          Some(true) =>
+      // Apply sleep/wake per island
+      for i = 0; i < n; i = i + 1 {
+        let body = self.bodies[i]
+        if body.is_dynamic() {
+          let root = uf_find3d(parent, i)
+          if island_can_sleep[root] {
             if not(body.is_sleeping) {
               self.bodies[i] = {
                 ..body,
@@ -402,10 +423,9 @@ pub fn PhysicsWorld::step(self : PhysicsWorld, dt : Double) -> Unit {
                 angular_velocity: @math3d.Vec3::zero(),
               }
             }
-          _ =>
-            if body.is_sleeping {
-              self.bodies[i] = { ..body, is_sleeping: false, sleep_timer: 0.0 }
-            }
+          } else if body.is_sleeping {
+            self.bodies[i] = { ..body, is_sleeping: false, sleep_timer: 0.0 }
+          }
         }
       }
     }

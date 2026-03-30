@@ -25,6 +25,7 @@ pub(all) struct RunState {
   deck : Array[CardId]
   relics : Array[RelicId]
   relic_state : RelicState
+  potions : Array[PotionId]
   mut player_hp : Int
   mut player_max_hp : Int
   mut floor : Int
@@ -77,6 +78,7 @@ pub fn RunState::new(seed? : Int = 42) -> RunState {
     deck: starter_deck(),
     relics: [BurningBlood],
     relic_state: RelicState::new(),
+    potions: [],
     player_hp: 80,
     player_max_hp: 80,
     floor: 0,
@@ -223,6 +225,20 @@ fn on_battle_victory(state : RunState) -> Unit {
       match ft {
         Combat(Elite) | Combat(Boss) | Boss => award_relic(state)
         _ => ()
+      }
+      // Potion reward (~40% chance, if room)
+      if state.potions.length() < max_potions {
+        let potion_roll = run_random(state).abs() % 100
+        if potion_roll < 40 {
+          let potion = random_potion(state.rng_seed)
+          // Fruit Juice: auto-use immediately
+          if potion == FruitJuice {
+            state.player_max_hp += 5
+            state.player_hp += 5
+          } else {
+            state.potions.push(potion)
+          }
+        }
       }
       // Generate 3 card rewards with rarity distribution
       state.card_rewards.clear()

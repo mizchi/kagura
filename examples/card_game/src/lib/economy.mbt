@@ -479,10 +479,21 @@ pub fn simulate_run(seed : Int, strategy : PlayStrategy) -> RunSimResult {
       Battle =>
         match run.battle {
           Some(state) => {
-            // Auto-play the battle
+            // Auto-play the battle with potion AI
+            let potions_copy : Array[PotionId] = []
+            for p in run.potions {
+              potions_copy.push(p)
+            }
             let mut battle_safety = 0
             while state.phase == PlayerTurn && battle_safety < 300 {
               battle_safety += 1
+              // Try potions
+              if potions_copy.length() > 0 {
+                try_use_potions(state, potions_copy) |> ignore
+              }
+              if state.phase == Victory || state.phase == Defeat {
+                break
+              }
               let choice = pick_card(state, strategy)
               match choice {
                 Some((hand_idx, target)) => {
@@ -496,6 +507,11 @@ pub fn simulate_run(seed : Int, strategy : PlayStrategy) -> RunSimResult {
               if state.phase == Victory || state.phase == Defeat {
                 break
               }
+            }
+            // Sync potions back
+            run.potions.clear()
+            for p in potions_copy {
+              run.potions.push(p)
             }
             if state.phase == Victory {
               on_battle_victory(run)

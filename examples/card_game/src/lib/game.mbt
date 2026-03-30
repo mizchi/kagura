@@ -39,6 +39,7 @@ pub(all) struct PowerState {
   mut flex_loss : Int // Strength to lose at end of turn
   mut rampage_bonus : Int // Accumulated Rampage damage bonus
   mut corruption : Bool // Skills cost 0 and exhaust
+  mut regen : Int // HP healed at end of turn (decrements)
 } derive(Show)
 
 ///|
@@ -51,6 +52,7 @@ fn PowerState::new() -> PowerState {
     flex_loss: 0,
     rampage_bonus: 0,
     corruption: false,
+    regen: 0,
   }
 }
 
@@ -762,6 +764,18 @@ pub fn end_player_turn(state : BattleState) -> Unit {
   // Metallicize: gain block at end of turn
   if state.powers.metallicize > 0 {
     add_block(state.player, state.powers.metallicize)
+  }
+  // Regen: heal HP and decrement
+  if state.powers.regen > 0 {
+    let heal_amount = 5
+    state.player.hp = state.player.hp + heal_amount
+    if state.player.hp > state.player.max_hp {
+      state.player.hp = state.player.max_hp
+    }
+    state.powers.regen -= 1
+    state.logs.push(
+      "[Regen] Heal 5 HP! (" + state.powers.regen.to_string() + " left)",
+    )
   }
   // Flex: lose temporary strength
   if state.powers.flex_loss > 0 {

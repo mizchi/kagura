@@ -89,6 +89,11 @@ pub(all) struct FunMetrics {
 
   // === 7. Comeback Potential ===
   comeback_rate : Double // wins from <30% HP / battles started at <30% HP
+
+  // === 8. Attrition (消耗率) ===
+  per_battle_attrition : Double // avg (hp_before - hp_after) / max_hp per battle
+  act_gross_attrition : Double // sum(damage_taken) / max_hp across entire Act
+  act_net_attrition : Double // (start_hp - final_hp) / max_hp (net after rests)
 } derive(Show)
 
 ///|
@@ -119,9 +124,23 @@ pub fn simulate_detailed_run(
             for e in state.enemies {
               enemy_hp_sum += e.fighter.hp
             }
+            // Use potions at battle start
+            let potions_copy : Array[PotionId] = []
+            for p in run.potions {
+              potions_copy.push(p)
+            }
+            let mut potions_used = 0
             let mut battle_safety = 0
             while state.phase == PlayerTurn && battle_safety < 300 {
               battle_safety += 1
+              // Try potions at start of each turn
+              if potions_copy.length() > 0 {
+                let used = try_use_potions(state, potions_copy)
+                potions_used += used
+              }
+              if state.phase == Victory || state.phase == Defeat {
+                break
+              }
               // Track HP after each action
               let choice = pick_card(state, strategy)
               match choice {
@@ -200,6 +219,11 @@ pub fn simulate_detailed_run(
                 0
               },
             })
+            // Sync potions back
+            run.potions.clear()
+            for p in potions_copy {
+              run.potions.push(p)
+            }
             if state.phase == Victory {
               on_battle_victory(run)
             } else {
@@ -511,6 +535,51 @@ pub fn analyze_fun_metrics(run_count : Int) -> FunMetrics {
     0.0
   }
 
+  // === 8. Attrition ===
+  let mut attrition_sum = 0.0
+  let mut attrition_count = 0
+  let mut gross_attrition_sum = 0.0
+  let mut net_attrition_sum = 0.0
+  let mut attrition_runs = 0
+  for run in detailed_runs {
+    let mut run_damage = 0.0
+    for battle in run.battles {
+      if battle.won {
+        let max_hp = if battle.hp_before > 0 {
+          80.0 // use base max HP
+        } else {
+          80.0
+        }
+        let loss = battle.damage_taken.to_double() / max_hp
+        attrition_sum += loss
+        attrition_count += 1
+        run_damage += battle.damage_taken.to_double()
+      }
+    }
+    if run.battles.length() > 0 {
+      gross_attrition_sum += run_damage / 80.0
+      let first_hp = run.battles[0].hp_before.to_double()
+      let last_hp = run.battles[run.battles.length() - 1].hp_after.to_double()
+      net_attrition_sum += (first_hp - last_hp) / 80.0
+      attrition_runs += 1
+    }
+  }
+  let per_battle_attrition = if attrition_count > 0 {
+    attrition_sum / attrition_count.to_double()
+  } else {
+    0.0
+  }
+  let act_gross_attrition = if attrition_runs > 0 {
+    gross_attrition_sum / attrition_runs.to_double()
+  } else {
+    0.0
+  }
+  let act_net_attrition = if attrition_runs > 0 {
+    net_attrition_sum / attrition_runs.to_double()
+  } else {
+    0.0
+  }
+
   {
     tension_ratio,
     lethal_proximity,
@@ -523,6 +592,9 @@ pub fn analyze_fun_metrics(run_count : Int) -> FunMetrics {
     strategy_divergence,
     decision_impact,
     comeback_rate,
+    per_battle_attrition,
+    act_gross_attrition,
+    act_net_attrition,
   }
 }
 
@@ -633,6 +705,11 @@ pub(all) struct FunTargets {
   // 7. Comeback
   comeback_min : Double // 0.30
   comeback_max : Double // 0.60
+  // 8. Attrition (消耗率)
+  per_battle_attrition_min : Double // 0.05 (5% max HP per battle)
+  per_battle_attrition_max : Double // 0.20 (20% max HP per battle)
+  act_gross_attrition_min : Double // 0.60 (60% total damage / max HP)
+  act_gross_attrition_max : Double // 1.20 (120% — rest sites are critical)
 } derive(Show)
 
 ///|
@@ -660,6 +737,10 @@ pub fn default_targets() -> FunTargets {
     decision_max: 0.40,
     comeback_min: 0.30,
     comeback_max: 0.60,
+    per_battle_attrition_min: 0.05,
+    per_battle_attrition_max: 0.20,
+    act_gross_attrition_min: 0.60,
+    act_gross_attrition_max: 1.20,
   }
 }
 
@@ -724,6 +805,7 @@ pub(all) struct FunScorecard {
   enemy_diff_score : Double
   decision_score : Double
   comeback_score : Double
+  attrition_score : Double
   // Per-axis grades
   tension_grade : String
   draw_grade : String
@@ -732,6 +814,7 @@ pub(all) struct FunScorecard {
   enemy_grade : String
   decision_grade : String
   comeback_grade : String
+  attrition_grade : String
   // Overall
   total_score : Double // weighted average (0-100)
   overall_grade : String // S / A / B / C / D
@@ -808,16 +891,37 @@ pub fn score_fun_metrics(m : FunMetrics) -> FunScorecard {
     grade(m.comeback_rate, t.comeback_min, t.comeback_max)
   }
 
+  // 8. Attrition: average of per-battle and gross attrition
+  let s_attrition = (
+      zone_score(
+        m.per_battle_attrition,
+        t.per_battle_attrition_min,
+        t.per_battle_attrition_max,
+      ) +
+      zone_score(
+        m.act_gross_attrition,
+        t.act_gross_attrition_min,
+        t.act_gross_attrition_max,
+      )
+    ) /
+    2.0
+  let g_attrition = grade(
+    m.per_battle_attrition,
+    t.per_battle_attrition_min,
+    t.per_battle_attrition_max,
+  )
+
   // Weighted total (weights reflect importance to player experience)
   // Tension and Decision are most important for "fun"
   let weights : Array[(Double, Double)] = [
-    (s_tension, 20.0), // 緊張感 — 最重要
-    (s_draw, 15.0), // ドロー揺らぎ — 重要
-    (s_synergy, 15.0), // ビルド爆発力 — 重要
-    (s_resource, 10.0), // リソースジレンマ
-    (s_enemy, 10.0), // 敵の個性
-    (s_decision, 20.0), // 判断の重み — 最重要
-    (s_comeback, 10.0), // 逆転可能性
+    (s_tension, 18.0), // 緊張感
+    (s_draw, 12.0), // ドロー揺らぎ
+    (s_synergy, 13.0), // ビルド爆発力
+    (s_resource, 8.0), // リソースジレンマ
+    (s_enemy, 9.0), // 敵の個性
+    (s_decision, 18.0), // 判断の重み
+    (s_comeback, 8.0), // 逆転可能性
+    (s_attrition, 14.0), // 消耗率 — 重要
   ]
   let mut weighted_sum = 0.0
   let mut weight_total = 0.0
@@ -852,6 +956,7 @@ pub fn score_fun_metrics(m : FunMetrics) -> FunScorecard {
     enemy_diff_score: s_enemy,
     decision_score: s_decision,
     comeback_score: s_comeback,
+    attrition_score: s_attrition,
     tension_grade: g_tension,
     draw_grade: g_draw,
     synergy_grade: g_synergy,
@@ -859,6 +964,7 @@ pub fn score_fun_metrics(m : FunMetrics) -> FunScorecard {
     enemy_grade: g_enemy,
     decision_grade: g_decision,
     comeback_grade: g_comeback,
+    attrition_grade: g_attrition,
     total_score: total,
     overall_grade: overall,
   }
@@ -902,13 +1008,14 @@ pub fn format_scorecard(sc : FunScorecard) -> String {
     buf.write_string(")\n")
   }
 
-  line(buf, "1.緊張感    ", sc.tension_score, sc.tension_grade, "20")
-  line(buf, "2.ドロー揺らぎ", sc.draw_variance_score, sc.draw_grade, "15")
-  line(buf, "3.ビルド爆発力", sc.synergy_score, sc.synergy_grade, "15")
-  line(buf, "4.HP取引    ", sc.resource_score, sc.resource_grade, "10")
-  line(buf, "5.敵の個性   ", sc.enemy_diff_score, sc.enemy_grade, "10")
-  line(buf, "6.判断の重み  ", sc.decision_score, sc.decision_grade, "20")
-  line(buf, "7.逆転可能性  ", sc.comeback_score, sc.comeback_grade, "10")
+  line(buf, "1.緊張感    ", sc.tension_score, sc.tension_grade, "18")
+  line(buf, "2.ドロー揺らぎ", sc.draw_variance_score, sc.draw_grade, "12")
+  line(buf, "3.ビルド爆発力", sc.synergy_score, sc.synergy_grade, "13")
+  line(buf, "4.HP取引    ", sc.resource_score, sc.resource_grade, "8")
+  line(buf, "5.敵の個性   ", sc.enemy_diff_score, sc.enemy_grade, "9")
+  line(buf, "6.判断の重み  ", sc.decision_score, sc.decision_grade, "18")
+  line(buf, "7.逆転可能性  ", sc.comeback_score, sc.comeback_grade, "8")
+  line(buf, "8.消耗率     ", sc.attrition_score, sc.attrition_grade, "14")
   buf.write_string("\n  TOTAL: ")
   let total_int = sc.total_score.to_int()
   buf.write_string(total_int.to_string())
@@ -1022,6 +1129,26 @@ pub fn format_fun_report(m : FunMetrics) -> String {
   buf.write_string("-")
   buf.write_string(pct_str(t.comeback_max))
   buf.write_string(")\n\n")
+
+  // 8. Attrition
+  buf.write_string("8. ATTRITION (消耗率)\n")
+  buf.write_string("   1戦闘あたりの消耗率: ")
+  buf.write_string(pct_str(m.per_battle_attrition))
+  buf.write_string(" (目標: ")
+  buf.write_string(pct_str(t.per_battle_attrition_min))
+  buf.write_string("-")
+  buf.write_string(pct_str(t.per_battle_attrition_max))
+  buf.write_string(")\n")
+  buf.write_string("   ACT全体の総消耗率: ")
+  buf.write_string(pct_str(m.act_gross_attrition))
+  buf.write_string(" (目標: ")
+  buf.write_string(pct_str(t.act_gross_attrition_min))
+  buf.write_string("-")
+  buf.write_string(pct_str(t.act_gross_attrition_max))
+  buf.write_string(")\n")
+  buf.write_string("   ACT正味消耗率: ")
+  buf.write_string(pct_str(m.act_net_attrition))
+  buf.write_string("\n\n")
 
   // Scorecard
   let sc = score_fun_metrics(m)

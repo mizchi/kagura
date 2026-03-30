@@ -47,6 +47,7 @@ test "fun: format report produces non-empty string" {
   assert_true(report.contains("ENEMY DIFFERENTIATION"))
   assert_true(report.contains("DECISION WEIGHT"))
   assert_true(report.contains("COMEBACK POTENTIAL"))
+  assert_true(report.contains("ATTRITION"))
   // Scorecard should be included
   assert_true(report.contains("FUN SCORECARD"))
   assert_true(report.contains("TOTAL:"))
@@ -64,6 +65,7 @@ test "fun: scorecard produces valid scores" {
   assert_true(sc.enemy_diff_score >= 0.0 && sc.enemy_diff_score <= 1.0)
   assert_true(sc.decision_score >= 0.0 && sc.decision_score <= 1.0)
   assert_true(sc.comeback_score >= 0.0 && sc.comeback_score <= 1.0)
+  assert_true(sc.attrition_score >= 0.0 && sc.attrition_score <= 1.0)
   // Total should be 0-100
   assert_true(sc.total_score >= 0.0 && sc.total_score <= 100.0)
   // Overall grade should be non-empty
@@ -97,4 +99,6 @@ test "fun: default targets are internally consistent" {
   assert_true(t.synergy_min < t.synergy_max)
   assert_true(t.decision_min < t.decision_max)
   assert_true(t.comeback_min < t.comeback_max)
+  assert_true(t.per_battle_attrition_min < t.per_battle_attrition_max)
+  assert_true(t.act_gross_attrition_min < t.act_gross_attrition_max)
 }

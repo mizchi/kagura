@@ -389,6 +389,113 @@ fn effective_damage(def : CardDef) -> Int {
 }
 
 ///|
+/// AI potion usage: returns (potion_index, target) or None
+fn pick_potion(state : BattleState, potions : Array[PotionId]) -> (Int, Int)? {
+  if potions.length() == 0 {
+    return None
+  }
+  let incoming = calc_incoming_damage(state)
+  let unblocked = incoming - state.player.block
+  let target = best_target(state)
+  if target < 0 {
+    return None
+  }
+  let target_hp = state.enemies[target].fighter.hp
+  // Count alive enemies
+  let mut alive = 0
+  for e in state.enemies {
+    if not(e.fighter.is_dead()) {
+      alive += 1
+    }
+  }
+  // Priority 1: StrengthPotion early in battle (turn 1-2)
+  if state.turn <= 2 {
+    let mut i = 0
+    while i < potions.length() {
+      if potions[i] == StrengthPotion {
+        return Some((i, 0))
+      }
+      i += 1
+    }
+  }
+  // Priority 2: FirePotion to finish off an enemy
+  let mut i = 0
+  while i < potions.length() {
+    if potions[i] == FirePotion && target_hp <= 20 {
+      return Some((i, target))
+    }
+    i += 1
+  }
+  // Priority 3: BlockPotion when taking big unblocked damage
+  if unblocked > 15 {
+    let mut i = 0
+    while i < potions.length() {
+      if potions[i] == BlockPotion {
+        return Some((i, 0))
+      }
+      i += 1
+    }
+  }
+  // Priority 4: ExplosivePotion against multiple enemies
+  if alive >= 2 {
+    let mut i = 0
+    while i < potions.length() {
+      if potions[i] == ExplosivePotion {
+        return Some((i, 0))
+      }
+      i += 1
+    }
+  }
+  // Priority 5: WeakPotion against strong attackers
+  if unblocked > 10 {
+    let mut i = 0
+    while i < potions.length() {
+      if potions[i] == WeakPotion {
+        return Some((i, target))
+      }
+      i += 1
+    }
+  }
+  // Priority 6: RegenPotion when HP is low
+  if state.player.hp < state.player.max_hp / 2 {
+    let mut i = 0
+    while i < potions.length() {
+      if potions[i] == RegenPotion {
+        return Some((i, 0))
+      }
+      i += 1
+    }
+  }
+  None
+}
+
+///|
+/// Use potions at start of player turn during simulation
+fn try_use_potions(state : BattleState, potions : Array[PotionId]) -> Int {
+  let mut used = 0
+  let mut safety = 0
+  while safety < 3 {
+    safety += 1
+    match pick_potion(state, potions) {
+      Some((idx, target)) => {
+        let potion = potions[idx]
+        if use_potion_in_combat(state, potion, target) {
+          potions.remove(idx) |> ignore
+          used += 1
+        } else {
+          break
+        }
+      }
+      None => break
+    }
+    if state.phase == Victory || state.phase == Defeat {
+      break
+    }
+  }
+  used
+}
+
+///|
 /// Run N simulations and return summary stats
 pub(all) struct SimSummary {
   total : Int

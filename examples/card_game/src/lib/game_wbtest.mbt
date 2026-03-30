@@ -141,7 +141,7 @@ test "play defend adds block" {
   if defend_idx >= 0 {
     let result = play_card(state, defend_idx, 0)
     assert_true(result == Ok)
-    assert_eq(state.player.block, 5)
+    assert_eq(state.player.block, 6)
     assert_eq(state.player.energy, 2)
   }
 }
@@ -359,7 +359,7 @@ test "iron wave gives block and deals damage" {
   let idx = state.hand.length() - 1
   let hp_before = state.enemies[0].fighter.hp
   let _ = play_card(state, idx, 0)
-  assert_eq(state.player.block, 5)
+  assert_eq(state.player.block, 6)
   assert_eq(state.enemies[0].fighter.hp, hp_before - 5)
 }
 

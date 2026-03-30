@@ -178,8 +178,8 @@ fn main {
   println("")
 
   // --- 6. Fun Metrics Analysis ---
-  println("--- Fun Metrics Analysis (20 runs) ---")
-  let fun = @lib.analyze_fun_metrics(20)
+  println("--- Fun Metrics Analysis (40 runs) ---")
+  let fun = @lib.analyze_fun_metrics(40)
   let report = @lib.format_fun_report(fun)
   println(report)
 

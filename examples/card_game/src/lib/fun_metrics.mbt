@@ -158,12 +158,8 @@ pub fn simulate_detailed_run(
               if state.phase == Victory || state.phase == Defeat {
                 break
               }
-              // Assess danger: incoming damage vs current block before acting
-              let incoming = calc_incoming_damage(state)
-              let is_danger = incoming > state.player.block
               let hp_before_turn = state.player.hp
               // Play all cards this turn
-              let mut played_this_turn = false
               let mut turn_done = false
               while not(turn_done) {
                 let choice = pick_card(state, strategy)
@@ -178,7 +174,6 @@ pub fn simulate_detailed_run(
                     let result = play_card(state, hand_idx, target)
                     if result == Ok {
                       n_cards_played += 1
-                      played_this_turn = true
                       let mut enemy_hp_post = 0
                       for e in state.enemies {
                         if not(e.fighter.is_dead()) {
@@ -203,7 +198,10 @@ pub fn simulate_detailed_run(
                   turn_done = true
                 }
               }
-              let _ = played_this_turn
+              // Assess danger AFTER playing cards: incoming vs built-up block
+              // This measures "did I build enough defense?" — the actual tension moment
+              let incoming = calc_incoming_damage(state)
+              let is_danger = incoming > state.player.block
               // End turn (triggers enemy attacks)
               if state.phase == PlayerTurn {
                 end_player_turn(state)
@@ -216,8 +214,11 @@ pub fn simulate_detailed_run(
               if is_danger {
                 danger_turns += 1
                 let hp_lost = hp_before_turn - state.player.hp
-                if hp_lost <= 0 {
-                  // Player blocked all incoming damage = resolved!
+                // "Resolved" = blocked more than half the incoming damage
+                // This captures "I dealt with it reasonably" not just "perfect block"
+                let blocked = incoming - hp_lost
+                if blocked > 0 && blocked >= incoming / 2 {
+                  // Player mitigated most of the threat = resolved!
                   resolved_turns += 1
                   // End streak
                   if current_streak > 0 {
@@ -229,7 +230,7 @@ pub fn simulate_detailed_run(
                     current_streak = 0
                   }
                 } else {
-                  // Took damage while in danger = streak continues
+                  // Failed to mitigate = streak continues
                   current_streak += 1
                 }
                 // Not in danger — end any active streak

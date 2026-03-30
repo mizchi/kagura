@@ -151,7 +151,7 @@ test "ml: sensitivity analysis - player HP matters for elite" {
     " pert=" +
     result.perturbed_win_rate.to_string(),
     content=(
-      #|SentryPair +20HP: base=0.9 pert=1
+      #|SentryPair +20HP: base=1 pert=1
     ),
   )
 }
@@ -168,7 +168,7 @@ test "ml: run balance - win rate sanity check" {
     " avg_deck=" +
     summary.avg_deck_size.to_string(),
     content=(
-      #|Run win_rate=80% avg_floors=15 avg_deck=18
+      #|Run win_rate=86% avg_floors=15 avg_deck=18
     ),
   )
   // Basic sanity: should complete at least some runs

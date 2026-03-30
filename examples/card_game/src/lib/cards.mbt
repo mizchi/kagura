@@ -95,9 +95,9 @@ pub fn card_def(id : CardId) -> CardDef {
         cost: 1,
         card_type: Skill,
         base_damage: 0,
-        base_block: 5,
+        base_block: 6,
         exhaust: false,
-        description: "Gain 5 Block.",
+        description: "Gain 6 Block.",
       }
     Bash =>
       {
@@ -151,9 +151,9 @@ pub fn card_def(id : CardId) -> CardDef {
         cost: 1,
         card_type: Attack,
         base_damage: 5,
-        base_block: 5,
+        base_block: 6,
         exhaust: false,
-        description: "Gain 5 Block. Deal 5 damage.",
+        description: "Gain 6 Block. Deal 5 damage.",
       }
     Anger =>
       {

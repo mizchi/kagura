@@ -4,9 +4,9 @@ test "economy: starter deck card values" {
   let strike = evaluate_card(Strike)
   assert_true(strike.raw_damage == 6.0)
   assert_true(strike.total > 0.0)
-  // Defend: 5 block / 1 energy = baseline
+  // Defend: 6 block / 1 energy = baseline
   let defend = evaluate_card(Defend)
-  assert_true(defend.raw_block == 5.0)
+  assert_true(defend.raw_block == 6.0)
   // Bash: lower raw DPE but high debuff value
   let bash = evaluate_card(Bash)
   assert_true(bash.debuff_value > 0.0)

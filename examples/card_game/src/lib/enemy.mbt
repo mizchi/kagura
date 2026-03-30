@@ -11,6 +11,7 @@ pub(all) enum Intent {
 ///|
 /// Enemy with fighter stats and AI
 pub(all) struct Enemy {
+  id : EnemyId
   fighter : Fighter
   mut intent : Intent
   mut pattern_index : Int
@@ -50,52 +51,60 @@ fn enemy_tier(id : EnemyId) -> EncounterTier {
 }
 
 ///|
-fn spawn_enemy(id : EnemyId) -> Enemy {
+pub fn spawn_enemy(id : EnemyId) -> Enemy {
   match id {
     GreenLouse =>
       {
+        id,
         fighter: Fighter::new("Green Louse", 14),
         intent: DefendIntent(4), // Curl Up first (3-7 in StS)
         pattern_index: 0,
       }
     RedLouse =>
       {
+        id,
         fighter: Fighter::new("Red Louse", 13),
         intent: AttackIntent(6), // Bite 5-7 in StS
         pattern_index: 0,
       }
     JawWorm =>
       {
+        id,
         fighter: Fighter::new("Jaw Worm", 42),
         intent: AttackIntent(11), // Chomp: 11-12 in StS
         pattern_index: 0,
       }
     Cultist =>
       {
+        id,
         fighter: Fighter::new("Cultist", 50),
         intent: BuffIntent, // Incantation: +3 Ritual (STR/turn!)
         pattern_index: 0,
       }
     FungiBeast =>
       {
+        id,
         fighter: Fighter::new("Fungi Beast", 24),
         intent: AttackIntent(6), // Bite: 6 in StS
         pattern_index: 0,
       }
     SlaverRed =>
       {
+        id,
         fighter: Fighter::new("Red Slaver", 46),
         intent: AttackIntent(13), // Stab: 13 in StS
         pattern_index: 0,
       }
     Sentry =>
       {
+        id,
         fighter: Fighter::new("Sentry", 39),
         intent: AttackIntent(9), // Bolt: 9 in StS
         pattern_index: 0,
       }
     GremlinNob =>
       {
+        id,
         // Nob: 85 HP, Bellow first turn (+2 STR), enrages on player Skills
         fighter: Fighter::new("Gremlin Nob", 85),
         intent: BuffIntent, // Bellow turn 1
@@ -263,7 +272,7 @@ pub(all) enum EncounterId {
 } derive(Show, Eq)
 
 ///|
-fn encounter_enemies(id : EncounterId) -> Array[EnemyId] {
+pub fn encounter_enemies(id : EncounterId) -> Array[EnemyId] {
   match id {
     SingleJawWorm => [JawWorm]
     TwoLouses => [GreenLouse, RedLouse]

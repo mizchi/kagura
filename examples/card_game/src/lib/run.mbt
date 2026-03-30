@@ -55,7 +55,7 @@ fn floor_type(floor : Int) -> FloorType {
 
 ///|
 /// Create a new run
-fn RunState::new(seed? : Int = 42) -> RunState {
+pub fn RunState::new(seed? : Int = 42) -> RunState {
   let state : RunState = {
     deck: starter_deck(),
     relics: [BurningBlood],

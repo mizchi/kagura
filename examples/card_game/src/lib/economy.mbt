@@ -457,7 +457,7 @@ pub(all) struct RunSimResult {
 } derive(Show)
 
 ///|
-fn simulate_run(seed : Int, strategy : PlayStrategy) -> RunSimResult {
+pub fn simulate_run(seed : Int, strategy : PlayStrategy) -> RunSimResult {
   let run = RunState::new(seed~)
   let hp_history : Array[Int] = [run.player_hp]
   let deck_history : Array[Int] = [run.deck.length()]
@@ -551,7 +551,7 @@ pub(all) struct RunSimSummary {
 } derive(Show)
 
 ///|
-fn simulate_runs(count : Int, strategy : PlayStrategy) -> RunSimSummary {
+pub fn simulate_runs(count : Int, strategy : PlayStrategy) -> RunSimSummary {
   let mut wins = 0
   let mut total_floors = 0
   let mut total_hp = 0

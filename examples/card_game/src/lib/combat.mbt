@@ -16,10 +16,10 @@ fn StatusEffects::new() -> StatusEffects {
 pub(all) struct Fighter {
   name : String
   mut hp : Int
-  max_hp : Int
+  mut max_hp : Int
   mut block : Int
   mut energy : Int
-  max_energy : Int
+  mut max_energy : Int
   status : StatusEffects
 } derive(Show)
 

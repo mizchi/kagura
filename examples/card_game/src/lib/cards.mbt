@@ -65,7 +65,7 @@ pub(all) struct CardDef {
 } derive(Show)
 
 ///|
-fn card_def(id : CardId) -> CardDef {
+pub fn card_def(id : CardId) -> CardDef {
   match id {
     // === Starter ===
     Strike =>
@@ -462,6 +462,6 @@ fn card_rarity(id : CardId) -> CardRarity {
 
 ///|
 /// Create starter deck (like Ironclad)
-fn starter_deck() -> Array[CardId] {
+pub fn starter_deck() -> Array[CardId] {
   [Strike, Strike, Strike, Strike, Strike, Defend, Defend, Defend, Defend, Bash]
 }

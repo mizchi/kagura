@@ -1,0 +1,10 @@
+import {
+  "mizchi/card_game/lib" @lib,
+}
+
+warnings = "-29-71"
+
+options(
+  "is-main": true,
+  targets: { "main.mbt": [ "js", "native" ] },
+)

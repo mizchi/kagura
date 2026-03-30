@@ -4,7 +4,7 @@
 
 ///|
 /// Simple AI strategy for auto-play
-enum PlayStrategy {
+pub(all) enum PlayStrategy {
   Aggressive // Play attacks first, then skills
   Defensive // Play skills first, then attacks
   Smart // Prioritize debuffs, then judge by enemy intent
@@ -22,7 +22,7 @@ pub(all) struct SimResult {
 
 ///|
 /// Run a single simulated battle
-fn simulate_battle(
+pub fn simulate_battle(
   encounter : EncounterId,
   strategy : PlayStrategy,
   seed : Int,
@@ -259,7 +259,7 @@ pub(all) struct SimSummary {
 } derive(Show)
 
 ///|
-fn run_simulations(
+pub fn run_simulations(
   encounter : EncounterId,
   strategy : PlayStrategy,
   count : Int,

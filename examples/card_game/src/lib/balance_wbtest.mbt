@@ -19,7 +19,7 @@ test "balance: jaw worm easy encounter (smart)" {
     " avg_turns=" +
     summary.avg_turns.to_string(),
     content=(
-      #|JawWorm: wins=50/50 (100%) avg_hp=63 avg_turns=4
+      #|JawWorm: wins=50/50 (100%) avg_hp=71 avg_turns=3
     ),
   )
   assert_true(win_pct >= 80) // Easy: should win >= 80%
@@ -39,7 +39,7 @@ test "balance: two louses easy encounter (smart)" {
     "%) avg_hp=" +
     summary.avg_hp_remaining.to_string(),
     content=(
-      #|TwoLouses: wins=50/50 (100%) avg_hp=65
+      #|TwoLouses: wins=50/50 (100%) avg_hp=73
     ),
   )
   assert_true(win_pct >= 80)
@@ -59,7 +59,7 @@ test "balance: cultist normal encounter (smart)" {
     "%) avg_hp=" +
     summary.avg_hp_remaining.to_string(),
     content=(
-      #|Cultist: wins=50/50 (100%) avg_hp=46
+      #|Cultist: wins=50/50 (100%) avg_hp=76
     ),
   )
   assert_true(win_pct >= 60) // Normal: >= 60%
@@ -79,7 +79,7 @@ test "balance: fungi pair normal encounter (smart)" {
     "%) avg_hp=" +
     summary.avg_hp_remaining.to_string(),
     content=(
-      #|FungiPair: wins=50/50 (100%) avg_hp=33
+      #|FungiPair: wins=50/50 (100%) avg_hp=69
     ),
   )
   assert_true(win_pct >= 50) // Normal: >= 50%
@@ -99,7 +99,7 @@ test "balance: red slaver elite encounter (smart)" {
     "%) avg_hp=" +
     summary.avg_hp_remaining.to_string(),
     content=(
-      #|RedSlaver: wins=49/50 (98%) avg_hp=2
+      #|RedSlaver: wins=50/50 (100%) avg_hp=61
     ),
   )
   assert_true(win_pct >= 30) // Elite: >= 30%
@@ -119,7 +119,7 @@ test "balance: sentry pair elite encounter (smart)" {
     "%) avg_hp=" +
     summary.avg_hp_remaining.to_string(),
     content=(
-      #|SentryPair: wins=21/50 (42%) avg_hp=1
+      #|SentryPair: wins=50/50 (100%) avg_hp=23
     ),
   )
   assert_true(win_pct >= 20) // Elite: tough
@@ -146,7 +146,7 @@ test "balance: aggressive vs defensive vs smart on jaw worm" {
     "/30 hp=" +
     smart.avg_hp_remaining.to_string(),
     content=(
-      #|JawWorm strategies - Aggressive: 30/30 hp=65 | Defensive: 30/30 hp=54 | Smart: 30/30 hp=62
+      #|JawWorm strategies - Aggressive: 30/30 hp=69 | Defensive: 30/30 hp=65 | Smart: 30/30 hp=71
     ),
   )
   // Smart should be at least as good as both others

@@ -1,8 +1,8 @@
 ///|
-let screen_w : Int = 480
+pub let screen_w : Int = 480
 
 ///|
-let screen_h : Int = 360
+pub let screen_h : Int = 360
 
 ///|
 let hand_size : Int = 5
@@ -91,7 +91,7 @@ fn shuffle(state : BattleState, cards : Array[CardId]) -> Unit {
 
 ///|
 /// Create a new battle with given enemies
-fn BattleState::new(
+pub fn BattleState::new(
   enemy_ids : Array[EnemyId],
   seed? : Int = 42,
   relics? : Array[RelicId] = [],
@@ -105,7 +105,7 @@ fn BattleState::new(
 
 ///|
 /// Create battle from encounter preset
-fn BattleState::from_encounter(
+pub fn BattleState::from_encounter(
   encounter : EncounterId,
   seed? : Int = 42,
   relics? : Array[RelicId] = [],
@@ -188,7 +188,7 @@ fn draw_cards(state : BattleState, count : Int) -> Unit {
 
 ///|
 /// Play a card from hand
-fn play_card(
+pub fn play_card(
   state : BattleState,
   hand_index : Int,
   target_index : Int,
@@ -626,7 +626,7 @@ fn trigger_exhaust(state : BattleState) -> Unit {
 
 ///|
 /// End the player's turn
-fn end_player_turn(state : BattleState) -> Unit {
+pub fn end_player_turn(state : BattleState) -> Unit {
   if state.phase != PlayerTurn {
     return
   }

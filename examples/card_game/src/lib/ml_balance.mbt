@@ -29,7 +29,7 @@ pub(all) enum Archetype {
 
 ///|
 /// Detect the archetype of a deck
-fn detect_archetype(deck : Array[CardId]) -> Archetype {
+pub fn detect_archetype(deck : Array[CardId]) -> Archetype {
   let mut str_score = 0
   let mut blk_score = 0
   let mut exh_score = 0
@@ -356,7 +356,11 @@ fn run_perturbed_simulations(
   let mut i = 0
   while i < count {
     let result = simulate_battle_perturbed(
-      encounter, strategy, i * 7 + 13, param, delta,
+      encounter,
+      strategy,
+      i * 7 + 13,
+      param,
+      delta,
     )
     if result.won {
       wins += 1
@@ -387,7 +391,7 @@ fn run_perturbed_simulations(
 ///|
 /// Run sensitivity analysis by perturbing a parameter
 /// Uses finite-difference: sensitivity ≈ (win_rate(+δ) - win_rate(-δ)) / (2δ)
-fn analyze_sensitivity(
+pub fn analyze_sensitivity(
   encounter : EncounterId,
   param : BalanceParam,
   delta : Int,
@@ -398,7 +402,11 @@ fn analyze_sensitivity(
   let base_wr = base.wins.to_double() / base.total.to_double()
   // Perturbed win rate (+delta)
   let perturbed = run_perturbed_simulations(
-    encounter, Smart, sim_count, param, delta,
+    encounter,
+    Smart,
+    sim_count,
+    param,
+    delta,
   )
   let pert_wr = perturbed.wins.to_double() / perturbed.total.to_double()
   // Sensitivity = change in win rate per unit parameter change
@@ -426,7 +434,7 @@ fn analyze_sensitivity(
 /// This better approximates human play than pure optimal.
 
 ///|
-fn simulate_ensemble(
+pub fn simulate_ensemble(
   encounter : EncounterId,
   count : Int,
   relics? : Array[RelicId] = [],
@@ -491,7 +499,7 @@ pub(all) struct BalanceReport {
 } derive(Show)
 
 ///|
-fn generate_balance_report(encounter : EncounterId) -> BalanceReport {
+pub fn generate_balance_report(encounter : EncounterId) -> BalanceReport {
   let smart = run_simulations(encounter, Smart, 50)
   let ensemble = simulate_ensemble(encounter, 50)
   let difficulty = encounter_difficulty(encounter)

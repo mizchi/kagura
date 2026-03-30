@@ -20,7 +20,17 @@ pub(all) struct Game {
 }
 
 ///|
-fn Game::new() -> Game {
+pub impl @scene.SceneGame for Game with update_game(self, input) {
+  self.update(input)
+}
+
+///|
+pub impl @scene.SceneGame for Game with view_game(self) {
+  self.view()
+}
+
+///|
+pub fn Game::new() -> Game {
   let run = RunState::new()
   {
     run: @signals.signal(run),
@@ -34,7 +44,7 @@ fn Game::new() -> Game {
 }
 
 ///|
-fn Game::update(self : Game, input : @core.InputSnapshot) -> Unit {
+pub fn Game::update(self : Game, input : @core.InputSnapshot) -> Unit {
   @inpututil.update_input_helper(self.input, input)
   self.cursor_x = input.cursor_x
   self.cursor_y = input.cursor_y
@@ -225,7 +235,7 @@ fn hit_test_end_turn(cx : Double, cy : Double) -> Bool {
 }
 
 ///|
-fn Game::view(self : Game) -> @scene.SceneNode {
+pub fn Game::view(self : Game) -> @scene.SceneNode {
   let sw = screen_w.to_double()
   let sh = screen_h.to_double()
   let run = self.run.get()

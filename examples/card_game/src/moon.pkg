@@ -1,8 +1,6 @@
 import {
-  "mizchi/signals" @signals,
+  "mizchi/card_game/lib" @lib,
   "mizchi/kagura/scene" @scene,
-  "mizchi/kagura/core" @core,
-  "mizchi/kagura/core/inpututil" @inpututil,
   "mizchi/web_runtime_hooks" @web_hooks,
 }
 

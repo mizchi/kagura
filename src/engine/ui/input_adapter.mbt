@@ -42,13 +42,13 @@ pub impl UIInputAdapter for SimpleUIInputAdapter with from_input_snapshot(
   }
   // Mouse button down (newly pressed)
   for btn in snapshot.pressed_mouse_buttons {
-    if not(contains_int(self.prev_pressed_mouse, btn)) {
+    if !(contains_int(self.prev_pressed_mouse, btn)) {
       events.push(UIEvent::PointerDown(snapshot.cursor_x, snapshot.cursor_y))
     }
   }
   // Mouse button up (newly released)
   for btn in self.prev_pressed_mouse {
-    if not(contains_int(snapshot.pressed_mouse_buttons, btn)) {
+    if !(contains_int(snapshot.pressed_mouse_buttons, btn)) {
       events.push(UIEvent::PointerUp(snapshot.cursor_x, snapshot.cursor_y))
     }
   }
@@ -58,13 +58,13 @@ pub impl UIInputAdapter for SimpleUIInputAdapter with from_input_snapshot(
   }
   // Key down (newly pressed)
   for key in snapshot.pressed_keys {
-    if not(contains_int(self.prev_pressed_keys, key)) {
+    if !(contains_int(self.prev_pressed_keys, key)) {
       events.push(UIEvent::KeyDown(key))
     }
   }
   // Key up (newly released)
   for key in self.prev_pressed_keys {
-    if not(contains_int(snapshot.pressed_keys, key)) {
+    if !(contains_int(snapshot.pressed_keys, key)) {
       events.push(UIEvent::KeyUp(key))
     }
   }

@@ -200,7 +200,7 @@ pub fn SpatialHashGrid::get_pairs(self : SpatialHashGrid) -> Array[(Int, Int)] {
       bucket_masks[i] = mask
       mask_bits = mask_bits | (1 << mask)
     }
-    if not(bucket_mask_bits_can_emit_pairs(mask_bits)) {
+    if !(bucket_mask_bits_can_emit_pairs(mask_bits)) {
       return
     }
     for i = 0; i < bucket.length(); i = i + 1 {

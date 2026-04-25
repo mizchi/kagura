@@ -77,8 +77,8 @@ test "ScissorStack push returns false when fully clipped" {
   let stack = ScissorStack::new(640, 480)
   let _ = stack.push(ScissorRect::new(0, 0, 100, 100))
   let visible = stack.push(ScissorRect::new(200, 200, 50, 50))
-  assert_true(not(visible))
-  assert_true(not(stack.is_visible()))
+  assert_true(!(visible))
+  assert_true(!(stack.is_visible()))
   // Pop still works
   stack.pop()
   assert_true(stack.is_visible())

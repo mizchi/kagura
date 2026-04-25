@@ -147,7 +147,7 @@ fn GameState::set_audio_muted(self : GameState, muted : Bool) -> Unit {
 
 ///|
 fn GameState::toggle_audio_muted(self : GameState) -> Unit {
-  self.set_audio_muted(not(self.audio_muted))
+  self.set_audio_muted(!(self.audio_muted))
 }
 
 ///|

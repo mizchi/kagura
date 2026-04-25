@@ -238,7 +238,7 @@ pub fn PhysicsWorld2D::step(self : PhysicsWorld2D, dt : Double) -> Unit {
     // 4a. Velocity integration (dynamic, non-sleeping only)
     for i = 0; i < self.bodies.length(); i = i + 1 {
       let body = self.bodies[i]
-      if body.is_dynamic() && not(body.is_sleeping) {
+      if body.is_dynamic() && !(body.is_sleeping) {
         let accel = self.gravity.add(body.force.scale(body.inv_mass))
         let new_vel = body.velocity
           .add(accel.scale(sub_dt))
@@ -274,7 +274,7 @@ pub fn PhysicsWorld2D::step(self : PhysicsWorld2D, dt : Double) -> Unit {
     // For bullet bodies, check CCD before full position update
     for i = 0; i < self.bodies.length(); i = i + 1 {
       let body = self.bodies[i]
-      if body.is_dynamic() && not(body.is_sleeping) {
+      if body.is_dynamic() && !(body.is_sleeping) {
         if body.is_bullet {
           match ccd_sweep_body(i, self.bodies, sub_dt) {
             Some(toi) => {
@@ -387,7 +387,7 @@ pub fn PhysicsWorld2D::step(self : PhysicsWorld2D, dt : Double) -> Unit {
         let root = uf_find(parent, i)
         match island_can_sleep.get(root) {
           Some(true) =>
-            if not(body.is_sleeping) {
+            if !(body.is_sleeping) {
               self.bodies[i] = {
                 ..body,
                 is_sleeping: true,

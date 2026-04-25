@@ -8,7 +8,7 @@ fn make_test_sprite(key : String, w : Int, h : Int) -> SpriteInput {
 ///|
 test "pack_sprites empty input" {
   let result = pack_sprites([], config=PackerConfig::default())
-  assert_true(not(result is None))
+  assert_true(!(result is None))
   let r = result.unwrap()
   inspect(r.sprites.length(), content="0")
   inspect(r.width, content="1")
@@ -19,7 +19,7 @@ test "pack_sprites empty input" {
 test "pack_sprites single sprite" {
   let inputs = [make_test_sprite("a", 16, 16)]
   let result = pack_sprites(inputs, config=PackerConfig::default())
-  assert_true(not(result is None))
+  assert_true(!(result is None))
   let r = result.unwrap()
   inspect(r.sprites.length(), content="1")
   assert_true(r.width >= 16)
@@ -39,7 +39,7 @@ test "pack_sprites padding is applied" {
   }
   let inputs = [make_test_sprite("a", 16, 16), make_test_sprite("b", 16, 16)]
   let result = pack_sprites(inputs, config~)
-  assert_true(not(result is None))
+  assert_true(!(result is None))
   let r = result.unwrap()
   // With padding=4, each sprite takes 24x24, sprites should not overlap
   for s in r.sprites {
@@ -58,7 +58,7 @@ test "pack_sprites power of two" {
   }
   let inputs = [make_test_sprite("a", 17, 17)]
   let result = pack_sprites(inputs, config~)
-  assert_true(not(result is None))
+  assert_true(!(result is None))
   let r = result.unwrap()
   // 17 -> next POT = 32
   inspect(r.width, content="32")
@@ -125,7 +125,7 @@ test "pack_sprites multiple sprites" {
     inputs.push(make_test_sprite("s" + i.to_string(), 16, 16))
   }
   let result = pack_sprites(inputs, config=PackerConfig::default())
-  assert_true(not(result is None))
+  assert_true(!(result is None))
   let r = result.unwrap()
   inspect(r.sprites.length(), content="10")
   // All sprites within bounds
@@ -171,7 +171,7 @@ test "split_sprite_sheet to pack_sprites pipeline" {
   }
   // Pack them
   let result = pack_sprites(inputs, config=PackerConfig::default())
-  assert_true(not(result is None))
+  assert_true(!(result is None))
   let r = result.unwrap()
   inspect(r.sprites.length(), content="16")
   // All within bounds

@@ -236,7 +236,7 @@ fn GameState::draw_item_drop_labels(
 ) -> Unit {
   let camera = self.camera.to_camera3d()
   for item in self.world.items {
-    if not(item.alive) {
+    if !(item.alive) {
       continue
     }
     let world_pos = @math3d.Vec3::new(

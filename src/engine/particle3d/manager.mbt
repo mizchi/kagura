@@ -46,7 +46,7 @@ pub fn ParticleManager::spawn(
 /// then only update physics. Dead emitters are removed.
 pub fn ParticleManager::update(self : ParticleManager, dt : Double) -> Unit {
   for be in self.emitters {
-    if not(be.spawned) {
+    if !(be.spawned) {
       // First frame: trigger burst spawn via large dt
       be.emitter.update(1.0)
       be.spawned = true

@@ -3,12 +3,12 @@ fn enemy_overlap_pair_count(enemies : Array[Enemy]) -> Int {
   let mut count = 0
   for i = 0; i < enemies.length(); i = i + 1 {
     let a = enemies[i]
-    if not(a.alive) {
+    if !(a.alive) {
       continue
     }
     for j = i + 1; j < enemies.length(); j = j + 1 {
       let b = enemies[j]
-      if not(b.alive) {
+      if !(b.alive) {
         continue
       }
       let dx = a.x - b.x

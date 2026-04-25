@@ -474,11 +474,11 @@ fn ShowcaseState::update_playing(self : ShowcaseState) -> Unit {
   let next_x = self.player.x + dx * player_speed
   let next_y = self.player.y + dy * player_speed
   // Wall collision for X
-  if not(self.check_wall_collision(next_x, self.player.y, self.player.size)) {
+  if !(self.check_wall_collision(next_x, self.player.y, self.player.size)) {
     self.player.x = next_x
   }
   // Wall collision for Y
-  if not(self.check_wall_collision(self.player.x, next_y, self.player.size)) {
+  if !(self.check_wall_collision(self.player.x, next_y, self.player.size)) {
     self.player.y = next_y
   }
   // Clamp to world bounds
@@ -551,7 +551,7 @@ fn ShowcaseState::update_playing(self : ShowcaseState) -> Unit {
     if enemy.alive {
       let enx = enemy.x + enemy.vx
       let eny = enemy.y + enemy.vy
-      if not(self.check_wall_collision(enx, eny, enemy.size)) {
+      if !(self.check_wall_collision(enx, eny, enemy.size)) {
         enemy.x = enx
         enemy.y = eny
       }
@@ -629,7 +629,7 @@ fn ShowcaseState::update_playing(self : ShowcaseState) -> Unit {
   }
   // Item collection
   for item in self.items {
-    if not(item.collected) {
+    if !(item.collected) {
       if @vector.aabb_overlap_center(
           self.player.x,
           self.player.y,
@@ -805,7 +805,7 @@ fn ShowcaseState::view_playing(self : ShowcaseState) -> @scene.SceneNode {
       @scene.for_each(fn() {
         let nodes : Array[@scene.SceneNode] = []
         for item in self.items {
-          if not(item.collected) {
+          if !(item.collected) {
             let sx = item.x - view_left
             let sy = item.y - view_top
             if sx >= -10.0 &&
@@ -1181,7 +1181,7 @@ fn ShowcaseState::render_text_hud(
     }
   }
   // SVG icon demo: render once, then draw each frame
-  if not(self.svg_icon_loaded) {
+  if !(self.svg_icon_loaded) {
     self.svg_icon_loaded = true
     let svg_str = "<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 16 16'><rect x='7' y='1' width='2' height='10' fill='#CCDDFF'/><rect x='5' y='9' width='6' height='2' fill='#FFCC00'/><rect x='7' y='11' width='2' height='4' fill='#886644'/></svg>"
     match @svg.render_svg_to_rgba(svg_str, 16, 16) {

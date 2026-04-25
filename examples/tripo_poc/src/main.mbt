@@ -48,7 +48,7 @@ fn main {
   println("=== Step 1: Text to Model ===")
   println("Prompt: " + prompt)
   let (model_task_id, err) = tripo_text_to_model(api_key, prompt)
-  if not(err.is_empty()) {
+  if !(err.is_empty()) {
     println("ERROR: " + err)
     return
   }
@@ -68,10 +68,10 @@ fn main {
   let mut current_task_id = model_task_id
 
   // Step 2: Rig model (optional)
-  if not(skip_rig) {
+  if !(skip_rig) {
     println("\n=== Step 2: Rig Model ===")
     let (rig_task_id, err3) = tripo_rig_model(api_key, current_task_id)
-    if not(err3.is_empty()) {
+    if !(err3.is_empty()) {
       println("ERROR: " + err3)
       return
     }
@@ -92,7 +92,7 @@ fn main {
   }
 
   // Step 3: Retarget animation (optional)
-  if not(skip_anim) && not(skip_rig) {
+  if !(skip_anim) && !(skip_rig) {
     println("\n=== Step 3: Retarget Animation ===")
     println("Animation: " + animation)
     let (anim_task_id, err4) = tripo_retarget_animation(
@@ -100,7 +100,7 @@ fn main {
       current_task_id,
       animation,
     )
-    if not(err4.is_empty()) {
+    if !(err4.is_empty()) {
       println("ERROR: " + err4)
       return
     }

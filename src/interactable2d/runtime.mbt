@@ -34,7 +34,7 @@ pub fn resolve_actor_circular_blockers(
   let mut next_x = actor_x
   let mut next_y = actor_y
   for interactable in interactables {
-    if not(interactable_role_blocks_movement(interactable.role)) {
+    if !(interactable_role_blocks_movement(interactable.role)) {
       continue
     }
     match

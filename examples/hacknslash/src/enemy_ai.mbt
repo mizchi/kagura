@@ -10,7 +10,7 @@ fn update_enemy_ai(
   let player_tile_x = (player.x / tile_size).to_int()
   let player_tile_y = (player.y / tile_size).to_int()
   for enemy in enemies {
-    if not(enemy.alive) {
+    if !(enemy.alive) {
       continue
     }
     let cdx = player.x - enemy.x

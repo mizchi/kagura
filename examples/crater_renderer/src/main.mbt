@@ -106,7 +106,7 @@ fn render_paint_node(
   parent_x : Double,
   parent_y : Double,
 ) -> Unit {
-  if not(scissor.is_visible()) {
+  if !(scissor.is_visible()) {
     return
   }
   let x = parent_x + node.x
@@ -141,7 +141,7 @@ fn render_paint_node(
         x.to_int(), y.to_int(), w.to_int(), h.to_int(),
       ),
     )
-    if not(clipped) {
+    if !(clipped) {
       scissor.pop()
       return
     }

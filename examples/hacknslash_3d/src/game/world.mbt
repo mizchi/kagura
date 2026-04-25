@@ -324,7 +324,7 @@ pub fn GameWorld::mark_current_room_discovered(self : GameWorld) -> Unit {
   )
   if room_index >= 0 &&
     room_index < self.discovered_rooms.length() &&
-    not(self.discovered_rooms[room_index]) {
+    !(self.discovered_rooms[room_index]) {
     self.discovered_rooms[room_index] = true
     self.discovered_rooms_version = self.discovered_rooms_version + 1
   }
@@ -426,18 +426,18 @@ fn resolve_enemy_enemy_pair(
     let ny = sep_dy / sep_dist
     let ax_new = a.x + nx * push
     let ay_new = a.y + ny * push
-    if not(check_wall_collision(grid, ax_new, a.y, a.size)) {
+    if !(check_wall_collision(grid, ax_new, a.y, a.size)) {
       a.x = ax_new
     }
-    if not(check_wall_collision(grid, a.x, ay_new, a.size)) {
+    if !(check_wall_collision(grid, a.x, ay_new, a.size)) {
       a.y = ay_new
     }
     let bx_new = b.x - nx * push
     let by_new = b.y - ny * push
-    if not(check_wall_collision(grid, bx_new, b.y, b.size)) {
+    if !(check_wall_collision(grid, bx_new, b.y, b.size)) {
       b.x = bx_new
     }
-    if not(check_wall_collision(grid, b.x, by_new, b.size)) {
+    if !(check_wall_collision(grid, b.x, by_new, b.size)) {
       b.y = by_new
     }
   }
@@ -525,7 +525,7 @@ pub fn GameWorld::resolve_enemy_enemy_separation(self : GameWorld) -> Unit {
   for enemy_index = 0
       enemy_index < self.enemies.length()
       enemy_index = enemy_index + 1 {
-    if not(self.enemies[enemy_index].alive) {
+    if !(self.enemies[enemy_index].alive) {
       self.enemy_separation_next_indices[enemy_index] = -1
       continue
     }
@@ -542,7 +542,7 @@ pub fn GameWorld::resolve_enemy_enemy_separation(self : GameWorld) -> Unit {
   for enemy_index = 0
       enemy_index < self.enemies.length()
       enemy_index = enemy_index + 1 {
-    if not(self.enemies[enemy_index].alive) {
+    if !(self.enemies[enemy_index].alive) {
       continue
     }
     self.resolve_enemy_enemy_cell_neighbors(
@@ -714,7 +714,7 @@ pub fn GameWorld::tick_projectiles_phase(self : GameWorld) -> Unit {
           _ => proj.alive = false
         }
       }
-      if proj.alive && not(proj.is_player) && self.player.iframe_timer <= 0 {
+      if proj.alive && !(proj.is_player) && self.player.iframe_timer <= 0 {
         let pdx = proj.x - self.player.x
         let pdy = proj.y - self.player.y
         if pdx * pdx + pdy * pdy < pickup_radius_sq {
@@ -901,7 +901,7 @@ pub fn GameWorld::tick_meteor_damage_phase(self : GameWorld) -> Unit {
       GroundTelegraphLine(x0, y0, x1, y1) =>
         add_telegraph_line(self, x0, y0, x1, y1, beam_width, beam_cast_frames)
       BeamFire(x0, y0, x1, y1, is_player) =>
-        if not(is_player) {
+        if !(is_player) {
           // Enemy beam: damage player if within beam width
           let beam_dx = x1 - x0
           let beam_dy = y1 - y0
@@ -934,7 +934,7 @@ pub fn GameWorld::tick_meteor_damage_phase(self : GameWorld) -> Unit {
             let nx = beam_dx / beam_len
             let ny = beam_dy / beam_len
             for enemy in self.enemies {
-              if not(enemy.alive) {
+              if !(enemy.alive) {
                 continue
               }
               let ex = enemy.x - x0
@@ -1014,7 +1014,7 @@ pub fn GameWorld::tick_room_clear_rewards(self : GameWorld) -> Unit {
         }
       }
     }
-    if not(had_enemies) || has_alive {
+    if !(had_enemies) || has_alive {
       continue
     }
     // Room cleared! Mark and spawn rewards

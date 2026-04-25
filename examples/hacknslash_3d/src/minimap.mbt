@@ -82,7 +82,7 @@ fn GameState::build_minimap_static_cmds(
         }
         if room_index >= 0 &&
           room_index < self.world.discovered_rooms.length() &&
-          not(self.world.discovered_rooms[room_index]) {
+          !(self.world.discovered_rooms[room_index]) {
           ctx.append_rect_batch_geometry(
             fog_vertices, fog_indices, sx, sy, cell_size, cell_size,
           )
@@ -335,7 +335,7 @@ fn GameState::render_minimap(
       )
       if enemy_room >= 0 &&
         enemy_room < self.world.discovered_rooms.length() &&
-        not(self.world.discovered_rooms[enemy_room]) {
+        !(self.world.discovered_rooms[enemy_room]) {
         continue
       }
       let ex = ((enemy.x / tile_size).to_int() - pcx + radius).to_double() *

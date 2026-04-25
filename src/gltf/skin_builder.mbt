@@ -117,8 +117,8 @@ fn skin_data_from_gltf(
     return None
   }
   let prim = mesh.primitives[0]
-  if not(prim.attributes.contains("JOINTS_0")) ||
-    not(prim.attributes.contains("WEIGHTS_0")) {
+  if !(prim.attributes.contains("JOINTS_0")) ||
+    !(prim.attributes.contains("WEIGHTS_0")) {
     return None
   }
   let raw_joints = read_skin_joints_from_primitive(doc, prim, buffers)

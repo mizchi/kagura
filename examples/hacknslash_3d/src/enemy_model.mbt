@@ -427,7 +427,7 @@ fn EnemyModels::get_mesh_data(
 
 ///|
 fn EnemyModels::compute_skinning(self : EnemyModels) -> Array[@math3d.Mat4] {
-  if not(self.skinning_cache_dirty) {
+  if !(self.skinning_cache_dirty) {
     return self.cached_skinning_matrices
   }
   for i in 0..<enemy_bone_count {
@@ -462,7 +462,7 @@ fn EnemyModels::compute_skinning(self : EnemyModels) -> Array[@math3d.Mat4] {
 
 ///|
 fn EnemyModels::rebuild_skinned_mesh_cache(self : EnemyModels) -> Unit {
-  if not(self.skinned_mesh_cache_dirty) {
+  if !(self.skinned_mesh_cache_dirty) {
     return
   }
   let skinning = self.compute_skinning()

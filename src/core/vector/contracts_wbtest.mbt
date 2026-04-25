@@ -149,7 +149,7 @@ test "Vec2 approx_eq" {
   let b = Vec2::new(1.0000000001, 2.0000000001)
   assert_true(a.approx_eq(b, 1.0e-6))
   let c = Vec2::new(1.1, 2.0)
-  assert_true(not(a.approx_eq(c, 1.0e-6)))
+  assert_true(!(a.approx_eq(c, 1.0e-6)))
 }
 
 ///|

@@ -5,7 +5,7 @@ pub fn stamp_circular_blockers_on_grid(
   tile_size : Double,
 ) -> Unit {
   for interactable in interactables {
-    if not(interactable_role_blocks_movement(interactable.role)) {
+    if !(interactable_role_blocks_movement(interactable.role)) {
       continue
     }
     @physics2d.append_circular_wall_blocker(

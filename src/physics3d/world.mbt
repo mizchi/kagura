@@ -233,7 +233,7 @@ pub fn PhysicsWorld::step(self : PhysicsWorld, dt : Double) -> Unit {
     // 4a. Velocity integration (dynamic, non-sleeping only)
     for i = 0; i < body_count; i = i + 1 {
       let body = self.bodies[i]
-      if body.is_dynamic() && not(body.is_sleeping) {
+      if body.is_dynamic() && !(body.is_sleeping) {
         let accel = self.gravity.add(body.force.scale(body.inv_mass))
         let new_vel = body.velocity
           .add(accel.scale(sub_dt))
@@ -276,7 +276,7 @@ pub fn PhysicsWorld::step(self : PhysicsWorld, dt : Double) -> Unit {
     // For bullet bodies, check CCD before full position update
     for i = 0; i < body_count; i = i + 1 {
       let body = self.bodies[i]
-      if body.is_dynamic() && not(body.is_sleeping) {
+      if body.is_dynamic() && !(body.is_sleeping) {
         let omega = body.angular_velocity
         let omega_len_sq = omega.length_squared()
         let new_rotation = if omega_len_sq > 1.0e-24 {
@@ -415,7 +415,7 @@ pub fn PhysicsWorld::step(self : PhysicsWorld, dt : Double) -> Unit {
         if body.is_dynamic() {
           let root = uf_find3d(parent, i)
           if island_can_sleep[root] {
-            if not(body.is_sleeping) {
+            if !(body.is_sleeping) {
               self.bodies[i] = {
                 ..body,
                 is_sleeping: true,

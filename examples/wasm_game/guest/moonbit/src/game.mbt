@@ -83,7 +83,7 @@ fn Game::update(self : Game, input : InputState) -> Unit {
   let current_action = is_key_pressed(input, key_space) ||
     is_key_pressed(input, key_up) ||
     is_mouse_pressed(input)
-  let action = current_action && not(self.prev_action)
+  let action = current_action && !(self.prev_action)
   self.prev_action = current_action
   match self.game_mode {
     0 => {

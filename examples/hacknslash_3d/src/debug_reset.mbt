@@ -52,7 +52,7 @@ fn input_snapshot_requests_debug_reset(
       break
     }
   }
-  if not(left_mouse_pressed) {
+  if !(left_mouse_pressed) {
     return false
   }
   match

@@ -13,7 +13,7 @@ test "circle-circle overlap" {
     CircleShape(@vector.Vec2::zero(), 1.0),
   )
   let contact = generate_contact2d(a, b)
-  assert_true(not(contact is None))
+  assert_true(!(contact is None))
   let c = contact.unwrap()
   assert_true(c.penetration > 0.0)
   assert_true(c.normal.x > 0.0)
@@ -52,7 +52,7 @@ test "aabb2d-aabb2d overlap" {
     AABBShape2D(@vector.Vec2::new(1.0, 1.0), @vector.Vec2::zero()),
   )
   let contact = generate_contact2d(a, b)
-  assert_true(not(contact is None))
+  assert_true(!(contact is None))
   let c = contact.unwrap()
   assert_true(c.penetration > 0.0)
 }
@@ -89,7 +89,7 @@ test "circle-aabb2d overlap" {
     AABBShape2D(@vector.Vec2::new(1.0, 1.0), @vector.Vec2::zero()),
   )
   let contact = generate_contact2d(circle, box_body)
-  assert_true(not(contact is None))
+  assert_true(!(contact is None))
   let c = contact.unwrap()
   assert_true(c.penetration > 0.0)
 }
@@ -126,7 +126,7 @@ test "obb-obb no rotation overlap" {
     OBBShape2D(@vector.Vec2::new(1.0, 1.0), @vector.Vec2::zero()),
   )
   let contact = generate_contact2d(a, b)
-  assert_true(not(contact is None))
+  assert_true(!(contact is None))
   let c = contact.unwrap()
   assert_true(c.penetration > 0.0)
   // Normal should point from A to B (positive x)
@@ -152,7 +152,7 @@ test "obb-obb 45deg overlap" {
     OBBShape2D(@vector.Vec2::new(1.0, 1.0), @vector.Vec2::zero()),
   )
   let contact = generate_contact2d(a, b)
-  assert_true(not(contact is None))
+  assert_true(!(contact is None))
   let c = contact.unwrap()
   assert_true(c.penetration > 0.0)
 }
@@ -194,7 +194,7 @@ test "obb-circle overlap" {
     CircleShape(@vector.Vec2::zero(), 0.5),
   )
   let contact = generate_contact2d(obb, circle)
-  assert_true(not(contact is None))
+  assert_true(!(contact is None))
   let c = contact.unwrap()
   assert_true(c.penetration > 0.0)
 }
@@ -218,7 +218,7 @@ test "obb-aabb overlap" {
     AABBShape2D(@vector.Vec2::new(1.0, 1.0), @vector.Vec2::zero()),
   )
   let contact = generate_contact2d(obb, aabb)
-  assert_true(not(contact is None))
+  assert_true(!(contact is None))
   let c = contact.unwrap()
   assert_true(c.penetration > 0.0)
 }

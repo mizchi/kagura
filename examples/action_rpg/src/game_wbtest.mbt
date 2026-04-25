@@ -36,7 +36,7 @@ test "items initialized not collected" {
   let state = ShowcaseState::new()
   assert_eq(state.items.length(), 5)
   for item in state.items {
-    assert_true(not(item.collected))
+    assert_true(!(item.collected))
   }
 }
 
@@ -94,8 +94,8 @@ test "is_wall_at detects walls" {
 ///|
 test "is_wall_at detects floor" {
   let tiles = generate_tilemap()
-  assert_true(not(is_wall_at(tiles, 1, 1)))
-  assert_true(not(is_wall_at(tiles, 2, 2)))
+  assert_true(!(is_wall_at(tiles, 1, 1)))
+  assert_true(!(is_wall_at(tiles, 2, 2)))
 }
 
 ///|
@@ -127,9 +127,9 @@ test "atlas repo has tile images" {
     repo,
     @asset.new_asset_key("tile_water"),
   )
-  assert_true(not(floor_src.is_empty()))
-  assert_true(not(wall_src.is_empty()))
-  assert_true(not(water_src.is_empty()))
+  assert_true(!(floor_src.is_empty()))
+  assert_true(!(wall_src.is_empty()))
+  assert_true(!(water_src.is_empty()))
 }
 
 // ============================================================
@@ -210,7 +210,7 @@ test "check_wall_collision detects wall" {
 test "check_wall_collision allows floor" {
   let state = ShowcaseState::new()
   // Position in middle of floor area
-  assert_true(not(state.check_wall_collision(48.0, 48.0, 10.0)))
+  assert_true(!(state.check_wall_collision(48.0, 48.0, 10.0)))
 }
 
 // ============================================================
@@ -276,7 +276,7 @@ test "attack kills enemy in range" {
   // Simulate confirm press (Space = 32)
   let input = @core.new_input_snapshot(0.0, 0.0, 0.0, 0.0, [32])
   state.update(input)
-  assert_true(not(state.enemies[0].alive))
+  assert_true(!(state.enemies[0].alive))
   assert_eq(state.score, 100)
 }
 
@@ -372,7 +372,7 @@ test "gameover on player death" {
   let input = @core.new_input_snapshot(0.0, 0.0, 0.0, 0.0, [])
   state.update(input)
   assert_eq(state.mode, mode_gameover)
-  assert_true(not(state.player.alive))
+  assert_true(!(state.player.alive))
 }
 
 ///|
@@ -559,5 +559,5 @@ test "aabb overlap center no collision" {
   let result = @vector.aabb_overlap_center(
     10.0, 10.0, 5.0, 5.0, 100.0, 100.0, 5.0, 5.0,
   )
-  assert_true(not(result))
+  assert_true(!(result))
 }

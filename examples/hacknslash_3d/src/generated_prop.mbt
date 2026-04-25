@@ -288,7 +288,7 @@ fn GameState::build_generated_prop_enemy_ai_grid(
       break
     }
   }
-  if not(has_blocker) {
+  if !(has_blocker) {
     return None
   }
   let grid = clone_generated_prop_collision_grid(self.world.dungeon.grid)
@@ -452,7 +452,7 @@ fn GameState::apply_generated_prop_roles_for_current_floor(
   player_x = player_frame.actor_x
   player_y = player_frame.actor_y
   for enemy in self.world.enemies {
-    if not(enemy.alive) {
+    if !(enemy.alive) {
       continue
     }
     let (resolved_enemy_x, resolved_enemy_y) = @interactable2d.resolve_actor_circular_blockers(
@@ -515,7 +515,7 @@ fn GameState::apply_generated_prop_roles_for_current_floor(
             self.world,
             prop.placement,
           )
-          if not(self.world.collect_equipment_pickup(item)) {
+          if !(self.world.collect_equipment_pickup(item)) {
             retained.push(prop)
             continue
           }

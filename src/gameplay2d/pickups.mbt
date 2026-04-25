@@ -43,7 +43,7 @@ pub fn plan_equipment_pickup(
   inventory_has_space~ : Bool,
   has_previous_equipped~ : Bool,
 ) -> EquipmentPickupPlan {
-  if not(auto_play) {
+  if !(auto_play) {
     return {
       store_incoming: inventory_has_space,
       store_previous_equipped: false,
@@ -56,14 +56,14 @@ pub fn plan_equipment_pickup(
       store_incoming: false,
       store_previous_equipped: has_previous_equipped,
       equip_incoming: true,
-      use_fifo_storage: not(inventory_has_space),
+      use_fifo_storage: !(inventory_has_space),
     }
   }
   {
     store_incoming: true,
     store_previous_equipped: false,
     equip_incoming: false,
-    use_fifo_storage: not(inventory_has_space),
+    use_fifo_storage: !(inventory_has_space),
   }
 }
 

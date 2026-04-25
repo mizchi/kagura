@@ -381,7 +381,7 @@ test "sleeping body wakes on new contact" {
   // The first ball should be awake now (island with moving body)
   let b1 = world.get_body(1).unwrap()
   // It should either be awake or the velocity indicates interaction
-  assert_true(not(b1.is_sleeping) || b1.velocity.length() < 0.01)
+  assert_true(!(b1.is_sleeping) || b1.velocity.length() < 0.01)
 }
 
 ///|

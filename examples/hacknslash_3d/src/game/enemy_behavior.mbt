@@ -50,7 +50,7 @@ pub fn behavior_teleport_behind(ctx : EnemyAIContext) -> Bool {
   let tp_dist = teleporter_blink_distance
   let new_x = ctx.player.x + @math.cos(behind_angle) * tp_dist
   let new_y = ctx.player.y + @math.sin(behind_angle) * tp_dist
-  if not(check_wall_collision(ctx.grid, new_x, new_y, ctx.enemy.size)) {
+  if !(check_wall_collision(ctx.grid, new_x, new_y, ctx.enemy.size)) {
     ctx.enemy.x = new_x
     ctx.enemy.y = new_y
     ctx.events.push(DeathBurst(ctx.enemy.x, ctx.enemy.y))

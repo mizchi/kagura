@@ -455,7 +455,7 @@ fn SurvivorState::update_enemies(self : SurvivorState) -> Unit {
   let px = self.player.x
   let py = self.player.y
   for e in self.enemies {
-    if not(e.alive) {
+    if !(e.alive) {
       continue
     }
     let (nx, ny) = normalize_dir(px - e.x, py - e.y)
@@ -481,7 +481,7 @@ fn SurvivorState::update_projectile_weapon(self : SurvivorState) -> Unit {
   let py = self.player.y
   for i = 0; i < self.enemies.length(); i = i + 1 {
     let e = self.enemies[i]
-    if not(e.alive) {
+    if !(e.alive) {
       continue
     }
     let d = distance_sq(px, py, e.x, e.y)
@@ -518,7 +518,7 @@ fn SurvivorState::update_orbit_weapons(self : SurvivorState) -> Unit {
     let oy = py + @math.sin(orb.angle) * orb.radius
     // Check collision with enemies
     for e in self.enemies {
-      if not(e.alive) {
+      if !(e.alive) {
         continue
       }
       if @vector.aabb_overlap_center(
@@ -563,7 +563,7 @@ fn SurvivorState::update_area_weapon(self : SurvivorState) -> Unit {
   let py = self.player.y
   let r_sq = self.area_weapon.radius * self.area_weapon.radius
   for e in self.enemies {
-    if not(e.alive) {
+    if !(e.alive) {
       continue
     }
     if distance_sq(px, py, e.x, e.y) < r_sq {
@@ -586,7 +586,7 @@ fn SurvivorState::update_area_weapon(self : SurvivorState) -> Unit {
 ///|
 fn SurvivorState::update_projectiles(self : SurvivorState) -> Unit {
   for proj in self.projectiles {
-    if not(proj.alive) {
+    if !(proj.alive) {
       continue
     }
     proj.x = proj.x + proj.vx
@@ -598,7 +598,7 @@ fn SurvivorState::update_projectiles(self : SurvivorState) -> Unit {
     }
     // Collision with enemies
     for e in self.enemies {
-      if not(e.alive) {
+      if !(e.alive) {
         continue
       }
       if @vector.aabb_overlap_center(
@@ -645,7 +645,7 @@ fn SurvivorState::update_projectiles(self : SurvivorState) -> Unit {
 fn SurvivorState::update_enemy_player_collision(self : SurvivorState) -> Unit {
   let p = self.player
   for e in self.enemies {
-    if not(e.alive) {
+    if !(e.alive) {
       continue
     }
     if @vector.aabb_overlap_center(
@@ -685,7 +685,7 @@ fn SurvivorState::update_gems(self : SurvivorState) -> Unit {
   let py = self.player.y
   let collect_sq = gem_collect_dist * gem_collect_dist
   for gem in self.gems {
-    if not(gem.alive) {
+    if !(gem.alive) {
       continue
     }
     if distance_sq(px, py, gem.x, gem.y) < collect_sq {
@@ -728,7 +728,7 @@ fn SurvivorState::generate_upgrade_choices(self : SurvivorState) -> Unit {
         break
       }
     }
-    if not(dup) {
+    if !(dup) {
       choices.push(c)
     }
   }
@@ -926,7 +926,7 @@ fn SurvivorState::view_play(self : SurvivorState) -> @scene.SceneNode {
       @scene.for_each(fn() {
         let nodes : Array[@scene.SceneNode] = []
         for gem in self.gems {
-          if not(gem.alive) {
+          if !(gem.alive) {
             continue
           }
           let gsx = self.camera.world_to_screen_x(gem.x)
@@ -949,7 +949,7 @@ fn SurvivorState::view_play(self : SurvivorState) -> @scene.SceneNode {
       @scene.for_each(fn() {
         let nodes : Array[@scene.SceneNode] = []
         for e in self.enemies {
-          if not(e.alive) {
+          if !(e.alive) {
             continue
           }
           let esx = self.camera.world_to_screen_x(e.x)
@@ -997,7 +997,7 @@ fn SurvivorState::view_play(self : SurvivorState) -> @scene.SceneNode {
       @scene.for_each(fn() {
         let nodes : Array[@scene.SceneNode] = []
         for proj in self.projectiles {
-          if not(proj.alive) {
+          if !(proj.alive) {
             continue
           }
           let prsx = self.camera.world_to_screen_x(proj.x)

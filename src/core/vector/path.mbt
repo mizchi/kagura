@@ -281,7 +281,7 @@ fn stroke_segment_is_degenerate(p0 : Vec2, p1 : Vec2) -> Bool {
 fn count_non_degenerate_stroke_segments(points : Array[Vec2]) -> Int {
   let mut count = 0
   for i in 0..<(points.length() - 1) {
-    if not(stroke_segment_is_degenerate(points[i], points[i + 1])) {
+    if !(stroke_segment_is_degenerate(points[i], points[i + 1])) {
       count += 1
     }
   }

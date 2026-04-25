@@ -294,10 +294,10 @@ fn GameState::update_playing(self : GameState) -> Unit {
     self.player.dash_timer = self.player.dash_timer - 1
     let next_x = self.player.x + self.player.dash_vx
     let next_y = self.player.y + self.player.dash_vy
-    if not(check_wall_collision(self.dungeon.grid, next_x, self.player.y, self.player.size)) {
+    if !(check_wall_collision(self.dungeon.grid, next_x, self.player.y, self.player.size)) {
       self.player.x = next_x
     }
-    if not(check_wall_collision(self.dungeon.grid, self.player.x, next_y, self.player.size)) {
+    if !(check_wall_collision(self.dungeon.grid, self.player.x, next_y, self.player.size)) {
       self.player.y = next_y
     }
   } else {
@@ -313,10 +313,10 @@ fn GameState::update_playing(self : GameState) -> Unit {
     } else {
       let next_x = self.player.x + dx * player_speed
       let next_y = self.player.y + dy * player_speed
-      if not(check_wall_collision(self.dungeon.grid, next_x, self.player.y, self.player.size)) {
+      if !(check_wall_collision(self.dungeon.grid, next_x, self.player.y, self.player.size)) {
         self.player.x = next_x
       }
-      if not(check_wall_collision(self.dungeon.grid, self.player.x, next_y, self.player.size)) {
+      if !(check_wall_collision(self.dungeon.grid, self.player.x, next_y, self.player.size)) {
         self.player.y = next_y
       }
     }
@@ -343,10 +343,10 @@ fn GameState::update_playing(self : GameState) -> Unit {
     if enemy.alive {
       let enx = enemy.x + enemy.vx
       let eny = enemy.y + enemy.vy
-      if not(check_wall_collision(self.dungeon.grid, enx, enemy.y, enemy.size)) {
+      if !(check_wall_collision(self.dungeon.grid, enx, enemy.y, enemy.size)) {
         enemy.x = enx
       }
-      if not(check_wall_collision(self.dungeon.grid, enemy.x, eny, enemy.size)) {
+      if !(check_wall_collision(self.dungeon.grid, enemy.x, eny, enemy.size)) {
         enemy.y = eny
       }
       enemy.vx = 0.0
@@ -440,12 +440,12 @@ fn GameState::update_playing(self : GameState) -> Unit {
         // Try pushing player, fall back to pushing enemy more
         let px_new = self.player.x + nx * push
         let py_new = self.player.y + ny * push
-        if not(check_wall_collision(self.dungeon.grid, px_new, self.player.y, self.player.size)) {
+        if !(check_wall_collision(self.dungeon.grid, px_new, self.player.y, self.player.size)) {
           self.player.x = px_new
         } else {
           enemy.x = enemy.x - nx * push
         }
-        if not(check_wall_collision(self.dungeon.grid, self.player.x, py_new, self.player.size)) {
+        if !(check_wall_collision(self.dungeon.grid, self.player.x, py_new, self.player.size)) {
           self.player.y = py_new
         } else {
           enemy.y = enemy.y - ny * push
@@ -453,10 +453,10 @@ fn GameState::update_playing(self : GameState) -> Unit {
         // Try pushing enemy
         let ex_new = enemy.x - nx * push
         let ey_new = enemy.y - ny * push
-        if not(check_wall_collision(self.dungeon.grid, ex_new, enemy.y, enemy.size)) {
+        if !(check_wall_collision(self.dungeon.grid, ex_new, enemy.y, enemy.size)) {
           enemy.x = ex_new
         }
-        if not(check_wall_collision(self.dungeon.grid, enemy.x, ey_new, enemy.size)) {
+        if !(check_wall_collision(self.dungeon.grid, enemy.x, ey_new, enemy.size)) {
           enemy.y = ey_new
         }
       }
@@ -478,18 +478,18 @@ fn GameState::update_playing(self : GameState) -> Unit {
           let ny = sep_dy / sep_dist
           let ax_new = a.x + nx * push
           let ay_new = a.y + ny * push
-          if not(check_wall_collision(self.dungeon.grid, ax_new, a.y, a.size)) {
+          if !(check_wall_collision(self.dungeon.grid, ax_new, a.y, a.size)) {
             a.x = ax_new
           }
-          if not(check_wall_collision(self.dungeon.grid, a.x, ay_new, a.size)) {
+          if !(check_wall_collision(self.dungeon.grid, a.x, ay_new, a.size)) {
             a.y = ay_new
           }
           let bx_new = b.x - nx * push
           let by_new = b.y - ny * push
-          if not(check_wall_collision(self.dungeon.grid, bx_new, b.y, b.size)) {
+          if !(check_wall_collision(self.dungeon.grid, bx_new, b.y, b.size)) {
             b.x = bx_new
           }
-          if not(check_wall_collision(self.dungeon.grid, b.x, by_new, b.size)) {
+          if !(check_wall_collision(self.dungeon.grid, b.x, by_new, b.size)) {
             b.y = by_new
           }
         }

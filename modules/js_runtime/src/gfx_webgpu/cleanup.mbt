@@ -27,9 +27,9 @@ pub fn release_gpu_resources(state : GpuState, gpu : @core.Any) -> Unit {
     None => ()
   }
   let context = gpu._get("context")
-  if not(@core.is_nullish(context)) {
+  if !(@core.is_nullish(context)) {
     let unconfigure = context._get("unconfigure")
-    if not(@core.is_nullish(unconfigure)) {
+    if !(@core.is_nullish(unconfigure)) {
       context._call("unconfigure", []) |> ignore
     }
   }
@@ -51,7 +51,7 @@ pub fn release_gpu_resources(state : GpuState, gpu : @core.Any) -> Unit {
   state.pending_buffer_cleanup = []
   gpu._set("commands", @core.new_array())
   let js_textures = gpu._get("textures")
-  if not(@core.is_nullish(js_textures)) {
+  if !(@core.is_nullish(js_textures)) {
     js_textures._call("clear", []) |> ignore
   }
   reset_gpu_state()

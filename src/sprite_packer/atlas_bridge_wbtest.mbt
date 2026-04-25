@@ -40,12 +40,12 @@ test "create_packed_atlas_repository basic" {
     repo,
     @asset.new_asset_key("sprite_a"),
   )
-  assert_true(not(src_a is None))
+  assert_true(!(src_a is None))
   let src_b = @asset.get_atlas_draw_source(
     repo,
     @asset.new_asset_key("sprite_b"),
   )
-  assert_true(not(src_b is None))
+  assert_true(!(src_b is None))
   // Nonexistent key returns None
   let src_c = @asset.get_atlas_draw_source(repo, @asset.new_asset_key("nope"))
   assert_true(src_c is None)
@@ -63,7 +63,7 @@ test "create_packed_atlas_repository UV coordinates" {
   }
   let repo = create_packed_atlas_repository(inputs, result)
   let src = @asset.get_atlas_draw_source(repo, @asset.new_asset_key("img"))
-  assert_true(not(src is None))
+  assert_true(!(src is None))
   let s = src.unwrap()
   // u0 = 8/32 = 0.25, v0 = 16/32 = 0.5, u1 = 16/32 = 0.5, v1 = 24/32 = 0.75
   assert_eq(s.u0, 0.25)
@@ -88,11 +88,11 @@ test "pack_result_to_tile_atlas_table with tile_ keys" {
   inspect(table.entries.length(), content="3")
   // Verify tile indices
   let r0 = @tilemap2d.resolve_tile_atlas_key(table, 0)
-  assert_true(not(r0 is None))
+  assert_true(!(r0 is None))
   let r3 = @tilemap2d.resolve_tile_atlas_key(table, 3)
-  assert_true(not(r3 is None))
+  assert_true(!(r3 is None))
   let r7 = @tilemap2d.resolve_tile_atlas_key(table, 7)
-  assert_true(not(r7 is None))
+  assert_true(!(r7 is None))
   // Non-existent tile index
   let r1 = @tilemap2d.resolve_tile_atlas_key(table, 1)
   assert_true(r1 is None)
@@ -112,9 +112,9 @@ test "pack_result_to_tile_atlas_table with non-tile keys" {
   inspect(table.entries.length(), content="2")
   // Sequential indices: 0 and 1
   let r0 = @tilemap2d.resolve_tile_atlas_key(table, 0)
-  assert_true(not(r0 is None))
+  assert_true(!(r0 is None))
   let r1 = @tilemap2d.resolve_tile_atlas_key(table, 1)
-  assert_true(not(r1 is None))
+  assert_true(!(r1 is None))
 }
 
 ///|
@@ -154,7 +154,7 @@ test "end-to-end: split_sprite_sheet → pack → repository → draw_source" {
   }
   // Pack
   let result = pack_sprites(inputs, config=PackerConfig::default())
-  assert_true(not(result is None))
+  assert_true(!(result is None))
   let pack_result = result.unwrap()
   inspect(pack_result.sprites.length(), content="4")
   // Build repository
@@ -163,7 +163,7 @@ test "end-to-end: split_sprite_sheet → pack → repository → draw_source" {
   for i in 0..<4 {
     let key = @asset.new_asset_key("tile_" + i.to_string())
     let src = @asset.get_atlas_draw_source(repo, key)
-    assert_true(not(src is None))
+    assert_true(!(src is None))
   }
   // Build tile atlas table
   let table = pack_result_to_tile_atlas_table(pack_result)

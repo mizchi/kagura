@@ -80,7 +80,7 @@ test "two-bone IK: unreachable target" {
     target: @math3d.Vec3::new(0.0, 5.0, 0.0),
     pole_target: None,
   })
-  assert_true(not(result.success))
+  assert_true(!(result.success))
   // Chain should stretch toward target direction
   let world = skeleton.compute_world_transforms(result.local_poses)
   let hand_pos = @math3d.Vec3::new(

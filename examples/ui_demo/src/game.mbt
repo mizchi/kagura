@@ -241,7 +241,7 @@ fn DemoState::update(self : DemoState, input : @core.InputSnapshot) -> Unit {
     let hit_ids = @ui.hit_test_all(self.layouts, input.cursor_x, input.cursor_y)
     let mut focused = false
     for hit_id in hit_ids {
-      if not(focused) {
+      if !(focused) {
         // Check if this node is a button (focusable)
         match self.node_roles.get(hit_id.value) {
           Some(Button) => {
@@ -252,7 +252,7 @@ fn DemoState::update(self : DemoState, input : @core.InputSnapshot) -> Unit {
         }
       }
     }
-    if not(focused) {
+    if !(focused) {
       let _ = self.focus_mgr.blur()
     }
   }

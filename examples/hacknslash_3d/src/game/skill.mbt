@@ -474,7 +474,7 @@ pub fn SkillTree::can_learn(self : SkillTree, id : SkillId) -> Bool {
 
 ///|
 pub fn SkillTree::learn(self : SkillTree, id : SkillId) -> Bool {
-  if not(self.can_learn(id)) {
+  if !(self.can_learn(id)) {
     return false
   }
   let index = self.find_index(id)

@@ -86,7 +86,7 @@ test "FABRIK: unreachable target stretches toward target" {
     tolerance: 0.01,
     max_iterations: 10,
   })
-  assert_true(not(result.success))
+  assert_true(!(result.success))
   // Chain should stretch toward target (upward)
   let world = skeleton.compute_world_transforms(result.local_poses)
   let tip_pos = @math3d.Vec3::new(

@@ -2,7 +2,7 @@
 test "single allocation fits" {
   let alloc = new_maxrects_allocator(64, 64)
   let result = alloc.insert(16, 16)
-  assert_true(not(result is None))
+  assert_true(!(result is None))
   let pos = result.unwrap()
   assert_true(pos.x >= 0)
   assert_true(pos.y >= 0)
@@ -16,7 +16,7 @@ test "multiple allocations no overlap" {
   // Should fit at least 4x4 = 16 rects of 16x16 in 64x64
   for _ in 0..<16 {
     let r = alloc.insert(size, size)
-    assert_true(not(r is None))
+    assert_true(!(r is None))
     positions.push(r.unwrap())
   }
   // Verify no overlaps
@@ -38,7 +38,7 @@ test "allocation returns None when full" {
   let alloc = new_maxrects_allocator(32, 32)
   // Fill completely
   let r1 = alloc.insert(32, 32)
-  assert_true(not(r1 is None))
+  assert_true(!(r1 is None))
   // No more space
   let r2 = alloc.insert(1, 1)
   assert_true(r2 is None)
@@ -55,11 +55,11 @@ test "allocation too large returns None" {
 test "mixed sizes pack correctly" {
   let alloc = new_maxrects_allocator(128, 128)
   let r1 = alloc.insert(64, 64)
-  assert_true(not(r1 is None))
+  assert_true(!(r1 is None))
   let r2 = alloc.insert(32, 32)
-  assert_true(not(r2 is None))
+  assert_true(!(r2 is None))
   let r3 = alloc.insert(16, 16)
-  assert_true(not(r3 is None))
+  assert_true(!(r3 is None))
   // All within bounds
   let p1 = r1.unwrap()
   let p2 = r2.unwrap()

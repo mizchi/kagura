@@ -87,7 +87,7 @@ fn bench_world_integrate_velocities(
 ) -> Unit {
   for i = 0; i < body_count; i = i + 1 {
     let body = world.bodies[i]
-    if body.is_dynamic() && not(body.is_sleeping) {
+    if body.is_dynamic() && !(body.is_sleeping) {
       let accel = world.gravity.add(body.force.scale(body.inv_mass))
       let new_vel = body.velocity
         .add(accel.scale(sub_dt))
@@ -131,7 +131,7 @@ fn bench_world_integrate_positions(
 ) -> Unit {
   for i = 0; i < body_count; i = i + 1 {
     let body = world.bodies[i]
-    if body.is_dynamic() && not(body.is_sleeping) {
+    if body.is_dynamic() && !(body.is_sleeping) {
       let omega = body.angular_velocity
       let omega_len_sq = omega.length_squared()
       let new_rotation = if omega_len_sq > 1.0e-24 {

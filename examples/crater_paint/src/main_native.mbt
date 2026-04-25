@@ -61,7 +61,7 @@ fn main {
   }
 
   // Initialize headless GPU
-  if not(@native_hooks.initialize_headless_context(screen_w, screen_h)) {
+  if !(@native_hooks.initialize_headless_context(screen_w, screen_h)) {
     println("Error: failed to initialize headless GPU context")
     return
   }
@@ -593,11 +593,11 @@ fn render_paint_node(
   parent_x : Double,
   parent_y : Double,
 ) -> Unit {
-  if not(scissor.is_visible()) {
+  if !(scissor.is_visible()) {
     return
   }
   let paint = node.paint
-  if not(paint.should_render()) {
+  if !(paint.should_render()) {
     return
   }
   // Early viewport culling: skip nodes entirely below or above viewport
@@ -723,7 +723,7 @@ fn render_paint_node(
         x.to_int(), y.to_int(), w.to_int(), h.to_int(),
       ),
     )
-    if not(clipped) {
+    if !(clipped) {
       scissor.pop()
       return
     }

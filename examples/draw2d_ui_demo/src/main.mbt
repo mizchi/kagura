@@ -139,7 +139,7 @@ fn push_filled_rect(
   x : Double, y : Double, w : Double, h : Double,
   color_hex : Int,
 ) -> Unit {
-  if not(scissor.is_visible()) {
+  if !(scissor.is_visible()) {
     return
   }
   let sw = ctx.screen_w.to_double()
@@ -157,7 +157,7 @@ fn push_border(
   border : @draw2d_ui.BorderWidths,
   color_hex : Int,
 ) -> Unit {
-  if not(scissor.is_visible()) || not(border.has_any()) {
+  if !(scissor.is_visible()) || !(border.has_any()) {
     return
   }
   let sw = ctx.screen_w.to_double()

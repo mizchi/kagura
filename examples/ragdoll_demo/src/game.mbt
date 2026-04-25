@@ -410,7 +410,7 @@ fn find_closest_dynamic(
   let mut best_dist = grab_distance
   for i = 0; i < world.bodies.length(); i = i + 1 {
     let body = world.bodies[i]
-    if not(body.is_dynamic()) {
+    if !(body.is_dynamic()) {
       continue i + 1
     }
     let dx = body.position.x - mx

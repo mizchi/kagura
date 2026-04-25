@@ -84,7 +84,7 @@ test "state machine: initial state" {
     "idle",
   )
   assert_eq(sm.current_state_name(), "idle")
-  assert_true(not(sm.is_blending()))
+  assert_true(!(sm.is_blending()))
 }
 
 ///|
@@ -112,7 +112,7 @@ test "state machine: blend completes" {
   let _ = sm.trigger("move")
   // Update past blend duration (0.3)
   sm.update(0.4)
-  assert_true(not(sm.is_blending()))
+  assert_true(!(sm.is_blending()))
   assert_eq(sm.current_state_name(), "walk")
 }
 
@@ -126,7 +126,7 @@ test "state machine: instant transition (no blend)" {
   let ok = sm.trigger("instant_move")
   assert_true(ok)
   assert_eq(sm.current_state_name(), "walk")
-  assert_true(not(sm.is_blending()))
+  assert_true(!(sm.is_blending()))
 }
 
 ///|
@@ -150,7 +150,7 @@ test "state machine: invalid trigger returns false" {
     "idle",
   )
   let ok = sm.trigger("nonexistent")
-  assert_true(not(ok))
+  assert_true(!(ok))
   assert_eq(sm.current_state_name(), "idle")
 }
 

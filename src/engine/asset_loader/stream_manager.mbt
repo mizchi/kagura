@@ -89,7 +89,7 @@ pub fn AssetStreamManager::enqueue(
       break
     }
   }
-  if not(inserted) {
+  if !(inserted) {
     self.pending.push(req)
   }
   id
@@ -196,7 +196,7 @@ pub fn AssetStreamManager::reprioritize(
           break
         }
       }
-      if not(inserted) {
+      if !(inserted) {
         self.pending.push(req)
       }
       return true

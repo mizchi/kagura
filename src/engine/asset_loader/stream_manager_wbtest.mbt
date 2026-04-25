@@ -54,7 +54,7 @@ impl @asset.BytesFetcher for MockFetcher with poll(_) {
 ///|
 fn complete_mock(fetcher : MockFetcher, req_index : Int, data : Bytes?) -> Unit {
   let req = fetcher.requests[req_index]
-  if not(req.cancelled) {
+  if !(req.cancelled) {
     (req.on_complete)(data)
   }
 }

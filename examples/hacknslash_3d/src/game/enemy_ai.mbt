@@ -248,7 +248,7 @@ pub fn update_enemy_ai(
   let player_room = find_room_at(rooms, player.x, player.y)
   let chase_range_sq = params.chase_range * params.chase_range
   for enemy in enemies {
-    if not(enemy.alive) {
+    if !(enemy.alive) {
       continue
     }
     // Meteor casting: channeled, interruptible by killing the caster

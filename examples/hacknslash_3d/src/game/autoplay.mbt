@@ -63,7 +63,7 @@ fn find_nearest_visible_enemy_with_nav_grid(
     world.enemies.length(),
     fn(i) {
       let enemy = world.enemies[i]
-      if not(enemy.alive) {
+      if !(enemy.alive) {
         return false
       }
       let edx = enemy.x - world.player.x
@@ -89,7 +89,7 @@ fn find_nearest_alive_enemy(world : GameWorld) -> (Int, Double) {
   let mut best_idx = -1
   let mut best_dist_sq = 100000000.0
   for i, enemy in world.enemies {
-    if not(enemy.alive) {
+    if !(enemy.alive) {
       continue
     }
     let dx = enemy.x - world.player.x
@@ -148,7 +148,7 @@ fn find_nearest_autoplay_pickup_item(world : GameWorld) -> ItemDrop? {
   let mut nearest : ItemDrop? = None
   let mut nearest_dist_sq = 100000000.0
   for item in world.items {
-    if not(item.alive) {
+    if !(item.alive) {
       continue
     }
     let dx = item.x - world.player.x
@@ -189,7 +189,7 @@ pub fn GameWorld::apply_equipment_pickup_plan(
     self.player.hp = @cmp.minimum(self.player.hp, self.player_stats.max_hp)
     return true
   }
-  if not(plan.store_incoming) {
+  if !(plan.store_incoming) {
     return false
   }
   if plan.use_fifo_storage {
@@ -364,10 +364,10 @@ fn resolve_autoplay_goal_path(
           row == max_row ||
           col == min_col ||
           col == max_col
-        if not(on_perimeter) {
+        if !(on_perimeter) {
           continue
         }
-        if not(autoplay_walkable_tile(nav_grid.get(col, row))) {
+        if !(autoplay_walkable_tile(nav_grid.get(col, row))) {
           continue
         }
         match @pathfind.find_path(nav_grid, start, { x: col, y: row }) {
@@ -604,7 +604,7 @@ fn compute_kite_direction(
   let repel_primary_mult = if is_melee_build { 0.2 } else { 0.8 }
   let repel_others_mult = if is_melee_build { 0.6 } else { 1.2 }
   for i, enemy in world.enemies {
-    if not(enemy.alive) {
+    if !(enemy.alive) {
       continue
     }
     let edx = px - enemy.x
@@ -686,7 +686,7 @@ fn compute_kite_direction(
   let dodge_range = 60.0
   let dodge_force = 1.8
   for proj in world.projectiles {
-    if not(proj.alive) || proj.is_player {
+    if !(proj.alive) || proj.is_player {
       continue
     }
     let pdx = proj.x - px
@@ -718,7 +718,7 @@ fn compute_kite_direction(
   // Force 5: Avoid beam charge lines — sidestep perpendicular to casting beam direction
   let beam_dodge_force = 2.5
   for enemy in world.enemies {
-    if not(enemy.alive) || enemy.beam_cast_timer <= 0 {
+    if !(enemy.alive) || enemy.beam_cast_timer <= 0 {
       continue
     }
     // Beam line from enemy to its target
@@ -925,7 +925,7 @@ pub fn GameWorld::auto_activate_spell_slots(
     self.player.counter_cooldown_timer <= 0 {
     let mut threat = false
     for proj in self.projectiles {
-      if proj.alive && not(proj.is_player) {
+      if proj.alive && !(proj.is_player) {
         let dx = proj.x - self.player.x
         let dy = proj.y - self.player.y
         if dx * dx + dy * dy < 60.0 * 60.0 {

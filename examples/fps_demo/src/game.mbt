@@ -323,7 +323,7 @@ fn GameState::update(self : GameState, input : @core.InputSnapshot) -> Unit {
         }
       }
     }
-    if not(hit) && b.life > 0 {
+    if !(hit) && b.life > 0 {
       active_bullets.push(b)
     }
   }

@@ -89,7 +89,7 @@ pub fn SkillTree::available_level_up_skill_ids(
 
 ///|
 pub fn SkillTree::learn_level_up_skill(self : SkillTree, id : SkillId) -> Bool {
-  if not(self.can_learn_level_up_skill(id)) {
+  if !(self.can_learn_level_up_skill(id)) {
     return false
   }
   let index = self.find_index(id)
@@ -180,7 +180,7 @@ pub fn LevelProgression::choose_offer(
     return false
   }
   let chosen = self.current_offers[offer_index]
-  if not(skills.learn_level_up_skill(chosen)) {
+  if !(skills.learn_level_up_skill(chosen)) {
     return false
   }
   let core = self.to_core()

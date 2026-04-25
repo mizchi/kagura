@@ -59,7 +59,7 @@ fn EffectStudioState::update(self : EffectStudioState, input : @core.InputSnapsh
   @inpututil.update_key_input_state(self.key_state, input)
   @inpututil.update_mouse_input_state(self.mouse_state, input)
   if @inpututil.is_key_just_pressed(self.key_state, key_space) {
-    self.playing = not(self.playing)
+    self.playing = !(self.playing)
   }
   if @inpututil.is_key_just_pressed(self.key_state, key_r) {
     self.preview_time = 0.0

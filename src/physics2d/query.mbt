@@ -94,10 +94,8 @@ pub fn grid_line_of_sight_clear(
   size : Double,
   tile_size : Double,
 ) -> Bool {
-  not(
-    grid_segment_hits_wall(
-      grid, start_x, start_y, end_x, end_y, size, tile_size,
-    ),
+  !grid_segment_hits_wall(
+    grid, start_x, start_y, end_x, end_y, size, tile_size,
   )
 }
 
@@ -117,7 +115,7 @@ pub fn grid_find_nearest_visible_candidate_index(
   let mut nearest_idx = -1
   let mut nearest_dist_sq = max_range * max_range
   for idx = 0; idx < candidate_count; idx = idx + 1 {
-    if not(is_candidate_valid(idx)) {
+    if !(is_candidate_valid(idx)) {
       continue
     }
     let candidate_x = get_candidate_x(idx)
@@ -146,12 +144,12 @@ pub fn grid_slide_move(
   size : Double,
   tile_size : Double,
 ) -> (Double, Double) {
-  let nx = if not(grid_check_wall_collision(grid, x + vx, y, size, tile_size)) {
+  let nx = if !(grid_check_wall_collision(grid, x + vx, y, size, tile_size)) {
     x + vx
   } else {
     x
   }
-  let ny = if not(grid_check_wall_collision(grid, nx, y + vy, size, tile_size)) {
+  let ny = if !(grid_check_wall_collision(grid, nx, y + vy, size, tile_size)) {
     y + vy
   } else {
     y

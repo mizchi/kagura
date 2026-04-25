@@ -209,7 +209,7 @@ pub impl GraphicsDriver for StubGraphicsDriver with begin(self, pass) {
   let _ = self.backend
   if self.initialized {
     // Re-check web initialization if not yet active (async WebGPU device init)
-    if not(self.web_active) {
+    if !(self.web_active) {
       match self.backend {
         GraphicsBackendKind::WebGpu | GraphicsBackendKind::WebGl2 =>
           self.web_active = web_graphics_try_initialize(
@@ -313,7 +313,7 @@ pub impl GraphicsDriver for StubGraphicsDriver with read_pixels(
   width,
   height,
 ) {
-  if not(self.initialized) {
+  if !(self.initialized) {
     return None
   }
   let read_w = if x + width > self.width { self.width - x } else { width }

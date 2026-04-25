@@ -185,7 +185,7 @@ pub fn[P : AIPolicy, S : SensorBridge, A : ActuatorBridge, C : AIScheduler] crea
   state : AIRuntimeState,
 ) -> (Int, @core.FrameBudget) -> Unit {
   fn(tick : Int, frame : @core.FrameBudget) {
-    if not(state.config.enabled) {
+    if !(state.config.enabled) {
       return
     }
     let seed = state.config.base_seed + tick

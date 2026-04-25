@@ -71,7 +71,7 @@ pub fn World::entity_count(self : World) -> Int {
 ///|
 pub fn World::compact(self : World) -> Unit {
   let dead : Array[Int] = []
-  self.alive.each(fn(id, alive) { if not(alive) { dead.push(id) } })
+  self.alive.each(fn(id, alive) { if !(alive) { dead.push(id) } })
   for id in dead {
     self.alive.remove(id)
     self.tags.remove(id)

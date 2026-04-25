@@ -3233,7 +3233,7 @@ pub fn install(canvas_selector : String) -> Unit {
   let already_installed = web_hooks_installed.val
   web_canvas_selector.val = canvas_selector
   web_hooks_installed.val = true
-  if not(already_installed) {
+  if !(already_installed) {
     clear_source_image_cache()
     clear_synced_source_generations()
     clear_gpu_texture_dirty()

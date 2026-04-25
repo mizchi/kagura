@@ -58,7 +58,7 @@ pub fn run(
   let audio_tick_ms = audio_frames_per_tick.to_double() / 44100.0 * 1000.0
   let mut audio_accum = 0.0
   let mut prev_time = native_engine_clock_now_ms()
-  while not(platform.should_close()) {
+  while !(platform.should_close()) {
     platform.poll_events()
     // Resize tracking
     let outside = platform.outside_size()

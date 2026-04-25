@@ -118,12 +118,12 @@ fn DungeonScene::new() -> DungeonScene {
     found_start = true
     found_goal = true
   }
-  if not(found_start) || not(found_goal) {
+  if !(found_start) || !(found_goal) {
     for y in 0..<grid.height {
       for x in 0..<grid.width {
         let tile = grid.get(x, y)
         if tile == @terrain.Tile::Floor || tile == @terrain.Tile::Corridor {
-          if not(found_start) {
+          if !(found_start) {
             start = { x, y }
             found_start = true
           } else {
@@ -386,7 +386,7 @@ fn AppState::new() -> AppState {
 fn AppState::update(self : AppState, input : @core.InputSnapshot) -> Unit {
   self.manager.update(input)
   // Auto-transition from menu to dungeon after 2 seconds
-  if not(self.manager.is_transitioning()) {
+  if !(self.manager.is_transitioning()) {
     self.scene_switch_timer = self.scene_switch_timer + 1.0 / 60.0
     if self.scene_switch_timer > 2.0 && self.scene_switch_timer < 2.1 {
       self.manager.transition_to(self.dungeon, duration=0.5)

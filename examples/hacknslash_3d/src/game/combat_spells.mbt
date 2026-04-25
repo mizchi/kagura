@@ -15,7 +15,7 @@ fn find_next_chain_target(
     world.enemies.length(),
     fn(index) {
       let enemy = world.enemies[index]
-      if not(enemy.alive) {
+      if !(enemy.alive) {
         return false
       }
       for chained in chained_enemy_indices {
@@ -90,7 +90,7 @@ fn has_spell_unlock(world : GameWorld, id : SkillId) -> Bool {
 
 ///|
 pub fn cast_chain_lightning(world : GameWorld) -> Bool {
-  if not(has_spell_unlock(world, ChainLightning)) {
+  if !(has_spell_unlock(world, ChainLightning)) {
     return false
   }
   if world.chain_lightning_cooldown_timer > 0 {
@@ -161,7 +161,7 @@ pub fn cast_chain_lightning(world : GameWorld) -> Bool {
 
 ///|
 pub fn cast_splitting_fireball(world : GameWorld) -> Bool {
-  if not(has_spell_unlock(world, SplittingFireball)) {
+  if !(has_spell_unlock(world, SplittingFireball)) {
     return false
   }
   if world.splitting_fireball_cooldown_timer > 0 {
@@ -210,7 +210,7 @@ pub fn cast_splitting_fireball(world : GameWorld) -> Bool {
 
 ///|
 pub fn cast_ice_nova(world : GameWorld) -> Bool {
-  if not(has_spell_unlock(world, IceNova)) {
+  if !(has_spell_unlock(world, IceNova)) {
     return false
   }
   if world.ice_nova_cooldown_timer > 0 {
@@ -234,7 +234,7 @@ pub fn cast_ice_nova(world : GameWorld) -> Bool {
   let mut hit_any = false
   let radius_sq = nova_radius * nova_radius
   for enemy in world.enemies {
-    if not(enemy.alive) {
+    if !(enemy.alive) {
       continue
     }
     let dx = enemy.x - world.player.x
@@ -259,7 +259,7 @@ pub fn cast_ice_nova(world : GameWorld) -> Bool {
 
 ///|
 pub fn cast_homing_missile(world : GameWorld) -> Bool {
-  if not(has_spell_unlock(world, HomingMissile)) {
+  if !(has_spell_unlock(world, HomingMissile)) {
     return false
   }
   if world.homing_missile_cooldown_timer > 0 {
@@ -380,7 +380,7 @@ fn explode_player_fireball(
   spawned_projectiles : Array[Projectile],
   remaining_splits : Int,
 ) -> Unit {
-  if not(projectile.alive) {
+  if !(projectile.alive) {
     return
   }
   projectile.alive = false
@@ -396,11 +396,11 @@ pub fn process_player_projectiles(
   spawned_projectiles : Array[Projectile],
 ) -> Unit {
   for proj in world.projectiles {
-    if not(proj.alive) || not(proj.is_player) {
+    if !(proj.alive) || !(proj.is_player) {
       continue
     }
     for enemy in world.enemies {
-      if not(enemy.alive) {
+      if !(enemy.alive) {
         continue
       }
       let edx = proj.x - enemy.x
@@ -475,7 +475,7 @@ pub fn activate_skill(world : GameWorld, slot : Int) -> Unit {
             let px = world.player.x
             let py = world.player.y
             for enemy in world.enemies {
-              if not(enemy.alive) {
+              if !(enemy.alive) {
                 continue
               }
               let dx = enemy.x - px
@@ -538,7 +538,7 @@ pub fn activate_skill(world : GameWorld, slot : Int) -> Unit {
             let px = world.player.x
             let py = world.player.y
             for enemy in world.enemies {
-              if not(enemy.alive) {
+              if !(enemy.alive) {
                 continue
               }
               let dx = enemy.x - px

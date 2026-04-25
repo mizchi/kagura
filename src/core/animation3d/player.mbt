@@ -6,7 +6,7 @@ pub fn AnimationPlayer::new(clip : AnimationClip) -> AnimationPlayer {
 ///|
 /// Advance the animation time by dt seconds.
 pub fn AnimationPlayer::update(self : AnimationPlayer, dt : Double) -> Unit {
-  if not(self.playing) {
+  if !(self.playing) {
     return
   }
   self.time = self.time + dt * self.speed

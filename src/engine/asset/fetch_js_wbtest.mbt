@@ -34,7 +34,7 @@ test "js_fetch_buf_clear removes buffer" {
   js_test_set_fetch_buf(9001, 1, 2, 3, 4)
   assert_true(js_test_has_fetch_buf(9001))
   js_fetch_buf_clear(9001)
-  assert_true(not(js_test_has_fetch_buf(9001)))
+  assert_true(!(js_test_has_fetch_buf(9001)))
 }
 
 ///|

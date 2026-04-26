@@ -15,18 +15,16 @@
 ## アーキテクチャ
 
 ```
-scene/         宣言的 2D Scene API（推奨エントリポイント）
-core/          ゲームループ契約、固定 timestep、フレーム統計
-platform/      ウィンドウ / イベント / 入力の抽象（デスクトップ + Web）
-gfx/           グラフィクスドライバ、コマンドキュー、シェーダフロントエンド
-runtime/       ゲームループ実行と統合
-asset/         画像 / シェーダ / マテリアル / アトラスリポジトリ
-text/          フォントシェイピング、グリフアトラス（mizchi/font）
-ui/            レイアウト / 入力 / レンダーブリッジ（mizchi/layout）
-ai/            センサー / ポリシー / アクチュエータ / スケジューラ
-camera2d/      2D カメラ
-tilemap2d/     タイルマップシステム
-vector/        ベクトル演算
+moon.work
+|-- mizchi/kagura             描画・ランタイム基盤
+|   |-- core/                  ゲームループ契約、数学、カメラ、メッシュデータ
+|   |-- engine/                platform/gfx/runtime/asset/draw 系
+|   `-- gltf/                  glTF を描画向け scene data に変換
+|-- mizchi/kagura_game        ゲーム寄りの package 群
+|   |-- scene/                 宣言的 2D Scene API
+|   |-- physics2d/, physics3d/ 物理・collision 統合
+|   `-- ai/, ecs/, tilemap2d/  ゲームシステムと補助機能
+`-- mizchi/kagura_js_runtime  JS 専用 WebGPU runtime helper
 ```
 
 ### プラットフォーム対応

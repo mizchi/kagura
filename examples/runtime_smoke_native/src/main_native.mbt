@@ -475,9 +475,7 @@ fn run_runtime_contract_smoke() -> (Int, Int, Bool) raise {
 ///|
 fn verify_hook_font_load() -> Bool {
   // Verify hook-based font loading with real file
-  let font = @text.load_font(
-    ".mooncakes/mizchi/font/fixtures/NotoSans-subset.otf",
-  )
+  let font = @text.load_font(".mooncakes/mizchi/font/fixtures/subset.ttf")
   match font {
     None => {
       println("runtime_smoke_native: hook font load failed")
@@ -487,7 +485,7 @@ fn verify_hook_font_load() -> Bool {
   }
   // Verify load_text_renderer via hook
   let renderer = @text.load_text_renderer(
-    ".mooncakes/mizchi/font/fixtures/NotoSans-subset.otf", 256, 950, 0,
+    ".mooncakes/mizchi/font/fixtures/subset.ttf", 256, 950, 0,
   )
   match renderer {
     None => {
@@ -508,7 +506,7 @@ fn verify_hook_font_load() -> Bool {
   }
   // CJK font verification (NotoSansJP-subset.otf)
   let cjk_renderer = @text.load_text_renderer(
-    "fixtures/fonts/NotoSansJP-subset.otf", 256, 952, 0,
+    "../../fixtures/fonts/NotoSansJP-subset.otf", 256, 952, 0,
   )
   match cjk_renderer {
     None => {
@@ -527,9 +525,9 @@ fn verify_hook_font_load() -> Bool {
       )
     }
   }
-  // Full-set font verification (NotoSansMono-Regular.ttf)
+  // Full-set font verification
   let full_renderer = @text.load_text_renderer(
-    ".mooncakes/mizchi/font/fixtures/NotoSansMono-Regular.ttf", 512, 951, 0,
+    ".mooncakes/mizchi/font/fixtures/subset.ttf", 512, 951, 0,
   )
   match full_renderer {
     None => {

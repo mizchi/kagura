@@ -1,0 +1,5 @@
+import {
+  "mizchi/kagura/core/math3d" @math3d,
+  "mizchi/kagura_game/collision3d" @collision3d,
+  "moonbitlang/core/bench" @bench,
+}

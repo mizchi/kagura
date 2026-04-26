@@ -9,6 +9,9 @@
     },
     "mizchi/web_runtime_hooks": {
       "path": "../web_runtime_hooks"
+    },
+    "mizchi/kagura_game": {
+      "path": "../../modules/game"
     }
   }
 }

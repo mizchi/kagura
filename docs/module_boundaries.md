@@ -2,15 +2,24 @@
 
 実装前に固定する境界面の整理。
 
+## Workspace Modules
+
+- `mizchi/kagura`: 描画・ランタイム基盤。`src/core`, `src/engine`, `src/gltf` を持つ。
+- `mizchi/kagura_game`: gameplay/simulation/application layer。`modules/game/src/*` を持ち、`mizchi/kagura` に依存する。
+- `mizchi/kagura_js_runtime`: JS 専用 WebGPU runtime helper。`modules/js_runtime/src/*` を持つ。
+
+依存の向きは `kagura_js_runtime` と `kagura_game` が `kagura` を使う形に寄せる。`mizchi/kagura` から `mizchi/kagura_game` を import しない。
+
 ## Dependency Direction
 
-- `core` <- `platform`, `gfx`, `runtime`, `ui`, `ai`
+- `core` <- `platform`, `gfx`, `runtime`, `ui`
+- `mizchi/kagura` <- `mizchi/kagura_game`
 - `platform` <- `gfx`（surface token のみ参照）
 - `gfx` <- `asset`, `text`, `ui`
-- `runtime` <- `ai`（tick 統合）
 - `asset` <- `text`, `ui`
 - 禁止:
   - `core` -> `platform/gfx`
+  - `mizchi/kagura` -> `mizchi/kagura_game`
   - `ai` -> `gfx`（描画依存を持たない）
   - `ui` -> `platform`（入力は `core.InputSnapshot` 経由）
 
@@ -25,7 +34,7 @@
 | `asset` | asset index, atlas allocation | image/shader specs | image/shader/material handle | `src/asset/contracts.mbt` |
 | `text` | font cache, glyph cache | text runs | glyph quads, draw commands | `src/text/contracts.mbt` |
 | `ui` | ui tree, layout cache | input snapshot, frame budget | ui events, draw commands | `src/ui/contracts.mbt` |
-| `ai` | blackboard, scheduler state | sensor snapshot, frame budget | action intents | `src/ai/contracts.mbt` |
+| `ai` | blackboard, scheduler state | sensor snapshot, frame budget | action intents | `modules/game/src/ai/contracts.mbt` |
 
 ## Backend Implementations
 

@@ -14,19 +14,16 @@ A 2D-first (with future 3D) game engine for [MoonBit](https://www.moonbitlang.co
 ## Architecture
 
 ```
-core/          Game loop contracts, fixed timestep, frame stats
-platform/      Window / event / input abstraction (desktop + web)
-gfx/           Graphics driver, command queue, shader frontend
-runtime/       Game loop execution and integration
-asset/         Image / shader / material / atlas repository
-text/          Font shaping, glyph atlas (mizchi/font)
-ui/            Layout / input / render bridge (mizchi/layout)
-ai/            Sensor / policy / actuator / scheduler
-draw2d/        2D drawing utilities
-sprite2d/      Sprite system
-tilemap2d/     Tilemap system
-camera2d/      2D camera
-vector/        Vector math
+moon.work
+|-- mizchi/kagura             Rendering/runtime infrastructure
+|   |-- core/                  Game loop contracts, math, camera, mesh data
+|   |-- engine/                Platform, gfx, runtime, assets, draw helpers
+|   `-- gltf/                  glTF loading into render-facing scene data
+|-- mizchi/kagura_game        Gameplay-oriented packages
+|   |-- scene/                 Declarative 2D Scene API
+|   |-- physics2d/, physics3d/ Simulation and collision integration
+|   `-- ai/, ecs/, tilemap2d/  Game systems and helpers
+`-- mizchi/kagura_js_runtime  JS-only WebGPU runtime helpers
 ```
 
 ### Platform Support

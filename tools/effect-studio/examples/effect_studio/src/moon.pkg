@@ -7,7 +7,7 @@ import {
   "mizchi/kagura/engine/draw3d" @draw3d,
   "mizchi/kagura/engine" @engine,
   "mizchi/kagura/engine/gfx" @gfx,
-  "mizchi/kagura/hud" @hud,
+  "mizchi/kagura_game/hud" @hud,
   "mizchi/kagura/core/inpututil" @inpututil,
   "mizchi/kagura/engine/light3d" @light3d,
   "mizchi/kagura/core/math3d" @math3d,

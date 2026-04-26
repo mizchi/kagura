@@ -4,8 +4,17 @@
   "source": "src",
   "warn-list": "-6-29-53-68",
   "deps": {
-    "mizchi/kagura": { "path": "../.." },
-    "mizchi/web_runtime_hooks": { "path": "../web_runtime_hooks" },
-    "mizchi/terrain": { "path": "../../../terrain" }
+    "mizchi/kagura": {
+      "path": "../.."
+    },
+    "mizchi/web_runtime_hooks": {
+      "path": "../web_runtime_hooks"
+    },
+    "mizchi/terrain": {
+      "path": "../../../terrain"
+    },
+    "mizchi/kagura_game": {
+      "path": "../../modules/game"
+    }
   }
 }

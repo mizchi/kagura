@@ -15,6 +15,9 @@
     },
     "mizchi/native_runtime_hooks": {
       "path": "../native_runtime_hooks"
+    },
+    "mizchi/kagura_game": {
+      "path": "../../modules/game"
     }
   },
   "--moonbit-unstable-prebuild": "../../scripts/moon-prebuild-native-link-flags.cjs"

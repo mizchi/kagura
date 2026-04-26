@@ -1,0 +1,37 @@
+// Generated using `moon info`, DON'T EDIT IT
+package "mizchi/kagura_game/scene_manager"
+
+import {
+  "mizchi/kagura/core",
+  "mizchi/kagura/engine",
+  "mizchi/kagura/engine/gfx",
+}
+
+// Values
+
+// Errors
+
+// Types and methods
+pub struct SceneManager {
+  mut current : &Scene
+  mut next : &Scene?
+  mut transition_progress : Double
+  mut transition_duration : Double
+  mut transitioning : Bool
+}
+pub fn SceneManager::draw(Self, @engine.EngineContext) -> Array[@gfx.DrawTrianglesCommand]
+pub fn SceneManager::is_transitioning(Self) -> Bool
+pub fn SceneManager::new(&Scene) -> Self
+pub fn SceneManager::transition_overlay_alpha(Self) -> Double
+pub fn SceneManager::transition_progress(Self) -> Double
+pub fn SceneManager::transition_to(Self, &Scene, duration? : Double) -> Unit
+pub fn SceneManager::update(Self, @core.InputSnapshot, dt? : Double) -> Unit
+
+// Type aliases
+
+// Traits
+pub(open) trait Scene {
+  update(Self, @core.InputSnapshot) -> Unit
+  draw(Self, @engine.EngineContext) -> Array[@gfx.DrawTrianglesCommand]
+}
+

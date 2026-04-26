@@ -2,8 +2,8 @@
 package "mizchi/hacknslash_3d/game"
 
 import {
-  "mizchi/kagura/gameplay2d",
-  "mizchi/kagura/progression",
+  "mizchi/kagura_game/gameplay2d",
+  "mizchi/kagura_game/progression",
   "mizchi/terrain/types",
   "moonbitlang/core/debug",
 }

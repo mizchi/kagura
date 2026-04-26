@@ -12,7 +12,7 @@ import {
   "mizchi/kagura/engine/runtime" @runtime,
   "mizchi/kagura/engine/sprite2d" @sprite2d,
   "mizchi/kagura/engine/text" @text,
-  "mizchi/kagura/tilemap2d" @tilemap2d,
+  "mizchi/kagura_game/tilemap2d" @tilemap2d,
 }
 
 warnings = "-29"

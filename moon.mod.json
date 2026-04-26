@@ -6,9 +6,7 @@
     "mizchi/font": "0.7.0",
     "mizchi/audio": "0.1.0",
     "mizchi/svg": "0.2.0",
-    "mizchi/signals": "0.6.3",
-    "mizchi/glfw": "0.2.2",
-    "mizchi/terrain": "0.1.1"
+    "mizchi/glfw": "0.2.2"
   },
   "readme": "README.mbt.md",
   "repository": "https://github.com/mizchi/kagura",

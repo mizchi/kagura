@@ -5,7 +5,7 @@ import {
   "mizchi/kagura/core/camera2d" @camera2d,
   "mizchi/kagura/core" @core,
   "mizchi/kagura/core/inpututil" @inpututil,
-  "mizchi/kagura/scene" @scene,
+  "mizchi/kagura_game/scene" @scene,
   "mizchi/kagura/core/vector" @vector,
   "mizchi/web_runtime_hooks" @web_hooks,
 }

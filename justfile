@@ -6,12 +6,10 @@ default: check test
 
 fmt:
     moon fmt
-    [ -f modules/js_runtime/moon.mod.json ] && (cd modules/js_runtime && moon fmt)
     for dir in examples/*/ tools/modeling3d/examples/*/ tools/effect-studio/examples/*/; do [ -f "$dir/moon.mod.json" ] && (cd "$dir" && moon fmt); done
 
 check:
     moon check --deny-warn --target {{target}}
-    if [ "{{target}}" = "js" ] && [ -f modules/js_runtime/moon.mod.json ]; then (cd modules/js_runtime && moon check --deny-warn --target js); fi
     for dir in examples/*/ tools/modeling3d/examples/*/ tools/effect-studio/examples/*/; do if [ -f "$dir/moon.mod.json" ]; then if [ "{{target}}" != "native" ] && [ -f "$dir/src/moon.pkg" ] && grep -q 'supported_targets = "native"' "$dir/src/moon.pkg"; then echo "skip $dir (supports native only)"; continue; fi; (cd "$dir" && moon check --deny-warn --target {{target}}); fi; done
 
 modeling3d-check:
@@ -23,7 +21,6 @@ effect-studio-check:
 test:
     if [ "{{target}}" = "native" ]; then CPATH="$(brew --prefix glfw)/include:${CPATH:-}" LIBRARY_PATH="$(brew --prefix)/lib:${LIBRARY_PATH:-}" moon test --target native || { echo "::error title=moon test failed::root moon test --target native"; exit 1; }; else moon test --target {{target}} || { echo "::error title=moon test failed::root moon test --target {{target}}"; exit 1; }; fi
     if [ "{{target}}" = "js" ] && ls lib/web/*.test.mjs >/dev/null 2>&1; then node --test lib/web/*.test.mjs || { echo "::error title=node test failed::lib/web/*.test.mjs"; exit 1; }; fi
-    if [ "{{target}}" = "js" ] && [ -f modules/js_runtime/moon.mod.json ]; then (cd modules/js_runtime && moon test --target js) || { echo "::error title=moon test failed::modules/js_runtime"; exit 1; }; fi
     for dir in examples/*/ tools/modeling3d/examples/*/ tools/effect-studio/examples/*/; do if [ -f "$dir/moon.mod.json" ]; then if [ "{{target}}" != "native" ] && [ -f "$dir/src/moon.pkg" ] && grep -q 'supported_targets = "native"' "$dir/src/moon.pkg"; then echo "skip $dir (supports native only)"; continue; fi; if [ "{{target}}" = "native" ] && grep -rq "wgpu_native" "$dir/src/moon.pkg" 2>/dev/null; then echo "skip $dir (requires wgpu-native at link time)"; continue; fi; if [ "{{target}}" = "native" ] && [ "$dir" = "tools/effect-studio/examples/effect_studio/" ]; then echo "skip $dir (native test limited to check-only)"; continue; fi; echo "test $dir"; (cd "$dir" && if [ "{{target}}" = "native" ]; then CPATH="$(brew --prefix glfw)/include:${CPATH:-}" LIBRARY_PATH="$(brew --prefix)/lib:${LIBRARY_PATH:-}" moon test --target native; else moon test --target {{target}}; fi) || { echo "::error file=$dir/moon.mod.json,title=example test failed::$dir"; exit 1; }; fi; done
 
 modeling3d-test:
@@ -184,12 +181,10 @@ check-release:
     @echo "Checking for local path dependencies..."
     @if grep -q '"path"' moon.mod.json; then echo "ERROR: moon.mod.json contains local path dependencies"; grep '"path"' moon.mod.json; exit 1; else echo "OK: No local path dependencies found"; fi
     moon check --target js
-    [ -f modules/js_runtime/moon.mod.json ] && (cd modules/js_runtime && moon check --target js)
     moon check --target native
 
 clean:
     moon clean
-    [ -f modules/js_runtime/moon.mod.json ] && (cd modules/js_runtime && moon clean)
     for dir in examples/*/ tools/modeling3d/examples/*/ tools/effect-studio/examples/*/; do [ -d "$dir" ] && (cd "$dir" && moon clean); done
 
 balance name="playtest":

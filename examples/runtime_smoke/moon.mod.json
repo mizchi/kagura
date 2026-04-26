@@ -4,8 +4,15 @@
   "source": "src",
   "warn-list": "-6-29-53-68",
   "deps": {
-    "mizchi/kagura": { "path": "../.." },
-    "mizchi/web_runtime_hooks": { "path": "../web_runtime_hooks" },
-    "mizchi/font": "0.7.0"
+    "mizchi/kagura": {
+      "path": "../.."
+    },
+    "mizchi/web_runtime_hooks": {
+      "path": "../web_runtime_hooks"
+    },
+    "mizchi/font": "0.7.0",
+    "mizchi/kagura_game": {
+      "path": "../../modules/game"
+    }
   }
 }

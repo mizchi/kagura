@@ -1,0 +1,19 @@
+{
+  "name": "mizchi/kagura_game",
+  "version": "0.1.0",
+  "description": "Gameplay, physics, scene, and game-specific helpers for Kagura",
+  "repository": "https://github.com/mizchi/kagura",
+  "license": "Apache-2.0",
+  "source": "src",
+  "warn-list": "-6-29-53-68",
+  "deps": {
+    "mizchi/kagura": {
+      "path": "../.."
+    },
+    "mizchi/font": "0.7.0",
+    "mizchi/signals": "0.6.3",
+    "mizchi/terrain": "0.1.1"
+  },
+  "preferred-target": "js",
+  "--moonbit-unstable-prebuild": "../../scripts/moon-prebuild-native-link-flags.cjs"
+}

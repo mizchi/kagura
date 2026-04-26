@@ -310,7 +310,7 @@ fn main {
     println("audio_smoke: ok init=false")
   }
   // Font smoke test
-  let font_path = ".mooncakes/mizchi/font/fixtures/NotoSans-subset.otf"
+  let font_path = ".mooncakes/mizchi/font/fixtures/subset.ttf"
   let font = @text.load_font(font_path)
   match font {
     Some(_) => {
@@ -327,8 +327,8 @@ fn main {
     }
     None => println("font_smoke: ok load=false")
   }
-  // Full-set font smoke test (NotoSansMono-Regular.ttf)
-  let full_font_path = ".mooncakes/mizchi/font/fixtures/NotoSansMono-Regular.ttf"
+  // Full-set font smoke test
+  let full_font_path = ".mooncakes/mizchi/font/fixtures/subset.ttf"
   let full_renderer = @text.load_text_renderer(full_font_path, 512, 951, 0)
   match full_renderer {
     Some(tr) => {
@@ -342,7 +342,7 @@ fn main {
     None => println("font_smoke_full: ok load=false")
   }
   // CJK font smoke test (NotoSansJP-subset.otf)
-  let cjk_font_path = "fixtures/fonts/NotoSansJP-subset.otf"
+  let cjk_font_path = "../../fixtures/fonts/NotoSansJP-subset.otf"
   let cjk_renderer = @text.load_text_renderer(cjk_font_path, 256, 952, 0)
   match cjk_renderer {
     Some(tr) => {

@@ -1,0 +1,57 @@
+// Generated using `moon info`, DON'T EDIT IT
+package "mizchi/kagura_game/scene"
+
+import {
+  "mizchi/kagura/core",
+  "mizchi/kagura/engine/audio",
+  "mizchi/kagura/engine/gfx",
+  "mizchi/signals/ui",
+  "moonbitlang/core/debug",
+}
+
+// Values
+pub fn for_each(() -> Array[@ui.Node[Unit, SceneAttrValue]]) -> @ui.Node[Unit, SceneAttrValue]
+
+pub fn fragment(Array[@ui.Node[Unit, SceneAttrValue]]) -> @ui.Node[Unit, SceneAttrValue]
+
+pub fn group(x? : Double, y? : Double, children~ : Array[@ui.Node[Unit, SceneAttrValue]]) -> @ui.Node[Unit, SceneAttrValue]
+
+pub fn label(x? : Double, y? : Double, content~ : String, color? : Int, scale? : Double) -> @ui.Node[Unit, SceneAttrValue]
+
+pub fn line(x0~ : Double, y0~ : Double, x1~ : Double, y1~ : Double, width? : Double, color? : Int) -> @ui.Node[Unit, SceneAttrValue]
+
+pub fn match_case(when~ : () -> Bool, render~ : () -> @ui.Node[Unit, SceneAttrValue]) -> @ui.MatchCase[Unit, SceneAttrValue]
+
+pub fn rect(x? : Double, y? : Double, w~ : Double, h~ : Double, fill? : Int, alpha? : Double, children? : Array[@ui.Node[Unit, SceneAttrValue]]) -> @ui.Node[Unit, SceneAttrValue]
+
+pub fn rect_outline(x~ : Double, y~ : Double, w~ : Double, h~ : Double, line_width? : Double, color? : Int) -> @ui.Node[Unit, SceneAttrValue]
+
+pub fn render_scene(@ui.Node[Unit, SceneAttrValue], @gfx.ImageHandle, @gfx.ShaderHandle, Double, Double) -> Array[@gfx.DrawTrianglesCommand]
+
+pub fn run(view~ : () -> @ui.Node[Unit, SceneAttrValue], update~ : (@core.InputSnapshot) -> Unit, on_frame? : (Array[@gfx.DrawTrianglesCommand], @gfx.ImageHandle, @gfx.ShaderHandle, Double, Double) -> Unit, audio_ctx? : @audio.MixerAudioContext, width? : Int, height? : Int, title? : String, canvas? : String) -> Unit
+
+pub fn[T : SceneGame] run_game(T, on_frame? : (Array[@gfx.DrawTrianglesCommand], @gfx.ImageHandle, @gfx.ShaderHandle, Double, Double) -> Unit, audio_ctx? : @audio.MixerAudioContext, width? : Int, height? : Int, title? : String, canvas? : String) -> Unit
+
+pub fn show(() -> Bool, () -> @ui.Node[Unit, SceneAttrValue]) -> @ui.Node[Unit, SceneAttrValue]
+
+pub fn switch_(cases~ : Array[@ui.MatchCase[Unit, SceneAttrValue]], fallback? : (() -> @ui.Node[Unit, SceneAttrValue])?) -> @ui.Node[Unit, SceneAttrValue]
+
+// Errors
+
+// Types and methods
+pub enum SceneAttrValue {
+  SceneInt(Int)
+  SceneDouble(Double)
+  SceneText(String)
+} derive(@debug.Debug)
+pub impl Show for SceneAttrValue
+
+// Type aliases
+pub type SceneNode = @ui.Node[Unit, SceneAttrValue]
+
+// Traits
+pub(open) trait SceneGame {
+  update_game(Self, @core.InputSnapshot) -> Unit
+  view_game(Self) -> @ui.Node[Unit, SceneAttrValue]
+}
+

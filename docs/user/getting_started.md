@@ -81,6 +81,7 @@ examples/my_game/
   "source": "src",
   "deps": {
     "mizchi/kagura": { "path": "../.." },
+    "mizchi/kagura_game": { "path": "../../modules/game" },
     "mizchi/signals": "0.6.3",
     "mizchi/web_runtime_hooks": { "path": "../web_runtime_hooks" },
     "mizchi/native_runtime_hooks": { "path": "../native_runtime_hooks" }
@@ -94,7 +95,7 @@ examples/my_game/
 ```
 import {
   "mizchi/signals" @signals,
-  "mizchi/kagura/scene" @scene,
+  "mizchi/kagura_game/scene" @scene,
   "mizchi/kagura/core" @core,
   "mizchi/kagura/inpututil" @inpututil,
   "mizchi/web_runtime_hooks" @web_hooks,

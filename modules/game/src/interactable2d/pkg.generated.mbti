@@ -1,0 +1,84 @@
+// Generated using `moon info`, DON'T EDIT IT
+package "mizchi/kagura_game/interactable2d"
+
+import {
+  "mizchi/terrain/types",
+  "moonbitlang/core/debug",
+}
+
+// Values
+pub fn find_first_circular_pickup_index(Array[CircularInteractable], Double, Double, Double) -> Int?
+
+pub fn interactable_role_blocks_movement(InteractableRole) -> Bool
+
+pub fn interactable_role_is_pickup(InteractableRole) -> Bool
+
+pub fn is_circular_pickup_in_range(Double, Double, Double, Double, Double) -> Bool
+
+pub fn parse_interactable_anchor(String) -> InteractableAnchor?
+
+pub fn parse_interactable_pickup_effect(String) -> InteractablePickupEffect?
+
+pub fn parse_interactable_role(String) -> InteractableRole?
+
+pub fn pick_anchor_position(Array[AnchorCandidate], InteractableAnchor, Double, Double) -> (Double, Double)
+
+pub fn resolve_actor_circular_blockers(Array[CircularInteractable], Double, Double, Double, (Double, Double, Double) -> Bool) -> (Double, Double)
+
+pub fn resolve_circular_blocker_overlap(Double, Double, Double, Double, Double, Double) -> (Double, Double)?
+
+pub fn resolve_circular_interaction_frame(Array[CircularInteractable], Double, Double, Double, Double, (Double, Double, Double) -> Bool) -> CircularInteractionFrame
+
+pub fn stamp_circular_blockers_on_grid(@types.Grid2D, Array[CircularInteractable], Double) -> Unit
+
+// Errors
+
+// Types and methods
+pub(all) struct AnchorCandidate {
+  center_x : Double
+  center_y : Double
+  area : Int
+  is_start : Bool
+}
+pub fn AnchorCandidate::new(Double, Double, Int, Bool) -> Self
+
+pub(all) struct CircularInteractable {
+  x : Double
+  y : Double
+  radius : Double
+  role : InteractableRole
+}
+pub fn CircularInteractable::new(Double, Double, Double, InteractableRole) -> Self
+
+pub(all) struct CircularInteractionFrame {
+  actor_x : Double
+  actor_y : Double
+  pickup_contact_index : Int?
+}
+
+pub(all) enum InteractableAnchor {
+  StartRoomCenter
+  LargestNonStartRoomCenter
+  BossRoomCenter
+  TreasureRoomCenter
+} derive(Eq, @debug.Debug)
+pub impl Show for InteractableAnchor
+
+pub(all) enum InteractablePickupEffect {
+  ScorePickup
+  HealthPickup
+  EquipmentPickup
+} derive(Eq, @debug.Debug)
+pub impl Show for InteractablePickupEffect
+
+pub(all) enum InteractableRole {
+  Decoration
+  Blocking
+  Pickup
+} derive(Eq, @debug.Debug)
+pub impl Show for InteractableRole
+
+// Type aliases
+
+// Traits
+

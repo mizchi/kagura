@@ -155,30 +155,12 @@ fn DemoState::draw(
   self : DemoState,
   ctx : @engine.EngineContext,
 ) -> Array[@gfx.DrawTrianglesCommand] {
-  let all_cmds : Array[@gfx.DrawTrianglesCommand] = []
-  // 1. Render scene to pipeline's scene target
   let scene = self.build_scene()
-  let scene_cmds = @scene3d.render_scene3d_gpu(
-    scene,
-    self.pipeline.scene_target,
-    self.shader3d,
-    ctx.screen_w,
-    ctx.screen_h,
+  let frame = @renderer3d.RenderFrame3D::new(
+    dst=ctx.dst,
+    shader3d=self.shader3d,
+    screen_w=ctx.screen_w,
+    screen_h=ctx.screen_h,
   )
-  for cmd in scene_cmds {
-    all_cmds.push(cmd)
-  }
-  // 2. PostFX: bloom → tonemap → FXAA
-  let view_projection = self.camera.to_camera3d().view_projection_matrix()
-  let postfx_cmds = self.pipeline.compose_postfx(
-    ctx.dst,
-    [], // no depth casters
-    view_projection,
-    ctx.screen_w,
-    ctx.screen_h,
-  )
-  for cmd in postfx_cmds {
-    all_cmds.push(cmd)
-  }
-  all_cmds
+  @renderer3d.render_scene3d_to_pipeline(scene, self.pipeline, frame)
 }

@@ -1,0 +1,13 @@
+import {
+  "moonbitlang/core/math" @math,
+  "mizchi/kagura/core/camera3d" @camera3d,
+  "mizchi/kagura/core/math3d" @math3d,
+  "mizchi/kagura/core/mesh3d" @mesh3d,
+  "mizchi/kagura/engine/gfx" @gfx,
+  "mizchi/kagura/engine/light3d" @light3d,
+  "mizchi/kagura/engine/render_pipeline3d" @render_pipeline3d,
+  "mizchi/kagura/engine/scene3d" @scene3d,
+  "mizchi/kagura/engine/shadow3d" @shadow3d,
+}
+
+warnings = "-1"

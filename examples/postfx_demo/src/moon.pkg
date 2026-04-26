@@ -10,6 +10,7 @@ import {
   "mizchi/kagura/core/math3d" @math3d,
   "mizchi/kagura/core/mesh3d" @mesh3d,
   "mizchi/kagura/engine/render_pipeline3d" @render_pipeline3d,
+  "mizchi/kagura/engine/renderer3d" @renderer3d,
   "mizchi/kagura/engine/scene3d" @scene3d,
   "mizchi/web_runtime_hooks" @web_hooks,
 }

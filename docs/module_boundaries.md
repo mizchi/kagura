@@ -17,9 +17,12 @@
 - `platform` <- `gfx`（surface token のみ参照）
 - `gfx` <- `asset`, `text`, `ui`
 - `asset` <- `text`, `ui`
+- `draw2d` <- `renderer2d`（2D draw command builder の上に frame/queue API を置く）
+- `draw3d`, `scene3d`, `render_pipeline3d` <- `renderer3d`（3D scene/pipeline の facade）
 - 禁止:
   - `core` -> `platform/gfx`
   - `mizchi/kagura` -> `mizchi/kagura_game`
+  - `renderer2d` -> `mizchi/kagura_game/scene`（game scene 側から renderer2d を使う）
   - `ai` -> `gfx`（描画依存を持たない）
   - `ui` -> `platform`（入力は `core.InputSnapshot` 経由）
 
@@ -28,12 +31,14 @@
 | module | own state | input | output | contract file |
 |---|---|---|---|---|
 | `core` | tick/update 計画 | outside size, input snapshot | frame budget, termination | `src/core/contracts.mbt` |
-| `platform` | window/event buffer | window options | input snapshot, surface token | `src/platform/contracts.mbt`, `src/platform/surface_contracts.mbt` |
-| `gfx` | GPU resources, command queue | draw commands, shader source, surface token | present, image/shader handle | `src/gfx/contracts.mbt`, `src/gfx/shader_contracts.mbt`, `src/gfx/backend_contracts.mbt` |
-| `runtime` | loop state | core/platform/gfx contracts | frame execution | `src/runtime/contracts.mbt` |
-| `asset` | asset index, atlas allocation | image/shader specs | image/shader/material handle | `src/asset/contracts.mbt` |
-| `text` | font cache, glyph cache | text runs | glyph quads, draw commands | `src/text/contracts.mbt` |
-| `ui` | ui tree, layout cache | input snapshot, frame budget | ui events, draw commands | `src/ui/contracts.mbt` |
+| `platform` | window/event buffer | window options | input snapshot, surface token | `src/engine/platform/contracts.mbt`, `src/engine/platform/surface_contracts.mbt` |
+| `gfx` | GPU resources, command queue | draw commands, shader source, surface token | present, image/shader handle | `src/engine/gfx/contracts.mbt`, `src/engine/gfx/shader_contracts.mbt`, `src/engine/gfx/backend_contracts.mbt` |
+| `runtime` | loop state | core/platform/gfx contracts | frame execution | `src/engine/runtime/contracts.mbt` |
+| `asset` | asset index, atlas allocation | image/shader specs | image/shader/material handle | `src/engine/asset/contracts.mbt` |
+| `renderer2d` | frame draw context | atlas draw sources, 2D frame target | draw command queue | `src/engine/renderer2d/renderer2d.mbt` |
+| `renderer3d` | frame draw context | `scene3d` graph/scene, optional postfx pipeline | scene + postfx draw command queue | `src/engine/renderer3d/renderer3d.mbt` |
+| `text` | font cache, glyph cache | text runs | glyph quads, draw commands | `src/engine/text/contracts.mbt` |
+| `ui` | ui tree, layout cache | input snapshot, frame budget | ui events, draw commands | `src/engine/ui/contracts.mbt` |
 | `ai` | blackboard, scheduler state | sensor snapshot, frame budget | action intents | `modules/game/src/ai/contracts.mbt` |
 
 ## Backend Implementations

@@ -17,7 +17,7 @@ A 2D-first (with future 3D) game engine for [MoonBit](https://www.moonbitlang.co
 moon.work
 |-- mizchi/kagura             Rendering/runtime infrastructure
 |   |-- core/                  Game loop contracts, math, camera, mesh data
-|   |-- engine/                Platform, gfx, runtime, assets, draw helpers
+|   |-- engine/                Platform, gfx, runtime, assets, draw helpers, renderers
 |   `-- gltf/                  glTF loading into render-facing scene data
 |-- mizchi/kagura_game        Gameplay-oriented packages
 |   |-- scene/                 Declarative 2D Scene API

@@ -1,0 +1,50 @@
+// Generated using `moon info`, DON'T EDIT IT
+package "mizchi/kagura/engine/renderer3d"
+
+import {
+  "mizchi/kagura/core/camera3d",
+  "mizchi/kagura/engine/gfx",
+  "mizchi/kagura/engine/light3d",
+  "mizchi/kagura/engine/render_pipeline3d",
+  "mizchi/kagura/engine/scene3d",
+  "mizchi/kagura/engine/shadow3d",
+}
+
+// Values
+pub fn append_scene3d_commands(Array[@gfx.DrawTrianglesCommand], @scene3d.Scene3D, RenderFrame3D) -> Unit
+
+pub fn append_scene3d_graph_commands(Array[@gfx.DrawTrianglesCommand], @scene3d.SceneGraph, @camera3d.Camera3D, RenderFrame3D, lighting? : @light3d.LightingEnvironment) -> Unit
+
+pub fn render_scene3d(@scene3d.Scene3D, RenderFrame3D) -> Array[@gfx.DrawTrianglesCommand]
+
+pub fn render_scene3d_graph(@scene3d.SceneGraph, @camera3d.Camera3D, RenderFrame3D, lighting? : @light3d.LightingEnvironment) -> Array[@gfx.DrawTrianglesCommand]
+
+pub fn render_scene3d_graph_to_pipeline(@scene3d.SceneGraph, @camera3d.Camera3D, @render_pipeline3d.RenderPipeline3D, RenderFrame3D, lighting? : @light3d.LightingEnvironment, depth_casters? : Array[@shadow3d.ShadowCaster], hit_flash? : Double) -> Array[@gfx.DrawTrianglesCommand]
+
+pub fn render_scene3d_to_pipeline(@scene3d.Scene3D, @render_pipeline3d.RenderPipeline3D, RenderFrame3D, depth_casters? : Array[@shadow3d.ShadowCaster], hit_flash? : Double) -> Array[@gfx.DrawTrianglesCommand]
+
+// Errors
+
+// Types and methods
+pub(all) struct RenderFrame3D {
+  dst : @gfx.ImageHandle
+  screen_w : Int
+  screen_h : Int
+  shaders : RenderShaders3D
+}
+pub fn RenderFrame3D::new(dst~ : @gfx.ImageHandle, shader3d~ : @gfx.ShaderHandle, screen_w~ : Int, screen_h~ : Int, shader3d_textured? : @gfx.ShaderHandle?, shader3d_pbr? : @gfx.ShaderHandle?, shader3d_pbr_textured? : @gfx.ShaderHandle?, shader3d_skinned? : @gfx.ShaderHandle?) -> Self
+pub fn RenderFrame3D::with_dst(Self, @gfx.ImageHandle) -> Self
+
+pub(all) struct RenderShaders3D {
+  shader3d : @gfx.ShaderHandle
+  shader3d_textured : @gfx.ShaderHandle?
+  shader3d_pbr : @gfx.ShaderHandle?
+  shader3d_pbr_textured : @gfx.ShaderHandle?
+  shader3d_skinned : @gfx.ShaderHandle?
+}
+pub fn RenderShaders3D::new(shader3d~ : @gfx.ShaderHandle, shader3d_textured? : @gfx.ShaderHandle?, shader3d_pbr? : @gfx.ShaderHandle?, shader3d_pbr_textured? : @gfx.ShaderHandle?, shader3d_skinned? : @gfx.ShaderHandle?) -> Self
+
+// Type aliases
+
+// Traits
+

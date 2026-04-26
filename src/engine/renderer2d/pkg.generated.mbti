@@ -1,0 +1,42 @@
+// Generated using `moon info`, DON'T EDIT IT
+package "mizchi/kagura/engine/renderer2d"
+
+import {
+  "mizchi/kagura/engine/asset",
+  "mizchi/kagura/engine/gfx",
+}
+
+// Values
+pub fn append_atlas_quad(Array[@gfx.DrawTrianglesCommand], RenderFrame2D, AtlasQuad2D) -> Unit
+
+pub fn render_atlas_quads(RenderFrame2D, Array[AtlasQuad2D]) -> Array[@gfx.DrawTrianglesCommand]
+
+// Errors
+
+// Types and methods
+pub(all) struct AtlasQuad2D {
+  source : @asset.AtlasDrawSource
+  left : Double
+  top : Double
+  right : Double
+  bottom : Double
+  uniform_dwords : Array[Int]
+}
+pub fn AtlasQuad2D::new(source~ : @asset.AtlasDrawSource, left~ : Double, top~ : Double, right~ : Double, bottom~ : Double, uniform_dwords? : Array[Int]) -> Self
+
+pub(all) struct RenderFrame2D {
+  dst : @gfx.ImageHandle
+  shader : @gfx.ShaderHandle
+  screen_w : Int
+  screen_h : Int
+  pipeline_id : Int
+  uniform_hash : Int
+  blend : @gfx.BlendMode
+}
+pub fn RenderFrame2D::dst_region(Self) -> @gfx.DstRegion
+pub fn RenderFrame2D::new(dst~ : @gfx.ImageHandle, shader~ : @gfx.ShaderHandle, screen_w~ : Int, screen_h~ : Int, pipeline_id? : Int, uniform_hash? : Int, blend? : @gfx.BlendMode) -> Self
+
+// Type aliases
+
+// Traits
+

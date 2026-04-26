@@ -18,7 +18,12 @@ pub(all) struct SimResult {
   hp_remaining : Int
   max_hp : Int
   cards_played : Int
-} derive(Show)
+} derive(Debug)
+
+///|
+pub impl Show for SimResult with output(self, logger) {
+  logger.write_object(to_repr(self))
+}
 
 ///|
 /// Run a single simulated battle
@@ -156,7 +161,7 @@ fn pick_defensive(state : BattleState, target : Int) -> (Int, Int)? {
 fn calc_incoming_damage(state : BattleState) -> Int {
   let mut total = 0
   for enemy in state.enemies {
-    if not(enemy.fighter.is_dead()) {
+    if !enemy.fighter.is_dead() {
       match enemy.intent {
         AttackIntent(base) => {
           let dmg = calculate_attack_damage(base, enemy.fighter)
@@ -177,7 +182,7 @@ fn calc_incoming_damage(state : BattleState) -> Int {
 /// Check if any alive enemy is Gremlin Nob
 fn has_nob(state : BattleState) -> Bool {
   for enemy in state.enemies {
-    if enemy.id == GremlinNob && not(enemy.fighter.is_dead()) {
+    if enemy.id == GremlinNob && !enemy.fighter.is_dead() {
       return true
     }
   }
@@ -191,7 +196,7 @@ fn best_target(state : BattleState) -> Int {
   let mut lowest_hp = 9999
   let mut i = 0
   while i < state.enemies.length() {
-    if not(state.enemies[i].fighter.is_dead()) {
+    if !state.enemies[i].fighter.is_dead() {
       if state.enemies[i].fighter.hp < lowest_hp {
         lowest_hp = state.enemies[i].fighter.hp
         best = i
@@ -415,7 +420,7 @@ fn pick_potion(state : BattleState, potions : Array[PotionId]) -> (Int, Int)? {
   // Count alive enemies
   let mut alive = 0
   for e in state.enemies {
-    if not(e.fighter.is_dead()) {
+    if !e.fighter.is_dead() {
       alive += 1
     }
   }
@@ -517,7 +522,12 @@ pub(all) struct SimSummary {
   avg_cards_played : Int
   min_hp : Int
   max_hp : Int
-} derive(Show)
+} derive(Debug)
+
+///|
+pub impl Show for SimSummary with output(self, logger) {
+  logger.write_object(to_repr(self))
+}
 
 ///|
 pub fn run_simulations(

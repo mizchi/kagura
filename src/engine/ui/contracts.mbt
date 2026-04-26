@@ -7,7 +7,12 @@
 ///|
 pub struct UINodeId {
   value : Int
-} derive(Show)
+} derive(Debug)
+
+///|
+pub impl Show for UINodeId with output(self, logger) {
+  logger.write_object(to_repr(self))
+}
 
 ///|
 pub struct LayoutConstraint {
@@ -15,7 +20,12 @@ pub struct LayoutConstraint {
   min_height : Double
   max_width : Double
   max_height : Double
-} derive(Show)
+} derive(Debug)
+
+///|
+pub impl Show for LayoutConstraint with output(self, logger) {
+  logger.write_object(to_repr(self))
+}
 
 ///|
 pub struct LayoutRect {
@@ -23,13 +33,23 @@ pub struct LayoutRect {
   y : Double
   width : Double
   height : Double
-} derive(Show)
+} derive(Debug)
+
+///|
+pub impl Show for LayoutRect with output(self, logger) {
+  logger.write_object(to_repr(self))
+}
 
 ///|
 pub struct LayoutResult {
   node_id : UINodeId
   rect : LayoutRect
-} derive(Show)
+} derive(Debug)
+
+///|
+pub impl Show for LayoutResult with output(self, logger) {
+  logger.write_object(to_repr(self))
+}
 
 ///|
 pub enum UIEvent {
@@ -39,7 +59,12 @@ pub enum UIEvent {
   Scroll(Double, Double)
   KeyDown(Int)
   KeyUp(Int)
-} derive(Show)
+} derive(Debug)
+
+///|
+pub impl Show for UIEvent with output(self, logger) {
+  logger.write_object(to_repr(self))
+}
 
 ///|
 pub trait LayoutEngine {
@@ -115,7 +140,12 @@ pub fn hit_test_all(
 pub(all) enum UIFocusEvent {
   FocusGained(UINodeId)
   FocusLost(UINodeId)
-} derive(Show)
+} derive(Debug)
+
+///|
+pub impl Show for UIFocusEvent with output(self, logger) {
+  logger.write_object(to_repr(self))
+}
 
 ///|
 pub struct UIFocusManager {

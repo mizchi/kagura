@@ -4,6 +4,7 @@ package "mizchi/kagura/sprite_packer"
 import {
   "mizchi/kagura/engine/asset",
   "mizchi/kagura/tilemap2d",
+  "moonbitlang/core/debug",
 }
 
 // Values
@@ -20,14 +21,14 @@ pub fn packed_sprite_to_atlas_region(PackedSprite, Int) -> @asset.AtlasRegion
 // Errors
 
 // Types and methods
-type AllocResult
+type AllocResult derive(@debug.Debug)
 pub impl Show for AllocResult
 
 pub(all) struct PackResult {
   width : Int
   height : Int
   sprites : Array[PackedSprite]
-}
+} derive(@debug.Debug)
 pub impl Show for PackResult
 
 pub(all) struct PackedSprite {
@@ -36,7 +37,7 @@ pub(all) struct PackedSprite {
   y : Int
   width : Int
   height : Int
-}
+} derive(@debug.Debug)
 pub impl Show for PackedSprite
 
 pub(all) struct PackerConfig {
@@ -44,12 +45,11 @@ pub(all) struct PackerConfig {
   max_height : Int
   padding : Int
   power_of_two : Bool
-}
+} derive(@debug.Debug)
 pub fn PackerConfig::default() -> Self
 pub impl Show for PackerConfig
 
-type Rect
-pub impl Eq for Rect
+type Rect derive(Eq, @debug.Debug)
 pub impl Show for Rect
 
 pub(all) struct SpriteInput {

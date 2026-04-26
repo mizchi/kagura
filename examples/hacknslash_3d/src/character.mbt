@@ -649,7 +649,7 @@ fn PlayerCharacter::set_moving(self : PlayerCharacter, moving : Bool) -> Unit {
   if moving && self.anim_state != Running {
     self.anim_state = Running
     self.skinning_cache_dirty = true
-  } else if !(moving) && self.anim_state == Running {
+  } else if !moving && self.anim_state == Running {
     self.anim_state = Idle
     self.skinning_cache_dirty = true
   }
@@ -660,13 +660,13 @@ fn PlayerCharacter::update(self : PlayerCharacter, dt : Double) -> Unit {
   match self.anim_state {
     Attacking => {
       self.attack_player.update(dt)
-      if !(self.attack_player.playing) {
+      if !self.attack_player.playing {
         self.anim_state = Idle
       }
     }
     Hurt => {
       self.hurt_player.update(dt)
-      if !(self.hurt_player.playing) {
+      if !self.hurt_player.playing {
         self.anim_state = Idle
       }
     }
@@ -680,7 +680,7 @@ fn PlayerCharacter::update(self : PlayerCharacter, dt : Double) -> Unit {
 fn PlayerCharacter::compute_skinning(
   self : PlayerCharacter,
 ) -> Array[@math3d.Mat4] {
-  if !(self.skinning_cache_dirty) {
+  if !self.skinning_cache_dirty {
     return self.cached_skinning_matrices
   }
   // Reset to rest pose

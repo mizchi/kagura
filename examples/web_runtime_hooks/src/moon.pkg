@@ -1,4 +1,5 @@
 import {
+  "moonbitlang/core/encoding/utf8" @utf8,
   "mizchi/kagura/engine/asset" @asset,
   "mizchi/kagura/engine/audio" @audio,
   "mizchi/kagura/core" @core,
@@ -12,8 +13,9 @@ import {
 
 warnings = "-1-29"
 
+supported_targets = "js+native+wasm+wasm-gc+llvm"
+
 options(
-  "supported-targets": [ "js", "native", "wasm", "wasm-gc", "llvm" ],
   targets: {
     "hooks_js.mbt": [ "js" ],
     "hooks_llvm.mbt": [ "llvm" ],

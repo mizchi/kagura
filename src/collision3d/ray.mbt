@@ -2,14 +2,24 @@
 pub(all) struct Ray {
   origin : @math3d.Vec3
   direction : @math3d.Vec3
-} derive(Show)
+} derive(Debug)
+
+///|
+pub impl Show for Ray with output(self, logger) {
+  logger.write_object(to_repr(self))
+}
 
 ///|
 pub(all) struct HitResult {
   hit : Bool
   distance : Double
   point : @math3d.Vec3
-} derive(Show)
+} derive(Debug)
+
+///|
+pub impl Show for HitResult with output(self, logger) {
+  logger.write_object(to_repr(self))
+}
 
 ///|
 pub fn Ray::new(origin : @math3d.Vec3, direction : @math3d.Vec3) -> Ray {

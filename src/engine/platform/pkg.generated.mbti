@@ -3,6 +3,7 @@ package "mizchi/kagura/engine/platform"
 
 import {
   "mizchi/kagura/core",
+  "moonbitlang/core/debug",
 }
 
 // Values
@@ -50,14 +51,14 @@ pub enum AsyncRequestStatus {
   Pending
   Confirmed
   Rejected
-}
+} derive(@debug.Debug)
 pub impl Show for AsyncRequestStatus
 
 pub enum CursorMode {
   Visible
   Hidden
   Captured
-}
+} derive(@debug.Debug)
 pub impl Show for CursorMode
 
 pub struct DesktopGlfwPlatform {
@@ -104,7 +105,7 @@ pub enum FullscreenMode {
   Windowed
   Borderless
   Exclusive
-}
+} derive(@debug.Debug)
 pub impl Show for FullscreenMode
 
 pub struct MonitorInfo {
@@ -112,7 +113,7 @@ pub struct MonitorInfo {
   height : Int
   device_scale_factor : Double
   refresh_rate_hz : Int
-}
+} derive(@debug.Debug)
 pub impl Show for MonitorInfo
 
 pub enum SurfaceKind {
@@ -120,7 +121,7 @@ pub enum SurfaceKind {
   WebGpuCanvasContext
   WebGlCanvasContext
   OffscreenBuffer
-}
+} derive(@debug.Debug)
 pub impl Show for SurfaceKind
 
 pub struct SurfaceToken {
@@ -129,7 +130,7 @@ pub struct SurfaceToken {
   width : Int
   height : Int
   device_scale_factor : Double
-}
+} derive(@debug.Debug)
 pub impl Show for SurfaceToken
 
 pub struct WebCanvasHooks {
@@ -183,7 +184,7 @@ pub struct WindowOptions {
   transparent : Bool
   resizable : Bool
   focused : Bool
-}
+} derive(@debug.Debug)
 pub impl Show for WindowOptions
 
 // Type aliases

@@ -9,7 +9,12 @@
 pub struct Vec2 {
   x : Double
   y : Double
-} derive(Show)
+} derive(Debug)
+
+///|
+pub impl Show for Vec2 with output(self, logger) {
+  logger.write_object(to_repr(self))
+}
 
 ///|
 pub fn Vec2::new(x : Double, y : Double) -> Vec2 {

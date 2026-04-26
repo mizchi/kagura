@@ -8,7 +8,12 @@ pub enum VertexAttribute {
   Weights4 // 4 floats: bone weights
   Tangent4 // 4 floats: tx, ty, tz, sign
   Color4 // 4 floats: r, g, b, a
-} derive(Eq, Show)
+} derive(Eq, Debug)
+
+///|
+pub impl Show for VertexAttribute with output(self, logger) {
+  logger.write_object(to_repr(self))
+}
 
 ///|
 /// Number of float components for a vertex attribute.
@@ -28,7 +33,12 @@ pub fn VertexAttribute::size(self : VertexAttribute) -> Int {
 /// Describes the layout of vertex data as an ordered list of attributes.
 pub struct VertexFormat {
   attributes : Array[VertexAttribute]
-} derive(Show)
+} derive(Debug)
+
+///|
+pub impl Show for VertexFormat with output(self, logger) {
+  logger.write_object(to_repr(self))
+}
 
 ///|
 /// Total number of floats per vertex.

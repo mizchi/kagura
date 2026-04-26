@@ -49,24 +49,20 @@ fn build_tentacle_skeleton() -> @skeleton3d.Skeleton {
   let bones : Array[@skeleton3d.Bone] = []
   let ibms : Array[@math3d.Mat4] = []
   // Bone 0: root at origin
-  bones.push(
-    {
-      name: "root",
-      parent: -1,
-      local_transform: @transform3d.Transform3D::new(),
-    },
-  )
+  bones.push({
+    name: "root",
+    parent: -1,
+    local_transform: @transform3d.Transform3D::new(),
+  })
   // Bones 1..N-1: each translated up by bone_length from parent
   for i in 1..<num_bones {
-    bones.push(
-      {
-        name: "bone_" + i.to_string(),
-        parent: i - 1,
-        local_transform: @transform3d.Transform3D::from_position(
-          @math3d.Vec3::new(0.0, bone_length, 0.0),
-        ),
-      },
-    )
+    bones.push({
+      name: "bone_" + i.to_string(),
+      parent: i - 1,
+      local_transform: @transform3d.Transform3D::from_position(
+        @math3d.Vec3::new(0.0, bone_length, 0.0),
+      ),
+    })
   }
   // Compute inverse bind matrices from rest-pose world transforms
   let rest_poses : Array[@transform3d.Transform3D] = []
@@ -131,8 +127,10 @@ fn build_tentacle_mesh() -> (@mesh3d.Mesh3D, @skeleton3d.SkinData) {
       let (nx, ny, nz) = normals[face]
       // 4 corners of this face
       let corners : Array[(Double, Double, Double)] = match face {
-        0 => [(-r, y_bottom, r), (r, y_bottom, r), (r, y_top, r), (-r, y_top, r)]
-        1 => [(r, y_bottom, r), (r, y_bottom, -r), (r, y_top, -r), (r, y_top, r)]
+        0 =>
+          [(-r, y_bottom, r), (r, y_bottom, r), (r, y_top, r), (-r, y_top, r)]
+        1 =>
+          [(r, y_bottom, r), (r, y_bottom, -r), (r, y_top, -r), (r, y_top, r)]
         2 =>
           [
             (r, y_bottom, -r),
@@ -163,7 +161,11 @@ fn build_tentacle_mesh() -> (@mesh3d.Mesh3D, @skeleton3d.SkinData) {
         verts.push(if ci < 2 { 0.0 } else { 1.0 })
         // Skinning: bottom verts -> parent bone, top verts -> current bone
         let assigned_bone = if ci < 2 {
-          if bone_i - 1 > 0 { bone_i - 1 } else { 0 }
+          if bone_i - 1 > 0 {
+            bone_i - 1
+          } else {
+            0
+          }
         } else {
           bone_i
         }
@@ -189,7 +191,8 @@ fn build_tentacle_mesh() -> (@mesh3d.Mesh3D, @skeleton3d.SkinData) {
   }
   // Top cap
   let y_top = (num_bones - 1).to_double() * bone_length
-  let taper_top = 1.0 - (num_bones - 1).to_double() / num_bones.to_double() * 0.6
+  let taper_top = 1.0 -
+    (num_bones - 1).to_double() / num_bones.to_double() * 0.6
   let r_top = tentacle_radius * taper_top
   let cap_base = vertex_count
   let cap_corners : Array[(Double, Double, Double)] = [
@@ -225,11 +228,7 @@ fn build_tentacle_mesh() -> (@mesh3d.Mesh3D, @skeleton3d.SkinData) {
   indices.push(cap_base + 2)
   indices.push(cap_base + 3)
   let mesh = @mesh3d.Mesh3D::new(verts, indices)
-  let skin : @skeleton3d.SkinData = {
-    joint_indices,
-    weights,
-    vertex_count,
-  }
+  let skin : @skeleton3d.SkinData = { joint_indices, weights, vertex_count }
   (mesh, skin)
 }
 
@@ -238,7 +237,9 @@ fn build_tentacle_mesh() -> (@mesh3d.Mesh3D, @skeleton3d.SkinData) {
 // ============================================================
 
 ///|
-fn build_tentacle_animation(phase_offset : Double) -> @animation3d.AnimationClip {
+fn build_tentacle_animation(
+  phase_offset : Double,
+) -> @animation3d.AnimationClip {
   let channels : Array[@animation3d.AnimChannel] = []
   for bone_i in 1..<num_bones {
     let times : Array[Double] = []
@@ -248,9 +249,8 @@ fn build_tentacle_animation(phase_offset : Double) -> @animation3d.AnimationClip
     for k in 0..<num_keyframes {
       let t = k.to_double() / (num_keyframes - 1).to_double() * anim_duration
       times.push(t)
-      let angle = amplitude * @math.sin(
-          t * freq + phase_offset + bone_i.to_double() * 0.5,
-        )
+      let angle = amplitude *
+        @math.sin(t * freq + phase_offset + bone_i.to_double() * 0.5)
       // Z-axis rotation quaternion: (0, 0, sin(a/2), cos(a/2))
       let half = angle / 2.0
       let sx = @math.sin(half)
@@ -260,15 +260,13 @@ fn build_tentacle_animation(phase_offset : Double) -> @animation3d.AnimationClip
       values.push(sx) // z
       values.push(cx) // w
     }
-    channels.push(
-      {
-        node_index: bone_i,
-        target: @animation3d.Rotation,
-        interpolation: @animation3d.Linear,
-        times,
-        values,
-      },
-    )
+    channels.push({
+      node_index: bone_i,
+      target: @animation3d.Rotation,
+      interpolation: @animation3d.Linear,
+      times,
+      values,
+    })
   }
   { name: "tentacle_wave", channels, duration: anim_duration }
 }
@@ -285,7 +283,9 @@ fn create_tentacle(
 ) -> Tentacle {
   let skeleton = build_tentacle_skeleton()
   let (bind_mesh, skin_data) = build_tentacle_mesh()
-  let packed_vertex_data = @skeleton3d.build_skinned_vertex_data(bind_mesh, skin_data)
+  let packed_vertex_data = @skeleton3d.build_skinned_vertex_data(
+    bind_mesh, skin_data,
+  )
   let clip = build_tentacle_animation(phase)
   let player = @animation3d.AnimationPlayer::new(clip)
   // Initialize local poses from bone rest transforms
@@ -310,9 +310,7 @@ fn create_tentacle(
 // ============================================================
 
 ///|
-fn compute_tentacle_skinning_matrices(
-  t : Tentacle,
-) -> Array[@math3d.Mat4] {
+fn compute_tentacle_skinning_matrices(t : Tentacle) -> Array[@math3d.Mat4] {
   // Reset local poses to rest
   for i in 0..<num_bones {
     t.local_poses[i] = t.skeleton.bones[i].local_transform
@@ -327,8 +325,7 @@ fn compute_tentacle_skinning_matrices(
         None => ()
       }
       match pose.translation {
-        Some(v) =>
-          t.local_poses[idx] = t.local_poses[idx].with_position(v)
+        Some(v) => t.local_poses[idx] = t.local_poses[idx].with_position(v)
         None => ()
       }
       match pose.scale {
@@ -402,7 +399,10 @@ fn DemoState::new() -> DemoState {
     lighting,
     input: @inpututil.new_input_helper(),
     shader3d: @gfx.new_shader_handle(10, @draw3d.shader3d_lit_untextured_wgsl()),
-    shader3d_skinned: @gfx.new_shader_handle(11, @draw3d.shader3d_lit_skinned_wgsl()),
+    shader3d_skinned: @gfx.new_shader_handle(
+      11,
+      @draw3d.shader3d_lit_skinned_wgsl(),
+    ),
     frame: 0,
   }
 }
@@ -452,11 +452,7 @@ fn DemoState::draw(
     ),
   )
   let camera = self.camera.to_camera3d()
-  let scene = @scene3d.scene3d(
-    objects=objects,
-    camera=camera,
-    lighting=self.lighting,
-  )
+  let scene = @scene3d.scene3d(objects~, camera~, lighting=self.lighting)
   @scene3d.render_scene3d_gpu(
     scene,
     ctx.dst,

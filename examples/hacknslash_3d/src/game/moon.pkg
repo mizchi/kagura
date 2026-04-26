@@ -1,4 +1,5 @@
 import {
+  "moonbitlang/core/cmp" @cmp,
   "mizchi/kagura/gameplay2d" @gameplay2d,
   "moonbitlang/core/math" @math,
   "mizchi/kagura/pathfind" @pathfind,
@@ -14,4 +15,4 @@ import {
   "mizchi/terrain/types" @terrain,
 }
 
-warnings = "-1-2-7-20-29-71"
+warnings = "-1-2-7-29"

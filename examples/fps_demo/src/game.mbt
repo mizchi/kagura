@@ -3,6 +3,7 @@
 // ============================================================
 
 // Screen
+
 ///|
 let screen_w : Int = 640
 
@@ -10,6 +11,7 @@ let screen_w : Int = 640
 let screen_h : Int = 480
 
 // Arena
+
 ///|
 let arena_half : Double = 10.0
 
@@ -20,6 +22,7 @@ let wall_height : Double = 3.0
 let wall_thickness : Double = 0.5
 
 // Player
+
 ///|
 let move_speed : Double = 0.1
 
@@ -36,6 +39,7 @@ let jump_velocity : Double = 0.25
 let eye_height : Double = 1.7
 
 // Bullet
+
 ///|
 let bullet_speed : Double = 0.5
 
@@ -46,6 +50,7 @@ let bullet_max_life : Int = 120
 let bullet_radius : Double = 0.15
 
 // Target
+
 ///|
 let target_count : Int = 5
 
@@ -56,6 +61,7 @@ let target_radius : Double = 0.4
 let hit_distance : Double = 0.6
 
 // Pillar / box counts
+
 ///|
 let pillar_count : Int = 8
 
@@ -155,12 +161,10 @@ fn GameState::new() -> GameState {
     let r = 5.0 + pseudo_random(i * 53) * 3.0
     let x = r * @math.cos(angle)
     let z = r * @math.sin(angle)
-    pillars.push(
-      {
-        position: @math3d.Vec3::new(x, wall_height / 2.0, z),
-        scale: @math3d.Vec3::new(0.6, wall_height, 0.6),
-      },
-    )
+    pillars.push({
+      position: @math3d.Vec3::new(x, wall_height / 2.0, z),
+      scale: @math3d.Vec3::new(0.6, wall_height, 0.6),
+    })
   }
   // Create boxes
   let boxes : Array[Obstacle] = []
@@ -170,12 +174,10 @@ fn GameState::new() -> GameState {
     let x = pseudo_random(seed) * limit * 2.0 - limit
     let z = pseudo_random(seed + 13) * limit * 2.0 - limit
     let size = 0.8 + pseudo_random(seed + 29) * 0.6
-    boxes.push(
-      {
-        position: @math3d.Vec3::new(x, size / 2.0, z),
-        scale: @math3d.Vec3::new(size, size, size),
-      },
-    )
+    boxes.push({
+      position: @math3d.Vec3::new(x, size / 2.0, z),
+      scale: @math3d.Vec3::new(size, size, size),
+    })
   }
   let camera = @camera3d.FPSCamera::new(
     @math3d.Vec3::new(0.0, eye_height, 8.0),
@@ -200,7 +202,9 @@ fn GameState::new() -> GameState {
     lighting,
     meshes: {
       ground: @mesh3d.Mesh3D::plane(
-        arena_half * 2.0, arena_half * 2.0, subdivisions=16,
+        arena_half * 2.0,
+        arena_half * 2.0,
+        subdivisions=16,
       ),
       wall: @mesh3d.Mesh3D::cube(1.0),
       pillar: @mesh3d.Mesh3D::cube(1.0),
@@ -297,9 +301,11 @@ fn GameState::update(self : GameState, input : @core.InputSnapshot) -> Unit {
   // Shoot (left click)
   if @inpututil.is_mouse_button_just_pressed(self.input.mouse_state, 0) {
     let dir = self.camera.forward()
-    self.bullets.push(
-      { position: self.camera.position, direction: dir, life: bullet_max_life },
-    )
+    self.bullets.push({
+      position: self.camera.position,
+      direction: dir,
+      life: bullet_max_life,
+    })
   }
 
   // Update bullets
@@ -323,7 +329,7 @@ fn GameState::update(self : GameState, input : @core.InputSnapshot) -> Unit {
         }
       }
     }
-    if !(hit) && b.life > 0 {
+    if !hit && b.life > 0 {
       active_bullets.push(b)
     }
   }
@@ -345,7 +351,11 @@ fn GameState::draw(
 ) -> Array[@gfx.DrawTrianglesCommand] {
   let scene = self.build_scene3d()
   let cmds = @scene3d.render_scene3d_gpu(
-    scene, ctx.dst, self.shader3d, ctx.screen_w, ctx.screen_h,
+    scene,
+    ctx.dst,
+    self.shader3d,
+    ctx.screen_w,
+    ctx.screen_h,
   )
   // Score overlay (top-left area)
   let sw = screen_w.to_double()
@@ -354,12 +364,28 @@ fn GameState::draw(
   // Draw "SCORE" label
   let label_chars = [83, 67, 79, 82, 69] // S C O R E
   @debugutil.draw_dot_text(
-    cmds, ctx.dst, ctx.shader, label_chars, 50.0, 15.0, sw, sh, score_color,
+    cmds,
+    ctx.dst,
+    ctx.shader,
+    label_chars,
+    50.0,
+    15.0,
+    sw,
+    sh,
+    score_color,
     1.0,
   )
   // Draw score number
   @debugutil.draw_number(
-    cmds, ctx.dst, ctx.shader, self.score, 50.0, 35.0, sw, sh, score_color,
+    cmds,
+    ctx.dst,
+    ctx.shader,
+    self.score,
+    50.0,
+    35.0,
+    sw,
+    sh,
+    score_color,
     1.2,
   )
   // Crosshair (center of screen)
@@ -368,12 +394,30 @@ fn GameState::draw(
   let cy = sh / 2.0
   cmds.push(
     @debugutil.new_ndc_rect_fill_command(
-      ctx.dst, ctx.shader, cx - 8.0, cy - 1.0, 16.0, 2.0, sw, sh, ch_color, 0,
+      ctx.dst,
+      ctx.shader,
+      cx - 8.0,
+      cy - 1.0,
+      16.0,
+      2.0,
+      sw,
+      sh,
+      ch_color,
+      0,
     ),
   )
   cmds.push(
     @debugutil.new_ndc_rect_fill_command(
-      ctx.dst, ctx.shader, cx - 1.0, cy - 8.0, 2.0, 16.0, sw, sh, ch_color, 0,
+      ctx.dst,
+      ctx.shader,
+      cx - 1.0,
+      cy - 8.0,
+      2.0,
+      16.0,
+      sw,
+      sh,
+      ch_color,
+      0,
     ),
   )
   cmds
@@ -384,6 +428,7 @@ fn GameState::draw(
 // ============================================================
 
 // Colors
+
 ///|
 let color_ground : @math3d.Vec4 = @math3d.Vec4::new(0.35, 0.45, 0.35, 1.0)
 
@@ -408,7 +453,11 @@ fn GameState::build_scene3d(self : GameState) -> @scene3d.Scene3D {
 
   // Ground
   objects.push(
-    @scene3d.object3d(mesh=self.meshes.ground, color=color_ground, sort_bias=1.0),
+    @scene3d.object3d(
+      mesh=self.meshes.ground,
+      color=color_ground,
+      sort_bias=1.0,
+    ),
   )
 
   // Walls (split into segments for better depth sorting)

@@ -8,26 +8,46 @@
 pub enum EngineTermination {
   RegularTermination
   Fatal(String)
-} derive(Show)
+} derive(Debug)
+
+///|
+pub impl Show for EngineTermination with output(self, logger) {
+  logger.write_object(to_repr(self))
+}
 
 ///|
 pub struct OutsideSize {
   width : Double
   height : Double
-} derive(Show)
+} derive(Debug)
+
+///|
+pub impl Show for OutsideSize with output(self, logger) {
+  logger.write_object(to_repr(self))
+}
 
 ///|
 pub struct LogicalSize {
   width : Int
   height : Int
-} derive(Show)
+} derive(Debug)
+
+///|
+pub impl Show for LogicalSize with output(self, logger) {
+  logger.write_object(to_repr(self))
+}
 
 ///|
 pub struct FrameBudget {
   updates : Int
   alpha : Double
   tick : Int
-} derive(Show)
+} derive(Debug)
+
+///|
+pub impl Show for FrameBudget with output(self, logger) {
+  logger.write_object(to_repr(self))
+}
 
 ///|
 pub struct InputSnapshot {
@@ -39,7 +59,12 @@ pub struct InputSnapshot {
   pressed_mouse_buttons : Array[Int]
   touches : Array[TouchPoint]
   gamepads : Array[GamepadSnapshot]
-} derive(Show)
+} derive(Debug)
+
+///|
+pub impl Show for InputSnapshot with output(self, logger) {
+  logger.write_object(to_repr(self))
+}
 
 ///|
 pub enum TouchSource {
@@ -47,7 +72,12 @@ pub enum TouchSource {
   Indirect
   Mouse
   Unknown
-} derive(Show)
+} derive(Debug)
+
+///|
+pub impl Show for TouchSource with output(self, logger) {
+  logger.write_object(to_repr(self))
+}
 
 ///|
 pub fn touch_source_to_int(source : TouchSource) -> Int {
@@ -75,21 +105,36 @@ pub struct TouchPoint {
   x : Double
   y : Double
   source : TouchSource
-} derive(Show)
+} derive(Debug)
+
+///|
+pub impl Show for TouchPoint with output(self, logger) {
+  logger.write_object(to_repr(self))
+}
 
 ///|
 pub struct GamepadSnapshot {
   id : Int
   axes : Array[Double]
   pressed_buttons : Array[Int]
-} derive(Show)
+} derive(Debug)
+
+///|
+pub impl Show for GamepadSnapshot with output(self, logger) {
+  logger.write_object(to_repr(self))
+}
 
 ///|
 pub struct RunOptions {
   init_unfocused : Bool
   screen_transparent : Bool
   screen_cleared_every_frame : Bool
-} derive(Show)
+} derive(Debug)
+
+///|
+pub impl Show for RunOptions with output(self, logger) {
+  logger.write_object(to_repr(self))
+}
 
 ///|
 pub fn new_outside_size(width : Double, height : Double) -> OutsideSize {
@@ -184,7 +229,12 @@ pub enum TouchPhase {
   Stationary
   Ended
   Cancelled
-} derive(Show)
+} derive(Debug)
+
+///|
+pub impl Show for TouchPhase with output(self, logger) {
+  logger.write_object(to_repr(self))
+}
 
 ///|
 pub fn touch_phase_to_int(phase : TouchPhase) -> Int {
@@ -218,7 +268,12 @@ pub struct TouchPointEx {
   pressure : Double
   delta_x : Double
   delta_y : Double
-} derive(Show)
+} derive(Debug)
+
+///|
+pub impl Show for TouchPointEx with output(self, logger) {
+  logger.write_object(to_repr(self))
+}
 
 ///|
 pub fn new_touch_point_ex(

@@ -1,6 +1,10 @@
 // Generated using `moon info`, DON'T EDIT IT
 package "mizchi/kagura/core/vector"
 
+import {
+  "moonbitlang/core/debug",
+}
+
 // Values
 pub fn aabb_overlap(Double, Double, Double, Double, Double, Double, Double, Double) -> Bool
 
@@ -41,7 +45,7 @@ pub(all) enum PathCommand {
 pub struct Vec2 {
   x : Double
   y : Double
-}
+} derive(@debug.Debug)
 pub fn Vec2::add(Self, Self) -> Self
 pub fn Vec2::angle(Self) -> Double
 pub fn Vec2::angle_between(Self, Self) -> Double

@@ -4,7 +4,12 @@ pub enum AsyncImageStatus {
   Loading
   Succeeded
   Failed
-} derive(Show)
+} derive(Debug)
+
+///|
+pub impl Show for AsyncImageStatus with output(self, logger) {
+  logger.write_object(to_repr(self))
+}
 
 ///|
 pub fn AsyncImageStatus::to_int(self : AsyncImageStatus) -> Int {
@@ -23,7 +28,12 @@ pub struct AsyncImageRequest {
   url : String
   mut status : AsyncImageStatus
   mut image_spec : @asset.ImageSpec?
-} derive(Show)
+} derive(Debug)
+
+///|
+pub impl Show for AsyncImageRequest with output(self, logger) {
+  logger.write_object(to_repr(self))
+}
 
 ///|
 pub struct AsyncImageProgress {
@@ -32,7 +42,12 @@ pub struct AsyncImageProgress {
   loading : Int
   succeeded : Int
   failed : Int
-} derive(Show)
+} derive(Debug)
+
+///|
+pub impl Show for AsyncImageProgress with output(self, logger) {
+  logger.write_object(to_repr(self))
+}
 
 ///|
 pub struct AsyncImageLoader {

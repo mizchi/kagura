@@ -4,6 +4,7 @@ package "mizchi/kagura/physics3d"
 import {
   "mizchi/kagura/collision3d",
   "mizchi/kagura/core/math3d",
+  "moonbitlang/core/debug",
 }
 
 // Values
@@ -58,13 +59,13 @@ pub(all) enum BodyType {
   Dynamic
   Static
   Kinematic
-}
+} derive(@debug.Debug)
 pub impl Show for BodyType
 
 pub(all) enum ColliderShape {
   SphereShape(@math3d.Vec3, Double)
   AABBShape(@math3d.Vec3, @math3d.Vec3)
-}
+} derive(@debug.Debug)
 pub impl Show for ColliderShape
 
 pub(all) struct Contact {
@@ -73,7 +74,7 @@ pub(all) struct Contact {
   normal : @math3d.Vec3
   penetration : Double
   contact_point : @math3d.Vec3
-}
+} derive(@debug.Debug)
 pub impl Show for Contact
 
 pub(all) struct ContactConstraint3D {
@@ -168,7 +169,7 @@ pub(all) struct RigidBody {
   is_sleeping : Bool
   sleep_timer : Double
   is_bullet : Bool
-}
+} derive(@debug.Debug)
 pub fn RigidBody::apply_force(Self, @math3d.Vec3) -> Self
 pub fn RigidBody::apply_impulse(Self, @math3d.Vec3) -> Self
 pub fn RigidBody::is_dynamic(Self) -> Bool

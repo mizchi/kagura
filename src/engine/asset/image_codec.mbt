@@ -7,14 +7,24 @@ pub enum RasterResizeMethod {
   Nearest
   Bilinear
   Bicubic
-} derive(Show)
+} derive(Debug)
+
+///|
+pub impl Show for RasterResizeMethod with output(self, logger) {
+  logger.write_object(to_repr(self))
+}
 
 ///|
 pub enum RasterImageFormat {
   Png
   Jpeg
   Bmp
-} derive(Show, Eq)
+} derive(Debug, Eq)
+
+///|
+pub impl Show for RasterImageFormat with output(self, logger) {
+  logger.write_object(to_repr(self))
+}
 
 ///|
 pub fn raster_resize_nearest() -> RasterResizeMethod {

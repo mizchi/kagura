@@ -11,7 +11,12 @@ pub struct InputEdgeSummary {
   just_disconnected_gamepad_count : Int
   just_pressed_gamepad_button_count : Int
   just_released_gamepad_button_count : Int
-} derive(Show)
+} derive(Debug)
+
+///|
+pub impl Show for InputEdgeSummary with output(self, logger) {
+  logger.write_object(to_repr(self))
+}
 
 ///|
 pub struct InputEdgeObserverState {

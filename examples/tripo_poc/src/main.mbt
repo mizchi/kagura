@@ -48,17 +48,14 @@ fn main {
   println("=== Step 1: Text to Model ===")
   println("Prompt: " + prompt)
   let (model_task_id, err) = tripo_text_to_model(api_key, prompt)
-  if !(err.is_empty()) {
+  if !err.is_empty() {
     println("ERROR: " + err)
     return
   }
   println("Task ID: " + model_task_id)
   println("Polling for completion...")
   let (status, _model_url, err2) = tripo_poll_task(
-    api_key,
-    model_task_id,
-    60,
-    5,
+    api_key, model_task_id, 60, 5,
   )
   if status != "success" {
     println("ERROR: Model generation " + status + ": " + err2)
@@ -68,20 +65,17 @@ fn main {
   let mut current_task_id = model_task_id
 
   // Step 2: Rig model (optional)
-  if !(skip_rig) {
+  if !skip_rig {
     println("\n=== Step 2: Rig Model ===")
     let (rig_task_id, err3) = tripo_rig_model(api_key, current_task_id)
-    if !(err3.is_empty()) {
+    if !err3.is_empty() {
       println("ERROR: " + err3)
       return
     }
     println("Rig Task ID: " + rig_task_id)
     println("Polling for completion...")
     let (rig_status, _rig_url, rig_err) = tripo_poll_task(
-      api_key,
-      rig_task_id,
-      60,
-      5,
+      api_key, rig_task_id, 60, 5,
     )
     if rig_status != "success" {
       println("ERROR: Rigging " + rig_status + ": " + rig_err)
@@ -92,25 +86,20 @@ fn main {
   }
 
   // Step 3: Retarget animation (optional)
-  if !(skip_anim) && !(skip_rig) {
+  if !skip_anim && !skip_rig {
     println("\n=== Step 3: Retarget Animation ===")
     println("Animation: " + animation)
     let (anim_task_id, err4) = tripo_retarget_animation(
-      api_key,
-      current_task_id,
-      animation,
+      api_key, current_task_id, animation,
     )
-    if !(err4.is_empty()) {
+    if !err4.is_empty() {
       println("ERROR: " + err4)
       return
     }
     println("Animation Task ID: " + anim_task_id)
     println("Polling for completion...")
     let (anim_status, _anim_url, anim_err) = tripo_poll_task(
-      api_key,
-      anim_task_id,
-      60,
-      5,
+      api_key, anim_task_id, 60, 5,
     )
     if anim_status != "success" {
       println("ERROR: Animation " + anim_status + ": " + anim_err)

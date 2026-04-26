@@ -6,7 +6,12 @@ pub enum ProjectionMode {
   Perspective
   /// Orthographic(left, right, bottom, top)
   Orthographic(Double, Double, Double, Double)
-} derive(Show)
+} derive(Debug)
+
+///|
+pub impl Show for ProjectionMode with output(self, logger) {
+  logger.write_object(to_repr(self))
+}
 
 ///|
 pub struct Camera3D {

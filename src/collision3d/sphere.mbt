@@ -2,7 +2,12 @@
 pub(all) struct Sphere {
   center : @math3d.Vec3
   radius : Double
-} derive(Show)
+} derive(Debug)
+
+///|
+pub impl Show for Sphere with output(self, logger) {
+  logger.write_object(to_repr(self))
+}
 
 ///|
 pub fn Sphere::new(center : @math3d.Vec3, radius : Double) -> Sphere {

@@ -279,11 +279,7 @@ fn DemoState::draw(
 
   // Ground
   objects.push(
-    @scene3d.object3d(
-      mesh=self.ground_mesh,
-      color=color_ground,
-      sort_bias=1.0,
-    ),
+    @scene3d.object3d(mesh=self.ground_mesh, color=color_ground, sort_bias=1.0),
   )
 
   // Objects
@@ -357,12 +353,30 @@ fn DemoState::draw(
   let cy = sh / 2.0
   cmds.push(
     @debugutil.new_ndc_rect_fill_command(
-      ctx.dst, ctx.shader, cx - 8.0, cy - 1.0, 16.0, 2.0, sw, sh, ch_color, 0,
+      ctx.dst,
+      ctx.shader,
+      cx - 8.0,
+      cy - 1.0,
+      16.0,
+      2.0,
+      sw,
+      sh,
+      ch_color,
+      0,
     ),
   )
   cmds.push(
     @debugutil.new_ndc_rect_fill_command(
-      ctx.dst, ctx.shader, cx - 1.0, cy - 8.0, 2.0, 16.0, sw, sh, ch_color, 0,
+      ctx.dst,
+      ctx.shader,
+      cx - 1.0,
+      cy - 8.0,
+      2.0,
+      16.0,
+      sw,
+      sh,
+      ch_color,
+      0,
     ),
   )
 
@@ -374,24 +388,56 @@ fn DemoState::draw(
       Ball => ascii("HIT: BALL")
     }
     @debugutil.draw_dot_text(
-      cmds, ctx.dst, ctx.shader, kind_chars, 70.0, 15.0, sw, sh,
-      @debugutil.color_from_hex(0x00FF00), 1.0,
+      cmds,
+      ctx.dst,
+      ctx.shader,
+      kind_chars,
+      70.0,
+      15.0,
+      sw,
+      sh,
+      @debugutil.color_from_hex(0x00FF00),
+      1.0,
     )
     @debugutil.draw_number(
-      cmds, ctx.dst, ctx.shader, self.hit_id, 70.0, 30.0, sw, sh,
-      @debugutil.color_from_hex(0x00FF00), 1.0,
+      cmds,
+      ctx.dst,
+      ctx.shader,
+      self.hit_id,
+      70.0,
+      30.0,
+      sw,
+      sh,
+      @debugutil.color_from_hex(0x00FF00),
+      1.0,
     )
   } else {
     @debugutil.draw_dot_text(
-      cmds, ctx.dst, ctx.shader, ascii("NO HIT"), 60.0, 15.0, sw, sh,
-      @debugutil.color_from_hex(0x888888), 1.0,
+      cmds,
+      ctx.dst,
+      ctx.shader,
+      ascii("NO HIT"),
+      60.0,
+      15.0,
+      sw,
+      sh,
+      @debugutil.color_from_hex(0x888888),
+      1.0,
     )
   }
 
   // Instructions
   @debugutil.draw_dot_text(
-    cmds, ctx.dst, ctx.shader, ascii("WASD:MOVE MOUSE:LOOK"), 150.0,
-    sh - 15.0, sw, sh, @debugutil.color_from_hex(0x666666), 0.8,
+    cmds,
+    ctx.dst,
+    ctx.shader,
+    ascii("WASD:MOVE MOUSE:LOOK"),
+    150.0,
+    sh - 15.0,
+    sw,
+    sh,
+    @debugutil.color_from_hex(0x666666),
+    0.8,
   )
 
   cmds

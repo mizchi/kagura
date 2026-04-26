@@ -3,6 +3,7 @@ package "mizchi/kagura/interactable2d"
 
 import {
   "mizchi/terrain/types",
+  "moonbitlang/core/debug",
 }
 
 // Values
@@ -60,24 +61,21 @@ pub(all) enum InteractableAnchor {
   LargestNonStartRoomCenter
   BossRoomCenter
   TreasureRoomCenter
-}
-pub impl Eq for InteractableAnchor
+} derive(Eq, @debug.Debug)
 pub impl Show for InteractableAnchor
 
 pub(all) enum InteractablePickupEffect {
   ScorePickup
   HealthPickup
   EquipmentPickup
-}
-pub impl Eq for InteractablePickupEffect
+} derive(Eq, @debug.Debug)
 pub impl Show for InteractablePickupEffect
 
 pub(all) enum InteractableRole {
   Decoration
   Blocking
   Pickup
-}
-pub impl Eq for InteractableRole
+} derive(Eq, @debug.Debug)
 pub impl Show for InteractableRole
 
 // Type aliases

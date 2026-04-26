@@ -1,6 +1,7 @@
 import {
+  "moonbitlang/core/cmp" @cmp,
   "mizchi/hacknslash_3d/game" @game,
   "mizchi/differentiable_ecs" @dec,
 }
 
-warnings = "-1-2-7-20-29-71"
+warnings = "-1-2-7-29"

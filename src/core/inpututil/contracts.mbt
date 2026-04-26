@@ -9,13 +9,23 @@
 struct KeyDurationEntry {
   key : Int
   duration : Int
-} derive(Show)
+} derive(Debug)
+
+///|
+pub impl Show for KeyDurationEntry with output(self, logger) {
+  logger.write_object(to_repr(self))
+}
 
 ///|
 struct MouseButtonDurationEntry {
   button : Int
   duration : Int
-} derive(Show)
+} derive(Debug)
+
+///|
+pub impl Show for MouseButtonDurationEntry with output(self, logger) {
+  logger.write_object(to_repr(self))
+}
 
 ///|
 pub struct KeyInputState {

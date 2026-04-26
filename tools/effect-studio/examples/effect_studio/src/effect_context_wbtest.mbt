@@ -40,7 +40,9 @@ test "effect_studio_context_json includes patch scaffold payload" {
   let doc = @effect.default_effect_document()
   let json = effect_studio_context_json(doc, 0.5, false)
   assert_true(json.contains("\"patch_scaffold\":{"))
-  assert_true(json.contains("\"target_file\":\"tools/effect-studio/src/effect_doc.mbt\""))
+  assert_true(
+    json.contains("\"target_file\":\"tools/effect-studio/src/effect_doc.mbt\""),
+  )
   assert_true(json.contains("\"track_patch_scaffolds\":["))
   assert_true(json.contains("\"track_id\":\"core_flash\""))
 }
@@ -60,7 +62,11 @@ test "effect_studio_context_json includes ai patch bundle payload" {
 test "effect_studio_patch_bundle_json returns standalone ai bundle" {
   let doc = @effect.default_effect_document()
   let json = effect_studio_patch_bundle_json(doc, 0.5, false)
-  assert_true(json.has_prefix("{\"target_file\":\"tools/effect-studio/src/effect_doc.mbt\""))
+  assert_true(
+    json.has_prefix(
+      "{\"target_file\":\"tools/effect-studio/src/effect_doc.mbt\"",
+    ),
+  )
   assert_true(json.contains("\"track_targets\":["))
   assert_true(json.contains("\"constraints\":["))
 }
@@ -80,6 +86,10 @@ test "effect_studio_context_json includes export payload" {
   let doc = @effect.default_effect_document()
   let json = effect_studio_context_json(doc, 0.5, false)
   assert_true(json.contains("\"exports\":{"))
-  assert_true(json.contains("\"bundle_filename\":\"forge_burst-effect-bundle.json\""))
-  assert_true(json.contains("\"review_filename\":\"forge_burst-effect-review.md\""))
+  assert_true(
+    json.contains("\"bundle_filename\":\"forge_burst-effect-bundle.json\""),
+  )
+  assert_true(
+    json.contains("\"review_filename\":\"forge_burst-effect-review.md\""),
+  )
 }

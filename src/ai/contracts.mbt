@@ -8,18 +8,33 @@
 ///|
 pub struct AgentId {
   value : Int
-} derive(Show)
+} derive(Debug)
+
+///|
+pub impl Show for AgentId with output(self, logger) {
+  logger.write_object(to_repr(self))
+}
 
 ///|
 pub struct BlackboardEntry {
   key : String
   value : String
-} derive(Show)
+} derive(Debug)
+
+///|
+pub impl Show for BlackboardEntry with output(self, logger) {
+  logger.write_object(to_repr(self))
+}
 
 ///|
 pub struct BlackboardSnapshot {
   entries : Array[BlackboardEntry]
-} derive(Show)
+} derive(Debug)
+
+///|
+pub impl Show for BlackboardSnapshot with output(self, logger) {
+  logger.write_object(to_repr(self))
+}
 
 ///|
 pub struct SensorSnapshot {
@@ -28,7 +43,12 @@ pub struct SensorSnapshot {
   health : Double
   visible_entities : Array[Int]
   tags : Array[String]
-} derive(Show)
+} derive(Debug)
+
+///|
+pub impl Show for SensorSnapshot with output(self, logger) {
+  logger.write_object(to_repr(self))
+}
 
 ///|
 pub enum ActionIntent {
@@ -37,21 +57,36 @@ pub enum ActionIntent {
   Aim(Double, Double)
   Trigger(String)
   EmitEvent(String)
-} derive(Show)
+} derive(Debug)
+
+///|
+pub impl Show for ActionIntent with output(self, logger) {
+  logger.write_object(to_repr(self))
+}
 
 ///|
 pub struct DecisionTrace {
   stage : String
   score : Double
   note : String
-} derive(Show)
+} derive(Debug)
+
+///|
+pub impl Show for DecisionTrace with output(self, logger) {
+  logger.write_object(to_repr(self))
+}
 
 ///|
 pub struct AIBudget {
   max_decision_ms : Int
   max_nodes : Int
   max_model_tokens : Int
-} derive(Show)
+} derive(Debug)
+
+///|
+pub impl Show for AIBudget with output(self, logger) {
+  logger.write_object(to_repr(self))
+}
 
 ///|
 pub struct DecisionContext {
@@ -61,14 +96,24 @@ pub struct DecisionContext {
   budget : AIBudget
   perception : SensorSnapshot
   blackboard : BlackboardSnapshot
-} derive(Show)
+} derive(Debug)
+
+///|
+pub impl Show for DecisionContext with output(self, logger) {
+  logger.write_object(to_repr(self))
+}
 
 ///|
 pub struct DecisionResult {
   actions : Array[ActionIntent]
   next_blackboard : BlackboardSnapshot
   trace : Array[DecisionTrace]
-} derive(Show)
+} derive(Debug)
+
+///|
+pub impl Show for DecisionResult with output(self, logger) {
+  logger.write_object(to_repr(self))
+}
 
 ///|
 pub trait SensorBridge {

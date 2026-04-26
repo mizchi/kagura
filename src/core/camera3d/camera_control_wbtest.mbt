@@ -211,7 +211,7 @@ test "SmoothCamera is_settled" {
   assert_true(cam.is_settled(eps))
   // After setting target, not settled
   let cam2 = cam.set_target(@math3d.Vec3::new(10.0, 0.0, 0.0), ident)
-  assert_true(!(cam2.is_settled(eps)))
+  assert_true(!cam2.is_settled(eps))
 }
 
 ///|

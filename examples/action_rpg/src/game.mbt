@@ -268,10 +268,7 @@ fn ShowcaseState::new() -> ShowcaseState {
   )
   // Text
   let text_renderer = @text.load_text_renderer(
-    "assets/Tiny5-Regular.ttf",
-    256,
-    950,
-    0,
+    "assets/Tiny5-Regular.ttf", 256, 950, 0,
   )
   // UI: create UITree and add menu nodes to get UINodeIds
   let ui_tree = @ui.UITree::new()
@@ -474,11 +471,11 @@ fn ShowcaseState::update_playing(self : ShowcaseState) -> Unit {
   let next_x = self.player.x + dx * player_speed
   let next_y = self.player.y + dy * player_speed
   // Wall collision for X
-  if !(self.check_wall_collision(next_x, self.player.y, self.player.size)) {
+  if !self.check_wall_collision(next_x, self.player.y, self.player.size) {
     self.player.x = next_x
   }
   // Wall collision for Y
-  if !(self.check_wall_collision(self.player.x, next_y, self.player.size)) {
+  if !self.check_wall_collision(self.player.x, next_y, self.player.size) {
     self.player.y = next_y
   }
   // Clamp to world bounds
@@ -551,7 +548,7 @@ fn ShowcaseState::update_playing(self : ShowcaseState) -> Unit {
     if enemy.alive {
       let enx = enemy.x + enemy.vx
       let eny = enemy.y + enemy.vy
-      if !(self.check_wall_collision(enx, eny, enemy.size)) {
+      if !self.check_wall_collision(enx, eny, enemy.size) {
         enemy.x = enx
         enemy.y = eny
       }
@@ -629,7 +626,7 @@ fn ShowcaseState::update_playing(self : ShowcaseState) -> Unit {
   }
   // Item collection
   for item in self.items {
-    if !(item.collected) {
+    if !item.collected {
       if @vector.aabb_overlap_center(
           self.player.x,
           self.player.y,
@@ -700,25 +697,23 @@ fn ShowcaseState::view(self : ShowcaseState) -> @scene.SceneNode {
 
 ///|
 fn ShowcaseState::view_title(self : ShowcaseState) -> @scene.SceneNode {
-  @scene.fragment(
-    [
-      @scene.rect(w=screen_w, h=screen_h, fill=0x1A1A2E),
+  @scene.fragment([
+    @scene.rect(w=screen_w, h=screen_h, fill=0x1A1A2E),
+    @scene.label(
+      x=screen_w / 2.0,
+      y=screen_h / 2.0 - 30.0,
+      content="DUNGEON",
+      scale=3.0,
+    ),
+    @scene.show(fn() { self.frame_count / 30 % 2 == 0 }, fn() {
       @scene.label(
         x=screen_w / 2.0,
-        y=screen_h / 2.0 - 30.0,
-        content="DUNGEON",
-        scale=3.0,
-      ),
-      @scene.show(fn() { self.frame_count / 30 % 2 == 0 }, fn() {
-        @scene.label(
-          x=screen_w / 2.0,
-          y=screen_h / 2.0 + 30.0,
-          content="PRESS SPACE",
-          color=0xFFCC00,
-        )
-      }),
-    ],
-  )
+        y=screen_h / 2.0 + 30.0,
+        content="PRESS SPACE",
+        color=0xFFCC00,
+      )
+    }),
+  ])
 }
 
 ///|
@@ -728,342 +723,311 @@ fn ShowcaseState::view_playing(self : ShowcaseState) -> @scene.SceneNode {
   let px = self.player.x - view_left
   let py = self.player.y - view_top
   let phs = self.player.size / 2.0
-  let player_fill = if self.player.damage_timer > 0 { 0xFFFFFF } else { 0x00FFCC }
+  let player_fill = if self.player.damage_timer > 0 {
+    0xFFFFFF
+  } else {
+    0x00FFCC
+  }
   let hp_ratio = self.player.hp.to_double() / self.player.max_hp.to_double()
   let hp_width = 60.0 * hp_ratio
   let item_alpha = 0.6 + 0.4 * @math.sin(self.frame_count.to_double() * 0.08)
-  @scene.fragment(
-    [
-      // Background
-      @scene.rect(w=screen_w, h=screen_h, fill=0x000000),
-      // Tilemap
-      @scene.for_each(fn() {
-        let nodes : Array[@scene.SceneNode] = []
-        for row = 0; row < map_rows; row = row + 1 {
-          for col = 0; col < map_columns; col = col + 1 {
-            let sx = col.to_double() * tile_size - view_left
-            let sy = row.to_double() * tile_size - view_top
-            if sx > -tile_size &&
-              sx < screen_w + tile_size &&
-              sy > -tile_size &&
-              sy < screen_h + tile_size {
-              let idx = row * map_columns + col
-              let fill = match self.tilemap[idx] {
-                t if t == tile_wall => 0x6B4226
-                t if t == tile_water => 0x2244AA
-                _ => 0x555555
-              }
-              nodes.push(
-                @scene.rect(x=sx, y=sy, w=tile_size, h=tile_size, fill=fill),
-              )
+  @scene.fragment([
+    // Background
+    @scene.rect(w=screen_w, h=screen_h, fill=0x000000),
+    // Tilemap
+    @scene.for_each(fn() {
+      let nodes : Array[@scene.SceneNode] = []
+      for row = 0; row < map_rows; row = row + 1 {
+        for col = 0; col < map_columns; col = col + 1 {
+          let sx = col.to_double() * tile_size - view_left
+          let sy = row.to_double() * tile_size - view_top
+          if sx > -tile_size &&
+            sx < screen_w + tile_size &&
+            sy > -tile_size &&
+            sy < screen_h + tile_size {
+            let idx = row * map_columns + col
+            let fill = match self.tilemap[idx] {
+              t if t == tile_wall => 0x6B4226
+              t if t == tile_water => 0x2244AA
+              _ => 0x555555
             }
+            nodes.push(@scene.rect(x=sx, y=sy, w=tile_size, h=tile_size, fill~))
           }
         }
-        nodes
-      }),
-      // Grid lines
-      @scene.for_each(fn() {
-        let nodes : Array[@scene.SceneNode] = []
-        let grid_spacing = tile_size
-        let start_gx = @math.floor(view_left / grid_spacing) * grid_spacing
-        let mut gx = start_gx
-        while gx < view_left + screen_w + grid_spacing {
-          let screen_x = gx - view_left
-          if screen_x >= 0.0 && screen_x < screen_w {
-            nodes.push(
-              @scene.rect(
-                x=screen_x,
-                w=1.0,
-                h=screen_h,
-                fill=0x444444,
-                alpha=0.3,
-              ),
-            )
-          }
-          gx = gx + grid_spacing
-        }
-        let start_gy = @math.floor(view_top / grid_spacing) * grid_spacing
-        let mut gy = start_gy
-        while gy < view_top + screen_h + grid_spacing {
-          let screen_y = gy - view_top
-          if screen_y >= 0.0 && screen_y < screen_h {
-            nodes.push(
-              @scene.rect(
-                y=screen_y,
-                w=screen_w,
-                h=1.0,
-                fill=0x444444,
-                alpha=0.3,
-              ),
-            )
-          }
-          gy = gy + grid_spacing
-        }
-        nodes
-      }),
-      // Items (smooth pulse)
-      @scene.for_each(fn() {
-        let nodes : Array[@scene.SceneNode] = []
-        for item in self.items {
-          if !(item.collected) {
-            let sx = item.x - view_left
-            let sy = item.y - view_top
-            if sx >= -10.0 &&
-              sx <= screen_w + 10.0 &&
-              sy >= -10.0 &&
-              sy <= screen_h + 10.0 {
-              let fill = if item.kind == 0 { 0x00FFFF } else { 0x00FF66 }
-              nodes.push(
-                @scene.rect(
-                  x=sx - 4.0,
-                  y=sy - 4.0,
-                  w=8.0,
-                  h=8.0,
-                  fill=fill,
-                  alpha=item_alpha,
-                ),
-              )
-            }
-          }
-        }
-        nodes
-      }),
-      // Enemies with HP bars
-      @scene.for_each(fn() {
-        let nodes : Array[@scene.SceneNode] = []
-        for enemy in self.enemies {
-          if enemy.alive {
-            let sx = enemy.x - view_left
-            let sy = enemy.y - view_top
-            if sx >= -20.0 &&
-              sx <= screen_w + 20.0 &&
-              sy >= -20.0 &&
-              sy <= screen_h + 20.0 {
-              let fill = if enemy.damage_timer > 0 { 0xFFFFFF } else { 0xCC2222 }
-              let ehs = enemy.size / 2.0
-              // Enemy body
-              nodes.push(
-                @scene.rect(
-                  x=sx - ehs,
-                  y=sy - ehs,
-                  w=enemy.size,
-                  h=enemy.size,
-                  fill=fill,
-                ),
-              )
-              // HP bar background
-              nodes.push(
-                @scene.rect(
-                  x=sx - ehs,
-                  y=sy - ehs - 4.0,
-                  w=enemy.size,
-                  h=2.0,
-                  fill=0x440000,
-                ),
-              )
-              // HP bar fill
-              let ehp_ratio = enemy.hp.to_double() / enemy.max_hp.to_double()
-              nodes.push(
-                @scene.rect(
-                  x=sx - ehs,
-                  y=sy - ehs - 4.0,
-                  w=enemy.size * ehp_ratio,
-                  h=2.0,
-                  fill=0xCC0000,
-                ),
-              )
-              // Attack animation line
-              if enemy.attack_anim > 0 {
-                let atk_dx = px - sx
-                let atk_dy = py - sy
-                let atk_dist = (atk_dx * atk_dx + atk_dy * atk_dy).sqrt()
-                if atk_dist > 0.001 {
-                  let atk_nx = atk_dx / atk_dist
-                  let atk_ny = atk_dy / atk_dist
-                  let line_len = @cmp.minimum(20.0, atk_dist)
-                  nodes.push(
-                    @scene.line(
-                      x0=sx,
-                      y0=sy,
-                      x1=sx + atk_nx * line_len,
-                      y1=sy + atk_ny * line_len,
-                      width=2.0,
-                      color=0xFF0000,
-                    ),
-                  )
-                }
-              }
-            }
-          }
-        }
-        nodes
-      }),
-      // Player
-      @scene.rect(
-        x=px - phs,
-        y=py - phs,
-        w=self.player.size,
-        h=self.player.size,
-        fill=player_fill,
-      ),
-      // Attack indicator (sweeping sword)
-      @scene.show(fn() { self.attack_timer > attack_cooldown - 8 }, fn() {
-        let swing_frames = 8.0
-        let elapsed = (attack_cooldown - self.attack_timer).to_double()
-        let progress = elapsed / swing_frames
-        // Sweep +-60deg around facing direction
-        let angle = self.facing_angle + (-1.0472 + progress * 2.0944)
-        let cos_a = @math.cos(angle)
-        let sin_a = @math.sin(angle)
-        let fade = 1.0 - progress
-        @scene.for_each(fn() {
-          let nodes : Array[@scene.SceneNode] = []
-          // Blade: 8 segments radiating from player
-          for i = 0; i < 8; i = i + 1 {
-            let dist = 6.0 + i.to_double() * 2.5
-            let sx = px + cos_a * dist
-            let sy = py + sin_a * dist
-            let size = if i < 2 { 3.0 } else if i < 6 { 2.0 } else { 1.0 }
-            let color = if i < 2 { 0x888888 } else { 0xCCDDFF }
-            nodes.push(
-              @scene.rect(
-                x=sx - size / 2.0,
-                y=sy - size / 2.0,
-                w=size,
-                h=size,
-                fill=color,
-                alpha=fade * 0.8,
-              ),
-            )
-          }
-          // Guard (crossbar at base)
-          let gx = px + cos_a * 7.0
-          let gy = py + sin_a * 7.0
+      }
+      nodes
+    }),
+    // Grid lines
+    @scene.for_each(fn() {
+      let nodes : Array[@scene.SceneNode] = []
+      let grid_spacing = tile_size
+      let start_gx = @math.floor(view_left / grid_spacing) * grid_spacing
+      let mut gx = start_gx
+      while gx < view_left + screen_w + grid_spacing {
+        let screen_x = gx - view_left
+        if screen_x >= 0.0 && screen_x < screen_w {
           nodes.push(
-            @scene.rect(
-              x=gx - sin_a * 3.0 - 1.0,
-              y=gy + cos_a * 3.0 - 1.0,
-              w=2.0,
-              h=2.0,
-              fill=0xFFCC00,
-              alpha=fade * 0.8,
-            ),
-          )
-          nodes.push(
-            @scene.rect(
-              x=gx + sin_a * 3.0 - 1.0,
-              y=gy - cos_a * 3.0 - 1.0,
-              w=2.0,
-              h=2.0,
-              fill=0xFFCC00,
-              alpha=fade * 0.8,
-            ),
-          )
-          nodes
-        })
-      }),
-      // Screen flash (subtle)
-      @scene.show(fn() { self.screen_flash > 0 }, fn() {
-        let flash_alpha = self.screen_flash.to_double() / 5.0 * 0.15
-        if self.player.damage_timer > 0 {
-          @scene.rect(
-            w=screen_w,
-            h=screen_h,
-            fill=0xFF0000,
-            alpha=flash_alpha,
-          )
-        } else {
-          @scene.rect(
-            w=screen_w,
-            h=screen_h,
-            fill=0xFFFFFF,
-            alpha=flash_alpha,
+            @scene.rect(x=screen_x, w=1.0, h=screen_h, fill=0x444444, alpha=0.3),
           )
         }
-      }),
-      // HUD: HP bar
-      @scene.group(
-        x=4.0,
-        y=4.0,
-        children=[
-          @scene.rect(w=62.0, h=8.0, fill=0x440000, alpha=0.8),
-          @scene.rect(x=1.0, y=1.0, w=hp_width, h=6.0, fill=0x00CC00),
-          @scene.rect(y=10.0, w=62.0, h=1.0, fill=0xFFFFFF, alpha=0.2),
-        ],
-      ),
-      // HUD: Score
-      @scene.label(
-        x=screen_w - 60.0,
-        y=8.0,
-        content=self.score.to_string(),
-        color=0xFFCC00,
-        scale=0.8,
-      ),
-      // Paused overlay
-      @scene.show(fn() { self.mode == mode_paused }, fn() {
-        let focused_id = self.focus_mgr.current_focus()
-        @scene.fragment(
-          [
-            @scene.rect(w=screen_w, h=screen_h, fill=0x000000, alpha=0.5),
-            @scene.label(
-              x=screen_w / 2.0,
-              y=screen_h / 2.0 - 20.0,
-              content="PAUSED",
-              scale=2.0,
-            ),
-            @scene.for_each(fn() {
-              let nodes : Array[@scene.SceneNode] = []
-              let labels = ["RESUME", "RESET", "QUIT"]
-              for i = 0; i < labels.length(); i = i + 1 {
-                let color = match focused_id {
-                  Some(id) if id.value == self.menu_node_ids[i].value =>
-                    0xFFFF00
-                  _ => 0xFFFFFF
-                }
+        gx = gx + grid_spacing
+      }
+      let start_gy = @math.floor(view_top / grid_spacing) * grid_spacing
+      let mut gy = start_gy
+      while gy < view_top + screen_h + grid_spacing {
+        let screen_y = gy - view_top
+        if screen_y >= 0.0 && screen_y < screen_h {
+          nodes.push(
+            @scene.rect(y=screen_y, w=screen_w, h=1.0, fill=0x444444, alpha=0.3),
+          )
+        }
+        gy = gy + grid_spacing
+      }
+      nodes
+    }),
+    // Items (smooth pulse)
+    @scene.for_each(fn() {
+      let nodes : Array[@scene.SceneNode] = []
+      for item in self.items {
+        if !item.collected {
+          let sx = item.x - view_left
+          let sy = item.y - view_top
+          if sx >= -10.0 &&
+            sx <= screen_w + 10.0 &&
+            sy >= -10.0 &&
+            sy <= screen_h + 10.0 {
+            let fill = if item.kind == 0 { 0x00FFFF } else { 0x00FF66 }
+            nodes.push(
+              @scene.rect(
+                x=sx - 4.0,
+                y=sy - 4.0,
+                w=8.0,
+                h=8.0,
+                fill~,
+                alpha=item_alpha,
+              ),
+            )
+          }
+        }
+      }
+      nodes
+    }),
+    // Enemies with HP bars
+    @scene.for_each(fn() {
+      let nodes : Array[@scene.SceneNode] = []
+      for enemy in self.enemies {
+        if enemy.alive {
+          let sx = enemy.x - view_left
+          let sy = enemy.y - view_top
+          if sx >= -20.0 &&
+            sx <= screen_w + 20.0 &&
+            sy >= -20.0 &&
+            sy <= screen_h + 20.0 {
+            let fill = if enemy.damage_timer > 0 { 0xFFFFFF } else { 0xCC2222 }
+            let ehs = enemy.size / 2.0
+            // Enemy body
+            nodes.push(
+              @scene.rect(
+                x=sx - ehs,
+                y=sy - ehs,
+                w=enemy.size,
+                h=enemy.size,
+                fill~,
+              ),
+            )
+            // HP bar background
+            nodes.push(
+              @scene.rect(
+                x=sx - ehs,
+                y=sy - ehs - 4.0,
+                w=enemy.size,
+                h=2.0,
+                fill=0x440000,
+              ),
+            )
+            // HP bar fill
+            let ehp_ratio = enemy.hp.to_double() / enemy.max_hp.to_double()
+            nodes.push(
+              @scene.rect(
+                x=sx - ehs,
+                y=sy - ehs - 4.0,
+                w=enemy.size * ehp_ratio,
+                h=2.0,
+                fill=0xCC0000,
+              ),
+            )
+            // Attack animation line
+            if enemy.attack_anim > 0 {
+              let atk_dx = px - sx
+              let atk_dy = py - sy
+              let atk_dist = (atk_dx * atk_dx + atk_dy * atk_dy).sqrt()
+              if atk_dist > 0.001 {
+                let atk_nx = atk_dx / atk_dist
+                let atk_ny = atk_dy / atk_dist
+                let line_len = @cmp.minimum(20.0, atk_dist)
                 nodes.push(
-                  @scene.label(
-                    x=screen_w / 2.0,
-                    y=screen_h / 2.0 + 10.0 + i.to_double() * 18.0,
-                    content=labels[i],
-                    color=color,
+                  @scene.line(
+                    x0=sx,
+                    y0=sy,
+                    x1=sx + atk_nx * line_len,
+                    y1=sy + atk_ny * line_len,
+                    width=2.0,
+                    color=0xFF0000,
                   ),
                 )
               }
-              nodes
-            }),
-          ],
+            }
+          }
+        }
+      }
+      nodes
+    }),
+    // Player
+    @scene.rect(
+      x=px - phs,
+      y=py - phs,
+      w=self.player.size,
+      h=self.player.size,
+      fill=player_fill,
+    ),
+    // Attack indicator (sweeping sword)
+    @scene.show(fn() { self.attack_timer > attack_cooldown - 8 }, fn() {
+      let swing_frames = 8.0
+      let elapsed = (attack_cooldown - self.attack_timer).to_double()
+      let progress = elapsed / swing_frames
+      // Sweep +-60deg around facing direction
+      let angle = self.facing_angle + (-1.0472 + progress * 2.0944)
+      let cos_a = @math.cos(angle)
+      let sin_a = @math.sin(angle)
+      let fade = 1.0 - progress
+      @scene.for_each(fn() {
+        let nodes : Array[@scene.SceneNode] = []
+        // Blade: 8 segments radiating from player
+        for i = 0; i < 8; i = i + 1 {
+          let dist = 6.0 + i.to_double() * 2.5
+          let sx = px + cos_a * dist
+          let sy = py + sin_a * dist
+          let size = if i < 2 { 3.0 } else if i < 6 { 2.0 } else { 1.0 }
+          let color = if i < 2 { 0x888888 } else { 0xCCDDFF }
+          nodes.push(
+            @scene.rect(
+              x=sx - size / 2.0,
+              y=sy - size / 2.0,
+              w=size,
+              h=size,
+              fill=color,
+              alpha=fade * 0.8,
+            ),
+          )
+        }
+        // Guard (crossbar at base)
+        let gx = px + cos_a * 7.0
+        let gy = py + sin_a * 7.0
+        nodes.push(
+          @scene.rect(
+            x=gx - sin_a * 3.0 - 1.0,
+            y=gy + cos_a * 3.0 - 1.0,
+            w=2.0,
+            h=2.0,
+            fill=0xFFCC00,
+            alpha=fade * 0.8,
+          ),
         )
-      }),
-    ],
-  )
+        nodes.push(
+          @scene.rect(
+            x=gx + sin_a * 3.0 - 1.0,
+            y=gy - cos_a * 3.0 - 1.0,
+            w=2.0,
+            h=2.0,
+            fill=0xFFCC00,
+            alpha=fade * 0.8,
+          ),
+        )
+        nodes
+      })
+    }),
+    // Screen flash (subtle)
+    @scene.show(fn() { self.screen_flash > 0 }, fn() {
+      let flash_alpha = self.screen_flash.to_double() / 5.0 * 0.15
+      if self.player.damage_timer > 0 {
+        @scene.rect(w=screen_w, h=screen_h, fill=0xFF0000, alpha=flash_alpha)
+      } else {
+        @scene.rect(w=screen_w, h=screen_h, fill=0xFFFFFF, alpha=flash_alpha)
+      }
+    }),
+    // HUD: HP bar
+    @scene.group(x=4.0, y=4.0, children=[
+      @scene.rect(w=62.0, h=8.0, fill=0x440000, alpha=0.8),
+      @scene.rect(x=1.0, y=1.0, w=hp_width, h=6.0, fill=0x00CC00),
+      @scene.rect(y=10.0, w=62.0, h=1.0, fill=0xFFFFFF, alpha=0.2),
+    ]),
+    // HUD: Score
+    @scene.label(
+      x=screen_w - 60.0,
+      y=8.0,
+      content=self.score.to_string(),
+      color=0xFFCC00,
+      scale=0.8,
+    ),
+    // Paused overlay
+    @scene.show(fn() { self.mode == mode_paused }, fn() {
+      let focused_id = self.focus_mgr.current_focus()
+      @scene.fragment([
+        @scene.rect(w=screen_w, h=screen_h, fill=0x000000, alpha=0.5),
+        @scene.label(
+          x=screen_w / 2.0,
+          y=screen_h / 2.0 - 20.0,
+          content="PAUSED",
+          scale=2.0,
+        ),
+        @scene.for_each(fn() {
+          let nodes : Array[@scene.SceneNode] = []
+          let labels = ["RESUME", "RESET", "QUIT"]
+          for i = 0; i < labels.length(); i = i + 1 {
+            let color = match focused_id {
+              Some(id) if id.value == self.menu_node_ids[i].value => 0xFFFF00
+              _ => 0xFFFFFF
+            }
+            nodes.push(
+              @scene.label(
+                x=screen_w / 2.0,
+                y=screen_h / 2.0 + 10.0 + i.to_double() * 18.0,
+                content=labels[i],
+                color~,
+              ),
+            )
+          }
+          nodes
+        }),
+      ])
+    }),
+  ])
 }
 
 ///|
 fn ShowcaseState::view_gameover(self : ShowcaseState) -> @scene.SceneNode {
-  @scene.fragment(
-    [
-      @scene.rect(w=screen_w, h=screen_h, fill=0x2E0000),
-      @scene.label(
-        x=screen_w / 2.0,
-        y=screen_h / 2.0 - 20.0,
-        content="GAME OVER",
-        color=0xFF0000,
-        scale=2.0,
-      ),
-      @scene.label(
-        x=screen_w / 2.0,
-        y=screen_h / 2.0 + 10.0,
-        content="SCORE",
-        color=0xFFCC00,
-      ),
-      @scene.label(
-        x=screen_w / 2.0,
-        y=screen_h / 2.0 + 30.0,
-        content=self.score.to_string(),
-        scale=2.0,
-      ),
-    ],
-  )
+  @scene.fragment([
+    @scene.rect(w=screen_w, h=screen_h, fill=0x2E0000),
+    @scene.label(
+      x=screen_w / 2.0,
+      y=screen_h / 2.0 - 20.0,
+      content="GAME OVER",
+      color=0xFF0000,
+      scale=2.0,
+    ),
+    @scene.label(
+      x=screen_w / 2.0,
+      y=screen_h / 2.0 + 10.0,
+      content="SCORE",
+      color=0xFFCC00,
+    ),
+    @scene.label(
+      x=screen_w / 2.0,
+      y=screen_h / 2.0 + 30.0,
+      content=self.score.to_string(),
+      scale=2.0,
+    ),
+  ])
 }
 
 // === Text HUD Rendering (TTF) ===
@@ -1090,16 +1054,28 @@ fn ShowcaseState::render_text_hud(
     m if m == mode_title => {
       // Title screen: "DUNGEON" + blinking "PRESS SPACE"
       let title_cmds = renderer.render_text(
-        "DUNGEON", 32.0, screen_w / 2.0 - 80.0, screen_h / 2.0 - 30.0,
-        dst, shader, blend, white,
+        "DUNGEON",
+        32.0,
+        screen_w / 2.0 - 80.0,
+        screen_h / 2.0 - 30.0,
+        dst,
+        shader,
+        blend,
+        white,
       )
       for cmd in title_cmds {
         all_text_cmds.push(cmd)
       }
       if self.frame_count / 30 % 2 == 0 {
         let press_cmds = renderer.render_text(
-          "PRESS SPACE", 16.0, screen_w / 2.0 - 60.0, screen_h / 2.0 + 20.0,
-          dst, shader, blend, yellow,
+          "PRESS SPACE",
+          16.0,
+          screen_w / 2.0 - 60.0,
+          screen_h / 2.0 + 20.0,
+          dst,
+          shader,
+          blend,
+          yellow,
         )
         for cmd in press_cmds {
           all_text_cmds.push(cmd)
@@ -1110,8 +1086,14 @@ fn ShowcaseState::render_text_hud(
       // Playing: score + HP
       let score_text = "SCORE:" + self.score.to_string()
       let score_cmds = renderer.render_text(
-        score_text, 16.0, screen_w - 120.0, 24.0,
-        dst, shader, blend, yellow,
+        score_text,
+        16.0,
+        screen_w - 120.0,
+        24.0,
+        dst,
+        shader,
+        blend,
+        yellow,
       )
       for cmd in score_cmds {
         all_text_cmds.push(cmd)
@@ -1121,8 +1103,7 @@ fn ShowcaseState::render_text_hud(
         "/" +
         self.player.max_hp.to_string()
       let hp_cmds = renderer.render_text(
-        hp_text, 16.0, 4.0, 24.0,
-        dst, shader, blend, white,
+        hp_text, 16.0, 4.0, 24.0, dst, shader, blend, white,
       )
       for cmd in hp_cmds {
         all_text_cmds.push(cmd)
@@ -1131,16 +1112,28 @@ fn ShowcaseState::render_text_hud(
     m if m == mode_gameover => {
       // Game over: "GAME OVER" + score
       let go_cmds = renderer.render_text(
-        "GAME OVER", 32.0, screen_w / 2.0 - 80.0, screen_h / 2.0 - 20.0,
-        dst, shader, blend, red,
+        "GAME OVER",
+        32.0,
+        screen_w / 2.0 - 80.0,
+        screen_h / 2.0 - 20.0,
+        dst,
+        shader,
+        blend,
+        red,
       )
       for cmd in go_cmds {
         all_text_cmds.push(cmd)
       }
       let score_text = "SCORE:" + self.score.to_string()
       let sc_cmds = renderer.render_text(
-        score_text, 16.0, screen_w / 2.0 - 40.0, screen_h / 2.0 + 20.0,
-        dst, shader, blend, yellow,
+        score_text,
+        16.0,
+        screen_w / 2.0 - 40.0,
+        screen_h / 2.0 + 20.0,
+        dst,
+        shader,
+        blend,
+        yellow,
       )
       for cmd in sc_cmds {
         all_text_cmds.push(cmd)
@@ -1181,7 +1174,7 @@ fn ShowcaseState::render_text_hud(
     }
   }
   // SVG icon demo: render once, then draw each frame
-  if !(self.svg_icon_loaded) {
+  if !self.svg_icon_loaded {
     self.svg_icon_loaded = true
     let svg_str = "<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 16 16'><rect x='7' y='1' width='2' height='10' fill='#CCDDFF'/><rect x='5' y='9' width='6' height='2' fill='#FFCC00'/><rect x='7' y='11' width='2' height='4' fill='#886644'/></svg>"
     match @svg.render_svg_to_rgba(svg_str, 16, 16) {
@@ -1207,9 +1200,22 @@ fn ShowcaseState::render_text_hud(
     let icon_y = 4.0
     let icon_size = 16.0
     let svg_vertex_data : Array[Double] = [
-      icon_x, icon_y, 0.0, 0.0, icon_x + icon_size, icon_y, 1.0, 0.0,
-      icon_x + icon_size, icon_y + icon_size, 1.0, 1.0, icon_x,
-      icon_y + icon_size, 0.0, 1.0,
+      icon_x,
+      icon_y,
+      0.0,
+      0.0,
+      icon_x + icon_size,
+      icon_y,
+      1.0,
+      0.0,
+      icon_x + icon_size,
+      icon_y + icon_size,
+      1.0,
+      1.0,
+      icon_x,
+      icon_y + icon_size,
+      0.0,
+      1.0,
     ]
     let svg_indices : Array[Int] = [0, 1, 2, 2, 3, 0]
     let svg_dst_region = @gfx.new_dst_region(

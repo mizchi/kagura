@@ -6,7 +6,12 @@
 pub struct FixedStepConfig {
   tps : Int
   max_updates_per_frame : Int
-} derive(Show)
+} derive(Debug)
+
+///|
+pub impl Show for FixedStepConfig with output(self, logger) {
+  logger.write_object(to_repr(self))
+}
 
 ///|
 /// Scheduler state carried between frames.
@@ -15,7 +20,12 @@ pub struct FixedStepConfig {
 pub struct FixedStepState {
   accumulator_ms : Double
   tick : Int
-} derive(Show)
+} derive(Debug)
+
+///|
+pub impl Show for FixedStepState with output(self, logger) {
+  logger.write_object(to_repr(self))
+}
 
 ///|
 /// Planned updates for one rendered frame.
@@ -26,7 +36,12 @@ pub struct StepResult {
   updates : Int
   alpha : Double
   next_state : FixedStepState
-} derive(Show)
+} derive(Debug)
+
+///|
+pub impl Show for StepResult with output(self, logger) {
+  logger.write_object(to_repr(self))
+}
 
 ///|
 pub fn default_fixed_step_config() -> FixedStepConfig {

@@ -6,6 +6,7 @@ import {
   "mizchi/kagura/engine/audio",
   "mizchi/kagura/engine/gfx",
   "mizchi/signals/ui",
+  "moonbitlang/core/debug",
 }
 
 // Values
@@ -42,7 +43,7 @@ pub enum SceneAttrValue {
   SceneInt(Int)
   SceneDouble(Double)
   SceneText(String)
-}
+} derive(@debug.Debug)
 pub impl Show for SceneAttrValue
 
 // Type aliases

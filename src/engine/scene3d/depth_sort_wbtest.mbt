@@ -115,7 +115,7 @@ fn check_no_face_interleave(sorted : Array[TriFaceInfo]) -> Bool {
   let face_last : Map[Int, Int] = {}
   for i in 0..<sorted.length() {
     let fi = sorted[i].face_idx
-    if !(face_first.contains(fi)) {
+    if !face_first.contains(fi) {
       face_first[fi] = i
     }
     face_last[fi] = i
@@ -253,7 +253,7 @@ test "cube face depth sort: interleaving is limited" {
     while pitch < 1.4 {
       total_count = total_count + 1
       let sorted = cube_sorted_tris(yaw, pitch)
-      if !(check_no_face_interleave(sorted)) {
+      if !check_no_face_interleave(sorted) {
         interleave_count = interleave_count + 1
       }
       pitch = pitch + 0.1

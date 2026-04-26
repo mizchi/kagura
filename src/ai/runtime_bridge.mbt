@@ -9,7 +9,12 @@ pub struct AIRuntimeConfig {
   mut base_seed : Int
   mut trace_enabled : Bool
   max_trace_history : Int
-} derive(Show)
+} derive(Debug)
+
+///|
+pub impl Show for AIRuntimeConfig with output(self, logger) {
+  logger.write_object(to_repr(self))
+}
 
 ///|
 pub fn default_ai_runtime_config() -> AIRuntimeConfig {
@@ -185,7 +190,7 @@ pub fn[P : AIPolicy, S : SensorBridge, A : ActuatorBridge, C : AIScheduler] crea
   state : AIRuntimeState,
 ) -> (Int, @core.FrameBudget) -> Unit {
   fn(tick : Int, frame : @core.FrameBudget) {
-    if !(state.config.enabled) {
+    if !state.config.enabled {
       return
     }
     let seed = state.config.base_seed + tick

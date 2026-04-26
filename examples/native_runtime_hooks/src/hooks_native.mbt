@@ -728,9 +728,7 @@ pub fn shutdown_context() -> Unit {
 pub fn get_engine_context(width : Int, height : Int) -> @engine.EngineContext {
   // id=0 targets the swap chain surface (not an offscreen target)
   let dst = @gfx.new_image_handle(0, width, height)
-  let shader = @gfx.new_shader_handle(
-    1, @gfx.default_builtin_shader_source(),
-  )
+  let shader = @gfx.new_shader_handle(1, @gfx.default_builtin_shader_source())
   { dst, shader, screen_w: width, screen_h: height }
 }
 
@@ -750,7 +748,8 @@ pub fn render_frame_from_commands(
   bridge_gfx_on_begin(
     true,
     @gfx.new_render_pass_desc(
-      @gfx.new_color(clear_r, clear_g, clear_b, clear_a), true,
+      @gfx.new_color(clear_r, clear_g, clear_b, clear_a),
+      true,
     ),
   )
   for cmd in cmds {

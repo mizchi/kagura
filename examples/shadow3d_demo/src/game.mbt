@@ -35,14 +35,22 @@ struct DemoState {
 ///|
 fn DemoState::new() -> DemoState {
   let shadow_config = @shadow3d.ShadowConfig::new(
-    1024, 8.0, 0.1, 50.0, 20.0, @math3d.Vec3::zero(), 0.005,
+    1024,
+    8.0,
+    0.1,
+    50.0,
+    20.0,
+    @math3d.Vec3::zero(),
+    0.005,
   )
   let shadow_map = @gfx.new_image_handle(100, 1024, 1024)
   let depth_shader = @gfx.new_shader_handle(
-    100, @shadow3d.shader_shadow_depth_wgsl(),
+    100,
+    @shadow3d.shader_shadow_depth_wgsl(),
   )
   let lit_shader = @gfx.new_shader_handle(
-    101, @shadow3d.shader3d_shadow_lit_untextured_wgsl(),
+    101,
+    @shadow3d.shader3d_shadow_lit_untextured_wgsl(),
   )
   let camera = @camera3d.OrbitCamera::new(
     @math3d.Vec3::new(0.0, 1.0, 0.0),
@@ -155,7 +163,11 @@ fn DemoState::draw(
   }
   // --- Pass 1: Depth pass ---
   let depth_cmds = @shadow3d.shadow_depth_pass_commands(
-    self.shadow_map, self.depth_shader, casters, lighting, config,
+    self.shadow_map,
+    self.depth_shader,
+    casters,
+    lighting,
+    config,
   )
   // --- Pass 2: Lit pass ---
   let camera = self.camera.to_camera3d()
@@ -164,7 +176,11 @@ fn DemoState::draw(
   for i in 0..<objects.length() {
     let obj = objects[i]
     let dst_region = @gfx.new_dst_region(
-      0, 0, ctx.screen_w, ctx.screen_h, obj.mesh.indices.length(),
+      0,
+      0,
+      ctx.screen_w,
+      ctx.screen_h,
+      obj.mesh.indices.length(),
     )
     let cmd = @shadow3d.new_shadow_lit_mesh_draw_command(
       ctx.dst,

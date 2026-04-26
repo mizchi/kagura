@@ -4,6 +4,7 @@ package "mizchi/kagura/engine/asset_loader"
 import {
   "mizchi/kagura/engine/asset",
   "mizchi/kagura/engine/gfx",
+  "moonbitlang/core/debug",
 }
 
 // Values
@@ -18,8 +19,7 @@ pub enum AssetPriority {
   High
   Normal
   Low
-}
-pub impl Eq for AssetPriority
+} derive(Eq, @debug.Debug)
 pub impl Show for AssetPriority
 
 pub struct AssetStreamManager {
@@ -60,7 +60,7 @@ pub(all) struct AssetStreamerConfig {
   max_concurrent : Int
   max_cached : Int
   eviction_interval : Int
-}
+} derive(@debug.Debug)
 pub fn AssetStreamerConfig::default() -> Self
 pub impl Show for AssetStreamerConfig
 
@@ -85,7 +85,7 @@ pub struct AsyncImageProgress {
   loading : Int
   succeeded : Int
   failed : Int
-}
+} derive(@debug.Debug)
 pub impl Show for AsyncImageProgress
 
 pub struct AsyncImageRequest {
@@ -94,7 +94,7 @@ pub struct AsyncImageRequest {
   url : String
   mut status : AsyncImageStatus
   mut image_spec : @asset.ImageSpec?
-}
+} derive(@debug.Debug)
 pub impl Show for AsyncImageRequest
 
 pub enum AsyncImageStatus {
@@ -102,7 +102,7 @@ pub enum AsyncImageStatus {
   Loading
   Succeeded
   Failed
-}
+} derive(@debug.Debug)
 pub fn AsyncImageStatus::to_int(Self) -> Int
 pub impl Show for AsyncImageStatus
 
@@ -110,7 +110,7 @@ pub(all) struct DistanceThresholds {
   critical : Double
   high : Double
   normal : Double
-}
+} derive(@debug.Debug)
 pub fn DistanceThresholds::default() -> Self
 pub impl Show for DistanceThresholds
 
@@ -120,7 +120,7 @@ pub(all) struct StreamProgress {
   active : Int
   completed : Int
   failed : Int
-}
+} derive(@debug.Debug)
 pub impl Show for StreamProgress
 
 type StreamRequest

@@ -14,13 +14,23 @@
 pub enum ShaderUnit {
   Pixels
   Texels
-} derive(Show)
+} derive(Debug)
+
+///|
+pub impl Show for ShaderUnit with output(self, logger) {
+  logger.write_object(to_repr(self))
+}
 
 ///|
 pub struct ShaderEntrypoints {
   vertex : String
   fragment : String
-} derive(Show)
+} derive(Debug)
+
+///|
+pub impl Show for ShaderEntrypoints with output(self, logger) {
+  logger.write_object(to_repr(self))
+}
 
 ///|
 pub struct ShaderCompileRequest {
@@ -29,7 +39,12 @@ pub struct ShaderCompileRequest {
   src_image_count : Int
   entrypoints : ShaderEntrypoints
   debug_name : String
-} derive(Show)
+} derive(Debug)
+
+///|
+pub impl Show for ShaderCompileRequest with output(self, logger) {
+  logger.write_object(to_repr(self))
+}
 
 ///|
 pub struct ShaderIR {
@@ -40,12 +55,22 @@ pub struct ShaderIR {
   entrypoints : ShaderEntrypoints
   debug_name : String
   source_hash : ShaderSourceHash
-} derive(Show)
+} derive(Debug)
+
+///|
+pub impl Show for ShaderIR with output(self, logger) {
+  logger.write_object(to_repr(self))
+}
 
 ///|
 pub struct ShaderSourceHash {
   value : String
-} derive(Show)
+} derive(Debug)
+
+///|
+pub impl Show for ShaderSourceHash with output(self, logger) {
+  logger.write_object(to_repr(self))
+}
 
 ///|
 pub enum UniformValue {
@@ -55,26 +80,46 @@ pub enum UniformValue {
   Bools(Array[Bool])
   Ints(Array[Int])
   Floats(Array[Double])
-} derive(Show)
+} derive(Debug)
+
+///|
+pub impl Show for UniformValue with output(self, logger) {
+  logger.write_object(to_repr(self))
+}
 
 ///|
 pub struct NamedUniform {
   name : String
   value : UniformValue
-} derive(Show)
+} derive(Debug)
+
+///|
+pub impl Show for NamedUniform with output(self, logger) {
+  logger.write_object(to_repr(self))
+}
 
 ///|
 pub struct UniformLayout {
   names : Array[String]
   dword_counts : Array[Int]
   preserved_prefix_dwords : Int
-} derive(Show)
+} derive(Debug)
+
+///|
+pub impl Show for UniformLayout with output(self, logger) {
+  logger.write_object(to_repr(self))
+}
 
 ///|
 pub struct IntSize {
   width : Int
   height : Int
-} derive(Show)
+} derive(Debug)
+
+///|
+pub impl Show for IntSize with output(self, logger) {
+  logger.write_object(to_repr(self))
+}
 
 ///|
 pub struct FloatRect {
@@ -82,7 +127,12 @@ pub struct FloatRect {
   y : Double
   width : Double
   height : Double
-} derive(Show)
+} derive(Debug)
+
+///|
+pub impl Show for FloatRect with output(self, logger) {
+  logger.write_object(to_repr(self))
+}
 
 ///|
 pub struct PreservedUniformContext {
@@ -90,19 +140,34 @@ pub struct PreservedUniformContext {
   dst_region : FloatRect
   src_texture_sizes : Array[IntSize]
   src_regions : Array[FloatRect]
-} derive(Show)
+} derive(Debug)
+
+///|
+pub impl Show for PreservedUniformContext with output(self, logger) {
+  logger.write_object(to_repr(self))
+}
 
 ///|
 pub struct PackedUniforms {
   dwords : Array[Int]
-} derive(Show)
+} derive(Debug)
+
+///|
+pub impl Show for PackedUniforms with output(self, logger) {
+  logger.write_object(to_repr(self))
+}
 
 ///|
 pub enum BuiltinShaderFilter {
   Nearest
   Linear
   Pixelated
-} derive(Show)
+} derive(Debug)
+
+///|
+pub impl Show for BuiltinShaderFilter with output(self, logger) {
+  logger.write_object(to_repr(self))
+}
 
 ///|
 pub enum BuiltinShaderAddress {
@@ -111,7 +176,12 @@ pub enum BuiltinShaderAddress {
   ClampToEdge
   Repeat
   MirrorRepeat
-} derive(Show)
+} derive(Debug)
+
+///|
+pub impl Show for BuiltinShaderAddress with output(self, logger) {
+  logger.write_object(to_repr(self))
+}
 
 ///|
 /// Per-axis sampler specification for texture sampling.
@@ -119,7 +189,12 @@ pub struct SamplerSpec {
   filter : BuiltinShaderFilter
   address_u : BuiltinShaderAddress
   address_v : BuiltinShaderAddress
-} derive(Show)
+} derive(Debug)
+
+///|
+pub impl Show for SamplerSpec with output(self, logger) {
+  logger.write_object(to_repr(self))
+}
 
 ///|
 pub fn default_sampler_spec() -> SamplerSpec {
@@ -144,14 +219,24 @@ pub struct BuiltinShaderKey {
   filter : BuiltinShaderFilter
   address : BuiltinShaderAddress
   use_color_m : Bool
-} derive(Show)
+} derive(Debug)
+
+///|
+pub impl Show for BuiltinShaderKey with output(self, logger) {
+  logger.write_object(to_repr(self))
+}
 
 ///|
 /// Extended shader key that supports per-axis address modes.
 pub struct BuiltinShaderKeyEx {
   sampler : SamplerSpec
   use_color_m : Bool
-} derive(Show)
+} derive(Debug)
+
+///|
+pub impl Show for BuiltinShaderKeyEx with output(self, logger) {
+  logger.write_object(to_repr(self))
+}
 
 ///|
 /// Convert a classic BuiltinShaderKey to extended form.
@@ -262,7 +347,12 @@ struct BuiltinShaderSourceCacheEntryEx {
 pub struct BuiltinShaderCacheStats {
   hit_count : Int
   miss_count : Int
-} derive(Show)
+} derive(Debug)
+
+///|
+pub impl Show for BuiltinShaderCacheStats with output(self, logger) {
+  logger.write_object(to_repr(self))
+}
 
 ///|
 pub struct BasicBuiltinShaderSourceRepo {

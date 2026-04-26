@@ -5,6 +5,7 @@ import {
   "mizchi/kagura/core",
   "mizchi/kagura/core/inpututil",
   "mizchi/kagura/engine/gfx",
+  "moonbitlang/core/debug",
 }
 
 // Values
@@ -28,7 +29,7 @@ pub struct LayoutConstraint {
   min_height : Double
   max_width : Double
   max_height : Double
-}
+} derive(@debug.Debug)
 pub impl Show for LayoutConstraint
 
 pub struct LayoutRect {
@@ -36,13 +37,13 @@ pub struct LayoutRect {
   y : Double
   width : Double
   height : Double
-}
+} derive(@debug.Debug)
 pub impl Show for LayoutRect
 
 pub struct LayoutResult {
   node_id : UINodeId
   rect : LayoutRect
-}
+} derive(@debug.Debug)
 pub impl Show for LayoutResult
 
 pub struct SimpleLayoutEngine {
@@ -78,14 +79,13 @@ pub(all) enum UIAlignment {
   SpaceEvenly
   Stretch
   Baseline
-}
-pub impl Eq for UIAlignment
+} derive(Eq, @debug.Debug)
 pub impl Show for UIAlignment
 
 pub(all) enum UIDirection {
   Row
   Column
-}
+} derive(@debug.Debug)
 pub impl Show for UIDirection
 
 pub enum UIEvent {
@@ -95,19 +95,19 @@ pub enum UIEvent {
   Scroll(Double, Double)
   KeyDown(Int)
   KeyUp(Int)
-}
+} derive(@debug.Debug)
 pub impl Show for UIEvent
 
 pub(all) enum UIFlexWrap {
   NoWrap
   Wrap
-}
+} derive(@debug.Debug)
 pub impl Show for UIFlexWrap
 
 pub(all) enum UIFocusEvent {
   FocusGained(UINodeId)
   FocusLost(UINodeId)
-}
+} derive(@debug.Debug)
 pub impl Show for UIFocusEvent
 
 pub struct UIFocusManager {
@@ -127,12 +127,12 @@ pub struct UINode {
   id : UINodeId
   style : UINodeStyle
   children : Array[UINodeId]
-}
+} derive(@debug.Debug)
 pub impl Show for UINode
 
 pub struct UINodeId {
   value : Int
-}
+} derive(@debug.Debug)
 pub impl Show for UINodeId
 
 pub(all) struct UINodeStyle {
@@ -147,14 +147,14 @@ pub(all) struct UINodeStyle {
   align : UIAlignment
   justify_content : UIAlignment
   flex_wrap : UIFlexWrap
-}
+} derive(@debug.Debug)
 pub impl Show for UINodeStyle
 
 pub(all) enum UISizing {
   Fixed(Double)
   Percent(Double)
   Auto
-}
+} derive(@debug.Debug)
 pub impl Show for UISizing
 
 pub struct UITree {

@@ -5,7 +5,12 @@ struct Rect {
   y : Int
   width : Int
   height : Int
-} derive(Show, Eq)
+} derive(Debug, Eq)
+
+///|
+pub impl Show for Rect with output(self, logger) {
+  logger.write_object(to_repr(self))
+}
 
 ///|
 /// MaxRects bin packing allocator.
@@ -24,7 +29,12 @@ fn new_maxrects_allocator(width : Int, height : Int) -> MaxRectsAllocator {
 struct AllocResult {
   x : Int
   y : Int
-} derive(Show)
+} derive(Debug)
+
+///|
+pub impl Show for AllocResult with output(self, logger) {
+  logger.write_object(to_repr(self))
+}
 
 ///|
 /// Try to allocate a rectangle of the given size.

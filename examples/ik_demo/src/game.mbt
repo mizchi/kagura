@@ -92,12 +92,24 @@ fn build_arm_mesh() -> (@mesh3d.Mesh3D, @skeleton3d.SkinData) {
     for face in 0..<4 {
       let (nx, _, nz) = normals[face]
       let corners : Array[(Double, Double, Double)] = match face {
-        0 => [(-r, y_bottom, r), (r, y_bottom, r), (r, y_top, r), (-r, y_top, r)]
-        1 => [(r, y_bottom, r), (r, y_bottom, -r), (r, y_top, -r), (r, y_top, r)]
+        0 =>
+          [(-r, y_bottom, r), (r, y_bottom, r), (r, y_top, r), (-r, y_top, r)]
+        1 =>
+          [(r, y_bottom, r), (r, y_bottom, -r), (r, y_top, -r), (r, y_top, r)]
         2 =>
-          [(r, y_bottom, -r), (-r, y_bottom, -r), (-r, y_top, -r), (r, y_top, -r)]
+          [
+            (r, y_bottom, -r),
+            (-r, y_bottom, -r),
+            (-r, y_top, -r),
+            (r, y_top, -r),
+          ]
         _ =>
-          [(-r, y_bottom, -r), (-r, y_bottom, r), (-r, y_top, r), (-r, y_top, -r)]
+          [
+            (-r, y_bottom, -r),
+            (-r, y_bottom, r),
+            (-r, y_top, r),
+            (-r, y_top, -r),
+          ]
       }
       for ci in 0..<4 {
         let (px, py, pz) = corners[ci]
@@ -110,7 +122,11 @@ fn build_arm_mesh() -> (@mesh3d.Mesh3D, @skeleton3d.SkinData) {
         verts.push(0.0)
         verts.push(0.0)
         let assigned_bone = if ci < 2 {
-          if bone_i - 1 > 0 { bone_i - 1 } else { 0 }
+          if bone_i - 1 > 0 {
+            bone_i - 1
+          } else {
+            0
+          }
         } else {
           bone_i
         }
@@ -169,11 +185,7 @@ fn build_arm_mesh() -> (@mesh3d.Mesh3D, @skeleton3d.SkinData) {
   indices.push(cap_base + 2)
   indices.push(cap_base + 3)
   let mesh = @mesh3d.Mesh3D::new(verts, indices)
-  let skin : @skeleton3d.SkinData = {
-    joint_indices,
-    weights,
-    vertex_count: vc,
-  }
+  let skin : @skeleton3d.SkinData = { joint_indices, weights, vertex_count: vc }
   (mesh, skin)
 }
 
@@ -399,9 +411,7 @@ fn DemoState::new() -> DemoState {
     },
   ]
   let state_machine = @animation3d.AnimationStateMachine3D::new(
-    clips,
-    transitions,
-    "idle",
+    clips, transitions, "idle",
   )
   let sm_poses : Array[@transform3d.Transform3D] = [
     @transform3d.Transform3D::new(),
@@ -445,17 +455,15 @@ fn DemoState::update(self : DemoState, snapshot : @core.InputSnapshot) -> Unit {
   for i in 0..<3 {
     self.arm_poses[i] = self.arm_skeleton.bones[i].local_transform
   }
-  let ik_result = @ik3d.solve_two_bone_ik(
-    {
-      skeleton: self.arm_skeleton,
-      local_poses: self.arm_poses,
-      upper_bone: 0,
-      lower_bone: 1,
-      end_bone: 2,
-      target: ik_target,
-      pole_target: None,
-    },
-  )
+  let ik_result = @ik3d.solve_two_bone_ik({
+    skeleton: self.arm_skeleton,
+    local_poses: self.arm_poses,
+    upper_bone: 0,
+    lower_bone: 1,
+    end_bone: 2,
+    target: ik_target,
+    pole_target: None,
+  })
   for i in 0..<3 {
     self.arm_poses[i] = ik_result.local_poses[i]
   }
@@ -474,16 +482,14 @@ fn DemoState::update(self : DemoState, snapshot : @core.InputSnapshot) -> Unit {
   for i in 0..<tentacle_bones {
     chain.push(i)
   }
-  let fab_result = @ik3d.solve_fabrik(
-    {
-      skeleton: self.fab_skeleton,
-      local_poses: self.fab_poses,
-      chain,
-      target: fab_target,
-      tolerance: 0.01,
-      max_iterations: 10,
-    },
-  )
+  let fab_result = @ik3d.solve_fabrik({
+    skeleton: self.fab_skeleton,
+    local_poses: self.fab_poses,
+    chain,
+    target: fab_target,
+    tolerance: 0.01,
+    max_iterations: 10,
+  })
   for i in 0..<tentacle_bones {
     self.fab_poses[i] = fab_result.local_poses[i]
   }
@@ -542,11 +548,7 @@ fn DemoState::draw(
   objects.push(
     @scene3d.object3d(
       mesh=cube,
-      position=@math3d.Vec3::new(
-        sm_pos.x,
-        0.25 + sm_pos.y,
-        sm_pos.z - 3.0,
-      ),
+      position=@math3d.Vec3::new(sm_pos.x, 0.25 + sm_pos.y, sm_pos.z - 3.0),
       color=@math3d.Vec4::new(0.8, 0.3, 0.6, 1.0),
     ),
   )
@@ -560,11 +562,7 @@ fn DemoState::draw(
     ),
   )
   let camera = self.camera.to_camera3d()
-  let scene = @scene3d.scene3d(
-    objects=objects,
-    camera=camera,
-    lighting=self.lighting,
-  )
+  let scene = @scene3d.scene3d(objects~, camera~, lighting=self.lighting)
   @scene3d.render_scene3d_gpu(
     scene,
     ctx.dst,

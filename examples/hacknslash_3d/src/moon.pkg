@@ -1,4 +1,6 @@
 import {
+  "moonbitlang/core/cmp" @cmp,
+  "moonbitlang/core/math" @math,
   "moonbitlang/core/bench" @bench,
   "mizchi/hacknslash_3d/game" @game,
   "mizchi/font" @font,
@@ -42,7 +44,9 @@ import {
   "mizchi/kagura/engine/ui" @ui,
 }
 
-warnings = "-1-2-7-20-29-71"
+warnings = "-1-2-7-29"
+
+supported_targets = "js+native"
 
 options(
   "is-main": true,
@@ -52,7 +56,6 @@ options(
       "cc-link-flags": "-L../../deps/wgpu-native/lib -lwgpu_native ${build.KAGURA_NATIVE_GLFW_LIBS} ${build.KAGURA_NATIVE_WGPU_RPATH} ${build.KAGURA_NATIVE_PLATFORM_LIBS}",
     },
   },
-  "supported-targets": [ "js", "native" ],
   targets: {
     "audio_bootstrap_js.mbt": [ "js" ],
     "audio_bootstrap_js_wbtest.mbt": [ "js" ],

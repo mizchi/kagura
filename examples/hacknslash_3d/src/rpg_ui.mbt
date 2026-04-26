@@ -846,7 +846,7 @@ fn GameState::render_skills_ui(
       draw_circle_node(ctx, cmds, nx, ny, base_r + 4.0, 0xCCAA33)
     }
     // Node border
-    let border_color = if !(archetype_allowed) {
+    let border_color = if !archetype_allowed {
       0x1A1A22 // locked: very dim
     } else if node.level > 0 {
       0x88AA66
@@ -857,7 +857,7 @@ fn GameState::render_skills_ui(
     }
     draw_circle_node(ctx, cmds, nx, ny, base_r, border_color)
     // Node fill
-    let fill_color = if !(archetype_allowed) {
+    let fill_color = if !archetype_allowed {
       0x0A0A10 // locked: nearly invisible
     } else if node.level > 0 {
       0x2A3A1A
@@ -885,7 +885,7 @@ fn GameState::render_skills_ui(
       }
     }
     // Name label below node
-    let name_color = if !(archetype_allowed) {
+    let name_color = if !archetype_allowed {
       0x222233
     } else if node.level > 0 {
       0x88DD88

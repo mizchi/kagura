@@ -47,7 +47,12 @@ pub(all) struct TurnEconomy {
   hp_lost : Int
   cards_played : Int
   cards_drawn : Int
-} derive(Show)
+} derive(Debug)
+
+///|
+pub impl Show for TurnEconomy with output(self, logger) {
+  logger.write_object(to_repr(self))
+}
 
 ///|
 /// Economy metrics aggregated over a full battle
@@ -65,7 +70,12 @@ pub(all) struct BattleEconomy {
   damage_per_turn : Double // Average damage output per turn
   damage_taken_per_turn : Double // Average HP loss per turn
   efficiency : Double // (damage + block) / (energy * baseline_dpe)
-} derive(Show)
+} derive(Debug)
+
+///|
+pub impl Show for BattleEconomy with output(self, logger) {
+  logger.write_object(to_repr(self))
+}
 
 ///|
 /// Calculate economy metrics from a simulation
@@ -86,7 +96,6 @@ fn analyze_battle_economy(
   let mut safety = 0
   while state.phase == PlayerTurn && safety < 200 {
     safety += 1
-    let energy_before = state.player.energy
     let choice = pick_card(state, strategy)
     match choice {
       Some((hand_idx, target)) => {
@@ -178,6 +187,7 @@ fn analyze_battle_economy(
 
 ///|
 /// Run economy analysis across multiple seeds and aggregate
+#warnings("-unused_value")
 fn analyze_economy_aggregate(
   encounter : EncounterId,
   strategy : PlayStrategy,
@@ -276,7 +286,12 @@ pub(all) struct CardValue {
   scaling_value : Double // Strength/permanent buffs
   synergy_multiplier : Double // How much better this gets with archetype
   total : Double
-} derive(Show)
+} derive(Debug)
+
+///|
+pub impl Show for CardValue with output(self, logger) {
+  logger.write_object(to_repr(self))
+}
 
 ///|
 /// Evaluate a card's economy value
@@ -395,6 +410,7 @@ fn evaluate_card(id : CardId) -> CardValue {
 
 ///|
 /// Estimate deck power level (simple heuristic)
+#warnings("-unused_value")
 fn deck_power(deck : Array[CardId]) -> Double {
   let mut total = 0.0
   for card in deck {
@@ -477,7 +493,12 @@ pub(all) struct RunSimResult {
   hp_at_each_floor : Array[Int]
   deck_size_at_each_floor : Array[Int]
   cards_added : Array[CardId]
-} derive(Show)
+} derive(Debug)
+
+///|
+pub impl Show for RunSimResult with output(self, logger) {
+  logger.write_object(to_repr(self))
+}
 
 ///|
 pub fn simulate_run(seed : Int, strategy : PlayStrategy) -> RunSimResult {
@@ -633,7 +654,12 @@ pub(all) struct RunSimSummary {
   avg_final_hp : Int
   avg_deck_size : Int
   win_rate_pct : Int
-} derive(Show)
+} derive(Debug)
+
+///|
+pub impl Show for RunSimSummary with output(self, logger) {
+  logger.write_object(to_repr(self))
+}
 
 ///|
 pub fn simulate_runs(count : Int, strategy : PlayStrategy) -> RunSimSummary {

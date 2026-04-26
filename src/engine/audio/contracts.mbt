@@ -10,7 +10,12 @@ pub struct AudioFormat {
   sample_rate : Int
   channels : Int
   bits_per_sample : Int
-} derive(Show)
+} derive(Debug)
+
+///|
+pub impl Show for AudioFormat with output(self, logger) {
+  logger.write_object(to_repr(self))
+}
 
 ///|
 pub fn default_audio_format() -> AudioFormat {
@@ -71,19 +76,34 @@ pub enum PlayerState {
   Stopped
   Playing
   Paused
-} derive(Show)
+} derive(Debug)
+
+///|
+pub impl Show for PlayerState with output(self, logger) {
+  logger.write_object(to_repr(self))
+}
 
 ///|
 pub(all) struct PlayerId {
   value : Int
-} derive(Show)
+} derive(Debug)
+
+///|
+pub impl Show for PlayerId with output(self, logger) {
+  logger.write_object(to_repr(self))
+}
 
 ///|
 pub struct AudioClip {
   format : AudioFormat
   data : Bytes
   loop_ : Bool
-} derive(Show)
+} derive(Debug)
+
+///|
+pub impl Show for AudioClip with output(self, logger) {
+  logger.write_object(to_repr(self))
+}
 
 ///|
 pub fn new_audio_clip(
@@ -1129,7 +1149,12 @@ pub struct AudioOutputStats {
   initialized : Bool
   frames_written : Int
   suspended : Bool
-} derive(Show)
+} derive(Debug)
+
+///|
+pub impl Show for AudioOutputStats with output(self, logger) {
+  logger.write_object(to_repr(self))
+}
 
 ///|
 /// Render audio from a MixerAudioContext and write to output hooks.

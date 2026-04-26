@@ -145,7 +145,10 @@ fn make_ragdoll_circle(
     @vector.Vec2::new(x, y),
     mass,
     @physics2d.CircleShape(@vector.Vec2::zero(), radius),
-  ).with_restitution(0.2).with_friction(0.5).with_damping(0.1)
+  )
+  .with_restitution(0.2)
+  .with_friction(0.5)
+  .with_damping(0.1)
 }
 
 ///|
@@ -162,7 +165,10 @@ fn make_ragdoll_box(
     @vector.Vec2::new(x, y),
     mass,
     @physics2d.OBBShape2D(@vector.Vec2::new(hx, hy), @vector.Vec2::zero()),
-  ).with_restitution(0.2).with_friction(0.5).with_damping(0.1)
+  )
+  .with_restitution(0.2)
+  .with_friction(0.5)
+  .with_damping(0.1)
 }
 
 ///|
@@ -330,19 +336,13 @@ fn build_ragdoll(world : @physics2d.PhysicsWorld2D) -> Unit {
 
 ///|
 fn DemoState::new() -> DemoState {
-  let world = @physics2d.PhysicsWorld2D::new(
-    @vector.Vec2::new(0.0, -9.8),
-    4.0,
-  )
+  let world = @physics2d.PhysicsWorld2D::new(@vector.Vec2::new(0.0, -9.8), 4.0)
   // Ground
   world.add_body(
     @physics2d.RigidBody2D::new_static(
       id_ground,
       @vector.Vec2::new(0.0, -5.5),
-      @physics2d.AABBShape2D(
-        @vector.Vec2::new(10.0, 1.0),
-        @vector.Vec2::zero(),
-      ),
+      @physics2d.AABBShape2D(@vector.Vec2::new(10.0, 1.0), @vector.Vec2::zero()),
     ),
   )
   build_ragdoll(world)
@@ -384,10 +384,7 @@ fn DemoState::update(self : DemoState, snapshot : @core.InputSnapshot) -> Unit {
         let dy = my - body.position.y
         let fx = dx * spring_strength
         let fy = dy * spring_strength
-        self.world.apply_force(
-          self.grabbed_id,
-          @vector.Vec2::new(fx, fy),
-        )
+        self.world.apply_force(self.grabbed_id, @vector.Vec2::new(fx, fy))
       }
       None => self.grabbed_id = -1
     }
@@ -410,7 +407,7 @@ fn find_closest_dynamic(
   let mut best_dist = grab_distance
   for i = 0; i < world.bodies.length(); i = i + 1 {
     let body = world.bodies[i]
-    if !(body.is_dynamic()) {
+    if !body.is_dynamic() {
       continue i + 1
     }
     let dx = body.position.x - mx
@@ -485,7 +482,10 @@ fn draw_rotated_box(
   sh : Double,
 ) -> Unit {
   let corners : Array[(Double, Double)] = [
-    (-hw, -hh), (hw, -hh), (hw, hh), (-hw, hh),
+    (-hw, -hh),
+    (hw, -hh),
+    (hw, hh),
+    (-hw, hh),
   ]
   let cos_a = @math.cos(-angle)
   let sin_a = @math.sin(-angle)
@@ -535,7 +535,10 @@ fn get_part_color(id : Int, grabbed_id : Int) -> @gfx.Color {
 // ============================================================
 
 ///|
-fn world_anchor(body : @physics2d.RigidBody2D, anchor : @vector.Vec2) -> @vector.Vec2 {
+fn world_anchor(
+  body : @physics2d.RigidBody2D,
+  anchor : @vector.Vec2,
+) -> @vector.Vec2 {
   let c = @math.cos(body.angle)
   let s = @math.sin(body.angle)
   let rx = anchor.x * c - anchor.y * s
@@ -558,8 +561,16 @@ fn DemoState::draw(
   // Background
   cmds.push(
     @debugutil.new_ndc_rect_fill_command(
-      ctx.dst, ctx.shader, 0.0, 0.0, sw, sh, sw, sh,
-      @debugutil.color_from_hex(color_bg), 0,
+      ctx.dst,
+      ctx.shader,
+      0.0,
+      0.0,
+      sw,
+      sh,
+      sw,
+      sh,
+      @debugutil.color_from_hex(color_bg),
+      0,
     ),
   )
   // Draw bodies
@@ -571,7 +582,17 @@ fn DemoState::draw(
         let cx = physics_to_screen_x(body.position.x + offset.x)
         let cy = physics_to_screen_y(body.position.y + offset.y)
         let screen_r = radius * px_per_unit
-        draw_filled_circle(cmds, ctx.dst, ctx.shader, cx, cy, screen_r, color, sw, sh)
+        draw_filled_circle(
+          cmds,
+          ctx.dst,
+          ctx.shader,
+          cx,
+          cy,
+          screen_r,
+          color,
+          sw,
+          sh,
+        )
       }
       @physics2d.AABBShape2D(half_extents, offset) => {
         let cx = body.position.x + offset.x
@@ -582,9 +603,16 @@ fn DemoState::draw(
         let screen_h2 = half_extents.y * 2.0 * px_per_unit
         cmds.push(
           @debugutil.new_ndc_rect_fill_command(
-            ctx.dst, ctx.shader,
-            screen_x, screen_y, screen_w2, screen_h2,
-            sw, sh, color, 0,
+            ctx.dst,
+            ctx.shader,
+            screen_x,
+            screen_y,
+            screen_w2,
+            screen_h2,
+            sw,
+            sh,
+            color,
+            0,
           ),
         )
       }
@@ -596,8 +624,17 @@ fn DemoState::draw(
         let shw = half_extents.x * px_per_unit
         let shh = half_extents.y * px_per_unit
         draw_rotated_box(
-          cmds, ctx.dst, ctx.shader, scx, scy, shw, shh,
-          body.angle, color, sw, sh,
+          cmds,
+          ctx.dst,
+          ctx.shader,
+          scx,
+          scy,
+          shw,
+          shh,
+          body.angle,
+          color,
+          sw,
+          sh,
         )
       }
     }
@@ -618,7 +655,15 @@ fn DemoState::draw(
         let sy1 = physics_to_screen_y(wb.y)
         cmds.push(
           @debugutil.new_line_command(
-            ctx.dst, ctx.shader, sx0, sy0, sx1, sy1, 2.0, joint_color, 0,
+            ctx.dst,
+            ctx.shader,
+            sx0,
+            sy0,
+            sx1,
+            sy1,
+            2.0,
+            joint_color,
+            0,
           ),
         )
       }
@@ -635,9 +680,15 @@ fn DemoState::draw(
         let by_screen = physics_to_screen_y(body.position.y)
         cmds.push(
           @debugutil.new_line_command(
-            ctx.dst, ctx.shader,
-            mx_screen, my_screen, bx_screen, by_screen,
-            2.0, @debugutil.color_from_hex(0xFF4040), 0,
+            ctx.dst,
+            ctx.shader,
+            mx_screen,
+            my_screen,
+            bx_screen,
+            by_screen,
+            2.0,
+            @debugutil.color_from_hex(0xFF4040),
+            0,
           ),
         )
       }

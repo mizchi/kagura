@@ -8,11 +8,12 @@ import {
   "mizchi/web_runtime_hooks" @web_hooks,
 }
 
-warnings = "-1-2-29-71"
+warnings = "-1-2-29"
+
+supported_targets = "js+native"
 
 options(
   "is-main": true,
-  "supported-targets": [ "js", "native" ],
   link: {
     "native": {
       "cc": "${build.KAGURA_NATIVE_CC}",

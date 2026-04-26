@@ -8,7 +8,12 @@ enum DungeonGeneratorKind {
   BSP
   Cellular
   Rogue
-} derive(Eq, Show)
+} derive(Eq, Debug)
+
+///|
+pub impl Show for DungeonGeneratorKind with output(self, logger) {
+  logger.write_object(to_repr(self))
+}
 
 ///|
 priv struct GeneratedDungeonLayout {
@@ -253,7 +258,7 @@ fn extract_rooms_from_grid(grid : @terrain.Grid2D) -> Array[@terrain.Room] {
   for row = 1; row < grid.height - 1; row = row + 1 {
     for col = 1; col < grid.width - 1; col = col + 1 {
       let idx = row * grid.width + col
-      if !(visited[idx]) && grid.get(col, row) == @terrain.Floor {
+      if !visited[idx] && grid.get(col, row) == @terrain.Floor {
         // Flood fill to find region bounds
         let mut min_x = col
         let mut max_x = col
@@ -262,7 +267,7 @@ fn extract_rooms_from_grid(grid : @terrain.Grid2D) -> Array[@terrain.Room] {
         let stack : Array[(Int, Int)] = [(col, row)]
         visited[idx] = true
         while stack.length() > 0 {
-          let (cx, cy) = stack.pop_exn()
+          let (cx, cy) = stack.unsafe_pop()
           if cx < min_x {
             min_x = cx
           }
@@ -282,7 +287,7 @@ fn extract_rooms_from_grid(grid : @terrain.Grid2D) -> Array[@terrain.Room] {
             let ny = cy + dy_arr[d]
             if nx >= 0 && nx < grid.width && ny >= 0 && ny < grid.height {
               let ni = ny * grid.width + nx
-              if !(visited[ni]) && grid.get(nx, ny) == @terrain.Floor {
+              if !visited[ni] && grid.get(nx, ny) == @terrain.Floor {
                 visited[ni] = true
                 stack.push((nx, ny))
               }
@@ -403,16 +408,16 @@ pub fn generate_dungeon(
   params? : BalanceParams = BalanceParams::default(),
 ) -> DungeonData {
   let kind = dungeon_generator_kind_for_floor(seed~, floor)
-  let rng = @terrain.make_rng(seed.to_uint())
+  let rng = @terrain.make_rng(seed.reinterpret_as_uint())
   let mut result = generate_layout_for_kind(kind, seed, floor, params, rng)
   // Validate: must have rooms and be traversable
-  if !(is_layout_traversable(result)) {
+  if !is_layout_traversable(result) {
     // Retry with different seed
-    let rng2 = @terrain.make_rng((seed + 9999).to_uint())
+    let rng2 = @terrain.make_rng((seed + 9999).reinterpret_as_uint())
     result = generate_layout_for_kind(kind, seed + 9999, floor, params, rng2)
-    if !(is_layout_traversable(result)) {
+    if !is_layout_traversable(result) {
       // Fallback to ArenaChain (always produces connected layouts)
-      let rng3 = @terrain.make_rng((seed + 7777).to_uint())
+      let rng3 = @terrain.make_rng((seed + 7777).reinterpret_as_uint())
       result = generate_layout_for_kind(
         ArenaChain,
         seed + 7777,

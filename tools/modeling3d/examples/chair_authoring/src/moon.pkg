@@ -1,4 +1,6 @@
 import {
+  "moonbitlang/core/json" @json,
+  "moonbitlang/core/math" @math,
   "mizchi/kagura/engine/asset" @asset,
   "mizchi/kagura/core/camera3d" @camera3d,
   "mizchi/kagura/collision3d" @collision3d,
@@ -19,11 +21,12 @@ import {
   "mizchi/web_runtime_hooks" @web_hooks,
 }
 
-warnings = "-1-2-29-71"
+warnings = "-1-2-29"
+
+supported_targets = "native"
 
 options(
   "is-main": true,
-  "supported-targets": [ "native" ],
   link: {
     "native": {
       "cc": "${build.KAGURA_NATIVE_CC}",

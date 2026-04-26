@@ -1,6 +1,10 @@
 // Generated using `moon info`, DON'T EDIT IT
 package "mizchi/kagura/core/mesh3d"
 
+import {
+  "moonbitlang/core/debug",
+}
+
 // Values
 pub fn push_quad(Array[Int], Int) -> Unit
 
@@ -16,7 +20,7 @@ pub struct Mesh3D {
   indices : Array[Int]
   bounds : MeshBounds3D
   format : VertexFormat
-}
+} derive(@debug.Debug)
 pub fn Mesh3D::bounds(Self) -> MeshBounds3D
 pub fn Mesh3D::box(Double, Double, Double) -> Self
 pub fn Mesh3D::cube(Double) -> Self
@@ -36,7 +40,7 @@ pub struct MeshBounds3D {
   max_x : Double
   max_y : Double
   max_z : Double
-}
+} derive(@debug.Debug)
 pub impl Show for MeshBounds3D
 
 pub enum VertexAttribute {
@@ -47,14 +51,13 @@ pub enum VertexAttribute {
   Weights4
   Tangent4
   Color4
-}
+} derive(Eq, @debug.Debug)
 pub fn VertexAttribute::size(Self) -> Int
-pub impl Eq for VertexAttribute
 pub impl Show for VertexAttribute
 
 pub struct VertexFormat {
   attributes : Array[VertexAttribute]
-}
+} derive(@debug.Debug)
 pub fn VertexFormat::has(Self, VertexAttribute) -> Bool
 pub fn VertexFormat::offset_of(Self, VertexAttribute) -> Int
 pub fn VertexFormat::skinned_3d() -> Self

@@ -11,7 +11,7 @@ test "BorderWidths::uniform creates equal sides" {
 ///|
 test "BorderWidths::zero has no border" {
   let b = BorderWidths::zero()
-  assert_true(!(b.has_any()))
+  assert_true(!b.has_any())
 }
 
 ///|

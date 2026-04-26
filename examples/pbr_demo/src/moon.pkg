@@ -13,11 +13,12 @@ import {
   "mizchi/native_runtime_hooks" @native_hooks,
 }
 
-warnings = "-1-2-29-71"
+warnings = "-1-2-29"
+
+supported_targets = "native"
 
 options(
   "is-main": true,
-  "supported-targets": [ "native" ],
   link: {
     "native": {
       "cc": "${build.KAGURA_NATIVE_CC}",

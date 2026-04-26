@@ -191,7 +191,12 @@ struct RunLoopProbeSummary {
   last_begin_clear_enabled : Int
   last_begin_clear_r : Double
   last_end_present : Int
-} derive(Show)
+} derive(Debug)
+
+///|
+pub impl Show for RunLoopProbeSummary with output(self, logger) {
+  logger.write_object(to_repr(self))
+}
 
 ///|
 fn bool_to_int(value : Bool) -> Int {

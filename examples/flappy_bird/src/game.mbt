@@ -4,26 +4,37 @@ struct Pipe {
   gap_y : Double
 }
 
+///|
 let screen_w : Int = 320
 
+///|
 let screen_h : Int = 240
 
+///|
 let bird_x : Double = 60.0
 
+///|
 let bird_size : Double = 12.0
 
+///|
 let gravity : Double = 0.25
 
+///|
 let jump_velocity : Double = -4.5
 
+///|
 let pipe_width : Double = 36.0
 
+///|
 let pipe_gap : Double = 70.0
 
+///|
 let pipe_speed : Double = 1.5
 
+///|
 let pipe_interval : Int = 120
 
+///|
 let ground_h : Double = 20.0
 
 ///|
@@ -76,12 +87,11 @@ fn Game::update(self : Game, input : @core.InputSnapshot) -> Unit {
     self.frame_count.set(self.frame_count.get() + 1)
     let action = @inpututil.is_any_action_just_pressed(self.input, input)
     match self.game_mode.get() {
-      0 => {
+      0 =>
         if action {
           self.game_mode.set(1)
           self.velocity = jump_velocity
         }
-      }
       1 => {
         // Physics
         self.velocity = self.velocity + gravity
@@ -143,11 +153,7 @@ fn Game::update(self : Game, input : @core.InputSnapshot) -> Unit {
           }
         }
       }
-      _ => {
-        if action {
-          self.reset()
-        }
-      }
+      _ => if action { self.reset() }
     }
   })
 }
@@ -157,81 +163,70 @@ fn Game::view(self : Game) -> @scene.SceneNode {
   let sw = screen_w.to_double()
   let sh = screen_h.to_double()
   let ground_y = sh - ground_h
-  @scene.fragment(
-    [
-      // Sky
-      @scene.rect(w=sw, h=sh, fill=0x87CEEB),
-      // Ground
-      @scene.rect(x=0.0, y=ground_y, w=sw, h=ground_h, fill=0x8B4513),
-      // Pipes
-      @scene.for_each(fn() {
-        let nodes : Array[@scene.SceneNode] = []
-        for pipe in self.pipes.get() {
-          if pipe.gap_y > 0.0 {
-            nodes.push(
-              @scene.rect(x=pipe.x, w=pipe_width, h=pipe.gap_y, fill=0x228B22),
-            )
-          }
-          let lower_y = pipe.gap_y + pipe_gap
-          let lower_h = ground_y - lower_y
-          if lower_h > 0.0 {
-            nodes.push(
-              @scene.rect(
-                x=pipe.x,
-                y=lower_y,
-                w=pipe_width,
-                h=lower_h,
-                fill=0x228B22,
-              ),
-            )
-          }
+  @scene.fragment([
+    // Sky
+    @scene.rect(w=sw, h=sh, fill=0x87CEEB),
+    // Ground
+    @scene.rect(x=0.0, y=ground_y, w=sw, h=ground_h, fill=0x8B4513),
+    // Pipes
+    @scene.for_each(fn() {
+      let nodes : Array[@scene.SceneNode] = []
+      for pipe in self.pipes.get() {
+        if pipe.gap_y > 0.0 {
+          nodes.push(
+            @scene.rect(x=pipe.x, w=pipe_width, h=pipe.gap_y, fill=0x228B22),
+          )
         }
-        nodes
-      }),
-      // Bird
-      @scene.rect(
-        x=bird_x,
-        y=self.bird_y.get(),
-        w=bird_size,
-        h=bird_size,
-        fill=0xFFD700,
-      ),
-      // Score
-      @scene.label(
-        x=sw / 2.0 - 10.0,
-        y=20.0,
-        content=self.score.get().to_string(),
-      ),
-      // Title "TAP" (blinking)
-      @scene.show(
-        fn() {
-          self.game_mode.get() == 0 && self.frame_count.get() / 30 % 2 == 0
-        },
-        fn() {
-          @scene.label(x=sw / 2.0, y=sh / 2.0 + 30.0, content="TAP", scale=2.0)
-        },
-      ),
-      // Game over overlay
-      @scene.show(fn() { self.game_mode.get() == 2 }, fn() {
-        @scene.fragment(
-          [
+        let lower_y = pipe.gap_y + pipe_gap
+        let lower_h = ground_y - lower_y
+        if lower_h > 0.0 {
+          nodes.push(
             @scene.rect(
-              x=sw / 2.0 - 50.0,
-              y=sh / 2.0 - 20.0,
-              w=100.0,
-              h=40.0,
-              fill=0x000000,
-              alpha=0.5,
+              x=pipe.x,
+              y=lower_y,
+              w=pipe_width,
+              h=lower_h,
+              fill=0x228B22,
             ),
-            @scene.label(
-              x=sw / 2.0,
-              y=sh / 2.0,
-              content="END",
-              scale=2.0,
-            ),
-          ],
-        )
-      }),
-    ],
-  )
+          )
+        }
+      }
+      nodes
+    }),
+    // Bird
+    @scene.rect(
+      x=bird_x,
+      y=self.bird_y.get(),
+      w=bird_size,
+      h=bird_size,
+      fill=0xFFD700,
+    ),
+    // Score
+    @scene.label(
+      x=sw / 2.0 - 10.0,
+      y=20.0,
+      content=self.score.get().to_string(),
+    ),
+    // Title "TAP" (blinking)
+    @scene.show(
+      fn() { self.game_mode.get() == 0 && self.frame_count.get() / 30 % 2 == 0 },
+      fn() {
+        @scene.label(x=sw / 2.0, y=sh / 2.0 + 30.0, content="TAP", scale=2.0)
+      },
+    ),
+    // Game over overlay
+    @scene.show(fn() { self.game_mode.get() == 2 }, fn() {
+      @scene.fragment([
+        @scene.rect(
+          x=sw / 2.0 - 50.0,
+          y=sh / 2.0 - 20.0,
+          w=100.0,
+          h=40.0,
+          fill=0x000000,
+          alpha=0.5,
+        ),
+        @scene.label(x=sw / 2.0, y=sh / 2.0, content="END", scale=2.0),
+      ])
+    }),
+  ])
 }

@@ -5,6 +5,7 @@ import {
   "mizchi/image",
   "mizchi/kagura/core/image_palette",
   "mizchi/kagura/engine/gfx",
+  "moonbitlang/core/debug",
 }
 
 // Values
@@ -155,14 +156,14 @@ pub fn update_image_spec(SimpleImageRepository, AssetKey, ImageSpec) -> @gfx.Ima
 // Types and methods
 pub struct AssetKey {
   value : String
-}
+} derive(@debug.Debug)
 pub impl Show for AssetKey
 
 pub struct AtlasCompactResult {
   removed_page_ids : Array[Int]
   removed_page_count : Int
   remaining_page_count : Int
-}
+} derive(@debug.Debug)
 pub impl Show for AtlasCompactResult
 
 pub struct AtlasDrawSource {
@@ -172,7 +173,7 @@ pub struct AtlasDrawSource {
   v0 : Double
   u1 : Double
   v1 : Double
-}
+} derive(@debug.Debug)
 pub impl Show for AtlasDrawSource
 
 pub struct AtlasPageStats {
@@ -182,7 +183,7 @@ pub struct AtlasPageStats {
   atlas_width : Int
   atlas_height : Int
   is_empty : Bool
-}
+} derive(@debug.Debug)
 pub impl Show for AtlasPageStats
 
 pub struct AtlasRegion {
@@ -191,24 +192,24 @@ pub struct AtlasRegion {
   width : Int
   height : Int
   atlas_id : Int
-}
+} derive(@debug.Debug)
 pub impl Show for AtlasRegion
 
 pub(all) struct FetchHandle {
   id : Int
-}
+} derive(@debug.Debug)
 pub impl Show for FetchHandle
 
 pub(all) struct FetchProgress {
   loaded : Int
   total : Int
-}
+} derive(@debug.Debug)
 pub impl Show for FetchProgress
 
 pub struct ImagePaletteBinding {
   image_id : Int
   palette : @image_palette.ImagePalette2x2
-}
+} derive(@debug.Debug)
 pub impl Show for ImagePaletteBinding
 
 pub struct ImageSpec {
@@ -217,7 +218,7 @@ pub struct ImageSpec {
   format : String
   palette : @image_palette.ImagePalette2x2
   pixels_rgba8 : Array[Int]
-}
+} derive(@debug.Debug)
 pub impl Show for ImageSpec
 
 pub struct JsFetcher {
@@ -230,7 +231,7 @@ pub struct MaterialSpec {
   blend : @gfx.BlendMode
   filter : @gfx.FilterMode
   uniform_keys : Array[String]
-}
+} derive(@debug.Debug)
 pub impl Show for MaterialSpec
 
 pub struct MultiPageAtlasRepository {
@@ -245,21 +246,20 @@ pub enum RasterImageFormat {
   Png
   Jpeg
   Bmp
-}
-pub impl Eq for RasterImageFormat
+} derive(Eq, @debug.Debug)
 pub impl Show for RasterImageFormat
 
 pub enum RasterResizeMethod {
   Nearest
   Bilinear
   Bicubic
-}
+} derive(@debug.Debug)
 pub impl Show for RasterResizeMethod
 
 pub struct ShaderSpec {
   debug_name : String
   source : String
-}
+} derive(@debug.Debug)
 pub impl Show for ShaderSpec
 
 pub struct SimpleAtlasAllocator {
@@ -273,7 +273,7 @@ pub struct SimpleAtlasAllocator {
 }
 pub impl AtlasAllocator for SimpleAtlasAllocator
 
-type SimpleAtlasImageEntry
+type SimpleAtlasImageEntry derive(@debug.Debug)
 pub impl Show for SimpleAtlasImageEntry
 
 pub struct SimpleAtlasImageRepository {
@@ -287,7 +287,7 @@ pub struct SimpleAtlasImageRepository {
   mut page_dirty_rect : SourceImageDirtyRect?
 }
 
-type SimpleImageEntry
+type SimpleImageEntry derive(@debug.Debug)
 pub impl Show for SimpleImageEntry
 
 pub struct SimpleImageRepository {
@@ -296,7 +296,7 @@ pub struct SimpleImageRepository {
 }
 pub impl ImageRepository for SimpleImageRepository
 
-type SimpleMaterialEntry
+type SimpleMaterialEntry derive(@debug.Debug)
 pub impl Show for SimpleMaterialEntry
 
 pub struct SimpleMaterialRepository {
@@ -304,7 +304,7 @@ pub struct SimpleMaterialRepository {
 }
 pub impl MaterialRepository for SimpleMaterialRepository
 
-type SimpleShaderEntry
+type SimpleShaderEntry derive(@debug.Debug)
 pub impl Show for SimpleShaderEntry
 
 pub struct SimpleShaderRepository {
@@ -321,7 +321,7 @@ pub struct SourceImageBinding {
   dirty_rect : SourceImageDirtyRect?
   palette : @image_palette.ImagePalette2x2
   pixels_rgba8 : Array[Int]
-}
+} derive(@debug.Debug)
 pub impl Show for SourceImageBinding
 
 pub struct SourceImageDirtyRect {
@@ -329,7 +329,7 @@ pub struct SourceImageDirtyRect {
   y : Int
   width : Int
   height : Int
-}
+} derive(@debug.Debug)
 pub impl Show for SourceImageDirtyRect
 
 // Type aliases

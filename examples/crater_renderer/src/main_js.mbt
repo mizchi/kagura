@@ -4,7 +4,7 @@ fn main {
   let text_renderer = @text.load_text_renderer(
     "assets/Tiny5-Regular.ttf", 512, 500, 0,
   )
-  let demo = DemoState::{ text_renderer }
+  let demo = DemoState::{ text_renderer, }
   @engine.run(
     update=fn(_input) {  },
     draw=fn(ctx) {
@@ -39,7 +39,10 @@ fn flush_text_atlas_js(demo : DemoState) -> Unit {
           1,
           Some(
             @asset.new_source_image_dirty_rect(
-              0, 0, page_info.width, page_info.height,
+              0,
+              0,
+              page_info.width,
+              page_info.height,
             ),
           ),
           @image_palette.checker_palette_from_seed(page_info.page_id),

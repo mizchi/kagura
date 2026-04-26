@@ -6,7 +6,12 @@ pub struct DirectionalLight {
   direction : @math3d.Vec3
   color : @math3d.Vec3
   intensity : Double
-} derive(Show)
+} derive(Debug)
+
+///|
+pub impl Show for DirectionalLight with output(self, logger) {
+  logger.write_object(to_repr(self))
+}
 
 ///|
 pub fn DirectionalLight::new(
@@ -30,7 +35,12 @@ pub fn DirectionalLight::default() -> DirectionalLight {
 pub struct AmbientLight {
   color : @math3d.Vec3
   intensity : Double
-} derive(Show)
+} derive(Debug)
+
+///|
+pub impl Show for AmbientLight with output(self, logger) {
+  logger.write_object(to_repr(self))
+}
 
 ///|
 pub fn AmbientLight::new(
@@ -51,7 +61,12 @@ pub struct PointLight {
   color : @math3d.Vec3
   intensity : Double
   radius : Double
-} derive(Show)
+} derive(Debug)
+
+///|
+pub impl Show for PointLight with output(self, logger) {
+  logger.write_object(to_repr(self))
+}
 
 ///|
 pub fn PointLight::new(
@@ -72,7 +87,12 @@ pub struct SpotLight {
   radius : Double
   inner_angle : Double
   outer_angle : Double
-} derive(Show)
+} derive(Debug)
+
+///|
+pub impl Show for SpotLight with output(self, logger) {
+  logger.write_object(to_repr(self))
+}
 
 ///|
 pub fn SpotLight::new(
@@ -101,7 +121,12 @@ pub struct LightingEnvironment {
   ambient : AmbientLight
   point_lights : Array[PointLight]
   spot_lights : Array[SpotLight]
-} derive(Show)
+} derive(Debug)
+
+///|
+pub impl Show for LightingEnvironment with output(self, logger) {
+  logger.write_object(to_repr(self))
+}
 
 ///|
 pub fn LightingEnvironment::new(

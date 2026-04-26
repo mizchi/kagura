@@ -6,7 +6,7 @@ fn main {
   // Render a single frame with red background
   @wgpu_native.render_triangle_frame_with_plan(
     ctx, 0.8, 0.2, 0.1, 1.0, // clear color: reddish
-    1, // draw_calls: render the built-in triangle
+     1, // draw_calls: render the built-in triangle
   )
 
   // Save the rendered frame to a BMP file

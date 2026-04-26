@@ -1,5 +1,6 @@
 // Combat system: attack, damage, knockback
 
+///|
 fn try_attack(state : GameState) -> Unit {
   let facing = state.player.facing_angle
   for enemy in state.enemies {
@@ -32,11 +33,28 @@ fn try_attack(state : GameState) -> Unit {
             let kill_score = if enemy.kind == kind_boss { 100 } else { 10 }
             state.score = state.score + kill_score
             // Item drop: 50% health, 30% score gem
-            let drop_roll = (state.frame_count * 7 + enemy.x.to_int() * 13 + enemy.y.to_int() * 17) % 100
+            let drop_roll = (
+                state.frame_count * 7 +
+                enemy.x.to_int() * 13 +
+                enemy.y.to_int() * 17
+              ) %
+              100
             if drop_roll < 50 {
-              state.items.push({ x: enemy.x, y: enemy.y, kind: item_health, alive: true, spawn_frame: state.frame_count })
+              state.items.push({
+                x: enemy.x,
+                y: enemy.y,
+                kind: item_health,
+                alive: true,
+                spawn_frame: state.frame_count,
+              })
             } else if drop_roll < 80 {
-              state.items.push({ x: enemy.x, y: enemy.y, kind: item_score, alive: true, spawn_frame: state.frame_count })
+              state.items.push({
+                x: enemy.x,
+                y: enemy.y,
+                kind: item_score,
+                alive: true,
+                spawn_frame: state.frame_count,
+              })
             }
           }
         }

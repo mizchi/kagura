@@ -14,7 +14,12 @@ struct DrawPlayingStats {
   tonemap_commands : Int
   fxaa_commands : Int
   final_output_commands : Int
-} derive(Show)
+} derive(Debug)
+
+///|
+pub impl Show for DrawPlayingStats with output(self, logger) {
+  logger.write_object(to_repr(self))
+}
 
 ///|
 fn summarize_draw_playing_commands(

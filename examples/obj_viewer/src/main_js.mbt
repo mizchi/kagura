@@ -63,10 +63,7 @@ fn main {
       },
       draw=fn(ctx) {
         let objects = [
-          @scene3d.object3d(
-            mesh~,
-            color=@math3d.Vec4::new(0.8, 0.6, 0.5, 1.0),
-          ),
+          @scene3d.object3d(mesh~, color=@math3d.Vec4::new(0.8, 0.6, 0.5, 1.0)),
         ]
         let scene = @scene3d.scene3d(
           objects~,
@@ -74,7 +71,11 @@ fn main {
           lighting~,
         )
         @scene3d.render_scene3d_gpu(
-          scene, ctx.dst, shader3d, ctx.screen_w, ctx.screen_h,
+          scene,
+          ctx.dst,
+          shader3d,
+          ctx.screen_w,
+          ctx.screen_h,
         )
       },
       width=screen_w,

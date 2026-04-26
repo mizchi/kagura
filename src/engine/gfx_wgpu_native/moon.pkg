@@ -3,6 +3,8 @@ import {
   "mizchi/glfw" @glfw,
 }
 
+supported_targets = "native"
+
 options(
   link: {
     "native": {
@@ -12,7 +14,6 @@ options(
     },
   },
   "native-stub": [ "wgpu_native_stub.c", "wgpu_native_stub_macos.m" ],
-  "supported-targets": [ "native" ],
   targets: {
     "audio_backend.mbt": [ "native" ],
     "audio_backend_wbtest.mbt": [ "native" ],

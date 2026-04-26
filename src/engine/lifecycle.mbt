@@ -18,6 +18,7 @@ pub fn reset_lifecycle_hooks() -> Unit {
 }
 
 ///|
+#warnings("-unused_value")
 fn invoke_on_start(canvas : String, title : String) -> Unit {
   match lifecycle_hooks.val {
     Some(hooks) => (hooks.on_start)(canvas, title)
@@ -26,6 +27,7 @@ fn invoke_on_start(canvas : String, title : String) -> Unit {
 }
 
 ///|
+#warnings("-unused_value")
 fn invoke_on_stop() -> Unit {
   match lifecycle_hooks.val {
     Some(hooks) => (hooks.on_stop)()

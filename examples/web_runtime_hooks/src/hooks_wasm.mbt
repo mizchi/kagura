@@ -682,7 +682,7 @@ extern "wasm" fn host_load_font_data_byte(offset : Int) -> Int = "kagura_web" "l
 
 ///|
 fn bridge_load_font_data(name : String) -> Array[Int]? {
-  let bytes = name.to_bytes()
+  let bytes = @utf8.encode(name)
   let len = bytes.length()
   host_load_font_name_len(len)
   for i in 0..<len {
@@ -1163,7 +1163,8 @@ pub fn request_animation_frame(_f : () -> Unit) -> Unit {
 
 ///|
 fn init {
-  @engine.set_lifecycle_hooks(
-    { on_start: fn(canvas, _title) { install(canvas) }, on_stop: fn() { shutdown() } },
-  )
+  @engine.set_lifecycle_hooks({
+    on_start: fn(canvas, _title) { install(canvas) },
+    on_stop: fn() { shutdown() },
+  })
 }

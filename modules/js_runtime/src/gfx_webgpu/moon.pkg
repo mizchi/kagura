@@ -2,8 +2,9 @@ import {
   "mizchi/js/core" @core,
 }
 
+supported_targets = "js"
+
 options(
-  "supported-targets": [ "js" ],
   targets: {
     "cleanup.mbt": [ "js" ],
     "install.mbt": [ "js" ],

@@ -3,14 +3,24 @@ pub(all) enum BodyType2D {
   Dynamic
   Static
   Kinematic
-} derive(Show)
+} derive(Debug)
+
+///|
+pub impl Show for BodyType2D with output(self, logger) {
+  logger.write_object(to_repr(self))
+}
 
 ///|
 pub(all) enum ColliderShape2D {
   CircleShape(@vector.Vec2, Double)
   AABBShape2D(@vector.Vec2, @vector.Vec2)
   OBBShape2D(@vector.Vec2, @vector.Vec2) // (half_extents, offset) rotated by body.angle
-} derive(Show)
+} derive(Debug)
+
+///|
+pub impl Show for ColliderShape2D with output(self, logger) {
+  logger.write_object(to_repr(self))
+}
 
 ///|
 pub(all) struct RigidBody2D {
@@ -33,7 +43,12 @@ pub(all) struct RigidBody2D {
   is_sleeping : Bool
   sleep_timer : Double // seconds at rest
   is_bullet : Bool // enable CCD for this body
-} derive(Show)
+} derive(Debug)
+
+///|
+pub impl Show for RigidBody2D with output(self, logger) {
+  logger.write_object(to_repr(self))
+}
 
 ///|
 pub(all) struct Contact2D {
@@ -42,7 +57,12 @@ pub(all) struct Contact2D {
   normal : @vector.Vec2
   penetration : Double
   contact_point : @vector.Vec2
-} derive(Show)
+} derive(Debug)
+
+///|
+pub impl Show for Contact2D with output(self, logger) {
+  logger.write_object(to_repr(self))
+}
 
 ///|
 pub(all) struct SolverConfig2D {

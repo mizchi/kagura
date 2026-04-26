@@ -34,7 +34,12 @@ type WGPUQueue
 pub enum WGPUStatus {
   Success // 0
   Error // 1
-} derive(Show)
+} derive(Debug)
+
+///|
+pub impl Show for WGPUStatus with output(self, logger) {
+  logger.write_object(to_repr(self))
+}
 
 ///|
 // Backend 型（Metal, Vulkan, DX12 など）
@@ -48,7 +53,12 @@ pub enum WGPUBackendType {
   Vulkan // 6
   OpenGL // 7
   OpenGLES // 8
-} derive(Show)
+} derive(Debug)
+
+///|
+pub impl Show for WGPUBackendType with output(self, logger) {
+  logger.write_object(to_repr(self))
+}
 
 ///|
 // ===============================

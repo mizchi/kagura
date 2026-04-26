@@ -3,7 +3,12 @@ pub(all) enum InteractableRole {
   Decoration
   Blocking
   Pickup
-} derive(Eq, Show)
+} derive(Eq, Debug)
+
+///|
+pub impl Show for InteractableRole with output(self, logger) {
+  logger.write_object(to_repr(self))
+}
 
 ///|
 pub(all) enum InteractableAnchor {
@@ -11,14 +16,24 @@ pub(all) enum InteractableAnchor {
   LargestNonStartRoomCenter
   BossRoomCenter
   TreasureRoomCenter
-} derive(Eq, Show)
+} derive(Eq, Debug)
+
+///|
+pub impl Show for InteractableAnchor with output(self, logger) {
+  logger.write_object(to_repr(self))
+}
 
 ///|
 pub(all) enum InteractablePickupEffect {
   ScorePickup
   HealthPickup
   EquipmentPickup
-} derive(Eq, Show)
+} derive(Eq, Debug)
+
+///|
+pub impl Show for InteractablePickupEffect with output(self, logger) {
+  logger.write_object(to_repr(self))
+}
 
 ///|
 pub fn parse_interactable_role(value : String) -> InteractableRole? {

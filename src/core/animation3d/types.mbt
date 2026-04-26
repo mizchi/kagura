@@ -2,14 +2,24 @@
 pub(all) enum Interpolation {
   Step
   Linear
-} derive(Show)
+} derive(Debug)
+
+///|
+pub impl Show for Interpolation with output(self, logger) {
+  logger.write_object(to_repr(self))
+}
 
 ///|
 pub(all) enum ChannelTarget {
   Translation
   Rotation
   Scale
-} derive(Show)
+} derive(Debug)
+
+///|
+pub impl Show for ChannelTarget with output(self, logger) {
+  logger.write_object(to_repr(self))
+}
 
 ///|
 pub(all) struct AnimChannel {

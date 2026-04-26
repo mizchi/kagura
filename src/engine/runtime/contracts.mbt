@@ -10,13 +10,23 @@ pub struct RuntimeConfig {
   max_skip_frames : Int
   enable_vsync : Bool
   clear_screen_every_frame : Bool
-} derive(Show)
+} derive(Debug)
+
+///|
+pub impl Show for RuntimeConfig with output(self, logger) {
+  logger.write_object(to_repr(self))
+}
 
 ///|
 pub struct FramePlan {
   updates : Int
   should_draw : Bool
-} derive(Show)
+} derive(Debug)
+
+///|
+pub impl Show for FramePlan with output(self, logger) {
+  logger.write_object(to_repr(self))
+}
 
 ///|
 pub struct RuntimeHooks {
@@ -96,7 +106,7 @@ pub fn[G : @core.Game, P : @platform.PlatformDriver, R : @gfx.GraphicsDriver] ru
     600,
     run_options.screen_transparent,
     true,
-    focused=!(run_options.init_unfocused),
+    focused=!run_options.init_unfocused,
   )
   platform.initialize(window_options)
   platform.set_vsync_enabled(runtime_config.enable_vsync)

@@ -56,7 +56,9 @@ fn main {
   }
   let result = @sprite_packer.pack_sprites(inputs).unwrap()
   let atlas = @sprite_packer.create_packed_atlas_repository(
-    inputs, result, atlas_id=atlas_page_id,
+    inputs,
+    result,
+    atlas_id=atlas_page_id,
   )
   @web_hooks.sync_dirty_atlas_pages_from_repository(atlas) |> ignore
   let keys = @animation2d.sprite_sheet_keys("frame", 4)
@@ -68,9 +70,17 @@ fn main {
     draw=fn(ctx) {
       let commands : Array[@gfx.DrawTrianglesCommand] = []
       @animation2d.draw_sprite_animation(
-        commands, atlas, player, ctx.dst, ctx.shader,
+        commands,
+        atlas,
+        player,
+        ctx.dst,
+        ctx.shader,
         @gfx.new_dst_region(0, 0, screen_w, screen_h, 6),
-        @gfx.blend_mode_from_int(1), -1.0, -1.0, 1.0, 1.0,
+        @gfx.blend_mode_from_int(1),
+        -1.0,
+        -1.0,
+        1.0,
+        1.0,
       )
       |> ignore
       commands

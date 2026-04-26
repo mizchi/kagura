@@ -4,7 +4,12 @@ pub enum EffectSpawnPattern {
   Ring
   Column
   Line
-} derive(Show)
+} derive(Debug)
+
+///|
+pub impl Show for EffectSpawnPattern with output(self, logger) {
+  logger.write_object(to_repr(self))
+}
 
 ///|
 pub struct EffectTrack {
@@ -28,7 +33,12 @@ pub struct EffectTrack {
   color_end : @math3d.Vec4
   gravity : @math3d.Vec3
   enabled : Bool
-} derive(Show)
+} derive(Debug)
+
+///|
+pub impl Show for EffectTrack with output(self, logger) {
+  logger.write_object(to_repr(self))
+}
 
 ///|
 pub struct EffectDocument {
@@ -38,7 +48,12 @@ pub struct EffectDocument {
   notes : String
   ai_edit_goal : String
   tracks : Array[EffectTrack]
-} derive(Show)
+} derive(Debug)
+
+///|
+pub impl Show for EffectDocument with output(self, logger) {
+  logger.write_object(to_repr(self))
+}
 
 ///|
 pub fn effect_spawn_pattern_name(pattern : EffectSpawnPattern) -> String {

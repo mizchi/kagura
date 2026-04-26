@@ -13,6 +13,7 @@ let screen_w : Int = 640
 let screen_h : Int = 480
 
 // Physics space: centered at screen center, 1 physics unit = 40 pixels
+
 ///|
 let px_per_unit : Double = 40.0
 
@@ -32,10 +33,11 @@ struct DemoState {
 }
 
 // Palette for dynamic body colors (cycled)
+
 ///|
 let dynamic_colors : Array[Int] = [
-  0xE04040, 0x40A0E0, 0xE0C040, 0x40E070, 0xC060D0, 0xE08040, 0x60D0D0,
-  0xD06080, 0x80D060, 0xA0A0E0,
+  0xE04040, 0x40A0E0, 0xE0C040, 0x40E070, 0xC060D0, 0xE08040, 0x60D0D0, 0xD06080,
+  0x80D060, 0xA0A0E0,
 ]
 
 ///|
@@ -84,7 +86,10 @@ fn make_dynamic_circle(
     @vector.Vec2::new(x, y),
     radius * radius * 3.14,
     @physics2d.CircleShape(@vector.Vec2::zero(), radius),
-  ).with_restitution(0.3).with_friction(0.5).with_damping(0.05)
+  )
+  .with_restitution(0.3)
+  .with_friction(0.5)
+  .with_damping(0.05)
 }
 
 ///|
@@ -95,27 +100,24 @@ fn make_dynamic_box(
   hx : Double,
   hy : Double,
 ) -> @physics2d.RigidBody2D {
-  let angular_vel = (id.to_double() * 1.7 % 2.0) - 1.0
+  let angular_vel = id.to_double() * 1.7 % 2.0 - 1.0
   {
     ..@physics2d.RigidBody2D::new_dynamic(
       id,
       @vector.Vec2::new(x, y),
       hx * hy * 4.0,
-      @physics2d.OBBShape2D(
-        @vector.Vec2::new(hx, hy),
-        @vector.Vec2::zero(),
-      ),
-    ).with_restitution(0.3).with_friction(0.5).with_damping(0.05),
+      @physics2d.OBBShape2D(@vector.Vec2::new(hx, hy), @vector.Vec2::zero()),
+    )
+    .with_restitution(0.3)
+    .with_friction(0.5)
+    .with_damping(0.05),
     angular_velocity: angular_vel,
   }
 }
 
 ///|
 fn DemoState::new() -> DemoState {
-  let world = @physics2d.PhysicsWorld2D::new(
-    @vector.Vec2::new(0.0, -9.8),
-    4.0,
-  )
+  let world = @physics2d.PhysicsWorld2D::new(@vector.Vec2::new(0.0, -9.8), 4.0)
   // Static boundaries
   world.add_body(make_static_body(0, 0.0, -6.5, 10.0, 2.0)) // ground
   world.add_body(make_static_body(1, -9.0, 0.0, 2.0, 10.0)) // left wall
@@ -259,7 +261,9 @@ fn draw_filled_circle(
     indices.push(i)
     indices.push(i + 1)
   }
-  cmds.push(@debugutil.new_simple_draw_command(dst, shader, vertices, indices, color))
+  cmds.push(
+    @debugutil.new_simple_draw_command(dst, shader, vertices, indices, color),
+  )
 }
 
 ///|
@@ -278,7 +282,10 @@ fn draw_rotated_box(
 ) -> Unit {
   // 4 local corners, rotated by angle (note: screen Y is inverted)
   let corners : Array[(Double, Double)] = [
-    (-hw, -hh), (hw, -hh), (hw, hh), (-hw, hh),
+    (-hw, -hh),
+    (hw, -hh),
+    (hw, hh),
+    (-hw, hh),
   ]
   let cos_a = @math.cos(-angle) // negate for screen-space Y-down
   let sin_a = @math.sin(-angle)
@@ -297,7 +304,9 @@ fn draw_rotated_box(
     vertices.push(0.5)
   }
   let indices : Array[Int] = [0, 1, 2, 0, 2, 3]
-  cmds.push(@debugutil.new_simple_draw_command(dst, shader, vertices, indices, color))
+  cmds.push(
+    @debugutil.new_simple_draw_command(dst, shader, vertices, indices, color),
+  )
 }
 
 ///|
@@ -311,8 +320,16 @@ fn DemoState::draw(
   // Background
   cmds.push(
     @debugutil.new_ndc_rect_fill_command(
-      ctx.dst, ctx.shader, 0.0, 0.0, sw, sh, sw, sh,
-      @debugutil.color_from_hex(0x1A1A2E), 0,
+      ctx.dst,
+      ctx.shader,
+      0.0,
+      0.0,
+      sw,
+      sh,
+      sw,
+      sh,
+      @debugutil.color_from_hex(0x1A1A2E),
+      0,
     ),
   )
   // Draw bodies
@@ -324,7 +341,17 @@ fn DemoState::draw(
         let cx = physics_to_screen_x(body.position.x + offset.x)
         let cy = physics_to_screen_y(body.position.y + offset.y)
         let screen_r = radius * px_per_unit
-        draw_filled_circle(cmds, ctx.dst, ctx.shader, cx, cy, screen_r, color, sw, sh)
+        draw_filled_circle(
+          cmds,
+          ctx.dst,
+          ctx.shader,
+          cx,
+          cy,
+          screen_r,
+          color,
+          sw,
+          sh,
+        )
       }
       @physics2d.AABBShape2D(half_extents, offset) => {
         let cx = body.position.x + offset.x
@@ -335,9 +362,16 @@ fn DemoState::draw(
         let screen_h2 = half_extents.y * 2.0 * px_per_unit
         cmds.push(
           @debugutil.new_ndc_rect_fill_command(
-            ctx.dst, ctx.shader,
-            screen_x, screen_y, screen_w2, screen_h2,
-            sw, sh, color, 0,
+            ctx.dst,
+            ctx.shader,
+            screen_x,
+            screen_y,
+            screen_w2,
+            screen_h2,
+            sw,
+            sh,
+            color,
+            0,
           ),
         )
       }
@@ -349,8 +383,17 @@ fn DemoState::draw(
         let shw = half_extents.x * px_per_unit
         let shh = half_extents.y * px_per_unit
         draw_rotated_box(
-          cmds, ctx.dst, ctx.shader, scx, scy, shw, shh,
-          body.angle, color, sw, sh,
+          cmds,
+          ctx.dst,
+          ctx.shader,
+          scx,
+          scy,
+          shw,
+          shh,
+          body.angle,
+          color,
+          sw,
+          sh,
         )
       }
     }

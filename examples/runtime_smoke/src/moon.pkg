@@ -16,9 +16,10 @@ import {
 
 warnings = "-29"
 
+supported_targets = "js+wasm+wasm-gc"
+
 options(
   "is-main": true,
-  "supported-targets": [ "js", "wasm", "wasm-gc" ],
   targets: {
     "main_js.mbt": [ "js", "wasm", "wasm-gc", "llvm" ],
     "main_native.mbt": [ "native" ],

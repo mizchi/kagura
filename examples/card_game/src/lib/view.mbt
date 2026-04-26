@@ -52,7 +52,7 @@ pub fn Game::update(self : Game, input : @core.InputSnapshot) -> Unit {
     self.input.mouse_state,
     0,
   )
-  if not(clicked) {
+  if !clicked {
     return
   }
   @signals.batch(fn() {
@@ -213,7 +213,7 @@ fn hit_test_enemy(state : BattleState, cx : Double, cy : Double) -> Int {
   let enemy_y = 40.0
   let mut i = 0
   while i < count {
-    if not(state.enemies[i].fighter.is_dead()) {
+    if !state.enemies[i].fighter.is_dead() {
       let x = start_x + i.to_double() * (enemy_w + 20.0)
       if cx >= x &&
         cx <= x + enemy_w &&
@@ -319,7 +319,7 @@ fn view_enemies(state : BattleState) -> @scene.SceneNode {
     while i < count {
       let enemy = state.enemies[i]
       let x = start_x + i.to_double() * (enemy_w + 20.0)
-      if not(enemy.fighter.is_dead()) {
+      if !enemy.fighter.is_dead() {
         let body_color = if enemy.fighter.status.vulnerable > 0 {
           0xFF6666
         } else {
@@ -647,7 +647,7 @@ fn view_hand(state : BattleState, selected : Int) -> @scene.SceneNode {
       let can_play = state.player.energy >= def.cost &&
         state.phase == PlayerTurn
       // Card background
-      let bg_color = if not(can_play) {
+      let bg_color = if !can_play {
         0x333344
       } else {
         match def.card_type {

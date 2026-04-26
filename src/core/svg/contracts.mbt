@@ -219,7 +219,12 @@ pub struct SVGRenderResult {
   width : Int
   height : Int
   pixels : Array[Int]
-} derive(Show)
+} derive(Debug)
+
+///|
+pub impl Show for SVGRenderResult with output(self, logger) {
+  logger.write_object(to_repr(self))
+}
 
 ///|
 pub fn render_svg(

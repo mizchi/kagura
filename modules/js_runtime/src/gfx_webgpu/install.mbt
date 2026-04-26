@@ -79,7 +79,7 @@ fn sync_js_textures(state : GpuState, gpu : @core.Any) -> Unit {
   while true {
     let next = entries._call("next", [])
     let done = next._get("done")
-    if !(@core.is_nullish(done)) && done.cast_bool() {
+    if !@core.is_nullish(done) && done.cast_bool() {
       break
     }
     let value = next._get("value")
@@ -88,7 +88,7 @@ fn sync_js_textures(state : GpuState, gpu : @core.Any) -> Unit {
     match state.textures.get(image_id) {
       Some(existing) => {
         let js_rev = js_entry._get("revision")
-        if !(@core.is_nullish(js_rev)) {
+        if !@core.is_nullish(js_rev) {
           let rev : Int = js_rev.cast()
           existing.revision = rev
         }

@@ -3,6 +3,7 @@ package "mizchi/kagura/engine/light3d"
 
 import {
   "mizchi/kagura/core/math3d",
+  "moonbitlang/core/debug",
 }
 
 // Values
@@ -16,7 +17,7 @@ pub fn normal_matrix_uniform_dwords(@math3d.Mat4) -> Array[Int]
 pub struct AmbientLight {
   color : @math3d.Vec3
   intensity : Double
-}
+} derive(@debug.Debug)
 pub fn AmbientLight::default() -> Self
 pub fn AmbientLight::new(@math3d.Vec3, Double) -> Self
 pub impl Show for AmbientLight
@@ -25,7 +26,7 @@ pub struct DirectionalLight {
   direction : @math3d.Vec3
   color : @math3d.Vec3
   intensity : Double
-}
+} derive(@debug.Debug)
 pub fn DirectionalLight::default() -> Self
 pub fn DirectionalLight::new(@math3d.Vec3, @math3d.Vec3, Double) -> Self
 pub impl Show for DirectionalLight
@@ -35,7 +36,7 @@ pub struct LightingEnvironment {
   ambient : AmbientLight
   point_lights : Array[PointLight]
   spot_lights : Array[SpotLight]
-}
+} derive(@debug.Debug)
 pub fn LightingEnvironment::default() -> Self
 pub fn LightingEnvironment::new(DirectionalLight, AmbientLight, point_lights? : Array[PointLight], spot_lights? : Array[SpotLight]) -> Self
 pub impl Show for LightingEnvironment
@@ -45,7 +46,7 @@ pub struct PointLight {
   color : @math3d.Vec3
   intensity : Double
   radius : Double
-}
+} derive(@debug.Debug)
 pub fn PointLight::new(@math3d.Vec3, @math3d.Vec3, Double, Double) -> Self
 pub impl Show for PointLight
 
@@ -57,7 +58,7 @@ pub struct SpotLight {
   radius : Double
   inner_angle : Double
   outer_angle : Double
-}
+} derive(@debug.Debug)
 pub fn SpotLight::new(@math3d.Vec3, @math3d.Vec3, @math3d.Vec3, Double, Double, Double, Double) -> Self
 pub impl Show for SpotLight
 

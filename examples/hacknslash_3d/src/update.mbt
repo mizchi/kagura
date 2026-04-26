@@ -224,15 +224,15 @@ fn GameState::update(self : GameState, input : @core.InputSnapshot) -> Unit {
   @inpututil.update_input_helper(self.input, input)
   // Profiler toggle (works in any mode)
   if @inpututil.is_key_just_pressed(self.input.key_state, key_f3) {
-    self.show_profiler = !(self.show_profiler)
+    self.show_profiler = !self.show_profiler
   }
   // FXAA toggle for visual/perf comparison
   if @inpututil.is_key_just_pressed(self.input.key_state, key_f4) {
-    self.pipeline.set_fxaa_enabled(!(self.pipeline.config.fxaa_enabled))
+    self.pipeline.set_fxaa_enabled(!self.pipeline.config.fxaa_enabled)
   }
   // Shadow toggle for visual/perf comparison
   if @inpututil.is_key_just_pressed(self.input.key_state, key_f5) {
-    self.shadows_enabled = !(self.shadows_enabled)
+    self.shadows_enabled = !self.shadows_enabled
   }
   if @inpututil.is_key_just_pressed(self.input.key_state, key_m) {
     self.toggle_audio_muted()
@@ -240,7 +240,7 @@ fn GameState::update(self : GameState, input : @core.InputSnapshot) -> Unit {
   // Pause toggle (only during Playing)
   if @inpututil.is_key_just_pressed(self.input.key_state, key_p) &&
     self.world.mode == @game.Playing {
-    self.paused = !(self.paused)
+    self.paused = !self.paused
   }
   match self.world.mode {
     @game.Title => self.update_title(input)
@@ -355,7 +355,7 @@ fn GameState::update_gameover(
 fn GameState::update_playing(self : GameState) -> Unit {
   // Auto-play toggle (F2)
   if @inpututil.is_key_just_pressed(self.input.key_state, key_f2) {
-    self.world.auto_play = !(self.world.auto_play)
+    self.world.auto_play = !self.world.auto_play
   }
   if self.world.ui_mode == @game.LevelUp {
     self.update_ui()
@@ -571,7 +571,7 @@ fn GameState::update_playing(self : GameState) -> Unit {
     (
     // check if player moved this frame by seeing if facing angle changed or velocity != 0
     // simpler: check if any movement keys are held
-      !(self.world.auto_play) &&
+      !self.world.auto_play &&
       (
         @inpututil.is_move_up(self.input.key_state) ||
         @inpututil.is_move_down(self.input.key_state) ||

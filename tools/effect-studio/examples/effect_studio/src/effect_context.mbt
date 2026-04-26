@@ -6,7 +6,12 @@ struct EffectStudioOverlayModel {
   scheduled_particle_count : Int
   active_track_count : Int
   playhead_ratio : Double
-} derive(Show)
+} derive(Debug)
+
+///|
+pub impl Show for EffectStudioOverlayModel with output(self, logger) {
+  logger.write_object(to_repr(self))
+}
 
 ///|
 fn build_effect_studio_overlay_model(
@@ -17,7 +22,11 @@ fn build_effect_studio_overlay_model(
   let runtime = @effect.build_effect_runtime_plan(doc, preview_time)
   let timeline = @effect.build_timeline_view(doc, preview_time)
   {
-    status_label: if playing { "playing" } else { "paused" },
+    status_label: if playing {
+      "playing"
+    } else {
+      "paused"
+    },
     lane_count: timeline.lanes.length(),
     scheduled_burst_count: runtime.scheduled_bursts.length(),
     scheduled_particle_count: runtime.total_particles,
@@ -83,7 +92,10 @@ fn effect_doc_target_file() -> String {
 }
 
 ///|
-fn effect_track_patch_scaffold(track : @effect.EffectTrack, index : Int) -> String {
+fn effect_track_patch_scaffold(
+  track : @effect.EffectTrack,
+  index : Int,
+) -> String {
   let buf = StringBuilder::new()
   buf.write_string("// track[")
   buf.write_string(index.to_string())
@@ -159,7 +171,9 @@ fn effect_track_patch_scaffold(track : @effect.EffectTrack, index : Int) -> Stri
 ///|
 fn effect_document_patch_scaffold(doc : @effect.EffectDocument) -> String {
   let buf = StringBuilder::new()
-  buf.write_string("fn apply_ai_patch(doc : @effect.EffectDocument) -> @effect.EffectDocument {\n")
+  buf.write_string(
+    "fn apply_ai_patch(doc : @effect.EffectDocument) -> @effect.EffectDocument {\n",
+  )
   buf.write_string("  {\n")
   buf.write_string("    ..doc,\n")
   buf.write_string("    name: \"")
@@ -193,9 +207,13 @@ fn effect_document_patch_scaffold(doc : @effect.EffectDocument) -> String {
 ///|
 fn effect_track_edit_focus(track : @effect.EffectTrack) -> String {
   let buf = StringBuilder::new()
-  buf.write_string("Adjust timing, particle count, motion envelope, and color arc for ")
+  buf.write_string(
+    "Adjust timing, particle count, motion envelope, and color arc for ",
+  )
   buf.write_string(track.id)
-  buf.write_string(" while keeping id/label stable and preserving timeline readability.")
+  buf.write_string(
+    " while keeping id/label stable and preserving timeline readability.",
+  )
   buf.to_string()
 }
 
@@ -234,7 +252,9 @@ fn append_effect_patch_bundle_payload_json(
   buf.write_string("\"Keep track ids and labels stable\"")
   buf.write_string(",\"Prefer track-local edits over document-wide rewrites\"")
   buf.write_string(",\"Preserve a readable timing silhouette in the timeline\"")
-  buf.write_string(",\"Use tools/effect-studio/src/effect_doc.mbt as the source of truth\"")
+  buf.write_string(
+    ",\"Use tools/effect-studio/src/effect_doc.mbt as the source of truth\"",
+  )
   buf.write_string("],\"current_state\":{")
   buf.write_string("\"preview_time\":")
   buf.write_string(preview_time.to_string())
@@ -337,11 +357,11 @@ fn effect_studio_context_json(
   let runtime = @effect.build_effect_runtime_plan(doc, preview_time)
   let timeline = @effect.build_timeline_view(doc, preview_time)
   let overlay = build_effect_studio_overlay_model(doc, preview_time, playing)
-  let patch_bundle_json = effect_studio_patch_bundle_json(doc, preview_time, playing)
+  let patch_bundle_json = effect_studio_patch_bundle_json(
+    doc, preview_time, playing,
+  )
   let review_prompt_markdown = effect_studio_review_prompt_markdown(
-    doc,
-    preview_time,
-    playing,
+    doc, preview_time, playing,
   )
   let buf = StringBuilder::new()
   buf.write_string("{\"name\":\"")
@@ -435,7 +455,9 @@ fn effect_studio_context_json(
   buf.write_string("\"target_file\":\"")
   buf.write_string(effect_doc_target_file())
   buf.write_string("\",\"edit_contract\":\"")
-  buf.write_string("Edit the effect document in code. Keep timeline order readable and prefer track-local changes.")
+  buf.write_string(
+    "Edit the effect document in code. Keep timeline order readable and prefer track-local changes.",
+  )
   buf.write_string("\",\"document_patch_scaffold\":\"")
   buf.write_string(json_escape(effect_document_patch_scaffold(doc)))
   buf.write_string("\",\"track_patch_scaffolds\":[")
@@ -492,6 +514,8 @@ fn effect_studio_summary(
   buf.write_string(overlay.scheduled_particle_count.to_string())
   buf.write_string("\nai-edit: edit ")
   buf.write_string(effect_doc_target_file())
-  buf.write_string(" using the patch_scaffold payload; treat the timeline as feedback, not the source of truth.")
+  buf.write_string(
+    " using the patch_scaffold payload; treat the timeline as feedback, not the source of truth.",
+  )
   buf.to_string()
 }

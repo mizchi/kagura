@@ -166,5 +166,5 @@ test "should_prevent_canvas_scroll_key matches navigation keys" {
   assert_true(should_prevent_canvas_scroll_key(38))
   assert_true(should_prevent_canvas_scroll_key(39))
   assert_true(should_prevent_canvas_scroll_key(40))
-  assert_false(should_prevent_canvas_scroll_key(65))
+  assert_true(!should_prevent_canvas_scroll_key(65))
 }

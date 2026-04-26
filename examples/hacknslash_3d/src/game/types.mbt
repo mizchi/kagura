@@ -86,7 +86,12 @@ pub(all) enum ProjectileKind {
   Fireball(Int)
   HomingMissile
   EnemyBolt
-} derive(Eq, Show)
+} derive(Eq, Debug)
+
+///|
+pub impl Show for ProjectileKind with output(self, logger) {
+  logger.write_object(to_repr(self))
+}
 
 ///|
 pub(all) struct DungeonData {

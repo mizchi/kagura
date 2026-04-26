@@ -139,7 +139,8 @@ pub fn shutdown_context() -> Unit {
 
 ///|
 fn init {
-  @engine.set_lifecycle_hooks(
-    { on_start: fn(_canvas, _title) { () }, on_stop: fn() { () } },
-  )
+  @engine.set_lifecycle_hooks({
+    on_start: fn(_canvas, _title) { () },
+    on_stop: fn() { () },
+  })
 }

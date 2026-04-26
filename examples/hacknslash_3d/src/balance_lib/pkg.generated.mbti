@@ -17,7 +17,7 @@ pub fn compute_loss_averaged(@game.BalanceParams, BalanceTargets, Array[Int], In
 
 pub fn compute_loss_averaged_full(@game.BalanceParams, BalanceTargets, Array[Int], Int) -> (Double, AveragedMetrics)
 
-pub fn make_autoplay_rebalance_sim(Int, Int, Int) -> (Array[Double], Int) -> @differentiable_ecs.Metrics
+pub fn make_autoplay_rebalance_sim(Int, Int, Int, @game.CharacterArchetype, @game.ArchetypeBuildPolicy) -> (Array[Double], Int) -> @differentiable_ecs.Metrics
 
 pub fn make_sim(Int, Int) -> (Array[Double], Int) -> @differentiable_ecs.Metrics
 
@@ -37,9 +37,9 @@ pub fn param_specs_mechanics_roguelike() -> Array[@differentiable_ecs.ParamSpec]
 
 pub fn param_specs_mechanics_roguelike_v2() -> Array[@differentiable_ecs.ParamSpec]
 
-pub fn run_simulation(@game.BalanceParams, Int, Int) -> SimMetrics
+pub fn run_simulation(@game.BalanceParams, Int, Int, archetype? : @game.CharacterArchetype, build_policy? : @game.ArchetypeBuildPolicy) -> SimMetrics
 
-pub fn run_simulation_from_floor(@game.BalanceParams, Int, Int, Int) -> SimMetrics
+pub fn run_simulation_from_floor(@game.BalanceParams, Int, Int, Int, archetype? : @game.CharacterArchetype, build_policy? : @game.ArchetypeBuildPolicy) -> SimMetrics
 
 // Errors
 

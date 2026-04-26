@@ -2,14 +2,14 @@ import {
   "moonbitlang/core/json",
 }
 
-warnings = "-1-2-29-71"
+warnings = "-1-2-29"
 
 options(
   "is-main": true,
   targets: {
     "ffi_js.mbt": [ "js" ],
     "main.mbt": [ "js" ],
-    "tripo.mbt": [ "js" ],
     "main_stub.mbt": [ "native", "wasm", "wasm-gc", "llvm" ],
+    "tripo.mbt": [ "js" ],
   },
 )

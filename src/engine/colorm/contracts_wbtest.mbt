@@ -124,7 +124,7 @@ test "ColorM rotate_hue preserves luminance roughly" {
 ///|
 test "ColorM is_identity false after scale" {
   let m = ColorM::identity().scale(0.5, 1.0, 1.0, 1.0)
-  assert_true(!(m.is_identity()))
+  assert_true(!m.is_identity())
 }
 
 ///|

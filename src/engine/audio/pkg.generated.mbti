@@ -2,6 +2,7 @@
 package "mizchi/kagura/engine/audio"
 
 import {
+  "moonbitlang/core/debug",
   "moonbitlang/core/ref",
 }
 
@@ -75,7 +76,7 @@ pub struct AudioClip {
   format : AudioFormat
   data : Bytes
   loop_ : Bool
-}
+} derive(@debug.Debug)
 pub impl Show for AudioClip
 
 pub struct AudioClipStream {
@@ -91,7 +92,7 @@ pub struct AudioFormat {
   sample_rate : Int
   channels : Int
   bits_per_sample : Int
-}
+} derive(@debug.Debug)
 pub impl Show for AudioFormat
 
 pub struct AudioOutputHooks {
@@ -107,7 +108,7 @@ pub struct AudioOutputStats {
   initialized : Bool
   frames_written : Int
   suspended : Bool
-}
+} derive(@debug.Debug)
 pub impl Show for AudioOutputStats
 
 pub struct BufferedAudioStream {
@@ -154,14 +155,14 @@ pub impl AudioContext for MixerAudioContext
 
 pub(all) struct PlayerId {
   value : Int
-}
+} derive(@debug.Debug)
 pub impl Show for PlayerId
 
 pub enum PlayerState {
   Stopped
   Playing
   Paused
-}
+} derive(@debug.Debug)
 pub impl Show for PlayerState
 
 pub struct SimpleAudioContext {

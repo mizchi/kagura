@@ -4,6 +4,7 @@ package "mizchi/kagura/hud"
 import {
   "mizchi/kagura/engine/gfx",
   "mizchi/kagura/engine/text",
+  "moonbitlang/core/debug",
 }
 
 // Values
@@ -80,8 +81,7 @@ pub(all) enum TextAlign {
   Left
   Center
   Right
-}
-pub impl Eq for TextAlign
+} derive(Eq, @debug.Debug)
 pub impl Show for TextAlign
 
 pub(all) struct TextLabel {

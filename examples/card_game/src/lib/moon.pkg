@@ -1,8 +1,11 @@
 import {
+  "moonbitlang/core/math" @math,
   "mizchi/signals" @signals,
   "mizchi/kagura/scene" @scene,
   "mizchi/kagura/core" @core,
   "mizchi/kagura/core/inpututil" @inpututil,
 }
 
-warnings = "-29-71"
+warnings = "-29"
+
+supported_targets = "js+native"

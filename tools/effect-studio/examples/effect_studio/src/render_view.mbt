@@ -41,7 +41,13 @@ fn draw_preview_scene(
   camera : @camera3d.Camera3D,
 ) -> Unit {
   let vp = camera.view_projection_matrix()
-  let floor_region = @gfx.new_dst_region(0, 0, ctx.screen_w, ctx.screen_h, state.floor_mesh.indices.length())
+  let floor_region = @gfx.new_dst_region(
+    0,
+    0,
+    ctx.screen_w,
+    ctx.screen_h,
+    state.floor_mesh.indices.length(),
+  )
   let floor_model = @math3d.Mat4::translation(0.0, -0.06, 0.0).multiply(
     @math3d.Mat4::scaling(6.0, 0.12, 6.0),
   )
@@ -119,20 +125,22 @@ fn append_effect_particles(
       emitter.update_physics_only(burst.age)
     }
     let (burst_vertex_data, burst_indices) = emitter.build_billboard_vertices(
-      cam_right,
-      cam_up,
+      cam_right, cam_up,
     )
     append_particle_geometry(
-      vertex_data,
-      indices,
-      burst_vertex_data,
-      burst_indices,
+      vertex_data, indices, burst_vertex_data, burst_indices,
     )
   }
   if indices.is_empty() {
     return
   }
-  let region = @gfx.new_dst_region(0, 0, ctx.screen_w, ctx.screen_h, indices.length())
+  let region = @gfx.new_dst_region(
+    0,
+    0,
+    ctx.screen_w,
+    ctx.screen_h,
+    indices.length(),
+  )
   cmds.push(
     @draw3d.new_particle_draw_command(
       ctx.dst,
@@ -191,8 +199,10 @@ fn draw_timeline_overlay(
   )
   hud_ctx.draw_text(
     cmds,
-    "bursts " + overlay.scheduled_burst_count.to_string() +
-      " / particles " + overlay.scheduled_particle_count.to_string(),
+    "bursts " +
+    overlay.scheduled_burst_count.to_string() +
+    " / particles " +
+    overlay.scheduled_particle_count.to_string(),
     14.0,
     screen_w.to_double() - 270.0,
     panel_y + 18.0,

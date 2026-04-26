@@ -6,7 +6,12 @@ pub enum BalancePreset {
   Default
   BuildDiverseHackSlash
   MechanicsRoguelike
-} derive(Eq, Show)
+} derive(Eq, Debug)
+
+///|
+pub impl Show for BalancePreset with output(self, logger) {
+  logger.write_object(to_repr(self))
+}
 
 ///|
 pub(all) struct BalanceParams {

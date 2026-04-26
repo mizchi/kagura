@@ -56,7 +56,12 @@ pub(all) enum CardId {
   Reaper // 2 cost: 4 dmg to ALL, heal for damage dealt
   Entrench // 2 cost: double current Block
   Pummel // 1 cost: 2 dmg × 4 hits (STR scaling)
-} derive(Show, Eq)
+} derive(Debug, Eq)
+
+///|
+pub impl Show for CardId with output(self, logger) {
+  logger.write_object(to_repr(self))
+}
 
 ///|
 /// Card type determines behavior
@@ -64,7 +69,12 @@ pub(all) enum CardType {
   Attack
   Skill
   Power
-} derive(Show, Eq)
+} derive(Debug, Eq)
+
+///|
+pub impl Show for CardType with output(self, logger) {
+  logger.write_object(to_repr(self))
+}
 
 ///|
 /// Static card definition
@@ -77,7 +87,12 @@ pub(all) struct CardDef {
   base_block : Int
   exhaust : Bool
   description : String
-} derive(Show)
+} derive(Debug)
+
+///|
+pub impl Show for CardDef with output(self, logger) {
+  logger.write_object(to_repr(self))
+}
 
 ///|
 pub fn card_def(id : CardId) -> CardDef {
@@ -563,9 +578,15 @@ pub(all) enum CardRarity {
   Common
   Uncommon
   Rare
-} derive(Show, Eq)
+} derive(Debug, Eq)
 
 ///|
+pub impl Show for CardRarity with output(self, logger) {
+  logger.write_object(to_repr(self))
+}
+
+///|
+#warnings("-unused_value")
 fn card_rarity(id : CardId) -> CardRarity {
   match id {
     Strike | Defend | Bash => Starter

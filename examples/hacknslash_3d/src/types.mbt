@@ -24,7 +24,12 @@ enum DungeonSurfaceKind {
   Door
   Wall
   Pillar
-} derive(Eq, Show)
+} derive(Eq, Debug)
+
+///|
+pub impl Show for DungeonSurfaceKind with output(self, logger) {
+  logger.write_object(to_repr(self))
+}
 
 // Combined mesh with a single color for batched shadow-lit rendering
 

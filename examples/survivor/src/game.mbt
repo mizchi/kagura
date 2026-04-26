@@ -455,7 +455,7 @@ fn SurvivorState::update_enemies(self : SurvivorState) -> Unit {
   let px = self.player.x
   let py = self.player.y
   for e in self.enemies {
-    if !(e.alive) {
+    if !e.alive {
       continue
     }
     let (nx, ny) = normalize_dir(px - e.x, py - e.y)
@@ -481,7 +481,7 @@ fn SurvivorState::update_projectile_weapon(self : SurvivorState) -> Unit {
   let py = self.player.y
   for i = 0; i < self.enemies.length(); i = i + 1 {
     let e = self.enemies[i]
-    if !(e.alive) {
+    if !e.alive {
       continue
     }
     let d = distance_sq(px, py, e.x, e.y)
@@ -518,7 +518,7 @@ fn SurvivorState::update_orbit_weapons(self : SurvivorState) -> Unit {
     let oy = py + @math.sin(orb.angle) * orb.radius
     // Check collision with enemies
     for e in self.enemies {
-      if !(e.alive) {
+      if !e.alive {
         continue
       }
       if @vector.aabb_overlap_center(
@@ -563,7 +563,7 @@ fn SurvivorState::update_area_weapon(self : SurvivorState) -> Unit {
   let py = self.player.y
   let r_sq = self.area_weapon.radius * self.area_weapon.radius
   for e in self.enemies {
-    if !(e.alive) {
+    if !e.alive {
       continue
     }
     if distance_sq(px, py, e.x, e.y) < r_sq {
@@ -586,7 +586,7 @@ fn SurvivorState::update_area_weapon(self : SurvivorState) -> Unit {
 ///|
 fn SurvivorState::update_projectiles(self : SurvivorState) -> Unit {
   for proj in self.projectiles {
-    if !(proj.alive) {
+    if !proj.alive {
       continue
     }
     proj.x = proj.x + proj.vx
@@ -598,7 +598,7 @@ fn SurvivorState::update_projectiles(self : SurvivorState) -> Unit {
     }
     // Collision with enemies
     for e in self.enemies {
-      if !(e.alive) {
+      if !e.alive {
         continue
       }
       if @vector.aabb_overlap_center(
@@ -645,7 +645,7 @@ fn SurvivorState::update_projectiles(self : SurvivorState) -> Unit {
 fn SurvivorState::update_enemy_player_collision(self : SurvivorState) -> Unit {
   let p = self.player
   for e in self.enemies {
-    if !(e.alive) {
+    if !e.alive {
       continue
     }
     if @vector.aabb_overlap_center(
@@ -685,7 +685,7 @@ fn SurvivorState::update_gems(self : SurvivorState) -> Unit {
   let py = self.player.y
   let collect_sq = gem_collect_dist * gem_collect_dist
   for gem in self.gems {
-    if !(gem.alive) {
+    if !gem.alive {
       continue
     }
     if distance_sq(px, py, gem.x, gem.y) < collect_sq {
@@ -728,7 +728,7 @@ fn SurvivorState::generate_upgrade_choices(self : SurvivorState) -> Unit {
         break
       }
     }
-    if !(dup) {
+    if !dup {
       choices.push(c)
     }
   }
@@ -855,21 +855,19 @@ fn SurvivorState::view(self : SurvivorState) -> @scene.SceneNode {
 fn SurvivorState::view_title(self : SurvivorState) -> @scene.SceneNode {
   let sw = self.screen_w
   let sh = self.screen_h
-  @scene.fragment(
-    [
-      @scene.rect(w=sw, h=sh, fill=0x1A1A2E),
-      @scene.label(
-        x=sw / 2.0,
-        y=sh / 2.0 - 30.0,
-        content="SURVIVOR",
-        color=0xFF6600,
-        scale=2.0,
-      ),
-      @scene.show(fn() { self.frame_count / 30 % 2 == 0 }, fn() {
-        @scene.label(x=sw / 2.0, y=sh / 2.0 + 30.0, content="SPACE")
-      }),
-    ],
-  )
+  @scene.fragment([
+    @scene.rect(w=sw, h=sh, fill=0x1A1A2E),
+    @scene.label(
+      x=sw / 2.0,
+      y=sh / 2.0 - 30.0,
+      content="SURVIVOR",
+      color=0xFF6600,
+      scale=2.0,
+    ),
+    @scene.show(fn() { self.frame_count / 30 % 2 == 0 }, fn() {
+      @scene.label(x=sw / 2.0, y=sh / 2.0 + 30.0, content="SPACE")
+    }),
+  ])
 }
 
 ///|
@@ -890,212 +888,185 @@ fn SurvivorState::view_play(self : SurvivorState) -> @scene.SceneNode {
   let psy = self.camera.world_to_screen_y(self.player.y)
   let half_pl = self.player.size / 2.0
   let seconds = self.survival_time / 60
-  @scene.fragment(
-    [
-      // Background
-      @scene.rect(w=sw, h=sh, fill=0x1A2E1A),
-      // Grid lines
-      @scene.for_each(fn() {
-        let nodes : Array[@scene.SceneNode] = []
-        let grid_spacing = 64.0
-        let start_gx = @math.floor(self.camera.x / grid_spacing) * grid_spacing
-        let mut gx = start_gx
-        while gx < self.camera.x + sw + grid_spacing {
-          let screen_x = gx - self.camera.x
-          if screen_x >= 0.0 && screen_x < sw {
-            nodes.push(
-              @scene.rect(x=screen_x, w=1.0, h=sh, fill=0x2A4E2A, alpha=0.5),
-            )
-          }
-          gx = gx + grid_spacing
+  @scene.fragment([
+    // Background
+    @scene.rect(w=sw, h=sh, fill=0x1A2E1A),
+    // Grid lines
+    @scene.for_each(fn() {
+      let nodes : Array[@scene.SceneNode] = []
+      let grid_spacing = 64.0
+      let start_gx = @math.floor(self.camera.x / grid_spacing) * grid_spacing
+      let mut gx = start_gx
+      while gx < self.camera.x + sw + grid_spacing {
+        let screen_x = gx - self.camera.x
+        if screen_x >= 0.0 && screen_x < sw {
+          nodes.push(
+            @scene.rect(x=screen_x, w=1.0, h=sh, fill=0x2A4E2A, alpha=0.5),
+          )
         }
-        let start_gy = @math.floor(self.camera.y / grid_spacing) * grid_spacing
-        let mut gy = start_gy
-        while gy < self.camera.y + sh + grid_spacing {
-          let screen_y = gy - self.camera.y
-          if screen_y >= 0.0 && screen_y < sh {
-            nodes.push(
-              @scene.rect(y=screen_y, w=sw, h=1.0, fill=0x2A4E2A, alpha=0.5),
-            )
-          }
-          gy = gy + grid_spacing
+        gx = gx + grid_spacing
+      }
+      let start_gy = @math.floor(self.camera.y / grid_spacing) * grid_spacing
+      let mut gy = start_gy
+      while gy < self.camera.y + sh + grid_spacing {
+        let screen_y = gy - self.camera.y
+        if screen_y >= 0.0 && screen_y < sh {
+          nodes.push(
+            @scene.rect(y=screen_y, w=sw, h=1.0, fill=0x2A4E2A, alpha=0.5),
+          )
         }
-        nodes
-      }),
-      // Gems
-      @scene.for_each(fn() {
-        let nodes : Array[@scene.SceneNode] = []
-        for gem in self.gems {
-          if !(gem.alive) {
-            continue
-          }
-          let gsx = self.camera.world_to_screen_x(gem.x)
-          let gsy = self.camera.world_to_screen_y(gem.y)
-          if gsx > -8.0 && gsx < sw + 8.0 && gsy > -8.0 && gsy < sh + 8.0 {
-            nodes.push(
-              @scene.rect(
-                x=gsx - 3.0,
-                y=gsy - 3.0,
-                w=6.0,
-                h=6.0,
-                fill=0x00FFFF,
-              ),
-            )
-          }
+        gy = gy + grid_spacing
+      }
+      nodes
+    }),
+    // Gems
+    @scene.for_each(fn() {
+      let nodes : Array[@scene.SceneNode] = []
+      for gem in self.gems {
+        if !gem.alive {
+          continue
         }
-        nodes
-      }),
-      // Enemies
-      @scene.for_each(fn() {
-        let nodes : Array[@scene.SceneNode] = []
-        for e in self.enemies {
-          if !(e.alive) {
-            continue
-          }
-          let esx = self.camera.world_to_screen_x(e.x)
-          let esy = self.camera.world_to_screen_y(e.y)
-          if esx > -20.0 &&
-            esx < sw + 20.0 &&
-            esy > -20.0 &&
-            esy < sh + 20.0 {
-            let fill = if e.hit_timer > 0 {
-              0xFFFFFF
-            } else {
-              match e.kind {
-                1 => 0xFF8800
-                2 => 0x880000
-                _ => 0xCC2222
-              }
+        let gsx = self.camera.world_to_screen_x(gem.x)
+        let gsy = self.camera.world_to_screen_y(gem.y)
+        if gsx > -8.0 && gsx < sw + 8.0 && gsy > -8.0 && gsy < sh + 8.0 {
+          nodes.push(
+            @scene.rect(x=gsx - 3.0, y=gsy - 3.0, w=6.0, h=6.0, fill=0x00FFFF),
+          )
+        }
+      }
+      nodes
+    }),
+    // Enemies
+    @scene.for_each(fn() {
+      let nodes : Array[@scene.SceneNode] = []
+      for e in self.enemies {
+        if !e.alive {
+          continue
+        }
+        let esx = self.camera.world_to_screen_x(e.x)
+        let esy = self.camera.world_to_screen_y(e.y)
+        if esx > -20.0 && esx < sw + 20.0 && esy > -20.0 && esy < sh + 20.0 {
+          let fill = if e.hit_timer > 0 {
+            0xFFFFFF
+          } else {
+            match e.kind {
+              1 => 0xFF8800
+              2 => 0x880000
+              _ => 0xCC2222
             }
-            let half_e = e.size / 2.0
-            nodes.push(
-              @scene.rect(
-                x=esx - half_e,
-                y=esy - half_e,
-                w=e.size,
-                h=e.size,
-                fill=fill,
-              ),
-            )
           }
-        }
-        nodes
-      }),
-      // Area weapon effect
-      @scene.show(fn() { self.area_weapon.active_frames > 0 }, fn() {
-        let r = self.area_weapon.radius
-        @scene.rect(
-          x=psx - r,
-          y=psy - r,
-          w=r * 2.0,
-          h=r * 2.0,
-          fill=0xFFFF00,
-          alpha=0.3,
-        )
-      }),
-      // Projectiles
-      @scene.for_each(fn() {
-        let nodes : Array[@scene.SceneNode] = []
-        for proj in self.projectiles {
-          if !(proj.alive) {
-            continue
-          }
-          let prsx = self.camera.world_to_screen_x(proj.x)
-          let prsy = self.camera.world_to_screen_y(proj.y)
-          if prsx > -8.0 &&
-            prsx < sw + 8.0 &&
-            prsy > -8.0 &&
-            prsy < sh + 8.0 {
-            let half_p = proj.size / 2.0
-            nodes.push(
-              @scene.rect(
-                x=prsx - half_p,
-                y=prsy - half_p,
-                w=proj.size,
-                h=proj.size,
-                fill=0xFFFF00,
-              ),
-            )
-          }
-        }
-        nodes
-      }),
-      // Orbit weapons
-      @scene.for_each(fn() {
-        let nodes : Array[@scene.SceneNode] = []
-        for orb in self.orbit_weapons {
-          let ox = self.player.x + @math.cos(orb.angle) * orb.radius
-          let oy = self.player.y + @math.sin(orb.angle) * orb.radius
-          let osx = self.camera.world_to_screen_x(ox)
-          let osy = self.camera.world_to_screen_y(oy)
-          let half_o = orb.size / 2.0
+          let half_e = e.size / 2.0
           nodes.push(
             @scene.rect(
-              x=osx - half_o,
-              y=osy - half_o,
-              w=orb.size,
-              h=orb.size,
-              fill=0xFFFFFF,
+              x=esx - half_e,
+              y=esy - half_e,
+              w=e.size,
+              h=e.size,
+              fill~,
             ),
           )
         }
-        nodes
-      }),
-      // Player
+      }
+      nodes
+    }),
+    // Area weapon effect
+    @scene.show(fn() { self.area_weapon.active_frames > 0 }, fn() {
+      let r = self.area_weapon.radius
       @scene.rect(
-        x=psx - half_pl,
-        y=psy - half_pl,
-        w=self.player.size,
-        h=self.player.size,
-        fill=0x00FFCC,
-      ),
-      // HP bar
-      @scene.group(
-        x=4.0,
-        y=4.0,
-        children=[
-          @scene.rect(w=hp_bar_w, h=hp_bar_h, fill=0x440000),
-          @scene.show(fn() { hp_fill_w > 0.0 }, fn() {
-            @scene.rect(w=hp_fill_w, h=hp_bar_h, fill=0x00CC00)
-          }),
-        ],
-      ),
-      // XP bar
-      @scene.group(
-        x=4.0,
-        y=12.0,
-        children=[
-          @scene.rect(w=hp_bar_w, h=hp_bar_h, fill=0x000044),
-          @scene.show(fn() { xp_fill_w > 0.0 }, fn() {
-            @scene.rect(w=xp_fill_w, h=hp_bar_h, fill=0x0066FF)
-          }),
-        ],
-      ),
-      // Survival time
-      @scene.label(
-        x=sw - 30.0,
-        y=8.0,
-        content=seconds.to_string(),
-        scale=0.6,
-      ),
-      // Score
-      @scene.label(
-        x=sw - 30.0,
-        y=22.0,
-        content=self.score.to_string(),
-        color=0xFFCC00,
-        scale=0.6,
-      ),
-      // Level
-      @scene.label(
-        x=22.0,
-        y=26.0,
-        content="LV" + self.level.to_string(),
-        color=0xCCCCCC,
-        scale=0.5,
-      ),
-    ],
-  )
+        x=psx - r,
+        y=psy - r,
+        w=r * 2.0,
+        h=r * 2.0,
+        fill=0xFFFF00,
+        alpha=0.3,
+      )
+    }),
+    // Projectiles
+    @scene.for_each(fn() {
+      let nodes : Array[@scene.SceneNode] = []
+      for proj in self.projectiles {
+        if !proj.alive {
+          continue
+        }
+        let prsx = self.camera.world_to_screen_x(proj.x)
+        let prsy = self.camera.world_to_screen_y(proj.y)
+        if prsx > -8.0 && prsx < sw + 8.0 && prsy > -8.0 && prsy < sh + 8.0 {
+          let half_p = proj.size / 2.0
+          nodes.push(
+            @scene.rect(
+              x=prsx - half_p,
+              y=prsy - half_p,
+              w=proj.size,
+              h=proj.size,
+              fill=0xFFFF00,
+            ),
+          )
+        }
+      }
+      nodes
+    }),
+    // Orbit weapons
+    @scene.for_each(fn() {
+      let nodes : Array[@scene.SceneNode] = []
+      for orb in self.orbit_weapons {
+        let ox = self.player.x + @math.cos(orb.angle) * orb.radius
+        let oy = self.player.y + @math.sin(orb.angle) * orb.radius
+        let osx = self.camera.world_to_screen_x(ox)
+        let osy = self.camera.world_to_screen_y(oy)
+        let half_o = orb.size / 2.0
+        nodes.push(
+          @scene.rect(
+            x=osx - half_o,
+            y=osy - half_o,
+            w=orb.size,
+            h=orb.size,
+            fill=0xFFFFFF,
+          ),
+        )
+      }
+      nodes
+    }),
+    // Player
+    @scene.rect(
+      x=psx - half_pl,
+      y=psy - half_pl,
+      w=self.player.size,
+      h=self.player.size,
+      fill=0x00FFCC,
+    ),
+    // HP bar
+    @scene.group(x=4.0, y=4.0, children=[
+      @scene.rect(w=hp_bar_w, h=hp_bar_h, fill=0x440000),
+      @scene.show(fn() { hp_fill_w > 0.0 }, fn() {
+        @scene.rect(w=hp_fill_w, h=hp_bar_h, fill=0x00CC00)
+      }),
+    ]),
+    // XP bar
+    @scene.group(x=4.0, y=12.0, children=[
+      @scene.rect(w=hp_bar_w, h=hp_bar_h, fill=0x000044),
+      @scene.show(fn() { xp_fill_w > 0.0 }, fn() {
+        @scene.rect(w=xp_fill_w, h=hp_bar_h, fill=0x0066FF)
+      }),
+    ]),
+    // Survival time
+    @scene.label(x=sw - 30.0, y=8.0, content=seconds.to_string(), scale=0.6),
+    // Score
+    @scene.label(
+      x=sw - 30.0,
+      y=22.0,
+      content=self.score.to_string(),
+      color=0xFFCC00,
+      scale=0.6,
+    ),
+    // Level
+    @scene.label(
+      x=22.0,
+      y=26.0,
+      content="LV" + self.level.to_string(),
+      color=0xCCCCCC,
+      scale=0.5,
+    ),
+  ])
 }
 
 ///|
@@ -1104,47 +1075,45 @@ fn SurvivorState::view_levelup_overlay(
 ) -> @scene.SceneNode {
   let sw = self.screen_w
   let sh = self.screen_h
-  @scene.fragment(
-    [
-      @scene.rect(w=sw, h=sh, fill=0x000000, alpha=0.7),
-      @scene.label(
-        x=sw / 2.0,
-        y=40.0,
-        content="LEVEL UP",
-        color=0xFFFF00,
-        scale=1.2,
-      ),
-      @scene.for_each(fn() {
-        let nodes : Array[@scene.SceneNode] = []
-        for i = 0; i < self.upgrade_choices.length(); i = i + 1 {
-          let choice_y = 80.0 + i.to_double() * 40.0
-          if i == self.selected_upgrade {
-            nodes.push(
-              @scene.rect(
-                x=40.0,
-                y=choice_y - 12.0,
-                w=sw - 80.0,
-                h=30.0,
-                fill=0xFFFF00,
-                alpha=0.3,
-              ),
-            )
-            nodes.push(
-              @scene.label(x=55.0, y=choice_y, content=">", color=0xFFFF00),
-            )
-          }
+  @scene.fragment([
+    @scene.rect(w=sw, h=sh, fill=0x000000, alpha=0.7),
+    @scene.label(
+      x=sw / 2.0,
+      y=40.0,
+      content="LEVEL UP",
+      color=0xFFFF00,
+      scale=1.2,
+    ),
+    @scene.for_each(fn() {
+      let nodes : Array[@scene.SceneNode] = []
+      for i = 0; i < self.upgrade_choices.length(); i = i + 1 {
+        let choice_y = 80.0 + i.to_double() * 40.0
+        if i == self.selected_upgrade {
           nodes.push(
-            @scene.label(
-              x=sw / 2.0,
-              y=choice_y,
-              content=upgrade_name(self.upgrade_choices[i]),
+            @scene.rect(
+              x=40.0,
+              y=choice_y - 12.0,
+              w=sw - 80.0,
+              h=30.0,
+              fill=0xFFFF00,
+              alpha=0.3,
             ),
           )
+          nodes.push(
+            @scene.label(x=55.0, y=choice_y, content=">", color=0xFFFF00),
+          )
         }
-        nodes
-      }),
-    ],
-  )
+        nodes.push(
+          @scene.label(
+            x=sw / 2.0,
+            y=choice_y,
+            content=upgrade_name(self.upgrade_choices[i]),
+          ),
+        )
+      }
+      nodes
+    }),
+  ])
 }
 
 ///|
@@ -1152,31 +1121,25 @@ fn SurvivorState::view_gameover(self : SurvivorState) -> @scene.SceneNode {
   let sw = self.screen_w
   let sh = self.screen_h
   let seconds = self.survival_time / 60
-  @scene.fragment(
-    [
-      @scene.rect(w=sw, h=sh, fill=0x1A0000),
-      @scene.label(
-        x=sw / 2.0,
-        y=sh / 2.0 - 40.0,
-        content="GAME OVER",
-        color=0xFF0000,
-        scale=1.5,
-      ),
-      @scene.label(
-        x=sw / 2.0,
-        y=sh / 2.0,
-        content=self.score.to_string(),
-        color=0xFFCC00,
-        scale=1.5,
-      ),
-      @scene.label(
-        x=sw / 2.0,
-        y=sh / 2.0 + 30.0,
-        content=seconds.to_string(),
-      ),
-      @scene.show(fn() { self.frame_count / 30 % 2 == 0 }, fn() {
-        @scene.label(x=sw / 2.0, y=sh / 2.0 + 70.0, content="SPACE")
-      }),
-    ],
-  )
+  @scene.fragment([
+    @scene.rect(w=sw, h=sh, fill=0x1A0000),
+    @scene.label(
+      x=sw / 2.0,
+      y=sh / 2.0 - 40.0,
+      content="GAME OVER",
+      color=0xFF0000,
+      scale=1.5,
+    ),
+    @scene.label(
+      x=sw / 2.0,
+      y=sh / 2.0,
+      content=self.score.to_string(),
+      color=0xFFCC00,
+      scale=1.5,
+    ),
+    @scene.label(x=sw / 2.0, y=sh / 2.0 + 30.0, content=seconds.to_string()),
+    @scene.show(fn() { self.frame_count / 30 % 2 == 0 }, fn() {
+      @scene.label(x=sw / 2.0, y=sh / 2.0 + 70.0, content="SPACE")
+    }),
+  ])
 }

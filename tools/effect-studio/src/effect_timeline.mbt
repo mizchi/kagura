@@ -7,7 +7,12 @@ pub struct TimelineTrackLane {
   active : Bool
   marker_ratios : Array[Double]
   accent_color : @math3d.Vec4
-} derive(Show)
+} derive(Debug)
+
+///|
+pub impl Show for TimelineTrackLane with output(self, logger) {
+  logger.write_object(to_repr(self))
+}
 
 ///|
 pub struct TimelineView {
@@ -15,7 +20,12 @@ pub struct TimelineView {
   normalized_time : Double
   playhead_ratio : Double
   lanes : Array[TimelineTrackLane]
-} derive(Show)
+} derive(Debug)
+
+///|
+pub impl Show for TimelineView with output(self, logger) {
+  logger.write_object(to_repr(self))
+}
 
 ///|
 fn clamp_ratio(value : Double) -> Double {

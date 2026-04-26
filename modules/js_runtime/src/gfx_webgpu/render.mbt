@@ -264,7 +264,7 @@ pub fn draw_default_command(
         None => true
         Some(buf) => {
           let same = @core.equal(buf, ub_entry.buffer)
-          !(same)
+          !same
         }
       }
   }
@@ -289,7 +289,7 @@ pub fn draw_default_command(
   let mut resolved_image_id = 0
   let mut resolved_revision = -1
   let src_image_id = cmd._get("srcImageId")
-  if !(@core.is_nullish(src_image_id)) {
+  if !@core.is_nullish(src_image_id) {
     let img_id = src_image_id.cast_int()
     if img_id > 0 {
       match state.textures.get(img_id) {
@@ -402,7 +402,12 @@ pub fn draw_custom_command(
     stride_hint_raw.cast_int()
   }
   let pipeline_info = get_or_create_custom_pipeline(
-    state, device, shader_id, shader_source, blend_mode, format,
+    state,
+    device,
+    shader_id,
+    shader_source,
+    blend_mode,
+    format,
     vertex_stride_hint~,
   )
   let queue = ffi_queue(device)
@@ -410,9 +415,11 @@ pub fn draw_custom_command(
   let compute_result = if @core.is_nullish(uniform_dwords) {
     @core.null()
   } else {
-    js_prepare_gpu_skinned_draw(device, shader_source, vertex_data, uniform_dwords)
+    js_prepare_gpu_skinned_draw(
+      device, shader_source, vertex_data, uniform_dwords,
+    )
   }
-  let use_gpu_skinned = !(@core.is_nullish(compute_result))
+  let use_gpu_skinned = !@core.is_nullish(compute_result)
   // Vertex buffer (temporary or compute output)
   let vb = if use_gpu_skinned {
     compute_result._get("vertexBuffer")
@@ -421,7 +428,10 @@ pub fn draw_custom_command(
     let vb_size = if vb_byte_length < 16 { 16 } else { vb_byte_length }
     let vb_desc = @core.new_object()
     vb_desc._set("size", @core.any(vb_size))
-    vb_desc._set("usage", @core.any(BUFFER_USAGE_VERTEX | BUFFER_USAGE_COPY_DST))
+    vb_desc._set(
+      "usage",
+      @core.any(BUFFER_USAGE_VERTEX | BUFFER_USAGE_COPY_DST),
+    )
     let created = ffi_create_buffer(device, vb_desc)
     queue._call("writeBuffer", [created, @core.any(0), vertex_data]) |> ignore
     created
@@ -450,9 +460,12 @@ pub fn draw_custom_command(
   } else {
     let ub_desc = @core.new_object()
     ub_desc._set("size", @core.any(aligned_size))
-    ub_desc._set("usage", @core.any(BUFFER_USAGE_UNIFORM | BUFFER_USAGE_COPY_DST))
+    ub_desc._set(
+      "usage",
+      @core.any(BUFFER_USAGE_UNIFORM | BUFFER_USAGE_COPY_DST),
+    )
     let created = ffi_create_buffer(device, ub_desc)
-    if !(@core.is_nullish(uniform_dwords)) && uniform_bytes > 0 {
+    if !@core.is_nullish(uniform_dwords) && uniform_bytes > 0 {
       let u8view = @core.new(@core.global_this()._get("Uint8Array"), [
         uniform_dwords._get("buffer"),
         uniform_dwords._get("byteOffset"),
@@ -490,7 +503,7 @@ pub fn draw_custom_command(
     let tb = tex_bindings[i]
     if tb.type_ == "texture" {
       let mut tex_view_any : @core.Any = state.default_tex_view.unwrap()
-      if !(@core.is_nullish(src_image_ids)) {
+      if !@core.is_nullish(src_image_ids) {
         let ids_len = src_image_ids._get("length").cast_int()
         if src_index < ids_len {
           let img_id = src_image_ids._get_by_index(src_index).cast_int()
@@ -593,7 +606,7 @@ pub fn render_gpu(
     return false
   }
   let safe_format = if format.length() > 0 { format } else { "bgra8unorm" }
-  if !(ensure_gpu_pipeline(state, device, safe_format)) {
+  if !ensure_gpu_pipeline(state, device, safe_format) {
     return false
   }
   let config = @core.new_object()
@@ -606,8 +619,7 @@ pub fn render_gpu(
   let b = clear_color._get_by_index(2).cast_double()
   let a = clear_color._get_by_index(3).cast_double()
   let commands = gpu._get("commands")
-  let cmd_length = if @core.is_nullish(commands) ||
-    !(@core.is_array(commands)) {
+  let cmd_length = if @core.is_nullish(commands) || !@core.is_array(commands) {
     0
   } else {
     commands._get("length").cast_int()
@@ -629,12 +641,12 @@ pub fn render_gpu(
   for i = 0; i < cmd_length; i = i + 1 {
     let cmd = commands._get_by_index(i)
     let is_custom = cmd._get("isCustom")
-    if !(@core.is_nullish(is_custom)) && is_custom.cast_bool() {
+    if !@core.is_nullish(is_custom) && is_custom.cast_bool() {
       has_custom = true
       break
     }
   }
-  if !(has_custom) {
+  if !has_custom {
     // Fast path: single-pass default rendering
     let texture = context._call("getCurrentTexture", [])
     let view = texture._call("createView", [])
@@ -684,11 +696,15 @@ pub fn render_gpu(
   for i = 0; i < cmd_length; i = i + 1 {
     let cmd = commands._get_by_index(i)
     let target_id = cmd._get("dstImageId").cast_int()
-    let is_custom_cmd = !(@core.is_nullish(cmd._get("isCustom"))) &&
+    let is_custom_cmd = !@core.is_nullish(cmd._get("isCustom")) &&
       cmd._get("isCustom").cast_bool()
     let needs_depth = if is_custom_cmd {
       let hint_raw = cmd._get("vertexStrideHint")
-      let hint = if @core.is_nullish(hint_raw) { 0 } else { hint_raw.cast_int() }
+      let hint = if @core.is_nullish(hint_raw) {
+        0
+      } else {
+        hint_raw.cast_int()
+      }
       if hint > 0 {
         hint >= 8
       } else {
@@ -707,7 +723,7 @@ pub fn render_gpu(
       let mut pass_format = safe_format
       let mut target_width = screen_texture._get("width").cast_int()
       let mut target_height = screen_texture._get("height").cast_int()
-      if !(is_screen) {
+      if !is_screen {
         let rt_width_raw = cmd._get("dstWidth")
         let rt_height_raw = cmd._get("dstHeight")
         let rt_width = if @core.is_nullish(rt_width_raw) {

@@ -100,7 +100,12 @@ fn tripo_poll_task(
     if status == "failed" {
       return ("failed", "", "Task failed")
     }
-    let msg = "  [" + (i + 1).to_string() + "/" + max_polls.to_string() + "] status: " + status
+    let msg = "  [" +
+      (i + 1).to_string() +
+      "/" +
+      max_polls.to_string() +
+      "] status: " +
+      status
     println(msg)
     js_sleep(interval_sec)
   }
@@ -124,17 +129,11 @@ fn tripo_download(
 ///|
 /// Parse task_id from Tripo API response.
 fn parse_task_id(json_str : String) -> (String, String) {
-  let json = try {
-    @json.parse(json_str)
-  } catch {
+  let json = @json.parse(json_str) catch {
     _ => return ("", "Failed to parse JSON: " + json_str)
   }
   match json {
-    {
-      "code": Number(code, ..),
-      "data": { "task_id": String(task_id), .. },
-      ..
-    } =>
+    { "code": Number(code, ..), "data": { "task_id": String(task_id), .. }, .. } =>
       if code == 0.0 {
         (task_id, "")
       } else {
@@ -147,11 +146,7 @@ fn parse_task_id(json_str : String) -> (String, String) {
 ///|
 /// Parse task status and model URL from poll response.
 fn parse_task_status(json_str : String) -> (String, String) {
-  let json = try {
-    @json.parse(json_str)
-  } catch {
-    _ => return ("error", "")
-  }
+  let json = @json.parse(json_str) catch { _ => return ("error", "") }
   match json {
     { "data": { "status": String(status), "output": output, .. }, .. } => {
       let model_url = match output {

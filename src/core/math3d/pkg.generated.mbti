@@ -1,6 +1,10 @@
 // Generated using `moon info`, DON'T EDIT IT
 package "mizchi/kagura/core/math3d"
 
+import {
+  "moonbitlang/core/debug",
+}
+
 // Values
 
 // Errors
@@ -8,7 +12,7 @@ package "mizchi/kagura/core/math3d"
 // Types and methods
 pub struct Mat4 {
   elements : FixedArray[Double]
-}
+} derive(@debug.Debug)
 pub fn Mat4::approx_eq(Self, Self, Double) -> Bool
 pub fn Mat4::determinant(Self) -> Double
 pub fn Mat4::from_cols(Vec4, Vec4, Vec4, Vec4) -> Self
@@ -34,7 +38,7 @@ pub struct Quaternion {
   y : Double
   z : Double
   w : Double
-}
+} derive(@debug.Debug)
 pub fn Quaternion::approx_eq(Self, Self, Double) -> Bool
 pub fn Quaternion::conjugate(Self) -> Self
 pub fn Quaternion::from_axis_angle(Vec3, Double) -> Self
@@ -54,7 +58,7 @@ pub struct Vec3 {
   x : Double
   y : Double
   z : Double
-}
+} derive(@debug.Debug)
 pub fn Vec3::add(Self, Self) -> Self
 pub fn Vec3::approx_eq(Self, Self, Double) -> Bool
 pub fn Vec3::clamp(Self, Self, Self) -> Self
@@ -87,7 +91,7 @@ pub struct Vec4 {
   y : Double
   z : Double
   w : Double
-}
+} derive(@debug.Debug)
 pub fn Vec4::add(Self, Self) -> Self
 pub fn Vec4::approx_eq(Self, Self, Double) -> Bool
 pub fn Vec4::dot(Self, Self) -> Double

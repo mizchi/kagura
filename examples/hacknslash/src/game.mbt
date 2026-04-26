@@ -2,74 +2,110 @@
 
 // === Constants ===
 
+///|
 let screen_w : Int = 320
 
+///|
 let screen_h : Int = 240
 
+///|
 let tile_size : Double = 16.0
 
+///|
 let map_cols : Int = 40
 
+///|
 let map_rows : Int = 30
 
+///|
 let world_w : Double = 640.0
 
+///|
 let world_h : Double = 480.0
 
+///|
 let player_speed : Double = 2.0
 
+///|
 let enemy_speed_basic : Double = 0.8
 
+///|
 let enemy_speed_fast : Double = 1.2
 
+///|
 let enemy_speed_tank : Double = 0.4
 
+///|
 let attack_range : Double = 24.0
 
+///|
 let attack_cooldown : Int = 20
 
+///|
 let damage_flash_duration : Int = 10
 
+///|
 let chase_range : Double = 120.0
 
+///|
 let knockback_strength : Double = 4.0
 
+///|
 let iframe_duration : Int = 30
 
+///|
 let path_update_interval : Int = 60
 
 // Game mode constants
+
+///|
 let mode_title : Int = 0
 
+///|
 let mode_playing : Int = 1
 
+///|
 let mode_gameover : Int = 2
 
 // Enemy kind constants
+
+///|
 let kind_basic : Int = 0
 
+///|
 let kind_fast : Int = 1
 
+///|
 let kind_tank : Int = 2
 
+///|
 let kind_ranged : Int = 3
 
+///|
 let kind_boss : Int = 4
 
 // Item kind constants
+
+///|
 let item_health : Int = 0
 
+///|
 let item_score : Int = 1
 
 // Dash constants
+
+///|
 let dash_duration : Int = 8
 
+///|
 let dash_cooldown : Int = 40
 
+///|
 let dash_speed_mult : Double = 4.0
 
 // === Data Structures ===
 
+///|
 struct Player {
   mut x : Double
   mut y : Double
@@ -85,6 +121,7 @@ struct Player {
   mut dash_vy : Double
 }
 
+///|
 struct ItemDrop {
   x : Double
   y : Double
@@ -93,6 +130,7 @@ struct ItemDrop {
   spawn_frame : Int
 }
 
+///|
 struct Projectile {
   mut x : Double
   mut y : Double
@@ -102,6 +140,7 @@ struct Projectile {
   damage : Int
 }
 
+///|
 struct Enemy {
   mut x : Double
   mut y : Double
@@ -124,6 +163,7 @@ struct Enemy {
 
 // === Main Game State ===
 
+///|
 struct GameState {
   mut mode : Int
   mut frame_count : Int
@@ -144,6 +184,7 @@ struct GameState {
 
 // === Constructor ===
 
+///|
 fn GameState::new(seed~ : Int) -> GameState {
   let dungeon = generate_dungeon(seed)
   let player : Player = {
@@ -187,6 +228,7 @@ fn GameState::new(seed~ : Int) -> GameState {
   }
 }
 
+///|
 fn GameState::reset_floor(self : GameState) -> Unit {
   self.seed = self.seed + 1
   let dungeon = generate_dungeon(self.seed)
@@ -200,7 +242,12 @@ fn GameState::reset_floor(self : GameState) -> Unit {
   self.player.x = dungeon.start_x
   self.player.y = dungeon.start_y
   self.floor = self.floor + 1
-  self.enemies = spawn_enemies_for_floor(dungeon.rooms, 0, self.seed, self.floor)
+  self.enemies = spawn_enemies_for_floor(
+    dungeon.rooms,
+    0,
+    self.seed,
+    self.floor,
+  )
   self.items = []
   self.projectiles = []
   self.floor_announce_timer = 120
@@ -209,6 +256,7 @@ fn GameState::reset_floor(self : GameState) -> Unit {
 
 // === Update Logic ===
 
+///|
 fn GameState::update(self : GameState, input : @core.InputSnapshot) -> Unit {
   self.frame_count = self.frame_count + 1
   @inpututil.update_input_helper(self.input, input)
@@ -220,12 +268,14 @@ fn GameState::update(self : GameState, input : @core.InputSnapshot) -> Unit {
   }
 }
 
+///|
 fn GameState::update_title(self : GameState) -> Unit {
   if @inpututil.is_confirm_just_pressed(self.input) {
     self.mode = mode_playing
   }
 }
 
+///|
 fn GameState::update_gameover(self : GameState) -> Unit {
   if @inpututil.is_confirm_just_pressed(self.input) {
     self.mode = mode_title
@@ -255,6 +305,7 @@ fn GameState::update_gameover(self : GameState) -> Unit {
   }
 }
 
+///|
 fn GameState::update_playing(self : GameState) -> Unit {
   // Floor announce timer
   if self.floor_announce_timer > 0 {
@@ -294,17 +345,29 @@ fn GameState::update_playing(self : GameState) -> Unit {
     self.player.dash_timer = self.player.dash_timer - 1
     let next_x = self.player.x + self.player.dash_vx
     let next_y = self.player.y + self.player.dash_vy
-    if !(check_wall_collision(self.dungeon.grid, next_x, self.player.y, self.player.size)) {
+    if !check_wall_collision(
+        self.dungeon.grid,
+        next_x,
+        self.player.y,
+        self.player.size,
+      ) {
       self.player.x = next_x
     }
-    if !(check_wall_collision(self.dungeon.grid, self.player.x, next_y, self.player.size)) {
+    if !check_wall_collision(
+        self.dungeon.grid,
+        self.player.x,
+        next_y,
+        self.player.size,
+      ) {
       self.player.y = next_y
     }
   } else {
     // Normal movement
     // Initiate dash on Shift press
     let shift_pressed = @inpututil.is_key_just_pressed(self.input.key_state, 16)
-    if shift_pressed && self.player.dash_cooldown_timer <= 0 && (dx != 0.0 || dy != 0.0) {
+    if shift_pressed &&
+      self.player.dash_cooldown_timer <= 0 &&
+      (dx != 0.0 || dy != 0.0) {
       self.player.dash_timer = dash_duration
       self.player.dash_cooldown_timer = dash_cooldown
       self.player.dash_vx = dx * player_speed * dash_speed_mult
@@ -313,18 +376,34 @@ fn GameState::update_playing(self : GameState) -> Unit {
     } else {
       let next_x = self.player.x + dx * player_speed
       let next_y = self.player.y + dy * player_speed
-      if !(check_wall_collision(self.dungeon.grid, next_x, self.player.y, self.player.size)) {
+      if !check_wall_collision(
+          self.dungeon.grid,
+          next_x,
+          self.player.y,
+          self.player.size,
+        ) {
         self.player.x = next_x
       }
-      if !(check_wall_collision(self.dungeon.grid, self.player.x, next_y, self.player.size)) {
+      if !check_wall_collision(
+          self.dungeon.grid,
+          self.player.x,
+          next_y,
+          self.player.size,
+        ) {
         self.player.y = next_y
       }
     }
   }
   // Clamp to world bounds
   let half = self.player.size / 2.0
-  self.player.x = @cmp.maximum(half, @cmp.minimum(world_w - half, self.player.x))
-  self.player.y = @cmp.maximum(half, @cmp.minimum(world_h - half, self.player.y))
+  self.player.x = @cmp.maximum(
+    half,
+    @cmp.minimum(world_w - half, self.player.x),
+  )
+  self.player.y = @cmp.maximum(
+    half,
+    @cmp.minimum(world_h - half, self.player.y),
+  )
   // Camera follow
   self.camera.follow_target(self.player.x, self.player.y)
   // Attack
@@ -337,16 +416,22 @@ fn GameState::update_playing(self : GameState) -> Unit {
     try_attack(self)
   }
   // Enemy AI
-  update_enemy_ai(self.enemies, self.player, self.dungeon.grid, self.frame_count, self.projectiles)
+  update_enemy_ai(
+    self.enemies,
+    self.player,
+    self.dungeon.grid,
+    self.frame_count,
+    self.projectiles,
+  )
   // Apply enemy movement + collision
   for enemy in self.enemies {
     if enemy.alive {
       let enx = enemy.x + enemy.vx
       let eny = enemy.y + enemy.vy
-      if !(check_wall_collision(self.dungeon.grid, enx, enemy.y, enemy.size)) {
+      if !check_wall_collision(self.dungeon.grid, enx, enemy.y, enemy.size) {
         enemy.x = enx
       }
-      if !(check_wall_collision(self.dungeon.grid, enemy.x, eny, enemy.size)) {
+      if !check_wall_collision(self.dungeon.grid, enemy.x, eny, enemy.size) {
         enemy.y = eny
       }
       enemy.vx = 0.0
@@ -354,11 +439,15 @@ fn GameState::update_playing(self : GameState) -> Unit {
       // Contact damage (skip if player dashing)
       if self.player.iframe_timer <= 0 {
         if @vector.aabb_overlap_center(
-          self.player.x, self.player.y,
-          self.player.size / 2.0, self.player.size / 2.0,
-          enemy.x, enemy.y,
-          enemy.size / 2.0, enemy.size / 2.0,
-        ) {
+            self.player.x,
+            self.player.y,
+            self.player.size / 2.0,
+            self.player.size / 2.0,
+            enemy.x,
+            enemy.y,
+            enemy.size / 2.0,
+            enemy.size / 2.0,
+          ) {
           self.player.hp = self.player.hp - 1
           self.player.damage_timer = damage_flash_duration
           self.player.iframe_timer = iframe_duration
@@ -440,12 +529,22 @@ fn GameState::update_playing(self : GameState) -> Unit {
         // Try pushing player, fall back to pushing enemy more
         let px_new = self.player.x + nx * push
         let py_new = self.player.y + ny * push
-        if !(check_wall_collision(self.dungeon.grid, px_new, self.player.y, self.player.size)) {
+        if !check_wall_collision(
+            self.dungeon.grid,
+            px_new,
+            self.player.y,
+            self.player.size,
+          ) {
           self.player.x = px_new
         } else {
           enemy.x = enemy.x - nx * push
         }
-        if !(check_wall_collision(self.dungeon.grid, self.player.x, py_new, self.player.size)) {
+        if !check_wall_collision(
+            self.dungeon.grid,
+            self.player.x,
+            py_new,
+            self.player.size,
+          ) {
           self.player.y = py_new
         } else {
           enemy.y = enemy.y - ny * push
@@ -453,10 +552,10 @@ fn GameState::update_playing(self : GameState) -> Unit {
         // Try pushing enemy
         let ex_new = enemy.x - nx * push
         let ey_new = enemy.y - ny * push
-        if !(check_wall_collision(self.dungeon.grid, ex_new, enemy.y, enemy.size)) {
+        if !check_wall_collision(self.dungeon.grid, ex_new, enemy.y, enemy.size) {
           enemy.x = ex_new
         }
-        if !(check_wall_collision(self.dungeon.grid, enemy.x, ey_new, enemy.size)) {
+        if !check_wall_collision(self.dungeon.grid, enemy.x, ey_new, enemy.size) {
           enemy.y = ey_new
         }
       }
@@ -478,18 +577,18 @@ fn GameState::update_playing(self : GameState) -> Unit {
           let ny = sep_dy / sep_dist
           let ax_new = a.x + nx * push
           let ay_new = a.y + ny * push
-          if !(check_wall_collision(self.dungeon.grid, ax_new, a.y, a.size)) {
+          if !check_wall_collision(self.dungeon.grid, ax_new, a.y, a.size) {
             a.x = ax_new
           }
-          if !(check_wall_collision(self.dungeon.grid, a.x, ay_new, a.size)) {
+          if !check_wall_collision(self.dungeon.grid, a.x, ay_new, a.size) {
             a.y = ay_new
           }
           let bx_new = b.x - nx * push
           let by_new = b.y - ny * push
-          if !(check_wall_collision(self.dungeon.grid, bx_new, b.y, b.size)) {
+          if !check_wall_collision(self.dungeon.grid, bx_new, b.y, b.size) {
             b.x = bx_new
           }
-          if !(check_wall_collision(self.dungeon.grid, b.x, by_new, b.size)) {
+          if !check_wall_collision(self.dungeon.grid, b.x, by_new, b.size) {
             b.y = by_new
           }
         }
@@ -520,19 +619,24 @@ fn GameState::update_playing(self : GameState) -> Unit {
 }
 
 // Shift key code
+
+///|
 let key_shift : Int = 16
 
 // === View ===
 
+///|
 fn GameState::view(self : GameState) -> @scene.SceneNode {
   match self.mode {
     m if m == mode_title => self.view_title()
     m if m == mode_playing => self.view_playing()
     m if m == mode_gameover => self.view_gameover()
-    _ => @scene.rect(w=screen_w.to_double(), h=screen_h.to_double(), fill=0x000000)
+    _ =>
+      @scene.rect(w=screen_w.to_double(), h=screen_h.to_double(), fill=0x000000)
   }
 }
 
+///|
 fn GameState::view_title(self : GameState) -> @scene.SceneNode {
   @scene.fragment([
     @scene.rect(w=screen_w.to_double(), h=screen_h.to_double(), fill=0x1A1A2E),
@@ -554,6 +658,7 @@ fn GameState::view_title(self : GameState) -> @scene.SceneNode {
   ])
 }
 
+///|
 fn GameState::view_gameover(self : GameState) -> @scene.SceneNode {
   @scene.fragment([
     @scene.rect(w=screen_w.to_double(), h=screen_h.to_double(), fill=0x2E0000),
@@ -587,6 +692,7 @@ fn GameState::view_gameover(self : GameState) -> @scene.SceneNode {
   ])
 }
 
+///|
 fn GameState::view_playing(self : GameState) -> @scene.SceneNode {
   let sw = screen_w.to_double()
   let sh = screen_h.to_double()
@@ -609,21 +715,42 @@ fn GameState::view_playing(self : GameState) -> @scene.SceneNode {
     @scene.for_each(fn() {
       let nodes : Array[@scene.SceneNode] = []
       let start_col = @cmp.maximum(0, (view_left / tile_size).to_int())
-      let end_col = @cmp.minimum(map_cols, ((view_left + sw) / tile_size).to_int() + 1)
+      let end_col = @cmp.minimum(
+        map_cols,
+        ((view_left + sw) / tile_size).to_int() + 1,
+      )
       let start_row = @cmp.maximum(0, (view_top / tile_size).to_int())
-      let end_row = @cmp.minimum(map_rows, ((view_top + sh) / tile_size).to_int() + 1)
+      let end_row = @cmp.minimum(
+        map_rows,
+        ((view_top + sh) / tile_size).to_int() + 1,
+      )
       for row = start_row; row < end_row; row = row + 1 {
         for col = start_col; col < end_col; col = col + 1 {
           let tile = self.dungeon.grid.get(col, row)
           let sx = col.to_double() * tile_size - view_left
           let sy = row.to_double() * tile_size - view_top
           nodes.push(
-            @scene.rect(x=sx, y=sy, w=tile_size, h=tile_size, fill=tile_color_varied(tile, col, row)),
+            @scene.rect(
+              x=sx,
+              y=sy,
+              w=tile_size,
+              h=tile_size,
+              fill=tile_color_varied(tile, col, row),
+            ),
           )
           // Wall shadow: add shadow on floor tiles adjacent to wall above
-          if tile != @terrain.Wall && row > 0 && self.dungeon.grid.get(col, row - 1) == @terrain.Wall {
+          if tile != @terrain.Wall &&
+            row > 0 &&
+            self.dungeon.grid.get(col, row - 1) == @terrain.Wall {
             nodes.push(
-              @scene.rect(x=sx, y=sy, w=tile_size, h=1.0, fill=0x000000, alpha=0.3),
+              @scene.rect(
+                x=sx,
+                y=sy,
+                w=tile_size,
+                h=1.0,
+                fill=0x000000,
+                alpha=0.3,
+              ),
             )
           }
         }
@@ -638,10 +765,22 @@ fn GameState::view_playing(self : GameState) -> @scene.SceneNode {
           let ix = item.x - view_left
           let iy = item.y - view_top
           if ix >= -10.0 && ix <= sw + 10.0 && iy >= -10.0 && iy <= sh + 10.0 {
-            let pulse = (0.6 + 0.4 * @math.sin(self.frame_count.to_double() * 0.1))
-            let color = if item.kind == item_health { 0x00FF66 } else { 0x00FFFF }
+            let pulse = 0.6 +
+              0.4 * @math.sin(self.frame_count.to_double() * 0.1)
+            let color = if item.kind == item_health {
+              0x00FF66
+            } else {
+              0x00FFFF
+            }
             nodes.push(
-              @scene.rect(x=ix - 3.0, y=iy - 3.0, w=6.0, h=6.0, fill=color, alpha=pulse),
+              @scene.rect(
+                x=ix - 3.0,
+                y=iy - 3.0,
+                w=6.0,
+                h=6.0,
+                fill=color,
+                alpha=pulse,
+              ),
             )
           }
         }
@@ -686,47 +825,119 @@ fn GameState::view_playing(self : GameState) -> @scene.SceneNode {
             }
             // Enemy body
             nodes.push(
-              @scene.rect(x=sx - ehs, y=sy - ehs, w=enemy.size, h=enemy.size, fill=fill),
+              @scene.rect(
+                x=sx - ehs,
+                y=sy - ehs,
+                w=enemy.size,
+                h=enemy.size,
+                fill~,
+              ),
             )
             // Kind-specific decorations
             match enemy.kind {
               k if k == kind_fast => {
                 // Small corner dots for diamond-like feel
-                nodes.push(@scene.rect(x=sx - 1.0, y=sy - ehs - 2.0, w=2.0, h=2.0, fill=fill))
-                nodes.push(@scene.rect(x=sx - 1.0, y=sy + ehs, w=2.0, h=2.0, fill=fill))
+                nodes.push(
+                  @scene.rect(x=sx - 1.0, y=sy - ehs - 2.0, w=2.0, h=2.0, fill~),
+                )
+                nodes.push(
+                  @scene.rect(x=sx - 1.0, y=sy + ehs, w=2.0, h=2.0, fill~),
+                )
               }
               k if k == kind_tank => {
                 // Cross mark in center
-                nodes.push(@scene.line(x0=sx - ehs + 2.0, y0=sy, x1=sx + ehs - 2.0, y1=sy, color=0x220044))
-                nodes.push(@scene.line(x0=sx, y0=sy - ehs + 2.0, x1=sx, y1=sy + ehs - 2.0, color=0x220044))
+                nodes.push(
+                  @scene.line(
+                    x0=sx - ehs + 2.0,
+                    y0=sy,
+                    x1=sx + ehs - 2.0,
+                    y1=sy,
+                    color=0x220044,
+                  ),
+                )
+                nodes.push(
+                  @scene.line(
+                    x0=sx,
+                    y0=sy - ehs + 2.0,
+                    x1=sx,
+                    y1=sy + ehs - 2.0,
+                    color=0x220044,
+                  ),
+                )
               }
               k if k == kind_ranged => {
                 // Forward triangle indicator
-                let angle = @math.atan2(self.player.y - enemy.y, self.player.x - enemy.x)
+                let angle = @math.atan2(
+                  self.player.y - enemy.y,
+                  self.player.x - enemy.x,
+                )
                 let tx = sx + @math.cos(angle) * (ehs + 3.0)
                 let ty = sy + @math.sin(angle) * (ehs + 3.0)
-                nodes.push(@scene.rect(x=tx - 1.5, y=ty - 1.5, w=3.0, h=3.0, fill=0x44AAFF))
+                nodes.push(
+                  @scene.rect(
+                    x=tx - 1.5,
+                    y=ty - 1.5,
+                    w=3.0,
+                    h=3.0,
+                    fill=0x44AAFF,
+                  ),
+                )
               }
               k if k == kind_boss => {
                 // Outline + pulse
-                nodes.push(@scene.rect_outline(x=sx - ehs - 2.0, y=sy - ehs - 2.0, w=enemy.size + 4.0, h=enemy.size + 4.0, color=0xFF2266))
-                let pulse = (0.5 + 0.5 * @math.sin(self.frame_count.to_double() * 0.08))
-                nodes.push(@scene.rect(x=sx - ehs, y=sy - ehs, w=enemy.size, h=enemy.size, fill=0xFF4488, alpha=pulse * 0.3))
+                nodes.push(
+                  @scene.rect_outline(
+                    x=sx - ehs - 2.0,
+                    y=sy - ehs - 2.0,
+                    w=enemy.size + 4.0,
+                    h=enemy.size + 4.0,
+                    color=0xFF2266,
+                  ),
+                )
+                let pulse = 0.5 +
+                  0.5 * @math.sin(self.frame_count.to_double() * 0.08)
+                nodes.push(
+                  @scene.rect(
+                    x=sx - ehs,
+                    y=sy - ehs,
+                    w=enemy.size,
+                    h=enemy.size,
+                    fill=0xFF4488,
+                    alpha=pulse * 0.3,
+                  ),
+                )
                 // Boss name
-                nodes.push(@scene.label(x=sx, y=sy - ehs - 12.0, content="BOSS", color=0xFF2266, scale=0.5))
+                nodes.push(
+                  @scene.label(
+                    x=sx,
+                    y=sy - ehs - 12.0,
+                    content="BOSS",
+                    color=0xFF2266,
+                    scale=0.5,
+                  ),
+                )
               }
               _ => ()
             }
             // HP bar bg
             nodes.push(
-              @scene.rect(x=sx - ehs, y=sy - ehs - 4.0, w=enemy.size, h=2.0, fill=0x440000),
+              @scene.rect(
+                x=sx - ehs,
+                y=sy - ehs - 4.0,
+                w=enemy.size,
+                h=2.0,
+                fill=0x440000,
+              ),
             )
             // HP bar fill
             let ehp_ratio = enemy.hp.to_double() / enemy.max_hp.to_double()
             nodes.push(
               @scene.rect(
-                x=sx - ehs, y=sy - ehs - 4.0,
-                w=enemy.size * ehp_ratio, h=2.0, fill=0xCC0000,
+                x=sx - ehs,
+                y=sy - ehs - 4.0,
+                w=enemy.size * ehp_ratio,
+                h=2.0,
+                fill=0xCC0000,
               ),
             )
           }
@@ -744,7 +955,14 @@ fn GameState::view_playing(self : GameState) -> @scene.SceneNode {
           let ay = py - self.player.dash_vy / player_speed * t
           let a = 0.3 - i.to_double() * 0.08
           nodes.push(
-            @scene.rect(x=ax - phs, y=ay - phs, w=self.player.size, h=self.player.size, fill=0x66DDFF, alpha=a),
+            @scene.rect(
+              x=ax - phs,
+              y=ay - phs,
+              w=self.player.size,
+              h=self.player.size,
+              fill=0x66DDFF,
+              alpha=a,
+            ),
           )
         }
         nodes
@@ -752,8 +970,10 @@ fn GameState::view_playing(self : GameState) -> @scene.SceneNode {
     }),
     // Player
     @scene.rect(
-      x=px - phs, y=py - phs,
-      w=self.player.size, h=self.player.size,
+      x=px - phs,
+      y=py - phs,
+      w=self.player.size,
+      h=self.player.size,
       fill=player_fill,
     ),
     // Attack sweep
@@ -775,9 +995,12 @@ fn GameState::view_playing(self : GameState) -> @scene.SceneNode {
           let color = if i < 2 { 0x888888 } else { 0xCCDDFF }
           nodes.push(
             @scene.rect(
-              x=sx - size / 2.0, y=sy - size / 2.0,
-              w=size, h=size,
-              fill=color, alpha=fade * 0.8,
+              x=sx - size / 2.0,
+              y=sy - size / 2.0,
+              w=size,
+              h=size,
+              fill=color,
+              alpha=fade * 0.8,
             ),
           )
         }

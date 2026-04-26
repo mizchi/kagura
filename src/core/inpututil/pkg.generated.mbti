@@ -3,6 +3,7 @@ package "mizchi/kagura/core/inpututil"
 
 import {
   "mizchi/kagura/core",
+  "moonbitlang/core/debug",
 }
 
 // Values
@@ -151,13 +152,13 @@ pub fn update_touch_input_state(TouchInputState, @core.InputSnapshot) -> Unit
 // Errors
 
 // Types and methods
-type GamepadButtonDurationEntry
+type GamepadButtonDurationEntry derive(@debug.Debug)
 pub impl Show for GamepadButtonDurationEntry
 
-type GamepadButtonKey
+type GamepadButtonKey derive(@debug.Debug)
 pub impl Show for GamepadButtonKey
 
-type GamepadDurationEntry
+type GamepadDurationEntry derive(@debug.Debug)
 pub impl Show for GamepadDurationEntry
 
 pub struct GamepadInputState {
@@ -179,7 +180,7 @@ pub struct InputHelper {
   touch_state : TouchInputState
 }
 
-type KeyDurationEntry
+type KeyDurationEntry derive(@debug.Debug)
 pub impl Show for KeyDurationEntry
 
 pub struct KeyInputState {
@@ -190,7 +191,7 @@ pub struct KeyInputState {
   mut durations : Array[KeyDurationEntry]
 }
 
-type MouseButtonDurationEntry
+type MouseButtonDurationEntry derive(@debug.Debug)
 pub impl Show for MouseButtonDurationEntry
 
 pub struct MouseButtonInputState {
@@ -201,7 +202,7 @@ pub struct MouseButtonInputState {
   mut durations : Array[MouseButtonDurationEntry]
 }
 
-type TouchDurationEntry
+type TouchDurationEntry derive(@debug.Debug)
 pub impl Show for TouchDurationEntry
 
 pub struct TouchInputState {

@@ -10,3 +10,13 @@ import {
 }
 
 warnings = "-6-53-68"
+
+supported_targets = "js+native+wasm-gc"
+
+options(
+  targets: {
+    "app.mbt": [ "js", "native" ],
+    "game_api.mbt": [ "js", "native" ],
+    "game_api_wbtest.mbt": [ "js", "native" ],
+  },
+)

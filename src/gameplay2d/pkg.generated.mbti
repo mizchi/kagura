@@ -3,6 +3,7 @@ package "mizchi/kagura/gameplay2d"
 
 import {
   "mizchi/kagura/interactable2d",
+  "moonbitlang/core/debug",
 }
 
 // Values
@@ -21,8 +22,7 @@ pub(all) struct BuiltinPickupResult {
   next_hp : Int
   next_score : Int
   heal_feedback : Bool
-}
-pub impl Eq for BuiltinPickupResult
+} derive(Eq, @debug.Debug)
 pub impl Show for BuiltinPickupResult
 
 pub(all) struct EquipmentPickupPlan {
@@ -30,23 +30,20 @@ pub(all) struct EquipmentPickupPlan {
   store_previous_equipped : Bool
   equip_incoming : Bool
   use_fifo_storage : Bool
-}
-pub impl Eq for EquipmentPickupPlan
+} derive(Eq, @debug.Debug)
 pub impl Show for EquipmentPickupPlan
 
 pub(all) enum PickupResolution {
   Builtin(Int, Int, Bool)
   Equipment(EquipmentPickupPlan)
-}
-pub impl Eq for PickupResolution
+} derive(Eq, @debug.Debug)
 pub impl Show for PickupResolution
 
 pub(all) struct PickupRewardConfig {
   score_amount : Int
   heal_amount : Int
-}
+} derive(Eq, @debug.Debug)
 pub fn PickupRewardConfig::new(score_amount~ : Int, heal_amount~ : Int) -> Self
-pub impl Eq for PickupRewardConfig
 pub impl Show for PickupRewardConfig
 
 // Type aliases

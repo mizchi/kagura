@@ -4,6 +4,7 @@ package "mizchi/kagura/tilemap2d"
 import {
   "mizchi/kagura/engine/asset",
   "mizchi/kagura/engine/gfx",
+  "moonbitlang/core/debug",
 }
 
 // Values
@@ -52,21 +53,21 @@ pub struct AtlasTileDrawSpec {
   right : Double
   bottom : Double
   uniform_dwords : Array[Int]
-}
+} derive(@debug.Debug)
 pub impl Show for AtlasTileDrawSpec
 
-type ResolvedTileQuad
+type ResolvedTileQuad derive(@debug.Debug)
 pub impl Show for ResolvedTileQuad
 
 pub struct TileAtlasEntry {
   tile_index : Int
   atlas_key : @asset.AssetKey
-}
+} derive(@debug.Debug)
 pub impl Show for TileAtlasEntry
 
 pub struct TileAtlasTable {
   entries : Array[TileAtlasEntry]
-}
+} derive(@debug.Debug)
 pub impl Show for TileAtlasTable
 
 pub(all) struct TileChunkBatchCache {
@@ -78,7 +79,7 @@ pub fn TileChunkBatchCache::append_visible_dirty_chunk_batched_draw_commands(Sel
 pub fn TileChunkBatchCache::invalidate(Self) -> Unit
 pub fn TileChunkBatchCache::new(Int, Array[Int]) -> Self
 
-type TileChunkOrigin
+type TileChunkOrigin derive(@debug.Debug)
 pub impl Show for TileChunkOrigin
 
 pub struct TileChunkRect {
@@ -86,7 +87,7 @@ pub struct TileChunkRect {
   tile_y : Int
   tile_width : Int
   tile_height : Int
-}
+} derive(@debug.Debug)
 pub impl Show for TileChunkRect
 
 // Type aliases

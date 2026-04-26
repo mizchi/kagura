@@ -2,7 +2,12 @@
 pub(all) struct AABB {
   min : @math3d.Vec3
   max : @math3d.Vec3
-} derive(Show)
+} derive(Debug)
+
+///|
+pub impl Show for AABB with output(self, logger) {
+  logger.write_object(to_repr(self))
+}
 
 ///|
 pub fn AABB::new(min : @math3d.Vec3, max : @math3d.Vec3) -> AABB {

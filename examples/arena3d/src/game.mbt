@@ -182,12 +182,8 @@ fn GameState::new() -> GameState {
   let audio_ctx = @audio.MixerAudioContext::new(44100)
   let clip_collect = generate_tone_clip(880.0, 0.15, 44100)
   let clip_hit = generate_tone_clip(220.0, 0.2, 44100)
-  let sfx_collect = audio_ctx.create_player(clip_collect) catch {
-    _ => panic()
-  }
-  let sfx_hit = audio_ctx.create_player(clip_hit) catch {
-    _ => panic()
-  }
+  let sfx_collect = audio_ctx.create_player(clip_collect) catch { _ => panic() }
+  let sfx_hit = audio_ctx.create_player(clip_hit) catch { _ => panic() }
   {
     mode: mode_playing,
     score: 0,
@@ -205,7 +201,10 @@ fn GameState::new() -> GameState {
       ground: @mesh3d.Mesh3D::plane(20.0, 20.0),
       wall: @mesh3d.Mesh3D::cube(1.0),
     },
-    shader3d: @gfx.new_shader_handle(100, @draw3d.shader3d_lit_untextured_wgsl()),
+    shader3d: @gfx.new_shader_handle(
+      100,
+      @draw3d.shader3d_lit_untextured_wgsl(),
+    ),
     audio_ctx,
     sfx_collect,
     sfx_hit,
@@ -339,8 +338,12 @@ fn GameState::update_playing(self : GameState) -> Unit {
       item.active = false
       self.score = self.score + 10
       respawn_item(item, self.frame_count + i * 97)
-      self.audio_ctx.seek(self.sfx_collect, 0.0) catch { _ => () }
-      self.audio_ctx.play(self.sfx_collect) catch { _ => () }
+      self.audio_ctx.seek(self.sfx_collect, 0.0) catch {
+        _ => ()
+      }
+      self.audio_ctx.play(self.sfx_collect) catch {
+        _ => ()
+      }
     }
   }
   for i in 0..<self.enemies.length() {
@@ -360,8 +363,12 @@ fn GameState::update_playing(self : GameState) -> Unit {
       )
     }
     if distance_xz(self.player.position, e.position) < enemy_hit_dist {
-      self.audio_ctx.seek(self.sfx_hit, 0.0) catch { _ => () }
-      self.audio_ctx.play(self.sfx_hit) catch { _ => () }
+      self.audio_ctx.seek(self.sfx_hit, 0.0) catch {
+        _ => ()
+      }
+      self.audio_ctx.play(self.sfx_hit) catch {
+        _ => ()
+      }
       self.mode = mode_gameover
     }
   }
@@ -395,7 +402,8 @@ fn GameState::build_scene_graph(self : GameState) -> @scene3d.SceneGraph {
   // Ground
   graph.add_node(
     @scene3d.scene_node(mesh=Some(self.meshes.ground), color=color_ground),
-  ) |> ignore
+  )
+  |> ignore
   // Walls
   let h = arena_half
   let wh = wall_height / 2.0
@@ -408,7 +416,8 @@ fn GameState::build_scene_graph(self : GameState) -> @scene3d.SceneGraph {
       scale=@math3d.Vec3::new(h * 2.0 + wt * 2.0, wall_height, wt),
       color=color_wall,
     ),
-  ) |> ignore
+  )
+  |> ignore
   // South wall
   graph.add_node(
     @scene3d.scene_node(
@@ -417,7 +426,8 @@ fn GameState::build_scene_graph(self : GameState) -> @scene3d.SceneGraph {
       scale=@math3d.Vec3::new(h * 2.0 + wt * 2.0, wall_height, wt),
       color=color_wall,
     ),
-  ) |> ignore
+  )
+  |> ignore
   // West wall
   graph.add_node(
     @scene3d.scene_node(
@@ -426,7 +436,8 @@ fn GameState::build_scene_graph(self : GameState) -> @scene3d.SceneGraph {
       scale=@math3d.Vec3::new(wt, wall_height, h * 2.0),
       color=color_wall,
     ),
-  ) |> ignore
+  )
+  |> ignore
   // East wall
   graph.add_node(
     @scene3d.scene_node(
@@ -435,7 +446,8 @@ fn GameState::build_scene_graph(self : GameState) -> @scene3d.SceneGraph {
       scale=@math3d.Vec3::new(wt, wall_height, h * 2.0),
       color=color_wall,
     ),
-  ) |> ignore
+  )
+  |> ignore
   // Items
   for i in 0..<self.items.length() {
     let item = self.items[i]
@@ -446,7 +458,8 @@ fn GameState::build_scene_graph(self : GameState) -> @scene3d.SceneGraph {
           position=item.position,
           color=color_item,
         ),
-      ) |> ignore
+      )
+      |> ignore
     }
   }
   // Enemies
@@ -458,7 +471,8 @@ fn GameState::build_scene_graph(self : GameState) -> @scene3d.SceneGraph {
         position=e.position,
         color=color_enemy,
       ),
-    ) |> ignore
+    )
+    |> ignore
   }
   // Player
   graph.add_node(
@@ -467,7 +481,8 @@ fn GameState::build_scene_graph(self : GameState) -> @scene3d.SceneGraph {
       position=self.player.position,
       color=color_player,
     ),
-  ) |> ignore
+  )
+  |> ignore
   graph
 }
 

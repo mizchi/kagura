@@ -36,7 +36,7 @@ test "items initialized not collected" {
   let state = ShowcaseState::new()
   assert_eq(state.items.length(), 5)
   for item in state.items {
-    assert_true(!(item.collected))
+    assert_true(!item.collected)
   }
 }
 
@@ -94,8 +94,8 @@ test "is_wall_at detects walls" {
 ///|
 test "is_wall_at detects floor" {
   let tiles = generate_tilemap()
-  assert_true(!(is_wall_at(tiles, 1, 1)))
-  assert_true(!(is_wall_at(tiles, 2, 2)))
+  assert_true(!is_wall_at(tiles, 1, 1))
+  assert_true(!is_wall_at(tiles, 2, 2))
 }
 
 ///|
@@ -127,9 +127,9 @@ test "atlas repo has tile images" {
     repo,
     @asset.new_asset_key("tile_water"),
   )
-  assert_true(!(floor_src.is_empty()))
-  assert_true(!(wall_src.is_empty()))
-  assert_true(!(water_src.is_empty()))
+  assert_true(floor_src is Some(_))
+  assert_true(wall_src is Some(_))
+  assert_true(water_src is Some(_))
 }
 
 // ============================================================
@@ -210,7 +210,7 @@ test "check_wall_collision detects wall" {
 test "check_wall_collision allows floor" {
   let state = ShowcaseState::new()
   // Position in middle of floor area
-  assert_true(!(state.check_wall_collision(48.0, 48.0, 10.0)))
+  assert_true(!state.check_wall_collision(48.0, 48.0, 10.0))
 }
 
 // ============================================================
@@ -276,7 +276,7 @@ test "attack kills enemy in range" {
   // Simulate confirm press (Space = 32)
   let input = @core.new_input_snapshot(0.0, 0.0, 0.0, 0.0, [32])
   state.update(input)
-  assert_true(!(state.enemies[0].alive))
+  assert_true(!state.enemies[0].alive)
   assert_eq(state.score, 100)
 }
 
@@ -372,7 +372,7 @@ test "gameover on player death" {
   let input = @core.new_input_snapshot(0.0, 0.0, 0.0, 0.0, [])
   state.update(input)
   assert_eq(state.mode, mode_gameover)
-  assert_true(!(state.player.alive))
+  assert_true(!state.player.alive)
 }
 
 ///|
@@ -490,7 +490,9 @@ test "svg path conversion produces commands" {
 ///|
 test "TextRenderer render and measure with embedded font" {
   let font_data = embedded_test_font_data()
-  @text.set_font_load_hooks(@text.new_font_load_hooks(fn(_name) { Some(font_data) }))
+  @text.set_font_load_hooks(
+    @text.new_font_load_hooks(fn(_name) { Some(font_data) }),
+  )
   let renderer = @text.load_text_renderer("test.otf", 256, 950, 0)
   assert_true(renderer is Some(_))
   let tr = renderer.unwrap()
@@ -559,5 +561,5 @@ test "aabb overlap center no collision" {
   let result = @vector.aabb_overlap_center(
     10.0, 10.0, 5.0, 5.0, 100.0, 100.0, 5.0, 5.0,
   )
-  assert_true(!(result))
+  assert_true(!result)
 }

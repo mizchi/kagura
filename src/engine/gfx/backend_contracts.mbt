@@ -11,14 +11,24 @@ pub enum GraphicsBackendKind {
   WebGpu
   WebGl2
   Null
-} derive(Show)
+} derive(Debug)
+
+///|
+pub impl Show for GraphicsBackendKind with output(self, logger) {
+  logger.write_object(to_repr(self))
+}
 
 ///|
 pub struct GraphicsBackendOptions {
   enable_validation : Bool
   prefer_low_power : Bool
   enable_vsync : Bool
-} derive(Show)
+} derive(Debug)
+
+///|
+pub impl Show for GraphicsBackendOptions with output(self, logger) {
+  logger.write_object(to_repr(self))
+}
 
 ///|
 pub struct StubGraphicsDriver {
@@ -46,7 +56,12 @@ pub struct GraphicsResizeStats {
   current_height : Int
   last_resize_duration_ms : Double
   total_resize_duration_ms : Double
-} derive(Show)
+} derive(Debug)
+
+///|
+pub impl Show for GraphicsResizeStats with output(self, logger) {
+  logger.write_object(to_repr(self))
+}
 
 ///|
 pub type NativeGraphicsDriver = StubGraphicsDriver
@@ -209,7 +224,7 @@ pub impl GraphicsDriver for StubGraphicsDriver with begin(self, pass) {
   let _ = self.backend
   if self.initialized {
     // Re-check web initialization if not yet active (async WebGPU device init)
-    if !(self.web_active) {
+    if !self.web_active {
       match self.backend {
         GraphicsBackendKind::WebGpu | GraphicsBackendKind::WebGl2 =>
           self.web_active = web_graphics_try_initialize(
@@ -313,7 +328,7 @@ pub impl GraphicsDriver for StubGraphicsDriver with read_pixels(
   width,
   height,
 ) {
-  if !(self.initialized) {
+  if !self.initialized {
     return None
   }
   let read_w = if x + width > self.width { self.width - x } else { width }

@@ -28,21 +28,22 @@ struct DemoState {
 }
 
 // Body colors: index -> hex color
+
 ///|
 let body_colors : Array[Int] = [
   0x888888, // 0: ground (gray)
-  0xE04040, // 1: red cube
-  0x40A0E0, // 2: blue sphere
-  0xE0C040, // 3: yellow cube
-  0x40E070, // 4: green sphere
-  0xC060D0, // 5: purple cube
-  0xE08040, // 6: orange sphere
-  0x60D0D0, // 7: cyan cube
-  0xD06080, // 8: pink sphere
-  0x80D060, // 9: lime cube
-  0xA0A0E0, // 10: lavender sphere
-  0xD0A060, // 11: tan cube
-  0x60A0A0, // 12: teal sphere
+   0xE04040, // 1: red cube
+   0x40A0E0, // 2: blue sphere
+   0xE0C040, // 3: yellow cube
+   0x40E070, // 4: green sphere
+   0xC060D0, // 5: purple cube
+   0xE08040, // 6: orange sphere
+   0x60D0D0, // 7: cyan cube
+   0xD06080, // 8: pink sphere
+   0x80D060, // 9: lime cube
+   0xA0A0E0, // 10: lavender sphere
+   0xD0A060, // 11: tan cube
+   0x60A0A0, // 12: teal sphere
 ]
 
 ///|
@@ -187,11 +188,7 @@ fn DemoState::update(self : DemoState, snapshot : @core.InputSnapshot) -> Unit {
 
 ///|
 fn body_color(id : Int) -> @math3d.Vec4 {
-  let hex = if id < body_colors.length() {
-    body_colors[id]
-  } else {
-    0xAAAAAA
-  }
+  let hex = if id < body_colors.length() { body_colors[id] } else { 0xAAAAAA }
   let r = ((hex >> 16) & 0xFF).to_double() / 255.0
   let g = ((hex >> 8) & 0xFF).to_double() / 255.0
   let b = (hex & 0xFF).to_double() / 255.0
@@ -225,15 +222,21 @@ fn DemoState::draw(
       transform,
       color,
       material: None,
-      sort_bias: if is_ground { 100.0 } else { 0.0 },
+      sort_bias: if is_ground {
+        100.0
+      } else {
+        0.0
+      },
       skinning: None,
     })
   }
   let camera = self.camera.to_camera3d()
-  let scene = @scene3d.scene3d(
-    objects~,
-    camera~,
-    lighting=self.lighting,
+  let scene = @scene3d.scene3d(objects~, camera~, lighting=self.lighting)
+  @scene3d.render_scene3d_gpu(
+    scene,
+    ctx.dst,
+    self.shader3d,
+    ctx.screen_w,
+    ctx.screen_h,
   )
-  @scene3d.render_scene3d_gpu(scene, ctx.dst, self.shader3d, ctx.screen_w, ctx.screen_h)
 }

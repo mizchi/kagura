@@ -13,7 +13,12 @@ pub(all) enum RelicId {
   Akabeko // First attack each combat deals +8 damage
   OrnamentalFan // Every 3rd attack played, gain 4 Block
   HappyFlower // Every 3 turns, gain 1 Energy
-} derive(Show, Eq)
+} derive(Debug, Eq)
+
+///|
+pub impl Show for RelicId with output(self, logger) {
+  logger.write_object(to_repr(self))
+}
 
 ///|
 /// Relic definition (static data)
@@ -21,7 +26,12 @@ pub(all) struct RelicDef {
   id : RelicId
   name : String
   description : String
-} derive(Show)
+} derive(Debug)
+
+///|
+pub impl Show for RelicDef with output(self, logger) {
+  logger.write_object(to_repr(self))
+}
 
 ///|
 fn relic_def(id : RelicId) -> RelicDef {
@@ -108,7 +118,12 @@ pub(all) struct RelicState {
   mut akabeko_active : Bool // First attack this combat gets +8
   mut fan_counter : Int // Counts attacks for OrnamentalFan
   mut flower_counter : Int // Counts turns for HappyFlower
-} derive(Show)
+} derive(Debug)
+
+///|
+pub impl Show for RelicState with output(self, logger) {
+  logger.write_object(to_repr(self))
+}
 
 ///|
 fn RelicState::new() -> RelicState {
@@ -156,7 +171,7 @@ fn relics_on_battle_start(
       }
       BagOfMarbles => {
         for enemy in enemies {
-          if not(enemy.fighter.is_dead()) {
+          if !enemy.fighter.is_dead() {
             enemy.fighter.status.vulnerable += 1
           }
         }

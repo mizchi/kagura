@@ -82,6 +82,7 @@ test "economy: encounter difficulty ordering" {
   let normal1 = encounter_difficulty(SingleCultist)
   let elite1 = encounter_difficulty(EliteSlaver)
   let elite2 = encounter_difficulty(SentryPair)
+  assert_true(normal1 > 0.0)
   // Elite should be harder than Easy
   assert_true(elite1 > easy1)
   assert_true(elite2 > easy1)

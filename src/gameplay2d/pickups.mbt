@@ -5,14 +5,24 @@ pub type PickupEffect = @interactable2d.InteractablePickupEffect
 pub(all) struct PickupRewardConfig {
   score_amount : Int
   heal_amount : Int
-} derive(Eq, Show)
+} derive(Eq, Debug)
+
+///|
+pub impl Show for PickupRewardConfig with output(self, logger) {
+  logger.write_object(to_repr(self))
+}
 
 ///|
 pub(all) struct BuiltinPickupResult {
   next_hp : Int
   next_score : Int
   heal_feedback : Bool
-} derive(Eq, Show)
+} derive(Eq, Debug)
+
+///|
+pub impl Show for BuiltinPickupResult with output(self, logger) {
+  logger.write_object(to_repr(self))
+}
 
 ///|
 pub fn PickupRewardConfig::new(
@@ -28,13 +38,23 @@ pub(all) struct EquipmentPickupPlan {
   store_previous_equipped : Bool
   equip_incoming : Bool
   use_fifo_storage : Bool
-} derive(Eq, Show)
+} derive(Eq, Debug)
+
+///|
+pub impl Show for EquipmentPickupPlan with output(self, logger) {
+  logger.write_object(to_repr(self))
+}
 
 ///|
 pub(all) enum PickupResolution {
   Builtin(Int, Int, Bool)
   Equipment(EquipmentPickupPlan)
-} derive(Eq, Show)
+} derive(Eq, Debug)
+
+///|
+pub impl Show for PickupResolution with output(self, logger) {
+  logger.write_object(to_repr(self))
+}
 
 ///|
 pub fn plan_equipment_pickup(
@@ -43,7 +63,7 @@ pub fn plan_equipment_pickup(
   inventory_has_space~ : Bool,
   has_previous_equipped~ : Bool,
 ) -> EquipmentPickupPlan {
-  if !(auto_play) {
+  if !auto_play {
     return {
       store_incoming: inventory_has_space,
       store_previous_equipped: false,
@@ -56,14 +76,14 @@ pub fn plan_equipment_pickup(
       store_incoming: false,
       store_previous_equipped: has_previous_equipped,
       equip_incoming: true,
-      use_fifo_storage: !(inventory_has_space),
+      use_fifo_storage: !inventory_has_space,
     }
   }
   {
     store_incoming: true,
     store_previous_equipped: false,
     equip_incoming: false,
-    use_fifo_storage: !(inventory_has_space),
+    use_fifo_storage: !inventory_has_space,
   }
 }
 

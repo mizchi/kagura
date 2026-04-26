@@ -1,6 +1,10 @@
 // Generated using `moon info`, DON'T EDIT IT
 package "mizchi/kagura/core/payload2d"
 
+import {
+  "moonbitlang/core/debug",
+}
+
 // Values
 pub fn clamp_unit(Double) -> Double
 
@@ -30,7 +34,7 @@ pub struct TrianglePayload {
   uniform_b : Double
   uniform_a : Double
   texture_seed : Int
-}
+} derive(@debug.Debug)
 pub impl Show for TrianglePayload
 
 // Type aliases

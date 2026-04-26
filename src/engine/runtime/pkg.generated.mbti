@@ -6,6 +6,7 @@ import {
   "mizchi/kagura/core/inpututil",
   "mizchi/kagura/engine/gfx",
   "mizchi/kagura/engine/platform",
+  "moonbitlang/core/debug",
 }
 
 // Values
@@ -45,7 +46,7 @@ pub fn set_runtime_clock_provider(() -> Double) -> Unit
 pub struct FramePlan {
   updates : Int
   should_draw : Bool
-}
+} derive(@debug.Debug)
 pub impl Show for FramePlan
 
 pub struct InputEdgeObserverState {
@@ -69,14 +70,14 @@ pub struct InputEdgeSummary {
   just_disconnected_gamepad_count : Int
   just_pressed_gamepad_button_count : Int
   just_released_gamepad_button_count : Int
-}
+} derive(@debug.Debug)
 pub impl Show for InputEdgeSummary
 
 pub struct RuntimeConfig {
   max_skip_frames : Int
   enable_vsync : Bool
   clear_screen_every_frame : Bool
-}
+} derive(@debug.Debug)
 pub impl Show for RuntimeConfig
 
 pub struct RuntimeHooks {

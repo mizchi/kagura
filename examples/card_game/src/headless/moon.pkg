@@ -2,7 +2,9 @@ import {
   "mizchi/card_game/lib" @lib,
 }
 
-warnings = "-29-71"
+warnings = "-29"
+
+supported_targets = "js+native"
 
 options(
   "is-main": true,

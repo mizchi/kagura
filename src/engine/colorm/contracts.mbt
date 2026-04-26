@@ -16,7 +16,12 @@
 ///|
 pub struct ColorM {
   elements : FixedArray[Double]
-} derive(Show)
+} derive(Debug)
+
+///|
+pub impl Show for ColorM with output(self, logger) {
+  logger.write_object(to_repr(self))
+}
 
 ///|
 pub fn ColorM::identity() -> ColorM {

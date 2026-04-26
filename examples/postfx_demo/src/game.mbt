@@ -34,7 +34,8 @@ struct DemoState {
 fn DemoState::new() -> DemoState {
   // 3D lit shader
   let shader3d = @gfx.new_shader_handle(
-    10, @draw3d.shader3d_lit_untextured_wgsl(),
+    10,
+    @draw3d.shader3d_lit_untextured_wgsl(),
   )
   let camera = @camera3d.OrbitCamera::new(
     @math3d.Vec3::new(0.0, 1.0, 0.0),
@@ -116,7 +117,8 @@ fn DemoState::build_scene(self : DemoState) -> @scene3d.Scene3D {
       mesh=self.cube_mesh,
       position=@math3d.Vec3::new(0.0, 0.5, -2.0),
       rotation=@math3d.Quaternion::from_axis_angle(
-        @math3d.Vec3::unit_y(), angle,
+        @math3d.Vec3::unit_y(),
+        angle,
       ),
       color=@math3d.Vec4::new(0.2, 0.9, 1.0, 1.0),
     ),
@@ -130,7 +132,7 @@ fn DemoState::build_scene(self : DemoState) -> @scene3d.Scene3D {
     ),
   )
   let camera = self.camera.to_camera3d()
-  @scene3d.scene3d(objects=objects, camera=camera, lighting=self.lighting)
+  @scene3d.scene3d(objects~, camera~, lighting=self.lighting)
 }
 
 // ============================================================
@@ -157,7 +159,11 @@ fn DemoState::draw(
   // 1. Render scene to pipeline's scene target
   let scene = self.build_scene()
   let scene_cmds = @scene3d.render_scene3d_gpu(
-    scene, self.pipeline.scene_target, self.shader3d, ctx.screen_w, ctx.screen_h,
+    scene,
+    self.pipeline.scene_target,
+    self.shader3d,
+    ctx.screen_w,
+    ctx.screen_h,
   )
   for cmd in scene_cmds {
     all_cmds.push(cmd)

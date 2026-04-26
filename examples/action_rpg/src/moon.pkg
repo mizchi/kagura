@@ -1,4 +1,7 @@
 import {
+  "moonbitlang/core/bench" @bench,
+  "moonbitlang/core/cmp" @cmp,
+  "moonbitlang/core/math" @math,
   "mizchi/font" @font,
   "mizchi/kagura/ai" @ai,
   "mizchi/kagura/engine/asset" @asset,
@@ -18,11 +21,12 @@ import {
   "mizchi/web_runtime_hooks" @web_hooks,
 }
 
-warnings = "-1-2-7-20-29-71"
+warnings = "-1-2-7-29"
+
+supported_targets = "js+native"
 
 options(
   "is-main": true,
-  "supported-targets": [ "js", "native" ],
   link: {
     "native": {
       "cc": "${build.KAGURA_NATIVE_CC}",

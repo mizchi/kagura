@@ -4,7 +4,12 @@ pub enum AssetPriority {
   High
   Normal
   Low
-} derive(Show, Eq)
+} derive(Debug, Eq)
+
+///|
+pub impl Show for AssetPriority with output(self, logger) {
+  logger.write_object(to_repr(self))
+}
 
 ///|
 fn priority_to_int(p : AssetPriority) -> Int {
@@ -23,7 +28,12 @@ pub(all) struct StreamProgress {
   active : Int
   completed : Int
   failed : Int
-} derive(Show)
+} derive(Debug)
+
+///|
+pub impl Show for StreamProgress with output(self, logger) {
+  logger.write_object(to_repr(self))
+}
 
 ///|
 struct StreamRequest {
@@ -89,7 +99,7 @@ pub fn AssetStreamManager::enqueue(
       break
     }
   }
-  if !(inserted) {
+  if !inserted {
     self.pending.push(req)
   }
   id
@@ -196,7 +206,7 @@ pub fn AssetStreamManager::reprioritize(
           break
         }
       }
-      if !(inserted) {
+      if !inserted {
         self.pending.push(req)
       }
       return true

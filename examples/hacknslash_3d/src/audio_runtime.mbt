@@ -9,7 +9,12 @@ enum GameSoundCue {
   SfxSpellIceNova
   SfxSpellHomingMissile
   SfxFloorComplete
-} derive(Eq, Show)
+} derive(Eq, Debug)
+
+///|
+pub impl Show for GameSoundCue with output(self, logger) {
+  logger.write_object(to_repr(self))
+}
 
 ///|
 struct GameAudioPlayers {
@@ -147,7 +152,7 @@ fn GameState::set_audio_muted(self : GameState, muted : Bool) -> Unit {
 
 ///|
 fn GameState::toggle_audio_muted(self : GameState) -> Unit {
-  self.set_audio_muted(!(self.audio_muted))
+  self.set_audio_muted(!self.audio_muted)
 }
 
 ///|

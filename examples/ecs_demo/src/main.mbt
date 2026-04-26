@@ -58,9 +58,7 @@ fn Game::new() -> Game {
     let ex = pseudo_random(i * 7 + 3) * (screen_w.to_double() - 20.0) + 10.0
     let ey = pseudo_random(i * 13 + 5) * (screen_h.to_double() - 20.0) + 10.0
     let eid = world.spawn_at(
-      @transform3d.Transform3D::from_position(
-        @math3d.Vec3::new(ex, ey, 0.0),
-      ),
+      @transform3d.Transform3D::from_position(@math3d.Vec3::new(ex, ey, 0.0)),
     )
     world.add_tag(eid, @ecs.Tag::Enemy)
     world.set_velocity(eid, { x: 0.0, y: 0.0, z: 0.0 })
@@ -203,60 +201,51 @@ fn Game::clamp_positions(self : Game) -> Unit {
 fn Game::view(self : Game) -> @scene.SceneNode {
   let sw = screen_w.to_double()
   let sh = screen_h.to_double()
-  @scene.fragment(
-    [
-      // Background
-      @scene.rect(w=sw, h=sh, fill=0x1A1A2E),
-      // Grid
-      @scene.for_each(fn() {
-        let lines : Array[@scene.SceneNode] = []
-        let mut gx = 40.0
-        while gx < sw {
-          lines.push(@scene.line(x0=gx, y0=0.0, x1=gx, y1=sh, color=0x222244))
-          gx = gx + 40.0
-        }
-        let mut gy = 40.0
-        while gy < sh {
-          lines.push(@scene.line(x0=0.0, y0=gy, x1=sw, y1=gy, color=0x222244))
-          gy = gy + 40.0
-        }
-        lines
-      }),
-      // Entities
-      @scene.for_each(fn() {
-        let nodes : Array[@scene.SceneNode] = []
-        self.world.each_with_transform(fn(eid, t) {
-          let x = t.position.x - entity_size / 2.0
-          let y = t.position.y - entity_size / 2.0
-          let is_player = self.world.has_tag(eid, @ecs.Tag::Player)
-          let fill = if is_player { 0x00FF88 } else { 0xFF4444 }
+  @scene.fragment([
+    // Background
+    @scene.rect(w=sw, h=sh, fill=0x1A1A2E),
+    // Grid
+    @scene.for_each(fn() {
+      let lines : Array[@scene.SceneNode] = []
+      let mut gx = 40.0
+      while gx < sw {
+        lines.push(@scene.line(x0=gx, y0=0.0, x1=gx, y1=sh, color=0x222244))
+        gx = gx + 40.0
+      }
+      let mut gy = 40.0
+      while gy < sh {
+        lines.push(@scene.line(x0=0.0, y0=gy, x1=sw, y1=gy, color=0x222244))
+        gy = gy + 40.0
+      }
+      lines
+    }),
+    // Entities
+    @scene.for_each(fn() {
+      let nodes : Array[@scene.SceneNode] = []
+      self.world.each_with_transform(fn(eid, t) {
+        let x = t.position.x - entity_size / 2.0
+        let y = t.position.y - entity_size / 2.0
+        let is_player = self.world.has_tag(eid, @ecs.Tag::Player)
+        let fill = if is_player { 0x00FF88 } else { 0xFF4444 }
+        nodes.push(@scene.rect(x~, y~, w=entity_size, h=entity_size, fill~))
+        if is_player {
           nodes.push(
-            @scene.rect(x=x, y=y, w=entity_size, h=entity_size, fill=fill),
+            @scene.rect_outline(
+              x=x - 1.0,
+              y=y - 1.0,
+              w=entity_size + 2.0,
+              h=entity_size + 2.0,
+              color=0x00FFAA,
+            ),
           )
-          if is_player {
-            nodes.push(
-              @scene.rect_outline(
-                x=x - 1.0,
-                y=y - 1.0,
-                w=entity_size + 2.0,
-                h=entity_size + 2.0,
-                color=0x00FFAA,
-              ),
-            )
-          }
-        })
-        nodes
-      }),
-      // HUD
-      @scene.label(x=sw / 2.0, y=8.0, content="ECS DEMO", color=0xFFFF00),
-      @scene.label(
-        x=4.0,
-        y=sh - 8.0,
-        content="WASD:MOVE",
-        color=0x888888,
-      ),
-    ],
-  )
+        }
+      })
+      nodes
+    }),
+    // HUD
+    @scene.label(x=sw / 2.0, y=8.0, content="ECS DEMO", color=0xFFFF00),
+    @scene.label(x=4.0, y=sh - 8.0, content="WASD:MOVE", color=0x888888),
+  ])
 }
 
 ///|

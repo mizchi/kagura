@@ -11,7 +11,12 @@ pub enum SurfaceKind {
   WebGpuCanvasContext
   WebGlCanvasContext
   OffscreenBuffer
-} derive(Show)
+} derive(Debug)
+
+///|
+pub impl Show for SurfaceKind with output(self, logger) {
+  logger.write_object(to_repr(self))
+}
 
 ///|
 pub struct SurfaceToken {
@@ -20,7 +25,12 @@ pub struct SurfaceToken {
   width : Int
   height : Int
   device_scale_factor : Double
-} derive(Show)
+} derive(Debug)
+
+///|
+pub impl Show for SurfaceToken with output(self, logger) {
+  logger.write_object(to_repr(self))
+}
 
 ///|
 pub trait SurfaceProvider {

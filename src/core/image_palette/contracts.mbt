@@ -10,7 +10,12 @@ pub struct Rgba {
   g : Int
   b : Int
   a : Int
-} derive(Show)
+} derive(Debug)
+
+///|
+pub impl Show for Rgba with output(self, logger) {
+  logger.write_object(to_repr(self))
+}
 
 ///|
 pub struct ImagePalette2x2 {
@@ -18,7 +23,12 @@ pub struct ImagePalette2x2 {
   p10 : Rgba
   p01 : Rgba
   p11 : Rgba
-} derive(Show)
+} derive(Debug)
+
+///|
+pub impl Show for ImagePalette2x2 with output(self, logger) {
+  logger.write_object(to_repr(self))
+}
 
 ///|
 pub fn clamp_channel(channel : Int) -> Int {

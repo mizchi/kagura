@@ -95,7 +95,7 @@ fn rasterize_icon(pattern : Array[Int], color : Int) -> Array[Int] {
   for row in 0..<16 {
     let bits = pattern[row]
     for col in 0..<16 {
-      if (bits & (1).lsl(15 - col)) != 0 {
+      if (bits & (1 << (15 - col))) != 0 {
         pixels.push(r)
         pixels.push(g)
         pixels.push(b)

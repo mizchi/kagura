@@ -3,6 +3,7 @@ package "mizchi/kagura/engine/gfx"
 
 import {
   "mizchi/kagura/engine/platform",
+  "moonbitlang/core/debug",
 }
 
 // Values
@@ -176,7 +177,7 @@ pub struct BlendEquation {
   src_factor_alpha : BlendFactor
   dst_factor_alpha : BlendFactor
   op_alpha : BlendOperation
-}
+} derive(@debug.Debug)
 pub impl Show for BlendEquation
 
 pub enum BlendFactor {
@@ -190,7 +191,7 @@ pub enum BlendFactor {
   OneMinusSrcColor
   DstColor
   OneMinusDstColor
-}
+} derive(@debug.Debug)
 pub impl Show for BlendFactor
 
 pub enum BlendMode {
@@ -199,7 +200,7 @@ pub enum BlendMode {
   Add
   Multiply
   Custom(BlendEquation)
-}
+} derive(@debug.Debug)
 pub impl Show for BlendMode
 
 pub enum BlendOperation {
@@ -208,7 +209,7 @@ pub enum BlendOperation {
   ReverseSubtract
   Min
   Max
-}
+} derive(@debug.Debug)
 pub impl Show for BlendOperation
 
 pub enum BuiltinShaderAddress {
@@ -217,33 +218,33 @@ pub enum BuiltinShaderAddress {
   ClampToEdge
   Repeat
   MirrorRepeat
-}
+} derive(@debug.Debug)
 pub impl Show for BuiltinShaderAddress
 
 pub struct BuiltinShaderCacheStats {
   hit_count : Int
   miss_count : Int
-}
+} derive(@debug.Debug)
 pub impl Show for BuiltinShaderCacheStats
 
 pub enum BuiltinShaderFilter {
   Nearest
   Linear
   Pixelated
-}
+} derive(@debug.Debug)
 pub impl Show for BuiltinShaderFilter
 
 pub struct BuiltinShaderKey {
   filter : BuiltinShaderFilter
   address : BuiltinShaderAddress
   use_color_m : Bool
-}
+} derive(@debug.Debug)
 pub impl Show for BuiltinShaderKey
 
 pub struct BuiltinShaderKeyEx {
   sampler : SamplerSpec
   use_color_m : Bool
-}
+} derive(@debug.Debug)
 pub impl Show for BuiltinShaderKeyEx
 
 type BuiltinShaderSourceCacheEntry
@@ -255,7 +256,7 @@ pub struct Color {
   g : Double
   b : Double
   a : Double
-}
+} derive(@debug.Debug)
 pub impl Show for Color
 
 pub struct DrawCommandDispatch {
@@ -272,7 +273,7 @@ pub struct DrawCommandDispatch {
   index_count : Int
   src_image_count : Int
   uniform_dword_count : Int
-}
+} derive(@debug.Debug)
 pub impl Show for DrawCommandDispatch
 
 pub struct DrawTrianglesCommand {
@@ -298,14 +299,14 @@ pub struct DstRegion {
   width : Int
   height : Int
   index_count : Int
-}
+} derive(@debug.Debug)
 pub impl Show for DstRegion
 
 pub enum FilterMode {
   Nearest
   Linear
   Pixelated
-}
+} derive(@debug.Debug)
 pub impl Show for FilterMode
 
 pub struct FloatRect {
@@ -313,7 +314,7 @@ pub struct FloatRect {
   y : Double
   width : Double
   height : Double
-}
+} derive(@debug.Debug)
 pub impl Show for FloatRect
 
 pub struct FramebufferSnapshot {
@@ -322,7 +323,7 @@ pub struct FramebufferSnapshot {
   width : Int
   height : Int
   pixels : Array[Int]
-}
+} derive(@debug.Debug)
 pub impl Show for FramebufferSnapshot
 
 pub enum GraphicsBackendKind {
@@ -330,14 +331,14 @@ pub enum GraphicsBackendKind {
   WebGpu
   WebGl2
   Null
-}
+} derive(@debug.Debug)
 pub impl Show for GraphicsBackendKind
 
 pub struct GraphicsBackendOptions {
   enable_validation : Bool
   prefer_low_power : Bool
   enable_vsync : Bool
-}
+} derive(@debug.Debug)
 pub impl Show for GraphicsBackendOptions
 
 pub struct GraphicsResizeStats {
@@ -347,26 +348,26 @@ pub struct GraphicsResizeStats {
   current_height : Int
   last_resize_duration_ms : Double
   total_resize_duration_ms : Double
-}
+} derive(@debug.Debug)
 pub impl Show for GraphicsResizeStats
 
 pub struct ImageHandle {
   id : Int
   width : Int
   height : Int
-}
+} derive(@debug.Debug)
 pub impl Show for ImageHandle
 
 pub struct IntSize {
   width : Int
   height : Int
-}
+} derive(@debug.Debug)
 pub impl Show for IntSize
 
 pub struct NamedUniform {
   name : String
   value : UniformValue
-}
+} derive(@debug.Debug)
 pub impl Show for NamedUniform
 
 pub struct NativeGraphicsHooks {
@@ -381,19 +382,19 @@ pub struct NativeGraphicsHooks {
 
 pub struct PackedUniforms {
   dwords : Array[Int]
-}
+} derive(@debug.Debug)
 pub impl Show for PackedUniforms
 
 pub struct PipelineHandle {
   id : Int
-}
+} derive(@debug.Debug)
 pub impl Show for PipelineHandle
 
 pub struct PixelDiffResult {
   total_pixels : Int
   diff_pixels : Int
   max_channel_diff : Int
-}
+} derive(@debug.Debug)
 pub impl Show for PixelDiffResult
 
 pub struct PreservedUniformContext {
@@ -401,21 +402,21 @@ pub struct PreservedUniformContext {
   dst_region : FloatRect
   src_texture_sizes : Array[IntSize]
   src_regions : Array[FloatRect]
-}
+} derive(@debug.Debug)
 pub impl Show for PreservedUniformContext
 
 pub struct RenderPassDesc {
   clear_color : Color
   clear_enabled : Bool
   present : Bool
-}
+} derive(@debug.Debug)
 pub impl Show for RenderPassDesc
 
 pub struct SamplerSpec {
   filter : BuiltinShaderFilter
   address_u : BuiltinShaderAddress
   address_v : BuiltinShaderAddress
-}
+} derive(@debug.Debug)
 pub impl Show for SamplerSpec
 
 pub struct ShaderCompileRequest {
@@ -424,19 +425,19 @@ pub struct ShaderCompileRequest {
   src_image_count : Int
   entrypoints : ShaderEntrypoints
   debug_name : String
-}
+} derive(@debug.Debug)
 pub impl Show for ShaderCompileRequest
 
 pub struct ShaderEntrypoints {
   vertex : String
   fragment : String
-}
+} derive(@debug.Debug)
 pub impl Show for ShaderEntrypoints
 
 pub struct ShaderHandle {
   id : Int
   source : String
-}
+} derive(@debug.Debug)
 pub impl Show for ShaderHandle
 
 pub struct ShaderIR {
@@ -447,18 +448,18 @@ pub struct ShaderIR {
   entrypoints : ShaderEntrypoints
   debug_name : String
   source_hash : ShaderSourceHash
-}
+} derive(@debug.Debug)
 pub impl Show for ShaderIR
 
 pub struct ShaderSourceHash {
   value : String
-}
+} derive(@debug.Debug)
 pub impl Show for ShaderSourceHash
 
 pub enum ShaderUnit {
   Pixels
   Texels
-}
+} derive(@debug.Debug)
 pub impl Show for ShaderUnit
 
 pub struct SimpleCommandQueue {
@@ -492,7 +493,7 @@ pub struct UniformLayout {
   names : Array[String]
   dword_counts : Array[Int]
   preserved_prefix_dwords : Int
-}
+} derive(@debug.Debug)
 pub impl Show for UniformLayout
 
 pub enum UniformValue {
@@ -502,7 +503,7 @@ pub enum UniformValue {
   Bools(Array[Bool])
   Ints(Array[Int])
   Floats(Array[Double])
-}
+} derive(@debug.Debug)
 pub impl Show for UniformValue
 
 pub struct WebGraphicsHooks {

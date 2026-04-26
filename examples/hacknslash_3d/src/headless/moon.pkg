@@ -3,6 +3,8 @@ import {
   "mizchi/terrain/types" @terrain,
 }
 
+supported_targets = "js+native"
+
 options(
   "is-main": true,
   targets: { "main.mbt": [ "js", "native" ] },

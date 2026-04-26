@@ -14,18 +14,33 @@ pub struct AtlasTileDrawSpec {
   right : Double
   bottom : Double
   uniform_dwords : Array[Int]
-} derive(Show)
+} derive(Debug)
+
+///|
+pub impl Show for AtlasTileDrawSpec with output(self, logger) {
+  logger.write_object(to_repr(self))
+}
 
 ///|
 pub struct TileAtlasEntry {
   tile_index : Int
   atlas_key : @asset.AssetKey
-} derive(Show)
+} derive(Debug)
+
+///|
+pub impl Show for TileAtlasEntry with output(self, logger) {
+  logger.write_object(to_repr(self))
+}
 
 ///|
 pub struct TileAtlasTable {
   entries : Array[TileAtlasEntry]
-} derive(Show)
+} derive(Debug)
+
+///|
+pub impl Show for TileAtlasTable with output(self, logger) {
+  logger.write_object(to_repr(self))
+}
 
 ///|
 pub struct TileChunkRect {
@@ -33,7 +48,12 @@ pub struct TileChunkRect {
   tile_y : Int
   tile_width : Int
   tile_height : Int
-} derive(Show)
+} derive(Debug)
+
+///|
+pub impl Show for TileChunkRect with output(self, logger) {
+  logger.write_object(to_repr(self))
+}
 
 ///|
 pub(all) struct TileChunkBatchCache {
@@ -46,7 +66,12 @@ pub(all) struct TileChunkBatchCache {
 struct TileChunkOrigin {
   tile_x : Int
   tile_y : Int
-} derive(Show)
+} derive(Debug)
+
+///|
+pub impl Show for TileChunkOrigin with output(self, logger) {
+  logger.write_object(to_repr(self))
+}
 
 ///|
 pub fn new_atlas_tile_draw_spec(
@@ -295,7 +320,12 @@ struct ResolvedTileQuad {
   v0 : Double
   u1 : Double
   v1 : Double
-} derive(Show)
+} derive(Debug)
+
+///|
+pub impl Show for ResolvedTileQuad with output(self, logger) {
+  logger.write_object(to_repr(self))
+}
 
 ///|
 fn normalized_positive_int(value : Int) -> Int {

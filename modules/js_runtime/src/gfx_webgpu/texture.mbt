@@ -78,7 +78,7 @@ pub fn finalize_texture_upload(
       }
       state.textures.set(image_id, entry)
       let js_textures = gpu._get("textures")
-      if !(@core.is_nullish(js_textures)) {
+      if !@core.is_nullish(js_textures) {
         let js_entry = @core.new_object()
         js_entry._set("texture", texture)
         js_entry._set("view", view)

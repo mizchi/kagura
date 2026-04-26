@@ -1,6 +1,10 @@
 // Generated using `moon info`, DON'T EDIT IT
 package "mizchi/kagura/core/image_palette"
 
+import {
+  "moonbitlang/core/debug",
+}
+
 // Values
 pub fn checker_palette_from_seed(Int) -> ImagePalette2x2
 
@@ -22,7 +26,7 @@ pub struct ImagePalette2x2 {
   p10 : Rgba
   p01 : Rgba
   p11 : Rgba
-}
+} derive(@debug.Debug)
 pub impl Show for ImagePalette2x2
 
 pub struct Rgba {
@@ -30,7 +34,7 @@ pub struct Rgba {
   g : Int
   b : Int
   a : Int
-}
+} derive(@debug.Debug)
 pub impl Show for Rgba
 
 // Type aliases

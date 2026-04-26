@@ -25,7 +25,12 @@ pub(all) enum PotionId {
   FruitJuice // +5 max HP (used outside combat)
   ExplosivePotion // 10 damage to ALL
   WeakPotion // Apply 3 Weak to target
-} derive(Show, Eq)
+} derive(Debug, Eq)
+
+///|
+pub impl Show for PotionId with output(self, logger) {
+  logger.write_object(to_repr(self))
+}
 
 ///|
 pub(all) struct PotionDef {
@@ -34,7 +39,12 @@ pub(all) struct PotionDef {
   description : String
   needs_target : Bool // true = target an enemy
   usable_in_combat : Bool // false = map-only (e.g. Fruit Juice)
-} derive(Show)
+} derive(Debug)
+
+///|
+pub impl Show for PotionDef with output(self, logger) {
+  logger.write_object(to_repr(self))
+}
 
 ///|
 pub fn potion_def(id : PotionId) -> PotionDef {
@@ -109,7 +119,7 @@ pub fn use_potion_in_combat(
   target_index : Int,
 ) -> Bool {
   let def = potion_def(potion)
-  if not(def.usable_in_combat) {
+  if !def.usable_in_combat {
     return false
   }
   if state.phase != PlayerTurn {
@@ -141,7 +151,7 @@ pub fn use_potion_in_combat(
     }
     ExplosivePotion => {
       for enemy in state.enemies {
-        if not(enemy.fighter.is_dead()) {
+        if !enemy.fighter.is_dead() {
           let actual = apply_damage(enemy.fighter, 10)
           state.logs.push(
             "[Explosive Potion] " +

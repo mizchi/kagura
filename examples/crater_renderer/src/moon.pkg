@@ -7,6 +7,7 @@ import {
   "mizchi/kagura/engine/draw2d_ui" @draw2d_ui,
   "mizchi/kagura/engine/text" @text,
   "mizchi/kagura/core/image_palette" @image_palette,
+  "mizchi/font" @font,
   "mizchi/crater/renderer" @renderer,
   "mizchi/crater/paint" @paint,
   "mizchi/crater/types" @crater_types,
@@ -15,17 +16,15 @@ import {
 
 warnings = "-1-2-29"
 
+supported_targets = "js+native"
+
 options(
   "is-main": true,
-  "supported-targets": [ "js", "native" ],
   link: {
     "native": {
       "cc": "${build.KAGURA_NATIVE_CC}",
       "cc-link-flags": "-L../../deps/wgpu-native/lib -lwgpu_native ${build.KAGURA_NATIVE_GLFW_LIBS} ${build.KAGURA_NATIVE_WGPU_RPATH} ${build.KAGURA_NATIVE_PLATFORM_LIBS}",
     },
   },
-  targets: {
-    "main_js.mbt": [ "js" ],
-    "main_native.mbt": [ "native" ],
-  },
+  targets: { "main_js.mbt": [ "js" ], "main_native.mbt": [ "native" ] },
 )

@@ -6,11 +6,12 @@ import {
   "mizchi/web_runtime_hooks" @web_hooks,
 }
 
-warnings = "-1-2-29-71"
+warnings = "-1-2-29"
+
+supported_targets = "js"
 
 options(
   "is-main": true,
-  "supported-targets": [ "js" ],
   targets: {
     "main.mbt": [ "js" ],
     "main_stub.mbt": [ "native", "wasm", "wasm-gc", "llvm" ],

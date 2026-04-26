@@ -1,4 +1,39 @@
 ///|
+fn rasterize_text_for_test(
+  atlas : @font.GlyphAtlas,
+  font : @font.TTFont,
+  text : String,
+  size_px : Double,
+) -> Array[@font.GlyphQuad] {
+  let scale = size_px / font.units_per_em.to_double()
+  let quads : Array[@font.GlyphQuad] = []
+  for pos in font.layout_text(text, size_px) {
+    if pos.glyph_id == 0 {
+      continue
+    }
+    match atlas.rasterize_glyph(font, pos.codepoint, size_px) {
+      None => ()
+      Some(entry) => {
+        let metrics = font.glyph_metrics(pos.glyph_id)
+        let bbox = metrics.bbox
+        quads.push({
+          glyph_id: @font.make_glyph_cache_key(pos.glyph_id, size_px),
+          atlas_x: entry.atlas_x,
+          atlas_y: entry.atlas_y,
+          atlas_w: entry.atlas_w,
+          atlas_h: entry.atlas_h,
+          dst_x: pos.x_offset + metrics.left_side_bearing.to_double() * scale,
+          dst_y: -(bbox.y_max.to_double() * scale),
+          dst_w: entry.atlas_w,
+          dst_h: entry.atlas_h,
+        })
+      }
+    }
+  }
+  quads
+}
+
+///|
 test "build_runtime_smoke_tile_draw_plan returns tile sprite and text commands" {
   let plan = build_runtime_smoke_tile_draw_plan(
     @gfx.new_image_handle(1, 64, 64),
@@ -48,7 +83,7 @@ test "rasterize_text I returns 1 quad with valid atlas coords" {
   let font = @text.parse_font_bytes(font_data)
   match font {
     Some(ttfont) => {
-      let quads = text_atlas.rasterize_text(ttfont, "I", 24.0)
+      let quads = rasterize_text_for_test(text_atlas, ttfont, "I", 24.0)
       assert_eq(quads.length(), 1)
       let q = quads[0]
       assert_true(q.atlas_x >= 0.0)
@@ -71,7 +106,7 @@ test "rasterize_text III returns 3 quads with advancing x" {
   let font = @text.parse_font_bytes(font_data)
   match font {
     Some(ttfont) => {
-      let quads = text_atlas.rasterize_text(ttfont, "III", 24.0)
+      let quads = rasterize_text_for_test(text_atlas, ttfont, "III", 24.0)
       assert_eq(quads.length(), 3)
       // All same glyph_id
       assert_eq(quads[0].glyph_id, quads[1].glyph_id)
@@ -99,8 +134,8 @@ test "rasterize_text at different sizes produces different glyph dimensions" {
   let font = @text.parse_font_bytes(font_data)
   match font {
     Some(ttfont) => {
-      let quads_12 = atlas_small.rasterize_text(ttfont, "I", 12.0)
-      let quads_24 = atlas_large.rasterize_text(ttfont, "I", 24.0)
+      let quads_12 = rasterize_text_for_test(atlas_small, ttfont, "I", 12.0)
+      let quads_24 = rasterize_text_for_test(atlas_large, ttfont, "I", 24.0)
       assert_eq(quads_12.length(), 1)
       assert_eq(quads_24.length(), 1)
       assert_true(quads_24[0].atlas_w > quads_12[0].atlas_w)
@@ -135,7 +170,7 @@ test "SimpleTextBatchBuilder with quads from rasterize_text" {
   let font = @text.parse_font_bytes(font_data)
   match font {
     Some(ttfont) => {
-      let quads = text_atlas.rasterize_text(ttfont, "III", 24.0)
+      let quads = rasterize_text_for_test(text_atlas, ttfont, "III", 24.0)
       assert_eq(quads.length(), 3)
       let builder = @text.SimpleTextBatchBuilder::new(text_atlas.get_cache(), 7)
       let dst = @gfx.new_image_handle(1, 128, 128)
@@ -355,7 +390,7 @@ test "rasterize_text matches rasterize_glyph UV for single I" {
   match font {
     Some(ttfont) => {
       let entry = atlas_glyph.rasterize_glyph(ttfont, 73, 24.0)
-      let quads = atlas_text.rasterize_text(ttfont, "I", 24.0)
+      let quads = rasterize_text_for_test(atlas_text, ttfont, "I", 24.0)
       match entry {
         Some(cache_entry) => {
           assert_eq(quads.length(), 1)

@@ -57,7 +57,12 @@ pub(all) struct BattleStats {
   total_danger_streak_len : Int // sum of all streak lengths
   // Act-progress-relative HP
   hp_progress_ratio : Double // hp_after / expected_hp_at_this_progress
-} derive(Show)
+} derive(Debug)
+
+///|
+pub impl Show for BattleStats with output(self, logger) {
+  logger.write_object(to_repr(self))
+}
 
 ///|
 /// Per-act archetype snapshot
@@ -70,7 +75,12 @@ pub(all) struct ActSnapshot {
   cards_added : Int
   battles_won : Int
   battles_total : Int
-} derive(Show)
+} derive(Debug)
+
+///|
+pub impl Show for ActSnapshot with output(self, logger) {
+  logger.write_object(to_repr(self))
+}
 
 ///|
 /// Detailed run result with per-battle stats
@@ -85,7 +95,12 @@ pub(all) struct DetailedRunResult {
   // Act-level tracking
   act_snapshots : Array[ActSnapshot]
   archetype_pivot : Bool // did archetype change between acts?
-} derive(Show)
+} derive(Debug)
+
+///|
+pub impl Show for DetailedRunResult with output(self, logger) {
+  logger.write_object(to_repr(self))
+}
 
 ///|
 /// Fun metrics extracted from a set of runs
@@ -131,7 +146,12 @@ pub(all) struct FunMetrics {
   archetype_pivot_rate : Double // % of runs where archetype changed between acts
   act2_win_rate : Double // win rate of runs that reached Act 2
   build_commitment_score : Double // avg act2 battles won / total when archetype stable
-} derive(Show)
+} derive(Debug)
+
+///|
+pub impl Show for FunMetrics with output(self, logger) {
+  logger.write_object(to_repr(self))
+}
 
 ///|
 /// Simulate a detailed run tracking per-battle stats
@@ -167,17 +187,11 @@ pub fn simulate_detailed_run(
             let mut damage_dealt = 0
             let mut block_generated = 0
             let mut n_cards_played = 0
-            // Track enemy HP for damage calculation
-            let mut enemy_hp_sum = 0
-            for e in state.enemies {
-              enemy_hp_sum += e.fighter.hp
-            }
             // Use potions at battle start
             let potions_copy : Array[PotionId] = []
             for p in run.potions {
               potions_copy.push(p)
             }
-            let mut potions_used = 0
             // Danger/resolution tracking
             let mut danger_turns = 0
             let mut resolved_turns = 0
@@ -194,8 +208,7 @@ pub fn simulate_detailed_run(
               }
               // Try potions at start of each turn
               if potions_copy.length() > 0 {
-                let used = try_use_potions(state, potions_copy)
-                potions_used += used
+                ignore(try_use_potions(state, potions_copy))
               }
               if state.phase == Victory || state.phase == Defeat {
                 break
@@ -204,7 +217,7 @@ pub fn simulate_detailed_run(
               // Play all cards this turn
               let mut turn_done = false
               let mut plays_this_turn = 0
-              while not(turn_done) && plays_this_turn < 20 {
+              while !turn_done && plays_this_turn < 20 {
                 plays_this_turn += 1
                 if state.logs.length() > 200 {
                   state.logs.clear()
@@ -214,7 +227,7 @@ pub fn simulate_detailed_run(
                   Some((hand_idx, target)) => {
                     let mut enemy_hp_pre = 0
                     for e in state.enemies {
-                      if not(e.fighter.is_dead()) {
+                      if !e.fighter.is_dead() {
                         enemy_hp_pre += e.fighter.hp
                       }
                     }
@@ -223,7 +236,7 @@ pub fn simulate_detailed_run(
                       n_cards_played += 1
                       let mut enemy_hp_post = 0
                       for e in state.enemies {
-                        if not(e.fighter.is_dead()) {
+                        if !e.fighter.is_dead() {
                           enemy_hp_post += e.fighter.hp
                         }
                       }
@@ -425,15 +438,19 @@ pub fn simulate_detailed_run(
   for battle in battles {
     if floor_act(battle.floor) == 1 {
       a1_total += 1
-      if battle.won { a1_wins += 1 }
+      if battle.won {
+        a1_wins += 1
+      }
       a1_hp_end = battle.hp_after
     } else {
-      if not(a2_started) {
+      if !a2_started {
         a2_hp_start = battle.hp_before
         a2_started = true
       }
       a2_total += 1
-      if battle.won { a2_wins += 1 }
+      if battle.won {
+        a2_wins += 1
+      }
       a2_hp_end = battle.hp_after
     }
   }
@@ -773,7 +790,7 @@ pub fn analyze_fun_metrics(run_count : Int) -> FunMetrics {
       let mut has_battles = false
       for battle in run.battles {
         if floor_act(battle.floor) == act {
-          if not(has_battles) {
+          if !has_battles {
             act_first_hp = battle.hp_before.to_double()
             has_battles = true
           }
@@ -847,11 +864,15 @@ pub fn analyze_fun_metrics(run_count : Int) -> FunMetrics {
   let mut stable_act2_wins = 0
   let mut stable_act2_total = 0
   for run in detailed_runs {
-    if run.archetype_pivot { pivot_count += 1 }
+    if run.archetype_pivot {
+      pivot_count += 1
+    }
     if run.act_snapshots.length() >= 2 {
       reached_act2 += 1
-      if run.won { act2_wins += 1 }
-      if not(run.archetype_pivot) {
+      if run.won {
+        act2_wins += 1
+      }
+      if !run.archetype_pivot {
         // Stable archetype: count act2 battle performance
         let snap2 = run.act_snapshots[1]
         stable_act2_wins += snap2.battles_won
@@ -1015,7 +1036,12 @@ pub(all) struct FunTargets {
   per_battle_attrition_max : Double // 0.20 (20% max HP per battle)
   act_gross_attrition_min : Double // 0.60 (60% total damage / max HP)
   act_gross_attrition_max : Double // 1.20 (120% — rest sites are critical)
-} derive(Show)
+} derive(Debug)
+
+///|
+pub impl Show for FunTargets with output(self, logger) {
+  logger.write_object(to_repr(self))
+}
 
 ///|
 pub fn default_targets() -> FunTargets {
@@ -1123,7 +1149,12 @@ pub(all) struct FunScorecard {
   // Overall
   total_score : Double // weighted average (0-100)
   overall_grade : String // S / A / B / C / D
-} derive(Show)
+} derive(Debug)
+
+///|
+pub impl Show for FunScorecard with output(self, logger) {
+  logger.write_object(to_repr(self))
+}
 
 ///|
 pub fn score_fun_metrics(m : FunMetrics) -> FunScorecard {

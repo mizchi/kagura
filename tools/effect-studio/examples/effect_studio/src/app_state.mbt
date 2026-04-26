@@ -53,13 +53,16 @@ fn EffectStudioState::new() -> EffectStudioState {
 }
 
 ///|
-fn EffectStudioState::update(self : EffectStudioState, input : @core.InputSnapshot) -> Unit {
+fn EffectStudioState::update(
+  self : EffectStudioState,
+  input : @core.InputSnapshot,
+) -> Unit {
   let dt = 1.0 / 60.0
   self.frame_count += 1
   @inpututil.update_key_input_state(self.key_state, input)
   @inpututil.update_mouse_input_state(self.mouse_state, input)
   if @inpututil.is_key_just_pressed(self.key_state, key_space) {
-    self.playing = !(self.playing)
+    self.playing = !self.playing
   }
   if @inpututil.is_key_just_pressed(self.key_state, key_r) {
     self.preview_time = 0.0
@@ -117,21 +120,33 @@ fn EffectStudioState::patch_bundle_filename(self : EffectStudioState) -> String 
 }
 
 ///|
-fn EffectStudioState::review_prompt_markdown(self : EffectStudioState) -> String {
-  effect_studio_review_prompt_markdown(self.doc, self.preview_time, self.playing)
+fn EffectStudioState::review_prompt_markdown(
+  self : EffectStudioState,
+) -> String {
+  effect_studio_review_prompt_markdown(
+    self.doc,
+    self.preview_time,
+    self.playing,
+  )
 }
 
 ///|
-fn EffectStudioState::review_prompt_filename(self : EffectStudioState) -> String {
+fn EffectStudioState::review_prompt_filename(
+  self : EffectStudioState,
+) -> String {
   effect_studio_review_prompt_filename(self.doc)
 }
 
 ///|
-fn EffectStudioState::bundle_download_requested(self : EffectStudioState) -> Bool {
+fn EffectStudioState::bundle_download_requested(
+  self : EffectStudioState,
+) -> Bool {
   @inpututil.is_key_just_pressed(self.key_state, key_j)
 }
 
 ///|
-fn EffectStudioState::review_download_requested(self : EffectStudioState) -> Bool {
+fn EffectStudioState::review_download_requested(
+  self : EffectStudioState,
+) -> Bool {
   @inpututil.is_key_just_pressed(self.key_state, key_l)
 }

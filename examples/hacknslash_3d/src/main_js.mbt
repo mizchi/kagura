@@ -258,7 +258,7 @@ fn build_initial_build_policy(name : String) -> @game.ArchetypeBuildPolicy {
 
 ///|
 fn apply_debug_skill_unlocks(state : GameState, unlock_spells : Bool) -> Unit {
-  if !(unlock_spells) {
+  if !unlock_spells {
     return
   }
   for skill_id in @game.spell_skill_ids() {

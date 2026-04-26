@@ -8,7 +8,12 @@
 ///|
 pub struct AssetKey {
   value : String
-} derive(Show)
+} derive(Debug)
+
+///|
+pub impl Show for AssetKey with output(self, logger) {
+  logger.write_object(to_repr(self))
+}
 
 ///|
 pub fn new_asset_key(value : String) -> AssetKey {
@@ -22,13 +27,23 @@ pub struct ImageSpec {
   format : String
   palette : @image_palette.ImagePalette2x2
   pixels_rgba8 : Array[Int]
-} derive(Show)
+} derive(Debug)
+
+///|
+pub impl Show for ImageSpec with output(self, logger) {
+  logger.write_object(to_repr(self))
+}
 
 ///|
 pub struct ShaderSpec {
   debug_name : String
   source : String
-} derive(Show)
+} derive(Debug)
+
+///|
+pub impl Show for ShaderSpec with output(self, logger) {
+  logger.write_object(to_repr(self))
+}
 
 ///|
 pub struct MaterialSpec {
@@ -36,7 +51,12 @@ pub struct MaterialSpec {
   blend : @gfx.BlendMode
   filter : @gfx.FilterMode
   uniform_keys : Array[String]
-} derive(Show)
+} derive(Debug)
+
+///|
+pub impl Show for MaterialSpec with output(self, logger) {
+  logger.write_object(to_repr(self))
+}
 
 ///|
 pub struct AtlasRegion {
@@ -45,7 +65,12 @@ pub struct AtlasRegion {
   width : Int
   height : Int
   atlas_id : Int
-} derive(Show)
+} derive(Debug)
+
+///|
+pub impl Show for AtlasRegion with output(self, logger) {
+  logger.write_object(to_repr(self))
+}
 
 ///|
 pub fn new_atlas_region(
@@ -62,7 +87,12 @@ pub fn new_atlas_region(
 pub struct ImagePaletteBinding {
   image_id : Int
   palette : @image_palette.ImagePalette2x2
-} derive(Show)
+} derive(Debug)
+
+///|
+pub impl Show for ImagePaletteBinding with output(self, logger) {
+  logger.write_object(to_repr(self))
+}
 
 ///|
 pub struct SourceImageDirtyRect {
@@ -70,7 +100,12 @@ pub struct SourceImageDirtyRect {
   y : Int
   width : Int
   height : Int
-} derive(Show)
+} derive(Debug)
+
+///|
+pub impl Show for SourceImageDirtyRect with output(self, logger) {
+  logger.write_object(to_repr(self))
+}
 
 ///|
 pub struct SourceImageBinding {
@@ -81,7 +116,12 @@ pub struct SourceImageBinding {
   dirty_rect : SourceImageDirtyRect?
   palette : @image_palette.ImagePalette2x2
   pixels_rgba8 : Array[Int]
-} derive(Show)
+} derive(Debug)
+
+///|
+pub impl Show for SourceImageBinding with output(self, logger) {
+  logger.write_object(to_repr(self))
+}
 
 ///|
 pub struct AtlasDrawSource {
@@ -91,7 +131,12 @@ pub struct AtlasDrawSource {
   v0 : Double
   u1 : Double
   v1 : Double
-} derive(Show)
+} derive(Debug)
+
+///|
+pub impl Show for AtlasDrawSource with output(self, logger) {
+  logger.write_object(to_repr(self))
+}
 
 ///|
 pub fn new_source_image_binding(
@@ -444,19 +489,34 @@ struct SimpleImageEntry {
   pixels_rgba8 : Array[Int]
   generation : Int
   dirty_rect : SourceImageDirtyRect?
-} derive(Show)
+} derive(Debug)
+
+///|
+pub impl Show for SimpleImageEntry with output(self, logger) {
+  logger.write_object(to_repr(self))
+}
 
 ///|
 struct SimpleShaderEntry {
   key : AssetKey
   handle : @gfx.ShaderHandle
-} derive(Show)
+} derive(Debug)
+
+///|
+pub impl Show for SimpleShaderEntry with output(self, logger) {
+  logger.write_object(to_repr(self))
+}
 
 ///|
 struct SimpleMaterialEntry {
   key : AssetKey
   spec : MaterialSpec
-} derive(Show)
+} derive(Debug)
+
+///|
+pub impl Show for SimpleMaterialEntry with output(self, logger) {
+  logger.write_object(to_repr(self))
+}
 
 ///|
 pub struct SimpleImageRepository {
@@ -994,7 +1054,12 @@ struct SimpleAtlasImageEntry {
   region : AtlasRegion
   palette : @image_palette.ImagePalette2x2
   pixels_rgba8 : Array[Int]
-} derive(Show)
+} derive(Debug)
+
+///|
+pub impl Show for SimpleAtlasImageEntry with output(self, logger) {
+  logger.write_object(to_repr(self))
+}
 
 ///|
 ///
@@ -1663,7 +1728,12 @@ pub struct AtlasCompactResult {
   removed_page_ids : Array[Int]
   removed_page_count : Int
   remaining_page_count : Int
-} derive(Show)
+} derive(Debug)
+
+///|
+pub impl Show for AtlasCompactResult with output(self, logger) {
+  logger.write_object(to_repr(self))
+}
 
 ///|
 pub fn multi_page_compact(
@@ -1708,7 +1778,12 @@ pub struct AtlasPageStats {
   atlas_width : Int
   atlas_height : Int
   is_empty : Bool
-} derive(Show)
+} derive(Debug)
+
+///|
+pub impl Show for AtlasPageStats with output(self, logger) {
+  logger.write_object(to_repr(self))
+}
 
 ///|
 pub fn atlas_page_stats(repo : SimpleAtlasImageRepository) -> AtlasPageStats {

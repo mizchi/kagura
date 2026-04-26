@@ -4,7 +4,12 @@ pub(all) struct StatusEffects {
   mut vulnerable : Int // Take 50% more damage
   mut weak : Int // Deal 25% less damage
   mut strength : Int // +damage per attack (permanent)
-} derive(Show)
+} derive(Debug)
+
+///|
+pub impl Show for StatusEffects with output(self, logger) {
+  logger.write_object(to_repr(self))
+}
 
 ///|
 fn StatusEffects::new() -> StatusEffects {
@@ -21,7 +26,12 @@ pub(all) struct Fighter {
   mut energy : Int
   mut max_energy : Int
   status : StatusEffects
-} derive(Show)
+} derive(Debug)
+
+///|
+pub impl Show for Fighter with output(self, logger) {
+  logger.write_object(to_repr(self))
+}
 
 ///|
 fn Fighter::new(name : String, max_hp : Int, max_energy? : Int = 0) -> Fighter {

@@ -14,7 +14,12 @@ pub(all) enum BattlePhase {
   EnemyTurn
   Victory
   Defeat
-} derive(Show, Eq)
+} derive(Debug, Eq)
+
+///|
+pub impl Show for BattlePhase with output(self, logger) {
+  logger.write_object(to_repr(self))
+}
 
 ///|
 /// Action result from playing a card
@@ -24,7 +29,12 @@ pub(all) enum ActionResult {
   InvalidTarget
   InvalidCard
   NotPlayerTurn
-} derive(Show, Eq)
+} derive(Debug, Eq)
+
+///|
+pub impl Show for ActionResult with output(self, logger) {
+  logger.write_object(to_repr(self))
+}
 
 ///|
 /// Core battle state - all game mechanics operate on this
@@ -40,7 +50,12 @@ pub(all) struct PowerState {
   mut rampage_bonus : Int // Accumulated Rampage damage bonus
   mut corruption : Bool // Skills cost 0 and exhaust
   mut regen : Int // HP healed at end of turn (decrements)
-} derive(Show)
+} derive(Debug)
+
+///|
+pub impl Show for PowerState with output(self, logger) {
+  logger.write_object(to_repr(self))
+}
 
 ///|
 fn PowerState::new() -> PowerState {
@@ -71,7 +86,12 @@ pub(all) struct BattleState {
   mut phase : BattlePhase
   logs : Array[String]
   mut rng_seed : Int
-} derive(Show)
+} derive(Debug)
+
+///|
+pub impl Show for BattleState with output(self, logger) {
+  logger.write_object(to_repr(self))
+}
 
 ///|
 /// Simple pseudo-random number generator
@@ -267,6 +287,7 @@ fn is_aoe_card(id : CardId) -> Bool {
 
 ///|
 /// Cards that don't need an enemy target at all (self-targeting skills/powers)
+#warnings("-unused_value")
 fn is_self_card(id : CardId) -> Bool {
   let def = card_def(id)
   match id {
@@ -305,7 +326,7 @@ fn card_needs_target(id : CardId) -> Bool {
     Disarm => true // Targets specific enemy
     _ => {
       let def = card_def(id)
-      def.card_type == Attack && not(is_aoe_card(id))
+      def.card_type == Attack && !is_aoe_card(id)
     }
   }
 }
@@ -389,7 +410,7 @@ fn execute_card(
       }
       let mut i = 0
       while i < state.enemies.length() {
-        if not(state.enemies[i].fighter.is_dead()) {
+        if !state.enemies[i].fighter.is_dead() {
           let actual = apply_damage(state.enemies[i].fighter, modified)
           state.logs.push(
             "Cleave hits " +
@@ -583,7 +604,7 @@ fn execute_card(
     }
     Shockwave => {
       for enemy in state.enemies {
-        if not(enemy.fighter.is_dead()) {
+        if !enemy.fighter.is_dead() {
           enemy.fighter.status.weak += 3
           enemy.fighter.status.vulnerable += 3
         }
@@ -662,7 +683,7 @@ fn execute_card(
       while hit < x {
         let mut i = 0
         while i < state.enemies.length() {
-          if not(state.enemies[i].fighter.is_dead()) {
+          if !state.enemies[i].fighter.is_dead() {
             let _ = apply_damage(state.enemies[i].fighter, modified)
           }
           i += 1
@@ -754,7 +775,7 @@ fn execute_card(
       }
       let mut total = 0
       for enemy in state.enemies {
-        if not(enemy.fighter.is_dead()) {
+        if !enemy.fighter.is_dead() {
           let actual = apply_damage(enemy.fighter, modified)
           total += actual
         }
@@ -775,7 +796,7 @@ fn execute_card(
       }
       let mut heal_total = 0
       for enemy in state.enemies {
-        if not(enemy.fighter.is_dead()) {
+        if !enemy.fighter.is_dead() {
           let hp_before = enemy.fighter.hp
           let _ = apply_damage(enemy.fighter, modified)
           let hp_after = enemy.fighter.hp
@@ -827,7 +848,7 @@ fn execute_card(
 /// Trigger Nob's Enrage: +2 STR when player plays a Skill
 fn trigger_nob_enrage(state : BattleState) -> Unit {
   for enemy in state.enemies {
-    if enemy.fighter.name == "Gremlin Nob" && not(enemy.fighter.is_dead()) {
+    if enemy.fighter.name == "Gremlin Nob" && !enemy.fighter.is_dead() {
       enemy.fighter.status.strength += 2
       state.logs.push("Nob Enrages! +2 Strength!")
     }
@@ -913,7 +934,7 @@ fn execute_enemy_turn(state : BattleState) -> Unit {
   let mut i = 0
   while i < state.enemies.length() {
     let enemy = state.enemies[i]
-    if not(enemy.fighter.is_dead()) {
+    if !enemy.fighter.is_dead() {
       let enemy_logs = execute_enemy_intent(enemy, state.player)
       for log in enemy_logs {
         state.logs.push(log)
@@ -934,7 +955,7 @@ fn start_player_turn(state : BattleState) -> Unit {
   state.phase = PlayerTurn
   state.player.energy = state.player.max_energy
   // Barricade: block persists
-  if not(state.powers.barricade) {
+  if !state.powers.barricade {
     reset_block(state.player)
   }
   // Demon Form: gain strength each turn
@@ -963,7 +984,7 @@ fn start_player_turn(state : BattleState) -> Unit {
 fn check_battle_end(state : BattleState) -> Unit {
   let mut all_dead = true
   for enemy in state.enemies {
-    if not(enemy.fighter.is_dead()) {
+    if !enemy.fighter.is_dead() {
       all_dead = false
     }
   }
@@ -983,7 +1004,7 @@ fn check_battle_end(state : BattleState) -> Unit {
 fn first_alive_enemy(state : BattleState) -> Int {
   let mut i = 0
   while i < state.enemies.length() {
-    if not(state.enemies[i].fighter.is_dead()) {
+    if !state.enemies[i].fighter.is_dead() {
       return i
     }
     i += 1
@@ -996,7 +1017,7 @@ fn first_alive_enemy(state : BattleState) -> Int {
 fn alive_enemy_count(state : BattleState) -> Int {
   let mut count = 0
   for enemy in state.enemies {
-    if not(enemy.fighter.is_dead()) {
+    if !enemy.fighter.is_dead() {
       count += 1
     }
   }

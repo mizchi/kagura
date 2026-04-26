@@ -28,12 +28,7 @@ fn load_baseline(name : String) -> @image.ImageData? {
   let bytes = @wgpu_native.read_file_bytes(path)
   match bytes {
     None => None
-    Some(data) =>
-      try {
-        Some(@image.decode_bmp(data))
-      } catch {
-        _ => None
-      }
+    Some(data) => Some(@image.decode_bmp(data)) catch { _ => None }
   }
 }
 
@@ -63,13 +58,13 @@ fn compare_snapshot(name : String, pixels : Array[Int]) -> VrtResult {
           passed: false,
           diff_ratio: 1.0,
           message: "baseline size mismatch: expected " +
-            vrt_width.to_string() +
-            "x" +
-            vrt_height.to_string() +
-            ", got " +
-            img.width.to_string() +
-            "x" +
-            img.height.to_string(),
+          vrt_width.to_string() +
+          "x" +
+          vrt_height.to_string() +
+          ", got " +
+          img.width.to_string() +
+          "x" +
+          img.height.to_string(),
         }
       }
       let baseline_pixels : Array[Int] = Array::make(
@@ -101,9 +96,9 @@ fn compare_snapshot(name : String, pixels : Array[Int]) -> VrtResult {
           passed: false,
           diff_ratio,
           message: "diff " +
-            (diff_ratio * 100.0).to_string() +
-            "% exceeds threshold\n" +
-            report.to_compact(),
+          (diff_ratio * 100.0).to_string() +
+          "% exceeds threshold\n" +
+          report.to_compact(),
         }
       }
     }
@@ -115,8 +110,7 @@ fn test_clear_color() -> VrtResult {
   let name = "clear_red"
   let _ = @wgpu_native.runtime_render_frame_with_plan(0.8, 0.2, 0.1, 1.0, 0)
   match read_full_framebuffer() {
-    None =>
-      { name, passed: false, diff_ratio: 1.0, message: "readback failed" }
+    None => { name, passed: false, diff_ratio: 1.0, message: "readback failed" }
     Some(pixels) => compare_snapshot(name, pixels)
   }
 }
@@ -126,8 +120,7 @@ fn test_triangle() -> VrtResult {
   let name = "triangle"
   let _ = @wgpu_native.runtime_render_frame_with_plan(0.0, 0.0, 0.0, 1.0, 1)
   match read_full_framebuffer() {
-    None =>
-      { name, passed: false, diff_ratio: 1.0, message: "readback failed" }
+    None => { name, passed: false, diff_ratio: 1.0, message: "readback failed" }
     Some(pixels) => compare_snapshot(name, pixels)
   }
 }

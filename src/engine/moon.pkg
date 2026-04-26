@@ -11,6 +11,7 @@ warnings = "-6-53-68"
 options(
   targets: {
     "game_api.mbt": [ "js", "native" ],
+    "game_api_wbtest.mbt": [ "js", "native" ],
     "run_js.mbt": [ "js" ],
     "run_native.mbt": [ "native" ],
   },

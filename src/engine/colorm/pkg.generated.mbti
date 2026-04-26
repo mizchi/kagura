@@ -3,6 +3,7 @@ package "mizchi/kagura/engine/colorm"
 
 import {
   "mizchi/kagura/engine/gfx",
+  "moonbitlang/core/debug",
 }
 
 // Values
@@ -12,7 +13,7 @@ import {
 // Types and methods
 pub struct ColorM {
   elements : FixedArray[Double]
-}
+} derive(@debug.Debug)
 pub fn ColorM::apply(Self, Double, Double, Double, Double) -> (Double, Double, Double, Double)
 pub fn ColorM::apply_clamped(Self, Double, Double, Double, Double) -> (Double, Double, Double, Double)
 pub fn ColorM::apply_color(Self, @gfx.Color) -> @gfx.Color

@@ -5,20 +5,35 @@
 pub(all) enum UIDirection {
   Row
   Column
-} derive(Show)
+} derive(Debug)
+
+///|
+pub impl Show for UIDirection with output(self, logger) {
+  logger.write_object(to_repr(self))
+}
 
 ///|
 pub(all) enum UISizing {
   Fixed(Double)
   Percent(Double)
   Auto
-} derive(Show)
+} derive(Debug)
+
+///|
+pub impl Show for UISizing with output(self, logger) {
+  logger.write_object(to_repr(self))
+}
 
 ///|
 pub(all) enum UIFlexWrap {
   NoWrap
   Wrap
-} derive(Show)
+} derive(Debug)
+
+///|
+pub impl Show for UIFlexWrap with output(self, logger) {
+  logger.write_object(to_repr(self))
+}
 
 ///|
 pub(all) enum UIAlignment {
@@ -32,7 +47,12 @@ pub(all) enum UIAlignment {
   SpaceEvenly
   Stretch
   Baseline
-} derive(Show, Eq)
+} derive(Debug, Eq)
+
+///|
+pub impl Show for UIAlignment with output(self, logger) {
+  logger.write_object(to_repr(self))
+}
 
 ///|
 pub(all) struct UINodeStyle {
@@ -47,7 +67,12 @@ pub(all) struct UINodeStyle {
   align : UIAlignment
   justify_content : UIAlignment
   flex_wrap : UIFlexWrap
-} derive(Show)
+} derive(Debug)
+
+///|
+pub impl Show for UINodeStyle with output(self, logger) {
+  logger.write_object(to_repr(self))
+}
 
 ///|
 pub fn default_node_style() -> UINodeStyle {
@@ -71,7 +96,12 @@ pub struct UINode {
   id : UINodeId
   style : UINodeStyle
   children : Array[UINodeId]
-} derive(Show)
+} derive(Debug)
+
+///|
+pub impl Show for UINode with output(self, logger) {
+  logger.write_object(to_repr(self))
+}
 
 ///|
 pub struct UITree {

@@ -252,7 +252,7 @@ test "sleeping body wakes on new contact 3d" {
     world.step(dt)
   }
   let b1 = world.get_body(1).unwrap()
-  assert_true(!(b1.is_sleeping) || b1.velocity.length() < 0.01)
+  assert_true(!b1.is_sleeping || b1.velocity.length() < 0.01)
 }
 
 ///|

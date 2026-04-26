@@ -4,6 +4,7 @@ package "mizchi/kagura/core/animation3d"
 import {
   "mizchi/kagura/core/math3d",
   "mizchi/kagura/core/transform3d",
+  "moonbitlang/core/debug",
 }
 
 // Values
@@ -79,13 +80,13 @@ pub(all) enum ChannelTarget {
   Translation
   Rotation
   Scale
-}
+} derive(@debug.Debug)
 pub impl Show for ChannelTarget
 
 pub(all) enum Interpolation {
   Step
   Linear
-}
+} derive(@debug.Debug)
 pub impl Show for Interpolation
 
 pub(all) struct NodePose {

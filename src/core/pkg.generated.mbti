@@ -1,6 +1,10 @@
 // Generated using `moon info`, DON'T EDIT IT
 package "mizchi/kagura/core"
 
+import {
+  "moonbitlang/core/debug",
+}
+
 // Values
 pub fn default_fixed_step_config() -> FixedStepConfig
 
@@ -54,33 +58,33 @@ pub fn touch_source_to_int(TouchSource) -> Int
 pub enum EngineTermination {
   RegularTermination
   Fatal(String)
-}
+} derive(@debug.Debug)
 pub impl Show for EngineTermination
 
 pub struct FixedStepConfig {
   tps : Int
   max_updates_per_frame : Int
-}
+} derive(@debug.Debug)
 pub impl Show for FixedStepConfig
 
 pub struct FixedStepState {
   accumulator_ms : Double
   tick : Int
-}
+} derive(@debug.Debug)
 pub impl Show for FixedStepState
 
 pub struct FrameBudget {
   updates : Int
   alpha : Double
   tick : Int
-}
+} derive(@debug.Debug)
 pub impl Show for FrameBudget
 
 pub struct GamepadSnapshot {
   id : Int
   axes : Array[Double]
   pressed_buttons : Array[Int]
-}
+} derive(@debug.Debug)
 pub impl Show for GamepadSnapshot
 
 pub struct InputSnapshot {
@@ -92,13 +96,13 @@ pub struct InputSnapshot {
   pressed_mouse_buttons : Array[Int]
   touches : Array[TouchPoint]
   gamepads : Array[GamepadSnapshot]
-}
+} derive(@debug.Debug)
 pub impl Show for InputSnapshot
 
 pub struct LogicalSize {
   width : Int
   height : Int
-}
+} derive(@debug.Debug)
 pub impl Show for LogicalSize
 
 pub struct NoopGame {
@@ -110,21 +114,21 @@ pub impl Game for NoopGame
 pub struct OutsideSize {
   width : Double
   height : Double
-}
+} derive(@debug.Debug)
 pub impl Show for OutsideSize
 
 pub struct RunOptions {
   init_unfocused : Bool
   screen_transparent : Bool
   screen_cleared_every_frame : Bool
-}
+} derive(@debug.Debug)
 pub impl Show for RunOptions
 
 pub struct StepResult {
   updates : Int
   alpha : Double
   next_state : FixedStepState
-}
+} derive(@debug.Debug)
 pub impl Show for StepResult
 
 pub enum TouchPhase {
@@ -133,7 +137,7 @@ pub enum TouchPhase {
   Stationary
   Ended
   Cancelled
-}
+} derive(@debug.Debug)
 pub impl Show for TouchPhase
 
 pub struct TouchPoint {
@@ -141,7 +145,7 @@ pub struct TouchPoint {
   x : Double
   y : Double
   source : TouchSource
-}
+} derive(@debug.Debug)
 pub impl Show for TouchPoint
 
 pub struct TouchPointEx {
@@ -152,7 +156,7 @@ pub struct TouchPointEx {
   pressure : Double
   delta_x : Double
   delta_y : Double
-}
+} derive(@debug.Debug)
 pub impl Show for TouchPointEx
 
 pub enum TouchSource {
@@ -160,7 +164,7 @@ pub enum TouchSource {
   Indirect
   Mouse
   Unknown
-}
+} derive(@debug.Debug)
 pub impl Show for TouchSource
 
 // Type aliases

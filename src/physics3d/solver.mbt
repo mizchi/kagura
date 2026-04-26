@@ -341,7 +341,7 @@ fn solve_constraint3d(
   let mut b_has_angular = false
   let mut bodies_dirty = false
   // --- Normal ---
-  let v_n = if !(c.has_normal_angular) {
+  let v_n = if !c.has_normal_angular {
     a_velocity.sub(b_velocity).dot(n)
   } else {
     a_has_angular = a_angular_velocity.length_squared() > 1.0e-24
@@ -391,14 +391,14 @@ fn solve_constraint3d(
   let friction_limit = -cur_acc_jn * c.friction
   if friction_limit > 1.0e-15 {
     let tangent = c.tangent_dir
-    let v_t = if !(c.has_tangent_angular) {
+    let v_t = if !c.has_tangent_angular {
       a_velocity.sub(b_velocity).dot(tangent)
     } else {
-      if !(c.has_normal_angular) {
+      if !c.has_normal_angular {
         a_has_angular = a_angular_velocity.length_squared() > 1.0e-24
         b_has_angular = b_angular_velocity.length_squared() > 1.0e-24
       }
-      if !(a_has_angular) && !(b_has_angular) {
+      if !a_has_angular && !b_has_angular {
         a_velocity.sub(b_velocity).dot(tangent)
       } else {
         let v_a2 = a_velocity.add(a_angular_velocity.cross(c.r_a))

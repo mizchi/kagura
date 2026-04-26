@@ -16,12 +16,11 @@ pub fn find_path(
   walkable? : (@terrain.Tile) -> Bool = default_walkable,
 ) -> Array[@terrain.Point]? {
   // Validate start and goal
-  if !(grid.in_bounds(start.x, start.y)) ||
-    !(grid.in_bounds(goal.x, goal.y)) {
+  if !grid.in_bounds(start.x, start.y) || !grid.in_bounds(goal.x, goal.y) {
     return None
   }
-  if !(walkable(grid.get(start.x, start.y))) ||
-    !(walkable(grid.get(goal.x, goal.y))) {
+  if !walkable(grid.get(start.x, start.y)) ||
+    !walkable(grid.get(goal.x, goal.y)) {
     return None
   }
   // Early out: start == goal

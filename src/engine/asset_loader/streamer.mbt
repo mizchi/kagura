@@ -3,7 +3,12 @@ pub(all) struct AssetStreamerConfig {
   max_concurrent : Int
   max_cached : Int
   eviction_interval : Int
-} derive(Show)
+} derive(Debug)
+
+///|
+pub impl Show for AssetStreamerConfig with output(self, logger) {
+  logger.write_object(to_repr(self))
+}
 
 ///|
 pub fn AssetStreamerConfig::default() -> AssetStreamerConfig {
@@ -15,7 +20,12 @@ pub(all) struct DistanceThresholds {
   critical : Double
   high : Double
   normal : Double
-} derive(Show)
+} derive(Debug)
+
+///|
+pub impl Show for DistanceThresholds with output(self, logger) {
+  logger.write_object(to_repr(self))
+}
 
 ///|
 pub fn DistanceThresholds::default() -> DistanceThresholds {

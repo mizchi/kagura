@@ -17,9 +17,10 @@ import {
 
 warnings = "-29"
 
+supported_targets = "native"
+
 options(
   "is-main": true,
-  "supported-targets": [ "native" ],
   link: {
     "native": {
       "cc": "${build.KAGURA_NATIVE_CC}",

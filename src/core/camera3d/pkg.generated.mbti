@@ -3,6 +3,7 @@ package "mizchi/kagura/core/camera3d"
 
 import {
   "mizchi/kagura/core/math3d",
+  "moonbitlang/core/debug",
 }
 
 // Values
@@ -70,7 +71,7 @@ pub fn OrbitCamera::zoom(Self, Double) -> Self
 pub enum ProjectionMode {
   Perspective
   Orthographic(Double, Double, Double, Double)
-}
+} derive(@debug.Debug)
 pub impl Show for ProjectionMode
 
 pub struct SmoothCamera {

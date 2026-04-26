@@ -3,6 +3,7 @@ package "mizchi/kagura/core/svg"
 
 import {
   "mizchi/kagura/core/vector",
+  "moonbitlang/core/debug",
 }
 
 // Values
@@ -23,7 +24,7 @@ pub struct SVGRenderResult {
   width : Int
   height : Int
   pixels : Array[Int]
-}
+} derive(@debug.Debug)
 pub impl Show for SVGRenderResult
 
 // Type aliases

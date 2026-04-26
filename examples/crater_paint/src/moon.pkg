@@ -7,19 +7,21 @@ import {
   "mizchi/kagura/engine/draw2d_ui" @draw2d_ui,
   "mizchi/kagura/engine/text" @text,
   "mizchi/native_runtime_hooks" @native_hooks,
-  "mizchi/crater/renderer" @renderer,
-  "mizchi/crater/html" @html,
-  "mizchi/crater/paint" @paint,
-  "mizchi/crater/types" @crater_types,
+  "mizchi/crater-renderer/renderer" @renderer,
+  "mizchi/crater-dom/html" @html,
+  "mizchi/crater-painter/paint" @paint,
+  "mizchi/crater-layout/types" @crater_types,
   "mizchi/font" @font,
   "mizchi/image" @image,
+  "moonbitlang/core/string" @string,
 }
 
 warnings = "-1-2-29"
 
+supported_targets = "native"
+
 options(
   "is-main": true,
-  "supported-targets": [ "native" ],
   link: {
     "native": {
       "cc": "${build.KAGURA_NATIVE_CC}",

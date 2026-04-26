@@ -109,7 +109,7 @@ pub fn SceneManager::transition_progress(self : SceneManager) -> Double {
 /// 0.0 = fully transparent, 1.0 = fully opaque.
 /// Fades out (0->1) in first half, fades in (1->0) in second half.
 pub fn SceneManager::transition_overlay_alpha(self : SceneManager) -> Double {
-  if !(self.transitioning) {
+  if !self.transitioning {
     return 0.0
   }
   let p = self.transition_progress

@@ -15,7 +15,9 @@ fn main {
       None => println("Failed to load image")
       Some(spec) => {
         let atlas = @asset.new_simple_atlas_image_repository(
-          spec.width, spec.height, atlas_page_id,
+          spec.width,
+          spec.height,
+          atlas_page_id,
         )
         let key = @asset.new_asset_key("sample")
         let _handle = @asset.create_atlas_image(atlas, key, spec)

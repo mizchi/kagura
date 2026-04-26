@@ -55,7 +55,8 @@ fn DemoState::new() -> DemoState {
     emitters.push(@particle3d.ParticleEmitter::new(config))
   }
   let particle_shader = @gfx.new_shader_handle(
-    20, @draw3d.shader3d_particle_wgsl(),
+    20,
+    @draw3d.shader3d_particle_wgsl(),
   )
   {
     camera,

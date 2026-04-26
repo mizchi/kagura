@@ -138,7 +138,7 @@ pub fn melee_slash(world : GameWorld) -> Unit {
   let py = world.player.y
   let r_sq = melee_slash_radius * melee_slash_radius
   for enemy in world.enemies {
-    if !(enemy.alive) {
+    if !enemy.alive {
       continue
     }
     let dx = enemy.x - px

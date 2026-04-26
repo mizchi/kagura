@@ -5,6 +5,7 @@ import {
   "mizchi/kagura/core",
   "mizchi/kagura/core/inpututil",
   "mizchi/kagura/engine/gfx",
+  "moonbitlang/core/debug",
 }
 
 // Values
@@ -70,7 +71,7 @@ pub(all) struct FrameProfile {
   draw_calls : Int
   vertex_count : Int
   asset_inflight : Int
-}
+} derive(@debug.Debug)
 pub impl Show for FrameProfile
 
 // Type aliases

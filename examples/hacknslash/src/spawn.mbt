@@ -1,5 +1,6 @@
 // Enemy spawning: room-based, with ranged and boss support
 
+///|
 fn make_enemy(
   cx : Double,
   cy : Double,
@@ -29,6 +30,7 @@ fn make_enemy(
   }
 }
 
+///|
 fn spawn_enemies_for_floor(
   rooms : Array[@terrain.Room],
   player_room_idx : Int,
@@ -42,6 +44,7 @@ fn spawn_enemies_for_floor(
   spawn_enemies_in_rooms(rooms, player_room_idx, seed)
 }
 
+///|
 fn spawn_boss(
   rooms : Array[@terrain.Room],
   player_room_idx : Int,
@@ -49,7 +52,7 @@ fn spawn_boss(
   floor : Int,
 ) -> Array[Enemy] {
   let enemies : Array[Enemy] = []
-  let rng = @terrain.make_rng(seed.to_uint() + 7777)
+  let rng = @terrain.make_rng(seed.reinterpret_as_uint() + 7777)
   // Find largest room that's not the player room
   let mut best_idx = -1
   let mut best_area = 0
@@ -68,29 +71,34 @@ fn spawn_boss(
   }
   let room = rooms[best_idx]
   let cx = room.rect.x.to_double() * tile_size +
-    (room.rect.w.to_double() / 2.0) * tile_size + tile_size / 2.0
+    room.rect.w.to_double() / 2.0 * tile_size +
+    tile_size / 2.0
   let cy = room.rect.y.to_double() * tile_size +
-    (room.rect.h.to_double() / 2.0) * tile_size + tile_size / 2.0
+    room.rect.h.to_double() / 2.0 * tile_size +
+    tile_size / 2.0
   let boss_hp = 20 + floor * 2
   enemies.push(make_enemy(cx, cy, kind_boss, boss_hp, 0.6, 20.0))
   // Add a few minions
   for _i = 0; _i < 2; _i = _i + 1 {
     let mx = room.rect.x.to_double() * tile_size +
-      rng.rand_range(1, room.rect.w - 1).to_double() * tile_size + tile_size / 2.0
+      rng.rand_range(1, room.rect.w - 1).to_double() * tile_size +
+      tile_size / 2.0
     let my = room.rect.y.to_double() * tile_size +
-      rng.rand_range(1, room.rect.h - 1).to_double() * tile_size + tile_size / 2.0
+      rng.rand_range(1, room.rect.h - 1).to_double() * tile_size +
+      tile_size / 2.0
     enemies.push(make_enemy(mx, my, kind_basic, 3, enemy_speed_basic, 10.0))
   }
   enemies
 }
 
+///|
 fn spawn_enemies_in_rooms(
   rooms : Array[@terrain.Room],
   player_room_idx : Int,
   seed : Int,
 ) -> Array[Enemy] {
   let enemies : Array[Enemy] = []
-  let rng = @terrain.make_rng(seed.to_uint() + 7777)
+  let rng = @terrain.make_rng(seed.reinterpret_as_uint() + 7777)
   for i = 0; i < rooms.length(); i = i + 1 {
     if i == player_room_idx {
       continue

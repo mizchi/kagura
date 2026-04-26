@@ -51,10 +51,8 @@ fn enemy_direct_chase_path_blocked(
   target_y : Double,
   enemy_size : Double,
 ) -> Bool {
-  not(
-    @physics2d.grid_line_of_sight_clear(
-      grid, enemy_x, enemy_y, target_x, target_y, enemy_size, tile_size,
-    ),
+  !@physics2d.grid_line_of_sight_clear(
+    grid, enemy_x, enemy_y, target_x, target_y, enemy_size, tile_size,
   )
 }
 
@@ -248,7 +246,7 @@ pub fn update_enemy_ai(
   let player_room = find_room_at(rooms, player.x, player.y)
   let chase_range_sq = params.chase_range * params.chase_range
   for enemy in enemies {
-    if !(enemy.alive) {
+    if !enemy.alive {
       continue
     }
     // Meteor casting: channeled, interruptible by killing the caster
@@ -346,15 +344,13 @@ pub fn update_enemy_ai(
     tick_enemy_pattern_cooldowns(enemy)
     if same_room_visible && dist_sq > 1.0 {
       let dist = dist_sq.sqrt()
-      if not(
-          enemy_direct_chase_path_blocked(
-            grid,
-            enemy.x,
-            enemy.y,
-            player.x,
-            player.y,
-            enemy.size,
-          ),
+      if !enemy_direct_chase_path_blocked(
+          grid,
+          enemy.x,
+          enemy.y,
+          player.x,
+          player.y,
+          enemy.size,
         ) {
         let chase_vx = cdx / dist * enemy.speed
         let chase_vy = cdy / dist * enemy.speed

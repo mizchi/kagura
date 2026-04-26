@@ -102,7 +102,7 @@ pub fn spawn_boss_with_params(
   params : BalanceParams,
 ) -> Array[Enemy] {
   let enemies : Array[Enemy] = []
-  let rng = @terrain.make_rng(seed.to_uint() + 7777)
+  let rng = @terrain.make_rng(seed.reinterpret_as_uint() + 7777)
   let mut best_idx = -1
   let mut best_area = 0
   for i = 0; i < rooms.length(); i = i + 1 {
@@ -195,7 +195,7 @@ pub fn spawn_enemies_in_rooms_with_params(
   floor? : Int = 1,
 ) -> Array[Enemy] {
   let enemies : Array[Enemy] = []
-  let rng = @terrain.make_rng(seed.to_uint() + 7777)
+  let rng = @terrain.make_rng(seed.reinterpret_as_uint() + 7777)
   // Safe zone: player room + nearby rooms (within distance threshold)
   let player_room_center = if player_room_idx >= 0 &&
     player_room_idx < rooms.length() {

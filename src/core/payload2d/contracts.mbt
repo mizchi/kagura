@@ -24,7 +24,12 @@ pub struct TrianglePayload {
   uniform_b : Double
   uniform_a : Double
   texture_seed : Int
-} derive(Show)
+} derive(Debug)
+
+///|
+pub impl Show for TrianglePayload with output(self, logger) {
+  logger.write_object(to_repr(self))
+}
 
 ///|
 pub fn clamp_unit(value : Double) -> Double {

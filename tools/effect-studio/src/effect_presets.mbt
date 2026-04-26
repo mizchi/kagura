@@ -10,7 +10,12 @@ pub enum EffectPresetId {
   GroundTelegraphLine
   BeamLightning
   MeteorFall
-} derive(Eq, Show)
+} derive(Eq, Debug)
+
+///|
+pub impl Show for EffectPresetId with output(self, logger) {
+  logger.write_object(to_repr(self))
+}
 
 ///|
 pub fn effect_preset_id_name(id : EffectPresetId) -> String {

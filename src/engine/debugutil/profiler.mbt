@@ -9,7 +9,12 @@ pub(all) struct FrameProfile {
   draw_calls : Int
   vertex_count : Int
   asset_inflight : Int
-} derive(Show)
+} derive(Debug)
+
+///|
+pub impl Show for FrameProfile with output(self, logger) {
+  logger.write_object(to_repr(self))
+}
 
 ///|
 pub fn default_frame_profile() -> FrameProfile {

@@ -25,7 +25,12 @@ pub(all) enum Archetype {
   Block // Block stacking + Body Slam
   Exhaust // Thin deck + exhaust synergy
   Balanced // No dominant archetype
-} derive(Show, Eq)
+} derive(Debug, Eq)
+
+///|
+pub impl Show for Archetype with output(self, logger) {
+  logger.write_object(to_repr(self))
+}
 
 ///|
 /// Detect the archetype of a deck
@@ -42,11 +47,14 @@ pub fn detect_archetype(deck : Array[CardId]) -> Archetype {
       // Block archetype
       Barricade | Metallicize | Entrench => blk_score += 3
       Body_Slam | Impervious => blk_score += 2
-      Shrug_It_Off | Iron_Wave | True_Grit | Armaments => blk_score += 1
+      Shrug_It_Off | Iron_Wave | Armaments => blk_score += 1
+      True_Grit => {
+        blk_score += 1
+        exh_score += 1
+      }
       // Exhaust archetype
       Feel_No_Pain | Corruption => exh_score += 3
       Offering | Bloodletting | Seeing_Red | Fiend_Fire => exh_score += 2
-      True_Grit => exh_score += 1
       // Neutral
       _ => ()
     }
@@ -97,10 +105,16 @@ pub(all) struct GameFeatures {
   discard_size : Double // Cards in discard
   powers_active : Double // Number of active power effects
   archetype_score : Double // 0=balanced, 1=str, 2=blk, 3=exh
-} derive(Show)
+} derive(Debug)
+
+///|
+pub impl Show for GameFeatures with output(self, logger) {
+  logger.write_object(to_repr(self))
+}
 
 ///|
 /// Extract features from current battle state
+#warnings("-unused_value")
 fn extract_features(state : BattleState) -> GameFeatures {
   let hp_pct = state.player.hp.to_double() / state.player.max_hp.to_double()
   // Deck composition from all piles
@@ -139,7 +153,7 @@ fn extract_features(state : BattleState) -> GameFeatures {
   let mut total_vuln = 0.0
   let mut total_str = 0.0
   for enemy in state.enemies {
-    if not(enemy.fighter.is_dead()) {
+    if !enemy.fighter.is_dead() {
       total_enemy_hp += enemy.fighter.hp.to_double()
       alive_count += 1.0
       let dmg : Double = match enemy.intent {
@@ -204,6 +218,7 @@ fn extract_features(state : BattleState) -> GameFeatures {
 
 ///|
 /// Convert features to a flat array (for ML input)
+#warnings("-unused_value")
 fn features_to_array(f : GameFeatures) -> Array[Double] {
   [
     f.player_hp_pct,
@@ -247,7 +262,12 @@ pub(all) enum BalanceParam {
   EnemyDamage(EnemyId) // Specific enemy's damage multiplier
   CardDamage(CardId) // Card's base damage
   CardBlock(CardId) // Card's base block
-} derive(Show)
+} derive(Debug)
+
+///|
+pub impl Show for BalanceParam with output(self, logger) {
+  logger.write_object(to_repr(self))
+}
 
 ///|
 /// Result of sensitivity analysis
@@ -256,7 +276,12 @@ pub(all) struct SensitivityResult {
   base_win_rate : Double
   perturbed_win_rate : Double
   sensitivity : Double // (perturbed - base) / delta
-} derive(Show)
+} derive(Debug)
+
+///|
+pub impl Show for SensitivityResult with output(self, logger) {
+  logger.write_object(to_repr(self))
+}
 
 ///|
 /// Run a single battle with parameter perturbation applied post-creation
@@ -497,7 +522,12 @@ pub(all) struct BalanceReport {
   ensemble_win_pct : Int
   ensemble_avg_hp : Int
   difficulty_score : Double
-} derive(Show)
+} derive(Debug)
+
+///|
+pub impl Show for BalanceReport with output(self, logger) {
+  logger.write_object(to_repr(self))
+}
 
 ///|
 pub fn generate_balance_report(encounter : EncounterId) -> BalanceReport {

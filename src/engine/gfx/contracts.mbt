@@ -12,7 +12,12 @@ pub struct DstRegion {
   width : Int
   height : Int
   index_count : Int
-} derive(Show)
+} derive(Debug)
+
+///|
+pub impl Show for DstRegion with output(self, logger) {
+  logger.write_object(to_repr(self))
+}
 
 ///|
 pub fn new_dst_region(
@@ -31,14 +36,24 @@ pub struct Color {
   g : Double
   b : Double
   a : Double
-} derive(Show)
+} derive(Debug)
+
+///|
+pub impl Show for Color with output(self, logger) {
+  logger.write_object(to_repr(self))
+}
 
 ///|
 pub struct RenderPassDesc {
   clear_color : Color
   clear_enabled : Bool
   present : Bool
-} derive(Show)
+} derive(Debug)
+
+///|
+pub impl Show for RenderPassDesc with output(self, logger) {
+  logger.write_object(to_repr(self))
+}
 
 ///|
 pub fn new_color(r : Double, g : Double, b : Double, a : Double) -> Color {
@@ -70,7 +85,12 @@ pub enum BlendFactor {
   OneMinusSrcColor
   DstColor
   OneMinusDstColor
-} derive(Show)
+} derive(Debug)
+
+///|
+pub impl Show for BlendFactor with output(self, logger) {
+  logger.write_object(to_repr(self))
+}
 
 ///|
 /// Blend operation for custom blend equations.
@@ -80,7 +100,12 @@ pub enum BlendOperation {
   ReverseSubtract
   Min
   Max
-} derive(Show)
+} derive(Debug)
+
+///|
+pub impl Show for BlendOperation with output(self, logger) {
+  logger.write_object(to_repr(self))
+}
 
 ///|
 /// Custom blend equation with separate RGB and Alpha channels.
@@ -91,7 +116,12 @@ pub struct BlendEquation {
   src_factor_alpha : BlendFactor
   dst_factor_alpha : BlendFactor
   op_alpha : BlendOperation
-} derive(Show)
+} derive(Debug)
+
+///|
+pub impl Show for BlendEquation with output(self, logger) {
+  logger.write_object(to_repr(self))
+}
 
 ///|
 pub enum BlendMode {
@@ -100,7 +130,12 @@ pub enum BlendMode {
   Add
   Multiply
   Custom(BlendEquation)
-} derive(Show)
+} derive(Debug)
+
+///|
+pub impl Show for BlendMode with output(self, logger) {
+  logger.write_object(to_repr(self))
+}
 
 ///|
 pub fn blend_mode_to_int(mode : BlendMode) -> Int {
@@ -229,7 +264,12 @@ pub enum FilterMode {
   Nearest
   Linear
   Pixelated
-} derive(Show)
+} derive(Debug)
+
+///|
+pub impl Show for FilterMode with output(self, logger) {
+  logger.write_object(to_repr(self))
+}
 
 ///|
 pub fn filter_mode_to_int(mode : FilterMode) -> Int {
@@ -255,7 +295,12 @@ pub struct ImageHandle {
   id : Int
   width : Int
   height : Int
-} derive(Show)
+} derive(Debug)
+
+///|
+pub impl Show for ImageHandle with output(self, logger) {
+  logger.write_object(to_repr(self))
+}
 
 ///|
 pub fn new_image_handle(id : Int, width : Int, height : Int) -> ImageHandle {
@@ -266,7 +311,12 @@ pub fn new_image_handle(id : Int, width : Int, height : Int) -> ImageHandle {
 pub struct ShaderHandle {
   id : Int
   source : String
-} derive(Show)
+} derive(Debug)
+
+///|
+pub impl Show for ShaderHandle with output(self, logger) {
+  logger.write_object(to_repr(self))
+}
 
 ///|
 pub fn new_shader_handle(id : Int, source : String) -> ShaderHandle {
@@ -276,7 +326,12 @@ pub fn new_shader_handle(id : Int, source : String) -> ShaderHandle {
 ///|
 pub struct PipelineHandle {
   id : Int
-} derive(Show)
+} derive(Debug)
+
+///|
+pub impl Show for PipelineHandle with output(self, logger) {
+  logger.write_object(to_repr(self))
+}
 
 ///|
 pub fn new_pipeline_handle(id : Int) -> PipelineHandle {
@@ -372,7 +427,12 @@ pub struct DrawCommandDispatch {
   index_count : Int
   src_image_count : Int
   uniform_dword_count : Int
-} derive(Show)
+} derive(Debug)
+
+///|
+pub impl Show for DrawCommandDispatch with output(self, logger) {
+  logger.write_object(to_repr(self))
+}
 
 ///|
 fn normalized_region_triangle_count(region : DstRegion) -> Int {
@@ -474,7 +534,12 @@ pub struct FramebufferSnapshot {
   width : Int
   height : Int
   pixels : Array[Int]
-} derive(Show)
+} derive(Debug)
+
+///|
+pub impl Show for FramebufferSnapshot with output(self, logger) {
+  logger.write_object(to_repr(self))
+}
 
 ///|
 pub fn create_framebuffer_snapshot(
@@ -495,7 +560,12 @@ pub struct PixelDiffResult {
   total_pixels : Int
   diff_pixels : Int
   max_channel_diff : Int
-} derive(Show)
+} derive(Debug)
+
+///|
+pub impl Show for PixelDiffResult with output(self, logger) {
+  logger.write_object(to_repr(self))
+}
 
 ///|
 pub fn compare_framebuffer_snapshots(

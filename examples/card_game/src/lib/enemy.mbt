@@ -6,7 +6,12 @@ pub(all) enum Intent {
   BuffIntent // Gain strength
   MultiAttack(Int, Int) // Deal N damage X times
   DebuffIntent // Apply Weak/Vulnerable to player
-} derive(Show, Eq)
+} derive(Debug, Eq)
+
+///|
+pub impl Show for Intent with output(self, logger) {
+  logger.write_object(to_repr(self))
+}
 
 ///|
 /// Enemy with fighter stats and AI
@@ -15,7 +20,12 @@ pub(all) struct Enemy {
   fighter : Fighter
   mut intent : Intent
   mut pattern_index : Int
-} derive(Show)
+} derive(Debug)
+
+///|
+pub impl Show for Enemy with output(self, logger) {
+  logger.write_object(to_repr(self))
+}
 
 ///|
 /// Enemy template identifiers
@@ -41,9 +51,15 @@ pub(all) enum EnemyId {
   BookOfStabbing // 160 HP, escalating multi-stab
   // Act 2 Boss
   BronzeAutomaton // 300 HP, hyper beam + flail
-} derive(Show, Eq)
+} derive(Debug, Eq)
 
 ///|
+pub impl Show for EnemyId with output(self, logger) {
+  logger.write_object(to_repr(self))
+}
+
+///|
+#warnings("-unused_value")
 fn enemy_tier(id : EnemyId) -> EncounterTier {
   match id {
     GreenLouse | RedLouse | JawWorm => Easy
@@ -399,7 +415,12 @@ pub(all) enum EncounterId {
   Act2EliteBook // Elite: escalating multi-stab
   Act2EliteSentryTrio // Elite: three sentries
   BossAutomaton // Boss: Bronze Automaton
-} derive(Show, Eq)
+} derive(Debug, Eq)
+
+///|
+pub impl Show for EncounterId with output(self, logger) {
+  logger.write_object(to_repr(self))
+}
 
 ///|
 pub fn encounter_enemies(id : EncounterId) -> Array[EnemyId] {
@@ -431,9 +452,15 @@ pub(all) enum EncounterTier {
   Normal
   Elite
   Boss
-} derive(Show, Eq)
+} derive(Debug, Eq)
 
 ///|
+pub impl Show for EncounterTier with output(self, logger) {
+  logger.write_object(to_repr(self))
+}
+
+///|
+#warnings("-unused_value")
 fn encounter_tier(id : EncounterId) -> EncounterTier {
   match id {
     SingleJawWorm | TwoLouses => Easy

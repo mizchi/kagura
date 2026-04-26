@@ -4,6 +4,7 @@ package "mizchi/kagura/physics2d"
 import {
   "mizchi/kagura/core/vector",
   "mizchi/terrain/types",
+  "moonbitlang/core/debug",
 }
 
 // Values
@@ -51,7 +52,7 @@ pub fn sweep_circle_circle(@vector.Vec2, @vector.Vec2, Double, @vector.Vec2, @ve
 pub(all) struct AABB2D {
   min : @vector.Vec2
   max : @vector.Vec2
-}
+} derive(@debug.Debug)
 pub fn AABB2D::center(Self) -> @vector.Vec2
 pub fn AABB2D::closest_point(Self, @vector.Vec2) -> @vector.Vec2
 pub fn AABB2D::contains_point(Self, @vector.Vec2) -> Bool
@@ -66,7 +67,7 @@ pub(all) enum BodyType2D {
   Dynamic
   Static
   Kinematic
-}
+} derive(@debug.Debug)
 pub impl Show for BodyType2D
 
 type BroadphaseEntry2D
@@ -75,7 +76,7 @@ pub(all) enum ColliderShape2D {
   CircleShape(@vector.Vec2, Double)
   AABBShape2D(@vector.Vec2, @vector.Vec2)
   OBBShape2D(@vector.Vec2, @vector.Vec2)
-}
+} derive(@debug.Debug)
 pub impl Show for ColliderShape2D
 
 pub(all) struct Contact2D {
@@ -84,7 +85,7 @@ pub(all) struct Contact2D {
   normal : @vector.Vec2
   penetration : Double
   contact_point : @vector.Vec2
-}
+} derive(@debug.Debug)
 pub impl Show for Contact2D
 
 pub(all) struct ContactConstraint2D {
@@ -200,7 +201,7 @@ pub(all) struct RigidBody2D {
   is_sleeping : Bool
   sleep_timer : Double
   is_bullet : Bool
-}
+} derive(@debug.Debug)
 pub fn RigidBody2D::apply_force(Self, @vector.Vec2) -> Self
 pub fn RigidBody2D::apply_impulse(Self, @vector.Vec2) -> Self
 pub fn RigidBody2D::is_dynamic(Self) -> Bool

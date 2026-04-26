@@ -128,11 +128,11 @@ pub fn filled_rounded_rect_vertices(
     return filled_rect_vertices(x, y, w, h, screen_w, screen_h)
   }
   // Clamp radii to half dimensions
-  let max_r = @math.minimum(w / 2.0, h / 2.0)
-  let tl = @math.minimum(tl, max_r)
-  let tr = @math.minimum(tr, max_r)
-  let br = @math.minimum(br, max_r)
-  let bl = @math.minimum(bl, max_r)
+  let max_r = @cmp.minimum(w / 2.0, h / 2.0)
+  let tl = @cmp.minimum(tl, max_r)
+  let tr = @cmp.minimum(tr, max_r)
+  let br = @cmp.minimum(br, max_r)
+  let bl = @cmp.minimum(bl, max_r)
   let vertices : Array[Double] = []
   let indices : Array[Int] = []
   // Center vertex (index 0)

@@ -2,7 +2,12 @@
 struct TouchDurationEntry {
   id : Int
   duration : Int
-} derive(Show)
+} derive(Debug)
+
+///|
+pub impl Show for TouchDurationEntry with output(self, logger) {
+  logger.write_object(to_repr(self))
+}
 
 ///|
 pub struct TouchInputState {
@@ -141,20 +146,35 @@ pub fn append_just_released_touch_ids(
 struct GamepadDurationEntry {
   id : Int
   duration : Int
-} derive(Show)
+} derive(Debug)
+
+///|
+pub impl Show for GamepadDurationEntry with output(self, logger) {
+  logger.write_object(to_repr(self))
+}
 
 ///|
 struct GamepadButtonKey {
   gamepad_id : Int
   button_id : Int
-} derive(Show)
+} derive(Debug)
+
+///|
+pub impl Show for GamepadButtonKey with output(self, logger) {
+  logger.write_object(to_repr(self))
+}
 
 ///|
 struct GamepadButtonDurationEntry {
   gamepad_id : Int
   button_id : Int
   duration : Int
-} derive(Show)
+} derive(Debug)
+
+///|
+pub impl Show for GamepadButtonDurationEntry with output(self, logger) {
+  logger.write_object(to_repr(self))
+}
 
 ///|
 pub struct GamepadInputState {

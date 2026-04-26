@@ -14,7 +14,12 @@ pub struct WindowOptions {
   transparent : Bool
   resizable : Bool
   focused : Bool
-} derive(Show)
+} derive(Debug)
+
+///|
+pub impl Show for WindowOptions with output(self, logger) {
+  logger.write_object(to_repr(self))
+}
 
 ///|
 pub struct MonitorInfo {
@@ -22,14 +27,24 @@ pub struct MonitorInfo {
   height : Int
   device_scale_factor : Double
   refresh_rate_hz : Int
-} derive(Show)
+} derive(Debug)
+
+///|
+pub impl Show for MonitorInfo with output(self, logger) {
+  logger.write_object(to_repr(self))
+}
 
 ///|
 pub enum FullscreenMode {
   Windowed
   Borderless
   Exclusive
-} derive(Show)
+} derive(Debug)
+
+///|
+pub impl Show for FullscreenMode with output(self, logger) {
+  logger.write_object(to_repr(self))
+}
 
 ///|
 pub fn fullscreen_mode_to_int(mode : FullscreenMode) -> Int {
@@ -54,7 +69,12 @@ pub enum CursorMode {
   Visible
   Hidden
   Captured
-} derive(Show)
+} derive(Debug)
+
+///|
+pub impl Show for CursorMode with output(self, logger) {
+  logger.write_object(to_repr(self))
+}
 
 ///|
 pub fn cursor_mode_to_int(mode : CursorMode) -> Int {
@@ -80,7 +100,12 @@ pub enum AsyncRequestStatus {
   Pending
   Confirmed
   Rejected
-} derive(Show)
+} derive(Debug)
+
+///|
+pub impl Show for AsyncRequestStatus with output(self, logger) {
+  logger.write_object(to_repr(self))
+}
 
 ///|
 pub fn async_request_status_to_int(status : AsyncRequestStatus) -> Int {

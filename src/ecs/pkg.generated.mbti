@@ -6,6 +6,7 @@ import {
   "mizchi/kagura/core/transform3d",
   "mizchi/kagura/engine/scene3d",
   "mizchi/kagura/physics3d",
+  "moonbitlang/core/debug",
 }
 
 // Values
@@ -24,14 +25,13 @@ pub fn system_sync_to_physics(World, @physics3d.PhysicsWorld) -> Unit
 // Types and methods
 pub(all) struct EntityId {
   value : Int
-}
-pub impl Eq for EntityId
+} derive(Eq, @debug.Debug)
 pub impl Show for EntityId
 
 pub(all) struct Health {
   current : Int
   max : Int
-}
+} derive(@debug.Debug)
 pub impl Show for Health
 
 pub(all) struct Sprite {
@@ -40,7 +40,7 @@ pub(all) struct Sprite {
   height : Double
   color : Int
   alpha : Double
-}
+} derive(@debug.Debug)
 pub impl Show for Sprite
 
 pub(all) enum Tag {
@@ -50,15 +50,14 @@ pub(all) enum Tag {
   Item
   Obstacle
   Custom(String)
-}
-pub impl Eq for Tag
+} derive(Eq, @debug.Debug)
 pub impl Show for Tag
 
 pub(all) struct Velocity {
   x : Double
   y : Double
   z : Double
-}
+} derive(@debug.Debug)
 pub impl Show for Velocity
 
 pub struct World {

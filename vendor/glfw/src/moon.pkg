@@ -7,6 +7,8 @@ options(
     },
   },
   "native-stub": [ "glfw_stub.c", "glfw_stub_macos.m" ],
-  "supported-targets": [ "native" ],
-  targets: { "glfw.mbt": [ "native" ] },
-)
+
+  targets: { "glfw.mbt": [ "native" ] })
+
+supported_targets = "native"
+

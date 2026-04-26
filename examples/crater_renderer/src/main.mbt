@@ -79,7 +79,8 @@ fn draw_frame(
   let sw = engine_ctx.screen_w.to_double()
   let sh = engine_ctx.screen_h.to_double()
   let scissor = @draw2d_ui.ScissorStack::new(
-    engine_ctx.screen_w, engine_ctx.screen_h,
+    engine_ctx.screen_w,
+    engine_ctx.screen_h,
   )
   let render_ctx : @renderer.RenderContext = {
     viewport_width: sw,
@@ -106,7 +107,7 @@ fn render_paint_node(
   parent_x : Double,
   parent_y : Double,
 ) -> Unit {
-  if !(scissor.is_visible()) {
+  if !scissor.is_visible() {
     return
   }
   let x = parent_x + node.x
@@ -133,15 +134,20 @@ fn render_paint_node(
   }
   let clips = w > 0.0 &&
     h > 0.0 &&
-    (node.overflow_x != @crater_types.Visible ||
-    node.overflow_y != @crater_types.Visible)
+    (
+      node.overflow_x != @crater_types.Visible ||
+      node.overflow_y != @crater_types.Visible
+    )
   if clips {
     let clipped = scissor.push(
       @draw2d_ui.ScissorRect::new(
-        x.to_int(), y.to_int(), w.to_int(), h.to_int(),
+        x.to_int(),
+        y.to_int(),
+        w.to_int(),
+        h.to_int(),
       ),
     )
-    if !(clipped) {
+    if !clipped {
       scissor.pop()
       return
     }
@@ -178,7 +184,16 @@ fn push_text(
       let sw = ctx.screen_w.to_double()
       let sh = ctx.screen_h.to_double()
       let text_cmds = @draw2d_ui.render_text(
-        tr, text, size_px, x, y, ctx.dst, ctx.shader, color_hex, sw, sh,
+        tr,
+        text,
+        size_px,
+        x,
+        y,
+        ctx.dst,
+        ctx.shader,
+        color_hex,
+        sw,
+        sh,
       )
       for cmd in text_cmds {
         cmds.push(cmd)
@@ -210,8 +225,16 @@ fn push_text(
       let sw = ctx.screen_w.to_double()
       let sh = ctx.screen_h.to_double()
       @debugutil.draw_dot_text(
-        cmds, ctx.dst, ctx.shader, chars, cx, cy, sw, sh,
-        @debugutil.color_from_hex(color_hex), scale,
+        cmds,
+        ctx.dst,
+        ctx.shader,
+        chars,
+        cx,
+        cy,
+        sw,
+        sh,
+        @debugutil.color_from_hex(color_hex),
+        scale,
       )
     }
   }
@@ -230,7 +253,9 @@ fn make_cmd(
     ctx.dst,
     ctx.shader,
     [sc.to_dst_region(indices.length())],
-    0, 0, 0,
+    0,
+    0,
+    0,
     @gfx.blend_mode_from_int(1),
     vertices,
     indices,

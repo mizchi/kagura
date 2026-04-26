@@ -61,7 +61,7 @@ fn main {
   }
 
   // Initialize headless GPU
-  if !(@native_hooks.initialize_headless_context(screen_w, screen_h)) {
+  if !@native_hooks.initialize_headless_context(screen_w, screen_h) {
     println("Error: failed to initialize headless GPU context")
     return
   }
@@ -72,22 +72,33 @@ fn main {
   let font_map : Map[String, @text.TextRenderer] = {}
   let bold_font_map : Map[String, @text.TextRenderer] = {}
   // Load additional fonts for family matching
-  load_font_family(font_map, bold_font_map, "verdana", [
-    "/System/Library/Fonts/Supplemental/Verdana.ttf",
-  ], [
-    "/System/Library/Fonts/Supplemental/Verdana Bold.ttf",
-  ])
-  load_font_family(font_map, bold_font_map, "georgia", [
-    "/System/Library/Fonts/Supplemental/Georgia.ttf",
-  ], [
-    "/System/Library/Fonts/Supplemental/Georgia Bold.ttf",
-  ])
-  load_font_family(font_map, bold_font_map, "times new roman", [
-    "/System/Library/Fonts/Supplemental/Times New Roman.ttf",
-  ], [
-    "/System/Library/Fonts/Supplemental/Times New Roman Bold.ttf",
-  ])
-  let state = RenderState::{ text_renderer, bold_text_renderer, font_map, bold_font_map }
+  load_font_family(
+    font_map,
+    bold_font_map,
+    "verdana",
+    ["/System/Library/Fonts/Supplemental/Verdana.ttf"],
+    ["/System/Library/Fonts/Supplemental/Verdana Bold.ttf"],
+  )
+  load_font_family(
+    font_map,
+    bold_font_map,
+    "georgia",
+    ["/System/Library/Fonts/Supplemental/Georgia.ttf"],
+    ["/System/Library/Fonts/Supplemental/Georgia Bold.ttf"],
+  )
+  load_font_family(
+    font_map,
+    bold_font_map,
+    "times new roman",
+    ["/System/Library/Fonts/Supplemental/Times New Roman.ttf"],
+    ["/System/Library/Fonts/Supplemental/Times New Roman Bold.ttf"],
+  )
+  let state = RenderState::{
+    text_renderer,
+    bold_text_renderer,
+    font_map,
+    bold_font_map,
+  }
 
   // Load glyph cache from disk
   load_glyph_cache(state.text_renderer, "/tmp/crater_glyph_cache_regular.bin")
@@ -97,7 +108,11 @@ fn main {
   match text_renderer {
     Some(tr) =>
       match bold_text_renderer {
-        Some(bold_tr) => install_font_metrics_provider_with_bold(tr.inner.font, bold_tr.inner.font)
+        Some(bold_tr) =>
+          install_font_metrics_provider_with_bold(
+            tr.inner.font,
+            bold_tr.inner.font,
+          )
         None => install_font_metrics_provider(tr.inner.font)
       }
     None => println("[warn] No font loaded, using monospace fallback")
@@ -128,9 +143,8 @@ fn main {
   )
   let t4 = clock_ms()
   // Phase 5: paint tree
-  let paint_root = match @paint.from_node_and_layout_with_viewport(
-    node, layout, 0.0, sh, 0.0,
-  ) {
+  let paint_root = match
+    @paint.from_node_and_layout_with_viewport(node, layout, 0.0, sh, 0.0) {
     Some(root) => root
     None => {
       println("Error: failed to build paint tree")
@@ -152,7 +166,7 @@ fn main {
     (t5 - t4).to_int().to_string() +
     "ms total=" +
     (t5 - t0).to_int().to_string() +
-    "ms"
+    "ms",
   )
   // DOM stats
   fn count_elements(e : @html.Element) -> (Int, Int) {
@@ -163,7 +177,9 @@ fn main {
         @html.Node::Element(ce) => {
           let (c, d) = count_elements(ce)
           total += c
-          if d + 1 > max_depth { max_depth = d + 1 }
+          if d + 1 > max_depth {
+            max_depth = d + 1
+          }
         }
         _ => ()
       }
@@ -172,8 +188,10 @@ fn main {
   }
   let (elem_count, max_depth) = count_elements(doc.root)
   println(
-    "[perf] dom_elements=" + elem_count.to_string() +
-    " max_depth=" + max_depth.to_string()
+    "[perf] dom_elements=" +
+    elem_count.to_string() +
+    " max_depth=" +
+    max_depth.to_string(),
   )
   println(
     "[perf] selector_build=" +
@@ -184,7 +202,7 @@ fn main {
     (@renderer.perf_pseudo_us.val / 1000L).to_string() +
     "ms child_loop=" +
     (@renderer.perf_child_loop_us.val / 1000L).to_string() +
-    "ms"
+    "ms",
   )
 
   // Build draw commands
@@ -200,9 +218,7 @@ fn main {
   } else {
     0xFFFFFF
   }
-  let (bg_v, bg_i) = @draw2d_ui.filled_rect_vertices(
-    0.0, 0.0, sw, sh, sw, sh,
-  )
+  let (bg_v, bg_i) = @draw2d_ui.filled_rect_vertices(0.0, 0.0, sw, sh, sw, sh)
   cmds.push(make_draw_cmd(engine_ctx, scissor, bg_v, bg_i, canvas_hex))
 
   // Render paint tree
@@ -218,13 +234,17 @@ fn main {
           if page_idx >= 0 && page_idx < tr.inner.pages.length() {
             let page = tr.inner.pages[page_idx]
             @wgpu_native.begin_planned_source_image_upload(
-              info.page_id, info.width, info.height,
+              info.page_id,
+              info.width,
+              info.height,
             )
             for y = 0; y < info.height; y = y + 1 {
               for x = 0; x < info.width; x = x + 1 {
                 let idx = (y * info.width + x) * 4
                 @wgpu_native.set_planned_source_image_pixel(
-                  info.page_id, x, y,
+                  info.page_id,
+                  x,
+                  y,
                   page.pixels[idx],
                   page.pixels[idx + 1],
                   page.pixels[idx + 2],
@@ -267,8 +287,12 @@ fn read_config() -> (Int, Int) {
     Some(s) => {
       let parts = s.trim().split(" ").collect()
       if parts.length() >= 2 {
-        let w = @strconv.parse_int(parts[0]) catch { _ => return (default_w, default_h) }
-        let h = @strconv.parse_int(parts[1]) catch { _ => return (default_w, default_h) }
+        let w = @string.parse_int(parts[0]) catch {
+          _ => return (default_w, default_h)
+        }
+        let h = @string.parse_int(parts[1]) catch {
+          _ => return (default_w, default_h)
+        }
         (w, h)
       } else {
         (default_w, default_h)
@@ -282,7 +306,7 @@ fn read_config() -> (Int, Int) {
 /// Save glyph atlas (entries + pixels) to cache file.
 fn save_glyph_cache(renderer : @text.TextRenderer?, path : String) -> Unit {
   match renderer {
-    Some(tr) => {
+    Some(tr) =>
       if tr.glyph_count() > 0 {
         let ints = tr.inner.pages[0].serialize()
         let bytes = ints_to_bytes(ints)
@@ -297,7 +321,6 @@ fn save_glyph_cache(renderer : @text.TextRenderer?, path : String) -> Unit {
           )
         }
       }
-    }
     None => ()
   }
 }
@@ -345,9 +368,9 @@ fn bytes_to_ints(bytes : Bytes) -> Array[Int] {
     let o = i * 4
     ints.push(
       bytes[o].to_int() |
-        (bytes[o + 1].to_int() << 8) |
-        (bytes[o + 2].to_int() << 16) |
-        (bytes[o + 3].to_int() << 24),
+      (bytes[o + 1].to_int() << 8) |
+      (bytes[o + 2].to_int() << 16) |
+      (bytes[o + 3].to_int() << 24),
     )
   }
   ints
@@ -370,101 +393,105 @@ fn read_file_as_string(path : String) -> String? {
 ///|
 fn install_font_metrics_provider(font : @font.TTFont) -> Unit {
   let metrics_cache : Map[String, @crater_types.MeasureFunc] = {}
-  let provider = @renderer.TextMetricsProvider::new(
-    fn(text, font_size, line_height, white_space, _writing_mode, _font_weight) {
-      let cache_key = text +
-        "|" +
-        font_size.to_string() +
-        "|" +
-        white_space.to_string() +
-        "|" +
-        line_height.to_string()
-      match metrics_cache.get(cache_key) {
-        Some(cached) => return cached
-        None => ()
+  let provider = @renderer.TextMetricsProvider::new(fn(
+    text,
+    font_size,
+    line_height,
+    white_space,
+    _writing_mode,
+    _font_weight,
+    _font_family,
+  ) {
+    let cache_key = text +
+      "|" +
+      font_size.to_string() +
+      "|" +
+      white_space.to_string() +
+      "|" +
+      line_height.to_string()
+    match metrics_cache.get(cache_key) {
+      Some(cached) => return cached
+      None => ()
+    }
+    let effective_line_height = if line_height > 0.0 {
+      line_height
+    } else {
+      font_size
+    }
+    let max_width = font.measure_text(text, font_size)
+    // Compute min_width (widest single word)
+    let words = split_words(text)
+    let word_widths : Array[Double] = []
+    let mut min_word_width = 0.0
+    for word in words {
+      if word == "\n" {
+        word_widths.push(0.0)
+        continue
       }
-      let effective_line_height = if line_height > 0.0 {
-        line_height
-      } else {
-        font_size
+      let w = font.measure_text(word, font_size)
+      word_widths.push(w)
+      if w > min_word_width {
+        min_word_width = w
       }
-      let max_width = font.measure_text(text, font_size)
-      // Compute min_width (widest single word)
-      let words = split_words(text)
-      let word_widths : Array[Double] = []
-      let mut min_word_width = 0.0
-      for word in words {
-        if word == "\n" {
-          word_widths.push(0.0)
-          continue
-        }
-        let w = font.measure_text(word, font_size)
-        word_widths.push(w)
-        if w > min_word_width {
-          min_word_width = w
-        }
-      }
-      let space_w = font.measure_text(" ", font_size)
-      let ws_str = white_space.to_string()
-      let no_wrap = ws_str == "nowrap" || ws_str == "pre"
-      let result : @crater_types.MeasureFunc = {
-        func: fn(available_width, _available_height) {
-          if no_wrap || available_width <= 0.0 {
-            {
-              min_width: min_word_width,
-              max_width,
-              min_height: effective_line_height,
-              max_height: effective_line_height,
+    }
+    let space_w = font.measure_text(" ", font_size)
+    let ws_str = white_space.to_string()
+    let no_wrap = ws_str == "nowrap" || ws_str == "pre"
+    let result : @crater_types.MeasureFunc = {
+      func: fn(available_width, _available_height) {
+        if no_wrap || available_width <= 0.0 {
+          {
+            min_width: min_word_width,
+            max_width,
+            min_height: effective_line_height,
+            max_height: effective_line_height,
+          }
+        } else {
+          // Word-wrap calculation
+          let mut wrapped_lines = 0
+          let mut cur_width = 0.0
+          for i, word in words {
+            if word == "\n" {
+              wrapped_lines += 1
+              cur_width = 0.0
+              continue
             }
-          } else {
-            // Word-wrap calculation
-            let mut wrapped_lines = 0
-            let mut cur_width = 0.0
-            for i, word in words {
-              if word == "\n" {
-                wrapped_lines += 1
-                cur_width = 0.0
-                continue
-              }
-              let word_w = word_widths[i]
-              if cur_width == 0.0 {
-                cur_width = word_w
-              } else if cur_width + space_w + word_w <= available_width + 0.01 {
-                cur_width = cur_width + space_w + word_w
-              } else {
-                wrapped_lines += 1
-                cur_width = word_w
-              }
-            }
-            wrapped_lines += 1
-            let max_h = wrapped_lines.to_double() * effective_line_height
-            {
-              min_width: min_word_width,
-              max_width,
-              min_height: effective_line_height,
-              max_height: max_h,
+            let word_w = word_widths[i]
+            if cur_width == 0.0 {
+              cur_width = word_w
+            } else if cur_width + space_w + word_w <= available_width + 0.01 {
+              cur_width = cur_width + space_w + word_w
+            } else {
+              wrapped_lines += 1
+              cur_width = word_w
             }
           }
-        },
-      }
-      metrics_cache[cache_key] = result
-      result
-    },
-  )
+          wrapped_lines += 1
+          let max_h = wrapped_lines.to_double() * effective_line_height
+          {
+            min_width: min_word_width,
+            max_width,
+            min_height: effective_line_height,
+            max_height: max_h,
+          }
+        }
+      },
+    }
+    metrics_cache[cache_key] = result
+    result
+  })
   @renderer.set_text_metrics_provider(provider)
 }
 
 ///|
 let regular_font_candidates : Array[String] = [
-  "/System/Library/Fonts/Supplemental/Arial.ttf",
-  "/usr/share/fonts/truetype/dejavu/DejaVuSans.ttf",
+  "/System/Library/Fonts/Supplemental/Arial.ttf", "/usr/share/fonts/truetype/dejavu/DejaVuSans.ttf",
   "/usr/share/fonts/liberation-sans/LiberationSans-Regular.ttf",
 ]
 
 ///|
 let bold_font_candidates : Array[String] = [
-  "/System/Library/Fonts/Supplemental/Arial Bold.ttf",
-  "/usr/share/fonts/truetype/dejavu/DejaVuSans-Bold.ttf",
+  "/System/Library/Fonts/Supplemental/Arial Bold.ttf", "/usr/share/fonts/truetype/dejavu/DejaVuSans-Bold.ttf",
   "/usr/share/fonts/liberation-sans/LiberationSans-Bold.ttf",
 ]
 
@@ -498,88 +525,94 @@ fn install_font_metrics_provider_with_bold(
   bold : @font.TTFont,
 ) -> Unit {
   let metrics_cache : Map[String, @crater_types.MeasureFunc] = {}
-  let provider = @renderer.TextMetricsProvider::new(
-    fn(text, font_size, line_height, white_space, _writing_mode, font_weight) {
-      let cache_key = text +
-        "|" +
-        font_size.to_string() +
-        "|" +
-        font_weight.to_string() +
-        "|" +
-        white_space.to_string() +
-        "|" +
-        line_height.to_string()
-      match metrics_cache.get(cache_key) {
-        Some(cached) => return cached
-        None => ()
+  let provider = @renderer.TextMetricsProvider::new(fn(
+    text,
+    font_size,
+    line_height,
+    white_space,
+    _writing_mode,
+    font_weight,
+    _font_family,
+  ) {
+    let cache_key = text +
+      "|" +
+      font_size.to_string() +
+      "|" +
+      font_weight.to_string() +
+      "|" +
+      white_space.to_string() +
+      "|" +
+      line_height.to_string()
+    match metrics_cache.get(cache_key) {
+      Some(cached) => return cached
+      None => ()
+    }
+    let font = if font_weight >= 700.0 { bold } else { regular }
+    let effective_line_height = if line_height > 0.0 {
+      line_height
+    } else {
+      font_size
+    }
+    let max_width = font.measure_text(text, font_size)
+    let words = split_words(text)
+    let word_widths : Array[Double] = []
+    let mut min_word_width = 0.0
+    for word in words {
+      if word == "\n" {
+        word_widths.push(0.0)
+        continue
       }
-      let font = if font_weight >= 700.0 { bold } else { regular }
-      let effective_line_height = if line_height > 0.0 {
-        line_height
-      } else {
-        font_size
+      let w = font.measure_text(word, font_size)
+      word_widths.push(w)
+      if w > min_word_width {
+        min_word_width = w
       }
-      let max_width = font.measure_text(text, font_size)
-      let words = split_words(text)
-      let word_widths : Array[Double] = []
-      let mut min_word_width = 0.0
-      for word in words {
-        if word == "\n" {
-          word_widths.push(0.0)
-          continue
-        }
-        let w = font.measure_text(word, font_size)
-        word_widths.push(w)
-        if w > min_word_width {
-          min_word_width = w
-        }
-      }
-      let space_w = font.measure_text(" ", font_size)
-      let ws_str = white_space.to_string()
-      let no_wrap = ws_str == "nowrap" || ws_str == "pre"
-      let result : @crater_types.MeasureFunc = {
-        func: fn(available_width, _available_height) {
-          if no_wrap || available_width <= 0.0 {
-            {
-              min_width: min_word_width,
-              max_width,
-              min_height: effective_line_height,
-              max_height: effective_line_height,
+    }
+    let space_w = font.measure_text(" ", font_size)
+    let ws_str = white_space.to_string()
+    let no_wrap = ws_str == "nowrap" || ws_str == "pre"
+    let result : @crater_types.MeasureFunc = {
+      func: fn(available_width, _available_height) {
+        if no_wrap || available_width <= 0.0 {
+          {
+            min_width: min_word_width,
+            max_width,
+            min_height: effective_line_height,
+            max_height: effective_line_height,
+          }
+        } else {
+          let mut wrapped_lines = 0
+          let mut cur_width = 0.0
+          for i, word in words {
+            if word == "\n" {
+              wrapped_lines += 1
+              cur_width = 0.0
+              continue
             }
-          } else {
-            let mut wrapped_lines = 0
-            let mut cur_width = 0.0
-            for i, word in words {
-              if word == "\n" {
-                wrapped_lines += 1
-                cur_width = 0.0
-                continue
-              }
-              let word_w = word_widths[i]
-              if cur_width == 0.0 {
-                cur_width = word_w
-              } else if cur_width + space_w + word_w <= available_width + 0.01 {
-                cur_width = cur_width + space_w + word_w
-              } else {
-                wrapped_lines += 1
-                cur_width = word_w
-              }
-            }
-            wrapped_lines += 1
-            let max_h = wrapped_lines.to_double() * effective_line_height
-            {
-              min_width: min_word_width,
-              max_width,
-              min_height: effective_line_height,
-              max_height: max_h,
+            let word_w = word_widths[i]
+            if cur_width == 0.0 {
+              cur_width = word_w
+            } else if cur_width + space_w + word_w <= available_width + 0.01 {
+              cur_width = cur_width + space_w + word_w
+            } else {
+              wrapped_lines += 1
+              cur_width = word_w
             }
           }
-        },
-      }
-      metrics_cache[cache_key] = result
-      result
-    },
-  )
+          wrapped_lines += 1
+          let max_h = wrapped_lines.to_double() * effective_line_height
+          {
+            min_width: min_word_width,
+            max_width,
+            min_height: effective_line_height,
+            max_height: max_h,
+          }
+        }
+      },
+    }
+    metrics_cache[cache_key] = result
+    result
+  })
   @renderer.set_text_metrics_provider(provider)
 }
 
@@ -593,11 +626,11 @@ fn render_paint_node(
   parent_x : Double,
   parent_y : Double,
 ) -> Unit {
-  if !(scissor.is_visible()) {
+  if !scissor.is_visible() {
     return
   }
   let paint = node.paint
-  if !(paint.should_render()) {
+  if !paint.should_render() {
     return
   }
   // Early viewport culling: skip nodes entirely below or above viewport
@@ -605,7 +638,10 @@ fn render_paint_node(
   let abs_x = parent_x + node.x
   let sw = ctx.screen_w.to_double()
   let sh = ctx.screen_h.to_double()
-  if abs_y > sh || abs_y + node.height < 0.0 || abs_x > sw || abs_x + node.width < 0.0 {
+  if abs_y > sh ||
+    abs_y + node.height < 0.0 ||
+    abs_x > sw ||
+    abs_x + node.width < 0.0 {
     return
   }
   let x = parent_x + node.x
@@ -624,13 +660,20 @@ fn render_paint_node(
       let br = paint.border_bottom_right_radius
       let bl = paint.border_bottom_left_radius
       let (v, i) = if tl > 0.0 || tr > 0.0 || br > 0.0 || bl > 0.0 {
-        @draw2d_ui.filled_rounded_rect_vertices(x, y, w, h, tl, tr, br, bl, sw, sh)
+        @draw2d_ui.filled_rounded_rect_vertices(
+          x, y, w, h, tl, tr, br, bl, sw, sh,
+        )
       } else {
         @draw2d_ui.filled_rect_vertices(x, y, w, h, sw, sh)
       }
       cmds.push(
         make_draw_cmd_alpha(
-          ctx, scissor, v, i, crater_color_to_hex(bg), paint.opacity * bg.a,
+          ctx,
+          scissor,
+          v,
+          i,
+          crater_color_to_hex(bg),
+          paint.opacity * bg.a,
         ),
       )
     }
@@ -654,7 +697,11 @@ fn render_paint_node(
           }
           None => size_px * 0.8
         }
-        let line_height = if paint.font_size > 0.0 { paint.font_size } else { 16.0 }
+        let line_height = if paint.font_size > 0.0 {
+          paint.font_size
+        } else {
+          16.0
+        }
         // Word wrap using regular font metrics (matching layout engine)
         let max_width = w
         let words = split_words(text)
@@ -703,8 +750,14 @@ fn render_paint_node(
           }
           // Render word
           push_text_with_renderer(
-            cmds, ctx, active_renderer, word, size_px,
-            cur_x, cur_y + ascent_offset, text_color,
+            cmds,
+            ctx,
+            active_renderer,
+            word,
+            size_px,
+            cur_x,
+            cur_y + ascent_offset,
+            text_color,
           )
           cur_x = cur_x + render_word_w
         }
@@ -715,15 +768,20 @@ fn render_paint_node(
   // Clipping
   let clips = w > 0.0 &&
     h > 0.0 &&
-    (node.overflow_x != @crater_types.Visible ||
-    node.overflow_y != @crater_types.Visible)
+    (
+      node.overflow_x != @crater_types.Visible ||
+      node.overflow_y != @crater_types.Visible
+    )
   if clips {
     let clipped = scissor.push(
       @draw2d_ui.ScissorRect::new(
-        x.to_int(), y.to_int(), w.to_int(), h.to_int(),
+        x.to_int(),
+        y.to_int(),
+        w.to_int(),
+        h.to_int(),
       ),
     )
-    if !(clipped) {
+    if !clipped {
       scissor.pop()
       return
     }
@@ -752,7 +810,16 @@ fn push_text_with_renderer(
       let sw = ctx.screen_w.to_double()
       let sh = ctx.screen_h.to_double()
       let text_cmds = @draw2d_ui.render_text(
-        tr, text, size_px, x, y, ctx.dst, ctx.shader, color_hex, sw, sh,
+        tr,
+        text,
+        size_px,
+        x,
+        y,
+        ctx.dst,
+        ctx.shader,
+        color_hex,
+        sw,
+        sh,
       )
       for cmd in text_cmds {
         // Swap V between top and bottom vertices of each glyph quad
@@ -805,8 +872,16 @@ fn push_text_with_renderer(
       let sw = ctx.screen_w.to_double()
       let sh = ctx.screen_h.to_double()
       @debugutil.draw_dot_text(
-        cmds, ctx.dst, ctx.shader, chars, cx, cy, sw, sh,
-        @debugutil.color_from_hex(color_hex), scale,
+        cmds,
+        ctx.dst,
+        ctx.shader,
+        chars,
+        cx,
+        cy,
+        sw,
+        sh,
+        @debugutil.color_from_hex(color_hex),
+        scale,
       )
     }
   }
@@ -923,7 +998,9 @@ fn make_draw_cmd_alpha(
     ctx.dst,
     ctx.shader,
     [sc.to_dst_region(indices.length())],
-    0, 0, 0,
+    0,
+    0,
+    0,
     @gfx.blend_mode_from_int(1),
     vertices,
     indices,

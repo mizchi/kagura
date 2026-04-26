@@ -1,7 +1,12 @@
 ///|
 pub(all) struct EntityId {
   value : Int
-} derive(Show, Eq)
+} derive(Debug, Eq)
+
+///|
+pub impl Show for EntityId with output(self, logger) {
+  logger.write_object(to_repr(self))
+}
 
 ///|
 pub(all) enum Tag {
@@ -11,20 +16,35 @@ pub(all) enum Tag {
   Item
   Obstacle
   Custom(String)
-} derive(Show, Eq)
+} derive(Debug, Eq)
+
+///|
+pub impl Show for Tag with output(self, logger) {
+  logger.write_object(to_repr(self))
+}
 
 ///|
 pub(all) struct Velocity {
   x : Double
   y : Double
   z : Double
-} derive(Show)
+} derive(Debug)
+
+///|
+pub impl Show for Velocity with output(self, logger) {
+  logger.write_object(to_repr(self))
+}
 
 ///|
 pub(all) struct Health {
   current : Int
   max : Int
-} derive(Show)
+} derive(Debug)
+
+///|
+pub impl Show for Health with output(self, logger) {
+  logger.write_object(to_repr(self))
+}
 
 ///|
 pub(all) struct Sprite {
@@ -33,4 +53,9 @@ pub(all) struct Sprite {
   height : Double
   color : Int
   alpha : Double
-} derive(Show)
+} derive(Debug)
+
+///|
+pub impl Show for Sprite with output(self, logger) {
+  logger.write_object(to_repr(self))
+}

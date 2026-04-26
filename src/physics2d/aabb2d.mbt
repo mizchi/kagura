@@ -2,7 +2,12 @@
 pub(all) struct AABB2D {
   min : @vector.Vec2
   max : @vector.Vec2
-} derive(Show)
+} derive(Debug)
+
+///|
+pub impl Show for AABB2D with output(self, logger) {
+  logger.write_object(to_repr(self))
+}
 
 ///|
 pub fn AABB2D::new(min : @vector.Vec2, max : @vector.Vec2) -> AABB2D {

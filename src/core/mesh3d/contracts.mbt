@@ -12,7 +12,12 @@ pub struct MeshBounds3D {
   max_x : Double
   max_y : Double
   max_z : Double
-} derive(Show)
+} derive(Debug)
+
+///|
+pub impl Show for MeshBounds3D with output(self, logger) {
+  logger.write_object(to_repr(self))
+}
 
 ///|
 pub struct Mesh3D {
@@ -20,7 +25,12 @@ pub struct Mesh3D {
   indices : Array[Int]
   bounds : MeshBounds3D
   format : VertexFormat
-} derive(Show)
+} derive(Debug)
+
+///|
+pub impl Show for Mesh3D with output(self, logger) {
+  logger.write_object(to_repr(self))
+}
 
 ///|
 /// Create a Mesh3D with standard_3d format (stride 8).

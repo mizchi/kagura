@@ -13,7 +13,12 @@ pub struct Vec3 {
   x : Double
   y : Double
   z : Double
-} derive(Show)
+} derive(Debug)
+
+///|
+pub impl Show for Vec3 with output(self, logger) {
+  logger.write_object(to_repr(self))
+}
 
 ///|
 pub fn Vec3::new(x : Double, y : Double, z : Double) -> Vec3 {
@@ -173,7 +178,12 @@ pub struct Vec4 {
   y : Double
   z : Double
   w : Double
-} derive(Show)
+} derive(Debug)
+
+///|
+pub impl Show for Vec4 with output(self, logger) {
+  logger.write_object(to_repr(self))
+}
 
 ///|
 pub fn Vec4::new(x : Double, y : Double, z : Double, w : Double) -> Vec4 {
@@ -255,7 +265,12 @@ pub fn Vec4::approx_eq(self : Vec4, other : Vec4, epsilon : Double) -> Bool {
 ///|
 pub struct Mat4 {
   elements : FixedArray[Double]
-} derive(Show)
+} derive(Debug)
+
+///|
+pub impl Show for Mat4 with output(self, logger) {
+  logger.write_object(to_repr(self))
+}
 
 ///|
 pub fn Mat4::identity() -> Mat4 {
@@ -606,7 +621,12 @@ pub struct Quaternion {
   y : Double
   z : Double
   w : Double
-} derive(Show)
+} derive(Debug)
+
+///|
+pub impl Show for Quaternion with output(self, logger) {
+  logger.write_object(to_repr(self))
+}
 
 ///|
 pub fn Quaternion::identity() -> Quaternion {

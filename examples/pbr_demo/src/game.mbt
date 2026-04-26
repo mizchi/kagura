@@ -79,16 +79,20 @@ fn DemoState::new() -> DemoState {
     @light3d.AmbientLight::new(@math3d.Vec3::new(1.0, 1.0, 1.0), 0.1),
   )
   let pbr_shader = @gfx.new_shader_handle(
-    10, @draw3d.shader3d_pbr_untextured_wgsl(),
+    10,
+    @draw3d.shader3d_pbr_untextured_wgsl(),
   )
   let pbr_textured_shader = @gfx.new_shader_handle(
-    11, @draw3d.shader3d_pbr_wgsl(),
+    11,
+    @draw3d.shader3d_pbr_wgsl(),
   )
   let lit_shader = @gfx.new_shader_handle(
-    12, @draw3d.shader3d_lit_untextured_wgsl(),
+    12,
+    @draw3d.shader3d_lit_untextured_wgsl(),
   )
   let lit_textured_shader = @gfx.new_shader_handle(
-    13, @draw3d.shader3d_lit_wgsl(),
+    13,
+    @draw3d.shader3d_lit_wgsl(),
   )
   {
     graph,
@@ -104,10 +108,7 @@ fn DemoState::new() -> DemoState {
 }
 
 ///|
-fn DemoState::update(
-  self : DemoState,
-  input : @core.InputSnapshot,
-) -> Unit {
+fn DemoState::update(self : DemoState, input : @core.InputSnapshot) -> Unit {
   let dx = input.cursor_x - self.prev_cursor_x
   let dy = input.cursor_y - self.prev_cursor_y
   self.prev_cursor_x = input.cursor_x

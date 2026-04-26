@@ -8,6 +8,10 @@ import {
   "mizchi/web_runtime_hooks" @web_hooks,
 }
 
-warnings = "-1-2-29-71"
+warnings = "-1-2-29"
 
-options("is-main": true, "supported-targets": [ "js" ])
+supported_targets = "js"
+
+options(
+  "is-main": true,
+)

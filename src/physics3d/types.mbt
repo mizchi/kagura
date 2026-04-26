@@ -3,13 +3,23 @@ pub(all) enum BodyType {
   Dynamic
   Static
   Kinematic
-} derive(Show)
+} derive(Debug)
+
+///|
+pub impl Show for BodyType with output(self, logger) {
+  logger.write_object(to_repr(self))
+}
 
 ///|
 pub(all) enum ColliderShape {
   SphereShape(@math3d.Vec3, Double)
   AABBShape(@math3d.Vec3, @math3d.Vec3)
-} derive(Show)
+} derive(Debug)
+
+///|
+pub impl Show for ColliderShape with output(self, logger) {
+  logger.write_object(to_repr(self))
+}
 
 ///|
 pub(all) struct RigidBody {
@@ -32,7 +42,12 @@ pub(all) struct RigidBody {
   is_sleeping : Bool
   sleep_timer : Double
   is_bullet : Bool
-} derive(Show)
+} derive(Debug)
+
+///|
+pub impl Show for RigidBody with output(self, logger) {
+  logger.write_object(to_repr(self))
+}
 
 ///|
 pub(all) struct Contact {
@@ -41,7 +56,12 @@ pub(all) struct Contact {
   normal : @math3d.Vec3
   penetration : Double
   contact_point : @math3d.Vec3
-} derive(Show)
+} derive(Debug)
+
+///|
+pub impl Show for Contact with output(self, logger) {
+  logger.write_object(to_repr(self))
+}
 
 ///|
 pub(all) struct SolverConfig3D {

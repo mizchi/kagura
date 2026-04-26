@@ -9,7 +9,12 @@ pub(all) enum RunPhase {
   RestSite
   RunVictory
   RunDefeat
-} derive(Show, Eq)
+} derive(Debug, Eq)
+
+///|
+pub impl Show for RunPhase with output(self, logger) {
+  logger.write_object(to_repr(self))
+}
 
 ///|
 /// Floor type determines what happens on each floor
@@ -17,7 +22,12 @@ enum FloorType {
   Combat(EncounterTier)
   Rest
   Boss
-} derive(Show, Eq)
+} derive(Debug, Eq)
+
+///|
+pub impl Show for FloorType with output(self, logger) {
+  logger.write_object(to_repr(self))
+}
 
 ///|
 /// The full run state persisting across battles
@@ -33,7 +43,12 @@ pub(all) struct RunState {
   mut battle : BattleState?
   card_rewards : Array[CardId]
   mut rng_seed : Int
-} derive(Show)
+} derive(Debug)
+
+///|
+pub impl Show for RunState with output(self, logger) {
+  logger.write_object(to_repr(self))
+}
 
 ///|
 let max_floor : Int = 30
@@ -108,7 +123,11 @@ fn floor_type(floor : Int) -> FloorType {
 ///|
 /// Which act does a floor belong to?
 pub fn floor_act(floor : Int) -> Int {
-  if floor <= 15 { 1 } else { 2 }
+  if floor <= 15 {
+    1
+  } else {
+    2
+  }
 }
 
 ///|
@@ -356,7 +375,7 @@ fn award_relic(state : RunState) -> Unit {
   let pool = relic_reward_pool()
   let available : Array[RelicId] = []
   for r in pool {
-    if not(has_relic(state.relics, r)) {
+    if !has_relic(state.relics, r) {
       available.push(r)
     }
   }
@@ -428,7 +447,7 @@ fn generate_reward_pool(state : RunState) -> Array[CardId] {
         dup = true
       }
     }
-    if not(dup) {
+    if !dup {
       pool.push(card)
     }
     i += 1
@@ -446,7 +465,7 @@ fn generate_reward_pool(state : RunState) -> Array[CardId] {
           dup = true
         }
       }
-      if not(dup) {
+      if !dup {
         pool.push(c)
       }
     }

@@ -267,9 +267,9 @@ test "point_in_rect" {
   let rect : LayoutRect = { x: 10.0, y: 20.0, width: 100.0, height: 50.0 }
   assert_true(point_in_rect(rect, 10.0, 20.0))
   assert_true(point_in_rect(rect, 50.0, 40.0))
-  assert_true(!(point_in_rect(rect, 9.0, 20.0)))
-  assert_true(!(point_in_rect(rect, 110.0, 20.0)))
-  assert_true(!(point_in_rect(rect, 50.0, 70.0)))
+  assert_true(!point_in_rect(rect, 9.0, 20.0))
+  assert_true(!point_in_rect(rect, 110.0, 20.0))
+  assert_true(!point_in_rect(rect, 50.0, 70.0))
 }
 
 ///|
@@ -880,17 +880,17 @@ test "hit_test empty layouts" {
 test "point_in_rect boundary and zero-size" {
   let rect : LayoutRect = { x: 10.0, y: 20.0, width: 100.0, height: 50.0 }
   // Exactly on right edge (exclusive)
-  assert_true(!(point_in_rect(rect, 110.0, 20.0)))
+  assert_true(!point_in_rect(rect, 110.0, 20.0))
   // Exactly on bottom edge (exclusive)
-  assert_true(!(point_in_rect(rect, 50.0, 70.0)))
+  assert_true(!point_in_rect(rect, 50.0, 70.0))
   // Zero-size rect
   let zero_rect : LayoutRect = { x: 5.0, y: 5.0, width: 0.0, height: 0.0 }
-  assert_true(!(point_in_rect(zero_rect, 5.0, 5.0)))
+  assert_true(!point_in_rect(zero_rect, 5.0, 5.0))
   // Negative coordinates
   let neg_rect : LayoutRect = { x: -10.0, y: -10.0, width: 20.0, height: 20.0 }
   assert_true(point_in_rect(neg_rect, 0.0, 0.0))
   assert_true(point_in_rect(neg_rect, -10.0, -10.0))
-  assert_true(!(point_in_rect(neg_rect, 10.0, 10.0)))
+  assert_true(!point_in_rect(neg_rect, 10.0, 10.0))
 }
 
 ///|

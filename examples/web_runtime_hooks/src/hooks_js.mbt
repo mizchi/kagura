@@ -2794,8 +2794,16 @@ fn bridge_web_gfx_on_draw(
       let vc = command.vertex_data.length() / 4
       let ic = command.indices.length()
       js_gfx_draw_begin(
-        vc, ic, src_id, ur, ug, ub, ua,
-        command.dst.id, command.dst.width, command.dst.height,
+        vc,
+        ic,
+        src_id,
+        ur,
+        ug,
+        ub,
+        ua,
+        command.dst.id,
+        command.dst.width,
+        command.dst.height,
       )
       for i = 0; i < vc; i = i + 1 {
         let base = i * 4
@@ -3233,7 +3241,7 @@ pub fn install(canvas_selector : String) -> Unit {
   let already_installed = web_hooks_installed.val
   web_canvas_selector.val = canvas_selector
   web_hooks_installed.val = true
-  if !(already_installed) {
+  if !already_installed {
     clear_source_image_cache()
     clear_synced_source_generations()
     clear_gpu_texture_dirty()
@@ -3633,7 +3641,8 @@ pub fn request_animation_frame(f : () -> Unit) -> Unit {
 
 ///|
 fn init {
-  @engine.set_lifecycle_hooks(
-    { on_start: fn(canvas, _title) { install(canvas) }, on_stop: fn() { shutdown() } },
-  )
+  @engine.set_lifecycle_hooks({
+    on_start: fn(canvas, _title) { install(canvas) },
+    on_stop: fn() { shutdown() },
+  })
 }

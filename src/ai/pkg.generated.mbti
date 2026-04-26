@@ -3,6 +3,7 @@ package "mizchi/kagura/ai"
 
 import {
   "mizchi/kagura/core",
+  "moonbitlang/core/debug",
 }
 
 // Values
@@ -21,7 +22,7 @@ pub struct AIBudget {
   max_decision_ms : Int
   max_nodes : Int
   max_model_tokens : Int
-}
+} derive(@debug.Debug)
 pub impl Show for AIBudget
 
 pub struct AIRuntimeConfig {
@@ -30,7 +31,7 @@ pub struct AIRuntimeConfig {
   mut base_seed : Int
   mut trace_enabled : Bool
   max_trace_history : Int
-}
+} derive(@debug.Debug)
 pub impl Show for AIRuntimeConfig
 
 pub struct AIRuntimeState {
@@ -66,23 +67,23 @@ pub enum ActionIntent {
   Aim(Double, Double)
   Trigger(String)
   EmitEvent(String)
-}
+} derive(@debug.Debug)
 pub impl Show for ActionIntent
 
 pub struct AgentId {
   value : Int
-}
+} derive(@debug.Debug)
 pub impl Show for AgentId
 
 pub struct BlackboardEntry {
   key : String
   value : String
-}
+} derive(@debug.Debug)
 pub impl Show for BlackboardEntry
 
 pub struct BlackboardSnapshot {
   entries : Array[BlackboardEntry]
-}
+} derive(@debug.Debug)
 pub impl Show for BlackboardSnapshot
 
 pub struct DecisionContext {
@@ -92,21 +93,21 @@ pub struct DecisionContext {
   budget : AIBudget
   perception : SensorSnapshot
   blackboard : BlackboardSnapshot
-}
+} derive(@debug.Debug)
 pub impl Show for DecisionContext
 
 pub struct DecisionResult {
   actions : Array[ActionIntent]
   next_blackboard : BlackboardSnapshot
   trace : Array[DecisionTrace]
-}
+} derive(@debug.Debug)
 pub impl Show for DecisionResult
 
 pub struct DecisionTrace {
   stage : String
   score : Double
   note : String
-}
+} derive(@debug.Debug)
 pub impl Show for DecisionTrace
 
 pub struct SensorSnapshot {
@@ -115,7 +116,7 @@ pub struct SensorSnapshot {
   health : Double
   visible_entities : Array[Int]
   tags : Array[String]
-}
+} derive(@debug.Debug)
 pub impl Show for SensorSnapshot
 
 // Type aliases

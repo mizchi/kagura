@@ -6,7 +6,12 @@ pub struct Transform3D {
   position : @math3d.Vec3
   rotation : @math3d.Quaternion
   scale : @math3d.Vec3
-} derive(Show)
+} derive(Debug)
+
+///|
+pub impl Show for Transform3D with output(self, logger) {
+  logger.write_object(to_repr(self))
+}
 
 ///|
 pub fn Transform3D::new() -> Transform3D {

@@ -97,7 +97,7 @@ fn GameState::new_with_params(
     world,
     input: @inpututil.new_input_helper(),
     show_profiler: false,
-    profile: @debugutil.default_frame_profile(),
+    profile: @engine.default_frame_profile(),
     camera,
     lighting,
     shader3d: @gfx.new_shader_handle(

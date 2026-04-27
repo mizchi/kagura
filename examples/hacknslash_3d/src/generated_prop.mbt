@@ -540,7 +540,7 @@ fn GameState::append_generated_prop_draw_commands(
     if prop.placement.floor != self.world.floor {
       continue
     }
-    let prop_cmds = @scene3d.render_scene3d_graph_gpu(
+    let prop_cmds = @renderer3d.render_scene3d_graph_to_dst(
       prop.scene_graph,
       camera,
       lighting=self.lighting,

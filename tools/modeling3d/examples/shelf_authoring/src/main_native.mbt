@@ -156,10 +156,10 @@ fn[T : @gfx.GraphicsDriver] render_view_pixels(
       camera=camera.to_camera3d(),
       lighting~,
     )
-    let cmds = @scene3d.render_scene3d_gpu(
+    let cmds = @renderer3d.render_scene3d_to_dst(
       scene, dst, shader3d, native_tile_w, native_tile_h,
     )
-    @debugutil.render_commands(
+    @engine.render_commands(
       graphics,
       cmds,
       clear_color=@gfx.new_color(0.0, 0.0, 0.0, 1.0),

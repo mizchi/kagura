@@ -135,7 +135,7 @@ fn DemoState::draw(
   self : DemoState,
   ctx : @engine.EngineContext,
 ) -> Array[@gfx.DrawTrianglesCommand] {
-  @scene3d.render_scene3d_graph_gpu(
+  @renderer3d.render_scene3d_graph_to_dst(
     self.graph,
     self.camera.to_camera3d(),
     lighting=self.lighting,

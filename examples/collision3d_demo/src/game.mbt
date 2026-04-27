@@ -336,7 +336,7 @@ fn DemoState::draw(
     camera=self.camera.to_camera3d(),
     lighting=self.lighting,
   )
-  let cmds = @scene3d.render_scene3d_gpu(
+  let cmds = @renderer3d.render_scene3d_to_dst(
     scene,
     ctx.dst,
     self.shader3d,
@@ -346,37 +346,37 @@ fn DemoState::draw(
 
   let sw = screen_w.to_double()
   let sh = screen_h.to_double()
+  let frame2d = @renderer2d.RenderFrame2D::new(
+    dst=ctx.dst,
+    shader=ctx.shader,
+    screen_w=ctx.screen_w,
+    screen_h=ctx.screen_h,
+  )
 
   // Crosshair
-  let ch_color = @debugutil.color_from_hex_alpha(0x00FF00, 0.8)
+  let ch_color = @renderer2d.color_from_hex_alpha(0x00FF00, 0.8)
   let cx = sw / 2.0
   let cy = sh / 2.0
-  cmds.push(
-    @debugutil.new_ndc_rect_fill_command(
-      ctx.dst,
-      ctx.shader,
-      cx - 8.0,
-      cy - 1.0,
-      16.0,
-      2.0,
-      sw,
-      sh,
-      ch_color,
-      0,
+  @renderer2d.append_rect_fill(
+    cmds,
+    frame2d,
+    @renderer2d.RectFill2D::new(
+      x=cx - 8.0,
+      y=cy - 1.0,
+      w=16.0,
+      h=2.0,
+      color=ch_color,
     ),
   )
-  cmds.push(
-    @debugutil.new_ndc_rect_fill_command(
-      ctx.dst,
-      ctx.shader,
-      cx - 1.0,
-      cy - 8.0,
-      2.0,
-      16.0,
-      sw,
-      sh,
-      ch_color,
-      0,
+  @renderer2d.append_rect_fill(
+    cmds,
+    frame2d,
+    @renderer2d.RectFill2D::new(
+      x=cx - 1.0,
+      y=cy - 8.0,
+      w=2.0,
+      h=16.0,
+      color=ch_color,
     ),
   )
 
@@ -387,57 +387,50 @@ fn DemoState::draw(
       Box => ascii("HIT: BOX")
       Ball => ascii("HIT: BALL")
     }
-    @debugutil.draw_dot_text(
+    @renderer2d.append_dot_text(
       cmds,
-      ctx.dst,
-      ctx.shader,
-      kind_chars,
-      70.0,
-      15.0,
-      sw,
-      sh,
-      @debugutil.color_from_hex(0x00FF00),
-      1.0,
+      frame2d,
+      @renderer2d.DotText2D::new(
+        chars=kind_chars,
+        cx=70.0,
+        cy=15.0,
+        color=@renderer2d.color_from_hex(0x00FF00),
+      ),
     )
-    @debugutil.draw_number(
+    @renderer2d.append_number(
       cmds,
-      ctx.dst,
-      ctx.shader,
-      self.hit_id,
-      70.0,
-      30.0,
-      sw,
-      sh,
-      @debugutil.color_from_hex(0x00FF00),
-      1.0,
+      frame2d,
+      @renderer2d.Number2D::new(
+        number=self.hit_id,
+        cx=70.0,
+        cy=30.0,
+        color=@renderer2d.color_from_hex(0x00FF00),
+      ),
     )
   } else {
-    @debugutil.draw_dot_text(
+    @renderer2d.append_dot_text(
       cmds,
-      ctx.dst,
-      ctx.shader,
-      ascii("NO HIT"),
-      60.0,
-      15.0,
-      sw,
-      sh,
-      @debugutil.color_from_hex(0x888888),
-      1.0,
+      frame2d,
+      @renderer2d.DotText2D::new(
+        chars=ascii("NO HIT"),
+        cx=60.0,
+        cy=15.0,
+        color=@renderer2d.color_from_hex(0x888888),
+      ),
     )
   }
 
   // Instructions
-  @debugutil.draw_dot_text(
+  @renderer2d.append_dot_text(
     cmds,
-    ctx.dst,
-    ctx.shader,
-    ascii("WASD:MOVE MOUSE:LOOK"),
-    150.0,
-    sh - 15.0,
-    sw,
-    sh,
-    @debugutil.color_from_hex(0x666666),
-    0.8,
+    frame2d,
+    @renderer2d.DotText2D::new(
+      chars=ascii("WASD:MOVE MOUSE:LOOK"),
+      cx=150.0,
+      cy=sh - 15.0,
+      color=@renderer2d.color_from_hex(0x666666),
+      scale=0.8,
+    ),
   )
 
   cmds

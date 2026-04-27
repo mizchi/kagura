@@ -70,7 +70,7 @@ fn main {
           camera=camera.to_camera3d(),
           lighting~,
         )
-        @scene3d.render_scene3d_gpu(
+        @renderer3d.render_scene3d_to_dst(
           scene,
           ctx.dst,
           shader3d,

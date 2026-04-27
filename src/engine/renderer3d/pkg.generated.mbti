@@ -19,7 +19,11 @@ pub fn render_scene3d(@scene3d.Scene3D, RenderFrame3D) -> Array[@gfx.DrawTriangl
 
 pub fn render_scene3d_graph(@scene3d.SceneGraph, @camera3d.Camera3D, RenderFrame3D, lighting? : @light3d.LightingEnvironment) -> Array[@gfx.DrawTrianglesCommand]
 
+pub fn render_scene3d_graph_to_dst(@scene3d.SceneGraph, @camera3d.Camera3D, lighting? : @light3d.LightingEnvironment, @gfx.ImageHandle, @gfx.ShaderHandle, Int, Int, shader3d_textured? : @gfx.ShaderHandle?, shader3d_pbr? : @gfx.ShaderHandle?, shader3d_pbr_textured? : @gfx.ShaderHandle?, shader3d_skinned? : @gfx.ShaderHandle?) -> Array[@gfx.DrawTrianglesCommand]
+
 pub fn render_scene3d_graph_to_pipeline(@scene3d.SceneGraph, @camera3d.Camera3D, @render_pipeline3d.RenderPipeline3D, RenderFrame3D, lighting? : @light3d.LightingEnvironment, depth_casters? : Array[@shadow3d.ShadowCaster], hit_flash? : Double) -> Array[@gfx.DrawTrianglesCommand]
+
+pub fn render_scene3d_to_dst(@scene3d.Scene3D, @gfx.ImageHandle, @gfx.ShaderHandle, Int, Int, shader3d_textured? : @gfx.ShaderHandle?, shader3d_pbr? : @gfx.ShaderHandle?, shader3d_pbr_textured? : @gfx.ShaderHandle?, shader3d_skinned? : @gfx.ShaderHandle?) -> Array[@gfx.DrawTrianglesCommand]
 
 pub fn render_scene3d_to_pipeline(@scene3d.Scene3D, @render_pipeline3d.RenderPipeline3D, RenderFrame3D, depth_casters? : Array[@shadow3d.ShadowCaster], hit_flash? : Double) -> Array[@gfx.DrawTrianglesCommand]
 

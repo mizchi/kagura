@@ -401,10 +401,25 @@ fn[T : @gfx.GraphicsDriver] verify_rect_fill_rendering(
   let screen_h = 240.0
   let dst = graphics.new_image(screen_w.to_int(), screen_h.to_int())
   let shader = graphics.new_shader("rect_fill_test")
-  let color = @debugutil.color_from_hex(0xFF0000)
-  let cmd = @debugutil.new_ndc_rect_fill_command(
-    dst, shader, 0.0, 0.0, screen_w, screen_h, screen_w, screen_h, color, 0,
+  let frame = @renderer2d.RenderFrame2D::new(
+    dst~,
+    shader~,
+    screen_w=screen_w.to_int(),
+    screen_h=screen_h.to_int(),
   )
+  let commands : Array[@gfx.DrawTrianglesCommand] = []
+  @renderer2d.append_rect_fill(
+    commands,
+    frame,
+    @renderer2d.RectFill2D::new(
+      x=0.0,
+      y=0.0,
+      w=screen_w,
+      h=screen_h,
+      color=@renderer2d.color_from_hex(0xFF0000),
+    ),
+  )
+  let cmd = commands[0]
   let pass = @gfx.new_render_pass_desc(@gfx.new_color(0.0, 0.0, 0.0, 1.0), true)
   graphics.begin(pass)
   graphics.draw_triangles(cmd)

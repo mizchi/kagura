@@ -232,7 +232,7 @@ fn DemoState::draw(
   }
   let camera = self.camera.to_camera3d()
   let scene = @scene3d.scene3d(objects~, camera~, lighting=self.lighting)
-  @scene3d.render_scene3d_gpu(
+  @renderer3d.render_scene3d_to_dst(
     scene,
     ctx.dst,
     self.shader3d,

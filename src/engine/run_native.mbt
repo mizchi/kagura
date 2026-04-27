@@ -90,7 +90,7 @@ pub fn run(
     let cmds = draw(ctx)
     let draw_callback_end = native_engine_clock_now_ms()
     let render_start = native_engine_clock_now_ms()
-    @debugutil.render_commands(graphics, cmds) catch {
+    render_commands(graphics, cmds) catch {
       e => println("[engine] render_commands failed: \{e}")
     }
     let render_end = native_engine_clock_now_ms()

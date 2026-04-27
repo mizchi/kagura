@@ -23,65 +23,26 @@ pub fn RenderFrame2D::new(
 }
 
 ///|
-pub(all) struct AtlasQuad2D {
-  source : @asset.AtlasDrawSource
-  left : Double
-  top : Double
-  right : Double
-  bottom : Double
-  uniform_dwords : Array[Int]
-}
-
-///|
-pub fn AtlasQuad2D::new(
-  source~ : @asset.AtlasDrawSource,
-  left~ : Double,
-  top~ : Double,
-  right~ : Double,
-  bottom~ : Double,
-  uniform_dwords? : Array[Int] = [],
-) -> AtlasQuad2D {
-  { source, left, top, right, bottom, uniform_dwords }
-}
-
-///|
 pub fn RenderFrame2D::dst_region(self : RenderFrame2D) -> @gfx.DstRegion {
   @gfx.new_dst_region(0, 0, self.screen_w, self.screen_h, 6)
 }
 
 ///|
-pub fn append_atlas_quad(
-  commands : Array[@gfx.DrawTrianglesCommand],
-  frame : RenderFrame2D,
-  quad : AtlasQuad2D,
-) -> Unit {
-  commands.push(
-    @draw2d.new_atlas_quad_draw_command(
-      frame.dst,
-      frame.shader,
-      frame.dst_region(),
-      0,
-      frame.pipeline_id,
-      frame.uniform_hash,
-      frame.blend,
-      quad.source,
-      quad.left,
-      quad.top,
-      quad.right,
-      quad.bottom,
-      quad.uniform_dwords,
-    ),
-  )
+pub fn color_from_hex(hex : Int) -> @gfx.Color {
+  @debugutil.color_from_hex(hex)
 }
 
 ///|
-pub fn render_atlas_quads(
-  frame : RenderFrame2D,
-  quads : Array[AtlasQuad2D],
-) -> Array[@gfx.DrawTrianglesCommand] {
-  let commands : Array[@gfx.DrawTrianglesCommand] = []
-  for quad in quads {
-    append_atlas_quad(commands, frame, quad)
-  }
-  commands
+pub fn color_from_hex_alpha(hex : Int, alpha : Double) -> @gfx.Color {
+  @debugutil.color_from_hex_alpha(hex, alpha)
+}
+
+///|
+pub fn color_white() -> @gfx.Color {
+  @debugutil.color_white()
+}
+
+///|
+pub fn color_to_uniform_dwords(color : @gfx.Color) -> Array[Int] {
+  @debugutil.color_to_uniform_dwords(color)
 }

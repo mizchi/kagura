@@ -12,16 +12,23 @@ pub(all) struct HudContext {
 ///|
 /// Convert hex color (0xRRGGBB) to @gfx.Color.
 pub fn hex_color(hex : Int, alpha? : Double = 1.0) -> @gfx.Color {
-  let r = ((hex >> 16) & 0xFF).to_double() / 255.0
-  let g = ((hex >> 8) & 0xFF).to_double() / 255.0
-  let b = (hex & 0xFF).to_double() / 255.0
-  @gfx.new_color(r, g, b, alpha)
+  @renderer2d.color_from_hex_alpha(hex, alpha)
 }
 
 ///|
 /// Convert hex color to uniform dwords [R, G, B, A].
 fn hex_to_uniform(hex : Int, alpha? : Int = 255) -> Array[Int] {
   [(hex >> 16) & 0xFF, (hex >> 8) & 0xFF, hex & 0xFF, alpha]
+}
+
+///|
+fn HudContext::render_frame(self : HudContext) -> @renderer2d.RenderFrame2D {
+  @renderer2d.RenderFrame2D::new(
+    dst=self.dst,
+    shader=self.shader,
+    screen_w=self.screen_w.to_int(),
+    screen_h=self.screen_h.to_int(),
+  )
 }
 
 ///|
@@ -35,21 +42,12 @@ pub fn HudContext::append_rect_batch_geometry(
   w : Double,
   h : Double,
 ) -> Unit {
-  let (rect_vertices, rect_indices) = @debugutil.ndc_rect_fill_vertices(
-    x,
-    y,
-    w,
-    h,
-    self.screen_w,
-    self.screen_h,
+  @renderer2d.append_rect_fill_geometry(
+    vertices,
+    indices,
+    self.render_frame(),
+    @renderer2d.RectFill2D::new(x~, y~, w~, h~, color=@renderer2d.color_white()),
   )
-  let base_vertex = vertices.length() / 4
-  for value in rect_vertices {
-    vertices.push(value)
-  }
-  for idx in rect_indices {
-    indices.push(base_vertex + idx)
-  }
 }
 
 ///|
@@ -64,14 +62,12 @@ pub fn HudContext::push_rect_batch_command(
   if indices.is_empty() {
     return
   }
-  cmds.push(
-    @debugutil.new_simple_draw_command(
-      self.dst,
-      self.shader,
-      vertices,
-      indices,
-      color,
-    ),
+  @renderer2d.append_primitive_batch(
+    cmds,
+    self.render_frame(),
+    vertices,
+    indices,
+    color,
   )
 }
 
@@ -86,19 +82,10 @@ pub fn HudContext::draw_rect(
   h : Double,
   color : @gfx.Color,
 ) -> Unit {
-  cmds.push(
-    @debugutil.new_ndc_rect_fill_command(
-      self.dst,
-      self.shader,
-      x,
-      y,
-      w,
-      h,
-      self.screen_w,
-      self.screen_h,
-      color,
-      0,
-    ),
+  @renderer2d.append_rect_fill(
+    cmds,
+    self.render_frame(),
+    @renderer2d.RectFill2D::new(x~, y~, w~, h~, color~),
   )
 }
 
@@ -151,17 +138,16 @@ pub fn HudContext::draw_text(
       let total_h = 15.0 * scale
       let cx = x + total_w / 2.0
       let cy = y + total_h / 2.0
-      @debugutil.draw_dot_text(
+      @renderer2d.append_dot_text(
         cmds,
-        self.dst,
-        self.shader,
-        chars,
-        cx,
-        cy,
-        self.screen_w,
-        self.screen_h,
-        hex_color(color_hex),
-        scale,
+        self.render_frame(),
+        @renderer2d.DotText2D::new(
+          chars~,
+          cx~,
+          cy~,
+          color=hex_color(color_hex),
+          scale~,
+        ),
       )
     }
   }
@@ -206,17 +192,16 @@ pub fn HudContext::draw_text_centered(
         chars.push(c)
       }
       let scale = size / 10.0
-      @debugutil.draw_dot_text(
+      @renderer2d.append_dot_text(
         cmds,
-        self.dst,
-        self.shader,
-        chars,
-        cx,
-        cy,
-        self.screen_w,
-        self.screen_h,
-        hex_color(color_hex),
-        scale,
+        self.render_frame(),
+        @renderer2d.DotText2D::new(
+          chars~,
+          cx~,
+          cy~,
+          color=hex_color(color_hex),
+          scale~,
+        ),
       )
     }
   }

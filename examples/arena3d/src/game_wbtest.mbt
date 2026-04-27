@@ -233,7 +233,7 @@ test "reset restores initial state" {
 fn render_test_scene(state : GameState) -> Array[@gfx.DrawTrianglesCommand] {
   let dst = @gfx.new_image_handle(1, screen_w, screen_h)
   let graph = state.build_scene_graph()
-  @scene3d.render_scene3d_graph_gpu(
+  @renderer3d.render_scene3d_graph_to_dst(
     graph,
     state.camera.to_camera3d(),
     lighting=state.lighting,

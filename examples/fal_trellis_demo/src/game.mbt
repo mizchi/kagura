@@ -98,7 +98,7 @@ fn ViewerState::draw(
   self : ViewerState,
   ctx : @engine.EngineContext,
 ) -> Array[@gfx.DrawTrianglesCommand] {
-  let cmds = @scene3d.render_scene3d_graph_gpu(
+  let cmds = @renderer3d.render_scene3d_graph_to_dst(
     self.graph,
     self.camera.to_camera3d(),
     lighting=self.lighting,
@@ -111,68 +111,47 @@ fn ViewerState::draw(
   if !self.show_hud {
     return cmds
   }
-  let sw = ctx.screen_w.to_double()
-  let sh = ctx.screen_h.to_double()
-  let white = @debugutil.color_from_hex(0xFFFFFF)
-  @debugutil.draw_dot_text(
-    cmds,
-    ctx.dst,
-    ctx.shader,
-    [84, 82], // TR
-    4.0,
-    4.0,
-    sw,
-    sh,
-    white,
-    1.0,
+  let frame2d = @renderer2d.RenderFrame2D::new(
+    dst=ctx.dst,
+    shader=ctx.shader,
+    screen_w=ctx.screen_w,
+    screen_h=ctx.screen_h,
   )
-  @debugutil.draw_dot_text(
+  let white = @renderer2d.color_white()
+  @renderer2d.append_dot_text(
     cmds,
-    ctx.dst,
-    ctx.shader,
-    [78], // N
-    4.0,
-    12.0,
-    sw,
-    sh,
-    white,
-    1.0,
+    frame2d,
+    @renderer2d.DotText2D::new(chars=[84, 82], cx=4.0, cy=4.0, color=white),
   )
-  @debugutil.draw_number(
+  @renderer2d.append_dot_text(
     cmds,
-    ctx.dst,
-    ctx.shader,
-    self.node_count,
-    12.0,
-    12.0,
-    sw,
-    sh,
-    white,
-    1.0,
+    frame2d,
+    @renderer2d.DotText2D::new(chars=[78], cx=4.0, cy=12.0, color=white),
   )
-  @debugutil.draw_dot_text(
+  @renderer2d.append_number(
     cmds,
-    ctx.dst,
-    ctx.shader,
-    [77], // M
-    4.0,
-    20.0,
-    sw,
-    sh,
-    white,
-    1.0,
+    frame2d,
+    @renderer2d.Number2D::new(
+      number=self.node_count,
+      cx=12.0,
+      cy=12.0,
+      color=white,
+    ),
   )
-  @debugutil.draw_number(
+  @renderer2d.append_dot_text(
     cmds,
-    ctx.dst,
-    ctx.shader,
-    self.mesh_node_count,
-    12.0,
-    20.0,
-    sw,
-    sh,
-    white,
-    1.0,
+    frame2d,
+    @renderer2d.DotText2D::new(chars=[77], cx=4.0, cy=20.0, color=white),
+  )
+  @renderer2d.append_number(
+    cmds,
+    frame2d,
+    @renderer2d.Number2D::new(
+      number=self.mesh_node_count,
+      cx=12.0,
+      cy=20.0,
+      color=white,
+    ),
   )
   cmds
 }

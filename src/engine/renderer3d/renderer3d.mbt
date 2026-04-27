@@ -103,6 +103,33 @@ pub fn append_scene3d_commands(
 }
 
 ///|
+pub fn render_scene3d_to_dst(
+  scene : @scene3d.Scene3D,
+  dst : @gfx.ImageHandle,
+  shader3d : @gfx.ShaderHandle,
+  screen_w : Int,
+  screen_h : Int,
+  shader3d_textured? : @gfx.ShaderHandle? = None,
+  shader3d_pbr? : @gfx.ShaderHandle? = None,
+  shader3d_pbr_textured? : @gfx.ShaderHandle? = None,
+  shader3d_skinned? : @gfx.ShaderHandle? = None,
+) -> Array[@gfx.DrawTrianglesCommand] {
+  render_scene3d(
+    scene,
+    RenderFrame3D::new(
+      dst~,
+      shader3d~,
+      screen_w~,
+      screen_h~,
+      shader3d_textured~,
+      shader3d_pbr~,
+      shader3d_pbr_textured~,
+      shader3d_skinned~,
+    ),
+  )
+}
+
+///|
 pub fn render_scene3d_graph(
   graph : @scene3d.SceneGraph,
   camera : @camera3d.Camera3D,
@@ -133,6 +160,37 @@ pub fn append_scene3d_graph_commands(
   lighting? : @light3d.LightingEnvironment = @light3d.LightingEnvironment::default(),
 ) -> Unit {
   append_all(commands, render_scene3d_graph(graph, camera, frame, lighting~))
+}
+
+///|
+pub fn render_scene3d_graph_to_dst(
+  graph : @scene3d.SceneGraph,
+  camera : @camera3d.Camera3D,
+  lighting? : @light3d.LightingEnvironment = @light3d.LightingEnvironment::default(),
+  dst : @gfx.ImageHandle,
+  shader3d : @gfx.ShaderHandle,
+  screen_w : Int,
+  screen_h : Int,
+  shader3d_textured? : @gfx.ShaderHandle? = None,
+  shader3d_pbr? : @gfx.ShaderHandle? = None,
+  shader3d_pbr_textured? : @gfx.ShaderHandle? = None,
+  shader3d_skinned? : @gfx.ShaderHandle? = None,
+) -> Array[@gfx.DrawTrianglesCommand] {
+  render_scene3d_graph(
+    graph,
+    camera,
+    RenderFrame3D::new(
+      dst~,
+      shader3d~,
+      screen_w~,
+      screen_h~,
+      shader3d_textured~,
+      shader3d_pbr~,
+      shader3d_pbr_textured~,
+      shader3d_skinned~,
+    ),
+    lighting~,
+  )
 }
 
 ///|

@@ -172,7 +172,7 @@ fn GameState::draw(
       vertex_count: vtx_count,
       asset_inflight: 0,
     }
-    @debugutil.build_profiler_hud(
+    @engine.build_profiler_hud(
       result,
       ctx.dst,
       ctx.shader,

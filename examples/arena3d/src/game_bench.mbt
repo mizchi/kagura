@@ -20,13 +20,13 @@ test "bench arena3d build_scene_graph" (b : @bench.T) {
 }
 
 ///|
-test "bench arena3d render_scene3d_graph_gpu" (b : @bench.T) {
+test "bench arena3d renderer3d graph facade" (b : @bench.T) {
   let state = GameState::new()
   state.mode = mode_playing
   let dst = @gfx.new_image_handle(1, screen_w, screen_h)
-  b.bench(name="arena3d/render_scene3d_graph_gpu", fn() {
+  b.bench(name="arena3d/renderer3d_graph", fn() {
     let graph = state.build_scene_graph()
-    let cmds = @scene3d.render_scene3d_graph_gpu(
+    let cmds = @renderer3d.render_scene3d_graph_to_dst(
       graph,
       state.camera.to_camera3d(),
       lighting=state.lighting,

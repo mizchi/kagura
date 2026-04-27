@@ -281,13 +281,52 @@ fn DemoState::update(self : DemoState, input : @core.InputSnapshot) -> Unit {
 // ============================================================
 
 ///|
+fn append_demo_rect(
+  cmds : Array[@gfx.DrawTrianglesCommand],
+  frame : @renderer2d.RenderFrame2D,
+  x : Double,
+  y : Double,
+  w : Double,
+  h : Double,
+  color : @gfx.Color,
+) -> Unit {
+  @renderer2d.append_rect_fill(
+    cmds,
+    frame,
+    @renderer2d.RectFill2D::new(x~, y~, w~, h~, color~),
+  )
+}
+
+///|
+fn append_demo_text(
+  cmds : Array[@gfx.DrawTrianglesCommand],
+  frame : @renderer2d.RenderFrame2D,
+  chars : Array[Int],
+  cx : Double,
+  cy : Double,
+  color : @gfx.Color,
+  scale : Double,
+) -> Unit {
+  @renderer2d.append_dot_text(
+    cmds,
+    frame,
+    @renderer2d.DotText2D::new(chars~, cx~, cy~, color~, scale~),
+  )
+}
+
+///|
 fn DemoState::draw(
   self : DemoState,
   ctx : @engine.EngineContext,
 ) -> Array[@gfx.DrawTrianglesCommand] {
   let cmds : Array[@gfx.DrawTrianglesCommand] = []
-  let sw = screen_w.to_double()
   let sh = screen_h.to_double()
+  let frame = @renderer2d.RenderFrame2D::new(
+    dst=ctx.dst,
+    shader=ctx.shader,
+    screen_w~,
+    screen_h~,
+  )
   let focused_id = self.focus_mgr.current_focus()
 
   // Draw in reverse order: parents first (background), children on top
@@ -311,154 +350,87 @@ fn DemoState::draw(
 
     match role {
       Some(Background) =>
-        cmds.push(
-          @debugutil.new_ndc_rect_fill_command(
-            ctx.dst,
-            ctx.shader,
-            r.x,
-            r.y,
-            r.width,
-            r.height,
-            sw,
-            sh,
-            @debugutil.color_from_hex(0x1a1a2e),
-            0,
-          ),
+        append_demo_rect(
+          cmds,
+          frame,
+          r.x,
+          r.y,
+          r.width,
+          r.height,
+          @renderer2d.color_from_hex(0x1a1a2e),
         )
       Some(Header) | Some(Footer) =>
-        cmds.push(
-          @debugutil.new_ndc_rect_fill_command(
-            ctx.dst,
-            ctx.shader,
-            r.x,
-            r.y,
-            r.width,
-            r.height,
-            sw,
-            sh,
-            @debugutil.color_from_hex(0x2a2a3e),
-            0,
-          ),
+        append_demo_rect(
+          cmds,
+          frame,
+          r.x,
+          r.y,
+          r.width,
+          r.height,
+          @renderer2d.color_from_hex(0x2a2a3e),
         )
       Some(Panel) =>
-        cmds.push(
-          @debugutil.new_ndc_rect_fill_command(
-            ctx.dst,
-            ctx.shader,
-            r.x,
-            r.y,
-            r.width,
-            r.height,
-            sw,
-            sh,
-            @debugutil.color_from_hex(0x333350),
-            0,
-          ),
+        append_demo_rect(
+          cmds,
+          frame,
+          r.x,
+          r.y,
+          r.width,
+          r.height,
+          @renderer2d.color_from_hex(0x333350),
         )
       Some(Button) => {
         // Button color based on state
         let color = if is_focused && is_hovered && self.mouse_down {
-          @debugutil.color_from_hex(0x60DD60)
+          @renderer2d.color_from_hex(0x60DD60)
         } else if is_focused {
-          @debugutil.color_from_hex(0x5566AA)
+          @renderer2d.color_from_hex(0x5566AA)
         } else if is_hovered {
-          @debugutil.color_from_hex(0x6a6a9a)
+          @renderer2d.color_from_hex(0x6a6a9a)
         } else {
-          @debugutil.color_from_hex(0x4a4a6a)
+          @renderer2d.color_from_hex(0x4a4a6a)
         }
         // Fill
-        cmds.push(
-          @debugutil.new_ndc_rect_fill_command(
-            ctx.dst,
-            ctx.shader,
-            r.x,
-            r.y,
-            r.width,
-            r.height,
-            sw,
-            sh,
-            color,
-            0,
-          ),
-        )
+        append_demo_rect(cmds, frame, r.x, r.y, r.width, r.height, color)
         // Focus border
         if is_focused {
           let bw = 2.0
-          let border_color = @debugutil.color_from_hex(0xFFFF00)
+          let border_color = @renderer2d.color_from_hex(0xFFFF00)
           // Top
-          cmds.push(
-            @debugutil.new_ndc_rect_fill_command(
-              ctx.dst,
-              ctx.shader,
-              r.x,
-              r.y,
-              r.width,
-              bw,
-              sw,
-              sh,
-              border_color,
-              0,
-            ),
-          )
+          append_demo_rect(cmds, frame, r.x, r.y, r.width, bw, border_color)
           // Bottom
-          cmds.push(
-            @debugutil.new_ndc_rect_fill_command(
-              ctx.dst,
-              ctx.shader,
-              r.x,
-              r.y + r.height - bw,
-              r.width,
-              bw,
-              sw,
-              sh,
-              border_color,
-              0,
-            ),
+          append_demo_rect(
+            cmds,
+            frame,
+            r.x,
+            r.y + r.height - bw,
+            r.width,
+            bw,
+            border_color,
           )
           // Left
-          cmds.push(
-            @debugutil.new_ndc_rect_fill_command(
-              ctx.dst,
-              ctx.shader,
-              r.x,
-              r.y,
-              bw,
-              r.height,
-              sw,
-              sh,
-              border_color,
-              0,
-            ),
-          )
+          append_demo_rect(cmds, frame, r.x, r.y, bw, r.height, border_color)
           // Right
-          cmds.push(
-            @debugutil.new_ndc_rect_fill_command(
-              ctx.dst,
-              ctx.shader,
-              r.x + r.width - bw,
-              r.y,
-              bw,
-              r.height,
-              sw,
-              sh,
-              border_color,
-              0,
-            ),
+          append_demo_rect(
+            cmds,
+            frame,
+            r.x + r.width - bw,
+            r.y,
+            bw,
+            r.height,
+            border_color,
           )
         }
         // Button label
         match self.button_labels.get(nid) {
           Some(chars) =>
-            @debugutil.draw_dot_text(
+            append_demo_text(
               cmds,
-              ctx.dst,
-              ctx.shader,
+              frame,
               chars,
               r.x + r.width / 2.0,
               r.y + r.height / 2.0,
-              sw,
-              sh,
-              @debugutil.color_white(),
+              @renderer2d.color_white(),
               1.0,
             )
           None => ()
@@ -469,30 +441,24 @@ fn DemoState::draw(
   }
 
   // Header label: "UI DEMO"
-  @debugutil.draw_dot_text(
+  append_demo_text(
     cmds,
-    ctx.dst,
-    ctx.shader,
+    frame,
     ascii("UI DEMO"),
     60.0,
     20.0,
-    sw,
-    sh,
-    @debugutil.color_white(),
+    @renderer2d.color_white(),
     1.2,
   )
 
   // Footer label: "TAB:FOCUS CLICK:SELECT"
-  @debugutil.draw_dot_text(
+  append_demo_text(
     cmds,
-    ctx.dst,
-    ctx.shader,
+    frame,
     ascii("TAB:FOCUS CLICK:SELECT"),
     160.0,
     sh - 20.0,
-    sw,
-    sh,
-    @debugutil.color_from_hex(0x888888),
+    @renderer2d.color_from_hex(0x888888),
     1.0,
   )
 

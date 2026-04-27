@@ -155,7 +155,7 @@ fn GameState::reset_save_and_restart(self : GameState) -> Unit {
   self.entity_instance_scratch.homing_missile_instances.clear()
   self.audio_last_played_cue = ""
   self.audio_last_played_state = ""
-  self.profile = @debugutil.default_frame_profile()
+  self.profile = @engine.default_frame_profile()
   self.world.auto_play = auto_play
   self.invalidate_hud_static_cache()
   self.rebuild_dungeon_rendering()

@@ -65,7 +65,7 @@ impl @scene_manager.Scene for MenuScene with draw(self, ctx) {
   )
   let _ = vdata
   let _ = indices
-  @scene3d.render_scene3d_gpu(
+  @renderer3d.render_scene3d_to_dst(
     scene,
     ctx.dst,
     shader3d,
@@ -281,7 +281,7 @@ impl @scene_manager.Scene for DungeonScene with draw(self, ctx) {
   // Render dungeon scene graph
   let camera = self.camera.to_camera3d()
   let view_projection = camera.view_projection_matrix()
-  let cmds = @scene3d.render_scene3d_graph_gpu(
+  let cmds = @renderer3d.render_scene3d_graph_to_dst(
     self.graph,
     camera,
     lighting=self.lighting,

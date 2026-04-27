@@ -92,6 +92,89 @@ fn debug_text_width(chars : Array[Int], scale : Double) -> Double {
 }
 
 ///|
+fn authoring_2d_frame(
+  dst : @gfx.ImageHandle,
+  shader : @gfx.ShaderHandle,
+  screen_w : Double,
+  screen_h : Double,
+  pipeline_id? : Int = 0,
+) -> @renderer2d.RenderFrame2D {
+  @renderer2d.RenderFrame2D::new(
+    dst~,
+    shader~,
+    screen_w=screen_w.to_int(),
+    screen_h=screen_h.to_int(),
+    pipeline_id~,
+  )
+}
+
+///|
+fn append_authoring_dot_text(
+  cmds : Array[@gfx.DrawTrianglesCommand],
+  dst : @gfx.ImageHandle,
+  shader : @gfx.ShaderHandle,
+  chars : Array[Int],
+  cx : Double,
+  cy : Double,
+  screen_w : Double,
+  screen_h : Double,
+  color : @gfx.Color,
+  scale : Double,
+) -> Unit {
+  @renderer2d.append_dot_text(
+    cmds,
+    authoring_2d_frame(dst, shader, screen_w, screen_h),
+    @renderer2d.DotText2D::new(chars~, cx~, cy~, color~, scale~),
+  )
+}
+
+///|
+fn append_authoring_number(
+  cmds : Array[@gfx.DrawTrianglesCommand],
+  dst : @gfx.ImageHandle,
+  shader : @gfx.ShaderHandle,
+  number : Int,
+  cx : Double,
+  cy : Double,
+  screen_w : Double,
+  screen_h : Double,
+  color : @gfx.Color,
+  scale : Double,
+) -> Unit {
+  @renderer2d.append_number(
+    cmds,
+    authoring_2d_frame(dst, shader, screen_w, screen_h),
+    @renderer2d.Number2D::new(number~, cx~, cy~, color~, scale~),
+  )
+}
+
+///|
+fn new_authoring_rect_fill_command(
+  dst : @gfx.ImageHandle,
+  shader : @gfx.ShaderHandle,
+  x : Double,
+  y : Double,
+  w : Double,
+  h : Double,
+  color : @gfx.Color,
+  pipeline_id : Int,
+) -> @gfx.DrawTrianglesCommand {
+  let cmds : Array[@gfx.DrawTrianglesCommand] = []
+  @renderer2d.append_rect_fill(
+    cmds,
+    authoring_2d_frame(
+      dst,
+      shader,
+      dst.width.to_double(),
+      dst.height.to_double(),
+      pipeline_id~,
+    ),
+    @renderer2d.RectFill2D::new(x~, y~, w~, h~, color~),
+  )
+  cmds[0]
+}
+
+///|
 fn draw_debug_text_left(
   cmds : Array[@gfx.DrawTrianglesCommand],
   dst : @gfx.ImageHandle,
@@ -106,7 +189,7 @@ fn draw_debug_text_left(
 ) -> Unit {
   let center_x = left_x + debug_text_width(chars, scale) * 0.5
   let center_y = top_y + 7.5 * scale
-  @debugutil.draw_dot_text(
+  append_authoring_dot_text(
     cmds, dst, shader, chars, center_x, center_y, screen_w, screen_h, color, scale,
   )
 }
@@ -839,7 +922,7 @@ fn main {
         camera=camera.to_camera3d(),
         lighting~,
       )
-      let cmds = @scene3d.render_scene3d_gpu(
+      let cmds = @renderer3d.render_scene3d_to_dst(
         scene,
         ctx.dst,
         shader3d,
@@ -878,12 +961,12 @@ fn main {
       } else {
         debug_text_codes("X OFF", 5)
       }
-      let white = @debugutil.color_from_hex(0xFFFFFF)
-      let panel_bg = @debugutil.color_from_hex_alpha(0x101826, 0.78)
+      let white = @renderer2d.color_from_hex(0xFFFFFF)
+      let panel_bg = @renderer2d.color_from_hex_alpha(0x101826, 0.78)
       let panel_x = ctx.screen_w.to_double() - 196.0
       let panel_y = 8.0
       cmds.push(
-        @debugutil.new_rect_fill_command(
+        new_authoring_rect_fill_command(
           ctx.dst,
           ctx.shader,
           panel_x,
@@ -894,7 +977,7 @@ fn main {
           0,
         ),
       )
-      @debugutil.draw_dot_text(
+      append_authoring_dot_text(
         cmds,
         ctx.dst,
         ctx.shader,
@@ -906,7 +989,7 @@ fn main {
         white,
         1.0,
       )
-      @debugutil.draw_number(
+      append_authoring_number(
         cmds,
         ctx.dst,
         ctx.shader,
@@ -918,7 +1001,7 @@ fn main {
         white,
         1.0,
       )
-      @debugutil.draw_dot_text(
+      append_authoring_dot_text(
         cmds,
         ctx.dst,
         ctx.shader,
@@ -930,7 +1013,7 @@ fn main {
         white,
         1.0,
       )
-      @debugutil.draw_number(
+      append_authoring_number(
         cmds,
         ctx.dst,
         ctx.shader,
@@ -942,7 +1025,7 @@ fn main {
         white,
         1.0,
       )
-      @debugutil.draw_dot_text(
+      append_authoring_dot_text(
         cmds,
         ctx.dst,
         ctx.shader,
@@ -954,7 +1037,7 @@ fn main {
         white,
         1.0,
       )
-      @debugutil.draw_number(
+      append_authoring_number(
         cmds,
         ctx.dst,
         ctx.shader,
@@ -966,7 +1049,7 @@ fn main {
         white,
         1.0,
       )
-      @debugutil.draw_dot_text(
+      append_authoring_dot_text(
         cmds,
         ctx.dst,
         ctx.shader,
@@ -978,7 +1061,7 @@ fn main {
         white,
         1.0,
       )
-      @debugutil.draw_dot_text(
+      append_authoring_dot_text(
         cmds,
         ctx.dst,
         ctx.shader,
@@ -990,7 +1073,7 @@ fn main {
         white,
         1.0,
       )
-      @debugutil.draw_dot_text(
+      append_authoring_dot_text(
         cmds,
         ctx.dst,
         ctx.shader,
@@ -1002,7 +1085,7 @@ fn main {
         white,
         1.0,
       )
-      @debugutil.draw_dot_text(
+      append_authoring_dot_text(
         cmds,
         ctx.dst,
         ctx.shader,
@@ -1014,7 +1097,7 @@ fn main {
         white,
         1.0,
       )
-      @debugutil.draw_dot_text(
+      append_authoring_dot_text(
         cmds,
         ctx.dst,
         ctx.shader,
@@ -1026,7 +1109,7 @@ fn main {
         white,
         1.0,
       )
-      @debugutil.draw_dot_text(
+      append_authoring_dot_text(
         cmds,
         ctx.dst,
         ctx.shader,
@@ -1038,7 +1121,7 @@ fn main {
         white,
         1.0,
       )
-      @debugutil.draw_dot_text(
+      append_authoring_dot_text(
         cmds,
         ctx.dst,
         ctx.shader,
@@ -1050,7 +1133,7 @@ fn main {
         white,
         1.0,
       )
-      @debugutil.draw_dot_text(
+      append_authoring_dot_text(
         cmds,
         ctx.dst,
         ctx.shader,

@@ -222,19 +222,22 @@ fn push_text(
       let char_h = 5.0 * px_size
       let cx = x + total_w / 2.0
       let cy = y + char_h / 2.0
-      let sw = ctx.screen_w.to_double()
-      let sh = ctx.screen_h.to_double()
-      @debugutil.draw_dot_text(
+      let frame = @renderer2d.RenderFrame2D::new(
+        dst=ctx.dst,
+        shader=ctx.shader,
+        screen_w=ctx.screen_w,
+        screen_h=ctx.screen_h,
+      )
+      @renderer2d.append_dot_text(
         cmds,
-        ctx.dst,
-        ctx.shader,
-        chars,
-        cx,
-        cy,
-        sw,
-        sh,
-        @debugutil.color_from_hex(color_hex),
-        scale,
+        frame,
+        @renderer2d.DotText2D::new(
+          chars~,
+          cx~,
+          cy~,
+          color=@renderer2d.color_from_hex(color_hex),
+          scale~,
+        ),
       )
     }
   }
@@ -260,8 +263,8 @@ fn make_cmd(
     vertices,
     indices,
     [],
-    @debugutil.color_to_uniform_dwords(
-      @debugutil.color_from_hex_alpha(color_hex, 1.0),
+    @renderer2d.color_to_uniform_dwords(
+      @renderer2d.color_from_hex_alpha(color_hex, 1.0),
     ),
   )
 }

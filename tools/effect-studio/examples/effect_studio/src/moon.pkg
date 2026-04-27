@@ -3,7 +3,6 @@ import {
   "mizchi/kagura_effect_studio" @effect,
   "mizchi/kagura/core/camera3d" @camera3d,
   "mizchi/kagura/core" @core,
-  "mizchi/kagura/engine/debugutil" @debugutil,
   "mizchi/kagura/engine/draw3d" @draw3d,
   "mizchi/kagura/engine" @engine,
   "mizchi/kagura/engine/gfx" @gfx,

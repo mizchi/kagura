@@ -7,7 +7,13 @@ pub fn render_scene(
   screen_h : Double,
 ) -> Array[@gfx.DrawTrianglesCommand] {
   let cmds : Array[@gfx.DrawTrianglesCommand] = []
-  render_node(cmds, node, dst, shader, screen_w, screen_h, 0.0, 0.0)
+  let frame = @renderer2d.RenderFrame2D::new(
+    dst~,
+    shader~,
+    screen_w=screen_w.to_int(),
+    screen_h=screen_h.to_int(),
+  )
+  render_node(cmds, node, frame, 0.0, 0.0)
   cmds
 }
 
@@ -15,84 +21,36 @@ pub fn render_scene(
 fn render_node(
   cmds : Array[@gfx.DrawTrianglesCommand],
   node : SceneNode,
-  dst : @gfx.ImageHandle,
-  shader : @gfx.ShaderHandle,
-  screen_w : Double,
-  screen_h : Double,
+  frame : @renderer2d.RenderFrame2D,
   offset_x : Double,
   offset_y : Double,
 ) -> Unit {
   match node {
-    Element(el) =>
-      render_element(
-        cmds, el, dst, shader, screen_w, screen_h, offset_x, offset_y,
-      )
+    Element(el) => render_element(cmds, el, frame, offset_x, offset_y)
     Fragment(children) =>
       for child in children {
-        render_node(
-          cmds, child, dst, shader, screen_w, screen_h, offset_x, offset_y,
-        )
+        render_node(cmds, child, frame, offset_x, offset_y)
       }
     Show(condition~, child~) =>
       if condition() {
-        render_node(
-          cmds,
-          child(),
-          dst,
-          shader,
-          screen_w,
-          screen_h,
-          offset_x,
-          offset_y,
-        )
+        render_node(cmds, child(), frame, offset_x, offset_y)
       }
     For(render~) => {
       let items = render()
       for item in items {
-        render_node(
-          cmds, item, dst, shader, screen_w, screen_h, offset_x, offset_y,
-        )
+        render_node(cmds, item, frame, offset_x, offset_y)
       }
     }
-    Component(render~) =>
-      render_node(
-        cmds,
-        render(),
-        dst,
-        shader,
-        screen_w,
-        screen_h,
-        offset_x,
-        offset_y,
-      )
+    Component(render~) => render_node(cmds, render(), frame, offset_x, offset_y)
     Switch(sw) => {
       for c in sw.cases {
         if (c.when)() {
-          render_node(
-            cmds,
-            (c.render)(),
-            dst,
-            shader,
-            screen_w,
-            screen_h,
-            offset_x,
-            offset_y,
-          )
+          render_node(cmds, (c.render)(), frame, offset_x, offset_y)
           return
         }
       }
       match sw.fallback {
-        Some(fb) =>
-          render_node(
-            cmds,
-            fb(),
-            dst,
-            shader,
-            screen_w,
-            screen_h,
-            offset_x,
-            offset_y,
-          )
+        Some(fb) => render_node(cmds, fb(), frame, offset_x, offset_y)
         None => ()
       }
     }
@@ -104,30 +62,16 @@ fn render_node(
 fn render_element(
   cmds : Array[@gfx.DrawTrianglesCommand],
   el : @ui.VElement[Unit, SceneAttrValue],
-  dst : @gfx.ImageHandle,
-  shader : @gfx.ShaderHandle,
-  screen_w : Double,
-  screen_h : Double,
+  frame : @renderer2d.RenderFrame2D,
   offset_x : Double,
   offset_y : Double,
 ) -> Unit {
   match el.tag {
-    "rect" =>
-      render_rect(cmds, el, dst, shader, screen_w, screen_h, offset_x, offset_y)
-    "label" =>
-      render_label(
-        cmds, el, dst, shader, screen_w, screen_h, offset_x, offset_y,
-      )
-    "group" =>
-      render_group(
-        cmds, el, dst, shader, screen_w, screen_h, offset_x, offset_y,
-      )
-    "line" =>
-      render_line(cmds, el, dst, shader, screen_w, screen_h, offset_x, offset_y)
-    "rect_outline" =>
-      render_rect_outline(
-        cmds, el, dst, shader, screen_w, screen_h, offset_x, offset_y,
-      )
+    "rect" => render_rect(cmds, el, frame, offset_x, offset_y)
+    "label" => render_label(cmds, el, frame, offset_x, offset_y)
+    "group" => render_group(cmds, el, frame, offset_x, offset_y)
+    "line" => render_line(cmds, el, frame, offset_x, offset_y)
+    "rect_outline" => render_rect_outline(cmds, el, frame, offset_x, offset_y)
     _ => ()
   }
 }
@@ -184,10 +128,7 @@ fn attr_string(
 fn render_rect(
   cmds : Array[@gfx.DrawTrianglesCommand],
   el : @ui.VElement[Unit, SceneAttrValue],
-  dst : @gfx.ImageHandle,
-  shader : @gfx.ShaderHandle,
-  screen_w : Double,
-  screen_h : Double,
+  frame : @renderer2d.RenderFrame2D,
   offset_x : Double,
   offset_y : Double,
 ) -> Unit {
@@ -208,14 +149,14 @@ fn render_rect(
   } else {
     1.0
   }
-  let color = @debugutil.color_from_hex_alpha(fill, alpha)
-  cmds.push(
-    @debugutil.new_ndc_rect_fill_command(
-      dst, shader, x, y, w, h, screen_w, screen_h, color, 0,
-    ),
+  let color = @renderer2d.color_from_hex_alpha(fill, alpha)
+  @renderer2d.append_rect_fill(
+    cmds,
+    frame,
+    @renderer2d.RectFill2D::new(x~, y~, w~, h~, color~),
   )
   for child in el.children {
-    render_node(cmds, child, dst, shader, screen_w, screen_h, x, y)
+    render_node(cmds, child, frame, x, y)
   }
 }
 
@@ -224,10 +165,7 @@ fn render_rect(
 fn render_label(
   cmds : Array[@gfx.DrawTrianglesCommand],
   el : @ui.VElement[Unit, SceneAttrValue],
-  dst : @gfx.ImageHandle,
-  shader : @gfx.ShaderHandle,
-  screen_w : Double,
-  screen_h : Double,
+  frame : @renderer2d.RenderFrame2D,
   offset_x : Double,
   offset_y : Double,
 ) -> Unit {
@@ -251,10 +189,12 @@ fn render_label(
   } else {
     1.0
   }
-  let color = @debugutil.color_from_hex(color_hex)
+  let color = @renderer2d.color_from_hex(color_hex)
   let chars = string_to_char_codes(content)
-  @debugutil.draw_dot_text(
-    cmds, dst, shader, chars, x, y, screen_w, screen_h, color, scale,
+  @renderer2d.append_dot_text(
+    cmds,
+    frame,
+    @renderer2d.DotText2D::new(chars~, cx=x, cy=y, color~, scale~),
   )
 }
 
@@ -263,10 +203,7 @@ fn render_label(
 fn render_group(
   cmds : Array[@gfx.DrawTrianglesCommand],
   el : @ui.VElement[Unit, SceneAttrValue],
-  dst : @gfx.ImageHandle,
-  shader : @gfx.ShaderHandle,
-  screen_w : Double,
-  screen_h : Double,
+  frame : @renderer2d.RenderFrame2D,
   offset_x : Double,
   offset_y : Double,
 ) -> Unit {
@@ -276,30 +213,8 @@ fn render_group(
   let y = (if attrs.length() > 1 { attr_double(attrs[1].1, 0.0) } else { 0.0 }) +
     offset_y
   for child in el.children {
-    render_node(cmds, child, dst, shader, screen_w, screen_h, x, y)
+    render_node(cmds, child, frame, x, y)
   }
-}
-
-///|
-fn pixel_to_ndc_vertices(
-  vertices : Array[Double],
-  screen_w : Double,
-  screen_h : Double,
-) -> Array[Double] {
-  let out : Array[Double] = []
-  let mut i = 0
-  while i < vertices.length() {
-    let px = vertices[i]
-    let py = vertices[i + 1]
-    let u = vertices[i + 2]
-    let v = vertices[i + 3]
-    out.push(px / screen_w * 2.0 - 1.0)
-    out.push(1.0 - py / screen_h * 2.0)
-    out.push(u)
-    out.push(v)
-    i = i + 4
-  }
-  out
 }
 
 ///|
@@ -307,10 +222,7 @@ fn pixel_to_ndc_vertices(
 fn render_line(
   cmds : Array[@gfx.DrawTrianglesCommand],
   el : @ui.VElement[Unit, SceneAttrValue],
-  dst : @gfx.ImageHandle,
-  shader : @gfx.ShaderHandle,
-  screen_w : Double,
-  screen_h : Double,
+  frame : @renderer2d.RenderFrame2D,
   offset_x : Double,
   offset_y : Double,
 ) -> Unit {
@@ -333,31 +245,16 @@ fn render_line(
   } else {
     0xFFFFFF
   }
-  let color = @debugutil.color_from_hex(color_hex)
-  let (vertices, indices) = @debugutil.line_vertices(x0, y0, x1, y1, width)
-  let ndc_vertices = pixel_to_ndc_vertices(vertices, screen_w, screen_h)
-  let uniform = @debugutil.color_to_uniform_dwords(color)
-  cmds.push(
-    @gfx.new_draw_triangles_command(
-      dst,
-      shader,
-      [
-        @gfx.new_dst_region(
-          0,
-          0,
-          screen_w.to_int(),
-          screen_h.to_int(),
-          indices.length(),
-        ),
-      ],
-      0,
-      0,
-      0,
-      @gfx.blend_mode_from_int(1),
-      ndc_vertices,
-      indices,
-      [],
-      uniform,
+  @renderer2d.append_line(
+    cmds,
+    frame,
+    @renderer2d.Line2D::new(
+      x0~,
+      y0~,
+      x1~,
+      y1~,
+      width~,
+      color=@renderer2d.color_from_hex(color_hex),
     ),
   )
 }
@@ -367,10 +264,7 @@ fn render_line(
 fn render_rect_outline(
   cmds : Array[@gfx.DrawTrianglesCommand],
   el : @ui.VElement[Unit, SceneAttrValue],
-  dst : @gfx.ImageHandle,
-  shader : @gfx.ShaderHandle,
-  screen_w : Double,
-  screen_h : Double,
+  frame : @renderer2d.RenderFrame2D,
   offset_x : Double,
   offset_y : Double,
 ) -> Unit {
@@ -391,33 +285,16 @@ fn render_rect_outline(
   } else {
     0xFFFFFF
   }
-  let color = @debugutil.color_from_hex(color_hex)
-  let (vertices, indices) = @debugutil.rect_outline_vertices(
-    x, y, w, h, line_width,
-  )
-  let ndc_vertices = pixel_to_ndc_vertices(vertices, screen_w, screen_h)
-  let uniform = @debugutil.color_to_uniform_dwords(color)
-  cmds.push(
-    @gfx.new_draw_triangles_command(
-      dst,
-      shader,
-      [
-        @gfx.new_dst_region(
-          0,
-          0,
-          screen_w.to_int(),
-          screen_h.to_int(),
-          indices.length(),
-        ),
-      ],
-      0,
-      0,
-      0,
-      @gfx.blend_mode_from_int(1),
-      ndc_vertices,
-      indices,
-      [],
-      uniform,
+  @renderer2d.append_rect_outline(
+    cmds,
+    frame,
+    @renderer2d.RectOutline2D::new(
+      x~,
+      y~,
+      w~,
+      h~,
+      line_width~,
+      color=@renderer2d.color_from_hex(color_hex),
     ),
   )
 }

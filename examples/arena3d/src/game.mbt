@@ -492,7 +492,7 @@ fn GameState::draw(
   ctx : @engine.EngineContext,
 ) -> Array[@gfx.DrawTrianglesCommand] {
   let graph = self.build_scene_graph()
-  @scene3d.render_scene3d_graph_gpu(
+  @renderer3d.render_scene3d_graph_to_dst(
     graph,
     self.camera.to_camera3d(),
     lighting=self.lighting,

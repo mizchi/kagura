@@ -3,7 +3,7 @@
 // ============================================================
 // Circles and boxes falling onto a ground with walls.
 // Click to spawn new objects at cursor position.
-// Uses physics2d for simulation and debugutil for rendering.
+// Uses physics2d for simulation and renderer2d for rendering.
 // Y-down screen coordinates: physics Y mapped to screen Y inverted.
 
 ///|
@@ -208,7 +208,7 @@ fn physics_to_screen_y(py : Double) -> Double {
 
 ///|
 fn hex_to_color(hex : Int) -> @gfx.Color {
-  @debugutil.color_from_hex(hex)
+  @renderer2d.color_from_hex(hex)
 }
 
 ///|
@@ -224,8 +224,7 @@ fn get_body_color(id : Int) -> @gfx.Color {
 ///|
 fn draw_filled_circle(
   cmds : Array[@gfx.DrawTrianglesCommand],
-  dst : @gfx.ImageHandle,
-  shader : @gfx.ShaderHandle,
+  frame : @renderer2d.RenderFrame2D,
   cx : Double,
   cy : Double,
   radius : Double,
@@ -261,16 +260,13 @@ fn draw_filled_circle(
     indices.push(i)
     indices.push(i + 1)
   }
-  cmds.push(
-    @debugutil.new_simple_draw_command(dst, shader, vertices, indices, color),
-  )
+  @renderer2d.append_primitive_batch(cmds, frame, vertices, indices, color)
 }
 
 ///|
 fn draw_rotated_box(
   cmds : Array[@gfx.DrawTrianglesCommand],
-  dst : @gfx.ImageHandle,
-  shader : @gfx.ShaderHandle,
+  frame : @renderer2d.RenderFrame2D,
   cx : Double,
   cy : Double,
   hw : Double,
@@ -304,9 +300,7 @@ fn draw_rotated_box(
     vertices.push(0.5)
   }
   let indices : Array[Int] = [0, 1, 2, 0, 2, 3]
-  cmds.push(
-    @debugutil.new_simple_draw_command(dst, shader, vertices, indices, color),
-  )
+  @renderer2d.append_primitive_batch(cmds, frame, vertices, indices, color)
 }
 
 ///|
@@ -317,19 +311,22 @@ fn DemoState::draw(
   let cmds : Array[@gfx.DrawTrianglesCommand] = []
   let sw = screen_w.to_double()
   let sh = screen_h.to_double()
+  let frame = @renderer2d.RenderFrame2D::new(
+    dst=ctx.dst,
+    shader=ctx.shader,
+    screen_w~,
+    screen_h~,
+  )
   // Background
-  cmds.push(
-    @debugutil.new_ndc_rect_fill_command(
-      ctx.dst,
-      ctx.shader,
-      0.0,
-      0.0,
-      sw,
-      sh,
-      sw,
-      sh,
-      @debugutil.color_from_hex(0x1A1A2E),
-      0,
+  @renderer2d.append_rect_fill(
+    cmds,
+    frame,
+    @renderer2d.RectFill2D::new(
+      x=0.0,
+      y=0.0,
+      w=sw,
+      h=sh,
+      color=@renderer2d.color_from_hex(0x1A1A2E),
     ),
   )
   // Draw bodies
@@ -341,17 +338,7 @@ fn DemoState::draw(
         let cx = physics_to_screen_x(body.position.x + offset.x)
         let cy = physics_to_screen_y(body.position.y + offset.y)
         let screen_r = radius * px_per_unit
-        draw_filled_circle(
-          cmds,
-          ctx.dst,
-          ctx.shader,
-          cx,
-          cy,
-          screen_r,
-          color,
-          sw,
-          sh,
-        )
+        draw_filled_circle(cmds, frame, cx, cy, screen_r, color, sw, sh)
       }
       @physics2d.AABBShape2D(half_extents, offset) => {
         let cx = body.position.x + offset.x
@@ -360,18 +347,15 @@ fn DemoState::draw(
         let screen_y = physics_to_screen_y(cy + half_extents.y)
         let screen_w2 = half_extents.x * 2.0 * px_per_unit
         let screen_h2 = half_extents.y * 2.0 * px_per_unit
-        cmds.push(
-          @debugutil.new_ndc_rect_fill_command(
-            ctx.dst,
-            ctx.shader,
-            screen_x,
-            screen_y,
-            screen_w2,
-            screen_h2,
-            sw,
-            sh,
-            color,
-            0,
+        @renderer2d.append_rect_fill(
+          cmds,
+          frame,
+          @renderer2d.RectFill2D::new(
+            x=screen_x,
+            y=screen_y,
+            w=screen_w2,
+            h=screen_h2,
+            color~,
           ),
         )
       }
@@ -384,8 +368,7 @@ fn DemoState::draw(
         let shh = half_extents.y * px_per_unit
         draw_rotated_box(
           cmds,
-          ctx.dst,
-          ctx.shader,
+          frame,
           scx,
           scy,
           shw,

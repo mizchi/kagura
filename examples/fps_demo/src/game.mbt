@@ -350,7 +350,7 @@ fn GameState::draw(
   ctx : @engine.EngineContext,
 ) -> Array[@gfx.DrawTrianglesCommand] {
   let scene = self.build_scene3d()
-  let cmds = @scene3d.render_scene3d_gpu(
+  let cmds = @renderer3d.render_scene3d_to_dst(
     scene,
     ctx.dst,
     self.shader3d,
@@ -359,65 +359,61 @@ fn GameState::draw(
   )
   // Score overlay (top-left area)
   let sw = screen_w.to_double()
-  let sh = screen_h.to_double()
-  let score_color = @debugutil.color_white()
+  let frame2d = @renderer2d.RenderFrame2D::new(
+    dst=ctx.dst,
+    shader=ctx.shader,
+    screen_w=ctx.screen_w,
+    screen_h=ctx.screen_h,
+  )
+  let score_color = @renderer2d.color_white()
   // Draw "SCORE" label
   let label_chars = [83, 67, 79, 82, 69] // S C O R E
-  @debugutil.draw_dot_text(
+  @renderer2d.append_dot_text(
     cmds,
-    ctx.dst,
-    ctx.shader,
-    label_chars,
-    50.0,
-    15.0,
-    sw,
-    sh,
-    score_color,
-    1.0,
-  )
-  // Draw score number
-  @debugutil.draw_number(
-    cmds,
-    ctx.dst,
-    ctx.shader,
-    self.score,
-    50.0,
-    35.0,
-    sw,
-    sh,
-    score_color,
-    1.2,
-  )
-  // Crosshair (center of screen)
-  let ch_color = @debugutil.color_from_hex_alpha(0x00FF00, 0.8)
-  let cx = sw / 2.0
-  let cy = sh / 2.0
-  cmds.push(
-    @debugutil.new_ndc_rect_fill_command(
-      ctx.dst,
-      ctx.shader,
-      cx - 8.0,
-      cy - 1.0,
-      16.0,
-      2.0,
-      sw,
-      sh,
-      ch_color,
-      0,
+    frame2d,
+    @renderer2d.DotText2D::new(
+      chars=label_chars,
+      cx=50.0,
+      cy=15.0,
+      color=score_color,
     ),
   )
-  cmds.push(
-    @debugutil.new_ndc_rect_fill_command(
-      ctx.dst,
-      ctx.shader,
-      cx - 1.0,
-      cy - 8.0,
-      2.0,
-      16.0,
-      sw,
-      sh,
-      ch_color,
-      0,
+  // Draw score number
+  @renderer2d.append_number(
+    cmds,
+    frame2d,
+    @renderer2d.Number2D::new(
+      number=self.score,
+      cx=50.0,
+      cy=35.0,
+      color=score_color,
+      scale=1.2,
+    ),
+  )
+  // Crosshair (center of screen)
+  let ch_color = @renderer2d.color_from_hex_alpha(0x00FF00, 0.8)
+  let cx = sw / 2.0
+  let cy = screen_h.to_double() / 2.0
+  @renderer2d.append_rect_fill(
+    cmds,
+    frame2d,
+    @renderer2d.RectFill2D::new(
+      x=cx - 8.0,
+      y=cy - 1.0,
+      w=16.0,
+      h=2.0,
+      color=ch_color,
+    ),
+  )
+  @renderer2d.append_rect_fill(
+    cmds,
+    frame2d,
+    @renderer2d.RectFill2D::new(
+      x=cx - 1.0,
+      y=cy - 8.0,
+      w=2.0,
+      h=16.0,
+      color=ch_color,
     ),
   )
   cmds

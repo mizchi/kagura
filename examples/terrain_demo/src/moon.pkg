@@ -8,6 +8,7 @@ import {
   "mizchi/kagura/engine/light3d" @light3d,
   "mizchi/kagura/core/math3d" @math3d,
   "mizchi/kagura/core/mesh3d" @mesh3d,
+  "mizchi/kagura/engine/renderer3d" @renderer3d,
   "mizchi/kagura/engine/scene3d" @scene3d,
   "mizchi/kagura_game/scene_manager" @scene_manager,
   "mizchi/kagura_game/terrain3d" @terrain3d,

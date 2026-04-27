@@ -108,7 +108,7 @@ struct GameState {
   input : @inpututil.InputHelper
   // Profiler
   mut show_profiler : Bool
-  mut profile : @debugutil.FrameProfile
+  mut profile : @engine.FrameProfile
   // 3D-specific
   mut camera : @camera3d.OrbitCamera
   lighting : @light3d.LightingEnvironment

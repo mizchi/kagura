@@ -9,7 +9,6 @@ import {
   "mizchi/kagura/core/payload2d" @payload2d,
   "mizchi/kagura/engine/platform" @platform,
   "mizchi/kagura/engine/text" @text,
-  "mizchi/kagura/engine/debugutil" @debugutil,
 }
 
 warnings = "-1-7-29"

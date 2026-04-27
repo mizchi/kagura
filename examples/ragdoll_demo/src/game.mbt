@@ -428,8 +428,7 @@ fn find_closest_dynamic(
 ///|
 fn draw_filled_circle(
   cmds : Array[@gfx.DrawTrianglesCommand],
-  dst : @gfx.ImageHandle,
-  shader : @gfx.ShaderHandle,
+  frame : @renderer2d.RenderFrame2D,
   cx : Double,
   cy : Double,
   radius : Double,
@@ -462,16 +461,13 @@ fn draw_filled_circle(
     indices.push(i)
     indices.push(i + 1)
   }
-  cmds.push(
-    @debugutil.new_simple_draw_command(dst, shader, vertices, indices, color),
-  )
+  @renderer2d.append_primitive_batch(cmds, frame, vertices, indices, color)
 }
 
 ///|
 fn draw_rotated_box(
   cmds : Array[@gfx.DrawTrianglesCommand],
-  dst : @gfx.ImageHandle,
-  shader : @gfx.ShaderHandle,
+  frame : @renderer2d.RenderFrame2D,
   cx : Double,
   cy : Double,
   hw : Double,
@@ -504,9 +500,7 @@ fn draw_rotated_box(
     vertices.push(0.5)
   }
   let indices : Array[Int] = [0, 1, 2, 0, 2, 3]
-  cmds.push(
-    @debugutil.new_simple_draw_command(dst, shader, vertices, indices, color),
-  )
+  @renderer2d.append_primitive_batch(cmds, frame, vertices, indices, color)
 }
 
 // ============================================================
@@ -516,7 +510,7 @@ fn draw_rotated_box(
 ///|
 fn get_part_color(id : Int, grabbed_id : Int) -> @gfx.Color {
   if id == grabbed_id {
-    return @debugutil.color_from_hex(color_highlight)
+    return @renderer2d.color_from_hex(color_highlight)
   }
   let hex = match id {
     1 => color_skin // head
@@ -527,7 +521,7 @@ fn get_part_color(id : Int, grabbed_id : Int) -> @gfx.Color {
     9 | 10 => color_shin
     _ => color_ground_hex
   }
-  @debugutil.color_from_hex(hex)
+  @renderer2d.color_from_hex(hex)
 }
 
 // ============================================================
@@ -558,19 +552,22 @@ fn DemoState::draw(
   let cmds : Array[@gfx.DrawTrianglesCommand] = []
   let sw = screen_w.to_double()
   let sh = screen_h.to_double()
+  let frame = @renderer2d.RenderFrame2D::new(
+    dst=ctx.dst,
+    shader=ctx.shader,
+    screen_w~,
+    screen_h~,
+  )
   // Background
-  cmds.push(
-    @debugutil.new_ndc_rect_fill_command(
-      ctx.dst,
-      ctx.shader,
-      0.0,
-      0.0,
-      sw,
-      sh,
-      sw,
-      sh,
-      @debugutil.color_from_hex(color_bg),
-      0,
+  @renderer2d.append_rect_fill(
+    cmds,
+    frame,
+    @renderer2d.RectFill2D::new(
+      x=0.0,
+      y=0.0,
+      w=sw,
+      h=sh,
+      color=@renderer2d.color_from_hex(color_bg),
     ),
   )
   // Draw bodies
@@ -582,17 +579,7 @@ fn DemoState::draw(
         let cx = physics_to_screen_x(body.position.x + offset.x)
         let cy = physics_to_screen_y(body.position.y + offset.y)
         let screen_r = radius * px_per_unit
-        draw_filled_circle(
-          cmds,
-          ctx.dst,
-          ctx.shader,
-          cx,
-          cy,
-          screen_r,
-          color,
-          sw,
-          sh,
-        )
+        draw_filled_circle(cmds, frame, cx, cy, screen_r, color, sw, sh)
       }
       @physics2d.AABBShape2D(half_extents, offset) => {
         let cx = body.position.x + offset.x
@@ -601,18 +588,15 @@ fn DemoState::draw(
         let screen_y = physics_to_screen_y(cy + half_extents.y)
         let screen_w2 = half_extents.x * 2.0 * px_per_unit
         let screen_h2 = half_extents.y * 2.0 * px_per_unit
-        cmds.push(
-          @debugutil.new_ndc_rect_fill_command(
-            ctx.dst,
-            ctx.shader,
-            screen_x,
-            screen_y,
-            screen_w2,
-            screen_h2,
-            sw,
-            sh,
-            color,
-            0,
+        @renderer2d.append_rect_fill(
+          cmds,
+          frame,
+          @renderer2d.RectFill2D::new(
+            x=screen_x,
+            y=screen_y,
+            w=screen_w2,
+            h=screen_h2,
+            color~,
           ),
         )
       }
@@ -625,8 +609,7 @@ fn DemoState::draw(
         let shh = half_extents.y * px_per_unit
         draw_rotated_box(
           cmds,
-          ctx.dst,
-          ctx.shader,
+          frame,
           scx,
           scy,
           shw,
@@ -640,7 +623,7 @@ fn DemoState::draw(
     }
   }
   // Draw joint lines (white)
-  let joint_color = @debugutil.color_from_hex_alpha(0xFFFFFF, 0.6)
+  let joint_color = @renderer2d.color_from_hex_alpha(0xFFFFFF, 0.6)
   for j = 0; j < self.world.joints_revolute.length(); j = j + 1 {
     let joint = self.world.joints_revolute[j]
     let body_a = self.world.get_body(joint.body_a_id)
@@ -653,17 +636,16 @@ fn DemoState::draw(
         let sy0 = physics_to_screen_y(wa.y)
         let sx1 = physics_to_screen_x(wb.x)
         let sy1 = physics_to_screen_y(wb.y)
-        cmds.push(
-          @debugutil.new_line_command(
-            ctx.dst,
-            ctx.shader,
-            sx0,
-            sy0,
-            sx1,
-            sy1,
-            2.0,
-            joint_color,
-            0,
+        @renderer2d.append_line(
+          cmds,
+          frame,
+          @renderer2d.Line2D::new(
+            x0=sx0,
+            y0=sy0,
+            x1=sx1,
+            y1=sy1,
+            width=2.0,
+            color=joint_color,
           ),
         )
       }
@@ -678,17 +660,16 @@ fn DemoState::draw(
         let my_screen = physics_to_screen_y(self.mouse_phys_y)
         let bx_screen = physics_to_screen_x(body.position.x)
         let by_screen = physics_to_screen_y(body.position.y)
-        cmds.push(
-          @debugutil.new_line_command(
-            ctx.dst,
-            ctx.shader,
-            mx_screen,
-            my_screen,
-            bx_screen,
-            by_screen,
-            2.0,
-            @debugutil.color_from_hex(0xFF4040),
-            0,
+        @renderer2d.append_line(
+          cmds,
+          frame,
+          @renderer2d.Line2D::new(
+            x0=mx_screen,
+            y0=my_screen,
+            x1=bx_screen,
+            y1=by_screen,
+            width=2.0,
+            color=@renderer2d.color_from_hex(0xFF4040),
           ),
         )
       }

@@ -97,7 +97,7 @@ pub fn run(
     let cmds = draw(ctx)
     let draw_callback_end = js_performance_now()
     let render_start = js_performance_now()
-    @debugutil.render_commands(graphics, cmds) catch {
+    render_commands(graphics, cmds) catch {
       e => println("[engine] render_commands failed: \{e}")
     }
     let render_end = js_performance_now()

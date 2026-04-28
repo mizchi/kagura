@@ -38,7 +38,7 @@ fn main {
     let prev_x : Ref[Double] = Ref::new(0.0)
     let prev_y : Ref[Double] = Ref::new(0.0)
     @engine.run(
-      update=fn(input) {
+      update=fn(input : @core.InputSnapshot) {
         let cx = input.cursor_x
         let cy = input.cursor_y
         let dx = cx - prev_x.val

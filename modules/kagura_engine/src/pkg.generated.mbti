@@ -1,0 +1,60 @@
+// Generated using `moon info`, DON'T EDIT IT
+package "mizchi/kagura_engine"
+
+import {
+  "mizchi/kagura_core",
+  "mizchi/kagura_engine/audio",
+  "mizchi/kagura_engine/gfx",
+  "moonbitlang/core/debug",
+}
+
+// Values
+pub fn build_profiler_hud(Array[@gfx.DrawTrianglesCommand], @gfx.ImageHandle, @gfx.ShaderHandle, FrameProfile, Double, Double) -> Unit
+
+pub fn default_frame_profile() -> FrameProfile
+
+pub fn[T : @gfx.GraphicsDriver] render_commands(T, Array[@gfx.DrawTrianglesCommand], clear_color? : @gfx.Color, clear_enabled? : Bool) -> Unit raise
+
+pub fn reset_lifecycle_hooks() -> Unit
+
+pub fn run(update~ : (@kagura_core.InputSnapshot) -> Unit, draw~ : (EngineContext) -> Array[@gfx.DrawTrianglesCommand], on_frame? : () -> Unit, after_render? : (Double, Double) -> Unit, audio_ctx? : @audio.MixerAudioContext, audio_frames_per_tick? : Int, width? : Int, height? : Int, title? : String, canvas? : String) -> Unit
+
+pub fn[T : EngineGame] run_game(T, on_frame? : () -> Unit, after_render? : (Double, Double) -> Unit, audio_ctx? : @audio.MixerAudioContext, audio_frames_per_tick? : Int, width? : Int, height? : Int, title? : String, canvas? : String) -> Unit
+
+pub fn set_lifecycle_hooks(LifecycleHooks) -> Unit
+
+// Errors
+
+// Types and methods
+pub(all) struct EngineContext {
+  mut dst : @gfx.ImageHandle
+  shader : @gfx.ShaderHandle
+  mut screen_w : Int
+  mut screen_h : Int
+}
+
+pub(all) struct FrameProfile {
+  fps : Double
+  frame_time_ms : Double
+  update_ms : Double
+  draw_ms : Double
+  gpu_frame_ms : Double
+  draw_calls : Int
+  vertex_count : Int
+  asset_inflight : Int
+} derive(@debug.Debug)
+pub impl Show for FrameProfile
+
+pub(all) struct LifecycleHooks {
+  on_start : (String, String) -> Unit
+  on_stop : () -> Unit
+}
+
+// Type aliases
+
+// Traits
+pub(open) trait EngineGame {
+  update_game(Self, @kagura_core.InputSnapshot) -> Unit
+  draw_game(Self, EngineContext) -> Array[@gfx.DrawTrianglesCommand]
+}
+

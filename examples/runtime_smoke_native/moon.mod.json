@@ -4,15 +4,18 @@
   "source": "src",
   "warn-list": "-6-29-53-68",
   "deps": {
-    "mizchi/kagura": {
-      "path": "../.."
-    },
     "mizchi/native_runtime_hooks": {
       "path": "../native_runtime_hooks"
     },
     "mizchi/font": "0.7.0",
     "mizchi/kagura_game": {
       "path": "../../modules/game"
+    },
+    "mizchi/kagura_core": {
+      "path": "../../modules/kagura_core"
+    },
+    "mizchi/kagura_engine": {
+      "path": "../../modules/kagura_engine"
     }
   },
   "--moonbit-unstable-prebuild": "../../scripts/moon-prebuild-native-link-flags.cjs"

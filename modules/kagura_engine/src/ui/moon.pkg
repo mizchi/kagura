@@ -1,0 +1,5 @@
+import {
+  "mizchi/kagura_core" @core,
+  "mizchi/kagura_engine/gfx" @gfx,
+  "mizchi/kagura_core/inpututil" @inpututil,
+}

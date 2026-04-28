@@ -1,12 +1,12 @@
 import {
   "mizchi/signals/ui" @ui,
-  "mizchi/kagura/core" @core,
-  "mizchi/kagura/engine/gfx" @gfx,
-  "mizchi/kagura/engine/audio" @audio,
-  "mizchi/kagura/engine/renderer2d" @renderer2d,
-  "mizchi/kagura/engine/platform" @platform,
-  "mizchi/kagura/engine/runtime" @runtime,
-  "mizchi/kagura/engine" @engine,
+  "mizchi/kagura_core" @core,
+  "mizchi/kagura_engine/gfx" @gfx,
+  "mizchi/kagura_engine/audio" @audio,
+  "mizchi/kagura_engine/renderer2d" @renderer2d,
+  "mizchi/kagura_engine/platform" @platform,
+  "mizchi/kagura_engine/runtime" @runtime,
+  "mizchi/kagura_engine" @engine,
 }
 
 warnings = "-6-53-68"

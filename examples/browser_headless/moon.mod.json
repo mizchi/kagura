@@ -5,8 +5,9 @@
   "supported_targets": "native",
   "warn-list": "-6-29-53-68",
   "deps": {
-    "mizchi/kagura": { "path": "../.." },
-    "mizchi/native_runtime_hooks": { "path": "../native_runtime_hooks" },
+    "mizchi/native_runtime_hooks": {
+      "path": "../native_runtime_hooks"
+    },
     "mizchi/crater-renderer": {
       "path": "../../../crater/renderer"
     },
@@ -22,7 +23,10 @@
     "mizchi/crater-browser-native": {
       "path": "../../../crater/browser/native"
     },
-    "mizchi/v8": "0.2.0"
+    "mizchi/v8": "0.2.0",
+    "mizchi/kagura_engine": {
+      "path": "../../modules/kagura_engine"
+    }
   },
   "--moonbit-unstable-prebuild": "scripts/prebuild.mjs"
 }

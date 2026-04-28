@@ -2,7 +2,7 @@
 package "mizchi/kagura_game/physics2d"
 
 import {
-  "mizchi/kagura/core/vector",
+  "mizchi/kagura_core/vector",
   "mizchi/terrain/types",
   "moonbitlang/core/debug",
 }

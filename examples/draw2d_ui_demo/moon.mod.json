@@ -4,7 +4,11 @@
   "source": "src",
   "warn-list": "-6-29-53-68",
   "deps": {
-    "mizchi/kagura": { "path": "../.." },
-    "mizchi/web_runtime_hooks": { "path": "../web_runtime_hooks" }
+    "mizchi/web_runtime_hooks": {
+      "path": "../web_runtime_hooks"
+    },
+    "mizchi/kagura_engine": {
+      "path": "../../modules/kagura_engine"
+    }
   }
 }

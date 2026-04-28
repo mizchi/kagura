@@ -2,9 +2,9 @@
 package "mizchi/kagura_game/ecs"
 
 import {
-  "mizchi/kagura/core/animation3d",
-  "mizchi/kagura/core/transform3d",
-  "mizchi/kagura/engine/scene3d",
+  "mizchi/kagura_core/animation3d",
+  "mizchi/kagura_core/transform3d",
+  "mizchi/kagura_engine/scene3d",
   "mizchi/kagura_game/physics3d",
   "moonbitlang/core/debug",
 }

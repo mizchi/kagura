@@ -2,8 +2,8 @@
 package "mizchi/kagura_game/collision3d"
 
 import {
-  "mizchi/kagura/core/math3d",
-  "mizchi/kagura/core/mesh3d",
+  "mizchi/kagura_core/math3d",
+  "mizchi/kagura_core/mesh3d",
   "moonbitlang/core/debug",
 }
 

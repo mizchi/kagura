@@ -2,7 +2,7 @@
 package "mizchi/kagura_game/sprite_packer"
 
 import {
-  "mizchi/kagura/engine/asset",
+  "mizchi/kagura_engine/asset",
   "mizchi/kagura_game/tilemap2d",
   "moonbitlang/core/debug",
 }

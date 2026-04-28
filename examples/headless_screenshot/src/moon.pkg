@@ -1,5 +1,5 @@
 import {
-  "mizchi/kagura/engine/gfx_wgpu_native" @wgpu_native,
+  "mizchi/kagura_engine/gfx_wgpu_native" @wgpu_native,
 }
 
 warnings = "-29"

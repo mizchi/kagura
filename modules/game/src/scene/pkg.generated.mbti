@@ -2,9 +2,9 @@
 package "mizchi/kagura_game/scene"
 
 import {
-  "mizchi/kagura/core",
-  "mizchi/kagura/engine/audio",
-  "mizchi/kagura/engine/gfx",
+  "mizchi/kagura_core",
+  "mizchi/kagura_engine/audio",
+  "mizchi/kagura_engine/gfx",
   "mizchi/signals/ui",
   "moonbitlang/core/debug",
 }
@@ -28,7 +28,7 @@ pub fn rect_outline(x~ : Double, y~ : Double, w~ : Double, h~ : Double, line_wid
 
 pub fn render_scene(@ui.Node[Unit, SceneAttrValue], @gfx.ImageHandle, @gfx.ShaderHandle, Double, Double) -> Array[@gfx.DrawTrianglesCommand]
 
-pub fn run(view~ : () -> @ui.Node[Unit, SceneAttrValue], update~ : (@core.InputSnapshot) -> Unit, on_frame? : (Array[@gfx.DrawTrianglesCommand], @gfx.ImageHandle, @gfx.ShaderHandle, Double, Double) -> Unit, audio_ctx? : @audio.MixerAudioContext, width? : Int, height? : Int, title? : String, canvas? : String) -> Unit
+pub fn run(view~ : () -> @ui.Node[Unit, SceneAttrValue], update~ : (@kagura_core.InputSnapshot) -> Unit, on_frame? : (Array[@gfx.DrawTrianglesCommand], @gfx.ImageHandle, @gfx.ShaderHandle, Double, Double) -> Unit, audio_ctx? : @audio.MixerAudioContext, width? : Int, height? : Int, title? : String, canvas? : String) -> Unit
 
 pub fn[T : SceneGame] run_game(T, on_frame? : (Array[@gfx.DrawTrianglesCommand], @gfx.ImageHandle, @gfx.ShaderHandle, Double, Double) -> Unit, audio_ctx? : @audio.MixerAudioContext, width? : Int, height? : Int, title? : String, canvas? : String) -> Unit
 
@@ -51,7 +51,7 @@ pub type SceneNode = @ui.Node[Unit, SceneAttrValue]
 
 // Traits
 pub(open) trait SceneGame {
-  update_game(Self, @core.InputSnapshot) -> Unit
+  update_game(Self, @kagura_core.InputSnapshot) -> Unit
   view_game(Self) -> @ui.Node[Unit, SceneAttrValue]
 }
 

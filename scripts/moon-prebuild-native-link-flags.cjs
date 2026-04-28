@@ -4,7 +4,8 @@ const fs = require("node:fs");
 const path = require("node:path");
 const { execFileSync } = require("node:child_process");
 const os = process.env.KAGURA_FORCE_OS || process.platform;
-const cwd = process.env.KAGURA_FORCE_CWD || process.cwd();
+const repoRoot = path.resolve(__dirname, "..");
+const depsRoot = path.join(repoRoot, "deps");
 
 let platformLibs = "";
 let audioLibs = "";
@@ -90,9 +91,8 @@ function resolveVcpkgGlfwRoot() {
 }
 
 function resolveNativeCc() {
-  const scriptDir = path.relative(cwd, __dirname) || ".";
   const wrapperName = os === "win32" ? "moon-native-cc.cmd" : "moon-native-cc.sh";
-  return toForwardSlash(path.join(scriptDir, wrapperName));
+  return toForwardSlash(path.join(__dirname, wrapperName));
 }
 
 const glfwCflags = resolveGlfwCflags();
@@ -110,12 +110,18 @@ if (os === "darwin") {
   audioLibs = `${platformLibs} -lwinmm`;
 }
 
+const wgpuLibDir = toForwardSlash(path.join(depsRoot, "wgpu-native", "lib"));
+const wgpuIncludeDir = toForwardSlash(path.join(depsRoot, "wgpu-native", "include"));
+const miniaudioIncludeDir = toForwardSlash(path.join(depsRoot, "miniaudio"));
 // Windows linker doesn't support -Wl,-rpath
-const wgpuRpath = os === "win32" ? "" : "-Wl,-rpath,../../deps/wgpu-native/lib";
+const wgpuRpath = os === "win32" ? "" : `-Wl,-rpath,${wgpuLibDir}`;
 
 const payload = {
   vars: {
     KAGURA_NATIVE_CC: resolveNativeCc(),
+    KAGURA_NATIVE_WGPU_INCLUDE: wgpuIncludeDir,
+    KAGURA_NATIVE_WGPU_LIB_DIR: wgpuLibDir,
+    KAGURA_NATIVE_MINIAUDIO_INCLUDE: miniaudioIncludeDir,
     KAGURA_NATIVE_GLFW_CFLAGS: glfwCflags,
     KAGURA_NATIVE_GLFW_LIBS: glfwLibs,
     KAGURA_NATIVE_PLATFORM_LIBS: platformLibs,

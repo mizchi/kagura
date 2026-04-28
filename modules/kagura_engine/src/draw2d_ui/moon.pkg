@@ -1,0 +1,7 @@
+import {
+  "mizchi/kagura_engine/gfx" @gfx,
+  "mizchi/kagura_engine/text" @text,
+  "mizchi/font" @font,
+  "moonbitlang/core/cmp" @cmp,
+  "moonbitlang/core/math" @math,
+}

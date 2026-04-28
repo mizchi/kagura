@@ -2,8 +2,8 @@ import {
   "moonbitlang/core/math" @math,
   "mizchi/signals" @signals,
   "mizchi/kagura_game/scene" @scene,
-  "mizchi/kagura/core" @core,
-  "mizchi/kagura/core/inpututil" @inpututil,
+  "mizchi/kagura_core" @core,
+  "mizchi/kagura_core/inpututil" @inpututil,
 }
 
 warnings = "-29"

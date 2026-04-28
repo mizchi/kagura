@@ -1,5 +1,5 @@
 import {
-  "mizchi/kagura/engine/asset" @asset,
+  "mizchi/kagura_engine/asset" @asset,
 }
 
 options(

@@ -1,0 +1,8 @@
+import {
+  "mizchi/kagura_engine/asset" @asset,
+  "mizchi/kagura_engine/debugutil" @debugutil,
+  "mizchi/kagura_engine/draw2d" @draw2d,
+  "mizchi/kagura_engine/gfx" @gfx,
+}
+
+warnings = "-1"

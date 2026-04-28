@@ -1,14 +1,14 @@
 import {
   "moonbitlang/core/encoding/utf8" @utf8,
-  "mizchi/kagura/engine/asset" @asset,
-  "mizchi/kagura/engine/audio" @audio,
-  "mizchi/kagura/core" @core,
-  "mizchi/kagura/engine" @engine,
-  "mizchi/kagura/engine/gfx" @gfx,
-  "mizchi/kagura/core/image_palette" @image_palette,
-  "mizchi/kagura/core/payload2d" @payload2d,
-  "mizchi/kagura/engine/platform" @platform,
-  "mizchi/kagura/engine/text" @text,
+  "mizchi/kagura_engine/asset" @asset,
+  "mizchi/kagura_engine/audio" @audio,
+  "mizchi/kagura_core" @core,
+  "mizchi/kagura_engine" @engine,
+  "mizchi/kagura_engine/gfx" @gfx,
+  "mizchi/kagura_core/image_palette" @image_palette,
+  "mizchi/kagura_core/payload2d" @payload2d,
+  "mizchi/kagura_engine/platform" @platform,
+  "mizchi/kagura_engine/text" @text,
 }
 
 warnings = "-1-29"

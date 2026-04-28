@@ -1,6 +1,6 @@
 import {
   "mizchi/native_runtime_hooks" @native_hooks,
-  "mizchi/kagura/engine/gfx_wgpu_native" @wgpu_native,
+  "mizchi/kagura_engine/gfx_wgpu_native" @wgpu_native,
   "mizchi/pixelmatch" @pixelmatch,
   "mizchi/image" @image,
 }

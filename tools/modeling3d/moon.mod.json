@@ -11,5 +11,10 @@
     "docs",
     "scripts",
     "output"
-  ]
+  ],
+  "deps": {
+    "mizchi/kagura_core": {
+      "path": "../../modules/kagura_core"
+    }
+  }
 }

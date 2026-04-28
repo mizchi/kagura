@@ -2,8 +2,8 @@ import {
   "moonbitlang/core/bench" @bench,
   "mizchi/signals" @signals,
   "mizchi/kagura_game/scene" @scene,
-  "mizchi/kagura/core" @core,
-  "mizchi/kagura/core/inpututil" @inpututil,
+  "mizchi/kagura_core" @core,
+  "mizchi/kagura_core/inpututil" @inpututil,
   "mizchi/web_runtime_hooks" @web_hooks,
 }
 

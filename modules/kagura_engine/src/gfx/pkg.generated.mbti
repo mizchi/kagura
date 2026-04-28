@@ -1,0 +1,556 @@
+// Generated using `moon info`, DON'T EDIT IT
+package "mizchi/kagura_engine/gfx"
+
+import {
+  "mizchi/kagura_engine/platform",
+  "moonbitlang/core/debug",
+}
+
+// Values
+pub fn blend_factor_from_int(Int) -> BlendFactor
+
+pub fn blend_factor_to_int(BlendFactor) -> Int
+
+pub fn blend_mode_from_int(Int) -> BlendMode
+
+pub fn blend_mode_to_equation(BlendMode) -> BlendEquation
+
+pub fn blend_mode_to_int(BlendMode) -> Int
+
+pub fn blend_operation_from_int(Int) -> BlendOperation
+
+pub fn blend_operation_to_int(BlendOperation) -> Int
+
+pub fn build_builtin_shader_source_ex(BuiltinShaderKeyEx) -> String
+
+pub fn[T : UniformCanonicalizer] build_canonical_uniforms(T, UniformLayout, Array[NamedUniform], PreservedUniformContext, ShaderIR) -> PackedUniforms raise
+
+pub fn build_draw_command_dispatch(DrawTrianglesCommand) -> DrawCommandDispatch
+
+pub fn build_resource_cache_key(Int, Array[Int]) -> Int
+
+pub fn builtin_address_from_int(Int) -> BuiltinShaderAddress
+
+pub fn builtin_address_to_int(BuiltinShaderAddress) -> Int
+
+pub fn builtin_filter_from_int(Int) -> BuiltinShaderFilter
+
+pub fn builtin_filter_to_int(BuiltinShaderFilter) -> Int
+
+pub fn builtin_key_to_ex(BuiltinShaderKey) -> BuiltinShaderKeyEx
+
+pub fn builtin_shader_cache_stats(BasicBuiltinShaderSourceRepo) -> BuiltinShaderCacheStats
+
+pub fn builtin_shader_source_cache_limit(BasicBuiltinShaderSourceRepo) -> Int
+
+pub fn builtin_shader_source_cache_size(BasicBuiltinShaderSourceRepo) -> Int
+
+pub fn[T : ShaderFrontend] calc_shader_source_hash(T, ShaderCompileRequest) -> ShaderSourceHash raise
+
+pub fn clear_builtin_shader_source_cache(BasicBuiltinShaderSourceRepo) -> Unit
+
+pub fn[T : GraphicsDriver] clear_screen(T, Color) -> Unit raise
+
+pub fn compare_framebuffer_snapshots(FramebufferSnapshot, FramebufferSnapshot, Int) -> PixelDiffResult
+
+pub fn[T : ShaderFrontend] compile_shader_ir(T, ShaderCompileRequest) -> ShaderIR raise
+
+pub fn compute_expected_preserved_dwords(PreservedUniformContext) -> Int
+
+pub fn create_framebuffer_snapshot(&GraphicsDriver, Int, Int, Int, Int) -> FramebufferSnapshot? raise
+
+pub fn create_null_graphics(Int, Int) -> StubGraphicsDriver
+
+pub fn create_webgl_graphics(@platform.SurfaceToken, GraphicsBackendOptions) -> StubGraphicsDriver
+
+pub fn create_webgpu_graphics(@platform.SurfaceToken, GraphicsBackendOptions) -> StubGraphicsDriver
+
+pub fn create_wgpu_native_graphics(@platform.SurfaceToken, GraphicsBackendOptions) -> StubGraphicsDriver
+
+pub fn default_builtin_shader_source() -> String
+
+pub fn default_graphics_backend_options() -> GraphicsBackendOptions
+
+pub fn default_sampler_spec() -> SamplerSpec
+
+pub fn default_shader_entrypoints() -> ShaderEntrypoints
+
+pub fn double_to_f32_bits(Double) -> Int
+
+pub fn estimated_draw_call_count(DrawTrianglesCommand) -> Int
+
+pub fn estimated_total_index_count(DrawTrianglesCommand) -> Int
+
+pub fn f32_bits_to_double(Int) -> Double
+
+pub fn filter_mode_from_int(Int) -> FilterMode
+
+pub fn filter_mode_to_int(FilterMode) -> Int
+
+pub fn[T : GraphicsDriver, Q : CommandQueue] flush_commands(T, Q, Bool, clear_color? : Color) -> Unit raise
+
+pub fn graphics_resize_stats(StubGraphicsDriver) -> GraphicsResizeStats
+
+pub fn new_basic_builtin_shader_source_repo() -> BasicBuiltinShaderSourceRepo
+
+pub fn new_basic_shader_frontend() -> BasicShaderFrontend
+
+pub fn new_basic_uniform_canonicalizer() -> BasicUniformCanonicalizer
+
+pub fn new_color(Double, Double, Double, Double) -> Color
+
+pub fn new_draw_triangles_command(ImageHandle, ShaderHandle, Array[DstRegion], Int, Int, Int, BlendMode, Array[Double], Array[Int], Array[Int], Array[Int], instance_count? : Int, resource_cache_key? : Int, vertex_stride_hint? : Int) -> DrawTrianglesCommand
+
+pub fn new_dst_region(Int, Int, Int, Int, Int) -> DstRegion
+
+pub fn new_image_handle(Int, Int, Int) -> ImageHandle
+
+pub fn new_native_graphics_hooks((Int, Int) -> Bool, (Bool, RenderPassDesc) -> Unit, (Bool, Bool) -> Unit, (Bool, DrawTrianglesCommand) -> Unit, (Bool, Int, Int) -> Unit) -> NativeGraphicsHooks
+
+pub fn new_native_graphics_hooks_full((Int, Int) -> Bool, (Bool, RenderPassDesc) -> Unit, (Bool, Bool) -> Unit, (Bool, DrawTrianglesCommand) -> Unit, (Bool, Int, Int) -> Unit, (Bool, Int, Int, Int, Int) -> Array[Int]?, (Bool, Int, Int, Int) -> Unit) -> NativeGraphicsHooks
+
+pub fn new_pipeline_handle(Int) -> PipelineHandle
+
+pub fn new_render_pass_desc(Color, Bool, present? : Bool) -> RenderPassDesc
+
+pub fn new_shader_handle(Int, String) -> ShaderHandle
+
+pub fn new_simple_command_queue() -> SimpleCommandQueue
+
+pub fn new_web_graphics_hooks((GraphicsBackendKind, Int, Int) -> Bool, (Bool, GraphicsBackendKind, RenderPassDesc) -> Unit, (Bool, GraphicsBackendKind, Bool) -> Unit, (Bool, GraphicsBackendKind, DrawTrianglesCommand) -> Unit, (Bool, GraphicsBackendKind, Int, Int) -> Unit) -> WebGraphicsHooks
+
+pub fn new_web_graphics_hooks_full((GraphicsBackendKind, Int, Int) -> Bool, (Bool, GraphicsBackendKind, RenderPassDesc) -> Unit, (Bool, GraphicsBackendKind, Bool) -> Unit, (Bool, GraphicsBackendKind, DrawTrianglesCommand) -> Unit, (Bool, GraphicsBackendKind, Int, Int) -> Unit, (Bool, GraphicsBackendKind, Int, Int, Int, Int) -> Array[Int]?) -> WebGraphicsHooks
+
+pub fn parse_kage_noperspective_directive(String) -> Bool
+
+pub fn pixel_diff_ratio(PixelDiffResult) -> Double
+
+pub fn reset_graphics_clock_provider() -> Unit
+
+pub fn reset_native_graphics_hooks() -> Unit
+
+pub fn reset_web_graphics_hooks() -> Unit
+
+pub fn sampler_spec(BuiltinShaderFilter, BuiltinShaderAddress) -> SamplerSpec
+
+pub fn set_graphics_clock_provider(() -> Double) -> Unit
+
+pub fn set_native_graphics_hooks(NativeGraphicsHooks) -> Unit
+
+pub fn set_web_graphics_hooks(WebGraphicsHooks) -> Unit
+
+pub fn shader_hash_eq(ShaderSourceHash, ShaderSourceHash) -> Bool
+
+pub fn shader_unit_eq(ShaderUnit, ShaderUnit) -> Bool
+
+pub fn validate_preserved_uniform_context(PreservedUniformContext) -> String?
+
+pub fn validate_shader_compile_request(ShaderCompileRequest) -> String?
+
+pub fn validate_uniform_layout(UniformLayout) -> String?
+
+// Errors
+
+// Types and methods
+pub struct BasicBuiltinShaderSourceRepo {
+  mut cache : Array[BuiltinShaderSourceCacheEntry]
+  mut cache_ex : Array[BuiltinShaderSourceCacheEntryEx]
+  mut tick : Int
+  max_cache_entries : Int
+  mut hit_count : Int
+  mut miss_count : Int
+}
+pub impl BuiltinShaderSourceRepo for BasicBuiltinShaderSourceRepo
+
+pub struct BasicShaderFrontend {
+}
+pub impl ShaderFrontend for BasicShaderFrontend
+
+pub struct BasicUniformCanonicalizer {
+}
+pub impl UniformCanonicalizer for BasicUniformCanonicalizer
+
+pub struct BlendEquation {
+  src_factor_rgb : BlendFactor
+  dst_factor_rgb : BlendFactor
+  op_rgb : BlendOperation
+  src_factor_alpha : BlendFactor
+  dst_factor_alpha : BlendFactor
+  op_alpha : BlendOperation
+} derive(@debug.Debug)
+pub impl Show for BlendEquation
+
+pub enum BlendFactor {
+  Zero
+  One
+  SrcAlpha
+  OneMinusSrcAlpha
+  DstAlpha
+  OneMinusDstAlpha
+  SrcColor
+  OneMinusSrcColor
+  DstColor
+  OneMinusDstColor
+} derive(@debug.Debug)
+pub impl Show for BlendFactor
+
+pub enum BlendMode {
+  Copy
+  Alpha
+  Add
+  Multiply
+  Custom(BlendEquation)
+} derive(@debug.Debug)
+pub impl Show for BlendMode
+
+pub enum BlendOperation {
+  Add
+  Subtract
+  ReverseSubtract
+  Min
+  Max
+} derive(@debug.Debug)
+pub impl Show for BlendOperation
+
+pub enum BuiltinShaderAddress {
+  Unsafe
+  ClampToZero
+  ClampToEdge
+  Repeat
+  MirrorRepeat
+} derive(@debug.Debug)
+pub impl Show for BuiltinShaderAddress
+
+pub struct BuiltinShaderCacheStats {
+  hit_count : Int
+  miss_count : Int
+} derive(@debug.Debug)
+pub impl Show for BuiltinShaderCacheStats
+
+pub enum BuiltinShaderFilter {
+  Nearest
+  Linear
+  Pixelated
+} derive(@debug.Debug)
+pub impl Show for BuiltinShaderFilter
+
+pub struct BuiltinShaderKey {
+  filter : BuiltinShaderFilter
+  address : BuiltinShaderAddress
+  use_color_m : Bool
+} derive(@debug.Debug)
+pub impl Show for BuiltinShaderKey
+
+pub struct BuiltinShaderKeyEx {
+  sampler : SamplerSpec
+  use_color_m : Bool
+} derive(@debug.Debug)
+pub impl Show for BuiltinShaderKeyEx
+
+type BuiltinShaderSourceCacheEntry
+
+type BuiltinShaderSourceCacheEntryEx
+
+pub struct Color {
+  r : Double
+  g : Double
+  b : Double
+  a : Double
+} derive(@debug.Debug)
+pub impl Show for Color
+
+pub struct DrawCommandDispatch {
+  draw_calls : Int
+  pipeline_id : Int
+  uniform_hash : Int
+  blend_mode : Int
+  dst_image_id : Int
+  shader_id : Int
+  index_offset : Int
+  region_count : Int
+  total_index_count : Int
+  vertex_float_count : Int
+  index_count : Int
+  src_image_count : Int
+  uniform_dword_count : Int
+} derive(@debug.Debug)
+pub impl Show for DrawCommandDispatch
+
+pub struct DrawTrianglesCommand {
+  dst : ImageHandle
+  shader : ShaderHandle
+  dst_regions : Array[DstRegion]
+  index_offset : Int
+  pipeline_id : Int
+  uniform_hash : Int
+  blend : BlendMode
+  vertex_data : Array[Double]
+  indices : Array[Int]
+  src_image_ids : Array[Int]
+  uniform_dwords : Array[Int]
+  instance_count : Int
+  resource_cache_key : Int
+  vertex_stride_hint : Int
+}
+
+pub struct DstRegion {
+  x : Int
+  y : Int
+  width : Int
+  height : Int
+  index_count : Int
+} derive(@debug.Debug)
+pub impl Show for DstRegion
+
+pub enum FilterMode {
+  Nearest
+  Linear
+  Pixelated
+} derive(@debug.Debug)
+pub impl Show for FilterMode
+
+pub struct FloatRect {
+  x : Double
+  y : Double
+  width : Double
+  height : Double
+} derive(@debug.Debug)
+pub impl Show for FloatRect
+
+pub struct FramebufferSnapshot {
+  x : Int
+  y : Int
+  width : Int
+  height : Int
+  pixels : Array[Int]
+} derive(@debug.Debug)
+pub impl Show for FramebufferSnapshot
+
+pub enum GraphicsBackendKind {
+  WgpuNative
+  WebGpu
+  WebGl2
+  Null
+} derive(@debug.Debug)
+pub impl Show for GraphicsBackendKind
+
+pub struct GraphicsBackendOptions {
+  enable_validation : Bool
+  prefer_low_power : Bool
+  enable_vsync : Bool
+} derive(@debug.Debug)
+pub impl Show for GraphicsBackendOptions
+
+pub struct GraphicsResizeStats {
+  resize_count : Int
+  suppressed_count : Int
+  current_width : Int
+  current_height : Int
+  last_resize_duration_ms : Double
+  total_resize_duration_ms : Double
+} derive(@debug.Debug)
+pub impl Show for GraphicsResizeStats
+
+pub struct ImageHandle {
+  id : Int
+  width : Int
+  height : Int
+} derive(@debug.Debug)
+pub impl Show for ImageHandle
+
+pub struct IntSize {
+  width : Int
+  height : Int
+} derive(@debug.Debug)
+pub impl Show for IntSize
+
+pub struct NamedUniform {
+  name : String
+  value : UniformValue
+} derive(@debug.Debug)
+pub impl Show for NamedUniform
+
+pub struct NativeGraphicsHooks {
+  try_initialize : (Int, Int) -> Bool
+  on_begin : (Bool, RenderPassDesc) -> Unit
+  on_end : (Bool, Bool) -> Unit
+  on_draw : (Bool, DrawTrianglesCommand) -> Unit
+  on_resize : (Bool, Int, Int) -> Unit
+  on_read_pixels : (Bool, Int, Int, Int, Int) -> Array[Int]?
+  on_new_image : (Bool, Int, Int, Int) -> Unit
+}
+
+pub struct PackedUniforms {
+  dwords : Array[Int]
+} derive(@debug.Debug)
+pub impl Show for PackedUniforms
+
+pub struct PipelineHandle {
+  id : Int
+} derive(@debug.Debug)
+pub impl Show for PipelineHandle
+
+pub struct PixelDiffResult {
+  total_pixels : Int
+  diff_pixels : Int
+  max_channel_diff : Int
+} derive(@debug.Debug)
+pub impl Show for PixelDiffResult
+
+pub struct PreservedUniformContext {
+  dst_texture_size : IntSize
+  dst_region : FloatRect
+  src_texture_sizes : Array[IntSize]
+  src_regions : Array[FloatRect]
+} derive(@debug.Debug)
+pub impl Show for PreservedUniformContext
+
+pub struct RenderPassDesc {
+  clear_color : Color
+  clear_enabled : Bool
+  present : Bool
+} derive(@debug.Debug)
+pub impl Show for RenderPassDesc
+
+pub struct SamplerSpec {
+  filter : BuiltinShaderFilter
+  address_u : BuiltinShaderAddress
+  address_v : BuiltinShaderAddress
+} derive(@debug.Debug)
+pub impl Show for SamplerSpec
+
+pub struct ShaderCompileRequest {
+  source : String
+  unit_hint : ShaderUnit?
+  src_image_count : Int
+  entrypoints : ShaderEntrypoints
+  debug_name : String
+} derive(@debug.Debug)
+pub impl Show for ShaderCompileRequest
+
+pub struct ShaderEntrypoints {
+  vertex : String
+  fragment : String
+} derive(@debug.Debug)
+pub impl Show for ShaderEntrypoints
+
+pub struct ShaderHandle {
+  id : Int
+  source : String
+} derive(@debug.Debug)
+pub impl Show for ShaderHandle
+
+pub struct ShaderIR {
+  source : String
+  unit : ShaderUnit
+  noperspective : Bool
+  src_image_count : Int
+  entrypoints : ShaderEntrypoints
+  debug_name : String
+  source_hash : ShaderSourceHash
+} derive(@debug.Debug)
+pub impl Show for ShaderIR
+
+pub struct ShaderSourceHash {
+  value : String
+} derive(@debug.Debug)
+pub impl Show for ShaderSourceHash
+
+pub enum ShaderUnit {
+  Pixels
+  Texels
+} derive(@debug.Debug)
+pub impl Show for ShaderUnit
+
+pub struct SimpleCommandQueue {
+  mut commands : Array[DrawTrianglesCommand]
+}
+pub impl CommandQueue for SimpleCommandQueue
+
+#alias(NativeGraphicsDriver)
+#alias(NullGraphicsDriver)
+#alias(WebGlGraphicsDriver)
+#alias(WebGpuGraphicsDriver)
+pub struct StubGraphicsDriver {
+  backend : GraphicsBackendKind
+  mut width : Int
+  mut height : Int
+  mut initialized : Bool
+  mut native_active : Bool
+  mut web_active : Bool
+  mut next_id : Int
+  mut begin_count : Int
+  mut end_count : Int
+  mut draw_count : Int
+  mut resize_count : Int
+  mut resize_suppressed_count : Int
+  mut last_resize_duration_ms : Double
+  mut total_resize_duration_ms : Double
+}
+pub impl GraphicsDriver for StubGraphicsDriver
+
+pub struct UniformLayout {
+  names : Array[String]
+  dword_counts : Array[Int]
+  preserved_prefix_dwords : Int
+} derive(@debug.Debug)
+pub impl Show for UniformLayout
+
+pub enum UniformValue {
+  Bool(Bool)
+  Int(Int)
+  Float(Double)
+  Bools(Array[Bool])
+  Ints(Array[Int])
+  Floats(Array[Double])
+} derive(@debug.Debug)
+pub impl Show for UniformValue
+
+pub struct WebGraphicsHooks {
+  try_initialize : (GraphicsBackendKind, Int, Int) -> Bool
+  on_begin : (Bool, GraphicsBackendKind, RenderPassDesc) -> Unit
+  on_end : (Bool, GraphicsBackendKind, Bool) -> Unit
+  on_draw : (Bool, GraphicsBackendKind, DrawTrianglesCommand) -> Unit
+  on_resize : (Bool, GraphicsBackendKind, Int, Int) -> Unit
+  on_read_pixels : (Bool, GraphicsBackendKind, Int, Int, Int, Int) -> Array[Int]?
+}
+
+// Type aliases
+
+// Traits
+pub trait BuiltinShaderSourceRepo {
+  shader_source(Self, BuiltinShaderKey) -> String
+  shader_source_ex(Self, BuiltinShaderKeyEx) -> String
+}
+
+pub trait CommandQueue {
+  enqueue_draw_triangles(Self, DrawTrianglesCommand) -> Unit
+  flush(Self) -> Array[DrawTrianglesCommand]
+}
+
+pub trait GraphicsBackendFactory {
+  create(Self, GraphicsBackendKind, @platform.SurfaceToken, GraphicsBackendOptions) -> Unit raise
+}
+
+pub trait GraphicsDriver {
+  initialize(Self) -> Unit raise
+  begin(Self, RenderPassDesc) -> Unit raise
+  end(Self, Bool) -> Unit raise
+  resize(Self, Int, Int) -> Unit raise
+  new_image(Self, Int, Int) -> ImageHandle raise
+  new_shader(Self, String) -> ShaderHandle raise
+  draw_triangles(Self, DrawTrianglesCommand) -> Unit raise
+  read_pixels(Self, Int, Int, Int, Int) -> Array[Int]? raise
+}
+
+pub trait ShaderFrontend {
+  compile_ir(Self, ShaderCompileRequest) -> ShaderIR raise
+  calc_source_hash(Self, ShaderCompileRequest) -> ShaderSourceHash raise
+}
+
+pub trait UniformCanonicalizer {
+  append_user_uniforms(Self, UniformLayout, Array[NamedUniform]) -> PackedUniforms raise
+  prepend_preserved_uniforms(Self, PackedUniforms, PreservedUniformContext) -> PackedUniforms
+  filter_unused_uniforms(Self, ShaderIR, UniformLayout, PackedUniforms) -> PackedUniforms
+}
+

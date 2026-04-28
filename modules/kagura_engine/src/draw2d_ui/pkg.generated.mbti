@@ -1,0 +1,58 @@
+// Generated using `moon info`, DON'T EDIT IT
+package "mizchi/kagura_engine/draw2d_ui"
+
+import {
+  "mizchi/font",
+  "mizchi/kagura_engine/gfx",
+  "mizchi/kagura_engine/text",
+}
+
+// Values
+pub fn border_vertices(Double, Double, Double, Double, BorderWidths, Double, Double) -> (Array[Double], Array[Int])
+
+pub fn filled_rect_vertices(Double, Double, Double, Double, Double, Double) -> (Array[Double], Array[Int])
+
+pub fn filled_rounded_rect_vertices(Double, Double, Double, Double, Double, Double, Double, Double, Double, Double) -> (Array[Double], Array[Int])
+
+pub fn measure_text(@text.TextRenderer, String, Double) -> @font.TextMetrics
+
+pub fn render_text(@text.TextRenderer, String, Double, Double, Double, @gfx.ImageHandle, @gfx.ShaderHandle, Int, Double, Double) -> Array[@gfx.DrawTrianglesCommand]
+
+// Errors
+
+// Types and methods
+pub(all) struct BorderWidths {
+  top : Double
+  right : Double
+  bottom : Double
+  left : Double
+}
+pub fn BorderWidths::has_any(Self) -> Bool
+pub fn BorderWidths::uniform(Double) -> Self
+pub fn BorderWidths::zero() -> Self
+
+pub(all) struct ScissorRect {
+  x : Int
+  y : Int
+  width : Int
+  height : Int
+}
+pub fn ScissorRect::from_screen(Int, Int) -> Self
+pub fn ScissorRect::intersect(Self, Self) -> Self?
+pub fn ScissorRect::new(Int, Int, Int, Int) -> Self
+pub fn ScissorRect::to_dst_region(Self, Int) -> @gfx.DstRegion
+
+pub struct ScissorStack {
+  stack : Array[ScissorRect]
+}
+pub fn ScissorStack::current(Self) -> ScissorRect
+pub fn ScissorStack::depth(Self) -> Int
+pub fn ScissorStack::is_visible(Self) -> Bool
+pub fn ScissorStack::new(Int, Int) -> Self
+pub fn ScissorStack::pop(Self) -> Unit
+pub fn ScissorStack::push(Self, ScissorRect) -> Bool
+
+// Type aliases
+
+// Traits
+

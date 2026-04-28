@@ -2,8 +2,8 @@
 package "mizchi/kagura_game/tilemap2d"
 
 import {
-  "mizchi/kagura/engine/asset",
-  "mizchi/kagura/engine/gfx",
+  "mizchi/kagura_engine/asset",
+  "mizchi/kagura_engine/gfx",
   "moonbitlang/core/debug",
 }
 

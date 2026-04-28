@@ -2,18 +2,18 @@
 package "mizchi/kagura_game/ai"
 
 import {
-  "mizchi/kagura/core",
+  "mizchi/kagura_core",
   "moonbitlang/core/debug",
 }
 
 // Values
-pub fn[P : AIPolicy, S : SensorBridge, A : ActuatorBridge, C : AIScheduler] create_ai_post_update_hook(P, S, A, C, AIRuntimeState) -> (Int, @core.FrameBudget) -> Unit
+pub fn[P : AIPolicy, S : SensorBridge, A : ActuatorBridge, C : AIScheduler] create_ai_post_update_hook(P, S, A, C, AIRuntimeState) -> (Int, @kagura_core.FrameBudget) -> Unit
 
 pub fn default_ai_budget() -> AIBudget
 
 pub fn default_ai_runtime_config() -> AIRuntimeConfig
 
-pub fn[P : AIPolicy, S : SensorBridge, A : ActuatorBridge, C : AIScheduler] run_ai_tick(P, S, A, C, @core.FrameBudget, Int, BlackboardSnapshot) -> BlackboardSnapshot raise
+pub fn[P : AIPolicy, S : SensorBridge, A : ActuatorBridge, C : AIScheduler] run_ai_tick(P, S, A, C, @kagura_core.FrameBudget, Int, BlackboardSnapshot) -> BlackboardSnapshot raise
 
 // Errors
 
@@ -88,7 +88,7 @@ pub impl Show for BlackboardSnapshot
 
 pub struct DecisionContext {
   tick : Int
-  frame : @core.FrameBudget
+  frame : @kagura_core.FrameBudget
   deterministic_seed : Int
   budget : AIBudget
   perception : SensorSnapshot

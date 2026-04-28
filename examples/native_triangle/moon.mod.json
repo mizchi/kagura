@@ -4,9 +4,6 @@
   "source": "src",
   "warn-list": "-6-29-53-68",
   "deps": {
-    "mizchi/kagura": {
-      "path": "../.."
-    },
     "mizchi/native_runtime_hooks": {
       "path": "../native_runtime_hooks"
     }

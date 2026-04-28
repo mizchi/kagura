@@ -4,6 +4,11 @@
   "source": "src",
   "warn-list": "-6-29-53-68",
   "deps": {
-    "mizchi/kagura": { "path": "../.." }
+    "mizchi/kagura_core": {
+      "path": "../../modules/kagura_core"
+    },
+    "mizchi/kagura_engine": {
+      "path": "../../modules/kagura_engine"
+    }
   }
 }

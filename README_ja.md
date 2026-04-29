@@ -22,9 +22,9 @@ moon.work
 |   |-- platform/, gfx/        platform/gfx/native/web backend
 |   |-- runtime/, asset/       runtime loop、asset、audio、text、UI
 |   `-- gltf/, renderer*/      glTF 変換と 2D/3D renderer facade
+|-- mizchi/kagura_physics     再利用可能な physics / collision / pathfinding
 |-- mizchi/kagura_game        ゲーム寄りの package 群
 |   |-- scene/                 宣言的 2D Scene API
-|   |-- physics2d/, physics3d/ 物理・collision 統合
 |   `-- ai/, ecs/, tilemap2d/  ゲームシステムと補助機能
 `-- mizchi/kagura_js_runtime  JS 専用 WebGPU runtime helper
 ```

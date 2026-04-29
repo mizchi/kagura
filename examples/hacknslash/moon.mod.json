@@ -15,6 +15,9 @@
     },
     "mizchi/kagura_core": {
       "path": "../../modules/kagura_core"
+    },
+    "mizchi/kagura_physics": {
+      "path": "../../modules/physics"
     }
   }
 }

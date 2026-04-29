@@ -1,5 +1,5 @@
 // Generated using `moon info`, DON'T EDIT IT
-package "mizchi/kagura_game/collision3d"
+package "mizchi/kagura_physics/collision3d"
 
 import {
   "mizchi/kagura_core/math3d",

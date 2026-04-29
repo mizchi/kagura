@@ -1,7 +1,7 @@
 {
   "name": "mizchi/kagura_game",
   "version": "0.1.0",
-  "description": "Gameplay, physics, scene, and game-specific helpers for Kagura",
+  "description": "Gameplay, scene, and game-specific helpers for Kagura",
   "repository": "https://github.com/mizchi/kagura",
   "license": "Apache-2.0",
   "source": "src",
@@ -15,6 +15,9 @@
     },
     "mizchi/kagura_engine": {
       "path": "../kagura_engine"
+    },
+    "mizchi/kagura_physics": {
+      "path": "../physics"
     }
   },
   "preferred-target": "js",

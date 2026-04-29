@@ -2,6 +2,7 @@ members = [
   ".",
   "./modules/kagura_core",
   "./modules/kagura_engine",
+  "./modules/physics",
   "./modules/game",
   "./modules/js_runtime",
 ]

@@ -4,7 +4,7 @@ import {
   "mizchi/kagura_core/camera2d" @camera2d,
   "mizchi/kagura_core" @core,
   "mizchi/kagura_core/inpututil" @inpututil,
-  "mizchi/kagura_game/pathfind" @pathfind,
+  "mizchi/kagura_physics/pathfind" @pathfind,
   "mizchi/kagura_game/scene" @scene,
   "mizchi/kagura_core/vector" @vector,
   "mizchi/terrain/bsp" @bsp,

@@ -9,7 +9,7 @@ import {
   "mizchi/kagura_engine/light3d" @light3d,
   "mizchi/kagura_core/math3d" @math3d,
   "mizchi/kagura_core/mesh3d" @mesh3d,
-  "mizchi/kagura_game/physics3d" @physics3d,
+  "mizchi/kagura_physics/physics3d" @physics3d,
   "mizchi/kagura_engine/renderer3d" @renderer3d,
   "mizchi/kagura_engine/scene3d" @scene3d,
   "mizchi/kagura_core/transform3d" @transform3d,

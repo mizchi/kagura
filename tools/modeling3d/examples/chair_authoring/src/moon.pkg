@@ -3,7 +3,7 @@ import {
   "moonbitlang/core/math" @math,
   "mizchi/kagura_engine/asset" @asset,
   "mizchi/kagura_core/camera3d" @camera3d,
-  "mizchi/kagura_game/collision3d" @collision3d,
+  "mizchi/kagura_physics/collision3d" @collision3d,
   "mizchi/kagura_core" @core,
   "mizchi/kagura_engine/draw3d" @draw3d,
   "mizchi/kagura_engine" @engine,

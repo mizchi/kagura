@@ -5,7 +5,7 @@ import {
   "mizchi/kagura_core/animation3d",
   "mizchi/kagura_core/transform3d",
   "mizchi/kagura_engine/scene3d",
-  "mizchi/kagura_game/physics3d",
+  "mizchi/kagura_physics/physics3d",
   "moonbitlang/core/debug",
 }
 

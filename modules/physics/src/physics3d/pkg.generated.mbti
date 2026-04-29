@@ -1,9 +1,9 @@
 // Generated using `moon info`, DON'T EDIT IT
-package "mizchi/kagura_game/physics3d"
+package "mizchi/kagura_physics/physics3d"
 
 import {
   "mizchi/kagura_core/math3d",
-  "mizchi/kagura_game/collision3d",
+  "mizchi/kagura_physics/collision3d",
   "moonbitlang/core/debug",
 }
 

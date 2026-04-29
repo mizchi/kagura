@@ -6,6 +6,7 @@ export const DEFAULT_RELEASE_MODULE_DIRS = Object.freeze([
   ".",
   "modules/kagura_core",
   "modules/kagura_engine",
+  "modules/physics",
   "modules/game",
   "modules/js_runtime",
 ]);
@@ -14,7 +15,12 @@ export const DEFAULT_RELEASE_DEP_POLICY = Object.freeze({
   "mizchi/kagura": ["mizchi/kagura_core", "mizchi/kagura_engine"],
   "mizchi/kagura_core": [],
   "mizchi/kagura_engine": ["mizchi/kagura_core"],
-  "mizchi/kagura_game": ["mizchi/kagura_core", "mizchi/kagura_engine"],
+  "mizchi/kagura_physics": ["mizchi/kagura_core"],
+  "mizchi/kagura_game": [
+    "mizchi/kagura_core",
+    "mizchi/kagura_engine",
+    "mizchi/kagura_physics",
+  ],
   "mizchi/kagura_js_runtime": [],
 });
 

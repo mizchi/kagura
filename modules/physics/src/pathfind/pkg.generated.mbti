@@ -1,5 +1,5 @@
 // Generated using `moon info`, DON'T EDIT IT
-package "mizchi/kagura_game/pathfind"
+package "mizchi/kagura_physics/pathfind"
 
 import {
   "mizchi/terrain/types",

@@ -21,6 +21,9 @@
     },
     "mizchi/kagura_engine": {
       "path": "../../modules/kagura_engine"
+    },
+    "mizchi/kagura_physics": {
+      "path": "../../modules/physics"
     }
   },
   "--moonbit-unstable-prebuild": "../../scripts/moon-prebuild-native-link-flags.cjs"

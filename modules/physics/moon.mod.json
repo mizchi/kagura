@@ -1,0 +1,16 @@
+{
+  "name": "mizchi/kagura_physics",
+  "version": "0.1.0",
+  "description": "Reusable 2D/3D physics, collision, and pathfinding helpers for Kagura",
+  "repository": "https://github.com/mizchi/kagura",
+  "license": "Apache-2.0",
+  "source": "src",
+  "warn-list": "-6-29-53-68",
+  "deps": {
+    "mizchi/terrain": "0.1.1",
+    "mizchi/kagura_core": {
+      "path": "../kagura_core"
+    }
+  },
+  "preferred-target": "js"
+}

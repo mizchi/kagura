@@ -21,9 +21,9 @@ moon.work
 |   |-- platform/, gfx/        Platform, graphics, native/web backends
 |   |-- runtime/, asset/       Runtime loop, assets, audio, text, UI
 |   `-- gltf/, renderer*/      glTF loading and 2D/3D renderer facades
+|-- mizchi/kagura_physics     Reusable physics, collision, and pathfinding
 |-- mizchi/kagura_game        Gameplay-oriented packages
 |   |-- scene/                 Declarative 2D Scene API
-|   |-- physics2d/, physics3d/ Simulation and collision integration
 |   `-- ai/, ecs/, tilemap2d/  Game systems and helpers
 `-- mizchi/kagura_js_runtime  JS-only WebGPU runtime helpers
 ```

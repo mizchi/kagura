@@ -1,5 +1,5 @@
 // Generated using `moon info`, DON'T EDIT IT
-package "mizchi/kagura_game/physics2d"
+package "mizchi/kagura_physics/physics2d"
 
 import {
   "mizchi/kagura_core/vector",

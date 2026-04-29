@@ -7,7 +7,8 @@
 - `mizchi/kagura`: thin public facade。`src/*` を持ち、`mizchi/kagura_core` と `mizchi/kagura_engine` の契約を束ねる。
 - `mizchi/kagura_core`: core contracts / math / camera / mesh / input utilities。`modules/kagura_core/src/*` を持つ。
 - `mizchi/kagura_engine`: rendering/runtime infrastructure。`modules/kagura_engine/src/*` を持ち、`mizchi/kagura_core` に依存する。
-- `mizchi/kagura_game`: gameplay/simulation/application layer。`modules/game/src/*` を持ち、`mizchi/kagura_core` と `mizchi/kagura_engine` に依存する。
+- `mizchi/kagura_physics`: reusable physics / collision / pathfinding layer。`modules/physics/src/*` を持ち、`mizchi/kagura_core` に依存する。
+- `mizchi/kagura_game`: gameplay/simulation/application layer。`modules/game/src/*` を持ち、`mizchi/kagura_core`、`mizchi/kagura_engine`、`mizchi/kagura_physics` に依存する。
 - `mizchi/kagura_js_runtime`: JS 専用 WebGPU runtime helper。`modules/js_runtime/src/*` を持つ。
 
 `mizchi/kagura` は compatibility facade とし、gameplay 層を含めない。`mizchi/kagura_game` から root facade へ戻す依存も作らない。
@@ -19,6 +20,7 @@ MoonBit registry へ出す単位は次の 5 つに固定する。
 - `mizchi/kagura`
 - `mizchi/kagura_core`
 - `mizchi/kagura_engine`
+- `mizchi/kagura_physics`
 - `mizchi/kagura_game`
 - `mizchi/kagura_js_runtime`
 
@@ -29,7 +31,8 @@ source manifest では `moon.work` 用の local `path` 依存を許可する。p
 ## Dependency Direction
 
 - `mizchi/kagura_core` <- `mizchi/kagura_engine`
-- `mizchi/kagura_core`, `mizchi/kagura_engine` <- `mizchi/kagura_game`
+- `mizchi/kagura_core` <- `mizchi/kagura_physics`
+- `mizchi/kagura_core`, `mizchi/kagura_engine`, `mizchi/kagura_physics` <- `mizchi/kagura_game`
 - `mizchi/kagura_core`, `mizchi/kagura_engine` <- `mizchi/kagura`
 - `core` <- `platform`, `gfx`, `runtime`, `ui`
 - `platform` <- `gfx`（surface token のみ参照）

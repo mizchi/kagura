@@ -19,6 +19,9 @@
     },
     "mizchi/kagura_engine": {
       "path": "../../../../modules/kagura_engine"
+    },
+    "mizchi/kagura_physics": {
+      "path": "../../../../modules/physics"
     }
   }
 }

@@ -22,7 +22,7 @@ MoonBit registry へ出す単位は次の 5 つに固定する。
 - `mizchi/kagura_game`
 - `mizchi/kagura_js_runtime`
 
-source manifest では `moon.work` 用の local `path` 依存を許可する。publish 用 manifest は `just release-manifests` で生成し、workspace 内の `path` 依存を対象 module の `version` 文字列へ変換する。release 前の検証は `just check-release` を通す。
+source manifest では `moon.work` 用の local `path` 依存を許可する。publish 用 staging は `just release-stage` で生成し、workspace 内の `path` 依存を対象 module の `version` 文字列へ変換する。release 前の検証は `just check-release` を通す。
 
 ## Dependency Direction
 

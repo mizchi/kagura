@@ -184,8 +184,11 @@ check-release:
     moon check --deny-warn --target js
     moon check --deny-warn --target native
 
-release-manifests out_dir=".moon-release":
+release-stage out_dir=".moon-release":
     node scripts/prepare-moon-release.mjs --out {{out_dir}}
+
+release-manifests out_dir=".moon-release":
+    just release-stage {{out_dir}}
 
 clean:
     moon clean

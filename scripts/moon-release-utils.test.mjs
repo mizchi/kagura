@@ -18,6 +18,10 @@ function writeJson(filePath, value) {
 function makeModule(root, dir, manifest) {
   const moduleRoot = path.join(root, dir);
   fs.mkdirSync(path.join(moduleRoot, manifest.source), { recursive: true });
+  fs.writeFileSync(
+    path.join(moduleRoot, manifest.source, "lib.mbt"),
+    `///|\npub fn module_name() -> String { "${manifest.name}" }\n`,
+  );
   writeJson(path.join(moduleRoot, "moon.mod.json"), manifest);
 }
 
@@ -55,6 +59,7 @@ function makeFixtureRepo() {
     description: "Root facade",
     repository: "https://example.test/root",
     license: "Apache-2.0",
+    readme: "README.mbt.md",
     source: "src",
     deps: {
       "example/core": { path: "modules/core" },
@@ -82,6 +87,8 @@ function makeFixtureRepo() {
     },
     "--moonbit-unstable-prebuild": "../../scripts/moon-prebuild-native-link-flags.cjs",
   });
+  fs.writeFileSync(path.join(root, "README.mbt.md"), "# example/root\n");
+  fs.writeFileSync(path.join(root, "modules", "engine", "README.md"), "# example/engine\n");
 
   return root;
 }
@@ -148,6 +155,14 @@ test("writePreparedManifests writes converted publish manifests", () => {
   );
   assert.equal(rootManifest.deps["example/core"], "1.2.0");
   assert.equal(rootManifest.deps["example/engine"], "1.3.0");
+  assert.equal(
+    fs.existsSync(path.join(outDir, "example__root", "src", "lib.mbt")),
+    true,
+  );
+  assert.equal(
+    fs.readFileSync(path.join(outDir, "example__root", "README.mbt.md"), "utf8"),
+    "# example/root\n",
+  );
 
   const engineManifest = JSON.parse(
     fs.readFileSync(path.join(outDir, "example__engine", "moon.mod.json"), "utf8"),
@@ -166,6 +181,14 @@ test("writePreparedManifests writes converted publish manifests", () => {
       ),
     ),
     true,
+  );
+  assert.equal(
+    fs.existsSync(path.join(outDir, "example__engine", "src", "lib.mbt")),
+    true,
+  );
+  assert.equal(
+    fs.readFileSync(path.join(outDir, "example__engine", "README.md"), "utf8"),
+    "# example/engine\n",
   );
 
   const summary = JSON.parse(

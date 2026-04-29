@@ -82,6 +82,61 @@ function writeJson(filePath, value) {
   fs.writeFileSync(filePath, `${JSON.stringify(value, null, 2)}\n`);
 }
 
+function copyRecursive(sourcePath, destPath) {
+  const stat = fs.statSync(sourcePath);
+  if (stat.isDirectory()) {
+    fs.mkdirSync(destPath, { recursive: true });
+    for (const entry of fs.readdirSync(sourcePath)) {
+      copyRecursive(path.join(sourcePath, entry), path.join(destPath, entry));
+    }
+    return;
+  }
+  if (stat.isFile()) {
+    fs.mkdirSync(path.dirname(destPath), { recursive: true });
+    fs.copyFileSync(sourcePath, destPath);
+  }
+}
+
+function copyIfExists(sourcePath, destPath) {
+  if (!fs.existsSync(sourcePath)) {
+    return false;
+  }
+  copyRecursive(sourcePath, destPath);
+  return true;
+}
+
+function collectReadmeFiles(mod) {
+  const readmes = new Set();
+  if (typeof mod.manifest.readme === "string" && mod.manifest.readme !== "") {
+    readmes.add(mod.manifest.readme);
+  }
+  for (const fileName of ["README.md", "README.mbt.md"]) {
+    if (fs.existsSync(path.join(mod.root, fileName))) {
+      readmes.add(fileName);
+    }
+  }
+  return [...readmes];
+}
+
+function stageModuleFiles(mod, destDir) {
+  const stagedFiles = [];
+  fs.rmSync(destDir, { recursive: true, force: true });
+  fs.mkdirSync(destDir, { recursive: true });
+
+  const sourceName = mod.manifest.source;
+  const sourcePath = path.join(mod.root, sourceName);
+  const destSourcePath = path.join(destDir, sourceName);
+  copyRecursive(sourcePath, destSourcePath);
+  stagedFiles.push(sourceName);
+
+  for (const readme of collectReadmeFiles(mod)) {
+    if (copyIfExists(path.join(mod.root, readme), path.join(destDir, readme))) {
+      stagedFiles.push(readme);
+    }
+  }
+  return stagedFiles;
+}
+
 function resolveWorkspaceDepDir(repoRoot, moduleDir, depPath) {
   const absolutePath = path.resolve(moduleRoot(repoRoot, moduleDir), depPath);
   return normalizeRepoRelative(repoRoot, absolutePath);
@@ -391,7 +446,7 @@ export function writePreparedManifests({
     const prepared = createPublishManifest(mod, validation.byDir);
     const outputDir = safePackageDirName(mod.name);
     const destDir = path.join(outDir, outputDir);
-    fs.mkdirSync(destDir, { recursive: true });
+    const stagedFiles = stageModuleFiles(mod, destDir);
     writeJson(path.join(destDir, "moon.mod.json"), prepared.manifest);
     if (prepared.prebuild) {
       for (const supportFile of prepared.prebuild.supportFiles) {
@@ -401,6 +456,7 @@ export function writePreparedManifests({
         const destFile = path.join(destDir, "scripts", path.basename(supportFile));
         fs.mkdirSync(path.dirname(destFile), { recursive: true });
         fs.copyFileSync(supportFile, destFile);
+        stagedFiles.push(path.join("scripts", path.basename(supportFile)));
       }
     }
     writeJson(path.join(destDir, "release-module.json"), {
@@ -408,12 +464,14 @@ export function writePreparedManifests({
       sourceDir: mod.dir,
       conversions: prepared.conversions,
       prebuild: prepared.prebuild,
+      stagedFiles,
     });
     summary.modules.push({
       name: mod.name,
       sourceDir: mod.dir,
       outputDir,
       conversions: prepared.conversions,
+      stagedFiles,
     });
   }
   writeJson(path.join(outDir, "release-manifests.json"), summary);
@@ -453,7 +511,7 @@ export function formatPreparedManifestReport(result, { dryRun = false } = {}) {
   if (validation.errors.length > 0) {
     return formatValidationReport(validation);
   }
-  lines.push(dryRun ? "Moon release manifests are ready." : `Wrote Moon release manifests to ${result.outDir}.`);
+  lines.push(dryRun ? "Moon release staging is ready." : `Wrote Moon release staging to ${result.outDir}.`);
   const modules = dryRun
     ? validation.preparedManifests.map((prepared) => ({
         name: prepared.module.name,

@@ -24,6 +24,8 @@ MoonBit registry へ出す単位は次の 5 つに固定する。
 
 source manifest では `moon.work` 用の local `path` 依存を許可する。publish 用 staging は `just release-stage` で生成し、workspace 内の `path` 依存を対象 module の `version` 文字列へ変換する。release 前の検証は `just check-release` を通す。
 
+`just check-release` は `moon.pkg` の import も検査する。release module 間の許可方向は上の release units と次の dependency direction に従い、例えば `mizchi/kagura_core -> mizchi/kagura_engine`、`mizchi/kagura_engine -> mizchi/kagura_game`、`mizchi/kagura_game -> mizchi/kagura` は失敗する。
+
 ## Dependency Direction
 
 - `mizchi/kagura_core` <- `mizchi/kagura_engine`

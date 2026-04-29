@@ -180,6 +180,7 @@ pages:
 check-release:
     node --test scripts/*.test.mjs
     node scripts/check-moon-release.mjs
+    node scripts/check-moon-boundaries.mjs
     node scripts/prepare-moon-release.mjs --dry-run
     moon check --deny-warn --target js
     moon check --deny-warn --target native

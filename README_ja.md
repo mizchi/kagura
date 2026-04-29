@@ -16,10 +16,12 @@
 
 ```
 moon.work
-|-- mizchi/kagura             描画・ランタイム基盤
-|   |-- core/                  ゲームループ契約、数学、カメラ、メッシュデータ
-|   |-- engine/                platform/gfx/runtime/asset/draw 系
-|   `-- gltf/                  glTF を描画向け scene data に変換
+|-- mizchi/kagura             core/engine 契約を束ねる薄い public facade
+|-- mizchi/kagura_core        core 契約、数学、カメラ、メッシュ、入力 utilities
+|-- mizchi/kagura_engine      描画・ランタイム基盤
+|   |-- platform/, gfx/        platform/gfx/native/web backend
+|   |-- runtime/, asset/       runtime loop、asset、audio、text、UI
+|   `-- gltf/, renderer*/      glTF 変換と 2D/3D renderer facade
 |-- mizchi/kagura_game        ゲーム寄りの package 群
 |   |-- scene/                 宣言的 2D Scene API
 |   |-- physics2d/, physics3d/ 物理・collision 統合
@@ -164,6 +166,7 @@ just check target=js
 just test target=js
 just check target=native
 just test target=native
+just check-release
 pnpm e2e:smoke
 ```
 

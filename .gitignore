@@ -3,6 +3,7 @@ _site
 target
 .DS_Store
 .mooncakes
+.moon-release
 node_modules
 test-results
 playwright-report

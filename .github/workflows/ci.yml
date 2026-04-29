@@ -40,9 +40,14 @@ jobs:
       - name: Install JS deps
         if: matrix.target == 'js'
         run: pnpm install --frozen-lockfile
-      - name: Test native prebuild scripts
+      - name: Test JS scripts
         if: matrix.target == 'js'
-        run: node --test scripts/moon-native-cc-win.test.mjs scripts/moon-prebuild-native-link-flags.test.mjs
+        run: node --test scripts/*.test.mjs
+      - name: Release manifest check
+        if: matrix.target == 'js'
+        run: |
+          node scripts/check-moon-release.mjs
+          node scripts/prepare-moon-release.mjs --dry-run
       - name: Update MoonBit registry
         run: moon update
       - name: Setup wgpu-native and glfw

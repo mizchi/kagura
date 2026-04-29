@@ -4,31 +4,31 @@
 
 ## Package Layout
 
-- `src/core`
+- `modules/kagura_core/src`
   - `contracts.mbt`: `Game`, `RunOptions`, `EngineTermination`
   - `fixed_timestep.mbt`: TPS 固定ステップ計画
-- `src/platform`
+- `modules/kagura_engine/src/platform`
   - `contracts.mbt`: window/event/input 抽象
   - `surface_contracts.mbt`: platform->gfx surface token 境界
   - `desktop_glfw.mbt` (planned): native 実装
   - `web_canvas.mbt` (planned): web 実装
-- `src/gfx`
+- `modules/kagura_engine/src/gfx`
   - `contracts.mbt`: `GraphicsDriver`, `CommandQueue`
   - `shader_contracts.mbt`: `ShaderFrontend`, `UniformCanonicalizer`, `BuiltinShaderSourceRepo`
   - `backend_contracts.mbt`: backend factory (`wgpu-native/webgpu/webgl/null`)
-- `src/gfx_wgpu_native` (planned)
+- `modules/kagura_engine/src/gfx_wgpu_native`
   - `backend.mbt`: `~/Downloads/wgpu` 由来の backend 実装
 - `modules/js_runtime/src/gfx_webgpu` / `src/gfx_webgl` (planned)
   - ブラウザ backend 実装
-- `src/asset` (planned)
+- `modules/kagura_engine/src/asset`
   - `contracts.mbt`: image/shader/material/atlas 管理契約
-- `src/text` (planned)
+- `modules/kagura_engine/src/text`
   - `contracts.mbt`: font shaping と text batch 契約
-- `src/ui` (planned)
+- `modules/kagura_engine/src/ui`
   - `contracts.mbt`: layout/input/render adapter 契約
-- `src/ai` (planned)
+- `modules/game/src/ai`
   - `contracts.mbt`: sensor/policy/actuator/scheduler 契約
-- `src/runtime`
+- `modules/kagura_engine/src/runtime`
   - `contracts.mbt`: ループ統合契約
   - `run_loop.mbt` (planned): 実行本体
 

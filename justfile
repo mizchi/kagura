@@ -178,10 +178,14 @@ pages:
     bash scripts/build-pages.sh
 
 check-release:
-    @echo "Checking for local path dependencies..."
-    @if grep -q '"path"' moon.mod.json; then echo "ERROR: moon.mod.json contains local path dependencies"; grep '"path"' moon.mod.json; exit 1; else echo "OK: No local path dependencies found"; fi
-    moon check --target js
-    moon check --target native
+    node --test scripts/*.test.mjs
+    node scripts/check-moon-release.mjs
+    node scripts/prepare-moon-release.mjs --dry-run
+    moon check --deny-warn --target js
+    moon check --deny-warn --target native
+
+release-manifests out_dir=".moon-release":
+    node scripts/prepare-moon-release.mjs --out {{out_dir}}
 
 clean:
     moon clean

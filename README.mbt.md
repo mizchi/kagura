@@ -15,10 +15,12 @@ A 2D-first (with future 3D) game engine for [MoonBit](https://www.moonbitlang.co
 
 ```
 moon.work
-|-- mizchi/kagura             Rendering/runtime infrastructure
-|   |-- core/                  Game loop contracts, math, camera, mesh data
-|   |-- engine/                Platform, gfx, runtime, assets, draw helpers, renderers
-|   `-- gltf/                  glTF loading into render-facing scene data
+|-- mizchi/kagura             Thin public facade over core/engine contracts
+|-- mizchi/kagura_core        Core contracts, math, camera, mesh, input utilities
+|-- mizchi/kagura_engine      Rendering/runtime infrastructure
+|   |-- platform/, gfx/        Platform, graphics, native/web backends
+|   |-- runtime/, asset/       Runtime loop, assets, audio, text, UI
+|   `-- gltf/, renderer*/      glTF loading and 2D/3D renderer facades
 |-- mizchi/kagura_game        Gameplay-oriented packages
 |   |-- scene/                 Declarative 2D Scene API
 |   |-- physics2d/, physics3d/ Simulation and collision integration
@@ -114,6 +116,7 @@ just check target=js
 just test target=js
 just check target=native
 just test target=native
+just check-release
 pnpm e2e:smoke
 ```
 

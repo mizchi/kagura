@@ -91,8 +91,15 @@ async function waitForKaguraReady(page: import("@playwright/test").Page) {
 async function getVrtReadbackSummary(page: import("@playwright/test").Page) {
   try {
     const result = await page.waitForFunction(
-      () => (globalThis as { __kaguraVrtLastReadback?: VrtReadbackSummary })
-        .__kaguraVrtLastReadback ?? null,
+      () => {
+        const root = globalThis as {
+          __kaguraGfx?: { lastReadbackSummary?: () => VrtReadbackSummary | null };
+          __kaguraVrtLastReadback?: VrtReadbackSummary;
+        };
+        return root.__kaguraGfx?.lastReadbackSummary?.() ??
+          root.__kaguraVrtLastReadback ??
+          null;
+      },
       undefined,
       { timeout: 2_000 },
     );
@@ -122,22 +129,30 @@ async function getCanvasCaptureSummary(page: import("@playwright/test").Page) {
   }) as CanvasCaptureSummary | null;
 }
 
+async function expectCanvasFrame(
+  page: import("@playwright/test").Page,
+  canvas: ReturnType<import("@playwright/test").Page["locator"]>,
+  snapshotName: string,
+) {
+  const readback = await getVrtReadbackSummary(page);
+  const capture = await getCanvasCaptureSummary(page);
+  if (readback != null && capture != null && capture.alphaZeroPixelRatio > 0.99) {
+    expect(readback.nonTransparentPixelRatio).toBeGreaterThan(0.99);
+    expect(readback.nonDarkPixelRatio).toBeGreaterThan(0.001);
+    return;
+  }
+  await expect(canvas).toHaveScreenshot(snapshotName, {
+    maxDiffPixelRatio: 0.01,
+  });
+}
+
 for (const { name, category } of VRT_EXAMPLES) {
   test(`VRT [${category}]: ${name} renders`, async ({ page }) => {
     await page.goto(`/vrt/${name}`);
     await waitForKaguraReady(page);
     await page.waitForTimeout(500);
     const canvas = page.locator("#app");
-    const readback = await getVrtReadbackSummary(page);
-    const capture = await getCanvasCaptureSummary(page);
-    if (readback != null && capture != null && capture.alphaZeroPixelRatio > 0.99) {
-      expect(readback.nonTransparentPixelRatio).toBeGreaterThan(0.99);
-      expect(readback.nonDarkPixelRatio).toBeGreaterThan(0.001);
-      return;
-    }
-    await expect(canvas).toHaveScreenshot(`${name}.png`, {
-      maxDiffPixelRatio: 0.01,
-    });
+    await expectCanvasFrame(page, canvas, `${name}.png`);
   });
 }
 
@@ -162,8 +177,6 @@ for (const { name, params, tick, suffix } of SNAPSHOT_TESTS) {
       await page.waitForTimeout(500);
     }
     const canvas = page.locator("#app");
-    await expect(canvas).toHaveScreenshot(`${name}-${suffix}.png`, {
-      maxDiffPixelRatio: 0.01,
-    });
+    await expectCanvasFrame(page, canvas, `${name}-${suffix}.png`);
   });
 }

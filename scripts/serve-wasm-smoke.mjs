@@ -162,8 +162,6 @@ const generateVrtHtml = (name) => {
       import { installAudioHelpers } from "/lib/web/kagura-audio.js";
       import { installGfxHelpers } from "/lib/web/kagura-gfx.js";
 
-      globalThis.__kaguraVrtReadbackEnabled = true;
-
       async function init() {
         const result = await initWebGPU("#app");
         if (!result) {
@@ -177,6 +175,7 @@ const generateVrtHtml = (name) => {
         setupGlobalState(result.canvas, result.device, result.format, result.context);
         installAudioHelpers();
         installGfxHelpers();
+        globalThis.__kaguraGfx.configureVrtReadback(true);
         await loadFonts(${JSON.stringify(fontEntries)});
         try {
           await loadGameScript(${JSON.stringify(scriptPath)});

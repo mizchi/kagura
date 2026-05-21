@@ -137,6 +137,7 @@ const generateVrtHtml = (name) => {
   }
   const scriptPath = `${publicPath}/_build/js/debug/build/${name}.js`;
   const assetEntries = ASSET_EXAMPLES[name] ?? [];
+  const fontEntries = assetEntries.filter(([key]) => /\.(ttf|otf)$/i.test(key));
   const fontPreloads = assetEntries
     .filter(([key]) => /\.(ttf|otf)$/i.test(key))
     .map(([, url]) => `<link rel="preload" href="${url}" as="font" crossorigin>`)
@@ -157,8 +158,44 @@ const generateVrtHtml = (name) => {
     <canvas id="app" width="320" height="240"
       style="width: 320px; height: 240px; image-rendering: pixelated"></canvas>
     <script type="module">
-      import { loadGameScript } from "/lib/web/kagura-init.js";
-      await loadGameScript("${scriptPath}");
+      import { initWebGPU, setupGlobalState, loadFonts, loadGameScript, showStartupError } from "/lib/web/kagura-init.js";
+      import { installAudioHelpers } from "/lib/web/kagura-audio.js";
+      import { installGfxHelpers } from "/lib/web/kagura-gfx.js";
+
+      globalThis.__kaguraVrtReadbackEnabled = true;
+
+      async function init() {
+        const result = await initWebGPU("#app");
+        if (!result) {
+          showStartupError(
+            "#app",
+            "WebGPU only demo",
+            "Kagura browser demos currently require WebGPU.",
+          );
+          return;
+        }
+        setupGlobalState(result.canvas, result.device, result.format, result.context);
+        installAudioHelpers();
+        installGfxHelpers();
+        await loadFonts(${JSON.stringify(fontEntries)});
+        try {
+          await loadGameScript(${JSON.stringify(scriptPath)});
+        } catch (e) {
+          showStartupError(
+            "#app",
+            "Failed to load game script",
+            e && e.message ? e.message : String(e),
+          );
+        }
+      }
+
+      init().catch((e) => {
+        showStartupError(
+          "#app",
+          "Failed to initialize Kagura runtime",
+          e && e.message ? e.message : String(e),
+        );
+      });
     </script>
   </body>
 </html>`;

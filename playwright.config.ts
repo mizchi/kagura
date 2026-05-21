@@ -1,25 +1,28 @@
 import { defineConfig } from "@playwright/test";
 
+const e2ePort = Number.parseInt(process.env.PORT ?? "4173", 10);
+const e2eBaseURL = `http://127.0.0.1:${e2ePort}`;
+const chromiumArgs = [
+  "--enable-unsafe-webgpu",
+  ...(process.env.KAGURA_PLAYWRIGHT_CHROMIUM_ARGS ?? "").split(/\s+/).filter(Boolean),
+];
+
 export default defineConfig({
   testDir: "./e2e",
   timeout: 30_000,
   retries: process.env.CI ? 2 : 0,
   use: {
-    baseURL: "http://127.0.0.1:4173",
+    baseURL: e2eBaseURL,
     browserName: "chromium",
     headless: true,
     launchOptions: {
-      args: [
-        "--enable-unsafe-swiftshader",
-        "--enable-webgl",
-        "--use-gl=swiftshader",
-      ],
+      args: chromiumArgs,
     },
   },
   webServer: {
-    command: "node scripts/serve-wasm-smoke.mjs",
-    url: "http://127.0.0.1:4173/healthz",
+    command: `PORT=${e2ePort} node scripts/serve-wasm-smoke.mjs`,
+    url: `${e2eBaseURL}/healthz`,
     timeout: 120_000,
-    reuseExistingServer: !process.env.CI,
+    reuseExistingServer: process.env.PLAYWRIGHT_REUSE_SERVER === "1",
   },
 });

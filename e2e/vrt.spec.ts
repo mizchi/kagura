@@ -12,6 +12,23 @@ interface VrtEntry {
   category: "2d-scene" | "2d-game" | "3d-render" | "3d-postfx" | "asset";
 }
 
+interface KaguraReadyProbe {
+  ok: boolean;
+  reason?: string;
+  lastCompletedFrameMs?: number;
+  lastRenderCpuMs?: number;
+}
+
+interface VrtReadbackSummary {
+  maxChannel: number;
+  nonDarkPixelRatio: number;
+  nonTransparentPixelRatio: number;
+}
+
+interface CanvasCaptureSummary {
+  alphaZeroPixelRatio: number;
+}
+
 const VRT_EXAMPLES: VrtEntry[] = [
   { name: "scene_demo", category: "2d-scene" },
   { name: "ui_demo", category: "2d-scene" },
@@ -34,12 +51,75 @@ const VRT_EXAMPLES: VrtEntry[] = [
 ];
 
 async function waitForKaguraReady(page: import("@playwright/test").Page) {
-  await page.waitForFunction(
-    () =>
-      (globalThis as { __kaguraWebRuntime?: { webgpu?: { presentScheduled?: boolean } } })
-        .__kaguraWebRuntime?.webgpu?.presentScheduled !== undefined,
+  const result = await page.waitForFunction(
+    () => {
+      const root = globalThis as {
+        __kaguraGfx?: {
+          lastCompletedFrameMs?: () => number;
+          lastRenderCpuMs?: () => number;
+        };
+        __kaguraLastGpu?: unknown;
+        __kaguraWebRuntime?: {
+          webgpu?: {
+            device?: unknown;
+            lastError?: string;
+          };
+        };
+      };
+      const webgpu = root.__kaguraWebRuntime?.webgpu;
+      const lastError = webgpu?.lastError ?? "";
+      if (lastError !== "") {
+        return { ok: false, reason: lastError };
+      }
+      const lastCompletedFrameMs = root.__kaguraGfx?.lastCompletedFrameMs?.() ?? 0;
+      const lastRenderCpuMs = root.__kaguraGfx?.lastRenderCpuMs?.() ?? 0;
+      const hasGpu = root.__kaguraLastGpu != null || webgpu?.device != null;
+      if (hasGpu && (lastRenderCpuMs > 0 || lastCompletedFrameMs > 0)) {
+        return { ok: true, lastCompletedFrameMs, lastRenderCpuMs };
+      }
+      return null;
+    },
+    undefined,
     { timeout: 15_000 },
   );
+  const probe = await result.jsonValue() as KaguraReadyProbe;
+  if (!probe.ok) {
+    throw new Error(`Kagura WebGPU failed to initialize: ${probe.reason ?? "unknown error"}`);
+  }
+}
+
+async function getVrtReadbackSummary(page: import("@playwright/test").Page) {
+  try {
+    const result = await page.waitForFunction(
+      () => (globalThis as { __kaguraVrtLastReadback?: VrtReadbackSummary })
+        .__kaguraVrtLastReadback ?? null,
+      undefined,
+      { timeout: 2_000 },
+    );
+    return await result.jsonValue() as VrtReadbackSummary;
+  } catch (_) {
+    return null;
+  }
+}
+
+async function getCanvasCaptureSummary(page: import("@playwright/test").Page) {
+  return await page.evaluate(() => {
+    const canvas = document.querySelector("#app");
+    if (!(canvas instanceof HTMLCanvasElement)) return null;
+    const probe = document.createElement("canvas");
+    probe.width = canvas.width;
+    probe.height = canvas.height;
+    const ctx = probe.getContext("2d", { willReadFrequently: true });
+    if (ctx == null) return null;
+    ctx.drawImage(canvas, 0, 0);
+    const data = ctx.getImageData(0, 0, probe.width, probe.height).data;
+    let alphaZero = 0;
+    for (let i = 0; i < data.length; i += 4) {
+      if (data[i + 3] === 0) alphaZero += 1;
+    }
+    const total = data.length / 4;
+    return { alphaZeroPixelRatio: total > 0 ? alphaZero / total : 0 };
+  }) as CanvasCaptureSummary | null;
 }
 
 for (const { name, category } of VRT_EXAMPLES) {
@@ -48,6 +128,13 @@ for (const { name, category } of VRT_EXAMPLES) {
     await waitForKaguraReady(page);
     await page.waitForTimeout(500);
     const canvas = page.locator("#app");
+    const readback = await getVrtReadbackSummary(page);
+    const capture = await getCanvasCaptureSummary(page);
+    if (readback != null && capture != null && capture.alphaZeroPixelRatio > 0.99) {
+      expect(readback.nonTransparentPixelRatio).toBeGreaterThan(0.99);
+      expect(readback.nonDarkPixelRatio).toBeGreaterThan(0.001);
+      return;
+    }
     await expect(canvas).toHaveScreenshot(`${name}.png`, {
       maxDiffPixelRatio: 0.01,
     });

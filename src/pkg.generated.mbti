@@ -8,9 +8,21 @@ import {
 }
 
 // Values
+pub fn default_fixed_step_config() -> @kagura_core.FixedStepConfig
+
+pub fn initial_fixed_step_state() -> @kagura_core.FixedStepState
+
+pub fn new_fixed_step_config(Int, Int) -> @kagura_core.FixedStepConfig
+
 pub fn plan_fixed_updates(@kagura_core.FixedStepState, Double, @kagura_core.FixedStepConfig) -> @kagura_core.StepResult
 
 pub fn[G : @kagura_core.Game, P : @platform.PlatformDriver, R : @gfx.GraphicsDriver] run_loop(G, P, R, @kagura_core.RunOptions) -> Unit raise
+
+pub fn step_result_alpha(@kagura_core.StepResult) -> Double
+
+pub fn step_result_next_state(@kagura_core.StepResult) -> @kagura_core.FixedStepState
+
+pub fn step_result_updates(@kagura_core.StepResult) -> Int
 
 // Errors
 

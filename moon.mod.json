@@ -1,6 +1,6 @@
 {
   "name": "mizchi/kagura",
-  "version": "0.3.4",
+  "version": "0.3.5",
   "deps": {
     "mizchi/kagura_core": {
       "path": "modules/kagura_core"

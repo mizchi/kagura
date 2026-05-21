@@ -65,6 +65,7 @@ function makeFixtureRepo() {
       "example/core": { path: "modules/core" },
       "example/engine": { path: "./modules/engine" },
     },
+    "--moonbit-unstable-prebuild": "scripts/moon-prebuild-native-link-flags.cjs",
   });
   makeModule(root, "modules/core", {
     name: "example/core",
@@ -162,6 +163,17 @@ test("writePreparedManifests writes converted publish manifests", () => {
   assert.equal(
     fs.readFileSync(path.join(outDir, "example__root", "README.mbt.md"), "utf8"),
     "# example/root\n",
+  );
+  assert.equal(
+    fs.existsSync(
+      path.join(
+        outDir,
+        "example__root",
+        "scripts",
+        "moon-prebuild-native-link-flags.cjs",
+      ),
+    ),
+    true,
   );
 
   const engineManifest = JSON.parse(

@@ -177,20 +177,22 @@ function rewriteExternalPrebuild(mod, manifest) {
     return null;
   }
   const sourcePath = path.resolve(mod.root, prebuildPath);
-  if (isInsideDir(mod.root, sourcePath)) {
-    return null;
-  }
-
-  const stagedPath = `scripts/${path.basename(prebuildPath)}`;
+  const stagedPath = isInsideDir(mod.root, sourcePath)
+    ? normalizeModuleDir(toPosix(path.relative(mod.root, sourcePath)))
+    : `scripts/${path.basename(prebuildPath)}`;
   manifest[PREBUILD_KEY] = stagedPath;
-  const supportFiles = [sourcePath];
+  const supportFiles = [];
+  const addSupportFile = (filePath) => {
+    if (!supportFiles.includes(filePath)) {
+      supportFiles.push(filePath);
+    }
+  };
+  addSupportFile(sourcePath);
   if (path.basename(prebuildPath) === "moon-prebuild-native-link-flags.cjs") {
     const sourceDir = path.dirname(sourcePath);
     for (const fileName of NATIVE_PREBUILD_SUPPORT_FILES) {
       const candidate = path.join(sourceDir, fileName);
-      if (!supportFiles.includes(candidate)) {
-        supportFiles.push(candidate);
-      }
+      addSupportFile(candidate);
     }
   }
   return {
@@ -455,14 +457,16 @@ export function writePreparedManifests({
     const stagedFiles = stageModuleFiles(mod, destDir);
     writeJson(path.join(destDir, "moon.mod.json"), prepared.manifest);
     if (prepared.prebuild) {
+      const prebuildDir = path.posix.dirname(prepared.prebuild.to);
       for (const supportFile of prepared.prebuild.supportFiles) {
         if (!fs.existsSync(supportFile)) {
           continue;
         }
-        const destFile = path.join(destDir, "scripts", path.basename(supportFile));
+        const stagedFile = path.posix.join(prebuildDir, path.basename(supportFile));
+        const destFile = path.join(destDir, stagedFile);
         fs.mkdirSync(path.dirname(destFile), { recursive: true });
         fs.copyFileSync(supportFile, destFile);
-        stagedFiles.push(path.join("scripts", path.basename(supportFile)));
+        stagedFiles.push(stagedFile);
       }
     }
     writeJson(path.join(destDir, "release-module.json"), {

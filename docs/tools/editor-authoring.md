@@ -79,7 +79,7 @@ User prompt
 
 ### AI が操作する対象
 
-1. **MoonBit ソースコード**: `examples/*/src/*.mbt` 内のゲームロジック
+1. **MoonBit ソースコード**: `examples/*/*/src/*.mbt` 内のゲームロジック
 2. **アセット参照**: コード内の asset path 文字列
 3. **シーン構築コード**: `@scene.rect()`, `@scene.label()` 等の宣言的 API
 4. **ゲームパラメータ**: 速度・サイズ・色など数値リテラル

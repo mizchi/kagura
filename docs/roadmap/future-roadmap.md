@@ -54,4 +54,4 @@ host shell に計測・デバッグ機能を集約する。
 | 3D sample | `arena3d` / `hacknslash_3d` | `@scene3d` + `@physics3d` + `@postfx` |
 | WASM guest | `wasm_game/guest/moonbit` | host-guest binary protocol |
 
-各 example を「おすすめの書き方」として docs/editor-authoring.md の code-first テンプレートと対応付ける。
+各 example を「おすすめの書き方」として docs/tools/editor-authoring.md の code-first テンプレートと対応付ける。

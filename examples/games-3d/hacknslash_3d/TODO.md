@@ -54,7 +54,7 @@
 - [ ] 敵パターン増加後の stress case を固定し、`弾幕 / タックル / 炎上 / 死亡爆発` が追加された状態で `total_damage / near_death_rate / floors_cleared` を再基準化する
 - [ ] `爽快感` の proxy として `kill cadence / knockback distance / particle burst count` を experiment metric に追加する
 - [ ] `examples/hacknslash_3d/scripts/balance_hypothesis_record.mjs` の出力から `best_generation` 推移を可視化し、収束しない仮説を早めに切る
-- [ ] 詳細な実行手順は [docs/hacknslash_3d-balance-tuning.md](/Users/mz/ghq/github.com/mizchi/kagura/docs/hacknslash_3d-balance-tuning.md) に残し、この TODO では「次に試す仮説」と「採用判断」だけを管理する
+- [ ] 詳細な実行手順は [docs/performance/hacknslash_3d-balance-tuning.md](/Users/mz/ghq/github.com/mizchi/kagura/docs/performance/hacknslash_3d-balance-tuning.md) に残し、この TODO では「次に試す仮説」と「採用判断」だけを管理する
 
 ### UI / UX
 - [ ] TTF フォントレンダリング対応 (init 順序問題の解決: GameState 生成を on_start 内に移動)

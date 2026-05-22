@@ -1,7 +1,7 @@
 # `hacknslash_3d` Rendering And Update Performance Summary
 
 - Date: 2026-03-12
-- Scope: `examples/hacknslash_3d`
+- Scope: `examples/games-3d/hacknslash_3d`
 - Goal: render path の CPU/GPU ボトルネックを潰し、通常シーンと enemy stress case の両方で `rAF` 基準に近いフレーム時間へ寄せたうえで、`world.tick` の phase ごとの支配項を切り分ける
 
 ## Conclusion
@@ -50,7 +50,7 @@ node scripts/hacknslash_3d_gpu_perf.mjs \
 最新 bench では `world.tick` の主要 phase を分解している。参照コマンド:
 
 ```sh
-moon -C examples/hacknslash_3d bench --target js
+moon -C examples/games-3d/hacknslash_3d bench --target js
 ```
 
 直近の主要値:

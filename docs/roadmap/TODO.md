@@ -1,7 +1,7 @@
 # TODO (kagura roadmap)
 
 このファイルは未完了タスクのみを管理する。
-完了済みは `docs/mvp.md` の `DONE` セクションへ退避する。
+完了済みは `docs/roadmap/mvp.md` の `DONE` セクションへ退避する。
 
 3D modeling / VLM authoring 関連の未完了は `tools/modeling3d/TODO.md` で管理する。
 
@@ -52,7 +52,7 @@
 
 - [ ] Paint パイプラインのモジュール分界を整理する
   **現状の問題:**
-  `PaintNode → DrawTrianglesCommand` のブリッジ層が `examples/crater_paint/` に閉じており再利用できない。
+  `PaintNode → DrawTrianglesCommand` のブリッジ層が `examples/experimental/crater_paint/` に閉じており再利用できない。
   ```
   crater (セマンティクス層)
     html/css/dom → style → layout → Node + Layout ツリー
@@ -60,7 +60,7 @@
   crater/paint (変換層) ← crater 内、crater の型にのみ依存。適切
     Node + Layout → PaintNode ツリー
          ↓
-  examples/crater_paint (ブリッジ層) ← 宙ぶらりん
+  examples/experimental/crater_paint (ブリッジ層) ← 宙ぶらりん
     PaintNode → kagura DrawTrianglesCommand
          ↓
   kagura (レンダリング層)
@@ -72,8 +72,8 @@
   - C) crater 側に `PaintBackend` trait を定義 — kagura 側で実装を提供（最も正しい分離）
   **前提タスク:**
   - [ ] crater を mooncakes に publish する（B, C いずれも必要）
-  - [ ] `examples/crater_paint/` のローカルパス依存 (`../../../crater`) を解消
-  **移動対象コード（examples/crater_paint → 新パッケージ）:**
+  - [ ] `examples/experimental/crater_paint/` のローカルパス依存 (`../../../crater`) を解消
+  **移動対象コード（examples/experimental/crater_paint → 新パッケージ）:**
   - `render_paint_node()` — PaintNode ツリーを再帰的に描画コマンドに変換
   - `make_draw_cmd()` / `make_draw_cmd_alpha()` — DrawTrianglesCommand 生成ヘルパー
   - `crater_color_to_hex()` — crater Color → hex 変換
@@ -86,10 +86,10 @@
 ## ベンチマーク方針
 
 - ベンチマークゲームは Isometric Hack & Slash ARPG を継続する
-- 既存の Phase 進行、レビュー修正、周辺機能の完了分は `docs/mvp.md` を参照する
+- 既存の Phase 進行、レビュー修正、周辺機能の完了分は `docs/roadmap/mvp.md` を参照する
 - 新規の ARPG 固有タスクは、完了済み checklist を増やさず、このファイルの open task として再整理して追加する
 
 ## 参照
 
-- 完了済み一覧: `docs/mvp.md`
+- 完了済み一覧: `docs/roadmap/mvp.md`
 - 詳細な実装ログ: Git 履歴

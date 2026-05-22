@@ -4,7 +4,7 @@ Kagura 上でモデリングツールを作るなら、Blender の完全代替�
 
 この文書は、Blender / Three.js の現行プラクティスを踏まえて、Kagura 側で持つ責務、外部ツールへ逃がす責務、実装フェーズを整理する。
 
-運用手順は [docs/vlm-modeling-runbook.md](./vlm-modeling-runbook.md) に切り出している。現状の成果と評価は [docs/modeling-tool-status.md](./modeling-tool-status.md) にまとめている。未完了タスクは [tools/modeling3d/TODO.md](../tools/modeling3d/TODO.md) で管理する。
+運用手順は [docs/tools/vlm-modeling-runbook.md](./vlm-modeling-runbook.md) に切り出している。現状の成果と評価は [docs/tools/modeling-tool-status.md](./modeling-tool-status.md) にまとめている。未完了タスクは [tools/modeling3d/TODO.md](../tools/modeling3d/TODO.md) で管理する。
 
 ## 方針
 

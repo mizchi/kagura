@@ -2,7 +2,7 @@
 
 Kagura 上の authoring / VLM loop について、現時点の成果、強い部分、弱い部分をまとめる。
 
-設計方針は [docs/modeling-tool-plan.md](./modeling-tool-plan.md)、日常運用の手順は [docs/vlm-modeling-runbook.md](./vlm-modeling-runbook.md) を参照。
+設計方針は [docs/tools/modeling-tool-plan.md](./modeling-tool-plan.md)、日常運用の手順は [docs/tools/vlm-modeling-runbook.md](./vlm-modeling-runbook.md) を参照。
 
 現在の workspace ルートは `tools/modeling3d/` で、authoring example は `tools/modeling3d/examples/*`、VLM/Blender 連携 script は `tools/modeling3d/scripts/*` に集約している。
 

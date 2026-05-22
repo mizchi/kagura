@@ -22,7 +22,7 @@ For user-facing documentation, see `docs/user/`.
 
 ## Development Flow
 
-1. Review the design and boundaries of your target area (`docs/architecture.md`, `docs/module_boundaries.md`)
+1. Review the design and boundaries of your target area (`docs/architecture/architecture.md`, `docs/architecture/module_boundaries.md`)
 2. Write a failing test first (Red)
 3. Implement minimally to make the test pass (Green)
 4. Refactor without breaking API boundaries (Refactor)

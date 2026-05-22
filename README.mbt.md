@@ -104,9 +104,9 @@ Each example is an independent MoonBit module. Run with:
 ### For Contributors
 
 - [Contributing Guide](CONTRIBUTING.md)
-- [Architecture](docs/architecture.md)
-- [Module Boundaries](docs/module_boundaries.md)
-- [Roadmap](docs/roadmap.md)
+- [Architecture](docs/architecture/architecture.md)
+- [Module Boundaries](docs/architecture/module_boundaries.md)
+- [Roadmap](docs/roadmap/roadmap.md)
 
 ## Verification
 

@@ -44,11 +44,11 @@ just balance-hypothesis-record extra='--hypotheses item_spike_feedback,build_div
 ## Output
 
 - 単発 export:
-  - `examples/hacknslash_3d/data/hackslash/autoplay_experiments/*.parquet`
-  - `examples/hacknslash_3d/data/hackslash/autoplay_experiments/autoplay_experiments.duckdb`
+  - `examples/games-3d/hacknslash_3d/data/hackslash/autoplay_experiments/*.parquet`
+  - `examples/games-3d/hacknslash_3d/data/hackslash/autoplay_experiments/autoplay_experiments.duckdb`
 - 仮説比較:
-  - `examples/hacknslash_3d/data/hackslash/autoplay_hypothesis_experiments/*.parquet`
-  - `examples/hacknslash_3d/data/hackslash/autoplay_hypothesis_experiments/autoplay_experiments.duckdb`
+  - `examples/games-3d/hacknslash_3d/data/hackslash/autoplay_hypothesis_experiments/*.parquet`
+  - `examples/games-3d/hacknslash_3d/data/hackslash/autoplay_hypothesis_experiments/autoplay_experiments.duckdb`
 
 各 Parquet には少なくとも次が入る。
 

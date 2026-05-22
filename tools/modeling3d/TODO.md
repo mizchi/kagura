@@ -4,9 +4,9 @@
 
 関連資料:
 
-- 設計: `docs/modeling-tool-plan.md`
-- 現状整理: `docs/modeling-tool-status.md`
-- 運用手順: `docs/vlm-modeling-runbook.md`
+- 設計: `docs/tools/modeling-tool-plan.md`
+- 現状整理: `docs/tools/modeling-tool-status.md`
+- 運用手順: `docs/tools/vlm-modeling-runbook.md`
 
 ## Native live-review / renderer parity
 

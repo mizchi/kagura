@@ -22,7 +22,7 @@
 
 ## 開発フロー
 
-1. 変更対象の設計/境界を確認する（`docs/architecture.md`, `docs/module_boundaries.md`）
+1. 変更対象の設計/境界を確認する（`docs/architecture/architecture.md`, `docs/architecture/module_boundaries.md`）
 2. 失敗するテストを先に追加する（Red）
 3. 最小実装でテストを通す（Green）
 4. API/責務分離を崩さない形で整理する（Refactor）

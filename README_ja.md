@@ -154,9 +154,9 @@ fn main {
 ### 開発参加者向け
 
 - [コントリビューティングガイド](CONTRIBUTING_ja.md)
-- [アーキテクチャ](docs/architecture.md)
-- [モジュール境界](docs/module_boundaries.md)
-- [ロードマップ](docs/roadmap.md)
+- [アーキテクチャ](docs/architecture/architecture.md)
+- [モジュール境界](docs/architecture/module_boundaries.md)
+- [ロードマップ](docs/roadmap/roadmap.md)
 
 ## 検証
 

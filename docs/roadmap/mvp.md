@@ -9,8 +9,8 @@
 
 - `moon test --target native`: 575 passed / 0 failed
 - `moon test --target js`: 574 passed / 0 failed
-- `moon run src/examples/runtime_smoke --target js`: pass (`runtime_smoke(js): ok (hooked)`)
-- `moon run src/examples/runtime_smoke_native --target native`: pass (hook_font_load + hook_font_load_full + hook_font_load_cjk + audio_smoke)
+- `moon run examples/smoke/runtime_smoke --target js`: pass (`runtime_smoke(js): ok (hooked)`)
+- `moon run examples/smoke/runtime_smoke_native --target native`: pass (hook_font_load + hook_font_load_full + hook_font_load_cjk + audio_smoke)
 - `pnpm e2e:smoke`: 21 passed / 0 failed
 
 ### 機能領域 (判定: 完了)

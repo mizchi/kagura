@@ -3,17 +3,17 @@
 ## Current Progress
 
 - Milestone 0: `fixed_timestep` のテスト/実装を復活済み
-- Milestone 2: `src/examples/native_triangle --target native` の build/run を確認済み
+- Milestone 2: `examples/smoke/native_triangle --target native` の build/run を確認済み
 - Module Boundary: `asset/text/ui/ai` と `platform<->gfx` の契約 stub を追加済み
-- Runtime Smoke: `src/examples/runtime_smoke`(js) / `src/examples/runtime_smoke_native`(native) 実行確認済み
-- Hook Bridge: `examples/native_runtime_hooks` + `examples/web_runtime_hooks` で実行境界を共通化済み
+- Runtime Smoke: `examples/smoke/runtime_smoke`(js) / `examples/smoke/runtime_smoke_native`(native) 実行確認済み
+- Hook Bridge: `examples/smoke/native_runtime_hooks` + `examples/smoke/web_runtime_hooks` で実行境界を共通化済み
 - E2E Smoke: Playwright で `wasm` / `wasm-gc` の browser 実行確認を追加済み
 - Milestone 3 以降: 契約先行で着手待ち
 
 ## Phase 0: Contract Outline (current)
 
 - `#declaration_only` で API 契約だけ先に確定
-- Ebiten の参照元を各契約コメントと `docs/ebiten_reference.md` に明記
+- Ebiten の参照元を各契約コメントと `docs/research/ebiten_reference.md` に明記
 - 実装は「必要最小限を残してよい」。ただし契約を先に固定してから TDD で段階実装する
 
 ## Milestone 0: Core Clock (first implementation)

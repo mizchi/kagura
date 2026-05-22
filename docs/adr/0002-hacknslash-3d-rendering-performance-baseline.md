@@ -129,7 +129,7 @@
 
 ## Reference
 
-- [hacknslash_3d rendering performance summary](/Users/mz/ghq/github.com/mizchi/kagura/docs/hacknslash_3d-rendering-performance.md)
+- [hacknslash_3d rendering performance summary](/Users/mz/ghq/github.com/mizchi/kagura/docs/performance/hacknslash_3d-rendering-performance.md)
 - [GPU perf summary 8299](/Users/mz/ghq/github.com/mizchi/kagura/output/playwright/hacknslash_3d_gpu_perf-headed-8299/summary.json)
 - [GPU perf summary 8302](/Users/mz/ghq/github.com/mizchi/kagura/output/playwright/hacknslash_3d_gpu_perf-headed-8302/summary.json)
 - [GPU perf summary 8318](/Users/mz/ghq/github.com/mizchi/kagura/output/playwright/hacknslash_3d_gpu_perf-headed-8318/summary.json)

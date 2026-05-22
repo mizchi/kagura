@@ -26,4 +26,4 @@
 ## 参考
 
 - `TODO.md` の「Editor / AI Authoring 方針」セクション
-- `docs/editor-authoring.md`（editor 統合の設計方針）
+- `docs/tools/editor-authoring.md`（editor 統合の設計方針）

@@ -42,8 +42,8 @@
 
 ## クロスバックエンド基準シーン
 
-- `examples/runtime_smoke/` — JS/native 両ターゲットで同一描画ロジックを実行。VRT + native build smoke test で描画結果を比較可能。
-- `examples/runtime_smoke_native/` — native 専用 smoke test。
+- `examples/smoke/runtime_smoke/` — JS/native 両ターゲットで同一描画ロジックを実行。VRT + native build smoke test で描画結果を比較可能。
+- `examples/smoke/runtime_smoke_native/` — native 専用 smoke test。
 
 CI で js / native-linux / native-macos の 3 環境で同一シーンをビルド・テストし、パフォーマンス差を検知する基盤が整備済み。
 
@@ -56,8 +56,8 @@ CI で js / native-linux / native-macos の 3 環境で同一シーンをビル�
 
 ## Reference
 
-- `hacknslash_3d` の render tuning 結果と最新実測は [hacknslash_3d-rendering-performance.md](/Users/mz/ghq/github.com/mizchi/kagura/docs/hacknslash_3d-rendering-performance.md) を参照
-- `hacknslash_3d` の autoplay balance tuning の回し方と仮説比較は [hacknslash_3d-balance-tuning.md](/Users/mz/ghq/github.com/mizchi/kagura/docs/hacknslash_3d-balance-tuning.md) を参照
+- `hacknslash_3d` の render tuning 結果と最新実測は [hacknslash_3d-rendering-performance.md](/Users/mz/ghq/github.com/mizchi/kagura/docs/performance/hacknslash_3d-rendering-performance.md) を参照
+- `hacknslash_3d` の autoplay balance tuning の回し方と仮説比較は [hacknslash_3d-balance-tuning.md](/Users/mz/ghq/github.com/mizchi/kagura/docs/performance/hacknslash_3d-balance-tuning.md) を参照
 - render tuning を一旦完了扱いにする判断は [ADR 0002](/Users/mz/ghq/github.com/mizchi/kagura/docs/adr/0002-hacknslash-3d-rendering-performance-baseline.md) を参照
 - `hacknslash_3d` の update phase bench は `enemy_ai_phase / enemy_movement_contact_phase / enemy_enemy_separation` を継続監視対象とする
 - `hacknslash_3d` の build diversity / replayability 仮説では `floors_cleared` だけでなく `equip_upgrades` と `learned_skill_count` も主要指標とする

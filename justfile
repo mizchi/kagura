@@ -6,11 +6,11 @@ default: check test
 
 fmt:
     moon fmt
-    for dir in examples/*/ tools/modeling3d/examples/*/ tools/effect-studio/examples/*/; do [ -f "$dir/moon.mod.json" ] && (cd "$dir" && moon fmt); done
+    for dir in examples/*/*/ tools/modeling3d/examples/*/ tools/effect-studio/examples/*/; do [ -f "$dir/moon.mod.json" ] && (cd "$dir" && moon fmt); done
 
 check:
     moon check --deny-warn --target {{target}}
-    for dir in examples/*/ tools/modeling3d/examples/*/ tools/effect-studio/examples/*/; do if [ -f "$dir/moon.mod.json" ]; then if [ "{{target}}" != "native" ] && [ -f "$dir/src/moon.pkg" ] && grep -q 'supported_targets = "native"' "$dir/src/moon.pkg"; then echo "skip $dir (supports native only)"; continue; fi; (cd "$dir" && moon check --deny-warn --target {{target}}); fi; done
+    for dir in examples/*/*/ tools/modeling3d/examples/*/ tools/effect-studio/examples/*/; do if [ -f "$dir/moon.mod.json" ]; then if [ "{{target}}" != "native" ] && [ -f "$dir/src/moon.pkg" ] && grep -q 'supported_targets = "native"' "$dir/src/moon.pkg"; then echo "skip $dir (supports native only)"; continue; fi; (cd "$dir" && moon check --deny-warn --target {{target}}); fi; done
 
 modeling3d-check:
     for dir in tools/modeling3d/examples/*/; do [ -f "$dir/moon.mod.json" ] && (cd "$dir" && moon check --deny-warn --target {{target}}); done
@@ -21,7 +21,7 @@ effect-studio-check:
 test:
     if [ "{{target}}" = "native" ]; then CPATH="$(brew --prefix glfw)/include:${CPATH:-}" LIBRARY_PATH="$(brew --prefix)/lib:${LIBRARY_PATH:-}" moon test --target native || { echo "::error title=moon test failed::root moon test --target native"; exit 1; }; else moon test --target {{target}} || { echo "::error title=moon test failed::root moon test --target {{target}}"; exit 1; }; fi
     if [ "{{target}}" = "js" ] && ls lib/web/*.test.mjs >/dev/null 2>&1; then node --test lib/web/*.test.mjs || { echo "::error title=node test failed::lib/web/*.test.mjs"; exit 1; }; fi
-    for dir in examples/*/ tools/modeling3d/examples/*/ tools/effect-studio/examples/*/; do if [ -f "$dir/moon.mod.json" ]; then if [ "{{target}}" != "native" ] && [ -f "$dir/src/moon.pkg" ] && grep -q 'supported_targets = "native"' "$dir/src/moon.pkg"; then echo "skip $dir (supports native only)"; continue; fi; if [ "{{target}}" = "native" ] && grep -rq "wgpu_native" "$dir/src/moon.pkg" 2>/dev/null; then echo "skip $dir (requires wgpu-native at link time)"; continue; fi; if [ "{{target}}" = "native" ] && [ "$dir" = "tools/effect-studio/examples/effect_studio/" ]; then echo "skip $dir (native test limited to check-only)"; continue; fi; echo "test $dir"; (cd "$dir" && if [ "{{target}}" = "native" ]; then CPATH="$(brew --prefix glfw)/include:${CPATH:-}" LIBRARY_PATH="$(brew --prefix)/lib:${LIBRARY_PATH:-}" moon test --target native; else moon test --target {{target}}; fi) || { echo "::error file=$dir/moon.mod.json,title=example test failed::$dir"; exit 1; }; fi; done
+    for dir in examples/*/*/ tools/modeling3d/examples/*/ tools/effect-studio/examples/*/; do if [ -f "$dir/moon.mod.json" ]; then if [ "{{target}}" != "native" ] && [ -f "$dir/src/moon.pkg" ] && grep -q 'supported_targets = "native"' "$dir/src/moon.pkg"; then echo "skip $dir (supports native only)"; continue; fi; if [ "{{target}}" = "native" ] && grep -rq "wgpu_native" "$dir/src/moon.pkg" 2>/dev/null; then echo "skip $dir (requires wgpu-native at link time)"; continue; fi; if [ "{{target}}" = "native" ] && [ "$dir" = "tools/effect-studio/examples/effect_studio/" ]; then echo "skip $dir (native test limited to check-only)"; continue; fi; echo "test $dir"; (cd "$dir" && if [ "{{target}}" = "native" ]; then CPATH="$(brew --prefix glfw)/include:${CPATH:-}" LIBRARY_PATH="$(brew --prefix)/lib:${LIBRARY_PATH:-}" moon test --target native; else moon test --target {{target}}; fi) || { echo "::error file=$dir/moon.mod.json,title=example test failed::$dir"; exit 1; }; fi; done
 
 modeling3d-test:
     for dir in tools/modeling3d/examples/*/; do [ -f "$dir/moon.mod.json" ] && (cd "$dir" && if [ "{{target}}" = "native" ]; then CPATH="$(brew --prefix glfw)/include:${CPATH:-}" LIBRARY_PATH="$(brew --prefix)/lib:${LIBRARY_PATH:-}" moon test --target native; else moon test --target {{target}}; fi); done
@@ -56,7 +56,7 @@ coverage:
 
 bench:
     moon bench --target {{target}}
-    for dir in examples/*/ tools/modeling3d/examples/*/ tools/effect-studio/examples/*/; do [ -f "$dir/moon.mod.json" ] && (cd "$dir" && moon bench --target {{target}}); done
+    for dir in examples/*/*/ tools/modeling3d/examples/*/ tools/effect-studio/examples/*/; do [ -f "$dir/moon.mod.json" ] && (cd "$dir" && moon bench --target {{target}}); done
 
 bench-gate:
     bash scripts/bench-gate.sh {{target}}
@@ -84,10 +84,10 @@ e2e-vrt-update:
     pnpm exec playwright test e2e/vrt.spec.ts --update-snapshots
 
 native-vrt:
-    cd examples/native_vrt && moon run src --target native
+    cd examples/smoke/native_vrt && moon run src --target native
 
 native-vrt-update:
-    cd examples/native_vrt && touch .update_baselines && moon run src --target native && rm -f .update_baselines
+    cd examples/smoke/native_vrt && touch .update_baselines && moon run src --target native && rm -f .update_baselines
 
 hacknslash3d-gpu-perf port="8282" samples="120" warmup="30" extra="--headed":
     node scripts/hacknslash_3d_gpu_perf.mjs --serve --port {{port}} --samples {{samples}} --warmup {{warmup}} {{extra}}
@@ -100,18 +100,18 @@ dev name:
 
 fal-trellis-demo-generate image="" extra="":
     test -n "{{image}}"
-    node examples/fal_trellis_demo/scripts/fal_trellis_asset.mjs --image {{image}} {{extra}}
+    node examples/experimental/fal_trellis_demo/scripts/fal_trellis_asset.mjs --image {{image}} {{extra}}
 
 fal-trellis-demo-generate-sample sample="proxy-chest" extra="":
-    image="examples/fal_trellis_demo/assets/fal_samples/{{sample}}.png"; test -f "$image"
-    node examples/fal_trellis_demo/scripts/fal_trellis_asset.mjs --image "$image" {{extra}}
+    image="examples/experimental/fal_trellis_demo/assets/fal_samples/{{sample}}.png"; test -f "$image"
+    node examples/experimental/fal_trellis_demo/scripts/fal_trellis_asset.mjs --image "$image" {{extra}}
 
 fal-trellis-demo-check:
-    moon -C examples/fal_trellis_demo test --target js
-    moon -C examples/fal_trellis_demo check --target js
-    node --test examples/fal_trellis_demo/scripts/fal_trellis_asset_utils.test.mjs
-    node --check examples/fal_trellis_demo/scripts/fal_trellis_asset.mjs examples/fal_trellis_demo/scripts/fal_trellis_asset_utils.mjs
-    python3 -m py_compile examples/fal_trellis_demo/scripts/fal_trellis_preprocess.py
+    moon -C examples/experimental/fal_trellis_demo test --target js
+    moon -C examples/experimental/fal_trellis_demo check --target js
+    node --test examples/experimental/fal_trellis_demo/scripts/fal_trellis_asset_utils.test.mjs
+    node --check examples/experimental/fal_trellis_demo/scripts/fal_trellis_asset.mjs examples/experimental/fal_trellis_demo/scripts/fal_trellis_asset_utils.mjs
+    python3 -m py_compile examples/experimental/fal_trellis_demo/scripts/fal_trellis_preprocess.py
 
 vlm-handoff example="model_authoring" profile="roundtrip_diff_bundle" provider="openrouter" port="8113" extra="":
     node tools/modeling3d/scripts/model-authoring-vlm-handoff.mjs --example {{example}} --edit-profile {{profile}} --provider {{provider}} --serve --port {{port}} {{extra}}
@@ -172,7 +172,7 @@ vlm-apply target="" patch="" extra="":
     node tools/modeling3d/scripts/model-authoring-vlm-apply-patch.mjs --target {{target}} --patch {{patch}} {{extra}}
 
 run-native name:
-    dir="examples/{{name}}"; if [ ! -f "$dir/moon.mod.json" ]; then dir="tools/modeling3d/examples/{{name}}"; fi; if [ ! -f "$dir/moon.mod.json" ]; then dir="tools/effect-studio/examples/{{name}}"; fi; cd "$dir" && CPATH="$(brew --prefix glfw)/include:${CPATH:-}" LIBRARY_PATH="$(brew --prefix)/lib:${LIBRARY_PATH:-}" moon run src/ --target native
+    dir=""; for candidate in examples/*/{{name}} tools/modeling3d/examples/{{name}} tools/effect-studio/examples/{{name}}; do if [ -f "$candidate/moon.mod.json" ]; then dir="$candidate"; break; fi; done; if [ -z "$dir" ]; then echo "example not found: {{name}}"; exit 1; fi; cd "$dir" && CPATH="$(brew --prefix glfw)/include:${CPATH:-}" LIBRARY_PATH="$(brew --prefix)/lib:${LIBRARY_PATH:-}" moon run src/ --target native
 
 pages:
     bash scripts/build-pages.sh
@@ -193,45 +193,45 @@ release-manifests out_dir=".moon-release":
 
 clean:
     moon clean
-    for dir in examples/*/ tools/modeling3d/examples/*/ tools/effect-studio/examples/*/; do [ -d "$dir" ] && (cd "$dir" && moon clean); done
+    for dir in examples/*/*/ tools/modeling3d/examples/*/ tools/effect-studio/examples/*/; do [ -d "$dir" ] && (cd "$dir" && moon clean); done
 
 balance name="playtest":
-    cd examples/hacknslash_3d && moon run src/balance --target js 2>&1 | tee /dev/stderr | sed -n '/^=== CSV ===/,$ p' | tail -n +2 > data/hackslash/{{name}}.csv
-    @echo "Saved: examples/hacknslash_3d/data/hackslash/{{name}}.csv"
+    cd examples/games-3d/hacknslash_3d && moon run src/balance --target js 2>&1 | tee /dev/stderr | sed -n '/^=== CSV ===/,$ p' | tail -n +2 > data/hackslash/{{name}}.csv
+    @echo "Saved: examples/games-3d/hacknslash_3d/data/hackslash/{{name}}.csv"
 
-balance-autoplay-record out_dir="examples/hacknslash_3d/data/hackslash/autoplay_experiments":
-    node examples/hacknslash_3d/scripts/balance_autoplay_record.mjs --out-dir {{out_dir}}
+balance-autoplay-record out_dir="examples/games-3d/hacknslash_3d/data/hackslash/autoplay_experiments":
+    node examples/games-3d/hacknslash_3d/scripts/balance_autoplay_record.mjs --out-dir {{out_dir}}
 
-balance-hypothesis-record out_dir="examples/hacknslash_3d/data/hackslash/autoplay_hypothesis_experiments" extra="":
-    node examples/hacknslash_3d/scripts/balance_hypothesis_record.mjs --out-dir {{out_dir}} {{extra}}
+balance-hypothesis-record out_dir="examples/games-3d/hacknslash_3d/data/hackslash/autoplay_hypothesis_experiments" extra="":
+    node examples/games-3d/hacknslash_3d/scripts/balance_hypothesis_record.mjs --out-dir {{out_dir}} {{extra}}
 
 # WASM game host tasks
 wasm-build-moonbit:
-    cd examples/wasm_game/guest/moonbit && moon build --target wasm
-    mkdir -p examples/wasm_game/host/public
-    cp examples/wasm_game/guest/moonbit/_build/wasm/debug/build/wasm_game_guest.wasm examples/wasm_game/host/public/game.wasm
+    cd examples/experimental/wasm_game/guest/moonbit && moon build --target wasm
+    mkdir -p examples/experimental/wasm_game/host/public
+    cp examples/experimental/wasm_game/guest/moonbit/_build/wasm/debug/build/wasm_game_guest.wasm examples/experimental/wasm_game/host/public/game.wasm
 
 wasm-build-rust:
-    cd examples/wasm_game/guest/rust && RUSTC="$(rustup which --toolchain stable rustc)" "$(rustup which --toolchain stable cargo)" build --target wasm32-unknown-unknown --release
-    mkdir -p examples/wasm_game/host/public
-    cp examples/wasm_game/guest/rust/target/wasm32-unknown-unknown/release/kagura_wasm_guest_rust.wasm examples/wasm_game/host/public/game.wasm
+    cd examples/experimental/wasm_game/guest/rust && RUSTC="$(rustup which --toolchain stable rustc)" "$(rustup which --toolchain stable cargo)" build --target wasm32-unknown-unknown --release
+    mkdir -p examples/experimental/wasm_game/host/public
+    cp examples/experimental/wasm_game/guest/rust/target/wasm32-unknown-unknown/release/kagura_wasm_guest_rust.wasm examples/experimental/wasm_game/host/public/game.wasm
 
 wasm-build-zig:
-    mkdir -p examples/wasm_game/guest/zig/zig-out/lib
-    zig build-exe examples/wasm_game/guest/zig/src/main.zig -target wasm32-freestanding -O ReleaseSmall -fno-entry --export-memory -rdynamic -ofmt=wasm -femit-bin=examples/wasm_game/guest/zig/zig-out/lib/kagura_wasm_guest_zig.wasm
-    mkdir -p examples/wasm_game/host/public
-    cp examples/wasm_game/guest/zig/zig-out/lib/kagura_wasm_guest_zig.wasm examples/wasm_game/host/public/game.wasm
+    mkdir -p examples/experimental/wasm_game/guest/zig/zig-out/lib
+    zig build-exe examples/experimental/wasm_game/guest/zig/src/main.zig -target wasm32-freestanding -O ReleaseSmall -fno-entry --export-memory -rdynamic -ofmt=wasm -femit-bin=examples/experimental/wasm_game/guest/zig/zig-out/lib/kagura_wasm_guest_zig.wasm
+    mkdir -p examples/experimental/wasm_game/host/public
+    cp examples/experimental/wasm_game/guest/zig/zig-out/lib/kagura_wasm_guest_zig.wasm examples/experimental/wasm_game/host/public/game.wasm
 
 wasm-host-install:
-    cd examples/wasm_game/host && pnpm install --frozen-lockfile
+    cd examples/experimental/wasm_game/host && pnpm install --frozen-lockfile
 
 wasm-host-check:
     just wasm-host-install
-    cd examples/wasm_game/host && pnpm exec tsc --noEmit
-    cd examples/wasm_game/host && pnpm build
+    cd examples/experimental/wasm_game/host && pnpm exec tsc --noEmit
+    cd examples/experimental/wasm_game/host && pnpm build
 
 wasm-wit-validate:
-    wasm-tools component wit examples/wasm_game/wit/kagura-app-v0.wit > /dev/null
+    wasm-tools component wit examples/experimental/wasm_game/wit/kagura-app-v0.wit > /dev/null
 
 wasm-verify:
     just wasm-wit-validate
@@ -243,13 +243,13 @@ wasm-verify:
     just wasm-host-check
 
 wasm-test guest="all":
-    node examples/wasm_game/test-wasm.mjs {{guest}}
+    node examples/experimental/wasm_game/test-wasm.mjs {{guest}}
 
 wasm-test-abi guest="all":
-    node examples/wasm_game/test-wasm-abi.mjs {{guest}}
+    node examples/experimental/wasm_game/test-wasm-abi.mjs {{guest}}
 
 wasm-dev guest="moonbit": (wasm-build guest)
-    cd examples/wasm_game/host && pnpm dev
+    cd examples/experimental/wasm_game/host && pnpm dev
 
 [private]
 wasm-build guest:

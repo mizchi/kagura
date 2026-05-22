@@ -1,4 +1,4 @@
-import { existsSync, readdirSync } from "node:fs";
+import { existsSync, readdirSync, statSync } from "node:fs";
 import { join } from "node:path";
 
 const GITHUB_BLOB_ROOT = "https://github.com/mizchi/kagura/blob/main";
@@ -22,7 +22,7 @@ const RAW_DEMO_PAGES = [
       "Tap / Space after game over: restart",
     ],
     tags: ["2D", "Scene API"],
-    sourcePath: "examples/flappy_bird/src/game.mbt",
+    sourcePath: "examples/games-2d/flappy_bird/src/game.mbt",
   },
   {
     name: "survivor",
@@ -35,7 +35,7 @@ const RAW_DEMO_PAGES = [
       "Space: start / confirm / continue",
     ],
     tags: ["2D", "Camera", "Leveling"],
-    sourcePath: "examples/survivor/src/game.mbt",
+    sourcePath: "examples/games-2d/survivor/src/game.mbt",
   },
   {
     name: "action_rpg",
@@ -49,7 +49,7 @@ const RAW_DEMO_PAGES = [
       "Esc: pause menu",
     ],
     tags: ["2D", "AI", "UI"],
-    sourcePath: "examples/action_rpg/src/game.mbt",
+    sourcePath: "examples/games-2d/action_rpg/src/game.mbt",
   },
   {
     name: "hacknslash",
@@ -62,7 +62,7 @@ const RAW_DEMO_PAGES = [
       "Space: start / attack / restart",
     ],
     tags: ["2D", "Combat"],
-    sourcePath: "examples/hacknslash/src/game.mbt",
+    sourcePath: "examples/games-2d/hacknslash/src/game.mbt",
   },
   {
     name: "hacknslash_3d",
@@ -76,7 +76,7 @@ const RAW_DEMO_PAGES = [
       "I: inventory, K: skill tree, Esc: pause",
     ],
     tags: ["3D", "Combat", "RPG"],
-    sourcePath: "examples/hacknslash_3d/src/update.mbt",
+    sourcePath: "examples/games-3d/hacknslash_3d/src/update.mbt",
     width: 640,
     height: 480,
   },
@@ -91,7 +91,7 @@ const RAW_DEMO_PAGES = [
       "Space: add score",
     ],
     tags: ["2D", "Scene API"],
-    sourcePath: "examples/scene_demo/src/game.mbt",
+    sourcePath: "examples/ecs/scene_demo/src/game.mbt",
   },
   {
     name: "ui_demo",
@@ -104,7 +104,7 @@ const RAW_DEMO_PAGES = [
       "Click: focus / select",
     ],
     tags: ["UI", "Focus"],
-    sourcePath: "examples/ui_demo/src/game.mbt",
+    sourcePath: "examples/ui/ui_demo/src/game.mbt",
     width: 640,
     height: 480,
   },
@@ -119,7 +119,7 @@ const RAW_DEMO_PAGES = [
       "Replace `assets/sample.png` to try another image",
     ],
     tags: ["Asset", "Image"],
-    sourcePath: "examples/fetch_image/src/main.mbt",
+    sourcePath: "examples/ui/fetch_image/src/main.mbt",
   },
   {
     name: "arena3d",
@@ -132,7 +132,7 @@ const RAW_DEMO_PAGES = [
       "See source for camera / scene setup",
     ],
     tags: ["3D", "Renderer"],
-    sourcePath: "examples/arena3d/src/game.mbt",
+    sourcePath: "examples/games-3d/arena3d/src/game.mbt",
     width: 640,
     height: 480,
   },
@@ -149,7 +149,7 @@ const RAW_DEMO_PAGES = [
       "Space: jump",
     ],
     tags: ["3D", "FPS"],
-    sourcePath: "examples/fps_demo/src/game.mbt",
+    sourcePath: "examples/games-3d/fps_demo/src/game.mbt",
     width: 640,
     height: 480,
   },
@@ -164,7 +164,7 @@ const RAW_DEMO_PAGES = [
       "Wheel: zoom",
     ],
     tags: ["3D", "Asset"],
-    sourcePath: "examples/obj_viewer/src/main_js.mbt",
+    sourcePath: "examples/rendering/obj_viewer/src/main_js.mbt",
     width: 640,
     height: 480,
   },
@@ -179,7 +179,7 @@ const RAW_DEMO_PAGES = [
       "Wheel: zoom",
     ],
     tags: ["3D", "Asset"],
-    sourcePath: "examples/gltf_viewer/src/main_js.mbt",
+    sourcePath: "examples/rendering/gltf_viewer/src/main_js.mbt",
     width: 640,
     height: 480,
   },
@@ -340,7 +340,7 @@ const RAW_DEMO_PAGES = [
       "Wheel: zoom",
     ],
     tags: ["3D", "Particles"],
-    sourcePath: "examples/particle_demo/src/game.mbt",
+    sourcePath: "examples/ui/particle_demo/src/game.mbt",
     width: 640,
     height: 480,
   },
@@ -355,7 +355,7 @@ const RAW_DEMO_PAGES = [
       "Open source for implementation details",
     ],
     tags: ["3D", "Shadow"],
-    sourcePath: "examples/shadow3d_demo/src/game.mbt",
+    sourcePath: "examples/rendering/shadow3d_demo/src/game.mbt",
     width: 640,
     height: 480,
   },
@@ -370,7 +370,7 @@ const RAW_DEMO_PAGES = [
       "Open source for post-processing setup",
     ],
     tags: ["3D", "PostFX"],
-    sourcePath: "examples/postfx_demo/src/game.mbt",
+    sourcePath: "examples/rendering/postfx_demo/src/game.mbt",
     width: 640,
     height: 480,
   },
@@ -385,7 +385,7 @@ const RAW_DEMO_PAGES = [
       "Open source for animation graph details",
     ],
     tags: ["3D", "Animation"],
-    sourcePath: "examples/skeletal_anim/src/game.mbt",
+    sourcePath: "examples/rendering/skeletal_anim/src/game.mbt",
     width: 640,
     height: 480,
   },
@@ -400,7 +400,7 @@ const RAW_DEMO_PAGES = [
       "Observe the rigid bodies and collisions",
     ],
     tags: ["Physics", "3D"],
-    sourcePath: "examples/physics3d_demo/src/game.mbt",
+    sourcePath: "examples/physics/physics3d_demo/src/game.mbt",
     width: 640,
     height: 480,
   },
@@ -415,7 +415,7 @@ const RAW_DEMO_PAGES = [
       "Bodies alternate between circles and boxes",
     ],
     tags: ["Physics", "2D"],
-    sourcePath: "examples/physics2d_demo/src/game.mbt",
+    sourcePath: "examples/physics/physics2d_demo/src/game.mbt",
     width: 640,
     height: 480,
   },
@@ -430,7 +430,7 @@ const RAW_DEMO_PAGES = [
       "Release: let the spring force settle",
     ],
     tags: ["Physics", "2D"],
-    sourcePath: "examples/ragdoll_demo/src/game.mbt",
+    sourcePath: "examples/physics/ragdoll_demo/src/game.mbt",
     width: 640,
     height: 480,
   },
@@ -445,7 +445,7 @@ const RAW_DEMO_PAGES = [
       "Mouse: look",
     ],
     tags: ["Physics", "3D"],
-    sourcePath: "examples/collision3d_demo/src/game.mbt",
+    sourcePath: "examples/physics/collision3d_demo/src/game.mbt",
     width: 640,
     height: 480,
   },
@@ -460,7 +460,7 @@ const RAW_DEMO_PAGES = [
       "Demonstrates crater HTML/CSS parsing + kagura WebGPU rendering",
     ],
     tags: ["2D", "HTML", "CSS", "Text"],
-    sourcePath: "examples/crater_renderer/src/main.mbt",
+    sourcePath: "examples/experimental/crater_renderer/src/main.mbt",
     width: 800,
     height: 480,
   },
@@ -519,6 +519,16 @@ function resolveExampleSourcePath(name) {
   }
   if (name.endsWith("_authoring")) {
     return `tools/modeling3d/examples/${name}/src`;
+  }
+  const examplesRoot = "examples";
+  if (existsSync(examplesRoot)) {
+    for (const category of readdirSync(examplesRoot)) {
+      const categoryPath = join(examplesRoot, category);
+      if (!statSync(categoryPath).isDirectory()) continue;
+      if (existsSync(join(categoryPath, name, "moon.mod.json"))) {
+        return `examples/${category}/${name}/src`;
+      }
+    }
   }
   return `examples/${name}/src`;
 }

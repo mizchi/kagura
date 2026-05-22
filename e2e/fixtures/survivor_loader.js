@@ -6,7 +6,7 @@ async function init() {
   if (result) {
     setupGlobalState(result.canvas, result.device, result.format, result.context);
   }
-  await loadGameScript("/_build/js/debug/build/examples/survivor/survivor.js");
+  await loadGameScript("/_build/js/debug/build/examples/games-2d/survivor/survivor.js");
 }
 
 init().catch(console.error);

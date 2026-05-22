@@ -5,7 +5,7 @@
 
 ## Context
 
-`examples/hacknslash_3d` は、今回の一連の最適化前は Web 側 encode/upload が主ボトルネックになっていた。
+`examples/games-3d/hacknslash_3d` は、今回の一連の最適化前は Web 側 encode/upload が主ボトルネックになっていた。
 
 実測では、headed Chrome / real GPU の `default` シナリオで次の状態だった。
 

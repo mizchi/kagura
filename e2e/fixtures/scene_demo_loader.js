@@ -6,7 +6,7 @@ async function init() {
   if (result) {
     setupGlobalState(result.canvas, result.device, result.format, result.context);
   }
-  await loadGameScript("/examples/scene_demo/_build/js/debug/build/scene_demo.js");
+  await loadGameScript("/examples/ecs/scene_demo/_build/js/debug/build/scene_demo.js");
 }
 
 init().catch(console.error);

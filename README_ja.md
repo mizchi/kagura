@@ -55,7 +55,7 @@ moon.work
 pnpm install
 
 # JS smoke テスト
-(cd examples/runtime_smoke && moon run src --target js)
+(cd examples/smoke/runtime_smoke && moon run src --target js)
 
 # Native smoke テスト（wgpu-native のセットアップが必要）
 bash scripts/setup-wgpu-native.sh
@@ -76,7 +76,7 @@ just run-native native_triangle
 just run-native action_rpg
 
 # 手動で実行する場合は CPATH / LIBRARY_PATH の指定が必要
-cd examples/action_rpg && \
+cd examples/games-2d/action_rpg && \
   CPATH="$(brew --prefix glfw)/include:${CPATH:-}" \
   LIBRARY_PATH="$(brew --prefix)/lib:${LIBRARY_PATH:-}" \
   moon run src/ --target native

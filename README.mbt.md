@@ -67,7 +67,7 @@ bash scripts/setup-wgpu-native.sh
 just run-native action_rpg
 
 # Non-visual smoke test (window can appear black)
-(cd examples/runtime_smoke_native && moon run src --target native)
+(cd examples/smoke/runtime_smoke_native && moon run src --target native)
 
 # Visual sanity check
 just run-native native_triangle

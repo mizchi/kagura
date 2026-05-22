@@ -7,7 +7,7 @@ import { dirname, join } from "node:path";
 import { fileURLToPath } from "node:url";
 
 const __dirname = dirname(fileURLToPath(import.meta.url));
-const OUTPUT = join(__dirname, "../examples/gltf_viewer/assets/test_scene.glb");
+const OUTPUT = join(__dirname, "../examples/rendering/gltf_viewer/assets/test_scene.glb");
 
 // Cube with each face slightly offset outward along its normal.
 // This prevents depth-sorting artifacts from painter's algorithm

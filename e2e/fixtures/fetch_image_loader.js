@@ -40,7 +40,7 @@ async function init() {
     });
   };
 
-  await loadGameScript("/examples/fetch_image/_build/js/debug/build/fetch_image.js");
+  await loadGameScript("/examples/ui/fetch_image/_build/js/debug/build/fetch_image.js");
 
   // Fallback: if no frame rendered within 5s, report timeout
   setTimeout(() => {

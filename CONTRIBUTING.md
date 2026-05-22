@@ -42,9 +42,9 @@ pnpm e2e:smoke
 Run smoke tests as needed:
 
 ```bash
-(cd examples/runtime_smoke && moon run src --target js)
-(cd examples/runtime_smoke_native && moon run src --target native)
-(cd examples/native_triangle && moon build src --target native)
+(cd examples/smoke/runtime_smoke && moon run src --target js)
+(cd examples/smoke/runtime_smoke_native && moon run src --target native)
+(cd examples/smoke/native_triangle && moon build src --target native)
 ```
 
 ## Documentation Layout

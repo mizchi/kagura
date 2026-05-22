@@ -3,7 +3,8 @@
 ## プロジェクト構成
 
 - `src/` - エンジンコア
-- `examples/` - サンプルプロジェクト（各ディレクトリが独立した moon プロジェクト）
+- `examples/<category>/<name>/` - サンプルプロジェクト（各ディレクトリが独立した moon プロジェクト）
+  - カテゴリ: `games-2d`, `games-3d`, `rendering`, `physics`, `ui`, `ecs`, `smoke`, `experimental`
 - `scripts/` - ビルド・開発スクリプト
 - `justfile` - タスクランナー
 
@@ -57,7 +58,7 @@ URL パラメータでゲームステートを制御し、目視確認と VRT �
 
 - `tick` は PostFX パイプライン（Bloom, Tonemap, FXAA）が確実に適用された状態をキャプチャするために使う
 - ゲーム側で `globalThis.__kaguraSnapshotTick` に描画済みフレーム数を公開し、Playwright が `waitForFunction` で待機
-- 実装: `examples/*/src/snapshot.mbt` + `main.mbt` の draw コールバック内
+- 実装: `examples/*/*/src/snapshot.mbt` + `main.mbt` の draw コールバック内
 
 ### 新しい example に VRT を追加する手順
 

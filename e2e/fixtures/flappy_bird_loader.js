@@ -6,7 +6,7 @@ async function init() {
   if (result) {
     setupGlobalState(result.canvas, result.device, result.format, result.context);
   }
-  await loadGameScript("/_build/js/debug/build/examples/flappy_bird/flappy_bird.js");
+  await loadGameScript("/_build/js/debug/build/examples/games-2d/flappy_bird/flappy_bird.js");
 }
 
 init().catch(console.error);

@@ -3,7 +3,7 @@
 // Usage: node scripts/generate_skinned_glb.mjs
 //
 // Creates a simple 2-bone arm that bends via keyframe animation.
-// Output: examples/gltf_viewer/assets/skinned_test.glb
+// Output: examples/rendering/gltf_viewer/assets/skinned_test.glb
 
 import { writeFileSync } from "node:fs";
 import { dirname, join } from "node:path";
@@ -12,7 +12,7 @@ import { fileURLToPath } from "node:url";
 const __dirname = dirname(fileURLToPath(import.meta.url));
 const OUTPUT = join(
   __dirname,
-  "../examples/gltf_viewer/assets/skinned_test.glb"
+  "../examples/rendering/gltf_viewer/assets/skinned_test.glb"
 );
 
 // Build a simple cylinder-like arm mesh along Y axis

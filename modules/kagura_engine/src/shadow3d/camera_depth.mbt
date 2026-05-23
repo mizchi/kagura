@@ -10,25 +10,30 @@ fn camera_depth_resource_cache_key(
   mesh : @mesh3d.Mesh3D,
   uniform_dwords : Array[Int],
 ) -> Int {
-  let values : Array[Int] = [
-    depth_target.id,
-    depth_target.width,
-    depth_target.height,
-    shader.id,
-    mesh.vertex_data.length(),
-    mesh.indices.length(),
-    uniform_dwords.length(),
-  ]
+  // mix_cache_key / double_cache_bits live in shadow3d/contracts.mbt
+  // (same sub-package), see comments there.
+  let mut hash = 0x43445054
+  hash = mix_cache_key(hash, depth_target.id)
+  hash = mix_cache_key(hash, depth_target.width)
+  hash = mix_cache_key(hash, depth_target.height)
+  hash = mix_cache_key(hash, shader.id)
+  hash = mix_cache_key(hash, mesh.vertex_data.length())
+  hash = mix_cache_key(hash, mesh.indices.length())
+  hash = mix_cache_key(hash, uniform_dwords.length())
   for vertex in mesh.vertex_data {
-    values.push(@gfx.double_to_f32_bits(vertex))
+    hash = mix_cache_key(hash, double_cache_bits(vertex))
   }
   for index in mesh.indices {
-    values.push(index)
+    hash = mix_cache_key(hash, index)
   }
   for dword in uniform_dwords {
-    values.push(dword)
+    hash = mix_cache_key(hash, dword)
   }
-  @gfx.build_resource_cache_key(0x43445054, values)
+  if hash == 0 {
+    1
+  } else {
+    hash
+  }
 }
 
 ///|

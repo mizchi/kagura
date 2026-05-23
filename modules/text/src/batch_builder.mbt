@@ -15,6 +15,21 @@ pub fn SimpleTextBatchBuilder::new(
   { cache, pipeline_id }
 }
 
+// Must mirror `mix_resource_cache_key` in mizchi/gfx/src/contracts.mbt.
+// Kept local so the per-glyph vertex hash chain avoids an intermediate
+// Array[Int] allocation (text batches can run thousands of vertices).
+fn mix_cache_key(seed : Int, value : Int) -> Int {
+  seed * 16777619 + value + 31
+}
+
+// Cheap deterministic 32-bit hash for a Double. resource_cache_key is
+// non-functional metadata so any stable mapping works; this avoids the
+// int64 round-trip in @gfx.double_to_f32_bits, which dominates on the JS
+// target.
+fn double_cache_bits(v : Double) -> Int {
+  (v * 4096.0).to_int()
+}
+
 ///|
 fn simple_text_batch_resource_cache_key(
   target : @gfx.ImageHandle,
@@ -25,31 +40,34 @@ fn simple_text_batch_resource_cache_key(
   vertex_data : Array[Double],
   indices : Array[Int],
 ) -> Int {
-  let values : Array[Int] = [
-    target.id,
-    target.width,
-    target.height,
-    shader.id,
-    pipeline_id,
-    region.x,
-    region.y,
-    region.width,
-    region.height,
-    region.index_count,
-    src_image_ids.length(),
-    vertex_data.length(),
-    indices.length(),
-  ]
+  let mut hash = 0x54455854
+  hash = mix_cache_key(hash, target.id)
+  hash = mix_cache_key(hash, target.width)
+  hash = mix_cache_key(hash, target.height)
+  hash = mix_cache_key(hash, shader.id)
+  hash = mix_cache_key(hash, pipeline_id)
+  hash = mix_cache_key(hash, region.x)
+  hash = mix_cache_key(hash, region.y)
+  hash = mix_cache_key(hash, region.width)
+  hash = mix_cache_key(hash, region.height)
+  hash = mix_cache_key(hash, region.index_count)
+  hash = mix_cache_key(hash, src_image_ids.length())
+  hash = mix_cache_key(hash, vertex_data.length())
+  hash = mix_cache_key(hash, indices.length())
   for image_id in src_image_ids {
-    values.push(image_id)
+    hash = mix_cache_key(hash, image_id)
   }
   for v in vertex_data {
-    values.push(@gfx.double_to_f32_bits(v))
+    hash = mix_cache_key(hash, double_cache_bits(v))
   }
   for index in indices {
-    values.push(index)
+    hash = mix_cache_key(hash, index)
   }
-  @gfx.build_resource_cache_key(0x54455854, values)
+  if hash == 0 {
+    1
+  } else {
+    hash
+  }
 }
 
 ///|

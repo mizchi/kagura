@@ -29,41 +29,43 @@
 pub(open) trait GraphicsDriver {
   /// Bind a device / swapchain. Called once before any other method.
   /// Ebiten ref: Graphics.Initialize.
-  initialize(Self) -> Unit raise
+  fn initialize(Self) -> Unit raise
 
   /// Open a render pass with the given clear color and present flag.
   /// Ebiten ref: Graphics.Begin.
-  begin(Self, pass : RenderPassDesc) -> Unit raise
+  fn begin(Self, pass : RenderPassDesc) -> Unit raise
 
   /// Close the current render pass. `present=true` swaps buffers.
   /// Ebiten ref: Graphics.End.
-  end(Self, present : Bool) -> Unit raise
+  fn end(Self, present : Bool) -> Unit raise
 
   /// Reconfigure the surface to the new size. May be called outside a
   /// render pass and should de-duplicate identical sizes.
   /// Ebiten ref: surface resize / reconfigure paths.
-  resize(Self, width : Int, height : Int) -> Unit raise
+  fn resize(Self, width : Int, height : Int) -> Unit raise
 
   /// Allocate a backend-owned image of the requested size and return a
   /// handle. The numeric id inside the handle is backend-defined; the
   /// caller treats it as opaque.
   /// Ebiten ref: Graphics.NewImage.
-  new_image(Self, width : Int, height : Int) -> ImageHandle raise
+  fn new_image(Self, width : Int, height : Int) -> ImageHandle raise
 
   /// Compile a shader source string and return a handle.
   /// Ebiten ref: Graphics.NewShader.
-  new_shader(Self, source : String) -> ShaderHandle raise
+  fn new_shader(Self, source : String) -> ShaderHandle raise
 
   /// Submit one `DrawTrianglesCommand` into the current render pass.
   /// Must be called between `begin` and `end`.
   /// Ebiten ref: Graphics.DrawTriangles.
-  draw_triangles(Self, command : DrawTrianglesCommand) -> Unit raise
+  fn draw_triangles(Self, command : DrawTrianglesCommand) -> Unit raise
 
   /// Read back framebuffer pixels as a flat RGBA8 array of length
   /// `width * height * 4`. Returns None if readback is not supported by
   /// the backend (e.g. some headless paths). Used for VRT / golden
   /// image testing.
-  read_pixels(Self, x : Int, y : Int, width : Int, height : Int) -> Array[Int]? raise
+  fn read_pixels(Self, x : Int, y : Int, width : Int, height : Int) -> Array[
+    Int,
+  ]? raise
 }
 
 ///|
@@ -76,7 +78,7 @@ pub struct FramebufferSnapshot {
 } derive(Debug)
 
 ///|
-pub impl Show for FramebufferSnapshot with output(self, logger) {
+pub impl Show for FramebufferSnapshot with fn output(self, logger) {
   logger.write_object(to_repr(self))
 }
 
@@ -102,7 +104,7 @@ pub struct PixelDiffResult {
 } derive(Debug)
 
 ///|
-pub impl Show for PixelDiffResult with output(self, logger) {
+pub impl Show for PixelDiffResult with fn output(self, logger) {
   logger.write_object(to_repr(self))
 }
 

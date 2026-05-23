@@ -20,7 +20,7 @@ pub(all) enum SurfaceKind {
 } derive(Debug)
 
 ///|
-pub impl Show for SurfaceKind with output(self, logger) {
+pub impl Show for SurfaceKind with fn output(self, logger) {
   logger.write_object(to_repr(self))
 }
 
@@ -34,7 +34,7 @@ pub(all) struct SurfaceToken {
 } derive(Debug)
 
 ///|
-pub impl Show for SurfaceToken with output(self, logger) {
+pub impl Show for SurfaceToken with fn output(self, logger) {
   logger.write_object(to_repr(self))
 }
 
@@ -48,7 +48,7 @@ pub impl Show for SurfaceToken with output(self, logger) {
 pub(open) trait SurfaceProvider {
   /// Return the surface to render to right now. May `raise` if the
   /// host is not yet active.
-  current_surface(Self) -> SurfaceToken raise
+  fn current_surface(Self) -> SurfaceToken raise
 }
 
 ///|

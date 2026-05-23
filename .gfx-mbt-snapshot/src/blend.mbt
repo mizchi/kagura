@@ -23,7 +23,7 @@ pub(all) enum BlendFactor {
 } derive(Debug)
 
 ///|
-pub impl Show for BlendFactor with output(self, logger) {
+pub impl Show for BlendFactor with fn output(self, logger) {
   logger.write_object(to_repr(self))
 }
 
@@ -38,7 +38,7 @@ pub(all) enum BlendOperation {
 } derive(Debug)
 
 ///|
-pub impl Show for BlendOperation with output(self, logger) {
+pub impl Show for BlendOperation with fn output(self, logger) {
   logger.write_object(to_repr(self))
 }
 
@@ -54,7 +54,7 @@ pub(all) struct BlendEquation {
 } derive(Debug)
 
 ///|
-pub impl Show for BlendEquation with output(self, logger) {
+pub impl Show for BlendEquation with fn output(self, logger) {
   logger.write_object(to_repr(self))
 }
 
@@ -68,7 +68,7 @@ pub(all) enum BlendMode {
 } derive(Debug)
 
 ///|
-pub impl Show for BlendMode with output(self, logger) {
+pub impl Show for BlendMode with fn output(self, logger) {
   logger.write_object(to_repr(self))
 }
 

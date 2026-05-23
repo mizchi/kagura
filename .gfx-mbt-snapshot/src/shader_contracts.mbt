@@ -17,7 +17,7 @@ pub(all) enum ShaderUnit {
 } derive(Debug)
 
 ///|
-pub impl Show for ShaderUnit with output(self, logger) {
+pub impl Show for ShaderUnit with fn output(self, logger) {
   logger.write_object(to_repr(self))
 }
 
@@ -28,7 +28,7 @@ pub(all) struct ShaderEntrypoints {
 } derive(Debug)
 
 ///|
-pub impl Show for ShaderEntrypoints with output(self, logger) {
+pub impl Show for ShaderEntrypoints with fn output(self, logger) {
   logger.write_object(to_repr(self))
 }
 
@@ -42,7 +42,7 @@ pub(all) struct ShaderCompileRequest {
 } derive(Debug)
 
 ///|
-pub impl Show for ShaderCompileRequest with output(self, logger) {
+pub impl Show for ShaderCompileRequest with fn output(self, logger) {
   logger.write_object(to_repr(self))
 }
 
@@ -58,7 +58,7 @@ pub(all) struct ShaderIR {
 } derive(Debug)
 
 ///|
-pub impl Show for ShaderIR with output(self, logger) {
+pub impl Show for ShaderIR with fn output(self, logger) {
   logger.write_object(to_repr(self))
 }
 
@@ -68,7 +68,7 @@ pub(all) struct ShaderSourceHash {
 } derive(Debug)
 
 ///|
-pub impl Show for ShaderSourceHash with output(self, logger) {
+pub impl Show for ShaderSourceHash with fn output(self, logger) {
   logger.write_object(to_repr(self))
 }
 
@@ -83,7 +83,7 @@ pub(all) enum UniformValue {
 } derive(Debug)
 
 ///|
-pub impl Show for UniformValue with output(self, logger) {
+pub impl Show for UniformValue with fn output(self, logger) {
   logger.write_object(to_repr(self))
 }
 
@@ -94,7 +94,7 @@ pub(all) struct NamedUniform {
 } derive(Debug)
 
 ///|
-pub impl Show for NamedUniform with output(self, logger) {
+pub impl Show for NamedUniform with fn output(self, logger) {
   logger.write_object(to_repr(self))
 }
 
@@ -106,7 +106,7 @@ pub(all) struct UniformLayout {
 } derive(Debug)
 
 ///|
-pub impl Show for UniformLayout with output(self, logger) {
+pub impl Show for UniformLayout with fn output(self, logger) {
   logger.write_object(to_repr(self))
 }
 
@@ -117,7 +117,7 @@ pub(all) struct IntSize {
 } derive(Debug)
 
 ///|
-pub impl Show for IntSize with output(self, logger) {
+pub impl Show for IntSize with fn output(self, logger) {
   logger.write_object(to_repr(self))
 }
 
@@ -130,7 +130,7 @@ pub(all) struct FloatRect {
 } derive(Debug)
 
 ///|
-pub impl Show for FloatRect with output(self, logger) {
+pub impl Show for FloatRect with fn output(self, logger) {
   logger.write_object(to_repr(self))
 }
 
@@ -143,7 +143,7 @@ pub(all) struct PreservedUniformContext {
 } derive(Debug)
 
 ///|
-pub impl Show for PreservedUniformContext with output(self, logger) {
+pub impl Show for PreservedUniformContext with fn output(self, logger) {
   logger.write_object(to_repr(self))
 }
 
@@ -153,7 +153,7 @@ pub(all) struct PackedUniforms {
 } derive(Debug)
 
 ///|
-pub impl Show for PackedUniforms with output(self, logger) {
+pub impl Show for PackedUniforms with fn output(self, logger) {
   logger.write_object(to_repr(self))
 }
 
@@ -165,7 +165,7 @@ pub(all) enum BuiltinShaderFilter {
 } derive(Debug)
 
 ///|
-pub impl Show for BuiltinShaderFilter with output(self, logger) {
+pub impl Show for BuiltinShaderFilter with fn output(self, logger) {
   logger.write_object(to_repr(self))
 }
 
@@ -179,7 +179,7 @@ pub(all) enum BuiltinShaderAddress {
 } derive(Debug)
 
 ///|
-pub impl Show for BuiltinShaderAddress with output(self, logger) {
+pub impl Show for BuiltinShaderAddress with fn output(self, logger) {
   logger.write_object(to_repr(self))
 }
 
@@ -192,7 +192,7 @@ pub(all) struct SamplerSpec {
 } derive(Debug)
 
 ///|
-pub impl Show for SamplerSpec with output(self, logger) {
+pub impl Show for SamplerSpec with fn output(self, logger) {
   logger.write_object(to_repr(self))
 }
 
@@ -222,7 +222,7 @@ pub(all) struct BuiltinShaderKey {
 } derive(Debug)
 
 ///|
-pub impl Show for BuiltinShaderKey with output(self, logger) {
+pub impl Show for BuiltinShaderKey with fn output(self, logger) {
   logger.write_object(to_repr(self))
 }
 
@@ -234,7 +234,7 @@ pub(all) struct BuiltinShaderKeyEx {
 } derive(Debug)
 
 ///|
-pub impl Show for BuiltinShaderKeyEx with output(self, logger) {
+pub impl Show for BuiltinShaderKeyEx with fn output(self, logger) {
   logger.write_object(to_repr(self))
 }
 
@@ -260,12 +260,12 @@ pub fn builtin_key_to_ex(key : BuiltinShaderKey) -> BuiltinShaderKeyEx {
 pub(open) trait ShaderFrontend {
   /// Compile the source string into a `ShaderIR`.
   /// Ebiten ref: internal/graphics/shader.go (CompileShader).
-  compile_ir(Self, request : ShaderCompileRequest) -> ShaderIR raise
+  fn compile_ir(Self, request : ShaderCompileRequest) -> ShaderIR raise
 
   /// Compute a stable content-addressed hash of a compile request.
   /// Two requests with the same hash MUST produce identical IR.
   /// Ebiten ref: internal/graphics/shader.go (CalcSourceHash).
-  calc_source_hash(Self, request : ShaderCompileRequest) -> ShaderSourceHash raise
+  fn calc_source_hash(Self, request : ShaderCompileRequest) -> ShaderSourceHash raise
 }
 
 ///|
@@ -278,7 +278,7 @@ pub(open) trait UniformCanonicalizer {
   /// Append the user-supplied uniforms in the order declared by
   /// `layout`. Missing uniforms should raise.
   /// Ebiten ref: internal/ui/shader.go (AppendUniforms).
-  append_user_uniforms(
+  fn append_user_uniforms(
     Self,
     layout : UniformLayout,
     uniforms : Array[NamedUniform],
@@ -288,7 +288,7 @@ pub(open) trait UniformCanonicalizer {
   /// `dst_region`, `src_texture_sizes`, `src_regions`) ahead of the
   /// user payload.
   /// Ebiten ref: internal/graphicscommand/commandqueue.go (prependPreservedUniforms).
-  prepend_preserved_uniforms(
+  fn prepend_preserved_uniforms(
     Self,
     uniforms : PackedUniforms,
     context : PreservedUniformContext,
@@ -297,7 +297,7 @@ pub(open) trait UniformCanonicalizer {
   /// Strip uniforms that don't appear in the compiled IR; lets the
   /// backend skip uploading unused values.
   /// Ebiten ref: internal/shaderir/program.go (FilterUniformVariables).
-  filter_unused_uniforms(
+  fn filter_unused_uniforms(
     Self,
     ir : ShaderIR,
     layout : UniformLayout,
@@ -314,11 +314,11 @@ pub(open) trait UniformCanonicalizer {
 pub(open) trait BuiltinShaderSourceRepo {
   /// Look up the shader for the basic (filter, address, color_m) key.
   /// Ebiten ref: internal/builtinshader/shader.go (ShaderSource).
-  shader_source(Self, key : BuiltinShaderKey) -> String
+  fn shader_source(Self, key : BuiltinShaderKey) -> String
 
   /// Look up the shader for the extended (per-axis sampler) key. Used
   /// where the U and V axes have different wrap modes.
-  shader_source_ex(Self, key : BuiltinShaderKeyEx) -> String
+  fn shader_source_ex(Self, key : BuiltinShaderKeyEx) -> String
 }
 
 ///|
@@ -378,7 +378,7 @@ pub struct BuiltinShaderCacheStats {
 } derive(Debug)
 
 ///|
-pub impl Show for BuiltinShaderCacheStats with output(self, logger) {
+pub impl Show for BuiltinShaderCacheStats with fn output(self, logger) {
   logger.write_object(to_repr(self))
 }
 
@@ -883,7 +883,10 @@ fn contains_uniform_identifier(source : String, name : String) -> Bool {
 }
 
 ///|
-pub impl ShaderFrontend for BasicShaderFrontend with compile_ir(_self, request) {
+pub impl ShaderFrontend for BasicShaderFrontend with fn compile_ir(
+  _self,
+  request,
+) {
   let src_image_count = normalized_src_image_count(request.src_image_count)
   let unit = resolve_shader_unit(request)
   let noperspective = parse_kage_noperspective_directive(request.source)
@@ -914,7 +917,7 @@ pub impl ShaderFrontend for BasicShaderFrontend with compile_ir(_self, request) 
 }
 
 ///|
-pub impl ShaderFrontend for BasicShaderFrontend with calc_source_hash(
+pub impl ShaderFrontend for BasicShaderFrontend with fn calc_source_hash(
   _self,
   request,
 ) {
@@ -938,7 +941,7 @@ pub impl ShaderFrontend for BasicShaderFrontend with calc_source_hash(
 }
 
 ///|
-pub impl UniformCanonicalizer for BasicUniformCanonicalizer with append_user_uniforms(
+pub impl UniformCanonicalizer for BasicUniformCanonicalizer with fn append_user_uniforms(
   _self,
   layout,
   uniforms,
@@ -974,7 +977,7 @@ pub impl UniformCanonicalizer for BasicUniformCanonicalizer with append_user_uni
 }
 
 ///|
-pub impl UniformCanonicalizer for BasicUniformCanonicalizer with prepend_preserved_uniforms(
+pub impl UniformCanonicalizer for BasicUniformCanonicalizer with fn prepend_preserved_uniforms(
   _self,
   uniforms,
   context,
@@ -1005,7 +1008,7 @@ pub impl UniformCanonicalizer for BasicUniformCanonicalizer with prepend_preserv
 }
 
 ///|
-pub impl UniformCanonicalizer for BasicUniformCanonicalizer with filter_unused_uniforms(
+pub impl UniformCanonicalizer for BasicUniformCanonicalizer with fn filter_unused_uniforms(
   _self,
   ir,
   layout,
@@ -1374,7 +1377,7 @@ pub fn build_builtin_shader_source_ex(key : BuiltinShaderKeyEx) -> String {
 }
 
 ///|
-pub impl BuiltinShaderSourceRepo for BasicBuiltinShaderSourceRepo with shader_source(
+pub impl BuiltinShaderSourceRepo for BasicBuiltinShaderSourceRepo with fn shader_source(
   self,
   key,
 ) {
@@ -1401,7 +1404,7 @@ pub impl BuiltinShaderSourceRepo for BasicBuiltinShaderSourceRepo with shader_so
 }
 
 ///|
-pub impl BuiltinShaderSourceRepo for BasicBuiltinShaderSourceRepo with shader_source_ex(
+pub impl BuiltinShaderSourceRepo for BasicBuiltinShaderSourceRepo with fn shader_source_ex(
   self,
   key,
 ) {

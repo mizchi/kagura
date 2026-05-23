@@ -19,7 +19,7 @@ pub(all) enum FilterMode {
 } derive(Debug)
 
 ///|
-pub impl Show for FilterMode with output(self, logger) {
+pub impl Show for FilterMode with fn output(self, logger) {
   logger.write_object(to_repr(self))
 }
 
@@ -54,7 +54,7 @@ pub(all) struct ImageHandle {
 } derive(Debug)
 
 ///|
-pub impl Show for ImageHandle with output(self, logger) {
+pub impl Show for ImageHandle with fn output(self, logger) {
   logger.write_object(to_repr(self))
 }
 
@@ -76,7 +76,7 @@ pub(all) struct ShaderHandle {
 } derive(Debug)
 
 ///|
-pub impl Show for ShaderHandle with output(self, logger) {
+pub impl Show for ShaderHandle with fn output(self, logger) {
   logger.write_object(to_repr(self))
 }
 
@@ -95,7 +95,7 @@ pub(all) struct PipelineHandle {
 } derive(Debug)
 
 ///|
-pub impl Show for PipelineHandle with output(self, logger) {
+pub impl Show for PipelineHandle with fn output(self, logger) {
   logger.write_object(to_repr(self))
 }
 

@@ -26,7 +26,7 @@ pub(all) struct DstRegion {
 } derive(Debug)
 
 ///|
-pub impl Show for DstRegion with output(self, logger) {
+pub impl Show for DstRegion with fn output(self, logger) {
   logger.write_object(to_repr(self))
 }
 
@@ -52,7 +52,7 @@ pub(all) struct Color {
 } derive(Debug)
 
 ///|
-pub impl Show for Color with output(self, logger) {
+pub impl Show for Color with fn output(self, logger) {
   logger.write_object(to_repr(self))
 }
 
@@ -69,7 +69,7 @@ pub(all) struct RenderPassDesc {
 } derive(Debug)
 
 ///|
-pub impl Show for RenderPassDesc with output(self, logger) {
+pub impl Show for RenderPassDesc with fn output(self, logger) {
   logger.write_object(to_repr(self))
 }
 
@@ -210,7 +210,7 @@ pub(all) struct DrawCommandDispatch {
 } derive(Debug)
 
 ///|
-pub impl Show for DrawCommandDispatch with output(self, logger) {
+pub impl Show for DrawCommandDispatch with fn output(self, logger) {
   logger.write_object(to_repr(self))
 }
 
@@ -306,4 +306,3 @@ pub fn dispatch_checksum(dispatch : DrawCommandDispatch) -> Int {
   dispatch.src_image_count +
   dispatch.uniform_dword_count
 }
-

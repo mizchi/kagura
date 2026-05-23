@@ -25,12 +25,12 @@
 pub(open) trait CommandQueue {
   /// Append one command to the back of the queue.
   /// Ebiten ref: commandQueue.EnqueueDrawTrianglesCommand.
-  enqueue_draw_triangles(Self, command : DrawTrianglesCommand) -> Unit
+  fn enqueue_draw_triangles(Self, command : DrawTrianglesCommand) -> Unit
 
   /// Drain the queue and return the (possibly merged) commands in
   /// submission order. The queue is empty after this call.
   /// Ebiten ref: commandQueue.Flush / FlushCommands.
-  flush(Self) -> Array[DrawTrianglesCommand]
+  fn flush(Self) -> Array[DrawTrianglesCommand]
 }
 
 ///|
@@ -220,7 +220,7 @@ fn merge_draw_triangles_range(
 }
 
 ///|
-pub impl CommandQueue for SimpleCommandQueue with enqueue_draw_triangles(
+pub impl CommandQueue for SimpleCommandQueue with fn enqueue_draw_triangles(
   self,
   command,
 ) {
@@ -228,7 +228,7 @@ pub impl CommandQueue for SimpleCommandQueue with enqueue_draw_triangles(
 }
 
 ///|
-pub impl CommandQueue for SimpleCommandQueue with flush(self) {
+pub impl CommandQueue for SimpleCommandQueue with fn flush(self) {
   let buffered = self.commands
   self.commands = []
   if buffered.length() <= 1 {

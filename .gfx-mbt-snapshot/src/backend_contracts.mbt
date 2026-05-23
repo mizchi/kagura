@@ -14,7 +14,7 @@ pub(all) enum GraphicsBackendKind {
 } derive(Debug)
 
 ///|
-pub impl Show for GraphicsBackendKind with output(self, logger) {
+pub impl Show for GraphicsBackendKind with fn output(self, logger) {
   logger.write_object(to_repr(self))
 }
 
@@ -26,7 +26,7 @@ pub(all) struct GraphicsBackendOptions {
 } derive(Debug)
 
 ///|
-pub impl Show for GraphicsBackendOptions with output(self, logger) {
+pub impl Show for GraphicsBackendOptions with fn output(self, logger) {
   logger.write_object(to_repr(self))
 }
 
@@ -59,7 +59,7 @@ pub struct GraphicsResizeStats {
 } derive(Debug)
 
 ///|
-pub impl Show for GraphicsResizeStats with output(self, logger) {
+pub impl Show for GraphicsResizeStats with fn output(self, logger) {
   logger.write_object(to_repr(self))
 }
 
@@ -84,7 +84,7 @@ pub(open) trait GraphicsBackendFactory {
   /// Build and install a driver for the requested `kind` against the
   /// surface. Implementations may raise if `kind` is unsupported or the
   /// surface is incompatible.
-  create(
+  fn create(
     Self,
     kind : GraphicsBackendKind,
     surface : SurfaceToken,
@@ -208,7 +208,7 @@ pub fn create_null_graphics(width : Int, height : Int) -> NullGraphicsDriver {
 }
 
 ///|
-pub impl GraphicsDriver for StubGraphicsDriver with initialize(self) {
+pub impl GraphicsDriver for StubGraphicsDriver with fn initialize(self) {
   if self.initialized {
     return
   }
@@ -227,7 +227,7 @@ pub impl GraphicsDriver for StubGraphicsDriver with initialize(self) {
 }
 
 ///|
-pub impl GraphicsDriver for StubGraphicsDriver with begin(self, pass) {
+pub impl GraphicsDriver for StubGraphicsDriver with fn begin(self, pass) {
   let _ = self.backend
   if self.initialized {
     // Re-check web initialization if not yet active (async WebGPU device init)
@@ -249,7 +249,7 @@ pub impl GraphicsDriver for StubGraphicsDriver with begin(self, pass) {
 }
 
 ///|
-pub impl GraphicsDriver for StubGraphicsDriver with end(self, present) {
+pub impl GraphicsDriver for StubGraphicsDriver with fn end(self, present) {
   if self.initialized {
     self.end_count = self.end_count + 1
     native_on_end(self.native_active, present)
@@ -258,7 +258,11 @@ pub impl GraphicsDriver for StubGraphicsDriver with end(self, present) {
 }
 
 ///|
-pub impl GraphicsDriver for StubGraphicsDriver with resize(self, width, height) {
+pub impl GraphicsDriver for StubGraphicsDriver with fn resize(
+  self,
+  width,
+  height,
+) {
   let next_width = if width <= 0 { 1 } else { width }
   let next_height = if height <= 0 { 1 } else { height }
   if self.width == next_width && self.height == next_height {
@@ -299,7 +303,7 @@ pub fn graphics_resize_stats(
 }
 
 ///|
-pub impl GraphicsDriver for StubGraphicsDriver with new_image(
+pub impl GraphicsDriver for StubGraphicsDriver with fn new_image(
   self,
   width,
   height,
@@ -310,13 +314,13 @@ pub impl GraphicsDriver for StubGraphicsDriver with new_image(
 }
 
 ///|
-pub impl GraphicsDriver for StubGraphicsDriver with new_shader(self, source) {
+pub impl GraphicsDriver for StubGraphicsDriver with fn new_shader(self, source) {
   self.next_id = self.next_id + 1
   { id: self.next_id, source }
 }
 
 ///|
-pub impl GraphicsDriver for StubGraphicsDriver with draw_triangles(
+pub impl GraphicsDriver for StubGraphicsDriver with fn draw_triangles(
   self,
   command,
 ) {
@@ -328,7 +332,7 @@ pub impl GraphicsDriver for StubGraphicsDriver with draw_triangles(
 }
 
 ///|
-pub impl GraphicsDriver for StubGraphicsDriver with read_pixels(
+pub impl GraphicsDriver for StubGraphicsDriver with fn read_pixels(
   self,
   x,
   y,

@@ -263,7 +263,7 @@ fn ShowcaseState::new() -> ShowcaseState {
   }
   let sfx_pickup : @audio.PlayerId? = Some(sfx_pickup_id)
   // SVG path
-  let level_border_path = @svg.svg_path_to_vector_path(
+  let level_border_path = @renderer2d.svg_path_to_vector_path(
     "M 0 0 L 320 0 L 320 240 L 0 240 Z",
   )
   // Text
@@ -1177,7 +1177,7 @@ fn ShowcaseState::render_text_hud(
   if !self.svg_icon_loaded {
     self.svg_icon_loaded = true
     let svg_str = "<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 16 16'><rect x='7' y='1' width='2' height='10' fill='#CCDDFF'/><rect x='5' y='9' width='6' height='2' fill='#FFCC00'/><rect x='7' y='11' width='2' height='4' fill='#886644'/></svg>"
-    match @svg.render_svg_to_rgba(svg_str, 16, 16) {
+    match @renderer2d.render_svg_to_rgba(svg_str, 16, 16) {
       Some((_w, _h, pixels)) => {
         let binding = @atlas.new_source_image_binding(
           self.svg_icon_image_id,

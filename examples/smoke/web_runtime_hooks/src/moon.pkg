@@ -6,7 +6,7 @@ import {
   "mizchi/kagura_engine" @engine,
   "mizchi/gfx" @gfx,
   "mizchi/atlas" @atlas,
-  "mizchi/kagura_core/payload2d" @payload2d,
+  "mizchi/renderer2d" @renderer2d,
   "mizchi/kagura_engine/platform" @platform,
   "mizchi/text" @text,
 }

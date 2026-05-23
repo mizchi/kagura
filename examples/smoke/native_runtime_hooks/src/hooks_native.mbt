@@ -377,7 +377,7 @@ fn bridge_gfx_on_draw(
       // Then payload updates last command to has_payload=true with vertex data
       let base = t * 3
       let sub_indices = [indices[base], indices[base + 1], indices[base + 2]]
-      let payload = @payload2d.decode_triangle_payload(
+      let payload = @renderer2d.decode_triangle_payload(
         command.vertex_data,
         sub_indices,
         command.uniform_dwords,

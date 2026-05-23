@@ -479,7 +479,7 @@ test "monochrome transform" {
 
 ///|
 test "svg path conversion produces commands" {
-  let path = @svg.svg_path_to_vector_path("M 0 0 L 10 0 L 10 10 Z")
+  let path = @renderer2d.svg_path_to_vector_path("M 0 0 L 10 0 L 10 10 Z")
   assert_true(path.command_count() > 0)
 }
 

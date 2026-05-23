@@ -13,7 +13,7 @@ import {
   "mizchi/atlas" @atlas,
   "mizchi/kagura_core/inpututil" @inpututil,
   "mizchi/kagura_game/scene" @scene,
-  "mizchi/kagura_core/svg" @svg,
+  "mizchi/renderer2d" @renderer2d,
   "mizchi/text" @text,
   "mizchi/kagura_game/tilemap2d" @tilemap2d,
   "mizchi/kagura_engine/ui" @ui,

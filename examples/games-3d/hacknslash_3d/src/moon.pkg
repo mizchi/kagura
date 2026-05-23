@@ -5,7 +5,7 @@ import {
   "mizchi/hacknslash_3d/game" @game,
   "mizchi/font" @font,
   "mizchi/kagura_effect_studio" @effect,
-  "mizchi/kagura_core/camera3d" @camera3d,
+  "mizchi/geom/camera3d" @camera3d,
   "mizchi/kagura_core" @core,
   "mizchi/kagura_engine/draw3d" @draw3d,
   "mizchi/kagura_engine" @engine,

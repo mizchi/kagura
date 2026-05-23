@@ -16,6 +16,7 @@
     },
     "mizchi/geom": {
       "path": "../geom"
-    }
+    },
+    "mizchi/svg": "0.2.0"
   }
 }

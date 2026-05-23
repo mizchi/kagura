@@ -42,10 +42,10 @@ fn normalized_payload_color(
   payload_uniform_a : Double,
   payload_texture_seed : Int,
 ) -> Array[Double] {
-  let mut r = @payload2d.clamp_unit(payload_uniform_r)
-  let mut g = @payload2d.clamp_unit(payload_uniform_g)
-  let mut b = @payload2d.clamp_unit(payload_uniform_b)
-  let mut a = @payload2d.clamp_unit(payload_uniform_a)
+  let mut r = @renderer2d.clamp_unit(payload_uniform_r)
+  let mut g = @renderer2d.clamp_unit(payload_uniform_g)
+  let mut b = @renderer2d.clamp_unit(payload_uniform_b)
+  let mut a = @renderer2d.clamp_unit(payload_uniform_a)
   if r + g + b < 0.12 {
     let seed = if payload_texture_seed < 0 {
       -payload_texture_seed
@@ -172,7 +172,7 @@ fn[T : @gfx.GraphicsDriver] run_draw_payload_probe(graphics : T) -> Unit raise {
   if command.src_image_ids.length() <= 0 {
     panic()
   }
-  let payload = @payload2d.decode_triangle_payload(
+  let payload = @renderer2d.decode_triangle_payload(
     command.vertex_data,
     command.indices,
     command.uniform_dwords,

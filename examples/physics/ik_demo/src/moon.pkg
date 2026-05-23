@@ -1,7 +1,7 @@
 import {
   "moonbitlang/core/math" @math,
   "mizchi/anim3d/animation3d" @animation3d,
-  "mizchi/kagura_core/camera3d" @camera3d,
+  "mizchi/geom/camera3d" @camera3d,
   "mizchi/kagura_core" @core,
   "mizchi/kagura_engine/draw3d" @draw3d,
   "mizchi/kagura_engine" @engine,

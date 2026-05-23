@@ -80,7 +80,7 @@ test "bench system_death 10000" (b : @bench.T) {
     let setup = setup_world(10000)
     // kill half (every even index)
     for i in 0..<5000 {
-      let eid : EntityId = { index: i * 2, generation: 0 }
+      let eid : EntityId = { index: i * 2 }
       setup.health.set(eid, { current: 0, max: 100 })
     }
     system_death(setup.world, setup.health)
@@ -151,7 +151,7 @@ test "bench entities_with_tag 10000" (b : @bench.T) {
   let setup = setup_world(10000)
   let tags : ComponentStore[Array[Tag]] = ComponentStore::new()
   for i in 0..<10000 {
-    let eid : EntityId = { index: i, generation: 0 }
+    let eid : EntityId = { index: i }
     if i % 3 == 0 {
       tags_add(tags, eid, Enemy)
     } else {
@@ -164,12 +164,31 @@ test "bench entities_with_tag 10000" (b : @bench.T) {
 }
 
 ///|
+test "bench entities_with_tag_each 10000" (b : @bench.T) {
+  let setup = setup_world(10000)
+  let tags : ComponentStore[Array[Tag]] = ComponentStore::new()
+  for i in 0..<10000 {
+    let eid : EntityId = { index: i }
+    if i % 3 == 0 {
+      tags_add(tags, eid, Enemy)
+    } else {
+      tags_add(tags, eid, Bullet)
+    }
+  }
+  b.bench(name="ecs/entities_with_tag_each_10000", fn() {
+    let mut n = 0
+    entities_with_tag_each(setup.world, tags, Enemy, fn(_eid) { n = n + 1 })
+    b.keep(n)
+  })
+}
+
+///|
 test "bench component set/get 10000" (b : @bench.T) {
   let setup = setup_world(10000)
   b.bench(name="ecs/component_set_get_10000", fn() {
     let mut sum = 0
     for i in 0..<10000 {
-      let eid : EntityId = { index: i, generation: 0 }
+      let eid : EntityId = { index: i }
       setup.health.set(eid, { current: i, max: 100 })
       match setup.health.get(eid) {
         Some(h) => sum += h.current
@@ -185,7 +204,7 @@ test "bench full frame tick 1000" (b : @bench.T) {
   let setup = setup_world(1000)
   for i in 0..<1000 {
     if i % 10 == 0 {
-      let eid : EntityId = { index: i, generation: 0 }
+      let eid : EntityId = { index: i }
       setup.health.set(eid, { current: 0, max: 100 })
     }
   }

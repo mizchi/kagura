@@ -7,27 +7,47 @@ pub fn system_movement(
   velocities : ComponentStore[Velocity],
   dt : Double,
 ) -> Unit {
-  query2_each(world, transforms, velocities, fn(eid, t, v) {
-    let pos = t.position
-    let new_pos = @math3d.Vec3::new(
-      pos.x + v.x * dt,
-      pos.y + v.y * dt,
-      pos.z + v.z * dt,
-    )
-    transforms.set(eid, t.with_position(new_pos))
-  })
+  // Inlined loop rather than `query2_each` — saves one closure call per
+  // iteration, which is the dominant cost when the body is small.
+  let td = transforms.data
+  let vd = velocities.data
+  let alive = world.alive
+  let tlen = td.length()
+  let vlen = vd.length()
+  let wlen = alive.length()
+  let mut bound = if tlen < wlen { tlen } else { wlen }
+  if vlen < bound {
+    bound = vlen
+  }
+  for i in 0..<bound {
+    if !alive.unsafe_get(i) {
+      continue
+    }
+    match (td.unsafe_get(i), vd.unsafe_get(i)) {
+      (Some(t), Some(v)) => {
+        let pos = t.position
+        let new_pos = @math3d.Vec3::new(
+          pos.x + v.x * dt,
+          pos.y + v.y * dt,
+          pos.z + v.z * dt,
+        )
+        td.unsafe_set(i, Some(t.with_position(new_pos)))
+      }
+      _ => ()
+    }
+  }
 }
 
 ///|
-/// Despawn entities whose `Health.current <= 0`. The world bumps the
-/// slot's generation so component stores naturally treat the slot as empty
-/// on subsequent lookups.
+/// Despawn entities whose `Health.current <= 0`. Slots become inactive in
+/// the world; their lingering component data is left in the stores until
+/// overwritten or until `ComponentStore::cleanup` is called.
 pub fn system_death(
   world : World,
   health : ComponentStore[Health],
 ) -> Unit {
-  // Collect to a small array first: despawn mutates `world.alive` and we
-  // don't want to see partially-mutated state from inside the callback.
+  // Collect first: despawn mutates `world.alive` and we don't want the
+  // walk to observe a partial state.
   let doomed : Array[EntityId] = []
   query1_each(world, health, fn(eid, h) {
     if h.current <= 0 {
@@ -50,7 +70,7 @@ pub fn system_sync_from_physics(
   query2_each(world, physics_body_ids, transforms, fn(eid, body_id, t) {
     match physics.get_body(body_id) {
       Some(body) =>
-        transforms.set(
+        transforms.overwrite(
           eid,
           t.with_position(body.position).with_rotation(body.rotation),
         )

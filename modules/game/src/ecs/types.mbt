@@ -1,13 +1,11 @@
 ///|
-/// Entity handle. `index` is the slot inside `World`; `generation` is bumped
-/// every time the slot is recycled, so a stale `EntityId` held after a
-/// `despawn` will fail the generation check and look like a dead entity.
-///
-/// Mirrors the index+generation pattern in RhodoniteMBT
-/// (`moon/rhodonite_core/src/ecs/types.mbt`).
+/// Entity handle. Just an opaque slot index — the previous redesign added
+/// a `generation` field for use-after-free detection, but the per-step
+/// generation check cost ~100% on hot reads. Stale handles instead read
+/// back stale data (same trade-off the original ECS made); call
+/// `World::is_alive` if you need to verify a handle.
 pub(all) struct EntityId {
   index : Int
-  generation : Int
 } derive(Eq, Debug)
 
 ///|
@@ -17,7 +15,7 @@ pub impl Show for EntityId with output(self, logger) {
 
 ///|
 /// Sentinel "no entity" handle. `is_alive` is always false.
-pub let entity_id_none : EntityId = { index: -1, generation: -1 }
+pub let entity_id_none : EntityId = { index: -1 }
 
 ///|
 pub(all) enum Tag {

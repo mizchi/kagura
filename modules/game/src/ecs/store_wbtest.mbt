@@ -23,40 +23,6 @@ test "ComponentStore::get returns None for missing slot" {
 }
 
 ///|
-test "ComponentStore::get returns None after slot recycled and re-set" {
-  let world = World::new()
-  let store : ComponentStore[Health] = ComponentStore::new()
-  let e1 = world.spawn()
-  store.set(e1, { current: 50, max: 100 })
-  world.despawn(e1)
-  // Slot is recycled with generation 1; new owner sets a value, bumping
-  // the store's per-slot generation to 1 too.
-  let e2 = world.spawn()
-  assert_eq(e2.index, e1.index)
-  store.set(e2, { current: 7, max: 50 })
-  // The old handle (generation 0) no longer matches the store generation
-  // (now 1), so reads return None even though the slot is populated.
-  assert_true(store.get(e1) is None)
-  match store.get(e2) {
-    Some(h) => assert_eq(h.current, 7)
-    None => fail("new handle should read the new value")
-  }
-}
-
-///|
-test "ComponentStore::iter_in skips slot reused without re-set" {
-  // After respawn at the same index, before the new owner sets a value,
-  // iter_in must NOT yield the stale data — even though the slot is alive.
-  let world = World::new()
-  let store : ComponentStore[Health] = ComponentStore::new()
-  let e1 = world.spawn()
-  store.set(e1, { current: 50, max: 100 })
-  world.despawn(e1)
-  let _e2 = world.spawn() // same index, world gen 1, store gen still 0
-  assert_eq(store.iter_in(world).count(), 0)
-}
-
-///|
 test "ComponentStore::set overwrites previous value" {
   let world = World::new()
   let store : ComponentStore[Health] = ComponentStore::new()
@@ -115,4 +81,21 @@ test "ComponentStore::iter_in skips despawned entities" {
   assert_eq(entries.length(), 1)
   let (eid, _v) = entries[0]
   assert_eq(eid.index, e2.index)
+}
+
+///|
+test "ComponentStore::cleanup nulls dead slots" {
+  let world = World::new()
+  let store : ComponentStore[Health] = ComponentStore::new()
+  let e1 = world.spawn()
+  let e2 = world.spawn()
+  store.set(e1, { current: 10, max: 10 })
+  store.set(e2, { current: 20, max: 20 })
+  world.despawn(e1)
+  store.cleanup(world)
+  assert_true(store.get(e1) is None)
+  match store.get(e2) {
+    Some(h) => assert_eq(h.current, 20)
+    None => fail("live slot should survive cleanup")
+  }
 }

@@ -10,6 +10,8 @@ import {
 // Values
 pub fn entities_with_tag(World, ComponentStore[Array[Tag]], Tag) -> Iter[EntityId]
 
+pub fn entities_with_tag_each(World, ComponentStore[Array[Tag]], Tag, (EntityId) -> Unit) -> Unit
+
 pub let entity_id_none : EntityId
 
 pub fn[A] query1(World, ComponentStore[A]) -> Iter[(EntityId, A)]
@@ -41,20 +43,20 @@ pub fn tags_has(ComponentStore[Array[Tag]], EntityId, Tag) -> Bool
 // Types and methods
 pub struct ComponentStore[T] {
   data : Array[T?]
-  generations : Array[Int]
 }
+pub fn[T] ComponentStore::cleanup(Self[T], World) -> Unit
 pub fn[T] ComponentStore::each_in(Self[T], World, (EntityId, T) -> Unit) -> Unit
 pub fn[T] ComponentStore::get(Self[T], EntityId) -> T?
 pub fn[T] ComponentStore::has(Self[T], EntityId) -> Bool
 pub fn[T] ComponentStore::iter(Self[T]) -> Iter[(EntityId, T)]
 pub fn[T] ComponentStore::iter_in(Self[T], World) -> Iter[(EntityId, T)]
 pub fn[T] ComponentStore::new() -> Self[T]
+pub fn[T] ComponentStore::overwrite(Self[T], EntityId, T) -> Unit
 pub fn[T] ComponentStore::remove(Self[T], EntityId) -> Unit
 pub fn[T] ComponentStore::set(Self[T], EntityId, T) -> Unit
 
 pub(all) struct EntityId {
   index : Int
-  generation : Int
 } derive(Eq, @debug.Debug)
 pub impl Show for EntityId
 
@@ -93,13 +95,10 @@ pub impl Show for Velocity
 pub struct World {
   mut next_index : Int
   alive : Array[Bool]
-  generations : Array[Int]
-  free_list : Array[Int]
 }
 pub fn World::capacity(Self) -> Int
 pub fn World::despawn(Self, EntityId) -> Unit
 pub fn World::entity_count(Self) -> Int
-pub fn World::generation_at(Self, Int) -> Int
 pub fn World::is_alive(Self, EntityId) -> Bool
 pub fn World::iter(Self) -> Iter[EntityId]
 pub fn World::new() -> Self

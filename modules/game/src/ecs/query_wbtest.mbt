@@ -13,8 +13,7 @@ test "query1 yields entities with the component" {
     e3,
     @transform3d.Transform3D::from_position(@math3d.Vec3::new(3.0, 0.0, 0.0)),
   )
-  let count = query1(world, transforms).count()
-  assert_eq(count, 2)
+  assert_eq(query1(world, transforms).count(), 2)
 }
 
 ///|
@@ -43,25 +42,21 @@ test "query2 requires both components" {
   let e1 = world.spawn()
   let e2 = world.spawn()
   let e3 = world.spawn()
-  // e1: both
   transforms.set(
     e1,
     @transform3d.Transform3D::from_position(@math3d.Vec3::new(0.0, 0.0, 0.0)),
   )
   velocities.set(e1, { x: 1.0, y: 0.0, z: 0.0 })
-  // e2: only transform
   transforms.set(
     e2,
     @transform3d.Transform3D::from_position(@math3d.Vec3::new(0.0, 0.0, 0.0)),
   )
-  // e3: only velocity
   velocities.set(e3, { x: 1.0, y: 0.0, z: 0.0 })
-  let count = query2(world, transforms, velocities).count()
-  assert_eq(count, 1)
+  assert_eq(query2(world, transforms, velocities).count(), 1)
 }
 
 ///|
-test "query2 passes correct data" {
+test "query2_each passes correct data" {
   let world = World::new()
   let transforms : ComponentStore[@transform3d.Transform3D] = ComponentStore::new()
   let velocities : ComponentStore[Velocity] = ComponentStore::new()
@@ -74,8 +69,7 @@ test "query2 passes correct data" {
   let tx = @ref.new(0.0)
   let vx = @ref.new(0.0)
   let vy = @ref.new(0.0)
-  query2(world, transforms, velocities).each(fn(entry) {
-    let (_e, t, v) = entry
+  query2_each(world, transforms, velocities, fn(_e, t, v) {
     tx.val = t.position.x
     vx.val = v.x
     vy.val = v.y
@@ -97,8 +91,7 @@ test "tags_add / tags_has / entities_with_tag" {
   tags_add(tags, e3, Enemy)
   assert_true(tags_has(tags, e1, Enemy))
   assert_false(tags_has(tags, e1, Player))
-  let enemies = entities_with_tag(world, tags, Enemy).collect()
-  assert_eq(enemies.length(), 2)
+  assert_eq(entities_with_tag(world, tags, Enemy).count(), 2)
 }
 
 ///|
@@ -119,7 +112,7 @@ test "entity carrying multiple tags" {
   let tags : ComponentStore[Array[Tag]] = ComponentStore::new()
   let eid = world.spawn()
   tags_add(tags, eid, Player)
-  tags_add(tags, eid, Item) // player carrying item
+  tags_add(tags, eid, Item)
   assert_eq(entities_with_tag(world, tags, Player).count(), 1)
   assert_eq(entities_with_tag(world, tags, Item).count(), 1)
 }

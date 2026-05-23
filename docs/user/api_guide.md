@@ -88,8 +88,8 @@ fn update(input : @core.InputSnapshot) {
 
 ## Code References
 
-- Minimal scene API: `examples/scene_demo/src/game.mbt`
-- 2D game: `examples/flappy_bird/src/game.mbt`
-- Complex game: `examples/survivor/src/game.mbt`
-- Action RPG: `examples/action_rpg/src/game.mbt`
-- Low-level 3D: `examples/arena3d/src/game.mbt`
+- Minimal scene API: `examples/ecs/scene_demo/src/game.mbt`
+- 2D game: `examples/games-2d/flappy_bird/src/game.mbt`
+- Complex game: `examples/games-2d/survivor/src/game.mbt`
+- Action RPG: `examples/games-2d/action_rpg/src/game.mbt`
+- Low-level 3D: `examples/games-3d/arena3d/src/game.mbt`

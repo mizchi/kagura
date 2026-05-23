@@ -1,0 +1,30 @@
+import {
+  "mizchi/kagura_engine" @engine,
+  "mizchi/kagura_engine/runtime" @runtime,
+  "mizchi/gfx" @gfx,
+  "mizchi/atlas" @atlas,
+  "mizchi/renderer2d" @renderer2d,
+  "mizchi/widget2d" @widget2d,
+  "mizchi/text" @text,
+  "mizchi/atlas" @atlas,
+  "mizchi/font" @font,
+  "mizchi/crater/renderer" @renderer,
+  "mizchi/crater/paint" @paint,
+  "mizchi/crater/types" @crater_types,
+  "mizchi/web_runtime_hooks" @web_hooks,
+}
+
+warnings = "-1-2-29"
+
+supported_targets = "js+native"
+
+options(
+  "is-main": true,
+  link: {
+    "native": {
+      "cc": "${build.KAGURA_NATIVE_CC}",
+      "cc-link-flags": "-L../../deps/wgpu-native/lib -lwgpu_native ${build.KAGURA_NATIVE_GLFW_LIBS} ${build.KAGURA_NATIVE_WGPU_RPATH} ${build.KAGURA_NATIVE_PLATFORM_LIBS}",
+    },
+  },
+  targets: { "main_js.mbt": [ "js" ], "main_native.mbt": [ "native" ] },
+)

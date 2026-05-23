@@ -30,7 +30,7 @@ fn install_test_web_hooks(max_polls? : Int = 3) -> Unit {
         @core.new_outside_size(width.to_double(), height.to_double())
       },
       fn(_canvas_selector, options) {
-        @platform.create_webgpu_surface_token(
+        @gfx.create_webgpu_surface_token(
           77,
           options.width,
           options.height,
@@ -78,7 +78,7 @@ fn install_test_web_hooks_with_tick_input(max_polls? : Int = 3) -> Unit {
         @core.new_outside_size(width.to_double(), height.to_double())
       },
       fn(_canvas_selector, options) {
-        @platform.create_webgpu_surface_token(
+        @gfx.create_webgpu_surface_token(
           77,
           options.width,
           options.height,
@@ -276,7 +276,7 @@ fn run_terminating_probe_with_webgpu(
         @core.new_outside_size(width.to_double(), height.to_double())
       },
       fn(_canvas_selector, options) {
-        @platform.create_webgpu_surface_token(
+        @gfx.create_webgpu_surface_token(
           77,
           options.width,
           options.height,
@@ -565,7 +565,7 @@ fn run_resized_frame_sizes_with_webgpu() -> (Array[Int], Array[Int]) raise {
         }
       },
       fn(_canvas_selector, options) {
-        @platform.create_webgpu_surface_token(
+        @gfx.create_webgpu_surface_token(
           77,
           options.width,
           options.height,

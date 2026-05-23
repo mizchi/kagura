@@ -1,0 +1,36 @@
+{
+  "name": "mizchi/crater_renderer",
+  "version": "0.1.0",
+  "source": "src",
+  "warn-list": "-6-29-53-68",
+  "deps": {
+    "mizchi/web_runtime_hooks": {
+      "path": "../../smoke/web_runtime_hooks"
+    },
+    "mizchi/native_runtime_hooks": {
+      "path": "../../smoke/native_runtime_hooks"
+    },
+    "mizchi/crater": "0.9.1",
+    "mizchi/font": "0.7.0",
+    "mizchi/kagura_core": {
+      "path": "../../../modules/kagura_core"
+    },
+    "mizchi/kagura_engine": {
+      "path": "../../../modules/kagura_engine"
+    },
+    "mizchi/gfx": "0.1.0",
+    "mizchi/text": {
+      "path": "../../../modules/text"
+    },
+    "mizchi/renderer2d": {
+      "path": "../../../modules/renderer2d"
+    },
+    "mizchi/widget2d": {
+      "path": "../../../modules/widget2d"
+    },
+    "mizchi/atlas": {
+      "path": "../../../modules/atlas"
+    }
+  },
+  "--moonbit-unstable-prebuild": "../../../scripts/moon-prebuild-native-link-flags.cjs"
+}

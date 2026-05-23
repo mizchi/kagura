@@ -1,6 +1,6 @@
 import { spawnSync } from "node:child_process";
 import { createServer } from "node:http";
-import { existsSync, readFileSync, statSync } from "node:fs";
+import { existsSync, readFileSync, readdirSync, statSync } from "node:fs";
 import { extname, join, normalize } from "node:path";
 import process from "node:process";
 
@@ -28,11 +28,31 @@ const CONTENT_TYPES = {
   ".obj": "text/plain; charset=utf-8",
 };
 
+const isExampleDir = (dir) => existsSync(join(dir, "moon.mod.json"));
+
+const resolveExampleDir = (name) => {
+  for (const root of EXAMPLE_ROOTS) {
+    if (!existsSync(root)) continue;
+    const direct = join(root, name);
+    if (isExampleDir(direct)) return direct;
+    for (const sub of readdirSync(root)) {
+      const nested = join(root, sub, name);
+      if (isExampleDir(nested)) return nested;
+    }
+  }
+  return null;
+};
+
 const buildRuntimeSmoke = (target) => {
+  const dir = resolveExampleDir("runtime_smoke");
+  if (dir == null) {
+    console.error("[e2e] runtime_smoke example not found");
+    process.exit(1);
+  }
   const result = spawnSync(
     "moon",
     ["build", "src", "--target", target],
-    { cwd: join(ROOT, "examples", "runtime_smoke"), stdio: "inherit" },
+    { cwd: dir, stdio: "inherit" },
   );
   if (result.status !== 0) {
     process.exit(result.status ?? 1);
@@ -41,16 +61,6 @@ const buildRuntimeSmoke = (target) => {
 
 buildRuntimeSmoke("wasm");
 buildRuntimeSmoke("wasm-gc");
-
-const resolveExampleDir = (name) => {
-  for (const root of EXAMPLE_ROOTS) {
-    const dir = join(root, name);
-    if (existsSync(join(dir, "moon.mod.json"))) {
-      return dir;
-    }
-  }
-  return null;
-};
 
 const examplePublicPath = (name) => {
   const dir = resolveExampleDir(name);
@@ -122,12 +132,12 @@ const serveFile = (res, filePath) => {
 };
 
 const ASSET_EXAMPLES = {
-  action_rpg: [["assets/Tiny5-Regular.ttf", "/examples/action_rpg/assets/Tiny5-Regular.ttf"]],
-  hacknslash_3d: [["assets/Tiny5-Regular.ttf", "/examples/hacknslash_3d/assets/Tiny5-Regular.ttf"]],
-  fetch_image: [["assets/sample.png", "/examples/fetch_image/assets/sample.png"]],
-  gltf_viewer: [["assets/test_scene.glb", "/examples/gltf_viewer/assets/test_scene.glb"]],
-  obj_viewer: [["assets/bunny.obj", "/examples/obj_viewer/assets/bunny.obj"]],
-  draw2d_ui_demo: [["assets/Tiny5-Regular.ttf", "/examples/draw2d_ui_demo/assets/Tiny5-Regular.ttf"]],
+  action_rpg: [["assets/Tiny5-Regular.ttf", "/examples/games-2d/action_rpg/assets/Tiny5-Regular.ttf"]],
+  hacknslash_3d: [["assets/Tiny5-Regular.ttf", "/examples/games-3d/hacknslash_3d/assets/Tiny5-Regular.ttf"]],
+  fetch_image: [["assets/sample.png", "/examples/ui/fetch_image/assets/sample.png"]],
+  gltf_viewer: [["assets/test_scene.glb", "/examples/rendering/gltf_viewer/assets/test_scene.glb"]],
+  obj_viewer: [["assets/bunny.obj", "/examples/rendering/obj_viewer/assets/bunny.obj"]],
+  draw2d_ui_demo: [["assets/Tiny5-Regular.ttf", "/examples/ui/draw2d_ui_demo/assets/Tiny5-Regular.ttf"]],
 };
 
 const generateVrtHtml = (name) => {

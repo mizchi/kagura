@@ -69,8 +69,8 @@ test "bloom_commands uses bloom target size for blur texel uniforms" {
     dst, 10, bloom_a, bloom_b, threshold_shader, hblur_shader, vblur_shader, composite_shader,
     0.8, 1.0, 800, 600,
   )
-  let expected_texel_w = @gfx.double_to_f32_bits(1.0 / 200.0)
-  let expected_texel_h = @gfx.double_to_f32_bits(1.0 / 150.0)
+  let expected_texel_w = f32(1.0 / 200.0)
+  let expected_texel_h = f32(1.0 / 150.0)
   assert_eq(cmds[1].uniform_dwords[0], expected_texel_w)
   assert_eq(cmds[1].uniform_dwords[1], expected_texel_h)
   assert_eq(cmds[2].uniform_dwords[0], expected_texel_w)

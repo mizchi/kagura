@@ -1,0 +1,26 @@
+import {
+  "moonbitlang/core/encoding/utf8" @utf8,
+  "mizchi/atlas" @atlas,
+  "mizchi/kagura_engine/audio" @audio,
+  "mizchi/kagura_core" @core,
+  "mizchi/kagura_engine" @engine,
+  "mizchi/gfx" @gfx,
+  "mizchi/atlas" @atlas,
+  "mizchi/renderer2d" @renderer2d,
+  "mizchi/kagura_engine/platform" @platform,
+  "mizchi/text" @text,
+}
+
+warnings = "-1-29"
+
+supported_targets = "js+native+wasm+wasm-gc+llvm"
+
+options(
+  targets: {
+    "hooks_js.mbt": [ "js" ],
+    "hooks_llvm.mbt": [ "llvm" ],
+    "hooks_stub.mbt": [ "native" ],
+    "hooks_wasm.mbt": [ "wasm", "wasm-gc" ],
+    "hooks_wbtest.mbt": [ "js", "llvm" ],
+  },
+)

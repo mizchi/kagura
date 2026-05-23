@@ -58,7 +58,7 @@ pub fn tonemap_uniform_dwords(
   exposure : Double,
   hit_flash? : Double = 0.0,
 ) -> Array[Int] {
-  [@gfx.double_to_f32_bits(exposure), @gfx.double_to_f32_bits(hit_flash), 0, 0]
+  [f32(exposure), f32(hit_flash), 0, 0]
 }
 
 ///|
@@ -75,6 +75,6 @@ pub fn new_tonemap_command(
     shader,
     [src_image_id],
     tonemap_uniform_dwords(exposure, hit_flash~),
-    @gfx.blend_mode_from_int(0),
+    @gfx.BlendMode::from_int(0),
   )
 }

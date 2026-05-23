@@ -30,7 +30,7 @@ fn install_resizing_probe_web_hooks(
         @core.new_outside_size(size.0.to_double(), size.1.to_double())
       },
       fn(_canvas_selector, options) {
-        @platform.create_webgpu_surface_token(
+        @gfx.create_webgpu_surface_token(
           77,
           options.width,
           options.height,

@@ -227,9 +227,9 @@ fn test_web_outside_size(width : Int, height : Int) -> @core.OutsideSize {
 fn test_web_current_surface(
   _canvas_selector : String,
   options : WindowOptions,
-) -> SurfaceToken {
+) -> @gfx.SurfaceToken {
   {
-    kind: SurfaceKind::WebGlCanvasContext,
+    kind: @gfx.SurfaceKind::WebGlCanvasContext,
     opaque_id: 99,
     width: options.width + 1,
     height: options.height + 2,
@@ -372,17 +372,17 @@ fn test_web_request_attention(_canvas_selector : String, active : Bool) -> Unit 
 }
 
 ///|
-fn is_webgl_canvas_context(kind : SurfaceKind) -> Bool {
+fn is_webgl_canvas_context(kind : @gfx.SurfaceKind) -> Bool {
   match kind {
-    SurfaceKind::WebGlCanvasContext => true
+    @gfx.SurfaceKind::WebGlCanvasContext => true
     _ => false
   }
 }
 
 ///|
-fn is_webgpu_canvas_context(kind : SurfaceKind) -> Bool {
+fn is_webgpu_canvas_context(kind : @gfx.SurfaceKind) -> Bool {
   match kind {
-    SurfaceKind::WebGpuCanvasContext => true
+    @gfx.SurfaceKind::WebGpuCanvasContext => true
     _ => false
   }
 }

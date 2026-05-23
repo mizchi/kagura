@@ -1,6 +1,6 @@
 import {
-  "mizchi/kagura_engine/asset" @asset,
-  "mizchi/kagura_engine/gfx" @gfx,
+  "mizchi/atlas" @atlas,
+  "mizchi/gfx" @gfx,
 }
 
 options(

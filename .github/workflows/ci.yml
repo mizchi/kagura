@@ -78,7 +78,7 @@ jobs:
         with:
           node-version: "24"
           cache: "pnpm"
-          cache-dependency-path: examples/wasm_game/host/pnpm-lock.yaml
+          cache-dependency-path: examples/experimental/wasm_game/host/pnpm-lock.yaml
       - name: Install Rust toolchain
         run: rustup toolchain install stable --profile minimal --target wasm32-unknown-unknown
       - name: Install wasm-tools
@@ -123,7 +123,7 @@ jobs:
       - name: Coverage Analysis
         run: bash scripts/check-coverage.sh js
       - name: Runtime Smoke (JS)
-        run: cd examples/runtime_smoke && moon run src --target js
+        run: cd examples/smoke/runtime_smoke && moon run src --target js
       - name: Install Playwright Browser
         run: pnpm exec playwright install --with-deps chromium
       - name: Runtime Smoke E2E (wasm/wasm-gc)
@@ -163,7 +163,7 @@ jobs:
       - name: Test
         run: moon test --target native
       - name: Build Native Triangle
-        run: cd examples/native_triangle && moon build src --target native
+        run: cd examples/smoke/native_triangle && moon build src --target native
 
   native-windows:
     runs-on: windows-latest
@@ -197,7 +197,7 @@ jobs:
       - name: Test
         run: moon test --target native
       - name: Build Native Triangle
-        run: cd examples/native_triangle && moon build src --target native
+        run: cd examples/smoke/native_triangle && moon build src --target native
 
   native-macos:
     runs-on: macos-latest
@@ -223,6 +223,6 @@ jobs:
       - name: Test
         run: moon test --target native
       - name: Runtime Smoke Build (Native)
-        run: cd examples/runtime_smoke_native && moon build src --target native
+        run: cd examples/smoke/runtime_smoke_native && moon build src --target native
       - name: Build Native Triangle
-        run: cd examples/native_triangle && moon build src --target native
+        run: cd examples/smoke/native_triangle && moon build src --target native

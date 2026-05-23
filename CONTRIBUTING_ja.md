@@ -22,7 +22,7 @@
 
 ## 開発フロー
 
-1. 変更対象の設計/境界を確認する（`docs/architecture.md`, `docs/module_boundaries.md`）
+1. 変更対象の設計/境界を確認する（`docs/architecture/architecture.md`, `docs/architecture/module_boundaries.md`）
 2. 失敗するテストを先に追加する（Red）
 3. 最小実装でテストを通す（Green）
 4. API/責務分離を崩さない形で整理する（Refactor）
@@ -42,9 +42,9 @@ pnpm e2e:smoke
 必要に応じて smoke 実行も確認してください。
 
 ```bash
-(cd examples/runtime_smoke && moon run src --target js)
-(cd examples/runtime_smoke_native && moon run src --target native)
-(cd examples/native_triangle && moon build src --target native)
+(cd examples/smoke/runtime_smoke && moon run src --target js)
+(cd examples/smoke/runtime_smoke_native && moon run src --target native)
+(cd examples/smoke/native_triangle && moon build src --target native)
 ```
 
 ## ドキュメント配置ルール

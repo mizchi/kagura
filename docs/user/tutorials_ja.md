@@ -12,7 +12,7 @@
 
 ## 1. scene_demo で宣言的 API を理解する
 
-- 参照: `examples/scene_demo/src/game.mbt`
+- 参照: `examples/ecs/scene_demo/src/game.mbt`
 - 目的: `@scene.run` + Signal + view 関数の基本パターンを把握する
 
 ### 基本構造
@@ -58,7 +58,7 @@ fn main {
 
 ## 2. flappy_bird で 2D ゲームループを作る
 
-- 参照: `examples/flappy_bird/src/game.mbt`
+- 参照: `examples/games-2d/flappy_bird/src/game.mbt`
 - 目的: 入力処理、物理（重力）、衝突判定、ゲームモード遷移を学ぶ
 
 ### ポイント
@@ -69,7 +69,7 @@ fn main {
 
 ## 3. survivor で拡張可能な構造を学ぶ
 
-- 参照: `examples/survivor/src/game.mbt`
+- 参照: `examples/games-2d/survivor/src/game.mbt`
 - 目的: 多数のエンティティ、カメラ追従、レベルアップ UI の構造を学ぶ
 
 ### ポイント
@@ -81,7 +81,7 @@ fn main {
 
 ## 4. action_rpg で応用する
 
-- 参照: `examples/action_rpg/src/game.mbt`
+- 参照: `examples/games-2d/action_rpg/src/game.mbt`
 - 目的: タイルマップ、敵 AI、ポーズメニュー、ダメージエフェクトの実装を確認
 
 ### ポイント
@@ -93,7 +93,7 @@ fn main {
 
 ## 5. arena3d で 3D を学ぶ
 
-- 参照: `examples/arena3d/src/game.mbt`
+- 参照: `examples/games-3d/arena3d/src/game.mbt`
 - 目的: CPU 側 3D→2D 投影、メッシュ、ライティングの基本を確認
 
 > arena3d は Low-level API（`DrawTrianglesCommand` 直接構築）を使用します。

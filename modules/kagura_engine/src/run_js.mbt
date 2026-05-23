@@ -26,7 +26,7 @@ pub fn run(
   invoke_on_start(canvas, title)
   let platform = @platform.create_web_canvas_platform(canvas)
   let surface = platform.current_surface() catch {
-    _ => @platform.create_offscreen_surface_token(width, height)
+    _ => @gfx.create_offscreen_surface_token(width, height)
   }
   let graphics = @gfx.create_webgpu_graphics(
     surface,

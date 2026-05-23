@@ -1,0 +1,351 @@
+///|
+fn test_atlas_draw_source(page_image_id : Int) -> @atlas.AtlasDrawSource {
+  let repo = @atlas.new_simple_atlas_image_repository(8, 8, page_image_id)
+  let key_a = @atlas.new_asset_key("draw2d/source/a")
+  let key_b = @atlas.new_asset_key("draw2d/source/b")
+  let _ = @atlas.create_atlas_image(
+    repo,
+    key_a,
+    @atlas.default_image_spec(2, 2),
+  )
+  let _ = @atlas.create_atlas_image(
+    repo,
+    key_b,
+    @atlas.default_image_spec(2, 2),
+  )
+  match @atlas.get_atlas_draw_source(repo, key_b) {
+    Some(value) => value
+    None => panic()
+  }
+}
+
+///|
+test "atlas_quad_vertex_data encodes xyuv with atlas uv bounds" {
+  let source = test_atlas_draw_source(777)
+  let vertex = atlas_quad_vertex_data(source, -0.5, -0.25, 0.75, 0.5)
+  assert_eq(vertex.length(), 16)
+  assert_eq(vertex[0], -0.5)
+  assert_eq(vertex[1], -0.25)
+  assert_eq(vertex[2], 0.25)
+  assert_eq(vertex[3], 0.0)
+  assert_eq(vertex[6], 0.5)
+  assert_eq(vertex[7], 0.0)
+  assert_eq(vertex[10], 0.5)
+  assert_eq(vertex[11], 0.25)
+  assert_eq(vertex[14], 0.25)
+  assert_eq(vertex[15], 0.25)
+}
+
+///|
+test "atlas_quad_indices returns standard quad pattern" {
+  let idx = atlas_quad_indices()
+  assert_eq(idx.length(), 6)
+  assert_eq(idx[0], 0)
+  assert_eq(idx[1], 1)
+  assert_eq(idx[2], 2)
+  assert_eq(idx[3], 2)
+  assert_eq(idx[4], 3)
+  assert_eq(idx[5], 0)
+}
+
+///|
+test "atlas_quad_resource_cache_key is deterministic and input-sensitive" {
+  // The cache_key value is non-functional metadata (gfx's queue propagates
+  // but never compares it), so we don't assert exact equality with
+  // build_resource_cache_key. We do require: same inputs -> same hash,
+  // perturbed inputs -> different hash, never zero.
+  let source = test_atlas_draw_source(515)
+  let dst = @gfx.new_image_handle(7, 320, 240)
+  let shader = @gfx.new_shader_handle(13, "atlas_q")
+  let dst_region = @gfx.new_dst_region(2, 3, 100, 80, 6)
+  let blend = @gfx.BlendMode::from_int(2)
+  let uniform_dwords = [11, 22, 33]
+  let a = atlas_quad_resource_cache_key(
+    dst, shader, dst_region, blend, source, 0.125, 0.25, 0.375, 0.5, uniform_dwords,
+  )
+  let b = atlas_quad_resource_cache_key(
+    dst, shader, dst_region, blend, source, 0.125, 0.25, 0.375, 0.5, uniform_dwords,
+  )
+  let moved = atlas_quad_resource_cache_key(
+    dst, shader, dst_region, blend, source, 0.625, 0.25, 0.875, 0.5, uniform_dwords,
+  )
+  let resized = atlas_quad_resource_cache_key(
+    dst, shader, dst_region, blend, source, 0.125, 0.25, 0.5, 0.5, uniform_dwords,
+  )
+  let recolored = atlas_quad_resource_cache_key(
+    dst, shader, dst_region, blend, source, 0.125, 0.25, 0.375, 0.5, [11, 22, 34],
+  )
+  assert_true(a != 0)
+  assert_eq(a, b)
+  assert_true(a != moved)
+  assert_true(a != resized)
+  assert_true(a != recolored)
+}
+
+///|
+test "atlas_quad_vertex_data zero-size quad" {
+  let source = test_atlas_draw_source(100)
+  let vertex = atlas_quad_vertex_data(source, 0.0, 0.0, 0.0, 0.0)
+  assert_eq(vertex.length(), 16)
+  // All position coords should be 0
+  assert_eq(vertex[0], 0.0)
+  assert_eq(vertex[1], 0.0)
+  assert_eq(vertex[4], 0.0)
+  assert_eq(vertex[5], 0.0)
+}
+
+///|
+test "new_atlas_quad_draw_command uses atlas page id as src image" {
+  let source = test_atlas_draw_source(901)
+  let command = new_atlas_quad_draw_command(
+    @gfx.new_image_handle(10, 64, 64),
+    @gfx.new_shader_handle(20, "shader"),
+    @gfx.new_dst_region(0, 0, 64, 64, 6),
+    0,
+    7,
+    11,
+    @gfx.BlendMode::from_int(1),
+    source,
+    -0.5,
+    -0.5,
+    0.5,
+    0.5,
+    [1, 2, 3, 4],
+  )
+  assert_eq(command.src_image_ids.length(), 1)
+  assert_eq(command.src_image_ids[0], 901)
+  assert_eq(command.indices.length(), 6)
+  assert_eq(command.indices[0], 0)
+  assert_eq(command.indices[5], 0)
+  assert_eq(command.vertex_data.length(), 16)
+  assert_eq(command.vertex_data[2], 0.25)
+  assert_eq(command.vertex_data[3], 0.0)
+  assert_eq(command.vertex_data[10], 0.5)
+  assert_eq(command.vertex_data[11], 0.25)
+  assert_eq(command.uniform_dwords.length(), 4)
+}
+
+///|
+test "new_atlas_quad_draw_command empty uniform_dwords" {
+  let source = test_atlas_draw_source(500)
+  let command = new_atlas_quad_draw_command(
+    @gfx.new_image_handle(1, 32, 32),
+    @gfx.new_shader_handle(2, "s"),
+    @gfx.new_dst_region(0, 0, 32, 32, 6),
+    0,
+    1,
+    1,
+    @gfx.BlendMode::from_int(0),
+    source,
+    0.0,
+    0.0,
+    1.0,
+    1.0,
+    [],
+  )
+  assert_eq(command.uniform_dwords.length(), 0)
+  assert_eq(command.src_image_ids[0], 500)
+}
+
+///|
+test "new_atlas_quad_draw_command preserves pipeline and blend" {
+  let source = test_atlas_draw_source(600)
+  let command = new_atlas_quad_draw_command(
+    @gfx.new_image_handle(5, 128, 128),
+    @gfx.new_shader_handle(10, "blend_test"),
+    @gfx.new_dst_region(0, 0, 128, 128, 6),
+    42,
+    99,
+    77,
+    @gfx.BlendMode::from_int(2),
+    source,
+    -1.0,
+    -1.0,
+    1.0,
+    1.0,
+    [100, 200],
+  )
+  assert_eq(command.pipeline_id, 99)
+  assert_eq(command.uniform_hash, 77)
+  assert_eq(command.index_offset, 42)
+  assert_eq(command.uniform_dwords.length(), 2)
+  assert_eq(command.uniform_dwords[0], 100)
+  assert_eq(command.uniform_dwords[1], 200)
+}
+
+///|
+test "new_atlas_quad_draw_command assigns resource_cache_key from geometry and uniforms" {
+  let source = test_atlas_draw_source(910)
+  let a = new_atlas_quad_draw_command(
+    @gfx.new_image_handle(1, 64, 64),
+    @gfx.new_shader_handle(2, "atlas"),
+    @gfx.new_dst_region(0, 0, 64, 64, 6),
+    0,
+    0,
+    0,
+    @gfx.BlendMode::from_int(1),
+    source,
+    0.0,
+    0.0,
+    1.0,
+    1.0,
+    [1, 2, 3, 4],
+  )
+  let b = new_atlas_quad_draw_command(
+    @gfx.new_image_handle(1, 64, 64),
+    @gfx.new_shader_handle(2, "atlas"),
+    @gfx.new_dst_region(0, 0, 64, 64, 6),
+    0,
+    0,
+    0,
+    @gfx.BlendMode::from_int(1),
+    source,
+    0.0,
+    0.0,
+    1.0,
+    1.0,
+    [1, 2, 3, 4],
+  )
+  let moved = new_atlas_quad_draw_command(
+    @gfx.new_image_handle(1, 64, 64),
+    @gfx.new_shader_handle(2, "atlas"),
+    @gfx.new_dst_region(0, 0, 64, 64, 6),
+    0,
+    0,
+    0,
+    @gfx.BlendMode::from_int(1),
+    source,
+    0.5,
+    0.0,
+    1.5,
+    1.0,
+    [1, 2, 3, 4],
+  )
+  let recolored = new_atlas_quad_draw_command(
+    @gfx.new_image_handle(1, 64, 64),
+    @gfx.new_shader_handle(2, "atlas"),
+    @gfx.new_dst_region(0, 0, 64, 64, 6),
+    0,
+    0,
+    0,
+    @gfx.BlendMode::from_int(1),
+    source,
+    0.0,
+    0.0,
+    1.0,
+    1.0,
+    [1, 2, 3, 5],
+  )
+  assert_true(a.resource_cache_key != 0)
+  assert_eq(a.resource_cache_key, b.resource_cache_key)
+  assert_true(a.resource_cache_key != moved.resource_cache_key)
+  assert_true(a.resource_cache_key != recolored.resource_cache_key)
+}
+
+///|
+test "atlas_quad_vertex_data large coordinates" {
+  let source = test_atlas_draw_source(300)
+  let vertex = atlas_quad_vertex_data(source, -1000.0, -2000.0, 3000.0, 4000.0)
+  assert_eq(vertex.length(), 16)
+  assert_eq(vertex[0], -1000.0)
+  assert_eq(vertex[1], -2000.0)
+  assert_eq(vertex[4], 3000.0)
+  assert_eq(vertex[5], -2000.0)
+  assert_eq(vertex[8], 3000.0)
+  assert_eq(vertex[9], 4000.0)
+  assert_eq(vertex[12], -1000.0)
+  assert_eq(vertex[13], 4000.0)
+}
+
+///|
+test "atlas_quad_vertex_data inverted bounds" {
+  // right < left, bottom < top (inverted quad)
+  let source = test_atlas_draw_source(400)
+  let vertex = atlas_quad_vertex_data(source, 1.0, 1.0, -1.0, -1.0)
+  assert_eq(vertex.length(), 16)
+  // TL: (1, 1)
+  assert_eq(vertex[0], 1.0)
+  assert_eq(vertex[1], 1.0)
+  // TR: (-1, 1)
+  assert_eq(vertex[4], -1.0)
+  assert_eq(vertex[5], 1.0)
+  // BR: (-1, -1)
+  assert_eq(vertex[8], -1.0)
+  assert_eq(vertex[9], -1.0)
+}
+
+///|
+test "atlas_quad_vertex_data negative coords" {
+  let source = test_atlas_draw_source(200)
+  let vertex = atlas_quad_vertex_data(source, -1.0, -1.0, -0.5, -0.5)
+  // TL
+  assert_eq(vertex[0], -1.0)
+  assert_eq(vertex[1], -1.0)
+  // TR
+  assert_eq(vertex[4], -0.5)
+  assert_eq(vertex[5], -1.0)
+  // BR
+  assert_eq(vertex[8], -0.5)
+  assert_eq(vertex[9], -0.5)
+  // BL
+  assert_eq(vertex[12], -1.0)
+  assert_eq(vertex[13], -0.5)
+}
+
+///|
+test "new_atlas_quad_batch_draw_command packs N quads into one command" {
+  let source = test_atlas_draw_source(960)
+  let dst = @gfx.new_image_handle(1, 1920, 1080)
+  let shader = @gfx.new_shader_handle(2, "atlas_batch")
+  let dst_region = @gfx.new_dst_region(0, 0, 1920, 1080, 6)
+  let blend = @gfx.BlendMode::from_int(1)
+  // Three quads laid out as [l, t, r, b] x 3
+  let rects : Array[Double] = [
+    0.0, 0.0, 2.0, 2.0,
+    10.0, 0.0, 12.0, 2.0,
+    0.0, 10.0, 2.0, 12.0,
+  ]
+  let cmd = new_atlas_quad_batch_draw_command(
+    dst, shader, dst_region, 7, 11, blend, source, rects, [1, 2, 3, 4],
+  )
+  // 3 quads = 12 vertices (4 doubles each: x, y, u, v = stride 4)
+  // vertex_data length = 3 * 16 = 48
+  assert_eq(cmd.vertex_data.length(), 48)
+  // 3 quads = 6 indices each = 18 indices
+  assert_eq(cmd.indices.length(), 18)
+  // First quad's TL: (0, 0) with source UV (u0, v0)
+  assert_eq(cmd.vertex_data[0], 0.0)
+  assert_eq(cmd.vertex_data[1], 0.0)
+  assert_eq(cmd.vertex_data[2], source.u0)
+  assert_eq(cmd.vertex_data[3], source.v0)
+  // Second quad's TL: (10, 0)
+  assert_eq(cmd.vertex_data[16], 10.0)
+  assert_eq(cmd.vertex_data[17], 0.0)
+  // First quad's indices: 0, 1, 2, 2, 3, 0
+  assert_eq(cmd.indices[0], 0)
+  assert_eq(cmd.indices[5], 0)
+  // Second quad's indices: 4, 5, 6, 6, 7, 4
+  assert_eq(cmd.indices[6], 4)
+  assert_eq(cmd.indices[11], 4)
+  // Region index_count reflects all quads
+  assert_eq(cmd.dst_regions[0].index_count, 18)
+  // page_image_id appears once (all quads share source)
+  assert_eq(cmd.src_image_ids.length(), 1)
+  assert_eq(cmd.src_image_ids[0], source.page_image_id)
+  assert_true(cmd.resource_cache_key != 0)
+}
+
+///|
+test "new_atlas_quad_batch_draw_command empty rects produces empty command" {
+  let source = test_atlas_draw_source(961)
+  let dst = @gfx.new_image_handle(1, 100, 100)
+  let shader = @gfx.new_shader_handle(2, "atlas_batch_empty")
+  let dst_region = @gfx.new_dst_region(0, 0, 100, 100, 6)
+  let blend = @gfx.BlendMode::from_int(0)
+  let cmd = new_atlas_quad_batch_draw_command(
+    dst, shader, dst_region, 0, 0, blend, source, [], [],
+  )
+  assert_eq(cmd.vertex_data.length(), 0)
+  assert_eq(cmd.indices.length(), 0)
+  assert_eq(cmd.dst_regions[0].index_count, 0)
+}

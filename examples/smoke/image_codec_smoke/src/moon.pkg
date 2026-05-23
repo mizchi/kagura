@@ -1,0 +1,7 @@
+import {
+  "mizchi/atlas" @atlas,
+}
+
+options(
+  "is-main": true,
+)

@@ -2,12 +2,12 @@
 package "mizchi/kagura_engine/scene3d"
 
 import {
+  "mizchi/gfx",
   "mizchi/kagura_core/camera3d",
   "mizchi/kagura_core/math3d",
   "mizchi/kagura_core/mesh3d",
   "mizchi/kagura_core/skeleton3d",
   "mizchi/kagura_core/transform3d",
-  "mizchi/kagura_engine/gfx",
   "mizchi/kagura_engine/light3d",
 }
 

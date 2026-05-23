@@ -1,6 +1,6 @@
 import {
-  "mizchi/kagura_engine/gfx" @gfx,
-  "mizchi/kagura_core/math3d" @math3d,
+  "mizchi/gfx" @gfx,
+  "mizchi/geom/math3d" @math3d,
   "mizchi/kagura_engine/postfx" @postfx,
   "mizchi/kagura_engine/shadow3d" @shadow3d,
 }

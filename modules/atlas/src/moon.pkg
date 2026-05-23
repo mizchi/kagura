@@ -1,0 +1,13 @@
+import {
+  "mizchi/gfx" @gfx,
+  "mizchi/image" @image,
+}
+
+options(
+  targets: {
+    "fetch_js.mbt": [ "js" ],
+    "fetch_js_wbtest.mbt": [ "js" ],
+    "fetcher_js.mbt": [ "js" ],
+    "fetcher_native.mbt": [ "native" ],
+  },
+)

@@ -235,8 +235,8 @@ fn copy_view_into_atlas(
 
 ///|
 fn encode_atlas_png(atlas_w : Int, atlas_h : Int, pixels : Array[Int]) -> Bytes {
-  @asset.encode_png_image_spec(
-    @asset.image_spec_with_rgba8(atlas_w, atlas_h, pixels),
+  @atlas.encode_png_image_spec(
+    @atlas.image_spec_with_rgba8(atlas_w, atlas_h, pixels),
   ) catch {
     _ => panic()
   }
@@ -253,7 +253,7 @@ fn main {
   let atlas_w = native_tile_w * 2
   let atlas_h = native_tile_h * 2
   @native_hooks.install("kagura:native-review")
-  let surface = @platform.create_offscreen_surface_token(
+  let surface = @gfx.create_offscreen_surface_token(
     native_tile_w, native_tile_h,
   )
   let graphics = @gfx.create_wgpu_native_graphics(

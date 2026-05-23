@@ -1,0 +1,7 @@
+import {
+  "mizchi/gfx" @gfx,
+  "mizchi/text" @text,
+  "mizchi/font" @font,
+  "moonbitlang/core/cmp" @cmp,
+  "moonbitlang/core/math" @math,
+}

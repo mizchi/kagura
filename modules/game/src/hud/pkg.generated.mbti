@@ -2,7 +2,7 @@
 package "mizchi/kagura_game/hud"
 
 import {
-  "mizchi/kagura_engine/gfx",
+  "mizchi/gfx",
   "mizchi/kagura_engine/text",
   "moonbitlang/core/debug",
 }

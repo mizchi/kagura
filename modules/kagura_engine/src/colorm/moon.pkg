@@ -1,4 +1,0 @@
-import {
-  "moonbitlang/core/math" @math,
-  "mizchi/kagura_engine/gfx" @gfx,
-}

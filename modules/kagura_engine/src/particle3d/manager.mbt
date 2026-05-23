@@ -127,7 +127,7 @@ pub fn ParticleManager::append_draw_commands(
       0,
       self.particle_shader.id,
       frame_count,
-      @gfx.blend_mode_from_int(2), // Additive blending
+      @gfx.BlendMode::from_int(2), // Additive blending
       self.vertex_scratch,
       self.index_scratch,
       vp,

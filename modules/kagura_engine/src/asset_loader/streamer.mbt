@@ -50,7 +50,7 @@ fn distance_to_priority(
 
 ///|
 struct AssetEntry {
-  key : @asset.AssetKey
+  key : @atlas.AssetKey
   mut last_touched : Int
   mut lod_level : Int
   mut stream_id : Int
@@ -73,14 +73,14 @@ pub struct AssetStreamer {
   config : AssetStreamerConfig
   mut frame_count : Int
   handles : Map[String, AssetEntry]
-  on_evict : (@asset.AssetKey) -> Unit
+  on_evict : (@atlas.AssetKey) -> Unit
 }
 
 ///|
 pub fn AssetStreamer::new(
-  fetcher : &@asset.BytesFetcher,
+  fetcher : &@atlas.BytesFetcher,
   config? : AssetStreamerConfig = AssetStreamerConfig::default(),
-  on_evict? : (@asset.AssetKey) -> Unit = fn(_) {  },
+  on_evict? : (@atlas.AssetKey) -> Unit = fn(_) {  },
 ) -> AssetStreamer {
   {
     manager: AssetStreamManager::new(
@@ -98,7 +98,7 @@ pub fn AssetStreamer::new(
 pub fn AssetStreamer::request(
   self : AssetStreamer,
   url : String,
-  key : @asset.AssetKey,
+  key : @atlas.AssetKey,
   priority : AssetPriority,
   on_complete : (Bytes?) -> Unit,
 ) -> Int {
@@ -144,7 +144,7 @@ pub fn AssetStreamer::request(
 pub fn AssetStreamer::request_by_distance(
   self : AssetStreamer,
   url : String,
-  key : @asset.AssetKey,
+  key : @atlas.AssetKey,
   distance : Double,
   thresholds? : DistanceThresholds = DistanceThresholds::default(),
   on_complete~ : (Bytes?) -> Unit,
@@ -157,7 +157,7 @@ pub fn AssetStreamer::request_by_distance(
 pub fn AssetStreamer::request_lod(
   self : AssetStreamer,
   url : String,
-  key : @asset.AssetKey,
+  key : @atlas.AssetKey,
   lod_level : Int,
   priority : AssetPriority,
   on_complete : (Bytes?) -> Unit,
@@ -253,7 +253,7 @@ pub fn AssetStreamer::update(self : AssetStreamer) -> Unit {
 ///|
 pub fn AssetStreamer::touch(
   self : AssetStreamer,
-  key : @asset.AssetKey,
+  key : @atlas.AssetKey,
 ) -> Unit {
   match self.handles.get(key.value) {
     Some(entry) => entry.last_touched = self.frame_count
@@ -264,7 +264,7 @@ pub fn AssetStreamer::touch(
 ///|
 pub fn AssetStreamer::evict(
   self : AssetStreamer,
-  key : @asset.AssetKey,
+  key : @atlas.AssetKey,
 ) -> Unit {
   match self.handles.get(key.value) {
     Some(entry) => {

@@ -20,8 +20,8 @@ test "create_packed_atlas_repository basic" {
   // Create two 4x4 sprites
   let pixels_a : Array[Int] = Array::make(4 * 4 * 4, 255)
   let pixels_b : Array[Int] = Array::make(4 * 4 * 4, 128)
-  let spec_a = @asset.image_spec_with_rgba8(4, 4, pixels_a)
-  let spec_b = @asset.image_spec_with_rgba8(4, 4, pixels_b)
+  let spec_a = @atlas.image_spec_with_rgba8(4, 4, pixels_a)
+  let spec_b = @atlas.image_spec_with_rgba8(4, 4, pixels_b)
   let inputs : Array[SpriteInput] = [
     { key: "sprite_a", spec: spec_a },
     { key: "sprite_b", spec: spec_b },
@@ -36,25 +36,25 @@ test "create_packed_atlas_repository basic" {
   }
   let repo = create_packed_atlas_repository(inputs, result)
   // Both sprites should be retrievable
-  let src_a = @asset.get_atlas_draw_source(
+  let src_a = @atlas.get_atlas_draw_source(
     repo,
-    @asset.new_asset_key("sprite_a"),
+    @atlas.new_asset_key("sprite_a"),
   )
   assert_true(!(src_a is None))
-  let src_b = @asset.get_atlas_draw_source(
+  let src_b = @atlas.get_atlas_draw_source(
     repo,
-    @asset.new_asset_key("sprite_b"),
+    @atlas.new_asset_key("sprite_b"),
   )
   assert_true(!(src_b is None))
   // Nonexistent key returns None
-  let src_c = @asset.get_atlas_draw_source(repo, @asset.new_asset_key("nope"))
+  let src_c = @atlas.get_atlas_draw_source(repo, @atlas.new_asset_key("nope"))
   assert_true(src_c is None)
 }
 
 ///|
 test "create_packed_atlas_repository UV coordinates" {
   let pixels : Array[Int] = Array::make(8 * 8 * 4, 200)
-  let spec = @asset.image_spec_with_rgba8(8, 8, pixels)
+  let spec = @atlas.image_spec_with_rgba8(8, 8, pixels)
   let inputs : Array[SpriteInput] = [{ key: "img", spec }]
   let result : PackResult = {
     width: 32,
@@ -62,7 +62,7 @@ test "create_packed_atlas_repository UV coordinates" {
     sprites: [{ key: "img", x: 8, y: 16, width: 8, height: 8 }],
   }
   let repo = create_packed_atlas_repository(inputs, result)
-  let src = @asset.get_atlas_draw_source(repo, @asset.new_asset_key("img"))
+  let src = @atlas.get_atlas_draw_source(repo, @atlas.new_asset_key("img"))
   assert_true(!(src is None))
   let s = src.unwrap()
   // u0 = 8/32 = 0.25, v0 = 16/32 = 0.5, u1 = 16/32 = 0.5, v1 = 24/32 = 0.75
@@ -142,7 +142,7 @@ test "end-to-end: split_sprite_sheet → pack → repository → draw_source" {
       }
     }
   }
-  let sheet = @asset.image_spec_with_rgba8(sheet_w, sheet_h, pixels)
+  let sheet = @atlas.image_spec_with_rgba8(sheet_w, sheet_h, pixels)
   // Split into 4 tiles
   let frames = @animation2d.split_sprite_sheet(sheet, "tile", 2, 2, 16, 16)
   inspect(frames.length(), content="4")
@@ -161,8 +161,8 @@ test "end-to-end: split_sprite_sheet → pack → repository → draw_source" {
   let repo = create_packed_atlas_repository(inputs, pack_result)
   // All 4 tiles should be accessible
   for i in 0..<4 {
-    let key = @asset.new_asset_key("tile_" + i.to_string())
-    let src = @asset.get_atlas_draw_source(repo, key)
+    let key = @atlas.new_asset_key("tile_" + i.to_string())
+    let src = @atlas.get_atlas_draw_source(repo, key)
     assert_true(!(src is None))
   }
   // Build tile atlas table

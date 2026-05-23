@@ -9,7 +9,7 @@
       "path": "../.."
     },
     "mizchi/web_runtime_hooks": {
-      "path": "../../../../examples/web_runtime_hooks"
+      "path": "../../../../examples/smoke/web_runtime_hooks"
     },
     "mizchi/kagura_game": {
       "path": "../../../../modules/game"
@@ -19,6 +19,13 @@
     },
     "mizchi/kagura_engine": {
       "path": "../../../../modules/kagura_engine"
+    },
+    "mizchi/gfx": "0.1.0",
+    "mizchi/mesh3d": {
+      "path": "../../../../modules/mesh3d"
+    },
+    "mizchi/geom": {
+      "path": "../../../../modules/geom"
     }
   }
 }

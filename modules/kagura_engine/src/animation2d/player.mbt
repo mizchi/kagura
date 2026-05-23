@@ -54,7 +54,7 @@ pub fn SpriteAnimationPlayer::current_frame_index(
 /// Get the current frame's atlas key.
 pub fn SpriteAnimationPlayer::current_key(
   self : SpriteAnimationPlayer,
-) -> @asset.AssetKey {
+) -> @atlas.AssetKey {
   let idx = self.current_frame_index()
   self.clip.frames[idx].atlas_key
 }

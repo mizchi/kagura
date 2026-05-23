@@ -4,9 +4,24 @@
 /// Depth-to-Color approach: renders linear depth to R channel of a color texture,
 /// then samples shadow map in the main pass with PCF filtering.
 
-///|
+// Encode a Double as the IEEE 754 f32 bit pattern (round to nearest-even).
+// See comment in light3d/contracts.mbt — same rationale (avoid the int64
+// emulation cost of gfx.double_to_f32_bits on the JS target).
 fn f32(v : Double) -> Int {
-  @gfx.double_to_f32_bits(v)
+  v.to_float().reinterpret_as_int()
+}
+
+// Mirrors mix_resource_cache_key in mizchi/gfx; kept local so the per-vertex
+// hash chain can run inline without allocating a values array.
+fn mix_cache_key(seed : Int, value : Int) -> Int {
+  seed * 16777619 + value + 31
+}
+
+// Cheap deterministic 32-bit hash for a Double. resource_cache_key is
+// non-functional metadata, so any stable mapping works; avoids the int64
+// round-trip in @gfx.double_to_f32_bits.
+fn double_cache_bits(v : Double) -> Int {
+  (v * 4096.0).to_int()
 }
 
 ///|
@@ -16,25 +31,28 @@ fn shadow_depth_resource_cache_key(
   mesh : @mesh3d.Mesh3D,
   uniform_dwords : Array[Int],
 ) -> Int {
-  let values : Array[Int] = [
-    shadow_map.id,
-    shadow_map.width,
-    shadow_map.height,
-    shader.id,
-    mesh.vertex_data.length(),
-    mesh.indices.length(),
-    uniform_dwords.length(),
-  ]
+  let mut hash = 0x53484450
+  hash = mix_cache_key(hash, shadow_map.id)
+  hash = mix_cache_key(hash, shadow_map.width)
+  hash = mix_cache_key(hash, shadow_map.height)
+  hash = mix_cache_key(hash, shader.id)
+  hash = mix_cache_key(hash, mesh.vertex_data.length())
+  hash = mix_cache_key(hash, mesh.indices.length())
+  hash = mix_cache_key(hash, uniform_dwords.length())
   for vertex in mesh.vertex_data {
-    values.push(@gfx.double_to_f32_bits(vertex))
+    hash = mix_cache_key(hash, double_cache_bits(vertex))
   }
   for index in mesh.indices {
-    values.push(index)
+    hash = mix_cache_key(hash, index)
   }
   for dword in uniform_dwords {
-    values.push(dword)
+    hash = mix_cache_key(hash, dword)
   }
-  @gfx.build_resource_cache_key(0x53484450, values)
+  if hash == 0 {
+    1
+  } else {
+    hash
+  }
 }
 
 // ============================================================
@@ -207,7 +225,7 @@ pub fn new_shadow_depth_command(
     0,
     0,
     0,
-    @gfx.blend_mode_from_int(0),
+    @gfx.BlendMode::from_int(0),
     mesh.vertex_data,
     mesh.indices,
     [],

@@ -1,0 +1,21 @@
+import {
+  "moonbitlang/core/cmp" @cmp,
+  "moonbitlang/core/math" @math,
+  "mizchi/geom/camera2d" @camera2d,
+  "mizchi/kagura_core" @core,
+  "mizchi/kagura_core/inpututil" @inpututil,
+  "mizchi/pathfind" @pathfind,
+  "mizchi/kagura_game/scene" @scene,
+  "mizchi/geom/vector" @vector,
+  "mizchi/terrain/bsp" @bsp,
+  "mizchi/terrain/types" @terrain,
+  "mizchi/web_runtime_hooks" @web_hooks,
+}
+
+warnings = "-1-2-7-29"
+
+supported_targets = "js"
+
+options(
+  "is-main": true,
+)

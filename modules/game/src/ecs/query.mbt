@@ -1,6 +1,10 @@
 ///|
 pub fn World::each_entity(self : World, f : (EntityId) -> Unit) -> Unit {
-  self.alive.each(fn(id, alive) { if alive { f({ value: id }) } })
+  for id in 0..<self.alive.length() {
+    if self.alive[id] {
+      f({ value: id })
+    }
+  }
 }
 
 ///|
@@ -8,14 +12,14 @@ pub fn World::each_with_transform(
   self : World,
   f : (EntityId, @transform3d.Transform3D) -> Unit,
 ) -> Unit {
-  self.alive.each(fn(id, alive) {
-    if alive {
-      match self.transforms.get(id) {
+  for id in 0..<self.alive.length() {
+    if self.alive[id] {
+      match self.transforms[id] {
         Some(t) => f({ value: id }, t)
         None => ()
       }
     }
-  })
+  }
 }
 
 ///|
@@ -23,14 +27,14 @@ pub fn World::each_with_transform_velocity(
   self : World,
   f : (EntityId, @transform3d.Transform3D, Velocity) -> Unit,
 ) -> Unit {
-  self.alive.each(fn(id, alive) {
-    if alive {
-      match (self.transforms.get(id), self.velocities.get(id)) {
+  for id in 0..<self.alive.length() {
+    if self.alive[id] {
+      match (self.transforms[id], self.velocities[id]) {
         (Some(t), Some(v)) => f({ value: id }, t, v)
         _ => ()
       }
     }
-  })
+  }
 }
 
 ///|
@@ -39,14 +43,14 @@ pub fn World::each_with_tag(
   tag : Tag,
   f : (EntityId) -> Unit,
 ) -> Unit {
-  self.alive.each(fn(id, alive) {
-    if alive {
-      match self.tags.get(id) {
+  for id in 0..<self.alive.length() {
+    if self.alive[id] {
+      match self.tags[id] {
         Some(tags) => if tags.contains(tag) { f({ value: id }) }
         None => ()
       }
     }
-  })
+  }
 }
 
 ///|

@@ -34,11 +34,11 @@ pub fn fog_uniform_dwords(
   fog_end : Double,
 ) -> Array[Int] {
   [
-    @gfx.double_to_f32_bits(fog_r),
-    @gfx.double_to_f32_bits(fog_g),
-    @gfx.double_to_f32_bits(fog_b),
-    @gfx.double_to_f32_bits(fog_start),
-    @gfx.double_to_f32_bits(fog_end),
+    f32(fog_r),
+    f32(fog_g),
+    f32(fog_b),
+    f32(fog_start),
+    f32(fog_end),
     0,
     0,
     0,
@@ -62,6 +62,6 @@ pub fn new_fog_command(
     shader,
     [scene_image_id, depth_image_id],
     fog_uniform_dwords(fog_r, fog_g, fog_b, fog_start, fog_end),
-    @gfx.blend_mode_from_int(0),
+    @gfx.BlendMode::from_int(0),
   )
 }

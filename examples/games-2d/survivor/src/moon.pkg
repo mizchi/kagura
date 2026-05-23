@@ -1,0 +1,25 @@
+import {
+  "moonbitlang/core/bench" @bench,
+  "moonbitlang/core/cmp" @cmp,
+  "moonbitlang/core/math" @math,
+  "mizchi/geom/camera2d" @camera2d,
+  "mizchi/kagura_core" @core,
+  "mizchi/kagura_core/inpututil" @inpututil,
+  "mizchi/kagura_game/scene" @scene,
+  "mizchi/geom/vector" @vector,
+  "mizchi/web_runtime_hooks" @web_hooks,
+}
+
+warnings = "-1-2-29"
+
+supported_targets = "js+native"
+
+options(
+  "is-main": true,
+  link: {
+    "native": {
+      "cc": "${build.KAGURA_NATIVE_CC}",
+      "cc-link-flags": "-L../../deps/wgpu-native/lib -lwgpu_native ${build.KAGURA_NATIVE_GLFW_LIBS} ${build.KAGURA_NATIVE_WGPU_RPATH} ${build.KAGURA_NATIVE_PLATFORM_LIBS}",
+    },
+  },
+)

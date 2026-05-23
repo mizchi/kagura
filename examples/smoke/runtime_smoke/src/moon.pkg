@@ -1,0 +1,27 @@
+import {
+  "mizchi/font" @font,
+  "mizchi/atlas" @atlas,
+  "mizchi/kagura_engine/audio" @audio,
+  "mizchi/kagura_core" @core,
+  "mizchi/web_runtime_hooks" @web_hooks,
+  "mizchi/gfx" @gfx,
+  "mizchi/atlas" @atlas,
+  "mizchi/renderer2d" @renderer2d,
+  "mizchi/kagura_engine/platform" @platform,
+  "mizchi/kagura_engine/runtime" @runtime,
+  "mizchi/kagura_engine/sprite2d" @sprite2d,
+  "mizchi/text" @text,
+  "mizchi/kagura_game/tilemap2d" @tilemap2d,
+}
+
+warnings = "-29"
+
+supported_targets = "js+wasm+wasm-gc"
+
+options(
+  "is-main": true,
+  targets: {
+    "main_js.mbt": [ "js", "wasm", "wasm-gc", "llvm" ],
+    "main_native.mbt": [ "native" ],
+  },
+)

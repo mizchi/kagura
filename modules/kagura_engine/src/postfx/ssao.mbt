@@ -54,12 +54,12 @@ pub fn ssao_uniform_dwords(
   screen_h : Int,
 ) -> Array[Int] {
   [
-    @gfx.double_to_f32_bits(radius),
-    @gfx.double_to_f32_bits(bias),
-    @gfx.double_to_f32_bits(intensity),
+    f32(radius),
+    f32(bias),
+    f32(intensity),
     0, // unused
-    @gfx.double_to_f32_bits(screen_w.to_double()),
-    @gfx.double_to_f32_bits(screen_h.to_double()),
+    f32(screen_w.to_double()),
+    f32(screen_h.to_double()),
     0,
     0,
   ]
@@ -83,6 +83,6 @@ pub fn new_ssao_command(
     shader,
     [color_src_id, depth_src_id],
     ssao_uniform_dwords(radius, bias, intensity, screen_w, screen_h),
-    @gfx.blend_mode_from_int(0),
+    @gfx.BlendMode::from_int(0),
   )
 }

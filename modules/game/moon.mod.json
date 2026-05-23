@@ -16,7 +16,26 @@
     "mizchi/kagura_engine": {
       "path": "../kagura_engine"
     },
-    "mizchi/kagura_physics": {
+    "mizchi/gfx": "0.1.0",
+    "mizchi/text": {
+      "path": "../text"
+    },
+    "mizchi/mesh3d": {
+      "path": "../mesh3d"
+    },
+    "mizchi/renderer2d": {
+      "path": "../renderer2d"
+    },
+    "mizchi/geom": {
+      "path": "../geom"
+    },
+    "mizchi/atlas": {
+      "path": "../atlas"
+    },
+    "mizchi/anim3d": {
+      "path": "../anim3d"
+    },
+    "mizchi/physics": {
       "path": "../physics"
     }
   },

@@ -1,0 +1,22 @@
+{
+  "name": "mizchi/ui_demo",
+  "version": "0.1.0",
+  "source": "src",
+  "warn-list": "-6-29-53-68",
+  "deps": {
+    "mizchi/web_runtime_hooks": {
+      "path": "../../smoke/web_runtime_hooks"
+    },
+    "mizchi/kagura_core": {
+      "path": "../../../modules/kagura_core"
+    },
+    "mizchi/kagura_engine": {
+      "path": "../../../modules/kagura_engine"
+    },
+    "mizchi/gfx": "0.1.0",
+    "mizchi/renderer2d": {
+      "path": "../../../modules/renderer2d"
+    }
+  },
+  "--moonbit-unstable-prebuild": "../../../scripts/moon-prebuild-native-link-flags.cjs"
+}

@@ -2,8 +2,8 @@
 package "mizchi/kagura_engine/sprite2d"
 
 import {
+  "mizchi/gfx",
   "mizchi/kagura_engine/asset",
-  "mizchi/kagura_engine/gfx",
 }
 
 // Values

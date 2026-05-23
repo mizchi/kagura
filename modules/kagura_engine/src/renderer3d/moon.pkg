@@ -1,9 +1,9 @@
 import {
   "moonbitlang/core/math" @math,
-  "mizchi/kagura_core/camera3d" @camera3d,
-  "mizchi/kagura_core/math3d" @math3d,
-  "mizchi/kagura_core/mesh3d" @mesh3d,
-  "mizchi/kagura_engine/gfx" @gfx,
+  "mizchi/geom/camera3d" @camera3d,
+  "mizchi/geom/math3d" @math3d,
+  "mizchi/mesh3d" @mesh3d,
+  "mizchi/gfx" @gfx,
   "mizchi/kagura_engine/light3d" @light3d,
   "mizchi/kagura_engine/render_pipeline3d" @render_pipeline3d,
   "mizchi/kagura_engine/scene3d" @scene3d,

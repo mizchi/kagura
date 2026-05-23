@@ -1,0 +1,16 @@
+import {
+  "mizchi/kagura_engine/animation2d" @animation2d,
+  "mizchi/atlas" @atlas,
+  "mizchi/kagura_engine" @engine,
+  "mizchi/gfx" @gfx,
+  "mizchi/kagura_game/sprite_packer" @sprite_packer,
+  "mizchi/web_runtime_hooks" @web_hooks,
+}
+
+warnings = "-1-2-29"
+
+supported_targets = "js"
+
+options(
+  "is-main": true,
+)

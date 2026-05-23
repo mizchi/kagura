@@ -34,7 +34,7 @@ just dev scene_demo
 ## CLI Smoke Test
 
 ```bash
-(cd examples/runtime_smoke && moon run src --target js)
+(cd examples/smoke/runtime_smoke && moon run src --target js)
 ```
 
 Expected output:
@@ -49,7 +49,7 @@ runtime_smoke(js): ok (hooked)
 
 ```bash
 bash scripts/setup-wgpu-native.sh
-(cd examples/runtime_smoke_native && moon run src --target native)
+(cd examples/smoke/runtime_smoke_native && moon run src --target native)
 
 # Visual sanity check
 just run-native native_triangle
@@ -62,7 +62,7 @@ just run-native native_triangle
 ### Directory Structure
 
 ```
-examples/my_game/
+examples/<category>/my_game/      # category: games-2d, games-3d, rendering, physics, ui, ecs, smoke, experimental
 ├── moon.mod.json
 └── src/
     ├── moon.pkg

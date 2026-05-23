@@ -2,7 +2,7 @@
 package "mizchi/kagura_engine/postfx"
 
 import {
-  "mizchi/kagura_engine/gfx",
+  "mizchi/gfx",
 }
 
 // Values

@@ -22,7 +22,7 @@ For user-facing documentation, see `docs/user/`.
 
 ## Development Flow
 
-1. Review the design and boundaries of your target area (`docs/architecture.md`, `docs/module_boundaries.md`)
+1. Review the design and boundaries of your target area (`docs/architecture/architecture.md`, `docs/architecture/module_boundaries.md`)
 2. Write a failing test first (Red)
 3. Implement minimally to make the test pass (Green)
 4. Refactor without breaking API boundaries (Refactor)
@@ -42,9 +42,9 @@ pnpm e2e:smoke
 Run smoke tests as needed:
 
 ```bash
-(cd examples/runtime_smoke && moon run src --target js)
-(cd examples/runtime_smoke_native && moon run src --target native)
-(cd examples/native_triangle && moon build src --target native)
+(cd examples/smoke/runtime_smoke && moon run src --target js)
+(cd examples/smoke/runtime_smoke_native && moon run src --target native)
+(cd examples/smoke/native_triangle && moon build src --target native)
 ```
 
 ## Documentation Layout

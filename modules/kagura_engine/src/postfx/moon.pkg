@@ -1,3 +1,4 @@
 import {
-  "mizchi/kagura_engine/gfx" @gfx,
+  "moonbitlang/core/bench" @bench,
+  "mizchi/gfx" @gfx,
 }

@@ -2,9 +2,9 @@
 package "mizchi/kagura_engine"
 
 import {
+  "mizchi/gfx",
   "mizchi/kagura_core",
   "mizchi/kagura_engine/audio",
-  "mizchi/kagura_engine/gfx",
   "moonbitlang/core/debug",
 }
 
@@ -54,7 +54,7 @@ pub(all) struct LifecycleHooks {
 
 // Traits
 pub(open) trait EngineGame {
-  update_game(Self, @kagura_core.InputSnapshot) -> Unit
-  draw_game(Self, EngineContext) -> Array[@gfx.DrawTrianglesCommand]
+  fn update_game(Self, @kagura_core.InputSnapshot) -> Unit
+  fn draw_game(Self, EngineContext) -> Array[@gfx.DrawTrianglesCommand]
 }
 

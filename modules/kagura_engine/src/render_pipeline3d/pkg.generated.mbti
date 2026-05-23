@@ -2,8 +2,8 @@
 package "mizchi/kagura_engine/render_pipeline3d"
 
 import {
+  "mizchi/gfx",
   "mizchi/kagura_core/math3d",
-  "mizchi/kagura_engine/gfx",
   "mizchi/kagura_engine/shadow3d",
 }
 

@@ -40,6 +40,23 @@ pub fn fullscreen_quad_indices() -> Array[Int] {
   [0, 1, 2, 2, 3, 0]
 }
 
+// Mirrors mix_resource_cache_key in mizchi/gfx; kept local to hash inline
+// without allocating a values array.
+fn mix_cache_key(seed : Int, value : Int) -> Int {
+  seed * 16777619 + value + 31
+}
+
+// Shared by sibling files (fog, bloom, fxaa, ssao, tonemap) - same package
+// scope. Encode a Double as IEEE 754 f32 bits via the hardware-mapped
+// intrinsic chain (f64 -> f32 -> reinterpret as int), bypassing the
+// int64-emulated mantissa unpacking in gfx.double_to_f32_bits which is
+// the dominant cost of uniform construction on the JS target. Bit pattern
+// differs by at most 1 ULP (gfx truncates, this rounds nearest-even);
+// shader math is unaffected.
+fn f32(v : Double) -> Int {
+  v.to_float().reinterpret_as_int()
+}
+
 ///|
 fn fullscreen_quad_resource_cache_key(
   dst : @gfx.ImageHandle,
@@ -48,22 +65,25 @@ fn fullscreen_quad_resource_cache_key(
   uniform_dwords : Array[Int],
   blend : @gfx.BlendMode,
 ) -> Int {
-  let values : Array[Int] = [
-    dst.id,
-    dst.width,
-    dst.height,
-    shader.id,
-    @gfx.blend_mode_to_int(blend),
-    src_image_ids.length(),
-    uniform_dwords.length(),
-  ]
+  let mut hash = 0x504F5354
+  hash = mix_cache_key(hash, dst.id)
+  hash = mix_cache_key(hash, dst.width)
+  hash = mix_cache_key(hash, dst.height)
+  hash = mix_cache_key(hash, shader.id)
+  hash = mix_cache_key(hash, @gfx.BlendMode::to_int(blend))
+  hash = mix_cache_key(hash, src_image_ids.length())
+  hash = mix_cache_key(hash, uniform_dwords.length())
   for image_id in src_image_ids {
-    values.push(image_id)
+    hash = mix_cache_key(hash, image_id)
   }
   for dword in uniform_dwords {
-    values.push(dword)
+    hash = mix_cache_key(hash, dword)
   }
-  @gfx.build_resource_cache_key(0x504F5354, values)
+  if hash == 0 {
+    1
+  } else {
+    hash
+  }
 }
 
 ///|

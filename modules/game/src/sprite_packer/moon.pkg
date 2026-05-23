@@ -1,6 +1,6 @@
 import {
   "moonbitlang/core/bench" @bench,
-  "mizchi/kagura_engine/asset" @asset,
+  "mizchi/atlas" @atlas,
   "mizchi/kagura_engine/animation2d" @animation2d,
   "mizchi/kagura_game/tilemap2d" @tilemap2d,
 }

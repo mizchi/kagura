@@ -1,0 +1,245 @@
+///|
+/// SimpleTextBatchBuilder creates draw commands from positioned glyph quads.
+
+///|
+pub struct SimpleTextBatchBuilder {
+  cache : @font.GlyphCache
+  pipeline_id : Int
+}
+
+///|
+pub fn SimpleTextBatchBuilder::new(
+  cache : @font.GlyphCache,
+  pipeline_id : Int,
+) -> SimpleTextBatchBuilder {
+  { cache, pipeline_id }
+}
+
+// Must mirror `mix_resource_cache_key` in mizchi/gfx/src/contracts.mbt.
+// Kept local so the per-glyph vertex hash chain avoids an intermediate
+// Array[Int] allocation (text batches can run thousands of vertices).
+fn mix_cache_key(seed : Int, value : Int) -> Int {
+  seed * 16777619 + value + 31
+}
+
+// Cheap deterministic 32-bit hash for a Double. resource_cache_key is
+// non-functional metadata so any stable mapping works; this avoids the
+// int64 round-trip in @gfx.double_to_f32_bits, which dominates on the JS
+// target.
+fn double_cache_bits(v : Double) -> Int {
+  (v * 4096.0).to_int()
+}
+
+///|
+fn simple_text_batch_resource_cache_key(
+  target : @gfx.ImageHandle,
+  shader : @gfx.ShaderHandle,
+  pipeline_id : Int,
+  region : @gfx.DstRegion,
+  src_image_ids : Array[Int],
+  vertex_data : Array[Double],
+  indices : Array[Int],
+) -> Int {
+  let mut hash = 0x54455854
+  hash = mix_cache_key(hash, target.id)
+  hash = mix_cache_key(hash, target.width)
+  hash = mix_cache_key(hash, target.height)
+  hash = mix_cache_key(hash, shader.id)
+  hash = mix_cache_key(hash, pipeline_id)
+  hash = mix_cache_key(hash, region.x)
+  hash = mix_cache_key(hash, region.y)
+  hash = mix_cache_key(hash, region.width)
+  hash = mix_cache_key(hash, region.height)
+  hash = mix_cache_key(hash, region.index_count)
+  hash = mix_cache_key(hash, src_image_ids.length())
+  hash = mix_cache_key(hash, vertex_data.length())
+  hash = mix_cache_key(hash, indices.length())
+  for image_id in src_image_ids {
+    hash = mix_cache_key(hash, image_id)
+  }
+  for v in vertex_data {
+    hash = mix_cache_key(hash, double_cache_bits(v))
+  }
+  for index in indices {
+    hash = mix_cache_key(hash, index)
+  }
+  if hash == 0 {
+    1
+  } else {
+    hash
+  }
+}
+
+///|
+pub impl TextBatchBuilder for SimpleTextBatchBuilder with build_draw_commands(
+  self,
+  target,
+  glyphs,
+  shader,
+) {
+  if glyphs.length() == 0 {
+    return []
+  }
+  let vertex_data : Array[Double] = Array::make(glyphs.length() * 16, 0.0)
+  let indices : Array[Int] = Array::make(glyphs.length() * 6, 0)
+  let inv_atlas_w = 1.0 / self.cache.atlas_width
+  let inv_atlas_h = 1.0 / self.cache.atlas_height
+  let mut vertex_offset = 0
+  let mut index_offset = 0
+  let mut vertex_base = 0
+  let mut has_region = false
+  let mut min_x = 0
+  let mut min_y = 0
+  let mut max_x = 0
+  let mut max_y = 0
+  let mut src_image_id = -1
+  for glyph in glyphs {
+    let entry = match self.cache.get(glyph.glyph_id) {
+      Some(e) => e
+      None =>
+        match self.cache.allocate(glyph.glyph_id, glyph.dst_w, glyph.dst_h) {
+          Some(e) => e
+          None => continue
+        }
+    }
+    // Compute UV coordinates in atlas
+    let u0 = entry.atlas_x * inv_atlas_w
+    let v0 = entry.atlas_y * inv_atlas_h
+    let u1 = (entry.atlas_x + entry.atlas_w) * inv_atlas_w
+    let v1 = (entry.atlas_y + entry.atlas_h) * inv_atlas_h
+    // Quad vertices: position (x, y) + UV (u, v)
+    let left = glyph.dst_x
+    let top = glyph.dst_y
+    let right = glyph.dst_x + glyph.dst_w
+    let bottom = glyph.dst_y + glyph.dst_h
+    let left_i = left.to_int()
+    let top_i = top.to_int()
+    let right_i = right.to_int()
+    let bottom_i = bottom.to_int()
+    if !has_region {
+      min_x = left_i
+      min_y = top_i
+      max_x = right_i
+      max_y = bottom_i
+      has_region = true
+    } else {
+      if left_i < min_x {
+        min_x = left_i
+      }
+      if top_i < min_y {
+        min_y = top_i
+      }
+      if right_i > max_x {
+        max_x = right_i
+      }
+      if bottom_i > max_y {
+        max_y = bottom_i
+      }
+    }
+    vertex_data[vertex_offset] = left
+    vertex_offset = vertex_offset + 1
+    vertex_data[vertex_offset] = top
+    vertex_offset = vertex_offset + 1
+    vertex_data[vertex_offset] = u0
+    vertex_offset = vertex_offset + 1
+    vertex_data[vertex_offset] = v0
+    vertex_offset = vertex_offset + 1
+    vertex_data[vertex_offset] = right
+    vertex_offset = vertex_offset + 1
+    vertex_data[vertex_offset] = top
+    vertex_offset = vertex_offset + 1
+    vertex_data[vertex_offset] = u1
+    vertex_offset = vertex_offset + 1
+    vertex_data[vertex_offset] = v0
+    vertex_offset = vertex_offset + 1
+    vertex_data[vertex_offset] = right
+    vertex_offset = vertex_offset + 1
+    vertex_data[vertex_offset] = bottom
+    vertex_offset = vertex_offset + 1
+    vertex_data[vertex_offset] = u1
+    vertex_offset = vertex_offset + 1
+    vertex_data[vertex_offset] = v1
+    vertex_offset = vertex_offset + 1
+    vertex_data[vertex_offset] = left
+    vertex_offset = vertex_offset + 1
+    vertex_data[vertex_offset] = bottom
+    vertex_offset = vertex_offset + 1
+    vertex_data[vertex_offset] = u0
+    vertex_offset = vertex_offset + 1
+    vertex_data[vertex_offset] = v1
+    vertex_offset = vertex_offset + 1
+    indices[index_offset] = vertex_base
+    index_offset = index_offset + 1
+    indices[index_offset] = vertex_base + 1
+    index_offset = index_offset + 1
+    indices[index_offset] = vertex_base + 2
+    index_offset = index_offset + 1
+    indices[index_offset] = vertex_base + 2
+    index_offset = index_offset + 1
+    indices[index_offset] = vertex_base + 3
+    index_offset = index_offset + 1
+    indices[index_offset] = vertex_base
+    index_offset = index_offset + 1
+    if src_image_id < 0 {
+      src_image_id = entry.atlas_page_id
+    }
+    vertex_base = vertex_base + 4
+  }
+  if !has_region {
+    []
+  } else {
+    let command_vertex_data : Array[Double] = if vertex_offset ==
+      vertex_data.length() {
+      vertex_data
+    } else {
+      let out : Array[Double] = []
+      for i in 0..<vertex_offset {
+        out.push(vertex_data[i])
+      }
+      out
+    }
+    let command_indices : Array[Int] = if index_offset == indices.length() {
+      indices
+    } else {
+      let out : Array[Int] = []
+      for i in 0..<index_offset {
+        out.push(indices[i])
+      }
+      out
+    }
+    let src_image_ids : Array[Int] = if src_image_id < 0 {
+      []
+    } else {
+      [src_image_id]
+    }
+    let region_width = max_x - min_x
+    let region_height = max_y - min_y
+    let merged_region = @gfx.new_dst_region(
+      min_x, min_y, region_width, region_height, index_offset,
+    )
+    [
+      @gfx.new_draw_triangles_command(
+        target,
+        shader,
+        [merged_region],
+        0,
+        self.pipeline_id,
+        0,
+        @gfx.BlendMode::from_int(1),
+        command_vertex_data,
+        command_indices,
+        src_image_ids,
+        [],
+        resource_cache_key=simple_text_batch_resource_cache_key(
+          target,
+          shader,
+          self.pipeline_id,
+          merged_region,
+          src_image_ids,
+          command_vertex_data,
+          command_indices,
+        ),
+      ),
+    ]
+  }
+}

@@ -21,18 +21,47 @@ if (!name) {
   process.exit(1);
 }
 
-const exampleDir = EXAMPLE_ROOTS
-  .map((dir) => resolve(dir, name))
-  .find((dir) => existsSync(dir));
-if (exampleDir == null) {
-  console.error(`Error: example ${name} not found`);
-  console.error("Available:");
+function isExampleDir(dir) {
+  return existsSync(join(dir, "moon.mod.json"));
+}
+
+function findExampleDir(name) {
+  for (const root of EXAMPLE_ROOTS) {
+    if (!existsSync(root)) continue;
+    const direct = resolve(root, name);
+    if (isExampleDir(direct)) return direct;
+    for (const sub of readdirSync(root)) {
+      const nested = resolve(root, sub, name);
+      if (isExampleDir(nested)) return nested;
+    }
+  }
+  return null;
+}
+
+function listAvailableExamples() {
   const available = new Set();
   for (const root of EXAMPLE_ROOTS) {
     if (!existsSync(root)) continue;
-    for (const d of readdirSync(root)) available.add(d);
+    for (const d of readdirSync(root)) {
+      const dir = resolve(root, d);
+      if (isExampleDir(dir)) {
+        available.add(d);
+        continue;
+      }
+      if (!existsSync(dir)) continue;
+      for (const sub of readdirSync(dir)) {
+        if (isExampleDir(resolve(dir, sub))) available.add(sub);
+      }
+    }
   }
-  for (const d of [...available].sort()) console.error(`  ${d}`);
+  return [...available].sort();
+}
+
+const exampleDir = findExampleDir(name);
+if (exampleDir == null) {
+  console.error(`Error: example ${name} not found`);
+  console.error("Available:");
+  for (const d of listAvailableExamples()) console.error(`  ${d}`);
   process.exit(1);
 }
 

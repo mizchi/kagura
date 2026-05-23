@@ -1,0 +1,21 @@
+{
+  "name": "mizchi/web_runtime_hooks",
+  "version": "0.1.0",
+  "source": "src",
+  "warn-list": "-6-29-53-68",
+  "deps": {
+    "mizchi/kagura_core": {
+      "path": "../../../modules/kagura_core"
+    },
+    "mizchi/kagura_engine": {
+      "path": "../../../modules/kagura_engine"
+    },
+    "mizchi/gfx": "0.1.0",
+    "mizchi/text": {
+      "path": "../../../modules/text"
+    },
+    "mizchi/atlas": {
+      "path": "../../../modules/atlas"
+    }
+  }
+}

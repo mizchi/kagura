@@ -123,19 +123,19 @@ pub impl Show for SensorSnapshot
 
 // Traits
 pub trait AIPolicy {
-  decide(Self, DecisionContext) -> DecisionResult raise
+  fn decide(Self, DecisionContext) -> DecisionResult raise
 }
 
 pub trait AIScheduler {
-  select_agents(Self, Int) -> Array[AgentId]
-  budget_for(Self, AgentId) -> AIBudget
+  fn select_agents(Self, Int) -> Array[AgentId]
+  fn budget_for(Self, AgentId) -> AIBudget
 }
 
 pub trait ActuatorBridge {
-  apply(Self, AgentId, Array[ActionIntent]) -> Unit raise
+  fn apply(Self, AgentId, Array[ActionIntent]) -> Unit raise
 }
 
 pub trait SensorBridge {
-  capture(Self, AgentId, Int) -> SensorSnapshot
+  fn capture(Self, AgentId, Int) -> SensorSnapshot
 }
 

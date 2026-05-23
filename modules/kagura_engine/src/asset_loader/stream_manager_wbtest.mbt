@@ -2,7 +2,7 @@
 struct MockRequest {
   id : Int
   url : String
-  _on_progress : (@asset.FetchProgress) -> Unit
+  _on_progress : (@atlas.FetchProgress) -> Unit
   on_complete : (Bytes?) -> Unit
   mut cancelled : Bool
 }
@@ -19,7 +19,7 @@ fn new_mock_fetcher() -> MockFetcher {
 }
 
 ///|
-impl @asset.BytesFetcher for MockFetcher with fetch(
+impl @atlas.BytesFetcher for MockFetcher with fetch(
   self,
   url,
   on_progress,
@@ -38,7 +38,7 @@ impl @asset.BytesFetcher for MockFetcher with fetch(
 }
 
 ///|
-impl @asset.BytesFetcher for MockFetcher with cancel(self, handle) {
+impl @atlas.BytesFetcher for MockFetcher with cancel(self, handle) {
   for req in self.requests {
     if req.id == handle.id {
       req.cancelled = true
@@ -47,7 +47,7 @@ impl @asset.BytesFetcher for MockFetcher with cancel(self, handle) {
 }
 
 ///|
-impl @asset.BytesFetcher for MockFetcher with poll(_) {
+impl @atlas.BytesFetcher for MockFetcher with poll(_) {
   // no-op for mock
 }
 
@@ -150,11 +150,11 @@ test "image_fetch_fn adapts bytes fetches to image specs" {
   let fetcher = new_mock_fetcher()
   let manager = AssetStreamManager::new(fetcher, max_concurrent=1)
   let fetch_image = manager.image_fetch_fn(priority=High)
-  let mut decoded : @asset.ImageSpec? = None
+  let mut decoded : @atlas.ImageSpec? = None
   fetch_image("sprite.png", fn(spec_opt) { decoded = spec_opt })
   manager.update()
-  let source = @asset.image_spec_with_rgba8(1, 1, [255, 0, 0, 255])
-  let png = @asset.encode_image_spec(source, @asset.raster_image_format_png()) catch {
+  let source = @atlas.image_spec_with_rgba8(1, 1, [255, 0, 0, 255])
+  let png = @atlas.encode_image_spec(source, @atlas.raster_image_format_png()) catch {
     _ => panic()
   }
   complete_mock(fetcher, 0, Some(png))

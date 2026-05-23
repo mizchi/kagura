@@ -1,90 +1,16 @@
 ///|
-/// Platform surface bridge contracts.
+/// `SurfaceProvider` impls for kagura's platform shells. The core types
+/// (`SurfaceKind`, `SurfaceToken`, `SurfaceProvider`, `create_*_surface_token`)
+/// live in `mizchi/gfx` (`@gfx`) so that gfx itself does not depend on
+/// platform; this file only adapts the platform-specific shell types
+/// (`DesktopGlfwPlatform`, `WebCanvasPlatform`) to that contract.
 ///
 /// Ebiten refs:
 /// - internal/ui/ui_glfw.go (native window + graphics surface binding)
-/// - internal/ui/ui_js.go (browser canvas binding)
+/// - internal/ui/ui_js.go  (browser canvas binding)
 
 ///|
-pub enum SurfaceKind {
-  MetalLayer
-  WebGpuCanvasContext
-  WebGlCanvasContext
-  OffscreenBuffer
-} derive(Debug)
-
-///|
-pub impl Show for SurfaceKind with output(self, logger) {
-  logger.write_object(to_repr(self))
-}
-
-///|
-pub struct SurfaceToken {
-  kind : SurfaceKind
-  opaque_id : Int
-  width : Int
-  height : Int
-  device_scale_factor : Double
-} derive(Debug)
-
-///|
-pub impl Show for SurfaceToken with output(self, logger) {
-  logger.write_object(to_repr(self))
-}
-
-///|
-pub trait SurfaceProvider {
-  current_surface(Self) -> SurfaceToken raise
-}
-
-///|
-pub fn create_offscreen_surface_token(
-  width : Int,
-  height : Int,
-) -> SurfaceToken {
-  {
-    kind: SurfaceKind::OffscreenBuffer,
-    opaque_id: 0,
-    width,
-    height,
-    device_scale_factor: 1.0,
-  }
-}
-
-///|
-pub fn create_webgpu_surface_token(
-  opaque_id : Int,
-  width : Int,
-  height : Int,
-  device_scale_factor : Double,
-) -> SurfaceToken {
-  {
-    kind: SurfaceKind::WebGpuCanvasContext,
-    opaque_id,
-    width,
-    height,
-    device_scale_factor,
-  }
-}
-
-///|
-pub fn create_webgl_surface_token(
-  opaque_id : Int,
-  width : Int,
-  height : Int,
-  device_scale_factor : Double,
-) -> SurfaceToken {
-  {
-    kind: SurfaceKind::WebGlCanvasContext,
-    opaque_id,
-    width,
-    height,
-    device_scale_factor,
-  }
-}
-
-///|
-pub impl SurfaceProvider for DesktopGlfwPlatform with current_surface(self) {
+pub impl @gfx.SurfaceProvider for DesktopGlfwPlatform with current_surface(self) {
   let outside = if self.native_active {
     desktop_native_outside_size(self.options.width, self.options.height)
   } else {
@@ -94,7 +20,7 @@ pub impl SurfaceProvider for DesktopGlfwPlatform with current_surface(self) {
     )
   }
   {
-    kind: SurfaceKind::MetalLayer,
+    kind: @gfx.SurfaceKind::MetalLayer,
     opaque_id: 1,
     width: outside.width.to_int(),
     height: outside.height.to_int(),
@@ -103,12 +29,12 @@ pub impl SurfaceProvider for DesktopGlfwPlatform with current_surface(self) {
 }
 
 ///|
-pub impl SurfaceProvider for WebCanvasPlatform with current_surface(self) {
+pub impl @gfx.SurfaceProvider for WebCanvasPlatform with current_surface(self) {
   if self.web_active {
     web_current_surface(self.canvas_selector, self.options)
   } else {
     {
-      kind: SurfaceKind::WebGpuCanvasContext,
+      kind: @gfx.SurfaceKind::WebGpuCanvasContext,
       opaque_id: 2,
       width: self.options.width,
       height: self.options.height,

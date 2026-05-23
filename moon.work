@@ -1,8 +1,16 @@
 members = [
   ".",
+  "./modules/mesh3d",
+  "./modules/anim3d",
+  "./modules/geom",
+  "./modules/text",
+  "./modules/atlas",
+  "./modules/renderer2d",
+  "./modules/widget2d",
   "./modules/kagura_core",
   "./modules/kagura_engine",
   "./modules/physics",
+  "./modules/pathfind",
   "./modules/game",
   "./modules/js_runtime",
 ]

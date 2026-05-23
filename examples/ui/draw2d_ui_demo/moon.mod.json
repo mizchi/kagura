@@ -10,6 +10,12 @@
     "mizchi/kagura_engine": {
       "path": "../../../modules/kagura_engine"
     },
-    "mizchi/gfx": "0.1.0"
+    "mizchi/gfx": "0.1.0",
+    "mizchi/renderer2d": {
+      "path": "../../../modules/renderer2d"
+    },
+    "mizchi/draw2d_ui": {
+      "path": "../../../modules/draw2d_ui"
+    }
   }
 }

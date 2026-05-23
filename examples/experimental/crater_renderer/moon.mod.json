@@ -27,6 +27,12 @@
     },
     "mizchi/asset": {
       "path": "../../../modules/asset"
+    },
+    "mizchi/renderer2d": {
+      "path": "../../../modules/renderer2d"
+    },
+    "mizchi/draw2d_ui": {
+      "path": "../../../modules/draw2d_ui"
     }
   },
   "--moonbit-unstable-prebuild": "../../../scripts/moon-prebuild-native-link-flags.cjs"

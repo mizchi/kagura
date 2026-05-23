@@ -1,6 +1,8 @@
 import {
-  "moonbitlang/core/bench" @bench,
   "mizchi/asset" @asset,
+  "mizchi/debugutil" @debugutil,
   "mizchi/draw2d" @draw2d,
   "mizchi/gfx" @gfx,
 }
+
+warnings = "-1"

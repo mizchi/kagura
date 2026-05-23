@@ -1,6 +1,6 @@
 import {
   "mizchi/gfx" @gfx,
-  "mizchi/kagura_engine/renderer2d" @renderer2d,
+  "mizchi/renderer2d" @renderer2d,
   "mizchi/text" @text,
   "mizchi/font" @font,
 }

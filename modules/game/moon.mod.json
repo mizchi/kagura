@@ -31,6 +31,9 @@
     },
     "mizchi/asset": {
       "path": "../asset"
+    },
+    "mizchi/renderer2d": {
+      "path": "../renderer2d"
     }
   },
   "preferred-target": "js",

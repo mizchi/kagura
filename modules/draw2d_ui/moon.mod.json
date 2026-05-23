@@ -1,0 +1,16 @@
+{
+  "name": "mizchi/draw2d_ui",
+  "version": "0.1.0",
+  "description": "UI primitive builders (rounded rects, scissor stack, text layout) on top of mizchi/gfx, mizchi/text, mizchi/font (extracted from kagura)",
+  "repository": "https://github.com/mizchi/kagura",
+  "license": "Apache-2.0",
+  "source": "src",
+  "warn-list": "-6-29-53-68",
+  "deps": {
+    "mizchi/gfx": "0.1.0",
+    "mizchi/font": "0.7.0",
+    "mizchi/text": {
+      "path": "../text"
+    }
+  }
+}

@@ -1,0 +1,21 @@
+{
+  "name": "mizchi/renderer2d",
+  "version": "0.1.0",
+  "description": "2D batched-quad renderer (RenderFrame + primitive helpers) on top of mizchi/draw2d (extracted from kagura)",
+  "repository": "https://github.com/mizchi/kagura",
+  "license": "Apache-2.0",
+  "source": "src",
+  "warn-list": "-6-29-53-68",
+  "deps": {
+    "mizchi/gfx": "0.1.0",
+    "mizchi/asset": {
+      "path": "../asset"
+    },
+    "mizchi/draw2d": {
+      "path": "../draw2d"
+    },
+    "mizchi/debugutil": {
+      "path": "../debugutil"
+    }
+  }
+}

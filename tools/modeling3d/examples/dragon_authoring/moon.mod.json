@@ -32,6 +32,9 @@
     },
     "mizchi/asset": {
       "path": "../../../../modules/asset"
+    },
+    "mizchi/renderer2d": {
+      "path": "../../../../modules/renderer2d"
     }
   }
 }

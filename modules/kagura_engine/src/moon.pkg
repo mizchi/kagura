@@ -2,7 +2,7 @@ import {
   "mizchi/kagura_core" @core,
   "mizchi/gfx" @gfx,
   "mizchi/kagura_engine/audio" @audio,
-  "mizchi/kagura_engine/renderer2d" @renderer2d,
+  "mizchi/renderer2d" @renderer2d,
   "mizchi/kagura_engine/platform" @platform,
 }
 

@@ -59,10 +59,10 @@ bench:
     for dir in examples/*/*/ tools/modeling3d/examples/*/ tools/effect-studio/examples/*/; do [ -f "$dir/moon.mod.json" ] && (cd "$dir" && moon bench --target {{target}}); done
 
 bench-gate:
-    bash scripts/bench-gate.sh {{target}}
+    node scripts/bench-gate.mjs {{target}}
 
 bench-update:
-    bash scripts/bench-gate.sh {{target}} --update
+    node scripts/bench-gate.mjs {{target}} --update
 
 test-update:
     moon test --update --target {{target}}

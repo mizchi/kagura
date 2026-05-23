@@ -17,8 +17,6 @@
     "mizchi/kagura_engine": {
       "path": "../../../modules/kagura_engine"
     },
-    "mizchi/gfx": {
-      "path": "../../../.gfx-mbt-snapshot"
-    }
+    "mizchi/gfx": "0.1.0"
   }
 }

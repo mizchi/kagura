@@ -23,8 +23,6 @@
     "mizchi/kagura_physics": {
       "path": "../../../../modules/physics"
     },
-    "mizchi/gfx": {
-      "path": "../../../../.gfx-mbt-snapshot"
-    }
+    "mizchi/gfx": "0.1.0"
   }
 }

@@ -19,9 +19,7 @@
     "mizchi/kagura_physics": {
       "path": "../physics"
     },
-    "mizchi/gfx": {
-      "path": "../../.gfx-mbt-snapshot"
-    }
+    "mizchi/gfx": "0.1.0"
   },
   "preferred-target": "js",
   "--moonbit-unstable-prebuild": "../../scripts/moon-prebuild-native-link-flags.cjs"

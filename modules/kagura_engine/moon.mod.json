@@ -10,9 +10,7 @@
     "mizchi/kagura_core": {
       "path": "../kagura_core"
     },
-    "mizchi/gfx": {
-      "path": "../../.gfx-mbt-snapshot"
-    },
+    "mizchi/gfx": "0.1.0",
     "mizchi/image": "0.1.1",
     "mizchi/font": "0.7.0",
     "mizchi/audio": "0.1.0",

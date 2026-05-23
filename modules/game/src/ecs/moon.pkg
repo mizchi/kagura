@@ -1,7 +1,7 @@
 import {
   "moonbitlang/core/bench" @bench,
   "moonbitlang/core/ref" @ref,
-  "mizchi/math/math3d" @math3d,
+  "mizchi/geom/math3d" @math3d,
   "mizchi/kagura_core/transform3d" @transform3d,
   "mizchi/kagura_engine/scene3d" @scene3d,
   "mizchi/kagura_physics/physics3d" @physics3d,

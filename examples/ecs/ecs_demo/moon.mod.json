@@ -13,8 +13,8 @@
     "mizchi/kagura_core": {
       "path": "../../../modules/kagura_core"
     },
-    "mizchi/math": {
-      "path": "../../../modules/math"
+    "mizchi/geom": {
+      "path": "../../../modules/geom"
     }
   }
 }

@@ -1,4 +1,4 @@
 import {
-  "mizchi/math/vector" @vector,
+  "mizchi/geom/vector" @vector,
   "mizchi/svg" @msvg,
 }

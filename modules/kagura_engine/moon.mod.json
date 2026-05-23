@@ -33,8 +33,8 @@
     "mizchi/renderer2d": {
       "path": "../renderer2d"
     },
-    "mizchi/math": {
-      "path": "../math"
+    "mizchi/geom": {
+      "path": "../geom"
     }
   },
   "preferred-target": "js",

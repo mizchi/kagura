@@ -2,11 +2,11 @@ import {
   "moonbitlang/core/bench" @bench,
   "moonbitlang/core/cmp" @cmp,
   "moonbitlang/core/math" @math,
-  "mizchi/math/camera2d" @camera2d,
+  "mizchi/geom/camera2d" @camera2d,
   "mizchi/kagura_core" @core,
   "mizchi/kagura_core/inpututil" @inpututil,
   "mizchi/kagura_game/scene" @scene,
-  "mizchi/math/vector" @vector,
+  "mizchi/geom/vector" @vector,
   "mizchi/web_runtime_hooks" @web_hooks,
 }
 

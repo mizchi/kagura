@@ -11,8 +11,8 @@
     "mizchi/mesh3d": {
       "path": "../mesh3d"
     },
-    "mizchi/math": {
-      "path": "../math"
+    "mizchi/geom": {
+      "path": "../geom"
     }
   },
   "preferred-target": "js"

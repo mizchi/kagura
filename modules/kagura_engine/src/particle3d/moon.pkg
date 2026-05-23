@@ -3,5 +3,5 @@ import {
   "mizchi/kagura_engine/draw3d" @draw3d,
   "mizchi/gfx" @gfx,
   "mizchi/mesh3d" @mesh3d,
-  "mizchi/math/math3d" @math3d,
+  "mizchi/geom/math3d" @math3d,
 }

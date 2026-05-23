@@ -1,9 +1,0 @@
-{
-  "name": "mizchi/math",
-  "version": "0.1.0",
-  "description": "2D + 3D math primitives for MoonBit: Vec2 / Vec3 / Vec4, Mat4, Quaternion, 2D Path and Camera2D. Zero dependencies (only moonbitlang/core).",
-  "repository": "https://github.com/mizchi/kagura",
-  "license": "Apache-2.0",
-  "source": "src",
-  "warn-list": "-6-29-53-68"
-}

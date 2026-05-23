@@ -2,5 +2,5 @@ import {
   "moonbitlang/core/cmp" @cmp,
   "moonbitlang/core/math" @math,
   "mizchi/terrain/types" @terrain,
-  "mizchi/math/vector" @vector,
+  "mizchi/geom/vector" @vector,
 }

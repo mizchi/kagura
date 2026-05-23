@@ -12,7 +12,7 @@ import {
   "mizchi/kagura_engine/gltf" @gltf,
   "mizchi/kagura_core/inpututil" @inpututil,
   "mizchi/kagura_engine/light3d" @light3d,
-  "mizchi/math/math3d" @math3d,
+  "mizchi/geom/math3d" @math3d,
   "mizchi/mesh3d" @mesh3d,
   "mizchi/kagura_engine/platform" @platform,
   "mizchi/renderer2d" @renderer2d,

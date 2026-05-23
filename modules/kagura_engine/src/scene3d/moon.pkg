@@ -1,6 +1,6 @@
 import {
   "moonbitlang/core/math" @math,
-  "mizchi/math/math3d" @math3d,
+  "mizchi/geom/math3d" @math3d,
   "mizchi/gfx" @gfx,
   "mizchi/mesh3d" @mesh3d,
   "mizchi/kagura_core/camera3d" @camera3d,

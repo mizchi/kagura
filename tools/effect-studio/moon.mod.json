@@ -18,8 +18,8 @@
     "mizchi/kagura_engine": {
       "path": "../../modules/kagura_engine"
     },
-    "mizchi/math": {
-      "path": "../../modules/math"
+    "mizchi/geom": {
+      "path": "../../modules/geom"
     }
   }
 }

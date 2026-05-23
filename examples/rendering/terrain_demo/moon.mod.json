@@ -29,8 +29,8 @@
     "mizchi/mesh3d": {
       "path": "../../../modules/mesh3d"
     },
-    "mizchi/math": {
-      "path": "../../../modules/math"
+    "mizchi/geom": {
+      "path": "../../../modules/geom"
     }
   },
   "--moonbit-unstable-prebuild": "../../../scripts/moon-prebuild-native-link-flags.cjs"

@@ -11,8 +11,8 @@
     "mizchi/kagura_core": {
       "path": "../kagura_core"
     },
-    "mizchi/math": {
-      "path": "../math"
+    "mizchi/geom": {
+      "path": "../geom"
     }
   }
 }

@@ -3,8 +3,8 @@
 pub fn packed_sprite_to_atlas_region(
   sprite : PackedSprite,
   atlas_id : Int,
-) -> @asset.AtlasRegion {
-  @asset.new_atlas_region(
+) -> @atlas.AtlasRegion {
+  @atlas.new_atlas_region(
     sprite.x,
     sprite.y,
     sprite.width,
@@ -21,14 +21,14 @@ pub fn create_packed_atlas_repository(
   inputs : Array[SpriteInput],
   result : PackResult,
   atlas_id? : Int = 0,
-) -> @asset.SimpleAtlasImageRepository {
-  let repo = @asset.new_simple_atlas_image_repository(
+) -> @atlas.SimpleAtlasImageRepository {
+  let repo = @atlas.new_simple_atlas_image_repository(
     result.width,
     result.height,
     atlas_id,
   )
   // Build lookup from key to spec
-  let specs : Map[String, @asset.ImageSpec] = {}
+  let specs : Map[String, @atlas.ImageSpec] = {}
   for inp in inputs {
     specs[inp.key] = inp.spec
   }
@@ -38,8 +38,8 @@ pub fn create_packed_atlas_repository(
       None => continue
     }
     let region = packed_sprite_to_atlas_region(sprite, atlas_id)
-    let key = @asset.new_asset_key(sprite.key)
-    let _ = @asset.register_precomputed_image(repo, key, region, spec)
+    let key = @atlas.new_asset_key(sprite.key)
+    let _ = @atlas.register_precomputed_image(repo, key, region, spec)
   }
   repo
 }
@@ -58,7 +58,7 @@ pub fn pack_result_to_tile_atlas_table(
     match tile_index {
       Some(idx) => {
         entries.push(
-          @tilemap2d.new_tile_atlas_entry(idx, @asset.new_asset_key(sprite.key)),
+          @tilemap2d.new_tile_atlas_entry(idx, @atlas.new_asset_key(sprite.key)),
         )
         if idx >= next_index {
           next_index = idx + 1
@@ -68,7 +68,7 @@ pub fn pack_result_to_tile_atlas_table(
         entries.push(
           @tilemap2d.new_tile_atlas_entry(
             next_index,
-            @asset.new_asset_key(sprite.key),
+            @atlas.new_asset_key(sprite.key),
           ),
         )
         next_index = next_index + 1

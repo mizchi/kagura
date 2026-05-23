@@ -1,7 +1,7 @@
 import {
   "moonbitlang/core/json" @json,
   "moonbitlang/core/math" @math,
-  "mizchi/asset" @asset,
+  "mizchi/atlas" @atlas,
   "mizchi/kagura_core/camera3d" @camera3d,
   "mizchi/kagura_physics/collision3d" @collision3d,
   "mizchi/kagura_core" @core,

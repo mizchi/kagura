@@ -78,7 +78,7 @@ fn draw_frame(
   let cmds : Array[@gfx.DrawTrianglesCommand] = []
   let sw = engine_ctx.screen_w.to_double()
   let sh = engine_ctx.screen_h.to_double()
-  let scissor = @draw2d_ui.ScissorStack::new(
+  let scissor = @widget2d.ScissorStack::new(
     engine_ctx.screen_w,
     engine_ctx.screen_h,
   )
@@ -91,7 +91,7 @@ fn draw_frame(
   let node = @renderer.render_to_node(demo_html, render_ctx)
   let layout = @renderer.render(demo_html, render_ctx)
   let paint_root = @paint.from_node_and_layout(node, layout)
-  let (bg_v, bg_i) = @draw2d_ui.filled_rect_vertices(0.0, 0.0, sw, sh, sw, sh)
+  let (bg_v, bg_i) = @widget2d.filled_rect_vertices(0.0, 0.0, sw, sh, sw, sh)
   cmds.push(make_cmd(engine_ctx, scissor, bg_v, bg_i, 0x000000))
   render_paint_node(cmds, engine_ctx, demo, scissor, paint_root, 0.0, 0.0)
   cmds
@@ -102,7 +102,7 @@ fn render_paint_node(
   cmds : Array[@gfx.DrawTrianglesCommand],
   ctx : @engine.EngineContext,
   demo : DemoState,
-  scissor : @draw2d_ui.ScissorStack,
+  scissor : @widget2d.ScissorStack,
   node : @paint.PaintNode,
   parent_x : Double,
   parent_y : Double,
@@ -120,7 +120,7 @@ fn render_paint_node(
     if bg.a > 0.0 {
       let sw = ctx.screen_w.to_double()
       let sh = ctx.screen_h.to_double()
-      let (v, i) = @draw2d_ui.filled_rect_vertices(x, y, w, h, sw, sh)
+      let (v, i) = @widget2d.filled_rect_vertices(x, y, w, h, sw, sh)
       cmds.push(make_cmd(ctx, scissor, v, i, crater_color_to_hex(bg)))
     }
   }
@@ -140,7 +140,7 @@ fn render_paint_node(
     )
   if clips {
     let clipped = scissor.push(
-      @draw2d_ui.ScissorRect::new(
+      @widget2d.ScissorRect::new(
         x.to_int(),
         y.to_int(),
         w.to_int(),
@@ -183,7 +183,7 @@ fn push_text(
     Some(tr) => {
       let sw = ctx.screen_w.to_double()
       let sh = ctx.screen_h.to_double()
-      let text_cmds = @draw2d_ui.render_text(
+      let text_cmds = @widget2d.render_text(
         tr,
         text,
         size_px,
@@ -246,7 +246,7 @@ fn push_text(
 ///|
 fn make_cmd(
   ctx : @engine.EngineContext,
-  scissor : @draw2d_ui.ScissorStack,
+  scissor : @widget2d.ScissorStack,
   vertices : Array[Double],
   indices : Array[Int],
   color_hex : Int,

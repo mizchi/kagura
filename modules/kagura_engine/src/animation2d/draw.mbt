@@ -3,7 +3,7 @@
 /// Returns true if a command was appended, false if the atlas key was not found.
 pub fn draw_sprite_animation(
   commands : Array[@gfx.DrawTrianglesCommand],
-  atlas : @asset.SimpleAtlasImageRepository,
+  atlas : @atlas.SimpleAtlasImageRepository,
   player : SpriteAnimationPlayer,
   dst : @gfx.ImageHandle,
   shader : @gfx.ShaderHandle,

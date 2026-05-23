@@ -1,15 +1,15 @@
 ///|
-fn sprite_test_atlas_repository() -> @asset.SimpleAtlasImageRepository {
-  let repo = @asset.new_simple_atlas_image_repository(8, 8, 333)
-  let _ = @asset.create_atlas_image(
+fn sprite_test_atlas_repository() -> @atlas.SimpleAtlasImageRepository {
+  let repo = @atlas.new_simple_atlas_image_repository(8, 8, 333)
+  let _ = @atlas.create_atlas_image(
     repo,
-    @asset.new_asset_key("sprite/a"),
-    @asset.default_image_spec(2, 2),
+    @atlas.new_asset_key("sprite/a"),
+    @atlas.default_image_spec(2, 2),
   )
-  let _ = @asset.create_atlas_image(
+  let _ = @atlas.create_atlas_image(
     repo,
-    @asset.new_asset_key("sprite/b"),
-    @asset.default_image_spec(2, 2),
+    @atlas.new_asset_key("sprite/b"),
+    @atlas.default_image_spec(2, 2),
   )
   repo
 }
@@ -20,7 +20,7 @@ test "new_atlas_sprite_draw_command builds command for existing key" {
   let command = match
     new_atlas_sprite_draw_command(
       repo,
-      @asset.new_asset_key("sprite/b"),
+      @atlas.new_asset_key("sprite/b"),
       @gfx.new_image_handle(10, 64, 64),
       @gfx.new_shader_handle(20, "shader"),
       @gfx.new_dst_region(0, 0, 64, 64, 6),
@@ -52,7 +52,7 @@ test "new_atlas_sprite_draw_command returns none for missing key" {
   match
     new_atlas_sprite_draw_command(
       repo,
-      @asset.new_asset_key("sprite/missing"),
+      @atlas.new_asset_key("sprite/missing"),
       @gfx.new_image_handle(10, 64, 64),
       @gfx.new_shader_handle(20, "shader"),
       @gfx.new_dst_region(0, 0, 64, 64, 6),
@@ -77,7 +77,7 @@ test "new_atlas_sprite_draw_command propagates uniform_dwords" {
   let command = match
     new_atlas_sprite_draw_command(
       repo,
-      @asset.new_asset_key("sprite/a"),
+      @atlas.new_asset_key("sprite/a"),
       @gfx.new_image_handle(10, 64, 64),
       @gfx.new_shader_handle(20, "shader"),
       @gfx.new_dst_region(0, 0, 64, 64, 6),
@@ -106,7 +106,7 @@ test "new_atlas_sprite_draw_command indices has 6 elements" {
   let command = match
     new_atlas_sprite_draw_command(
       repo,
-      @asset.new_asset_key("sprite/a"),
+      @atlas.new_asset_key("sprite/a"),
       @gfx.new_image_handle(1, 32, 32),
       @gfx.new_shader_handle(2, "s"),
       @gfx.new_dst_region(0, 0, 32, 32, 6),
@@ -139,7 +139,7 @@ test "append_atlas_sprite_draw_command multiple sprites accumulate" {
   let _ = append_atlas_sprite_draw_command(
     commands,
     repo,
-    @asset.new_asset_key("sprite/a"),
+    @atlas.new_asset_key("sprite/a"),
     @gfx.new_image_handle(10, 64, 64),
     @gfx.new_shader_handle(20, "shader"),
     @gfx.new_dst_region(0, 0, 64, 64, 6),
@@ -156,7 +156,7 @@ test "append_atlas_sprite_draw_command multiple sprites accumulate" {
   let _ = append_atlas_sprite_draw_command(
     commands,
     repo,
-    @asset.new_asset_key("sprite/b"),
+    @atlas.new_asset_key("sprite/b"),
     @gfx.new_image_handle(10, 64, 64),
     @gfx.new_shader_handle(20, "shader"),
     @gfx.new_dst_region(0, 0, 64, 64, 6),
@@ -182,7 +182,7 @@ test "new_atlas_sprite_draw_command empty uniform_dwords" {
   let command = match
     new_atlas_sprite_draw_command(
       repo,
-      @asset.new_asset_key("sprite/a"),
+      @atlas.new_asset_key("sprite/a"),
       @gfx.new_image_handle(1, 32, 32),
       @gfx.new_shader_handle(2, "s"),
       @gfx.new_dst_region(0, 0, 32, 32, 6),
@@ -211,7 +211,7 @@ test "append_atlas_sprite_draw_command returns false for all missing" {
   let r1 = append_atlas_sprite_draw_command(
     commands,
     repo,
-    @asset.new_asset_key("missing/1"),
+    @atlas.new_asset_key("missing/1"),
     @gfx.new_image_handle(1, 32, 32),
     @gfx.new_shader_handle(2, "s"),
     @gfx.new_dst_region(0, 0, 32, 32, 6),
@@ -228,7 +228,7 @@ test "append_atlas_sprite_draw_command returns false for all missing" {
   let r2 = append_atlas_sprite_draw_command(
     commands,
     repo,
-    @asset.new_asset_key("missing/2"),
+    @atlas.new_asset_key("missing/2"),
     @gfx.new_image_handle(1, 32, 32),
     @gfx.new_shader_handle(2, "s"),
     @gfx.new_dst_region(0, 0, 32, 32, 6),
@@ -253,7 +253,7 @@ test "new_atlas_sprite_draw_command preserves index_offset" {
   let command = match
     new_atlas_sprite_draw_command(
       repo,
-      @asset.new_asset_key("sprite/b"),
+      @atlas.new_asset_key("sprite/b"),
       @gfx.new_image_handle(10, 64, 64),
       @gfx.new_shader_handle(20, "shader"),
       @gfx.new_dst_region(0, 0, 64, 64, 6),
@@ -280,7 +280,7 @@ test "append_atlas_sprite_draw_command appends only resolvable sprites" {
   let appended = append_atlas_sprite_draw_command(
     commands,
     repo,
-    @asset.new_asset_key("sprite/a"),
+    @atlas.new_asset_key("sprite/a"),
     @gfx.new_image_handle(10, 64, 64),
     @gfx.new_shader_handle(20, "shader"),
     @gfx.new_dst_region(0, 0, 64, 64, 6),
@@ -297,7 +297,7 @@ test "append_atlas_sprite_draw_command appends only resolvable sprites" {
   let missing = append_atlas_sprite_draw_command(
     commands,
     repo,
-    @asset.new_asset_key("sprite/missing"),
+    @atlas.new_asset_key("sprite/missing"),
     @gfx.new_image_handle(10, 64, 64),
     @gfx.new_shader_handle(20, "shader"),
     @gfx.new_dst_region(0, 0, 64, 64, 6),

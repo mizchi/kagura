@@ -145,12 +145,12 @@ fn[T : @gfx.GraphicsDriver] run_draw_payload_probe(graphics : T) -> Unit raise {
   if resynced != 0 {
     panic()
   }
-  let text_binding = @asset.new_source_image_binding(
+  let text_binding = @atlas.new_source_image_binding(
     900,
     64,
     64,
     1,
-    Some(@asset.new_source_image_dirty_rect(0, 0, 64, 64)),
+    Some(@atlas.new_source_image_dirty_rect(0, 0, 64, 64)),
     @image_palette.checker_palette_from_seed(900),
     plan.text_atlas.get_pixels(),
   )

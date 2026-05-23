@@ -24,9 +24,6 @@
     "mizchi/mesh3d": {
       "path": "../mesh3d"
     },
-    "mizchi/asset": {
-      "path": "../asset"
-    },
     "mizchi/draw2d": {
       "path": "../draw2d"
     },
@@ -35,6 +32,9 @@
     },
     "mizchi/geom": {
       "path": "../geom"
+    },
+    "mizchi/atlas": {
+      "path": "../atlas"
     }
   },
   "preferred-target": "js",

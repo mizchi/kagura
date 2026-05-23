@@ -1,4 +1,4 @@
 import {
-  "mizchi/asset" @asset,
+  "mizchi/atlas" @atlas,
   "mizchi/gfx" @gfx,
 }

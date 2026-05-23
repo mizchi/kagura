@@ -17,8 +17,8 @@
     "mizchi/image_palette": {
       "path": "../../../modules/image_palette"
     },
-    "mizchi/asset": {
-      "path": "../../../modules/asset"
+    "mizchi/atlas": {
+      "path": "../../../modules/atlas"
     }
   }
 }

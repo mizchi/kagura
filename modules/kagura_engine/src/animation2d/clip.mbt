@@ -2,7 +2,7 @@
 /// Create a clip with uniform frame duration.
 pub fn SpriteAnimationClip::uniform(
   name : String,
-  keys : Array[@asset.AssetKey],
+  keys : Array[@atlas.AssetKey],
   frame_duration : Double,
 ) -> SpriteAnimationClip {
   let frames : Array[SpriteFrame] = []
@@ -31,10 +31,10 @@ pub fn SpriteAnimationClip::new(
 pub fn sprite_sheet_keys(
   prefix : String,
   count : Int,
-) -> Array[@asset.AssetKey] {
-  let keys : Array[@asset.AssetKey] = []
+) -> Array[@atlas.AssetKey] {
+  let keys : Array[@atlas.AssetKey] = []
   for i in 0..<count {
-    keys.push(@asset.new_asset_key(prefix + "_" + i.to_string()))
+    keys.push(@atlas.new_asset_key(prefix + "_" + i.to_string()))
   }
   keys
 }

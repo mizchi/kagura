@@ -6,7 +6,7 @@ let runtime_smoke_text_page_id : Int = 900
 
 ///|
 pub struct RuntimeSmokeDrawPlan {
-  atlas_repository : @asset.SimpleAtlasImageRepository
+  atlas_repository : @atlas.SimpleAtlasImageRepository
   text_atlas : @font.GlyphAtlas
   commands : Array[@gfx.DrawTrianglesCommand]
   sprite_command_index : Int
@@ -18,18 +18,18 @@ pub fn build_runtime_smoke_tile_draw_plan(
   dst : @gfx.ImageHandle,
   shader : @gfx.ShaderHandle,
 ) -> RuntimeSmokeDrawPlan {
-  let atlas_repository = @asset.new_simple_atlas_image_repository(
+  let atlas_repository = @atlas.new_simple_atlas_image_repository(
     4, 4, runtime_smoke_atlas_page_id,
   )
-  let atlas_key = @asset.new_asset_key("runtime_smoke/atlas")
-  let atlas_png = @asset.encode_png_image_spec(
-    @asset.image_spec_with_rgba8(2, 2, [
+  let atlas_key = @atlas.new_asset_key("runtime_smoke/atlas")
+  let atlas_png = @atlas.encode_png_image_spec(
+    @atlas.image_spec_with_rgba8(2, 2, [
       1, 2, 3, 255, 4, 5, 6, 255, 7, 8, 9, 255, 10, 11, 12, 255,
     ]),
   ) catch {
     _ => panic()
   }
-  let atlas_image = @asset.create_atlas_image_from_raster_bytes(
+  let atlas_image = @atlas.create_atlas_image_from_raster_bytes(
     atlas_repository, atlas_key, atlas_png,
   ) catch {
     _ => None
@@ -38,15 +38,15 @@ pub fn build_runtime_smoke_tile_draw_plan(
     Some(_) => ()
     None => panic()
   }
-  let sprite_key = @asset.new_asset_key("runtime_smoke/sprite")
-  let sprite_png = @asset.encode_png_image_spec(
-    @asset.image_spec_with_rgba8(2, 2, [
+  let sprite_key = @atlas.new_asset_key("runtime_smoke/sprite")
+  let sprite_png = @atlas.encode_png_image_spec(
+    @atlas.image_spec_with_rgba8(2, 2, [
       100, 150, 200, 255, 50, 75, 100, 255, 25, 37, 50, 255, 200, 225, 250, 255,
     ]),
   ) catch {
     _ => panic()
   }
-  let sprite_atlas_image = @asset.create_atlas_image_from_raster_bytes(
+  let sprite_atlas_image = @atlas.create_atlas_image_from_raster_bytes(
     atlas_repository, sprite_key, sprite_png,
   ) catch {
     _ => None
@@ -55,14 +55,14 @@ pub fn build_runtime_smoke_tile_draw_plan(
     Some(_) => ()
     None => panic()
   }
-  let atlas_updated_png = @asset.encode_png_image_spec(
-    @asset.image_spec_with_rgba8(2, 2, [
+  let atlas_updated_png = @atlas.encode_png_image_spec(
+    @atlas.image_spec_with_rgba8(2, 2, [
       1, 2, 3, 255, 42, 43, 44, 255, 7, 8, 9, 255, 10, 11, 12, 255,
     ]),
   ) catch {
     _ => panic()
   }
-  let atlas_updated = @asset.update_atlas_image_from_raster_bytes(
+  let atlas_updated = @atlas.update_atlas_image_from_raster_bytes(
     atlas_repository, atlas_key, atlas_updated_png,
   ) catch {
     _ => None
@@ -71,7 +71,7 @@ pub fn build_runtime_smoke_tile_draw_plan(
     Some(_) => ()
     None => panic()
   }
-  let atlas_dirty_synced = @asset.list_dirty_atlas_page_bindings(
+  let atlas_dirty_synced = @atlas.list_dirty_atlas_page_bindings(
     atlas_repository,
   )
   if atlas_dirty_synced.length() != 1 {

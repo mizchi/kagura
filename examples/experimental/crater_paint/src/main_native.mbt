@@ -208,7 +208,7 @@ fn main {
   // Build draw commands
   let engine_ctx = @native_hooks.get_engine_context(screen_w, screen_h)
   let cmds : Array[@gfx.DrawTrianglesCommand] = []
-  let scissor = @draw2d_ui.ScissorStack::new(screen_w, screen_h)
+  let scissor = @widget2d.ScissorStack::new(screen_w, screen_h)
 
   // Canvas background: CSS spec propagates body background to viewport
   // when html has no explicit background.
@@ -218,7 +218,7 @@ fn main {
   } else {
     0xFFFFFF
   }
-  let (bg_v, bg_i) = @draw2d_ui.filled_rect_vertices(0.0, 0.0, sw, sh, sw, sh)
+  let (bg_v, bg_i) = @widget2d.filled_rect_vertices(0.0, 0.0, sw, sh, sw, sh)
   cmds.push(make_draw_cmd(engine_ctx, scissor, bg_v, bg_i, canvas_hex))
 
   // Render paint tree
@@ -621,7 +621,7 @@ fn render_paint_node(
   cmds : Array[@gfx.DrawTrianglesCommand],
   ctx : @engine.EngineContext,
   state : RenderState,
-  scissor : @draw2d_ui.ScissorStack,
+  scissor : @widget2d.ScissorStack,
   node : @paint.PaintNode,
   parent_x : Double,
   parent_y : Double,
@@ -660,11 +660,11 @@ fn render_paint_node(
       let br = paint.border_bottom_right_radius
       let bl = paint.border_bottom_left_radius
       let (v, i) = if tl > 0.0 || tr > 0.0 || br > 0.0 || bl > 0.0 {
-        @draw2d_ui.filled_rounded_rect_vertices(
+        @widget2d.filled_rounded_rect_vertices(
           x, y, w, h, tl, tr, br, bl, sw, sh,
         )
       } else {
-        @draw2d_ui.filled_rect_vertices(x, y, w, h, sw, sh)
+        @widget2d.filled_rect_vertices(x, y, w, h, sw, sh)
       }
       cmds.push(
         make_draw_cmd_alpha(
@@ -774,7 +774,7 @@ fn render_paint_node(
     )
   if clips {
     let clipped = scissor.push(
-      @draw2d_ui.ScissorRect::new(
+      @widget2d.ScissorRect::new(
         x.to_int(),
         y.to_int(),
         w.to_int(),
@@ -809,7 +809,7 @@ fn push_text_with_renderer(
     Some(tr) => {
       let sw = ctx.screen_w.to_double()
       let sh = ctx.screen_h.to_double()
-      let text_cmds = @draw2d_ui.render_text(
+      let text_cmds = @widget2d.render_text(
         tr,
         text,
         size_px,
@@ -979,7 +979,7 @@ fn crater_color_to_hex(color : @crater_types.Color) -> Int {
 ///|
 fn make_draw_cmd(
   ctx : @engine.EngineContext,
-  scissor : @draw2d_ui.ScissorStack,
+  scissor : @widget2d.ScissorStack,
   vertices : Array[Double],
   indices : Array[Int],
   color_hex : Int,
@@ -990,7 +990,7 @@ fn make_draw_cmd(
 ///|
 fn make_draw_cmd_alpha(
   ctx : @engine.EngineContext,
-  scissor : @draw2d_ui.ScissorStack,
+  scissor : @widget2d.ScissorStack,
   vertices : Array[Double],
   indices : Array[Int],
   color_hex : Int,

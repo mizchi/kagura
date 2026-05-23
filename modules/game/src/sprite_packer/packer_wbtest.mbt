@@ -1,7 +1,7 @@
 ///|
 fn make_test_sprite(key : String, w : Int, h : Int) -> SpriteInput {
   let pixels : Array[Int] = Array::make(w * h * 4, 255)
-  let spec = @asset.image_spec_with_rgba8(w, h, pixels)
+  let spec = @atlas.image_spec_with_rgba8(w, h, pixels)
   { key, spec }
 }
 
@@ -84,7 +84,7 @@ test "compose_packed_image pixel placement" {
   let red_pixels : Array[Int] = [
     255, 0, 0, 255, 255, 0, 0, 255, 255, 0, 0, 255, 255, 0, 0, 255,
   ]
-  let red_spec = @asset.image_spec_with_rgba8(2, 2, red_pixels)
+  let red_spec = @atlas.image_spec_with_rgba8(2, 2, red_pixels)
   let inputs : Array[SpriteInput] = [{ key: "red", spec: red_spec }]
   let pack_result : PackResult = {
     width: 4,
@@ -159,7 +159,7 @@ test "split_sprite_sheet to pack_sprites pipeline" {
       }
     }
   }
-  let sheet = @asset.image_spec_with_rgba8(sheet_w, sheet_h, pixels)
+  let sheet = @atlas.image_spec_with_rgba8(sheet_w, sheet_h, pixels)
   // Split into 16 individual sprites
   let frames = @animation2d.split_sprite_sheet(sheet, "tile", 4, 4, 16, 16)
   inspect(frames.length(), content="16")

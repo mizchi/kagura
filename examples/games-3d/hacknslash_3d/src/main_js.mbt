@@ -336,13 +336,13 @@ let dungeon_floor_texture_image_id : Int = 920
 let dungeon_wall_texture_image_id : Int = 921
 
 ///|
-fn sync_loaded_source_image(image_id : Int, spec : @asset.ImageSpec) -> Unit {
-  let binding = @asset.new_source_image_binding(
+fn sync_loaded_source_image(image_id : Int, spec : @atlas.ImageSpec) -> Unit {
+  let binding = @atlas.new_source_image_binding(
     image_id,
     spec.width,
     spec.height,
     1,
-    Some(@asset.new_source_image_dirty_rect(0, 0, spec.width, spec.height)),
+    Some(@atlas.new_source_image_dirty_rect(0, 0, spec.width, spec.height)),
     spec.palette,
     spec.pixels_rgba8,
   )
@@ -351,7 +351,7 @@ fn sync_loaded_source_image(image_id : Int, spec : @asset.ImageSpec) -> Unit {
 
 ///|
 fn load_dungeon_textures_js(state : GameState) -> Unit {
-  @asset.fetch_image("./assets/textures/stone_pavers_diff_1k.jpg", fn(
+  @atlas.fetch_image("./assets/textures/stone_pavers_diff_1k.jpg", fn(
     spec_opt,
   ) {
     match spec_opt {
@@ -367,7 +367,7 @@ fn load_dungeon_textures_js(state : GameState) -> Unit {
         )
     }
   })
-  @asset.fetch_image("./assets/textures/old_stone_wall_02_diff_1k.jpg", fn(
+  @atlas.fetch_image("./assets/textures/old_stone_wall_02_diff_1k.jpg", fn(
     spec_opt,
   ) {
     match spec_opt {
@@ -521,7 +521,7 @@ fn load_generated_prop_manifest_js(
     return
   }
   let placement = placements[index]
-  @asset.fetch_bytes(placement.source_path, fn(bytes_opt) {
+  @atlas.fetch_bytes(placement.source_path, fn(bytes_opt) {
     match bytes_opt {
       Some(bytes) =>
         match

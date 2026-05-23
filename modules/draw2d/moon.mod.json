@@ -8,8 +8,8 @@
   "warn-list": "-6-29-53-68",
   "deps": {
     "mizchi/gfx": "0.1.0",
-    "mizchi/asset": {
-      "path": "../asset"
+    "mizchi/atlas": {
+      "path": "../atlas"
     }
   }
 }

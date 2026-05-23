@@ -1,6 +1,6 @@
 import {
   "mizchi/kagura_engine/animation2d" @animation2d,
-  "mizchi/asset" @asset,
+  "mizchi/atlas" @atlas,
   "mizchi/kagura_engine" @engine,
   "mizchi/gfx" @gfx,
   "mizchi/kagura_game/sprite_packer" @sprite_packer,

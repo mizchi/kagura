@@ -41,13 +41,13 @@ struct StreamRequest {
   url : String
   priority : AssetPriority
   on_complete : (Bytes?) -> Unit
-  mut handle : @asset.FetchHandle?
+  mut handle : @atlas.FetchHandle?
   mut done : Bool
 }
 
 ///|
 pub struct AssetStreamManager {
-  fetcher : &@asset.BytesFetcher
+  fetcher : &@atlas.BytesFetcher
   max_concurrent : Int
   mut next_id : Int
   pending : Array[StreamRequest]
@@ -58,7 +58,7 @@ pub struct AssetStreamManager {
 
 ///|
 pub fn AssetStreamManager::new(
-  fetcher : &@asset.BytesFetcher,
+  fetcher : &@atlas.BytesFetcher,
   max_concurrent? : Int = 4,
 ) -> AssetStreamManager {
   {
@@ -164,14 +164,14 @@ pub fn AssetStreamManager::update(self : AssetStreamManager) -> Unit {
 pub fn AssetStreamManager::image_fetch_fn(
   self : AssetStreamManager,
   priority? : AssetPriority = Normal,
-) -> (String, (@asset.ImageSpec?) -> Unit) -> Unit {
+) -> (String, (@atlas.ImageSpec?) -> Unit) -> Unit {
   fn(url, callback) {
     ignore(
       self.enqueue(url, priority, fn(bytes_opt) {
         match bytes_opt {
           None => callback(None)
           Some(bytes) =>
-            callback(@asset.decode_image_spec_auto(bytes)) catch {
+            callback(@atlas.decode_image_spec_auto(bytes)) catch {
               _ => callback(None)
             }
         }

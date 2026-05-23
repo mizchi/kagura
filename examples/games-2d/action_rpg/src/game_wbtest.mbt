@@ -113,19 +113,19 @@ test "is_wall_at out of bounds returns true" {
 
 ///|
 test "atlas repo has tile images" {
-  let repo = @asset.new_simple_atlas_image_repository(64, 64, 1)
+  let repo = @atlas.new_simple_atlas_image_repository(64, 64, 1)
   let _ = setup_atlas(repo)
-  let floor_src = @asset.get_atlas_draw_source(
+  let floor_src = @atlas.get_atlas_draw_source(
     repo,
-    @asset.new_asset_key("tile_floor"),
+    @atlas.new_asset_key("tile_floor"),
   )
-  let wall_src = @asset.get_atlas_draw_source(
+  let wall_src = @atlas.get_atlas_draw_source(
     repo,
-    @asset.new_asset_key("tile_wall"),
+    @atlas.new_asset_key("tile_wall"),
   )
-  let water_src = @asset.get_atlas_draw_source(
+  let water_src = @atlas.get_atlas_draw_source(
     repo,
-    @asset.new_asset_key("tile_water"),
+    @atlas.new_asset_key("tile_water"),
   )
   assert_true(floor_src is Some(_))
   assert_true(wall_src is Some(_))

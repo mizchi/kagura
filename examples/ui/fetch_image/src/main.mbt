@@ -10,17 +10,17 @@ let atlas_page_id : Int = 100
 ///|
 fn main {
   @web_hooks.install("#app")
-  @asset.fetch_image("./assets/sample.png", fn(image_opt) {
+  @atlas.fetch_image("./assets/sample.png", fn(image_opt) {
     match image_opt {
       None => println("Failed to load image")
       Some(spec) => {
-        let atlas = @asset.new_simple_atlas_image_repository(
+        let atlas = @atlas.new_simple_atlas_image_repository(
           spec.width,
           spec.height,
           atlas_page_id,
         )
-        let key = @asset.new_asset_key("sample")
-        let _handle = @asset.create_atlas_image(atlas, key, spec)
+        let key = @atlas.new_asset_key("sample")
+        let _handle = @atlas.create_atlas_image(atlas, key, spec)
         @web_hooks.sync_dirty_atlas_pages_from_repository(atlas) |> ignore
         @engine.run(
           update=fn(_input) {  },

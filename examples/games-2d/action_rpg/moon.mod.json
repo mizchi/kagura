@@ -28,11 +28,11 @@
     "mizchi/colorm": {
       "path": "../../../modules/colorm"
     },
-    "mizchi/asset": {
-      "path": "../../../modules/asset"
-    },
     "mizchi/geom": {
       "path": "../../../modules/geom"
+    },
+    "mizchi/atlas": {
+      "path": "../../../modules/atlas"
     }
   },
   "--moonbit-unstable-prebuild": "../../../scripts/moon-prebuild-native-link-flags.cjs"

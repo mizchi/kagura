@@ -130,7 +130,7 @@ fn build_icon_sprite_inputs() -> Array[@sprite_packer.SpriteInput] {
       let (_, color) = r
       inputs.push({
         key: "item_" + p_idx.to_string() + "_" + color.to_string(),
-        spec: @asset.image_spec_with_rgba8(
+        spec: @atlas.image_spec_with_rgba8(
           16,
           16,
           rasterize_icon(pattern, color),
@@ -142,7 +142,7 @@ fn build_icon_sprite_inputs() -> Array[@sprite_packer.SpriteInput] {
   for p_idx, pattern in patterns {
     inputs.push({
       key: "skill_" + p_idx.to_string(),
-      spec: @asset.image_spec_with_rgba8(
+      spec: @atlas.image_spec_with_rgba8(
         16,
         16,
         rasterize_icon(pattern, skill_color),
@@ -154,7 +154,7 @@ fn build_icon_sprite_inputs() -> Array[@sprite_packer.SpriteInput] {
 
 ///|
 struct IconAtlas {
-  repo : @asset.SimpleAtlasImageRepository
+  repo : @atlas.SimpleAtlasImageRepository
 }
 
 ///|
@@ -178,17 +178,17 @@ fn normalize_icon_index(icon_id : Int, base : Int) -> Int {
 }
 
 ///|
-fn item_icon_key(item : @game.ItemData) -> @asset.AssetKey {
+fn item_icon_key(item : @game.ItemData) -> @atlas.AssetKey {
   let icon_idx = normalize_icon_index(item.icon_id, 0)
-  @asset.new_asset_key(
+  @atlas.new_asset_key(
     "item_" + icon_idx.to_string() + "_" + item.rarity.color().to_string(),
   )
 }
 
 ///|
-fn skill_icon_key(node : @game.SkillNode) -> @asset.AssetKey {
+fn skill_icon_key(node : @game.SkillNode) -> @atlas.AssetKey {
   let icon_idx = normalize_icon_index(node.icon_id, skill_icon_base_id)
-  @asset.new_asset_key("skill_" + icon_idx.to_string())
+  @atlas.new_asset_key("skill_" + icon_idx.to_string())
 }
 
 ///|
@@ -212,7 +212,7 @@ fn create_icon_atlas(atlas_id? : Int = icon_atlas_default_id) -> IconAtlas {
     }
     None =>
       // Fallback: empty atlas
-      { repo: @asset.new_simple_atlas_image_repository(256, 256, atlas_id) }
+      { repo: @atlas.new_simple_atlas_image_repository(256, 256, atlas_id) }
   }
 }
 
@@ -220,7 +220,7 @@ fn create_icon_atlas(atlas_id? : Int = icon_atlas_default_id) -> IconAtlas {
 fn append_icon_draw_command(
   cmds : Array[@gfx.DrawTrianglesCommand],
   atlas : IconAtlas,
-  key : @asset.AssetKey,
+  key : @atlas.AssetKey,
   dst : @gfx.ImageHandle,
   shader : @gfx.ShaderHandle,
   x : Double,
@@ -248,12 +248,12 @@ fn append_icon_draw_command(
 
 ///|
 fn GameState::sync_icon_atlas(self : GameState) -> Unit {
-  let bindings = @asset.list_dirty_atlas_page_bindings(self.icon_atlas.repo)
+  let bindings = @atlas.list_dirty_atlas_page_bindings(self.icon_atlas.repo)
   if bindings.length() == 0 {
     return
   }
   let _ = @web_hooks.sync_source_images(bindings)
-  let _ = @asset.clear_dirty_atlas_page_flags(self.icon_atlas.repo)
+  let _ = @atlas.clear_dirty_atlas_page_flags(self.icon_atlas.repo)
 }
 
 ///|

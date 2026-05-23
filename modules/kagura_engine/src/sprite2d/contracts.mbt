@@ -7,8 +7,8 @@
 
 ///|
 pub fn new_atlas_sprite_draw_command(
-  atlas_repository : @asset.SimpleAtlasImageRepository,
-  atlas_key : @asset.AssetKey,
+  atlas_repository : @atlas.SimpleAtlasImageRepository,
+  atlas_key : @atlas.AssetKey,
   dst : @gfx.ImageHandle,
   shader : @gfx.ShaderHandle,
   dst_region : @gfx.DstRegion,
@@ -22,7 +22,7 @@ pub fn new_atlas_sprite_draw_command(
   bottom : Double,
   uniform_dwords : Array[Int],
 ) -> @gfx.DrawTrianglesCommand? {
-  match @asset.get_atlas_draw_source(atlas_repository, atlas_key) {
+  match @atlas.get_atlas_draw_source(atlas_repository, atlas_key) {
     Some(source) =>
       Some(
         @draw2d.new_atlas_quad_draw_command(
@@ -37,8 +37,8 @@ pub fn new_atlas_sprite_draw_command(
 ///|
 pub fn append_atlas_sprite_draw_command(
   commands : Array[@gfx.DrawTrianglesCommand],
-  atlas_repository : @asset.SimpleAtlasImageRepository,
-  atlas_key : @asset.AssetKey,
+  atlas_repository : @atlas.SimpleAtlasImageRepository,
+  atlas_key : @atlas.AssetKey,
   dst : @gfx.ImageHandle,
   shader : @gfx.ShaderHandle,
   dst_region : @gfx.DstRegion,

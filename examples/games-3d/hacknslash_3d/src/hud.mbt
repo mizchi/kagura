@@ -723,17 +723,17 @@ fn GameState::flush_text_atlas(self : GameState) -> Unit {
   }
   let dirty_pages = renderer.flush_dirty_pages()
   if dirty_pages.length() > 0 {
-    let bindings : Array[@asset.SourceImageBinding] = []
+    let bindings : Array[@atlas.SourceImageBinding] = []
     for page_info in dirty_pages {
       let page_idx = page_info.page_id - renderer.get_page_id()
       let page = renderer.get_page(page_idx)
-      let binding = @asset.new_source_image_binding(
+      let binding = @atlas.new_source_image_binding(
         page_info.page_id,
         page_info.width,
         page_info.height,
         1,
         Some(
-          @asset.new_source_image_dirty_rect(
+          @atlas.new_source_image_dirty_rect(
             0,
             0,
             page_info.width,

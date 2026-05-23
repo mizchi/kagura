@@ -12,7 +12,7 @@ pub fn atlas_quad_indices() -> Array[Int] {
 
 ///|
 pub fn atlas_quad_vertex_data(
-  source : @asset.AtlasDrawSource,
+  source : @atlas.AtlasDrawSource,
   left : Double,
   top : Double,
   right : Double,
@@ -44,7 +44,7 @@ fn atlas_quad_resource_cache_key(
   shader : @gfx.ShaderHandle,
   dst_region : @gfx.DstRegion,
   blend : @gfx.BlendMode,
-  source : @asset.AtlasDrawSource,
+  source : @atlas.AtlasDrawSource,
   left : Double,
   top : Double,
   right : Double,
@@ -88,7 +88,7 @@ pub fn new_atlas_quad_draw_command(
   pipeline_id : Int,
   uniform_hash : Int,
   blend : @gfx.BlendMode,
-  source : @asset.AtlasDrawSource,
+  source : @atlas.AtlasDrawSource,
   left : Double,
   top : Double,
   right : Double,

@@ -54,7 +54,7 @@ pub fn SpriteAnimationStateMachine::update(
 ///|
 pub fn SpriteAnimationStateMachine::current_key(
   self : SpriteAnimationStateMachine,
-) -> @asset.AssetKey {
+) -> @atlas.AssetKey {
   self.player.current_key()
 }
 

@@ -13,7 +13,7 @@ fn main {
       let cmds : Array[@gfx.DrawTrianglesCommand] = []
       let sw = ctx.screen_w.to_double()
       let sh = ctx.screen_h.to_double()
-      let scissor = @draw2d_ui.ScissorStack::new(ctx.screen_w, ctx.screen_h)
+      let scissor = @widget2d.ScissorStack::new(ctx.screen_w, ctx.screen_h)
       let ox = 40.0 // global offset x
       let oy = 20.0 // global offset y
       // Background
@@ -27,7 +27,7 @@ fn main {
         oy,
         120.0,
         60.0,
-        @draw2d_ui.BorderWidths::uniform(3.0),
+        @widget2d.BorderWidths::uniform(3.0),
         0xCC3333,
       )
       push_filled_rect(
@@ -79,7 +79,7 @@ fn main {
       let clip_x = ox.to_int()
       let clip_y = (oy + 80.0).to_int()
       let visible = scissor.push(
-        @draw2d_ui.ScissorRect::new(clip_x, clip_y, 140, 100),
+        @widget2d.ScissorRect::new(clip_x, clip_y, 140, 100),
       )
       if visible {
         push_filled_rect(
@@ -105,7 +105,7 @@ fn main {
         let nested_x = (ox + 20.0).to_int()
         let nested_y = (oy + 100.0).to_int()
         let _ = scissor.push(
-          @draw2d_ui.ScissorRect::new(nested_x, nested_y, 80, 60),
+          @widget2d.ScissorRect::new(nested_x, nested_y, 80, 60),
         )
         push_filled_rect(
           cmds,
@@ -216,7 +216,7 @@ fn push_dot_text(
 ///|
 fn make_cmd(
   ctx : @engine.EngineContext,
-  scissor : @draw2d_ui.ScissorStack,
+  scissor : @widget2d.ScissorStack,
   vertices : Array[Double],
   indices : Array[Int],
   color_hex : Int,
@@ -243,7 +243,7 @@ fn make_cmd(
 fn push_filled_rect(
   cmds : Array[@gfx.DrawTrianglesCommand],
   ctx : @engine.EngineContext,
-  scissor : @draw2d_ui.ScissorStack,
+  scissor : @widget2d.ScissorStack,
   x : Double,
   y : Double,
   w : Double,
@@ -255,7 +255,7 @@ fn push_filled_rect(
   }
   let sw = ctx.screen_w.to_double()
   let sh = ctx.screen_h.to_double()
-  let (v, i) = @draw2d_ui.filled_rect_vertices(x, y, w, h, sw, sh)
+  let (v, i) = @widget2d.filled_rect_vertices(x, y, w, h, sw, sh)
   cmds.push(make_cmd(ctx, scissor, v, i, color_hex))
 }
 
@@ -263,12 +263,12 @@ fn push_filled_rect(
 fn push_border(
   cmds : Array[@gfx.DrawTrianglesCommand],
   ctx : @engine.EngineContext,
-  scissor : @draw2d_ui.ScissorStack,
+  scissor : @widget2d.ScissorStack,
   x : Double,
   y : Double,
   w : Double,
   h : Double,
-  border : @draw2d_ui.BorderWidths,
+  border : @widget2d.BorderWidths,
   color_hex : Int,
 ) -> Unit {
   if !scissor.is_visible() || !border.has_any() {
@@ -276,7 +276,7 @@ fn push_border(
   }
   let sw = ctx.screen_w.to_double()
   let sh = ctx.screen_h.to_double()
-  let (v, i) = @draw2d_ui.border_vertices(x, y, w, h, border, sw, sh)
+  let (v, i) = @widget2d.border_vertices(x, y, w, h, border, sw, sh)
   if i.length() > 0 {
     cmds.push(make_cmd(ctx, scissor, v, i, color_hex))
   }

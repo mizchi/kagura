@@ -14,8 +14,8 @@
     "mizchi/renderer2d": {
       "path": "../../../modules/renderer2d"
     },
-    "mizchi/draw2d_ui": {
-      "path": "../../../modules/draw2d_ui"
+    "mizchi/widget2d": {
+      "path": "../../../modules/widget2d"
     }
   }
 }

@@ -1,7 +1,7 @@
 ///|
 struct PendingFetch {
   url : String
-  callback : (@asset.ImageSpec?) -> Unit
+  callback : (@atlas.ImageSpec?) -> Unit
 }
 
 ///|
@@ -18,19 +18,19 @@ fn new_fetch_stub() -> FetchStub {
 fn enqueue_stub_fetch(
   stub : FetchStub,
   url : String,
-  callback : (@asset.ImageSpec?) -> Unit,
+  callback : (@atlas.ImageSpec?) -> Unit,
 ) -> Unit {
   stub.pending.push({ url, callback })
 }
 
 ///|
-fn success_spec(seed : Int) -> @asset.ImageSpec {
+fn success_spec(seed : Int) -> @atlas.ImageSpec {
   if seed % 2 == 0 {
-    @asset.image_spec_with_rgba8(2, 2, [
+    @atlas.image_spec_with_rgba8(2, 2, [
       255, 0, 0, 255, 0, 255, 0, 255, 0, 0, 255, 255, 255, 255, 255, 255,
     ])
   } else {
-    @asset.image_spec_with_rgba8(2, 2, [
+    @atlas.image_spec_with_rgba8(2, 2, [
       0, 0, 0, 255, 255, 255, 255, 255, 10, 20, 30, 255, 200, 210, 220, 255,
     ])
   }
@@ -42,7 +42,7 @@ test "enqueue/start_pending transitions Pending -> Loading" {
   let loader = AsyncImageLoader::new(fetch_image_fn=fn(url, callback) {
     enqueue_stub_fetch(stub, url, callback)
   })
-  let id = loader.enqueue(@asset.new_asset_key("async/pending"), "/a.png")
+  let id = loader.enqueue(@atlas.new_asset_key("async/pending"), "/a.png")
   let before = loader.progress()
   assert_eq(before.total, 1)
   assert_eq(before.pending, 1)
@@ -66,7 +66,7 @@ test "successful callback updates status and completed queue" {
   let loader = AsyncImageLoader::new(fetch_image_fn=fn(url, callback) {
     enqueue_stub_fetch(stub, url, callback)
   })
-  let id = loader.enqueue(@asset.new_asset_key("async/success"), "/ok.png")
+  let id = loader.enqueue(@atlas.new_asset_key("async/success"), "/ok.png")
   ignore(loader.start_pending())
   (stub.pending[0].callback)(Some(success_spec(0)))
   let progress = loader.progress()
@@ -89,7 +89,7 @@ test "failed callback updates status to Failed" {
   let loader = AsyncImageLoader::new(fetch_image_fn=fn(url, callback) {
     enqueue_stub_fetch(stub, url, callback)
   })
-  let id = loader.enqueue(@asset.new_asset_key("async/fail"), "/ng.png")
+  let id = loader.enqueue(@atlas.new_asset_key("async/fail"), "/ng.png")
   ignore(loader.start_pending())
   (stub.pending[0].callback)(None)
   let progress = loader.progress()
@@ -107,8 +107,8 @@ test "commit_image creates then updates repository entry" {
   let loader = AsyncImageLoader::new(fetch_image_fn=fn(url, callback) {
     enqueue_stub_fetch(stub, url, callback)
   })
-  let repo = @asset.new_simple_image_repository()
-  let key = @asset.new_asset_key("async/commit")
+  let repo = @atlas.new_simple_image_repository()
+  let key = @atlas.new_asset_key("async/commit")
 
   let id1 = loader.enqueue(key, "/v1.png")
   ignore(loader.start_pending())
@@ -117,7 +117,7 @@ test "commit_image creates then updates repository entry" {
   match handle1 {
     Some(h) => {
       assert_true(h.id > 0)
-      assert_eq(@asset.get_image_generation_by_id(repo, h.id), 1)
+      assert_eq(@atlas.get_image_generation_by_id(repo, h.id), 1)
     }
     None => panic()
   }
@@ -129,7 +129,7 @@ test "commit_image creates then updates repository entry" {
   match (handle1, handle2) {
     (Some(h1), Some(h2)) => {
       assert_eq(h1.id, h2.id)
-      assert_eq(@asset.get_image_generation_by_id(repo, h2.id), 2)
+      assert_eq(@atlas.get_image_generation_by_id(repo, h2.id), 2)
     }
     _ => panic()
   }

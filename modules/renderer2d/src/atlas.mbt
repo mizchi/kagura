@@ -1,6 +1,6 @@
 ///|
 pub(all) struct AtlasQuad2D {
-  source : @asset.AtlasDrawSource
+  source : @atlas.AtlasDrawSource
   left : Double
   top : Double
   right : Double
@@ -10,7 +10,7 @@ pub(all) struct AtlasQuad2D {
 
 ///|
 pub fn AtlasQuad2D::new(
-  source~ : @asset.AtlasDrawSource,
+  source~ : @atlas.AtlasDrawSource,
   left~ : Double,
   top~ : Double,
   right~ : Double,

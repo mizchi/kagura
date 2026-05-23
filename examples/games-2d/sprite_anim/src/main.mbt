@@ -15,7 +15,7 @@ let atlas_page_id : Int = 100
 
 ///|
 /// Generate a 4x1 sprite sheet with solid-color frames (red, green, blue, yellow).
-fn generate_sprite_sheet() -> @asset.ImageSpec {
+fn generate_sprite_sheet() -> @atlas.ImageSpec {
   let cols = 4
   let w = frame_w * cols
   let h = frame_h
@@ -39,7 +39,7 @@ fn generate_sprite_sheet() -> @asset.ImageSpec {
       }
     }
   }
-  @asset.image_spec_with_rgba8(w, h, pixels)
+  @atlas.image_spec_with_rgba8(w, h, pixels)
 }
 
 ///|

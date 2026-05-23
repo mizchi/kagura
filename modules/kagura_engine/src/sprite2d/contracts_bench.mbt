@@ -3,10 +3,10 @@
 fn bench_particle_repo(
   atlas_id : Int,
   key_name : String,
-) -> (@asset.SimpleAtlasImageRepository, @asset.AssetKey) {
-  let repo = @asset.new_simple_atlas_image_repository(8, 8, atlas_id)
-  let key = @asset.new_asset_key(key_name)
-  let _ = @asset.create_atlas_image(repo, key, @asset.default_image_spec(2, 2))
+) -> (@atlas.SimpleAtlasImageRepository, @atlas.AssetKey) {
+  let repo = @atlas.new_simple_atlas_image_repository(8, 8, atlas_id)
+  let key = @atlas.new_asset_key(key_name)
+  let _ = @atlas.create_atlas_image(repo, key, @atlas.default_image_spec(2, 2))
   (repo, key)
 }
 
@@ -30,8 +30,8 @@ fn particle_pipeline_checksum(
 ///|
 fn append_particle_command(
   commands : Array[@gfx.DrawTrianglesCommand],
-  repo : @asset.SimpleAtlasImageRepository,
-  key : @asset.AssetKey,
+  repo : @atlas.SimpleAtlasImageRepository,
+  key : @atlas.AssetKey,
   dst : @gfx.ImageHandle,
   shader : @gfx.ShaderHandle,
   dst_region : @gfx.DstRegion,

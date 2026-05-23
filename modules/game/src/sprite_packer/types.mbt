@@ -2,7 +2,7 @@
 /// Input sprite for packing.
 pub(all) struct SpriteInput {
   key : String
-  spec : @asset.ImageSpec
+  spec : @atlas.ImageSpec
 }
 
 ///|

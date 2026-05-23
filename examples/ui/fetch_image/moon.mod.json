@@ -14,8 +14,8 @@
       "path": "../../../modules/kagura_engine"
     },
     "mizchi/gfx": "0.1.0",
-    "mizchi/asset": {
-      "path": "../../../modules/asset"
+    "mizchi/atlas": {
+      "path": "../../../modules/atlas"
     }
   }
 }

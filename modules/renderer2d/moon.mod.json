@@ -8,14 +8,14 @@
   "warn-list": "-6-29-53-68",
   "deps": {
     "mizchi/gfx": "0.1.0",
-    "mizchi/asset": {
-      "path": "../asset"
-    },
     "mizchi/draw2d": {
       "path": "../draw2d"
     },
     "mizchi/debugutil": {
       "path": "../debugutil"
+    },
+    "mizchi/atlas": {
+      "path": "../atlas"
     }
   }
 }

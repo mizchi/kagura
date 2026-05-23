@@ -1,6 +1,6 @@
 import {
   "mizchi/font" @font,
-  "mizchi/asset" @asset,
+  "mizchi/atlas" @atlas,
   "mizchi/kagura_engine/audio" @audio,
   "mizchi/kagura_core" @core,
   "mizchi/web_runtime_hooks" @web_hooks,

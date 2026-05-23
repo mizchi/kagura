@@ -235,8 +235,8 @@ fn copy_view_into_atlas(
 
 ///|
 fn encode_atlas_png(atlas_w : Int, atlas_h : Int, pixels : Array[Int]) -> Bytes {
-  @asset.encode_png_image_spec(
-    @asset.image_spec_with_rgba8(atlas_w, atlas_h, pixels),
+  @atlas.encode_png_image_spec(
+    @atlas.image_spec_with_rgba8(atlas_w, atlas_h, pixels),
   ) catch {
     _ => panic()
   }

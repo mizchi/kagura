@@ -1,9 +1,9 @@
 ///|
-fn test_atlas_source(page_image_id : Int) -> @asset.AtlasDrawSource {
-  let repo = @asset.new_simple_atlas_image_repository(8, 8, page_image_id)
-  let key = @asset.new_asset_key("renderer2d/source")
-  let _ = @asset.create_atlas_image(repo, key, @asset.default_image_spec(2, 2))
-  match @asset.get_atlas_draw_source(repo, key) {
+fn test_atlas_source(page_image_id : Int) -> @atlas.AtlasDrawSource {
+  let repo = @atlas.new_simple_atlas_image_repository(8, 8, page_image_id)
+  let key = @atlas.new_asset_key("renderer2d/source")
+  let _ = @atlas.create_atlas_image(repo, key, @atlas.default_image_spec(2, 2))
+  match @atlas.get_atlas_draw_source(repo, key) {
     Some(value) => value
     None => panic()
   }

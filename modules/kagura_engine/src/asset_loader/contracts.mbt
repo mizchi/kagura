@@ -24,10 +24,10 @@ pub fn AsyncImageStatus::to_int(self : AsyncImageStatus) -> Int {
 ///|
 pub struct AsyncImageRequest {
   id : Int
-  key : @asset.AssetKey
+  key : @atlas.AssetKey
   url : String
   mut status : AsyncImageStatus
-  mut image_spec : @asset.ImageSpec?
+  mut image_spec : @atlas.ImageSpec?
 } derive(Debug)
 
 ///|
@@ -55,12 +55,12 @@ pub struct AsyncImageLoader {
   requests : Map[Int, AsyncImageRequest]
   mut pending_ids : Array[Int]
   mut completed_ids : Array[Int]
-  fetch_image_fn : (String, (@asset.ImageSpec?) -> Unit) -> Unit
+  fetch_image_fn : (String, (@atlas.ImageSpec?) -> Unit) -> Unit
 }
 
 ///|
 pub fn AsyncImageLoader::new(
-  fetch_image_fn? : (String, (@asset.ImageSpec?) -> Unit) -> Unit = @asset.fetch_image,
+  fetch_image_fn? : (String, (@atlas.ImageSpec?) -> Unit) -> Unit = @atlas.fetch_image,
 ) -> AsyncImageLoader {
   {
     next_id: 1,
@@ -74,7 +74,7 @@ pub fn AsyncImageLoader::new(
 ///|
 pub fn AsyncImageLoader::enqueue(
   self : AsyncImageLoader,
-  key : @asset.AssetKey,
+  key : @atlas.AssetKey,
   url : String,
 ) -> Int {
   let id = self.next_id
@@ -169,7 +169,7 @@ pub fn AsyncImageLoader::progress(
 pub fn AsyncImageLoader::commit_image(
   self : AsyncImageLoader,
   id : Int,
-  repo : @asset.SimpleImageRepository,
+  repo : @atlas.SimpleImageRepository,
 ) -> @gfx.ImageHandle? {
   match self.requests.get(id) {
     Some(req) =>
@@ -177,7 +177,7 @@ pub fn AsyncImageLoader::commit_image(
         (AsyncImageStatus::Succeeded, Some(spec)) =>
           match repo.get_image(req.key) {
             Some(handle) =>
-              match @asset.update_image_spec(repo, req.key, spec) {
+              match @atlas.update_image_spec(repo, req.key, spec) {
                 Some(updated) => Some(updated)
                 None => Some(handle)
               }

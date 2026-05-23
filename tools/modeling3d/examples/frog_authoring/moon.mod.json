@@ -27,14 +27,14 @@
     "mizchi/mesh3d": {
       "path": "../../../../modules/mesh3d"
     },
-    "mizchi/asset": {
-      "path": "../../../../modules/asset"
-    },
     "mizchi/renderer2d": {
       "path": "../../../../modules/renderer2d"
     },
     "mizchi/geom": {
       "path": "../../../../modules/geom"
+    },
+    "mizchi/atlas": {
+      "path": "../../../../modules/atlas"
     }
   }
 }

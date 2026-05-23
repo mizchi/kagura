@@ -1,15 +1,15 @@
 ///|
-fn tilemap_test_repository() -> @asset.SimpleAtlasImageRepository {
-  let repo = @asset.new_simple_atlas_image_repository(8, 8, 600)
-  let _ = @asset.create_atlas_image(
+fn tilemap_test_repository() -> @atlas.SimpleAtlasImageRepository {
+  let repo = @atlas.new_simple_atlas_image_repository(8, 8, 600)
+  let _ = @atlas.create_atlas_image(
     repo,
-    @asset.new_asset_key("tile/a"),
-    @asset.default_image_spec(2, 2),
+    @atlas.new_asset_key("tile/a"),
+    @atlas.default_image_spec(2, 2),
   )
-  let _ = @asset.create_atlas_image(
+  let _ = @atlas.create_atlas_image(
     repo,
-    @asset.new_asset_key("tile/b"),
-    @asset.default_image_spec(2, 2),
+    @atlas.new_asset_key("tile/b"),
+    @atlas.default_image_spec(2, 2),
   )
   repo
 }
@@ -20,7 +20,7 @@ test "append_atlas_tilemap_draw_commands appends resolvable specs" {
   let commands : Array[@gfx.DrawTrianglesCommand] = []
   let specs = [
     new_atlas_tile_draw_spec(
-      @asset.new_asset_key("tile/a"),
+      @atlas.new_asset_key("tile/a"),
       @gfx.new_dst_region(0, 0, 64, 64, 6),
       -0.5,
       -0.5,
@@ -29,7 +29,7 @@ test "append_atlas_tilemap_draw_commands appends resolvable specs" {
       [1, 2, 3, 4],
     ),
     new_atlas_tile_draw_spec(
-      @asset.new_asset_key("tile/missing"),
+      @atlas.new_asset_key("tile/missing"),
       @gfx.new_dst_region(0, 0, 64, 64, 6),
       0.0,
       -0.5,
@@ -38,7 +38,7 @@ test "append_atlas_tilemap_draw_commands appends resolvable specs" {
       [1, 2, 3, 4],
     ),
     new_atlas_tile_draw_spec(
-      @asset.new_asset_key("tile/b"),
+      @atlas.new_asset_key("tile/b"),
       @gfx.new_dst_region(0, 0, 64, 64, 6),
       0.0,
       0.0,
@@ -80,7 +80,7 @@ test "atlas_tilemap_draw_commands allocates and returns appended commands" {
     @gfx.BlendMode::from_int(1),
     [
       new_atlas_tile_draw_spec(
-        @asset.new_asset_key("tile/a"),
+        @atlas.new_asset_key("tile/a"),
         @gfx.new_dst_region(0, 0, 64, 64, 6),
         -0.5,
         -0.5,
@@ -97,8 +97,8 @@ test "atlas_tilemap_draw_commands allocates and returns appended commands" {
 ///|
 test "tile atlas table resolves tile index to atlas key" {
   let table = new_tile_atlas_table([
-    new_tile_atlas_entry(1, @asset.new_asset_key("tile/a")),
-    new_tile_atlas_entry(2, @asset.new_asset_key("tile/b")),
+    new_tile_atlas_entry(1, @atlas.new_asset_key("tile/a")),
+    new_tile_atlas_entry(2, @atlas.new_asset_key("tile/b")),
   ])
   match resolve_tile_atlas_key(table, 2) {
     Some(key) => assert_eq(key.value, "tile/b")
@@ -114,8 +114,8 @@ test "tile atlas table resolves tile index to atlas key" {
 test "append_tile_indexed_draw_commands resolves indexes and skips unknown tiles" {
   let repo = tilemap_test_repository()
   let table = new_tile_atlas_table([
-    new_tile_atlas_entry(1, @asset.new_asset_key("tile/a")),
-    new_tile_atlas_entry(2, @asset.new_asset_key("tile/b")),
+    new_tile_atlas_entry(1, @atlas.new_asset_key("tile/a")),
+    new_tile_atlas_entry(2, @atlas.new_asset_key("tile/b")),
   ])
   let commands : Array[@gfx.DrawTrianglesCommand] = []
   let appended = append_tile_indexed_draw_commands(
@@ -149,8 +149,8 @@ test "append_tile_indexed_draw_commands resolves indexes and skips unknown tiles
 test "append_tile_indexed_chunk_draw_commands limits updates to chunk" {
   let repo = tilemap_test_repository()
   let table = new_tile_atlas_table([
-    new_tile_atlas_entry(1, @asset.new_asset_key("tile/a")),
-    new_tile_atlas_entry(2, @asset.new_asset_key("tile/b")),
+    new_tile_atlas_entry(1, @atlas.new_asset_key("tile/a")),
+    new_tile_atlas_entry(2, @atlas.new_asset_key("tile/b")),
   ])
   let commands : Array[@gfx.DrawTrianglesCommand] = []
   let appended = append_tile_indexed_chunk_draw_commands(
@@ -187,8 +187,8 @@ test "append_tile_indexed_chunk_draw_commands limits updates to chunk" {
 test "append_tile_indexed_chunk_batched_draw_commands merges per page" {
   let repo = tilemap_test_repository()
   let table = new_tile_atlas_table([
-    new_tile_atlas_entry(1, @asset.new_asset_key("tile/a")),
-    new_tile_atlas_entry(2, @asset.new_asset_key("tile/b")),
+    new_tile_atlas_entry(1, @atlas.new_asset_key("tile/a")),
+    new_tile_atlas_entry(2, @atlas.new_asset_key("tile/b")),
   ])
   let commands : Array[@gfx.DrawTrianglesCommand] = []
   let appended = append_tile_indexed_chunk_batched_draw_commands(
@@ -225,8 +225,8 @@ test "append_tile_indexed_chunk_batched_draw_commands merges per page" {
 test "append_tile_indexed_chunk_draw_commands assigns stable resource_cache_key" {
   let repo = tilemap_test_repository()
   let table = new_tile_atlas_table([
-    new_tile_atlas_entry(1, @asset.new_asset_key("tile/a")),
-    new_tile_atlas_entry(2, @asset.new_asset_key("tile/b")),
+    new_tile_atlas_entry(1, @atlas.new_asset_key("tile/a")),
+    new_tile_atlas_entry(2, @atlas.new_asset_key("tile/b")),
   ])
   let a : Array[@gfx.DrawTrianglesCommand] = []
   let b : Array[@gfx.DrawTrianglesCommand] = []
@@ -309,8 +309,8 @@ test "append_tile_indexed_chunk_draw_commands assigns stable resource_cache_key"
 test "append_tile_indexed_chunk_batched_draw_commands assigns stable resource_cache_key" {
   let repo = tilemap_test_repository()
   let table = new_tile_atlas_table([
-    new_tile_atlas_entry(1, @asset.new_asset_key("tile/a")),
-    new_tile_atlas_entry(2, @asset.new_asset_key("tile/b")),
+    new_tile_atlas_entry(1, @atlas.new_asset_key("tile/a")),
+    new_tile_atlas_entry(2, @atlas.new_asset_key("tile/b")),
   ])
   let a : Array[@gfx.DrawTrianglesCommand] = []
   let b : Array[@gfx.DrawTrianglesCommand] = []
@@ -393,7 +393,7 @@ test "append_tile_indexed_chunk_batched_draw_commands assigns stable resource_ca
 test "TileChunkBatchCache redraws visible chunk on first frame and skips unchanged frame" {
   let repo = tilemap_test_repository()
   let table = new_tile_atlas_table([
-    new_tile_atlas_entry(1, @asset.new_asset_key("tile/a")),
+    new_tile_atlas_entry(1, @atlas.new_asset_key("tile/a")),
   ])
   let cache = TileChunkBatchCache::new(1, [1, 1, 1, 1])
   let visible = new_tile_chunk_rect(0, 0, 1, 1)
@@ -447,8 +447,8 @@ test "TileChunkBatchCache redraws visible chunk on first frame and skips unchang
 test "TileChunkBatchCache redraws full chunk when visible region changes" {
   let repo = tilemap_test_repository()
   let table = new_tile_atlas_table([
-    new_tile_atlas_entry(1, @asset.new_asset_key("tile/a")),
-    new_tile_atlas_entry(2, @asset.new_asset_key("tile/b")),
+    new_tile_atlas_entry(1, @atlas.new_asset_key("tile/a")),
+    new_tile_atlas_entry(2, @atlas.new_asset_key("tile/b")),
   ])
   let cache = TileChunkBatchCache::new(1, [1, 1, 1, 1])
   let first_visible = new_tile_chunk_rect(0, 0, 1, 1)
@@ -523,8 +523,8 @@ test "diff_tile_index_chunks returns changed chunk rectangles" {
 test "append_tile_indexed_dirty_chunk_batched_draw_commands appends from chunk diff" {
   let repo = tilemap_test_repository()
   let table = new_tile_atlas_table([
-    new_tile_atlas_entry(1, @asset.new_asset_key("tile/a")),
-    new_tile_atlas_entry(2, @asset.new_asset_key("tile/b")),
+    new_tile_atlas_entry(1, @atlas.new_asset_key("tile/a")),
+    new_tile_atlas_entry(2, @atlas.new_asset_key("tile/b")),
   ])
   let previous = [1, 1, 1, 1]
   let next = [1, 2, 1, 1]

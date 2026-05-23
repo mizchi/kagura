@@ -90,45 +90,45 @@ pub fn clear_source_image_palettes() -> Unit {
 
 ///|
 pub fn sync_source_image_palettes(
-  bindings : Array[@asset.ImagePaletteBinding],
+  bindings : Array[@atlas.ImagePaletteBinding],
 ) -> Int {
   bindings.length()
 }
 
 ///|
 pub fn sync_source_image_palettes_from_repository(
-  repository : @asset.SimpleImageRepository,
+  repository : @atlas.SimpleImageRepository,
 ) -> Int {
-  @asset.list_image_palette_bindings(repository).length()
+  @atlas.list_image_palette_bindings(repository).length()
 }
 
 ///|
-pub fn sync_source_images(bindings : Array[@asset.SourceImageBinding]) -> Int {
+pub fn sync_source_images(bindings : Array[@atlas.SourceImageBinding]) -> Int {
   bindings.length()
 }
 
 ///|
 pub fn sync_source_images_from_repository(
-  repository : @asset.SimpleImageRepository,
+  repository : @atlas.SimpleImageRepository,
 ) -> Int {
-  @asset.list_source_image_bindings(repository).length()
+  @atlas.list_source_image_bindings(repository).length()
 }
 
 ///|
 pub fn sync_dirty_source_images_from_repository(
-  repository : @asset.SimpleImageRepository,
+  repository : @atlas.SimpleImageRepository,
 ) -> Int {
-  let count = @asset.list_dirty_source_image_bindings(repository).length()
-  let _ = @asset.clear_source_image_dirty_flags(repository)
+  let count = @atlas.list_dirty_source_image_bindings(repository).length()
+  let _ = @atlas.clear_source_image_dirty_flags(repository)
   count
 }
 
 ///|
 pub fn sync_dirty_atlas_pages_from_repository(
-  repository : @asset.SimpleAtlasImageRepository,
+  repository : @atlas.SimpleAtlasImageRepository,
 ) -> Int {
-  let count = @asset.list_dirty_atlas_page_bindings(repository).length()
-  let _ = @asset.clear_dirty_atlas_page_flags(repository)
+  let count = @atlas.list_dirty_atlas_page_bindings(repository).length()
+  let _ = @atlas.clear_dirty_atlas_page_flags(repository)
   count
 }
 

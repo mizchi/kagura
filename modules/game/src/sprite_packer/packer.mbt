@@ -71,10 +71,10 @@ pub fn pack_sprites(
 pub fn compose_packed_image(
   inputs : Array[SpriteInput],
   result : PackResult,
-) -> @asset.ImageSpec {
+) -> @atlas.ImageSpec {
   let pixels : Array[Int] = Array::make(result.width * result.height * 4, 0)
   // Build lookup from key to spec
-  let specs : Map[String, @asset.ImageSpec] = {}
+  let specs : Map[String, @atlas.ImageSpec] = {}
   for inp in inputs {
     specs[inp.key] = inp.spec
   }
@@ -96,7 +96,7 @@ pub fn compose_packed_image(
       }
     }
   }
-  @asset.image_spec_with_rgba8(result.width, result.height, pixels)
+  @atlas.image_spec_with_rgba8(result.width, result.height, pixels)
 }
 
 ///|

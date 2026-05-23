@@ -116,7 +116,7 @@ struct ShowcaseState {
   menu_node_ids : Array[@ui.UINodeId]
   mut menu_selection : Int
   // Asset
-  atlas_repo : @asset.SimpleAtlasImageRepository
+  atlas_repo : @atlas.SimpleAtlasImageRepository
   tile_table : @tilemap2d.TileAtlasTable
   // Visual
   mut screen_flash : Int
@@ -169,7 +169,7 @@ fn is_wall_at(tilemap : Array[Int], col : Int, row : Int) -> Bool {
 
 ///|
 fn setup_atlas(
-  repo : @asset.SimpleAtlasImageRepository,
+  repo : @atlas.SimpleAtlasImageRepository,
 ) -> @tilemap2d.TileAtlasTable {
   // Floor: cobblestone pattern (gray variations)
   let floor_pixels : Array[Int] = [
@@ -216,15 +216,15 @@ fn setup_atlas(
      0x33, 0x55, 0xCC, 0xFF, 0x22, 0x44, 0xAA, 0xFF, 0x33, 0x55, 0xCC, 0xFF, 0x44,
     0x66, 0xDD, 0xFF,
   ]
-  let floor_key = @asset.new_asset_key("tile_floor")
-  let wall_key = @asset.new_asset_key("tile_wall")
-  let water_key = @asset.new_asset_key("tile_water")
-  let floor_spec = @asset.image_spec_with_rgba8(4, 4, floor_pixels)
-  let wall_spec = @asset.image_spec_with_rgba8(4, 4, wall_pixels)
-  let water_spec = @asset.image_spec_with_rgba8(4, 4, water_pixels)
-  let _ = @asset.create_atlas_image(repo, floor_key, floor_spec)
-  let _ = @asset.create_atlas_image(repo, wall_key, wall_spec)
-  let _ = @asset.create_atlas_image(repo, water_key, water_spec)
+  let floor_key = @atlas.new_asset_key("tile_floor")
+  let wall_key = @atlas.new_asset_key("tile_wall")
+  let water_key = @atlas.new_asset_key("tile_water")
+  let floor_spec = @atlas.image_spec_with_rgba8(4, 4, floor_pixels)
+  let wall_spec = @atlas.image_spec_with_rgba8(4, 4, wall_pixels)
+  let water_spec = @atlas.image_spec_with_rgba8(4, 4, water_pixels)
+  let _ = @atlas.create_atlas_image(repo, floor_key, floor_spec)
+  let _ = @atlas.create_atlas_image(repo, wall_key, wall_spec)
+  let _ = @atlas.create_atlas_image(repo, water_key, water_spec)
   @tilemap2d.new_tile_atlas_table([
     @tilemap2d.new_tile_atlas_entry(tile_floor, floor_key),
     @tilemap2d.new_tile_atlas_entry(tile_wall, wall_key),
@@ -248,7 +248,7 @@ fn create_silent_clip() -> @audio.AudioClip {
 ///|
 fn ShowcaseState::new() -> ShowcaseState {
   let tilemap = generate_tilemap()
-  let atlas_repo = @asset.new_simple_atlas_image_repository(128, 128, 1)
+  let atlas_repo = @atlas.new_simple_atlas_image_repository(128, 128, 1)
   let tile_table = setup_atlas(atlas_repo)
   // Audio
   let audio_ctx = @audio.SimpleAudioContext::new(@audio.default_audio_format())
@@ -1145,17 +1145,17 @@ fn ShowcaseState::render_text_hud(
   if all_text_cmds.length() > 0 {
     let dirty_pages = renderer.flush_dirty_pages()
     if dirty_pages.length() > 0 {
-      let bindings : Array[@asset.SourceImageBinding] = []
+      let bindings : Array[@atlas.SourceImageBinding] = []
       for page_info in dirty_pages {
         let page_idx = page_info.page_id - renderer.get_page_id()
         let page = renderer.get_page(page_idx)
-        let binding = @asset.new_source_image_binding(
+        let binding = @atlas.new_source_image_binding(
           page_info.page_id,
           page_info.width,
           page_info.height,
           1,
           Some(
-            @asset.new_source_image_dirty_rect(
+            @atlas.new_source_image_dirty_rect(
               0,
               0,
               page_info.width,
@@ -1179,12 +1179,12 @@ fn ShowcaseState::render_text_hud(
     let svg_str = "<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 16 16'><rect x='7' y='1' width='2' height='10' fill='#CCDDFF'/><rect x='5' y='9' width='6' height='2' fill='#FFCC00'/><rect x='7' y='11' width='2' height='4' fill='#886644'/></svg>"
     match @svg.render_svg_to_rgba(svg_str, 16, 16) {
       Some((_w, _h, pixels)) => {
-        let binding = @asset.new_source_image_binding(
+        let binding = @atlas.new_source_image_binding(
           self.svg_icon_image_id,
           16,
           16,
           1,
-          Some(@asset.new_source_image_dirty_rect(0, 0, 16, 16)),
+          Some(@atlas.new_source_image_dirty_rect(0, 0, 16, 16)),
           @image_palette.checker_palette_from_seed(self.svg_icon_image_id),
           pixels,
         )

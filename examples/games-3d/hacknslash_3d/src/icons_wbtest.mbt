@@ -39,9 +39,9 @@ fn test_skill(icon_id : Int) -> @game.SkillNode {
 ///|
 fn expect_icon_source(
   atlas : IconAtlas,
-  key : @asset.AssetKey,
-) -> @asset.AtlasDrawSource {
-  match @asset.get_atlas_draw_source(atlas.repo, key) {
+  key : @atlas.AssetKey,
+) -> @atlas.AtlasDrawSource {
+  match @atlas.get_atlas_draw_source(atlas.repo, key) {
     Some(source) => source
     None => panic()
   }
@@ -55,7 +55,7 @@ test "item_icon_key resolves to packed rarity variant" {
   let source = expect_icon_source(atlas, key)
   let expected = expect_icon_source(
     atlas,
-    @asset.new_asset_key("item_2_" + @game.Rare.color().to_string()),
+    @atlas.new_asset_key("item_2_" + @game.Rare.color().to_string()),
   )
   assert_eq(source.page_image_id, 777)
   assert_eq(source.u0, expected.u0)
@@ -68,7 +68,7 @@ test "item_icon_key resolves to packed rarity variant" {
 test "skill_icon_key normalizes skill icon ids to skill atlas range" {
   let atlas = create_icon_atlas(atlas_id=555)
   let source = expect_icon_source(atlas, skill_icon_key(test_skill(13)))
-  let expected = expect_icon_source(atlas, @asset.new_asset_key("skill_3"))
+  let expected = expect_icon_source(atlas, @atlas.new_asset_key("skill_3"))
   assert_eq(source.page_image_id, 555)
   assert_eq(source.u0, expected.u0)
   assert_eq(source.v0, expected.v0)
@@ -83,7 +83,7 @@ test "append_icon_draw_command appends textured quad from icon atlas" {
   let appended = append_icon_draw_command(
     cmds,
     atlas,
-    @asset.new_asset_key("skill_4"),
+    @atlas.new_asset_key("skill_4"),
     @gfx.new_image_handle(1, screen_w, screen_h),
     @gfx.new_shader_handle(2, "icon"),
     32.0,

@@ -1,6 +1,6 @@
 ///|
 pub(all) struct SpriteFrame {
-  atlas_key : @asset.AssetKey
+  atlas_key : @atlas.AssetKey
   duration : Double
 }
 

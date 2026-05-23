@@ -6,7 +6,7 @@ test "AssetStreamer: basic request and update" {
     config=AssetStreamerConfig::default(),
   )
   let mut received = false
-  let key = @asset.new_asset_key("test")
+  let key = @atlas.new_asset_key("test")
   ignore(
     streamer.request("test.png", key, Normal, fn(data) {
       match data {
@@ -29,7 +29,7 @@ test "AssetStreamer: duplicate request returns same id" {
     fetcher,
     config=AssetStreamerConfig::default(),
   )
-  let key = @asset.new_asset_key("dup")
+  let key = @atlas.new_asset_key("dup")
   let id1 = streamer.request("a.png", key, Normal, fn(_) {  })
   let id2 = streamer.request("a.png", key, Normal, fn(_) {  })
   assert_eq(id1, id2)
@@ -45,7 +45,7 @@ test "AssetStreamer: duplicate request fans out completion callbacks" {
     fetcher,
     config=AssetStreamerConfig::default(),
   )
-  let key = @asset.new_asset_key("dup-fanout")
+  let key = @atlas.new_asset_key("dup-fanout")
   let completions : Array[String] = []
   ignore(
     streamer.request("fanout.png", key, Normal, fn(data) {
@@ -81,7 +81,7 @@ test "AssetStreamer: distance-based priority" {
   ignore(
     streamer.request_by_distance(
       "far.png",
-      @asset.new_asset_key("far"),
+      @atlas.new_asset_key("far"),
       100.0,
       thresholds~,
       on_complete=fn(_) {  },
@@ -90,7 +90,7 @@ test "AssetStreamer: distance-based priority" {
   ignore(
     streamer.request_by_distance(
       "close.png",
-      @asset.new_asset_key("close"),
+      @atlas.new_asset_key("close"),
       5.0,
       thresholds~,
       on_complete=fn(_) {  },
@@ -108,7 +108,7 @@ test "AssetStreamer: LOD skip duplicate" {
     fetcher,
     config=AssetStreamerConfig::default(),
   )
-  let key = @asset.new_asset_key("model")
+  let key = @atlas.new_asset_key("model")
   let id1 = streamer.request_lod("model_lod2.obj", key, 2, Normal, fn(_) {  })
   // Request same or lower LOD → should return same id
   let id2 = streamer.request_lod("model_lod1.obj", key, 1, Normal, fn(_) {  })
@@ -122,7 +122,7 @@ test "AssetStreamer: LOD upgrade" {
     fetcher,
     config=AssetStreamerConfig::default(),
   )
-  let key = @asset.new_asset_key("model")
+  let key = @atlas.new_asset_key("model")
   let id1 = streamer.request_lod("model_lod1.obj", key, 1, Normal, fn(_) {  })
   // Request higher LOD → should create new request
   let id2 = streamer.request_lod("model_lod2.obj", key, 2, High, fn(_) {  })
@@ -143,18 +143,18 @@ test "AssetStreamer: eviction" {
   })
   // Add 3 entries
   ignore(
-    streamer.request("a.png", @asset.new_asset_key("a"), Normal, fn(_) {  }),
+    streamer.request("a.png", @atlas.new_asset_key("a"), Normal, fn(_) {  }),
   )
   streamer.update() // frame 0→1
   ignore(
-    streamer.request("b.png", @asset.new_asset_key("b"), Normal, fn(_) {  }),
+    streamer.request("b.png", @atlas.new_asset_key("b"), Normal, fn(_) {  }),
   )
   streamer.update() // frame 1→2
   ignore(
-    streamer.request("c.png", @asset.new_asset_key("c"), Normal, fn(_) {  }),
+    streamer.request("c.png", @atlas.new_asset_key("c"), Normal, fn(_) {  }),
   )
   // Touch "b" to keep it alive
-  streamer.touch(@asset.new_asset_key("b"))
+  streamer.touch(@atlas.new_asset_key("b"))
   streamer.update() // frame 2→3, triggers eviction (3 > max_cached 2)
   // "a" should be evicted (oldest untouched)
   assert_eq(evicted.length(), 1)
@@ -168,7 +168,7 @@ test "AssetStreamer: manual evict" {
   let streamer = AssetStreamer::new(fetcher, on_evict=fn(key) {
     evicted.push(key.value)
   })
-  let key = @asset.new_asset_key("manual")
+  let key = @atlas.new_asset_key("manual")
   ignore(streamer.request("m.png", key, Normal, fn(_) {  }))
   streamer.evict(key)
   assert_eq(evicted, ["manual"])
@@ -181,7 +181,7 @@ test "AssetStreamer: payload released after callbacks fire (Delivered state)" {
     fetcher,
     config=AssetStreamerConfig::default(),
   )
-  let key = @asset.new_asset_key("release")
+  let key = @atlas.new_asset_key("release")
   let mut first_received = false
   ignore(
     streamer.request("release.png", key, Normal, fn(data) {
@@ -211,7 +211,7 @@ test "AssetStreamer: fetch failure delivers None to callbacks" {
     fetcher,
     config=AssetStreamerConfig::default(),
   )
-  let key = @asset.new_asset_key("fail")
+  let key = @atlas.new_asset_key("fail")
   let mut received_data : Bytes? = Some(b"initial")
   ignore(
     streamer.request("fail.png", key, Normal, fn(data) { received_data = data }),
@@ -230,7 +230,7 @@ test "AssetStreamer: eviction of in-flight request cancels fetch" {
   let streamer = AssetStreamer::new(fetcher, on_evict=fn(key) {
     evicted.push(key.value)
   })
-  let key = @asset.new_asset_key("inflight")
+  let key = @atlas.new_asset_key("inflight")
   ignore(streamer.request("inflight.png", key, Normal, fn(_) {  }))
   streamer.update()
   assert_eq(fetcher.requests.length(), 1)
@@ -248,7 +248,7 @@ test "AssetStreamer: LOD upgrade cancels previous in-flight fetch" {
     fetcher,
     config=AssetStreamerConfig::default(),
   )
-  let key = @asset.new_asset_key("lod-cancel")
+  let key = @atlas.new_asset_key("lod-cancel")
   ignore(streamer.request_lod("model_lod1.obj", key, 1, Normal, fn(_) {  }))
   streamer.update()
   assert_eq(fetcher.requests.length(), 1)
@@ -285,7 +285,7 @@ test "AssetStreamer: stream_manager exposes underlying progress" {
   let fetcher = new_mock_fetcher()
   let streamer = AssetStreamer::new(fetcher)
   ignore(
-    streamer.request("manager.png", @asset.new_asset_key("manager"), Normal, fn(
+    streamer.request("manager.png", @atlas.new_asset_key("manager"), Normal, fn(
       _,
     ) {
       ()

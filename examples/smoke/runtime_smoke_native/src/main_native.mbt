@@ -145,15 +145,15 @@ fn[T : @gfx.GraphicsDriver] run_draw_payload_probe(
   graphics.initialize()
   let pass = @gfx.new_render_pass_desc(@gfx.new_color(0.0, 0.0, 0.0, 1.0), true)
   let dst = graphics.new_image(64, 64)
-  let repository = @asset.new_simple_image_repository()
-  let source_key_0 = @asset.new_asset_key("runtime_smoke/source0")
-  let source_key_1 = @asset.new_asset_key("runtime_smoke/source1")
-  let source0_png = @asset.encode_png_image_spec(
-    @asset.image_spec_with_rgba8(1, 1, [255, 255, 255, 255]),
+  let repository = @atlas.new_simple_image_repository()
+  let source_key_0 = @atlas.new_asset_key("runtime_smoke/source0")
+  let source_key_1 = @atlas.new_asset_key("runtime_smoke/source1")
+  let source0_png = @atlas.encode_png_image_spec(
+    @atlas.image_spec_with_rgba8(1, 1, [255, 255, 255, 255]),
   ) catch {
     _ => panic()
   }
-  let source0 = @asset.create_image_from_raster_bytes(
+  let source0 = @atlas.create_image_from_raster_bytes(
     repository, source_key_0, source0_png,
   ) catch {
     _ => None
@@ -162,14 +162,14 @@ fn[T : @gfx.GraphicsDriver] run_draw_payload_probe(
     Some(_) => ()
     None => panic()
   }
-  let source1_png = @asset.encode_png_image_spec(
-    @asset.image_spec_with_rgba8(2, 2, [
+  let source1_png = @atlas.encode_png_image_spec(
+    @atlas.image_spec_with_rgba8(2, 2, [
       32, 200, 255, 255, 64, 128, 255, 255, 96, 64, 255, 255, 255, 255, 255, 255,
     ]),
   ) catch {
     _ => panic()
   }
-  let source_created = @asset.create_image_from_raster_bytes(
+  let source_created = @atlas.create_image_from_raster_bytes(
     repository, source_key_1, source1_png,
   ) catch {
     _ => None
@@ -191,14 +191,14 @@ fn[T : @gfx.GraphicsDriver] run_draw_payload_probe(
     panic()
   }
 
-  let source_updated_png = @asset.encode_png_image_spec(
-    @asset.image_spec_with_rgba8(2, 2, [
+  let source_updated_png = @atlas.encode_png_image_spec(
+    @atlas.image_spec_with_rgba8(2, 2, [
       33, 200, 255, 255, 64, 128, 255, 255, 96, 64, 255, 255, 255, 255, 255, 255,
     ]),
   ) catch {
     _ => panic()
   }
-  let updated = @asset.update_image_from_raster_bytes(
+  let updated = @atlas.update_image_from_raster_bytes(
     repository, source_key_1, source_updated_png,
   ) catch {
     _ => None
@@ -213,21 +213,21 @@ fn[T : @gfx.GraphicsDriver] run_draw_payload_probe(
   if dirty_synced != 1 {
     panic()
   }
-  if @asset.get_image_generation_by_id(repository, source.id) != 2 {
+  if @atlas.get_image_generation_by_id(repository, source.id) != 2 {
     panic()
   }
-  let atlas_repository = @asset.new_simple_atlas_image_repository(
+  let atlas_repository = @atlas.new_simple_atlas_image_repository(
     4, 4, runtime_smoke_atlas_page_id,
   )
-  let atlas_key = @asset.new_asset_key("runtime_smoke/atlas")
-  let atlas_png = @asset.encode_png_image_spec(
-    @asset.image_spec_with_rgba8(2, 2, [
+  let atlas_key = @atlas.new_asset_key("runtime_smoke/atlas")
+  let atlas_png = @atlas.encode_png_image_spec(
+    @atlas.image_spec_with_rgba8(2, 2, [
       1, 2, 3, 255, 4, 5, 6, 255, 7, 8, 9, 255, 10, 11, 12, 255,
     ]),
   ) catch {
     _ => panic()
   }
-  let atlas_image = @asset.create_atlas_image_from_raster_bytes(
+  let atlas_image = @atlas.create_atlas_image_from_raster_bytes(
     atlas_repository, atlas_key, atlas_png,
   ) catch {
     _ => None
@@ -236,15 +236,15 @@ fn[T : @gfx.GraphicsDriver] run_draw_payload_probe(
     Some(_) => ()
     None => panic()
   }
-  let sprite_key = @asset.new_asset_key("runtime_smoke/sprite")
-  let sprite_png = @asset.encode_png_image_spec(
-    @asset.image_spec_with_rgba8(2, 2, [
+  let sprite_key = @atlas.new_asset_key("runtime_smoke/sprite")
+  let sprite_png = @atlas.encode_png_image_spec(
+    @atlas.image_spec_with_rgba8(2, 2, [
       100, 150, 200, 255, 50, 75, 100, 255, 25, 37, 50, 255, 200, 225, 250, 255,
     ]),
   ) catch {
     _ => panic()
   }
-  let sprite_atlas_image = @asset.create_atlas_image_from_raster_bytes(
+  let sprite_atlas_image = @atlas.create_atlas_image_from_raster_bytes(
     atlas_repository, sprite_key, sprite_png,
   ) catch {
     _ => None
@@ -265,14 +265,14 @@ fn[T : @gfx.GraphicsDriver] run_draw_payload_probe(
   if atlas_repeated_synced != 0 {
     panic()
   }
-  let atlas_updated_png = @asset.encode_png_image_spec(
-    @asset.image_spec_with_rgba8(2, 2, [
+  let atlas_updated_png = @atlas.encode_png_image_spec(
+    @atlas.image_spec_with_rgba8(2, 2, [
       1, 2, 3, 255, 42, 43, 44, 255, 7, 8, 9, 255, 10, 11, 12, 255,
     ]),
   ) catch {
     _ => panic()
   }
-  let atlas_updated = @asset.update_atlas_image_from_raster_bytes(
+  let atlas_updated = @atlas.update_atlas_image_from_raster_bytes(
     atlas_repository, atlas_key, atlas_updated_png,
   ) catch {
     _ => None
@@ -362,13 +362,13 @@ fn[T : @gfx.GraphicsDriver] run_draw_payload_probe(
     [255, 255, 255, 255],
   )
   // Upload atlas texture to GPU
-  let text_binding = @asset.new_source_image_binding(
+  let text_binding = @atlas.new_source_image_binding(
     900,
     text_atlas_size,
     text_atlas_size,
     1,
     Some(
-      @asset.new_source_image_dirty_rect(0, 0, text_atlas_size, text_atlas_size),
+      @atlas.new_source_image_dirty_rect(0, 0, text_atlas_size, text_atlas_size),
     ),
     @image_palette.checker_palette_from_seed(900),
     text_renderer.get_atlas().get_pixels(),

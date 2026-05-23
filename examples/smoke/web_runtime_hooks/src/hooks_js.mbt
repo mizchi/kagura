@@ -3473,7 +3473,7 @@ pub fn clear_source_image_palettes() -> Unit {
 
 ///|
 pub fn sync_source_image_palettes(
-  bindings : Array[@asset.ImagePaletteBinding],
+  bindings : Array[@atlas.ImagePaletteBinding],
 ) -> Int {
   let mut count = 0
   for binding in bindings {
@@ -3487,13 +3487,13 @@ pub fn sync_source_image_palettes(
 
 ///|
 pub fn sync_source_image_palettes_from_repository(
-  repository : @asset.SimpleImageRepository,
+  repository : @atlas.SimpleImageRepository,
 ) -> Int {
-  sync_source_image_palettes(@asset.list_image_palette_bindings(repository))
+  sync_source_image_palettes(@atlas.list_image_palette_bindings(repository))
 }
 
 ///|
-pub fn sync_source_images(bindings : Array[@asset.SourceImageBinding]) -> Int {
+pub fn sync_source_images(bindings : Array[@atlas.SourceImageBinding]) -> Int {
   let mut count = 0
   for binding in bindings {
     if binding.image_id < 0 {
@@ -3550,30 +3550,30 @@ pub fn sync_source_images(bindings : Array[@asset.SourceImageBinding]) -> Int {
 
 ///|
 pub fn sync_source_images_from_repository(
-  repository : @asset.SimpleImageRepository,
+  repository : @atlas.SimpleImageRepository,
 ) -> Int {
-  sync_source_images(@asset.list_source_image_bindings(repository))
+  sync_source_images(@atlas.list_source_image_bindings(repository))
 }
 
 ///|
 pub fn sync_dirty_source_images_from_repository(
-  repository : @asset.SimpleImageRepository,
+  repository : @atlas.SimpleImageRepository,
 ) -> Int {
   let count = sync_source_images(
-    @asset.list_dirty_source_image_bindings(repository),
+    @atlas.list_dirty_source_image_bindings(repository),
   )
-  let _ = @asset.clear_source_image_dirty_flags(repository)
+  let _ = @atlas.clear_source_image_dirty_flags(repository)
   count
 }
 
 ///|
 pub fn sync_dirty_atlas_pages_from_repository(
-  repository : @asset.SimpleAtlasImageRepository,
+  repository : @atlas.SimpleAtlasImageRepository,
 ) -> Int {
   let count = sync_source_images(
-    @asset.list_dirty_atlas_page_bindings(repository),
+    @atlas.list_dirty_atlas_page_bindings(repository),
   )
-  let _ = @asset.clear_dirty_atlas_page_flags(repository)
+  let _ = @atlas.clear_dirty_atlas_page_flags(repository)
   count
 }
 

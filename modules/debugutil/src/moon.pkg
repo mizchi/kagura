@@ -2,5 +2,5 @@ import {
   "mizchi/kagura_core" @core,
   "mizchi/gfx" @gfx,
   "mizchi/kagura_core/inpututil" @inpututil,
-  "mizchi/kagura_core/vector" @vector,
+  "mizchi/math/vector" @vector,
 }

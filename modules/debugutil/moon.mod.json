@@ -10,6 +10,9 @@
     "mizchi/gfx": "0.1.0",
     "mizchi/kagura_core": {
       "path": "../kagura_core"
+    },
+    "mizchi/math": {
+      "path": "../math"
     }
   }
 }

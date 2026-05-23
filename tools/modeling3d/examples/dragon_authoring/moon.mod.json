@@ -24,9 +24,6 @@
       "path": "../../../../modules/physics"
     },
     "mizchi/gfx": "0.1.0",
-    "mizchi/math3d": {
-      "path": "../../../../modules/math3d"
-    },
     "mizchi/mesh3d": {
       "path": "../../../../modules/mesh3d"
     },
@@ -35,6 +32,9 @@
     },
     "mizchi/renderer2d": {
       "path": "../../../../modules/renderer2d"
+    },
+    "mizchi/math": {
+      "path": "../../../../modules/math"
     }
   }
 }

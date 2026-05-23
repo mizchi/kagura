@@ -6,7 +6,7 @@ import {
   "mizchi/renderer2d" @renderer2d,
   "mizchi/kagura_core/inpututil" @inpututil,
   "mizchi/kagura_physics/physics2d" @physics2d,
-  "mizchi/kagura_core/vector" @vector,
+  "mizchi/math/vector" @vector,
   "mizchi/web_runtime_hooks" @web_hooks,
 }
 

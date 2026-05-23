@@ -30,6 +30,9 @@
     },
     "mizchi/asset": {
       "path": "../../../modules/asset"
+    },
+    "mizchi/math": {
+      "path": "../../../modules/math"
     }
   },
   "--moonbit-unstable-prebuild": "../../../scripts/moon-prebuild-native-link-flags.cjs"

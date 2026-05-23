@@ -6,7 +6,7 @@ import {
   "mizchi/kagura_game/ai" @ai,
   "mizchi/asset" @asset,
   "mizchi/kagura_engine/audio" @audio,
-  "mizchi/kagura_core/camera2d" @camera2d,
+  "mizchi/math/camera2d" @camera2d,
   "mizchi/colorm" @colorm,
   "mizchi/kagura_core" @core,
   "mizchi/gfx" @gfx,
@@ -17,7 +17,7 @@ import {
   "mizchi/text" @text,
   "mizchi/kagura_game/tilemap2d" @tilemap2d,
   "mizchi/kagura_engine/ui" @ui,
-  "mizchi/kagura_core/vector" @vector,
+  "mizchi/math/vector" @vector,
   "mizchi/web_runtime_hooks" @web_hooks,
 }
 

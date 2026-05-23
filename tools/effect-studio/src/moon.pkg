@@ -1,7 +1,7 @@
 import {
   "moonbitlang/core/cmp" @cmp,
   "moonbitlang/core/math" @math,
-  "mizchi/math3d" @math3d,
+  "mizchi/math/math3d" @math3d,
   "mizchi/kagura_engine/particle3d" @particle3d,
 }
 

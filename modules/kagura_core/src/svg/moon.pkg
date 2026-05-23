@@ -1,4 +1,4 @@
 import {
-  "mizchi/kagura_core/vector" @vector,
+  "mizchi/math/vector" @vector,
   "mizchi/svg" @msvg,
 }

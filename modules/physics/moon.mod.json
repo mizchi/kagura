@@ -11,11 +11,11 @@
     "mizchi/kagura_core": {
       "path": "../kagura_core"
     },
-    "mizchi/math3d": {
-      "path": "../math3d"
-    },
     "mizchi/mesh3d": {
       "path": "../mesh3d"
+    },
+    "mizchi/math": {
+      "path": "../math"
     }
   },
   "preferred-target": "js"

@@ -15,9 +15,6 @@
     "mizchi/font": "0.7.0",
     "mizchi/audio": "0.1.0",
     "mizchi/glfw": "0.2.2",
-    "mizchi/math3d": {
-      "path": "../math3d"
-    },
     "mizchi/text": {
       "path": "../text"
     },
@@ -35,6 +32,9 @@
     },
     "mizchi/renderer2d": {
       "path": "../renderer2d"
+    },
+    "mizchi/math": {
+      "path": "../math"
     }
   },
   "preferred-target": "js",

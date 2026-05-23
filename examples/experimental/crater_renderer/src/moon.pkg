@@ -5,7 +5,7 @@ import {
   "mizchi/kagura_engine/asset" @asset,
   "mizchi/kagura_engine/renderer2d" @renderer2d,
   "mizchi/kagura_engine/draw2d_ui" @draw2d_ui,
-  "mizchi/kagura_engine/text" @text,
+  "mizchi/text" @text,
   "mizchi/kagura_core/image_palette" @image_palette,
   "mizchi/font" @font,
   "mizchi/crater/renderer" @renderer,

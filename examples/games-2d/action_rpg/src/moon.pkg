@@ -14,7 +14,7 @@ import {
   "mizchi/kagura_core/inpututil" @inpututil,
   "mizchi/kagura_game/scene" @scene,
   "mizchi/kagura_core/svg" @svg,
-  "mizchi/kagura_engine/text" @text,
+  "mizchi/text" @text,
   "mizchi/kagura_game/tilemap2d" @tilemap2d,
   "mizchi/kagura_engine/ui" @ui,
   "mizchi/kagura_core/vector" @vector,

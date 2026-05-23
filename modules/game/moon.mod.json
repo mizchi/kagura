@@ -22,6 +22,9 @@
     "mizchi/gfx": "0.1.0",
     "mizchi/math3d": {
       "path": "../math3d"
+    },
+    "mizchi/text": {
+      "path": "../text"
     }
   },
   "preferred-target": "js",

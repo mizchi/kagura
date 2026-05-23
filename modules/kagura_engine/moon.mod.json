@@ -17,6 +17,9 @@
     "mizchi/glfw": "0.2.2",
     "mizchi/math3d": {
       "path": "../math3d"
+    },
+    "mizchi/text": {
+      "path": "../text"
     }
   },
   "preferred-target": "js",

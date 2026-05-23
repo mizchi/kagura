@@ -8,7 +8,7 @@ import {
   "mizchi/kagura_core/image_palette" @image_palette,
   "mizchi/kagura_core/payload2d" @payload2d,
   "mizchi/kagura_engine/platform" @platform,
-  "mizchi/kagura_engine/text" @text,
+  "mizchi/text" @text,
 }
 
 warnings = "-1-7-29"

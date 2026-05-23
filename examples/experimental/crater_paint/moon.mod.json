@@ -25,7 +25,10 @@
     "mizchi/kagura_engine": {
       "path": "../../../modules/kagura_engine"
     },
-    "mizchi/gfx": "0.1.0"
+    "mizchi/gfx": "0.1.0",
+    "mizchi/text": {
+      "path": "../../../modules/text"
+    }
   },
   "--moonbit-unstable-prebuild": "../../../scripts/moon-prebuild-native-link-flags.cjs"
 }

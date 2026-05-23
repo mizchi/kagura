@@ -10,7 +10,7 @@ import {
   "mizchi/kagura_engine/platform" @platform,
   "mizchi/kagura_engine/runtime" @runtime,
   "mizchi/kagura_engine/sprite2d" @sprite2d,
-  "mizchi/kagura_engine/text" @text,
+  "mizchi/text" @text,
   "mizchi/kagura_game/tilemap2d" @tilemap2d,
 }
 

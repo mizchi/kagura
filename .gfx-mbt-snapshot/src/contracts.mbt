@@ -1,11 +1,22 @@
 ///|
-/// Graphics backend contracts.
+/// Core command-buffer types: `DstRegion`, `Color`, `RenderPassDesc`,
+/// `DrawTrianglesCommand`, `DrawCommandDispatch` and the
+/// `build_draw_command_dispatch` / `dispatch_checksum` helpers.
+///
+/// These are deliberately type-erased (vertex payload is
+/// `Array[Double]`, indices are `Array[Int]`, uniforms are dwords) so
+/// the same command struct flows through any `GraphicsDriver` impl.
+///
 /// Ebiten refs:
 /// - internal/graphicsdriver/graphics.go
 /// - internal/graphicscommand/commandqueue.go
 /// - internal/atlas/image.go
 
 ///|
+/// One destination scissor rectangle on the target image, plus the
+/// number of indices the caller intends to consume inside it. A
+/// command can have several `DstRegion`s when batching independent
+/// scissors that share state.
 pub(all) struct DstRegion {
   x : Int
   y : Int
@@ -31,6 +42,8 @@ pub fn new_dst_region(
 }
 
 ///|
+/// RGBA color with channels in `[0.0, 1.0]` (linear, premultiplied is
+/// left to the shader). Values outside the range are not clamped here.
 pub(all) struct Color {
   r : Double
   g : Double
@@ -44,6 +57,11 @@ pub impl Show for Color with output(self, logger) {
 }
 
 ///|
+/// What `GraphicsDriver.begin` does before any draw calls of a pass.
+///
+/// `clear_enabled=false` keeps the previous framebuffer contents
+/// (useful for additive overlays). `present=true` swaps buffers at
+/// `end`; set false for offscreen render-to-texture passes.
 pub(all) struct RenderPassDesc {
   clear_color : Color
   clear_enabled : Bool
@@ -70,25 +88,56 @@ pub fn new_render_pass_desc(
 }
 
 ///|
+/// One indexed-triangle draw issued against a render target.
+///
+/// This is the unit of work both the `CommandQueue` and the
+/// `GraphicsDriver` traffic in. Two adjacent commands with the same
+/// `dst` / `shader` / `pipeline_id` / `uniform_hash` / `blend` /
+/// `src_image_ids` / `uniform_dwords` and equal `index_offset` can be
+/// merged into one larger draw by the queue.
+///
+/// Vertex / index data is type-erased into flat arrays so the command
+/// stays backend-neutral; the shader interprets `vertex_data` according
+/// to its declared input layout. `vertex_stride_hint` is a hint to the
+/// backend pipeline picker (0 = auto, 4 = 2D, 8 = 3D, 16 = skinned).
 pub(all) struct DrawTrianglesCommand {
+  /// The image being drawn onto.
   dst : ImageHandle
+  /// The compiled shader to execute.
   shader : ShaderHandle
+  /// Destination scissor / region rectangles. Each region accumulates
+  /// the triangle count it covers.
   dst_regions : Array[DstRegion]
+  /// Offset into the index buffer when the backend caches geometry by
+  /// `resource_cache_key`. 0 for explicit payloads.
   index_offset : Int
+  /// Backend pipeline identifier (opaque, hashed by the queue).
   pipeline_id : Int
+  /// Hash of the canonical uniform payload (`uniform_dwords`).
   uniform_hash : Int
+  /// Blend state. `Custom(BlendEquation)` for non-preset modes.
   blend : BlendMode
-  /// Optional explicit payload for backend bridge.
-  /// Ebiten refs:
-  /// - internal/graphicscommand/command.go (vertex/index payload)
+  /// Optional explicit vertex payload. Empty when the backend reuses
+  /// geometry via `resource_cache_key`.
+  /// Ebiten ref: internal/graphicscommand/command.go (vertex payload).
   vertex_data : Array[Double]
+  /// Optional explicit index payload. Empty when the backend resolves
+  /// indices from cached geometry.
   indices : Array[Int]
+  /// Bound source-image ids (texture0, texture1, ...).
   src_image_ids : Array[Int]
+  /// Canonicalized uniform payload as raw dwords.
   uniform_dwords : Array[Int]
-  instance_count : Int // 1 = default (non-instanced)
-  resource_cache_key : Int // 0 = disabled, non-zero allows backend payload cache reuse
-  vertex_stride_hint : Int // 0 = auto-detect from shader, >0 = explicit stride (4=2D, 8=3D, 16=skinned)
-}
+  /// 1 for ordinary draws; > 1 enables instanced rendering and
+  /// disables batch-merge.
+  instance_count : Int
+  /// 0 to force the explicit payload to be uploaded; non-zero lets the
+  /// backend reuse a previously uploaded buffer with the same key.
+  resource_cache_key : Int
+  /// 0 to let the backend pick the stride from the shader; > 0 sets it
+  /// explicitly (4 = 2D, 8 = 3D, 16 = skinned).
+  vertex_stride_hint : Int
+} derive(Debug)
 
 ///|
 pub fn new_draw_triangles_command(

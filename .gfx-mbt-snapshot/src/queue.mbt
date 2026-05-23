@@ -12,18 +12,31 @@
 /// - internal/graphicscommand/commandqueue.go (EnqueueDrawTrianglesCommand, Flush)
 
 ///|
+/// A renderer-facing buffer of pending `DrawTrianglesCommand`s.
+///
+/// Renderers `enqueue_draw_triangles` during their `draw` pass and the
+/// frame driver later calls `flush` to consume them. The flush phase is
+/// where an implementation may merge adjacent compatible commands (same
+/// pipeline / shader / blend / images / uniforms) to reduce the number
+/// of backend draw calls.
+///
+/// `SimpleCommandQueue` is the reference implementation; bring your own
+/// if you need a different merge policy.
 pub(open) trait CommandQueue {
-  /// Ebiten ref: commandQueue.EnqueueDrawTrianglesCommand
+  /// Append one command to the back of the queue.
+  /// Ebiten ref: commandQueue.EnqueueDrawTrianglesCommand.
   enqueue_draw_triangles(Self, command : DrawTrianglesCommand) -> Unit
 
-  /// Ebiten ref: commandQueue.Flush / FlushCommands
+  /// Drain the queue and return the (possibly merged) commands in
+  /// submission order. The queue is empty after this call.
+  /// Ebiten ref: commandQueue.Flush / FlushCommands.
   flush(Self) -> Array[DrawTrianglesCommand]
 }
 
 ///|
-pub(all) struct SimpleCommandQueue {
+pub struct SimpleCommandQueue {
   mut commands : Array[DrawTrianglesCommand]
-}
+} derive(Debug)
 
 ///|
 fn blend_factor_eq(lhs : BlendFactor, rhs : BlendFactor) -> Bool {

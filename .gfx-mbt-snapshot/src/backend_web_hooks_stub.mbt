@@ -1,5 +1,5 @@
 ///|
-pub(all) struct WebGraphicsHooks {
+pub struct WebGraphicsHooks {
   try_initialize : (GraphicsBackendKind, Int, Int) -> Bool
   on_begin : (Bool, GraphicsBackendKind, RenderPassDesc) -> Unit
   on_end : (Bool, GraphicsBackendKind, Bool) -> Unit

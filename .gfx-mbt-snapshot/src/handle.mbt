@@ -10,6 +10,8 @@
 /// - internal/atlas/image.go
 
 ///|
+/// Sampling mode for an image. `Pixelated` is a stricter form of
+/// `Nearest` used for low-res 2D art that must stay sharp at upscale.
 pub(all) enum FilterMode {
   Nearest
   Linear
@@ -41,7 +43,11 @@ pub fn filter_mode_from_int(mode : Int) -> FilterMode {
 }
 
 ///|
+/// Backend-defined image identifier plus a cached size for cheap
+/// CPU-side width/height queries. Constructed by `GraphicsDriver.new_image`
+/// (or `new_image_handle` when bridging from a non-MoonBit allocator).
 pub(all) struct ImageHandle {
+  /// Opaque, backend-assigned. Treat as cookie; do not invent values.
   id : Int
   width : Int
   height : Int
@@ -53,11 +59,17 @@ pub impl Show for ImageHandle with output(self, logger) {
 }
 
 ///|
+/// Wrap a backend-assigned id with its size. Use only from a backend
+/// that allocated `id`; ordinary callers get handles from
+/// `GraphicsDriver.new_image`.
 pub fn new_image_handle(id : Int, width : Int, height : Int) -> ImageHandle {
   { id, width, height }
 }
 
 ///|
+/// Backend-defined shader identifier plus a copy of the source string
+/// so the queue can fingerprint or re-emit the shader without
+/// round-tripping the backend.
 pub(all) struct ShaderHandle {
   id : Int
   source : String
@@ -69,11 +81,15 @@ pub impl Show for ShaderHandle with output(self, logger) {
 }
 
 ///|
+/// Wrap a backend-assigned shader id together with its compiled source.
 pub fn new_shader_handle(id : Int, source : String) -> ShaderHandle {
   { id, source }
 }
 
 ///|
+/// Backend-defined pipeline state identifier. Pipelines are hashed by
+/// `DrawTrianglesCommand.pipeline_id` so two commands hashing to the
+/// same pipeline can share a draw call.
 pub(all) struct PipelineHandle {
   id : Int
 } derive(Debug)

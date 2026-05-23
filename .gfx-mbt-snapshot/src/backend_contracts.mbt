@@ -31,7 +31,7 @@ pub impl Show for GraphicsBackendOptions with output(self, logger) {
 }
 
 ///|
-pub(all) struct StubGraphicsDriver {
+pub struct StubGraphicsDriver {
   backend : GraphicsBackendKind
   mut width : Int
   mut height : Int
@@ -46,10 +46,10 @@ pub(all) struct StubGraphicsDriver {
   mut resize_suppressed_count : Int
   mut last_resize_duration_ms : Double
   mut total_resize_duration_ms : Double
-}
+} derive(Debug)
 
 ///|
-pub(all) struct GraphicsResizeStats {
+pub struct GraphicsResizeStats {
   resize_count : Int
   suppressed_count : Int
   current_width : Int
@@ -76,7 +76,14 @@ pub type WebGlGraphicsDriver = StubGraphicsDriver
 pub type NullGraphicsDriver = StubGraphicsDriver
 
 ///|
+/// A factory that constructs a backend driver for a given kind / surface
+/// / options triple. Useful when a host wants to defer the choice of
+/// (wgpu-native vs WebGPU vs WebGL2 vs Null) until runtime feature
+/// detection.
 pub(open) trait GraphicsBackendFactory {
+  /// Build and install a driver for the requested `kind` against the
+  /// surface. Implementations may raise if `kind` is unsupported or the
+  /// surface is incompatible.
   create(
     Self,
     kind : GraphicsBackendKind,

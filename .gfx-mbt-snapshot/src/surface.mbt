@@ -39,7 +39,15 @@ pub impl Show for SurfaceToken with output(self, logger) {
 }
 
 ///|
+/// A host platform that can hand a backend the GPU surface to render
+/// onto (a canvas context, a CAMetalLayer, an offscreen buffer ...).
+///
+/// Kagura's platform package implements this for `DesktopGlfwPlatform`
+/// and `WebCanvasPlatform`; other hosts implement it themselves or use
+/// the `create_*_surface_token` helpers below for static cases.
 pub(open) trait SurfaceProvider {
+  /// Return the surface to render to right now. May `raise` if the
+  /// host is not yet active.
   current_surface(Self) -> SurfaceToken raise
 }
 

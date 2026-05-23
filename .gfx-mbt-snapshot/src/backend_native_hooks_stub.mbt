@@ -1,5 +1,5 @@
 ///|
-pub(all) struct NativeGraphicsHooks {
+pub struct NativeGraphicsHooks {
   try_initialize : (Int, Int) -> Bool
   on_begin : (Bool, RenderPassDesc) -> Unit
   on_end : (Bool, Bool) -> Unit

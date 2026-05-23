@@ -6,28 +6,68 @@
 /// pixel-diff harness for visual regression checks against `read_pixels`.
 
 ///|
+/// The contract a graphics backend implements to render a frame.
+///
+/// One driver instance owns the device, the swapchain / surface, and
+/// the per-frame command lifecycle. Renderers talk to a driver through
+/// this trait and never reach for backend-specific APIs.
+///
+/// A typical frame:
+///
+/// ```ignore
+/// driver.begin(pass)
+/// for command in commands {
+///   driver.draw_triangles(command)
+/// }
+/// driver.end(present)
+/// ```
+///
+/// More commonly, drive it from a `CommandQueue` via `flush_commands`.
+///
+/// Implementors should be idempotent on `initialize` and should
+/// de-duplicate identical `resize` calls.
 pub(open) trait GraphicsDriver {
-  /// Ebiten ref: Graphics.Initialize/Begin/End
+  /// Bind a device / swapchain. Called once before any other method.
+  /// Ebiten ref: Graphics.Initialize.
   initialize(Self) -> Unit raise
+
+  /// Open a render pass with the given clear color and present flag.
+  /// Ebiten ref: Graphics.Begin.
   begin(Self, pass : RenderPassDesc) -> Unit raise
+
+  /// Close the current render pass. `present=true` swaps buffers.
+  /// Ebiten ref: Graphics.End.
   end(Self, present : Bool) -> Unit raise
-  /// Ebiten ref: surface resize / reconfigure paths
+
+  /// Reconfigure the surface to the new size. May be called outside a
+  /// render pass and should de-duplicate identical sizes.
+  /// Ebiten ref: surface resize / reconfigure paths.
   resize(Self, width : Int, height : Int) -> Unit raise
 
-  /// Ebiten ref: Graphics.NewImage/NewShader
+  /// Allocate a backend-owned image of the requested size and return a
+  /// handle. The numeric id inside the handle is backend-defined; the
+  /// caller treats it as opaque.
+  /// Ebiten ref: Graphics.NewImage.
   new_image(Self, width : Int, height : Int) -> ImageHandle raise
+
+  /// Compile a shader source string and return a handle.
+  /// Ebiten ref: Graphics.NewShader.
   new_shader(Self, source : String) -> ShaderHandle raise
 
-  /// Ebiten ref: Graphics.DrawTriangles
+  /// Submit one `DrawTrianglesCommand` into the current render pass.
+  /// Must be called between `begin` and `end`.
+  /// Ebiten ref: Graphics.DrawTriangles.
   draw_triangles(Self, command : DrawTrianglesCommand) -> Unit raise
 
-  /// Read back framebuffer pixels as flat RGBA8 array.
-  /// Returns None if readback is not supported by the backend.
+  /// Read back framebuffer pixels as a flat RGBA8 array of length
+  /// `width * height * 4`. Returns None if readback is not supported by
+  /// the backend (e.g. some headless paths). Used for VRT / golden
+  /// image testing.
   read_pixels(Self, x : Int, y : Int, width : Int, height : Int) -> Array[Int]? raise
 }
 
 ///|
-pub(all) struct FramebufferSnapshot {
+pub struct FramebufferSnapshot {
   x : Int
   y : Int
   width : Int
@@ -55,7 +95,7 @@ pub fn create_framebuffer_snapshot(
 }
 
 ///|
-pub(all) struct PixelDiffResult {
+pub struct PixelDiffResult {
   total_pixels : Int
   diff_pixels : Int
   max_channel_diff : Int

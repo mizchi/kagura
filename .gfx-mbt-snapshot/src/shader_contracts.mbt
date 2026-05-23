@@ -252,31 +252,51 @@ pub fn builtin_key_to_ex(key : BuiltinShaderKey) -> BuiltinShaderKeyEx {
 }
 
 ///|
+/// Frontend for shader sources: lowers a `ShaderCompileRequest` into a
+/// `ShaderIR` and computes a stable hash. The hash is used to dedupe
+/// builtin shader variants in the backend cache.
+///
+/// `BasicShaderFrontend` is the reference implementation.
 pub(open) trait ShaderFrontend {
-  /// Ebiten ref: internal/graphics/shader.go (CompileShader)
+  /// Compile the source string into a `ShaderIR`.
+  /// Ebiten ref: internal/graphics/shader.go (CompileShader).
   compile_ir(Self, request : ShaderCompileRequest) -> ShaderIR raise
 
-  /// Ebiten ref: internal/graphics/shader.go (CalcSourceHash)
+  /// Compute a stable content-addressed hash of a compile request.
+  /// Two requests with the same hash MUST produce identical IR.
+  /// Ebiten ref: internal/graphics/shader.go (CalcSourceHash).
   calc_source_hash(Self, request : ShaderCompileRequest) -> ShaderSourceHash raise
 }
 
 ///|
+/// Packs user-visible uniforms (`NamedUniform`s) into the dense dword
+/// buffer the backend actually uploads, and prepends the engine-defined
+/// "preserved" prefix (destination size, source regions, etc.).
+///
+/// `BasicUniformCanonicalizer` is the reference implementation.
 pub(open) trait UniformCanonicalizer {
-  /// Ebiten ref: internal/ui/shader.go (AppendUniforms)
+  /// Append the user-supplied uniforms in the order declared by
+  /// `layout`. Missing uniforms should raise.
+  /// Ebiten ref: internal/ui/shader.go (AppendUniforms).
   append_user_uniforms(
     Self,
     layout : UniformLayout,
     uniforms : Array[NamedUniform],
   ) -> PackedUniforms raise
 
-  /// Ebiten ref: internal/graphicscommand/commandqueue.go (prependPreservedUniforms)
+  /// Prepend the preserved uniform prefix (`dst_texture_size`,
+  /// `dst_region`, `src_texture_sizes`, `src_regions`) ahead of the
+  /// user payload.
+  /// Ebiten ref: internal/graphicscommand/commandqueue.go (prependPreservedUniforms).
   prepend_preserved_uniforms(
     Self,
     uniforms : PackedUniforms,
     context : PreservedUniformContext,
   ) -> PackedUniforms
 
-  /// Ebiten ref: internal/shaderir/program.go (FilterUniformVariables)
+  /// Strip uniforms that don't appear in the compiled IR; lets the
+  /// backend skip uploading unused values.
+  /// Ebiten ref: internal/shaderir/program.go (FilterUniformVariables).
   filter_unused_uniforms(
     Self,
     ir : ShaderIR,
@@ -286,10 +306,18 @@ pub(open) trait UniformCanonicalizer {
 }
 
 ///|
+/// Source of WGSL / shader code for built-in shaders keyed by filter +
+/// address mode (and optionally a color matrix).
+///
+/// `BasicBuiltinShaderSourceRepo` is the reference implementation; it
+/// caches generated WGSL by key.
 pub(open) trait BuiltinShaderSourceRepo {
-  /// Ebiten ref: internal/builtinshader/shader.go (ShaderSource/ClearShaderSource)
+  /// Look up the shader for the basic (filter, address, color_m) key.
+  /// Ebiten ref: internal/builtinshader/shader.go (ShaderSource).
   shader_source(Self, key : BuiltinShaderKey) -> String
-  /// Extended: cache shader source by per-axis sampler key.
+
+  /// Look up the shader for the extended (per-axis sampler) key. Used
+  /// where the U and V axes have different wrap modes.
   shader_source_ex(Self, key : BuiltinShaderKeyEx) -> String
 }
 
@@ -324,27 +352,27 @@ pub fn[T : UniformCanonicalizer] build_canonical_uniforms(
 }
 
 ///|
-pub(all) struct BasicShaderFrontend {}
+pub struct BasicShaderFrontend {} derive(Debug)
 
 ///|
-pub(all) struct BasicUniformCanonicalizer {}
+pub struct BasicUniformCanonicalizer {} derive(Debug)
 
 ///|
 struct BuiltinShaderSourceCacheEntry {
   key : BuiltinShaderKey
   source : String
   last_used_tick : Int
-}
+} derive(Debug)
 
 ///|
 struct BuiltinShaderSourceCacheEntryEx {
   key : BuiltinShaderKeyEx
   source : String
   last_used_tick : Int
-}
+} derive(Debug)
 
 ///|
-pub(all) struct BuiltinShaderCacheStats {
+pub struct BuiltinShaderCacheStats {
   hit_count : Int
   miss_count : Int
 } derive(Debug)
@@ -355,14 +383,14 @@ pub impl Show for BuiltinShaderCacheStats with output(self, logger) {
 }
 
 ///|
-pub(all) struct BasicBuiltinShaderSourceRepo {
+pub struct BasicBuiltinShaderSourceRepo {
   mut cache : Array[BuiltinShaderSourceCacheEntry]
   mut cache_ex : Array[BuiltinShaderSourceCacheEntryEx]
   mut tick : Int
   max_cache_entries : Int
   mut hit_count : Int
   mut miss_count : Int
-}
+} derive(Debug)
 
 ///|
 /// Validate a shader compile request before compilation.

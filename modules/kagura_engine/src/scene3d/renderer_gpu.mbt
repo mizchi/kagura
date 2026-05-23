@@ -454,7 +454,7 @@ pub fn push_skinned_mesh_gpu_commands_from_matrices_with_uniform_color_and_view_
           dst,
           shader3d_skinned_instanced_monochrome,
           dst_region,
-          @gfx.blend_mode_from_int(1),
+          @gfx.BlendMode::from_int(1),
           packed_vertex_data,
           mesh.indices,
           view_projection,
@@ -580,7 +580,7 @@ fn push_instanced_mesh_gpu_commands_from_matrices_with_colors_and_view_projectio
         0,
         0,
         0,
-        @gfx.blend_mode_from_int(1),
+        @gfx.BlendMode::from_int(1),
         mesh,
         visible_instance_matrices[0],
         view_projection,
@@ -596,7 +596,7 @@ fn push_instanced_mesh_gpu_commands_from_matrices_with_colors_and_view_projectio
       dst,
       shader3d_instanced,
       dst_region,
-      @gfx.blend_mode_from_int(1),
+      @gfx.BlendMode::from_int(1),
       mesh,
       view_projection,
       lighting,
@@ -716,7 +716,7 @@ pub fn push_instanced_mesh_gpu_commands_from_matrices_with_uniform_color_and_vie
         0,
         0,
         0,
-        @gfx.blend_mode_from_int(1),
+        @gfx.BlendMode::from_int(1),
         mesh,
         visible_instance_matrices[0],
         view_projection,
@@ -745,7 +745,7 @@ pub fn push_instanced_mesh_gpu_commands_from_matrices_with_uniform_color_and_vie
           0,
           0,
           0,
-          @gfx.blend_mode_from_int(1),
+          @gfx.BlendMode::from_int(1),
           mesh,
           visible_instance_matrices[start],
           view_projection,
@@ -764,7 +764,7 @@ pub fn push_instanced_mesh_gpu_commands_from_matrices_with_uniform_color_and_vie
           dst,
           shader3d_instanced_monochrome,
           dst_region,
-          @gfx.blend_mode_from_int(1),
+          @gfx.BlendMode::from_int(1),
           mesh,
           view_projection,
           lighting,
@@ -883,7 +883,7 @@ fn push_skinned_mesh_gpu_commands_from_matrices_with_frustum(
           dst,
           shader3d_skinned_instanced,
           dst_region,
-          @gfx.blend_mode_from_int(1),
+          @gfx.BlendMode::from_int(1),
           packed_vertex_data,
           mesh.indices,
           view_projection,
@@ -929,7 +929,7 @@ fn push_single_skinned_mesh_gpu_command_from_matrix_with_frustum(
       0,
       0,
       0,
-      @gfx.blend_mode_from_int(1),
+      @gfx.BlendMode::from_int(1),
       packed_vertex_data,
       mesh.indices,
       model,
@@ -1043,7 +1043,7 @@ fn push_single_skinned_mesh_gpu_command_with_frustum(
       0,
       0,
       0,
-      @gfx.blend_mode_from_int(1),
+      @gfx.BlendMode::from_int(1),
       packed_vertex_data,
       mesh.indices,
       model,
@@ -1091,7 +1091,7 @@ fn has_identity_tint(color : @math3d.Vec4) -> Bool {
 }
 
 ///|
-let scene3d_alpha_blend_mode : @gfx.BlendMode = @gfx.blend_mode_from_int(1)
+let scene3d_alpha_blend_mode : @gfx.BlendMode = @gfx.BlendMode::from_int(1)
 
 ///|
 let scene3d_empty_src_image_ids : Array[Int] = []
@@ -1336,7 +1336,7 @@ pub fn render_instanced_gpu_with_view_projection(
     dst,
     shader3d_instanced,
     dst_region,
-    @gfx.blend_mode_from_int(1),
+    @gfx.BlendMode::from_int(1),
     mesh,
     view_projection,
     lighting,

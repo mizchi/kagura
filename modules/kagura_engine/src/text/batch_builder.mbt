@@ -207,7 +207,7 @@ pub impl TextBatchBuilder for SimpleTextBatchBuilder with build_draw_commands(
         0,
         self.pipeline_id,
         0,
-        @gfx.blend_mode_from_int(1),
+        @gfx.BlendMode::from_int(1),
         command_vertex_data,
         command_indices,
         src_image_ids,

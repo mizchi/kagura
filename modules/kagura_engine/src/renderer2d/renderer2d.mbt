@@ -17,7 +17,7 @@ pub fn RenderFrame2D::new(
   screen_h~ : Int,
   pipeline_id? : Int = 0,
   uniform_hash? : Int = 0,
-  blend? : @gfx.BlendMode = @gfx.blend_mode_from_int(1),
+  blend? : @gfx.BlendMode = @gfx.BlendMode::from_int(1),
 ) -> RenderFrame2D {
   { dst, shader, screen_w, screen_h, pipeline_id, uniform_hash, blend }
 }

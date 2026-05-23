@@ -6,55 +6,13 @@ import {
 }
 
 // Values
-pub fn blend_factor_from_int(Int) -> BlendFactor
-
-pub fn blend_factor_to_int(BlendFactor) -> Int
-
-pub fn blend_mode_from_int(Int) -> BlendMode
-
-pub fn blend_mode_to_equation(BlendMode) -> BlendEquation
-
-pub fn blend_mode_to_int(BlendMode) -> Int
-
-pub fn blend_operation_from_int(Int) -> BlendOperation
-
-pub fn blend_operation_to_int(BlendOperation) -> Int
-
 pub fn build_builtin_shader_source_ex(BuiltinShaderKeyEx) -> String
 
 pub fn[T : UniformCanonicalizer] build_canonical_uniforms(T, UniformLayout, Array[NamedUniform], PreservedUniformContext, ShaderIR) -> PackedUniforms raise
 
-pub fn build_draw_command_dispatch(DrawTrianglesCommand) -> DrawCommandDispatch
-
 pub fn build_resource_cache_key(Int, Array[Int]) -> Int
 
-pub fn builtin_address_from_int(Int) -> BuiltinShaderAddress
-
-pub fn builtin_address_to_int(BuiltinShaderAddress) -> Int
-
-pub fn builtin_filter_from_int(Int) -> BuiltinShaderFilter
-
-pub fn builtin_filter_to_int(BuiltinShaderFilter) -> Int
-
-pub fn builtin_key_to_ex(BuiltinShaderKey) -> BuiltinShaderKeyEx
-
-pub fn builtin_shader_cache_stats(BasicBuiltinShaderSourceRepo) -> BuiltinShaderCacheStats
-
-pub fn builtin_shader_source_cache_limit(BasicBuiltinShaderSourceRepo) -> Int
-
-pub fn builtin_shader_source_cache_size(BasicBuiltinShaderSourceRepo) -> Int
-
-pub fn[T : ShaderFrontend] calc_shader_source_hash(T, ShaderCompileRequest) -> ShaderSourceHash raise
-
-pub fn clear_builtin_shader_source_cache(BasicBuiltinShaderSourceRepo) -> Unit
-
 pub fn[T : GraphicsDriver] clear_screen(T, Color) -> Unit raise
-
-pub fn compare_framebuffer_snapshots(FramebufferSnapshot, FramebufferSnapshot, Int) -> PixelDiffResult
-
-pub fn[T : ShaderFrontend] compile_shader_ir(T, ShaderCompileRequest) -> ShaderIR raise
-
-pub fn compute_expected_preserved_dwords(PreservedUniformContext) -> Int
 
 pub fn create_framebuffer_snapshot(&GraphicsDriver, Int, Int, Int, Int) -> FramebufferSnapshot? raise
 
@@ -80,23 +38,11 @@ pub fn default_sampler_spec() -> SamplerSpec
 
 pub fn default_shader_entrypoints() -> ShaderEntrypoints
 
-pub fn dispatch_checksum(DrawCommandDispatch) -> Int
-
 pub fn double_to_f32_bits(Double) -> Int
-
-pub fn estimated_draw_call_count(DrawTrianglesCommand) -> Int
-
-pub fn estimated_total_index_count(DrawTrianglesCommand) -> Int
 
 pub fn f32_bits_to_double(Int) -> Double
 
-pub fn filter_mode_from_int(Int) -> FilterMode
-
-pub fn filter_mode_to_int(FilterMode) -> Int
-
 pub fn[T : GraphicsDriver, Q : CommandQueue] flush_commands(T, Q, Bool, clear_color? : Color) -> Unit raise
-
-pub fn graphics_resize_stats(StubGraphicsDriver) -> GraphicsResizeStats
 
 pub fn new_basic_builtin_shader_source_repo() -> BasicBuiltinShaderSourceRepo
 
@@ -130,8 +76,6 @@ pub fn new_web_graphics_hooks_full((GraphicsBackendKind, Int, Int) -> Bool, (Boo
 
 pub fn parse_kage_noperspective_directive(String) -> Bool
 
-pub fn pixel_diff_ratio(PixelDiffResult) -> Double
-
 pub fn reset_graphics_clock_provider() -> Unit
 
 pub fn reset_native_graphics_hooks() -> Unit
@@ -146,16 +90,6 @@ pub fn set_native_graphics_hooks(NativeGraphicsHooks) -> Unit
 
 pub fn set_web_graphics_hooks(WebGraphicsHooks) -> Unit
 
-pub fn shader_hash_eq(ShaderSourceHash, ShaderSourceHash) -> Bool
-
-pub fn shader_unit_eq(ShaderUnit, ShaderUnit) -> Bool
-
-pub fn validate_preserved_uniform_context(PreservedUniformContext) -> String?
-
-pub fn validate_shader_compile_request(ShaderCompileRequest) -> String?
-
-pub fn validate_uniform_layout(UniformLayout) -> String?
-
 // Errors
 
 // Types and methods
@@ -167,6 +101,10 @@ pub struct BasicBuiltinShaderSourceRepo {
   mut hit_count : Int
   mut miss_count : Int
 } derive(@debug.Debug)
+pub fn BasicBuiltinShaderSourceRepo::cache_limit(Self) -> Int
+pub fn BasicBuiltinShaderSourceRepo::cache_size(Self) -> Int
+pub fn BasicBuiltinShaderSourceRepo::cache_stats(Self) -> BuiltinShaderCacheStats
+pub fn BasicBuiltinShaderSourceRepo::clear_cache(Self) -> Unit
 pub impl BuiltinShaderSourceRepo for BasicBuiltinShaderSourceRepo
 
 pub struct BasicShaderFrontend {
@@ -199,6 +137,8 @@ pub(all) enum BlendFactor {
   DstColor
   OneMinusDstColor
 } derive(@debug.Debug)
+pub fn BlendFactor::from_int(Int) -> Self
+pub fn BlendFactor::to_int(Self) -> Int
 pub impl Show for BlendFactor
 
 pub(all) enum BlendMode {
@@ -208,6 +148,9 @@ pub(all) enum BlendMode {
   Multiply
   Custom(BlendEquation)
 } derive(@debug.Debug)
+pub fn BlendMode::from_int(Int) -> Self
+pub fn BlendMode::to_equation(Self) -> BlendEquation
+pub fn BlendMode::to_int(Self) -> Int
 pub impl Show for BlendMode
 
 pub(all) enum BlendOperation {
@@ -217,6 +160,8 @@ pub(all) enum BlendOperation {
   Min
   Max
 } derive(@debug.Debug)
+pub fn BlendOperation::from_int(Int) -> Self
+pub fn BlendOperation::to_int(Self) -> Int
 pub impl Show for BlendOperation
 
 pub(all) enum BuiltinShaderAddress {
@@ -226,6 +171,8 @@ pub(all) enum BuiltinShaderAddress {
   Repeat
   MirrorRepeat
 } derive(@debug.Debug)
+pub fn BuiltinShaderAddress::from_int(Int) -> Self
+pub fn BuiltinShaderAddress::to_int(Self) -> Int
 pub impl Show for BuiltinShaderAddress
 
 pub struct BuiltinShaderCacheStats {
@@ -239,6 +186,8 @@ pub(all) enum BuiltinShaderFilter {
   Linear
   Pixelated
 } derive(@debug.Debug)
+pub fn BuiltinShaderFilter::from_int(Int) -> Self
+pub fn BuiltinShaderFilter::to_int(Self) -> Int
 pub impl Show for BuiltinShaderFilter
 
 pub(all) struct BuiltinShaderKey {
@@ -246,6 +195,7 @@ pub(all) struct BuiltinShaderKey {
   address : BuiltinShaderAddress
   use_color_m : Bool
 } derive(@debug.Debug)
+pub fn BuiltinShaderKey::to_ex(Self) -> BuiltinShaderKeyEx
 pub impl Show for BuiltinShaderKey
 
 pub(all) struct BuiltinShaderKeyEx {
@@ -281,6 +231,7 @@ pub(all) struct DrawCommandDispatch {
   src_image_count : Int
   uniform_dword_count : Int
 } derive(@debug.Debug)
+pub fn DrawCommandDispatch::checksum(Self) -> Int
 pub impl Show for DrawCommandDispatch
 
 pub(all) struct DrawTrianglesCommand {
@@ -299,6 +250,9 @@ pub(all) struct DrawTrianglesCommand {
   resource_cache_key : Int
   vertex_stride_hint : Int
 } derive(@debug.Debug)
+pub fn DrawTrianglesCommand::build_dispatch(Self) -> DrawCommandDispatch
+pub fn DrawTrianglesCommand::estimated_draw_call_count(Self) -> Int
+pub fn DrawTrianglesCommand::estimated_total_index_count(Self) -> Int
 
 pub(all) struct DstRegion {
   x : Int
@@ -314,6 +268,8 @@ pub(all) enum FilterMode {
   Linear
   Pixelated
 } derive(@debug.Debug)
+pub fn FilterMode::from_int(Int) -> Self
+pub fn FilterMode::to_int(Self) -> Int
 pub impl Show for FilterMode
 
 pub(all) struct FloatRect {
@@ -331,6 +287,8 @@ pub struct FramebufferSnapshot {
   height : Int
   pixels : Array[Int]
 } derive(@debug.Debug)
+pub fn FramebufferSnapshot::compare_with(Self, Self, Int) -> PixelDiffResult
+pub fn FramebufferSnapshot::from_pixels(Int, Int, Int, Int, Array[Int]) -> Self
 pub impl Show for FramebufferSnapshot
 
 pub(all) enum GraphicsBackendKind {
@@ -402,6 +360,7 @@ pub struct PixelDiffResult {
   diff_pixels : Int
   max_channel_diff : Int
 } derive(@debug.Debug)
+pub fn PixelDiffResult::diff_ratio(Self) -> Double
 pub impl Show for PixelDiffResult
 
 pub(all) struct PreservedUniformContext {
@@ -410,6 +369,8 @@ pub(all) struct PreservedUniformContext {
   src_texture_sizes : Array[IntSize]
   src_regions : Array[FloatRect]
 } derive(@debug.Debug)
+pub fn PreservedUniformContext::expected_dwords(Self) -> Int
+pub fn PreservedUniformContext::validate(Self) -> String?
 pub impl Show for PreservedUniformContext
 
 pub(all) struct RenderPassDesc {
@@ -433,6 +394,7 @@ pub(all) struct ShaderCompileRequest {
   entrypoints : ShaderEntrypoints
   debug_name : String
 } derive(@debug.Debug)
+pub fn ShaderCompileRequest::validate(Self) -> String?
 pub impl Show for ShaderCompileRequest
 
 pub(all) struct ShaderEntrypoints {
@@ -461,12 +423,14 @@ pub impl Show for ShaderIR
 pub(all) struct ShaderSourceHash {
   value : String
 } derive(@debug.Debug)
+pub fn ShaderSourceHash::eq(Self, Self) -> Bool
 pub impl Show for ShaderSourceHash
 
 pub(all) enum ShaderUnit {
   Pixels
   Texels
 } derive(@debug.Debug)
+pub fn ShaderUnit::eq(Self, Self) -> Bool
 pub impl Show for ShaderUnit
 
 pub struct SimpleCommandQueue {
@@ -494,6 +458,7 @@ pub struct StubGraphicsDriver {
   mut last_resize_duration_ms : Double
   mut total_resize_duration_ms : Double
 } derive(@debug.Debug)
+pub fn StubGraphicsDriver::resize_stats(Self) -> GraphicsResizeStats
 pub impl GraphicsDriver for StubGraphicsDriver
 
 pub(all) enum SurfaceKind {
@@ -518,6 +483,7 @@ pub(all) struct UniformLayout {
   dword_counts : Array[Int]
   preserved_prefix_dwords : Int
 } derive(@debug.Debug)
+pub fn UniformLayout::validate(Self) -> String?
 pub impl Show for UniformLayout
 
 pub(all) enum UniformValue {

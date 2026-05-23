@@ -688,7 +688,7 @@ test "estimated_draw_call_count uses region index_count as triangle budget" {
     vertex_stride_hint: 0,
   }
 
-  assert_eq(estimated_draw_call_count(command), 6)
+  assert_eq(DrawTrianglesCommand::estimated_draw_call_count(command), 6)
 }
 
 ///|
@@ -710,35 +710,35 @@ test "estimated_draw_call_count is zero for empty regions" {
     vertex_stride_hint: 0,
   }
 
-  assert_eq(estimated_draw_call_count(command), 0)
+  assert_eq(DrawTrianglesCommand::estimated_draw_call_count(command), 0)
 }
 
 ///|
 test "blend mode int conversion roundtrip" {
-  assert_eq(blend_mode_to_int(BlendMode::Copy), 0)
-  assert_eq(blend_mode_to_int(BlendMode::Alpha), 1)
-  assert_eq(blend_mode_to_int(BlendMode::Add), 2)
-  assert_eq(blend_mode_to_int(BlendMode::Multiply), 3)
+  assert_eq(BlendMode::to_int(BlendMode::Copy), 0)
+  assert_eq(BlendMode::to_int(BlendMode::Alpha), 1)
+  assert_eq(BlendMode::to_int(BlendMode::Add), 2)
+  assert_eq(BlendMode::to_int(BlendMode::Multiply), 3)
 
-  assert_eq(blend_mode_to_int(blend_mode_from_int(0)), 0)
-  assert_eq(blend_mode_to_int(blend_mode_from_int(1)), 1)
-  assert_eq(blend_mode_to_int(blend_mode_from_int(2)), 2)
-  assert_eq(blend_mode_to_int(blend_mode_from_int(3)), 3)
-  assert_eq(blend_mode_to_int(blend_mode_from_int(-1)), 1)
-  assert_eq(blend_mode_to_int(blend_mode_from_int(99)), 1)
+  assert_eq(BlendMode::to_int(BlendMode::from_int(0)), 0)
+  assert_eq(BlendMode::to_int(BlendMode::from_int(1)), 1)
+  assert_eq(BlendMode::to_int(BlendMode::from_int(2)), 2)
+  assert_eq(BlendMode::to_int(BlendMode::from_int(3)), 3)
+  assert_eq(BlendMode::to_int(BlendMode::from_int(-1)), 1)
+  assert_eq(BlendMode::to_int(BlendMode::from_int(99)), 1)
 }
 
 ///|
 test "filter mode int conversion roundtrip" {
-  assert_eq(filter_mode_to_int(FilterMode::Nearest), 0)
-  assert_eq(filter_mode_to_int(FilterMode::Linear), 1)
-  assert_eq(filter_mode_to_int(FilterMode::Pixelated), 2)
+  assert_eq(FilterMode::to_int(FilterMode::Nearest), 0)
+  assert_eq(FilterMode::to_int(FilterMode::Linear), 1)
+  assert_eq(FilterMode::to_int(FilterMode::Pixelated), 2)
 
-  assert_eq(filter_mode_to_int(filter_mode_from_int(0)), 0)
-  assert_eq(filter_mode_to_int(filter_mode_from_int(1)), 1)
-  assert_eq(filter_mode_to_int(filter_mode_from_int(2)), 2)
-  assert_eq(filter_mode_to_int(filter_mode_from_int(-1)), 0)
-  assert_eq(filter_mode_to_int(filter_mode_from_int(99)), 0)
+  assert_eq(FilterMode::to_int(FilterMode::from_int(0)), 0)
+  assert_eq(FilterMode::to_int(FilterMode::from_int(1)), 1)
+  assert_eq(FilterMode::to_int(FilterMode::from_int(2)), 2)
+  assert_eq(FilterMode::to_int(FilterMode::from_int(-1)), 0)
+  assert_eq(FilterMode::to_int(FilterMode::from_int(99)), 0)
 }
 
 ///|
@@ -766,7 +766,7 @@ test "draw command dispatch captures backend boundary payload" {
     vertex_stride_hint: 0,
   }
 
-  let dispatch = build_draw_command_dispatch(command)
+  let dispatch = DrawTrianglesCommand::build_dispatch(command)
   assert_eq(dispatch.draw_calls, 3)
   assert_eq(dispatch.pipeline_id, 7)
   assert_eq(dispatch.uniform_hash, 11)
@@ -804,7 +804,7 @@ test "draw command dispatch falls back index count to region totals" {
     vertex_stride_hint: 0,
   }
 
-  let dispatch = build_draw_command_dispatch(command)
+  let dispatch = DrawTrianglesCommand::build_dispatch(command)
   assert_eq(dispatch.total_index_count, 9)
   assert_eq(dispatch.index_count, 9)
   assert_eq(dispatch.vertex_float_count, 0)
@@ -827,12 +827,12 @@ test "blend factor int conversion roundtrip" {
     BlendFactor::OneMinusDstColor,
   ]
   for factor in factors {
-    let i = blend_factor_to_int(factor)
-    let rt = blend_factor_from_int(i)
-    assert_eq(blend_factor_to_int(rt), i)
+    let i = BlendFactor::to_int(factor)
+    let rt = BlendFactor::from_int(i)
+    assert_eq(BlendFactor::to_int(rt), i)
   }
   // Invalid defaults to One
-  assert_eq(blend_factor_to_int(blend_factor_from_int(99)), 1)
+  assert_eq(BlendFactor::to_int(BlendFactor::from_int(99)), 1)
 }
 
 ///|
@@ -845,67 +845,67 @@ test "blend operation int conversion roundtrip" {
     BlendOperation::Max,
   ]
   for op in ops {
-    let i = blend_operation_to_int(op)
-    let rt = blend_operation_from_int(i)
-    assert_eq(blend_operation_to_int(rt), i)
+    let i = BlendOperation::to_int(op)
+    let rt = BlendOperation::from_int(i)
+    assert_eq(BlendOperation::to_int(rt), i)
   }
   // Invalid defaults to Add
-  assert_eq(blend_operation_to_int(blend_operation_from_int(99)), 0)
+  assert_eq(BlendOperation::to_int(BlendOperation::from_int(99)), 0)
 }
 
 ///|
 test "blend_mode_to_equation preset Copy" {
-  let eq = blend_mode_to_equation(BlendMode::Copy)
+  let eq = BlendMode::to_equation(BlendMode::Copy)
   assert_eq(
-    blend_factor_to_int(eq.src_factor_rgb),
-    blend_factor_to_int(BlendFactor::One),
+    BlendFactor::to_int(eq.src_factor_rgb),
+    BlendFactor::to_int(BlendFactor::One),
   )
   assert_eq(
-    blend_factor_to_int(eq.dst_factor_rgb),
-    blend_factor_to_int(BlendFactor::Zero),
+    BlendFactor::to_int(eq.dst_factor_rgb),
+    BlendFactor::to_int(BlendFactor::Zero),
   )
   assert_eq(
-    blend_operation_to_int(eq.op_rgb),
-    blend_operation_to_int(BlendOperation::Add),
+    BlendOperation::to_int(eq.op_rgb),
+    BlendOperation::to_int(BlendOperation::Add),
   )
 }
 
 ///|
 test "blend_mode_to_equation preset Alpha" {
-  let eq = blend_mode_to_equation(BlendMode::Alpha)
+  let eq = BlendMode::to_equation(BlendMode::Alpha)
   assert_eq(
-    blend_factor_to_int(eq.src_factor_rgb),
-    blend_factor_to_int(BlendFactor::SrcAlpha),
+    BlendFactor::to_int(eq.src_factor_rgb),
+    BlendFactor::to_int(BlendFactor::SrcAlpha),
   )
   assert_eq(
-    blend_factor_to_int(eq.dst_factor_rgb),
-    blend_factor_to_int(BlendFactor::OneMinusSrcAlpha),
+    BlendFactor::to_int(eq.dst_factor_rgb),
+    BlendFactor::to_int(BlendFactor::OneMinusSrcAlpha),
   )
 }
 
 ///|
 test "blend_mode_to_equation preset Add" {
-  let eq = blend_mode_to_equation(BlendMode::Add)
+  let eq = BlendMode::to_equation(BlendMode::Add)
   assert_eq(
-    blend_factor_to_int(eq.src_factor_rgb),
-    blend_factor_to_int(BlendFactor::SrcAlpha),
+    BlendFactor::to_int(eq.src_factor_rgb),
+    BlendFactor::to_int(BlendFactor::SrcAlpha),
   )
   assert_eq(
-    blend_factor_to_int(eq.dst_factor_rgb),
-    blend_factor_to_int(BlendFactor::One),
+    BlendFactor::to_int(eq.dst_factor_rgb),
+    BlendFactor::to_int(BlendFactor::One),
   )
 }
 
 ///|
 test "blend_mode_to_equation preset Multiply" {
-  let eq = blend_mode_to_equation(BlendMode::Multiply)
+  let eq = BlendMode::to_equation(BlendMode::Multiply)
   assert_eq(
-    blend_factor_to_int(eq.src_factor_rgb),
-    blend_factor_to_int(BlendFactor::DstColor),
+    BlendFactor::to_int(eq.src_factor_rgb),
+    BlendFactor::to_int(BlendFactor::DstColor),
   )
   assert_eq(
-    blend_factor_to_int(eq.dst_factor_rgb),
-    blend_factor_to_int(BlendFactor::Zero),
+    BlendFactor::to_int(eq.dst_factor_rgb),
+    BlendFactor::to_int(BlendFactor::Zero),
   )
 }
 
@@ -951,7 +951,7 @@ test "Custom blend mode to_int returns 4" {
     dst_factor_alpha: BlendFactor::Zero,
     op_alpha: BlendOperation::Add,
   }
-  assert_eq(blend_mode_to_int(BlendMode::Custom(eq)), 4)
+  assert_eq(BlendMode::to_int(BlendMode::Custom(eq)), 4)
 }
 
 ///|
@@ -965,7 +965,7 @@ test "Custom blend mode to_equation roundtrip" {
     op_alpha: BlendOperation::Max,
   }
   let mode = BlendMode::Custom(eq)
-  let eq_out = blend_mode_to_equation(mode)
+  let eq_out = BlendMode::to_equation(mode)
   assert_true(blend_equation_eq(eq, eq_out))
 }
 
@@ -1023,7 +1023,7 @@ test "null graphics backend constructors are available" {
 test "graphics_resize_stats tracks resize and suppressed counts" {
   let driver = create_null_graphics(640, 480)
   driver.initialize()
-  let stats0 = graphics_resize_stats(driver)
+  let stats0 = StubGraphicsDriver::resize_stats(driver)
   assert_eq(stats0.resize_count, 0)
   assert_eq(stats0.suppressed_count, 0)
   assert_eq(stats0.current_width, 640)
@@ -1031,7 +1031,7 @@ test "graphics_resize_stats tracks resize and suppressed counts" {
 
   // Actual resize
   driver.resize(800, 600)
-  let stats1 = graphics_resize_stats(driver)
+  let stats1 = StubGraphicsDriver::resize_stats(driver)
   assert_eq(stats1.resize_count, 1)
   assert_eq(stats1.suppressed_count, 0)
   assert_eq(stats1.current_width, 800)
@@ -1039,13 +1039,13 @@ test "graphics_resize_stats tracks resize and suppressed counts" {
 
   // Suppressed (same dimensions)
   driver.resize(800, 600)
-  let stats2 = graphics_resize_stats(driver)
+  let stats2 = StubGraphicsDriver::resize_stats(driver)
   assert_eq(stats2.resize_count, 1)
   assert_eq(stats2.suppressed_count, 1)
 
   // Another actual resize
   driver.resize(1024, 768)
-  let stats3 = graphics_resize_stats(driver)
+  let stats3 = StubGraphicsDriver::resize_stats(driver)
   assert_eq(stats3.resize_count, 2)
   assert_eq(stats3.suppressed_count, 1)
   assert_eq(stats3.current_width, 1024)
@@ -1066,7 +1066,7 @@ test "graphics_resize_stats multiple suppressions" {
   driver.resize(640, 480)
   driver.resize(640, 480)
 
-  let stats = graphics_resize_stats(driver)
+  let stats = StubGraphicsDriver::resize_stats(driver)
   assert_eq(stats.resize_count, 1)
   assert_eq(stats.suppressed_count, 5)
 }
@@ -1078,14 +1078,14 @@ test "graphics_resize_stats zero and negative dimensions normalize" {
 
   // Resize to 0x0 → normalized to 1x1
   driver.resize(0, 0)
-  let stats1 = graphics_resize_stats(driver)
+  let stats1 = StubGraphicsDriver::resize_stats(driver)
   assert_eq(stats1.resize_count, 1)
   assert_eq(stats1.current_width, 1)
   assert_eq(stats1.current_height, 1)
 
   // Resize with negative → still 1x1, suppressed
   driver.resize(-10, -20)
-  let stats2 = graphics_resize_stats(driver)
+  let stats2 = StubGraphicsDriver::resize_stats(driver)
   assert_eq(stats2.resize_count, 1)
   assert_eq(stats2.suppressed_count, 1)
   assert_eq(stats2.current_width, 1)
@@ -1209,14 +1209,14 @@ test "graphics_resize_stats initial state is zero" {
   let surface = create_offscreen_surface_token(320, 240)
   let options = default_graphics_backend_options()
   let native_driver = create_wgpu_native_graphics(surface, options)
-  let native_stats = graphics_resize_stats(native_driver)
+  let native_stats = StubGraphicsDriver::resize_stats(native_driver)
   assert_eq(native_stats.resize_count, 0)
   assert_eq(native_stats.suppressed_count, 0)
   assert_eq(native_stats.last_resize_duration_ms, 0.0)
   assert_eq(native_stats.total_resize_duration_ms, 0.0)
 
   let web_driver = create_webgpu_graphics(surface, options)
-  let web_stats = graphics_resize_stats(web_driver)
+  let web_stats = StubGraphicsDriver::resize_stats(web_driver)
   assert_eq(web_stats.resize_count, 0)
   assert_eq(web_stats.suppressed_count, 0)
   assert_eq(web_stats.last_resize_duration_ms, 0.0)
@@ -1400,7 +1400,7 @@ test "graphics_resize_stats measures resize duration with clock provider" {
     }
   })
   driver.resize(800, 600)
-  let stats1 = graphics_resize_stats(driver)
+  let stats1 = StubGraphicsDriver::resize_stats(driver)
   assert_eq(stats1.last_resize_duration_ms, 2.5)
   assert_eq(stats1.total_resize_duration_ms, 2.5)
 
@@ -1415,7 +1415,7 @@ test "graphics_resize_stats measures resize duration with clock provider" {
     }
   })
   driver.resize(1024, 768)
-  let stats2 = graphics_resize_stats(driver)
+  let stats2 = StubGraphicsDriver::resize_stats(driver)
   assert_eq(stats2.last_resize_duration_ms, 1.0)
   assert_eq(stats2.total_resize_duration_ms, 3.5)
 
@@ -1438,13 +1438,13 @@ test "graphics_resize_stats suppressed resize does not affect timing" {
 
   // Actual resize
   driver.resize(800, 600)
-  let stats1 = graphics_resize_stats(driver)
+  let stats1 = StubGraphicsDriver::resize_stats(driver)
   assert_eq(stats1.last_resize_duration_ms, 5.0)
   assert_eq(stats1.total_resize_duration_ms, 5.0)
 
   // Suppressed resize: timing should not change
   driver.resize(800, 600)
-  let stats2 = graphics_resize_stats(driver)
+  let stats2 = StubGraphicsDriver::resize_stats(driver)
   assert_eq(stats2.last_resize_duration_ms, 5.0)
   assert_eq(stats2.total_resize_duration_ms, 5.0)
   assert_eq(stats2.suppressed_count, 1)
@@ -1458,7 +1458,7 @@ test "graphics_resize_stats default clock returns zero duration" {
   let driver = create_null_graphics(100, 100)
   driver.initialize()
   driver.resize(200, 200)
-  let stats = graphics_resize_stats(driver)
+  let stats = StubGraphicsDriver::resize_stats(driver)
   assert_eq(stats.last_resize_duration_ms, 0.0)
   assert_eq(stats.total_resize_duration_ms, 0.0)
 }
@@ -1517,7 +1517,7 @@ test "compare_framebuffer_snapshots identical pixels" {
     height: 1,
     pixels: [255, 0, 0, 255, 0, 255, 0, 255],
   }
-  let result = compare_framebuffer_snapshots(a, b, 0)
+  let result = FramebufferSnapshot::compare_with(a, b, 0)
   assert_eq(result.diff_pixels, 0)
   assert_eq(result.max_channel_diff, 0)
   assert_eq(result.total_pixels, 2)
@@ -1540,7 +1540,7 @@ test "compare_framebuffer_snapshots with threshold" {
     pixels: [102, 100, 100, 255, 220, 200, 200, 255],
   }
   // threshold=5: first pixel diff=2 (within), second pixel diff=20 (exceeds)
-  let result = compare_framebuffer_snapshots(a, b, 5)
+  let result = FramebufferSnapshot::compare_with(a, b, 5)
   assert_eq(result.diff_pixels, 1)
   assert_eq(result.max_channel_diff, 20)
   assert_eq(result.total_pixels, 2)
@@ -1564,7 +1564,7 @@ test "compare_framebuffer_snapshots mismatched dimensions" {
       0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
     ],
   }
-  let result = compare_framebuffer_snapshots(a, b, 0)
+  let result = FramebufferSnapshot::compare_with(a, b, 0)
   assert_eq(result.diff_pixels, 4)
   assert_eq(result.max_channel_diff, 255)
 }
@@ -1628,13 +1628,13 @@ test "pixel_diff_ratio calculates correctly" {
     diff_pixels: 25,
     max_channel_diff: 10,
   }
-  assert_true(pixel_diff_ratio(result) > 0.24)
-  assert_true(pixel_diff_ratio(result) < 0.26)
+  assert_true(PixelDiffResult::diff_ratio(result) > 0.24)
+  assert_true(PixelDiffResult::diff_ratio(result) < 0.26)
 
   let empty : PixelDiffResult = {
     total_pixels: 0,
     diff_pixels: 0,
     max_channel_diff: 0,
   }
-  assert_eq(pixel_diff_ratio(empty), 0.0)
+  assert_eq(PixelDiffResult::diff_ratio(empty), 0.0)
 }

@@ -73,6 +73,6 @@ pub fn new_fxaa_command(
     shader,
     [src_image_id],
     fxaa_uniform_dwords(texel_w, texel_h),
-    @gfx.blend_mode_from_int(0),
+    @gfx.BlendMode::from_int(0),
   )
 }

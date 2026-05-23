@@ -2327,7 +2327,7 @@ fn new_test_payload_draw_command() -> @gfx.DrawTrianglesCommand {
     4,
     7,
     11,
-    @gfx.blend_mode_from_int(2),
+    @gfx.BlendMode::from_int(2),
     [-0.8, 0.7, 0.0, 0.0, -0.2, -0.6, 1.0, 0.0, 0.9, -0.3, 1.0, 1.0],
     [0, 1, 2],
     [5],
@@ -2736,7 +2736,7 @@ fn bridge_web_gfx_on_draw(
       let ic = command.indices.length()
       let u_count = command.uniform_dwords.length()
       let src_count = command.src_image_ids.length()
-      let blend = @gfx.blend_mode_to_int(command.blend)
+      let blend = @gfx.BlendMode::to_int(command.blend)
       js_gfx_custom_draw_begin(
         command.shader.id,
         command.shader.source,

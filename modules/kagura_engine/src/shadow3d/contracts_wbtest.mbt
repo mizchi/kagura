@@ -363,7 +363,7 @@ test "new_shadow_lit_mesh_draw_command creates valid command" {
   let dst = @gfx.new_image_handle(1, 800, 600)
   let shader = @gfx.new_shader_handle(1, "shadow_lit")
   let dst_region = @gfx.new_dst_region(0, 0, 800, 600, 36)
-  let blend = @gfx.blend_mode_from_int(0)
+  let blend = @gfx.BlendMode::from_int(0)
   let cmd = new_shadow_lit_mesh_draw_command(
     dst, shader, dst_region, 0, 0, 0, blend, mesh, model, vp, lighting, light_vp,
     config, 10, 20,

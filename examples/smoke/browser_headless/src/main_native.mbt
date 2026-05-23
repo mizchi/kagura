@@ -198,7 +198,7 @@ fn make_cmd(
     0,
     0,
     0,
-    @gfx.blend_mode_from_int(1),
+    @gfx.BlendMode::from_int(1),
     vertices,
     indices,
     [],

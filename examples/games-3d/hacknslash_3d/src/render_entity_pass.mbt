@@ -323,7 +323,7 @@ fn push_entity_instances_if_any(
         0,
         0,
         0,
-        @gfx.blend_mode_from_int(1),
+        @gfx.BlendMode::from_int(1),
         mesh,
         inst.transform.to_mat4(),
         view_projection,
@@ -371,7 +371,7 @@ fn push_item_instance_cmds(
           0,
           0,
           0,
-          @gfx.blend_mode_from_int(1),
+          @gfx.BlendMode::from_int(1),
           state.meshes.item,
           inst.transform.to_mat4(),
           view_projection,
@@ -450,7 +450,7 @@ fn push_fireball_instance_cmds(
           0,
           0,
           0,
-          @gfx.blend_mode_from_int(1),
+          @gfx.BlendMode::from_int(1),
           state.meshes.projectile,
           inst.transform.to_mat4(),
           view_projection,
@@ -529,7 +529,7 @@ fn push_homing_missile_instance_cmds(
           0,
           0,
           0,
-          @gfx.blend_mode_from_int(1),
+          @gfx.BlendMode::from_int(1),
           state.meshes.projectile,
           inst.transform.to_mat4(),
           view_projection,
@@ -586,7 +586,7 @@ fn push_loot_beam_instance_cmds(
         0,
         0,
         0,
-        @gfx.blend_mode_from_int(1), // additive blend
+        @gfx.BlendMode::from_int(1), // additive blend
         state.meshes.loot_beam,
         inst.transform.to_mat4(),
         view_projection,
@@ -629,7 +629,7 @@ fn push_entity_instanced_cmds(
           0,
           0,
           0,
-          @gfx.blend_mode_from_int(1), // alpha blend
+          @gfx.BlendMode::from_int(1), // alpha blend
           state.meshes.telegraph_disc,
           inst.transform.to_mat4(),
           view_projection,

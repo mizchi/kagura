@@ -350,7 +350,7 @@ fn bridge_gfx_on_draw(
   command : @gfx.DrawTrianglesCommand,
 ) -> Unit {
   if active {
-    let dispatch = @gfx.build_draw_command_dispatch(command)
+    let dispatch = @gfx.DrawTrianglesCommand::build_dispatch(command)
     // Split draw command into individual triangles (3 indices each).
     // IMPORTANT: Set payload BEFORE pushing command, because
     // runtime_record_draw_command captures the current payload state

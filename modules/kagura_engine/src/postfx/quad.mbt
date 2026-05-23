@@ -53,7 +53,7 @@ fn fullscreen_quad_resource_cache_key(
     dst.width,
     dst.height,
     shader.id,
-    @gfx.blend_mode_to_int(blend),
+    @gfx.BlendMode::to_int(blend),
     src_image_ids.length(),
     uniform_dwords.length(),
   ]

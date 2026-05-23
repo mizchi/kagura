@@ -1004,7 +1004,7 @@ fn make_draw_cmd_alpha(
     0,
     0,
     0,
-    @gfx.blend_mode_from_int(1),
+    @gfx.BlendMode::from_int(1),
     vertices,
     indices,
     [],

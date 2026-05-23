@@ -138,7 +138,7 @@ fn GameState::push_dungeon_chunk_commands(
       }
       for group in visible_groups {
         let tinted = tinted_cache[dungeon_surface_index(group.surface_kind)]
-        let blend = @gfx.blend_mode_from_int(0)
+        let blend = @gfx.BlendMode::from_int(0)
         match self.dungeon_diffuse_image_id(group.surface_kind) {
           Some(diffuse_image_id) =>
             cmds.push(
@@ -186,7 +186,7 @@ fn GameState::push_dungeon_chunk_commands(
     None =>
       for group in visible_groups {
         let tinted = tinted_cache[dungeon_surface_index(group.surface_kind)]
-        let blend = @gfx.blend_mode_from_int(0)
+        let blend = @gfx.BlendMode::from_int(0)
         match self.dungeon_diffuse_image_id(group.surface_kind) {
           Some(diffuse_image_id) =>
             cmds.push(

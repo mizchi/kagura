@@ -207,7 +207,7 @@ pub fn new_shadow_depth_command(
     0,
     0,
     0,
-    @gfx.blend_mode_from_int(0),
+    @gfx.BlendMode::from_int(0),
     mesh.vertex_data,
     mesh.indices,
     [],

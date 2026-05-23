@@ -158,7 +158,7 @@ fn DemoState::draw(
         0,
         200,
         self.time.to_int(),
-        @gfx.blend_mode_from_int(2), // Add
+        @gfx.BlendMode::from_int(2), // Add
         vertex_data,
         indices,
         vp,

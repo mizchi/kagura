@@ -289,16 +289,18 @@ pub impl GraphicsDriver for StubGraphicsDriver with fn resize(
 }
 
 ///|
-pub fn graphics_resize_stats(
-  driver : StubGraphicsDriver,
+/// Snapshot of resize counters and the latest resize duration. Useful
+/// for diagnosing flaps where the host requests many no-op resizes.
+pub fn StubGraphicsDriver::resize_stats(
+  self : StubGraphicsDriver,
 ) -> GraphicsResizeStats {
   {
-    resize_count: driver.resize_count,
-    suppressed_count: driver.resize_suppressed_count,
-    current_width: driver.width,
-    current_height: driver.height,
-    last_resize_duration_ms: driver.last_resize_duration_ms,
-    total_resize_duration_ms: driver.total_resize_duration_ms,
+    resize_count: self.resize_count,
+    suppressed_count: self.resize_suppressed_count,
+    current_width: self.width,
+    current_height: self.height,
+    last_resize_duration_ms: self.last_resize_duration_ms,
+    total_resize_duration_ms: self.total_resize_duration_ms,
   }
 }
 

@@ -240,14 +240,14 @@ pub impl Show for BuiltinShaderKeyEx with fn output(self, logger) {
 
 ///|
 /// Convert a classic BuiltinShaderKey to extended form.
-pub fn builtin_key_to_ex(key : BuiltinShaderKey) -> BuiltinShaderKeyEx {
+pub fn BuiltinShaderKey::to_ex(self : BuiltinShaderKey) -> BuiltinShaderKeyEx {
   {
     sampler: {
-      filter: key.filter,
-      address_u: key.address,
-      address_v: key.address,
+      filter: self.filter,
+      address_u: self.address,
+      address_v: self.address,
     },
-    use_color_m: key.use_color_m,
+    use_color_m: self.use_color_m,
   }
 }
 
@@ -322,22 +322,10 @@ pub(open) trait BuiltinShaderSourceRepo {
 }
 
 ///|
-pub fn[T : ShaderFrontend] compile_shader_ir(
-  frontend : T,
-  request : ShaderCompileRequest,
-) -> ShaderIR raise {
-  frontend.compile_ir(request)
-}
-
-///|
-pub fn[T : ShaderFrontend] calc_shader_source_hash(
-  frontend : T,
-  request : ShaderCompileRequest,
-) -> ShaderSourceHash raise {
-  frontend.calc_source_hash(request)
-}
-
-///|
+/// Compose `append_user_uniforms` + `prepend_preserved_uniforms` +
+/// `filter_unused_uniforms` and normalize the result to the layout
+/// length. Most callers want this rather than the trait methods
+/// individually.
 pub fn[T : UniformCanonicalizer] build_canonical_uniforms(
   canonicalizer : T,
   layout : UniformLayout,
@@ -393,29 +381,27 @@ pub struct BasicBuiltinShaderSourceRepo {
 } derive(Debug)
 
 ///|
-/// Validate a shader compile request before compilation.
+/// Sanity-check the request before handing it to a `ShaderFrontend`.
 /// Returns None if valid, Some(error_message) if invalid.
-pub fn validate_shader_compile_request(
-  request : ShaderCompileRequest,
-) -> String? {
-  if request.source.length() == 0 {
+pub fn ShaderCompileRequest::validate(self : ShaderCompileRequest) -> String? {
+  if self.source.length() == 0 {
     return Some("shader source must not be empty")
   }
-  if request.entrypoints.vertex.length() == 0 {
+  if self.entrypoints.vertex.length() == 0 {
     return Some("vertex entrypoint must not be empty")
   }
-  if request.entrypoints.fragment.length() == 0 {
+  if self.entrypoints.fragment.length() == 0 {
     return Some("fragment entrypoint must not be empty")
   }
-  if request.src_image_count < 0 {
+  if self.src_image_count < 0 {
     return Some("src_image_count must not be negative")
   }
   None
 }
 
 ///|
-pub fn shader_unit_eq(lhs : ShaderUnit, rhs : ShaderUnit) -> Bool {
-  match lhs {
+pub fn ShaderUnit::eq(self : ShaderUnit, rhs : ShaderUnit) -> Bool {
+  match self {
     ShaderUnit::Pixels =>
       match rhs {
         ShaderUnit::Pixels => true
@@ -430,8 +416,11 @@ pub fn shader_unit_eq(lhs : ShaderUnit, rhs : ShaderUnit) -> Bool {
 }
 
 ///|
-pub fn shader_hash_eq(lhs : ShaderSourceHash, rhs : ShaderSourceHash) -> Bool {
-  lhs.value == rhs.value
+pub fn ShaderSourceHash::eq(
+  self : ShaderSourceHash,
+  rhs : ShaderSourceHash,
+) -> Bool {
+  self.value == rhs.value
 }
 
 ///|
@@ -457,94 +446,94 @@ pub fn new_basic_builtin_shader_source_repo() -> BasicBuiltinShaderSourceRepo {
 }
 
 ///|
-pub fn builtin_shader_source_cache_size(
-  repo : BasicBuiltinShaderSourceRepo,
+pub fn BasicBuiltinShaderSourceRepo::cache_size(
+  self : BasicBuiltinShaderSourceRepo,
 ) -> Int {
-  repo.cache.length() + repo.cache_ex.length()
+  self.cache.length() + self.cache_ex.length()
 }
 
 ///|
-pub fn builtin_shader_source_cache_limit(
-  repo : BasicBuiltinShaderSourceRepo,
+pub fn BasicBuiltinShaderSourceRepo::cache_limit(
+  self : BasicBuiltinShaderSourceRepo,
 ) -> Int {
-  repo.max_cache_entries
+  self.max_cache_entries
 }
 
 ///|
-pub fn clear_builtin_shader_source_cache(
-  repo : BasicBuiltinShaderSourceRepo,
+pub fn BasicBuiltinShaderSourceRepo::clear_cache(
+  self : BasicBuiltinShaderSourceRepo,
 ) -> Unit {
-  repo.cache = []
-  repo.cache_ex = []
-  repo.hit_count = 0
-  repo.miss_count = 0
+  self.cache = []
+  self.cache_ex = []
+  self.hit_count = 0
+  self.miss_count = 0
 }
 
 ///|
-pub fn builtin_shader_cache_stats(
-  repo : BasicBuiltinShaderSourceRepo,
+pub fn BasicBuiltinShaderSourceRepo::cache_stats(
+  self : BasicBuiltinShaderSourceRepo,
 ) -> BuiltinShaderCacheStats {
-  { hit_count: repo.hit_count, miss_count: repo.miss_count }
+  { hit_count: self.hit_count, miss_count: self.miss_count }
 }
 
 ///|
-/// Validate a uniform layout for common errors.
-/// Returns None if valid, Some(error_message) if invalid.
-pub fn validate_uniform_layout(layout : UniformLayout) -> String? {
-  if layout.names.length() != layout.dword_counts.length() {
+/// Sanity-check a uniform layout for common errors. Returns None if
+/// valid, Some(error_message) if invalid.
+pub fn UniformLayout::validate(self : UniformLayout) -> String? {
+  if self.names.length() != self.dword_counts.length() {
     return Some(
-      "names length (\{layout.names.length()}) must match dword_counts length (\{layout.dword_counts.length()})",
+      "names length (\{self.names.length()}) must match dword_counts length (\{self.dword_counts.length()})",
     )
   }
-  for i in 0..<layout.names.length() {
-    if layout.dword_counts[i] < 0 {
+  for i in 0..<self.names.length() {
+    if self.dword_counts[i] < 0 {
       return Some(
-        "dword_counts[\{i}] must not be negative (got \{layout.dword_counts[i]})",
+        "dword_counts[\{i}] must not be negative (got \{self.dword_counts[i]})",
       )
     }
-    for j in (i + 1)..<layout.names.length() {
-      if layout.names[i] == layout.names[j] {
+    for j in (i + 1)..<self.names.length() {
+      if self.names[i] == self.names[j] {
         return Some(
-          "duplicate uniform name '\{layout.names[i]}' at indices \{i} and \{j}",
+          "duplicate uniform name '\{self.names[i]}' at indices \{i} and \{j}",
         )
       }
     }
   }
-  if layout.preserved_prefix_dwords < 0 {
+  if self.preserved_prefix_dwords < 0 {
     return Some(
-      "preserved_prefix_dwords must not be negative (got \{layout.preserved_prefix_dwords})",
+      "preserved_prefix_dwords must not be negative (got \{self.preserved_prefix_dwords})",
     )
   }
   None
 }
 
 ///|
-/// Compute the expected preserved prefix dword count from a context.
+/// Number of dwords the preserved prefix should occupy for this context.
 /// Ebiten layout: dst_size(2) + dst_region(4) + per_src(size(2) + region(4)).
-pub fn compute_expected_preserved_dwords(
-  context : PreservedUniformContext,
+pub fn PreservedUniformContext::expected_dwords(
+  self : PreservedUniformContext,
 ) -> Int {
-  let src_count = if context.src_texture_sizes.length() <=
-    context.src_regions.length() {
-    context.src_texture_sizes.length()
+  let src_count = if self.src_texture_sizes.length() <=
+    self.src_regions.length() {
+    self.src_texture_sizes.length()
   } else {
-    context.src_regions.length()
+    self.src_regions.length()
   }
   2 + 4 + src_count * (2 + 4)
 }
 
 ///|
-/// Validate that preserved uniform context is internally consistent.
+/// Check that the preserved-uniform context is internally consistent.
 /// Returns None if valid, Some(error_message) if invalid.
-pub fn validate_preserved_uniform_context(
-  context : PreservedUniformContext,
+pub fn PreservedUniformContext::validate(
+  self : PreservedUniformContext,
 ) -> String? {
-  if context.src_texture_sizes.length() != context.src_regions.length() {
+  if self.src_texture_sizes.length() != self.src_regions.length() {
     return Some(
-      "src_texture_sizes length (\{context.src_texture_sizes.length()}) must match src_regions length (\{context.src_regions.length()})",
+      "src_texture_sizes length (\{self.src_texture_sizes.length()}) must match src_regions length (\{self.src_regions.length()})",
     )
   }
-  if context.dst_texture_size.width <= 0 || context.dst_texture_size.height <= 0 {
+  if self.dst_texture_size.width <= 0 || self.dst_texture_size.height <= 0 {
     return Some("dst_texture_size must have positive dimensions")
   }
   None
@@ -1431,8 +1420,8 @@ pub impl BuiltinShaderSourceRepo for BasicBuiltinShaderSourceRepo with fn shader
 }
 
 ///|
-pub fn builtin_filter_to_int(filter : BuiltinShaderFilter) -> Int {
-  match filter {
+pub fn BuiltinShaderFilter::to_int(self : BuiltinShaderFilter) -> Int {
+  match self {
     BuiltinShaderFilter::Nearest => 0
     BuiltinShaderFilter::Linear => 1
     BuiltinShaderFilter::Pixelated => 2
@@ -1440,7 +1429,7 @@ pub fn builtin_filter_to_int(filter : BuiltinShaderFilter) -> Int {
 }
 
 ///|
-pub fn builtin_filter_from_int(value : Int) -> BuiltinShaderFilter {
+pub fn BuiltinShaderFilter::from_int(value : Int) -> BuiltinShaderFilter {
   match value {
     1 => BuiltinShaderFilter::Linear
     2 => BuiltinShaderFilter::Pixelated
@@ -1449,8 +1438,8 @@ pub fn builtin_filter_from_int(value : Int) -> BuiltinShaderFilter {
 }
 
 ///|
-pub fn builtin_address_to_int(address : BuiltinShaderAddress) -> Int {
-  match address {
+pub fn BuiltinShaderAddress::to_int(self : BuiltinShaderAddress) -> Int {
+  match self {
     BuiltinShaderAddress::Unsafe => 0
     BuiltinShaderAddress::ClampToZero => 1
     BuiltinShaderAddress::ClampToEdge => 2
@@ -1460,7 +1449,7 @@ pub fn builtin_address_to_int(address : BuiltinShaderAddress) -> Int {
 }
 
 ///|
-pub fn builtin_address_from_int(value : Int) -> BuiltinShaderAddress {
+pub fn BuiltinShaderAddress::from_int(value : Int) -> BuiltinShaderAddress {
   match value {
     1 => BuiltinShaderAddress::ClampToZero
     2 => BuiltinShaderAddress::ClampToEdge

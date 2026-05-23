@@ -103,7 +103,7 @@ pub fn HudContext::draw_text(
 ) -> Unit {
   match self.text_renderer {
     Some(tr) => {
-      let blend = @gfx.blend_mode_from_int(1)
+      let blend = @gfx.BlendMode::from_int(1)
       let text_cmds = tr.render_text(
         text,
         size,
@@ -169,7 +169,7 @@ pub fn HudContext::draw_text_centered(
       let metrics = tr.measure(text, size)
       let x = cx - metrics.width / 2.0
       let y = cy - metrics.height / 2.0
-      let blend = @gfx.blend_mode_from_int(1)
+      let blend = @gfx.BlendMode::from_int(1)
       let text_cmds = tr.render_text(
         text,
         size,

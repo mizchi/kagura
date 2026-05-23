@@ -61,7 +61,7 @@ fn atlas_quad_resource_cache_key(
     dst_region.width,
     dst_region.height,
     dst_region.index_count,
-    @gfx.blend_mode_to_int(blend),
+    @gfx.BlendMode::to_int(blend),
     source.page_image_id,
     @gfx.double_to_f32_bits(source.u0),
     @gfx.double_to_f32_bits(source.v0),

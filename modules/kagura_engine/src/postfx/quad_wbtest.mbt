@@ -7,28 +7,28 @@ test "new_fullscreen_quad_command assigns stable resource_cache_key" {
     shader,
     [10],
     [1, 2, 3, 4],
-    @gfx.blend_mode_from_int(0),
+    @gfx.BlendMode::from_int(0),
   )
   let b = new_fullscreen_quad_command(
     dst,
     shader,
     [10],
     [1, 2, 3, 4],
-    @gfx.blend_mode_from_int(0),
+    @gfx.BlendMode::from_int(0),
   )
   let c = new_fullscreen_quad_command(
     dst,
     shader,
     [10],
     [1, 2, 3, 5],
-    @gfx.blend_mode_from_int(0),
+    @gfx.BlendMode::from_int(0),
   )
   let d = new_fullscreen_quad_command(
     dst,
     shader,
     [11],
     [1, 2, 3, 4],
-    @gfx.blend_mode_from_int(0),
+    @gfx.BlendMode::from_int(0),
   )
   assert_true(a.resource_cache_key != 0)
   assert_eq(a.resource_cache_key, b.resource_cache_key)

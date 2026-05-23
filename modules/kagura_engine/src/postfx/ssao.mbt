@@ -83,6 +83,6 @@ pub fn new_ssao_command(
     shader,
     [color_src_id, depth_src_id],
     ssao_uniform_dwords(radius, bias, intensity, screen_w, screen_h),
-    @gfx.blend_mode_from_int(0),
+    @gfx.BlendMode::from_int(0),
   )
 }

@@ -40,12 +40,12 @@ pub struct SimpleCommandQueue {
 
 ///|
 fn blend_factor_eq(lhs : BlendFactor, rhs : BlendFactor) -> Bool {
-  blend_factor_to_int(lhs) == blend_factor_to_int(rhs)
+  BlendFactor::to_int(lhs) == BlendFactor::to_int(rhs)
 }
 
 ///|
 fn blend_operation_eq(lhs : BlendOperation, rhs : BlendOperation) -> Bool {
-  blend_operation_to_int(lhs) == blend_operation_to_int(rhs)
+  BlendOperation::to_int(lhs) == BlendOperation::to_int(rhs)
 }
 
 ///|

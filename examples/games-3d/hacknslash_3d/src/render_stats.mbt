@@ -42,9 +42,9 @@ fn summarize_draw_playing_commands(
   let mut final_output_commands = 0
   for cmd in commands {
     estimated_draw_calls = estimated_draw_calls +
-      @gfx.estimated_draw_call_count(cmd)
+      @gfx.DrawTrianglesCommand::estimated_draw_call_count(cmd)
     total_index_count = total_index_count +
-      @gfx.estimated_total_index_count(cmd)
+      @gfx.DrawTrianglesCommand::estimated_total_index_count(cmd)
     if cmd.dst.id == state.shadow_map.id &&
       cmd.shader.id == state.shadow_depth_shader.id {
       shadow_depth_commands = shadow_depth_commands + 1

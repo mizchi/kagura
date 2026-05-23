@@ -13,7 +13,7 @@ pub fn render_text(
   screen_w : Double,
   screen_h : Double,
 ) -> Array[@gfx.DrawTrianglesCommand] {
-  let blend = @gfx.blend_mode_from_int(1)
+  let blend = @gfx.BlendMode::from_int(1)
   let r = (color_hex >> 16) & 0xFF
   let g = (color_hex >> 8) & 0xFF
   let b = color_hex & 0xFF

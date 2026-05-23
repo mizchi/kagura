@@ -73,8 +73,8 @@ pub impl Show for BlendMode with fn output(self, logger) {
 }
 
 ///|
-pub fn blend_mode_to_int(mode : BlendMode) -> Int {
-  match mode {
+pub fn BlendMode::to_int(self : BlendMode) -> Int {
+  match self {
     BlendMode::Copy => 0
     BlendMode::Alpha => 1
     BlendMode::Add => 2
@@ -84,8 +84,8 @@ pub fn blend_mode_to_int(mode : BlendMode) -> Int {
 }
 
 ///|
-pub fn blend_mode_from_int(mode : Int) -> BlendMode {
-  match mode {
+pub fn BlendMode::from_int(value : Int) -> BlendMode {
+  match value {
     0 => BlendMode::Copy
     1 => BlendMode::Alpha
     2 => BlendMode::Add
@@ -96,8 +96,8 @@ pub fn blend_mode_from_int(mode : Int) -> BlendMode {
 
 ///|
 /// Get the blend equation for any BlendMode including presets.
-pub fn blend_mode_to_equation(mode : BlendMode) -> BlendEquation {
-  match mode {
+pub fn BlendMode::to_equation(self : BlendMode) -> BlendEquation {
+  match self {
     BlendMode::Copy =>
       {
         src_factor_rgb: BlendFactor::One,
@@ -139,8 +139,8 @@ pub fn blend_mode_to_equation(mode : BlendMode) -> BlendEquation {
 }
 
 ///|
-pub fn blend_factor_to_int(factor : BlendFactor) -> Int {
-  match factor {
+pub fn BlendFactor::to_int(self : BlendFactor) -> Int {
+  match self {
     BlendFactor::Zero => 0
     BlendFactor::One => 1
     BlendFactor::SrcAlpha => 2
@@ -155,7 +155,7 @@ pub fn blend_factor_to_int(factor : BlendFactor) -> Int {
 }
 
 ///|
-pub fn blend_factor_from_int(value : Int) -> BlendFactor {
+pub fn BlendFactor::from_int(value : Int) -> BlendFactor {
   match value {
     0 => BlendFactor::Zero
     1 => BlendFactor::One
@@ -172,8 +172,8 @@ pub fn blend_factor_from_int(value : Int) -> BlendFactor {
 }
 
 ///|
-pub fn blend_operation_to_int(op : BlendOperation) -> Int {
-  match op {
+pub fn BlendOperation::to_int(self : BlendOperation) -> Int {
+  match self {
     BlendOperation::Add => 0
     BlendOperation::Subtract => 1
     BlendOperation::ReverseSubtract => 2
@@ -183,7 +183,7 @@ pub fn blend_operation_to_int(op : BlendOperation) -> Int {
 }
 
 ///|
-pub fn blend_operation_from_int(value : Int) -> BlendOperation {
+pub fn BlendOperation::from_int(value : Int) -> BlendOperation {
   match value {
     0 => BlendOperation::Add
     1 => BlendOperation::Subtract

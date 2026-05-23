@@ -36,7 +36,7 @@ fn main {
               0,
               0,
               0,
-              @gfx.blend_mode_from_int(1),
+              @gfx.BlendMode::from_int(1),
               -1.0,
               -1.0,
               1.0,

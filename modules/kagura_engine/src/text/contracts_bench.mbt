@@ -31,7 +31,7 @@ fn pipeline_dispatch_checksum(
   let mut checksum = flushed.length()
   for command in flushed {
     checksum = checksum +
-      @gfx.dispatch_checksum(@gfx.build_draw_command_dispatch(command))
+      @gfx.DrawCommandDispatch::checksum(@gfx.DrawTrianglesCommand::build_dispatch(command))
   }
   checksum
 }

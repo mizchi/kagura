@@ -510,7 +510,7 @@ test "TextRenderer render and measure with embedded font" {
     20.0,
     dst,
     shader,
-    @gfx.blend_mode_from_int(1),
+    @gfx.BlendMode::from_int(1),
     [255, 204, 0, 255],
   )
   assert_true(cmds.length() > 0)

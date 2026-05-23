@@ -101,7 +101,7 @@ pub fn build_runtime_smoke_tile_draw_plan(
     shader,
     7,
     11,
-    @gfx.blend_mode_from_int(1),
+    @gfx.BlendMode::from_int(1),
     @gfx.new_dst_region(0, 0, 64, 64, 6),
     next_tiles,
     1,
@@ -124,7 +124,7 @@ pub fn build_runtime_smoke_tile_draw_plan(
     0,
     7,
     12,
-    @gfx.blend_mode_from_int(1),
+    @gfx.BlendMode::from_int(1),
     0.0,
     -0.5,
     0.5,
@@ -152,7 +152,7 @@ pub fn build_runtime_smoke_tile_draw_plan(
     0.0,
     dst,
     shader,
-    @gfx.blend_mode_from_int(1),
+    @gfx.BlendMode::from_int(1),
     [255, 255, 255, 255],
   )
   for cmd in text_commands {
@@ -170,7 +170,7 @@ pub fn build_runtime_smoke_tile_draw_plan(
     30.0,
     dst,
     shader,
-    @gfx.blend_mode_from_int(1),
+    @gfx.BlendMode::from_int(1),
     [255, 255, 255, 255],
   )
   if text_commands_12.length() == 0 {

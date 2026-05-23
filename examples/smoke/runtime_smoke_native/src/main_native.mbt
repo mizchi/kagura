@@ -305,7 +305,7 @@ fn[T : @gfx.GraphicsDriver] run_draw_payload_probe(
     shader,
     7,
     11,
-    @gfx.blend_mode_from_int(1),
+    @gfx.BlendMode::from_int(1),
     @gfx.new_dst_region(0, 0, 64, 64, 6),
     next_tiles,
     2,
@@ -333,7 +333,7 @@ fn[T : @gfx.GraphicsDriver] run_draw_payload_probe(
     0,
     7,
     12,
-    @gfx.blend_mode_from_int(1),
+    @gfx.BlendMode::from_int(1),
     0.0,
     -0.5,
     0.5,
@@ -358,7 +358,7 @@ fn[T : @gfx.GraphicsDriver] run_draw_payload_probe(
     0.0,
     dst,
     shader,
-    @gfx.blend_mode_from_int(1),
+    @gfx.BlendMode::from_int(1),
     [255, 255, 255, 255],
   )
   // Upload atlas texture to GPU

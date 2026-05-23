@@ -22,7 +22,7 @@ fn particle_pipeline_checksum(
   let mut checksum = flushed.length()
   for command in flushed {
     checksum = checksum +
-      @gfx.dispatch_checksum(@gfx.build_draw_command_dispatch(command))
+      @gfx.DrawCommandDispatch::checksum(@gfx.DrawTrianglesCommand::build_dispatch(command))
   }
   checksum
 }
@@ -71,7 +71,7 @@ test "bench particle pipeline same state 10000" (b : @bench.T) {
   let dst = @gfx.new_image_handle(1, 1920, 1080)
   let shader = @gfx.new_shader_handle(2, "particle_shader")
   let dst_region = @gfx.new_dst_region(0, 0, 1920, 1080, 6)
-  let blend = @gfx.blend_mode_from_int(1)
+  let blend = @gfx.BlendMode::from_int(1)
   let uniform_dwords = [1, 2, 3, 4]
   b.bench(name="particles/pipeline_same_state_10000", fn() {
     let commands : Array[@gfx.DrawTrianglesCommand] = []
@@ -90,7 +90,7 @@ test "bench particle pipeline varying uniform 10000" (b : @bench.T) {
   let dst = @gfx.new_image_handle(1, 1920, 1080)
   let shader = @gfx.new_shader_handle(2, "particle_shader")
   let dst_region = @gfx.new_dst_region(0, 0, 1920, 1080, 6)
-  let blend = @gfx.blend_mode_from_int(1)
+  let blend = @gfx.BlendMode::from_int(1)
   b.bench(name="particles/pipeline_varying_uniform_10000", fn() {
     let commands : Array[@gfx.DrawTrianglesCommand] = []
     for i in 0..<10000 {
@@ -119,7 +119,7 @@ test "bench particle pipeline alternating texture pages 10000" (b : @bench.T) {
   let dst = @gfx.new_image_handle(1, 1920, 1080)
   let shader = @gfx.new_shader_handle(2, "particle_shader")
   let dst_region = @gfx.new_dst_region(0, 0, 1920, 1080, 6)
-  let blend = @gfx.blend_mode_from_int(1)
+  let blend = @gfx.BlendMode::from_int(1)
   let uniform_dwords = [1, 2, 3, 4]
   b.bench(name="particles/pipeline_alternating_texture_pages_10000", fn() {
     let commands : Array[@gfx.DrawTrianglesCommand] = []

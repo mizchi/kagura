@@ -504,7 +504,7 @@ fn tilemap_draw_resource_cache_key(
     dst_region.width,
     dst_region.height,
     dst_region.index_count,
-    @gfx.blend_mode_to_int(blend),
+    @gfx.BlendMode::to_int(blend),
     page_image_id,
     vertex_data.length(),
     indices.length(),

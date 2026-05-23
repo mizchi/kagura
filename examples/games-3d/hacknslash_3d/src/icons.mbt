@@ -237,7 +237,7 @@ fn append_icon_draw_command(
     0,
     0,
     0,
-    @gfx.blend_mode_from_int(1),
+    @gfx.BlendMode::from_int(1),
     x,
     y,
     x + size,

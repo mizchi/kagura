@@ -75,6 +75,6 @@ pub fn new_tonemap_command(
     shader,
     [src_image_id],
     tonemap_uniform_dwords(exposure, hit_flash~),
-    @gfx.blend_mode_from_int(0),
+    @gfx.BlendMode::from_int(0),
   )
 }

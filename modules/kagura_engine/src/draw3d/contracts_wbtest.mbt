@@ -50,7 +50,7 @@ test "new_mesh_draw_command creates valid command" {
   let dst = @gfx.new_image_handle(1, 800, 600)
   let shader = @gfx.new_shader_handle(1, "test")
   let dst_region = @gfx.new_dst_region(0, 0, 800, 600, 36)
-  let blend = @gfx.blend_mode_from_int(0)
+  let blend = @gfx.BlendMode::from_int(0)
   let cmd = new_mesh_draw_command(
     dst,
     shader,
@@ -164,7 +164,7 @@ test "new_lit_mesh_draw_command creates valid command" {
   let dst = @gfx.new_image_handle(1, 800, 600)
   let shader = @gfx.new_shader_handle(1, "test_lit")
   let dst_region = @gfx.new_dst_region(0, 0, 800, 600, 36)
-  let blend = @gfx.blend_mode_from_int(0)
+  let blend = @gfx.BlendMode::from_int(0)
   let cmd = new_lit_mesh_draw_command(
     dst,
     shader,
@@ -194,7 +194,7 @@ test "new_lit_colored_mesh_draw_command packs base color uniform" {
   let dst = @gfx.new_image_handle(1, 800, 600)
   let shader = @gfx.new_shader_handle(12, "test_lit_colored")
   let dst_region = @gfx.new_dst_region(0, 0, 800, 600, 36)
-  let blend = @gfx.blend_mode_from_int(0)
+  let blend = @gfx.BlendMode::from_int(0)
   let cmd = new_lit_colored_mesh_draw_command(
     dst,
     shader,
@@ -244,7 +244,7 @@ test "new_skinned_lit_mesh_draw_command_from_skin packs stride16 vertex data" {
     0,
     0,
     0,
-    @gfx.blend_mode_from_int(1),
+    @gfx.BlendMode::from_int(1),
     mesh,
     skin,
     model,
@@ -304,7 +304,7 @@ test "new_skinned_instanced_lit_mesh_draw_command creates valid command" {
     dst,
     shader,
     dst_region,
-    @gfx.blend_mode_from_int(1),
+    @gfx.BlendMode::from_int(1),
     mesh.vertex_data,
     mesh.indices,
     @math3d.Mat4::identity(),
@@ -338,7 +338,7 @@ test "new_skinned_instanced_monochrome_lit_mesh_draw_command shrinks uniform pay
     dst,
     shader,
     dst_region,
-    @gfx.blend_mode_from_int(1),
+    @gfx.BlendMode::from_int(1),
     mesh.vertex_data,
     mesh.indices,
     @math3d.Mat4::identity(),
@@ -387,7 +387,7 @@ test "new_lit_normalmap_mesh_draw_command creates valid command" {
   let dst = @gfx.new_image_handle(1, 800, 600)
   let shader = @gfx.new_shader_handle(1, "test_normalmap")
   let dst_region = @gfx.new_dst_region(0, 0, 800, 600, 36)
-  let blend = @gfx.blend_mode_from_int(0)
+  let blend = @gfx.BlendMode::from_int(0)
   let cmd = new_lit_normalmap_mesh_draw_command(
     dst, shader, dst_region, 0, 0, 0, blend, mesh, model, vp, lighting, 10, 20,
   )
@@ -469,7 +469,7 @@ test "new_instanced_lit_mesh_draw_command creates valid command" {
     dst,
     shader,
     dst_region,
-    @gfx.blend_mode_from_int(1),
+    @gfx.BlendMode::from_int(1),
     mesh,
     vp,
     lighting,
@@ -495,7 +495,7 @@ test "instance_count=1 produces same data size as non-instanced" {
     dst,
     shader,
     dst_region,
-    @gfx.blend_mode_from_int(1),
+    @gfx.BlendMode::from_int(1),
     mesh,
     vp,
     lighting,

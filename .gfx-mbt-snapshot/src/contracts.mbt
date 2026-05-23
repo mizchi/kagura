@@ -238,18 +238,22 @@ fn normalized_region_index_count(region : DstRegion) -> Int {
 }
 
 ///|
-pub fn estimated_draw_call_count(command : DrawTrianglesCommand) -> Int {
+pub fn DrawTrianglesCommand::estimated_draw_call_count(
+  self : DrawTrianglesCommand,
+) -> Int {
   let mut draw_calls = 0
-  for region in command.dst_regions {
+  for region in self.dst_regions {
     draw_calls = draw_calls + normalized_region_triangle_count(region)
   }
   draw_calls
 }
 
 ///|
-pub fn estimated_total_index_count(command : DrawTrianglesCommand) -> Int {
+pub fn DrawTrianglesCommand::estimated_total_index_count(
+  self : DrawTrianglesCommand,
+) -> Int {
   let mut total = 0
-  for region in command.dst_regions {
+  for region in self.dst_regions {
     total = total + normalized_region_index_count(region)
   }
   total
@@ -261,28 +265,30 @@ fn resolved_index_count(command : DrawTrianglesCommand) -> Int {
   if explicit > 0 {
     explicit
   } else {
-    estimated_total_index_count(command)
+    command.estimated_total_index_count()
   }
 }
 
 ///|
-pub fn build_draw_command_dispatch(
-  command : DrawTrianglesCommand,
+/// Build the `DrawCommandDispatch` summary the backend / queue use for
+/// fingerprinting and merge decisions.
+pub fn DrawTrianglesCommand::build_dispatch(
+  self : DrawTrianglesCommand,
 ) -> DrawCommandDispatch {
   {
-    draw_calls: estimated_draw_call_count(command),
-    pipeline_id: command.pipeline_id,
-    uniform_hash: command.uniform_hash,
-    blend_mode: blend_mode_to_int(command.blend),
-    dst_image_id: command.dst.id,
-    shader_id: command.shader.id,
-    index_offset: command.index_offset,
-    region_count: command.dst_regions.length(),
-    total_index_count: estimated_total_index_count(command),
-    vertex_float_count: command.vertex_data.length(),
-    index_count: resolved_index_count(command),
-    src_image_count: command.src_image_ids.length(),
-    uniform_dword_count: command.uniform_dwords.length(),
+    draw_calls: self.estimated_draw_call_count(),
+    pipeline_id: self.pipeline_id,
+    uniform_hash: self.uniform_hash,
+    blend_mode: self.blend.to_int(),
+    dst_image_id: self.dst.id,
+    shader_id: self.shader.id,
+    index_offset: self.index_offset,
+    region_count: self.dst_regions.length(),
+    total_index_count: self.estimated_total_index_count(),
+    vertex_float_count: self.vertex_data.length(),
+    index_count: resolved_index_count(self),
+    src_image_count: self.src_image_ids.length(),
+    uniform_dword_count: self.uniform_dwords.length(),
   }
 }
 
@@ -291,18 +297,18 @@ pub fn build_draw_command_dispatch(
 /// fingerprint useful in benches and tests where the caller just needs a
 /// `b.keep`-able value derived from the whole dispatch (it is not a
 /// cryptographic hash and is not collision-free).
-pub fn dispatch_checksum(dispatch : DrawCommandDispatch) -> Int {
-  dispatch.draw_calls +
-  dispatch.pipeline_id +
-  dispatch.uniform_hash +
-  dispatch.blend_mode +
-  dispatch.dst_image_id +
-  dispatch.shader_id +
-  dispatch.index_offset +
-  dispatch.region_count +
-  dispatch.total_index_count +
-  dispatch.vertex_float_count +
-  dispatch.index_count +
-  dispatch.src_image_count +
-  dispatch.uniform_dword_count
+pub fn DrawCommandDispatch::checksum(self : DrawCommandDispatch) -> Int {
+  self.draw_calls +
+  self.pipeline_id +
+  self.uniform_hash +
+  self.blend_mode +
+  self.dst_image_id +
+  self.shader_id +
+  self.index_offset +
+  self.region_count +
+  self.total_index_count +
+  self.vertex_float_count +
+  self.index_count +
+  self.src_image_count +
+  self.uniform_dword_count
 }

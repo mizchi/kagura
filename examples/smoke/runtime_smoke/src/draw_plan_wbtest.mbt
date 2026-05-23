@@ -210,7 +210,7 @@ test "TextRenderer render_text produces valid draw commands" {
       assert_eq(renderer.get_page_id(), 950)
       let dst = @gfx.new_image_handle(1, 640, 480)
       let shader = @gfx.new_shader_handle(2, "text_shader")
-      let blend = @gfx.blend_mode_from_int(1)
+      let blend = @gfx.BlendMode::from_int(1)
       let commands = renderer.render_text(
         "III",
         24.0,
@@ -262,7 +262,7 @@ test "TextRenderer render_text empty string returns no commands" {
       let renderer = @text.TextRenderer::new(ttfont, 64, 960, 0)
       let dst = @gfx.new_image_handle(1, 640, 480)
       let shader = @gfx.new_shader_handle(1, "shader")
-      let blend = @gfx.blend_mode_from_int(1)
+      let blend = @gfx.BlendMode::from_int(1)
       let commands = renderer.render_text(
         "",
         24.0,
@@ -306,7 +306,7 @@ test "TextRenderer render_text then clear resets glyph count" {
       let renderer = @text.TextRenderer::new(ttfont, 128, 980, 0)
       let dst = @gfx.new_image_handle(1, 640, 480)
       let shader = @gfx.new_shader_handle(1, "shader")
-      let blend = @gfx.blend_mode_from_int(1)
+      let blend = @gfx.BlendMode::from_int(1)
       // Render text to populate atlas
       let _ = renderer.render_text("I", 24.0, 0.0, 0.0, dst, shader, blend, [])
       assert_true(renderer.glyph_count() > 0)
@@ -338,7 +338,7 @@ test "TextRenderer atlas has non-zero pixels after render" {
       let renderer = @text.TextRenderer::new(ttfont, 128, 990, 0)
       let dst = @gfx.new_image_handle(1, 640, 480)
       let shader = @gfx.new_shader_handle(1, "shader")
-      let blend = @gfx.blend_mode_from_int(1)
+      let blend = @gfx.BlendMode::from_int(1)
       let _ = renderer.render_text("I", 24.0, 0.0, 0.0, dst, shader, blend, [])
       // Atlas should have non-zero pixels from rasterized glyph
       let pixels = renderer.get_atlas().get_pixels()
@@ -364,7 +364,7 @@ test "TextRenderer multiple render_text calls share glyph cache" {
       let renderer = @text.TextRenderer::new(ttfont, 128, 991, 0)
       let dst = @gfx.new_image_handle(1, 640, 480)
       let shader = @gfx.new_shader_handle(1, "shader")
-      let blend = @gfx.blend_mode_from_int(1)
+      let blend = @gfx.BlendMode::from_int(1)
       // First render
       let _ = renderer.render_text("I", 24.0, 0.0, 0.0, dst, shader, blend, [])
       let count_after_first = renderer.glyph_count()

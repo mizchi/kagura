@@ -24,8 +24,8 @@ pub impl Show for FilterMode with fn output(self, logger) {
 }
 
 ///|
-pub fn filter_mode_to_int(mode : FilterMode) -> Int {
-  match mode {
+pub fn FilterMode::to_int(self : FilterMode) -> Int {
+  match self {
     FilterMode::Nearest => 0
     FilterMode::Linear => 1
     FilterMode::Pixelated => 2
@@ -33,8 +33,8 @@ pub fn filter_mode_to_int(mode : FilterMode) -> Int {
 }
 
 ///|
-pub fn filter_mode_from_int(mode : Int) -> FilterMode {
-  match mode {
+pub fn FilterMode::from_int(value : Int) -> FilterMode {
+  match value {
     0 => FilterMode::Nearest
     1 => FilterMode::Linear
     2 => FilterMode::Pixelated

@@ -42,7 +42,7 @@ test "append_atlas_quad preserves draw metadata overrides" {
     screen_h=64,
     pipeline_id=12,
     uniform_hash=34,
-    blend=@gfx.blend_mode_from_int(2),
+    blend=@gfx.BlendMode::from_int(2),
   )
   let quad = AtlasQuad2D::new(
     source=test_atlas_source(88),
@@ -57,7 +57,7 @@ test "append_atlas_quad preserves draw metadata overrides" {
   assert_eq(cmds.length(), 1)
   assert_eq(cmds[0].pipeline_id, 12)
   assert_eq(cmds[0].uniform_hash, 34)
-  assert_eq(@gfx.blend_mode_to_int(cmds[0].blend), 2)
+  assert_eq(@gfx.BlendMode::to_int(cmds[0].blend), 2)
   assert_eq(cmds[0].uniform_dwords.length(), 4)
 }
 

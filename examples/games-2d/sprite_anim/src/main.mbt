@@ -76,7 +76,7 @@ fn main {
         ctx.dst,
         ctx.shader,
         @gfx.new_dst_region(0, 0, screen_w, screen_h, 6),
-        @gfx.blend_mode_from_int(1),
+        @gfx.BlendMode::from_int(1),
         -1.0,
         -1.0,
         1.0,

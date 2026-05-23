@@ -1045,7 +1045,7 @@ fn ShowcaseState::render_text_hud(
     Some(r) => r
     None => return
   }
-  let blend = @gfx.blend_mode_from_int(1)
+  let blend = @gfx.BlendMode::from_int(1)
   let white : Array[Int] = [255, 255, 255, 255]
   let yellow : Array[Int] = [255, 204, 0, 255]
   let red : Array[Int] = [255, 0, 0, 255]

@@ -83,6 +83,21 @@ pub impl Show for FramebufferSnapshot with fn output(self, logger) {
 }
 
 ///|
+/// Wrap an already-captured RGBA8 pixel buffer into a snapshot. Useful
+/// when the pixels come from a non-`GraphicsDriver` source (golden
+/// fixtures on disk, a manual PNG decode, ...). The buffer must be
+/// `width * height * 4` bytes; this is not checked here.
+pub fn FramebufferSnapshot::from_pixels(
+  x : Int,
+  y : Int,
+  width : Int,
+  height : Int,
+  pixels : Array[Int],
+) -> FramebufferSnapshot {
+  { x, y, width, height, pixels }
+}
+
+///|
 pub fn create_framebuffer_snapshot(
   driver : &GraphicsDriver,
   x : Int,
@@ -91,7 +106,8 @@ pub fn create_framebuffer_snapshot(
   height : Int,
 ) -> FramebufferSnapshot? raise {
   match driver.read_pixels(x, y, width, height) {
-    Some(pixels) => Some({ x, y, width, height, pixels })
+    Some(pixels) =>
+      Some(FramebufferSnapshot::from_pixels(x, y, width, height, pixels))
     None => None
   }
 }
@@ -109,25 +125,28 @@ pub impl Show for PixelDiffResult with fn output(self, logger) {
 }
 
 ///|
-pub fn compare_framebuffer_snapshots(
-  a : FramebufferSnapshot,
-  b : FramebufferSnapshot,
+/// Per-channel diff against another snapshot. Any channel whose
+/// absolute difference exceeds `threshold` counts the pixel as
+/// changed; mismatched dimensions report all pixels as different.
+pub fn FramebufferSnapshot::compare_with(
+  self : FramebufferSnapshot,
+  other : FramebufferSnapshot,
   threshold : Int,
 ) -> PixelDiffResult {
-  let total = a.width * a.height
-  if a.width != b.width || a.height != b.height {
+  let total = self.width * self.height
+  if self.width != other.width || self.height != other.height {
     return { total_pixels: total, diff_pixels: total, max_channel_diff: 255 }
   }
-  let pixel_count = a.width * a.height
+  let pixel_count = self.width * self.height
   let mut diff_pixels = 0
   let mut max_diff = 0
   for i = 0; i < pixel_count; i = i + 1 {
     let base = i * 4
-    if base + 3 < a.pixels.length() && base + 3 < b.pixels.length() {
-      let dr = abs_int(a.pixels[base] - b.pixels[base])
-      let dg = abs_int(a.pixels[base + 1] - b.pixels[base + 1])
-      let db = abs_int(a.pixels[base + 2] - b.pixels[base + 2])
-      let da = abs_int(a.pixels[base + 3] - b.pixels[base + 3])
+    if base + 3 < self.pixels.length() && base + 3 < other.pixels.length() {
+      let dr = abs_int(self.pixels[base] - other.pixels[base])
+      let dg = abs_int(self.pixels[base + 1] - other.pixels[base + 1])
+      let db = abs_int(self.pixels[base + 2] - other.pixels[base + 2])
+      let da = abs_int(self.pixels[base + 3] - other.pixels[base + 3])
       let channel_max = @cmp.maximum(@cmp.maximum(dr, dg), @cmp.maximum(db, da))
       if channel_max > max_diff {
         max_diff = channel_max
@@ -150,9 +169,10 @@ fn abs_int(x : Int) -> Int {
 }
 
 ///|
-pub fn pixel_diff_ratio(result : PixelDiffResult) -> Double {
-  if result.total_pixels == 0 {
+/// Fraction of pixels that exceeded the diff threshold, in [0.0, 1.0].
+pub fn PixelDiffResult::diff_ratio(self : PixelDiffResult) -> Double {
+  if self.total_pixels == 0 {
     return 0.0
   }
-  result.diff_pixels.to_double() / result.total_pixels.to_double()
+  self.diff_pixels.to_double() / self.total_pixels.to_double()
 }

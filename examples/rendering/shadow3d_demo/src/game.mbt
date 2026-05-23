@@ -189,7 +189,7 @@ fn DemoState::draw(
       0,
       0,
       i,
-      @gfx.blend_mode_from_int(0),
+      @gfx.BlendMode::from_int(0),
       obj.mesh,
       obj.model_matrix,
       view_projection,

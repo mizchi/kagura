@@ -647,8 +647,8 @@ test "simple material repository registers and overwrites material specs" {
   let shader_key : AssetKey = { value: "shader/sprite" }
   repo.register_material(key, {
     shader: shader_key,
-    blend: @gfx.blend_mode_from_int(1),
-    filter: @gfx.filter_mode_from_int(0),
+    blend: @gfx.BlendMode::from_int(1),
+    filter: @gfx.FilterMode::from_int(0),
     uniform_keys: ["u_color"],
   })
   match repo.get_material(key) {
@@ -656,20 +656,20 @@ test "simple material repository registers and overwrites material specs" {
       assert_eq(spec.shader.value, "shader/sprite")
       assert_eq(spec.uniform_keys.length(), 1)
       assert_eq(spec.uniform_keys[0], "u_color")
-      assert_eq(@gfx.blend_mode_to_int(spec.blend), 1)
+      assert_eq(@gfx.BlendMode::to_int(spec.blend), 1)
     }
     None => panic()
   }
 
   repo.register_material(key, {
     shader: shader_key,
-    blend: @gfx.blend_mode_from_int(2),
-    filter: @gfx.filter_mode_from_int(1),
+    blend: @gfx.BlendMode::from_int(2),
+    filter: @gfx.FilterMode::from_int(1),
     uniform_keys: ["u_color", "u_alpha"],
   })
   match repo.get_material(key) {
     Some(spec2) => {
-      assert_eq(@gfx.blend_mode_to_int(spec2.blend), 2)
+      assert_eq(@gfx.BlendMode::to_int(spec2.blend), 2)
       assert_eq(spec2.uniform_keys.length(), 2)
       assert_eq(spec2.uniform_keys[1], "u_alpha")
     }

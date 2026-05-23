@@ -5,9 +5,14 @@
 /// - internal/atlas/image.go (atlas page + region UV)
 /// - internal/graphicscommand/command.go (DrawTriangles payload)
 
+// Shared, read-only quad-index pattern. The downstream gfx queue / merger
+// only reads `.length()` on indices, so reusing one Array per call saves an
+// allocation on every sprite draw. Do not mutate.
+let atlas_quad_indices_shared : Array[Int] = [0, 1, 2, 2, 3, 0]
+
 ///|
 pub fn atlas_quad_indices() -> Array[Int] {
-  [0, 1, 2, 2, 3, 0]
+  atlas_quad_indices_shared
 }
 
 ///|
@@ -38,6 +43,12 @@ pub fn atlas_quad_vertex_data(
   ]
 }
 
+// Must mirror `mix_resource_cache_key` in mizchi/gfx/src/contracts.mbt.
+// Kept local so we can hash inline without allocating a values array.
+fn mix_cache_key(seed : Int, value : Int) -> Int {
+  seed * 16777619 + value + 31
+}
+
 ///|
 fn atlas_quad_resource_cache_key(
   dst : @gfx.ImageHandle,
@@ -51,32 +62,35 @@ fn atlas_quad_resource_cache_key(
   bottom : Double,
   uniform_dwords : Array[Int],
 ) -> Int {
-  let values : Array[Int] = [
-    dst.id,
-    dst.width,
-    dst.height,
-    shader.id,
-    dst_region.x,
-    dst_region.y,
-    dst_region.width,
-    dst_region.height,
-    dst_region.index_count,
-    @gfx.BlendMode::to_int(blend),
-    source.page_image_id,
-    @gfx.double_to_f32_bits(source.u0),
-    @gfx.double_to_f32_bits(source.v0),
-    @gfx.double_to_f32_bits(source.u1),
-    @gfx.double_to_f32_bits(source.v1),
-    @gfx.double_to_f32_bits(left),
-    @gfx.double_to_f32_bits(top),
-    @gfx.double_to_f32_bits(right),
-    @gfx.double_to_f32_bits(bottom),
-    uniform_dwords.length(),
-  ]
+  let mut hash = 0x41544C53
+  hash = mix_cache_key(hash, dst.id)
+  hash = mix_cache_key(hash, dst.width)
+  hash = mix_cache_key(hash, dst.height)
+  hash = mix_cache_key(hash, shader.id)
+  hash = mix_cache_key(hash, dst_region.x)
+  hash = mix_cache_key(hash, dst_region.y)
+  hash = mix_cache_key(hash, dst_region.width)
+  hash = mix_cache_key(hash, dst_region.height)
+  hash = mix_cache_key(hash, dst_region.index_count)
+  hash = mix_cache_key(hash, @gfx.BlendMode::to_int(blend))
+  hash = mix_cache_key(hash, source.page_image_id)
+  hash = mix_cache_key(hash, @gfx.double_to_f32_bits(source.u0))
+  hash = mix_cache_key(hash, @gfx.double_to_f32_bits(source.v0))
+  hash = mix_cache_key(hash, @gfx.double_to_f32_bits(source.u1))
+  hash = mix_cache_key(hash, @gfx.double_to_f32_bits(source.v1))
+  hash = mix_cache_key(hash, @gfx.double_to_f32_bits(left))
+  hash = mix_cache_key(hash, @gfx.double_to_f32_bits(top))
+  hash = mix_cache_key(hash, @gfx.double_to_f32_bits(right))
+  hash = mix_cache_key(hash, @gfx.double_to_f32_bits(bottom))
+  hash = mix_cache_key(hash, uniform_dwords.length())
   for dword in uniform_dwords {
-    values.push(dword)
+    hash = mix_cache_key(hash, dword)
   }
-  @gfx.build_resource_cache_key(0x41544C53, values)
+  if hash == 0 {
+    1
+  } else {
+    hash
+  }
 }
 
 ///|

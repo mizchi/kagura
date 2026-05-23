@@ -4,12 +4,22 @@
 /// Generates DrawTrianglesCommand from 3D mesh data and MVP matrices.
 /// Includes lit shaders and lighting-aware draw commands.
 
+// Encode a Double as the IEEE 754 f32 bit pattern (round to nearest-even).
+// Uses the hardware-mapped intrinsic chain (f64 -> f32 -> reinterpret as int)
+// instead of gfx.double_to_f32_bits, whose manual bit twiddling goes through
+// int64 ops and is the dominant cost of uniform construction on the JS
+// target. Bit patterns differ from gfx's by at most 1 ULP (gfx truncates
+// the mantissa, this rounds correctly); shader-side math is unaffected.
+fn f32(v : Double) -> Int {
+  v.to_float().reinterpret_as_int()
+}
+
 ///|
 /// Encode a Mat4 as 16 f32 dwords for uniform buffer.
 pub fn mat4_to_uniform_dwords(m : @math3d.Mat4) -> Array[Int] {
   let dwords : Array[Int] = Array::make(16, 0)
   for i in 0..<16 {
-    dwords[i] = @gfx.double_to_f32_bits(m.elements[i])
+    dwords[i] = f32(m.elements[i])
   }
   dwords
 }
@@ -214,8 +224,8 @@ fn lit_uniform_dwords_with_light_dwords(
   let mvp = view_projection.multiply(model)
   let dwords : Array[Int] = Array::make(56, 0)
   for i in 0..<16 {
-    dwords[i] = @gfx.double_to_f32_bits(mvp.elements[i])
-    dwords[16 + i] = @gfx.double_to_f32_bits(model.elements[i])
+    dwords[i] = f32(mvp.elements[i])
+    dwords[16 + i] = f32(model.elements[i])
   }
   let normal_dw = @light3d.normal_matrix_uniform_dwords(model)
   for i in 0..<12 {
@@ -247,10 +257,10 @@ pub fn lit_colored_uniform_dwords(
   base_color : @math3d.Vec4,
 ) -> Array[Int] {
   let dwords = lit_uniform_dwords(model, view_projection, lighting)
-  dwords.push(@gfx.double_to_f32_bits(base_color.x))
-  dwords.push(@gfx.double_to_f32_bits(base_color.y))
-  dwords.push(@gfx.double_to_f32_bits(base_color.z))
-  dwords.push(@gfx.double_to_f32_bits(base_color.w))
+  dwords.push(f32(base_color.x))
+  dwords.push(f32(base_color.y))
+  dwords.push(f32(base_color.z))
+  dwords.push(f32(base_color.w))
   dwords
 }
 
@@ -690,13 +700,13 @@ pub fn skinned_instanced_lit_uniform_dwords(
   } else {
     max_bones
   }
-  dwords.push(@gfx.double_to_f32_bits(bone_count.to_double()))
-  dwords.push(@gfx.double_to_f32_bits(0.0))
-  dwords.push(@gfx.double_to_f32_bits(0.0))
-  dwords.push(@gfx.double_to_f32_bits(0.0))
+  dwords.push(f32(bone_count.to_double()))
+  dwords.push(f32(0.0))
+  dwords.push(f32(0.0))
+  dwords.push(f32(0.0))
   for i in 0..<bone_count {
     for j in 0..<16 {
-      dwords.push(@gfx.double_to_f32_bits(skinning_matrices[i].elements[j]))
+      dwords.push(f32(skinning_matrices[i].elements[j]))
     }
   }
   for _i in bone_count..<max_bones {
@@ -709,10 +719,10 @@ pub fn skinned_instanced_lit_uniform_dwords(
   } else {
     instance_colors.length()
   }
-  dwords.push(@gfx.double_to_f32_bits(count.to_double()))
-  dwords.push(@gfx.double_to_f32_bits(0.0))
-  dwords.push(@gfx.double_to_f32_bits(0.0))
-  dwords.push(@gfx.double_to_f32_bits(0.0))
+  dwords.push(f32(count.to_double()))
+  dwords.push(f32(0.0))
+  dwords.push(f32(0.0))
+  dwords.push(f32(0.0))
   let inst_count = if count < max_skinned_instances {
     count
   } else {
@@ -721,13 +731,13 @@ pub fn skinned_instanced_lit_uniform_dwords(
   for i in 0..<inst_count {
     let m = instance_matrices[i]
     for j in 0..<16 {
-      dwords.push(@gfx.double_to_f32_bits(m.elements[j]))
+      dwords.push(f32(m.elements[j]))
     }
     let c = instance_colors[i]
-    dwords.push(@gfx.double_to_f32_bits(c.x))
-    dwords.push(@gfx.double_to_f32_bits(c.y))
-    dwords.push(@gfx.double_to_f32_bits(c.z))
-    dwords.push(@gfx.double_to_f32_bits(c.w))
+    dwords.push(f32(c.x))
+    dwords.push(f32(c.y))
+    dwords.push(f32(c.z))
+    dwords.push(f32(c.w))
   }
   for _i in inst_count..<max_skinned_instances {
     for _j in 0..<20 {
@@ -755,13 +765,13 @@ pub fn skinned_instanced_monochrome_lit_uniform_dwords(
   } else {
     max_bones
   }
-  dwords.push(@gfx.double_to_f32_bits(bone_count.to_double()))
-  dwords.push(@gfx.double_to_f32_bits(0.0))
-  dwords.push(@gfx.double_to_f32_bits(0.0))
-  dwords.push(@gfx.double_to_f32_bits(0.0))
+  dwords.push(f32(bone_count.to_double()))
+  dwords.push(f32(0.0))
+  dwords.push(f32(0.0))
+  dwords.push(f32(0.0))
   for i in 0..<bone_count {
     for j in 0..<16 {
-      dwords.push(@gfx.double_to_f32_bits(skinning_matrices[i].elements[j]))
+      dwords.push(f32(skinning_matrices[i].elements[j]))
     }
   }
   for _i in bone_count..<max_bones {
@@ -774,18 +784,18 @@ pub fn skinned_instanced_monochrome_lit_uniform_dwords(
   } else {
     max_skinned_instances
   }
-  dwords.push(@gfx.double_to_f32_bits(inst_count.to_double()))
-  dwords.push(@gfx.double_to_f32_bits(0.0))
-  dwords.push(@gfx.double_to_f32_bits(0.0))
-  dwords.push(@gfx.double_to_f32_bits(0.0))
-  dwords.push(@gfx.double_to_f32_bits(base_color.x))
-  dwords.push(@gfx.double_to_f32_bits(base_color.y))
-  dwords.push(@gfx.double_to_f32_bits(base_color.z))
-  dwords.push(@gfx.double_to_f32_bits(base_color.w))
+  dwords.push(f32(inst_count.to_double()))
+  dwords.push(f32(0.0))
+  dwords.push(f32(0.0))
+  dwords.push(f32(0.0))
+  dwords.push(f32(base_color.x))
+  dwords.push(f32(base_color.y))
+  dwords.push(f32(base_color.z))
+  dwords.push(f32(base_color.w))
   for i in 0..<inst_count {
     let m = instance_matrices[i]
     for j in 0..<16 {
-      dwords.push(@gfx.double_to_f32_bits(m.elements[j]))
+      dwords.push(f32(m.elements[j]))
     }
   }
   for _i in inst_count..<max_skinned_instances {
@@ -818,10 +828,10 @@ pub fn new_skinned_lit_mesh_draw_command(
   // Base lit uniforms (56 dwords)
   let dwords = lit_uniform_dwords(model_matrix, view_projection, lighting)
   // num_bones as vec4<f32> (4 dwords, padded)
-  dwords.push(@gfx.double_to_f32_bits(skinning_matrices.length().to_double()))
-  dwords.push(@gfx.double_to_f32_bits(0.0))
-  dwords.push(@gfx.double_to_f32_bits(0.0))
-  dwords.push(@gfx.double_to_f32_bits(0.0))
+  dwords.push(f32(skinning_matrices.length().to_double()))
+  dwords.push(f32(0.0))
+  dwords.push(f32(0.0))
+  dwords.push(f32(0.0))
   // Bone matrices (each 16 dwords, up to MAX_BONES)
   let bone_count = if skinning_matrices.length() < max_bones {
     skinning_matrices.length()
@@ -830,7 +840,7 @@ pub fn new_skinned_lit_mesh_draw_command(
   }
   for i in 0..<bone_count {
     for j in 0..<16 {
-      dwords.push(@gfx.double_to_f32_bits(skinning_matrices[i].elements[j]))
+      dwords.push(f32(skinning_matrices[i].elements[j]))
     }
   }
   // Pad remaining bones with zeros
@@ -1138,25 +1148,25 @@ pub fn pbr_uniform_dwords(
 ) -> Array[Int] {
   let dwords = lit_uniform_dwords(model, view_projection, lighting)
   // base_color (4 dwords)
-  dwords.push(@gfx.double_to_f32_bits(base_color.x))
-  dwords.push(@gfx.double_to_f32_bits(base_color.y))
-  dwords.push(@gfx.double_to_f32_bits(base_color.z))
-  dwords.push(@gfx.double_to_f32_bits(base_color.w))
+  dwords.push(f32(base_color.x))
+  dwords.push(f32(base_color.y))
+  dwords.push(f32(base_color.z))
+  dwords.push(f32(base_color.w))
   // pbr_params (4 dwords)
-  dwords.push(@gfx.double_to_f32_bits(metallic))
-  dwords.push(@gfx.double_to_f32_bits(roughness))
-  dwords.push(@gfx.double_to_f32_bits(0.0))
-  dwords.push(@gfx.double_to_f32_bits(0.0))
+  dwords.push(f32(metallic))
+  dwords.push(f32(roughness))
+  dwords.push(f32(0.0))
+  dwords.push(f32(0.0))
   // emissive (4 dwords)
-  dwords.push(@gfx.double_to_f32_bits(emissive.x))
-  dwords.push(@gfx.double_to_f32_bits(emissive.y))
-  dwords.push(@gfx.double_to_f32_bits(emissive.z))
-  dwords.push(@gfx.double_to_f32_bits(0.0))
+  dwords.push(f32(emissive.x))
+  dwords.push(f32(emissive.y))
+  dwords.push(f32(emissive.z))
+  dwords.push(f32(0.0))
   // camera_pos (4 dwords)
-  dwords.push(@gfx.double_to_f32_bits(camera_pos.x))
-  dwords.push(@gfx.double_to_f32_bits(camera_pos.y))
-  dwords.push(@gfx.double_to_f32_bits(camera_pos.z))
-  dwords.push(@gfx.double_to_f32_bits(0.0))
+  dwords.push(f32(camera_pos.x))
+  dwords.push(f32(camera_pos.y))
+  dwords.push(f32(camera_pos.z))
+  dwords.push(f32(0.0))
   dwords
 }
 
@@ -1400,22 +1410,22 @@ pub fn instanced_lit_uniform_dwords(
   }
   // instance_count as vec4<f32> (4 dwords)
   let count = instance_matrices.length()
-  dwords.push(@gfx.double_to_f32_bits(count.to_double()))
-  dwords.push(@gfx.double_to_f32_bits(0.0))
-  dwords.push(@gfx.double_to_f32_bits(0.0))
-  dwords.push(@gfx.double_to_f32_bits(0.0))
+  dwords.push(f32(count.to_double()))
+  dwords.push(f32(0.0))
+  dwords.push(f32(0.0))
+  dwords.push(f32(0.0))
   // Per-instance data: model(16) + color(4) = 20 dwords each
   let inst_count = if count < max_instances { count } else { max_instances }
   for i in 0..<inst_count {
     let m = instance_matrices[i]
     for j in 0..<16 {
-      dwords.push(@gfx.double_to_f32_bits(m.elements[j]))
+      dwords.push(f32(m.elements[j]))
     }
     let c = instance_colors[i]
-    dwords.push(@gfx.double_to_f32_bits(c.x))
-    dwords.push(@gfx.double_to_f32_bits(c.y))
-    dwords.push(@gfx.double_to_f32_bits(c.z))
-    dwords.push(@gfx.double_to_f32_bits(c.w))
+    dwords.push(f32(c.x))
+    dwords.push(f32(c.y))
+    dwords.push(f32(c.z))
+    dwords.push(f32(c.w))
   }
   // Pad remaining instances with zeros
   for _i in inst_count..<max_instances {
@@ -1444,18 +1454,18 @@ pub fn instanced_monochrome_lit_uniform_dwords(
   } else {
     max_monochrome_instances
   }
-  dwords.push(@gfx.double_to_f32_bits(count.to_double()))
-  dwords.push(@gfx.double_to_f32_bits(0.0))
-  dwords.push(@gfx.double_to_f32_bits(0.0))
-  dwords.push(@gfx.double_to_f32_bits(0.0))
-  dwords.push(@gfx.double_to_f32_bits(base_color.x))
-  dwords.push(@gfx.double_to_f32_bits(base_color.y))
-  dwords.push(@gfx.double_to_f32_bits(base_color.z))
-  dwords.push(@gfx.double_to_f32_bits(base_color.w))
+  dwords.push(f32(count.to_double()))
+  dwords.push(f32(0.0))
+  dwords.push(f32(0.0))
+  dwords.push(f32(0.0))
+  dwords.push(f32(base_color.x))
+  dwords.push(f32(base_color.y))
+  dwords.push(f32(base_color.z))
+  dwords.push(f32(base_color.w))
   for i in 0..<count {
     let m = instance_matrices[i]
     for j in 0..<16 {
-      dwords.push(@gfx.double_to_f32_bits(m.elements[j]))
+      dwords.push(f32(m.elements[j]))
     }
   }
   for _i in count..<max_monochrome_instances {

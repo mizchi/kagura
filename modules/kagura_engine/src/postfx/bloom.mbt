@@ -97,8 +97,8 @@ pub fn bloom_commands(
   let texel_w = 1.0 / blur_w.to_double()
   let texel_h = 1.0 / blur_h.to_double()
   let texel_dwords = [
-    @gfx.double_to_f32_bits(texel_w),
-    @gfx.double_to_f32_bits(texel_h),
+    f32(texel_w),
+    f32(texel_h),
     0,
     0,
   ]
@@ -107,7 +107,7 @@ pub fn bloom_commands(
     bloom_a,
     threshold_shader,
     [scene_image_id],
-    [@gfx.double_to_f32_bits(threshold), 0, 0, 0],
+    [f32(threshold), 0, 0, 0],
     @gfx.BlendMode::from_int(0),
   )
   // Pass 2: horizontal blur bloom_a -> bloom_b
@@ -131,7 +131,7 @@ pub fn bloom_commands(
     dst,
     composite_shader,
     [scene_image_id, bloom_a.id],
-    [@gfx.double_to_f32_bits(intensity), 0, 0, 0],
+    [f32(intensity), 0, 0, 0],
     @gfx.BlendMode::from_int(0),
   )
   [cmd1, cmd2, cmd3, cmd4]

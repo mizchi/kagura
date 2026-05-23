@@ -58,7 +58,7 @@ pub fn tonemap_uniform_dwords(
   exposure : Double,
   hit_flash? : Double = 0.0,
 ) -> Array[Int] {
-  [@gfx.double_to_f32_bits(exposure), @gfx.double_to_f32_bits(hit_flash), 0, 0]
+  [f32(exposure), f32(hit_flash), 0, 0]
 }
 
 ///|

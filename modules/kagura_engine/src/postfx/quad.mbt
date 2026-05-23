@@ -46,6 +46,17 @@ fn mix_cache_key(seed : Int, value : Int) -> Int {
   seed * 16777619 + value + 31
 }
 
+// Shared by sibling files (fog, bloom, fxaa, ssao, tonemap) - same package
+// scope. Encode a Double as IEEE 754 f32 bits via the hardware-mapped
+// intrinsic chain (f64 -> f32 -> reinterpret as int), bypassing the
+// int64-emulated mantissa unpacking in gfx.double_to_f32_bits which is
+// the dominant cost of uniform construction on the JS target. Bit pattern
+// differs by at most 1 ULP (gfx truncates, this rounds nearest-even);
+// shader math is unaffected.
+fn f32(v : Double) -> Int {
+  v.to_float().reinterpret_as_int()
+}
+
 ///|
 fn fullscreen_quad_resource_cache_key(
   dst : @gfx.ImageHandle,

@@ -483,6 +483,19 @@ fn page_slot_of(page_ids : Array[Int], page_image_id : Int) -> Int {
   out
 }
 
+// Mirrors mix_resource_cache_key in mizchi/gfx; local so the per-vertex
+// hash chain runs inline without allocating a values array. See
+// renderer2d/atlas_quad.mbt for rationale.
+fn mix_cache_key(seed : Int, value : Int) -> Int {
+  seed * 16777619 + value + 31
+}
+
+// Cheap deterministic 32-bit hash for a Double in non-functional cache_key
+// metadata. Avoids the int64 round-trip in @gfx.double_to_f32_bits.
+fn double_cache_bits(v : Double) -> Int {
+  (v * 4096.0).to_int()
+}
+
 ///|
 fn tilemap_draw_resource_cache_key(
   dst : @gfx.ImageHandle,
@@ -494,32 +507,35 @@ fn tilemap_draw_resource_cache_key(
   indices : Array[Int],
   uniform_dwords : Array[Int],
 ) -> Int {
-  let values : Array[Int] = [
-    dst.id,
-    dst.width,
-    dst.height,
-    shader.id,
-    dst_region.x,
-    dst_region.y,
-    dst_region.width,
-    dst_region.height,
-    dst_region.index_count,
-    @gfx.BlendMode::to_int(blend),
-    page_image_id,
-    vertex_data.length(),
-    indices.length(),
-    uniform_dwords.length(),
-  ]
+  let mut hash = 0x54494C45
+  hash = mix_cache_key(hash, dst.id)
+  hash = mix_cache_key(hash, dst.width)
+  hash = mix_cache_key(hash, dst.height)
+  hash = mix_cache_key(hash, shader.id)
+  hash = mix_cache_key(hash, dst_region.x)
+  hash = mix_cache_key(hash, dst_region.y)
+  hash = mix_cache_key(hash, dst_region.width)
+  hash = mix_cache_key(hash, dst_region.height)
+  hash = mix_cache_key(hash, dst_region.index_count)
+  hash = mix_cache_key(hash, @gfx.BlendMode::to_int(blend))
+  hash = mix_cache_key(hash, page_image_id)
+  hash = mix_cache_key(hash, vertex_data.length())
+  hash = mix_cache_key(hash, indices.length())
+  hash = mix_cache_key(hash, uniform_dwords.length())
   for value in vertex_data {
-    values.push(@gfx.double_to_f32_bits(value))
+    hash = mix_cache_key(hash, double_cache_bits(value))
   }
   for index in indices {
-    values.push(index)
+    hash = mix_cache_key(hash, index)
   }
   for dword in uniform_dwords {
-    values.push(dword)
+    hash = mix_cache_key(hash, dword)
   }
-  @gfx.build_resource_cache_key(0x54494C45, values)
+  if hash == 0 {
+    1
+  } else {
+    hash
+  }
 }
 
 ///|

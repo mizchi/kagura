@@ -148,9 +148,13 @@ pub fn LightingEnvironment::default() -> LightingEnvironment {
   }
 }
 
-///|
+// Encode a Double as the IEEE 754 f32 bit pattern (round to nearest-even),
+// for placement into shader uniform buffers. Equivalent to gfx.double_to_f32_bits
+// up to 1-ULP rounding (gfx truncates the mantissa, this rounds correctly);
+// shader-side math is unaffected, and the hardware-mapped intrinsic chain
+// avoids the int64 emulation cost on the JS target.
 fn f32(v : Double) -> Int {
-  @gfx.double_to_f32_bits(v)
+  v.to_float().reinterpret_as_int()
 }
 
 ///|

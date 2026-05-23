@@ -32,6 +32,9 @@
     },
     "mizchi/atlas": {
       "path": "../atlas"
+    },
+    "mizchi/anim3d": {
+      "path": "../anim3d"
     }
   },
   "preferred-target": "js",

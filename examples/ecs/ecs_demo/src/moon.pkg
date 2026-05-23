@@ -1,7 +1,7 @@
 import {
   "mizchi/kagura_game/ecs" @ecs,
   "mizchi/geom/math3d" @math3d,
-  "mizchi/kagura_core/transform3d" @transform3d,
+  "mizchi/anim3d/transform3d" @transform3d,
   "mizchi/kagura_game/scene" @scene,
   "mizchi/kagura_core" @core,
   "mizchi/kagura_core/inpututil" @inpututil,

@@ -15,6 +15,9 @@
     },
     "mizchi/geom": {
       "path": "../../../modules/geom"
+    },
+    "mizchi/anim3d": {
+      "path": "../../../modules/anim3d"
     }
   }
 }

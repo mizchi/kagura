@@ -37,7 +37,7 @@ import {
   "mizchi/web_runtime_hooks" @web_hooks,
   "mizchi/text" @text,
   "mizchi/atlas" @atlas,
-  "mizchi/image_palette" @image_palette,
+  "mizchi/atlas" @atlas,
   "mizchi/kagura_game/hud" @hud,
   "mizchi/kagura_game/sprite_packer" @sprite_packer,
   "mizchi/kagura_engine/sprite2d" @sprite2d,

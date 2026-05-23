@@ -25,7 +25,7 @@ pub struct ImageSpec {
   width : Int
   height : Int
   format : String
-  palette : @image_palette.ImagePalette2x2
+  palette : ImagePalette2x2
   pixels_rgba8 : Array[Int]
 } derive(Debug)
 
@@ -86,7 +86,7 @@ pub fn new_atlas_region(
 ///|
 pub struct ImagePaletteBinding {
   image_id : Int
-  palette : @image_palette.ImagePalette2x2
+  palette : ImagePalette2x2
 } derive(Debug)
 
 ///|
@@ -114,7 +114,7 @@ pub struct SourceImageBinding {
   height : Int
   generation : Int
   dirty_rect : SourceImageDirtyRect?
-  palette : @image_palette.ImagePalette2x2
+  palette : ImagePalette2x2
   pixels_rgba8 : Array[Int]
 } derive(Debug)
 
@@ -145,7 +145,7 @@ pub fn new_source_image_binding(
   height : Int,
   generation : Int,
   dirty_rect : SourceImageDirtyRect?,
-  palette : @image_palette.ImagePalette2x2,
+  palette : ImagePalette2x2,
   pixels_rgba8 : Array[Int],
 ) -> SourceImageBinding {
   { image_id, width, height, generation, dirty_rect, palette, pixels_rgba8 }
@@ -207,7 +207,7 @@ pub fn default_image_spec(width : Int, height : Int) -> ImageSpec {
     width,
     height,
     format: "rgba8unorm",
-    palette: @image_palette.checker_palette_from_seed(seed),
+    palette: checker_palette_from_seed(seed),
     pixels_rgba8: [],
   }
 }
@@ -216,7 +216,7 @@ pub fn default_image_spec(width : Int, height : Int) -> ImageSpec {
 pub fn image_spec_with_palette(
   width : Int,
   height : Int,
-  palette : @image_palette.ImagePalette2x2,
+  palette : ImagePalette2x2,
 ) -> ImageSpec {
   { width, height, format: "rgba8unorm", palette, pixels_rgba8: [] }
 }
@@ -273,35 +273,35 @@ fn palette_from_rgba8_channels(
   width : Int,
   height : Int,
   pixels_rgba8 : Array[Int],
-) -> @image_palette.ImagePalette2x2 {
+) -> ImagePalette2x2 {
   let safe_width = if width <= 0 { 1 } else { width }
   let safe_height = if height <= 0 { 1 } else { height }
   let expected = safe_width * safe_height * 4
   if expected <= 0 || pixels_rgba8.length() < expected {
-    @image_palette.checker_palette_from_seed(safe_width * 65537 + safe_height)
+    checker_palette_from_seed(safe_width * 65537 + safe_height)
   } else {
     let x1 = safe_width - 1
     let y1 = safe_height - 1
-    @image_palette.new_image_palette_2x2(
-      @image_palette.new_rgba(
+    new_image_palette_2x2(
+      new_rgba(
         sample_rgba8_channel(pixels_rgba8, safe_width, 0, 0, 0),
         sample_rgba8_channel(pixels_rgba8, safe_width, 0, 0, 1),
         sample_rgba8_channel(pixels_rgba8, safe_width, 0, 0, 2),
         sample_rgba8_channel(pixels_rgba8, safe_width, 0, 0, 3),
       ),
-      @image_palette.new_rgba(
+      new_rgba(
         sample_rgba8_channel(pixels_rgba8, safe_width, x1, 0, 0),
         sample_rgba8_channel(pixels_rgba8, safe_width, x1, 0, 1),
         sample_rgba8_channel(pixels_rgba8, safe_width, x1, 0, 2),
         sample_rgba8_channel(pixels_rgba8, safe_width, x1, 0, 3),
       ),
-      @image_palette.new_rgba(
+      new_rgba(
         sample_rgba8_channel(pixels_rgba8, safe_width, 0, y1, 0),
         sample_rgba8_channel(pixels_rgba8, safe_width, 0, y1, 1),
         sample_rgba8_channel(pixels_rgba8, safe_width, 0, y1, 2),
         sample_rgba8_channel(pixels_rgba8, safe_width, 0, y1, 3),
       ),
-      @image_palette.new_rgba(
+      new_rgba(
         sample_rgba8_channel(pixels_rgba8, safe_width, x1, y1, 0),
         sample_rgba8_channel(pixels_rgba8, safe_width, x1, y1, 1),
         sample_rgba8_channel(pixels_rgba8, safe_width, x1, y1, 2),
@@ -346,14 +346,14 @@ fn has_valid_rgba8_payload(
 
 ///|
 fn image_palette_eq(
-  lhs : @image_palette.ImagePalette2x2,
-  rhs : @image_palette.ImagePalette2x2,
+  lhs : ImagePalette2x2,
+  rhs : ImagePalette2x2,
 ) -> Bool {
   let mut ok = true
   for pixel_index in 0..<4 {
     for channel_index in 0..<4 {
-      if @image_palette.palette_channel(lhs, pixel_index, channel_index) !=
-        @image_palette.palette_channel(rhs, pixel_index, channel_index) {
+      if palette_channel(lhs, pixel_index, channel_index) !=
+        palette_channel(rhs, pixel_index, channel_index) {
         ok = false
       }
     }
@@ -485,7 +485,7 @@ fn merge_dirty_rects(
 struct SimpleImageEntry {
   key : AssetKey
   handle : @gfx.ImageHandle
-  palette : @image_palette.ImagePalette2x2
+  palette : ImagePalette2x2
   pixels_rgba8 : Array[Int]
   generation : Int
   dirty_rect : SourceImageDirtyRect?
@@ -558,8 +558,8 @@ fn find_image_handle(
 fn find_image_palette_by_id(
   images : Array[SimpleImageEntry],
   image_id : Int,
-) -> @image_palette.ImagePalette2x2? {
-  let mut out : @image_palette.ImagePalette2x2? = None
+) -> ImagePalette2x2? {
+  let mut out : ImagePalette2x2? = None
   for entry in images {
     if entry.handle.id == image_id {
       out = Some(entry.palette)
@@ -633,7 +633,7 @@ pub fn new_simple_image_repository() -> SimpleImageRepository {
 pub fn get_image_palette_by_id(
   repo : SimpleImageRepository,
   image_id : Int,
-) -> @image_palette.ImagePalette2x2? {
+) -> ImagePalette2x2? {
   find_image_palette_by_id(repo.images, image_id)
 }
 
@@ -1052,7 +1052,7 @@ struct SimpleAtlasImageEntry {
   key : AssetKey
   handle : @gfx.ImageHandle
   region : AtlasRegion
-  palette : @image_palette.ImagePalette2x2
+  palette : ImagePalette2x2
   pixels_rgba8 : Array[Int]
 } derive(Debug)
 
@@ -1381,10 +1381,10 @@ fn fill_atlas_page_pixels_from_entry(
     image_width,
     image_height,
   )
-  let fallback_r = @image_palette.palette_channel(entry.palette, 0, 0)
-  let fallback_g = @image_palette.palette_channel(entry.palette, 0, 1)
-  let fallback_b = @image_palette.palette_channel(entry.palette, 0, 2)
-  let fallback_a = @image_palette.palette_channel(entry.palette, 0, 3)
+  let fallback_r = palette_channel(entry.palette, 0, 0)
+  let fallback_g = palette_channel(entry.palette, 0, 1)
+  let fallback_b = palette_channel(entry.palette, 0, 2)
+  let fallback_a = palette_channel(entry.palette, 0, 3)
   for local_y in 0..<image_height {
     let atlas_y = entry.region.y + local_y
     if atlas_y < 0 || atlas_y >= atlas_height {

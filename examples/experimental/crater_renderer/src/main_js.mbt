@@ -45,7 +45,7 @@ fn flush_text_atlas_js(demo : DemoState) -> Unit {
               page_info.height,
             ),
           ),
-          @image_palette.checker_palette_from_seed(page_info.page_id),
+          @atlas.checker_palette_from_seed(page_info.page_id),
           page.get_pixels(),
         ),
       )

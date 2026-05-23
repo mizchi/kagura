@@ -183,7 +183,7 @@ pub fn shutdown() -> Unit {
 ///|
 pub fn register_source_image_palette(
   source_image_id : Int,
-  _palette : @image_palette.ImagePalette2x2,
+  _palette : @atlas.ImagePalette2x2,
 ) -> Unit {
   if source_image_id < 0 {
     return
@@ -211,11 +211,11 @@ pub fn register_source_image_palette(
 ///|
 pub fn register_source_image_solid_color(
   source_image_id : Int,
-  color : @image_palette.Rgba,
+  color : @atlas.Rgba,
 ) -> Unit {
   register_source_image_palette(
     source_image_id,
-    @image_palette.new_solid_palette(color),
+    @atlas.new_solid_palette(color),
   )
 }
 

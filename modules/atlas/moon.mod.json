@@ -8,9 +8,6 @@
   "warn-list": "-6-29-53-68",
   "deps": {
     "mizchi/gfx": "0.1.0",
-    "mizchi/image": "0.1.1",
-    "mizchi/image_palette": {
-      "path": "../image_palette"
-    }
+    "mizchi/image": "0.1.1"
   }
 }

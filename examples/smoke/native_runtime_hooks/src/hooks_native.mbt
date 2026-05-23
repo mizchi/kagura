@@ -444,11 +444,11 @@ fn bridge_gfx_on_new_image(
 
 ///|
 fn palette_channel_or_zero(
-  palette : @image_palette.ImagePalette2x2,
+  palette : @atlas.ImagePalette2x2,
   pixel_index : Int,
   channel_index : Int,
 ) -> Int {
-  let value = @image_palette.palette_channel(
+  let value = @atlas.palette_channel(
     palette, pixel_index, channel_index,
   )
   if value < 0 {
@@ -461,7 +461,7 @@ fn palette_channel_or_zero(
 ///|
 pub fn register_source_image_palette(
   source_image_id : Int,
-  palette : @image_palette.ImagePalette2x2,
+  palette : @atlas.ImagePalette2x2,
 ) -> Unit {
   @wgpu_native.runtime_register_source_image_palette(
     source_image_id,
@@ -490,11 +490,11 @@ pub fn register_source_image_palette(
 ///|
 pub fn register_source_image_solid_color(
   source_image_id : Int,
-  color : @image_palette.Rgba,
+  color : @atlas.Rgba,
 ) -> Unit {
   register_source_image_palette(
     source_image_id,
-    @image_palette.new_solid_palette(color),
+    @atlas.new_solid_palette(color),
   )
 }
 

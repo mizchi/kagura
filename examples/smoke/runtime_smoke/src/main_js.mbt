@@ -151,7 +151,7 @@ fn[T : @gfx.GraphicsDriver] run_draw_payload_probe(graphics : T) -> Unit raise {
     64,
     1,
     Some(@atlas.new_source_image_dirty_rect(0, 0, 64, 64)),
-    @image_palette.checker_palette_from_seed(900),
+    @atlas.checker_palette_from_seed(900),
     plan.text_atlas.get_pixels(),
   )
   let _ = @web_hooks.sync_source_images([text_binding])

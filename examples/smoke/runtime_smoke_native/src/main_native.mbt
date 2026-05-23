@@ -370,7 +370,7 @@ fn[T : @gfx.GraphicsDriver] run_draw_payload_probe(
     Some(
       @atlas.new_source_image_dirty_rect(0, 0, text_atlas_size, text_atlas_size),
     ),
-    @image_palette.checker_palette_from_seed(900),
+    @atlas.checker_palette_from_seed(900),
     text_renderer.get_atlas().get_pixels(),
   )
   let _ = @native_hooks.sync_source_images([text_binding])

@@ -46,7 +46,7 @@ pub fn render_frame() -> Bool {
 ///|
 pub fn register_source_image_palette(
   _source_image_id : Int,
-  _palette : @image_palette.ImagePalette2x2,
+  _palette : @atlas.ImagePalette2x2,
 ) -> Unit {
   ()
 }
@@ -54,7 +54,7 @@ pub fn register_source_image_palette(
 ///|
 pub fn register_source_image_solid_color(
   _source_image_id : Int,
-  _color : @image_palette.Rgba,
+  _color : @atlas.Rgba,
 ) -> Unit {
   ()
 }

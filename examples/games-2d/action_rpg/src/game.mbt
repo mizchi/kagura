@@ -1162,7 +1162,7 @@ fn ShowcaseState::render_text_hud(
               page_info.height,
             ),
           ),
-          @image_palette.checker_palette_from_seed(page_info.page_id),
+          @atlas.checker_palette_from_seed(page_info.page_id),
           page.get_pixels(),
         )
         bindings.push(binding)
@@ -1185,7 +1185,7 @@ fn ShowcaseState::render_text_hud(
           16,
           1,
           Some(@atlas.new_source_image_dirty_rect(0, 0, 16, 16)),
-          @image_palette.checker_palette_from_seed(self.svg_icon_image_id),
+          @atlas.checker_palette_from_seed(self.svg_icon_image_id),
           pixels,
         )
         let _ = @web_hooks.sync_source_images([binding])

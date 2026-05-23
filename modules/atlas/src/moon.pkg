@@ -1,6 +1,5 @@
 import {
   "mizchi/gfx" @gfx,
-  "mizchi/image_palette" @image_palette,
   "mizchi/image" @image,
 }
 

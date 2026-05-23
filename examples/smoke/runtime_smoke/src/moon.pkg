@@ -5,7 +5,7 @@ import {
   "mizchi/kagura_core" @core,
   "mizchi/web_runtime_hooks" @web_hooks,
   "mizchi/gfx" @gfx,
-  "mizchi/image_palette" @image_palette,
+  "mizchi/atlas" @atlas,
   "mizchi/kagura_core/payload2d" @payload2d,
   "mizchi/kagura_engine/platform" @platform,
   "mizchi/kagura_engine/runtime" @runtime,

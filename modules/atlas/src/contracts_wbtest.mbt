@@ -32,7 +32,7 @@ fn expect_some_shader(
 
 ///|
 test "new_source_image_binding factory constructs binding" {
-  let palette = @image_palette.checker_palette_from_seed(42)
+  let palette = checker_palette_from_seed(42)
   let pixels = [10, 20, 30, 255]
   let dirty = new_source_image_dirty_rect(1, 2, 3, 4)
   let binding = new_source_image_binding(
@@ -94,8 +94,8 @@ test "simple image repository reuses handle for duplicate keys" {
 test "image spec with palette is retained in simple image repository" {
   let repo = new_simple_image_repository()
   let key : AssetKey = { value: "ui/button" }
-  let palette = @image_palette.new_solid_palette(
-    @image_palette.new_rgba(12, 34, 56, 255),
+  let palette = new_solid_palette(
+    new_rgba(12, 34, 56, 255),
   )
   let spec = image_spec_with_palette(8, 8, palette)
   let handle = repo.create_image(key, spec)
@@ -105,10 +105,10 @@ test "image spec with palette is retained in simple image repository" {
     None => panic()
   }
   for pixel_index in 0..<4 {
-    assert_eq(@image_palette.palette_channel(stored, pixel_index, 0), 12)
-    assert_eq(@image_palette.palette_channel(stored, pixel_index, 1), 34)
-    assert_eq(@image_palette.palette_channel(stored, pixel_index, 2), 56)
-    assert_eq(@image_palette.palette_channel(stored, pixel_index, 3), 255)
+    assert_eq(palette_channel(stored, pixel_index, 0), 12)
+    assert_eq(palette_channel(stored, pixel_index, 1), 34)
+    assert_eq(palette_channel(stored, pixel_index, 2), 56)
+    assert_eq(palette_channel(stored, pixel_index, 3), 255)
   }
 }
 
@@ -122,7 +122,7 @@ test "list_image_palette_bindings exports all current images" {
     image_spec_with_palette(
       4,
       4,
-      @image_palette.new_solid_palette(@image_palette.new_rgba(1, 2, 3, 4)),
+      new_solid_palette(new_rgba(1, 2, 3, 4)),
     ),
   )
   let handle_b = repo.create_image(
@@ -130,7 +130,7 @@ test "list_image_palette_bindings exports all current images" {
     image_spec_with_palette(
       4,
       4,
-      @image_palette.new_solid_palette(@image_palette.new_rgba(9, 8, 7, 6)),
+      new_solid_palette(new_rgba(9, 8, 7, 6)),
     ),
   )
 
@@ -142,17 +142,17 @@ test "list_image_palette_bindings exports all current images" {
   for binding in bindings {
     if binding.image_id == handle_a.id {
       found_a = true
-      assert_eq(@image_palette.palette_channel(binding.palette, 0, 0), 1)
-      assert_eq(@image_palette.palette_channel(binding.palette, 0, 1), 2)
-      assert_eq(@image_palette.palette_channel(binding.palette, 0, 2), 3)
-      assert_eq(@image_palette.palette_channel(binding.palette, 0, 3), 4)
+      assert_eq(palette_channel(binding.palette, 0, 0), 1)
+      assert_eq(palette_channel(binding.palette, 0, 1), 2)
+      assert_eq(palette_channel(binding.palette, 0, 2), 3)
+      assert_eq(palette_channel(binding.palette, 0, 3), 4)
     }
     if binding.image_id == handle_b.id {
       found_b = true
-      assert_eq(@image_palette.palette_channel(binding.palette, 0, 0), 9)
-      assert_eq(@image_palette.palette_channel(binding.palette, 0, 1), 8)
-      assert_eq(@image_palette.palette_channel(binding.palette, 0, 2), 7)
-      assert_eq(@image_palette.palette_channel(binding.palette, 0, 3), 6)
+      assert_eq(palette_channel(binding.palette, 0, 0), 9)
+      assert_eq(palette_channel(binding.palette, 0, 1), 8)
+      assert_eq(palette_channel(binding.palette, 0, 2), 7)
+      assert_eq(palette_channel(binding.palette, 0, 3), 6)
     }
   }
   assert_true(found_a)
@@ -165,14 +165,14 @@ test "image_spec_with_rgba8 keeps channels and derives corner palette" {
     1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16,
   ])
   assert_eq(spec.pixels_rgba8.length(), 16)
-  assert_eq(@image_palette.palette_channel(spec.palette, 0, 0), 1)
-  assert_eq(@image_palette.palette_channel(spec.palette, 0, 1), 2)
-  assert_eq(@image_palette.palette_channel(spec.palette, 0, 2), 3)
-  assert_eq(@image_palette.palette_channel(spec.palette, 0, 3), 4)
-  assert_eq(@image_palette.palette_channel(spec.palette, 3, 0), 13)
-  assert_eq(@image_palette.palette_channel(spec.palette, 3, 1), 14)
-  assert_eq(@image_palette.palette_channel(spec.palette, 3, 2), 15)
-  assert_eq(@image_palette.palette_channel(spec.palette, 3, 3), 16)
+  assert_eq(palette_channel(spec.palette, 0, 0), 1)
+  assert_eq(palette_channel(spec.palette, 0, 1), 2)
+  assert_eq(palette_channel(spec.palette, 0, 2), 3)
+  assert_eq(palette_channel(spec.palette, 0, 3), 4)
+  assert_eq(palette_channel(spec.palette, 3, 0), 13)
+  assert_eq(palette_channel(spec.palette, 3, 1), 14)
+  assert_eq(palette_channel(spec.palette, 3, 2), 15)
+  assert_eq(palette_channel(spec.palette, 3, 3), 16)
 }
 
 ///|

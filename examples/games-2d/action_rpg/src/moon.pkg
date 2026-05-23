@@ -10,7 +10,7 @@ import {
   "mizchi/renderer2d" @renderer2d,
   "mizchi/kagura_core" @core,
   "mizchi/gfx" @gfx,
-  "mizchi/image_palette" @image_palette,
+  "mizchi/atlas" @atlas,
   "mizchi/kagura_core/inpututil" @inpututil,
   "mizchi/kagura_game/scene" @scene,
   "mizchi/kagura_core/svg" @svg,

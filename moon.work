@@ -1,6 +1,5 @@
 members = [
   ".",
-  "./modules/image_palette",
   "./modules/mesh3d",
   "./modules/anim3d",
   "./modules/geom",

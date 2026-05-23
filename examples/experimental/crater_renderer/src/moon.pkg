@@ -6,7 +6,7 @@ import {
   "mizchi/renderer2d" @renderer2d,
   "mizchi/widget2d" @widget2d,
   "mizchi/text" @text,
-  "mizchi/image_palette" @image_palette,
+  "mizchi/atlas" @atlas,
   "mizchi/font" @font,
   "mizchi/crater/renderer" @renderer,
   "mizchi/crater/paint" @paint,

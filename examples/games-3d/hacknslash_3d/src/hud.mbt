@@ -740,7 +740,7 @@ fn GameState::flush_text_atlas(self : GameState) -> Unit {
             page_info.height,
           ),
         ),
-        @image_palette.checker_palette_from_seed(page_info.page_id),
+        @atlas.checker_palette_from_seed(page_info.page_id),
         page.get_pixels(),
       )
       bindings.push(binding)

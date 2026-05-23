@@ -2,9 +2,9 @@
 package "mizchi/kagura_game/ik3d"
 
 import {
-  "mizchi/kagura_core/math3d",
-  "mizchi/kagura_core/skeleton3d",
-  "mizchi/kagura_core/transform3d",
+  "mizchi/anim3d/skeleton3d",
+  "mizchi/anim3d/transform3d",
+  "mizchi/geom/math3d",
 }
 
 // Values

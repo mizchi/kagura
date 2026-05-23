@@ -2,21 +2,21 @@
 package "mizchi/kagura_game/sprite_packer"
 
 import {
-  "mizchi/kagura_engine/asset",
+  "mizchi/atlas",
   "mizchi/kagura_game/tilemap2d",
   "moonbitlang/core/debug",
 }
 
 // Values
-pub fn compose_packed_image(Array[SpriteInput], PackResult) -> @asset.ImageSpec
+pub fn compose_packed_image(Array[SpriteInput], PackResult) -> @atlas.ImageSpec
 
-pub fn create_packed_atlas_repository(Array[SpriteInput], PackResult, atlas_id? : Int) -> @asset.SimpleAtlasImageRepository
+pub fn create_packed_atlas_repository(Array[SpriteInput], PackResult, atlas_id? : Int) -> @atlas.SimpleAtlasImageRepository
 
 pub fn pack_result_to_tile_atlas_table(PackResult) -> @tilemap2d.TileAtlasTable
 
 pub fn pack_sprites(Array[SpriteInput], config? : PackerConfig) -> PackResult?
 
-pub fn packed_sprite_to_atlas_region(PackedSprite, Int) -> @asset.AtlasRegion
+pub fn packed_sprite_to_atlas_region(PackedSprite, Int) -> @atlas.AtlasRegion
 
 // Errors
 
@@ -54,7 +54,7 @@ pub impl Show for Rect
 
 pub(all) struct SpriteInput {
   key : String
-  spec : @asset.ImageSpec
+  spec : @atlas.ImageSpec
 }
 
 // Type aliases

@@ -301,11 +301,14 @@ fn bench_state_with_enemy_ai_path_follow(count : Int) -> GameState {
 }
 
 ///|
-test "bench hacknslash_3d draw_playing default" (b : @bench.T) {
-  let state = GameState::new(seed=42)
+fn run_draw_playing_bench(
+  b : @bench.T,
+  name : String,
+  state : GameState,
+) -> Unit {
   state.world.mode = @game.Playing
   let ctx = bench_engine_context()
-  b.bench(name="hacknslash_3d/draw_playing/default", fn() {
+  b.bench(name~, fn() {
     let commands = state.draw_playing(ctx)
     let stats = summarize_draw_playing_commands(commands, state, ctx.dst)
     b.keep(
@@ -314,54 +317,42 @@ test "bench hacknslash_3d draw_playing default" (b : @bench.T) {
       stats.instanced_instances,
     )
   })
+}
+
+///|
+test "bench hacknslash_3d draw_playing default" (b : @bench.T) {
+  run_draw_playing_bench(
+    b,
+    "hacknslash_3d/draw_playing/default",
+    GameState::new(seed=42),
+  )
 }
 
 ///|
 test "bench hacknslash_3d draw_playing all_effects" (b : @bench.T) {
-  let state = bench_state_with_all_effects_enabled()
-  state.world.mode = @game.Playing
-  let ctx = bench_engine_context()
-  b.bench(name="hacknslash_3d/draw_playing/all_effects", fn() {
-    let commands = state.draw_playing(ctx)
-    let stats = summarize_draw_playing_commands(commands, state, ctx.dst)
-    b.keep(
-      stats.total_commands +
-      stats.estimated_draw_calls +
-      stats.instanced_instances,
-    )
-  })
+  run_draw_playing_bench(
+    b,
+    "hacknslash_3d/draw_playing/all_effects",
+    bench_state_with_all_effects_enabled(),
+  )
 }
 
 ///|
 test "bench hacknslash_3d draw_playing stress_enemies_64" (b : @bench.T) {
-  let state = bench_state_with_stress_enemies(64)
-  state.world.mode = @game.Playing
-  let ctx = bench_engine_context()
-  b.bench(name="hacknslash_3d/draw_playing/stress_enemies_64", fn() {
-    let commands = state.draw_playing(ctx)
-    let stats = summarize_draw_playing_commands(commands, state, ctx.dst)
-    b.keep(
-      stats.total_commands +
-      stats.estimated_draw_calls +
-      stats.instanced_instances,
-    )
-  })
+  run_draw_playing_bench(
+    b,
+    "hacknslash_3d/draw_playing/stress_enemies_64",
+    bench_state_with_stress_enemies(64),
+  )
 }
 
 ///|
 test "bench hacknslash_3d draw_playing stress_enemies_256" (b : @bench.T) {
-  let state = bench_state_with_stress_enemies(256)
-  state.world.mode = @game.Playing
-  let ctx = bench_engine_context()
-  b.bench(name="hacknslash_3d/draw_playing/stress_enemies_256", fn() {
-    let commands = state.draw_playing(ctx)
-    let stats = summarize_draw_playing_commands(commands, state, ctx.dst)
-    b.keep(
-      stats.total_commands +
-      stats.estimated_draw_calls +
-      stats.instanced_instances,
-    )
-  })
+  run_draw_playing_bench(
+    b,
+    "hacknslash_3d/draw_playing/stress_enemies_256",
+    bench_state_with_stress_enemies(256),
+  )
 }
 
 ///|
@@ -501,13 +492,16 @@ test "bench hacknslash_3d character_pass default" (b : @bench.T) {
 }
 
 ///|
-test "bench hacknslash_3d enemy_character_pass default" (b : @bench.T) {
-  let state = bench_state_with_visible_enemy()
+fn run_enemy_character_pass_bench(
+  b : @bench.T,
+  name : String,
+  state : GameState,
+) -> Unit {
   state.world.mode = @game.Playing
   let ctx = bench_engine_context()
   let vis_region = bench_visible_region(state)
   let camera = state.camera.to_camera3d()
-  b.bench(name="hacknslash_3d/enemy_character_pass/default", fn() {
+  b.bench(name~, fn() {
     let commands : Array[@gfx.DrawTrianglesCommand] = []
     state.push_enemy_character_commands(
       vis_region,
@@ -522,57 +516,43 @@ test "bench hacknslash_3d enemy_character_pass default" (b : @bench.T) {
 }
 
 ///|
+test "bench hacknslash_3d enemy_character_pass default" (b : @bench.T) {
+  run_enemy_character_pass_bench(
+    b,
+    "hacknslash_3d/enemy_character_pass/default",
+    bench_state_with_visible_enemy(),
+  )
+}
+
+///|
 test "bench hacknslash_3d enemy_character_pass stress_enemies_64" (b : @bench.T) {
-  let state = bench_state_with_stress_enemies(64)
-  state.world.mode = @game.Playing
-  let ctx = bench_engine_context()
-  let vis_region = bench_visible_region(state)
-  let camera = state.camera.to_camera3d()
-  b.bench(name="hacknslash_3d/enemy_character_pass/stress_enemies_64", fn() {
-    let commands : Array[@gfx.DrawTrianglesCommand] = []
-    state.push_enemy_character_commands(
-      vis_region,
-      camera,
-      state.pipeline.scene_target,
-      ctx.screen_w,
-      ctx.screen_h,
-      commands,
-    )
-    b.keep(commands.length())
-  })
+  run_enemy_character_pass_bench(
+    b,
+    "hacknslash_3d/enemy_character_pass/stress_enemies_64",
+    bench_state_with_stress_enemies(64),
+  )
 }
 
 ///|
 test "bench hacknslash_3d enemy_character_pass stress_enemies_256" (
   b : @bench.T,
 ) {
-  let state = bench_state_with_stress_enemies(256)
-  state.world.mode = @game.Playing
-  let ctx = bench_engine_context()
-  let vis_region = bench_visible_region(state)
-  let camera = state.camera.to_camera3d()
-  b.bench(name="hacknslash_3d/enemy_character_pass/stress_enemies_256", fn() {
-    let commands : Array[@gfx.DrawTrianglesCommand] = []
-    state.push_enemy_character_commands(
-      vis_region,
-      camera,
-      state.pipeline.scene_target,
-      ctx.screen_w,
-      ctx.screen_h,
-      commands,
-    )
-    b.keep(commands.length())
-  })
+  run_enemy_character_pass_bench(
+    b,
+    "hacknslash_3d/enemy_character_pass/stress_enemies_256",
+    bench_state_with_stress_enemies(256),
+  )
 }
 
 ///|
-test "bench hacknslash_3d rebuild_enemy_render_buckets stress_enemies_64" (
+fn run_rebuild_enemy_render_buckets_bench(
   b : @bench.T,
-) {
-  let state = bench_state_with_stress_enemies(64)
+  name : String,
+  state : GameState,
+) -> Unit {
   state.world.mode = @game.Playing
   let vis_region = bench_visible_region(state)
-  b.bench(name="hacknslash_3d/rebuild_enemy_render_buckets/stress_enemies_64", fn() {
+  b.bench(name~, fn() {
     state.rebuild_enemy_render_buckets(vis_region)
     let buckets = state.enemy_render_buckets
     b.keep(
@@ -586,161 +566,171 @@ test "bench hacknslash_3d rebuild_enemy_render_buckets stress_enemies_64" (
 }
 
 ///|
+test "bench hacknslash_3d rebuild_enemy_render_buckets stress_enemies_64" (
+  b : @bench.T,
+) {
+  run_rebuild_enemy_render_buckets_bench(
+    b,
+    "hacknslash_3d/rebuild_enemy_render_buckets/stress_enemies_64",
+    bench_state_with_stress_enemies(64),
+  )
+}
+
+///|
 test "bench hacknslash_3d rebuild_enemy_render_buckets stress_enemies_256" (
   b : @bench.T,
 ) {
-  let state = bench_state_with_stress_enemies(256)
-  state.world.mode = @game.Playing
-  let vis_region = bench_visible_region(state)
-  b.bench(
-    name="hacknslash_3d/rebuild_enemy_render_buckets/stress_enemies_256",
-    fn() {
-      state.rebuild_enemy_render_buckets(vis_region)
-      let buckets = state.enemy_render_buckets
-      b.keep(
-        buckets.basic_matrices.length() +
-        buckets.fast_matrices.length() +
-        buckets.tank_matrices.length() +
-        buckets.ranged_matrices.length() +
-        buckets.boss_matrices.length(),
-      )
-    },
+  run_rebuild_enemy_render_buckets_bench(
+    b,
+    "hacknslash_3d/rebuild_enemy_render_buckets/stress_enemies_256",
+    bench_state_with_stress_enemies(256),
   )
+}
+
+///|
+fn run_enemy_enemy_separation_bench(
+  b : @bench.T,
+  name : String,
+  state : GameState,
+) -> Unit {
+  let template = clone_enemy_array(state.world.enemies)
+  b.bench(name~, fn() {
+    state.world.enemies = clone_enemy_array(template)
+    state.world.resolve_enemy_enemy_separation()
+    b.keep(state.world.enemies.length())
+  })
 }
 
 ///|
 test "bench hacknslash_3d enemy_enemy_separation stress_enemies_64" (
   b : @bench.T,
 ) {
-  let state = bench_state_with_stress_enemies(64)
-  let template = clone_enemy_array(state.world.enemies)
-  b.bench(name="hacknslash_3d/enemy_enemy_separation/stress_enemies_64", fn() {
-    state.world.enemies = clone_enemy_array(template)
-    state.world.resolve_enemy_enemy_separation()
-    b.keep(state.world.enemies.length())
-  })
+  run_enemy_enemy_separation_bench(
+    b,
+    "hacknslash_3d/enemy_enemy_separation/stress_enemies_64",
+    bench_state_with_stress_enemies(64),
+  )
 }
 
 ///|
 test "bench hacknslash_3d enemy_enemy_separation stress_enemies_256" (
   b : @bench.T,
 ) {
-  let state = bench_state_with_stress_enemies(256)
+  run_enemy_enemy_separation_bench(
+    b,
+    "hacknslash_3d/enemy_enemy_separation/stress_enemies_256",
+    bench_state_with_stress_enemies(256),
+  )
+}
+
+///|
+fn run_enemy_ai_phase_bench(
+  b : @bench.T,
+  name : String,
+  state : GameState,
+  clear_events~ : Bool,
+) -> Unit {
   let template = clone_enemy_array(state.world.enemies)
-  b.bench(name="hacknslash_3d/enemy_enemy_separation/stress_enemies_256", fn() {
+  b.bench(name~, fn() {
     state.world.enemies = clone_enemy_array(template)
-    state.world.resolve_enemy_enemy_separation()
-    b.keep(state.world.enemies.length())
+    state.world.projectiles = []
+    if clear_events {
+      state.world.events = []
+    }
+    state.world.tick_enemy_ai_phase()
+    b.keep(state.world.enemies.length() + state.world.projectiles.length())
   })
 }
 
 ///|
 test "bench hacknslash_3d enemy_ai_phase stress_enemies_64" (b : @bench.T) {
-  let state = bench_state_with_stress_enemies(64)
-  let template = clone_enemy_array(state.world.enemies)
-  b.bench(name="hacknslash_3d/enemy_ai_phase/stress_enemies_64", fn() {
-    state.world.enemies = clone_enemy_array(template)
-    state.world.projectiles = []
-    state.world.tick_enemy_ai_phase()
-    b.keep(state.world.enemies.length() + state.world.projectiles.length())
-  })
+  run_enemy_ai_phase_bench(
+    b,
+    "hacknslash_3d/enemy_ai_phase/stress_enemies_64",
+    bench_state_with_stress_enemies(64),
+    clear_events=false,
+  )
 }
 
 ///|
 test "bench hacknslash_3d enemy_ai_phase stress_enemies_256" (b : @bench.T) {
-  let state = bench_state_with_stress_enemies(256)
-  let template = clone_enemy_array(state.world.enemies)
-  b.bench(name="hacknslash_3d/enemy_ai_phase/stress_enemies_256", fn() {
-    state.world.enemies = clone_enemy_array(template)
-    state.world.projectiles = []
-    state.world.tick_enemy_ai_phase()
-    b.keep(state.world.enemies.length() + state.world.projectiles.length())
-  })
+  run_enemy_ai_phase_bench(
+    b,
+    "hacknslash_3d/enemy_ai_phase/stress_enemies_256",
+    bench_state_with_stress_enemies(256),
+    clear_events=false,
+  )
 }
 
 ///|
 test "bench hacknslash_3d enemy_ai_castup_phase stress_enemies_256" (
   b : @bench.T,
 ) {
-  let state = bench_state_with_enemy_ai_castup_phase(256)
-  let template = clone_enemy_array(state.world.enemies)
-  b.bench(name="hacknslash_3d/enemy_ai_castup_phase/stress_enemies_256", fn() {
-    state.world.enemies = clone_enemy_array(template)
-    state.world.projectiles = []
-    state.world.events = []
-    state.world.tick_enemy_ai_phase()
-    b.keep(state.world.enemies.length() + state.world.projectiles.length())
-  })
+  run_enemy_ai_phase_bench(
+    b,
+    "hacknslash_3d/enemy_ai_castup_phase/stress_enemies_256",
+    bench_state_with_enemy_ai_castup_phase(256),
+    clear_events=true,
+  )
 }
 
 ///|
 test "bench hacknslash_3d enemy_ai_tackle_phase stress_enemies_256" (
   b : @bench.T,
 ) {
-  let state = bench_state_with_enemy_ai_tackle_phase(256)
-  let template = clone_enemy_array(state.world.enemies)
-  b.bench(name="hacknslash_3d/enemy_ai_tackle_phase/stress_enemies_256", fn() {
-    state.world.enemies = clone_enemy_array(template)
-    state.world.projectiles = []
-    state.world.events = []
-    state.world.tick_enemy_ai_phase()
-    b.keep(state.world.enemies.length() + state.world.projectiles.length())
-  })
+  run_enemy_ai_phase_bench(
+    b,
+    "hacknslash_3d/enemy_ai_tackle_phase/stress_enemies_256",
+    bench_state_with_enemy_ai_tackle_phase(256),
+    clear_events=true,
+  )
 }
 
 ///|
 test "bench hacknslash_3d enemy_ai_direct_chase_phase stress_enemies_256" (
   b : @bench.T,
 ) {
-  let state = bench_state_with_enemy_ai_direct_chase(256)
-  let template = clone_enemy_array(state.world.enemies)
-  b.bench(name="hacknslash_3d/enemy_ai_direct_chase_phase/stress_enemies_256", fn() {
-    state.world.enemies = clone_enemy_array(template)
-    state.world.projectiles = []
-    state.world.events = []
-    state.world.tick_enemy_ai_phase()
-    b.keep(state.world.enemies.length() + state.world.projectiles.length())
-  })
+  run_enemy_ai_phase_bench(
+    b,
+    "hacknslash_3d/enemy_ai_direct_chase_phase/stress_enemies_256",
+    bench_state_with_enemy_ai_direct_chase(256),
+    clear_events=true,
+  )
 }
 
 ///|
 test "bench hacknslash_3d enemy_ai_path_rebuild_phase stress_enemies_256" (
   b : @bench.T,
 ) {
-  let state = bench_state_with_enemy_ai_path_rebuild(256)
-  let template = clone_enemy_array(state.world.enemies)
-  b.bench(name="hacknslash_3d/enemy_ai_path_rebuild_phase/stress_enemies_256", fn() {
-    state.world.enemies = clone_enemy_array(template)
-    state.world.projectiles = []
-    state.world.events = []
-    state.world.tick_enemy_ai_phase()
-    b.keep(state.world.enemies.length() + state.world.projectiles.length())
-  })
+  run_enemy_ai_phase_bench(
+    b,
+    "hacknslash_3d/enemy_ai_path_rebuild_phase/stress_enemies_256",
+    bench_state_with_enemy_ai_path_rebuild(256),
+    clear_events=true,
+  )
 }
 
 ///|
 test "bench hacknslash_3d enemy_ai_path_follow_phase stress_enemies_256" (
   b : @bench.T,
 ) {
-  let state = bench_state_with_enemy_ai_path_follow(256)
-  let template = clone_enemy_array(state.world.enemies)
-  b.bench(name="hacknslash_3d/enemy_ai_path_follow_phase/stress_enemies_256", fn() {
-    state.world.enemies = clone_enemy_array(template)
-    state.world.projectiles = []
-    state.world.events = []
-    state.world.tick_enemy_ai_phase()
-    b.keep(state.world.enemies.length() + state.world.projectiles.length())
-  })
+  run_enemy_ai_phase_bench(
+    b,
+    "hacknslash_3d/enemy_ai_path_follow_phase/stress_enemies_256",
+    bench_state_with_enemy_ai_path_follow(256),
+    clear_events=true,
+  )
 }
 
 ///|
-test "bench hacknslash_3d enemy_movement_contact_phase stress_enemies_64" (
+fn run_enemy_movement_contact_bench(
   b : @bench.T,
-) {
-  let state = bench_state_with_stress_enemies(64)
+  name : String,
+  state : GameState,
+) -> Unit {
   let template = clone_enemy_array(state.world.enemies)
   let base_hp = state.world.player.hp
-  b.bench(name="hacknslash_3d/enemy_movement_contact_phase/stress_enemies_64", fn() {
+  b.bench(name~, fn() {
     state.world.enemies = clone_enemy_array(template)
     state.world.player.hp = base_hp
     state.world.player.iframe_timer = 0
@@ -750,21 +740,24 @@ test "bench hacknslash_3d enemy_movement_contact_phase stress_enemies_64" (
 }
 
 ///|
+test "bench hacknslash_3d enemy_movement_contact_phase stress_enemies_64" (
+  b : @bench.T,
+) {
+  run_enemy_movement_contact_bench(
+    b,
+    "hacknslash_3d/enemy_movement_contact_phase/stress_enemies_64",
+    bench_state_with_stress_enemies(64),
+  )
+}
+
+///|
 test "bench hacknslash_3d enemy_movement_contact_phase stress_enemies_256" (
   b : @bench.T,
 ) {
-  let state = bench_state_with_stress_enemies(256)
-  let template = clone_enemy_array(state.world.enemies)
-  let base_hp = state.world.player.hp
-  b.bench(
-    name="hacknslash_3d/enemy_movement_contact_phase/stress_enemies_256",
-    fn() {
-      state.world.enemies = clone_enemy_array(template)
-      state.world.player.hp = base_hp
-      state.world.player.iframe_timer = 0
-      state.world.tick_enemy_movement_and_contact_phase()
-      b.keep(state.world.enemies.length() + state.world.player.hp)
-    },
+  run_enemy_movement_contact_bench(
+    b,
+    "hacknslash_3d/enemy_movement_contact_phase/stress_enemies_256",
+    bench_state_with_stress_enemies(256),
   )
 }
 
@@ -796,17 +789,18 @@ test "bench hacknslash_3d items_phase pickup" (b : @bench.T) {
 }
 
 ///|
-test "bench hacknslash_3d enemy_character_groups_draw stress_enemies_64" (
+fn run_enemy_character_groups_draw_bench(
   b : @bench.T,
-) {
-  let state = bench_state_with_stress_enemies(64)
+  name : String,
+  state : GameState,
+) -> Unit {
   state.world.mode = @game.Playing
   let ctx = bench_engine_context()
   let vis_region = bench_visible_region(state)
   let view_projection = state.camera.to_camera3d().view_projection_matrix()
   let enemy_skinning = state.enemy_models.compute_skinning()
   state.rebuild_enemy_render_buckets(vis_region)
-  b.bench(name="hacknslash_3d/enemy_character_groups_draw/stress_enemies_64", fn() {
+  b.bench(name~, fn() {
     let commands : Array[@gfx.DrawTrianglesCommand] = []
     state.push_enemy_render_bucket_groups_with_view_projection(
       state.enemy_render_buckets,
@@ -822,29 +816,25 @@ test "bench hacknslash_3d enemy_character_groups_draw stress_enemies_64" (
 }
 
 ///|
+test "bench hacknslash_3d enemy_character_groups_draw stress_enemies_64" (
+  b : @bench.T,
+) {
+  run_enemy_character_groups_draw_bench(
+    b,
+    "hacknslash_3d/enemy_character_groups_draw/stress_enemies_64",
+    bench_state_with_stress_enemies(64),
+  )
+}
+
+///|
 test "bench hacknslash_3d enemy_character_groups_draw stress_enemies_256" (
   b : @bench.T,
 ) {
-  let state = bench_state_with_stress_enemies(256)
-  state.world.mode = @game.Playing
-  let ctx = bench_engine_context()
-  let vis_region = bench_visible_region(state)
-  let view_projection = state.camera.to_camera3d().view_projection_matrix()
-  let enemy_skinning = state.enemy_models.compute_skinning()
-  state.rebuild_enemy_render_buckets(vis_region)
-  b.bench(name="hacknslash_3d/enemy_character_groups_draw/stress_enemies_256", fn() {
-    let commands : Array[@gfx.DrawTrianglesCommand] = []
-    state.push_enemy_render_bucket_groups_with_view_projection(
-      state.enemy_render_buckets,
-      enemy_skinning,
-      view_projection,
-      state.pipeline.scene_target,
-      ctx.screen_w,
-      ctx.screen_h,
-      commands,
-    )
-    b.keep(commands.length())
-  })
+  run_enemy_character_groups_draw_bench(
+    b,
+    "hacknslash_3d/enemy_character_groups_draw/stress_enemies_256",
+    bench_state_with_stress_enemies(256),
+  )
 }
 
 ///|
@@ -867,8 +857,11 @@ test "bench hacknslash_3d player_character_pass default" (b : @bench.T) {
 }
 
 ///|
-test "bench hacknslash_3d dungeon_pass default" (b : @bench.T) {
-  let state = GameState::new(seed=42)
+fn run_dungeon_pass_bench(
+  b : @bench.T,
+  name : String,
+  state : GameState,
+) -> Unit {
   state.world.mode = @game.Playing
   let view_projection = state.camera.to_camera3d().view_projection_matrix()
   let visible_dungeon_cache = state.get_visible_dungeon_mesh_cache_for_player()
@@ -879,7 +872,7 @@ test "bench hacknslash_3d dungeon_pass default" (b : @bench.T) {
     state.world.player.y,
     state.lighting,
   )
-  b.bench(name="hacknslash_3d/dungeon_pass/default", fn() {
+  b.bench(name~, fn() {
     let commands : Array[@gfx.DrawTrianglesCommand] = []
     state.push_dungeon_chunk_commands(
       visible_dungeon_cache.groups,
@@ -891,6 +884,13 @@ test "bench hacknslash_3d dungeon_pass default" (b : @bench.T) {
     )
     b.keep(commands.length())
   })
+}
+
+///|
+test "bench hacknslash_3d dungeon_pass default" (b : @bench.T) {
+  run_dungeon_pass_bench(
+    b, "hacknslash_3d/dungeon_pass/default", GameState::new(seed=42),
+  )
 }
 
 ///|
@@ -926,27 +926,9 @@ test "bench hacknslash_3d hud_pass default" (b : @bench.T) {
 
 ///|
 test "bench hacknslash_3d dungeon_pass shadows" (b : @bench.T) {
-  let state = bench_state_with_all_effects_enabled()
-  state.world.mode = @game.Playing
-  let view_projection = state.camera.to_camera3d().view_projection_matrix()
-  let visible_dungeon_cache = state.get_visible_dungeon_mesh_cache_for_player()
-  let shadow_state = compute_shadow_frame_state(
-    state.shadows_enabled,
-    state.shadow_config,
-    state.world.player.x,
-    state.world.player.y,
-    state.lighting,
+  run_dungeon_pass_bench(
+    b,
+    "hacknslash_3d/dungeon_pass/shadows",
+    bench_state_with_all_effects_enabled(),
   )
-  b.bench(name="hacknslash_3d/dungeon_pass/shadows", fn() {
-    let commands : Array[@gfx.DrawTrianglesCommand] = []
-    state.push_dungeon_chunk_commands(
-      visible_dungeon_cache.groups,
-      visible_dungeon_cache.all_mesh,
-      view_projection,
-      shadow_state,
-      state.pipeline.scene_target,
-      commands,
-    )
-    b.keep(commands.length())
-  })
 }

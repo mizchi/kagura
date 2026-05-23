@@ -5,7 +5,7 @@ import {
   "mizchi/kagura_engine/draw3d" @draw3d,
   "mizchi/kagura_engine" @engine,
   "mizchi/gfx" @gfx,
-  "mizchi/kagura_core/math3d" @math3d,
+  "mizchi/math3d" @math3d,
   "mizchi/kagura_engine/particle3d" @particle3d,
   "mizchi/web_runtime_hooks" @web_hooks,
 }

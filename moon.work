@@ -1,5 +1,6 @@
 members = [
   ".",
+  "./modules/math3d",
   "./modules/kagura_core",
   "./modules/kagura_engine",
   "./modules/physics",

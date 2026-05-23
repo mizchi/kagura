@@ -12,6 +12,9 @@
     },
     "mizchi/kagura_core": {
       "path": "../../../modules/kagura_core"
+    },
+    "mizchi/math3d": {
+      "path": "../../../modules/math3d"
     }
   }
 }

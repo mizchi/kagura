@@ -10,6 +10,9 @@
     "mizchi/terrain": "0.1.1",
     "mizchi/kagura_core": {
       "path": "../kagura_core"
+    },
+    "mizchi/math3d": {
+      "path": "../math3d"
     }
   },
   "preferred-target": "js"

@@ -7,7 +7,10 @@
   "source": "src",
   "warn-list": "-6-29-53-68",
   "deps": {
-    "mizchi/svg": "0.2.0"
+    "mizchi/svg": "0.2.0",
+    "mizchi/math3d": {
+      "path": "../math3d"
+    }
   },
   "preferred-target": "js"
 }

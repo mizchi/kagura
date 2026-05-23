@@ -8,5 +8,5 @@
       "path": "../../smoke/native_runtime_hooks"
     }
   },
-  "--moonbit-unstable-prebuild": "../../scripts/moon-prebuild-native-link-flags.cjs"
+  "--moonbit-unstable-prebuild": "../../../scripts/moon-prebuild-native-link-flags.cjs"
 }

@@ -26,5 +26,5 @@
       "path": "../../../modules/kagura_engine"
     }
   },
-  "--moonbit-unstable-prebuild": "../../scripts/moon-prebuild-native-link-flags.cjs"
+  "--moonbit-unstable-prebuild": "../../../scripts/moon-prebuild-native-link-flags.cjs"
 }

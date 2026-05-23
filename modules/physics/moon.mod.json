@@ -13,6 +13,9 @@
     },
     "mizchi/math3d": {
       "path": "../math3d"
+    },
+    "mizchi/mesh3d": {
+      "path": "../mesh3d"
     }
   },
   "preferred-target": "js"

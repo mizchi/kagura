@@ -20,6 +20,9 @@
     "mizchi/gfx": "0.1.0",
     "mizchi/math3d": {
       "path": "../../../modules/math3d"
+    },
+    "mizchi/mesh3d": {
+      "path": "../../../modules/mesh3d"
     }
   },
   "--moonbit-unstable-prebuild": "../../../scripts/moon-prebuild-native-link-flags.cjs"

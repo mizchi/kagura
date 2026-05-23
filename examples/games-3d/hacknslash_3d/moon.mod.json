@@ -33,6 +33,12 @@
     },
     "mizchi/text": {
       "path": "../../../modules/text"
+    },
+    "mizchi/image_palette": {
+      "path": "../../../modules/image_palette"
+    },
+    "mizchi/mesh3d": {
+      "path": "../../../modules/mesh3d"
     }
   },
   "--moonbit-unstable-prebuild": "../../../scripts/moon-prebuild-native-link-flags.cjs"

@@ -1,6 +1,9 @@
 members = [
   ".",
+  "./modules/image_palette",
+  "./modules/mesh3d",
   "./modules/math3d",
+  "./modules/colorm",
   "./modules/text",
   "./modules/kagura_core",
   "./modules/kagura_engine",

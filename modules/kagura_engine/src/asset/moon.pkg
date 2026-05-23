@@ -1,6 +1,6 @@
 import {
   "mizchi/gfx" @gfx,
-  "mizchi/kagura_core/image_palette" @image_palette,
+  "mizchi/image_palette" @image_palette,
   "mizchi/image" @image,
 }
 

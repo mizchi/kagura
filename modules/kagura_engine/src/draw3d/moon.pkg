@@ -1,7 +1,7 @@
 import {
   "mizchi/math3d" @math3d,
   "mizchi/gfx" @gfx,
-  "mizchi/kagura_core/mesh3d" @mesh3d,
+  "mizchi/mesh3d" @mesh3d,
   "mizchi/kagura_engine/light3d" @light3d,
   "mizchi/kagura_core/skeleton3d" @skeleton3d,
 }

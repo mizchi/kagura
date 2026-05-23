@@ -10,7 +10,7 @@ import {
   "mizchi/kagura_core/inpututil" @inpututil,
   "mizchi/kagura_engine/light3d" @light3d,
   "mizchi/math3d" @math3d,
-  "mizchi/kagura_core/mesh3d" @mesh3d,
+  "mizchi/mesh3d" @mesh3d,
   "mizchi/kagura_engine/particle3d" @particle3d,
   "mizchi/web_runtime_hooks" @web_hooks,
 }

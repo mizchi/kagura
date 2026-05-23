@@ -20,6 +20,12 @@
     },
     "mizchi/text": {
       "path": "../text"
+    },
+    "mizchi/image_palette": {
+      "path": "../image_palette"
+    },
+    "mizchi/mesh3d": {
+      "path": "../mesh3d"
     }
   },
   "preferred-target": "js",

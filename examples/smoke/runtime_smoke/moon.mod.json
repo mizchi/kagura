@@ -20,6 +20,9 @@
     "mizchi/gfx": "0.1.0",
     "mizchi/text": {
       "path": "../../../modules/text"
+    },
+    "mizchi/image_palette": {
+      "path": "../../../modules/image_palette"
     }
   }
 }

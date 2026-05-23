@@ -1,0 +1,12 @@
+{
+  "name": "mizchi/colorm",
+  "version": "0.1.0",
+  "description": "Color-matrix operations (4x5 RGBA transforms) on top of mizchi/gfx (extracted from kagura)",
+  "repository": "https://github.com/mizchi/kagura",
+  "license": "Apache-2.0",
+  "source": "src",
+  "warn-list": "-6-29-53-68",
+  "deps": {
+    "mizchi/gfx": "0.1.0"
+  }
+}

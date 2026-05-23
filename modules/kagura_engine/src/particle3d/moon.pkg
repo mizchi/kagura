@@ -2,6 +2,6 @@ import {
   "mizchi/kagura_core/camera3d" @camera3d,
   "mizchi/kagura_engine/draw3d" @draw3d,
   "mizchi/gfx" @gfx,
-  "mizchi/kagura_core/mesh3d" @mesh3d,
+  "mizchi/mesh3d" @mesh3d,
   "mizchi/math3d" @math3d,
 }

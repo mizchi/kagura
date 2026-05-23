@@ -25,6 +25,9 @@
     },
     "mizchi/text": {
       "path": "../text"
+    },
+    "mizchi/mesh3d": {
+      "path": "../mesh3d"
     }
   },
   "preferred-target": "js",

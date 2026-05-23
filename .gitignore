@@ -1,6 +1,7 @@
 _build
 _site
 target
+tmp/
 .DS_Store
 .mooncakes
 .moon-release

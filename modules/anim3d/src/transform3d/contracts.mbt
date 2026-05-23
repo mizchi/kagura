@@ -3,7 +3,7 @@
 
 ///|
 pub struct Transform3D {
-  position : @math3d.Vec3
+  mut position : @math3d.Vec3
   rotation : @math3d.Quaternion
   scale : @math3d.Vec3
 } derive(Debug)
@@ -85,6 +85,17 @@ pub fn Transform3D::with_position(
   pos : @math3d.Vec3,
 ) -> Transform3D {
   { ..self, position: pos }
+}
+
+///|
+/// Mutate position in place. Intended for ECS hot loops that own the
+/// Transform3D and update many entities per tick — avoiding the
+/// Transform3D + Option allocation that `with_position` would force.
+pub fn Transform3D::set_position(
+  self : Transform3D,
+  pos : @math3d.Vec3,
+) -> Unit {
+  self.position = pos
 }
 
 ///|

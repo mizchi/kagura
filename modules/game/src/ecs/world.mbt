@@ -43,19 +43,22 @@ pub fn World::new() -> World {
 
 ///|
 pub fn World::spawn(self : World) -> EntityId {
+  // Only grow the `alive` array on spawn. Component arrays grow lazily
+  // via `grow_to` inside each set_*, so entities that never receive a
+  // given component pay zero cost for that component's slot.
   let id = self.next_id
   self.next_id += 1
   self.alive.push(true)
-  self.tags.push(None)
-  self.transforms.push(None)
-  self.velocities.push(None)
-  self.health.push(None)
-  self.sprites.push(None)
-  self.materials.push(None)
-  self.physics_body_ids.push(None)
-  self.scene_node_ids.push(None)
-  self.animation_players.push(None)
   { value: id }
+}
+
+///|
+/// Grow `arr` so that index `id` is in range, filling new slots with None.
+/// Single-step amortized when callers spawn then immediately set components.
+fn[T] grow_to(arr : Array[T?], id : Int) -> Unit {
+  while arr.length() <= id {
+    arr.push(None)
+  }
 }
 
 ///|
@@ -64,6 +67,7 @@ pub fn World::spawn_at(
   transform : @transform3d.Transform3D,
 ) -> EntityId {
   let eid = self.spawn()
+  grow_to(self.transforms, eid.value)
   self.transforms[eid.value] = Some(transform)
   eid
 }
@@ -92,21 +96,29 @@ pub fn World::entity_count(self : World) -> Int {
 }
 
 ///|
-pub fn World::compact(self : World) -> Unit {
-  // Keep slots, free component data. Preserves live EntityId references.
-  for id in 0..<self.alive.length() {
-    if !self.alive[id] {
-      self.tags[id] = None
-      self.transforms[id] = None
-      self.velocities[id] = None
-      self.health[id] = None
-      self.sprites[id] = None
-      self.materials[id] = None
-      self.physics_body_ids[id] = None
-      self.scene_node_ids[id] = None
-      self.animation_players[id] = None
+/// Clear out the dead-entity slots of a component column. Bounded by the
+/// column's own length since lazy growth can leave columns shorter than
+/// `alive`.
+fn[T] clear_dead(arr : Array[T?], alive : Array[Bool]) -> Unit {
+  for id in 0..<arr.length() {
+    if !alive[id] {
+      arr[id] = None
     }
   }
+}
+
+///|
+pub fn World::compact(self : World) -> Unit {
+  // Keep slots, free component data. Preserves live EntityId references.
+  clear_dead(self.tags, self.alive)
+  clear_dead(self.transforms, self.alive)
+  clear_dead(self.velocities, self.alive)
+  clear_dead(self.health, self.alive)
+  clear_dead(self.sprites, self.alive)
+  clear_dead(self.materials, self.alive)
+  clear_dead(self.physics_body_ids, self.alive)
+  clear_dead(self.scene_node_ids, self.alive)
+  clear_dead(self.animation_players, self.alive)
 }
 
 // Transform
@@ -117,6 +129,7 @@ pub fn World::set_transform(
   eid : EntityId,
   t : @transform3d.Transform3D,
 ) -> Unit {
+  grow_to(self.transforms, eid.value)
   self.transforms[eid.value] = Some(t)
 }
 
@@ -136,6 +149,7 @@ pub fn World::get_transform(
 
 ///|
 pub fn World::set_velocity(self : World, eid : EntityId, v : Velocity) -> Unit {
+  grow_to(self.velocities, eid.value)
   self.velocities[eid.value] = Some(v)
 }
 
@@ -152,6 +166,7 @@ pub fn World::get_velocity(self : World, eid : EntityId) -> Velocity? {
 
 ///|
 pub fn World::set_health(self : World, eid : EntityId, h : Health) -> Unit {
+  grow_to(self.health, eid.value)
   self.health[eid.value] = Some(h)
 }
 
@@ -168,6 +183,7 @@ pub fn World::get_health(self : World, eid : EntityId) -> Health? {
 
 ///|
 pub fn World::set_sprite(self : World, eid : EntityId, s : Sprite) -> Unit {
+  grow_to(self.sprites, eid.value)
   self.sprites[eid.value] = Some(s)
 }
 
@@ -188,6 +204,7 @@ pub fn World::set_material(
   eid : EntityId,
   m : @scene3d.Material,
 ) -> Unit {
+  grow_to(self.materials, eid.value)
   self.materials[eid.value] = Some(m)
 }
 
@@ -208,6 +225,7 @@ pub fn World::set_physics_body_id(
   eid : EntityId,
   body_id : Int,
 ) -> Unit {
+  grow_to(self.physics_body_ids, eid.value)
   self.physics_body_ids[eid.value] = Some(body_id)
 }
 
@@ -228,6 +246,7 @@ pub fn World::set_scene_node_id(
   eid : EntityId,
   node_id : Int,
 ) -> Unit {
+  grow_to(self.scene_node_ids, eid.value)
   self.scene_node_ids[eid.value] = Some(node_id)
 }
 
@@ -248,6 +267,7 @@ pub fn World::set_animation_player(
   eid : EntityId,
   player : @animation3d.AnimationPlayer,
 ) -> Unit {
+  grow_to(self.animation_players, eid.value)
   self.animation_players[eid.value] = Some(player)
 }
 
@@ -267,6 +287,7 @@ pub fn World::get_animation_player(
 
 ///|
 pub fn World::add_tag(self : World, eid : EntityId, tag : Tag) -> Unit {
+  grow_to(self.tags, eid.value)
   match self.tags[eid.value] {
     Some(tags) => tags.push(tag)
     None => self.tags[eid.value] = Some([tag])

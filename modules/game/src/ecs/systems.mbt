@@ -1,16 +1,26 @@
 ///|
 pub fn system_movement(world : World, dt : Double) -> Unit {
-  for id in 0..<world.alive.length() {
-    if world.alive[id] {
-      match (world.transforms[id], world.velocities[id]) {
+  // Hot path: mutate the Transform3D's position in place rather than
+  // allocating a fresh Transform3D + Option wrapper per entity per tick.
+  // Transform3D.position is `mut` for exactly this case — see profiler
+  // notes in scripts/ecs-pprof.mjs.
+  // Component arrays grow lazily, so iterate by the shorter of the two.
+  let alive = world.alive
+  let transforms = world.transforms
+  let velocities = world.velocities
+  let n = if transforms.length() < velocities.length() {
+    transforms.length()
+  } else {
+    velocities.length()
+  }
+  for id in 0..<n {
+    if alive[id] {
+      match (transforms[id], velocities[id]) {
         (Some(t), Some(v)) => {
-          let pos = t.position
-          let new_pos = @math3d.Vec3::new(
-            pos.x + v.x * dt,
-            pos.y + v.y * dt,
-            pos.z + v.z * dt,
+          let p = t.position
+          t.set_position(
+            @math3d.Vec3::new(p.x + v.x * dt, p.y + v.y * dt, p.z + v.z * dt),
           )
-          world.transforms[id] = Some(t.with_position(new_pos))
         }
         _ => ()
       }
@@ -20,10 +30,12 @@ pub fn system_movement(world : World, dt : Double) -> Unit {
 
 ///|
 pub fn system_death(world : World) -> Unit {
-  for id in 0..<world.alive.length() {
-    if world.alive[id] {
-      match world.health[id] {
-        Some(h) => if h.current <= 0 { world.alive[id] = false }
+  let alive = world.alive
+  let health = world.health
+  for id in 0..<health.length() {
+    if alive[id] {
+      match health[id] {
+        Some(h) => if h.current <= 0 { alive[id] = false }
         None => ()
       }
     }
@@ -40,15 +52,23 @@ pub fn system_sync_from_physics(
   world : World,
   physics : @physics3d.PhysicsWorld,
 ) -> Unit {
-  for id in 0..<world.alive.length() {
-    if world.alive[id] {
-      match world.physics_body_ids[id] {
+  let alive = world.alive
+  let bodies = world.physics_body_ids
+  let transforms = world.transforms
+  let n = if bodies.length() < transforms.length() {
+    bodies.length()
+  } else {
+    transforms.length()
+  }
+  for id in 0..<n {
+    if alive[id] {
+      match bodies[id] {
         Some(body_id) =>
           match physics.get_body(body_id) {
             Some(body) =>
-              match world.transforms[id] {
+              match transforms[id] {
                 Some(t) =>
-                  world.transforms[id] = Some(
+                  transforms[id] = Some(
                     t.with_position(body.position).with_rotation(body.rotation),
                   )
                 None => ()
@@ -66,9 +86,17 @@ pub fn system_sync_to_physics(
   world : World,
   physics : @physics3d.PhysicsWorld,
 ) -> Unit {
-  for id in 0..<world.alive.length() {
-    if world.alive[id] {
-      match (world.physics_body_ids[id], world.transforms[id]) {
+  let alive = world.alive
+  let bodies = world.physics_body_ids
+  let transforms = world.transforms
+  let n = if bodies.length() < transforms.length() {
+    bodies.length()
+  } else {
+    transforms.length()
+  }
+  for id in 0..<n {
+    if alive[id] {
+      match (bodies[id], transforms[id]) {
         (Some(body_id), Some(t)) =>
           for i = 0; i < physics.bodies.length(); i = i + 1 {
             if physics.bodies[i].id == body_id {

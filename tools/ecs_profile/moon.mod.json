@@ -1,0 +1,19 @@
+{
+  "name": "mizchi/kagura_ecs_profile",
+  "version": "0.1.0",
+  "description": "CPU profiling target for the kagura ECS hot loops",
+  "license": "Apache-2.0",
+  "source": "src",
+  "warn-list": "-6-29-53-68",
+  "deps": {
+    "mizchi/kagura_game": {
+      "path": "../../modules/game"
+    },
+    "mizchi/geom": {
+      "path": "../../modules/geom"
+    },
+    "mizchi/anim3d": {
+      "path": "../../modules/anim3d"
+    }
+  }
+}

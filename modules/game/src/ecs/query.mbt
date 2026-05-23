@@ -12,9 +12,13 @@ pub fn World::each_with_transform(
   self : World,
   f : (EntityId, @transform3d.Transform3D) -> Unit,
 ) -> Unit {
-  for id in 0..<self.alive.length() {
-    if self.alive[id] {
-      match self.transforms[id] {
+  // Component arrays grow lazily, so `transforms.length() <= alive.length()`.
+  // Iterating by the shorter bound skips the dead-tail entities for free.
+  let alive = self.alive
+  let transforms = self.transforms
+  for id in 0..<transforms.length() {
+    if alive[id] {
+      match transforms[id] {
         Some(t) => f({ value: id }, t)
         None => ()
       }
@@ -27,9 +31,17 @@ pub fn World::each_with_transform_velocity(
   self : World,
   f : (EntityId, @transform3d.Transform3D, Velocity) -> Unit,
 ) -> Unit {
-  for id in 0..<self.alive.length() {
-    if self.alive[id] {
-      match (self.transforms[id], self.velocities[id]) {
+  let alive = self.alive
+  let transforms = self.transforms
+  let velocities = self.velocities
+  let n = if transforms.length() < velocities.length() {
+    transforms.length()
+  } else {
+    velocities.length()
+  }
+  for id in 0..<n {
+    if alive[id] {
+      match (transforms[id], velocities[id]) {
         (Some(t), Some(v)) => f({ value: id }, t, v)
         _ => ()
       }
@@ -43,9 +55,11 @@ pub fn World::each_with_tag(
   tag : Tag,
   f : (EntityId) -> Unit,
 ) -> Unit {
-  for id in 0..<self.alive.length() {
-    if self.alive[id] {
-      match self.tags[id] {
+  let alive = self.alive
+  let tags_arr = self.tags
+  for id in 0..<tags_arr.length() {
+    if alive[id] {
+      match tags_arr[id] {
         Some(tags) => if tags.contains(tag) { f({ value: id }) }
         None => ()
       }

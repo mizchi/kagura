@@ -9,7 +9,7 @@
       "path": "../.."
     },
     "mizchi/web_runtime_hooks": {
-      "path": "../../../../examples/web_runtime_hooks"
+      "path": "../../../../examples/smoke/web_runtime_hooks"
     },
     "mizchi/kagura_game": {
       "path": "../../../../modules/game"
@@ -21,7 +21,7 @@
       "path": "../../../../modules/kagura_engine"
     },
     "mizchi/gfx": {
-      "path": "../../../../../gfx-mbt"
+      "path": "../../../../.gfx-mbt-snapshot"
     }
   }
 }

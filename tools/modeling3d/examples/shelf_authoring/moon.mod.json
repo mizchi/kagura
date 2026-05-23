@@ -6,10 +6,10 @@
   "--moonbit-unstable-prebuild": "../../../../scripts/moon-prebuild-native-link-flags.cjs",
   "deps": {
     "mizchi/native_runtime_hooks": {
-      "path": "../../../../examples/native_runtime_hooks"
+      "path": "../../../../examples/smoke/native_runtime_hooks"
     },
     "mizchi/web_runtime_hooks": {
-      "path": "../../../../examples/web_runtime_hooks"
+      "path": "../../../../examples/smoke/web_runtime_hooks"
     },
     "mizchi/kagura_game": {
       "path": "../../../../modules/game"
@@ -24,7 +24,7 @@
       "path": "../../../../modules/physics"
     },
     "mizchi/gfx": {
-      "path": "../../../../../gfx-mbt"
+      "path": "../../../../.gfx-mbt-snapshot"
     }
   }
 }

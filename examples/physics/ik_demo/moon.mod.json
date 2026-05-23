@@ -20,7 +20,7 @@
       "path": "../../../modules/kagura_engine"
     },
     "mizchi/gfx": {
-      "path": "../../../../gfx-mbt"
+      "path": "../../../.gfx-mbt-snapshot"
     }
   },
   "--moonbit-unstable-prebuild": "../../../scripts/moon-prebuild-native-link-flags.cjs"

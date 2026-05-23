@@ -11,7 +11,7 @@
       "path": "../kagura_core"
     },
     "mizchi/gfx": {
-      "path": "../../../gfx-mbt"
+      "path": "../../.gfx-mbt-snapshot"
     },
     "mizchi/image": "0.1.1",
     "mizchi/font": "0.7.0",

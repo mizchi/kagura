@@ -6,16 +6,16 @@
   "warn-list": "-6-29-53-68",
   "deps": {
     "mizchi/web_runtime_hooks": {
-      "path": "../web_runtime_hooks"
+      "path": "../../smoke/web_runtime_hooks"
     },
     "mizchi/native_runtime_hooks": {
-      "path": "../native_runtime_hooks"
+      "path": "../../smoke/native_runtime_hooks"
     },
     "mizchi/kagura_core": {
-      "path": "../../modules/kagura_core"
+      "path": "../../../modules/kagura_core"
     },
     "mizchi/kagura_engine": {
-      "path": "../../modules/kagura_engine"
+      "path": "../../../modules/kagura_engine"
     }
   },
   "--moonbit-unstable-prebuild": "../../scripts/moon-prebuild-native-link-flags.cjs"

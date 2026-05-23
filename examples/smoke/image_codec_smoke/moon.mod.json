@@ -5,7 +5,7 @@
   "warn-list": "-6-29-53-68",
   "deps": {
     "mizchi/kagura_engine": {
-      "path": "../../modules/kagura_engine"
+      "path": "../../../modules/kagura_engine"
     }
   }
 }

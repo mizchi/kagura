@@ -6,7 +6,7 @@
   "warn-list": "-6-29-53-68",
   "deps": {
     "mizchi/native_runtime_hooks": {
-      "path": "../native_runtime_hooks"
+      "path": "../../smoke/native_runtime_hooks"
     },
     "mizchi/crater-renderer": {
       "path": "/Users/mz/ghq/github.com/mizchi/crater/renderer"
@@ -23,7 +23,7 @@
     "mizchi/font": "0.7.0",
     "mizchi/image": "0.1.1",
     "mizchi/kagura_engine": {
-      "path": "../../modules/kagura_engine"
+      "path": "../../../modules/kagura_engine"
     }
   },
   "--moonbit-unstable-prebuild": "../../scripts/moon-prebuild-native-link-flags.cjs"

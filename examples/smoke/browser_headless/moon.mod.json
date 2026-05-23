@@ -6,26 +6,26 @@
   "warn-list": "-6-29-53-68",
   "deps": {
     "mizchi/native_runtime_hooks": {
-      "path": "../native_runtime_hooks"
+      "path": "../../smoke/native_runtime_hooks"
     },
     "mizchi/crater-renderer": {
-      "path": "../../../crater/renderer"
+      "path": "../../../../crater/renderer"
     },
     "mizchi/crater-painter": {
-      "path": "../../../crater/painter"
+      "path": "../../../../crater/painter"
     },
     "mizchi/crater-layout": {
-      "path": "../../../crater/layout"
+      "path": "../../../../crater/layout"
     },
     "mizchi/crater-browser": {
-      "path": "../../../crater/browser"
+      "path": "../../../../crater/browser"
     },
     "mizchi/crater-browser-native": {
-      "path": "../../../crater/browser/native"
+      "path": "../../../../crater/browser/native"
     },
     "mizchi/v8": "0.2.0",
     "mizchi/kagura_engine": {
-      "path": "../../modules/kagura_engine"
+      "path": "../../../modules/kagura_engine"
     }
   },
   "--moonbit-unstable-prebuild": "scripts/prebuild.mjs"

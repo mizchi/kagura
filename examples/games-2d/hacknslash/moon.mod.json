@@ -5,19 +5,19 @@
   "warn-list": "-6-29-53-68",
   "deps": {
     "mizchi/web_runtime_hooks": {
-      "path": "../web_runtime_hooks"
+      "path": "../../smoke/web_runtime_hooks"
     },
     "mizchi/terrain": {
-      "path": "../../../terrain"
+      "path": "../../../../terrain"
     },
     "mizchi/kagura_game": {
-      "path": "../../modules/game"
+      "path": "../../../modules/game"
     },
     "mizchi/kagura_core": {
-      "path": "../../modules/kagura_core"
+      "path": "../../../modules/kagura_core"
     },
     "mizchi/kagura_physics": {
-      "path": "../../modules/physics"
+      "path": "../../../modules/physics"
     }
   }
 }

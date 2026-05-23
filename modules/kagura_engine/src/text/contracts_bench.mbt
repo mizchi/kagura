@@ -20,23 +20,6 @@ fn make_bench_glyphs(count : Int) -> Array[@font.GlyphQuad] {
 }
 
 ///|
-fn dispatch_checksum(dispatch : @gfx.DrawCommandDispatch) -> Int {
-  dispatch.draw_calls +
-  dispatch.pipeline_id +
-  dispatch.uniform_hash +
-  dispatch.blend_mode +
-  dispatch.dst_image_id +
-  dispatch.shader_id +
-  dispatch.index_offset +
-  dispatch.region_count +
-  dispatch.total_index_count +
-  dispatch.vertex_float_count +
-  dispatch.index_count +
-  dispatch.src_image_count +
-  dispatch.uniform_dword_count
-}
-
-///|
 fn pipeline_dispatch_checksum(
   commands : Array[@gfx.DrawTrianglesCommand],
 ) -> Int {
@@ -47,8 +30,8 @@ fn pipeline_dispatch_checksum(
   let flushed = queue.flush()
   let mut checksum = flushed.length()
   for command in flushed {
-    let dispatch = @gfx.build_draw_command_dispatch(command)
-    checksum = checksum + dispatch_checksum(dispatch)
+    checksum = checksum +
+      @gfx.dispatch_checksum(@gfx.build_draw_command_dispatch(command))
   }
   checksum
 }

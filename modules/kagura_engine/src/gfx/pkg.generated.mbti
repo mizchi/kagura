@@ -75,6 +75,8 @@ pub fn default_sampler_spec() -> SamplerSpec
 
 pub fn default_shader_entrypoints() -> ShaderEntrypoints
 
+pub fn dispatch_checksum(DrawCommandDispatch) -> Int
+
 pub fn double_to_f32_bits(Double) -> Int
 
 pub fn estimated_draw_call_count(DrawTrianglesCommand) -> Int
@@ -519,38 +521,38 @@ pub struct WebGraphicsHooks {
 
 // Traits
 pub trait BuiltinShaderSourceRepo {
-  shader_source(Self, BuiltinShaderKey) -> String
-  shader_source_ex(Self, BuiltinShaderKeyEx) -> String
+  fn shader_source(Self, BuiltinShaderKey) -> String
+  fn shader_source_ex(Self, BuiltinShaderKeyEx) -> String
 }
 
 pub trait CommandQueue {
-  enqueue_draw_triangles(Self, DrawTrianglesCommand) -> Unit
-  flush(Self) -> Array[DrawTrianglesCommand]
+  fn enqueue_draw_triangles(Self, DrawTrianglesCommand) -> Unit
+  fn flush(Self) -> Array[DrawTrianglesCommand]
 }
 
 pub trait GraphicsBackendFactory {
-  create(Self, GraphicsBackendKind, @platform.SurfaceToken, GraphicsBackendOptions) -> Unit raise
+  fn create(Self, GraphicsBackendKind, @platform.SurfaceToken, GraphicsBackendOptions) -> Unit raise
 }
 
 pub trait GraphicsDriver {
-  initialize(Self) -> Unit raise
-  begin(Self, RenderPassDesc) -> Unit raise
-  end(Self, Bool) -> Unit raise
-  resize(Self, Int, Int) -> Unit raise
-  new_image(Self, Int, Int) -> ImageHandle raise
-  new_shader(Self, String) -> ShaderHandle raise
-  draw_triangles(Self, DrawTrianglesCommand) -> Unit raise
-  read_pixels(Self, Int, Int, Int, Int) -> Array[Int]? raise
+  fn initialize(Self) -> Unit raise
+  fn begin(Self, RenderPassDesc) -> Unit raise
+  fn end(Self, Bool) -> Unit raise
+  fn resize(Self, Int, Int) -> Unit raise
+  fn new_image(Self, Int, Int) -> ImageHandle raise
+  fn new_shader(Self, String) -> ShaderHandle raise
+  fn draw_triangles(Self, DrawTrianglesCommand) -> Unit raise
+  fn read_pixels(Self, Int, Int, Int, Int) -> Array[Int]? raise
 }
 
 pub trait ShaderFrontend {
-  compile_ir(Self, ShaderCompileRequest) -> ShaderIR raise
-  calc_source_hash(Self, ShaderCompileRequest) -> ShaderSourceHash raise
+  fn compile_ir(Self, ShaderCompileRequest) -> ShaderIR raise
+  fn calc_source_hash(Self, ShaderCompileRequest) -> ShaderSourceHash raise
 }
 
 pub trait UniformCanonicalizer {
-  append_user_uniforms(Self, UniformLayout, Array[NamedUniform]) -> PackedUniforms raise
-  prepend_preserved_uniforms(Self, PackedUniforms, PreservedUniformContext) -> PackedUniforms
-  filter_unused_uniforms(Self, ShaderIR, UniformLayout, PackedUniforms) -> PackedUniforms
+  fn append_user_uniforms(Self, UniformLayout, Array[NamedUniform]) -> PackedUniforms raise
+  fn prepend_preserved_uniforms(Self, PackedUniforms, PreservedUniformContext) -> PackedUniforms
+  fn filter_unused_uniforms(Self, ShaderIR, UniformLayout, PackedUniforms) -> PackedUniforms
 }
 

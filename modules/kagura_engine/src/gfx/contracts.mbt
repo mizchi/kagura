@@ -237,3 +237,24 @@ pub fn build_draw_command_dispatch(
   }
 }
 
+///|
+/// Sum of every Int field of a `DrawCommandDispatch`. Cheap, branch-free
+/// fingerprint useful in benches and tests where the caller just needs a
+/// `b.keep`-able value derived from the whole dispatch (it is not a
+/// cryptographic hash and is not collision-free).
+pub fn dispatch_checksum(dispatch : DrawCommandDispatch) -> Int {
+  dispatch.draw_calls +
+  dispatch.pipeline_id +
+  dispatch.uniform_hash +
+  dispatch.blend_mode +
+  dispatch.dst_image_id +
+  dispatch.shader_id +
+  dispatch.index_offset +
+  dispatch.region_count +
+  dispatch.total_index_count +
+  dispatch.vertex_float_count +
+  dispatch.index_count +
+  dispatch.src_image_count +
+  dispatch.uniform_dword_count
+}
+

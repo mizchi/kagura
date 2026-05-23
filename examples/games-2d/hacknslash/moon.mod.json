@@ -16,11 +16,14 @@
     "mizchi/kagura_core": {
       "path": "../../../modules/kagura_core"
     },
-    "mizchi/kagura_physics": {
-      "path": "../../../modules/physics"
-    },
     "mizchi/geom": {
       "path": "../../../modules/geom"
+    },
+    "mizchi/physics": {
+      "path": "../../../modules/physics"
+    },
+    "mizchi/pathfind": {
+      "path": "../../../modules/pathfind"
     }
   }
 }

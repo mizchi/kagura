@@ -24,9 +24,6 @@
     "mizchi/kagura_engine": {
       "path": "../../../modules/kagura_engine"
     },
-    "mizchi/kagura_physics": {
-      "path": "../../../modules/physics"
-    },
     "mizchi/gfx": "0.1.0",
     "mizchi/text": {
       "path": "../../../modules/text"
@@ -42,6 +39,12 @@
     },
     "mizchi/anim3d": {
       "path": "../../../modules/anim3d"
+    },
+    "mizchi/physics": {
+      "path": "../../../modules/physics"
+    },
+    "mizchi/pathfind": {
+      "path": "../../../modules/pathfind"
     }
   },
   "--moonbit-unstable-prebuild": "../../../scripts/moon-prebuild-native-link-flags.cjs"

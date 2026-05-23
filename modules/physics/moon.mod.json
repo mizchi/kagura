@@ -1,7 +1,7 @@
 {
-  "name": "mizchi/kagura_physics",
+  "name": "mizchi/physics",
   "version": "0.1.0",
-  "description": "Reusable 2D/3D physics, collision, and pathfinding helpers for Kagura",
+  "description": "Reusable 2D/3D physics and collision helpers for MoonBit (extracted from kagura)",
   "repository": "https://github.com/mizchi/kagura",
   "license": "Apache-2.0",
   "source": "src",

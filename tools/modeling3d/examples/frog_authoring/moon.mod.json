@@ -20,9 +20,6 @@
     "mizchi/kagura_engine": {
       "path": "../../../../modules/kagura_engine"
     },
-    "mizchi/kagura_physics": {
-      "path": "../../../../modules/physics"
-    },
     "mizchi/gfx": "0.1.0",
     "mizchi/mesh3d": {
       "path": "../../../../modules/mesh3d"
@@ -35,6 +32,9 @@
     },
     "mizchi/atlas": {
       "path": "../../../../modules/atlas"
+    },
+    "mizchi/physics": {
+      "path": "../../../../modules/physics"
     }
   }
 }

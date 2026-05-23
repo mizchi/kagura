@@ -16,9 +16,6 @@
     "mizchi/kagura_engine": {
       "path": "../kagura_engine"
     },
-    "mizchi/kagura_physics": {
-      "path": "../physics"
-    },
     "mizchi/gfx": "0.1.0",
     "mizchi/text": {
       "path": "../text"
@@ -37,6 +34,9 @@
     },
     "mizchi/anim3d": {
       "path": "../anim3d"
+    },
+    "mizchi/physics": {
+      "path": "../physics"
     }
   },
   "preferred-target": "js",

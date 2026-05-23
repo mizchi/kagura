@@ -13,7 +13,7 @@ import {
   "mizchi/kagura_game/scene_manager" @scene_manager,
   "mizchi/kagura_game/terrain3d" @terrain3d,
   "mizchi/anim3d/transform3d" @transform3d,
-  "mizchi/kagura_physics/pathfind" @pathfind,
+  "mizchi/pathfind" @pathfind,
   "mizchi/terrain/types" @terrain,
   "mizchi/terrain/bsp" @bsp,
   "mizchi/web_runtime_hooks" @web_hooks,

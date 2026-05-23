@@ -253,7 +253,7 @@ fn main {
   let atlas_w = native_tile_w * 2
   let atlas_h = native_tile_h * 2
   @native_hooks.install("kagura:native-review")
-  let surface = @platform.create_offscreen_surface_token(
+  let surface = @gfx.create_offscreen_surface_token(
     native_tile_w, native_tile_h,
   )
   let graphics = @gfx.create_wgpu_native_graphics(

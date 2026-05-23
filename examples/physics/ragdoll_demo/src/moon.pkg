@@ -2,7 +2,7 @@ import {
   "moonbitlang/core/math" @math,
   "mizchi/kagura_core" @core,
   "mizchi/kagura_engine" @engine,
-  "mizchi/kagura_engine/gfx" @gfx,
+  "mizchi/gfx" @gfx,
   "mizchi/kagura_engine/renderer2d" @renderer2d,
   "mizchi/kagura_core/inpututil" @inpututil,
   "mizchi/kagura_physics/physics2d" @physics2d,

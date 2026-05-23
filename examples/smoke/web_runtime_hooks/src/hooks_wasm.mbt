@@ -359,13 +359,13 @@ fn bridge_web_outside_size(width : Int, height : Int) -> @core.OutsideSize {
 fn bridge_web_current_surface(
   _canvas_selector : String,
   options : @platform.WindowOptions,
-) -> @platform.SurfaceToken {
+) -> @gfx.SurfaceToken {
   let _ = host_prepare_surface(options.width, options.height)
   let surface_id = host_surface_id()
   let surface_width = host_surface_width(options.width)
   let surface_height = host_surface_height(options.height)
   let surface_dpr = host_surface_dpr()
-  @platform.create_webgpu_surface_token(
+  @gfx.create_webgpu_surface_token(
     surface_id, surface_width, surface_height, surface_dpr,
   )
 }

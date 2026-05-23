@@ -17,7 +17,7 @@ fn main {
   let game = @core.new_noop_game(320, 240)
   let platform = @platform.create_desktop_glfw_platform()
   let surface = platform.current_surface() catch {
-    _ => @platform.create_offscreen_surface_token(320, 240)
+    _ => @gfx.create_offscreen_surface_token(320, 240)
   }
   let graphics = @gfx.create_wgpu_native_graphics(
     surface,

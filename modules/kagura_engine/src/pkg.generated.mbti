@@ -2,9 +2,9 @@
 package "mizchi/kagura_engine"
 
 import {
+  "mizchi/gfx",
   "mizchi/kagura_core",
   "mizchi/kagura_engine/audio",
-  "mizchi/kagura_engine/gfx",
   "moonbitlang/core/debug",
 }
 

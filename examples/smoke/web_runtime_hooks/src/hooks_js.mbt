@@ -2517,7 +2517,7 @@ test "bridge_web_gfx_on_draw emits draw commands via new FFI" {
   test_setup_present_state(true, false, false)
   js_ensure_window_state("#app")
   install("#app")
-  let surface = @platform.create_webgpu_surface_token(1, 320, 240, 1.0)
+  let surface = @gfx.create_webgpu_surface_token(1, 320, 240, 1.0)
   let driver = @gfx.create_webgpu_graphics(
     surface,
     @gfx.default_graphics_backend_options(),
@@ -2640,13 +2640,13 @@ fn bridge_web_outside_size(width : Int, height : Int) -> @core.OutsideSize {
 fn bridge_web_current_surface(
   _canvas_selector : String,
   options : @platform.WindowOptions,
-) -> @platform.SurfaceToken {
+) -> @gfx.SurfaceToken {
   let _ = sync_surface_info(options.width, options.height)
   let width = js_surface_width(options.width)
   let height = js_surface_height(options.height)
   let dpr = js_surface_dpr()
   let id = js_surface_id()
-  @platform.create_webgpu_surface_token(id, width, height, dpr)
+  @gfx.create_webgpu_surface_token(id, width, height, dpr)
 }
 
 ///|

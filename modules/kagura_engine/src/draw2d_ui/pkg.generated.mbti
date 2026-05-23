@@ -3,7 +3,7 @@ package "mizchi/kagura_engine/draw2d_ui"
 
 import {
   "mizchi/font",
-  "mizchi/kagura_engine/gfx",
+  "mizchi/gfx",
   "mizchi/kagura_engine/text",
 }
 

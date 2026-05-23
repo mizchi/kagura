@@ -2,7 +2,7 @@
 package "mizchi/kagura_engine/colorm"
 
 import {
-  "mizchi/kagura_engine/gfx",
+  "mizchi/gfx",
   "moonbitlang/core/debug",
 }
 

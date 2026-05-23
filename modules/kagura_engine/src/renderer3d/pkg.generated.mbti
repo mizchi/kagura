@@ -2,8 +2,8 @@
 package "mizchi/kagura_engine/renderer3d"
 
 import {
+  "mizchi/gfx",
   "mizchi/kagura_core/camera3d",
-  "mizchi/kagura_engine/gfx",
   "mizchi/kagura_engine/light3d",
   "mizchi/kagura_engine/render_pipeline3d",
   "mizchi/kagura_engine/scene3d",

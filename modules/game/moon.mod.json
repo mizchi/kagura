@@ -18,6 +18,9 @@
     },
     "mizchi/kagura_physics": {
       "path": "../physics"
+    },
+    "mizchi/gfx": {
+      "path": "../../../gfx-mbt"
     }
   },
   "preferred-target": "js",

@@ -2,6 +2,7 @@
 package "mizchi/kagura_engine/platform"
 
 import {
+  "mizchi/gfx",
   "mizchi/kagura_core",
   "moonbitlang/core/debug",
 }
@@ -13,13 +14,7 @@ pub fn async_request_status_to_int(AsyncRequestStatus) -> Int
 
 pub fn create_desktop_glfw_platform() -> DesktopGlfwPlatform
 
-pub fn create_offscreen_surface_token(Int, Int) -> SurfaceToken
-
 pub fn create_web_canvas_platform(String) -> WebCanvasPlatform
-
-pub fn create_webgl_surface_token(Int, Int, Int, Double) -> SurfaceToken
-
-pub fn create_webgpu_surface_token(Int, Int, Int, Double) -> SurfaceToken
 
 pub fn cursor_mode_from_int(Int) -> CursorMode
 
@@ -31,7 +26,7 @@ pub fn fullscreen_mode_to_int(FullscreenMode) -> Int
 
 pub fn new_desktop_native_hooks((WindowOptions) -> Bool, (Bool) -> Unit, () -> Bool, (Int, Int) -> @kagura_core.OutsideSize, (Bool, Int) -> @kagura_core.InputSnapshot, (Bool, Bool) -> Bool, (Bool, Bool) -> Bool, (Bool, CursorMode) -> CursorMode, (Bool, CursorMode) -> CursorMode, (Bool, Double) -> Double, (Bool, Double) -> Double, (Bool, Bool) -> Bool, (Bool, Bool) -> Bool, (Bool) -> Unit, (Bool) -> Unit, (Bool, Bool) -> Unit, (Bool) -> Bool) -> DesktopNativeHooks
 
-pub fn new_web_canvas_hooks((String, WindowOptions) -> Bool, (Bool) -> Unit, () -> Bool, (Int, Int) -> @kagura_core.OutsideSize, (String, WindowOptions) -> SurfaceToken, (Bool, Int) -> @kagura_core.InputSnapshot, (String, Bool, Bool) -> Bool, (String, Bool, Bool) -> Bool, (String, Bool, CursorMode) -> CursorMode, (String, Bool, CursorMode) -> CursorMode, (String, Bool, Double) -> Double, (String, Bool, Double) -> Double, (String, Bool, Bool) -> Bool, (String, Bool, Bool) -> Bool, (String, Bool) -> Unit, (String, Bool) -> Unit, (String, Bool, Bool) -> Unit, (String, Bool) -> Bool, (String, Bool, Int) -> Int, (String, Bool, Int) -> Int) -> WebCanvasHooks
+pub fn new_web_canvas_hooks((String, WindowOptions) -> Bool, (Bool) -> Unit, () -> Bool, (Int, Int) -> @kagura_core.OutsideSize, (String, WindowOptions) -> @gfx.SurfaceToken, (Bool, Int) -> @kagura_core.InputSnapshot, (String, Bool, Bool) -> Bool, (String, Bool, Bool) -> Bool, (String, Bool, CursorMode) -> CursorMode, (String, Bool, CursorMode) -> CursorMode, (String, Bool, Double) -> Double, (String, Bool, Double) -> Double, (String, Bool, Bool) -> Bool, (String, Bool, Bool) -> Bool, (String, Bool) -> Unit, (String, Bool) -> Unit, (String, Bool, Bool) -> Unit, (String, Bool) -> Bool, (String, Bool, Int) -> Int, (String, Bool, Int) -> Int) -> WebCanvasHooks
 
 pub fn new_window_options(String, Int, Int, Bool, Bool, focused? : Bool) -> WindowOptions
 
@@ -78,8 +73,8 @@ pub struct DesktopGlfwPlatform {
   mut fullscreen_request_status : AsyncRequestStatus
   mut cursor_mode_request_status : AsyncRequestStatus
 }
+pub impl @gfx.SurfaceProvider for DesktopGlfwPlatform
 pub impl PlatformDriver for DesktopGlfwPlatform
-pub impl SurfaceProvider for DesktopGlfwPlatform
 
 pub struct DesktopNativeHooks {
   try_initialize : (WindowOptions) -> Bool
@@ -116,29 +111,12 @@ pub struct MonitorInfo {
 } derive(@debug.Debug)
 pub impl Show for MonitorInfo
 
-pub enum SurfaceKind {
-  MetalLayer
-  WebGpuCanvasContext
-  WebGlCanvasContext
-  OffscreenBuffer
-} derive(@debug.Debug)
-pub impl Show for SurfaceKind
-
-pub struct SurfaceToken {
-  kind : SurfaceKind
-  opaque_id : Int
-  width : Int
-  height : Int
-  device_scale_factor : Double
-} derive(@debug.Debug)
-pub impl Show for SurfaceToken
-
 pub struct WebCanvasHooks {
   try_initialize : (String, WindowOptions) -> Bool
   poll : (Bool) -> Unit
   should_close : () -> Bool
   outside_size : (Int, Int) -> @kagura_core.OutsideSize
-  current_surface : (String, WindowOptions) -> SurfaceToken
+  current_surface : (String, WindowOptions) -> @gfx.SurfaceToken
   capture_input : (Bool, Int) -> @kagura_core.InputSnapshot
   set_fullscreen : (String, Bool, Bool) -> Bool
   is_fullscreen : (String, Bool, Bool) -> Bool
@@ -174,8 +152,8 @@ pub struct WebCanvasPlatform {
   mut fullscreen_request_status : AsyncRequestStatus
   mut cursor_mode_request_status : AsyncRequestStatus
 }
+pub impl @gfx.SurfaceProvider for WebCanvasPlatform
 pub impl PlatformDriver for WebCanvasPlatform
-pub impl SurfaceProvider for WebCanvasPlatform
 
 pub struct WindowOptions {
   title : String
@@ -211,9 +189,5 @@ pub trait PlatformDriver {
   fn mouse_touch_fallback_enabled(Self) -> Bool
   fn fullscreen_request_status(Self) -> AsyncRequestStatus
   fn cursor_mode_request_status(Self) -> AsyncRequestStatus
-}
-
-pub trait SurfaceProvider {
-  fn current_surface(Self) -> SurfaceToken raise
 }
 

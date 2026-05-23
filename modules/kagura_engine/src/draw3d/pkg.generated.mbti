@@ -2,10 +2,10 @@
 package "mizchi/kagura_engine/draw3d"
 
 import {
+  "mizchi/gfx",
   "mizchi/kagura_core/math3d",
   "mizchi/kagura_core/mesh3d",
   "mizchi/kagura_core/skeleton3d",
-  "mizchi/kagura_engine/gfx",
   "mizchi/kagura_engine/light3d",
 }
 

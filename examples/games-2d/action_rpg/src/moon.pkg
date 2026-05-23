@@ -9,7 +9,7 @@ import {
   "mizchi/kagura_core/camera2d" @camera2d,
   "mizchi/kagura_engine/colorm" @colorm,
   "mizchi/kagura_core" @core,
-  "mizchi/kagura_engine/gfx" @gfx,
+  "mizchi/gfx" @gfx,
   "mizchi/kagura_core/image_palette" @image_palette,
   "mizchi/kagura_core/inpututil" @inpututil,
   "mizchi/kagura_game/scene" @scene,

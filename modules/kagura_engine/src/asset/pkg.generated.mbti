@@ -2,9 +2,9 @@
 package "mizchi/kagura_engine/asset"
 
 import {
+  "mizchi/gfx",
   "mizchi/image",
   "mizchi/kagura_core/image_palette",
-  "mizchi/kagura_engine/gfx",
   "moonbitlang/core/debug",
 }
 

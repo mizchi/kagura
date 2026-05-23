@@ -3,7 +3,7 @@ import {
   "mizchi/kagura_engine/audio" @audio,
   "mizchi/kagura_core" @core,
   "mizchi/kagura_engine" @engine,
-  "mizchi/kagura_engine/gfx" @gfx,
+  "mizchi/gfx" @gfx,
   "mizchi/kagura_engine/gfx_wgpu_native" @wgpu_native,
   "mizchi/kagura_core/image_palette" @image_palette,
   "mizchi/kagura_core/payload2d" @payload2d,

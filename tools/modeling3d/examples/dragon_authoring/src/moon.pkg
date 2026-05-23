@@ -7,7 +7,7 @@ import {
   "mizchi/kagura_core" @core,
   "mizchi/kagura_engine/draw3d" @draw3d,
   "mizchi/kagura_engine" @engine,
-  "mizchi/kagura_engine/gfx" @gfx,
+  "mizchi/gfx" @gfx,
   "mizchi/kagura_engine/gfx_wgpu_native" @wgpu_native,
   "mizchi/kagura_engine/gltf" @gltf,
   "mizchi/kagura_core/inpututil" @inpututil,

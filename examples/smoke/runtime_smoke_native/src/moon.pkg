@@ -4,7 +4,7 @@ import {
   "mizchi/kagura_engine/audio" @audio,
   "mizchi/kagura_core" @core,
   "mizchi/native_runtime_hooks" @native_hooks,
-  "mizchi/kagura_engine/gfx" @gfx,
+  "mizchi/gfx" @gfx,
   "mizchi/kagura_engine/gfx_wgpu_native" @wgpu_native,
   "mizchi/kagura_engine/renderer2d" @renderer2d,
   "mizchi/kagura_core/image_palette" @image_palette,

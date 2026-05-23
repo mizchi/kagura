@@ -2,8 +2,8 @@
 package "mizchi/kagura"
 
 import {
+  "mizchi/gfx",
   "mizchi/kagura_core",
-  "mizchi/kagura_engine/gfx",
   "mizchi/kagura_engine/platform",
 }
 

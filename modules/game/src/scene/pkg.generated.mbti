@@ -2,9 +2,9 @@
 package "mizchi/kagura_game/scene"
 
 import {
+  "mizchi/gfx",
   "mizchi/kagura_core",
   "mizchi/kagura_engine/audio",
-  "mizchi/kagura_engine/gfx",
   "mizchi/signals/ui",
   "moonbitlang/core/debug",
 }

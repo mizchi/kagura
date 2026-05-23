@@ -3,7 +3,7 @@ package "mizchi/kagura_engine/text"
 
 import {
   "mizchi/font",
-  "mizchi/kagura_engine/gfx",
+  "mizchi/gfx",
 }
 
 // Values

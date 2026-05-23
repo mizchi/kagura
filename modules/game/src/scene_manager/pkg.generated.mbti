@@ -2,9 +2,9 @@
 package "mizchi/kagura_game/scene_manager"
 
 import {
+  "mizchi/gfx",
   "mizchi/kagura_core",
   "mizchi/kagura_engine",
-  "mizchi/kagura_engine/gfx",
 }
 
 // Values

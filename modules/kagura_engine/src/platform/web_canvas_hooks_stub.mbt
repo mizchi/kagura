@@ -4,7 +4,7 @@ pub struct WebCanvasHooks {
   poll : (Bool) -> Unit
   should_close : () -> Bool
   outside_size : (Int, Int) -> @core.OutsideSize
-  current_surface : (String, WindowOptions) -> SurfaceToken
+  current_surface : (String, WindowOptions) -> @gfx.SurfaceToken
   capture_input : (Bool, Int) -> @core.InputSnapshot
   set_fullscreen : (String, Bool, Bool) -> Bool
   is_fullscreen : (String, Bool, Bool) -> Bool
@@ -28,7 +28,7 @@ pub fn new_web_canvas_hooks(
   poll : (Bool) -> Unit,
   should_close : () -> Bool,
   outside_size : (Int, Int) -> @core.OutsideSize,
-  current_surface : (String, WindowOptions) -> SurfaceToken,
+  current_surface : (String, WindowOptions) -> @gfx.SurfaceToken,
   capture_input : (Bool, Int) -> @core.InputSnapshot,
   set_fullscreen : (String, Bool, Bool) -> Bool,
   is_fullscreen : (String, Bool, Bool) -> Bool,
@@ -96,9 +96,9 @@ fn default_web_outside_size(width : Int, height : Int) -> @core.OutsideSize {
 fn default_web_current_surface(
   _canvas_selector : String,
   options : WindowOptions,
-) -> SurfaceToken {
+) -> @gfx.SurfaceToken {
   {
-    kind: SurfaceKind::WebGpuCanvasContext,
+    kind: @gfx.SurfaceKind::WebGpuCanvasContext,
     opaque_id: 2,
     width: options.width,
     height: options.height,
@@ -297,7 +297,7 @@ fn web_outside_size(width : Int, height : Int) -> @core.OutsideSize {
 fn web_current_surface(
   canvas_selector : String,
   options : WindowOptions,
-) -> SurfaceToken {
+) -> @gfx.SurfaceToken {
   (web_canvas_hooks.val.current_surface)(canvas_selector, options)
 }
 

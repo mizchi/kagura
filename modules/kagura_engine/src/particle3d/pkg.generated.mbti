@@ -2,9 +2,9 @@
 package "mizchi/kagura_engine/particle3d"
 
 import {
+  "mizchi/gfx",
   "mizchi/kagura_core/camera3d",
   "mizchi/kagura_core/math3d",
-  "mizchi/kagura_engine/gfx",
 }
 
 // Values

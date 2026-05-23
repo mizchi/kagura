@@ -6,6 +6,9 @@
   "deps": {
     "mizchi/kagura_engine": {
       "path": "../../../modules/kagura_engine"
+    },
+    "mizchi/asset": {
+      "path": "../../../modules/asset"
     }
   }
 }

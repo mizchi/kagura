@@ -26,6 +26,9 @@
     },
     "mizchi/mesh3d": {
       "path": "../mesh3d"
+    },
+    "mizchi/asset": {
+      "path": "../asset"
     }
   },
   "preferred-target": "js",

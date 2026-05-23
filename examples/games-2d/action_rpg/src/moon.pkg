@@ -4,7 +4,7 @@ import {
   "moonbitlang/core/math" @math,
   "mizchi/font" @font,
   "mizchi/kagura_game/ai" @ai,
-  "mizchi/kagura_engine/asset" @asset,
+  "mizchi/asset" @asset,
   "mizchi/kagura_engine/audio" @audio,
   "mizchi/kagura_core/camera2d" @camera2d,
   "mizchi/colorm" @colorm,

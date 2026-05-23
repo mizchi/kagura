@@ -36,7 +36,7 @@ import {
   "mizchi/terrain/tinykeep" @tinykeep,
   "mizchi/web_runtime_hooks" @web_hooks,
   "mizchi/text" @text,
-  "mizchi/kagura_engine/asset" @asset,
+  "mizchi/asset" @asset,
   "mizchi/image_palette" @image_palette,
   "mizchi/kagura_game/hud" @hud,
   "mizchi/kagura_game/sprite_packer" @sprite_packer,

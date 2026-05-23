@@ -28,6 +28,9 @@
     "mizchi/gfx": "0.1.0",
     "mizchi/text": {
       "path": "../../../modules/text"
+    },
+    "mizchi/asset": {
+      "path": "../../../modules/asset"
     }
   },
   "--moonbit-unstable-prebuild": "../../../scripts/moon-prebuild-native-link-flags.cjs"

@@ -27,6 +27,9 @@
     },
     "mizchi/colorm": {
       "path": "../../../modules/colorm"
+    },
+    "mizchi/asset": {
+      "path": "../../../modules/asset"
     }
   },
   "--moonbit-unstable-prebuild": "../../../scripts/moon-prebuild-native-link-flags.cjs"

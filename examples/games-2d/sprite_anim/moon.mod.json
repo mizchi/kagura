@@ -13,6 +13,9 @@
     "mizchi/kagura_engine": {
       "path": "../../../modules/kagura_engine"
     },
-    "mizchi/gfx": "0.1.0"
+    "mizchi/gfx": "0.1.0",
+    "mizchi/asset": {
+      "path": "../../../modules/asset"
+    }
   }
 }

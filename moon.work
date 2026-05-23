@@ -5,6 +5,7 @@ members = [
   "./modules/math3d",
   "./modules/colorm",
   "./modules/text",
+  "./modules/asset",
   "./modules/kagura_core",
   "./modules/kagura_engine",
   "./modules/physics",

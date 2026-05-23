@@ -2,7 +2,7 @@ import {
   "mizchi/kagura_engine" @engine,
   "mizchi/gfx" @gfx,
   "mizchi/kagura_engine/gfx_wgpu_native" @wgpu_native,
-  "mizchi/kagura_engine/asset" @asset,
+  "mizchi/asset" @asset,
   "mizchi/kagura_engine/renderer2d" @renderer2d,
   "mizchi/kagura_engine/draw2d_ui" @draw2d_ui,
   "mizchi/text" @text,

@@ -1,6 +1,6 @@
 import {
   "moonbitlang/core/encoding/utf8" @utf8,
-  "mizchi/kagura_engine/asset" @asset,
+  "mizchi/asset" @asset,
   "mizchi/kagura_engine/audio" @audio,
   "mizchi/kagura_core" @core,
   "mizchi/kagura_engine" @engine,

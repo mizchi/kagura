@@ -1,6 +1,6 @@
 import {
   "mizchi/font" @font,
-  "mizchi/kagura_engine/asset" @asset,
+  "mizchi/asset" @asset,
   "mizchi/kagura_engine/audio" @audio,
   "mizchi/kagura_core" @core,
   "mizchi/native_runtime_hooks" @native_hooks,

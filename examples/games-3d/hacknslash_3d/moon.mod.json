@@ -39,6 +39,9 @@
     },
     "mizchi/mesh3d": {
       "path": "../../../modules/mesh3d"
+    },
+    "mizchi/asset": {
+      "path": "../../../modules/asset"
     }
   },
   "--moonbit-unstable-prebuild": "../../../scripts/moon-prebuild-native-link-flags.cjs"

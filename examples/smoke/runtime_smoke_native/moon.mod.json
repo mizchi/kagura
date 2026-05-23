@@ -23,6 +23,9 @@
     },
     "mizchi/image_palette": {
       "path": "../../../modules/image_palette"
+    },
+    "mizchi/asset": {
+      "path": "../../../modules/asset"
     }
   },
   "--moonbit-unstable-prebuild": "../../../scripts/moon-prebuild-native-link-flags.cjs"

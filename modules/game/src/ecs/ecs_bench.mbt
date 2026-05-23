@@ -1,36 +1,24 @@
 ///|
-priv struct BenchSetup {
-  world : World
-  transforms : ComponentStore[@transform3d.Transform3D]
-  velocities : ComponentStore[Velocity]
-  health : ComponentStore[Health]
-}
-
-///|
-fn setup_world(n : Int) -> BenchSetup {
+fn setup_world(n : Int) -> World {
   let world = World::new()
-  let transforms : ComponentStore[@transform3d.Transform3D] = ComponentStore::new()
-  let velocities : ComponentStore[Velocity] = ComponentStore::new()
-  let health : ComponentStore[Health] = ComponentStore::new()
   for i in 0..<n {
     let eid = world.spawn()
-    transforms.set(
+    world.set_transform(
       eid,
       @transform3d.Transform3D::from_position(
         @math3d.Vec3::new(i.to_double(), 0.0, 0.0),
       ),
     )
-    velocities.set(eid, { x: 1.0, y: 2.0, z: 0.0 })
-    health.set(eid, { current: 100, max: 100 })
+    world.set_velocity(eid, { x: 1.0, y: 2.0, z: 0.0 })
+    world.set_health(eid, { current: 100, max: 100 })
   }
-  { world, transforms, velocities, health }
+  world
 }
 
 ///|
-fn checksum(setup : BenchSetup) -> Int {
+fn world_checksum(world : World) -> Int {
   let mut sum = 0
-  query1(setup.world, setup.transforms).each(fn(entry) {
-    let (_eid, t) = entry
+  world.each_with_transform(fn(_eid, t) {
     sum += (t.position.x * 100.0).to_int()
   })
   sum
@@ -48,14 +36,11 @@ test "bench spawn 10000 entities" (b : @bench.T) {
 }
 
 ///|
-test "bench spawn + transform set 10000" (b : @bench.T) {
-  b.bench(name="ecs/spawn_with_transform_10000", fn() {
+test "bench spawn_at 10000 entities" (b : @bench.T) {
+  b.bench(name="ecs/spawn_at_10000", fn() {
     let world = World::new()
-    let transforms : ComponentStore[@transform3d.Transform3D] = ComponentStore::new()
     for i in 0..<10000 {
-      let eid = world.spawn()
-      transforms.set(
-        eid,
+      let _ = world.spawn_at(
         @transform3d.Transform3D::from_position(
           @math3d.Vec3::new(i.to_double(), 0.0, 0.0),
         ),
@@ -67,42 +52,54 @@ test "bench spawn + transform set 10000" (b : @bench.T) {
 
 ///|
 test "bench system_movement 10000" (b : @bench.T) {
-  let setup = setup_world(10000)
+  let world = setup_world(10000)
   b.bench(name="ecs/system_movement_10000", fn() {
-    system_movement(setup.world, setup.transforms, setup.velocities, 0.016)
-    b.keep(checksum(setup))
+    system_movement(world, 0.016)
+    b.keep(world_checksum(world))
   })
 }
 
 ///|
 test "bench system_death 10000" (b : @bench.T) {
   b.bench(name="ecs/system_death_10000", fn() {
-    let setup = setup_world(10000)
-    // kill half (every even index)
+    let world = setup_world(10000)
+    // kill half
     for i in 0..<5000 {
-      let eid : EntityId = { index: i * 2 }
-      setup.health.set(eid, { current: 0, max: 100 })
+      world.set_health({ value: i * 2 }, { current: 0, max: 100 })
     }
-    system_death(setup.world, setup.health)
-    b.keep(setup.world.entity_count())
+    system_death(world)
+    b.keep(world.entity_count())
   })
 }
 
 ///|
-test "bench World::iter 10000" (b : @bench.T) {
-  let setup = setup_world(10000)
-  b.bench(name="ecs/world_iter_10000", fn() {
-    b.keep(setup.world.iter().count())
+test "bench compact 10000 half dead" (b : @bench.T) {
+  b.bench(name="ecs/compact_10000_half_dead", fn() {
+    let world = setup_world(10000)
+    for i in 0..<5000 {
+      world.destroy({ value: i * 2 })
+    }
+    world.compact()
+    b.keep(world.entity_count())
   })
 }
 
 ///|
-test "bench query1 transform 10000" (b : @bench.T) {
-  let setup = setup_world(10000)
-  b.bench(name="ecs/query1_transform_10000", fn() {
+test "bench each_entity 10000" (b : @bench.T) {
+  let world = setup_world(10000)
+  b.bench(name="ecs/each_entity_10000", fn() {
+    let mut count = 0
+    world.each_entity(fn(_eid) { count += 1 })
+    b.keep(count)
+  })
+}
+
+///|
+test "bench each_with_transform 10000" (b : @bench.T) {
+  let world = setup_world(10000)
+  b.bench(name="ecs/each_with_transform_10000", fn() {
     let mut sum = 0
-    query1(setup.world, setup.transforms).each(fn(entry) {
-      let (_e, t) = entry
+    world.each_with_transform(fn(_eid, t) {
       sum += (t.position.x * 100.0).to_int()
     })
     b.keep(sum)
@@ -110,36 +107,11 @@ test "bench query1 transform 10000" (b : @bench.T) {
 }
 
 ///|
-test "bench query1_each transform 10000" (b : @bench.T) {
-  let setup = setup_world(10000)
-  b.bench(name="ecs/query1_each_transform_10000", fn() {
+test "bench each_with_transform_velocity 10000" (b : @bench.T) {
+  let world = setup_world(10000)
+  b.bench(name="ecs/each_with_transform_velocity_10000", fn() {
     let mut sum = 0
-    query1_each(setup.world, setup.transforms, fn(_e, t) {
-      sum += (t.position.x * 100.0).to_int()
-    })
-    b.keep(sum)
-  })
-}
-
-///|
-test "bench query2 transform+velocity 10000" (b : @bench.T) {
-  let setup = setup_world(10000)
-  b.bench(name="ecs/query2_transform_velocity_10000", fn() {
-    let mut sum = 0
-    query2(setup.world, setup.transforms, setup.velocities).each(fn(entry) {
-      let (_e, t, v) = entry
-      sum += (t.position.x * 100.0 + v.x * 10.0).to_int()
-    })
-    b.keep(sum)
-  })
-}
-
-///|
-test "bench query2_each transform+velocity 10000" (b : @bench.T) {
-  let setup = setup_world(10000)
-  b.bench(name="ecs/query2_each_transform_velocity_10000", fn() {
-    let mut sum = 0
-    query2_each(setup.world, setup.transforms, setup.velocities, fn(_e, t, v) {
+    world.each_with_transform_velocity(fn(_eid, t, v) {
       sum += (t.position.x * 100.0 + v.x * 10.0).to_int()
     })
     b.keep(sum)
@@ -148,49 +120,29 @@ test "bench query2_each transform+velocity 10000" (b : @bench.T) {
 
 ///|
 test "bench entities_with_tag 10000" (b : @bench.T) {
-  let setup = setup_world(10000)
-  let tags : ComponentStore[Array[Tag]] = ComponentStore::new()
+  let world = setup_world(10000)
   for i in 0..<10000 {
-    let eid : EntityId = { index: i }
     if i % 3 == 0 {
-      tags_add(tags, eid, Enemy)
+      world.add_tag({ value: i }, Enemy)
     } else {
-      tags_add(tags, eid, Bullet)
+      world.add_tag({ value: i }, Bullet)
     }
   }
   b.bench(name="ecs/entities_with_tag_10000", fn() {
-    b.keep(entities_with_tag(setup.world, tags, Enemy).count())
-  })
-}
-
-///|
-test "bench entities_with_tag_each 10000" (b : @bench.T) {
-  let setup = setup_world(10000)
-  let tags : ComponentStore[Array[Tag]] = ComponentStore::new()
-  for i in 0..<10000 {
-    let eid : EntityId = { index: i }
-    if i % 3 == 0 {
-      tags_add(tags, eid, Enemy)
-    } else {
-      tags_add(tags, eid, Bullet)
-    }
-  }
-  b.bench(name="ecs/entities_with_tag_each_10000", fn() {
-    let mut n = 0
-    entities_with_tag_each(setup.world, tags, Enemy, fn(_eid) { n = n + 1 })
-    b.keep(n)
+    let enemies = world.entities_with_tag(Enemy)
+    b.keep(enemies.length())
   })
 }
 
 ///|
 test "bench component set/get 10000" (b : @bench.T) {
-  let setup = setup_world(10000)
+  let world = setup_world(10000)
   b.bench(name="ecs/component_set_get_10000", fn() {
     let mut sum = 0
     for i in 0..<10000 {
-      let eid : EntityId = { index: i }
-      setup.health.set(eid, { current: i, max: 100 })
-      match setup.health.get(eid) {
+      let eid : EntityId = { value: i }
+      world.set_health(eid, { current: i, max: 100 })
+      match world.get_health(eid) {
         Some(h) => sum += h.current
         None => ()
       }
@@ -201,16 +153,16 @@ test "bench component set/get 10000" (b : @bench.T) {
 
 ///|
 test "bench full frame tick 1000" (b : @bench.T) {
-  let setup = setup_world(1000)
+  let world = setup_world(1000)
   for i in 0..<1000 {
     if i % 10 == 0 {
-      let eid : EntityId = { index: i }
-      setup.health.set(eid, { current: 0, max: 100 })
+      world.set_health({ value: i }, { current: 0, max: 100 })
     }
   }
   b.bench(name="ecs/full_frame_tick_1000", fn() {
-    system_movement(setup.world, setup.transforms, setup.velocities, 0.016)
-    system_death(setup.world, setup.health)
-    b.keep(setup.world.entity_count())
+    system_movement(world, 0.016)
+    system_death(world)
+    system_cleanup(world)
+    b.keep(world.entity_count())
   })
 }

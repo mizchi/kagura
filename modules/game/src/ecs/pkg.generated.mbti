@@ -2,61 +2,29 @@
 package "mizchi/kagura_game/ecs"
 
 import {
-  "mizchi/anim3d/transform3d",
-  "mizchi/physics/physics3d",
+  "mizchi/kagura_core/animation3d",
+  "mizchi/kagura_core/transform3d",
+  "mizchi/kagura_engine/scene3d",
+  "mizchi/kagura_physics/physics3d",
   "moonbitlang/core/debug",
 }
 
 // Values
-pub fn entities_with_tag(World, ComponentStore[Array[Tag]], Tag) -> Iter[EntityId]
+pub fn system_cleanup(World) -> Unit
 
-pub fn entities_with_tag_each(World, ComponentStore[Array[Tag]], Tag, (EntityId) -> Unit) -> Unit
+pub fn system_death(World) -> Unit
 
-pub let entity_id_none : EntityId
+pub fn system_movement(World, Double) -> Unit
 
-pub fn[A] query1(World, ComponentStore[A]) -> Iter[(EntityId, A)]
+pub fn system_sync_from_physics(World, @physics3d.PhysicsWorld) -> Unit
 
-pub fn[A] query1_each(World, ComponentStore[A], (EntityId, A) -> Unit) -> Unit
-
-pub fn[A, B] query2(World, ComponentStore[A], ComponentStore[B]) -> Iter[(EntityId, A, B)]
-
-pub fn[A, B] query2_each(World, ComponentStore[A], ComponentStore[B], (EntityId, A, B) -> Unit) -> Unit
-
-pub fn[A, B, C] query3(World, ComponentStore[A], ComponentStore[B], ComponentStore[C]) -> Iter[(EntityId, A, B, C)]
-
-pub fn[A, B, C] query3_each(World, ComponentStore[A], ComponentStore[B], ComponentStore[C], (EntityId, A, B, C) -> Unit) -> Unit
-
-pub fn system_death(World, ComponentStore[Health]) -> Unit
-
-pub fn system_movement(World, ComponentStore[@transform3d.Transform3D], ComponentStore[Velocity], Double) -> Unit
-
-pub fn system_sync_from_physics(World, ComponentStore[@transform3d.Transform3D], ComponentStore[Int], @physics3d.PhysicsWorld) -> Unit
-
-pub fn system_sync_to_physics(World, ComponentStore[@transform3d.Transform3D], ComponentStore[Int], @physics3d.PhysicsWorld) -> Unit
-
-pub fn tags_add(ComponentStore[Array[Tag]], EntityId, Tag) -> Unit
-
-pub fn tags_has(ComponentStore[Array[Tag]], EntityId, Tag) -> Bool
+pub fn system_sync_to_physics(World, @physics3d.PhysicsWorld) -> Unit
 
 // Errors
 
 // Types and methods
-pub struct ComponentStore[T] {
-  data : Array[T?]
-}
-pub fn[T] ComponentStore::cleanup(Self[T], World) -> Unit
-pub fn[T] ComponentStore::each_in(Self[T], World, (EntityId, T) -> Unit) -> Unit
-pub fn[T] ComponentStore::get(Self[T], EntityId) -> T?
-pub fn[T] ComponentStore::has(Self[T], EntityId) -> Bool
-pub fn[T] ComponentStore::iter(Self[T]) -> Iter[(EntityId, T)]
-pub fn[T] ComponentStore::iter_in(Self[T], World) -> Iter[(EntityId, T)]
-pub fn[T] ComponentStore::new() -> Self[T]
-pub fn[T] ComponentStore::overwrite(Self[T], EntityId, T) -> Unit
-pub fn[T] ComponentStore::remove(Self[T], EntityId) -> Unit
-pub fn[T] ComponentStore::set(Self[T], EntityId, T) -> Unit
-
 pub(all) struct EntityId {
-  index : Int
+  value : Int
 } derive(Eq, @debug.Debug)
 pub impl Show for EntityId
 
@@ -93,16 +61,48 @@ pub(all) struct Velocity {
 pub impl Show for Velocity
 
 pub struct World {
-  mut next_index : Int
-  alive : Array[Bool]
+  mut next_id : Int
+  alive : Map[Int, Bool]
+  tags : Map[Int, Array[Tag]]
+  transforms : Map[Int, @transform3d.Transform3D]
+  velocities : Map[Int, Velocity]
+  health : Map[Int, Health]
+  sprites : Map[Int, Sprite]
+  materials : Map[Int, @scene3d.Material]
+  physics_body_ids : Map[Int, Int]
+  scene_node_ids : Map[Int, Int]
+  animation_players : Map[Int, @animation3d.AnimationPlayer]
 }
-pub fn World::capacity(Self) -> Int
-pub fn World::despawn(Self, EntityId) -> Unit
+pub fn World::add_tag(Self, EntityId, Tag) -> Unit
+pub fn World::compact(Self) -> Unit
+pub fn World::destroy(Self, EntityId) -> Unit
+pub fn World::each_entity(Self, (EntityId) -> Unit) -> Unit
+pub fn World::each_with_tag(Self, Tag, (EntityId) -> Unit) -> Unit
+pub fn World::each_with_transform(Self, (EntityId, @transform3d.Transform3D) -> Unit) -> Unit
+pub fn World::each_with_transform_velocity(Self, (EntityId, @transform3d.Transform3D, Velocity) -> Unit) -> Unit
+pub fn World::entities_with_tag(Self, Tag) -> Array[EntityId]
 pub fn World::entity_count(Self) -> Int
+pub fn World::get_animation_player(Self, EntityId) -> @animation3d.AnimationPlayer?
+pub fn World::get_health(Self, EntityId) -> Health?
+pub fn World::get_material(Self, EntityId) -> @scene3d.Material?
+pub fn World::get_physics_body_id(Self, EntityId) -> Int?
+pub fn World::get_scene_node_id(Self, EntityId) -> Int?
+pub fn World::get_sprite(Self, EntityId) -> Sprite?
+pub fn World::get_transform(Self, EntityId) -> @transform3d.Transform3D?
+pub fn World::get_velocity(Self, EntityId) -> Velocity?
+pub fn World::has_tag(Self, EntityId, Tag) -> Bool
 pub fn World::is_alive(Self, EntityId) -> Bool
-pub fn World::iter(Self) -> Iter[EntityId]
 pub fn World::new() -> Self
+pub fn World::set_animation_player(Self, EntityId, @animation3d.AnimationPlayer) -> Unit
+pub fn World::set_health(Self, EntityId, Health) -> Unit
+pub fn World::set_material(Self, EntityId, @scene3d.Material) -> Unit
+pub fn World::set_physics_body_id(Self, EntityId, Int) -> Unit
+pub fn World::set_scene_node_id(Self, EntityId, Int) -> Unit
+pub fn World::set_sprite(Self, EntityId, Sprite) -> Unit
+pub fn World::set_transform(Self, EntityId, @transform3d.Transform3D) -> Unit
+pub fn World::set_velocity(Self, EntityId, Velocity) -> Unit
 pub fn World::spawn(Self) -> EntityId
+pub fn World::spawn_at(Self, @transform3d.Transform3D) -> EntityId
 
 // Type aliases
 

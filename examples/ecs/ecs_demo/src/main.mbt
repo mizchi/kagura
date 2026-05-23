@@ -34,9 +34,6 @@ fn pseudo_random(seed : Int) -> Double {
 ///|
 struct Game {
   world : @ecs.World
-  transforms : @ecs.ComponentStore[@transform3d.Transform3D]
-  velocities : @ecs.ComponentStore[@ecs.Velocity]
-  tags : @ecs.ComponentStore[Array[@ecs.Tag]]
   input : @inpututil.InputHelper
   player_id : @ecs.EntityId
 }
@@ -44,13 +41,8 @@ struct Game {
 ///|
 fn Game::new() -> Game {
   let world = @ecs.World::new()
-  let transforms : @ecs.ComponentStore[@transform3d.Transform3D] = @ecs.ComponentStore::new()
-  let velocities : @ecs.ComponentStore[@ecs.Velocity] = @ecs.ComponentStore::new()
-  let tags : @ecs.ComponentStore[Array[@ecs.Tag]] = @ecs.ComponentStore::new()
   // Spawn player at center
-  let player_id = world.spawn()
-  transforms.set(
-    player_id,
+  let player_id = world.spawn_at(
     @transform3d.Transform3D::from_position(
       @math3d.Vec3::new(
         screen_w.to_double() / 2.0,
@@ -59,28 +51,19 @@ fn Game::new() -> Game {
       ),
     ),
   )
-  velocities.set(player_id, { x: 0.0, y: 0.0, z: 0.0 })
-  @ecs.tags_add(tags, player_id, @ecs.Tag::Player)
+  world.add_tag(player_id, @ecs.Tag::Player)
+  world.set_velocity(player_id, { x: 0.0, y: 0.0, z: 0.0 })
   // Spawn enemies
   for i in 0..<enemy_count {
     let ex = pseudo_random(i * 7 + 3) * (screen_w.to_double() - 20.0) + 10.0
     let ey = pseudo_random(i * 13 + 5) * (screen_h.to_double() - 20.0) + 10.0
-    let eid = world.spawn()
-    transforms.set(
-      eid,
+    let eid = world.spawn_at(
       @transform3d.Transform3D::from_position(@math3d.Vec3::new(ex, ey, 0.0)),
     )
-    velocities.set(eid, { x: 0.0, y: 0.0, z: 0.0 })
-    @ecs.tags_add(tags, eid, @ecs.Tag::Enemy)
+    world.add_tag(eid, @ecs.Tag::Enemy)
+    world.set_velocity(eid, { x: 0.0, y: 0.0, z: 0.0 })
   }
-  {
-    world,
-    transforms,
-    velocities,
-    tags,
-    input: @inpututil.new_input_helper(),
-    player_id,
-  }
+  { world, input: @inpututil.new_input_helper(), player_id }
 }
 
 ///|
@@ -102,14 +85,15 @@ fn Game::update(self : Game, input_snapshot : @core.InputSnapshot) -> Unit {
   if @inpututil.is_move_right(self.input.key_state) {
     dx = dx + player_speed
   }
-  self.velocities.set(self.player_id, { x: dx / dt, y: dy / dt, z: 0.0 })
+  self.world.set_velocity(self.player_id, { x: dx / dt, y: dy / dt, z: 0.0 })
   // Enemy AI: chase player
-  let player_pos = match self.transforms.get(self.player_id) {
+  let player_pos = match self.world.get_transform(self.player_id) {
     Some(t) => t.position
     None => @math3d.Vec3::zero()
   }
-  @ecs.entities_with_tag(self.world, self.tags, @ecs.Tag::Enemy).each(fn(eid) {
-    match self.transforms.get(eid) {
+  let enemies = self.world.entities_with_tag(@ecs.Tag::Enemy)
+  for eid in enemies {
+    match self.world.get_transform(eid) {
       Some(t) => {
         let ex = t.position.x
         let ey = t.position.y
@@ -119,16 +103,16 @@ fn Game::update(self : Game, input_snapshot : @core.InputSnapshot) -> Unit {
         if dist > 1.0 {
           let vx = ddx / dist * enemy_speed / dt
           let vy = ddy / dist * enemy_speed / dt
-          self.velocities.set(eid, { x: vx, y: vy, z: 0.0 })
+          self.world.set_velocity(eid, { x: vx, y: vy, z: 0.0 })
         } else {
-          self.velocities.set(eid, { x: 0.0, y: 0.0, z: 0.0 })
+          self.world.set_velocity(eid, { x: 0.0, y: 0.0, z: 0.0 })
         }
       }
       None => ()
     }
-  })
+  }
   // Movement system
-  @ecs.system_movement(self.world, self.transforms, self.velocities, dt)
+  @ecs.system_movement(self.world, dt)
   // Collision separation
   self.resolve_collisions()
   // Clamp to screen bounds
@@ -137,39 +121,45 @@ fn Game::update(self : Game, input_snapshot : @core.InputSnapshot) -> Unit {
 
 ///|
 fn Game::resolve_collisions(self : Game) -> Unit {
-  let entries = @ecs.query1(self.world, self.transforms).collect()
-  for i in 0..<entries.length() {
-    for j in (i + 1)..<entries.length() {
-      let (a, ta) = entries[i]
-      let (b, tb) = entries[j]
-      let dx = tb.position.x - ta.position.x
-      let dy = tb.position.y - ta.position.y
-      let dist = (dx * dx + dy * dy).sqrt()
-      if dist < push_radius && dist > 0.001 {
-        let overlap = push_radius - dist
-        let nx = dx / dist
-        let ny = dy / dist
-        let push = overlap * push_strength * 0.5
-        self.transforms.set(
-          a,
-          ta.with_position(
-            @math3d.Vec3::new(
-              ta.position.x - nx * push,
-              ta.position.y - ny * push,
-              0.0,
-            ),
-          ),
-        )
-        self.transforms.set(
-          b,
-          tb.with_position(
-            @math3d.Vec3::new(
-              tb.position.x + nx * push,
-              tb.position.y + ny * push,
-              0.0,
-            ),
-          ),
-        )
+  let ids : Array[@ecs.EntityId] = []
+  self.world.each_entity(fn(eid) { ids.push(eid) })
+  for i in 0..<ids.length() {
+    for j in (i + 1)..<ids.length() {
+      let a = ids[i]
+      let b = ids[j]
+      match (self.world.get_transform(a), self.world.get_transform(b)) {
+        (Some(ta), Some(tb)) => {
+          let dx = tb.position.x - ta.position.x
+          let dy = tb.position.y - ta.position.y
+          let dist = (dx * dx + dy * dy).sqrt()
+          if dist < push_radius && dist > 0.001 {
+            let overlap = push_radius - dist
+            let nx = dx / dist
+            let ny = dy / dist
+            let push = overlap * push_strength * 0.5
+            self.world.set_transform(
+              a,
+              ta.with_position(
+                @math3d.Vec3::new(
+                  ta.position.x - nx * push,
+                  ta.position.y - ny * push,
+                  0.0,
+                ),
+              ),
+            )
+            self.world.set_transform(
+              b,
+              tb.with_position(
+                @math3d.Vec3::new(
+                  tb.position.x + nx * push,
+                  tb.position.y + ny * push,
+                  0.0,
+                ),
+              ),
+            )
+          }
+        }
+        _ => ()
       }
     }
   }
@@ -180,8 +170,7 @@ fn Game::clamp_positions(self : Game) -> Unit {
   let sw = screen_w.to_double()
   let sh = screen_h.to_double()
   let half = entity_size / 2.0
-  @ecs.query1(self.world, self.transforms).each(fn(entry) {
-    let (eid, t) = entry
+  self.world.each_with_transform(fn(eid, t) {
     let mut x = t.position.x
     let mut y = t.position.y
     let mut clamped = false
@@ -200,7 +189,10 @@ fn Game::clamp_positions(self : Game) -> Unit {
       clamped = true
     }
     if clamped {
-      self.transforms.set(eid, t.with_position(@math3d.Vec3::new(x, y, 0.0)))
+      self.world.set_transform(
+        eid,
+        t.with_position(@math3d.Vec3::new(x, y, 0.0)),
+      )
     }
   })
 }
@@ -230,11 +222,10 @@ fn Game::view(self : Game) -> @scene.SceneNode {
     // Entities
     @scene.for_each(fn() {
       let nodes : Array[@scene.SceneNode] = []
-      @ecs.query1(self.world, self.transforms).each(fn(entry) {
-        let (eid, t) = entry
+      self.world.each_with_transform(fn(eid, t) {
         let x = t.position.x - entity_size / 2.0
         let y = t.position.y - entity_size / 2.0
-        let is_player = @ecs.tags_has(self.tags, eid, @ecs.Tag::Player)
+        let is_player = self.world.has_tag(eid, @ecs.Tag::Player)
         let fill = if is_player { 0x00FF88 } else { 0xFF4444 }
         nodes.push(@scene.rect(x~, y~, w=entity_size, h=entity_size, fill~))
         if is_player {

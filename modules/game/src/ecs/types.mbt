@@ -1,21 +1,12 @@
 ///|
-/// Entity handle. Just an opaque slot index — the previous redesign added
-/// a `generation` field for use-after-free detection, but the per-step
-/// generation check cost ~100% on hot reads. Stale handles instead read
-/// back stale data (same trade-off the original ECS made); call
-/// `World::is_alive` if you need to verify a handle.
 pub(all) struct EntityId {
-  index : Int
-} derive(Eq, Debug)
+  value : Int
+} derive(Debug, Eq)
 
 ///|
 pub impl Show for EntityId with output(self, logger) {
   logger.write_object(to_repr(self))
 }
-
-///|
-/// Sentinel "no entity" handle. `is_alive` is always false.
-pub let entity_id_none : EntityId = { index: -1 }
 
 ///|
 pub(all) enum Tag {
@@ -25,7 +16,7 @@ pub(all) enum Tag {
   Item
   Obstacle
   Custom(String)
-} derive(Eq, Debug)
+} derive(Debug, Eq)
 
 ///|
 pub impl Show for Tag with output(self, logger) {

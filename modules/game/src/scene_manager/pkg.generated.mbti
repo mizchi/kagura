@@ -31,7 +31,7 @@ pub fn SceneManager::update(Self, @kagura_core.InputSnapshot, dt? : Double) -> U
 
 // Traits
 pub(open) trait Scene {
-  update(Self, @kagura_core.InputSnapshot) -> Unit
-  draw(Self, @kagura_engine.EngineContext) -> Array[@gfx.DrawTrianglesCommand]
+  fn update(Self, @kagura_core.InputSnapshot) -> Unit
+  fn draw(Self, @kagura_engine.EngineContext) -> Array[@gfx.DrawTrianglesCommand]
 }
 

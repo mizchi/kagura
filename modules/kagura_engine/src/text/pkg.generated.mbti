@@ -64,11 +64,11 @@ pub fn TextRenderer::render_text(Self, String, Double, Double, Double, @gfx.Imag
 
 // Traits
 pub trait FontEngine {
-  measure(Self, @font.TextRun) -> @font.TextMetrics
-  shape(Self, @font.TextRun) -> Array[@font.GlyphQuad] raise
+  fn measure(Self, @font.TextRun) -> @font.TextMetrics
+  fn shape(Self, @font.TextRun) -> Array[@font.GlyphQuad] raise
 }
 
 pub trait TextBatchBuilder {
-  build_draw_commands(Self, @gfx.ImageHandle, Array[@font.GlyphQuad], @gfx.ShaderHandle) -> Array[@gfx.DrawTrianglesCommand] raise
+  fn build_draw_commands(Self, @gfx.ImageHandle, Array[@font.GlyphQuad], @gfx.ShaderHandle) -> Array[@gfx.DrawTrianglesCommand] raise
 }
 

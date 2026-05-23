@@ -171,12 +171,12 @@ pub impl Show for TouchSource
 
 // Traits
 pub trait FinalScreenDrawer {
-  draw_final_screen(Self, FrameBudget) -> Unit
+  fn draw_final_screen(Self, FrameBudget) -> Unit
 }
 
 pub trait Game {
-  layout(Self, OutsideSize) -> LogicalSize
-  update(Self, InputSnapshot) -> EngineTermination?
-  draw(Self, FrameBudget) -> Unit
+  fn layout(Self, OutsideSize) -> LogicalSize
+  fn update(Self, InputSnapshot) -> EngineTermination?
+  fn draw(Self, FrameBudget) -> Unit
 }
 

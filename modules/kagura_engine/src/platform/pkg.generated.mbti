@@ -191,29 +191,29 @@ pub impl Show for WindowOptions
 
 // Traits
 pub trait PlatformDriver {
-  initialize(Self, WindowOptions) -> Unit raise
-  poll_events(Self) -> Unit
-  should_close(Self) -> Bool
-  outside_size(Self) -> @kagura_core.OutsideSize
-  capture_input(Self, Int) -> @kagura_core.InputSnapshot
-  monitor_info(Self) -> MonitorInfo
-  set_fullscreen(Self, Bool) -> Unit
-  is_fullscreen(Self) -> Bool
-  set_cursor_mode(Self, CursorMode) -> Unit
-  cursor_mode(Self) -> CursorMode
-  set_device_scale_factor(Self, Double) -> Unit
-  device_scale_factor(Self) -> Double
-  set_vsync_enabled(Self, Bool) -> Unit
-  is_vsync_enabled(Self) -> Bool
-  close_window(Self) -> Unit
-  request_attention(Self) -> Unit
-  set_mouse_touch_fallback(Self, Bool) -> Unit
-  mouse_touch_fallback_enabled(Self) -> Bool
-  fullscreen_request_status(Self) -> AsyncRequestStatus
-  cursor_mode_request_status(Self) -> AsyncRequestStatus
+  fn initialize(Self, WindowOptions) -> Unit raise
+  fn poll_events(Self) -> Unit
+  fn should_close(Self) -> Bool
+  fn outside_size(Self) -> @kagura_core.OutsideSize
+  fn capture_input(Self, Int) -> @kagura_core.InputSnapshot
+  fn monitor_info(Self) -> MonitorInfo
+  fn set_fullscreen(Self, Bool) -> Unit
+  fn is_fullscreen(Self) -> Bool
+  fn set_cursor_mode(Self, CursorMode) -> Unit
+  fn cursor_mode(Self) -> CursorMode
+  fn set_device_scale_factor(Self, Double) -> Unit
+  fn device_scale_factor(Self) -> Double
+  fn set_vsync_enabled(Self, Bool) -> Unit
+  fn is_vsync_enabled(Self) -> Bool
+  fn close_window(Self) -> Unit
+  fn request_attention(Self) -> Unit
+  fn set_mouse_touch_fallback(Self, Bool) -> Unit
+  fn mouse_touch_fallback_enabled(Self) -> Bool
+  fn fullscreen_request_status(Self) -> AsyncRequestStatus
+  fn cursor_mode_request_status(Self) -> AsyncRequestStatus
 }
 
 pub trait SurfaceProvider {
-  current_surface(Self) -> SurfaceToken raise
+  fn current_surface(Self) -> SurfaceToken raise
 }
 

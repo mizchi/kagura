@@ -51,7 +51,7 @@ pub type SceneNode = @ui.Node[Unit, SceneAttrValue]
 
 // Traits
 pub(open) trait SceneGame {
-  update_game(Self, @kagura_core.InputSnapshot) -> Unit
-  view_game(Self) -> @ui.Node[Unit, SceneAttrValue]
+  fn update_game(Self, @kagura_core.InputSnapshot) -> Unit
+  fn view_game(Self) -> @ui.Node[Unit, SceneAttrValue]
 }
 

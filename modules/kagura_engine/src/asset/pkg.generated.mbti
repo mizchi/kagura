@@ -336,30 +336,30 @@ pub impl Show for SourceImageDirtyRect
 
 // Traits
 pub trait AtlasAllocator {
-  allocate(Self, Int, Int) -> AtlasRegion?
-  release(Self, AtlasRegion) -> Unit
+  fn allocate(Self, Int, Int) -> AtlasRegion?
+  fn release(Self, AtlasRegion) -> Unit
 }
 
 pub(open) trait BytesFetcher {
-  fetch(Self, String, (FetchProgress) -> Unit, (Bytes?) -> Unit) -> FetchHandle
-  cancel(Self, FetchHandle) -> Unit
-  poll(Self) -> Unit
+  fn fetch(Self, String, (FetchProgress) -> Unit, (Bytes?) -> Unit) -> FetchHandle
+  fn cancel(Self, FetchHandle) -> Unit
+  fn poll(Self) -> Unit
 }
 
 pub trait ImageRepository {
-  create_image(Self, AssetKey, ImageSpec) -> @gfx.ImageHandle raise
-  get_image(Self, AssetKey) -> @gfx.ImageHandle?
-  remove_image(Self, AssetKey) -> Unit raise
+  fn create_image(Self, AssetKey, ImageSpec) -> @gfx.ImageHandle raise
+  fn get_image(Self, AssetKey) -> @gfx.ImageHandle?
+  fn remove_image(Self, AssetKey) -> Unit raise
 }
 
 pub trait MaterialRepository {
-  register_material(Self, AssetKey, MaterialSpec) -> Unit raise
-  get_material(Self, AssetKey) -> MaterialSpec?
+  fn register_material(Self, AssetKey, MaterialSpec) -> Unit raise
+  fn get_material(Self, AssetKey) -> MaterialSpec?
 }
 
 pub trait ShaderRepository {
-  create_shader(Self, AssetKey, ShaderSpec) -> @gfx.ShaderHandle raise
-  get_shader(Self, AssetKey) -> @gfx.ShaderHandle?
-  remove_shader(Self, AssetKey) -> Unit raise
+  fn create_shader(Self, AssetKey, ShaderSpec) -> @gfx.ShaderHandle raise
+  fn get_shader(Self, AssetKey) -> @gfx.ShaderHandle?
+  fn remove_shader(Self, AssetKey) -> Unit raise
 }
 

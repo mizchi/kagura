@@ -187,20 +187,20 @@ pub struct SimpleAudioPlayer {
 
 // Traits
 pub trait AudioContext {
-  create_player(Self, AudioClip) -> PlayerId raise
-  play(Self, PlayerId) -> Unit raise
-  pause(Self, PlayerId) -> Unit raise
-  stop(Self, PlayerId) -> Unit raise
-  state(Self, PlayerId) -> PlayerState
-  set_volume(Self, PlayerId, Double) -> Unit
-  current_position(Self, PlayerId) -> Double
-  seek(Self, PlayerId, Double) -> Unit raise
-  set_pan(Self, PlayerId, Double) -> Unit
-  dispose(Self, PlayerId) -> Unit
+  fn create_player(Self, AudioClip) -> PlayerId raise
+  fn play(Self, PlayerId) -> Unit raise
+  fn pause(Self, PlayerId) -> Unit raise
+  fn stop(Self, PlayerId) -> Unit raise
+  fn state(Self, PlayerId) -> PlayerState
+  fn set_volume(Self, PlayerId, Double) -> Unit
+  fn current_position(Self, PlayerId) -> Double
+  fn seek(Self, PlayerId, Double) -> Unit raise
+  fn set_pan(Self, PlayerId, Double) -> Unit
+  fn dispose(Self, PlayerId) -> Unit
 }
 
 pub trait AudioStream {
-  read(Self, FixedArray[Byte], Int) -> Int
-  content_length(Self) -> Int
+  fn read(Self, FixedArray[Byte], Int) -> Int
+  fn content_length(Self) -> Int
 }
 

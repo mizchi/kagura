@@ -170,14 +170,14 @@ pub fn UITree::node_count(Self) -> Int
 
 // Traits
 pub trait LayoutEngine {
-  compute_layout(Self, UINodeId, LayoutConstraint) -> Array[LayoutResult] raise
+  fn compute_layout(Self, UINodeId, LayoutConstraint) -> Array[LayoutResult] raise
 }
 
 pub trait UIInputAdapter {
-  from_input_snapshot(Self, @kagura_core.InputSnapshot) -> Array[UIEvent]
+  fn from_input_snapshot(Self, @kagura_core.InputSnapshot) -> Array[UIEvent]
 }
 
 pub trait UIRenderAdapter {
-  build_draw_commands(Self, @kagura_core.FrameBudget, Array[LayoutResult], @gfx.ImageHandle) -> Array[@gfx.DrawTrianglesCommand] raise
+  fn build_draw_commands(Self, @kagura_core.FrameBudget, Array[LayoutResult], @gfx.ImageHandle) -> Array[@gfx.DrawTrianglesCommand] raise
 }
 

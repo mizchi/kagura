@@ -46,7 +46,7 @@ fn new_primitive_command(
     vertex_data,
     indices,
     [],
-    @debugutil.color_to_uniform_dwords(color),
+    color_to_uniform_dwords(color),
   )
 }
 
@@ -88,7 +88,7 @@ pub fn append_rect_fill_geometry(
   frame : RenderFrame2D,
   rect : RectFill2D,
 ) -> Unit {
-  let (rect_vertices, rect_indices) = @debugutil.ndc_rect_fill_vertices(
+  let (rect_vertices, rect_indices) = ndc_rect_fill_vertices(
     rect.x,
     rect.y,
     rect.w,
@@ -145,7 +145,7 @@ pub fn append_line(
   frame : RenderFrame2D,
   line : Line2D,
 ) -> Unit {
-  let (vertices, indices) = @debugutil.line_vertices(
+  let (vertices, indices) = line_vertices(
     line.x0,
     line.y0,
     line.x1,
@@ -194,7 +194,7 @@ pub fn append_rect_outline(
   frame : RenderFrame2D,
   rect : RectOutline2D,
 ) -> Unit {
-  let (vertices, indices) = @debugutil.rect_outline_vertices(
+  let (vertices, indices) = rect_outline_vertices(
     rect.x,
     rect.y,
     rect.w,

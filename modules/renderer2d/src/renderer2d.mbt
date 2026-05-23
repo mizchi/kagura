@@ -26,23 +26,3 @@ pub fn RenderFrame2D::new(
 pub fn RenderFrame2D::dst_region(self : RenderFrame2D) -> @gfx.DstRegion {
   @gfx.new_dst_region(0, 0, self.screen_w, self.screen_h, 6)
 }
-
-///|
-pub fn color_from_hex(hex : Int) -> @gfx.Color {
-  @debugutil.color_from_hex(hex)
-}
-
-///|
-pub fn color_from_hex_alpha(hex : Int, alpha : Double) -> @gfx.Color {
-  @debugutil.color_from_hex_alpha(hex, alpha)
-}
-
-///|
-pub fn color_white() -> @gfx.Color {
-  @debugutil.color_white()
-}
-
-///|
-pub fn color_to_uniform_dwords(color : @gfx.Color) -> Array[Int] {
-  @debugutil.color_to_uniform_dwords(color)
-}

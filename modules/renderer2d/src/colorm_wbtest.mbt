@@ -1,9 +1,4 @@
 ///|
-fn approx(a : Double, b : Double) -> Bool {
-  (a - b).abs() < 1.0e-6
-}
-
-///|
 test "ColorM identity" {
   let m = ColorM::identity()
   assert_true(m.is_identity())

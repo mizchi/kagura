@@ -7,7 +7,7 @@ import {
   "mizchi/atlas" @atlas,
   "mizchi/kagura_engine/audio" @audio,
   "mizchi/geom/camera2d" @camera2d,
-  "mizchi/colorm" @colorm,
+  "mizchi/renderer2d" @renderer2d,
   "mizchi/kagura_core" @core,
   "mizchi/gfx" @gfx,
   "mizchi/image_palette" @image_palette,

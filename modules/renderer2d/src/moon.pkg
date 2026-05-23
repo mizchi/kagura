@@ -1,8 +1,9 @@
 import {
   "mizchi/atlas" @atlas,
-  "mizchi/debugutil" @debugutil,
-  "mizchi/draw2d" @draw2d,
   "mizchi/gfx" @gfx,
+  "mizchi/kagura_core" @core,
+  "mizchi/geom/vector" @vector,
+  "mizchi/kagura_core/inpututil" @inpututil,
 }
 
 warnings = "-1"

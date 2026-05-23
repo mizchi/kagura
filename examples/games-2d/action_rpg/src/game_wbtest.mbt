@@ -456,7 +456,7 @@ test "visible tile chunk estimation" {
 
 ///|
 test "damage flash color transform" {
-  let cm = @colorm.ColorM::identity().scale(1.0, 0.3, 0.3, 1.0)
+  let cm = @renderer2d.ColorM::identity().scale(1.0, 0.3, 0.3, 1.0)
   let result = cm.apply_color(@gfx.new_color(0.8, 0.2, 0.2, 1.0))
   // R should stay similar, G and B should be reduced
   assert_true(result.r > 0.5)
@@ -466,7 +466,7 @@ test "damage flash color transform" {
 
 ///|
 test "monochrome transform" {
-  let cm = @colorm.ColorM::identity().monochrome()
+  let cm = @renderer2d.ColorM::identity().monochrome()
   let result = cm.apply_color(@gfx.new_color(1.0, 0.0, 0.0, 1.0))
   // Monochrome should make R=G=B
   assert_true((result.r - result.g).abs() < 0.01)

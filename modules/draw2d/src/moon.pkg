@@ -1,4 +1,0 @@
-import {
-  "mizchi/atlas" @atlas,
-  "mizchi/gfx" @gfx,
-}

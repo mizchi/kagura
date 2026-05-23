@@ -33,7 +33,7 @@ pub fn append_dot_text(
   let start_x = text.cx - total_w / 2.0
   let start_y = text.cy - char_h / 2.0
   for i in 0..<text.chars.length() {
-    let pattern = @debugutil.glyph_pattern(text.chars[i])
+    let pattern = glyph_pattern(text.chars[i])
     let ox = start_x + i.to_double() * (char_w + gap)
     for row in 0..<5 {
       for col in 0..<3 {

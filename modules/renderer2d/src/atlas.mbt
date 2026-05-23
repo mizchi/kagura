@@ -27,7 +27,7 @@ pub fn append_atlas_quad(
   quad : AtlasQuad2D,
 ) -> Unit {
   commands.push(
-    @draw2d.new_atlas_quad_draw_command(
+    new_atlas_quad_draw_command(
       frame.dst,
       frame.shader,
       frame.dst_region(),

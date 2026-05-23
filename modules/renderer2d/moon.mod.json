@@ -1,21 +1,21 @@
 {
   "name": "mizchi/renderer2d",
   "version": "0.1.0",
-  "description": "2D batched-quad renderer (RenderFrame + primitive helpers) on top of mizchi/draw2d (extracted from kagura)",
+  "description": "Comprehensive 2D rendering toolkit: batched-quad RenderFrame, atlas quad geometry, color helpers, debug overlay/profiler, color-matrix transforms.",
   "repository": "https://github.com/mizchi/kagura",
   "license": "Apache-2.0",
   "source": "src",
   "warn-list": "-6-29-53-68",
   "deps": {
     "mizchi/gfx": "0.1.0",
-    "mizchi/draw2d": {
-      "path": "../draw2d"
-    },
-    "mizchi/debugutil": {
-      "path": "../debugutil"
-    },
     "mizchi/atlas": {
       "path": "../atlas"
+    },
+    "mizchi/kagura_core": {
+      "path": "../kagura_core"
+    },
+    "mizchi/geom": {
+      "path": "../geom"
     }
   }
 }

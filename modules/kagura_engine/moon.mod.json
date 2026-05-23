@@ -24,9 +24,6 @@
     "mizchi/mesh3d": {
       "path": "../mesh3d"
     },
-    "mizchi/draw2d": {
-      "path": "../draw2d"
-    },
     "mizchi/renderer2d": {
       "path": "../renderer2d"
     },

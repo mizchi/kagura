@@ -49,6 +49,15 @@ fn mix_cache_key(seed : Int, value : Int) -> Int {
   seed * 16777619 + value + 31
 }
 
+// Cheap 32-bit hash for a Double. Used only for the (non-functional)
+// resource_cache_key metadata, so any deterministic mapping works -
+// gfx's queue propagates this value but never compares it. Scaling by 4096
+// keeps sub-quarter-pixel resolution which is finer than sprite cache_key
+// needs across the typical screen-coordinate range.
+fn double_cache_bits(v : Double) -> Int {
+  (v * 4096.0).to_int()
+}
+
 ///|
 fn atlas_quad_resource_cache_key(
   dst : @gfx.ImageHandle,
@@ -74,14 +83,14 @@ fn atlas_quad_resource_cache_key(
   hash = mix_cache_key(hash, dst_region.index_count)
   hash = mix_cache_key(hash, @gfx.BlendMode::to_int(blend))
   hash = mix_cache_key(hash, source.page_image_id)
-  hash = mix_cache_key(hash, @gfx.double_to_f32_bits(source.u0))
-  hash = mix_cache_key(hash, @gfx.double_to_f32_bits(source.v0))
-  hash = mix_cache_key(hash, @gfx.double_to_f32_bits(source.u1))
-  hash = mix_cache_key(hash, @gfx.double_to_f32_bits(source.v1))
-  hash = mix_cache_key(hash, @gfx.double_to_f32_bits(left))
-  hash = mix_cache_key(hash, @gfx.double_to_f32_bits(top))
-  hash = mix_cache_key(hash, @gfx.double_to_f32_bits(right))
-  hash = mix_cache_key(hash, @gfx.double_to_f32_bits(bottom))
+  hash = mix_cache_key(hash, double_cache_bits(source.u0))
+  hash = mix_cache_key(hash, double_cache_bits(source.v0))
+  hash = mix_cache_key(hash, double_cache_bits(source.u1))
+  hash = mix_cache_key(hash, double_cache_bits(source.v1))
+  hash = mix_cache_key(hash, double_cache_bits(left))
+  hash = mix_cache_key(hash, double_cache_bits(top))
+  hash = mix_cache_key(hash, double_cache_bits(right))
+  hash = mix_cache_key(hash, double_cache_bits(bottom))
   hash = mix_cache_key(hash, uniform_dwords.length())
   for dword in uniform_dwords {
     hash = mix_cache_key(hash, dword)

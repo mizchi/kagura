@@ -291,3 +291,61 @@ test "atlas_quad_vertex_data negative coords" {
   assert_eq(vertex[12], -1.0)
   assert_eq(vertex[13], -0.5)
 }
+
+///|
+test "new_atlas_quad_batch_draw_command packs N quads into one command" {
+  let source = test_atlas_draw_source(960)
+  let dst = @gfx.new_image_handle(1, 1920, 1080)
+  let shader = @gfx.new_shader_handle(2, "atlas_batch")
+  let dst_region = @gfx.new_dst_region(0, 0, 1920, 1080, 6)
+  let blend = @gfx.BlendMode::from_int(1)
+  // Three quads laid out as [l, t, r, b] x 3
+  let rects : Array[Double] = [
+    0.0, 0.0, 2.0, 2.0,
+    10.0, 0.0, 12.0, 2.0,
+    0.0, 10.0, 2.0, 12.0,
+  ]
+  let cmd = new_atlas_quad_batch_draw_command(
+    dst, shader, dst_region, 7, 11, blend, source, rects, [1, 2, 3, 4],
+  )
+  // 3 quads = 12 vertices (4 doubles each: x, y, u, v = stride 4)
+  // vertex_data length = 3 * 16 = 48
+  assert_eq(cmd.vertex_data.length(), 48)
+  // 3 quads = 6 indices each = 18 indices
+  assert_eq(cmd.indices.length(), 18)
+  // First quad's TL: (0, 0) with source UV (u0, v0)
+  assert_eq(cmd.vertex_data[0], 0.0)
+  assert_eq(cmd.vertex_data[1], 0.0)
+  assert_eq(cmd.vertex_data[2], source.u0)
+  assert_eq(cmd.vertex_data[3], source.v0)
+  // Second quad's TL: (10, 0)
+  assert_eq(cmd.vertex_data[16], 10.0)
+  assert_eq(cmd.vertex_data[17], 0.0)
+  // First quad's indices: 0, 1, 2, 2, 3, 0
+  assert_eq(cmd.indices[0], 0)
+  assert_eq(cmd.indices[5], 0)
+  // Second quad's indices: 4, 5, 6, 6, 7, 4
+  assert_eq(cmd.indices[6], 4)
+  assert_eq(cmd.indices[11], 4)
+  // Region index_count reflects all quads
+  assert_eq(cmd.dst_regions[0].index_count, 18)
+  // page_image_id appears once (all quads share source)
+  assert_eq(cmd.src_image_ids.length(), 1)
+  assert_eq(cmd.src_image_ids[0], source.page_image_id)
+  assert_true(cmd.resource_cache_key != 0)
+}
+
+///|
+test "new_atlas_quad_batch_draw_command empty rects produces empty command" {
+  let source = test_atlas_draw_source(961)
+  let dst = @gfx.new_image_handle(1, 100, 100)
+  let shader = @gfx.new_shader_handle(2, "atlas_batch_empty")
+  let dst_region = @gfx.new_dst_region(0, 0, 100, 100, 6)
+  let blend = @gfx.BlendMode::from_int(0)
+  let cmd = new_atlas_quad_batch_draw_command(
+    dst, shader, dst_region, 0, 0, blend, source, [], [],
+  )
+  assert_eq(cmd.vertex_data.length(), 0)
+  assert_eq(cmd.indices.length(), 0)
+  assert_eq(cmd.dst_regions[0].index_count, 0)
+}

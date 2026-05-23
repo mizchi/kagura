@@ -94,3 +94,30 @@ test "bench new_atlas_quad_draw_command 10000" (b : @bench.T) {
     b.keep(commands.length())
   })
 }
+
+///|
+test "bench new_atlas_quad_batch_draw_command 10000 quads" (b : @bench.T) {
+  let source = bench_atlas_draw_source(823)
+  let dst = @gfx.new_image_handle(1, 1920, 1080)
+  let shader = @gfx.new_shader_handle(2, "atlas_batch_bench")
+  let dst_region = @gfx.new_dst_region(0, 0, 1920, 1080, 6)
+  let blend = @gfx.BlendMode::from_int(1)
+  let uniform_dwords = [1, 2, 3, 4]
+  // Pre-build the rect buffer outside the timed region (the caller in a real
+  // game would also reuse this between frames).
+  let rects : Array[Double] = Array::make(10000 * 4, 0.0)
+  for i in 0..<10000 {
+    let left = (i % 256).to_double() * 2.0
+    let top = (i / 256).to_double() * 2.0
+    rects[i * 4] = left
+    rects[i * 4 + 1] = top
+    rects[i * 4 + 2] = left + 2.0
+    rects[i * 4 + 3] = top + 2.0
+  }
+  b.bench(name="atlas_quad/batch_draw_command_10000", fn() {
+    let cmd = new_atlas_quad_batch_draw_command(
+      dst, shader, dst_region, 7, 11, blend, source, rects, uniform_dwords,
+    )
+    b.keep(cmd.resource_cache_key)
+  })
+}

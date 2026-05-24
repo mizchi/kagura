@@ -145,7 +145,14 @@ pub fn ParticleEmitter::update(self : ParticleEmitter, dt : Double) -> Unit {
       self.config.size_max,
     )
     self.particles.push({
-      position: self.config.position,
+      // Fresh Vec3 per particle — Vec3 fields are `mut`, sharing the
+      // config's instance would let any later mutation leak across all
+      // active particles.
+      position: @math3d.Vec3::new(
+        self.config.position.x,
+        self.config.position.y,
+        self.config.position.z,
+      ),
       velocity: @math3d.Vec3::new(vx, vy, vz),
       age: 0.0,
       max_age: lifetime,

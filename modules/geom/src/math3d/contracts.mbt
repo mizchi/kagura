@@ -10,9 +10,9 @@
 
 ///|
 pub struct Vec3 {
-  x : Double
-  y : Double
-  z : Double
+  mut x : Double
+  mut y : Double
+  mut z : Double
 } derive(Debug)
 
 ///|
@@ -23,6 +23,21 @@ pub impl Show for Vec3 with output(self, logger) {
 ///|
 pub fn Vec3::new(x : Double, y : Double, z : Double) -> Vec3 {
   { x, y, z }
+}
+
+///|
+/// Mutate x/y/z in place. Intended for ECS hot loops that own the Vec3 and
+/// want to avoid the per-tick Vec3 allocation that `Vec3::new` forces.
+/// The caller must guarantee no other live reference observes the change.
+pub fn Vec3::set_xyz(
+  self : Vec3,
+  x : Double,
+  y : Double,
+  z : Double,
+) -> Unit {
+  self.x = x
+  self.y = y
+  self.z = z
 }
 
 ///|

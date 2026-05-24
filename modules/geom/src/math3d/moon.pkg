@@ -2,3 +2,6 @@ import {
   "moonbitlang/core/math" @math,
   "moonbitlang/core/cmp" @cmp,
 }
+
+warnings = "-15"
+

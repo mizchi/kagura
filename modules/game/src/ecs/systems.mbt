@@ -21,14 +21,12 @@ pub fn system_movement(world : World, dt : Double) -> Unit {
         Some(t) =>
           match velocities.unsafe_get(id) {
             Some(v) => {
+              // Mutate the existing Vec3 in place — both Transform3D's
+              // position field and Vec3's x/y/z are `mut` for this
+              // exact case. Avoids the Vec3 allocation that `Vec3::new`
+              // would force per tick per entity.
               let p = t.position
-              t.set_position(
-                @math3d.Vec3::new(
-                  p.x + v.x * dt,
-                  p.y + v.y * dt,
-                  p.z + v.z * dt,
-                ),
-              )
+              p.set_xyz(p.x + v.x * dt, p.y + v.y * dt, p.z + v.z * dt)
             }
             None => ()
           }

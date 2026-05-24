@@ -14,11 +14,13 @@ pub fn World::each_with_transform(
 ) -> Unit {
   // Component arrays grow lazily, so `transforms.length() <= alive.length()`.
   // Iterating by the shorter bound skips the dead-tail entities for free.
+  // `unsafe_get` skips the bounds-check function call (we already bound
+  // the loop above).
   let alive = self.alive
   let transforms = self.transforms
   for id in 0..<transforms.length() {
-    if alive[id] {
-      match transforms[id] {
+    if alive.unsafe_get(id) {
+      match transforms.unsafe_get(id) {
         Some(t) => f({ value: id }, t)
         None => ()
       }
@@ -40,10 +42,14 @@ pub fn World::each_with_transform_velocity(
     velocities.length()
   }
   for id in 0..<n {
-    if alive[id] {
-      match (transforms[id], velocities[id]) {
-        (Some(t), Some(v)) => f({ value: id }, t, v)
-        _ => ()
+    if alive.unsafe_get(id) {
+      match transforms.unsafe_get(id) {
+        Some(t) =>
+          match velocities.unsafe_get(id) {
+            Some(v) => f({ value: id }, t, v)
+            None => ()
+          }
+        None => ()
       }
     }
   }
@@ -58,8 +64,8 @@ pub fn World::each_with_tag(
   let alive = self.alive
   let tags_arr = self.tags
   for id in 0..<tags_arr.length() {
-    if alive[id] {
-      match tags_arr[id] {
+    if alive.unsafe_get(id) {
+      match tags_arr.unsafe_get(id) {
         Some(tags) => if tags.contains(tag) { f({ value: id }) }
         None => ()
       }

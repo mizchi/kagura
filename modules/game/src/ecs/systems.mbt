@@ -5,6 +5,8 @@ pub fn system_movement(world : World, dt : Double) -> Unit {
   // Transform3D.position is `mut` for exactly this case — see profiler
   // notes in scripts/ecs-pprof.mjs.
   // Component arrays grow lazily, so iterate by the shorter of the two.
+  // `unsafe_get` avoids the per-access bounds-check function call — we
+  // already bounded by min-length above.
   let alive = world.alive
   let transforms = world.transforms
   let velocities = world.velocities
@@ -14,15 +16,23 @@ pub fn system_movement(world : World, dt : Double) -> Unit {
     velocities.length()
   }
   for id in 0..<n {
-    if alive[id] {
-      match (transforms[id], velocities[id]) {
-        (Some(t), Some(v)) => {
-          let p = t.position
-          t.set_position(
-            @math3d.Vec3::new(p.x + v.x * dt, p.y + v.y * dt, p.z + v.z * dt),
-          )
-        }
-        _ => ()
+    if alive.unsafe_get(id) {
+      match transforms.unsafe_get(id) {
+        Some(t) =>
+          match velocities.unsafe_get(id) {
+            Some(v) => {
+              let p = t.position
+              t.set_position(
+                @math3d.Vec3::new(
+                  p.x + v.x * dt,
+                  p.y + v.y * dt,
+                  p.z + v.z * dt,
+                ),
+              )
+            }
+            None => ()
+          }
+        None => ()
       }
     }
   }

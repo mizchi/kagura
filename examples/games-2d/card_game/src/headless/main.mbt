@@ -190,6 +190,11 @@ fn main {
   let fun = @lib.analyze_fun_metrics(40)
   let report = @lib.format_fun_report(fun)
   println(report)
+  println("")
+
+  // --- 7. Procedural Card Generation + Executable Evaluation ---
+  println("--- Procedural Card Generation (1000 cards, multi-turn eval) ---")
+  println(@lib.format_generation_report())
 
   // --- Summary ---
   if all_ok {

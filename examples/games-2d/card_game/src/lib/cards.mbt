@@ -635,3 +635,54 @@ fn card_rarity(id : CardId) -> CardRarity {
 pub fn starter_deck() -> Array[CardId] {
   [Strike, Strike, Strike, Strike, Strike, Defend, Defend, Defend, Defend, Bash]
 }
+
+///|
+/// Every card in the game. Keep in sync with the `CardId` enum (the
+/// exhaustive match in `card_effects` is the compile-time guard that no card
+/// is forgotten).
+pub fn all_card_ids() -> Array[CardId] {
+  [
+    Strike,
+    Defend,
+    Bash,
+    Cleave,
+    Pommel_Strike,
+    Twin_Strike,
+    Iron_Wave,
+    Anger,
+    Headbutt,
+    Shrug_It_Off,
+    Armaments,
+    True_Grit,
+    Flex,
+    Clothesline,
+    Uppercut,
+    Body_Slam,
+    Sword_Boomerang,
+    Rampage,
+    Bloodletting,
+    Offering,
+    Seeing_Red,
+    Battle_Trance,
+    Shockwave,
+    Disarm,
+    Inflame,
+    Metallicize,
+    Bludgeon,
+    Impervious,
+    Whirlwind,
+    Feed,
+    Fiend_Fire,
+    Limit_Break,
+    Demon_Form,
+    Barricade,
+    Feel_No_Pain,
+    Corruption,
+    Heavy_Blade,
+    Carnage,
+    Immolate,
+    Reaper,
+    Entrench,
+    Pummel,
+  ]
+}

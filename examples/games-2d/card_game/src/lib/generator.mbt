@@ -36,16 +36,12 @@ pub impl Show for Verdict with output(self, logger) {
 }
 
 ///|
-/// Measured result of executing a synthesized card.
+/// Measured result of evaluating a synthesized card over the horizon. All
+/// figures are *differential* (with the card minus without it).
 pub(all) struct SynthEval {
-  damage : Int
-  block : Int
-  energy_gain : Int
-  cards_drawn : Int
-  strength_gain : Int
-  vulnerable : Int
-  weak : Int
-  hp_cost : Int
+  damage : Int // extra damage dealt to the dummy
+  prevented : Int // extra incoming damage absorbed by Block
+  extra_hp_lost : Int // extra HP given up (self-damage cards)
   value : Double // weighted total value
   budget : Double // value the cost "should" buy
   verdict : Verdict
@@ -106,60 +102,174 @@ pub fn gen_card(seed : Int) -> SynthCard {
 }
 
 ///|
-/// Execute a synthesized card in a controlled battle and measure its output.
-/// The enemy is given huge HP so multi-hit cards never run out of target, and
-/// the player is given ample energy so cost never blocks execution — we are
-/// measuring raw output, then comparing it to the cost budget separately.
-pub fn eval_synth(card : SynthCard) -> SynthEval {
+/// Horizon (turns) the multi-turn evaluator simulates. Long enough for
+/// persistent powers (Demon Form, Metallicize) and Strength scaling to show
+/// their deferred value.
+const EVAL_HORIZON : Int = 6
+
+///|
+/// Damage of one "baseline attack" — a stand-in for the rest of the deck. The
+/// player throws `EVAL_BASELINE_ATTACKS` of these per turn so that Strength /
+/// Vulnerable buffs have something to multiply.
+const EVAL_STRIKE_BASE : Int = 6
+
+///|
+const EVAL_BASELINE_ATTACKS : Int = 2
+
+///|
+/// The training dummy's base attack and Strength (so Disarm / Weak have
+/// something to bite into).
+const EVAL_ENEMY_ATTACK : Int = 8
+
+///|
+const EVAL_ENEMY_STRENGTH : Int = 3
+
+///|
+/// Value a single energy buys (Strike ≈ 6 damage for 1 energy).
+const EVAL_PER_ENERGY : Double = 6.0
+
+///|
+/// What the multi-turn simulation accumulated.
+struct HorizonResult {
+  damage : Int // damage dealt to the dummy over the horizon
+  prevented : Int // incoming damage absorbed by Block
+  hp_lost : Int // incoming damage that got through to HP
+  immediate : Double // one-off utility value (energy / draw / self-HP)
+}
+
+///|
+/// Simulate `EVAL_HORIZON` turns of a controlled battle. The player plays
+/// `EVAL_BASELINE_ATTACKS` baseline attacks each turn (the rest of the deck);
+/// when `play` is set, the candidate card is additionally played on turn 1.
+/// Persistent powers, Strength scaling and debuffs therefore accrue over the
+/// remaining turns, so their deferred value is captured.
+fn run_horizon(card : SynthCard, play : Bool) -> HorizonResult {
   let state = BattleState::new([JawWorm], seed=999)
-  state.enemies[0].fighter.hp = 100000
-  state.enemies[0].fighter.max_hp = 100000
-  state.player.energy = 50
-  let hp0 = state.player.hp
-  let str0 = state.player.status.strength
-  let energy0 = state.player.energy
-  let hand0 = state.hand.length()
-  let out = apply_effects(state, card.effects, 0)
-  let damage = out.damage
-  let block = out.block
-  let hp_cost = hp0 - state.player.hp
-  let strength_gain = state.player.status.strength - str0
-  let energy_gain = state.player.energy - energy0
-  let cards_drawn = state.hand.length() - hand0
-  let vulnerable = state.enemies[0].fighter.status.vulnerable
-  let weak = state.enemies[0].fighter.status.weak
-  // Value weights mirror economy.mbt's baselines.
+  let enemy = state.enemies[0].fighter
+  enemy.hp = 1000000
+  enemy.max_hp = 1000000
+  enemy.status.strength = EVAL_ENEMY_STRENGTH
+  let hp_before = enemy.hp
+  // Clean-slate player so the differential isolates the card.
+  state.player.hp = 100000
+  state.player.max_hp = 100000
+  state.player.block = 0
+  state.player.status.strength = 0
+  let mut prevented = 0
+  let mut hp_lost = 0
+  let mut immediate = 0.0
+  let mut turn = 1
+  while turn <= EVAL_HORIZON {
+    // --- start of turn ---
+    if turn > 1 && !state.powers.barricade {
+      state.player.block = 0
+    }
+    if state.powers.demon_form > 0 {
+      state.player.status.strength += state.powers.demon_form
+    }
+    state.player.energy = 3
+    // --- play the candidate card (turn 1 only) ---
+    if play && turn == 1 {
+      let hp0 = state.player.hp
+      let energy0 = state.player.energy
+      let hand0 = state.hand.length()
+      let _ = apply_effects(state, card.effects, 0)
+      let energy_gain = state.player.energy - energy0
+      let drawn = state.hand.length() - hand0
+      let hp_cost = hp0 - state.player.hp
+      // Energy spent IS the card's cost (already in the budget), so only count
+      // net energy gained. Card draw and self-HP are one-off.
+      immediate += (if energy_gain > 0 { energy_gain.to_double() } else { 0.0 }) *
+        5.5 +
+        drawn.to_double() * 2.0 -
+        hp_cost.to_double() * 1.0
+    }
+    // --- baseline attacks (rest of deck); routed through apply_damage so
+    //     Vulnerable on the dummy is honoured ---
+    let mut k = 0
+    while k < EVAL_BASELINE_ATTACKS {
+      let dmg = calculate_attack_damage(EVAL_STRIKE_BASE, state.player)
+      let _ = apply_damage(enemy, dmg)
+      k += 1
+    }
+    // --- end of turn powers ---
+    if state.powers.metallicize > 0 {
+      state.player.block += state.powers.metallicize
+    }
+    if state.powers.flex_loss > 0 {
+      state.player.status.strength -= state.powers.flex_loss
+      state.powers.flex_loss = 0
+    }
+    // --- enemy attacks back ---
+    let mut atk = EVAL_ENEMY_ATTACK +
+      (if enemy.status.strength > 0 { enemy.status.strength } else { 0 })
+    if enemy.status.weak > 0 {
+      atk = (atk.to_double() * 0.75).to_int()
+    }
+    let absorbed = if state.player.block >= atk {
+      atk
+    } else {
+      state.player.block
+    }
+    state.player.block -= absorbed
+    prevented += absorbed
+    hp_lost += atk - absorbed
+    // tick the dummy's debuffs
+    if enemy.status.vulnerable > 0 {
+      enemy.status.vulnerable -= 1
+    }
+    if enemy.status.weak > 0 {
+      enemy.status.weak -= 1
+    }
+    turn += 1
+  }
+  { damage: hp_before - enemy.hp, prevented, hp_lost, immediate }
+}
+
+///|
+/// Evaluate a synthesized card by the *differential* of a multi-turn
+/// simulation: (output with the card) − (output without it). This isolates the
+/// card's true contribution, including deferred value from Strength scaling and
+/// persistent powers that a single-shot snapshot misses.
+pub fn eval_synth(card : SynthCard) -> SynthEval {
+  let with_card = run_horizon(card, true)
+  let without = run_horizon(card, false)
+  let damage = with_card.damage - without.damage
+  let prevented = with_card.prevented - without.prevented
+  let extra_hp_lost = with_card.hp_lost - without.hp_lost
   let value = damage.to_double() +
-    block.to_double() * 0.8 +
-    energy_gain.to_double() * 5.5 +
-    cards_drawn.to_double() * 2.0 +
-    strength_gain.to_double() * 8.0 +
-    vulnerable.to_double() * 1.5 +
-    weak.to_double() * 1.0 -
-    hp_cost.to_double() * 1.0
-  // A 0-cost card still buys ~half an energy's worth of value.
-  let budget = (if card.cost == 0 { 0.5 } else { card.cost.to_double() }) * 6.0
+    prevented.to_double() * 0.8 -
+    extra_hp_lost.to_double() * 0.5 +
+    with_card.immediate
+  // A 0-cost card still buys roughly two-thirds of an energy's value.
+  let budget = (if card.cost == 0 { 0.66 } else { card.cost.to_double() }) *
+    EVAL_PER_ENERGY
   let ratio = value / budget
   let verdict = if ratio < 0.7 {
     Underpowered
-  } else if ratio <= 1.4 {
+  } else if ratio <= 1.5 {
     Balanced
   } else {
     Overpowered
   }
-  {
-    damage,
-    block,
-    energy_gain,
-    cards_drawn,
-    strength_gain,
-    vulnerable,
-    weak,
-    hp_cost,
-    value,
-    budget,
-    verdict,
+  { damage, prevented, extra_hp_lost, value, budget, verdict }
+}
+
+///|
+/// Build a SynthCard from a designed card: cost from `card_def`, behaviour from
+/// the IR. Lets the evaluator grade the hand-authored set too.
+pub fn synth_of_card(id : CardId) -> SynthCard {
+  let effects = match card_effects(id) {
+    Some(e) => e
+    None => []
   }
+  { cost: card_def(id).cost, effects }
+}
+
+///|
+/// Evaluate a designed card through the same loop generated cards use.
+pub fn eval_card(id : CardId) -> SynthEval {
+  eval_synth(synth_of_card(id))
 }
 
 ///|
@@ -279,4 +389,93 @@ pub fn generate_balanced(
     tries += 1
   }
   kept
+}
+
+///|
+/// Grade every designed card with the same evaluator (a calibration check).
+pub fn grade_designed_cards() -> GenSummary {
+  let mut under = 0
+  let mut balanced = 0
+  let mut over = 0
+  let ids = all_card_ids()
+  for id in ids {
+    match eval_card(id).verdict {
+      Underpowered => under += 1
+      Balanced => balanced += 1
+      Overpowered => over += 1
+    }
+  }
+  {
+    generated: ids.length(),
+    runnable: ids.length(),
+    underpowered: under,
+    balanced,
+    overpowered: over,
+  }
+}
+
+///|
+/// Build a reproducible multi-line report of the generate→evaluate loop, for
+/// the headless runner.
+pub fn format_generation_report(
+  count? : Int = 1000,
+  seed? : Int = 12345,
+) -> String {
+  let lines : Array[String] = []
+  let s = generate_and_grade(count, seed~)
+  lines.push(
+    "  generated=" +
+    s.generated.to_string() +
+    " runnable=" +
+    s.runnable.to_string() +
+    " (no grounding failures)",
+  )
+  let total = s.underpowered + s.balanced + s.overpowered
+  lines.push(
+    "  underpowered=" +
+    s.underpowered.to_string() +
+    " balanced=" +
+    s.balanced.to_string() +
+    " overpowered=" +
+    s.overpowered.to_string() +
+    " (of " +
+    total.to_string() +
+    ")",
+  )
+  lines.push("  sample balanced generated cards:")
+  let kept = generate_balanced(6, seed=seed + 99)
+  for card in kept {
+    let e = eval_synth(card)
+    lines.push(
+      "    " +
+      describe_card(card) +
+      "  value=" +
+      e.value.to_string() +
+      " budget=" +
+      e.budget.to_string(),
+    )
+  }
+  let cal = grade_designed_cards()
+  lines.push(
+    "  evaluator vs designed cards: underpowered=" +
+    cal.underpowered.to_string() +
+    " balanced=" +
+    cal.balanced.to_string() +
+    " overpowered=" +
+    cal.overpowered.to_string() +
+    " (of " +
+    cal.generated.to_string() +
+    ")",
+  )
+  let mut out = ""
+  let mut first = true
+  for line in lines {
+    if first {
+      out = line
+      first = false
+    } else {
+      out = out + "\n" + line
+    }
+  }
+  out
 }

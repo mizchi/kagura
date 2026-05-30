@@ -80,72 +80,22 @@ fn assert_ir_matches_legacy(
 }
 
 ///|
-/// Every card in the game, so the test fails to compile if a new card is added
-/// without being considered here.
-fn all_cards() -> Array[CardId] {
-  [
-    Strike,
-    Defend,
-    Bash,
-    Cleave,
-    Pommel_Strike,
-    Twin_Strike,
-    Iron_Wave,
-    Anger,
-    Headbutt,
-    Shrug_It_Off,
-    Armaments,
-    True_Grit,
-    Flex,
-    Clothesline,
-    Uppercut,
-    Body_Slam,
-    Sword_Boomerang,
-    Rampage,
-    Bloodletting,
-    Offering,
-    Seeing_Red,
-    Battle_Trance,
-    Shockwave,
-    Disarm,
-    Inflame,
-    Metallicize,
-    Bludgeon,
-    Impervious,
-    Whirlwind,
-    Feed,
-    Fiend_Fire,
-    Limit_Break,
-    Demon_Form,
-    Barricade,
-    Feel_No_Pain,
-    Corruption,
-    Heavy_Blade,
-    Carnage,
-    Immolate,
-    Reaper,
-    Entrench,
-    Pummel,
-  ]
-}
-
-///|
 test "every card is expressed in the Effect IR" {
-  for card in all_cards() {
+  for card in all_card_ids() {
     assert_true(card_effects(card) is Some(_))
   }
 }
 
 ///|
 test "Effect IR reproduces legacy behaviour for all cards (normal)" {
-  for card in all_cards() {
+  for card in all_card_ids() {
     assert_ir_matches_legacy(card, fixture_normal)
   }
 }
 
 ///|
 test "Effect IR reproduces legacy behaviour for all cards (lethal)" {
-  for card in all_cards() {
+  for card in all_card_ids() {
     assert_ir_matches_legacy(card, fixture_lethal)
   }
 }

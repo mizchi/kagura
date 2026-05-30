@@ -366,8 +366,30 @@ fn apply_attack_with_relics(
 }
 
 ///|
-/// Execute the effect of a card
+/// Execute the effect of a card.
+///
+/// Migrated cards are described as data (`card_effects`) and run through the
+/// `interpret_card` IR interpreter; the rest fall back to the legacy branch
+/// below. See `effect.mbt`.
 fn execute_card(
+  state : BattleState,
+  card_id : CardId,
+  target_index : Int,
+) -> Unit {
+  match card_effects(card_id) {
+    Some(effects) => {
+      interpret_card(state, card_id, effects, target_index)
+      return
+    }
+    None => execute_card_legacy(state, card_id, target_index)
+  }
+}
+
+///|
+/// Legacy per-card behaviour. Cards not yet expressed in the Effect IR are
+/// handled here. Branches for already-migrated cards remain as reference and
+/// are unreachable via `execute_card`.
+fn execute_card_legacy(
   state : BattleState,
   card_id : CardId,
   target_index : Int,

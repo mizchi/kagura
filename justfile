@@ -10,7 +10,7 @@ fmt:
 
 check:
     moon check --deny-warn --target {{target}}
-    for dir in examples/*/*/ tools/modeling3d/examples/*/ tools/effect-studio/examples/*/; do if [ -f "$dir/moon.mod.json" ]; then if [ "{{target}}" != "native" ] && [ -f "$dir/src/moon.pkg" ] && grep -q 'supported_targets = "native"' "$dir/src/moon.pkg"; then echo "skip $dir (supports native only)"; continue; fi; (cd "$dir" && moon check --deny-warn --target {{target}}); fi; done
+    for dir in examples/*/*/ tools/modeling3d/examples/*/ tools/effect-studio/examples/*/; do if [ -f "$dir/moon.mod.json" ]; then case "$dir" in examples/experimental/crater_paint/|examples/smoke/browser_headless/) echo "skip $dir (depends on out-of-repo mizchi/crater checkout)"; continue;; esac; if [ "{{target}}" != "native" ] && [ -f "$dir/src/moon.pkg" ] && grep -q 'supported_targets = "native"' "$dir/src/moon.pkg"; then echo "skip $dir (supports native only)"; continue; fi; (cd "$dir" && moon check --deny-warn --target {{target}}); fi; done
 
 modeling3d-check:
     for dir in tools/modeling3d/examples/*/; do [ -f "$dir/moon.mod.json" ] && (cd "$dir" && moon check --deny-warn --target {{target}}); done
@@ -21,7 +21,7 @@ effect-studio-check:
 test:
     if [ "{{target}}" = "native" ]; then CPATH="$(brew --prefix glfw)/include:${CPATH:-}" LIBRARY_PATH="$(brew --prefix)/lib:${LIBRARY_PATH:-}" moon test --target native || { echo "::error title=moon test failed::root moon test --target native"; exit 1; }; else moon test --target {{target}} || { echo "::error title=moon test failed::root moon test --target {{target}}"; exit 1; }; fi
     if [ "{{target}}" = "js" ] && ls lib/web/*.test.mjs >/dev/null 2>&1; then node --test lib/web/*.test.mjs || { echo "::error title=node test failed::lib/web/*.test.mjs"; exit 1; }; fi
-    for dir in examples/*/*/ tools/modeling3d/examples/*/ tools/effect-studio/examples/*/; do if [ -f "$dir/moon.mod.json" ]; then if [ "{{target}}" != "native" ] && [ -f "$dir/src/moon.pkg" ] && grep -q 'supported_targets = "native"' "$dir/src/moon.pkg"; then echo "skip $dir (supports native only)"; continue; fi; if [ "{{target}}" = "native" ] && grep -rq "wgpu_native" "$dir/src/moon.pkg" 2>/dev/null; then echo "skip $dir (requires wgpu-native at link time)"; continue; fi; if [ "{{target}}" = "native" ] && [ "$dir" = "tools/effect-studio/examples/effect_studio/" ]; then echo "skip $dir (native test limited to check-only)"; continue; fi; echo "test $dir"; (cd "$dir" && if [ "{{target}}" = "native" ]; then CPATH="$(brew --prefix glfw)/include:${CPATH:-}" LIBRARY_PATH="$(brew --prefix)/lib:${LIBRARY_PATH:-}" moon test --target native; else moon test --target {{target}}; fi) || { echo "::error file=$dir/moon.mod.json,title=example test failed::$dir"; exit 1; }; fi; done
+    for dir in examples/*/*/ tools/modeling3d/examples/*/ tools/effect-studio/examples/*/; do if [ -f "$dir/moon.mod.json" ]; then case "$dir" in examples/experimental/crater_paint/|examples/smoke/browser_headless/) echo "skip $dir (depends on out-of-repo mizchi/crater checkout)"; continue;; esac; if [ "{{target}}" != "native" ] && [ -f "$dir/src/moon.pkg" ] && grep -q 'supported_targets = "native"' "$dir/src/moon.pkg"; then echo "skip $dir (supports native only)"; continue; fi; if [ "{{target}}" = "native" ] && grep -rq "wgpu_native" "$dir/src/moon.pkg" 2>/dev/null; then echo "skip $dir (requires wgpu-native at link time)"; continue; fi; if [ "{{target}}" = "native" ] && [ "$dir" = "tools/effect-studio/examples/effect_studio/" ]; then echo "skip $dir (native test limited to check-only)"; continue; fi; echo "test $dir"; (cd "$dir" && if [ "{{target}}" = "native" ]; then CPATH="$(brew --prefix glfw)/include:${CPATH:-}" LIBRARY_PATH="$(brew --prefix)/lib:${LIBRARY_PATH:-}" moon test --target native; else moon test --target {{target}}; fi) || { echo "::error file=$dir/moon.mod.json,title=example test failed::$dir"; exit 1; }; fi; done
 
 modeling3d-test:
     for dir in tools/modeling3d/examples/*/; do [ -f "$dir/moon.mod.json" ] && (cd "$dir" && if [ "{{target}}" = "native" ]; then CPATH="$(brew --prefix glfw)/include:${CPATH:-}" LIBRARY_PATH="$(brew --prefix)/lib:${LIBRARY_PATH:-}" moon test --target native; else moon test --target {{target}}; fi); done
@@ -50,6 +50,14 @@ effect-studio-e2e:
 
 hacknslash3d-effects-e2e:
     pnpm exec playwright test e2e/hacknslash_3d_effects.spec.ts
+
+# Publish public library modules to mooncakes (excludes example games / tools).
+# `just publish-dry` to validate without uploading.
+publish:
+    bash scripts/publish.sh
+
+publish-dry:
+    bash scripts/publish.sh --dry-run
 
 coverage:
     bash scripts/check-coverage.sh {{target}}

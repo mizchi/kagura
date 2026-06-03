@@ -1,6 +1,6 @@
 {
   "name": "mizchi/widget2d",
-  "version": "0.1.0",
+  "version": "0.2.0",
   "description": "UI primitive builders (rounded rects, scissor stack, text layout) on top of mizchi/gfx, mizchi/text, mizchi/font (extracted from kagura)",
   "repository": "https://github.com/mizchi/kagura",
   "license": "Apache-2.0",
@@ -10,7 +10,8 @@
     "mizchi/gfx": "0.1.0",
     "mizchi/font": "0.7.0",
     "mizchi/text": {
-      "path": "../text"
+      "path": "../text",
+      "version": "0.2.0"
     }
   }
 }

@@ -23,6 +23,9 @@
     },
     "mizchi/atlas": {
       "path": "../../../modules/atlas"
+    },
+    "mizchi/renderer2d": {
+      "path": "../../../modules/renderer2d"
     }
   }
 }

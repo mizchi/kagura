@@ -1,26 +1,26 @@
 ///|
-let web_canvas_selector : Ref[String] = Ref::new("#app")
+let web_canvas_selector : Ref[String] = Ref("#app")
 
 ///|
-let web_hooks_installed : Ref[Bool] = Ref::new(false)
+let web_hooks_installed : Ref[Bool] = Ref(false)
 
 ///|
-let web_fullscreen_state : Ref[Bool] = Ref::new(false)
+let web_fullscreen_state : Ref[Bool] = Ref(false)
 
 ///|
-let web_cursor_mode_state : Ref[Int] = Ref::new(0)
+let web_cursor_mode_state : Ref[Int] = Ref(0)
 
 ///|
-let web_device_scale_state : Ref[Double] = Ref::new(1.0)
+let web_device_scale_state : Ref[Double] = Ref(1.0)
 
 ///|
-let web_vsync_state : Ref[Bool] = Ref::new(true)
+let web_vsync_state : Ref[Bool] = Ref(true)
 
 ///|
-let web_close_requested : Ref[Bool] = Ref::new(false)
+let web_close_requested : Ref[Bool] = Ref(false)
 
 ///|
-let web_attention_requests : Ref[Int] = Ref::new(0)
+let web_attention_requests : Ref[Int] = Ref(0)
 
 ///|
 priv struct SyncedSourceGeneration {
@@ -37,13 +37,13 @@ priv struct SourceImageCacheEntry {
 }
 
 ///|
-let synced_source_generations : Ref[Array[SyncedSourceGeneration]] = Ref::new([])
+let synced_source_generations : Ref[Array[SyncedSourceGeneration]] = Ref([])
 
 ///|
-let source_image_cache : Ref[Array[SourceImageCacheEntry]] = Ref::new([])
+let source_image_cache : Ref[Array[SourceImageCacheEntry]] = Ref([])
 
 ///|
-let gpu_texture_dirty : Ref[Array[Int]] = Ref::new([])
+let gpu_texture_dirty : Ref[Array[Int]] = Ref([])
 
 ///|
 fn mark_gpu_texture_dirty(image_id : Int) -> Unit {

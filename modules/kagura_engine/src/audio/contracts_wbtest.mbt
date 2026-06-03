@@ -444,11 +444,11 @@ test "mono_format creates correct format" {
 
 ///|
 test "audio output hooks can be set and reset" {
-  let init_calls : Ref[Int] = Ref::new(0)
-  let write_calls : Ref[Int] = Ref::new(0)
-  let suspend_calls : Ref[Int] = Ref::new(0)
-  let resume_calls : Ref[Int] = Ref::new(0)
-  let close_calls : Ref[Int] = Ref::new(0)
+  let init_calls : Ref[Int] = Ref(0)
+  let write_calls : Ref[Int] = Ref(0)
+  let suspend_calls : Ref[Int] = Ref(0)
+  let resume_calls : Ref[Int] = Ref(0)
+  let close_calls : Ref[Int] = Ref(0)
   set_audio_output_hooks(
     new_audio_output_hooks(
       fn(_fmt) {
@@ -501,7 +501,7 @@ test "default_audio_output_stats" {
 
 ///|
 test "audio_render_and_write calls mixer and hooks" {
-  let written_ref : Ref[Int] = Ref::new(0)
+  let written_ref : Ref[Int] = Ref(0)
   set_audio_output_hooks(
     new_audio_output_hooks(
       fn(_fmt) { true },
@@ -523,7 +523,7 @@ test "audio_render_and_write calls mixer and hooks" {
 
 ///|
 test "tracked hooks updates stats on initialize" {
-  let stats : Ref[AudioOutputStats] = Ref::new(default_audio_output_stats())
+  let stats : Ref[AudioOutputStats] = Ref(default_audio_output_stats())
   let inner = new_audio_output_hooks(
     fn(_fmt) { true },
     fn(_output, frames) { frames },
@@ -540,7 +540,7 @@ test "tracked hooks updates stats on initialize" {
 
 ///|
 test "tracked hooks accumulates frames_written" {
-  let stats : Ref[AudioOutputStats] = Ref::new(default_audio_output_stats())
+  let stats : Ref[AudioOutputStats] = Ref(default_audio_output_stats())
   let inner = new_audio_output_hooks(
     fn(_fmt) { true },
     fn(_output, frames) { frames },
@@ -558,7 +558,7 @@ test "tracked hooks accumulates frames_written" {
 
 ///|
 test "tracked hooks tracks suspend and resume" {
-  let stats : Ref[AudioOutputStats] = Ref::new(default_audio_output_stats())
+  let stats : Ref[AudioOutputStats] = Ref(default_audio_output_stats())
   let inner = new_audio_output_hooks(
     fn(_fmt) { true },
     fn(_output, frames) { frames },

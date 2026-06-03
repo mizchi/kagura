@@ -30,8 +30,8 @@ fn get_initial_hud_enabled() -> Bool {
 ///|
 fn start_viewer(graph : @scene3d.SceneGraph, show_hud : Bool) -> Unit {
   let state = ViewerState::new(graph, show_hud~)
-  let prev_x : Ref[Double] = Ref::new(0.0)
-  let prev_y : Ref[Double] = Ref::new(0.0)
+  let prev_x : Ref[Double] = Ref(0.0)
+  let prev_y : Ref[Double] = Ref(0.0)
   @engine.run(
     update=fn(input) { state.update(input, prev_x, prev_y) },
     draw=fn(ctx) { state.draw(ctx) },

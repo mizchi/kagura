@@ -26,7 +26,7 @@ fn default_runtime_clock_now_ms() -> Double {
 }
 
 ///|
-let runtime_clock_provider : Ref[() -> Double] = Ref::new(
+let runtime_clock_provider : Ref[() -> Double] = Ref(
   default_runtime_clock_now_ms,
 )
 

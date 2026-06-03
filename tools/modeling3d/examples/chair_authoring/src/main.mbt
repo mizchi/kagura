@@ -515,15 +515,15 @@ fn main {
     @draw3d.shader3d_lit_untextured_wgsl(),
   )
   let preview_mesh = @mesh3d.Mesh3D::sphere(0.5, 12, 8)
-  let prev_x : Ref[Double] = Ref::new(0.0)
-  let prev_y : Ref[Double] = Ref::new(0.0)
+  let prev_x : Ref[Double] = Ref(0.0)
+  let prev_y : Ref[Double] = Ref(0.0)
   let mut brush_mode = Add
   let mut brush_radius = 0.18
   let mut symmetry_x = false
   let mut hover_hit : SurfaceHit? = None
   let mut gizmo_hover : GizmoHandleHit? = None
   let mut gizmo_drag : GizmoDragState? = None
-  let roundtrip_badge : Ref[String] = Ref::new("RT NONE")
+  let roundtrip_badge : Ref[String] = Ref("RT NONE")
   let mut pending_roundtrip_import : RoundTripImport? = None
   let mut pending_patch_plan : RoundTripPatchPlan? = None
   let mut pending_patch_snippet : String? = None

@@ -28,7 +28,7 @@ extern "js" fn js_fetch_buf_clear(fetch_id : Int) -> Unit =
   #| (id) => { delete globalThis.__kagura_fetch[id]; }
 
 ///|
-let fetch_id_counter : Ref[Int] = Ref::new(0)
+let fetch_id_counter : Ref[Int] = Ref(0)
 
 ///|
 pub fn fetch_bytes(url : String, callback : (Bytes?) -> Unit) -> Unit {

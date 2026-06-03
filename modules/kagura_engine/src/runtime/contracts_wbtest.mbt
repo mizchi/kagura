@@ -1,6 +1,6 @@
 ///|
 fn make_runtime_contract_clock() -> () -> Double {
-  let index : Ref[Int] = Ref::new(0)
+  let index : Ref[Int] = Ref(0)
   fn() {
     let current = index.val
     index.val = index.val + 1
@@ -20,7 +20,7 @@ fn install_test_runtime_clock() -> Unit {
 ///|
 fn install_test_web_hooks(max_polls? : Int = 3) -> Unit {
   install_test_runtime_clock()
-  let poll_count : Ref[Int] = Ref::new(0)
+  let poll_count : Ref[Int] = Ref(0)
   @platform.set_web_canvas_hooks(
     @platform.new_web_canvas_hooks(
       fn(_canvas_selector, _options) { true },
@@ -68,7 +68,7 @@ fn install_test_web_hooks(max_polls? : Int = 3) -> Unit {
 ///|
 fn install_test_web_hooks_with_tick_input(max_polls? : Int = 3) -> Unit {
   install_test_runtime_clock()
-  let poll_count : Ref[Int] = Ref::new(0)
+  let poll_count : Ref[Int] = Ref(0)
   @platform.set_web_canvas_hooks(
     @platform.new_web_canvas_hooks(
       fn(_canvas_selector, _options) { true },
@@ -125,7 +125,7 @@ fn reset_test_web_hooks() -> Unit {
 ///|
 fn install_test_native_hooks(max_polls? : Int = 3) -> Unit {
   install_test_runtime_clock()
-  let poll_count : Ref[Int] = Ref::new(0)
+  let poll_count : Ref[Int] = Ref(0)
   @platform.set_desktop_native_hooks(
     @platform.new_desktop_native_hooks(
       fn(_options) { true },
@@ -163,7 +163,7 @@ fn install_test_native_hooks(max_polls? : Int = 3) -> Unit {
 ///|
 fn install_test_native_hooks_with_tick_input(max_polls? : Int = 3) -> Unit {
   install_test_runtime_clock()
-  let poll_count : Ref[Int] = Ref::new(0)
+  let poll_count : Ref[Int] = Ref(0)
   @platform.set_desktop_native_hooks(
     @platform.new_desktop_native_hooks(
       fn(_options) { true },
@@ -261,11 +261,11 @@ fn run_terminating_probe_with_webgpu(
   } else {
     close_after_polls
   }
-  let poll_count : Ref[Int] = Ref::new(0)
-  let observed_ticks : Ref[Array[Int]] = Ref::new([])
-  let begin_clear_enabled : Ref[Array[Int]] = Ref::new([])
-  let begin_clear_r : Ref[Array[Double]] = Ref::new([])
-  let end_present : Ref[Array[Int]] = Ref::new([])
+  let poll_count : Ref[Int] = Ref(0)
+  let observed_ticks : Ref[Array[Int]] = Ref([])
+  let begin_clear_enabled : Ref[Array[Int]] = Ref([])
+  let begin_clear_r : Ref[Array[Double]] = Ref([])
+  let end_present : Ref[Array[Int]] = Ref([])
 
   @platform.set_web_canvas_hooks(
     @platform.new_web_canvas_hooks(
@@ -360,11 +360,11 @@ fn run_terminating_probe_with_native(
   } else {
     close_after_polls
   }
-  let poll_count : Ref[Int] = Ref::new(0)
-  let observed_ticks : Ref[Array[Int]] = Ref::new([])
-  let begin_clear_enabled : Ref[Array[Int]] = Ref::new([])
-  let begin_clear_r : Ref[Array[Double]] = Ref::new([])
-  let end_present : Ref[Array[Int]] = Ref::new([])
+  let poll_count : Ref[Int] = Ref(0)
+  let observed_ticks : Ref[Array[Int]] = Ref([])
+  let begin_clear_enabled : Ref[Array[Int]] = Ref([])
+  let begin_clear_r : Ref[Array[Double]] = Ref([])
+  let end_present : Ref[Array[Int]] = Ref([])
 
   @platform.set_desktop_native_hooks(
     @platform.new_desktop_native_hooks(
@@ -501,7 +501,7 @@ fn run_counting_game_with_native() -> (Int, Int) raise {
 ///|
 fn run_observed_input_ticks_with_webgpu() -> Array[Int] raise {
   install_test_web_hooks_with_tick_input()
-  let observed_ticks : Ref[Array[Int]] = Ref::new([])
+  let observed_ticks : Ref[Array[Int]] = Ref([])
   let hooks = new_runtime_hooks(fn(tick, _input) {
     observed_ticks.val.push(tick)
   })
@@ -525,7 +525,7 @@ fn run_observed_input_ticks_with_webgpu() -> Array[Int] raise {
 ///|
 fn run_observed_input_ticks_with_native() -> Array[Int] raise {
   install_test_native_hooks_with_tick_input()
-  let observed_ticks : Ref[Array[Int]] = Ref::new([])
+  let observed_ticks : Ref[Array[Int]] = Ref([])
   let hooks = new_runtime_hooks(fn(tick, _input) {
     observed_ticks.val.push(tick)
   })
@@ -549,9 +549,9 @@ fn run_observed_input_ticks_with_native() -> Array[Int] raise {
 ///|
 fn run_resized_frame_sizes_with_webgpu() -> (Array[Int], Array[Int]) raise {
   install_test_runtime_clock()
-  let poll_count : Ref[Int] = Ref::new(0)
-  let resized_widths : Ref[Array[Int]] = Ref::new([])
-  let resized_heights : Ref[Array[Int]] = Ref::new([])
+  let poll_count : Ref[Int] = Ref(0)
+  let resized_widths : Ref[Array[Int]] = Ref([])
+  let resized_heights : Ref[Array[Int]] = Ref([])
   @platform.set_web_canvas_hooks(
     @platform.new_web_canvas_hooks(
       fn(_canvas_selector, _options) { true },
@@ -624,9 +624,9 @@ fn run_resized_frame_sizes_with_webgpu() -> (Array[Int], Array[Int]) raise {
 ///|
 fn run_resized_frame_sizes_with_native() -> (Array[Int], Array[Int]) raise {
   install_test_runtime_clock()
-  let poll_count : Ref[Int] = Ref::new(0)
-  let resized_widths : Ref[Array[Int]] = Ref::new([])
-  let resized_heights : Ref[Array[Int]] = Ref::new([])
+  let poll_count : Ref[Int] = Ref(0)
+  let resized_widths : Ref[Array[Int]] = Ref([])
+  let resized_heights : Ref[Array[Int]] = Ref([])
   @platform.set_desktop_native_hooks(
     @platform.new_desktop_native_hooks(
       fn(_options) { true },
@@ -784,8 +784,8 @@ test "run_loop termination and minimal render summary match between native and w
 ///|
 test "run_loop_with_hooks passes captured input snapshots to observer" {
   install_test_web_hooks_with_tick_input()
-  let observed_ticks : Ref[Array[Int]] = Ref::new([])
-  let observed_first_keys : Ref[Array[Int]] = Ref::new([])
+  let observed_ticks : Ref[Array[Int]] = Ref([])
+  let observed_first_keys : Ref[Array[Int]] = Ref([])
   let hooks = new_runtime_hooks(fn(tick, input) {
     observed_ticks.val.push(tick)
     if input.pressed_keys.length() > 0 {

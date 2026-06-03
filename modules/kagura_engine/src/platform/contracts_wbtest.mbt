@@ -11,36 +11,36 @@ fn default_window_options_for_test() -> WindowOptions {
 }
 
 ///|
-let test_native_init_calls : Ref[Int] = Ref::new(0)
+let test_native_init_calls : Ref[Int] = Ref(0)
 
 ///|
-let test_native_poll_calls : Ref[Int] = Ref::new(0)
+let test_native_poll_calls : Ref[Int] = Ref(0)
 
 ///|
-let test_native_should_close_value : Ref[Bool] = Ref::new(false)
+let test_native_should_close_value : Ref[Bool] = Ref(false)
 
 ///|
-let test_native_capture_calls : Ref[Int] = Ref::new(0)
+let test_native_capture_calls : Ref[Int] = Ref(0)
 
 ///|
-let test_native_fullscreen_value : Ref[Bool] = Ref::new(false)
+let test_native_fullscreen_value : Ref[Bool] = Ref(false)
 
 ///|
-let test_native_cursor_mode_value : Ref[CursorMode] = Ref::new(
+let test_native_cursor_mode_value : Ref[CursorMode] = Ref(
   CursorMode::Visible,
 )
 
 ///|
-let test_native_device_scale_factor_value : Ref[Double] = Ref::new(1.0)
+let test_native_device_scale_factor_value : Ref[Double] = Ref(1.0)
 
 ///|
-let test_native_vsync_enabled_value : Ref[Bool] = Ref::new(true)
+let test_native_vsync_enabled_value : Ref[Bool] = Ref(true)
 
 ///|
-let test_native_close_window_calls : Ref[Int] = Ref::new(0)
+let test_native_close_window_calls : Ref[Int] = Ref(0)
 
 ///|
-let test_native_request_attention_calls : Ref[Int] = Ref::new(0)
+let test_native_request_attention_calls : Ref[Int] = Ref(0)
 
 ///|
 fn test_native_try_initialize(_options : WindowOptions) -> Bool {
@@ -168,34 +168,34 @@ fn test_native_request_attention(active : Bool) -> Unit {
 }
 
 ///|
-let test_web_init_calls : Ref[Int] = Ref::new(0)
+let test_web_init_calls : Ref[Int] = Ref(0)
 
 ///|
-let test_web_poll_calls : Ref[Int] = Ref::new(0)
+let test_web_poll_calls : Ref[Int] = Ref(0)
 
 ///|
-let test_web_should_close_value : Ref[Bool] = Ref::new(false)
+let test_web_should_close_value : Ref[Bool] = Ref(false)
 
 ///|
-let test_web_capture_calls : Ref[Int] = Ref::new(0)
+let test_web_capture_calls : Ref[Int] = Ref(0)
 
 ///|
-let test_web_fullscreen_value : Ref[Bool] = Ref::new(false)
+let test_web_fullscreen_value : Ref[Bool] = Ref(false)
 
 ///|
-let test_web_cursor_mode_value : Ref[CursorMode] = Ref::new(CursorMode::Visible)
+let test_web_cursor_mode_value : Ref[CursorMode] = Ref(CursorMode::Visible)
 
 ///|
-let test_web_device_scale_factor_value : Ref[Double] = Ref::new(1.0)
+let test_web_device_scale_factor_value : Ref[Double] = Ref(1.0)
 
 ///|
-let test_web_vsync_enabled_value : Ref[Bool] = Ref::new(true)
+let test_web_vsync_enabled_value : Ref[Bool] = Ref(true)
 
 ///|
-let test_web_close_window_calls : Ref[Int] = Ref::new(0)
+let test_web_close_window_calls : Ref[Int] = Ref(0)
 
 ///|
-let test_web_request_attention_calls : Ref[Int] = Ref::new(0)
+let test_web_request_attention_calls : Ref[Int] = Ref(0)
 
 ///|
 fn test_web_try_initialize(

@@ -243,7 +243,7 @@ fn default_font_load_hooks() -> FontLoadHooks {
 }
 
 ///|
-let font_load_hooks : Ref[FontLoadHooks] = Ref::new(default_font_load_hooks())
+let font_load_hooks : Ref[FontLoadHooks] = Ref(default_font_load_hooks())
 
 ///|
 pub fn set_font_load_hooks(hooks : FontLoadHooks) -> Unit {

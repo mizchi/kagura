@@ -2,7 +2,7 @@
   "name": "mizchi/card_game",
   "version": "0.1.0",
   "source": "src",
-  "warn-list": "-6-29-53-68",
+  "warn-list": "-6-29-53-68-deprecated",
   "deps": {
     "mizchi/signals": "0.6.3",
     "mizchi/web_runtime_hooks": {

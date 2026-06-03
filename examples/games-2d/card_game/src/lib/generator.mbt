@@ -54,7 +54,7 @@ pub impl Show for SynthEval with output(self, logger) {
 
 ///|
 /// Tiny linear-congruential PRNG (same family as the battle RNG).
-struct Rng {
+priv struct Rng {
   mut s : Int
 }
 
@@ -130,7 +130,7 @@ const EVAL_PER_ENERGY : Double = 6.0
 
 ///|
 /// What the multi-turn simulation accumulated.
-struct HorizonResult {
+priv struct HorizonResult {
   damage : Int // damage dealt to the dummy over the horizon
   prevented : Int // incoming damage absorbed by Block
   hp_lost : Int // incoming damage that got through to HP

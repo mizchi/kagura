@@ -5,7 +5,7 @@ pub(all) struct LifecycleHooks {
 }
 
 ///|
-let lifecycle_hooks : Ref[LifecycleHooks?] = Ref::new(None)
+let lifecycle_hooks : Ref[LifecycleHooks?] = Ref(None)
 
 ///|
 pub fn set_lifecycle_hooks(hooks : LifecycleHooks) -> Unit {

@@ -1,5 +1,6 @@
 import {
   "moonbitlang/core/bench" @bench,
+  "moonbitlang/core/math" @math,
   "mizchi/atlas" @atlas,
   "mizchi/gfx" @gfx,
   "mizchi/kagura_core" @core,

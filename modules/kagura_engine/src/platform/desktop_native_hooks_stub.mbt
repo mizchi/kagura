@@ -185,7 +185,7 @@ fn default_desktop_native_hooks() -> DesktopNativeHooks {
 }
 
 ///|
-let desktop_native_hooks : Ref[DesktopNativeHooks] = Ref::new(
+let desktop_native_hooks : Ref[DesktopNativeHooks] = Ref(
   default_desktop_native_hooks(),
 )
 

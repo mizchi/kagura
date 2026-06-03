@@ -1100,7 +1100,7 @@ fn default_audio_output_hooks() -> AudioOutputHooks {
 }
 
 ///|
-let audio_output_hooks : Ref[AudioOutputHooks] = Ref::new(
+let audio_output_hooks : Ref[AudioOutputHooks] = Ref(
   default_audio_output_hooks(),
 )
 

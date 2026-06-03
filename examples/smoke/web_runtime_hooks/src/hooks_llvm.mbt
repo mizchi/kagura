@@ -13,10 +13,10 @@ priv struct SourceImageCacheEntry {
 }
 
 ///|
-let synced_source_generations : Ref[Array[SyncedSourceGeneration]] = Ref::new([])
+let synced_source_generations : Ref[Array[SyncedSourceGeneration]] = Ref([])
 
 ///|
-let source_image_cache : Ref[Array[SourceImageCacheEntry]] = Ref::new([])
+let source_image_cache : Ref[Array[SourceImageCacheEntry]] = Ref([])
 
 ///|
 fn normalized_size(value : Int) -> Int {

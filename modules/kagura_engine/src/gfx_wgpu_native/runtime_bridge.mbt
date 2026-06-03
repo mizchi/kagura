@@ -6,115 +6,115 @@
 /// - internal/graphicsdriver/* (backend initialization and frame present)
 
 ///|
-let runtime_context : Ref[TriangleContext?] = Ref::new(None)
+let runtime_context : Ref[TriangleContext?] = Ref(None)
 
 ///|
-let planned_clear_r : Ref[Double] = Ref::new(0.1)
+let planned_clear_r : Ref[Double] = Ref(0.1)
 
 ///|
-let planned_clear_g : Ref[Double] = Ref::new(0.2)
+let planned_clear_g : Ref[Double] = Ref(0.2)
 
 ///|
-let planned_clear_b : Ref[Double] = Ref::new(0.3)
+let planned_clear_b : Ref[Double] = Ref(0.3)
 
 ///|
-let planned_clear_a : Ref[Double] = Ref::new(1.0)
+let planned_clear_a : Ref[Double] = Ref(1.0)
 
 ///|
-let planned_draw_calls : Ref[Int] = Ref::new(0)
+let planned_draw_calls : Ref[Int] = Ref(0)
 
 ///|
-let planned_command_count : Ref[Int] = Ref::new(0)
+let planned_command_count : Ref[Int] = Ref(0)
 
 ///|
-let planned_last_pipeline_id : Ref[Int] = Ref::new(0)
+let planned_last_pipeline_id : Ref[Int] = Ref(0)
 
 ///|
-let planned_last_uniform_hash : Ref[Int] = Ref::new(0)
+let planned_last_uniform_hash : Ref[Int] = Ref(0)
 
 ///|
-let planned_last_blend_mode : Ref[Int] = Ref::new(1)
+let planned_last_blend_mode : Ref[Int] = Ref(1)
 
 ///|
-let planned_last_dst_image_id : Ref[Int] = Ref::new(0)
+let planned_last_dst_image_id : Ref[Int] = Ref(0)
 
 ///|
-let planned_last_shader_id : Ref[Int] = Ref::new(0)
+let planned_last_shader_id : Ref[Int] = Ref(0)
 
 ///|
-let planned_last_index_offset : Ref[Int] = Ref::new(0)
+let planned_last_index_offset : Ref[Int] = Ref(0)
 
 ///|
-let planned_last_region_count : Ref[Int] = Ref::new(0)
+let planned_last_region_count : Ref[Int] = Ref(0)
 
 ///|
-let planned_last_total_index_count : Ref[Int] = Ref::new(0)
+let planned_last_total_index_count : Ref[Int] = Ref(0)
 
 ///|
-let planned_last_vertex_float_count : Ref[Int] = Ref::new(0)
+let planned_last_vertex_float_count : Ref[Int] = Ref(0)
 
 ///|
-let planned_last_index_count : Ref[Int] = Ref::new(0)
+let planned_last_index_count : Ref[Int] = Ref(0)
 
 ///|
-let planned_last_src_image_count : Ref[Int] = Ref::new(0)
+let planned_last_src_image_count : Ref[Int] = Ref(0)
 
 ///|
-let planned_last_uniform_dword_count : Ref[Int] = Ref::new(0)
+let planned_last_uniform_dword_count : Ref[Int] = Ref(0)
 
 ///|
-let planned_has_triangle_payload : Ref[Bool] = Ref::new(false)
+let planned_has_triangle_payload : Ref[Bool] = Ref(false)
 
 ///|
-let planned_triangle_ax : Ref[Double] = Ref::new(0.0)
+let planned_triangle_ax : Ref[Double] = Ref(0.0)
 
 ///|
-let planned_triangle_ay : Ref[Double] = Ref::new(0.5)
+let planned_triangle_ay : Ref[Double] = Ref(0.5)
 
 ///|
-let planned_triangle_bx : Ref[Double] = Ref::new(-0.5)
+let planned_triangle_bx : Ref[Double] = Ref(-0.5)
 
 ///|
-let planned_triangle_by : Ref[Double] = Ref::new(-0.5)
+let planned_triangle_by : Ref[Double] = Ref(-0.5)
 
 ///|
-let planned_triangle_cx : Ref[Double] = Ref::new(0.5)
+let planned_triangle_cx : Ref[Double] = Ref(0.5)
 
 ///|
-let planned_triangle_cy : Ref[Double] = Ref::new(-0.5)
+let planned_triangle_cy : Ref[Double] = Ref(-0.5)
 
 ///|
-let planned_uv_au : Ref[Double] = Ref::new(0.0)
+let planned_uv_au : Ref[Double] = Ref(0.0)
 
 ///|
-let planned_uv_av : Ref[Double] = Ref::new(0.0)
+let planned_uv_av : Ref[Double] = Ref(0.0)
 
 ///|
-let planned_uv_bu : Ref[Double] = Ref::new(1.0)
+let planned_uv_bu : Ref[Double] = Ref(1.0)
 
 ///|
-let planned_uv_bv : Ref[Double] = Ref::new(0.0)
+let planned_uv_bv : Ref[Double] = Ref(0.0)
 
 ///|
-let planned_uv_cu : Ref[Double] = Ref::new(1.0)
+let planned_uv_cu : Ref[Double] = Ref(1.0)
 
 ///|
-let planned_uv_cv : Ref[Double] = Ref::new(1.0)
+let planned_uv_cv : Ref[Double] = Ref(1.0)
 
 ///|
-let planned_uniform_r : Ref[Double] = Ref::new(1.0)
+let planned_uniform_r : Ref[Double] = Ref(1.0)
 
 ///|
-let planned_uniform_g : Ref[Double] = Ref::new(1.0)
+let planned_uniform_g : Ref[Double] = Ref(1.0)
 
 ///|
-let planned_uniform_b : Ref[Double] = Ref::new(1.0)
+let planned_uniform_b : Ref[Double] = Ref(1.0)
 
 ///|
-let planned_uniform_a : Ref[Double] = Ref::new(1.0)
+let planned_uniform_a : Ref[Double] = Ref(1.0)
 
 ///|
-let planned_texture_seed : Ref[Int] = Ref::new(0)
+let planned_texture_seed : Ref[Int] = Ref(0)
 
 ///|
 priv struct PlannedDrawCommand {
@@ -180,19 +180,19 @@ fn planned_draw_command_at(index : Int) -> PlannedDrawCommand? {
 }
 
 ///|
-let planned_draw_commands : Ref[Array[PlannedDrawCommand]] = Ref::new([])
+let planned_draw_commands : Ref[Array[PlannedDrawCommand]] = Ref([])
 
 ///|
-let configured_surface_width : Ref[Int] = Ref::new(0)
+let configured_surface_width : Ref[Int] = Ref(0)
 
 ///|
-let configured_surface_height : Ref[Int] = Ref::new(0)
+let configured_surface_height : Ref[Int] = Ref(0)
 
 ///|
-let runtime_vsync_enabled : Ref[Bool] = Ref::new(true)
+let runtime_vsync_enabled : Ref[Bool] = Ref(true)
 
 ///|
-let runtime_device_scale_override : Ref[Double] = Ref::new(0.0)
+let runtime_device_scale_override : Ref[Double] = Ref(0.0)
 
 ///|
 pub fn clamp_runtime_render_size(width : Int, height : Int) -> (Int, Int) {

@@ -21,7 +21,7 @@ test "lifecycle hooks: no-op when not set" {
 
 ///|
 test "lifecycle hooks: reset clears hooks" {
-  let called = Ref::new(false)
+  let called = Ref(false)
   set_lifecycle_hooks({
     on_start: fn(_canvas, _title) { called.val = true },
     on_stop: fn() {  },

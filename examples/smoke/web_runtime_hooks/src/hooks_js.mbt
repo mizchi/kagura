@@ -1,8 +1,8 @@
 ///|
-let web_canvas_selector : Ref[String] = Ref::new("#app")
+let web_canvas_selector : Ref[String] = Ref("#app")
 
 ///|
-let web_hooks_installed : Ref[Bool] = Ref::new(false)
+let web_hooks_installed : Ref[Bool] = Ref(false)
 
 ///|
 priv struct SyncedSourceGeneration {
@@ -19,13 +19,13 @@ priv struct SourceImageCacheEntry {
 }
 
 ///|
-let synced_source_generations : Ref[Array[SyncedSourceGeneration]] = Ref::new([])
+let synced_source_generations : Ref[Array[SyncedSourceGeneration]] = Ref([])
 
 ///|
-let source_image_cache : Ref[Array[SourceImageCacheEntry]] = Ref::new([])
+let source_image_cache : Ref[Array[SourceImageCacheEntry]] = Ref([])
 
 ///|
-let gpu_texture_dirty : Ref[Array[Int]] = Ref::new([])
+let gpu_texture_dirty : Ref[Array[Int]] = Ref([])
 
 ///|
 fn should_prevent_canvas_scroll_key(key : Int) -> Bool {

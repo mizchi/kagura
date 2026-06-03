@@ -256,7 +256,7 @@ fn default_web_canvas_hooks() -> WebCanvasHooks {
 }
 
 ///|
-let web_canvas_hooks : Ref[WebCanvasHooks] = Ref::new(
+let web_canvas_hooks : Ref[WebCanvasHooks] = Ref(
   default_web_canvas_hooks(),
 )
 

@@ -1,5 +1,5 @@
 ///|
-let runtime_title : Ref[String] = Ref::new("kagura")
+let runtime_title : Ref[String] = Ref("kagura")
 
 ///|
 priv struct SyncedSourceGeneration {
@@ -8,13 +8,13 @@ priv struct SyncedSourceGeneration {
 }
 
 ///|
-let synced_source_generations : Ref[Array[SyncedSourceGeneration]] = Ref::new([])
+let synced_source_generations : Ref[Array[SyncedSourceGeneration]] = Ref([])
 
 ///|
-let saw_native_touch_input : Ref[Bool] = Ref::new(false)
+let saw_native_touch_input : Ref[Bool] = Ref(false)
 
 ///|
-let mouse_touch_fallback_enabled : Ref[Bool] = Ref::new(false)
+let mouse_touch_fallback_enabled : Ref[Bool] = Ref(false)
 
 ///|
 fn normalized_source_generation(generation : Int) -> Int {

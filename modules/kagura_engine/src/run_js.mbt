@@ -54,7 +54,7 @@ pub fn run(
     }
   }
   let ctx : EngineContext = { dst, shader, screen_w: width, screen_h: height }
-  let tick : Ref[Int] = Ref::new(0)
+  let tick : Ref[Int] = Ref(0)
   match audio_ctx {
     Some(_) => {
       let _ = @audio.audio_try_initialize(@audio.default_audio_format())
@@ -63,8 +63,8 @@ pub fn run(
   }
   // Audio accumulator: tick audio at fixed intervals independent of frame rate
   let audio_tick_ms = audio_frames_per_tick.to_double() / 44100.0 * 1000.0
-  let audio_accum : Ref[Double] = Ref::new(0.0)
-  let prev_time : Ref[Double] = Ref::new(js_performance_now())
+  let audio_accum : Ref[Double] = Ref(0.0)
+  let prev_time : Ref[Double] = Ref(js_performance_now())
   fn frame() {
     platform.poll_events()
     // Resize tracking

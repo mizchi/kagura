@@ -135,7 +135,7 @@ pub fn GpuState::new() -> GpuState {
 
 ///|
 /// Global GpuState singleton
-let global_gpu_state : Ref[GpuState?] = Ref::new(None)
+let global_gpu_state : Ref[GpuState?] = Ref(None)
 
 ///|
 /// Get or create global GpuState

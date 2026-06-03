@@ -1,42 +1,51 @@
 {
   "name": "mizchi/kagura_game",
-  "version": "0.1.0",
+  "version": "0.2.0",
   "description": "Gameplay, scene, and game-specific helpers for Kagura",
   "repository": "https://github.com/mizchi/kagura",
   "license": "Apache-2.0",
   "source": "src",
-  "warn-list": "-6-29-53-68",
+  "warn-list": "-6-29-53-68-deprecated",
   "deps": {
     "mizchi/font": "0.7.0",
     "mizchi/signals": "0.6.3",
     "mizchi/terrain": "0.1.1",
     "mizchi/kagura_core": {
-      "path": "../kagura_core"
+      "path": "../kagura_core",
+      "version": "0.2.0"
     },
     "mizchi/kagura_engine": {
-      "path": "../kagura_engine"
+      "path": "../kagura_engine",
+      "version": "0.2.0"
     },
     "mizchi/gfx": "0.1.0",
     "mizchi/text": {
-      "path": "../text"
+      "path": "../text",
+      "version": "0.2.0"
     },
     "mizchi/mesh3d": {
-      "path": "../mesh3d"
+      "path": "../mesh3d",
+      "version": "0.2.0"
     },
     "mizchi/renderer2d": {
-      "path": "../renderer2d"
+      "path": "../renderer2d",
+      "version": "0.2.0"
     },
     "mizchi/geom": {
-      "path": "../geom"
+      "path": "../geom",
+      "version": "0.2.0"
     },
     "mizchi/atlas": {
-      "path": "../atlas"
+      "path": "../atlas",
+      "version": "0.2.0"
     },
     "mizchi/anim3d": {
-      "path": "../anim3d"
+      "path": "../anim3d",
+      "version": "0.2.0"
     },
     "mizchi/physics": {
-      "path": "../physics"
+      "path": "../physics",
+      "version": "0.2.0"
     }
   },
   "preferred-target": "js",

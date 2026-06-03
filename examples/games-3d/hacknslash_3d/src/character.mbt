@@ -218,7 +218,7 @@ fn build_character_mesh() -> (@mesh3d.Mesh3D, @skeleton3d.SkinData) {
   let indices : Array[Int] = []
   let joint_indices : Array[Int] = []
   let weights_arr : Array[Double] = []
-  let vc = Ref::new(0)
+  let vc = Ref(0)
   // Body/torso: box from y=0 to y=torso_height+0.1
   let bw = 0.12 // half width
   let bd = 0.08 // half depth

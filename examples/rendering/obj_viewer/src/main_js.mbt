@@ -35,8 +35,8 @@ fn main {
       10,
       @draw3d.shader3d_lit_untextured_wgsl(),
     )
-    let prev_x : Ref[Double] = Ref::new(0.0)
-    let prev_y : Ref[Double] = Ref::new(0.0)
+    let prev_x : Ref[Double] = Ref(0.0)
+    let prev_y : Ref[Double] = Ref(0.0)
     @engine.run(
       update=fn(input : @core.InputSnapshot) {
         let cx = input.cursor_x

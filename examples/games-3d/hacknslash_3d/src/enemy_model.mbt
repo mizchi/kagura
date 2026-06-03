@@ -117,7 +117,7 @@ fn build_enemy_body_mesh(
   let indices : Array[Int] = []
   let joint_indices : Array[Int] = []
   let weights_arr : Array[Double] = []
-  let vc = Ref::new(0)
+  let vc = Ref(0)
   // Body box
   add_box_segment(
     verts,
@@ -168,7 +168,7 @@ fn build_basic_mesh() -> (@mesh3d.Mesh3D, @skeleton3d.SkinData) {
   let indices : Array[Int] = []
   let ji : Array[Int] = []
   let wa : Array[Double] = []
-  let vc = Ref::new(0)
+  let vc = Ref(0)
   // Body
   add_box_segment(
     verts, indices, ji, wa, vc, -0.12, 0.0, -0.1, 0.12, 0.35, 0.1, 0, 1,
@@ -194,7 +194,7 @@ fn build_fast_mesh() -> (@mesh3d.Mesh3D, @skeleton3d.SkinData) {
   let indices : Array[Int] = []
   let ji : Array[Int] = []
   let wa : Array[Double] = []
-  let vc = Ref::new(0)
+  let vc = Ref(0)
   // Lean body
   add_box_segment(
     verts, indices, ji, wa, vc, -0.08, 0.0, -0.06, 0.08, 0.28, 0.06, 0, 1,
@@ -220,7 +220,7 @@ fn build_tank_mesh() -> (@mesh3d.Mesh3D, @skeleton3d.SkinData) {
   let indices : Array[Int] = []
   let ji : Array[Int] = []
   let wa : Array[Double] = []
-  let vc = Ref::new(0)
+  let vc = Ref(0)
   // Wide heavy body
   add_box_segment(
     verts, indices, ji, wa, vc, -0.2, 0.0, -0.15, 0.2, 0.45, 0.15, 0, 1,
@@ -246,7 +246,7 @@ fn build_ranged_mesh() -> (@mesh3d.Mesh3D, @skeleton3d.SkinData) {
   let indices : Array[Int] = []
   let ji : Array[Int] = []
   let wa : Array[Double] = []
-  let vc = Ref::new(0)
+  let vc = Ref(0)
   // Robed body (slightly wider at bottom)
   add_box_segment(
     verts, indices, ji, wa, vc, -0.1, 0.0, -0.08, 0.1, 0.3, 0.08, 0, 1,
@@ -277,7 +277,7 @@ fn build_boss_mesh() -> (@mesh3d.Mesh3D, @skeleton3d.SkinData) {
   let indices : Array[Int] = []
   let ji : Array[Int] = []
   let wa : Array[Double] = []
-  let vc = Ref::new(0)
+  let vc = Ref(0)
   // Massive body
   add_box_segment(
     verts, indices, ji, wa, vc, -0.3, 0.0, -0.2, 0.3, 0.6, 0.2, 0, 1,

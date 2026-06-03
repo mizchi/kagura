@@ -388,12 +388,12 @@ fn load_dungeon_textures_js(state : GameState) -> Unit {
 ///|
 fn run_game_js(state : GameState, perf_capture_enabled : Bool) -> Unit {
   let snapshot_tick = get_snapshot_tick()
-  let rendered_frames : Ref[Int] = Ref::new(0)
+  let rendered_frames : Ref[Int] = Ref(0)
   // Fixed 60fps timestep accumulator
   let fixed_dt : Double = 1000.0 / 60.0 // 16.667ms
-  let accum : Ref[Double] = Ref::new(0.0)
-  let prev_time : Ref[Double] = Ref::new(js_now())
-  let last_input : Ref[@core.InputSnapshot] = Ref::new(
+  let accum : Ref[Double] = Ref(0.0)
+  let prev_time : Ref[Double] = Ref(js_now())
+  let last_input : Ref[@core.InputSnapshot] = Ref(
     @core.empty_input_snapshot(),
   )
   init_game_audio_js(state)

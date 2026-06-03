@@ -2,7 +2,7 @@
   "name": "mizchi/hacknslash_3d",
   "version": "0.1.0",
   "source": "src",
-  "warn-list": "-6-29-53-68",
+  "warn-list": "-6-29-53-68-deprecated",
   "deps": {
     "mizchi/font": "0.7.0",
     "mizchi/kagura_effect_studio": {
@@ -12,7 +12,7 @@
       "path": "../../smoke/web_runtime_hooks"
     },
     "mizchi/terrain": "0.1.1",
-    "mizchi/differentiable_ecs": "0.2.0",
+    "mizchi/differentiable_ecs": "0.2.1",
     "mizchi/parquet": "0.2.0",
     "moonbitlang/x": "0.4.40",
     "mizchi/kagura_game": {

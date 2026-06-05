@@ -96,8 +96,11 @@ pub fn step(diagram : Diagram, state : SimState) -> Unit {
     let from = diagram.nodes[edge.from]
     let to = diagram.nodes[edge.to]
 
-    // Edges touching a gate are handled in the gate pass below.
-    if from.kind == Gate || to.kind == Gate {
+    // Edges touching a gate or converter are handled in their dedicated passes.
+    if from.kind == Gate ||
+      to.kind == Gate ||
+      from.kind == Converter ||
+      to.kind == Converter {
       continue
     }
     // An unsatisfied activator disables the edge.
@@ -168,6 +171,7 @@ pub fn step(diagram : Diagram, state : SimState) -> Unit {
     flows[ei] = moved
   }
   process_gates(diagram, state, work, flows)
+  process_converters(diagram, state, work, flows)
   // Interactive activations are consumed by this step only.
   for i in 0..<n {
     state.pending[i] = false

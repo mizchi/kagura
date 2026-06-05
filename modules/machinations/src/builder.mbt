@@ -92,6 +92,18 @@ pub fn Diagram::gate(
 }
 
 ///|
+/// A converter (atomically turns inputs into outputs). Default: automatic.
+pub fn Diagram::converter(
+  self : Diagram,
+  label : String,
+  activation? : Activation = Automatic,
+  x? : Double = 0.0,
+  y? : Double = 0.0,
+) -> Int {
+  self.node(Converter, label, activation~, x~, y~)
+}
+
+///|
 /// Connect two nodes with a resource flow. Returns the resource-edge id.
 pub fn Diagram::connect(
   self : Diagram,

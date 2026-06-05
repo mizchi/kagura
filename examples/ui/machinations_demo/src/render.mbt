@@ -208,6 +208,7 @@ fn draw_node(
       }
     Drain => push_text(cmds, frame, "DRN", node.x, node.y, 1.0, 0xF3DADA)
     Gate => push_text(cmds, frame, "GATE", node.x, node.y, 1.0, 0xE8DDF3)
+    Converter => push_text(cmds, frame, "BUY", node.x, node.y, 1.0, 0xFFE9C8)
     _ => ()
   }
 }

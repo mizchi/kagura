@@ -1,8 +1,8 @@
-import { initWebGPU } from "../../../../lib/web/kagura-init.js";
+import { initWebGPU } from "../../../../../lib/web/kagura-init.js";
 import {
   ensureGpuPipeline,
   renderGpu,
-} from "../../../../lib/web/kagura-gfx.js";
+} from "../../../../../lib/web/kagura-gfx.js";
 import { createInputCollector } from "./input-collector";
 import {
   serializeInput,

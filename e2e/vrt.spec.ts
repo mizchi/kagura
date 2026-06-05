@@ -103,10 +103,27 @@ async function getVrtReadbackSummary(page: import("@playwright/test").Page) {
           null;
       },
       undefined,
-      { timeout: 2_000 },
+      // Generous: the first readback completes a copyTextureToBuffer + async
+      // buffer map, which is slow under software WebGPU on CI runners.
+      { timeout: 12_000 },
     );
     return await result.jsonValue() as VrtReadbackSummary;
   } catch (_) {
+    // Diagnose why no summary arrived (enabled flag, helper presence, pending).
+    const diag = await page.evaluate(() => {
+      const root = globalThis as {
+        __kaguraVrtReadbackEnabled?: unknown;
+        __kaguraGfx?: { lastReadbackSummary?: () => unknown };
+        __kaguraVrtLastReadback?: unknown;
+      };
+      return {
+        enabled: root.__kaguraVrtReadbackEnabled === true,
+        hasGfx: typeof root.__kaguraGfx?.lastReadbackSummary === "function",
+        hasLast: root.__kaguraVrtLastReadback != null,
+      };
+    }).catch(() => null);
+    // eslint-disable-next-line no-console
+    console.log(`[vrt-readback] no summary: ${JSON.stringify(diag)}`);
     return null;
   }
 }

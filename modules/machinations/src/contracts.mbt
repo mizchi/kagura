@@ -74,6 +74,7 @@ pub(all) struct Node {
   capacity : Int? // None = unlimited
   initial : Int // initial pool count / register value
   gate_mode : GateMode
+  param : Int // Delay: steps to hold; Queue: release rate per step; else unused
   x : Double
   y : Double
 }
@@ -116,4 +117,5 @@ pub(all) struct SimState {
   mut rng : UInt64 // deterministic RNG state
   mut last_flows : Array[Int] // amount moved per resource edge last step (for viz)
   mut pending : Array[Bool] // interactive activations queued for the next step
+  mut buffers : Array[Array[Int]] // per-node time buffers (Delay line / Queue store)
 }

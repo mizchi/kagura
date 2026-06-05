@@ -1,13 +1,30 @@
 // Simulation engine.
 //
-// Implemented: Pool / Source / Drain / Gate with fixed/dice/interval/all rates,
+// Implemented: all node kinds — Pool / Source / Drain / Gate / Converter /
+// Trader / Delay / Queue / Register — with fixed/dice/interval/all rates,
 // automatic / start / interactive activation, pull / pull-all / push flow,
 // capacity, and state connections (modifier / activator — see state.mbt). Each
 // step resolves direct resource edges against a working copy of the previous
 // values (contention on a shared pool resolved deterministically in edge
-// declaration order — a documented MVP rule), then a gate pass, then interactive
-// activations are cleared. Still to come: trigger/rate-label state connections
-// and converter / trader / delay / queue / register.
+// declaration order — a documented MVP rule), then the gate / converter+trader /
+// delay+queue passes, then interactive activations are cleared. Still to come:
+// trigger and rate-label state connections.
+
+///|
+/// Fresh per-node time buffers (Delay line / Queue store; empty for others).
+fn make_buffers(diagram : Diagram) -> Array[Array[Int]] {
+  let bufs : Array[Array[Int]] = []
+  for i in 0..<diagram.nodes.length() {
+    let node = diagram.nodes[i]
+    let buf = match node.kind {
+      Delay => Array::make(if node.param > 0 { node.param } else { 1 }, 0)
+      Queue => Array::make(1, 0)
+      _ => []
+    }
+    bufs.push(buf)
+  }
+  bufs
+}
 
 ///|
 /// Create the initial simulation state for a diagram, seeded for reproducibility.
@@ -26,6 +43,7 @@ pub fn SimState::init(
     rng: seed,
     last_flows: Array::make(diagram.resources.length(), 0),
     pending: Array::make(n, false),
+    buffers: make_buffers(diagram),
   }
 }
 
@@ -49,6 +67,16 @@ pub fn SimState::reset(self : SimState, diagram : Diagram) -> Unit {
   self.step = 0
   self.last_flows = Array::make(diagram.resources.length(), 0)
   self.pending = Array::make(n, false)
+  self.buffers = make_buffers(diagram)
+}
+
+///|
+/// Nodes whose edges are resolved by a dedicated pass (or carry no flow).
+fn is_special(kind : NodeKind) -> Bool {
+  match kind {
+    Gate | Converter | Trader | Delay | Queue | Register => true
+    _ => false
+  }
 }
 
 ///|
@@ -96,11 +124,9 @@ pub fn step(diagram : Diagram, state : SimState) -> Unit {
     let from = diagram.nodes[edge.from]
     let to = diagram.nodes[edge.to]
 
-    // Edges touching a gate or converter are handled in their dedicated passes.
-    if from.kind == Gate ||
-      to.kind == Gate ||
-      from.kind == Converter ||
-      to.kind == Converter {
+    // Edges touching a routing/transform/time/register node are handled in
+    // their dedicated passes (or, for registers, carry no resource flow).
+    if is_special(from.kind) || is_special(to.kind) {
       continue
     }
     // An unsatisfied activator disables the edge.
@@ -172,6 +198,7 @@ pub fn step(diagram : Diagram, state : SimState) -> Unit {
   }
   process_gates(diagram, state, work, flows)
   process_converters(diagram, state, work, flows)
+  process_time_nodes(diagram, state, work, flows)
   // Interactive activations are consumed by this step only.
   for i in 0..<n {
     state.pending[i] = false

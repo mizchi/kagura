@@ -17,7 +17,12 @@ fn process_converters(
   let edges = diagram.resources
   for ci in 0..<diagram.nodes.length() {
     let c = diagram.nodes[ci]
-    if c.kind != Converter || !node_active(diagram, state, ci) {
+    // Traders share converter semantics: an atomic resource exchange.
+    let is_conv = match c.kind {
+      Converter | Trader => true
+      _ => false
+    }
+    if !is_conv || !node_active(diagram, state, ci) {
       continue
     }
     // Collect incoming requirements.

@@ -30,10 +30,22 @@ pub fn Diagram::node(
   flow? : Flow = Pull,
   activation? : Activation = Passive,
   gate_mode? : GateMode = Deterministic,
+  param? : Int = 0,
   x? : Double = 0.0,
   y? : Double = 0.0,
 ) -> Int {
-  self.add({ kind, label, activation, flow, capacity, initial, gate_mode, x, y })
+  self.add({
+    kind,
+    label,
+    activation,
+    flow,
+    capacity,
+    initial,
+    gate_mode,
+    param,
+    x,
+    y,
+  })
 }
 
 ///|
@@ -101,6 +113,56 @@ pub fn Diagram::converter(
   y? : Double = 0.0,
 ) -> Int {
   self.node(Converter, label, activation~, x~, y~)
+}
+
+///|
+/// A trader (atomic resource exchange). Same resolution as a converter.
+pub fn Diagram::trader(
+  self : Diagram,
+  label : String,
+  activation? : Activation = Automatic,
+  x? : Double = 0.0,
+  y? : Double = 0.0,
+) -> Int {
+  self.node(Trader, label, activation~, x~, y~)
+}
+
+///|
+/// A register: holds a numeric value that feeds state connections.
+pub fn Diagram::register(
+  self : Diagram,
+  label : String,
+  value? : Int = 0,
+  x? : Double = 0.0,
+  y? : Double = 0.0,
+) -> Int {
+  self.node(Register, label, initial=value, x~, y~)
+}
+
+///|
+/// A delay: holds incoming resources for `steps` steps, then releases them.
+pub fn Diagram::delay(
+  self : Diagram,
+  label : String,
+  steps? : Int = 1,
+  activation? : Activation = Automatic,
+  x? : Double = 0.0,
+  y? : Double = 0.0,
+) -> Int {
+  self.node(Delay, label, activation~, param=steps, x~, y~)
+}
+
+///|
+/// A queue: stores incoming and releases up to `rate` per step (FIFO).
+pub fn Diagram::queue(
+  self : Diagram,
+  label : String,
+  rate? : Int = 1,
+  activation? : Activation = Automatic,
+  x? : Double = 0.0,
+  y? : Double = 0.0,
+) -> Int {
+  self.node(Queue, label, activation~, param=rate, x~, y~)
 }
 
 ///|

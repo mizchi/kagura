@@ -209,7 +209,9 @@ fn draw_node(
     Drain => push_text(cmds, frame, "DRN", node.x, node.y, 1.0, 0xF3DADA)
     Gate => push_text(cmds, frame, "GATE", node.x, node.y, 1.0, 0xE8DDF3)
     Converter => push_text(cmds, frame, "BUY", node.x, node.y, 1.0, 0xFFE9C8)
-    _ => ()
+    Trader => push_text(cmds, frame, "TRADE", node.x, node.y, 1.0, 0xCFE8EC)
+    Delay => push_text(cmds, frame, "DELAY", node.x, node.y, 1.0, 0xD8DCE2)
+    Queue => push_text(cmds, frame, "QUEUE", node.x, node.y, 1.0, 0xD8DCE2)
   }
 }
 

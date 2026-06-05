@@ -20,6 +20,18 @@ let key_up : Int = 38
 ///|
 let key_down : Int = 40
 
+// The web runtime reports cursor coordinates in canvas CSS pixels, which differ
+// from the logical (screen_w x screen_h) space the diagram is laid out in when
+// the canvas is scaled. Read the canvas CSS size to convert clicks to logical.
+
+///|
+extern "js" fn js_canvas_css_w() -> Double =
+  #| () => { const c = document.querySelector("canvas"); return c ? c.getBoundingClientRect().width : 0; }
+
+///|
+extern "js" fn js_canvas_css_h() -> Double =
+  #| () => { const c = document.querySelector("canvas"); return c ? c.getBoundingClientRect().height : 0; }
+
 ///|
 struct DemoState {
   diagram : @mac.Diagram
@@ -48,10 +60,15 @@ fn DemoState::update(self : DemoState, input : @core.InputSnapshot) -> Unit {
   @inpututil.update_input_helper(self.input, input)
   let ks = self.input.key_state
   // Click an interactive node to fire it, then advance one step for instant
-  // feedback (cursor coords are in logical canvas space).
+  // feedback. The web runtime reports cursor coords in canvas CSS pixels, so
+  // scale them into the logical layout space the nodes are positioned in.
   if @inpututil.is_mouse_button_just_pressed(self.input.mouse_state, 0) {
-    let mx = input.cursor_x
-    let my = input.cursor_y
+    let css_w = js_canvas_css_w()
+    let css_h = js_canvas_css_h()
+    let sx = if css_w > 0.0 { screen_w.to_double() / css_w } else { 1.0 }
+    let sy = if css_h > 0.0 { screen_h.to_double() / css_h } else { 1.0 }
+    let mx = input.cursor_x * sx
+    let my = input.cursor_y * sy
     for i in 0..<self.diagram.nodes.length() {
       let n = self.diagram.nodes[i]
       match n.activation {

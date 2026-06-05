@@ -106,20 +106,27 @@ fn process_gates(
   let edges = diagram.resources
   for gi in 0..<diagram.nodes.length() {
     let g = diagram.nodes[gi]
-    if g.kind != Gate || !node_active(state, g, gi) {
+    if g.kind != Gate || !node_active(diagram, state, gi) {
       continue
     }
     // Pull from incoming edges.
     let mut total = 0
     for ei in 0..<edges.length() {
       let e = edges[ei]
-      if e.to != gi {
+      if e.to != gi || edge_blocked(diagram, state, ei) {
         continue
       }
       let from = diagram.nodes[e.from]
       let want = match from.kind {
-        Source => resolve_rate(e.rate, state, 0)
-        _ => resolve_rate(e.rate, state, work[e.from])
+        Source =>
+          effective_rate(diagram, state, ei, resolve_rate(e.rate, state, 0))
+        _ =>
+          effective_rate(
+            diagram,
+            state,
+            ei,
+            resolve_rate(e.rate, state, work[e.from]),
+          )
       }
       let avail = match from.kind {
         Source => want

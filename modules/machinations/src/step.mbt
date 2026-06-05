@@ -1,12 +1,13 @@
 // Simulation engine.
 //
 // Implemented: Pool / Source / Drain / Gate with fixed/dice/interval/all rates,
-// automatic / start / interactive activation, pull / pull-all / push flow, and
-// capacity. Each step resolves direct resource edges against a working copy of
-// the previous values (contention on a shared pool resolved deterministically
-// in edge declaration order — a documented MVP rule), then a gate pass, then
-// interactive activations are cleared. Still to come: state connections
-// (modifier/trigger/activator) and converter / trader / delay / queue / register.
+// automatic / start / interactive activation, pull / pull-all / push flow,
+// capacity, and state connections (modifier / activator — see state.mbt). Each
+// step resolves direct resource edges against a working copy of the previous
+// values (contention on a shared pool resolved deterministically in edge
+// declaration order — a documented MVP rule), then a gate pass, then interactive
+// activations are cleared. Still to come: trigger/rate-label state connections
+// and converter / trader / delay / queue / register.
 
 ///|
 /// Create the initial simulation state for a diagram, seeded for reproducibility.
@@ -51,12 +52,17 @@ pub fn SimState::reset(self : SimState, diagram : Diagram) -> Unit {
 }
 
 ///|
-fn node_active(state : SimState, node : Node, idx : Int) -> Bool {
+fn node_active(diagram : Diagram, state : SimState, idx : Int) -> Bool {
+  // An unsatisfied activator disables the node entirely.
+  if node_blocked(diagram, state, idx) {
+    return false
+  }
+  let node = diagram.nodes[idx]
   match node.activation {
     Automatic => true
     Start => state.step == 0
-    // Interactive (and, until Phase 3 wires triggers, OnTrigger) fire when the
-    // host has queued an activation for this node via `activate`.
+    // Interactive (and, until triggers are wired, OnTrigger) fire when the host
+    // has queued an activation for this node via `activate`.
     Interactive | OnTrigger =>
       idx >= 0 && idx < state.pending.length() && state.pending[idx]
     // Passive nodes never self-fire; they still supply/receive when pulled/pushed.
@@ -94,12 +100,16 @@ pub fn step(diagram : Diagram, state : SimState) -> Unit {
     if from.kind == Gate || to.kind == Gate {
       continue
     }
+    // An unsatisfied activator disables the edge.
+    if edge_blocked(diagram, state, ei) {
+      continue
+    }
 
     // A resource edge fires when the active end drives it: a pulling target or
     // a pushing source.
-    let pulled = node_active(state, to, edge.to) &&
+    let pulled = node_active(diagram, state, edge.to) &&
       (to.flow == Pull || to.flow == PullAll)
-    let pushed = node_active(state, from, edge.from) && from.flow == Push
+    let pushed = node_active(diagram, state, edge.from) && from.flow == Push
     if !(pulled || pushed) {
       continue
     }
@@ -111,8 +121,15 @@ pub fn step(diagram : Diagram, state : SimState) -> Unit {
       _ => work[edge.from]
     }
     let want = match from.kind {
-      Source => resolve_rate(edge.rate, state, 0)
-      _ => resolve_rate(edge.rate, state, stock)
+      Source =>
+        effective_rate(diagram, state, ei, resolve_rate(edge.rate, state, 0))
+      _ =>
+        effective_rate(
+          diagram,
+          state,
+          ei,
+          resolve_rate(edge.rate, state, stock),
+        )
     }
     let avail = match from.kind {
       Source => want

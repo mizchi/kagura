@@ -234,6 +234,31 @@ fn DemoState::draw(
     let b = self.diagram.nodes[e.to]
     draw_edge(cmds, frame, a.x, a.y, b.x, b.y, e.rate, self.sim.last_flows[ei])
   }
+  // state connections (modifier/activator) as thin gold links
+  for si in 0..<self.diagram.states.length() {
+    let se = self.diagram.states[si]
+    let from = self.diagram.nodes[se.from]
+    let (tx, ty) = match se.to_edge {
+      Some(ei) => {
+        let e = self.diagram.resources[ei]
+        let a = self.diagram.nodes[e.from]
+        let b = self.diagram.nodes[e.to]
+        ((a.x + b.x) / 2.0, (a.y + b.y) / 2.0)
+      }
+      None =>
+        match se.to_node {
+          Some(ni) => (self.diagram.nodes[ni].x, self.diagram.nodes[ni].y)
+          None => (from.x, from.y)
+        }
+    }
+    push_line(cmds, frame, from.x, from.y, tx, ty, 1.0, 0xB89A3A)
+    let sym = match se.kind {
+      Modifier => "+"
+      Activator => "?"
+      _ => "*"
+    }
+    push_text(cmds, frame, sym, tx, ty - 11.0, 1.0, 0xE8C84A)
+  }
   // nodes
   for i in 0..<self.diagram.nodes.length() {
     draw_node(cmds, frame, self.diagram.nodes[i], self.sim.values[i])

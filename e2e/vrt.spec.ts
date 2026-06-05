@@ -1,4 +1,10 @@
 import { test, expect } from "@playwright/test";
+import { readFileSync } from "node:fs";
+
+// Per-example readback coverage baselines (see vrt-readback-baselines.json).
+const READBACK_BASELINES = JSON.parse(
+  readFileSync(new URL("./vrt-readback-baselines.json", import.meta.url), "utf8"),
+) as { floorRatio: number; examples: Record<string, number> };
 
 // VRT examples categorized by rendering pipeline.
 // Categories help diagnose failures:
@@ -137,8 +143,28 @@ async function expectCanvasFrame(
   const readback = await getVrtReadbackSummary(page);
   const capture = await getCanvasCaptureSummary(page);
   if (readback != null && capture != null && capture.alphaZeroPixelRatio > 0.99) {
+    // Headless WebGPU presents a transparent canvas (issue #4), so gate on the
+    // GPU-texture readback instead of a screenshot. Stable invariants hold on
+    // any backend; coverage is gated by a per-example floor that catches a
+    // collapsed/blank/missing render without flaking on Metal-vs-SwiftShader
+    // lighting differences.
+    const key = snapshotName.replace(/\.png$/, "");
+    const expectedNonDark = READBACK_BASELINES.examples[key];
+    // eslint-disable-next-line no-console
+    console.log(
+      `[vrt-readback] ${key}: nonDark=${readback.nonDarkPixelRatio.toFixed(4)} ` +
+        `nonTransparent=${readback.nonTransparentPixelRatio.toFixed(4)} maxChannel=${readback.maxChannel} ` +
+        `(baseline nonDark=${expectedNonDark ?? "n/a"})`,
+    );
     expect(readback.nonTransparentPixelRatio).toBeGreaterThan(0.99);
-    expect(readback.nonDarkPixelRatio).toBeGreaterThan(0.001);
+    expect(readback.maxChannel).toBeGreaterThanOrEqual(64);
+    if (typeof expectedNonDark === "number") {
+      expect(readback.nonDarkPixelRatio).toBeGreaterThanOrEqual(
+        expectedNonDark * READBACK_BASELINES.floorRatio,
+      );
+    } else {
+      expect(readback.nonDarkPixelRatio).toBeGreaterThan(0.001);
+    }
     return;
   }
   await expect(canvas).toHaveScreenshot(snapshotName, {

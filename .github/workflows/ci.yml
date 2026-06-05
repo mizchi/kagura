@@ -139,7 +139,10 @@ jobs:
       - name: Runtime Smoke E2E (wasm/wasm-gc)
         run: pnpm e2e:smoke
       - name: VRT E2E (visual regression)
-        run: pnpm exec playwright test e2e/vrt.spec.ts --update-snapshots
+        # No --update-snapshots: VRT must actually gate. Headless WebGPU
+        # presents a transparent canvas, so vrt.spec.ts compares the GPU
+        # readback coverage against committed baselines instead of screenshots.
+        run: pnpm exec playwright test e2e/vrt.spec.ts
       - name: API Info
         run: moon info
 

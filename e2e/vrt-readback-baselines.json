@@ -1,0 +1,25 @@
+{
+  "_comment": "Per-example WebGPU readback coverage baselines for VRT regression gating. nonDark is the rendered non-dark pixel ratio captured via copyTextureToBuffer (headless canvas presents transparent, so screenshots are unusable — see issue #4). The VRT gate asserts the live readback stays above nonDark * floorRatio, which catches rendering collapse (blank/black/missing geometry) while tolerating per-backend lighting/AA differences (Metal vs SwiftShader). Values were captured on macOS Metal; refine if a backend legitimately renders lower coverage. Keyed by the VRT snapshot name (without .png).",
+  "floorRatio": 0.4,
+  "examples": {
+    "scene_demo": 1.0,
+    "ui_demo": 1.0,
+    "flappy_bird": 1.0,
+    "survivor": 1.0,
+    "action_rpg": 1.0,
+    "fps_demo": 0.773,
+    "physics2d_demo": 1.0,
+    "arena3d": 0.854,
+    "collision3d_demo": 0.55,
+    "physics3d_demo": 0.694,
+    "skeletal_anim": 0.685,
+    "ragdoll_demo": 1.0,
+    "obj_viewer": 0.104,
+    "gltf_viewer": 0.614,
+    "shadow3d_demo": 0.75,
+    "postfx_demo": 0.686,
+    "hacknslash_3d": 1.0,
+    "fetch_image": 1.0,
+    "hacknslash_3d-playing": 1.0
+  }
+}

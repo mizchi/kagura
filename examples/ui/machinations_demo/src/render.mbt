@@ -117,6 +117,7 @@ fn draw_edge(
   by : Double,
   rate : @mac.Rate,
   flow : Int,
+  anim : Double,
 ) -> Unit {
   let dx = bx - ax
   let dy = by - ay
@@ -164,6 +165,12 @@ fn draw_edge(
     All => push_text(cmds, frame, "ALL", mx, my, 1.0, 0xC8D2DE)
     Dice(_, _) => push_text(cmds, frame, "DIE", mx, my, 1.0, 0xC8D2DE)
     Interval(_) => push_text(cmds, frame, "INT", mx, my, 1.0, 0xC8D2DE)
+  }
+  // Flow particle: a dot travelling source -> target while the edge is active.
+  if active {
+    let px = sx + (ex - sx) * anim
+    let py = sy + (ey - sy) * anim
+    push_rect(cmds, frame, px - 3.0, py - 3.0, 6.0, 6.0, 0xC8FFD2)
   }
 }
 
@@ -235,7 +242,17 @@ fn DemoState::draw(
     let e = self.diagram.resources[ei]
     let a = self.diagram.nodes[e.from]
     let b = self.diagram.nodes[e.to]
-    draw_edge(cmds, frame, a.x, a.y, b.x, b.y, e.rate, self.sim.last_flows[ei])
+    draw_edge(
+      cmds,
+      frame,
+      a.x,
+      a.y,
+      b.x,
+      b.y,
+      e.rate,
+      self.sim.last_flows[ei],
+      self.anim,
+    )
   }
   // state connections (modifier/activator) as thin gold links
   for si in 0..<self.diagram.states.length() {
@@ -289,5 +306,133 @@ fn DemoState::draw(
     1.0,
     0x6E7A88,
   )
+  self.draw_chart(cmds, frame, 20.0, 360.0, sw - 40.0, 92.0)
+  self.draw_inspector(cmds, frame)
   cmds
+}
+
+///|
+fn is_pool(kind : @mac.NodeKind) -> Bool {
+  match kind {
+    Pool | Register => true
+    _ => false
+  }
+}
+
+///|
+fn chart_color(i : Int) -> Int {
+  let pal = [0x6FB7FF, 0x8FE3A0, 0xF0B85A, 0xE57AB0, 0x9D8DF0, 0x5FD0C8]
+  pal[i % pal.length()]
+}
+
+///|
+fn kind_name(k : @mac.NodeKind) -> String {
+  match k {
+    Pool => "POOL"
+    Source => "SOURCE"
+    Drain => "DRAIN"
+    Gate => "GATE"
+    Converter => "CONVERTER"
+    Trader => "TRADER"
+    Delay => "DELAY"
+    Queue => "QUEUE"
+    Register => "REGISTER"
+  }
+}
+
+///|
+fn act_name(a : @mac.Activation) -> String {
+  match a {
+    Passive => "PASSIVE"
+    Automatic => "AUTO"
+    Interactive => "INTERACTIVE"
+    OnTrigger => "ON TRIGGER"
+    Start => "START"
+  }
+}
+
+///|
+/// Time-series chart of pool/register values (Vis-C).
+fn DemoState::draw_chart(
+  self : DemoState,
+  cmds : Array[@gfx.DrawTrianglesCommand],
+  frame : @renderer2d.RenderFrame2D,
+  x : Double,
+  y : Double,
+  w : Double,
+  h : Double,
+) -> Unit {
+  push_rect(cmds, frame, x, y, w, h, 0x10141A)
+  push_rect(cmds, frame, x, y, w, 2.0, 0x2A323C)
+  if self.hist_len < 2 {
+    push_text(cmds, frame, "POOLS OVER TIME", x + 70.0, y + 14.0, 1.0, 0x6E7A88)
+    return
+  }
+  let mut maxv = 1
+  for i in 0..<self.diagram.nodes.length() {
+    if is_pool(self.diagram.nodes[i].kind) {
+      for k in 0..<self.hist_len {
+        let v = self.sample(i, k)
+        if v > maxv {
+          maxv = v
+        }
+      }
+    }
+  }
+  let denom = (self.hist_len - 1).to_double()
+  let mut legx = x + 8.0
+  for i in 0..<self.diagram.nodes.length() {
+    let node = self.diagram.nodes[i]
+    if !is_pool(node.kind) {
+      continue
+    }
+    let col = chart_color(i)
+    for k in 1..<self.hist_len {
+      let v0 = self.sample(i, k - 1).to_double()
+      let v1 = self.sample(i, k).to_double()
+      let x0 = x + (k - 1).to_double() / denom * w
+      let x1 = x + k.to_double() / denom * w
+      let y0 = y + h - v0 / maxv.to_double() * (h - 8.0)
+      let y1 = y + h - v1 / maxv.to_double() * (h - 8.0)
+      push_line(cmds, frame, x0, y0, x1, y1, 1.5, col)
+    }
+    push_rect(cmds, frame, legx, y + 6.0, 8.0, 8.0, col)
+    push_text(cmds, frame, node.label, legx + 40.0, y + 10.0, 1.0, col)
+    push_num(cmds, frame, self.sim.values[i], legx + 98.0, y + 10.0, 1.0, 0xE6ECF2)
+    legx = legx + 138.0
+  }
+  push_text(cmds, frame, "MAX", x + w - 56.0, y + 10.0, 1.0, 0x6E7A88)
+  push_num(cmds, frame, maxv, x + w - 18.0, y + 10.0, 1.0, 0x8893A0)
+}
+
+///|
+/// Hovered-node inspector panel (Vis-B).
+fn DemoState::draw_inspector(
+  self : DemoState,
+  cmds : Array[@gfx.DrawTrianglesCommand],
+  frame : @renderer2d.RenderFrame2D,
+) -> Unit {
+  if self.hovered < 0 {
+    return
+  }
+  let n = self.diagram.nodes[self.hovered]
+  let pw = 188.0
+  let ph = 98.0
+  let px = screen_w.to_double() - pw - 12.0
+  let py = 30.0
+  push_rect(cmds, frame, px, py, pw, ph, 0x0E1116)
+  push_rect(cmds, frame, px + 2.0, py + 2.0, pw - 4.0, ph - 4.0, 0x1C222B)
+  let cx = px + pw / 2.0
+  push_text(cmds, frame, n.label, cx, py + 14.0, 1.0, 0xE6ECF2)
+  push_text(cmds, frame, kind_name(n.kind), cx, py + 30.0, 1.0, 0x9AA6B2)
+  push_text(cmds, frame, "VAL", px + 28.0, py + 52.0, 1.0, 0x6E7A88)
+  push_num(cmds, frame, self.sim.values[self.hovered], px + 74.0, py + 52.0, 1.0, 0xFFFFFF)
+  push_text(cmds, frame, act_name(n.activation), cx, py + 72.0, 1.0, 0x8FB0E0)
+  match n.capacity {
+    Some(c) => {
+      push_text(cmds, frame, "CAP", px + 28.0, py + 88.0, 1.0, 0x6E7A88)
+      push_num(cmds, frame, c, px + 74.0, py + 88.0, 1.0, 0xC8D2DE)
+    }
+    None => ()
+  }
 }

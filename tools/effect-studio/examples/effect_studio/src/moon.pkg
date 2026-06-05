@@ -24,7 +24,7 @@ options(
   link: {
     "native": {
       "cc": "${build.KAGURA_NATIVE_CC}",
-      "cc-link-flags": "-L../../../../../deps/wgpu-native/lib -lwgpu_native ${build.KAGURA_NATIVE_GLFW_LIBS} -Wl,-rpath,../../../../../deps/wgpu-native/lib ${build.KAGURA_NATIVE_PLATFORM_LIBS}",
+      "cc-link-flags": "-L${build.KAGURA_NATIVE_WGPU_LIB_DIR} -lwgpu_native ${build.KAGURA_NATIVE_GLFW_LIBS} ${build.KAGURA_NATIVE_WGPU_RPATH} ${build.KAGURA_NATIVE_PLATFORM_LIBS}",
     },
   },
   targets: {

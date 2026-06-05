@@ -2,6 +2,10 @@
   "name": "kagura-e2e",
   "private": true,
   "type": "module",
+  "packageManager": "pnpm@10.33.0",
+  "pnpm": {
+    "onlyBuiltDependencies": ["esbuild"]
+  },
   "scripts": {
     "e2e": "playwright test",
     "e2e:smoke": "playwright test e2e/runtime_smoke_wasm.spec.ts e2e/runtime_smoke_native.spec.ts e2e/runtime_smoke_cross_backend.spec.ts",

@@ -215,7 +215,38 @@ const run = async () => {
   webState.sample.context = null;
   webState.frame = createInitialFrameState();
   let output = "";
+  let wasmMemory = null;
+  const textDecoder = new TextDecoder();
   const imports = {
+    // The MoonBit wasm backend routes println through WASI fd_write rather
+    // than spectest.print_char, so the module imports wasi_snapshot_preview1.
+    // Decode the iovecs from linear memory and append them to the captured
+    // output (signature: fd_write(fd, iovs, iovs_len, nwritten) -> errno).
+    wasi_snapshot_preview1: {
+      fd_write: (_fd, iovsPtr, iovsLen, nwrittenPtr) => {
+        if (wasmMemory == null) {
+          return 0;
+        }
+        const view = new DataView(wasmMemory.buffer);
+        let written = 0;
+        let text = "";
+        for (let i = 0; i < Number(iovsLen); i += 1) {
+          const base = Number(iovsPtr) + i * 8;
+          const ptr = view.getUint32(base, true);
+          const len = view.getUint32(base + 4, true);
+          if (len > 0) {
+            text += textDecoder.decode(new Uint8Array(wasmMemory.buffer, ptr, len));
+          }
+          written += len;
+        }
+        if (text.length > 0) {
+          output += text;
+          setOutput(output);
+        }
+        view.setUint32(Number(nwrittenPtr), written, true);
+        return 0;
+      },
+    },
     spectest: {
       print_char: (charCode) => {
         output += String.fromCharCode(Number(charCode));
@@ -545,6 +576,7 @@ const run = async () => {
     const bytes = await response.arrayBuffer();
     ({ instance } = await WebAssembly.instantiate(bytes, imports));
   }
+  wasmMemory = instance.exports.memory;
   const start = instance.exports._start;
   if (typeof start !== "function") {
     throw new Error("wasm export _start not found");

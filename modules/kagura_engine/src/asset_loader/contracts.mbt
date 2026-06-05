@@ -7,7 +7,7 @@ pub enum AsyncImageStatus {
 } derive(Debug)
 
 ///|
-pub impl Show for AsyncImageStatus with output(self, logger) {
+pub impl Show for AsyncImageStatus with fn output(self, logger) {
   logger.write_object(to_repr(self))
 }
 
@@ -31,7 +31,7 @@ pub struct AsyncImageRequest {
 } derive(Debug)
 
 ///|
-pub impl Show for AsyncImageRequest with output(self, logger) {
+pub impl Show for AsyncImageRequest with fn output(self, logger) {
   logger.write_object(to_repr(self))
 }
 
@@ -45,7 +45,7 @@ pub struct AsyncImageProgress {
 } derive(Debug)
 
 ///|
-pub impl Show for AsyncImageProgress with output(self, logger) {
+pub impl Show for AsyncImageProgress with fn output(self, logger) {
   logger.write_object(to_repr(self))
 }
 

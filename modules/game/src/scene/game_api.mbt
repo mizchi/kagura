@@ -2,8 +2,8 @@
 /// High-level game contract for scene-based examples that already model
 /// their state as `update + view`.
 pub(open) trait SceneGame {
-  update_game(Self, @core.InputSnapshot) -> Unit
-  view_game(Self) -> SceneNode
+  fn update_game(Self, @core.InputSnapshot) -> Unit
+  fn view_game(Self) -> SceneNode
 }
 
 ///|

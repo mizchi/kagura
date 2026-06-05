@@ -6,7 +6,7 @@ pub(all) enum BodyType {
 } derive(Debug)
 
 ///|
-pub impl Show for BodyType with output(self, logger) {
+pub impl Show for BodyType with fn output(self, logger) {
   logger.write_object(to_repr(self))
 }
 
@@ -17,7 +17,7 @@ pub(all) enum ColliderShape {
 } derive(Debug)
 
 ///|
-pub impl Show for ColliderShape with output(self, logger) {
+pub impl Show for ColliderShape with fn output(self, logger) {
   logger.write_object(to_repr(self))
 }
 
@@ -45,7 +45,7 @@ pub(all) struct RigidBody {
 } derive(Debug)
 
 ///|
-pub impl Show for RigidBody with output(self, logger) {
+pub impl Show for RigidBody with fn output(self, logger) {
   logger.write_object(to_repr(self))
 }
 
@@ -59,7 +59,7 @@ pub(all) struct Contact {
 } derive(Debug)
 
 ///|
-pub impl Show for Contact with output(self, logger) {
+pub impl Show for Contact with fn output(self, logger) {
   logger.write_object(to_repr(self))
 }
 

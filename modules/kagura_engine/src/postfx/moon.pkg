@@ -1,4 +1,4 @@
 import {
-  "moonbitlang/core/bench" @bench,
-  "mizchi/gfx" @gfx,
+  "moonbitlang/core/bench",
+  "mizchi/gfx",
 }

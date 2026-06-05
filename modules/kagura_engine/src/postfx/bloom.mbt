@@ -96,12 +96,7 @@ pub fn bloom_commands(
   let blur_h = if bloom_a.height > 0 { bloom_a.height } else { screen_h }
   let texel_w = 1.0 / blur_w.to_double()
   let texel_h = 1.0 / blur_h.to_double()
-  let texel_dwords = [
-    f32(texel_w),
-    f32(texel_h),
-    0,
-    0,
-  ]
+  let texel_dwords = [f32(texel_w), f32(texel_h), 0, 0]
   // Pass 1: threshold extract Scene -> bloom_a
   let cmd1 = new_fullscreen_quad_command(
     bloom_a,

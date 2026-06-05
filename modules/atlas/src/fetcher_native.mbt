@@ -24,7 +24,7 @@ pub fn new_native_fetcher(read_file_fn : (String) -> Bytes?) -> NativeFetcher {
 }
 
 ///|
-pub impl BytesFetcher for NativeFetcher with fetch(
+pub impl BytesFetcher for NativeFetcher with fn fetch(
   self,
   url,
   on_progress,
@@ -38,7 +38,7 @@ pub impl BytesFetcher for NativeFetcher with fetch(
 }
 
 ///|
-pub impl BytesFetcher for NativeFetcher with cancel(self, handle) {
+pub impl BytesFetcher for NativeFetcher with fn cancel(self, handle) {
   for entry in self.deferred {
     if entry.id == handle.id {
       entry.cancelled = true
@@ -47,7 +47,7 @@ pub impl BytesFetcher for NativeFetcher with cancel(self, handle) {
 }
 
 ///|
-pub impl BytesFetcher for NativeFetcher with poll(self) {
+pub impl BytesFetcher for NativeFetcher with fn poll(self) {
   let pending = self.deferred.drain(0, self.deferred.length())
   for entry in pending {
     if entry.cancelled {

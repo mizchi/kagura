@@ -1,5 +1,5 @@
 import {
-  "moonbitlang/core/bench" @bench,
-  "mizchi/gfx" @gfx,
-  "mizchi/font" @font,
+  "moonbitlang/core/bench",
+  "mizchi/gfx",
+  "mizchi/font",
 }

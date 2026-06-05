@@ -10,12 +10,12 @@ fn TestEngineGame::new() -> TestEngineGame {
 }
 
 ///|
-impl EngineGame for TestEngineGame with update_game(self, _input) {
+impl EngineGame for TestEngineGame with fn update_game(self, _input) {
   self.update_count += 1
 }
 
 ///|
-impl EngineGame for TestEngineGame with draw_game(self, _ctx) {
+impl EngineGame for TestEngineGame with fn draw_game(self, _ctx) {
   self.draw_count += 1
   []
 }

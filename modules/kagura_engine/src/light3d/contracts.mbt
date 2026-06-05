@@ -9,7 +9,7 @@ pub struct DirectionalLight {
 } derive(Debug)
 
 ///|
-pub impl Show for DirectionalLight with output(self, logger) {
+pub impl Show for DirectionalLight with fn output(self, logger) {
   logger.write_object(to_repr(self))
 }
 
@@ -38,7 +38,7 @@ pub struct AmbientLight {
 } derive(Debug)
 
 ///|
-pub impl Show for AmbientLight with output(self, logger) {
+pub impl Show for AmbientLight with fn output(self, logger) {
   logger.write_object(to_repr(self))
 }
 
@@ -64,7 +64,7 @@ pub struct PointLight {
 } derive(Debug)
 
 ///|
-pub impl Show for PointLight with output(self, logger) {
+pub impl Show for PointLight with fn output(self, logger) {
   logger.write_object(to_repr(self))
 }
 
@@ -90,7 +90,7 @@ pub struct SpotLight {
 } derive(Debug)
 
 ///|
-pub impl Show for SpotLight with output(self, logger) {
+pub impl Show for SpotLight with fn output(self, logger) {
   logger.write_object(to_repr(self))
 }
 
@@ -124,7 +124,7 @@ pub struct LightingEnvironment {
 } derive(Debug)
 
 ///|
-pub impl Show for LightingEnvironment with output(self, logger) {
+pub impl Show for LightingEnvironment with fn output(self, logger) {
   logger.write_object(to_repr(self))
 }
 
@@ -153,6 +153,8 @@ pub fn LightingEnvironment::default() -> LightingEnvironment {
 // up to 1-ULP rounding (gfx truncates the mantissa, this rounds correctly);
 // shader-side math is unaffected, and the hardware-mapped intrinsic chain
 // avoids the int64 emulation cost on the JS target.
+
+///|
 fn f32(v : Double) -> Int {
   v.to_float().reinterpret_as_int()
 }

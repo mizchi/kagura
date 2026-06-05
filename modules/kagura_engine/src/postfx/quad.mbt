@@ -42,6 +42,8 @@ pub fn fullscreen_quad_indices() -> Array[Int] {
 
 // Mirrors mix_resource_cache_key in mizchi/gfx; kept local to hash inline
 // without allocating a values array.
+
+///|
 fn mix_cache_key(seed : Int, value : Int) -> Int {
   seed * 16777619 + value + 31
 }
@@ -53,6 +55,8 @@ fn mix_cache_key(seed : Int, value : Int) -> Int {
 // the dominant cost of uniform construction on the JS target. Bit pattern
 // differs by at most 1 ULP (gfx truncates, this rounds nearest-even);
 // shader math is unaffected.
+
+///|
 fn f32(v : Double) -> Int {
   v.to_float().reinterpret_as_int()
 }

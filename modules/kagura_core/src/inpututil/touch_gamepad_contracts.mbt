@@ -5,7 +5,7 @@ struct TouchDurationEntry {
 } derive(Debug)
 
 ///|
-pub impl Show for TouchDurationEntry with output(self, logger) {
+pub impl Show for TouchDurationEntry with fn output(self, logger) {
   logger.write_object(to_repr(self))
 }
 
@@ -149,7 +149,7 @@ struct GamepadDurationEntry {
 } derive(Debug)
 
 ///|
-pub impl Show for GamepadDurationEntry with output(self, logger) {
+pub impl Show for GamepadDurationEntry with fn output(self, logger) {
   logger.write_object(to_repr(self))
 }
 
@@ -160,7 +160,7 @@ struct GamepadButtonKey {
 } derive(Debug)
 
 ///|
-pub impl Show for GamepadButtonKey with output(self, logger) {
+pub impl Show for GamepadButtonKey with fn output(self, logger) {
   logger.write_object(to_repr(self))
 }
 
@@ -172,7 +172,7 @@ struct GamepadButtonDurationEntry {
 } derive(Debug)
 
 ///|
-pub impl Show for GamepadButtonDurationEntry with output(self, logger) {
+pub impl Show for GamepadButtonDurationEntry with fn output(self, logger) {
   logger.write_object(to_repr(self))
 }
 

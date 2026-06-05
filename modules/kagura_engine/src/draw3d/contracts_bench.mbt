@@ -86,7 +86,9 @@ test "bench pbr_uniform_dwords 1000" (b : @bench.T) {
 }
 
 ///|
-test "bench skinned_instanced_lit_uniform_dwords 32bones_16inst x100" (b : @bench.T) {
+test "bench skinned_instanced_lit_uniform_dwords 32bones_16inst x100" (
+  b : @bench.T,
+) {
   let view_projection = @math3d.Mat4::translation(0.0, 0.0, 0.0)
   let lighting = @light3d.LightingEnvironment::default()
   let bones = bench_skin_matrices(32)
@@ -113,7 +115,9 @@ test "bench instanced_lit_uniform_dwords 64inst x100" (b : @bench.T) {
   b.bench(name="draw3d/instanced_lit_uniform_dwords_100", fn() {
     let mut acc = 0
     for _i in 0..<100 {
-      let dw = instanced_lit_uniform_dwords(view_projection, lighting, inst_m, inst_c)
+      let dw = instanced_lit_uniform_dwords(
+        view_projection, lighting, inst_m, inst_c,
+      )
       acc = acc + dw.length()
     }
     b.keep(acc)

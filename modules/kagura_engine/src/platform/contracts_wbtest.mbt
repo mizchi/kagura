@@ -26,9 +26,7 @@ let test_native_capture_calls : Ref[Int] = Ref(0)
 let test_native_fullscreen_value : Ref[Bool] = Ref(false)
 
 ///|
-let test_native_cursor_mode_value : Ref[CursorMode] = Ref(
-  CursorMode::Visible,
-)
+let test_native_cursor_mode_value : Ref[CursorMode] = Ref(CursorMode::Visible)
 
 ///|
 let test_native_device_scale_factor_value : Ref[Double] = Ref(1.0)

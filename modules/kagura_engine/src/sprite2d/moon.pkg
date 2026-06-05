@@ -1,6 +1,6 @@
 import {
-  "moonbitlang/core/bench" @bench,
-  "mizchi/atlas" @atlas,
-  "mizchi/renderer2d" @renderer2d,
-  "mizchi/gfx" @gfx,
+  "moonbitlang/core/bench",
+  "mizchi/atlas",
+  "mizchi/renderer2d",
+  "mizchi/gfx",
 }

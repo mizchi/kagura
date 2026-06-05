@@ -30,12 +30,7 @@ fn install_test_web_hooks(max_polls? : Int = 3) -> Unit {
         @core.new_outside_size(width.to_double(), height.to_double())
       },
       fn(_canvas_selector, options) {
-        @gfx.create_webgpu_surface_token(
-          77,
-          options.width,
-          options.height,
-          1.0,
-        )
+        @gfx.create_webgpu_surface_token(77, options.width, options.height, 1.0)
       },
       fn(_active, _tick) { @core.empty_input_snapshot() },
       fn(_canvas_selector, _active, enabled) { enabled },
@@ -78,12 +73,7 @@ fn install_test_web_hooks_with_tick_input(max_polls? : Int = 3) -> Unit {
         @core.new_outside_size(width.to_double(), height.to_double())
       },
       fn(_canvas_selector, options) {
-        @gfx.create_webgpu_surface_token(
-          77,
-          options.width,
-          options.height,
-          1.0,
-        )
+        @gfx.create_webgpu_surface_token(77, options.width, options.height, 1.0)
       },
       fn(_active, tick) {
         @core.new_input_snapshot_full(0.0, 0.0, 0.0, 0.0, [tick], [], [], [])
@@ -219,7 +209,7 @@ struct RunLoopProbeSummary {
 } derive(Debug)
 
 ///|
-pub impl Show for RunLoopProbeSummary with output(self, logger) {
+pub impl Show for RunLoopProbeSummary with fn output(self, logger) {
   logger.write_object(to_repr(self))
 }
 
@@ -276,12 +266,7 @@ fn run_terminating_probe_with_webgpu(
         @core.new_outside_size(width.to_double(), height.to_double())
       },
       fn(_canvas_selector, options) {
-        @gfx.create_webgpu_surface_token(
-          77,
-          options.width,
-          options.height,
-          1.0,
-        )
+        @gfx.create_webgpu_surface_token(77, options.width, options.height, 1.0)
       },
       fn(_active, tick) {
         @core.new_input_snapshot_full(0.0, 0.0, 0.0, 0.0, [tick], [], [], [])
@@ -565,12 +550,7 @@ fn run_resized_frame_sizes_with_webgpu() -> (Array[Int], Array[Int]) raise {
         }
       },
       fn(_canvas_selector, options) {
-        @gfx.create_webgpu_surface_token(
-          77,
-          options.width,
-          options.height,
-          1.0,
-        )
+        @gfx.create_webgpu_surface_token(77, options.width, options.height, 1.0)
       },
       fn(_active, _tick) { @core.empty_input_snapshot() },
       fn(_canvas_selector, _active, enabled) { enabled },

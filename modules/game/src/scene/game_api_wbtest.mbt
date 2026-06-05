@@ -10,12 +10,12 @@ fn TestSceneGame::new() -> TestSceneGame {
 }
 
 ///|
-impl SceneGame for TestSceneGame with update_game(self, _input) {
+impl SceneGame for TestSceneGame with fn update_game(self, _input) {
   self.update_count += 1
 }
 
 ///|
-impl SceneGame for TestSceneGame with view_game(self) {
+impl SceneGame for TestSceneGame with fn view_game(self) {
   self.view_count += 1
   rect(w=1.0, h=1.0)
 }

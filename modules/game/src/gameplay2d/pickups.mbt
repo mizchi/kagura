@@ -8,7 +8,7 @@ pub(all) struct PickupRewardConfig {
 } derive(Eq, Debug)
 
 ///|
-pub impl Show for PickupRewardConfig with output(self, logger) {
+pub impl Show for PickupRewardConfig with fn output(self, logger) {
   logger.write_object(to_repr(self))
 }
 
@@ -20,7 +20,7 @@ pub(all) struct BuiltinPickupResult {
 } derive(Eq, Debug)
 
 ///|
-pub impl Show for BuiltinPickupResult with output(self, logger) {
+pub impl Show for BuiltinPickupResult with fn output(self, logger) {
   logger.write_object(to_repr(self))
 }
 
@@ -41,7 +41,7 @@ pub(all) struct EquipmentPickupPlan {
 } derive(Eq, Debug)
 
 ///|
-pub impl Show for EquipmentPickupPlan with output(self, logger) {
+pub impl Show for EquipmentPickupPlan with fn output(self, logger) {
   logger.write_object(to_repr(self))
 }
 
@@ -52,7 +52,7 @@ pub(all) enum PickupResolution {
 } derive(Eq, Debug)
 
 ///|
-pub impl Show for PickupResolution with output(self, logger) {
+pub impl Show for PickupResolution with fn output(self, logger) {
   logger.write_object(to_repr(self))
 }
 

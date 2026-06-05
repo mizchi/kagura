@@ -5,7 +5,7 @@ pub(all) struct Sphere {
 } derive(Debug)
 
 ///|
-pub impl Show for Sphere with output(self, logger) {
+pub impl Show for Sphere with fn output(self, logger) {
   logger.write_object(to_repr(self))
 }
 

@@ -6,7 +6,7 @@ pub(all) struct AssetStreamerConfig {
 } derive(Debug)
 
 ///|
-pub impl Show for AssetStreamerConfig with output(self, logger) {
+pub impl Show for AssetStreamerConfig with fn output(self, logger) {
   logger.write_object(to_repr(self))
 }
 
@@ -23,7 +23,7 @@ pub(all) struct DistanceThresholds {
 } derive(Debug)
 
 ///|
-pub impl Show for DistanceThresholds with output(self, logger) {
+pub impl Show for DistanceThresholds with fn output(self, logger) {
   logger.write_object(to_repr(self))
 }
 

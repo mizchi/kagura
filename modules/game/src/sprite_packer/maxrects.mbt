@@ -8,7 +8,7 @@ struct Rect {
 } derive(Debug, Eq)
 
 ///|
-pub impl Show for Rect with output(self, logger) {
+pub impl Show for Rect with fn output(self, logger) {
   logger.write_object(to_repr(self))
 }
 
@@ -32,7 +32,7 @@ struct AllocResult {
 } derive(Debug)
 
 ///|
-pub impl Show for AllocResult with output(self, logger) {
+pub impl Show for AllocResult with fn output(self, logger) {
   logger.write_object(to_repr(self))
 }
 

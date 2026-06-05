@@ -1,11 +1,11 @@
 import {
-  "moonbitlang/core/bench" @bench,
-  "moonbitlang/core/math" @math,
-  "mizchi/atlas" @atlas,
-  "mizchi/gfx" @gfx,
+  "moonbitlang/core/bench",
+  "moonbitlang/core/math",
+  "mizchi/atlas",
+  "mizchi/gfx",
   "mizchi/kagura_core" @core,
-  "mizchi/geom/vector" @vector,
-  "mizchi/kagura_core/inpututil" @inpututil,
+  "mizchi/geom/vector",
+  "mizchi/kagura_core/inpututil",
   "mizchi/svg" @msvg,
 }
 

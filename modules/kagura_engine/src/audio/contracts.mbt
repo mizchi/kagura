@@ -13,7 +13,7 @@ pub struct AudioFormat {
 } derive(Debug)
 
 ///|
-pub impl Show for AudioFormat with output(self, logger) {
+pub impl Show for AudioFormat with fn output(self, logger) {
   logger.write_object(to_repr(self))
 }
 
@@ -79,7 +79,7 @@ pub enum PlayerState {
 } derive(Debug)
 
 ///|
-pub impl Show for PlayerState with output(self, logger) {
+pub impl Show for PlayerState with fn output(self, logger) {
   logger.write_object(to_repr(self))
 }
 
@@ -89,7 +89,7 @@ pub(all) struct PlayerId {
 } derive(Debug)
 
 ///|
-pub impl Show for PlayerId with output(self, logger) {
+pub impl Show for PlayerId with fn output(self, logger) {
   logger.write_object(to_repr(self))
 }
 
@@ -101,7 +101,7 @@ pub struct AudioClip {
 } derive(Debug)
 
 ///|
-pub impl Show for AudioClip with output(self, logger) {
+pub impl Show for AudioClip with fn output(self, logger) {
   logger.write_object(to_repr(self))
 }
 
@@ -127,33 +127,33 @@ pub fn clip_duration(clip : AudioClip) -> Double {
 ///|
 pub trait AudioStream {
   /// Read PCM samples into the buffer. Returns number of bytes read.
-  read(Self, buf : FixedArray[Byte], length : Int) -> Int
+  fn read(Self, buf : FixedArray[Byte], length : Int) -> Int
   /// Total length in bytes, or -1 if unknown (e.g., streaming).
-  content_length(Self) -> Int
+  fn content_length(Self) -> Int
 }
 
 ///|
 pub trait AudioContext {
   /// Create a player for the given clip.
-  create_player(Self, clip : AudioClip) -> PlayerId raise
+  fn create_player(Self, clip : AudioClip) -> PlayerId raise
   /// Start playback.
-  play(Self, id : PlayerId) -> Unit raise
+  fn play(Self, id : PlayerId) -> Unit raise
   /// Pause playback.
-  pause(Self, id : PlayerId) -> Unit raise
+  fn pause(Self, id : PlayerId) -> Unit raise
   /// Stop and rewind.
-  stop(Self, id : PlayerId) -> Unit raise
+  fn stop(Self, id : PlayerId) -> Unit raise
   /// Get current state.
-  state(Self, id : PlayerId) -> PlayerState
+  fn state(Self, id : PlayerId) -> PlayerState
   /// Set volume (0.0 to 1.0).
-  set_volume(Self, id : PlayerId, volume : Double) -> Unit
+  fn set_volume(Self, id : PlayerId, volume : Double) -> Unit
   /// Get current playback position in seconds.
-  current_position(Self, id : PlayerId) -> Double
+  fn current_position(Self, id : PlayerId) -> Double
   /// Seek to position in seconds.
-  seek(Self, id : PlayerId, position : Double) -> Unit raise
+  fn seek(Self, id : PlayerId, position : Double) -> Unit raise
   /// Set stereo pan (-1.0 left, 0.0 center, 1.0 right).
-  set_pan(Self, id : PlayerId, pan : Double) -> Unit
+  fn set_pan(Self, id : PlayerId, pan : Double) -> Unit
   /// Dispose player.
-  dispose(Self, id : PlayerId) -> Unit
+  fn dispose(Self, id : PlayerId) -> Unit
 }
 
 ///|
@@ -191,7 +191,7 @@ fn SimpleAudioContext::find_player(
 }
 
 ///|
-pub impl AudioContext for SimpleAudioContext with create_player(self, clip) {
+pub impl AudioContext for SimpleAudioContext with fn create_player(self, clip) {
   let id : PlayerId = { value: self.next_id }
   self.next_id = self.next_id + 1
   self.players.push({
@@ -205,7 +205,7 @@ pub impl AudioContext for SimpleAudioContext with create_player(self, clip) {
 }
 
 ///|
-pub impl AudioContext for SimpleAudioContext with play(self, id) {
+pub impl AudioContext for SimpleAudioContext with fn play(self, id) {
   match self.find_player(id) {
     Some(player) => player.state = PlayerState::Playing
     None => ()
@@ -213,7 +213,7 @@ pub impl AudioContext for SimpleAudioContext with play(self, id) {
 }
 
 ///|
-pub impl AudioContext for SimpleAudioContext with pause(self, id) {
+pub impl AudioContext for SimpleAudioContext with fn pause(self, id) {
   match self.find_player(id) {
     Some(player) => player.state = PlayerState::Paused
     None => ()
@@ -221,7 +221,7 @@ pub impl AudioContext for SimpleAudioContext with pause(self, id) {
 }
 
 ///|
-pub impl AudioContext for SimpleAudioContext with stop(self, id) {
+pub impl AudioContext for SimpleAudioContext with fn stop(self, id) {
   match self.find_player(id) {
     Some(player) => {
       player.state = PlayerState::Stopped
@@ -232,7 +232,7 @@ pub impl AudioContext for SimpleAudioContext with stop(self, id) {
 }
 
 ///|
-pub impl AudioContext for SimpleAudioContext with state(self, id) {
+pub impl AudioContext for SimpleAudioContext with fn state(self, id) {
   match self.find_player(id) {
     Some(player) => player.state
     None => PlayerState::Stopped
@@ -240,7 +240,11 @@ pub impl AudioContext for SimpleAudioContext with state(self, id) {
 }
 
 ///|
-pub impl AudioContext for SimpleAudioContext with set_volume(self, id, volume) {
+pub impl AudioContext for SimpleAudioContext with fn set_volume(
+  self,
+  id,
+  volume,
+) {
   match self.find_player(id) {
     Some(player) =>
       player.volume = if volume < 0.0 {
@@ -255,12 +259,12 @@ pub impl AudioContext for SimpleAudioContext with set_volume(self, id, volume) {
 }
 
 ///|
-pub impl AudioContext for SimpleAudioContext with set_pan(_self, _id, _pan) {
+pub impl AudioContext for SimpleAudioContext with fn set_pan(_self, _id, _pan) {
   // SimpleAudioContext does not support stereo panning
 }
 
 ///|
-pub impl AudioContext for SimpleAudioContext with current_position(self, id) {
+pub impl AudioContext for SimpleAudioContext with fn current_position(self, id) {
   match self.find_player(id) {
     Some(player) =>
       samples_to_duration(player.clip.format, player.position_samples)
@@ -269,7 +273,7 @@ pub impl AudioContext for SimpleAudioContext with current_position(self, id) {
 }
 
 ///|
-pub impl AudioContext for SimpleAudioContext with seek(self, id, position) {
+pub impl AudioContext for SimpleAudioContext with fn seek(self, id, position) {
   match self.find_player(id) {
     Some(player) =>
       player.position_samples = duration_to_samples(
@@ -281,7 +285,7 @@ pub impl AudioContext for SimpleAudioContext with seek(self, id, position) {
 }
 
 ///|
-pub impl AudioContext for SimpleAudioContext with dispose(self, id) {
+pub impl AudioContext for SimpleAudioContext with fn dispose(self, id) {
   self.players = self.players.filter(fn(p) { p.id.value != id.value })
 }
 
@@ -447,7 +451,7 @@ pub fn AudioClipStream::remaining(self : AudioClipStream) -> Int {
 }
 
 ///|
-pub impl AudioStream for AudioClipStream with read(self, buf, length) {
+pub impl AudioStream for AudioClipStream with fn read(self, buf, length) {
   let available = self.clip.data.length() - self.position
   let to_read = if length < available { length } else { available }
   if to_read > buf.length() {
@@ -466,7 +470,7 @@ pub impl AudioStream for AudioClipStream with read(self, buf, length) {
 }
 
 ///|
-pub impl AudioStream for AudioClipStream with content_length(self) {
+pub impl AudioStream for AudioClipStream with fn content_length(self) {
   self.clip.data.length()
 }
 
@@ -540,7 +544,7 @@ pub fn BufferedAudioStream::reset(self : BufferedAudioStream) -> Unit {
 }
 
 ///|
-pub impl AudioStream for BufferedAudioStream with read(self, buf, length) {
+pub impl AudioStream for BufferedAudioStream with fn read(self, buf, length) {
   let mut written = 0
   let to_read = if length < buf.length() { length } else { buf.length() }
   while written < to_read && self.read_chunk_idx < self.chunks.length() {
@@ -562,7 +566,7 @@ pub impl AudioStream for BufferedAudioStream with read(self, buf, length) {
 }
 
 ///|
-pub impl AudioStream for BufferedAudioStream with content_length(self) {
+pub impl AudioStream for BufferedAudioStream with fn content_length(self) {
   if self.finalized {
     self.final_length
   } else {
@@ -616,7 +620,7 @@ fn MixerAudioContext::find_voice_id(
 }
 
 ///|
-pub impl AudioContext for MixerAudioContext with create_player(self, clip) {
+pub impl AudioContext for MixerAudioContext with fn create_player(self, clip) {
   let buffer = clip_to_audio_buffer(clip)
   let voice = @ma.new_voice_from_buffer(self.mixer, buffer, looping=clip.loop_)
   let voice_id = @ma.add_voice(self.mixer, voice)
@@ -630,7 +634,7 @@ pub impl AudioContext for MixerAudioContext with create_player(self, clip) {
 }
 
 ///|
-pub impl AudioContext for MixerAudioContext with play(self, id) {
+pub impl AudioContext for MixerAudioContext with fn play(self, id) {
   match self.find_voice_id(id) {
     Some(vid) =>
       match @ma.find_voice(self.mixer, vid) {
@@ -642,7 +646,7 @@ pub impl AudioContext for MixerAudioContext with play(self, id) {
 }
 
 ///|
-pub impl AudioContext for MixerAudioContext with pause(self, id) {
+pub impl AudioContext for MixerAudioContext with fn pause(self, id) {
   match self.find_voice_id(id) {
     Some(vid) => {
       let _ = @ma.pause_voice(self.mixer, vid)
@@ -652,7 +656,7 @@ pub impl AudioContext for MixerAudioContext with pause(self, id) {
 }
 
 ///|
-pub impl AudioContext for MixerAudioContext with stop(self, id) {
+pub impl AudioContext for MixerAudioContext with fn stop(self, id) {
   match self.find_voice_id(id) {
     Some(vid) => {
       let _ = @ma.stop_voice(self.mixer, vid)
@@ -662,7 +666,7 @@ pub impl AudioContext for MixerAudioContext with stop(self, id) {
 }
 
 ///|
-pub impl AudioContext for MixerAudioContext with state(self, id) {
+pub impl AudioContext for MixerAudioContext with fn state(self, id) {
   match self.find_voice_id(id) {
     Some(vid) =>
       match @ma.voice_state(self.mixer, vid) {
@@ -675,7 +679,7 @@ pub impl AudioContext for MixerAudioContext with state(self, id) {
 }
 
 ///|
-pub impl AudioContext for MixerAudioContext with set_volume(self, id, volume) {
+pub impl AudioContext for MixerAudioContext with fn set_volume(self, id, volume) {
   match self.find_voice_id(id) {
     Some(vid) =>
       match @ma.find_voice(self.mixer, vid) {
@@ -696,7 +700,7 @@ pub impl AudioContext for MixerAudioContext with set_volume(self, id, volume) {
 }
 
 ///|
-pub impl AudioContext for MixerAudioContext with set_pan(self, id, pan) {
+pub impl AudioContext for MixerAudioContext with fn set_pan(self, id, pan) {
   match self.find_voice_id(id) {
     Some(vid) =>
       match @ma.find_voice(self.mixer, vid) {
@@ -717,7 +721,7 @@ pub impl AudioContext for MixerAudioContext with set_pan(self, id, pan) {
 }
 
 ///|
-pub impl AudioContext for MixerAudioContext with current_position(self, id) {
+pub impl AudioContext for MixerAudioContext with fn current_position(self, id) {
   match self.find_voice_id(id) {
     Some(vid) =>
       match @ma.voice_position(self.mixer, vid) {
@@ -729,7 +733,7 @@ pub impl AudioContext for MixerAudioContext with current_position(self, id) {
 }
 
 ///|
-pub impl AudioContext for MixerAudioContext with seek(self, id, position) {
+pub impl AudioContext for MixerAudioContext with fn seek(self, id, position) {
   match self.find_voice_id(id) {
     Some(vid) =>
       match @ma.find_voice(self.mixer, vid) {
@@ -744,7 +748,7 @@ pub impl AudioContext for MixerAudioContext with seek(self, id, position) {
 }
 
 ///|
-pub impl AudioContext for MixerAudioContext with dispose(self, id) {
+pub impl AudioContext for MixerAudioContext with fn dispose(self, id) {
   match self.find_voice_id(id) {
     Some(vid) => {
       let _ = @ma.stop_voice(self.mixer, vid)
@@ -1152,7 +1156,7 @@ pub struct AudioOutputStats {
 } derive(Debug)
 
 ///|
-pub impl Show for AudioOutputStats with output(self, logger) {
+pub impl Show for AudioOutputStats with fn output(self, logger) {
   logger.write_object(to_repr(self))
 }
 

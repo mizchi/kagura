@@ -1,4 +1,4 @@
 import {
   "mizchi/kagura_core" @core,
-  "mizchi/gfx" @gfx,
+  "mizchi/gfx",
 }

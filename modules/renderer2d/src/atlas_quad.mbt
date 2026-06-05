@@ -45,6 +45,8 @@ pub fn atlas_quad_vertex_data(
 
 // Must mirror `mix_resource_cache_key` in mizchi/gfx/src/contracts.mbt.
 // Kept local so we can hash inline without allocating a values array.
+
+///|
 fn mix_cache_key(seed : Int, value : Int) -> Int {
   seed * 16777619 + value + 31
 }
@@ -54,6 +56,8 @@ fn mix_cache_key(seed : Int, value : Int) -> Int {
 // gfx's queue propagates this value but never compares it. Scaling by 4096
 // keeps sub-quarter-pixel resolution which is finer than sprite cache_key
 // needs across the typical screen-coordinate range.
+
+///|
 fn double_cache_bits(v : Double) -> Int {
   (v * 4096.0).to_int()
 }

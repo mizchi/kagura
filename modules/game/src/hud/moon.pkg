@@ -1,6 +1,6 @@
 import {
-  "mizchi/gfx" @gfx,
-  "mizchi/renderer2d" @renderer2d,
-  "mizchi/text" @text,
-  "mizchi/font" @font,
+  "mizchi/gfx",
+  "mizchi/renderer2d",
+  "mizchi/text",
+  "mizchi/font",
 }

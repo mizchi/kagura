@@ -94,9 +94,7 @@ test "simple image repository reuses handle for duplicate keys" {
 test "image spec with palette is retained in simple image repository" {
   let repo = new_simple_image_repository()
   let key : AssetKey = { value: "ui/button" }
-  let palette = new_solid_palette(
-    new_rgba(12, 34, 56, 255),
-  )
+  let palette = new_solid_palette(new_rgba(12, 34, 56, 255))
   let spec = image_spec_with_palette(8, 8, palette)
   let handle = repo.create_image(key, spec)
 
@@ -119,19 +117,11 @@ test "list_image_palette_bindings exports all current images" {
   let key_b : AssetKey = { value: "b" }
   let handle_a = repo.create_image(
     key_a,
-    image_spec_with_palette(
-      4,
-      4,
-      new_solid_palette(new_rgba(1, 2, 3, 4)),
-    ),
+    image_spec_with_palette(4, 4, new_solid_palette(new_rgba(1, 2, 3, 4))),
   )
   let handle_b = repo.create_image(
     key_b,
-    image_spec_with_palette(
-      4,
-      4,
-      new_solid_palette(new_rgba(9, 8, 7, 6)),
-    ),
+    image_spec_with_palette(4, 4, new_solid_palette(new_rgba(9, 8, 7, 6))),
   )
 
   let bindings = list_image_palette_bindings(repo)

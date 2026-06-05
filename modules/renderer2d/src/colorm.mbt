@@ -19,7 +19,7 @@ pub struct ColorM {
 } derive(Debug)
 
 ///|
-pub impl Show for ColorM with output(self, logger) {
+pub impl Show for ColorM with fn output(self, logger) {
   logger.write_object(to_repr(self))
 }
 

@@ -1,4 +1,4 @@
 import {
-  "moonbitlang/core/math" @math,
-  "mizchi/geom/math3d" @math3d,
+  "moonbitlang/core/math",
+  "mizchi/geom/math3d",
 }

@@ -30,7 +30,7 @@ fn contains_int(arr : Array[Int], value : Int) -> Bool {
 }
 
 ///|
-pub impl UIInputAdapter for SimpleUIInputAdapter with from_input_snapshot(
+pub impl UIInputAdapter for SimpleUIInputAdapter with fn from_input_snapshot(
   self,
   snapshot,
 ) {

@@ -19,7 +19,7 @@ fn new_mock_fetcher() -> MockFetcher {
 }
 
 ///|
-impl @atlas.BytesFetcher for MockFetcher with fetch(
+impl @atlas.BytesFetcher for MockFetcher with fn fetch(
   self,
   url,
   on_progress,
@@ -38,7 +38,7 @@ impl @atlas.BytesFetcher for MockFetcher with fetch(
 }
 
 ///|
-impl @atlas.BytesFetcher for MockFetcher with cancel(self, handle) {
+impl @atlas.BytesFetcher for MockFetcher with fn cancel(self, handle) {
   for req in self.requests {
     if req.id == handle.id {
       req.cancelled = true
@@ -47,7 +47,7 @@ impl @atlas.BytesFetcher for MockFetcher with cancel(self, handle) {
 }
 
 ///|
-impl @atlas.BytesFetcher for MockFetcher with poll(_) {
+impl @atlas.BytesFetcher for MockFetcher with fn poll(_) {
   // no-op for mock
 }
 

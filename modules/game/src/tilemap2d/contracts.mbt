@@ -17,7 +17,7 @@ pub struct AtlasTileDrawSpec {
 } derive(Debug)
 
 ///|
-pub impl Show for AtlasTileDrawSpec with output(self, logger) {
+pub impl Show for AtlasTileDrawSpec with fn output(self, logger) {
   logger.write_object(to_repr(self))
 }
 
@@ -28,7 +28,7 @@ pub struct TileAtlasEntry {
 } derive(Debug)
 
 ///|
-pub impl Show for TileAtlasEntry with output(self, logger) {
+pub impl Show for TileAtlasEntry with fn output(self, logger) {
   logger.write_object(to_repr(self))
 }
 
@@ -38,7 +38,7 @@ pub struct TileAtlasTable {
 } derive(Debug)
 
 ///|
-pub impl Show for TileAtlasTable with output(self, logger) {
+pub impl Show for TileAtlasTable with fn output(self, logger) {
   logger.write_object(to_repr(self))
 }
 
@@ -51,7 +51,7 @@ pub struct TileChunkRect {
 } derive(Debug)
 
 ///|
-pub impl Show for TileChunkRect with output(self, logger) {
+pub impl Show for TileChunkRect with fn output(self, logger) {
   logger.write_object(to_repr(self))
 }
 
@@ -69,7 +69,7 @@ struct TileChunkOrigin {
 } derive(Debug)
 
 ///|
-pub impl Show for TileChunkOrigin with output(self, logger) {
+pub impl Show for TileChunkOrigin with fn output(self, logger) {
   logger.write_object(to_repr(self))
 }
 
@@ -323,7 +323,7 @@ struct ResolvedTileQuad {
 } derive(Debug)
 
 ///|
-pub impl Show for ResolvedTileQuad with output(self, logger) {
+pub impl Show for ResolvedTileQuad with fn output(self, logger) {
   logger.write_object(to_repr(self))
 }
 
@@ -486,12 +486,16 @@ fn page_slot_of(page_ids : Array[Int], page_image_id : Int) -> Int {
 // Mirrors mix_resource_cache_key in mizchi/gfx; local so the per-vertex
 // hash chain runs inline without allocating a values array. See
 // renderer2d/atlas_quad.mbt for rationale.
+
+///|
 fn mix_cache_key(seed : Int, value : Int) -> Int {
   seed * 16777619 + value + 31
 }
 
 // Cheap deterministic 32-bit hash for a Double in non-functional cache_key
 // metadata. Avoids the int64 round-trip in @gfx.double_to_f32_bits.
+
+///|
 fn double_cache_bits(v : Double) -> Int {
   (v * 4096.0).to_int()
 }

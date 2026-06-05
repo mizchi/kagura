@@ -17,7 +17,7 @@ pub struct WindowOptions {
 } derive(Debug)
 
 ///|
-pub impl Show for WindowOptions with output(self, logger) {
+pub impl Show for WindowOptions with fn output(self, logger) {
   logger.write_object(to_repr(self))
 }
 
@@ -30,7 +30,7 @@ pub struct MonitorInfo {
 } derive(Debug)
 
 ///|
-pub impl Show for MonitorInfo with output(self, logger) {
+pub impl Show for MonitorInfo with fn output(self, logger) {
   logger.write_object(to_repr(self))
 }
 
@@ -42,7 +42,7 @@ pub enum FullscreenMode {
 } derive(Debug)
 
 ///|
-pub impl Show for FullscreenMode with output(self, logger) {
+pub impl Show for FullscreenMode with fn output(self, logger) {
   logger.write_object(to_repr(self))
 }
 
@@ -72,7 +72,7 @@ pub enum CursorMode {
 } derive(Debug)
 
 ///|
-pub impl Show for CursorMode with output(self, logger) {
+pub impl Show for CursorMode with fn output(self, logger) {
   logger.write_object(to_repr(self))
 }
 
@@ -103,7 +103,7 @@ pub enum AsyncRequestStatus {
 } derive(Debug)
 
 ///|
-pub impl Show for AsyncRequestStatus with output(self, logger) {
+pub impl Show for AsyncRequestStatus with fn output(self, logger) {
   logger.write_object(to_repr(self))
 }
 
@@ -142,50 +142,50 @@ pub fn new_window_options(
 ///|
 pub trait PlatformDriver {
   /// Ebiten ref: UserInterface.init / Run
-  initialize(Self, options : WindowOptions) -> Unit raise
+  fn initialize(Self, options : WindowOptions) -> Unit raise
 
   /// Ebiten ref: ui.loopGame event pump
-  poll_events(Self) -> Unit
+  fn poll_events(Self) -> Unit
 
   /// Ebiten ref: window close handling in ui/inputstate
-  should_close(Self) -> Bool
+  fn should_close(Self) -> Bool
 
   /// Ebiten ref: Game.Layout outside size inputs
-  outside_size(Self) -> @core.OutsideSize
+  fn outside_size(Self) -> @core.OutsideSize
 
   /// Ebiten ref: inputstate snapshot per tick
-  capture_input(Self, tick : Int) -> @core.InputSnapshot
+  fn capture_input(Self, tick : Int) -> @core.InputSnapshot
 
   /// Ebiten ref: device scale factor paths in ui/context
-  monitor_info(Self) -> MonitorInfo
+  fn monitor_info(Self) -> MonitorInfo
 
   /// Ebiten ref: SetFullscreen/IsFullscreen
-  set_fullscreen(Self, enabled : Bool) -> Unit
-  is_fullscreen(Self) -> Bool
+  fn set_fullscreen(Self, enabled : Bool) -> Unit
+  fn is_fullscreen(Self) -> Bool
 
   /// Ebiten ref: SetCursorMode/CursorMode
-  set_cursor_mode(Self, mode : CursorMode) -> Unit
-  cursor_mode(Self) -> CursorMode
+  fn set_cursor_mode(Self, mode : CursorMode) -> Unit
+  fn cursor_mode(Self) -> CursorMode
 
   /// Ebiten ref: DeviceScaleFactor
-  set_device_scale_factor(Self, scale : Double) -> Unit
-  device_scale_factor(Self) -> Double
+  fn set_device_scale_factor(Self, scale : Double) -> Unit
+  fn device_scale_factor(Self) -> Double
 
   /// Ebiten ref: SetVsyncEnabled/IsVsyncEnabled
-  set_vsync_enabled(Self, enabled : Bool) -> Unit
-  is_vsync_enabled(Self) -> Bool
+  fn set_vsync_enabled(Self, enabled : Bool) -> Unit
+  fn is_vsync_enabled(Self) -> Bool
 
   /// Ebiten ref: window close/requestAttention
-  close_window(Self) -> Unit
-  request_attention(Self) -> Unit
+  fn close_window(Self) -> Unit
+  fn request_attention(Self) -> Unit
 
   /// Mouse-to-touch fallback (opt-in, default false)
-  set_mouse_touch_fallback(Self, enabled : Bool) -> Unit
-  mouse_touch_fallback_enabled(Self) -> Bool
+  fn set_mouse_touch_fallback(Self, enabled : Bool) -> Unit
+  fn mouse_touch_fallback_enabled(Self) -> Bool
 
   /// Async request status for fullscreen and cursor mode
-  fullscreen_request_status(Self) -> AsyncRequestStatus
-  cursor_mode_request_status(Self) -> AsyncRequestStatus
+  fn fullscreen_request_status(Self) -> AsyncRequestStatus
+  fn cursor_mode_request_status(Self) -> AsyncRequestStatus
 }
 
 ///|
@@ -287,7 +287,10 @@ pub fn create_web_canvas_platform(
 }
 
 ///|
-pub impl PlatformDriver for DesktopGlfwPlatform with initialize(self, options) {
+pub impl PlatformDriver for DesktopGlfwPlatform with fn initialize(
+  self,
+  options,
+) {
   self.options = options
   self.native_active = desktop_try_native_initialize(options)
   self.initialized = true
@@ -313,7 +316,7 @@ pub impl PlatformDriver for DesktopGlfwPlatform with initialize(self, options) {
 }
 
 ///|
-pub impl PlatformDriver for DesktopGlfwPlatform with poll_events(self) {
+pub impl PlatformDriver for DesktopGlfwPlatform with fn poll_events(self) {
   if self.initialized {
     desktop_poll_native(self.native_active)
     self.poll_count = self.poll_count + 1
@@ -321,7 +324,7 @@ pub impl PlatformDriver for DesktopGlfwPlatform with poll_events(self) {
 }
 
 ///|
-pub impl PlatformDriver for DesktopGlfwPlatform with should_close(self) {
+pub impl PlatformDriver for DesktopGlfwPlatform with fn should_close(self) {
   if self.close_requested {
     true
   } else if self.native_active {
@@ -332,7 +335,7 @@ pub impl PlatformDriver for DesktopGlfwPlatform with should_close(self) {
 }
 
 ///|
-pub impl PlatformDriver for DesktopGlfwPlatform with outside_size(self) {
+pub impl PlatformDriver for DesktopGlfwPlatform with fn outside_size(self) {
   if self.native_active {
     desktop_native_outside_size(self.options.width, self.options.height)
   } else {
@@ -344,13 +347,16 @@ pub impl PlatformDriver for DesktopGlfwPlatform with outside_size(self) {
 }
 
 ///|
-pub impl PlatformDriver for DesktopGlfwPlatform with capture_input(self, tick) {
+pub impl PlatformDriver for DesktopGlfwPlatform with fn capture_input(
+  self,
+  tick,
+) {
   self.current_input = desktop_native_capture_input(self.native_active, tick)
   self.current_input
 }
 
 ///|
-pub impl PlatformDriver for DesktopGlfwPlatform with monitor_info(self) {
+pub impl PlatformDriver for DesktopGlfwPlatform with fn monitor_info(self) {
   let outside = self.outside_size()
   self.device_scale_factor = desktop_native_device_scale_factor(
     self.native_active,
@@ -368,7 +374,7 @@ pub impl PlatformDriver for DesktopGlfwPlatform with monitor_info(self) {
 }
 
 ///|
-pub impl PlatformDriver for DesktopGlfwPlatform with set_fullscreen(
+pub impl PlatformDriver for DesktopGlfwPlatform with fn set_fullscreen(
   self,
   enabled,
 ) {
@@ -377,7 +383,7 @@ pub impl PlatformDriver for DesktopGlfwPlatform with set_fullscreen(
 }
 
 ///|
-pub impl PlatformDriver for DesktopGlfwPlatform with is_fullscreen(self) {
+pub impl PlatformDriver for DesktopGlfwPlatform with fn is_fullscreen(self) {
   self.fullscreen = desktop_native_is_fullscreen(
     self.native_active,
     self.fullscreen,
@@ -386,13 +392,16 @@ pub impl PlatformDriver for DesktopGlfwPlatform with is_fullscreen(self) {
 }
 
 ///|
-pub impl PlatformDriver for DesktopGlfwPlatform with set_cursor_mode(self, mode) {
+pub impl PlatformDriver for DesktopGlfwPlatform with fn set_cursor_mode(
+  self,
+  mode,
+) {
   self.cursor_mode = desktop_native_set_cursor_mode(self.native_active, mode)
   self.cursor_mode_request_status = AsyncRequestStatus::Confirmed
 }
 
 ///|
-pub impl PlatformDriver for DesktopGlfwPlatform with cursor_mode(self) {
+pub impl PlatformDriver for DesktopGlfwPlatform with fn cursor_mode(self) {
   self.cursor_mode = desktop_native_cursor_mode(
     self.native_active,
     self.cursor_mode,
@@ -401,7 +410,7 @@ pub impl PlatformDriver for DesktopGlfwPlatform with cursor_mode(self) {
 }
 
 ///|
-pub impl PlatformDriver for DesktopGlfwPlatform with set_device_scale_factor(
+pub impl PlatformDriver for DesktopGlfwPlatform with fn set_device_scale_factor(
   self,
   scale,
 ) {
@@ -416,7 +425,9 @@ pub impl PlatformDriver for DesktopGlfwPlatform with set_device_scale_factor(
 }
 
 ///|
-pub impl PlatformDriver for DesktopGlfwPlatform with device_scale_factor(self) {
+pub impl PlatformDriver for DesktopGlfwPlatform with fn device_scale_factor(
+  self,
+) {
   self.device_scale_factor = desktop_native_device_scale_factor(
     self.native_active,
     self.device_scale_factor,
@@ -428,7 +439,7 @@ pub impl PlatformDriver for DesktopGlfwPlatform with device_scale_factor(self) {
 }
 
 ///|
-pub impl PlatformDriver for DesktopGlfwPlatform with set_vsync_enabled(
+pub impl PlatformDriver for DesktopGlfwPlatform with fn set_vsync_enabled(
   self,
   enabled,
 ) {
@@ -439,7 +450,7 @@ pub impl PlatformDriver for DesktopGlfwPlatform with set_vsync_enabled(
 }
 
 ///|
-pub impl PlatformDriver for DesktopGlfwPlatform with is_vsync_enabled(self) {
+pub impl PlatformDriver for DesktopGlfwPlatform with fn is_vsync_enabled(self) {
   self.vsync_enabled = desktop_native_is_vsync_enabled(
     self.native_active,
     self.vsync_enabled,
@@ -448,19 +459,19 @@ pub impl PlatformDriver for DesktopGlfwPlatform with is_vsync_enabled(self) {
 }
 
 ///|
-pub impl PlatformDriver for DesktopGlfwPlatform with close_window(self) {
+pub impl PlatformDriver for DesktopGlfwPlatform with fn close_window(self) {
   self.close_requested = true
   desktop_native_close_window(self.native_active)
 }
 
 ///|
-pub impl PlatformDriver for DesktopGlfwPlatform with request_attention(self) {
+pub impl PlatformDriver for DesktopGlfwPlatform with fn request_attention(self) {
   self.attention_requests = self.attention_requests + 1
   desktop_native_request_attention(self.native_active)
 }
 
 ///|
-pub impl PlatformDriver for DesktopGlfwPlatform with set_mouse_touch_fallback(
+pub impl PlatformDriver for DesktopGlfwPlatform with fn set_mouse_touch_fallback(
   self,
   enabled,
 ) {
@@ -469,28 +480,28 @@ pub impl PlatformDriver for DesktopGlfwPlatform with set_mouse_touch_fallback(
 }
 
 ///|
-pub impl PlatformDriver for DesktopGlfwPlatform with mouse_touch_fallback_enabled(
+pub impl PlatformDriver for DesktopGlfwPlatform with fn mouse_touch_fallback_enabled(
   self,
 ) {
   self.mouse_touch_fallback
 }
 
 ///|
-pub impl PlatformDriver for DesktopGlfwPlatform with fullscreen_request_status(
+pub impl PlatformDriver for DesktopGlfwPlatform with fn fullscreen_request_status(
   self,
 ) {
   self.fullscreen_request_status
 }
 
 ///|
-pub impl PlatformDriver for DesktopGlfwPlatform with cursor_mode_request_status(
+pub impl PlatformDriver for DesktopGlfwPlatform with fn cursor_mode_request_status(
   self,
 ) {
   self.cursor_mode_request_status
 }
 
 ///|
-pub impl PlatformDriver for WebCanvasPlatform with initialize(self, options) {
+pub impl PlatformDriver for WebCanvasPlatform with fn initialize(self, options) {
   self.options = options
   self.web_active = web_try_initialize(self.canvas_selector, options)
   self.initialized = true
@@ -520,7 +531,7 @@ pub impl PlatformDriver for WebCanvasPlatform with initialize(self, options) {
 }
 
 ///|
-pub impl PlatformDriver for WebCanvasPlatform with poll_events(self) {
+pub impl PlatformDriver for WebCanvasPlatform with fn poll_events(self) {
   if self.initialized {
     web_poll(self.web_active)
     self.poll_count = self.poll_count + 1
@@ -528,7 +539,7 @@ pub impl PlatformDriver for WebCanvasPlatform with poll_events(self) {
 }
 
 ///|
-pub impl PlatformDriver for WebCanvasPlatform with should_close(self) {
+pub impl PlatformDriver for WebCanvasPlatform with fn should_close(self) {
   if self.close_requested {
     true
   } else if self.web_active {
@@ -539,7 +550,7 @@ pub impl PlatformDriver for WebCanvasPlatform with should_close(self) {
 }
 
 ///|
-pub impl PlatformDriver for WebCanvasPlatform with outside_size(self) {
+pub impl PlatformDriver for WebCanvasPlatform with fn outside_size(self) {
   if self.web_active {
     web_outside_size(self.options.width, self.options.height)
   } else {
@@ -551,13 +562,13 @@ pub impl PlatformDriver for WebCanvasPlatform with outside_size(self) {
 }
 
 ///|
-pub impl PlatformDriver for WebCanvasPlatform with capture_input(self, tick) {
+pub impl PlatformDriver for WebCanvasPlatform with fn capture_input(self, tick) {
   self.current_input = web_capture_input(self.web_active, tick)
   self.current_input
 }
 
 ///|
-pub impl PlatformDriver for WebCanvasPlatform with monitor_info(self) {
+pub impl PlatformDriver for WebCanvasPlatform with fn monitor_info(self) {
   self.device_scale_factor = web_device_scale_factor(
     self.canvas_selector,
     self.web_active,
@@ -575,7 +586,10 @@ pub impl PlatformDriver for WebCanvasPlatform with monitor_info(self) {
 }
 
 ///|
-pub impl PlatformDriver for WebCanvasPlatform with set_fullscreen(self, enabled) {
+pub impl PlatformDriver for WebCanvasPlatform with fn set_fullscreen(
+  self,
+  enabled,
+) {
   self.fullscreen_request_status = AsyncRequestStatus::Pending
   self.fullscreen = web_set_fullscreen(
     self.canvas_selector,
@@ -585,7 +599,7 @@ pub impl PlatformDriver for WebCanvasPlatform with set_fullscreen(self, enabled)
 }
 
 ///|
-pub impl PlatformDriver for WebCanvasPlatform with is_fullscreen(self) {
+pub impl PlatformDriver for WebCanvasPlatform with fn is_fullscreen(self) {
   self.fullscreen = web_is_fullscreen(
     self.canvas_selector,
     self.web_active,
@@ -595,7 +609,10 @@ pub impl PlatformDriver for WebCanvasPlatform with is_fullscreen(self) {
 }
 
 ///|
-pub impl PlatformDriver for WebCanvasPlatform with set_cursor_mode(self, mode) {
+pub impl PlatformDriver for WebCanvasPlatform with fn set_cursor_mode(
+  self,
+  mode,
+) {
   self.cursor_mode_request_status = AsyncRequestStatus::Pending
   self.cursor_mode = web_set_cursor_mode(
     self.canvas_selector,
@@ -605,7 +622,7 @@ pub impl PlatformDriver for WebCanvasPlatform with set_cursor_mode(self, mode) {
 }
 
 ///|
-pub impl PlatformDriver for WebCanvasPlatform with cursor_mode(self) {
+pub impl PlatformDriver for WebCanvasPlatform with fn cursor_mode(self) {
   self.cursor_mode = web_cursor_mode(
     self.canvas_selector,
     self.web_active,
@@ -615,7 +632,7 @@ pub impl PlatformDriver for WebCanvasPlatform with cursor_mode(self) {
 }
 
 ///|
-pub impl PlatformDriver for WebCanvasPlatform with set_device_scale_factor(
+pub impl PlatformDriver for WebCanvasPlatform with fn set_device_scale_factor(
   self,
   scale,
 ) {
@@ -631,7 +648,7 @@ pub impl PlatformDriver for WebCanvasPlatform with set_device_scale_factor(
 }
 
 ///|
-pub impl PlatformDriver for WebCanvasPlatform with device_scale_factor(self) {
+pub impl PlatformDriver for WebCanvasPlatform with fn device_scale_factor(self) {
   self.device_scale_factor = web_device_scale_factor(
     self.canvas_selector,
     self.web_active,
@@ -644,7 +661,7 @@ pub impl PlatformDriver for WebCanvasPlatform with device_scale_factor(self) {
 }
 
 ///|
-pub impl PlatformDriver for WebCanvasPlatform with set_vsync_enabled(
+pub impl PlatformDriver for WebCanvasPlatform with fn set_vsync_enabled(
   self,
   enabled,
 ) {
@@ -656,7 +673,7 @@ pub impl PlatformDriver for WebCanvasPlatform with set_vsync_enabled(
 }
 
 ///|
-pub impl PlatformDriver for WebCanvasPlatform with is_vsync_enabled(self) {
+pub impl PlatformDriver for WebCanvasPlatform with fn is_vsync_enabled(self) {
   self.vsync_enabled = web_is_vsync_enabled(
     self.canvas_selector,
     self.web_active,
@@ -666,19 +683,19 @@ pub impl PlatformDriver for WebCanvasPlatform with is_vsync_enabled(self) {
 }
 
 ///|
-pub impl PlatformDriver for WebCanvasPlatform with close_window(self) {
+pub impl PlatformDriver for WebCanvasPlatform with fn close_window(self) {
   self.close_requested = true
   web_close_window(self.canvas_selector, self.web_active)
 }
 
 ///|
-pub impl PlatformDriver for WebCanvasPlatform with request_attention(self) {
+pub impl PlatformDriver for WebCanvasPlatform with fn request_attention(self) {
   self.attention_requests = self.attention_requests + 1
   web_request_attention(self.canvas_selector, self.web_active)
 }
 
 ///|
-pub impl PlatformDriver for WebCanvasPlatform with set_mouse_touch_fallback(
+pub impl PlatformDriver for WebCanvasPlatform with fn set_mouse_touch_fallback(
   self,
   enabled,
 ) {
@@ -687,14 +704,14 @@ pub impl PlatformDriver for WebCanvasPlatform with set_mouse_touch_fallback(
 }
 
 ///|
-pub impl PlatformDriver for WebCanvasPlatform with mouse_touch_fallback_enabled(
+pub impl PlatformDriver for WebCanvasPlatform with fn mouse_touch_fallback_enabled(
   self,
 ) {
   self.mouse_touch_fallback
 }
 
 ///|
-pub impl PlatformDriver for WebCanvasPlatform with fullscreen_request_status(
+pub impl PlatformDriver for WebCanvasPlatform with fn fullscreen_request_status(
   self,
 ) {
   let status = web_fullscreen_request_status(
@@ -707,7 +724,7 @@ pub impl PlatformDriver for WebCanvasPlatform with fullscreen_request_status(
 }
 
 ///|
-pub impl PlatformDriver for WebCanvasPlatform with cursor_mode_request_status(
+pub impl PlatformDriver for WebCanvasPlatform with fn cursor_mode_request_status(
   self,
 ) {
   let status = web_cursor_mode_request_status(

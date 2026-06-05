@@ -10,7 +10,7 @@ pub struct UINodeId {
 } derive(Debug)
 
 ///|
-pub impl Show for UINodeId with output(self, logger) {
+pub impl Show for UINodeId with fn output(self, logger) {
   logger.write_object(to_repr(self))
 }
 
@@ -23,7 +23,7 @@ pub struct LayoutConstraint {
 } derive(Debug)
 
 ///|
-pub impl Show for LayoutConstraint with output(self, logger) {
+pub impl Show for LayoutConstraint with fn output(self, logger) {
   logger.write_object(to_repr(self))
 }
 
@@ -36,7 +36,7 @@ pub struct LayoutRect {
 } derive(Debug)
 
 ///|
-pub impl Show for LayoutRect with output(self, logger) {
+pub impl Show for LayoutRect with fn output(self, logger) {
   logger.write_object(to_repr(self))
 }
 
@@ -47,7 +47,7 @@ pub struct LayoutResult {
 } derive(Debug)
 
 ///|
-pub impl Show for LayoutResult with output(self, logger) {
+pub impl Show for LayoutResult with fn output(self, logger) {
   logger.write_object(to_repr(self))
 }
 
@@ -62,25 +62,25 @@ pub enum UIEvent {
 } derive(Debug)
 
 ///|
-pub impl Show for UIEvent with output(self, logger) {
+pub impl Show for UIEvent with fn output(self, logger) {
   logger.write_object(to_repr(self))
 }
 
 ///|
 pub trait LayoutEngine {
-  compute_layout(Self, root : UINodeId, constraint : LayoutConstraint) -> Array[
+  fn compute_layout(Self, root : UINodeId, constraint : LayoutConstraint) -> Array[
     LayoutResult,
   ] raise
 }
 
 ///|
 pub trait UIInputAdapter {
-  from_input_snapshot(Self, snapshot : @core.InputSnapshot) -> Array[UIEvent]
+  fn from_input_snapshot(Self, snapshot : @core.InputSnapshot) -> Array[UIEvent]
 }
 
 ///|
 pub trait UIRenderAdapter {
-  build_draw_commands(
+  fn build_draw_commands(
     Self,
     frame : @core.FrameBudget,
     layouts : Array[LayoutResult],
@@ -143,7 +143,7 @@ pub(all) enum UIFocusEvent {
 } derive(Debug)
 
 ///|
-pub impl Show for UIFocusEvent with output(self, logger) {
+pub impl Show for UIFocusEvent with fn output(self, logger) {
   logger.write_object(to_repr(self))
 }
 

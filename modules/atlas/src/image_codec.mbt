@@ -10,7 +10,7 @@ pub enum RasterResizeMethod {
 } derive(Debug)
 
 ///|
-pub impl Show for RasterResizeMethod with output(self, logger) {
+pub impl Show for RasterResizeMethod with fn output(self, logger) {
   logger.write_object(to_repr(self))
 }
 
@@ -22,7 +22,7 @@ pub enum RasterImageFormat {
 } derive(Debug, Eq)
 
 ///|
-pub impl Show for RasterImageFormat with output(self, logger) {
+pub impl Show for RasterImageFormat with fn output(self, logger) {
   logger.write_object(to_repr(self))
 }
 

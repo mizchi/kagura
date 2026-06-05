@@ -16,7 +16,7 @@ pub fn SimpleUIRenderAdapter::new(
 }
 
 ///|
-pub impl UIRenderAdapter for SimpleUIRenderAdapter with build_draw_commands(
+pub impl UIRenderAdapter for SimpleUIRenderAdapter with fn build_draw_commands(
   self,
   _frame,
   layouts,

@@ -1,6 +1,7 @@
 import fs from "node:fs";
 import path from "node:path";
 import { fileURLToPath } from "node:url";
+import { manifestPathFor, readModuleManifest } from "./moon-mod-manifest.mjs";
 
 export const DEFAULT_RELEASE_MODULE_DIRS = Object.freeze([
   ".",
@@ -15,11 +16,11 @@ export const DEFAULT_RELEASE_DEP_POLICY = Object.freeze({
   "mizchi/kagura": ["mizchi/kagura_core", "mizchi/kagura_engine"],
   "mizchi/kagura_core": [],
   "mizchi/kagura_engine": ["mizchi/kagura_core"],
-  "mizchi/kagura_physics": ["mizchi/kagura_core"],
+  "mizchi/physics": ["mizchi/kagura_core"],
   "mizchi/kagura_game": [
     "mizchi/kagura_core",
     "mizchi/kagura_engine",
-    "mizchi/kagura_physics",
+    "mizchi/physics",
   ],
   "mizchi/kagura_js_runtime": [],
 });
@@ -77,10 +78,6 @@ function normalizeRepoRelative(repoRoot, filePath) {
 
 function moduleRoot(repoRoot, moduleDir) {
   return moduleDir === "." ? repoRoot : path.join(repoRoot, moduleDir);
-}
-
-function readJson(filePath) {
-  return JSON.parse(fs.readFileSync(filePath, "utf8"));
 }
 
 function writeJson(filePath, value) {
@@ -233,8 +230,8 @@ export function loadReleaseModules({
   const modules = moduleDirs.map((dir) => {
     const normalizedDir = normalizeModuleDir(dir);
     const root = moduleRoot(repoRoot, normalizedDir);
-    const manifestPath = path.join(root, "moon.mod.json");
-    const manifest = readJson(manifestPath);
+    const manifestPath = manifestPathFor(root);
+    const manifest = readModuleManifest(root);
     return {
       dir: normalizedDir,
       root,

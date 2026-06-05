@@ -11,7 +11,7 @@ pub struct AssetKey {
 } derive(Debug)
 
 ///|
-pub impl Show for AssetKey with output(self, logger) {
+pub impl Show for AssetKey with fn output(self, logger) {
   logger.write_object(to_repr(self))
 }
 
@@ -30,7 +30,7 @@ pub struct ImageSpec {
 } derive(Debug)
 
 ///|
-pub impl Show for ImageSpec with output(self, logger) {
+pub impl Show for ImageSpec with fn output(self, logger) {
   logger.write_object(to_repr(self))
 }
 
@@ -41,7 +41,7 @@ pub struct ShaderSpec {
 } derive(Debug)
 
 ///|
-pub impl Show for ShaderSpec with output(self, logger) {
+pub impl Show for ShaderSpec with fn output(self, logger) {
   logger.write_object(to_repr(self))
 }
 
@@ -54,7 +54,7 @@ pub struct MaterialSpec {
 } derive(Debug)
 
 ///|
-pub impl Show for MaterialSpec with output(self, logger) {
+pub impl Show for MaterialSpec with fn output(self, logger) {
   logger.write_object(to_repr(self))
 }
 
@@ -68,7 +68,7 @@ pub struct AtlasRegion {
 } derive(Debug)
 
 ///|
-pub impl Show for AtlasRegion with output(self, logger) {
+pub impl Show for AtlasRegion with fn output(self, logger) {
   logger.write_object(to_repr(self))
 }
 
@@ -90,7 +90,7 @@ pub struct ImagePaletteBinding {
 } derive(Debug)
 
 ///|
-pub impl Show for ImagePaletteBinding with output(self, logger) {
+pub impl Show for ImagePaletteBinding with fn output(self, logger) {
   logger.write_object(to_repr(self))
 }
 
@@ -103,7 +103,7 @@ pub struct SourceImageDirtyRect {
 } derive(Debug)
 
 ///|
-pub impl Show for SourceImageDirtyRect with output(self, logger) {
+pub impl Show for SourceImageDirtyRect with fn output(self, logger) {
   logger.write_object(to_repr(self))
 }
 
@@ -119,7 +119,7 @@ pub struct SourceImageBinding {
 } derive(Debug)
 
 ///|
-pub impl Show for SourceImageBinding with output(self, logger) {
+pub impl Show for SourceImageBinding with fn output(self, logger) {
   logger.write_object(to_repr(self))
 }
 
@@ -134,7 +134,7 @@ pub struct AtlasDrawSource {
 } derive(Debug)
 
 ///|
-pub impl Show for AtlasDrawSource with output(self, logger) {
+pub impl Show for AtlasDrawSource with fn output(self, logger) {
   logger.write_object(to_repr(self))
 }
 
@@ -176,28 +176,28 @@ pub fn new_unmanaged_atlas_draw_source(image_id : Int) -> AtlasDrawSource {
 
 ///|
 pub trait ImageRepository {
-  create_image(Self, key : AssetKey, spec : ImageSpec) -> @gfx.ImageHandle raise
-  get_image(Self, key : AssetKey) -> @gfx.ImageHandle?
-  remove_image(Self, key : AssetKey) -> Unit raise
+  fn create_image(Self, key : AssetKey, spec : ImageSpec) -> @gfx.ImageHandle raise
+  fn get_image(Self, key : AssetKey) -> @gfx.ImageHandle?
+  fn remove_image(Self, key : AssetKey) -> Unit raise
 }
 
 ///|
 pub trait ShaderRepository {
-  create_shader(Self, key : AssetKey, spec : ShaderSpec) -> @gfx.ShaderHandle raise
-  get_shader(Self, key : AssetKey) -> @gfx.ShaderHandle?
-  remove_shader(Self, key : AssetKey) -> Unit raise
+  fn create_shader(Self, key : AssetKey, spec : ShaderSpec) -> @gfx.ShaderHandle raise
+  fn get_shader(Self, key : AssetKey) -> @gfx.ShaderHandle?
+  fn remove_shader(Self, key : AssetKey) -> Unit raise
 }
 
 ///|
 pub trait MaterialRepository {
-  register_material(Self, key : AssetKey, spec : MaterialSpec) -> Unit raise
-  get_material(Self, key : AssetKey) -> MaterialSpec?
+  fn register_material(Self, key : AssetKey, spec : MaterialSpec) -> Unit raise
+  fn get_material(Self, key : AssetKey) -> MaterialSpec?
 }
 
 ///|
 pub trait AtlasAllocator {
-  allocate(Self, width : Int, height : Int) -> AtlasRegion?
-  release(Self, region : AtlasRegion) -> Unit
+  fn allocate(Self, width : Int, height : Int) -> AtlasRegion?
+  fn release(Self, region : AtlasRegion) -> Unit
 }
 
 ///|
@@ -345,10 +345,7 @@ fn has_valid_rgba8_payload(
 }
 
 ///|
-fn image_palette_eq(
-  lhs : ImagePalette2x2,
-  rhs : ImagePalette2x2,
-) -> Bool {
+fn image_palette_eq(lhs : ImagePalette2x2, rhs : ImagePalette2x2) -> Bool {
   let mut ok = true
   for pixel_index in 0..<4 {
     for channel_index in 0..<4 {
@@ -492,7 +489,7 @@ struct SimpleImageEntry {
 } derive(Debug)
 
 ///|
-pub impl Show for SimpleImageEntry with output(self, logger) {
+pub impl Show for SimpleImageEntry with fn output(self, logger) {
   logger.write_object(to_repr(self))
 }
 
@@ -503,7 +500,7 @@ struct SimpleShaderEntry {
 } derive(Debug)
 
 ///|
-pub impl Show for SimpleShaderEntry with output(self, logger) {
+pub impl Show for SimpleShaderEntry with fn output(self, logger) {
   logger.write_object(to_repr(self))
 }
 
@@ -514,7 +511,7 @@ struct SimpleMaterialEntry {
 } derive(Debug)
 
 ///|
-pub impl Show for SimpleMaterialEntry with output(self, logger) {
+pub impl Show for SimpleMaterialEntry with fn output(self, logger) {
   logger.write_object(to_repr(self))
 }
 
@@ -826,7 +823,7 @@ pub fn new_simple_material_repository() -> SimpleMaterialRepository {
 }
 
 ///|
-pub impl ImageRepository for SimpleImageRepository with create_image(
+pub impl ImageRepository for SimpleImageRepository with fn create_image(
   self,
   key,
   spec,
@@ -857,12 +854,15 @@ pub impl ImageRepository for SimpleImageRepository with create_image(
 }
 
 ///|
-pub impl ImageRepository for SimpleImageRepository with get_image(self, key) {
+pub impl ImageRepository for SimpleImageRepository with fn get_image(self, key) {
   find_image_handle(self.images, key)
 }
 
 ///|
-pub impl ImageRepository for SimpleImageRepository with remove_image(self, key) {
+pub impl ImageRepository for SimpleImageRepository with fn remove_image(
+  self,
+  key,
+) {
   let next : Array[SimpleImageEntry] = []
   for entry in self.images {
     if !asset_key_eq(entry.key, key) {
@@ -873,7 +873,7 @@ pub impl ImageRepository for SimpleImageRepository with remove_image(self, key) 
 }
 
 ///|
-pub impl ShaderRepository for SimpleShaderRepository with create_shader(
+pub impl ShaderRepository for SimpleShaderRepository with fn create_shader(
   self,
   key,
   spec,
@@ -890,12 +890,15 @@ pub impl ShaderRepository for SimpleShaderRepository with create_shader(
 }
 
 ///|
-pub impl ShaderRepository for SimpleShaderRepository with get_shader(self, key) {
+pub impl ShaderRepository for SimpleShaderRepository with fn get_shader(
+  self,
+  key,
+) {
   find_shader_handle(self.shaders, key)
 }
 
 ///|
-pub impl ShaderRepository for SimpleShaderRepository with remove_shader(
+pub impl ShaderRepository for SimpleShaderRepository with fn remove_shader(
   self,
   key,
 ) {
@@ -909,7 +912,7 @@ pub impl ShaderRepository for SimpleShaderRepository with remove_shader(
 }
 
 ///|
-pub impl MaterialRepository for SimpleMaterialRepository with register_material(
+pub impl MaterialRepository for SimpleMaterialRepository with fn register_material(
   self,
   key,
   spec,
@@ -931,7 +934,7 @@ pub impl MaterialRepository for SimpleMaterialRepository with register_material(
 }
 
 ///|
-pub impl MaterialRepository for SimpleMaterialRepository with get_material(
+pub impl MaterialRepository for SimpleMaterialRepository with fn get_material(
   self,
   key,
 ) {
@@ -984,7 +987,7 @@ pub fn new_simple_atlas_allocator(
 }
 
 ///|
-pub impl AtlasAllocator for SimpleAtlasAllocator with allocate(
+pub impl AtlasAllocator for SimpleAtlasAllocator with fn allocate(
   self,
   width,
   height,
@@ -1020,7 +1023,7 @@ pub impl AtlasAllocator for SimpleAtlasAllocator with allocate(
 }
 
 ///|
-pub impl AtlasAllocator for SimpleAtlasAllocator with release(self, region) {
+pub impl AtlasAllocator for SimpleAtlasAllocator with fn release(self, region) {
   let next : Array[AtlasRegion] = []
   for current in self.allocated {
     if !atlas_region_eq(current, region) {
@@ -1057,7 +1060,7 @@ struct SimpleAtlasImageEntry {
 } derive(Debug)
 
 ///|
-pub impl Show for SimpleAtlasImageEntry with output(self, logger) {
+pub impl Show for SimpleAtlasImageEntry with fn output(self, logger) {
   logger.write_object(to_repr(self))
 }
 
@@ -1731,7 +1734,7 @@ pub struct AtlasCompactResult {
 } derive(Debug)
 
 ///|
-pub impl Show for AtlasCompactResult with output(self, logger) {
+pub impl Show for AtlasCompactResult with fn output(self, logger) {
   logger.write_object(to_repr(self))
 }
 
@@ -1781,7 +1784,7 @@ pub struct AtlasPageStats {
 } derive(Debug)
 
 ///|
-pub impl Show for AtlasPageStats with output(self, logger) {
+pub impl Show for AtlasPageStats with fn output(self, logger) {
   logger.write_object(to_repr(self))
 }
 

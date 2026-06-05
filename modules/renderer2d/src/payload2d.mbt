@@ -27,7 +27,7 @@ pub struct TrianglePayload {
 } derive(Debug)
 
 ///|
-pub impl Show for TrianglePayload with output(self, logger) {
+pub impl Show for TrianglePayload with fn output(self, logger) {
   logger.write_object(to_repr(self))
 }
 

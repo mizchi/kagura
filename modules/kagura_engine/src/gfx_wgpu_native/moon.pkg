@@ -1,6 +1,6 @@
 import {
-  "mizchi/kagura_engine/audio" @audio,
-  "mizchi/glfw" @glfw,
+  "mizchi/kagura_engine/audio",
+  "mizchi/glfw",
 }
 
 supported_targets = "native"

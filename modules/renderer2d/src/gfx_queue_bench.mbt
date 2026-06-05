@@ -6,7 +6,7 @@
 ///|
 fn bench_queue_command(i : Int, alt_state : Bool) -> @gfx.DrawTrianglesCommand {
   let dst = @gfx.new_image_handle(1, 1920, 1080)
-  let shader_id = if alt_state { 2 + (i % 4) } else { 2 }
+  let shader_id = if alt_state { 2 + i % 4 } else { 2 }
   let shader = @gfx.new_shader_handle(shader_id, "queue_bench")
   let dst_region = @gfx.new_dst_region(0, 0, 1920, 1080, 6)
   let blend = @gfx.BlendMode::from_int(1)
@@ -20,8 +20,24 @@ fn bench_queue_command(i : Int, alt_state : Bool) -> @gfx.DrawTrianglesCommand {
     7,
     11,
     blend,
-    [left, top, 0.0, 0.0, left + 2.0, top, 1.0, 0.0, left + 2.0, top + 2.0, 1.0, 1.0,
-     left, top + 2.0, 0.0, 1.0],
+    [
+      left,
+      top,
+      0.0,
+      0.0,
+      left + 2.0,
+      top,
+      1.0,
+      0.0,
+      left + 2.0,
+      top + 2.0,
+      1.0,
+      1.0,
+      left,
+      top + 2.0,
+      0.0,
+      1.0,
+    ],
     [0, 1, 2, 2, 3, 0],
     [42],
     [1, 2, 3, 4],

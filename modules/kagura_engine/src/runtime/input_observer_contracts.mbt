@@ -14,7 +14,7 @@ pub struct InputEdgeSummary {
 } derive(Debug)
 
 ///|
-pub impl Show for InputEdgeSummary with output(self, logger) {
+pub impl Show for InputEdgeSummary with fn output(self, logger) {
   logger.write_object(to_repr(self))
 }
 

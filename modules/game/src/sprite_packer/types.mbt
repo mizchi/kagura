@@ -16,7 +16,7 @@ pub(all) struct PackedSprite {
 } derive(Debug)
 
 ///|
-pub impl Show for PackedSprite with output(self, logger) {
+pub impl Show for PackedSprite with fn output(self, logger) {
   logger.write_object(to_repr(self))
 }
 
@@ -29,7 +29,7 @@ pub(all) struct PackResult {
 } derive(Debug)
 
 ///|
-pub impl Show for PackResult with output(self, logger) {
+pub impl Show for PackResult with fn output(self, logger) {
   logger.write_object(to_repr(self))
 }
 
@@ -43,6 +43,6 @@ pub(all) struct PackerConfig {
 } derive(Debug)
 
 ///|
-pub impl Show for PackerConfig with output(self, logger) {
+pub impl Show for PackerConfig with fn output(self, logger) {
   logger.write_object(to_repr(self))
 }

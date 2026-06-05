@@ -1,5 +1,5 @@
 import {
-  "mizchi/geom/math3d" @math3d,
-  "mizchi/physics/collision3d" @collision3d,
-  "moonbitlang/core/bench" @bench,
+  "mizchi/geom/math3d",
+  "mizchi/physics/collision3d",
+  "moonbitlang/core/bench",
 }

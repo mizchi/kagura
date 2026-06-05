@@ -1,8 +1,8 @@
 ///|
 /// A scene that can be updated and drawn.
 pub(open) trait Scene {
-  update(Self, @core.InputSnapshot) -> Unit
-  draw(Self, @engine.EngineContext) -> Array[@gfx.DrawTrianglesCommand]
+  fn update(Self, @core.InputSnapshot) -> Unit
+  fn draw(Self, @engine.EngineContext) -> Array[@gfx.DrawTrianglesCommand]
 }
 
 ///|

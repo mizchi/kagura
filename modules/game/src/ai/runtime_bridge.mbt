@@ -12,7 +12,7 @@ pub struct AIRuntimeConfig {
 } derive(Debug)
 
 ///|
-pub impl Show for AIRuntimeConfig with output(self, logger) {
+pub impl Show for AIRuntimeConfig with fn output(self, logger) {
   logger.write_object(to_repr(self))
 }
 

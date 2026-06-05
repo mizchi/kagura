@@ -13,7 +13,7 @@ pub struct Rgba {
 } derive(Debug)
 
 ///|
-pub impl Show for Rgba with output(self, logger) {
+pub impl Show for Rgba with fn output(self, logger) {
   logger.write_object(to_repr(self))
 }
 
@@ -26,7 +26,7 @@ pub struct ImagePalette2x2 {
 } derive(Debug)
 
 ///|
-pub impl Show for ImagePalette2x2 with output(self, logger) {
+pub impl Show for ImagePalette2x2 with fn output(self, logger) {
   logger.write_object(to_repr(self))
 }
 

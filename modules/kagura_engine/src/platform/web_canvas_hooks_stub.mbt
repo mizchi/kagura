@@ -256,9 +256,7 @@ fn default_web_canvas_hooks() -> WebCanvasHooks {
 }
 
 ///|
-let web_canvas_hooks : Ref[WebCanvasHooks] = Ref(
-  default_web_canvas_hooks(),
-)
+let web_canvas_hooks : Ref[WebCanvasHooks] = Ref(default_web_canvas_hooks())
 
 ///|
 pub fn set_web_canvas_hooks(hooks : WebCanvasHooks) -> Unit {

@@ -10,7 +10,9 @@
 /// - internal/ui/ui_js.go  (browser canvas binding)
 
 ///|
-pub impl @gfx.SurfaceProvider for DesktopGlfwPlatform with current_surface(self) {
+pub impl @gfx.SurfaceProvider for DesktopGlfwPlatform with fn current_surface(
+  self,
+) {
   let outside = if self.native_active {
     desktop_native_outside_size(self.options.width, self.options.height)
   } else {
@@ -29,7 +31,9 @@ pub impl @gfx.SurfaceProvider for DesktopGlfwPlatform with current_surface(self)
 }
 
 ///|
-pub impl @gfx.SurfaceProvider for WebCanvasPlatform with current_surface(self) {
+pub impl @gfx.SurfaceProvider for WebCanvasPlatform with fn current_surface(
+  self,
+) {
   if self.web_active {
     web_current_surface(self.canvas_selector, self.options)
   } else {

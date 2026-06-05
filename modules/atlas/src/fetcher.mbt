@@ -5,7 +5,7 @@ pub(all) struct FetchProgress {
 } derive(Debug)
 
 ///|
-pub impl Show for FetchProgress with output(self, logger) {
+pub impl Show for FetchProgress with fn output(self, logger) {
   logger.write_object(to_repr(self))
 }
 
@@ -15,18 +15,18 @@ pub(all) struct FetchHandle {
 } derive(Debug)
 
 ///|
-pub impl Show for FetchHandle with output(self, logger) {
+pub impl Show for FetchHandle with fn output(self, logger) {
   logger.write_object(to_repr(self))
 }
 
 ///|
 pub(open) trait BytesFetcher {
-  fetch(
+  fn fetch(
     Self,
     url : String,
     on_progress : (FetchProgress) -> Unit,
     on_complete : (Bytes?) -> Unit,
   ) -> FetchHandle
-  cancel(Self, handle : FetchHandle) -> Unit
-  poll(Self) -> Unit
+  fn cancel(Self, handle : FetchHandle) -> Unit
+  fn poll(Self) -> Unit
 }

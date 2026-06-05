@@ -15,7 +15,7 @@ pub struct MeshBounds3D {
 } derive(Debug)
 
 ///|
-pub impl Show for MeshBounds3D with output(self, logger) {
+pub impl Show for MeshBounds3D with fn output(self, logger) {
   logger.write_object(to_repr(self))
 }
 
@@ -28,7 +28,7 @@ pub struct Mesh3D {
 } derive(Debug)
 
 ///|
-pub impl Show for Mesh3D with output(self, logger) {
+pub impl Show for Mesh3D with fn output(self, logger) {
   logger.write_object(to_repr(self))
 }
 

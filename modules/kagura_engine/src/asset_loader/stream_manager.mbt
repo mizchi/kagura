@@ -7,7 +7,7 @@ pub enum AssetPriority {
 } derive(Debug, Eq)
 
 ///|
-pub impl Show for AssetPriority with output(self, logger) {
+pub impl Show for AssetPriority with fn output(self, logger) {
   logger.write_object(to_repr(self))
 }
 
@@ -31,7 +31,7 @@ pub(all) struct StreamProgress {
 } derive(Debug)
 
 ///|
-pub impl Show for StreamProgress with output(self, logger) {
+pub impl Show for StreamProgress with fn output(self, logger) {
   logger.write_object(to_repr(self))
 }
 

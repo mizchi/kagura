@@ -11,7 +11,7 @@ pub struct AgentId {
 } derive(Debug)
 
 ///|
-pub impl Show for AgentId with output(self, logger) {
+pub impl Show for AgentId with fn output(self, logger) {
   logger.write_object(to_repr(self))
 }
 
@@ -22,7 +22,7 @@ pub struct BlackboardEntry {
 } derive(Debug)
 
 ///|
-pub impl Show for BlackboardEntry with output(self, logger) {
+pub impl Show for BlackboardEntry with fn output(self, logger) {
   logger.write_object(to_repr(self))
 }
 
@@ -32,7 +32,7 @@ pub struct BlackboardSnapshot {
 } derive(Debug)
 
 ///|
-pub impl Show for BlackboardSnapshot with output(self, logger) {
+pub impl Show for BlackboardSnapshot with fn output(self, logger) {
   logger.write_object(to_repr(self))
 }
 
@@ -46,7 +46,7 @@ pub struct SensorSnapshot {
 } derive(Debug)
 
 ///|
-pub impl Show for SensorSnapshot with output(self, logger) {
+pub impl Show for SensorSnapshot with fn output(self, logger) {
   logger.write_object(to_repr(self))
 }
 
@@ -60,7 +60,7 @@ pub enum ActionIntent {
 } derive(Debug)
 
 ///|
-pub impl Show for ActionIntent with output(self, logger) {
+pub impl Show for ActionIntent with fn output(self, logger) {
   logger.write_object(to_repr(self))
 }
 
@@ -72,7 +72,7 @@ pub struct DecisionTrace {
 } derive(Debug)
 
 ///|
-pub impl Show for DecisionTrace with output(self, logger) {
+pub impl Show for DecisionTrace with fn output(self, logger) {
   logger.write_object(to_repr(self))
 }
 
@@ -84,7 +84,7 @@ pub struct AIBudget {
 } derive(Debug)
 
 ///|
-pub impl Show for AIBudget with output(self, logger) {
+pub impl Show for AIBudget with fn output(self, logger) {
   logger.write_object(to_repr(self))
 }
 
@@ -99,7 +99,7 @@ pub struct DecisionContext {
 } derive(Debug)
 
 ///|
-pub impl Show for DecisionContext with output(self, logger) {
+pub impl Show for DecisionContext with fn output(self, logger) {
   logger.write_object(to_repr(self))
 }
 
@@ -111,29 +111,29 @@ pub struct DecisionResult {
 } derive(Debug)
 
 ///|
-pub impl Show for DecisionResult with output(self, logger) {
+pub impl Show for DecisionResult with fn output(self, logger) {
   logger.write_object(to_repr(self))
 }
 
 ///|
 pub trait SensorBridge {
-  capture(Self, agent_id : AgentId, tick : Int) -> SensorSnapshot
+  fn capture(Self, agent_id : AgentId, tick : Int) -> SensorSnapshot
 }
 
 ///|
 pub trait ActuatorBridge {
-  apply(Self, agent_id : AgentId, actions : Array[ActionIntent]) -> Unit raise
+  fn apply(Self, agent_id : AgentId, actions : Array[ActionIntent]) -> Unit raise
 }
 
 ///|
 pub trait AIScheduler {
-  select_agents(Self, tick : Int) -> Array[AgentId]
-  budget_for(Self, agent_id : AgentId) -> AIBudget
+  fn select_agents(Self, tick : Int) -> Array[AgentId]
+  fn budget_for(Self, agent_id : AgentId) -> AIBudget
 }
 
 ///|
 pub trait AIPolicy {
-  decide(Self, context : DecisionContext) -> DecisionResult raise
+  fn decide(Self, context : DecisionContext) -> DecisionResult raise
 }
 
 ///|

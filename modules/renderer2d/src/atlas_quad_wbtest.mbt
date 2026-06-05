@@ -73,7 +73,16 @@ test "atlas_quad_resource_cache_key is deterministic and input-sensitive" {
     dst, shader, dst_region, blend, source, 0.125, 0.25, 0.5, 0.5, uniform_dwords,
   )
   let recolored = atlas_quad_resource_cache_key(
-    dst, shader, dst_region, blend, source, 0.125, 0.25, 0.375, 0.5, [11, 22, 34],
+    dst,
+    shader,
+    dst_region,
+    blend,
+    source,
+    0.125,
+    0.25,
+    0.375,
+    0.5,
+    [11, 22, 34],
   )
   assert_true(a != 0)
   assert_eq(a, b)
@@ -301,12 +310,18 @@ test "new_atlas_quad_batch_draw_command packs N quads into one command" {
   let blend = @gfx.BlendMode::from_int(1)
   // Three quads laid out as [l, t, r, b] x 3
   let rects : Array[Double] = [
-    0.0, 0.0, 2.0, 2.0,
-    10.0, 0.0, 12.0, 2.0,
-    0.0, 10.0, 2.0, 12.0,
+    0.0, 0.0, 2.0, 2.0, 10.0, 0.0, 12.0, 2.0, 0.0, 10.0, 2.0, 12.0,
   ]
   let cmd = new_atlas_quad_batch_draw_command(
-    dst, shader, dst_region, 7, 11, blend, source, rects, [1, 2, 3, 4],
+    dst,
+    shader,
+    dst_region,
+    7,
+    11,
+    blend,
+    source,
+    rects,
+    [1, 2, 3, 4],
   )
   // 3 quads = 12 vertices (4 doubles each: x, y, u, v = stride 4)
   // vertex_data length = 3 * 16 = 48
@@ -343,7 +358,15 @@ test "new_atlas_quad_batch_draw_command empty rects produces empty command" {
   let dst_region = @gfx.new_dst_region(0, 0, 100, 100, 6)
   let blend = @gfx.BlendMode::from_int(0)
   let cmd = new_atlas_quad_batch_draw_command(
-    dst, shader, dst_region, 0, 0, blend, source, [], [],
+    dst,
+    shader,
+    dst_region,
+    0,
+    0,
+    blend,
+    source,
+    [],
+    [],
   )
   assert_eq(cmd.vertex_data.length(), 0)
   assert_eq(cmd.indices.length(), 0)

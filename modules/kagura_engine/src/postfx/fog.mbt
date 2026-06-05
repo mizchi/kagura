@@ -33,16 +33,7 @@ pub fn fog_uniform_dwords(
   fog_start : Double,
   fog_end : Double,
 ) -> Array[Int] {
-  [
-    f32(fog_r),
-    f32(fog_g),
-    f32(fog_b),
-    f32(fog_start),
-    f32(fog_end),
-    0,
-    0,
-    0,
-  ]
+  [f32(fog_r), f32(fog_g), f32(fog_b), f32(fog_start), f32(fog_end), 0, 0, 0]
 }
 
 ///|

@@ -6,13 +6,13 @@
 
 ///|
 pub trait FontEngine {
-  measure(Self, run : @font.TextRun) -> @font.TextMetrics
-  shape(Self, run : @font.TextRun) -> Array[@font.GlyphQuad] raise
+  fn measure(Self, run : @font.TextRun) -> @font.TextMetrics
+  fn shape(Self, run : @font.TextRun) -> Array[@font.GlyphQuad] raise
 }
 
 ///|
 pub trait TextBatchBuilder {
-  build_draw_commands(
+  fn build_draw_commands(
     Self,
     target : @gfx.ImageHandle,
     glyphs : Array[@font.GlyphQuad],

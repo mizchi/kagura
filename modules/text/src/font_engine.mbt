@@ -12,7 +12,7 @@ pub fn SimpleFontEngine::new(font : @font.TTFont) -> SimpleFontEngine {
 }
 
 ///|
-pub impl FontEngine for SimpleFontEngine with measure(self, run) {
+pub impl FontEngine for SimpleFontEngine with fn measure(self, run) {
   let size = run.style.size_px
   let width = self.font.measure_text(run.text, size)
   let scale = size / self.font.units_per_em.to_double()
@@ -23,7 +23,7 @@ pub impl FontEngine for SimpleFontEngine with measure(self, run) {
 }
 
 ///|
-pub impl FontEngine for SimpleFontEngine with shape(self, run) {
+pub impl FontEngine for SimpleFontEngine with fn shape(self, run) {
   let size = run.style.size_px
   let positions = self.font.layout_text(run.text, size)
   let scale = size / self.font.units_per_em.to_double()

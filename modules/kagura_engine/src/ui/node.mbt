@@ -8,7 +8,7 @@ pub(all) enum UIDirection {
 } derive(Debug)
 
 ///|
-pub impl Show for UIDirection with output(self, logger) {
+pub impl Show for UIDirection with fn output(self, logger) {
   logger.write_object(to_repr(self))
 }
 
@@ -20,7 +20,7 @@ pub(all) enum UISizing {
 } derive(Debug)
 
 ///|
-pub impl Show for UISizing with output(self, logger) {
+pub impl Show for UISizing with fn output(self, logger) {
   logger.write_object(to_repr(self))
 }
 
@@ -31,7 +31,7 @@ pub(all) enum UIFlexWrap {
 } derive(Debug)
 
 ///|
-pub impl Show for UIFlexWrap with output(self, logger) {
+pub impl Show for UIFlexWrap with fn output(self, logger) {
   logger.write_object(to_repr(self))
 }
 
@@ -50,7 +50,7 @@ pub(all) enum UIAlignment {
 } derive(Debug, Eq)
 
 ///|
-pub impl Show for UIAlignment with output(self, logger) {
+pub impl Show for UIAlignment with fn output(self, logger) {
   logger.write_object(to_repr(self))
 }
 
@@ -70,7 +70,7 @@ pub(all) struct UINodeStyle {
 } derive(Debug)
 
 ///|
-pub impl Show for UINodeStyle with output(self, logger) {
+pub impl Show for UINodeStyle with fn output(self, logger) {
   logger.write_object(to_repr(self))
 }
 
@@ -99,7 +99,7 @@ pub struct UINode {
 } derive(Debug)
 
 ///|
-pub impl Show for UINode with output(self, logger) {
+pub impl Show for UINode with fn output(self, logger) {
   logger.write_object(to_repr(self))
 }
 

@@ -1,4 +1,4 @@
 import {
   "mizchi/terrain/types" @terrain,
-  "mizchi/mesh3d" @mesh3d,
+  "mizchi/mesh3d",
 }

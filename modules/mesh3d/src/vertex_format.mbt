@@ -11,7 +11,7 @@ pub enum VertexAttribute {
 } derive(Eq, Debug)
 
 ///|
-pub impl Show for VertexAttribute with output(self, logger) {
+pub impl Show for VertexAttribute with fn output(self, logger) {
   logger.write_object(to_repr(self))
 }
 
@@ -36,7 +36,7 @@ pub struct VertexFormat {
 } derive(Debug)
 
 ///|
-pub impl Show for VertexFormat with output(self, logger) {
+pub impl Show for VertexFormat with fn output(self, logger) {
   logger.write_object(to_repr(self))
 }
 

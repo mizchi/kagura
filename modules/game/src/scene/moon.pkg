@@ -1,11 +1,11 @@
 import {
-  "mizchi/signals/ui" @ui,
+  "mizchi/signals/ui",
   "mizchi/kagura_core" @core,
-  "mizchi/gfx" @gfx,
-  "mizchi/kagura_engine/audio" @audio,
-  "mizchi/renderer2d" @renderer2d,
-  "mizchi/kagura_engine/platform" @platform,
-  "mizchi/kagura_engine/runtime" @runtime,
+  "mizchi/gfx",
+  "mizchi/kagura_engine/audio",
+  "mizchi/renderer2d",
+  "mizchi/kagura_engine/platform",
+  "mizchi/kagura_engine/runtime",
   "mizchi/kagura_engine" @engine,
 }
 

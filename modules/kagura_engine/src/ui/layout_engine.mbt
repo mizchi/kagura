@@ -269,7 +269,7 @@ fn layout_node(
 }
 
 ///|
-pub impl LayoutEngine for SimpleLayoutEngine with compute_layout(
+pub impl LayoutEngine for SimpleLayoutEngine with fn compute_layout(
   self,
   root,
   constraint,

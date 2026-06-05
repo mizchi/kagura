@@ -5,7 +5,7 @@ pub(all) struct Ray {
 } derive(Debug)
 
 ///|
-pub impl Show for Ray with output(self, logger) {
+pub impl Show for Ray with fn output(self, logger) {
   logger.write_object(to_repr(self))
 }
 
@@ -17,7 +17,7 @@ pub(all) struct HitResult {
 } derive(Debug)
 
 ///|
-pub impl Show for HitResult with output(self, logger) {
+pub impl Show for HitResult with fn output(self, logger) {
   logger.write_object(to_repr(self))
 }
 

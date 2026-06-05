@@ -9,7 +9,7 @@ pub struct FixedStepConfig {
 } derive(Debug)
 
 ///|
-pub impl Show for FixedStepConfig with output(self, logger) {
+pub impl Show for FixedStepConfig with fn output(self, logger) {
   logger.write_object(to_repr(self))
 }
 
@@ -23,7 +23,7 @@ pub struct FixedStepState {
 } derive(Debug)
 
 ///|
-pub impl Show for FixedStepState with output(self, logger) {
+pub impl Show for FixedStepState with fn output(self, logger) {
   logger.write_object(to_repr(self))
 }
 
@@ -39,7 +39,7 @@ pub struct StepResult {
 } derive(Debug)
 
 ///|
-pub impl Show for StepResult with output(self, logger) {
+pub impl Show for StepResult with fn output(self, logger) {
   logger.write_object(to_repr(self))
 }
 

@@ -10,12 +10,12 @@ fn TestScene::new() -> TestScene {
 }
 
 ///|
-impl Scene for TestScene with update(self, _input) {
+impl Scene for TestScene with fn update(self, _input) {
   self.update_count = self.update_count + 1
 }
 
 ///|
-impl Scene for TestScene with draw(self, ctx) {
+impl Scene for TestScene with fn draw(self, ctx) {
   self.draw_count = self.draw_count + 1
   let _ = ctx
   []

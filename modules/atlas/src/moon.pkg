@@ -1,6 +1,6 @@
 import {
-  "mizchi/gfx" @gfx,
-  "mizchi/image" @image,
+  "mizchi/gfx",
+  "mizchi/image",
 }
 
 options(

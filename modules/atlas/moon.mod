@@ -1,0 +1,20 @@
+name = "mizchi/atlas"
+
+version = "0.2.0"
+
+description = "Asset management for MoonBit: image repositories, atlas allocation, source-image bindings, codec wrappers, and a fetcher abstraction (extracted from kagura)"
+
+repository = "https://github.com/mizchi/kagura"
+
+license = "Apache-2.0"
+
+warnings = "-6-29-53-68-deprecated"
+
+import {
+  "mizchi/gfx@0.1.0",
+  "mizchi/image@0.1.1",
+}
+
+options(
+  source: "src",
+)

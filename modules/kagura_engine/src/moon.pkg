@@ -1,9 +1,9 @@
 import {
   "mizchi/kagura_core" @core,
-  "mizchi/gfx" @gfx,
-  "mizchi/kagura_engine/audio" @audio,
-  "mizchi/renderer2d" @renderer2d,
-  "mizchi/kagura_engine/platform" @platform,
+  "mizchi/gfx",
+  "mizchi/kagura_engine/audio",
+  "mizchi/renderer2d",
+  "mizchi/kagura_engine/platform",
 }
 
 warnings = "-6-53-68"

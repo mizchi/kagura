@@ -2,8 +2,8 @@
 /// High-level game contract for examples and small apps that already model
 /// their state as `update + draw`.
 pub(open) trait EngineGame {
-  update_game(Self, @core.InputSnapshot) -> Unit
-  draw_game(Self, EngineContext) -> Array[@gfx.DrawTrianglesCommand]
+  fn update_game(Self, @core.InputSnapshot) -> Unit
+  fn draw_game(Self, EngineContext) -> Array[@gfx.DrawTrianglesCommand]
 }
 
 ///|

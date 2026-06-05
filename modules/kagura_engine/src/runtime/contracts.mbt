@@ -13,7 +13,7 @@ pub struct RuntimeConfig {
 } derive(Debug)
 
 ///|
-pub impl Show for RuntimeConfig with output(self, logger) {
+pub impl Show for RuntimeConfig with fn output(self, logger) {
   logger.write_object(to_repr(self))
 }
 
@@ -24,7 +24,7 @@ pub struct FramePlan {
 } derive(Debug)
 
 ///|
-pub impl Show for FramePlan with output(self, logger) {
+pub impl Show for FramePlan with fn output(self, logger) {
   logger.write_object(to_repr(self))
 }
 

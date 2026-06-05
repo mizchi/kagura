@@ -73,7 +73,15 @@ done
 
 REG_INDEX="${HOME}/.moon/registry/index/user"
 
-meta() { python3 -c "import json,sys;print(json.load(open(sys.argv[1]))[sys.argv[2]])" "$1/moon.mod.json" "$2"; }
+# Read name/version from a member manifest, whether the new text `moon.mod`
+# or the legacy `moon.mod.json`.
+meta() { # $1=module dir  $2=field (name|version)
+  if [ -f "$1/moon.mod" ]; then
+    grep -E "^$2[[:space:]]*=" "$1/moon.mod" | head -1 | sed -E 's/^[A-Za-z_]+[[:space:]]*=[[:space:]]*"(.*)"[[:space:]]*$/\1/'
+  else
+    python3 -c "import json,sys;print(json.load(open(sys.argv[1]))[sys.argv[2]])" "$1/moon.mod.json" "$2"
+  fi
+}
 
 # checksum the registry holds for name@version, or empty if that version is unknown.
 reg_checksum() { # $1=name (owner/rest)  $2=version
@@ -149,7 +157,7 @@ fi
 # Collect CHANGED-but-not-bumped for a loud warning regardless of mode.
 changed_report=()
 for i in "${!names[@]}"; do
-  [ "${states[$i]}" = "CHANGED" ] && changed_report+=("${names[$i]} (${dirs[$i]}/moon.mod.json: bump from ${vers[$i]})")
+  [ "${states[$i]}" = "CHANGED" ] && changed_report+=("${names[$i]} (bump ${dirs[$i]} from ${vers[$i]})")
 done
 
 if [ "$MODE" = "status" ]; then

@@ -77,7 +77,7 @@ pub fn new_js_fetcher() -> JsFetcher {
 }
 
 ///|
-pub impl BytesFetcher for JsFetcher with fetch(
+pub impl BytesFetcher for JsFetcher with fn fetch(
   self,
   url,
   on_progress,
@@ -103,11 +103,11 @@ pub impl BytesFetcher for JsFetcher with fetch(
 }
 
 ///|
-pub impl BytesFetcher for JsFetcher with cancel(_, handle) {
+pub impl BytesFetcher for JsFetcher with fn cancel(_, handle) {
   js_stream_fetch_cancel(handle.id)
 }
 
 ///|
-pub impl BytesFetcher for JsFetcher with poll(_) {
+pub impl BytesFetcher for JsFetcher with fn poll(_) {
   // no-op on JS — callbacks fire via microtask queue
 }

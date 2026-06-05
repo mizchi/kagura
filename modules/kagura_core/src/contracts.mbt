@@ -11,7 +11,7 @@ pub enum EngineTermination {
 } derive(Debug)
 
 ///|
-pub impl Show for EngineTermination with output(self, logger) {
+pub impl Show for EngineTermination with fn output(self, logger) {
   logger.write_object(to_repr(self))
 }
 
@@ -22,7 +22,7 @@ pub struct OutsideSize {
 } derive(Debug)
 
 ///|
-pub impl Show for OutsideSize with output(self, logger) {
+pub impl Show for OutsideSize with fn output(self, logger) {
   logger.write_object(to_repr(self))
 }
 
@@ -33,7 +33,7 @@ pub struct LogicalSize {
 } derive(Debug)
 
 ///|
-pub impl Show for LogicalSize with output(self, logger) {
+pub impl Show for LogicalSize with fn output(self, logger) {
   logger.write_object(to_repr(self))
 }
 
@@ -45,7 +45,7 @@ pub struct FrameBudget {
 } derive(Debug)
 
 ///|
-pub impl Show for FrameBudget with output(self, logger) {
+pub impl Show for FrameBudget with fn output(self, logger) {
   logger.write_object(to_repr(self))
 }
 
@@ -62,7 +62,7 @@ pub struct InputSnapshot {
 } derive(Debug)
 
 ///|
-pub impl Show for InputSnapshot with output(self, logger) {
+pub impl Show for InputSnapshot with fn output(self, logger) {
   logger.write_object(to_repr(self))
 }
 
@@ -75,7 +75,7 @@ pub enum TouchSource {
 } derive(Debug)
 
 ///|
-pub impl Show for TouchSource with output(self, logger) {
+pub impl Show for TouchSource with fn output(self, logger) {
   logger.write_object(to_repr(self))
 }
 
@@ -108,7 +108,7 @@ pub struct TouchPoint {
 } derive(Debug)
 
 ///|
-pub impl Show for TouchPoint with output(self, logger) {
+pub impl Show for TouchPoint with fn output(self, logger) {
   logger.write_object(to_repr(self))
 }
 
@@ -120,7 +120,7 @@ pub struct GamepadSnapshot {
 } derive(Debug)
 
 ///|
-pub impl Show for GamepadSnapshot with output(self, logger) {
+pub impl Show for GamepadSnapshot with fn output(self, logger) {
   logger.write_object(to_repr(self))
 }
 
@@ -132,7 +132,7 @@ pub struct RunOptions {
 } derive(Debug)
 
 ///|
-pub impl Show for RunOptions with output(self, logger) {
+pub impl Show for RunOptions with fn output(self, logger) {
   logger.write_object(to_repr(self))
 }
 
@@ -232,7 +232,7 @@ pub enum TouchPhase {
 } derive(Debug)
 
 ///|
-pub impl Show for TouchPhase with output(self, logger) {
+pub impl Show for TouchPhase with fn output(self, logger) {
   logger.write_object(to_repr(self))
 }
 
@@ -271,7 +271,7 @@ pub struct TouchPointEx {
 } derive(Debug)
 
 ///|
-pub impl Show for TouchPointEx with output(self, logger) {
+pub impl Show for TouchPointEx with fn output(self, logger) {
   logger.write_object(to_repr(self))
 }
 
@@ -306,19 +306,19 @@ pub fn touch_point_from_ex(ex : TouchPointEx) -> TouchPoint {
 ///|
 pub trait Game {
   /// Ebiten ref: Game.Layout in run.go
-  layout(Self, outside : OutsideSize) -> LogicalSize
+  fn layout(Self, outside : OutsideSize) -> LogicalSize
 
   /// Ebiten ref: Game.Update in run.go
-  update(Self, input : InputSnapshot) -> EngineTermination?
+  fn update(Self, input : InputSnapshot) -> EngineTermination?
 
   /// Ebiten ref: Game.Draw in run.go
-  draw(Self, frame : FrameBudget) -> Unit
+  fn draw(Self, frame : FrameBudget) -> Unit
 }
 
 ///|
 pub trait FinalScreenDrawer {
   /// Ebiten ref: FinalScreenDrawer.DrawFinalScreen in run.go/gameforui.go
-  draw_final_screen(Self, frame : FrameBudget) -> Unit
+  fn draw_final_screen(Self, frame : FrameBudget) -> Unit
 }
 
 ///|
@@ -333,17 +333,17 @@ pub fn new_noop_game(width : Int, height : Int) -> NoopGame {
 }
 
 ///|
-pub impl Game for NoopGame with layout(self, _outside) {
+pub impl Game for NoopGame with fn layout(self, _outside) {
   { width: self.logical_width, height: self.logical_height }
 }
 
 ///|
-pub impl Game for NoopGame with update(_self, _input) {
+pub impl Game for NoopGame with fn update(_self, _input) {
   None
 }
 
 ///|
-pub impl Game for NoopGame with draw(_self, _frame) {
+pub impl Game for NoopGame with fn draw(_self, _frame) {
   ()
 }
 

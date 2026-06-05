@@ -13,6 +13,8 @@ fn f32(v : Double) -> Int {
 
 // Mirrors mix_resource_cache_key in mizchi/gfx; kept local so the per-vertex
 // hash chain can run inline without allocating a values array.
+
+///|
 fn mix_cache_key(seed : Int, value : Int) -> Int {
   seed * 16777619 + value + 31
 }
@@ -20,6 +22,8 @@ fn mix_cache_key(seed : Int, value : Int) -> Int {
 // Cheap deterministic 32-bit hash for a Double. resource_cache_key is
 // non-functional metadata, so any stable mapping works; avoids the int64
 // round-trip in @gfx.double_to_f32_bits.
+
+///|
 fn double_cache_bits(v : Double) -> Int {
   (v * 4096.0).to_int()
 }

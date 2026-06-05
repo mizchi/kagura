@@ -18,6 +18,8 @@ pub fn SimpleTextBatchBuilder::new(
 // Must mirror `mix_resource_cache_key` in mizchi/gfx/src/contracts.mbt.
 // Kept local so the per-glyph vertex hash chain avoids an intermediate
 // Array[Int] allocation (text batches can run thousands of vertices).
+
+///|
 fn mix_cache_key(seed : Int, value : Int) -> Int {
   seed * 16777619 + value + 31
 }
@@ -26,6 +28,8 @@ fn mix_cache_key(seed : Int, value : Int) -> Int {
 // non-functional metadata so any stable mapping works; this avoids the
 // int64 round-trip in @gfx.double_to_f32_bits, which dominates on the JS
 // target.
+
+///|
 fn double_cache_bits(v : Double) -> Int {
   (v * 4096.0).to_int()
 }
@@ -71,7 +75,7 @@ fn simple_text_batch_resource_cache_key(
 }
 
 ///|
-pub impl TextBatchBuilder for SimpleTextBatchBuilder with build_draw_commands(
+pub impl TextBatchBuilder for SimpleTextBatchBuilder with fn build_draw_commands(
   self,
   target,
   glyphs,

@@ -9,7 +9,7 @@ pub enum ProjectionMode {
 } derive(Debug)
 
 ///|
-pub impl Show for ProjectionMode with output(self, logger) {
+pub impl Show for ProjectionMode with fn output(self, logger) {
   logger.write_object(to_repr(self))
 }
 

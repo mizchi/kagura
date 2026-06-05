@@ -6,7 +6,7 @@ pub enum SceneAttrValue {
 } derive(Debug)
 
 ///|
-pub impl Show for SceneAttrValue with output(self, logger) {
+pub impl Show for SceneAttrValue with fn output(self, logger) {
   logger.write_object(to_repr(self))
 }
 

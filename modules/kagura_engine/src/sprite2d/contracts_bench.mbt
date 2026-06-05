@@ -22,7 +22,9 @@ fn particle_pipeline_checksum(
   let mut checksum = flushed.length()
   for command in flushed {
     checksum = checksum +
-      @gfx.DrawCommandDispatch::checksum(@gfx.DrawTrianglesCommand::build_dispatch(command))
+      @gfx.DrawCommandDispatch::checksum(
+        @gfx.DrawTrianglesCommand::build_dispatch(command),
+      )
   }
   checksum
 }

@@ -4,7 +4,7 @@ struct TestSensor {
 }
 
 ///|
-pub impl SensorBridge for TestSensor with capture(self, agent_id, tick) {
+pub impl SensorBridge for TestSensor with fn capture(self, agent_id, tick) {
   let _ = self.id
   {
     self_x: agent_id.value.to_double(),
@@ -21,7 +21,7 @@ struct TestActuator {
 }
 
 ///|
-pub impl ActuatorBridge for TestActuator with apply(self, _agent_id, actions) {
+pub impl ActuatorBridge for TestActuator with fn apply(self, _agent_id, actions) {
   self.applied = self.applied + actions.length()
 }
 
@@ -31,7 +31,7 @@ struct TestScheduler {
 }
 
 ///|
-pub impl AIScheduler for TestScheduler with select_agents(self, tick) {
+pub impl AIScheduler for TestScheduler with fn select_agents(self, tick) {
   let _ = self.id
   if tick % 2 == 0 {
     [{ value: 1 }, { value: 2 }]
@@ -41,7 +41,7 @@ pub impl AIScheduler for TestScheduler with select_agents(self, tick) {
 }
 
 ///|
-pub impl AIScheduler for TestScheduler with budget_for(_self, _agent_id) {
+pub impl AIScheduler for TestScheduler with fn budget_for(_self, _agent_id) {
   default_ai_budget()
 }
 
@@ -51,7 +51,7 @@ struct TestPolicy {
 }
 
 ///|
-pub impl AIPolicy for TestPolicy with decide(self, context) {
+pub impl AIPolicy for TestPolicy with fn decide(self, context) {
   let _ = self.id
   let entries = context.blackboard.entries
   entries.push({ key: "last_tick", value: context.tick.to_string() })

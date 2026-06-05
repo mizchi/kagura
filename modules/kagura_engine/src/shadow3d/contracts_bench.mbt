@@ -14,7 +14,9 @@ test "bench new_shadow_depth_command cube x100" (b : @bench.T) {
     let mut acc = 0
     for i in 0..<100 {
       let model = @math3d.Mat4::translation(i.to_double(), 0.0, 0.0)
-      let cmd = new_shadow_depth_command(shadow_map, shader, mesh, model, light_vp)
+      let cmd = new_shadow_depth_command(
+        shadow_map, shader, mesh, model, light_vp,
+      )
       acc = acc + cmd.resource_cache_key
     }
     b.keep(acc)

@@ -1,6 +1,6 @@
 import {
-  "mizchi/atlas" @atlas,
-  "mizchi/gfx" @gfx,
+  "mizchi/atlas",
+  "mizchi/gfx",
 }
 
 options(

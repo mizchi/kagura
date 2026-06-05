@@ -9,7 +9,7 @@ pub struct Transform3D {
 } derive(Debug)
 
 ///|
-pub impl Show for Transform3D with output(self, logger) {
+pub impl Show for Transform3D with fn output(self, logger) {
   logger.write_object(to_repr(self))
 }
 

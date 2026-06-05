@@ -5,7 +5,7 @@ pub(all) struct AABB2D {
 } derive(Debug)
 
 ///|
-pub impl Show for AABB2D with output(self, logger) {
+pub impl Show for AABB2D with fn output(self, logger) {
   logger.write_object(to_repr(self))
 }
 

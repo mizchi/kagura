@@ -139,20 +139,16 @@ jobs:
       - name: Runtime Smoke E2E (wasm/wasm-gc)
         run: pnpm e2e:smoke
       - name: VRT E2E (visual regression)
-        # macOS Metal presents a transparent canvas so vrt.spec.ts gates on the
-        # GPU readback coverage there. The Linux/SwiftShader runner does not
-        # expose a readback summary yet (see TODO) and presents an opaque canvas
-        # without committed -linux screenshot baselines, so --update-snapshots
-        # keeps it green until either the readback path works on SwiftShader or
-        # -linux baselines are generated in CI and committed.
+        # macOS Metal presents a transparent canvas, so vrt.spec.ts gates on the
+        # GPU readback coverage there (a real gate). The Linux CI runner cannot
+        # capture the rendered frame at all: the canvas screenshot is also
+        # transparent (verified: generated -linux baselines were fully blank),
+        # AND the readback summary never arrives (copyTextureToBuffer + mapAsync
+        # do not complete on the Linux Dawn backend — readback enabled, summary
+        # never set). So neither a screenshot nor a readback gate is possible on
+        # Linux yet; --update-snapshots keeps it green (non-gating) until the
+        # Dawn readback is fixed. Tracked for follow-up.
         run: pnpm exec playwright test e2e/vrt.spec.ts --update-snapshots
-      - name: Upload generated VRT linux baselines (temp)
-        if: always()
-        uses: actions/upload-artifact@v4
-        with:
-          name: vrt-linux-baselines
-          path: e2e/vrt.spec.ts-snapshots/*-linux.png
-          if-no-files-found: warn
       - name: API Info
         run: moon info
 

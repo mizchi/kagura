@@ -78,6 +78,11 @@ pub fn step(diagram : Diagram, state : SimState) -> Unit {
     let from = diagram.nodes[edge.from]
     let to = diagram.nodes[edge.to]
 
+    // Edges touching a gate are handled in the gate pass below.
+    if from.kind == Gate || to.kind == Gate {
+      continue
+    }
+
     // A resource edge fires when the active end drives it: a pulling target or
     // a pushing source.
     let pulled = node_active(to, state.step) &&
@@ -133,6 +138,7 @@ pub fn step(diagram : Diagram, state : SimState) -> Unit {
     }
     flows[ei] = moved
   }
+  process_gates(diagram, state, work, flows)
   state.values = work
   state.last_flows = flows
   state.step = state.step + 1

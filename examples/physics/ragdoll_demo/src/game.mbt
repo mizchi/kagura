@@ -364,8 +364,21 @@ fn DemoState::new() -> DemoState {
 fn DemoState::update(self : DemoState, snapshot : @core.InputSnapshot) -> Unit {
   @inpututil.update_input_helper(self.input, snapshot)
   self.frame = self.frame + 1
-  let mx = screen_to_physics_x(snapshot.cursor_x)
-  let my = screen_to_physics_y(snapshot.cursor_y)
+  // Cursor coords arrive in canvas CSS pixels; scale into logical layout space.
+  let css_w = canvas_css_w()
+  let css_h = canvas_css_h()
+  let cur_x = if css_w > 0.0 {
+    snapshot.cursor_x * screen_w.to_double() / css_w
+  } else {
+    snapshot.cursor_x
+  }
+  let cur_y = if css_h > 0.0 {
+    snapshot.cursor_y * screen_h.to_double() / css_h
+  } else {
+    snapshot.cursor_y
+  }
+  let mx = screen_to_physics_x(cur_x)
+  let my = screen_to_physics_y(cur_y)
   self.mouse_phys_x = mx
   self.mouse_phys_y = my
   // Grab on press

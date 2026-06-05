@@ -823,7 +823,7 @@ export function renderDemoHtml({
       <main class="content">
         <section class="stage-panel">
           <div class="stage-shell">
-            <canvas id="app" class="stage-canvas" width="${demo.width || 320}" height="${demo.height || 240}"></canvas>
+            <canvas id="app" class="stage-canvas" style="aspect-ratio: ${demo.width || 320} / ${demo.height || 240};" width="${demo.width || 320}" height="${demo.height || 240}"></canvas>
           </div>
           <p class="support-copy">
             <strong>Start:</strong> ${escapeHtml(demo.start)}

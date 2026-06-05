@@ -20,4 +20,8 @@ options(
       "cc-link-flags": "-L${build.KAGURA_NATIVE_WGPU_LIB_DIR} -lwgpu_native ${build.KAGURA_NATIVE_GLFW_LIBS} ${build.KAGURA_NATIVE_WGPU_RPATH} ${build.KAGURA_NATIVE_PLATFORM_LIBS}",
     },
   },
+  targets: {
+    "viewport_js.mbt": ["js"],
+    "viewport_native.mbt": ["native"],
+  },
 )

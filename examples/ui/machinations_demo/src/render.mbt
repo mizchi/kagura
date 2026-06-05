@@ -228,14 +228,20 @@ fn DemoState::draw(
   ctx : @engine.EngineContext,
 ) -> Array[@gfx.DrawTrianglesCommand] {
   let cmds : Array[@gfx.DrawTrianglesCommand] = []
+  // Lay out in a fixed logical space (screen_w x screen_h) and let the renderer
+  // stretch it to fill the canvas. The actual surface (ctx.screen_w/h) is the
+  // canvas pixel size (cssWidth x dpr), which differs from the logical layout;
+  // using it here would squash the diagram into the top-left and, crucially,
+  // break click hit-testing, which scales the cursor into this same logical
+  // space (see game.mbt).
   let frame = @renderer2d.RenderFrame2D::new(
     dst=ctx.dst,
     shader=ctx.shader,
-    screen_w=ctx.screen_w,
-    screen_h=ctx.screen_h,
+    screen_w=screen_w,
+    screen_h=screen_h,
   )
-  let sw = ctx.screen_w.to_double()
-  let sh = ctx.screen_h.to_double()
+  let sw = screen_w.to_double()
+  let sh = screen_h.to_double()
   push_rect(cmds, frame, 0.0, 0.0, sw, sh, 0x1A1E24)
   // edges behind nodes
   for ei in 0..<self.diagram.resources.length() {

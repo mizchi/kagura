@@ -233,12 +233,26 @@ fn DemoState::update(self : DemoState, input : @core.InputSnapshot) -> Unit {
   self.frame = self.frame + 1
   @inpututil.update_input_helper(self.input, input)
 
+  // Cursor coords arrive in canvas CSS pixels; scale into logical layout space.
+  let css_w = canvas_css_w()
+  let css_h = canvas_css_h()
+  let cx = if css_w > 0.0 {
+    input.cursor_x * screen_w.to_double() / css_w
+  } else {
+    input.cursor_x
+  }
+  let cy = if css_h > 0.0 {
+    input.cursor_y * screen_h.to_double() / css_h
+  } else {
+    input.cursor_y
+  }
+
   // Hit test for hover
-  self.hovered_id = @ui.hit_test(self.layouts, input.cursor_x, input.cursor_y)
+  self.hovered_id = @ui.hit_test(self.layouts, cx, cy)
 
   // Mouse click -> focus (find deepest focusable node)
   if @inpututil.is_mouse_button_just_pressed(self.input.mouse_state, 0) {
-    let hit_ids = @ui.hit_test_all(self.layouts, input.cursor_x, input.cursor_y)
+    let hit_ids = @ui.hit_test_all(self.layouts, cx, cy)
     let mut focused = false
     for hit_id in hit_ids {
       if !focused {

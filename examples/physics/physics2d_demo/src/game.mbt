@@ -169,10 +169,23 @@ fn screen_to_physics_y(sy : Double) -> Double {
 fn DemoState::update(self : DemoState, snapshot : @core.InputSnapshot) -> Unit {
   @inpututil.update_input_helper(self.input, snapshot)
   self.frame = self.frame + 1
+  // Cursor coords arrive in canvas CSS pixels; scale into logical layout space.
+  let css_w = canvas_css_w()
+  let css_h = canvas_css_h()
+  let cx = if css_w > 0.0 {
+    snapshot.cursor_x * screen_w.to_double() / css_w
+  } else {
+    snapshot.cursor_x
+  }
+  let cy = if css_h > 0.0 {
+    snapshot.cursor_y * screen_h.to_double() / css_h
+  } else {
+    snapshot.cursor_y
+  }
   // Click to spawn
   if @inpututil.is_mouse_button_just_pressed(self.input.mouse_state, 0) {
-    let px = screen_to_physics_x(snapshot.cursor_x)
-    let py = screen_to_physics_y(snapshot.cursor_y)
+    let px = screen_to_physics_x(cx)
+    let py = screen_to_physics_y(cy)
     let is_circle = self.next_id % 2 == 0
     if is_circle {
       self.world.add_body(make_dynamic_circle(self.next_id, px, py, 0.4))

@@ -4,6 +4,12 @@ const e2ePort = Number.parseInt(process.env.PORT ?? "4173", 10);
 const e2eBaseURL = `http://127.0.0.1:${e2ePort}`;
 const chromiumArgs = [
   "--enable-unsafe-webgpu",
+  // Headless Linux CI has no GPU; without a software adapter the WebGPU
+  // adapter is null and the runtime smoke harness reports status "failed".
+  // SwiftShader provides a software WebGPU/GL backend so the adapter resolves.
+  "--enable-unsafe-swiftshader",
+  "--use-gl=angle",
+  "--use-angle=swiftshader",
   ...(process.env.KAGURA_PLAYWRIGHT_CHROMIUM_ARGS ?? "").split(/\s+/).filter(Boolean),
 ];
 

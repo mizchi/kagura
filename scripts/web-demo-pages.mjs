@@ -464,6 +464,24 @@ const RAW_DEMO_PAGES = [
     width: 800,
     height: 480,
   },
+  {
+    name: "machinations_demo",
+    title: "Machinations",
+    group: "Tools",
+    summary:
+      "Machinations-style game-economy simulator: a Cookie-Clicker loop with pools, sources, a converter, a gate and a feedback modifier, plus a live time-series chart.",
+    start: "Click the gold CLICK / BUY nodes; press SPACE to run time.",
+    controls: [
+      "Click gold (interactive) nodes to fire them",
+      "SPACE: play/pause   RIGHT: step   R: reset",
+      "UP / DOWN: adjust speed",
+      "Hover a node to inspect it",
+    ],
+    tags: ["Tool", "Simulation", "Economy", "Chart"],
+    sourcePath: "examples/ui/machinations_demo/src/sample.mbt",
+    width: 720,
+    height: 480,
+  },
 ];
 
 export const DEMO_PAGES = RAW_DEMO_PAGES

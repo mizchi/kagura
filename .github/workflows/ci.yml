@@ -146,6 +146,13 @@ jobs:
         # keeps it green until either the readback path works on SwiftShader or
         # -linux baselines are generated in CI and committed.
         run: pnpm exec playwright test e2e/vrt.spec.ts --update-snapshots
+      - name: Upload generated VRT linux baselines (temp)
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: vrt-linux-baselines
+          path: e2e/vrt.spec.ts-snapshots/*-linux.png
+          if-no-files-found: warn
       - name: API Info
         run: moon info
 

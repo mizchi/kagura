@@ -1,22 +1,35 @@
-// Sample economy with a gate:
-//   INCOME --4--> GOLD --2--> SPLIT (gate) --1--> SAVINGS
-//                    \--1--> UPKEEP        \--1--> LOOT
-// Per step GOLD gains 4 and loses 3 (1 upkeep + 2 into the gate), so GOLD
-// climbs by 1; the gate splits its 2 evenly, so SAVINGS and LOOT each gain 1.
+// A Cookie-Clicker-style economy mixing interactive and time-based growth:
+//
+//   CLICK  (interactive) --5--> COOKIES        <- click a node to add 5
+//   CURSORS(automatic)   --1--> COOKIES        <- passive time growth
+//   SUN    (automatic)   --2--> ENERGY         <- passive time growth
+//   ENERGY --2--> FORGE (gate) --1--> COOKIES  <- energy is forged into
+//                              \--1--> GEMS        cookies and gems
+//
+// Click an interactive node (gold border) to fire it; press SPACE to let time
+// run so the automatic sources tick.
 
 ///|
 fn build_sample() -> @mac.Diagram {
   let dg = @mac.Diagram::new()
-  let income = dg.source("INCOME", x=80.0, y=180.0)
-  let gold = dg.pool("GOLD", initial=0, x=240.0, y=180.0)
-  let upkeep = dg.drain("UPKEEP", x=240.0, y=330.0)
-  let split = dg.gate("SPLIT", x=410.0, y=120.0)
-  let savings = dg.pool("SAVINGS", initial=0, x=565.0, y=70.0)
-  let loot = dg.pool("LOOT", initial=0, x=565.0, y=200.0)
-  let _ = dg.connect(income, gold, rate=@mac.Rate::Fixed(4))
-  let _ = dg.connect(gold, upkeep, rate=@mac.Rate::Fixed(1))
-  let _ = dg.connect(gold, split, rate=@mac.Rate::Fixed(2))
-  let _ = dg.connect(split, savings, weight=1.0)
-  let _ = dg.connect(split, loot, weight=1.0)
+  let click = dg.source(
+    "CLICK",
+    flow=@mac.Flow::Push,
+    activation=@mac.Activation::Interactive,
+    x=95.0,
+    y=70.0,
+  )
+  let cursors = dg.source("CURSORS", x=95.0, y=195.0)
+  let sun = dg.source("SUN", x=95.0, y=320.0)
+  let cookies = dg.pool("COOKIES", initial=0, x=305.0, y=130.0)
+  let energy = dg.pool("ENERGY", initial=0, x=305.0, y=305.0)
+  let forge = dg.gate("FORGE", x=445.0, y=305.0)
+  let gems = dg.pool("GEMS", initial=0, x=585.0, y=320.0)
+  let _ = dg.connect(click, cookies, rate=@mac.Rate::Fixed(5))
+  let _ = dg.connect(cursors, cookies, rate=@mac.Rate::Fixed(1))
+  let _ = dg.connect(sun, energy, rate=@mac.Rate::Fixed(2))
+  let _ = dg.connect(energy, forge, rate=@mac.Rate::Fixed(2))
+  let _ = dg.connect(forge, cookies, weight=1.0)
+  let _ = dg.connect(forge, gems, weight=1.0)
   dg
 }

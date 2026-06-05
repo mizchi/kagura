@@ -47,6 +47,26 @@ fn DemoState::new() -> DemoState {
 fn DemoState::update(self : DemoState, input : @core.InputSnapshot) -> Unit {
   @inpututil.update_input_helper(self.input, input)
   let ks = self.input.key_state
+  // Click an interactive node to fire it, then advance one step for instant
+  // feedback (cursor coords are in logical canvas space).
+  if @inpututil.is_mouse_button_just_pressed(self.input.mouse_state, 0) {
+    let mx = input.cursor_x
+    let my = input.cursor_y
+    for i in 0..<self.diagram.nodes.length() {
+      let n = self.diagram.nodes[i]
+      match n.activation {
+        Interactive =>
+          if mx > n.x - 46.0 &&
+            mx < n.x + 46.0 &&
+            my > n.y - 27.0 &&
+            my < n.y + 27.0 {
+            self.sim.activate(i)
+            @mac.step(self.diagram, self.sim)
+          }
+        _ => ()
+      }
+    }
+  }
   if @inpututil.is_key_just_pressed(ks, key_space) {
     self.playing = !self.playing
   }

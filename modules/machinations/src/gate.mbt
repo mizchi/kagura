@@ -106,7 +106,7 @@ fn process_gates(
   let edges = diagram.resources
   for gi in 0..<diagram.nodes.length() {
     let g = diagram.nodes[gi]
-    if g.kind != Gate || !node_active(g, state.step) {
+    if g.kind != Gate || !node_active(state, g, gi) {
       continue
     }
     // Pull from incoming edges.

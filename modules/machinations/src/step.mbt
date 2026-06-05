@@ -1,13 +1,12 @@
 // Simulation engine.
 //
-// Phase 1 scope: Pool / Source / Drain with fixed-rate (and dice/interval/all)
-// resource connections, automatic/start activation, pull and push flow. Each
-// step resolves all resource edges against a working copy of the previous
-// values so the order of independent flows does not matter; contention on a
-// shared pool is resolved deterministically in edge declaration order (a
-// documented MVP rule, refined in later phases). Gates, state connections,
-// converters/traders/delays and interactive/trigger activation are added in
-// subsequent phases.
+// Implemented: Pool / Source / Drain / Gate with fixed/dice/interval/all rates,
+// automatic / start / interactive activation, pull / pull-all / push flow, and
+// capacity. Each step resolves direct resource edges against a working copy of
+// the previous values (contention on a shared pool resolved deterministically
+// in edge declaration order — a documented MVP rule), then a gate pass, then
+// interactive activations are cleared. Still to come: state connections
+// (modifier/trigger/activator) and converter / trader / delay / queue / register.
 
 ///|
 /// Create the initial simulation state for a diagram, seeded for reproducibility.
@@ -25,6 +24,15 @@ pub fn SimState::init(
     step: 0,
     rng: seed,
     last_flows: Array::make(diagram.resources.length(), 0),
+    pending: Array::make(n, false),
+  }
+}
+
+///|
+/// Queue an interactive activation for the next `step` (e.g. a click on a node).
+pub fn SimState::activate(self : SimState, node : Int) -> Unit {
+  if node >= 0 && node < self.pending.length() {
+    self.pending[node] = true
   }
 }
 
@@ -39,16 +47,20 @@ pub fn SimState::reset(self : SimState, diagram : Diagram) -> Unit {
   self.values = values
   self.step = 0
   self.last_flows = Array::make(diagram.resources.length(), 0)
+  self.pending = Array::make(n, false)
 }
 
 ///|
-fn node_active(node : Node, step : Int) -> Bool {
+fn node_active(state : SimState, node : Node, idx : Int) -> Bool {
   match node.activation {
     Automatic => true
-    Start => step == 0
-    // Passive/Interactive/OnTrigger do not self-fire in Phase 1; passive nodes
-    // still supply/receive resources when an active node pulls/pushes them.
-    _ => false
+    Start => state.step == 0
+    // Interactive (and, until Phase 3 wires triggers, OnTrigger) fire when the
+    // host has queued an activation for this node via `activate`.
+    Interactive | OnTrigger =>
+      idx >= 0 && idx < state.pending.length() && state.pending[idx]
+    // Passive nodes never self-fire; they still supply/receive when pulled/pushed.
+    Passive => false
   }
 }
 
@@ -85,9 +97,9 @@ pub fn step(diagram : Diagram, state : SimState) -> Unit {
 
     // A resource edge fires when the active end drives it: a pulling target or
     // a pushing source.
-    let pulled = node_active(to, state.step) &&
+    let pulled = node_active(state, to, edge.to) &&
       (to.flow == Pull || to.flow == PullAll)
-    let pushed = node_active(from, state.step) && from.flow == Push
+    let pushed = node_active(state, from, edge.from) && from.flow == Push
     if !(pulled || pushed) {
       continue
     }
@@ -139,6 +151,10 @@ pub fn step(diagram : Diagram, state : SimState) -> Unit {
     flows[ei] = moved
   }
   process_gates(diagram, state, work, flows)
+  // Interactive activations are consumed by this step only.
+  for i in 0..<n {
+    state.pending[i] = false
+  }
   state.values = work
   state.last_flows = flows
   state.step = state.step + 1

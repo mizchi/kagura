@@ -178,15 +178,34 @@ fn draw_node(
   let h = 50.0
   let x = node.x - w / 2.0
   let y = node.y - h / 2.0
-  // border + fill
-  push_rect(cmds, frame, x, y, w, h, 0x0E1116)
-  push_rect(cmds, frame, x + 2.0, y + 2.0, w - 4.0, h - 4.0, node_color(node.kind))
+  let interactive = match node.activation {
+    Interactive => true
+    _ => false
+  }
+  // border (gold + thicker for clickable nodes) + fill
+  let border = if interactive { 0xE8C84A } else { 0x0E1116 }
+  let bw = if interactive { 4.0 } else { 2.0 }
+  push_rect(cmds, frame, x, y, w, h, border)
+  push_rect(
+    cmds,
+    frame,
+    x + bw,
+    y + bw,
+    w - bw * 2.0,
+    h - bw * 2.0,
+    node_color(node.kind),
+  )
   // label above the box
   push_text(cmds, frame, node.label, node.x, y - 9.0, 1.0, 0xCFD8E3)
   // value or kind tag inside
   match node.kind {
     Pool | Register => push_num(cmds, frame, value, node.x, node.y, 2.0, 0xFFFFFF)
-    Source => push_text(cmds, frame, "SRC", node.x, node.y, 1.0, 0xDFF3E6)
+    Source =>
+      if interactive {
+        push_text(cmds, frame, "CLICK", node.x, node.y, 1.0, 0xFFE9A8)
+      } else {
+        push_text(cmds, frame, "TIME", node.x, node.y, 1.0, 0xDFF3E6)
+      }
     Drain => push_text(cmds, frame, "DRN", node.x, node.y, 1.0, 0xF3DADA)
     Gate => push_text(cmds, frame, "GATE", node.x, node.y, 1.0, 0xE8DDF3)
     _ => ()
@@ -236,7 +255,7 @@ fn DemoState::draw(
   push_text(
     cmds,
     frame,
-    "SPACE PLAY   RIGHT STEP   R RESET   UP DOWN SPEED",
+    "CLICK GOLD NODES   SPACE PLAY   RIGHT STEP   R RESET   UP DOWN SPEED",
     sw / 2.0,
     sh - 14.0,
     1.0,

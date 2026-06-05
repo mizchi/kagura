@@ -115,4 +115,5 @@ pub(all) struct SimState {
   mut step : Int // completed-step counter
   mut rng : UInt64 // deterministic RNG state
   mut last_flows : Array[Int] // amount moved per resource edge last step (for viz)
+  mut pending : Array[Bool] // interactive activations queued for the next step
 }

@@ -11,6 +11,7 @@ members = [
   "./modules/kagura_engine",
   "./modules/physics",
   "./modules/pathfind",
+  "./modules/machinations",
   "./modules/game",
   "./modules/js_runtime",
 ]

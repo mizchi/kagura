@@ -125,27 +125,17 @@ jobs:
       - name: Runtime Smoke (JS)
         run: cd examples/smoke/runtime_smoke && moon run src --target js
       - name: Install Playwright Browser
-        # Two separate hangs to defend against:
-        # 1. `--with-deps` apt: Ubuntu 24.04's needrestart hook prompts and
-        #    hangs. sudo resets the env, so set the conf file (auto restart).
-        # 2. The browser download stalls at 100% when the CDN half-closes the
-        #    connection. Split deps from the download and retry the download
-        #    with a per-attempt timeout so a fresh connection clears the stall.
-        timeout-minutes: 15
+        # `--with-deps` runs `sudo apt-get`; on Ubuntu 24.04 the needrestart
+        # post-install hook prompts and hangs. sudo resets the env, so set the
+        # conf file to force auto-restart (no prompt). The separate "download
+        # hangs at 100%" symptom was a Node 24.16+ x Playwright <1.60 yauzl
+        # extraction bug (microsoft/playwright#41092), fixed by the 1.60 bump
+        # in package.json. Keep a timeout as a safety net.
+        timeout-minutes: 10
         run: |
           sudo mkdir -p /etc/needrestart/conf.d
           echo '$nrconf{restart} = "a";' | sudo tee /etc/needrestart/conf.d/99-ci-autorestart.conf >/dev/null
-          pnpm exec playwright install-deps chromium
-          for attempt in 1 2 3; do
-            echo "::group::playwright browser download attempt ${attempt}"
-            if timeout 240 pnpm exec playwright install chromium; then
-              echo "::endgroup::"
-              exit 0
-            fi
-            echo "::endgroup::"
-            echo "attempt ${attempt} stalled or failed; retrying"
-          done
-          exit 1
+          pnpm exec playwright install --with-deps chromium
       - name: Runtime Smoke E2E (wasm/wasm-gc)
         run: pnpm e2e:smoke
       - name: VRT E2E (visual regression)

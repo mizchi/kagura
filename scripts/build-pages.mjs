@@ -3,7 +3,9 @@ import {
   cpSync,
   existsSync,
   mkdirSync,
+  readdirSync,
   rmSync,
+  statSync,
   writeFileSync,
 } from "node:fs";
 import { join, resolve } from "node:path";
@@ -99,7 +101,20 @@ function resolveExampleDir(name) {
   if (existsSync(modelingDir)) {
     return modelingDir;
   }
-  return join(ROOT, "examples", name);
+  // Examples live under examples/<category>/<name> after the reorg; fall back
+  // to the legacy flat examples/<name> layout if a project sits there.
+  const examplesRoot = join(ROOT, "examples");
+  const flat = join(examplesRoot, name);
+  if (existsSync(join(flat, "moon.mod.json"))) {
+    return flat;
+  }
+  for (const category of readdirSync(examplesRoot)) {
+    const candidate = join(examplesRoot, category, name);
+    if (statSync(candidate, { throwIfNoEntry: false })?.isDirectory()) {
+      return candidate;
+    }
+  }
+  return flat;
 }
 
 function copySharedLib(fileName) {

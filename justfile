@@ -56,8 +56,9 @@ hacknslash3d-effects-e2e:
 publish:
     bash scripts/publish.sh
 
-publish-dry:
-    bash scripts/publish.sh --dry-run
+# Read-only: show per-module NEW / UNCHANGED / CHANGED status, upload nothing.
+publish-status:
+    bash scripts/publish.sh --status
 
 coverage:
     bash scripts/check-coverage.sh {{target}}

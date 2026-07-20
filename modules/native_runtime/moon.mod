@@ -17,8 +17,6 @@ import {
   "mizchi/glfw@0.2.2",
 }
 
-source = "src"
-
 options(
   "--moonbit-unstable-prebuild": "../../scripts/moon-prebuild-native-link-flags.cjs",
 )

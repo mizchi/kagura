@@ -1,0 +1,456 @@
+// Generated using `moon info`, DON'T EDIT IT
+package "mizchi/atlas"
+
+import {
+  "mizchi/gfx",
+  "mizchi/image",
+  "moonbitlang/core/debug",
+}
+
+// Values
+pub fn atlas_allocator_is_empty(SimpleAtlasAllocator) -> Bool
+
+pub fn atlas_allocator_reset_if_empty(SimpleAtlasAllocator) -> Bool
+
+pub fn atlas_page_image_count(SimpleAtlasImageRepository) -> Int
+
+pub fn atlas_page_is_empty(SimpleAtlasImageRepository) -> Bool
+
+pub fn atlas_page_stats(SimpleAtlasImageRepository) -> AtlasPageStats
+
+pub fn checker_palette_from_seed(Int) -> ImagePalette2x2
+
+pub fn clamp_channel(Int) -> Int
+
+pub fn clear_dirty_atlas_page_flags(SimpleAtlasImageRepository) -> Int
+
+pub fn clear_source_image_dirty_flags(SimpleImageRepository) -> Int
+
+pub fn create_atlas_image(SimpleAtlasImageRepository, AssetKey, ImageSpec) -> @gfx.ImageHandle?
+
+pub fn create_atlas_image_from_raster_bytes(SimpleAtlasImageRepository, AssetKey, Bytes) -> @gfx.ImageHandle? raise
+
+pub fn create_image_from_raster_bytes(SimpleImageRepository, AssetKey, Bytes) -> @gfx.ImageHandle? raise
+
+pub fn decode_bmp_image_spec(Bytes) -> ImageSpec raise @image.DecodeError
+
+pub fn decode_image_spec(Bytes, RasterImageFormat) -> ImageSpec raise @image.DecodeError
+
+pub fn decode_image_spec_auto(Bytes) -> ImageSpec? raise @image.DecodeError
+
+pub fn decode_jpeg_image_spec(Bytes) -> ImageSpec raise @image.DecodeError
+
+pub fn decode_png_image_spec(Bytes) -> ImageSpec raise @image.DecodeError
+
+pub fn default_image_spec(Int, Int) -> ImageSpec
+
+pub fn detect_raster_image_format(Bytes) -> RasterImageFormat?
+
+pub fn encode_bmp_image_spec(ImageSpec) -> Bytes raise @image.EncodeError
+
+pub fn encode_image_spec(ImageSpec, RasterImageFormat) -> Bytes raise @image.EncodeError
+
+pub fn encode_jpeg_image_spec(ImageSpec, quality? : Int) -> Bytes raise @image.EncodeError
+
+pub fn encode_png_image_spec(ImageSpec) -> Bytes raise @image.EncodeError
+
+pub fn get_atlas_draw_source(SimpleAtlasImageRepository, AssetKey) -> AtlasDrawSource?
+
+pub fn get_atlas_image_region(SimpleAtlasImageRepository, AssetKey) -> AtlasRegion?
+
+pub fn get_image_generation_by_id(SimpleImageRepository, Int) -> Int
+
+pub fn get_image_palette_by_id(SimpleImageRepository, Int) -> ImagePalette2x2?
+
+pub fn get_image_pixels_by_id(SimpleImageRepository, Int) -> Array[Int]?
+
+pub fn image_spec_with_palette(Int, Int, ImagePalette2x2) -> ImageSpec
+
+pub fn image_spec_with_rgba8(Int, Int, Array[Int]) -> ImageSpec
+
+pub fn list_dirty_atlas_page_bindings(SimpleAtlasImageRepository) -> Array[SourceImageBinding]
+
+pub fn list_dirty_source_image_bindings(SimpleImageRepository) -> Array[SourceImageBinding]
+
+pub fn list_image_palette_bindings(SimpleImageRepository) -> Array[ImagePaletteBinding]
+
+pub fn list_source_image_bindings(SimpleImageRepository) -> Array[SourceImageBinding]
+
+pub fn multi_page_clear_dirty_flags(MultiPageAtlasRepository) -> Int
+
+pub fn multi_page_compact(MultiPageAtlasRepository) -> AtlasCompactResult
+
+pub fn multi_page_count(MultiPageAtlasRepository) -> Int
+
+pub fn multi_page_create_image(MultiPageAtlasRepository, AssetKey, ImageSpec) -> @gfx.ImageHandle?
+
+pub fn multi_page_get_draw_source(MultiPageAtlasRepository, AssetKey) -> AtlasDrawSource?
+
+pub fn multi_page_get_page_ids(MultiPageAtlasRepository) -> Array[Int]
+
+pub fn multi_page_get_region(MultiPageAtlasRepository, AssetKey) -> AtlasRegion?
+
+pub fn multi_page_image_count(MultiPageAtlasRepository) -> Int
+
+pub fn multi_page_list_dirty_bindings(MultiPageAtlasRepository) -> Array[SourceImageBinding]
+
+pub fn multi_page_remove_image(MultiPageAtlasRepository, AssetKey) -> Unit
+
+pub fn multi_page_stats(MultiPageAtlasRepository) -> Array[AtlasPageStats]
+
+pub fn multi_page_update_image_spec(MultiPageAtlasRepository, AssetKey, ImageSpec) -> @gfx.ImageHandle?
+
+pub fn new_asset_key(String) -> AssetKey
+
+pub fn new_atlas_region(Int, Int, Int, Int, Int) -> AtlasRegion
+
+pub fn new_image_palette_2x2(Rgba, Rgba, Rgba, Rgba) -> ImagePalette2x2
+
+pub fn new_multi_page_atlas_repository(Int, Int) -> MultiPageAtlasRepository
+
+pub fn new_rgba(Int, Int, Int, Int) -> Rgba
+
+pub fn new_simple_atlas_allocator(Int, Int, Int) -> SimpleAtlasAllocator
+
+pub fn new_simple_atlas_image_repository(Int, Int, Int) -> SimpleAtlasImageRepository
+
+pub fn new_simple_image_repository() -> SimpleImageRepository
+
+pub fn new_simple_material_repository() -> SimpleMaterialRepository
+
+pub fn new_simple_shader_repository() -> SimpleShaderRepository
+
+pub fn new_solid_palette(Rgba) -> ImagePalette2x2
+
+pub fn new_source_image_binding(Int, Int, Int, Int, SourceImageDirtyRect?, ImagePalette2x2, Array[Int]) -> SourceImageBinding
+
+pub fn new_source_image_dirty_rect(Int, Int, Int, Int) -> SourceImageDirtyRect
+
+pub fn new_unmanaged_atlas_draw_source(Int) -> AtlasDrawSource
+
+pub fn palette_channel(ImagePalette2x2, Int, Int) -> Int
+
+pub fn raster_image_format_bmp() -> RasterImageFormat
+
+pub fn raster_image_format_jpeg() -> RasterImageFormat
+
+pub fn raster_image_format_png() -> RasterImageFormat
+
+pub fn raster_resize_bicubic() -> RasterResizeMethod
+
+pub fn raster_resize_bilinear() -> RasterResizeMethod
+
+pub fn raster_resize_nearest() -> RasterResizeMethod
+
+pub fn register_precomputed_image(SimpleAtlasImageRepository, AssetKey, AtlasRegion, ImageSpec) -> @gfx.ImageHandle
+
+pub fn remove_atlas_image(SimpleAtlasImageRepository, AssetKey) -> Unit
+
+pub fn resize_image_spec(ImageSpec, Int, Int, RasterResizeMethod) -> ImageSpec raise @image.EncodeError
+
+pub fn update_atlas_image_from_raster_bytes(SimpleAtlasImageRepository, AssetKey, Bytes) -> @gfx.ImageHandle? raise
+
+pub fn update_atlas_image_spec(SimpleAtlasImageRepository, AssetKey, ImageSpec) -> @gfx.ImageHandle?
+
+pub fn update_image_from_raster_bytes(SimpleImageRepository, AssetKey, Bytes) -> @gfx.ImageHandle? raise
+
+pub fn update_image_spec(SimpleImageRepository, AssetKey, ImageSpec) -> @gfx.ImageHandle?
+
+// Errors
+
+// Types and methods
+pub struct AssetKey {
+  value : String
+} derive(@debug.Debug)
+pub fn AssetKey::output(Self, &Logger) -> Unit
+pub fn AssetKey::to_repr(Self) -> @debug.Repr
+pub fn AssetKey::to_string(Self) -> String
+pub impl Show for AssetKey
+
+pub struct AtlasCompactResult {
+  removed_page_ids : Array[Int]
+  removed_page_count : Int
+  remaining_page_count : Int
+} derive(@debug.Debug)
+pub fn AtlasCompactResult::output(Self, &Logger) -> Unit
+pub fn AtlasCompactResult::to_repr(Self) -> @debug.Repr
+pub fn AtlasCompactResult::to_string(Self) -> String
+pub impl Show for AtlasCompactResult
+
+pub struct AtlasDrawSource {
+  page_image_id : Int
+  region : AtlasRegion
+  u0 : Double
+  v0 : Double
+  u1 : Double
+  v1 : Double
+} derive(@debug.Debug)
+pub fn AtlasDrawSource::output(Self, &Logger) -> Unit
+pub fn AtlasDrawSource::to_repr(Self) -> @debug.Repr
+pub fn AtlasDrawSource::to_string(Self) -> String
+pub impl Show for AtlasDrawSource
+
+pub struct AtlasPageStats {
+  atlas_id : Int
+  image_count : Int
+  allocated_region_count : Int
+  atlas_width : Int
+  atlas_height : Int
+  is_empty : Bool
+} derive(@debug.Debug)
+pub fn AtlasPageStats::output(Self, &Logger) -> Unit
+pub fn AtlasPageStats::to_repr(Self) -> @debug.Repr
+pub fn AtlasPageStats::to_string(Self) -> String
+pub impl Show for AtlasPageStats
+
+pub struct AtlasRegion {
+  x : Int
+  y : Int
+  width : Int
+  height : Int
+  atlas_id : Int
+} derive(@debug.Debug)
+pub fn AtlasRegion::output(Self, &Logger) -> Unit
+pub fn AtlasRegion::to_repr(Self) -> @debug.Repr
+pub fn AtlasRegion::to_string(Self) -> String
+pub impl Show for AtlasRegion
+
+pub(all) struct FetchHandle {
+  id : Int
+} derive(@debug.Debug)
+pub fn FetchHandle::output(Self, &Logger) -> Unit
+pub fn FetchHandle::to_repr(Self) -> @debug.Repr
+pub fn FetchHandle::to_string(Self) -> String
+pub impl Show for FetchHandle
+
+pub(all) struct FetchProgress {
+  loaded : Int
+  total : Int
+} derive(@debug.Debug)
+pub fn FetchProgress::output(Self, &Logger) -> Unit
+pub fn FetchProgress::to_repr(Self) -> @debug.Repr
+pub fn FetchProgress::to_string(Self) -> String
+pub impl Show for FetchProgress
+
+pub struct ImagePalette2x2 {
+  p00 : Rgba
+  p10 : Rgba
+  p01 : Rgba
+  p11 : Rgba
+} derive(@debug.Debug)
+pub fn ImagePalette2x2::output(Self, &Logger) -> Unit
+pub fn ImagePalette2x2::to_repr(Self) -> @debug.Repr
+pub fn ImagePalette2x2::to_string(Self) -> String
+pub impl Show for ImagePalette2x2
+
+pub struct ImagePaletteBinding {
+  image_id : Int
+  palette : ImagePalette2x2
+} derive(@debug.Debug)
+pub fn ImagePaletteBinding::output(Self, &Logger) -> Unit
+pub fn ImagePaletteBinding::to_repr(Self) -> @debug.Repr
+pub fn ImagePaletteBinding::to_string(Self) -> String
+pub impl Show for ImagePaletteBinding
+
+pub struct ImageSpec {
+  width : Int
+  height : Int
+  format : String
+  palette : ImagePalette2x2
+  pixels_rgba8 : Array[Int]
+} derive(@debug.Debug)
+pub fn ImageSpec::output(Self, &Logger) -> Unit
+pub fn ImageSpec::to_repr(Self) -> @debug.Repr
+pub fn ImageSpec::to_string(Self) -> String
+pub impl Show for ImageSpec
+
+pub struct MaterialSpec {
+  shader : AssetKey
+  blend : @gfx.BlendMode
+  filter : @gfx.FilterMode
+  uniform_keys : Array[String]
+} derive(@debug.Debug)
+pub fn MaterialSpec::output(Self, &Logger) -> Unit
+pub fn MaterialSpec::to_repr(Self) -> @debug.Repr
+pub fn MaterialSpec::to_string(Self) -> String
+pub impl Show for MaterialSpec
+
+pub struct MultiPageAtlasRepository {
+  page_width : Int
+  page_height : Int
+  mut next_page_id : Int
+  pages : Array[SimpleAtlasImageRepository]
+  mut key_page_index : Array[(String, Int)]
+}
+
+pub enum RasterImageFormat {
+  Png
+  Jpeg
+  Bmp
+} derive(Eq, @debug.Debug)
+pub fn RasterImageFormat::equal(Self, Self) -> Bool
+pub fn RasterImageFormat::not_equal(Self, Self) -> Bool
+pub fn RasterImageFormat::output(Self, &Logger) -> Unit
+pub fn RasterImageFormat::to_repr(Self) -> @debug.Repr
+pub fn RasterImageFormat::to_string(Self) -> String
+pub impl Show for RasterImageFormat
+
+pub enum RasterResizeMethod {
+  Nearest
+  Bilinear
+  Bicubic
+} derive(@debug.Debug)
+pub fn RasterResizeMethod::output(Self, &Logger) -> Unit
+pub fn RasterResizeMethod::to_repr(Self) -> @debug.Repr
+pub fn RasterResizeMethod::to_string(Self) -> String
+pub impl Show for RasterResizeMethod
+
+pub struct Rgba {
+  r : Int
+  g : Int
+  b : Int
+  a : Int
+} derive(@debug.Debug)
+pub fn Rgba::output(Self, &Logger) -> Unit
+pub fn Rgba::to_repr(Self) -> @debug.Repr
+pub fn Rgba::to_string(Self) -> String
+pub impl Show for Rgba
+
+pub struct ShaderSpec {
+  debug_name : String
+  source : String
+} derive(@debug.Debug)
+pub fn ShaderSpec::output(Self, &Logger) -> Unit
+pub fn ShaderSpec::to_repr(Self) -> @debug.Repr
+pub fn ShaderSpec::to_string(Self) -> String
+pub impl Show for ShaderSpec
+
+pub struct SimpleAtlasAllocator {
+  atlas_width : Int
+  atlas_height : Int
+  atlas_id : Int
+  mut cursor_x : Int
+  mut cursor_y : Int
+  mut row_height : Int
+  mut allocated : Array[AtlasRegion]
+}
+pub fn SimpleAtlasAllocator::allocate(Self, Int, Int) -> AtlasRegion?
+pub fn SimpleAtlasAllocator::release(Self, AtlasRegion) -> Unit
+pub impl AtlasAllocator for SimpleAtlasAllocator
+
+type SimpleAtlasImageEntry derive(@debug.Debug)
+pub fn SimpleAtlasImageEntry::output(Self, &Logger) -> Unit
+pub fn SimpleAtlasImageEntry::to_repr(Self) -> @debug.Repr
+pub fn SimpleAtlasImageEntry::to_string(Self) -> String
+pub impl Show for SimpleAtlasImageEntry
+
+pub struct SimpleAtlasImageRepository {
+  atlas_width : Int
+  atlas_height : Int
+  atlas_id : Int
+  mut next_image_id : Int
+  allocator : SimpleAtlasAllocator
+  mut images : Array[SimpleAtlasImageEntry]
+  mut page_generation : Int
+  mut page_dirty_rect : SourceImageDirtyRect?
+}
+
+type SimpleImageEntry derive(@debug.Debug)
+pub fn SimpleImageEntry::output(Self, &Logger) -> Unit
+pub fn SimpleImageEntry::to_repr(Self) -> @debug.Repr
+pub fn SimpleImageEntry::to_string(Self) -> String
+pub impl Show for SimpleImageEntry
+
+pub struct SimpleImageRepository {
+  mut next_image_id : Int
+  mut images : Array[SimpleImageEntry]
+}
+pub fn SimpleImageRepository::create_image(Self, AssetKey, ImageSpec) -> @gfx.ImageHandle raise
+pub fn SimpleImageRepository::get_image(Self, AssetKey) -> @gfx.ImageHandle?
+pub fn SimpleImageRepository::remove_image(Self, AssetKey) -> Unit raise
+pub impl ImageRepository for SimpleImageRepository
+
+type SimpleMaterialEntry derive(@debug.Debug)
+pub fn SimpleMaterialEntry::output(Self, &Logger) -> Unit
+pub fn SimpleMaterialEntry::to_repr(Self) -> @debug.Repr
+pub fn SimpleMaterialEntry::to_string(Self) -> String
+pub impl Show for SimpleMaterialEntry
+
+pub struct SimpleMaterialRepository {
+  mut materials : Array[SimpleMaterialEntry]
+}
+pub fn SimpleMaterialRepository::get_material(Self, AssetKey) -> MaterialSpec?
+pub fn SimpleMaterialRepository::register_material(Self, AssetKey, MaterialSpec) -> Unit raise
+pub impl MaterialRepository for SimpleMaterialRepository
+
+type SimpleShaderEntry derive(@debug.Debug)
+pub fn SimpleShaderEntry::output(Self, &Logger) -> Unit
+pub fn SimpleShaderEntry::to_repr(Self) -> @debug.Repr
+pub fn SimpleShaderEntry::to_string(Self) -> String
+pub impl Show for SimpleShaderEntry
+
+pub struct SimpleShaderRepository {
+  mut next_shader_id : Int
+  mut shaders : Array[SimpleShaderEntry]
+}
+pub fn SimpleShaderRepository::create_shader(Self, AssetKey, ShaderSpec) -> @gfx.ShaderHandle raise
+pub fn SimpleShaderRepository::get_shader(Self, AssetKey) -> @gfx.ShaderHandle?
+pub fn SimpleShaderRepository::remove_shader(Self, AssetKey) -> Unit raise
+pub impl ShaderRepository for SimpleShaderRepository
+
+pub struct SourceImageBinding {
+  image_id : Int
+  width : Int
+  height : Int
+  generation : Int
+  dirty_rect : SourceImageDirtyRect?
+  palette : ImagePalette2x2
+  pixels_rgba8 : Array[Int]
+} derive(@debug.Debug)
+pub fn SourceImageBinding::output(Self, &Logger) -> Unit
+pub fn SourceImageBinding::to_repr(Self) -> @debug.Repr
+pub fn SourceImageBinding::to_string(Self) -> String
+pub impl Show for SourceImageBinding
+
+pub struct SourceImageDirtyRect {
+  x : Int
+  y : Int
+  width : Int
+  height : Int
+} derive(@debug.Debug)
+pub fn SourceImageDirtyRect::output(Self, &Logger) -> Unit
+pub fn SourceImageDirtyRect::to_repr(Self) -> @debug.Repr
+pub fn SourceImageDirtyRect::to_string(Self) -> String
+pub impl Show for SourceImageDirtyRect
+
+// Type aliases
+
+// Traits
+pub trait AtlasAllocator {
+  fn allocate(Self, Int, Int) -> AtlasRegion?
+  fn release(Self, AtlasRegion) -> Unit
+}
+
+pub(open) trait BytesFetcher {
+  fn fetch(Self, String, (FetchProgress) -> Unit, (Bytes?) -> Unit) -> FetchHandle
+  fn cancel(Self, FetchHandle) -> Unit
+  fn poll(Self) -> Unit
+}
+
+pub trait ImageRepository {
+  fn create_image(Self, AssetKey, ImageSpec) -> @gfx.ImageHandle raise
+  fn get_image(Self, AssetKey) -> @gfx.ImageHandle?
+  fn remove_image(Self, AssetKey) -> Unit raise
+}
+
+pub trait MaterialRepository {
+  fn register_material(Self, AssetKey, MaterialSpec) -> Unit raise
+  fn get_material(Self, AssetKey) -> MaterialSpec?
+}
+
+pub trait ShaderRepository {
+  fn create_shader(Self, AssetKey, ShaderSpec) -> @gfx.ShaderHandle raise
+  fn get_shader(Self, AssetKey) -> @gfx.ShaderHandle?
+  fn remove_shader(Self, AssetKey) -> Unit raise
+}
+

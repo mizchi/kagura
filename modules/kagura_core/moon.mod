@@ -17,5 +17,3 @@ import {
 }
 
 preferred_target = "js"
-
-source = "src"

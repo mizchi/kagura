@@ -15,5 +15,3 @@ preferred_target = "js"
 import {
   "mizchi/js@0.10.14",
 }
-
-source = "src"

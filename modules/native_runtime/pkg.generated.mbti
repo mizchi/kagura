@@ -1,0 +1,403 @@
+// Generated using `moon info`, DON'T EDIT IT
+package "mizchi/kagura_native_runtime"
+
+import {
+  "mizchi/glfw",
+  "mizchi/kagura_engine/audio",
+  "moonbitlang/core/debug",
+}
+
+// Values
+pub fn adapter_release(WGPUAdapter) -> Unit
+
+pub fn begin_planned_source_image_patch(Int) -> Bool
+
+pub fn begin_planned_source_image_upload(Int, Int, Int) -> Unit
+
+pub fn capture_offscreen_target_readback(Int) -> Bool
+
+pub fn clamp_runtime_render_size(Int, Int) -> (Int, Int)
+
+pub fn clear_offscreen_targets() -> Unit
+
+pub fn clear_planned_bind_group_cache() -> Unit
+
+pub fn clear_planned_image_palette_registry() -> Unit
+
+pub fn clear_planned_pipeline_cache() -> Unit
+
+pub fn clear_planned_source_image_registry() -> Unit
+
+pub fn clear_planned_texture_cache() -> Unit
+
+pub fn configure_surface(WGPUSurface, WGPUDevice, WGPUAdapter, Int, Int) -> Unit
+
+pub fn create_instance() -> WGPUInstance
+
+pub fn create_render_pipeline(WGPUDevice, WGPUShaderModule, Int) -> WGPURenderPipeline
+
+pub fn create_shader_module(WGPUDevice, String) -> WGPUShaderModule
+
+pub fn create_surface_from_glfw(WGPUInstance, @glfw.GLFWwindow) -> WGPUSurface
+
+pub fn device_get_queue(WGPUDevice) -> WGPUQueue
+
+pub fn device_release(WGPUDevice) -> Unit
+
+pub fn end_planned_source_image_patch(Int) -> Bool
+
+pub fn end_planned_source_image_upload(Int) -> Unit
+
+pub fn ensure_headless_runtime_context(Int, Int) -> Bool
+
+pub fn ensure_runtime_context(Int, Int, String) -> Bool
+
+pub fn font_file_byte_at(Int) -> Int
+
+pub fn font_file_release() -> Unit
+
+pub fn has_runtime_context() -> Bool
+
+pub fn init_headless_context(Int, Int) -> TriangleContext
+
+pub fn init_triangle_context(Int, Int, String) -> TriangleContext
+
+pub fn instance_add_ref(WGPUInstance) -> Unit
+
+pub fn instance_release(WGPUInstance) -> Unit
+
+pub fn load_font_file(String) -> Int
+
+pub fn new_native_audio_output_hooks() -> @audio.AudioOutputHooks
+
+pub fn planned_image_palette_channel(Int, Int, Int) -> Int
+
+pub fn planned_image_palette_generation(Int) -> Int
+
+pub fn planned_image_palette_registry_count() -> Int
+
+pub fn planned_source_image_generation(Int) -> Int
+
+pub fn planned_source_image_height(Int) -> Int
+
+pub fn planned_source_image_pixel_channel(Int, Int, Int, Int) -> Int
+
+pub fn planned_source_image_registry_count() -> Int
+
+pub fn planned_source_image_width(Int) -> Int
+
+pub fn poll(TriangleContext) -> Unit
+
+pub fn present_planned_frame_direct(Double, Double, Double, Double) -> Bool
+
+pub fn push_planned_draw_command(Int, Int, Double, Double, Double, Double, Double, Double, Double, Double, Double, Double, Double, Double, Double, Double, Double, Double, Int, Int) -> Unit
+
+pub fn queue_release(WGPUQueue) -> Unit
+
+pub fn read_file_bytes(String) -> Bytes?
+
+pub fn read_pixels_available() -> Bool
+
+pub fn read_pixels_channel(Int) -> Int
+
+pub fn read_pixels_height() -> Int
+
+pub fn read_pixels_width() -> Int
+
+pub fn reconfigure_triangle_surface(TriangleContext, Int, Int) -> Unit
+
+pub fn register_offscreen_target(Int, Int, Int) -> Unit
+
+pub fn register_planned_image_palette(Int, Int, Int, Int, Int, Int, Int, Int, Int, Int, Int, Int, Int, Int, Int, Int, Int) -> Unit
+
+pub fn render_frame(WGPUSurface, WGPUDevice, WGPUQueue, WGPURenderPipeline) -> Unit
+
+pub fn render_frame_with_plan(WGPUSurface, WGPUDevice, WGPUQueue, WGPURenderPipeline, Double, Double, Double, Double, Int) -> Unit
+
+pub fn render_frame_with_plan_payload(WGPUSurface, WGPUDevice, WGPUQueue, WGPURenderPipeline, Double, Double, Double, Double, Int, Int, Double, Double, Double, Double, Double, Double, Double, Double, Double, Double, Double, Double, Double, Double, Double, Double, Int) -> Unit
+
+pub fn render_frame_with_staged_plan(WGPUSurface, WGPUDevice, WGPUQueue, WGPURenderPipeline, Double, Double, Double, Double) -> Unit
+
+pub fn render_pipeline_release(WGPURenderPipeline) -> Unit
+
+pub fn render_triangle_frame(TriangleContext) -> Unit
+
+pub fn render_triangle_frame_with_plan(TriangleContext, Double, Double, Double, Double, Int) -> Unit
+
+pub fn render_triangle_frame_with_plan_payload(TriangleContext, Double, Double, Double, Double, Int, Bool, Double, Double, Double, Double, Double, Double, Double, Double, Double, Double, Double, Double, Double, Double, Double, Double, Int) -> Unit
+
+pub fn render_triangle_frame_with_staged_plan(TriangleContext, Double, Double, Double, Double) -> Unit
+
+pub fn request_adapter(WGPUInstance, WGPUSurface) -> WGPUAdapter
+
+pub fn request_device(WGPUAdapter) -> WGPUDevice
+
+pub fn reset_planned_draw_queue() -> Unit
+
+pub fn reset_triangle_draw_plan_queue() -> Unit
+
+pub fn run_triangle_demo() -> Unit
+
+pub fn runtime_begin_frame(Double, Double, Double, Double) -> Unit
+
+pub fn runtime_clear_source_image_palette_registry() -> Unit
+
+pub fn runtime_clear_source_image_registry() -> Unit
+
+pub fn runtime_command_has_triangle_payload_at(Int) -> Bool
+
+pub fn runtime_command_payload_texture_seed_at(Int) -> Int
+
+pub fn runtime_cursor_mode() -> Int
+
+pub fn runtime_cursor_x() -> Double
+
+pub fn runtime_cursor_y() -> Double
+
+pub fn runtime_device_scale_factor(Double) -> Double
+
+pub fn runtime_gamepad_axis_at(Int, Int) -> Double
+
+pub fn runtime_gamepad_axis_count(Int) -> Int
+
+pub fn runtime_gamepad_count() -> Int
+
+pub fn runtime_gamepad_id_at(Int) -> Int
+
+pub fn runtime_gamepad_pressed_button_at(Int, Int) -> Int
+
+pub fn runtime_gamepad_pressed_button_count(Int) -> Int
+
+pub fn runtime_has_triangle_payload() -> Bool
+
+pub fn runtime_is_fullscreen() -> Bool
+
+pub fn runtime_is_vsync_enabled() -> Bool
+
+pub fn runtime_last_blend_mode() -> Int
+
+pub fn runtime_last_dst_image_id() -> Int
+
+pub fn runtime_last_index_count() -> Int
+
+pub fn runtime_last_index_offset() -> Int
+
+pub fn runtime_last_pipeline_id() -> Int
+
+pub fn runtime_last_region_count() -> Int
+
+pub fn runtime_last_shader_id() -> Int
+
+pub fn runtime_last_src_image_count() -> Int
+
+pub fn runtime_last_total_index_count() -> Int
+
+pub fn runtime_last_uniform_dword_count() -> Int
+
+pub fn runtime_last_uniform_hash() -> Int
+
+pub fn runtime_last_vertex_float_count() -> Int
+
+pub fn runtime_load_font_data(String) -> Array[Int]?
+
+pub fn runtime_patch_source_image_rgba8(Int, Int, Int, Int, Int, Int, Int, Array[Int]) -> Bool
+
+pub fn runtime_payload_texture_seed() -> Int
+
+pub fn runtime_payload_triangle_ax() -> Double
+
+pub fn runtime_payload_triangle_ay() -> Double
+
+pub fn runtime_payload_triangle_bx() -> Double
+
+pub fn runtime_payload_triangle_by() -> Double
+
+pub fn runtime_payload_triangle_cx() -> Double
+
+pub fn runtime_payload_triangle_cy() -> Double
+
+pub fn runtime_payload_uniform_a() -> Double
+
+pub fn runtime_payload_uniform_b() -> Double
+
+pub fn runtime_payload_uniform_g() -> Double
+
+pub fn runtime_payload_uniform_r() -> Double
+
+pub fn runtime_payload_uv_au() -> Double
+
+pub fn runtime_payload_uv_av() -> Double
+
+pub fn runtime_payload_uv_bu() -> Double
+
+pub fn runtime_payload_uv_bv() -> Double
+
+pub fn runtime_payload_uv_cu() -> Double
+
+pub fn runtime_payload_uv_cv() -> Double
+
+pub fn runtime_pending_command_count() -> Int
+
+pub fn runtime_pending_draw_calls() -> Int
+
+pub fn runtime_poll_events() -> Unit
+
+pub fn runtime_present_planned_frame() -> Bool
+
+pub fn runtime_pressed_key_at(Int) -> Int
+
+pub fn runtime_pressed_key_count() -> Int
+
+pub fn runtime_pressed_mouse_button_at(Int) -> Int
+
+pub fn runtime_pressed_mouse_button_count() -> Int
+
+pub fn runtime_read_offscreen_pixels(Int, Int, Int, Int, Int) -> Array[Int]?
+
+pub fn runtime_read_pixels(Int, Int, Int, Int) -> Array[Int]?
+
+pub fn runtime_record_draw_command(Int, Int, Int, Int, Int, Int, Int, Int, Int, Int, Int, Int, Int) -> Unit
+
+pub fn runtime_record_draw_region_count(Int) -> Unit
+
+pub fn runtime_record_draw_triangle_payload(Double, Double, Double, Double, Double, Double, Double, Double, Double, Double, Double, Double, Double, Double, Double, Double, Int) -> Unit
+
+pub fn runtime_register_source_image_palette(Int, Int, Int, Int, Int, Int, Int, Int, Int, Int, Int, Int, Int, Int, Int, Int, Int) -> Unit
+
+pub fn runtime_register_source_image_rgba8(Int, Int, Int, Array[Int]) -> Unit
+
+pub fn runtime_register_source_image_solid_color(Int, Int, Int, Int, Int) -> Unit
+
+pub fn runtime_render_frame() -> Bool
+
+pub fn runtime_render_frame_with_plan(Double, Double, Double, Double, Int) -> Bool
+
+pub fn runtime_request_attention() -> Unit
+
+pub fn runtime_request_close() -> Unit
+
+pub fn runtime_resize_surface(Int, Int) -> (Int, Int)
+
+pub fn runtime_set_cursor_mode(Int) -> Int
+
+pub fn runtime_set_device_scale_factor(Double) -> Double
+
+pub fn runtime_set_fullscreen(Bool) -> Bool
+
+pub fn runtime_set_vsync_enabled(Bool) -> Bool
+
+pub fn runtime_should_close() -> Bool
+
+pub fn runtime_source_image_generation(Int) -> Int
+
+pub fn runtime_source_image_height(Int) -> Int
+
+pub fn runtime_source_image_palette_count() -> Int
+
+pub fn runtime_source_image_palette_generation(Int) -> Int
+
+pub fn runtime_source_image_pixel_channel(Int, Int, Int, Int) -> Int
+
+pub fn runtime_source_image_upload_count() -> Int
+
+pub fn runtime_source_image_width(Int) -> Int
+
+pub fn runtime_take_wheel_x() -> Double
+
+pub fn runtime_take_wheel_y() -> Double
+
+pub fn runtime_touch_count() -> Int
+
+pub fn runtime_touch_id_at(Int) -> Int
+
+pub fn runtime_touch_type_at(Int) -> Int
+
+pub fn runtime_touch_x_at(Int) -> Double
+
+pub fn runtime_touch_y_at(Int) -> Double
+
+pub fn runtime_window_size(Int, Int) -> (Int, Int)
+
+pub fn save_screenshot(String) -> Bool
+
+pub fn set_planned_source_image_pixel(Int, Int, Int, Int, Int, Int, Int) -> Unit
+
+pub fn shader_module_release(WGPUShaderModule) -> Unit
+
+pub fn should_continue(TriangleContext) -> Bool
+
+pub fn shutdown_runtime_context() -> Unit
+
+pub fn shutdown_triangle_context(TriangleContext) -> Unit
+
+pub fn stage_triangle_draw_plan_command(Int, Bool, Double, Double, Double, Double, Double, Double, Double, Double, Double, Double, Double, Double, Double, Double, Double, Double, Int, Int) -> Unit
+
+pub fn surface_release(WGPUSurface) -> Unit
+
+pub fn try_init_headless_context(Int, Int) -> TriangleContext?
+
+pub fn try_init_triangle_context(Int, Int, String) -> TriangleContext?
+
+pub fn write_file_bytes(String, Bytes) -> Bool
+
+pub fn write_file_text(String, String) -> Bool
+
+pub fn write_readback_bmp(String) -> Bool
+
+// Errors
+
+// Types and methods
+pub struct TriangleContext {
+  window : @glfw.GLFWwindow
+  instance : WGPUInstance
+  surface : WGPUSurface
+  adapter : WGPUAdapter
+  device : WGPUDevice
+  queue : WGPUQueue
+  shader : WGPUShaderModule
+  pipeline : WGPURenderPipeline
+}
+
+type WGPUAdapter
+
+pub enum WGPUBackendType {
+  Undefined
+  Null
+  WebGPU
+  D3D11
+  D3D12
+  Metal
+  Vulkan
+  OpenGL
+  OpenGLES
+} derive(@debug.Debug)
+pub fn WGPUBackendType::output(Self, &Logger) -> Unit
+pub fn WGPUBackendType::to_repr(Self) -> @debug.Repr
+pub fn WGPUBackendType::to_string(Self) -> String
+pub impl Show for WGPUBackendType
+
+type WGPUDevice
+
+type WGPUInstance
+
+type WGPUQueue
+
+type WGPURenderPipeline
+
+type WGPUShaderModule
+
+pub enum WGPUStatus {
+  Success
+  Error
+} derive(@debug.Debug)
+pub fn WGPUStatus::output(Self, &Logger) -> Unit
+pub fn WGPUStatus::to_repr(Self) -> @debug.Repr
+pub fn WGPUStatus::to_string(Self) -> String
+pub impl Show for WGPUStatus
+
+type WGPUSurface
+
+// Type aliases
+
+// Traits
+

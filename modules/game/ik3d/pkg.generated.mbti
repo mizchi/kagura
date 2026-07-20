@@ -1,0 +1,53 @@
+// Generated using `moon info`, DON'T EDIT IT
+package "mizchi/kagura_game/ik3d"
+
+import {
+  "mizchi/anim3d/skeleton3d",
+  "mizchi/anim3d/transform3d",
+  "mizchi/geom/math3d",
+}
+
+// Values
+pub fn rotation_between_vectors(@math3d.Vec3, @math3d.Vec3) -> @math3d.Quaternion
+
+pub fn solve_fabrik(FABRIKRequest) -> FABRIKResult
+
+pub fn solve_two_bone_ik(TwoBoneIKRequest) -> TwoBoneIKResult
+
+// Errors
+
+// Types and methods
+pub(all) struct FABRIKRequest {
+  skeleton : @skeleton3d.Skeleton
+  local_poses : Array[@transform3d.Transform3D]
+  chain : Array[Int]
+  target : @math3d.Vec3
+  tolerance : Double
+  max_iterations : Int
+}
+
+pub(all) struct FABRIKResult {
+  success : Bool
+  iterations : Int
+  local_poses : Array[@transform3d.Transform3D]
+}
+
+pub(all) struct TwoBoneIKRequest {
+  skeleton : @skeleton3d.Skeleton
+  local_poses : Array[@transform3d.Transform3D]
+  upper_bone : Int
+  lower_bone : Int
+  end_bone : Int
+  target : @math3d.Vec3
+  pole_target : @math3d.Vec3?
+}
+
+pub(all) struct TwoBoneIKResult {
+  success : Bool
+  local_poses : Array[@transform3d.Transform3D]
+}
+
+// Type aliases
+
+// Traits
+

@@ -17,5 +17,3 @@ import {
   "mizchi/geom@0.2.0",
   "mizchi/svg@0.2.0",
 }
-
-source = "src"

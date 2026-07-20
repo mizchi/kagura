@@ -1,0 +1,73 @@
+// Generated using `moon info`, DON'T EDIT IT
+package "mizchi/kagura_engine/particle3d"
+
+import {
+  "mizchi/geom/camera3d",
+  "mizchi/geom/math3d",
+  "mizchi/gfx",
+}
+
+// Values
+pub fn default_emitter_config() -> EmitterConfig
+
+// Errors
+
+// Types and methods
+pub(all) struct BurstEmitter {
+  emitter : ParticleEmitter
+  mut spawned : Bool
+}
+
+pub(all) struct EmitterConfig {
+  position : @math3d.Vec3
+  spawn_rate : Double
+  initial_velocity_min : @math3d.Vec3
+  initial_velocity_max : @math3d.Vec3
+  lifetime_min : Double
+  lifetime_max : Double
+  size_min : Double
+  size_max : Double
+  color_start : @math3d.Vec4
+  color_end : @math3d.Vec4
+  gravity : @math3d.Vec3
+  max_particles : Int
+}
+
+pub(all) struct Particle {
+  mut position : @math3d.Vec3
+  mut velocity : @math3d.Vec3
+  mut age : Double
+  max_age : Double
+  color : @math3d.Vec4
+  mut size : Double
+}
+
+pub(all) struct ParticleEmitter {
+  config : EmitterConfig
+  mut particles : Array[Particle]
+  mut spawn_accumulator : Double
+  mut frame_count : Int
+}
+pub fn ParticleEmitter::build_billboard_vertices(Self, @math3d.Vec3, @math3d.Vec3) -> (Array[Double], Array[Int])
+pub fn ParticleEmitter::new(EmitterConfig) -> Self
+pub fn ParticleEmitter::particle_count(Self) -> Int
+pub fn ParticleEmitter::update(Self, Double) -> Unit
+pub fn ParticleEmitter::update_physics_only(Self, Double) -> Unit
+
+pub(all) struct ParticleManager {
+  mut emitters : Array[BurstEmitter]
+  particle_shader : @gfx.ShaderHandle
+  mut vertex_scratch : Array[Double]
+  mut index_scratch : Array[Int]
+}
+pub fn ParticleManager::append_draw_commands(Self, Array[@gfx.DrawTrianglesCommand], @gfx.ImageHandle, @camera3d.Camera3D, Int, Int, Int) -> Unit
+pub fn ParticleManager::draw(Self, @gfx.ImageHandle, @camera3d.Camera3D, Int, Int, Int) -> Array[@gfx.DrawTrianglesCommand]
+pub fn ParticleManager::new(Int) -> Self
+pub fn ParticleManager::spawn(Self, EmitterConfig) -> Unit
+pub fn ParticleManager::total_particle_count(Self) -> Int
+pub fn ParticleManager::update(Self, Double) -> Unit
+
+// Type aliases
+
+// Traits
+

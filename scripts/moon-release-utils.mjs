@@ -38,7 +38,17 @@ const REQUIRED_MANIFEST_FIELDS = Object.freeze([
   "description",
   "repository",
   "license",
-  "source",
+]);
+
+// Always skipped when staging a module whose source is its own root (no
+// dedicated src/ dir): tooling/workspace files that must never end up in a
+// published package, regardless of the module's own `exclude` list.
+const ALWAYS_EXCLUDE_FROM_ROOT_SOURCE = Object.freeze([
+  "moon.mod",
+  "moon.mod.json",
+  "moon.work",
+  "_build",
+  ".git",
 ]);
 
 const PREBUILD_KEY = "--moonbit-unstable-prebuild";
@@ -92,11 +102,16 @@ function writeJson(filePath, value) {
   fs.writeFileSync(filePath, `${JSON.stringify(value, null, 2)}\n`);
 }
 
-function copyRecursive(sourcePath, destPath) {
+function copyRecursive(sourcePath, destPath, topLevelExclude = null) {
   const stat = fs.statSync(sourcePath);
   if (stat.isDirectory()) {
     fs.mkdirSync(destPath, { recursive: true });
     for (const entry of fs.readdirSync(sourcePath)) {
+      if (topLevelExclude?.has(entry)) {
+        continue;
+      }
+      // topLevelExclude only applies at the directory we were called with;
+      // nested directories copy in full.
       copyRecursive(path.join(sourcePath, entry), path.join(destPath, entry));
     }
     return;
@@ -133,10 +148,13 @@ function stageModuleFiles(mod, destDir) {
   fs.rmSync(destDir, { recursive: true, force: true });
   fs.mkdirSync(destDir, { recursive: true });
 
-  const sourceName = mod.manifest.source;
+  const sourceName = mod.manifest.source ?? ".";
   const sourcePath = path.join(mod.root, sourceName);
   const destSourcePath = path.join(destDir, sourceName);
-  copyRecursive(sourcePath, destSourcePath);
+  const topLevelExclude = sourceName === "."
+    ? new Set([...ALWAYS_EXCLUDE_FROM_ROOT_SOURCE, ...(mod.manifest.exclude ?? [])])
+    : null;
+  copyRecursive(sourcePath, destSourcePath, topLevelExclude);
   stagedFiles.push(sourceName);
 
   for (const readme of collectReadmeFiles(mod)) {
@@ -246,9 +264,7 @@ export function loadReleaseModules({
       manifest,
       name: typeof manifest.name === "string" ? manifest.name : "",
       version: typeof manifest.version === "string" ? manifest.version : "",
-      sourceDir: typeof manifest.source === "string"
-        ? path.join(root, manifest.source)
-        : "",
+      sourceDir: path.join(root, manifest.source ?? "."),
       repoRoot,
     };
   });

@@ -14,5 +14,3 @@ import {
   "mizchi/kagura_core@0.2.0",
   "mizchi/gfx@0.1.0",
 }
-
-source = "src"

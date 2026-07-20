@@ -1,0 +1,47 @@
+// Generated using `moon info`, DON'T EDIT IT
+package "mizchi/kagura_engine/audio3d"
+
+import {
+  "mizchi/geom/math3d",
+  "mizchi/kagura_engine/audio",
+}
+
+// Values
+pub fn compute_attenuation(AudioSource3D, AudioListener3D) -> Double
+
+pub fn compute_pan(AudioSource3D, AudioListener3D) -> Double
+
+pub fn default_audio_source3d(@math3d.Vec3, @audio.PlayerId) -> AudioSource3D
+
+pub fn update_audio3d(@audio.MixerAudioContext, AudioListener3D, Array[AudioSource3D]) -> Unit
+
+// Errors
+
+// Types and methods
+pub(all) enum AttenuationModel {
+  Inverse
+  Linear
+  Exponential
+}
+
+pub(all) struct AudioListener3D {
+  position : @math3d.Vec3
+  forward : @math3d.Vec3
+  up : @math3d.Vec3
+}
+pub fn AudioListener3D::from_camera(@math3d.Vec3, @math3d.Vec3, @math3d.Vec3) -> Self
+
+pub(all) struct AudioSource3D {
+  position : @math3d.Vec3
+  player_id : @audio.PlayerId
+  ref_distance : Double
+  max_distance : Double
+  rolloff : Double
+  attenuation : AttenuationModel
+  base_volume : Double
+}
+
+// Type aliases
+
+// Traits
+

@@ -1,0 +1,74 @@
+// Generated using `moon info`, DON'T EDIT IT
+package "mizchi/kagura_engine/animation2d"
+
+import {
+  "mizchi/atlas",
+  "mizchi/gfx",
+}
+
+// Values
+pub fn draw_sprite_animation(Array[@gfx.DrawTrianglesCommand], @atlas.SimpleAtlasImageRepository, SpriteAnimationPlayer, @gfx.ImageHandle, @gfx.ShaderHandle, @gfx.DstRegion, @gfx.BlendMode, Double, Double, Double, Double) -> Bool
+
+pub fn extract_subimage_spec(@atlas.ImageSpec, Int, Int, Int, Int) -> @atlas.ImageSpec
+
+pub fn register_sprite_sheet(@atlas.SimpleAtlasImageRepository, @atlas.ImageSpec, String, Int, Int, Int, Int) -> Array[@atlas.AssetKey]
+
+pub fn split_sprite_sheet(@atlas.ImageSpec, String, Int, Int, Int, Int) -> Array[(@atlas.AssetKey, @atlas.ImageSpec)]
+
+pub fn sprite_sheet_keys(String, Int) -> Array[@atlas.AssetKey]
+
+// Errors
+
+// Types and methods
+pub(all) struct SpriteAnimationClip {
+  name : String
+  frames : Array[SpriteFrame]
+  total_duration : Double
+}
+pub fn SpriteAnimationClip::new(String, Array[SpriteFrame]) -> Self
+pub fn SpriteAnimationClip::uniform(String, Array[@atlas.AssetKey], Double) -> Self
+
+pub struct SpriteAnimationPlayer {
+  mut clip : SpriteAnimationClip
+  mut time : Double
+  mut playing : Bool
+  mut looping : Bool
+  mut speed : Double
+}
+pub fn SpriteAnimationPlayer::current_frame_index(Self) -> Int
+pub fn SpriteAnimationPlayer::current_key(Self) -> @atlas.AssetKey
+pub fn SpriteAnimationPlayer::new(SpriteAnimationClip) -> Self
+pub fn SpriteAnimationPlayer::pause(Self) -> Unit
+pub fn SpriteAnimationPlayer::play(Self) -> Unit
+pub fn SpriteAnimationPlayer::set_clip(Self, SpriteAnimationClip) -> Unit
+pub fn SpriteAnimationPlayer::set_looping(Self, Bool) -> Unit
+pub fn SpriteAnimationPlayer::set_speed(Self, Double) -> Unit
+pub fn SpriteAnimationPlayer::update(Self, Double) -> Unit
+
+pub struct SpriteAnimationStateMachine {
+  clips : Map[String, SpriteAnimationClip]
+  transitions : Array[SpriteTransition]
+  player : SpriteAnimationPlayer
+  mut current_state : String
+}
+pub fn SpriteAnimationStateMachine::current_key(Self) -> @atlas.AssetKey
+pub fn SpriteAnimationStateMachine::current_state_name(Self) -> String
+pub fn SpriteAnimationStateMachine::new(Map[String, SpriteAnimationClip], Array[SpriteTransition], String) -> Self
+pub fn SpriteAnimationStateMachine::trigger(Self, String) -> Bool
+pub fn SpriteAnimationStateMachine::update(Self, Double) -> Unit
+
+pub(all) struct SpriteFrame {
+  atlas_key : @atlas.AssetKey
+  duration : Double
+}
+
+pub(all) struct SpriteTransition {
+  from_state : String
+  to_state : String
+  trigger : String
+}
+
+// Type aliases
+
+// Traits
+

@@ -13,5 +13,3 @@ warnings = "-6-29-53-68"
 import {
   "mizchi/terrain@0.1.1",
 }
-
-source = "src"

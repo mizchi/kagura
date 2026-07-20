@@ -287,3 +287,15 @@ pub fn AssetStreamer::stream_manager(
 ) -> AssetStreamManager {
   self.manager
 }
+
+///|
+pub extend AssetStreamerConfig with @moonbitlang/core/debug.Debug::{to_repr}
+
+///|
+pub extend AssetStreamerConfig with Show::{to_string, output}
+
+///|
+pub extend DistanceThresholds with @moonbitlang/core/debug.Debug::{to_repr}
+
+///|
+pub extend DistanceThresholds with Show::{to_string, output}

@@ -61,3 +61,15 @@ pub(all) struct AnimTransition3D {
   trigger : String
   blend_duration : Double // cross-fade seconds (0.0 = instant)
 }
+
+///|
+pub extend Interpolation with @moonbitlang/core/debug.Debug::{to_repr}
+
+///|
+pub extend Interpolation with Show::{to_string, output}
+
+///|
+pub extend ChannelTarget with @moonbitlang/core/debug.Debug::{to_repr}
+
+///|
+pub extend ChannelTarget with Show::{to_string, output}

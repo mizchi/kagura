@@ -242,3 +242,9 @@ fn quaternion_from_axes(
     )
   }
 }
+
+///|
+pub extend Transform3D with @moonbitlang/core/debug.Debug::{to_repr}
+
+///|
+pub extend Transform3D with Show::{to_string, output}

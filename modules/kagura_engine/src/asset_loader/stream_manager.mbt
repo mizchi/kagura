@@ -230,3 +230,18 @@ pub fn AssetStreamManager::progress(
     failed: self.failed_count,
   }
 }
+
+///|
+pub extend AssetPriority with @moonbitlang/core/debug.Debug::{to_repr}
+
+///|
+pub extend AssetPriority with Eq::{not_equal, equal}
+
+///|
+pub extend AssetPriority with Show::{to_string, output}
+
+///|
+pub extend StreamProgress with @moonbitlang/core/debug.Debug::{to_repr}
+
+///|
+pub extend StreamProgress with Show::{to_string, output}

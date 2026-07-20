@@ -686,3 +686,36 @@ pub fn all_card_ids() -> Array[CardId] {
     Pummel,
   ]
 }
+
+///|
+pub extend CardId with @moonbitlang/core/debug.Debug::{to_repr}
+
+///|
+pub extend CardId with Eq::{not_equal, equal}
+
+///|
+pub extend CardId with Show::{to_string, output}
+
+///|
+pub extend CardType with @moonbitlang/core/debug.Debug::{to_repr}
+
+///|
+pub extend CardType with Eq::{not_equal, equal}
+
+///|
+pub extend CardType with Show::{to_string, output}
+
+///|
+pub extend CardDef with @moonbitlang/core/debug.Debug::{to_repr}
+
+///|
+pub extend CardDef with Show::{to_string, output}
+
+///|
+pub extend CardRarity with @moonbitlang/core/debug.Debug::{to_repr}
+
+///|
+pub extend CardRarity with Eq::{not_equal, equal}
+
+///|
+pub extend CardRarity with Show::{to_string, output}

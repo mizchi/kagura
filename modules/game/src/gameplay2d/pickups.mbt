@@ -153,3 +153,39 @@ pub fn resolve_pickup(
       )
   }
 }
+
+///|
+pub extend PickupRewardConfig with Eq::{not_equal, equal}
+
+///|
+pub extend PickupRewardConfig with @moonbitlang/core/debug.Debug::{to_repr}
+
+///|
+pub extend PickupRewardConfig with Show::{to_string, output}
+
+///|
+pub extend BuiltinPickupResult with Eq::{not_equal, equal}
+
+///|
+pub extend BuiltinPickupResult with @moonbitlang/core/debug.Debug::{to_repr}
+
+///|
+pub extend BuiltinPickupResult with Show::{to_string, output}
+
+///|
+pub extend EquipmentPickupPlan with Eq::{not_equal, equal}
+
+///|
+pub extend EquipmentPickupPlan with @moonbitlang/core/debug.Debug::{to_repr}
+
+///|
+pub extend EquipmentPickupPlan with Show::{to_string, output}
+
+///|
+pub extend PickupResolution with Eq::{not_equal, equal}
+
+///|
+pub extend PickupResolution with @moonbitlang/core/debug.Debug::{to_repr}
+
+///|
+pub extend PickupResolution with Show::{to_string, output}

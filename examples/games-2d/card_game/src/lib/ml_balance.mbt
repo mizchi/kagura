@@ -571,3 +571,36 @@ pub fn generate_balance_report(encounter : EncounterId) -> BalanceReport {
     difficulty_score: difficulty,
   }
 }
+
+///|
+pub extend Archetype with @moonbitlang/core/debug.Debug::{to_repr}
+
+///|
+pub extend Archetype with Eq::{not_equal, equal}
+
+///|
+pub extend Archetype with Show::{to_string, output}
+
+///|
+pub extend GameFeatures with @moonbitlang/core/debug.Debug::{to_repr}
+
+///|
+pub extend GameFeatures with Show::{to_string, output}
+
+///|
+pub extend BalanceParam with @moonbitlang/core/debug.Debug::{to_repr}
+
+///|
+pub extend BalanceParam with Show::{to_string, output}
+
+///|
+pub extend SensitivityResult with @moonbitlang/core/debug.Debug::{to_repr}
+
+///|
+pub extend SensitivityResult with Show::{to_string, output}
+
+///|
+pub extend BalanceReport with @moonbitlang/core/debug.Debug::{to_repr}
+
+///|
+pub extend BalanceReport with Show::{to_string, output}

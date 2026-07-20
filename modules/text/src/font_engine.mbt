@@ -56,3 +56,6 @@ pub impl FontEngine for SimpleFontEngine with fn shape(self, run) {
   }
   quads
 }
+
+///|
+pub extend SimpleFontEngine with FontEngine::{measure, shape}

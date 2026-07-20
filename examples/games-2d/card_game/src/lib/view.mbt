@@ -1075,3 +1075,9 @@ fn view_run_over(run : RunState) -> @scene.SceneNode {
     ),
   ])
 }
+
+///|
+pub extend Game with @mizchi/kagura_game/scene.SceneGame::{
+  update_game,
+  view_game,
+}

@@ -2,4 +2,5 @@ import {
   "mizchi/geom/math3d",
   "mizchi/physics/collision3d",
   "moonbitlang/core/bench",
+  "moonbitlang/core/debug",
 }

@@ -479,3 +479,27 @@ pub fn format_generation_report(
   }
   out
 }
+
+///|
+pub extend SynthCard with @moonbitlang/core/debug.Debug::{to_repr}
+
+///|
+pub extend Verdict with @moonbitlang/core/debug.Debug::{to_repr}
+
+///|
+pub extend Verdict with Eq::{not_equal, equal}
+
+///|
+pub extend Verdict with Show::{to_string, output}
+
+///|
+pub extend SynthEval with @moonbitlang/core/debug.Debug::{to_repr}
+
+///|
+pub extend SynthEval with Show::{to_string, output}
+
+///|
+pub extend GenSummary with @moonbitlang/core/debug.Debug::{to_repr}
+
+///|
+pub extend GenSummary with Show::{to_string, output}

@@ -1528,3 +1528,39 @@ fn pct_str(v : Double) -> String {
   let pct = (v * 1000.0).to_int().to_double() / 10.0
   pct.to_string() + "%"
 }
+
+///|
+pub extend BattleStats with @moonbitlang/core/debug.Debug::{to_repr}
+
+///|
+pub extend BattleStats with Show::{to_string, output}
+
+///|
+pub extend ActSnapshot with @moonbitlang/core/debug.Debug::{to_repr}
+
+///|
+pub extend ActSnapshot with Show::{to_string, output}
+
+///|
+pub extend DetailedRunResult with @moonbitlang/core/debug.Debug::{to_repr}
+
+///|
+pub extend DetailedRunResult with Show::{to_string, output}
+
+///|
+pub extend FunMetrics with @moonbitlang/core/debug.Debug::{to_repr}
+
+///|
+pub extend FunMetrics with Show::{to_string, output}
+
+///|
+pub extend FunTargets with @moonbitlang/core/debug.Debug::{to_repr}
+
+///|
+pub extend FunTargets with Show::{to_string, output}
+
+///|
+pub extend FunScorecard with @moonbitlang/core/debug.Debug::{to_repr}
+
+///|
+pub extend FunScorecard with Show::{to_string, output}

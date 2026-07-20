@@ -493,3 +493,9 @@ pub fn SkillTree::get_level(self : SkillTree, id : SkillId) -> Int {
     None => 0
   }
 }
+
+///|
+pub extend SkillTag with Eq::{not_equal, equal}
+
+///|
+pub extend SkillId with Eq::{not_equal, equal}

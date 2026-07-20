@@ -2,4 +2,5 @@ import {
   "mizchi/kagura_core" @core,
   "mizchi/gfx",
   "mizchi/kagura_core/inpututil",
+  "moonbitlang/core/debug",
 }

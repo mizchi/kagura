@@ -12,3 +12,9 @@ pub impl Show for SceneAttrValue with fn output(self, logger) {
 
 ///|
 pub type SceneNode = @ui.Node[Unit, SceneAttrValue]
+
+///|
+pub extend SceneAttrValue with @moonbitlang/core/debug.Debug::{to_repr}
+
+///|
+pub extend SceneAttrValue with Show::{to_string, output}

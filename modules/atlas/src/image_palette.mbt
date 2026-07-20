@@ -112,3 +112,15 @@ pub fn checker_palette_from_seed(seed : Int) -> ImagePalette2x2 {
     p11: new_rgba(seed0, inv1, inv2, 255),
   }
 }
+
+///|
+pub extend Rgba with @moonbitlang/core/debug.Debug::{to_repr}
+
+///|
+pub extend Rgba with Show::{to_string, output}
+
+///|
+pub extend ImagePalette2x2 with @moonbitlang/core/debug.Debug::{to_repr}
+
+///|
+pub extend ImagePalette2x2 with Show::{to_string, output}

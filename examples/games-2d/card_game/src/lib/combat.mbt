@@ -121,3 +121,15 @@ fn tick_status_effects(fighter : Fighter) -> Unit {
 fn reset_block(fighter : Fighter) -> Unit {
   fighter.block = 0
 }
+
+///|
+pub extend StatusEffects with @moonbitlang/core/debug.Debug::{to_repr}
+
+///|
+pub extend StatusEffects with Show::{to_string, output}
+
+///|
+pub extend Fighter with @moonbitlang/core/debug.Debug::{to_repr}
+
+///|
+pub extend Fighter with Show::{to_string, output}

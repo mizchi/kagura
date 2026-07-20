@@ -2,4 +2,5 @@ import {
   "moonbitlang/core/prelude",
   "mizchi/physics/physics2d",
   "mizchi/terrain/types" @terrain,
+  "moonbitlang/core/debug",
 }

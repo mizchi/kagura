@@ -466,3 +466,29 @@ pub fn append_just_disconnected_gamepad_ids(
   }
   out
 }
+
+///|
+pub extend TouchDurationEntry with @moonbitlang/core/debug.Debug::{to_repr}
+
+///|
+pub extend TouchDurationEntry with Show::{to_string, output}
+
+///|
+pub extend GamepadDurationEntry with @moonbitlang/core/debug.Debug::{to_repr}
+
+///|
+pub extend GamepadDurationEntry with Show::{to_string, output}
+
+///|
+pub extend GamepadButtonKey with @moonbitlang/core/debug.Debug::{to_repr}
+
+///|
+pub extend GamepadButtonKey with Show::{to_string, output}
+
+///|
+pub extend GamepadButtonDurationEntry with @moonbitlang/core/debug.Debug::{
+  to_repr,
+}
+
+///|
+pub extend GamepadButtonDurationEntry with Show::{to_string, output}

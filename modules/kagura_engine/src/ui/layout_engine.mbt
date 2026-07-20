@@ -278,3 +278,6 @@ pub impl LayoutEngine for SimpleLayoutEngine with fn compute_layout(
   let _ = layout_node(self.tree, root, constraint, results, 0.0, 0.0)
   results
 }
+
+///|
+pub extend SimpleLayoutEngine with LayoutEngine::{compute_layout}

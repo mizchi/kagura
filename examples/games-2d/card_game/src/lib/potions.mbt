@@ -200,3 +200,18 @@ pub fn random_potion(seed : Int) -> PotionId {
   let idx = seed.abs() % pool.length()
   pool[idx]
 }
+
+///|
+pub extend PotionId with @moonbitlang/core/debug.Debug::{to_repr}
+
+///|
+pub extend PotionId with Eq::{not_equal, equal}
+
+///|
+pub extend PotionId with Show::{to_string, output}
+
+///|
+pub extend PotionDef with @moonbitlang/core/debug.Debug::{to_repr}
+
+///|
+pub extend PotionDef with Show::{to_string, output}

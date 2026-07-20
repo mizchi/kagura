@@ -1205,3 +1205,12 @@ pub fn meteor_fall_effect_document() -> EffectDocument {
     ],
   }
 }
+
+///|
+pub extend EffectPresetId with Eq::{not_equal, equal}
+
+///|
+pub extend EffectPresetId with @moonbitlang/core/debug.Debug::{to_repr}
+
+///|
+pub extend EffectPresetId with Show::{to_string, output}

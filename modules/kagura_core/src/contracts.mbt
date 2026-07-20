@@ -370,3 +370,72 @@ pub fn[T : Game] run_game(game : T, options : RunOptions) -> Unit {
   let _ = game.update(empty_input_snapshot())
   game.draw(new_frame_budget(0, 0.0, 0))
 }
+
+///|
+pub extend EngineTermination with @moonbitlang/core/debug.Debug::{to_repr}
+
+///|
+pub extend EngineTermination with Show::{to_string, output}
+
+///|
+pub extend OutsideSize with @moonbitlang/core/debug.Debug::{to_repr}
+
+///|
+pub extend OutsideSize with Show::{to_string, output}
+
+///|
+pub extend LogicalSize with @moonbitlang/core/debug.Debug::{to_repr}
+
+///|
+pub extend LogicalSize with Show::{to_string, output}
+
+///|
+pub extend FrameBudget with @moonbitlang/core/debug.Debug::{to_repr}
+
+///|
+pub extend FrameBudget with Show::{to_string, output}
+
+///|
+pub extend InputSnapshot with @moonbitlang/core/debug.Debug::{to_repr}
+
+///|
+pub extend InputSnapshot with Show::{to_string, output}
+
+///|
+pub extend TouchSource with @moonbitlang/core/debug.Debug::{to_repr}
+
+///|
+pub extend TouchSource with Show::{to_string, output}
+
+///|
+pub extend TouchPoint with @moonbitlang/core/debug.Debug::{to_repr}
+
+///|
+pub extend TouchPoint with Show::{to_string, output}
+
+///|
+pub extend GamepadSnapshot with @moonbitlang/core/debug.Debug::{to_repr}
+
+///|
+pub extend GamepadSnapshot with Show::{to_string, output}
+
+///|
+pub extend RunOptions with @moonbitlang/core/debug.Debug::{to_repr}
+
+///|
+pub extend RunOptions with Show::{to_string, output}
+
+///|
+pub extend TouchPhase with @moonbitlang/core/debug.Debug::{to_repr}
+
+///|
+pub extend TouchPhase with Show::{to_string, output}
+
+///|
+pub extend TouchPointEx with @moonbitlang/core/debug.Debug::{to_repr}
+
+///|
+pub extend TouchPointEx with Show::{to_string, output}
+
+///|
+pub extend NoopGame with Game::{draw, update, layout}

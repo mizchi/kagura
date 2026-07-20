@@ -1,6 +1,7 @@
 import {
   "mizchi/atlas",
   "mizchi/gfx",
+  "moonbitlang/core/debug",
 }
 
 options(

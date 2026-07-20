@@ -584,3 +584,12 @@ fn clamp_d(v : Double, lo : Double, hi : Double) -> Double {
     v
   }
 }
+
+///|
+pub extend BalancePreset with Eq::{not_equal, equal}
+
+///|
+pub extend BalancePreset with @moonbitlang/core/debug.Debug::{to_repr}
+
+///|
+pub extend BalancePreset with Show::{to_string, output}

@@ -46,3 +46,11 @@ pub impl @gfx.SurfaceProvider for WebCanvasPlatform with fn current_surface(
     }
   }
 }
+
+///|
+pub extend DesktopGlfwPlatform with @mizchi/gfx.SurfaceProvider::{
+  current_surface,
+}
+
+///|
+pub extend WebCanvasPlatform with @mizchi/gfx.SurfaceProvider::{current_surface}

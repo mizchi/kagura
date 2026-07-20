@@ -819,3 +819,27 @@ pub fn Quaternion::approx_eq(
   (self.z - other.z).abs() < epsilon &&
   (self.w - other.w).abs() < epsilon
 }
+
+///|
+pub extend Vec3 with @moonbitlang/core/debug.Debug::{to_repr}
+
+///|
+pub extend Vec3 with Show::{to_string, output}
+
+///|
+pub extend Vec4 with @moonbitlang/core/debug.Debug::{to_repr}
+
+///|
+pub extend Vec4 with Show::{to_string, output}
+
+///|
+pub extend Mat4 with @moonbitlang/core/debug.Debug::{to_repr}
+
+///|
+pub extend Mat4 with Show::{to_string, output}
+
+///|
+pub extend Quaternion with @moonbitlang/core/debug.Debug::{to_repr}
+
+///|
+pub extend Quaternion with Show::{to_string, output}

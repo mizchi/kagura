@@ -198,3 +198,9 @@ pub fn build_profiler_hud(
     scale,
   )
 }
+
+///|
+pub extend FrameProfile with @moonbitlang/core/debug.Debug::{to_repr}
+
+///|
+pub extend FrameProfile with Show::{to_string, output}

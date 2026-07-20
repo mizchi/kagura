@@ -162,3 +162,9 @@ pub fn new_input_edge_runtime_hooks(
     let _ = observe_input_edge(observer_state, tick, input)
   })
 }
+
+///|
+pub extend InputEdgeSummary with @moonbitlang/core/debug.Debug::{to_repr}
+
+///|
+pub extend InputEdgeSummary with Show::{to_string, output}

@@ -178,3 +178,21 @@ pub fn default_effect_document() -> EffectDocument {
     tracks: [flash_track(), ember_track(), smoke_track()],
   }
 }
+
+///|
+pub extend EffectSpawnPattern with @moonbitlang/core/debug.Debug::{to_repr}
+
+///|
+pub extend EffectSpawnPattern with Show::{to_string, output}
+
+///|
+pub extend EffectTrack with @moonbitlang/core/debug.Debug::{to_repr}
+
+///|
+pub extend EffectTrack with Show::{to_string, output}
+
+///|
+pub extend EffectDocument with @moonbitlang/core/debug.Debug::{to_repr}
+
+///|
+pub extend EffectDocument with Show::{to_string, output}

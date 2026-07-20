@@ -60,3 +60,9 @@ pub fn AABB2D::closest_point(
 pub fn AABB2D::merge(self : AABB2D, other : AABB2D) -> AABB2D {
   { min: self.min.min(other.min), max: self.max.max(other.max) }
 }
+
+///|
+pub extend AABB2D with @moonbitlang/core/debug.Debug::{to_repr}
+
+///|
+pub extend AABB2D with Show::{to_string, output}

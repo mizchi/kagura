@@ -529,3 +529,27 @@ fn rare_pool() -> Array[CardId] {
     Reaper,
   ]
 }
+
+///|
+pub extend RunPhase with @moonbitlang/core/debug.Debug::{to_repr}
+
+///|
+pub extend RunPhase with Eq::{not_equal, equal}
+
+///|
+pub extend RunPhase with Show::{to_string, output}
+
+///|
+pub extend FloorType with @moonbitlang/core/debug.Debug::{to_repr}
+
+///|
+pub extend FloorType with Eq::{not_equal, equal}
+
+///|
+pub extend FloorType with Show::{to_string, output}
+
+///|
+pub extend RunState with @moonbitlang/core/debug.Debug::{to_repr}
+
+///|
+pub extend RunState with Show::{to_string, output}

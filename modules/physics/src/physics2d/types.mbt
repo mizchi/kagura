@@ -173,3 +173,27 @@ pub(all) struct PhysicsWorld2D {
   joints_distance : Array[DistanceJoint2D]
   joints_revolute : Array[RevoluteJoint2D]
 }
+
+///|
+pub extend BodyType2D with @moonbitlang/core/debug.Debug::{to_repr}
+
+///|
+pub extend BodyType2D with Show::{to_string, output}
+
+///|
+pub extend ColliderShape2D with @moonbitlang/core/debug.Debug::{to_repr}
+
+///|
+pub extend ColliderShape2D with Show::{to_string, output}
+
+///|
+pub extend RigidBody2D with @moonbitlang/core/debug.Debug::{to_repr}
+
+///|
+pub extend RigidBody2D with Show::{to_string, output}
+
+///|
+pub extend Contact2D with @moonbitlang/core/debug.Debug::{to_repr}
+
+///|
+pub extend Contact2D with Show::{to_string, output}

@@ -188,3 +188,21 @@ pub fn AsyncImageLoader::commit_image(
     None => None
   }
 }
+
+///|
+pub extend AsyncImageStatus with @moonbitlang/core/debug.Debug::{to_repr}
+
+///|
+pub extend AsyncImageStatus with Show::{to_string, output}
+
+///|
+pub extend AsyncImageRequest with @moonbitlang/core/debug.Debug::{to_repr}
+
+///|
+pub extend AsyncImageRequest with Show::{to_string, output}
+
+///|
+pub extend AsyncImageProgress with @moonbitlang/core/debug.Debug::{to_repr}
+
+///|
+pub extend AsyncImageProgress with Show::{to_string, output}

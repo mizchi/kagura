@@ -246,3 +246,9 @@ pub fn ColorM::change_hsv(
     1.0,
   )
 }
+
+///|
+pub extend ColorM with @moonbitlang/core/debug.Debug::{to_repr}
+
+///|
+pub extend ColorM with Show::{to_string, output}

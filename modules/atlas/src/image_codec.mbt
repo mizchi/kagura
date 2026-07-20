@@ -300,3 +300,18 @@ pub fn resize_image_spec(
   )
   image_data_to_image_spec(resized)
 }
+
+///|
+pub extend RasterResizeMethod with @moonbitlang/core/debug.Debug::{to_repr}
+
+///|
+pub extend RasterResizeMethod with Show::{to_string, output}
+
+///|
+pub extend RasterImageFormat with @moonbitlang/core/debug.Debug::{to_repr}
+
+///|
+pub extend RasterImageFormat with Eq::{not_equal, equal}
+
+///|
+pub extend RasterImageFormat with Show::{to_string, output}

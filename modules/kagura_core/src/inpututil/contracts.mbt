@@ -465,3 +465,17 @@ pub fn is_down_just_pressed(helper : InputHelper) -> Bool {
   is_key_just_pressed(helper.key_state, key_down_web) ||
   is_key_just_pressed(helper.key_state, key_down_glfw)
 }
+
+///|
+pub extend KeyDurationEntry with @moonbitlang/core/debug.Debug::{to_repr}
+
+///|
+pub extend KeyDurationEntry with Show::{to_string, output}
+
+///|
+pub extend MouseButtonDurationEntry with @moonbitlang/core/debug.Debug::{
+  to_repr,
+}
+
+///|
+pub extend MouseButtonDurationEntry with Show::{to_string, output}

@@ -80,3 +80,15 @@ pub fn build_timeline_view(
     lanes,
   }
 }
+
+///|
+pub extend TimelineTrackLane with @moonbitlang/core/debug.Debug::{to_repr}
+
+///|
+pub extend TimelineTrackLane with Show::{to_string, output}
+
+///|
+pub extend TimelineView with @moonbitlang/core/debug.Debug::{to_repr}
+
+///|
+pub extend TimelineView with Show::{to_string, output}

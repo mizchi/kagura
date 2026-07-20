@@ -240,3 +240,9 @@ pub fn[P : AIPolicy, S : SensorBridge, A : ActuatorBridge, C : AIScheduler] crea
     }
   }
 }
+
+///|
+pub extend AIRuntimeConfig with @moonbitlang/core/debug.Debug::{to_repr}
+
+///|
+pub extend AIRuntimeConfig with Show::{to_string, output}

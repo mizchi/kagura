@@ -89,3 +89,18 @@ pub fn VertexFormat::standard_3d() -> VertexFormat {
 pub fn VertexFormat::skinned_3d() -> VertexFormat {
   { attributes: [Position3, Normal3, TexCoord2, Joints4, Weights4] }
 }
+
+///|
+pub extend VertexAttribute with Eq::{not_equal, equal}
+
+///|
+pub extend VertexAttribute with @moonbitlang/core/debug.Debug::{to_repr}
+
+///|
+pub extend VertexAttribute with Show::{to_string, output}
+
+///|
+pub extend VertexFormat with @moonbitlang/core/debug.Debug::{to_repr}
+
+///|
+pub extend VertexFormat with Show::{to_string, output}

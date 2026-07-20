@@ -111,3 +111,6 @@ pub impl BytesFetcher for JsFetcher with fn cancel(_, handle) {
 pub impl BytesFetcher for JsFetcher with fn poll(_) {
   // no-op on JS — callbacks fire via microtask queue
 }
+
+///|
+pub extend JsFetcher with BytesFetcher::{fetch, poll, cancel}

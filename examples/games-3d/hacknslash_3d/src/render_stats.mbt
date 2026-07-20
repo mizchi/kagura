@@ -117,3 +117,9 @@ fn summarize_draw_playing_commands(
     final_output_commands,
   }
 }
+
+///|
+pub extend DrawPlayingStats with @moonbitlang/core/debug.Debug::{to_repr}
+
+///|
+pub extend DrawPlayingStats with Show::{to_string, output}

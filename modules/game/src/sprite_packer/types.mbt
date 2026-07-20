@@ -46,3 +46,21 @@ pub(all) struct PackerConfig {
 pub impl Show for PackerConfig with fn output(self, logger) {
   logger.write_object(to_repr(self))
 }
+
+///|
+pub extend PackedSprite with @moonbitlang/core/debug.Debug::{to_repr}
+
+///|
+pub extend PackedSprite with Show::{to_string, output}
+
+///|
+pub extend PackResult with @moonbitlang/core/debug.Debug::{to_repr}
+
+///|
+pub extend PackResult with Show::{to_string, output}
+
+///|
+pub extend PackerConfig with @moonbitlang/core/debug.Debug::{to_repr}
+
+///|
+pub extend PackerConfig with Show::{to_string, output}

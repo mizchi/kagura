@@ -200,3 +200,9 @@ pub fn aabb_overlap_center(
 ) -> Bool {
   (ax - bx).abs() < ahw + bhw && (ay - by).abs() < ahh + bhh
 }
+
+///|
+pub extend Vec2 with @moonbitlang/core/debug.Debug::{to_repr}
+
+///|
+pub extend Vec2 with Show::{to_string, output}

@@ -302,3 +302,39 @@ pub fn ui_events_from_input_edge(
   }
   events
 }
+
+///|
+pub extend UINodeId with @moonbitlang/core/debug.Debug::{to_repr}
+
+///|
+pub extend UINodeId with Show::{to_string, output}
+
+///|
+pub extend LayoutConstraint with @moonbitlang/core/debug.Debug::{to_repr}
+
+///|
+pub extend LayoutConstraint with Show::{to_string, output}
+
+///|
+pub extend LayoutRect with @moonbitlang/core/debug.Debug::{to_repr}
+
+///|
+pub extend LayoutRect with Show::{to_string, output}
+
+///|
+pub extend LayoutResult with @moonbitlang/core/debug.Debug::{to_repr}
+
+///|
+pub extend LayoutResult with Show::{to_string, output}
+
+///|
+pub extend UIEvent with @moonbitlang/core/debug.Debug::{to_repr}
+
+///|
+pub extend UIEvent with Show::{to_string, output}
+
+///|
+pub extend UIFocusEvent with @moonbitlang/core/debug.Debug::{to_repr}
+
+///|
+pub extend UIFocusEvent with Show::{to_string, output}

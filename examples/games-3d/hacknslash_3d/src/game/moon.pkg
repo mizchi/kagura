@@ -13,6 +13,7 @@ import {
   "mizchi/terrain/rogue",
   "mizchi/terrain/tinykeep",
   "mizchi/terrain/types" @terrain,
+  "moonbitlang/core/debug",
 }
 
 warnings = "-1-2-7-29"

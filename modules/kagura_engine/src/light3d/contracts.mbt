@@ -238,3 +238,33 @@ pub fn normal_matrix_uniform_dwords(model : @math3d.Mat4) -> Array[Int] {
     f32(0.0),
   ]
 }
+
+///|
+pub extend DirectionalLight with @moonbitlang/core/debug.Debug::{to_repr}
+
+///|
+pub extend DirectionalLight with Show::{to_string, output}
+
+///|
+pub extend AmbientLight with @moonbitlang/core/debug.Debug::{to_repr}
+
+///|
+pub extend AmbientLight with Show::{to_string, output}
+
+///|
+pub extend PointLight with @moonbitlang/core/debug.Debug::{to_repr}
+
+///|
+pub extend PointLight with Show::{to_string, output}
+
+///|
+pub extend SpotLight with @moonbitlang/core/debug.Debug::{to_repr}
+
+///|
+pub extend SpotLight with Show::{to_string, output}
+
+///|
+pub extend LightingEnvironment with @moonbitlang/core/debug.Debug::{to_repr}
+
+///|
+pub extend LightingEnvironment with Show::{to_string, output}

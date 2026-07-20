@@ -1045,3 +1045,33 @@ fn alive_enemy_count(state : BattleState) -> Int {
   }
   count
 }
+
+///|
+pub extend BattlePhase with @moonbitlang/core/debug.Debug::{to_repr}
+
+///|
+pub extend BattlePhase with Eq::{not_equal, equal}
+
+///|
+pub extend BattlePhase with Show::{to_string, output}
+
+///|
+pub extend ActionResult with @moonbitlang/core/debug.Debug::{to_repr}
+
+///|
+pub extend ActionResult with Eq::{not_equal, equal}
+
+///|
+pub extend ActionResult with Show::{to_string, output}
+
+///|
+pub extend PowerState with @moonbitlang/core/debug.Debug::{to_repr}
+
+///|
+pub extend PowerState with Show::{to_string, output}
+
+///|
+pub extend BattleState with @moonbitlang/core/debug.Debug::{to_repr}
+
+///|
+pub extend BattleState with Show::{to_string, output}

@@ -183,3 +183,12 @@ struct GameState {
   mut hud_static_cache_builds : Int
   mut paused : Bool
 }
+
+///|
+pub extend DungeonSurfaceKind with Eq::{not_equal, equal}
+
+///|
+pub extend DungeonSurfaceKind with @moonbitlang/core/debug.Debug::{to_repr}
+
+///|
+pub extend DungeonSurfaceKind with Show::{to_string, output}

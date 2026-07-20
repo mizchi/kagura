@@ -1,3 +1,4 @@
 import {
   "mizchi/audio" @ma,
+  "moonbitlang/core/debug",
 }

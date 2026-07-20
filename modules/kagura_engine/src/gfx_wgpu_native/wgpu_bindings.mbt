@@ -787,3 +787,15 @@ pub fn render_frame_with_plan_payload(
     uniform_g, uniform_b, uniform_a, texture_seed,
   )
 }
+
+///|
+pub extend WGPUStatus with @moonbitlang/core/debug.Debug::{to_repr}
+
+///|
+pub extend WGPUStatus with Show::{to_string, output}
+
+///|
+pub extend WGPUBackendType with @moonbitlang/core/debug.Debug::{to_repr}
+
+///|
+pub extend WGPUBackendType with Show::{to_string, output}

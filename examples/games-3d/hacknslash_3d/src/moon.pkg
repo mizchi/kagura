@@ -42,6 +42,7 @@ import {
   "mizchi/kagura_game/sprite_packer",
   "mizchi/kagura_engine/sprite2d",
   "mizchi/kagura_engine/ui",
+  "moonbitlang/core/debug",
 }
 
 warnings = "-1-2-7-29"

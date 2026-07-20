@@ -46,3 +46,12 @@ pub fn TextLabel::render(
     }
   }
 }
+
+///|
+pub extend TextAlign with @moonbitlang/core/debug.Debug::{to_repr}
+
+///|
+pub extend TextAlign with Eq::{not_equal, equal}
+
+///|
+pub extend TextAlign with Show::{to_string, output}

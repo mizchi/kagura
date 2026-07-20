@@ -7,6 +7,7 @@ import {
   "mizchi/geom/vector",
   "mizchi/kagura_core/inpututil",
   "mizchi/svg" @msvg,
+  "moonbitlang/core/debug",
 }
 
 warnings = "-1"

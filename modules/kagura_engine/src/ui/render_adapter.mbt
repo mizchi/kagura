@@ -69,3 +69,6 @@ pub impl UIRenderAdapter for SimpleUIRenderAdapter with fn build_draw_commands(
   }
   commands
 }
+
+///|
+pub extend SimpleUIRenderAdapter with UIRenderAdapter::{build_draw_commands}

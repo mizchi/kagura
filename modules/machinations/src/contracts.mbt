@@ -119,3 +119,21 @@ pub(all) struct SimState {
   mut pending : Array[Bool] // interactive activations queued for the next step
   mut buffers : Array[Array[Int]] // per-node time buffers (Delay line / Queue store)
 }
+
+///|
+pub extend NodeKind with Eq::{not_equal, equal}
+
+///|
+pub extend Activation with Eq::{not_equal, equal}
+
+///|
+pub extend Flow with Eq::{not_equal, equal}
+
+///|
+pub extend GateMode with Eq::{not_equal, equal}
+
+///|
+pub extend Rate with Eq::{not_equal, equal}
+
+///|
+pub extend StateKind with Eq::{not_equal, equal}

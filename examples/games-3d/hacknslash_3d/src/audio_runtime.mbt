@@ -216,3 +216,12 @@ fn GameState::play_sound_for_event(
     None => ()
   }
 }
+
+///|
+pub extend GameSoundCue with Eq::{not_equal, equal}
+
+///|
+pub extend GameSoundCue with @moonbitlang/core/debug.Debug::{to_repr}
+
+///|
+pub extend GameSoundCue with Show::{to_string, output}

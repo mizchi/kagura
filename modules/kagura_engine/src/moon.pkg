@@ -4,6 +4,7 @@ import {
   "mizchi/kagura_engine/audio",
   "mizchi/renderer2d",
   "mizchi/kagura_engine/platform",
+  "moonbitlang/core/debug",
 }
 
 warnings = "-6-53-68"

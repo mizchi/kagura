@@ -1210,3 +1210,67 @@ pub fn new_tracked_audio_output_hooks(
     output_latency: inner.output_latency,
   }
 }
+
+///|
+pub extend AudioFormat with @moonbitlang/core/debug.Debug::{to_repr}
+
+///|
+pub extend AudioFormat with Show::{to_string, output}
+
+///|
+pub extend PlayerState with @moonbitlang/core/debug.Debug::{to_repr}
+
+///|
+pub extend PlayerState with Show::{to_string, output}
+
+///|
+pub extend PlayerId with @moonbitlang/core/debug.Debug::{to_repr}
+
+///|
+pub extend PlayerId with Show::{to_string, output}
+
+///|
+pub extend AudioClip with @moonbitlang/core/debug.Debug::{to_repr}
+
+///|
+pub extend AudioClip with Show::{to_string, output}
+
+///|
+pub extend SimpleAudioContext with AudioContext::{
+  state,
+  set_pan,
+  dispose,
+  create_player,
+  play,
+  set_volume,
+  stop,
+  current_position,
+  pause,
+  seek,
+}
+
+///|
+pub extend AudioClipStream with AudioStream::{read, content_length}
+
+///|
+pub extend BufferedAudioStream with AudioStream::{read, content_length}
+
+///|
+pub extend MixerAudioContext with AudioContext::{
+  state,
+  set_pan,
+  dispose,
+  create_player,
+  play,
+  set_volume,
+  stop,
+  current_position,
+  pause,
+  seek,
+}
+
+///|
+pub extend AudioOutputStats with @moonbitlang/core/debug.Debug::{to_repr}
+
+///|
+pub extend AudioOutputStats with Show::{to_string, output}

@@ -30,3 +30,15 @@ pub(open) trait BytesFetcher {
   fn cancel(Self, handle : FetchHandle) -> Unit
   fn poll(Self) -> Unit
 }
+
+///|
+pub extend FetchProgress with @moonbitlang/core/debug.Debug::{to_repr}
+
+///|
+pub extend FetchProgress with Show::{to_string, output}
+
+///|
+pub extend FetchHandle with @moonbitlang/core/debug.Debug::{to_repr}
+
+///|
+pub extend FetchHandle with Show::{to_string, output}

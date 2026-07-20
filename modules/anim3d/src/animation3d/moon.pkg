@@ -2,4 +2,5 @@ import {
   "moonbitlang/core/math",
   "mizchi/geom/math3d",
   "mizchi/anim3d/transform3d",
+  "moonbitlang/core/debug",
 }

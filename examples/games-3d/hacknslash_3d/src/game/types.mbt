@@ -178,3 +178,21 @@ pub(all) enum GameEvent {
   HurtTriggered
   FloorComplete
 }
+
+///|
+pub extend ProjectileKind with Eq::{not_equal, equal}
+
+///|
+pub extend ProjectileKind with @moonbitlang/core/debug.Debug::{to_repr}
+
+///|
+pub extend ProjectileKind with Show::{to_string, output}
+
+///|
+pub extend EnemyKind with Eq::{not_equal, equal}
+
+///|
+pub extend GameMode with Eq::{not_equal, equal}
+
+///|
+pub extend UIMode with Eq::{not_equal, equal}

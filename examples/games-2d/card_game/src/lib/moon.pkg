@@ -4,6 +4,7 @@ import {
   "mizchi/kagura_game/scene",
   "mizchi/kagura_core" @core,
   "mizchi/kagura_core/inpututil",
+  "moonbitlang/core/debug",
 }
 
 warnings = "-29"

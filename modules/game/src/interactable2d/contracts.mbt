@@ -115,3 +115,32 @@ pub fn resolve_circular_blocker_overlap(
   let ny = dy / dist
   Some((blocker_x + nx * min_dist, blocker_y + ny * min_dist))
 }
+
+///|
+pub extend InteractableRole with Eq::{not_equal, equal}
+
+///|
+pub extend InteractableRole with @moonbitlang/core/debug.Debug::{to_repr}
+
+///|
+pub extend InteractableRole with Show::{to_string, output}
+
+///|
+pub extend InteractableAnchor with Eq::{not_equal, equal}
+
+///|
+pub extend InteractableAnchor with @moonbitlang/core/debug.Debug::{to_repr}
+
+///|
+pub extend InteractableAnchor with Show::{to_string, output}
+
+///|
+pub extend InteractablePickupEffect with Eq::{not_equal, equal}
+
+///|
+pub extend InteractablePickupEffect with @moonbitlang/core/debug.Debug::{
+  to_repr,
+}
+
+///|
+pub extend InteractablePickupEffect with Show::{to_string, output}

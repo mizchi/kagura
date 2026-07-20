@@ -237,3 +237,9 @@ pub fn render_svg(
     None => None
   }
 }
+
+///|
+pub extend SVGRenderResult with @moonbitlang/core/debug.Debug::{to_repr}
+
+///|
+pub extend SVGRenderResult with Show::{to_string, output}

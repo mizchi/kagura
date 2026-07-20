@@ -247,3 +247,6 @@ pub impl TextBatchBuilder for SimpleTextBatchBuilder with fn build_draw_commands
     ]
   }
 }
+
+///|
+pub extend SimpleTextBatchBuilder with TextBatchBuilder::{build_draw_commands}

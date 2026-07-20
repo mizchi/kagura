@@ -201,3 +201,27 @@ pub(all) struct PhysicsWorld {
   joints_distance : Array[DistanceJoint3D]
   joints_ball : Array[BallJoint3D]
 }
+
+///|
+pub extend BodyType with @moonbitlang/core/debug.Debug::{to_repr}
+
+///|
+pub extend BodyType with Show::{to_string, output}
+
+///|
+pub extend ColliderShape with @moonbitlang/core/debug.Debug::{to_repr}
+
+///|
+pub extend ColliderShape with Show::{to_string, output}
+
+///|
+pub extend RigidBody with @moonbitlang/core/debug.Debug::{to_repr}
+
+///|
+pub extend RigidBody with Show::{to_string, output}
+
+///|
+pub extend Contact with @moonbitlang/core/debug.Debug::{to_repr}
+
+///|
+pub extend Contact with Show::{to_string, output}

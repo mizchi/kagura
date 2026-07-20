@@ -109,3 +109,21 @@ pub fn step_fixed_timestep(
     next_state: { accumulator_ms: accumulator, tick: state.tick + updates },
   }
 }
+
+///|
+pub extend FixedStepConfig with @moonbitlang/core/debug.Debug::{to_repr}
+
+///|
+pub extend FixedStepConfig with Show::{to_string, output}
+
+///|
+pub extend FixedStepState with @moonbitlang/core/debug.Debug::{to_repr}
+
+///|
+pub extend FixedStepState with Show::{to_string, output}
+
+///|
+pub extend StepResult with @moonbitlang/core/debug.Debug::{to_repr}
+
+///|
+pub extend StepResult with Show::{to_string, output}

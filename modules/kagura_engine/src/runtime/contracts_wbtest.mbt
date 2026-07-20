@@ -963,3 +963,9 @@ test "plan_frame with zero elapsed does not draw" {
   assert_eq(plan.updates, 0)
   assert_eq(plan.should_draw, false)
 }
+
+///|
+pub extend RunLoopProbeSummary with @moonbitlang/core/debug.Debug::{to_repr}
+
+///|
+pub extend RunLoopProbeSummary with Show::{to_string, output}

@@ -75,3 +75,6 @@ pub impl UIInputAdapter for SimpleUIInputAdapter with fn from_input_snapshot(
   self.prev_pressed_keys = snapshot.pressed_keys
   events
 }
+
+///|
+pub extend SimpleUIInputAdapter with UIInputAdapter::{from_input_snapshot}

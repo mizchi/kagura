@@ -3,4 +3,5 @@ import {
   "moonbitlang/core/math",
   "mizchi/terrain/types" @terrain,
   "mizchi/geom/vector",
+  "moonbitlang/core/debug",
 }

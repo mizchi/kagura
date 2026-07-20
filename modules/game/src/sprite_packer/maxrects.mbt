@@ -184,3 +184,18 @@ fn contains(outer : Rect, inner : Rect) -> Bool {
   outer.x + outer.width >= inner.x + inner.width &&
   outer.y + outer.height >= inner.y + inner.height
 }
+
+///|
+pub extend Rect with @moonbitlang/core/debug.Debug::{to_repr}
+
+///|
+pub extend Rect with Eq::{not_equal, equal}
+
+///|
+pub extend Rect with Show::{to_string, output}
+
+///|
+pub extend AllocResult with @moonbitlang/core/debug.Debug::{to_repr}
+
+///|
+pub extend AllocResult with Show::{to_string, output}

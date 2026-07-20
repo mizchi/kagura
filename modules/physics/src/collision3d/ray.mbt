@@ -144,3 +144,15 @@ pub fn Ray::intersects_sphere(self : Ray, sphere : Sphere) -> HitResult {
   let t = if t1 >= 0.0 { t1 } else { t2 }
   { hit: true, distance: t, point: self.point_at(t) }
 }
+
+///|
+pub extend Ray with @moonbitlang/core/debug.Debug::{to_repr}
+
+///|
+pub extend Ray with Show::{to_string, output}
+
+///|
+pub extend HitResult with @moonbitlang/core/debug.Debug::{to_repr}
+
+///|
+pub extend HitResult with Show::{to_string, output}

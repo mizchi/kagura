@@ -95,3 +95,9 @@ pub fn Camera3D::projection_matrix(self : Camera3D) -> @math3d.Mat4 {
 pub fn Camera3D::view_projection_matrix(self : Camera3D) -> @math3d.Mat4 {
   self.projection_matrix().multiply(self.view_matrix())
 }
+
+///|
+pub extend ProjectionMode with @moonbitlang/core/debug.Debug::{to_repr}
+
+///|
+pub extend ProjectionMode with Show::{to_string, output}

@@ -30,3 +30,9 @@ pub fn Sphere::intersects_sphere(self : Sphere, other : Sphere) -> Bool {
 pub fn Sphere::intersects_aabb(self : Sphere, aabb : AABB) -> Bool {
   aabb.intersects_sphere(self)
 }
+
+///|
+pub extend Sphere with @moonbitlang/core/debug.Debug::{to_repr}
+
+///|
+pub extend Sphere with Show::{to_string, output}

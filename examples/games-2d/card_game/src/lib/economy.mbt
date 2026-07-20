@@ -698,3 +698,33 @@ pub fn simulate_runs(count : Int, strategy : PlayStrategy) -> RunSimSummary {
     win_rate_pct: wins * 100 / count,
   }
 }
+
+///|
+pub extend TurnEconomy with @moonbitlang/core/debug.Debug::{to_repr}
+
+///|
+pub extend TurnEconomy with Show::{to_string, output}
+
+///|
+pub extend BattleEconomy with @moonbitlang/core/debug.Debug::{to_repr}
+
+///|
+pub extend BattleEconomy with Show::{to_string, output}
+
+///|
+pub extend CardValue with @moonbitlang/core/debug.Debug::{to_repr}
+
+///|
+pub extend CardValue with Show::{to_string, output}
+
+///|
+pub extend RunSimResult with @moonbitlang/core/debug.Debug::{to_repr}
+
+///|
+pub extend RunSimResult with Show::{to_string, output}
+
+///|
+pub extend RunSimSummary with @moonbitlang/core/debug.Debug::{to_repr}
+
+///|
+pub extend RunSimSummary with Show::{to_string, output}

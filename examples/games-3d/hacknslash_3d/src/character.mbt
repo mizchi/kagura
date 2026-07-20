@@ -719,3 +719,6 @@ fn PlayerCharacter::compute_skinning(
   self.skinning_cache_builds = self.skinning_cache_builds + 1
   self.cached_skinning_matrices
 }
+
+///|
+pub extend CharAnimState with Eq::{not_equal, equal}

@@ -13,6 +13,7 @@ import {
   "mizchi/mesh3d",
   "mizchi/kagura_engine/particle3d",
   "mizchi/web_runtime_hooks" @web_hooks,
+  "moonbitlang/core/debug",
 }
 
 warnings = "-1-2-29"

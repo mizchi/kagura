@@ -3,4 +3,5 @@ import {
   "mizchi/atlas",
   "mizchi/kagura_engine/animation2d",
   "mizchi/kagura_game/tilemap2d",
+  "moonbitlang/core/debug",
 }

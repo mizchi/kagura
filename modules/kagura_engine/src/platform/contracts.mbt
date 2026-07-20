@@ -735,3 +735,81 @@ pub impl PlatformDriver for WebCanvasPlatform with fn cursor_mode_request_status
   self.cursor_mode_request_status = async_request_status_from_int(status)
   self.cursor_mode_request_status
 }
+
+///|
+pub extend WindowOptions with @moonbitlang/core/debug.Debug::{to_repr}
+
+///|
+pub extend WindowOptions with Show::{to_string, output}
+
+///|
+pub extend MonitorInfo with @moonbitlang/core/debug.Debug::{to_repr}
+
+///|
+pub extend MonitorInfo with Show::{to_string, output}
+
+///|
+pub extend FullscreenMode with @moonbitlang/core/debug.Debug::{to_repr}
+
+///|
+pub extend FullscreenMode with Show::{to_string, output}
+
+///|
+pub extend CursorMode with @moonbitlang/core/debug.Debug::{to_repr}
+
+///|
+pub extend CursorMode with Show::{to_string, output}
+
+///|
+pub extend AsyncRequestStatus with @moonbitlang/core/debug.Debug::{to_repr}
+
+///|
+pub extend AsyncRequestStatus with Show::{to_string, output}
+
+///|
+pub extend DesktopGlfwPlatform with PlatformDriver::{
+  poll_events,
+  mouse_touch_fallback_enabled,
+  device_scale_factor,
+  set_fullscreen,
+  cursor_mode,
+  monitor_info,
+  is_fullscreen,
+  is_vsync_enabled,
+  request_attention,
+  should_close,
+  set_mouse_touch_fallback,
+  capture_input,
+  close_window,
+  initialize,
+  fullscreen_request_status,
+  cursor_mode_request_status,
+  outside_size,
+  set_device_scale_factor,
+  set_vsync_enabled,
+  set_cursor_mode,
+}
+
+///|
+pub extend WebCanvasPlatform with PlatformDriver::{
+  poll_events,
+  mouse_touch_fallback_enabled,
+  device_scale_factor,
+  set_fullscreen,
+  cursor_mode,
+  monitor_info,
+  is_fullscreen,
+  is_vsync_enabled,
+  request_attention,
+  should_close,
+  set_mouse_touch_fallback,
+  capture_input,
+  close_window,
+  initialize,
+  fullscreen_request_status,
+  cursor_mode_request_status,
+  outside_size,
+  set_device_scale_factor,
+  set_vsync_enabled,
+  set_cursor_mode,
+}

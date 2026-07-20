@@ -182,3 +182,15 @@ pub fn[G : @core.Game, P : @platform.PlatformDriver, R : @gfx.GraphicsDriver] ru
     default_runtime_hooks(),
   )
 }
+
+///|
+pub extend RuntimeConfig with @moonbitlang/core/debug.Debug::{to_repr}
+
+///|
+pub extend RuntimeConfig with Show::{to_string, output}
+
+///|
+pub extend FramePlan with @moonbitlang/core/debug.Debug::{to_repr}
+
+///|
+pub extend FramePlan with Show::{to_string, output}

@@ -364,3 +364,15 @@ test "AIRuntimeState trace history trimming" {
   // Only 2 most recent should remain in traces array
   assert_true(state.trace_count() <= 2)
 }
+
+///|
+pub extend TestSensor with SensorBridge::{capture}
+
+///|
+pub extend TestActuator with ActuatorBridge::{apply}
+
+///|
+pub extend TestScheduler with AIScheduler::{select_agents, budget_for}
+
+///|
+pub extend TestPolicy with AIPolicy::{decide}

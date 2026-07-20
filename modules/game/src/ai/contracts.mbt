@@ -173,3 +173,57 @@ pub fn[P : AIPolicy, S : SensorBridge, A : ActuatorBridge, C : AIScheduler] run_
 
   current_blackboard
 }
+
+///|
+pub extend AgentId with @moonbitlang/core/debug.Debug::{to_repr}
+
+///|
+pub extend AgentId with Show::{to_string, output}
+
+///|
+pub extend BlackboardEntry with @moonbitlang/core/debug.Debug::{to_repr}
+
+///|
+pub extend BlackboardEntry with Show::{to_string, output}
+
+///|
+pub extend BlackboardSnapshot with @moonbitlang/core/debug.Debug::{to_repr}
+
+///|
+pub extend BlackboardSnapshot with Show::{to_string, output}
+
+///|
+pub extend SensorSnapshot with @moonbitlang/core/debug.Debug::{to_repr}
+
+///|
+pub extend SensorSnapshot with Show::{to_string, output}
+
+///|
+pub extend ActionIntent with @moonbitlang/core/debug.Debug::{to_repr}
+
+///|
+pub extend ActionIntent with Show::{to_string, output}
+
+///|
+pub extend DecisionTrace with @moonbitlang/core/debug.Debug::{to_repr}
+
+///|
+pub extend DecisionTrace with Show::{to_string, output}
+
+///|
+pub extend AIBudget with @moonbitlang/core/debug.Debug::{to_repr}
+
+///|
+pub extend AIBudget with Show::{to_string, output}
+
+///|
+pub extend DecisionContext with @moonbitlang/core/debug.Debug::{to_repr}
+
+///|
+pub extend DecisionContext with Show::{to_string, output}
+
+///|
+pub extend DecisionResult with @moonbitlang/core/debug.Debug::{to_repr}
+
+///|
+pub extend DecisionResult with Show::{to_string, output}

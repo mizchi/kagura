@@ -588,3 +588,12 @@ pub fn slide_move(
 ) -> (Double, Double) {
   @physics2d.grid_slide_move(grid, x, y, vx, vy, size, tile_size)
 }
+
+///|
+pub extend DungeonGeneratorKind with Eq::{not_equal, equal}
+
+///|
+pub extend DungeonGeneratorKind with @moonbitlang/core/debug.Debug::{to_repr}
+
+///|
+pub extend DungeonGeneratorKind with Show::{to_string, output}

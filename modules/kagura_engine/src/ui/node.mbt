@@ -196,3 +196,42 @@ fn ui_compute_align_offset(align : UIAlignment, free_space : Double) -> Double {
     SpaceBetween | Stretch | Baseline => 0.0
   }
 }
+
+///|
+pub extend UIDirection with @moonbitlang/core/debug.Debug::{to_repr}
+
+///|
+pub extend UIDirection with Show::{to_string, output}
+
+///|
+pub extend UISizing with @moonbitlang/core/debug.Debug::{to_repr}
+
+///|
+pub extend UISizing with Show::{to_string, output}
+
+///|
+pub extend UIFlexWrap with @moonbitlang/core/debug.Debug::{to_repr}
+
+///|
+pub extend UIFlexWrap with Show::{to_string, output}
+
+///|
+pub extend UIAlignment with @moonbitlang/core/debug.Debug::{to_repr}
+
+///|
+pub extend UIAlignment with Eq::{not_equal, equal}
+
+///|
+pub extend UIAlignment with Show::{to_string, output}
+
+///|
+pub extend UINodeStyle with @moonbitlang/core/debug.Debug::{to_repr}
+
+///|
+pub extend UINodeStyle with Show::{to_string, output}
+
+///|
+pub extend UINode with @moonbitlang/core/debug.Debug::{to_repr}
+
+///|
+pub extend UINode with Show::{to_string, output}

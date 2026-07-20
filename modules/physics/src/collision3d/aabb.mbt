@@ -67,3 +67,9 @@ pub fn AABB::merge(self : AABB, other : AABB) -> AABB {
 pub fn AABB::closest_point(self : AABB, point : @math3d.Vec3) -> @math3d.Vec3 {
   point.clamp(self.min, self.max)
 }
+
+///|
+pub extend AABB with @moonbitlang/core/debug.Debug::{to_repr}
+
+///|
+pub extend AABB with Show::{to_string, output}

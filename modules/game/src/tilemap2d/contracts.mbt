@@ -987,3 +987,39 @@ pub fn tile_indexed_chunk_batched_draw_commands(
   )
   commands
 }
+
+///|
+pub extend AtlasTileDrawSpec with @moonbitlang/core/debug.Debug::{to_repr}
+
+///|
+pub extend AtlasTileDrawSpec with Show::{to_string, output}
+
+///|
+pub extend TileAtlasEntry with @moonbitlang/core/debug.Debug::{to_repr}
+
+///|
+pub extend TileAtlasEntry with Show::{to_string, output}
+
+///|
+pub extend TileAtlasTable with @moonbitlang/core/debug.Debug::{to_repr}
+
+///|
+pub extend TileAtlasTable with Show::{to_string, output}
+
+///|
+pub extend TileChunkRect with @moonbitlang/core/debug.Debug::{to_repr}
+
+///|
+pub extend TileChunkRect with Show::{to_string, output}
+
+///|
+pub extend TileChunkOrigin with @moonbitlang/core/debug.Debug::{to_repr}
+
+///|
+pub extend TileChunkOrigin with Show::{to_string, output}
+
+///|
+pub extend ResolvedTileQuad with @moonbitlang/core/debug.Debug::{to_repr}
+
+///|
+pub extend ResolvedTileQuad with Show::{to_string, output}

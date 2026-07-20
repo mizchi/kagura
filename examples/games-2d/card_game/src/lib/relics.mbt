@@ -308,3 +308,24 @@ fn relics_on_victory(
   }
   logs
 }
+
+///|
+pub extend RelicId with @moonbitlang/core/debug.Debug::{to_repr}
+
+///|
+pub extend RelicId with Eq::{not_equal, equal}
+
+///|
+pub extend RelicId with Show::{to_string, output}
+
+///|
+pub extend RelicDef with @moonbitlang/core/debug.Debug::{to_repr}
+
+///|
+pub extend RelicDef with Show::{to_string, output}
+
+///|
+pub extend RelicState with @moonbitlang/core/debug.Debug::{to_repr}
+
+///|
+pub extend RelicState with Show::{to_string, output}

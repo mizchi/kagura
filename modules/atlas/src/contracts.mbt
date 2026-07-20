@@ -1810,3 +1810,116 @@ pub fn multi_page_stats(
   }
   stats
 }
+
+///|
+pub extend AssetKey with @moonbitlang/core/debug.Debug::{to_repr}
+
+///|
+pub extend AssetKey with Show::{to_string, output}
+
+///|
+pub extend ImageSpec with @moonbitlang/core/debug.Debug::{to_repr}
+
+///|
+pub extend ImageSpec with Show::{to_string, output}
+
+///|
+pub extend ShaderSpec with @moonbitlang/core/debug.Debug::{to_repr}
+
+///|
+pub extend ShaderSpec with Show::{to_string, output}
+
+///|
+pub extend MaterialSpec with @moonbitlang/core/debug.Debug::{to_repr}
+
+///|
+pub extend MaterialSpec with Show::{to_string, output}
+
+///|
+pub extend AtlasRegion with @moonbitlang/core/debug.Debug::{to_repr}
+
+///|
+pub extend AtlasRegion with Show::{to_string, output}
+
+///|
+pub extend ImagePaletteBinding with @moonbitlang/core/debug.Debug::{to_repr}
+
+///|
+pub extend ImagePaletteBinding with Show::{to_string, output}
+
+///|
+pub extend SourceImageDirtyRect with @moonbitlang/core/debug.Debug::{to_repr}
+
+///|
+pub extend SourceImageDirtyRect with Show::{to_string, output}
+
+///|
+pub extend SourceImageBinding with @moonbitlang/core/debug.Debug::{to_repr}
+
+///|
+pub extend SourceImageBinding with Show::{to_string, output}
+
+///|
+pub extend AtlasDrawSource with @moonbitlang/core/debug.Debug::{to_repr}
+
+///|
+pub extend AtlasDrawSource with Show::{to_string, output}
+
+///|
+pub extend SimpleImageEntry with @moonbitlang/core/debug.Debug::{to_repr}
+
+///|
+pub extend SimpleImageEntry with Show::{to_string, output}
+
+///|
+pub extend SimpleShaderEntry with @moonbitlang/core/debug.Debug::{to_repr}
+
+///|
+pub extend SimpleShaderEntry with Show::{to_string, output}
+
+///|
+pub extend SimpleMaterialEntry with @moonbitlang/core/debug.Debug::{to_repr}
+
+///|
+pub extend SimpleMaterialEntry with Show::{to_string, output}
+
+///|
+pub extend SimpleImageRepository with ImageRepository::{
+  create_image,
+  get_image,
+  remove_image,
+}
+
+///|
+pub extend SimpleShaderRepository with ShaderRepository::{
+  get_shader,
+  remove_shader,
+  create_shader,
+}
+
+///|
+pub extend SimpleMaterialRepository with MaterialRepository::{
+  register_material,
+  get_material,
+}
+
+///|
+pub extend SimpleAtlasAllocator with AtlasAllocator::{allocate, release}
+
+///|
+pub extend SimpleAtlasImageEntry with @moonbitlang/core/debug.Debug::{to_repr}
+
+///|
+pub extend SimpleAtlasImageEntry with Show::{to_string, output}
+
+///|
+pub extend AtlasCompactResult with @moonbitlang/core/debug.Debug::{to_repr}
+
+///|
+pub extend AtlasCompactResult with Show::{to_string, output}
+
+///|
+pub extend AtlasPageStats with @moonbitlang/core/debug.Debug::{to_repr}
+
+///|
+pub extend AtlasPageStats with Show::{to_string, output}

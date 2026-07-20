@@ -3,6 +3,7 @@ import {
   "moonbitlang/core/math",
   "mizchi/geom/math3d",
   "mizchi/kagura_engine/particle3d",
+  "moonbitlang/core/debug",
 }
 
 warnings = "-1-2-29"

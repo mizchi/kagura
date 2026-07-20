@@ -1,4 +1,5 @@
 import {
   "mizchi/geom/math3d",
   "mizchi/mesh3d",
+  "moonbitlang/core/debug",
 }

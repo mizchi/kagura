@@ -519,3 +519,11 @@ fn effect_studio_summary(
   )
   buf.to_string()
 }
+
+///|
+pub extend EffectStudioOverlayModel with @moonbitlang/core/debug.Debug::{
+  to_repr,
+}
+
+///|
+pub extend EffectStudioOverlayModel with Show::{to_string, output}

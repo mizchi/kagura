@@ -205,3 +205,9 @@ pub fn decode_triangle_payload(
     }
   }
 }
+
+///|
+pub extend TrianglePayload with @moonbitlang/core/debug.Debug::{to_repr}
+
+///|
+pub extend TrianglePayload with Show::{to_string, output}

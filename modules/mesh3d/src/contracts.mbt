@@ -366,3 +366,15 @@ pub fn Mesh3D::box(width : Double, height : Double, depth : Double) -> Mesh3D {
   ignore(base)
   Mesh3D::new(data, indices)
 }
+
+///|
+pub extend MeshBounds3D with @moonbitlang/core/debug.Debug::{to_repr}
+
+///|
+pub extend MeshBounds3D with Show::{to_string, output}
+
+///|
+pub extend Mesh3D with @moonbitlang/core/debug.Debug::{to_repr}
+
+///|
+pub extend Mesh3D with Show::{to_string, output}

@@ -570,3 +570,15 @@ pub fn run_simulations(
     max_hp,
   }
 }
+
+///|
+pub extend SimResult with @moonbitlang/core/debug.Debug::{to_repr}
+
+///|
+pub extend SimResult with Show::{to_string, output}
+
+///|
+pub extend SimSummary with @moonbitlang/core/debug.Debug::{to_repr}
+
+///|
+pub extend SimSummary with Show::{to_string, output}

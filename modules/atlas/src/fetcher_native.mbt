@@ -63,3 +63,6 @@ pub impl BytesFetcher for NativeFetcher with fn poll(self) {
     }
   }
 }
+
+///|
+pub extend NativeFetcher with BytesFetcher::{fetch, poll, cancel}

@@ -1,6 +1,7 @@
 import {
   "mizchi/kagura_engine/audio",
   "mizchi/glfw",
+  "moonbitlang/core/debug",
 }
 
 supported_targets = "native"

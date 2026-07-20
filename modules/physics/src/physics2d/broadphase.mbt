@@ -14,7 +14,7 @@ pub struct SpatialHashGrid2D {
 
 ///|
 pub fn SpatialHashGrid2D::new(cell_size : Double) -> SpatialHashGrid2D {
-  { cell_size, inv_cell_size: 1.0 / cell_size, cells: {}, entries: [] }
+  { cell_size, inv_cell_size: 1.0 / cell_size, cells: Map([]), entries: [] }
 }
 
 ///|

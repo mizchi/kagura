@@ -43,7 +43,7 @@ pub fn AIRuntimeState::new() -> AIRuntimeState {
   {
     blackboard: { entries: [] },
     traces: [],
-    tick_traces: {},
+    tick_traces: Map([]),
     total_decisions: 0,
     total_ticks: 0,
     last_tick_decision_count: 0,
@@ -58,7 +58,7 @@ pub fn AIRuntimeState::new_with_config(
   {
     blackboard: { entries: [] },
     traces: [],
-    tick_traces: {},
+    tick_traces: Map([]),
     total_decisions: 0,
     total_ticks: 0,
     last_tick_decision_count: 0,
@@ -73,7 +73,7 @@ pub fn AIRuntimeState::new_with_blackboard(
   {
     blackboard,
     traces: [],
-    tick_traces: {},
+    tick_traces: Map([]),
     total_decisions: 0,
     total_ticks: 0,
     last_tick_decision_count: 0,
@@ -111,7 +111,7 @@ pub fn AIRuntimeState::trace_count(self : AIRuntimeState) -> Int {
 ///|
 pub fn AIRuntimeState::clear_traces(self : AIRuntimeState) -> Unit {
   self.traces = []
-  self.tick_traces = {}
+  self.tick_traces = Map([])
 }
 
 ///|

@@ -28,7 +28,7 @@ pub fn create_packed_atlas_repository(
     atlas_id,
   )
   // Build lookup from key to spec
-  let specs : Map[String, @atlas.ImageSpec] = {}
+  let specs : Map[String, @atlas.ImageSpec] = Map([])
   for inp in inputs {
     specs[inp.key] = inp.spec
   }

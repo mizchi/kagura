@@ -64,7 +64,7 @@ pub fn AsyncImageLoader::new(
 ) -> AsyncImageLoader {
   {
     next_id: 1,
-    requests: {},
+    requests: Map([]),
     pending_ids: [],
     completed_ids: [],
     fetch_image_fn,

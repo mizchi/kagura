@@ -7,7 +7,7 @@ pub fn SpatialHashGrid2D::query_aabb(
   let min_cy = floor_to_int(aabb.min.y * self.inv_cell_size)
   let max_cx = floor_to_int(aabb.max.x * self.inv_cell_size)
   let max_cy = floor_to_int(aabb.max.y * self.inv_cell_size)
-  let seen : Map[Int, Unit] = {}
+  let seen : Map[Int, Unit] = Map([])
   let result : Array[Int] = []
   for cx = min_cx; cx <= max_cx; cx = cx + 1 {
     for cy = min_cy; cy <= max_cy; cy = cy + 1 {
@@ -36,7 +36,7 @@ pub fn SpatialHashGrid2D::query_aabb(
 pub fn SpatialHashGrid2D::get_pairs(
   self : SpatialHashGrid2D,
 ) -> Array[(Int, Int)] {
-  let seen : Map[Int64, Unit] = {}
+  let seen : Map[Int64, Unit] = Map([])
   let result : Array[(Int, Int)] = []
   self.cells.each(fn(_key, bucket) {
     for i = 0; i < bucket.length(); i = i + 1 {

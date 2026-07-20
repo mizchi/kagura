@@ -9,7 +9,7 @@ pub fn PhysicsWorld2D::new(
     gravity,
     broadphase: SpatialHashGrid2D::new(broadphase_cell_size),
     solver_config,
-    contact_cache: {},
+    contact_cache: Map([]),
     joints_distance: [],
     joints_revolute: [],
   }
@@ -160,7 +160,7 @@ pub fn PhysicsWorld2D::step(self : PhysicsWorld2D, dt : Double) -> Unit {
   }
   // 3. Precompute constraints with warm starting from cache
   let constraints : Array[ContactConstraint2D] = []
-  let new_cache : Map[Int64, ContactManifold2D] = {}
+  let new_cache : Map[Int64, ContactManifold2D] = Map([])
   for c = 0; c < raw_contacts.length(); c = c + 1 {
     let (idx_a, idx_b, contact) = raw_contacts[c]
     let body_a = self.bodies[idx_a]
@@ -368,7 +368,7 @@ pub fn PhysicsWorld2D::step(self : PhysicsWorld2D, dt : Double) -> Unit {
     }
     // Check islands: if ALL dynamic bodies in an island are sleepy, put them to sleep
     // If ANY body in an island is awake/active, wake the whole island
-    let island_can_sleep : Map[Int, Bool] = {}
+    let island_can_sleep : Map[Int, Bool] = Map([])
     for i = 0; i < n; i = i + 1 {
       let body = self.bodies[i]
       if body.is_dynamic() {

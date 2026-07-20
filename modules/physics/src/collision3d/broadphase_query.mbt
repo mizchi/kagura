@@ -60,7 +60,7 @@ pub fn SpatialHashGrid::query_aabb(
   let max_cx = floor_to_int(aabb.max.x * self.inv_cell_size)
   let max_cy = floor_to_int(aabb.max.y * self.inv_cell_size)
   let max_cz = floor_to_int(aabb.max.z * self.inv_cell_size)
-  let seen : Map[Int, Unit] = {}
+  let seen : Map[Int, Unit] = Map([])
   let result : Array[Int] = []
   for cx = min_cx; cx <= max_cx; cx = cx + 1 {
     for cy = min_cy; cy <= max_cy; cy = cy + 1 {
@@ -110,7 +110,7 @@ pub fn SpatialHashGrid::query_sphere(
   let max_cx = floor_to_int(sphere_aabb.max.x * self.inv_cell_size)
   let max_cy = floor_to_int(sphere_aabb.max.y * self.inv_cell_size)
   let max_cz = floor_to_int(sphere_aabb.max.z * self.inv_cell_size)
-  let seen : Map[Int, Unit] = {}
+  let seen : Map[Int, Unit] = Map([])
   let result : Array[Int] = []
   for cx = min_cx; cx <= max_cx; cx = cx + 1 {
     for cy = min_cy; cy <= max_cy; cy = cy + 1 {
@@ -156,7 +156,7 @@ pub fn SpatialHashGrid::query_ray(
   let max_cx = floor_to_int(max_x * self.inv_cell_size)
   let max_cy = floor_to_int(max_y * self.inv_cell_size)
   let max_cz = floor_to_int(max_z * self.inv_cell_size)
-  let seen : Map[Int, Unit] = {}
+  let seen : Map[Int, Unit] = Map([])
   let result : Array[Int] = []
   for cx = min_cx; cx <= max_cx; cx = cx + 1 {
     for cy = min_cy; cy <= max_cy; cy = cy + 1 {

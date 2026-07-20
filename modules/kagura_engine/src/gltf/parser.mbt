@@ -20,7 +20,7 @@ fn parse_buffer_view(obj : Json) -> GltfBufferView {
 
 ///|
 fn parse_primitive(obj : Json) -> GltfPrimitive {
-  let attributes : Map[String, Int] = {}
+  let attributes : Map[String, Int] = Map([])
   match json_get(obj, "attributes") {
     Some(Object(map)) => map.each(fn(k, v) { attributes[k] = json_int(v) })
     _ => ()

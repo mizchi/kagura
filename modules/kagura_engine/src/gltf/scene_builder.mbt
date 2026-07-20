@@ -5,7 +5,7 @@ fn build_scene_graph(
   buffers : Array[Bytes],
 ) -> @scene3d.SceneGraph raise GltfError {
   let graph = @scene3d.SceneGraph::new()
-  let mesh_cache : Map[Int, @mesh3d.Mesh3D] = {}
+  let mesh_cache : Map[Int, @mesh3d.Mesh3D] = Map([])
   if scene_index < 0 || scene_index >= doc.scenes.length() {
     return graph
   }

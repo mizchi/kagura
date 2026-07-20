@@ -10,7 +10,7 @@ fn make_test_state_machine() -> SpriteAnimationStateMachine {
     sprite_sheet_keys("walk", 4),
     0.1,
   )
-  let clips : Map[String, SpriteAnimationClip] = {}
+  let clips : Map[String, SpriteAnimationClip] = Map([])
   clips["idle"] = idle
   clips["walk"] = walk
   let transitions = [

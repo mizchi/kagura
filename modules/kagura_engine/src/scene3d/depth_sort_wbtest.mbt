@@ -111,8 +111,8 @@ fn check_no_face_interleave(sorted : Array[TriFaceInfo]) -> Bool {
     return true
   }
   // Find first and last position of each face in the sorted order
-  let face_first : Map[Int, Int] = {}
-  let face_last : Map[Int, Int] = {}
+  let face_first : Map[Int, Int] = Map([])
+  let face_last : Map[Int, Int] = Map([])
   for i in 0..<sorted.length() {
     let fi = sorted[i].face_idx
     if !face_first.contains(fi) {

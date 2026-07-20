@@ -21,7 +21,7 @@ pub fn release_gpu_resources(state : GpuState, gpu : @core.Any) -> Unit {
     None => ()
   }
   state.textures.each(fn(_id, entry) { ffi_destroy(entry.texture) })
-  state.textures = {}
+  state.textures = Map([])
   match state.default_texture {
     Some(tex) => ffi_destroy(tex)
     None => ()
@@ -33,11 +33,11 @@ pub fn release_gpu_resources(state : GpuState, gpu : @core.Any) -> Unit {
       context._call("unconfigure", []) |> ignore
     }
   }
-  state.custom_pipelines = {}
+  state.custom_pipelines = Map([])
   state.render_targets.each(fn(_id, entry) { ffi_destroy(entry.texture) })
-  state.render_targets = {}
+  state.render_targets = Map([])
   state.depth_textures.each(fn(_key, entry) { ffi_destroy(entry.texture) })
-  state.depth_textures = {}
+  state.depth_textures = Map([])
   state.pipeline = None
   state.pipeline_format = ""
   state.pipeline_offscreen = None

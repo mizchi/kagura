@@ -26,7 +26,7 @@ fn bytes_to_string(data : Bytes) -> String {
 
 ///|
 fn parse_config_map(text : String) -> Map[String, String] {
-  let entries : Map[String, String] = {}
+  let entries : Map[String, String] = Map([])
   let mut line = StringBuilder::new()
   let commit = fn() {
     let trimmed = line.to_string().trim().to_string()

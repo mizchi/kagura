@@ -74,7 +74,7 @@ pub fn compose_packed_image(
 ) -> @atlas.ImageSpec {
   let pixels : Array[Int] = Array::make(result.width * result.height * 4, 0)
   // Build lookup from key to spec
-  let specs : Map[String, @atlas.ImageSpec] = {}
+  let specs : Map[String, @atlas.ImageSpec] = Map([])
   for inp in inputs {
     specs[inp.key] = inp.spec
   }

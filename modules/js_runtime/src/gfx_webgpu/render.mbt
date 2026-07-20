@@ -688,7 +688,7 @@ pub fn render_gpu(
   let mut current_pass : @core.Any? = None
   let mut current_pass_target = -999
   let mut current_pass_has_depth = false
-  let pass_started : Map[Int, Bool] = {}
+  let pass_started : Map[Int, Bool] = Map([])
   let mut default_draw_index = 0
   let last_cmd = commands._get_by_index(cmd_length - 1)
   let screen_target_id = last_cmd._get("dstImageId").cast_int()

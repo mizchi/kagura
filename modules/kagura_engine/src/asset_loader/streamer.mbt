@@ -89,7 +89,7 @@ pub fn AssetStreamer::new(
     ),
     config,
     frame_count: 0,
-    handles: {},
+    handles: Map([]),
     on_evict,
   }
 }

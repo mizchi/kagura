@@ -26,7 +26,7 @@ pub struct SpatialHashGrid {
 
 ///|
 pub fn SpatialHashGrid::new(cell_size : Double) -> SpatialHashGrid {
-  { cell_size, inv_cell_size: 1.0 / cell_size, cells: {}, entries: [] }
+  { cell_size, inv_cell_size: 1.0 / cell_size, cells: Map([]), entries: [] }
 }
 
 ///|

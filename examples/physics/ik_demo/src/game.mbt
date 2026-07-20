@@ -393,7 +393,7 @@ fn DemoState::new() -> DemoState {
     fab_poses.push(fab_skeleton.bones[i].local_transform)
   }
   // Animation state machine
-  let clips : Map[String, @animation3d.AnimationClip] = {}
+  let clips : Map[String, @animation3d.AnimationClip] = Map([])
   clips["idle"] = build_idle_clip()
   clips["walk"] = build_walk_clip()
   let transitions : Array[@animation3d.AnimTransition3D] = [

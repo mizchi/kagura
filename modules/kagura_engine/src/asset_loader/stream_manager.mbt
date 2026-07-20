@@ -66,7 +66,7 @@ pub fn AssetStreamManager::new(
     max_concurrent,
     next_id: 1,
     pending: [],
-    active: {},
+    active: Map([]),
     completed_count: 0,
     failed_count: 0,
   }

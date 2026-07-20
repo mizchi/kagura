@@ -87,7 +87,7 @@ pub fn TextRenderer::render_text(
   let scale = size_px / font.units_per_em.to_double()
   let positions = font.layout_text(text, size_px)
   // Group: page_index -> Array[GlyphQuad]
-  let page_quads : Map[Int, Array[@font.GlyphQuad]] = {}
+  let page_quads : Map[Int, Array[@font.GlyphQuad]] = Map([])
   for pos in positions {
     if pos.glyph_id == 0 {
       continue

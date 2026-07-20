@@ -111,7 +111,7 @@ pub struct UITree {
 
 ///|
 pub fn UITree::new() -> UITree {
-  { nodes: {}, next_id: 1 }
+  { nodes: Map([]), next_id: 1 }
 }
 
 ///|

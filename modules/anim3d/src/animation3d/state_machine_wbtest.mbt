@@ -39,7 +39,7 @@ fn make_test_clips() -> Map[String, AnimationClip] {
     ],
     duration: 0.5,
   }
-  let clips : Map[String, AnimationClip] = {}
+  let clips : Map[String, AnimationClip] = Map([])
   clips["idle"] = idle_clip
   clips["walk"] = walk_clip
   clips["attack"] = attack_clip

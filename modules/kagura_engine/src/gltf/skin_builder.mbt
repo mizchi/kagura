@@ -50,7 +50,7 @@ fn skeleton_from_gltf(
   // Build bones from joint nodes
   let bones : Array[@skeleton3d.Bone] = []
   // Create a mapping from node index to joint index
-  let node_to_joint : Map[Int, Int] = {}
+  let node_to_joint : Map[Int, Int] = Map([])
   for i in 0..<joint_count {
     node_to_joint[skin.joints[i]] = i
   }
@@ -142,7 +142,7 @@ fn animations_from_gltf(
 ) -> Array[@animation3d.AnimationClip] raise GltfError {
   let skin = doc.skins[skin_index]
   // Create node-to-joint mapping for this skin
-  let node_to_joint : Map[Int, Int] = {}
+  let node_to_joint : Map[Int, Int] = Map([])
   for i in 0..<skin.joints.length() {
     node_to_joint[skin.joints[i]] = i
   }

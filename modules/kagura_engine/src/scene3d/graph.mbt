@@ -17,7 +17,7 @@ pub struct SceneGraph {
 
 ///|
 pub fn SceneGraph::new() -> SceneGraph {
-  { nodes: {}, roots: [], next_id: 0 }
+  { nodes: Map([]), roots: [], next_id: 0 }
 }
 
 ///|
@@ -61,7 +61,7 @@ pub fn SceneGraph::set_node(
 
 ///|
 pub fn SceneGraph::clone_graph(self : SceneGraph) -> SceneGraph {
-  let nodes : Map[Int, SceneNode] = {}
+  let nodes : Map[Int, SceneNode] = Map([])
   for id, node in self.nodes {
     let children : Array[Int] = []
     for child_id in node.children {

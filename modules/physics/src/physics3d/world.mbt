@@ -9,7 +9,7 @@ pub fn PhysicsWorld::new(
     gravity,
     broadphase: @collision3d.SpatialHashGrid::new(broadphase_cell_size),
     solver_config,
-    contact_cache: {},
+    contact_cache: Map([]),
     joints_distance: [],
     joints_ball: [],
   }

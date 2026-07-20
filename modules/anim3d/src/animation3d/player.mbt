@@ -30,7 +30,7 @@ pub fn AnimationPlayer::update(self : AnimationPlayer, dt : Double) -> Unit {
 ///|
 /// Sample all channels at the current time, returning one NodePose per affected node.
 pub fn AnimationPlayer::sample(self : AnimationPlayer) -> Array[NodePose] {
-  let pose_map : Map[Int, NodePose] = {}
+  let pose_map : Map[Int, NodePose] = Map([])
   for channel in self.clip.channels {
     let node_idx = channel.node_index
     let pose = match pose_map.get(node_idx) {

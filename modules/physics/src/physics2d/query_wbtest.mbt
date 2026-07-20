@@ -74,8 +74,8 @@ test "clone_terrain_grid copies tile payloads" {
   grid.set(1, 1, @terrain.Wall)
   let copy = clone_terrain_grid(grid)
 
-  assert_eq(copy.get(0, 0), @terrain.Floor)
-  assert_eq(copy.get(1, 1), @terrain.Wall)
+  assert_true(copy.get(0, 0) == @terrain.Floor)
+  assert_true(copy.get(1, 1) == @terrain.Wall)
 }
 
 ///|
@@ -83,8 +83,8 @@ test "append_circular_wall_blocker marks nearby tiles as walls" {
   let grid = @terrain.Grid2D::make(6, 6, @terrain.Floor)
   append_circular_wall_blocker(grid, 2.5 * 16.0, 2.5 * 16.0, 8.0, 16.0)
 
-  assert_eq(grid.get(2, 2), @terrain.Wall)
-  assert_eq(grid.get(0, 0), @terrain.Floor)
+  assert_true(grid.get(2, 2) == @terrain.Wall)
+  assert_true(grid.get(0, 0) == @terrain.Floor)
 }
 
 ///|

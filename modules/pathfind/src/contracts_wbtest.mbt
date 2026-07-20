@@ -6,8 +6,8 @@ test "find_path straight line" {
   match path {
     Some(p) => {
       assert_eq(p.length(), 5)
-      assert_eq(p[0], { x: 0, y: 0 })
-      assert_eq(p[4], { x: 4, y: 0 })
+      assert_true(p[0] == { x: 0, y: 0 })
+      assert_true(p[4] == { x: 4, y: 0 })
     }
     None => assert_true(false)
   }

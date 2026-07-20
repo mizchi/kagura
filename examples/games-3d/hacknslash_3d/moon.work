@@ -9,8 +9,10 @@ members = [
   "../../../modules/mesh3d",
   "../../../modules/pathfind",
   "../../../modules/physics",
+  "../../../modules/platform",
   "../../../modules/renderer2d",
   "../../../modules/text",
+  "../../../modules/ui",
   "../../../tools/effect-studio",
   "../../smoke/web_runtime_hooks",
 ]

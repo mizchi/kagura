@@ -8,10 +8,13 @@ members = [
   "./modules/renderer2d",
   "./modules/widget2d",
   "./modules/kagura_core",
+  "./modules/platform",
+  "./modules/ui",
   "./modules/kagura_engine",
   "./modules/physics",
   "./modules/pathfind",
   "./modules/machinations",
   "./modules/game",
   "./modules/js_runtime",
+  "./modules/native_runtime",
 ]

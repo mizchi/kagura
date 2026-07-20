@@ -6,19 +6,26 @@ import { manifestPathFor, readModuleManifest } from "./moon-mod-manifest.mjs";
 export const DEFAULT_RELEASE_MODULE_DIRS = Object.freeze([
   ".",
   "modules/kagura_core",
+  "modules/platform",
+  "modules/ui",
   "modules/kagura_engine",
+  "modules/native_runtime",
   "modules/physics",
   "modules/game",
   "modules/js_runtime",
 ]);
 
 export const DEFAULT_RELEASE_DEP_POLICY = Object.freeze({
-  "mizchi/kagura": ["mizchi/kagura_core", "mizchi/kagura_engine"],
+  "mizchi/kagura": ["mizchi/kagura_core", "mizchi/kagura_platform", "mizchi/kagura_engine"],
   "mizchi/kagura_core": [],
-  "mizchi/kagura_engine": ["mizchi/kagura_core"],
+  "mizchi/kagura_platform": ["mizchi/kagura_core"],
+  "mizchi/kagura_ui": ["mizchi/kagura_core"],
+  "mizchi/kagura_engine": ["mizchi/kagura_core", "mizchi/kagura_platform"],
+  "mizchi/kagura_native_runtime": ["mizchi/kagura_engine"],
   "mizchi/physics": ["mizchi/kagura_core"],
   "mizchi/kagura_game": [
     "mizchi/kagura_core",
+    "mizchi/kagura_platform",
     "mizchi/kagura_engine",
     "mizchi/physics",
   ],

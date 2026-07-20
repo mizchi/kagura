@@ -8,6 +8,7 @@ members = [
   "../../../modules/kagura_engine",
   "../../../modules/mesh3d",
   "../../../modules/physics",
+  "../../../modules/platform",
   "../../../modules/renderer2d",
   "../../../modules/text",
   "../web_runtime_hooks",

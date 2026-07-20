@@ -3,7 +3,7 @@ import {
   "mizchi/gfx" @gfx,
   "mizchi/renderer2d" @renderer2d,
   "mizchi/widget2d" @widget2d,
-  "mizchi/kagura_engine/gfx_wgpu_native" @wgpu_native,
+  "mizchi/kagura_native_runtime" @wgpu_native,
   "mizchi/native_runtime_hooks" @native_hooks,
   "mizchi/crater-renderer/renderer" @renderer,
   "mizchi/crater-painter/paint" @paint,

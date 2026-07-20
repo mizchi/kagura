@@ -9,7 +9,9 @@ members = [
   "../../../../modules/kagura_core",
   "../../../../modules/kagura_engine",
   "../../../../modules/mesh3d",
+  "../../../../modules/native_runtime",
   "../../../../modules/physics",
+  "../../../../modules/platform",
   "../../../../modules/renderer2d",
   "../../../../modules/text",
 ]

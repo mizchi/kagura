@@ -2,7 +2,7 @@ import {
   "mizchi/kagura_core" @core,
   "mizchi/gfx",
   "mizchi/kagura_core/inpututil",
-  "mizchi/kagura_engine/platform",
+  "mizchi/kagura_platform" @platform,
   "moonbitlang/core/debug",
 }
 

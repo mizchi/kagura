@@ -16,6 +16,7 @@ import {
   "mizchi/geom@0.2.0",
   "mizchi/atlas@0.2.0",
   "mizchi/renderer2d@0.2.0",
+  "mizchi/kagura_ui@0.1.0",
 }
 
 source = "src"

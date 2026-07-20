@@ -14,6 +14,7 @@ import {
   "mizchi/text@0.2.0",
   "mizchi/atlas@0.2.0",
   "mizchi/renderer2d@0.2.0",
+  "mizchi/kagura_platform@0.1.0",
 }
 
 source = "src"

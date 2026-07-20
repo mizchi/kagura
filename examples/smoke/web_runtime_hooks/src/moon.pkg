@@ -7,7 +7,7 @@ import {
   "mizchi/gfx",
   "mizchi/atlas",
   "mizchi/renderer2d",
-  "mizchi/kagura_engine/platform",
+  "mizchi/kagura_platform" @platform,
   "mizchi/text",
 }
 

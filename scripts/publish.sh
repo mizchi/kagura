@@ -48,11 +48,14 @@ MODULES=(
   modules/mesh3d
   modules/geom
   modules/kagura_core
+  modules/platform
+  modules/ui
   modules/text
   modules/atlas
   modules/renderer2d
   modules/anim3d
   modules/kagura_engine
+  modules/native_runtime
   .
   modules/js_runtime
   modules/physics

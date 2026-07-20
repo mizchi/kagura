@@ -4,7 +4,7 @@ import {
   "mizchi/gfx",
   "mizchi/kagura_engine/audio",
   "mizchi/renderer2d",
-  "mizchi/kagura_engine/platform",
+  "mizchi/kagura_platform" @platform,
   "mizchi/kagura_engine/runtime",
   "mizchi/kagura_engine" @engine,
   "moonbitlang/core/debug",

@@ -7,6 +7,7 @@ warnings = "-6-29-53-68"
 import {
   "mizchi/native_runtime_hooks@0.1.0",
   "mizchi/kagura_engine@0.2.0",
+  "mizchi/kagura_native_runtime@0.1.0",
 }
 
 source = "src"

@@ -41,7 +41,7 @@ import {
   "mizchi/kagura_game/hud",
   "mizchi/kagura_game/sprite_packer",
   "mizchi/kagura_engine/sprite2d",
-  "mizchi/kagura_engine/ui",
+  "mizchi/kagura_ui" @ui,
   "moonbitlang/core/debug",
 }
 

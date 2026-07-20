@@ -4,7 +4,7 @@ import {
   "mizchi/gfx",
   "mizchi/renderer2d",
   "mizchi/kagura_core/inpututil",
-  "mizchi/kagura_engine/ui",
+  "mizchi/kagura_ui" @ui,
   "mizchi/web_runtime_hooks" @web_hooks,
 }
 

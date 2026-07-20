@@ -16,7 +16,7 @@ import {
   "mizchi/renderer2d",
   "mizchi/text",
   "mizchi/kagura_game/tilemap2d",
-  "mizchi/kagura_engine/ui",
+  "mizchi/kagura_ui" @ui,
   "mizchi/geom/vector",
   "mizchi/web_runtime_hooks" @web_hooks,
 }

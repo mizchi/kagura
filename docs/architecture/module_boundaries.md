@@ -2,6 +2,14 @@
 
 実装前に固定する境界面の整理。
 
+> **Note (stale):** このドキュメントは実装前のプラン。以下は既に実態と乖離している:
+> `mizchi/kagura_physics` は実際には `mizchi/physics` として公開されている。
+> `gfx` は `modules/kagura_engine/src/gfx/` ではなく外部パッケージ `mizchi/gfx` として存在する。
+> `platform` と `ui` は `modules/platform/` (`mizchi/kagura_platform`) / `modules/ui/`
+> (`mizchi/kagura_ui`) として kagura_engine から抽出済み、`gfx_wgpu_native` は
+> `modules/native_runtime/` (`mizchi/kagura_native_runtime`) として抽出済み。
+> 全体の書き直しはしていないので、他の記述も現状と異なる場合がある。
+
 ## Workspace Modules
 
 - `mizchi/kagura`: thin public facade。`src/*` を持ち、`mizchi/kagura_core` と `mizchi/kagura_engine` の契約を束ねる。

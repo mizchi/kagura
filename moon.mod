@@ -4,6 +4,7 @@ version = "0.4.0"
 
 import {
   "mizchi/kagura_core@0.2.0",
+  "mizchi/kagura_platform@0.1.0",
   "mizchi/kagura_engine@0.2.0",
   "mizchi/image@0.4.3",
   "mizchi/font@0.7.0",

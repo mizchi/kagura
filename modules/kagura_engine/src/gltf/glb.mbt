@@ -49,7 +49,7 @@ pub fn parse_glb(data : Bytes) -> (String, Array[Bytes]) raise GltfError {
       for i in 0..<chunk_length {
         bin_bytes.push(data[chunk_data_start + i])
       }
-      buffers.push(Bytes::from_array(bin_bytes[:]))
+      buffers.push(Bytes::from_array(bin_bytes))
     }
     // else: skip unknown chunk types
     offset = chunk_data_end

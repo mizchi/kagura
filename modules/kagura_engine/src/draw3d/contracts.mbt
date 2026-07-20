@@ -11,7 +11,7 @@
 // target. Bit patterns differ from gfx's by at most 1 ULP (gfx truncates
 // the mantissa, this rounds correctly); shader-side math is unaffected.
 fn f32(v : Double) -> Int {
-  v.to_float().reinterpret_as_int()
+  Float::from_double(v).reinterpret_as_int()
 }
 
 ///|

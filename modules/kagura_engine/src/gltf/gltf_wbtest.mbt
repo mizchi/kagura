@@ -91,7 +91,7 @@ fn make_triangle_buffer(has_normals : Bool) -> Bytes {
   for b in u16_to_bytes(2) {
     bytes.push(b)
   }
-  Bytes::from_array(bytes[:])
+  Bytes::from_array(bytes)
 }
 
 ///|

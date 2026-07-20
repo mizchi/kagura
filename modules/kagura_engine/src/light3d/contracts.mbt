@@ -156,7 +156,7 @@ pub fn LightingEnvironment::default() -> LightingEnvironment {
 
 ///|
 fn f32(v : Double) -> Int {
-  v.to_float().reinterpret_as_int()
+  Float::from_double(v).reinterpret_as_int()
 }
 
 ///|

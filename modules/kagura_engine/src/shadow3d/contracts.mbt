@@ -8,7 +8,7 @@
 // See comment in light3d/contracts.mbt — same rationale (avoid the int64
 // emulation cost of gfx.double_to_f32_bits on the JS target).
 fn f32(v : Double) -> Int {
-  v.to_float().reinterpret_as_int()
+  Float::from_double(v).reinterpret_as_int()
 }
 
 // Mirrors mix_resource_cache_key in mizchi/gfx; kept local so the per-vertex

@@ -61,7 +61,7 @@ fn build_glb(json_str : String, bin : Bytes?) -> Bytes {
     }
     None => ()
   }
-  Bytes::from_array(result[:])
+  Bytes::from_array(result)
 }
 
 ///|

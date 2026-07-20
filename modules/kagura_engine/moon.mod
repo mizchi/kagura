@@ -13,7 +13,7 @@ warnings = "-6-29-53-68-deprecated"
 import {
   "mizchi/kagura_core@0.2.0",
   "mizchi/gfx@0.1.0",
-  "mizchi/image@0.1.1",
+  "mizchi/image@0.4.3",
   "mizchi/font@0.7.0",
   "mizchi/audio@0.1.0",
   "mizchi/glfw@0.2.2",

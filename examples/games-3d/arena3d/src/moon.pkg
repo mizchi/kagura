@@ -1,7 +1,7 @@
 import {
   "moonbitlang/core/bench",
   "moonbitlang/core/math",
-  "mizchi/kagura_engine/audio",
+  "mizchi/kagura_audio" @audio,
   "mizchi/geom/camera3d",
   "mizchi/kagura_core" @core,
   "mizchi/kagura_engine/draw3d",

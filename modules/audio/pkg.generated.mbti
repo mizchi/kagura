@@ -1,13 +1,14 @@
 // Generated using `moon info`, DON'T EDIT IT
-package "mizchi/kagura_engine/audio"
+package "mizchi/kagura_audio"
 
 import {
+  "mizchi/audio",
   "moonbitlang/core/debug",
   "moonbitlang/core/ref",
 }
 
 // Values
-pub fn audio_buffer_to_clip(@mizchi/audio.AudioBuffer, Bool) -> AudioClip
+pub fn audio_buffer_to_clip(@audio.AudioBuffer, Bool) -> AudioClip
 
 pub fn audio_close() -> Unit
 
@@ -33,13 +34,13 @@ pub fn clip_duration(AudioClip) -> Double
 
 pub fn clip_sample_count(AudioClip) -> Int
 
-pub fn clip_to_audio_buffer(AudioClip) -> @mizchi/audio.AudioBuffer
+pub fn clip_to_audio_buffer(AudioClip) -> @audio.AudioBuffer
 
-pub fn decode_audio_clip_auto(Bytes, Bool) -> AudioClip? raise @mizchi/audio.AudioError
+pub fn decode_audio_clip_auto(Bytes, Bool) -> AudioClip? raise @audio.AudioError
 
-pub fn decode_ogg_clip(Bytes, Bool) -> AudioClip raise @mizchi/audio.AudioError
+pub fn decode_ogg_clip(Bytes, Bool) -> AudioClip raise @audio.AudioError
 
-pub fn decode_wav_clip(Bytes, Bool) -> AudioClip raise @mizchi/audio.AudioError
+pub fn decode_wav_clip(Bytes, Bool) -> AudioClip raise @audio.AudioError
 
 pub fn default_audio_format() -> AudioFormat
 
@@ -142,8 +143,8 @@ pub fn BufferedAudioStream::reset(Self) -> Unit
 pub impl AudioStream for BufferedAudioStream
 
 pub struct MixerAudioContext {
-  mixer : @mizchi/audio.Mixer
-  mut player_map : Array[(PlayerId, @mizchi/audio.VoiceId)]
+  mixer : @audio.Mixer
+  mut player_map : Array[(PlayerId, @audio.VoiceId)]
   mut next_id : Int
   mut bgm_player_id : PlayerId?
   mut bgm_fade_target : Double

@@ -11,6 +11,7 @@ import {
   "mizchi/gfx@0.1.0",
   "mizchi/mesh3d@0.2.0",
   "mizchi/geom@0.2.0",
+  "mizchi/kagura_audio@0.1.0",
 }
 
 source = "src"

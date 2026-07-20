@@ -3,8 +3,8 @@ package "mizchi/kagura_engine"
 
 import {
   "mizchi/gfx",
+  "mizchi/kagura_audio",
   "mizchi/kagura_core",
-  "mizchi/kagura_engine/audio",
   "moonbitlang/core/debug",
 }
 
@@ -17,9 +17,9 @@ pub fn[T : @gfx.GraphicsDriver] render_commands(T, Array[@gfx.DrawTrianglesComma
 
 pub fn reset_lifecycle_hooks() -> Unit
 
-pub fn run(update~ : (@kagura_core.InputSnapshot) -> Unit, draw~ : (EngineContext) -> Array[@gfx.DrawTrianglesCommand], on_frame? : () -> Unit, after_render? : (Double, Double) -> Unit, audio_ctx? : @audio.MixerAudioContext, audio_frames_per_tick? : Int, width? : Int, height? : Int, title? : String, canvas? : String) -> Unit
+pub fn run(update~ : (@kagura_core.InputSnapshot) -> Unit, draw~ : (EngineContext) -> Array[@gfx.DrawTrianglesCommand], on_frame? : () -> Unit, after_render? : (Double, Double) -> Unit, audio_ctx? : @kagura_audio.MixerAudioContext, audio_frames_per_tick? : Int, width? : Int, height? : Int, title? : String, canvas? : String) -> Unit
 
-pub fn[T : EngineGame] run_game(T, on_frame? : () -> Unit, after_render? : (Double, Double) -> Unit, audio_ctx? : @audio.MixerAudioContext, audio_frames_per_tick? : Int, width? : Int, height? : Int, title? : String, canvas? : String) -> Unit
+pub fn[T : EngineGame] run_game(T, on_frame? : () -> Unit, after_render? : (Double, Double) -> Unit, audio_ctx? : @kagura_audio.MixerAudioContext, audio_frames_per_tick? : Int, width? : Int, height? : Int, title? : String, canvas? : String) -> Unit
 
 pub fn set_lifecycle_hooks(LifecycleHooks) -> Unit
 

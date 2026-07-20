@@ -1,4 +1,4 @@
 import {
-  "mizchi/kagura_engine/audio",
+  "mizchi/kagura_audio" @audio,
   "mizchi/geom/math3d",
 }

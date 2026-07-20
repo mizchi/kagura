@@ -15,6 +15,7 @@ preferred_target = "native"
 import {
   "mizchi/kagura_engine@0.2.0",
   "mizchi/glfw@0.2.2",
+  "mizchi/kagura_audio@0.1.0",
 }
 
 options(

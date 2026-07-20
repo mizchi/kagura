@@ -24,6 +24,7 @@ import {
   "mizchi/physics@0.2.0",
   "mizchi/pathfind@0.2.0",
   "mizchi/kagura_ui@0.1.0",
+  "mizchi/kagura_audio@0.1.0",
 }
 
 source = "src"

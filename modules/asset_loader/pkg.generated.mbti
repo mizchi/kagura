@@ -1,9 +1,8 @@
 // Generated using `moon info`, DON'T EDIT IT
-package "mizchi/kagura_engine/asset_loader"
+package "mizchi/kagura_asset_loader"
 
 import {
   "mizchi/atlas",
-  "mizchi/gfx",
   "moonbitlang/core/debug",
 }
 
@@ -71,57 +70,6 @@ pub fn AssetStreamerConfig::output(Self, &Logger) -> Unit
 pub fn AssetStreamerConfig::to_repr(Self) -> @debug.Repr
 pub fn AssetStreamerConfig::to_string(Self) -> String
 pub impl Show for AssetStreamerConfig
-
-pub struct AsyncImageLoader {
-  mut next_id : Int
-  requests : Map[Int, AsyncImageRequest]
-  mut pending_ids : Array[Int]
-  mut completed_ids : Array[Int]
-  fetch_image_fn : (String, (@atlas.ImageSpec?) -> Unit) -> Unit
-}
-pub fn AsyncImageLoader::commit_image(Self, Int, @atlas.SimpleImageRepository) -> @gfx.ImageHandle?
-pub fn AsyncImageLoader::drain_completed(Self) -> Array[Int]
-pub fn AsyncImageLoader::enqueue(Self, @atlas.AssetKey, String) -> Int
-pub fn AsyncImageLoader::new(fetch_image_fn? : (String, (@atlas.ImageSpec?) -> Unit) -> Unit) -> Self
-pub fn AsyncImageLoader::progress(Self) -> AsyncImageProgress
-pub fn AsyncImageLoader::request(Self, Int) -> AsyncImageRequest?
-pub fn AsyncImageLoader::start_pending(Self) -> Int
-
-pub struct AsyncImageProgress {
-  total : Int
-  pending : Int
-  loading : Int
-  succeeded : Int
-  failed : Int
-} derive(@debug.Debug)
-pub fn AsyncImageProgress::output(Self, &Logger) -> Unit
-pub fn AsyncImageProgress::to_repr(Self) -> @debug.Repr
-pub fn AsyncImageProgress::to_string(Self) -> String
-pub impl Show for AsyncImageProgress
-
-pub struct AsyncImageRequest {
-  id : Int
-  key : @atlas.AssetKey
-  url : String
-  mut status : AsyncImageStatus
-  mut image_spec : @atlas.ImageSpec?
-} derive(@debug.Debug)
-pub fn AsyncImageRequest::output(Self, &Logger) -> Unit
-pub fn AsyncImageRequest::to_repr(Self) -> @debug.Repr
-pub fn AsyncImageRequest::to_string(Self) -> String
-pub impl Show for AsyncImageRequest
-
-pub enum AsyncImageStatus {
-  Pending
-  Loading
-  Succeeded
-  Failed
-} derive(@debug.Debug)
-pub fn AsyncImageStatus::output(Self, &Logger) -> Unit
-pub fn AsyncImageStatus::to_int(Self) -> Int
-pub fn AsyncImageStatus::to_repr(Self) -> @debug.Repr
-pub fn AsyncImageStatus::to_string(Self) -> String
-pub impl Show for AsyncImageStatus
 
 pub(all) struct DistanceThresholds {
   critical : Double

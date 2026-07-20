@@ -1,6 +1,6 @@
 import {
   "mizchi/atlas",
-  "mizchi/kagura_engine/audio",
+  "mizchi/kagura_audio" @audio,
   "mizchi/kagura_core" @core,
   "mizchi/kagura_engine" @engine,
   "mizchi/gfx",

@@ -2,6 +2,7 @@ members = [
   ".",
   "../../../modules/anim3d",
   "../../../modules/atlas",
+  "../../../modules/audio",
   "../../../modules/game",
   "../../../modules/geom",
   "../../../modules/kagura_core",

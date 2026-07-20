@@ -27,7 +27,7 @@ import {
   "mizchi/kagura_engine/render_pipeline3d",
   "mizchi/anim3d/skeleton3d",
   "mizchi/anim3d/animation3d",
-  "mizchi/kagura_engine/audio",
+  "mizchi/kagura_audio" @audio,
   "mizchi/anim3d/transform3d",
   "mizchi/pathfind",
   "mizchi/geom/vector",

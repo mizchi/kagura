@@ -3,7 +3,7 @@ package "mizchi/kagura_native_runtime"
 
 import {
   "mizchi/glfw",
-  "mizchi/kagura_engine/audio",
+  "mizchi/kagura_audio",
   "moonbitlang/core/debug",
 }
 
@@ -68,7 +68,7 @@ pub fn instance_release(WGPUInstance) -> Unit
 
 pub fn load_font_file(String) -> Int
 
-pub fn new_native_audio_output_hooks() -> @audio.AudioOutputHooks
+pub fn new_native_audio_output_hooks() -> @kagura_audio.AudioOutputHooks
 
 pub fn planned_image_palette_channel(Int, Int, Int) -> Int
 

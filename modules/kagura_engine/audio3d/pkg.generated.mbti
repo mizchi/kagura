@@ -3,7 +3,7 @@ package "mizchi/kagura_engine/audio3d"
 
 import {
   "mizchi/geom/math3d",
-  "mizchi/kagura_engine/audio",
+  "mizchi/kagura_audio",
 }
 
 // Values
@@ -11,9 +11,9 @@ pub fn compute_attenuation(AudioSource3D, AudioListener3D) -> Double
 
 pub fn compute_pan(AudioSource3D, AudioListener3D) -> Double
 
-pub fn default_audio_source3d(@math3d.Vec3, @audio.PlayerId) -> AudioSource3D
+pub fn default_audio_source3d(@math3d.Vec3, @kagura_audio.PlayerId) -> AudioSource3D
 
-pub fn update_audio3d(@audio.MixerAudioContext, AudioListener3D, Array[AudioSource3D]) -> Unit
+pub fn update_audio3d(@kagura_audio.MixerAudioContext, AudioListener3D, Array[AudioSource3D]) -> Unit
 
 // Errors
 
@@ -33,7 +33,7 @@ pub fn AudioListener3D::from_camera(@math3d.Vec3, @math3d.Vec3, @math3d.Vec3) ->
 
 pub(all) struct AudioSource3D {
   position : @math3d.Vec3
-  player_id : @audio.PlayerId
+  player_id : @kagura_audio.PlayerId
   ref_distance : Double
   max_distance : Double
   rolloff : Double

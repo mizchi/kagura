@@ -5,7 +5,7 @@ import {
   "mizchi/font",
   "mizchi/kagura_game/ai",
   "mizchi/atlas",
-  "mizchi/kagura_engine/audio",
+  "mizchi/kagura_audio" @audio,
   "mizchi/geom/camera2d",
   "mizchi/renderer2d",
   "mizchi/kagura_core" @core,

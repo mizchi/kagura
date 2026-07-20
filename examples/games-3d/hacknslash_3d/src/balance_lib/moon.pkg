@@ -1,6 +1,6 @@
 import {
-  "moonbitlang/core/cmp" @cmp,
-  "mizchi/hacknslash_3d/game" @game,
+  "moonbitlang/core/cmp",
+  "mizchi/hacknslash_3d/game",
   "mizchi/differentiable_ecs" @dec,
 }
 

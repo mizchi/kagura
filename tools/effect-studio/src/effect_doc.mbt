@@ -7,7 +7,7 @@ pub enum EffectSpawnPattern {
 } derive(Debug)
 
 ///|
-pub impl Show for EffectSpawnPattern with output(self, logger) {
+pub impl Show for EffectSpawnPattern with fn output(self, logger) {
   logger.write_object(to_repr(self))
 }
 
@@ -36,7 +36,7 @@ pub struct EffectTrack {
 } derive(Debug)
 
 ///|
-pub impl Show for EffectTrack with output(self, logger) {
+pub impl Show for EffectTrack with fn output(self, logger) {
   logger.write_object(to_repr(self))
 }
 
@@ -51,7 +51,7 @@ pub struct EffectDocument {
 } derive(Debug)
 
 ///|
-pub impl Show for EffectDocument with output(self, logger) {
+pub impl Show for EffectDocument with fn output(self, logger) {
   logger.write_object(to_repr(self))
 }
 

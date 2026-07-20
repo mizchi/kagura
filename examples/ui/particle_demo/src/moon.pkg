@@ -1,12 +1,12 @@
 import {
-  "moonbitlang/core/math" @math,
-  "mizchi/geom/camera3d" @camera3d,
+  "moonbitlang/core/math",
+  "mizchi/geom/camera3d",
   "mizchi/kagura_core" @core,
-  "mizchi/kagura_engine/draw3d" @draw3d,
+  "mizchi/kagura_engine/draw3d",
   "mizchi/kagura_engine" @engine,
-  "mizchi/gfx" @gfx,
-  "mizchi/geom/math3d" @math3d,
-  "mizchi/kagura_engine/particle3d" @particle3d,
+  "mizchi/gfx",
+  "mizchi/geom/math3d",
+  "mizchi/kagura_engine/particle3d",
   "mizchi/web_runtime_hooks" @web_hooks,
 }
 
@@ -14,8 +14,9 @@ warnings = "-1-2-29"
 
 supported_targets = "js+native"
 
+pkgtype(kind: "executable")
+
 options(
-  "is-main": true,
   link: {
     "native": {
       "cc": "${build.KAGURA_NATIVE_CC}",

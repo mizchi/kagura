@@ -7,7 +7,7 @@ pub(all) struct StatusEffects {
 } derive(Debug)
 
 ///|
-pub impl Show for StatusEffects with output(self, logger) {
+pub impl Show for StatusEffects with fn output(self, logger) {
   logger.write_object(to_repr(self))
 }
 
@@ -29,7 +29,7 @@ pub(all) struct Fighter {
 } derive(Debug)
 
 ///|
-pub impl Show for Fighter with output(self, logger) {
+pub impl Show for Fighter with fn output(self, logger) {
   logger.write_object(to_repr(self))
 }
 

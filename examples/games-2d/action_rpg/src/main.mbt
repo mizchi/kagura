@@ -1,10 +1,10 @@
 ///|
-impl @scene.SceneGame for ShowcaseState with update_game(self, input) {
+impl @scene.SceneGame for ShowcaseState with fn update_game(self, input) {
   self.update(input)
 }
 
 ///|
-impl @scene.SceneGame for ShowcaseState with view_game(self) {
+impl @scene.SceneGame for ShowcaseState with fn view_game(self) {
   self.view()
 }
 

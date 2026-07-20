@@ -1,0 +1,15 @@
+members = [
+  ".",
+  "../../../../examples/smoke/native_runtime_hooks",
+  "../../../../examples/smoke/web_runtime_hooks",
+  "../../../../modules/anim3d",
+  "../../../../modules/atlas",
+  "../../../../modules/game",
+  "../../../../modules/geom",
+  "../../../../modules/kagura_core",
+  "../../../../modules/kagura_engine",
+  "../../../../modules/mesh3d",
+  "../../../../modules/physics",
+  "../../../../modules/renderer2d",
+  "../../../../modules/text",
+]

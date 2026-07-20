@@ -1,6 +1,6 @@
 import {
-  "mizchi/card_game/lib" @lib,
-  "mizchi/kagura_game/scene" @scene,
+  "mizchi/card_game/lib",
+  "mizchi/kagura_game/scene",
   "mizchi/web_runtime_hooks" @web_hooks,
 }
 
@@ -8,8 +8,9 @@ warnings = "-29"
 
 supported_targets = "js+native"
 
+pkgtype(kind: "executable")
+
 options(
-  "is-main": true,
   link: {
     "native": {
       "cc": "${build.KAGURA_NATIVE_CC}",

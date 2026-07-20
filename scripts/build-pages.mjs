@@ -105,7 +105,7 @@ function resolveExampleDir(name) {
   // to the legacy flat examples/<name> layout if a project sits there.
   const examplesRoot = join(ROOT, "examples");
   const flat = join(examplesRoot, name);
-  if (existsSync(join(flat, "moon.mod.json"))) {
+  if (existsSync(join(flat, "moon.mod.json")) || existsSync(join(flat, "moon.mod"))) {
     return flat;
   }
   for (const category of readdirSync(examplesRoot)) {

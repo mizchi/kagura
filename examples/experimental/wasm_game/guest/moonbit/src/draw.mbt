@@ -1,5 +1,7 @@
 ///| Create a DrawCmd for a filled rectangle.
-///| Coordinates are in pixel space; converted to NDC internally.
+
+///|
+/// Coordinates are in pixel space; converted to NDC internally.
 fn rect_cmd(
   x : Double,
   y : Double,
@@ -10,7 +12,7 @@ fn rect_cmd(
   r : Int,
   g : Int,
   b : Int,
-  alpha : Int
+  alpha : Int,
 ) -> DrawCmd {
   // Pixel to NDC: ndc_x = (px / screen_w) * 2 - 1, ndc_y = 1 - (py / screen_h) * 2
   let x0 = Float::from_double(x / screen_w * 2.0 - 1.0)
@@ -27,15 +29,16 @@ fn rect_cmd(
     uniform_a: alpha,
     vertices: [
       x0, y0, 0.0, 0.0, // top-left
-      x1, y0, 1.0, 0.0, // top-right
-      x1, y1, 1.0, 1.0, // bottom-right
-      x0, y1, 0.0, 1.0, // bottom-left
+       x1, y0, 1.0, 0.0, // top-right
+       x1, y1, 1.0, 1.0, // bottom-right
+       x0, y1, 0.0, 1.0, // bottom-left
     ],
     indices: [0, 1, 2, 0, 2, 3],
   }
 }
 
-///| Create a DrawCmd from a hex color (0xRRGGBB).
+///|
+/// Create a DrawCmd from a hex color (0xRRGGBB).
 fn rect_cmd_hex(
   x : Double,
   y : Double,
@@ -44,7 +47,7 @@ fn rect_cmd_hex(
   screen_w : Double,
   screen_h : Double,
   fill : Int,
-  alpha~ : Int = 255
+  alpha? : Int = 255,
 ) -> DrawCmd {
   let r = (fill >> 16) & 0xFF
   let g = (fill >> 8) & 0xFF

@@ -20,12 +20,12 @@ pub(all) struct Game {
 }
 
 ///|
-pub impl @scene.SceneGame for Game with update_game(self, input) {
+pub impl @scene.SceneGame for Game with fn update_game(self, input) {
   self.update(input)
 }
 
 ///|
-pub impl @scene.SceneGame for Game with view_game(self) {
+pub impl @scene.SceneGame for Game with fn view_game(self) {
   self.view()
 }
 

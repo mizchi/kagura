@@ -1,7 +1,8 @@
 warnings = "-29"
 
+pkgtype(kind: "executable")
+
 options(
-  "is-main": true,
   link: {
     "wasm": {
       "exports": [

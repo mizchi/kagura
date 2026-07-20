@@ -9,7 +9,7 @@ pub enum BalancePreset {
 } derive(Eq, Debug)
 
 ///|
-pub impl Show for BalancePreset with output(self, logger) {
+pub impl Show for BalancePreset with fn output(self, logger) {
   logger.write_object(to_repr(self))
 }
 

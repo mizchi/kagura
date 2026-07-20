@@ -1130,10 +1130,22 @@ test "entity subpass helpers emit one instanced command each from scratch" {
   // draw3d/light3d encode uniforms via Double::to_float().reinterpret_as_int()
   // (round-to-nearest-even f32 bits) rather than gfx.double_to_f32_bits's
   // truncating variant. Inline the same encoding here for an exact-match check.
-  assert_eq(cmds[0].uniform_dwords[56], (0.0 : Double).to_float().reinterpret_as_int())
-  assert_eq(cmds[0].uniform_dwords[57], (1.0 : Double).to_float().reinterpret_as_int())
-  assert_eq(cmds[0].uniform_dwords[58], (0.4 : Double).to_float().reinterpret_as_int())
-  assert_eq(cmds[0].uniform_dwords[59], (1.0 : Double).to_float().reinterpret_as_int())
+  assert_eq(
+    cmds[0].uniform_dwords[56],
+    (0.0 : Double).to_float().reinterpret_as_int(),
+  )
+  assert_eq(
+    cmds[0].uniform_dwords[57],
+    (1.0 : Double).to_float().reinterpret_as_int(),
+  )
+  assert_eq(
+    cmds[0].uniform_dwords[58],
+    (0.4 : Double).to_float().reinterpret_as_int(),
+  )
+  assert_eq(
+    cmds[0].uniform_dwords[59],
+    (1.0 : Double).to_float().reinterpret_as_int(),
+  )
 }
 
 ///|

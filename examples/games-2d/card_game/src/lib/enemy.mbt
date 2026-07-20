@@ -9,7 +9,7 @@ pub(all) enum Intent {
 } derive(Debug, Eq)
 
 ///|
-pub impl Show for Intent with output(self, logger) {
+pub impl Show for Intent with fn output(self, logger) {
   logger.write_object(to_repr(self))
 }
 
@@ -23,7 +23,7 @@ pub(all) struct Enemy {
 } derive(Debug)
 
 ///|
-pub impl Show for Enemy with output(self, logger) {
+pub impl Show for Enemy with fn output(self, logger) {
   logger.write_object(to_repr(self))
 }
 
@@ -54,7 +54,7 @@ pub(all) enum EnemyId {
 } derive(Debug, Eq)
 
 ///|
-pub impl Show for EnemyId with output(self, logger) {
+pub impl Show for EnemyId with fn output(self, logger) {
   logger.write_object(to_repr(self))
 }
 
@@ -418,7 +418,7 @@ pub(all) enum EncounterId {
 } derive(Debug, Eq)
 
 ///|
-pub impl Show for EncounterId with output(self, logger) {
+pub impl Show for EncounterId with fn output(self, logger) {
   logger.write_object(to_repr(self))
 }
 
@@ -455,7 +455,7 @@ pub(all) enum EncounterTier {
 } derive(Debug, Eq)
 
 ///|
-pub impl Show for EncounterTier with output(self, logger) {
+pub impl Show for EncounterTier with fn output(self, logger) {
   logger.write_object(to_repr(self))
 }
 

@@ -15,6 +15,4 @@ import {
   "mizchi/image@0.4.3",
 }
 
-options(
-  source: "src",
-)
+source = "src"

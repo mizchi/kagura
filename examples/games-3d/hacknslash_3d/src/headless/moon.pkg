@@ -1,11 +1,12 @@
 import {
-  "mizchi/hacknslash_3d/game" @game,
+  "mizchi/hacknslash_3d/game",
   "mizchi/terrain/types" @terrain,
 }
 
 supported_targets = "js+native"
 
+pkgtype(kind: "executable")
+
 options(
-  "is-main": true,
   targets: { "main.mbt": [ "js", "native" ] },
 )

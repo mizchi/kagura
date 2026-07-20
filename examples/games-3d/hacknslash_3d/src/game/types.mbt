@@ -89,7 +89,7 @@ pub(all) enum ProjectileKind {
 } derive(Eq, Debug)
 
 ///|
-pub impl Show for ProjectileKind with output(self, logger) {
+pub impl Show for ProjectileKind with fn output(self, logger) {
   logger.write_object(to_repr(self))
 }
 

@@ -1,7 +1,5 @@
 import {
-  "mizchi/atlas" @atlas,
+  "mizchi/atlas",
 }
 
-options(
-  "is-main": true,
-)
+pkgtype(kind: "executable")

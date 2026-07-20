@@ -13,7 +13,7 @@ pub enum EffectPresetId {
 } derive(Eq, Debug)
 
 ///|
-pub impl Show for EffectPresetId with output(self, logger) {
+pub impl Show for EffectPresetId with fn output(self, logger) {
   logger.write_object(to_repr(self))
 }
 

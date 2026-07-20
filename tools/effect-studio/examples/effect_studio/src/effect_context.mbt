@@ -9,7 +9,7 @@ struct EffectStudioOverlayModel {
 } derive(Debug)
 
 ///|
-pub impl Show for EffectStudioOverlayModel with output(self, logger) {
+pub impl Show for EffectStudioOverlayModel with fn output(self, logger) {
   logger.write_object(to_repr(self))
 }
 

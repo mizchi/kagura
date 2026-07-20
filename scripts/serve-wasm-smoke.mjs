@@ -28,7 +28,8 @@ const CONTENT_TYPES = {
   ".obj": "text/plain; charset=utf-8",
 };
 
-const isExampleDir = (dir) => existsSync(join(dir, "moon.mod.json"));
+const isExampleDir = (dir) =>
+  existsSync(join(dir, "moon.mod.json")) || existsSync(join(dir, "moon.mod"));
 
 const resolveExampleDir = (name) => {
   for (const root of EXAMPLE_ROOTS) {

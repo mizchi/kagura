@@ -11,7 +11,7 @@ enum DungeonGeneratorKind {
 } derive(Eq, Debug)
 
 ///|
-pub impl Show for DungeonGeneratorKind with output(self, logger) {
+pub impl Show for DungeonGeneratorKind with fn output(self, logger) {
   logger.write_object(to_repr(self))
 }
 

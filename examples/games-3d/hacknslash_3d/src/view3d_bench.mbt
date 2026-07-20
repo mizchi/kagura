@@ -889,7 +889,9 @@ fn run_dungeon_pass_bench(
 ///|
 test "bench hacknslash_3d dungeon_pass default" (b : @bench.T) {
   run_dungeon_pass_bench(
-    b, "hacknslash_3d/dungeon_pass/default", GameState::new(seed=42),
+    b,
+    "hacknslash_3d/dungeon_pass/default",
+    GameState::new(seed=42),
   )
 }
 

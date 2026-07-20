@@ -1,12 +1,12 @@
 import {
-  "moonbitlang/core/bench" @bench,
-  "moonbitlang/core/cmp" @cmp,
-  "moonbitlang/core/math" @math,
-  "mizchi/geom/camera2d" @camera2d,
+  "moonbitlang/core/bench",
+  "moonbitlang/core/cmp",
+  "moonbitlang/core/math",
+  "mizchi/geom/camera2d",
   "mizchi/kagura_core" @core,
-  "mizchi/kagura_core/inpututil" @inpututil,
-  "mizchi/kagura_game/scene" @scene,
-  "mizchi/geom/vector" @vector,
+  "mizchi/kagura_core/inpututil",
+  "mizchi/kagura_game/scene",
+  "mizchi/geom/vector",
   "mizchi/web_runtime_hooks" @web_hooks,
 }
 
@@ -14,8 +14,9 @@ warnings = "-1-2-29"
 
 supported_targets = "js+native"
 
+pkgtype(kind: "executable")
+
 options(
-  "is-main": true,
   link: {
     "native": {
       "cc": "${build.KAGURA_NATIVE_CC}",

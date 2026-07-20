@@ -14,7 +14,13 @@ fn push_rect(
   @renderer2d.append_rect_fill(
     cmds,
     frame,
-    @renderer2d.RectFill2D::new(x~, y~, w~, h~, color=@renderer2d.color_from_hex(hex)),
+    @renderer2d.RectFill2D::new(
+      x~,
+      y~,
+      w~,
+      h~,
+      color=@renderer2d.color_from_hex(hex),
+    ),
   )
 }
 
@@ -206,7 +212,8 @@ fn draw_node(
   push_text(cmds, frame, node.label, node.x, y - 9.0, 1.0, 0xCFD8E3)
   // value or kind tag inside
   match node.kind {
-    Pool | Register => push_num(cmds, frame, value, node.x, node.y, 2.0, 0xFFFFFF)
+    Pool | Register =>
+      push_num(cmds, frame, value, node.x, node.y, 2.0, 0xFFFFFF)
     Source =>
       if interactive {
         push_text(cmds, frame, "CLICK", node.x, node.y, 1.0, 0xFFE9A8)
@@ -237,8 +244,8 @@ fn DemoState::draw(
   let frame = @renderer2d.RenderFrame2D::new(
     dst=ctx.dst,
     shader=ctx.shader,
-    screen_w=screen_w,
-    screen_h=screen_h,
+    screen_w~,
+    screen_h~,
   )
   let sw = screen_w.to_double()
   let sh = screen_h.to_double()
@@ -295,11 +302,19 @@ fn DemoState::draw(
   push_text(
     cmds,
     frame,
-    if self.playing { "PLAYING" } else { "PAUSED" },
+    if self.playing {
+      "PLAYING"
+    } else {
+      "PAUSED"
+    },
     180.0,
     18.0,
     1.0,
-    if self.playing { 0x8FE3A0 } else { 0xC0A24A },
+    if self.playing {
+      0x8FE3A0
+    } else {
+      0xC0A24A
+    },
   )
   push_text(cmds, frame, "SPD", 300.0, 18.0, 1.0, 0x8893A0)
   push_num(cmds, frame, self.frames_per_step, 340.0, 18.0, 1.0, 0xE6ECF2)
@@ -404,7 +419,15 @@ fn DemoState::draw_chart(
     }
     push_rect(cmds, frame, legx, y + 6.0, 8.0, 8.0, col)
     push_text(cmds, frame, node.label, legx + 40.0, y + 10.0, 1.0, col)
-    push_num(cmds, frame, self.sim.values[i], legx + 98.0, y + 10.0, 1.0, 0xE6ECF2)
+    push_num(
+      cmds,
+      frame,
+      self.sim.values[i],
+      legx + 98.0,
+      y + 10.0,
+      1.0,
+      0xE6ECF2,
+    )
     legx = legx + 138.0
   }
   push_text(cmds, frame, "MAX", x + w - 56.0, y + 10.0, 1.0, 0x6E7A88)
@@ -432,7 +455,15 @@ fn DemoState::draw_inspector(
   push_text(cmds, frame, n.label, cx, py + 14.0, 1.0, 0xE6ECF2)
   push_text(cmds, frame, kind_name(n.kind), cx, py + 30.0, 1.0, 0x9AA6B2)
   push_text(cmds, frame, "VAL", px + 28.0, py + 52.0, 1.0, 0x6E7A88)
-  push_num(cmds, frame, self.sim.values[self.hovered], px + 74.0, py + 52.0, 1.0, 0xFFFFFF)
+  push_num(
+    cmds,
+    frame,
+    self.sim.values[self.hovered],
+    px + 74.0,
+    py + 52.0,
+    1.0,
+    0xFFFFFF,
+  )
   push_text(cmds, frame, act_name(n.activation), cx, py + 72.0, 1.0, 0x8FB0E0)
   match n.capacity {
     Some(c) => {

@@ -12,7 +12,7 @@ enum GameSoundCue {
 } derive(Eq, Debug)
 
 ///|
-pub impl Show for GameSoundCue with output(self, logger) {
+pub impl Show for GameSoundCue with fn output(self, logger) {
   logger.write_object(to_repr(self))
 }
 

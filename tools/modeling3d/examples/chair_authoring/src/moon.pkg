@@ -1,23 +1,23 @@
 import {
-  "moonbitlang/core/json" @json,
-  "moonbitlang/core/math" @math,
-  "mizchi/atlas" @atlas,
-  "mizchi/geom/camera3d" @camera3d,
-  "mizchi/physics/collision3d" @collision3d,
+  "moonbitlang/core/json",
+  "moonbitlang/core/math",
+  "mizchi/atlas",
+  "mizchi/geom/camera3d",
+  "mizchi/physics/collision3d",
   "mizchi/kagura_core" @core,
-  "mizchi/kagura_engine/draw3d" @draw3d,
+  "mizchi/kagura_engine/draw3d",
   "mizchi/kagura_engine" @engine,
-  "mizchi/gfx" @gfx,
+  "mizchi/gfx",
   "mizchi/kagura_engine/gfx_wgpu_native" @wgpu_native,
-  "mizchi/kagura_engine/gltf" @gltf,
-  "mizchi/kagura_core/inpututil" @inpututil,
-  "mizchi/kagura_engine/light3d" @light3d,
-  "mizchi/geom/math3d" @math3d,
-  "mizchi/mesh3d" @mesh3d,
-  "mizchi/kagura_engine/platform" @platform,
-  "mizchi/renderer2d" @renderer2d,
-  "mizchi/kagura_engine/renderer3d" @renderer3d,
-  "mizchi/kagura_engine/scene3d" @scene3d,
+  "mizchi/kagura_engine/gltf",
+  "mizchi/kagura_core/inpututil",
+  "mizchi/kagura_engine/light3d",
+  "mizchi/geom/math3d",
+  "mizchi/mesh3d",
+  "mizchi/kagura_engine/platform",
+  "mizchi/renderer2d",
+  "mizchi/kagura_engine/renderer3d",
+  "mizchi/kagura_engine/scene3d",
   "mizchi/native_runtime_hooks" @native_hooks,
   "mizchi/web_runtime_hooks" @web_hooks,
 }
@@ -26,8 +26,9 @@ warnings = "-1-2-29"
 
 supported_targets = "native"
 
+pkgtype(kind: "executable")
+
 options(
-  "is-main": true,
   link: {
     "native": {
       "cc": "${build.KAGURA_NATIVE_CC}",

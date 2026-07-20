@@ -15,6 +15,4 @@ import {
   "mizchi/mesh3d@0.2.0",
 }
 
-options(
-  source: "src",
-)
+source = "src"

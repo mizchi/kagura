@@ -448,9 +448,7 @@ fn palette_channel_or_zero(
   pixel_index : Int,
   channel_index : Int,
 ) -> Int {
-  let value = @atlas.palette_channel(
-    palette, pixel_index, channel_index,
-  )
+  let value = @atlas.palette_channel(palette, pixel_index, channel_index)
   if value < 0 {
     0
   } else {

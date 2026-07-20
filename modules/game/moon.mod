@@ -28,7 +28,8 @@ import {
 
 preferred_target = "js"
 
+source = "src"
+
 options(
-  source: "src",
   "--moonbit-unstable-prebuild": "../../scripts/moon-prebuild-native-link-flags.cjs",
 )

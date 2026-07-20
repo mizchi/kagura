@@ -1,8 +1,8 @@
 import {
-  "mizchi/atlas" @atlas,
+  "mizchi/atlas",
   "mizchi/kagura_engine" @engine,
-  "mizchi/gfx" @gfx,
-  "mizchi/kagura_engine/sprite2d" @sprite2d,
+  "mizchi/gfx",
+  "mizchi/kagura_engine/sprite2d",
   "mizchi/web_runtime_hooks" @web_hooks,
 }
 
@@ -10,8 +10,9 @@ warnings = "-1-2-29"
 
 supported_targets = "js"
 
+pkgtype(kind: "executable")
+
 options(
-  "is-main": true,
   targets: {
     "main.mbt": [ "js" ],
     "main_stub.mbt": [ "native", "wasm", "wasm-gc", "llvm" ],

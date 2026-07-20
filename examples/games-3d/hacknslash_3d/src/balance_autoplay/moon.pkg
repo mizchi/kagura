@@ -1,16 +1,17 @@
 import {
-  "moonbitlang/x/sys" @sys,
+  "moonbitlang/x/sys",
   "mizchi/hacknslash_3d/balance_lib" @blib,
-  "mizchi/hacknslash_3d/game" @game,
+  "mizchi/hacknslash_3d/game",
   "mizchi/differentiable_ecs" @dec,
-  "mizchi/parquet" @parquet,
+  "mizchi/parquet",
 }
 
 warnings = "-1-2-7-29"
 
 supported_targets = "js+native"
 
+pkgtype(kind: "executable")
+
 options(
-  "is-main": true,
   targets: { "main.mbt": [ "js", "native" ] },
 )

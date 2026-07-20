@@ -1,0 +1,13 @@
+members = [
+  ".",
+  "../../../modules/anim3d",
+  "../../../modules/atlas",
+  "../../../modules/geom",
+  "../../../modules/kagura_core",
+  "../../../modules/kagura_engine",
+  "../../../modules/machinations",
+  "../../../modules/mesh3d",
+  "../../../modules/renderer2d",
+  "../../../modules/text",
+  "../../smoke/web_runtime_hooks",
+]

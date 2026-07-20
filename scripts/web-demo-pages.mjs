@@ -543,7 +543,10 @@ function resolveExampleSourcePath(name) {
     for (const category of readdirSync(examplesRoot)) {
       const categoryPath = join(examplesRoot, category);
       if (!statSync(categoryPath).isDirectory()) continue;
-      if (existsSync(join(categoryPath, name, "moon.mod.json"))) {
+      if (
+        existsSync(join(categoryPath, name, "moon.mod.json")) ||
+        existsSync(join(categoryPath, name, "moon.mod"))
+      ) {
         return `examples/${category}/${name}/src`;
       }
     }

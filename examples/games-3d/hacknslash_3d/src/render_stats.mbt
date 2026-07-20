@@ -17,7 +17,7 @@ struct DrawPlayingStats {
 } derive(Debug)
 
 ///|
-pub impl Show for DrawPlayingStats with output(self, logger) {
+pub impl Show for DrawPlayingStats with fn output(self, logger) {
   logger.write_object(to_repr(self))
 }
 

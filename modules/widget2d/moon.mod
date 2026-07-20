@@ -16,6 +16,4 @@ import {
   "mizchi/text@0.2.0",
 }
 
-options(
-  source: "src",
-)
+source = "src"

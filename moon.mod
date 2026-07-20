@@ -27,8 +27,9 @@ warnings = "-6-29-53-68"
 
 preferred_target = "js"
 
+source = "src"
+
 options(
-  source: "src",
   exclude: [
     "examples",
     "e2e",

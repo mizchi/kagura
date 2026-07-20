@@ -14,6 +14,4 @@ import {
   "mizchi/terrain@0.1.1",
 }
 
-options(
-  source: "src",
-)
+source = "src"

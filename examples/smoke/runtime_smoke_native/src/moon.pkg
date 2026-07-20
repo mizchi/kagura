@@ -1,26 +1,27 @@
 import {
-  "mizchi/font" @font,
-  "mizchi/atlas" @atlas,
-  "mizchi/kagura_engine/audio" @audio,
+  "mizchi/font",
+  "mizchi/atlas",
+  "mizchi/kagura_engine/audio",
   "mizchi/kagura_core" @core,
   "mizchi/native_runtime_hooks" @native_hooks,
-  "mizchi/gfx" @gfx,
+  "mizchi/gfx",
   "mizchi/kagura_engine/gfx_wgpu_native" @wgpu_native,
-  "mizchi/renderer2d" @renderer2d,
-  "mizchi/atlas" @atlas,
-  "mizchi/kagura_engine/platform" @platform,
-  "mizchi/kagura_engine/runtime" @runtime,
-  "mizchi/kagura_engine/sprite2d" @sprite2d,
-  "mizchi/text" @text,
-  "mizchi/kagura_game/tilemap2d" @tilemap2d,
+  "mizchi/renderer2d",
+  "mizchi/atlas",
+  "mizchi/kagura_engine/platform",
+  "mizchi/kagura_engine/runtime",
+  "mizchi/kagura_engine/sprite2d",
+  "mizchi/text",
+  "mizchi/kagura_game/tilemap2d",
 }
 
 warnings = "-29"
 
 supported_targets = "native"
 
+pkgtype(kind: "executable")
+
 options(
-  "is-main": true,
   link: {
     "native": {
       "cc": "${build.KAGURA_NATIVE_CC}",

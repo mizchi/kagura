@@ -1,10 +1,10 @@
 ///|
-impl @engine.EngineGame for DemoState with update_game(self, input) {
+impl @engine.EngineGame for DemoState with fn update_game(self, input) {
   self.update(input)
 }
 
 ///|
-impl @engine.EngineGame for DemoState with draw_game(self, ctx) {
+impl @engine.EngineGame for DemoState with fn draw_game(self, ctx) {
   self.draw(ctx)
 }
 

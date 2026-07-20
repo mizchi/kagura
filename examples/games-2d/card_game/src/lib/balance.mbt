@@ -21,7 +21,7 @@ pub(all) struct SimResult {
 } derive(Debug)
 
 ///|
-pub impl Show for SimResult with output(self, logger) {
+pub impl Show for SimResult with fn output(self, logger) {
   logger.write_object(to_repr(self))
 }
 
@@ -525,7 +525,7 @@ pub(all) struct SimSummary {
 } derive(Debug)
 
 ///|
-pub impl Show for SimSummary with output(self, logger) {
+pub impl Show for SimSummary with fn output(self, logger) {
   logger.write_object(to_repr(self))
 }
 

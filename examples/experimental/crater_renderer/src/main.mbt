@@ -140,12 +140,7 @@ fn render_paint_node(
     )
   if clips {
     let clipped = scissor.push(
-      @widget2d.ScissorRect::new(
-        x.to_int(),
-        y.to_int(),
-        w.to_int(),
-        h.to_int(),
-      ),
+      @widget2d.ScissorRect::new(x.to_int(), y.to_int(), w.to_int(), h.to_int()),
     )
     if !clipped {
       scissor.pop()

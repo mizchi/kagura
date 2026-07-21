@@ -1,0 +1,11 @@
+import {
+  "mizchi/kagura_core" @core,
+  "mizchi/gfx",
+  "mizchi/kagura_core/inpututil",
+  "mizchi/kagura_platform" @platform,
+  "moonbitlang/core/debug",
+}
+
+options(
+  "native-stub": [ "runtime_clock_native.c" ],
+)

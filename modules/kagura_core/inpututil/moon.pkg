@@ -1,0 +1,4 @@
+import {
+  "mizchi/kagura_core" @core,
+  "moonbitlang/core/debug",
+}

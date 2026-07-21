@@ -12,7 +12,7 @@ enum GameSoundCue {
 } derive(Eq, Debug)
 
 ///|
-pub impl Show for GameSoundCue with output(self, logger) {
+pub impl Show for GameSoundCue with fn output(self, logger) {
   logger.write_object(to_repr(self))
 }
 
@@ -216,3 +216,12 @@ fn GameState::play_sound_for_event(
     None => ()
   }
 }
+
+///|
+pub extend GameSoundCue with Eq::{not_equal, equal}
+
+///|
+pub extend GameSoundCue with @moonbitlang/core/debug.Debug::{to_repr}
+
+///|
+pub extend GameSoundCue with Show::{to_string, output}

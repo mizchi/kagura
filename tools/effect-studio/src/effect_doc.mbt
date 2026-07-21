@@ -7,7 +7,7 @@ pub enum EffectSpawnPattern {
 } derive(Debug)
 
 ///|
-pub impl Show for EffectSpawnPattern with output(self, logger) {
+pub impl Show for EffectSpawnPattern with fn output(self, logger) {
   logger.write_object(to_repr(self))
 }
 
@@ -36,7 +36,7 @@ pub struct EffectTrack {
 } derive(Debug)
 
 ///|
-pub impl Show for EffectTrack with output(self, logger) {
+pub impl Show for EffectTrack with fn output(self, logger) {
   logger.write_object(to_repr(self))
 }
 
@@ -51,7 +51,7 @@ pub struct EffectDocument {
 } derive(Debug)
 
 ///|
-pub impl Show for EffectDocument with output(self, logger) {
+pub impl Show for EffectDocument with fn output(self, logger) {
   logger.write_object(to_repr(self))
 }
 
@@ -178,3 +178,21 @@ pub fn default_effect_document() -> EffectDocument {
     tracks: [flash_track(), ember_track(), smoke_track()],
   }
 }
+
+///|
+pub extend EffectSpawnPattern with @moonbitlang/core/debug.Debug::{to_repr}
+
+///|
+pub extend EffectSpawnPattern with Show::{to_string, output}
+
+///|
+pub extend EffectTrack with @moonbitlang/core/debug.Debug::{to_repr}
+
+///|
+pub extend EffectTrack with Show::{to_string, output}
+
+///|
+pub extend EffectDocument with @moonbitlang/core/debug.Debug::{to_repr}
+
+///|
+pub extend EffectDocument with Show::{to_string, output}

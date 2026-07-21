@@ -12,9 +12,5 @@ warnings = "-6-29-53-68-deprecated"
 
 import {
   "mizchi/gfx@0.1.0",
-  "mizchi/image@0.1.1",
+  "mizchi/image@0.4.3",
 }
-
-options(
-  source: "src",
-)

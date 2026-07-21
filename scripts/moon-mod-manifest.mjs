@@ -110,6 +110,17 @@ export function parseMoonMod(source) {
     manifest["--moonbit-unstable-prebuild"] = options["--moonbit-unstable-prebuild"];
   }
 
+  // `exclude: [ "a", "b" ]` inside options(...) -- only present on modules
+  // whose source is the module root itself (no dedicated src/ dir), to keep
+  // moon from treating sibling non-source directories as part of the package.
+  const optionsBlock = extractBlock(source, "options(");
+  if (optionsBlock) {
+    const excludeBlock = optionsBlock.match(/exclude\s*:\s*\[([\s\S]*?)\]/m);
+    if (excludeBlock) {
+      manifest.exclude = [...excludeBlock[1].matchAll(/"([^"]+)"/g)].map((m) => m[1]);
+    }
+  }
+
   // Normalize the renamed field so old consumers keep working.
   if (manifest.warnings !== undefined && manifest["warn-list"] === undefined) {
     manifest["warn-list"] = manifest.warnings;

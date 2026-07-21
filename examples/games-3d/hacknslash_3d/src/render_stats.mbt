@@ -17,7 +17,7 @@ struct DrawPlayingStats {
 } derive(Debug)
 
 ///|
-pub impl Show for DrawPlayingStats with output(self, logger) {
+pub impl Show for DrawPlayingStats with fn output(self, logger) {
   logger.write_object(to_repr(self))
 }
 
@@ -117,3 +117,9 @@ fn summarize_draw_playing_commands(
     final_output_commands,
   }
 }
+
+///|
+pub extend DrawPlayingStats with @moonbitlang/core/debug.Debug::{to_repr}
+
+///|
+pub extend DrawPlayingStats with Show::{to_string, output}

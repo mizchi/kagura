@@ -9,7 +9,3 @@ repository = "https://github.com/mizchi/kagura"
 license = "Apache-2.0"
 
 warnings = "-6-29-53-68"
-
-options(
-  source: "src",
-)

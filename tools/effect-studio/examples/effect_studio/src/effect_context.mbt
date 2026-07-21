@@ -9,7 +9,7 @@ struct EffectStudioOverlayModel {
 } derive(Debug)
 
 ///|
-pub impl Show for EffectStudioOverlayModel with output(self, logger) {
+pub impl Show for EffectStudioOverlayModel with fn output(self, logger) {
   logger.write_object(to_repr(self))
 }
 
@@ -519,3 +519,11 @@ fn effect_studio_summary(
   )
   buf.to_string()
 }
+
+///|
+pub extend EffectStudioOverlayModel with @moonbitlang/core/debug.Debug::{
+  to_repr,
+}
+
+///|
+pub extend EffectStudioOverlayModel with Show::{to_string, output}

@@ -1,4 +1,0 @@
-import {
-  "mizchi/geom/math3d",
-  "mizchi/gfx",
-}

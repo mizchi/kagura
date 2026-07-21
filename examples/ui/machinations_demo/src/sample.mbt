@@ -21,7 +21,12 @@ fn build_sample() -> @mac.Diagram {
     x=90.0,
     y=60.0,
   )
-  let buy = dg.converter("BUY", activation=@mac.Activation::Interactive, x=90.0, y=185.0)
+  let buy = dg.converter(
+    "BUY",
+    activation=@mac.Activation::Interactive,
+    x=90.0,
+    y=185.0,
+  )
   let sun = dg.source("SUN", x=90.0, y=320.0)
   let cursors = dg.source("CURSORS", x=250.0, y=60.0)
   let cookies = dg.pool("COOKIES", initial=0, x=440.0, y=95.0)

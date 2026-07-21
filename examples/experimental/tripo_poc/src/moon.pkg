@@ -4,8 +4,9 @@ import {
 
 warnings = "-1-2-29"
 
+pkgtype(kind: "executable")
+
 options(
-  "is-main": true,
   targets: {
     "ffi_js.mbt": [ "js" ],
     "main.mbt": [ "js" ],

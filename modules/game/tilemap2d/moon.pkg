@@ -1,0 +1,6 @@
+import {
+  "mizchi/atlas",
+  "mizchi/gfx",
+  "mizchi/kagura_engine/sprite2d",
+  "moonbitlang/core/debug",
+}

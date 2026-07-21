@@ -4,7 +4,7 @@ package "mizchi/kagura"
 import {
   "mizchi/gfx",
   "mizchi/kagura_core",
-  "mizchi/kagura_engine/platform",
+  "mizchi/kagura_platform",
 }
 
 // Values
@@ -16,7 +16,7 @@ pub fn new_fixed_step_config(Int, Int) -> @kagura_core.FixedStepConfig
 
 pub fn plan_fixed_updates(@kagura_core.FixedStepState, Double, @kagura_core.FixedStepConfig) -> @kagura_core.StepResult
 
-pub fn[G : @kagura_core.Game, P : @platform.PlatformDriver, R : @gfx.GraphicsDriver] run_loop(G, P, R, @kagura_core.RunOptions) -> Unit raise
+pub fn[G : @kagura_core.Game, P : @kagura_platform.PlatformDriver, R : @gfx.GraphicsDriver] run_loop(G, P, R, @kagura_core.RunOptions) -> Unit raise
 
 pub fn step_result_alpha(@kagura_core.StepResult) -> Double
 
@@ -41,7 +41,7 @@ pub using @kagura_core {type RunOptions}
 
 pub using @kagura_core {type StepResult}
 
-pub using @platform {type WindowOptions}
+pub using @kagura_platform {type WindowOptions}
 
 // Traits
 

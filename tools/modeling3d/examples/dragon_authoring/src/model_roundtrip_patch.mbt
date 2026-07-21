@@ -101,7 +101,7 @@ fn build_roundtrip_patch_plan(
   let auto_actions : Array[RoundTripPatchAction] = []
   let manual_actions : Array[RoundTripPatchAction] = []
   let current_nodes = export_scene_nodes(doc)
-  let current_ids : Map[String, Bool] = {}
+  let current_ids : Map[String, Bool] = Map([])
   let imported_nodes = roundtrip_node_map(imported.nodes)
   for current in current_nodes {
     current_ids[current.source_id] = true

@@ -13,7 +13,7 @@ pub enum EffectPresetId {
 } derive(Eq, Debug)
 
 ///|
-pub impl Show for EffectPresetId with output(self, logger) {
+pub impl Show for EffectPresetId with fn output(self, logger) {
   logger.write_object(to_repr(self))
 }
 
@@ -1205,3 +1205,12 @@ pub fn meteor_fall_effect_document() -> EffectDocument {
     ],
   }
 }
+
+///|
+pub extend EffectPresetId with Eq::{not_equal, equal}
+
+///|
+pub extend EffectPresetId with @moonbitlang/core/debug.Debug::{to_repr}
+
+///|
+pub extend EffectPresetId with Show::{to_string, output}

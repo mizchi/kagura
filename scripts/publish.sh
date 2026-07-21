@@ -48,8 +48,12 @@ MODULES=(
   modules/mesh3d
   modules/geom
   modules/kagura_core
+  modules/platform
+  modules/ui
+  modules/audio
   modules/text
   modules/atlas
+  modules/asset_loader
   modules/renderer2d
   modules/anim3d
   modules/kagura_engine

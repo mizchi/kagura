@@ -22,7 +22,7 @@ if (!name) {
 }
 
 function isExampleDir(dir) {
-  return existsSync(join(dir, "moon.mod.json"));
+  return existsSync(join(dir, "moon.mod.json")) || existsSync(join(dir, "moon.mod"));
 }
 
 function findExampleDir(name) {

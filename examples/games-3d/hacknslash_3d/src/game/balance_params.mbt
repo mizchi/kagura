@@ -9,7 +9,7 @@ pub enum BalancePreset {
 } derive(Eq, Debug)
 
 ///|
-pub impl Show for BalancePreset with output(self, logger) {
+pub impl Show for BalancePreset with fn output(self, logger) {
   logger.write_object(to_repr(self))
 }
 
@@ -584,3 +584,12 @@ fn clamp_d(v : Double, lo : Double, hi : Double) -> Double {
     v
   }
 }
+
+///|
+pub extend BalancePreset with Eq::{not_equal, equal}
+
+///|
+pub extend BalancePreset with @moonbitlang/core/debug.Debug::{to_repr}
+
+///|
+pub extend BalancePreset with Show::{to_string, output}

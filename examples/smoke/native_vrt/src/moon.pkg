@@ -1,16 +1,17 @@
 import {
   "mizchi/native_runtime_hooks" @native_hooks,
   "mizchi/kagura_engine/gfx_wgpu_native" @wgpu_native,
-  "mizchi/pixelmatch" @pixelmatch,
-  "mizchi/image" @image,
+  "mizchi/pixelmatch",
+  "mizchi/image",
 }
 
 warnings = "-29"
 
 supported_targets = "native"
 
+pkgtype(kind: "executable")
+
 options(
-  "is-main": true,
   link: {
     "native": {
       "cc": "${build.KAGURA_NATIVE_CC}",

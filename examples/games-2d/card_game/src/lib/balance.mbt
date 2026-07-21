@@ -21,7 +21,7 @@ pub(all) struct SimResult {
 } derive(Debug)
 
 ///|
-pub impl Show for SimResult with output(self, logger) {
+pub impl Show for SimResult with fn output(self, logger) {
   logger.write_object(to_repr(self))
 }
 
@@ -525,7 +525,7 @@ pub(all) struct SimSummary {
 } derive(Debug)
 
 ///|
-pub impl Show for SimSummary with output(self, logger) {
+pub impl Show for SimSummary with fn output(self, logger) {
   logger.write_object(to_repr(self))
 }
 
@@ -570,3 +570,15 @@ pub fn run_simulations(
     max_hp,
   }
 }
+
+///|
+pub extend SimResult with @moonbitlang/core/debug.Debug::{to_repr}
+
+///|
+pub extend SimResult with Show::{to_string, output}
+
+///|
+pub extend SimSummary with @moonbitlang/core/debug.Debug::{to_repr}
+
+///|
+pub extend SimSummary with Show::{to_string, output}

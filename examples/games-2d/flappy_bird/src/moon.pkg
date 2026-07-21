@@ -1,9 +1,9 @@
 import {
-  "moonbitlang/core/bench" @bench,
-  "mizchi/signals" @signals,
-  "mizchi/kagura_game/scene" @scene,
+  "moonbitlang/core/bench",
+  "mizchi/signals",
+  "mizchi/kagura_game/scene",
   "mizchi/kagura_core" @core,
-  "mizchi/kagura_core/inpututil" @inpututil,
+  "mizchi/kagura_core/inpututil",
   "mizchi/web_runtime_hooks" @web_hooks,
 }
 
@@ -11,8 +11,9 @@ warnings = "-29"
 
 supported_targets = "js+native"
 
+pkgtype(kind: "executable")
+
 options(
-  "is-main": true,
   link: {
     "native": {
       "cc": "${build.KAGURA_NATIVE_CC}",

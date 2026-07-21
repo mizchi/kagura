@@ -28,7 +28,7 @@ pub(all) enum PotionId {
 } derive(Debug, Eq)
 
 ///|
-pub impl Show for PotionId with output(self, logger) {
+pub impl Show for PotionId with fn output(self, logger) {
   logger.write_object(to_repr(self))
 }
 
@@ -42,7 +42,7 @@ pub(all) struct PotionDef {
 } derive(Debug)
 
 ///|
-pub impl Show for PotionDef with output(self, logger) {
+pub impl Show for PotionDef with fn output(self, logger) {
   logger.write_object(to_repr(self))
 }
 
@@ -200,3 +200,18 @@ pub fn random_potion(seed : Int) -> PotionId {
   let idx = seed.abs() % pool.length()
   pool[idx]
 }
+
+///|
+pub extend PotionId with @moonbitlang/core/debug.Debug::{to_repr}
+
+///|
+pub extend PotionId with Eq::{not_equal, equal}
+
+///|
+pub extend PotionId with Show::{to_string, output}
+
+///|
+pub extend PotionDef with @moonbitlang/core/debug.Debug::{to_repr}
+
+///|
+pub extend PotionDef with Show::{to_string, output}

@@ -393,9 +393,7 @@ fn run_game_js(state : GameState, perf_capture_enabled : Bool) -> Unit {
   let fixed_dt : Double = 1000.0 / 60.0 // 16.667ms
   let accum : Ref[Double] = Ref(0.0)
   let prev_time : Ref[Double] = Ref(js_now())
-  let last_input : Ref[@core.InputSnapshot] = Ref(
-    @core.empty_input_snapshot(),
-  )
+  let last_input : Ref[@core.InputSnapshot] = Ref(@core.empty_input_snapshot())
   init_game_audio_js(state)
   js_configure_detailed_render_timing(
     state.show_profiler || perf_capture_enabled,

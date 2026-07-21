@@ -31,7 +31,7 @@ pub(all) enum Verdict {
 } derive(Debug, Eq)
 
 ///|
-pub impl Show for Verdict with output(self, logger) {
+pub impl Show for Verdict with fn output(self, logger) {
   logger.write_object(to_repr(self))
 }
 
@@ -48,7 +48,7 @@ pub(all) struct SynthEval {
 } derive(Debug)
 
 ///|
-pub impl Show for SynthEval with output(self, logger) {
+pub impl Show for SynthEval with fn output(self, logger) {
   logger.write_object(to_repr(self))
 }
 
@@ -337,7 +337,7 @@ pub(all) struct GenSummary {
 } derive(Debug)
 
 ///|
-pub impl Show for GenSummary with output(self, logger) {
+pub impl Show for GenSummary with fn output(self, logger) {
   logger.write_object(to_repr(self))
 }
 
@@ -479,3 +479,27 @@ pub fn format_generation_report(
   }
   out
 }
+
+///|
+pub extend SynthCard with @moonbitlang/core/debug.Debug::{to_repr}
+
+///|
+pub extend Verdict with @moonbitlang/core/debug.Debug::{to_repr}
+
+///|
+pub extend Verdict with Eq::{not_equal, equal}
+
+///|
+pub extend Verdict with Show::{to_string, output}
+
+///|
+pub extend SynthEval with @moonbitlang/core/debug.Debug::{to_repr}
+
+///|
+pub extend SynthEval with Show::{to_string, output}
+
+///|
+pub extend GenSummary with @moonbitlang/core/debug.Debug::{to_repr}
+
+///|
+pub extend GenSummary with Show::{to_string, output}

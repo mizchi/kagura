@@ -7,7 +7,7 @@ pub(all) struct StatusEffects {
 } derive(Debug)
 
 ///|
-pub impl Show for StatusEffects with output(self, logger) {
+pub impl Show for StatusEffects with fn output(self, logger) {
   logger.write_object(to_repr(self))
 }
 
@@ -29,7 +29,7 @@ pub(all) struct Fighter {
 } derive(Debug)
 
 ///|
-pub impl Show for Fighter with output(self, logger) {
+pub impl Show for Fighter with fn output(self, logger) {
   logger.write_object(to_repr(self))
 }
 
@@ -121,3 +121,15 @@ fn tick_status_effects(fighter : Fighter) -> Unit {
 fn reset_block(fighter : Fighter) -> Unit {
   fighter.block = 0
 }
+
+///|
+pub extend StatusEffects with @moonbitlang/core/debug.Debug::{to_repr}
+
+///|
+pub extend StatusEffects with Show::{to_string, output}
+
+///|
+pub extend Fighter with @moonbitlang/core/debug.Debug::{to_repr}
+
+///|
+pub extend Fighter with Show::{to_string, output}

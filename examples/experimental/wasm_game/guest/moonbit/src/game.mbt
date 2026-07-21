@@ -4,33 +4,48 @@ struct Pipe {
   gap_y : Double
 }
 
+///|
 let screen_w : Int = 320
 
+///|
 let screen_h : Int = 240
 
+///|
 let bird_x : Double = 60.0
 
+///|
 let bird_size : Double = 12.0
 
+///|
 let gravity : Double = 0.25
 
+///|
 let jump_velocity : Double = -4.5
 
+///|
 let pipe_width : Double = 36.0
 
+///|
 let pipe_gap : Double = 70.0
 
+///|
 let pipe_speed : Double = 1.5
 
+///|
 let pipe_interval : Int = 120
 
+///|
 let ground_h : Double = 20.0
 
 // KeyCode constants
+
+///|
 let key_space : Int = 32
 
+///|
 let key_up : Int = 38
 
+///|
 let target_tps : Int = 60
 
 ///|
@@ -83,15 +98,14 @@ fn Game::update(self : Game, input : InputState) -> Unit {
   let current_action = is_key_pressed(input, key_space) ||
     is_key_pressed(input, key_up) ||
     is_mouse_pressed(input)
-  let action = current_action && !(self.prev_action)
+  let action = current_action && !self.prev_action
   self.prev_action = current_action
   match self.game_mode {
-    0 => {
+    0 =>
       if action {
         self.game_mode = 1
         self.velocity = jump_velocity
       }
-    }
     1 => {
       // Physics
       self.velocity = self.velocity + gravity
@@ -153,11 +167,7 @@ fn Game::update(self : Game, input : InputState) -> Unit {
         }
       }
     }
-    _ => {
-      if action {
-        self.reset()
-      }
-    }
+    _ => if action { self.reset() }
   }
 }
 
@@ -212,6 +222,7 @@ fn Game::draw(self : Game) -> Array[DrawCmd] {
 
 // --- WASM Exports ---
 
+///|
 let game : Game = Game::new()
 
 ///|
@@ -223,9 +234,12 @@ pub fn kagura_guest_init_export(env_ptr : Int, len : Int) -> Int {
   match host_read_asset_utf8("/guest-title.txt") {
     Some(title_utf8) => {
       host_log_info("guest asset: /guest-title.txt")
-      write_semantic_guest_config_bytes(screen_w, screen_h, target_tps, title_utf8)
+      write_semantic_guest_config_bytes(
+        screen_w, screen_h, target_tps, title_utf8,
+      )
     }
-    None => write_semantic_guest_config(screen_w, screen_h, target_tps, "Flappy Bird")
+    None =>
+      write_semantic_guest_config(screen_w, screen_h, target_tps, "Flappy Bird")
   }
 }
 

@@ -1,14 +1,19 @@
-///| Host log import: (level, utf8_ptr, utf8_len) -> unit.
-extern "wasm" fn host_log_i32_utf8(level : Int, ptr : Int, len : Int) -> Unit =
-  "kagura_host" "log_i32_utf8"
+///|
+/// Host log import: (level, utf8_ptr, utf8_len) -> unit.
+extern "wasm" fn host_log_i32_utf8(level : Int, ptr : Int, len : Int) -> Unit = "kagura_host" "log_i32_utf8"
 
-///| Host asset imports for synchronous shared-memory reads.
-extern "wasm" fn host_read_asset_len_i32_utf8(ptr : Int, len : Int) -> Int =
-  "kagura_host" "read_asset_len_i32_utf8"
+///|
+/// Host asset imports for synchronous shared-memory reads.
+extern "wasm" fn host_read_asset_len_i32_utf8(ptr : Int, len : Int) -> Int = "kagura_host" "read_asset_len_i32_utf8"
 
-extern "wasm" fn host_read_asset_copy_i32_utf8(path_ptr : Int, path_len : Int, dst_ptr : Int) -> Int =
-  "kagura_host" "read_asset_copy_i32_utf8"
+///|
+extern "wasm" fn host_read_asset_copy_i32_utf8(
+  path_ptr : Int,
+  path_len : Int,
+  dst_ptr : Int,
+) -> Int = "kagura_host" "read_asset_copy_i32_utf8"
 
+///|
 fn write_utf8_to_heap(s : String) -> Utf8Slice {
   let bytes = s.to_array()
   let ptr = bump_alloc(bytes.length())
@@ -32,7 +37,10 @@ fn host_log_info(message : String) -> Unit {
 ///|
 fn host_read_asset_utf8(path : String) -> Utf8Slice? {
   let encoded_path = write_utf8_to_heap(path)
-  let asset_len = host_read_asset_len_i32_utf8(encoded_path.ptr, encoded_path.len)
+  let asset_len = host_read_asset_len_i32_utf8(
+    encoded_path.ptr,
+    encoded_path.len,
+  )
   if asset_len < 0 {
     None
   } else {

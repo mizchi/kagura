@@ -15,7 +15,3 @@ import {
   "mizchi/font@0.7.0",
   "mizchi/text@0.2.0",
 }
-
-options(
-  source: "src",
-)

@@ -1,12 +1,13 @@
 import {
-  "mizchi/card_game/lib" @lib,
+  "mizchi/card_game/lib",
 }
 
 warnings = "-29"
 
 supported_targets = "js+native"
 
+pkgtype(kind: "executable")
+
 options(
-  "is-main": true,
   targets: { "main.mbt": [ "js", "native" ] },
 )

@@ -1,23 +1,23 @@
 import {
-  "moonbitlang/core/bench" @bench,
-  "moonbitlang/core/cmp" @cmp,
-  "moonbitlang/core/math" @math,
-  "mizchi/font" @font,
-  "mizchi/kagura_game/ai" @ai,
-  "mizchi/atlas" @atlas,
-  "mizchi/kagura_engine/audio" @audio,
-  "mizchi/geom/camera2d" @camera2d,
-  "mizchi/renderer2d" @renderer2d,
+  "moonbitlang/core/bench",
+  "moonbitlang/core/cmp",
+  "moonbitlang/core/math",
+  "mizchi/font",
+  "mizchi/kagura_game/ai",
+  "mizchi/atlas",
+  "mizchi/kagura_audio" @audio,
+  "mizchi/geom/camera2d",
+  "mizchi/renderer2d",
   "mizchi/kagura_core" @core,
-  "mizchi/gfx" @gfx,
-  "mizchi/atlas" @atlas,
-  "mizchi/kagura_core/inpututil" @inpututil,
-  "mizchi/kagura_game/scene" @scene,
-  "mizchi/renderer2d" @renderer2d,
-  "mizchi/text" @text,
-  "mizchi/kagura_game/tilemap2d" @tilemap2d,
-  "mizchi/kagura_engine/ui" @ui,
-  "mizchi/geom/vector" @vector,
+  "mizchi/gfx",
+  "mizchi/atlas",
+  "mizchi/kagura_core/inpututil",
+  "mizchi/kagura_game/scene",
+  "mizchi/renderer2d",
+  "mizchi/text",
+  "mizchi/kagura_game/tilemap2d",
+  "mizchi/kagura_ui" @ui,
+  "mizchi/geom/vector",
   "mizchi/web_runtime_hooks" @web_hooks,
 }
 
@@ -25,8 +25,9 @@ warnings = "-1-2-7-29"
 
 supported_targets = "js+native"
 
+pkgtype(kind: "executable")
+
 options(
-  "is-main": true,
   link: {
     "native": {
       "cc": "${build.KAGURA_NATIVE_CC}",

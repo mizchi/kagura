@@ -69,8 +69,8 @@ fn main {
   // Load fonts (regular + bold, with family mapping)
   let text_renderer = load_font(regular_font_candidates)
   let bold_text_renderer = load_font(bold_font_candidates)
-  let font_map : Map[String, @text.TextRenderer] = {}
-  let bold_font_map : Map[String, @text.TextRenderer] = {}
+  let font_map : Map[String, @text.TextRenderer] = Map([])
+  let bold_font_map : Map[String, @text.TextRenderer] = Map([])
   // Load additional fonts for family matching
   load_font_family(
     font_map,
@@ -392,7 +392,7 @@ fn read_file_as_string(path : String) -> String? {
 
 ///|
 fn install_font_metrics_provider(font : @font.TTFont) -> Unit {
-  let metrics_cache : Map[String, @crater_types.MeasureFunc] = {}
+  let metrics_cache : Map[String, @crater_types.MeasureFunc] = Map([])
   let provider = @renderer.TextMetricsProvider::new(fn(
     text,
     font_size,
@@ -524,7 +524,7 @@ fn install_font_metrics_provider_with_bold(
   regular : @font.TTFont,
   bold : @font.TTFont,
 ) -> Unit {
-  let metrics_cache : Map[String, @crater_types.MeasureFunc] = {}
+  let metrics_cache : Map[String, @crater_types.MeasureFunc] = Map([])
   let provider = @renderer.TextMetricsProvider::new(fn(
     text,
     font_size,

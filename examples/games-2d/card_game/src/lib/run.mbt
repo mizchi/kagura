@@ -12,7 +12,7 @@ pub(all) enum RunPhase {
 } derive(Debug, Eq)
 
 ///|
-pub impl Show for RunPhase with output(self, logger) {
+pub impl Show for RunPhase with fn output(self, logger) {
   logger.write_object(to_repr(self))
 }
 
@@ -25,7 +25,7 @@ enum FloorType {
 } derive(Debug, Eq)
 
 ///|
-pub impl Show for FloorType with output(self, logger) {
+pub impl Show for FloorType with fn output(self, logger) {
   logger.write_object(to_repr(self))
 }
 
@@ -46,7 +46,7 @@ pub(all) struct RunState {
 } derive(Debug)
 
 ///|
-pub impl Show for RunState with output(self, logger) {
+pub impl Show for RunState with fn output(self, logger) {
   logger.write_object(to_repr(self))
 }
 
@@ -529,3 +529,27 @@ fn rare_pool() -> Array[CardId] {
     Reaper,
   ]
 }
+
+///|
+pub extend RunPhase with @moonbitlang/core/debug.Debug::{to_repr}
+
+///|
+pub extend RunPhase with Eq::{not_equal, equal}
+
+///|
+pub extend RunPhase with Show::{to_string, output}
+
+///|
+pub extend FloorType with @moonbitlang/core/debug.Debug::{to_repr}
+
+///|
+pub extend FloorType with Eq::{not_equal, equal}
+
+///|
+pub extend FloorType with Show::{to_string, output}
+
+///|
+pub extend RunState with @moonbitlang/core/debug.Debug::{to_repr}
+
+///|
+pub extend RunState with Show::{to_string, output}

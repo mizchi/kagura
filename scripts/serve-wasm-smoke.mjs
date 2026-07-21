@@ -28,7 +28,8 @@ const CONTENT_TYPES = {
   ".obj": "text/plain; charset=utf-8",
 };
 
-const isExampleDir = (dir) => existsSync(join(dir, "moon.mod.json"));
+const isExampleDir = (dir) =>
+  existsSync(join(dir, "moon.mod.json")) || existsSync(join(dir, "moon.mod"));
 
 const resolveExampleDir = (name) => {
   for (const root of EXAMPLE_ROOTS) {
@@ -110,20 +111,52 @@ const resolvePath = (pathname) => {
   return filePath;
 };
 
+// moon build nests output under build/<module-name>/<pkg>.<ext> (e.g.
+// build/mizchi/runtime_smoke/runtime_smoke.wasm) instead of the flat
+// build/<pkg>.<ext> layout whenever the example directory has a moon.work
+// (workspace mode, needed while sibling modules like kagura_platform/
+// kagura_audio aren't published yet). Fixture HTML and VRT script paths are
+// built assuming the flat layout, so fall back to a recursive search under
+// the same build/ dir when the flat path is missing.
+const findNestedBuildArtifact = (dir, basename) => {
+  for (const entry of readdirSync(dir, { withFileTypes: true })) {
+    const entryPath = join(dir, entry.name);
+    if (entry.isDirectory()) {
+      const found = findNestedBuildArtifact(entryPath, basename);
+      if (found) return found;
+    } else if (entry.isFile() && entry.name === basename) {
+      return entryPath;
+    }
+  }
+  return null;
+};
+
+const resolveBuildArtifactFallback = (filePath) => {
+  const match = filePath.match(/^(.*[/\\]_build[/\\][^/\\]+[/\\][^/\\]+[/\\]build)[/\\]([^/\\]+)$/);
+  if (!match) return null;
+  const [, buildDir, basename] = match;
+  if (!existsSync(buildDir)) return null;
+  return findNestedBuildArtifact(buildDir, basename);
+};
+
 const serveFile = (res, filePath) => {
-  if (!existsSync(filePath)) {
+  let resolvedPath = filePath;
+  if (!existsSync(resolvedPath) || !statSync(resolvedPath).isFile()) {
+    resolvedPath = resolveBuildArtifactFallback(filePath) ?? resolvedPath;
+  }
+  if (!existsSync(resolvedPath)) {
     res.writeHead(404, { "content-type": "text/plain; charset=utf-8" });
     res.end("not found");
     return;
   }
-  const stat = statSync(filePath);
+  const stat = statSync(resolvedPath);
   if (!stat.isFile()) {
     res.writeHead(404, { "content-type": "text/plain; charset=utf-8" });
     res.end("not found");
     return;
   }
-  const contentType = CONTENT_TYPES[extname(filePath)] ?? "application/octet-stream";
-  const body = readFileSync(filePath);
+  const contentType = CONTENT_TYPES[extname(resolvedPath)] ?? "application/octet-stream";
+  const body = readFileSync(resolvedPath);
   res.writeHead(200, {
     "content-type": contentType,
     "cache-control": "no-store",

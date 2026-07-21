@@ -20,12 +20,12 @@ pub(all) struct Game {
 }
 
 ///|
-pub impl @scene.SceneGame for Game with update_game(self, input) {
+pub impl @scene.SceneGame for Game with fn update_game(self, input) {
   self.update(input)
 }
 
 ///|
-pub impl @scene.SceneGame for Game with view_game(self) {
+pub impl @scene.SceneGame for Game with fn view_game(self) {
   self.view()
 }
 
@@ -1074,4 +1074,10 @@ fn view_run_over(run : RunState) -> @scene.SceneNode {
       scale=0.65,
     ),
   ])
+}
+
+///|
+pub extend Game with @mizchi/kagura_game/scene.SceneGame::{
+  update_game,
+  view_game,
 }

@@ -16,7 +16,7 @@ pub(all) enum RelicId {
 } derive(Debug, Eq)
 
 ///|
-pub impl Show for RelicId with output(self, logger) {
+pub impl Show for RelicId with fn output(self, logger) {
   logger.write_object(to_repr(self))
 }
 
@@ -29,7 +29,7 @@ pub(all) struct RelicDef {
 } derive(Debug)
 
 ///|
-pub impl Show for RelicDef with output(self, logger) {
+pub impl Show for RelicDef with fn output(self, logger) {
   logger.write_object(to_repr(self))
 }
 
@@ -121,7 +121,7 @@ pub(all) struct RelicState {
 } derive(Debug)
 
 ///|
-pub impl Show for RelicState with output(self, logger) {
+pub impl Show for RelicState with fn output(self, logger) {
   logger.write_object(to_repr(self))
 }
 
@@ -308,3 +308,24 @@ fn relics_on_victory(
   }
   logs
 }
+
+///|
+pub extend RelicId with @moonbitlang/core/debug.Debug::{to_repr}
+
+///|
+pub extend RelicId with Eq::{not_equal, equal}
+
+///|
+pub extend RelicId with Show::{to_string, output}
+
+///|
+pub extend RelicDef with @moonbitlang/core/debug.Debug::{to_repr}
+
+///|
+pub extend RelicDef with Show::{to_string, output}
+
+///|
+pub extend RelicState with @moonbitlang/core/debug.Debug::{to_repr}
+
+///|
+pub extend RelicState with Show::{to_string, output}

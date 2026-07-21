@@ -230,7 +230,7 @@ fn parse_roundtrip_import(
 fn roundtrip_node_map(
   nodes : Array[RoundTripImportedNode],
 ) -> Map[String, RoundTripImportedNode] {
-  let map : Map[String, RoundTripImportedNode] = {}
+  let map : Map[String, RoundTripImportedNode] = Map([])
   for node in nodes {
     map[node.source_id] = node
   }
@@ -244,7 +244,7 @@ fn compare_roundtrip_import(
 ) -> RoundTripDiffReport {
   let current_nodes = export_scene_nodes(doc)
   let imported_nodes = roundtrip_node_map(imported.nodes)
-  let current_ids : Map[String, Bool] = {}
+  let current_ids : Map[String, Bool] = Map([])
   let missing_source_ids : Array[String] = []
   let extra_source_ids : Array[String] = []
   let moved_source_ids : Array[String] = []

@@ -50,7 +50,7 @@ pub(all) struct TurnEconomy {
 } derive(Debug)
 
 ///|
-pub impl Show for TurnEconomy with output(self, logger) {
+pub impl Show for TurnEconomy with fn output(self, logger) {
   logger.write_object(to_repr(self))
 }
 
@@ -73,7 +73,7 @@ pub(all) struct BattleEconomy {
 } derive(Debug)
 
 ///|
-pub impl Show for BattleEconomy with output(self, logger) {
+pub impl Show for BattleEconomy with fn output(self, logger) {
   logger.write_object(to_repr(self))
 }
 
@@ -289,7 +289,7 @@ pub(all) struct CardValue {
 } derive(Debug)
 
 ///|
-pub impl Show for CardValue with output(self, logger) {
+pub impl Show for CardValue with fn output(self, logger) {
   logger.write_object(to_repr(self))
 }
 
@@ -496,7 +496,7 @@ pub(all) struct RunSimResult {
 } derive(Debug)
 
 ///|
-pub impl Show for RunSimResult with output(self, logger) {
+pub impl Show for RunSimResult with fn output(self, logger) {
   logger.write_object(to_repr(self))
 }
 
@@ -657,7 +657,7 @@ pub(all) struct RunSimSummary {
 } derive(Debug)
 
 ///|
-pub impl Show for RunSimSummary with output(self, logger) {
+pub impl Show for RunSimSummary with fn output(self, logger) {
   logger.write_object(to_repr(self))
 }
 
@@ -698,3 +698,33 @@ pub fn simulate_runs(count : Int, strategy : PlayStrategy) -> RunSimSummary {
     win_rate_pct: wins * 100 / count,
   }
 }
+
+///|
+pub extend TurnEconomy with @moonbitlang/core/debug.Debug::{to_repr}
+
+///|
+pub extend TurnEconomy with Show::{to_string, output}
+
+///|
+pub extend BattleEconomy with @moonbitlang/core/debug.Debug::{to_repr}
+
+///|
+pub extend BattleEconomy with Show::{to_string, output}
+
+///|
+pub extend CardValue with @moonbitlang/core/debug.Debug::{to_repr}
+
+///|
+pub extend CardValue with Show::{to_string, output}
+
+///|
+pub extend RunSimResult with @moonbitlang/core/debug.Debug::{to_repr}
+
+///|
+pub extend RunSimResult with Show::{to_string, output}
+
+///|
+pub extend RunSimSummary with @moonbitlang/core/debug.Debug::{to_repr}
+
+///|
+pub extend RunSimSummary with Show::{to_string, output}

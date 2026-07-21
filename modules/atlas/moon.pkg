@@ -1,0 +1,14 @@
+import {
+  "mizchi/gfx",
+  "mizchi/image",
+  "moonbitlang/core/debug",
+}
+
+options(
+  targets: {
+    "fetch_js.mbt": [ "js" ],
+    "fetch_js_wbtest.mbt": [ "js" ],
+    "fetcher_js.mbt": [ "js" ],
+    "fetcher_native.mbt": [ "native" ],
+  },
+)

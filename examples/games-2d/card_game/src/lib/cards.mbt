@@ -59,7 +59,7 @@ pub(all) enum CardId {
 } derive(Debug, Eq)
 
 ///|
-pub impl Show for CardId with output(self, logger) {
+pub impl Show for CardId with fn output(self, logger) {
   logger.write_object(to_repr(self))
 }
 
@@ -72,7 +72,7 @@ pub(all) enum CardType {
 } derive(Debug, Eq)
 
 ///|
-pub impl Show for CardType with output(self, logger) {
+pub impl Show for CardType with fn output(self, logger) {
   logger.write_object(to_repr(self))
 }
 
@@ -90,7 +90,7 @@ pub(all) struct CardDef {
 } derive(Debug)
 
 ///|
-pub impl Show for CardDef with output(self, logger) {
+pub impl Show for CardDef with fn output(self, logger) {
   logger.write_object(to_repr(self))
 }
 
@@ -581,7 +581,7 @@ pub(all) enum CardRarity {
 } derive(Debug, Eq)
 
 ///|
-pub impl Show for CardRarity with output(self, logger) {
+pub impl Show for CardRarity with fn output(self, logger) {
   logger.write_object(to_repr(self))
 }
 
@@ -686,3 +686,36 @@ pub fn all_card_ids() -> Array[CardId] {
     Pummel,
   ]
 }
+
+///|
+pub extend CardId with @moonbitlang/core/debug.Debug::{to_repr}
+
+///|
+pub extend CardId with Eq::{not_equal, equal}
+
+///|
+pub extend CardId with Show::{to_string, output}
+
+///|
+pub extend CardType with @moonbitlang/core/debug.Debug::{to_repr}
+
+///|
+pub extend CardType with Eq::{not_equal, equal}
+
+///|
+pub extend CardType with Show::{to_string, output}
+
+///|
+pub extend CardDef with @moonbitlang/core/debug.Debug::{to_repr}
+
+///|
+pub extend CardDef with Show::{to_string, output}
+
+///|
+pub extend CardRarity with @moonbitlang/core/debug.Debug::{to_repr}
+
+///|
+pub extend CardRarity with Eq::{not_equal, equal}
+
+///|
+pub extend CardRarity with Show::{to_string, output}

@@ -89,7 +89,7 @@ pub(all) enum ProjectileKind {
 } derive(Eq, Debug)
 
 ///|
-pub impl Show for ProjectileKind with output(self, logger) {
+pub impl Show for ProjectileKind with fn output(self, logger) {
   logger.write_object(to_repr(self))
 }
 
@@ -178,3 +178,21 @@ pub(all) enum GameEvent {
   HurtTriggered
   FloorComplete
 }
+
+///|
+pub extend ProjectileKind with Eq::{not_equal, equal}
+
+///|
+pub extend ProjectileKind with @moonbitlang/core/debug.Debug::{to_repr}
+
+///|
+pub extend ProjectileKind with Show::{to_string, output}
+
+///|
+pub extend EnemyKind with Eq::{not_equal, equal}
+
+///|
+pub extend GameMode with Eq::{not_equal, equal}
+
+///|
+pub extend UIMode with Eq::{not_equal, equal}

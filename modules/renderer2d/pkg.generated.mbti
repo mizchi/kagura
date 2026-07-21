@@ -1,0 +1,251 @@
+// Generated using `moon info`, DON'T EDIT IT
+package "mizchi/renderer2d"
+
+import {
+  "mizchi/atlas",
+  "mizchi/geom/vector",
+  "mizchi/gfx",
+  "mizchi/kagura_core",
+  "mizchi/kagura_core/inpututil",
+  "moonbitlang/core/debug",
+}
+
+// Values
+pub fn append_atlas_quad(Array[@gfx.DrawTrianglesCommand], RenderFrame2D, AtlasQuad2D) -> Unit
+
+pub fn append_dot_text(Array[@gfx.DrawTrianglesCommand], RenderFrame2D, DotText2D) -> Unit
+
+pub fn append_line(Array[@gfx.DrawTrianglesCommand], RenderFrame2D, Line2D) -> Unit
+
+pub fn append_number(Array[@gfx.DrawTrianglesCommand], RenderFrame2D, Number2D) -> Unit
+
+pub fn append_primitive_batch(Array[@gfx.DrawTrianglesCommand], RenderFrame2D, Array[Double], Array[Int], @gfx.Color) -> Unit
+
+pub fn append_rect_fill(Array[@gfx.DrawTrianglesCommand], RenderFrame2D, RectFill2D) -> Unit
+
+pub fn append_rect_fill_geometry(Array[Double], Array[Int], RenderFrame2D, RectFill2D) -> Unit
+
+pub fn append_rect_outline(Array[@gfx.DrawTrianglesCommand], RenderFrame2D, RectOutline2D) -> Unit
+
+pub fn atlas_quad_indices() -> Array[Int]
+
+pub fn atlas_quad_vertex_data(@atlas.AtlasDrawSource, Double, Double, Double, Double) -> Array[Double]
+
+pub fn build_input_debug_overlay(@gfx.ImageHandle, @gfx.ShaderHandle, @kagura_core.InputSnapshot, @inpututil.KeyInputState, @inpututil.MouseButtonInputState, Int) -> Array[@gfx.DrawTrianglesCommand]
+
+pub fn build_profiler_hud(Array[@gfx.DrawTrianglesCommand], @gfx.ImageHandle, @gfx.ShaderHandle, FrameProfile, Double, Double) -> Unit
+
+pub fn clamp_unit(Double) -> Double
+
+pub fn color_black() -> @gfx.Color
+
+pub fn color_blue() -> @gfx.Color
+
+pub fn color_from_hex(Int) -> @gfx.Color
+
+pub fn color_from_hex_alpha(Int, Double) -> @gfx.Color
+
+pub fn color_green() -> @gfx.Color
+
+pub fn color_red() -> @gfx.Color
+
+pub fn color_to_uniform_dwords(@gfx.Color) -> Array[Int]
+
+pub fn color_transparent() -> @gfx.Color
+
+pub fn color_white() -> @gfx.Color
+
+pub fn color_yellow() -> @gfx.Color
+
+pub fn decode_triangle_payload(Array[Double], Array[Int], Array[Int], Array[Int]) -> TrianglePayload
+
+pub fn default_frame_profile() -> FrameProfile
+
+pub fn default_triangle_payload() -> TrianglePayload
+
+pub fn draw_dot_text(Array[@gfx.DrawTrianglesCommand], @gfx.ImageHandle, @gfx.ShaderHandle, Array[Int], Double, Double, Double, Double, @gfx.Color, Double) -> Unit
+
+pub fn draw_number(Array[@gfx.DrawTrianglesCommand], @gfx.ImageHandle, @gfx.ShaderHandle, Int, Double, Double, Double, Double, @gfx.Color, Double) -> Unit
+
+pub fn glyph_pattern(Int) -> Array[Int]
+
+pub fn line_vertices(Double, Double, Double, Double, Double) -> (Array[Double], Array[Int])
+
+pub fn ndc_rect_fill_vertices(Double, Double, Double, Double, Double, Double) -> (Array[Double], Array[Int])
+
+pub fn new_atlas_quad_batch_draw_command(@gfx.ImageHandle, @gfx.ShaderHandle, @gfx.DstRegion, Int, Int, @gfx.BlendMode, @atlas.AtlasDrawSource, Array[Double], Array[Int]) -> @gfx.DrawTrianglesCommand
+
+pub fn new_atlas_quad_draw_command(@gfx.ImageHandle, @gfx.ShaderHandle, @gfx.DstRegion, Int, Int, Int, @gfx.BlendMode, @atlas.AtlasDrawSource, Double, Double, Double, Double, Array[Int]) -> @gfx.DrawTrianglesCommand
+
+pub fn new_line_command(@gfx.ImageHandle, @gfx.ShaderHandle, Double, Double, Double, Double, Double, @gfx.Color, Int) -> @gfx.DrawTrianglesCommand
+
+pub fn new_ndc_rect_fill_command(@gfx.ImageHandle, @gfx.ShaderHandle, Double, Double, Double, Double, Double, Double, @gfx.Color, Int) -> @gfx.DrawTrianglesCommand
+
+pub fn new_rect_fill_command(@gfx.ImageHandle, @gfx.ShaderHandle, Double, Double, Double, Double, @gfx.Color, Int) -> @gfx.DrawTrianglesCommand
+
+pub fn new_simple_draw_command(@gfx.ImageHandle, @gfx.ShaderHandle, Array[Double], Array[Int], @gfx.Color) -> @gfx.DrawTrianglesCommand
+
+pub fn rect_fill_vertices(Double, Double, Double, Double) -> (Array[Double], Array[Int])
+
+pub fn rect_outline_vertices(Double, Double, Double, Double, Double) -> (Array[Double], Array[Int])
+
+pub fn render_atlas_quads(RenderFrame2D, Array[AtlasQuad2D]) -> Array[@gfx.DrawTrianglesCommand]
+
+pub fn[T : @gfx.GraphicsDriver] render_commands(T, Array[@gfx.DrawTrianglesCommand], clear_color? : @gfx.Color, clear_enabled? : Bool) -> Unit raise
+
+pub fn render_svg(String, Int, Int) -> SVGRenderResult?
+
+pub fn render_svg_to_rgba(String, Int, Int) -> (Int, Int, Array[Int])?
+
+pub fn svg_path_to_fill_vertices(String, Double) -> (Array[Double], Array[Int])
+
+pub fn svg_path_to_stroke_vertices(String, Double, Double) -> (Array[Double], Array[Int])
+
+pub fn svg_path_to_vector_path(String) -> @vector.Path
+
+// Errors
+
+// Types and methods
+pub(all) struct AtlasQuad2D {
+  source : @atlas.AtlasDrawSource
+  left : Double
+  top : Double
+  right : Double
+  bottom : Double
+  uniform_dwords : Array[Int]
+}
+pub fn AtlasQuad2D::new(source~ : @atlas.AtlasDrawSource, left~ : Double, top~ : Double, right~ : Double, bottom~ : Double, uniform_dwords? : Array[Int]) -> Self
+
+pub struct ColorM {
+  elements : FixedArray[Double]
+} derive(@debug.Debug)
+pub fn ColorM::apply(Self, Double, Double, Double, Double) -> (Double, Double, Double, Double)
+pub fn ColorM::apply_clamped(Self, Double, Double, Double, Double) -> (Double, Double, Double, Double)
+pub fn ColorM::apply_color(Self, @gfx.Color) -> @gfx.Color
+pub fn ColorM::change_hsv(Self, Double, Double, Double) -> Self
+pub fn ColorM::concat(Self, Self) -> Self
+pub fn ColorM::identity() -> Self
+pub fn ColorM::invert(Self) -> Self
+pub fn ColorM::is_identity(Self) -> Bool
+pub fn ColorM::monochrome(Self) -> Self
+pub fn ColorM::output(Self, &Logger) -> Unit
+pub fn ColorM::rotate_hue(Self, Double) -> Self
+pub fn ColorM::scale(Self, Double, Double, Double, Double) -> Self
+pub fn ColorM::to_repr(Self) -> @debug.Repr
+pub fn ColorM::to_string(Self) -> String
+pub fn ColorM::translate(Self, Double, Double, Double, Double) -> Self
+pub impl Show for ColorM
+
+pub(all) struct DotText2D {
+  chars : Array[Int]
+  cx : Double
+  cy : Double
+  color : @gfx.Color
+  scale : Double
+}
+pub fn DotText2D::new(chars~ : Array[Int], cx~ : Double, cy~ : Double, color~ : @gfx.Color, scale? : Double) -> Self
+
+pub(all) struct FrameProfile {
+  fps : Double
+  frame_time_ms : Double
+  update_ms : Double
+  draw_ms : Double
+  gpu_frame_ms : Double
+  draw_calls : Int
+  vertex_count : Int
+  asset_inflight : Int
+} derive(@debug.Debug)
+pub fn FrameProfile::output(Self, &Logger) -> Unit
+pub fn FrameProfile::to_repr(Self) -> @debug.Repr
+pub fn FrameProfile::to_string(Self) -> String
+pub impl Show for FrameProfile
+
+pub(all) struct Line2D {
+  x0 : Double
+  y0 : Double
+  x1 : Double
+  y1 : Double
+  width : Double
+  color : @gfx.Color
+}
+pub fn Line2D::new(x0~ : Double, y0~ : Double, x1~ : Double, y1~ : Double, width? : Double, color~ : @gfx.Color) -> Self
+
+pub(all) struct Number2D {
+  number : Int
+  cx : Double
+  cy : Double
+  color : @gfx.Color
+  scale : Double
+}
+pub fn Number2D::new(number~ : Int, cx~ : Double, cy~ : Double, color~ : @gfx.Color, scale? : Double) -> Self
+
+pub(all) struct RectFill2D {
+  x : Double
+  y : Double
+  w : Double
+  h : Double
+  color : @gfx.Color
+}
+pub fn RectFill2D::new(x~ : Double, y~ : Double, w~ : Double, h~ : Double, color~ : @gfx.Color) -> Self
+
+pub(all) struct RectOutline2D {
+  x : Double
+  y : Double
+  w : Double
+  h : Double
+  line_width : Double
+  color : @gfx.Color
+}
+pub fn RectOutline2D::new(x~ : Double, y~ : Double, w~ : Double, h~ : Double, line_width? : Double, color~ : @gfx.Color) -> Self
+
+pub(all) struct RenderFrame2D {
+  dst : @gfx.ImageHandle
+  shader : @gfx.ShaderHandle
+  screen_w : Int
+  screen_h : Int
+  pipeline_id : Int
+  uniform_hash : Int
+  blend : @gfx.BlendMode
+}
+pub fn RenderFrame2D::dst_region(Self) -> @gfx.DstRegion
+pub fn RenderFrame2D::new(dst~ : @gfx.ImageHandle, shader~ : @gfx.ShaderHandle, screen_w~ : Int, screen_h~ : Int, pipeline_id? : Int, uniform_hash? : Int, blend? : @gfx.BlendMode) -> Self
+
+pub struct SVGRenderResult {
+  width : Int
+  height : Int
+  pixels : Array[Int]
+} derive(@debug.Debug)
+pub fn SVGRenderResult::output(Self, &Logger) -> Unit
+pub fn SVGRenderResult::to_repr(Self) -> @debug.Repr
+pub fn SVGRenderResult::to_string(Self) -> String
+pub impl Show for SVGRenderResult
+
+pub struct TrianglePayload {
+  has_payload : Bool
+  ax : Double
+  ay : Double
+  bx : Double
+  by : Double
+  cx : Double
+  cy : Double
+  au : Double
+  av : Double
+  bu : Double
+  bv : Double
+  cu : Double
+  cv : Double
+  uniform_r : Double
+  uniform_g : Double
+  uniform_b : Double
+  uniform_a : Double
+  texture_seed : Int
+} derive(@debug.Debug)
+pub fn TrianglePayload::output(Self, &Logger) -> Unit
+pub fn TrianglePayload::to_repr(Self) -> @debug.Repr
+pub fn TrianglePayload::to_string(Self) -> String
+pub impl Show for TrianglePayload
+
+// Type aliases
+
+// Traits
+

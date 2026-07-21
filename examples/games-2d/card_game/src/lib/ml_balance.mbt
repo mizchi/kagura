@@ -28,7 +28,7 @@ pub(all) enum Archetype {
 } derive(Debug, Eq)
 
 ///|
-pub impl Show for Archetype with output(self, logger) {
+pub impl Show for Archetype with fn output(self, logger) {
   logger.write_object(to_repr(self))
 }
 
@@ -108,7 +108,7 @@ pub(all) struct GameFeatures {
 } derive(Debug)
 
 ///|
-pub impl Show for GameFeatures with output(self, logger) {
+pub impl Show for GameFeatures with fn output(self, logger) {
   logger.write_object(to_repr(self))
 }
 
@@ -265,7 +265,7 @@ pub(all) enum BalanceParam {
 } derive(Debug)
 
 ///|
-pub impl Show for BalanceParam with output(self, logger) {
+pub impl Show for BalanceParam with fn output(self, logger) {
   logger.write_object(to_repr(self))
 }
 
@@ -279,7 +279,7 @@ pub(all) struct SensitivityResult {
 } derive(Debug)
 
 ///|
-pub impl Show for SensitivityResult with output(self, logger) {
+pub impl Show for SensitivityResult with fn output(self, logger) {
   logger.write_object(to_repr(self))
 }
 
@@ -525,7 +525,7 @@ pub(all) struct BalanceReport {
 } derive(Debug)
 
 ///|
-pub impl Show for BalanceReport with output(self, logger) {
+pub impl Show for BalanceReport with fn output(self, logger) {
   logger.write_object(to_repr(self))
 }
 
@@ -571,3 +571,36 @@ pub fn generate_balance_report(encounter : EncounterId) -> BalanceReport {
     difficulty_score: difficulty,
   }
 }
+
+///|
+pub extend Archetype with @moonbitlang/core/debug.Debug::{to_repr}
+
+///|
+pub extend Archetype with Eq::{not_equal, equal}
+
+///|
+pub extend Archetype with Show::{to_string, output}
+
+///|
+pub extend GameFeatures with @moonbitlang/core/debug.Debug::{to_repr}
+
+///|
+pub extend GameFeatures with Show::{to_string, output}
+
+///|
+pub extend BalanceParam with @moonbitlang/core/debug.Debug::{to_repr}
+
+///|
+pub extend BalanceParam with Show::{to_string, output}
+
+///|
+pub extend SensitivityResult with @moonbitlang/core/debug.Debug::{to_repr}
+
+///|
+pub extend SensitivityResult with Show::{to_string, output}
+
+///|
+pub extend BalanceReport with @moonbitlang/core/debug.Debug::{to_repr}
+
+///|
+pub extend BalanceReport with Show::{to_string, output}

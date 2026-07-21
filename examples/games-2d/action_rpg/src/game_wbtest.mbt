@@ -530,9 +530,7 @@ test "TextRenderer render and measure with embedded font" {
 
 ///|
 test "image palette creation" {
-  let palette = @atlas.new_solid_palette(
-    @atlas.new_rgba(255, 0, 0, 255),
-  )
+  let palette = @atlas.new_solid_palette(@atlas.new_rgba(255, 0, 0, 255))
   let _ = palette
   assert_true(true)
 }

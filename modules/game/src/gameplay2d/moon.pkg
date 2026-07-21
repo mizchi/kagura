@@ -1,4 +1,0 @@
-import {
-  "moonbitlang/core/prelude",
-  "mizchi/kagura_game/interactable2d",
-}

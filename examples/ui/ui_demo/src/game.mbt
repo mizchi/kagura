@@ -79,8 +79,8 @@ struct DemoState {
 ///|
 fn DemoState::new() -> DemoState {
   let tree = @ui.UITree::new()
-  let node_roles : Map[Int, NodeRole] = {}
-  let button_labels : Map[Int, Array[Int]] = {}
+  let node_roles : Map[Int, NodeRole] = Map([])
+  let button_labels : Map[Int, Array[Int]] = Map([])
   let focusable_ids : Array[@ui.UINodeId] = []
   let sw = screen_w.to_double()
 

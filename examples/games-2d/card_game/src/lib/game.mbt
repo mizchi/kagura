@@ -17,7 +17,7 @@ pub(all) enum BattlePhase {
 } derive(Debug, Eq)
 
 ///|
-pub impl Show for BattlePhase with output(self, logger) {
+pub impl Show for BattlePhase with fn output(self, logger) {
   logger.write_object(to_repr(self))
 }
 
@@ -32,7 +32,7 @@ pub(all) enum ActionResult {
 } derive(Debug, Eq)
 
 ///|
-pub impl Show for ActionResult with output(self, logger) {
+pub impl Show for ActionResult with fn output(self, logger) {
   logger.write_object(to_repr(self))
 }
 
@@ -53,7 +53,7 @@ pub(all) struct PowerState {
 } derive(Debug)
 
 ///|
-pub impl Show for PowerState with output(self, logger) {
+pub impl Show for PowerState with fn output(self, logger) {
   logger.write_object(to_repr(self))
 }
 
@@ -89,7 +89,7 @@ pub(all) struct BattleState {
 } derive(Debug)
 
 ///|
-pub impl Show for BattleState with output(self, logger) {
+pub impl Show for BattleState with fn output(self, logger) {
   logger.write_object(to_repr(self))
 }
 
@@ -1045,3 +1045,33 @@ fn alive_enemy_count(state : BattleState) -> Int {
   }
   count
 }
+
+///|
+pub extend BattlePhase with @moonbitlang/core/debug.Debug::{to_repr}
+
+///|
+pub extend BattlePhase with Eq::{not_equal, equal}
+
+///|
+pub extend BattlePhase with Show::{to_string, output}
+
+///|
+pub extend ActionResult with @moonbitlang/core/debug.Debug::{to_repr}
+
+///|
+pub extend ActionResult with Eq::{not_equal, equal}
+
+///|
+pub extend ActionResult with Show::{to_string, output}
+
+///|
+pub extend PowerState with @moonbitlang/core/debug.Debug::{to_repr}
+
+///|
+pub extend PowerState with Show::{to_string, output}
+
+///|
+pub extend BattleState with @moonbitlang/core/debug.Debug::{to_repr}
+
+///|
+pub extend BattleState with Show::{to_string, output}

@@ -1,0 +1,6 @@
+members = [
+  ".",
+  "../../modules/geom",
+  "../../modules/kagura_core",
+  "../../modules/mesh3d",
+]

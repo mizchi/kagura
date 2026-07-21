@@ -1,0 +1,10 @@
+import {
+  "moonbitlang/core/bench",
+  "moonbitlang/core/ref",
+  "mizchi/geom/math3d",
+  "mizchi/anim3d/transform3d",
+  "mizchi/kagura_engine/scene3d",
+  "mizchi/physics/physics3d",
+  "mizchi/anim3d/animation3d",
+  "moonbitlang/core/debug",
+}

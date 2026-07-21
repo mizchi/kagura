@@ -1,0 +1,13 @@
+import {
+  "moonbitlang/core/bench",
+  "moonbitlang/core/math",
+  "mizchi/atlas",
+  "mizchi/gfx",
+  "mizchi/kagura_core" @core,
+  "mizchi/geom/vector",
+  "mizchi/kagura_core/inpututil",
+  "mizchi/svg" @msvg,
+  "moonbitlang/core/debug",
+}
+
+warnings = "-1"

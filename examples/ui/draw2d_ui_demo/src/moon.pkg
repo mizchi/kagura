@@ -1,8 +1,8 @@
 import {
   "mizchi/kagura_engine" @engine,
-  "mizchi/gfx" @gfx,
-  "mizchi/renderer2d" @renderer2d,
-  "mizchi/widget2d" @widget2d,
+  "mizchi/gfx",
+  "mizchi/renderer2d",
+  "mizchi/widget2d",
   "mizchi/web_runtime_hooks" @web_hooks,
 }
 
@@ -10,6 +10,4 @@ warnings = "-29"
 
 supported_targets = "js"
 
-options(
-  "is-main": true,
-)
+pkgtype(kind: "executable")

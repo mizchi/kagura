@@ -487,3 +487,24 @@ fn interpret_card(
   }
   state.logs.push(msg)
 }
+
+///|
+pub extend Amount with @moonbitlang/core/debug.Debug::{to_repr}
+
+///|
+pub extend Amount with Eq::{not_equal, equal}
+
+///|
+pub extend EffectTarget with @moonbitlang/core/debug.Debug::{to_repr}
+
+///|
+pub extend EffectTarget with Eq::{not_equal, equal}
+
+///|
+pub extend Effect with @moonbitlang/core/debug.Debug::{to_repr}
+
+///|
+pub extend Effect with Eq::{not_equal, equal}
+
+///|
+pub extend EffectOutcome with @moonbitlang/core/debug.Debug::{to_repr}

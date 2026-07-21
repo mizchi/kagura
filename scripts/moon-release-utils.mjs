@@ -11,7 +11,6 @@ export const DEFAULT_RELEASE_MODULE_DIRS = Object.freeze([
   "modules/audio",
   "modules/asset_loader",
   "modules/kagura_engine",
-  "modules/native_runtime",
   "modules/physics",
   "modules/game",
   "modules/js_runtime",
@@ -25,7 +24,6 @@ export const DEFAULT_RELEASE_DEP_POLICY = Object.freeze({
   "mizchi/kagura_audio": [],
   "mizchi/kagura_asset_loader": [],
   "mizchi/kagura_engine": ["mizchi/kagura_core", "mizchi/kagura_platform", "mizchi/kagura_audio"],
-  "mizchi/kagura_native_runtime": ["mizchi/kagura_engine", "mizchi/kagura_audio"],
   "mizchi/physics": ["mizchi/kagura_core"],
   "mizchi/kagura_game": [
     "mizchi/kagura_core",

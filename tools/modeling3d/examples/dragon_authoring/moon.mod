@@ -16,7 +16,6 @@ import {
   "mizchi/geom@0.2.0",
   "mizchi/atlas@0.2.0",
   "mizchi/physics@0.2.0",
-  "mizchi/kagura_native_runtime@0.1.0",
   "mizchi/kagura_platform@0.1.0",
 }
 

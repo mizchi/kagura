@@ -9,7 +9,6 @@ import {
   "mizchi/pixelmatch@0.3.5",
   "mizchi/image@0.4.3",
   "mizchi/kagura_engine@0.2.0",
-  "mizchi/kagura_native_runtime@0.1.0",
 }
 
 source = "src"

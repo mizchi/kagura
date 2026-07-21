@@ -8,7 +8,7 @@ import {
   "mizchi/kagura_engine/draw3d",
   "mizchi/kagura_engine" @engine,
   "mizchi/gfx",
-  "mizchi/kagura_native_runtime" @wgpu_native,
+  "mizchi/kagura_engine/gfx_wgpu_native" @wgpu_native,
   "mizchi/kagura_engine/gltf",
   "mizchi/kagura_core/inpututil",
   "mizchi/kagura_engine/light3d",

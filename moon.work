@@ -18,5 +18,4 @@ members = [
   "./modules/machinations",
   "./modules/game",
   "./modules/js_runtime",
-  "./modules/native_runtime",
 ]

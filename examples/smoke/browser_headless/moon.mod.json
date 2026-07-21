@@ -27,9 +27,6 @@
     "mizchi/kagura_engine": {
       "path": "../../../modules/kagura_engine"
     },
-    "mizchi/kagura_native_runtime": {
-      "path": "../../../modules/native_runtime"
-    },
     "mizchi/gfx": "0.1.0",
     "mizchi/renderer2d": {
       "path": "../../../modules/renderer2d"

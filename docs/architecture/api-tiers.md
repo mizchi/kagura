@@ -73,7 +73,7 @@ package ごとの安定性レベル。利用者が依存判断できるよう ti
 |---------|------|
 | `engine` | 内部ゲームループ実行 (JS/native 分岐) |
 | `runtime` | 低レベルループ実行 |
-| `native_runtime` | wgpu-native FFI バックエンド（`mizchi/kagura_native_runtime`、kagura_engine から抽出済み） |
+| `gfx_wgpu_native` | wgpu-native FFI バックエンド |
 | `image_palette` | 内部パレットユーティリティ |
 | `debugutil` | デバッグ描画 (開発時のみ) |
 | `ai` | AI 統合ブリッジ (実験的) |

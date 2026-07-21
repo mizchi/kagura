@@ -1,7 +1,7 @@
 import {
   "mizchi/kagura_engine" @engine,
   "mizchi/gfx" @gfx,
-  "mizchi/kagura_native_runtime" @wgpu_native,
+  "mizchi/kagura_engine/gfx_wgpu_native" @wgpu_native,
   "mizchi/atlas" @atlas,
   "mizchi/renderer2d" @renderer2d,
   "mizchi/widget2d" @widget2d,

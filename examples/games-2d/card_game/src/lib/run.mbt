@@ -13,7 +13,7 @@ pub(all) enum RunPhase {
 
 ///|
 pub impl Show for RunPhase with fn output(self, logger) {
-  logger.write_object(to_repr(self))
+  logger.write_object(Repr(self))
 }
 
 ///|
@@ -26,7 +26,7 @@ enum FloorType {
 
 ///|
 pub impl Show for FloorType with fn output(self, logger) {
-  logger.write_object(to_repr(self))
+  logger.write_object(Repr(self))
 }
 
 ///|
@@ -47,7 +47,7 @@ pub(all) struct RunState {
 
 ///|
 pub impl Show for RunState with fn output(self, logger) {
-  logger.write_object(to_repr(self))
+  logger.write_object(Repr(self))
 }
 
 ///|

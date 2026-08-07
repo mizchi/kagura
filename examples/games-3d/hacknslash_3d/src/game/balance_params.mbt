@@ -10,7 +10,7 @@ pub enum BalancePreset {
 
 ///|
 pub impl Show for BalancePreset with fn output(self, logger) {
-  logger.write_object(to_repr(self))
+  logger.write_object(Repr(self))
 }
 
 ///|

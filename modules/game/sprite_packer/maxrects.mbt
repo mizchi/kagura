@@ -9,7 +9,7 @@ struct Rect {
 
 ///|
 pub impl Show for Rect with fn output(self, logger) {
-  logger.write_object(to_repr(self))
+  logger.write_object(Repr(self))
 }
 
 ///|
@@ -33,7 +33,7 @@ struct AllocResult {
 
 ///|
 pub impl Show for AllocResult with fn output(self, logger) {
-  logger.write_object(to_repr(self))
+  logger.write_object(Repr(self))
 }
 
 ///|

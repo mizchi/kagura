@@ -14,7 +14,7 @@ pub enum EffectPresetId {
 
 ///|
 pub impl Show for EffectPresetId with fn output(self, logger) {
-  logger.write_object(to_repr(self))
+  logger.write_object(Repr(self))
 }
 
 ///|

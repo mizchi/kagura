@@ -29,7 +29,7 @@ pub(all) enum PotionId {
 
 ///|
 pub impl Show for PotionId with fn output(self, logger) {
-  logger.write_object(to_repr(self))
+  logger.write_object(Repr(self))
 }
 
 ///|
@@ -43,7 +43,7 @@ pub(all) struct PotionDef {
 
 ///|
 pub impl Show for PotionDef with fn output(self, logger) {
-  logger.write_object(to_repr(self))
+  logger.write_object(Repr(self))
 }
 
 ///|

@@ -11,7 +11,7 @@ pub struct TimelineTrackLane {
 
 ///|
 pub impl Show for TimelineTrackLane with fn output(self, logger) {
-  logger.write_object(to_repr(self))
+  logger.write_object(Repr(self))
 }
 
 ///|
@@ -24,7 +24,7 @@ pub struct TimelineView {
 
 ///|
 pub impl Show for TimelineView with fn output(self, logger) {
-  logger.write_object(to_repr(self))
+  logger.write_object(Repr(self))
 }
 
 ///|

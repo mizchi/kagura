@@ -14,7 +14,7 @@ pub struct RuntimeConfig {
 
 ///|
 pub impl Show for RuntimeConfig with fn output(self, logger) {
-  logger.write_object(to_repr(self))
+  logger.write_object(Repr(self))
 }
 
 ///|
@@ -25,7 +25,7 @@ pub struct FramePlan {
 
 ///|
 pub impl Show for FramePlan with fn output(self, logger) {
-  logger.write_object(to_repr(self))
+  logger.write_object(Repr(self))
 }
 
 ///|

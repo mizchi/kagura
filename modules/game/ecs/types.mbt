@@ -5,7 +5,7 @@ pub(all) struct EntityId {
 
 ///|
 pub impl Show for EntityId with fn output(self, logger) {
-  logger.write_object(to_repr(self))
+  logger.write_object(Repr(self))
 }
 
 ///|
@@ -20,7 +20,7 @@ pub(all) enum Tag {
 
 ///|
 pub impl Show for Tag with fn output(self, logger) {
-  logger.write_object(to_repr(self))
+  logger.write_object(Repr(self))
 }
 
 ///|
@@ -32,7 +32,7 @@ pub(all) struct Velocity {
 
 ///|
 pub impl Show for Velocity with fn output(self, logger) {
-  logger.write_object(to_repr(self))
+  logger.write_object(Repr(self))
 }
 
 ///|
@@ -43,7 +43,7 @@ pub(all) struct Health {
 
 ///|
 pub impl Show for Health with fn output(self, logger) {
-  logger.write_object(to_repr(self))
+  logger.write_object(Repr(self))
 }
 
 ///|
@@ -57,7 +57,7 @@ pub(all) struct Sprite {
 
 ///|
 pub impl Show for Sprite with fn output(self, logger) {
-  logger.write_object(to_repr(self))
+  logger.write_object(Repr(self))
 }
 
 ///|

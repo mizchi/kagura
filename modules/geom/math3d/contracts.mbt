@@ -17,7 +17,7 @@ pub struct Vec3 {
 
 ///|
 pub impl Show for Vec3 with fn output(self, logger) {
-  logger.write_object(to_repr(self))
+  logger.write_object(Repr(self))
 }
 
 ///|
@@ -182,7 +182,7 @@ pub struct Vec4 {
 
 ///|
 pub impl Show for Vec4 with fn output(self, logger) {
-  logger.write_object(to_repr(self))
+  logger.write_object(Repr(self))
 }
 
 ///|
@@ -269,7 +269,7 @@ pub struct Mat4 {
 
 ///|
 pub impl Show for Mat4 with fn output(self, logger) {
-  logger.write_object(to_repr(self))
+  logger.write_object(Repr(self))
 }
 
 ///|
@@ -625,7 +625,7 @@ pub struct Quaternion {
 
 ///|
 pub impl Show for Quaternion with fn output(self, logger) {
-  logger.write_object(to_repr(self))
+  logger.write_object(Repr(self))
 }
 
 ///|

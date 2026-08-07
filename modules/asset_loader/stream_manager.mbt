@@ -8,7 +8,7 @@ pub enum AssetPriority {
 
 ///|
 pub impl Show for AssetPriority with fn output(self, logger) {
-  logger.write_object(to_repr(self))
+  logger.write_object(Repr(self))
 }
 
 ///|
@@ -32,7 +32,7 @@ pub(all) struct StreamProgress {
 
 ///|
 pub impl Show for StreamProgress with fn output(self, logger) {
-  logger.write_object(to_repr(self))
+  logger.write_object(Repr(self))
 }
 
 ///|

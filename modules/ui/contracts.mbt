@@ -11,7 +11,7 @@ pub struct UINodeId {
 
 ///|
 pub impl Show for UINodeId with fn output(self, logger) {
-  logger.write_object(to_repr(self))
+  logger.write_object(Repr(self))
 }
 
 ///|
@@ -24,7 +24,7 @@ pub struct LayoutConstraint {
 
 ///|
 pub impl Show for LayoutConstraint with fn output(self, logger) {
-  logger.write_object(to_repr(self))
+  logger.write_object(Repr(self))
 }
 
 ///|
@@ -37,7 +37,7 @@ pub struct LayoutRect {
 
 ///|
 pub impl Show for LayoutRect with fn output(self, logger) {
-  logger.write_object(to_repr(self))
+  logger.write_object(Repr(self))
 }
 
 ///|
@@ -48,7 +48,7 @@ pub struct LayoutResult {
 
 ///|
 pub impl Show for LayoutResult with fn output(self, logger) {
-  logger.write_object(to_repr(self))
+  logger.write_object(Repr(self))
 }
 
 ///|
@@ -63,7 +63,7 @@ pub enum UIEvent {
 
 ///|
 pub impl Show for UIEvent with fn output(self, logger) {
-  logger.write_object(to_repr(self))
+  logger.write_object(Repr(self))
 }
 
 ///|
@@ -144,7 +144,7 @@ pub(all) enum UIFocusEvent {
 
 ///|
 pub impl Show for UIFocusEvent with fn output(self, logger) {
-  logger.write_object(to_repr(self))
+  logger.write_object(Repr(self))
 }
 
 ///|

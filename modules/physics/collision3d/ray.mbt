@@ -6,7 +6,7 @@ pub(all) struct Ray {
 
 ///|
 pub impl Show for Ray with fn output(self, logger) {
-  logger.write_object(to_repr(self))
+  logger.write_object(Repr(self))
 }
 
 ///|
@@ -18,7 +18,7 @@ pub(all) struct HitResult {
 
 ///|
 pub impl Show for HitResult with fn output(self, logger) {
-  logger.write_object(to_repr(self))
+  logger.write_object(Repr(self))
 }
 
 ///|

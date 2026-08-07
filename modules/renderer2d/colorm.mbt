@@ -20,7 +20,7 @@ pub struct ColorM {
 
 ///|
 pub impl Show for ColorM with fn output(self, logger) {
-  logger.write_object(to_repr(self))
+  logger.write_object(Repr(self))
 }
 
 ///|

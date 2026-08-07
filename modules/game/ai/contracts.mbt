@@ -12,7 +12,7 @@ pub struct AgentId {
 
 ///|
 pub impl Show for AgentId with fn output(self, logger) {
-  logger.write_object(to_repr(self))
+  logger.write_object(Repr(self))
 }
 
 ///|
@@ -23,7 +23,7 @@ pub struct BlackboardEntry {
 
 ///|
 pub impl Show for BlackboardEntry with fn output(self, logger) {
-  logger.write_object(to_repr(self))
+  logger.write_object(Repr(self))
 }
 
 ///|
@@ -33,7 +33,7 @@ pub struct BlackboardSnapshot {
 
 ///|
 pub impl Show for BlackboardSnapshot with fn output(self, logger) {
-  logger.write_object(to_repr(self))
+  logger.write_object(Repr(self))
 }
 
 ///|
@@ -47,7 +47,7 @@ pub struct SensorSnapshot {
 
 ///|
 pub impl Show for SensorSnapshot with fn output(self, logger) {
-  logger.write_object(to_repr(self))
+  logger.write_object(Repr(self))
 }
 
 ///|
@@ -61,7 +61,7 @@ pub enum ActionIntent {
 
 ///|
 pub impl Show for ActionIntent with fn output(self, logger) {
-  logger.write_object(to_repr(self))
+  logger.write_object(Repr(self))
 }
 
 ///|
@@ -73,7 +73,7 @@ pub struct DecisionTrace {
 
 ///|
 pub impl Show for DecisionTrace with fn output(self, logger) {
-  logger.write_object(to_repr(self))
+  logger.write_object(Repr(self))
 }
 
 ///|
@@ -85,7 +85,7 @@ pub struct AIBudget {
 
 ///|
 pub impl Show for AIBudget with fn output(self, logger) {
-  logger.write_object(to_repr(self))
+  logger.write_object(Repr(self))
 }
 
 ///|
@@ -100,7 +100,7 @@ pub struct DecisionContext {
 
 ///|
 pub impl Show for DecisionContext with fn output(self, logger) {
-  logger.write_object(to_repr(self))
+  logger.write_object(Repr(self))
 }
 
 ///|
@@ -112,7 +112,7 @@ pub struct DecisionResult {
 
 ///|
 pub impl Show for DecisionResult with fn output(self, logger) {
-  logger.write_object(to_repr(self))
+  logger.write_object(Repr(self))
 }
 
 ///|

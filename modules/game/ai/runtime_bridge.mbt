@@ -13,7 +13,7 @@ pub struct AIRuntimeConfig {
 
 ///|
 pub impl Show for AIRuntimeConfig with fn output(self, logger) {
-  logger.write_object(to_repr(self))
+  logger.write_object(Repr(self))
 }
 
 ///|

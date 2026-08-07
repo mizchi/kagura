@@ -6,7 +6,7 @@ pub(all) struct AABB {
 
 ///|
 pub impl Show for AABB with fn output(self, logger) {
-  logger.write_object(to_repr(self))
+  logger.write_object(Repr(self))
 }
 
 ///|

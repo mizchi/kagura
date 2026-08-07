@@ -8,7 +8,7 @@ pub enum EffectSpawnPattern {
 
 ///|
 pub impl Show for EffectSpawnPattern with fn output(self, logger) {
-  logger.write_object(to_repr(self))
+  logger.write_object(Repr(self))
 }
 
 ///|
@@ -37,7 +37,7 @@ pub struct EffectTrack {
 
 ///|
 pub impl Show for EffectTrack with fn output(self, logger) {
-  logger.write_object(to_repr(self))
+  logger.write_object(Repr(self))
 }
 
 ///|
@@ -52,7 +52,7 @@ pub struct EffectDocument {
 
 ///|
 pub impl Show for EffectDocument with fn output(self, logger) {
-  logger.write_object(to_repr(self))
+  logger.write_object(Repr(self))
 }
 
 ///|

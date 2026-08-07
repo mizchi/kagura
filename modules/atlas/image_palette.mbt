@@ -14,7 +14,7 @@ pub struct Rgba {
 
 ///|
 pub impl Show for Rgba with fn output(self, logger) {
-  logger.write_object(to_repr(self))
+  logger.write_object(Repr(self))
 }
 
 ///|
@@ -27,7 +27,7 @@ pub struct ImagePalette2x2 {
 
 ///|
 pub impl Show for ImagePalette2x2 with fn output(self, logger) {
-  logger.write_object(to_repr(self))
+  logger.write_object(Repr(self))
 }
 
 ///|

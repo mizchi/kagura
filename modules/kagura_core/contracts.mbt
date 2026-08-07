@@ -12,7 +12,7 @@ pub enum EngineTermination {
 
 ///|
 pub impl Show for EngineTermination with fn output(self, logger) {
-  logger.write_object(to_repr(self))
+  logger.write_object(Repr(self))
 }
 
 ///|
@@ -23,7 +23,7 @@ pub struct OutsideSize {
 
 ///|
 pub impl Show for OutsideSize with fn output(self, logger) {
-  logger.write_object(to_repr(self))
+  logger.write_object(Repr(self))
 }
 
 ///|
@@ -34,7 +34,7 @@ pub struct LogicalSize {
 
 ///|
 pub impl Show for LogicalSize with fn output(self, logger) {
-  logger.write_object(to_repr(self))
+  logger.write_object(Repr(self))
 }
 
 ///|
@@ -46,7 +46,7 @@ pub struct FrameBudget {
 
 ///|
 pub impl Show for FrameBudget with fn output(self, logger) {
-  logger.write_object(to_repr(self))
+  logger.write_object(Repr(self))
 }
 
 ///|
@@ -63,7 +63,7 @@ pub struct InputSnapshot {
 
 ///|
 pub impl Show for InputSnapshot with fn output(self, logger) {
-  logger.write_object(to_repr(self))
+  logger.write_object(Repr(self))
 }
 
 ///|
@@ -76,7 +76,7 @@ pub enum TouchSource {
 
 ///|
 pub impl Show for TouchSource with fn output(self, logger) {
-  logger.write_object(to_repr(self))
+  logger.write_object(Repr(self))
 }
 
 ///|
@@ -109,7 +109,7 @@ pub struct TouchPoint {
 
 ///|
 pub impl Show for TouchPoint with fn output(self, logger) {
-  logger.write_object(to_repr(self))
+  logger.write_object(Repr(self))
 }
 
 ///|
@@ -121,7 +121,7 @@ pub struct GamepadSnapshot {
 
 ///|
 pub impl Show for GamepadSnapshot with fn output(self, logger) {
-  logger.write_object(to_repr(self))
+  logger.write_object(Repr(self))
 }
 
 ///|
@@ -133,7 +133,7 @@ pub struct RunOptions {
 
 ///|
 pub impl Show for RunOptions with fn output(self, logger) {
-  logger.write_object(to_repr(self))
+  logger.write_object(Repr(self))
 }
 
 ///|
@@ -233,7 +233,7 @@ pub enum TouchPhase {
 
 ///|
 pub impl Show for TouchPhase with fn output(self, logger) {
-  logger.write_object(to_repr(self))
+  logger.write_object(Repr(self))
 }
 
 ///|
@@ -272,7 +272,7 @@ pub struct TouchPointEx {
 
 ///|
 pub impl Show for TouchPointEx with fn output(self, logger) {
-  logger.write_object(to_repr(self))
+  logger.write_object(Repr(self))
 }
 
 ///|

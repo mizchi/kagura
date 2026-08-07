@@ -12,7 +12,7 @@ enum DungeonGeneratorKind {
 
 ///|
 pub impl Show for DungeonGeneratorKind with fn output(self, logger) {
-  logger.write_object(to_repr(self))
+  logger.write_object(Repr(self))
 }
 
 ///|

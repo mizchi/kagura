@@ -16,7 +16,7 @@ pub struct MeshBounds3D {
 
 ///|
 pub impl Show for MeshBounds3D with fn output(self, logger) {
-  logger.write_object(to_repr(self))
+  logger.write_object(Repr(self))
 }
 
 ///|
@@ -29,7 +29,7 @@ pub struct Mesh3D {
 
 ///|
 pub impl Show for Mesh3D with fn output(self, logger) {
-  logger.write_object(to_repr(self))
+  logger.write_object(Repr(self))
 }
 
 ///|

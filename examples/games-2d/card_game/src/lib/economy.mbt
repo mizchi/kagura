@@ -51,7 +51,7 @@ pub(all) struct TurnEconomy {
 
 ///|
 pub impl Show for TurnEconomy with fn output(self, logger) {
-  logger.write_object(to_repr(self))
+  logger.write_object(Repr(self))
 }
 
 ///|
@@ -74,7 +74,7 @@ pub(all) struct BattleEconomy {
 
 ///|
 pub impl Show for BattleEconomy with fn output(self, logger) {
-  logger.write_object(to_repr(self))
+  logger.write_object(Repr(self))
 }
 
 ///|
@@ -290,7 +290,7 @@ pub(all) struct CardValue {
 
 ///|
 pub impl Show for CardValue with fn output(self, logger) {
-  logger.write_object(to_repr(self))
+  logger.write_object(Repr(self))
 }
 
 ///|
@@ -497,7 +497,7 @@ pub(all) struct RunSimResult {
 
 ///|
 pub impl Show for RunSimResult with fn output(self, logger) {
-  logger.write_object(to_repr(self))
+  logger.write_object(Repr(self))
 }
 
 ///|
@@ -658,7 +658,7 @@ pub(all) struct RunSimSummary {
 
 ///|
 pub impl Show for RunSimSummary with fn output(self, logger) {
-  logger.write_object(to_repr(self))
+  logger.write_object(Repr(self))
 }
 
 ///|

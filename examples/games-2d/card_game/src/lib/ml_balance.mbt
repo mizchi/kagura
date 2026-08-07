@@ -29,7 +29,7 @@ pub(all) enum Archetype {
 
 ///|
 pub impl Show for Archetype with fn output(self, logger) {
-  logger.write_object(to_repr(self))
+  logger.write_object(Repr(self))
 }
 
 ///|
@@ -109,7 +109,7 @@ pub(all) struct GameFeatures {
 
 ///|
 pub impl Show for GameFeatures with fn output(self, logger) {
-  logger.write_object(to_repr(self))
+  logger.write_object(Repr(self))
 }
 
 ///|
@@ -266,7 +266,7 @@ pub(all) enum BalanceParam {
 
 ///|
 pub impl Show for BalanceParam with fn output(self, logger) {
-  logger.write_object(to_repr(self))
+  logger.write_object(Repr(self))
 }
 
 ///|
@@ -280,7 +280,7 @@ pub(all) struct SensitivityResult {
 
 ///|
 pub impl Show for SensitivityResult with fn output(self, logger) {
-  logger.write_object(to_repr(self))
+  logger.write_object(Repr(self))
 }
 
 ///|
@@ -526,7 +526,7 @@ pub(all) struct BalanceReport {
 
 ///|
 pub impl Show for BalanceReport with fn output(self, logger) {
-  logger.write_object(to_repr(self))
+  logger.write_object(Repr(self))
 }
 
 ///|

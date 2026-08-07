@@ -18,7 +18,7 @@ pub struct WindowOptions {
 
 ///|
 pub impl Show for WindowOptions with fn output(self, logger) {
-  logger.write_object(to_repr(self))
+  logger.write_object(Repr(self))
 }
 
 ///|
@@ -31,7 +31,7 @@ pub struct MonitorInfo {
 
 ///|
 pub impl Show for MonitorInfo with fn output(self, logger) {
-  logger.write_object(to_repr(self))
+  logger.write_object(Repr(self))
 }
 
 ///|
@@ -43,7 +43,7 @@ pub enum FullscreenMode {
 
 ///|
 pub impl Show for FullscreenMode with fn output(self, logger) {
-  logger.write_object(to_repr(self))
+  logger.write_object(Repr(self))
 }
 
 ///|
@@ -73,7 +73,7 @@ pub enum CursorMode {
 
 ///|
 pub impl Show for CursorMode with fn output(self, logger) {
-  logger.write_object(to_repr(self))
+  logger.write_object(Repr(self))
 }
 
 ///|
@@ -104,7 +104,7 @@ pub enum AsyncRequestStatus {
 
 ///|
 pub impl Show for AsyncRequestStatus with fn output(self, logger) {
-  logger.write_object(to_repr(self))
+  logger.write_object(Repr(self))
 }
 
 ///|

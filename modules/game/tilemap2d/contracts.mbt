@@ -18,7 +18,7 @@ pub struct AtlasTileDrawSpec {
 
 ///|
 pub impl Show for AtlasTileDrawSpec with fn output(self, logger) {
-  logger.write_object(to_repr(self))
+  logger.write_object(Repr(self))
 }
 
 ///|
@@ -29,7 +29,7 @@ pub struct TileAtlasEntry {
 
 ///|
 pub impl Show for TileAtlasEntry with fn output(self, logger) {
-  logger.write_object(to_repr(self))
+  logger.write_object(Repr(self))
 }
 
 ///|
@@ -39,7 +39,7 @@ pub struct TileAtlasTable {
 
 ///|
 pub impl Show for TileAtlasTable with fn output(self, logger) {
-  logger.write_object(to_repr(self))
+  logger.write_object(Repr(self))
 }
 
 ///|
@@ -52,7 +52,7 @@ pub struct TileChunkRect {
 
 ///|
 pub impl Show for TileChunkRect with fn output(self, logger) {
-  logger.write_object(to_repr(self))
+  logger.write_object(Repr(self))
 }
 
 ///|
@@ -70,7 +70,7 @@ struct TileChunkOrigin {
 
 ///|
 pub impl Show for TileChunkOrigin with fn output(self, logger) {
-  logger.write_object(to_repr(self))
+  logger.write_object(Repr(self))
 }
 
 ///|
@@ -324,7 +324,7 @@ struct ResolvedTileQuad {
 
 ///|
 pub impl Show for ResolvedTileQuad with fn output(self, logger) {
-  logger.write_object(to_repr(self))
+  logger.write_object(Repr(self))
 }
 
 ///|

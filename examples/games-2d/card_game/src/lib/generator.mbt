@@ -32,7 +32,7 @@ pub(all) enum Verdict {
 
 ///|
 pub impl Show for Verdict with fn output(self, logger) {
-  logger.write_object(to_repr(self))
+  logger.write_object(Repr(self))
 }
 
 ///|
@@ -49,7 +49,7 @@ pub(all) struct SynthEval {
 
 ///|
 pub impl Show for SynthEval with fn output(self, logger) {
-  logger.write_object(to_repr(self))
+  logger.write_object(Repr(self))
 }
 
 ///|
@@ -338,7 +338,7 @@ pub(all) struct GenSummary {
 
 ///|
 pub impl Show for GenSummary with fn output(self, logger) {
-  logger.write_object(to_repr(self))
+  logger.write_object(Repr(self))
 }
 
 ///|

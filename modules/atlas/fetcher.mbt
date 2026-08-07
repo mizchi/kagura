@@ -6,7 +6,7 @@ pub(all) struct FetchProgress {
 
 ///|
 pub impl Show for FetchProgress with fn output(self, logger) {
-  logger.write_object(to_repr(self))
+  logger.write_object(Repr(self))
 }
 
 ///|
@@ -16,7 +16,7 @@ pub(all) struct FetchHandle {
 
 ///|
 pub impl Show for FetchHandle with fn output(self, logger) {
-  logger.write_object(to_repr(self))
+  logger.write_object(Repr(self))
 }
 
 ///|

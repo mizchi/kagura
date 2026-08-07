@@ -7,7 +7,7 @@ pub(all) enum InteractableRole {
 
 ///|
 pub impl Show for InteractableRole with fn output(self, logger) {
-  logger.write_object(to_repr(self))
+  logger.write_object(Repr(self))
 }
 
 ///|
@@ -20,7 +20,7 @@ pub(all) enum InteractableAnchor {
 
 ///|
 pub impl Show for InteractableAnchor with fn output(self, logger) {
-  logger.write_object(to_repr(self))
+  logger.write_object(Repr(self))
 }
 
 ///|
@@ -32,7 +32,7 @@ pub(all) enum InteractablePickupEffect {
 
 ///|
 pub impl Show for InteractablePickupEffect with fn output(self, logger) {
-  logger.write_object(to_repr(self))
+  logger.write_object(Repr(self))
 }
 
 ///|

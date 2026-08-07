@@ -14,7 +14,7 @@ pub struct AudioFormat {
 
 ///|
 pub impl Show for AudioFormat with fn output(self, logger) {
-  logger.write_object(to_repr(self))
+  logger.write_object(Repr(self))
 }
 
 ///|
@@ -80,7 +80,7 @@ pub enum PlayerState {
 
 ///|
 pub impl Show for PlayerState with fn output(self, logger) {
-  logger.write_object(to_repr(self))
+  logger.write_object(Repr(self))
 }
 
 ///|
@@ -90,7 +90,7 @@ pub(all) struct PlayerId {
 
 ///|
 pub impl Show for PlayerId with fn output(self, logger) {
-  logger.write_object(to_repr(self))
+  logger.write_object(Repr(self))
 }
 
 ///|
@@ -102,7 +102,7 @@ pub struct AudioClip {
 
 ///|
 pub impl Show for AudioClip with fn output(self, logger) {
-  logger.write_object(to_repr(self))
+  logger.write_object(Repr(self))
 }
 
 ///|
@@ -1157,7 +1157,7 @@ pub struct AudioOutputStats {
 
 ///|
 pub impl Show for AudioOutputStats with fn output(self, logger) {
-  logger.write_object(to_repr(self))
+  logger.write_object(Repr(self))
 }
 
 ///|

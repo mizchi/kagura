@@ -6,7 +6,7 @@ pub(all) enum Interpolation {
 
 ///|
 pub impl Show for Interpolation with fn output(self, logger) {
-  logger.write_object(to_repr(self))
+  logger.write_object(Repr(self))
 }
 
 ///|
@@ -18,7 +18,7 @@ pub(all) enum ChannelTarget {
 
 ///|
 pub impl Show for ChannelTarget with fn output(self, logger) {
-  logger.write_object(to_repr(self))
+  logger.write_object(Repr(self))
 }
 
 ///|

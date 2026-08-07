@@ -13,7 +13,7 @@ struct KeyDurationEntry {
 
 ///|
 pub impl Show for KeyDurationEntry with fn output(self, logger) {
-  logger.write_object(to_repr(self))
+  logger.write_object(Repr(self))
 }
 
 ///|
@@ -24,7 +24,7 @@ struct MouseButtonDurationEntry {
 
 ///|
 pub impl Show for MouseButtonDurationEntry with fn output(self, logger) {
-  logger.write_object(to_repr(self))
+  logger.write_object(Repr(self))
 }
 
 ///|

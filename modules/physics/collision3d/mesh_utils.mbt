@@ -3,7 +3,10 @@ pub fn aabb_from_mesh(mesh : @mesh3d.Mesh3D) -> AABB {
   let data = mesh.vertex_data
   let stride = @mesh3d.vertex3d_stride
   let count = mesh.vertex_count()
-  guard count > 0
+  // A mesh with no vertices has no extent. Returning the degenerate box at the
+  // origin keeps callers (broadphase, culling) working on an empty mesh instead
+  // of panicking on the `data[0]` read below.
+  guard count > 0 else { AABB::new(@math3d.Vec3::zero(), @math3d.Vec3::zero()) }
   let mut min_x = data[0]
   let mut min_y = data[1]
   let mut min_z = data[2]

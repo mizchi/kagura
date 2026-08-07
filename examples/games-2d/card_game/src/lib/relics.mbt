@@ -17,7 +17,7 @@ pub(all) enum RelicId {
 
 ///|
 pub impl Show for RelicId with fn output(self, logger) {
-  logger.write_object(to_repr(self))
+  logger.write_object(Repr(self))
 }
 
 ///|
@@ -30,7 +30,7 @@ pub(all) struct RelicDef {
 
 ///|
 pub impl Show for RelicDef with fn output(self, logger) {
-  logger.write_object(to_repr(self))
+  logger.write_object(Repr(self))
 }
 
 ///|
@@ -122,7 +122,7 @@ pub(all) struct RelicState {
 
 ///|
 pub impl Show for RelicState with fn output(self, logger) {
-  logger.write_object(to_repr(self))
+  logger.write_object(Repr(self))
 }
 
 ///|

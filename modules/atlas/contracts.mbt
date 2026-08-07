@@ -12,7 +12,7 @@ pub struct AssetKey {
 
 ///|
 pub impl Show for AssetKey with fn output(self, logger) {
-  logger.write_object(to_repr(self))
+  logger.write_object(Repr(self))
 }
 
 ///|
@@ -31,7 +31,7 @@ pub struct ImageSpec {
 
 ///|
 pub impl Show for ImageSpec with fn output(self, logger) {
-  logger.write_object(to_repr(self))
+  logger.write_object(Repr(self))
 }
 
 ///|
@@ -42,7 +42,7 @@ pub struct ShaderSpec {
 
 ///|
 pub impl Show for ShaderSpec with fn output(self, logger) {
-  logger.write_object(to_repr(self))
+  logger.write_object(Repr(self))
 }
 
 ///|
@@ -55,7 +55,7 @@ pub struct MaterialSpec {
 
 ///|
 pub impl Show for MaterialSpec with fn output(self, logger) {
-  logger.write_object(to_repr(self))
+  logger.write_object(Repr(self))
 }
 
 ///|
@@ -69,7 +69,7 @@ pub struct AtlasRegion {
 
 ///|
 pub impl Show for AtlasRegion with fn output(self, logger) {
-  logger.write_object(to_repr(self))
+  logger.write_object(Repr(self))
 }
 
 ///|
@@ -91,7 +91,7 @@ pub struct ImagePaletteBinding {
 
 ///|
 pub impl Show for ImagePaletteBinding with fn output(self, logger) {
-  logger.write_object(to_repr(self))
+  logger.write_object(Repr(self))
 }
 
 ///|
@@ -104,7 +104,7 @@ pub struct SourceImageDirtyRect {
 
 ///|
 pub impl Show for SourceImageDirtyRect with fn output(self, logger) {
-  logger.write_object(to_repr(self))
+  logger.write_object(Repr(self))
 }
 
 ///|
@@ -120,7 +120,7 @@ pub struct SourceImageBinding {
 
 ///|
 pub impl Show for SourceImageBinding with fn output(self, logger) {
-  logger.write_object(to_repr(self))
+  logger.write_object(Repr(self))
 }
 
 ///|
@@ -135,7 +135,7 @@ pub struct AtlasDrawSource {
 
 ///|
 pub impl Show for AtlasDrawSource with fn output(self, logger) {
-  logger.write_object(to_repr(self))
+  logger.write_object(Repr(self))
 }
 
 ///|
@@ -490,7 +490,7 @@ struct SimpleImageEntry {
 
 ///|
 pub impl Show for SimpleImageEntry with fn output(self, logger) {
-  logger.write_object(to_repr(self))
+  logger.write_object(Repr(self))
 }
 
 ///|
@@ -501,7 +501,7 @@ struct SimpleShaderEntry {
 
 ///|
 pub impl Show for SimpleShaderEntry with fn output(self, logger) {
-  logger.write_object(to_repr(self))
+  logger.write_object(Repr(self))
 }
 
 ///|
@@ -512,7 +512,7 @@ struct SimpleMaterialEntry {
 
 ///|
 pub impl Show for SimpleMaterialEntry with fn output(self, logger) {
-  logger.write_object(to_repr(self))
+  logger.write_object(Repr(self))
 }
 
 ///|
@@ -1061,7 +1061,7 @@ struct SimpleAtlasImageEntry {
 
 ///|
 pub impl Show for SimpleAtlasImageEntry with fn output(self, logger) {
-  logger.write_object(to_repr(self))
+  logger.write_object(Repr(self))
 }
 
 ///|
@@ -1735,7 +1735,7 @@ pub struct AtlasCompactResult {
 
 ///|
 pub impl Show for AtlasCompactResult with fn output(self, logger) {
-  logger.write_object(to_repr(self))
+  logger.write_object(Repr(self))
 }
 
 ///|
@@ -1785,7 +1785,7 @@ pub struct AtlasPageStats {
 
 ///|
 pub impl Show for AtlasPageStats with fn output(self, logger) {
-  logger.write_object(to_repr(self))
+  logger.write_object(Repr(self))
 }
 
 ///|

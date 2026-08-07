@@ -10,7 +10,7 @@ struct EffectStudioOverlayModel {
 
 ///|
 pub impl Show for EffectStudioOverlayModel with fn output(self, logger) {
-  logger.write_object(to_repr(self))
+  logger.write_object(Repr(self))
 }
 
 ///|

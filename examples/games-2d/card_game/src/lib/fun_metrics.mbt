@@ -61,7 +61,7 @@ pub(all) struct BattleStats {
 
 ///|
 pub impl Show for BattleStats with fn output(self, logger) {
-  logger.write_object(to_repr(self))
+  logger.write_object(Repr(self))
 }
 
 ///|
@@ -79,7 +79,7 @@ pub(all) struct ActSnapshot {
 
 ///|
 pub impl Show for ActSnapshot with fn output(self, logger) {
-  logger.write_object(to_repr(self))
+  logger.write_object(Repr(self))
 }
 
 ///|
@@ -99,7 +99,7 @@ pub(all) struct DetailedRunResult {
 
 ///|
 pub impl Show for DetailedRunResult with fn output(self, logger) {
-  logger.write_object(to_repr(self))
+  logger.write_object(Repr(self))
 }
 
 ///|
@@ -150,7 +150,7 @@ pub(all) struct FunMetrics {
 
 ///|
 pub impl Show for FunMetrics with fn output(self, logger) {
-  logger.write_object(to_repr(self))
+  logger.write_object(Repr(self))
 }
 
 ///|
@@ -1040,7 +1040,7 @@ pub(all) struct FunTargets {
 
 ///|
 pub impl Show for FunTargets with fn output(self, logger) {
-  logger.write_object(to_repr(self))
+  logger.write_object(Repr(self))
 }
 
 ///|
@@ -1153,7 +1153,7 @@ pub(all) struct FunScorecard {
 
 ///|
 pub impl Show for FunScorecard with fn output(self, logger) {
-  logger.write_object(to_repr(self))
+  logger.write_object(Repr(self))
 }
 
 ///|

@@ -1,9 +1,9 @@
 ///|
 fn roundtrip_patch_action_by_kind(
-  actions : Array[RoundTripPatchAction],
+  actions : Array[@modeling3d.RoundTripPatchAction],
   source_id : String,
   action_kind : String,
-) -> RoundTripPatchAction? {
+) -> @modeling3d.RoundTripPatchAction? {
   for action in actions {
     if action.source_id == source_id && action.action_kind == action_kind {
       return Some(action)
@@ -38,7 +38,7 @@ test "build_roundtrip_patch_plan separates auto and manual actions" {
       ..imported_layers[0].stamps,
       {
         id: "nose_add",
-        mode: Add,
+        mode: @modeling3d.SculptMode::Add,
         center: @math3d.Vec3::new(0.0, 0.74, 0.44),
         radius: 0.08,
       },
@@ -50,12 +50,12 @@ test "build_roundtrip_patch_plan separates auto and manual actions" {
     sculpt_layers: imported_layers,
   }
 
-  let imported = parse_roundtrip_import(
+  let imported = @modeling3d.parse_roundtrip_import(
     "edited.glb",
-    document_glb_bytes(imported_doc),
+    @modeling3d.document_glb_bytes(imported_doc),
   )
-  let report = compare_roundtrip_import(base, imported)
-  let plan = build_roundtrip_patch_plan(base, imported, report)
+  let report = @modeling3d.compare_roundtrip_import(base, imported)
+  let plan = @modeling3d.build_roundtrip_patch_plan(base, imported, report)
 
   assert_eq(plan.filename, "edited.glb")
   assert_eq(plan.imported_document_name, "vlm_clay_totem")
@@ -98,25 +98,29 @@ test "build_roundtrip_patch_plan separates auto and manual actions" {
     is Some(_),
   )
   assert_true(
-    roundtrip_patch_plan_json(plan).contains(
+    @modeling3d.roundtrip_patch_plan_json(plan).contains(
       "\"action_kind\":\"set_primitive_kind\"",
     ),
   )
   assert_true(
-    roundtrip_patch_plan_summary(plan).contains(
+    @modeling3d.roundtrip_patch_plan_summary(plan).contains(
       "auto_actions: 2, manual_actions: 3",
     ),
   )
   assert_true(
-    roundtrip_patch_plan_summary(plan).contains("opt_in_append_candidates: 1"),
+    @modeling3d.roundtrip_patch_plan_summary(plan).contains(
+      "opt_in_append_candidates: 1",
+    ),
   )
   assert_true(
-    roundtrip_patch_plan_summary(plan).contains("opt_in_remove_candidates: 1"),
+    @modeling3d.roundtrip_patch_plan_summary(plan).contains(
+      "opt_in_remove_candidates: 1",
+    ),
   )
-  let snippet = roundtrip_patch_code_snippet(base, imported, plan)
+  let snippet = @modeling3d.roundtrip_patch_code_snippet(base, imported, plan)
   assert_true(
     snippet.contains(
-      "fn apply_imported_patch(doc : ModelDocument) -> ModelDocument",
+      "fn apply_imported_patch(doc : @modeling3d.ModelDocument) -> @modeling3d.ModelDocument",
     ),
   )
   assert_true(snippet.contains("primitives[1] = {"))
@@ -129,20 +133,31 @@ test "build_roundtrip_patch_plan separates auto and manual actions" {
   assert_true(snippet.contains("// stamp_count mismatch for clay_head"))
   assert_true(snippet.contains("// current: 6, imported: 7"))
   assert_eq(
-    roundtrip_patch_snippet_filename(plan),
+    @modeling3d.roundtrip_patch_snippet_filename(plan),
     "vlm_clay_totem_roundtrip_patch.mbt",
   )
   assert_true(
-    roundtrip_patch_payload_json(base, imported, plan).contains(
-      "\"moonbit_patch\":\"",
-    ),
+    @modeling3d.roundtrip_patch_payload_json(
+      base,
+      imported,
+      plan,
+      authoring_profile(),
+    ).contains("\"moonbit_patch\":\""),
   )
   assert_true(
-    roundtrip_patch_payload_json(base, imported, plan).contains(
-      "\"snippet_filename\":\"vlm_clay_totem_roundtrip_patch.mbt\"",
-    ),
+    @modeling3d.roundtrip_patch_payload_json(
+      base,
+      imported,
+      plan,
+      authoring_profile(),
+    ).contains("\"snippet_filename\":\"vlm_clay_totem_roundtrip_patch.mbt\""),
   )
-  let payload = roundtrip_patch_payload_json(base, imported, plan)
+  let payload = @modeling3d.roundtrip_patch_payload_json(
+    base,
+    imported,
+    plan,
+    authoring_profile(),
+  )
   let parsed = @json.parse(payload) catch { _ => Json::null() }
   assert_true(payload.contains("\"review_prompt\":\""))
   assert_true(
@@ -180,14 +195,20 @@ test "build_roundtrip_patch_plan separates auto and manual actions" {
     },
   )
   assert_eq(
-    roundtrip_review_prompt_filename(plan),
+    @modeling3d.roundtrip_review_prompt_filename(plan),
     "vlm_clay_totem_vlm_review.md",
   )
   assert_eq(
-    roundtrip_review_bundle_filename(plan),
+    @modeling3d.roundtrip_review_bundle_filename(plan),
     "vlm_clay_totem_vlm_bundle.json",
   )
-  let review_prompt = roundtrip_review_prompt_text(base, imported, report, plan)
+  let review_prompt = @modeling3d.roundtrip_review_prompt_text(
+    base,
+    imported,
+    report,
+    plan,
+    authoring_profile(),
+  )
   assert_true(
     review_prompt.contains("examples/model_authoring/src/model_doc.mbt"),
   )
@@ -208,7 +229,12 @@ test "build_roundtrip_patch_plan separates auto and manual actions" {
   assert_true(review_prompt.contains("current_stamp_count: 6"))
   assert_true(review_prompt.contains("imported_stamp_count: 7"))
   assert_true(review_prompt.contains("Do not invent sculpt stamps"))
-  let review_bundle = roundtrip_review_bundle_json(base, imported, plan)
+  let review_bundle = @modeling3d.roundtrip_review_bundle_json(
+    base,
+    imported,
+    plan,
+    authoring_profile(),
+  )
   assert_true(
     review_bundle.contains(
       "\"target_file\":\"examples/model_authoring/src/model_doc.mbt\"",
@@ -252,7 +278,7 @@ test "apply_roundtrip_auto_patch updates primitive and sculpt colors in memory" 
       ..imported_layers[0].stamps,
       {
         id: "nose_add",
-        mode: Add,
+        mode: @modeling3d.SculptMode::Add,
         center: @math3d.Vec3::new(0.0, 0.74, 0.44),
         radius: 0.08,
       },
@@ -264,13 +290,13 @@ test "apply_roundtrip_auto_patch updates primitive and sculpt colors in memory" 
     sculpt_layers: imported_layers,
   }
 
-  let imported = parse_roundtrip_import(
+  let imported = @modeling3d.parse_roundtrip_import(
     "edited.glb",
-    document_glb_bytes(imported_doc),
+    @modeling3d.document_glb_bytes(imported_doc),
   )
-  let report = compare_roundtrip_import(base, imported)
-  let plan = build_roundtrip_patch_plan(base, imported, report)
-  let patched = apply_roundtrip_auto_patch(base, plan)
+  let report = @modeling3d.compare_roundtrip_import(base, imported)
+  let plan = @modeling3d.build_roundtrip_patch_plan(base, imported, report)
+  let patched = @modeling3d.apply_roundtrip_auto_patch(base, plan)
 
   assert_true(
     match patched.primitives[1].kind {
@@ -315,13 +341,13 @@ test "apply_roundtrip_opt_in_patch appends imported extra primitive candidates" 
   })
   let imported_doc = { ..base, primitives: imported_primitives }
 
-  let imported = parse_roundtrip_import(
+  let imported = @modeling3d.parse_roundtrip_import(
     "edited.glb",
-    document_glb_bytes(imported_doc),
+    @modeling3d.document_glb_bytes(imported_doc),
   )
-  let report = compare_roundtrip_import(base, imported)
-  let plan = build_roundtrip_patch_plan(base, imported, report)
-  let patched = apply_roundtrip_opt_in_patch(base, imported, plan)
+  let report = @modeling3d.compare_roundtrip_import(base, imported)
+  let plan = @modeling3d.build_roundtrip_patch_plan(base, imported, report)
+  let patched = @modeling3d.apply_roundtrip_opt_in_patch(base, imported, plan)
 
   assert_eq(patched.primitives.length(), 3)
   assert_true(
@@ -331,7 +357,7 @@ test "apply_roundtrip_opt_in_patch appends imported extra primitive candidates" 
     ),
   )
   assert_eq(patched.primitives[1].color_hex, 0xE39C54)
-  assert_true(primitive_index_by_id(patched, "guide_orb") is None)
+  assert_true(@modeling3d.primitive_index_by_id(patched, "guide_orb") is None)
   assert_eq(patched.primitives[2].id, "blender_helper")
   assert_true(
     match patched.primitives[2].kind {
@@ -380,7 +406,7 @@ test "build_roundtrip_patch_artifacts recomputes residual diff after opt-in sync
       ..imported_layers[0].stamps,
       {
         id: "nose_add",
-        mode: Add,
+        mode: @modeling3d.SculptMode::Add,
         center: @math3d.Vec3::new(0.0, 0.74, 0.44),
         radius: 0.08,
       },
@@ -392,13 +418,25 @@ test "build_roundtrip_patch_artifacts recomputes residual diff after opt-in sync
     sculpt_layers: imported_layers,
   }
 
-  let imported = parse_roundtrip_import(
+  let imported = @modeling3d.parse_roundtrip_import(
     "edited.glb",
-    document_glb_bytes(imported_doc),
+    @modeling3d.document_glb_bytes(imported_doc),
   )
-  let initial = build_roundtrip_patch_artifacts(base, imported)
-  let patched = apply_roundtrip_opt_in_patch(base, imported, initial.patch_plan)
-  let residual = build_roundtrip_patch_artifacts(patched, imported)
+  let initial = @modeling3d.build_roundtrip_patch_artifacts(
+    base,
+    imported,
+    authoring_profile(),
+  )
+  let patched = @modeling3d.apply_roundtrip_opt_in_patch(
+    base,
+    imported,
+    initial.patch_plan,
+  )
+  let residual = @modeling3d.build_roundtrip_patch_artifacts(
+    patched,
+    imported,
+    authoring_profile(),
+  )
 
   assert_eq(initial.patch_plan.auto_actions.length(), 1)
   assert_eq(initial.patch_plan.manual_actions.length(), 3)

@@ -60,7 +60,7 @@ pub(all) enum CardId {
 
 ///|
 pub impl Show for CardId with fn output(self, logger) {
-  logger.write_object(to_repr(self))
+  logger.write_object(Repr(self))
 }
 
 ///|
@@ -73,7 +73,7 @@ pub(all) enum CardType {
 
 ///|
 pub impl Show for CardType with fn output(self, logger) {
-  logger.write_object(to_repr(self))
+  logger.write_object(Repr(self))
 }
 
 ///|
@@ -91,7 +91,7 @@ pub(all) struct CardDef {
 
 ///|
 pub impl Show for CardDef with fn output(self, logger) {
-  logger.write_object(to_repr(self))
+  logger.write_object(Repr(self))
 }
 
 ///|
@@ -582,7 +582,7 @@ pub(all) enum CardRarity {
 
 ///|
 pub impl Show for CardRarity with fn output(self, logger) {
-  logger.write_object(to_repr(self))
+  logger.write_object(Repr(self))
 }
 
 ///|

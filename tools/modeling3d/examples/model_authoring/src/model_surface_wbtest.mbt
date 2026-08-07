@@ -1,6 +1,6 @@
 ///|
 fn surface_samples_include(
-  samples : Array[BakedSurfaceSample],
+  samples : Array[@modeling3d.BakedSurfaceSample],
   position : @math3d.Vec3,
   normal : @math3d.Vec3,
 ) -> Bool {
@@ -15,17 +15,22 @@ fn surface_samples_include(
 
 ///|
 test "sculpt_layer_baked_surface_samples exposes six faces for a single filled voxel" {
-  let layer : SculptLayer = {
+  let layer : @modeling3d.SculptLayer = {
     id: "single_voxel",
     voxel_size: 0.2,
     half_extent: 1,
     color_hex: 0xFFAA88,
     muted_stamp_ids: [],
     stamps: [
-      { id: "core", mode: Add, center: @math3d.Vec3::zero(), radius: 0.05 },
+      {
+        id: "core",
+        mode: @modeling3d.SculptMode::Add,
+        center: @math3d.Vec3::zero(),
+        radius: 0.05,
+      },
     ],
   }
-  let samples = sculpt_layer_baked_surface_samples(layer)
+  let samples = @modeling3d.sculpt_layer_baked_surface_samples(layer)
   assert_eq(samples.length(), 6)
   assert_true(
     surface_samples_include(
@@ -45,7 +50,7 @@ test "sculpt_layer_baked_surface_samples exposes six faces for a single filled v
 
 ///|
 test "sculpt_layer_baked_surface_samples ignores internal shared faces" {
-  let layer : SculptLayer = {
+  let layer : @modeling3d.SculptLayer = {
     id: "two_voxels",
     voxel_size: 0.2,
     half_extent: 1,
@@ -54,14 +59,19 @@ test "sculpt_layer_baked_surface_samples ignores internal shared faces" {
     stamps: [
       {
         id: "left",
-        mode: Add,
+        mode: @modeling3d.SculptMode::Add,
         center: @math3d.Vec3::new(-0.2, 0.0, 0.0),
         radius: 0.05,
       },
-      { id: "right", mode: Add, center: @math3d.Vec3::zero(), radius: 0.05 },
+      {
+        id: "right",
+        mode: @modeling3d.SculptMode::Add,
+        center: @math3d.Vec3::zero(),
+        radius: 0.05,
+      },
     ],
   }
-  let samples = sculpt_layer_baked_surface_samples(layer)
+  let samples = @modeling3d.sculpt_layer_baked_surface_samples(layer)
   assert_eq(samples.length(), 10)
   assert_false(
     surface_samples_include(
@@ -74,41 +84,63 @@ test "sculpt_layer_baked_surface_samples ignores internal shared faces" {
 
 ///|
 test "sculpt_layer_density accumulates overlapping add stamps" {
-  let single : SculptLayer = {
+  let single : @modeling3d.SculptLayer = {
     id: "single",
     voxel_size: 0.2,
     half_extent: 1,
     color_hex: 0xFFAA88,
     muted_stamp_ids: [],
-    stamps: [{ id: "a", mode: Add, center: @math3d.Vec3::zero(), radius: 0.2 }],
+    stamps: [
+      {
+        id: "a",
+        mode: @modeling3d.SculptMode::Add,
+        center: @math3d.Vec3::zero(),
+        radius: 0.2,
+      },
+    ],
   }
-  let stacked : SculptLayer = {
+  let stacked : @modeling3d.SculptLayer = {
     ..single,
     id: "stacked",
     stamps: [
-      { id: "a", mode: Add, center: @math3d.Vec3::zero(), radius: 0.2 },
-      { id: "b", mode: Add, center: @math3d.Vec3::zero(), radius: 0.2 },
+      {
+        id: "a",
+        mode: @modeling3d.SculptMode::Add,
+        center: @math3d.Vec3::zero(),
+        radius: 0.2,
+      },
+      {
+        id: "b",
+        mode: @modeling3d.SculptMode::Add,
+        center: @math3d.Vec3::zero(),
+        radius: 0.2,
+      },
     ],
   }
   assert_true(
-    sculpt_layer_density(stacked, @math3d.Vec3::zero()) >
-    sculpt_layer_density(single, @math3d.Vec3::zero()),
+    @modeling3d.sculpt_layer_density(stacked, @math3d.Vec3::zero()) >
+    @modeling3d.sculpt_layer_density(single, @math3d.Vec3::zero()),
   )
 }
 
 ///|
 test "sculpt_layer_baked_mesh emits a continuous surface for a single add stamp" {
-  let layer : SculptLayer = {
+  let layer : @modeling3d.SculptLayer = {
     id: "single_stamp",
     voxel_size: 0.2,
     half_extent: 1,
     color_hex: 0xFFAA88,
     muted_stamp_ids: [],
     stamps: [
-      { id: "core", mode: Add, center: @math3d.Vec3::zero(), radius: 0.18 },
+      {
+        id: "core",
+        mode: @modeling3d.SculptMode::Add,
+        center: @math3d.Vec3::zero(),
+        radius: 0.18,
+      },
     ],
   }
-  let mesh = sculpt_layer_baked_mesh(layer)
+  let mesh = @modeling3d.sculpt_layer_baked_mesh(layer)
   let bounds = mesh.bounds()
   assert_true(mesh.triangle_count() > 0)
   assert_true(mesh.vertex_count() > 0)

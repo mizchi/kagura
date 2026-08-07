@@ -5,7 +5,7 @@ fn approx_pick(a : Double, b : Double) -> Bool {
 
 ///|
 test "pick_document_surface_hit resolves primitive sphere hits" {
-  let doc : ModelDocument = {
+  let doc : @modeling3d.ModelDocument = {
     name: "primitive-hit",
     notes: "",
     primitives: [
@@ -19,18 +19,19 @@ test "pick_document_surface_hit resolves primitive sphere hits" {
     ],
     sculpt_layers: [],
   }
-  let ray : WorldRay = {
+  let ray : @modeling3d.WorldRay = {
     origin: @math3d.Vec3::new(0.0, 0.0, 2.0),
     direction: @math3d.Vec3::new(0.0, 0.0, -1.0),
   }
-  match pick_document_surface_hit(doc, ray) {
+  match @modeling3d.pick_document_surface_hit(doc, ray) {
     Some(hit) => {
       assert_eq(hit.target_id, "ball")
       assert_true(approx_pick(hit.point.z, 0.5))
       match hit.kind {
-        PrimitiveSurface => ()
+        @modeling3d.SurfaceKind::PrimitiveSurface => ()
         SculptSurface => fail("expected primitive surface hit")
-        BakedSculptSurface => fail("expected primitive surface hit")
+        @modeling3d.SurfaceKind::BakedSculptSurface =>
+          fail("expected primitive surface hit")
       }
     }
     None => fail("expected sphere hit")
@@ -39,7 +40,7 @@ test "pick_document_surface_hit resolves primitive sphere hits" {
 
 ///|
 test "pick_document_surface_hit ignores plane primitives for sculpt editing" {
-  let doc : ModelDocument = {
+  let doc : @modeling3d.ModelDocument = {
     name: "plane-only",
     notes: "",
     primitives: [
@@ -53,16 +54,16 @@ test "pick_document_surface_hit ignores plane primitives for sculpt editing" {
     ],
     sculpt_layers: [],
   }
-  let ray : WorldRay = {
+  let ray : @modeling3d.WorldRay = {
     origin: @math3d.Vec3::new(0.0, 5.0, 0.0),
     direction: @math3d.Vec3::new(0.0, -1.0, 0.0),
   }
-  assert_true(pick_document_surface_hit(doc, ray) is None)
+  assert_true(@modeling3d.pick_document_surface_hit(doc, ray) is None)
 }
 
 ///|
 test "pick_document_surface_hit resolves voxel sculpt hits" {
-  let doc : ModelDocument = {
+  let doc : @modeling3d.ModelDocument = {
     name: "sculpt-hit",
     notes: "",
     primitives: [],
@@ -74,24 +75,30 @@ test "pick_document_surface_hit resolves voxel sculpt hits" {
         color_hex: 0xFFAA88,
         muted_stamp_ids: [],
         stamps: [
-          { id: "core", mode: Add, center: @math3d.Vec3::zero(), radius: 0.35 },
+          {
+            id: "core",
+            mode: @modeling3d.SculptMode::Add,
+            center: @math3d.Vec3::zero(),
+            radius: 0.35,
+          },
         ],
       },
     ],
   }
-  let ray : WorldRay = {
+  let ray : @modeling3d.WorldRay = {
     origin: @math3d.Vec3::new(0.0, 0.0, 2.0),
     direction: @math3d.Vec3::new(0.0, 0.0, -1.0),
   }
-  match pick_document_surface_hit(doc, ray) {
+  match @modeling3d.pick_document_surface_hit(doc, ray) {
     Some(hit) => {
       assert_eq(hit.target_id, "clay_head")
       assert_true(hit.point.z > 0.0)
       assert_true(hit.point.z < 0.4)
       match hit.kind {
-        PrimitiveSurface => fail("expected sculpt surface hit")
+        @modeling3d.SurfaceKind::PrimitiveSurface =>
+          fail("expected sculpt surface hit")
         SculptSurface => fail("expected baked sculpt surface hit")
-        BakedSculptSurface => ()
+        @modeling3d.SurfaceKind::BakedSculptSurface => ()
       }
     }
     None => fail("expected sculpt voxel hit")
@@ -100,7 +107,7 @@ test "pick_document_surface_hit resolves voxel sculpt hits" {
 
 ///|
 test "pick_document_surface_hit chooses the nearest surface" {
-  let doc : ModelDocument = {
+  let doc : @modeling3d.ModelDocument = {
     name: "nearest",
     notes: "",
     primitives: [
@@ -120,16 +127,21 @@ test "pick_document_surface_hit chooses the nearest surface" {
         color_hex: 0xFFAA88,
         muted_stamp_ids: [],
         stamps: [
-          { id: "core", mode: Add, center: @math3d.Vec3::zero(), radius: 0.35 },
+          {
+            id: "core",
+            mode: @modeling3d.SculptMode::Add,
+            center: @math3d.Vec3::zero(),
+            radius: 0.35,
+          },
         ],
       },
     ],
   }
-  let ray : WorldRay = {
+  let ray : @modeling3d.WorldRay = {
     origin: @math3d.Vec3::new(0.0, 0.0, 2.0),
     direction: @math3d.Vec3::new(0.0, 0.0, -1.0),
   }
-  match pick_document_surface_hit(doc, ray) {
+  match @modeling3d.pick_document_surface_hit(doc, ray) {
     Some(hit) => {
       assert_eq(hit.target_id, "near_clay")
       assert_true(hit.distance < 2.0)

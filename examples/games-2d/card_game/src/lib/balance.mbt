@@ -22,7 +22,7 @@ pub(all) struct SimResult {
 
 ///|
 pub impl Show for SimResult with fn output(self, logger) {
-  logger.write_object(to_repr(self))
+  logger.write_object(Repr(self))
 }
 
 ///|
@@ -526,7 +526,7 @@ pub(all) struct SimSummary {
 
 ///|
 pub impl Show for SimSummary with fn output(self, logger) {
-  logger.write_object(to_repr(self))
+  logger.write_object(Repr(self))
 }
 
 ///|

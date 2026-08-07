@@ -17,7 +17,7 @@ pub(all) struct PackedSprite {
 
 ///|
 pub impl Show for PackedSprite with fn output(self, logger) {
-  logger.write_object(to_repr(self))
+  logger.write_object(Repr(self))
 }
 
 ///|
@@ -30,7 +30,7 @@ pub(all) struct PackResult {
 
 ///|
 pub impl Show for PackResult with fn output(self, logger) {
-  logger.write_object(to_repr(self))
+  logger.write_object(Repr(self))
 }
 
 ///|
@@ -44,7 +44,7 @@ pub(all) struct PackerConfig {
 
 ///|
 pub impl Show for PackerConfig with fn output(self, logger) {
-  logger.write_object(to_repr(self))
+  logger.write_object(Repr(self))
 }
 
 ///|

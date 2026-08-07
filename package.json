@@ -12,7 +12,8 @@
     "e2e:install": "playwright install --with-deps chromium"
   },
   "devDependencies": {
-    "@playwright/test": "^1.60.0",
+    "@mizchi/vlmkit": "^0.9.1",
+    "@playwright/test": "^1.61.0",
     "pixelmatch": "^7.1.0",
     "vite": "^6.4.0",
     "vite-plugin-moonbit": "^0.1.5"

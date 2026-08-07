@@ -13,7 +13,7 @@ fn assert_vec4_approx_eq(
 ///|
 test "document_glb_bytes round-trips default document as scene graph" {
   let doc = default_model_document()
-  let glb = document_glb_bytes(doc)
+  let glb = @modeling3d.document_glb_bytes(doc)
   let (json, buffers) = @gltf.parse_glb(glb)
   let graph = @gltf.scene_graph_from_gltf(json, buffers)
 
@@ -28,7 +28,7 @@ test "document_glb_bytes round-trips default document as scene graph" {
   assert_true(ground.transform.scale.approx_eq(doc.primitives[0].scale, 1.0e-6))
   assert_vec4_approx_eq(
     ground.color,
-    hex_to_vec4(doc.primitives[0].color_hex),
+    @modeling3d.hex_to_vec4(doc.primitives[0].color_hex),
     1.0e-6,
   )
 
@@ -40,7 +40,7 @@ test "document_glb_bytes round-trips default document as scene graph" {
   )
   assert_eq(
     pedestal.mesh.unwrap().triangle_count(),
-    primitive_mesh(doc.primitives[1].kind).triangle_count(),
+    @modeling3d.primitive_mesh(doc.primitives[1].kind).triangle_count(),
   )
 
   assert_true(
@@ -51,18 +51,18 @@ test "document_glb_bytes round-trips default document as scene graph" {
   )
   assert_eq(
     guide_orb.mesh.unwrap().triangle_count(),
-    primitive_mesh(doc.primitives[2].kind).triangle_count(),
+    @modeling3d.primitive_mesh(doc.primitives[2].kind).triangle_count(),
   )
 
   assert_true(sculpt.transform.position.approx_eq(@math3d.Vec3::zero(), 1.0e-6))
   assert_true(sculpt.transform.scale.approx_eq(@math3d.Vec3::one(), 1.0e-6))
   assert_eq(
     sculpt.mesh.unwrap().triangle_count(),
-    sculpt_layer_baked_mesh(doc.sculpt_layers[0]).triangle_count(),
+    @modeling3d.sculpt_layer_baked_mesh(doc.sculpt_layers[0]).triangle_count(),
   )
   assert_vec4_approx_eq(
     sculpt.color,
-    hex_to_vec4(doc.sculpt_layers[0].color_hex),
+    @modeling3d.hex_to_vec4(doc.sculpt_layers[0].color_hex),
     1.0e-6,
   )
 }
@@ -70,13 +70,16 @@ test "document_glb_bytes round-trips default document as scene graph" {
 ///|
 test "document_export_filename normalizes unsafe characters" {
   let doc = { ..default_model_document(), name: "My Clay Totem / v1?" }
-  assert_eq(document_export_filename(doc), "My-Clay-Totem-_-v1_.glb")
+  assert_eq(
+    @modeling3d.document_export_filename(doc),
+    "My-Clay-Totem-_-v1_.glb",
+  )
 }
 
 ///|
 test "document_glb_bytes includes kagura extras for round-trip metadata" {
   let doc = default_model_document()
-  let glb = document_glb_bytes(doc)
+  let glb = @modeling3d.document_glb_bytes(doc)
   let (json, _buffers) = @gltf.parse_glb(glb)
 
   assert_true(json.contains("\"generator\":\"kagura-model-authoring\""))

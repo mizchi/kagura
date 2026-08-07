@@ -10,7 +10,7 @@ pub struct DirectionalLight {
 
 ///|
 pub impl Show for DirectionalLight with fn output(self, logger) {
-  logger.write_object(to_repr(self))
+  logger.write_object(Repr(self))
 }
 
 ///|
@@ -39,7 +39,7 @@ pub struct AmbientLight {
 
 ///|
 pub impl Show for AmbientLight with fn output(self, logger) {
-  logger.write_object(to_repr(self))
+  logger.write_object(Repr(self))
 }
 
 ///|
@@ -65,7 +65,7 @@ pub struct PointLight {
 
 ///|
 pub impl Show for PointLight with fn output(self, logger) {
-  logger.write_object(to_repr(self))
+  logger.write_object(Repr(self))
 }
 
 ///|
@@ -91,7 +91,7 @@ pub struct SpotLight {
 
 ///|
 pub impl Show for SpotLight with fn output(self, logger) {
-  logger.write_object(to_repr(self))
+  logger.write_object(Repr(self))
 }
 
 ///|
@@ -125,7 +125,7 @@ pub struct LightingEnvironment {
 
 ///|
 pub impl Show for LightingEnvironment with fn output(self, logger) {
-  logger.write_object(to_repr(self))
+  logger.write_object(Repr(self))
 }
 
 ///|

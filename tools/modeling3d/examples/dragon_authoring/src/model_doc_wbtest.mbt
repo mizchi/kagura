@@ -1,8 +1,8 @@
 ///|
 test "dragon document exposes a stylized sculpt body with readable landmarks" {
   let doc = default_model_document()
-  let stats = document_stats(doc)
-  let context_json = document_context_json(doc)
+  let stats = @modeling3d.document_stats(doc)
+  let context_json = @modeling3d.document_context_json(doc)
 
   assert_eq(doc.name, "vlm_dragon_study")
   assert_eq(doc.primitives.length(), 3)

@@ -7,7 +7,7 @@ pub enum SceneAttrValue {
 
 ///|
 pub impl Show for SceneAttrValue with fn output(self, logger) {
-  logger.write_object(to_repr(self))
+  logger.write_object(Repr(self))
 }
 
 ///|

@@ -13,7 +13,7 @@ pub struct Vec2 {
 
 ///|
 pub impl Show for Vec2 with fn output(self, logger) {
-  logger.write_object(to_repr(self))
+  logger.write_object(Repr(self))
 }
 
 ///|

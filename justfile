@@ -92,6 +92,22 @@ e2e-vrt:
 e2e-vrt-update:
     pnpm exec playwright test e2e/vrt.spec.ts --update-snapshots
 
+# Deterministic UI integrity gate over a published UI snapshot.
+# Produce the snapshot from `globalThis.__kaguraUISnapshot` (js) or the native
+# capture's context_path, then: just ui-check output/ui-snapshot.json
+ui-check snapshot extra="":
+    node scripts/ui-integrity-gate.mjs {{snapshot}} {{extra}}
+
+# Convert a UI snapshot into a vlmkit --elements-json payload, so a pixel diff
+# names the UI node that changed instead of a bare region.
+ui-elements snapshot out="output/vlmkit-elements.json":
+    mkdir -p "$(dirname {{out}})"
+    node scripts/ui-snapshot-to-vlmkit-elements.mjs {{snapshot}} -o {{out}}
+
+# Vet a sprite / icon before it enters a UI slot (browser-free PNG math).
+ui-asset-check asset extra="":
+    pnpm exec vlmkit check asset {{asset}} {{extra}}
+
 native-vrt:
     cd examples/smoke/native_vrt && moon run src --target native
 

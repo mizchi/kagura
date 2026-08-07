@@ -38,7 +38,7 @@ pub enum WGPUStatus {
 
 ///|
 pub impl Show for WGPUStatus with fn output(self, logger) {
-  logger.write_object(to_repr(self))
+  logger.write_object(Repr(self))
 }
 
 ///|
@@ -57,7 +57,7 @@ pub enum WGPUBackendType {
 
 ///|
 pub impl Show for WGPUBackendType with fn output(self, logger) {
-  logger.write_object(to_repr(self))
+  logger.write_object(Repr(self))
 }
 
 ///|

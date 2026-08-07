@@ -1,0 +1,23 @@
+// Native-only capture entry point. It is a separate package because
+// mizchi/kagura_engine/gfx_wgpu_native declares supported_targets = native, and
+// importing it from the core package would make the whole library — including
+// the js authoring app — native-only.
+import {
+  "moonbitlang/core/math",
+  "mizchi/atlas",
+  "mizchi/geom/camera3d",
+  "mizchi/kagura_engine/draw3d",
+  "mizchi/kagura_engine" @engine,
+  "mizchi/gfx",
+  "mizchi/kagura_engine/gfx_wgpu_native" @wgpu_native,
+  "mizchi/kagura_engine/light3d",
+  "mizchi/geom/math3d",
+  "mizchi/kagura_engine/renderer3d",
+  "mizchi/kagura_engine/scene3d",
+  "mizchi/native_runtime_hooks" @native_hooks,
+  "mizchi/kagura_modeling3d" @modeling3d,
+}
+
+warnings = "-1-2-29"
+
+supported_targets = "native"

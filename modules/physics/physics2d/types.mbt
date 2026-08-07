@@ -7,7 +7,7 @@ pub(all) enum BodyType2D {
 
 ///|
 pub impl Show for BodyType2D with fn output(self, logger) {
-  logger.write_object(to_repr(self))
+  logger.write_object(Repr(self))
 }
 
 ///|
@@ -19,7 +19,7 @@ pub(all) enum ColliderShape2D {
 
 ///|
 pub impl Show for ColliderShape2D with fn output(self, logger) {
-  logger.write_object(to_repr(self))
+  logger.write_object(Repr(self))
 }
 
 ///|
@@ -47,7 +47,7 @@ pub(all) struct RigidBody2D {
 
 ///|
 pub impl Show for RigidBody2D with fn output(self, logger) {
-  logger.write_object(to_repr(self))
+  logger.write_object(Repr(self))
 }
 
 ///|
@@ -61,7 +61,7 @@ pub(all) struct Contact2D {
 
 ///|
 pub impl Show for Contact2D with fn output(self, logger) {
-  logger.write_object(to_repr(self))
+  logger.write_object(Repr(self))
 }
 
 ///|

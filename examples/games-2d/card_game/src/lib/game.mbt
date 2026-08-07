@@ -18,7 +18,7 @@ pub(all) enum BattlePhase {
 
 ///|
 pub impl Show for BattlePhase with fn output(self, logger) {
-  logger.write_object(to_repr(self))
+  logger.write_object(Repr(self))
 }
 
 ///|
@@ -33,7 +33,7 @@ pub(all) enum ActionResult {
 
 ///|
 pub impl Show for ActionResult with fn output(self, logger) {
-  logger.write_object(to_repr(self))
+  logger.write_object(Repr(self))
 }
 
 ///|
@@ -54,7 +54,7 @@ pub(all) struct PowerState {
 
 ///|
 pub impl Show for PowerState with fn output(self, logger) {
-  logger.write_object(to_repr(self))
+  logger.write_object(Repr(self))
 }
 
 ///|
@@ -90,7 +90,7 @@ pub(all) struct BattleState {
 
 ///|
 pub impl Show for BattleState with fn output(self, logger) {
-  logger.write_object(to_repr(self))
+  logger.write_object(Repr(self))
 }
 
 ///|

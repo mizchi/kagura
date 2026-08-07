@@ -13,7 +13,7 @@ pub(all) struct FrameProfile {
 
 ///|
 pub impl Show for FrameProfile with fn output(self, logger) {
-  logger.write_object(to_repr(self))
+  logger.write_object(Repr(self))
 }
 
 ///|

@@ -12,7 +12,9 @@ test "sphere-sphere overlapping" {
     1.0,
     SphereShape(@math3d.Vec3::zero(), 1.0),
   )
-  guard generate_contact(a, b) is Some(c)
+  guard generate_contact(a, b) is Some(c) else {
+    fail("expected a contact for sphere-sphere overlapping")
+  }
   assert_true((c.penetration - 0.5).abs() < 1.0e-9)
   assert_true((c.normal.x - 1.0).abs() < 1.0e-9)
 }
@@ -48,7 +50,9 @@ test "aabb-aabb overlapping" {
     1.0,
     AABBShape(@math3d.Vec3::one(), @math3d.Vec3::zero()),
   )
-  guard generate_contact(a, b) is Some(c)
+  guard generate_contact(a, b) is Some(c) else {
+    fail("expected a contact for aabb-aabb overlapping")
+  }
   assert_true((c.penetration - 0.5).abs() < 1.0e-9)
   assert_true((c.normal.x - 1.0).abs() < 1.0e-9)
 }
@@ -84,7 +88,9 @@ test "sphere-aabb overlapping" {
     1.0,
     AABBShape(@math3d.Vec3::one(), @math3d.Vec3::zero()),
   )
-  guard generate_contact(a, b) is Some(c)
+  guard generate_contact(a, b) is Some(c) else {
+    fail("expected a contact for sphere-aabb overlapping")
+  }
   assert_true(c.penetration > 0.0)
 }
 

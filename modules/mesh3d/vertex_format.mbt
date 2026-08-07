@@ -12,7 +12,7 @@ pub enum VertexAttribute {
 
 ///|
 pub impl Show for VertexAttribute with fn output(self, logger) {
-  logger.write_object(to_repr(self))
+  logger.write_object(Repr(self))
 }
 
 ///|
@@ -37,7 +37,7 @@ pub struct VertexFormat {
 
 ///|
 pub impl Show for VertexFormat with fn output(self, logger) {
-  logger.write_object(to_repr(self))
+  logger.write_object(Repr(self))
 }
 
 ///|

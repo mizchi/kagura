@@ -12,9 +12,9 @@ fn assert_roundtrip_vec4_approx_eq(
 
 ///|
 fn roundtrip_node_by_source_id(
-  imported : RoundTripImport,
+  imported : @modeling3d.RoundTripImport,
   source_id : String,
-) -> RoundTripImportedNode? {
+) -> @modeling3d.RoundTripImportedNode? {
   for node in imported.nodes {
     if node.source_id == source_id {
       return Some(node)
@@ -26,7 +26,10 @@ fn roundtrip_node_by_source_id(
 ///|
 test "parse_roundtrip_import extracts kagura extras from exported glb" {
   let doc = default_model_document()
-  let imported = parse_roundtrip_import("edited.glb", document_glb_bytes(doc))
+  let imported = @modeling3d.parse_roundtrip_import(
+    "edited.glb",
+    @modeling3d.document_glb_bytes(doc),
+  )
 
   assert_eq(imported.filename, "edited.glb")
   assert_eq(imported.document_name, "vlm_clay_totem")
@@ -38,7 +41,7 @@ test "parse_roundtrip_import extracts kagura extras from exported glb" {
   assert_eq(pedestal.stamp_count, None)
   assert_roundtrip_vec4_approx_eq(
     pedestal.color,
-    hex_to_vec4(doc.primitives[1].color_hex),
+    @modeling3d.hex_to_vec4(doc.primitives[1].color_hex),
     1.0e-6,
   )
   assert_true(
@@ -72,7 +75,7 @@ test "compare_roundtrip_import reports missing extra and changed nodes" {
   let imported_stamps = imported_layers[0].stamps.copy()
   imported_stamps.push({
     id: "nose_add",
-    mode: Add,
+    mode: @modeling3d.SculptMode::Add,
     center: @math3d.Vec3::new(0.0, 0.74, 0.44),
     radius: 0.08,
   })
@@ -83,11 +86,11 @@ test "compare_roundtrip_import reports missing extra and changed nodes" {
     sculpt_layers: imported_layers,
   }
 
-  let imported = parse_roundtrip_import(
+  let imported = @modeling3d.parse_roundtrip_import(
     "edited.glb",
-    document_glb_bytes(imported_doc),
+    @modeling3d.document_glb_bytes(imported_doc),
   )
-  let report = compare_roundtrip_import(base, imported)
+  let report = @modeling3d.compare_roundtrip_import(base, imported)
 
   assert_eq(report.filename, "edited.glb")
   assert_eq(report.imported_document_name, "vlm_clay_totem")
@@ -100,7 +103,11 @@ test "compare_roundtrip_import reports missing extra and changed nodes" {
   assert_eq(report.color_mismatches, [])
   assert_eq(report.primitive_kind_mismatches, [])
   assert_eq(report.stamp_count_mismatches, ["clay_head"])
-  assert_eq(roundtrip_badge_text(report), "M1 E1 C2")
-  assert_true(roundtrip_report_json(report).contains("\"blender_helper\""))
-  assert_true(roundtrip_report_summary(report).contains("moved: pedestal"))
+  assert_eq(@modeling3d.roundtrip_badge_text(report), "M1 E1 C2")
+  assert_true(
+    @modeling3d.roundtrip_report_json(report).contains("\"blender_helper\""),
+  )
+  assert_true(
+    @modeling3d.roundtrip_report_summary(report).contains("moved: pedestal"),
+  )
 }

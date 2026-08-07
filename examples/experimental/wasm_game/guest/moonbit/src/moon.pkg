@@ -1,4 +1,4 @@
-warnings = "-29"
+warnings = "-7-29"
 
 pkgtype(kind: "executable")
 

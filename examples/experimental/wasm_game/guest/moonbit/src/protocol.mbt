@@ -1,5 +1,11 @@
 ///|
 /// Input state read from shared memory.
+///
+/// Mirrors the host's `InputSnapshot` layout field for field, including the
+/// pointer and wheel axes this guest does not consume yet — the struct is the
+/// record of the wire format, so dropping them would leave the next reader to
+/// re-derive the byte offsets in `read_input` from scratch. That is why
+/// `unused_field` (-7) is suppressed in `moon.pkg`.
 struct InputState {
   cursor_x : Double
   cursor_y : Double

@@ -1,0 +1,26 @@
+import {
+  "moonbitlang/core/math",
+  "moonbitlang/core/json",
+  "mizchi/kagura_core" @core,
+  "mizchi/atlas",
+  "mizchi/geom/camera3d",
+  "mizchi/physics/collision3d",
+  "mizchi/kagura_engine/draw3d",
+  "mizchi/kagura_engine" @engine,
+  "mizchi/gfx",
+  "mizchi/kagura_engine/gltf",
+  "mizchi/kagura_core/inpututil",
+  "mizchi/kagura_engine/light3d",
+  "mizchi/geom/math3d",
+  "mizchi/mesh3d",
+  "mizchi/renderer2d",
+  "mizchi/kagura_engine/renderer3d",
+  "mizchi/kagura_engine/scene3d",
+  "mizchi/web_runtime_hooks" @web_hooks,
+}
+
+warnings = "-1-2-29"
+
+options(
+  targets: { "authoring_app.mbt": [ "js" ] },
+)

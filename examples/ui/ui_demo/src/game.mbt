@@ -67,6 +67,10 @@ struct DemoState {
   node_roles : Map[Int, NodeRole]
   button_labels : Map[Int, Array[Int]]
   layouts : Array[@ui.LayoutResult]
+  /// Structural path per node, precomputed from the tree for the UI snapshot.
+  /// `layouts` is flat, so without this the published paths would carry no
+  /// hierarchy and the tooling could not tell a child from a sibling.
+  node_paths : Map[Int, String]
   mut hovered_id : @ui.UINodeId?
   mut mouse_down : Bool
   mut frame : Int
@@ -218,6 +222,7 @@ fn DemoState::new() -> DemoState {
     node_roles,
     button_labels,
     layouts,
+    node_paths: build_node_paths(tree, root_id, node_roles),
     hovered_id: None,
     mouse_down: false,
     frame: 0,
@@ -288,6 +293,10 @@ fn DemoState::update(self : DemoState, input : @core.InputSnapshot) -> Unit {
       let _ = self.focus_mgr.focus_next()
     }
   }
+
+  // Expose the laid-out tree for the verification tooling. Last, so hover and
+  // focus changes from this frame are already reflected.
+  publish_snapshot(self)
 }
 
 // ============================================================

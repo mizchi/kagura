@@ -98,6 +98,20 @@ test "Ray::intersects_sphere - tangent" {
 }
 
 ///|
+/// A mesh with no vertices has no extent, so the box collapses to the origin.
+/// Callers that feed a placeholder or not-yet-loaded mesh through broadphase
+/// get a degenerate box rather than a panic on the first vertex read.
+test "aabb_from_mesh - empty mesh" {
+  let aabb = aabb_from_mesh(@mesh3d.Mesh3D::new([], []))
+  assert_true(rapprox(aabb.min.x, 0.0))
+  assert_true(rapprox(aabb.min.y, 0.0))
+  assert_true(rapprox(aabb.min.z, 0.0))
+  assert_true(rapprox(aabb.max.x, 0.0))
+  assert_true(rapprox(aabb.max.y, 0.0))
+  assert_true(rapprox(aabb.max.z, 0.0))
+}
+
+///|
 test "aabb_from_mesh - cube" {
   let mesh = @mesh3d.Mesh3D::cube(2.0)
   let aabb = aabb_from_mesh(mesh)

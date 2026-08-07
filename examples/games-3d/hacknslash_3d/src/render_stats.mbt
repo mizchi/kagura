@@ -18,7 +18,7 @@ struct DrawPlayingStats {
 
 ///|
 pub impl Show for DrawPlayingStats with fn output(self, logger) {
-  logger.write_object(to_repr(self))
+  logger.write_object(Repr(self))
 }
 
 ///|

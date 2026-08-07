@@ -28,7 +28,7 @@ enum DungeonSurfaceKind {
 
 ///|
 pub impl Show for DungeonSurfaceKind with fn output(self, logger) {
-  logger.write_object(to_repr(self))
+  logger.write_object(Repr(self))
 }
 
 // Combined mesh with a single color for batched shadow-lit rendering

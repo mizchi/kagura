@@ -5,6 +5,7 @@ version = "0.1.0"
 warnings = "-6-29-53-68-deprecated"
 
 import {
+  "mizchi/kagura_modeling3d@0.1.0",
   "mizchi/native_runtime_hooks@0.1.0",
   "mizchi/web_runtime_hooks@0.1.0",
   "mizchi/kagura_game@0.2.0",

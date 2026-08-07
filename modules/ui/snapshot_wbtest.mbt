@@ -109,6 +109,25 @@ test "UISnapshot::to_json escapes strings" {
 }
 
 ///|
+/// A hand-rolled escape covering only the obvious five characters emits a raw
+/// control byte here, which is invalid JSON and would fail the consuming gate.
+test "UISnapshot::to_json escapes control characters" {
+  let snapshot = {
+    ..default_ui_snapshot(screen_width=320.0, screen_height=240.0),
+    nodes: [
+      {
+        ..default_ui_snapshot_node(),
+        path: "a[0]",
+        text: Some("bell\u{0007}and\u{0008}back"),
+      },
+    ],
+  }
+  let json = snapshot.to_json()
+  assert_false(json.contains("\u{0007}"))
+  assert_true(json.contains("\\b"))
+}
+
+///|
 /// NaN / infinity have no JSON representation; emitting them verbatim would
 /// produce a document no consumer can parse.
 test "UISnapshot::to_json collapses non-finite doubles to zero" {

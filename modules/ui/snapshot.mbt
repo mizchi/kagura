@@ -171,16 +171,6 @@ pub fn ui_snapshot_nodes_from_layouts(
 }
 
 ///|
-fn json_escape(text : String) -> String {
-  text
-  .replace_all(old="\\", new="\\\\")
-  .replace_all(old="\"", new="\\\"")
-  .replace_all(old="\n", new="\\n")
-  .replace_all(old="\r", new="\\r")
-  .replace_all(old="\t", new="\\t")
-}
-
-///|
 /// Serialize a Double as JSON. NaN / infinity are not representable in JSON and
 /// would produce a document no consumer can parse, so they collapse to 0.
 fn json_double(value : Double) -> String {
@@ -191,6 +181,12 @@ fn json_double(value : Double) -> String {
 }
 
 ///|
+/// Write `"key": "value"`.
+///
+/// The value goes through `Json::string(..).stringify()` rather than a
+/// hand-rolled escape: that also quotes the string and covers control
+/// characters and escapes beyond the obvious five, so a label carrying one
+/// cannot produce a document the gate then fails to parse.
 fn append_json_string(
   buf : StringBuilder,
   key : String,
@@ -198,9 +194,8 @@ fn append_json_string(
 ) -> Unit {
   buf.write_string("\"")
   buf.write_string(key)
-  buf.write_string("\":\"")
-  buf.write_string(json_escape(value))
-  buf.write_string("\"")
+  buf.write_string("\":")
+  buf.write_string(Json::string(value).stringify())
 }
 
 ///|
@@ -330,9 +325,7 @@ pub fn UISnapshot::to_json(self : UISnapshot) -> String {
     if i > 0 {
       buf.write_string(",")
     }
-    buf.write_string("\"")
-    buf.write_string(json_escape(id))
-    buf.write_string("\"")
+    buf.write_string(Json::string(id).stringify())
   }
   buf.write_string("]}")
   buf.to_string()

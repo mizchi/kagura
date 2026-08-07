@@ -1,60 +1,17 @@
-///|
-enum PrimitiveKind {
-  Cube
-  Sphere
-  Plane
-}
+// ============================================================
+// Frog study document
+// ============================================================
+//
+// This example's model data. The document schema, the editor, the renderer and
+// the round-trip review loop live in `mizchi/kagura_modeling3d`; only the data
+// and the review profile are per-example.
+//
+// `tools/modeling3d/scripts/model-authoring-vlm-apply-patch.mjs` edits this file
+// by locating the `default_model_document` and `apply_imported_patch` signatures
+// verbatim, so the alias below is what keeps them spelled `ModelDocument`.
 
 ///|
-enum SculptMode {
-  Add
-  Subtract
-}
-
-///|
-struct PrimitiveNode {
-  id : String
-  kind : PrimitiveKind
-  position : @math3d.Vec3
-  scale : @math3d.Vec3
-  color_hex : Int
-}
-
-///|
-struct SculptStamp {
-  id : String
-  mode : SculptMode
-  center : @math3d.Vec3
-  radius : Double
-}
-
-///|
-struct SculptLayer {
-  id : String
-  voxel_size : Double
-  half_extent : Int
-  color_hex : Int
-  muted_stamp_ids : Array[String]
-  stamps : Array[SculptStamp]
-}
-
-///|
-struct ModelDocument {
-  name : String
-  notes : String
-  primitives : Array[PrimitiveNode]
-  sculpt_layers : Array[SculptLayer]
-}
-
-///|
-struct DocumentStats {
-  primitive_count : Int
-  sculpt_layer_count : Int
-  occupied_voxel_count : Int
-  render_object_count : Int
-  baked_vertex_count : Int
-  baked_triangle_count : Int
-}
+using @modeling3d {type ModelDocument}
 
 ///|
 fn default_model_document() -> ModelDocument {

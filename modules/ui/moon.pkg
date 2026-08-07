@@ -3,6 +3,7 @@ import {
   "mizchi/gfx",
   "mizchi/kagura_core/inpututil",
   "moonbitlang/core/debug",
+  "moonbitlang/core/json",
 }
 
 options(

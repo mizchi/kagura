@@ -1,6 +1,6 @@
 ///|
 test "pick_selected_primitive_gizmo_handle resolves x axis handles" {
-  let doc : ModelDocument = {
+  let doc : @modeling3d.ModelDocument = {
     name: "gizmo-pick",
     notes: "",
     primitives: [
@@ -14,19 +14,19 @@ test "pick_selected_primitive_gizmo_handle resolves x axis handles" {
     ],
     sculpt_layers: [],
   }
-  let selection : ModelSelection? = Some({
-    kind: PrimitiveSelection,
+  let selection : @modeling3d.ModelSelection? = Some({
+    kind: @modeling3d.ModelSelectionKind::PrimitiveSelection,
     target_id: "box",
   })
-  let ray : WorldRay = {
+  let ray : @modeling3d.WorldRay = {
     origin: @math3d.Vec3::new(0.85, 0.0, 2.0),
     direction: @math3d.Vec3::new(0.0, 0.0, -1.0),
   }
-  match pick_selected_primitive_gizmo_handle(doc, selection, ray) {
+  match @modeling3d.pick_selected_primitive_gizmo_handle(doc, selection, ray) {
     Some(hit) => {
       assert_eq(hit.target_id, "box")
       match hit.axis {
-        GizmoAxisX => ()
+        @modeling3d.GizmoAxis::GizmoAxisX => ()
         GizmoAxisY => fail("expected x axis gizmo handle")
         GizmoAxisZ => fail("expected x axis gizmo handle")
       }
@@ -37,7 +37,7 @@ test "pick_selected_primitive_gizmo_handle resolves x axis handles" {
 
 ///|
 test "apply_gizmo_drag moves the selected primitive along the chosen axis" {
-  let doc : ModelDocument = {
+  let doc : @modeling3d.ModelDocument = {
     name: "gizmo-drag",
     notes: "",
     primitives: [
@@ -51,19 +51,24 @@ test "apply_gizmo_drag moves the selected primitive along the chosen axis" {
     ],
     sculpt_layers: [],
   }
-  let handle_hit : GizmoHandleHit = {
+  let handle_hit : @modeling3d.GizmoHandleHit = {
     target_id: "box",
-    axis: GizmoAxisX,
+    axis: @modeling3d.GizmoAxis::GizmoAxisX,
     distance: 1.0,
     point: @math3d.Vec3::new(0.85, 0.0, 0.0),
   }
-  match begin_gizmo_drag(doc, handle_hit, @math3d.Vec3::new(0.0, 0.0, -1.0)) {
+  match
+    @modeling3d.begin_gizmo_drag(
+      doc,
+      handle_hit,
+      @math3d.Vec3::new(0.0, 0.0, -1.0),
+    ) {
     Some(drag) => {
-      let ray : WorldRay = {
+      let ray : @modeling3d.WorldRay = {
         origin: @math3d.Vec3::new(1.15, 0.0, 2.0),
         direction: @math3d.Vec3::new(0.0, 0.0, -1.0),
       }
-      let moved = apply_gizmo_drag(doc, drag, ray)
+      let moved = @modeling3d.apply_gizmo_drag(doc, drag, ray)
       let box = moved.primitives[0]
       assert_true(
         box.position.approx_eq(@math3d.Vec3::new(0.3, 0.0, 0.0), 1.0e-6),

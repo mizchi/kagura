@@ -10,6 +10,8 @@
  * UI node that changed.
  */
 
+import { finiteNumber } from "./ui-number-utils.mjs";
+
 /** Rect fields vlmkit's `parseRegionElementRect` requires, plus optionals it reads. */
 const ELEMENT_KEYS = ["path", "tag", "id", "classes", "top", "left", "width", "height"];
 
@@ -38,10 +40,6 @@ export function unwrapSnapshot(input) {
     throw new Error("snapshot has no `nodes` array");
   }
   return value;
-}
-
-function finiteNumber(value, fallback = 0) {
-  return typeof value === "number" && Number.isFinite(value) ? value : fallback;
 }
 
 /**

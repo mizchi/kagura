@@ -1,5 +1,6 @@
 members = [
   ".",
+  "../..",
   "../../../../examples/smoke/native_runtime_hooks",
   "../../../../examples/smoke/web_runtime_hooks",
   "../../../../modules/anim3d",

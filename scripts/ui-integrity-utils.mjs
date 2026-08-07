@@ -12,6 +12,7 @@
  */
 
 import { unwrapSnapshot } from "./ui-snapshot-utils.mjs";
+import { finiteNumber } from "./ui-number-utils.mjs";
 
 /** Every finding kind this gate can emit. `--allow` is validated against it. */
 export const FINDING_KINDS = [
@@ -27,10 +28,6 @@ export const FINDING_KINDS = [
 ];
 
 const DEFAULT_TOLERANCE = 0.5;
-
-function finiteNumber(value, fallback = 0) {
-  return typeof value === "number" && Number.isFinite(value) ? value : fallback;
-}
 
 function rectOf(source) {
   const left = finiteNumber(source?.left);

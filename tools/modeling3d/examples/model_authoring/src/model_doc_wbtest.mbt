@@ -1,8 +1,8 @@
 ///|
 test "default model document exposes promptable structure" {
   let doc = default_model_document()
-  let stats = document_stats(doc)
-  let context_json = document_context_json(doc)
+  let stats = @modeling3d.document_stats(doc)
+  let context_json = @modeling3d.document_context_json(doc)
 
   assert_eq(doc.name, "vlm_clay_totem")
   assert_eq(doc.primitives.length(), 3)
@@ -19,8 +19,8 @@ test "default model document exposes promptable structure" {
 ///|
 test "render objects include baked sculpt mesh and hard-surface primitives" {
   let doc = default_model_document()
-  let objects = build_render_objects(doc)
-  let stats = document_stats(doc)
+  let objects = @modeling3d.build_render_objects(doc)
+  let stats = @modeling3d.document_stats(doc)
 
   assert_eq(objects.length(), stats.render_object_count)
   assert_eq(objects.length(), doc.primitives.length() + 1)
@@ -28,7 +28,7 @@ test "render objects include baked sculpt mesh and hard-surface primitives" {
 
 ///|
 test "context json escapes user-editable string fields" {
-  let doc : ModelDocument = {
+  let doc : @modeling3d.ModelDocument = {
     name: "quoted \"name\"",
     notes: "line \"one\" \\ two",
     primitives: [
@@ -50,7 +50,7 @@ test "context json escapes user-editable string fields" {
         stamps: [
           {
             id: "stamp \"x\"",
-            mode: Add,
+            mode: @modeling3d.SculptMode::Add,
             center: @math3d.Vec3::new(0.0, 0.0, 0.0),
             radius: 1.0,
           },
@@ -58,7 +58,7 @@ test "context json escapes user-editable string fields" {
       },
     ],
   }
-  let context_json = document_context_json(doc)
+  let context_json = @modeling3d.document_context_json(doc)
 
   assert_true(context_json.contains("\"name\":\"quoted \\\"name\\\"\""))
   assert_true(context_json.contains("\"notes\":\"line \\\"one\\\" \\\\ two\""))
@@ -70,11 +70,11 @@ test "context json escapes user-editable string fields" {
 ///|
 test "editor context json includes selection and recent stamp history" {
   let doc = default_model_document()
-  let selection : ModelSelection? = Some({
-    kind: SculptLayerSelection,
+  let selection : @modeling3d.ModelSelection? = Some({
+    kind: @modeling3d.ModelSelectionKind::SculptLayerSelection,
     target_id: "clay_head",
   })
-  let context_json = editor_context_json(doc, selection)
+  let context_json = @modeling3d.editor_context_json(doc, selection)
 
   assert_true(
     context_json.contains(
@@ -89,12 +89,16 @@ test "editor context json includes selection and recent stamp history" {
 
 ///|
 test "editor context json exposes muted recent stamps" {
-  let doc = toggle_recent_sculpt_stamp_muted(default_model_document(), 0, 0)
-  let selection : ModelSelection? = Some({
-    kind: SculptLayerSelection,
+  let doc = @modeling3d.toggle_recent_sculpt_stamp_muted(
+    default_model_document(),
+    0,
+    0,
+  )
+  let selection : @modeling3d.ModelSelection? = Some({
+    kind: @modeling3d.ModelSelectionKind::SculptLayerSelection,
     target_id: "clay_head",
   })
-  let context_json = editor_context_json(doc, selection)
+  let context_json = @modeling3d.editor_context_json(doc, selection)
 
   assert_true(context_json.contains("\"id\":\"mouth_cut\""))
   assert_true(context_json.contains("\"enabled\":false"))

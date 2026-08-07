@@ -1,5 +1,6 @@
 import test from "node:test";
 import assert from "node:assert/strict";
+import { resolve } from "node:path";
 
 import {
   buildDaemonCyclePlan,
@@ -58,7 +59,10 @@ test("buildDaemonCyclePlan inherits live-review browser config", () => {
 
   assert.equal(plan.example, "frog_authoring");
   assert.equal(plan.liveReview, true);
-  assert.equal(plan.outDir, "/Users/mz/ghq/github.com/mizchi/kagura/tmp/daemon-run");
+  // buildDaemonCyclePlan resolves outDir against the cwd, so the expectation has
+  // to as well — a literal absolute path only passes on the machine it was
+  // recorded on.
+  assert.equal(plan.outDir, resolve("tmp/daemon-run"));
   assert.equal(plan.reviewBinarize, true);
   assert.equal(plan.url, "http://127.0.0.1:8113/");
   assert.equal(plan.provider, "openrouter");

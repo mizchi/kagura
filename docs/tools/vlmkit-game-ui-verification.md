@@ -5,6 +5,10 @@
 
 調査日: 2026-08-07 / 対象: kagura `f6b899b`, vlmkit `0.9.1`
 
+起票済み issue: [#19 (tracking)](https://github.com/mizchi/kagura/issues/19)
+— 個別: #8 #9 #10 #11 #12 #13 #14 #15 #16 #17 #18
+/ vlmkit 側: mizchi/vlmkit#116 #117 #118
+
 ---
 
 ## 1. 結論
@@ -343,6 +347,8 @@ vlmkit の `check integrity` が DOM でやっていることを、**engine 内�
 
 kagura に限らず canvas / native / Flutter などの非 DOM UI で共通に効くもの。
 
+起票: mizchi/vlmkit#116（下記 2）/ #117（下記 1）/ #118（下記 3・5・6・7 をまとめた adoption feedback）
+
 1. **`--elements-json` の帰属精度**（3.3 で実測した問題）
    - diff 領域のブロック粒度を指定できる（`--region-grid 16` 等）。ゲーム画面は 320x240〜640x360 が普通で、
      64px ブロックでは HUD 要素より領域が大きい
@@ -378,15 +384,15 @@ kagura に限らず canvas / native / Flutter などの非 DOM UI で共通に�
 
 ## 6. 実施順序
 
-| 段 | 内容 | 得られるもの |
-|---|---|---|
-| 1 | playwright を `>=1.61` に bump、`@mizchi/vlmkit` を devDependency 追加、`.mcp.json` に vlmkit MCP を登録 | エージェントから gate を直接叩ける |
-| 2 | **P0-2** native PNG capture の一般化 + `just ui-capture` + 真っ黒 baseline の削除 | 実データのフレームが手に入る |
-| 3 | **P0-1** `__kaguraUISnapshot` + `scripts/ui-snapshot-to-vlmkit-elements.mjs` | `diff png --elements-json` が UI ノードで語れる |
-| 4 | **P0-3** `vlmkit baseline` ベースの gating VRT に置換（CI の `--update-snapshots` 撤去） | 視覚リグレッションが初めて CI で止まる |
-| 5 | **P1-1** `just ui-check`（text overflow / clip / offscreen / overlap / hit box） | UI の壊れ方の大半を決定的に検出 |
-| 6 | **P1-2** 状態マトリクス + **P1-3** i18n ストレス | 状態・解像度・言語の網羅 |
-| 7 | **P2-1** 操作性ゲート、**P2-2** UI 版 VLM review、**P2-3/4** アニメ・テーマ | 主観品質と演出まで |
+| 段 | issue | 内容 | 得られるもの |
+|---|---|---|---|
+| 1 | #11 | playwright を `>=1.61` に bump、`@mizchi/vlmkit` を devDependency 追加、`.mcp.json` に vlmkit MCP を登録 | エージェントから gate を直接叩ける |
+| 2 | #9 | **P0-2** native PNG capture の一般化 + `just ui-capture` | 実データのフレームが手に入る |
+| 3 | #10 | **P0-1** `__kaguraUISnapshot` + `scripts/ui-snapshot-to-vlmkit-elements.mjs` | `diff png --elements-json` が UI ノードで語れる |
+| 4 | #8 | **P0-3** `vlmkit baseline` ベースの gating VRT に置換（`--update-snapshots` 撤去、真っ黒 baseline の削除） | 視覚リグレッションが初めて CI で止まる |
+| 5 | #12 | **P1-1** `just ui-check`（text overflow / clip / offscreen / overlap / hit box） | UI の壊れ方の大半を決定的に検出 |
+| 6 | #13 #14 | **P1-2** 状態マトリクス + **P1-3** i18n ストレス | 状態・解像度・言語の網羅 |
+| 7 | #15 #16 #17 #18 | **P2-1** 操作性ゲート、**P2-2** UI 版 VLM review、**P2-3/4** アニメ・テーマ | 主観品質と演出まで |
 
 段 1〜4 までで「ゲーム UI の目視確認・検証・自動化」の土台が成立する。
 段 5 以降は既存の primitives（`TextRenderer::measure` / `ScissorStack` / `UIFocusManager` / `hit_test`）を

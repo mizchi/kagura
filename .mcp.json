@@ -1,0 +1,8 @@
+{
+  "mcpServers": {
+    "vlmkit": {
+      "command": "pnpm",
+      "args": ["exec", "vlmkit", "mcp"]
+    }
+  }
+}

@@ -19,6 +19,28 @@ pub fn DotText2D::new(
 }
 
 ///|
+/// Rendered size of a dot-text run of `char_count` glyphs: `(width, height)`.
+///
+/// Exposed because the UI integrity gate compares a label's measured extent
+/// against its node rect to catch text that will spill or be clipped; that
+/// comparison is only sound if it uses the same arithmetic `append_dot_text`
+/// lays the glyphs out with, so both read it from here.
+pub fn dot_text_size(
+  char_count : Int,
+  scale? : Double = 1.0,
+) -> (Double, Double) {
+  if char_count <= 0 {
+    return (0.0, 0.0)
+  }
+  let px_size = 3.0 * scale
+  let char_w = 3.0 * px_size
+  let gap = px_size
+  let width = char_count.to_double() * char_w +
+    (char_count - 1).to_double() * gap
+  (width, 5.0 * px_size)
+}
+
+///|
 pub fn append_dot_text(
   commands : Array[@gfx.DrawTrianglesCommand],
   frame : RenderFrame2D,
@@ -27,9 +49,7 @@ pub fn append_dot_text(
   let px_size = 3.0 * text.scale
   let char_w = 3.0 * px_size
   let gap = px_size
-  let total_w = text.chars.length().to_double() * char_w +
-    (text.chars.length() - 1).to_double() * gap
-  let char_h = 5.0 * px_size
+  let (total_w, char_h) = dot_text_size(text.chars.length(), scale=text.scale)
   let start_x = text.cx - total_w / 2.0
   let start_y = text.cy - char_h / 2.0
   for i in 0..<text.chars.length() {

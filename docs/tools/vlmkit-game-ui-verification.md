@@ -9,6 +9,26 @@
 — 個別: #8 #9 #10 #11 #12 #13 #14 #15 #16 #17 #18
 / vlmkit 側: mizchi/vlmkit#116 #117 #118
 
+## 実装状況
+
+段 1・3・5 と段 4 の一部が入っている。手順は
+[`ui-verification-runbook.md`](./ui-verification-runbook.md)。
+
+| issue | 状況 | 実体 |
+|---|---|---|
+| #11 | **完了** | `@mizchi/vlmkit` を devDependency に追加、playwright を 1.62 に bump、`.mcp.json` |
+| #10 | **完了** | `modules/ui/snapshot.mbt`（`UISnapshot` + `to_json`）、`snapshot_publish_js.mbt`（`__kaguraUISnapshot`）、`scripts/ui-snapshot-to-vlmkit-elements.mjs`、`examples/ui/ui_demo` で実配線 |
+| #12 | **完了** | `scripts/ui-integrity-gate.mjs` + `ui-integrity-utils.mjs`（9 種の欠陥、`--allow` 監査付き）、`just ui-check` |
+| #18 | **一部** | `just ui-asset-check`（素材入庫ゲート）。テーマ/パレット突き合わせはトークン表の宣言が未 |
+| #8 | **一部** | 純黒 baseline 18 枚を削除。gating 化はキャプチャ（#9）待ち |
+| #9 #13 #14 #15 #16 #17 | 未着手 | native キャプチャ・状態マトリクス・i18n・操作性・VLM review・flipbook |
+
+キャプチャ（#9）が入るまでは snapshot を手で取り出す必要があるが、
+**決定的ゲートはキャプチャ抜きで既に動く**（snapshot JSON だけで判定できる）。
+
+`dot_text_size` を `@renderer2d` の公開 API にして `append_dot_text` と共有した。
+overflow 判定は描画と同じ算術で測らないと嘘になるため。
+
 ---
 
 ## 1. 結論

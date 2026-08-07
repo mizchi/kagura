@@ -29,9 +29,31 @@ just check target=native  # native ビルド確認
 just check-release  # リリース前チェック（ローカルパス依存の検出）
 ```
 
+## ゲーム UI の検証
+
+canvas 上の UI は DOM を持たないので、`@ui.publish_ui_snapshot` で UI ツリー
+（矩形・クリップ・実測テキスト幅・hit 矩形・フォーカス順）を外に出し、Node 側の
+決定的ゲートにかける。browser も API キーも不要。
+
+```bash
+just ui-check output/ui-snapshot.json      # 文字あふれ/クリップ/画面外/重なり/hit box ずれ
+just ui-elements output/ui-snapshot.json   # vlmkit diff png --elements-json 用に変換
+just ui-asset-check <png>                  # スプライト/アイコンの入庫ゲート
+```
+
+手順とルールの詳細は `docs/tools/ui-verification-runbook.md`。
+
+- `text_measured` は描画側と**同じ算術**で測る（dot text は `@renderer2d.dot_text_size`）
+- `path` は実ツリーの階層を反映させる（ツーリングが祖先関係を読む）
+- `extern "js"` を含むファイルは `moon.pkg` の `targets` で js に限定し、native は no-op スタブ
+
 ## スナップショットテスト (VRT)
 
 Playwright + SwiftShader による Visual Regression Testing。
+
+**現状 CI では非 gating**（`ci.yml` が `--update-snapshots` で実行）。Linux では canvas
+screenshot が透明かつ Dawn readback が完了しないため。移植可能なキャプチャの整備は #9、
+gating 化は #8。
 
 ```bash
 just e2e-vrt          # VRT 実行

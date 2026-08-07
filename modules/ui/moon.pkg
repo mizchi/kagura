@@ -4,3 +4,7 @@ import {
   "mizchi/kagura_core/inpututil",
   "moonbitlang/core/debug",
 }
+
+options(
+  targets: { "snapshot_publish_js.mbt": [ "js" ] },
+)

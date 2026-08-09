@@ -22,21 +22,34 @@ fn read_full_framebuffer() -> Array[Int]? {
 }
 
 ///|
-/// Load a baseline BMP from the baselines/ directory.
+fn baseline_path(name : String) -> String {
+  "baselines/" + name + ".png"
+}
+
+///|
+/// Load a baseline from the baselines/ directory.
 fn load_baseline(name : String) -> @image.ImageData? {
-  let path = "baselines/" + name + ".bmp"
-  let bytes = @wgpu_native.read_file_bytes(path)
-  match bytes {
+  match @wgpu_native.read_file_bytes(baseline_path(name)) {
     None => None
-    Some(data) => Some(@image.decode_bmp(data)) catch { _ => None }
+    Some(data) => Some(@image.decode_png(data)) catch { _ => None }
   }
 }
 
 ///|
-/// Save current readback to baselines/ directory as BMP.
+/// Save the current readback to the baselines/ directory.
+///
+/// PNG rather than BMP so the baselines are directly consumable by the image
+/// tooling (`vlmkit diff png`, `check palette`, `scripts/ui-integrity-gate.mjs`
+/// alongside a snapshot) instead of needing a conversion step first.
 fn save_baseline(name : String) -> Bool {
-  let path = "baselines/" + name + ".bmp"
-  @wgpu_native.write_readback_bmp(path)
+  match read_full_framebuffer() {
+    None => false
+    Some(pixels) =>
+      match @capture.encode_rgba8_png(vrt_width, vrt_height, pixels) {
+        Some(png) => @wgpu_native.write_file_bytes(baseline_path(name), png)
+        None => false
+      }
+  }
 }
 
 ///|
@@ -49,7 +62,7 @@ fn compare_snapshot(name : String, pixels : Array[Int]) -> VrtResult {
         name,
         passed: false,
         diff_ratio: 1.0,
-        message: "baseline not found: baselines/" + name + ".bmp",
+        message: "baseline not found: " + baseline_path(name),
       }
     Some(img) => {
       if img.width != vrt_width || img.height != vrt_height {
@@ -139,9 +152,9 @@ fn main {
     for test_fn in tests {
       let result = test_fn()
       if save_baseline(result.name) {
-        println("  updated: " + result.name + ".bmp")
+        println("  updated: " + baseline_path(result.name))
       } else {
-        println("  FAIL: could not save " + result.name + ".bmp")
+        println("  FAIL: could not save " + baseline_path(result.name))
       }
     }
     println("Done. Remove .update_baselines to run tests.")

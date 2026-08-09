@@ -15,6 +15,8 @@ import {
   "mizchi/kagura_engine/renderer3d",
   "mizchi/kagura_engine/scene3d",
   "mizchi/native_runtime_hooks" @native_hooks,
+  "mizchi/kagura_engine/capture",
+  "mizchi/kagura_engine/capture/native" @capture_native,
   "mizchi/kagura_modeling3d" @modeling3d,
 }
 

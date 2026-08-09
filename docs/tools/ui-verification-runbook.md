@@ -59,10 +59,33 @@ no-op のスタブを置く（`supported-targets` だけでは不十分）。
 
 ### native ターゲット
 
-native は browser global が無い。フレーム PNG と snapshot JSON をファイルに書く経路
-（`kagura_native_capture_config.txt` の `screenshot_path` / `context_path`）を
-`tools/modeling3d/` から engine 共通機能へ引き上げる作業は
-[#9](https://github.com/mizchi/kagura/issues/9) で別途。現状 `snapshot_native.mbt` は no-op。
+native は browser global が無いので、フレーム PNG と context JSON をファイルに書く。
+この経路は `modules/kagura_engine/capture` にあり（以前は 3D authoring example に
+private だった）、web の canvas capture と Linux Dawn readback が両方使えない現状では
+**これが移植可能な唯一のキャプチャ経路**。
+
+```sh
+just capture <example> [out_dir]
+# → out_dir/<name>.png / <name>.context.json / <name>.summary.txt
+```
+
+`just capture` は `scripts/stage-capture-config.mjs` で
+`kagura_native_capture_config.txt` を example 直下に置き、native backend で 1 回走らせる。
+example 側は `@capture_native.read_capture_config()` で読み、
+`@capture.encode_rgba8_png` で PNG にして `@capture_native.write_capture_artifacts` で書く。
+
+| API | 用途 |
+|---|---|
+| `@capture.parse_capture_config(text)` | 設定のパース（全 target、pure） |
+| `@capture.encode_rgba8_png(w, h, pixels)` | readback バッファ → PNG |
+| `@capture.binarize_rgba8(pixels)` | シルエット確認用の白黒化 |
+| `@capture_native.read_capture_config()` | 設定ファイルの読み込み（native） |
+| `@capture_native.write_capture_artifacts(...)` | 3 つの artifact 書き出し（native） |
+
+**まだ 2D UI example に capture の配線は入っていません。** 現在の利用者は 3D authoring
+example と `examples/smoke/native_vrt`（baseline を PNG 化済み）。ui_demo などへの配線は
+オフスクリーン描画の実機確認が必要なため [#9](https://github.com/mizchi/kagura/issues/9)
+に残しています。`snapshot_native.mbt` は現状 no-op。
 
 ---
 
@@ -167,7 +190,7 @@ just ui-asset-check assets/icons/potion.png "--slot 32x32 --expect-transparent -
 
 | やりたいこと | 状況 |
 |---|---|
-| フレーム PNG の自動キャプチャ | web の canvas capture と Linux Dawn readback が壊れている。native 経路の一般化が [#9](https://github.com/mizchi/kagura/issues/9) |
+| フレーム PNG の自動キャプチャ | native 経路は `just capture` で使える。2D UI example への配線が [#9](https://github.com/mizchi/kagura/issues/9) の残り |
 | VRT の gating 化 | キャプチャが直るまで保留。[#8](https://github.com/mizchi/kagura/issues/8) |
 | 状態 × 解像度マトリクス | スナップショットモードの一般化が [#13](https://github.com/mizchi/kagura/issues/13) |
 | i18n ストレス | [#14](https://github.com/mizchi/kagura/issues/14) |

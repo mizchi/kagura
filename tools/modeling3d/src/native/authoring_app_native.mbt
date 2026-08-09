@@ -1,108 +1,8 @@
 ///|
-let native_capture_config_filename : String = "kagura_native_capture_config.txt"
-
-///|
 let native_tile_w : Int = 320
 
 ///|
 let native_tile_h : Int = 240
-
-///|
-priv struct NativeCaptureConfig {
-  screenshot_path : String
-  context_path : String
-  summary_path : String
-  binarize : Bool
-}
-
-///|
-fn bytes_to_string(data : Bytes) -> String {
-  let chars : Array[Char] = []
-  for i in 0..<data.length() {
-    chars.push(data[i].to_int().unsafe_to_char())
-  }
-  String::from_array(chars)
-}
-
-///|
-fn parse_config_map(text : String) -> Map[String, String] {
-  let entries : Map[String, String] = Map([])
-  let mut line = StringBuilder::new()
-  let commit = fn() {
-    let trimmed = line.to_string().trim().to_owned()
-    line = StringBuilder::new()
-    if trimmed.is_empty() {
-      return
-    }
-    let chars = trimmed.to_array()
-    let mut split_index = -1
-    for i in 0..<chars.length() {
-      if chars[i] == '=' {
-        split_index = i
-        break
-      }
-    }
-    if split_index <= 0 {
-      return
-    }
-    let key_chars : Array[Char] = []
-    let value_chars : Array[Char] = []
-    for i in 0..<split_index {
-      key_chars.push(chars[i])
-    }
-    for i in (split_index + 1)..<chars.length() {
-      value_chars.push(chars[i])
-    }
-    let key = String::from_array(key_chars).trim().to_owned()
-    let value = String::from_array(value_chars).trim().to_owned()
-    if !key.is_empty() {
-      entries[key] = value
-    }
-  }
-  for ch in text {
-    if ch == '\n' || ch == '\r' {
-      commit()
-    } else {
-      line.write_char(ch)
-    }
-  }
-  commit()
-  entries
-}
-
-///|
-fn config_required(entries : Map[String, String], key : String) -> String {
-  match entries.get(key) {
-    Some(value) => value
-    None => panic()
-  }
-}
-
-///|
-fn config_bool(entries : Map[String, String], key : String) -> Bool {
-  match entries.get(key) {
-    Some("1") => true
-    Some("true") => true
-    Some("TRUE") => true
-    _ => false
-  }
-}
-
-///|
-fn load_capture_config() -> NativeCaptureConfig {
-  let bytes = match
-    @wgpu_native.read_file_bytes(native_capture_config_filename) {
-    Some(data) => data
-    None => panic()
-  }
-  let entries = parse_config_map(bytes_to_string(bytes))
-  {
-    screenshot_path: config_required(entries, "screenshot_path"),
-    context_path: config_required(entries, "context_path"),
-    summary_path: config_required(entries, "summary_path"),
-    binarize: config_bool(entries, "binarize"),
-  }
-}
 
 ///|
 fn native_default_orbit_camera() -> @camera3d.OrbitCamera {
@@ -191,15 +91,6 @@ fn[T : @gfx.GraphicsDriver] render_view_pixels(
 }
 
 ///|
-fn binarize_channel(r : Int, g : Int, b : Int) -> Int {
-  if r * 30 + g * 59 + b * 11 >= 12800 {
-    255
-  } else {
-    0
-  }
-}
-
-///|
 fn copy_view_into_atlas(
   atlas : Array[Int],
   atlas_w : Int,
@@ -219,7 +110,7 @@ fn copy_view_into_atlas(
       let b = tile_pixels[src + 2]
       let a = tile_pixels[src + 3]
       if binarize {
-        let v = binarize_channel(r, g, b)
+        let v = @capture.binarize_luma(r, g, b)
         atlas[dst] = v
         atlas[dst + 1] = v
         atlas[dst + 2] = v
@@ -234,21 +125,22 @@ fn copy_view_into_atlas(
 }
 
 ///|
-fn encode_atlas_png(atlas_w : Int, atlas_h : Int, pixels : Array[Int]) -> Bytes {
-  @atlas.encode_png_image_spec(
-    @atlas.image_spec_with_rgba8(atlas_w, atlas_h, pixels),
-  ) catch {
-    _ => panic()
-  }
-}
-
-///|
 /// Render the authoring scene once and write the capture artifacts (native).
 ///
 /// The paths come from `kagura_native_capture_config.txt`; see
 /// `tools/modeling3d/scripts/model-authoring-native-capture-utils.mjs`.
 pub fn run_authoring_native(doc : @modeling3d.ModelDocument) -> Unit {
-  let config = load_capture_config()
+  let config = match @capture_native.read_capture_config() {
+    Some(value) => value
+    None => {
+      println(
+        "kagura:capture: no usable " +
+        @capture.capture_config_filename +
+        " in the working directory",
+      )
+      return
+    }
+  }
   let selection = @modeling3d.default_selection(doc)
   let objects = @modeling3d.build_render_objects(doc)
   let context_json = @modeling3d.editor_context_json(doc, selection)
@@ -300,15 +192,18 @@ pub fn run_authoring_native(doc : @modeling3d.ModelDocument) -> Unit {
       config.binarize,
     )
   }
-  let png = encode_atlas_png(atlas_w, atlas_h, atlas)
-  if !@wgpu_native.write_file_bytes(config.screenshot_path, png) {
-    panic()
+  let png = match @capture.encode_rgba8_png(atlas_w, atlas_h, atlas) {
+    Some(bytes) => bytes
+    None => {
+      println("kagura:capture: could not encode the frame as PNG")
+      @native_hooks.shutdown_context()
+      return
+    }
   }
-  if !@wgpu_native.write_file_text(config.context_path, context_json) {
-    panic()
-  }
-  if !@wgpu_native.write_file_text(config.summary_path, summary) {
-    panic()
+  match
+    @capture_native.write_capture_artifacts(config, png, context_json, summary) {
+    Some(path) => println("kagura:capture: could not write " + path)
+    None => ()
   }
   @native_hooks.shutdown_context()
 }

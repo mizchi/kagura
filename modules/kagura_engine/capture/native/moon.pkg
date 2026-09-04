@@ -1,0 +1,8 @@
+import {
+  "mizchi/kagura_engine/capture",
+  "mizchi/kagura_engine/gfx_wgpu_native" @wgpu_native,
+}
+
+warnings = "-6-29-53-68"
+
+supported_targets = "native"

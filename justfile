@@ -114,6 +114,23 @@ native-vrt:
 native-vrt-update:
     cd examples/smoke/native_vrt && touch .update_baselines && moon run src --target native && rm -f .update_baselines
 
+# Capture a frame + its context natively, the portable path: the web canvas
+# capture is transparent headless and the Linux Dawn readback never completes.
+# Stages the capture config the example reads, then runs it on the native
+# backend. Feed the artifacts to `just ui-check` / `vlmkit diff png`.
+capture example out_dir="output/capture":
+    #!/usr/bin/env bash
+    set -euo pipefail
+    dir=""
+    for candidate in examples/*/{{example}} tools/modeling3d/examples/{{example}} tools/effect-studio/examples/{{example}}; do
+      if [ -f "$candidate/moon.mod" ] || [ -f "$candidate/moon.mod.json" ]; then dir="$candidate"; break; fi
+    done
+    if [ -z "$dir" ]; then echo "example not found: {{example}}"; exit 1; fi
+    out="$(cd "$(dirname {{out_dir}})" 2>/dev/null && pwd)/$(basename {{out_dir}})" || out="$PWD/{{out_dir}}"
+    mkdir -p "$out"
+    node scripts/stage-capture-config.mjs --example-dir "$dir" --out-dir "$out"
+    cd "$dir" && moon run src --target native
+
 hacknslash3d-gpu-perf port="8282" samples="120" warmup="30" extra="--headed":
     node scripts/hacknslash_3d_gpu_perf.mjs --serve --port {{port}} --samples {{samples}} --warmup {{warmup}} {{extra}}
 

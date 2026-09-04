@@ -15,11 +15,29 @@ function normalizeWindowsArg(arg, env = process.env) {
   return normalized;
 }
 
+/**
+ * True when this invocation is compiling a file out of the MoonBit toolchain's
+ * own C runtime (`~/.moon/lib/runtime/...`) rather than our sources.
+ */
+function isMoonRuntimeSource(arg) {
+  return /[\\/]\.moon[\\/]lib[\\/]runtime[\\/]/i.test(arg);
+}
+
 function buildCompilerArgs(args, env = process.env) {
-  return args
+  const normalized = args
     .map((arg) => normalizeWindowsArg(arg, env))
     .filter((arg) => arg !== "-lm")
     .filter((arg) => !arg.startsWith("-Wl,-rpath,"));
+
+  // moon's own runtime calls `putchar` without including <stdio.h>. clang 16+
+  // made an implicit function declaration an error rather than a warning, so
+  // the toolchain no longer compiles on the current Windows runner image. Demote
+  // it back to a warning for those files only — our own C stays strict, so a
+  // missing declaration we introduce is still an error.
+  if (normalized.some(isMoonRuntimeSource)) {
+    normalized.push("-Wno-error=implicit-function-declaration");
+  }
+  return normalized;
 }
 
 function main() {
@@ -40,6 +58,7 @@ function main() {
 
 module.exports = {
   buildCompilerArgs,
+  isMoonRuntimeSource,
   normalizeWindowsArg,
 };
 

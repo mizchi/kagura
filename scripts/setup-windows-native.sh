@@ -4,7 +4,9 @@
 #
 # This script:
 # 1. Stubs macOS Objective-C (.m) files (MoonBit compiles all native-stub files)
-# 2. Creates a clang wrapper that filters -lm and -Wl,-rpath (invalid on Windows)
+# 2. Creates a clang wrapper next to clang that delegates its argument filtering
+#    to scripts/moon-native-cc-win.cjs (the same, unit-tested filter the example
+#    link step uses via KAGURA_NATIVE_CC)
 # 3. Copies llvm-ar as ar.exe (MoonBit looks for ar next to MOON_CC)
 # 4. Exports MOON_CC pointing to the wrapper
 
@@ -33,14 +35,20 @@ node "%~dp0kagura-cc-filter.cjs" %*
 exit /b %ERRORLEVEL%
 CMDEOF
 
-# Create Node.js filter script
+# Create Node.js filter script.
+#
+# It delegates to scripts/moon-native-cc-win.cjs instead of re-implementing the
+# filtering: that copy is unit-tested, and a second inline copy had already
+# drifted out of step with it. clang is spawned directly rather than through
+# MOON_CC, which points at this wrapper.
 FILTER_PATH="$CLANG_DIR/kagura-cc-filter.cjs"
-cat > "$FILTER_PATH" << 'JSEOF'
+WIN_ROOT=$(cygpath -m "$ROOT" 2>/dev/null || echo "$ROOT")
+cat > "$FILTER_PATH" << JSEOF
 const { spawnSync } = require("child_process");
-const args = process.argv.slice(2)
-  .filter(a => a !== "-lm")
-  .filter(a => !a.startsWith("-Wl,-rpath,"));
-const r = spawnSync("clang", args, { stdio: "inherit" });
+const { buildCompilerArgs } = require("${WIN_ROOT}/scripts/moon-native-cc-win.cjs");
+const r = spawnSync("clang", buildCompilerArgs(process.argv.slice(2)), {
+  stdio: "inherit",
+});
 process.exit(r.status ?? 1);
 JSEOF
 

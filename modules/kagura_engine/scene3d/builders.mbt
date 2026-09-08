@@ -30,7 +30,7 @@ pub fn object3d_with_transform(
   sort_bias? : Double = 0.0,
   skinning? : SkinningState? = None,
 ) -> Object3D {
-  { mesh, transform, color, material, sort_bias, skinning }
+  { mesh, transform, color, material, sort_bias, skinning, }
 }
 
 ///|
@@ -39,5 +39,5 @@ pub fn scene3d(
   camera~ : @camera3d.Camera3D,
   lighting? : @light3d.LightingEnvironment = @light3d.LightingEnvironment::default(),
 ) -> Scene3D {
-  { objects, camera, lighting }
+  { objects, camera, lighting, }
 }

@@ -38,7 +38,7 @@ pub fn ParticleManager::spawn(
   self : ParticleManager,
   config : EmitterConfig,
 ) -> Unit {
-  self.emitters.push({ emitter: ParticleEmitter::new(config), spawned: false })
+  self.emitters.push({ emitter: ParticleEmitter::new(config), spawned: false, })
 }
 
 ///|

@@ -423,7 +423,7 @@ pub fn apply_roundtrip_auto_patch(
     }
     sculpt_layers[i] = layer
   }
-  { ..doc, primitives, sculpt_layers }
+  { ..doc, primitives, sculpt_layers, }
 }
 
 ///|

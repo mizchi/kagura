@@ -52,12 +52,12 @@ priv struct TetraIndices {
 ///|
 fn surface_directions() -> Array[SurfaceDirection] {
   [
-    { dx: 1, dy: 0, dz: 0, normal: @math3d.Vec3::unit_x() },
-    { dx: -1, dy: 0, dz: 0, normal: @math3d.Vec3::unit_x().scale(-1.0) },
-    { dx: 0, dy: 1, dz: 0, normal: @math3d.Vec3::unit_y() },
-    { dx: 0, dy: -1, dz: 0, normal: @math3d.Vec3::unit_y().scale(-1.0) },
-    { dx: 0, dy: 0, dz: 1, normal: @math3d.Vec3::unit_z() },
-    { dx: 0, dy: 0, dz: -1, normal: @math3d.Vec3::unit_z().scale(-1.0) },
+    { dx: 1, dy: 0, dz: 0, normal: @math3d.Vec3::unit_x(), },
+    { dx: -1, dy: 0, dz: 0, normal: @math3d.Vec3::unit_x().scale(-1.0), },
+    { dx: 0, dy: 1, dz: 0, normal: @math3d.Vec3::unit_y(), },
+    { dx: 0, dy: -1, dz: 0, normal: @math3d.Vec3::unit_y().scale(-1.0), },
+    { dx: 0, dy: 0, dz: 1, normal: @math3d.Vec3::unit_z(), },
+    { dx: 0, dy: 0, dz: -1, normal: @math3d.Vec3::unit_z().scale(-1.0), },
   ]
 }
 
@@ -157,7 +157,7 @@ fn surface_basis(normal : @math3d.Vec3) -> SurfaceBasis {
   }
   let tangent_u = helper.cross(normal).normalize()
   let tangent_v = normal.cross(tangent_u).normalize()
-  { tangent_u, tangent_v }
+  { tangent_u, tangent_v, }
 }
 
 ///|
@@ -200,7 +200,7 @@ fn build_sculpt_layer_density_grid(layer : SculptLayer) -> DensityGrid {
       }
     }
   }
-  { step, half_steps, size, densities }
+  { step, half_steps, size, densities, }
 }
 
 ///|
@@ -405,12 +405,12 @@ fn polygonize_tetrahedron(
 ) -> Array[SurfaceVertex] {
   let intersections : Array[SurfaceVertex] = []
   let edges : Array[EdgeIndices] = [
-    { a: 0, b: 1 },
-    { a: 1, b: 2 },
-    { a: 2, b: 0 },
-    { a: 0, b: 3 },
-    { a: 1, b: 3 },
-    { a: 2, b: 3 },
+    { a: 0, b: 1, },
+    { a: 1, b: 2, },
+    { a: 2, b: 0, },
+    { a: 0, b: 3, },
+    { a: 1, b: 3, },
+    { a: 2, b: 3, },
   ]
   for edge in edges {
     let a_density = densities[edge.a]
@@ -450,12 +450,12 @@ fn append_marching_tetra_cell(
   inflate : Double,
 ) -> Unit {
   let tetrahedra : Array[TetraIndices] = [
-    { a: 0, b: 5, c: 1, d: 6 },
-    { a: 0, b: 1, c: 2, d: 6 },
-    { a: 0, b: 2, c: 3, d: 6 },
-    { a: 0, b: 3, c: 7, d: 6 },
-    { a: 0, b: 7, c: 4, d: 6 },
-    { a: 0, b: 4, c: 5, d: 6 },
+    { a: 0, b: 5, c: 1, d: 6, },
+    { a: 0, b: 1, c: 2, d: 6, },
+    { a: 0, b: 2, c: 3, d: 6, },
+    { a: 0, b: 3, c: 7, d: 6, },
+    { a: 0, b: 7, c: 4, d: 6, },
+    { a: 0, b: 4, c: 5, d: 6, },
   ]
   for tetra in tetrahedra {
     let polygon = polygonize_tetrahedron(

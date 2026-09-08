@@ -62,7 +62,7 @@ pub fn blend_node_poses(
           (None, Some(sb)) => Some(sb)
           (None, None) => None
         }
-        result.push({ node_index: a.node_index, translation, rotation, scale })
+        result.push({ node_index: a.node_index, translation, rotation, scale, })
       }
       None => result.push(a)
     }

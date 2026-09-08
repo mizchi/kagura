@@ -123,7 +123,7 @@ pub fn ensure_render_target(
   )
   let texture = ffi_create_texture(device, tex_desc)
   let view = ffi_create_view(texture)
-  let entry : RenderTargetEntry = { texture, view, width, height }
+  let entry : RenderTargetEntry = { texture, view, width, height, }
   state.render_targets.set(image_id, entry)
   let sampler = match state.linear_sampler {
     Some(s) => s
@@ -169,7 +169,7 @@ pub fn ensure_depth_texture(
   tex_desc._set("usage", @core.any(TEXTURE_USAGE_RENDER_ATTACHMENT))
   let texture = ffi_create_texture(device, tex_desc)
   let view = ffi_create_view(texture)
-  let entry : DepthTextureEntry = { texture, view, width, height }
+  let entry : DepthTextureEntry = { texture, view, width, height, }
   state.depth_textures.set(key, entry)
   entry
 }

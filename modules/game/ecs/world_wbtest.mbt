@@ -22,7 +22,7 @@ test "destroy marks entity as dead" {
 ///|
 test "is_alive returns false for non-existent entity" {
   let world = World::new()
-  assert_false(world.is_alive({ value: 999 }))
+  assert_false(world.is_alive({ value: 999, }))
 }
 
 ///|
@@ -92,7 +92,7 @@ test "component set/get transform" {
 test "component set/get health" {
   let world = World::new()
   let eid = world.spawn()
-  world.set_health(eid, { current: 100, max: 100 })
+  world.set_health(eid, { current: 100, max: 100, })
   match world.get_health(eid) {
     Some(h) => {
       assert_eq(h.current, 100)
@@ -106,7 +106,7 @@ test "component set/get health" {
 test "component set/get velocity" {
   let world = World::new()
   let eid = world.spawn()
-  world.set_velocity(eid, { x: 1.0, y: 2.0, z: 3.0 })
+  world.set_velocity(eid, { x: 1.0, y: 2.0, z: 3.0, })
   match world.get_velocity(eid) {
     Some(v) => {
       assert_true((v.x - 1.0).abs() < 0.001)
@@ -164,8 +164,8 @@ test "get component returns None for entity without component" {
 test "component overwrite replaces previous value" {
   let world = World::new()
   let eid = world.spawn()
-  world.set_health(eid, { current: 100, max: 100 })
-  world.set_health(eid, { current: 50, max: 100 })
+  world.set_health(eid, { current: 100, max: 100, })
+  world.set_health(eid, { current: 50, max: 100, })
   match world.get_health(eid) {
     Some(h) => assert_eq(h.current, 50)
     None => fail("expected health")
@@ -237,8 +237,8 @@ test "compact removes dead entity components" {
   let world = World::new()
   let e1 = world.spawn()
   let e2 = world.spawn()
-  world.set_health(e1, { current: 10, max: 10 })
-  world.set_health(e2, { current: 20, max: 20 })
+  world.set_health(e1, { current: 10, max: 10, })
+  world.set_health(e2, { current: 20, max: 20, })
   world.add_tag(e1, Player)
   world.destroy(e1)
   world.compact()
@@ -255,8 +255,8 @@ test "compact removes all component types of dead entity" {
     eid,
     @transform3d.Transform3D::from_position(@math3d.Vec3::new(1.0, 0.0, 0.0)),
   )
-  world.set_velocity(eid, { x: 1.0, y: 0.0, z: 0.0 })
-  world.set_health(eid, { current: 10, max: 10 })
+  world.set_velocity(eid, { x: 1.0, y: 0.0, z: 0.0, })
+  world.set_health(eid, { current: 10, max: 10, })
   world.set_sprite(eid, {
     image_id: 1,
     width: 16.0,
@@ -291,9 +291,9 @@ test "compact preserves alive entities" {
   let e1 = world.spawn()
   let e2 = world.spawn()
   let e3 = world.spawn()
-  world.set_health(e1, { current: 10, max: 10 })
-  world.set_health(e2, { current: 20, max: 20 })
-  world.set_health(e3, { current: 30, max: 30 })
+  world.set_health(e1, { current: 10, max: 10, })
+  world.set_health(e2, { current: 20, max: 20, })
+  world.set_health(e3, { current: 30, max: 30, })
   world.destroy(e2)
   world.compact()
   assert_eq(world.entity_count(), 2)

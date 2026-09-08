@@ -77,7 +77,7 @@ pub fn update_touch_input_state(
     } else {
       1
     }
-    next_durations.push({ id, duration })
+    next_durations.push({ id, duration, })
   }
   state.prev_touch_ids = prev_ids
   state.touch_ids = next_ids
@@ -224,7 +224,7 @@ fn normalize_gamepad_buttons(
   for gamepad in snapshot.gamepads {
     for button_id in gamepad.pressed_buttons {
       if !contains_gamepad_button(out, gamepad.id, button_id) {
-        out.push({ gamepad_id: gamepad.id, button_id })
+        out.push({ gamepad_id: gamepad.id, button_id, })
       }
     }
   }
@@ -299,7 +299,7 @@ pub fn update_gamepad_input_state(
     } else {
       1
     }
-    next_durations.push({ id, duration })
+    next_durations.push({ id, duration, })
   }
 
   let prev_buttons = state.pressed_buttons

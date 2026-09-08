@@ -116,7 +116,7 @@ pub fn solve_distance_joint(
       r_b_cross * delta_impulse * b.inv_inertia,
     }
   }
-  constraints[ci] = { ..c, acc_impulse: new_acc }
+  constraints[ci] = { ..c, acc_impulse: new_acc, }
 }
 
 // ============================================================
@@ -220,5 +220,5 @@ pub fn solve_revolute_joint(
       angular_velocity: b.angular_velocity + angular_b * b.inv_inertia,
     }
   }
-  constraints[ci] = { ..c, acc_impulse_x: new_acc_x, acc_impulse_y: new_acc_y }
+  constraints[ci] = { ..c, acc_impulse_x: new_acc_x, acc_impulse_y: new_acc_y, }
 }

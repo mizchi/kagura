@@ -41,7 +41,7 @@ pub struct AIRuntimeState {
 ///|
 pub fn AIRuntimeState::new() -> AIRuntimeState {
   {
-    blackboard: { entries: [] },
+    blackboard: { entries: [], },
     traces: [],
     tick_traces: Map([]),
     total_decisions: 0,
@@ -56,7 +56,7 @@ pub fn AIRuntimeState::new_with_config(
   config : AIRuntimeConfig,
 ) -> AIRuntimeState {
   {
-    blackboard: { entries: [] },
+    blackboard: { entries: [], },
     traces: [],
     tick_traces: Map([]),
     total_decisions: 0,

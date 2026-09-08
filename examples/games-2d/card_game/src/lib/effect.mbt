@@ -312,7 +312,7 @@ fn apply_effects(
   effects : Array[Effect],
   target_index : Int,
 ) -> EffectOutcome {
-  let out : EffectOutcome = { damage: 0, block: 0 }
+  let out : EffectOutcome = { damage: 0, block: 0, }
   for effect in effects {
     match effect {
       DealDamage(amount~, target~, hits~) =>

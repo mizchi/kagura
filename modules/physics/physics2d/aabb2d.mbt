@@ -11,7 +11,7 @@ pub impl Show for AABB2D with fn output(self, logger) {
 
 ///|
 pub fn AABB2D::new(min : @vector.Vec2, max : @vector.Vec2) -> AABB2D {
-  { min, max }
+  { min, max, }
 }
 
 ///|
@@ -19,7 +19,7 @@ pub fn AABB2D::from_center_extents(
   center : @vector.Vec2,
   extents : @vector.Vec2,
 ) -> AABB2D {
-  { min: center.sub(extents), max: center.add(extents) }
+  { min: center.sub(extents), max: center.add(extents), }
 }
 
 ///|
@@ -58,7 +58,7 @@ pub fn AABB2D::closest_point(
 
 ///|
 pub fn AABB2D::merge(self : AABB2D, other : AABB2D) -> AABB2D {
-  { min: self.min.min(other.min), max: self.max.max(other.max) }
+  { min: self.min.min(other.min), max: self.max.max(other.max), }
 }
 
 ///|

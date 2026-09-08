@@ -62,8 +62,8 @@ pub fn find_path(
               if g_score[ni] < 0.0 || ng < g_score[ni] {
                 g_score[ni] = ng
                 came_from[ni] = ci
-                let f = ng + manhattan({ x: nx, y: ny }, goal)
-                open.push({ x: nx, y: ny }, f)
+                let f = ng + manhattan({ x: nx, y: ny, }, goal)
+                open.push({ x: nx, y: ny, }, f)
               }
             }
           }
@@ -92,7 +92,7 @@ fn reconstruct_path(
   while idx >= 0 {
     let x = idx % width
     let y = idx / width
-    path.push({ x, y })
+    path.push({ x, y, })
     idx = came_from[idx]
   }
   // Reverse path (goal -> start => start -> goal)

@@ -1,7 +1,7 @@
 ///|
 /// Create default packer config: 2048x2048, padding=1, power_of_two=true.
 pub fn PackerConfig::default() -> PackerConfig {
-  { max_width: 2048, max_height: 2048, padding: 1, power_of_two: true }
+  { max_width: 2048, max_height: 2048, padding: 1, power_of_two: true, }
 }
 
 ///|
@@ -13,7 +13,7 @@ pub fn pack_sprites(
 ) -> PackResult? {
   if inputs.is_empty() {
     let size = if config.power_of_two { 1 } else { 0 }
-    return Some({ width: size, height: size, sprites: [] })
+    return Some({ width: size, height: size, sprites: [], })
   }
   // Sort by area descending (larger sprites first for better packing)
   let indexed : Array[(Int, SpriteInput)] = []
@@ -63,7 +63,7 @@ pub fn pack_sprites(
   } else {
     max_y
   }
-  Some({ width, height, sprites })
+  Some({ width, height, sprites, })
 }
 
 ///|

@@ -24,7 +24,7 @@ fn ensure_buffer_entry(
   buf_desc._set("size", @core.any(required_size))
   buf_desc._set("usage", @core.any(usage))
   let buffer = ffi_create_buffer(device, buf_desc)
-  let entry : BufferEntry = { size: required_size, buffer }
+  let entry : BufferEntry = { size: required_size, buffer, }
   slots[slot_index] = Some(entry)
   entry
 }

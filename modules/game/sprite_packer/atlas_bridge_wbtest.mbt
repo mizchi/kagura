@@ -23,15 +23,15 @@ test "create_packed_atlas_repository basic" {
   let spec_a = @atlas.image_spec_with_rgba8(4, 4, pixels_a)
   let spec_b = @atlas.image_spec_with_rgba8(4, 4, pixels_b)
   let inputs : Array[SpriteInput] = [
-    { key: "sprite_a", spec: spec_a },
-    { key: "sprite_b", spec: spec_b },
+    { key: "sprite_a", spec: spec_a, },
+    { key: "sprite_b", spec: spec_b, },
   ]
   let result : PackResult = {
     width: 16,
     height: 16,
     sprites: [
-      { key: "sprite_a", x: 0, y: 0, width: 4, height: 4 },
-      { key: "sprite_b", x: 5, y: 0, width: 4, height: 4 },
+      { key: "sprite_a", x: 0, y: 0, width: 4, height: 4, },
+      { key: "sprite_b", x: 5, y: 0, width: 4, height: 4, },
     ],
   }
   let repo = create_packed_atlas_repository(inputs, result)
@@ -55,11 +55,11 @@ test "create_packed_atlas_repository basic" {
 test "create_packed_atlas_repository UV coordinates" {
   let pixels : Array[Int] = Array::make(8 * 8 * 4, 200)
   let spec = @atlas.image_spec_with_rgba8(8, 8, pixels)
-  let inputs : Array[SpriteInput] = [{ key: "img", spec }]
+  let inputs : Array[SpriteInput] = [{ key: "img", spec, }]
   let result : PackResult = {
     width: 32,
     height: 32,
-    sprites: [{ key: "img", x: 8, y: 16, width: 8, height: 8 }],
+    sprites: [{ key: "img", x: 8, y: 16, width: 8, height: 8, }],
   }
   let repo = create_packed_atlas_repository(inputs, result)
   let src = @atlas.get_atlas_draw_source(repo, @atlas.new_asset_key("img"))
@@ -78,9 +78,9 @@ test "pack_result_to_tile_atlas_table with tile_ keys" {
     width: 64,
     height: 64,
     sprites: [
-      { key: "tile_0", x: 0, y: 0, width: 16, height: 16 },
-      { key: "tile_3", x: 16, y: 0, width: 16, height: 16 },
-      { key: "tile_7", x: 32, y: 0, width: 16, height: 16 },
+      { key: "tile_0", x: 0, y: 0, width: 16, height: 16, },
+      { key: "tile_3", x: 16, y: 0, width: 16, height: 16, },
+      { key: "tile_7", x: 32, y: 0, width: 16, height: 16, },
     ],
   }
   let table = pack_result_to_tile_atlas_table(result)
@@ -104,8 +104,8 @@ test "pack_result_to_tile_atlas_table with non-tile keys" {
     width: 32,
     height: 32,
     sprites: [
-      { key: "grass", x: 0, y: 0, width: 16, height: 16 },
-      { key: "stone", x: 16, y: 0, width: 16, height: 16 },
+      { key: "grass", x: 0, y: 0, width: 16, height: 16, },
+      { key: "stone", x: 16, y: 0, width: 16, height: 16, },
     ],
   }
   let table = pack_result_to_tile_atlas_table(result)
@@ -150,7 +150,7 @@ test "end-to-end: split_sprite_sheet → pack → repository → draw_source" {
   let inputs : Array[SpriteInput] = []
   for pair in frames {
     let (key, spec) = pair
-    inputs.push({ key: key.value, spec })
+    inputs.push({ key: key.value, spec, })
   }
   // Pack
   let result = pack_sprites(inputs, config=PackerConfig::default())

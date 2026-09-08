@@ -189,7 +189,7 @@ fn build_single_chunk(
   add_group(decor_v, decor_i, color_debris, Floor, groups)
   let wall_mesh = @mesh3d.Mesh3D::new(wall_v, wall_i)
   let all_mesh = @mesh3d.Mesh3D::new(all_v, all_i)
-  { cx, cz, groups, wall_mesh, all_mesh }
+  { cx, cz, groups, wall_mesh, all_mesh, }
 }
 
 // Get visible chunks near player position (in tile coords)

@@ -15,7 +15,7 @@ fn imported_roundtrip_from_doc(doc : ModelDocument) -> RoundTripImport {
       stamp_count: node.stamp_count,
     })
   }
-  { filename: "edited.glb", document_name: doc.name, nodes }
+  { filename: "edited.glb", document_name: doc.name, nodes, }
 }
 
 ///|

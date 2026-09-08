@@ -223,7 +223,7 @@ pub fn parse_roundtrip_import(
       None => ()
     }
   }
-  { filename, document_name, nodes }
+  { filename, document_name, nodes, }
 }
 
 ///|

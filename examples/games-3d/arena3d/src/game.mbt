@@ -158,9 +158,9 @@ fn GameState::new() -> GameState {
     @math3d.Vec3::new(-4.0, 0.5, 0.0),
     @math3d.Vec3::new(4.0, 0.5, 0.0),
   ]
-  enemies.push({ position: wp0[0], waypoints: wp0, waypoint_idx: 0 })
-  enemies.push({ position: wp1[0], waypoints: wp1, waypoint_idx: 0 })
-  enemies.push({ position: wp2[0], waypoints: wp2, waypoint_idx: 0 })
+  enemies.push({ position: wp0[0], waypoints: wp0, waypoint_idx: 0, })
+  enemies.push({ position: wp1[0], waypoints: wp1, waypoint_idx: 0, })
+  enemies.push({ position: wp2[0], waypoints: wp2, waypoint_idx: 0, })
   let camera = @camera3d.OrbitCamera::new(
     @math3d.Vec3::new(0.0, 0.0, 0.0),
     12.0,
@@ -188,7 +188,7 @@ fn GameState::new() -> GameState {
     mode: mode_playing,
     score: 0,
     frame_count: 0,
-    player: { position: @math3d.Vec3::new(0.0, 0.5, 0.0) },
+    player: { position: @math3d.Vec3::new(0.0, 0.5, 0.0), },
     items,
     enemies,
     camera,
@@ -221,7 +221,7 @@ fn make_item(index : Int) -> ItemState {
     @math3d.Vec3::new(0.0, 0.3, 7.0),
   ]
   let pos = positions[index % positions.length()]
-  { position: pos, active: true }
+  { position: pos, active: true, }
 }
 
 ///|

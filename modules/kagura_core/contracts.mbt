@@ -138,7 +138,7 @@ pub impl Show for RunOptions with fn output(self, logger) {
 
 ///|
 pub fn new_outside_size(width : Double, height : Double) -> OutsideSize {
-  { width, height }
+  { width, height, }
 }
 
 ///|
@@ -147,12 +147,12 @@ pub fn new_frame_budget(
   alpha : Double,
   tick : Int,
 ) -> FrameBudget {
-  { updates, alpha, tick }
+  { updates, alpha, tick, }
 }
 
 ///|
 pub fn new_touch_point(id : Int, x : Double, y : Double) -> TouchPoint {
-  { id, x, y, source: TouchSource::Unknown }
+  { id, x, y, source: TouchSource::Unknown, }
 }
 
 ///|
@@ -162,7 +162,7 @@ pub fn new_touch_point_with_source(
   y : Double,
   source : TouchSource,
 ) -> TouchPoint {
-  { id, x, y, source }
+  { id, x, y, source, }
 }
 
 ///|
@@ -171,7 +171,7 @@ pub fn new_gamepad_snapshot(
   axes : Array[Double],
   pressed_buttons : Array[Int],
 ) -> GamepadSnapshot {
-  { id, axes, pressed_buttons }
+  { id, axes, pressed_buttons, }
 }
 
 ///|
@@ -282,7 +282,7 @@ pub fn new_touch_point_ex(
   y : Double,
   phase : TouchPhase,
 ) -> TouchPointEx {
-  { id, x, y, phase, pressure: 1.0, delta_x: 0.0, delta_y: 0.0 }
+  { id, x, y, phase, pressure: 1.0, delta_x: 0.0, delta_y: 0.0, }
 }
 
 ///|
@@ -295,12 +295,12 @@ pub fn new_touch_point_ex_full(
   delta_x : Double,
   delta_y : Double,
 ) -> TouchPointEx {
-  { id, x, y, phase, pressure, delta_x, delta_y }
+  { id, x, y, phase, pressure, delta_x, delta_y, }
 }
 
 ///|
 pub fn touch_point_from_ex(ex : TouchPointEx) -> TouchPoint {
-  { id: ex.id, x: ex.x, y: ex.y, source: TouchSource::Unknown }
+  { id: ex.id, x: ex.x, y: ex.y, source: TouchSource::Unknown, }
 }
 
 ///|
@@ -329,12 +329,12 @@ pub struct NoopGame {
 
 ///|
 pub fn new_noop_game(width : Int, height : Int) -> NoopGame {
-  { logical_width: width, logical_height: height }
+  { logical_width: width, logical_height: height, }
 }
 
 ///|
 pub impl Game for NoopGame with fn layout(self, _outside) {
-  { width: self.logical_width, height: self.logical_height }
+  { width: self.logical_width, height: self.logical_height, }
 }
 
 ///|
@@ -358,7 +358,7 @@ pub fn new_run_options(
   screen_transparent? : Bool = false,
   screen_cleared_every_frame? : Bool = true,
 ) -> RunOptions {
-  { init_unfocused, screen_transparent, screen_cleared_every_frame }
+  { init_unfocused, screen_transparent, screen_cleared_every_frame, }
 }
 
 ///|

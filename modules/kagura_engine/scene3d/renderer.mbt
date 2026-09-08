@@ -67,10 +67,10 @@ fn Frustum::from_vp(vp : @math3d.Mat4) -> Frustum {
 fn normalize_plane(a : Double, b : Double, c : Double, d : Double) -> Plane {
   let len = (a * a + b * b + c * c).sqrt()
   if len < 1.0e-10 {
-    { nx: 0.0, ny: 0.0, nz: 0.0, d: 0.0 }
+    { nx: 0.0, ny: 0.0, nz: 0.0, d: 0.0, }
   } else {
     let inv = 1.0 / len
-    { nx: a * inv, ny: b * inv, nz: c * inv, d: d * inv }
+    { nx: a * inv, ny: b * inv, nz: c * inv, d: d * inv, }
   }
 }
 

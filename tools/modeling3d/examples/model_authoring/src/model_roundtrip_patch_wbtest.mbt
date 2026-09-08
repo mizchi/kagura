@@ -339,7 +339,7 @@ test "apply_roundtrip_opt_in_patch appends imported extra primitive candidates" 
     scale: @math3d.Vec3::new(0.2, 0.2, 0.2),
     color_hex: 0xAAAAAA,
   })
-  let imported_doc = { ..base, primitives: imported_primitives }
+  let imported_doc = { ..base, primitives: imported_primitives, }
 
   let imported = @modeling3d.parse_roundtrip_import(
     "edited.glb",

@@ -1,6 +1,6 @@
 ///|
 pub fn AnimationPlayer::new(clip : AnimationClip) -> AnimationPlayer {
-  { clip, time: 0.0, playing: true, looping: true, speed: 1.0 }
+  { clip, time: 0.0, playing: true, looping: true, speed: 1.0, }
 }
 
 ///|
@@ -49,15 +49,15 @@ pub fn AnimationPlayer::sample(self : AnimationPlayer) -> Array[NodePose] {
     match channel.target {
       Translation => {
         let v = sample_vec3(channel, self.time)
-        pose_map[node_idx] = { ..pose, translation: Some(v) }
+        pose_map[node_idx] = { ..pose, translation: Some(v), }
       }
       Rotation => {
         let q = sample_quat(channel, self.time)
-        pose_map[node_idx] = { ..pose, rotation: Some(q) }
+        pose_map[node_idx] = { ..pose, rotation: Some(q), }
       }
       Scale => {
         let v = sample_vec3(channel, self.time)
-        pose_map[node_idx] = { ..pose, scale: Some(v) }
+        pose_map[node_idx] = { ..pose, scale: Some(v), }
       }
     }
   }

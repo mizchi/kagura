@@ -16,7 +16,7 @@ fn find_room_index_at_minimap_tile(
   gx : Int,
   gy : Int,
 ) -> Int {
-  let point : @terrain.Point = { x: gx, y: gy }
+  let point : @terrain.Point = { x: gx, y: gy, }
   for i, room in rooms {
     if room.rect.contains(point) {
       return i

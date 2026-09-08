@@ -9,12 +9,12 @@ pub(all) struct BorderWidths {
 
 ///|
 pub fn BorderWidths::uniform(w : Double) -> BorderWidths {
-  { top: w, right: w, bottom: w, left: w }
+  { top: w, right: w, bottom: w, left: w, }
 }
 
 ///|
 pub fn BorderWidths::zero() -> BorderWidths {
-  { top: 0.0, right: 0.0, bottom: 0.0, left: 0.0 }
+  { top: 0.0, right: 0.0, bottom: 0.0, left: 0.0, }
 }
 
 ///|

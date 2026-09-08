@@ -564,11 +564,11 @@ pub fn BalanceTargets::mechanics_roguelike_v2() -> BalanceTargets {
 ///|
 pub fn autoplay_balance_hypotheses() -> Array[BalanceHypothesis] {
   [
-    { name: "default", targets: BalanceTargets::default() },
-    { name: "action_dense", targets: BalanceTargets::action_dense() },
-    { name: "survival_horror", targets: BalanceTargets::survival_horror() },
-    { name: "speedrun", targets: BalanceTargets::speedrun() },
-    { name: "risk_reward", targets: BalanceTargets::risk_reward() },
+    { name: "default", targets: BalanceTargets::default(), },
+    { name: "action_dense", targets: BalanceTargets::action_dense(), },
+    { name: "survival_horror", targets: BalanceTargets::survival_horror(), },
+    { name: "speedrun", targets: BalanceTargets::speedrun(), },
+    { name: "risk_reward", targets: BalanceTargets::risk_reward(), },
     {
       name: "item_spike_feedback",
       targets: BalanceTargets::item_spike_feedback(),
@@ -597,7 +597,7 @@ pub fn autoplay_balance_hypotheses() -> Array[BalanceHypothesis] {
       name: "autoplay_progression_v2",
       targets: BalanceTargets::autoplay_progression_v2(),
     },
-    { name: "autoplay_pressure", targets: BalanceTargets::autoplay_pressure() },
+    { name: "autoplay_pressure", targets: BalanceTargets::autoplay_pressure(), },
     {
       name: "autoplay_attrition",
       targets: BalanceTargets::autoplay_attrition(),

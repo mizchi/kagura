@@ -11,7 +11,7 @@ pub impl Show for Sphere with fn output(self, logger) {
 
 ///|
 pub fn Sphere::new(center : @math3d.Vec3, radius : Double) -> Sphere {
-  { center, radius }
+  { center, radius, }
 }
 
 ///|

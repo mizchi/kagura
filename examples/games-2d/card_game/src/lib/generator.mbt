@@ -74,7 +74,7 @@ fn Rng::range(self : Rng, lo : Int, hi : Int) -> Int {
 /// Generate one card from the parametric core of the IR. Every branch yields a
 /// runnable effect, so the generator can never emit an invalid card.
 pub fn gen_card(seed : Int) -> SynthCard {
-  let rng = { s: seed }
+  let rng = { s: seed, }
   let cost = rng.range(0, 3)
   let n_effects = rng.range(1, 2)
   let effects : Array[Effect] = []
@@ -98,7 +98,7 @@ pub fn gen_card(seed : Int) -> SynthCard {
     effects.push(effect)
     i += 1
   }
-  { cost, effects }
+  { cost, effects, }
 }
 
 ///|
@@ -223,7 +223,7 @@ fn run_horizon(card : SynthCard, play : Bool) -> HorizonResult {
     }
     turn += 1
   }
-  { damage: hp_before - enemy.hp, prevented, hp_lost, immediate }
+  { damage: hp_before - enemy.hp, prevented, hp_lost, immediate, }
 }
 
 ///|
@@ -252,7 +252,7 @@ pub fn eval_synth(card : SynthCard) -> SynthEval {
   } else {
     Overpowered
   }
-  { damage, prevented, extra_hp_lost, value, budget, verdict }
+  { damage, prevented, extra_hp_lost, value, budget, verdict, }
 }
 
 ///|
@@ -263,7 +263,7 @@ pub fn synth_of_card(id : CardId) -> SynthCard {
     Some(e) => e
     None => []
   }
-  { cost: card_def(id).cost, effects }
+  { cost: card_def(id).cost, effects, }
 }
 
 ///|

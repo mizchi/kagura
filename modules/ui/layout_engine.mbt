@@ -140,7 +140,7 @@ fn layout_node(
     }
     results.push({
       node_id,
-      rect: { x: offset_x, y: offset_y, width: final_w, height: final_h },
+      rect: { x: offset_x, y: offset_y, width: final_w, height: final_h, },
     })
     return (final_w, final_h)
   }
@@ -163,7 +163,7 @@ fn layout_node(
     }
     let temp : Array[LayoutResult] = []
     let (cw, ch) = layout_node(tree, child_id, child_constraint, temp, 0.0, 0.0)
-    measures.push({ temp_results: temp, width: cw, height: ch })
+    measures.push({ temp_results: temp, width: cw, height: ch, })
   }
   // Phase 2: Organize into flex lines
   let container_main = if is_row { clamped_w } else { clamped_h }
@@ -263,7 +263,7 @@ fn layout_node(
   // Add container result
   results.push({
     node_id,
-    rect: { x: offset_x, y: offset_y, width: final_w, height: final_h },
+    rect: { x: offset_x, y: offset_y, width: final_w, height: final_h, },
   })
   (final_w, final_h)
 }

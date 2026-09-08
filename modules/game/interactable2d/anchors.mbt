@@ -13,7 +13,7 @@ pub fn AnchorCandidate::new(
   area : Int,
   is_start : Bool,
 ) -> AnchorCandidate {
-  { center_x, center_y, area, is_start }
+  { center_x, center_y, area, is_start, }
 }
 
 ///|

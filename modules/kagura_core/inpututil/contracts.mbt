@@ -140,7 +140,7 @@ pub fn update_key_input_state(
     } else {
       1
     }
-    next_durations.push({ key, duration })
+    next_durations.push({ key, duration, })
   }
   state.prev_pressed_keys = prev_pressed
   state.pressed_keys = next_pressed
@@ -175,7 +175,7 @@ pub fn update_mouse_input_state(
     } else {
       1
     }
-    next_durations.push({ button, duration })
+    next_durations.push({ button, duration, })
   }
   state.prev_pressed_buttons = prev_pressed
   state.pressed_buttons = next_pressed

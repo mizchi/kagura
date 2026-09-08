@@ -15,7 +15,7 @@ pub fn Camera2D::new(
   world_w : Double,
   world_h : Double,
 ) -> Camera2D {
-  { x: 0.0, y: 0.0, screen_w, screen_h, world_w, world_h }
+  { x: 0.0, y: 0.0, screen_w, screen_h, world_w, world_h, }
 }
 
 ///|

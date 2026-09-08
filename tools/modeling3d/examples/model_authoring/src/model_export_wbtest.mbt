@@ -69,7 +69,7 @@ test "document_glb_bytes round-trips default document as scene graph" {
 
 ///|
 test "document_export_filename normalizes unsafe characters" {
-  let doc = { ..default_model_document(), name: "My Clay Totem / v1?" }
+  let doc = { ..default_model_document(), name: "My Clay Totem / v1?", }
   assert_eq(
     @modeling3d.document_export_filename(doc),
     "My-Clay-Totem-_-v1_.glb",

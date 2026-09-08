@@ -185,7 +185,7 @@ fn build_basic_mesh() -> (@mesh3d.Mesh3D, @skeleton3d.SkinData) {
     verts, indices, ji, wa, vc, 0.12, 0.15, -0.04, 0.18, 0.32, 0.04, 1, 1,
   )
   let mesh = @mesh3d.Mesh3D::new(verts, indices)
-  (mesh, { joint_indices: ji, weights: wa, vertex_count: vc.val })
+  (mesh, { joint_indices: ji, weights: wa, vertex_count: vc.val, })
 }
 
 ///|
@@ -211,7 +211,7 @@ fn build_fast_mesh() -> (@mesh3d.Mesh3D, @skeleton3d.SkinData) {
     verts, indices, ji, wa, vc, 0.08, 0.12, -0.01, 0.16, 0.25, 0.01, 1, 1,
   )
   let mesh = @mesh3d.Mesh3D::new(verts, indices)
-  (mesh, { joint_indices: ji, weights: wa, vertex_count: vc.val })
+  (mesh, { joint_indices: ji, weights: wa, vertex_count: vc.val, })
 }
 
 ///|
@@ -237,7 +237,7 @@ fn build_tank_mesh() -> (@mesh3d.Mesh3D, @skeleton3d.SkinData) {
     verts, indices, ji, wa, vc, 0.2, 0.32, -0.1, 0.28, 0.45, 0.1, 1, 1,
   )
   let mesh = @mesh3d.Mesh3D::new(verts, indices)
-  (mesh, { joint_indices: ji, weights: wa, vertex_count: vc.val })
+  (mesh, { joint_indices: ji, weights: wa, vertex_count: vc.val, })
 }
 
 ///|
@@ -268,7 +268,7 @@ fn build_ranged_mesh() -> (@mesh3d.Mesh3D, @skeleton3d.SkinData) {
     verts, indices, ji, wa, vc, 0.1, 0.48, -0.03, 0.17, 0.55, 0.03, 1, 1,
   )
   let mesh = @mesh3d.Mesh3D::new(verts, indices)
-  (mesh, { joint_indices: ji, weights: wa, vertex_count: vc.val })
+  (mesh, { joint_indices: ji, weights: wa, vertex_count: vc.val, })
 }
 
 ///|
@@ -306,7 +306,7 @@ fn build_boss_mesh() -> (@mesh3d.Mesh3D, @skeleton3d.SkinData) {
     verts, indices, ji, wa, vc, 0.35, 0.0, -0.02, 0.4, 0.7, 0.02, 1, 1,
   )
   let mesh = @mesh3d.Mesh3D::new(verts, indices)
-  (mesh, { joint_indices: ji, weights: wa, vertex_count: vc.val })
+  (mesh, { joint_indices: ji, weights: wa, vertex_count: vc.val, })
 }
 
 ///|
@@ -318,7 +318,7 @@ fn build_mesh_data(
   // Recompute packed data with *this* skeleton's IBM (all share same structure)
   let _ = skeleton
   let packed = @skeleton3d.build_skinned_vertex_data(mesh, skin)
-  { bind_mesh: mesh, skin_data: skin, packed_vertex_data: packed }
+  { bind_mesh: mesh, skin_data: skin, packed_vertex_data: packed, }
 }
 
 ///|
@@ -357,7 +357,7 @@ fn build_enemy_idle_animation() -> @animation3d.AnimationClip {
     times,
     values,
   })
-  { name: "enemy_idle", channels, duration: enemy_idle_duration }
+  { name: "enemy_idle", channels, duration: enemy_idle_duration, }
 }
 
 ///|

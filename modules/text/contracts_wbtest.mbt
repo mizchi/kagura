@@ -236,7 +236,7 @@ test "set_font_load_hooks and reset_font_load_hooks" {
 ///|
 test "load_font with hook returns valid font" {
   let font_data = test_font_otf_data()
-  set_font_load_hooks({ load_font_data: fn(_name) { Some(font_data) } })
+  set_font_load_hooks({ load_font_data: fn(_name) { Some(font_data) }, })
   let font = load_font("test_embedded.otf")
   assert_true(font is Some(_))
   reset_font_load_hooks()
@@ -245,7 +245,7 @@ test "load_font with hook returns valid font" {
 ///|
 test "load_text_renderer with hook returns valid renderer" {
   let font_data = test_font_otf_data()
-  set_font_load_hooks({ load_font_data: fn(_name) { Some(font_data) } })
+  set_font_load_hooks({ load_font_data: fn(_name) { Some(font_data) }, })
   let renderer = load_text_renderer("test_embedded.otf", 256, 1, 0)
   assert_true(renderer is Some(_))
   reset_font_load_hooks()
@@ -254,7 +254,7 @@ test "load_text_renderer with hook returns valid renderer" {
 ///|
 test "TextRenderer measure returns valid metrics" {
   let font_data = test_font_otf_data()
-  set_font_load_hooks({ load_font_data: fn(_name) { Some(font_data) } })
+  set_font_load_hooks({ load_font_data: fn(_name) { Some(font_data) }, })
   let renderer = load_text_renderer("test.otf", 256, 1, 0).unwrap()
   let metrics = renderer.measure("I", 24.0)
   assert_true(metrics.width > 0.0)

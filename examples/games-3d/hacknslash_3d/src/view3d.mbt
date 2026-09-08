@@ -112,7 +112,7 @@ fn compute_shadow_frame_state(
     config.near,
     config.far,
   )
-  Some({ config, light_vp })
+  Some({ config, light_vp, })
 }
 
 // Pre-compute tinted lighting for a color (used for dungeon groups)

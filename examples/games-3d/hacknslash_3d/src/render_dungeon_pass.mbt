@@ -19,7 +19,7 @@ struct MeshAccumulator {
 
 ///|
 fn new_mesh_accumulator() -> MeshAccumulator {
-  { vertices: [], indices: [] }
+  { vertices: [], indices: [], }
 }
 
 ///|
@@ -97,7 +97,7 @@ fn build_visible_dungeon_mesh_cache(
   push_group(door_acc, color_door, Door, groups)
   push_group(wall_acc, color_wall, Wall, groups)
   push_group(pillar_acc, color_pillar, Pillar, groups)
-  { groups, all_mesh: @mesh3d.Mesh3D::new(all_acc.vertices, all_acc.indices) }
+  { groups, all_mesh: @mesh3d.Mesh3D::new(all_acc.vertices, all_acc.indices), }
 }
 
 ///|

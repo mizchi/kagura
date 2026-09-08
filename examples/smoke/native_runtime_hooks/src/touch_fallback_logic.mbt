@@ -32,11 +32,11 @@ fn resolve_touch_points_with_mouse_fallback(
     }
   }
   if direct_touches.length() > 0 {
-    { touches: direct_touches, saw_native_touch: true }
+    { touches: direct_touches, saw_native_touch: true, }
   } else if saw_native_touch {
-    { touches: direct_touches, saw_native_touch }
+    { touches: direct_touches, saw_native_touch, }
   } else if !fallback_enabled {
-    { touches: direct_touches, saw_native_touch: false }
+    { touches: direct_touches, saw_native_touch: false, }
   } else {
     let resolved_touches = direct_touches
     if has_left_mouse_button_pressed(pressed_mouse_buttons) {
@@ -49,6 +49,6 @@ fn resolve_touch_points_with_mouse_fallback(
         ),
       )
     }
-    { touches: resolved_touches, saw_native_touch: false }
+    { touches: resolved_touches, saw_native_touch: false, }
   }
 }

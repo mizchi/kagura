@@ -14,7 +14,7 @@ fn queue_active_effect(
   doc : @effect.EffectDocument,
   placement : @effect.EffectPlacement,
 ) -> Unit {
-  state.active_effects.push({ label, doc, placement, elapsed: 0.0 })
+  state.active_effects.push({ label, doc, placement, elapsed: 0.0, })
 }
 
 ///|

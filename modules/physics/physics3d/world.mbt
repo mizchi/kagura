@@ -385,7 +385,7 @@ pub fn PhysicsWorld::step(self : PhysicsWorld, dt : Double) -> Unit {
           }
           self.bodies[i] = { ..body, sleep_timer, }
         } else {
-          self.bodies[i] = { ..body, is_sleeping: false, sleep_timer: 0.0 }
+          self.bodies[i] = { ..body, is_sleeping: false, sleep_timer: 0.0, }
         }
       }
     }
@@ -424,7 +424,7 @@ pub fn PhysicsWorld::step(self : PhysicsWorld, dt : Double) -> Unit {
               }
             }
           } else if body.is_sleeping {
-            self.bodies[i] = { ..body, is_sleeping: false, sleep_timer: 0.0 }
+            self.bodies[i] = { ..body, is_sleeping: false, sleep_timer: 0.0, }
           }
         }
       }

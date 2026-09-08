@@ -55,7 +55,7 @@ pub fn World::spawn(self : World) -> EntityId {
   self.physics_body_ids.push(None)
   self.scene_node_ids.push(None)
   self.animation_players.push(None)
-  { value: id }
+  { value: id, }
 }
 
 ///|

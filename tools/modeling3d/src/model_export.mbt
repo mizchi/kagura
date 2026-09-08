@@ -152,7 +152,7 @@ fn append_slice_bytes(
   for value in values {
     bin.push(value)
   }
-  { offset, length: values.length() }
+  { offset, length: values.length(), }
 }
 
 ///|

@@ -111,7 +111,7 @@ pub struct UITree {
 
 ///|
 pub fn UITree::new() -> UITree {
-  { nodes: Map([]), next_id: 1 }
+  { nodes: Map([]), next_id: 1, }
 }
 
 ///|
@@ -120,9 +120,9 @@ pub fn UITree::add_node(
   style : UINodeStyle,
   children : Array[UINodeId],
 ) -> UINodeId {
-  let id : UINodeId = { value: self.next_id }
+  let id : UINodeId = { value: self.next_id, }
   self.next_id = self.next_id + 1
-  let node : UINode = { id, style, children }
+  let node : UINode = { id, style, children, }
   self.nodes.set(id.value, node)
   id
 }

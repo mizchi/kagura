@@ -58,7 +58,7 @@ pub(all) struct ParticleEmitter {
 
 ///|
 pub fn ParticleEmitter::new(config : EmitterConfig) -> ParticleEmitter {
-  { config, particles: [], spawn_accumulator: 0.0, frame_count: 0 }
+  { config, particles: [], spawn_accumulator: 0.0, frame_count: 0, }
 }
 
 ///|

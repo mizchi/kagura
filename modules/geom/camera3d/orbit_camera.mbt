@@ -64,7 +64,7 @@ pub fn OrbitCamera::orbit(
 pub fn OrbitCamera::zoom(self : OrbitCamera, delta : Double) -> OrbitCamera {
   let d = self.distance + delta
   let clamped = if d < 0.1 { 0.1 } else { d }
-  { ..self, distance: clamped }
+  { ..self, distance: clamped, }
 }
 
 ///|
@@ -77,7 +77,7 @@ pub fn OrbitCamera::pan(
   let right = orient.rotate_vec3(@math3d.Vec3::unit_x())
   let up = orient.rotate_vec3(@math3d.Vec3::unit_y())
   let offset = right.scale(delta_right).add(up.scale(delta_up))
-  { ..self, target: self.target.add(offset) }
+  { ..self, target: self.target.add(offset), }
 }
 
 ///|

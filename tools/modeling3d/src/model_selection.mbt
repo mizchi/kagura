@@ -23,7 +23,7 @@ pub(all) struct StampHistoryEntry {
 ///|
 pub fn default_selection(doc : ModelDocument) -> ModelSelection? {
   match doc.sculpt_layers.get(0) {
-    Some(layer) => Some({ kind: SculptLayerSelection, target_id: layer.id })
+    Some(layer) => Some({ kind: SculptLayerSelection, target_id: layer.id, })
     None => None
   }
 }

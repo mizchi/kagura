@@ -25,7 +25,7 @@ pub struct Path {
 
 ///|
 pub fn Path::new() -> Path {
-  { commands: [], current_x: 0.0, current_y: 0.0, start_x: 0.0, start_y: 0.0 }
+  { commands: [], current_x: 0.0, current_y: 0.0, start_x: 0.0, start_y: 0.0, }
 }
 
 ///|

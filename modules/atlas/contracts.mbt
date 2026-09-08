@@ -80,7 +80,7 @@ pub fn new_atlas_region(
   height : Int,
   atlas_id : Int,
 ) -> AtlasRegion {
-  { x, y, width, height, atlas_id }
+  { x, y, width, height, atlas_id, }
 }
 
 ///|
@@ -148,7 +148,7 @@ pub fn new_source_image_binding(
   palette : ImagePalette2x2,
   pixels_rgba8 : Array[Int],
 ) -> SourceImageBinding {
-  { image_id, width, height, generation, dirty_rect, palette, pixels_rgba8 }
+  { image_id, width, height, generation, dirty_rect, palette, pixels_rgba8, }
 }
 
 ///|
@@ -158,7 +158,7 @@ pub fn new_source_image_dirty_rect(
   width : Int,
   height : Int,
 ) -> SourceImageDirtyRect {
-  { x, y, width, height }
+  { x, y, width, height, }
 }
 
 ///|
@@ -166,7 +166,7 @@ pub fn new_unmanaged_atlas_draw_source(image_id : Int) -> AtlasDrawSource {
   let safe_image_id = if image_id < 0 { 0 } else { image_id }
   {
     page_image_id: safe_image_id,
-    region: { x: 0, y: 0, width: 1, height: 1, atlas_id: safe_image_id },
+    region: { x: 0, y: 0, width: 1, height: 1, atlas_id: safe_image_id, },
     u0: 0.0,
     v0: 0.0,
     u1: 1.0,
@@ -218,7 +218,7 @@ pub fn image_spec_with_palette(
   height : Int,
   palette : ImagePalette2x2,
 ) -> ImageSpec {
-  { width, height, format: "rgba8unorm", palette, pixels_rgba8: [] }
+  { width, height, format: "rgba8unorm", palette, pixels_rgba8: [], }
 }
 
 ///|
@@ -472,7 +472,7 @@ fn merge_dirty_rects(
           let by1 = b.y + b.height
           let x1 = if ax1 > bx1 { ax1 } else { bx1 }
           let y1 = if ay1 > by1 { ay1 } else { by1 }
-          Some({ x: x0, y: y0, width: x1 - x0, height: y1 - y0 })
+          Some({ x: x0, y: y0, width: x1 - x0, height: y1 - y0, })
         }
       }
   }
@@ -623,7 +623,7 @@ fn find_material_spec(
 
 ///|
 pub fn new_simple_image_repository() -> SimpleImageRepository {
-  { next_image_id: 1, images: [] }
+  { next_image_id: 1, images: [], }
 }
 
 ///|
@@ -640,7 +640,7 @@ pub fn list_image_palette_bindings(
 ) -> Array[ImagePaletteBinding] {
   let bindings : Array[ImagePaletteBinding] = []
   for entry in repo.images {
-    bindings.push({ image_id: entry.handle.id, palette: entry.palette })
+    bindings.push({ image_id: entry.handle.id, palette: entry.palette, })
   }
   bindings
 }
@@ -814,12 +814,12 @@ pub fn update_image_spec(
 
 ///|
 pub fn new_simple_shader_repository() -> SimpleShaderRepository {
-  { next_shader_id: 1, shaders: [] }
+  { next_shader_id: 1, shaders: [], }
 }
 
 ///|
 pub fn new_simple_material_repository() -> SimpleMaterialRepository {
-  { materials: [] }
+  { materials: [], }
 }
 
 ///|
@@ -883,7 +883,7 @@ pub impl ShaderRepository for SimpleShaderRepository with fn create_shader(
     None => {
       let handle = @gfx.new_shader_handle(self.next_shader_id, spec.source)
       self.next_shader_id = self.next_shader_id + 1
-      self.shaders.push({ key, handle })
+      self.shaders.push({ key, handle, })
       handle
     }
   }
@@ -921,14 +921,14 @@ pub impl MaterialRepository for SimpleMaterialRepository with fn register_materi
   let mut replaced = false
   for entry in self.materials {
     if asset_key_eq(entry.key, key) {
-      next.push({ key, spec })
+      next.push({ key, spec, })
       replaced = true
     } else {
       next.push(entry)
     }
   }
   if !replaced {
-    next.push({ key, spec })
+    next.push({ key, spec, })
   }
   self.materials = next
 }
@@ -1084,7 +1084,7 @@ pub struct SimpleAtlasImageRepository {
 
 ///|
 fn atlas_region_to_dirty_rect(region : AtlasRegion) -> SourceImageDirtyRect {
-  { x: region.x, y: region.y, width: region.width, height: region.height }
+  { x: region.x, y: region.y, width: region.width, height: region.height, }
 }
 
 ///|
@@ -1222,7 +1222,7 @@ pub fn register_precomputed_image(
   let pixels_rgba8 = normalized_rgba8_channels(spec.pixels_rgba8, width, height)
   let handle = @gfx.new_image_handle(repo.next_image_id, width, height)
   repo.next_image_id = repo.next_image_id + 1
-  repo.images.push({ key, handle, region, palette: spec.palette, pixels_rgba8 })
+  repo.images.push({ key, handle, region, palette: spec.palette, pixels_rgba8, })
   mark_atlas_page_dirty(repo, Some(atlas_region_to_dirty_rect(region)))
   handle
 }

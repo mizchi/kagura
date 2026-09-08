@@ -21,14 +21,14 @@ test "LevelProgression can consume a pending choice" {
 
 ///|
 test "xp_required_for_level uses base and growth" {
-  let config = LevelUpConfig::{ xp_base: 10, xp_growth: 6 }
+  let config = LevelUpConfig::{ xp_base: 10, xp_growth: 6, }
   assert_eq(xp_required_for_level(1, config), 10)
   assert_eq(xp_required_for_level(4, config), 28)
 }
 
 ///|
 test "evaluate_tier_curve applies per-floor growth after floor 1" {
-  let curve = TierCurve::{ base: 1.0, per_floor: 0.25 }
+  let curve = TierCurve::{ base: 1.0, per_floor: 0.25, }
   assert_eq(evaluate_tier_curve(curve, 1), 1.0)
   assert_eq(evaluate_tier_curve(curve, 5), 2.0)
 }

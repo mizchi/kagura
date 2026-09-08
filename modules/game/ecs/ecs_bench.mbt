@@ -9,8 +9,8 @@ fn setup_world(n : Int) -> World {
         @math3d.Vec3::new(i.to_double(), 0.0, 0.0),
       ),
     )
-    world.set_velocity(eid, { x: 1.0, y: 2.0, z: 0.0 })
-    world.set_health(eid, { current: 100, max: 100 })
+    world.set_velocity(eid, { x: 1.0, y: 2.0, z: 0.0, })
+    world.set_health(eid, { current: 100, max: 100, })
   }
   world
 }
@@ -65,7 +65,7 @@ test "bench system_death 10000" (b : @bench.T) {
     let world = setup_world(10000)
     // kill half
     for i in 0..<5000 {
-      world.set_health({ value: i * 2 }, { current: 0, max: 100 })
+      world.set_health({ value: i * 2, }, { current: 0, max: 100, })
     }
     system_death(world)
     b.keep(world.entity_count())
@@ -77,7 +77,7 @@ test "bench compact 10000 half dead" (b : @bench.T) {
   b.bench(name="ecs/compact_10000_half_dead", fn() {
     let world = setup_world(10000)
     for i in 0..<5000 {
-      world.destroy({ value: i * 2 })
+      world.destroy({ value: i * 2, })
     }
     world.compact()
     b.keep(world.entity_count())
@@ -123,9 +123,9 @@ test "bench entities_with_tag 10000" (b : @bench.T) {
   let world = setup_world(10000)
   for i in 0..<10000 {
     if i % 3 == 0 {
-      world.add_tag({ value: i }, Enemy)
+      world.add_tag({ value: i, }, Enemy)
     } else {
-      world.add_tag({ value: i }, Bullet)
+      world.add_tag({ value: i, }, Bullet)
     }
   }
   b.bench(name="ecs/entities_with_tag_10000", fn() {
@@ -140,8 +140,8 @@ test "bench component set/get 10000" (b : @bench.T) {
   b.bench(name="ecs/component_set_get_10000", fn() {
     let mut sum = 0
     for i in 0..<10000 {
-      let eid : EntityId = { value: i }
-      world.set_health(eid, { current: i, max: 100 })
+      let eid : EntityId = { value: i, }
+      world.set_health(eid, { current: i, max: 100, })
       match world.get_health(eid) {
         Some(h) => sum += h.current
         None => ()
@@ -156,7 +156,7 @@ test "bench full frame tick 1000" (b : @bench.T) {
   let world = setup_world(1000)
   for i in 0..<1000 {
     if i % 10 == 0 {
-      world.set_health({ value: i }, { current: 0, max: 100 })
+      world.set_health({ value: i, }, { current: 0, max: 100, })
     }
   }
   b.bench(name="ecs/full_frame_tick_1000", fn() {

@@ -14,8 +14,8 @@ fn make_test_state_machine() -> SpriteAnimationStateMachine {
   clips["idle"] = idle
   clips["walk"] = walk
   let transitions = [
-    { from_state: "idle", to_state: "walk", trigger: "move" },
-    { from_state: "walk", to_state: "idle", trigger: "stop" },
+    { from_state: "idle", to_state: "walk", trigger: "move", },
+    { from_state: "walk", to_state: "idle", trigger: "stop", },
   ]
   SpriteAnimationStateMachine::new(clips, transitions, "idle")
 }

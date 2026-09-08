@@ -206,7 +206,7 @@ test "update_playing collects pickup generated prop and adds score" {
     graph.add_node(@scene3d.scene_node(mesh=Some(@mesh3d.Mesh3D::cube(0.5)))),
   )
   state.set_generated_prop_asset(
-    { scene_graph: graph, source_path: "./assets/generated/pickup.glb" },
+    { scene_graph: graph, source_path: "./assets/generated/pickup.glb", },
     generated_prop_placement(
       "./assets/generated/pickup.glb",
       floor=1,
@@ -233,7 +233,7 @@ test "update_playing collects health pickup generated prop and heals player" {
     graph.add_node(@scene3d.scene_node(mesh=Some(@mesh3d.Mesh3D::cube(0.5)))),
   )
   state.set_generated_prop_asset(
-    { scene_graph: graph, source_path: "./assets/generated/health.glb" },
+    { scene_graph: graph, source_path: "./assets/generated/health.glb", },
     generated_prop_placement(
       "./assets/generated/health.glb",
       floor=1,
@@ -259,7 +259,7 @@ test "update_playing collects equipment pickup generated prop and adds inventory
     graph.add_node(@scene3d.scene_node(mesh=Some(@mesh3d.Mesh3D::cube(0.5)))),
   )
   state.set_generated_prop_asset(
-    { scene_graph: graph, source_path: "./assets/generated/equipment.glb" },
+    { scene_graph: graph, source_path: "./assets/generated/equipment.glb", },
     generated_prop_placement(
       "./assets/generated/equipment.glb",
       floor=1,
@@ -456,7 +456,7 @@ test "update_playing pushes player away from blocking generated prop" {
   state.world.player.x = prop_x
   state.world.player.y = prop_y
   state.set_generated_prop_asset(
-    { scene_graph: graph, source_path: "./assets/generated/blocking.glb" },
+    { scene_graph: graph, source_path: "./assets/generated/blocking.glb", },
     generated_prop_placement(
       "./assets/generated/blocking.glb",
       floor=1,
@@ -493,7 +493,10 @@ test "update_playing pushes enemy away from blocking generated prop" {
     @game.make_enemy(prop_x, prop_y, @game.Basic, 3, 0.0, 12.0),
   ]
   state.set_generated_prop_asset(
-    { scene_graph: graph, source_path: "./assets/generated/blocking-enemy.glb" },
+    {
+      scene_graph: graph,
+      source_path: "./assets/generated/blocking-enemy.glb",
+    },
     generated_prop_placement(
       "./assets/generated/blocking-enemy.glb",
       floor=1,
@@ -535,7 +538,7 @@ test "update_playing routes enemy pathfinding around blocking generated prop" {
     @game.make_enemy(prop_x + 48.0, prop_y, @game.Basic, 3, 1.0, 12.0),
   ]
   state.set_generated_prop_asset(
-    { scene_graph: graph, source_path: "./assets/generated/blocking-path.glb" },
+    { scene_graph: graph, source_path: "./assets/generated/blocking-path.glb", },
     generated_prop_placement(
       "./assets/generated/blocking-path.glb",
       floor=1,

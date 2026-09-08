@@ -15,7 +15,7 @@ pub fn DotText2D::new(
   color~ : @gfx.Color,
   scale? : Double = 1.0,
 ) -> DotText2D {
-  { chars, cx, cy, color, scale }
+  { chars, cx, cy, color, scale, }
 }
 
 ///|
@@ -92,7 +92,7 @@ pub fn Number2D::new(
   color~ : @gfx.Color,
   scale? : Double = 1.0,
 ) -> Number2D {
-  { number, cx, cy, color, scale }
+  { number, cx, cy, color, scale, }
 }
 
 ///|

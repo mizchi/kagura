@@ -87,7 +87,7 @@ fn cube_sorted_tris(yaw : Double, pitch : Double) -> Array[TriFaceInfo] {
     // Depth: centroid clip-space W (same as renderer)
     let depth = (c0.3 + c1.3 + c2.3) / 3.0
     let face_idx = t / 2 // Cube has 2 tris per face, 6 faces
-    visible.push({ face_idx, depth })
+    visible.push({ face_idx, depth, })
   }
   // Sort back-to-front (same as renderer)
   visible.sort_by(fn(a, b) {

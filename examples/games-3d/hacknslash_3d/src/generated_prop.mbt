@@ -7,7 +7,7 @@ fn parse_generated_prop_asset_from_glb_bytes(
   let graph = @gltf.scene_graph_from_gltf(json, buffers) catch {
     _ => return None
   }
-  Some({ scene_graph: graph, source_path })
+  Some({ scene_graph: graph, source_path, })
 }
 
 ///|

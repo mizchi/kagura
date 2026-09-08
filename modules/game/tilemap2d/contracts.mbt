@@ -83,7 +83,7 @@ pub fn new_atlas_tile_draw_spec(
   bottom : Double,
   uniform_dwords : Array[Int],
 ) -> AtlasTileDrawSpec {
-  { atlas_key, dst_region, left, top, right, bottom, uniform_dwords }
+  { atlas_key, dst_region, left, top, right, bottom, uniform_dwords, }
 }
 
 ///|
@@ -91,7 +91,7 @@ pub fn new_tile_atlas_entry(
   tile_index : Int,
   atlas_key : @atlas.AssetKey,
 ) -> TileAtlasEntry {
-  { tile_index, atlas_key }
+  { tile_index, atlas_key, }
 }
 
 ///|
@@ -106,7 +106,7 @@ pub fn new_tile_chunk_rect(
   tile_width : Int,
   tile_height : Int,
 ) -> TileChunkRect {
-  { tile_x, tile_y, tile_width, tile_height }
+  { tile_x, tile_y, tile_width, tile_height, }
 }
 
 ///|
@@ -214,7 +214,7 @@ pub fn estimate_visible_tile_chunk(
     safe_rows == 0 ||
     tile_width <= 0.0 ||
     tile_height <= 0.0 {
-    { tile_x: 0, tile_y: 0, tile_width: 0, tile_height: 0 }
+    { tile_x: 0, tile_y: 0, tile_width: 0, tile_height: 0, }
   } else {
     let margin = if margin_tiles < 0 { 0 } else { margin_tiles }
     let start_x = floor_to_int((view_left - origin_left) / tile_width) - margin

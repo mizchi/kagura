@@ -3,7 +3,7 @@ pub fn Skeleton::new(
   bones : Array[Bone],
   inverse_bind_matrices : Array[@math3d.Mat4],
 ) -> Skeleton {
-  { bones, inverse_bind_matrices }
+  { bones, inverse_bind_matrices, }
 }
 
 ///|

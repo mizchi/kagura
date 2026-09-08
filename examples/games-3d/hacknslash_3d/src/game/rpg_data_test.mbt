@@ -354,7 +354,7 @@ test "player damage helpers map skills to different core stats" {
     chain_bonus: 0,
     tag_bonuses: new_tag_bonuses_array(),
   }
-  let params = { ..BalanceParams::default(), spell_damage_mult: 1.0 }
+  let params = { ..BalanceParams::default(), spell_damage_mult: 1.0, }
   assert_true(
     player_spell_damage(stats, params, Mage, ChainLightning) >
     player_spell_damage(stats, params, Mage, HomingMissile),
@@ -383,7 +383,7 @@ test "archetype affinity boosts aligned damage and punishes offspec damage" {
     chain_bonus: 0,
     tag_bonuses: new_tag_bonuses_array(),
   }
-  let params = { ..BalanceParams::default(), spell_damage_mult: 1.0 }
+  let params = { ..BalanceParams::default(), spell_damage_mult: 1.0, }
   assert_true(
     player_spell_damage(stats, params, Mage, ChainLightning) >
     player_spell_damage(stats, params, Melee, ChainLightning),

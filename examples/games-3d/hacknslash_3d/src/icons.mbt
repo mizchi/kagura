@@ -212,7 +212,7 @@ fn create_icon_atlas(atlas_id? : Int = icon_atlas_default_id) -> IconAtlas {
     }
     None =>
       // Fallback: empty atlas
-      { repo: @atlas.new_simple_atlas_image_repository(256, 256, atlas_id) }
+      { repo: @atlas.new_simple_atlas_image_repository(256, 256, atlas_id), }
   }
 }
 

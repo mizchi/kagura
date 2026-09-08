@@ -335,7 +335,7 @@ pub fn PhysicsWorld2D::step(self : PhysicsWorld2D, dt : Double) -> Unit {
   for i = 0; i < self.bodies.length(); i = i + 1 {
     let body = self.bodies[i]
     if body.is_dynamic() {
-      self.bodies[i] = { ..body, force: @vector.Vec2::zero(), torque: 0.0 }
+      self.bodies[i] = { ..body, force: @vector.Vec2::zero(), torque: 0.0, }
     }
   }
   // 7. Sleeping: update sleep timers and detect islands
@@ -359,10 +359,10 @@ pub fn PhysicsWorld2D::step(self : PhysicsWorld2D, dt : Double) -> Unit {
         let angular_speed = body.angular_velocity.abs()
         if speed < sleep_velocity_threshold &&
           angular_speed < sleep_angular_threshold {
-          self.bodies[i] = { ..body, sleep_timer: body.sleep_timer + dt }
+          self.bodies[i] = { ..body, sleep_timer: body.sleep_timer + dt, }
         } else {
           // Wake up if moving
-          self.bodies[i] = { ..body, is_sleeping: false, sleep_timer: 0.0 }
+          self.bodies[i] = { ..body, is_sleeping: false, sleep_timer: 0.0, }
         }
       }
     }
@@ -397,7 +397,7 @@ pub fn PhysicsWorld2D::step(self : PhysicsWorld2D, dt : Double) -> Unit {
             }
           _ =>
             if body.is_sleeping {
-              self.bodies[i] = { ..body, is_sleeping: false, sleep_timer: 0.0 }
+              self.bodies[i] = { ..body, is_sleeping: false, sleep_timer: 0.0, }
             }
         }
       }

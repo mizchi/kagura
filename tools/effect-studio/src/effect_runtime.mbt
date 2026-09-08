@@ -29,7 +29,7 @@ pub fn new_effect_placement(
   target : @math3d.Vec3?,
   scale : Double,
 ) -> EffectPlacement {
-  { origin, target, scale }
+  { origin, target, scale, }
 }
 
 ///|

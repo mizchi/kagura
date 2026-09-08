@@ -152,7 +152,7 @@ fn GameState::new() -> GameState {
   // Create targets
   let targets : Array[Target] = []
   for i in 0..<target_count {
-    targets.push({ position: spawn_target_position(i, 0), active: true })
+    targets.push({ position: spawn_target_position(i, 0), active: true, })
   }
   // Create pillars (deterministic positions)
   let pillars : Array[Obstacle] = []

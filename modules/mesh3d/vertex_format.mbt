@@ -81,13 +81,13 @@ pub fn VertexFormat::has(self : VertexFormat, target : VertexAttribute) -> Bool 
 ///|
 /// Standard 3D format: position(3) + normal(3) + uv(2) = stride 8.
 pub fn VertexFormat::standard_3d() -> VertexFormat {
-  { attributes: [Position3, Normal3, TexCoord2] }
+  { attributes: [Position3, Normal3, TexCoord2], }
 }
 
 ///|
 /// Skinned 3D format: position(3) + normal(3) + uv(2) + joints(4) + weights(4) = stride 16.
 pub fn VertexFormat::skinned_3d() -> VertexFormat {
-  { attributes: [Position3, Normal3, TexCoord2, Joints4, Weights4] }
+  { attributes: [Position3, Normal3, TexCoord2, Joints4, Weights4], }
 }
 
 ///|

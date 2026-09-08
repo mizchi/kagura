@@ -110,7 +110,7 @@ fn Game::update(self : Game, input : @core.InputSnapshot) -> Unit {
           let gap_y = min_gap_y +
             pseudo_random(self.frame_count.get()) * (max_gap_y - min_gap_y)
           let current_pipes = self.pipes.get()
-          current_pipes.push({ x: sw, gap_y })
+          current_pipes.push({ x: sw, gap_y, })
           self.pipes.set(current_pipes)
         }
         // Move pipes and check scoring

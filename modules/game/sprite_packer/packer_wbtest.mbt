@@ -2,7 +2,7 @@
 fn make_test_sprite(key : String, w : Int, h : Int) -> SpriteInput {
   let pixels : Array[Int] = Array::make(w * h * 4, 255)
   let spec = @atlas.image_spec_with_rgba8(w, h, pixels)
-  { key, spec }
+  { key, spec, }
 }
 
 ///|
@@ -85,11 +85,11 @@ test "compose_packed_image pixel placement" {
     255, 0, 0, 255, 255, 0, 0, 255, 255, 0, 0, 255, 255, 0, 0, 255,
   ]
   let red_spec = @atlas.image_spec_with_rgba8(2, 2, red_pixels)
-  let inputs : Array[SpriteInput] = [{ key: "red", spec: red_spec }]
+  let inputs : Array[SpriteInput] = [{ key: "red", spec: red_spec, }]
   let pack_result : PackResult = {
     width: 4,
     height: 4,
-    sprites: [{ key: "red", x: 1, y: 1, width: 2, height: 2 }],
+    sprites: [{ key: "red", x: 1, y: 1, width: 2, height: 2, }],
   }
   let atlas = compose_packed_image(inputs, pack_result)
   inspect(atlas.width, content="4")
@@ -167,7 +167,7 @@ test "split_sprite_sheet to pack_sprites pipeline" {
   let inputs : Array[SpriteInput] = []
   for pair in frames {
     let (key, spec) = pair
-    inputs.push({ key: key.value, spec })
+    inputs.push({ key: key.value, spec, })
   }
   // Pack them
   let result = pack_sprites(inputs, config=PackerConfig::default())

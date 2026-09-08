@@ -17,7 +17,7 @@ pub struct SceneGraph {
 
 ///|
 pub fn SceneGraph::new() -> SceneGraph {
-  { nodes: Map([]), roots: [], next_id: 0 }
+  { nodes: Map([]), roots: [], next_id: 0, }
 }
 
 ///|
@@ -73,7 +73,7 @@ pub fn SceneGraph::clone_graph(self : SceneGraph) -> SceneGraph {
   for root_id in self.roots {
     roots.push(root_id)
   }
-  { nodes, roots, next_id: self.next_id }
+  { nodes, roots, next_id: self.next_id, }
 }
 
 ///|

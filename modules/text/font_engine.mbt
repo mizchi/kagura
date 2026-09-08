@@ -19,7 +19,7 @@ pub impl FontEngine for SimpleFontEngine with fn measure(self, run) {
   let ascent = self.font.ascent.to_double() * scale
   let descent = self.font.descent.to_double().abs() * scale
   let height = ascent + descent
-  { width, height, baseline: ascent }
+  { width, height, baseline: ascent, }
 }
 
 ///|

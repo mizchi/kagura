@@ -45,7 +45,7 @@ pub impl Show for StepResult with fn output(self, logger) {
 
 ///|
 pub fn default_fixed_step_config() -> FixedStepConfig {
-  { tps: 60, max_updates_per_frame: 5 }
+  { tps: 60, max_updates_per_frame: 5, }
 }
 
 ///|
@@ -53,12 +53,12 @@ pub fn new_fixed_step_config(
   tps : Int,
   max_updates_per_frame : Int,
 ) -> FixedStepConfig {
-  { tps, max_updates_per_frame }
+  { tps, max_updates_per_frame, }
 }
 
 ///|
 pub fn initial_fixed_step_state() -> FixedStepState {
-  { accumulator_ms: 0.0, tick: 0 }
+  { accumulator_ms: 0.0, tick: 0, }
 }
 
 ///|
@@ -106,7 +106,7 @@ pub fn step_fixed_timestep(
   {
     updates,
     alpha: accumulator / tick_ms,
-    next_state: { accumulator_ms: accumulator, tick: state.tick + updates },
+    next_state: { accumulator_ms: accumulator, tick: state.tick + updates, },
   }
 }
 

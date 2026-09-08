@@ -26,12 +26,12 @@ fn sample_snapshot() -> UISnapshot {
         width: 200.0,
         height: 20.0,
         z: 3,
-        clip: Some({ left: 0.0, top: 0.0, width: 640.0, height: 480.0 }),
+        clip: Some({ left: 0.0, top: 0.0, width: 640.0, height: 480.0, }),
         text: Some("HP 90/180"),
-        text_measured: Some({ width: 214.0, height: 18.0 }),
+        text_measured: Some({ width: 214.0, height: 18.0, }),
         focusable: true,
         focus_index: 2,
-        hit: Some({ left: 16.0, top: 16.0, width: 200.0, height: 20.0 }),
+        hit: Some({ left: 16.0, top: 16.0, width: 200.0, height: 20.0, }),
       },
     ],
     focus_order: ["start_button", "hp_bar"],
@@ -81,7 +81,7 @@ test "UISnapshot::to_json omits absent optional fields" {
   let snapshot = {
     ..default_ui_snapshot(screen_width=320.0, screen_height=240.0),
     nodes: [
-      { ..default_ui_snapshot_node(), path: "a[0]", width: 10.0, height: 10.0 },
+      { ..default_ui_snapshot_node(), path: "a[0]", width: 10.0, height: 10.0, },
     ],
   }
   let json = snapshot.to_json()
@@ -146,12 +146,12 @@ test "UISnapshot::to_json collapses non-finite doubles to zero" {
 test "ui_snapshot_nodes_from_layouts carries geometry" {
   let layouts : Array[LayoutResult] = [
     {
-      node_id: { value: 7 },
-      rect: { x: 4.0, y: 8.0, width: 100.0, height: 20.0 },
+      node_id: { value: 7, },
+      rect: { x: 4.0, y: 8.0, width: 100.0, height: 20.0, },
     },
     {
-      node_id: { value: 9 },
-      rect: { x: 0.0, y: 0.0, width: 640.0, height: 480.0 },
+      node_id: { value: 9, },
+      rect: { x: 0.0, y: 0.0, width: 640.0, height: 480.0, },
     },
   ]
   let nodes = ui_snapshot_nodes_from_layouts(layouts)

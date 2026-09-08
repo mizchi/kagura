@@ -403,7 +403,7 @@ fn solve_constraint2d(
     }
   }
   // Write back accumulated impulses
-  constraints[ci] = { ..c, acc_jn: cur_acc_jn, acc_jt: cur_acc_jt }
+  constraints[ci] = { ..c, acc_jn: cur_acc_jn, acc_jt: cur_acc_jt, }
 }
 
 ///|
@@ -461,5 +461,5 @@ fn _solve_relaxation2d(
     }
   }
   // Write back accumulated impulse
-  constraints[ci] = { ..c, acc_jn: new_acc_jn }
+  constraints[ci] = { ..c, acc_jn: new_acc_jn, }
 }

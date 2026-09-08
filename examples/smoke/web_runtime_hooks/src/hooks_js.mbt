@@ -91,14 +91,14 @@ fn set_synced_source_generation(image_id : Int, generation : Int) -> Unit {
   let safe_generation = normalized_source_generation(generation)
   for entry in synced_source_generations.val {
     if entry.image_id == image_id {
-      next.push({ image_id, generation: safe_generation })
+      next.push({ image_id, generation: safe_generation, })
       replaced = true
     } else {
       next.push(entry)
     }
   }
   if !replaced {
-    next.push({ image_id, generation: safe_generation })
+    next.push({ image_id, generation: safe_generation, })
   }
   synced_source_generations.val = next
 }

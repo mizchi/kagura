@@ -20,7 +20,7 @@ pub fn CircularInteractable::new(
   radius : Double,
   role : InteractableRole,
 ) -> CircularInteractable {
-  { x, y, radius, role }
+  { x, y, radius, role, }
 }
 
 ///|

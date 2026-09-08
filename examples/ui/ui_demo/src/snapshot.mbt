@@ -100,7 +100,7 @@ fn DemoState::ui_snapshot(self : DemoState) -> @ui.UISnapshot {
     let measured : @ui.UITextMetrics? = match self.button_labels.get(nid) {
       Some(chars) => {
         let (w, h) = @renderer2d.dot_text_size(chars.length())
-        let metrics : @ui.UITextMetrics = { width: w, height: h }
+        let metrics : @ui.UITextMetrics = { width: w, height: h, }
         Some(metrics)
       }
       None => None

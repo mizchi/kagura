@@ -6,7 +6,7 @@ struct TestSceneGame {
 
 ///|
 fn TestSceneGame::new() -> TestSceneGame {
-  { update_count: 0, view_count: 0 }
+  { update_count: 0, view_count: 0, }
 }
 
 ///|

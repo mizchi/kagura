@@ -36,7 +36,7 @@ pub fn Transform3D::from_position_rotation(
   pos : @math3d.Vec3,
   rot : @math3d.Quaternion,
 ) -> Transform3D {
-  { position: pos, rotation: rot, scale: @math3d.Vec3::one() }
+  { position: pos, rotation: rot, scale: @math3d.Vec3::one(), }
 }
 
 ///|
@@ -45,7 +45,7 @@ pub fn Transform3D::from_components(
   rot : @math3d.Quaternion,
   scale : @math3d.Vec3,
 ) -> Transform3D {
-  { position: pos, rotation: rot, scale }
+  { position: pos, rotation: rot, scale, }
 }
 
 ///|
@@ -84,7 +84,7 @@ pub fn Transform3D::with_position(
   self : Transform3D,
   pos : @math3d.Vec3,
 ) -> Transform3D {
-  { ..self, position: pos }
+  { ..self, position: pos, }
 }
 
 ///|
@@ -92,7 +92,7 @@ pub fn Transform3D::with_rotation(
   self : Transform3D,
   rot : @math3d.Quaternion,
 ) -> Transform3D {
-  { ..self, rotation: rot }
+  { ..self, rotation: rot, }
 }
 
 ///|
@@ -100,7 +100,7 @@ pub fn Transform3D::with_scale(
   self : Transform3D,
   s : @math3d.Vec3,
 ) -> Transform3D {
-  { ..self, scale: s }
+  { ..self, scale: s, }
 }
 
 ///|
@@ -108,7 +108,7 @@ pub fn Transform3D::translate(
   self : Transform3D,
   delta : @math3d.Vec3,
 ) -> Transform3D {
-  { ..self, position: self.position.add(delta) }
+  { ..self, position: self.position.add(delta), }
 }
 
 ///|
@@ -116,7 +116,7 @@ pub fn Transform3D::rotate(
   self : Transform3D,
   additional : @math3d.Quaternion,
 ) -> Transform3D {
-  { ..self, rotation: self.rotation.multiply(additional).normalize() }
+  { ..self, rotation: self.rotation.multiply(additional).normalize(), }
 }
 
 ///|
@@ -124,7 +124,7 @@ pub fn Transform3D::scale_by(
   self : Transform3D,
   factor : @math3d.Vec3,
 ) -> Transform3D {
-  { ..self, scale: self.scale.mul(factor) }
+  { ..self, scale: self.scale.mul(factor), }
 }
 
 ///|
@@ -165,7 +165,7 @@ pub fn Transform3D::look_at(
   // Build rotation matrix (column-major), then extract quaternion.
   // Columns: right, up, -forward
   let rot = quaternion_from_axes(right, up, forward.negate())
-  { ..self, rotation: rot }
+  { ..self, rotation: rot, }
 }
 
 ///|
@@ -187,7 +187,7 @@ pub fn Transform3D::from_mat4(m : @math3d.Mat4) -> Transform3D {
   let up = @math3d.Vec3::new(e[4] * inv_sy, e[5] * inv_sy, e[6] * inv_sy)
   let forward = @math3d.Vec3::new(e[8] * inv_sz, e[9] * inv_sz, e[10] * inv_sz)
   let rotation = quaternion_from_axes(right, up, forward)
-  { position, rotation, scale }
+  { position, rotation, scale, }
 }
 
 ///|

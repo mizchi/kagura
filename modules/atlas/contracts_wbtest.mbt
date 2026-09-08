@@ -63,7 +63,7 @@ test "new_source_image_binding factory constructs binding" {
 ///|
 test "simple image repository can create get and remove images" {
   let repo = new_simple_image_repository()
-  let key : AssetKey = { value: "player" }
+  let key : AssetKey = { value: "player", }
   let spec = default_image_spec(32, 16)
   let handle = repo.create_image(key, spec)
 
@@ -82,7 +82,7 @@ test "simple image repository can create get and remove images" {
 ///|
 test "simple image repository reuses handle for duplicate keys" {
   let repo = new_simple_image_repository()
-  let key : AssetKey = { value: "player" }
+  let key : AssetKey = { value: "player", }
   let first = repo.create_image(key, default_image_spec(32, 16))
   let second = repo.create_image(key, default_image_spec(64, 64))
 
@@ -93,7 +93,7 @@ test "simple image repository reuses handle for duplicate keys" {
 ///|
 test "image spec with palette is retained in simple image repository" {
   let repo = new_simple_image_repository()
-  let key : AssetKey = { value: "ui/button" }
+  let key : AssetKey = { value: "ui/button", }
   let palette = new_solid_palette(new_rgba(12, 34, 56, 255))
   let spec = image_spec_with_palette(8, 8, palette)
   let handle = repo.create_image(key, spec)
@@ -113,8 +113,8 @@ test "image spec with palette is retained in simple image repository" {
 ///|
 test "list_image_palette_bindings exports all current images" {
   let repo = new_simple_image_repository()
-  let key_a : AssetKey = { value: "a" }
-  let key_b : AssetKey = { value: "b" }
+  let key_a : AssetKey = { value: "a", }
+  let key_b : AssetKey = { value: "b", }
   let handle_a = repo.create_image(
     key_a,
     image_spec_with_palette(4, 4, new_solid_palette(new_rgba(1, 2, 3, 4))),
@@ -168,7 +168,7 @@ test "image_spec_with_rgba8 keeps channels and derives corner palette" {
 ///|
 test "list_source_image_bindings exports rgba8 payload when available" {
   let repo = new_simple_image_repository()
-  let key : AssetKey = { value: "tilemap" }
+  let key : AssetKey = { value: "tilemap", }
   let handle = repo.create_image(
     key,
     image_spec_with_rgba8(2, 2, [
@@ -597,7 +597,7 @@ test "new_unmanaged_atlas_draw_source uses full uv and clamps id" {
 ///|
 test "simple shader repository can create get and remove shaders" {
   let repo = new_simple_shader_repository()
-  let key : AssetKey = { value: "lighting" }
+  let key : AssetKey = { value: "lighting", }
   let spec : ShaderSpec = {
     debug_name: "lighting",
     source: "@fragment fn fs_main() -> vec4f { return vec4f(1.0); }",
@@ -617,7 +617,7 @@ test "simple shader repository can create get and remove shaders" {
 ///|
 test "simple shader repository reuses handle for duplicate keys" {
   let repo = new_simple_shader_repository()
-  let key : AssetKey = { value: "lighting" }
+  let key : AssetKey = { value: "lighting", }
   let first = repo.create_shader(key, {
     debug_name: "lighting_a",
     source: "shader_a",
@@ -633,8 +633,8 @@ test "simple shader repository reuses handle for duplicate keys" {
 ///|
 test "simple material repository registers and overwrites material specs" {
   let repo = new_simple_material_repository()
-  let key : AssetKey = { value: "sprite" }
-  let shader_key : AssetKey = { value: "shader/sprite" }
+  let key : AssetKey = { value: "sprite", }
+  let shader_key : AssetKey = { value: "shader/sprite", }
   repo.register_material(key, {
     shader: shader_key,
     blend: @gfx.BlendMode::from_int(1),

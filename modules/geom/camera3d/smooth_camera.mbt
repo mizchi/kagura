@@ -40,7 +40,7 @@ pub fn SmoothCamera::set_target(
   position : @math3d.Vec3,
   orientation : @math3d.Quaternion,
 ) -> SmoothCamera {
-  { ..self, target_position: position, target_orientation: orientation }
+  { ..self, target_position: position, target_orientation: orientation, }
 }
 
 ///|
@@ -51,7 +51,7 @@ pub fn SmoothCamera::set_target_look_at(
   up : @math3d.Vec3,
 ) -> SmoothCamera {
   let orientation = look_at_orientation(position, target, up)
-  { ..self, target_position: position, target_orientation: orientation }
+  { ..self, target_position: position, target_orientation: orientation, }
 }
 
 ///|
@@ -60,7 +60,7 @@ pub fn SmoothCamera::update(self : SmoothCamera, dt : Double) -> SmoothCamera {
   let t = if raw > 1.0 { 1.0 } else if raw < 0.0 { 0.0 } else { raw }
   let pos = self.current_position.lerp(self.target_position, t)
   let orient = self.current_orientation.slerp(self.target_orientation, t)
-  { ..self, current_position: pos, current_orientation: orient }
+  { ..self, current_position: pos, current_orientation: orient, }
 }
 
 ///|

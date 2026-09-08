@@ -29,7 +29,7 @@ pub fn PickupRewardConfig::new(
   score_amount~ : Int,
   heal_amount~ : Int,
 ) -> PickupRewardConfig {
-  { score_amount, heal_amount }
+  { score_amount, heal_amount, }
 }
 
 ///|
@@ -118,7 +118,7 @@ pub fn apply_builtin_pickup(
 ) -> BuiltinPickupResult? {
   match resolve_builtin_pickup_effect(effect, actor_hp, actor_max_hp, rewards) {
     Some((next_hp, score_delta, heal_feedback)) =>
-      Some({ next_hp, next_score: actor_score + score_delta, heal_feedback })
+      Some({ next_hp, next_score: actor_score + score_delta, heal_feedback, })
     None => None
   }
 }

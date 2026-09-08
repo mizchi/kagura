@@ -12,7 +12,7 @@ pub fn SimpleUIRenderAdapter::new(
   shader : @gfx.ShaderHandle,
   pipeline_id : Int,
 ) -> SimpleUIRenderAdapter {
-  { shader, pipeline_id }
+  { shader, pipeline_id, }
 }
 
 ///|

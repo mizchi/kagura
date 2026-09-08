@@ -179,5 +179,5 @@ pub fn solve_two_bone_ik(request : TwoBoneIKRequest) -> TwoBoneIKResult {
   result_poses[request.lower_bone] = result_poses[request.lower_bone].with_rotation(
     new_local_rot_lower,
   )
-  { success, local_poses: result_poses }
+  { success, local_poses: result_poses, }
 }

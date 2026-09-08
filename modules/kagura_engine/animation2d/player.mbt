@@ -2,7 +2,7 @@
 pub fn SpriteAnimationPlayer::new(
   clip : SpriteAnimationClip,
 ) -> SpriteAnimationPlayer {
-  { clip, time: 0.0, playing: true, looping: true, speed: 1.0 }
+  { clip, time: 0.0, playing: true, looping: true, speed: 1.0, }
 }
 
 ///|

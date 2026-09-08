@@ -100,24 +100,24 @@ fn DemoState::build_objects(self : DemoState) -> Array[SceneObject] {
   let objects : Array[SceneObject] = []
   // Ground plane (slightly below origin)
   let ground_model = @math3d.Mat4::translation(0.0, -0.01, 0.0)
-  objects.push({ mesh: self.ground_mesh, model_matrix: ground_model })
+  objects.push({ mesh: self.ground_mesh, model_matrix: ground_model, })
   // Cube 1: center-left
   let cube1_model = @math3d.Mat4::translation(-2.0, 0.5, 0.0)
-  objects.push({ mesh: self.cube_mesh, model_matrix: cube1_model })
+  objects.push({ mesh: self.cube_mesh, model_matrix: cube1_model, })
   // Cube 2: back-right, rotated
   let angle = self.frame.to_double() * 0.01
   let cube2_model = @math3d.Mat4::translation(2.5, 0.5, -1.5).multiply(
     @math3d.Mat4::rotation_y(angle),
   )
-  objects.push({ mesh: self.cube_mesh, model_matrix: cube2_model })
+  objects.push({ mesh: self.cube_mesh, model_matrix: cube2_model, })
   // Cube 3: small elevated
   let cube3_model = @math3d.Mat4::translation(0.0, 1.2, 2.0).multiply(
     @math3d.Mat4::scaling(0.6, 0.6, 0.6),
   )
-  objects.push({ mesh: self.cube_mesh, model_matrix: cube3_model })
+  objects.push({ mesh: self.cube_mesh, model_matrix: cube3_model, })
   // Sphere
   let sphere_model = @math3d.Mat4::translation(1.0, 0.6, 1.5)
-  objects.push({ mesh: self.sphere_mesh, model_matrix: sphere_model })
+  objects.push({ mesh: self.sphere_mesh, model_matrix: sphere_model, })
   objects
 }
 

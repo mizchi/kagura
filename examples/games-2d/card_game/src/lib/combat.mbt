@@ -13,7 +13,7 @@ pub impl Show for StatusEffects with fn output(self, logger) {
 
 ///|
 fn StatusEffects::new() -> StatusEffects {
-  { vulnerable: 0, weak: 0, strength: 0 }
+  { vulnerable: 0, weak: 0, strength: 0, }
 }
 
 ///|

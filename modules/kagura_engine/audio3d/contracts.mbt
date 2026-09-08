@@ -34,7 +34,7 @@ pub fn AudioListener3D::from_camera(
   forward : @math3d.Vec3,
   up : @math3d.Vec3,
 ) -> AudioListener3D {
-  { position, forward: forward.normalize(), up: up.normalize() }
+  { position, forward: forward.normalize(), up: up.normalize(), }
 }
 
 ///|

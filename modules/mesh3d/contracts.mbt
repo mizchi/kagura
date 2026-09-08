@@ -120,7 +120,7 @@ fn compute_mesh_bounds(
       max_z = z
     }
   }
-  { min_x, min_y, min_z, max_x, max_y, max_z }
+  { min_x, min_y, min_z, max_x, max_y, max_z, }
 }
 
 ///|

@@ -17,7 +17,7 @@ pub fn AtlasQuad2D::new(
   bottom~ : Double,
   uniform_dwords? : Array[Int] = [],
 ) -> AtlasQuad2D {
-  { source, left, top, right, bottom, uniform_dwords }
+  { source, left, top, right, bottom, uniform_dwords, }
 }
 
 ///|

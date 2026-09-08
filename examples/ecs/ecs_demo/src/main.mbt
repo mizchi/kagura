@@ -52,7 +52,7 @@ fn Game::new() -> Game {
     ),
   )
   world.add_tag(player_id, @ecs.Tag::Player)
-  world.set_velocity(player_id, { x: 0.0, y: 0.0, z: 0.0 })
+  world.set_velocity(player_id, { x: 0.0, y: 0.0, z: 0.0, })
   // Spawn enemies
   for i in 0..<enemy_count {
     let ex = pseudo_random(i * 7 + 3) * (screen_w.to_double() - 20.0) + 10.0
@@ -61,9 +61,9 @@ fn Game::new() -> Game {
       @transform3d.Transform3D::from_position(@math3d.Vec3::new(ex, ey, 0.0)),
     )
     world.add_tag(eid, @ecs.Tag::Enemy)
-    world.set_velocity(eid, { x: 0.0, y: 0.0, z: 0.0 })
+    world.set_velocity(eid, { x: 0.0, y: 0.0, z: 0.0, })
   }
-  { world, input: @inpututil.new_input_helper(), player_id }
+  { world, input: @inpututil.new_input_helper(), player_id, }
 }
 
 ///|
@@ -85,7 +85,7 @@ fn Game::update(self : Game, input_snapshot : @core.InputSnapshot) -> Unit {
   if @inpututil.is_move_right(self.input.key_state) {
     dx = dx + player_speed
   }
-  self.world.set_velocity(self.player_id, { x: dx / dt, y: dy / dt, z: 0.0 })
+  self.world.set_velocity(self.player_id, { x: dx / dt, y: dy / dt, z: 0.0, })
   // Enemy AI: chase player
   let player_pos = match self.world.get_transform(self.player_id) {
     Some(t) => t.position
@@ -103,9 +103,9 @@ fn Game::update(self : Game, input_snapshot : @core.InputSnapshot) -> Unit {
         if dist > 1.0 {
           let vx = ddx / dist * enemy_speed / dt
           let vy = ddy / dist * enemy_speed / dt
-          self.world.set_velocity(eid, { x: vx, y: vy, z: 0.0 })
+          self.world.set_velocity(eid, { x: vx, y: vy, z: 0.0, })
         } else {
-          self.world.set_velocity(eid, { x: 0.0, y: 0.0, z: 0.0 })
+          self.world.set_velocity(eid, { x: 0.0, y: 0.0, z: 0.0, })
         }
       }
       None => ()

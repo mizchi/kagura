@@ -135,7 +135,7 @@ pub fn default_ui_snapshot(
     screen_width,
     screen_height,
     dpr: 1.0,
-    safe_area: { top: 0.0, right: 0.0, bottom: 0.0, left: 0.0 },
+    safe_area: { top: 0.0, right: 0.0, bottom: 0.0, left: 0.0, },
     frame: 0,
     state: "",
     nodes: [],

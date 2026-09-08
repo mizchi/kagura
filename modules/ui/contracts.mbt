@@ -93,7 +93,7 @@ pub fn default_layout_constraint(
   width : Double,
   height : Double,
 ) -> LayoutConstraint {
-  { min_width: 0.0, min_height: 0.0, max_width: width, max_height: height }
+  { min_width: 0.0, min_height: 0.0, max_width: width, max_height: height, }
 }
 
 ///|
@@ -155,7 +155,7 @@ pub struct UIFocusManager {
 
 ///|
 pub fn UIFocusManager::new() -> UIFocusManager {
-  { focused: None, focusable_ids: [] }
+  { focused: None, focusable_ids: [], }
 }
 
 ///|

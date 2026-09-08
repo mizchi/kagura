@@ -367,8 +367,8 @@ pub fn update_enemy_ai(
       enemy.path_timer = path_update_interval
       let enemy_tile_x = (enemy.x / tile_size).to_int()
       let enemy_tile_y = (enemy.y / tile_size).to_int()
-      let start : @terrain.Point = { x: enemy_tile_x, y: enemy_tile_y }
-      let goal : @terrain.Point = { x: player_tile_x, y: player_tile_y }
+      let start : @terrain.Point = { x: enemy_tile_x, y: enemy_tile_y, }
+      let goal : @terrain.Point = { x: player_tile_x, y: player_tile_y, }
       match @pathfind.find_path(grid, start, goal) {
         Some(path) => {
           enemy.path_cache = path

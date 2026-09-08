@@ -89,6 +89,36 @@ URL パラメータでゲームステートを制御し、目視確認と VRT �
 3. スナップショットモードが必要なら `SNAPSHOT_TESTS` にも追加
 4. `just e2e-vrt-update` でベースライン生成
 
+## wasm ターゲットと moonbitlang/async
+
+`moonbitlang/async` は **wasm1 (`--target wasm`) のみ**対応。wasm-gc では
+`run_async_main` が無く、リンクできない。
+
+wasm1 の async は「WASI 相当の POSIX ホスト」を前提にしており、ゲストは 48 個の
+import（epoll 風 event bus / thread pool / fd / errno / signal / os string）を
+要求する。ただしタイマだけを動かすなら実装が要るのは 7 個だけで、残りは型の合った
+ゼロを返せばよい。実装は `lib/web/wasm-async-host.mjs`、動く例は
+`examples/smoke/wasm_async_smoke/`。
+
+```bash
+just wasm-async-smoke   # ビルド + 最小 JS ホストで実行
+```
+
+**ホスト実装で踏みやすい落とし穴:**
+
+- `thread_pool/cancel_worker` が `0` を返すと「RetryLater」の意味になり、終了時に
+  sigwait ワーカーの後始末で無限ループする。`2`（NoWait）を返すこと
+- `event_bus/wait` は `0`（I/O イベント無し）を返せばよく、ループがその後に期限の
+  来たタイマを自分で処理する。`Atomics.wait` で実際にブロックしないとビジーループになる
+- `time/get_ms_since_epoch` は i64 なので JS 側は `BigInt` を返す
+
+**設計上の制約（ブラウザで使う前に）:**
+
+- `_start` はゲストの async main が終わるまで返らず、その間イベントループが
+  スレッドを占有する。ブラウザのメインスレッドでは固まるので Web Worker に置く
+- 占有している間ホストからゲストを呼べないため、`requestAnimationFrame` 駆動の
+  エンジンループと async のループは同一スレッドで共存できない
+
 ## 注意事項
 
 - `cc-link-flags` は依存パッケージから伝播しない。native ビルドする example では個別に `-lglfw` 等を指定する必要がある

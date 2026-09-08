@@ -31,7 +31,7 @@ pub(all) struct ExportSceneNode {
 
 ///|
 pub fn document_export_filename(doc : ModelDocument) -> String {
-  let buf = StringBuilder::new()
+  let buf = StringBuilder()
   for ch in doc.name {
     if ch.is_ascii_alphabetic() || ch.is_ascii_digit() || ch == '_' || ch == '-' {
       buf.write_char(ch)
@@ -541,7 +541,7 @@ pub fn document_glb_bytes(doc : ModelDocument) -> Bytes {
   for node in nodes {
     payloads.push(pack_mesh_payload(node.mesh, bin))
   }
-  let json_buf = StringBuilder::new()
+  let json_buf = StringBuilder()
   append_glb_json(json_buf, doc, nodes, payloads, bin.length())
   let bin_bytes = if bin.is_empty() {
     None

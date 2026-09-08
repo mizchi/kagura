@@ -294,7 +294,7 @@ fn append_node_json(buf : StringBuilder, node : UISnapshotNode) -> Unit {
 /// the document is directly consumable as a vlmkit `--elements-json` payload
 /// (which requires `tag`) without a conversion step.
 pub fn UISnapshot::to_json(self : UISnapshot) -> String {
-  let buf = StringBuilder::new()
+  let buf = StringBuilder()
   buf.write_string("{\"screen\":{")
   append_json_double(buf, "width", self.screen_width)
   buf.write_string(",")

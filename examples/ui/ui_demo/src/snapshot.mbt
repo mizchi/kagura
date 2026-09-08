@@ -23,7 +23,7 @@ fn role_name(role : NodeRole) -> String {
 /// Decode the glyph codes `ascii()` produced back into a readable string.
 /// Digits were remapped to 0-9 for `glyph_pattern`; everything else is ASCII.
 fn decode_glyphs(chars : Array[Int]) -> String {
-  let buf = StringBuilder::new()
+  let buf = StringBuilder()
   for code in chars {
     let c = if code >= 0 && code <= 9 { code + 48 } else { code }
     buf.write_char(c.unsafe_to_char())

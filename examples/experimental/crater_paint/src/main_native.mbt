@@ -380,7 +380,7 @@ fn bytes_to_ints(bytes : Bytes) -> Array[Int] {
 fn read_file_as_string(path : String) -> String? {
   match @wgpu_native.read_file_bytes(path) {
     Some(bytes) => {
-      let buf = StringBuilder::new()
+      let buf = StringBuilder()
       for i = 0; i < bytes.length(); i = i + 1 {
         buf.write_char(bytes[i].to_int().unsafe_to_char())
       }
@@ -893,7 +893,7 @@ fn push_text_with_renderer(
 ///|
 fn split_words(text : String) -> Array[String] {
   let words : Array[String] = []
-  let buf = StringBuilder::new()
+  let buf = StringBuilder()
   for c in text {
     if c == '\n' {
       if buf.to_string().length() > 0 {

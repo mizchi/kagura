@@ -55,10 +55,10 @@ pub fn capture_bytes_to_string(data : Bytes) -> String {
 ///|
 fn parse_config_entries(text : String) -> Map[String, String] {
   let entries : Map[String, String] = Map([])
-  let mut line = StringBuilder::new()
+  let mut line = StringBuilder()
   let commit = fn() {
     let trimmed = line.to_string().trim().to_owned()
-    line = StringBuilder::new()
+    line = StringBuilder()
     if trimmed.is_empty() {
       return
     }

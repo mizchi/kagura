@@ -7,7 +7,9 @@ warnings = "-6-29-53-68"
 import {
   "mizchi/web_runtime_hooks@0.1.0",
   "mizchi/native_runtime_hooks@0.1.0",
-  "mizchi/crater@0.9.1",
+  "mizchi/crater-renderer@0.19.0",
+  "mizchi/crater-painter@0.19.0",
+  "mizchi/css@0.7.3",
   "mizchi/font@0.7.0",
   "mizchi/kagura_core@0.2.0",
   "mizchi/kagura_engine@0.2.0",

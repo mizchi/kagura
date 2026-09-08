@@ -247,12 +247,13 @@ balance-autoplay-record out_dir="examples/games-3d/hacknslash_3d/data/hackslash/
 balance-hypothesis-record out_dir="examples/games-3d/hacknslash_3d/data/hackslash/autoplay_hypothesis_experiments" extra="":
     node examples/games-3d/hacknslash_3d/scripts/balance_hypothesis_record.mjs --out-dir {{out_dir}} {{extra}}
 
-# Build the wasm1 guest that links moonbitlang/async and run it under the
-# minimal JS host in lib/web/wasm-async-host.mjs. `just test` covers this too,
-# via `node --test lib/web/*.test.mjs`.
+# Build the wasm1 guest that links moonbitlang/async and run it both ways:
+# single-threaded under lib/web/wasm-async-host.mjs, and in a worker with a
+# main-thread frame clock via lib/web/wasm-async-driver.mjs. `just test` covers
+# this too, via `node --test lib/web/*.test.mjs`.
 wasm-async-smoke:
     cd examples/smoke/wasm_async_smoke && moon build --target wasm
-    node --test lib/web/wasm-async-host.test.mjs
+    node --test lib/web/wasm-async-host.test.mjs lib/web/wasm-async-driver.test.mjs
 
 # WASM game host tasks
 wasm-build-moonbit:

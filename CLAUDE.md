@@ -112,12 +112,44 @@ just wasm-async-smoke   # ビルド + 最小 JS ホストで実行
   来たタイマを自分で処理する。`Atomics.wait` で実際にブロックしないとビジーループになる
 - `time/get_ms_since_epoch` は i64 なので JS 側は `BigInt` を返す
 
-**設計上の制約（ブラウザで使う前に）:**
+**設計上の制約:**
 
-- `_start` はゲストの async main が終わるまで返らず、その間イベントループが
-  スレッドを占有する。ブラウザのメインスレッドでは固まるので Web Worker に置く
-- 占有している間ホストからゲストを呼べないため、`requestAnimationFrame` 駆動の
-  エンジンループと async のループは同一スレッドで共存できない
+`_start` はゲストの async main が終わるまで返らず、その間イベントループが
+スレッドを占有する。ブラウザのメインスレッドでは固まるので Web Worker に置く。
+
+### Worker 分離とフレーム駆動
+
+`event_bus/wait` は**ゲストがホストに制御を返す唯一の場所**なので、ここを
+共有フレームカウンタ待ちにすると、メインスレッドの `requestAnimationFrame` が
+そのままゲストの起床源になる。どちらもポーリングしない。
+
+```
+main thread              shared Int32Array        worker
+-----------              -----------------        ------
+rAF 発火
+  Atomics.add(FRAME,1) ----> [FRAME] ----> Atomics.wait が返る
+  Atomics.notify                            ゲストのタイマが進む
+```
+
+- worker 側: `lib/web/wasm-async-worker.mjs`（`makeFrameAwareWait`）
+- main 側: `lib/web/wasm-async-driver.mjs`（node は `runInWorker`、
+  ブラウザは `createBrowserFrameSource`）
+- ゲストは `kagura_web.frame_number` でカウンタを読む。フレーム源が無いときは
+  0 のままなので、**同じバイナリが worker あり／なしの両方で終了する**
+
+```bash
+just wasm-async-smoke   # 単体ホストと worker + フレームクロックの両方を実行
+```
+
+実測（`examples/smoke/wasm_async_smoke`）:
+
+| | frames observed | waits | wall |
+|---|---|---|---|
+| 単体ホスト（フレーム源なし） | 0 | 127 | 536ms |
+| worker + 8ms フレームクロック | 5 | 25 | 147ms |
+
+テスト済みなのは node の `worker_threads` 経路のみ。ブラウザ Worker は同じ
+プリミティブだが未検証（`SharedArrayBuffer` に COOP/COEP が要る）。
 
 ## 注意事項
 

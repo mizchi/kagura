@@ -1084,7 +1084,7 @@ test "can_use_simple_untextured_gpu_path only accepts plain unskinned objects" {
   assert_true(can_use_simple_untextured_gpu_path(None, None))
   assert_false(can_use_simple_untextured_gpu_path(Some(Material::new()), None))
   let skinning = SkinningState::new(
-    @skeleton3d.SkinData::{ joint_indices: [], weights: [], vertex_count: 0 },
+    @skeleton3d.SkinData::{ joint_indices: [], weights: [], vertex_count: 0, },
     [],
   )
   assert_false(can_use_simple_untextured_gpu_path(None, Some(skinning)))

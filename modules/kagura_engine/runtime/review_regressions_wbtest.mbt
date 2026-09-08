@@ -83,7 +83,7 @@ test "run_loop uses runtime clock deltas instead of a fixed frame step" {
     platform,
     graphics,
     @core.default_run_options(),
-    { max_skip_frames: 5, enable_vsync: false, clear_screen_every_frame: true },
+    { max_skip_frames: 5, enable_vsync: false, clear_screen_every_frame: true, },
     hooks,
   )
   assert_eq(observed_ticks.val.length(), 2)

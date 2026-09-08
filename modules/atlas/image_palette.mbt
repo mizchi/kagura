@@ -58,12 +58,12 @@ pub fn new_image_palette_2x2(
   p01 : Rgba,
   p11 : Rgba,
 ) -> ImagePalette2x2 {
-  { p00, p10, p01, p11 }
+  { p00, p10, p01, p11, }
 }
 
 ///|
 pub fn new_solid_palette(color : Rgba) -> ImagePalette2x2 {
-  { p00: color, p10: color, p01: color, p11: color }
+  { p00: color, p10: color, p01: color, p11: color, }
 }
 
 ///|

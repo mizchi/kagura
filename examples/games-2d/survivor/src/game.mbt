@@ -176,7 +176,7 @@ fn SurvivorState::new() -> SurvivorState {
   let camera = @camera2d.Camera2D::new(320.0, 240.0, 960.0, 720.0)
   camera.follow_target(480.0, 360.0)
   {
-    player: { x: 480.0, y: 360.0, hp: 10, max_hp: 10, speed: 2.0, size: 12.0 },
+    player: { x: 480.0, y: 360.0, hp: 10, max_hp: 10, speed: 2.0, size: 12.0, },
     camera,
     enemies: [],
     projectiles: [],
@@ -541,7 +541,7 @@ fn SurvivorState::update_orbit_weapons(self : SurvivorState) -> Unit {
             2 => 3
             _ => 1
           }
-          self.gems.push({ x: e.x, y: e.y, alive: true, value: gem_value })
+          self.gems.push({ x: e.x, y: e.y, alive: true, value: gem_value, })
         }
       }
     }
@@ -577,7 +577,7 @@ fn SurvivorState::update_area_weapon(self : SurvivorState) -> Unit {
           2 => 3
           _ => 1
         }
-        self.gems.push({ x: e.x, y: e.y, alive: true, value: gem_value })
+        self.gems.push({ x: e.x, y: e.y, alive: true, value: gem_value, })
       }
     }
   }
@@ -622,7 +622,7 @@ fn SurvivorState::update_projectiles(self : SurvivorState) -> Unit {
             2 => 3
             _ => 1
           }
-          self.gems.push({ x: e.x, y: e.y, alive: true, value: gem_value })
+          self.gems.push({ x: e.x, y: e.y, alive: true, value: gem_value, })
         }
         break
       }

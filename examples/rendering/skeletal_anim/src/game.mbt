@@ -228,7 +228,7 @@ fn build_tentacle_mesh() -> (@mesh3d.Mesh3D, @skeleton3d.SkinData) {
   indices.push(cap_base + 2)
   indices.push(cap_base + 3)
   let mesh = @mesh3d.Mesh3D::new(verts, indices)
-  let skin : @skeleton3d.SkinData = { joint_indices, weights, vertex_count }
+  let skin : @skeleton3d.SkinData = { joint_indices, weights, vertex_count, }
   (mesh, skin)
 }
 
@@ -268,7 +268,7 @@ fn build_tentacle_animation(
       values,
     })
   }
-  { name: "tentacle_wave", channels, duration: anim_duration }
+  { name: "tentacle_wave", channels, duration: anim_duration, }
 }
 
 // ============================================================

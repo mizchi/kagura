@@ -19,7 +19,7 @@ pub fn FPSCamera::new(
   near : Double,
   far : Double,
 ) -> FPSCamera {
-  { position, yaw, pitch: clamp_pitch(pitch), fov_y_rad, aspect, near, far }
+  { position, yaw, pitch: clamp_pitch(pitch), fov_y_rad, aspect, near, far, }
 }
 
 ///|
@@ -66,18 +66,18 @@ pub fn FPSCamera::right(self : FPSCamera) -> @math3d.Vec3 {
 ///|
 pub fn FPSCamera::move_forward(self : FPSCamera, delta : Double) -> FPSCamera {
   let dir = self.forward()
-  { ..self, position: self.position.add(dir.scale(delta)) }
+  { ..self, position: self.position.add(dir.scale(delta)), }
 }
 
 ///|
 pub fn FPSCamera::move_right(self : FPSCamera, delta : Double) -> FPSCamera {
   let dir = self.right()
-  { ..self, position: self.position.add(dir.scale(delta)) }
+  { ..self, position: self.position.add(dir.scale(delta)), }
 }
 
 ///|
 pub fn FPSCamera::move_up(self : FPSCamera, delta : Double) -> FPSCamera {
-  { ..self, position: self.position.add(@math3d.Vec3::unit_y().scale(delta)) }
+  { ..self, position: self.position.add(@math3d.Vec3::unit_y().scale(delta)), }
 }
 
 ///|

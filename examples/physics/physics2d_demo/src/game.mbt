@@ -148,7 +148,7 @@ fn DemoState::new() -> DemoState {
     }
     next_id = next_id + 1
   }
-  { world, input: @inpututil.new_input_helper(), frame: 0, next_id }
+  { world, input: @inpututil.new_input_helper(), frame: 0, next_id, }
 }
 
 // ============================================================

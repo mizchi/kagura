@@ -19,22 +19,22 @@ pub impl Show for AudioFormat with fn output(self, logger) {
 
 ///|
 pub fn default_audio_format() -> AudioFormat {
-  { sample_rate: 44100, channels: 2, bits_per_sample: 16 }
+  { sample_rate: 44100, channels: 2, bits_per_sample: 16, }
 }
 
 ///|
 pub fn cd_quality_format() -> AudioFormat {
-  { sample_rate: 44100, channels: 2, bits_per_sample: 16 }
+  { sample_rate: 44100, channels: 2, bits_per_sample: 16, }
 }
 
 ///|
 pub fn mono_format(sample_rate : Int) -> AudioFormat {
-  { sample_rate, channels: 1, bits_per_sample: 16 }
+  { sample_rate, channels: 1, bits_per_sample: 16, }
 }
 
 ///|
 pub fn pcm16_format(sample_rate : Int, channels : Int) -> AudioFormat {
-  { sample_rate, channels, bits_per_sample: 16 }
+  { sample_rate, channels, bits_per_sample: 16, }
 }
 
 ///|
@@ -111,7 +111,7 @@ pub fn new_audio_clip(
   data : Bytes,
   loop_ : Bool,
 ) -> AudioClip {
-  { format, data, loop_ }
+  { format, data, loop_, }
 }
 
 ///|
@@ -174,7 +174,7 @@ pub struct SimpleAudioContext {
 
 ///|
 pub fn SimpleAudioContext::new(format : AudioFormat) -> SimpleAudioContext {
-  { players: [], next_id: 1, format }
+  { players: [], next_id: 1, format, }
 }
 
 ///|
@@ -192,7 +192,7 @@ fn SimpleAudioContext::find_player(
 
 ///|
 pub impl AudioContext for SimpleAudioContext with fn create_player(self, clip) {
-  let id : PlayerId = { value: self.next_id }
+  let id : PlayerId = { value: self.next_id, }
   self.next_id = self.next_id + 1
   self.players.push({
     id,
@@ -437,7 +437,7 @@ pub struct AudioClipStream {
 
 ///|
 pub fn AudioClipStream::new(clip : AudioClip) -> AudioClipStream {
-  { clip, position: 0 }
+  { clip, position: 0, }
 }
 
 ///|
@@ -627,7 +627,7 @@ pub impl AudioContext for MixerAudioContext with fn create_player(self, clip) {
   // Pause immediately - AudioContext contract expects Stopped initial state.
   // Using pause (not stop) so the voice is not garbage-collected by collect_stopped.
   let _ = @ma.pause_voice(self.mixer, voice_id)
-  let player_id : PlayerId = { value: self.next_id }
+  let player_id : PlayerId = { value: self.next_id, }
   self.next_id = self.next_id + 1
   self.player_map.push((player_id, voice_id))
   player_id
@@ -1173,7 +1173,7 @@ pub fn audio_render_and_write(mixer : MixerAudioContext, frames : Int) -> Int {
 ///|
 /// Create default AudioOutputStats.
 pub fn default_audio_output_stats() -> AudioOutputStats {
-  { initialized: false, frames_written: 0, suspended: false }
+  { initialized: false, frames_written: 0, suspended: false, }
 }
 
 ///|
@@ -1186,7 +1186,7 @@ pub fn new_tracked_audio_output_hooks(
     try_initialize: fn(fmt) {
       let ok = (inner.try_initialize)(fmt)
       if ok {
-        stats.val = { ..stats.val, initialized: true }
+        stats.val = { ..stats.val, initialized: true, }
       }
       ok
     },
@@ -1200,11 +1200,11 @@ pub fn new_tracked_audio_output_hooks(
     },
     suspend: fn() {
       (inner.suspend)()
-      stats.val = { ..stats.val, suspended: true }
+      stats.val = { ..stats.val, suspended: true, }
     },
     resume_playback: fn() {
       (inner.resume_playback)()
-      stats.val = { ..stats.val, suspended: false }
+      stats.val = { ..stats.val, suspended: false, }
     },
     close: inner.close,
     output_latency: inner.output_latency,

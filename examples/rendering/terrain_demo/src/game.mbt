@@ -19,16 +19,16 @@ struct MenuScene {
 
 ///|
 fn MenuScene::new() -> MenuScene {
-  { frame: 0 }
+  { frame: 0, }
 }
 
 ///|
-impl @scene_manager.Scene for MenuScene with update(self, _input) {
+impl @scene_manager.Scene for MenuScene with fn update(self, _input) {
   self.frame = self.frame + 1
 }
 
 ///|
-impl @scene_manager.Scene for MenuScene with draw(self, ctx) {
+impl @scene_manager.Scene for MenuScene with fn draw(self, ctx) {
   let _ = self
   // Draw a simple colored background quad as menu placeholder
   let vdata : Array[Double] = []
@@ -112,8 +112,8 @@ fn DungeonScene::new() -> DungeonScene {
   )
   let _ = graph.add_node(dungeon_node)
   // Pathfinding
-  let mut start : @terrain.Point = { x: 0, y: 0 }
-  let mut goal : @terrain.Point = { x: 0, y: 0 }
+  let mut start : @terrain.Point = { x: 0, y: 0, }
+  let mut goal : @terrain.Point = { x: 0, y: 0, }
   let mut found_start = false
   let mut found_goal = false
   if result.rooms.length() >= 2 {
@@ -130,10 +130,10 @@ fn DungeonScene::new() -> DungeonScene {
         let tile = grid.get(x, y)
         if tile == @terrain.Tile::Floor || tile == @terrain.Tile::Corridor {
           if !found_start {
-            start = { x, y }
+            start = { x, y, }
             found_start = true
           } else {
-            goal = { x, y }
+            goal = { x, y, }
             found_goal = true
           }
         }
@@ -243,7 +243,7 @@ fn DungeonScene::new() -> DungeonScene {
 }
 
 ///|
-impl @scene_manager.Scene for DungeonScene with update(self, input) {
+impl @scene_manager.Scene for DungeonScene with fn update(self, input) {
   let dx = input.cursor_x - self.prev_cursor_x
   let dy = input.cursor_y - self.prev_cursor_y
   self.prev_cursor_x = input.cursor_x
@@ -277,7 +277,7 @@ impl @scene_manager.Scene for DungeonScene with update(self, input) {
 }
 
 ///|
-impl @scene_manager.Scene for DungeonScene with draw(self, ctx) {
+impl @scene_manager.Scene for DungeonScene with fn draw(self, ctx) {
   // Render dungeon scene graph
   let camera = self.camera.to_camera3d()
   let view_projection = camera.view_projection_matrix()
@@ -385,7 +385,7 @@ fn AppState::new() -> AppState {
   let menu = MenuScene::new()
   let dungeon = DungeonScene::new()
   let manager = @scene_manager.SceneManager::new(menu)
-  { manager, dungeon, scene_switch_timer: 0.0 }
+  { manager, dungeon, scene_switch_timer: 0.0, }
 }
 
 ///|

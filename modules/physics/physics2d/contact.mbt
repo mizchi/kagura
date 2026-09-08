@@ -16,9 +16,9 @@ pub fn generate_contact2d(a : RigidBody2D, b : RigidBody2D) -> Contact2D? {
     (CircleShape(off_a, r_a), OBBShape2D(he_b, off_b)) =>
       obb_circle(b, he_b, off_b, a, off_a, r_a, true)
     (OBBShape2D(he_a, off_a), AABBShape2D(he_b, off_b)) =>
-      obb_obb(a, he_a, off_a, { ..b, angle: 0.0 }, he_b, off_b)
+      obb_obb(a, he_a, off_a, { ..b, angle: 0.0, }, he_b, off_b)
     (AABBShape2D(he_a, off_a), OBBShape2D(he_b, off_b)) =>
-      obb_obb({ ..a, angle: 0.0 }, he_a, off_a, b, he_b, off_b)
+      obb_obb({ ..a, angle: 0.0, }, he_a, off_a, b, he_b, off_b)
   }
 }
 
@@ -268,7 +268,7 @@ fn circle_circle(
   }
   let penetration = r_sum - dist
   let contact_point = center_a.add(normal.scale(r_a - penetration * 0.5))
-  Some({ body_a_id: a.id, body_b_id: b.id, normal, penetration, contact_point })
+  Some({ body_a_id: a.id, body_b_id: b.id, normal, penetration, contact_point, })
 }
 
 ///|
@@ -296,7 +296,7 @@ fn aabb2d_aabb2d(
     (@vector.Vec2::new(0.0, ny), overlap_y)
   }
   let contact_point = center_a.add(center_b).scale(0.5)
-  Some({ body_a_id: a.id, body_b_id: b.id, normal, penetration, contact_point })
+  Some({ body_a_id: a.id, body_b_id: b.id, normal, penetration, contact_point, })
 }
 
 ///|

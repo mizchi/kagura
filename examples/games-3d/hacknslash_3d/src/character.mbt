@@ -371,7 +371,7 @@ fn build_idle_animation() -> @animation3d.AnimationClip {
     times,
     values,
   })
-  { name: "idle", channels, duration: idle_anim_duration }
+  { name: "idle", channels, duration: idle_anim_duration, }
 }
 
 // Attack animation: arm swings forward with sword
@@ -465,7 +465,7 @@ fn build_attack_animation() -> @animation3d.AnimationClip {
     times: torso_times,
     values: torso_values,
   })
-  { name: "attack", channels, duration: attack_anim_duration }
+  { name: "attack", channels, duration: attack_anim_duration, }
 }
 
 // Run animation: torso bob + arm swing
@@ -543,7 +543,7 @@ fn build_run_animation() -> @animation3d.AnimationClip {
     times: arm_times,
     values: arm_values,
   })
-  { name: "run", channels, duration: run_anim_duration }
+  { name: "run", channels, duration: run_anim_duration, }
 }
 
 // Hurt animation: torso jerks back then recovers
@@ -578,7 +578,7 @@ fn build_hurt_animation() -> @animation3d.AnimationClip {
     times,
     values,
   })
-  { name: "hurt", channels, duration: hurt_anim_duration }
+  { name: "hurt", channels, duration: hurt_anim_duration, }
 }
 
 ///|

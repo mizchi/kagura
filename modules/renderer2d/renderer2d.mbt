@@ -19,7 +19,7 @@ pub fn RenderFrame2D::new(
   uniform_hash? : Int = 0,
   blend? : @gfx.BlendMode = @gfx.BlendMode::from_int(1),
 ) -> RenderFrame2D {
-  { dst, shader, screen_w, screen_h, pipeline_id, uniform_hash, blend }
+  { dst, shader, screen_w, screen_h, pipeline_id, uniform_hash, blend, }
 }
 
 ///|

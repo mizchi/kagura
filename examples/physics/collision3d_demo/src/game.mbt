@@ -96,7 +96,7 @@ fn DemoState::new() -> DemoState {
       Box => size // half-extent, center at size
       Ball => size // radius, center at size
     }
-    objects.push({ id: i, kind, position: @math3d.Vec3::new(x, y, z), size })
+    objects.push({ id: i, kind, position: @math3d.Vec3::new(x, y, z), size, })
   }
   // Place a box directly in front of camera for easy hit testing
   objects.push({

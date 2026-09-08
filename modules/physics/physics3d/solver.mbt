@@ -201,8 +201,8 @@ fn apply_position_correction(
     return (a, b)
   }
   let correction = contact.normal.scale(correction_mag)
-  let a_new = { ..a, position: a.position.sub(correction.scale(a.inv_mass)) }
-  let b_new = { ..b, position: b.position.add(correction.scale(b.inv_mass)) }
+  let a_new = { ..a, position: a.position.sub(correction.scale(a.inv_mass)), }
+  let b_new = { ..b, position: b.position.add(correction.scale(b.inv_mass)), }
   (a_new, b_new)
 }
 

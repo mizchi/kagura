@@ -239,7 +239,7 @@ fn default_load_font_data(_name : String) -> Array[Int]? {
 
 ///|
 fn default_font_load_hooks() -> FontLoadHooks {
-  { load_font_data: default_load_font_data }
+  { load_font_data: default_load_font_data, }
 }
 
 ///|

@@ -52,7 +52,7 @@ fn main {
   let inputs : Array[@sprite_packer.SpriteInput] = []
   for pair in frames {
     let (key, spec) = pair
-    inputs.push({ key: key.value, spec })
+    inputs.push({ key: key.value, spec, })
   }
   let result = @sprite_packer.pack_sprites(inputs).unwrap()
   let atlas = @sprite_packer.create_packed_atlas_repository(

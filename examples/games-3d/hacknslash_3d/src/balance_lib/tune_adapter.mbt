@@ -21,7 +21,7 @@ pub fn BalanceTargets::to_dec_targets(
       target: self.target_floor_time,
       weight: self.w_floor_time,
     },
-    { metric: "hp_cv", target: self.target_hp_cv, weight: self.w_hp_cv },
+    { metric: "hp_cv", target: self.target_hp_cv, weight: self.w_hp_cv, },
     {
       metric: "kill_interval",
       target: self.target_kill_interval,
@@ -189,7 +189,7 @@ pub fn param_specs() -> Array[@dec.ParamSpec] {
   let specs : Array[@dec.ParamSpec] = []
   for i = 0; i < names.length(); i = i + 1 {
     let (lo, hi) = bounds[i]
-    specs.push({ name: names[i], initial: defaults[i], min: lo, max: hi })
+    specs.push({ name: names[i], initial: defaults[i], min: lo, max: hi, })
   }
   specs
 }
@@ -252,7 +252,7 @@ pub fn param_specs_autoplay_rebalance() -> Array[@dec.ParamSpec] {
   for i = 0; i < names.length(); i = i + 1 {
     let (lo, hi) = bounds[i]
     let initial = clamp_param_initial(defaults[i], lo, hi)
-    specs.push({ name: names[i], initial, min: lo, max: hi })
+    specs.push({ name: names[i], initial, min: lo, max: hi, })
   }
   specs
 }
@@ -315,7 +315,7 @@ pub fn param_specs_autoplay_progression() -> Array[@dec.ParamSpec] {
   for i = 0; i < names.length(); i = i + 1 {
     let (lo, hi) = bounds[i]
     let initial = clamp_param_initial(defaults[i], lo, hi)
-    specs.push({ name: names[i], initial, min: lo, max: hi })
+    specs.push({ name: names[i], initial, min: lo, max: hi, })
   }
   specs
 }
@@ -378,7 +378,7 @@ pub fn param_specs_build_diverse() -> Array[@dec.ParamSpec] {
   for i = 0; i < names.length(); i = i + 1 {
     let (lo, hi) = bounds[i]
     let initial = clamp_param_initial(defaults[i], lo, hi)
-    specs.push({ name: names[i], initial, min: lo, max: hi })
+    specs.push({ name: names[i], initial, min: lo, max: hi, })
   }
   specs
 }
@@ -441,7 +441,7 @@ pub fn param_specs_item_spike_feedback() -> Array[@dec.ParamSpec] {
   for i = 0; i < names.length(); i = i + 1 {
     let (lo, hi) = bounds[i]
     let initial = clamp_param_initial(defaults[i], lo, hi)
-    specs.push({ name: names[i], initial, min: lo, max: hi })
+    specs.push({ name: names[i], initial, min: lo, max: hi, })
   }
   specs
 }
@@ -504,7 +504,7 @@ pub fn param_specs_mechanics_roguelike() -> Array[@dec.ParamSpec] {
   for i = 0; i < names.length(); i = i + 1 {
     let (lo, hi) = bounds[i]
     let initial = clamp_param_initial(defaults[i], lo, hi)
-    specs.push({ name: names[i], initial, min: lo, max: hi })
+    specs.push({ name: names[i], initial, min: lo, max: hi, })
   }
   specs
 }
@@ -567,7 +567,7 @@ pub fn param_specs_mechanics_roguelike_v2() -> Array[@dec.ParamSpec] {
   for i = 0; i < names.length(); i = i + 1 {
     let (lo, hi) = bounds[i]
     let initial = clamp_param_initial(defaults[i], lo, hi)
-    specs.push({ name: names[i], initial, min: lo, max: hi })
+    specs.push({ name: names[i], initial, min: lo, max: hi, })
   }
   specs
 }

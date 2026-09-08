@@ -45,7 +45,7 @@ pub fn document_stats(doc : ModelDocument) -> DocumentStats {
 ///|
 fn document_summary(doc : ModelDocument) -> String {
   let stats = document_stats(doc)
-  let buf = StringBuilder::new()
+  let buf = StringBuilder()
   buf.write_string("MODEL ")
   buf.write_string(doc.name)
   buf.write_string("\n")
@@ -103,7 +103,7 @@ pub fn editor_summary(
   doc : ModelDocument,
   selection : ModelSelection?,
 ) -> String {
-  let buf = StringBuilder::new()
+  let buf = StringBuilder()
   buf.write_string(document_summary(doc))
   buf.write_string("selection: ")
   buf.write_string(selection_summary_text(selection))
@@ -119,7 +119,7 @@ pub fn editor_summary(
 
 ///|
 pub fn document_context_json(doc : ModelDocument) -> String {
-  let buf = StringBuilder::new()
+  let buf = StringBuilder()
   buf.write_string("{")
   append_document_context_fields(buf, doc)
   buf.write_string("}")
@@ -184,7 +184,7 @@ pub fn editor_context_json(
     Some(index) => recent_sculpt_history(doc, index, 4)
     None => []
   }
-  let buf = StringBuilder::new()
+  let buf = StringBuilder()
   buf.write_string("{")
   append_document_context_fields(buf, doc)
   buf.write_string(",\"selection\":")
@@ -214,7 +214,7 @@ pub fn editor_context_json(
 
 ///|
 fn selection_json(selection : ModelSelection) -> String {
-  let buf = StringBuilder::new()
+  let buf = StringBuilder()
   buf.write_string("{\"kind\":\"")
   buf.write_string(selection_kind_name(selection.kind))
   buf.write_string("\",\"target_id\":\"")
@@ -225,7 +225,7 @@ fn selection_json(selection : ModelSelection) -> String {
 
 ///|
 fn primitive_node_json(node : PrimitiveNode) -> String {
-  let buf = StringBuilder::new()
+  let buf = StringBuilder()
   buf.write_string("{")
   buf.write_string("\"id\":\"")
   buf.write_string(json_escape(node.id))
@@ -243,7 +243,7 @@ fn primitive_node_json(node : PrimitiveNode) -> String {
 
 ///|
 fn sculpt_layer_json(layer : SculptLayer) -> String {
-  let buf = StringBuilder::new()
+  let buf = StringBuilder()
   buf.write_string("{")
   buf.write_string("\"id\":\"")
   buf.write_string(json_escape(layer.id))
@@ -276,7 +276,7 @@ fn sculpt_layer_json(layer : SculptLayer) -> String {
 
 ///|
 fn sculpt_stamp_json(layer : SculptLayer, stamp : SculptStamp) -> String {
-  let buf = StringBuilder::new()
+  let buf = StringBuilder()
   buf.write_string("{")
   buf.write_string("\"id\":\"")
   buf.write_string(json_escape(stamp.id))
@@ -300,7 +300,7 @@ fn sculpt_stamp_json(layer : SculptLayer, stamp : SculptStamp) -> String {
 
 ///|
 fn stamp_history_entry_json(entry : StampHistoryEntry) -> String {
-  let buf = StringBuilder::new()
+  let buf = StringBuilder()
   buf.write_string("{\"layer_id\":\"")
   buf.write_string(json_escape(entry.layer_id))
   buf.write_string("\",\"id\":\"")
@@ -336,7 +336,7 @@ fn json_escape(text : String) -> String {
 
 ///|
 fn hex6(value : Int) -> String {
-  let buf = StringBuilder::new()
+  let buf = StringBuilder()
   let digits : Array[Char] = [
     '0', '1', '2', '3', '4', '5', '6', '7', '8', '9', 'A', 'B', 'C', 'D', 'E', 'F',
   ]

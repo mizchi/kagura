@@ -252,8 +252,8 @@ test "SimpleUIRenderAdapter produces commands" {
   let target = @gfx.new_image_handle(1, 640, 480)
   let layouts = [
     {
-      node_id: { value: 1 },
-      rect: { x: 10.0, y: 20.0, width: 100.0, height: 50.0 },
+      node_id: { value: 1, },
+      rect: { x: 10.0, y: 20.0, width: 100.0, height: 50.0, },
     },
   ]
   let commands = adapter.build_draw_commands(frame, layouts, target)
@@ -264,7 +264,7 @@ test "SimpleUIRenderAdapter produces commands" {
 
 ///|
 test "point_in_rect" {
-  let rect : LayoutRect = { x: 10.0, y: 20.0, width: 100.0, height: 50.0 }
+  let rect : LayoutRect = { x: 10.0, y: 20.0, width: 100.0, height: 50.0, }
   assert_true(point_in_rect(rect, 10.0, 20.0))
   assert_true(point_in_rect(rect, 50.0, 40.0))
   assert_true(!point_in_rect(rect, 9.0, 20.0))
@@ -276,12 +276,12 @@ test "point_in_rect" {
 test "hit_test finds topmost node" {
   let layouts : Array[LayoutResult] = [
     {
-      node_id: { value: 1 },
-      rect: { x: 0.0, y: 0.0, width: 200.0, height: 200.0 },
+      node_id: { value: 1, },
+      rect: { x: 0.0, y: 0.0, width: 200.0, height: 200.0, },
     },
     {
-      node_id: { value: 2 },
-      rect: { x: 50.0, y: 50.0, width: 100.0, height: 100.0 },
+      node_id: { value: 2, },
+      rect: { x: 50.0, y: 50.0, width: 100.0, height: 100.0, },
     },
   ]
   // Point inside both -> topmost (node 2)
@@ -305,12 +305,12 @@ test "hit_test finds topmost node" {
 test "hit_test_all" {
   let layouts : Array[LayoutResult] = [
     {
-      node_id: { value: 1 },
-      rect: { x: 0.0, y: 0.0, width: 200.0, height: 200.0 },
+      node_id: { value: 1, },
+      rect: { x: 0.0, y: 0.0, width: 200.0, height: 200.0, },
     },
     {
-      node_id: { value: 2 },
-      rect: { x: 50.0, y: 50.0, width: 100.0, height: 100.0 },
+      node_id: { value: 2, },
+      rect: { x: 50.0, y: 50.0, width: 100.0, height: 100.0, },
     },
   ]
   let all = hit_test_all(layouts, 75.0, 75.0)
@@ -322,21 +322,21 @@ test "hit_test_all" {
 ///|
 test "UIFocusManager focus and blur" {
   let mgr = UIFocusManager::new()
-  mgr.set_focusable([{ value: 1 }, { value: 2 }, { value: 3 }])
+  mgr.set_focusable([{ value: 1, }, { value: 2, }, { value: 3, }])
   // Initially no focus
   match mgr.current_focus() {
     None => ()
     Some(_) => fail("expected no focus")
   }
   // Focus node 1
-  let events = mgr.focus({ value: 1 })
+  let events = mgr.focus({ value: 1, })
   assert_eq(events.length(), 1)
   match events[0] {
     FocusGained(id) => assert_eq(id.value, 1)
     _ => fail("expected FocusGained")
   }
   // Focus node 2 (should blur node 1)
-  let events2 = mgr.focus({ value: 2 })
+  let events2 = mgr.focus({ value: 2, })
   assert_eq(events2.length(), 2)
   match events2[0] {
     FocusLost(id) => assert_eq(id.value, 1)
@@ -347,7 +347,7 @@ test "UIFocusManager focus and blur" {
     _ => fail("expected FocusGained")
   }
   // Focus same node (no events)
-  let events3 = mgr.focus({ value: 2 })
+  let events3 = mgr.focus({ value: 2, })
   assert_eq(events3.length(), 0)
   // Blur
   let events4 = mgr.blur()
@@ -364,7 +364,7 @@ test "UIFocusManager focus and blur" {
 ///|
 test "UIFocusManager focus_next and focus_prev" {
   let mgr = UIFocusManager::new()
-  let ids : Array[UINodeId] = [{ value: 10 }, { value: 20 }, { value: 30 }]
+  let ids : Array[UINodeId] = [{ value: 10, }, { value: 20, }, { value: 30, }]
   mgr.set_focusable(ids)
   // focus_next from no focus -> first
   let e1 = mgr.focus_next()
@@ -402,15 +402,15 @@ test "UIFocusManager focus_next and focus_prev" {
 ///|
 test "UIFocusManager handle_pointer_down" {
   let mgr = UIFocusManager::new()
-  mgr.set_focusable([{ value: 1 }, { value: 2 }])
+  mgr.set_focusable([{ value: 1, }, { value: 2, }])
   let layouts : Array[LayoutResult] = [
     {
-      node_id: { value: 1 },
-      rect: { x: 0.0, y: 0.0, width: 100.0, height: 100.0 },
+      node_id: { value: 1, },
+      rect: { x: 0.0, y: 0.0, width: 100.0, height: 100.0, },
     },
     {
-      node_id: { value: 2 },
-      rect: { x: 100.0, y: 0.0, width: 100.0, height: 100.0 },
+      node_id: { value: 2, },
+      rect: { x: 100.0, y: 0.0, width: 100.0, height: 100.0, },
     },
   ]
   // Click on node 1
@@ -839,15 +839,15 @@ test "UIFocusManager focus_prev empty focusable_ids" {
 test "UIFocusManager handle_pointer_down non-focusable node" {
   let mgr = UIFocusManager::new()
   // node 1 is focusable, node 2 is not
-  mgr.set_focusable([{ value: 1 }])
+  mgr.set_focusable([{ value: 1, }])
   let layouts : Array[LayoutResult] = [
     {
-      node_id: { value: 1 },
-      rect: { x: 0.0, y: 0.0, width: 100.0, height: 100.0 },
+      node_id: { value: 1, },
+      rect: { x: 0.0, y: 0.0, width: 100.0, height: 100.0, },
     },
     {
-      node_id: { value: 2 },
-      rect: { x: 100.0, y: 0.0, width: 100.0, height: 100.0 },
+      node_id: { value: 2, },
+      rect: { x: 100.0, y: 0.0, width: 100.0, height: 100.0, },
     },
   ]
   // Focus node 1 first
@@ -878,16 +878,16 @@ test "hit_test empty layouts" {
 
 ///|
 test "point_in_rect boundary and zero-size" {
-  let rect : LayoutRect = { x: 10.0, y: 20.0, width: 100.0, height: 50.0 }
+  let rect : LayoutRect = { x: 10.0, y: 20.0, width: 100.0, height: 50.0, }
   // Exactly on right edge (exclusive)
   assert_true(!point_in_rect(rect, 110.0, 20.0))
   // Exactly on bottom edge (exclusive)
   assert_true(!point_in_rect(rect, 50.0, 70.0))
   // Zero-size rect
-  let zero_rect : LayoutRect = { x: 5.0, y: 5.0, width: 0.0, height: 0.0 }
+  let zero_rect : LayoutRect = { x: 5.0, y: 5.0, width: 0.0, height: 0.0, }
   assert_true(!point_in_rect(zero_rect, 5.0, 5.0))
   // Negative coordinates
-  let neg_rect : LayoutRect = { x: -10.0, y: -10.0, width: 20.0, height: 20.0 }
+  let neg_rect : LayoutRect = { x: -10.0, y: -10.0, width: 20.0, height: 20.0, }
   assert_true(point_in_rect(neg_rect, 0.0, 0.0))
   assert_true(point_in_rect(neg_rect, -10.0, -10.0))
   assert_true(!point_in_rect(neg_rect, 10.0, 10.0))
@@ -952,7 +952,7 @@ test "SimpleLayoutEngine asymmetric padding" {
 ///|
 test "UITree get_node non-existent" {
   let tree = UITree::new()
-  match tree.get_node({ value: 999 }) {
+  match tree.get_node({ value: 999, }) {
     None => ()
     Some(_) => fail("expected None for non-existent node")
   }
@@ -997,16 +997,16 @@ test "SimpleUIRenderAdapter multiple nodes" {
   let target = @gfx.new_image_handle(1, 640, 480)
   let layouts = [
     {
-      node_id: { value: 1 },
-      rect: { x: 0.0, y: 0.0, width: 100.0, height: 50.0 },
+      node_id: { value: 1, },
+      rect: { x: 0.0, y: 0.0, width: 100.0, height: 50.0, },
     },
     {
-      node_id: { value: 2 },
-      rect: { x: 100.0, y: 0.0, width: 50.0, height: 50.0 },
+      node_id: { value: 2, },
+      rect: { x: 100.0, y: 0.0, width: 50.0, height: 50.0, },
     },
     {
-      node_id: { value: 3 },
-      rect: { x: 0.0, y: 50.0, width: 200.0, height: 30.0 },
+      node_id: { value: 3, },
+      rect: { x: 0.0, y: 50.0, width: 200.0, height: 30.0, },
     },
   ]
   let commands = adapter.build_draw_commands(frame, layouts, target)

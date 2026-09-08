@@ -6,7 +6,7 @@ struct TestEngineGame {
 
 ///|
 fn TestEngineGame::new() -> TestEngineGame {
-  { update_count: 0, draw_count: 0 }
+  { update_count: 0, draw_count: 0, }
 }
 
 ///|

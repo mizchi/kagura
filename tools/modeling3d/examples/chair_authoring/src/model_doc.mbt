@@ -156,6 +156,6 @@ fn apply_imported_patch(doc : ModelDocument) -> ModelDocument {
     muted_stamp_ids: [],
     stamps: seat_stamps,
   }
-  { ..doc, primitives, sculpt_layers }
+  { ..doc, primitives, sculpt_layers, }
 }
 // VLM_ROUNDTRIP_PATCH_END

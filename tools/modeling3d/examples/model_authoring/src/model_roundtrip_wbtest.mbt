@@ -79,7 +79,7 @@ test "compare_roundtrip_import reports missing extra and changed nodes" {
     center: @math3d.Vec3::new(0.0, 0.74, 0.44),
     radius: 0.08,
   })
-  imported_layers[0] = { ..imported_layers[0], stamps: imported_stamps }
+  imported_layers[0] = { ..imported_layers[0], stamps: imported_stamps, }
   let imported_doc = {
     ..base,
     primitives: imported_primitives,

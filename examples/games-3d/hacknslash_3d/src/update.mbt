@@ -605,7 +605,7 @@ fn GameState::spawn_damage_popup(
   amount : Int,
   color_hex : Int,
 ) -> Unit {
-  self.damage_popups.push({ x, y, amount, color_hex, ttl: 30, rise: 0.0 })
+  self.damage_popups.push({ x, y, amount, color_hex, ttl: 30, rise: 0.0, })
 }
 
 ///|

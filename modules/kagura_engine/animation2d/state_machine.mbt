@@ -14,12 +14,12 @@ pub fn SpriteAnimationStateMachine::new(
         Some(c) => c
         None =>
           // Empty fallback
-          { name: "", frames: [], total_duration: 0.0 }
+          { name: "", frames: [], total_duration: 0.0, }
       }
     }
   }
   let player = SpriteAnimationPlayer::new(clip)
-  { clips, transitions, player, current_state: initial_state }
+  { clips, transitions, player, current_state: initial_state, }
 }
 
 ///|

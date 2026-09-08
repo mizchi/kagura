@@ -33,7 +33,7 @@ fn parse_primitive(obj : Json) -> GltfPrimitive {
     Some(v) => json_int_opt(v)
     None => None
   }
-  { attributes, indices, material, mode: json_get_int(obj, "mode", 4) }
+  { attributes, indices, material, mode: json_get_int(obj, "mode", 4), }
 }
 
 ///|
@@ -82,7 +82,7 @@ fn parse_node(obj : Json) -> GltfNode {
     Some(v) => json_int_opt(v)
     None => None
   }
-  { mesh, skin, children, translation, rotation, scale }
+  { mesh, skin, children, translation, rotation, scale, }
 }
 
 ///|
@@ -111,7 +111,7 @@ fn parse_material(obj : Json) -> GltfMaterial {
     }
     None => ()
   }
-  { base_color_factor: color }
+  { base_color_factor: color, }
 }
 
 ///|
@@ -124,7 +124,7 @@ fn parse_skin(obj : Json) -> GltfSkin {
     Some(v) => json_int_opt(v)
     None => None
   }
-  { joints, inverse_bind_matrices: ibm }
+  { joints, inverse_bind_matrices: ibm, }
 }
 
 ///|
@@ -147,7 +147,7 @@ fn parse_anim_channel(obj : Json) -> GltfAnimChannel {
     Some(t) => json_get_string(t, "path", "translation")
     None => "translation"
   }
-  { sampler, target_node, target_path }
+  { sampler, target_node, target_path, }
 }
 
 ///|
@@ -161,7 +161,7 @@ fn parse_animation(obj : Json) -> GltfAnimation {
   for s in json_get_array(obj, "samplers") {
     samplers.push(parse_anim_sampler(s))
   }
-  { name, channels, samplers }
+  { name, channels, samplers, }
 }
 
 ///|

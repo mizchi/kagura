@@ -405,7 +405,7 @@ test "gem: collected when near player" {
   state.game_mode = 1
   state.player.x = 480.0
   state.player.y = 360.0
-  state.gems.push({ x: 490.0, y: 360.0, alive: true, value: 1 })
+  state.gems.push({ x: 490.0, y: 360.0, alive: true, value: 1, })
   let input = @core.empty_input_snapshot()
   state.update(input)
   // Gem should be collected (distance < 24)
@@ -420,7 +420,7 @@ test "gem: not collected when far" {
   state.game_mode = 1
   state.player.x = 480.0
   state.player.y = 360.0
-  state.gems.push({ x: 600.0, y: 360.0, alive: true, value: 1 })
+  state.gems.push({ x: 600.0, y: 360.0, alive: true, value: 1, })
   let input = @core.empty_input_snapshot()
   state.update(input)
   let alive_gems = state.gems.iter().filter(fn(g) { g.alive }).count()
@@ -436,7 +436,7 @@ test "xp: level up triggers" {
   state.xp_to_next = 8
   state.player.x = 480.0
   state.player.y = 360.0
-  state.gems.push({ x: 480.0, y: 360.0, alive: true, value: 1 })
+  state.gems.push({ x: 480.0, y: 360.0, alive: true, value: 1, })
   let input = @core.empty_input_snapshot()
   state.update(input)
   // Should transition to level up mode

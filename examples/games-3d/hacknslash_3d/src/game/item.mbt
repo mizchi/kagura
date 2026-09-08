@@ -331,7 +331,7 @@ pub fn Inventory::new(capacity : Int) -> Inventory {
   for _i in 0..<capacity {
     items.push(None)
   }
-  { items, capacity }
+  { items, capacity, }
 }
 
 ///|
@@ -413,7 +413,7 @@ pub(all) struct Equipment {
 
 ///|
 pub fn Equipment::new() -> Equipment {
-  { weapon: None, armor: None, accessory: None }
+  { weapon: None, armor: None, accessory: None, }
 }
 
 ///|
@@ -439,7 +439,7 @@ pub fn Equipment::equip(self : Equipment, item : ItemData) -> ItemData? {
 
 ///|
 pub fn Equipment::clone(self : Equipment) -> Equipment {
-  { weapon: self.weapon, armor: self.armor, accessory: self.accessory }
+  { weapon: self.weapon, armor: self.armor, accessory: self.accessory, }
 }
 
 ///|

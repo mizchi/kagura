@@ -185,7 +185,11 @@ fn build_arm_mesh() -> (@mesh3d.Mesh3D, @skeleton3d.SkinData) {
   indices.push(cap_base + 2)
   indices.push(cap_base + 3)
   let mesh = @mesh3d.Mesh3D::new(verts, indices)
-  let skin : @skeleton3d.SkinData = { joint_indices, weights, vertex_count: vc }
+  let skin : @skeleton3d.SkinData = {
+    joint_indices,
+    weights,
+    vertex_count: vc,
+  }
   (mesh, skin)
 }
 
@@ -205,7 +209,7 @@ fn build_tentacle_skeleton() -> @skeleton3d.Skeleton {
         @math3d.Vec3::new(0.0, tentacle_bone_len, 0.0),
       )
     }
-    bones.push({ name: "t_" + i.to_string(), parent, local_transform: lt })
+    bones.push({ name: "t_" + i.to_string(), parent, local_transform: lt, })
   }
   let rest : Array[@transform3d.Transform3D] = []
   for b in bones {
@@ -312,7 +316,7 @@ fn build_idle_clip() -> @animation3d.AnimationClip {
       values: [0.0, 0.0, 0.0, 0.0, 0.05, 0.0, 0.0, 0.0, 0.0],
     },
   ]
-  { name: "idle", channels, duration: 2.0 }
+  { name: "idle", channels, duration: 2.0, }
 }
 
 ///|
@@ -326,7 +330,7 @@ fn build_walk_clip() -> @animation3d.AnimationClip {
       values: [0.0, 0.0, 0.0, 0.5, 0.0, 0.0, 0.0, 0.0, 0.0],
     },
   ]
-  { name: "walk", channels, duration: 1.0 }
+  { name: "walk", channels, duration: 1.0, }
 }
 
 // ============================================================

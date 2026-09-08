@@ -340,11 +340,11 @@ fn ShowcaseState::new() -> ShowcaseState {
   ]
   // Items
   let items : Array[ItemDrop] = [
-    { x: 80.0, y: 60.0, kind: 0, collected: false },
-    { x: 180.0, y: 100.0, kind: 0, collected: false },
-    { x: 250.0, y: 50.0, kind: 1, collected: false },
-    { x: 120.0, y: 200.0, kind: 0, collected: false },
-    { x: 280.0, y: 200.0, kind: 1, collected: false },
+    { x: 80.0, y: 60.0, kind: 0, collected: false, },
+    { x: 180.0, y: 100.0, kind: 0, collected: false, },
+    { x: 250.0, y: 50.0, kind: 1, collected: false, },
+    { x: 120.0, y: 200.0, kind: 0, collected: false, },
+    { x: 280.0, y: 200.0, kind: 1, collected: false, },
   ]
   {
     mode: mode_title,

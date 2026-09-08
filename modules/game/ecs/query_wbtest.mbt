@@ -67,14 +67,14 @@ test "each_with_transform_velocity requires both components" {
     e1,
     @transform3d.Transform3D::from_position(@math3d.Vec3::new(0.0, 0.0, 0.0)),
   )
-  world.set_velocity(e1, { x: 1.0, y: 0.0, z: 0.0 })
+  world.set_velocity(e1, { x: 1.0, y: 0.0, z: 0.0, })
   // e2: only transform
   world.set_transform(
     e2,
     @transform3d.Transform3D::from_position(@math3d.Vec3::new(0.0, 0.0, 0.0)),
   )
   // e3: only velocity
-  world.set_velocity(e3, { x: 1.0, y: 0.0, z: 0.0 })
+  world.set_velocity(e3, { x: 1.0, y: 0.0, z: 0.0, })
   let count = @ref.new(0)
   world.each_with_transform_velocity(fn(_eid, _t, _v) {
     count.update(fn(n) { n + 1 })
@@ -90,7 +90,7 @@ test "each_with_transform_velocity passes correct data" {
     eid,
     @transform3d.Transform3D::from_position(@math3d.Vec3::new(10.0, 20.0, 0.0)),
   )
-  world.set_velocity(eid, { x: 5.0, y: -3.0, z: 0.0 })
+  world.set_velocity(eid, { x: 5.0, y: -3.0, z: 0.0, })
   let tx = @ref.new(0.0)
   let vx = @ref.new(0.0)
   let vy = @ref.new(0.0)

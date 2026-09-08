@@ -297,7 +297,7 @@ fn extract_rooms_from_grid(grid : @terrain.Grid2D) -> Array[@terrain.Room] {
         let w = max_x - min_x + 1
         let h = max_y - min_y + 1
         if w >= 3 && h >= 3 {
-          rooms.push({ rect: { x: min_x, y: min_y, w, h }, id: room_id })
+          rooms.push({ rect: { x: min_x, y: min_y, w, h, }, id: room_id, })
           room_id = room_id + 1
         }
       }
@@ -306,7 +306,7 @@ fn extract_rooms_from_grid(grid : @terrain.Grid2D) -> Array[@terrain.Room] {
   // Ensure at least one room
   if rooms.is_empty() {
     rooms.push({
-      rect: { x: grid.width / 4, y: grid.height / 4, w: 4, h: 4 },
+      rect: { x: grid.width / 4, y: grid.height / 4, w: 4, h: 4, },
       id: 0,
     })
   }
@@ -348,26 +348,26 @@ fn generate_layout_for_kind(
     ArenaChain => {
       let config = arena_chain_config_for_floor(seed~, floor, params)
       let generated = @arena_chain.generate(config, rng)
-      { grid: generated.grid, rooms: generated.rooms }
+      { grid: generated.grid, rooms: generated.rooms, }
     }
     TinyKeep => {
       let config = tinykeep_config_for_floor(seed~, floor, params)
       let generated = @tinykeep.generate(config, rng)
-      { grid: generated.grid, rooms: generated.rooms }
+      { grid: generated.grid, rooms: generated.rooms, }
     }
     Diablo => {
       let generated = @diablo.generate(
         diablo_config_for_floor(seed~, floor, params),
         rng,
       )
-      { grid: generated.grid, rooms: generated.rooms }
+      { grid: generated.grid, rooms: generated.rooms, }
     }
     BSP => {
       let generated = @bsp.generate(
         bsp_config_for_floor(seed~, floor, params),
         rng,
       )
-      { grid: generated.grid, rooms: generated.rooms }
+      { grid: generated.grid, rooms: generated.rooms, }
     }
     Cellular => {
       let generated = @cellular.generate(
@@ -375,14 +375,14 @@ fn generate_layout_for_kind(
         rng,
       )
       let rooms = extract_rooms_from_grid(generated.grid)
-      { grid: generated.grid, rooms }
+      { grid: generated.grid, rooms, }
     }
     Rogue => {
       let generated = @rogue.generate(
         rogue_config_for_floor(seed~, floor, params),
         rng,
       )
-      { grid: generated.grid, rooms: generated.rooms }
+      { grid: generated.grid, rooms: generated.rooms, }
     }
   }
 }

@@ -6,7 +6,7 @@ pub(all) struct LevelUpConfig {
 
 ///|
 pub fn LevelUpConfig::default() -> LevelUpConfig {
-  { xp_base: 10, xp_growth: 6 }
+  { xp_base: 10, xp_growth: 6, }
 }
 
 ///|
@@ -78,7 +78,7 @@ pub(all) struct TierCurve {
 
 ///|
 pub fn TierCurve::new(base : Double, per_floor : Double) -> TierCurve {
-  { base, per_floor }
+  { base, per_floor, }
 }
 
 ///|

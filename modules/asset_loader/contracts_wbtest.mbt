@@ -11,7 +11,7 @@ struct FetchStub {
 
 ///|
 fn new_fetch_stub() -> FetchStub {
-  { pending: [] }
+  { pending: [], }
 }
 
 ///|
@@ -20,7 +20,7 @@ fn enqueue_stub_fetch(
   url : String,
   callback : (@atlas.ImageSpec?) -> Unit,
 ) -> Unit {
-  stub.pending.push({ url, callback })
+  stub.pending.push({ url, callback, })
 }
 
 ///|

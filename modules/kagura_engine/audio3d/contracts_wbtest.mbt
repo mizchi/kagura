@@ -7,7 +7,7 @@ test "compute_attenuation inverse model - at ref distance" {
   )
   let source : AudioSource3D = {
     position: @math3d.Vec3::new(1.0, 0.0, 0.0),
-    player_id: { value: 1 },
+    player_id: { value: 1, },
     ref_distance: 1.0,
     max_distance: 100.0,
     rolloff: 1.0,
@@ -28,7 +28,7 @@ test "compute_attenuation inverse model - at double ref distance" {
   )
   let source : AudioSource3D = {
     position: @math3d.Vec3::new(2.0, 0.0, 0.0),
-    player_id: { value: 1 },
+    player_id: { value: 1, },
     ref_distance: 1.0,
     max_distance: 100.0,
     rolloff: 1.0,
@@ -49,7 +49,7 @@ test "compute_attenuation linear model" {
   )
   let source : AudioSource3D = {
     position: @math3d.Vec3::new(5.5, 0.0, 0.0),
-    player_id: { value: 1 },
+    player_id: { value: 1, },
     ref_distance: 1.0,
     max_distance: 10.0,
     rolloff: 1.0,
@@ -70,7 +70,7 @@ test "compute_attenuation linear model - at max distance" {
   )
   let source : AudioSource3D = {
     position: @math3d.Vec3::new(10.0, 0.0, 0.0),
-    player_id: { value: 1 },
+    player_id: { value: 1, },
     ref_distance: 1.0,
     max_distance: 10.0,
     rolloff: 1.0,
@@ -91,7 +91,7 @@ test "compute_attenuation exponential model" {
   )
   let source : AudioSource3D = {
     position: @math3d.Vec3::new(2.0, 0.0, 0.0),
-    player_id: { value: 1 },
+    player_id: { value: 1, },
     ref_distance: 1.0,
     max_distance: 100.0,
     rolloff: 1.0,
@@ -112,7 +112,7 @@ test "compute_pan - source on the right" {
   )
   let source : AudioSource3D = {
     position: @math3d.Vec3::new(5.0, 0.0, 0.0),
-    player_id: { value: 1 },
+    player_id: { value: 1, },
     ref_distance: 1.0,
     max_distance: 100.0,
     rolloff: 1.0,
@@ -136,7 +136,7 @@ test "compute_pan - source on the left" {
   )
   let source : AudioSource3D = {
     position: @math3d.Vec3::new(-5.0, 0.0, 0.0),
-    player_id: { value: 1 },
+    player_id: { value: 1, },
     ref_distance: 1.0,
     max_distance: 100.0,
     rolloff: 1.0,
@@ -157,7 +157,7 @@ test "compute_pan - source directly in front" {
   )
   let source : AudioSource3D = {
     position: @math3d.Vec3::new(0.0, 0.0, -5.0),
-    player_id: { value: 1 },
+    player_id: { value: 1, },
     ref_distance: 1.0,
     max_distance: 100.0,
     rolloff: 1.0,
@@ -178,7 +178,7 @@ test "compute_pan - source at same position" {
   )
   let source : AudioSource3D = {
     position: @math3d.Vec3::zero(),
-    player_id: { value: 1 },
+    player_id: { value: 1, },
     ref_distance: 1.0,
     max_distance: 100.0,
     rolloff: 1.0,

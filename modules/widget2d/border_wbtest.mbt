@@ -26,7 +26,7 @@ test "border_vertices generates 4 trapezoids for uniform border" {
 
 ///|
 test "border_vertices skips sides with zero width" {
-  let border = BorderWidths::{ top: 3.0, right: 0.0, bottom: 3.0, left: 0.0 }
+  let border = BorderWidths::{ top: 3.0, right: 0.0, bottom: 3.0, left: 0.0, }
   let (vertices, indices) = border_vertices(
     0.0, 0.0, 100.0, 100.0, border, 640.0, 480.0,
   )

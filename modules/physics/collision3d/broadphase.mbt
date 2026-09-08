@@ -26,7 +26,7 @@ pub struct SpatialHashGrid {
 
 ///|
 pub fn SpatialHashGrid::new(cell_size : Double) -> SpatialHashGrid {
-  { cell_size, inv_cell_size: 1.0 / cell_size, cells: Map([]), entries: [] }
+  { cell_size, inv_cell_size: 1.0 / cell_size, cells: Map([]), entries: [], }
 }
 
 ///|
@@ -80,7 +80,7 @@ pub fn SpatialHashGrid::insert(
   let max_cx = floor_to_int(aabb.max.x * self.inv_cell_size)
   let max_cy = floor_to_int(aabb.max.y * self.inv_cell_size)
   let max_cz = floor_to_int(aabb.max.z * self.inv_cell_size)
-  self.entries.push({ id, aabb, min_cx, min_cy, min_cz })
+  self.entries.push({ id, aabb, min_cx, min_cy, min_cz, })
   for cx = min_cx; cx <= max_cx; cx = cx + 1 {
     for cy = min_cy; cy <= max_cy; cy = cy + 1 {
       for cz = min_cz; cz <= max_cz; cz = cz + 1 {

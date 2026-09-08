@@ -394,7 +394,7 @@ fn GameState::delete_save(_self : GameState) -> Unit {
 ///|
 fn split_string(s : String, sep : Char) -> Array[String] {
   let parts : Array[String] = []
-  let buf = StringBuilder::new()
+  let buf = StringBuilder()
   for c in s {
     if c == sep {
       parts.push(buf.to_string())
@@ -409,7 +409,7 @@ fn split_string(s : String, sep : Char) -> Array[String] {
 
 ///|
 fn join_strings(parts : Array[String], sep : String) -> String {
-  let buf = StringBuilder::new()
+  let buf = StringBuilder()
   for i, part in parts {
     if i > 0 {
       buf.write_string(sep)

@@ -53,7 +53,7 @@ pub fn run(
       @gfx.new_shader_handle(1, shader_source)
     }
   }
-  let ctx : EngineContext = { dst, shader, screen_w: width, screen_h: height }
+  let ctx : EngineContext = { dst, shader, screen_w: width, screen_h: height, }
   let tick : Ref[Int] = Ref(0)
   match audio_ctx {
     Some(_) => {

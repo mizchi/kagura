@@ -136,7 +136,7 @@ pub fn new_window_options(
   resizable : Bool,
   focused? : Bool = true,
 ) -> WindowOptions {
-  { title, width, height, transparent, resizable, focused }
+  { title, width, height, transparent, resizable, focused, }
 }
 
 ///|

@@ -11,8 +11,8 @@ fn metric_map(entries : Array[(String, Double)]) -> @dec.Metrics {
 ///|
 test "new_autoplay_experiment_parquet_file builds baseline and optimized rows" {
   let specs : Array[@dec.ParamSpec] = [
-    { name: "player_speed", initial: 1.25, min: 1.2, max: 2.0 },
-    { name: "spell_damage_mult", initial: 0.5, min: 0.35, max: 1.0 },
+    { name: "player_speed", initial: 1.25, min: 1.2, max: 2.0, },
+    { name: "spell_damage_mult", initial: 0.5, min: 0.35, max: 1.0, },
   ]
   let config : AutoplayExperimentConfig = {
     experiment_id: "exp-001",
@@ -95,7 +95,7 @@ test "new_autoplay_experiment_parquet_file builds baseline and optimized rows" {
 ///|
 test "new_autoplay_experiment_parquet_file encodes to bytes" {
   let specs : Array[@dec.ParamSpec] = [
-    { name: "player_speed", initial: 1.25, min: 1.2, max: 2.0 },
+    { name: "player_speed", initial: 1.25, min: 1.2, max: 2.0, },
   ]
   let config : AutoplayExperimentConfig = {
     experiment_id: "exp-encode",

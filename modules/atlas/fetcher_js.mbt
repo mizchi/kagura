@@ -73,7 +73,7 @@ pub struct JsFetcher {
 
 ///|
 pub fn new_js_fetcher() -> JsFetcher {
-  { next_id: 1 }
+  { next_id: 1, }
 }
 
 ///|
@@ -88,7 +88,7 @@ pub impl BytesFetcher for JsFetcher with fn fetch(
   js_stream_fetch(
     url,
     id,
-    fn(_, loaded, total) { on_progress({ loaded, total }) },
+    fn(_, loaded, total) { on_progress({ loaded, total, }) },
     fn(fid, len) {
       if len < 0 {
         on_complete(None)

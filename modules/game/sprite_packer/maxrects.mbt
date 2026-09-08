@@ -21,7 +21,7 @@ priv struct MaxRectsAllocator {
 
 ///|
 fn new_maxrects_allocator(width : Int, height : Int) -> MaxRectsAllocator {
-  { free_rects: [{ x: 0, y: 0, width, height }] }
+  { free_rects: [{ x: 0, y: 0, width, height, }], }
 }
 
 ///|
@@ -77,12 +77,12 @@ fn MaxRectsAllocator::insert(
   if best_idx < 0 {
     return None
   }
-  let placed = { x: best_x, y: best_y, width: w, height: h }
+  let placed = { x: best_x, y: best_y, width: w, height: h, }
   // Split free rects
   split_free_rects(self, placed)
   // Remove contained rects
   prune_contained(self)
-  Some({ x: best_x, y: best_y })
+  Some({ x: best_x, y: best_y, })
 }
 
 ///|

@@ -423,7 +423,7 @@ pub fn apply_roundtrip_auto_patch(
     }
     sculpt_layers[i] = layer
   }
-  { ..doc, primitives, sculpt_layers }
+  { ..doc, primitives, sculpt_layers, }
 }
 
 ///|
@@ -1064,7 +1064,7 @@ fn roundtrip_manual_issue_scaffold(
   imported : RoundTripImport,
   action : RoundTripPatchAction,
 ) -> String {
-  let buf = StringBuilder::new()
+  let buf = StringBuilder()
   match action.action_kind {
     "review_missing" => append_roundtrip_missing_scaffold(buf, doc, action)
     "review_extra" => append_roundtrip_extra_scaffold(buf, imported, action)
@@ -1082,7 +1082,7 @@ pub fn roundtrip_patch_snippet_filename(plan : RoundTripPatchPlan) -> String {
   } else {
     plan.imported_document_name
   }
-  let buf = StringBuilder::new()
+  let buf = StringBuilder()
   for ch in base {
     if ch.is_ascii_alphabetic() || ch.is_ascii_digit() || ch == '_' || ch == '-' {
       buf.write_char(ch)
@@ -1107,7 +1107,7 @@ pub fn roundtrip_review_prompt_filename(plan : RoundTripPatchPlan) -> String {
   } else {
     plan.imported_document_name
   }
-  let buf = StringBuilder::new()
+  let buf = StringBuilder()
   for ch in base {
     if ch.is_ascii_alphabetic() || ch.is_ascii_digit() || ch == '_' || ch == '-' {
       buf.write_char(ch)
@@ -1132,7 +1132,7 @@ pub fn roundtrip_review_bundle_filename(plan : RoundTripPatchPlan) -> String {
   } else {
     plan.imported_document_name
   }
-  let buf = StringBuilder::new()
+  let buf = StringBuilder()
   for ch in base {
     if ch.is_ascii_alphabetic() || ch.is_ascii_digit() || ch == '_' || ch == '-' {
       buf.write_char(ch)
@@ -1156,7 +1156,7 @@ pub fn roundtrip_patch_code_snippet(
   imported : RoundTripImport,
   plan : RoundTripPatchPlan,
 ) -> String {
-  let buf = StringBuilder::new()
+  let buf = StringBuilder()
   buf.write_string(
     "fn apply_imported_patch(doc : ModelDocument) -> ModelDocument {\n",
   )
@@ -1299,7 +1299,7 @@ pub fn roundtrip_review_prompt_text(
   plan : RoundTripPatchPlan,
   profile : AuthoringProfile,
 ) -> String {
-  let buf = StringBuilder::new()
+  let buf = StringBuilder()
   buf.write_string("# Kagura round-trip review prompt\n\n")
   buf.write_string("Target file: `" + profile.doc_source_path + "`\n\n")
   buf.write_string(
@@ -1387,7 +1387,7 @@ pub fn roundtrip_review_prompt_text(
 
 ///|
 pub fn roundtrip_patch_plan_json(plan : RoundTripPatchPlan) -> String {
-  let buf = StringBuilder::new()
+  let buf = StringBuilder()
   buf.write_string("{\"filename\":\"")
   buf.write_string(json_escape(plan.filename))
   buf.write_string("\",\"imported_document_name\":\"")
@@ -1416,7 +1416,7 @@ pub fn roundtrip_patch_payload_json(
   let report = compare_roundtrip_import(doc, imported)
   let opt_in_append_ids = roundtrip_opt_in_append_source_ids(imported, plan)
   let opt_in_remove_ids = roundtrip_opt_in_remove_source_ids(doc, plan)
-  let buf = StringBuilder::new()
+  let buf = StringBuilder()
   buf.write_string("{\"filename\":\"")
   buf.write_string(json_escape(plan.filename))
   buf.write_string("\",\"imported_document_name\":\"")
@@ -1458,7 +1458,7 @@ pub fn roundtrip_review_bundle_json(
 ) -> String {
   let report = compare_roundtrip_import(doc, imported)
   let review_constraints = profile.review_constraints
-  let buf = StringBuilder::new()
+  let buf = StringBuilder()
   buf.write_string("{\"target_file\":\"")
   buf.write_string(json_escape(profile.doc_source_path))
   buf.write_string("\",\"review_profile\":\"")
@@ -1477,7 +1477,7 @@ pub fn roundtrip_review_bundle_json(
 
 ///|
 pub fn roundtrip_patch_plan_summary(plan : RoundTripPatchPlan) -> String {
-  let buf = StringBuilder::new()
+  let buf = StringBuilder()
   buf.write_string("PATCH ")
   buf.write_string(plan.filename)
   buf.write_string("\n")

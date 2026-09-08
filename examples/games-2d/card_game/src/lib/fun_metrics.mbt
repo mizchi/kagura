@@ -1313,7 +1313,7 @@ pub fn score_fun_metrics(m : FunMetrics) -> FunScorecard {
 ///|
 /// Format scorecard as a visual report
 pub fn format_scorecard(sc : FunScorecard) -> String {
-  let buf = StringBuilder::new()
+  let buf = StringBuilder()
   buf.write_string("=== FUN SCORECARD ===\n\n")
   // Bar chart helper
   fn bar(score : Double) -> String {
@@ -1369,7 +1369,7 @@ pub fn format_scorecard(sc : FunScorecard) -> String {
 /// Print a formatted fun metrics report with raw data + scorecard
 pub fn format_fun_report(m : FunMetrics) -> String {
   let t = default_targets()
-  let buf = StringBuilder::new()
+  let buf = StringBuilder()
   buf.write_string("=== Fun Metrics Report ===\n\n")
 
   // 1. Tension (danger → resolution → relief)

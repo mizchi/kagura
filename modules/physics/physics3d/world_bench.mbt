@@ -38,7 +38,7 @@ fn bench_world_constraints(
     world.solver_config.contact_damping_ratio,
     sub_dt,
   )
-  let constraints : Array[ContactConstraintRuntime3D] = Array::new(
+  let constraints : Array[ContactConstraintRuntime3D] = Array(
     capacity=pairs.length(),
   )
   for i = 0; i < pairs.length(); i = i + 1 {

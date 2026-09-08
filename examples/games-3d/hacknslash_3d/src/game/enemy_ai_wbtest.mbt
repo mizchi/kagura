@@ -15,7 +15,7 @@ test "update_enemy_ai falls back to pathfinding when same-room direct chase is b
   let grid = @terrain.Grid2D::make(5, 3, @terrain.Floor)
   grid.set(2, 1, @terrain.Wall)
   let rooms : Array[@terrain.Room] = [
-    { rect: { x: 0, y: 0, w: 5, h: 3 }, id: 0 },
+    { rect: { x: 0, y: 0, w: 5, h: 3, }, id: 0, },
   ]
   let player : Player = {
     x: 0.5 * tile_size,
@@ -49,7 +49,7 @@ test "update_enemy_ai falls back to pathfinding when same-room direct chase is b
 test "update_enemy_ai telegraphs ranged bolt before spawning projectile" {
   let grid = @terrain.Grid2D::make(8, 3, @terrain.Floor)
   let rooms : Array[@terrain.Room] = [
-    { rect: { x: 0, y: 0, w: 8, h: 3 }, id: 0 },
+    { rect: { x: 0, y: 0, w: 8, h: 3, }, id: 0, },
   ]
   let player : Player = {
     x: 1.5 * tile_size,
@@ -111,7 +111,7 @@ test "update_enemy_ai telegraphs ranged bolt before spawning projectile" {
 test "update_enemy_ai uses ranged pressure parameters for bolt damage and cooldown" {
   let grid = @terrain.Grid2D::make(8, 3, @terrain.Floor)
   let rooms : Array[@terrain.Room] = [
-    { rect: { x: 0, y: 0, w: 8, h: 3 }, id: 0 },
+    { rect: { x: 0, y: 0, w: 8, h: 3, }, id: 0, },
   ]
   let player : Player = {
     x: 1.5 * tile_size,
@@ -164,7 +164,7 @@ test "update_enemy_ai uses ranged pressure parameters for bolt damage and cooldo
 test "update_enemy_ai telegraphs fast tackle and then lunges toward player" {
   let grid = @terrain.Grid2D::make(8, 3, @terrain.Floor)
   let rooms : Array[@terrain.Room] = [
-    { rect: { x: 0, y: 0, w: 8, h: 3 }, id: 0 },
+    { rect: { x: 0, y: 0, w: 8, h: 3, }, id: 0, },
   ]
   let player : Player = {
     x: 1.5 * tile_size,
@@ -223,7 +223,7 @@ test "update_enemy_ai telegraphs fast tackle and then lunges toward player" {
 test "update_enemy_ai telegraphs tank fire nova and emits radial bolts" {
   let grid = @terrain.Grid2D::make(8, 3, @terrain.Floor)
   let rooms : Array[@terrain.Room] = [
-    { rect: { x: 0, y: 0, w: 8, h: 3 }, id: 0 },
+    { rect: { x: 0, y: 0, w: 8, h: 3, }, id: 0, },
   ]
   let player : Player = {
     x: 1.5 * tile_size,

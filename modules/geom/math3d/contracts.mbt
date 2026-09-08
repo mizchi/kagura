@@ -22,62 +22,62 @@ pub impl Show for Vec3 with fn output(self, logger) {
 
 ///|
 pub fn Vec3::new(x : Double, y : Double, z : Double) -> Vec3 {
-  { x, y, z }
+  { x, y, z, }
 }
 
 ///|
 pub fn Vec3::zero() -> Vec3 {
-  { x: 0.0, y: 0.0, z: 0.0 }
+  { x: 0.0, y: 0.0, z: 0.0, }
 }
 
 ///|
 pub fn Vec3::one() -> Vec3 {
-  { x: 1.0, y: 1.0, z: 1.0 }
+  { x: 1.0, y: 1.0, z: 1.0, }
 }
 
 ///|
 pub fn Vec3::unit_x() -> Vec3 {
-  { x: 1.0, y: 0.0, z: 0.0 }
+  { x: 1.0, y: 0.0, z: 0.0, }
 }
 
 ///|
 pub fn Vec3::unit_y() -> Vec3 {
-  { x: 0.0, y: 1.0, z: 0.0 }
+  { x: 0.0, y: 1.0, z: 0.0, }
 }
 
 ///|
 pub fn Vec3::unit_z() -> Vec3 {
-  { x: 0.0, y: 0.0, z: 1.0 }
+  { x: 0.0, y: 0.0, z: 1.0, }
 }
 
 ///|
 pub fn Vec3::add(self : Vec3, other : Vec3) -> Vec3 {
-  { x: self.x + other.x, y: self.y + other.y, z: self.z + other.z }
+  { x: self.x + other.x, y: self.y + other.y, z: self.z + other.z, }
 }
 
 ///|
 pub fn Vec3::sub(self : Vec3, other : Vec3) -> Vec3 {
-  { x: self.x - other.x, y: self.y - other.y, z: self.z - other.z }
+  { x: self.x - other.x, y: self.y - other.y, z: self.z - other.z, }
 }
 
 ///|
 pub fn Vec3::scale(self : Vec3, s : Double) -> Vec3 {
-  { x: self.x * s, y: self.y * s, z: self.z * s }
+  { x: self.x * s, y: self.y * s, z: self.z * s, }
 }
 
 ///|
 pub fn Vec3::negate(self : Vec3) -> Vec3 {
-  { x: -self.x, y: -self.y, z: -self.z }
+  { x: -self.x, y: -self.y, z: -self.z, }
 }
 
 ///|
 pub fn Vec3::mul(self : Vec3, other : Vec3) -> Vec3 {
-  { x: self.x * other.x, y: self.y * other.y, z: self.z * other.z }
+  { x: self.x * other.x, y: self.y * other.y, z: self.z * other.z, }
 }
 
 ///|
 pub fn Vec3::div(self : Vec3, other : Vec3) -> Vec3 {
-  { x: self.x / other.x, y: self.y / other.y, z: self.z / other.z }
+  { x: self.x / other.x, y: self.y / other.y, z: self.z / other.z, }
 }
 
 ///|
@@ -187,22 +187,22 @@ pub impl Show for Vec4 with fn output(self, logger) {
 
 ///|
 pub fn Vec4::new(x : Double, y : Double, z : Double, w : Double) -> Vec4 {
-  { x, y, z, w }
+  { x, y, z, w, }
 }
 
 ///|
 pub fn Vec4::zero() -> Vec4 {
-  { x: 0.0, y: 0.0, z: 0.0, w: 0.0 }
+  { x: 0.0, y: 0.0, z: 0.0, w: 0.0, }
 }
 
 ///|
 pub fn Vec4::from_vec3(v : Vec3, w : Double) -> Vec4 {
-  { x: v.x, y: v.y, z: v.z, w }
+  { x: v.x, y: v.y, z: v.z, w, }
 }
 
 ///|
 pub fn Vec4::to_vec3(self : Vec4) -> Vec3 {
-  { x: self.x, y: self.y, z: self.z }
+  { x: self.x, y: self.y, z: self.z, }
 }
 
 ///|
@@ -227,7 +227,7 @@ pub fn Vec4::sub(self : Vec4, other : Vec4) -> Vec4 {
 
 ///|
 pub fn Vec4::scale(self : Vec4, s : Double) -> Vec4 {
-  { x: self.x * s, y: self.y * s, z: self.z * s, w: self.w * s }
+  { x: self.x * s, y: self.y * s, z: self.z * s, w: self.w * s, }
 }
 
 ///|
@@ -630,7 +630,7 @@ pub impl Show for Quaternion with fn output(self, logger) {
 
 ///|
 pub fn Quaternion::identity() -> Quaternion {
-  { x: 0.0, y: 0.0, z: 0.0, w: 1.0 }
+  { x: 0.0, y: 0.0, z: 0.0, w: 1.0, }
 }
 
 ///|
@@ -640,7 +640,7 @@ pub fn Quaternion::new(
   z : Double,
   w : Double,
 ) -> Quaternion {
-  { x, y, z, w }
+  { x, y, z, w, }
 }
 
 ///|
@@ -651,7 +651,7 @@ pub fn Quaternion::from_axis_angle(
   let half = angle_rad / 2.0
   let s = @math.sin(half)
   let a = axis.normalize()
-  { x: a.x * s, y: a.y * s, z: a.z * s, w: @math.cos(half) }
+  { x: a.x * s, y: a.y * s, z: a.z * s, w: @math.cos(half), }
 }
 
 ///|
@@ -727,7 +727,7 @@ pub fn Quaternion::normalize(self : Quaternion) -> Quaternion {
     Quaternion::identity()
   } else {
     let inv = 1.0 / len
-    { x: self.x * inv, y: self.y * inv, z: self.z * inv, w: self.w * inv }
+    { x: self.x * inv, y: self.y * inv, z: self.z * inv, w: self.w * inv, }
   }
 }
 
@@ -746,7 +746,7 @@ pub fn Quaternion::multiply(
 
 ///|
 pub fn Quaternion::conjugate(self : Quaternion) -> Quaternion {
-  { x: -self.x, y: -self.y, z: -self.z, w: self.w }
+  { x: -self.x, y: -self.y, z: -self.z, w: self.w, }
 }
 
 ///|
@@ -759,7 +759,7 @@ pub fn Quaternion::inverse(self : Quaternion) -> Quaternion {
     Quaternion::identity()
   } else {
     let inv = 1.0 / len_sq
-    { x: -self.x * inv, y: -self.y * inv, z: -self.z * inv, w: self.w * inv }
+    { x: -self.x * inv, y: -self.y * inv, z: -self.z * inv, w: self.w * inv, }
   }
 }
 

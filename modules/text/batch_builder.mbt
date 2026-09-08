@@ -12,7 +12,7 @@ pub fn SimpleTextBatchBuilder::new(
   cache : @font.GlyphCache,
   pipeline_id : Int,
 ) -> SimpleTextBatchBuilder {
-  { cache, pipeline_id }
+  { cache, pipeline_id, }
 }
 
 // Must mirror `mix_resource_cache_key` in mizchi/gfx/src/contracts.mbt.

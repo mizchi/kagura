@@ -34,9 +34,9 @@ struct TestScheduler {
 pub impl AIScheduler for TestScheduler with fn select_agents(self, tick) {
   let _ = self.id
   if tick % 2 == 0 {
-    [{ value: 1 }, { value: 2 }]
+    [{ value: 1, }, { value: 2, }]
   } else {
-    [{ value: 1 }]
+    [{ value: 1, }]
   }
 }
 
@@ -54,25 +54,25 @@ struct TestPolicy {
 pub impl AIPolicy for TestPolicy with fn decide(self, context) {
   let _ = self.id
   let entries = context.blackboard.entries
-  entries.push({ key: "last_tick", value: context.tick.to_string() })
+  entries.push({ key: "last_tick", value: context.tick.to_string(), })
   {
     actions: [
       ActionIntent::Move(context.perception.self_x, context.perception.self_y),
     ],
     next_blackboard: { entries, },
-    trace: [{ stage: "test", score: 1.0, note: "ok" }],
+    trace: [{ stage: "test", score: 1.0, note: "ok", }],
   }
 }
 
 ///|
 test "run_ai_tick updates blackboard and applies actions" {
-  let sensor : TestSensor = { id: 0 }
-  let actuator = { applied: 0 }
-  let scheduler : TestScheduler = { id: 0 }
-  let policy : TestPolicy = { id: 0 }
+  let sensor : TestSensor = { id: 0, }
+  let actuator = { applied: 0, }
+  let scheduler : TestScheduler = { id: 0, }
+  let policy : TestPolicy = { id: 0, }
 
   let frame = @core.new_frame_budget(1, 0.0, 10)
-  let blackboard : BlackboardSnapshot = { entries: [] }
+  let blackboard : BlackboardSnapshot = { entries: [], }
   let next = run_ai_tick(
     policy, sensor, actuator, scheduler, frame, 10, blackboard,
   )
@@ -87,10 +87,10 @@ test "AIRuntimeState tracks decisions" {
   assert_eq(state.total_decisions(), 0)
   assert_eq(state.trace_count(), 0)
 
-  let sensor : TestSensor = { id: 0 }
-  let actuator : TestActuator = { applied: 0 }
-  let scheduler : TestScheduler = { id: 0 }
-  let policy : TestPolicy = { id: 0 }
+  let sensor : TestSensor = { id: 0, }
+  let actuator : TestActuator = { applied: 0, }
+  let scheduler : TestScheduler = { id: 0, }
+  let policy : TestPolicy = { id: 0, }
   let hook = create_ai_post_update_hook(
     policy, sensor, actuator, scheduler, state,
   )
@@ -115,7 +115,7 @@ test "AIRuntimeState tracks decisions" {
 ///|
 test "AIRuntimeState with initial blackboard" {
   let initial : BlackboardSnapshot = {
-    entries: [{ key: "init", value: "yes" }],
+    entries: [{ key: "init", value: "yes", }],
   }
   let state = AIRuntimeState::new_with_blackboard(initial)
   assert_eq(state.current_blackboard().entries.length(), 1)
@@ -125,7 +125,7 @@ test "AIRuntimeState with initial blackboard" {
 ///|
 test "AIRuntimeState clear_traces" {
   let state = AIRuntimeState::new()
-  state.traces.push([{ stage: "test", score: 1.0, note: "ok" }])
+  state.traces.push([{ stage: "test", score: 1.0, note: "ok", }])
   assert_eq(state.trace_count(), 1)
   state.clear_traces()
   assert_eq(state.trace_count(), 0)
@@ -136,10 +136,10 @@ test "AIRuntimeState disabled skips tick" {
   let state = AIRuntimeState::new()
   state.set_enabled(false)
 
-  let sensor : TestSensor = { id: 0 }
-  let actuator : TestActuator = { applied: 0 }
-  let scheduler : TestScheduler = { id: 0 }
-  let policy : TestPolicy = { id: 0 }
+  let sensor : TestSensor = { id: 0, }
+  let actuator : TestActuator = { applied: 0, }
+  let scheduler : TestScheduler = { id: 0, }
+  let policy : TestPolicy = { id: 0, }
   let hook = create_ai_post_update_hook(
     policy, sensor, actuator, scheduler, state,
   )
@@ -176,10 +176,10 @@ test "AIRuntimeState trace collection" {
   }
   let state = AIRuntimeState::new_with_config(config)
 
-  let sensor : TestSensor = { id: 0 }
-  let actuator : TestActuator = { applied: 0 }
-  let scheduler : TestScheduler = { id: 0 }
-  let policy : TestPolicy = { id: 0 }
+  let sensor : TestSensor = { id: 0, }
+  let actuator : TestActuator = { applied: 0, }
+  let scheduler : TestScheduler = { id: 0, }
+  let policy : TestPolicy = { id: 0, }
   let hook = create_ai_post_update_hook(
     policy, sensor, actuator, scheduler, state,
   )
@@ -201,10 +201,10 @@ test "AIRuntimeState recent trace ticks" {
   }
   let state = AIRuntimeState::new_with_config(config)
 
-  let sensor : TestSensor = { id: 0 }
-  let actuator : TestActuator = { applied: 0 }
-  let scheduler : TestScheduler = { id: 0 }
-  let policy : TestPolicy = { id: 0 }
+  let sensor : TestSensor = { id: 0, }
+  let actuator : TestActuator = { applied: 0, }
+  let scheduler : TestScheduler = { id: 0, }
+  let policy : TestPolicy = { id: 0, }
   let hook = create_ai_post_update_hook(
     policy, sensor, actuator, scheduler, state,
   )
@@ -231,13 +231,13 @@ test "AIRuntimeState seed configuration" {
 
 ///|
 test "blackboard persists across agents within same tick" {
-  let sensor : TestSensor = { id: 0 }
-  let actuator : TestActuator = { applied: 0 }
-  let scheduler : TestScheduler = { id: 0 }
-  let policy : TestPolicy = { id: 0 }
+  let sensor : TestSensor = { id: 0, }
+  let actuator : TestActuator = { applied: 0, }
+  let scheduler : TestScheduler = { id: 0, }
+  let policy : TestPolicy = { id: 0, }
   let frame = @core.new_frame_budget(1, 0.0, 10)
   let blackboard : BlackboardSnapshot = {
-    entries: [{ key: "initial", value: "true" }],
+    entries: [{ key: "initial", value: "true", }],
   }
   // Even tick: 2 agents, each appends "last_tick" entry
   let result = run_ai_tick(
@@ -252,12 +252,12 @@ test "blackboard persists across agents within same tick" {
 
 ///|
 test "odd tick runs single agent" {
-  let sensor : TestSensor = { id: 0 }
-  let actuator : TestActuator = { applied: 0 }
-  let scheduler : TestScheduler = { id: 0 }
-  let policy : TestPolicy = { id: 0 }
+  let sensor : TestSensor = { id: 0, }
+  let actuator : TestActuator = { applied: 0, }
+  let scheduler : TestScheduler = { id: 0, }
+  let policy : TestPolicy = { id: 0, }
   let frame = @core.new_frame_budget(1, 0.0, 11)
-  let blackboard : BlackboardSnapshot = { entries: [] }
+  let blackboard : BlackboardSnapshot = { entries: [], }
   // Odd tick: 1 agent
   let result = run_ai_tick(
     policy, sensor, actuator, scheduler, frame, 11, blackboard,
@@ -287,10 +287,10 @@ test "default_ai_runtime_config has expected defaults" {
 ///|
 test "AIRuntimeState re-enable after disable resumes ticking" {
   let state = AIRuntimeState::new()
-  let sensor : TestSensor = { id: 0 }
-  let actuator : TestActuator = { applied: 0 }
-  let scheduler : TestScheduler = { id: 0 }
-  let policy : TestPolicy = { id: 0 }
+  let sensor : TestSensor = { id: 0, }
+  let actuator : TestActuator = { applied: 0, }
+  let scheduler : TestScheduler = { id: 0, }
+  let policy : TestPolicy = { id: 0, }
   let hook = create_ai_post_update_hook(
     policy, sensor, actuator, scheduler, state,
   )
@@ -348,10 +348,10 @@ test "AIRuntimeState trace history trimming" {
   }
   let state = AIRuntimeState::new_with_config(config)
 
-  let sensor : TestSensor = { id: 0 }
-  let actuator : TestActuator = { applied: 0 }
-  let scheduler : TestScheduler = { id: 0 }
-  let policy : TestPolicy = { id: 0 }
+  let sensor : TestSensor = { id: 0, }
+  let actuator : TestActuator = { applied: 0, }
+  let scheduler : TestScheduler = { id: 0, }
+  let policy : TestPolicy = { id: 0, }
   let hook = create_ai_post_update_hook(
     policy, sensor, actuator, scheduler, state,
   )

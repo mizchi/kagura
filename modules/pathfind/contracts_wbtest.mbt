@@ -2,12 +2,12 @@
 test "find_path straight line" {
   // 5x1 corridor: all Floor
   let grid = @terrain.Grid2D::make(5, 1, @terrain.Tile::Floor)
-  let path = find_path(grid, { x: 0, y: 0 }, { x: 4, y: 0 })
+  let path = find_path(grid, { x: 0, y: 0, }, { x: 4, y: 0, })
   match path {
     Some(p) => {
       assert_eq(p.length(), 5)
-      assert_true(p[0] == { x: 0, y: 0 })
-      assert_true(p[4] == { x: 4, y: 0 })
+      assert_true(p[0] == { x: 0, y: 0, })
+      assert_true(p[4] == { x: 4, y: 0, })
     }
     None => assert_true(false)
   }
@@ -21,7 +21,7 @@ test "find_path avoids walls" {
   // F F F
   let grid = @terrain.Grid2D::make(3, 3, @terrain.Tile::Floor)
   grid.set(1, 1, @terrain.Tile::Wall)
-  let path = find_path(grid, { x: 0, y: 0 }, { x: 2, y: 2 })
+  let path = find_path(grid, { x: 0, y: 0, }, { x: 2, y: 2, })
   match path {
     Some(p) => {
       // Path should go around the wall
@@ -46,14 +46,14 @@ test "find_path unreachable returns None" {
   grid.set(1, 0, @terrain.Tile::Wall)
   grid.set(1, 1, @terrain.Tile::Wall)
   grid.set(1, 2, @terrain.Tile::Wall)
-  let path = find_path(grid, { x: 0, y: 0 }, { x: 2, y: 2 })
+  let path = find_path(grid, { x: 0, y: 0, }, { x: 2, y: 2, })
   assert_true(path is None)
 }
 
 ///|
 test "find_path same start and goal" {
   let grid = @terrain.Grid2D::make(3, 3, @terrain.Tile::Floor)
-  let path = find_path(grid, { x: 1, y: 1 }, { x: 1, y: 1 })
+  let path = find_path(grid, { x: 1, y: 1, }, { x: 1, y: 1, })
   match path {
     Some(p) => assert_eq(p.length(), 1)
     None => assert_true(false)
@@ -67,7 +67,7 @@ test "find_path walks through doors and corridors" {
   grid.set(1, 0, @terrain.Tile::Door)
   grid.set(2, 0, @terrain.Tile::Corridor)
   grid.set(3, 0, @terrain.Tile::Goal)
-  let path = find_path(grid, { x: 0, y: 0 }, { x: 3, y: 0 })
+  let path = find_path(grid, { x: 0, y: 0, }, { x: 3, y: 0, })
   match path {
     Some(p) => assert_eq(p.length(), 4)
     None => assert_true(false)
@@ -78,7 +78,7 @@ test "find_path walks through doors and corridors" {
 test "find_path on larger grid" {
   // 20x20 open grid
   let grid = @terrain.Grid2D::make(20, 20, @terrain.Tile::Floor)
-  let path = find_path(grid, { x: 0, y: 0 }, { x: 19, y: 19 })
+  let path = find_path(grid, { x: 0, y: 0, }, { x: 19, y: 19, })
   match path {
     Some(p) =>
       // Manhattan distance = 38, path length = 39 (including start)
@@ -91,7 +91,7 @@ test "find_path on larger grid" {
 test "find_path start on wall returns None" {
   let grid = @terrain.Grid2D::make(3, 3, @terrain.Tile::Floor)
   grid.set(0, 0, @terrain.Tile::Wall)
-  let path = find_path(grid, { x: 0, y: 0 }, { x: 2, y: 2 })
+  let path = find_path(grid, { x: 0, y: 0, }, { x: 2, y: 2, })
   assert_true(path is None)
 }
 
@@ -99,7 +99,9 @@ test "find_path start on wall returns None" {
 test "find_path custom walkable function" {
   // Use Water as walkable
   let grid = @terrain.Grid2D::make(3, 1, @terrain.Tile::Water)
-  let path = find_path(grid, { x: 0, y: 0 }, { x: 2, y: 0 }, walkable=fn(tile) {
+  let path = find_path(grid, { x: 0, y: 0, }, { x: 2, y: 0, }, walkable=fn(
+    tile,
+  ) {
     tile == @terrain.Tile::Water
   })
   match path {

@@ -138,7 +138,7 @@ pub trait AIPolicy {
 
 ///|
 pub fn default_ai_budget() -> AIBudget {
-  { max_decision_ms: 2, max_nodes: 128, max_model_tokens: 64 }
+  { max_decision_ms: 2, max_nodes: 128, max_model_tokens: 64, }
 }
 
 ///|

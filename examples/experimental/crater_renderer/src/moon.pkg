@@ -8,9 +8,9 @@ import {
   "mizchi/text",
   "mizchi/atlas",
   "mizchi/font",
-  "mizchi/crater/renderer",
-  "mizchi/crater/paint",
-  "mizchi/crater/types" @crater_types,
+  "mizchi/crater-renderer/renderer",
+  "mizchi/crater-painter/paint",
+  "mizchi/css/values" @crater_types,
   "mizchi/web_runtime_hooks" @web_hooks,
 }
 

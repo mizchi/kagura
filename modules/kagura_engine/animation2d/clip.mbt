@@ -7,10 +7,10 @@ pub fn SpriteAnimationClip::uniform(
 ) -> SpriteAnimationClip {
   let frames : Array[SpriteFrame] = []
   for key in keys {
-    frames.push({ atlas_key: key, duration: frame_duration })
+    frames.push({ atlas_key: key, duration: frame_duration, })
   }
   let total = frame_duration * keys.length().to_double()
-  { name, frames, total_duration: total }
+  { name, frames, total_duration: total, }
 }
 
 ///|
@@ -23,7 +23,7 @@ pub fn SpriteAnimationClip::new(
   for f in frames {
     total = total + f.duration
   }
-  { name, frames, total_duration: total }
+  { name, frames, total_duration: total, }
 }
 
 ///|

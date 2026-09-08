@@ -36,7 +36,7 @@ pub fn parse_texture_bindings(source : String) -> Array[TextureBinding] {
     let item = raw._get_by_index(i)
     let binding = item._get("binding").cast_int()
     let type_ = item._get("type").cast_string()
-    results.push({ binding, type_ })
+    results.push({ binding, type_, })
   }
   results
 }

@@ -14,12 +14,12 @@ pub fn ScissorRect::new(
   width : Int,
   height : Int,
 ) -> ScissorRect {
-  { x, y, width, height }
+  { x, y, width, height, }
 }
 
 ///|
 pub fn ScissorRect::from_screen(screen_w : Int, screen_h : Int) -> ScissorRect {
-  { x: 0, y: 0, width: screen_w, height: screen_h }
+  { x: 0, y: 0, width: screen_w, height: screen_h, }
 }
 
 ///|
@@ -35,7 +35,7 @@ pub fn ScissorRect::intersect(
   if x1 <= x0 || y1 <= y0 {
     None
   } else {
-    Some({ x: x0, y: y0, width: x1 - x0, height: y1 - y0 })
+    Some({ x: x0, y: y0, width: x1 - x0, height: y1 - y0, })
   }
 }
 
@@ -57,7 +57,7 @@ pub struct ScissorStack {
 
 ///|
 pub fn ScissorStack::new(screen_w : Int, screen_h : Int) -> ScissorStack {
-  { stack: [ScissorRect::from_screen(screen_w, screen_h)] }
+  { stack: [ScissorRect::from_screen(screen_w, screen_h)], }
 }
 
 ///|
@@ -78,7 +78,7 @@ pub fn ScissorStack::push(self : ScissorStack, rect : ScissorRect) -> Bool {
     }
     None => {
       // Push a zero-area rect so pop() still works
-      self.stack.push({ x: 0, y: 0, width: 0, height: 0 })
+      self.stack.push({ x: 0, y: 0, width: 0, height: 0, })
       false
     }
   }

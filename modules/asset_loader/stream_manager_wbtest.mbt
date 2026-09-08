@@ -15,7 +15,7 @@ struct MockFetcher {
 
 ///|
 fn new_mock_fetcher() -> MockFetcher {
-  { next_id: 1, requests: [] }
+  { next_id: 1, requests: [], }
 }
 
 ///|

@@ -233,7 +233,7 @@ pub fn render_svg(
   height : Int,
 ) -> SVGRenderResult? {
   match render_svg_to_rgba(svg_source, width, height) {
-    Some((w, h, pixels)) => Some({ width: w, height: h, pixels })
+    Some((w, h, pixels)) => Some({ width: w, height: h, pixels, })
     None => None
   }
 }

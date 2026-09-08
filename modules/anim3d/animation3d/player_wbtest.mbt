@@ -1,6 +1,6 @@
 ///|
 test "player: update + loop wrapping" {
-  let clip : AnimationClip = { name: "test", channels: [], duration: 2.0 }
+  let clip : AnimationClip = { name: "test", channels: [], duration: 2.0, }
   let player = AnimationPlayer::new(clip)
   // Advance past duration
   player.update(2.5)
@@ -37,7 +37,7 @@ test "player: sample returns correct NodePose" {
 
 ///|
 test "player: speed control" {
-  let clip : AnimationClip = { name: "test", channels: [], duration: 4.0 }
+  let clip : AnimationClip = { name: "test", channels: [], duration: 4.0, }
   let player = AnimationPlayer::new(clip)
   player.set_speed(2.0)
   player.update(1.0) // effective dt = 2.0

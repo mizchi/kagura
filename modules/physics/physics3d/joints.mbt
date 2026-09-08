@@ -116,7 +116,7 @@ pub fn solve_distance_joint3d(
       ),
     }
   }
-  constraints[ci] = { ..c, acc_impulse: new_acc }
+  constraints[ci] = { ..c, acc_impulse: new_acc, }
 }
 
 // ============================================================

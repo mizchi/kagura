@@ -223,7 +223,7 @@ pub fn parse_roundtrip_import(
       None => ()
     }
   }
-  { filename, document_name, nodes }
+  { filename, document_name, nodes, }
 }
 
 ///|
@@ -338,7 +338,7 @@ fn append_string_array_json(
 
 ///|
 pub fn roundtrip_report_json(report : RoundTripDiffReport) -> String {
-  let buf = StringBuilder::new()
+  let buf = StringBuilder()
   buf.write_string("{\"filename\":\"")
   buf.write_string(json_escape(report.filename))
   buf.write_string("\",\"imported_document_name\":\"")
@@ -387,7 +387,7 @@ fn append_roundtrip_ids_line(
 
 ///|
 pub fn roundtrip_report_summary(report : RoundTripDiffReport) -> String {
-  let buf = StringBuilder::new()
+  let buf = StringBuilder()
   buf.write_string("ROUNDTRIP ")
   buf.write_string(report.filename)
   buf.write_string("\n")
@@ -424,7 +424,7 @@ pub fn roundtrip_report_summary(report : RoundTripDiffReport) -> String {
 
 ///|
 fn roundtrip_error_json(filename : String, message : String) -> String {
-  let buf = StringBuilder::new()
+  let buf = StringBuilder()
   buf.write_string("{\"filename\":\"")
   buf.write_string(json_escape(filename))
   buf.write_string("\",\"error\":\"")

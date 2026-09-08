@@ -47,7 +47,7 @@ fn json_escape(text : String) -> String {
 
 ///|
 fn vec3_json(v : @math3d.Vec3) -> String {
-  let buf = StringBuilder::new()
+  let buf = StringBuilder()
   buf.write_string("{\"x\":")
   buf.write_string(v.x.to_string())
   buf.write_string(",\"y\":")
@@ -60,7 +60,7 @@ fn vec3_json(v : @math3d.Vec3) -> String {
 
 ///|
 fn vec3_code(v : @math3d.Vec3) -> String {
-  let buf = StringBuilder::new()
+  let buf = StringBuilder()
   buf.write_string("@math3d.Vec3::new(")
   buf.write_string(v.x.to_string())
   buf.write_string(", ")
@@ -73,7 +73,7 @@ fn vec3_code(v : @math3d.Vec3) -> String {
 
 ///|
 fn vec4_code(v : @math3d.Vec4) -> String {
-  let buf = StringBuilder::new()
+  let buf = StringBuilder()
   buf.write_string("@math3d.Vec4::new(")
   buf.write_string(v.x.to_string())
   buf.write_string(", ")
@@ -96,7 +96,7 @@ fn effect_track_patch_scaffold(
   track : @effect.EffectTrack,
   index : Int,
 ) -> String {
-  let buf = StringBuilder::new()
+  let buf = StringBuilder()
   buf.write_string("// track[")
   buf.write_string(index.to_string())
   buf.write_string("] ")
@@ -170,7 +170,7 @@ fn effect_track_patch_scaffold(
 
 ///|
 fn effect_document_patch_scaffold(doc : @effect.EffectDocument) -> String {
-  let buf = StringBuilder::new()
+  let buf = StringBuilder()
   buf.write_string(
     "fn apply_ai_patch(doc : @effect.EffectDocument) -> @effect.EffectDocument {\n",
   )
@@ -206,7 +206,7 @@ fn effect_document_patch_scaffold(doc : @effect.EffectDocument) -> String {
 
 ///|
 fn effect_track_edit_focus(track : @effect.EffectTrack) -> String {
-  let buf = StringBuilder::new()
+  let buf = StringBuilder()
   buf.write_string(
     "Adjust timing, particle count, motion envelope, and color arc for ",
   )
@@ -291,7 +291,7 @@ fn effect_studio_patch_bundle_json(
   preview_time : Double,
   playing : Bool,
 ) -> String {
-  let buf = StringBuilder::new()
+  let buf = StringBuilder()
   append_effect_patch_bundle_payload_json(buf, doc, preview_time, playing)
   buf.to_string()
 }
@@ -304,7 +304,7 @@ fn effect_studio_review_prompt_markdown(
 ) -> String {
   let runtime = @effect.build_effect_runtime_plan(doc, preview_time)
   let overlay = build_effect_studio_overlay_model(doc, preview_time, playing)
-  let buf = StringBuilder::new()
+  let buf = StringBuilder()
   buf.write_string("# Effect Studio AI Review\n\n")
   buf.write_string("- Target: `")
   buf.write_string(effect_doc_target_file())
@@ -363,7 +363,7 @@ fn effect_studio_context_json(
   let review_prompt_markdown = effect_studio_review_prompt_markdown(
     doc, preview_time, playing,
   )
-  let buf = StringBuilder::new()
+  let buf = StringBuilder()
   buf.write_string("{\"name\":\"")
   buf.write_string(json_escape(doc.name))
   buf.write_string("\",\"notes\":\"")
@@ -497,7 +497,7 @@ fn effect_studio_summary(
   playing : Bool,
 ) -> String {
   let overlay = build_effect_studio_overlay_model(doc, preview_time, playing)
-  let buf = StringBuilder::new()
+  let buf = StringBuilder()
   buf.write_string("EFFECT ")
   buf.write_string(doc.name)
   buf.write_string("\nstatus: ")

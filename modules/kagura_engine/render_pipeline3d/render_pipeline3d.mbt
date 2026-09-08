@@ -8,12 +8,12 @@ pub(all) struct SSAOConfig {
 
 ///|
 pub fn SSAOConfig::enabled_default() -> SSAOConfig {
-  { enabled: true, radius: 0.5, bias: 0.025, intensity: 1.0 }
+  { enabled: true, radius: 0.5, bias: 0.025, intensity: 1.0, }
 }
 
 ///|
 pub fn SSAOConfig::disabled_default() -> SSAOConfig {
-  { ..SSAOConfig::enabled_default(), enabled: false }
+  { ..SSAOConfig::enabled_default(), enabled: false, }
 }
 
 ///|
@@ -209,5 +209,5 @@ pub fn RenderPipeline3D::set_fxaa_enabled(
   self : RenderPipeline3D,
   enabled : Bool,
 ) -> Unit {
-  self.config = { ..self.config, fxaa_enabled: enabled }
+  self.config = { ..self.config, fxaa_enabled: enabled, }
 }

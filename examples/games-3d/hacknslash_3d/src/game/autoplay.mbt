@@ -370,7 +370,7 @@ fn resolve_autoplay_goal_path(
         if !autoplay_walkable_tile(nav_grid.get(col, row)) {
           continue
         }
-        match @pathfind.find_path(nav_grid, start, { x: col, y: row }) {
+        match @pathfind.find_path(nav_grid, start, { x: col, y: row, }) {
           Some(path) => return Some(path)
           None => ()
         }
@@ -450,7 +450,7 @@ fn auto_play_direction_to_goal_tile(
     world.auto_nav_index >= world.auto_nav_path.length() {
     let px = (world.player.x / tile_size).to_int()
     let py = (world.player.y / tile_size).to_int()
-    let start : @terrain.Point = { x: px, y: py }
+    let start : @terrain.Point = { x: px, y: py, }
     match resolve_autoplay_goal_path(nav_grid, start, goal_tile) {
       Some(path) => {
         world.auto_nav_path = path
@@ -852,7 +852,7 @@ fn auto_play_input_with_nav_grid(
     return (0.0, 0.0, enemy_idx, enemy_dist_sq)
   }
   let r = world.dungeon.rooms[target_room].rect
-  let goal_tile : @terrain.Point = { x: r.x + r.w / 2, y: r.y + r.h / 2 }
+  let goal_tile : @terrain.Point = { x: r.x + r.w / 2, y: r.y + r.h / 2, }
   auto_play_direction_to_goal_tile(
     world, nav_grid, goal_tile, enemy_idx, enemy_dist_sq,
   )

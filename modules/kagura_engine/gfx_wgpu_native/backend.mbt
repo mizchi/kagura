@@ -51,7 +51,16 @@ pub fn try_init_triangle_context(
     // BGRA8Unorm (same assumption as ~/Downloads/wgpu sample)
     let pipeline = create_render_pipeline(device, shader, 24)
 
-    Some({ window, instance, surface, adapter, device, queue, shader, pipeline })
+    Some({
+      window,
+      instance,
+      surface,
+      adapter,
+      device,
+      queue,
+      shader,
+      pipeline,
+    })
   }
 }
 
@@ -300,7 +309,16 @@ pub fn try_init_headless_context(width : Int, height : Int) -> TriangleContext? 
     configure_surface(surface, device, adapter, width, height)
     let shader = create_shader_module(device, triangle_wgsl())
     let pipeline = create_render_pipeline(device, shader, 24)
-    Some({ window, instance, surface, adapter, device, queue, shader, pipeline })
+    Some({
+      window,
+      instance,
+      surface,
+      adapter,
+      device,
+      queue,
+      shader,
+      pipeline,
+    })
   }
 }
 

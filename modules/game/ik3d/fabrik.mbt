@@ -27,7 +27,7 @@ pub fn solve_fabrik(request : FABRIKRequest) -> FABRIKResult {
   let max_iter = request.max_iterations
   let n = chain.length()
   if n < 2 {
-    return { success: true, iterations: 0, local_poses }
+    return { success: true, iterations: 0, local_poses, }
   }
   // Clone local_poses
   let result_poses : Array[@transform3d.Transform3D] = []
@@ -116,5 +116,5 @@ pub fn solve_fabrik(request : FABRIKRequest) -> FABRIKResult {
     // Update accumulated rotation for next bone
     accumulated_rot = accumulated_rot.multiply(new_local_rot).normalize()
   }
-  { success, iterations, local_poses: result_poses }
+  { success, iterations, local_poses: result_poses, }
 }

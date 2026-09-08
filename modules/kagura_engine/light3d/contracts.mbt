@@ -19,7 +19,7 @@ pub fn DirectionalLight::new(
   color : @math3d.Vec3,
   intensity : Double,
 ) -> DirectionalLight {
-  { direction: direction.normalize(), color, intensity }
+  { direction: direction.normalize(), color, intensity, }
 }
 
 ///|
@@ -47,12 +47,12 @@ pub fn AmbientLight::new(
   color : @math3d.Vec3,
   intensity : Double,
 ) -> AmbientLight {
-  { color, intensity }
+  { color, intensity, }
 }
 
 ///|
 pub fn AmbientLight::default() -> AmbientLight {
-  { color: @math3d.Vec3::one(), intensity: 0.2 }
+  { color: @math3d.Vec3::one(), intensity: 0.2, }
 }
 
 ///|
@@ -75,7 +75,7 @@ pub fn PointLight::new(
   intensity : Double,
   radius : Double,
 ) -> PointLight {
-  { position, color, intensity, radius }
+  { position, color, intensity, radius, }
 }
 
 ///|
@@ -135,7 +135,7 @@ pub fn LightingEnvironment::new(
   point_lights? : Array[PointLight] = [],
   spot_lights? : Array[SpotLight] = [],
 ) -> LightingEnvironment {
-  { directional, ambient, point_lights, spot_lights }
+  { directional, ambient, point_lights, spot_lights, }
 }
 
 ///|

@@ -6,7 +6,7 @@ struct TestScene {
 
 ///|
 fn TestScene::new() -> TestScene {
-  { update_count: 0, draw_count: 0 }
+  { update_count: 0, draw_count: 0, }
 }
 
 ///|

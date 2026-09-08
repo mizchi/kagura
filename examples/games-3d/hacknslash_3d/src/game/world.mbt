@@ -1085,7 +1085,7 @@ pub fn GameWorld::push_item_log(
   text : String,
   color : Int,
 ) -> Unit {
-  self.item_log.push({ text, color, frames_remaining: item_log_duration })
+  self.item_log.push({ text, color, frames_remaining: item_log_duration, })
   // Trim oldest if over limit
   for ;; {
     if self.item_log.length() <= item_log_max_entries {

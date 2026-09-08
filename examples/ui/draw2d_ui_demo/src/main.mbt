@@ -50,7 +50,7 @@ fn main {
         oy,
         140.0,
         60.0,
-        { top: 1.0, right: 6.0, bottom: 1.0, left: 6.0 },
+        { top: 1.0, right: 6.0, bottom: 1.0, left: 6.0, },
         0xFFCC00,
       )
       push_filled_rect(
@@ -129,7 +129,7 @@ fn main {
         oy + 90.0,
         120.0,
         40.0,
-        { top: 4.0, right: 0.0, bottom: 0.0, left: 0.0 },
+        { top: 4.0, right: 0.0, bottom: 0.0, left: 0.0, },
         0xFF4488,
       )
       push_filled_rect(
@@ -155,7 +155,7 @@ fn main {
           by,
           120.0,
           20.0,
-          { top: 0.0, right: 0.0, bottom: 0.0, left: 3.0 },
+          { top: 0.0, right: 0.0, bottom: 0.0, left: 3.0, },
           0x66CCFF,
         )
         let shade = 0x2A2A2A + i * 0x080808

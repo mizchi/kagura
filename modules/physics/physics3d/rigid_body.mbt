@@ -115,7 +115,7 @@ pub fn RigidBody::new_kinematic(
 
 ///|
 pub fn RigidBody::apply_force(self : RigidBody, f : @math3d.Vec3) -> RigidBody {
-  { ..self, force: self.force.add(f) }
+  { ..self, force: self.force.add(f), }
 }
 
 ///|
@@ -123,27 +123,27 @@ pub fn RigidBody::apply_impulse(
   self : RigidBody,
   impulse : @math3d.Vec3,
 ) -> RigidBody {
-  { ..self, velocity: self.velocity.add(impulse.scale(self.inv_mass)) }
+  { ..self, velocity: self.velocity.add(impulse.scale(self.inv_mass)), }
 }
 
 ///|
 pub fn RigidBody::with_restitution(self : RigidBody, e : Double) -> RigidBody {
-  { ..self, restitution: e }
+  { ..self, restitution: e, }
 }
 
 ///|
 pub fn RigidBody::with_friction(self : RigidBody, f : Double) -> RigidBody {
-  { ..self, friction: f }
+  { ..self, friction: f, }
 }
 
 ///|
 pub fn RigidBody::with_damping(self : RigidBody, d : Double) -> RigidBody {
-  { ..self, linear_damping: d }
+  { ..self, linear_damping: d, }
 }
 
 ///|
 pub fn RigidBody::with_bullet(self : RigidBody) -> RigidBody {
-  { ..self, is_bullet: true }
+  { ..self, is_bullet: true, }
 }
 
 ///|

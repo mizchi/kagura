@@ -135,7 +135,7 @@ pub fn default_ui_snapshot(
     screen_width,
     screen_height,
     dpr: 1.0,
-    safe_area: { top: 0.0, right: 0.0, bottom: 0.0, left: 0.0 },
+    safe_area: { top: 0.0, right: 0.0, bottom: 0.0, left: 0.0, },
     frame: 0,
     state: "",
     nodes: [],
@@ -294,7 +294,7 @@ fn append_node_json(buf : StringBuilder, node : UISnapshotNode) -> Unit {
 /// the document is directly consumable as a vlmkit `--elements-json` payload
 /// (which requires `tag`) without a conversion step.
 pub fn UISnapshot::to_json(self : UISnapshot) -> String {
-  let buf = StringBuilder::new()
+  let buf = StringBuilder()
   buf.write_string("{\"screen\":{")
   append_json_double(buf, "width", self.screen_width)
   buf.write_string(",")

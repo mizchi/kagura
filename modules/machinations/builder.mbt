@@ -10,7 +10,7 @@
 ///|
 /// An empty diagram.
 pub fn Diagram::new() -> Diagram {
-  { nodes: [], resources: [], states: [] }
+  { nodes: [], resources: [], states: [], }
 }
 
 ///|
@@ -174,7 +174,7 @@ pub fn Diagram::connect(
   rate? : Rate = Fixed(1),
   weight? : Double = 1.0,
 ) -> Int {
-  self.resources.push({ from, to, rate, weight })
+  self.resources.push({ from, to, rate, weight, })
   self.resources.length() - 1
 }
 
@@ -187,7 +187,7 @@ pub fn Diagram::state_to_node(
   kind : StateKind,
   factor? : Double = 1.0,
 ) -> Int {
-  self.states.push({ from, to_node: Some(to), to_edge: None, kind, factor })
+  self.states.push({ from, to_node: Some(to), to_edge: None, kind, factor, })
   self.states.length() - 1
 }
 
@@ -200,6 +200,6 @@ pub fn Diagram::state_to_edge(
   kind : StateKind,
   factor? : Double = 1.0,
 ) -> Int {
-  self.states.push({ from, to_node: None, to_edge: Some(edge), kind, factor })
+  self.states.push({ from, to_node: None, to_edge: Some(edge), kind, factor, })
   self.states.length() - 1
 }

@@ -104,7 +104,7 @@ fn print_ascii_map(world : @game.GameWorld) -> Unit {
   let pcy = (world.player.y / ts).to_int()
   let radius = 15
   let grid = world.dungeon.grid
-  let buf = StringBuilder::new()
+  let buf = StringBuilder()
   buf.write_string("  MAP (")
   buf.write_string(pcx.to_string())
   buf.write_string(",")

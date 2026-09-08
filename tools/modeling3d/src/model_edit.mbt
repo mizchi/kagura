@@ -51,7 +51,7 @@ pub fn camera_ray_from_cursor(
     inv_view_projection,
     @math3d.Vec4::new(ndc_x, ndc_y, 1.0, 1.0),
   )
-  { origin: near_world, direction: far_world.sub(near_world).normalize() }
+  { origin: near_world, direction: far_world.sub(near_world).normalize(), }
 }
 
 ///|

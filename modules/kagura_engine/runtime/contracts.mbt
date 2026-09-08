@@ -38,7 +38,7 @@ pub struct RuntimeHooks {
 pub fn new_runtime_hooks(
   on_input_captured : (Int, @core.InputSnapshot) -> Unit,
 ) -> RuntimeHooks {
-  { on_input_captured, on_post_update: fn(_tick, _frame) { () } }
+  { on_input_captured, on_post_update: fn(_tick, _frame) { () }, }
 }
 
 ///|
@@ -46,7 +46,7 @@ pub fn new_runtime_hooks_full(
   on_input_captured : (Int, @core.InputSnapshot) -> Unit,
   on_post_update : (Int, @core.FrameBudget) -> Unit,
 ) -> RuntimeHooks {
-  { on_input_captured, on_post_update }
+  { on_input_captured, on_post_update, }
 }
 
 ///|
@@ -61,7 +61,7 @@ pub fn default_runtime_hooks() -> RuntimeHooks {
 
 ///|
 pub fn default_runtime_config() -> RuntimeConfig {
-  { max_skip_frames: 5, enable_vsync: true, clear_screen_every_frame: true }
+  { max_skip_frames: 5, enable_vsync: true, clear_screen_every_frame: true, }
 }
 
 ///|
@@ -70,7 +70,7 @@ pub fn new_runtime_config(
   enable_vsync? : Bool = true,
   clear_screen_every_frame? : Bool = true,
 ) -> RuntimeConfig {
-  { max_skip_frames, enable_vsync, clear_screen_every_frame }
+  { max_skip_frames, enable_vsync, clear_screen_every_frame, }
 }
 
 ///|
@@ -78,7 +78,7 @@ pub fn plan_frame(fixed : @core.StepResult, max_skip_frames : Int) -> FramePlan 
   let cap = if max_skip_frames <= 0 { 1 } else { max_skip_frames }
   let updates = if fixed.updates > cap { cap } else { fixed.updates }
   let should_draw = updates > 0 || fixed.alpha > 0.0
-  { updates, should_draw }
+  { updates, should_draw, }
 }
 
 ///|

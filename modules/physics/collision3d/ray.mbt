@@ -23,7 +23,7 @@ pub impl Show for HitResult with fn output(self, logger) {
 
 ///|
 pub fn Ray::new(origin : @math3d.Vec3, direction : @math3d.Vec3) -> Ray {
-  { origin, direction: direction.normalize() }
+  { origin, direction: direction.normalize(), }
 }
 
 ///|
@@ -117,7 +117,7 @@ pub fn Ray::intersects_aabb(self : Ray, aabb : AABB) -> HitResult {
     return no_hit
   }
   let t = if tmin >= 0.0 { tmin } else { tmax }
-  { hit: true, distance: t, point: self.point_at(t) }
+  { hit: true, distance: t, point: self.point_at(t), }
 }
 
 ///|
@@ -142,7 +142,7 @@ pub fn Ray::intersects_sphere(self : Ray, sphere : Sphere) -> HitResult {
     return no_hit
   }
   let t = if t1 >= 0.0 { t1 } else { t2 }
-  { hit: true, distance: t, point: self.point_at(t) }
+  { hit: true, distance: t, point: self.point_at(t), }
 }
 
 ///|

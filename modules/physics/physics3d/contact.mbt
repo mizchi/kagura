@@ -37,7 +37,7 @@ fn sphere_sphere(
   }
   let penetration = r_sum - dist
   let contact_point = center_a.add(normal.scale(r_a - penetration * 0.5))
-  Some({ body_a_id: a.id, body_b_id: b.id, normal, penetration, contact_point })
+  Some({ body_a_id: a.id, body_b_id: b.id, normal, penetration, contact_point, })
 }
 
 ///|
@@ -70,7 +70,7 @@ fn aabb_aabb(
     (@math3d.Vec3::new(0.0, 0.0, nz), overlap_z)
   }
   let contact_point = center_a.add(center_b).scale(0.5)
-  Some({ body_a_id: a.id, body_b_id: b.id, normal, penetration, contact_point })
+  Some({ body_a_id: a.id, body_b_id: b.id, normal, penetration, contact_point, })
 }
 
 ///|

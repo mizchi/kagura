@@ -14,7 +14,7 @@ pub struct SpatialHashGrid2D {
 
 ///|
 pub fn SpatialHashGrid2D::new(cell_size : Double) -> SpatialHashGrid2D {
-  { cell_size, inv_cell_size: 1.0 / cell_size, cells: Map([]), entries: [] }
+  { cell_size, inv_cell_size: 1.0 / cell_size, cells: Map([]), entries: [], }
 }
 
 ///|
@@ -53,7 +53,7 @@ pub fn SpatialHashGrid2D::insert(
   aabb : AABB2D,
 ) -> Unit {
   let idx = self.entries.length()
-  self.entries.push({ id, aabb })
+  self.entries.push({ id, aabb, })
   let min_cx = floor_to_int(aabb.min.x * self.inv_cell_size)
   let min_cy = floor_to_int(aabb.min.y * self.inv_cell_size)
   let max_cx = floor_to_int(aabb.max.x * self.inv_cell_size)

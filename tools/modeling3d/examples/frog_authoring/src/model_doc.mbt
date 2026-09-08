@@ -164,7 +164,7 @@ fn apply_imported_patch_stage_0(doc : ModelDocument) -> ModelDocument {
     muted_stamp_ids: [],
     stamps: frog_stamps,
   }
-  { ..doc, primitives, sculpt_layers }
+  { ..doc, primitives, sculpt_layers, }
 }
 
 ///|

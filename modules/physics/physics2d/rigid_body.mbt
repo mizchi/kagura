@@ -108,7 +108,7 @@ pub fn RigidBody2D::apply_force(
   self : RigidBody2D,
   f : @vector.Vec2,
 ) -> RigidBody2D {
-  { ..self, force: self.force.add(f) }
+  { ..self, force: self.force.add(f), }
 }
 
 ///|
@@ -116,7 +116,7 @@ pub fn RigidBody2D::apply_impulse(
   self : RigidBody2D,
   impulse : @vector.Vec2,
 ) -> RigidBody2D {
-  { ..self, velocity: self.velocity.add(impulse.scale(self.inv_mass)) }
+  { ..self, velocity: self.velocity.add(impulse.scale(self.inv_mass)), }
 }
 
 ///|
@@ -124,7 +124,7 @@ pub fn RigidBody2D::with_restitution(
   self : RigidBody2D,
   e : Double,
 ) -> RigidBody2D {
-  { ..self, restitution: e }
+  { ..self, restitution: e, }
 }
 
 ///|
@@ -132,17 +132,17 @@ pub fn RigidBody2D::with_friction(
   self : RigidBody2D,
   f : Double,
 ) -> RigidBody2D {
-  { ..self, friction: f }
+  { ..self, friction: f, }
 }
 
 ///|
 pub fn RigidBody2D::with_damping(self : RigidBody2D, d : Double) -> RigidBody2D {
-  { ..self, linear_damping: d }
+  { ..self, linear_damping: d, }
 }
 
 ///|
 pub fn RigidBody2D::with_bullet(self : RigidBody2D) -> RigidBody2D {
-  { ..self, is_bullet: true }
+  { ..self, is_bullet: true, }
 }
 
 ///|

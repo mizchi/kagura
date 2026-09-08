@@ -12,7 +12,7 @@ pub impl Show for AssetStreamerConfig with fn output(self, logger) {
 
 ///|
 pub fn AssetStreamerConfig::default() -> AssetStreamerConfig {
-  { max_concurrent: 4, max_cached: 128, eviction_interval: 60 }
+  { max_concurrent: 4, max_cached: 128, eviction_interval: 60, }
 }
 
 ///|
@@ -29,7 +29,7 @@ pub impl Show for DistanceThresholds with fn output(self, logger) {
 
 ///|
 pub fn DistanceThresholds::default() -> DistanceThresholds {
-  { critical: 10.0, high: 30.0, normal: 60.0 }
+  { critical: 10.0, high: 30.0, normal: 60.0, }
 }
 
 ///|

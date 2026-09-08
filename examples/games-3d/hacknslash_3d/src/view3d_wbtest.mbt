@@ -167,7 +167,7 @@ test "draw_playing appends generated prop commands when glb prop is attached" {
     graph.add_node(@scene3d.scene_node(mesh=Some(@mesh3d.Mesh3D::cube(0.75)))),
   )
   state.set_generated_prop_asset(
-    { scene_graph: graph, source_path: "./assets/generated/test.glb" },
+    { scene_graph: graph, source_path: "./assets/generated/test.glb", },
     generated_prop_placement(
       "./assets/generated/test.glb",
       floor=1,
@@ -199,7 +199,7 @@ test "draw_playing skips generated prop when current floor does not match placem
     graph.add_node(@scene3d.scene_node(mesh=Some(@mesh3d.Mesh3D::cube(0.75)))),
   )
   state.set_generated_prop_asset(
-    { scene_graph: graph, source_path: "./assets/generated/test.glb" },
+    { scene_graph: graph, source_path: "./assets/generated/test.glb", },
     generated_prop_placement(
       "./assets/generated/test.glb",
       floor=2,
@@ -230,7 +230,7 @@ test "draw_playing appends commands for multiple generated props" {
     graph1.add_node(@scene3d.scene_node(mesh=Some(@mesh3d.Mesh3D::cube(0.5)))),
   )
   state.set_generated_prop_asset(
-    { scene_graph: graph0, source_path: "./assets/generated/test-a.glb" },
+    { scene_graph: graph0, source_path: "./assets/generated/test-a.glb", },
     generated_prop_placement(
       "./assets/generated/test-a.glb",
       floor=1,
@@ -238,7 +238,7 @@ test "draw_playing appends commands for multiple generated props" {
     ),
   )
   state.set_generated_prop_asset(
-    { scene_graph: graph1, source_path: "./assets/generated/test-b.glb" },
+    { scene_graph: graph1, source_path: "./assets/generated/test-b.glb", },
     generated_prop_placement(
       "./assets/generated/test-b.glb",
       floor=1,
@@ -267,7 +267,7 @@ test "draw_playing renders textured generated prop with textured material shader
     ),
   )
   state.set_generated_prop_asset(
-    { scene_graph: graph, source_path: "./assets/generated/textured.glb" },
+    { scene_graph: graph, source_path: "./assets/generated/textured.glb", },
     generated_prop_placement(
       "./assets/generated/textured.glb",
       floor=1,

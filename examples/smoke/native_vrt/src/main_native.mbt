@@ -101,7 +101,7 @@ fn compare_snapshot(name : String, pixels : Array[Int]) -> VrtResult {
       let ratio = @pixelmatch.match_ratio(img1, img2, opts)
       let diff_ratio = 1.0 - ratio
       if diff_ratio <= max_diff_ratio {
-        { name, passed: true, diff_ratio, message: "OK" }
+        { name, passed: true, diff_ratio, message: "OK", }
       } else {
         let report = @pixelmatch.diff_report(img1, img2, opts)
         {
@@ -123,7 +123,8 @@ fn test_clear_color() -> VrtResult {
   let name = "clear_red"
   let _ = @wgpu_native.runtime_render_frame_with_plan(0.8, 0.2, 0.1, 1.0, 0)
   match read_full_framebuffer() {
-    None => { name, passed: false, diff_ratio: 1.0, message: "readback failed" }
+    None =>
+      { name, passed: false, diff_ratio: 1.0, message: "readback failed", }
     Some(pixels) => compare_snapshot(name, pixels)
   }
 }
@@ -133,7 +134,8 @@ fn test_triangle() -> VrtResult {
   let name = "triangle"
   let _ = @wgpu_native.runtime_render_frame_with_plan(0.0, 0.0, 0.0, 1.0, 1)
   match read_full_framebuffer() {
-    None => { name, passed: false, diff_ratio: 1.0, message: "readback failed" }
+    None =>
+      { name, passed: false, diff_ratio: 1.0, message: "readback failed", }
     Some(pixels) => compare_snapshot(name, pixels)
   }
 }

@@ -78,7 +78,7 @@ pub fn RectFill2D::new(
   h~ : Double,
   color~ : @gfx.Color,
 ) -> RectFill2D {
-  { x, y, w, h, color }
+  { x, y, w, h, color, }
 }
 
 ///|
@@ -136,7 +136,7 @@ pub fn Line2D::new(
   width? : Double = 1.0,
   color~ : @gfx.Color,
 ) -> Line2D {
-  { x0, y0, x1, y1, width, color }
+  { x0, y0, x1, y1, width, color, }
 }
 
 ///|
@@ -185,7 +185,7 @@ pub fn RectOutline2D::new(
   line_width? : Double = 1.0,
   color~ : @gfx.Color,
 ) -> RectOutline2D {
-  { x, y, w, h, line_width, color }
+  { x, y, w, h, line_width, color, }
 }
 
 ///|

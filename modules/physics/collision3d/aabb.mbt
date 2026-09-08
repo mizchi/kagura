@@ -11,7 +11,7 @@ pub impl Show for AABB with fn output(self, logger) {
 
 ///|
 pub fn AABB::new(min : @math3d.Vec3, max : @math3d.Vec3) -> AABB {
-  { min, max }
+  { min, max, }
 }
 
 ///|
@@ -19,7 +19,7 @@ pub fn AABB::from_center_extents(
   center : @math3d.Vec3,
   extents : @math3d.Vec3,
 ) -> AABB {
-  { min: center.sub(extents), max: center.add(extents) }
+  { min: center.sub(extents), max: center.add(extents), }
 }
 
 ///|
@@ -60,7 +60,7 @@ pub fn AABB::intersects_sphere(self : AABB, sphere : Sphere) -> Bool {
 
 ///|
 pub fn AABB::merge(self : AABB, other : AABB) -> AABB {
-  { min: self.min.min(other.min), max: self.max.max(other.max) }
+  { min: self.min.min(other.min), max: self.max.max(other.max), }
 }
 
 ///|

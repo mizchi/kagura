@@ -20,7 +20,7 @@ pub struct NativeFetcher {
 
 ///|
 pub fn new_native_fetcher(read_file_fn : (String) -> Bytes?) -> NativeFetcher {
-  { read_file_fn, next_id: 1, deferred: [] }
+  { read_file_fn, next_id: 1, deferred: [], }
 }
 
 ///|
@@ -33,7 +33,7 @@ pub impl BytesFetcher for NativeFetcher with fn fetch(
   let id = self.next_id
   self.next_id = self.next_id + 1
   let data = (self.read_file_fn)(url)
-  self.deferred.push({ id, data, on_progress, on_complete, cancelled: false })
+  self.deferred.push({ id, data, on_progress, on_complete, cancelled: false, })
   { id, }
 }
 
@@ -56,7 +56,7 @@ pub impl BytesFetcher for NativeFetcher with fn poll(self) {
     match entry.data {
       Some(bytes) => {
         let total = bytes.length()
-        (entry.on_progress)({ loaded: total, total })
+        (entry.on_progress)({ loaded: total, total, })
         (entry.on_complete)(Some(bytes))
       }
       None => (entry.on_complete)(None)

@@ -151,7 +151,7 @@ pub fn PhysicsWorld::step(self : PhysicsWorld, dt : Double) -> Unit {
     sub_dt,
   )
   // 2. Narrowphase + constraint precompute
-  let constraints : Array[ContactConstraintRuntime3D] = Array::new(
+  let constraints : Array[ContactConstraintRuntime3D] = Array(
     capacity=pair_count,
   )
   for p = 0; p < pair_count; p = p + 1 {
@@ -208,7 +208,7 @@ pub fn PhysicsWorld::step(self : PhysicsWorld, dt : Double) -> Unit {
   }
   // 3b. Precompute joint constraints
   let distance_joint_count = self.joints_distance.length()
-  let dist_constraints : Array[DistanceJointConstraint3D] = Array::new(
+  let dist_constraints : Array[DistanceJointConstraint3D] = Array(
     capacity=distance_joint_count,
   )
   for j = 0; j < distance_joint_count; j = j + 1 {
@@ -219,7 +219,7 @@ pub fn PhysicsWorld::step(self : PhysicsWorld, dt : Double) -> Unit {
     }
   }
   let ball_joint_count = self.joints_ball.length()
-  let ball_constraints : Array[BallJointConstraint3D] = Array::new(
+  let ball_constraints : Array[BallJointConstraint3D] = Array(
     capacity=ball_joint_count,
   )
   for j = 0; j < ball_joint_count; j = j + 1 {
@@ -385,7 +385,7 @@ pub fn PhysicsWorld::step(self : PhysicsWorld, dt : Double) -> Unit {
           }
           self.bodies[i] = { ..body, sleep_timer, }
         } else {
-          self.bodies[i] = { ..body, is_sleeping: false, sleep_timer: 0.0 }
+          self.bodies[i] = { ..body, is_sleeping: false, sleep_timer: 0.0, }
         }
       }
     }
@@ -424,7 +424,7 @@ pub fn PhysicsWorld::step(self : PhysicsWorld, dt : Double) -> Unit {
               }
             }
           } else if body.is_sleeping {
-            self.bodies[i] = { ..body, is_sleeping: false, sleep_timer: 0.0 }
+            self.bodies[i] = { ..body, is_sleeping: false, sleep_timer: 0.0, }
           }
         }
       }

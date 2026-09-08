@@ -12,7 +12,7 @@ priv struct PriorityQueue {
 
 ///|
 fn PriorityQueue::new() -> PriorityQueue {
-  { data: [] }
+  { data: [], }
 }
 
 ///|
@@ -21,7 +21,7 @@ fn PriorityQueue::push(
   point : @terrain.Point,
   priority : Double,
 ) -> Unit {
-  self.data.push({ point, priority })
+  self.data.push({ point, priority, })
   self.sift_up(self.data.length() - 1)
 }
 

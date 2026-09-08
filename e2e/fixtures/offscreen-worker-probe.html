@@ -1,0 +1,44 @@
+<!doctype html>
+<meta charset="utf-8" />
+<title>offscreen worker frame-clock probe</title>
+<style>
+  body { margin: 0; background: #101014; }
+  canvas { display: block; }
+</style>
+<canvas id="c2d" width="128" height="64"></canvas>
+<canvas id="cgpu" width="128" height="64"></canvas>
+<script type="module">
+  // Main thread keeps the frame clock; the worker keeps a blocking loop. They
+  // meet on a shared Int32Array: [0] = frame counter, [1] = draws the worker
+  // has completed. This mirrors lib/web/wasm-async-driver.mjs.
+  const canvas2d = document.getElementById("c2d").transferControlToOffscreen();
+  const canvasGpu = document.getElementById("cgpu").transferControlToOffscreen();
+  const control = new Int32Array(new SharedArrayBuffer(8));
+
+  const worker = new Worker("./offscreen-worker-probe-worker.js");
+  worker.onmessage = (event) => {
+    if (event.data?.type !== "done") return;
+    globalThis.__probe = {
+      ...event.data,
+      mainFrames: Atomics.load(control, 0),
+      workerDraws: Atomics.load(control, 1),
+    };
+  };
+  worker.onerror = (event) => {
+    globalThis.__probe = { type: "error", message: String(event.message ?? event) };
+  };
+
+  worker.postMessage(
+    { type: "init", control: control.buffer, canvas2d, canvasGpu, durationMs: 600 },
+    [canvas2d, canvasGpu],
+  );
+
+  const step = () => {
+    Atomics.add(control, 0, 1);
+    Atomics.notify(control, 0);
+    if (globalThis.__probe == null) requestAnimationFrame(step);
+  };
+  requestAnimationFrame(step);
+
+  globalThis.__crossOriginIsolated = globalThis.crossOriginIsolated === true;
+</script>

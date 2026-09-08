@@ -139,7 +139,17 @@ const resolveBuildArtifactFallback = (filePath) => {
   return findNestedBuildArtifact(buildDir, basename);
 };
 
-const serveFile = (res, filePath) => {
+// SharedArrayBuffer needs cross-origin isolation. Scoped to the offscreen
+// worker probe so the VRT and smoke pages keep serving exactly as before.
+const isolationHeaders = (pathname) =>
+  pathname.startsWith("/e2e/fixtures/offscreen-worker")
+    ? {
+        "cross-origin-opener-policy": "same-origin",
+        "cross-origin-embedder-policy": "require-corp",
+      }
+    : {};
+
+const serveFile = (res, filePath, extraHeaders = {}) => {
   let resolvedPath = filePath;
   if (!existsSync(resolvedPath) || !statSync(resolvedPath).isFile()) {
     resolvedPath = resolveBuildArtifactFallback(filePath) ?? resolvedPath;
@@ -160,6 +170,7 @@ const serveFile = (res, filePath) => {
   res.writeHead(200, {
     "content-type": contentType,
     "cache-control": "no-store",
+    ...extraHeaders,
   });
   res.end(body);
 };
@@ -274,7 +285,7 @@ const server = createServer((req, res) => {
     res.end("forbidden");
     return;
   }
-  serveFile(res, filePath);
+  serveFile(res, filePath, isolationHeaders(pathname));
 });
 
 server.listen(PORT, HOST, () => {

@@ -148,8 +148,39 @@ just wasm-async-smoke   # 単体ホストと worker + フレームクロック�
 | 単体ホスト（フレーム源なし） | 0 | 127 | 536ms |
 | worker + 8ms フレームクロック | 5 | 25 | 147ms |
 
-テスト済みなのは node の `worker_threads` 経路のみ。ブラウザ Worker は同じ
-プリミティブだが未検証（`SharedArrayBuffer` に COOP/COEP が要る）。
+node の `worker_threads` 経路は `lib/web/wasm-async-driver.test.mjs` が、
+ブラウザ側の前提は `e2e/offscreen_worker.spec.ts` が固定している。
+
+### ブラウザでの実測（Chromium, OffscreenCanvas）
+
+```bash
+pnpm e2e:offscreen   # 既定の CI には入っていない。手動 or 追加する場合は各自で
+```
+
+| 確認したこと | 結果 |
+|---|---|
+| Worker に `requestAnimationFrame` はあるか | **ある**（AnimationFrameProvider） |
+| ブロック中に Worker の rAF は発火するか | **612ms で 0 回**（await 中は発火する: 1 回） |
+| ブロック中の Worker をメイン rAF + `Atomics.notify` で駆動できるか | **できる**（main 40 → worker 37 draw） |
+| OffscreenCanvas への 2D 描画は届くか | **届く**（worker 自身の readback で全面一致） |
+| ブロック中の Worker から WebGPU を submit できるか | **37 回成功、エラーなし** |
+
+**順序の制約:** `requestAdapter` / `requestDevice` は Promise なので**ブロック開始前に
+完了させる**こと。パーク後はマイクロタスクが回らない。フレーム内の描画
+（`createCommandEncoder` → `beginRenderPass` → `submit`）は全部同期なので、
+ブロック中のスレッドからでも到達できる。`kagura_web` の `gfx_*` host import が
+すべて同期なのはこの形に合っている。
+
+つまり **async 駆動のまま描画できる**ので、`kagura_frame` エクスポートを別途
+叩く必要はなく、ゲストは起床ウィンドウで描けばよい。
+
+`SharedArrayBuffer` には COOP/COEP が要る。`scripts/serve-wasm-smoke.mjs` は
+`/e2e/fixtures/offscreen-worker` 配下にだけこのヘッダを付ける（VRT や smoke の
+ページの挙動を変えないため）。
+
+headless Linux では canvas screenshot が透明になるので、ピクセル確認は
+**worker 自身の `getImageData` readback** で行っている（VRT が in-page readback を
+使っているのと同じ理由）。
 
 ## 注意事項
 

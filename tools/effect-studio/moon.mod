@@ -17,7 +17,3 @@ import {
 }
 
 source = "src"
-
-options(
-  exclude: [ "examples", "docs", "output" ],
-)

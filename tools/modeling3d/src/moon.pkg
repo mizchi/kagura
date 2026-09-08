@@ -21,6 +21,11 @@ import {
 
 warnings = "-1-2-29"
 
+// Matches `mizchi/web_runtime_hooks`; moon warns when a package that depends
+// on one declaring `supported_targets` does not declare its own.
+
+supported_targets = "js+native+wasm+wasm-gc+llvm"
+
 options(
   targets: { "authoring_app.mbt": [ "js" ] },
 )

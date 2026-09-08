@@ -31,28 +31,5 @@ preferred_target = "js"
 source = "src"
 
 options(
-  exclude: [
-    "examples",
-    "e2e",
-    "docs",
-    "deps",
-    "fixtures",
-    ".github",
-    ".claude",
-    ".tornado",
-    "node_modules",
-    "_build",
-    "_site",
-    "target",
-    "test-results",
-    "CLAUDE.md",
-    "CONTRIBUTING.md",
-    "CONTRIBUTING_ja.md",
-    "TODO.md",
-    "justfile",
-    "package.json",
-    "pnpm-lock.yaml",
-    "playwright.config.ts",
-  ],
   "--moonbit-unstable-prebuild": "scripts/moon-prebuild-native-link-flags.cjs",
 )

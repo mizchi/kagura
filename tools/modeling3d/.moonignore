@@ -1,0 +1,6 @@
+# Ignore list for `moon package` / `moon publish`, replacing the deprecated
+# `exclude` option in moon.mod.
+examples
+docs
+scripts
+output

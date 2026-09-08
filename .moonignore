@@ -1,0 +1,43 @@
+# Ignore list for `moon package` / `moon publish`, replacing the deprecated
+# `exclude` option in moon.mod.
+#
+# A .moonignore takes the place of the .gitignore in the same directory --
+# the two are not merged -- so this file also carries every path the root
+# .gitignore ignores. Paths starting with `.` are excluded by moon at any
+# depth already; the few listed below are kept for readability.
+
+# Build output, caches and tool state
+_build
+_site
+target
+node_modules
+output/
+test-results
+playwright-report
+.mooncakes
+.moon-release
+.playwright-cli/
+.vlmkit/
+.tornado/
+.repos/
+.DS_Store
+*.mi
+__pycache__/
+*.pyc
+
+# Not part of the published library
+examples
+e2e
+docs
+deps
+fixtures
+.github
+.claude
+CLAUDE.md
+CONTRIBUTING.md
+CONTRIBUTING_ja.md
+TODO.md
+justfile
+package.json
+pnpm-lock.yaml
+playwright.config.ts

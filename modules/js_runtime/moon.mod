@@ -13,5 +13,5 @@ warnings = "-6-29-53-68"
 preferred_target = "js"
 
 import {
-  "mizchi/js@0.10.14",
+  "mizchi/js@0.12.2",
 }

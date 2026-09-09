@@ -80,17 +80,26 @@ fn compare_snapshot(name : String, pixels : Array[Int]) -> VrtResult {
           img.height.to_string(),
         }
       }
-      let baseline_pixels : Array[Int] = Array::make(
+      // pixelmatch 0.4 changed `Image.data` to `FixedArray[Int]` so the native
+      // path can hand the buffer straight to C; both sides are packed here.
+      let baseline_pixels : FixedArray[Int] = FixedArray::make(
         img.width * img.height * 4,
         0,
       )
       for i in 0..<baseline_pixels.length() {
         baseline_pixels[i] = img.data[i].to_int()
       }
+      let captured_pixels : FixedArray[Int] = FixedArray::make(
+        pixels.length(),
+        0,
+      )
+      for i in 0..<pixels.length() {
+        captured_pixels[i] = pixels[i]
+      }
       let img1 : @pixelmatch.Image = {
         width: vrt_width,
         height: vrt_height,
-        data: pixels,
+        data: captured_pixels,
       }
       let img2 : @pixelmatch.Image = {
         width: vrt_width,

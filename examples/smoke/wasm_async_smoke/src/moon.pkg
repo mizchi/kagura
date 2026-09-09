@@ -1,0 +1,13 @@
+import {
+  "moonbitlang/async",
+}
+
+warnings = "-29"
+
+// `moonbitlang/async` only ships a wasm1 backend: on wasm-gc its entry point
+// (`run_async_main`) does not exist, and the js/native backends need a real OS.
+// This smoke test exists to pin the wasm1 host contract, so it is wasm-only.
+
+supported_targets = "wasm"
+
+pkgtype(kind: "executable")

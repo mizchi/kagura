@@ -17,6 +17,11 @@ export default defineConfig({
     headless: true,
     launchOptions: {
       args: chromiumArgs,
+      // Escape hatch for sandboxes that ship a Chromium the pinned Playwright
+      // did not download. Unset in CI, where `playwright install` provides one.
+      ...(process.env.KAGURA_PLAYWRIGHT_CHROMIUM_PATH
+        ? { executablePath: process.env.KAGURA_PLAYWRIGHT_CHROMIUM_PATH }
+        : {}),
     },
   },
   webServer: {

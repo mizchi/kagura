@@ -15,5 +15,5 @@ import {
   "mizchi/atlas@0.2.0",
   "mizchi/kagura_core@0.2.0",
   "mizchi/geom@0.2.0",
-  "mizchi/svg@0.2.0",
+  "mizchi/svg@0.2.3",
 }

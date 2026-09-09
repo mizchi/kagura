@@ -5,12 +5,14 @@ version = "0.1.0"
 warnings = "-6-29-53-68-deprecated"
 
 import {
-  "mizchi/font@0.7.0",
+  // font is held at 0.7.3: 0.7.4 pulls moonbitlang/x 0.4.50, which dropped
+  // `@x/fs.IOError::to_string`, and mizchi/parquet still calls it on native.
+  "mizchi/font@0.7.3",
   "mizchi/kagura_effect_studio@0.1.0",
   "mizchi/web_runtime_hooks@0.1.0",
   "mizchi/terrain@0.1.1",
   "mizchi/differentiable_ecs@0.2.1",
-  "mizchi/parquet@0.2.0",
+  "mizchi/parquet@0.2.1",
   "moonbitlang/x@0.4.40",
   "mizchi/kagura_game@0.2.0",
   "mizchi/kagura_core@0.2.0",

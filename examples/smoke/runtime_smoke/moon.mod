@@ -6,7 +6,7 @@ warnings = "-6-29-53-68"
 
 import {
   "mizchi/web_runtime_hooks@0.1.0",
-  "mizchi/font@0.7.0",
+  "mizchi/font@0.7.3",
   "mizchi/kagura_game@0.2.0",
   "mizchi/kagura_core@0.2.0",
   "mizchi/kagura_engine@0.2.0",

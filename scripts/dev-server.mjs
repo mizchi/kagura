@@ -2,6 +2,7 @@ import { createServer } from "vite";
 import { resolve, join } from "node:path";
 import { existsSync, readdirSync, readFileSync } from "node:fs";
 import { moonbit } from "vite-plugin-moonbit";
+import { resolveBuildArtifact } from "./moon-build-artifact-utils.mjs";
 import {
   detectFontEntries,
   renderDemoHtml,
@@ -107,10 +108,12 @@ const server = await createServer({
               return;
             }
           }
-          // Rewrite _build to example _build
+          // Rewrite _build to example _build. The page addresses the flat
+          // build/<name>.js path; workspace mode nests it under
+          // build/<owner>/<name>/, so resolve either.
           if (url?.startsWith("/_build/")) {
-            const buildPath = join(exampleDir, url);
-            if (existsSync(buildPath)) {
+            const buildPath = resolveBuildArtifact(join(exampleDir, url));
+            if (buildPath != null) {
               res.setHeader("Content-Type", "text/javascript");
               res.setHeader("Cache-Control", "no-store");
               res.end(readFileSync(buildPath));
@@ -125,6 +128,15 @@ const server = await createServer({
   server: {
     port: PORT,
     host: "127.0.0.1",
+    watch: {
+      // The vite root is the repo, and every example carries its own
+      // multi-thousand-file _build/ and .mooncakes/. Watching them all blows
+      // past the inotify limit on Linux and takes the server down with
+      // ENOSPC. Nothing here needs them: the plugin watches the one build
+      // directory it cares about with its own recursive fs.watch, and adds
+      // the .mbt sources it tracks to this watcher by path.
+      ignored: ["**/_build/**", "**/.mooncakes/**", "**/node_modules/**", "**/target/**"],
+    },
   },
   appType: "custom",
 });

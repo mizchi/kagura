@@ -247,6 +247,20 @@ balance-autoplay-record out_dir="examples/games-3d/hacknslash_3d/data/hackslash/
 balance-hypothesis-record out_dir="examples/games-3d/hacknslash_3d/data/hackslash/autoplay_hypothesis_experiments" extra="":
     node examples/games-3d/hacknslash_3d/scripts/balance_hypothesis_record.mjs --out-dir {{out_dir}} {{extra}}
 
+# What the Atomics frame-clock handshake costs per frame, and how far above
+# 60Hz it holds up. Reporting only -- wake latency has scheduler outliers, so a
+# gate would flake. Run it when lib/web/kagura-wasm-worker.js changes.
+bench-frame-clock extra="":
+    node scripts/bench-frame-clock.mjs {{extra}}
+
+# Build the wasm1 guest that links moonbitlang/async and run it both ways:
+# single-threaded under lib/web/kagura-wasm-host.js, and in a worker with a
+# main-thread frame clock via lib/web/kagura-wasm-driver.js. `just test` covers
+# this too, via `node --test lib/web/*.test.mjs`.
+wasm-host-smoke:
+    cd examples/smoke/wasm_async_smoke && moon build --target wasm
+    node --test lib/web/kagura-wasm-host.test.mjs lib/web/kagura-wasm-driver.test.mjs
+
 # WASM game host tasks
 wasm-build-moonbit:
     cd examples/experimental/wasm_game/guest/moonbit && moon build --target wasm

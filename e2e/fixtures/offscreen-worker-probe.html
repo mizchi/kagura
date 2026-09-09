@@ -1,0 +1,69 @@
+<!doctype html>
+<meta charset="utf-8" />
+<title>offscreen worker frame-clock probe</title>
+<style>
+  body { margin: 0; background: #101014; }
+  canvas { display: block; }
+</style>
+<canvas id="c2d" width="128" height="64"></canvas>
+<canvas id="cgpu" width="128" height="64"></canvas>
+<script type="module">
+  // Main thread keeps the frame clock; the worker keeps a blocking loop. They
+  // meet through the shipped handshake -- `createFrameControl` / `tickFrame`
+  // from lib/web/kagura-wasm-driver.js -- rather than a copy of it, so this
+  // page exercises the code the driver actually uses.
+  //
+  // ?mode=baseline runs the same rAF loop with no worker at all, so the cost of
+  // the handshake can be read off as a difference rather than an absolute.
+  import { createFrameControl, tickFrame } from "/lib/web/kagura-wasm-driver.js";
+  import { summarizeIntervals } from "/lib/web/kagura-frame-stats.js";
+
+  const params = new URLSearchParams(location.search);
+  const mode = params.get("mode") ?? "worker";
+  const durationMs = Number(params.get("durationMs") ?? 1500);
+
+  const frameTimes = [];
+
+  if (mode === "baseline") {
+    const startedAt = performance.now();
+    const step = (now) => {
+      frameTimes.push(now);
+      if (performance.now() - startedAt < durationMs) requestAnimationFrame(step);
+      else globalThis.__probe = { type: "done", mode, main: summarizeIntervals(frameTimes) };
+    };
+    requestAnimationFrame(step);
+  } else {
+    const canvas2d = document.getElementById("c2d").transferControlToOffscreen();
+    const canvasGpu = document.getElementById("cgpu").transferControlToOffscreen();
+    const control = createFrameControl();
+
+    // A module worker, so it can import the same handshake helpers.
+    const worker = new Worker("./offscreen-worker-probe-worker.js", { type: "module" });
+    worker.onmessage = (event) => {
+      if (event.data?.type !== "done") return;
+      globalThis.__probe = {
+        ...event.data,
+        mode,
+        main: summarizeIntervals(frameTimes),
+        mainFrames: frameTimes.length,
+      };
+    };
+    worker.onerror = (event) => {
+      globalThis.__probe = { type: "error", message: String(event.message ?? event) };
+    };
+
+    worker.postMessage(
+      { type: "init", control: control.buffer, canvas2d, canvasGpu, durationMs },
+      [canvas2d, canvasGpu],
+    );
+
+    const step = (now) => {
+      frameTimes.push(now);
+      tickFrame(control);
+      if (globalThis.__probe == null) requestAnimationFrame(step);
+    };
+    requestAnimationFrame(step);
+  }
+
+  globalThis.__crossOriginIsolated = globalThis.crossOriginIsolated === true;
+</script>

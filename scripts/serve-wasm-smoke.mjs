@@ -4,6 +4,8 @@ import { existsSync, readFileSync, readdirSync, statSync } from "node:fs";
 import { extname, join, normalize } from "node:path";
 import process from "node:process";
 
+import { resolveBuildArtifact } from "./moon-build-artifact-utils.mjs";
+
 const ROOT = process.cwd();
 const HOST = "127.0.0.1";
 const PORT = Number.parseInt(process.env.PORT ?? "4173", 10);
@@ -111,39 +113,18 @@ const resolvePath = (pathname) => {
   return filePath;
 };
 
-// moon build nests output under build/<module-name>/<pkg>.<ext> (e.g.
-// build/mizchi/runtime_smoke/runtime_smoke.wasm) instead of the flat
-// build/<pkg>.<ext> layout whenever the example directory has a moon.work
-// (workspace mode, needed while sibling modules like kagura_platform/
-// kagura_audio aren't published yet). Fixture HTML and VRT script paths are
-// built assuming the flat layout, so fall back to a recursive search under
-// the same build/ dir when the flat path is missing.
-const findNestedBuildArtifact = (dir, basename) => {
-  for (const entry of readdirSync(dir, { withFileTypes: true })) {
-    const entryPath = join(dir, entry.name);
-    if (entry.isDirectory()) {
-      const found = findNestedBuildArtifact(entryPath, basename);
-      if (found) return found;
-    } else if (entry.isFile() && entry.name === basename) {
-      return entryPath;
-    }
-  }
-  return null;
-};
+// SharedArrayBuffer needs cross-origin isolation. Scoped to the offscreen
+// worker probe so the VRT and smoke pages keep serving exactly as before.
+const isolationHeaders = (pathname) =>
+  pathname.startsWith("/e2e/fixtures/offscreen-worker")
+    ? {
+        "cross-origin-opener-policy": "same-origin",
+        "cross-origin-embedder-policy": "require-corp",
+      }
+    : {};
 
-const resolveBuildArtifactFallback = (filePath) => {
-  const match = filePath.match(/^(.*[/\\]_build[/\\][^/\\]+[/\\][^/\\]+[/\\]build)[/\\]([^/\\]+)$/);
-  if (!match) return null;
-  const [, buildDir, basename] = match;
-  if (!existsSync(buildDir)) return null;
-  return findNestedBuildArtifact(buildDir, basename);
-};
-
-const serveFile = (res, filePath) => {
-  let resolvedPath = filePath;
-  if (!existsSync(resolvedPath) || !statSync(resolvedPath).isFile()) {
-    resolvedPath = resolveBuildArtifactFallback(filePath) ?? resolvedPath;
-  }
+const serveFile = (res, filePath, extraHeaders = {}) => {
+  const resolvedPath = resolveBuildArtifact(filePath) ?? filePath;
   if (!existsSync(resolvedPath)) {
     res.writeHead(404, { "content-type": "text/plain; charset=utf-8" });
     res.end("not found");
@@ -160,6 +141,7 @@ const serveFile = (res, filePath) => {
   res.writeHead(200, {
     "content-type": contentType,
     "cache-control": "no-store",
+    ...extraHeaders,
   });
   res.end(body);
 };
@@ -274,7 +256,7 @@ const server = createServer((req, res) => {
     res.end("forbidden");
     return;
   }
-  serveFile(res, filePath);
+  serveFile(res, filePath, isolationHeaders(pathname));
 });
 
 server.listen(PORT, HOST, () => {

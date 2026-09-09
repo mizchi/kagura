@@ -12,5 +12,5 @@ warnings = "-6-29-53-68"
 
 import {
   "mizchi/gfx@0.1.0",
-  "mizchi/font@0.7.0",
+  "mizchi/font@0.7.3",
 }

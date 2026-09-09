@@ -136,9 +136,14 @@ URL パラメータでゲームステートを制御し、目視確認と VRT �
 ### 新しい example に VRT を追加する手順
 
 1. `scripts/serve-wasm-smoke.mjs` の `VRT_EXAMPLES` に追加
-2. `e2e/vrt.spec.ts` の `VRT_EXAMPLES` に追加（タイトル画面）
+2. `e2e/vrt.spec.ts` の `VRT_EXAMPLES` に**名前だけ**追加（タイトル画面）。テスト名に
+   出るカテゴリは `examples/<category>/` から導出されるので、書くところは無い
 3. スナップショットモードが必要なら `SNAPSHOT_TESTS` にも追加
 4. `just e2e-vrt-update` でベースライン生成
+
+example のディレクトリ探索は `scripts/example-dirs.mjs` に一本化してある
+（`findExampleDir` / `findExampleCategory` / `listExampleNames`）。dev server、
+VRT server、spec がこれを共有するので、置き場所の規則はここだけ直せばよい。
 
 ## wasm ターゲットと moonbitlang/async
 

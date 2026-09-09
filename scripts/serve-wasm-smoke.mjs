@@ -1,18 +1,17 @@
 import { spawnSync } from "node:child_process";
 import { createServer } from "node:http";
-import { existsSync, readFileSync, readdirSync, statSync } from "node:fs";
+import { existsSync, readFileSync, statSync } from "node:fs";
 import { extname, join, normalize } from "node:path";
 import process from "node:process";
 
 import { resolveBuildArtifact } from "./moon-build-artifact-utils.mjs";
+import { EXAMPLE_ROOT, findExampleDir } from "./example-dirs.mjs";
 
 const ROOT = process.cwd();
 const HOST = "127.0.0.1";
 const PORT = Number.parseInt(process.env.PORT ?? "4173", 10);
-const EXAMPLE_ROOTS = [
-  join(ROOT, "examples"),
-  join(ROOT, "editor", "effect-studio", "examples"),
-];
+// The modeling3d authoring examples are deliberately not served here.
+const EXAMPLE_ROOTS = [EXAMPLE_ROOT.examples, EXAMPLE_ROOT.effectStudio];
 
 const CONTENT_TYPES = {
   ".html": "text/html; charset=utf-8",
@@ -30,21 +29,7 @@ const CONTENT_TYPES = {
   ".obj": "text/plain; charset=utf-8",
 };
 
-const isExampleDir = (dir) =>
-  existsSync(join(dir, "moon.mod.json")) || existsSync(join(dir, "moon.mod"));
-
-const resolveExampleDir = (name) => {
-  for (const root of EXAMPLE_ROOTS) {
-    if (!existsSync(root)) continue;
-    const direct = join(root, name);
-    if (isExampleDir(direct)) return direct;
-    for (const sub of readdirSync(root)) {
-      const nested = join(root, sub, name);
-      if (isExampleDir(nested)) return nested;
-    }
-  }
-  return null;
-};
+const resolveExampleDir = (name) => findExampleDir(name, EXAMPLE_ROOTS);
 
 const buildRuntimeSmoke = (target) => {
   const dir = resolveExampleDir("runtime_smoke");

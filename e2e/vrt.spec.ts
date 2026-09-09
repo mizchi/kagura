@@ -1,22 +1,24 @@
 import { test, expect } from "@playwright/test";
 import { readFileSync } from "node:fs";
 
+import { EXAMPLE_ROOT, findExampleCategory } from "../scripts/example-dirs.mjs";
+
 // Per-example readback coverage baselines (see vrt-readback-baselines.json).
 const READBACK_BASELINES = JSON.parse(
   readFileSync(new URL("./vrt-readback-baselines.json", import.meta.url), "utf8"),
 ) as { floorRatio: number; examples: Record<string, number> };
 
-// VRT examples categorized by rendering pipeline.
-// Categories help diagnose failures:
-//   2d-scene:  @scene declarative API (sprite, text, shape)
-//   2d-game:   full game loop (scene + input + audio)
-//   3d-render: 3D pipeline (mesh, lighting, shadow)
-//   3d-postfx: 3D + post-processing (bloom, tonemap, FXAA)
-//   asset:     asset loading integration
-interface VrtEntry {
-  name: string;
-  category: "2d-scene" | "2d-game" | "3d-render" | "3d-postfx" | "asset";
-}
+// The category in each test title is the example's directory under `examples/`
+// -- `games` for a full game loop, `demos-2d` / `demos-3d` for a single feature.
+// It comes from the tree rather than a list here so the two cannot disagree,
+// and so moving an example is enough to reclassify its test.
+const categoryOf = (name: string): string => {
+  const category = findExampleCategory(name, [EXAMPLE_ROOT.examples]);
+  if (category == null) {
+    throw new Error(`VRT example ${name} is not under examples/<category>/`);
+  }
+  return category;
+};
 
 interface KaguraReadyProbe {
   ok: boolean;
@@ -31,25 +33,25 @@ interface VrtReadbackSummary {
   nonTransparentPixelRatio: number;
 }
 
-const VRT_EXAMPLES: VrtEntry[] = [
-  { name: "scene_demo", category: "2d-scene" },
-  { name: "ui_demo", category: "2d-scene" },
-  { name: "flappy_bird", category: "2d-game" },
-  { name: "survivor", category: "2d-game" },
-  { name: "action_rpg", category: "2d-game" },
-  { name: "fps_demo", category: "2d-game" },
-  { name: "physics2d_demo", category: "2d-game" },
-  { name: "arena3d", category: "3d-render" },
-  { name: "collision3d_demo", category: "3d-render" },
-  { name: "physics3d_demo", category: "3d-render" },
-  { name: "skeletal_anim", category: "3d-render" },
-  { name: "ragdoll_demo", category: "3d-render" },
-  { name: "obj_viewer", category: "3d-render" },
-  { name: "gltf_viewer", category: "3d-render" },
-  { name: "shadow3d_demo", category: "3d-postfx" },
-  { name: "postfx_demo", category: "3d-postfx" },
-  { name: "hacknslash_3d", category: "3d-postfx" },
-  { name: "fetch_image", category: "asset" },
+const VRT_EXAMPLES: string[] = [
+  "scene_demo",
+  "ui_demo",
+  "flappy_bird",
+  "survivor",
+  "action_rpg",
+  "fps_demo",
+  "physics2d_demo",
+  "arena3d",
+  "collision3d_demo",
+  "physics3d_demo",
+  "skeletal_anim",
+  "ragdoll_demo",
+  "obj_viewer",
+  "gltf_viewer",
+  "shadow3d_demo",
+  "postfx_demo",
+  "hacknslash_3d",
+  "fetch_image",
 ];
 
 async function waitForKaguraReady(page: import("@playwright/test").Page) {
@@ -168,8 +170,8 @@ async function expectCanvasFrame(
   });
 }
 
-for (const { name, category } of VRT_EXAMPLES) {
-  test(`VRT [${category}]: ${name} renders`, async ({ page }) => {
+for (const name of VRT_EXAMPLES) {
+  test(`VRT [${categoryOf(name)}]: ${name} renders`, async ({ page }) => {
     await page.goto(`/vrt/${name}`);
     await waitForKaguraReady(page);
     await page.waitForTimeout(500);

@@ -274,14 +274,16 @@ test "point_in_rect" {
 
 ///|
 test "hit_test finds topmost node" {
+  // Post-order, the way `compute_layout` emits it: the child first, its
+  // container after.
   let layouts : Array[LayoutResult] = [
-    {
-      node_id: { value: 1, },
-      rect: { x: 0.0, y: 0.0, width: 200.0, height: 200.0, },
-    },
     {
       node_id: { value: 2, },
       rect: { x: 50.0, y: 50.0, width: 100.0, height: 100.0, },
+    },
+    {
+      node_id: { value: 1, },
+      rect: { x: 0.0, y: 0.0, width: 200.0, height: 200.0, },
     },
   ]
   // Point inside both -> topmost (node 2)
@@ -302,21 +304,21 @@ test "hit_test finds topmost node" {
 }
 
 ///|
-test "hit_test_all" {
+test "hit_test_all returns the containing nodes innermost first" {
   let layouts : Array[LayoutResult] = [
-    {
-      node_id: { value: 1, },
-      rect: { x: 0.0, y: 0.0, width: 200.0, height: 200.0, },
-    },
     {
       node_id: { value: 2, },
       rect: { x: 50.0, y: 50.0, width: 100.0, height: 100.0, },
     },
+    {
+      node_id: { value: 1, },
+      rect: { x: 0.0, y: 0.0, width: 200.0, height: 200.0, },
+    },
   ]
   let all = hit_test_all(layouts, 75.0, 75.0)
   assert_eq(all.length(), 2)
-  assert_eq(all[0].value, 1)
-  assert_eq(all[1].value, 2)
+  assert_eq(all[0].value, 2)
+  assert_eq(all[1].value, 1)
 }
 
 ///|
@@ -1081,4 +1083,42 @@ test "justify-content Column direction" {
   // Center: free=60, start=30. c1 at y=30, c2 at y=50
   assert_true(approx(results[0].rect.y, 30.0))
   assert_true(approx(results[1].rect.y, 50.0))
+}
+
+///|
+/// The case the two halves used to disagree on: `compute_layout`'s own output,
+/// fed straight into `hit_test`. `compute_layout` is post-order, so before the
+/// fix the last containing node -- the full-screen root -- won every point on
+/// screen, and no child was ever hit.
+test "hit_test resolves a child from compute_layout's own output" {
+  let tree = UITree::new()
+  let child_style : UINodeStyle = {
+    ..default_node_style(),
+    width: UISizing::Fixed(100.0),
+    height: UISizing::Fixed(40.0),
+  }
+  let child = tree.add_node(child_style, [])
+  let root_style : UINodeStyle = {
+    ..default_node_style(),
+    direction: UIDirection::Column,
+    width: UISizing::Fixed(200.0),
+    height: UISizing::Fixed(200.0),
+  }
+  let root = tree.add_node(root_style, [child])
+  let engine = SimpleLayoutEngine::new(tree)
+  let layouts = engine.compute_layout(
+    root,
+    default_layout_constraint(200.0, 200.0),
+  )
+  assert_eq(layouts.length(), 2)
+  // A point inside the child belongs to the child, not to the root behind it.
+  match hit_test(layouts, 50.0, 20.0) {
+    Some(id) => assert_eq(id.value, child.value)
+    None => fail("expected the child to be hit")
+  }
+  // A point the child does not cover still falls through to the root.
+  match hit_test(layouts, 50.0, 150.0) {
+    Some(id) => assert_eq(id.value, root.value)
+    None => fail("expected the root to be hit")
+  }
 }

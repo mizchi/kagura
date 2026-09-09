@@ -4,6 +4,8 @@ import {
   "mizchi/kagura_audio" @audio,
   "mizchi/renderer2d",
   "mizchi/kagura_platform" @platform,
+  "mizchi/kagura_engine/raster",
+  "mizchi/kagura_engine/capture",
   "moonbitlang/core/debug",
 }
 
@@ -14,6 +16,7 @@ options(
     "game_api.mbt": [ "js", "native", "wasm", "wasm-gc" ],
     "game_api_wbtest.mbt": [ "js", "native" ],
     "run_js.mbt": [ "js" ],
+    "headless_js.mbt": [ "js" ],
     "run_native.mbt": [ "native" ],
     "run_wasm.mbt": [ "wasm", "wasm-gc" ],
   },

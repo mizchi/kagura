@@ -10,18 +10,68 @@ canvas / WebGPU 上に描くゲーム UI を、DOM なしで決定的に検証�
 ## 1. 全体の流れ
 
 ```
-engine (MoonBit)                    Node (browser 不要)
-─────────────────                   ─────────────────────
-@ui.UISnapshot
-  └ publish_ui_snapshot ──> globalThis.__kaguraUISnapshot
-                              │
+engine (MoonBit)                         Node (browser 不要)
+─────────────────                        ─────────────────────
+example の update/draw
+  └ @gfx.DrawTrianglesCommand
+      └ @raster.RasterTarget (CPU) ──> globalThis.__kaguraHeadlessFrame (PNG)
+                                          │
+@ui.UISnapshot                            ├─> vlmkit diff png / check palette / check asset
+  └ publish_ui_snapshot ──> __kaguraUISnapshot
+                              │           │
                               ├─> scripts/ui-integrity-gate.mjs         → 決定的な欠陥リスト
-                              └─> scripts/ui-snapshot-to-vlmkit-elements.mjs
-                                     └─> vlmkit diff png --elements-json → pixel diff を UI ノードに帰属
+                              ├─> scripts/ui-snapshot-to-vlmkit-elements.mjs
+                              │      └─> vlmkit diff png --elements-json → diff を UI ノードに帰属
+                              └─> scripts/vlm-ui-review.mjs             → 決定的ゲートの後だけ VLM
 ```
+
+2 本の入力がある。**フレーム PNG**（何が見えているか）と **UI snapshot**（それが何なのか）。
+どちらも browser 抜きで取れる。
 
 UI snapshot は「DOM の代わり」。ノード矩形・クリップ矩形・**実測したテキスト幅**・hit 矩形・
 フォーカス順を持つので、`vlmkit check integrity` が DOM でやっている判定を engine の値で行える。
+
+---
+
+## 1.5 フレームを直接レンダリングする（browser も GPU も Playwright も無し）
+
+```sh
+just render ui_demo "--frames 3"
+just render ui_demo "--state hover --cursor 100,74"
+```
+
+```
+ui_demo [default]: 640x480 after 3 tick(s), 980 triangles
+  png: output/frames/ui_demo/ui_demo.png
+  snapshot: output/frames/ui_demo/ui_demo.snapshot.json
+  elements: output/frames/ui_demo/ui_demo.elements.json
+```
+
+`@engine.run` / `run_game` は canvas に触る前に `globalThis.__kaguraHeadless` を見る。
+セットされていればアニメーションループには入らず、example 自身の `update` を N tick 回して
+`draw` を 1 回だけ CPU ラスタライザに流し、PNG を `__kaguraHeadlessFrame` に置いて戻る。
+**example 側の変更はゼロ**で、`@engine.run` を使っている example はすべて対象になる。
+
+| 部品 | 役割 |
+|---|---|
+| `engine/kagura_engine/raster/` | `@gfx.GraphicsDriver` の CPU 実装。NDC 三角形・scissor・uniform 色・テクスチャ・blend equation |
+| `engine/kagura_engine/headless.mbt` | N tick 進めて 1 フレーム描く（全ターゲット） |
+| `engine/kagura_engine/headless_js.mbt` | `__kaguraHeadless` の読み取りと PNG の publish（js のみ） |
+| `lib/web/kagura-headless-frame.js` | Node 側ホスト。viewport スタブと module 再実行 |
+| `scripts/render-frame.mjs` | build → render → PNG / snapshot / elements を書く |
+
+**限界（黙って嘘をつかないための約束）:**
+
+- CPU ラスタライザが描くのは **2D コマンドだけ**。3D（`vertex_stride_hint` 8 / 16）は
+  深度もプロジェクションも持たないので描かず、`skipped_commands` に数える。
+  `just render` はその数を warning で出す。3D の目視は `just capture`（native）か実ブラウザ側
+- テクスチャは `register_texture` で登録されたものだけ。未登録の id は 1x1 白として
+  サンプルする（WebGPU バックエンドが未バインドスロットに入れているものと同じ）。
+  つまり**アトラス経由のスプライトは uniform 色のベタ塗りになる**。矩形と dot text で
+  描かれた UI（`examples/demos-2d/ui_demo` など）はピクセル一致で出る
+- `document.querySelector("canvas")` などに答える viewport スタブは
+  「engine が解決した実サイズ」を返す。CSS サイズでカーソルをスケールする example が
+  ずれないための約束で、スタブ側が勝手なサイズを名乗ってはいけない
 
 ---
 
@@ -82,10 +132,13 @@ example 側は `@capture_native.read_capture_config()` で読み、
 | `@capture_native.read_capture_config()` | 設定ファイルの読み込み（native） |
 | `@capture_native.write_capture_artifacts(...)` | 3 つの artifact 書き出し（native） |
 
-**まだ 2D UI example に capture の配線は入っていません。** 現在の利用者は 3D authoring
-example と `examples/smoke/native_vrt`（baseline を PNG 化済み）。ui_demo などへの配線は
-オフスクリーン描画の実機確認が必要なため [#9](https://github.com/mizchi/kagura/issues/9)
-に残しています。`snapshot_native.mbt` は現状 no-op。
+**まだ 2D UI example に native capture の配線は入っていません。** 現在の利用者は
+3D authoring example と `examples/smoke/native_vrt`（baseline を PNG 化済み）。
+`snapshot_native.mbt` は現状 no-op。
+
+2D の UI については native を待つ必要はもう無く、**1.5 の CPU レンダリングのほうが速くて
+移植性も高い**（GPU も wgpu-native も要らない）。native capture が要るのは、CPU
+ラスタライザが描かない 3D と、実 GPU パイプラインそのものを見たいときだけ。
 
 ---
 
@@ -186,13 +239,60 @@ just ui-asset-check assets/icons/potion.png "--slot 32x32 --expect-transparent -
 
 ---
 
-## 6. 現状できていないこと
+## 6. VLM に主観品質を聞く
+
+決定的ゲートで測れるものは**モデルに探させない**。overflow も hit box のズレも
+`ui-integrity-gate` が証明できるので、それを VLM にやらせると再現しないレビューになる。
+モデルに残すのは「測って決まらないもの」— 可読性・コントラスト・視覚的階層・バランス。
+
+```sh
+just vlm-ui-review ui_demo "--frames 3 --dry-run"          # リクエストを組むだけ
+OPENROUTER_API_KEY=... just vlm-ui-review ui_demo "--frames 3"
+```
+
+1 回のコマンドで render → 決定的ゲート → （通れば）VLM → レポートまで進む。
+
+```
+# UI review: ui_demo [hover]
+
+frame: 640x480, 3 tick(s), 980 triangles, 0 skipped command(s)
+
+## Deterministic gate
+
+CLEAN -- no measurable defect in the frame or the UI snapshot.
+
+## Change since the baseline frame
+
+2.07% of pixels changed.
+
+Attributed to:
+- (16,48) 192x48 -> .button (medium, coverage 0.7188)
+```
+
+| フラグ | 意味 |
+|---|---|
+| `--dry-run` | リクエスト JSON を書き出して API は叩かない。プロンプトの確認用 |
+| `--compare <png>` | 直前のフレームとの diff を取り、変化を UI ノードに帰属させる。**修正が狙った所に届いたかの確認**はここ |
+| `--force-vlm` | 決定的ゲートが落ちても VLM を回す（既定は止める） |
+| `--state` `--cursor` `--keys` `--frames` | 見たい状態の作り方。`just render` と同じ |
+| `--note <text>` | 「このフォントはわざと 1px」のような前提をレビュアに渡す |
+| `--provider` `--model` | 既定は OpenRouter。環境変数は 3D 側と同じ `OPENROUTER_API_KEY` |
+
+exit code は**決定的ゲートだけ**が決める。VLM の主観で CI を落とさない。
+
+出力は `recommended_actions[]`（`node_id` / `priority` / `suggested_change`）という
+機械可読な修正リストなので、そのままエージェントの編集ループに入る。修正したら
+`--compare` で撮り直して、変化が狙ったノードに出たかを確認する — ここで閉じる。
+
+---
+
+## 7. 現状できていないこと
 
 | やりたいこと | 状況 |
 |---|---|
-| フレーム PNG の自動キャプチャ | native 経路は `just capture` で使える。2D UI example への配線が [#9](https://github.com/mizchi/kagura/issues/9) の残り |
-| VRT の gating 化 | キャプチャが直るまで保留。[#8](https://github.com/mizchi/kagura/issues/8) |
-| 状態 × 解像度マトリクス | スナップショットモードの一般化が [#13](https://github.com/mizchi/kagura/issues/13) |
+| 2D フレームの自動キャプチャ | **できる**（1.5）。native 経路 `just capture` は 3D と実 GPU 用 |
+| 3D フレームの browser 抜きキャプチャ | CPU ラスタライザは 2D のみ。native か実ブラウザが要る |
+| VRT の gating 化 | CPU レンダリングは決定的なので土台はできた。置き換えは [#8](https://github.com/mizchi/kagura/issues/8) |
+| 状態 × 解像度マトリクス | `--state` / `--cursor` / `--keys` / `--width` で 1 状態ずつは撮れる。全走査の自動化が [#13](https://github.com/mizchi/kagura/issues/13) |
 | i18n ストレス | [#14](https://github.com/mizchi/kagura/issues/14) |
 | 操作性ゲート（フォーカス到達性） | snapshot に `focus_order` は入っているので実装は軽い。[#15](https://github.com/mizchi/kagura/issues/15) |
-| VLM による主観品質レビュー | [#16](https://github.com/mizchi/kagura/issues/16)。決定的ゲートが通った**後**に回す |

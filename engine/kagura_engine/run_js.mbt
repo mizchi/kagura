@@ -23,6 +23,12 @@ pub fn run(
   title? : String = "kagura",
   canvas? : String = "#app",
 ) -> Unit {
+  // Headless capture short-circuits before anything touches a canvas, a
+  // platform driver or requestAnimationFrame, so the same bundle renders a
+  // frame under plain `node`.
+  if try_run_headless(update~, draw~, on_frame?, width~, height~) {
+    return
+  }
   invoke_on_start(canvas, title)
   let platform = @platform.create_web_canvas_platform(canvas)
   let surface = platform.current_surface() catch {

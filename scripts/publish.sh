@@ -45,24 +45,24 @@ fi
 
 # Topological order (deps first). Keep in sync with moon.work members.
 MODULES=(
-  modules/mesh3d
-  modules/geom
-  modules/kagura_core
-  modules/platform
-  modules/ui
-  modules/audio
-  modules/text
-  modules/atlas
-  modules/asset_loader
-  modules/renderer2d
-  modules/anim3d
-  modules/kagura_engine
+  modules/core/mesh3d
+  modules/core/geom
+  modules/core/kagura_core
+  modules/platform/kagura_platform
+  modules/engine/ui
+  modules/engine/audio
+  modules/engine/text
+  modules/engine/atlas
+  modules/engine/asset_loader
+  modules/engine/renderer2d
+  modules/engine/anim3d
+  modules/engine/kagura_engine
   .
-  modules/js_runtime
-  modules/physics
-  modules/game
-  modules/widget2d
-  modules/pathfind
+  modules/platform/js_runtime
+  modules/engine/physics
+  modules/game/kagura_game
+  modules/engine/widget2d
+  modules/game/pathfind
 )
 
 MODE="publish"

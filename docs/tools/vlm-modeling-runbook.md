@@ -2,12 +2,12 @@
 
 Kagura の authoring example を、`live-review` と VLM review loop で回すときの最短手順をまとめる。
 
-authoring workspace は `tools/modeling3d/` に集約してあり、example の実体は `tools/modeling3d/examples/*` にある。
+authoring workspace は `modules/editor/modeling3d/` に集約してあり、example の実体は `modules/editor/modeling3d/examples/*` にある。
 
 エディタ・レンダラ・export・round-trip review loop は共有ライブラリ
-`mizchi/kagura_modeling3d`（`tools/modeling3d/src/`）にあり、各 example が持つのは
+`mizchi/kagura_modeling3d`（`modules/editor/modeling3d/src/`）にあり、各 example が持つのは
 モデルデータ（`model_doc.mbt`）とレビュー方針（`authoring_profile.mbt`）だけ。
-構成の詳細は [`tools/modeling3d/README.md`](../../tools/modeling3d/README.md)。
+構成の詳細は [`modules/editor/modeling3d/README.md`](../../modules/editor/modeling3d/README.md)。
 
 VLM の apply-patch が編集する対象は従来どおり各 example の `src/model_doc.mbt`。
 

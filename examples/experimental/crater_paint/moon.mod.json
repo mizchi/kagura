@@ -23,20 +23,20 @@
     "mizchi/font": "0.7.0",
     "mizchi/image": "0.4.3",
     "mizchi/kagura_engine": {
-      "path": "../../../modules/kagura_engine"
+      "path": "../../../modules/engine/kagura_engine"
     },
     "mizchi/gfx": "0.1.0",
     "mizchi/text": {
-      "path": "../../../modules/text"
+      "path": "../../../modules/engine/text"
     },
     "mizchi/renderer2d": {
-      "path": "../../../modules/renderer2d"
+      "path": "../../../modules/engine/renderer2d"
     },
     "mizchi/widget2d": {
-      "path": "../../../modules/widget2d"
+      "path": "../../../modules/engine/widget2d"
     },
     "mizchi/atlas": {
-      "path": "../../../modules/atlas"
+      "path": "../../../modules/engine/atlas"
     }
   },
   "--moonbit-unstable-prebuild": "../../../scripts/moon-prebuild-native-link-flags.cjs"

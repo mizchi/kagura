@@ -212,13 +212,13 @@ const RAW_DEMO_PAGES = [
       "Inspect globalThis.__kaguraModelingRoundTrip after importing",
       "Inspect globalThis.__kaguraModelingPatch for auto/manual patch actions, opt_in_append_source_ids, opt_in_remove_source_ids, manual_issue_details, moonbit_patch, and review_prompt",
       "J downloads current_document + roundtrip_report + patch_payload as one JSON bundle",
-      "Use tools/modeling3d/scripts/model-authoring-vlm-review.mjs --provider openrouter with repeated --screenshot flags to send angled/front/side/top captures to google/gemini-3.1-flash-lite-preview by default, with free-model fallback if OpenRouter rejects the preview tier",
-      "Use tools/modeling3d/scripts/model-authoring-vlm-handoff.mjs --serve --edit-profile roundtrip_diff_bundle --provider openrouter for an end-to-end local dry-run with four fixed review views",
+      "Use modules/editor/modeling3d/scripts/model-authoring-vlm-review.mjs --provider openrouter with repeated --screenshot flags to send angled/front/side/top captures to google/gemini-3.1-flash-lite-preview by default, with free-model fallback if OpenRouter rejects the preview tier",
+      "Use modules/editor/modeling3d/scripts/model-authoring-vlm-handoff.mjs --serve --edit-profile roundtrip_diff_bundle --provider openrouter for an end-to-end local dry-run with four fixed review views",
       "After P or U, round-trip diff and patch payload are recomputed against the imported GLB",
       "Exported GLB keeps Kagura source ids in glTF extras and uses double-sided materials",
     ],
     tags: ["3D", "Modeling", "VLM"],
-    sourcePath: "tools/modeling3d/examples/model_authoring/src/model_doc.mbt",
+    sourcePath: "modules/editor/modeling3d/examples/model_authoring/src/model_doc.mbt",
     width: 640,
     height: 480,
   },
@@ -240,7 +240,7 @@ const RAW_DEMO_PAGES = [
       "D / E: brush radius, O: reset document",
     ],
     tags: ["3D", "Modeling", "VLM", "Hard Surface"],
-    sourcePath: "tools/modeling3d/examples/chair_authoring/src/model_doc.mbt",
+    sourcePath: "modules/editor/modeling3d/examples/chair_authoring/src/model_doc.mbt",
     width: 640,
     height: 480,
   },
@@ -259,7 +259,7 @@ const RAW_DEMO_PAGES = [
       "O: reset document",
     ],
     tags: ["3D", "Modeling", "VLM", "Hard Surface"],
-    sourcePath: "tools/modeling3d/examples/shelf_authoring/src/model_doc.mbt",
+    sourcePath: "modules/editor/modeling3d/examples/shelf_authoring/src/model_doc.mbt",
     width: 640,
     height: 480,
   },
@@ -281,7 +281,7 @@ const RAW_DEMO_PAGES = [
       "D / E: brush radius, O: reset document",
     ],
     tags: ["3D", "Modeling", "VLM", "Organic"],
-    sourcePath: "tools/modeling3d/examples/frog_authoring/src/model_doc.mbt",
+    sourcePath: "modules/editor/modeling3d/examples/frog_authoring/src/model_doc.mbt",
     width: 640,
     height: 480,
   },
@@ -303,7 +303,7 @@ const RAW_DEMO_PAGES = [
       "D / E: brush radius, O: reset document",
     ],
     tags: ["3D", "Modeling", "VLM", "Organic"],
-    sourcePath: "tools/modeling3d/examples/dragon_authoring/src/model_doc.mbt",
+    sourcePath: "modules/editor/modeling3d/examples/dragon_authoring/src/model_doc.mbt",
     width: 640,
     height: 480,
   },
@@ -325,7 +325,7 @@ const RAW_DEMO_PAGES = [
       "Inspect globalThis.__kaguraEffectStudioContext in the browser console",
     ],
     tags: ["3D", "Particles", "Timeline", "AI"],
-    sourcePath: "tools/effect-studio/examples/effect_studio/src/main.mbt",
+    sourcePath: "modules/editor/effect-studio/examples/effect_studio/src/main.mbt",
     width: 640,
     height: 480,
   },
@@ -533,10 +533,10 @@ export function resolveDemoPage(name) {
 
 function resolveExampleSourcePath(name) {
   if (name.endsWith("_studio")) {
-    return `tools/effect-studio/examples/${name}/src`;
+    return `modules/editor/effect-studio/examples/${name}/src`;
   }
   if (name.endsWith("_authoring")) {
-    return `tools/modeling3d/examples/${name}/src`;
+    return `modules/editor/modeling3d/examples/${name}/src`;
   }
   const examplesRoot = "examples";
   if (existsSync(examplesRoot)) {

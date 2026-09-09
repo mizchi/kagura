@@ -4,7 +4,7 @@ Kagura 上でモデリングツールを作るなら、Blender の完全代替�
 
 この文書は、Blender / Three.js の現行プラクティスを踏まえて、Kagura 側で持つ責務、外部ツールへ逃がす責務、実装フェーズを整理する。
 
-運用手順は [docs/tools/vlm-modeling-runbook.md](./vlm-modeling-runbook.md) に切り出している。現状の成果と評価は [docs/tools/modeling-tool-status.md](./modeling-tool-status.md) にまとめている。未完了タスクは [tools/modeling3d/TODO.md](../tools/modeling3d/TODO.md) で管理する。
+運用手順は [docs/tools/vlm-modeling-runbook.md](./vlm-modeling-runbook.md) に切り出している。現状の成果と評価は [docs/tools/modeling-tool-status.md](./modeling-tool-status.md) にまとめている。未完了タスクは [modules/editor/modeling3d/TODO.md](../modules/editor/modeling3d/TODO.md) で管理する。
 
 ## 方針
 
@@ -172,10 +172,10 @@ Phase 1 は次の分離で十分:
 - browser runtime では `I` で `.glb` を再読込し、`extras.kagura_*` を使った diff summary を `__kaguraModelingRoundTrip` に publish できる
 - round-trip diff は missing / extra / transform / material color / stamp count を検出できる
 - export material は preview 互換のため `doubleSided` で出している
-- Blender が入っている環境では `node tools/modeling3d/scripts/blender-roundtrip-check.mjs <file.glb>` で headless import inspection と GLB 期待値比較を回せる
-- `node tools/modeling3d/scripts/blender-roundtrip-check.mjs <inspected.glb> <expected.glb>` とすると、Blender で再 export した GLB を元の Kagura export 基準で diff できる
-- `node tools/modeling3d/scripts/blender-roundtrip-edit.mjs <input.glb> <output.glb>` は deterministic な Blender edit を当てて、export 後に root `extras.kagura_*` も補完する
-- `node tools/modeling3d/scripts/blender-roundtrip-scenarios.mjs <source.glb>` で `missing / extra / moved / rescaled / recolored / primitive_kind / stamp_count` の scenario matrix を一括生成できる
+- Blender が入っている環境では `node modules/editor/modeling3d/scripts/blender-roundtrip-check.mjs <file.glb>` で headless import inspection と GLB 期待値比較を回せる
+- `node modules/editor/modeling3d/scripts/blender-roundtrip-check.mjs <inspected.glb> <expected.glb>` とすると、Blender で再 export した GLB を元の Kagura export 基準で diff できる
+- `node modules/editor/modeling3d/scripts/blender-roundtrip-edit.mjs <input.glb> <output.glb>` は deterministic な Blender edit を当てて、export 後に root `extras.kagura_*` も補完する
+- `node modules/editor/modeling3d/scripts/blender-roundtrip-scenarios.mjs <source.glb>` で `missing / extra / moved / rescaled / recolored / primitive_kind / stamp_count` の scenario matrix を一括生成できる
 - 現状の Blender 実測では `extras.kagura_*` custom properties と material color / double-sided は保持される
 - Blender object transform は raw 値のままだと Y-up basis なので、比較時は `gltf_space_location = [x, z, -y]` と `gltf_space_scale = [x, z, y]` に戻す
 - Blender 5.0 headless 実測では node custom properties は残るが、root `extras.kagura_document_name` はそのままだと落ちるので、再 export 後は `gltf-patch-kagura-extras.mjs` か `blender-roundtrip-edit.mjs` 経由で補完するのが安全
@@ -185,12 +185,12 @@ Phase 1 は次の分離で十分:
 - patch proposal payload には `moonbit_patch` / `snippet_filename`、`review_prompt` / `review_filename`、`opt_in_append_source_ids` / `opt_in_remove_source_ids`、`manual_issue_details` を含めていて、`K` で `.mbt` snippet、`L` で VLM review prompt、`U` で opt-in primitive sync を回せる
 - browser runtime では `J` で `current_document + roundtrip_report + patch_payload` をまとめた機械可読 bundle を download できる
 - bundle には `review_profile` と `review_constraints` も含めていて、example 名ハードコードではなく profile-driven に VLM review を切り替えられる
-- `node tools/modeling3d/scripts/model-authoring-vlm-review.mjs --screenshot <angled.png> --screenshot <front.png> --screenshot <side.png> --screenshot <top.png> --bundle <json> --prompt <md>` で multi-view screenshot / bundle / prompt を 1 request にまとめた VLM payload を dry-run 生成できる
+- `node modules/editor/modeling3d/scripts/model-authoring-vlm-review.mjs --screenshot <angled.png> --screenshot <front.png> --screenshot <side.png> --screenshot <top.png> --bundle <json> --prompt <md>` で multi-view screenshot / bundle / prompt を 1 request にまとめた VLM payload を dry-run 生成できる
 - `--provider openrouter --preset free|preview|fast|balanced|quality --execute` と `OPENROUTER_API_KEY` を付けると OpenRouter chat/completions に画像 + bundle + prompt を投げて structured JSON review を返せる
 - 2026-03-10 時点の preset は `free = mistralai/mistral-small-3.1-24b-instruct:free`、`preview = google/gemini-3.1-flash-lite-preview`、`fast = google/gemini-2.5-flash-lite`、`balanced = google/gemini-2.5-flash`、`quality = anthropic/claude-sonnet-4.5`
 - OpenRouter の既定 preset は `preview` で、`google/gemini-3.1-flash-lite-preview` を使う
 - `preview` は credits 不足や upstream limit のときだけ `free` 候補へ自動 fallback する
-- `node tools/modeling3d/scripts/model-authoring-vlm-handoff.mjs --serve --edit-profile roundtrip_diff_bundle --provider openrouter` で local preview 起動、source GLB export、Blender edit profile、re-import、`angled / front / side / top` screenshot、bundle / prompt / request.json 生成までを 1 コマンドで回せる
+- `node modules/editor/modeling3d/scripts/model-authoring-vlm-handoff.mjs --serve --edit-profile roundtrip_diff_bundle --provider openrouter` で local preview 起動、source GLB export、Blender edit profile、re-import、`angled / front / side / top` screenshot、bundle / prompt / request.json 生成までを 1 コマンドで回せる
 - `--interactive` を付けると headed browser の workbench page を開いたまま rerun できる。capture は single-page multi-view に寄せてあり、extra view ごとに page を作り直さない
 - 既定 profile は `model_authoring = generic_model`、`chair_authoring = hard_surface_prop`、`shelf_authoring = hard_surface_prop`、`frog_authoring = organic_character`
 - 現状の auto patch は primitive の transform / color / kind と sculpt layer color まで。missing / extra / stamp_count / sculpt transform は manual review に残す
@@ -205,7 +205,7 @@ Phase 1 は次の分離で十分:
 
 ## 現在の prototype
 
-`tools/modeling3d/examples/model_authoring` は以下を持つ:
+`modules/editor/modeling3d/examples/model_authoring` は以下を持つ:
 
 - primitive + voxel sculpt を定義する model document
 - render object への変換
@@ -226,8 +226,8 @@ Phase 1 は次の分離で十分:
 - `J`: current document / diff / patch payload をまとめた VLM bundle JSON を download
 - `K`: round-trip patch proposal から `.mbt` snippet を download
 - `L`: round-trip manual review 用の VLM prompt を download
-- `node tools/modeling3d/scripts/model-authoring-vlm-review.mjs --provider openrouter --screenshot <png> --bundle <json> --prompt <md>`: 既定で `google/gemini-3.1-flash-lite-preview` に screenshot / bundle / prompt をまとめて投げる
-- `node tools/modeling3d/scripts/model-authoring-vlm-handoff.mjs --serve --edit-profile roundtrip_diff_bundle --provider openrouter`: preview から screenshot / bundle / prompt / request 生成までを自動化する
+- `node modules/editor/modeling3d/scripts/model-authoring-vlm-review.mjs --provider openrouter --screenshot <png> --bundle <json> --prompt <md>`: 既定で `google/gemini-3.1-flash-lite-preview` に screenshot / bundle / prompt をまとめて投げる
+- `node modules/editor/modeling3d/scripts/model-authoring-vlm-handoff.mjs --serve --edit-profile roundtrip_diff_bundle --provider openrouter`: preview から screenshot / bundle / prompt / request 生成までを自動化する
 - `just vlm-handoff-interactive frog_authoring roundtrip_diff_bundle openrouter 8113`: browser を開いたまま current workbench state から rerun する
 - `O`: reset document
   - selection overlay / active layer / recent stamp history panel

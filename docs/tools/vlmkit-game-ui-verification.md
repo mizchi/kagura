@@ -17,7 +17,7 @@
 | issue | 状況 | 実体 |
 |---|---|---|
 | #11 | **完了** | `@mizchi/vlmkit` を devDependency に追加、playwright を 1.62 に bump、`.mcp.json` |
-| #10 | **完了** | `modules/ui/snapshot.mbt`（`UISnapshot` + `to_json`）、`snapshot_publish_js.mbt`（`__kaguraUISnapshot`）、`scripts/ui-snapshot-to-vlmkit-elements.mjs`、`examples/ui/ui_demo` で実配線 |
+| #10 | **完了** | `modules/engine/ui/snapshot.mbt`（`UISnapshot` + `to_json`）、`snapshot_publish_js.mbt`（`__kaguraUISnapshot`）、`scripts/ui-snapshot-to-vlmkit-elements.mjs`、`examples/ui/ui_demo` で実配線 |
 | #12 | **完了** | `scripts/ui-integrity-gate.mjs` + `ui-integrity-utils.mjs`（9 種の欠陥、`--allow` 監査付き）、`just ui-check` |
 | #18 | **一部** | `just ui-asset-check`（素材入庫ゲート）。テーマ/パレット突き合わせはトークン表の宣言が未 |
 | #8 | **一部** | 純黒 baseline 18 枚を削除。gating 化はキャプチャ（#9）待ち |
@@ -108,29 +108,29 @@ expect(readback.nonDarkPixelRatio).toBeGreaterThanOrEqual(expectedNonDark * floo
 `hacknslash_3d` の 1 行のみ。UI が実際に問題を起こす状態（メニュー、ポーズ、インベントリ、
 レベルアップ、ゲームオーバー、ダイアログ）はどの example でもキャプチャされていない。
 
-### 2.5 `modules/ui` は必要な意味情報を持っているが公開していない
+### 2.5 `modules/engine/ui` は必要な意味情報を持っているが公開していない
 
 | 持っているもの | 場所 |
 |---|---|
-| ノードごとの矩形 `LayoutRect{x,y,width,height}` + `UINodeId` | `modules/ui/contracts.mbt:31,44` |
-| 座標→ノードの hit test（`hit_test` / `hit_test_all`） | `modules/ui/contracts.mbt:109,125` |
-| フォーカス順（`UIFocusManager::focus_next/prev`, `set_focusable`） | `modules/ui/contracts.mbt:151-249` |
-| テキスト実測（`TextRenderer::measure`） | `modules/text/contracts.mbt:166` |
-| クリップ矩形とその交差（`ScissorRect::intersect` / `ScissorStack`） | `modules/widget2d/scissor.mbt:27,54` |
+| ノードごとの矩形 `LayoutRect{x,y,width,height}` + `UINodeId` | `modules/engine/ui/contracts.mbt:31,44` |
+| 座標→ノードの hit test（`hit_test` / `hit_test_all`） | `modules/engine/ui/contracts.mbt:109,125` |
+| フォーカス順（`UIFocusManager::focus_next/prev`, `set_focusable`） | `modules/engine/ui/contracts.mbt:151-249` |
+| テキスト実測（`TextRenderer::measure`） | `modules/engine/text/contracts.mbt:166` |
+| クリップ矩形とその交差（`ScissorRect::intersect` / `ScissorStack`） | `modules/engine/widget2d/scissor.mbt:27,54` |
 | PNG エンコード（engine 内） | `@atlas.encode_png_image_spec` |
 
-`modules/ui` 由来の情報を JS 側へ publish している箇所は**ゼロ**
+`modules/engine/ui` 由来の情報を JS 側へ publish している箇所は**ゼロ**
 （`examples/ui/ui_demo/src/*.mbt` の `extern "js"` は canvas サイズ取得の 2 本だけ）。
 つまり「検証に必要なデータは engine 内に全部あるが、外に出ていない」状態。
 
 ### 2.6 3D modeling には完成した VLM ループがある（UI 版が無いだけ）
 
-`tools/modeling3d/scripts/` に screenshot + context JSON + prompt → 構造化 review →
+`modules/editor/modeling3d/scripts/` に screenshot + context JSON + prompt → 構造化 review →
 patch → apply → PR コメントまでの一式（`model-authoring-vlm-*.mjs`、`justfile:125-181` の
 `vlm-*` ターゲット群、`docs/tools/vlm-modeling-runbook.md`）が既にある。
 native 側は `kagura_native_capture_config.txt` を stage して
 `screenshot_path` / `context_path` / `summary_path` に **PNG + JSON + サマリを直接書き出す**
-（`tools/modeling3d/examples/frog_authoring/src/main_native.mbt:300-308`）。
+（`modules/editor/modeling3d/examples/frog_authoring/src/main_native.mbt:300-308`）。
 
 **この native capture 経路は Dawn / headless canvas の問題を完全に回避している。**
 UI にそのまま流用できる最短ルートがここにある。
@@ -194,7 +194,7 @@ UI にそのまま流用できる最短ルートがここにある。
 必須は `path` `tag` `top` `left` `width` `height`（`id` / `classes` は任意、
 selector 名は `.classes` → `#id` → `tag` の順で決まる）。配列直置きも `{elements:[...]}` も可。
 
-これは `modules/ui` の `LayoutResult{node_id, rect}` とほぼ 1:1 で写せる。
+これは `modules/engine/ui` の `LayoutResult{node_id, rect}` とほぼ 1:1 で写せる。
 合成 HUD（640x360、HP バーだけ 180px→90px に変えた 2 枚）で実験した結果:
 
 ```
@@ -224,7 +224,7 @@ $ vlmkit diff png frame-base.png frame-cur.png --elements-json ui-elements.json
 
 ### P0-1. UI introspection hook（`__kaguraUISnapshot`）
 
-`modules/ui` の情報を 1 本の JSON として JS / native の両方に publish する。
+`modules/engine/ui` の情報を 1 本の JSON として JS / native の両方に publish する。
 2.6 の `js_publish_model_context` / `context_path` と同じ形にすれば、既存の VLM ループに乗る。
 
 ```jsonc
@@ -265,7 +265,7 @@ web の canvas capture と Linux Dawn readback は両方壊れている（2.1）
 一方 native は PNG を直接書けている（2.6）。**ゲーム UI のキャプチャを native 経路に寄せる。**
 
 - `kagura_native_capture_config.txt`（`screenshot_path` / `context_path` / `summary_path` / `binarize`）
-  の仕組みを `tools/modeling3d/` から engine 側の共通機能へ引き上げる
+  の仕組みを `modules/editor/modeling3d/` から engine 側の共通機能へ引き上げる
 - `examples/ui/*`, `examples/games-2d/*` に `main_native.mbt` のキャプチャ経路を追加
 - `just ui-capture <example> [state] [viewport]` → PNG + UI snapshot JSON を出す
 - `examples/smoke/native_vrt` は BMP 保存（`main_native.mbt:26,37`）なので PNG に揃える

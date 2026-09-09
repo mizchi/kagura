@@ -401,6 +401,9 @@ export function formatReviewReport({
  * what a fix loop needs from it is the attribution.
  */
 export function formatDiffLines(diff) {
+  if (diff.changedRatio == null) {
+    return ["vlmkit reported no diff measurement -- the comparison did not run."];
+  }
   if (diff.changedRatio === 0) {
     return ["No pixel changed -- the edit did not reach this frame."];
   }
@@ -418,13 +421,17 @@ export function formatDiffLines(diff) {
 
 /**
  * Parse the `diff png` report. vlmkit prints a human report rather than JSON,
- * so this reads the three lines a fix loop acts on and leaves the rest alone;
- * an unparseable report degrades to "changed, attribution unknown" instead of
- * failing the run.
+ * so this reads the lines a fix loop acts on and leaves the rest alone.
+ *
+ * `changedRatio` is null when the report carried no `diff:` line at all -- the
+ * measurement did not happen. That must never be mistaken for "nothing
+ * changed": a gate reading a missing number as zero passes everything, which is
+ * the failure mode this whole tool exists to remove. Callers decide what to do
+ * with null; `regressionVerdict` treats it as a failure.
  */
 export function parseVlmkitDiff(stdout) {
   const ratioMatch = /diff:\s+([0-9.]+)%/.exec(stdout);
-  const changedRatio = ratioMatch == null ? 0 : Number(ratioMatch[1]) / 100;
+  const changedRatio = ratioMatch == null ? null : Number(ratioMatch[1]) / 100;
   const selectors = [];
   const regions = [];
   let section = null;

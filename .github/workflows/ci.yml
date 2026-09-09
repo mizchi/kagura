@@ -124,6 +124,14 @@ jobs:
         run: bash scripts/check-coverage.sh js
       - name: Runtime Smoke (JS)
         run: cd examples/smoke/runtime_smoke && moon run src --target js
+      - name: Frame VRT (browser-free visual regression)
+        # A real gate, unlike the Playwright VRT below. The frames come from
+        # the engine's headless path through the CPU rasterizer, so they need
+        # no GPU and no browser and are byte-identical run to run -- which is
+        # exactly what the canvas capture and the Dawn readback cannot give us
+        # on Linux. Runs before the Playwright install so a visual regression
+        # is reported without waiting on a browser download.
+        run: node scripts/frame-vrt.mjs
       - name: Install Playwright Browser
         # `--with-deps` runs `sudo apt-get`; on Ubuntu 24.04 the needrestart
         # post-install hook prompts and hangs. sudo resets the env, so set the

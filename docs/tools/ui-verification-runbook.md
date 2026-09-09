@@ -239,6 +239,72 @@ just ui-asset-check assets/icons/potion.png "--slot 32x32 --expect-transparent -
 
 ---
 
+## 5.5 フレームのリグレッションを gate する（browser 不要）
+
+```sh
+just frame-vrt              # 全エントリを baseline と比較
+just frame-vrt ui_demo      # 1 example の全 state だけ
+just frame-vrt-update       # 意図した変更のあとに貼り直す
+```
+
+```
+ok       ui_demo
+ok       ui_demo.hover
+ok       ui_demo.focus
+ok       machinations_demo
+...
+frame VRT: 13 checked, all clean
+```
+
+CPU ラスタライザは同じコマンド列から**同じバイト列**を出す（別プロセス間で検証済み）。
+GPU もブラウザもドライバもコンポジタも噛まないので揺れる要素が無く、**閾値ゼロで
+gate できる**。`e2e/vrt.spec.ts` が `--update-snapshots` でしか回せないのとはここが違う。
+
+- 対象の宣言: `scripts/frame-vrt-manifest.mjs`
+- baseline: `e2e/frame-vrt-snapshots/`（`.moonignore` で publish 対象外）
+- 比較: `vlmkit diff png`。UI snapshot がある example では `--elements-json` を渡すので、
+  落ちたときに**どの UI ノードが動いたか**が出る
+- CI: `ci.yml` の js job（Playwright のインストール前 — ブラウザを待たずに失敗を出す）
+
+### 落ちたときの読み方
+
+```
+FAILED   ui_demo: 19.92% of pixels changed at (16,48) 192x144 -> .panel (high, coverage 1)
+```
+
+`output/frame-vrt/` に今のフレーム、`test-results/png-diff/` に heatmap が出る。
+baseline と並べて見て、意図した変更なら `just frame-vrt-update`。
+
+### baseline に貼らせないもの
+
+落ちない baseline は**カバレッジではない**。純黒 18 枚を抱えて「視覚ゲートがある」と
+思い込んでいた過去がその証拠なので、2 つを機械的に拒否する:
+
+| 拒否 | 理由 |
+|---|---|
+| `skipped_commands > 0`（3D を含む） | シーンの欠落を焼き付けて永久に通る |
+| ほぼ単色のフレーム | `sprite_anim` は全面 `#fcfcfc`。意図的なら entry に `allowUniform` で理由を書く |
+
+### `vlmkit diff png --threshold` の既定値を使ってはいけない
+
+既定は **0.1**。pixelmatch の知覚（YIQ）距離で、ブラウザのアンチエイリアスや
+サブピクセルの揺れを許すための値。**決定的なラスタライザには過剰**で、実害が出る。
+
+実測（`ui_demo` の全ボタンを `#4a4a6a` → `#4a6a4a` にした場合）:
+
+| `--threshold` | 報告される diff |
+|---|---|
+| 0 / 0.01 / 0.05 | 19.92% (61194 px) |
+| **0.1（既定）** | **0.00% "no changes"** |
+
+画面いっぱいの緑のボタンが「変更なし」で通る。`scripts/frame-vrt.mjs` は
+`--threshold 0` を渡している。**許すべき揺れが無いなら 0 を渡すこと。**
+
+また `diff:` 行がそもそも出なかった場合、`parseVlmkitDiff` は `changedRatio: null` を
+返し、gate は**失敗**扱いにする。測れなかったことを「差分ゼロ」と読むと全部通る。
+
+---
+
 ## 6. VLM に主観品質を聞く
 
 決定的ゲートで測れるものは**モデルに探させない**。overflow も hit box のズレも
@@ -292,7 +358,7 @@ exit code は**決定的ゲートだけ**が決める。VLM の主観で CI を�
 |---|---|
 | 2D フレームの自動キャプチャ | **できる**（1.5）。native 経路 `just capture` は 3D と実 GPU 用 |
 | 3D フレームの browser 抜きキャプチャ | CPU ラスタライザは 2D のみ。native か実ブラウザが要る |
-| VRT の gating 化 | CPU レンダリングは決定的なので土台はできた。置き換えは [#8](https://github.com/mizchi/kagura/issues/8) |
+| VRT の gating 化 | **2D は完了**（5.5、CI が `just frame-vrt` を回している）。3D と実 GPU 経路は [#8](https://github.com/mizchi/kagura/issues/8) のまま |
 | 状態 × 解像度マトリクス | `--state` / `--cursor` / `--keys` / `--width` で 1 状態ずつは撮れる。全走査の自動化が [#13](https://github.com/mizchi/kagura/issues/13) |
 | i18n ストレス | [#14](https://github.com/mizchi/kagura/issues/14) |
 | 操作性ゲート（フォーカス到達性） | snapshot に `focus_order` は入っているので実装は軽い。[#15](https://github.com/mizchi/kagura/issues/15) |

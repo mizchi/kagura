@@ -232,6 +232,12 @@ test("the vlmkit diff report is reduced to what a fix loop acts on", () => {
   assert.deepEqual(diff.regions, ["(16,48) 192x48 [content] #4a4a6a -> #6a6a9a"]);
 });
 
+test("a report with no diff line yields no measurement, not a zero", () => {
+  const diff = parseVlmkitDiff("PNG Diff\n  baseline: a.png\n");
+  assert.equal(diff.changedRatio, null);
+  assert.match(formatDiffLines(diff)[0], /comparison did not run/);
+});
+
 test("an unchanged diff is reported as the edit not reaching the frame", () => {
   const diff = parseVlmkitDiff("  diff:     0.00% (0 / 307200 px)\n  regions:  0\n");
   assert.equal(diff.changedRatio, 0);

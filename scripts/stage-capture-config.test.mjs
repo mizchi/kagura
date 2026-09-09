@@ -36,6 +36,6 @@ test("buildCaptureConfig honours binarize", () => {
 });
 
 test("the staged filename matches what the engine looks for", () => {
-  // modules/engine/kagura_engine/capture/contracts.mbt: capture_config_filename
+  // engine/kagura_engine/capture/contracts.mbt: capture_config_filename
   assert.equal(CAPTURE_CONFIG_FILENAME, "kagura_native_capture_config.txt");
 });

@@ -6,33 +6,33 @@ default: check test
 
 fmt:
     moon fmt
-    for dir in examples/*/*/ modules/editor/modeling3d/examples/*/ modules/editor/effect-studio/examples/*/; do { [ -f "$dir/moon.mod.json" ] || [ -f "$dir/moon.mod" ]; } && (cd "$dir" && moon fmt); done
+    for dir in examples/*/*/ editor/modeling3d/examples/*/ editor/effect-studio/examples/*/; do { [ -f "$dir/moon.mod.json" ] || [ -f "$dir/moon.mod" ]; } && (cd "$dir" && moon fmt); done
 
 check:
     moon check --deny-warn --target {{target}}
-    for dir in examples/*/*/ modules/editor/modeling3d/examples/*/ modules/editor/effect-studio/examples/*/; do if [ -f "$dir/moon.mod.json" ] || [ -f "$dir/moon.mod" ]; then case "$dir" in examples/experimental/crater_paint/|examples/smoke/browser_headless/) echo "skip $dir (depends on out-of-repo mizchi/crater checkout)"; continue;; esac; if [ "{{target}}" != "native" ] && [ -f "$dir/src/moon.pkg" ] && grep -q 'supported_targets = "native"' "$dir/src/moon.pkg"; then echo "skip $dir (supports native only)"; continue; fi; (cd "$dir" && moon check --deny-warn --target {{target}}); fi; done
+    for dir in examples/*/*/ editor/modeling3d/examples/*/ editor/effect-studio/examples/*/; do if [ -f "$dir/moon.mod.json" ] || [ -f "$dir/moon.mod" ]; then case "$dir" in examples/experimental/crater_paint/|examples/smoke/browser_headless/) echo "skip $dir (depends on out-of-repo mizchi/crater checkout)"; continue;; esac; if [ "{{target}}" != "native" ] && [ -f "$dir/src/moon.pkg" ] && grep -q 'supported_targets = "native"' "$dir/src/moon.pkg"; then echo "skip $dir (supports native only)"; continue; fi; (cd "$dir" && moon check --deny-warn --target {{target}}); fi; done
 
 modeling3d-check:
-    for dir in modules/editor/modeling3d/examples/*/; do { [ -f "$dir/moon.mod.json" ] || [ -f "$dir/moon.mod" ]; } && (cd "$dir" && moon check --deny-warn --target {{target}}); done
+    for dir in editor/modeling3d/examples/*/; do { [ -f "$dir/moon.mod.json" ] || [ -f "$dir/moon.mod" ]; } && (cd "$dir" && moon check --deny-warn --target {{target}}); done
 
 effect-studio-check:
-    for dir in modules/editor/effect-studio/examples/*/; do { [ -f "$dir/moon.mod.json" ] || [ -f "$dir/moon.mod" ]; } && (cd "$dir" && moon check --deny-warn --target {{target}}); done
+    for dir in editor/effect-studio/examples/*/; do { [ -f "$dir/moon.mod.json" ] || [ -f "$dir/moon.mod" ]; } && (cd "$dir" && moon check --deny-warn --target {{target}}); done
 
 test:
     if [ "{{target}}" = "native" ]; then CPATH="$(brew --prefix glfw)/include:${CPATH:-}" LIBRARY_PATH="$(brew --prefix)/lib:${LIBRARY_PATH:-}" moon test --target native || { echo "::error title=moon test failed::root moon test --target native"; exit 1; }; else moon test --target {{target}} || { echo "::error title=moon test failed::root moon test --target {{target}}"; exit 1; }; fi
     if [ "{{target}}" = "js" ] && ls lib/web/*.test.mjs >/dev/null 2>&1; then node --test lib/web/*.test.mjs || { echo "::error title=node test failed::lib/web/*.test.mjs"; exit 1; }; fi
-    for dir in examples/*/*/ modules/editor/modeling3d/examples/*/ modules/editor/effect-studio/examples/*/; do if [ -f "$dir/moon.mod.json" ] || [ -f "$dir/moon.mod" ]; then case "$dir" in examples/experimental/crater_paint/|examples/smoke/browser_headless/) echo "skip $dir (depends on out-of-repo mizchi/crater checkout)"; continue;; esac; if [ "{{target}}" != "native" ] && [ -f "$dir/src/moon.pkg" ] && grep -q 'supported_targets = "native"' "$dir/src/moon.pkg"; then echo "skip $dir (supports native only)"; continue; fi; if [ "{{target}}" = "native" ] && grep -rq "wgpu_native" "$dir/src/moon.pkg" 2>/dev/null; then echo "skip $dir (requires wgpu-native at link time)"; continue; fi; if [ "{{target}}" = "native" ] && [ "$dir" = "modules/editor/effect-studio/examples/effect_studio/" ]; then echo "skip $dir (native test limited to check-only)"; continue; fi; echo "test $dir"; (cd "$dir" && if [ "{{target}}" = "native" ]; then CPATH="$(brew --prefix glfw)/include:${CPATH:-}" LIBRARY_PATH="$(brew --prefix)/lib:${LIBRARY_PATH:-}" moon test --target native; else moon test --target {{target}}; fi) || { echo "::error file=$dir/moon.mod,title=example test failed::$dir"; exit 1; }; fi; done
+    for dir in examples/*/*/ editor/modeling3d/examples/*/ editor/effect-studio/examples/*/; do if [ -f "$dir/moon.mod.json" ] || [ -f "$dir/moon.mod" ]; then case "$dir" in examples/experimental/crater_paint/|examples/smoke/browser_headless/) echo "skip $dir (depends on out-of-repo mizchi/crater checkout)"; continue;; esac; if [ "{{target}}" != "native" ] && [ -f "$dir/src/moon.pkg" ] && grep -q 'supported_targets = "native"' "$dir/src/moon.pkg"; then echo "skip $dir (supports native only)"; continue; fi; if [ "{{target}}" = "native" ] && grep -rq "wgpu_native" "$dir/src/moon.pkg" 2>/dev/null; then echo "skip $dir (requires wgpu-native at link time)"; continue; fi; if [ "{{target}}" = "native" ] && [ "$dir" = "editor/effect-studio/examples/effect_studio/" ]; then echo "skip $dir (native test limited to check-only)"; continue; fi; echo "test $dir"; (cd "$dir" && if [ "{{target}}" = "native" ]; then CPATH="$(brew --prefix glfw)/include:${CPATH:-}" LIBRARY_PATH="$(brew --prefix)/lib:${LIBRARY_PATH:-}" moon test --target native; else moon test --target {{target}}; fi) || { echo "::error file=$dir/moon.mod,title=example test failed::$dir"; exit 1; }; fi; done
 
 modeling3d-test:
-    for dir in modules/editor/modeling3d/examples/*/; do { [ -f "$dir/moon.mod.json" ] || [ -f "$dir/moon.mod" ]; } && (cd "$dir" && if [ "{{target}}" = "native" ]; then CPATH="$(brew --prefix glfw)/include:${CPATH:-}" LIBRARY_PATH="$(brew --prefix)/lib:${LIBRARY_PATH:-}" moon test --target native; else moon test --target {{target}}; fi); done
+    for dir in editor/modeling3d/examples/*/; do { [ -f "$dir/moon.mod.json" ] || [ -f "$dir/moon.mod" ]; } && (cd "$dir" && if [ "{{target}}" = "native" ]; then CPATH="$(brew --prefix glfw)/include:${CPATH:-}" LIBRARY_PATH="$(brew --prefix)/lib:${LIBRARY_PATH:-}" moon test --target native; else moon test --target {{target}}; fi); done
 
 effect-studio-test:
-    for dir in modules/editor/effect-studio/examples/*/; do { [ -f "$dir/moon.mod.json" ] || [ -f "$dir/moon.mod" ]; } && if [ "{{target}}" = "native" ]; then echo "skip $dir (effect-studio native validation is check-only for now)"; else (cd "$dir" && moon test --target {{target}}); fi; done
+    for dir in editor/effect-studio/examples/*/; do { [ -f "$dir/moon.mod.json" ] || [ -f "$dir/moon.mod" ]; } && if [ "{{target}}" = "native" ]; then echo "skip $dir (effect-studio native validation is check-only for now)"; else (cd "$dir" && moon test --target {{target}}); fi; done
 
 modeling3d-scripts-check:
-    node --test modules/editor/modeling3d/scripts/*.test.mjs
-    for script in modules/editor/modeling3d/scripts/*.mjs; do node --check "$script"; done
-    if ls modules/editor/modeling3d/scripts/*.py >/dev/null 2>&1; then python3 -m py_compile modules/editor/modeling3d/scripts/*.py; fi
+    node --test editor/modeling3d/scripts/*.test.mjs
+    for script in editor/modeling3d/scripts/*.mjs; do node --check "$script"; done
+    if ls editor/modeling3d/scripts/*.py >/dev/null 2>&1; then python3 -m py_compile editor/modeling3d/scripts/*.py; fi
 
 modeling3d-ci:
     just modeling3d-scripts-check
@@ -65,7 +65,7 @@ coverage:
 
 bench:
     moon bench --target {{target}}
-    for dir in examples/*/*/ modules/editor/modeling3d/examples/*/ modules/editor/effect-studio/examples/*/; do { [ -f "$dir/moon.mod.json" ] || [ -f "$dir/moon.mod" ]; } && (cd "$dir" && moon bench --target {{target}}); done
+    for dir in examples/*/*/ editor/modeling3d/examples/*/ editor/effect-studio/examples/*/; do { [ -f "$dir/moon.mod.json" ] || [ -f "$dir/moon.mod" ]; } && (cd "$dir" && moon bench --target {{target}}); done
 
 bench-gate:
     node scripts/bench-gate.mjs {{target}}
@@ -122,7 +122,7 @@ capture example out_dir="output/capture":
     #!/usr/bin/env bash
     set -euo pipefail
     dir=""
-    for candidate in examples/*/{{example}} modules/editor/modeling3d/examples/{{example}} modules/editor/effect-studio/examples/{{example}}; do
+    for candidate in examples/*/{{example}} editor/modeling3d/examples/{{example}} editor/effect-studio/examples/{{example}}; do
       if [ -f "$candidate/moon.mod" ] || [ -f "$candidate/moon.mod.json" ]; then dir="$candidate"; break; fi
     done
     if [ -z "$dir" ]; then echo "example not found: {{example}}"; exit 1; fi
@@ -156,65 +156,65 @@ fal-trellis-demo-check:
     python3 -m py_compile examples/experimental/fal_trellis_demo/scripts/fal_trellis_preprocess.py
 
 vlm-handoff example="model_authoring" profile="roundtrip_diff_bundle" provider="openrouter" port="8113" extra="":
-    node modules/editor/modeling3d/scripts/model-authoring-vlm-handoff.mjs --example {{example}} --edit-profile {{profile}} --provider {{provider}} --serve --port {{port}} {{extra}}
+    node editor/modeling3d/scripts/model-authoring-vlm-handoff.mjs --example {{example}} --edit-profile {{profile}} --provider {{provider}} --serve --port {{port}} {{extra}}
 
 vlm-handoff-interactive example="model_authoring" profile="roundtrip_diff_bundle" provider="openrouter" port="8113" extra="":
-    node modules/editor/modeling3d/scripts/model-authoring-vlm-handoff.mjs --example {{example}} --edit-profile {{profile}} --provider {{provider}} --serve --port {{port}} --interactive {{extra}}
+    node editor/modeling3d/scripts/model-authoring-vlm-handoff.mjs --example {{example}} --edit-profile {{profile}} --provider {{provider}} --serve --port {{port}} --interactive {{extra}}
 
 vlm-live-review example="model_authoring" provider="openrouter" port="8113" extra="":
-    node modules/editor/modeling3d/scripts/model-authoring-vlm-handoff.mjs --example {{example}} --live-review --provider {{provider}} --serve --port {{port}} {{extra}}
+    node editor/modeling3d/scripts/model-authoring-vlm-handoff.mjs --example {{example}} --live-review --provider {{provider}} --serve --port {{port}} {{extra}}
 
 vlm-live-review-interactive example="model_authoring" provider="openrouter" port="8113" extra="":
-    node modules/editor/modeling3d/scripts/model-authoring-vlm-handoff.mjs --example {{example}} --live-review --provider {{provider}} --serve --port {{port}} --interactive {{extra}}
+    node editor/modeling3d/scripts/model-authoring-vlm-handoff.mjs --example {{example}} --live-review --provider {{provider}} --serve --port {{port}} --interactive {{extra}}
 
 vlm-live-review-native example="model_authoring" provider="openrouter" extra="":
-    node modules/editor/modeling3d/scripts/model-authoring-vlm-handoff.mjs --example {{example}} --live-review --renderer native --provider {{provider}} {{extra}}
+    node editor/modeling3d/scripts/model-authoring-vlm-handoff.mjs --example {{example}} --live-review --renderer native --provider {{provider}} {{extra}}
 
 vlm-daemon-start example="frog_authoring" provider="openrouter" port="8113" daemon_port="9123" extra="":
-    node modules/editor/modeling3d/scripts/model-authoring-vlm-handoff.mjs --example {{example}} --live-review --provider {{provider}} --url http://127.0.0.1:{{port}}/ --daemon --daemon-port {{daemon_port}} {{extra}}
+    node editor/modeling3d/scripts/model-authoring-vlm-handoff.mjs --example {{example}} --live-review --provider {{provider}} --url http://127.0.0.1:{{port}}/ --daemon --daemon-port {{daemon_port}} {{extra}}
 
 vlm-daemon-start-checkpoint example="frog_authoring" provider="openrouter" port="8113" daemon_port="9123" extra="":
-    node modules/editor/modeling3d/scripts/model-authoring-vlm-handoff.mjs --example {{example}} --live-review --provider {{provider}} --url http://127.0.0.1:{{port}}/ --daemon --daemon-port {{daemon_port}} --execute {{extra}}
+    node editor/modeling3d/scripts/model-authoring-vlm-handoff.mjs --example {{example}} --live-review --provider {{provider}} --url http://127.0.0.1:{{port}}/ --daemon --daemon-port {{daemon_port}} --execute {{extra}}
 
 vlm-daemon-run daemon_port="9123" cycle="1" out_dir="output/playwright/daemon-run" extra="":
-    node modules/editor/modeling3d/scripts/model-authoring-vlm-daemon-client.mjs --port {{daemon_port}} --run --cycle {{cycle}} --out-dir {{out_dir}} {{extra}}
+    node editor/modeling3d/scripts/model-authoring-vlm-daemon-client.mjs --port {{daemon_port}} --run --cycle {{cycle}} --out-dir {{out_dir}} {{extra}}
 
 vlm-daemon-run-checkpoint daemon_port="9123" cycle="1" out_dir="output/playwright/daemon-checkpoint" extra="":
-    node modules/editor/modeling3d/scripts/model-authoring-vlm-daemon-client.mjs --port {{daemon_port}} --run --cycle {{cycle}} --out-dir {{out_dir}} {{extra}}
+    node editor/modeling3d/scripts/model-authoring-vlm-daemon-client.mjs --port {{daemon_port}} --run --cycle {{cycle}} --out-dir {{out_dir}} {{extra}}
 
 vlm-daemon-stop daemon_port="9123":
-    node modules/editor/modeling3d/scripts/model-authoring-vlm-daemon-client.mjs --port {{daemon_port}} --shutdown
+    node editor/modeling3d/scripts/model-authoring-vlm-daemon-client.mjs --port {{daemon_port}} --shutdown
 
 vlm-perf-live-review example="frog_authoring" provider="openrouter" iterations="8" warmup="1" port="8230" extra="":
-    node modules/editor/modeling3d/scripts/model-authoring-vlm-perf.mjs --example {{example}} --provider {{provider}} --iterations {{iterations}} --warmup {{warmup}} --port {{port}} {{extra}}
+    node editor/modeling3d/scripts/model-authoring-vlm-perf.mjs --example {{example}} --provider {{provider}} --iterations {{iterations}} --warmup {{warmup}} --port {{port}} {{extra}}
 
 vlm-perf-live-review-persistent example="frog_authoring" provider="openrouter" iterations="8" warmup="1" port="8230" extra="":
-    node modules/editor/modeling3d/scripts/model-authoring-vlm-perf.mjs --example {{example}} --provider {{provider}} --renderer web --session-mode both --iterations {{iterations}} --warmup {{warmup}} --port {{port}} {{extra}}
+    node editor/modeling3d/scripts/model-authoring-vlm-perf.mjs --example {{example}} --provider {{provider}} --renderer web --session-mode both --iterations {{iterations}} --warmup {{warmup}} --port {{port}} {{extra}}
 
 vlm-perf-live-review-daemon example="frog_authoring" provider="openrouter" iterations="8" warmup="1" port="8230" extra="":
-    node modules/editor/modeling3d/scripts/model-authoring-vlm-perf.mjs --example {{example}} --provider {{provider}} --renderer web --session-mode daemon --iterations {{iterations}} --warmup {{warmup}} --port {{port}} {{extra}}
+    node editor/modeling3d/scripts/model-authoring-vlm-perf.mjs --example {{example}} --provider {{provider}} --renderer web --session-mode daemon --iterations {{iterations}} --warmup {{warmup}} --port {{port}} {{extra}}
 
 vlm-renderer-parity example="frog_authoring" provider="openrouter" port="8210" silhouette_threshold="0.2" visual_threshold="20" extra="":
-    node modules/editor/modeling3d/scripts/model-authoring-renderer-parity.mjs --example {{example}} --provider {{provider}} --port {{port}} --silhouette-threshold {{silhouette_threshold}} --visual-threshold {{visual_threshold}} {{extra}}
+    node editor/modeling3d/scripts/model-authoring-renderer-parity.mjs --example {{example}} --provider {{provider}} --port {{port}} --silhouette-threshold {{silhouette_threshold}} --visual-threshold {{visual_threshold}} {{extra}}
 
 vlm-close-loop example="model_authoring" profile="" glb="" provider="openrouter" port="8113" extra="":
-    if [ -n "{{profile}}" ]; then node modules/editor/modeling3d/scripts/model-authoring-vlm-close-loop.mjs --example {{example}} --edit-profile {{profile}} --provider {{provider}} --port {{port}} {{extra}}; \
-    else test -n "{{glb}}" && node modules/editor/modeling3d/scripts/model-authoring-vlm-close-loop.mjs --example {{example}} --import-glb {{glb}} --provider {{provider}} --port {{port}} {{extra}}; fi
+    if [ -n "{{profile}}" ]; then node editor/modeling3d/scripts/model-authoring-vlm-close-loop.mjs --example {{example}} --edit-profile {{profile}} --provider {{provider}} --port {{port}} {{extra}}; \
+    else test -n "{{glb}}" && node editor/modeling3d/scripts/model-authoring-vlm-close-loop.mjs --example {{example}} --import-glb {{glb}} --provider {{provider}} --port {{port}} {{extra}}; fi
 
 vlm-reimport example="model_authoring" glb="" provider="openrouter" port="8113" extra="":
     test -n "{{glb}}"
-    node modules/editor/modeling3d/scripts/model-authoring-vlm-handoff.mjs --example {{example}} --import-glb {{glb}} --provider {{provider}} --serve --port {{port}} {{extra}}
+    node editor/modeling3d/scripts/model-authoring-vlm-handoff.mjs --example {{example}} --import-glb {{glb}} --provider {{provider}} --serve --port {{port}} {{extra}}
 
 vlm-feedback bundle="" parsed="":
     test -n "{{bundle}}" && test -n "{{parsed}}"
-    node modules/editor/modeling3d/scripts/model-authoring-vlm-local-feedback.mjs --bundle {{bundle}} --parsed {{parsed}}
+    node editor/modeling3d/scripts/model-authoring-vlm-local-feedback.mjs --bundle {{bundle}} --parsed {{parsed}}
 
 vlm-apply target="" patch="" extra="":
     test -n "{{target}}" && test -n "{{patch}}"
-    node modules/editor/modeling3d/scripts/model-authoring-vlm-apply-patch.mjs --target {{target}} --patch {{patch}} {{extra}}
+    node editor/modeling3d/scripts/model-authoring-vlm-apply-patch.mjs --target {{target}} --patch {{patch}} {{extra}}
 
 run-native name:
-    dir=""; for candidate in examples/*/{{name}} modules/editor/modeling3d/examples/{{name}} modules/editor/effect-studio/examples/{{name}}; do if [ -f "$candidate/moon.mod.json" ] || [ -f "$candidate/moon.mod" ]; then dir="$candidate"; break; fi; done; if [ -z "$dir" ]; then echo "example not found: {{name}}"; exit 1; fi; cd "$dir" && CPATH="$(brew --prefix glfw)/include:${CPATH:-}" LIBRARY_PATH="$(brew --prefix)/lib:${LIBRARY_PATH:-}" moon run src/ --target native
+    dir=""; for candidate in examples/*/{{name}} editor/modeling3d/examples/{{name}} editor/effect-studio/examples/{{name}}; do if [ -f "$candidate/moon.mod.json" ] || [ -f "$candidate/moon.mod" ]; then dir="$candidate"; break; fi; done; if [ -z "$dir" ]; then echo "example not found: {{name}}"; exit 1; fi; cd "$dir" && CPATH="$(brew --prefix glfw)/include:${CPATH:-}" LIBRARY_PATH="$(brew --prefix)/lib:${LIBRARY_PATH:-}" moon run src/ --target native
 
 pages:
     bash scripts/build-pages.sh
@@ -235,7 +235,7 @@ release-manifests out_dir=".moon-release":
 
 clean:
     moon clean
-    for dir in examples/*/*/ modules/editor/modeling3d/examples/*/ modules/editor/effect-studio/examples/*/; do [ -d "$dir" ] && (cd "$dir" && moon clean); done
+    for dir in examples/*/*/ editor/modeling3d/examples/*/ editor/effect-studio/examples/*/; do [ -d "$dir" ] && (cd "$dir" && moon clean); done
 
 balance name="playtest":
     cd examples/games-3d/hacknslash_3d && moon run src/balance --target js 2>&1 | tee /dev/stderr | sed -n '/^=== CSV ===/,$ p' | tail -n +2 > data/hackslash/{{name}}.csv

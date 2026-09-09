@@ -12,8 +12,8 @@ import {
 
 const ROOT = resolve(import.meta.dirname, "..");
 const EXAMPLE_ROOTS = [
-  resolve(ROOT, "modules", "editor", "effect-studio", "examples"),
-  resolve(ROOT, "modules", "editor", "modeling3d", "examples"),
+  resolve(ROOT, "editor", "effect-studio", "examples"),
+  resolve(ROOT, "editor", "modeling3d", "examples"),
   resolve(ROOT, "examples"),
 ];
 const name = process.argv[2];

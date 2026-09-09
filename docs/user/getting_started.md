@@ -80,9 +80,9 @@ examples/<category>/my_game/      # category: games-2d, games-3d, rendering, phy
   "version": "0.1.0",
   "source": "src",
   "deps": {
-    "mizchi/kagura_core": { "path": "../../modules/kagura_core" },
-    "mizchi/kagura_engine": { "path": "../../modules/kagura_engine" },
-    "mizchi/kagura_game": { "path": "../../modules/game" },
+    "mizchi/kagura_core": { "path": "../../modules/core/kagura_core" },
+    "mizchi/kagura_engine": { "path": "../../modules/engine/kagura_engine" },
+    "mizchi/kagura_game": { "path": "../../modules/game/kagura_game" },
     "mizchi/signals": "0.6.3",
     "mizchi/web_runtime_hooks": { "path": "../web_runtime_hooks" },
     "mizchi/native_runtime_hooks": { "path": "../native_runtime_hooks" }

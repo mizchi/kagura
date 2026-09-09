@@ -11,7 +11,7 @@ const HOST = "127.0.0.1";
 const PORT = Number.parseInt(process.env.PORT ?? "4173", 10);
 const EXAMPLE_ROOTS = [
   join(ROOT, "examples"),
-  join(ROOT, "tools", "effect-studio", "examples"),
+  join(ROOT, "modules", "editor", "effect-studio", "examples"),
 ];
 
 const CONTENT_TYPES = {

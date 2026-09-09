@@ -3,7 +3,7 @@
 このファイルは未完了タスクのみを管理する。
 完了済みは `docs/roadmap/mvp.md` の `DONE` セクションへ退避する。
 
-3D modeling / VLM authoring 関連の未完了は `tools/modeling3d/TODO.md` で管理する。
+3D modeling / VLM authoring 関連の未完了は `modules/editor/modeling3d/TODO.md` で管理する。
 
 ## ゴール
 

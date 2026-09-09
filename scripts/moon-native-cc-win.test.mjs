@@ -60,7 +60,7 @@ test("buildCompilerArgs keeps our own C strict", () => {
   // still fail the build rather than being silently downgraded.
   const args = buildCompilerArgs([
     "-c",
-    "modules/kagura_engine/gfx_wgpu_native/wgpu_native_stub.c",
+    "modules/engine/kagura_engine/gfx_wgpu_native/wgpu_native_stub.c",
   ]);
   assert.ok(!args.includes("-Wno-error=implicit-function-declaration"));
 });

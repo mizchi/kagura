@@ -2,11 +2,43 @@
 
 ## プロジェクト構成
 
-- `src/` - エンジンコア
+- `src/` - 公開ファサード（`mizchi/kagura`）
+- `modules/<layer>/<name>/` - ライブラリ本体。各ディレクトリが独立した moon module で、
+  `moon.work` のメンバー
 - `examples/<category>/<name>/` - サンプルプロジェクト（各ディレクトリが独立した moon プロジェクト）
   - カテゴリ: `games-2d`, `games-3d`, `rendering`, `physics`, `ui`, `ecs`, `smoke`, `experimental`
 - `scripts/` - ビルド・開発スクリプト
 - `justfile` - タスクランナー
+
+### modules のレイヤ
+
+| layer | 中身 | モジュール |
+|---|---|---|
+| `core/` | 外部依存ゼロ、または core 契約のみの基盤 | `kagura_core`, `geom`, `mesh3d` |
+| `platform/` | ターゲット固有の host / 窓口層 | `kagura_platform`, `js_runtime` |
+| `engine/` | 描画・アセット・ランタイム基盤 | `kagura_engine`, `renderer2d`, `text`, `widget2d`, `ui`, `atlas`, `asset_loader`, `audio`, `anim3d`, `physics` |
+| `game/` | ゲーム側のロジック（描画基盤に依存してよい） | `kagura_game`, `machinations`, `pathfind` |
+| `editor/` | オーサリング／確認用ツール | `effect-studio`, `modeling3d` |
+
+依存の向きは `core <- platform <- engine <- game` の一方通行。`editor/` はどれに依存しても
+よいが、**誰からも依存されない**（publish 対象外で、それぞれ自前の `moon.work` を持つ）。
+実際の許可リストは `scripts/moon-boundary-utils.mjs` の `DEFAULT_IMPORT_BOUNDARY_POLICY`
+にあり、`just check-release` が `moon.pkg` の import を突き合わせる。
+
+ディレクトリ名は publish 名と一致しないことがある（`modules/engine/ui` = `mizchi/kagura_ui`）。
+**正はいつも `moon.mod` の `name`** で、ディレクトリはただの置き場所。
+
+モジュールを移動したら、パスを持っている次の場所も一緒に直すこと。
+`grep -rn modules/` だけだと**深さが変わる相対パス**と**セグメント分割された literal**を
+取りこぼす（`resolve(cwd, "tools", "modeling3d")` のような形）。
+
+- `moon.work` — ルート、各 example、各 editor tool とその example
+- `moon.mod` の `--moonbit-unstable-prebuild` — 階層が深くなった分 `../` を足す
+- `scripts/moon-release-utils.mjs` の `DEFAULT_RELEASE_MODULE_DIRS`
+- `scripts/publish.sh` の `MODULES`（publish 順。トポロジカル順を保つ）
+- `justfile` の example ループ
+- example の path 依存（`examples/experimental/crater_paint`, `examples/smoke/browser_headless`）
+- `scripts/{dev-server,build-pages,serve-wasm-smoke}.mjs` の example ルート
 
 ## 依存パッケージ開発
 

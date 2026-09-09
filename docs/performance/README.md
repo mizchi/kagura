@@ -18,12 +18,12 @@
 | ファイル | テスト数 | 対象 |
 |---|---:|---|
 | `examples/games-3d/hacknslash_3d/src/view3d_bench.mbt` | 36 | render pass / update phase の細かい分解計測 |
-| `modules/game/src/ecs/ecs_bench.mbt` | 11 | ECS spawn / system / component access |
-| `modules/physics/src/physics3d/world_bench.mbt` | 8 | 物理ステップ (pairs / constraints / substeps / integration) |
-| `modules/kagura_engine/src/text/contracts_bench.mbt` | 4 | テキスト glyph build / 描画コマンド構築 |
-| `modules/kagura_engine/src/sprite2d/contracts_bench.mbt` | 3 | 2D 描画コマンド構築 (particle dispatch) |
+| `modules/game/kagura_game/src/ecs/ecs_bench.mbt` | 11 | ECS spawn / system / component access |
+| `modules/engine/physics/src/physics3d/world_bench.mbt` | 8 | 物理ステップ (pairs / constraints / substeps / integration) |
+| `modules/engine/kagura_engine/src/text/contracts_bench.mbt` | 4 | テキスト glyph build / 描画コマンド構築 |
+| `modules/engine/kagura_engine/src/sprite2d/contracts_bench.mbt` | 3 | 2D 描画コマンド構築 (particle dispatch) |
 | `examples/games-3d/arena3d/src/game_bench.mbt` | 3 | arena3d の update / scene graph / renderer3d facade |
-| `modules/game/src/sprite_packer/packer_bench.mbt` | 2 | スプライトパッキング |
+| `modules/game/kagura_game/src/sprite_packer/packer_bench.mbt` | 2 | スプライトパッキング |
 | `examples/games-2d/{action_rpg,flappy_bird,survivor}/src/game_bench.mbt` | 2 each | ゲーム例の update / view |
 
 ## 計測コマンド
@@ -35,7 +35,7 @@ just bench target=native  # native target
 
 # 単一パッケージを実行
 moon -C examples/games-3d/hacknslash_3d bench --target js
-moon -C modules/physics bench --target js
+moon -C modules/engine/physics bench --target js
 
 # 回帰検知 (baseline と比較)
 just bench-gate

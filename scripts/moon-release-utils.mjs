@@ -5,15 +5,15 @@ import { manifestPathFor, readModuleManifest } from "./moon-mod-manifest.mjs";
 
 export const DEFAULT_RELEASE_MODULE_DIRS = Object.freeze([
   ".",
-  "modules/kagura_core",
-  "modules/platform",
-  "modules/ui",
-  "modules/audio",
-  "modules/asset_loader",
-  "modules/kagura_engine",
-  "modules/physics",
-  "modules/game",
-  "modules/js_runtime",
+  "modules/core/kagura_core",
+  "modules/platform/kagura_platform",
+  "modules/engine/ui",
+  "modules/engine/audio",
+  "modules/engine/asset_loader",
+  "modules/engine/kagura_engine",
+  "modules/engine/physics",
+  "modules/game/kagura_game",
+  "modules/platform/js_runtime",
 ]);
 
 export const DEFAULT_RELEASE_DEP_POLICY = Object.freeze({

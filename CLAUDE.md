@@ -82,21 +82,46 @@ just check-release  # リリース前チェック（ローカルパス依存の�
 
 ## ゲーム UI の検証
 
-canvas 上の UI は DOM を持たないので、`@ui.publish_ui_snapshot` で UI ツリー
-（矩形・クリップ・実測テキスト幅・hit 矩形・フォーカス順）を外に出し、Node 側の
-決定的ゲートにかける。browser も API キーも不要。
+入力は 2 本。**フレーム PNG**（何が見えているか）と **UI snapshot**（それが何なのか）。
+どちらも browser 無しで取れる。
 
 ```bash
+just render ui_demo "--frames 3"           # フレームを直接描く（browser も GPU も不要）
 just ui-check output/ui-snapshot.json      # 文字あふれ/クリップ/画面外/重なり/hit box ずれ
 just ui-elements output/ui-snapshot.json   # vlmkit diff png --elements-json 用に変換
 just ui-asset-check <png>                  # スプライト/アイコンの入庫ゲート
+just vlm-ui-review ui_demo "--dry-run"     # 決定的ゲート → その後だけ VLM
 ```
 
 手順とルールの詳細は `docs/tools/ui-verification-runbook.md`。
 
+### フレームを直接レンダリングする
+
+`@engine.run` は canvas に触る前に `globalThis.__kaguraHeadless` を見る。あれば
+アニメーションループに入らず、example 自身の update を N tick 回して draw 1 回を
+**CPU ラスタライザ**（`engine/kagura_engine/raster`、`@gfx.GraphicsDriver` の実装）に
+流し、PNG を `__kaguraHeadlessFrame` に置く。example 側の変更は要らない。
+
+- Linux の canvas screenshot が透明で Dawn readback も返らない問題を丸ごと迂回する
+- 描くのは **2D コマンドだけ**。3D は `skipped_commands` に数えて描かない（`just render` が警告する）
+- 未登録テクスチャは 1x1 白。アトラス経由のスプライトはベタ塗りになる
+- Node 側ホストは `lib/web/kagura-headless-frame.js`。viewport スタブは
+  **engine が解決した実サイズ**を返す（CSS サイズでカーソルをスケールする example がずれる）
+
+### VLM を混ぜる順序
+
+**決定的ゲートが先、VLM は残りだけ。** overflow や hit box のズレは
+`ui-integrity-gate` が証明できるので、モデルに探させると再現しないレビューになる。
+`just vlm-ui-review` はこの順序を強制し、exit code は決定的ゲートだけが決める。
+修正後は `--compare <前のPNG>` で撮り直すと、変化が狙った UI ノードに出たか確認できる。
+
+### snapshot 側の約束
+
 - `text_measured` は描画側と**同じ算術**で測る（dot text は `@renderer2d.dot_text_size`）
 - `path` は実ツリーの階層を反映させる（ツーリングが祖先関係を読む）
 - `extern "js"` を含むファイルは `moon.pkg` の `targets` で js に限定し、native は no-op スタブ
+- `@ui.compute_layout` は **post-order**（子が先、コンテナが後）。`@ui.hit_test` は
+  その順で**最初に**当たったノードを返す。逆順を仮定すると常に最外周のルートが当たる
 
 ## スナップショットテスト (VRT)
 

@@ -105,23 +105,35 @@ pub fn point_in_rect(rect : LayoutRect, x : Double, y : Double) -> Bool {
 }
 
 ///|
-/// Find the last (topmost) node that contains the given point.
+/// Find the topmost node that contains the given point.
+///
+/// `LayoutResult` carries no z, so the array order is the only ordering there
+/// is, and `compute_layout` emits **post-order**: every child before the
+/// container that holds it, the root last. The innermost node containing the
+/// point is therefore the *first* match, and the last match is always the
+/// outermost container -- for a full-screen root, every on-screen point.
+///
+/// This used to take the last match, which meant that feeding
+/// `compute_layout`'s own output straight into `hit_test` returned the root
+/// background for every point on screen. The regression test at the bottom of
+/// `contracts_wbtest.mbt` pins the two halves together.
 pub fn hit_test(
   layouts : Array[LayoutResult],
   x : Double,
   y : Double,
 ) -> UINodeId? {
-  let mut result : UINodeId? = None
   for layout in layouts {
     if point_in_rect(layout.rect, x, y) {
-      result = Some(layout.node_id)
+      return Some(layout.node_id)
     }
   }
-  result
+  None
 }
 
 ///|
-/// Find all nodes that contain the given point (bottom-to-top order).
+/// Every node containing the point, innermost first -- the same order
+/// `hit_test` picks its answer from. A caller looking for "the deepest node
+/// that is focusable" takes the first match it likes.
 pub fn hit_test_all(
   layouts : Array[LayoutResult],
   x : Double,

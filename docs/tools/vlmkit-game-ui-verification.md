@@ -20,11 +20,13 @@
 | #10 | **完了** | `engine/ui/snapshot.mbt`（`UISnapshot` + `to_json`）、`snapshot_publish_js.mbt`（`__kaguraUISnapshot`）、`scripts/ui-snapshot-to-vlmkit-elements.mjs`、`examples/demos-2d/ui_demo` で実配線 |
 | #12 | **完了** | `scripts/ui-integrity-gate.mjs` + `ui-integrity-utils.mjs`（9 種の欠陥、`--allow` 監査付き）、`just ui-check` |
 | #18 | **一部** | `just ui-asset-check`（素材入庫ゲート）。テーマ/パレット突き合わせはトークン表の宣言が未 |
-| #8 | **一部** | 純黒 baseline 18 枚を削除。gating 化はキャプチャ（#9）待ち |
-| #9 #13 #14 #15 #16 #17 | 未着手 | native キャプチャ・状態マトリクス・i18n・操作性・VLM review・flipbook |
+| #9 | **完了（2D）** | CPU ラスタライザ（`engine/kagura_engine/raster`）+ `@engine.run` の headless 経路 + `lib/web/kagura-headless-frame.js` + `just render`。browser も GPU も Playwright も要らない。3D は native capture のまま |
+| #16 | **完了（2D UI）** | `scripts/vlm-ui-review.mjs` + `just vlm-ui-review`。決定的ゲート → VLM の順序を強制、`--compare` で修正の帰属確認 |
+| #8 | **一部** | 純黒 baseline 18 枚を削除。決定的なフレームは取れるようになったので gating 化の土台はできた |
+| #13 #14 #15 #17 | 未着手 | 状態マトリクスの全走査・i18n・操作性・flipbook |
 
-キャプチャ（#9）が入るまでは snapshot を手で取り出す必要があるが、
-**決定的ゲートはキャプチャ抜きで既に動く**（snapshot JSON だけで判定できる）。
+**2.2 で「リポジトリに入っている見た目の正解は実質存在しない」と書いた前提は解けた。**
+`just render ui_demo` は 6 色・980 三角形の実フレームを返す（当時の baseline は 1 色・純黒）。
 
 `dot_text_size` を `@renderer2d` の公開 API にして `append_dot_text` と共有した。
 overflow 判定は描画と同じ算術で測らないと嘘になるため。
@@ -261,6 +263,12 @@ $ vlmkit diff png frame-base.png frame-cur.png --elements-json ui-elements.json
 
 ### P0-2. 移植可能なフレームキャプチャ（native PNG capture の一般化）
 
+> **実装済み（別解）**: native への一般化ではなく、**CPU ラスタライザ**で解決した。
+> `@gfx.GraphicsDriver` を CPU で実装すれば、game が GPU に送るのと同じコマンド列を
+> そのまま `Array[Int]` に描ける。GPU も window も wgpu-native も要らないので、
+> native capture の一般化より移植性が高い。制約は 2D 限定（3D は深度とプロジェクションが要る）。
+> 詳細は `ui-verification-runbook.md` の 1.5。
+
 web の canvas capture と Linux Dawn readback は両方壊れている（2.1）。
 一方 native は PNG を直接書けている（2.6）。**ゲーム UI のキャプチャを native 経路に寄せる。**
 
@@ -333,6 +341,10 @@ vlmkit の `check integrity` が DOM でやっていることを、**engine 内�
 - フォーカスリングが実際にピクセル上で変化する（フレーム diff で確認）
 
 ### P2-2. UI 版 VLM review ループ
+
+> **実装済み**: `scripts/vlm-ui-review.mjs`。modeling ループの再利用ではなく、
+> `editor/` に依存しないよう `scripts/` 側に独立実装した（レイヤの向きの都合）。
+> provider 設定と env var（`OPENROUTER_API_KEY`）と構造化スキーマの形は揃えてある。
 
 2.6 の modeling ループをほぼそのまま再利用する。差分は入力バンドルと評価軸だけ。
 

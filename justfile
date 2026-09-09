@@ -108,6 +108,24 @@ ui-elements snapshot out="output/vlmkit-elements.json":
 ui-asset-check asset extra="":
     pnpm exec vlmkit check asset {{asset}} {{extra}}
 
+# Render one frame of an example directly: no browser, no GPU, no Playwright.
+# The engine's headless path runs the example's own update/draw and rasterizes
+# the command stream on the CPU, so this works on Linux CI where the canvas
+# capture is transparent and the Dawn readback never completes.
+#   just render ui_demo "--frames 3"
+#   just render ui_demo "--state hover --cursor 100,74"
+render example extra="":
+    node scripts/render-frame.mjs {{example}} {{extra}}
+
+# Visual review loop: render a frame, run the deterministic gates over it, then
+# ask a VLM only about what a gate cannot measure (legibility, contrast,
+# hierarchy, balance). `--dry-run` builds the request without calling the API;
+# `--compare <png>` attributes the change since a baseline frame to UI nodes.
+#   just vlm-ui-review ui_demo "--frames 3 --dry-run"
+#   OPENROUTER_API_KEY=... just vlm-ui-review ui_demo "--frames 3"
+vlm-ui-review example extra="":
+    node scripts/vlm-ui-review.mjs {{example}} {{extra}}
+
 native-vrt:
     cd examples/smoke/native_vrt && moon run src --target native
 

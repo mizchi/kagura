@@ -1,7 +1,7 @@
 import { expect, test } from "@playwright/test";
 
 // Pins the browser-side facts behind the wasm async driver
-// (lib/web/wasm-async-driver.mjs), which is otherwise only covered on Node's
+// (lib/web/kagura-wasm-driver.js), which is otherwise only covered on Node's
 // worker_threads.
 //
 // The design question this answers: a `moonbitlang/async` guest blocks the
@@ -45,11 +45,48 @@ test.describe("offscreen worker frame clock", () => {
     expect(probe.draws2d).toBeGreaterThan(0);
     expect(probe.workerDraws).toBe(probe.draws2d);
 
+    console.log(
+      `[offscreen-worker] main ${probe.main.fps}fps p50=${probe.main.p50IntervalMs}ms p95=${probe.main.p95IntervalMs}ms | ` +
+        `guest ${probe.worker.fps}fps p50=${probe.worker.p50IntervalMs}ms p95=${probe.worker.p95IntervalMs}ms | ` +
+        `serviced ${((probe.workerDraws / probe.mainFrames) * 100).toFixed(1)}%`,
+    );
+
+    // The guest keeps up with the clock. Relative, not an absolute fps: the
+    // headless frame rate is whatever the machine gives us. The few frames it
+    // misses are the ones that tick during the awaited WebGPU setup, before it
+    // is parked and listening.
+    expect(probe.workerDraws / probe.mainFrames).toBeGreaterThan(0.85);
+    // And no systematic stall: the wake latency should be noise next to a
+    // frame, not a frame of its own.
+    expect(probe.worker.p95IntervalMs).toBeLessThan(probe.main.p50IntervalMs * 2);
+
     // And the draws landed in the bitmap the worker owns. Gating on the
     // worker's own readback rather than a screenshot, for the same reason the
     // VRT does: headless Linux canvas screenshots come back transparent.
     expect(probe.readback.nonTransparentRatio).toBeGreaterThan(0.99);
     expect(probe.readback.greenRatio).toBeGreaterThan(0.99);
+  });
+
+  test("driving the guest does not cost the main thread frame rate", async ({ page }) => {
+    // Same rAF loop with and without the worker, so the handshake's cost shows
+    // up as a difference rather than an absolute number.
+    const run = async (mode: string) => {
+      await page.goto(`/e2e/fixtures/offscreen-worker-probe.html?mode=${mode}&durationMs=1200`);
+      await page.waitForFunction(() => globalThis.__probe != null, null, { timeout: 20_000 });
+      return await page.evaluate(() => (globalThis.__probe as any).main);
+    };
+
+    const baseline = await run("baseline");
+    const driving = await run("worker");
+    console.log(
+      `[offscreen-worker] main-thread fps baseline=${baseline.fps} driving=${driving.fps} ` +
+        `(p95 ${baseline.p95IntervalMs}ms -> ${driving.p95IntervalMs}ms)`,
+    );
+
+    expect(baseline.fps).toBeGreaterThan(0);
+    // Measured at 1.000 on headless Chromium (5x1500ms). The margin is for
+    // slower machines, not for an expected regression.
+    expect(driving.fps / baseline.fps).toBeGreaterThan(0.8);
   });
 
   test("WebGPU acquired before blocking still submits from the blocked worker", async ({ page }) => {

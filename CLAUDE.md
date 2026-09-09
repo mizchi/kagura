@@ -97,11 +97,11 @@ URL パラメータでゲームステートを制御し、目視確認と VRT �
 wasm1 の async は「WASI 相当の POSIX ホスト」を前提にしており、ゲストは 48 個の
 import（epoll 風 event bus / thread pool / fd / errno / signal / os string）を
 要求する。ただしタイマだけを動かすなら実装が要るのは 7 個だけで、残りは型の合った
-ゼロを返せばよい。実装は `lib/web/wasm-async-host.mjs`、動く例は
+ゼロを返せばよい。実装は `lib/web/kagura-wasm-host.js`、動く例は
 `examples/smoke/wasm_async_smoke/`。
 
 ```bash
-just wasm-async-smoke   # ビルド + 最小 JS ホストで実行
+just wasm-host-smoke   # ビルド + 最小 JS ホストで実行
 ```
 
 **ホスト実装で踏みやすい落とし穴:**
@@ -131,14 +131,19 @@ rAF 発火
   Atomics.notify                            ゲストのタイマが進む
 ```
 
-- worker 側: `lib/web/wasm-async-worker.mjs`（`makeFrameAwareWait`）
-- main 側: `lib/web/wasm-async-driver.mjs`（node は `runInWorker`、
-  ブラウザは `createBrowserFrameSource`）
+API は他の `lib/web/kagura-*.js` と同じ規約（`create*` / `install*` / 動詞始まり、
+名前付き export）:
+
+| ファイル | export |
+|---|---|
+| `kagura-wasm-host.js` | `createWasmHost(bytes, opts)` → `{imports, bind, stats}` / `runWasm(bytes, opts)` |
+| `kagura-wasm-worker.js` | `createFrameWait(control, opts)` / `runWasmWithFrameClock(bytes, control, opts)` / `FRAME_SLOT` `STOP_SLOT` `CONTROL_LENGTH` |
+| `kagura-wasm-driver.js` | `createFrameControl()` / `tickFrame(control)` / `stopFrames(control)` / `installBrowserFrameClock(control)` / `runWasmInWorker(bytes, opts)` |
 - ゲストは `kagura_web.frame_number` でカウンタを読む。フレーム源が無いときは
   0 のままなので、**同じバイナリが worker あり／なしの両方で終了する**
 
 ```bash
-just wasm-async-smoke   # 単体ホストと worker + フレームクロックの両方を実行
+just wasm-host-smoke   # 単体ホストと worker + フレームクロックの両方を実行
 ```
 
 実測（`examples/smoke/wasm_async_smoke`）:
@@ -148,7 +153,7 @@ just wasm-async-smoke   # 単体ホストと worker + フレームクロック�
 | 単体ホスト（フレーム源なし） | 0 | 127 | 536ms |
 | worker + 8ms フレームクロック | 5 | 25 | 147ms |
 
-node の `worker_threads` 経路は `lib/web/wasm-async-driver.test.mjs` が、
+node の `worker_threads` 経路は `lib/web/kagura-wasm-driver.test.mjs` が、
 ブラウザ側の前提は `e2e/offscreen_worker.spec.ts` が固定している。
 
 ### ブラウザでの実測（Chromium, OffscreenCanvas）
@@ -164,6 +169,19 @@ pnpm e2e:offscreen   # 既定の CI には入っていない。手動 or 追加�
 | ブロック中の Worker をメイン rAF + `Atomics.notify` で駆動できるか | **できる**（main 40 → worker 37 draw） |
 | OffscreenCanvas への 2D 描画は届くか | **届く**（worker 自身の readback で全面一致） |
 | ブロック中の Worker から WebGPU を submit できるか | **37 回成功、エラーなし** |
+
+### フレームレート（headless Chromium, 5 回 x 1500ms の中央値）
+
+| | fps | p50 | p95 |
+|---|---|---|---|
+| メインスレッド（worker なし） | 60.0 | 16.66ms | 16.67ms |
+| メインスレッド（worker 駆動中） | 60.0 | 16.66ms | 16.67ms |
+| ゲスト（worker 内の描画） | 60.0 | 16.66ms | 16.8-16.9ms |
+
+**メインスレッドは劣化しない**（比 1.000、パーセンタイルも一致）。ゲストも 60fps を
+維持し、駆動されたフレームの **96.8-97.8% を処理**する。取りこぼす数フレームは
+WebGPU の await 中に進んだ分で、ゲストがまだパークしていない起動窓のもの。
+ゲストの p95 がわずかに高い（+0.1〜0.2ms）のが Atomics の起床レイテンシ。
 
 **順序の制約:** `requestAdapter` / `requestDevice` は Promise なので**ブロック開始前に
 完了させる**こと。パーク後はマイクロタスクが回らない。フレーム内の描画

@@ -64,6 +64,7 @@ self.onmessage = async (event) => {
   let draws2d = 0;
   let drawsGpu = 0;
   let gpuError = null;
+  const drawTimes = [];
   const startedAt = Date.now();
   while (Date.now() - startedAt < durationMs) {
     // Wait on the value we just read, so a frame landing between the load and
@@ -71,6 +72,7 @@ self.onmessage = async (event) => {
     const seen = Atomics.load(control, 0);
     Atomics.wait(control, 0, seen, 200);
 
+    drawTimes.push(performance.now());
     ctx2d.fillStyle = "#20c060";
     ctx2d.fillRect(0, 0, canvas2d.width, canvas2d.height);
     draws2d += 1;
@@ -113,6 +115,21 @@ self.onmessage = async (event) => {
   }
   const pixels = data.length / 4;
 
+  // Same summary shape the page computes for the main thread, so the two frame
+  // rates are directly comparable.
+  const intervals = [];
+  for (let i = 1; i < drawTimes.length; i++) intervals.push(drawTimes[i] - drawTimes[i - 1]);
+  intervals.sort((a, b) => a - b);
+  const spanMs = drawTimes.length > 1 ? drawTimes.at(-1) - drawTimes[0] : 0;
+  const at = (p) => intervals[Math.min(intervals.length - 1, Math.floor(intervals.length * p))];
+  const worker = {
+    frames: drawTimes.length,
+    elapsedMs: Math.round(spanMs),
+    fps: intervals.length > 0 ? +(intervals.length / (spanMs / 1000)).toFixed(1) : 0,
+    p50IntervalMs: intervals.length > 0 ? +at(0.5).toFixed(2) : 0,
+    p95IntervalMs: intervals.length > 0 ? +at(0.95).toFixed(2) : 0,
+  };
+
   self.postMessage({
     type: "done",
     caps,
@@ -123,6 +140,7 @@ self.onmessage = async (event) => {
     draws2d,
     drawsGpu,
     gpuError,
+    worker,
     readback: {
       nonTransparentRatio: nonTransparent / pixels,
       greenRatio: greenish / pixels,

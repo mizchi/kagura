@@ -230,6 +230,39 @@ headless Linux では canvas screenshot が透明になるので、ピクセル�
 **worker 自身の `getImageData` readback** で行っている（VRT が in-page readback を
 使っているのと同じ理由）。
 
+### `kagura_web` の per-element ABI を bulk 転送にする案（実測の結果、見送り）
+
+`gfx_draw_vertex(offset, x, y, u, v)` は頂点ごと、`gfx_upload_texture_pixel` は
+ピクセルごとの import 呼び出しになっている。呼び出しコストは実測 **~27ns**：
+
+| | 呼び出し数 | コスト | 120fps budget 比 |
+|---|---|---|---|
+| 5,000 頂点 + 7,500 index | 12,500 | 0.34 ms | 4% |
+| 20,000 頂点 + 30,000 index | 50,000 | 1.35 ms | 16% |
+| 256x256 テクスチャ | 65,536 | 1.77 ms | 21% |
+
+一括転送に置き換えて実装・e2e 通過まで確認したが、**A/B で速くならなかったので
+差し戻した**。リリースビルドで 5,000 頂点 180us → 289us、20,000 頂点 758us → 1143us と
+むしろ遅い。理由は**ゲスト側の repack**：`@gfx.DrawTrianglesCommand` は
+`Array[Double]` を持つので、ホストに渡すには `FixedArray` へ 4N 要素コピーする必要が
+あり、そのコストが削減した呼び出しコストと相殺する（20,000 頂点で 80,000 回の
+境界チェック付きコピー）。
+
+やるなら repack を消すしかないが、道は 2 つとも塞がっている:
+
+- `Array[Double]` を直接渡すと、ホストは **offset +32** にデータを見つける。未文書の
+  内部レイアウトで、アロケーション順の偶然である可能性がある。依存すべきでない
+- `@gfx.DrawTrianglesCommand` が `FixedArray` を持つよう変える必要があるが、
+  `mizchi/gfx` は外部パッケージ
+
+**wasm-gc では原理的に不可能**なことも分かった。wasm-gc の `FixedArray` は GC 参照で
+リニアメモリ上に住所を持たないので、ホストが `memory.buffer` から読む方法が無い。
+一括転送はリニアメモリを持つ wasm1 専用の話になる。
+
+FFI で `FixedArray` を渡す方法自体は動く（`#unsafe_skip_stub_check` +
+`#borrow(a, b)`）。ホストはデータ先頭への直接ポインタを受け取り（ヘッダなし）、
+`memory` は既定でエクスポートされる。別の用途では使える。
+
 ## 注意事項
 
 - `cc-link-flags` は依存パッケージから伝播しない。native ビルドする example では個別に `-lglfw` 等を指定する必要がある

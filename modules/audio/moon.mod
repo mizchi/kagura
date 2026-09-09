@@ -11,5 +11,5 @@ license = "Apache-2.0"
 warnings = "-6-29-53-68"
 
 import {
-  "mizchi/audio@0.1.0",
+  "mizchi/audio@0.1.1",
 }

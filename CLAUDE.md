@@ -20,6 +20,20 @@
 
 **リリース前には `just check-release` でローカルパス依存がないことを確認すること。**
 
+### バージョンの天井
+
+`moon.mod` の `@x.y.z` は**範囲ではなく完全一致**で、解決されるのは
+依存グラフ全体で要求された中の最大値。だから一箇所の bump が推移的に
+別のパッケージを引き上げ、そこで壊れることがある。
+
+| 止めている pin | 理由 |
+|---|---|
+| `mizchi/font@0.7.3`（0.7.4 が最新） | 0.7.4 が `moonbitlang/x@0.4.50` を引く。0.4.50 で `@x/fs.IOError::to_string` が消えたが、`mizchi/parquet` が native 経路でまだ呼んでいる（`examples/games-3d/hacknslash_3d`）|
+
+parquet 側が x 0.4.50 に追従したら font の天井を外せる。上げるときは
+`moon check --deny-warn` を **js と native の両方**で回すこと。js だけだと
+`@x/fs` を使う経路がそもそもコンパイルされず素通りする。
+
 ## ビルド・テスト
 
 ```bash

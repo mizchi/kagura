@@ -11,7 +11,7 @@ license = "Apache-2.0"
 warnings = "-6-29-53-68"
 
 import {
-  "mizchi/svg@0.2.0",
+  "mizchi/svg@0.2.3",
   "mizchi/mesh3d@0.2.0",
   "mizchi/geom@0.2.0",
 }

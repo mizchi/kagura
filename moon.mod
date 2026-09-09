@@ -7,10 +7,10 @@ import {
   "mizchi/kagura_platform@0.1.0",
   "mizchi/kagura_engine@0.2.0",
   "mizchi/image@0.4.3",
-  "mizchi/font@0.7.0",
-  "mizchi/audio@0.1.0",
-  "mizchi/svg@0.2.0",
-  "mizchi/glfw@0.2.2",
+  "mizchi/font@0.7.3",
+  "mizchi/audio@0.1.1",
+  "mizchi/svg@0.2.3",
+  "mizchi/glfw@0.2.3",
   "mizchi/gfx@0.1.0",
 }
 

@@ -11,8 +11,8 @@ license = "Apache-2.0"
 warnings = "-6-29-53-68-deprecated"
 
 import {
-  "mizchi/font@0.7.0",
-  "mizchi/signals@0.6.3",
+  "mizchi/font@0.7.3",
+  "mizchi/signals@0.6.5",
   "mizchi/terrain@0.1.1",
   "mizchi/kagura_core@0.2.0",
   "mizchi/kagura_platform@0.1.0",

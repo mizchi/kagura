@@ -1,16 +1,21 @@
-// Stands in for a blocking wasm guest: parks on a shared counter and renders
-// on every wake, using only synchronous calls.
+// Stands in for a blocking wasm guest: parks in the shipped `createFrameWait`
+// -- the same wait the driver installs as the guest's `event_bus/wait` -- and
+// renders on every wake, using only synchronous calls.
 //
 // The point is what happens to this thread's own event loop while it is parked.
 // It registers a worker-side `requestAnimationFrame` first; if the loop were
 // free that would fire ~60x/sec. It never does, which is why the frame clock
 // has to come from another thread.
 
-self.onmessage = async (event) => {
+import { FRAME_SLOT, createFrameWait } from "/lib/web/kagura-wasm-worker.js";
+import { summarizeIntervals } from "/lib/web/kagura-frame-stats.js";
+
+self.addEventListener("message", async (event) => {
   const message = event.data;
   if (message?.type !== "init") return;
 
   const control = new Int32Array(message.control);
+  const wait = createFrameWait(control, { maxWaitMs: 200 });
   const canvas2d = message.canvas2d;
   const canvasGpu = message.canvasGpu;
   const durationMs = message.durationMs ?? 600;
@@ -66,11 +71,14 @@ self.onmessage = async (event) => {
   let gpuError = null;
   const drawTimes = [];
   const startedAt = Date.now();
+  let lastCounter = Atomics.load(control, FRAME_SLOT);
   while (Date.now() - startedAt < durationMs) {
-    // Wait on the value we just read, so a frame landing between the load and
-    // the wait returns immediately instead of being missed.
-    const seen = Atomics.load(control, 0);
-    Atomics.wait(control, 0, seen, 200);
+    wait(200);
+    // A wake is not a frame: the wait also returns on its own timeout. Only
+    // count the ones where the counter actually moved.
+    const counter = Atomics.load(control, FRAME_SLOT);
+    if (counter === lastCounter) continue;
+    lastCounter = counter;
 
     drawTimes.push(performance.now());
     ctx2d.fillStyle = "#20c060";
@@ -100,7 +108,6 @@ self.onmessage = async (event) => {
       }
     }
 
-    Atomics.store(control, 1, draws2d);
   }
 
   // Read our own bitmap back rather than trusting a screenshot: the repo's VRT
@@ -115,20 +122,9 @@ self.onmessage = async (event) => {
   }
   const pixels = data.length / 4;
 
-  // Same summary shape the page computes for the main thread, so the two frame
-  // rates are directly comparable.
-  const intervals = [];
-  for (let i = 1; i < drawTimes.length; i++) intervals.push(drawTimes[i] - drawTimes[i - 1]);
-  intervals.sort((a, b) => a - b);
-  const spanMs = drawTimes.length > 1 ? drawTimes.at(-1) - drawTimes[0] : 0;
-  const at = (p) => intervals[Math.min(intervals.length - 1, Math.floor(intervals.length * p))];
-  const worker = {
-    frames: drawTimes.length,
-    elapsedMs: Math.round(spanMs),
-    fps: intervals.length > 0 ? +(intervals.length / (spanMs / 1000)).toFixed(1) : 0,
-    p50IntervalMs: intervals.length > 0 ? +at(0.5).toFixed(2) : 0,
-    p95IntervalMs: intervals.length > 0 ? +at(0.95).toFixed(2) : 0,
-  };
+  // Same summary function the page uses for the main thread, so the two frame
+  // rates are computed identically and can be compared.
+  const worker = summarizeIntervals(drawTimes);
 
   self.postMessage({
     type: "done",
@@ -146,4 +142,4 @@ self.onmessage = async (event) => {
       greenRatio: greenish / pixels,
     },
   });
-};
+});

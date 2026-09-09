@@ -139,6 +139,11 @@ API は他の `lib/web/kagura-*.js` と同じ規約（`create*` / `install*` / �
 | `kagura-wasm-host.js` | `createWasmHost(bytes, opts)` → `{imports, bind, stats}` / `runWasm(bytes, opts)` |
 | `kagura-wasm-worker.js` | `createFrameWait(control, opts)` / `runWasmWithFrameClock(bytes, control, opts)` / `FRAME_SLOT` `STOP_SLOT` `CONTROL_LENGTH` |
 | `kagura-wasm-driver.js` | `createFrameControl()` / `tickFrame(control)` / `stopFrames(control)` / `installBrowserFrameClock(control)` / `runWasmInWorker(bytes, opts)` |
+| `kagura-frame-stats.js` | `percentile(values, p)` / `summarizeIntervals(timestampsMs)` |
+
+ブラウザから import されるので、**`node:` 名前空間は Node と判定できたときだけ触る**こと。
+ブラウザは `node:worker_threads` を URL として fetch しに行き、module worker が
+まるごと死ぬ（try/catch では防げない。fetch 自体が起きる）。
 - ゲストは `kagura_web.frame_number` でカウンタを読む。フレーム源が無いときは
   0 のままなので、**同じバイナリが worker あり／なしの両方で終了する**
 
@@ -182,6 +187,31 @@ pnpm e2e:offscreen   # 既定の CI には入っていない。手動 or 追加�
 維持し、駆動されたフレームの **96.8-97.8% を処理**する。取りこぼす数フレームは
 WebGPU の await 中に進んだ分で、ゲストがまだパークしていない起動窓のもの。
 ゲストの p95 がわずかに高い（+0.1〜0.2ms）のが Atomics の起床レイテンシ。
+
+### ハンドシェイクのベンチ
+
+```bash
+just bench-frame-clock          # 60/120/240/480Hz、同期処理あり/なし
+just bench-frame-clock --json   # 機械可読
+```
+
+駆動レートを直接指定して、実際に出荷している `createFrameWait` を叩く（コピーではない）。
+レポート専用でゲートにしていないのは、起床レイテンシにスケジューラ由来の外れ値が出るため。
+
+| 駆動 | budget | 処理率 | 起床レイテンシ p50/p95 |
+|---|---|---|---|
+| 60Hz | 16.67ms | 97-99% | 100/160 us |
+| **120Hz** | **8.33ms** | **99%** | **91/149 us** |
+| 240Hz | 4.17ms | 99% | 77/131 us |
+| 480Hz | 2.08ms | 99% | 68/129 us |
+
+**起床レイテンシは駆動レートによらずほぼ一定**（60-120us）。120Hz の 8.33ms budget に
+対して **1.1%**。8.33ms のうち 6ms を同期処理で埋めても処理率 99% を維持する。
+120fps は余裕で、天井はもっと上（480Hz でも追従）。
+
+計測上の注意: **wake はフレームと同じではない**。`Atomics.wait` は自前のタイムアウトでも
+返るので、共有カウンタの前進を見ないとタイムアウトをフレーム処理と誤カウントし、
+レイテンシに 50ms の外れ値が出る（初版のベンチがこれで嘘をついた）。
 
 **順序の制約:** `requestAdapter` / `requestDevice` は Promise なので**ブロック開始前に
 完了させる**こと。パーク後はマイクロタスクが回らない。フレーム内の描画

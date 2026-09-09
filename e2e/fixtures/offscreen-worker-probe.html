@@ -9,58 +9,44 @@
 <canvas id="cgpu" width="128" height="64"></canvas>
 <script type="module">
   // Main thread keeps the frame clock; the worker keeps a blocking loop. They
-  // meet on a shared Int32Array: [0] = frame counter, [1] = draws the worker
-  // has completed. This mirrors lib/web/kagura-wasm-driver.js.
+  // meet through the shipped handshake -- `createFrameControl` / `tickFrame`
+  // from lib/web/kagura-wasm-driver.js -- rather than a copy of it, so this
+  // page exercises the code the driver actually uses.
   //
   // ?mode=baseline runs the same rAF loop with no worker at all, so the cost of
   // the handshake can be read off as a difference rather than an absolute.
+  import { createFrameControl, tickFrame } from "/lib/web/kagura-wasm-driver.js";
+  import { summarizeIntervals } from "/lib/web/kagura-frame-stats.js";
+
   const params = new URLSearchParams(location.search);
   const mode = params.get("mode") ?? "worker";
   const durationMs = Number(params.get("durationMs") ?? 1500);
 
-  const percentile = (sorted, p) => sorted[Math.min(sorted.length - 1, Math.floor(sorted.length * p))];
-
   const frameTimes = [];
-  let finished = null;
-
-  const summarize = () => {
-    const intervals = [];
-    for (let i = 1; i < frameTimes.length; i++) intervals.push(frameTimes[i] - frameTimes[i - 1]);
-    intervals.sort((a, b) => a - b);
-    const elapsed = frameTimes.at(-1) - frameTimes[0];
-    return {
-      frames: frameTimes.length,
-      elapsedMs: Math.round(elapsed),
-      fps: intervals.length > 0 ? +(intervals.length / (elapsed / 1000)).toFixed(1) : 0,
-      p50IntervalMs: intervals.length > 0 ? +percentile(intervals, 0.5).toFixed(2) : 0,
-      p95IntervalMs: intervals.length > 0 ? +percentile(intervals, 0.95).toFixed(2) : 0,
-    };
-  };
 
   if (mode === "baseline") {
     const startedAt = performance.now();
     const step = (now) => {
       frameTimes.push(now);
       if (performance.now() - startedAt < durationMs) requestAnimationFrame(step);
-      else globalThis.__probe = { type: "done", mode, main: summarize() };
+      else globalThis.__probe = { type: "done", mode, main: summarizeIntervals(frameTimes) };
     };
     requestAnimationFrame(step);
   } else {
     const canvas2d = document.getElementById("c2d").transferControlToOffscreen();
     const canvasGpu = document.getElementById("cgpu").transferControlToOffscreen();
-    const control = new Int32Array(new SharedArrayBuffer(8));
+    const control = createFrameControl();
 
-    const worker = new Worker("./offscreen-worker-probe-worker.js");
+    // A module worker, so it can import the same handshake helpers.
+    const worker = new Worker("./offscreen-worker-probe-worker.js", { type: "module" });
     worker.onmessage = (event) => {
       if (event.data?.type !== "done") return;
-      finished = {
+      globalThis.__probe = {
         ...event.data,
         mode,
-        main: summarize(),
-        mainFrames: Atomics.load(control, 0),
-        workerDraws: Atomics.load(control, 1),
+        main: summarizeIntervals(frameTimes),
+        mainFrames: frameTimes.length,
       };
-      globalThis.__probe = finished;
     };
     worker.onerror = (event) => {
       globalThis.__probe = { type: "error", message: String(event.message ?? event) };
@@ -73,8 +59,7 @@
 
     const step = (now) => {
       frameTimes.push(now);
-      Atomics.add(control, 0, 1);
-      Atomics.notify(control, 0);
+      tickFrame(control);
       if (globalThis.__probe == null) requestAnimationFrame(step);
     };
     requestAnimationFrame(step);

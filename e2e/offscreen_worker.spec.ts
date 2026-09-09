@@ -43,19 +43,18 @@ test.describe("offscreen worker frame clock", () => {
     // The main thread's rAF reached the parked worker through Atomics.
     expect(probe.mainFrames).toBeGreaterThan(0);
     expect(probe.draws2d).toBeGreaterThan(0);
-    expect(probe.workerDraws).toBe(probe.draws2d);
 
     console.log(
       `[offscreen-worker] main ${probe.main.fps}fps p50=${probe.main.p50IntervalMs}ms p95=${probe.main.p95IntervalMs}ms | ` +
         `guest ${probe.worker.fps}fps p50=${probe.worker.p50IntervalMs}ms p95=${probe.worker.p95IntervalMs}ms | ` +
-        `serviced ${((probe.workerDraws / probe.mainFrames) * 100).toFixed(1)}%`,
+        `serviced ${((probe.draws2d / probe.mainFrames) * 100).toFixed(1)}%`,
     );
 
     // The guest keeps up with the clock. Relative, not an absolute fps: the
     // headless frame rate is whatever the machine gives us. The few frames it
     // misses are the ones that tick during the awaited WebGPU setup, before it
     // is parked and listening.
-    expect(probe.workerDraws / probe.mainFrames).toBeGreaterThan(0.85);
+    expect(probe.draws2d / probe.mainFrames).toBeGreaterThan(0.85);
     // And no systematic stall: the wake latency should be noise next to a
     // frame, not a frame of its own.
     expect(probe.worker.p95IntervalMs).toBeLessThan(probe.main.p50IntervalMs * 2);

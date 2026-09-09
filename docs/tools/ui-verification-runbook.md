@@ -60,7 +60,7 @@ no-op のスタブを置く（`supported-targets` だけでは不十分）。
 ### native ターゲット
 
 native は browser global が無いので、フレーム PNG と context JSON をファイルに書く。
-この経路は `modules/engine/kagura_engine/capture` にあり（以前は 3D authoring example に
+この経路は `engine/kagura_engine/capture` にあり（以前は 3D authoring example に
 private だった）、web の canvas capture と Linux Dawn readback が両方使えない現状では
 **これが移植可能な唯一のキャプチャ経路**。
 

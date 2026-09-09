@@ -4,7 +4,7 @@
  * Stage the capture config an example reads before a native capture run.
  *
  * The example looks for `kagura_native_capture_config.txt` in its own directory
- * (see `modules/engine/kagura_engine/capture`) and writes the frame PNG, the
+ * (see `engine/kagura_engine/capture`) and writes the frame PNG, the
  * machine-readable context and a summary to the paths it names. Absolute paths,
  * because the example runs with its own directory as the working directory.
  */

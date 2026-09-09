@@ -28,6 +28,6 @@ fetch → Raw Bytes → callback → Decoded Data → GPU upload → GPU Resourc
 
 ## 関連コード
 
-- `modules/engine/asset_loader/streamer.mbt` — AssetStreamer, eviction, Delivered state（`mizchi/kagura_asset_loader`、kagura_engine から抽出済み）
+- `engine/asset_loader/streamer.mbt` — AssetStreamer, eviction, Delivered state（`mizchi/kagura_asset_loader`、kagura_engine から抽出済み）
 - `src/asset/contracts.mbt` — AssetKey, ImageSpec, Repository types
-- `modules/engine/asset_loader/stream_manager.mbt` — priority queue, concurrent fetch
+- `engine/asset_loader/stream_manager.mbt` — priority queue, concurrent fetch

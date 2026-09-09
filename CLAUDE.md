@@ -3,14 +3,14 @@
 ## プロジェクト構成
 
 - `src/` - 公開ファサード（`mizchi/kagura`）
-- `modules/<layer>/<name>/` - ライブラリ本体。各ディレクトリが独立した moon module で、
-  `moon.work` のメンバー
+- `<layer>/<name>/` - ライブラリ本体。各ディレクトリが独立した moon module で、
+  `moon.work` のメンバー。layer は下表の 5 つ
 - `examples/<category>/<name>/` - サンプルプロジェクト（各ディレクトリが独立した moon プロジェクト）
   - カテゴリ: `games-2d`, `games-3d`, `rendering`, `physics`, `ui`, `ecs`, `smoke`, `experimental`
 - `scripts/` - ビルド・開発スクリプト
 - `justfile` - タスクランナー
 
-### modules のレイヤ
+### レイヤ
 
 | layer | 中身 | モジュール |
 |---|---|---|
@@ -25,15 +25,16 @@
 実際の許可リストは `scripts/moon-boundary-utils.mjs` の `DEFAULT_IMPORT_BOUNDARY_POLICY`
 にあり、`just check-release` が `moon.pkg` の import を突き合わせる。
 
-ディレクトリ名は publish 名と一致しないことがある（`modules/engine/ui` = `mizchi/kagura_ui`）。
+ディレクトリ名は publish 名と一致しないことがある（`engine/ui` = `mizchi/kagura_ui`）。
 **正はいつも `moon.mod` の `name`** で、ディレクトリはただの置き場所。
 
 モジュールを移動したら、パスを持っている次の場所も一緒に直すこと。
-`grep -rn modules/` だけだと**深さが変わる相対パス**と**セグメント分割された literal**を
-取りこぼす（`resolve(cwd, "tools", "modeling3d")` のような形）。
+素朴な grep では 3 種類を取りこぼす: **深さが変わる相対パス**、**セグメント分割された
+literal**（`resolve(cwd, "editor", "modeling3d")`）、**正規表現リテラル内のエスケープ済み
+パス**（``/`editor\/modeling3d\/…`/``）。
 
 - `moon.work` — ルート、各 example、各 editor tool とその example
-- `moon.mod` の `--moonbit-unstable-prebuild` — 階層が深くなった分 `../` を足す
+- `moon.mod` の `--moonbit-unstable-prebuild` — 階層が変わった分 `../` を増減する
 - `scripts/moon-release-utils.mjs` の `DEFAULT_RELEASE_MODULE_DIRS`
 - `scripts/publish.sh` の `MODULES`（publish 順。トポロジカル順を保つ）
 - `justfile` の example ループ

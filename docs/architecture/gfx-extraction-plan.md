@@ -4,10 +4,10 @@
 > 実施されなかった。実際には `gfx` は `mizchi/gfx` として独立の外部パッケージに切り出し済み
 > （このドキュメントとは別の経緯で、命名も `gfx_core` ではなく `gfx`）。また「`platform` は
 > kagura_engine 内に残す」としていた前提も崩れており、`platform` 自体が
-> `modules/platform/kagura_platform/`（`mizchi/kagura_platform`）として kagura_engine から抽出済み。
+> `platform/kagura_platform/`（`mizchi/kagura_platform`）として kagura_engine から抽出済み。
 > 以下の Phase 分割・進捗チェックリストは実行されなかった計画として参考用に残す。
 
-`modules/engine/kagura_engine/src/gfx/` を独立 moon module `modules/gfx_core/` に分離し、
+`engine/kagura_engine/src/gfx/` を独立 moon module `modules/gfx_core/` に分離し、
 最終的には kagura 抜きでも利用可能な形にするための段階的計画。
 
 ## 現状

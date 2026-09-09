@@ -21,8 +21,8 @@ import {
 const ROOT = resolve(import.meta.dirname, "..");
 const SITE = join(ROOT, "_site");
 const CACHE_BUST = resolveCacheBust();
-const EFFECT_STUDIO_EXAMPLES_ROOT = join(ROOT, "modules", "editor", "effect-studio", "examples");
-const MODELING_EXAMPLES_ROOT = join(ROOT, "modules", "editor", "modeling3d", "examples");
+const EFFECT_STUDIO_EXAMPLES_ROOT = join(ROOT, "editor", "effect-studio", "examples");
+const MODELING_EXAMPLES_ROOT = join(ROOT, "editor", "modeling3d", "examples");
 
 buildPages();
 

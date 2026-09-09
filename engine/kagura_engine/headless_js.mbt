@@ -89,6 +89,52 @@ extern "js" fn js_publish_headless_failure(reason : String) -> Unit =
   #| (reason) => { globalThis.__kaguraHeadlessError = reason; }
 
 ///|
+/// The source images the runtime hooks mirrored out while the game was loading
+/// its assets. See `publish_source_image_for_headless` in
+/// `platform/web_runtime_hooks`: the pixels cross on a global because the
+/// dependency order forbids a direct call.
+extern "js" fn js_headless_texture_count() -> Int =
+  #| () => (globalThis.__kaguraSourceImages?.length ?? 0)
+
+///|
+extern "js" fn js_headless_texture_field(index : Int, field : String) -> Int =
+  #| (index, field) => {
+  #|   const value = globalThis.__kaguraSourceImages?.[index]?.[field];
+  #|   return Number.isFinite(value) ? Math.floor(value) : 0;
+  #| }
+
+///|
+extern "js" fn js_headless_texture_pixels(index : Int) -> Bytes =
+  #| (index) => {
+  #|   const pixels = globalThis.__kaguraSourceImages?.[index]?.pixels;
+  #|   return pixels instanceof Uint8Array ? pixels : new Uint8Array(0);
+  #| }
+
+///|
+fn collect_headless_textures() -> Array[HeadlessTexture] {
+  let textures : Array[HeadlessTexture] = []
+  for index in 0..<js_headless_texture_count() {
+    let width = js_headless_texture_field(index, "width")
+    let height = js_headless_texture_field(index, "height")
+    let bytes = js_headless_texture_pixels(index)
+    if width <= 0 || height <= 0 || bytes.length() < width * height * 4 {
+      continue
+    }
+    let pixels : Array[Int] = []
+    for i in 0..<bytes.length() {
+      pixels.push(bytes[i].to_int())
+    }
+    textures.push({
+      id: js_headless_texture_field(index, "image_id"),
+      width,
+      height,
+      pixels,
+    })
+  }
+  textures
+}
+
+///|
 /// Returns true when a headless render was requested and has been published,
 /// meaning `run` must not start the interactive loop.
 fn try_run_headless(
@@ -118,6 +164,7 @@ fn try_run_headless(
     height=render_height,
     frames~,
     input~,
+    textures=collect_headless_textures(),
   )
   match headless_frame_png(frame) {
     Some(png) =>

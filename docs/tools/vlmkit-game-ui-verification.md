@@ -267,7 +267,8 @@ $ vlmkit diff png frame-base.png frame-cur.png --elements-json ui-elements.json
 > `@gfx.GraphicsDriver` を CPU で実装すれば、game が GPU に送るのと同じコマンド列を
 > そのまま `Array[Int]` に描ける。GPU も window も wgpu-native も要らないので、
 > native capture の一般化より移植性が高い。制約は 2D 限定（3D は深度とプロジェクションが要る）。
-> 詳細は `ui-verification-runbook.md` の 1.5。
+> アトラスのテクスチャも載る（hooks が headless の間だけ source image を global に
+> 出し、engine が rasterizer に登録する）。詳細は `ui-verification-runbook.md` の 1.5。
 
 web の canvas capture と Linux Dawn readback は両方壊れている（2.1）。
 一方 native は PNG を直接書けている（2.6）。**ゲーム UI のキャプチャを native 経路に寄せる。**

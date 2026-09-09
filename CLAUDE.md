@@ -104,7 +104,11 @@ just vlm-ui-review ui_demo "--dry-run"     # 決定的ゲート → その後だ
 
 - Linux の canvas screenshot が透明で Dawn readback も返らない問題を丸ごと迂回する
 - 描くのは **2D コマンドだけ**。3D は `skipped_commands` に数えて描かない（`just render` が警告する）
-- 未登録テクスチャは 1x1 白。アトラス経由のスプライトはベタ塗りになる
+- **テクスチャは載る。** `web_runtime_hooks` が同期した source image を headless の間だけ
+  `globalThis.__kaguraSourceImages` に出し、engine が拾って rasterizer に登録する
+  （`@gfx.GraphicsDriver` に upload が無く、platform は engine の下なので global を挟む）。
+  `just render` が `N texture(s)` を出す。**0 なのにアトラスを使う example は絵が欠けている**
+- 未登録の texture id は 1x1 白のまま（WebGPU の未バインドスロットと同じ）
 - Node 側ホストは `lib/web/kagura-headless-frame.js`。viewport スタブは
   **engine が解決した実サイズ**を返す（CSS サイズでカーソルをスケールする example がずれる）
 
@@ -143,9 +147,11 @@ CPU ラスタライザで描くので GPU もブラウザも要らず、**同じ
 
 - **3D を含むフレーム**（`skipped_commands > 0`）。シーンの欠落を baseline に焼き付けて
   永久に通るだけになる
-- **ほぼ単色のフレーム**。`sprite_anim` は全面 #fcfcfc になる。落ちない baseline は
-  カバレッジではない — 純黒 18 枚を抱えていた過去がその証拠。意図的なら
-  エントリに `allowUniform` で理由を書く
+- **ほぼ単色のフレーム**。落ちない baseline はカバレッジではない — 純黒 18 枚を
+  抱えていた過去がその証拠。意図的なら エントリに `allowUniform` で理由を書く。
+  現状これを使っているのは `sprite_anim` の 4 エントリだけで、アトラスの 1 セルを
+  全画面に描く example なので単色が正しく、**どの色か**がテクスチャ経路と
+  アニメーションの進みを固定している
 
 **`vlmkit diff png --threshold` の既定値 0.1 は使わないこと。** pixelmatch の知覚距離で、
 ブラウザのアンチエイリアス揺れを許すための値。実測: `ui_demo` の全ボタンを

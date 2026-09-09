@@ -190,7 +190,64 @@ fn set_source_image_cache_entry(next_entry : SourceImageCacheEntry) -> Unit {
     next.push(next_entry)
   }
   source_image_cache.val = next
+  publish_source_image_for_headless(next_entry)
 }
+
+///|
+/// Mirror a source image out to the headless frame renderer.
+///
+/// The CPU rasterizer that renders a frame without a GPU lives in
+/// `kagura_engine`, and it cannot reach these pixels directly: `platform/` sits
+/// below `engine/` in the dependency order, and `kagura_platform` has no
+/// texture seam because the real upload path runs from here straight to
+/// `__kaguraGfx`. So the pixels cross on a global, the same way `engine/ui`'s
+/// snapshot reaches the Node tooling.
+///
+/// Every register and patch lands here, so this is the one place that sees the
+/// final pixel state of an image whatever route produced it.
+fn publish_source_image_for_headless(entry : SourceImageCacheEntry) -> Unit {
+  if !js_headless_render_requested() {
+    return
+  }
+  let pixels : Array[Byte] = []
+  for channel in entry.pixels_rgba8 {
+    pixels.push(
+      if channel < 0 {
+        b'\x00'
+      } else if channel > 255 {
+        b'\xFF'
+      } else {
+        channel.to_byte()
+      },
+    )
+  }
+  js_publish_source_image(
+    entry.image_id,
+    entry.width,
+    entry.height,
+    Bytes::from_array(pixels),
+  )
+}
+
+///|
+/// True only while a headless frame render is in flight. A shipping page must
+/// not pay to mirror every atlas page into a JS object on every upload.
+extern "js" fn js_headless_render_requested() -> Bool =
+  #| () => globalThis.__kaguraHeadless != null
+
+///|
+extern "js" fn js_publish_source_image(
+  image_id : Int,
+  width : Int,
+  height : Int,
+  pixels : Bytes,
+) -> Unit =
+  #| (image_id, width, height, pixels) => {
+  #|   const images = (globalThis.__kaguraSourceImages ??= []);
+  #|   const entry = { image_id, width, height, pixels };
+  #|   const at = images.findIndex((image) => image.image_id === image_id);
+  #|   if (at < 0) images.push(entry); else images[at] = entry;
+  #| }
 
 ///|
 fn clear_source_image_cache() -> Unit {

@@ -199,11 +199,27 @@ test("the shipped manifest is well formed and free of duplicates", () => {
 
 test("the manifest excludes the examples the rasterizer cannot render honestly", () => {
   const names = new Set(FRAME_VRT_ENTRIES.map((entry) => entry.example));
-  // Its only geometry is one sprite quad sampling an unregistered texture, so
-  // the frame is 100% white -- the blank baseline this gate exists to reject.
-  assert.equal(names.has("sprite_anim"), false);
   // 3D: the CPU rasterizer skips those commands, so a baseline would pin an
   // empty scene and pass forever.
   assert.equal(names.has("particle_demo"), false);
   assert.equal(names.has("hacknslash_3d"), false);
+  // It publishes no frame at all: the image load happens before the engine runs.
+  assert.equal(names.has("fetch_image"), false);
+});
+
+test("every uniform entry states why it is allowed to be one color", () => {
+  for (const entry of normalizeEntries(FRAME_VRT_ENTRIES)) {
+    if (entry.allowUniform == null) continue;
+    assert.equal(typeof entry.allowUniform, "string");
+    assert.ok(entry.allowUniform.length > 20, `${entry.key}: give a real reason`);
+  }
+});
+
+test("the sprite_anim entries walk distinct cells rather than pinning one frame", () => {
+  const sprite = FRAME_VRT_ENTRIES.filter((entry) => entry.example === "sprite_anim");
+  assert.equal(sprite.length, 4);
+  // 15 ticks per cell, so the tick counts must land in four different cells.
+  const cells = sprite.map((entry) => Math.floor(entry.frames / 15));
+  assert.deepEqual(cells, [0, 1, 2, 3]);
+  assert.equal(new Set(sprite.map((entry) => entry.state)).size, 4);
 });

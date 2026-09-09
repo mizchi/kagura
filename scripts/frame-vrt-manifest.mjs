@@ -18,9 +18,6 @@
  * - 3D examples. The CPU rasterizer draws 2D commands only and counts the rest
  *   in `skipped_commands`; a baseline missing the whole scene is worse than no
  *   baseline. Those stay with `just capture` (native) or a real browser.
- * - `sprite_anim`. Its frame is a single sprite quad, and an atlas texture the
- *   rasterizer has not been handed samples as white -- the frame comes out
- *   100% `#fcfcfc`. Exactly the baseline this gate exists to reject.
  * - `fetch_image`. It loads its image before starting the engine, so a headless
  *   render publishes no frame at all.
  */
@@ -43,6 +40,18 @@ export const FRAME_VRT_ENTRIES = [
   { example: "physics2d_demo", frames: 30 },
   { example: "scene_demo", frames: 30 },
   { example: "ecs_demo", frames: 30 },
+
+  // The one place `allowUniform` is earned. This example draws a single atlas
+  // cell over the whole screen, so every frame really is one flat color -- but
+  // which color is the whole point: it pins the texture bridge from the runtime
+  // hooks, the UV split in `split_sprite_sheet`, and the animation clock. The
+  // clip runs 0.25s per cell at dt=1/60, so the cells change every 15 ticks.
+  ...["red", "green", "blue", "yellow"].map((cell, index) => ({
+    example: "sprite_anim",
+    state: cell,
+    frames: 5 + index * 15,
+    allowUniform: `one atlas cell drawn fullscreen; this entry pins that cell ${index} is ${cell}`,
+  })),
 
   { example: "card_game", frames: 30 },
   { example: "flappy_bird", frames: 30 },

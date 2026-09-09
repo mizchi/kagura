@@ -1,0 +1,15 @@
+members = [
+  ".",
+  "../../../engine/anim3d",
+  "../../../engine/atlas",
+  "../../../engine/audio",
+  "../../../core/geom",
+  "../../../core/kagura_core",
+  "../../../engine/kagura_engine",
+  "../../../game/machinations",
+  "../../../core/mesh3d",
+  "../../../platform/kagura_platform",
+  "../../../engine/renderer2d",
+  "../../../engine/text",
+  "../../../platform/web_runtime_hooks",
+]

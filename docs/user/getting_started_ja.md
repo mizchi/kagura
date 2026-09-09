@@ -62,7 +62,7 @@ just run-native native_triangle
 ### ディレクトリ構成
 
 ```
-examples/<category>/my_game/      # category: games-2d, games-3d, rendering, physics, ui, ecs, smoke, experimental
+examples/<category>/my_game/      # category: games, demos-2d, demos-3d, smoke, experimental
 ├── moon.mod.json
 └── src/
     ├── moon.pkg
@@ -84,8 +84,8 @@ examples/<category>/my_game/      # category: games-2d, games-3d, rendering, phy
     "mizchi/kagura_engine": { "path": "../../engine/kagura_engine" },
     "mizchi/kagura_game": { "path": "../../game/kagura_game" },
     "mizchi/signals": "0.6.3",
-    "mizchi/web_runtime_hooks": { "path": "../web_runtime_hooks" },
-    "mizchi/native_runtime_hooks": { "path": "../native_runtime_hooks" }
+    "mizchi/web_runtime_hooks": { "path": "../../../platform/web_runtime_hooks" },
+    "mizchi/native_runtime_hooks": { "path": "../../../platform/native_runtime_hooks" }
   },
   "--moonbit-unstable-prebuild": "../../scripts/moon-prebuild-native-link-flags.cjs"
 }

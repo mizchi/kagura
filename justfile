@@ -238,14 +238,14 @@ clean:
     for dir in examples/*/*/ editor/modeling3d/examples/*/ editor/effect-studio/examples/*/; do [ -d "$dir" ] && (cd "$dir" && moon clean); done
 
 balance name="playtest":
-    cd examples/games-3d/hacknslash_3d && moon run src/balance --target js 2>&1 | tee /dev/stderr | sed -n '/^=== CSV ===/,$ p' | tail -n +2 > data/hackslash/{{name}}.csv
-    @echo "Saved: examples/games-3d/hacknslash_3d/data/hackslash/{{name}}.csv"
+    cd examples/games/hacknslash_3d && moon run src/balance --target js 2>&1 | tee /dev/stderr | sed -n '/^=== CSV ===/,$ p' | tail -n +2 > data/hackslash/{{name}}.csv
+    @echo "Saved: examples/games/hacknslash_3d/data/hackslash/{{name}}.csv"
 
-balance-autoplay-record out_dir="examples/games-3d/hacknslash_3d/data/hackslash/autoplay_experiments":
-    node examples/games-3d/hacknslash_3d/scripts/balance_autoplay_record.mjs --out-dir {{out_dir}}
+balance-autoplay-record out_dir="examples/games/hacknslash_3d/data/hackslash/autoplay_experiments":
+    node examples/games/hacknslash_3d/scripts/balance_autoplay_record.mjs --out-dir {{out_dir}}
 
-balance-hypothesis-record out_dir="examples/games-3d/hacknslash_3d/data/hackslash/autoplay_hypothesis_experiments" extra="":
-    node examples/games-3d/hacknslash_3d/scripts/balance_hypothesis_record.mjs --out-dir {{out_dir}} {{extra}}
+balance-hypothesis-record out_dir="examples/games/hacknslash_3d/data/hackslash/autoplay_hypothesis_experiments" extra="":
+    node examples/games/hacknslash_3d/scripts/balance_hypothesis_record.mjs --out-dir {{out_dir}} {{extra}}
 
 # What the Atomics frame-clock handshake costs per frame, and how far above
 # 60Hz it holds up. Reporting only -- wake latency has scheduler outliers, so a

@@ -87,10 +87,10 @@ source manifest では `moon.work` 用の local `path` 依存を許可する。p
 
 - 補足:
   - `platform` / `gfx` は標準では stub hook を使う
-  - real native 初期化は `examples/smoke/native_runtime_hooks` から hook 注入して有効化する
-  - browser 側は `examples/smoke/web_runtime_hooks` から web hook 注入して有効化する
-  - `native_triangle` も `examples/smoke/native_runtime_hooks` の共通初期化 API を利用する
-  - `runtime_smoke(js)` は `examples/smoke/web_runtime_hooks` 経由で browser 導線を通す
+  - real native 初期化は `platform/native_runtime_hooks` から hook 注入して有効化する
+  - browser 側は `platform/web_runtime_hooks` から web hook 注入して有効化する
+  - `native_triangle` も `platform/native_runtime_hooks` の共通初期化 API を利用する
+  - `runtime_smoke(js)` は `platform/web_runtime_hooks` 経由で browser 導線を通す
 
 ## AI Boundary
 

@@ -88,8 +88,8 @@ fn update(input : @core.InputSnapshot) {
 
 ## 実コード参照
 
-- 最小 scene API: `examples/ecs/scene_demo/src/game.mbt`
-- 2D ゲーム: `examples/games-2d/flappy_bird/src/game.mbt`
-- 複合ゲーム: `examples/games-2d/survivor/src/game.mbt`
-- アクション RPG: `examples/games-2d/action_rpg/src/game.mbt`
-- Low-level 3D: `examples/games-3d/arena3d/src/game.mbt`
+- 最小 scene API: `examples/demos-2d/scene_demo/src/game.mbt`
+- 2D ゲーム: `examples/games/flappy_bird/src/game.mbt`
+- 複合ゲーム: `examples/games/survivor/src/game.mbt`
+- アクション RPG: `examples/games/action_rpg/src/game.mbt`
+- Low-level 3D: `examples/games/arena3d/src/game.mbt`

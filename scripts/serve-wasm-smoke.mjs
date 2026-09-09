@@ -1,18 +1,17 @@
 import { spawnSync } from "node:child_process";
 import { createServer } from "node:http";
-import { existsSync, readFileSync, readdirSync, statSync } from "node:fs";
+import { existsSync, readFileSync, statSync } from "node:fs";
 import { extname, join, normalize } from "node:path";
 import process from "node:process";
 
 import { resolveBuildArtifact } from "./moon-build-artifact-utils.mjs";
+import { EXAMPLE_ROOT, findExampleDir } from "./example-dirs.mjs";
 
 const ROOT = process.cwd();
 const HOST = "127.0.0.1";
 const PORT = Number.parseInt(process.env.PORT ?? "4173", 10);
-const EXAMPLE_ROOTS = [
-  join(ROOT, "examples"),
-  join(ROOT, "editor", "effect-studio", "examples"),
-];
+// The modeling3d authoring examples are deliberately not served here.
+const EXAMPLE_ROOTS = [EXAMPLE_ROOT.examples, EXAMPLE_ROOT.effectStudio];
 
 const CONTENT_TYPES = {
   ".html": "text/html; charset=utf-8",
@@ -30,21 +29,7 @@ const CONTENT_TYPES = {
   ".obj": "text/plain; charset=utf-8",
 };
 
-const isExampleDir = (dir) =>
-  existsSync(join(dir, "moon.mod.json")) || existsSync(join(dir, "moon.mod"));
-
-const resolveExampleDir = (name) => {
-  for (const root of EXAMPLE_ROOTS) {
-    if (!existsSync(root)) continue;
-    const direct = join(root, name);
-    if (isExampleDir(direct)) return direct;
-    for (const sub of readdirSync(root)) {
-      const nested = join(root, sub, name);
-      if (isExampleDir(nested)) return nested;
-    }
-  }
-  return null;
-};
+const resolveExampleDir = (name) => findExampleDir(name, EXAMPLE_ROOTS);
 
 const buildRuntimeSmoke = (target) => {
   const dir = resolveExampleDir("runtime_smoke");
@@ -147,12 +132,12 @@ const serveFile = (res, filePath, extraHeaders = {}) => {
 };
 
 const ASSET_EXAMPLES = {
-  action_rpg: [["assets/Tiny5-Regular.ttf", "/examples/games-2d/action_rpg/assets/Tiny5-Regular.ttf"]],
-  hacknslash_3d: [["assets/Tiny5-Regular.ttf", "/examples/games-3d/hacknslash_3d/assets/Tiny5-Regular.ttf"]],
-  fetch_image: [["assets/sample.png", "/examples/ui/fetch_image/assets/sample.png"]],
-  gltf_viewer: [["assets/test_scene.glb", "/examples/rendering/gltf_viewer/assets/test_scene.glb"]],
-  obj_viewer: [["assets/bunny.obj", "/examples/rendering/obj_viewer/assets/bunny.obj"]],
-  draw2d_ui_demo: [["assets/Tiny5-Regular.ttf", "/examples/ui/draw2d_ui_demo/assets/Tiny5-Regular.ttf"]],
+  action_rpg: [["assets/Tiny5-Regular.ttf", "/examples/games/action_rpg/assets/Tiny5-Regular.ttf"]],
+  hacknslash_3d: [["assets/Tiny5-Regular.ttf", "/examples/games/hacknslash_3d/assets/Tiny5-Regular.ttf"]],
+  fetch_image: [["assets/sample.png", "/examples/demos-2d/fetch_image/assets/sample.png"]],
+  gltf_viewer: [["assets/test_scene.glb", "/examples/demos-3d/gltf_viewer/assets/test_scene.glb"]],
+  obj_viewer: [["assets/bunny.obj", "/examples/demos-3d/obj_viewer/assets/bunny.obj"]],
+  draw2d_ui_demo: [["assets/Tiny5-Regular.ttf", "/examples/demos-2d/draw2d_ui_demo/assets/Tiny5-Regular.ttf"]],
 };
 
 const generateVrtHtml = (name) => {

@@ -6,7 +6,7 @@
 - `<layer>/<name>/` - ライブラリ本体。各ディレクトリが独立した moon module で、
   `moon.work` のメンバー。layer は下表の 5 つ
 - `examples/<category>/<name>/` - サンプルプロジェクト（各ディレクトリが独立した moon プロジェクト）
-  - カテゴリ: `games-2d`, `games-3d`, `rendering`, `physics`, `ui`, `ecs`, `smoke`, `experimental`
+  - カテゴリ: `games`（遊べるサンプル）, `demos-2d` / `demos-3d`（単機能デモ）, `smoke`（CI の最小確認）, `experimental`
 - `scripts/` - ビルド・開発スクリプト
 - `justfile` - タスクランナー
 
@@ -15,10 +15,14 @@
 | layer | 中身 | モジュール |
 |---|---|---|
 | `core/` | 外部依存ゼロ、または core 契約のみの基盤 | `kagura_core`, `geom`, `mesh3d` |
-| `platform/` | ターゲット固有の host / 窓口層 | `kagura_platform`, `js_runtime` |
+| `platform/` | ターゲット固有の host / 窓口層 | `kagura_platform`, `js_runtime`, `web_runtime_hooks`, `native_runtime_hooks` |
 | `engine/` | 描画・アセット・ランタイム基盤 | `kagura_engine`, `renderer2d`, `text`, `widget2d`, `ui`, `atlas`, `asset_loader`, `audio`, `anim3d`, `physics` |
 | `game/` | ゲーム側のロジック（描画基盤に依存してよい） | `kagura_game`, `machinations`, `pathfind` |
 | `editor/` | オーサリング／確認用ツール | `effect-studio`, `modeling3d` |
+
+`web_runtime_hooks` / `native_runtime_hooks` は host hook の実装（`kagura_platform` の
+注入先）で、ほぼ全ての example と editor tool が import する。publish 対象ではないが
+ルート `moon.work` のメンバーなので `moon check` の対象に入る。
 
 依存の向きは `core <- platform <- engine <- game` の一方通行。`editor/` はどれに依存しても
 よいが、**誰からも依存されない**（publish 対象外で、それぞれ自前の `moon.work` を持つ）。
@@ -61,7 +65,7 @@ literal**（`resolve(cwd, "editor", "modeling3d")`）、**正規表現リテラ�
 
 | 止めている pin | 理由 |
 |---|---|
-| `mizchi/font@0.7.3`（0.7.4 が最新） | 0.7.4 が `moonbitlang/x@0.4.50` を引く。0.4.50 で `@x/fs.IOError::to_string` が消えたが、`mizchi/parquet` が native 経路でまだ呼んでいる（`examples/games-3d/hacknslash_3d`）|
+| `mizchi/font@0.7.3`（0.7.4 が最新） | 0.7.4 が `moonbitlang/x@0.4.50` を引く。0.4.50 で `@x/fs.IOError::to_string` が消えたが、`mizchi/parquet` が native 経路でまだ呼んでいる（`examples/games/hacknslash_3d`）|
 
 parquet 側が x 0.4.50 に追従したら font の天井を外せる。上げるときは
 `moon check --deny-warn` を **js と native の両方**で回すこと。js だけだと
@@ -132,9 +136,14 @@ URL パラメータでゲームステートを制御し、目視確認と VRT �
 ### 新しい example に VRT を追加する手順
 
 1. `scripts/serve-wasm-smoke.mjs` の `VRT_EXAMPLES` に追加
-2. `e2e/vrt.spec.ts` の `VRT_EXAMPLES` に追加（タイトル画面）
+2. `e2e/vrt.spec.ts` の `VRT_EXAMPLES` に**名前だけ**追加（タイトル画面）。テスト名に
+   出るカテゴリは `examples/<category>/` から導出されるので、書くところは無い
 3. スナップショットモードが必要なら `SNAPSHOT_TESTS` にも追加
 4. `just e2e-vrt-update` でベースライン生成
+
+example のディレクトリ探索は `scripts/example-dirs.mjs` に一本化してある
+（`findExampleDir` / `findExampleCategory` / `listExampleNames`）。dev server、
+VRT server、spec がこれを共有するので、置き場所の規則はここだけ直せばよい。
 
 ## wasm ターゲットと moonbitlang/async
 

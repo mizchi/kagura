@@ -1,7 +1,7 @@
 members = [
   ".",
   "../..",
-  "../../../../examples/smoke/web_runtime_hooks",
+  "../../../../platform/web_runtime_hooks",
   "../../../../engine/anim3d",
   "../../../../engine/atlas",
   "../../../../engine/audio",

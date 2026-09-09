@@ -32,7 +32,7 @@ UI snapshot は「DOM の代わり」。ノード矩形・クリップ矩形・*
 `@ui.publish_ui_snapshot` を毎フレーム呼ぶと `globalThis.__kaguraUISnapshot` に
 `{ json, parsed }` が入る（`__kaguraModelingContext` と同じ形）。
 
-実装例: `examples/ui/ui_demo/src/snapshot.mbt` + `snapshot_js.mbt`
+実装例: `examples/demos-2d/ui_demo/src/snapshot.mbt` + `snapshot_js.mbt`
 
 ```moonbit
 // snapshot.mbt — 全ターゲット共通。DemoState から UISnapshot を組む

@@ -6,7 +6,7 @@
   "warn-list": "-6-29-53-68",
   "deps": {
     "mizchi/native_runtime_hooks": {
-      "path": "../../smoke/native_runtime_hooks"
+      "path": "../../../platform/native_runtime_hooks"
     },
     "mizchi/crater-renderer": {
       "path": "/Users/mz/ghq/github.com/mizchi/crater/renderer"

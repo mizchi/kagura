@@ -1,8 +1,9 @@
 import { createServer } from "vite";
 import { resolve, join } from "node:path";
-import { existsSync, readdirSync, readFileSync } from "node:fs";
+import { existsSync, readFileSync } from "node:fs";
 import { moonbit } from "vite-plugin-moonbit";
 import { resolveBuildArtifact } from "./moon-build-artifact-utils.mjs";
+import { EXAMPLE_ROOT, findExampleDir, listExampleNames } from "./example-dirs.mjs";
 import {
   detectFontEntries,
   renderDemoHtml,
@@ -12,9 +13,9 @@ import {
 
 const ROOT = resolve(import.meta.dirname, "..");
 const EXAMPLE_ROOTS = [
-  resolve(ROOT, "editor", "effect-studio", "examples"),
-  resolve(ROOT, "editor", "modeling3d", "examples"),
-  resolve(ROOT, "examples"),
+  EXAMPLE_ROOT.effectStudio,
+  EXAMPLE_ROOT.modeling3d,
+  EXAMPLE_ROOT.examples,
 ];
 const name = process.argv[2];
 if (!name) {
@@ -22,47 +23,11 @@ if (!name) {
   process.exit(1);
 }
 
-function isExampleDir(dir) {
-  return existsSync(join(dir, "moon.mod.json")) || existsSync(join(dir, "moon.mod"));
-}
-
-function findExampleDir(name) {
-  for (const root of EXAMPLE_ROOTS) {
-    if (!existsSync(root)) continue;
-    const direct = resolve(root, name);
-    if (isExampleDir(direct)) return direct;
-    for (const sub of readdirSync(root)) {
-      const nested = resolve(root, sub, name);
-      if (isExampleDir(nested)) return nested;
-    }
-  }
-  return null;
-}
-
-function listAvailableExamples() {
-  const available = new Set();
-  for (const root of EXAMPLE_ROOTS) {
-    if (!existsSync(root)) continue;
-    for (const d of readdirSync(root)) {
-      const dir = resolve(root, d);
-      if (isExampleDir(dir)) {
-        available.add(d);
-        continue;
-      }
-      if (!existsSync(dir)) continue;
-      for (const sub of readdirSync(dir)) {
-        if (isExampleDir(resolve(dir, sub))) available.add(sub);
-      }
-    }
-  }
-  return [...available].sort();
-}
-
-const exampleDir = findExampleDir(name);
+const exampleDir = findExampleDir(name, EXAMPLE_ROOTS);
 if (exampleDir == null) {
   console.error(`Error: example ${name} not found`);
   console.error("Available:");
-  for (const d of listAvailableExamples()) console.error(`  ${d}`);
+  for (const d of listExampleNames(EXAMPLE_ROOTS)) console.error(`  ${d}`);
   process.exit(1);
 }
 

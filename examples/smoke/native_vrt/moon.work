@@ -10,5 +10,5 @@ members = [
   "../../../platform/kagura_platform",
   "../../../engine/renderer2d",
   "../../../engine/text",
-  "../native_runtime_hooks",
+  "../../../platform/native_runtime_hooks",
 ]

@@ -18,4 +18,6 @@ members = [
   "./game/machinations",
   "./game/kagura_game",
   "./platform/js_runtime",
+  "./platform/web_runtime_hooks",
+  "./platform/native_runtime_hooks",
 ]

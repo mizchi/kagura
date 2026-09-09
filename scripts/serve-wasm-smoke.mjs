@@ -147,12 +147,12 @@ const serveFile = (res, filePath, extraHeaders = {}) => {
 };
 
 const ASSET_EXAMPLES = {
-  action_rpg: [["assets/Tiny5-Regular.ttf", "/examples/games-2d/action_rpg/assets/Tiny5-Regular.ttf"]],
-  hacknslash_3d: [["assets/Tiny5-Regular.ttf", "/examples/games-3d/hacknslash_3d/assets/Tiny5-Regular.ttf"]],
-  fetch_image: [["assets/sample.png", "/examples/ui/fetch_image/assets/sample.png"]],
-  gltf_viewer: [["assets/test_scene.glb", "/examples/rendering/gltf_viewer/assets/test_scene.glb"]],
-  obj_viewer: [["assets/bunny.obj", "/examples/rendering/obj_viewer/assets/bunny.obj"]],
-  draw2d_ui_demo: [["assets/Tiny5-Regular.ttf", "/examples/ui/draw2d_ui_demo/assets/Tiny5-Regular.ttf"]],
+  action_rpg: [["assets/Tiny5-Regular.ttf", "/examples/games/action_rpg/assets/Tiny5-Regular.ttf"]],
+  hacknslash_3d: [["assets/Tiny5-Regular.ttf", "/examples/games/hacknslash_3d/assets/Tiny5-Regular.ttf"]],
+  fetch_image: [["assets/sample.png", "/examples/demos-2d/fetch_image/assets/sample.png"]],
+  gltf_viewer: [["assets/test_scene.glb", "/examples/demos-3d/gltf_viewer/assets/test_scene.glb"]],
+  obj_viewer: [["assets/bunny.obj", "/examples/demos-3d/obj_viewer/assets/bunny.obj"]],
+  draw2d_ui_demo: [["assets/Tiny5-Regular.ttf", "/examples/demos-2d/draw2d_ui_demo/assets/Tiny5-Regular.ttf"]],
 };
 
 const generateVrtHtml = (name) => {

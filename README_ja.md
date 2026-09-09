@@ -76,7 +76,7 @@ just run-native native_triangle
 just run-native action_rpg
 
 # 手動で実行する場合は CPATH / LIBRARY_PATH の指定が必要
-cd examples/games-2d/action_rpg && \
+cd examples/games/action_rpg && \
   CPATH="$(brew --prefix glfw)/include:${CPATH:-}" \
   LIBRARY_PATH="$(brew --prefix)/lib:${LIBRARY_PATH:-}" \
   moon run src/ --target native

@@ -17,7 +17,7 @@
 | issue | 状況 | 実体 |
 |---|---|---|
 | #11 | **完了** | `@mizchi/vlmkit` を devDependency に追加、playwright を 1.62 に bump、`.mcp.json` |
-| #10 | **完了** | `engine/ui/snapshot.mbt`（`UISnapshot` + `to_json`）、`snapshot_publish_js.mbt`（`__kaguraUISnapshot`）、`scripts/ui-snapshot-to-vlmkit-elements.mjs`、`examples/ui/ui_demo` で実配線 |
+| #10 | **完了** | `engine/ui/snapshot.mbt`（`UISnapshot` + `to_json`）、`snapshot_publish_js.mbt`（`__kaguraUISnapshot`）、`scripts/ui-snapshot-to-vlmkit-elements.mjs`、`examples/demos-2d/ui_demo` で実配線 |
 | #12 | **完了** | `scripts/ui-integrity-gate.mjs` + `ui-integrity-utils.mjs`（9 種の欠陥、`--allow` 監査付き）、`just ui-check` |
 | #18 | **一部** | `just ui-asset-check`（素材入庫ゲート）。テーマ/パレット突き合わせはトークン表の宣言が未 |
 | #8 | **一部** | 純黒 baseline 18 枚を削除。gating 化はキャプチャ（#9）待ち |
@@ -103,7 +103,7 @@ expect(readback.nonDarkPixelRatio).toBeGreaterThanOrEqual(expectedNonDark * floo
 
 ### 2.4 スナップショットモードは 1 example のみ
 
-`?snapshot=&frames=&tick=` の実装は `examples/games-3d/hacknslash_3d/src/snapshot.mbt` だけ
+`?snapshot=&frames=&tick=` の実装は `examples/games/hacknslash_3d/src/snapshot.mbt` だけ
 （`examples/*/*/src/snapshot.mbt` の全検索結果が 1 件）。`e2e/vrt.spec.ts` の `SNAPSHOT_TESTS` も
 `hacknslash_3d` の 1 行のみ。UI が実際に問題を起こす状態（メニュー、ポーズ、インベントリ、
 レベルアップ、ゲームオーバー、ダイアログ）はどの example でもキャプチャされていない。
@@ -120,7 +120,7 @@ expect(readback.nonDarkPixelRatio).toBeGreaterThanOrEqual(expectedNonDark * floo
 | PNG エンコード（engine 内） | `@atlas.encode_png_image_spec` |
 
 `engine/ui` 由来の情報を JS 側へ publish している箇所は**ゼロ**
-（`examples/ui/ui_demo/src/*.mbt` の `extern "js"` は canvas サイズ取得の 2 本だけ）。
+（`examples/demos-2d/ui_demo/src/*.mbt` の `extern "js"` は canvas サイズ取得の 2 本だけ）。
 つまり「検証に必要なデータは engine 内に全部あるが、外に出ていない」状態。
 
 ### 2.6 3D modeling には完成した VLM ループがある（UI 版が無いだけ）
@@ -266,7 +266,7 @@ web の canvas capture と Linux Dawn readback は両方壊れている（2.1）
 
 - `kagura_native_capture_config.txt`（`screenshot_path` / `context_path` / `summary_path` / `binarize`）
   の仕組みを `editor/modeling3d/` から engine 側の共通機能へ引き上げる
-- `examples/ui/*`, `examples/games-2d/*` に `main_native.mbt` のキャプチャ経路を追加
+- `examples/demos-2d/*`, `examples/games/*` に `main_native.mbt` のキャプチャ経路を追加
 - `just ui-capture <example> [state] [viewport]` → PNG + UI snapshot JSON を出す
 - `examples/smoke/native_vrt` は BMP 保存（`main_native.mbt:26,37`）なので PNG に揃える
   （`@atlas.encode_png_image_spec` が既にある）。vlmkit の pixel gate は PNG 前提

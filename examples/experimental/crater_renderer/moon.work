@@ -11,6 +11,6 @@ members = [
   "../../../engine/renderer2d",
   "../../../engine/text",
   "../../../engine/widget2d",
-  "../../smoke/native_runtime_hooks",
-  "../../smoke/web_runtime_hooks",
+  "../../../platform/native_runtime_hooks",
+  "../../../platform/web_runtime_hooks",
 ]

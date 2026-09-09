@@ -41,9 +41,7 @@ test "effect_studio_context_json includes patch scaffold payload" {
   let json = effect_studio_context_json(doc, 0.5, false)
   assert_true(json.contains("\"patch_scaffold\":{"))
   assert_true(
-    json.contains(
-      "\"target_file\":\"editor/effect-studio/src/effect_doc.mbt\"",
-    ),
+    json.contains("\"target_file\":\"editor/effect-studio/src/effect_doc.mbt\""),
   )
   assert_true(json.contains("\"track_patch_scaffolds\":["))
   assert_true(json.contains("\"track_id\":\"core_flash\""))
@@ -78,9 +76,7 @@ test "effect_studio_review_prompt_markdown includes target and track focus" {
   let doc = @effect.default_effect_document()
   let prompt = effect_studio_review_prompt_markdown(doc, 0.5, false)
   assert_true(prompt.contains("# Effect Studio AI Review"))
-  assert_true(
-    prompt.contains("editor/effect-studio/src/effect_doc.mbt"),
-  )
+  assert_true(prompt.contains("editor/effect-studio/src/effect_doc.mbt"))
   assert_true(prompt.contains("core_flash"))
   assert_true(prompt.contains("Keep track ids and labels stable"))
 }

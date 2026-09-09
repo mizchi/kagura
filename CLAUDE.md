@@ -125,11 +125,37 @@ just vlm-ui-review ui_demo "--dry-run"     # 決定的ゲート → その後だ
 
 ## スナップショットテスト (VRT)
 
-Playwright + SwiftShader による Visual Regression Testing。
+2 本ある。**2D は frame VRT が gating**、3D と実 GPU 経路は Playwright VRT（非 gating）。
 
-**現状 CI では非 gating**（`ci.yml` が `--update-snapshots` で実行）。Linux では canvas
-screenshot が透明かつ Dawn readback が完了しないため。移植可能なキャプチャの整備は #9、
-gating 化は #8。
+### frame VRT（browser 不要・gating）
+
+```bash
+just frame-vrt              # 全エントリを baseline と比較（CI が回している）
+just frame-vrt ui_demo      # 1 example だけ
+just frame-vrt-update       # 意図した変更のあとに貼り直す
+```
+
+CPU ラスタライザで描くので GPU もブラウザも要らず、**同じコマンド列から同じバイト列**が
+出る（プロセスをまたいで検証済み）。だから閾値ゼロで gate できる。対象は
+`scripts/frame-vrt-manifest.mjs`、baseline は `e2e/frame-vrt-snapshots/`。
+
+貼る前に 2 つ拒否する:
+
+- **3D を含むフレーム**（`skipped_commands > 0`）。シーンの欠落を baseline に焼き付けて
+  永久に通るだけになる
+- **ほぼ単色のフレーム**。`sprite_anim` は全面 #fcfcfc になる。落ちない baseline は
+  カバレッジではない — 純黒 18 枚を抱えていた過去がその証拠。意図的なら
+  エントリに `allowUniform` で理由を書く
+
+**`vlmkit diff png --threshold` の既定値 0.1 は使わないこと。** pixelmatch の知覚距離で、
+ブラウザのアンチエイリアス揺れを許すための値。実測: `ui_demo` の全ボタンを
+`#4a4a6a` → `#4a6a4a` にすると **19.92% のピクセルが変わるのに 0.00%「no changes」と出る**。
+CPU ラスタライザに許すべき揺れは無いので `--threshold 0` を渡す。
+
+### Playwright VRT（3D と実 GPU、現状 CI では非 gating）
+
+`ci.yml` が `--update-snapshots` で実行。Linux では canvas screenshot が透明かつ
+Dawn readback が完了しないため。移植可能なキャプチャの整備は #9。
 
 ```bash
 just e2e-vrt          # VRT 実行

@@ -22,7 +22,7 @@
 | #18 | **一部** | `just ui-asset-check`（素材入庫ゲート）。テーマ/パレット突き合わせはトークン表の宣言が未 |
 | #9 | **完了（2D）** | CPU ラスタライザ（`engine/kagura_engine/raster`）+ `@engine.run` の headless 経路 + `lib/web/kagura-headless-frame.js` + `just render`。browser も GPU も Playwright も要らない。3D は native capture のまま |
 | #16 | **完了（2D UI）** | `scripts/vlm-ui-review.mjs` + `just vlm-ui-review`。決定的ゲート → VLM の順序を強制、`--compare` で修正の帰属確認 |
-| #8 | **一部** | 純黒 baseline 18 枚を削除。決定的なフレームは取れるようになったので gating 化の土台はできた |
+| #8 | **2D は完了** | `scripts/frame-vrt.mjs` + `just frame-vrt`。CPU レンダリングは決定的なので閾値ゼロで gate でき、CI の js job が回している。baseline 13 枚（`e2e/frame-vrt-snapshots/`）。3D と実 GPU 経路は Playwright VRT のまま非 gating |
 | #13 #14 #15 #17 | 未着手 | 状態マトリクスの全走査・i18n・操作性・flipbook |
 
 **2.2 で「リポジトリに入っている見た目の正解は実質存在しない」と書いた前提は解けた。**
@@ -380,6 +380,18 @@ vlmkit の `check integrity` が DOM でやっていることを、**engine 内�
 kagura に限らず canvas / native / Flutter などの非 DOM UI で共通に効くもの。
 
 起票: mizchi/vlmkit#116（下記 2）/ #117（下記 1）/ #118（下記 3・5・6・7 をまとめた adoption feedback）
+
+0. **`diff png --threshold` の既定値 0.1 が決定的レンダラでは危険**（実測）
+
+   pixelmatch の知覚距離の既定値 0.1 は、ブラウザのアンチエイリアス揺れを許すには妥当だが、
+   GPU を介さない決定的なフレームには過剰。`ui_demo` の全ボタンを `#4a4a6a` → `#4a6a4a` に
+   すると **19.92%（61,194px）が変わるのに、既定値では 0.00% "no changes" と報告される**
+   （0.05 以下なら正しく 19.92%）。画面いっぱいの緑のボタンが「変更なし」で通る。
+
+   - 決定的なソース（CPU ラスタライザ、native キャプチャ、オフスクリーン合成）を検出して
+     既定を厳しくする、あるいは少なくとも「この閾値で N ピクセルが無視された」と出す
+   - `--json` に、適用した閾値と閾値によって落とされたピクセル数を含める。
+     いま「0.00%」と「閾値に吸われた」が出力上まったく区別できない
 
 1. **`--elements-json` の帰属精度**（3.3 で実測した問題）
    - diff 領域のブロック粒度を指定できる（`--region-grid 16` 等）。ゲーム画面は 320x240〜640x360 が普通で、

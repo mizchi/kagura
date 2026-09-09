@@ -117,6 +117,20 @@ ui-asset-check asset extra="":
 render example extra="":
     node scripts/render-frame.mjs {{example}} {{extra}}
 
+# Browser-free visual regression gate. Renders every entry in
+# `scripts/frame-vrt-manifest.mjs` through the CPU rasterizer and compares it
+# to a committed baseline. Unlike `e2e-vrt` this actually gates: the frames are
+# pure arithmetic, so they are byte-identical run to run.
+#   just frame-vrt              # check everything
+#   just frame-vrt ui_demo      # just one example's entries
+frame-vrt extra="":
+    node scripts/frame-vrt.mjs {{extra}}
+
+# Re-pin the frame baselines after an intended visual change. Read the diff
+# first -- `just frame-vrt` prints which UI node moved.
+frame-vrt-update extra="":
+    node scripts/frame-vrt.mjs --update {{extra}}
+
 # Visual review loop: render a frame, run the deterministic gates over it, then
 # ask a VLM only about what a gate cannot measure (legibility, contrast,
 # hierarchy, balance). `--dry-run` builds the request without calling the API;

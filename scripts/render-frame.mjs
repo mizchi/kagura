@@ -107,6 +107,10 @@ export async function renderExampleState({
     frames: frame.frames,
     drawn_triangles: frame.drawnTriangles,
     skipped_commands: frame.skippedCommands,
+    // How many source images the runtime hooks handed the rasterizer. Zero on
+    // an example that draws only untextured geometry; zero on one that does
+    // use an atlas means its art is missing from this frame.
+    textures: frame.textureCount ?? 0,
     cursor: state.cursorX == null ? null : { x: state.cursorX, y: state.cursorY },
     keys: state.keys,
     artifacts: Object.fromEntries(
@@ -149,7 +153,8 @@ async function main(argv) {
   }
   process.stdout.write(
     `${meta.example} [${meta.state}]: ${meta.width}x${meta.height} ` +
-      `after ${meta.frames} tick(s), ${meta.drawn_triangles} triangles\n`,
+      `after ${meta.frames} tick(s), ${meta.drawn_triangles} triangles, ` +
+      `${meta.textures} texture(s)\n`,
   );
   for (const [kind, path] of Object.entries(meta.artifacts)) {
     process.stdout.write(`  ${kind}: ${path}\n`);

@@ -65,10 +65,13 @@ ui_demo [default]: 640x480 after 3 tick(s), 980 triangles
 - CPU ラスタライザが描くのは **2D コマンドだけ**。3D（`vertex_stride_hint` 8 / 16）は
   深度もプロジェクションも持たないので描かず、`skipped_commands` に数える。
   `just render` はその数を warning で出す。3D の目視は `just capture`（native）か実ブラウザ側
-- テクスチャは `register_texture` で登録されたものだけ。未登録の id は 1x1 白として
-  サンプルする（WebGPU バックエンドが未バインドスロットに入れているものと同じ）。
-  つまり**アトラス経由のスプライトは uniform 色のベタ塗りになる**。矩形と dot text で
-  描かれた UI（`examples/demos-2d/ui_demo` など）はピクセル一致で出る
+- **アトラスのテクスチャは載る。** `@gfx.GraphicsDriver` に upload が無く、実バックエンドは
+  `web_runtime_hooks` から直接 GPU に送っているので、headless の間だけ hooks が
+  source image を `globalThis.__kaguraSourceImages` に出し、engine が拾って
+  `register_texture` する（`platform/` は `engine/` の下なので直接呼べない）。
+  `just render` の `N texture(s)` が実際に載った枚数。**0 なのにアトラスを使う
+  example は絵が欠けている**
+- 未登録の texture id は 1x1 白としてサンプルする（WebGPU の未バインドスロットと同じ）
 - `document.querySelector("canvas")` などに答える viewport スタブは
   「engine が解決した実サイズ」を返す。CSS サイズでカーソルをスケールする example が
   ずれないための約束で、スタブ側が勝手なサイズを名乗ってはいけない
@@ -283,7 +286,12 @@ baseline と並べて見て、意図した変更なら `just frame-vrt-update`�
 | 拒否 | 理由 |
 |---|---|
 | `skipped_commands > 0`（3D を含む） | シーンの欠落を焼き付けて永久に通る |
-| ほぼ単色のフレーム | `sprite_anim` は全面 `#fcfcfc`。意図的なら entry に `allowUniform` で理由を書く |
+| ほぼ単色のフレーム | 落ちない baseline はカバレッジではない。意図的なら entry に `allowUniform` で理由を書く |
+
+`allowUniform` の唯一の使用例が `sprite_anim` の 4 エントリ。アトラスの 1 セルを
+全画面に描く example なので単色が正しく、**どの色になるか**でテクスチャ経路・
+`split_sprite_sheet` の UV・アニメーションの進み（15 tick ごとにセルが変わる）を
+まとめて固定している。ブリッジを壊すと 4 本とも `#ff0000 -> #ffffff` のように落ちる。
 
 ### `vlmkit diff png --threshold` の既定値を使ってはいけない
 

@@ -25,6 +25,22 @@ pub fn default_headless_input() -> HeadlessInput {
 }
 
 ///|
+/// A source image the frame needs, as RGBA8. `id` matches the values a draw
+/// command carries in `src_image_ids`.
+///
+/// These do not come from the graphics driver: `@gfx.GraphicsDriver` has no
+/// upload call, because the real backend takes pixels straight from the runtime
+/// hooks to the GPU. Without them a textured quad samples the unbound white
+/// texture, which is why a sprite used to render as a flat white rectangle.
+pub(all) struct HeadlessTexture {
+  id : Int
+  width : Int
+  height : Int
+  /// RGBA8, `width * height * 4` entries, each 0-255.
+  pixels : Array[Int]
+}
+
+///|
 /// A rendered frame plus what the rasterizer had to say about the command
 /// stream that produced it.
 pub(all) struct HeadlessFrame {
@@ -52,9 +68,22 @@ pub fn render_headless_frame(
   frames~ : Int,
   input? : HeadlessInput,
   on_frame? : () -> Unit,
+  textures? : Array[HeadlessTexture],
   clear_color? : @gfx.Color,
 ) -> HeadlessFrame {
   let target = @raster.RasterTarget::new(width, height)
+  match textures {
+    Some(list) =>
+      for texture in list {
+        target.register_texture(
+          texture.id,
+          texture.width,
+          texture.height,
+          texture.pixels,
+        )
+      }
+    None => ()
+  }
   let ctx : EngineContext = {
     dst: @gfx.new_image_handle(1, width, height),
     shader: @gfx.new_shader_handle(1, @gfx.default_builtin_shader_source()),

@@ -1,6 +1,10 @@
 # Benchmark KPI
 
-各カテゴリのパフォーマンス許容基準。CI の `just bench-gate` で回帰検知に使う。
+各カテゴリのパフォーマンス許容基準。`just bench-gate` で回帰検知に使う。
+
+なお `just bench-gate` は現状 CI では回していない（`ci.yml` に無い）。baseline
+(`scripts/bench-baseline.json`) は記録した機械に依存し、別の機械で再生すると無関係な
+bench が両方向に最大 2x 動くため、CI に入れるなら runner を固定する必要がある。
 
 ## 2D
 
@@ -49,13 +53,14 @@ CI で js / native-linux / native-macos の 3 環境で同一シーンをビル�
 
 ## 計測ツール
 
-- `just bench` — MoonBit microbenchmarks (ecs, sprite2d, text, sprite_packer)
-- `just bench-gate` — 基準値との回帰比較
+- `just bench` — MoonBit microbenchmarks (ecs, sprite2d, text, sprite_packer, physics2d, physics3d)
+- `just bench-gate` — 基準値との回帰比較。**両側**（1.5x 遅い / 3x 速い の両方で落ちる）
 - preview-shell の ABI stats パネル — wasm host-guest 境界コスト
 - `@debugutil.build_profiler_hud()` — ゲーム内 stats overlay
 
 ## Reference
 
+- physics2d / physics3d の bench 設計と phase 内訳は [physics-benchmarks.md](./physics-benchmarks.md) を参照
 - `hacknslash_3d` の render tuning 結果と最新実測は [hacknslash_3d-rendering-performance.md](/Users/mz/ghq/github.com/mizchi/kagura/docs/performance/hacknslash_3d-rendering-performance.md) を参照
 - `hacknslash_3d` の autoplay balance tuning の回し方と仮説比較は [hacknslash_3d-balance-tuning.md](/Users/mz/ghq/github.com/mizchi/kagura/docs/performance/hacknslash_3d-balance-tuning.md) を参照
 - render tuning を一旦完了扱いにする判断は [ADR 0002](/Users/mz/ghq/github.com/mizchi/kagura/docs/adr/0002-hacknslash-3d-rendering-performance-baseline.md) を参照

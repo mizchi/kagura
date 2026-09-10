@@ -128,8 +128,62 @@ test("formatCompareReport surfaces regressions, new entries, and missing", () =>
     { threshold: 1.5 },
   );
   const text = formatCompareReport(report);
-  assert.match(text, /threshold: 1.5x/);
+  assert.match(text, /slower than 1\.5x/);
   assert.match(text, /REGRESSION: physics\/step/);
   assert.match(text, /NEW: new\/bench/);
   assert.match(text, /MISSING: stale\/bench/);
+});
+
+test("compareToBaseline flags a collapsed workload as a speedup", () => {
+  const report = compareToBaseline(
+    [
+      { name: "physics2d/step_pile_256", meanUs: 100 },
+      { name: "physics2d/step_pile_64", meanUs: 900 },
+    ],
+    {
+      version: 1,
+      benchmarks: {
+        "physics2d/step_pile_256": 5000,
+        "physics2d/step_pile_64": 1000,
+      },
+    },
+  );
+  const byName = Object.fromEntries(report.entries.map((e) => [e.name, e]));
+  // 50x faster: almost certainly a fixture that stopped producing contacts.
+  assert.equal(byName["physics2d/step_pile_256"].status, "speedup");
+  // 1.11x faster: ordinary noise, not a signal.
+  assert.equal(byName["physics2d/step_pile_64"].status, "ok");
+  // 2x faster sits inside cross-machine variance and must stay quiet.
+  assert.equal(
+    compareToBaseline([{ name: "a/b", meanUs: 500 }], {
+      version: 1,
+      benchmarks: { "a/b": 1000 },
+    }).entries[0].status,
+    "ok",
+  );
+  assert.equal(report.hasSpeedup, true);
+  assert.equal(report.hasRegression, false);
+});
+
+test("compareToBaseline honours a custom speedup threshold", () => {
+  const results = [{ name: "a/b", meanUs: 700 }];
+  const baseline = { version: 1, benchmarks: { "a/b": 1000 } };
+  assert.equal(compareToBaseline(results, baseline).entries[0].status, "ok");
+  assert.equal(
+    compareToBaseline(results, baseline, { speedupThreshold: 0.8 })
+      .entries[0].status,
+    "speedup",
+  );
+});
+
+test("formatCompareReport surfaces speedups with the faster-by ratio", () => {
+  const report = compareToBaseline([{ name: "a/b", meanUs: 250 }], {
+    version: 1,
+    benchmarks: { "a/b": 1000 },
+  });
+  const text = formatCompareReport(report);
+  assert.match(text, /SPEEDUP: a\/b/);
+  assert.match(text, /4\.000x faster/);
+  assert.match(text, /confirm the workload is still there/);
+  assert.match(text, /faster than 0\.33x/);
 });

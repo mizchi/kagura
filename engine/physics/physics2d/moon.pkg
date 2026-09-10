@@ -1,4 +1,5 @@
 import {
+  "moonbitlang/core/bench",
   "moonbitlang/core/cmp",
   "moonbitlang/core/math",
   "mizchi/terrain/types" @terrain,

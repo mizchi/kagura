@@ -76,7 +76,26 @@ export function parseBaseline(text) {
   throw new Error("Baseline JSON is not an object");
 }
 
-export function compareToBaseline(results, baseline, { threshold = 1.5 } = {}) {
+// A one-sided gate only catches code getting slower, which leaves the opposite
+// failure invisible: a benchmark whose *workload* collapses. Stop generating
+// contacts, leave a constraint array empty, let a fixture fall asleep, and the
+// benchmark gets much faster and stays green forever while measuring nothing.
+// This is the same trap as a frame-VRT baseline of 18 all-black frames.
+//
+// So large speedups are reported too. A real optimisation clears with one
+// `--update`; a collapsed workload gets looked at instead of banked.
+//
+// The default is 3x faster rather than something tighter because this baseline is
+// machine-specific: replaying it on slower hardware moves unrelated benchmarks by
+// up to 2x in *both* directions, so a 2x gate would fire on CPU differences and
+// train everyone to ignore it. Workload collapse is not that subtle — draining
+// the contacts out of a 64-body physics fixture already costs 3.3x, and a pile
+// that stops colliding entirely moves by an order of magnitude.
+export function compareToBaseline(
+  results,
+  baseline,
+  { threshold = 1.5, speedupThreshold = 1 / 3 } = {},
+) {
   const baselineKeys = new Set(Object.keys(baseline.benchmarks));
   const entries = [];
   for (const { name, meanUs } of results) {
@@ -87,7 +106,11 @@ export function compareToBaseline(results, baseline, { threshold = 1.5 } = {}) {
     }
     baselineKeys.delete(name);
     const ratio = meanUs / base;
-    const status = ratio > threshold ? "regression" : "ok";
+    const status = ratio > threshold
+      ? "regression"
+      : ratio < speedupThreshold
+      ? "speedup"
+      : "ok";
     entries.push({ name, meanUs, status, baseline: base, ratio });
   }
   const removed = [...baselineKeys].sort().map((name) => ({
@@ -95,17 +118,24 @@ export function compareToBaseline(results, baseline, { threshold = 1.5 } = {}) {
     baseline: baseline.benchmarks[name],
   }));
   const regressions = entries.filter((e) => e.status === "regression");
+  const speedups = entries.filter((e) => e.status === "speedup");
   return {
     threshold,
+    speedupThreshold,
     entries,
     removed,
     hasRegression: regressions.length > 0,
+    hasSpeedup: speedups.length > 0,
   };
 }
 
 export function formatCompareReport(report) {
   const lines = [];
-  lines.push(`=== Benchmark Regression Check (threshold: ${report.threshold}x) ===`);
+  lines.push(
+    `=== Benchmark Regression Check (slower than ${report.threshold}x, faster than ${
+      report.speedupThreshold.toFixed(2)
+    }x) ===`,
+  );
   for (const entry of report.entries) {
     if (entry.status === "new") {
       lines.push(`  NEW: ${entry.name} = ${formatUs(entry.meanUs)} (no baseline)`);
@@ -115,6 +145,10 @@ export function formatCompareReport(report) {
     if (entry.status === "regression") {
       lines.push(
         `  REGRESSION: ${entry.name} = ${formatUs(entry.meanUs)} vs baseline ${formatUs(entry.baseline)} (${ratioStr}x slower)`,
+      );
+    } else if (entry.status === "speedup") {
+      lines.push(
+        `  SPEEDUP: ${entry.name} = ${formatUs(entry.meanUs)} vs baseline ${formatUs(entry.baseline)} (${(1 / entry.ratio).toFixed(3)}x faster) — confirm the workload is still there`,
       );
     } else {
       lines.push(

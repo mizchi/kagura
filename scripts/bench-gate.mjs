@@ -71,4 +71,22 @@ if (report.hasRegression) {
   process.exit(1);
 }
 
+// A large speedup is either an optimisation worth banking or a benchmark whose
+// workload collapsed — a fixture that stopped colliding, a constraint array left
+// empty, a scene that fell asleep. The gate cannot tell them apart, so it stops
+// and asks rather than silently accepting a benchmark that now measures nothing.
+if (report.hasSpeedup) {
+  console.log("");
+  console.log(
+    "Large speedups detected. Confirm each one is a real optimisation and not a",
+  );
+  console.log(
+    "benchmark whose workload collapsed (no pairs, no constraints, scene asleep).",
+  );
+  console.log(
+    `Then bank it with: node scripts/bench-gate.mjs ${targetArg} --update`,
+  );
+  process.exit(1);
+}
+
 console.log("\nAll benchmarks within threshold.");

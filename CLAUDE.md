@@ -202,6 +202,42 @@ example のディレクトリ探索は `scripts/example-dirs.mjs` に一本化�
 （`findExampleDir` / `findExampleCategory` / `listExampleNames`）。dev server、
 VRT server、spec がこれを共有するので、置き場所の規則はここだけ直せばよい。
 
+## ベンチマーク
+
+```bash
+just bench          # 全 bench（moon bench）
+just bench-gate     # baseline と比較。両側（1.5x 遅い / 3x 速い の両方で落ちる）
+just bench-update   # 意図した変化のあとに貼り直す
+```
+
+`moon bench` は **closure 全体を計測し、iteration ごとの setup フックが無い**。
+だから closure がやったことは全部その数字に入る。名前で boundary を宣言すること
+（`step_` / `phase_` / `phase_reset_` / `build_`）。setup を closure から追い出せない
+分は、setup だけの bench を並べて**床として引けるように**しておく。
+
+**ゲートは速くなった側も見る。** 遅くなったことしか検知しないゲートは、ワークロードが
+消滅した bench を永久に緑にする —— contact を生まなくなる、constraint 配列が空になる、
+シーンが寝る。どれも bench は速くなる。純黒 18 枚の baseline と同じ失敗である。
+閾値が 3x なのは baseline が機械依存で、別の機械では無関係な bench が両方向に 2x 動くため。
+
+**速度ゲートだけでは足りないので、fixture が名前どおりの仕事を生んでいることを test で
+assert する。** `engine/physics/*/bench_fixtures_wbtest.mbt` が例:
+pair 数と constraint 数が body 数以上ある、size sweep で仕事が実際に増える、
+`scatter` は contact 0、寝ている fixture は本当に寝ている、reset が測定対象フレームを
+完全に復元する、solve を 2 周させても 2 周目が no-op になっていない。
+
+**bench は出荷されている関数を呼ぶこと。** ループを bench 側にコピーすると、片方だけ
+直したときに bench が出荷されていないコードを測り続ける。`physics2d` / `physics3d` は
+`step()` を phase 関数（`phase_broadphase_pairs` 等）へ分解し、`step()` と bench が
+同じ関数を呼ぶようにしてある。
+
+**state を持つものは毎 iteration リセットする。** `step` は world を変えるので、
+reset しないと pile は 30 iteration ほどで沈んで寝て、bench は solver ではなく
+sleep fast path を測り始める（名前は変わらないまま）。solver の accumulator も戻す:
+収束すると impulse 書き込みが near-zero 分岐に落ち、「もう何も解いていない solve」に化ける。
+
+設計・実測・ここから出た作業項目は `docs/performance/physics-benchmarks.md`。
+
 ## wasm ターゲットと moonbitlang/async
 
 `moonbitlang/async` は **wasm1 (`--target wasm`) のみ**対応。wasm-gc では

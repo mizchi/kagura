@@ -248,10 +248,14 @@ test "soft solve separates overlapping bodies" {
     sub_dt,
   )
   let constraints : Array[ContactConstraint2D] = [c]
-  // Solve a few iterations
+  // The solver works on a flat velocity buffer; load it and store it back the
+  // way `phase_solve_velocities` does, so the test exercises the shipped path.
+  let vel = VelocityState2D::new()
+  vel.load(bodies)
   for _i = 0; _i < 4; _i = _i + 1 {
-    solve_constraint2d(constraints, 0, bodies)
+    solve_constraint2d(constraints, 0, bodies, vel)
   }
+  vel.store(bodies)
   // After solving, bodies should be pushed apart (velocity reversed)
   assert_true(bodies[0].velocity.x < 0.0)
   assert_true(bodies[1].velocity.x > 0.0)
@@ -299,7 +303,10 @@ test "relaxation reduces excess energy" {
   )
   let constraints : Array[ContactConstraint2D] = [c]
   // Solve velocity
-  solve_constraint2d(constraints, 0, bodies)
+  let vel = VelocityState2D::new()
+  vel.load(bodies)
+  solve_constraint2d(constraints, 0, bodies, vel)
+  vel.store(bodies)
   let vy_after_solve = bodies[0].velocity.y
   // Relaxation should not add energy (velocity magnitude should not increase)
   _solve_relaxation2d(constraints, 0, bodies)

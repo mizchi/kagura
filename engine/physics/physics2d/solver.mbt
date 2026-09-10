@@ -307,28 +307,53 @@ fn solve_constraint2d(
   constraints : Array[ContactConstraint2D],
   ci : Int,
   bodies : Array[RigidBody2D],
+  vel : VelocityState2D,
 ) -> Unit {
   let c = constraints[ci]
-  let a = bodies[c.idx_a]
-  let b = bodies[c.idx_b]
+  let ia = c.idx_a
+  let ib = c.idx_b
+  let a = bodies[ia]
+  let b = bodies[ib]
+  let a_inv_mass = a.inv_mass
+  let b_inv_mass = b.inv_mass
+  let a_inv_inertia = a.inv_inertia
+  let b_inv_inertia = b.inv_inertia
+  let r_a = c.r_a
+  let r_b = c.r_b
   let n = c.contact.normal
-  let tangent = @vector.Vec2::new(-n.y, n.x)
-  // Compute current separation from current body positions
-  // separation > 0 = separated, < 0 = overlapping
-  let d = b.position.add(c.r_b).sub(a.position.add(c.r_a))
-  let separation = d.dot(n) - c.contact.penetration
+  let nx = n.x
+  let ny = n.y
+  let tx = -ny
+  let ty = nx
+  // Current separation from current body positions: > 0 separated, < 0 overlapping.
+  let dx = b.position.x + r_b.x - (a.position.x + r_a.x)
+  let dy = b.position.y + r_b.y - (a.position.y + r_a.y)
+  let separation = dx * nx + dy * ny - c.contact.penetration
   // Bias: push apart when overlapping beyond slop
   let bias = if separation + slop < 0.0 {
     -c.bias_coefficient * (separation + slop)
   } else {
     0.0
   }
+  // Velocities live in `vel` for the duration of the pass; see
+  // `velocity_state.mbt`. The vector expressions below are expanded by hand and
+  // never reassociated -- `n.scale(j).scale(inv_mass)` is `(n.x * j) * inv_mass`
+  // while `w + r_cross * j * inv_inertia` associates left -- so this is
+  // bit-identical to the version it replaces rather than merely close. The 2D
+  // frame VRT gate compares rendered bytes, so "close" would fail it.
+  let mut avx = vel.vx[ia]
+  let mut avy = vel.vy[ia]
+  let mut aw = vel.w[ia]
+  let mut bvx = vel.vx[ib]
+  let mut bvy = vel.vy[ib]
+  let mut bw = vel.w[ib]
   // Current relative velocity at contact point
-  let v_a = a.velocity.add(cross_scalar_vec(a.angular_velocity, c.r_a))
-  let v_b = b.velocity.add(cross_scalar_vec(b.angular_velocity, c.r_b))
-  let v_rel = v_a.sub(v_b)
+  let vax = avx + -aw * r_a.y
+  let vay = avy + aw * r_a.x
+  let vbx = bvx + -bw * r_b.y
+  let vby = bvy + bw * r_b.x
   // --- Normal impulse ---
-  let v_n = v_rel.dot(n)
+  let v_n = (vax - vbx) * nx + (vay - vby) * ny
   let lambda = -(v_n + c.restitution_bias + bias + c.gamma * c.acc_jn) *
     c.normal_mass
   let new_acc_jn = {
@@ -343,31 +368,25 @@ fn solve_constraint2d(
   let cur_acc_jn = new_acc_jn
   let mut cur_acc_jt = c.acc_jt
   if delta_jn.abs() > 1.0e-15 {
-    let impulse_n = n.scale(delta_jn)
-    let r_a_cross_n = c.r_a.cross(n)
-    let r_b_cross_n = c.r_b.cross(n)
-    bodies[c.idx_a] = {
-      ..a,
-      velocity: a.velocity.add(impulse_n.scale(a.inv_mass)),
-      angular_velocity: clamp_angular(
-        a.angular_velocity + r_a_cross_n * delta_jn * a.inv_inertia,
-      ),
-    }
-    bodies[c.idx_b] = {
-      ..b,
-      velocity: b.velocity.sub(impulse_n.scale(b.inv_mass)),
-      angular_velocity: clamp_angular(
-        b.angular_velocity - r_b_cross_n * delta_jn * b.inv_inertia,
-      ),
-    }
+    let inx = nx * delta_jn
+    let iny = ny * delta_jn
+    let r_a_cross_n = r_a.x * ny - r_a.y * nx
+    let r_b_cross_n = r_b.x * ny - r_b.y * nx
+    avx = avx + inx * a_inv_mass
+    avy = avy + iny * a_inv_mass
+    aw = clamp_angular(aw + r_a_cross_n * delta_jn * a_inv_inertia)
+    bvx = bvx - inx * b_inv_mass
+    bvy = bvy - iny * b_inv_mass
+    bw = clamp_angular(bw - r_b_cross_n * delta_jn * b_inv_inertia)
   }
   // --- Friction impulse ---
-  let a2 = bodies[c.idx_a]
-  let b2 = bodies[c.idx_b]
-  let v_a2 = a2.velocity.add(cross_scalar_vec(a2.angular_velocity, c.r_a))
-  let v_b2 = b2.velocity.add(cross_scalar_vec(b2.angular_velocity, c.r_b))
-  let v_rel2 = v_a2.sub(v_b2)
-  let v_t = v_rel2.dot(tangent)
+  // Re-derived from the velocities the normal pass just wrote, which is what
+  // re-reading `bodies[c.idx_a]` did.
+  let vax2 = avx + -aw * r_a.y
+  let vay2 = avy + aw * r_a.x
+  let vbx2 = bvx + -bw * r_b.y
+  let vby2 = bvy + bw * r_b.x
+  let v_t = (vax2 - vbx2) * tx + (vay2 - vby2) * ty
   let mu = (a.friction + b.friction) * 0.5
   let friction_limit = cur_acc_jn.abs() * mu
   if v_t.abs() > 1.0e-8 {
@@ -383,27 +402,28 @@ fn solve_constraint2d(
     let delta_jt = new_acc_jt - cur_acc_jt
     cur_acc_jt = new_acc_jt
     if delta_jt.abs() > 1.0e-15 {
-      let impulse_t = tangent.scale(delta_jt)
-      let r_a_cross_t = c.r_a.cross(tangent)
-      let r_b_cross_t = c.r_b.cross(tangent)
-      bodies[c.idx_a] = {
-        ..a2,
-        velocity: a2.velocity.add(impulse_t.scale(a2.inv_mass)),
-        angular_velocity: clamp_angular(
-          a2.angular_velocity + r_a_cross_t * delta_jt * a2.inv_inertia,
-        ),
-      }
-      bodies[c.idx_b] = {
-        ..b2,
-        velocity: b2.velocity.sub(impulse_t.scale(b2.inv_mass)),
-        angular_velocity: clamp_angular(
-          b2.angular_velocity - r_b_cross_t * delta_jt * b2.inv_inertia,
-        ),
-      }
+      let itx = tx * delta_jt
+      let ity = ty * delta_jt
+      let r_a_cross_t = r_a.x * ty - r_a.y * tx
+      let r_b_cross_t = r_b.x * ty - r_b.y * tx
+      avx = avx + itx * a_inv_mass
+      avy = avy + ity * a_inv_mass
+      aw = clamp_angular(aw + r_a_cross_t * delta_jt * a_inv_inertia)
+      bvx = bvx - itx * b_inv_mass
+      bvy = bvy - ity * b_inv_mass
+      bw = clamp_angular(bw - r_b_cross_t * delta_jt * b_inv_inertia)
     }
   }
-  // Write back accumulated impulses
-  constraints[ci] = { ..c, acc_jn: cur_acc_jn, acc_jt: cur_acc_jt, }
+  vel.vx[ia] = avx
+  vel.vy[ia] = avy
+  vel.w[ia] = aw
+  vel.vx[ib] = bvx
+  vel.vy[ib] = bvy
+  vel.w[ib] = bw
+  // `acc_jn` / `acc_jt` are the only mutable fields, so assign them instead of
+  // rebuilding the constraint: that was one struct per constraint per iteration.
+  constraints[ci].acc_jn = cur_acc_jn
+  constraints[ci].acc_jt = cur_acc_jt
 }
 
 ///|

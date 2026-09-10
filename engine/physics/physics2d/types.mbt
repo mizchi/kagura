@@ -170,6 +170,9 @@ pub(all) struct PhysicsWorld2D {
   broadphase : SpatialHashGrid2D
   solver_config : SolverConfig2D
   contact_cache : Map[Int64, ContactManifold2D]
+  /// The solve pass's velocity working set, pooled here so a steady body count
+  /// allocates nothing per frame. Only `phase_solve_velocities` touches it.
+  velocity_state : VelocityState2D
   joints_distance : Array[DistanceJoint2D]
   joints_revolute : Array[RevoluteJoint2D]
 }

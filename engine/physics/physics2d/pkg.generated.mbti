@@ -38,9 +38,9 @@ pub fn resolve_contact2d(RigidBody2D, RigidBody2D, Contact2D) -> (RigidBody2D, R
 
 pub fn resolve_velocity2d(RigidBody2D, RigidBody2D, Contact2D) -> (RigidBody2D, RigidBody2D)
 
-pub fn solve_distance_joint(Array[DistanceJointConstraint2D], Int, Array[RigidBody2D], DistanceJoint2D) -> Unit
+pub fn solve_distance_joint(Array[DistanceJointConstraint2D], Int, Array[RigidBody2D], DistanceJoint2D, VelocityState2D) -> Unit
 
-pub fn solve_revolute_joint(Array[RevoluteJointConstraint2D], Int, Array[RigidBody2D]) -> Unit
+pub fn solve_revolute_joint(Array[RevoluteJointConstraint2D], Int, Array[RigidBody2D], VelocityState2D) -> Unit
 
 pub fn sweep_circle_aabb(@vector.Vec2, @vector.Vec2, Double, @vector.Vec2, @vector.Vec2) -> Double?
 
@@ -158,6 +158,7 @@ pub(all) struct PhysicsWorld2D {
   broadphase : SpatialHashGrid2D
   solver_config : SolverConfig2D
   contact_cache : Map[Int64, ContactManifold2D]
+  velocity_state : VelocityState2D
   joints_distance : Array[DistanceJoint2D]
   joints_revolute : Array[RevoluteJoint2D]
 }
@@ -250,6 +251,16 @@ pub fn SpatialHashGrid2D::get_pairs(Self) -> Array[(Int, Int)]
 pub fn SpatialHashGrid2D::insert(Self, Int, AABB2D) -> Unit
 pub fn SpatialHashGrid2D::new(Double) -> Self
 pub fn SpatialHashGrid2D::query_aabb(Self, AABB2D) -> Array[Int]
+
+pub struct VelocityState2D {
+  vx : Array[Double]
+  vy : Array[Double]
+  w : Array[Double]
+  mut count : Int
+}
+pub fn VelocityState2D::load(Self, Array[RigidBody2D]) -> Unit
+pub fn VelocityState2D::new() -> Self
+pub fn VelocityState2D::store(Self, Array[RigidBody2D]) -> Unit
 
 // Type aliases
 

@@ -10,6 +10,7 @@ pub fn PhysicsWorld2D::new(
     broadphase: SpatialHashGrid2D::new(broadphase_cell_size),
     solver_config,
     contact_cache: Map([]),
+    velocity_state: VelocityState2D::new(),
     joints_distance: [],
     joints_revolute: [],
   }
@@ -314,9 +315,14 @@ fn PhysicsWorld2D::phase_solve_velocities(
   rev_constraints : Array[RevoluteJointConstraint2D],
   iterations : Int,
 ) -> Unit {
+  // Velocities move into flat arrays for the duration of the pass and back out
+  // at the end, so the constraint loops below allocate nothing. Positions and
+  // masses are still read straight from the bodies -- neither changes here.
+  let vel = self.velocity_state
+  vel.load(self.bodies)
   for _iter = 0; _iter < iterations; _iter = _iter + 1 {
     for ci = 0; ci < constraints.length(); ci = ci + 1 {
-      solve_constraint2d(constraints, ci, self.bodies)
+      solve_constraint2d(constraints, ci, self.bodies, vel)
     }
     for di = 0; di < dist_constraints.length(); di = di + 1 {
       solve_distance_joint(
@@ -324,12 +330,14 @@ fn PhysicsWorld2D::phase_solve_velocities(
         di,
         self.bodies,
         self.joints_distance[di],
+        vel,
       )
     }
     for ri = 0; ri < rev_constraints.length(); ri = ri + 1 {
-      solve_revolute_joint(rev_constraints, ri, self.bodies)
+      solve_revolute_joint(rev_constraints, ri, self.bodies, vel)
     }
   }
+  vel.store(self.bodies)
 }
 
 ///|

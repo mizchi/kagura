@@ -1,3 +1,4 @@
+import {waitForRenderer} from './renderer-ready.mjs';
 import {test, expect} from '@playwright/test';
 
 async function boot(page) {
@@ -11,6 +12,7 @@ async function boot(page) {
   });
   await page.goto('/');
   await expect(page.getByRole('button', {name: '出撃する', exact: true})).toBeEnabled();
+ await waitForRenderer(page);
 }
 
 test('uncovered shadow texels contain far depth, not black occluders', async ({page}) => {

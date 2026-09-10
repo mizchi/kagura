@@ -31,6 +31,22 @@ iron-yard-e2e-metal: iron-yard-build
 
 iron-yard-ci: iron-yard-test iron-yard-e2e
 
+# Build/validate tiny scalar and SIMD Wasm kernels, then compare in Chrome.
+iron-yard-simd:
+    node examples/games/iron_yard/experiments/simd/bench.mjs
+
+# Profile running game URLs in an isolated native Chrome/Metal instance.
+# Example: just iron-yard-profile kagura=http://127.0.0.1:5192/ three=http://127.0.0.1:5194/game.html
+[positional-arguments]
+iron-yard-profile *args:
+    node examples/games/iron_yard/scripts/profile.mjs "$@"
+
+iron-yard-gfx-test:
+    node --test lib/web/kagura-gfx.test.mjs
+    moon -C platform/web_runtime_hooks test --target js
+    moon -C engine/kagura_engine test draw3d shadow3d postfx --target js
+    moon -C engine/audio test . --target js
+
 # Luna-based integrated authoring workspace (independent MoonBit module).
 studio-install:
     cd editor/studio && moon check --target js

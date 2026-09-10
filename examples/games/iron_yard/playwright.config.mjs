@@ -7,7 +7,7 @@ export default defineConfig({
   outputDir:`../../../test-results/iron-yard-${metal ? 'metal' : 'swiftshader'}`,
   use:{
     baseURL:`http://127.0.0.1:${port}`, viewport:{width:1280,height:800},
-    ...(metal ? {channel:'chrome',headless:false,deviceScaleFactor:2} : {}),
+    ...(metal ? {channel:'chrome',headless:process.env.IRON_YARD_HEADED !== '1',deviceScaleFactor:2} : {}),
     launchOptions:{args:metal
       ? ['--enable-unsafe-webgpu','--enable-gpu','--use-angle=metal']
       : ['--enable-unsafe-webgpu','--use-angle=swiftshader','--enable-unsafe-swiftshader']},

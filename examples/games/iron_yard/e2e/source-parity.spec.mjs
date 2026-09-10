@@ -1,9 +1,11 @@
+import {waitForRenderer} from './renderer-ready.mjs';
 import {test,expect} from '@playwright/test';
 import {readFileSync} from 'node:fs';
 const reference=JSON.parse(readFileSync(new URL('../tests/render-reference.json',import.meta.url)));
 async function boot(page){
  await page.addInitScript(()=>{globalThis.shaderSources=[];const create=GPUDevice.prototype.createShaderModule;GPUDevice.prototype.createShaderModule=function(d){shaderSources.push(d.code);return create.call(this,d)}});
  await page.goto('/');await expect(page.getByRole('button',{name:'出撃する',exact:true})).toBeEnabled();
+ await waitForRenderer(page);
 }
 test('display transform matches original Three.js ACES Filmic color patches',async({page})=>{
  await boot(page);
@@ -47,9 +49,14 @@ async function renderPatches(page,samples){
    u[32]=u[37]=u[42]=1;u.set([35,-65,25],44);u.set(linear(0xfff0d7).map(v=>v*3.2*(s.lightScale??1)),48);u.set(linear(0xe1edff).map(v=>v*1.3*(s.lightScale??1)),52);
    u.set([...s.albedo,1],56);u[60]=s.metallic;u[61]=s.roughness;u.set(s.view.map(v=>v*s.distance),68);
    u.set(linear(0x465154).map(v=>v*1.3*(s.lightScale??1)),72);u[76]=s.environmentIntensity??.55;u[78]=65;u[79]=180;u.set(linear(0xa4b3bd),80);u[96]=1000;
-   const uniform=buffer(u,GPUBufferUsage.UNIFORM);
+   // Exercise nonzero instance records as well as the first one; the material
+   // and transforms must select the same uniform record in both stages.
+   const instanced=source.startsWith('// kagura-instance-dwords:');
+   const instance=instanced ? results.length % 32 : 0;
+   const records=new Float32Array(instanced ? 104*32 : 104);records.set(u,instance*104);
+   const uniform=buffer(records,GPUBufferUsage.UNIFORM);
    const group=device.createBindGroup({layout:pipeline.getBindGroupLayout(0),entries:[{binding:0,resource:{buffer:uniform}},{binding:1,resource:white.createView()},{binding:2,resource:sampler},{binding:3,resource:gpu.textures.get(2000).view},{binding:4,resource:sampler},{binding:5,resource:white.createView()},{binding:6,resource:sampler}]});
-   const encoder=device.createCommandEncoder(),pass=encoder.beginRenderPass({colorAttachments:[{view:output.createView(),loadOp:'clear',storeOp:'store'}]});pass.setPipeline(pipeline);pass.setBindGroup(0,group);pass.setVertexBuffer(0,vertices);pass.draw(3);pass.end();
+   const encoder=device.createCommandEncoder(),pass=encoder.beginRenderPass({colorAttachments:[{view:output.createView(),loadOp:'clear',storeOp:'store'}]});pass.setPipeline(pipeline);pass.setBindGroup(0,group);pass.setVertexBuffer(0,vertices);pass.draw(3,1,0,instance);pass.end();
    const read=device.createBuffer({size:256,usage:GPUBufferUsage.MAP_READ|GPUBufferUsage.COPY_DST});encoder.copyTextureToBuffer({texture:output},{buffer:read,bytesPerRow:256},[1,1]);device.queue.submit([encoder.finish()]);await read.mapAsync(GPUMapMode.READ);results.push(Array.from(new Uint8Array(read.getMappedRange()).slice(0,4)));read.unmap();read.destroy();uniform.destroy();
   }
   vertices.destroy();white.destroy();output.destroy();const error=await device.popErrorScope();if(error)throw Error(error.message);return results;

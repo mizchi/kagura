@@ -4,7 +4,7 @@ test('real floor markings remain behind real models when opaque draw order is re
  await page.goto('/');await expect(page.getByRole('button',{name:'出撃する',exact:true})).toBeEnabled();
  await page.evaluate(()=>{
   const render=__kaguraGfx.render;
-  __kaguraGfx.render=(gpu,...args)=>{globalThis.capturedFrame={gpu,args,commands:gpu.commands.slice(),render};return render(gpu,...args)};
+  __kaguraGfx.render=(gpu,...args)=>{globalThis.capturedFrame={gpu,args,commands:gpu.commands.map(c=>({...c,uniformDwords:c.uniformDwords.slice(),srcImageIds:c.srcImageIds?.slice()})),render};return render(gpu,...args)};
  });
  await page.waitForFunction(()=>globalThis.capturedFrame);
  const result=await page.evaluate(async()=>{

@@ -532,3 +532,31 @@ test "instanced_monochrome_lit_uniform_dwords layout uses 64 instance cap" {
   assert_true(approx(@gfx.f32_bits_to_double(dwords[34]), 0.7))
   assert_true(approx(@gfx.f32_bits_to_double(dwords[35]), 1.0))
 }
+
+///|
+test "PBR caller storage matches allocated encoding and clears stale padding" {
+  let model = @math3d.Mat4::translation(2.0, 3.0, -4.0)
+  let vp = @math3d.Mat4::identity()
+  let light = @light3d.LightingEnvironment::default()
+  let color = @math3d.Vec4::new(0.1, 0.2, 0.3, 1.0)
+  let zero = @math3d.Vec3::new(0.0, 0.0, 0.0)
+  let storage = Array::make(72, -1)
+  let expected = pbr_uniform_dwords(
+    model, vp, light, 0.2, 0.8, color, zero, zero,
+  )
+  let actual = pbr_uniform_dwords(
+    model,
+    vp,
+    light,
+    0.2,
+    0.8,
+    color,
+    zero,
+    zero,
+    storage=Some(storage),
+  )
+  for i in 0..<72 {
+    assert_eq(actual[i], expected[i])
+    assert_eq(storage[i], expected[i])
+  }
+}

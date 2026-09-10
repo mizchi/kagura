@@ -40,7 +40,7 @@ pub fn new_mesh_draw_command(@gfx.ImageHandle, @gfx.ShaderHandle, @gfx.DstRegion
 
 pub fn new_particle_draw_command(@gfx.ImageHandle, @gfx.ShaderHandle, @gfx.DstRegion, Int, Int, Int, @gfx.BlendMode, Array[Double], Array[Int], @math3d.Mat4, Array[Int]) -> @gfx.DrawTrianglesCommand
 
-pub fn new_pbr_mesh_draw_command(@gfx.ImageHandle, @gfx.ShaderHandle, @gfx.DstRegion, Int, Int, Int, @gfx.BlendMode, @mesh3d.Mesh3D, @math3d.Mat4, @math3d.Mat4, @light3d.LightingEnvironment, Double, Double, @math3d.Vec4, @math3d.Vec3, @math3d.Vec3, Array[Int], environment? : PbrEnvironment?, shadow? : PbrShadow?, viewport_height? : Double, receive_shadow? : Bool) -> @gfx.DrawTrianglesCommand
+pub fn new_pbr_mesh_draw_command(@gfx.ImageHandle, @gfx.ShaderHandle, @gfx.DstRegion, Int, Int, Int, @gfx.BlendMode, @mesh3d.Mesh3D, @math3d.Mat4, @math3d.Mat4, @light3d.LightingEnvironment, Double, Double, @math3d.Vec4, @math3d.Vec3, @math3d.Vec3, Array[Int], environment? : PbrEnvironment?, shadow? : PbrShadow?, viewport_height? : Double, receive_shadow? : Bool, storage? : Array[Int]?) -> @gfx.DrawTrianglesCommand
 
 pub fn new_skinned_instanced_lit_mesh_draw_command(@gfx.ImageHandle, @gfx.ShaderHandle, @gfx.DstRegion, @gfx.BlendMode, Array[Double], Array[Int], @math3d.Mat4, @light3d.LightingEnvironment, Array[@math3d.Mat4], Array[@math3d.Mat4], Array[@math3d.Vec4], src_image_ids? : Array[Int]) -> @gfx.DrawTrianglesCommand
 
@@ -52,7 +52,7 @@ pub fn new_skinned_lit_mesh_draw_command_from_skin(@gfx.ImageHandle, @gfx.Shader
 
 pub fn particle_uniform_dwords(@math3d.Mat4) -> Array[Int]
 
-pub fn pbr_uniform_dwords(@math3d.Mat4, @math3d.Mat4, @light3d.LightingEnvironment, Double, Double, @math3d.Vec4, @math3d.Vec3, @math3d.Vec3, environment? : PbrEnvironment?, shadow? : PbrShadow?, viewport_height? : Double, receive_shadow? : Bool) -> Array[Int]
+pub fn pbr_uniform_dwords(@math3d.Mat4, @math3d.Mat4, @light3d.LightingEnvironment, Double, Double, @math3d.Vec4, @math3d.Vec3, @math3d.Vec3, environment? : PbrEnvironment?, shadow? : PbrShadow?, viewport_height? : Double, receive_shadow? : Bool, storage? : Array[Int]?) -> Array[Int]
 
 pub fn shader3d_lit_colored_wgsl() -> String
 

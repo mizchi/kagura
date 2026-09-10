@@ -22,6 +22,10 @@ priv struct App {
   sky_shader : @gfx.ShaderHandle
   present : @gfx.ShaderHandle
   lighting : @light3d.LightingEnvironment
+  environment : @draw3d.PbrEnvironment
+  shadow : @draw3d.PbrShadow
+  uniforms : Array[Array[Int]]
+  mut uniform_cursor : Int
 }
 
 ///|
@@ -52,6 +56,14 @@ pub fn start(strix : String, bastion : String) -> Unit {
   let strix = @rig.read_asset(strix) catch { _ => panic() }
   let bastion = @rig.read_asset(bastion) catch { _ => panic() }
   let game = @sim.new_game()
+  let lighting = @light3d.LightingEnvironment::new(
+    @light3d.DirectionalLight::new(
+      @sim.vec(35.0, -65.0, 25.0),
+      rgb(0xfff0d7),
+      3.2,
+    ),
+    @light3d.AmbientLight::new(rgb(0xe1edff), 1.3),
+  )
   let state : App = {
     game,
     strix,
@@ -66,10 +78,13 @@ pub fn start(strix : String, bastion : String) -> Unit {
     plane: @mesh3d.Mesh3D::plane(1.0, 1.0),
     sky: sky_mesh(),
     scenery: scenery(game.stage),
-    pbr: @gfx.new_shader_handle(102, @draw3d.shader3d_standard_wgsl()),
+    pbr: @gfx.new_shader_handle(
+      102,
+      instance_shader(@draw3d.shader3d_standard_wgsl(), 104),
+    ),
     textured: @gfx.new_shader_handle(
       103,
-      @draw3d.shader3d_standard_wgsl(srgb_texture=true),
+      instance_shader(@draw3d.shader3d_standard_wgsl(srgb_texture=true), 104),
     ),
     unlit: @gfx.new_shader_handle(
       107,
@@ -85,21 +100,18 @@ pub fn start(strix : String, bastion : String) -> Unit {
     ),
     depth_shader: @gfx.new_shader_handle(
       105,
-      @shadow3d.shader_shadow_depth_wgsl(packed_depth=true),
+      instance_shader(@shadow3d.shader_shadow_depth_wgsl(packed_depth=true), 16),
     ),
     sky_shader: @gfx.new_shader_handle(
       106,
       @draw3d.shader3d_standard_unlit_wgsl(tonemapped=false, fog=false),
     ),
     present: @gfx.new_shader_handle(110, @draw3d.shader3d_present_wgsl()),
-    lighting: @light3d.LightingEnvironment::new(
-      @light3d.DirectionalLight::new(
-        @sim.vec(35.0, -65.0, 25.0),
-        rgb(0xfff0d7),
-        3.2,
-      ),
-      @light3d.AmbientLight::new(rgb(0xe1edff), 1.3),
-    ),
+    lighting,
+    environment: pbr_environment(),
+    shadow: pbr_shadow(lighting),
+    uniforms: [],
+    uniform_cursor: 0,
   }
   app.val = Some(state)
   @engine.run(
@@ -222,7 +234,7 @@ fn update(a : App) -> Unit {
     a.game.attack_age,
   )
   if a.game.phase == "playing" {
-    @sim.advance_combat(a.game, a.input, { ..frame, eye: a.eye }, dt)
+    @sim.advance_combat(a.game, a.input, { ..frame, eye: a.eye, }, dt)
     @sim.finish_mission(a.game, dt)
   }
   if a.game.shots > shots {

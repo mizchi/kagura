@@ -435,6 +435,33 @@ test "clip_to_audio_buffer preserves sample count" {
 }
 
 ///|
+#cfg(target="js")
+extern "js" fn is_compact_pcm(samples : FixedArray[Float]) -> Bool =
+  #| samples => samples instanceof Float32Array
+
+///|
+#cfg(target="js")
+test "decoded PCM uses compact Float32 storage on JS" {
+  let clip = new_audio_clip(mono_format(44100), Bytes::make(200, 0), false)
+  assert_true(is_compact_pcm(clip_to_audio_buffer(clip).data))
+}
+
+///|
+test "compact PCM preserves every signed 16-bit sample" {
+  let bytes = FixedArray::make(65536 * 2, b'\x00')
+  for i in 0..<65536 {
+    bytes[i * 2] = (i & 255).to_byte()
+    bytes[i * 2 + 1] = (i >> 8).to_byte()
+  }
+  let clip = new_audio_clip(mono_format(44100), Bytes::from_array(bytes[:]), false)
+  let buffer = clip_to_audio_buffer(clip)
+  for i in 0..<65536 {
+    let signed = if i >= 32768 { i - 65536 } else { i }
+    assert_eq(@ma.get_sample(buffer, i, 0), Float::from_int(signed) / 32767.0)
+  }
+}
+
+///|
 test "mono_format creates correct format" {
   let fmt = mono_format(22050)
   assert_eq(fmt.sample_rate, 22050)

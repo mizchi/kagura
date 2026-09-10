@@ -23,7 +23,7 @@ pub fn new_camera_depth_command(@gfx.ImageHandle, @gfx.ShaderHandle, @mesh3d.Mes
 
 pub fn new_shadow_clear_command(@gfx.ImageHandle, @gfx.ShaderHandle) -> @gfx.DrawTrianglesCommand
 
-pub fn new_shadow_depth_command(@gfx.ImageHandle, @gfx.ShaderHandle, @mesh3d.Mesh3D, @math3d.Mat4, @math3d.Mat4) -> @gfx.DrawTrianglesCommand
+pub fn new_shadow_depth_command(@gfx.ImageHandle, @gfx.ShaderHandle, @mesh3d.Mesh3D, @math3d.Mat4, @math3d.Mat4, cache_resources? : Bool) -> @gfx.DrawTrianglesCommand
 
 pub fn new_shadow_lit_mesh_draw_command(@gfx.ImageHandle, @gfx.ShaderHandle, @gfx.DstRegion, Int, Int, Int, @gfx.BlendMode, @mesh3d.Mesh3D, @math3d.Mat4, @math3d.Mat4, @light3d.LightingEnvironment, @math3d.Mat4, ShadowConfig, Int, Int) -> @gfx.DrawTrianglesCommand
 
@@ -37,7 +37,7 @@ pub fn shader_shadow_clear_wgsl() -> String
 
 pub fn shader_shadow_depth_wgsl(packed_depth? : Bool) -> String
 
-pub fn shadow_depth_pass_commands(@gfx.ImageHandle, @gfx.ShaderHandle, Array[ShadowCaster], @light3d.LightingEnvironment, ShadowConfig) -> Array[@gfx.DrawTrianglesCommand]
+pub fn shadow_depth_pass_commands(@gfx.ImageHandle, @gfx.ShaderHandle, Array[ShadowCaster], @light3d.LightingEnvironment, ShadowConfig, cache_resources? : Bool) -> Array[@gfx.DrawTrianglesCommand]
 
 pub fn shadow_depth_uniform_dwords(@math3d.Mat4, @math3d.Mat4) -> Array[Int]
 

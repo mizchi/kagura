@@ -220,9 +220,22 @@ fn lit_uniform_dwords_with_light_dwords(
   model : @math3d.Mat4,
   view_projection : @math3d.Mat4,
   light_dwords : Array[Int],
+  dword_count? : Int = 56,
+  storage? : Array[Int]? = None,
 ) -> Array[Int] {
   let mvp = view_projection.multiply(model)
-  let dwords : Array[Int] = Array::make(56, 0)
+  let dwords = match storage {
+    Some(values) => {
+      guard values.length() == dword_count else {
+        abort("Invalid uniform storage length")
+      }
+      for i in 0..<dword_count {
+        values[i] = 0
+      }
+      values
+    }
+    None => Array::make(dword_count, 0)
+  }
   for i in 0..<16 {
     dwords[i] = f32(mvp.elements[i])
     dwords[16 + i] = f32(model.elements[i])
@@ -1190,6 +1203,8 @@ pub fn shader3d_pbr_untextured_wgsl(
 /// lit(56) + base_color(4) + pbr_params(4) + emissive(4) + camera_pos(4).
 /// The Standard profile uses the last two shadow dwords for viewport_height
 /// and the receive_shadow disable flag; legacy shadow shaders ignore them.
+/// Optional storage must have the exact layout length; overwritten in place.
+/// Each queued draw needs its own storage until that frame is submitted.
 pub fn pbr_uniform_dwords(
   model : @math3d.Mat4,
   view_projection : @math3d.Mat4,
@@ -1203,46 +1218,46 @@ pub fn pbr_uniform_dwords(
   shadow? : PbrShadow? = None,
   viewport_height? : Double = 0.0,
   receive_shadow? : Bool = true,
+  storage? : Array[Int]? = None,
 ) -> Array[Int] {
-  let dwords = lit_uniform_dwords(model, view_projection, lighting)
-  // base_color (4 dwords)
-  dwords.push(f32(base_color.x))
-  dwords.push(f32(base_color.y))
-  dwords.push(f32(base_color.z))
-  dwords.push(f32(base_color.w))
-  // pbr_params (4 dwords)
-  dwords.push(f32(metallic))
-  dwords.push(f32(roughness))
-  dwords.push(f32(0.0))
-  dwords.push(f32(0.0))
-  // emissive (4 dwords)
-  dwords.push(f32(emissive.x))
-  dwords.push(f32(emissive.y))
-  dwords.push(f32(emissive.z))
-  dwords.push(f32(0.0))
-  // camera_pos (4 dwords)
-  dwords.push(f32(camera_pos.x))
-  dwords.push(f32(camera_pos.y))
-  dwords.push(f32(camera_pos.z))
-  dwords.push(f32(0.0))
+  // Allocate the complete layout once. Growing a 56-element JS array to 104
+  // for every draw otherwise allocates and copies multiple backing stores.
+  let environment_size = if environment is Some(_) { 12 } else { 0 }
+  let shadow_size = if shadow is Some(_) { 20 } else { 0 }
+  let dwords = lit_uniform_dwords_with_light_dwords(
+    model,
+    view_projection,
+    @light3d.light_uniform_dwords(lighting),
+    dword_count=72 + environment_size + shadow_size,
+    storage~,
+  )
+  dwords[56] = f32(base_color.x)
+  dwords[57] = f32(base_color.y)
+  dwords[58] = f32(base_color.z)
+  dwords[59] = f32(base_color.w)
+  dwords[60] = f32(metallic)
+  dwords[61] = f32(roughness)
+  dwords[64] = f32(emissive.x)
+  dwords[65] = f32(emissive.y)
+  dwords[66] = f32(emissive.z)
+  dwords[68] = f32(camera_pos.x)
+  dwords[69] = f32(camera_pos.y)
+  dwords[70] = f32(camera_pos.z)
   if environment is Some(e) {
-    for d in environment_uniforms(e) {
-      dwords.push(d)
+    let values = environment_uniforms(e)
+    for i in 0..<12 {
+      dwords[72 + i] = values[i]
     }
   }
   if shadow is Some(s) {
-    for d in mat4_to_uniform_dwords(s.light_vp) {
-      dwords.push(d)
+    let offset = 72 + environment_size
+    for i in 0..<16 {
+      dwords[offset + i] = f32(s.light_vp.elements[i])
     }
-    for
-      d in [
-        f32(s.bias),
-        f32(s.texel_size),
-        f32(viewport_height),
-        f32(if receive_shadow { 0.0 } else { 1.0 }),
-      ] {
-      dwords.push(d)
-    }
+    dwords[offset + 16] = f32(s.bias)
+    dwords[offset + 17] = f32(s.texel_size)
+    dwords[offset + 18] = f32(viewport_height)
+    dwords[offset + 19] = f32(if receive_shadow { 0.0 } else { 1.0 })
   }
   dwords
 }
@@ -1345,6 +1360,7 @@ pub fn new_pbr_mesh_draw_command(
   shadow? : PbrShadow? = None,
   viewport_height? : Double = 0.0,
   receive_shadow? : Bool = true,
+  storage? : Array[Int]? = None,
 ) -> @gfx.DrawTrianglesCommand {
   let uniform_dwords = pbr_uniform_dwords(
     model_matrix,
@@ -1359,6 +1375,7 @@ pub fn new_pbr_mesh_draw_command(
     shadow~,
     viewport_height~,
     receive_shadow~,
+    storage~,
   )
   @gfx.new_draw_triangles_command(
     dst,

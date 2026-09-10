@@ -18,9 +18,28 @@ just iron-yard-e2e-metal        # Apple Silicon + Chrome / Metal、Retina解像�
 just iron-yard-ci               # 上記の検証一式
 ```
 
-Metal検証はインストール済みのGoogle Chromeを別プロファイルで開き、実際のGPUがAppleであることを検査する。開発用URLは常に `http://127.0.0.1:5192/`、テスト専用プレビューはSwiftShaderが5193、Metalが5195。
+Metal検証はGoogle Chromeをヘッドレスの別プロファイルで動かし、Apple／Metalであることを検査する。対話デバッグ時は `IRON_YARD_HEADED=1 just iron-yard-e2e-metal` を明示する。開発用URLは常に `http://127.0.0.1:5192/`、テスト専用プレビューはSwiftShaderが5193、Metalが5195。
 
 初回は `pnpm exec playwright install chromium` でE2E用ブラウザを取得する。開発コマンドはMoonBitとWGSLの変更を監視する。モデルを変更した場合は再起動してアセット変換をやり直す。独自HTMLと起動処理があるため、汎用の `just dev` / `just render` ではなく上記の専用コマンドを使う。
+
+## Chromeでの性能比較
+
+起動済みのKagura版・Three.js版を、独立したChrome / Metalで順番に計測する。1280×800 CSS px、DPR 2（実描画1920×1200）、演習モード、5秒のウォームアップ後に10秒×3回。出撃可能になってからモードを切り替え、計測前後にゲーム側の状態で演習モード・稼働中・標的3機を検査する。両方のビルド種別を揃える。最終比較には各リポジトリでproductionビルドを作り、Vite previewで配信する。
+
+```sh
+just iron-yard-profile kagura=http://127.0.0.1:5192/ three=http://127.0.0.1:5194/game.html
+just iron-yard-profile --scenario=strafe --profiles=false --out=test-results/iron-yard-strafe kagura=http://127.0.0.1:5192/ three=http://127.0.0.1:5194/game.html
+just iron-yard-profile --heap-snapshot=true --out=test-results/iron-yard-memory kagura=http://127.0.0.1:5192/
+just iron-yard-gfx-test
+```
+
+`--seconds=10`、`--repeats=3`で計測時間と反復数を指定できる。`strafe`はA/Dを1秒ごとに交互入力する。性能計測も既定ではヘッドレスで動かし、ウィンドウ表示は `--headed=true` で明示する。ヘッドレスとウィンドウ付きではrAFの上限が異なる場合があるため、同じ設定同士で比較する。ウィンドウ付きの計測中はフォーカス喪失による停止を避けるためChromeを操作しない。
+
+`test-results/iron-yard-profile/`にFPS、フレーム間隔p50/p95/p99、ChromeのTaskDuration、GC後のJSヒープ・backing storage・DOM数、スクリーンショットを保存する。CPUと割り当てサンプリングはFPS採取後に別区間で実行し、プロファイラの負荷をFPSに混ぜない。`.cpuprofile`はDevTools Performance、`.heapprofile`と任意の`.heapsnapshot`はMemoryに読み込める。
+
+FPSはrAFの実測で、ディスプレイの更新レートで頭打ちになる。Kaguraの`renderCpuP50`はGPUコマンドのエンコード・送信だけで、MoonBitのシミュレーションやコマンド構築を含まない。GPU時間は`diagnostics.timingMethod`が`timestamp-query`の場合にだけGPU処理時間として扱う。ヒープとbacking storageは別項目であり、GPU VRAMやChromeプロセス全体の使用量ではない。
+
+実測結果と原因は [PERFORMANCE.md](PERFORMANCE.md) に記録する。
 
 ## 操作
 
@@ -121,3 +140,10 @@ UIは元版のGame / CombatScene / style.cssを基に、HUDの配置と書体（
 - `audio/output/03-oath-of-the-lightning-battle.wav`, `audio/output/sfx/01-explosion.wav`〜`05-blunt-hit.wav`
 
 ソースアセットは `assets/source` / `assets/audio` に同梱し、隣のmodeling-playground checkoutや外部CDNを起動時に参照しない。モデル変換の生成済みJSONと配布用distはGit管理せず、ビルドで再生成する。PMREMと数値・画素比較用の参照データは同梱する。
+
+
+### Geometry・instancingとSIMD実験
+
+静的メッシュは更新世代付きで登録し、影・本描画・同型機のGPUバッファを共有する。PBR uniformとJSの描画コマンドを再利用し、互換な不透明描画を最大32インスタンスにまとめる。API契約は[GEOMETRY.md](../../../lib/web/GEOMETRY.md)、比較結果は[PERFORMANCE.md](PERFORMANCE.md)を参照。
+
+`just iron-yard-simd`でZig製MVPカーネルのスカラー/SIMD/`-Oz`をChromeで比較できる。Zig 0.16、wasm-tools、wasm-optが必要。一括入力と通常配列の逐次転送を分けて計測する。本番の描画経路はこの実験用Wasmに依存しない。

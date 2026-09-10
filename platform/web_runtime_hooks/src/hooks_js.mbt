@@ -1377,7 +1377,8 @@ extern "js" fn js_webgpu_begin(
   #|   const gpu = state.webgpu;
   #|   if (gpu == null) return;
   #|   gpu.clear = [r, g, b, a];
-  #|   gpu.commands = [];
+  #|   if (globalThis.__kaguraGfx?.beginDrawFrame) globalThis.__kaguraGfx.beginDrawFrame(gpu);
+  #|   else gpu.commands = [];
   #|   gpu._currentDraw = null;
   #| }
 
@@ -1456,13 +1457,34 @@ extern "js" fn js_gfx_draw_end() -> Unit =
   #| }
 
 ///|
-extern "js" fn js_gfx_custom_draw_begin(
+extern "js" fn js_is_custom_shader(source : String) -> Bool =
+  #| source => source.includes("@vertex")
+
+///|
+// JS-target arrays cross the FFI once per command, never once per scalar.
+// Opaque borrowed handles use the same JS Array representation as core's
+// arraycore_js.mbt. No resize or mutation is allowed on the JavaScript side.
+#external
+priv type JsDoubleArray
+
+///|
+#external
+priv type JsIntArray
+
+///|
+fn borrow_doubles(values : Array[Double]) -> JsDoubleArray = "%identity"
+
+///|
+fn borrow_ints(values : Array[Int]) -> JsIntArray = "%identity"
+
+///|
+extern "js" fn js_gfx_custom_draw_submit(
   shader_id : Int,
   shader_source : String,
-  vertex_float_count : Int,
-  index_count : Int,
-  uniform_count : Int,
-  src_count : Int,
+  vertices : JsDoubleArray,
+  indices : JsIntArray,
+  uniforms : JsIntArray,
+  sources : JsIntArray,
   dst_id : Int,
   dst_width : Int,
   dst_height : Int,
@@ -1470,62 +1492,24 @@ extern "js" fn js_gfx_custom_draw_begin(
   instance_count : Int,
   vertex_stride_hint : Int,
 ) -> Unit =
-  #| (shaderId, shaderSource, vfCount, iCount, uCount, srcCount, dstId, dstW, dstH, blendMode, instanceCount, vertexStrideHint) => {
-  #|   const state = globalThis.__kaguraWebRuntime;
-  #|   if (state == null) return;
-  #|   const gpu = state.webgpu;
+  #| (shaderId, shaderSource, vertices, indices, uniforms, sources, dstId, dstW, dstH, blendMode, instanceCount, vertexStrideHint) => {
+  #|   const gpu = globalThis.__kaguraWebRuntime?.webgpu;
   #|   if (gpu == null) return;
-  #|   gpu._currentDraw = {
-  #|     isCustom: true,
-  #|     shaderId: shaderId | 0,
-  #|     shaderSource: shaderSource,
-  #|     vertexData: new Float32Array(vfCount | 0),
-  #|     indices: new Uint32Array(iCount | 0),
-  #|     uniformDwords: new Int32Array(uCount | 0),
-  #|     srcImageIds: new Int32Array(srcCount | 0),
-  #|     dstImageId: dstId | 0,
-  #|     dstWidth: Math.max(1, dstW | 0),
-  #|     dstHeight: Math.max(1, dstH | 0),
-  #|     blendMode: blendMode | 0,
-  #|     instanceCount: instanceCount | 0,
-  #|     vertexStrideHint: vertexStrideHint | 0,
+  #|   const gfx = globalThis.__kaguraGfx;
+  #|   if (gfx?.submitCustomDraw) {
+  #|     gfx.submitCustomDraw(gpu, shaderId, shaderSource, vertices, indices, uniforms, sources, dstId, dstW, dstH, blendMode, instanceCount, vertexStrideHint);
+  #|     return;
+  #|   }
+  #|   const geometry = globalThis.__kaguraGfx?.snapshotDrawGeometry?.(gpu, vertices, indices)
+  #|     ?? {vertexData: new Float32Array(vertices), indices: new Uint32Array(indices)};
+  #|   const command = {
+  #|     isCustom: true, shaderId, shaderSource, ...geometry,
+  #|     uniformDwords: uniforms, srcImageIds: sources,
+  #|     dstImageId: dstId, dstWidth: Math.max(1,dstW), dstHeight: Math.max(1,dstH),
+  #|     blendMode, instanceCount, vertexStrideHint,
   #|   };
-  #| }
-
-///|
-extern "js" fn js_gfx_custom_draw_vertex_float(
-  index : Int,
-  value : Double,
-) -> Unit =
-  #| (index, value) => {
-  #|   const state = globalThis.__kaguraWebRuntime;
-  #|   if (state == null) return;
-  #|   const gpu = state.webgpu;
-  #|   if (gpu == null || gpu._currentDraw == null) return;
-  #|   gpu._currentDraw.vertexData[index | 0] = value;
-  #| }
-
-///|
-extern "js" fn js_gfx_custom_draw_uniform(index : Int, value : Int) -> Unit =
-  #| (index, value) => {
-  #|   const state = globalThis.__kaguraWebRuntime;
-  #|   if (state == null) return;
-  #|   const gpu = state.webgpu;
-  #|   if (gpu == null || gpu._currentDraw == null) return;
-  #|   gpu._currentDraw.uniformDwords[index | 0] = value | 0;
-  #| }
-
-///|
-extern "js" fn js_gfx_custom_draw_src_image(
-  index : Int,
-  image_id : Int,
-) -> Unit =
-  #| (index, imageId) => {
-  #|   const state = globalThis.__kaguraWebRuntime;
-  #|   if (state == null) return;
-  #|   const gpu = state.webgpu;
-  #|   if (gpu == null || gpu._currentDraw == null) return;
-  #|   gpu._currentDraw.srcImageIds[index | 0] = imageId | 0;
+  #|   if (globalThis.__kaguraGfx?.enqueueCustomDraw) globalThis.__kaguraGfx.enqueueCustomDraw(gpu, command);
+  #|   else (gpu.commands ??= []).push({...command, uniformDwords:new Int32Array(uniforms), srcImageIds:new Int32Array(sources)});
   #| }
 
 ///|
@@ -2787,40 +2771,21 @@ fn bridge_web_gfx_on_draw(
   command : @gfx.DrawTrianglesCommand,
 ) -> Unit {
   if active {
-    if command.shader.source.contains("@vertex") {
-      // Custom shader path
-      let vf_count = command.vertex_data.length()
-      let ic = command.indices.length()
-      let u_count = command.uniform_dwords.length()
-      let src_count = command.src_image_ids.length()
-      let blend = @gfx.BlendMode::to_int(command.blend)
-      js_gfx_custom_draw_begin(
+    if js_is_custom_shader(command.shader.source) {
+      js_gfx_custom_draw_submit(
         command.shader.id,
         command.shader.source,
-        vf_count,
-        ic,
-        u_count,
-        src_count,
+        borrow_doubles(command.vertex_data),
+        borrow_ints(command.indices),
+        borrow_ints(command.uniform_dwords),
+        borrow_ints(command.src_image_ids),
         command.dst.id,
         command.dst.width,
         command.dst.height,
-        blend,
+        @gfx.BlendMode::to_int(command.blend),
         command.instance_count,
         command.vertex_stride_hint,
       )
-      for i = 0; i < vf_count; i = i + 1 {
-        js_gfx_custom_draw_vertex_float(i, command.vertex_data[i])
-      }
-      for i = 0; i < ic; i = i + 1 {
-        js_gfx_draw_index(i, command.indices[i])
-      }
-      for i = 0; i < u_count; i = i + 1 {
-        js_gfx_custom_draw_uniform(i, command.uniform_dwords[i])
-      }
-      for i = 0; i < src_count; i = i + 1 {
-        js_gfx_custom_draw_src_image(i, command.src_image_ids[i])
-      }
-      js_gfx_draw_end()
     } else {
       // Default 2D pipeline path (backward compatible)
       let src_id = if command.src_image_ids.length() > 0 {

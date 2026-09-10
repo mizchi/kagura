@@ -1,9 +1,11 @@
+import {waitForRenderer} from './renderer-ready.mjs';
 import {test,expect} from '@playwright/test';
 import {readFileSync} from 'node:fs';
 const reference=JSON.parse(readFileSync(new URL('../tests/shadow-reference.json',import.meta.url)));
 test('WGSL PCF matches original comparison filtering, disk samples and screen coordinates',async({page})=>{
  await page.addInitScript(()=>{globalThis.shaderSources=[];const create=GPUDevice.prototype.createShaderModule;GPUDevice.prototype.createShaderModule=function(d){shaderSources.push(d.code);return create.call(this,d)}});
  await page.goto('/');await expect(page.getByRole('button',{name:'出撃する',exact:true})).toBeEnabled();
+ await waitForRenderer(page);
  const pixels=await page.evaluate(async ref=>{
   const device=__kaguraWebRuntime.webgpu.device,source=shaderSources.find(s=>s.includes('fn standard_shadow'));
   if(!source)throw Error('Original PCF has not been ported');
@@ -17,9 +19,9 @@ test('WGSL PCF matches original comparison filtering, disk samples and screen co
   const coords=ref.samples.map(s=>`vec2<f32>(${s.position[0]+.5},${33-s.position[1]-.5})`).join(',');
   const module=device.createShaderModule({code:source+`
    @vertex fn test_vs(@builtin(vertex_index)i:u32)->@builtin(position)vec4<f32>{let p=array<vec2<f32>,3>(vec2(-1,-1),vec2(3,-1),vec2(-1,3));return vec4(p[i],0,1);}
-   @fragment fn test_fs(@builtin(position)p:vec4<f32>)->@location(0)vec4<f32>{let calls=array<vec4<f32>,${ref.samples.length}>(${calls});let coords=array<vec2<f32>,${ref.samples.length}>(${coords});let s=standard_shadow(calls[u32(p.x)],coords[u32(p.x)]);return vec4(s,s,s,1);}`});
+   @fragment fn test_fs(@builtin(position)p:vec4<f32>)->@location(0)vec4<f32>{${source.startsWith('// kagura-instance-dwords:')?'uniforms = instance_uniforms.values[0];':''}let calls=array<vec4<f32>,${ref.samples.length}>(${calls});let coords=array<vec2<f32>,${ref.samples.length}>(${coords});let s=standard_shadow(calls[u32(p.x)],coords[u32(p.x)]);return vec4(s,s,s,1);}`});
   const pipeline=device.createRenderPipeline({layout:'auto',vertex:{module,entryPoint:'test_vs'},fragment:{module,entryPoint:'test_fs',targets:[{format:'rgba8unorm'}]}});
-  const u=new Float32Array(104);u[101]=1/8;u[102]=33;
+  const u=new Float32Array(source.startsWith('// kagura-instance-dwords:')?104*32:104);u[101]=1/8;u[102]=33;
   const uniform=buffer(u,GPUBufferUsage.UNIFORM);
   const group=device.createBindGroup({layout:pipeline.getBindGroupLayout(0),entries:[{binding:0,resource:{buffer:uniform}},{binding:5,resource:texture.createView()},{binding:6,resource:device.createSampler({minFilter:"linear",magFilter:"linear"})}]});
   const output=device.createTexture({size:[ref.samples.length,1],format:'rgba8unorm',usage:GPUTextureUsage.RENDER_ATTACHMENT|GPUTextureUsage.COPY_SRC});

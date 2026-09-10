@@ -1,4 +1,46 @@
 ///|
+extern "js" fn instance_shader(source : String, dwords : Int) -> String =
+  #| (source, dwords) => globalThis.__kaguraGfx?.instanceUniformShader?.(source, dwords) ?? source
+
+///|
+#external
+priv type GeometryArray
+
+///|
+fn geometry_vertices(values : Array[Double]) -> GeometryArray = "%identity"
+
+///|
+fn geometry_indices(values : Array[Int]) -> GeometryArray = "%identity"
+
+///|
+extern "js" fn register_static_geometry(
+  vertices : GeometryArray,
+  indices : GeometryArray,
+) -> Unit =
+  #| (vertices, indices) => {
+  #|   const gpu = globalThis.__kaguraWebRuntime?.webgpu;
+  #|   if (gpu) globalThis.__kaguraGfx?.registerStaticGeometry(gpu, vertices, indices);
+  #| }
+
+///|
+fn retain_mesh(mesh : @mesh3d.Mesh3D) -> Unit {
+  register_static_geometry(
+    geometry_vertices(mesh.vertex_data),
+    geometry_indices(mesh.indices),
+  )
+}
+
+///|
+fn next_uniforms(a : App) -> Array[Int] {
+  let i = a.uniform_cursor
+  a.uniform_cursor += 1
+  if i == a.uniforms.length() {
+    a.uniforms.push(Array::make(104, 0))
+  }
+  a.uniforms[i]
+}
+
+///|
 // HEX colors are sRGB, while glTF baseColorFactor is already linear.
 fn srgb_channel(value : Double) -> Double {
   if value <= 0.04045 {
@@ -68,6 +110,7 @@ fn submit(
   receive_shadow? : Bool = true,
   tonemapped? : Bool = false,
 ) -> Unit {
+  retain_mesh(mesh)
   let region : @gfx.DstRegion = {
     x: 0,
     y: 0,
@@ -120,10 +163,11 @@ fn submit(
       },
       a.eye,
       textures,
-      environment=Some(pbr_environment()),
-      shadow=Some(pbr_shadow(a)),
+      environment=Some(a.environment),
+      shadow=Some(a.shadow),
       viewport_height=ctx.screen_h.to_double(),
       receive_shadow~,
+      storage=Some(next_uniforms(a)),
     ),
   )
 }
@@ -165,6 +209,7 @@ fn draw(
   a : App,
   ctx : @engine.EngineContext,
 ) -> Array[@gfx.DrawTrianglesCommand] {
+  a.uniform_cursor = 0
   let destination = ctx.dst
   let ctx = {
     ..ctx,
@@ -197,36 +242,34 @@ fn draw(
       tonemapped=true,
     )
   }
-  for e in a.game.units {
-    if e.hp > 0.0 {
-      let hover = @sim.min(1.0, e.velocity.length() / 2.4) * 0.18
-      let root = trs(
-        e.position.add(@sim.vec(0.0, hover, 0.0)),
-        @sim.vec(1.0, 1.0, 1.0),
-        rotation=@math3d.Quaternion::from_axis_angle(
-          @sim.vec(0.0, 1.0, 0.0),
-          e.yaw,
-        ),
-      )
-      for transparent in [false, true] {
-        for b in a.bastion.batches {
-          if b.material.transparent == transparent {
-            submit(
-              a,
-              ctx,
-              commands,
-              b.mesh,
-              root,
-              b.material,
-              vp,
-              tonemapped=true,
-            )
-          }
-        }
+  let enemies = a.game.units
+    .filter(fn(e) { e.hp > 0.0 })
+    .map(fn(e) { (e, enemy_matrix(e)) })
+  for b in a.bastion.batches {
+    if !b.material.transparent {
+      for pair in enemies {
+        submit(
+          a,
+          ctx,
+          commands,
+          b.mesh,
+          pair.1,
+          b.material,
+          vp,
+          tonemapped=true,
+        )
       }
-      if e.warning > 0.0 {
-        beam(a, ctx, commands, @sim.enemy_muzzle(e), e.aim, 0.04, 0xff6644, vp)
+    }
+  }
+  for pair in enemies {
+    let (e, root) = pair
+    for b in a.bastion.batches {
+      if b.material.transparent {
+        submit(a, ctx, commands, b.mesh, root, b.material, vp, tonemapped=true)
       }
+    }
+    if e.warning > 0.0 {
+      beam(a, ctx, commands, @sim.enemy_muzzle(e), e.aim, 0.04, 0xff6644, vp)
     }
   }
   for transparent in [false, true] {
@@ -358,6 +401,15 @@ fn shadow_config() -> @shadow3d.ShadowConfig {
 fn shadows(a : App) -> Array[@gfx.DrawTrianglesCommand] {
   let casters : Array[@shadow3d.ShadowCaster] = []
   for part in a.scenery {
+    retain_mesh(part.mesh)
+  }
+  for b in a.strix.batches {
+    retain_mesh(b.mesh)
+  }
+  for b in a.bastion.batches {
+    retain_mesh(b.mesh)
+  }
+  for part in a.scenery {
     if part.casts_shadow {
       casters.push(@shadow3d.ShadowCaster::new(part.mesh, part.model))
     }
@@ -369,21 +421,10 @@ fn shadows(a : App) -> Array[@gfx.DrawTrianglesCommand] {
       )
     }
   }
-  for e in a.game.units {
-    if e.hp > 0.0 {
-      let root = trs(
-        e.position.add(
-          @sim.vec(0.0, @sim.min(1.0, e.velocity.length() / 2.4) * 0.18, 0.0),
-        ),
-        @sim.vec(1.0, 1.0, 1.0),
-        rotation=@math3d.Quaternion::from_axis_angle(
-          @sim.vec(0.0, 1.0, 0.0),
-          e.yaw,
-        ),
-      )
-      for b in a.bastion.batches {
-        casters.push(@shadow3d.ShadowCaster::new(b.mesh, root))
-      }
+  let roots = a.game.units.filter(fn(e) { e.hp > 0.0 }).map(enemy_matrix)
+  for b in a.bastion.batches {
+    for root in roots {
+      casters.push(@shadow3d.ShadowCaster::new(b.mesh, root))
     }
   }
   let commands = [
@@ -399,6 +440,7 @@ fn shadows(a : App) -> Array[@gfx.DrawTrianglesCommand] {
       casters,
       a.lighting,
       shadow_config(),
+      cache_resources=false,
     ) {
     commands.push(command)
   }
@@ -429,7 +471,7 @@ fn draw_ground(
       commands,
       a.plane,
       trs(position, size),
-      { ..material(hex), metallic: 0.0, roughness: 0.95 },
+      { ..material(hex), metallic: 0.0, roughness: 0.95, },
       vp,
     )
   }
@@ -447,11 +489,11 @@ fn pbr_environment() -> @draw3d.PbrEnvironment {
 }
 
 ///|
-fn pbr_shadow(a : App) -> @draw3d.PbrShadow {
+fn pbr_shadow(lighting : @light3d.LightingEnvironment) -> @draw3d.PbrShadow {
   let c = shadow_config()
   {
     light_vp: @shadow3d.light_space_matrix(
-      a.lighting.directional.direction,
+      lighting.directional.direction,
       c.center,
       c.distance,
       c.half_extent,
@@ -461,4 +503,15 @@ fn pbr_shadow(a : App) -> @draw3d.PbrShadow {
     bias: c.bias,
     texel_size: 1.0 / c.map_size.to_double(),
   }
+}
+
+///|
+fn enemy_matrix(e : @sim.Enemy) -> @math3d.Mat4 {
+  trs(
+    e.position.add(
+      @sim.vec(0.0, @sim.min(1.0, e.velocity.length() / 2.4) * 0.18, 0.0),
+    ),
+    @sim.vec(1.0, 1.0, 1.0),
+    rotation=@math3d.Quaternion::from_axis_angle(@sim.vec(0.0, 1.0, 0.0), e.yaw),
+  )
 }

@@ -176,6 +176,27 @@ test "new_shadow_depth_command creates valid command" {
 }
 
 ///|
+test "shadow commands can delegate content caching to the renderer" {
+  let image = @gfx.new_image_handle(22, 64, 64)
+  let shader = @gfx.new_shader_handle(2, shader_shadow_depth_wgsl())
+  let mesh = @mesh3d.Mesh3D::cube(1.0)
+  let identity = @math3d.Mat4::identity()
+  let cached = new_shadow_depth_command(image, shader, mesh, identity, identity)
+  let direct = new_shadow_depth_command(
+    image,
+    shader,
+    mesh,
+    identity,
+    identity,
+    cache_resources=false,
+  )
+  assert_eq(direct.resource_cache_key, 0)
+  assert_eq(direct.uniform_dwords, cached.uniform_dwords)
+  assert_eq(direct.vertex_data, cached.vertex_data)
+  assert_eq(direct.indices, cached.indices)
+}
+
+///|
 test "new_shadow_depth_command assigns stable resource_cache_key" {
   let mesh = @mesh3d.Mesh3D::cube(1.0)
   let shadow_map = @gfx.new_image_handle(1, 1024, 1024)

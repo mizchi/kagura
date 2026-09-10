@@ -213,12 +213,15 @@ pub fn shadow_depth_uniform_dwords(
 
 ///|
 /// Create a DrawTrianglesCommand for the shadow depth pass.
+/// Disable cache_resources when the backend detects buffer changes itself;
+/// this avoids hashing every vertex merely to produce optional cache metadata.
 pub fn new_shadow_depth_command(
   shadow_map : @gfx.ImageHandle,
   shader : @gfx.ShaderHandle,
   mesh : @mesh3d.Mesh3D,
   model : @math3d.Mat4,
   light_vp : @math3d.Mat4,
+  cache_resources? : Bool = true,
 ) -> @gfx.DrawTrianglesCommand {
   let uniform_dwords = shadow_depth_uniform_dwords(model, light_vp)
   let dst_region = @gfx.new_dst_region(
@@ -240,9 +243,12 @@ pub fn new_shadow_depth_command(
     mesh.indices,
     [],
     uniform_dwords,
-    resource_cache_key=shadow_depth_resource_cache_key(
-      shadow_map, shader, mesh, uniform_dwords,
-    ),
+    resource_cache_key=if cache_resources {
+      shadow_depth_resource_cache_key(shadow_map, shader, mesh, uniform_dwords)
+    } else {
+      0
+    },
+    vertex_stride_hint=mesh.format.stride(),
   )
 }
 
@@ -272,6 +278,7 @@ pub fn shadow_depth_pass_commands(
   casters : Array[ShadowCaster],
   lighting : @light3d.LightingEnvironment,
   config : ShadowConfig,
+  cache_resources? : Bool = true,
 ) -> Array[@gfx.DrawTrianglesCommand] {
   let light_vp = light_space_matrix(
     lighting.directional.direction,
@@ -291,6 +298,7 @@ pub fn shadow_depth_pass_commands(
         caster.mesh,
         caster.model_matrix,
         light_vp,
+        cache_resources~,
       ),
     )
   }

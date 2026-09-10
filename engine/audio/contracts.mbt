@@ -407,11 +407,11 @@ pub fn decode_audio_clip_auto(
 /// Assumes 16-bit PCM format.
 pub fn clip_to_audio_buffer(clip : AudioClip) -> @ma.AudioBuffer {
   let frames = clip_sample_count(clip)
-  let buffer = @ma.new_audio_buffer(
-    clip.format.channels,
-    clip.format.sample_rate,
-    frames,
-  )
+  let buffer : @ma.AudioBuffer = {
+    channels: clip.format.channels,
+    sample_rate: clip.format.sample_rate,
+    data: new_pcm_samples(frames * clip.format.channels),
+  }
   let channels = clip.format.channels
   for frame = 0; frame < frames; frame = frame + 1 {
     for ch = 0; ch < channels; ch = ch + 1 {
@@ -426,6 +426,20 @@ pub fn clip_to_audio_buffer(clip : AudioClip) -> @ma.AudioBuffer {
     }
   }
   buffer
+}
+
+///|
+// JS FixedArray[Float] defaults to a number[] with 8-byte elements. The FFI
+// contract also supports Float32Array; PCM samples are already f32, so compact
+// storage preserves every sample while halving the backing-store size.
+#cfg(target="js")
+extern "js" fn new_pcm_samples(length : Int) -> FixedArray[Float] =
+  #| length => new Float32Array(length)
+
+///|
+#cfg(not(target="js"))
+fn new_pcm_samples(length : Int) -> FixedArray[Float] {
+  FixedArray::make(length, 0.0)
 }
 
 ///|

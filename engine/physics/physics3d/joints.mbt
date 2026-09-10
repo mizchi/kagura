@@ -61,6 +61,7 @@ pub fn precompute_distance_joint3d(
     (sub_dt * (2.0 * joint.damping_ratio * omega + sub_dt * omega * omega))
   let beta = sub_dt * omega * omega * gamma
   let effective_mass = if k + gamma > 1.0e-12 { 1.0 / (k + gamma) } else { 0.0 }
+  let unbiased_effective_mass = if k > 1.0e-12 { 1.0 / k } else { 0.0 }
   Some({
     idx_a,
     idx_b,
@@ -68,6 +69,7 @@ pub fn precompute_distance_joint3d(
     r_b,
     axis,
     effective_mass,
+    unbiased_effective_mass,
     gamma,
     bias_coefficient: beta,
     acc_impulse: 0.0,
@@ -84,6 +86,7 @@ pub fn solve_distance_joint3d(
   bodies : Array[RigidBody],
   joint : DistanceJoint3D,
   vel : VelocityState3D,
+  use_bias : Bool,
 ) -> Unit {
   let c = constraints[ci]
   let ia = c.idx_a
@@ -98,7 +101,7 @@ pub fn solve_distance_joint3d(
   let delta = world_b.sub(world_a)
   let current_length = delta.dot(axis)
   let error = current_length - joint.rest_length
-  let bias = c.bias_coefficient * error
+  let bias = if use_bias { c.bias_coefficient * error } else { 0.0 }
   // Relative velocity along axis
   let avx = vel.vx[ia]
   let avy = vel.vy[ia]
@@ -119,7 +122,11 @@ pub fn solve_distance_joint3d(
   let vby = bvy + (bwz * r_b.x - bwx * r_b.z)
   let vbz = bvz + (bwx * r_b.y - bwy * r_b.x)
   let v_rel = (vbx - vax) * axis.x + (vby - vay) * axis.y + (vbz - vaz) * axis.z
-  let lambda = -(v_rel + bias + c.gamma * c.acc_impulse) * c.effective_mass
+  let lambda = if use_bias {
+    -(v_rel + bias + c.gamma * c.acc_impulse) * c.effective_mass
+  } else {
+    -v_rel * c.unbiased_effective_mass
+  }
   let new_acc = c.acc_impulse + lambda
   let delta_impulse = new_acc - c.acc_impulse
   if delta_impulse.abs() > 1.0e-15 {
@@ -191,6 +198,9 @@ pub fn precompute_ball_joint3d(
   let eff_x = if k_x + gamma > 1.0e-12 { 1.0 / (k_x + gamma) } else { 0.0 }
   let eff_y = if k_y + gamma > 1.0e-12 { 1.0 / (k_y + gamma) } else { 0.0 }
   let eff_z = if k_z + gamma > 1.0e-12 { 1.0 / (k_z + gamma) } else { 0.0 }
+  let unbiased_x = if k_x > 1.0e-12 { 1.0 / k_x } else { 0.0 }
+  let unbiased_y = if k_y > 1.0e-12 { 1.0 / k_y } else { 0.0 }
+  let unbiased_z = if k_z > 1.0e-12 { 1.0 / k_z } else { 0.0 }
   Some({
     idx_a,
     idx_b,
@@ -199,6 +209,9 @@ pub fn precompute_ball_joint3d(
     effective_mass_x: eff_x,
     effective_mass_y: eff_y,
     effective_mass_z: eff_z,
+    unbiased_effective_mass_x: unbiased_x,
+    unbiased_effective_mass_y: unbiased_y,
+    unbiased_effective_mass_z: unbiased_z,
     gamma,
     bias_coefficient: beta,
     acc_impulse_x: 0.0,
@@ -214,6 +227,7 @@ pub fn solve_ball_joint3d(
   ci : Int,
   bodies : Array[RigidBody],
   vel : VelocityState3D,
+  use_bias : Bool,
 ) -> Unit {
   let c = constraints[ci]
   let ia = c.idx_a
@@ -245,16 +259,28 @@ pub fn solve_ball_joint3d(
   let v_rel_y = vby - vay
   let v_rel_z = vbz - vaz
   // Per-axis solve
-  let bias_x = c.bias_coefficient * error.x
-  let lx = -(v_rel_x + bias_x + c.gamma * c.acc_impulse_x) * c.effective_mass_x
+  let lx = if use_bias {
+    -(v_rel_x + c.bias_coefficient * error.x + c.gamma * c.acc_impulse_x) *
+    c.effective_mass_x
+  } else {
+    -v_rel_x * c.unbiased_effective_mass_x
+  }
   let new_ax = c.acc_impulse_x + lx
   let dx = new_ax - c.acc_impulse_x
-  let bias_y = c.bias_coefficient * error.y
-  let ly = -(v_rel_y + bias_y + c.gamma * c.acc_impulse_y) * c.effective_mass_y
+  let ly = if use_bias {
+    -(v_rel_y + c.bias_coefficient * error.y + c.gamma * c.acc_impulse_y) *
+    c.effective_mass_y
+  } else {
+    -v_rel_y * c.unbiased_effective_mass_y
+  }
   let new_ay = c.acc_impulse_y + ly
   let dy = new_ay - c.acc_impulse_y
-  let bias_z = c.bias_coefficient * error.z
-  let lz = -(v_rel_z + bias_z + c.gamma * c.acc_impulse_z) * c.effective_mass_z
+  let lz = if use_bias {
+    -(v_rel_z + c.bias_coefficient * error.z + c.gamma * c.acc_impulse_z) *
+    c.effective_mass_z
+  } else {
+    -v_rel_z * c.unbiased_effective_mass_z
+  }
   let new_az = c.acc_impulse_z + lz
   let dz = new_az - c.acc_impulse_z
   if dx.abs() > 1.0e-15 || dy.abs() > 1.0e-15 || dz.abs() > 1.0e-15 {

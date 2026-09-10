@@ -309,6 +309,11 @@ fn precompute_constraint3d(
   } else {
     0.0
   }
+  let unbiased_normal_mass = if k_normal > 1.0e-12 {
+    1.0 / k_normal
+  } else {
+    0.0
+  }
   let tangent_mass = if k_tangent > 1.0e-12 { 1.0 / k_tangent } else { 0.0 }
   let e = if a.restitution < b.restitution {
     a.restitution
@@ -335,6 +340,7 @@ fn precompute_constraint3d(
     has_tangent_angular: r_a_cross_t.length_squared() > 1.0e-24 ||
     r_b_cross_t.length_squared() > 1.0e-24,
     normal_mass,
+    unbiased_normal_mass,
     tangent_mass,
     tangent_dir: tangent,
     friction: (a.friction + b.friction) * 0.5,
@@ -363,6 +369,7 @@ fn solve_constraint3d(
   ci : Int,
   bodies : Array[RigidBody],
   vel : VelocityState3D,
+  use_bias : Bool,
 ) -> Unit {
   let c = constraints[ci]
   let ia = c.idx_a
@@ -385,7 +392,7 @@ fn solve_constraint3d(
   let dy = b.position.y + r_b.y - (a.position.y + r_a.y)
   let dz = b.position.z + r_b.z - (a.position.z + r_a.z)
   let separation = dx * nx + dy * ny + dz * nz - contact.penetration
-  let bias = if separation + slop < 0.0 {
+  let bias = if use_bias && separation + slop < 0.0 {
     -c.bias_coefficient * (separation + slop)
   } else {
     0.0
@@ -422,8 +429,14 @@ fn solve_constraint3d(
       (avx - bvx) * nx + (avy - bvy) * ny + (avz - bvz) * nz
     }
   }
-  let lambda = -(v_n + c.restitution_bias + bias + c.gamma * c.acc_jn) *
-    c.normal_mass
+  // On a relax pass the constraint is rigid: no bias to push overlap out, no
+  // softness term, and no restitution -- restitution is energy the biased pass
+  // already accounted for, and re-adding it here would defeat the point.
+  let lambda = if use_bias {
+    -(v_n + c.restitution_bias + bias + c.gamma * c.acc_jn) * c.normal_mass
+  } else {
+    -v_n * c.unbiased_normal_mass
+  }
   let new_acc_jn = {
     let raw = c.acc_jn + lambda
     if raw > 0.0 {

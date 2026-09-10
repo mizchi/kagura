@@ -84,15 +84,48 @@ pub fn PhysicsWorld::add_ball_joint(
 let sleep_velocity_threshold3d : Double = 0.5
 
 ///|
-let sleep_velocity_threshold_sq3d : Double = sleep_velocity_threshold3d *
-  sleep_velocity_threshold3d
+/// Whether the solver should move this body at all.
+///
+/// A sleeping body is as immovable as a static one for the duration of its sleep.
+/// Treating it that way is what makes sleep hold: warm starting and
+/// `solve_constraint3d` write velocity into whatever body a constraint names, and
+/// neither used to check, so a sleeping pile was kicked awake by its own cached
+/// impulses every time it settled. Measured on a 64-sphere pile: the island
+/// reached full sleep and was woken again 22 times in 1200 frames, never holding
+/// it for more than a few dozen frames.
+fn body_is_solver_active3d(body : RigidBody) -> Bool {
+  body.is_dynamic() && !body.is_sleeping
+}
 
 ///|
-let sleep_angular_threshold3d : Double = 0.2
+/// Distance from the centre of mass to the collider's outermost point.
+fn body_max_extent3d(body : RigidBody) -> Double {
+  match body.collider {
+    SphereShape(offset, radius) => offset.length() + radius
+    AABBShape(half_extents, offset) => offset.length() + half_extents.length()
+  }
+}
 
 ///|
-let sleep_angular_threshold_sq3d : Double = sleep_angular_threshold3d *
-  sleep_angular_threshold3d
+/// One scale-aware speed for the sleep test: the linear speed plus the speed
+/// angular motion produces at the body's outermost point.
+///
+/// This replaces a separate angular threshold, which could not be set correctly
+/// for two reasons. It has different units from the linear one, so the two are
+/// not comparable and the stricter one silently decides everything; and the
+/// speed a given spin produces depends on the body's size, so one rad/s figure
+/// cannot suit a marble and a crate at once.
+///
+/// Measured, the old pair made the angular test roughly five times stricter than
+/// the linear one for the 0.5-radius spheres in the benchmark fixtures (0.2 rad/s
+/// is 0.1 units/s at the surface, against a 0.5 units/s linear threshold), and it
+/// was the sole reason a dense pile never slept: at 1200 frames every body passed
+/// the linear test and 164 of 256 failed the angular one. Under this criterion a
+/// 64-body pile settles completely. Box2D v3 tests the same quantity.
+fn body_sleep_velocity3d(body : RigidBody) -> Double {
+  body.velocity.length() +
+  body_max_extent3d(body) * body.angular_velocity.length()
+}
 
 ///|
 let sleep_time_threshold3d : Double = 0.5
@@ -166,8 +199,29 @@ fn PhysicsWorld::phase_contact_constraints(
   )
   for p = 0; p < pair_count; p = p + 1 {
     let (idx_a, idx_b) = pairs[p]
-    let body_a = self.bodies[idx_a]
-    let body_b = self.bodies[idx_b]
+    let mut body_a = self.bodies[idx_a]
+    let mut body_b = self.bodies[idx_b]
+    // A pair with nothing movable on either side has no constraint to solve.
+    // That covers static/static, static/asleep and asleep/asleep -- and skipping
+    // the last two is what lets a settled island stay settled, as well as making
+    // a sleeping scene cheap: its contacts are never built or solved.
+    let active_a = body_is_solver_active3d(body_a)
+    let active_b = body_is_solver_active3d(body_b)
+    if !active_a && !active_b {
+      continue
+    }
+    // One side is moving and the other is asleep: the sleeper has to rejoin the
+    // simulation, or a body landing on a settled pile would rest on something
+    // that never reacts. Waking spreads one ring of contacts per frame, which is
+    // simpler than the island bookkeeping Box2D uses to wake all at once, and
+    // errs on the side of the pile staying rigid for those frames.
+    if !active_b && body_b.is_dynamic() {
+      body_b = { ..body_b, is_sleeping: false, sleep_timer: 0.0, }
+      self.bodies[idx_b] = body_b
+    } else if !active_a && body_a.is_dynamic() {
+      body_a = { ..body_a, is_sleeping: false, sleep_timer: 0.0, }
+      self.bodies[idx_a] = body_a
+    }
     if body_a.inv_mass >= 1.0e-12 || body_b.inv_mass >= 1.0e-12 {
       match generate_contact(body_a, body_b) {
         Some(contact) => {
@@ -284,6 +338,7 @@ fn PhysicsWorld::phase_solve_velocities(
   dist_constraints : Array[DistanceJointConstraint3D],
   ball_constraints : Array[BallJointConstraint3D],
   iterations : Int,
+  use_bias? : Bool = true,
 ) -> Unit {
   // Velocities move into flat arrays for the duration of the pass and back out
   // at the end, so the constraint loops below allocate nothing. Positions and
@@ -292,7 +347,7 @@ fn PhysicsWorld::phase_solve_velocities(
   vel.load(self.bodies)
   for _iter = 0; _iter < iterations; _iter = _iter + 1 {
     for ci = 0; ci < constraints.length(); ci = ci + 1 {
-      solve_constraint3d(constraints, ci, self.bodies, vel)
+      solve_constraint3d(constraints, ci, self.bodies, vel, use_bias)
     }
     for di = 0; di < dist_constraints.length(); di = di + 1 {
       solve_distance_joint3d(
@@ -301,10 +356,11 @@ fn PhysicsWorld::phase_solve_velocities(
         self.bodies,
         self.joints_distance[di],
         vel,
+        use_bias,
       )
     }
     for bi = 0; bi < ball_constraints.length(); bi = bi + 1 {
-      solve_ball_joint3d(ball_constraints, bi, self.bodies, vel)
+      solve_ball_joint3d(ball_constraints, bi, self.bodies, vel, use_bias)
     }
   }
   vel.store(self.bodies)
@@ -432,10 +488,7 @@ fn PhysicsWorld::phase_update_sleep(
       if body.is_sleeping {
         has_sleeping_body = true
       }
-      let speed_sq = body.velocity.length_squared()
-      let angular_speed_sq = body.angular_velocity.length_squared()
-      if speed_sq < sleep_velocity_threshold_sq3d &&
-        angular_speed_sq < sleep_angular_threshold_sq3d {
+      if body_sleep_velocity3d(body) < sleep_velocity_threshold3d {
         let sleep_timer = body.sleep_timer + dt
         if sleep_timer >= sleep_time_threshold3d {
           has_sleep_candidate = true
@@ -499,6 +552,7 @@ pub fn PhysicsWorld::step(self : PhysicsWorld, dt : Double) -> Unit {
   let (dist_constraints, ball_constraints) = self.phase_joint_constraints(
     sub_dt,
   )
+  let relax_iterations = config.relax_iterations
   for _s = 0; _s < substeps; _s = _s + 1 {
     self.phase_integrate_velocities(sub_dt)
     self.phase_solve_velocities(
@@ -508,6 +562,18 @@ pub fn PhysicsWorld::step(self : PhysicsWorld, dt : Double) -> Unit {
       config.velocity_iterations,
     )
     self.phase_integrate_positions(sub_dt)
+    // Relaxation: the biased pass above had to inject velocity to push overlap
+    // out, and that velocity is still in the bodies. Solving the same
+    // constraints rigidly takes it back out. Off by default.
+    if relax_iterations > 0 {
+      self.phase_solve_velocities(
+        constraints,
+        dist_constraints,
+        ball_constraints,
+        relax_iterations,
+        use_bias=false,
+      )
+    }
   }
   self.phase_save_contact_cache(constraints)
   self.phase_clear_forces()

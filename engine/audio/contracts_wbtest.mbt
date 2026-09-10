@@ -453,7 +453,11 @@ test "compact PCM preserves every signed 16-bit sample" {
     bytes[i * 2] = (i & 255).to_byte()
     bytes[i * 2 + 1] = (i >> 8).to_byte()
   }
-  let clip = new_audio_clip(mono_format(44100), Bytes::from_array(bytes[:]), false)
+  let clip = new_audio_clip(
+    mono_format(44100),
+    Bytes::from_array(bytes[:]),
+    false,
+  )
   let buffer = clip_to_audio_buffer(clip)
   for i in 0..<65536 {
     let signed = if i >= 32768 { i - 65536 } else { i }

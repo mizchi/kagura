@@ -5,6 +5,12 @@
 - 前提: [physics-benchmarks.md](./physics-benchmarks.md) の bench で計測している
 - 結果: **`step_pile_256` が 4.72 ms → 1.90 ms（2.48x）**。挙動は bit 一致
 
+> **続きがある。** 末尾の作業項目を実測で検証した記録が
+> [physics-followups.md](./physics-followups.md) にある。そこで**この doc の仮説 3 つが
+> 外れている**ことが分かった（「密な pile が寝ないのは relax pass が無いから」
+> 「constraint の `Vec3` フィールドが重い」、および pile が寝ない理由の速度の記述）。
+> physics2d にも一式移植して 4.08x になっている。
+
 ## Conclusion
 
 - **JS ターゲットでは `Int64` を hot path の Map key にしてはいけない。** MoonBit は
@@ -226,6 +232,9 @@ bump する（`scripts/publish.sh` の `MODULES` はトポロジカル順）の�
    8 個フィールドに持つので contact ごとに struct 1 + `Vec3` 5 個が残っている。
    **constraint 配列を SoA 列にすれば消える**が、solver / world / bench / wbtest に
    波及するので今回はやっていない
+   - **⚠️ この読みは外れていた。** レイアウトを潰すと**逆に遅くなった**（0.83x）。
+     重かったのは同じ phase の中の **warm start**（phase の 56%、frame の 14%）だった。
+     [physics-followups.md](./physics-followups.md) の 4 と 5
 2. **`phase_integrate_velocities` / `phase_integrate_positions`** は substep ごとに
    body struct を作り直す（256 × 4 × 2 = 2048 回/frame）。velocity buffer を
    substep loop 全体に広げれば integrate_velocities の分は消える。CCD sweep が
@@ -237,9 +246,14 @@ bump する（`scripts/publish.sh` の `MODULES` はトポロジカル順）の�
    に記録した「密な pile が寝ない」はこれが原因である可能性が高い。**寝ないことは
    性能問題でもある**（寝ているシーンは `step_resting_256` が示すとおり半額以下）。
    ただしこれは挙動が変わる変更で、bit 一致では入れられない
+   - **⚠️ 「relax pass が原因」は外れ。** 実装して測ったが sleeping は 0/256 のままだった。
+     原因は angular の sleep 閾値と、寝ている body を warm start が叩いていたこと。
+     [physics-followups.md](./physics-followups.md) の 1〜3
 5. **physics2d は手を付けていない。** 同じ `Int64` の問題があり、しかも 2D の
    `get_pairs` は候補 pair **ごと**に `Map[Int64, Unit]` へ dedupe insert する（3D は
    min-corner mask で dedupe するので cell あたり 0 回）。2D は frame VRT が gating
    なので、pair 順が変わる変更は baseline を貼り直すことになる
+   - **対応済み、4.08x**。bit 一致を保ったまま移植したので frame VRT は貼り直していない。
+     [physics-followups.md](./physics-followups.md) の 6
 6. **`just bench-gate` は CI で回っていない**（前回からの持ち越し）。baseline が
    機械依存なので、入れるなら runner を固定する必要がある

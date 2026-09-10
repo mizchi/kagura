@@ -1,0 +1,203 @@
+{
+  "source": "mizchi/modeling-playground@aa7ab3ea9ed08e457b574547e27f4b0c8e463f04/game/simulation.ts",
+  "scenarios": [
+    {
+      "name": "walk",
+      "steps": [
+        {
+          "frames": 60,
+          "dt": 0.016666666666666666,
+          "forward": 1
+        }
+      ],
+      "expected": {
+        "position": [
+          0,
+          0,
+          -33.1423466191218
+        ],
+        "velocity": [
+          0,
+          0,
+          3.1996050886269245
+        ],
+        "yaw": 0,
+        "pitch": 0.25,
+        "gaitTime": 5.905816987148273,
+        "boostWeight": 0,
+        "grounded": true,
+        "jumpHeldTime": 0,
+        "jumpWasDown": false
+      }
+    },
+    {
+      "name": "diagonal boost and coast",
+      "steps": [
+        {
+          "frames": 40,
+          "dt": 0.03333333333333333,
+          "forward": 1,
+          "strafe": 1,
+          "boost": true
+        },
+        {
+          "frames": 60,
+          "dt": 0.016666666666666666
+        }
+      ],
+      "expected": {
+        "position": [
+          -13.576315747745582,
+          0,
+          -22.423684252254706
+        ],
+        "velocity": [
+          -0.0012565925735685823,
+          0,
+          0.0012565925733554195
+        ],
+        "yaw": 0,
+        "pitch": 0.25,
+        "gaitTime": 39.67960703887677,
+        "boostWeight": 0.0009118013305782911,
+        "grounded": true,
+        "jumpHeldTime": 0,
+        "jumpWasDown": false
+      }
+    },
+    {
+      "name": "jump and land",
+      "steps": [
+        {
+          "frames": 8,
+          "dt": 0.016666666666666666,
+          "jump": true
+        },
+        {
+          "frames": 100,
+          "dt": 0.016666666666666666
+        }
+      ],
+      "expected": {
+        "position": [
+          0,
+          0,
+          -36
+        ],
+        "velocity": [
+          0,
+          0,
+          0
+        ],
+        "yaw": 0,
+        "pitch": 0.25,
+        "gaitTime": 0,
+        "boostWeight": 0,
+        "grounded": true,
+        "jumpHeldTime": 0,
+        "jumpWasDown": false
+      }
+    },
+    {
+      "name": "air boost ceiling",
+      "steps": [
+        {
+          "frames": 240,
+          "dt": 0.03333333333333333,
+          "jump": true
+        },
+        {
+          "frames": 240,
+          "dt": 0.016666666666666666
+        }
+      ],
+      "expected": {
+        "position": [
+          0,
+          0,
+          -36
+        ],
+        "velocity": [
+          0,
+          0,
+          0
+        ],
+        "yaw": 0,
+        "pitch": 0.25,
+        "gaitTime": 0,
+        "boostWeight": 6.914400106940246e-13,
+        "grounded": true,
+        "jumpHeldTime": 0,
+        "jumpWasDown": false
+      }
+    },
+    {
+      "name": "warehouse collision",
+      "steps": [
+        {
+          "frames": 180,
+          "dt": 0.016666666666666666,
+          "strafe": -1,
+          "boost": true,
+          "yaw": 0
+        }
+      ],
+      "expected": {
+        "position": [
+          40.458771232203055,
+          0,
+          -37.25889856407121
+        ],
+        "velocity": [
+          14.399999927441627,
+          0,
+          -8.160640163623611e-8
+        ],
+        "yaw": 0,
+        "pitch": 0.25,
+        "gaitTime": 84.2250632700309,
+        "boostWeight": 0.999999999241744,
+        "grounded": true,
+        "jumpHeldTime": 0,
+        "jumpWasDown": false
+      }
+    },
+    {
+      "name": "strafe aim and wall",
+      "steps": [
+        {
+          "frames": 80,
+          "dt": 0.008333333333333333,
+          "forward": 1,
+          "yaw": 1
+        },
+        {
+          "frames": 80,
+          "dt": 0.03333333333333333,
+          "forward": 1,
+          "boost": true,
+          "yaw": 1
+        }
+      ],
+      "expected": {
+        "position": [
+          14,
+          0,
+          -15.233201854823374
+        ],
+        "velocity": [
+          0,
+          0,
+          7.593121723522671
+        ],
+        "yaw": 1,
+        "pitch": 0.25,
+        "gaitTime": 58.047833966343674,
+        "boostWeight": 0.9999999921806676,
+        "grounded": true,
+        "jumpHeldTime": 0,
+        "jumpWasDown": false
+      }
+    }
+  ]
+}

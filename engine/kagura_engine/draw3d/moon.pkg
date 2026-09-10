@@ -4,5 +4,6 @@ import {
   "mizchi/gfx",
   "mizchi/mesh3d",
   "mizchi/kagura_engine/light3d",
+  "mizchi/kagura_engine/shadow3d",
   "mizchi/anim3d/skeleton3d",
 }

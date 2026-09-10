@@ -40,7 +40,7 @@ pub fn new_mesh_draw_command(@gfx.ImageHandle, @gfx.ShaderHandle, @gfx.DstRegion
 
 pub fn new_particle_draw_command(@gfx.ImageHandle, @gfx.ShaderHandle, @gfx.DstRegion, Int, Int, Int, @gfx.BlendMode, Array[Double], Array[Int], @math3d.Mat4, Array[Int]) -> @gfx.DrawTrianglesCommand
 
-pub fn new_pbr_mesh_draw_command(@gfx.ImageHandle, @gfx.ShaderHandle, @gfx.DstRegion, Int, Int, Int, @gfx.BlendMode, @mesh3d.Mesh3D, @math3d.Mat4, @math3d.Mat4, @light3d.LightingEnvironment, Double, Double, @math3d.Vec4, @math3d.Vec3, @math3d.Vec3, Array[Int]) -> @gfx.DrawTrianglesCommand
+pub fn new_pbr_mesh_draw_command(@gfx.ImageHandle, @gfx.ShaderHandle, @gfx.DstRegion, Int, Int, Int, @gfx.BlendMode, @mesh3d.Mesh3D, @math3d.Mat4, @math3d.Mat4, @light3d.LightingEnvironment, Double, Double, @math3d.Vec4, @math3d.Vec3, @math3d.Vec3, Array[Int], environment? : PbrEnvironment?, shadow? : PbrShadow?, viewport_height? : Double, receive_shadow? : Bool) -> @gfx.DrawTrianglesCommand
 
 pub fn new_skinned_instanced_lit_mesh_draw_command(@gfx.ImageHandle, @gfx.ShaderHandle, @gfx.DstRegion, @gfx.BlendMode, Array[Double], Array[Int], @math3d.Mat4, @light3d.LightingEnvironment, Array[@math3d.Mat4], Array[@math3d.Mat4], Array[@math3d.Vec4], src_image_ids? : Array[Int]) -> @gfx.DrawTrianglesCommand
 
@@ -52,7 +52,7 @@ pub fn new_skinned_lit_mesh_draw_command_from_skin(@gfx.ImageHandle, @gfx.Shader
 
 pub fn particle_uniform_dwords(@math3d.Mat4) -> Array[Int]
 
-pub fn pbr_uniform_dwords(@math3d.Mat4, @math3d.Mat4, @light3d.LightingEnvironment, Double, Double, @math3d.Vec4, @math3d.Vec3, @math3d.Vec3) -> Array[Int]
+pub fn pbr_uniform_dwords(@math3d.Mat4, @math3d.Mat4, @light3d.LightingEnvironment, Double, Double, @math3d.Vec4, @math3d.Vec3, @math3d.Vec3, environment? : PbrEnvironment?, shadow? : PbrShadow?, viewport_height? : Double, receive_shadow? : Bool) -> Array[Int]
 
 pub fn shader3d_lit_colored_wgsl() -> String
 
@@ -74,9 +74,15 @@ pub fn shader3d_lit_wgsl() -> String
 
 pub fn shader3d_particle_wgsl() -> String
 
-pub fn shader3d_pbr_untextured_wgsl() -> String
+pub fn shader3d_pbr_untextured_wgsl(unlit? : Bool, environment? : Bool, shadow? : Bool) -> String
 
-pub fn shader3d_pbr_wgsl() -> String
+pub fn shader3d_pbr_wgsl(texture_srgb? : Bool, unlit? : Bool, environment? : Bool, shadow? : Bool) -> String
+
+pub fn shader3d_present_wgsl() -> String
+
+pub fn shader3d_standard_unlit_wgsl(tonemapped? : Bool, fog? : Bool, srgb_texture? : Bool) -> String
+
+pub fn shader3d_standard_wgsl(linear_output? : Bool, srgb_texture? : Bool) -> String
 
 pub fn skinned_instanced_lit_uniform_dwords(@math3d.Mat4, @light3d.LightingEnvironment, Array[@math3d.Mat4], Array[@math3d.Mat4], Array[@math3d.Vec4]) -> Array[Int]
 
@@ -89,8 +95,20 @@ pub fn skinned_lit_uniform_dwords() -> Int
 // Errors
 
 // Types and methods
+pub(all) struct PbrEnvironment {
+  ground : @math3d.Vec3
+  intensity : Double
+  fog_color : @math3d.Vec3
+  fog_near : Double
+  fog_far : Double
+}
+
+pub(all) struct PbrShadow {
+  light_vp : @math3d.Mat4
+  bias : Double
+  texel_size : Double
+}
 
 // Type aliases
 
 // Traits
-

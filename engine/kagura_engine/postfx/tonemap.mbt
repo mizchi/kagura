@@ -8,7 +8,13 @@ pub(all) enum ToneMapOperator {
 ///|
 /// WGSL shader source for fullscreen tone mapping.
 /// Uniform: vec4<f32> where x = exposure.
-pub fn tonemap_wgsl(op : ToneMapOperator) -> String {
+/// Enable output_srgb only when writing linear lighting to a non-sRGB display
+/// attachment (e.g. WebGPU bgra8unorm). Intermediate passes stay linear.
+pub fn tonemap_wgsl(
+  op : ToneMapOperator,
+  output_srgb? : Bool = false,
+  vignette? : Bool = true,
+) -> String {
   let tonemap_fn = match op {
     Reinhard =>
       "fn tonemap(color: vec3<f32>) -> vec3<f32> {\n" +
@@ -39,7 +45,11 @@ pub fn tonemap_wgsl(op : ToneMapOperator) -> String {
   "  // Vignette: darken edges for atmospheric framing\n" +
   "  let vignette_uv = in.uv * 2.0 - 1.0;\n" +
   "  let vignette_dist = dot(vignette_uv, vignette_uv);\n" +
-  "  let vignette = smoothstep(2.0, 0.7, vignette_dist);\n" +
+  (if vignette {
+    "  let vignette = 1.0 - smoothstep(0.7, 2.0, vignette_dist);\n"
+  } else {
+    "  let vignette = 1.0;\n"
+  }) +
   "  var final_color = ldr_color * vignette;\n" +
   "  // Hit flash: mix red tint based on uniforms.exposure.y\n" +
   "  let flash = uniforms.exposure.y;\n" +
@@ -48,6 +58,11 @@ pub fn tonemap_wgsl(op : ToneMapOperator) -> String {
   "    let red_tint = vec3<f32>(0.6, 0.05, 0.05);\n" +
   "    final_color = mix(final_color, red_tint, flash * 0.25 * (1.0 + edge_boost));\n" +
   "  }\n" +
+  (if output_srgb {
+    "  final_color = select(1.055 * pow(max(final_color, vec3<f32>(0.0)), vec3<f32>(1.0 / 2.4)) - vec3<f32>(0.055), final_color * 12.92, final_color <= vec3<f32>(0.0031308));\n"
+  } else {
+    ""
+  }) +
   "  return vec4<f32>(final_color, 1.0);\n" +
   "}\n"
 }

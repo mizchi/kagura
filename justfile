@@ -4,6 +4,33 @@ target := "js"
 
 default: check test
 
+# IRON YARD: modeling-playground mech TPS on Kagura's renderer and MoonBit simulation.
+iron-yard-dev:
+    node examples/games/iron_yard/scripts/dev.mjs
+
+iron-yard-build:
+    node engine/kagura_engine/draw3d/scripts/embed-wgsl.mjs
+    node examples/games/iron_yard/scripts/convert-assets.mjs
+    moon -C examples/games/iron_yard build --target js --release
+    pnpm exec vite build --config examples/games/iron_yard/vite.config.mjs
+
+iron-yard-test:
+    node engine/kagura_engine/draw3d/scripts/embed-wgsl.mjs
+    moon -C examples/games/iron_yard check --target js --deny-warn
+    moon -C examples/games/iron_yard test src/sim src/app --target js
+    node examples/games/iron_yard/scripts/convert-assets.mjs
+    moon -C examples/games/iron_yard build --target js --release
+    node --test examples/games/iron_yard/tests/*.test.mjs
+
+iron-yard-e2e: iron-yard-build
+    pnpm exec playwright test --config examples/games/iron_yard/playwright.config.mjs
+
+# Apple Silicon + installed Chrome: exercise the actual Metal backend at Retina resolution.
+iron-yard-e2e-metal: iron-yard-build
+    IRON_YARD_GPU=metal pnpm exec playwright test --config examples/games/iron_yard/playwright.config.mjs
+
+iron-yard-ci: iron-yard-test iron-yard-e2e
+
 # Luna-based integrated authoring workspace (independent MoonBit module).
 studio-install:
     cd editor/studio && moon check --target js

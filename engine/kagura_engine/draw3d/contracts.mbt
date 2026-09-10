@@ -993,7 +993,7 @@ pub fn new_skinned_lit_mesh_draw_command_from_skin(
 // ============================================================
 
 ///|
-fn pbr_uniform_struct_wgsl() -> String {
+fn pbr_uniform_struct_wgsl(environment : Bool, shadow : Bool) -> String {
   "struct Uniforms {\n" +
   "  mvp: mat4x4<f32>,\n" +
   "  model: mat4x4<f32>,\n" +
@@ -1007,6 +1007,16 @@ fn pbr_uniform_struct_wgsl() -> String {
   "  pbr_params: vec4<f32>,\n" +
   "  emissive: vec4<f32>,\n" +
   "  camera_pos: vec4<f32>,\n" +
+  (if environment {
+    "  environment_ground: vec4<f32>,\n  environment_params: vec4<f32>,\n  fog_color: vec4<f32>,\n"
+  } else {
+    ""
+  }) +
+  (if shadow {
+    "  light_vp: mat4x4<f32>,\n  shadow_params: vec4<f32>,\n"
+  } else {
+    ""
+  }) +
   "};\n\n"
 }
 
@@ -1037,7 +1047,14 @@ fn pbr_brdf_functions_wgsl() -> String {
 }
 
 ///|
-fn pbr_fragment_body_wgsl() -> String {
+fn pbr_fragment_body_wgsl(
+  unlit : Bool,
+  environment : Bool,
+  shadow : Bool,
+) -> String {
+  if unlit {
+    return "  let color = albedo;\n"
+  }
   "  let normal = normalize(in.world_normal);\n" +
   "  let view_dir = normalize(uniforms.camera_pos.xyz - in.world_position);\n" +
   "  let light_dir = normalize(-uniforms.light_dir.xyz);\n" +
@@ -1054,21 +1071,43 @@ fn pbr_fragment_body_wgsl() -> String {
   "  let specular = numerator / denominator;\n" +
   "  let kd = (vec3<f32>(1.0) - f) * (1.0 - metallic);\n" +
   "  let radiance = uniforms.light_color.xyz;\n" +
-  "  let lo = (kd * albedo / PI + specular) * radiance * ndotl;\n" +
-  "  let ambient = uniforms.ambient_color.xyz * albedo;\n" +
-  "  let emissive = uniforms.emissive.xyz;\n" +
-  "  let color = lo + ambient + emissive;\n"
+  (if shadow {
+    "  let shadow_factor = calc_shadow(in.world_position + normal * 0.04);\n" +
+    "  let lo = (kd * albedo / PI + specular) * radiance * ndotl * shadow_factor;\n"
+  } else {
+    "  let lo = (kd * albedo / PI + specular) * radiance * ndotl;\n"
+  }) +
+  (if environment {
+    environment_fragment_wgsl()
+  } else {
+    "  let ambient = uniforms.ambient_color.xyz * albedo;\n" +
+    "  let emissive = uniforms.emissive.xyz;\n" +
+    "  let color = lo + ambient + emissive;\n"
+  })
 }
 
 ///|
 /// WGSL PBR shader with texture sampling (Cook-Torrance BRDF).
-/// Uniform struct: 72 dwords (lit 56 + base_color 4 + pbr_params 4 + emissive 4 + camera_pos 4).
-pub fn shader3d_pbr_wgsl() -> String {
-  pbr_uniform_struct_wgsl() +
+/// Uniform colors are linear. Enable texture_srgb for sRGB bytes uploaded into
+/// a linear UNORM texture; leave false for GPU sRGB views or linear data.
+/// unlit bypasses all illumination, including emissive, per glTF unlit semantics.
+/// Output is linear; the final display pass owns the output transfer function.
+/// Base uniform struct: 72 dwords. environment adds PbrEnvironment (12 dwords),
+/// shadow adds PbrShadow (20 dwords). Pass matching options to the draw builder.
+/// Source images are ordered base-color (if textured), environment, shadow.
+pub fn shader3d_pbr_wgsl(
+  texture_srgb? : Bool = false,
+  unlit? : Bool = false,
+  environment? : Bool = false,
+  shadow? : Bool = false,
+) -> String {
+  pbr_uniform_struct_wgsl(environment, shadow) +
   pbr_brdf_functions_wgsl() +
   "@group(0) @binding(0) var<uniform> uniforms: Uniforms;\n" +
   "@group(0) @binding(1) var tex: texture_2d<f32>;\n" +
   "@group(0) @binding(2) var tex_sampler: sampler;\n\n" +
+  (if environment { environment_wgsl() } else { "" }) +
+  (if shadow { pbr_shadow_wgsl() } else { "" }) +
   "struct VertexInput {\n" +
   "  @location(0) position: vec3<f32>,\n" +
   "  @location(1) normal: vec3<f32>,\n" +
@@ -1091,19 +1130,32 @@ pub fn shader3d_pbr_wgsl() -> String {
   "}\n\n" +
   "@fragment fn fs_main(in: VertexOutput) -> @location(0) vec4<f32> {\n" +
   "  let tex_color = textureSample(tex, tex_sampler, in.uv);\n" +
-  "  let albedo = tex_color.rgb * uniforms.base_color.rgb;\n" +
-  pbr_fragment_body_wgsl() +
+  (if texture_srgb {
+    "  let encoded = tex_color.rgb;\n" +
+    "  let linear = select(pow((encoded + vec3<f32>(0.055)) / 1.055, vec3<f32>(2.4)), encoded / 12.92, encoded <= vec3<f32>(0.04045));\n" +
+    "  let albedo = linear * uniforms.base_color.rgb;\n"
+  } else {
+    "  let albedo = tex_color.rgb * uniforms.base_color.rgb;\n"
+  }) +
+  pbr_fragment_body_wgsl(unlit, environment, shadow) +
   "  return vec4<f32>(color, tex_color.a * uniforms.base_color.a);\n" +
   "}\n"
 }
 
 ///|
 /// WGSL PBR shader without texture (Cook-Torrance BRDF).
-/// Uniform struct: 72 dwords.
-pub fn shader3d_pbr_untextured_wgsl() -> String {
-  pbr_uniform_struct_wgsl() +
+/// Base uniform struct: 72 dwords, then optional environment (12) and shadow (20).
+/// Source images are ordered environment, shadow when enabled.
+pub fn shader3d_pbr_untextured_wgsl(
+  unlit? : Bool = false,
+  environment? : Bool = false,
+  shadow? : Bool = false,
+) -> String {
+  pbr_uniform_struct_wgsl(environment, shadow) +
   pbr_brdf_functions_wgsl() +
   "@group(0) @binding(0) var<uniform> uniforms: Uniforms;\n\n" +
+  (if environment { environment_wgsl() } else { "" }) +
+  (if shadow { pbr_shadow_wgsl() } else { "" }) +
   "struct VertexInput {\n" +
   "  @location(0) position: vec3<f32>,\n" +
   "  @location(1) normal: vec3<f32>,\n" +
@@ -1124,7 +1176,7 @@ pub fn shader3d_pbr_untextured_wgsl() -> String {
   "}\n\n" +
   "@fragment fn fs_main(in: VertexOutput) -> @location(0) vec4<f32> {\n" +
   "  let albedo = uniforms.base_color.rgb;\n" +
-  pbr_fragment_body_wgsl() +
+  pbr_fragment_body_wgsl(unlit, environment, shadow) +
   "  return vec4<f32>(color, uniforms.base_color.a);\n" +
   "}\n"
 }
@@ -1136,6 +1188,8 @@ pub fn shader3d_pbr_untextured_wgsl() -> String {
 ///|
 /// Encode PBR uniform data as 72 dwords:
 /// lit(56) + base_color(4) + pbr_params(4) + emissive(4) + camera_pos(4).
+/// The Standard profile uses the last two shadow dwords for viewport_height
+/// and the receive_shadow disable flag; legacy shadow shaders ignore them.
 pub fn pbr_uniform_dwords(
   model : @math3d.Mat4,
   view_projection : @math3d.Mat4,
@@ -1145,6 +1199,10 @@ pub fn pbr_uniform_dwords(
   base_color : @math3d.Vec4,
   emissive : @math3d.Vec3,
   camera_pos : @math3d.Vec3,
+  environment? : PbrEnvironment? = None,
+  shadow? : PbrShadow? = None,
+  viewport_height? : Double = 0.0,
+  receive_shadow? : Bool = true,
 ) -> Array[Int] {
   let dwords = lit_uniform_dwords(model, view_projection, lighting)
   // base_color (4 dwords)
@@ -1167,6 +1225,25 @@ pub fn pbr_uniform_dwords(
   dwords.push(f32(camera_pos.y))
   dwords.push(f32(camera_pos.z))
   dwords.push(f32(0.0))
+  if environment is Some(e) {
+    for d in environment_uniforms(e) {
+      dwords.push(d)
+    }
+  }
+  if shadow is Some(s) {
+    for d in mat4_to_uniform_dwords(s.light_vp) {
+      dwords.push(d)
+    }
+    for
+      d in [
+        f32(s.bias),
+        f32(s.texel_size),
+        f32(viewport_height),
+        f32(if receive_shadow { 0.0 } else { 1.0 }),
+      ] {
+      dwords.push(d)
+    }
+  }
   dwords
 }
 
@@ -1264,10 +1341,24 @@ pub fn new_pbr_mesh_draw_command(
   emissive : @math3d.Vec3,
   camera_pos : @math3d.Vec3,
   src_image_ids : Array[Int],
+  environment? : PbrEnvironment? = None,
+  shadow? : PbrShadow? = None,
+  viewport_height? : Double = 0.0,
+  receive_shadow? : Bool = true,
 ) -> @gfx.DrawTrianglesCommand {
   let uniform_dwords = pbr_uniform_dwords(
-    model_matrix, view_projection, lighting, metallic, roughness, base_color, emissive,
+    model_matrix,
+    view_projection,
+    lighting,
+    metallic,
+    roughness,
+    base_color,
+    emissive,
     camera_pos,
+    environment~,
+    shadow~,
+    viewport_height~,
+    receive_shadow~,
   )
   @gfx.new_draw_triangles_command(
     dst,

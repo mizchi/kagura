@@ -1,0 +1,8 @@
+{
+  "source": "Three.js 185 RoomEnvironment / PMREMGenerator blur .04",
+  "width": 768,
+  "height": 1024,
+  "format": "rgba16float",
+  "layout": "cube-uv",
+  "byteOrder": "little-endian"
+}

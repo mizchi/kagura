@@ -44,7 +44,7 @@ pub fn ssao_wgsl() -> String
 
 pub fn tonemap_uniform_dwords(Double, hit_flash? : Double) -> Array[Int]
 
-pub fn tonemap_wgsl(ToneMapOperator) -> String
+pub fn tonemap_wgsl(ToneMapOperator, output_srgb? : Bool, vignette? : Bool) -> String
 
 // Errors
 
@@ -57,4 +57,3 @@ pub(all) enum ToneMapOperator {
 // Type aliases
 
 // Traits
-

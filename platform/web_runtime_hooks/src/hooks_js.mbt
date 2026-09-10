@@ -310,7 +310,7 @@ extern "js" fn js_prepare_surface(
   #|   if (CanvasType != null && !(canvas instanceof CanvasType)) {
   #|     return false;
   #|   }
-  #|   const dpr = Number(root.devicePixelRatio ?? 1) || 1;
+  #|   const dpr = Math.min(Number(root.devicePixelRatio ?? 1) || 1, Number(state.maxDevicePixelRatio) || Infinity);
   #|   const rect = typeof canvas.getBoundingClientRect === "function"
   #|     ? canvas.getBoundingClientRect()
   #|     : { width: fallbackWidth, height: fallbackHeight };
@@ -433,7 +433,7 @@ extern "js" fn js_ensure_window_state(selector : String) -> Unit =
   #|       const canvas = doc.querySelector(state.selector);
   #|       if (canvas != null) {
   #|         state.canvas = canvas;
-  #|         const dpr = Number(root.devicePixelRatio ?? state.dpr ?? 1) || 1;
+  #|         const dpr = Math.min(Number(root.devicePixelRatio ?? state.dpr ?? 1) || 1, Number(state.maxDevicePixelRatio) || Infinity);
   #|         state.dpr = dpr > 0 ? dpr : 1;
   #|         state.fullscreen = doc.fullscreenElement === canvas;
   #|         let mode = Number(state.cursorMode ?? 0) | 0;
@@ -1216,7 +1216,7 @@ extern "js" fn js_try_initialize_webgpu(
   #|     if (canvas == null || typeof canvas.getContext !== "function") return false;
   #|     const CanvasType = typeof HTMLCanvasElement === "undefined" ? null : HTMLCanvasElement;
   #|     if (CanvasType != null && !(canvas instanceof CanvasType)) return false;
-  #|     const dpr = Number(root.devicePixelRatio ?? 1) || 1;
+  #|     const dpr = Math.min(Number(root.devicePixelRatio ?? 1) || 1, Number(state.maxDevicePixelRatio) || Infinity);
   #|     const rect = typeof canvas.getBoundingClientRect === "function"
   #|       ? canvas.getBoundingClientRect()
   #|       : { width: fallbackWidth, height: fallbackHeight };
@@ -1629,7 +1629,7 @@ extern "js" fn js_webgpu_present() -> Bool =
   #|   const presentNow = (currentState) => {
   #|     const canvas = currentState.canvas;
   #|     if (canvas != null && typeof canvas.getBoundingClientRect === "function") {
-  #|       const dpr = Number(globalThis.devicePixelRatio ?? 1) || 1;
+  #|       const dpr = Math.min(Number(globalThis.devicePixelRatio ?? 1) || 1, Number(currentState.maxDevicePixelRatio) || Infinity);
   #|       const rect = canvas.getBoundingClientRect();
   #|       const cssWidth = rect.width > 0 ? rect.width : currentState.width;
   #|       const cssHeight = rect.height > 0 ? rect.height : currentState.height;

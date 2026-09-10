@@ -1,0 +1,9 @@
+import {
+  "moonbitlang/core/math",
+  "moonbitlang/core/json",
+  "mizchi/iron_yard/sim",
+  "mizchi/geom/math3d",
+  "mizchi/anim3d/animation3d",
+  "mizchi/anim3d/transform3d",
+  "mizchi/mesh3d",
+}

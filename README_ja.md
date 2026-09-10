@@ -19,6 +19,11 @@
 `just studio-install` → `just studio-dev` で起動します。
 [設計と移植方針](docs/design/studio-authoring.md)。
 
+## AC風ロボットTPS
+
+[IRON YARD](examples/games/iron_yard/README.md) は modeling-playground のゲームをMoonBitへ移植したものです。
+STRIX / BASTIONの実モデルを、kaguraのPBR・影・音声基盤で動かします。`just iron-yard-dev` で起動、`just iron-yard-ci` で検証できます。
+
 ## アーキテクチャ
 
 ```

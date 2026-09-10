@@ -163,9 +163,10 @@ pub fn light_space_matrix(
 
 ///|
 /// WGSL shader for shadow depth pass.
-/// Renders linear depth to R channel.
+/// Renders linear depth to R, or packs 24-bit depth into RGB on UNORM targets.
+/// The receiver must use the same packed_depth setting.
 /// Uniform: light_mvp (16 dwords).
-pub fn shader_shadow_depth_wgsl() -> String {
+pub fn shader_shadow_depth_wgsl(packed_depth? : Bool = false) -> String {
   "struct Uniforms {\n" +
   "  light_mvp: mat4x4<f32>,\n" +
   "};\n\n" +
@@ -187,7 +188,12 @@ pub fn shader_shadow_depth_wgsl() -> String {
   "  return out;\n" +
   "}\n\n" +
   "@fragment fn fs_main(in: VertexOutput) -> @location(0) vec4<f32> {\n" +
-  "  return vec4<f32>(in.depth, 0.0, 0.0, 1.0);\n" +
+  (if packed_depth {
+    "  let d = u32(clamp(in.depth, 0.0, 1.0) * 16777215.0);\n" +
+    "  return vec4<f32>(vec3<f32>(f32((d >> 16u) & 255u), f32((d >> 8u) & 255u), f32(d & 255u)) / 255.0, 1.0);\n"
+  } else {
+    "  return vec4<f32>(in.depth, 0.0, 0.0, 1.0);\n"
+  }) +
   "}\n"
 }
 
@@ -255,7 +261,7 @@ pub fn ShadowCaster::new(
   mesh : @mesh3d.Mesh3D,
   model_matrix : @math3d.Mat4,
 ) -> ShadowCaster {
-  { mesh, model_matrix, }
+  { mesh, model_matrix }
 }
 
 ///|
@@ -312,7 +318,7 @@ fn shadow_lit_uniform_struct_wgsl() -> String {
 }
 
 ///|
-fn shadow_calc_wgsl() -> String {
+pub fn shadow_sampling_wgsl(packed_depth? : Bool = false) -> String {
   "fn calc_shadow(world_pos: vec3<f32>) -> f32 {\n" +
   "  let light_space = uniforms.light_vp * vec4<f32>(world_pos, 1.0);\n" +
   "  let proj_coords = light_space.xyz / light_space.w;\n" +
@@ -333,7 +339,12 @@ fn shadow_calc_wgsl() -> String {
   "  var shadow = 0.0;\n" +
   "  for (var i = 0u; i < 4u; i = i + 1u) {\n" +
   "    let offset = poisson[i] * texel_size;\n" +
-  "    let closest_depth = textureSampleLevel(shadow_map, shadow_sampler, shadow_uv + offset, 0.0).r;\n" +
+  (if packed_depth {
+    "    let packed = textureSampleLevel(shadow_map, shadow_sampler, shadow_uv + offset, 0.0).rgb;\n" +
+    "    let closest_depth = dot(packed, vec3<f32>(65536.0, 256.0, 1.0)) * (255.0 / 16777215.0);\n"
+  } else {
+    "    let closest_depth = textureSampleLevel(shadow_map, shadow_sampler, shadow_uv + offset, 0.0).r;\n"
+  }) +
   "    shadow = shadow + select(0.0, 1.0, current_depth - bias > closest_depth);\n" +
   "  }\n" +
   "  return 1.0 - shadow * 0.25;\n" +
@@ -361,7 +372,7 @@ fn lit_fragment_lighting_wgsl() -> String {
 ///|
 /// WGSL shader for lit 3D rendering with shadow mapping and texture.
 /// Uniform: 76 dwords. Textures: @binding(1) diffuse, @binding(3) shadow map.
-pub fn shader3d_shadow_lit_wgsl() -> String {
+pub fn shader3d_shadow_lit_wgsl(packed_depth? : Bool = false) -> String {
   shadow_lit_uniform_struct_wgsl() +
   "@group(0) @binding(0) var<uniform> uniforms: Uniforms;\n" +
   "@group(0) @binding(1) var tex: texture_2d<f32>;\n" +
@@ -379,7 +390,7 @@ pub fn shader3d_shadow_lit_wgsl() -> String {
   "  @location(1) uv: vec2<f32>,\n" +
   "  @location(2) world_position: vec3<f32>,\n" +
   "};\n\n" +
-  shadow_calc_wgsl() +
+  shadow_sampling_wgsl(packed_depth~) +
   "@vertex fn vs_main(input: VertexInput) -> VertexOutput {\n" +
   "  var out: VertexOutput;\n" +
   "  out.clip_position = uniforms.mvp * vec4<f32>(input.position, 1.0);\n" +
@@ -401,7 +412,9 @@ pub fn shader3d_shadow_lit_wgsl() -> String {
 ///|
 /// WGSL shader for lit 3D rendering with shadow mapping, no texture (white base).
 /// Uniform: 76 dwords. Textures: @binding(3) shadow map.
-pub fn shader3d_shadow_lit_untextured_wgsl() -> String {
+pub fn shader3d_shadow_lit_untextured_wgsl(
+  packed_depth? : Bool = false,
+) -> String {
   shadow_lit_uniform_struct_wgsl() +
   "@group(0) @binding(0) var<uniform> uniforms: Uniforms;\n" +
   "@group(0) @binding(3) var shadow_map: texture_2d<f32>;\n" +
@@ -416,7 +429,7 @@ pub fn shader3d_shadow_lit_untextured_wgsl() -> String {
   "  @location(0) world_normal: vec3<f32>,\n" +
   "  @location(1) world_position: vec3<f32>,\n" +
   "};\n\n" +
-  shadow_calc_wgsl() +
+  shadow_sampling_wgsl(packed_depth~) +
   "@vertex fn vs_main(input: VertexInput) -> VertexOutput {\n" +
   "  var out: VertexOutput;\n" +
   "  out.clip_position = uniforms.mvp * vec4<f32>(input.position, 1.0);\n" +
@@ -518,5 +531,55 @@ pub fn new_shadow_lit_mesh_draw_command(
     mesh.indices,
     [diffuse_image_id, shadow_map_image_id],
     uniform_dwords,
+  )
+}
+
+///|
+/// Initialize a depth-to-color shadow target to far depth. A 3D fullscreen
+/// triangle initializes both attachments in the same pass as the casters.
+/// This is needed on backends that clear every color target to the scene color.
+pub fn shader_shadow_clear_wgsl() -> String {
+  "struct Uniforms { mvp: mat4x4<f32>, };\n" +
+  "@group(0) @binding(0) var<uniform> uniforms: Uniforms;\n" +
+  "struct VertexInput { @location(0) position: vec3<f32>, @location(1) normal: vec3<f32>, @location(2) uv: vec2<f32>, };\n" +
+  "@vertex fn vs_main(input: VertexInput) -> @builtin(position) vec4<f32> {\n" +
+  "  return uniforms.mvp * vec4<f32>(input.position.xy, 0.9999999, 1.0);\n" +
+  "}\n" +
+  "@fragment fn fs_main() -> @location(0) vec4<f32> { return vec4<f32>(1.0); }\n"
+}
+
+///|
+/// Submit before shadow_depth_pass_commands, including when there are no casters.
+pub fn new_shadow_clear_command(
+  shadow_map : @gfx.ImageHandle,
+  shader : @gfx.ShaderHandle,
+) -> @gfx.DrawTrianglesCommand {
+  @gfx.new_draw_triangles_command(
+    shadow_map,
+    shader,
+    [
+      {
+        x: 0,
+        y: 0,
+        width: shadow_map.width,
+        height: shadow_map.height,
+        index_count: 3,
+      },
+    ],
+    0,
+    0,
+    0,
+    Copy,
+    [
+      -1.0, -1.0, 0.0, 0.0, 0.0, 1.0, 0.0, 0.0, 3.0, -1.0, 0.0, 0.0, 0.0, 1.0, 2.0,
+      0.0, -1.0, 3.0, 0.0, 0.0, 0.0, 1.0, 0.0, 2.0,
+    ],
+    [0, 1, 2],
+    [],
+    shadow_depth_uniform_dwords(
+      @math3d.Mat4::identity(),
+      @math3d.Mat4::identity(),
+    ),
+    vertex_stride_hint=8,
   )
 }

@@ -1,0 +1,566 @@
+/* Typography and HUD layout ported from modeling-playground/game/style.css. */
+:root {
+  font-family:"Helvetica Neue",Arial,"Hiragino Kaku Gothic ProN",Meiryo,sans-serif;
+  color:#e2ecee;
+  background:#182630;
+  font-synthesis:none}
+* {
+  box-sizing:border-box}
+body {
+  margin:0}
+button,a {
+  font:inherit}
+button {
+  cursor:pointer}
+button:focus-visible,a:focus-visible {
+  outline:2px solid #91eced;
+  outline-offset:5px}
+.arena {
+  height:100dvh;
+  min-height:0;
+  position:relative;
+  overflow:hidden}
+.hud {
+  position:absolute;
+  inset:0;
+  pointer-events:none;
+  text-shadow:0 1px 4px #07181eaa}
+.eyebrow {
+  font:10px ui-monospace,monospace;
+  letter-spacing:2.3px;
+  color:#b7ced4}
+.sector {
+  position:absolute;
+  left:38px;
+  top:32px}
+.sector strong {
+  display:block;
+  font-size:24px;
+  letter-spacing:2px;
+  margin:9px 0 6px}
+.sector strong span {
+  font:14px ui-monospace,monospace;
+  color:#e9c180;
+  border-left:1px solid #b1cbd466;
+  margin-left:16px;
+  padding-left:16px}
+.sector small,.unit small {
+  font:9px ui-monospace,monospace;
+  letter-spacing:1.4px}
+.unit {
+  position:absolute;
+  right:38px;
+  top:35px;
+  text-align:right;
+  font:10px ui-monospace,monospace;
+  letter-spacing:1.6px}
+.unit i {
+  display:inline-block;
+  width:5px;
+  height:5px;
+  margin-right:8px;
+  background:#a9eece}
+.unit strong {
+  display:block;
+  font:23px "Helvetica Neue",sans-serif;
+  letter-spacing:3px;
+  margin:10px 0 7px}
+.compass {
+  position:absolute;
+  top:36px;
+  left:50%;
+  transform:translateX(-50%);
+  display:flex;
+  gap:22px;
+  align-items:center;
+  font:10px ui-monospace,monospace;
+  color:#e4edefa0}
+.compass b {
+  color:#e4edef;
+  font-weight:400;
+  letter-spacing:2px}
+.reticle {
+  position:absolute;
+  left:50%;
+  top:50%;
+  width:40px;
+  height:40px;
+  transform:translate(-50%,-50%);
+  border-left:1px solid #d2eff2a6;
+  border-right:1px solid #d2eff2a6}
+.reticle:before,.reticle:after {
+  content:"";
+  position:absolute;
+  height:1px;
+  width:8px;
+  background:#d2eff2b0;
+  top:50%}
+.reticle:before {
+  left:-8px}
+.reticle:after {
+  right:-8px}
+.reticle i {
+  position:absolute;
+  left:19px;
+  top:19px;
+  width:2px;
+  height:2px;
+  background:#e6f7f8}
+.readout {
+  position:absolute;
+  left:38px;
+  bottom:100px;
+  width:220px;
+  border-left:2px solid #c8e1e966;
+  padding-left:18px}
+.readout strong {
+  font:48px ui-monospace,monospace;
+  letter-spacing:-3px;
+  line-height:1.3}
+.readout small {
+  font:10px ui-monospace,monospace;
+  color:#d0dfe2}
+.readout div>small {
+  margin-left:14px}
+.speed-track {
+  height:2px;
+  background:#c2d6dc38;
+  margin:4px 0 12px}
+.speed-track i {
+  display:block;
+  height:100%;
+  background:#8cdeeb}
+.readout p {
+  font:9px ui-monospace,monospace;
+  letter-spacing:1px}
+.mission {
+  position:absolute;
+  right:38px;
+  bottom:106px;
+  text-align:right;
+  border-right:2px solid #dbb97d;
+  padding-right:18px}
+.mission strong {
+  display:block;
+  font-weight:500;
+  font-size:16px;
+  margin:11px 0}
+.mission p {
+  font-size:11px;
+  color:#b5c9d0}
+.mission small {
+  font:9px ui-monospace,monospace;
+  color:#d2bf9a}
+.controls {
+  position:absolute;
+  left:38px;
+  right:38px;
+  bottom:30px;
+  display:flex;
+  gap:28px;
+  border-top:1px solid #e0eef52b;
+  padding-top:16px;
+  font-size:10px}
+.controls span {
+  display:flex;
+  gap:9px;
+  align-items:center}
+.controls kbd {
+  font:9px ui-monospace,monospace;
+  letter-spacing:1px;
+  border:1px solid #d8e5eb55;
+  padding:4px 6px}
+.offline {
+  position:absolute;
+  right:38px;
+  bottom:29px;
+  font:9px ui-monospace,monospace;
+  color:#c6dbdc;
+  letter-spacing:1px;
+  text-align:right}
+.offline span {
+  display:block;
+  font-size:8px;
+  color:#a9bfc4;
+  margin-top:6px}
+.deployment {
+  position:absolute;
+  inset:0;
+  display:flex;
+  align-items:center;
+  padding:7vw;
+  background:linear-gradient(90deg,#101c27eb 0%,#152534d9 38%,#17263533 70%,transparent 100%)}
+.deployment-card {
+  width:min(430px,100%)}
+.deployment .eyebrow {
+  color:#b4c7ce;
+  font-size:10px;
+  letter-spacing:2px}
+.deployment h1 {
+  font-size:clamp(44px,5.4vw,78px);
+  font-weight:500;
+  letter-spacing:-3px;
+  line-height:1;
+  margin:24px 0 12px}
+.deployment.resuming h1 {
+  font-size:45px;
+  letter-spacing:-1px}
+.subtitle {
+  font-size:13px;
+  color:#b6c9d3;
+  letter-spacing:1.6px}
+.brief {
+  border-top:1px solid #9ab3c238;
+  margin-top:34px;
+  padding-top:21px}
+.brief>span {
+  font:10px ui-monospace,monospace;
+  color:#ddb57b;
+  letter-spacing:2px}
+.brief p {
+  font-size:12px;
+  line-height:1.9;
+  color:#c3d1d8;
+  margin:14px 0 26px}
+.deploy-button {
+  display:flex;
+  justify-content:space-between;
+  align-items:center;
+  width:100%;
+  height:56px;
+  background:#d4b078;
+  border:1px solid #ebc895;
+  color:#172731;
+  padding:0 22px;
+  font-size:13px;
+  font-weight:600;
+  letter-spacing:2px}
+.deploy-button:hover {
+  background:#edd0a1}
+.deploy-button:disabled {
+  opacity:.5;
+  cursor:wait}
+.deploy-button span {
+  font-size:22px;
+  font-weight:300}
+.hint {
+  font-size:10px;
+  line-height:1.9;
+  color:#9eb4c1;
+  margin-top:15px}
+.menu-footer {
+  display:flex;
+  gap:24px;
+  margin-top:22px;
+  align-items:center}
+.menu-footer a,.menu-footer button {
+  color:#bbcdd7;
+  font-size:10px;
+  background:none;
+  border:0;
+  padding:0;
+  text-decoration:underline;
+  text-underline-offset:4px}
+.scope {
+  font-size:9px;
+  color:#8eabb9;
+  margin-top:24px;
+  letter-spacing:1px}
+.fallback-note {
+  position:absolute;
+  left:50%;
+  top:80px;
+  transform:translateX(-50%);
+  background:#152835da;
+  padding:12px;
+  font-size:11px;
+  white-space:nowrap}
+.fatal {
+  position:absolute;
+  z-index:10;
+  inset:0;
+  background:#152531;
+  display:grid;
+  place-content:center;
+  padding:30px;
+  color:#f0c38c}
+.sr-only {
+  position:absolute;
+  width:1px;
+  height:1px;
+  padding:0;
+  overflow:hidden;
+  clip-path:inset(50%);
+  white-space:nowrap;
+  pointer-events:none}
+@media(max-width:760px) {
+  .arena {
+  min-height:0}
+.sector {
+  left:18px;
+  top:18px}
+.unit {
+  right:18px;
+  top:21px}
+.sector strong {
+  font-size:18px}
+.unit strong {
+  font-size:16px}
+.sector small,.unit small,.compass,.offline,.mission {
+  display:none}
+.readout {
+  left:18px;
+  bottom:95px;
+  width:160px}
+.readout strong {
+  font-size:32px}
+.controls {
+  left:18px;
+  right:18px;
+  bottom:17px;
+  gap:12px;
+  flex-wrap:wrap}
+.controls span {
+  font-size:9px}
+.deployment {
+  padding:25px;
+  background:#132330dc}
+.deployment h1 {
+  font-size:50px}
+.brief {
+  margin-top:24px}
+.fallback-note {
+  top:70px;
+  font-size:9px;
+  max-width:90%;
+  white-space:normal}
+.deployment-card {
+  max-width:380px}
+}
+
+:root {
+  --lock-color:#f8cc72}
+
+.deployment-card {
+  max-height:calc(100dvh - 44px);
+  overflow-y:auto;
+  padding:4px 10px 8px 0;
+  scrollbar-width:thin}
+.audio-settings {
+  display:flex;
+  gap:16px;
+  margin:16px 0 4px}
+.audio-settings label {
+  display:flex;
+  align-items:center;
+  gap:8px;
+  font-size:11px;
+  flex:1}
+.audio-settings input {
+  width:100%;
+  min-width:50px;
+  accent-color:#d4b078}
+.game-credits {
+  font-size:10px;
+  color:#a4bec9;
+  margin-top:16px;
+  line-height:1.8}
+.game-credits summary {
+  cursor:pointer}
+.menu-footer {
+  flex-wrap:wrap}
+
+.exercise-mode {
+  display:flex;
+  align-items:center;
+  justify-content:space-between;
+  gap:12px;
+  font-size:11px;
+  margin:0 0 16px;
+  color:#c3d1d8}
+.exercise-mode select {
+  font:inherit;
+  background:#182e3d;
+  color:#e4edef;
+  border:1px solid #8ca6b2;
+  padding:8px}
+
+.armor-readout {
+  position:absolute;
+  left:38px;
+  bottom:265px;
+  width:220px;
+  font:11px ui-monospace,monospace;
+  pointer-events:none;
+  text-shadow:0 1px 4px #07181e}
+.armor-readout strong {
+  font-size:24px;
+  color:#b9edcf}
+.armor-readout>div {
+  height:4px;
+  background:#223c48;
+  margin-top:8px}
+.armor-readout i {
+  display:block;
+  height:100%;
+  background:#a0e0b9}
+
+.damage-flash {
+  position:absolute;
+  inset:0;
+  pointer-events:none;
+  box-shadow:inset 0 0 110px #ed49358c}
+.target-brackets.hostile-warning {
+  border-color:#ff7259!important;
+  box-shadow:0 0 12px #ff725966}
+
+@media(max-width:760px) {
+  .armor-readout {
+  left:18px;
+  bottom:220px;
+  width:150px}
+.armor-readout strong {
+  font-size:20px}
+.deployment .brief p {
+  margin-bottom:14px}
+.deployment .scope {
+  margin-top:12px}
+.deployment .brief {
+  margin-top:16px;
+  padding-top:12px}
+}
+
+.target-overlay {
+  position:absolute;
+  inset:0;
+  pointer-events:none;
+  font:10px ui-monospace,monospace;
+  color:#d9edf0;
+  text-shadow:0 1px 4px #07181e}
+
+.target-marker {
+  position:absolute;
+  transform:translate(-50%,-50%);
+  width:78px;
+  text-align:center}
+
+.target-marker>span {
+  display:block;
+  font-size:9px;
+  white-space:nowrap;
+  margin-bottom:5px}
+
+.target-brackets {
+  height:58px;
+  border:1px solid #a0d4e066;
+  border-top-color:#a0d4e0;
+  border-bottom-color:#a0d4e0}
+
+.target-marker.locked {
+  color:var(--lock-color)}
+
+.target-marker.locked .target-brackets {
+  border:2px solid var(--lock-color);
+  box-shadow:0 0 9px #fac25e33}
+
+.target-health {
+  height:3px;
+  background:#223c48;
+  margin-top:5px}
+
+.target-health i {
+  display:block;
+  height:100%;
+  background:#90dcd0;
+  transition:width .1s}
+
+.target-marker small {
+  display:block;
+  margin-top:5px;
+  white-space:nowrap;
+  font-size:8px}
+
+.weapon-readout {
+  position:absolute;
+  right:38px;
+  bottom:250px;
+  width:270px;
+  padding:12px 16px;
+  text-align:right;
+  background:#172c38c9;
+  border-top:1px solid #8cbac47a;
+  pointer-events:none;
+  font:10px ui-monospace,monospace}
+
+.weapon-readout strong {
+  display:block;
+  color:var(--lock-color);
+  font-size:14px;
+  letter-spacing:1px;
+  margin:7px 0}
+
+.weapon-readout small {
+  display:block;
+  font-size:9px;
+  color:#c6dadf;
+  margin:7px 0 10px}
+
+@media(max-width:760px) {
+  .weapon-readout {
+  left:auto;
+  right:15px;
+  bottom:105px;
+  transform:none;
+  width:210px;
+  padding:8px}
+.weapon-readout strong {
+  font-size:11px}
+.weapon-readout small {
+  font-size:8px}
+.target-marker {
+  width:60px}
+.target-brackets {
+  height:45px}
+}
+
+
+html, body { width: 100%; height: 100%; overflow: hidden; }
+.arena > canvas { position: absolute; inset: 0; width: 100%; height: 100%; display: block; }
+button, input, select { font: inherit; }
+input:focus-visible, select:focus-visible, summary:focus-visible { outline: 2px solid #91eced; outline-offset: 4px; }
+[hidden] { display: none !important; }
+.deployment { width: 100%; max-width: none; height: 100dvh; max-height: none; margin: 0; border: 0; color: inherit; }
+.deployment:not([open]) { display: none; }
+.deployment::backdrop { background: transparent; }
+.deployment-card { scrollbar-gutter: stable; overscroll-behavior: contain; }
+.deployment h1 { overflow-wrap: anywhere; }
+.deploy-button #deploy-label { font: inherit; }
+.audio-settings { padding: 0; border: 0; min-width: 0; }
+.audio-settings label { min-width: 0; }
+.audio-settings input { min-width: 0; }
+.pause-button { position: absolute; right: 38px; top: 116px; padding: 5px 8px; border: 1px solid #d8e5eb55; background: #172c3870; color: #e2ecee; font-size: 10px; }
+.pause-button kbd { margin-left: 5px; font: 9px ui-monospace, monospace; }
+.speed-track i, .armor-readout i { width: 0; }
+@media (max-width: 760px) {
+  .pause-button { top: 74px; right: 18px; }
+  .weapon-readout { width: min(210px, 47vw); bottom: 110px; }
+  .readout { width: min(160px, 42vw); }
+  .fallback-note { top: 104px; }
+}
+@media (max-height: 520px) {
+  .deployment { padding: 20px 7vw; }
+  .deployment-card { max-height: calc(100dvh - 40px); }
+  .readout { bottom: 58px; }
+  .armor-readout { bottom: 190px; }
+  .weapon-readout { bottom: 130px; }
+  .mission { bottom: 60px; }
+  .mission p, .mission small, .offline { display: none; }
+  .controls { bottom: 12px; padding-top: 8px; }
+}
+@media (prefers-reduced-motion: reduce) {
+  .target-health i { transition: none; }
+}
+
+.audio-settings label { white-space: nowrap; }
+.fallback-note { margin: 0; }
+.arena > canvas:focus { outline: none; }

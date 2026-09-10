@@ -1,0 +1,51 @@
+<!doctype html>
+<html lang="ja">
+  <head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width,initial-scale=1">
+    <meta name="description" content="STRIXとBASTIONによるロボットTPS訓練場。工業区画を防衛するIRON YARDのKagura版。">
+    <title>IRON YARD — ロボットTPS訓練場</title>
+  </head>
+  <body>
+    <main id="arena" class="arena" aria-label="ロボットTPS訓練場">
+      <canvas id="app" width="960" height="640" tabindex="0" aria-label="IRON YARD ゲーム画面"></canvas>
+      <div class="hud" aria-hidden="true">
+        <div class="sector"><span class="eyebrow">FIELD TEST / 001</span><strong>IRON YARD<span>04</span></strong><small>INDUSTRIAL PROVING GROUND</small></div>
+        <div class="unit"><i></i><span id="uplink">STANDBY</span><strong>STRIX–04</strong><small>QUADRUPED / MOBILITY TEST</small></div>
+        <div class="compass"><span>W</span><span>│</span><b id="heading">000°</b><span>│</span><span>E</span></div>
+        <div id="reticle" class="reticle"><i></i></div>
+        <div class="readout">
+          <span class="eyebrow">GROUND SPEED</span><div><strong id="speed">0.0</strong><small>KM/H</small></div>
+          <div class="speed-track"><i id="speed-bar"></i></div>
+          <p id="motion">LOCOMOTION / IDLE</p><small id="position">ALT 0.0m　X 0.0　Z -36.0</small>
+        </div>
+        <div class="mission"><span id="mission" class="eyebrow">WAVE 1 / 3</span><strong id="objective">敵機を撃破せよ</strong><p id="remaining">残り 180 秒 · 遮蔽物を使って回避</p><small id="kills">撃破 0 / 9</small></div>
+        <div class="controls"><span><kbd>W A S D</kbd>移動</span><span><kbd>MOUSE</kbd>視点</span><span><kbd>SPACE</kbd>ジャンプ／長押し上昇</span><span><kbd>SHIFT</kbd>高速移動</span><span><kbd>ESC</kbd>停止</span></div>
+        <div class="offline">WEAPONS ONLINE<span>LIVE FIRE EXERCISE</span></div>
+      </div>
+      <div id="targets" class="target-overlay" aria-hidden="true"></div>
+      <aside class="weapon-readout" aria-label="武装の状態" aria-live="off"><span>RIFLE / AUTO　∞</span><strong id="weapons">MULTI LOCK 0 / 3</strong><small id="weapon-hint">左クリック：射撃　E長押し→離す：ミサイル</small><span id="scores">HIT 0　DESTROYED 0 / 9</span></aside>
+      <div class="armor-readout" aria-label="自機AP">AP <strong id="ap">1000</strong> / 1000<div><i id="armor-bar"></i></div></div>
+      <div id="damage" class="damage-flash" aria-hidden="true" hidden></div>
+      <button id="pause" class="pause-button" type="button" aria-label="一時停止" hidden>停止 <kbd>Esc</kbd></button>
+      <p id="fallback-note" class="fallback-note" hidden>マウス固定が使えないため、右ドラッグで視点操作できます。Escで一時停止。</p>
+      <output id="telemetry" class="sr-only" aria-label="機体の状態" aria-live="off"></output>
+      <dialog id="menu" class="deployment" aria-label="出撃メニュー" aria-describedby="message">
+        <div class="deployment-card">
+          <span class="eyebrow">STRIX × BASTION / FIELD LAB</span>
+          <h1 id="menu-title">IRON YARD</h1>
+          <p id="message" class="subtitle" role="status">機体と戦場を読み込んでいます…</p>
+          <div class="brief"><span id="brief-title">DEFENSE MISSION</span><p><span id="brief-mission">180秒以内に3波・9機を撃破。波の突破でAPを200回復。</span><br>左クリックで連射。E長押し→離してミサイル。<br>赤い射撃予告を見て回避。Shiftで高速移動。</p></div>
+          <label class="exercise-mode" for="mode">演習モード<select id="mode"><option value="combat">敵AIと交戦</option><option value="training">静止標的で練習</option></select></label>
+          <button id="deploy" class="deploy-button" type="button" aria-label="出撃する" disabled autofocus><span id="deploy-label">機体を読み込み中…</span><span class="deploy-arrow" aria-hidden="true">↗</span></button>
+          <fieldset class="audio-settings"><legend class="sr-only">音量</legend><label for="music-volume">BGM<input id="music-volume" aria-label="BGM音量" type="range" min="0" max="1" step=".01" value=".23"></label><label for="effects-volume">効果音<input id="effects-volume" aria-label="効果音音量" type="range" min="0" max="1" step=".01" value=".7"></label></fieldset>
+          <p class="hint">クリックでマウスを固定 · Escで解除<br>固定できない環境では右ドラッグで視点操作</p>
+          <nav class="menu-footer" aria-label="演習の設定"><button id="reset" type="button">出発地点へ戻す</button><button id="mute" type="button" aria-pressed="false">音声をミュート</button></nav>
+          <details class="game-credits"><summary>クレジット・操作</summary><p>モデル・モーション：modeling-playground<br>BGM「閃光の誓い」・効果音：Audio Studio<br>制作：mizchi / Codex<br>WASD：移動、Space：ジャンプ、Shift：ブースト、Esc：停止</p></details>
+          <p class="scope">Space短押し：ジャンプ · 長押し：上昇ブースト<br>弾数無制限 · ミサイル再装填3秒 · Escから標的をリセット</p>
+        </div>
+      </dialog>
+    </main>
+    <script type="module" src="./web/main.mjs"></script>
+  </body>
+</html>

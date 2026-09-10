@@ -1,17 +1,4 @@
 ///|
-fn cell_coords_from_key(key : Int64) -> (Int, Int, Int) {
-  let mask = cell_coord_mask.to_int64()
-  let x_bits = ((key >> 42) & mask).to_int()
-  let y_bits = ((key >> 21) & mask).to_int()
-  let z_bits = (key & mask).to_int()
-  (
-    cell_coord_from_bits(x_bits),
-    cell_coord_from_bits(y_bits),
-    cell_coord_from_bits(z_bits),
-  )
-}
-
-///|
 fn entry_overlap_start_mask(
   entry : BroadphaseEntry,
   cx : Int,
@@ -65,8 +52,7 @@ pub fn SpatialHashGrid::query_aabb(
   for cx = min_cx; cx <= max_cx; cx = cx + 1 {
     for cy = min_cy; cy <= max_cy; cy = cy + 1 {
       for cz = min_cz; cz <= max_cz; cz = cz + 1 {
-        let key = cell_key(cx, cy, cz)
-        match self.cells.get(key) {
+        match self.cell_at(cx, cy, cz) {
           Some(bucket) =>
             for i = 0; i < bucket.length(); i = i + 1 {
               let entry = self.entries[bucket[i]]
@@ -115,8 +101,7 @@ pub fn SpatialHashGrid::query_sphere(
   for cx = min_cx; cx <= max_cx; cx = cx + 1 {
     for cy = min_cy; cy <= max_cy; cy = cy + 1 {
       for cz = min_cz; cz <= max_cz; cz = cz + 1 {
-        let key = cell_key(cx, cy, cz)
-        match self.cells.get(key) {
+        match self.cell_at(cx, cy, cz) {
           Some(bucket) =>
             for i = 0; i < bucket.length(); i = i + 1 {
               let entry = self.entries[bucket[i]]
@@ -161,8 +146,7 @@ pub fn SpatialHashGrid::query_ray(
   for cx = min_cx; cx <= max_cx; cx = cx + 1 {
     for cy = min_cy; cy <= max_cy; cy = cy + 1 {
       for cz = min_cz; cz <= max_cz; cz = cz + 1 {
-        let key = cell_key(cx, cy, cz)
-        match self.cells.get(key) {
+        match self.cell_at(cx, cy, cz) {
           Some(bucket) =>
             for i = 0; i < bucket.length(); i = i + 1 {
               let entry = self.entries[bucket[i]]
@@ -186,26 +170,36 @@ pub fn SpatialHashGrid::query_ray(
 }
 
 ///|
+/// Candidate overlapping pairs, each reported once.
+///
+/// Cells are walked in first-touch order, which is the order the old
+/// `Map[Int64, _]` gave through `each` -- `Map` keeps an insertion-ordered
+/// linked list. Pair order reaches the solver, so this is load-bearing.
 pub fn SpatialHashGrid::get_pairs(self : SpatialHashGrid) -> Array[(Int, Int)] {
   let result : Array[(Int, Int)] = []
-  self.cells.each(fn(key, bucket) {
-    if bucket.length() < 2 {
-      return
+  for ci = 0; ci < self.cell_count; ci = ci + 1 {
+    let bucket = self.cell_items[ci]
+    let bucket_len = bucket.length()
+    if bucket_len < 2 {
+      continue
     }
-    let (cx, cy, cz) = cell_coords_from_key(key)
-    let bucket_masks : Array[Int] = Array::make(bucket.length(), 0)
+    let cx = self.cell_cx[ci]
+    let cy = self.cell_cy[ci]
+    let cz = self.cell_cz[ci]
+    self.reserve_mask_scratch(bucket_len)
+    let bucket_masks = self.mask_scratch
     let mut mask_bits = 0
-    for i = 0; i < bucket.length(); i = i + 1 {
+    for i = 0; i < bucket_len; i = i + 1 {
       let mask = entry_overlap_start_mask(self.entries[bucket[i]], cx, cy, cz)
       bucket_masks[i] = mask
       mask_bits = mask_bits | (1 << mask)
     }
     if !bucket_mask_bits_can_emit_pairs(mask_bits) {
-      return
+      continue
     }
-    for i = 0; i < bucket.length(); i = i + 1 {
+    for i = 0; i < bucket_len; i = i + 1 {
       let mask_i = bucket_masks[i]
-      for j = i + 1; j < bucket.length(); j = j + 1 {
+      for j = i + 1; j < bucket_len; j = j + 1 {
         if (mask_i | bucket_masks[j]) != 7 {
           continue
         }
@@ -218,6 +212,6 @@ pub fn SpatialHashGrid::get_pairs(self : SpatialHashGrid) -> Array[(Int, Int)] {
         }
       }
     }
-  })
+  }
   result
 }

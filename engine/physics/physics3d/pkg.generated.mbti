@@ -20,9 +20,9 @@ pub fn resolve_contact(RigidBody, RigidBody, Contact) -> (RigidBody, RigidBody)
 
 pub fn resolve_velocity3d(RigidBody, RigidBody, Contact) -> (RigidBody, RigidBody)
 
-pub fn solve_ball_joint3d(Array[BallJointConstraint3D], Int, Array[RigidBody]) -> Unit
+pub fn solve_ball_joint3d(Array[BallJointConstraint3D], Int, Array[RigidBody], VelocityState3D) -> Unit
 
-pub fn solve_distance_joint3d(Array[DistanceJointConstraint3D], Int, Array[RigidBody], DistanceJoint3D) -> Unit
+pub fn solve_distance_joint3d(Array[DistanceJointConstraint3D], Int, Array[RigidBody], DistanceJoint3D, VelocityState3D) -> Unit
 
 pub fn sweep_sphere_aabb(@math3d.Vec3, @math3d.Vec3, Double, @math3d.Vec3, @math3d.Vec3) -> Double?
 
@@ -86,6 +86,25 @@ pub fn Contact::to_repr(Self) -> @debug.Repr
 pub fn Contact::to_string(Self) -> String
 pub impl Show for Contact
 
+pub struct ContactCache3D {
+  mut count : Int
+  mut slots : FixedArray[Int]
+  mut slot_mask : Int
+  id_a : Array[Int]
+  id_b : Array[Int]
+  normal_x : Array[Double]
+  normal_y : Array[Double]
+  normal_z : Array[Double]
+  normal_impulse : Array[Double]
+  tangent_impulse : Array[Double]
+}
+pub fn ContactCache3D::clear(Self) -> Unit
+pub fn ContactCache3D::contains(Self, Int, Int) -> Bool
+pub fn ContactCache3D::find(Self, Int, Int) -> Int
+pub fn ContactCache3D::length(Self) -> Int
+pub fn ContactCache3D::new() -> Self
+pub fn ContactCache3D::store(Self, Int, Int, @math3d.Vec3, Double, Double) -> Unit
+
 pub(all) struct ContactConstraint3D {
   idx_a : Int
   idx_b : Int
@@ -100,13 +119,6 @@ pub(all) struct ContactConstraint3D {
   restitution_bias : Double
   mut acc_jn : Double
   mut acc_jt : Double
-}
-
-pub(all) struct ContactManifold3D {
-  body_a_id : Int
-  body_b_id : Int
-  normal : @math3d.Vec3
-  points : Array[ManifoldPoint3D]
 }
 
 pub(all) struct DistanceJoint3D {
@@ -131,20 +143,13 @@ pub(all) struct DistanceJointConstraint3D {
   mut acc_impulse : Double
 }
 
-pub(all) struct ManifoldPoint3D {
-  local_a : @math3d.Vec3
-  local_b : @math3d.Vec3
-  penetration : Double
-  normal_impulse : Double
-  tangent_impulse : Double
-}
-
 pub(all) struct PhysicsWorld {
   bodies : Array[RigidBody]
   gravity : @math3d.Vec3
   broadphase : @collision3d.SpatialHashGrid
   solver_config : SolverConfig3D
-  contact_cache : Map[Int64, ContactManifold3D]
+  contact_cache : ContactCache3D
+  velocity_state : VelocityState3D
   joints_distance : Array[DistanceJoint3D]
   joints_ball : Array[BallJoint3D]
 }
@@ -202,6 +207,19 @@ pub(all) struct SolverConfig3D {
   contact_damping_ratio : Double
 }
 pub fn SolverConfig3D::default() -> Self
+
+pub struct VelocityState3D {
+  vx : Array[Double]
+  vy : Array[Double]
+  vz : Array[Double]
+  wx : Array[Double]
+  wy : Array[Double]
+  wz : Array[Double]
+  mut count : Int
+}
+pub fn VelocityState3D::load(Self, Array[RigidBody]) -> Unit
+pub fn VelocityState3D::new() -> Self
+pub fn VelocityState3D::store(Self, Array[RigidBody]) -> Unit
 
 // Type aliases
 

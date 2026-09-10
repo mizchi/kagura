@@ -303,8 +303,8 @@ fn bench_build_chain_bodies3d(world : PhysicsWorld, count : Int) -> Unit {
 }
 
 ///|
-/// Static bodies get ids well above the dynamic range so `contact_pair_key3d`
-/// never collides between the floor and a body.
+/// Static bodies get ids well above the dynamic range so a static/dynamic pair
+/// can never be confused with a dynamic/dynamic one in the contact cache.
 let bench_static_id_base3d : Int = 1_000_000
 
 ///|

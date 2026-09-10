@@ -275,10 +275,9 @@ test "step populates contact cache for warm starting 3d" {
     ).with_damping(0.0),
   )
   world.step(1.0 / 60.0)
-  let key = contact_pair_key3d(0, 1)
-  assert_true(world.contact_cache.get(key) is Some(_))
+  assert_true(world.contact_cache.contains(0, 1))
   world.step(1.0 / 60.0)
-  assert_true(world.contact_cache.get(key) is Some(_))
+  assert_true(world.contact_cache.contains(0, 1))
 }
 
 ///|
@@ -300,16 +299,15 @@ test "step clears stale contact cache when contact ends 3d" {
       SphereShape(@math3d.Vec3::zero(), 0.75),
     ).with_damping(0.0),
   )
-  let key = contact_pair_key3d(0, 1)
   world.step(1.0 / 60.0)
-  assert_true(world.contact_cache.get(key) is Some(_))
+  assert_true(world.contact_cache.contains(0, 1))
   world.bodies[1] = {
     ..world.bodies[1],
     position: @math3d.Vec3::new(10.0, 0.0, 0.0),
     velocity: @math3d.Vec3::zero(),
   }
   world.step(1.0 / 60.0)
-  assert_true(world.contact_cache.get(key) is None)
+  assert_false(world.contact_cache.contains(0, 1))
 }
 
 ///|

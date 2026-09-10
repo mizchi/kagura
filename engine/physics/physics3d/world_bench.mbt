@@ -312,3 +312,87 @@ test "bench physics3d phase sleep islands resting 256" (b : @bench.T) {
     b.keep(world.body_count())
   })
 }
+
+// ---------------------------------------------------------------------------
+// The substep loop, priced where it actually runs
+// ---------------------------------------------------------------------------
+//
+// The three `phase_` benchmarks above run their phase on a **reset** body state:
+// the frame's velocities as the previous frame left them, before this frame's
+// gravity. The substep loop never sees that state. It sees bodies that
+// `phase_integrate_velocities` has just accelerated.
+//
+// That used to matter enormously. With velocities near converged, the old
+// AoS solver's impulse writes fell behind their `> 1e-15` guards, and skipping a
+// write meant skipping two `RigidBody` rebuilds and a dozen `Vec3`
+// allocations — so the isolated benchmark measured the cheap branch of an
+// allocation-bound loop. Measured on that code: 77us from
+// `phase_solve_velocities_pile_256`, against 394us for the same pass priced in
+// situ (hold substeps at 4, step `velocity_iterations` 1 -> 2 -> 4 on a full
+// `step`, take the slope). A 5x understatement, and it was the whole reason the
+// phase table accounted for well under half of `step_pile_256`.
+//
+// Now that the solve pass writes into flat arrays, the guards skip arithmetic
+// rather than allocation, and the gap is down to about 1.4x. Which is the point:
+// the discrepancy was never noise, it was the allocation the isolated fixture
+// avoided.
+//
+// These three price the same phases as **cumulative prefixes of one substep**,
+// which is the only honest shape available — `moon bench` has no per-iteration
+// setup hook, so whatever the closure needs in order to reach a realistic state
+// is inside the measurement. Read them by subtracting neighbours:
+//
+//   integrate_velocities = substep_integrate_velocities - phase_reset_bodies_constraints
+//   solve_velocities     = substep_solve_velocities     - substep_integrate_velocities
+//   integrate_positions  = substep_integrate_positions  - substep_solve_velocities
+//
+// The `phase_` benchmarks stay, unchanged: they are the low-noise,
+// floor-subtractable numbers, and they are what `physics2d` is comparable
+// against. They are just not the cost of a substep.
+
+///|
+test "bench physics3d substep prefix pile 256" (b : @bench.T) {
+  let fixture = bench_pile_fixture3d(256, bench_warm_frames3d)
+  let world = fixture.world
+  let config = world.solver_config
+  let sub_dt = bench_dt3d / config.substeps.to_double()
+  let template = world.phase_contact_constraints(
+    world.phase_broadphase_pairs(),
+    sub_dt,
+  )
+  let (dist_constraints, ball_constraints) = world.phase_joint_constraints(
+    sub_dt,
+  )
+  let constraints = template.copy()
+  b.bench(name="physics3d/substep_integrate_velocities_pile_256", fn() {
+    fixture.reset()
+    bench_restore_constraints3d(constraints, template)
+    world.phase_integrate_velocities(sub_dt)
+    b.keep(world.body_count())
+  })
+  b.bench(name="physics3d/substep_solve_velocities_pile_256", fn() {
+    fixture.reset()
+    bench_restore_constraints3d(constraints, template)
+    world.phase_integrate_velocities(sub_dt)
+    world.phase_solve_velocities(
+      constraints,
+      dist_constraints,
+      ball_constraints,
+      config.velocity_iterations,
+    )
+    b.keep(constraints.length())
+  })
+  b.bench(name="physics3d/substep_integrate_positions_pile_256", fn() {
+    fixture.reset()
+    bench_restore_constraints3d(constraints, template)
+    world.phase_integrate_velocities(sub_dt)
+    world.phase_solve_velocities(
+      constraints,
+      dist_constraints,
+      ball_constraints,
+      config.velocity_iterations,
+    )
+    world.phase_integrate_positions(sub_dt)
+    b.keep(world.body_count())
+  })
+}

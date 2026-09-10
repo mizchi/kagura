@@ -9,7 +9,8 @@ pub fn PhysicsWorld::new(
     gravity,
     broadphase: @collision3d.SpatialHashGrid::new(broadphase_cell_size),
     solver_config,
-    contact_cache: Map([]),
+    contact_cache: ContactCache3D::new(),
+    velocity_state: VelocityState3D::new(),
     joints_distance: [],
     joints_ball: [],
   }
@@ -126,13 +127,6 @@ fn uf_union3d(parent : Array[Int], rank : Array[Int], a : Int, b : Int) -> Unit 
 }
 
 ///|
-fn contact_pair_key3d(id_a : Int, id_b : Int) -> Int64 {
-  let min_id = if id_a < id_b { id_a } else { id_b }
-  let max_id = if id_a < id_b { id_b } else { id_a }
-  (min_id.to_int64() << 32) | (max_id.to_int64() & 0xFFFFFFFFL)
-}
-
-///|
 /// Phase 1: rebuild the broadphase from current body AABBs and return the
 /// candidate pairs.
 ///
@@ -181,40 +175,35 @@ fn PhysicsWorld::phase_contact_constraints(
             body_a, body_b, idx_a, idx_b, contact, contact_gamma, contact_bias_coefficient,
           )
           // Warm starting: look up cached impulses from previous frame
-          let pair_key = contact_pair_key3d(body_a.id, body_b.id)
-          match self.contact_cache.get(pair_key) {
-            Some(cached) =>
-              if cached.normal.dot(contact.normal) > 0.9 {
-                if cached.points.length() > 0 {
-                  let pt = cached.points[0]
-                  let warm_factor = 0.8
-                  constraint = {
-                    ..constraint,
-                    acc_jn: pt.normal_impulse * warm_factor,
-                    acc_jt: pt.tangent_impulse * warm_factor,
-                  }
-                  let n = contact.normal
-                  let tangent = constraint.tangent_dir
-                  let jn = pt.normal_impulse * warm_factor
-                  let jt = pt.tangent_impulse * warm_factor
-                  if jn.abs() > 1.0e-15 || jt.abs() > 1.0e-15 {
-                    let impulse = n.scale(jn).add(tangent.scale(jt))
-                    self.bodies[idx_a] = {
-                      ..self.bodies[idx_a],
-                      velocity: self.bodies[idx_a].velocity.add(
-                        impulse.scale(body_a.inv_mass),
-                      ),
-                    }
-                    self.bodies[idx_b] = {
-                      ..self.bodies[idx_b],
-                      velocity: self.bodies[idx_b].velocity.sub(
-                        impulse.scale(body_b.inv_mass),
-                      ),
-                    }
-                  }
+          let cached = self.contact_cache.find(body_a.id, body_b.id)
+          if cached >= 0 {
+            let cache = self.contact_cache
+            let dot = cache.normal_x[cached] * contact.normal.x +
+              cache.normal_y[cached] * contact.normal.y +
+              cache.normal_z[cached] * contact.normal.z
+            if dot > 0.9 {
+              let warm_factor = 0.8
+              let jn = cache.normal_impulse[cached] * warm_factor
+              let jt = cache.tangent_impulse[cached] * warm_factor
+              constraint = { ..constraint, acc_jn: jn, acc_jt: jt, }
+              if jn.abs() > 1.0e-15 || jt.abs() > 1.0e-15 {
+                let n = contact.normal
+                let tangent = constraint.tangent_dir
+                let impulse = n.scale(jn).add(tangent.scale(jt))
+                self.bodies[idx_a] = {
+                  ..self.bodies[idx_a],
+                  velocity: self.bodies[idx_a].velocity.add(
+                    impulse.scale(body_a.inv_mass),
+                  ),
+                }
+                self.bodies[idx_b] = {
+                  ..self.bodies[idx_b],
+                  velocity: self.bodies[idx_b].velocity.sub(
+                    impulse.scale(body_b.inv_mass),
+                  ),
                 }
               }
-            None => ()
+            }
           }
           constraints.push(constraint)
         }
@@ -296,9 +285,14 @@ fn PhysicsWorld::phase_solve_velocities(
   ball_constraints : Array[BallJointConstraint3D],
   iterations : Int,
 ) -> Unit {
+  // Velocities move into flat arrays for the duration of the pass and back out
+  // at the end, so the constraint loops below allocate nothing. Positions and
+  // masses are still read straight from the bodies -- neither changes here.
+  let vel = self.velocity_state
+  vel.load(self.bodies)
   for _iter = 0; _iter < iterations; _iter = _iter + 1 {
     for ci = 0; ci < constraints.length(); ci = ci + 1 {
-      solve_constraint3d(constraints, ci, self.bodies)
+      solve_constraint3d(constraints, ci, self.bodies, vel)
     }
     for di = 0; di < dist_constraints.length(); di = di + 1 {
       solve_distance_joint3d(
@@ -306,12 +300,14 @@ fn PhysicsWorld::phase_solve_velocities(
         di,
         self.bodies,
         self.joints_distance[di],
+        vel,
       )
     }
     for bi = 0; bi < ball_constraints.length(); bi = bi + 1 {
-      solve_ball_joint3d(ball_constraints, bi, self.bodies)
+      solve_ball_joint3d(ball_constraints, bi, self.bodies, vel)
     }
   }
+  vel.store(self.bodies)
 }
 
 ///|
@@ -387,25 +383,13 @@ fn PhysicsWorld::phase_save_contact_cache(
   self.contact_cache.clear()
   for c = 0; c < constraints.length(); c = c + 1 {
     let con = constraints[c]
-    let body_a = self.bodies[con.idx_a]
-    let body_b = self.bodies[con.idx_b]
-    let pair_key = contact_pair_key3d(body_a.id, body_b.id)
-    let local_a = con.contact.contact_point.sub(body_a.position)
-    let local_b = con.contact.contact_point.sub(body_b.position)
-    self.contact_cache.set(pair_key, {
-      body_a_id: body_a.id,
-      body_b_id: body_b.id,
-      normal: con.contact.normal,
-      points: [
-        {
-          local_a,
-          local_b,
-          penetration: con.contact.penetration,
-          normal_impulse: con.acc_jn,
-          tangent_impulse: con.acc_jt,
-        },
-      ],
-    })
+    self.contact_cache.store(
+      self.bodies[con.idx_a].id,
+      self.bodies[con.idx_b].id,
+      con.contact.normal,
+      con.acc_jn,
+      con.acc_jt,
+    )
   }
 }
 

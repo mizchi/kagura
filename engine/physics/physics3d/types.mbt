@@ -125,23 +125,6 @@ priv struct ContactConstraintRuntime3D {
 ///|
 
 ///|
-pub(all) struct ManifoldPoint3D {
-  local_a : @math3d.Vec3
-  local_b : @math3d.Vec3
-  penetration : Double
-  normal_impulse : Double
-  tangent_impulse : Double
-}
-
-///|
-pub(all) struct ContactManifold3D {
-  body_a_id : Int
-  body_b_id : Int
-  normal : @math3d.Vec3
-  points : Array[ManifoldPoint3D]
-}
-
-///|
 pub(all) struct DistanceJoint3D {
   body_a_id : Int
   body_b_id : Int
@@ -197,7 +180,10 @@ pub(all) struct PhysicsWorld {
   gravity : @math3d.Vec3
   broadphase : @collision3d.SpatialHashGrid
   solver_config : SolverConfig3D
-  contact_cache : Map[Int64, ContactManifold3D]
+  contact_cache : ContactCache3D
+  /// The solve pass's velocity working set, pooled here so a steady body count
+  /// allocates nothing per frame. Only `phase_solve_velocities` touches it.
+  velocity_state : VelocityState3D
   joints_distance : Array[DistanceJoint3D]
   joints_ball : Array[BallJoint3D]
 }

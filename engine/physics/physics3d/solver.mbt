@@ -245,27 +245,58 @@ fn precompute_constraint3d(
   let k_normal = inv_mass_sum +
     r_a_cross_n.dot(r_a_cross_n) * a.inv_inertia +
     r_b_cross_n.dot(r_b_cross_n) * b.inv_inertia
-  let v_rel = if a.angular_velocity.length_squared() <= 1.0e-24 &&
-    b.angular_velocity.length_squared() <= 1.0e-24 {
-    a.velocity.sub(b.velocity)
+  // Relative velocity at the contact, and the tangent direction derived from
+  // it, as scalars. These are pure temporaries -- only `tangent` is kept -- and
+  // this runs once per contact per frame, so building five or six `Vec3` here to
+  // throw them away was the single largest allocation site left in the frame
+  // after the solve pass moved to flat arrays. Grouping is preserved verbatim:
+  // `scale(1.0 / len)` is `t * (1.0 / len)`, not `t / len`.
+  let av = a.velocity
+  let bv = b.velocity
+  let aw = a.angular_velocity
+  let bw = b.angular_velocity
+  let mut vrx = 0.0
+  let mut vry = 0.0
+  let mut vrz = 0.0
+  if aw.x * aw.x + aw.y * aw.y + aw.z * aw.z <= 1.0e-24 &&
+    bw.x * bw.x + bw.y * bw.y + bw.z * bw.z <= 1.0e-24 {
+    vrx = av.x - bv.x
+    vry = av.y - bv.y
+    vrz = av.z - bv.z
   } else {
-    let v_a = a.velocity.add(a.angular_velocity.cross(r_a))
-    let v_b = b.velocity.add(b.angular_velocity.cross(r_b))
-    v_a.sub(v_b)
+    let vax = av.x + (aw.y * r_a.z - aw.z * r_a.y)
+    let vay = av.y + (aw.z * r_a.x - aw.x * r_a.z)
+    let vaz = av.z + (aw.x * r_a.y - aw.y * r_a.x)
+    let vbx = bv.x + (bw.y * r_b.z - bw.z * r_b.y)
+    let vby = bv.y + (bw.z * r_b.x - bw.x * r_b.z)
+    let vbz = bv.z + (bw.x * r_b.y - bw.y * r_b.x)
+    vrx = vax - vbx
+    vry = vay - vby
+    vrz = vaz - vbz
   }
-  let v_n_scalar = v_rel.dot(n)
-  // Compute tangent direction from relative velocity
-  let tangent_vel = v_rel.sub(n.scale(v_n_scalar))
-  let tangent_len = tangent_vel.length()
+  let v_n_scalar = vrx * n.x + vry * n.y + vrz * n.z
+  let tvx = vrx - n.x * v_n_scalar
+  let tvy = vry - n.y * v_n_scalar
+  let tvz = vrz - n.z * v_n_scalar
+  let tangent_len = (tvx * tvx + tvy * tvy + tvz * tvz).sqrt()
   let tangent = if tangent_len > 1.0e-8 {
-    tangent_vel.scale(1.0 / tangent_len)
+    let inv = 1.0 / tangent_len
+    @math3d.Vec3::new(tvx * inv, tvy * inv, tvz * inv)
   } else {
-    let ax = if n.x.abs() < 0.9 {
-      @math3d.Vec3::unit_x()
+    // Degenerate: no sliding velocity, so pick any axis orthogonal to the
+    // normal. `Vec3::normalize` zeroes below 1e-12 rather than dividing.
+    let axx = if n.x.abs() < 0.9 { 1.0 } else { 0.0 }
+    let axy = if n.x.abs() < 0.9 { 0.0 } else { 1.0 }
+    let cx = n.y * 0.0 - n.z * axy
+    let cy = n.z * axx - n.x * 0.0
+    let cz = n.x * axy - n.y * axx
+    let clen = (cx * cx + cy * cy + cz * cz).sqrt()
+    if clen < 1.0e-12 {
+      @math3d.Vec3::zero()
     } else {
-      @math3d.Vec3::unit_y()
+      let inv = 1.0 / clen
+      @math3d.Vec3::new(cx * inv, cy * inv, cz * inv)
     }
-    n.cross(ax).normalize()
   }
   let r_a_cross_t = r_a.cross(tangent)
   let r_b_cross_t = r_b.cross(tangent)
@@ -316,42 +347,79 @@ fn precompute_constraint3d(
 }
 
 ///|
+/// One Gauss-Seidel pass over a single contact constraint.
+///
+/// Velocities come from `vel` rather than from the bodies, and stay there: this
+/// used to read two `RigidBody` structs and write two freshly built ones, with
+/// every intermediate a `Vec3`. See `velocity_state.mbt` for what that cost.
+///
+/// The vector expressions below are expanded by hand rather than reassociated.
+/// Grouping is load-bearing — `n.scale(j).scale(inv_mass)` is
+/// `(n.x * j) * inv_mass` while `r.scale(j * inv_inertia)` is
+/// `r.x * (j * inv_inertia)` — and keeping each site's grouping is what makes this
+/// bit-identical to the version it replaces rather than merely close.
 fn solve_constraint3d(
   constraints : Array[ContactConstraintRuntime3D],
   ci : Int,
   bodies : Array[RigidBody],
+  vel : VelocityState3D,
 ) -> Unit {
   let c = constraints[ci]
-  let a = bodies[c.idx_a]
-  let b = bodies[c.idx_b]
-  let n = c.contact.normal
-  // Current separation
-  let d = b.position.add(c.r_b).sub(a.position.add(c.r_a))
-  let separation = d.dot(n) - c.contact.penetration
+  let ia = c.idx_a
+  let ib = c.idx_b
+  let a = bodies[ia]
+  let b = bodies[ib]
+  let a_inv_mass = a.inv_mass
+  let b_inv_mass = b.inv_mass
+  let a_inv_inertia = a.inv_inertia
+  let b_inv_inertia = b.inv_inertia
+  let contact = c.contact
+  let n = contact.normal
+  let nx = n.x
+  let ny = n.y
+  let nz = n.z
+  let r_a = c.r_a
+  let r_b = c.r_b
+  // Current separation.
+  let dx = b.position.x + r_b.x - (a.position.x + r_a.x)
+  let dy = b.position.y + r_b.y - (a.position.y + r_a.y)
+  let dz = b.position.z + r_b.z - (a.position.z + r_a.z)
+  let separation = dx * nx + dy * ny + dz * nz - contact.penetration
   let bias = if separation + slop < 0.0 {
     -c.bias_coefficient * (separation + slop)
   } else {
     0.0
   }
-  let mut a_velocity = a.velocity
-  let mut a_angular_velocity = a.angular_velocity
-  let mut b_velocity = b.velocity
-  let mut b_angular_velocity = b.angular_velocity
+  let mut avx = vel.vx[ia]
+  let mut avy = vel.vy[ia]
+  let mut avz = vel.vz[ia]
+  let mut awx = vel.wx[ia]
+  let mut awy = vel.wy[ia]
+  let mut awz = vel.wz[ia]
+  let mut bvx = vel.vx[ib]
+  let mut bvy = vel.vy[ib]
+  let mut bvz = vel.vz[ib]
+  let mut bwx = vel.wx[ib]
+  let mut bwy = vel.wy[ib]
+  let mut bwz = vel.wz[ib]
   let mut a_has_angular = false
   let mut b_has_angular = false
-  let mut bodies_dirty = false
   // --- Normal ---
   let v_n = if !c.has_normal_angular {
-    a_velocity.sub(b_velocity).dot(n)
+    (avx - bvx) * nx + (avy - bvy) * ny + (avz - bvz) * nz
   } else {
-    a_has_angular = a_angular_velocity.length_squared() > 1.0e-24
-    b_has_angular = b_angular_velocity.length_squared() > 1.0e-24
+    a_has_angular = awx * awx + awy * awy + awz * awz > 1.0e-24
+    b_has_angular = bwx * bwx + bwy * bwy + bwz * bwz > 1.0e-24
     if a_has_angular || b_has_angular {
-      let v_a = a_velocity.add(a_angular_velocity.cross(c.r_a))
-      let v_b = b_velocity.add(b_angular_velocity.cross(c.r_b))
-      v_a.sub(v_b).dot(n)
+      let vax = avx + (awy * r_a.z - awz * r_a.y)
+      let vay = avy + (awz * r_a.x - awx * r_a.z)
+      let vaz = avz + (awx * r_a.y - awy * r_a.x)
+      let vbx = bvx + (bwy * r_b.z - bwz * r_b.y)
+      let vby = bvy + (bwz * r_b.x - bwx * r_b.z)
+      let vbz = bvz + (bwx * r_b.y - bwy * r_b.x)
+      (vax - vbx) * nx + (vay - vby) * ny + (vaz - vbz) * nz
     } else {
-      a_velocity.sub(b_velocity).dot(n)
+      (avx - bvx) * nx + (avy - bvy) * ny + (avz - bvz) * nz
     }
   }
   let lambda = -(v_n + c.restitution_bias + bias + c.gamma * c.acc_jn) *
@@ -368,42 +436,72 @@ fn solve_constraint3d(
   let cur_acc_jn = new_acc_jn
   let mut cur_acc_jt = c.acc_jt
   if delta_jn.abs() > 1.0e-15 {
-    let impulse_n = n.scale(delta_jn)
-    a_velocity = a_velocity.add(impulse_n.scale(a.inv_mass))
-    b_velocity = b_velocity.sub(impulse_n.scale(b.inv_mass))
+    let inx = nx * delta_jn
+    let iny = ny * delta_jn
+    let inz = nz * delta_jn
+    avx = avx + inx * a_inv_mass
+    avy = avy + iny * a_inv_mass
+    avz = avz + inz * a_inv_mass
+    bvx = bvx - inx * b_inv_mass
+    bvy = bvy - iny * b_inv_mass
+    bvz = bvz - inz * b_inv_mass
     if c.has_normal_angular {
-      a_angular_velocity = clamp_angular_vec(
-        a_angular_velocity.add(c.r_a_cross_n.scale(delta_jn * a.inv_inertia)),
-      )
-      b_angular_velocity = clamp_angular_vec(
-        b_angular_velocity.sub(c.r_b_cross_n.scale(delta_jn * b.inv_inertia)),
-      )
-      if a.inv_inertia >= 1.0e-12 {
+      let sa = delta_jn * a_inv_inertia
+      let r_a_cross_n = c.r_a_cross_n
+      awx = awx + r_a_cross_n.x * sa
+      awy = awy + r_a_cross_n.y * sa
+      awz = awz + r_a_cross_n.z * sa
+      let a_len_sq = awx * awx + awy * awy + awz * awz
+      if a_len_sq > max_angular_velocity_sq {
+        let scale = max_angular_velocity / a_len_sq.sqrt()
+        awx = awx * scale
+        awy = awy * scale
+        awz = awz * scale
+      }
+      let sb = delta_jn * b_inv_inertia
+      let r_b_cross_n = c.r_b_cross_n
+      bwx = bwx - r_b_cross_n.x * sb
+      bwy = bwy - r_b_cross_n.y * sb
+      bwz = bwz - r_b_cross_n.z * sb
+      let b_len_sq = bwx * bwx + bwy * bwy + bwz * bwz
+      if b_len_sq > max_angular_velocity_sq {
+        let scale = max_angular_velocity / b_len_sq.sqrt()
+        bwx = bwx * scale
+        bwy = bwy * scale
+        bwz = bwz * scale
+      }
+      if a_inv_inertia >= 1.0e-12 {
         a_has_angular = true
       }
-      if b.inv_inertia >= 1.0e-12 {
+      if b_inv_inertia >= 1.0e-12 {
         b_has_angular = true
       }
     }
-    bodies_dirty = true
   }
   // --- Friction ---
   let friction_limit = -cur_acc_jn * c.friction
   if friction_limit > 1.0e-15 {
     let tangent = c.tangent_dir
+    let tx = tangent.x
+    let ty = tangent.y
+    let tz = tangent.z
     let v_t = if !c.has_tangent_angular {
-      a_velocity.sub(b_velocity).dot(tangent)
+      (avx - bvx) * tx + (avy - bvy) * ty + (avz - bvz) * tz
     } else {
       if !c.has_normal_angular {
-        a_has_angular = a_angular_velocity.length_squared() > 1.0e-24
-        b_has_angular = b_angular_velocity.length_squared() > 1.0e-24
+        a_has_angular = awx * awx + awy * awy + awz * awz > 1.0e-24
+        b_has_angular = bwx * bwx + bwy * bwy + bwz * bwz > 1.0e-24
       }
       if !a_has_angular && !b_has_angular {
-        a_velocity.sub(b_velocity).dot(tangent)
+        (avx - bvx) * tx + (avy - bvy) * ty + (avz - bvz) * tz
       } else {
-        let v_a2 = a_velocity.add(a_angular_velocity.cross(c.r_a))
-        let v_b2 = b_velocity.add(b_angular_velocity.cross(c.r_b))
-        v_a2.sub(v_b2).dot(tangent)
+        let vax = avx + (awy * r_a.z - awz * r_a.y)
+        let vay = avy + (awz * r_a.x - awx * r_a.z)
+        let vaz = avz + (awx * r_a.y - awy * r_a.x)
+        let vbx = bvx + (bwy * r_b.z - bwz * r_b.y)
+        let vby = bvy + (bwz * r_b.x - bwx * r_b.z)
+        let vbz = bvz + (bwx * r_b.y - bwy * r_b.x)
+        (vax - vbx) * tx + (vay - vby) * ty + (vaz - vbz) * tz
       }
     }
     let lambda_t = -v_t * c.tangent_mass
@@ -418,32 +516,58 @@ fn solve_constraint3d(
     let delta_jt = new_acc_jt - cur_acc_jt
     cur_acc_jt = new_acc_jt
     if delta_jt.abs() > 1.0e-15 {
-      let impulse_t = tangent.scale(delta_jt)
-      a_velocity = a_velocity.add(impulse_t.scale(a.inv_mass))
-      b_velocity = b_velocity.sub(impulse_t.scale(b.inv_mass))
+      let itx = tx * delta_jt
+      let ity = ty * delta_jt
+      let itz = tz * delta_jt
+      avx = avx + itx * a_inv_mass
+      avy = avy + ity * a_inv_mass
+      avz = avz + itz * a_inv_mass
+      bvx = bvx - itx * b_inv_mass
+      bvy = bvy - ity * b_inv_mass
+      bvz = bvz - itz * b_inv_mass
       if c.has_tangent_angular {
-        a_angular_velocity = clamp_angular_vec(
-          a_angular_velocity.add(c.r_a_cross_t.scale(delta_jt * a.inv_inertia)),
-        )
-        b_angular_velocity = clamp_angular_vec(
-          b_angular_velocity.sub(c.r_b_cross_t.scale(delta_jt * b.inv_inertia)),
-        )
+        let sa = delta_jt * a_inv_inertia
+        let r_a_cross_t = c.r_a_cross_t
+        awx = awx + r_a_cross_t.x * sa
+        awy = awy + r_a_cross_t.y * sa
+        awz = awz + r_a_cross_t.z * sa
+        let a_len_sq = awx * awx + awy * awy + awz * awz
+        if a_len_sq > max_angular_velocity_sq {
+          let scale = max_angular_velocity / a_len_sq.sqrt()
+          awx = awx * scale
+          awy = awy * scale
+          awz = awz * scale
+        }
+        let sb = delta_jt * b_inv_inertia
+        let r_b_cross_t = c.r_b_cross_t
+        bwx = bwx - r_b_cross_t.x * sb
+        bwy = bwy - r_b_cross_t.y * sb
+        bwz = bwz - r_b_cross_t.z * sb
+        let b_len_sq = bwx * bwx + bwy * bwy + bwz * bwz
+        if b_len_sq > max_angular_velocity_sq {
+          let scale = max_angular_velocity / b_len_sq.sqrt()
+          bwx = bwx * scale
+          bwy = bwy * scale
+          bwz = bwz * scale
+        }
       }
-      bodies_dirty = true
     }
   }
-  if bodies_dirty {
-    bodies[c.idx_a] = {
-      ..a,
-      velocity: a_velocity,
-      angular_velocity: a_angular_velocity,
-    }
-    bodies[c.idx_b] = {
-      ..b,
-      velocity: b_velocity,
-      angular_velocity: b_angular_velocity,
-    }
-  }
+  // Unconditional stores: when nothing was applied these write back the values
+  // just read, which is what the AoS version's `bodies_dirty` guard achieved by
+  // skipping an equivalent no-op struct rebuild.
+  vel.vx[ia] = avx
+  vel.vy[ia] = avy
+  vel.vz[ia] = avz
+  vel.wx[ia] = awx
+  vel.wy[ia] = awy
+  vel.wz[ia] = awz
+  vel.vx[ib] = bvx
+  vel.vy[ib] = bvy
+  vel.vz[ib] = bvz
+  vel.wx[ib] = bwx
+  vel.wy[ib] = bwy
+  vel.wz[ib] = bwz
   constraints[ci].acc_jn = cur_acc_jn
   constraints[ci].acc_jt = cur_acc_jt
 }

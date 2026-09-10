@@ -59,8 +59,15 @@ pub impl Show for Ray
 pub struct SpatialHashGrid {
   cell_size : Double
   inv_cell_size : Double
-  cells : Map[Int64, Array[Int]]
   entries : Array[BroadphaseEntry]
+  cell_cx : Array[Int]
+  cell_cy : Array[Int]
+  cell_cz : Array[Int]
+  cell_items : Array[Array[Int]]
+  mut cell_count : Int
+  mut slots : FixedArray[Int]
+  mut slot_mask : Int
+  mut mask_scratch : FixedArray[Int]
 }
 pub fn SpatialHashGrid::clear(Self) -> Unit
 pub fn SpatialHashGrid::count(Self) -> Int

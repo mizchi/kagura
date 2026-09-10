@@ -6,17 +6,34 @@ on:
   pull_request:
 
 jobs:
-  check-test-matrix:
+  # The example projects, sharded across runners.
+  #
+  # This loop is the long pole of the whole run. Measured on the native leg of
+  # the job this replaces: 19m56s of a 22m46s job, i.e. 87%, was the loop --
+  # every example is its own moon module, so each one rebuilds the entire
+  # dependency closure from scratch. The workspace check/test that used to sit
+  # in front of the loop moved out entirely: the `js` and `native-macos` jobs
+  # below already ran the identical commands.
+  #
+  # The two targets get different shard counts because the work is shaped
+  # differently. js tests 33 projects at a flat ~19s each (measured; max 39s, so
+  # round-robin splits it to within ~20% without a per-project cost table).
+  # native tests only 11 -- anything linking wgpu-native is check-only there --
+  # but at ~1.6m each. Past 4 shards native stops improving, since ceil(11/4)
+  # and ceil(11/5) are both 3, and macOS minutes bill at 10x.
+  examples:
+    name: examples (${{ matrix.target }} ${{ matrix.shard }}/${{ matrix.shard_total }})
     strategy:
       fail-fast: false
       matrix:
         include:
-          - name: js
-            os: ubuntu-latest
-            target: js
-          - name: native
-            os: macos-latest
-            target: native
+          - { os: ubuntu-latest, target: js, shard: 1, shard_total: 3 }
+          - { os: ubuntu-latest, target: js, shard: 2, shard_total: 3 }
+          - { os: ubuntu-latest, target: js, shard: 3, shard_total: 3 }
+          - { os: macos-latest, target: native, shard: 1, shard_total: 4 }
+          - { os: macos-latest, target: native, shard: 2, shard_total: 4 }
+          - { os: macos-latest, target: native, shard: 3, shard_total: 4 }
+          - { os: macos-latest, target: native, shard: 4, shard_total: 4 }
     runs-on: ${{ matrix.os }}
     env:
       MOON_CC: clang
@@ -29,25 +46,12 @@ jobs:
           curl -fsSL https://cli.moonbitlang.com/install/unix.sh | bash
           echo "$HOME/.moon/bin" >> "$GITHUB_PATH"
       - uses: taiki-e/install-action@just
-      - name: Setup pnpm
-        if: matrix.target == 'js'
-        run: corepack enable
+      # scripts/example-projects.mjs decides which projects this shard owns, so
+      # pin the Node that runs it rather than taking the runner image default.
+      # No pnpm: the shards need no JS dependencies.
       - uses: actions/setup-node@v4
-        if: matrix.target == 'js'
         with:
           node-version: "24"
-          cache: "pnpm"
-      - name: Install JS deps
-        if: matrix.target == 'js'
-        run: pnpm install --frozen-lockfile
-      - name: Test JS scripts
-        if: matrix.target == 'js'
-        run: node --test scripts/*.test.mjs
-      - name: Release manifest check
-        if: matrix.target == 'js'
-        run: |
-          node scripts/check-moon-release.mjs
-          node scripts/prepare-moon-release.mjs --dry-run
       - name: Update MoonBit registry
         run: moon update
       - name: Setup wgpu-native and glfw
@@ -56,10 +60,34 @@ jobs:
           bash scripts/setup-wgpu-native.sh
           echo "CPATH=$(brew --prefix glfw)/include:/usr/local/include:${CPATH:-}" >> "$GITHUB_ENV"
           echo "LIBRARY_PATH=$(brew --prefix)/lib:/usr/local/lib:${LIBRARY_PATH:-}" >> "$GITHUB_ENV"
-      - name: Check
-        run: just target=${{ matrix.target }} check
-      - name: Test
-        run: just target=${{ matrix.target }} test
+      - name: Check examples
+        run: just target=${{ matrix.target }} check-examples ${{ matrix.shard }}/${{ matrix.shard_total }}
+      - name: Test examples
+        run: just target=${{ matrix.target }} test-examples ${{ matrix.shard }}/${{ matrix.shard_total }}
+
+  # The JS-side unit tests and the release manifest check. These ran in the old
+  # check-test-matrix js leg; they belong here rather than in a shard, so they
+  # run once instead of three times.
+  js-scripts:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - name: Setup pnpm
+        run: corepack enable
+      - uses: actions/setup-node@v4
+        with:
+          node-version: "24"
+          cache: "pnpm"
+      - name: Install JS deps
+        run: pnpm install --frozen-lockfile
+      - name: Test JS scripts
+        run: node --test scripts/*.test.mjs
+      - name: Test web libs
+        run: node --test lib/web/*.test.mjs
+      - name: Release manifest check
+        run: |
+          node scripts/check-moon-release.mjs
+          node scripts/prepare-moon-release.mjs --dry-run
 
   wasm-guests:
     runs-on: ubuntu-latest
@@ -249,8 +277,11 @@ jobs:
         run: moon update
       - name: Setup wgpu-native and glfw
         run: bash scripts/setup-wgpu-native.sh
+      # --deny-warn used to come from the check-test-matrix native leg, which no
+      # longer runs the workspace check. Keep it here so native warnings still
+      # fail the build.
       - name: Check
-        run: moon check --target native
+        run: moon check --deny-warn --target native
       - name: Test
         run: moon test --target native
       - name: Runtime Smoke Build (Native)

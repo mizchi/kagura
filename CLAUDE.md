@@ -74,11 +74,45 @@ parquet 側が x 0.4.50 に追従したら font の天井を外せる。上げ�
 ## ビルド・テスト
 
 ```bash
-just check          # moon check (js)
-just test           # moon test (js)
+just check          # workspace + 全 example (js)
+just test           # workspace + 全 example (js)
 just check target=native  # native ビルド確認
 just check-release  # リリース前チェック（ローカルパス依存の検出）
 ```
+
+`check` / `test` は 2 段に分かれている。workspace だけ回したいときはこちら:
+
+```bash
+just check-workspace          # moon check --deny-warn だけ
+just test-workspace           # root の moon test + lib/web/*.test.mjs だけ
+just check-examples 2/4       # example の 2/4 shard だけ
+just test-examples 2/4        # 同上
+```
+
+**example ループが CI の律速。** example はそれぞれ独立した moon module なので、
+毎回依存クロージャをフルにビルドし直す。実測で、旧 `check-test-matrix` の native leg は
+**22m46s のうち 19m56s（87%）が example ループ**だった。だから CI では shard に割って
+並列化し、workspace の check/test は `js` / `native-macos` job に任せている（同じコマンドを
+2 回走らせていた）。
+
+どの example がどの shard に属するかは `scripts/example-projects.mjs` が決める。
+justfile 側にスキップ規則を書かないこと — 全 runner が同じ commit から同じ分割を
+導けないと、ビルドされない example や 2 回ビルドされる example が出る。規則は
+`scripts/example-projects-utils.mjs` にあり、`scripts/*.test.mjs` が CI で
+「shard の和集合が全体と一致し重複が無い」ことを固定している。
+
+| | check | test |
+|---|---|---|
+| js | 33 | 33 |
+| native | 45 | **11** |
+
+native の test が極端に少ないのは、`wgpu_native` をリンクする example が native では
+check のみになるから。だから native の shard 数を 4 より増やしても縮まない
+（`ceil(11/4)` も `ceil(11/5)` も 3）。macOS runner は課金が 10 倍なので上げていない。
+
+分割は round-robin。js の 33 プロジェクトはコストがほぼ平坦（実測 平均 18.6s / 最大 39s）
+なので、これで imbalance 15〜24% に収まる。連続ブロックで割ると `examples/games/*` が
+1 runner に固まる。**プロジェクトごとのコスト表は作らないこと** — 保守されなくなる。
 
 ## ゲーム UI の検証
 

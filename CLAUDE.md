@@ -287,7 +287,47 @@ reset しないと pile は 30 iteration ほどで沈んで寝て、bench は so
 sleep fast path を測り始める（名前は変わらないまま）。solver の accumulator も戻す:
 収束すると impulse 書き込みが near-zero 分岐に落ち、「もう何も解いていない solve」に化ける。
 
-設計・実測・ここから出た作業項目は `docs/performance/physics-benchmarks.md`。
+**ただし「リセットした状態」はパイプラインの途中の phase が見る状態ではない。**
+substep loop の中の phase を reset 直後の body から測ると、速度が収束近くにあるので
+impulse 書き込みがガードに落ちる。allocation-bound なループではそれが
+「割り当てを飛ばす」ことを意味するので、**安い分岐だけを測る**。実測で
+`phase_solve_velocities` は solve pass を 5x 過小評価していた。対策は
+`physics3d/world_bench.mbt` の `substep_` prefix bench —— 1 substep の**累積 prefix** に
+して隣同士の差を取る。iteration ごとの setup hook が無い以上、現実的な状態に到達する
+処理は測定に含めるしかないので、累積にして差を引くのが唯一正直な形。
+
+**isolated bench で phase を切り分けられないときは、設定を振って傾きを取る。**
+`substeps` を 1/2/4/8、`velocity_iterations` を 1/2/4 に振れば、出荷している `step` を
+そのまま回したまま「1 substep」「constraint 全体 1 パス」の値段が出る。ただし
+`substeps` を変えると `sub_dt` も変わって solver の挙動が変わるので、**順位付けには
+使えるが絶対値として引用してはいけない**（実測で `substep_` 連鎖の 2 倍出た）。
+
+設計・実測・ここから出た作業項目は `docs/performance/physics-benchmarks.md`、
+3D をこの bench で最適化した記録は `docs/performance/physics3d-optimization.md`。
+
+### JS ターゲットの割り当てコスト
+
+物理エンジンで 2.5x 取れた最適化はすべて同じ 1 つの事実に帰着する。**MoonBit の JS
+出力では、`Int64` と immutable struct はどちらも heap object。**
+
+- **`Int64` は `BigInt` になる。** 生成 JS では演算ごとに `BigInt.asUintN` 等が挟まる。
+  broadphase の cell key を 1 個作るのに割り当て 6 回、`Int64::hash` にさらに 8 回だった。
+  **hot path の `Map` key に `Int64` を使わないこと。** 3 軸の cell 座標のように
+  32bit に収まらないキーは、32bit hash の open addressing + 座標を保存して比較、で置く
+  （`collision3d/broadphase.mbt`）
+- **`Vec3` も `RigidBody` も immutable struct なので、素直なベクトル演算は
+  中間オブジェクトを撒く。** hot loop（solver の inner loop）は
+  `Array[Double]` の平坦な列に移してスカラーで書く（`physics3d/velocity_state.mbt`）。
+  Box2D v3 の `b2BodyState` と同じ形で、GC ターゲットでは cache locality よりも
+  「割り当てが消える」ことが本体
+- **手で展開するときグルーピングは load-bearing。** `n.scale(j).scale(m)` は
+  `(n.x * j) * m`、`r.scale(j * i)` は `r.x * (j * i)`。各サイトの括弧を保存すれば
+  結果は bit 一致する。「だいたい同じ」と bit 一致の差はここだけ
+- native でも同じだけ速くなった（2.07x）。`Int64` が無料の native でも broadphase が
+  1.86x になるのは Map と per-cell 配列割り当ても消えたから。**JS 固有の話ではない**
+- 効いたかどうかは**ペア測定**で見ること。このコンテナの run 間分散は
+  `phase_contact_constraints` で ±25% あり、単発では 1.2x が読めない。
+  main と branch を交互に回して中央値を取る（`git worktree add /tmp/x origin/main`）
 
 ## wasm ターゲットと moonbitlang/async
 

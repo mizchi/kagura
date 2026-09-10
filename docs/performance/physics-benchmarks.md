@@ -4,6 +4,10 @@
 - Scope: `engine/physics/physics2d`, `engine/physics/physics3d`, `scripts/bench-gate*.mjs`
 - Goal: 「何を測っているか」が名前から判る physics bench にし、**測っている仕事が消えたことを検知できる**状態にする
 
+> **この doc の数字は最適化前の状態である。** この bench を使って 3D 側を最適化した結果と、
+> ここに書いた結論のうち 1 つが誤りだったこと（下記「3D の支配項」）は
+> [physics3d-optimization.md](./physics3d-optimization.md) にある。
+
 方法論は [mizchi/pixel-lab](https://github.com/mizchi/pixel-lab) の `benchlib` に倣う。
 pixel-lab の bench 結果はどれも **boundary**（`resident` / `construction-inclusive` /
 `end-to-end`）を明示し、**`correctness: {passed, checks, summary}` を結果に埋め込む**。
@@ -23,6 +27,12 @@ pixel-lab の bench 結果はどれも **boundary**（`resident` / `construction
 - **2D と 3D で支配項が違う。** 2D は solver 律速（`solve_velocities` が substep 込みで 41.4%、
   broadphase は 17.5%）、3D は broadphase + narrowphase 律速（合わせて 38.6%、solver は 11.5%）。
   同じ最適化を両方に当てても効かない
+  - **⚠️ 3D についてこの結論は誤りだった。** 下の phase 表を信じた結果で、その表の
+    `solve_velocities` は 5x 過小評価されていた。reset 直後の body 状態で測ると
+    impulse 書き込みがガードに落ち、当時の AoS solver ではそれが「struct 2 個と
+    `Vec3` 12 個を割り当てない」ことを意味したため。in situ で測ると solve pass は
+    **frame の 53%** で、3D の最大の支配項だった。経緯と対策（`substep_` prefix bench）は
+    [physics3d-optimization.md](./physics3d-optimization.md)
 - **broadphase は 1 回の呼び出しとしては両方で最も重い**（2D 907 µs / 3D 1410 µs）。3D では
   substep 4 回分の solver 合計の 1.6 倍
 - **2D には 3D にある sleep fast path が無い。** 同名 bench を並べて初めて見えた
@@ -151,6 +161,10 @@ JIT と cache に有利であり、この差は「取りこぼした phase」で
 未追跡。
 
 ## ここから出てきた作業項目
+
+> 3D 側の 1 / 3 / 4 は [physics3d-optimization.md](./physics3d-optimization.md) で対応済み
+> （broadphase 2.44x、`save_contact_cache` 9.47x、`step_pile_256` 全体で 2.48x）。
+> 2D 側は未着手。5 も未着手。
 
 1. **broadphase**: 1 回の呼び出しとしては両方で最も重く（2D 907 µs / 3D 1410 µs、step 比
    17.5% / 18.6%）、3D では最大の支配項。`get_pairs` は cell 内の候補 pair ごとに

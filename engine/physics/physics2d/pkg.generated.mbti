@@ -242,8 +242,18 @@ pub fn SolverConfig2D::default() -> Self
 pub struct SpatialHashGrid2D {
   cell_size : Double
   inv_cell_size : Double
-  cells : Map[Int64, Array[Int]]
   entries : Array[BroadphaseEntry2D]
+  cell_cx : Array[Int]
+  cell_cy : Array[Int]
+  cell_items : Array[Array[Int]]
+  mut cell_count : Int
+  mut slots : FixedArray[Int]
+  mut slot_mask : Int
+  pair_lo : Array[Int]
+  pair_hi : Array[Int]
+  mut pair_count : Int
+  mut pair_slots : FixedArray[Int]
+  mut pair_slot_mask : Int
 }
 pub fn SpatialHashGrid2D::clear(Self) -> Unit
 pub fn SpatialHashGrid2D::count(Self) -> Int

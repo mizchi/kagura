@@ -110,9 +110,26 @@ native の test が極端に少ないのは、`wgpu_native` をリンクする e
 check のみになるから。だから native の shard 数を 4 より増やしても縮まない
 （`ceil(11/4)` も `ceil(11/5)` も 3）。macOS runner は課金が 10 倍なので上げていない。
 
-分割は round-robin。js の 33 プロジェクトはコストがほぼ平坦（実測 平均 18.6s / 最大 39s）
-なので、これで imbalance 15〜24% に収まる。連続ブロックで割ると `examples/games/*` が
-1 runner に固まる。**プロジェクトごとのコスト表は作らないこと** — 保守されなくなる。
+分割は round-robin。連続ブロックで割ると `examples/games/*` が 1 runner に固まる。
+**プロジェクトごとのコスト表は作らないこと** — 保守されなくなる。
+
+### shard 化後の実測
+
+| | 変更前 | 変更後 |
+|---|---|---|
+| run 全体 | 16m05s（その前は 22m46s） | **7m54s** |
+| 最遅 job | `check-test-matrix (native)` 16m05s | `js` 7m49s |
+| example の最遅 shard | — | `examples (native 1/4)` 7m41s |
+| macOS runner 時間（example 分） | 約 23m（1 job） | 約 23m（4 job 合計） |
+
+**macOS の課金時間は増えなかった。** 4 分割で setup が 4 回に増えた分を、重複していた
+root の `moon test --target native`（2m06s）を落とした分が相殺した。当初は 30m 程度に
+増える見込みだったが、実測は横ばい。
+
+shard の imbalance は実測 29%（native 7m41s 対 4m46s、js 3m34s 対 2m12s）で、
+ローカル実測の 15〜24% より大きい。ただし **native を均し直しても run は縮まない** —
+最遅 shard 7m41s は既に `js` job の 7m49s とほぼ同じで、critical path は example
+ループから `js` job に移っている。次に削るならそこ（7m49s のうち 4.3m が Playwright VRT）。
 
 ## ゲーム UI の検証
 

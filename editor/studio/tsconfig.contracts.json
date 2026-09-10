@@ -1,0 +1,11 @@
+{
+  "compilerOptions": {
+    "strict": true,
+    "noEmit": true,
+    "module": "NodeNext",
+    "target": "ES2023",
+    "lib": ["ES2023", "DOM"],
+    "types": []
+  },
+  "include": ["public/*.d.ts", "headless/*.d.mts", "storage/*.d.mts", "plugins/*.d.mts"]
+}

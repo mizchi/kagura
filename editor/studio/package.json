@@ -1,0 +1,27 @@
+{
+  "name": "kagura-studio",
+  "private": true,
+  "type": "module",
+  "packageManager": "pnpm@10.33.0",
+  "engines": {
+    "node": ">=24"
+  },
+  "scripts": {
+    "dev": "node scripts/dev.mjs",
+    "build": "moon build --target js --release && node scripts/build-plugins.mjs && vite build",
+    "test:e2e": "playwright test"
+  },
+  "dependencies": {
+    "@mizchi/three-mbt": "link:./.mooncakes/mizchi/three/js",
+    "ajv": "8.20.0",
+    "three": "0.185.1"
+  },
+  "devDependencies": {
+    "@playwright/test": "1.63.0",
+    "miniflare": "5.20260908.0-alpha",
+    "typescript": "7.0.2",
+    "vite": "8.2.2",
+    "wabt": "1.0.39",
+    "wrangler": "4.130.0"
+  }
+}

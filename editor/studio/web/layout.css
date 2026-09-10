@@ -1,0 +1,143 @@
+/* The window owns the outer height; only individual panes own content scrolling. */
+html, body, #app {
+  height: 100%;
+  width: 100%;
+  margin: 0;
+  overflow: hidden;
+}
+.studio {
+  height: 100vh;
+  min-height: 0;
+  display: flex;
+  flex-direction: column;
+  overflow: hidden;
+}
+.toolbar, .workspace-bar, .statusbar {
+  flex-shrink: 0;
+  min-width: 0;
+}
+.toolbar {
+  height: 38px;
+  padding: 0 10px;
+  gap: 14px;
+  min-height: 0;
+  flex-wrap: nowrap;
+  overflow-x: auto;
+  overflow-y: hidden;
+}
+.toolbar-actions, .brand { flex-shrink: 0; }
+.toolbar-actions { flex-wrap: nowrap; }
+.statusbar {
+  height: 24px;
+  min-height: 0;
+  flex-wrap: nowrap;
+  overflow: hidden;
+}
+.statusbar > * { white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+.workspace {
+  display: grid;
+  grid-template-columns: var(--column-left, 17fr) 6px var(--column-center, 60fr) 6px var(--column-right, 23fr);
+  grid-template-rows: minmax(0, 1fr);
+  flex: 1;
+  min-width: 0;
+  min-height: 0;
+  overflow: hidden;
+  background: var(--border);
+}
+.pane-column {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr);
+  grid-template-rows: var(--pane-top, minmax(0, 7fr)) 6px minmax(0, 3fr);
+  min-width: 0;
+  min-height: 0;
+  overflow: hidden;
+}
+/* Neutralize the former grid areas: each column is now an independent split. */
+.workspace .panel {
+  grid-area: auto;
+  min-width: 0;
+  min-height: 0;
+  overflow: auto;
+  overscroll-behavior: contain;
+}
+.panel-heading {
+  position: sticky;
+  top: 0;
+  z-index: 1;
+}
+.workspace .viewport { overflow: hidden; }
+.viewport-toolbar {
+  flex-shrink: 0;
+  height: 32px;
+  min-height: 0;
+  flex-wrap: nowrap;
+  overflow-x: auto;
+  overflow-y: hidden;
+}
+.viewport-toolbar > * { flex-shrink: 0; }
+#viewport { min-height: 0; min-width: 0; }
+#viewport canvas { position: absolute; inset: 0; }
+.splitter {
+  position: relative;
+  z-index: 2;
+  background: #171e27;
+  touch-action: none;
+  user-select: none;
+  outline: none;
+}
+.splitter::after {
+  content: '';
+  position: absolute;
+  background: #46515f;
+  border-radius: 2px;
+}
+.splitter-vertical { cursor: col-resize; }
+.splitter-vertical::after { width: 2px; height: 32px; left: 2px; top: calc(50% - 16px); }
+.splitter-horizontal { cursor: row-resize; }
+.splitter-horizontal::after { height: 2px; width: 32px; top: 2px; left: calc(50% - 16px); }
+.splitter:hover, .splitter:focus-visible { background: #6c5437; }
+.splitter:hover::after, .splitter:focus-visible::after { background: var(--accent); }
+.resizing-columns, .resizing-columns * { cursor: col-resize !important; user-select: none !important; }
+.resizing-rows, .resizing-rows * { cursor: row-resize !important; user-select: none !important; }
+.transport { flex-wrap: wrap; }
+@media (max-width: 800px) {
+  .toolbar { padding-inline: 8px; }
+  .toolbar-actions { margin-left: auto; }
+  .statusbar > span { display: none; }
+  .panel-heading { padding-inline: 8px; }
+  .panel-heading > .muted { display: none; }
+  .panel-body { padding: 10px; }
+}
+
+/* Dense chrome reserves the window for authoring panes. */
+.toolbar .brand { min-width: 0; gap: 7px; letter-spacing: 1.4px; }
+.toolbar .brand-mark { width: 23px; height: 24px; font-size: 17px; }
+.toolbar .brand strong { font-size: 10px; }
+.toolbar .brand-sub { display: none; }
+.toolbar .project-title { min-width: 0; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; font-size: 11px; }
+.toolbar .toolbar-actions { gap: 4px; }
+.toolbar button, .toolbar .file-button { padding: 4px 7px; font-size: 10px; }
+.workspace-bar { height: 30px; padding-inline: 10px; }
+.workspace-bar .layout-switch button { padding: 3px 8px; font-size: 10px; }
+.panel-heading { height: 32px; }
+
+.workspace .pane-host { display: flex; flex-direction: column; overflow: hidden; }
+.pane-tabs, .pane-actions { display: flex; gap: 4px; flex-shrink: 0; padding: 4px 6px; overflow-x: auto; }
+.pane-tabs button { white-space: nowrap; font-size: 11px; }
+.pane-tabs [aria-selected="true"] { color: var(--accent); border-color: var(--accent); }
+.pane-actions button { padding: 2px 6px; font-size: 10px; }
+.pane-content { min-height: 0; min-width: 0; overflow: auto; overscroll-behavior: contain; flex: 1; }
+.pane-content[hidden] { display: none; }
+.pane-content[role="tabpanel"] { padding: 10px; }
+.custom-field { display: flex; flex-direction: column; gap: 5px; margin: 12px 0; }
+.custom-field input, .custom-field select { min-width: 0; width: 100%; }
+.custom-field [role="switch"] { text-align: left; }
+.custom-field [role="switch"]::before { content: '○ '; }
+.custom-field [role="switch"][aria-checked="true"] { color: var(--accent); }
+.custom-field [role="switch"][aria-checked="true"]::before { content: '● '; }
+.pane-content textarea { width: 100%; resize: vertical; }
+.storage-rows { margin-block: 10px; }
+.storage-row { display: flex; align-items: center; gap: 5px; margin-block: 4px; }
+.storage-row > button:first-child { min-width: 0; flex: 1; overflow: hidden; text-overflow: ellipsis; text-align: left; white-space: nowrap; }
+.storage-row > span { white-space: nowrap; }
+.pane-content > button { margin: 3px; }

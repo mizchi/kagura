@@ -1,0 +1,9 @@
+{
+  "$schema": "../node_modules/wrangler/config-schema.json",
+  "name": "kagura-studio",
+  "main": "index.mjs",
+  "compatibility_date": "2026-09-10",
+  "r2_buckets": [{ "binding": "RESOURCES", "bucket_name": "kagura-studio-resources" }],
+  "assets": { "directory": "../dist", "binding": "ASSETS", "run_worker_first": ["/api/*"] },
+  "vars": { "ALLOWED_ORIGINS": "http://127.0.0.1:5190,http://127.0.0.1:5191" }
+}

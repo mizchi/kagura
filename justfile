@@ -4,6 +4,58 @@ target := "js"
 
 default: check test
 
+# Luna-based integrated authoring workspace (independent MoonBit module).
+studio-install:
+    cd editor/studio && moon check --target js
+    cd editor/studio && pnpm install --frozen-lockfile
+
+studio-dev:
+    cd editor/studio && pnpm dev
+
+studio-check:
+    cd editor/studio && pnpm exec tsc -p tsconfig.contracts.json
+    cd editor/studio && moon check --target js --deny-warn
+    cd editor/studio && moon test --target js
+
+studio-plugin-test:
+    cd editor/studio && moon build --target js --release
+    cd editor/studio && node scripts/build-plugins.mjs
+    cd editor/studio && node --test tests/plugins.test.mjs tests/plugin-adapters.test.mjs tests/plugin-publication.test.mjs
+
+studio-build:
+    cd editor/studio && pnpm build
+
+studio-e2e:
+    cd editor/studio && moon build --target js --release
+    cd editor/studio && node scripts/build-plugins.mjs
+    cd editor/studio && pnpm exec playwright test
+
+[positional-arguments]
+studio-headless *args:
+    @cd editor/studio && moon build --target js --release src/headless 1>&2
+    @node editor/studio/headless/cli.mjs "$@"
+
+studio-headless-test:
+    cd editor/studio && moon build --target js --release
+    cd editor/studio && node scripts/build-plugins.mjs
+    cd editor/studio && node --test tests/*.test.mjs
+
+# Local-only Worker + R2. See editor/studio/worker/.dev.vars.example.
+studio-worker-dev: studio-build
+    cd editor/studio && WRANGLER_SEND_METRICS=false pnpm exec wrangler dev --local --config worker/wrangler.jsonc --port 8787
+
+studio-worker-check: studio-build
+    cd editor/studio && WRANGLER_SEND_METRICS=false pnpm exec wrangler deploy --dry-run --config worker/wrangler.jsonc --outdir .wrangler/dry-run
+
+studio-storage-test:
+    cd editor/studio && moon build --target js --release src/headless
+    cd editor/studio && node --test tests/storage.test.mjs tests/worker-storage.test.mjs
+
+studio-ci: studio-check studio-build
+    cd editor/studio && node --test tests/*.test.mjs
+    cd editor/studio && STUDIO_PREVIEW=1 pnpm exec playwright test
+    cd editor/studio && WRANGLER_SEND_METRICS=false pnpm exec wrangler deploy --dry-run --config worker/wrangler.jsonc --outdir .wrangler/dry-run
+
 fmt:
     moon fmt
     for dir in examples/*/*/ editor/modeling3d/examples/*/ editor/effect-studio/examples/*/; do { [ -f "$dir/moon.mod.json" ] || [ -f "$dir/moon.mod" ]; } && (cd "$dir" && moon fmt); done

@@ -1,0 +1,36 @@
+import {
+  "mizchi/kagura_studio/core" @editor,
+  "mizchi/luna",
+  "mizchi/luna/dom/client",
+  "mizchi/luna_components/headless" @controls,
+  "mizchi/js/core" @js,
+  "mizchi/signals",
+  "mizchi/luna/dom",
+  "mizchi/js_browser/dom" @browser,
+  "mizchi/three",
+  "moonbitlang/core/json",
+}
+
+supported_targets = "js"
+
+options(
+  link: {
+    "js": {
+      "exports": [
+        "mount",
+        "mount_switch",
+        "update_switch",
+        "dispose_switch",
+        "snapshot",
+        "dispatch",
+        "history",
+        "select_node",
+        "seek",
+        "build_scene",
+        "set_status",
+        "set_layout",
+      ],
+      "format": "esm",
+    },
+  },
+)

@@ -12,6 +12,13 @@
 - **クロスプラットフォーム** -- デスクトップは wgpu-native、ブラウザは WebGPU
 - **Pure MoonBit** -- グラフィクスバックエンド境界以外の FFI なし
 
+## 統合オーサリングエディタ
+
+[Kagura Studio](editor/studio/README.md) は Luna / MoonBit 製のエディタです。
+シーン・プリミティブ・演出を編集し、UIとAIが同じ検証・Undo/Redoを使います。
+`just studio-install` → `just studio-dev` で起動します。
+[設計と移植方針](docs/design/studio-authoring.md)。
+
 ## アーキテクチャ
 
 ```

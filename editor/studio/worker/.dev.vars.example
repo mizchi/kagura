@@ -1,0 +1,2 @@
+# Copy to .dev.vars for local development only. Set a distinct secret in production.
+STORAGE_TOKEN=local-development-only

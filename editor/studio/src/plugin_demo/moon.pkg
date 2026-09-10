@@ -1,0 +1,9 @@
+import {
+  "moonbitlang/core/json",
+}
+
+supported_targets = "js"
+
+options(
+  link: { "js": { "exports": [ "manifest", "invoke" ], "format": "esm" } },
+)

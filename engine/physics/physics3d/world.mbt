@@ -225,7 +225,7 @@ fn PhysicsWorld::phase_contact_constraints(
     if body_a.inv_mass >= 1.0e-12 || body_b.inv_mass >= 1.0e-12 {
       match generate_contact(body_a, body_b) {
         Some(contact) => {
-          let mut constraint = precompute_constraint3d(
+          let constraint = precompute_constraint3d(
             body_a, body_b, idx_a, idx_b, contact, contact_gamma, contact_bias_coefficient,
           )
           // Warm starting: look up cached impulses from previous frame
@@ -239,21 +239,44 @@ fn PhysicsWorld::phase_contact_constraints(
               let warm_factor = 0.8
               let jn = cache.normal_impulse[cached] * warm_factor
               let jt = cache.tangent_impulse[cached] * warm_factor
-              constraint = { ..constraint, acc_jn: jn, acc_jt: jt, }
+              // `acc_jn` / `acc_jt` are the constraint's only mutable fields, so
+              // assign them rather than rebuilding the struct: `{ ..constraint,
+              // .. }` allocated a second ~30-field object for every cached
+              // contact, on top of the one `precompute_constraint3d` just built.
+              constraint.acc_jn = jn
+              constraint.acc_jt = jt
               if jn.abs() > 1.0e-15 || jt.abs() > 1.0e-15 {
+                // Measured, this block was 517us of the 918us this phase costs on
+                // a 256-sphere pile -- 56% of it, and ~14% of the frame. Not the
+                // arithmetic: the allocation. Per cached contact it built three
+                // structs and seven `Vec3` to add one vector to two velocities.
+                // Expanded to scalars it is two structs and two `Vec3`.
+                //
+                // Grouping preserved: `n.scale(jn).add(t.scale(jt))` is
+                // `n.x * jn + t.x * jt`, and `.scale(inv_mass)` applies after.
                 let n = contact.normal
-                let tangent = constraint.tangent_dir
-                let impulse = n.scale(jn).add(tangent.scale(jt))
+                let t = constraint.tangent_dir
+                let ix = n.x * jn + t.x * jt
+                let iy = n.y * jn + t.y * jt
+                let iz = n.z * jn + t.z * jt
+                let ba = self.bodies[idx_a]
+                let ima = body_a.inv_mass
                 self.bodies[idx_a] = {
-                  ..self.bodies[idx_a],
-                  velocity: self.bodies[idx_a].velocity.add(
-                    impulse.scale(body_a.inv_mass),
+                  ..ba,
+                  velocity: @math3d.Vec3::new(
+                    ba.velocity.x + ix * ima,
+                    ba.velocity.y + iy * ima,
+                    ba.velocity.z + iz * ima,
                   ),
                 }
+                let bb = self.bodies[idx_b]
+                let imb = body_b.inv_mass
                 self.bodies[idx_b] = {
-                  ..self.bodies[idx_b],
-                  velocity: self.bodies[idx_b].velocity.sub(
-                    impulse.scale(body_b.inv_mass),
+                  ..bb,
+                  velocity: @math3d.Vec3::new(
+                    bb.velocity.x - ix * imb,
+                    bb.velocity.y - iy * imb,
+                    bb.velocity.z - iz * imb,
                   ),
                 }
               }

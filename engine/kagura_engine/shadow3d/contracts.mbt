@@ -267,7 +267,7 @@ pub fn ShadowCaster::new(
   mesh : @mesh3d.Mesh3D,
   model_matrix : @math3d.Mat4,
 ) -> ShadowCaster {
-  { mesh, model_matrix }
+  { mesh, model_matrix, }
 }
 
 ///|

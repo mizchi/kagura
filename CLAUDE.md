@@ -74,11 +74,62 @@ parquet 側が x 0.4.50 に追従したら font の天井を外せる。上げ�
 ## ビルド・テスト
 
 ```bash
-just check          # moon check (js)
-just test           # moon test (js)
+just check          # workspace + 全 example (js)
+just test           # workspace + 全 example (js)
 just check target=native  # native ビルド確認
 just check-release  # リリース前チェック（ローカルパス依存の検出）
 ```
+
+`check` / `test` は 2 段に分かれている。workspace だけ回したいときはこちら:
+
+```bash
+just check-workspace          # moon check --deny-warn だけ
+just test-workspace           # root の moon test + lib/web/*.test.mjs だけ
+just check-examples 2/4       # example の 2/4 shard だけ
+just test-examples 2/4        # 同上
+```
+
+**example ループが CI の律速。** example はそれぞれ独立した moon module なので、
+毎回依存クロージャをフルにビルドし直す。実測で、旧 `check-test-matrix` の native leg は
+**22m46s のうち 19m56s（87%）が example ループ**だった。だから CI では shard に割って
+並列化し、workspace の check/test は `js` / `native-macos` job に任せている（同じコマンドを
+2 回走らせていた）。
+
+どの example がどの shard に属するかは `scripts/example-projects.mjs` が決める。
+justfile 側にスキップ規則を書かないこと — 全 runner が同じ commit から同じ分割を
+導けないと、ビルドされない example や 2 回ビルドされる example が出る。規則は
+`scripts/example-projects-utils.mjs` にあり、`scripts/*.test.mjs` が CI で
+「shard の和集合が全体と一致し重複が無い」ことを固定している。
+
+| | check | test |
+|---|---|---|
+| js | 33 | 33 |
+| native | 45 | **11** |
+
+native の test が極端に少ないのは、`wgpu_native` をリンクする example が native では
+check のみになるから。だから native の shard 数を 4 より増やしても縮まない
+（`ceil(11/4)` も `ceil(11/5)` も 3）。macOS runner は課金が 10 倍なので上げていない。
+
+分割は round-robin。連続ブロックで割ると `examples/games/*` が 1 runner に固まる。
+**プロジェクトごとのコスト表は作らないこと** — 保守されなくなる。
+
+### shard 化後の実測
+
+| | 変更前 | 変更後 |
+|---|---|---|
+| run 全体 | 16m05s（その前は 22m46s） | **7m54s** |
+| 最遅 job | `check-test-matrix (native)` 16m05s | `js` 7m49s |
+| example の最遅 shard | — | `examples (native 1/4)` 7m41s |
+| macOS runner 時間（example 分） | 約 23m（1 job） | 約 23m（4 job 合計） |
+
+**macOS の課金時間は増えなかった。** 4 分割で setup が 4 回に増えた分を、重複していた
+root の `moon test --target native`（2m06s）を落とした分が相殺した。当初は 30m 程度に
+増える見込みだったが、実測は横ばい。
+
+shard の imbalance は実測 29%（native 7m41s 対 4m46s、js 3m34s 対 2m12s）で、
+ローカル実測の 15〜24% より大きい。ただし **native を均し直しても run は縮まない** —
+最遅 shard 7m41s は既に `js` job の 7m49s とほぼ同じで、critical path は example
+ループから `js` job に移っている。次に削るならそこ（7m49s のうち 4.3m が Playwright VRT）。
 
 ## ゲーム UI の検証
 
@@ -201,6 +252,42 @@ URL パラメータでゲームステートを制御し、目視確認と VRT �
 example のディレクトリ探索は `scripts/example-dirs.mjs` に一本化してある
 （`findExampleDir` / `findExampleCategory` / `listExampleNames`）。dev server、
 VRT server、spec がこれを共有するので、置き場所の規則はここだけ直せばよい。
+
+## ベンチマーク
+
+```bash
+just bench          # 全 bench（moon bench）
+just bench-gate     # baseline と比較。両側（1.5x 遅い / 3x 速い の両方で落ちる）
+just bench-update   # 意図した変化のあとに貼り直す
+```
+
+`moon bench` は **closure 全体を計測し、iteration ごとの setup フックが無い**。
+だから closure がやったことは全部その数字に入る。名前で boundary を宣言すること
+（`step_` / `phase_` / `phase_reset_` / `build_`）。setup を closure から追い出せない
+分は、setup だけの bench を並べて**床として引けるように**しておく。
+
+**ゲートは速くなった側も見る。** 遅くなったことしか検知しないゲートは、ワークロードが
+消滅した bench を永久に緑にする —— contact を生まなくなる、constraint 配列が空になる、
+シーンが寝る。どれも bench は速くなる。純黒 18 枚の baseline と同じ失敗である。
+閾値が 3x なのは baseline が機械依存で、別の機械では無関係な bench が両方向に 2x 動くため。
+
+**速度ゲートだけでは足りないので、fixture が名前どおりの仕事を生んでいることを test で
+assert する。** `engine/physics/*/bench_fixtures_wbtest.mbt` が例:
+pair 数と constraint 数が body 数以上ある、size sweep で仕事が実際に増える、
+`scatter` は contact 0、寝ている fixture は本当に寝ている、reset が測定対象フレームを
+完全に復元する、solve を 2 周させても 2 周目が no-op になっていない。
+
+**bench は出荷されている関数を呼ぶこと。** ループを bench 側にコピーすると、片方だけ
+直したときに bench が出荷されていないコードを測り続ける。`physics2d` / `physics3d` は
+`step()` を phase 関数（`phase_broadphase_pairs` 等）へ分解し、`step()` と bench が
+同じ関数を呼ぶようにしてある。
+
+**state を持つものは毎 iteration リセットする。** `step` は world を変えるので、
+reset しないと pile は 30 iteration ほどで沈んで寝て、bench は solver ではなく
+sleep fast path を測り始める（名前は変わらないまま）。solver の accumulator も戻す:
+収束すると impulse 書き込みが near-zero 分岐に落ち、「もう何も解いていない solve」に化ける。
+
+設計・実測・ここから出た作業項目は `docs/performance/physics-benchmarks.md`。
 
 ## wasm ターゲットと moonbitlang/async
 

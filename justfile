@@ -103,9 +103,20 @@ fmt:
     moon fmt
     for dir in examples/*/*/ editor/modeling3d/examples/*/ editor/effect-studio/examples/*/; do { [ -f "$dir/moon.mod.json" ] || [ -f "$dir/moon.mod" ]; } && (cd "$dir" && moon fmt); done
 
-check:
+check: check-workspace check-examples
+
+# The workspace itself, without the example projects.
+check-workspace:
     moon check --deny-warn --target {{target}}
-    for dir in examples/*/*/ editor/modeling3d/examples/*/ editor/effect-studio/examples/*/; do if [ -f "$dir/moon.mod.json" ] || [ -f "$dir/moon.mod" ]; then case "$dir" in examples/experimental/crater_paint/|examples/smoke/browser_headless/) echo "skip $dir (depends on out-of-repo mizchi/crater checkout)"; continue;; esac; if [ "{{target}}" != "native" ] && [ -f "$dir/src/moon.pkg" ] && grep -q 'supported_targets = "native"' "$dir/src/moon.pkg"; then echo "skip $dir (supports native only)"; continue; fi; (cd "$dir" && moon check --deny-warn --target {{target}}); fi; done
+
+# Every example/editor-example project that supports {{target}}.
+#
+# `shard` is "index/total", 1-based; the default runs all of them. CI passes a
+# real shard so the projects divide across runners -- which project belongs to
+# which shard is decided by scripts/example-projects.mjs, not here, so every
+# runner derives the same split.
+check-examples shard="1/1":
+    dirs=$(node scripts/example-projects.mjs --target {{target}} --mode check --shard {{shard}}) || { echo "::error title=example listing failed::scripts/example-projects.mjs"; exit 1; }; for dir in $dirs; do echo "check $dir"; (cd "$dir" && moon check --deny-warn --target {{target}}) || { echo "::error file=$dir/moon.mod,title=example check failed::$dir"; exit 1; }; done
 
 modeling3d-check:
     for dir in editor/modeling3d/examples/*/; do { [ -f "$dir/moon.mod.json" ] || [ -f "$dir/moon.mod" ]; } && (cd "$dir" && moon check --deny-warn --target {{target}}); done
@@ -113,10 +124,19 @@ modeling3d-check:
 effect-studio-check:
     for dir in editor/effect-studio/examples/*/; do { [ -f "$dir/moon.mod.json" ] || [ -f "$dir/moon.mod" ]; } && (cd "$dir" && moon check --deny-warn --target {{target}}); done
 
-test:
+test: test-workspace test-examples
+
+# The workspace itself plus the JS-side unit tests, without the example projects.
+test-workspace:
     if [ "{{target}}" = "native" ]; then CPATH="$(brew --prefix glfw)/include:${CPATH:-}" LIBRARY_PATH="$(brew --prefix)/lib:${LIBRARY_PATH:-}" moon test --target native || { echo "::error title=moon test failed::root moon test --target native"; exit 1; }; else moon test --target {{target}} || { echo "::error title=moon test failed::root moon test --target {{target}}"; exit 1; }; fi
     if [ "{{target}}" = "js" ] && ls lib/web/*.test.mjs >/dev/null 2>&1; then node --test lib/web/*.test.mjs || { echo "::error title=node test failed::lib/web/*.test.mjs"; exit 1; }; fi
-    for dir in examples/*/*/ editor/modeling3d/examples/*/ editor/effect-studio/examples/*/; do if [ -f "$dir/moon.mod.json" ] || [ -f "$dir/moon.mod" ]; then case "$dir" in examples/experimental/crater_paint/|examples/smoke/browser_headless/) echo "skip $dir (depends on out-of-repo mizchi/crater checkout)"; continue;; esac; if [ "{{target}}" != "native" ] && [ -f "$dir/src/moon.pkg" ] && grep -q 'supported_targets = "native"' "$dir/src/moon.pkg"; then echo "skip $dir (supports native only)"; continue; fi; if [ "{{target}}" = "native" ] && grep -rq "wgpu_native" "$dir/src/moon.pkg" 2>/dev/null; then echo "skip $dir (requires wgpu-native at link time)"; continue; fi; if [ "{{target}}" = "native" ] && [ "$dir" = "editor/effect-studio/examples/effect_studio/" ]; then echo "skip $dir (native test limited to check-only)"; continue; fi; echo "test $dir"; (cd "$dir" && if [ "{{target}}" = "native" ]; then CPATH="$(brew --prefix glfw)/include:${CPATH:-}" LIBRARY_PATH="$(brew --prefix)/lib:${LIBRARY_PATH:-}" moon test --target native; else moon test --target {{target}}; fi) || { echo "::error file=$dir/moon.mod,title=example test failed::$dir"; exit 1; }; fi; done
+
+# Every example/editor-example project whose tests can link on {{target}}.
+#
+# Far fewer projects than `check-examples` on native: anything that links
+# wgpu-native is check-only there. See `shard` on `check-examples`.
+test-examples shard="1/1":
+    dirs=$(node scripts/example-projects.mjs --target {{target}} --mode test --shard {{shard}}) || { echo "::error title=example listing failed::scripts/example-projects.mjs"; exit 1; }; for dir in $dirs; do echo "test $dir"; (cd "$dir" && if [ "{{target}}" = "native" ]; then CPATH="$(brew --prefix glfw)/include:${CPATH:-}" LIBRARY_PATH="$(brew --prefix)/lib:${LIBRARY_PATH:-}" moon test --target native; else moon test --target {{target}}; fi) || { echo "::error file=$dir/moon.mod,title=example test failed::$dir"; exit 1; }; done
 
 modeling3d-test:
     for dir in editor/modeling3d/examples/*/; do { [ -f "$dir/moon.mod.json" ] || [ -f "$dir/moon.mod" ]; } && (cd "$dir" && if [ "{{target}}" = "native" ]; then CPATH="$(brew --prefix glfw)/include:${CPATH:-}" LIBRARY_PATH="$(brew --prefix)/lib:${LIBRARY_PATH:-}" moon test --target native; else moon test --target {{target}}; fi); done

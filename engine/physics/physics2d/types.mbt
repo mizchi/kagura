@@ -99,23 +99,6 @@ pub(all) struct ContactConstraint2D {
 }
 
 ///|
-pub(all) struct ManifoldPoint2D {
-  local_a : @vector.Vec2 // contact point in body A's local space
-  local_b : @vector.Vec2 // contact point in body B's local space
-  penetration : Double
-  normal_impulse : Double // cached normal impulse for warm starting
-  tangent_impulse : Double // cached tangent impulse for warm starting
-}
-
-///|
-pub(all) struct ContactManifold2D {
-  body_a_id : Int
-  body_b_id : Int
-  normal : @vector.Vec2
-  points : Array[ManifoldPoint2D] // max 2 for 2D
-}
-
-///|
 pub(all) struct DistanceJoint2D {
   body_a_id : Int
   body_b_id : Int
@@ -169,7 +152,7 @@ pub(all) struct PhysicsWorld2D {
   gravity : @vector.Vec2
   broadphase : SpatialHashGrid2D
   solver_config : SolverConfig2D
-  contact_cache : Map[Int64, ContactManifold2D]
+  contact_cache : ContactCache2D
   /// The solve pass's velocity working set, pooled here so a steady body count
   /// allocates nothing per frame. Only `phase_solve_velocities` touches it.
   velocity_state : VelocityState2D

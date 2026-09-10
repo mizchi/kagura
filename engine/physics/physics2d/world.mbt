@@ -9,7 +9,7 @@ pub fn PhysicsWorld2D::new(
     gravity,
     broadphase: SpatialHashGrid2D::new(broadphase_cell_size),
     solver_config,
-    contact_cache: Map([]),
+    contact_cache: ContactCache2D::new(),
     velocity_state: VelocityState2D::new(),
     joints_distance: [],
     joints_revolute: [],
@@ -127,14 +127,6 @@ fn uf_union(parent : Array[Int], rank : Array[Int], a : Int, b : Int) -> Unit {
 }
 
 ///|
-/// Generate a unique key for a body pair (order-independent).
-fn contact_pair_key(id_a : Int, id_b : Int) -> Int64 {
-  let min_id = if id_a < id_b { id_a } else { id_b }
-  let max_id = if id_a < id_b { id_b } else { id_a }
-  (min_id.to_int64() << 32) | (max_id.to_int64() & 0xFFFFFFFFL)
-}
-
-///|
 /// Phase 1: rebuild the broadphase from current body AABBs and return the
 /// candidate pairs.
 ///
@@ -198,7 +190,7 @@ fn PhysicsWorld2D::phase_contact_constraints(
     let (idx_a, idx_b, contact) = raw_contacts[c]
     let body_a = self.bodies[idx_a]
     let body_b = self.bodies[idx_b]
-    let mut constraint = precompute_constraint2d(
+    let constraint = precompute_constraint2d(
       body_a,
       body_b,
       idx_a,
@@ -209,43 +201,51 @@ fn PhysicsWorld2D::phase_contact_constraints(
       sub_dt,
     )
     // Warm starting: look up cached impulses from previous frame
-    let pair_key = contact_pair_key(body_a.id, body_b.id)
-    match self.contact_cache.get(pair_key) {
-      Some(cached) =>
-        // Check normal similarity (dot > 0.9 means similar direction)
-        if cached.normal.dot(contact.normal) > 0.9 {
-          if cached.points.length() > 0 {
-            let pt = cached.points[0]
-            // Apply warm start impulses (scaled down slightly for stability)
-            let warm_factor = 0.8
-            constraint = {
-              ..constraint,
-              acc_jn: pt.normal_impulse * warm_factor,
-              acc_jt: pt.tangent_impulse * warm_factor,
-            }
-            // Apply warm impulse to bodies
-            let n = contact.normal
-            let tangent = @vector.Vec2::new(-n.y, n.x)
-            let jn = pt.normal_impulse * warm_factor
-            let jt = pt.tangent_impulse * warm_factor
-            if jn.abs() > 1.0e-15 || jt.abs() > 1.0e-15 {
-              let impulse = n.scale(jn).add(tangent.scale(jt))
-              self.bodies[idx_a] = {
-                ..self.bodies[idx_a],
-                velocity: self.bodies[idx_a].velocity.add(
-                  impulse.scale(body_a.inv_mass),
-                ),
-              }
-              self.bodies[idx_b] = {
-                ..self.bodies[idx_b],
-                velocity: self.bodies[idx_b].velocity.sub(
-                  impulse.scale(body_b.inv_mass),
-                ),
-              }
-            }
+    let cached = self.contact_cache.find(body_a.id, body_b.id)
+    if cached >= 0 {
+      let cache = self.contact_cache
+      // Check normal similarity (dot > 0.9 means similar direction)
+      let dot = cache.normal_x[cached] * contact.normal.x +
+        cache.normal_y[cached] * contact.normal.y
+      if dot > 0.9 {
+        // Apply warm start impulses (scaled down slightly for stability)
+        let warm_factor = 0.8
+        let jn = cache.normal_impulse[cached] * warm_factor
+        let jt = cache.tangent_impulse[cached] * warm_factor
+        // `acc_jn` / `acc_jt` are the constraint's only mutable fields, so assign
+        // them rather than rebuilding the struct.
+        constraint.acc_jn = jn
+        constraint.acc_jt = jt
+        if jn.abs() > 1.0e-15 || jt.abs() > 1.0e-15 {
+          // Expanded to scalars: this built three structs and five `Vec2` per
+          // cached contact to add one vector to two velocities. Grouping
+          // preserved -- `n.scale(jn).add(t.scale(jt))` is `n.x * jn + t.x * jt`,
+          // with `scale(inv_mass)` applied after.
+          let n = contact.normal
+          let tx = -n.y
+          let ty = n.x
+          let ix = n.x * jn + tx * jt
+          let iy = n.y * jn + ty * jt
+          let ba = self.bodies[idx_a]
+          let ima = body_a.inv_mass
+          self.bodies[idx_a] = {
+            ..ba,
+            velocity: @vector.Vec2::new(
+              ba.velocity.x + ix * ima,
+              ba.velocity.y + iy * ima,
+            ),
+          }
+          let bb = self.bodies[idx_b]
+          let imb = body_b.inv_mass
+          self.bodies[idx_b] = {
+            ..bb,
+            velocity: @vector.Vec2::new(
+              bb.velocity.x - ix * imb,
+              bb.velocity.y - iy * imb,
+            ),
           }
         }
-      None => ()
+      }
     }
     constraints.push(constraint)
   }
@@ -388,32 +388,20 @@ fn PhysicsWorld2D::phase_save_contact_cache(
   self : PhysicsWorld2D,
   constraints : Array[ContactConstraint2D],
 ) -> Unit {
-  let new_cache : Map[Int64, ContactManifold2D] = Map([])
+  // Rebuilt in place. This used to build a second `Map` and copy it into the
+  // first, so every contact paid two `Int64` key constructions, two hashes and
+  // two inserts, plus a manifold, a points array and a `ManifoldPoint`.
+  self.contact_cache.clear()
   for c = 0; c < constraints.length(); c = c + 1 {
     let con = constraints[c]
-    let body_a = self.bodies[con.idx_a]
-    let body_b = self.bodies[con.idx_b]
-    let pair_key = contact_pair_key(body_a.id, body_b.id)
-    let local_a = con.contact.contact_point.sub(body_a.position)
-    let local_b = con.contact.contact_point.sub(body_b.position)
-    new_cache.set(pair_key, {
-      body_a_id: body_a.id,
-      body_b_id: body_b.id,
-      normal: con.contact.normal,
-      points: [
-        {
-          local_a,
-          local_b,
-          penetration: con.contact.penetration,
-          normal_impulse: con.acc_jn,
-          tangent_impulse: con.acc_jt,
-        },
-      ],
-    })
+    self.contact_cache.store(
+      self.bodies[con.idx_a].id,
+      self.bodies[con.idx_b].id,
+      con.contact.normal,
+      con.acc_jn,
+      con.acc_jt,
+    )
   }
-  // Replace old cache with new
-  self.contact_cache.clear()
-  new_cache.each(fn(k, v) { self.contact_cache.set(k, v) })
 }
 
 ///|

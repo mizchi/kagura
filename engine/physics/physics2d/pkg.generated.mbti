@@ -100,6 +100,24 @@ pub fn Contact2D::to_repr(Self) -> @debug.Repr
 pub fn Contact2D::to_string(Self) -> String
 pub impl Show for Contact2D
 
+pub struct ContactCache2D {
+  mut count : Int
+  mut slots : FixedArray[Int]
+  mut slot_mask : Int
+  id_a : Array[Int]
+  id_b : Array[Int]
+  normal_x : Array[Double]
+  normal_y : Array[Double]
+  normal_impulse : Array[Double]
+  tangent_impulse : Array[Double]
+}
+pub fn ContactCache2D::clear(Self) -> Unit
+pub fn ContactCache2D::contains(Self, Int, Int) -> Bool
+pub fn ContactCache2D::find(Self, Int, Int) -> Int
+pub fn ContactCache2D::length(Self) -> Int
+pub fn ContactCache2D::new() -> Self
+pub fn ContactCache2D::store(Self, Int, Int, @vector.Vec2, Double, Double) -> Unit
+
 pub(all) struct ContactConstraint2D {
   idx_a : Int
   idx_b : Int
@@ -113,13 +131,6 @@ pub(all) struct ContactConstraint2D {
   restitution_bias : Double
   mut acc_jn : Double
   mut acc_jt : Double
-}
-
-pub(all) struct ContactManifold2D {
-  body_a_id : Int
-  body_b_id : Int
-  normal : @vector.Vec2
-  points : Array[ManifoldPoint2D]
 }
 
 pub(all) struct DistanceJoint2D {
@@ -144,20 +155,12 @@ pub(all) struct DistanceJointConstraint2D {
   mut acc_impulse : Double
 }
 
-pub(all) struct ManifoldPoint2D {
-  local_a : @vector.Vec2
-  local_b : @vector.Vec2
-  penetration : Double
-  normal_impulse : Double
-  tangent_impulse : Double
-}
-
 pub(all) struct PhysicsWorld2D {
   bodies : Array[RigidBody2D]
   gravity : @vector.Vec2
   broadphase : SpatialHashGrid2D
   solver_config : SolverConfig2D
-  contact_cache : Map[Int64, ContactManifold2D]
+  contact_cache : ContactCache2D
   velocity_state : VelocityState2D
   joints_distance : Array[DistanceJoint2D]
   joints_revolute : Array[RevoluteJoint2D]

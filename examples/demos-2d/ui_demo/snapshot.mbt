@@ -144,8 +144,8 @@ fn DemoState::ui_snapshot(self : DemoState) -> @ui.UISnapshot {
   }
   {
     ..@ui.default_ui_snapshot(
-      screen_width=screen_w.to_double(),
-      screen_height=screen_h.to_double(),
+      screen_width=self.width.to_double(),
+      screen_height=self.height.to_double(),
     ),
     frame: self.frame,
     state: "demo",

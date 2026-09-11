@@ -21,3 +21,20 @@ fn canvas_css_w() -> Double {
 fn canvas_css_h() -> Double {
   js_canvas_css_h()
 }
+
+///|
+extern "js" fn requested_capture_dimension(key : String, fallback : Int) -> Int =
+  #| (key, fallback) => {
+  #|   const value = globalThis.__kaguraHeadless?.[key];
+  #|   return Number.isFinite(value) && value > 0 ? Math.floor(value) : fallback;
+  #| }
+
+///|
+fn initial_screen_w() -> Int {
+  requested_capture_dimension("width", screen_w)
+}
+
+///|
+fn initial_screen_h() -> Int {
+  requested_capture_dimension("height", screen_h)
+}

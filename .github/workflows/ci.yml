@@ -163,11 +163,13 @@ jobs:
         # is reported without waiting on a browser download.
         run: node scripts/frame-vrt.mjs
       - name: Canvas UI interaction gate
-        run: just ui-interactions ui_demo
+        run: node scripts/ui-interactions.mjs ui_demo
       - name: Canvas UI transition gate
         run: |
-          just ui-flipbook ui_demo focus
-          just ui-flipbook ui_demo hover
+          node scripts/ui-flipbook.mjs ui_demo focus
+          node scripts/ui-flipbook.mjs ui_demo hover
+      - name: Canvas UI state and viewport matrix
+        run: node scripts/ui-matrix.mjs ui_demo
       - name: Install Playwright Browser
         # `--with-deps` runs `sudo apt-get`; on Ubuntu 24.04 the needrestart
         # post-install hook prompts and hangs. sudo resets the env, so set the

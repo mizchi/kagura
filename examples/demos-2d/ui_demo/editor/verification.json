@@ -4,12 +4,69 @@
     "focus": {
       "frames": 5,
       "settleFrame": 3,
-      "inputs": [{}, {"keys": [9]}]
+      "inputs": [
+        {},
+        {
+          "keys": [
+            9
+          ]
+        }
+      ]
     },
     "hover": {
       "frames": 5,
       "settleFrame": 3,
-      "inputs": [{}, {"cursorX": 100, "cursorY": 74}, {"cursorX": 100, "cursorY": 74}, {"cursorX": 100, "cursorY": 74}, {"cursorX": 100, "cursorY": 74}]
+      "inputs": [
+        {},
+        {
+          "cursorX": 100,
+          "cursorY": 74
+        },
+        {
+          "cursorX": 100,
+          "cursorY": 74
+        },
+        {
+          "cursorX": 100,
+          "cursorY": 74
+        },
+        {
+          "cursorX": 100,
+          "cursorY": 74
+        }
+      ]
+    }
+  },
+  "states": {
+    "idle": {
+      "frames": 1,
+      "expectedFocus": null,
+      "expectedState": "demo"
+    },
+    "focus": {
+      "frames": 2,
+      "inputs": [
+        {},
+        {
+          "keys": [
+            9
+          ]
+        }
+      ],
+      "expectedFocus": "button_1",
+      "expectedState": "demo"
+    },
+    "hover": {
+      "frames": 2,
+      "inputs": [
+        {},
+        {
+          "cursorX": 100,
+          "cursorY": 74
+        }
+      ],
+      "expectedFocus": null,
+      "expectedState": "demo"
     }
   }
 }

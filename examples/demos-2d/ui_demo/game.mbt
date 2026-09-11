@@ -28,9 +28,6 @@ let header_h : Double = 40.0
 let footer_h : Double = 40.0
 
 ///|
-let content_h : Double = 400.0
-
-///|
 let left_panel_w : Double = 200.0
 
 ///|
@@ -62,6 +59,8 @@ enum NodeRole {
 
 ///|
 struct DemoState {
+  width : Int
+  height : Int
   focus_mgr : @ui.UIFocusManager
   input : @inpututil.InputHelper
   gamepad_input : @inpututil.GamepadInputState
@@ -83,12 +82,16 @@ struct DemoState {
 // ============================================================
 
 ///|
-fn DemoState::new() -> DemoState {
+fn DemoState::new(
+  width? : Int = screen_w,
+  height? : Int = screen_h,
+) -> DemoState {
   let tree = @ui.UITree::new()
   let node_roles : Map[Int, NodeRole] = Map([])
   let button_labels : Map[Int, Array[Int]] = Map([])
   let focusable_ids : Array[@ui.UINodeId] = []
-  let sw = screen_w.to_double()
+  let sw = width.to_double()
+  let content_h = height.to_double() - header_h - footer_h
 
   // Derived sizes
   let content_padding = panel_padding
@@ -203,7 +206,7 @@ fn DemoState::new() -> DemoState {
       ..@ui.default_node_style(),
       direction: @ui.UIDirection::Column,
       width: @ui.UISizing::Fixed(sw),
-      height: @ui.UISizing::Fixed(screen_h.to_double()),
+      height: @ui.UISizing::Fixed(height.to_double()),
     },
     [header, content, footer],
   )
@@ -214,7 +217,7 @@ fn DemoState::new() -> DemoState {
 
   // Compute initial layout
   let engine = @ui.SimpleLayoutEngine::new(tree)
-  let constraint = @ui.default_layout_constraint(sw, screen_h.to_double())
+  let constraint = @ui.default_layout_constraint(sw, height.to_double())
   let layouts = engine.compute_layout(root_id, constraint) catch { _ => [] }
   // Keep keyboard/gamepad traversal aligned with the visible rows.
   let focus_layouts = layouts.filter(layout => {
@@ -232,6 +235,8 @@ fn DemoState::new() -> DemoState {
   focus_mgr.set_focusable(focus_ids)
 
   {
+    width,
+    height,
     focus_mgr,
     input: @inpututil.new_input_helper(),
     gamepad_input: @inpututil.new_gamepad_input_state(),
@@ -260,12 +265,12 @@ fn DemoState::update(self : DemoState, input : @core.InputSnapshot) -> Unit {
   let css_w = canvas_css_w()
   let css_h = canvas_css_h()
   let cx = if css_w > 0.0 {
-    input.cursor_x * screen_w.to_double() / css_w
+    input.cursor_x * self.width.to_double() / css_w
   } else {
     input.cursor_x
   }
   let cy = if css_h > 0.0 {
-    input.cursor_y * screen_h.to_double() / css_h
+    input.cursor_y * self.height.to_double() / css_h
   } else {
     input.cursor_y
   }
@@ -373,12 +378,12 @@ fn DemoState::draw(
   ctx : @engine.EngineContext,
 ) -> Array[@gfx.DrawTrianglesCommand] {
   let cmds : Array[@gfx.DrawTrianglesCommand] = []
-  let sh = screen_h.to_double()
+  let sh = self.height.to_double()
   let frame = @renderer2d.RenderFrame2D::new(
     dst=ctx.dst,
     shader=ctx.shader,
-    screen_w~,
-    screen_h~,
+    screen_w=self.width,
+    screen_h=self.height,
   )
   let focused_id = self.focus_mgr.current_focus()
 

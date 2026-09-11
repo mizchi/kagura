@@ -7,9 +7,9 @@ canvas / WebGPU 上に描くゲーム UI を、DOM なしで決定的に検証�
 現時点の完了範囲と残作業は [Issue照合表](./ui-verification-issue-status.md) に整理した。
 
 **更新:** インストール済みvlmkit 0.11.1は `check integrity --elements ... --image ...` を
-サポートする。以下の「DOM版」はHTML/URL入力の経路を指す。kaguraの現在の
-elements出力はPNG差分用で文字実測・clip・zを含まないため、画像版integrityとの接続は
-まだ未実装。低コントラスト文字も画像版では判定されない。
+サポートする。以下の「DOM版」はHTML/URL入力の経路を指す。`just ui-vlmkit-check` は
+画像版に必要な文字実測・clip・zを保持した専用データを渡す。従来の `ui-elements` は
+PNG差分用のまま。低コントラスト文字は画像版では判定されない。
 
 ---
 
@@ -434,14 +434,57 @@ UIデモのfocusは次の定義。
 報告する。欠陥はexit 1、検証不能はexit 2。現在のCLIは2D CPUキャプチャを使う。
 3Dや実GPU、nativeキャプチャのマトリクス統合は別途必要。
 
-## 9. 残る作業
+## 9. 画像版integrityと状態×解像度マトリクス
+
+```sh
+just ui-vlmkit-check output/frames/ui_demo/ui_demo.snapshot.json output/frames/ui_demo/ui_demo.png
+just ui-matrix ui_demo
+just ui-matrix ui_demo "--update" # 意図した変更を画像で確認してからbaselineを更新
+```
+
+`ui-vlmkit-check` は文字実測・clip・zを含む要素データを生成し、vlmkitの画像版integrityと
+kaguraの幾何・hit矩形ゲートを両方実行する。ゼロサイズは欠陥の証拠なので変換で消さない。
+矩形・文字実測・clipは同じDPRでスケールする。画像の寸法とsnapshotの座標系が一致しない
+場合は検証不能として終了する。元のvlmkitレポートの `skippedRules` も保存し、
+実行されなかったコントラスト検査などを成功と扱わない。
+
+マトリクスは同じ `editor/verification.json` の `states` を読む。
+
+```json
+{"version": 1, "states": {
+  "idle": {"frames": 1, "expectedState": "demo", "expectedFocus": null},
+  "focus": {"frames": 2, "inputs": [{}, {"keys": [9]}], "expectedFocus": "button_1"}
+}}
+```
+
+状態名は再現する入力レシピのID。任意のゲーム状態を文字列から自動生成するものではない。
+`expectedState` で実際のsnapshot状態名、`expectedFocus` で実際の選択対象を検証できる。
+ゲーム固有のメニュー・ポーズ等も入力列で到達させる。初期状態を直接セットアップする
+MoonBit APIとnative captureとの共通化は引き続き #13 の残作業。
+
+既定のviewportは640×360、640×480、360×640、840×360。`viewports` 配列に
+`{"name":"small","width":320,"height":240}` の形式で指定すれば置き換えられる。
+各セルは独立したゲームインスタンスで再生する。UIデモは指定サイズで初期レイアウトを
+計算するため、同じ640×480の画像を引き伸ばしたものではない。
+
+各セルで画像版integrity、kaguraの幾何ゲート、単色フレーム拒否、baselineとの
+`vlmkit diff png --threshold 0 --elements-json ...` を実行する。通常実行でbaselineを
+書き換えない。更新時も全セルのgateが通ってからコピーし、失敗したマトリクスを
+部分的に貼り直さない。UIデモの3状態×4解像度、計12枚をCIで比較する。
+
+出力は `output/ui-matrix/<example>/<state>.<viewport>/` のPNG、snapshot、elements、
+integrityレポート、diff JSONと全体の `report.json`。
+baselineは `e2e/ui-matrix-snapshots/<example>/`。3Dコマンドを含む描画、snapshot欠落、
+要求した画像サイズとUI座標の不一致は失敗し、次のセルの検査は続ける。
+
+## 10. 残る作業
 
 | やりたいこと | 状況 |
 |---|---|
 | 2D フレームの自動キャプチャ | **できる**（1.5）。native 経路 `just capture` は 3D と実 GPU 用 |
 | 3D フレームの browser 抜きキャプチャ | CPU ラスタライザは 2D のみ。native か実ブラウザが要る |
 | VRT の gating 化 | **2D は完了**（5.5、CI が `just frame-vrt` を回している）。3D と実 GPU 経路は [#8](https://github.com/mizchi/kagura/issues/8) のまま |
-| 状態 × 解像度マトリクス | `--state` / `--cursor` / `--keys` / `--width` で 1 状態ずつは撮れる。全走査の自動化が [#13](https://github.com/mizchi/kagura/issues/13) |
+| 状態 × 解像度マトリクス | **2D入力レシピの全走査を実装**（9）。MoonBit初期状態APIとnative共通化は [#13](https://github.com/mizchi/kagura/issues/13) |
 | i18n ストレス | [#14](https://github.com/mizchi/kagura/issues/14) |
 | 操作性ゲート（フォーカス到達性） | **実装済み**（7）。UIデモの実入力とピクセル変化をCIで検査。他ゲームにはfixtureの追加が必要 |
 | 状態遷移のflipbook | **実装済み**（8）。UIデモのfocus/hoverをCIで検査 |

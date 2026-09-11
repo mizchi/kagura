@@ -251,6 +251,14 @@ ui-interactions example extra="":
 ui-flipbook example transition extra="":
     node scripts/ui-flipbook.mjs {{example}} {{transition}} {{extra}}
 
+# Verify rich canvas metadata through vlmkit's image-only integrity gate.
+ui-vlmkit-check snapshot image out_dir="output/ui-vlmkit-integrity":
+    node scripts/ui-vlmkit-integrity.mjs {{snapshot}} {{image}} {{out_dir}}
+
+# Game-declared input states x viewports; baseline updates are explicit.
+ui-matrix example extra="":
+    node scripts/ui-matrix.mjs {{example}} {{extra}}
+
 # Convert a UI snapshot into a vlmkit --elements-json payload, so a pixel diff
 # names the UI node that changed instead of a bare region.
 ui-elements snapshot out="output/vlmkit-elements.json":

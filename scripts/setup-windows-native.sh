@@ -16,7 +16,15 @@ SCRIPT_DIR="$(cd "$(dirname "$0")" && pwd)"
 ROOT="$(cd "$SCRIPT_DIR/.." && pwd)"
 
 echo "=== Stubbing macOS Objective-C files ==="
-find "$ROOT/src" "$ROOT/vendor" -name "*.m" 2>/dev/null | while read -r f; do
+# Search from the repo root rather than naming directories: the .m files have
+# moved twice already (src/ and vendor/ both disappeared in the source-layout
+# flatten), and `find` on a missing directory exits non-zero, which under this
+# script's `set -euo pipefail` aborts the whole setup -- 2>/dev/null hides the
+# message but not the status.
+find "$ROOT" -name "*.m" \
+  -not -path "*/_build/*" \
+  -not -path "*/node_modules/*" \
+  -not -path "*/.mooncakes/*" | while read -r f; do
   echo "/* stubbed for Windows */" > "$f"
   echo "  Stubbed: $f"
 done

@@ -139,7 +139,9 @@ pub fn SceneRoot::render(self : SceneRoot, view : View) -> Unit raise {
           fail("Invalid scene key")
         }
         let path = if parent == "" { key } else { parent + "/" + key }
-        if path.length() > 4096 { fail("Scene path exceeds hierarchy limit") }
+        if path.length() > 4096 {
+          fail("Scene path exceeds hierarchy limit")
+        }
         if ids.contains(path) {
           fail("Duplicate sibling scene key: " + path)
         }

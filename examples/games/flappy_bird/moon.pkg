@@ -11,7 +11,17 @@ import {
   "mizchi/web_runtime_hooks" @web_hooks,
 }
 
-warnings = "-29"
+// The debug/studio surface -- Game::debug_state, debug_pause, debug_step,
+// debug_replace, decode_debug_state, Game::scene_hierarchy and the
+// debug_revision / debug_paused fields -- is called only from scene_js.mbt,
+// which `targets` below restricts to js. On native nothing outside the
+// whitebox tests references it, so `--deny-warn` rejects the package on
+// unused_value (1), unused_mut (2) and unused_field (7).
+//
+// Suppressed rather than split: moving debug.mbt to js only trades these for
+// unused_mut on the fields, which live in game.mbt and have to build on both
+// targets, and MoonBit has no per-target field declaration.
+warnings = "-29-1-2-7"
 
 supported_targets = "js+native"
 

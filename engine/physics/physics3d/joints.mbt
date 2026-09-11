@@ -2,16 +2,6 @@
 let joint_pi3d : Double = 3.14159265358979323846
 
 ///|
-fn find_body_index3d(bodies : Array[RigidBody], id : Int) -> Int {
-  for i = 0; i < bodies.length(); i = i + 1 {
-    if bodies[i].id == id {
-      return i
-    }
-  }
-  -1
-}
-
-///|
 fn rotate_by_quat(v : @math3d.Vec3, q : @math3d.Quaternion) -> @math3d.Vec3 {
   // Rotate vector v by quaternion q: q * v * q^-1
   let qv = @math3d.Quaternion::new(0.0, v.x, v.y, v.z)
@@ -28,10 +18,11 @@ fn rotate_by_quat(v : @math3d.Vec3, q : @math3d.Quaternion) -> @math3d.Vec3 {
 pub fn precompute_distance_joint3d(
   joint : DistanceJoint3D,
   bodies : Array[RigidBody],
+  index : BodyIndex3D,
   sub_dt : Double,
 ) -> DistanceJointConstraint3D? {
-  let idx_a = find_body_index3d(bodies, joint.body_a_id)
-  let idx_b = find_body_index3d(bodies, joint.body_b_id)
+  let idx_a = index.find(joint.body_a_id)
+  let idx_b = index.find(joint.body_b_id)
   if idx_a < 0 || idx_b < 0 {
     return None
   }
@@ -163,10 +154,11 @@ pub fn solve_distance_joint3d(
 pub fn precompute_ball_joint3d(
   joint : BallJoint3D,
   bodies : Array[RigidBody],
+  index : BodyIndex3D,
   sub_dt : Double,
 ) -> BallJointConstraint3D? {
-  let idx_a = find_body_index3d(bodies, joint.body_a_id)
-  let idx_b = find_body_index3d(bodies, joint.body_b_id)
+  let idx_a = index.find(joint.body_a_id)
+  let idx_b = index.find(joint.body_b_id)
   if idx_a < 0 || idx_b < 0 {
     return None
   }

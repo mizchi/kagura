@@ -6,16 +6,6 @@ let joint_pi : Double = 3.14159265358979323846
 // ============================================================
 
 ///|
-fn find_body_index(bodies : Array[RigidBody2D], id : Int) -> Int {
-  for i = 0; i < bodies.length(); i = i + 1 {
-    if bodies[i].id == id {
-      return i
-    }
-  }
-  -1
-}
-
-///|
 fn rotate_vec2(v : @vector.Vec2, angle : Double) -> @vector.Vec2 {
   let c = @math.cos(angle)
   let s = @math.sin(angle)
@@ -26,10 +16,11 @@ fn rotate_vec2(v : @vector.Vec2, angle : Double) -> @vector.Vec2 {
 pub fn precompute_distance_joint(
   joint : DistanceJoint2D,
   bodies : Array[RigidBody2D],
+  index : BodyIndex2D,
   sub_dt : Double,
 ) -> DistanceJointConstraint2D? {
-  let idx_a = find_body_index(bodies, joint.body_a_id)
-  let idx_b = find_body_index(bodies, joint.body_b_id)
+  let idx_a = index.find(joint.body_a_id)
+  let idx_b = index.find(joint.body_b_id)
   if idx_a < 0 || idx_b < 0 {
     return None
   }
@@ -155,10 +146,11 @@ pub fn solve_distance_joint(
 pub fn precompute_revolute_joint(
   joint : RevoluteJoint2D,
   bodies : Array[RigidBody2D],
+  index : BodyIndex2D,
   sub_dt : Double,
 ) -> RevoluteJointConstraint2D? {
-  let idx_a = find_body_index(bodies, joint.body_a_id)
-  let idx_b = find_body_index(bodies, joint.body_b_id)
+  let idx_a = index.find(joint.body_a_id)
+  let idx_b = index.find(joint.body_b_id)
   if idx_a < 0 || idx_b < 0 {
     return None
   }

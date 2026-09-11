@@ -208,6 +208,20 @@ test "bench physics2d phase narrowphase pile 256" (b : @bench.T) {
 }
 
 ///|
+/// Joint precompute on its own. Reads the world without mutating it, so no reset
+/// and no floor. This is where the joint path resolved body ids: two lookups per
+/// joint per frame, which used to be two scans over every body.
+test "bench physics2d phase joint constraints rope 256" (b : @bench.T) {
+  let fixture = bench_rope_fixture2d(256, bench_warm_frames2d)
+  let world = fixture.world
+  let sub_dt = bench_dt2d / world.solver_config.substeps.to_double()
+  b.bench(name="physics2d/phase_joint_constraints_rope_256", fn() {
+    let (dist, rev) = world.phase_joint_constraints(sub_dt)
+    b.keep(dist.length() + rev.length())
+  })
+}
+
+///|
 /// Warm starting applies impulses to bodies, so this one resets.
 test "bench physics2d phase contact constraints pile 256" (b : @bench.T) {
   let fixture = bench_pile_fixture2d(256, bench_warm_frames2d)

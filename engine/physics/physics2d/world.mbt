@@ -11,6 +11,7 @@ pub fn PhysicsWorld2D::new(
     solver_config,
     contact_cache: ContactCache2D::new(),
     velocity_state: VelocityState2D::new(),
+    body_index: BodyIndex2D::new(),
     joints_distance: [],
     joints_revolute: [],
   }
@@ -29,12 +30,13 @@ pub fn PhysicsWorld2D::get_body(
   self : PhysicsWorld2D,
   id : Int,
 ) -> RigidBody2D? {
-  for i = 0; i < self.bodies.length(); i = i + 1 {
-    if self.bodies[i].id == id {
-      return Some(self.bodies[i])
-    }
+  self.body_index.ensure(self.bodies)
+  let index = self.body_index.find(id)
+  if index < 0 {
+    None
+  } else {
+    Some(self.bodies[index])
   }
-  None
 }
 
 ///|
@@ -259,12 +261,18 @@ fn PhysicsWorld2D::phase_joint_constraints(
   self : PhysicsWorld2D,
   sub_dt : Double,
 ) -> (Array[DistanceJointConstraint2D], Array[RevoluteJointConstraint2D]) {
+  self.body_index.ensure(self.bodies)
   let dist_constraints : Array[DistanceJointConstraint2D] = Array(
     capacity=self.joints_distance.length(),
   )
   for j = 0; j < self.joints_distance.length(); j = j + 1 {
     match
-      precompute_distance_joint(self.joints_distance[j], self.bodies, sub_dt) {
+      precompute_distance_joint(
+        self.joints_distance[j],
+        self.bodies,
+        self.body_index,
+        sub_dt,
+      ) {
       Some(c) => dist_constraints.push(c)
       None => ()
     }
@@ -274,7 +282,12 @@ fn PhysicsWorld2D::phase_joint_constraints(
   )
   for j = 0; j < self.joints_revolute.length(); j = j + 1 {
     match
-      precompute_revolute_joint(self.joints_revolute[j], self.bodies, sub_dt) {
+      precompute_revolute_joint(
+        self.joints_revolute[j],
+        self.bodies,
+        self.body_index,
+        sub_dt,
+      ) {
       Some(c) => rev_constraints.push(c)
       None => ()
     }

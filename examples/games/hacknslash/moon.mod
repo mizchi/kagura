@@ -13,5 +13,3 @@ import {
   "mizchi/physics@0.2.0",
   "mizchi/pathfind@0.2.0",
 }
-
-source = "src"

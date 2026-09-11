@@ -7,5 +7,3 @@ warnings = "-6-29-53-68"
 import {
   "moonbitlang/async@0.21.3",
 }
-
-source = "src"

@@ -1,0 +1,400 @@
+[
+  {
+    "id": "action_rpg",
+    "title": "Action RPG",
+    "category": "games",
+    "manifest": "action_rpg.kgrprj",
+    "controls": [
+      "WASD / Arrow: move",
+      "Space: start / attack / confirm",
+      "Esc: pause menu"
+    ],
+    "width": 800,
+    "height": 600,
+    "preview": "webgpu",
+    "purpose": "タイルマップ・AI・音声・UI を組み合わせる 2D 統合例"
+  },
+  {
+    "id": "arena3d",
+    "title": "Arena 3D",
+    "category": "games",
+    "manifest": "arena3d.kgrprj",
+    "controls": [
+      "Watch the scene render",
+      "See source for camera / scene setup"
+    ],
+    "width": 640,
+    "height": 480,
+    "preview": "webgpu",
+    "purpose": "最小の 3D ゲームと宣言的シーン・カスタムエディタの基準例"
+  },
+  {
+    "id": "card_game",
+    "title": "Card Game",
+    "category": "games",
+    "manifest": "card_game.kgrprj",
+    "controls": [
+      "Browser demos currently require WebGPU",
+      "Open the example source for control details"
+    ],
+    "width": 800,
+    "height": 600,
+    "preview": "webgpu",
+    "purpose": "カード効果・ターン制戦闘・経済バランスを扱う例"
+  },
+  {
+    "id": "collision3d_demo",
+    "title": "Collision 3D",
+    "category": "demos-3d",
+    "manifest": "collision3d_demo.kgrprj",
+    "controls": [
+      "WASD: move",
+      "Mouse: look"
+    ],
+    "width": 640,
+    "height": 480,
+    "preview": "webgpu",
+    "purpose": "レイ・AABB・球の衝突照会と broadphase を確認する"
+  },
+  {
+    "id": "draw2d_ui_demo",
+    "title": "Draw2d Ui Demo",
+    "category": "demos-2d",
+    "manifest": "draw2d_ui_demo.kgrprj",
+    "controls": [
+      "Browser demos currently require WebGPU",
+      "Open the example source for control details"
+    ],
+    "width": 800,
+    "height": 600,
+    "preview": "webgpu",
+    "purpose": "低水準の矩形・枠線・scissor 描画を確認する"
+  },
+  {
+    "id": "ecs_demo",
+    "title": "Ecs Demo",
+    "category": "demos-2d",
+    "manifest": "ecs_demo.kgrprj",
+    "controls": [
+      "Browser demos currently require WebGPU",
+      "Open the example source for control details"
+    ],
+    "width": 800,
+    "height": 600,
+    "preview": "webgpu",
+    "purpose": "ECS のエンティティ・コンポーネント・システムを確認する"
+  },
+  {
+    "id": "fetch_image",
+    "title": "Fetch Image",
+    "category": "demos-2d",
+    "manifest": "fetch_image.kgrprj",
+    "controls": [
+      "No input required",
+      "Replace `assets/sample.png` to try another image"
+    ],
+    "width": 800,
+    "height": 600,
+    "preview": "webgpu",
+    "purpose": "画像リソースの非同期読込と GPU アップロードを確認する"
+  },
+  {
+    "id": "flappy_bird",
+    "title": "Flappy Bird",
+    "category": "games",
+    "manifest": "flappy_bird.kgrprj",
+    "controls": [
+      "Tap / Space: flap",
+      "Tap / Space after game over: restart"
+    ],
+    "width": 320,
+    "height": 240,
+    "preview": "webgpu",
+    "purpose": "最小の 2D ゲームと宣言的シーン・ライブ状態編集の基準例"
+  },
+  {
+    "id": "fps_demo",
+    "title": "FPS Demo",
+    "category": "games",
+    "manifest": "fps_demo.kgrprj",
+    "controls": [
+      "WASD: move",
+      "Mouse: look",
+      "Left click: shoot",
+      "Space: jump"
+    ],
+    "width": 640,
+    "height": 480,
+    "preview": "webgpu",
+    "purpose": "一人称カメラ・照準・射撃・ジャンプの例"
+  },
+  {
+    "id": "hacknslash",
+    "title": "Hack & Slash",
+    "category": "games",
+    "manifest": "hacknslash.kgrprj",
+    "controls": [
+      "WASD / Arrow: move",
+      "Space: start / attack / restart"
+    ],
+    "width": 800,
+    "height": 600,
+    "preview": "webgpu",
+    "purpose": "ダンジョン生成・手動攻撃・階層進行の 2D アクション例"
+  },
+  {
+    "id": "hacknslash_3d",
+    "title": "Hack & Slash 3D",
+    "category": "games",
+    "manifest": "hacknslash_3d.kgrprj",
+    "controls": [
+      "WASD / Arrow: move",
+      "Space: confirm / use skill prompt",
+      "I: inventory, K: skill tree, Esc: pause"
+    ],
+    "width": 640,
+    "height": 480,
+    "preview": "webgpu",
+    "purpose": "3D ダンジョン・装備・スキル・保存を組み合わせる統合例"
+  },
+  {
+    "id": "ik_demo",
+    "title": "Ik Demo",
+    "category": "demos-3d",
+    "manifest": "ik_demo.kgrprj",
+    "controls": [
+      "Browser demos currently require WebGPU",
+      "Open the example source for control details"
+    ],
+    "width": 800,
+    "height": 600,
+    "preview": "native",
+    "purpose": "逆運動学による関節チェーンの追従を確認する"
+  },
+  {
+    "id": "iron_yard",
+    "title": "IRON YARD",
+    "category": "games",
+    "manifest": "iron-yard.kgrprj",
+    "controls": [
+      "Browser demos currently require WebGPU",
+      "Open the example source for control details"
+    ],
+    "width": 800,
+    "height": 600,
+    "preview": "webgpu",
+    "purpose": "メカ戦闘・専用シーン編集・描画性能の統合例"
+  },
+  {
+    "id": "machinations_demo",
+    "title": "Machinations",
+    "category": "demos-2d",
+    "manifest": "machinations_demo.kgrprj",
+    "controls": [
+      "Click gold (interactive) nodes to fire them",
+      "SPACE: play/pause   RIGHT: step   R: reset",
+      "UP / DOWN: adjust speed",
+      "Hover a node to inspect it"
+    ],
+    "width": 720,
+    "height": 480,
+    "preview": "webgpu",
+    "purpose": "資源フロー・ノード発火・経済シミュレーションの例"
+  },
+  {
+    "id": "model_assets",
+    "title": "Model Assets",
+    "category": "assets",
+    "manifest": "model_assets.kgrprj",
+    "controls": [
+      "Project リソースからモデルを選択",
+      "Models: 回転・平行移動・ズーム"
+    ],
+    "width": 640,
+    "height": 480,
+    "preview": "asset",
+    "purpose": "汎用エディタで GLB・glTF・OBJ の静的プレビューを確認する素材集"
+  },
+  {
+    "id": "particle_demo",
+    "title": "Particle System",
+    "category": "demos-3d",
+    "manifest": "particle_demo.kgrprj",
+    "controls": [
+      "Left drag: orbit camera",
+      "Wheel: zoom"
+    ],
+    "width": 640,
+    "height": 480,
+    "preview": "webgpu",
+    "purpose": "パーティクルの発生・更新・描画を確認する"
+  },
+  {
+    "id": "pbr_demo",
+    "title": "Pbr Demo",
+    "category": "demos-3d",
+    "manifest": "pbr_demo.kgrprj",
+    "controls": [
+      "Browser demos currently require WebGPU",
+      "Open the example source for control details"
+    ],
+    "width": 800,
+    "height": 600,
+    "preview": "native",
+    "purpose": "金属度・粗さなどの PBR マテリアル表現を確認する"
+  },
+  {
+    "id": "physics2d_demo",
+    "title": "Physics 2D",
+    "category": "demos-2d",
+    "manifest": "physics2d_demo.kgrprj",
+    "controls": [
+      "Click: spawn a new body",
+      "Bodies alternate between circles and boxes"
+    ],
+    "width": 640,
+    "height": 480,
+    "preview": "webgpu",
+    "purpose": "2D 剛体の衝突応答と動的生成を確認する"
+  },
+  {
+    "id": "physics3d_demo",
+    "title": "Physics 3D",
+    "category": "demos-3d",
+    "manifest": "physics3d_demo.kgrprj",
+    "controls": [
+      "Automatic camera motion",
+      "Observe the rigid bodies and collisions"
+    ],
+    "width": 640,
+    "height": 480,
+    "preview": "webgpu",
+    "purpose": "3D 剛体の重力・反発・接触を確認する"
+  },
+  {
+    "id": "postfx_demo",
+    "title": "Post Effects",
+    "category": "demos-3d",
+    "manifest": "postfx_demo.kgrprj",
+    "controls": [
+      "Automatic camera motion",
+      "Open source for post-processing setup"
+    ],
+    "width": 640,
+    "height": 480,
+    "preview": "webgpu",
+    "purpose": "ポストエフェクトと描画パスの接続を確認する"
+  },
+  {
+    "id": "ragdoll_demo",
+    "title": "Ragdoll",
+    "category": "demos-3d",
+    "manifest": "ragdoll_demo.kgrprj",
+    "controls": [
+      "Click and drag: pull the ragdoll",
+      "Release: let the spring force settle"
+    ],
+    "width": 640,
+    "height": 480,
+    "preview": "webgpu",
+    "purpose": "関節・ばねによるラグドールの拘束を確認する"
+  },
+  {
+    "id": "scene_demo",
+    "title": "Scene Demo",
+    "category": "demos-2d",
+    "manifest": "scene_demo.kgrprj",
+    "controls": [
+      "WASD / Arrow: move",
+      "Space: add score"
+    ],
+    "width": 800,
+    "height": 600,
+    "preview": "webgpu",
+    "purpose": "ゲーム固有処理を最小にした宣言的 2D Scene API の入門例"
+  },
+  {
+    "id": "shadow3d_demo",
+    "title": "Shadow 3D",
+    "category": "demos-3d",
+    "manifest": "shadow3d_demo.kgrprj",
+    "controls": [
+      "Automatic camera motion",
+      "Open source for implementation details"
+    ],
+    "width": 640,
+    "height": 480,
+    "preview": "webgpu",
+    "purpose": "シャドウマップと影の描画パスを確認する"
+  },
+  {
+    "id": "skeletal_anim",
+    "title": "Skeletal Animation",
+    "category": "demos-3d",
+    "manifest": "skeletal_anim.kgrprj",
+    "controls": [
+      "Automatic camera motion",
+      "Open source for animation graph details"
+    ],
+    "width": 640,
+    "height": 480,
+    "preview": "webgpu",
+    "purpose": "骨格・キーフレーム・アニメーションの再生を確認する"
+  },
+  {
+    "id": "sprite_anim",
+    "title": "Sprite Anim",
+    "category": "demos-2d",
+    "manifest": "sprite_anim.kgrprj",
+    "controls": [
+      "Browser demos currently require WebGPU",
+      "Open the example source for control details"
+    ],
+    "width": 800,
+    "height": 600,
+    "preview": "webgpu",
+    "purpose": "2D スプライトのフレームアニメーションを確認する"
+  },
+  {
+    "id": "survivor",
+    "title": "Survivor",
+    "category": "games",
+    "manifest": "survivor.kgrprj",
+    "controls": [
+      "WASD / Arrow: move",
+      "Space: start / confirm / continue"
+    ],
+    "width": 800,
+    "height": 600,
+    "preview": "webgpu",
+    "purpose": "自動攻撃・大量の敵・経験値とアップグレードの 2D ゲーム例"
+  },
+  {
+    "id": "terrain_demo",
+    "title": "Terrain Demo",
+    "category": "demos-3d",
+    "manifest": "terrain_demo.kgrprj",
+    "controls": [
+      "Browser demos currently require WebGPU",
+      "Open the example source for control details"
+    ],
+    "width": 800,
+    "height": 600,
+    "preview": "native",
+    "purpose": "高さデータによる地形メッシュ生成・描画を確認する"
+  },
+  {
+    "id": "ui_demo",
+    "title": "UI Demo",
+    "category": "demos-2d",
+    "manifest": "ui_demo.kgrprj",
+    "controls": [
+      "Tab / Shift+Tab: move focus",
+      "Click: focus / select"
+    ],
+    "width": 640,
+    "height": 480,
+    "preview": "webgpu",
+    "purpose": "UI ツリー・レイアウト・フォーカス・ヒット判定を確認する"
+  }
+]

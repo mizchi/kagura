@@ -43,3 +43,27 @@ test('unsupported and failed registration do not disable editing or leave partia
   assert.equal(registered.size, 0);
   assert.equal(editor.seek(0.03).ok, true);
 });
+
+test('built-in model tools inspect assets independently of authoring revisions', async () => {
+  const editor = createHeadlessEditor(), registered = new Map();
+  const revision = editor.snapshot().revision;
+  let path = null;
+  const adapter = registerWebMCP({ ...editor, assets: {
+    list: async () => ['models/robot.glb'],
+    preview: async value => { if (typeof value !== 'string') throw Error('Invalid model path'); path = value; return { path }; },
+    snapshot: () => ({ path }),
+    close: () => { path = null; },
+  } }, { registerTool(tool) { registered.set(tool.name, tool); } });
+  await adapter.ready;
+  const execute = (name, input = {}) => registered.get('kagura.' + name).execute(input);
+  assert.deepEqual((await execute('asset_list')).paths, ['models/robot.glb']);
+  assert.equal((await execute('asset_preview', { path: 'models/robot.glb' })).ok, true);
+  assert.equal((await execute('asset_snapshot')).preview.path, 'models/robot.glb');
+  assert.equal((await execute('asset_preview', { path: 'x', expectedRevision: 0 })).ok, false);
+  assert.equal((await execute('asset_preview', { path: 2 })).ok, false);
+  assert.equal(registered.get('kagura.asset_preview').annotations.readOnlyHint, false);
+  await execute('asset_close');
+  assert.equal(path, null);
+  assert.equal(editor.snapshot().revision, revision);
+  adapter.dispose();
+});

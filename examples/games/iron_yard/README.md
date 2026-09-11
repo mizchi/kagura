@@ -22,6 +22,14 @@ Metal検証はGoogle Chromeをヘッドレスの別プロファイルで動か�
 
 初回は `pnpm exec playwright install chromium` でE2E用ブラウザを取得する。開発コマンドはMoonBitとWGSLの変更を監視する。モデルを変更した場合は再起動してアセット変換をやり直す。独自HTMLと起動処理があるため、汎用の `just dev` / `just render` ではなく上記の専用コマンドを使う。
 
+## Editor内での実行
+
+`just studio-dev` で [Kagura Studio](http://127.0.0.1:5190/) を起動し、**Resources → Open IRON YARD** から開ける。既存のWebGPU / WGSL版を同梱し、別のゲームサーバーは不要。実モデルを見ながら建物の位置・サイズ・色・種類、敵・波・出撃地点、ミッション・カメラ・照明、ライフルのダメージ・演出・効果音を編集できる。modeling-playgroundのScene Studio v1 JSONを読み書きし、Save / Undo / WebMCPとヘッドレスシミュレーションに対応する。編集したドキュメントで試遊し、停止メニューの「編集に戻る」で作業を再開できる。
+
+`just iron-yard-editor-build` でゲームと `editor/ui/dist/extension.mjs` をビルドし、Studioの **Open project** からこのディレクトリを選ぶと、[iron-yard.kgrprj](iron-yard.kgrprj) が専用拡張・`scenes/iron-yard.json`・配下のモデルと音声を読み込む。Saveはシーンファイルに書き戻す。ゲームと一緒に拡張を変更・再ビルドし、**拡張を再読込** で未保存のシーンを維持したまま更新できる。汎用エディタはStudio本体に残り、専用編集からいつでも戻れる。
+
+ゲームソースの変更後は `(cd editor/studio && pnpm build:games)` で同梱版を更新する。詳細は [Studioのゲーム連携](../../../editor/studio/README.md#iron-yard)。
+
 ## Chromeでの性能比較
 
 起動済みのKagura版・Three.js版を、独立したChrome / Metalで順番に計測する。1280×800 CSS px、DPR 2（実描画1920×1200）、演習モード、5秒のウォームアップ後に10秒×3回。出撃可能になってからモードを切り替え、計測前後にゲーム側の状態で演習モード・稼働中・標的3機を検査する。両方のビルド種別を揃える。最終比較には各リポジトリでproductionビルドを作り、Vite previewで配信する。
@@ -61,14 +69,14 @@ FPSはrAFの実測で、ディスプレイの更新レートで頭打ちにな�
 
 | 機能 | 接続先 |
 | --- | --- |
-| GPU描画・深度・テクスチャ・オフスクリーン | `mizchi/gfx`、`platform/web_runtime_hooks`、既存 `lib/web/kagura-gfx.js` |
+| GPU描画・深度・テクスチャ・オフスクリーン | `mizchi/gfx`、`platform/web_runtime_hooks`、既存 `assets/web/kagura-gfx.js` |
 | メッシュ・座標・カメラ | `mesh3d`、`geom/math3d`、`geom/camera3d` |
 | PBR・金属度・粗さ・発光 | `kagura_engine/draw3d/shaders/standard.wgsl` |
 | ボーン姿勢・クリップ補間 | `anim3d/animation3d`、`anim3d/transform3d` |
 | 地面・建物・機体の影 | `kagura_engine/shadow3d` のシャドウマップ |
 | トーンマッピング | `draw3d/shaders/color.wgsl` のACESFilmic |
 | BGM・効果音 | `kagura_audio` のWAVデコーダーとMixerAudioContext |
-| ゲーム移動・衝突・弾・AI | `src/sim`。元版と同じ運動学と線分/AABB判定をMoonBit化 |
+| ゲーム移動・衝突・弾・AI | `sim`。元版と同じ運動学と線分/AABB判定をMoonBit化 |
 
 別の描画エンジンは不要。draw3dにThree.js 0.185.1互換のStandard / unlitシェーダーを追加し、ゲームを接続した。従来のPBR・トーンマッピングAPIの既定動作は維持している。一方、既存のGLBローダーは最初のskinだけを返し、PBRと埋め込み画像を十分に引き継がないため、ゲーム用のインポート工程を追加した。
 
@@ -89,7 +97,7 @@ BASTIONは168種類のメッシュを296箇所へ配置した階層を展開し�
 - シーン描画先900は表示色のRGBA16Fで、合成時の丸めを抑える。4サンプルMSAAで描画・resolveした画像を画面へコピーする。DPRの上限は元版と同じ1.5。二度目のトーンマッピングやsRGB変換は行わない。シェーダーAPIの `linear_output=true` は別用途の線形HDR出力に使える。
 - 深度バッファは描画先ごとに分離し、そのフレーム最初の3D描画時に初期化する。depth-to-color影マップの空白は深度1で初期化する。影マップは2048角、RGBに24ビット深度を格納する。影用カメラは元の光源位置、near 0.5 / far 180、normalBias 0.04、depth bias 0。元版と同じ背面を記録する。
 
-床は元版と同じ外周・内周のPBR面（粗さ0.95、金属度0）。`src/app/scenery.mbt` の灰色のグリッド、黄色い道路の破線、出撃リングもそれぞれ元の材質を使い、地面と機体の深度判定に従う。出撃リングは元版と同じ半径5.4〜5.58、64分割の平面メッシュ。装飾ごとのcastShadow / receiveShadowと、基本材質のトーンマッピング設定を引き継ぐ。
+床は元版と同じ外周・内周のPBR面（粗さ0.95、金属度0）。`app/scenery.mbt` の灰色のグリッド、黄色い道路の破線、出撃リングもそれぞれ元の材質を使い、地面と機体の深度判定に従う。出撃リングは元版と同じ半径5.4〜5.58、64分割の平面メッシュ。装飾ごとのcastShadow / receiveShadowと、基本材質のトーンマッピング設定を引き継ぐ。
 
 `shadow.wgsl` はThree.js r185のPCF（Vogel diskの5点 × 比較後の双線形補間、画素ごとのIGN回転）を実装する。WebGLとWebGPUで異なる画面・テクスチャのY座標を変換する。パックした深度値の色を補間するのではなく、4点の深度比較結果を補間する。
 
@@ -110,23 +118,23 @@ node examples/games/iron_yard/scripts/import-dfg.mjs
 
 ## 構成と検証範囲
 
-- `src/sim`: 状態の型、移動、戦闘、敵AI、ミッション、JSON snapshot。DOM/GPU依存なし。
-- `src/rig`: 変換済みアセットの読込、既存AnimationClipのサンプリング、四脚の軸と上半身照準。
-- `src/app`: kaguraのフレーム更新・PBR描画・音声へ接続。
-- `src/headless`: Nodeからの数値回帰検証。ゲーム状態はインスタンスごとに独立。
+- `sim`: 状態の型、移動、戦闘、敵AI、ミッション、JSON snapshot。DOM/GPU依存なし。
+- `rig`: 変換済みアセットの読込、既存AnimationClipのサンプリング、四脚の軸と上半身照準。
+- `app`: kaguraのフレーム更新・PBR描画・音声へ接続。
+- `headless`: Nodeからの数値回帰検証。ゲーム状態はインスタンスごとに独立。
 - `web/controls.ts`: 入力捕捉。`web/ui.mjs`: メニュー、音量、投影済み座標によるHUD。
 - `e2e`: 通常操作、元版の材質・ACESFilmic・霧との画素比較、色空間、反射の強度、深度、影、メニューのフォーカス・音量・狭い画面での内部スクロール。
 - `tests/movement-reference.json`: 移植元の移動関数から記録した6シナリオ。MoonBit版の位置・速度・歩行位相を誤差1e-8以内で比較。
 
 公開ブラウザAPIは `ironYard.snapshot()`、`pause()`、`reset()`、`rendererInfo()`。snapshotは描画側のキャッシュではなく現在のシミュレーションをコピーする。`rendererInfo()` で描画基盤、モデル画像18枚＋環境反射1枚、音声6本、バッチ数、照明プロファイル、PMREMのサイズと形式、現在の音量・ミュート状態を確認できる。
 
-`src/headless` の `step` は移動・AI・戦闘検証用で、アセットなしの近似銃口を使用する。ブラウザでの精密な銃口は `rig.update_animator` が計算する。ヘッドレスとブラウザの射撃全体が同一という保証はしていない。
+`headless` の `step` は移動・AI・戦闘検証用で、アセットなしの近似銃口を使用する。ブラウザでの精密な銃口は `rig.update_animator` が計算する。ヘッドレスとブラウザの射撃全体が同一という保証はしていない。
 
 現在の実行ターゲットはブラウザのWebGPU。シミュレーションは描画なしで動作するが、nativeのウィンドウ・入力・アセット読込への接続は未実装。照明・環境反射・トーンマッピング・霧は上記の参照値で検証する。AA方式・影の計算・モデル画像の補間・Stageの装飾設定は元版に合わせている。GPUのMSAAサンプル位置、浮動小数点精度、ブラウザの合成処理による画素差はあり、シーン全体のビット単位の一致は保証しない。
 
 UIは元版のGame / CombatScene / style.cssを基に、HUDの配置と書体（Helvetica Neue / Arial / 日本語システムフォント、計器はui-monospace）を引き継ぐ。外部Webフォントへの依存はない。出撃・停止画面はネイティブのdialog、音量はラベル付きrange、操作説明はkbdで構成する。メニュー内のフォーカス移動、停止時の再開ボタンへのフォーカス、狭い画面でのカード内スクロールに対応する。
 
-元のReact製Scene StudioのUI移植や、新しいKagura Studioへのゲーム起動・編集接続は、このゲーム実行部分と別の工程。ゲーム固有ペーンから接続する際は、`src/sim` の契約とゲーム設定リソースを入口にする。
+Studioの編集は `editor/scene` の移植元互換契約を入口とし、検証済みのシーンを `sim/scene.mbt` のレシピへ変換する。建物の描画と当たり判定、敵・波、時間制限、ライフルのダメージと演出を同じドキュメントから構築する。`ironYard.loadScene(document, ai)` と `sceneDocument()` がブラウザ側の接続API。専用編集UIは `editor/ui/` に置き、編集ビューも同じゲームのKagura WebGPU / WGSL描画を使う。`app/editor.mbt` が自由カメラ・選択枠・凍結したシーン・演出シークを提供し、通常のゲーム更新から分離する。
 
 ## 移植元
 
@@ -144,6 +152,6 @@ UIは元版のGame / CombatScene / style.cssを基に、HUDの配置と書体（
 
 ### Geometry・instancingとSIMD実験
 
-静的メッシュは更新世代付きで登録し、影・本描画・同型機のGPUバッファを共有する。PBR uniformとJSの描画コマンドを再利用し、互換な不透明描画を最大32インスタンスにまとめる。API契約は[GEOMETRY.md](../../../lib/web/GEOMETRY.md)、比較結果は[PERFORMANCE.md](PERFORMANCE.md)を参照。
+静的メッシュは更新世代付きで登録し、影・本描画・同型機のGPUバッファを共有する。PBR uniformとJSの描画コマンドを再利用し、互換な不透明描画を最大32インスタンスにまとめる。API契約は[GEOMETRY.md](../../../assets/web/GEOMETRY.md)、比較結果は[PERFORMANCE.md](PERFORMANCE.md)を参照。
 
 `just iron-yard-simd`でZig製MVPカーネルのスカラー/SIMD/`-Oz`をChromeで比較できる。Zig 0.16、wasm-tools、wasm-optが必要。一括入力と通常配列の逐次転送を分けて計測する。本番の描画経路はこの実験用Wasmに依存しない。

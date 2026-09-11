@@ -8,7 +8,7 @@ import {
 
 test("resolvePrCommentMarkdown enriches a parsed review when markdown is missing", () => {
   const markdown = resolvePrCommentMarkdown({
-    target_file: "editor/modeling3d/examples/model_authoring/src/model_doc.mbt",
+    target_file: "editor/modeling3d/examples/model_authoring/model_doc.mbt",
     overall_summary: "summary",
     confidence: "high",
     recommended_actions: [],
@@ -17,7 +17,7 @@ test("resolvePrCommentMarkdown enriches a parsed review when markdown is missing
   });
 
   assert.match(markdown, /^## Kagura VLM Review/m);
-  assert.match(markdown, /Target: `editor\/modeling3d\/examples\/model_authoring\/src\/model_doc\.mbt`/);
+  assert.match(markdown, /Target: `editor\/modeling3d\/examples\/model_authoring\/model_doc\.mbt`/);
 });
 
 test("resolvePrCommentMarkdown prefers embedded markdown when present", () => {

@@ -564,3 +564,19 @@ input:focus-visible, select:focus-visible, summary:focus-visible { outline: 2px 
 .audio-settings label { white-space: nowrap; }
 .fallback-note { margin: 0; }
 .arena > canvas:focus { outline: none; }
+
+/* The editor supplies transport and deployment settings alongside the game. */
+html[data-editor] .deployment { padding: 12px; background: transparent; display: flex; align-items: center; justify-content: center; }
+html[data-editor] .deployment:not([open]) { display: none; }
+html[data-editor] .deployment-card { width: min(320px, 100%); max-height: calc(100dvh - 24px); padding: 16px; background: #14242de8; border: 1px solid #76909c; }
+html[data-editor] .deployment h1 { font-size: 24px; letter-spacing: 0; margin: 0 0 8px; }
+html[data-editor] .deployment .subtitle { font-size: 12px; margin: 0 0 12px; }
+html[data-editor] .deployment-card > :is(.eyebrow, .brief, .exercise-mode, .hint, .scope, .game-credits) { display: none; }
+html[data-editor] .deploy-button { height: 42px; padding: 8px 12px; font-size: 14px; margin: 0; }
+html[data-editor] .audio-settings { margin-top: 10px; gap: 8px; }
+html[data-editor] .menu-footer { margin-top: 10px; font-size: 10px; }
+
+html[data-authoring="true"] body { background:#17232c; }
+html[data-authoring="true"] #app { cursor:grab; }
+
+html[data-authoring="true"] .arena > :not(canvas) { display:none !important; }

@@ -82,4 +82,3 @@ pub impl Show for Vec2
 // Type aliases
 
 // Traits
-

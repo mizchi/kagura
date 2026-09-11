@@ -91,4 +91,3 @@ pub(open) trait EngineGame {
   fn update_game(Self, @kagura_core.InputSnapshot) -> Unit
   fn draw_game(Self, EngineContext) -> Array[@gfx.DrawTrianglesCommand]
 }
-

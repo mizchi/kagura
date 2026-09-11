@@ -1,5 +1,5 @@
 // fetch_image loader for JS target E2E test
-import { loadGameScript } from "../../lib/web/kagura-init.js";
+import { loadGameScript } from "../../assets/web/kagura-init.js";
 
 async function init() {
   // Do NOT call initWebGPU/setupGlobalState here.

@@ -1,0 +1,4 @@
+import {
+  "mizchi/kagura_game/scene_data",
+  "moonbitlang/core/json",
+}

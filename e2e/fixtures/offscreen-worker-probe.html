@@ -10,13 +10,13 @@
 <script type="module">
   // Main thread keeps the frame clock; the worker keeps a blocking loop. They
   // meet through the shipped handshake -- `createFrameControl` / `tickFrame`
-  // from lib/web/kagura-wasm-driver.js -- rather than a copy of it, so this
+  // from assets/web/kagura-wasm-driver.js -- rather than a copy of it, so this
   // page exercises the code the driver actually uses.
   //
   // ?mode=baseline runs the same rAF loop with no worker at all, so the cost of
   // the handshake can be read off as a difference rather than an absolute.
-  import { createFrameControl, tickFrame } from "/lib/web/kagura-wasm-driver.js";
-  import { summarizeIntervals } from "/lib/web/kagura-frame-stats.js";
+  import { createFrameControl, tickFrame } from "/assets/web/kagura-wasm-driver.js";
+  import { summarizeIntervals } from "/assets/web/kagura-frame-stats.js";
 
   const params = new URLSearchParams(location.search);
   const mode = params.get("mode") ?? "worker";

@@ -44,4 +44,3 @@ pub(all) struct AudioSource3D {
 // Type aliases
 
 // Traits
-

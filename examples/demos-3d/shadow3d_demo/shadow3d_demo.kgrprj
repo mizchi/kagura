@@ -1,0 +1,38 @@
+{
+  "format": "kagura.project",
+  "version": 1,
+  "name": "Shadow 3D",
+  "editor": {
+    "id": "kagura.example",
+    "apiVersion": 1
+  },
+  "scene": "editor/studio.json",
+  "resources": {},
+  "id": "mizchi.kagura.examples.shadow3d_demo",
+  "game": "shadow3d_demo",
+  "save": {
+    "namespace": "mizchi.kagura.examples.shadow3d_demo",
+    "version": 1
+  },
+  "runtime": {
+    "kind": "script",
+    "apiVersion": 1,
+    "targets": [
+      "js",
+      "native"
+    ],
+    "entry": "editor/dist/runtime.js"
+  },
+  "build": {
+    "package": ".",
+    "artifact": "shadow3d_demo.js"
+  },
+  "display": {
+    "width": 640,
+    "height": 480
+  },
+  "sceneSchema": {
+    "id": "kagura.example",
+    "version": 1
+  }
+}

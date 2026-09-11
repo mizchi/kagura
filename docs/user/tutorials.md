@@ -12,7 +12,7 @@
 
 ## 1. Understand the Declarative API with scene_demo
 
-- Reference: `examples/demos-2d/scene_demo/src/game.mbt`
+- Reference: `examples/demos-2d/scene_demo/game.mbt`
 - Goal: Learn the basic pattern of `@scene.run` + Signals + view function
 
 ### Basic Structure
@@ -58,7 +58,7 @@ fn main {
 
 ## 2. Build a 2D Game Loop with flappy_bird
 
-- Reference: `examples/games/flappy_bird/src/game.mbt`
+- Reference: `examples/games/flappy_bird/game.mbt`
 - Goal: Learn input handling, physics (gravity), collision detection, and game mode transitions
 
 ### Key Points
@@ -69,7 +69,7 @@ fn main {
 
 ## 3. Learn Extensible Structure with survivor
 
-- Reference: `examples/games/survivor/src/game.mbt`
+- Reference: `examples/games/survivor/game.mbt`
 - Goal: Learn multi-entity management, camera following, and level-up UI
 
 ### Key Points
@@ -81,7 +81,7 @@ fn main {
 
 ## 4. Explore Advanced Patterns with action_rpg
 
-- Reference: `examples/games/action_rpg/src/game.mbt`
+- Reference: `examples/games/action_rpg/game.mbt`
 - Goal: See tilemap rendering, enemy AI, pause menu, and damage effects
 
 ### Key Points
@@ -93,7 +93,7 @@ fn main {
 
 ## 5. Learn 3D with arena3d
 
-- Reference: `examples/games/arena3d/src/game.mbt`
+- Reference: `examples/games/arena3d/game.mbt`
 - Goal: Understand CPU-side 3D-to-2D projection, meshes, and basic lighting
 
 > arena3d uses the low-level API (direct `DrawTrianglesCommand` construction).

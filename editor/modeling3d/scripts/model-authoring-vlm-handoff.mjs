@@ -713,7 +713,7 @@ async function runNativeLiveReview(plan) {
     logStep(`running native capture for ${plan.example}`);
     const result = spawnSync(
       "moon",
-      ["-C", exampleDir, "run", "src/main_native.mbt", "--target", "native"],
+      ["-C", exampleDir, "run", "main_native.mbt", "--target", "native"],
       {
         cwd: process.cwd(),
         env: resolveNativeMoonEnv(),

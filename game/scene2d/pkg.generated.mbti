@@ -1,0 +1,36 @@
+// Generated using `moon info`, DON'T EDIT IT
+package "mizchi/kagura_game/scene2d"
+
+import {
+  "moonbitlang/core/json",
+}
+
+// Values
+
+// Errors
+
+// Types and methods
+pub(all) struct Document {
+  coordinates : String
+  width : Int
+  height : Int
+  background : Int
+  objects : Array[Element]
+} derive(ToJson, @json.FromJson)
+pub fn Document::element(Self, String) -> Element raise
+pub fn Document::validate(Self) -> Unit raise
+
+pub(all) struct Element {
+  id : String
+  name : String
+  kind : String
+  x : Double
+  y : Double
+  width : Double
+  height : Double
+  color : Int
+} derive(ToJson, @json.FromJson)
+
+// Type aliases
+
+// Traits

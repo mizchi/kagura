@@ -11,5 +11,3 @@ import {
   "mizchi/gfx@0.1.0",
   "mizchi/atlas@0.2.0",
 }
-
-source = "src"

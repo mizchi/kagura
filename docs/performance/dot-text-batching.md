@@ -2,7 +2,7 @@
 
 - Date: 2026-09-11
 - Scope: `engine/renderer2d`、`engine/kagura_engine`（headless の meta）、
-  `game/kagura_game/scene`（bench）、`lib/web`、`scripts/render-frame.mjs`
+  `game/scene`（bench）、`assets/web`、`scripts/render-frame.mjs`
 - 出発点: [physics-followups.md](./physics-followups.md) の作業項目
   「4.2x 速い `new_atlas_quad_batch_draw_command` が誰からも呼ばれていない」。
   **その関数は配線しなかった** —— まとめて描くべき quad が atlas ではなく
@@ -179,11 +179,11 @@ label の値段は 3x5 ドットマトリクスそのものである。
 - `push_rect_fill_geometry`（private）を切り出した。frame と rect をスカラーで取るので
   バッチ側はループの外で screen サイズを変換でき、ドットごとの `RectFill2D` も作らない。
   `append_rect_fill_geometry` はその薄いラッパになった
-- `HeadlessFrame` に `draw_commands` を足し、`lib/web/kagura-headless-frame.js` →
+- `HeadlessFrame` に `draw_commands` を足し、`assets/web/kagura-headless-frame.js` →
   `scripts/render-frame.mjs` まで通した。`just render` が
   `N triangles in M command(s)` を出す
 - bench を 2 箇所に足した: `engine/renderer2d/primitives_bench.mbt`（primitive builder
-  4 本 + 床 + cross-module ペアの片方）、`game/kagura_game/scene/renderer_bench.mbt`
+  4 本 + 床 + cross-module ペアの片方）、`game/scene/renderer_bench.mbt`
   （build / render を分けた 4 本 + 床）。**scene renderer には bench が 1 本も無かった**
 - wbtest を「1 ドット 1 command」から「1 ラン 1 command」に貼り替えた。点灯ドット数は
   `glyph_pattern` から数えるので glyph の絵を直しても落ちない
@@ -196,7 +196,7 @@ label の値段は 3x5 ドットマトリクスそのものである。
 - `scripts/bench-baseline.json` を `--runs 3` で貼り直した（95 bench）
 - 三角形数が 10 example すべてで一致（上の表）
 - renderer2d 105 test / workspace 649 test、native は `moon check --deny-warn` 全体
-- `lib/web` 51 test / `scripts` 201 test
+- `assets/web` 51 test / `scripts` 201 test
 
 ## 残っている作業項目
 

@@ -1,0 +1,37 @@
+{
+  "format": "kagura.project",
+  "version": 1,
+  "name": "Sprite Anim",
+  "editor": {
+    "id": "kagura.example2d",
+    "apiVersion": 1
+  },
+  "scene": "editor/studio.json",
+  "resources": {},
+  "id": "mizchi.kagura.examples.sprite_anim",
+  "game": "sprite_anim",
+  "save": {
+    "namespace": "mizchi.kagura.examples.sprite_anim",
+    "version": 1
+  },
+  "runtime": {
+    "kind": "script",
+    "apiVersion": 1,
+    "targets": [
+      "js"
+    ],
+    "entry": "editor/dist/runtime.js"
+  },
+  "build": {
+    "package": ".",
+    "artifact": "sprite_anim.js"
+  },
+  "display": {
+    "width": 800,
+    "height": 600
+  },
+  "sceneSchema": {
+    "id": "kagura.example",
+    "version": 1
+  }
+}

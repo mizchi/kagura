@@ -16,7 +16,7 @@ members = [
   "./engine/physics",
   "./game/pathfind",
   "./game/machinations",
-  "./game/kagura_game",
+  "./game",
   "./platform/js_runtime",
   "./platform/web_runtime_hooks",
   "./platform/native_runtime_hooks",

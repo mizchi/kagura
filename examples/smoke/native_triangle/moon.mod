@@ -8,8 +8,6 @@ import {
   "mizchi/native_runtime_hooks@0.1.0",
 }
 
-source = "src"
-
 options(
   "--moonbit-unstable-prebuild": "../../../scripts/moon-prebuild-native-link-flags.cjs",
 )

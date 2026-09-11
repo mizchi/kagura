@@ -45,7 +45,7 @@ function buildPages() {
 
 function buildExample(name) {
   console.log(`Building ${name} ...`);
-  const result = spawnSync("moon", ["build", "src", "--target", "js"], {
+  const result = spawnSync("moon", ["build", existsSync(join(resolveExampleDir(name), "moon.pkg")) ? "." : "src", "--target", "js"], {
     cwd: resolveExampleDir(name),
     stdio: "inherit",
   });
@@ -118,7 +118,7 @@ function resolveExampleDir(name) {
 }
 
 function copySharedLib(fileName) {
-  cpSync(join(ROOT, "lib", "web", fileName), join(SITE, "lib", fileName));
+  cpSync(join(ROOT, "assets", "web", fileName), join(SITE, "lib", fileName));
 }
 
 function resolveCacheBust() {

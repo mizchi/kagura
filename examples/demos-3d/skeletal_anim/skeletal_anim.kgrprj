@@ -1,0 +1,38 @@
+{
+  "format": "kagura.project",
+  "version": 1,
+  "name": "Skeletal Animation",
+  "editor": {
+    "id": "kagura.example",
+    "apiVersion": 1
+  },
+  "scene": "editor/studio.json",
+  "resources": {},
+  "id": "mizchi.kagura.examples.skeletal_anim",
+  "game": "skeletal_anim",
+  "save": {
+    "namespace": "mizchi.kagura.examples.skeletal_anim",
+    "version": 1
+  },
+  "runtime": {
+    "kind": "script",
+    "apiVersion": 1,
+    "targets": [
+      "js",
+      "native"
+    ],
+    "entry": "editor/dist/runtime.js"
+  },
+  "build": {
+    "package": ".",
+    "artifact": "skeletal_anim.js"
+  },
+  "display": {
+    "width": 640,
+    "height": 480
+  },
+  "sceneSchema": {
+    "id": "kagura.example",
+    "version": 1
+  }
+}

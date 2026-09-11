@@ -1,0 +1,27 @@
+import {
+  "moonbitlang/core/json",
+  "mizchi/iron_yard/sim",
+  "mizchi/iron_yard/rig",
+  "mizchi/geom/math3d",
+}
+
+supported_targets = "js"
+
+options(
+  link: {
+    "js": {
+      "exports": [
+        "create",
+        "create_configured",
+        "create_scene",
+        "replay_attack",
+        "step",
+        "snapshot",
+        "start_playing",
+        "pause",
+        "rig_check",
+      ],
+      "format": "esm",
+    },
+  },
+)

@@ -453,4 +453,3 @@ pub trait ShaderRepository {
   fn get_shader(Self, AssetKey) -> @gfx.ShaderHandle?
   fn remove_shader(Self, AssetKey) -> Unit raise
 }
-

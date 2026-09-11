@@ -4,7 +4,7 @@ import { resolveVlmReviewApiConfig } from "./model-authoring-vlm-review-utils.mj
 
 const EXAMPLE_REVIEW_CONFIGS = {
   model_authoring: {
-    targetFile: "editor/modeling3d/examples/model_authoring/src/model_doc.mbt",
+    targetFile: "editor/modeling3d/examples/model_authoring/model_doc.mbt",
     profileId: "generic_model",
     constraints: [
       "Keep the primary silhouette readable from angled, front, side, and top views.",
@@ -12,7 +12,7 @@ const EXAMPLE_REVIEW_CONFIGS = {
     ],
   },
   chair_authoring: {
-    targetFile: "editor/modeling3d/examples/chair_authoring/src/model_doc.mbt",
+    targetFile: "editor/modeling3d/examples/chair_authoring/model_doc.mbt",
     profileId: "hard_surface_prop",
     constraints: [
       "A chair should read as a stable seat, backrest, and support structure.",
@@ -20,7 +20,7 @@ const EXAMPLE_REVIEW_CONFIGS = {
     ],
   },
   shelf_authoring: {
-    targetFile: "editor/modeling3d/examples/shelf_authoring/src/model_doc.mbt",
+    targetFile: "editor/modeling3d/examples/shelf_authoring/model_doc.mbt",
     profileId: "hard_surface_prop",
     constraints: [
       "A shelf should read as stacked horizontal boards supported by vertical uprights.",
@@ -28,7 +28,7 @@ const EXAMPLE_REVIEW_CONFIGS = {
     ],
   },
   frog_authoring: {
-    targetFile: "editor/modeling3d/examples/frog_authoring/src/model_doc.mbt",
+    targetFile: "editor/modeling3d/examples/frog_authoring/model_doc.mbt",
     profileId: "organic_character",
     constraints: [
       "Aim for a squat frog silhouette instead of a generic blob.",
@@ -37,7 +37,7 @@ const EXAMPLE_REVIEW_CONFIGS = {
     ],
   },
   dragon_authoring: {
-    targetFile: "editor/modeling3d/examples/dragon_authoring/src/model_doc.mbt",
+    targetFile: "editor/modeling3d/examples/dragon_authoring/model_doc.mbt",
     profileId: "organic_character",
     constraints: [
       "Aim for a readable dragon silhouette with a clear head, neck, torso, and tail instead of a generic blob.",

@@ -61,7 +61,7 @@ GPUメモリについて、左右移動の実際の確保サイズは頂点・�
 
 再プロファイルで見つかったバッチ用uniformの未使用領域比較も削除した。共有GPUキャッシュは登録済みメッシュに限定し、毎フレーム作られる小さな全画面メッシュで増え続けないようにした。未使用の共有バッファは最大240描画フレーム以内に破棄する。
 
-APIの所有権・寿命・WGSL制約は[GEOMETRY.md](../../../lib/web/GEOMETRY.md)に記載。Metal E2E 14件、GFX Node 28件、web_runtime_hooks 776件、draw3d/shadow3d/postfx 61件、audio 49件、ゲームMoonBit 10件とNode 11件が成功。PBRの数値比較はinstance index 0以外も検証し、元のThree.jsの色・反射・PCFと一致する。
+APIの所有権・寿命・WGSL制約は[GEOMETRY.md](../../../assets/web/GEOMETRY.md)に記載。Metal E2E 14件、GFX Node 28件、web_runtime_hooks 776件、draw3d/shadow3d/postfx 61件、audio 49件、ゲームMoonBit 10件とNode 11件が成功。PBRの数値比較はinstance index 0以外も検証し、元のThree.jsの色・反射・PCFと一致する。
 
 ### Wasm SIMD
 

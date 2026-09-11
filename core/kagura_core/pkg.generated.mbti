@@ -224,4 +224,3 @@ pub trait Game {
   fn update(Self, InputSnapshot) -> EngineTermination?
   fn draw(Self, FrameBudget) -> Unit
 }
-

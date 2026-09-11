@@ -35,7 +35,7 @@ const demo = resolveDemoPage(name);
 const inlineLoader = renderLoaderModule({
   fontEntries: detectFontEntries(exampleDir),
   scriptPath: `./_build/js/debug/build/${name}.js`,
-  libPrefix: "./lib/web",
+  libPrefix: "./assets/web",
 });
 const scriptTag = `<script type="module">\n${inlineLoader.replaceAll("</script>", "<\\/script>")}</script>`;
 const indexHtml = renderDemoHtml({

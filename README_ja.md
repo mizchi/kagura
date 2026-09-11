@@ -91,7 +91,7 @@ just run-native action_rpg
 cd examples/games/action_rpg && \
   CPATH="$(brew --prefix glfw)/include:${CPATH:-}" \
   LIBRARY_PATH="$(brew --prefix)/lib:${LIBRARY_PATH:-}" \
-  moon run src/ --target native
+  moon run . --target native
 ```
 
 ## Web で動かす

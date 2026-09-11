@@ -100,7 +100,7 @@ test "bench append_dot_text 200 glyphs" (b : @bench.T) {
 
 ///|
 /// The same call as `scene/append_dot_text_direct_12` in
-/// `game/kagura_game/scene`: 12 runs of "SCORE 12345" (102 lit dots each) at
+/// `game/scene`: 12 runs of "SCORE 12345" (102 lit dots each) at
 /// the same size and position.
 ///
 /// The pair is a reproducer, not a measurement. Under `moon bench -p` the two

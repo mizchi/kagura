@@ -1,0 +1,178 @@
+{
+  "version": 1,
+  "name": "Hack & Slash 3D Training",
+  "units": "meters",
+  "up": "Y",
+  "forward": "+Z",
+  "nodes": [
+    {
+      "id": "floor",
+      "name": "floor",
+      "asset": "primitive.box",
+      "parent": "",
+      "position": [
+        24,
+        -0.125,
+        20
+      ],
+      "rotation": [
+        0,
+        0,
+        0
+      ],
+      "scale": [
+        32,
+        0.25,
+        24
+      ],
+      "color": 3820074
+    },
+    {
+      "id": "barrier",
+      "name": "barrier",
+      "asset": "primitive.box",
+      "parent": "",
+      "position": [
+        20.5,
+        0.25,
+        20
+      ],
+      "rotation": [
+        0,
+        0,
+        0
+      ],
+      "scale": [
+        1,
+        0.5,
+        8
+      ],
+      "color": 5918784
+    },
+    {
+      "id": "spawn",
+      "name": "spawn",
+      "asset": "primitive.cylinder",
+      "parent": "",
+      "position": [
+        12.5,
+        0.5,
+        15.5
+      ],
+      "rotation": [
+        0,
+        0,
+        0
+      ],
+      "scale": [
+        0.75,
+        1,
+        0.75
+      ],
+      "color": 6928639
+    },
+    {
+      "id": "enemy-a",
+      "name": "enemy-a",
+      "asset": "primitive.cylinder",
+      "parent": "",
+      "position": [
+        28.5,
+        0.5,
+        15.5
+      ],
+      "rotation": [
+        0,
+        0,
+        0
+      ],
+      "scale": [
+        0.75,
+        1,
+        0.75
+      ],
+      "color": 12799045
+    },
+    {
+      "id": "enemy-b",
+      "name": "enemy-b",
+      "asset": "primitive.cylinder",
+      "parent": "",
+      "position": [
+        30.5,
+        0.5,
+        24.5
+      ],
+      "rotation": [
+        0,
+        0,
+        0
+      ],
+      "scale": [
+        0.75,
+        1,
+        0.75
+      ],
+      "color": 12799045
+    }
+  ],
+  "action": {
+    "target": "",
+    "duration": 1,
+    "flashDuration": 0.08,
+    "recoilDuration": 0.3,
+    "recoilStrength": 0.4
+  },
+  "resources": [
+    {
+      "id": "kagura.example",
+      "kind": "kagura.example",
+      "version": 1,
+      "data": {
+        "example": "hacknslash_3d",
+        "query": {}
+      }
+    },
+    {
+      "id": "kagura.scene",
+      "kind": "kagura.scene",
+      "version": 1,
+      "data": {
+        "game": "hacknslash_3d",
+        "bindings": [
+          {
+            "node": "floor",
+            "component": "floor",
+            "properties": {}
+          },
+          {
+            "node": "barrier",
+            "component": "wall",
+            "properties": {}
+          },
+          {
+            "node": "spawn",
+            "component": "spawn",
+            "properties": {}
+          },
+          {
+            "node": "enemy-a",
+            "component": "enemy",
+            "properties": {
+              "kind": "basic",
+              "hp": 30
+            }
+          },
+          {
+            "node": "enemy-b",
+            "component": "enemy",
+            "properties": {
+              "kind": "ranged",
+              "hp": 40
+            }
+          }
+        ]
+      }
+    }
+  ]
+}

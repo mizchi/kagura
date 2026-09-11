@@ -56,7 +56,7 @@ test("effect_studio publishes AI patch bundle context", async ({ page }) => {
   expect(context.parsed).not.toBeNull();
   expect(context.parsed?.name).toBe("forge_burst");
   expect(context.parsed?.tracks.length).toBeGreaterThan(0);
-  expect(context.parsed?.patch_bundle.target_file).toBe("editor/effect-studio/src/effect_doc.mbt");
+  expect(context.parsed?.patch_bundle.target_file).toBe("editor/effect-studio/effect_doc.mbt");
   expect(context.parsed?.patch_bundle.track_targets[0]?.track_id).toBe("core_flash");
   expect(context.parsed?.exports.bundle_filename).toBe("forge_burst-effect-bundle.json");
   expect(context.parsed?.exports.review_filename).toBe("forge_burst-effect-review.md");
@@ -79,7 +79,7 @@ test("effect_studio downloads bundle JSON and review markdown", async ({ page })
   });
   expect(bundle.filename).toBe("forge_burst-effect-bundle.json");
   const bundleText = bundle.text;
-  expect(bundleText).toContain("\"target_file\":\"editor/effect-studio/src/effect_doc.mbt\"");
+  expect(bundleText).toContain("\"target_file\":\"editor/effect-studio/effect_doc.mbt\"");
   expect(bundleText).toContain("\"track_targets\":[");
 
   await page.evaluate(() => {

@@ -1,0 +1,60 @@
+// Generated using `moon info`, DON'T EDIT IT
+package "mizchi/kagura_game/scene_document"
+
+import {
+  "mizchi/kagura_game/scene_data",
+  "moonbitlang/core/json",
+}
+
+// Values
+
+// Errors
+
+// Types and methods
+pub(all) struct Action {
+  target : String
+  duration : Double
+  flashDuration : Double
+  recoilDuration : Double
+  recoilStrength : Double
+} derive(ToJson, @json.FromJson)
+
+type Binding derive(@json.FromJson)
+
+type Bindings derive(@json.FromJson)
+
+type Destination derive(@json.FromJson)
+
+pub(all) struct Document {
+  version : Int
+  name : String
+  units : String
+  up : String
+  forward : String
+  nodes : Array[Node]
+  action : Action
+  resources : Array[Resource]
+} derive(ToJson, @json.FromJson)
+pub fn Document::compile_entities(Self, String) -> @scene_data.Definition raise
+
+pub(all) struct Node {
+  id : String
+  name : String
+  asset : String
+  parent : String
+  position : Array[Double]
+  rotation : Array[Double]
+  scale : Array[Double]
+  color : Int
+} derive(ToJson, @json.FromJson)
+
+pub(all) struct Resource {
+  id : String
+  kind : String
+  version : Int
+  data : Json
+} derive(ToJson, @json.FromJson)
+
+// Type aliases
+
+// Traits

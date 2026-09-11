@@ -71,4 +71,3 @@ pub(all) struct SpriteTransition {
 // Type aliases
 
 // Traits
-

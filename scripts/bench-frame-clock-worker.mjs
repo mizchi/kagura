@@ -1,13 +1,13 @@
 // Worker side of `scripts/bench-frame-clock.mjs`.
 //
 // Stands where a `moonbitlang/async` guest stands: parked in the wait that
-// `lib/web/kagura-wasm-worker.js` installs as `event_bus/wait`, woken by the
+// `assets/web/kagura-wasm-worker.js` installs as `event_bus/wait`, woken by the
 // driver's frame tick. It uses the shipped `createFrameWait` rather than a copy,
 // so the numbers describe the real handshake.
 
 import { parentPort, workerData } from "node:worker_threads";
 
-import { FRAME_SLOT, createFrameWait } from "../lib/web/kagura-wasm-worker.js";
+import { FRAME_SLOT, createFrameWait } from "../assets/web/kagura-wasm-worker.js";
 
 const { buffer, controlLength, stampIndex, durationMs, workMs, maxWaitMs, warmupWakes } = workerData;
 const control = new Int32Array(buffer, 0, controlLength);

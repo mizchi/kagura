@@ -8,5 +8,3 @@ import {
   "mizchi/kagura_engine@0.2.0",
   "mizchi/atlas@0.2.0",
 }
-
-source = "src"

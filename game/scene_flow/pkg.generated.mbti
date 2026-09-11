@@ -1,0 +1,35 @@
+// Generated using `moon info`, DON'T EDIT IT
+package "mizchi/kagura_game/scene_flow"
+
+import {
+  "moonbitlang/core/json",
+}
+
+// Values
+
+// Errors
+
+// Types and methods
+pub struct Flow {
+  ids : Array[String]
+  mut scene : String
+  mut serial : Int
+  mut pending : (Int, String)?
+}
+pub fn Flow::cancel(Self, Int) -> Bool
+pub fn Flow::commit(Self, Int) -> Bool
+pub fn Flow::current(Self) -> String
+pub fn Flow::new(Array[String], String) -> Self raise
+pub fn Flow::request(Self, String) -> Int raise
+
+pub(all) struct Portal {
+  x : Double
+  z : Double
+  radius : Double
+  target : String
+} derive(ToJson, @json.FromJson)
+pub fn Portal::contains(Self, Double, Double) -> Bool
+
+// Type aliases
+
+// Traits

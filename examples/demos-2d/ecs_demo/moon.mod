@@ -11,5 +11,3 @@ import {
   "mizchi/geom@0.2.0",
   "mizchi/anim3d@0.2.0",
 }
-
-source = "src"

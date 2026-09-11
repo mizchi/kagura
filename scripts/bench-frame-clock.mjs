@@ -4,7 +4,7 @@
 //
 // A `moonbitlang/async` guest blocks the thread it runs on, so a frame loop can
 // only reach it through `event_bus/wait` (see CLAUDE.md). This drives the
-// shipped wait -- `createFrameWait` from lib/web/kagura-wasm-worker.js -- at a
+// shipped wait -- `createFrameWait` from assets/web/kagura-wasm-worker.js -- at a
 // range of rates and reports how many ticks the parked side services and how
 // long each wake takes to arrive.
 //
@@ -17,8 +17,8 @@
 import { Worker } from "node:worker_threads";
 import process from "node:process";
 
-import { percentile } from "../lib/web/kagura-frame-stats.js";
-import { CONTROL_LENGTH, FRAME_SLOT } from "../lib/web/kagura-wasm-worker.js";
+import { percentile } from "../assets/web/kagura-frame-stats.js";
+import { CONTROL_LENGTH, FRAME_SLOT } from "../assets/web/kagura-wasm-worker.js";
 
 // The control array the library defines, plus room for a tick timestamp the
 // bench needs and the library has no business knowing about. i64 slot 1 keeps

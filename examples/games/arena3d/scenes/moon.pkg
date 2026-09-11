@@ -1,0 +1,7 @@
+import {
+  "moonbitlang/core/json",
+  "mizchi/kagura_game/scene_document",
+  "mizchi/kagura_game/scene_data",
+}
+
+options(link: { "js": { "exports": [ "document_json" ], "format": "esm" } })

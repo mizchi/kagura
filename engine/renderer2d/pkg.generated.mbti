@@ -63,6 +63,8 @@ pub fn default_frame_profile() -> FrameProfile
 
 pub fn default_triangle_payload() -> TrianglePayload
 
+pub fn dot_text_size(Int, scale? : Double) -> (Double, Double)
+
 pub fn draw_dot_text(Array[@gfx.DrawTrianglesCommand], @gfx.ImageHandle, @gfx.ShaderHandle, Array[Int], Double, Double, Double, Double, @gfx.Color, Double) -> Unit
 
 pub fn draw_number(Array[@gfx.DrawTrianglesCommand], @gfx.ImageHandle, @gfx.ShaderHandle, Int, Double, Double, Double, Double, @gfx.Color, Double) -> Unit
@@ -248,4 +250,3 @@ pub impl Show for TrianglePayload
 // Type aliases
 
 // Traits
-

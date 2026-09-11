@@ -12,7 +12,7 @@ export const DEFAULT_RELEASE_MODULE_DIRS = Object.freeze([
   "engine/asset_loader",
   "engine/kagura_engine",
   "engine/physics",
-  "game/kagura_game",
+  "game",
   "platform/js_runtime",
 ]);
 
@@ -52,7 +52,20 @@ const ALWAYS_EXCLUDE_FROM_ROOT_SOURCE = Object.freeze([
   "moon.work",
   "_build",
   ".git",
+  ".mooncakes",
+  ".moon-release",
+  "node_modules",
+  "_site",
+  "target",
 ]);
+
+// Repository-root facade code is flat; the other layers and distributable assets are separate.
+const ROOT_FACADE_EXCLUDES = [
+  "core", "engine", "platform", "game", "editor", "assets", "examples", "e2e",
+  "docs", "scripts", "deps", "fixtures", "test-results", "playwright-report", "output",
+  "package.json", "pnpm-lock.yaml", "justfile", "playwright.config.ts",
+  "modules", "CLAUDE.md", "CONTRIBUTING.md", "CONTRIBUTING_ja.md", "TODO.md",
+];
 
 const PREBUILD_KEY = "--moonbit-unstable-prebuild";
 const NATIVE_PREBUILD_SUPPORT_FILES = Object.freeze([
@@ -110,7 +123,13 @@ function copyRecursive(sourcePath, destPath, topLevelExclude = null) {
   if (stat.isDirectory()) {
     fs.mkdirSync(destPath, { recursive: true });
     for (const entry of fs.readdirSync(sourcePath)) {
+      // Moon packages exclude hidden tooling/cache directories.
+      if (entry.startsWith(".")) continue;
       if (topLevelExclude?.has(entry)) {
+        continue;
+      }
+      if (fs.statSync(path.join(sourcePath, entry)).isDirectory() &&
+          ["moon.mod", "moon.mod.json"].some((name) => fs.existsSync(path.join(sourcePath, entry, name)))) {
         continue;
       }
       // topLevelExclude only applies at the directory we were called with;
@@ -155,8 +174,11 @@ function stageModuleFiles(mod, destDir) {
   const sourcePath = path.join(mod.root, sourceName);
   const destSourcePath = path.join(destDir, sourceName);
   const topLevelExclude = sourceName === "."
-    ? new Set([...ALWAYS_EXCLUDE_FROM_ROOT_SOURCE, ...(mod.manifest.exclude ?? [])])
+    ? new Set([...ALWAYS_EXCLUDE_FROM_ROOT_SOURCE, ...(mod.dir === "." ? ROOT_FACADE_EXCLUDES : []), ...(mod.manifest.exclude ?? [])])
     : null;
+  // An output directory inside the source must never recursively copy itself.
+  if (topLevelExclude && isInsideDir(sourcePath, destDir))
+    topLevelExclude.add(path.relative(sourcePath, destDir).split(path.sep)[0]);
   copyRecursive(sourcePath, destSourcePath, topLevelExclude);
   stagedFiles.push(sourceName);
 

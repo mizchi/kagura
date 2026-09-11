@@ -21,7 +21,7 @@
 /// A source image the rasterizer can sample. Ids match
 /// `DrawTrianglesCommand.src_image_ids`; an id with no registered texture
 /// samples as 1x1 opaque white, which is what the WebGPU backend binds for an
-/// unbound slot (`lib/web/kagura-gfx.js`), so untextured geometry comes out as
+/// unbound slot (`assets/web/kagura-gfx.js`), so untextured geometry comes out as
 /// the flat uniform color on both backends.
 pub(all) struct RasterTexture {
   id : Int
@@ -304,7 +304,7 @@ fn RasterTarget::draw_index_range(
 ///|
 /// One triangle. Vertices arrive in normalized device coordinates, the space
 /// the builtin 2D shader passes straight through
-/// (`out.position = vec4f(pos, 0.0, 1.0)` in `lib/web/kagura-gfx.js`), so the
+/// (`out.position = vec4f(pos, 0.0, 1.0)` in `assets/web/kagura-gfx.js`), so the
 /// only transform here is the viewport mapping.
 fn RasterTarget::draw_triangle(
   self : RasterTarget,

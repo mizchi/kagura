@@ -37,8 +37,8 @@ const WGPU_NATIVE_MARKER = "wgpu_native";
 /**
  * Decide whether one project runs, and say why when it does not.
  *
- * `project.srcPkg` is the text of the project's `src/moon.pkg`, or null when it
- * has none. `mode` is "check" or "test": the native skips below apply only to
+ * `project.srcPkg` is the root `moon.pkg` text (falling back to `src/moon.pkg`),
+ * or null when neither exists. `mode` is "check" or "test": the native skips below apply only to
  * `test`, because checking never links.
  */
 export function classifyExampleProject(project, { target, mode }) {

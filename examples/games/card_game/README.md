@@ -10,38 +10,37 @@ Ironclad のデータをベースに、StS の面白さを構成する要素を�
 just dev card_game
 
 # ヘッドレス実行テスト（CI 向け）
-cd examples/card_game
-moon run src/headless --target js
+cd examples/games/card_game
+moon run headless --target js
 
 # ユニットテスト
-cd examples/card_game
+cd examples/games/card_game
 moon test --target js
 ```
 
 ## プロジェクト構成
 
 ```
-examples/card_game/
-├── src/
-│   ├── lib/                  # ゲームロジックライブラリ
-│   │   ├── cards.mbt         # カード定義（31枚）
-│   │   ├── combat.mbt        # 戦闘システム（Fighter, StatusEffects, ダメージ計算）
-│   │   ├── enemy.mbt         # 敵AI・エンカウンター定義（10体 + ボス2体）
-│   │   ├── game.mbt          # バトルステート・カード実行ロジック
-│   │   ├── run.mbt           # ラン進行（15フロア Act 1）
-│   │   ├── relics.mbt        # レリック（8種）
-│   │   ├── balance.mbt       # AI戦略（Aggressive/Defensive/Smart）
-│   │   ├── economy.mbt       # Machinations経済モデル・ラン全体シミュレーション
-│   │   ├── ml_balance.mbt    # ML用特徴量抽出・感度分析
-│   │   ├── fun_metrics.mbt   # Fun指標（7次元）・StS面白さ定量化
-│   │   ├── view.mbt          # UI描画（SceneNode ツリー）
-│   │   └── *_wbtest.mbt      # ホワイトボックステスト
-│   ├── headless/             # ヘッドレスランナー（moon run）
-│   │   ├── main.mbt          # バランスチェック・ラン全体テスト
-│   │   └── moon.pkg
-│   ├── main.mbt              # GUI エントリポイント
+examples/games/card_game/
+├── lib/                  # ゲームロジックライブラリ
+│   ├── cards.mbt         # カード定義（31枚）
+│   ├── combat.mbt        # 戦闘システム（Fighter, StatusEffects, ダメージ計算）
+│   ├── enemy.mbt         # 敵AI・エンカウンター定義（10体 + ボス2体）
+│   ├── game.mbt          # バトルステート・カード実行ロジック
+│   ├── run.mbt           # ラン進行（15フロア Act 1）
+│   ├── relics.mbt        # レリック（8種）
+│   ├── balance.mbt       # AI戦略（Aggressive/Defensive/Smart）
+│   ├── economy.mbt       # Machinations経済モデル・ラン全体シミュレーション
+│   ├── ml_balance.mbt    # ML用特徴量抽出・感度分析
+│   ├── fun_metrics.mbt   # Fun指標（7次元）・StS面白さ定量化
+│   ├── view.mbt          # UI描画（SceneNode ツリー）
+│   └── *_wbtest.mbt      # ホワイトボックステスト
+├── headless/             # ヘッドレスランナー（moon run）
+│   ├── main.mbt          # バランスチェック・ラン全体テスト
 │   └── moon.pkg
-└── moon.mod.json
+├── main.mbt              # GUI エントリポイント
+├── moon.pkg
+└── moon.mod
 ```
 
 ## ゲームシステム

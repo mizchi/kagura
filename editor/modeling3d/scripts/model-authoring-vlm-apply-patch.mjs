@@ -9,7 +9,7 @@ function usage() {
   console.error(
     [
       "Usage: node editor/modeling3d/scripts/model-authoring-vlm-apply-patch.mjs \\",
-      "  --target editor/modeling3d/examples/model_authoring/src/model_doc.mbt \\",
+      "  --target editor/modeling3d/examples/model_authoring/model_doc.mbt \\",
       "  --patch output/.../vlm_clay_totem_roundtrip_patch.mbt \\",
       "  [--write]",
     ].join("\n"),

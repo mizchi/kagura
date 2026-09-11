@@ -26,7 +26,7 @@
   - `contracts.mbt`: font shaping と text batch 契約
 - `engine/kagura_engine/src/ui`
   - `contracts.mbt`: layout/input/render adapter 契約
-- `game/kagura_game/src/ai`
+- `game/ai`
   - `contracts.mbt`: sensor/policy/actuator/scheduler 契約
 - `engine/kagura_engine/src/runtime`
   - `contracts.mbt`: ループ統合契約

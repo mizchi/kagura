@@ -8,7 +8,7 @@ import {
 
 test("buildStampReviewMarkdown summarizes manual sculpt stamp issues", () => {
   const markdown = buildStampReviewMarkdown({
-    targetFile: "editor/modeling3d/examples/frog_authoring/src/model_doc.mbt",
+    targetFile: "editor/modeling3d/examples/frog_authoring/model_doc.mbt",
     patchPayload: {
       manual_issue_details: [
         {
@@ -23,7 +23,7 @@ test("buildStampReviewMarkdown summarizes manual sculpt stamp issues", () => {
       ],
     },
     review: {
-      target_file: "editor/modeling3d/examples/frog_authoring/src/model_doc.mbt",
+      target_file: "editor/modeling3d/examples/frog_authoring/model_doc.mbt",
       manual_followups: [
         {
           source_id: "frog_body",
@@ -48,7 +48,7 @@ test("buildStampReviewMarkdown summarizes manual sculpt stamp issues", () => {
   });
 
   assert.match(markdown, /^# Kagura Sculpt Stamp Review/m);
-  assert.match(markdown, /Target file: `editor\/modeling3d\/examples\/frog_authoring\/src\/model_doc\.mbt`/);
+  assert.match(markdown, /Target file: `editor\/modeling3d\/examples\/frog_authoring\/model_doc\.mbt`/);
   assert.match(markdown, /## frog_body/);
   assert.match(markdown, /Current stamps: `8`/);
   assert.match(markdown, /Imported stamps: `9`/);
@@ -61,12 +61,12 @@ test("buildStampReviewMarkdown summarizes manual sculpt stamp issues", () => {
 
 test("buildStampReviewMarkdown reports when there are no sculpt stamp issues", () => {
   const markdown = buildStampReviewMarkdown({
-    targetFile: "editor/modeling3d/examples/chair_authoring/src/model_doc.mbt",
+    targetFile: "editor/modeling3d/examples/chair_authoring/model_doc.mbt",
     patchPayload: {
       manual_issue_details: [],
     },
     review: {
-      target_file: "editor/modeling3d/examples/chair_authoring/src/model_doc.mbt",
+      target_file: "editor/modeling3d/examples/chair_authoring/model_doc.mbt",
     },
   });
 
@@ -75,9 +75,9 @@ test("buildStampReviewMarkdown reports when there are no sculpt stamp issues", (
 
 test("buildStampSyncScaffold prints current stamps and TODO placeholders", () => {
   const scaffold = buildStampSyncScaffold({
-    targetFile: "editor/modeling3d/examples/frog_authoring/src/model_doc.mbt",
+    targetFile: "editor/modeling3d/examples/frog_authoring/model_doc.mbt",
     bundle: {
-      target_file: "editor/modeling3d/examples/frog_authoring/src/model_doc.mbt",
+      target_file: "editor/modeling3d/examples/frog_authoring/model_doc.mbt",
       current_document: {
         sculpt_layers: [
           {

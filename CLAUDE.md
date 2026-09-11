@@ -2,11 +2,13 @@
 
 ## プロジェクト構成
 
-- `src/` - 公開ファサード（`mizchi/kagura`）
+- `lib.mbt` / `moon.pkg` - ルート直下の公開ファサード（`mizchi/kagura`）
+- `assets/` - 共通ブラウザランタイム（`web/`）、外部ヘッダ（`vendor/`）、共有素材。旧 `lib/` と `vendor/` はここに統合
 - `<layer>/<name>/` - ライブラリ本体。各ディレクトリが独立した moon module で、
   `moon.work` のメンバー。layer は下表の 5 つ
 - `examples/<category>/<name>/` - サンプルプロジェクト（各ディレクトリが独立した moon プロジェクト）
-  - カテゴリ: `games`（遊べるサンプル）, `demos-2d` / `demos-3d`（単機能デモ）, `smoke`（CI の最小確認）, `experimental`
+  - カテゴリ: `games`（遊べるサンプル）, `demos-2d` / `demos-3d`（単機能デモ）, `assets`（MoonBit を持たないエディタ素材プロジェクト）, `smoke`（CI の最小確認）, `experimental`
+  - Studio の一覧と用途は `examples/catalog.json`、選び方と統合方針は `examples/README.md`
 - `scripts/` - ビルド・開発スクリプト
 - `justfile` - タスクランナー
 
@@ -17,8 +19,8 @@
 | `core/` | 外部依存ゼロ、または core 契約のみの基盤 | `kagura_core`, `geom`, `mesh3d` |
 | `platform/` | ターゲット固有の host / 窓口層 | `kagura_platform`, `js_runtime`, `web_runtime_hooks`, `native_runtime_hooks` |
 | `engine/` | 描画・アセット・ランタイム基盤 | `kagura_engine`, `renderer2d`, `text`, `widget2d`, `ui`, `atlas`, `asset_loader`, `audio`, `anim3d`, `physics` |
-| `game/` | ゲーム側のロジック（描画基盤に依存してよい） | `kagura_game`, `machinations`, `pathfind` |
-| `editor/` | オーサリング／確認用ツール | `effect-studio`, `modeling3d` |
+| `game/` | ゲーム側のロジック（描画基盤に依存してよい） | ルートが `mizchi/kagura_game`、`machinations`, `pathfind` は独立モジュール |
+| `editor/` | オーサリング／確認用ツール | `studio`, `model-viewer`, `effect-studio`, `modeling3d` |
 
 `web_runtime_hooks` / `native_runtime_hooks` は host hook の実装（`kagura_platform` の
 注入先）で、ほぼ全ての example と editor tool が import する。publish 対象ではないが
@@ -84,7 +86,7 @@ just check-release  # リリース前チェック（ローカルパス依存の�
 
 ```bash
 just check-workspace          # moon check --deny-warn だけ
-just test-workspace           # root の moon test + lib/web/*.test.mjs だけ
+just test-workspace           # root の moon test + assets/web/*.test.mjs だけ
 just check-examples 2/4       # example の 2/4 shard だけ
 just test-examples 2/4        # 同上
 ```
@@ -165,7 +167,7 @@ just vlm-ui-review ui_demo "--dry-run"     # 決定的ゲート → その後だ
   三角形数だけ見ていると気付けない。`append_dot_text` が点灯ドット 1 個ごとに
   command を作っていたときは `machinations_demo` が 1 フレーム 1603 command
   （現在 80）だった —— `docs/performance/dot-text-batching.md`
-- Node 側ホストは `lib/web/kagura-headless-frame.js`。viewport スタブは
+- Node 側ホストは `assets/web/kagura-headless-frame.js`。viewport スタブは
   **engine が解決した実サイズ**を返す（CSS サイズでカーソルをスケールする example がずれる）
 
 ### VLM を混ぜる順序
@@ -244,7 +246,7 @@ URL パラメータでゲームステートを制御し、目視確認と VRT �
 
 - `tick` は PostFX パイプライン（Bloom, Tonemap, FXAA）が確実に適用された状態をキャプチャするために使う
 - ゲーム側で `globalThis.__kaguraSnapshotTick` に描画済みフレーム数を公開し、Playwright が `waitForFunction` で待機
-- 実装: `examples/*/*/src/snapshot.mbt` + `main.mbt` の draw コールバック内
+- 実装: `examples/*/*/snapshot.mbt` + `main.mbt` の draw コールバック内
 
 ### 新しい example に VRT を追加する手順
 
@@ -385,7 +387,7 @@ whitebox bench については絶対値も倍率も引用してはいけない�
 wasm1 の async は「WASI 相当の POSIX ホスト」を前提にしており、ゲストは 48 個の
 import（epoll 風 event bus / thread pool / fd / errno / signal / os string）を
 要求する。ただしタイマだけを動かすなら実装が要るのは 7 個だけで、残りは型の合った
-ゼロを返せばよい。実装は `lib/web/kagura-wasm-host.js`、動く例は
+ゼロを返せばよい。実装は `assets/web/kagura-wasm-host.js`、動く例は
 `examples/smoke/wasm_async_smoke/`。
 
 ```bash
@@ -419,7 +421,7 @@ rAF 発火
   Atomics.notify                            ゲストのタイマが進む
 ```
 
-API は他の `lib/web/kagura-*.js` と同じ規約（`create*` / `install*` / 動詞始まり、
+API は他の `assets/web/kagura-*.js` と同じ規約（`create*` / `install*` / 動詞始まり、
 名前付き export）:
 
 | ファイル | export |
@@ -446,7 +448,7 @@ just wasm-host-smoke   # 単体ホストと worker + フレームクロックの
 | 単体ホスト（フレーム源なし） | 0 | 127 | 536ms |
 | worker + 8ms フレームクロック | 5 | 25 | 147ms |
 
-node の `worker_threads` 経路は `lib/web/kagura-wasm-driver.test.mjs` が、
+node の `worker_threads` 経路は `assets/web/kagura-wasm-driver.test.mjs` が、
 ブラウザ側の前提は `e2e/offscreen_worker.spec.ts` が固定している。
 
 ### ブラウザでの実測（Chromium, OffscreenCanvas）

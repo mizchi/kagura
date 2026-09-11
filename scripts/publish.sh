@@ -60,7 +60,7 @@ MODULES=(
   .
   platform/js_runtime
   engine/physics
-  game/kagura_game
+  game
   engine/widget2d
   game/pathfind
 )

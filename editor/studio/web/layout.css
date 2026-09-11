@@ -131,6 +131,8 @@ html, body, #app {
 .pane-content[role="tabpanel"] { padding: 10px; }
 .custom-field { display: flex; flex-direction: column; gap: 5px; margin: 12px 0; }
 .custom-field input, .custom-field select { min-width: 0; width: 100%; }
+.custom-field select, .iron-editor-panel select { font: inherit; color: #e0e6ed; background: #171d25; border: 1px solid #3a4552; border-radius: 3px; padding: 7px; }
+.custom-field select:focus-visible, .iron-editor-panel select:focus-visible { outline: 2px solid var(--accent); outline-offset: 2px; }
 .custom-field [role="switch"] { text-align: left; }
 .custom-field [role="switch"]::before { content: '○ '; }
 .custom-field [role="switch"][aria-checked="true"] { color: var(--accent); }
@@ -141,3 +143,80 @@ html, body, #app {
 .storage-row > button:first-child { min-width: 0; flex: 1; overflow: hidden; text-overflow: ellipsis; text-align: left; white-space: nowrap; }
 .storage-row > span { white-space: nowrap; }
 .pane-content > button { margin: 3px; }
+
+.project-transport, .game-transport { display: flex; gap: 4px; }
+.game-transport { flex-wrap: wrap; }
+.project-transport[hidden] { display: none; }
+.viewport-toolbar.showing-game > :not(.project-transport) { display: none; }
+#viewport.game-active > :not(.game-frame) { visibility: hidden; }
+.game-frame { position: absolute; inset: 0; width: 100%; height: 100%; border: 0; background: #17232c; }
+.game-telemetry { font-size: 11px; white-space: pre-wrap; }
+.resizing-columns iframe, .resizing-rows iframe { pointer-events: none; }
+.iron-editor-panel { padding: 10px; min-width: 0; }
+.iron-editor-panel h2 { font-size: 12px; margin: 0 0 10px; }
+.iron-editor-panel h3 { font-size: 11px; margin: 14px 0 6px; }
+.iron-tree-entry { display: block; width: 100%; text-align: left; margin-block: 3px; }
+.iron-tree-entry[aria-pressed="true"] { color: var(--accent); border-color: var(--accent); }
+.iron-editor-panel .game-transport { margin-block: 8px; align-items: center; }
+.iron-editor-panel .game-transport [aria-pressed="true"] { color: var(--accent); border-color: var(--accent); }
+.iron-editor-panel input[type="file"] { width: 180px; }
+.iron-editor-panel input[type="range"] { width: 100%; }
+.iron-editor-panel output { display: block; font-size: 11px; padding-block: 4px; }
+.iron-editor-error { color: #ffb5a1; font-size: 12px; }
+#viewport.iron-authoring > :not(.iron-scene-canvas):not(.game-frame) { visibility: hidden; }
+.iron-scene-canvas { border: 0; position: absolute; inset: 0; width: 100%; height: 100%; }
+.editing-iron-yard .project-title:not(.iron-project-title), .editing-iron-yard .workspace-info:not(.iron-workspace-info) { display: none; }
+
+.project-controls { display:flex; align-items:center; gap:4px; min-width:0; }
+.toolbar > .project-controls { overflow-x:auto; overflow-y:hidden; flex-shrink:1; }
+.project-controls > * { flex-shrink:0; }
+.project-current { max-width:100px; overflow:hidden; text-overflow:ellipsis; white-space:nowrap; }
+.project-resource { display:block; width:100%; text-align:left; margin-block:4px; overflow:hidden; text-overflow:ellipsis; }
+.example-toggles { display:grid; grid-template-columns:repeat(auto-fit,minmax(100px,1fr)); gap:8px; margin-block:12px; }
+.example-toggles label { display:flex; align-items:center; gap:6px; }
+.example-toggles input { width:auto; }
+
+.project-settings { display: grid; grid-template-columns: auto minmax(0, 1fr); gap: 4px 12px; font-size: 12px; }
+.project-settings dt { opacity: .7; }
+.project-settings dd { margin: 0; overflow-wrap: anywhere; }
+
+/* Keep scene navigation beside the brand, outside the scrolling project actions. */
+.toolbar.has-scene-selector > .project-title { display: none; }
+.scene-selector { display: flex; align-items: center; gap: 6px; flex: 0 0 auto; min-width: 0; font-size: 10px; }
+.scene-selector > span { color: var(--muted); }
+.scene-selector select { width: clamp(100px, 13vw, 180px); min-width: 0; height: 26px; font-size: 11px; text-overflow: ellipsis; }
+.scene-selector select:disabled { opacity: .75; }
+
+/* 2D projects use a screen plane and game-owned objects, with no orbit/XYZ controls. */
+.editing-2d .viewport-toolbar > :not(.project-transport):not(.project-controls) { display: none; }
+.editing-2d .workspace-info { display: none; }
+.plane-info { font-size: 11px; color: var(--muted); }
+#viewport.plane-active > :not(.plane2d):not(.game-frame) { visibility: hidden; }
+.plane2d { position: absolute; inset: 0; overflow: hidden; background: #18202a; }
+.plane2d svg { width: 100%; height: 100%; display: block; touch-action: none; user-select: none; outline: none; }
+.plane-controls { position: absolute; top: 10px; left: 10px; right: 10px; display: flex; align-items: center; flex-wrap: wrap; gap: 8px; font-size: 11px; pointer-events: auto; }
+.plane-controls input[type=number] { width: 46px; }
+.plane-controls input[type=checkbox] { width: auto; }
+.plane-help { position: absolute; bottom: 4px; left: 12px; font-size: 10px; color: #a7b7c6; pointer-events: none; }
+.plane-panel { padding: 10px; min-width: 0; height: 100%; overflow: auto; }
+.plane-panel h2 { font-size: 13px; margin: 0 0 12px; }
+.plane-panel p { font-size: 12px; color: #a7b7c6; overflow-wrap: anywhere; }
+.plane-object { display: block; width: 100%; text-align: left; margin: 5px 0; }
+.plane-object[aria-pressed=true] { border-color: var(--accent); color: var(--accent); }
+.plane-panel .custom-field { display: grid; grid-template-columns: 64px minmax(0, 1fr); align-items: center; gap: 8px; }
+.plane-panel input { width: 100%; min-width: 0; }
+
+/* Model inspection is built in and follows the existing resizable pane layout. */
+.model-stage { width: 100%; min-width: 0; }
+.model-frame { display: block; width: 100%; aspect-ratio: 4 / 3; border: 1px solid #435560; }
+.model-warnings { white-space: pre-line; color: #d8bb82; font-size: 12px; }
+select[aria-label="Model resource"] { display: block; width: 100%; margin-block: 8px; }
+.project-resource-actions { display: flex; gap: 4px; min-width: 0; }
+.project-resource-actions .project-resource { flex: 1; min-width: 0; overflow-wrap: anywhere; text-align: left; }
+
+.workspace .viewport { position: relative; }
+.model-overlay { position: absolute; inset: 0; z-index: 5; display: flex; flex-direction: column; background: #121a23; }
+.model-overlay[hidden] { display: none; }
+.model-toolbar { display: flex; justify-content: space-between; align-items: center; padding: 6px 12px; background: #252e39; }
+.model-overlay .model-stage { flex: 1; min-height: 0; }
+.model-overlay .model-frame { height: 100%; border: 0; aspect-ratio: auto; }

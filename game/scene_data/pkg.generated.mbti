@@ -1,0 +1,52 @@
+// Generated using `moon info`, DON'T EDIT IT
+package "mizchi/kagura_game/scene_data"
+
+import {
+  "mizchi/kagura_game/scene_flow",
+  "moonbitlang/core/json",
+}
+
+// Values
+
+// Errors
+
+// Types and methods
+pub(all) struct Definition {
+  version : Int
+  entities : Array[Entity]
+} derive(ToJson, @json.FromJson)
+pub fn Definition::blocked(Self, Double, Double, Double) -> Bool
+
+pub(all) struct Entity {
+  id : String
+  kind : String
+  position : Array[Double]
+  scale : Array[Double]
+  color : Int
+  target : String
+} derive(ToJson, @json.FromJson)
+
+pub(all) struct Entry {
+  id : String
+  data : Definition
+} derive(ToJson, @json.FromJson)
+
+pub(all) struct Project {
+  entry : String
+  scenes : Array[Entry]
+} derive(ToJson, @json.FromJson)
+
+pub struct Session {
+  project : Project
+  flow : @scene_flow.Flow
+}
+pub fn Session::current_id(Self) -> String
+pub fn Session::new(Project, Array[String]) -> Self raise
+pub fn Session::parse(String, Array[String]) -> Self raise
+pub fn Session::portal_at(Self, Double, Double) -> String?
+pub fn Session::scene(Self) -> Definition
+pub fn Session::transition(Self, String) -> Unit raise
+
+// Type aliases
+
+// Traits

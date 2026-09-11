@@ -19,7 +19,7 @@ export function registerWebMCP(editor, modelContext) {
               inputSchema.required.some(key => !Object.hasOwn(input, key))) throw Error('Invalid tool arguments');
           return await execute(input, options);
         } catch (error) {
-          return { ok: false, error: { code: error.code ?? 'invalid', message: error.message }, revision: editor.snapshot().revision };
+          return { ok: false, error: { code: error.code ?? 'invalid', message: error.message }, ...(name.startsWith('runtime_') ? {} : { revision: editor.snapshot().revision }) };
         }
       },
     });
@@ -37,6 +37,30 @@ export function registerWebMCP(editor, modelContext) {
     ({ id }) => editor.select(id));
   tool('seek', 'Set action preview time in seconds between zero and action.duration. Does not modify authored transforms.', record({ time: { type: 'number', minimum: 0, maximum: 60 } }), false,
     ({ time }) => editor.seek(time));
+  if (editor.assets) {
+    tool('asset_list', 'List previewable model paths in the current project.', record({}), true,
+      async () => ({ ok: true, paths: await editor.assets.list() }));
+    tool('asset_preview', 'Open a project model in the built-in Kagura model pane. Does not edit the scene or launch the game.', record({ path: { type: 'string' } }), false,
+      async ({ path }) => ({ ok: true, preview: await editor.assets.preview(path) }));
+    tool('asset_snapshot', 'Read model preview status, mesh statistics and loader limitations.', record({}), true,
+      () => ({ ok: true, preview: editor.assets.snapshot() }));
+    tool('asset_close', 'Close the model pane and release its renderer.', record({}), false,
+      () => { editor.assets.close(); return { ok: true }; });
+  }
+  if (editor.runtime) {
+    if (editor.runtime.hierarchy) tool('runtime_hierarchy', 'Read the hierarchy derived from the game declaration. Keys identify siblings; generated marks dynamic branches. This is not a second scene document.', record({}), true,
+      () => ({ ok: true, hierarchy: editor.runtime.hierarchy() ?? null }));
+    const token = record({ session: { type: 'string', minLength: 1 }, revision });
+    tool('runtime_snapshot', 'Read the game-owned live state, schema, paused status and session/revision token. This is distinct from the authoring document.', record({}), true,
+      () => ({ ok: true, snapshot: editor.runtime.snapshot() }));
+    tool('runtime_pause', 'Pause simulation at the next synchronous debugger boundary and return its editable state and token. Rendering remains active.', record({}), false,
+      () => ({ ok: true, snapshot: editor.runtime.pause() }));
+    for (const operation of ['resume', 'step'])
+      tool('runtime_' + operation, operation === 'step' ? 'Advance one simulation tick with neutral input, remaining paused. Requires the current runtime token.' : 'Resume simulation from the current edited state. Requires the current paused runtime token.', record({ token }), false,
+        ({ token }) => ({ ok: true, snapshot: editor.runtime[operation](token) }));
+    tool('runtime_replace', 'Atomically replace game-owned state while paused. Game code validates it. Use the runtime token, not the scene revision; does not save source or authoring data.', record({ token, state: {} }), false,
+      ({ state, token }) => ({ ok: true, snapshot: editor.runtime.replace(state, token) }));
+  }
   if (editor.panes) {
     tool('panes_list', 'List available custom panes and the active pane. Saved forms use IDs prefixed with form.', record({}), true,
       () => ({ ok: true, panes: editor.panes.list() }));

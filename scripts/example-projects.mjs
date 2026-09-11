@@ -69,7 +69,8 @@ const discoverProjects = () => {
     for (const dir of leaves) {
       const absolute = join(REPO_ROOT, dir);
       if (!isExampleDir(absolute)) continue;
-      const srcPkg = join(absolute, "src", "moon.pkg");
+      const rootPkg = join(absolute, "moon.pkg");
+      const srcPkg = existsSync(rootPkg) ? rootPkg : join(absolute, "src", "moon.pkg");
       projects.push({
         dir,
         srcPkg: existsSync(srcPkg) ? readFileSync(srcPkg, "utf8") : null,

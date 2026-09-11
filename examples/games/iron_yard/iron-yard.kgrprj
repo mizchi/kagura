@@ -1,0 +1,47 @@
+{
+  "format": "kagura.project",
+  "version": 1,
+  "name": "IRON YARD",
+  "editor": {
+    "id": "iron-yard",
+    "entry": "editor/ui/dist/extension.mjs",
+    "apiVersion": 1
+  },
+  "scene": "scenes/iron-yard.json",
+  "resources": {
+    "strix": "assets/generated/strix.json",
+    "bastion": "assets/generated/bastion.json",
+    "environment": "assets/source/room-pmrem.json",
+    "environmentData": "assets/source/room-pmrem.rgba16f",
+    "audio.rifle": "assets/audio/rifle.wav",
+    "audio.hit": "assets/audio/hit.wav",
+    "audio.explosion": "assets/audio/explosion.wav",
+    "audio.confirm": "assets/audio/confirm.wav",
+    "audio.cancel": "assets/audio/cancel.wav",
+    "audio.battle": "assets/audio/battle.wav"
+  },
+  "id": "mizchi.kagura.examples.iron_yard",
+  "game": "iron_yard",
+  "save": {
+    "namespace": "mizchi.kagura.examples.iron_yard",
+    "version": 1
+  },
+  "runtime": {
+    "kind": "extension",
+    "apiVersion": 1,
+    "targets": [
+      "js"
+    ]
+  },
+  "build": {
+    "package": "app"
+  },
+  "display": {
+    "width": 800,
+    "height": 600
+  },
+  "sceneSchema": {
+    "id": "iron_yard.scene",
+    "version": 1
+  }
+}

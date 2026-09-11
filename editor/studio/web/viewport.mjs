@@ -25,7 +25,7 @@ export function createViewport(container, app, api) {
   const flash = new THREE.Mesh(new THREE.SphereGeometry(0.24, 12, 8), new THREE.MeshBasicMaterial({ color: 0xffdd8b }));
   flash.visible = false;
   scene.add(flash);
-  let root, currentRevision = -1, current, playing = false, lastFrame = 0, frame;
+  let root, currentRevision = -1, current, playing = false, lastFrame = 0, frame, active = true, suspensions = 0;
   function disposeTree(object) {
     object.traverse(n => {
       n.geometry?.dispose();
@@ -41,7 +41,7 @@ export function createViewport(container, app, api) {
       scene.add(root);
       currentRevision = snapshot.revision;
     }
-    const actor = root.getObjectByName(snapshot.document.action.target);
+    const actor = snapshot.document.action.target ? root.getObjectByName(snapshot.document.action.target) : undefined;
     const source = snapshot.document.nodes.find(n => n.id === snapshot.document.action.target);
     if (actor && source) {
       actor.position.z = source.position[2] + snapshot.preview.offset;
@@ -49,7 +49,7 @@ export function createViewport(container, app, api) {
       flash.position.copy(actor.localToWorld(new THREE.Vector3(0, 0.2, 0.7)));
     }
     flash.visible = !!actor && snapshot.preview.flash;
-    const selected = root.getObjectByName(snapshot.selection);
+    const selected = snapshot.selection ? root.getObjectByName(snapshot.selection) : undefined;
     selectionBox.visible = !!selected;
     if (selected) selectionBox.setFromObject(selected);
   }
@@ -83,6 +83,7 @@ export function createViewport(container, app, api) {
   renderer.domElement.addEventListener('pointerdown', onDown);
   renderer.domElement.addEventListener('pointerup', onUp);
   function animate(time) {
+    if (!active || suspensions) return;
     const dt = Math.min((time - lastFrame) / 1000, 0.05);
     lastFrame = time;
     if (playing) {
@@ -99,6 +100,24 @@ export function createViewport(container, app, api) {
   document.addEventListener('visibilitychange', onVisibility);
   return {
     view,
+    suspendRendering() {
+      suspensions++;
+      cancelAnimationFrame(frame);
+      let released = false;
+      return () => {
+        if (released) return;
+        released = true;
+        suspensions--;
+        if (active && !suspensions) { lastFrame = performance.now(); frame = requestAnimationFrame(animate); }
+      };
+    },
+    setActive(value) {
+      if (active === value) return;
+      active = value;
+      cancelAnimationFrame(frame);
+      if (active && !suspensions) { lastFrame = performance.now(); frame = requestAnimationFrame(animate); }
+      else playing = false;
+    },
     frame(id) {
       const object = root.getObjectByName(id);
       if (!object) return;
@@ -114,6 +133,7 @@ export function createViewport(container, app, api) {
     play() { app.seek(0); playing = true; },
     pause() { playing = false; },
     dispose() {
+      active = false;
       cancelAnimationFrame(frame); unsubscribe(); observer.disconnect(); controls.dispose();
       document.removeEventListener('visibilitychange', onVisibility);
       renderer.domElement.removeEventListener('pointerdown', onDown);

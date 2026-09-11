@@ -43,6 +43,7 @@ function findMoonPkgFiles(rootDir) {
     for (const entry of fs.readdirSync(dir, { withFileTypes: true })) {
       const entryPath = path.join(dir, entry.name);
       if (entry.isDirectory()) {
+        if (["moon.mod", "moon.mod.json"].some((name) => fs.existsSync(path.join(entryPath, name)))) continue;
         visit(entryPath);
       } else if (entry.isFile() && entry.name === "moon.pkg") {
         results.push(entryPath);

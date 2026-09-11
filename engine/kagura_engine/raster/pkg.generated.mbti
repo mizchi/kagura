@@ -1,0 +1,40 @@
+// Generated using `moon info`, DON'T EDIT IT
+package "mizchi/kagura_engine/raster"
+
+import {
+  "mizchi/gfx",
+}
+
+// Values
+
+// Errors
+
+// Types and methods
+pub struct RasterTarget {
+  mut width : Int
+  mut height : Int
+  mut pixels : Array[Int]
+  textures : Array[RasterTexture]
+  mut skipped_commands : Int
+  mut drawn_triangles : Int
+  mut next_image_id : Int
+  mut next_shader_id : Int
+}
+pub fn RasterTarget::clear(Self, @gfx.Color) -> Unit
+pub fn RasterTarget::draw_command(Self, @gfx.DrawTrianglesCommand) -> Int
+pub fn RasterTarget::new(Int, Int) -> Self
+pub fn RasterTarget::read_rect(Self, Int, Int, Int, Int) -> Array[Int]
+pub fn RasterTarget::register_texture(Self, Int, Int, Int, Array[Int]) -> Unit
+pub fn RasterTarget::resize_target(Self, Int, Int) -> Unit
+pub impl @gfx.GraphicsDriver for RasterTarget
+
+pub(all) struct RasterTexture {
+  id : Int
+  width : Int
+  height : Int
+  pixels : Array[Int]
+}
+
+// Type aliases
+
+// Traits

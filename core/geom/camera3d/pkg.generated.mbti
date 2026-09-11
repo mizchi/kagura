@@ -99,4 +99,3 @@ pub fn SmoothCamera::update(Self, Double) -> Self
 // Type aliases
 
 // Traits
-

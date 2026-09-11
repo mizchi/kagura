@@ -17,5 +17,3 @@ import {
   "mizchi/kagura_platform@0.1.0",
   "mizchi/kagura_audio@0.1.0",
 }
-
-source = "src"

@@ -1,0 +1,20 @@
+// Generated using `moon info`, DON'T EDIT IT
+package "mizchi/kagura_core/hierarchy"
+
+// Values
+pub fn valid_key(String) -> Bool
+
+// Errors
+
+// Types and methods
+pub(all) struct Node {
+  id : String
+  name : String
+  kind : String
+  generated : Bool
+  children : Array[Node]
+} derive(ToJson)
+
+// Type aliases
+
+// Traits

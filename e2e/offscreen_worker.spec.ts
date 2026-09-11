@@ -1,7 +1,7 @@
 import { expect, test } from "@playwright/test";
 
 // Pins the browser-side facts behind the wasm async driver
-// (lib/web/kagura-wasm-driver.js), which is otherwise only covered on Node's
+// (assets/web/kagura-wasm-driver.js), which is otherwise only covered on Node's
 // worker_threads.
 //
 // The design question this answers: a `moonbitlang/async` guest blocks the

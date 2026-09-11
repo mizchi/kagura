@@ -17,7 +17,7 @@ iron-yard-build:
 iron-yard-test:
     node engine/kagura_engine/draw3d/scripts/embed-wgsl.mjs
     moon -C examples/games/iron_yard check --target js --deny-warn
-    moon -C examples/games/iron_yard test src/sim src/app --target js
+    moon -C examples/games/iron_yard test sim app --target js
     node examples/games/iron_yard/scripts/convert-assets.mjs
     moon -C examples/games/iron_yard build --target js --release
     node --test examples/games/iron_yard/tests/*.test.mjs
@@ -30,6 +30,10 @@ iron-yard-e2e-metal: iron-yard-build
     IRON_YARD_GPU=metal pnpm exec playwright test --config examples/games/iron_yard/playwright.config.mjs
 
 iron-yard-ci: iron-yard-test iron-yard-e2e
+
+# Build the game-owned editor module referenced by iron-yard.kgrprj.
+iron-yard-editor-build: iron-yard-build
+    cd editor/studio && pnpm exec vite build --config ../../examples/games/iron_yard/editor/ui/vite.config.mjs
 
 # Build/validate tiny scalar and SIMD Wasm kernels, then compare in Chrome.
 iron-yard-simd:
@@ -47,18 +51,24 @@ iron-yard-profile *args:
     node examples/games/iron_yard/scripts/profile.mjs "$@"
 
 iron-yard-gfx-test:
-    node --test lib/web/kagura-gfx.test.mjs
+    node --test assets/web/kagura-gfx.test.mjs
     moon -C platform/web_runtime_hooks test --target js
     moon -C engine/kagura_engine test draw3d shadow3d postfx --target js
     moon -C engine/audio test . --target js
 
 # Luna-based integrated authoring workspace (independent MoonBit module).
 studio-install:
+    pnpm install --frozen-lockfile
     cd editor/studio && moon check --target js
     cd editor/studio && pnpm install --frozen-lockfile
 
 studio-dev:
     cd editor/studio && pnpm dev
+
+# Package other examples for Studio; optional names rebuild only those projects.
+[positional-arguments]
+studio-examples-build *names:
+    @node editor/studio/scripts/build-examples.mjs "$@"
 
 studio-check:
     cd editor/studio && pnpm exec tsc -p tsconfig.contracts.json
@@ -70,21 +80,34 @@ studio-plugin-test:
     cd editor/studio && node scripts/build-plugins.mjs
     cd editor/studio && node --test tests/plugins.test.mjs tests/plugin-adapters.test.mjs tests/plugin-publication.test.mjs
 
+studio-model-test:
+    moon -C editor/model-viewer test . --target js
+    node --test editor/studio/tests/model-assets.test.mjs
+
+studio-model-build:
+    node editor/studio/scripts/build-model-viewer.mjs
+
 studio-build:
     cd editor/studio && pnpm build
 
 studio-e2e:
     cd editor/studio && moon build --target js --release
     cd editor/studio && node scripts/build-plugins.mjs
+    cd editor/studio && node scripts/build-games.mjs
     cd editor/studio && pnpm exec playwright test
 
 [positional-arguments]
 studio-headless *args:
-    @cd editor/studio && moon build --target js --release src/headless 1>&2
+    @cd editor/studio && moon build --target js --release headless 1>&2
     @node editor/studio/headless/cli.mjs "$@"
 
 studio-headless-test:
     cd editor/studio && moon build --target js --release
+    moon -C examples/games/iron_yard build headless --target js --release
+    moon -C examples/games/hacknslash_3d build scene_api --target js --release
+    moon -C examples/games/arena3d build scenes --target js --release
+    moon -C examples/games/fps_demo build scenes --target js --release
+    moon -C examples/games/flappy_bird build scenes --target js --release
     cd editor/studio && node scripts/build-plugins.mjs
     cd editor/studio && node --test tests/*.test.mjs
 
@@ -96,7 +119,7 @@ studio-worker-check: studio-build
     cd editor/studio && WRANGLER_SEND_METRICS=false pnpm exec wrangler deploy --dry-run --config worker/wrangler.jsonc --outdir .wrangler/dry-run
 
 studio-storage-test:
-    cd editor/studio && moon build --target js --release src/headless
+    cd editor/studio && moon build --target js --release headless
     cd editor/studio && node --test tests/storage.test.mjs tests/worker-storage.test.mjs
 
 studio-ci: studio-check studio-build
@@ -134,7 +157,7 @@ test: test-workspace test-examples
 # The workspace itself plus the JS-side unit tests, without the example projects.
 test-workspace:
     if [ "{{target}}" = "native" ]; then CPATH="$(brew --prefix glfw)/include:${CPATH:-}" LIBRARY_PATH="$(brew --prefix)/lib:${LIBRARY_PATH:-}" moon test --target native || { echo "::error title=moon test failed::root moon test --target native"; exit 1; }; else moon test --target {{target}} || { echo "::error title=moon test failed::root moon test --target {{target}}"; exit 1; }; fi
-    if [ "{{target}}" = "js" ] && ls lib/web/*.test.mjs >/dev/null 2>&1; then node --test lib/web/*.test.mjs || { echo "::error title=node test failed::lib/web/*.test.mjs"; exit 1; }; fi
+    if [ "{{target}}" = "js" ] && ls assets/web/*.test.mjs >/dev/null 2>&1; then node --test assets/web/*.test.mjs || { echo "::error title=node test failed::assets/web/*.test.mjs"; exit 1; }; fi
 
 # Every example/editor-example project whose tests can link on {{target}}.
 #
@@ -263,10 +286,10 @@ vlm-ui-review example extra="":
     node scripts/vlm-ui-review.mjs {{example}} {{extra}}
 
 native-vrt:
-    cd examples/smoke/native_vrt && moon run src --target native
+    cd examples/smoke/native_vrt && moon run . --target native
 
 native-vrt-update:
-    cd examples/smoke/native_vrt && touch .update_baselines && moon run src --target native && rm -f .update_baselines
+    cd examples/smoke/native_vrt && touch .update_baselines && moon run . --target native && rm -f .update_baselines
 
 # Capture a frame + its context natively, the portable path: the web canvas
 # capture is transparent headless and the Linux Dawn readback never completes.
@@ -283,7 +306,7 @@ capture example out_dir="output/capture":
     out="$(cd "$(dirname {{out_dir}})" 2>/dev/null && pwd)/$(basename {{out_dir}})" || out="$PWD/{{out_dir}}"
     mkdir -p "$out"
     node scripts/stage-capture-config.mjs --example-dir "$dir" --out-dir "$out"
-    cd "$dir" && moon run src --target native
+    cd "$dir" && moon run . --target native
 
 hacknslash3d-gpu-perf port="8282" samples="120" warmup="30" extra="--headed":
     node scripts/hacknslash_3d_gpu_perf.mjs --serve --port {{port}} --samples {{samples}} --warmup {{warmup}} {{extra}}
@@ -368,7 +391,7 @@ vlm-apply target="" patch="" extra="":
     node editor/modeling3d/scripts/model-authoring-vlm-apply-patch.mjs --target {{target}} --patch {{patch}} {{extra}}
 
 run-native name:
-    dir=""; for candidate in examples/*/{{name}} editor/modeling3d/examples/{{name}} editor/effect-studio/examples/{{name}}; do if [ -f "$candidate/moon.mod.json" ] || [ -f "$candidate/moon.mod" ]; then dir="$candidate"; break; fi; done; if [ -z "$dir" ]; then echo "example not found: {{name}}"; exit 1; fi; cd "$dir" && CPATH="$(brew --prefix glfw)/include:${CPATH:-}" LIBRARY_PATH="$(brew --prefix)/lib:${LIBRARY_PATH:-}" moon run src/ --target native
+    dir=""; for candidate in examples/*/{{name}} editor/modeling3d/examples/{{name}} editor/effect-studio/examples/{{name}}; do if [ -f "$candidate/moon.mod.json" ] || [ -f "$candidate/moon.mod" ]; then dir="$candidate"; break; fi; done; if [ -z "$dir" ]; then echo "example not found: {{name}}"; exit 1; fi; entry="."; if [ -f "$dir/src/moon.pkg" ]; then entry="src"; fi; cd "$dir" && CPATH="$(brew --prefix glfw)/include:${CPATH:-}" LIBRARY_PATH="$(brew --prefix)/lib:${LIBRARY_PATH:-}" moon run "$entry" --target native
 
 pages:
     bash scripts/build-pages.sh
@@ -392,7 +415,7 @@ clean:
     for dir in examples/*/*/ editor/modeling3d/examples/*/ editor/effect-studio/examples/*/; do [ -d "$dir" ] && (cd "$dir" && moon clean); done
 
 balance name="playtest":
-    cd examples/games/hacknslash_3d && moon run src/balance --target js 2>&1 | tee /dev/stderr | sed -n '/^=== CSV ===/,$ p' | tail -n +2 > data/hackslash/{{name}}.csv
+    cd examples/games/hacknslash_3d && moon run balance --target js 2>&1 | tee /dev/stderr | sed -n '/^=== CSV ===/,$ p' | tail -n +2 > data/hackslash/{{name}}.csv
     @echo "Saved: examples/games/hacknslash_3d/data/hackslash/{{name}}.csv"
 
 balance-autoplay-record out_dir="examples/games/hacknslash_3d/data/hackslash/autoplay_experiments":
@@ -403,17 +426,17 @@ balance-hypothesis-record out_dir="examples/games/hacknslash_3d/data/hackslash/a
 
 # What the Atomics frame-clock handshake costs per frame, and how far above
 # 60Hz it holds up. Reporting only -- wake latency has scheduler outliers, so a
-# gate would flake. Run it when lib/web/kagura-wasm-worker.js changes.
+# gate would flake. Run it when assets/web/kagura-wasm-worker.js changes.
 bench-frame-clock extra="":
     node scripts/bench-frame-clock.mjs {{extra}}
 
 # Build the wasm1 guest that links moonbitlang/async and run it both ways:
-# single-threaded under lib/web/kagura-wasm-host.js, and in a worker with a
-# main-thread frame clock via lib/web/kagura-wasm-driver.js. `just test` covers
-# this too, via `node --test lib/web/*.test.mjs`.
+# single-threaded under assets/web/kagura-wasm-host.js, and in a worker with a
+# main-thread frame clock via assets/web/kagura-wasm-driver.js. `just test` covers
+# this too, via `node --test assets/web/*.test.mjs`.
 wasm-host-smoke:
     cd examples/smoke/wasm_async_smoke && moon build --target wasm
-    node --test lib/web/kagura-wasm-host.test.mjs lib/web/kagura-wasm-driver.test.mjs
+    node --test assets/web/kagura-wasm-host.test.mjs assets/web/kagura-wasm-driver.test.mjs
 
 # WASM game host tasks
 wasm-build-moonbit:
@@ -464,3 +487,31 @@ wasm-dev guest="moonbit": (wasm-build guest)
 [private]
 wasm-build guest:
     @if [ "{{guest}}" = "moonbit" ]; then just wasm-build-moonbit; elif [ "{{guest}}" = "rust" ]; then just wasm-build-rust; elif [ "{{guest}}" = "zig" ]; then just wasm-build-zig; else echo "Unknown guest: {{guest}}"; exit 1; fi
+
+# Shared game scene profiles, scene transitions, and project loading contracts.
+studio-scene-test:
+    moon -C examples/games/arena3d build scenes --target js --release
+    moon -C examples/games/fps_demo build scenes --target js --release
+    moon -C examples/games/flappy_bird build scenes --target js --release
+    moon -C editor/studio build --target js --release
+    moon -C game test scene_flow --target js
+    moon -C game test scene_data --target js
+    moon -C game test scene2d --target js
+    moon -C examples/games/arena3d test . --target js
+    moon -C examples/games/fps_demo test . --target js
+    moon -C examples/games/flappy_bird test . --target js
+    node --test editor/studio/tests/moonbit-scene.test.mjs editor/studio/tests/scene-profile.test.mjs editor/studio/tests/project-scenes.test.mjs editor/studio/tests/extension-host.test.mjs editor/studio/tests/scene2d.test.mjs
+
+# Game-owned live state: JS/native headless simulation and debugger/WebMCP contracts.
+studio-runtime-test:
+    moon -C examples/games/flappy_bird test . --target js
+    moon -C examples/games/flappy_bird test . --target native
+    node --test editor/studio/tests/runtime-debug.test.mjs editor/studio/tests/extension-host.test.mjs
+
+# Declarative views share hierarchy with the existing 2D/3D renderers.
+studio-declarative-test:
+    moon -C game test scene --target {{target}}
+    moon -C engine/kagura_engine test scene3d --target {{target}}
+    moon -C examples/games/flappy_bird test . --target {{target}}
+    moon -C examples/games/arena3d test . --target {{target}}
+    node --test editor/studio/tests/scene-hierarchy.test.mjs editor/studio/tests/runtime-debug.test.mjs

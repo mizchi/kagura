@@ -5,3 +5,7 @@ dist/
 !.dev.vars.example
 public/plugins/moonbit-demo.mjs
 public/plugins/wasm-demo.wasm
+public/games/
+public/examples/
+public/example-runtime/
+public/model-runtime/

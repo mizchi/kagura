@@ -247,4 +247,3 @@ pub trait PlatformDriver {
   fn fullscreen_request_status(Self) -> AsyncRequestStatus
   fn cursor_mode_request_status(Self) -> AsyncRequestStatus
 }
-

@@ -134,7 +134,8 @@ async function main(argv) {
       results.push({
         key: entry.key,
         status: "updated",
-        detail: `${meta.width}x${meta.height}, ${meta.drawn_triangles} triangles` +
+        detail: `${meta.width}x${meta.height}, ${meta.drawn_triangles} triangles ` +
+          `in ${meta.draw_commands} command(s)` +
           (blank.reason == null ? "" : ` (${blank.reason})`),
       });
       continue;

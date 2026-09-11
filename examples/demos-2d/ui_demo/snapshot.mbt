@@ -75,7 +75,7 @@ fn build_node_paths(
 fn DemoState::ui_snapshot(self : DemoState) -> @ui.UISnapshot {
   let focused_id = self.focus_mgr.current_focus()
   let nodes : Array[@ui.UISnapshotNode] = []
-  let focus_order : Array[String] = []
+  let focus_order = self.focus_ids.map(id => "button_" + id.value.to_string())
   // Draw order is parents-first from the tail of `layouts`, so z ascends the
   // same way: a later-drawn node sits on top.
   let n = self.layouts.length()
@@ -112,9 +112,6 @@ fn DemoState::ui_snapshot(self : DemoState) -> @ui.UISnapshot {
       height: r.height,
     }
     let focusable = self.button_labels.get(nid) is Some(_)
-    if focusable {
-      focus_order.push(id)
-    }
     let path = match self.node_paths.get(nid) {
       Some(value) => value
       None => role + "[" + idx.to_string() + "]"
@@ -134,7 +131,7 @@ fn DemoState::ui_snapshot(self : DemoState) -> @ui.UISnapshot {
       text_measured: measured,
       focusable,
       focus_index: if focusable {
-        focus_order.length() - 1
+        self.focus_ids.search_by(fid => fid.value == nid).unwrap()
       } else {
         -1
       },
@@ -147,8 +144,8 @@ fn DemoState::ui_snapshot(self : DemoState) -> @ui.UISnapshot {
   }
   {
     ..@ui.default_ui_snapshot(
-      screen_width=screen_w.to_double(),
-      screen_height=screen_h.to_double(),
+      screen_width=self.width.to_double(),
+      screen_height=self.height.to_double(),
     ),
     frame: self.frame,
     state: "demo",

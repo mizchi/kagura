@@ -103,3 +103,38 @@ export function toVlmkitElements(input, { scale = "dpr", includeInvisible = fals
 export function elementKeys() {
   return [...ELEMENT_KEYS];
 }
+
+/** Rich image-integrity contract. Keep collapsed geometry: it is evidence. */
+export function toVlmkitIntegrityElements(input, { scale = 'dpr' } = {}) {
+  const snapshot = unwrapSnapshot(input);
+  if (scale === 'dpr' && snapshot.screen?.dpr != null &&
+    (!Number.isFinite(snapshot.screen.dpr) || snapshot.screen.dpr <= 0)) throw Error('Invalid integrity DPR');
+  const factor = resolveScale(snapshot, scale);
+  const paths = new Set();
+  const number = (value, field) => {
+    if (!Number.isFinite(value)) throw Error(`Invalid integrity element ${field}`);
+    return value * factor;
+  };
+  const box = (value, position) => ({
+    ...(position ? { left: number(value.left, 'left'), top: number(value.top, 'top') } : {}),
+    width: number(value.width, 'width'), height: number(value.height, 'height'),
+  });
+  return { elements: snapshot.nodes.filter(n => n?.visible !== false).map(node => {
+    if (!node || typeof node.path !== 'string' || !node.path) throw Error('Integrity element needs a path');
+    if (paths.has(node.path)) throw Error('Duplicate integrity element path');
+    paths.add(node.path);
+    const element = { path: node.path, tag: node.tag || node.role || 'node', id: node.id ?? '', classes: node.classes ?? '',
+      ...box(node, true) };
+    if (node.text != null) {
+      if (typeof node.text !== 'string') throw Error('Integrity element text must be a string');
+      element.text = node.text;
+    }
+    if (node.text_measured != null) element.text_measured = box(node.text_measured, false);
+    if (node.clip != null) element.clip = box(node.clip, true);
+    if (node.z != null) {
+      if (!Number.isFinite(node.z)) throw Error('Invalid integrity element z');
+      element.z_index = node.z;
+    }
+    return element;
+  }) };
+}

@@ -73,6 +73,19 @@ test("a zero viewport is dropped rather than sent as an override", () => {
   assert.deepEqual(createHeadlessRequest({ frames: 1, width: 0, height: -5 }), { frames: 1 });
 });
 
+test("input sequences preserve key release, pointer clicks and gamepad steps", () => {
+  const inputs = [{ keys: [9] }, {}, { gamepads: [{ id: 0, buttons: [13] }] },
+    { cursorX: 30, cursorY: 40, mouseButtons: [0] }];
+  const request = createHeadlessRequest({ frames: 4, inputs });
+  assert.deepEqual(request.inputs.map(s => s.keys), [[9], [], [], []]);
+  assert.deepEqual(request.inputs[2].gamepads, [{ id: 0, axes: [], buttons: [13] }]);
+  assert.deepEqual(request.inputs[3].mouse_buttons, [0]);
+  inputs[0].keys.push(32);
+  assert.deepEqual(request.inputs[0].keys, [9]);
+  assert.throws(() => createHeadlessRequest({ inputs: [{ keys: [NaN] }] }), /input/i);
+  assert.throws(() => createHeadlessRequest({ inputs: [{ gamepads: [{ id: -1 }] }] }), /input/i);
+});
+
 test("the viewport stub answers the DOM calls examples actually make", () => {
   const restore = installHeadlessViewport({ width: 640, height: 480 });
   try {

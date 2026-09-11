@@ -1,13 +1,21 @@
-// On native the cursor already arrives in the logical (screen_w x screen_h)
-// window space, so reporting the logical size makes the CSS->logical scale in
-// the update loop a no-op. See viewport_js.mbt for the web counterpart.
+// Native input already uses logical window coordinates; zero disables CSS scaling.
 
 ///|
 fn canvas_css_w() -> Double {
-  screen_w.to_double()
+  0.0
 }
 
 ///|
 fn canvas_css_h() -> Double {
-  screen_h.to_double()
+  0.0
+}
+
+///|
+fn initial_screen_w() -> Int {
+  screen_w
+}
+
+///|
+fn initial_screen_h() -> Int {
+  screen_h
 }

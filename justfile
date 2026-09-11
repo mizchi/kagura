@@ -243,6 +243,22 @@ e2e-vrt-update:
 ui-check snapshot extra="":
     node scripts/ui-integrity-gate.mjs {{snapshot}} {{extra}}
 
+# Replay keyboard/gamepad/pointer input and verify real focus movement and pixels.
+ui-interactions example extra="":
+    node scripts/ui-interactions.mjs {{example}} {{extra}}
+
+# Capture every transition tick, gate intermediate layout and assert settling.
+ui-flipbook example transition extra="":
+    node scripts/ui-flipbook.mjs {{example}} {{transition}} {{extra}}
+
+# Verify rich canvas metadata through vlmkit's image-only integrity gate.
+ui-vlmkit-check snapshot image out_dir="output/ui-vlmkit-integrity":
+    node scripts/ui-vlmkit-integrity.mjs {{snapshot}} {{image}} {{out_dir}}
+
+# Game-declared input states x viewports; baseline updates are explicit.
+ui-matrix example extra="":
+    node scripts/ui-matrix.mjs {{example}} {{extra}}
+
 # Convert a UI snapshot into a vlmkit --elements-json payload, so a pixel diff
 # names the UI node that changed instead of a bare region.
 ui-elements snapshot out="output/vlmkit-elements.json":

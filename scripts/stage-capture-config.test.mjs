@@ -14,9 +14,15 @@ test("buildCaptureConfig emits the three paths the engine requires", () => {
       `context_path=${dir}/ui_demo.context.json`,
       `summary_path=${dir}/ui_demo.summary.txt`,
       "binarize=0",
+      "backend=cpu",
       "",
     ].join("\n"),
   );
+});
+
+test("buildCaptureConfig can request the real GPU backend", () => {
+  assert.match(buildCaptureConfig({ outDir: ".", name: "x", backend: "gpu" }), /^backend=gpu$/m);
+  assert.match(buildCaptureConfig({ outDir: ".", name: "x" }), /^backend=cpu$/m);
 });
 
 test("buildCaptureConfig resolves paths to absolute", () => {
@@ -25,7 +31,7 @@ test("buildCaptureConfig resolves paths to absolute", () => {
   const text = buildCaptureConfig({ outDir: "output/capture", name: "x" });
   for (const line of text.trim().split("\n")) {
     const [, value] = line.split("=");
-    if (line.startsWith("binarize")) continue;
+    if (line.startsWith("binarize") || line.startsWith("backend")) continue;
     assert.ok(value.startsWith("/"), `expected an absolute path, got ${value}`);
   }
 });

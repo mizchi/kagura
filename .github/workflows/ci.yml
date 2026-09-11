@@ -172,6 +172,18 @@ jobs:
         run: node scripts/check-capture-release.mjs js
       - name: Canvas UI state and viewport matrix
         run: node scripts/ui-matrix.mjs ui_demo
+      - name: Canvas UI i18n stress
+        run: |
+          for snap in output/ui-matrix/ui_demo/*.standard/snapshot.json; do
+            node scripts/ui-i18n.mjs "$snap"
+          done
+      - name: Canvas UI theme palette
+        run: |
+          for png in output/ui-matrix/ui_demo/*.standard/frame.png; do
+            node scripts/ui-theme.mjs "$png" examples/demos-2d/ui_demo/editor/theme.json
+          done
+      - name: Canvas UI asset intake
+        run: node scripts/ui-assets.mjs ui_demo
       - name: Install Playwright Browser
         # `--with-deps` runs `sudo apt-get`; on Ubuntu 24.04 the needrestart
         # post-install hook prompts and hangs. sudo resets the env, so set the

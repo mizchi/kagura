@@ -402,6 +402,13 @@ test("formatReport lists exemptions and stale rules", () => {
 
 test("FINDING_KINDS covers every kind the analyzer can emit", () => {
   const emitted = new Set();
+  const gray = [0x77, 0x77, 0x77, 255];
+  const white = [255, 255, 255, 255];
+  const contrastImage = { width: 40, height: 16, data: new Uint8Array(40 * 16 * 4) };
+  for (let i = 0; i < 40 * 16; i += 1) contrastImage.data.set(white, i * 4);
+  for (let y = 2; y < 14; y += 1) {
+    for (let x = 2; x < 22; x += 1) contrastImage.data.set(gray, (y * 40 + x) * 4);
+  }
   const cases = [
     snapshot([node({ width: 0 })]),
     snapshot([node({ text_measured: { width: 999, height: 999 } })]),
@@ -420,9 +427,17 @@ test("FINDING_KINDS covers every kind the analyzer can emit", () => {
       node({ path: "p[0]", id: "p", width: 100, height: 40 }),
       node({ path: "p[0]>c[0]", id: "c", width: 200, height: 20 }),
     ]),
+    {
+      input: snapshot(
+        [node({ id: "hp", width: 40, height: 16, text: "HP", text_measured: { width: 20, height: 12 } })],
+        { screen: { width: 40, height: 16, dpr: 1, safe_area: { top: 0, right: 0, bottom: 0, left: 0 } } },
+      ),
+      options: { image: contrastImage },
+    },
   ];
   for (const value of cases) {
-    for (const finding of analyzeSnapshot(value).findings) emitted.add(finding.kind);
+    const result = value.input === undefined ? analyzeSnapshot(value) : analyzeSnapshot(value.input, value.options);
+    for (const finding of result.findings) emitted.add(finding.kind);
   }
   assert.deepEqual([...emitted].sort(), [...FINDING_KINDS].sort());
 });

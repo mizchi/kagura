@@ -237,12 +237,14 @@ export function buildReviewPrompt({ example, state, meta, snapshot, verdict, not
     "- text nodes colliding within the same z band",
     "- hit rectangles disagreeing with drawn rectangles",
     "- children escaping their parent unclipped",
+    "- WCAG AA contrast of each text node cropped from the frame PNG",
     "",
     "## What to review",
     "",
     "Only what a measurement cannot settle: whether the frame reads well. Legibility at",
-    "this resolution, contrast, visual hierarchy, whether the layout is balanced, whether",
-    "the state shown is coherent. Report nothing you are not seeing in the image.",
+    "this resolution, visual hierarchy, whether the layout is balanced, whether the",
+    "state shown is coherent, perceptual contrast the crop cannot see (adjacent panels,",
+    "theme). Report nothing you are not seeing in the image.",
     "",
     `## Frame: ${meta.width}x${meta.height}, captured after ${meta.frames} update tick(s)`,
     "",
@@ -477,6 +479,7 @@ export function vlmUiReviewUsage() {
     "                     change to UI nodes (needs vlmkit)",
     "  --force-vlm        Review even when the deterministic gate found defects",
     "  --dry-run          Write the request bundle, call nothing",
+    "  --matrix           Review every state x viewport in editor/verification.json",
     "  --no-build         Use the existing _build output",
     "  -h, --help         Show this help",
   ].join("\n");
@@ -499,6 +502,7 @@ export function parseVlmUiReviewArgs(argv) {
     compare: null,
     forceVlm: false,
     dryRun: false,
+    matrix: false,
     build: true,
     help: false,
   };
@@ -562,6 +566,9 @@ export function parseVlmUiReviewArgs(argv) {
         break;
       case "--dry-run":
         options.dryRun = true;
+        break;
+      case "--matrix":
+        options.matrix = true;
         break;
       case "--no-build":
         options.build = false;

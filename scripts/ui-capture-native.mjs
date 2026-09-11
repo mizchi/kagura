@@ -20,7 +20,7 @@ export function nativeCaptureRequest(cell) {
 
 export function parseNativeCapture(png, summary, context) {
   const meta = JSON.parse(summary);
-  if (meta.backend !== 'native-cpu' || meta.skipped_commands !== 0 ||
+  if (!['native-cpu', 'native-gpu'].includes(meta.backend) || meta.skipped_commands !== 0 ||
     !Number.isInteger(meta.frames) || meta.frames < 1 ||
     !Number.isInteger(meta.drawn_triangles) || meta.drawn_triangles < 0 ||
     !Number.isInteger(meta.draw_commands) || meta.draw_commands < 0) throw Error('Invalid or incomplete native capture');
@@ -49,14 +49,14 @@ export function prepareNativeCapture(example, { build = true } = {}) {
   return { exampleDir, binaryPath };
 }
 
-export function renderNativeCapture({ exampleDir, binaryPath }, cell, { timeout = 30000 } = {}) {
+export function renderNativeCapture({ exampleDir, binaryPath }, cell, { timeout = 30000, backend = 'cpu' } = {}) {
   const request = nativeCaptureRequest(cell);
   const staging = mkdtempSync(join(tmpdir(), 'kagura-ui-capture-'));
   try {
     const requestPath = join(staging, 'request.json');
     const configPath = join(staging, 'capture.txt');
     writeFileSync(requestPath, JSON.stringify(request));
-    writeFileSync(configPath, buildCaptureConfig({ outDir: staging, name: 'frame' }) + `request_path=${requestPath}\n`);
+    writeFileSync(configPath, buildCaptureConfig({ outDir: staging, name: 'frame', backend }) + `request_path=${requestPath}\n`);
     // No shared file is staged in the game directory. Existing interactive/config state survives.
     try {
       execFileSync(binaryPath, [], { cwd: exampleDir, env: { ...process.env, KAGURA_CAPTURE_CONFIG: configPath }, timeout, stdio: ['ignore', 'pipe', 'pipe'] });
@@ -73,20 +73,24 @@ export function renderNativeCapture({ exampleDir, binaryPath }, cell, { timeout 
 async function main(args) {
   const [example, state = 'idle', viewport = 'standard', ...extra] = args;
   if (!example || example === '--help') {
-    console.log('Usage: just ui-capture <example> [state] [viewport]\nNative CPU capture of an editor/verification.json matrix cell.');
+    console.log('Usage: just ui-capture <example> [state] [viewport] ["--backend cpu|gpu"]\nNative capture of an editor/verification.json matrix cell. cpu is the portable 2D rasterizer; gpu drives the real wgpu pipeline.');
     return;
   }
-  if (extra.length) throw Error('Expected example, state and viewport');
+  let backend = 'cpu';
+  for (let i = 0; i < extra.length; i++) {
+    if (extra[i] === '--backend' && extra[i + 1]) backend = extra[++i];
+    else throw Error(`Unknown or incomplete option: ${extra[i]}`);
+  }
   const prepared = prepareNativeCapture(example);
   const cells = matrixCells(JSON.parse(readFileSync(join(prepared.exampleDir, 'editor/verification.json'), 'utf8')));
   const cell = cells.find(c => c.name === `${state}.${viewport}`);
   if (!cell) throw Error(`Unknown capture cell ${state}.${viewport}`);
-  const frame = renderNativeCapture(prepared, cell);
+  const frame = renderNativeCapture(prepared, cell, { backend });
   const out = resolve('output/ui-capture', example, cell.name);
   mkdirSync(out, { recursive: true });
   writeFileSync(join(out, 'frame.png'), frame.png);
   writeFileSync(join(out, 'snapshot.json'), frame.uiSnapshotJson);
-  console.log(`${example} ${cell.name}: ${frame.width}x${frame.height}, ${frame.frames} ticks (native CPU)\n${out}`);
+  console.log(`${example} ${cell.name}: ${frame.width}x${frame.height}, ${frame.frames} ticks (${frame.backend})\n${out}`);
 }
 if (process.argv[1] === new URL(import.meta.url).pathname) main(process.argv.slice(2)).catch(error => {
   console.error(error.message); process.exitCode = 1;

@@ -6,11 +6,13 @@
  *
  * Reads a UI snapshot (published by `@ui.publish_ui_snapshot`, or written to
  * `context_path` by the native capture) and reports text overflow, clipping,
- * off-screen HUD, safe-area intrusion, text collision, hit-box drift and
- * collapsed nodes. No browser, no VLM, no API key.
+ * off-screen HUD, safe-area intrusion, text collision, hit-box drift,
+ * collapsed nodes, and (with --image) low-contrast text. No browser, no VLM,
+ * no API key.
  */
 
 import { readFileSync } from "node:fs";
+import { PNG } from "pngjs";
 
 import { FINDING_KINDS, analyzeSnapshot, formatReport } from "./ui-integrity-utils.mjs";
 
@@ -21,6 +23,7 @@ function usage() {
     "",
     "Options:",
     "  --tolerance <px>   Sub-pixel slack before a rect counts as off (default 0.5)",
+    "  --image <png>      Frame PNG for low-contrast-text (crop each text node)",
     "  --allow <rule>     Exempt an intentional pattern, repeatable.",
     "                     Syntax: <kind>[@<id-or-path>];<reason>",
     "                     A reason is required; an unknown kind is an error; an",
@@ -38,7 +41,7 @@ function usage() {
 }
 
 function parseArgs(argv) {
-  const options = { source: null, tolerance: 0.5, allow: [], json: false, advisory: false };
+  const options = { source: null, tolerance: 0.5, allow: [], json: false, advisory: false, image: null };
   for (let i = 0; i < argv.length; i += 1) {
     const arg = argv[i];
     switch (arg) {
@@ -53,6 +56,12 @@ function parseArgs(argv) {
           throw new Error(`--tolerance needs a non-negative number, got: ${argv[i]}`);
         }
         options.tolerance = value;
+        break;
+      }
+      case "--image": {
+        const value = argv[++i];
+        if (value === undefined) throw new Error("--image needs a PNG path");
+        options.image = value;
         break;
       }
       case "--allow": {
@@ -82,7 +91,8 @@ function main(argv) {
   const raw = options.source === "-"
     ? readFileSync(0, "utf8")
     : readFileSync(options.source, "utf8");
-  const result = analyzeSnapshot(raw, { tolerance: options.tolerance, allow: options.allow });
+  const image = options.image == null ? null : PNG.sync.read(readFileSync(options.image));
+  const result = analyzeSnapshot(raw, { tolerance: options.tolerance, allow: options.allow, image });
 
   if (options.json) {
     process.stdout.write(`${JSON.stringify({ source: options.source, ...result }, null, 2)}\n`);

@@ -2,6 +2,7 @@
 import { spawnSync } from 'node:child_process';
 import { mkdirSync, readFileSync, writeFileSync } from 'node:fs';
 import { resolve } from 'node:path';
+import { PNG } from 'pngjs';
 import { toVlmkitIntegrityElements, unwrapSnapshot } from './ui-snapshot-utils.mjs';
 import { analyzeSnapshot } from './ui-integrity-utils.mjs';
 
@@ -22,7 +23,7 @@ export function checkImageIntegrity(snapshot, image, outDir) {
   if (!screen || !viewport || viewport.width !== screen.width * dpr || viewport.height !== screen.height * dpr) {
     throw Error('Snapshot coordinates do not match image dimensions');
   }
-  const geometry = analyzeSnapshot(snapshot);
+  const geometry = analyzeSnapshot(snapshot, { image: PNG.sync.read(readFileSync(image)) });
   const report = { ok: result.status === 0 && vlmkit.verdict === 'pass' && geometry.findings.length === 0,
     geometry, vlmkit };
   writeFileSync(resolve(outDir, 'integrity.report.json'), JSON.stringify(report, null, 2) + '\n');

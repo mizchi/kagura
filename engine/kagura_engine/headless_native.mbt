@@ -87,6 +87,9 @@ fn try_run_native_capture(
     abort("Requested initial state was not applied by the game")
   }
   native_capture_context.val = "null"
+  if capture.config.backend is Gpu {
+    return run_native_gpu_capture(capture, request, update~, draw~, on_frame?)
+  }
   let frame = render_headless_frame(
     update~,
     on_frame?,
@@ -130,6 +133,137 @@ fn try_run_native_capture(
     capture.config.summary_path,
     "{\"initial_state\":\{initial_state},\"backend\":\"native-cpu\",\"width\":\{frame.width},\"height\":\{frame.height},\"frames\":\{frame.frames},\"skipped_commands\":\{frame.skipped_commands},\"drawn_triangles\":\{frame.drawn_triangles},\"draw_commands\":\{frame.draw_commands}}",
   )
+  true
+}
+
+///|
+fn draw_command_triangles(cmds : Array[@gfx.DrawTrianglesCommand]) -> Int {
+  let mut n = 0
+  for cmd in cmds {
+    n = n + cmd.indices.length() / 3
+  }
+  n
+}
+
+///|
+fn write_native_capture_png(
+  capture : NativeCapture,
+  pixels : Array[Int],
+  width : Int,
+  height : Int,
+  frames : Int,
+  skipped_commands : Int,
+  drawn_triangles : Int,
+  draw_commands : Int,
+  backend : String,
+) -> Unit {
+  if capture.config.binarize {
+    @capture.binarize_rgba8(pixels)
+  }
+  let png = @capture.encode_rgba8_png(width, height, pixels).unwrap_or_else(() => {
+    abort("Unable to encode capture PNG")
+  })
+  @capture.write_native_capture_bytes(capture.config.screenshot_path, png)
+  let context = if native_capture_context.val == "null" {
+    "{\"screen\":{\"width\":\{width},\"height\":\{height},\"dpr\":1},\"nodes\":[]}"
+  } else {
+    native_capture_context.val
+  }
+  @capture.write_native_capture_text(capture.config.context_path, context)
+  let initial_state = match applied_initial_state.val {
+    Some(name) => "\"" + name + "\""
+    None => "null"
+  }
+  @capture.write_native_capture_text(
+    capture.config.summary_path,
+    "{\"initial_state\":\{initial_state},\"backend\":\"\{backend}\",\"width\":\{width},\"height\":\{height},\"frames\":\{frames},\"skipped_commands\":\{skipped_commands},\"drawn_triangles\":\{drawn_triangles},\"draw_commands\":\{draw_commands}}",
+  )
+}
+
+///|
+/// Drive the real wgpu pipeline: 3D commands the CPU rasterizer skips actually
+/// land in the framebuffer. Offscreen, no window. Readback goes through
+/// `GraphicsDriver.read_pixels`, which native hooks resolve onto the last
+/// offscreen target when there is no swapchain.
+fn run_native_gpu_capture(
+  capture : NativeCapture,
+  request : CaptureRequest,
+  update~ : (@core.InputSnapshot) -> Unit,
+  draw~ : (EngineContext) -> Array[@gfx.DrawTrianglesCommand],
+  on_frame? : () -> Unit,
+) -> Bool {
+  invoke_on_start("", "kagura-capture")
+  let surface = @gfx.create_offscreen_surface_token(
+    request.width,
+    request.height,
+  )
+  let graphics = @gfx.create_wgpu_native_graphics(
+    surface,
+    @gfx.default_graphics_backend_options(),
+  )
+  graphics.initialize() catch {
+    err => abort("Native GPU capture failed to initialize: " + err.to_string())
+  }
+  let dst = graphics.new_image(request.width, request.height) catch {
+    err =>
+      abort(
+        "Native GPU capture failed to allocate the frame: " + err.to_string(),
+      )
+  }
+  let shader = graphics.new_shader(@gfx.default_builtin_shader_source()) catch {
+    err =>
+      abort(
+        "Native GPU capture failed to compile the shader: " + err.to_string(),
+      )
+  }
+  let ctx : EngineContext = {
+    dst,
+    shader,
+    screen_w: request.width,
+    screen_h: request.height,
+  }
+  for tick in 0..<request.frames {
+    update(request.input_at(tick))
+    match on_frame {
+      Some(f) => f()
+      None => ()
+    }
+  }
+  let cmds = draw(ctx)
+  let mut rgba : Array[Int]? = None
+  for _ in 0..<2 {
+    render_commands(graphics, cmds) catch {
+      err => abort("Native GPU capture failed to render: " + err.to_string())
+    }
+    rgba = graphics.read_pixels(0, 0, request.width, request.height) catch {
+      err => abort("Native GPU capture readback failed: " + err.to_string())
+    }
+    if rgba is Some(_) {
+      break
+    }
+  }
+  let rgba = match rgba {
+    None =>
+      abort(
+        "Native GPU capture readback returned no pixels. Import mizchi/native_runtime_hooks so wgpu hooks are installed.",
+      )
+    Some(value) => value
+  }
+  if rgba.length() != request.width * request.height * 4 {
+    abort("Native GPU capture readback size mismatch")
+  }
+  write_native_capture_png(
+    capture,
+    rgba,
+    request.width,
+    request.height,
+    request.frames,
+    0,
+    draw_command_triangles(cmds),
+    cmds.length(),
+    "native-gpu",
+  )
+  invoke_on_stop()
   true
 }
 

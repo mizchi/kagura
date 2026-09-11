@@ -12,17 +12,20 @@
  * on Linux where the canvas capture and the Dawn readback both fail.
  *
  * The ordering is the point. `scripts/ui-integrity-gate.mjs` proves text
- * overflow, clipping, off-screen nodes, collisions and hit-box drift from the
- * UI snapshot; those are settled before a model sees anything, and by default a
- * defect there stops the run. What the model is asked is the residue --
- * legibility, contrast, hierarchy, balance -- which no measurement settles.
+ * overflow, clipping, off-screen nodes, collisions, hit-box drift, and WCAG
+ * contrast from the snapshot plus frame PNG; those are settled before a model
+ * sees anything, and by default a defect there stops the run. What the model is
+ * asked is the residue -- hierarchy, balance, perceptual contrast beyond the
+ * crop -- which no measurement settles.
  */
 
 import { execFileSync } from "node:child_process";
-import { existsSync, mkdirSync, writeFileSync } from "node:fs";
+import { existsSync, mkdirSync, readFileSync, writeFileSync } from "node:fs";
 import { dirname, join, relative } from "node:path";
+import { PNG } from "pngjs";
 
 import { prepareBundle, renderExampleState } from "./render-frame.mjs";
+import { matrixCells } from "./ui-matrix-utils.mjs";
 import { analyzeSnapshot } from "./ui-integrity-utils.mjs";
 import {
   buildReviewHeaders,
@@ -47,11 +50,44 @@ async function main(argv) {
   }
 
   const outDir = options.outDir ?? join(REPO_ROOT, "output", "ui-review", options.example);
-  const { bundlePath } = prepareBundle(options.example, { build: options.build });
+  const { bundlePath, exampleDir } = prepareBundle(options.example, { build: options.build });
   const { renderHeadlessFrame } = await import("../assets/web/kagura-headless-frame.js");
+  const jobs = options.matrix ? matrixReviewJobs(exampleDir) : [options];
+  let failed = false;
+  for (const job of jobs) {
+    const code = await reviewOne({
+      ...options,
+      ...job,
+      bundlePath,
+      renderHeadlessFrame,
+      outDir,
+    });
+    if (code !== 0) failed = true;
+  }
+  return failed ? 1 : 0;
+}
+
+function matrixReviewJobs(exampleDir) {
+  const manifestPath = join(exampleDir, "editor/verification.json");
+  const manifest = JSON.parse(readFileSync(manifestPath, "utf8"));
+  return matrixCells(manifest).map((cell) => ({
+    state: cell.name,
+    frames: cell.frames,
+    width: cell.width,
+    height: cell.height,
+    initialState: cell.initialState,
+    inputs: cell.inputs,
+    cursorX: null,
+    cursorY: null,
+    keys: [],
+  }));
+}
+
+async function reviewOne(options) {
+  const outDir = options.outDir;
   const { frame, meta, written } = await renderExampleState({
     exampleName: options.example,
-    bundlePath,
+    bundlePath: options.bundlePath,
     outDir,
     state: {
       name: options.state,
@@ -61,12 +97,14 @@ async function main(argv) {
       cursorX: options.cursorX,
       cursorY: options.cursorY,
       keys: options.keys,
+      initialState: options.initialState,
+      inputs: options.inputs,
     },
-    renderHeadlessFrame,
+    renderHeadlessFrame: options.renderHeadlessFrame,
   });
 
   const snapshot = frame.uiSnapshot;
-  const gate = snapshot == null ? null : analyzeSnapshot(snapshot);
+  const gate = snapshot == null ? null : analyzeSnapshot(snapshot, { image: PNG.sync.read(frame.png) });
   const verdict = deterministicVerdict({ meta, gate });
 
   const artifacts = Object.fromEntries(
@@ -206,4 +244,4 @@ if (process.argv[1] === new URL(import.meta.url).pathname) {
   );
 }
 
-export { main };
+export { main, matrixReviewJobs, reviewOne };

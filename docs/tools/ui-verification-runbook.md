@@ -9,7 +9,8 @@ canvas / WebGPU 上に描くゲーム UI を、DOM なしで決定的に検証�
 **更新:** インストール済みvlmkit 0.11.1は `check integrity --elements ... --image ...` を
 サポートする。以下の「DOM版」はHTML/URL入力の経路を指す。`just ui-vlmkit-check` は
 画像版に必要な文字実測・clip・zを保持した専用データを渡す。従来の `ui-elements` は
-PNG差分用のまま。低コントラスト文字は画像版では判定されない。
+PNG差分用のまま。vlmkit の画像版は computed color が無いので `low-contrast-text` を
+skip する。その判定は `just ui-check --image` がフレーム PNG からノードを切って行う。
 
 ---
 
@@ -124,14 +125,17 @@ private だった）、web の canvas capture と Linux Dawn readback が両方�
 **これが移植可能な唯一のキャプチャ経路**。
 
 ```sh
-just capture <example> [out_dir]
-# → out_dir/<name>.png / <name>.context.json / <name>.summary.txt
+just capture ui_demo
+just capture pbr_demo output/capture "--backend gpu"
+just ui-capture ui_demo idle standard
+just ui-capture ui_demo idle standard "--backend gpu"
+# → PNG + context JSON + summary.txt
 ```
 
-`just capture` は `scripts/stage-capture-config.mjs` で
-`kagura_native_capture_config.txt` を example 直下に置き、native backend で 1 回走らせる。
-example 側は `@capture_native.read_capture_config()` で読み、
-`@capture.encode_rgba8_png` で PNG にして `@capture_native.write_capture_artifacts` で書く。
+`just capture` は `scripts/stage-capture-config.mjs` で config を置き、native で 1 回走らせる。
+`@engine.run` がこれを読む。`backend=cpu`（既定）は CPU ラスタライザ、`backend=gpu` は
+実 wgpu。3D は CPU では `skipped_commands` で abort するので gpu を使う。
+example は `mizchi/native_runtime_hooks` を import している必要がある（gpu の readback）。
 
 | API | 用途 |
 |---|---|
@@ -141,13 +145,9 @@ example 側は `@capture_native.read_capture_config()` で読み、
 | `@capture_native.read_capture_config()` | 設定ファイルの読み込み（native） |
 | `@capture_native.write_capture_artifacts(...)` | 3 つの artifact 書き出し（native） |
 
-**まだ 2D UI example に native capture の配線は入っていません。** 現在の利用者は
-3D authoring example と `examples/smoke/native_vrt`（baseline を PNG 化済み）。
-`snapshot_native.mbt` は現状 no-op。
-
-2D の UI については native を待つ必要はもう無く、**1.5 の CPU レンダリングのほうが速くて
-移植性も高い**（GPU も wgpu-native も要らない）。native capture が要るのは、CPU
-ラスタライザが描かない 3D と、実 GPU パイプラインそのものを見たいときだけ。
+2D UI は `just ui-capture`（CPU、JS headless と snapshot 一致を検査済み）。3D と実 GPU
+パイプラインは `just capture <example> output/capture "--backend gpu"`。CPU ラスタライザが
+描かない 3D コマンドは gpu 側で描いて PNG にする。
 
 ---
 
@@ -155,6 +155,7 @@ example 側は `@capture_native.read_capture_config()` で読み、
 
 ```sh
 just ui-check output/ui-snapshot.json
+just ui-check output/ui-snapshot.json "--image output/frames/ui_demo/ui_demo.png"
 ```
 
 ```
@@ -171,6 +172,7 @@ verdict: DEFECTS
 [protrusion] button_1: extends past the screen edge (right 20px)
 [hit-box-mismatch] button_1: hit rect (16,56) 184x36 differs from drawn rect (620,56) 40x36 by 604px
 [child-escape] button_1: escapes parent panel_7 unclipped (right 108px)
+[low-contrast-text] hp_label: contrast 1.82:1 < 4.5:1 floor (fg #777777 on bg #ffffff, 12px)
 ```
 
 ### 検出する欠陥
@@ -186,6 +188,7 @@ verdict: DEFECTS
 | `text-collision` | 同 z のテキストノード同士が重なる |
 | `hit-box-mismatch` | hit 矩形が描画矩形とずれている |
 | `child-escape` | クリップされずに親からはみ出している |
+| `low-contrast-text` | フレーム PNG から切ったテキストの前景/背景が WCAG AA 未満（通常 4.5:1、24px 以上は 3:1） |
 
 ### 誤検知を避けている箇所
 
@@ -208,7 +211,30 @@ just ui-check output/ui-snapshot.json "--allow 'protrusion@minimap;意図的に�
 - 許可された finding も `exempted:` として**必ず一覧に出る**
 - **何にもマッチしなかったルールは警告 + exit 1** — 古い suppression 自体が欠陥
 
-その他: `--tolerance <px>`（既定 0.5、サブピクセル誤差の遊び）、`--json`、`--advisory`。
+その他: `--tolerance <px>`（既定 0.5、サブピクセル誤差の遊び）、`--json`、`--advisory`、`--image <png>`（`low-contrast-text`）。
+
+### テキスト / i18n ストレス
+
+DOM の `vlmkit stress i18n` は canvas では空振りするので、スナップショットの文字列を
+膨張してから同じ integrity を回す。
+
+```sh
+just ui-i18n-stress output/ui-snapshot.json
+just ui-i18n-stress output/ui-snapshot.json "--profiles all"
+just ui-i18n-stress output/ui-snapshot.json "--profiles de,digits"
+```
+
+| profile | 何をするか |
+|---|---|
+| `de`（既定） | vlmkit と同じ単語パディング、係数 1.35 |
+| `fullwidth` | ASCII → 全角。セル幅は 2 倍、グリフは HUD アトラスに無い |
+| `rtl` | 同じ長さのアラビア文字 |
+| `emoji` | 末尾に ⚠️ |
+| `digits` | 数値を `9,999,999` / `-99999` に置換 |
+
+再計測は `@renderer2d.dot_text_size` と同じ式。`glyph_pattern` が空白セルを返す
+文字は `[missing-glyph]`。ASCII HUD で `--profiles all` を回すと必ず tofu が出るので、
+CI の既定は `de` だけ。
 
 ---
 
@@ -236,15 +262,27 @@ selectors:
 
 ---
 
-## 5. 素材の入庫ゲート
+## 5. テーマと素材の入庫ゲート
+
+フレームの支配色を `editor/theme.json` のトークン表と突き合わせる。トークンから
+`maxDistance` 以上離れた色はハードコードされたリテラル。使っていないトークンは
+一覧に出すだけで落とさない（hover 色を idle フレームが塗らないのは正常）。
+
+```sh
+just ui-theme-check output/frames/ui_demo/ui_demo.png
+just ui-theme-check output/frames/ui_demo/ui_demo.png examples/demos-2d/ui_demo/editor/theme.json
+```
 
 スプライト / アイコンを UI スロットに入れる**前**に通す。browser 不要の純 PNG 演算。
 
 ```sh
 just ui-asset-check assets/icons/potion.png "--slot 32x32 --expect-transparent --against-bg '#141822'"
+just ui-assets ui_demo
 ```
 
-スロット aspect 適合 / 透過 vs マット背景 / 占有率 / 図地コントラスト / パレット調和を判定。
+`editor/assets.json` の各エントリが 1 回の `check asset`。空リストは成功（スプライトを
+持たない example を落とさない）。スロット aspect 適合 / 透過 vs マット背景 / 占有率 /
+図地コントラスト / パレット調和を判定。
 
 ---
 
@@ -322,12 +360,15 @@ baseline と並べて見て、意図した変更なら `just frame-vrt-update`�
 ## 6. VLM に主観品質を聞く
 
 決定的ゲートで測れるものは**モデルに探させない**。overflow も hit box のズレも
-`ui-integrity-gate` が証明できるので、それを VLM にやらせると再現しないレビューになる。
-モデルに残すのは「測って決まらないもの」— 可読性・コントラスト・視覚的階層・バランス。
+WCAG コントラストも `ui-integrity-gate` が証明できるので、それを VLM にやらせると
+再現しないレビューになる。モデルに残すのは「測って決まらないもの」— 可読性・視覚的階層・
+バランス・crop では見えない知覚的コントラスト。
 
 ```sh
 just vlm-ui-review ui_demo "--frames 3 --dry-run"          # リクエストを組むだけ
+just vlm-ui-review ui_demo "--matrix --dry-run"            # verification.json の全セル
 OPENROUTER_API_KEY=... just vlm-ui-review ui_demo "--frames 3"
+just vlm-ui-daemon-start ui_demo                           # bundle を保持、POST /review
 ```
 
 1 回のコマンドで render → 決定的ゲート → （通れば）VLM → レポートまで進む。
@@ -571,9 +612,9 @@ releaseへの検証用状態の指定が拒否されることも確認する。
 | やりたいこと | 状況 |
 |---|---|
 | 2D フレームの自動キャプチャ | **できる**（1.5）。native 経路 `just capture` は 3D と実 GPU 用 |
-| 3D フレームの browser 抜きキャプチャ | CPU ラスタライザは 2D のみ。native か実ブラウザが要る |
+| 3D フレームの browser 抜きキャプチャ | **できる**（`just capture <example> output/capture "--backend gpu"`）。`@engine.run` が wgpu readback する |
 | VRT の gating 化 | **2D は完了**（5.5、CI が `just frame-vrt` を回している）。3D と実 GPU 経路は [#8](https://github.com/mizchi/kagura/issues/8) のまま |
 | 状態 × 解像度マトリクス | **2D入力レシピの全走査を実装**（9）。JS/nativeで共通baselineを検査。MoonBit初期状態APIも実装済み（9.2、[#13](https://github.com/mizchi/kagura/issues/13)） |
-| i18n ストレス | [#14](https://github.com/mizchi/kagura/issues/14) |
+| i18n ストレス | **実装済み**（`just ui-i18n-stress`）。既定は DE 風の単語膨張。`--profiles all` で全角・RTL・絵文字・桁溢れと missing glyph |
 | 操作性ゲート（フォーカス到達性） | **実装済み**（7）。UIデモの実入力とピクセル変化をCIで検査。他ゲームにはfixtureの追加が必要 |
 | 状態遷移のflipbook | **実装済み**（8）。UIデモのfocus/hoverをCIで検査 |

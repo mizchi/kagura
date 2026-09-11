@@ -1,6 +1,7 @@
 #!/usr/bin/env node
 import { mkdirSync, readFileSync, writeFileSync } from 'node:fs';
 import { resolve } from 'node:path';
+import { PNG } from 'pngjs';
 import { prepareBundle } from './render-frame.mjs';
 import { renderHeadlessFrame } from '../assets/web/kagura-headless-frame.js';
 import { toVlmkitElements } from './ui-snapshot-utils.mjs';
@@ -27,7 +28,7 @@ export async function runFlipbook(example, transition, { build = true, outDir } 
     writeFileSync(`${base}.png`, frame.png);
     writeFileSync(`${base}.snapshot.json`, frame.uiSnapshotJson);
     writeFileSync(`${base}.elements.json`, JSON.stringify(toVlmkitElements(frame.uiSnapshot, { scale: 1 })));
-    findings.push(...analyzeSnapshot(frame.uiSnapshot).findings.map(f => ({ ...f, frame: tick })));
+    findings.push(...analyzeSnapshot(frame.uiSnapshot, { image: PNG.sync.read(frame.png) }).findings.map(f => ({ ...f, frame: tick })));
     const capture = { frame: tick, png: `${base}.png`, elements: `${base}.elements.json` };
     if (captures.length) {
       const diff = diffPng(captures.at(-1).png, capture.png, { elements: capture.elements });

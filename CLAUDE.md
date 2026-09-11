@@ -140,10 +140,17 @@ shard の imbalance は実測 29%（native 7m41s 対 4m46s、js 3m34s 対 2m12s�
 
 ```bash
 just render ui_demo "--frames 3"           # フレームを直接描く（browser も GPU も不要）
+just capture pbr_demo output/capture "--backend gpu"  # native wgpu で 3D フレームを書く
 just ui-check output/ui-snapshot.json      # 文字あふれ/クリップ/画面外/重なり/hit box ずれ
+just ui-check output/ui-snapshot.json "--image frame.png"  # 上記 + WCAG コントラスト
+just ui-i18n-stress output/ui-snapshot.json  # DE 風に文字列膨張 → overflow / missing glyph
 just ui-elements output/ui-snapshot.json   # vlmkit diff png --elements-json 用に変換
 just ui-asset-check <png>                  # スプライト/アイコンの入庫ゲート
+just ui-theme-check <png>                  # フレームパレット vs editor/theme.json
+just ui-assets ui_demo                     # editor/assets.json の全素材
 just vlm-ui-review ui_demo "--dry-run"     # 決定的ゲート → その後だけ VLM
+just vlm-ui-review ui_demo "--matrix --dry-run"
+just vlm-ui-daemon-start ui_demo
 ```
 
 手順とルールの詳細は `docs/tools/ui-verification-runbook.md`。

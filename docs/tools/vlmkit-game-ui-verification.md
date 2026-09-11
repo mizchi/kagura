@@ -18,12 +18,13 @@
 |---|---|---|
 | #11 | **完了** | `@mizchi/vlmkit` を devDependency に追加、playwright を 1.62 に bump、`.mcp.json` |
 | #10 | **完了** | `engine/ui/snapshot.mbt`（`UISnapshot` + `to_json`）、`snapshot_publish_js.mbt`（`__kaguraUISnapshot`）、`scripts/ui-snapshot-to-vlmkit-elements.mjs`、`examples/demos-2d/ui_demo` で実配線 |
-| #12 | **完了** | `scripts/ui-integrity-gate.mjs` + `ui-integrity-utils.mjs`（9 種の欠陥、`--allow` 監査付き）、`just ui-check` |
-| #18 | **一部** | `just ui-asset-check`（素材入庫ゲート）。テーマ/パレット突き合わせはトークン表の宣言が未 |
-| #9 | **完了（2D）** | CPU ラスタライザ（`engine/kagura_engine/raster`）+ `@engine.run` の headless 経路 + `assets/web/kagura-headless-frame.js` + `just render`。browser も GPU も Playwright も要らない。3D は native capture のまま |
-| #16 | **完了（2D UI）** | `scripts/vlm-ui-review.mjs` + `just vlm-ui-review`。決定的ゲート → VLM の順序を強制、`--compare` で修正の帰属確認 |
+| #12 | **完了** | `scripts/ui-integrity-gate.mjs` + `ui-integrity-utils.mjs`（幾何 9 種 + PNG 由来の `low-contrast-text`、`--allow` 監査付き）、`just ui-check --image` |
+| #18 | **完了（ui_demo）** | `editor/theme.json` + `just ui-theme-check`、`editor/assets.json` + `just ui-assets`。CI が standard セルのパレットと空の素材リストを回す |
+| #9 | **完了** | 2D は CPU raster（`just render` / `just ui-capture`）。3D と実 GPU は `@engine.run` の `backend=gpu`（`just capture pbr_demo output/capture "--backend gpu"`） |
+| #16 | **完了（2D UI）** | `just vlm-ui-review` / `--matrix` / `just vlm-ui-daemon-start`。決定的ゲート → VLM、`--compare` で修正の帰属確認 |
 | #8 | **2D は完了** | `scripts/frame-vrt.mjs` + `just frame-vrt`。CPU レンダリングは決定的なので閾値ゼロで gate でき、CI の js job が回している。baseline 13 枚（`e2e/frame-vrt-snapshots/`）。3D と実 GPU 経路は Playwright VRT のまま非 gating |
-| #13 #14 #15 #17 | 未着手 | 状態マトリクスの全走査・i18n・操作性・flipbook |
+| #13 #15 #17 | **完了** | 状態マトリクス・操作性・flipbook |
+| #14 | **一部** | `just ui-i18n-stress`（スナップショット文字列の膨張 + 3x5 HUD の missing glyph）。実フォントアトラスの失敗 publish は未 |
 
 **2.2 で「リポジトリに入っている見た目の正解は実質存在しない」と書いた前提は解けた。**
 `just render ui_demo` は 6 色・980 三角形の実フレームを返す（当時の baseline は 1 色・純黒）。

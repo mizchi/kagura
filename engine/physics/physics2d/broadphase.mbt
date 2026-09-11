@@ -40,6 +40,10 @@ pub struct SpatialHashGrid2D {
   mut pair_count : Int
   mut pair_slots : FixedArray[Int]
   mut pair_slot_mask : Int
+  /// `get_pairs_into`'s output columns, pooled across calls. Distinct from the
+  /// dedupe table above, which also holds pairs whose AABB test then failed.
+  pair_id_a : Array[Int]
+  pair_id_b : Array[Int]
 }
 
 ///|
@@ -62,6 +66,8 @@ pub fn SpatialHashGrid2D::new(cell_size : Double) -> SpatialHashGrid2D {
     pair_count: 0,
     pair_slots: FixedArray::make(initial_slot_capacity2d, 0),
     pair_slot_mask: initial_slot_capacity2d - 1,
+    pair_id_a: [],
+    pair_id_b: [],
   }
 }
 

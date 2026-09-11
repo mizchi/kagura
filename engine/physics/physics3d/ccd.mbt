@@ -141,13 +141,25 @@ pub fn sweep_sphere_aabb(
 }
 
 ///|
+/// Sweep a bullet body against every other body, returning the earliest time of
+/// impact in `[0, 1]`.
+///
+/// Velocities come from `vel`, not from the bodies: during the substep loop the
+/// bodies' own velocity fields are a substep stale (see `PhysicsWorld::step`).
+/// Positions still come from the bodies, and are read as the loop has mutated
+/// them so far, which is the behaviour this had before the buffer existed.
 pub fn ccd_sweep_body3d(
   bullet_idx : Int,
   bodies : Array[RigidBody],
+  vel : VelocityState3D,
   dt : Double,
 ) -> Double? {
   let bullet = bodies[bullet_idx]
-  let displacement = bullet.velocity.scale(dt)
+  let displacement = @math3d.Vec3::new(
+    vel.vx[bullet_idx] * dt,
+    vel.vy[bullet_idx] * dt,
+    vel.vz[bullet_idx] * dt,
+  )
   let speed = displacement.length()
   let bullet_radius = match bullet.collider {
     SphereShape(_, r) => r
@@ -162,7 +174,11 @@ pub fn ccd_sweep_body3d(
       // skip self
     } else {
       let other = bodies[i]
-      let other_vel = other.velocity.scale(dt)
+      let other_vel = @math3d.Vec3::new(
+        vel.vx[i] * dt,
+        vel.vy[i] * dt,
+        vel.vz[i] * dt,
+      )
       let toi : Double? = match (bullet.collider, other.collider) {
         (SphereShape(off_a, r_a), SphereShape(off_b, r_b)) =>
           sweep_sphere_sphere(

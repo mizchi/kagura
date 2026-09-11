@@ -308,6 +308,7 @@ fn solve_constraint2d(
   ci : Int,
   bodies : Array[RigidBody2D],
   vel : VelocityState2D,
+  use_bias : Bool,
 ) -> Unit {
   let c = constraints[ci]
   let ia = c.idx_a
@@ -330,7 +331,7 @@ fn solve_constraint2d(
   let dy = b.position.y + r_b.y - (a.position.y + r_a.y)
   let separation = dx * nx + dy * ny - c.contact.penetration
   // Bias: push apart when overlapping beyond slop
-  let bias = if separation + slop < 0.0 {
+  let bias = if use_bias && separation + slop < 0.0 {
     -c.bias_coefficient * (separation + slop)
   } else {
     0.0
@@ -354,8 +355,30 @@ fn solve_constraint2d(
   let vby = bvy + bw * r_b.x
   // --- Normal impulse ---
   let v_n = (vax - vbx) * nx + (vay - vby) * ny
-  let lambda = -(v_n + c.restitution_bias + bias + c.gamma * c.acc_jn) *
-    c.normal_mass
+  // On a relax pass the constraint is rigid: no bias to push overlap out, no
+  // softness term, and no restitution -- restitution is energy the biased pass
+  // already accounted for, and re-adding it here would defeat the point.
+  let lambda = if use_bias {
+    -(v_n + c.restitution_bias + bias + c.gamma * c.acc_jn) * c.normal_mass
+  } else {
+    // The rigid effective mass, recomputed here rather than stored on the
+    // constraint. Storing it measured the same (25.1-25.5 us against
+    // 25.2-25.9 us on `phase_save_contact_cache_pile_256`), so this is a design
+    // choice and not a measured win: relaxation is off by default, and the
+    // default path should not carry a field for it. Same expression
+    // `precompute_constraint2d` uses for `k_normal`, so the value is the same.
+    let r_a_cross_n = r_a.x * ny - r_a.y * nx
+    let r_b_cross_n = r_b.x * ny - r_b.y * nx
+    let k_normal = a_inv_mass +
+      b_inv_mass +
+      r_a_cross_n * r_a_cross_n * a_inv_inertia +
+      r_b_cross_n * r_b_cross_n * b_inv_inertia
+    if k_normal > 1.0e-12 {
+      -v_n * (1.0 / k_normal)
+    } else {
+      0.0
+    }
+  }
   let new_acc_jn = {
     let raw = c.acc_jn + lambda
     if raw > 0.0 {
@@ -424,62 +447,4 @@ fn solve_constraint2d(
   // rebuilding the constraint: that was one struct per constraint per iteration.
   constraints[ci].acc_jn = cur_acc_jn
   constraints[ci].acc_jt = cur_acc_jt
-}
-
-///|
-/// TGS relaxation pass: removes excess energy by solving with bias=0, gamma=0.
-fn _solve_relaxation2d(
-  constraints : Array[ContactConstraint2D],
-  ci : Int,
-  bodies : Array[RigidBody2D],
-) -> Unit {
-  let c = constraints[ci]
-  let a = bodies[c.idx_a]
-  let b = bodies[c.idx_b]
-  let n = c.contact.normal
-  // Relative velocity at contact
-  let v_a = a.velocity.add(cross_scalar_vec(a.angular_velocity, c.r_a))
-  let v_b = b.velocity.add(cross_scalar_vec(b.angular_velocity, c.r_b))
-  let v_rel = v_a.sub(v_b)
-  let v_n = v_rel.dot(n)
-  // Relaxation: no bias, no gamma, no restitution
-  let r_a_cross_n = c.r_a.cross(n)
-  let r_b_cross_n = c.r_b.cross(n)
-  let k_normal = a.inv_mass +
-    b.inv_mass +
-    r_a_cross_n * r_a_cross_n * a.inv_inertia +
-    r_b_cross_n * r_b_cross_n * b.inv_inertia
-  if k_normal < 1.0e-12 {
-    return
-  }
-  let unsoftened_mass = 1.0 / k_normal
-  let lambda = -v_n * unsoftened_mass
-  let new_acc_jn = {
-    let raw = c.acc_jn + lambda
-    if raw > 0.0 {
-      0.0
-    } else {
-      raw
-    }
-  }
-  let delta_jn = new_acc_jn - c.acc_jn
-  if delta_jn.abs() > 1.0e-15 {
-    let impulse_n = n.scale(delta_jn)
-    bodies[c.idx_a] = {
-      ..a,
-      velocity: a.velocity.add(impulse_n.scale(a.inv_mass)),
-      angular_velocity: clamp_angular(
-        a.angular_velocity + r_a_cross_n * delta_jn * a.inv_inertia,
-      ),
-    }
-    bodies[c.idx_b] = {
-      ..b,
-      velocity: b.velocity.sub(impulse_n.scale(b.inv_mass)),
-      angular_velocity: clamp_angular(
-        b.angular_velocity - r_b_cross_n * delta_jn * b.inv_inertia,
-      ),
-    }
-  }
-  // Write back accumulated impulse
-  constraints[ci] = { ..c, acc_jn: new_acc_jn, }
 }

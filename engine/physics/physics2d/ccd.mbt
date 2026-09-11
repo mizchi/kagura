@@ -130,13 +130,24 @@ pub fn sweep_circle_aabb(
 ///|
 /// Perform CCD for a bullet body against all other bodies.
 /// Returns the minimum TOI found, or None if no tunnel detected.
+/// Sweep a bullet body against every other body, returning the earliest time of
+/// impact in `[0, 1]`.
+///
+/// Velocities come from `vel`, not from the bodies: during the substep loop the
+/// bodies' own velocity fields are a substep stale (see `PhysicsWorld2D::step`).
+/// Positions still come from the bodies, and are read as the loop has mutated
+/// them so far, which is what this did before the buffer existed.
 pub fn ccd_sweep_body(
   bullet_idx : Int,
   bodies : Array[RigidBody2D],
+  vel : VelocityState2D,
   dt : Double,
 ) -> Double? {
   let bullet = bodies[bullet_idx]
-  let displacement = bullet.velocity.scale(dt)
+  let displacement = @vector.Vec2::new(
+    vel.vx[bullet_idx] * dt,
+    vel.vy[bullet_idx] * dt,
+  )
   let speed = displacement.length()
   // Skip CCD if displacement is small relative to body size
   let bullet_radius = match bullet.collider {
@@ -159,7 +170,7 @@ pub fn ccd_sweep_body(
       // skip self — use a noop instead of continue (MoonBit JS codegen bug)
     } else {
       let other = bodies[i]
-      let other_vel = other.velocity.scale(dt)
+      let other_vel = @vector.Vec2::new(vel.vx[i] * dt, vel.vy[i] * dt)
       let toi : Double? = match (bullet.collider, other.collider) {
         (CircleShape(off_a, r_a), CircleShape(off_b, r_b)) =>
           sweep_circle_circle(

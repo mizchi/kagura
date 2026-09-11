@@ -68,10 +68,13 @@ pub struct SpatialHashGrid {
   mut slots : FixedArray[Int]
   mut slot_mask : Int
   mut mask_scratch : FixedArray[Int]
+  pair_id_a : Array[Int]
+  pair_id_b : Array[Int]
 }
 pub fn SpatialHashGrid::clear(Self) -> Unit
 pub fn SpatialHashGrid::count(Self) -> Int
 pub fn SpatialHashGrid::get_pairs(Self) -> Array[(Int, Int)]
+pub fn SpatialHashGrid::get_pairs_into(Self) -> Int
 pub fn SpatialHashGrid::insert(Self, Int, AABB) -> Unit
 pub fn SpatialHashGrid::new(Double) -> Self
 pub fn SpatialHashGrid::query_aabb(Self, AABB) -> Array[Int]

@@ -39,25 +39,52 @@ pub fn SpatialHashGrid2D::query_aabb(
 /// a fresh `Map[Int64, Unit]` per call. Both orderings are load-bearing: pair
 /// order reaches the solver, and marking a pair seen before its AABB test (so a
 /// rejected pair is not retried from another cell) decides pair membership.
-pub fn SpatialHashGrid2D::get_pairs(
-  self : SpatialHashGrid2D,
-) -> Array[(Int, Int)] {
+/// Returns the pair count; read the pairs as `pair_id_a[p]` / `pair_id_b[p]` for
+/// `p` in `0 ..< count`. `get_pairs` is this plus one heap tuple per pair.
+pub fn SpatialHashGrid2D::get_pairs_into(self : SpatialHashGrid2D) -> Int {
   self.reset_pairs()
-  let result : Array[(Int, Int)] = []
+  let ids_a = self.pair_id_a
+  let ids_b = self.pair_id_b
+  let mut count = 0
   for ci = 0; ci < self.cell_count; ci = ci + 1 {
     let bucket = self.cell_items[ci]
     let bucket_len = bucket.length()
     for i = 0; i < bucket_len; i = i + 1 {
+      // Hoisted: this used to be re-read from `entries` for every `j`.
+      let a = self.entries[bucket[i]]
+      let a_id = a.id
+      let a_aabb = a.aabb
       for j = i + 1; j < bucket_len; j = j + 1 {
-        let a = self.entries[bucket[i]]
         let b = self.entries[bucket[j]]
-        let min_id = if a.id < b.id { a.id } else { b.id }
-        let max_id = if a.id > b.id { a.id } else { b.id }
-        if self.mark_pair(min_id, max_id) && a.aabb.intersects(b.aabb) {
-          result.push((min_id, max_id))
+        let b_id = b.id
+        let min_id = if a_id < b_id { a_id } else { b_id }
+        let max_id = if a_id > b_id { a_id } else { b_id }
+        if self.mark_pair(min_id, max_id) && a_aabb.intersects(b.aabb) {
+          if count < ids_a.length() {
+            ids_a[count] = min_id
+            ids_b[count] = max_id
+          } else {
+            ids_a.push(min_id)
+            ids_b.push(max_id)
+          }
+          count = count + 1
         }
       }
     }
+  }
+  count
+}
+
+///|
+/// Candidate pairs as tuples. Prefer `get_pairs_into` on a hot path: this adds
+/// one heap tuple per pair on top of it.
+pub fn SpatialHashGrid2D::get_pairs(
+  self : SpatialHashGrid2D,
+) -> Array[(Int, Int)] {
+  let count = self.get_pairs_into()
+  let result : Array[(Int, Int)] = Array(capacity=count)
+  for p = 0; p < count; p = p + 1 {
+    result.push((self.pair_id_a[p], self.pair_id_b[p]))
   }
   result
 }

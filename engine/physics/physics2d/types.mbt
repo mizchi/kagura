@@ -70,6 +70,16 @@ pub(all) struct SolverConfig2D {
   velocity_iterations : Int // default 1 per substep
   contact_hertz : Double // default 30.0 Hz
   contact_damping_ratio : Double // default 1.0 (critically damped)
+  /// Extra rigid passes per substep, after positions integrate. Off by default.
+  ///
+  /// The biased pass injects velocity to push overlap out and leaves it in the
+  /// bodies; solving the same constraints with no bias, no softness and no
+  /// restitution takes it back out. This is the relaxation half of Box2D v3's
+  /// Soft Step. Measured in 3D, it halves residual motion on a settled pile and
+  /// costs a whole extra solve pass per substep -- and it does not by itself make
+  /// a pile sleep. Hence the default of 0, which is also what keeps the shipped
+  /// path bit-identical.
+  relax_iterations : Int
 }
 
 ///|
@@ -79,6 +89,7 @@ pub fn SolverConfig2D::default() -> SolverConfig2D {
     velocity_iterations: 1,
     contact_hertz: 30.0,
     contact_damping_ratio: 1.0,
+    relax_iterations: 0,
   }
 }
 

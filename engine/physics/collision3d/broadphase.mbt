@@ -54,6 +54,9 @@ pub struct SpatialHashGrid {
   /// Per-cell overlap masks, reused by `get_pairs` across cells and frames. It
   /// used to allocate one array per occupied cell per frame.
   mut mask_scratch : FixedArray[Int]
+  /// `get_pairs_into`'s output columns, pooled across calls.
+  pair_id_a : Array[Int]
+  pair_id_b : Array[Int]
 }
 
 ///|
@@ -75,6 +78,8 @@ pub fn SpatialHashGrid::new(cell_size : Double) -> SpatialHashGrid {
     slots: FixedArray::make(initial_slot_capacity, 0),
     slot_mask: initial_slot_capacity - 1,
     mask_scratch: FixedArray::make(16, 0),
+    pair_id_a: [],
+    pair_id_b: [],
   }
 }
 

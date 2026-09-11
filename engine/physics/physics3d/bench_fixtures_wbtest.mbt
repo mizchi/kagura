@@ -16,7 +16,7 @@ fn bench_pile_work3d(count : Int) -> (Int, Int) {
   let sub_dt = bench_dt3d / world.solver_config.substeps.to_double()
   let pairs = world.phase_broadphase_pairs()
   let constraints = world.phase_contact_constraints(pairs, sub_dt)
-  (pairs.length(), constraints.length())
+  (pairs, constraints.length())
 }
 
 ///|
@@ -85,7 +85,7 @@ test "bench fixture resting 3d is asleep and still touching the floor" {
   // So this asserts the pairing survives and the solving does not. If a later
   // change makes `step_resting_256` build constraints again, this fails and the
   // benchmark's meaning has changed with it.
-  assert_eq(world.phase_broadphase_pairs().length(), 256)
+  assert_eq(world.phase_broadphase_pairs(), 256)
   assert_eq(
     world
     .phase_contact_constraints(world.phase_broadphase_pairs(), sub_dt)
@@ -207,12 +207,16 @@ test "bench fixture 3d reset keeps the solver doing work" {
   for pass = 0; pass < 2; pass = pass + 1 {
     fixture.reset()
     bench_restore_constraints3d(constraints, template)
+    let vel = world.velocity_state
+    vel.load(world.bodies)
     world.phase_solve_velocities(
       constraints,
       [],
       [],
+      vel,
       config.velocity_iterations,
     )
+    vel.store(world.bodies)
     let mut moved = 0
     for i = 0; i < fixture.snapshot.length(); i = i + 1 {
       if world.bodies[i].velocity.y != fixture.snapshot[i].velocity.y {

@@ -187,11 +187,13 @@ bench:
     moon bench --target {{target}}
     for dir in examples/*/*/ editor/modeling3d/examples/*/ editor/effect-studio/examples/*/; do { [ -f "$dir/moon.mod.json" ] || [ -f "$dir/moon.mod" ]; } && (cd "$dir" && moon bench --target {{target}}); done
 
-bench-gate:
-    node scripts/bench-gate.mjs {{target}}
+bench-gate extra="":
+    node scripts/bench-gate.mjs {{target}} {{extra}}
 
-bench-update:
-    node scripts/bench-gate.mjs {{target}} --update
+# Records the median of 3 runs. One run is one sample, and some benchmarks are
+# wider than the gate's own threshold -- see scripts/bench-gate.mjs.
+bench-update extra="--runs 3":
+    node scripts/bench-gate.mjs {{target}} --update {{extra}}
 
 test-update:
     moon test --update --target {{target}}

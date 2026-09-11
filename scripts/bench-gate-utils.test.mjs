@@ -2,10 +2,12 @@ import test from "node:test";
 import assert from "node:assert/strict";
 
 import {
+  aggregateRuns,
   compareToBaseline,
   formatBaseline,
   formatCompareReport,
   parseBaseline,
+  median,
   parseBenchOutput,
   toMicroseconds,
 } from "./bench-gate-utils.mjs";
@@ -60,11 +62,100 @@ test("formatBaseline emits stable sorted JSON with metadata", () => {
     { target: "js", generatedAt: "2026-05-01T00:00:00.000Z" },
   );
   const parsed = JSON.parse(text);
-  assert.equal(parsed.version, 1);
+  assert.equal(parsed.version, 2);
   assert.equal(parsed.target, "js");
   assert.equal(parsed.generatedAt, "2026-05-01T00:00:00.000Z");
+  assert.equal(parsed.runs, 1);
+  assert.equal(parsed.spreads, undefined, "a single run has no spread to record");
   assert.deepEqual(parsed.benchmarks, { a: 100, b: 200.56 });
   assert.equal(Object.keys(parsed.benchmarks)[0], "a", "keys must be alphabetically sorted");
+});
+
+test("formatBaseline records the run count and the observed spread", () => {
+  const text = formatBaseline(
+    [{ name: "a", meanUs: 100, runs: 3, spread: 1.552 }],
+    { target: "js", generatedAt: "2026-05-01T00:00:00.000Z" },
+  );
+  const parsed = JSON.parse(text);
+  assert.equal(parsed.runs, 3);
+  assert.deepEqual(parsed.spreads, { a: 1.552 });
+});
+
+test("aggregateRuns takes the median per benchmark and records the spread", () => {
+  const aggregated = aggregateRuns([
+    [{ name: "a", meanUs: 1260 }, { name: "b", meanUs: 10 }],
+    [{ name: "a", meanUs: 1950 }, { name: "b", meanUs: 11 }],
+    [{ name: "a", meanUs: 1840 }, { name: "b", meanUs: 10.5 }],
+  ]);
+  assert.deepEqual(aggregated.map((e) => e.name), ["a", "b"]);
+  assert.equal(aggregated[0].meanUs, 1840);
+  assert.equal(aggregated[0].runs, 3);
+  assert.equal(Number(aggregated[0].spread.toFixed(3)), 1.548);
+  assert.equal(aggregated[1].meanUs, 10.5);
+});
+
+test("aggregateRuns keeps a benchmark that only some runs reported", () => {
+  const aggregated = aggregateRuns([
+    [{ name: "a", meanUs: 10 }],
+    [{ name: "a", meanUs: 20 }, { name: "new", meanUs: 5 }],
+  ]);
+  assert.equal(aggregated.length, 2);
+  assert.equal(aggregated[1].name, "new");
+  assert.equal(aggregated[1].runs, 1);
+  assert.equal(aggregated[1].spread, 1);
+});
+
+test("median handles even and odd sample counts", () => {
+  assert.equal(median([3, 1, 2]), 2);
+  assert.equal(median([4, 1, 3, 2]), 2.5);
+  assert.throws(() => median([]), /empty/);
+});
+
+test("compareToBaseline downgrades a verdict its own spread cannot resolve", () => {
+  const baseline = parseBaseline(
+    JSON.stringify({
+      version: 2,
+      runs: 5,
+      benchmarks: { "ecs/spawn_10000": 1260, "physics/step": 100 },
+      spreads: { "ecs/spawn_10000": 1.55 },
+    }),
+  );
+  const report = compareToBaseline(
+    [
+      { name: "ecs/spawn_10000", meanUs: 1990, runs: 1, spread: null },
+      { name: "physics/step", meanUs: 200, runs: 1, spread: null },
+    ],
+    baseline,
+  );
+  const noisy = report.entries.find((e) => e.name === "ecs/spawn_10000");
+  assert.equal(noisy.status, "noisy");
+  assert.equal(noisy.suppressed, "regression");
+  assert.equal(noisy.knownSpread, 1.55);
+  assert.equal(report.entries.find((e) => e.name === "physics/step").status, "regression");
+  assert.equal(report.hasNoisy, true);
+  assert.equal(report.hasRegression, true, "the tight benchmark still fails the gate");
+});
+
+test("compareToBaseline reads the spread off the new run too", () => {
+  const baseline = parseBaseline(JSON.stringify({ version: 2, benchmarks: { wide: 100 } }));
+  const report = compareToBaseline(
+    [{ name: "wide", meanUs: 160, runs: 3, spread: 1.8 }],
+    baseline,
+  );
+  assert.equal(report.entries[0].status, "noisy");
+  assert.equal(report.hasRegression, false);
+});
+
+test("formatCompareReport explains a noisy verdict", () => {
+  const baseline = parseBaseline(
+    JSON.stringify({ version: 2, benchmarks: { wide: 100 }, spreads: { wide: 1.6 } }),
+  );
+  const text = formatCompareReport(
+    compareToBaseline([{ name: "wide", meanUs: 160 }], baseline),
+  );
+  assert.match(text, /NOISY: wide/);
+  assert.match(text, /would be a regression/);
+  assert.match(text, /1\.60x, wider than the 1\.5x gate/);
 });
 
 test("parseBaseline accepts the legacy flat schema", () => {

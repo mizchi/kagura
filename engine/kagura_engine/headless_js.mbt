@@ -63,13 +63,15 @@ extern "js" fn js_publish_headless_frame(
   skipped_commands : Int,
   drawn_triangles : Int,
   draw_commands : Int,
+  initial_state : String,
 ) -> Unit =
-  #| (width, height, frames, png, skipped_commands, drawn_triangles, draw_commands) => {
+  #| (width, height, frames, png, skipped_commands, drawn_triangles, draw_commands, initial_state) => {
   #|   const bytes = png instanceof Uint8Array
   #|     ? png
   #|     : new Uint8Array(png.buffer ?? png, png.byteOffset ?? 0, png.byteLength ?? png.length);
   #|   globalThis.__kaguraHeadlessFrame = {
   #|     width, height, frames, skipped_commands, drawn_triangles, draw_commands,
+  #|     initial_state: initial_state || null,
   #|     png: bytes,
   #|   };
   #| }
@@ -149,6 +151,12 @@ fn try_run_headless(
   if frames < 0 {
     return false
   }
+  if requested_initial_state() != applied_initial_state.val {
+    js_publish_headless_failure(
+      "Requested initial state was not applied by the game",
+    )
+    return true
+  }
   let input : HeadlessInput = {
     cursor_x: js_headless_double("cursor_x", -1.0),
     cursor_y: js_headless_double("cursor_y", -1.0),
@@ -166,7 +174,7 @@ fn try_run_headless(
     frames~,
     input~,
     input_at=tick => headless_sequence_input(tick, input),
-    textures=collect_headless_textures(),
+    textures_at=collect_headless_textures,
   )
   match headless_frame_png(frame) {
     Some(png) =>
@@ -178,27 +186,12 @@ fn try_run_headless(
         frame.skipped_commands,
         frame.drawn_triangles,
         frame.draw_commands,
+        applied_initial_state.val.or(""),
       )
     None => js_publish_headless_failure("failed to encode the frame as PNG")
   }
   true
 }
-
-///|
-struct HeadlessGamepadStep {
-  id : Int
-  axes : Array[Double]
-  buttons : Array[Int]
-} derive(FromJson)
-
-///|
-struct HeadlessInputStep {
-  cursor_x : Double
-  cursor_y : Double
-  keys : Array[Int]
-  mouse_buttons : Array[Int]
-  gamepads : Array[HeadlessGamepadStep]
-} derive(FromJson)
 
 ///|
 extern "js" fn js_headless_input_step(tick : Int) -> String =
@@ -220,16 +213,25 @@ fn headless_sequence_input(
   let step : HeadlessInputStep = @json.from_json(@json.parse(json)) catch {
     error => abort("Invalid headless input step: " + error.to_string())
   }
-  @core.new_input_snapshot_full(
-    step.cursor_x,
-    step.cursor_y,
-    0.0,
-    0.0,
-    step.keys,
-    step.mouse_buttons,
-    [],
-    step.gamepads.map(pad => {
-      @core.new_gamepad_snapshot(pad.id, pad.axes, pad.buttons)
-    }),
-  )
+  step.to_input()
+}
+
+///|
+pub fn capture_viewport(width : Int, height : Int) -> (Int, Int) {
+  (js_headless_int("width", width), js_headless_int("height", height))
+}
+
+///|
+fn requested_initial_state() -> String? {
+  let name = js_headless_string("initial_state")
+  if name == "" {
+    None
+  } else {
+    Some(name)
+  }
+}
+
+///|
+fn record_initial_state_failure(message : String) -> Unit {
+  js_publish_headless_failure(message)
 }

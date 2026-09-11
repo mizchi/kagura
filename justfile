@@ -251,6 +251,14 @@ ui-interactions example extra="":
 ui-flipbook example transition extra="":
     node scripts/ui-flipbook.mjs {{example}} {{transition}} {{extra}}
 
+# Ensure verification-only initial-state factories are absent from release artifacts.
+check-capture-release target="js":
+    node scripts/check-capture-release.mjs {{target}}
+
+# Capture a declared UI state using the native executable, without a window or GPU.
+ui-capture example state="idle" viewport="standard":
+    node scripts/ui-capture-native.mjs {{example}} {{state}} {{viewport}}
+
 # Verify rich canvas metadata through vlmkit's image-only integrity gate.
 ui-vlmkit-check snapshot image out_dir="output/ui-vlmkit-integrity":
     node scripts/ui-vlmkit-integrity.mjs {{snapshot}} {{image}} {{out_dir}}

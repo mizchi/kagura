@@ -243,3 +243,17 @@ globalThis.__kaguraHeadlessFrame = {
   const frame = await renderHeadlessFrame(bundle, { frames: 1 });
   assert.equal(frame.drawCommands, 0);
 });
+
+test('initial state requests are explicit, validated and cannot be silently ignored', async () => {
+  assert.equal(createHeadlessRequest({ initialState: 'dialog' }).initial_state, 'dialog');
+  for (const initialState of ['', null, '../dialog', 'x'.repeat(129)]) {
+    assert.throws(() => createHeadlessRequest({ initialState }), /initial state/i);
+  }
+  const ignored = writeFakeBundle(`globalThis.__kaguraHeadlessFrame = { png: new Uint8Array(), width: 1, height: 1, frames: 1 };`);
+  await assert.rejects(renderHeadlessFrame(ignored, { initialState: 'dialog' }), /not applied/);
+  const applied = writeFakeBundle(`globalThis.__kaguraHeadlessFrame = { png: new Uint8Array(), width: 1, height: 1, frames: 1, initial_state: globalThis.__kaguraHeadless.initial_state };`);
+  assert.equal((await renderHeadlessFrame(applied, { initialState: 'dialog' })).initialState, 'dialog');
+  const previousDocument = globalThis.document;
+  await assert.rejects(renderHeadlessFrame(applied, { initialState: '' }), /initial state/i);
+  assert.equal(globalThis.document, previousDocument, 'invalid requests must not install a viewport');
+});

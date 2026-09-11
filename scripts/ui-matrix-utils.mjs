@@ -20,15 +20,17 @@ export function matrixCells(manifest) {
   return states.flatMap(([state, recipe]) => {
     if (!name(state) || !Number.isInteger(recipe?.frames) || recipe.frames < 1 || recipe.frames > 600 ||
       (recipe.expectedFocus !== undefined && recipe.expectedFocus !== null && typeof recipe.expectedFocus !== 'string') ||
-      (recipe.expectedState !== undefined && typeof recipe.expectedState !== 'string')) throw Error('Invalid matrix state');
+      (recipe.expectedState !== undefined && typeof recipe.expectedState !== 'string') ||
+      (recipe.initialState !== undefined && (!name(recipe.initialState) || recipe.initialState.length > 128))) throw Error('Invalid matrix state');
     createHeadlessRequest({ inputs: recipe.inputs });
     if (recipe.inputs && recipe.inputs.length > recipe.frames) throw Error('Matrix inputs extend beyond capture');
     return viewports.map(vp => ({ state, name: `${state}.${vp.name}`, width: vp.width, height: vp.height,
-      frames: recipe.frames, inputs: recipe.inputs ?? [], expectedFocus: recipe.expectedFocus, expectedState: recipe.expectedState }));
+      frames: recipe.frames, initialState: recipe.initialState, inputs: recipe.inputs ?? [], expectedFocus: recipe.expectedFocus, expectedState: recipe.expectedState }));
   });
 }
 export function validateMatrixFrame(cell, frame) {
   if (frame.skippedCommands || !frame.uiSnapshot) throw Error('Matrix requires complete 2D rendering and UI snapshots');
+  if ((cell.initialState ?? null) !== (frame.initialState ?? null)) throw Error('Requested initial state was not applied');
   const screen = frame.uiSnapshot.screen;
   if (frame.width !== cell.width || frame.height !== cell.height || frame.frames !== cell.frames ||
     screen.width !== cell.width || screen.height !== cell.height || screen.dpr !== 1) throw Error('Matrix capture and snapshot coordinates do not match the requested viewport');

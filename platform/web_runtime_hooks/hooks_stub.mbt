@@ -153,6 +153,14 @@ fn set_source_image_cache_entry(next_entry : SourceImageCacheEntry) -> Unit {
     next.push(next_entry)
   }
   source_image_cache.val = next
+  @engine.set_headless_texture_provider(() => {
+    source_image_cache.val.map(entry => {
+      id: entry.image_id,
+      width: entry.width,
+      height: entry.height,
+      pixels: entry.pixels_rgba8,
+    })
+  })
 }
 
 ///|

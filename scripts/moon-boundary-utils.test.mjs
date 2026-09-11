@@ -165,3 +165,14 @@ test("module boundary lint rejects imports against dependency direction", () => 
   assert.match(result.errors[1], /example\/game/);
   assert.match(result.errors[1], /example\/root/);
 });
+
+test('generated Moon format packages are not source import boundaries', () => {
+  const root = makeFixtureRepo();
+  try {
+    const dir = path.join(root, 'src', '_build', 'wasm-gc', 'release', 'format');
+    fs.mkdirSync(dir, { recursive: true });
+    fs.writeFileSync(path.join(dir, 'moon.pkg'), 'import { "example/game" }\n');
+    const result = validateModuleImportBoundaries({ repoRoot: root, moduleDirs: fixtureModuleDirs, policy: fixturePolicy });
+    assert.deepEqual(result.errors, []);
+  } finally { fs.rmSync(root, { recursive: true, force: true }); }
+});

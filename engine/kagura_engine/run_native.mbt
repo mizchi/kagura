@@ -17,6 +17,9 @@ pub fn run(
   canvas? : String = "",
 ) -> Unit {
   let _ = canvas
+  if try_run_native_capture(update~, draw~, on_frame?, width~, height~) {
+    return
+  }
   invoke_on_start(canvas, title)
   let platform = @platform.create_desktop_glfw_platform()
   let surface = platform.current_surface() catch {

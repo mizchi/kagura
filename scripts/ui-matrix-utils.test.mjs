@@ -24,3 +24,18 @@ test('a resized PNG without matching layout metadata is not responsive coverage'
   frame.uiSnapshot.nodes = [{ id: 'button_1', focused: true }];
   validateMatrixFrame(cell, frame);
 });
+
+test('initialState is distinct from the artifact label and must actually be applied', () => {
+  const cell = matrixCells({ version: 1, states: { dialog_case: { frames: 1, initialState: 'dialog' } } })[0];
+  assert.equal(cell.state, 'dialog_case');
+  assert.equal(cell.initialState, 'dialog');
+  const frame = { ...cell, skippedCommands: 0, initialState: null, uiSnapshot: {
+    screen: { width: cell.width, height: cell.height, dpr: 1 }, nodes: [],
+  } };
+  assert.throws(() => validateMatrixFrame(cell, frame), /initial state/i);
+  frame.initialState = 'dialog';
+  validateMatrixFrame(cell, frame);
+  for (const initialState of ['', '../a', 1, null]) {
+    assert.throws(() => matrixCells({ version: 1, states: { test: { frames: 1, initialState } } }));
+  }
+});

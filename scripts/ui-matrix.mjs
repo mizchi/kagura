@@ -9,11 +9,15 @@ import { matrixCells, validateMatrixFrame } from './ui-matrix-utils.mjs';
 import { checkImageIntegrity } from './ui-vlmkit-integrity.mjs';
 import { blankFrameVerdict, parsePaletteShares } from './frame-vrt-utils.mjs';
 import { diffPng } from './vlmkit-png.mjs';
+import { prepareNativeCapture, renderNativeCapture } from './ui-capture-native.mjs';
 
-export async function runMatrix(example, { build = true, outDir, baselineDir, update = false } = {}) {
-  const { exampleDir, bundlePath } = prepareBundle(example, { build });
+export async function runMatrix(example, { build = true, outDir, baselineDir, update = false, backend = 'js' } = {}) {
+  if (!['js', 'native'].includes(backend)) throw Error('Expected --backend js or native');
+  if (backend === 'native' && update) throw Error('Update the shared baseline with JS, then compare native to it');
+  const prepared = backend === 'native' ? prepareNativeCapture(example, { build }) : prepareBundle(example, { build });
+  const { exampleDir, bundlePath } = prepared;
   const cells = matrixCells(JSON.parse(readFileSync(resolve(exampleDir, 'editor/verification.json'), 'utf8')));
-  const out = outDir ?? resolve(import.meta.dirname, '../output/ui-matrix', example);
+  const out = outDir ?? resolve(import.meta.dirname, backend === 'native' ? '../output/ui-matrix-native' : '../output/ui-matrix', example);
   const baselines = baselineDir ?? resolve(import.meta.dirname, '../e2e/ui-matrix-snapshots', example);
   mkdirSync(out, { recursive: true });
   const results = [];
@@ -21,7 +25,7 @@ export async function runMatrix(example, { build = true, outDir, baselineDir, up
     const dir = resolve(out, cell.name);
     mkdirSync(dir, { recursive: true });
     try {
-      const frame = await renderHeadlessFrame(bundlePath, cell);
+      const frame = backend === 'native' ? renderNativeCapture(prepared, cell) : await renderHeadlessFrame(bundlePath, cell);
       const png = resolve(dir, 'frame.png');
       writeFileSync(png, frame.png);
       if (frame.uiSnapshotJson) writeFileSync(resolve(dir, 'snapshot.json'), frame.uiSnapshotJson);
@@ -52,20 +56,21 @@ export async function runMatrix(example, { build = true, outDir, baselineDir, up
     mkdirSync(baselines, { recursive: true });
     for (const result of results) copyFileSync(result.png, result.baseline);
   }
-  const report = { example, update, updated: update && ok, results, ok };
+  const report = { example, backend, update, updated: update && ok, results, ok };
   writeFileSync(resolve(out, 'report.json'), JSON.stringify(report, null, 2) + '\n');
   return report;
 }
 async function main(args) {
   const example = args.shift();
   if (!example || example === '--help') {
-    console.log('Usage: just ui-matrix <example> ["--update --no-build --out-dir dir --baseline-dir dir"]\nReads states/viewports from editor/verification.json; compares every cell without updating baselines by default.');
+    console.log('Usage: just ui-matrix <example> ["--backend js|native --update --no-build --out-dir dir --baseline-dir dir"]\nReads states/viewports from editor/verification.json; compares every cell without updating baselines by default.');
     return;
   }
   const options = {};
   for (let i = 0; i < args.length; i++) {
     if (args[i] === '--no-build') options.build = false;
     else if (args[i] === '--update') options.update = true;
+    else if (args[i] === '--backend' && args[i + 1]) options.backend = args[++i];
     else if (['--out-dir', '--baseline-dir'].includes(args[i]) && args[i + 1]) {
       options[args[i] === '--out-dir' ? 'outDir' : 'baselineDir'] = resolve(args[++i]);
     } else throw Error(`Unknown or incomplete option: ${args[i]}`);

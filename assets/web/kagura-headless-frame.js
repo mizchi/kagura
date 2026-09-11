@@ -120,8 +120,13 @@ export function createHeadlessRequest({
   cursorY,
   keys = [],
   inputs,
+  initialState,
 } = {}) {
   const request = { frames };
+  if (initialState !== undefined) {
+    if (typeof initialState !== 'string' || !/^[a-zA-Z0-9_-]{1,128}$/.test(initialState)) throw Error('Invalid initial state');
+    request.initial_state = initialState;
+  }
   if (Number(width) > 0) request.width = Math.floor(width);
   if (Number(height) > 0) request.height = Math.floor(height);
   if (Number.isFinite(cursorX)) request.cursor_x = cursorX;
@@ -184,13 +189,14 @@ export async function renderHeadlessFrame(bundlePath, options = {}) {
   if (!existsSync(bundlePath)) {
     throw new Error(`bundle not found: ${bundlePath}`);
   }
+  const request = createHeadlessRequest(options);
   const restore = installHeadlessViewport({
     width: options.width,
     height: options.height,
     devicePixelRatio: options.devicePixelRatio,
   });
   const previousRequest = globalThis.__kaguraHeadless;
-  globalThis.__kaguraHeadless = createHeadlessRequest(options);
+  globalThis.__kaguraHeadless = request;
   globalThis.__kaguraHeadlessFrame = undefined;
   globalThis.__kaguraHeadlessError = undefined;
   globalThis.__kaguraUISnapshot = undefined;
@@ -204,6 +210,9 @@ export async function renderHeadlessFrame(bundlePath, options = {}) {
   try {
     const url = `${pathToFileURL(bundlePath).href}?kagura-headless=${importCounter}`;
     await import(url);
+  } catch (error) {
+    if (globalThis.__kaguraHeadlessError) throw Error(`headless render failed: ${globalThis.__kaguraHeadlessError}`);
+    throw error;
   } finally {
     globalThis.__kaguraHeadless = previousRequest;
     restore();
@@ -220,10 +229,12 @@ export async function renderHeadlessFrame(bundlePath, options = {}) {
         : "the bundle did not publish a frame -- it may not call @engine.run / @engine.run_game",
     );
   }
+  if ((frame.initial_state ?? null) !== (options.initialState ?? null)) throw Error('Requested initial state was not applied');
   const snapshot = globalThis.__kaguraUISnapshot;
   const textureCount = globalThis.__kaguraSourceImages?.length ?? 0;
   return {
     textureCount,
+    initialState: frame.initial_state ?? null,
     png: Buffer.from(frame.png),
     width: frame.width,
     height: frame.height,

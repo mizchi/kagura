@@ -3,14 +3,21 @@
   "maxDistance": 16,
   "minShare": 0.002,
   "tokens": [
+    "#1a1a2e",
     "#1c1c2c",
+    "#1e6b32",
+    "#2a2a3e",
     "#2c2c3c",
+    "#333350",
     "#343454",
+    "#4a4a6a",
     "#4c4c6c",
     "#5464ac",
+    "#5566aa",
+    "#6a6a9a",
     "#8c8c8c",
-    "#1e6b32",
     "#fcfc04",
-    "#fcfcfc"
+    "#fcfcfc",
+    "#ffff00"
   ]
 }

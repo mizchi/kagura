@@ -1,5 +1,11 @@
 import {
   "mizchi/atlas",
+  "moonbitlang/core/encoding/utf8",
 }
 
 warnings = "-6-29-53-68"
+
+options(
+  "native-stub": [ "io_native.c" ],
+  targets: { "io_native.mbt": [ "native" ] },
+)

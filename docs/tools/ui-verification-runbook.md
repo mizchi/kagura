@@ -432,7 +432,7 @@ UIデモのfocusは次の定義。
 出力は `output/ui-flipbook/<example>/<transition>/` の連番PNG、snapshot、elements、
 各比較のdiff JSON、全体の `report.json`。状態遷移中に飛び出すUIもフレーム番号付きで
 報告する。欠陥はexit 1、検証不能はexit 2。現在のCLIは2D CPUキャプチャを使う。
-3Dや実GPU、nativeキャプチャのマトリクス統合は別途必要。
+3Dや実GPUのマトリクス統合は別途必要。native CPUマトリクスは9.1を参照。
 
 ## 9. 画像版integrityと状態×解像度マトリクス
 
@@ -460,7 +460,7 @@ kaguraの幾何・hit矩形ゲートを両方実行する。ゼロサイズは�
 状態名は再現する入力レシピのID。任意のゲーム状態を文字列から自動生成するものではない。
 `expectedState` で実際のsnapshot状態名、`expectedFocus` で実際の選択対象を検証できる。
 ゲーム固有のメニュー・ポーズ等も入力列で到達させる。初期状態を直接セットアップする
-MoonBit APIとnative captureとの共通化は引き続き #13 の残作業。
+MoonBit APIは引き続き #13 の残作業。入力レシピのnative共通化は9.1で対応。
 
 既定のviewportは640×360、640×480、360×640、840×360。`viewports` 配列に
 `{"name":"small","width":320,"height":240}` の形式で指定すれば置き換えられる。
@@ -477,6 +477,39 @@ integrityレポート、diff JSONと全体の `report.json`。
 baselineは `e2e/ui-matrix-snapshots/<example>/`。3Dコマンドを含む描画、snapshot欠落、
 要求した画像サイズとUI座標の不一致は失敗し、次のセルの検査は続ける。
 
+### 9.1 native CPU capture
+
+```sh
+just ui-capture ui_demo focus portrait
+just ui-matrix ui_demo "--backend native"
+node scripts/ui-capture-native.integration.mjs
+```
+
+`ui-capture` は `editor/verification.json` の状態とviewportを選び、native実行ファイルから
+PNGとUI snapshotを取得する。出力は `output/ui-capture/<example>/<state>.<viewport>/`。
+`ui-matrix --backend native` は同じ12セルに同じintegrityゲートをかけ、**JSと共通のbaseline**
+に差分ゼロを要求する。native専用の画像への貼り直しは許可しない。
+レポートは `output/ui-matrix-native/<example>/` に出る。macOS CIで継続検証する。
+
+各キャプチャは独立した子プロセスで実行する。一時ディレクトリ内の設定ファイルを
+`KAGURA_CAPTURE_CONFIG` で渡すので、ゲームのディレクトリにある既存の設定を書き換えない。
+設定ファイルの3出力パスは従来の形式を維持し、`request_path` にJSONの入力列と画面サイズを
+記述する。環境変数が無い場合は従来の `kagura_native_capture_config.txt` も読める。
+明示した設定の欠落・不正はエラー終了し、ウィンドウの起動にフォールバックしない。
+
+他ゲームの接続は次の契約を使う。
+
+- 状態を構築する前に `@engine.capture_viewport(default_width, default_height)` を呼び、そのサイズでUIをレイアウトする。JS/native共通。
+- JSのsnapshot adapterは従来の `@ui.publish_ui_snapshot(snapshot)`。
+- nativeのsnapshot adapterは `@engine.publish_capture_context(snapshot.to_json())`。同じ更新・描画時点で呼ぶ。UIモジュールからengineへの依存は追加しない。
+- `@engine.run` / `run_game` がcapture設定を検出すると、ウィンドウ・音声・GPUを初期化する前に既存の `update` / `draw` をCPUで実行して終了する。
+- テクスチャはruntime adapterが `set_headless_texture_provider` でCPUコピーを渡す。`web_runtime_hooks` のnative adapterは対応済み。独自adapterで未登録の画像を使うとエラーになる。
+
+UIデモのPNGだけでなくクリック後のsnapshot全体、sprite_animのテクスチャ描画、日本語パス、
+設定エラー時の終了をintegration scriptで確認する。描画中に更新されたテクスチャも最終draw後に取得する。
+これは**nativeコンパイルしたゲームをCPUラスタライズする経路**であり、Metal/WebGPUの反射・シェーダー・3D描画の一致を保証する検査ではない。
+3Dコマンドや未登録テクスチャは欠けた画像を成功扱いせず失敗する。
+
 ## 10. 残る作業
 
 | やりたいこと | 状況 |
@@ -484,7 +517,7 @@ baselineは `e2e/ui-matrix-snapshots/<example>/`。3Dコマンドを含む描画
 | 2D フレームの自動キャプチャ | **できる**（1.5）。native 経路 `just capture` は 3D と実 GPU 用 |
 | 3D フレームの browser 抜きキャプチャ | CPU ラスタライザは 2D のみ。native か実ブラウザが要る |
 | VRT の gating 化 | **2D は完了**（5.5、CI が `just frame-vrt` を回している）。3D と実 GPU 経路は [#8](https://github.com/mizchi/kagura/issues/8) のまま |
-| 状態 × 解像度マトリクス | **2D入力レシピの全走査を実装**（9）。MoonBit初期状態APIとnative共通化は [#13](https://github.com/mizchi/kagura/issues/13) |
+| 状態 × 解像度マトリクス | **2D入力レシピの全走査を実装**（9）。JS/nativeで共通baselineを検査。MoonBit初期状態APIは [#13](https://github.com/mizchi/kagura/issues/13) |
 | i18n ストレス | [#14](https://github.com/mizchi/kagura/issues/14) |
 | 操作性ゲート（フォーカス到達性） | **実装済み**（7）。UIデモの実入力とピクセル変化をCIで検査。他ゲームにはfixtureの追加が必要 |
 | 状態遷移のflipbook | **実装済み**（8）。UIデモのfocus/hoverをCIで検査 |

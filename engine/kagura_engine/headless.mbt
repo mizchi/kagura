@@ -79,6 +79,7 @@ pub fn render_headless_frame(
   input_at? : (Int) -> @core.InputSnapshot,
   on_frame? : () -> Unit,
   textures? : Array[HeadlessTexture],
+  textures_at? : () -> Array[HeadlessTexture],
   clear_color? : @gfx.Color,
 ) -> HeadlessFrame {
   let target = @raster.RasterTarget::new(width, height)
@@ -119,6 +120,16 @@ pub fn render_headless_frame(
     }
   }
   let cmds = draw(ctx)
+  if textures_at is Some(read) {
+    for texture in read() {
+      target.register_texture(
+        texture.id,
+        texture.width,
+        texture.height,
+        texture.pixels,
+      )
+    }
+  }
   let color = match clear_color {
     Some(c) => c
     None => @gfx.new_color(0.0, 0.0, 0.0, 1.0)
@@ -192,4 +203,15 @@ pub fn parse_headless_keys(text : String) -> Array[Int] {
 /// buffer.
 pub fn headless_frame_png(frame : HeadlessFrame) -> Bytes? {
   @capture.encode_rgba8_png(frame.width, frame.height, frame.pixels)
+}
+
+///|
+let headless_texture_provider : Ref[() -> Array[HeadlessTexture]] = Ref(() => [])
+
+///|
+/// Runtime adapters provide the current CPU copies, including updates made this tick.
+pub fn set_headless_texture_provider(
+  provider : () -> Array[HeadlessTexture],
+) -> Unit {
+  headless_texture_provider.val = provider
 }

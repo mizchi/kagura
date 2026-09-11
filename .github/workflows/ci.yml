@@ -286,6 +286,9 @@ jobs:
       - uses: actions/setup-node@v4
         with:
           node-version: "24"
+      - uses: pnpm/action-setup@v4
+      - name: Install verification tools
+        run: pnpm install --frozen-lockfile
       - name: Update MoonBit registry
         run: moon update
       - name: Setup wgpu-native and glfw
@@ -299,6 +302,10 @@ jobs:
         run: moon check --deny-warn --target native
       - name: Test
         run: moon test --target native
+      - name: Native UI capture contracts
+        run: node scripts/ui-capture-native.integration.mjs
+      - name: Native UI matrix against shared JS baselines
+        run: node scripts/ui-matrix.mjs ui_demo --backend native --no-build
       - name: Runtime Smoke Build (Native)
         run: cd examples/smoke/runtime_smoke_native && moon build . --target native
       - name: Build Native Triangle

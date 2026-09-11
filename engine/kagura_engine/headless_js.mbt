@@ -166,7 +166,7 @@ fn try_run_headless(
     frames~,
     input~,
     input_at=tick => headless_sequence_input(tick, input),
-    textures=collect_headless_textures(),
+    textures_at=collect_headless_textures,
   )
   match headless_frame_png(frame) {
     Some(png) =>
@@ -183,22 +183,6 @@ fn try_run_headless(
   }
   true
 }
-
-///|
-struct HeadlessGamepadStep {
-  id : Int
-  axes : Array[Double]
-  buttons : Array[Int]
-} derive(FromJson)
-
-///|
-struct HeadlessInputStep {
-  cursor_x : Double
-  cursor_y : Double
-  keys : Array[Int]
-  mouse_buttons : Array[Int]
-  gamepads : Array[HeadlessGamepadStep]
-} derive(FromJson)
 
 ///|
 extern "js" fn js_headless_input_step(tick : Int) -> String =
@@ -220,16 +204,10 @@ fn headless_sequence_input(
   let step : HeadlessInputStep = @json.from_json(@json.parse(json)) catch {
     error => abort("Invalid headless input step: " + error.to_string())
   }
-  @core.new_input_snapshot_full(
-    step.cursor_x,
-    step.cursor_y,
-    0.0,
-    0.0,
-    step.keys,
-    step.mouse_buttons,
-    [],
-    step.gamepads.map(pad => {
-      @core.new_gamepad_snapshot(pad.id, pad.axes, pad.buttons)
-    }),
-  )
+  step.to_input()
+}
+
+///|
+pub fn capture_viewport(width : Int, height : Int) -> (Int, Int) {
+  (js_headless_int("width", width), js_headless_int("height", height))
 }

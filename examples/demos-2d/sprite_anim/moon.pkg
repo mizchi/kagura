@@ -9,6 +9,15 @@ import {
 
 warnings = "-1-2-29"
 
-supported_targets = "js"
+supported_targets = "js+native"
 
 pkgtype(kind: "executable")
+
+options(
+  link: {
+    "native": {
+      "cc": "${build.KAGURA_NATIVE_CC}",
+      "cc-link-flags": "-L${build.KAGURA_NATIVE_WGPU_LIB_DIR} -lwgpu_native ${build.KAGURA_NATIVE_GLFW_LIBS} ${build.KAGURA_NATIVE_WGPU_RPATH} ${build.KAGURA_NATIVE_PLATFORM_LIBS}",
+    },
+  },
+)

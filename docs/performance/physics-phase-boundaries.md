@@ -186,6 +186,22 @@ sleep 判定そのもの（`|v| < 0.5` と `|w| < 0.2` の 2 閾値）は**触�
 （[physics-followups.md](./physics-followups.md) の 1）。だから既定は 0 のままで、
 「2D にも同じ実装がある」ことだけを揃えた。
 
+## 7. bench-gate を中央値にした
+
+`scripts/bench-gate.mjs` は 1 回の run を baseline に記録し、1 回の run と比べていた。
+2 周目で見つけたとおり `ecs/spawn_10000` は同じコードで 1.55x 揺れるので、
+**閾値 1.5x と区別できない**。
+
+- `--runs N` で N 回回して bench ごとの**中央値**を取る
+- baseline に `runs` と bench ごとの `spread`（中央値が何倍の幅で揺れたか）を記録する
+  （schema version 2。version 1 と legacy flat も読める）
+- **自分の幅が閾値より広い bench は判定できない**ので、`REGRESSION` ではなく `NOISY` として
+  幅を添えて報告し、落とさない。閾値より狭い bench は従来どおり落とす
+- `just bench-update` は既定で 3 回の中央値を記録する
+
+ノイズで落ちるゲートは全員に無視されるようになり、黙って通るゲートは本物の regression を
+隠す。どちらでもない third option がこれ: **測れないことを測れないと言う。**
+
 ## 8. 説明できていない 2.5 µs（`phase_save_contact_cache_pile_256`）
 
 2D のこの bench だけ **23.0 → 25.5 µs（0.90x）で分離している**。`phase_save_contact_cache`
@@ -203,22 +219,6 @@ sleep 判定そのもの（`|v| < 0.5` と `|w| < 0.2` の 2 閾値）は**触�
 
 外したフィールドは戻していない ── 戻す理由が「計測で速い」ではなくなったので、
 既定オフの機能のために既定経路の struct を広げない方を選んだ。
-
-## 7. bench-gate を中央値にした
-
-`scripts/bench-gate.mjs` は 1 回の run を baseline に記録し、1 回の run と比べていた。
-2 周目で見つけたとおり `ecs/spawn_10000` は同じコードで 1.55x 揺れるので、
-**閾値 1.5x と区別できない**。
-
-- `--runs N` で N 回回して bench ごとの**中央値**を取る
-- baseline に `runs` と bench ごとの `spread`（中央値が何倍の幅で揺れたか）を記録する
-  （schema version 2。version 1 と legacy flat も読める）
-- **自分の幅が閾値より広い bench は判定できない**ので、`REGRESSION` ではなく `NOISY` として
-  幅を添えて報告し、落とさない。閾値より狭い bench は従来どおり落とす
-- `just bench-update` は既定で 3 回の中央値を記録する
-
-ノイズで落ちるゲートは全員に無視されるようになり、黙って通るゲートは本物の regression を
-隠す。どちらでもない third option がこれ: **測れないことを測れないと言う。**
 
 ## 検証
 

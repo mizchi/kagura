@@ -74,47 +74,58 @@ pub fn precompute_distance_joint(
 }
 
 ///|
+/// Velocities come from `vel`, not the bodies: the joints share the solve pass
+/// with the contacts, so they share its working set. See `velocity_state.mbt`.
 pub fn solve_distance_joint(
   constraints : Array[DistanceJointConstraint2D],
   ci : Int,
   bodies : Array[RigidBody2D],
   joint : DistanceJoint2D,
+  vel : VelocityState2D,
 ) -> Unit {
   let c = constraints[ci]
-  let a = bodies[c.idx_a]
-  let b = bodies[c.idx_b]
+  let ia = c.idx_a
+  let ib = c.idx_b
+  let a = bodies[ia]
+  let b = bodies[ib]
+  let r_a = c.r_a
+  let r_b = c.r_b
+  let axis = c.axis
   // Recompute current separation
-  let world_a = a.position.add(c.r_a)
-  let world_b = b.position.add(c.r_b)
+  let world_a = a.position.add(r_a)
+  let world_b = b.position.add(r_b)
   let delta = world_b.sub(world_a)
-  let current_length = delta.dot(c.axis)
+  let current_length = delta.dot(axis)
   let error = current_length - joint.rest_length
   let bias = c.bias_coefficient * error
   // Relative velocity along axis
-  let r_a_perp = @vector.Vec2::new(-c.r_a.y, c.r_a.x)
-  let r_b_perp = @vector.Vec2::new(-c.r_b.y, c.r_b.x)
-  let v_a = a.velocity.add(r_a_perp.scale(a.angular_velocity))
-  let v_b = b.velocity.add(r_b_perp.scale(b.angular_velocity))
-  let v_rel = v_b.sub(v_a).dot(c.axis)
+  let avx = vel.vx[ia]
+  let avy = vel.vy[ia]
+  let aw = vel.w[ia]
+  let bvx = vel.vx[ib]
+  let bvy = vel.vy[ib]
+  let bw = vel.w[ib]
+  let vax = avx + -r_a.y * aw
+  let vay = avy + r_a.x * aw
+  let vbx = bvx + -r_b.y * bw
+  let vby = bvy + r_b.x * bw
+  let v_rel = (vbx - vax) * axis.x + (vby - vay) * axis.y
   let lambda = -(v_rel + bias + c.gamma * c.acc_impulse) * c.effective_mass
   let new_acc = c.acc_impulse + lambda
   let delta_impulse = new_acc - c.acc_impulse
   if delta_impulse.abs() > 1.0e-15 {
-    let impulse = c.axis.scale(delta_impulse)
-    let r_a_cross = c.r_a.x * c.axis.y - c.r_a.y * c.axis.x
-    let r_b_cross = c.r_b.x * c.axis.y - c.r_b.y * c.axis.x
-    bodies[c.idx_a] = {
-      ..a,
-      velocity: a.velocity.sub(impulse.scale(a.inv_mass)),
-      angular_velocity: a.angular_velocity -
-      r_a_cross * delta_impulse * a.inv_inertia,
-    }
-    bodies[c.idx_b] = {
-      ..b,
-      velocity: b.velocity.add(impulse.scale(b.inv_mass)),
-      angular_velocity: b.angular_velocity +
-      r_b_cross * delta_impulse * b.inv_inertia,
-    }
+    let ix = axis.x * delta_impulse
+    let iy = axis.y * delta_impulse
+    let r_a_cross = r_a.x * axis.y - r_a.y * axis.x
+    let r_b_cross = r_b.x * axis.y - r_b.y * axis.x
+    let a_inv_mass = a.inv_mass
+    let b_inv_mass = b.inv_mass
+    vel.vx[ia] = avx - ix * a_inv_mass
+    vel.vy[ia] = avy - iy * a_inv_mass
+    vel.w[ia] = aw - r_a_cross * delta_impulse * a.inv_inertia
+    vel.vx[ib] = bvx + ix * b_inv_mass
+    vel.vy[ib] = bvy + iy * b_inv_mass
+    vel.w[ib] = bw + r_b_cross * delta_impulse * b.inv_inertia
   }
   constraints[ci] = { ..c, acc_impulse: new_acc, }
 }
@@ -174,51 +185,61 @@ pub fn precompute_revolute_joint(
 }
 
 ///|
+/// See `solve_distance_joint` for why velocities come from `vel`.
 pub fn solve_revolute_joint(
   constraints : Array[RevoluteJointConstraint2D],
   ci : Int,
   bodies : Array[RigidBody2D],
+  vel : VelocityState2D,
 ) -> Unit {
   let c = constraints[ci]
-  let a = bodies[c.idx_a]
-  let b = bodies[c.idx_b]
+  let ia = c.idx_a
+  let ib = c.idx_b
+  let a = bodies[ia]
+  let b = bodies[ib]
+  let r_a = c.r_a
+  let r_b = c.r_b
   // Position error
-  let world_a = a.position.add(c.r_a)
-  let world_b = b.position.add(c.r_b)
+  let world_a = a.position.add(r_a)
+  let world_b = b.position.add(r_b)
   let error = world_b.sub(world_a)
   // Relative velocity at anchor
-  let r_a_perp = @vector.Vec2::new(-c.r_a.y, c.r_a.x)
-  let r_b_perp = @vector.Vec2::new(-c.r_b.y, c.r_b.x)
-  let v_a = a.velocity.add(r_a_perp.scale(a.angular_velocity))
-  let v_b = b.velocity.add(r_b_perp.scale(b.angular_velocity))
-  let v_rel = v_b.sub(v_a)
+  let avx = vel.vx[ia]
+  let avy = vel.vy[ia]
+  let aw = vel.w[ia]
+  let bvx = vel.vx[ib]
+  let bvy = vel.vy[ib]
+  let bw = vel.w[ib]
+  let vax = avx + -r_a.y * aw
+  let vay = avy + r_a.x * aw
+  let vbx = bvx + -r_b.y * bw
+  let vby = bvy + r_b.x * bw
+  let v_rel_x = vbx - vax
+  let v_rel_y = vby - vay
   // X constraint
   let bias_x = c.bias_coefficient * error.x
-  let lambda_x = -(v_rel.x + bias_x + c.gamma * c.acc_impulse_x) *
+  let lambda_x = -(v_rel_x + bias_x + c.gamma * c.acc_impulse_x) *
     c.effective_mass_x
   let new_acc_x = c.acc_impulse_x + lambda_x
   let delta_x = new_acc_x - c.acc_impulse_x
   // Y constraint
   let bias_y = c.bias_coefficient * error.y
-  let lambda_y = -(v_rel.y + bias_y + c.gamma * c.acc_impulse_y) *
+  let lambda_y = -(v_rel_y + bias_y + c.gamma * c.acc_impulse_y) *
     c.effective_mass_y
   let new_acc_y = c.acc_impulse_y + lambda_y
   let delta_y = new_acc_y - c.acc_impulse_y
   if delta_x.abs() > 1.0e-15 || delta_y.abs() > 1.0e-15 {
-    let impulse = @vector.Vec2::new(delta_x, delta_y)
     // Cross products for angular impulse
-    let angular_a = c.r_a.x * impulse.y - c.r_a.y * impulse.x
-    let angular_b = c.r_b.x * impulse.y - c.r_b.y * impulse.x
-    bodies[c.idx_a] = {
-      ..a,
-      velocity: a.velocity.sub(impulse.scale(a.inv_mass)),
-      angular_velocity: a.angular_velocity - angular_a * a.inv_inertia,
-    }
-    bodies[c.idx_b] = {
-      ..b,
-      velocity: b.velocity.add(impulse.scale(b.inv_mass)),
-      angular_velocity: b.angular_velocity + angular_b * b.inv_inertia,
-    }
+    let angular_a = r_a.x * delta_y - r_a.y * delta_x
+    let angular_b = r_b.x * delta_y - r_b.y * delta_x
+    let a_inv_mass = a.inv_mass
+    let b_inv_mass = b.inv_mass
+    vel.vx[ia] = avx - delta_x * a_inv_mass
+    vel.vy[ia] = avy - delta_y * a_inv_mass
+    vel.w[ia] = aw - angular_a * a.inv_inertia
+    vel.vx[ib] = bvx + delta_x * b_inv_mass
+    vel.vy[ib] = bvy + delta_y * b_inv_mass
+    vel.w[ib] = bw + angular_b * b.inv_inertia
   }
   constraints[ci] = { ..c, acc_impulse_x: new_acc_x, acc_impulse_y: new_acc_y, }
 }

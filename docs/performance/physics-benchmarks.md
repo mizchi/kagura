@@ -6,7 +6,10 @@
 
 > **この doc の数字は最適化前の状態である。** この bench を使って 3D 側を最適化した結果と、
 > ここに書いた結論のうち 1 つが誤りだったこと（下記「3D の支配項」）は
-> [physics3d-optimization.md](./physics3d-optimization.md) にある。
+> [physics3d-optimization.md](./physics3d-optimization.md) にある。そこから出た項目を
+> 実測で検証した記録が [physics-followups.md](./physics-followups.md) で、
+> **この doc の「密な pile が寝ない」の説明が誤っていた**ことがそこで分かっている
+> （linear 速度ではなく angular 閾値が原因）。
 
 方法論は [mizchi/pixel-lab](https://github.com/mizchi/pixel-lab) の `benchlib` に倣う。
 pixel-lab の bench 結果はどれも **boundary**（`resident` / `construction-inclusive` /
@@ -89,6 +92,12 @@ contact があるように）ので、その overlap を解消する力で pile 
 薄くなる: 実測で床だけの 256 球 pile は warm 8 フレームで candidate pair 1764 → 354 まで落ちた。
 
 ### 寝ている fixture が pile でない理由
+
+> **⚠️ 以下の説明は誤りだった。** 実測すると 1200 フレーム時点で linear 閾値を落ちる
+> body は 256 体中 0〜1 体で、落ちていたのは angular 閾値（164/256）である。angular の
+> 閾値を body の大きさに合わせた量に直すと 64 球 pile は完全に寝る。詳細は
+> [physics-followups.md](./physics-followups.md) の 1〜3。fixture 自体を単層にした
+> 判断は変わらない（256 球 pile は今も寝ない）。
 
 **この solver では密な pile は寝ない。** 400 フレーム（6.7 秒相当）まで回し、spacing
 0.98〜1.1、damping 0.05〜0.3 で振っても、256 体 pile の最大速度は 1.0〜3.2 units/s に

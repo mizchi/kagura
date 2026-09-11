@@ -76,13 +76,21 @@ test "bench fixture resting 3d is asleep and still touching the floor" {
   assert_eq(sleeping, 256)
   let world = fixture.world
   let sub_dt = bench_dt3d / world.solver_config.substeps.to_double()
-  // ...and only price a *loaded* world if the contacts are still there to be
-  // found.
+  // The broadphase still finds every body/floor pair -- the scene is loaded, not
+  // empty -- but none of them becomes a constraint, because both sides of each
+  // are immovable: one static floor, one sleeping sphere. That skip is the whole
+  // reason a settled scene is cheap, and it is also what stops a settled island
+  // being kicked awake by its own cached impulses.
+  //
+  // So this asserts the pairing survives and the solving does not. If a later
+  // change makes `step_resting_256` build constraints again, this fails and the
+  // benchmark's meaning has changed with it.
+  assert_eq(world.phase_broadphase_pairs().length(), 256)
   assert_eq(
     world
     .phase_contact_constraints(world.phase_broadphase_pairs(), sub_dt)
     .length(),
-    256,
+    0,
   )
 }
 

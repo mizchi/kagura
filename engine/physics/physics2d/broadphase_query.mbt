@@ -11,8 +11,7 @@ pub fn SpatialHashGrid2D::query_aabb(
   let result : Array[Int] = []
   for cx = min_cx; cx <= max_cx; cx = cx + 1 {
     for cy = min_cy; cy <= max_cy; cy = cy + 1 {
-      let key = cell_key2d(cx, cy)
-      match self.cells.get(key) {
+      match self.cell_at(cx, cy) {
         Some(bucket) =>
           for i = 0; i < bucket.length(); i = i + 1 {
             let entry = self.entries[bucket[i]]
@@ -33,30 +32,32 @@ pub fn SpatialHashGrid2D::query_aabb(
 }
 
 ///|
+/// Candidate overlapping pairs, each reported once.
+///
+/// Walks cells in first-touch order -- the order the old `Map[Int64, _]` gave
+/// through `each` -- and dedupes through the grid's pooled pair table instead of
+/// a fresh `Map[Int64, Unit]` per call. Both orderings are load-bearing: pair
+/// order reaches the solver, and marking a pair seen before its AABB test (so a
+/// rejected pair is not retried from another cell) decides pair membership.
 pub fn SpatialHashGrid2D::get_pairs(
   self : SpatialHashGrid2D,
 ) -> Array[(Int, Int)] {
-  let seen : Map[Int64, Unit] = Map([])
+  self.reset_pairs()
   let result : Array[(Int, Int)] = []
-  self.cells.each(fn(_key, bucket) {
-    for i = 0; i < bucket.length(); i = i + 1 {
-      for j = i + 1; j < bucket.length(); j = j + 1 {
+  for ci = 0; ci < self.cell_count; ci = ci + 1 {
+    let bucket = self.cell_items[ci]
+    let bucket_len = bucket.length()
+    for i = 0; i < bucket_len; i = i + 1 {
+      for j = i + 1; j < bucket_len; j = j + 1 {
         let a = self.entries[bucket[i]]
         let b = self.entries[bucket[j]]
         let min_id = if a.id < b.id { a.id } else { b.id }
         let max_id = if a.id > b.id { a.id } else { b.id }
-        let pair_key = (min_id.to_int64() << 32) | max_id.to_int64()
-        match seen.get(pair_key) {
-          Some(_) => ()
-          None => {
-            seen[pair_key] = ()
-            if a.aabb.intersects(b.aabb) {
-              result.push((min_id, max_id))
-            }
-          }
+        if self.mark_pair(min_id, max_id) && a.aabb.intersects(b.aabb) {
+          result.push((min_id, max_id))
         }
       }
     }
-  })
+  }
   result
 }

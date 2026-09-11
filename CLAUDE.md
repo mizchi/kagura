@@ -303,7 +303,9 @@ impulse 書き込みがガードに落ちる。allocation-bound なループで�
 使えるが絶対値として引用してはいけない**（実測で `substep_` 連鎖の 2 倍出た）。
 
 設計・実測・ここから出た作業項目は `docs/performance/physics-benchmarks.md`、
-3D をこの bench で最適化した記録は `docs/performance/physics3d-optimization.md`。
+3D をこの bench で最適化した記録は `docs/performance/physics3d-optimization.md`、
+そこから出た項目を検証した記録（**仮説 3 つが外れている**）は
+`docs/performance/physics-followups.md`。
 
 ### JS ターゲットの割り当てコスト
 
@@ -325,9 +327,20 @@ impulse 書き込みがガードに落ちる。allocation-bound なループで�
   結果は bit 一致する。「だいたい同じ」と bit 一致の差はここだけ
 - native でも同じだけ速くなった（2.07x）。`Int64` が無料の native でも broadphase が
   1.86x になるのは Map と per-cell 配列割り当ても消えたから。**JS 固有の話ではない**
-- 効いたかどうかは**ペア測定**で見ること。このコンテナの run 間分散は
-  `phase_contact_constraints` で ±25% あり、単発では 1.2x が読めない。
-  main と branch を交互に回して中央値を取る（`git worktree add /tmp/x origin/main`）
+- **ただし「割り当てを消す」は万能ではない。** flat な `Array[Double]` に移すと効くが、
+  **フィールド数の多い struct に移すと逆に遅くなる**。実測: constraint の `Vec3`
+  フィールド 7 個を `Double` 21 個に潰して割り当てを 8→1 にしたら phase が 0.83x に
+  なった（34 フィールドの object は 20 フィールド + 3 フィールド × 7 より V8 では高い）
+- 効いたかどうかは**ペア測定 + 分離の判定**で見ること。このコンテナの run 間分散は
+  phase 単位で ±25% ある。main と branch を交互に回して中央値を取り
+  （`git worktree add /tmp/x origin/main`）、**main の全 run と branch の全 run が
+  分離しているか**を必ず併記する。3 回交互で「一貫して 9% 遅い」と読めたものが
+  5 回交互では 1 つの帯に収まった。分離していない比は向きの参考にしかならない
+- **bit 一致は 2 通りで確認する。** solver 出力の fingerprint と、2D では frame VRT の
+  描画バイト。`physics2d_demo` は gating な frame VRT に入っているので、2D 側の
+  最適化は double が 1 bit 変われば落ちる。`vlmkit` が無い環境では
+  `scripts/frame-vrt.mjs` は描画までして diff 段で落ちるので、描画された PNG を
+  `cmp` で baseline と比べれば代用になる（`--threshold 0` より厳しい）
 
 ## wasm ターゲットと moonbitlang/async
 

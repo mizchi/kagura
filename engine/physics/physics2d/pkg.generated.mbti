@@ -38,9 +38,9 @@ pub fn resolve_contact2d(RigidBody2D, RigidBody2D, Contact2D) -> (RigidBody2D, R
 
 pub fn resolve_velocity2d(RigidBody2D, RigidBody2D, Contact2D) -> (RigidBody2D, RigidBody2D)
 
-pub fn solve_distance_joint(Array[DistanceJointConstraint2D], Int, Array[RigidBody2D], DistanceJoint2D) -> Unit
+pub fn solve_distance_joint(Array[DistanceJointConstraint2D], Int, Array[RigidBody2D], DistanceJoint2D, VelocityState2D) -> Unit
 
-pub fn solve_revolute_joint(Array[RevoluteJointConstraint2D], Int, Array[RigidBody2D]) -> Unit
+pub fn solve_revolute_joint(Array[RevoluteJointConstraint2D], Int, Array[RigidBody2D], VelocityState2D) -> Unit
 
 pub fn sweep_circle_aabb(@vector.Vec2, @vector.Vec2, Double, @vector.Vec2, @vector.Vec2) -> Double?
 
@@ -100,6 +100,24 @@ pub fn Contact2D::to_repr(Self) -> @debug.Repr
 pub fn Contact2D::to_string(Self) -> String
 pub impl Show for Contact2D
 
+pub struct ContactCache2D {
+  mut count : Int
+  mut slots : FixedArray[Int]
+  mut slot_mask : Int
+  id_a : Array[Int]
+  id_b : Array[Int]
+  normal_x : Array[Double]
+  normal_y : Array[Double]
+  normal_impulse : Array[Double]
+  tangent_impulse : Array[Double]
+}
+pub fn ContactCache2D::clear(Self) -> Unit
+pub fn ContactCache2D::contains(Self, Int, Int) -> Bool
+pub fn ContactCache2D::find(Self, Int, Int) -> Int
+pub fn ContactCache2D::length(Self) -> Int
+pub fn ContactCache2D::new() -> Self
+pub fn ContactCache2D::store(Self, Int, Int, @vector.Vec2, Double, Double) -> Unit
+
 pub(all) struct ContactConstraint2D {
   idx_a : Int
   idx_b : Int
@@ -113,13 +131,6 @@ pub(all) struct ContactConstraint2D {
   restitution_bias : Double
   mut acc_jn : Double
   mut acc_jt : Double
-}
-
-pub(all) struct ContactManifold2D {
-  body_a_id : Int
-  body_b_id : Int
-  normal : @vector.Vec2
-  points : Array[ManifoldPoint2D]
 }
 
 pub(all) struct DistanceJoint2D {
@@ -144,20 +155,13 @@ pub(all) struct DistanceJointConstraint2D {
   mut acc_impulse : Double
 }
 
-pub(all) struct ManifoldPoint2D {
-  local_a : @vector.Vec2
-  local_b : @vector.Vec2
-  penetration : Double
-  normal_impulse : Double
-  tangent_impulse : Double
-}
-
 pub(all) struct PhysicsWorld2D {
   bodies : Array[RigidBody2D]
   gravity : @vector.Vec2
   broadphase : SpatialHashGrid2D
   solver_config : SolverConfig2D
-  contact_cache : Map[Int64, ContactManifold2D]
+  contact_cache : ContactCache2D
+  velocity_state : VelocityState2D
   joints_distance : Array[DistanceJoint2D]
   joints_revolute : Array[RevoluteJoint2D]
 }
@@ -241,8 +245,18 @@ pub fn SolverConfig2D::default() -> Self
 pub struct SpatialHashGrid2D {
   cell_size : Double
   inv_cell_size : Double
-  cells : Map[Int64, Array[Int]]
   entries : Array[BroadphaseEntry2D]
+  cell_cx : Array[Int]
+  cell_cy : Array[Int]
+  cell_items : Array[Array[Int]]
+  mut cell_count : Int
+  mut slots : FixedArray[Int]
+  mut slot_mask : Int
+  pair_lo : Array[Int]
+  pair_hi : Array[Int]
+  mut pair_count : Int
+  mut pair_slots : FixedArray[Int]
+  mut pair_slot_mask : Int
 }
 pub fn SpatialHashGrid2D::clear(Self) -> Unit
 pub fn SpatialHashGrid2D::count(Self) -> Int
@@ -250,6 +264,16 @@ pub fn SpatialHashGrid2D::get_pairs(Self) -> Array[(Int, Int)]
 pub fn SpatialHashGrid2D::insert(Self, Int, AABB2D) -> Unit
 pub fn SpatialHashGrid2D::new(Double) -> Self
 pub fn SpatialHashGrid2D::query_aabb(Self, AABB2D) -> Array[Int]
+
+pub struct VelocityState2D {
+  vx : Array[Double]
+  vy : Array[Double]
+  w : Array[Double]
+  mut count : Int
+}
+pub fn VelocityState2D::load(Self, Array[RigidBody2D]) -> Unit
+pub fn VelocityState2D::new() -> Self
+pub fn VelocityState2D::store(Self, Array[RigidBody2D]) -> Unit
 
 // Type aliases
 

@@ -20,9 +20,9 @@ pub fn resolve_contact(RigidBody, RigidBody, Contact) -> (RigidBody, RigidBody)
 
 pub fn resolve_velocity3d(RigidBody, RigidBody, Contact) -> (RigidBody, RigidBody)
 
-pub fn solve_ball_joint3d(Array[BallJointConstraint3D], Int, Array[RigidBody], VelocityState3D) -> Unit
+pub fn solve_ball_joint3d(Array[BallJointConstraint3D], Int, Array[RigidBody], VelocityState3D, Bool) -> Unit
 
-pub fn solve_distance_joint3d(Array[DistanceJointConstraint3D], Int, Array[RigidBody], DistanceJoint3D, VelocityState3D) -> Unit
+pub fn solve_distance_joint3d(Array[DistanceJointConstraint3D], Int, Array[RigidBody], DistanceJoint3D, VelocityState3D, Bool) -> Unit
 
 pub fn sweep_sphere_aabb(@math3d.Vec3, @math3d.Vec3, Double, @math3d.Vec3, @math3d.Vec3) -> Double?
 
@@ -48,6 +48,9 @@ pub(all) struct BallJointConstraint3D {
   effective_mass_x : Double
   effective_mass_y : Double
   effective_mass_z : Double
+  unbiased_effective_mass_x : Double
+  unbiased_effective_mass_y : Double
+  unbiased_effective_mass_z : Double
   gamma : Double
   bias_coefficient : Double
   mut acc_impulse_x : Double
@@ -112,6 +115,7 @@ pub(all) struct ContactConstraint3D {
   r_a : @math3d.Vec3
   r_b : @math3d.Vec3
   normal_mass : Double
+  unbiased_normal_mass : Double
   tangent_mass : Double
   tangent_dir : @math3d.Vec3
   gamma : Double
@@ -138,6 +142,7 @@ pub(all) struct DistanceJointConstraint3D {
   r_b : @math3d.Vec3
   axis : @math3d.Vec3
   effective_mass : Double
+  unbiased_effective_mass : Double
   gamma : Double
   bias_coefficient : Double
   mut acc_impulse : Double
@@ -205,6 +210,7 @@ pub(all) struct SolverConfig3D {
   velocity_iterations : Int
   contact_hertz : Double
   contact_damping_ratio : Double
+  relax_iterations : Int
 }
 pub fn SolverConfig3D::default() -> Self
 

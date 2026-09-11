@@ -35,6 +35,11 @@ iron-yard-ci: iron-yard-test iron-yard-e2e
 iron-yard-simd:
     node examples/games/iron_yard/experiments/simd/bench.mjs
 
+# Price Wasm SIMD and relaxed SIMD against the scalar 3D contact solve.
+# Needs `wabt` from npm (not a repo dependency): npm install --no-save wabt
+physics-simd:
+    node engine/physics/experiments/simd/bench.mjs
+
 # Profile running game URLs in an isolated native Chrome/Metal instance.
 # Example: just iron-yard-profile kagura=http://127.0.0.1:5192/ three=http://127.0.0.1:5194/game.html
 [positional-arguments]

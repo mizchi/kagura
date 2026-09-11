@@ -69,6 +69,15 @@ pub(all) struct SolverConfig3D {
   velocity_iterations : Int
   contact_hertz : Double
   contact_damping_ratio : Double
+  /// Relax passes per substep, run after the position integration with the
+  /// soft-constraint bias switched off.
+  ///
+  /// This is the "relaxation" half of Box2D v3's Soft Step solver. The biased
+  /// pass has to inject velocity to push overlap out, and that velocity stays in
+  /// the bodies afterwards; a pass with bias, softness and restitution all
+  /// disabled takes it back out. 0 disables it, which is the historical
+  /// behaviour.
+  relax_iterations : Int
 }
 
 ///|
@@ -78,6 +87,7 @@ pub fn SolverConfig3D::default() -> SolverConfig3D {
     velocity_iterations: 1,
     contact_hertz: 30.0,
     contact_damping_ratio: 1.0,
+    relax_iterations: 0,
   }
 }
 
@@ -89,6 +99,9 @@ pub(all) struct ContactConstraint3D {
   r_a : @math3d.Vec3
   r_b : @math3d.Vec3
   normal_mass : Double
+  /// `1 / k_normal`, i.e. `normal_mass` without the softness term folded in. The
+  /// relax pass solves the rigid constraint, so it needs the rigid mass.
+  unbiased_normal_mass : Double
   tangent_mass : Double
   tangent_dir : @math3d.Vec3
   gamma : Double
@@ -112,6 +125,9 @@ priv struct ContactConstraintRuntime3D {
   has_normal_angular : Bool
   has_tangent_angular : Bool
   normal_mass : Double
+  /// `1 / k_normal`, i.e. `normal_mass` without the softness term folded in. The
+  /// relax pass solves the rigid constraint, so it needs the rigid mass.
+  unbiased_normal_mass : Double
   tangent_mass : Double
   tangent_dir : @math3d.Vec3
   friction : Double
@@ -143,6 +159,7 @@ pub(all) struct DistanceJointConstraint3D {
   r_b : @math3d.Vec3
   axis : @math3d.Vec3
   effective_mass : Double
+  unbiased_effective_mass : Double
   gamma : Double
   bias_coefficient : Double
   mut acc_impulse : Double
@@ -167,6 +184,9 @@ pub(all) struct BallJointConstraint3D {
   effective_mass_x : Double
   effective_mass_y : Double
   effective_mass_z : Double
+  unbiased_effective_mass_x : Double
+  unbiased_effective_mass_y : Double
+  unbiased_effective_mass_z : Double
   gamma : Double
   bias_coefficient : Double
   mut acc_impulse_x : Double

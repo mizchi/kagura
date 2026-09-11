@@ -167,6 +167,9 @@ pub(all) struct PhysicsWorld2D {
   /// The solve pass's velocity working set, pooled here so a steady body count
   /// allocates nothing per frame. Only `phase_solve_velocities` touches it.
   velocity_state : VelocityState2D
+  /// Body id -> index into `bodies`, so `get_body` and the joint precomputes do
+  /// not scan. See `body_index.mbt`.
+  body_index : BodyIndex2D
   joints_distance : Array[DistanceJoint2D]
   joints_revolute : Array[RevoluteJoint2D]
 }

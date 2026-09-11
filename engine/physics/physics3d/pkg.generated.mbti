@@ -12,9 +12,9 @@ pub fn ccd_sweep_body3d(Int, Array[RigidBody], VelocityState3D, Double) -> Doubl
 
 pub fn generate_contact(RigidBody, RigidBody) -> Contact?
 
-pub fn precompute_ball_joint3d(BallJoint3D, Array[RigidBody], Double) -> BallJointConstraint3D?
+pub fn precompute_ball_joint3d(BallJoint3D, Array[RigidBody], BodyIndex3D, Double) -> BallJointConstraint3D?
 
-pub fn precompute_distance_joint3d(DistanceJoint3D, Array[RigidBody], Double) -> DistanceJointConstraint3D?
+pub fn precompute_distance_joint3d(DistanceJoint3D, Array[RigidBody], BodyIndex3D, Double) -> DistanceJointConstraint3D?
 
 pub fn resolve_contact(RigidBody, RigidBody, Contact) -> (RigidBody, RigidBody)
 
@@ -57,6 +57,11 @@ pub(all) struct BallJointConstraint3D {
   mut acc_impulse_y : Double
   mut acc_impulse_z : Double
 }
+
+type BodyIndex3D
+pub fn BodyIndex3D::ensure(Self, Array[RigidBody]) -> Unit
+pub fn BodyIndex3D::find(Self, Int) -> Int
+pub fn BodyIndex3D::new() -> Self
 
 pub(all) enum BodyType {
   Dynamic
@@ -155,6 +160,7 @@ pub(all) struct PhysicsWorld {
   solver_config : SolverConfig3D
   contact_cache : ContactCache3D
   velocity_state : VelocityState3D
+  body_index : BodyIndex3D
   joints_distance : Array[DistanceJoint3D]
   joints_ball : Array[BallJoint3D]
 }

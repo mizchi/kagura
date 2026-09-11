@@ -30,9 +30,9 @@ pub fn grid_segment_hits_wall(@types.Grid2D, Double, Double, Double, Double, Dou
 
 pub fn grid_slide_move(@types.Grid2D, Double, Double, Double, Double, Double, Double) -> (Double, Double)
 
-pub fn precompute_distance_joint(DistanceJoint2D, Array[RigidBody2D], Double) -> DistanceJointConstraint2D?
+pub fn precompute_distance_joint(DistanceJoint2D, Array[RigidBody2D], BodyIndex2D, Double) -> DistanceJointConstraint2D?
 
-pub fn precompute_revolute_joint(RevoluteJoint2D, Array[RigidBody2D], Double) -> RevoluteJointConstraint2D?
+pub fn precompute_revolute_joint(RevoluteJoint2D, Array[RigidBody2D], BodyIndex2D, Double) -> RevoluteJointConstraint2D?
 
 pub fn resolve_contact2d(RigidBody2D, RigidBody2D, Contact2D) -> (RigidBody2D, RigidBody2D)
 
@@ -65,6 +65,11 @@ pub fn AABB2D::output(Self, &Logger) -> Unit
 pub fn AABB2D::to_repr(Self) -> @debug.Repr
 pub fn AABB2D::to_string(Self) -> String
 pub impl Show for AABB2D
+
+type BodyIndex2D
+pub fn BodyIndex2D::ensure(Self, Array[RigidBody2D]) -> Unit
+pub fn BodyIndex2D::find(Self, Int) -> Int
+pub fn BodyIndex2D::new() -> Self
 
 pub(all) enum BodyType2D {
   Dynamic
@@ -162,6 +167,7 @@ pub(all) struct PhysicsWorld2D {
   solver_config : SolverConfig2D
   contact_cache : ContactCache2D
   velocity_state : VelocityState2D
+  body_index : BodyIndex2D
   joints_distance : Array[DistanceJoint2D]
   joints_revolute : Array[RevoluteJoint2D]
 }

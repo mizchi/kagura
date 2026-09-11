@@ -11,6 +11,7 @@ pub fn PhysicsWorld::new(
     solver_config,
     contact_cache: ContactCache3D::new(),
     velocity_state: VelocityState3D::new(),
+    body_index: BodyIndex3D::new(),
     joints_distance: [],
     joints_ball: [],
   }
@@ -23,12 +24,13 @@ pub fn PhysicsWorld::add_body(self : PhysicsWorld, body : RigidBody) -> Unit {
 
 ///|
 pub fn PhysicsWorld::get_body(self : PhysicsWorld, id : Int) -> RigidBody? {
-  for i = 0; i < self.bodies.length(); i = i + 1 {
-    if self.bodies[i].id == id {
-      return Some(self.bodies[i])
-    }
+  self.body_index.ensure(self.bodies)
+  let index = self.body_index.find(id)
+  if index < 0 {
+    None
+  } else {
+    Some(self.bodies[index])
   }
-  None
 }
 
 ///|
@@ -301,13 +303,19 @@ fn PhysicsWorld::phase_joint_constraints(
   self : PhysicsWorld,
   sub_dt : Double,
 ) -> (Array[DistanceJointConstraint3D], Array[BallJointConstraint3D]) {
+  self.body_index.ensure(self.bodies)
   let distance_joint_count = self.joints_distance.length()
   let dist_constraints : Array[DistanceJointConstraint3D] = Array(
     capacity=distance_joint_count,
   )
   for j = 0; j < distance_joint_count; j = j + 1 {
     match
-      precompute_distance_joint3d(self.joints_distance[j], self.bodies, sub_dt) {
+      precompute_distance_joint3d(
+        self.joints_distance[j],
+        self.bodies,
+        self.body_index,
+        sub_dt,
+      ) {
       Some(c) => dist_constraints.push(c)
       None => ()
     }
@@ -317,7 +325,13 @@ fn PhysicsWorld::phase_joint_constraints(
     capacity=ball_joint_count,
   )
   for j = 0; j < ball_joint_count; j = j + 1 {
-    match precompute_ball_joint3d(self.joints_ball[j], self.bodies, sub_dt) {
+    match
+      precompute_ball_joint3d(
+        self.joints_ball[j],
+        self.bodies,
+        self.body_index,
+        sub_dt,
+      ) {
       Some(c) => ball_constraints.push(c)
       None => ()
     }

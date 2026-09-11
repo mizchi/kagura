@@ -182,7 +182,24 @@ test "bench physics3d phase reset floors pile 256" (b : @bench.T) {
 test "bench physics3d phase broadphase pile 256" (b : @bench.T) {
   let fixture = bench_pile_fixture3d(256, bench_warm_frames3d)
   b.bench(name="physics3d/phase_broadphase_pile_256", fn() {
-    b.keep(fixture.world.phase_broadphase_pairs().length())
+    b.keep(fixture.world.phase_broadphase_pairs())
+  })
+}
+
+///|
+/// Grid fill only: `clear` plus one `insert` per body, no pair enumeration.
+/// Subtract from `phase_broadphase_pile_256` for the cost of `get_pairs`, which
+/// is the half that grows with the square of the bucket occupancy -- in 3D a
+/// body spans up to eight cells, so the pile puts a lot in every bucket.
+test "bench physics3d phase broadphase insert pile 256" (b : @bench.T) {
+  let fixture = bench_pile_fixture3d(256, bench_warm_frames3d)
+  let world = fixture.world
+  b.bench(name="physics3d/phase_broadphase_insert_pile_256", fn() {
+    world.broadphase.clear()
+    for i = 0; i < world.bodies.length(); i = i + 1 {
+      world.broadphase.insert(i, world.bodies[i].world_aabb())
+    }
+    b.keep(world.broadphase.count())
   })
 }
 

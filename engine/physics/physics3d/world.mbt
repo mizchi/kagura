@@ -165,15 +165,17 @@ fn uf_union3d(parent : Array[Int], rank : Array[Int], a : Int, b : Int) -> Unit 
 ///
 /// `step` and `world_bench.mbt` both call this, so the benchmark can never
 /// drift away from the shipped pipeline.
-fn PhysicsWorld::phase_broadphase_pairs(
-  self : PhysicsWorld,
-) -> Array[(Int, Int)] {
+fn PhysicsWorld::phase_broadphase_pairs(self : PhysicsWorld) -> Int {
   let body_count = self.bodies.length()
   self.broadphase.clear()
   for i = 0; i < body_count; i = i + 1 {
     self.broadphase.insert(i, self.bodies[i].world_aabb())
   }
-  self.broadphase.get_pairs()
+  // Returns a count, and leaves the pairs in the grid's pooled columns. The
+  // tuple-returning `get_pairs` is still there for callers outside the step
+  // path; inside it, one tuple per pair was 1438 allocations a frame that
+  // `phase_contact_constraints` unpacked on the next line.
+  self.broadphase.get_pairs_into()
 }
 
 ///|
@@ -184,11 +186,10 @@ fn PhysicsWorld::phase_broadphase_pairs(
 /// world as well as returning the constraints.
 fn PhysicsWorld::phase_contact_constraints(
   self : PhysicsWorld,
-  pairs : Array[(Int, Int)],
+  pair_count : Int,
   sub_dt : Double,
 ) -> Array[ContactConstraintRuntime3D] {
   let config = self.solver_config
-  let pair_count = pairs.length()
   let (contact_gamma, contact_bias_coefficient) = soft_constraint_params3d(
     config.contact_hertz,
     config.contact_damping_ratio,
@@ -197,8 +198,11 @@ fn PhysicsWorld::phase_contact_constraints(
   let constraints : Array[ContactConstraintRuntime3D] = Array(
     capacity=pair_count,
   )
+  let pair_id_a = self.broadphase.pair_id_a
+  let pair_id_b = self.broadphase.pair_id_b
   for p = 0; p < pair_count; p = p + 1 {
-    let (idx_a, idx_b) = pairs[p]
+    let idx_a = pair_id_a[p]
+    let idx_b = pair_id_b[p]
     let mut body_a = self.bodies[idx_a]
     let mut body_b = self.bodies[idx_b]
     // A pair with nothing movable on either side has no constraint to solve.

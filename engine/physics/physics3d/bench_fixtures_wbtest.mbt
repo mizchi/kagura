@@ -16,7 +16,7 @@ fn bench_pile_work3d(count : Int) -> (Int, Int) {
   let sub_dt = bench_dt3d / world.solver_config.substeps.to_double()
   let pairs = world.phase_broadphase_pairs()
   let constraints = world.phase_contact_constraints(pairs, sub_dt)
-  (pairs.length(), constraints.length())
+  (pairs, constraints.length())
 }
 
 ///|
@@ -85,7 +85,7 @@ test "bench fixture resting 3d is asleep and still touching the floor" {
   // So this asserts the pairing survives and the solving does not. If a later
   // change makes `step_resting_256` build constraints again, this fails and the
   // benchmark's meaning has changed with it.
-  assert_eq(world.phase_broadphase_pairs().length(), 256)
+  assert_eq(world.phase_broadphase_pairs(), 256)
   assert_eq(
     world
     .phase_contact_constraints(world.phase_broadphase_pairs(), sub_dt)

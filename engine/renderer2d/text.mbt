@@ -52,26 +52,47 @@ pub fn append_dot_text(
   let (total_w, char_h) = dot_text_size(text.chars.length(), scale=text.scale)
   let start_x = text.cx - total_w / 2.0
   let start_y = text.cy - char_h / 2.0
+  // One command for the whole run, not one per lit dot. Every dot of a run
+  // shares dst, shader, pipeline, blend and color -- the color is a uniform, so
+  // a run is exactly the granularity that can be merged without touching the
+  // vertex layout. The triangles and their order are unchanged, so the
+  // rasterizer walks the same list and produces the same pixels; a 3x5 glyph
+  // just stops costing ten `DrawTrianglesCommand` allocations.
+  // Not pre-sized. Reserving the worst case (15 dots per glyph against the ~10
+  // that are typically lit) separated as 1.10x faster only in the one bench
+  // that `moon bench -p` misreports, and not at all in the regime the gate
+  // runs -- while the vertex array becomes the command's `vertex_data`, so the
+  // slack would be held for the whole frame. See
+  // `docs/performance/dot-text-batching.md`.
+  let vertices : Array[Double] = []
+  let indices : Array[Int] = []
+  let screen_w = frame.screen_w.to_double()
+  let screen_h = frame.screen_h.to_double()
   for i in 0..<text.chars.length() {
     let pattern = glyph_pattern(text.chars[i])
     let ox = start_x + i.to_double() * (char_w + gap)
     for row in 0..<5 {
       for col in 0..<3 {
         if pattern[row * 3 + col] == 1 {
-          append_rect_fill(
-            commands,
-            frame,
-            RectFill2D::new(
-              x=ox + col.to_double() * px_size,
-              y=start_y + row.to_double() * px_size,
-              w=px_size,
-              h=px_size,
-              color=text.color,
-            ),
+          push_rect_fill_geometry(
+            vertices,
+            indices,
+            screen_w,
+            screen_h,
+            ox + col.to_double() * px_size,
+            start_y + row.to_double() * px_size,
+            px_size,
+            px_size,
           )
         }
       }
     }
+  }
+  // A run with no lit dots (empty string, or glyphs that are all blank) drew
+  // nothing before and must keep drawing nothing -- an empty command would
+  // count as a skipped command in the rasterizer.
+  if indices.length() > 0 {
+    append_primitive_batch(commands, frame, vertices, indices, text.color)
   }
 }
 

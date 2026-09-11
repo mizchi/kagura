@@ -6,11 +6,11 @@
 
 ///|
 extern "js" fn js_canvas_css_w() -> Double =
-  #| () => { const c = document.querySelector("canvas"); return c ? c.getBoundingClientRect().width : 0; }
+  #| () => { const c = globalThis.document?.querySelector("canvas"); return c ? c.getBoundingClientRect().width : 0; }
 
 ///|
 extern "js" fn js_canvas_css_h() -> Double =
-  #| () => { const c = document.querySelector("canvas"); return c ? c.getBoundingClientRect().height : 0; }
+  #| () => { const c = globalThis.document?.querySelector("canvas"); return c ? c.getBoundingClientRect().height : 0; }
 
 ///|
 fn canvas_css_w() -> Double {

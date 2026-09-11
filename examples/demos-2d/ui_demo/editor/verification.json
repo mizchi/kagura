@@ -1,0 +1,15 @@
+{
+  "version": 1,
+  "transitions": {
+    "focus": {
+      "frames": 5,
+      "settleFrame": 3,
+      "inputs": [{}, {"keys": [9]}]
+    },
+    "hover": {
+      "frames": 5,
+      "settleFrame": 3,
+      "inputs": [{}, {"cursorX": 100, "cursorY": 74}, {"cursorX": 100, "cursorY": 74}, {"cursorX": 100, "cursorY": 74}, {"cursorX": 100, "cursorY": 74}]
+    }
+  }
+}

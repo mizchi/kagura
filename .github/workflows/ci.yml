@@ -162,6 +162,12 @@ jobs:
         # on Linux. Runs before the Playwright install so a visual regression
         # is reported without waiting on a browser download.
         run: node scripts/frame-vrt.mjs
+      - name: Canvas UI interaction gate
+        run: just ui-interactions ui_demo
+      - name: Canvas UI transition gate
+        run: |
+          just ui-flipbook ui_demo focus
+          just ui-flipbook ui_demo hover
       - name: Install Playwright Browser
         # `--with-deps` runs `sudo apt-get`; on Ubuntu 24.04 the needrestart
         # post-install hook prompts and hangs. sudo resets the env, so set the

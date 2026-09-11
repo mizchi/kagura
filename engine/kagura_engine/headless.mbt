@@ -67,6 +67,8 @@ pub(all) struct HeadlessFrame {
 ///|
 /// Drive `update` for `frames` ticks, then rasterize one `draw` into an RGBA
 /// buffer. `frames` of 0 draws the initial state without ever updating.
+/// input_at supplies a complete snapshot for each zero-based tick, overriding
+/// the held input. It can replay keyboard, pointer and gamepad transitions.
 pub fn render_headless_frame(
   update~ : (@core.InputSnapshot) -> Unit,
   draw~ : (EngineContext) -> Array[@gfx.DrawTrianglesCommand],
@@ -74,6 +76,7 @@ pub fn render_headless_frame(
   height~ : Int,
   frames~ : Int,
   input? : HeadlessInput,
+  input_at? : (Int) -> @core.InputSnapshot,
   on_frame? : () -> Unit,
   textures? : Array[HeadlessTexture],
   clear_color? : @gfx.Color,
@@ -103,8 +106,13 @@ pub fn render_headless_frame(
       None => default_headless_input()
     },
   )
-  for _ in 0..<frames {
-    update(snapshot)
+  for tick in 0..<frames {
+    update(
+      match input_at {
+        Some(read) => read(tick)
+        None => snapshot
+      },
+    )
     match on_frame {
       Some(f) => f()
       None => ()

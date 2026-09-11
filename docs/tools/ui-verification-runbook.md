@@ -4,6 +4,12 @@ canvas / WebGPU 上に描くゲーム UI を、DOM なしで決定的に検証�
 
 背景と全体像は [`vlmkit-game-ui-verification.md`](./vlmkit-game-ui-verification.md)、
 作業一覧は [#19](https://github.com/mizchi/kagura/issues/19) を参照。
+現時点の完了範囲と残作業は [Issue照合表](./ui-verification-issue-status.md) に整理した。
+
+**更新:** インストール済みvlmkit 0.11.1は `check integrity --elements ... --image ...` を
+サポートする。以下の「DOM版」はHTML/URL入力の経路を指す。kaguraの現在の
+elements出力はPNG差分用で文字実測・clip・zを含まないため、画像版integrityとの接続は
+まだ未実装。低コントラスト文字も画像版では判定されない。
 
 ---
 
@@ -360,7 +366,75 @@ exit code は**決定的ゲートだけ**が決める。VLM の主観で CI を�
 
 ---
 
-## 7. 現状できていないこと
+## 7. 操作性ゲート
+
+```sh
+just ui-interactions ui_demo
+just ui-interactions ui_demo "--no-build --profile inputs.json"
+```
+
+初期フォーカスがない状態から、実際の update/draw に入力列を渡す。宣言された
+`focus_order` を眺めるだけでなく、キーボードとゲームパッドそれぞれで全ノードへの
+到達・逆順・一周を確認する。ポインタでも各描画矩形の中心をクリックする。
+各フレームの integrity gate が hit 矩形と描画矩形の一致を検査する。
+
+フォーカス表示は同じtickまで進めた「操作あり／なし」のPNGを比較する。
+対象矩形の外を `vlmkit diff png --ignore-region` で除外するため、別の場所の
+アニメーションをフォーカス表示の変化と誤認しない。対象内の他の演出とは区別できない
+ので、fixture の対象は決定的であること。表示順の基準は上から下、同じ行では左から右。
+
+既定の入力はTab／Shift-Tabと標準ゲームパッドのD-pad下／上。違う操作体系は
+`--profile` で完全な入力ステップを渡す。
+
+```json
+{
+  "keyboard": {"next": {"keys": [9]}, "previous": {"keys": [9, 16]}},
+  "gamepad": {
+    "next": {"gamepads": [{"id": 0, "buttons": [13]}]},
+    "previous": {"gamepads": [{"id": 0, "buttons": [12]}]}
+  }
+}
+```
+
+入力ステップは `keys`、`cursorX/Y`、`mouseButtons`、`gamepads` を受け取る。
+各ステップは完全な入力状態で、省略したチャンネルは解放される。列が終わった後も
+neutral input。押下の間には空のステップ `{}` を入れて解放する。
+共通MoonBit APIの `render_headless_frame(input_at=...)` は任意の `InputSnapshot` を
+返すcallbackを受け取るため、同じ再生をnativeのテストでも使える。
+
+PNG・snapshot・機械可読な `report.json` は `output/ui-interactions/<example>/`。
+未対応デバイス、未到達ノード、移動順の不一致、ピクセル変化なしは欠陥としてexit 1。
+snapshot欠落・3Dコマンドの描画欠落・座標系不一致は検証不能としてexit 2にする。
+CIではUIデモを実行する。これは合成入力の検証で、物理デバイスの接続検査ではない。
+
+## 8. 状態遷移のflipbook
+
+```sh
+just ui-flipbook ui_demo focus
+just ui-flipbook ui_demo hover
+```
+
+ゲーム側の `editor/verification.json` に、遷移名、入力列、観測tick数、停止期限を書く。
+UIデモのfocusは次の定義。
+
+```json
+{"version": 1, "transitions": {
+  "focus": {"frames": 5, "settleFrame": 3, "inputs": [{}, {"keys": [9]}]}
+}}
+```
+
+1tick目を遷移前の観測にし、以降に操作を入れる。毎tickを同じ初期状態から再生して
+キャプチャするため、乱数などもゲーム側で決定的にする。各フレームにintegrity gateを
+適用し、隣接する全PNGをvlmkitで比較する。停止期限まで変化がなければ `no-motion`、
+期限後の比較で差があれば `not-settled`。ゲーム時間の単位はtickであり、壁時計のmsではない。
+停止確認は指定した最終tickまでで、それ以降の振る舞いは保証しない。
+
+出力は `output/ui-flipbook/<example>/<transition>/` の連番PNG、snapshot、elements、
+各比較のdiff JSON、全体の `report.json`。状態遷移中に飛び出すUIもフレーム番号付きで
+報告する。欠陥はexit 1、検証不能はexit 2。現在のCLIは2D CPUキャプチャを使う。
+3Dや実GPU、nativeキャプチャのマトリクス統合は別途必要。
+
+## 9. 残る作業
 
 | やりたいこと | 状況 |
 |---|---|
@@ -369,4 +443,5 @@ exit code は**決定的ゲートだけ**が決める。VLM の主観で CI を�
 | VRT の gating 化 | **2D は完了**（5.5、CI が `just frame-vrt` を回している）。3D と実 GPU 経路は [#8](https://github.com/mizchi/kagura/issues/8) のまま |
 | 状態 × 解像度マトリクス | `--state` / `--cursor` / `--keys` / `--width` で 1 状態ずつは撮れる。全走査の自動化が [#13](https://github.com/mizchi/kagura/issues/13) |
 | i18n ストレス | [#14](https://github.com/mizchi/kagura/issues/14) |
-| 操作性ゲート（フォーカス到達性） | snapshot に `focus_order` は入っているので実装は軽い。[#15](https://github.com/mizchi/kagura/issues/15) |
+| 操作性ゲート（フォーカス到達性） | **実装済み**（7）。UIデモの実入力とピクセル変化をCIで検査。他ゲームにはfixtureの追加が必要 |
+| 状態遷移のflipbook | **実装済み**（8）。UIデモのfocus/hoverをCIで検査 |

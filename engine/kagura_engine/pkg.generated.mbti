@@ -6,6 +6,7 @@ import {
   "mizchi/kagura_audio",
   "mizchi/kagura_core",
   "moonbitlang/core/debug",
+  "moonbitlang/core/json",
 }
 
 // Values
@@ -21,7 +22,7 @@ pub fn parse_headless_keys(String) -> Array[Int]
 
 pub fn[T : @gfx.GraphicsDriver] render_commands(T, Array[@gfx.DrawTrianglesCommand], clear_color? : @gfx.Color, clear_enabled? : Bool) -> Unit raise
 
-pub fn render_headless_frame(update~ : (@kagura_core.InputSnapshot) -> Unit, draw~ : (EngineContext) -> Array[@gfx.DrawTrianglesCommand], width~ : Int, height~ : Int, frames~ : Int, input? : HeadlessInput, on_frame? : () -> Unit, textures? : Array[HeadlessTexture], clear_color? : @gfx.Color) -> HeadlessFrame
+pub fn render_headless_frame(update~ : (@kagura_core.InputSnapshot) -> Unit, draw~ : (EngineContext) -> Array[@gfx.DrawTrianglesCommand], width~ : Int, height~ : Int, frames~ : Int, input? : HeadlessInput, input_at? : (Int) -> @kagura_core.InputSnapshot, on_frame? : () -> Unit, textures? : Array[HeadlessTexture], clear_color? : @gfx.Color) -> HeadlessFrame
 
 pub fn reset_lifecycle_hooks() -> Unit
 
@@ -66,11 +67,15 @@ pub(all) struct HeadlessFrame {
   draw_commands : Int
 }
 
+type HeadlessGamepadStep derive(@json.FromJson)
+
 pub(all) struct HeadlessInput {
   cursor_x : Double
   cursor_y : Double
   pressed_keys : Array[Int]
 }
+
+type HeadlessInputStep derive(@json.FromJson)
 
 pub(all) struct HeadlessTexture {
   id : Int

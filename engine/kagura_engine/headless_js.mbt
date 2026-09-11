@@ -165,6 +165,7 @@ fn try_run_headless(
     height=render_height,
     frames~,
     input~,
+    input_at=tick => headless_sequence_input(tick, input),
     textures=collect_headless_textures(),
   )
   match headless_frame_png(frame) {
@@ -181,4 +182,54 @@ fn try_run_headless(
     None => js_publish_headless_failure("failed to encode the frame as PNG")
   }
   true
+}
+
+///|
+struct HeadlessGamepadStep {
+  id : Int
+  axes : Array[Double]
+  buttons : Array[Int]
+} derive(FromJson)
+
+///|
+struct HeadlessInputStep {
+  cursor_x : Double
+  cursor_y : Double
+  keys : Array[Int]
+  mouse_buttons : Array[Int]
+  gamepads : Array[HeadlessGamepadStep]
+} derive(FromJson)
+
+///|
+extern "js" fn js_headless_input_step(tick : Int) -> String =
+  #| tick => {
+  #|   const inputs = globalThis.__kaguraHeadless?.inputs;
+  #|   if (inputs === undefined) return '';
+  #|   return JSON.stringify(inputs[tick] ?? {cursor_x:-1,cursor_y:-1,keys:[],mouse_buttons:[],gamepads:[]});
+  #| }
+
+///|
+fn headless_sequence_input(
+  tick : Int,
+  fallback : HeadlessInput,
+) -> @core.InputSnapshot {
+  let json = js_headless_input_step(tick)
+  if json == "" {
+    return headless_input_snapshot(fallback)
+  }
+  let step : HeadlessInputStep = @json.from_json(@json.parse(json)) catch {
+    error => abort("Invalid headless input step: " + error.to_string())
+  }
+  @core.new_input_snapshot_full(
+    step.cursor_x,
+    step.cursor_y,
+    0.0,
+    0.0,
+    step.keys,
+    step.mouse_buttons,
+    [],
+    step.gamepads.map(pad => {
+      @core.new_gamepad_snapshot(pad.id, pad.axes, pad.buttons)
+    }),
+  )
 }

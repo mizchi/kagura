@@ -243,6 +243,14 @@ e2e-vrt-update:
 ui-check snapshot extra="":
     node scripts/ui-integrity-gate.mjs {{snapshot}} {{extra}}
 
+# Replay keyboard/gamepad/pointer input and verify real focus movement and pixels.
+ui-interactions example extra="":
+    node scripts/ui-interactions.mjs {{example}} {{extra}}
+
+# Capture every transition tick, gate intermediate layout and assert settling.
+ui-flipbook example transition extra="":
+    node scripts/ui-flipbook.mjs {{example}} {{transition}} {{extra}}
+
 # Convert a UI snapshot into a vlmkit --elements-json payload, so a pixel diff
 # names the UI node that changed instead of a bare region.
 ui-elements snapshot out="output/vlmkit-elements.json":

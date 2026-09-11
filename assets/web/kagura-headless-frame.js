@@ -119,6 +119,7 @@ export function createHeadlessRequest({
   cursorX,
   cursorY,
   keys = [],
+  inputs,
 } = {}) {
   const request = { frames };
   if (Number(width) > 0) request.width = Math.floor(width);
@@ -126,7 +127,40 @@ export function createHeadlessRequest({
   if (Number.isFinite(cursorX)) request.cursor_x = cursorX;
   if (Number.isFinite(cursorY)) request.cursor_y = cursorY;
   if (keys.length > 0) request.keys = keys.join(",");
+  if (inputs !== undefined) {
+    if (!Array.isArray(inputs) || inputs.length > 10000) throw Error('Invalid input sequence');
+    request.inputs = inputs.map(normalizeInputStep);
+  }
   return request;
+}
+
+/** A complete input snapshot per tick. Omitted channels are released, not held. */
+function normalizeInputStep(step) {
+  if (!step || typeof step !== 'object' || Array.isArray(step)) throw Error('Invalid input step');
+  const numbers = (values = [], integer = true) => {
+    if (!Array.isArray(values) || values.some(v => !Number.isFinite(v) || (integer && (!Number.isInteger(v) || v < 0)))) {
+      throw Error('Invalid input values');
+    }
+    return [...values];
+  };
+  const coordinate = value => {
+    if (!Number.isFinite(value)) throw Error('Invalid input coordinate');
+    return value;
+  };
+  const gamepads = step.gamepads ?? [];
+  if (!Array.isArray(gamepads)) throw Error('Invalid input gamepads');
+  const ids = new Set();
+  return {
+    cursor_x: coordinate(step.cursorX ?? -1),
+    cursor_y: coordinate(step.cursorY ?? -1),
+    keys: numbers(step.keys),
+    mouse_buttons: numbers(step.mouseButtons),
+    gamepads: gamepads.map(pad => {
+      if (!pad || !Number.isInteger(pad.id) || pad.id < 0 || ids.has(pad.id)) throw Error('Invalid input gamepad ID');
+      ids.add(pad.id);
+      return { id: pad.id, axes: numbers(pad.axes, false), buttons: numbers(pad.buttons) };
+    }),
+  };
 }
 
 let importCounter = 0;

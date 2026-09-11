@@ -78,7 +78,7 @@ Unity / Godot のような重い統合 editor を正面から再実装するの�
 
 ### Positive
 
-- renderer と authoring/runtime shell の責務が host にまとまり、guest はアプリケーションロジックに集中できる
+- renderer と editor/runtime shell の責務が host にまとまり、guest はアプリケーションロジックに集中できる
 - wasm guest の差し替えで高速な preview と HMR を実現しやすい
 - MoonBit を基準にしつつ、多言語 guest を実験しやすい
 - editor の実装量で Unity / Godot と競わず、`preview-first + AI-assisted + code-first` という別の勝ち筋を取れる

@@ -70,4 +70,3 @@ pub fn ParticleManager::update(Self, Double) -> Unit
 // Type aliases
 
 // Traits
-

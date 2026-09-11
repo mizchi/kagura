@@ -12,7 +12,7 @@ export const DEFAULT_RELEASE_MODULE_DIRS = Object.freeze([
   "engine/asset_loader",
   "engine/kagura_engine",
   "engine/physics",
-  "game/kagura_game",
+  "game",
   "platform/js_runtime",
 ]);
 
@@ -111,6 +111,10 @@ function copyRecursive(sourcePath, destPath, topLevelExclude = null) {
     fs.mkdirSync(destPath, { recursive: true });
     for (const entry of fs.readdirSync(sourcePath)) {
       if (topLevelExclude?.has(entry)) {
+        continue;
+      }
+      if (fs.statSync(path.join(sourcePath, entry)).isDirectory() &&
+          ["moon.mod", "moon.mod.json"].some((name) => fs.existsSync(path.join(sourcePath, entry, name)))) {
         continue;
       }
       // topLevelExclude only applies at the directory we were called with;

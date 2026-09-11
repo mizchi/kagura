@@ -145,12 +145,159 @@ Command consoleにも同じトランザクションJSONを貼り付けられま�
 ## 持ち込んだ知見と次の接続
 
 [設計・移植方針](../../docs/design/studio-authoring.md) を参照してください。
-現時点の対応はプリミティブの配置・階層・材質と、単一ターゲットの閃光／反動プレビューです。
-GLB読込、人体・IK・モーション編集、音声合成、複数アクション、Transformギズモ、任意ペーン分割、ゲーム実行、既存modeling3d/effect-studioドキュメントとの変換は未実装です。
-modeling-playgroundのScene Studio JSONは別形式のため、そのままImportすることはできません。
+汎用シーンはプリミティブの配置・階層・材質と、単一ターゲットの閃光／反動プレビューに対応します。
+IRON YARDは以下の専用シーン編集に対応し、modeling-playgroundのScene Studio v1 JSONを直接Importできます。
+汎用GLB読込、人体・IK・モーション編集、音声合成、複数アクション、Transformギズモ、任意ペーン分割、既存modeling3d/effect-studioドキュメントとの変換は未実装です。
 2000ノードの上限は入力制限であり、大規模シーンの性能保証ではありません。
 
+## プロジェクトとゲーム固有の拡張
+
+### 既存examplesを開く
+
+ヘッダの **Examples…** からゲーム・2Dデモ・3Dデモの29プロジェクトを選択できます（一覧は [catalog.json](examples/catalog.json)）。`hacknslash_3d` も含みます。各exampleの直下に `.kgrprj` を置いているので、**Open project** でそのフォルダを選ぶこともできます。同梱版は読み取り専用で、Saveはプロジェクトのシーン形式（MoonBit / JSON）で書き出します。ローカルフォルダ版は `.kgrprj` が指定するシーンファイルに保存します。
+
+```sh
+just studio-dev                         # 全exampleをビルドして起動
+just studio-examples-build flappy_bird   # 変更したexampleだけ再ビルド
+```
+
+**Example設定** で起動パラメーターを編集し、**Play** で実際のKagura/WebGPUランタイムを開始します。停止・プロジェクト切替時はiframeごと破棄し、GPU・音声・入力の寿命を終了します。ローカルフォルダでは `editor/dist/runtime.js` と同じフォルダ配下のアセットを読み込みます。コードを変更した場合は再ビルド後に「拡張を再読込」、設定変更だけなら再Playで反映します。実行中の状態は編集用JSONへ書き戻しません。
+
+共通拡張 `kagura.example` は本体の汎用エディタに設定ペーンを追加します。起動設定は `kagura.example` resourceに保存し、Undo/Redo・ヘッドレス・宣言的WebMCPツール `kagura.pane.studio.example.launch_read/launch_update` が同じトランザクションを使います。`hacknslash_3d` は実装済みのURLパラメーター（ミュート・自動操作・Profiler・FXAA・影・SSAO）をフォームでも操作できます。他のキーは各ゲームが読み取るものだけが有効です。
+
+IRON YARDは専用シーンエディタ、H&S 3Dは以下の共有シーン定義を使います。その他のexamplesはMoonBitコードでレベルを定義しており、ゲーム固有の配置・バランス編集は `editor.entry` で拡張します。IK・PBR・Terrainの3件はnative専用のため、プロジェクト読込・ソース参照はできますがブラウザ試遊は無効です。`experimental` と `smoke` は一覧に含めていません。
+
+### ゲームと共有するシーン定義
+
+`hacknslash_3d` は [training.kgrscene](../../examples/games/hacknslash_3d/scenes/training.kgrscene) を実際のレベル定義として読み込みます。Examplesから開くとHierarchyに床・壁・開始位置・敵が現れ、InspectorでX/Z位置や大きさを変更できます。**Game scene** ペーンでは床・壁・敵の追加／削除と敵の種類・HPを編集できます。**Play** は編集時点のコピーからゲームを起動し、変更した配置を描画・衝突判定・敵生成へ反映します。起動後のゲーム状態は編集データを変更しません。
+
+`.kgrscene` は既存のSceneDocument v1と同じJSONです。位置・回転・スケールは `nodes` に置き、resource `kagura.scene` の `data: {game, bindings}` で各ノードへゲームの意味を割り当てます。bindingは `{node, component, properties}` です。共通の参照検証は [scene/contract.mjs](scene/contract.mjs)、型は [scene.d.ts](public/scene.d.ts)、ゲーム固有の検証・ランタイムへの変換は [hacknslash_3d/editor/scene.mjs](../../examples/games/hacknslash_3d/editor/scene.mjs) が担当します。他のゲームも同じ契約に独自コンポーネントと変換処理を追加できます。
+
+H&S 3Dでは1mを1タイルとし、床の領域をくり抜いてから壁を配置します。X/Zの辺は整数、回転は0、ルート直下の配置に対応しています。Y・色・プリミティブ形状は配置用マーカーで、床・壁の材質と敵モデルはゲームのKaguraレンダラーが決めます。壁と重なる開始位置・敵、不正な参照や未対応の変形はPlay／プロジェクト保存前に拒否します。自由配置のメッシュシーンへ拡張する場合は、ゲーム側の描画と物理の変換も合わせて実装します。
+
+ローカルの `.kgrprj` は `scene: "scenes/training.kgrscene"` を指定します。フォルダをOpen projectで開いた場合、Saveはこのファイルに保存します。同梱exampleではSaveでJSONを書き出し、Import JSONから `.json` / `.kgrscene` を再読込できます。シーンはリセット時にも維持し、敵を全滅させても自動生成フロアへ切り替えません。
+
+ヘッドレスでも同じ定義から実際のMoonBitゲームを作れます。
+
+```js
+import { readFile } from 'node:fs/promises';
+import { createSceneRuntime } from './examples/games/hacknslash_3d/editor/headless.mjs';
+const document = JSON.parse(await readFile('examples/games/hacknslash_3d/scenes/training.kgrscene', 'utf8'));
+const game = createSceneRuntime(document);
+game.blocked(20.5, 20.5); // 実際のゲームと同じ衝突判定
+game.step(1, 0);
+game.snapshot();
+```
+
+事前に `just studio-examples-build hacknslash_3d` でブラウザ版とヘッドレスAPIをビルドします。
+
+### プロジェクトファイルの形式
+
+汎用のシーン編集・履歴・保存・ペーン・WebMCPはStudio本体に組み込みます。ゲーム側は専用フォームや編集モードを追加し、ゲーム実装と一緒に開発します。拡張は標準ドキュメント操作を引き継ぐので、専用ペーンを一つ追加するだけでも構いません。IRON YARDの拡張は `examples/games/iron_yard/editor/ui/` にあり、Studio本体はゲーム固有のフィールドや描画処理を持ちません。現在、汎用プリミティブのビューは既存のThree基盤、IRON YARDの編集・試遊はKaguraで描画します。
+
+**Open project** で `<name>.kgrprj` を含むフォルダを選択します。同じフォルダに複数ある場合はプロジェクトファイルを選べます。ファイル単体の選択では兄弟ファイルへアクセスできないため、ブラウザではフォルダ単位で開きます。JSON v1の例:
+
+```json
+{
+  "format": "kagura.project",
+  "version": 1,
+  "name": "My game",
+  "scene": "scenes/main.json",
+  "resources": { "map": "assets/map.json" },
+  "editor": { "id": "my-game", "entry": "editor/extension.mjs" }
+}
+```
+
+`editor` を省略すると本体の汎用エディタで開きます。この場合の `scene` はStudioのSceneDocumentです。ゲーム独自形式は拡張の `validateDocument` で検証します。`entry` を省略した登録済みIDは同梱拡張を使い、指定した場合はプロジェクト内のES moduleを読み込みます。プロトタイプのentryは依存を一つにまとめた `.mjs` とします。JS、MoonBit/JS、Wasmアダプターを組み合わせ、ホストと同じ権限で動く自作の拡張コードとして扱います。
+
+パスはすべて `.kgrprj` のあるディレクトリを基準とします。絶対パス・URL・`..` による親ディレクトリ参照は拒否します。拡張には `project.read(path)` / `resource(id)` / `url(path)` / `list()` を渡し、配下のリソースを読めます。Projectペーンからファイルをダウンロードできます。生成キャッシュ（`_build`, `.mooncakes`, `node_modules`, `.git`）は一覧から省きますが、明示したパスは読み込めます。
+
+フォルダへの書込み権限があれば **Save** はmanifestの `scene` ファイルへ書き戻します。File System Access非対応環境のフォルダアップロードは読み取り専用で、Saveはシーンを書き出します。manifestと拡張コードは自動で書き換えません。フォルダ権限はこのセッションで保持し、ページ再読込後はプロジェクトを開き直してください。IndexedDBへの通常保存とプロジェクトフォルダ保存は別の保存先です。
+
+**拡張を再読込** はフォルダ内で更新したbundleとリソースを読み直し、現在の未保存シーンを引き継ぎます。API不一致・不正シーン・欠落リソースは現在の拡張を破棄する前に拒否します。切替時は専用ビュー・音声・ツール・Object URLを解放します。拡張自身の `activate` / `dispose` はリソースを確実に片付ける必要があります。
+
+ペーンだけ追加する最小の `editor/extension.mjs`:
+
+```js
+export const apiVersion = 1;
+export const id = 'my-game';
+export function activate({ panes, base }) {
+  panes.register({
+    id: 'my-game.tuning', title: 'Game tuning',
+    mount({ element, editor }) {
+      const text = document.createElement('p');
+      text.textContent = `Editing: ${base.readDocument().name}`;
+      element.append(text);
+      // editor.dispatch(...) で標準の履歴に参加する。
+      // panes.registerPlugin(...) なら既存の宣言的WebMCPツールも提供できる。
+    },
+  });
+  panes.open('my-game.tuning');
+  return { dispose() { panes.unregister('my-game.tuning'); } };
+}
+```
+
+[拡張API型](public/projects.d.ts)と[IRON YARDプロジェクト](../../examples/games/iron_yard/iron-yard.kgrprj)を参照。`just iron-yard-editor-build` または `just studio-build` でゲーム側のbundleを生成した後、`examples/games/iron_yard/` をOpen projectで選択できます。IRON YARDでは同フォルダの変換済みモデルJSON・環境反射・音声を、編集ビューと試遊の両方へ渡します。
+
 ## カスタムペーン
+
+### IRON YARD
+
+**Examples → IRON YARD** または `.kgrprj` の読み込みで専用拡張を開き、modeling-playgroundの `scene-editor.html` に相当するシーン編集を開きます。実際のSTRIX / BASTIONモデルを表示し、Hierarchyまたは3Dビューから選択できます。
+
+- 建物の位置・サイズ・色・種類、敵の位置・向き、出撃地点をInspectorで編集。コンテナ・敵の追加と削除、波ごとの敵配置に対応します。
+- シーン名、制限時間、カメラFOV、空の色、太陽の強さを編集できます。
+- Actionではライフルの間隔・ダメージ・閃光・反動・発射音・命中音を編集します。MoonBitの戦闘処理で一発を再生し、命中・残りHPを確認できます。シークは無音で、巻き戻し時は初期状態から再計算します。
+- 移植元と同じv1シーンJSONをImport / Exportできます。入力は元の契約に従って検証し、建物に埋まる出撃地点、不正な参照や数値などは変更前に拒否します。
+
+編集内容は `iron-yard.scene` リソースの単一ドキュメントとして管理し、通常の **Save / Undo / Redo** に対応します。SaveはStudio全体を保存し、IRON YARD編集中のExport JSONは移植元互換のシーンJSONを書き出します。全体ImportはStudio JSONとIRON YARDシーンJSONを識別します。契約・初期シーン・編集操作は `examples/games/iron_yard/editor/scene/` に同梱し、隣のcheckoutを実行時に参照しません。
+
+**Play / 試遊する** は現在のドキュメントのコピーでゲームを起動します。変更した建物は描画と当たり判定、敵と波はミッション、ライフル設定は戦闘と演出へ反映されます。試遊モードは敵AIとの交戦と訓練を選べます。WASD・右ドラッグ・Space・Shiftで操作し、Escで停止。親ペーンまたはゲームの停止メニューの **編集に戻る** で編集を再開します。実行中の機体位置や戦闘状態は編集ドキュメントを変更しません。
+
+IRON YARDの編集ビューと試遊は同じKagura WebGPU / WGSLを使用し、モデル・材質・照明・影・地面を共有します。左ドラッグで回転、右ドラッグまたはShiftで移動、ホイールで拡縮、クリックでエンティティの境界を選択します。試遊中は編集ビューの描画を停止し、試遊を閉じるとゲームのiframeを破棄して入力・音声・GPUの実行環境を終了します。上部の **汎用エディタ** または専用ペーンの **Close IRON YARD** で本体の汎用シーンへ戻ります。拡張ツールと編集内容は残ります。既存のペーン境界のリサイズ・独立スクロールと100vhのレイアウトを維持します。
+
+プラグインは起動時に登録され、ペーンを閉じていてもWebMCPから操作できます。変更ツールには `expectedRevision` が必要です。
+
+| ツール（接頭辞 `kagura.pane.iron-yard.`） | 動作 |
+| --- | --- |
+| `scene_load` / `scene_export` | 移植元互換ドキュメントの読込・取得 |
+| `scene_edit` | 建物・敵・spawn・scene・actionを検証して原子的に編集 |
+| `scene_add` / `scene_remove` | コンテナ・指定波の敵の追加、エンティティ削除 |
+| `attack_preview` | 指定時刻の攻撃をMoonBitで再計算。DOM / GPU不要 |
+| `inspect` | 保存シーン・設定とブラウザプレビュー状態を取得 |
+| `configure` | 試遊モードと旧出撃設定を保存。シーンがある場合の座標編集は `scene_edit` を使用 |
+| `preview` | `play / pause / reset` を要求。ヘッドレスホストは要求を記録 |
+| `simulate` | 保存シーンで60Hz・最大600フレームの独立シミュレーション。DOM / GPU不要 |
+
+Nodeでも同じプラグインを使用できます（先に `just studio-headless-test` でビルド）。
+
+```js
+import { createHeadlessEditor } from './editor/studio/headless/index.mjs';
+import { createPluginHost } from './editor/studio/plugins/host.mjs';
+import { createIronYardPlugin } from './editor/studio/games/iron-yard.mjs';
+import { defaultScene } from './editor/studio/games/iron-yard-scene.mjs';
+const editor = createHeadlessEditor();
+const plugins = createPluginHost(editor);
+plugins.register(createIronYardPlugin());
+const edit = (tool, args) => plugins.invoke('iron-yard', tool, args, {
+  expectedRevision: editor.snapshot().revision,
+});
+await edit('scene_load', { document: defaultScene() });
+await edit('scene_edit', {
+  id: 'hangar-a', changes: { center: [-30, 7, -15], color: '#ffcc00' },
+});
+console.log(await plugins.invoke('iron-yard', 'simulate', {
+  frames: 120, forward: 1, boost: true,
+}));
+console.log(await plugins.invoke('iron-yard', 'scene_export', {}));
+plugins.dispose();
+```
+
+`just studio-dev` / `just studio-build` はゲームとアセットもビルドします。別途5192番のサーバーは不要です。配布用 `dist/games/iron-yard/` に同梱され、静的ホスティングやWorkerから同じパスで配信できます。ゲームソース変更後は `(cd editor/studio && pnpm build:games)` で同梱版を更新して開き直します。editorの変更監視とは独立しています。[型定義](public/games.d.ts)、[シーン操作](games/iron-yard-scene.mjs)。
+
+`just studio-e2e` はヘッドレスのSwiftShaderでゲーム統合も検証します。macOSでは `STUDIO_GPU=metal just studio-e2e` でインストール済みChromeのMetal描画も確認できます（こちらもヘッドレス）。
+
+### フォームと任意プラグイン
 
 右下の **New pane → Pane builder** でJSON定義を編集し **Create pane** を押すと、再ビルドせずゲーム固有フォームを作れます。テキスト・数値・真偽値・選択肢に対応します。タブでConsoleと切り替え、Close paneで表示を閉じます。ペーン領域は既存の境界ドラッグでリサイズでき、内容だけがスクロールします。
 
@@ -316,3 +463,43 @@ await documents.save({ store: 'r2', key: 'game/scene.json' }, editor.snapshot().
 ```
 
 参考: [R2 Worker API](https://developers.cloudflare.com/r2/api/workers/workers-api-reference/)、[静的アセットのbinding](https://developers.cloudflare.com/workers/static-assets/binding/)、[File System API](https://developer.mozilla.org/en-US/docs/Web/API/File_System_API)、[IndexedDB](https://developer.mozilla.org/en-US/docs/Web/API/IndexedDB_API/Using_IndexedDB)（2026-09-10確認）。
+
+### ゲームごとのシーンと複数シーンのプロジェクト
+
+Arena 3D / FPS Demo はゲーム所有のコンポーネント定義から共通ペーンを組み立て、Kagura のゲーム実行へ配置・色・衝突形状を渡します。Arena は出口オブジェクトで次のシーンへ遷移します。左上のロゴ横にある `Scene` セレクタ（操作名 `Project scene`） で `.kgrprj` の `scenes` を切り替えられます。
+
+実装パターン、現在の制約、未実装のプロジェクト設定の提案は [ゲームプロジェクト設計](../../docs/editor/game-projects.md) を参照してください。
+
+### MoonBit を正本にするシーン
+
+Arena / FPS は `scenes/*.mbt` を既定のシーン定義として使います。`@scene_document.Document` の型付き宣言を MoonBit がコンパイルし、エディタは同じ宣言をリテラルとして読み書きします。Save は `.mbt` を保持し、手書きコードは管理マーカーの外に残せます。任意のコードをエディタで逆変換する機能ではありません。単体起動もこの定義を読みます。JSON は交換・既存プロジェクト互換用です。
+
+全 examples の拡張コードは `editor/`、IRON YARD の専用 UI は `editor/ui/` にあります。詳しくは [シーンの正本は MoonBit](../../docs/editor/game-projects.md#シーンの正本は-moonbit) を参照してください。
+
+### 共通のプロジェクト操作
+
+起動時は汎用エディタだけを読み込みます。ゲーム固有の拡張・ペーン・WebMCP ツールはプロジェクトを開いた時点で読み込みます。
+
+ビューポート上部の **Edit / Play / Stop** は Studio 本体が所有します。Edit は試遊を終了して現在のプロジェクトの編集へ戻り、Play はそのゲームを起動、Stop は実行用 iframe を破棄します。native 専用や実行機能のないプロジェクトは Play が無効です。Action preview の再生は個別アクション確認用として独立しています。
+
+拡張は `GameEditor` の `play()` / `stop()` / `playing()` を提供し、利用可否を変える場合は `canPlay()` を返します。ゲーム内から終了するなど状態が変わった場合は `GameEditorContext.notifyState()` で本体に通知します。IRON YARD と共通 examples 拡張はいずれもこの API を使います。
+
+### コードから起動し、停止中の実行状態を編集する
+
+**Examples → Flappy Bird → Play → Pause** で実行中の状態を編集できます。**Runtime state** の JSON を変更して **Apply state**、**Step** で入力なしの 1 フレーム実行、**Resume** でその状態から再開します。鳥の現在位置 `bird_y`・速度 `velocity`、スコア、生成済みパイプも対象です。**Scene hierarchy** は `view.mbt` の描画ツリーを表示します。**Export checkpoint / Import checkpoint** で `.kgrstate` を保存・復元できます。
+
+コードと状態の型・検証はゲームが所有し、汎用エディタはデバッグ操作を提供する方針です。`kagura.runtime` と WebMCP の `kagura.runtime_*` が同じ API を使用します。実行状態の session / revision で競合を検出し、通常のシーン Save や Undo とは独立して扱います。現在の対応ゲームは Flappy Bird。共通契約は [runtime.d.ts](public/runtime.d.ts)、設計と他ゲームの実装手順は [game-projects.md](../../docs/editor/game-projects.md) を参照してください。`just studio-runtime-test` で JS/native の状態復元とヘッドレス API を検証できます。
+
+### 2D プロジェクトの配置編集
+
+2D examples は専用の平面ビューと Inspector を使います。Flappy Bird は **Examples → Flappy Bird** で鳥・地面を選択し、ドラッグまたは **X / Y / Width / Height / Color** で編集できます。右下ハンドルでサイズ変更、ホイールでズーム、中・右ドラッグでパン、**Fit / 100%** で表示を調整します。**Play** は配置・サイズをゲームの描画と衝突に反映し、**Stop** は編集中の状態へ戻ります。**Save** は `scenes/training.mbt` を保存またはダウンロードします。
+
+2D 配置は `kagura.scene2d` リソースと `game/scene2d` の型で共有します。WebMCP の `kagura.pane.studio.scene2d.scene_read` / `object_edit` も同じトランザクションを利用します。共通 UI は `scene2d/`、Flappy Bird 固有の制約は `examples/games/flappy_bird/editor/scene.mjs` です。他の 2D examples は起動設定とプレビューまで対応し、配置の編集にはゲーム側のアダプターを追加します。
+
+Studio 対象の 29 examples は MoonBit の `src/` を置かず、ソースを直下、シーンを `scenes/`、編集拡張を `editor/` に配置します。ビルド入口は `.` が既定です。具体的な読込規約は [プロジェクト設計](../../docs/editor/game-projects.md#ファイル配置と読み込みの命名規約) を参照してください。
+
+### 宣言的な描画シーン
+
+Flappy Bird と Arena 3D は `view.mbt` の入れ子から描画とヒエラルキーを生成します。2D は既存 `@scene`、3D は `@scene3d.group / mesh / show / for_each` を使います。Play 中の **Scene hierarchy** と `kagura.runtime.hierarchy()` は同じツリーを参照します。[宣言 API と実装例](../../docs/editor/declarative-scenes.md) を参照してください。
+
+モデル閲覧は本体の [汎用モデルプレビュー](../../docs/editor/model-assets.md) を使用する。Project の GLB / glTF / OBJ をクリックすると、Kagura WebGPU で中央にプレビューする。ゲーム用の拡張や Play は不要。

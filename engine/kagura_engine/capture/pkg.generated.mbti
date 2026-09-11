@@ -1,0 +1,34 @@
+// Generated using `moon info`, DON'T EDIT IT
+package "mizchi/kagura_engine/capture"
+
+import {
+  "moonbitlang/core/debug",
+}
+
+// Values
+pub fn binarize_luma(Int, Int, Int) -> Int
+
+pub fn binarize_rgba8(Array[Int]) -> Unit
+
+pub fn capture_bytes_to_string(Bytes) -> String
+
+pub let capture_config_filename : String
+
+pub fn encode_rgba8_png(Int, Int, Array[Int]) -> Bytes?
+
+pub fn parse_capture_config(String) -> CaptureConfig?
+
+// Errors
+
+// Types and methods
+pub(all) struct CaptureConfig {
+  screenshot_path : String
+  context_path : String
+  summary_path : String
+  binarize : Bool
+} derive(@debug.Debug)
+pub impl Show for CaptureConfig
+
+// Type aliases
+
+// Traits

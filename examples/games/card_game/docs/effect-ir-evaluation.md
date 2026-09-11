@@ -179,10 +179,10 @@ cd examples/games/card_game
 moon test --target js
 
 # 生成 → 評価レポート（セクション 7 に出力）
-moon run src/headless --target js
+moon run headless --target js
 ```
 
-`moon run src/headless` の出力セクション7で、生成分布・採択カード例・設計済みカード
+`moon run headless` の出力セクション7で、生成分布・採択カード例・設計済みカード
 校正が再現可能なレポートとして表示される（`format_generation_report()`）。
 
 ---
@@ -191,9 +191,9 @@ moon run src/headless --target js
 
 | ファイル | 役割 |
 |---|---|
-| `src/lib/effect.mbt` | Effect IR の型定義と `apply_effects` インタプリタ、`card_effects`（全42枚） |
-| `src/lib/effect_wbtest.mbt` | IR ↔ legacy 等価性テスト（全42枚 × 2シナリオ） |
-| `src/lib/generator.mbt` | カード生成、多ターン差分評価、レポート生成 |
-| `src/lib/generator_wbtest.mbt` | 生成ループのテスト |
-| `src/lib/cards.mbt` | `all_card_ids()` を追加 |
-| `src/headless/main.mbt` | セクション7：再現可能な生成評価レポート |
+| `lib/effect.mbt` | Effect IR の型定義と `apply_effects` インタプリタ、`card_effects`（全42枚） |
+| `lib/effect_wbtest.mbt` | IR ↔ legacy 等価性テスト（全42枚 × 2シナリオ） |
+| `lib/generator.mbt` | カード生成、多ターン差分評価、レポート生成 |
+| `lib/generator_wbtest.mbt` | 生成ループのテスト |
+| `lib/cards.mbt` | `all_card_ids()` を追加 |
+| `headless/main.mbt` | セクション7：再現可能な生成評価レポート |

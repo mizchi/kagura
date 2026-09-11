@@ -243,4 +243,3 @@ pub trait AudioStream {
   fn read(Self, FixedArray[Byte], Int) -> Int
   fn content_length(Self) -> Int
 }
-

@@ -1,0 +1,3 @@
+# Independent workspace modules must not be bundled in mizchi/kagura_game.
+/machinations/
+/pathfind/

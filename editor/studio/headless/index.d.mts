@@ -2,7 +2,7 @@ import type { SceneDocument, StudioAPI, Reply, Transaction } from '../public/con
 export type EditorRequest =
   | { method: 'snapshot' }
   | { method: 'dispatch'; transaction: Transaction }
-  | { method: 'undo' | 'redo'; expectedRevision: number }
+  | { method: 'undo' | 'redo' | 'history.clear'; expectedRevision: number }
   | { method: 'select'; id: string }
   | { method: 'seek'; time: number }
   | { method: 'layout'; value: 'scene' | 'action' };

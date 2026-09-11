@@ -288,4 +288,3 @@ pub fn VelocityState2D::store(Self, Array[RigidBody2D]) -> Unit
 // Type aliases
 
 // Traits
-

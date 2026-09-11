@@ -21,7 +21,7 @@
 - `mizchi/kagura_core`: core contracts / math / camera / mesh / input utilities。`core/kagura_core/src/*` を持つ。
 - `mizchi/kagura_engine`: rendering/runtime infrastructure。`engine/kagura_engine/src/*` を持ち、`mizchi/kagura_core` に依存する。
 - `mizchi/kagura_physics`: reusable physics / collision / pathfinding layer。`engine/physics/src/*` を持ち、`mizchi/kagura_core` に依存する。
-- `mizchi/kagura_game`: gameplay/simulation/application layer。`game/kagura_game/src/*` を持ち、`mizchi/kagura_core`、`mizchi/kagura_engine`、`mizchi/kagura_physics` に依存する。
+- `mizchi/kagura_game`: gameplay/simulation/application layer。`game/*` を持ち、`mizchi/kagura_core`、`mizchi/kagura_engine`、`mizchi/kagura_physics` に依存する。
 - `mizchi/kagura_js_runtime`: JS 専用 WebGPU runtime helper。`platform/js_runtime/src/*` を持つ。
 
 `mizchi/kagura` は compatibility facade とし、gameplay 層を含めない。`mizchi/kagura_game` から root facade へ戻す依存も作らない。
@@ -74,7 +74,7 @@ source manifest では `moon.work` 用の local `path` 依存を許可する。p
 | `renderer3d` | frame draw context | `scene3d` graph/scene, optional postfx pipeline | scene + postfx draw command queue | `engine/kagura_engine/src/renderer3d/renderer3d.mbt` |
 | `text` | font cache, glyph cache | text runs | glyph quads, draw commands | `engine/kagura_engine/src/text/contracts.mbt` |
 | `ui` | ui tree, layout cache | input snapshot, frame budget | ui events, draw commands | `engine/kagura_engine/src/ui/contracts.mbt` |
-| `ai` | blackboard, scheduler state | sensor snapshot, frame budget | action intents | `game/kagura_game/src/ai/contracts.mbt` |
+| `ai` | blackboard, scheduler state | sensor snapshot, frame budget | action intents | `game/ai/contracts.mbt` |
 
 ## Backend Implementations
 

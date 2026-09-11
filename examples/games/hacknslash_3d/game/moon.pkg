@@ -1,0 +1,20 @@
+import {
+  "moonbitlang/core/json",
+  "moonbitlang/core/cmp",
+  "mizchi/kagura_game/gameplay2d",
+  "moonbitlang/core/math",
+  "mizchi/pathfind",
+  "mizchi/physics/physics2d",
+  "mizchi/kagura_game/progression",
+  "mizchi/geom/vector",
+  "mizchi/terrain/arena_chain",
+  "mizchi/terrain/bsp",
+  "mizchi/terrain/cellular",
+  "mizchi/terrain/diablo",
+  "mizchi/terrain/rogue",
+  "mizchi/terrain/tinykeep",
+  "mizchi/terrain/types" @terrain,
+  "moonbitlang/core/debug",
+}
+
+warnings = "-1-2-7-29"

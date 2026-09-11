@@ -1,5 +1,5 @@
 ///|
-extern "C" fn native_engine_clock_now_ms() -> Double = "kagura_runtime_now_ms"
+fn native_engine_clock_now_ms() -> Double { @runtime.clock_now_ms() }
 
 ///|
 pub fn run(

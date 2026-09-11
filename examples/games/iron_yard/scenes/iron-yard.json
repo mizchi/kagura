@@ -1,0 +1,354 @@
+{
+  "version": 1,
+  "id": "iron-yard",
+  "name": "IRON YARD / 境界線防衛",
+  "units": "meters",
+  "up": "Y",
+  "forward": "+Z",
+  "assets": {
+    "player": "model.strix",
+    "enemy": "model.bastion",
+    "bgm": "bgm.battle"
+  },
+  "stage": {
+    "bounds": {
+      "minX": -48,
+      "maxX": 48,
+      "minZ": -60,
+      "maxZ": 54
+    },
+    "spawn": [
+      0,
+      0,
+      -36
+    ],
+    "solids": [
+      {
+        "id": "hangar-a",
+        "kind": "warehouse",
+        "center": [
+          -28,
+          7,
+          -15
+        ],
+        "size": [
+          22,
+          14,
+          30
+        ],
+        "color": "#656f74"
+      },
+      {
+        "id": "hangar-b",
+        "kind": "warehouse",
+        "center": [
+          28,
+          9,
+          -4
+        ],
+        "size": [
+          22,
+          18,
+          26
+        ],
+        "color": "#616a6c"
+      },
+      {
+        "id": "cooling-a",
+        "kind": "tower",
+        "center": [
+          -33,
+          13,
+          34
+        ],
+        "size": [
+          16,
+          26,
+          14
+        ],
+        "color": "#707b7e"
+      },
+      {
+        "id": "cooling-b",
+        "kind": "tower",
+        "center": [
+          33,
+          16,
+          38
+        ],
+        "size": [
+          16,
+          32,
+          18
+        ],
+        "color": "#606e76"
+      },
+      {
+        "id": "central-cover",
+        "kind": "barrier",
+        "center": [
+          0,
+          1.7,
+          6
+        ],
+        "size": [
+          12,
+          3.4,
+          3
+        ],
+        "color": "#69716e"
+      },
+      {
+        "id": "container-a",
+        "kind": "container",
+        "center": [
+          -12,
+          1.6,
+          20
+        ],
+        "size": [
+          5,
+          3.2,
+          12
+        ],
+        "color": "#9a6746"
+      },
+      {
+        "id": "container-b",
+        "kind": "container",
+        "center": [
+          -17,
+          1.6,
+          20
+        ],
+        "size": [
+          5,
+          3.2,
+          12
+        ],
+        "color": "#415e64"
+      },
+      {
+        "id": "container-c",
+        "kind": "container",
+        "center": [
+          16,
+          1.6,
+          -28
+        ],
+        "size": [
+          5,
+          3.2,
+          12
+        ],
+        "color": "#9b7949"
+      },
+      {
+        "id": "container-d",
+        "kind": "container",
+        "center": [
+          14,
+          1.6,
+          34
+        ],
+        "size": [
+          5,
+          3.2,
+          12
+        ],
+        "color": "#415e64"
+      },
+      {
+        "id": "north-wall",
+        "kind": "wall",
+        "center": [
+          0,
+          4,
+          55
+        ],
+        "size": [
+          100,
+          8,
+          2
+        ],
+        "color": "#677271"
+      },
+      {
+        "id": "south-wall",
+        "kind": "wall",
+        "center": [
+          0,
+          4,
+          -61
+        ],
+        "size": [
+          100,
+          8,
+          2
+        ],
+        "color": "#677271"
+      },
+      {
+        "id": "east-wall",
+        "kind": "wall",
+        "center": [
+          49,
+          4,
+          -3
+        ],
+        "size": [
+          2,
+          8,
+          114
+        ],
+        "color": "#677271"
+      },
+      {
+        "id": "west-wall",
+        "kind": "wall",
+        "center": [
+          -49,
+          4,
+          -3
+        ],
+        "size": [
+          2,
+          8,
+          114
+        ],
+        "color": "#677271"
+      }
+    ],
+    "targets": [
+      {
+        "id": "B-01",
+        "position": [
+          -9,
+          0,
+          -9
+        ],
+        "yaw": 0.5
+      },
+      {
+        "id": "B-02",
+        "position": [
+          10,
+          0,
+          20
+        ],
+        "yaw": 3.6
+      },
+      {
+        "id": "B-03",
+        "position": [
+          -6,
+          0,
+          41
+        ],
+        "yaw": 3.141592653589793
+      },
+      {
+        "id": "B-04",
+        "position": [
+          -9,
+          0,
+          -9
+        ],
+        "yaw": 0.5
+      },
+      {
+        "id": "B-05",
+        "position": [
+          10,
+          0,
+          20
+        ],
+        "yaw": 3.6
+      },
+      {
+        "id": "B-06",
+        "position": [
+          -6,
+          0,
+          41
+        ],
+        "yaw": 3.141592653589793
+      },
+      {
+        "id": "B-07",
+        "position": [
+          -9,
+          0,
+          -9
+        ],
+        "yaw": 0.5
+      },
+      {
+        "id": "B-08",
+        "position": [
+          10,
+          0,
+          20
+        ],
+        "yaw": 3.6
+      },
+      {
+        "id": "B-09",
+        "position": [
+          -6,
+          0,
+          41
+        ],
+        "yaw": 3.141592653589793
+      }
+    ]
+  },
+  "camera": {
+    "fov": 58
+  },
+  "lighting": {
+    "skyColor": "#a4b3bd",
+    "sunIntensity": 3.2
+  },
+  "action": {
+    "version": 1,
+    "id": "rifle",
+    "cooldown": 0.12,
+    "damage": 12,
+    "flashDuration": 0.035,
+    "flashColor": "#fff2bf",
+    "recoilDuration": 0.11,
+    "recoilStrength": 0.075,
+    "shotSound": "sfx.blunt",
+    "hitSound": "sfx.sword"
+  },
+  "mission": {
+    "timeLimit": 180,
+    "waves": [
+      {
+        "id": "wave-1",
+        "targets": [
+          "B-01",
+          "B-02",
+          "B-03"
+        ]
+      },
+      {
+        "id": "wave-2",
+        "targets": [
+          "B-04",
+          "B-05",
+          "B-06"
+        ]
+      },
+      {
+        "id": "wave-3",
+        "targets": [
+          "B-07",
+          "B-08",
+          "B-09"
+        ]
+      }
+    ]
+  }
+}

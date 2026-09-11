@@ -7,6 +7,7 @@ export function createAPI(app, events = globalThis) {
       try { return JSON.parse(app.dispatch(JSON.stringify(envelope))); }
       catch { return invalid('Expected a JSON-serializable transaction'); }
     },
+    clearHistory(expectedRevision) { return history('history.clear', expectedRevision); },
     undo(expectedRevision) { return history('undo', expectedRevision); },
     redo(expectedRevision) { return history('redo', expectedRevision); },
     select(id) {

@@ -7,6 +7,11 @@ export function createGameUI({game, controls, reset}) {
   const targets = new Map();
   menu.showModal();
   menu.addEventListener('cancel', event => event.preventDefault());
+  if (document.documentElement.dataset.editor === 'true') {
+    const exit = document.createElement('button'); exit.type = 'button'; exit.textContent = '編集に戻る';
+    exit.onclick = () => { controls.pause(); parent.postMessage({type:'kagura:game-exit',version:1},location.origin); };
+    menu.querySelector('.menu-footer').append(exit);
+  }
   $('deploy').onclick = async () => {
     if (!ready) return;
     starting = true;
@@ -47,7 +52,8 @@ export function createGameUI({game, controls, reset}) {
     if (!phaseChanged && time - lastUpdate < 100) return;
     lastPhase = state.phase;
     lastUpdate = time;
-    const total = state.ai ? 9 : 3;
+    const total = state.mission?.total ?? (state.ai ? 9 : 3);
+    const waveCount = state.mission?.waves ?? 3, timeLimit = state.mission?.timeLimit ?? 180;
     const p = state.pilot, speed = Math.hypot(p.velocity[0], p.velocity[2]);
     const action = won ? 'もう一度出撃する' : lost ? '再出撃する' : state.phase === 'paused' ? '操作を再開' : '出撃する';
     setText('deploy-label', ready ? action : '機体を読み込み中…');
@@ -58,7 +64,7 @@ export function createGameUI({game, controls, reset}) {
     setText('menu-title', won ? 'MISSION COMPLETE' : lost ? 'UNIT LOST' : state.phase === 'paused' ? 'SYSTEM PAUSED' : 'IRON YARD');
     if (ready) setText('message', won ? `${state.kills}機撃破 · ${state.elapsed.toFixed(1)}秒で防衛成功` : lost ? state.hp <= 0 ? '機体が撃破されました。再出撃で全機をリセット' : '制限時間を超過しました' : state.phase === 'paused' ? '操作を再開してください' : '工業区画・境界線防衛');
     setText('brief-title', state.ai ? 'DEFENSE MISSION' : 'TARGET PRACTICE');
-    setText('brief-mission', state.ai ? '180秒以内に3波・9機を撃破。波の突破でAPを200回復。' : '最初の波の静止標的で練習。');
+    setText('brief-mission', state.ai ? `${timeLimit}秒以内に${waveCount}波・${total}機を撃破。波の突破でAPを200回復。` : '最初の波の静止標的で練習。');
     setText('uplink', active ? 'UPLINK ACTIVE' : 'STANDBY');
     const heading = ((p.yaw * 180 / Math.PI) % 360 + 360) % 360;
     setText('heading', `${Math.round(heading).toString().padStart(3, '0')}°`);
@@ -68,9 +74,9 @@ export function createGameUI({game, controls, reset}) {
     setText('position', `ALT ${p.position[1].toFixed(1)}m　X ${p.position[0].toFixed(1)}　Z ${p.position[2].toFixed(1)}`);
     setText('ap', Math.ceil(state.hp).toString().padStart(4, '0'));
     $('armor-bar').style.width = `${Math.max(0, state.hp) / 10}%`;
-    setText('mission', state.ai ? `WAVE ${state.wave} / 3` : 'TRAINING');
+    setText('mission', state.ai ? `WAVE ${state.wave} / ${waveCount}` : 'TRAINING');
     setText('objective', won ? 'MISSION COMPLETE' : lost ? 'UNIT LOST' : state.ai ? '敵機を撃破せよ' : '射撃演習');
-    setText('remaining', state.ai ? `残り ${Math.max(0, Math.ceil(180 - state.elapsed))} 秒 · 遮蔽物を使って回避` : '射撃とマルチロックを確認');
+    setText('remaining', state.ai ? `残り ${Math.max(0, Math.ceil(timeLimit - state.elapsed))} 秒 · 遮蔽物を使って回避` : '射撃とマルチロックを確認');
     setText('kills', `撃破 ${state.kills} / ${total}`);
     setText('weapons', state.missileCooldown > .01 ? `MISSILE RELOAD ${state.missileCooldown.toFixed(1)}s` : `MULTI LOCK ${state.units.filter(e => e.lock >= 1).length} / 3`);
     setText('weapon-hint', controls.weapons().lock ? 'Eを離して斉射' : '左クリック：射撃　E長押し→離す：ミサイル');
@@ -86,7 +92,7 @@ export function createGameUI({game, controls, reset}) {
         const label = document.createElement('span'), brackets = document.createElement('div');
         const health = document.createElement('div'), bar = document.createElement('i'), detail = document.createElement('small');
         health.className = 'target-health'; health.append(bar); node.append(label, brackets, health, detail);
-        node.dataset.target = `B-${String(unit.id + 1).padStart(2, '0')}`;
+        node.dataset.target = unit.name ?? `B-${String(unit.id + 1).padStart(2, '0')}`;
         $('targets').append(node); targets.set(unit.id, {node, label, brackets, bar, detail});
       }
       const t = targets.get(unit.id);
@@ -101,6 +107,14 @@ export function createGameUI({game, controls, reset}) {
   }
   return {
     render,
+    play() {
+      if (!ready) return;
+      if (['won', 'lost'].includes(JSON.parse(game.snapshot()).phase)) reset();
+      // Close the modal before focusing: a canvas outside an open dialog is inert.
+      menu.close();
+      controls.play();
+      $('app').focus({preventScroll: true});
+    },
     setReady() { ready = true; lastPhase = ''; $('deploy').disabled = false; $('deploy').focus({preventScroll: true}); },
     showError(error) { ready = false; $('deploy').disabled = true; setText('message', error.message); $('message').setAttribute('role', 'alert'); if (!menu.open) menu.showModal(); },
   };

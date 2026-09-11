@@ -13,7 +13,15 @@ pub fn build_profiler_hud(Array[@gfx.DrawTrianglesCommand], @gfx.ImageHandle, @g
 
 pub fn default_frame_profile() -> FrameProfile
 
+pub fn default_headless_input() -> HeadlessInput
+
+pub fn headless_frame_png(HeadlessFrame) -> Bytes?
+
+pub fn parse_headless_keys(String) -> Array[Int]
+
 pub fn[T : @gfx.GraphicsDriver] render_commands(T, Array[@gfx.DrawTrianglesCommand], clear_color? : @gfx.Color, clear_enabled? : Bool) -> Unit raise
+
+pub fn render_headless_frame(update~ : (@kagura_core.InputSnapshot) -> Unit, draw~ : (EngineContext) -> Array[@gfx.DrawTrianglesCommand], width~ : Int, height~ : Int, frames~ : Int, input? : HeadlessInput, on_frame? : () -> Unit, textures? : Array[HeadlessTexture], clear_color? : @gfx.Color) -> HeadlessFrame
 
 pub fn reset_lifecycle_hooks() -> Unit
 
@@ -48,6 +56,28 @@ pub fn FrameProfile::to_repr(Self) -> @debug.Repr
 pub fn FrameProfile::to_string(Self) -> String
 pub impl Show for FrameProfile
 
+pub(all) struct HeadlessFrame {
+  width : Int
+  height : Int
+  frames : Int
+  pixels : Array[Int]
+  skipped_commands : Int
+  drawn_triangles : Int
+}
+
+pub(all) struct HeadlessInput {
+  cursor_x : Double
+  cursor_y : Double
+  pressed_keys : Array[Int]
+}
+
+pub(all) struct HeadlessTexture {
+  id : Int
+  width : Int
+  height : Int
+  pixels : Array[Int]
+}
+
 pub(all) struct LifecycleHooks {
   on_start : (String, String) -> Unit
   on_stop : () -> Unit
@@ -60,4 +90,3 @@ pub(open) trait EngineGame {
   fn update_game(Self, @kagura_core.InputSnapshot) -> Unit
   fn draw_game(Self, EngineContext) -> Array[@gfx.DrawTrianglesCommand]
 }
-

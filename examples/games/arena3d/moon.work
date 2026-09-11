@@ -1,4 +1,6 @@
 members = [
+  "../../../game",
+  "../../../engine/physics",
   ".",
   "../../../engine/anim3d",
   "../../../engine/atlas",

@@ -1,4 +1,5 @@
 import type { PanePlugin, PluginCallOptions, PluginReply, PublishedPaneTool, PluginSDK } from './plugins.d.ts';
+import type { RuntimeDebugAPI, SceneHierarchyNode } from './runtime.d.ts';
 import type { BrowserStorage } from './storage.d.ts';
 /** Kagura Studio v1. Runtime validation is owned by src/core, not this declaration. */
 export type Vec3 = [number, number, number];
@@ -76,6 +77,8 @@ export type Reply = { ok: true; snapshot: Snapshot } |
 export interface StudioAPI {
   snapshot(): Snapshot;
   dispatch(transaction: Transaction): Reply;
+  /** Clear undo/redo when switching scene files; revision guarded. */
+  clearHistory(expectedRevision: number): Reply;
   undo(expectedRevision: number): Reply;
   redo(expectedRevision: number): Reply;
   select(id: string): Reply;
@@ -137,7 +140,22 @@ export interface WebMCPStatus {
   message: string;
   tools: string[];
 }
+export interface ModelPreviewSnapshot {
+  path: string | null;
+  state: 'idle' | 'loading' | 'ready' | 'error';
+  warnings: string[];
+  stats: { nodes: number; triangles: number } | null;
+}
+export interface ModelAssetsAPI {
+  list(): Promise<string[]>;
+  preview(path: string): Promise<ModelPreviewSnapshot>;
+  snapshot(): ModelPreviewSnapshot;
+  close(): void;
+}
 export interface BrowserStudioAPI extends StudioAPI {
+  assets: ModelAssetsAPI;
+  /** Throws when the current game does not expose a live debugger. */
+  runtime: RuntimeDebugAPI & { hierarchy(): SceneHierarchyNode[] | undefined };
   plugins: PluginSDK;
   storage: BrowserStorage;
   panes: PaneAPI;

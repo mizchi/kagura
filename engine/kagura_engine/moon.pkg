@@ -1,4 +1,5 @@
 import {
+  "mizchi/kagura_engine/runtime",
   "mizchi/kagura_core" @core,
   "mizchi/gfx",
   "mizchi/kagura_audio" @audio,

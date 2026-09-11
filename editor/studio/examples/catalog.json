@@ -1,0 +1,385 @@
+[
+  {
+    "id": "action_rpg",
+    "title": "Action RPG",
+    "category": "games",
+    "manifest": "action_rpg.kgrprj",
+    "controls": [
+      "WASD / Arrow: move",
+      "Space: start / attack / confirm",
+      "Esc: pause menu"
+    ],
+    "width": 800,
+    "height": 600,
+    "preview": "webgpu"
+  },
+  {
+    "id": "arena3d",
+    "title": "Arena 3D",
+    "category": "games",
+    "manifest": "arena3d.kgrprj",
+    "controls": [
+      "Watch the scene render",
+      "See source for camera / scene setup"
+    ],
+    "width": 640,
+    "height": 480,
+    "preview": "webgpu"
+  },
+  {
+    "id": "card_game",
+    "title": "Card Game",
+    "category": "games",
+    "manifest": "card_game.kgrprj",
+    "controls": [
+      "Browser demos currently require WebGPU",
+      "Open the example source for control details"
+    ],
+    "width": 800,
+    "height": 600,
+    "preview": "webgpu"
+  },
+  {
+    "id": "collision3d_demo",
+    "title": "Collision 3D",
+    "category": "demos-3d",
+    "manifest": "collision3d_demo.kgrprj",
+    "controls": [
+      "WASD: move",
+      "Mouse: look"
+    ],
+    "width": 640,
+    "height": 480,
+    "preview": "webgpu"
+  },
+  {
+    "id": "draw2d_ui_demo",
+    "title": "Draw2d Ui Demo",
+    "category": "demos-2d",
+    "manifest": "draw2d_ui_demo.kgrprj",
+    "controls": [
+      "Browser demos currently require WebGPU",
+      "Open the example source for control details"
+    ],
+    "width": 800,
+    "height": 600,
+    "preview": "webgpu"
+  },
+  {
+    "id": "ecs_demo",
+    "title": "Ecs Demo",
+    "category": "demos-2d",
+    "manifest": "ecs_demo.kgrprj",
+    "controls": [
+      "Browser demos currently require WebGPU",
+      "Open the example source for control details"
+    ],
+    "width": 800,
+    "height": 600,
+    "preview": "webgpu"
+  },
+  {
+    "id": "fetch_image",
+    "title": "Fetch Image",
+    "category": "demos-2d",
+    "manifest": "fetch_image.kgrprj",
+    "controls": [
+      "No input required",
+      "Replace `assets/sample.png` to try another image"
+    ],
+    "width": 800,
+    "height": 600,
+    "preview": "webgpu"
+  },
+  {
+    "id": "flappy_bird",
+    "title": "Flappy Bird",
+    "category": "games",
+    "manifest": "flappy_bird.kgrprj",
+    "controls": [
+      "Tap / Space: flap",
+      "Tap / Space after game over: restart"
+    ],
+    "width": 320,
+    "height": 240,
+    "preview": "webgpu"
+  },
+  {
+    "id": "fps_demo",
+    "title": "FPS Demo",
+    "category": "games",
+    "manifest": "fps_demo.kgrprj",
+    "controls": [
+      "WASD: move",
+      "Mouse: look",
+      "Left click: shoot",
+      "Space: jump"
+    ],
+    "width": 640,
+    "height": 480,
+    "preview": "webgpu"
+  },
+  {
+    "id": "gltf_viewer",
+    "title": "glTF Viewer",
+    "category": "demos-3d",
+    "manifest": "gltf_viewer.kgrprj",
+    "controls": [
+      "Project リソースからモデルを選択",
+      "Models: 回転・平行移動・ズーム"
+    ],
+    "width": 640,
+    "height": 480,
+    "preview": "asset"
+  },
+  {
+    "id": "hacknslash",
+    "title": "Hack & Slash",
+    "category": "games",
+    "manifest": "hacknslash.kgrprj",
+    "controls": [
+      "WASD / Arrow: move",
+      "Space: start / attack / restart"
+    ],
+    "width": 800,
+    "height": 600,
+    "preview": "webgpu"
+  },
+  {
+    "id": "hacknslash_3d",
+    "title": "Hack & Slash 3D",
+    "category": "games",
+    "manifest": "hacknslash_3d.kgrprj",
+    "controls": [
+      "WASD / Arrow: move",
+      "Space: confirm / use skill prompt",
+      "I: inventory, K: skill tree, Esc: pause"
+    ],
+    "width": 640,
+    "height": 480,
+    "preview": "webgpu"
+  },
+  {
+    "id": "ik_demo",
+    "title": "Ik Demo",
+    "category": "demos-3d",
+    "manifest": "ik_demo.kgrprj",
+    "controls": [
+      "Browser demos currently require WebGPU",
+      "Open the example source for control details"
+    ],
+    "width": 800,
+    "height": 600,
+    "preview": "native"
+  },
+  {
+    "id": "iron_yard",
+    "title": "IRON YARD",
+    "category": "games",
+    "manifest": "iron-yard.kgrprj",
+    "controls": [
+      "Browser demos currently require WebGPU",
+      "Open the example source for control details"
+    ],
+    "width": 800,
+    "height": 600,
+    "preview": "webgpu"
+  },
+  {
+    "id": "machinations_demo",
+    "title": "Machinations",
+    "category": "demos-2d",
+    "manifest": "machinations_demo.kgrprj",
+    "controls": [
+      "Click gold (interactive) nodes to fire them",
+      "SPACE: play/pause   RIGHT: step   R: reset",
+      "UP / DOWN: adjust speed",
+      "Hover a node to inspect it"
+    ],
+    "width": 720,
+    "height": 480,
+    "preview": "webgpu"
+  },
+  {
+    "id": "obj_viewer",
+    "title": "OBJ Viewer",
+    "category": "demos-3d",
+    "manifest": "obj_viewer.kgrprj",
+    "controls": [
+      "Project リソースからモデルを選択",
+      "Models: 回転・平行移動・ズーム"
+    ],
+    "width": 640,
+    "height": 480,
+    "preview": "asset"
+  },
+  {
+    "id": "particle_demo",
+    "title": "Particle System",
+    "category": "demos-3d",
+    "manifest": "particle_demo.kgrprj",
+    "controls": [
+      "Left drag: orbit camera",
+      "Wheel: zoom"
+    ],
+    "width": 640,
+    "height": 480,
+    "preview": "webgpu"
+  },
+  {
+    "id": "pbr_demo",
+    "title": "Pbr Demo",
+    "category": "demos-3d",
+    "manifest": "pbr_demo.kgrprj",
+    "controls": [
+      "Browser demos currently require WebGPU",
+      "Open the example source for control details"
+    ],
+    "width": 800,
+    "height": 600,
+    "preview": "native"
+  },
+  {
+    "id": "physics2d_demo",
+    "title": "Physics 2D",
+    "category": "demos-2d",
+    "manifest": "physics2d_demo.kgrprj",
+    "controls": [
+      "Click: spawn a new body",
+      "Bodies alternate between circles and boxes"
+    ],
+    "width": 640,
+    "height": 480,
+    "preview": "webgpu"
+  },
+  {
+    "id": "physics3d_demo",
+    "title": "Physics 3D",
+    "category": "demos-3d",
+    "manifest": "physics3d_demo.kgrprj",
+    "controls": [
+      "Automatic camera motion",
+      "Observe the rigid bodies and collisions"
+    ],
+    "width": 640,
+    "height": 480,
+    "preview": "webgpu"
+  },
+  {
+    "id": "postfx_demo",
+    "title": "Post Effects",
+    "category": "demos-3d",
+    "manifest": "postfx_demo.kgrprj",
+    "controls": [
+      "Automatic camera motion",
+      "Open source for post-processing setup"
+    ],
+    "width": 640,
+    "height": 480,
+    "preview": "webgpu"
+  },
+  {
+    "id": "ragdoll_demo",
+    "title": "Ragdoll",
+    "category": "demos-3d",
+    "manifest": "ragdoll_demo.kgrprj",
+    "controls": [
+      "Click and drag: pull the ragdoll",
+      "Release: let the spring force settle"
+    ],
+    "width": 640,
+    "height": 480,
+    "preview": "webgpu"
+  },
+  {
+    "id": "scene_demo",
+    "title": "Scene Demo",
+    "category": "demos-2d",
+    "manifest": "scene_demo.kgrprj",
+    "controls": [
+      "WASD / Arrow: move",
+      "Space: add score"
+    ],
+    "width": 800,
+    "height": 600,
+    "preview": "webgpu"
+  },
+  {
+    "id": "shadow3d_demo",
+    "title": "Shadow 3D",
+    "category": "demos-3d",
+    "manifest": "shadow3d_demo.kgrprj",
+    "controls": [
+      "Automatic camera motion",
+      "Open source for implementation details"
+    ],
+    "width": 640,
+    "height": 480,
+    "preview": "webgpu"
+  },
+  {
+    "id": "skeletal_anim",
+    "title": "Skeletal Animation",
+    "category": "demos-3d",
+    "manifest": "skeletal_anim.kgrprj",
+    "controls": [
+      "Automatic camera motion",
+      "Open source for animation graph details"
+    ],
+    "width": 640,
+    "height": 480,
+    "preview": "webgpu"
+  },
+  {
+    "id": "sprite_anim",
+    "title": "Sprite Anim",
+    "category": "demos-2d",
+    "manifest": "sprite_anim.kgrprj",
+    "controls": [
+      "Browser demos currently require WebGPU",
+      "Open the example source for control details"
+    ],
+    "width": 800,
+    "height": 600,
+    "preview": "webgpu"
+  },
+  {
+    "id": "survivor",
+    "title": "Survivor",
+    "category": "games",
+    "manifest": "survivor.kgrprj",
+    "controls": [
+      "WASD / Arrow: move",
+      "Space: start / confirm / continue"
+    ],
+    "width": 800,
+    "height": 600,
+    "preview": "webgpu"
+  },
+  {
+    "id": "terrain_demo",
+    "title": "Terrain Demo",
+    "category": "demos-3d",
+    "manifest": "terrain_demo.kgrprj",
+    "controls": [
+      "Browser demos currently require WebGPU",
+      "Open the example source for control details"
+    ],
+    "width": 800,
+    "height": 600,
+    "preview": "native"
+  },
+  {
+    "id": "ui_demo",
+    "title": "UI Demo",
+    "category": "demos-2d",
+    "manifest": "ui_demo.kgrprj",
+    "controls": [
+      "Tab / Shift+Tab: move focus",
+      "Click: focus / select"
+    ],
+    "width": 640,
+    "height": 480,
+    "preview": "webgpu"
+  }
+]

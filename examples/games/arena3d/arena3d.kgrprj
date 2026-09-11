@@ -1,0 +1,44 @@
+{
+  "format": "kagura.project",
+  "version": 1,
+  "name": "Arena 3D",
+  "editor": {
+    "id": "arena3d",
+    "apiVersion": 1
+  },
+  "scene": "scenes/training.mbt",
+  "resources": {},
+  "scenes": {
+    "training": "scenes/training.mbt",
+    "second": "scenes/second.mbt"
+  },
+  "entryScene": "training",
+  "id": "mizchi.kagura.examples.arena3d",
+  "game": "arena3d",
+  "save": {
+    "namespace": "mizchi.kagura.examples.arena3d",
+    "version": 1
+  },
+  "runtime": {
+    "kind": "script",
+    "apiVersion": 1,
+    "targets": [
+      "js",
+      "native"
+    ],
+    "entry": "editor/dist/runtime.js"
+  },
+  "build": {
+    "package": ".",
+    "artifact": "arena3d.js",
+    "scenePackage": "scenes"
+  },
+  "display": {
+    "width": 640,
+    "height": 480
+  },
+  "sceneSchema": {
+    "id": "arena3d.scene",
+    "version": 1
+  }
+}

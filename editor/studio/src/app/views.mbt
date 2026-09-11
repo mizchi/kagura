@@ -78,7 +78,7 @@ fn toolbar() -> @dom.DomNode {
         type_="file",
         class="file-input",
         attrs=[
-          ("accept", @dom.AttrString("application/json,.json")),
+          ("accept", @dom.AttrString("application/json,.json,.kgrscene,.mbt")),
           ("aria-label", @dom.AttrString("Import scene")),
         ],
         on=@dom.events().change(fn(_) { host_action("import", "") }),
@@ -387,10 +387,10 @@ fn action_fields() -> @dom.DomNode {
                   return
                 }
                 let next = match key {
-                  "duration" => { ..a, duration: value }
-                  "flashDuration" => { ..a, flashDuration: value }
-                  "recoilDuration" => { ..a, recoilDuration: value }
-                  _ => { ..a, recoilStrength: value }
+                  "duration" => { ..a, duration: value, }
+                  "flashDuration" => { ..a, flashDuration: value, }
+                  "recoilDuration" => { ..a, recoilDuration: value, }
+                  _ => { ..a, recoilStrength: value, }
                 }
                 command({ "op": "action.set", "action": ToJson::to_json(next) })
               }),

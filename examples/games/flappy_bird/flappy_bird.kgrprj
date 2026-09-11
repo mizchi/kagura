@@ -1,0 +1,39 @@
+{
+  "format": "kagura.project",
+  "version": 1,
+  "name": "Flappy Bird",
+  "editor": {
+    "id": "flappy-bird",
+    "apiVersion": 1
+  },
+  "scene": "scenes/training.mbt",
+  "resources": {},
+  "id": "mizchi.kagura.examples.flappy_bird",
+  "game": "flappy_bird",
+  "save": {
+    "namespace": "mizchi.kagura.examples.flappy_bird",
+    "version": 1
+  },
+  "runtime": {
+    "kind": "script",
+    "apiVersion": 1,
+    "targets": [
+      "js",
+      "native"
+    ],
+    "entry": "editor/dist/runtime.js"
+  },
+  "build": {
+    "package": ".",
+    "artifact": "flappy_bird.js",
+    "scenePackage": "scenes"
+  },
+  "display": {
+    "width": 320,
+    "height": 240
+  },
+  "sceneSchema": {
+    "id": "flappy_bird.scene2d",
+    "version": 1
+  }
+}

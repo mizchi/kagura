@@ -74,4 +74,3 @@ pub trait FontEngine {
 pub trait TextBatchBuilder {
   fn build_draw_commands(Self, @gfx.ImageHandle, Array[@font.GlyphQuad], @gfx.ShaderHandle) -> Array[@gfx.DrawTrianglesCommand] raise
 }
-

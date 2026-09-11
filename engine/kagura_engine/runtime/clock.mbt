@@ -39,3 +39,8 @@ pub fn set_runtime_clock_provider(clock : () -> Double) -> Unit {
 pub fn reset_runtime_clock_provider() -> Unit {
   runtime_clock_provider.val = default_runtime_clock_now_ms
 }
+
+///| Read through the package that owns the native clock stub and its lifetime.
+pub fn clock_now_ms() -> Double {
+  (runtime_clock_provider.val)()
+}

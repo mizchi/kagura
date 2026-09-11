@@ -1,0 +1,38 @@
+{
+  "format": "kagura.project",
+  "version": 1,
+  "name": "UI Demo",
+  "editor": {
+    "id": "kagura.example2d",
+    "apiVersion": 1
+  },
+  "scene": "editor/studio.json",
+  "resources": {},
+  "id": "mizchi.kagura.examples.ui_demo",
+  "game": "ui_demo",
+  "save": {
+    "namespace": "mizchi.kagura.examples.ui_demo",
+    "version": 1
+  },
+  "runtime": {
+    "kind": "script",
+    "apiVersion": 1,
+    "targets": [
+      "js",
+      "native"
+    ],
+    "entry": "editor/dist/runtime.js"
+  },
+  "build": {
+    "package": ".",
+    "artifact": "ui_demo.js"
+  },
+  "display": {
+    "width": 640,
+    "height": 480
+  },
+  "sceneSchema": {
+    "id": "kagura.example",
+    "version": 1
+  }
+}

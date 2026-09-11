@@ -12,5 +12,3 @@ import {
   "mizchi/renderer2d@0.2.0",
   "mizchi/machinations@0.1.0",
 }
-
-source = "src"

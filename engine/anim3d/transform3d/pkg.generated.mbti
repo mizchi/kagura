@@ -43,4 +43,3 @@ pub impl Show for Transform3D
 // Type aliases
 
 // Traits
-

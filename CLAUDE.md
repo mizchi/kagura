@@ -17,8 +17,8 @@
 | `core/` | 外部依存ゼロ、または core 契約のみの基盤 | `kagura_core`, `geom`, `mesh3d` |
 | `platform/` | ターゲット固有の host / 窓口層 | `kagura_platform`, `js_runtime`, `web_runtime_hooks`, `native_runtime_hooks` |
 | `engine/` | 描画・アセット・ランタイム基盤 | `kagura_engine`, `renderer2d`, `text`, `widget2d`, `ui`, `atlas`, `asset_loader`, `audio`, `anim3d`, `physics` |
-| `game/` | ゲーム側のロジック（描画基盤に依存してよい） | `kagura_game`, `machinations`, `pathfind` |
-| `editor/` | オーサリング／確認用ツール | `effect-studio`, `modeling3d` |
+| `game/` | ゲーム側のロジック（描画基盤に依存してよい） | ルートが `mizchi/kagura_game`、`machinations`, `pathfind` は独立モジュール |
+| `editor/` | オーサリング／確認用ツール | `studio`, `model-viewer`, `effect-studio`, `modeling3d` |
 
 `web_runtime_hooks` / `native_runtime_hooks` は host hook の実装（`kagura_platform` の
 注入先）で、ほぼ全ての example と editor tool が import する。publish 対象ではないが

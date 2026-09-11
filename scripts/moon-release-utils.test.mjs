@@ -209,3 +209,20 @@ test("writePreparedManifests writes converted publish manifests", () => {
   assert.equal(summary.modules.length, 3);
   assert.equal(summary.modules[0].name, "example/root");
 });
+
+test("staging a module root excludes independent nested modules", () => {
+  const root = makeFixtureRepo();
+  try {
+    const manifestPath = path.join(root, "modules/engine/moon.mod.json");
+    const manifest = JSON.parse(fs.readFileSync(manifestPath, "utf8"));
+    delete manifest.source;
+    writeJson(manifestPath, manifest);
+    writeJson(path.join(root, "modules/engine/nested/moon.mod.json"), { name: "example/nested" });
+    fs.writeFileSync(path.join(root, "modules/engine/nested/secret.mbt"), "nested module");
+    const outDir = path.join(root, ".stage");
+    const result = writePreparedManifests({ repoRoot: root, outDir, moduleDirs: fixtureModuleDirs, depPolicy: fixturePolicy });
+    assert.deepEqual(result.validation.errors, []);
+    assert.equal(fs.existsSync(path.join(outDir, "example__engine/nested")), false);
+    assert.equal(fs.existsSync(path.join(outDir, "example__engine/src/lib.mbt")), true);
+  } finally { fs.rmSync(root, { recursive: true, force: true }); }
+});

@@ -120,4 +120,3 @@ pub impl Show for Vec4
 // Type aliases
 
 // Traits
-

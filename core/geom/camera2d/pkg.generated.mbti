@@ -22,4 +22,3 @@ pub fn Camera2D::world_to_screen_y(Self, Double) -> Double
 // Type aliases
 
 // Traits
-

@@ -1,7 +1,7 @@
 # ECS の write path — immutable struct を 1 個作るのに 264 ns
 
 - Date: 2026-09-11
-- Scope: `game/kagura_game/ecs`, `engine/anim3d/transform3d`,
+- Scope: `game/ecs`, `engine/anim3d/transform3d`,
   `examples/demos-2d/ecs_demo`
 - 前提: 物理の 3 周
   （[physics3d-optimization.md](./physics3d-optimization.md) /

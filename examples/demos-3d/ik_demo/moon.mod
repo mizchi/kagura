@@ -16,8 +16,6 @@ import {
   "mizchi/anim3d@0.2.0",
 }
 
-source = "src"
-
 options(
   "--moonbit-unstable-prebuild": "../../../scripts/moon-prebuild-native-link-flags.cjs",
 )

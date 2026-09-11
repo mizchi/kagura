@@ -1,0 +1,31 @@
+{
+  "format": "kagura.project",
+  "version": 1,
+  "name": "OBJ Viewer",
+  "editor": {
+    "id": "kagura.scene",
+    "apiVersion": 1
+  },
+  "scene": "editor/studio.json",
+  "resources": {
+    "asset.0": "assets/bunny.obj"
+  },
+  "id": "mizchi.kagura.examples.obj_viewer",
+  "game": "obj_viewer",
+  "save": {
+    "namespace": "mizchi.kagura.examples.obj_viewer",
+    "version": 1
+  },
+  "build": {
+    "package": ".",
+    "artifact": "obj_viewer.js"
+  },
+  "display": {
+    "width": 640,
+    "height": 480
+  },
+  "sceneSchema": {
+    "id": "kagura.scene",
+    "version": 1
+  }
+}

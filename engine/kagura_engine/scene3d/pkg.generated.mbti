@@ -7,11 +7,22 @@ import {
   "mizchi/geom/camera3d",
   "mizchi/geom/math3d",
   "mizchi/gfx",
+  "mizchi/kagura_core/hierarchy",
   "mizchi/kagura_engine/light3d",
   "mizchi/mesh3d",
 }
 
 // Values
+pub fn component(() -> View) -> View
+
+pub fn for_each(() -> Array[View]) -> View
+
+pub fn fragment(Array[View]) -> View
+
+pub fn group(key~ : String, name? : String, position? : @math3d.Vec3, rotation? : @math3d.Quaternion, scale? : @math3d.Vec3, children~ : Array[View]) -> View
+
+pub fn mesh(key~ : String, name? : String, mesh~ : @mesh3d.Mesh3D, position? : @math3d.Vec3, rotation? : @math3d.Quaternion, scale? : @math3d.Vec3, color? : @math3d.Vec4, material? : Material?, skinning? : SkinningState?, children? : Array[View]) -> View
+
 pub fn object3d(mesh~ : @mesh3d.Mesh3D, position? : @math3d.Vec3, rotation? : @math3d.Quaternion, scale? : @math3d.Vec3, color? : @math3d.Vec4, material? : Material?, sort_bias? : Double, skinning? : SkinningState?) -> Object3D
 
 pub fn object3d_with_transform(mesh~ : @mesh3d.Mesh3D, transform~ : @transform3d.Transform3D, color? : @math3d.Vec4, material? : Material?, sort_bias? : Double, skinning? : SkinningState?) -> Object3D
@@ -48,9 +59,13 @@ pub fn render_scene3d_gpu(Scene3D, @gfx.ImageHandle, @gfx.ShaderHandle, Int, Int
 
 pub fn render_scene3d_graph_gpu(SceneGraph, @camera3d.Camera3D, lighting? : @light3d.LightingEnvironment, @gfx.ImageHandle, @gfx.ShaderHandle, Int, Int, shader3d_textured? : @gfx.ShaderHandle?, shader3d_pbr? : @gfx.ShaderHandle?, shader3d_pbr_textured? : @gfx.ShaderHandle?, shader3d_skinned? : @gfx.ShaderHandle?) -> Array[@gfx.DrawTrianglesCommand]
 
+pub fn scene(root~ : View, camera~ : @camera3d.Camera3D, lighting? : @light3d.LightingEnvironment) -> SceneView
+
 pub fn scene3d(objects~ : Array[Object3D], camera~ : @camera3d.Camera3D, lighting? : @light3d.LightingEnvironment) -> Scene3D
 
 pub fn scene_node(mesh? : @mesh3d.Mesh3D?, position? : @math3d.Vec3, rotation? : @math3d.Quaternion, scale? : @math3d.Vec3, color? : @math3d.Vec4, material? : Material?, skinning? : SkinningState?) -> SceneNode
+
+pub fn show(() -> Bool, () -> View) -> View
 
 pub fn uniform_instance_color(Array[@math3d.Vec4]) -> @math3d.Vec4?
 
@@ -109,6 +124,23 @@ pub(all) struct SceneNode {
   children : Array[Int]
 }
 
+pub struct SceneRoot {
+  mut current : SceneGraph
+  mut ids : Map[String, Int]
+  mut outline : Array[@hierarchy.Node]
+}
+pub fn SceneRoot::graph(Self) -> SceneGraph
+pub fn SceneRoot::hierarchy(Self) -> Array[@hierarchy.Node]
+pub fn SceneRoot::new() -> Self
+pub fn SceneRoot::node_id(Self, String) -> Int?
+pub fn SceneRoot::render(Self, View) -> Unit raise
+
+pub(all) struct SceneView {
+  root : View
+  camera : @camera3d.Camera3D
+  lighting : @light3d.LightingEnvironment
+}
+
 pub(all) struct SkinningState {
   skin : @skeleton3d.SkinData
   skinning_matrices : Array[@math3d.Mat4]
@@ -117,7 +149,13 @@ pub(all) struct SkinningState {
 pub fn SkinningState::new(@skeleton3d.SkinData, Array[@math3d.Mat4]) -> Self
 pub fn SkinningState::new_with_packed(@skeleton3d.SkinData, Array[@math3d.Mat4], Array[Double]) -> Self
 
+pub(all) enum View {
+  Element(String, String, SceneNode, Array[View])
+  Fragment(Array[View])
+  Dynamic(() -> Array[View])
+  Component(() -> View)
+}
+
 // Type aliases
 
 // Traits
-

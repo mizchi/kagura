@@ -68,3 +68,10 @@ pub fn Session::redo(self : Session) -> Unit raise EditorError {
   self.document = next
   self.revision += 1
 }
+
+///| Start a new document history boundary when switching project scene files.
+pub fn Session::clear_history(self : Session) -> Unit {
+  self.past.clear()
+  self.future.clear()
+  self.revision += 1
+}

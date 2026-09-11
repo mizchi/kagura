@@ -234,4 +234,3 @@ pub struct TouchInputState {
 // Type aliases
 
 // Traits
-

@@ -18,3 +18,6 @@ examples/games/hacknslash_3d/data/hackslash/autoplay_experiments/*.parquet
 *.mi
 __pycache__/
 *.pyc
+
+# Generated runtime bundles for per-game editor projects.
+/examples/**/editor/dist/

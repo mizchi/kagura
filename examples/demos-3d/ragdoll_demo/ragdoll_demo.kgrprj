@@ -1,0 +1,38 @@
+{
+  "format": "kagura.project",
+  "version": 1,
+  "name": "Ragdoll",
+  "editor": {
+    "id": "kagura.example",
+    "apiVersion": 1
+  },
+  "scene": "editor/studio.json",
+  "resources": {},
+  "id": "mizchi.kagura.examples.ragdoll_demo",
+  "game": "ragdoll_demo",
+  "save": {
+    "namespace": "mizchi.kagura.examples.ragdoll_demo",
+    "version": 1
+  },
+  "runtime": {
+    "kind": "script",
+    "apiVersion": 1,
+    "targets": [
+      "js",
+      "native"
+    ],
+    "entry": "editor/dist/runtime.js"
+  },
+  "build": {
+    "package": ".",
+    "artifact": "ragdoll_demo.js"
+  },
+  "display": {
+    "width": 640,
+    "height": 480
+  },
+  "sceneSchema": {
+    "id": "kagura.example",
+    "version": 1
+  }
+}

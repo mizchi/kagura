@@ -88,7 +88,7 @@ explicit geometry merge は未着手のまま重い。
 - `asset`: `fetch_image`
 - snapshot mode: `hacknslash_3d?snapshot=playing&frames=60&tick=5`
 
-VRT を通すために、`examples/smoke/runtime_smoke` / `examples/smoke/runtime_smoke_native` / `examples/games/action_rpg` の `mizchi/font` 依存を `0.7.0` に揃え、`examples/games/action_rpg/src/moon.pkg` に `mizchi/font` import を追加した。
+VRT を通すために、`examples/smoke/runtime_smoke` / `examples/smoke/runtime_smoke_native` / `examples/games/action_rpg` の `mizchi/font` 依存を `0.7.0` に揃え、`examples/games/action_rpg/moon.pkg` に `mizchi/font` import を追加した。
 
 ## Next
 

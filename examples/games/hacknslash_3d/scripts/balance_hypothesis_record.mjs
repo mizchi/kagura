@@ -126,7 +126,7 @@ function runBalanceAutoplayJs(args) {
     "-C",
     "examples/hacknslash_3d",
     "build",
-    "src/balance_autoplay",
+    "balance_autoplay",
     "--target",
     "js",
   ]);

@@ -55,12 +55,14 @@ fn Editor::handle(self : Editor, request : Json) -> Unit raise {
       keys(request, ["method", "transaction"])
       self.session.execute(field(request, "transaction"))
     }
-    "undo" | "redo" => {
+    "undo" | "redo" | "history.clear" => {
       keys(request, ["method", "expectedRevision"])
       if integer(field(request, "expectedRevision")) != before {
         raise Conflict(before)
       }
-      if operation == "undo" {
+      if operation == "history.clear" {
+        self.session.clear_history()
+      } else if operation == "undo" {
         self.session.undo()
       } else {
         self.session.redo()

@@ -61,6 +61,10 @@ export class PilotControls {
       this.active=true;this.locked=false;this.notify(true);
     }
   }
+  /** Editor transport can run without taking pointer lock away from the workspace. */
+  play() {
+    this.keys.clear();this.firing=false;this.active=true;this.notify(true);
+  }
   pause() {
     this.keys.clear();this.dragging=false;this.firing=false;this.active=false;this.notify(false);
     if(document.pointerLockElement===this.element)document.exitPointerLock();

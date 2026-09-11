@@ -14,6 +14,8 @@ pub fn append_input_edge_history(InputEdgeObserverState, Array[InputEdgeSummary]
 
 pub fn clear_input_edge_history(InputEdgeObserverState) -> Unit
 
+pub fn clock_now_ms() -> Double
+
 pub fn default_runtime_config() -> RuntimeConfig
 
 pub fn default_runtime_hooks() -> RuntimeHooks
@@ -97,4 +99,3 @@ pub struct RuntimeHooks {
 // Type aliases
 
 // Traits
-

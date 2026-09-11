@@ -1,4 +1,5 @@
 import { test, expect } from '@playwright/test';
+import { defaultScene } from '../../../examples/games/iron_yard/editor/scene/document.ts';
 
 test.use({ launchOptions: { args: ['--enable-experimental-web-platform-features', '--use-gl=angle', '--use-angle=swiftshader', '--enable-unsafe-swiftshader'] } });
 
@@ -7,9 +8,10 @@ test('native WebMCP discovers tools, shares UI edits, creates forms and respects
   await page.goto('/');
   await page.waitForFunction(() => !!globalThis.kagura);
   await page.waitForFunction(() => globalThis.kagura?.webmcp.status().state === 'ready');
+  await page.evaluate(() => kagura.webmcp.settled());
   const tools = await page.evaluate(async () => (await document.modelContext.getTools()).map(t => t.name));
-  expect(tools).toHaveLength(13);
   expect(tools).toContain('kagura.panes_create_form');
+  expect(tools).not.toContain('kagura.pane.iron-yard.simulate');
   const run = (name, input) => page.evaluate(async ({ name, input }) => {
     const tool = (await document.modelContext.getTools()).find(t => t.name === name);
     // Chromium 153 uses JSON strings; the newer draft uses objects.
@@ -36,6 +38,23 @@ test('native WebMCP discovers tools, shares UI edits, creates forms and respects
   const listed = await run('kagura.storage_list', { store: 'indexeddb', prefix: 'ai/' });
   expect(listed.objects[0].key).toBe('ai/scene.json');
   expect((await run('kagura.storage_load', { location: { store: 'indexeddb', key: 'missing' }, expectedRevision: 4 })).error.code).toBe('not_found');
+  await page.getByLabel('Examples', { exact: true }).selectOption('iron_yard');
+  await expect(page.getByRole('status')).toContainText('Opened project');
+  await page.evaluate(() => kagura.webmcp.settled());
+  const revision = () => page.evaluate(() => kagura.snapshot().revision);
+  expect((await run('kagura.pane.iron-yard.configure', { arguments: { ai: false, spawnX: 2, spawnZ: -40, yaw: 0 }, expectedRevision: await revision() })).ok).toBe(true);
+  expect((await run('kagura.pane.iron-yard.scene_edit', { arguments: { id: 'spawn', changes: { position: [2, 0, -40] } }, expectedRevision: await revision() })).ok).toBe(true);
+  const simulated = await run('kagura.pane.iron-yard.simulate', { arguments: { frames: 60, forward: 1, boost: true } });
+  expect(simulated.ok).toBe(true);
+  expect(simulated.result.pilot.position[0]).toBe(2);
+  expect(simulated.result.pilot.position[2]).toBeGreaterThan(-35);
+  await expect(page.locator('.game-frame')).toHaveCount(0);
+  expect((await run('kagura.pane.iron-yard.scene_load', { arguments: { document: defaultScene() }, expectedRevision: await revision() })).ok).toBe(true);
+  expect((await run('kagura.pane.iron-yard.scene_edit', { arguments: { id: 'hangar-a', changes: { center: [-30, 7, -15] } }, expectedRevision: await revision() })).ok).toBe(true);
+  const scene = await run('kagura.pane.iron-yard.scene_export', { arguments: {} });
+  expect(scene.result.stage.solids[0].center[0]).toBe(-30);
+  await page.getByRole('button', { name: 'hangar-a', exact: true }).click();
+  await expect(page.getByLabel('位置 X', { exact: true })).toHaveValue('-30');
   await page.evaluate(() => kagura.webmcp.dispose());
   expect(await page.evaluate(async () => (await document.modelContext.getTools()).length)).toBe(0);
   expect(errors).toEqual([]);

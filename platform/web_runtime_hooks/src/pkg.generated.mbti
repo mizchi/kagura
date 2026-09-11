@@ -1,0 +1,57 @@
+// Generated using `moon info`, DON'T EDIT IT
+package "mizchi/web_runtime_hooks"
+
+import {
+  "mizchi/atlas",
+}
+
+// Values
+pub fn clear_source_image_palettes() -> Unit
+
+pub fn install(String) -> Unit
+
+pub fn is_ready() -> Bool
+
+pub fn patch_source_image_rgba8(Int, Int, Int, Int, Int, Int, Int, Array[Int]) -> Bool
+
+pub fn register_source_image_palette(Int, @atlas.ImagePalette2x2) -> Unit
+
+pub fn register_source_image_rgba8(Int, Int, Int, Array[Int]) -> Unit
+
+pub fn register_source_image_solid_color(Int, @atlas.Rgba) -> Unit
+
+pub fn request_animation_frame(() -> Unit) -> Unit
+
+pub fn shutdown() -> Unit
+
+pub fn source_image_cache_count() -> Int
+
+pub fn source_image_generation(Int) -> Int
+
+pub fn source_image_height(Int) -> Int
+
+pub fn source_image_pixel_channel(Int, Int, Int, Int) -> Int
+
+pub fn source_image_width(Int) -> Int
+
+pub fn sync_dirty_atlas_pages_from_repository(@atlas.SimpleAtlasImageRepository) -> Int
+
+pub fn sync_dirty_source_images_from_repository(@atlas.SimpleImageRepository) -> Int
+
+pub fn sync_source_image_palettes(Array[@atlas.ImagePaletteBinding]) -> Int
+
+pub fn sync_source_image_palettes_from_repository(@atlas.SimpleImageRepository) -> Int
+
+pub fn sync_source_images(Array[@atlas.SourceImageBinding]) -> Int
+
+pub fn sync_source_images_from_repository(@atlas.SimpleImageRepository) -> Int
+
+pub fn uninstall() -> Unit
+
+// Errors
+
+// Types and methods
+
+// Type aliases
+
+// Traits

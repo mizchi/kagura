@@ -51,4 +51,3 @@ pub fn RenderShaders3D::new(shader3d~ : @gfx.ShaderHandle, shader3d_textured? : 
 // Type aliases
 
 // Traits
-

@@ -45,7 +45,7 @@ function buildPages() {
 
 function buildExample(name) {
   console.log(`Building ${name} ...`);
-  const result = spawnSync("moon", ["build", "src", "--target", "js"], {
+  const result = spawnSync("moon", ["build", existsSync(join(resolveExampleDir(name), "moon.pkg")) ? "." : "src", "--target", "js"], {
     cwd: resolveExampleDir(name),
     stdio: "inherit",
   });

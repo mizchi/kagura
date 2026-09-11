@@ -8,7 +8,8 @@
   },
   "scripts": {
     "dev": "node scripts/dev.mjs",
-    "build": "moon build --target js --release && node scripts/build-plugins.mjs && vite build",
+    "build": "moon build --target js --release && node scripts/build-plugins.mjs && node scripts/build-games.mjs && vite build",
+    "build:games": "node scripts/build-games.mjs",
     "test:e2e": "playwright test"
   },
   "dependencies": {

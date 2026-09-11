@@ -85,7 +85,7 @@ ui_demo [default]: 640x480 after 3 tick(s), 980 triangles
 `@ui.publish_ui_snapshot` を毎フレーム呼ぶと `globalThis.__kaguraUISnapshot` に
 `{ json, parsed }` が入る（`__kaguraModelingContext` と同じ形）。
 
-実装例: `examples/demos-2d/ui_demo/src/snapshot.mbt` + `snapshot_js.mbt`
+実装例: `examples/demos-2d/ui_demo/snapshot.mbt` + `snapshot_js.mbt`
 
 ```moonbit
 // snapshot.mbt — 全ターゲット共通。DemoState から UISnapshot を組む

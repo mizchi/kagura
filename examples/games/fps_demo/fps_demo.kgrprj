@@ -1,0 +1,43 @@
+{
+  "format": "kagura.project",
+  "version": 1,
+  "name": "FPS Demo",
+  "editor": {
+    "id": "fps-demo",
+    "apiVersion": 1
+  },
+  "scene": "scenes/training.mbt",
+  "resources": {},
+  "scenes": {
+    "training": "scenes/training.mbt"
+  },
+  "entryScene": "training",
+  "id": "mizchi.kagura.examples.fps_demo",
+  "game": "fps_demo",
+  "save": {
+    "namespace": "mizchi.kagura.examples.fps_demo",
+    "version": 1
+  },
+  "runtime": {
+    "kind": "script",
+    "apiVersion": 1,
+    "targets": [
+      "js",
+      "native"
+    ],
+    "entry": "editor/dist/runtime.js"
+  },
+  "build": {
+    "package": ".",
+    "artifact": "fps_demo.js",
+    "scenePackage": "scenes"
+  },
+  "display": {
+    "width": 640,
+    "height": 480
+  },
+  "sceneSchema": {
+    "id": "fps_demo.scene",
+    "version": 1
+  }
+}

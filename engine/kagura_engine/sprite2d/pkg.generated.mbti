@@ -18,4 +18,3 @@ pub fn new_atlas_sprite_draw_command(@atlas.SimpleAtlasImageRepository, @atlas.A
 // Type aliases
 
 // Traits
-

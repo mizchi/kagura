@@ -66,7 +66,7 @@ const buildJsExample = (name) => {
   }
   // Ensure dependencies are resolved (CI may not have run moon update in example dirs)
   spawnSync("moon", ["update"], { cwd: dir, stdio: "inherit" });
-  const result = spawnSync("moon", ["build", "src", "--target", "js"], {
+  const result = spawnSync("moon", ["build", existsSync(join(dir, "moon.pkg")) ? "." : "src", "--target", "js"], {
     cwd: dir,
     stdio: "inherit",
   });

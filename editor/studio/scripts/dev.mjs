@@ -3,6 +3,8 @@ const initial = spawnSync('moon', ['build', '--target', 'js', '--release'], { st
 if (initial.status !== 0) process.exit(initial.status ?? 1);
 const plugins = spawnSync(process.execPath, ['scripts/build-plugins.mjs'], { stdio: 'inherit' });
 if (plugins.status !== 0) process.exit(plugins.status ?? 1);
+const games = spawnSync(process.execPath, ['scripts/build-games.mjs'], { stdio: 'inherit' });
+if (games.status !== 0) process.exit(games.status ?? 1);
 const children = [
   spawn('moon', ['build', '--target', 'js', '--release', '--watch'], { stdio: 'inherit' }),
   spawn(process.execPath, ['node_modules/vite/bin/vite.js', '--host', '127.0.0.1', '--port', '5190', '--strictPort'], { stdio: 'inherit' }),

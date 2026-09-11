@@ -17,7 +17,7 @@ iron-yard-build:
 iron-yard-test:
     node engine/kagura_engine/draw3d/scripts/embed-wgsl.mjs
     moon -C examples/games/iron_yard check --target js --deny-warn
-    moon -C examples/games/iron_yard test src/sim src/app --target js
+    moon -C examples/games/iron_yard test sim app --target js
     node examples/games/iron_yard/scripts/convert-assets.mjs
     moon -C examples/games/iron_yard build --target js --release
     node --test examples/games/iron_yard/tests/*.test.mjs
@@ -30,6 +30,10 @@ iron-yard-e2e-metal: iron-yard-build
     IRON_YARD_GPU=metal pnpm exec playwright test --config examples/games/iron_yard/playwright.config.mjs
 
 iron-yard-ci: iron-yard-test iron-yard-e2e
+
+# Build the game-owned editor module referenced by iron-yard.kgrprj.
+iron-yard-editor-build: iron-yard-build
+    cd editor/studio && pnpm exec vite build --config ../../examples/games/iron_yard/editor/ui/vite.config.mjs
 
 # Build/validate tiny scalar and SIMD Wasm kernels, then compare in Chrome.
 iron-yard-simd:
@@ -54,11 +58,17 @@ iron-yard-gfx-test:
 
 # Luna-based integrated authoring workspace (independent MoonBit module).
 studio-install:
+    pnpm install --frozen-lockfile
     cd editor/studio && moon check --target js
     cd editor/studio && pnpm install --frozen-lockfile
 
 studio-dev:
     cd editor/studio && pnpm dev
+
+# Package other examples for Studio; optional names rebuild only those projects.
+[positional-arguments]
+studio-examples-build *names:
+    @node editor/studio/scripts/build-examples.mjs "$@"
 
 studio-check:
     cd editor/studio && pnpm exec tsc -p tsconfig.contracts.json
@@ -70,12 +80,20 @@ studio-plugin-test:
     cd editor/studio && node scripts/build-plugins.mjs
     cd editor/studio && node --test tests/plugins.test.mjs tests/plugin-adapters.test.mjs tests/plugin-publication.test.mjs
 
+studio-model-test:
+    moon -C editor/model-viewer test . --target js
+    node --test editor/studio/tests/model-assets.test.mjs
+
+studio-model-build:
+    node editor/studio/scripts/build-model-viewer.mjs
+
 studio-build:
     cd editor/studio && pnpm build
 
 studio-e2e:
     cd editor/studio && moon build --target js --release
     cd editor/studio && node scripts/build-plugins.mjs
+    cd editor/studio && node scripts/build-games.mjs
     cd editor/studio && pnpm exec playwright test
 
 [positional-arguments]
@@ -85,6 +103,11 @@ studio-headless *args:
 
 studio-headless-test:
     cd editor/studio && moon build --target js --release
+    moon -C examples/games/iron_yard build headless --target js --release
+    moon -C examples/games/hacknslash_3d build scene_api --target js --release
+    moon -C examples/games/arena3d build scenes --target js --release
+    moon -C examples/games/fps_demo build scenes --target js --release
+    moon -C examples/games/flappy_bird build scenes --target js --release
     cd editor/studio && node scripts/build-plugins.mjs
     cd editor/studio && node --test tests/*.test.mjs
 
@@ -368,7 +391,7 @@ vlm-apply target="" patch="" extra="":
     node editor/modeling3d/scripts/model-authoring-vlm-apply-patch.mjs --target {{target}} --patch {{patch}} {{extra}}
 
 run-native name:
-    dir=""; for candidate in examples/*/{{name}} editor/modeling3d/examples/{{name}} editor/effect-studio/examples/{{name}}; do if [ -f "$candidate/moon.mod.json" ] || [ -f "$candidate/moon.mod" ]; then dir="$candidate"; break; fi; done; if [ -z "$dir" ]; then echo "example not found: {{name}}"; exit 1; fi; cd "$dir" && CPATH="$(brew --prefix glfw)/include:${CPATH:-}" LIBRARY_PATH="$(brew --prefix)/lib:${LIBRARY_PATH:-}" moon run src/ --target native
+    dir=""; for candidate in examples/*/{{name}} editor/modeling3d/examples/{{name}} editor/effect-studio/examples/{{name}}; do if [ -f "$candidate/moon.mod.json" ] || [ -f "$candidate/moon.mod" ]; then dir="$candidate"; break; fi; done; if [ -z "$dir" ]; then echo "example not found: {{name}}"; exit 1; fi; entry="."; if [ -f "$dir/src/moon.pkg" ]; then entry="src"; fi; cd "$dir" && CPATH="$(brew --prefix glfw)/include:${CPATH:-}" LIBRARY_PATH="$(brew --prefix)/lib:${LIBRARY_PATH:-}" moon run "$entry" --target native
 
 pages:
     bash scripts/build-pages.sh
@@ -392,7 +415,7 @@ clean:
     for dir in examples/*/*/ editor/modeling3d/examples/*/ editor/effect-studio/examples/*/; do [ -d "$dir" ] && (cd "$dir" && moon clean); done
 
 balance name="playtest":
-    cd examples/games/hacknslash_3d && moon run src/balance --target js 2>&1 | tee /dev/stderr | sed -n '/^=== CSV ===/,$ p' | tail -n +2 > data/hackslash/{{name}}.csv
+    cd examples/games/hacknslash_3d && moon run balance --target js 2>&1 | tee /dev/stderr | sed -n '/^=== CSV ===/,$ p' | tail -n +2 > data/hackslash/{{name}}.csv
     @echo "Saved: examples/games/hacknslash_3d/data/hackslash/{{name}}.csv"
 
 balance-autoplay-record out_dir="examples/games/hacknslash_3d/data/hackslash/autoplay_experiments":
@@ -464,3 +487,31 @@ wasm-dev guest="moonbit": (wasm-build guest)
 [private]
 wasm-build guest:
     @if [ "{{guest}}" = "moonbit" ]; then just wasm-build-moonbit; elif [ "{{guest}}" = "rust" ]; then just wasm-build-rust; elif [ "{{guest}}" = "zig" ]; then just wasm-build-zig; else echo "Unknown guest: {{guest}}"; exit 1; fi
+
+# Shared game scene profiles, scene transitions, and project loading contracts.
+studio-scene-test:
+    moon -C examples/games/arena3d build scenes --target js --release
+    moon -C examples/games/fps_demo build scenes --target js --release
+    moon -C examples/games/flappy_bird build scenes --target js --release
+    moon -C editor/studio build --target js --release
+    moon -C game test scene_flow --target js
+    moon -C game test scene_data --target js
+    moon -C game test scene2d --target js
+    moon -C examples/games/arena3d test . --target js
+    moon -C examples/games/fps_demo test . --target js
+    moon -C examples/games/flappy_bird test . --target js
+    node --test editor/studio/tests/moonbit-scene.test.mjs editor/studio/tests/scene-profile.test.mjs editor/studio/tests/project-scenes.test.mjs editor/studio/tests/extension-host.test.mjs editor/studio/tests/scene2d.test.mjs
+
+# Game-owned live state: JS/native headless simulation and debugger/WebMCP contracts.
+studio-runtime-test:
+    moon -C examples/games/flappy_bird test . --target js
+    moon -C examples/games/flappy_bird test . --target native
+    node --test editor/studio/tests/runtime-debug.test.mjs editor/studio/tests/extension-host.test.mjs
+
+# Declarative views share hierarchy with the existing 2D/3D renderers.
+studio-declarative-test:
+    moon -C game test scene --target {{target}}
+    moon -C engine/kagura_engine test scene3d --target {{target}}
+    moon -C examples/games/flappy_bird test . --target {{target}}
+    moon -C examples/games/arena3d test . --target {{target}}
+    node --test editor/studio/tests/scene-hierarchy.test.mjs editor/studio/tests/runtime-debug.test.mjs

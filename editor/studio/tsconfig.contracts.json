@@ -2,10 +2,27 @@
   "compilerOptions": {
     "strict": true,
     "noEmit": true,
+    "allowImportingTsExtensions": true,
     "module": "NodeNext",
     "target": "ES2023",
-    "lib": ["ES2023", "DOM"],
+    "lib": [
+      "ES2023",
+      "DOM"
+    ],
     "types": []
   },
-  "include": ["public/*.d.ts", "headless/*.d.mts", "storage/*.d.mts", "plugins/*.d.mts"]
+  "include": [
+    "public/*.d.ts",
+    "headless/*.d.mts",
+    "storage/*.d.mts",
+    "plugins/*.d.mts",
+    "games/*.d.mts",
+    "runtime/*.d.mts",
+    "../../examples/games/iron_yard/editor/**/*.ts",
+    "assets/*.d.mts"
+  ],
+  "exclude": [
+    "**/dist/**",
+    "../../examples/games/iron_yard/editor/ui/dist/**"
+  ]
 }

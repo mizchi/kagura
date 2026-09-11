@@ -17,7 +17,7 @@ pub fn apply(doc : Document, command : Json) -> Document raise {
     keys(command, ["op", "id"])
     let id = string_field(command, "id")
     require(doc.resources.any(fn(r) { r.id == id }), "Unknown resource: " + id)
-    return { ..doc, resources: doc.resources.filter(fn(r) { r.id != id }) }
+    return { ..doc, resources: doc.resources.filter(fn(r) { r.id != id }), }
   }
   if op == "document.replace" {
     keys(command, ["op", "document"])
@@ -46,8 +46,8 @@ pub fn apply(doc : Document, command : Json) -> Document raise {
       [1, 1, 1],
       0x8ba9d4,
     )
-    let fresh = { ..fresh, parent: optional_string(command, "parent", "") }
-    let next = { ..doc, nodes: doc.nodes + [fresh] }
+    let fresh = { ..fresh, parent: optional_string(command, "parent", ""), }
+    let next = { ..doc, nodes: doc.nodes + [fresh], }
     validate(next)
     return next
   }
@@ -66,7 +66,7 @@ pub fn apply(doc : Document, command : Json) -> Document raise {
       }
     }
     let action = if removed.contains(doc.action.target) {
-      { ..doc.action, target: "" }
+      { ..doc.action, target: "", }
     } else {
       doc.action
     }
@@ -74,16 +74,19 @@ pub fn apply(doc : Document, command : Json) -> Document raise {
       ..doc,
       action,
       nodes: doc.nodes.filter(fn(n) { !removed.contains(n.id) }),
+      resources: doc.resources.map(fn(resource) {
+        remove_scene_bindings(resource, removed)
+      }),
     }
   }
   let updated = match op {
     "node.rename" => {
       keys(command, ["op", "id", "name"])
-      { ..selected, name: string_field(command, "name") }
+      { ..selected, name: string_field(command, "name"), }
     }
     "node.reparent" => {
       keys(command, ["op", "id", "parent"])
-      { ..selected, parent: string_field(command, "parent") }
+      { ..selected, parent: string_field(command, "parent"), }
     }
     "node.transform" => {
       keys(command, ["op", "id", "position", "rotation", "scale"])

@@ -1,0 +1,52 @@
+{
+  "format": "kagura.project",
+  "version": 1,
+  "name": "Hack & Slash 3D",
+  "editor": {
+    "id": "hacknslash-3d",
+    "apiVersion": 1
+  },
+  "scene": "scenes/training.kgrscene",
+  "resources": {
+    "asset.0": "assets/Tiny5-Regular.ttf",
+    "asset.1": "assets/audio/README.md",
+    "asset.2": "assets/audio/attack_slash.ogg",
+    "asset.3": "assets/audio/floor_complete.ogg",
+    "asset.4": "assets/audio/hurt_hit.ogg",
+    "asset.5": "assets/audio/pickup_health.ogg",
+    "asset.6": "assets/audio/pickup_loot.ogg",
+    "asset.7": "assets/audio/spell_chain_lightning.ogg",
+    "asset.8": "assets/audio/spell_fireball.ogg",
+    "asset.9": "assets/audio/spell_homing_missile.ogg",
+    "asset.10": "assets/audio/spell_ice_nova.ogg",
+    "asset.11": "assets/textures/old_stone_wall_02_diff_1k.jpg",
+    "asset.12": "assets/textures/stone_pavers_diff_1k.jpg"
+  },
+  "id": "mizchi.kagura.examples.hacknslash_3d",
+  "game": "hacknslash_3d",
+  "save": {
+    "namespace": "mizchi.kagura.examples.hacknslash_3d",
+    "version": 1
+  },
+  "runtime": {
+    "kind": "script",
+    "apiVersion": 1,
+    "targets": [
+      "js",
+      "native"
+    ],
+    "entry": "editor/dist/runtime.js"
+  },
+  "build": {
+    "package": ".",
+    "artifact": "hacknslash_3d.js"
+  },
+  "display": {
+    "width": 640,
+    "height": 480
+  },
+  "sceneSchema": {
+    "id": "hacknslash_3d.scene",
+    "version": 1
+  }
+}

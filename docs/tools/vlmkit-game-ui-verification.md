@@ -105,7 +105,7 @@ expect(readback.nonDarkPixelRatio).toBeGreaterThanOrEqual(expectedNonDark * floo
 
 ### 2.4 スナップショットモードは 1 example のみ
 
-`?snapshot=&frames=&tick=` の実装は `examples/games/hacknslash_3d/src/snapshot.mbt` だけ
+`?snapshot=&frames=&tick=` の実装は `examples/games/hacknslash_3d/snapshot.mbt` だけ
 （`examples/*/*/src/snapshot.mbt` の全検索結果が 1 件）。`e2e/vrt.spec.ts` の `SNAPSHOT_TESTS` も
 `hacknslash_3d` の 1 行のみ。UI が実際に問題を起こす状態（メニュー、ポーズ、インベントリ、
 レベルアップ、ゲームオーバー、ダイアログ）はどの example でもキャプチャされていない。
@@ -122,7 +122,7 @@ expect(readback.nonDarkPixelRatio).toBeGreaterThanOrEqual(expectedNonDark * floo
 | PNG エンコード（engine 内） | `@atlas.encode_png_image_spec` |
 
 `engine/ui` 由来の情報を JS 側へ publish している箇所は**ゼロ**
-（`examples/demos-2d/ui_demo/src/*.mbt` の `extern "js"` は canvas サイズ取得の 2 本だけ）。
+（`examples/demos-2d/ui_demo/*.mbt` の `extern "js"` は canvas サイズ取得の 2 本だけ）。
 つまり「検証に必要なデータは engine 内に全部あるが、外に出ていない」状態。
 
 ### 2.6 3D modeling には完成した VLM ループがある（UI 版が無いだけ）

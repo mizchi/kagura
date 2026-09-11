@@ -1,0 +1,11 @@
+import {
+  "mizchi/hacknslash_3d/game",
+}
+
+supported_targets = "js"
+
+options(
+  link: {
+    "js": { "exports": [ "create", "snapshot", "blocked", "step" ], "format": "esm" },
+  },
+)

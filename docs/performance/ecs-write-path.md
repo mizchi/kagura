@@ -124,10 +124,9 @@ joint precompute が **joint ごとに 2 回**、毎フレーム呼ぶ（`step_r
 
 ## 残っている作業項目
 
-1. **`PhysicsWorld::get_body` / `find_body_index` の O(n) 探索**（上記）。3D は
-   `system_sync_from_physics` が entity ごとに、2D は joint precompute が joint ごとに
-   毎フレーム呼ぶ。物理側に id → index の表を持たせるのが素直で、`ContactCache3D` と
-   同じ open addressing のパターンが既にある。**次にやるのはこれ**
+1. ~~**`PhysicsWorld::get_body` / `find_body_index` の O(n) 探索**~~ →
+   [physics-id-lookup.md](./physics-id-lookup.md) で対応済み。`system_sync_from_physics`
+   が **36.9x**、joint precompute が 2D 5.7x / 3D 5.3x、joint の step が 1.2〜1.3x
 2. **`ecs/system_death_10000` と `ecs/compact_10000_half_dead` は closure の中で
    `setup_world(10000)` を呼んでいる**（= 約 1.1 ms が setup）。名前の操作は
    300〜600 µs しか測っていないので、物理で作った `phase_reset_` 相当の床が要る

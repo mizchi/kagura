@@ -9,10 +9,18 @@
  * hit rects and focus order.
  *
  * Every judgment is deterministic pixel/rect math — no VLM, no browser.
+ * Contrast is the exception that needs the frame PNG: crop each text node and
+ * score figure/ground luminance. vlmkit's image-only integrity skips that rule.
  */
 
 import { unwrapSnapshot } from "./ui-snapshot-utils.mjs";
 import { finiteNumber } from "./ui-number-utils.mjs";
+import {
+  LARGE_TEXT_PX,
+  WCAG_LARGE_FLOOR,
+  WCAG_NORMAL_FLOOR,
+  measureRegionContrast,
+} from "./ui-contrast-utils.mjs";
 
 /** Every finding kind this gate can emit. `--allow` is validated against it. */
 export const FINDING_KINDS = [
@@ -25,6 +33,7 @@ export const FINDING_KINDS = [
   "text-collision",
   "hit-box-mismatch",
   "child-escape",
+  "low-contrast-text",
 ];
 
 const DEFAULT_TOLERANCE = 0.5;
@@ -35,6 +44,17 @@ function rectOf(source) {
   const width = finiteNumber(source?.width);
   const height = finiteNumber(source?.height);
   return { left, top, width, height, right: left + width, bottom: top + height };
+}
+
+function scaleRect(rect, dpr) {
+  return {
+    left: rect.left * dpr,
+    top: rect.top * dpr,
+    width: rect.width * dpr,
+    height: rect.height * dpr,
+    right: rect.right * dpr,
+    bottom: rect.bottom * dpr,
+  };
 }
 
 function intersection(a, b) {
@@ -166,7 +186,7 @@ function ruleMatches(rule, finding) {
  * Returns findings, the subset exempted by `--allow`, and any rule that matched
  * nothing — a stale suppression is itself a defect worth surfacing.
  */
-export function analyzeSnapshot(input, { tolerance = DEFAULT_TOLERANCE, allow = [] } = {}) {
+export function analyzeSnapshot(input, { tolerance = DEFAULT_TOLERANCE, allow = [], image = null } = {}) {
   const snapshot = unwrapSnapshot(input);
   const nodes = snapshot.nodes.filter((node) => node != null && typeof node === "object");
   const screenWidth = finiteNumber(snapshot.screen?.width);
@@ -399,6 +419,45 @@ export function analyzeSnapshot(input, { tolerance = DEFAULT_TOLERANCE, allow = 
           otherPath: typeof b.path === "string" ? b.path : "",
         },
       });
+    }
+  }
+
+  // Frame-derived contrast. vlmkit's image integrity skips this rule; we crop
+  // the node's visible scissor out of the PNG and score figure/ground.
+  if (image != null) {
+    const dpr = finiteNumber(snapshot.screen?.dpr, 1) || 1;
+    for (const node of nodes) {
+      if (!isVisible(node) || !hasText(node)) continue;
+      const rect = rectOf(node);
+      if (rect.width <= 0 || rect.height <= 0) continue;
+      let sample = scaleRect(rect, dpr);
+      if (node.clip != null && typeof node.clip === "object") {
+        sample = intersection(sample, scaleRect(rectOf(node.clip), dpr));
+        if (sample === null) continue;
+      }
+      const measured = measureRegionContrast(image, sample);
+      if (measured == null) continue;
+      const fontSizePx =
+        node.text_measured != null && typeof node.text_measured === "object"
+          ? finiteNumber(node.text_measured.height)
+          : rect.height;
+      const large = fontSizePx >= LARGE_TEXT_PX;
+      const floor = large ? WCAG_LARGE_FLOOR : WCAG_NORMAL_FLOOR;
+      if (measured.ratio >= floor) continue;
+      push(
+        "low-contrast-text",
+        node,
+        `${label(node)}: contrast ${measured.ratio.toFixed(2)}:1 < ${floor}:1 floor ` +
+          `(fg ${measured.fg} on bg ${measured.bg}, ${round(fontSizePx)}px)`,
+        {
+          ratio: measured.ratio,
+          floor,
+          large,
+          fg: measured.fg,
+          bg: measured.bg,
+          fontSizePx: round(fontSizePx),
+        },
+      );
     }
   }
 

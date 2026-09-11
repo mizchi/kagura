@@ -416,6 +416,16 @@ fn bridge_gfx_on_resize(active : Bool, width : Int, height : Int) -> Unit {
 }
 
 ///|
+priv struct OffscreenImage {
+  id : Int
+  width : Int
+  height : Int
+}
+
+///|
+let last_offscreen_image : Ref[OffscreenImage?] = Ref(None)
+
+///|
 fn bridge_gfx_on_read_pixels(
   active : Bool,
   x : Int,
@@ -423,10 +433,23 @@ fn bridge_gfx_on_read_pixels(
   width : Int,
   height : Int,
 ) -> Array[Int]? {
-  if active {
-    @wgpu_native.runtime_read_pixels(x, y, width, height)
-  } else {
-    None
+  if !active {
+    return None
+  }
+  match @wgpu_native.runtime_read_pixels(x, y, width, height) {
+    Some(pixels) => Some(pixels)
+    None =>
+      match last_offscreen_image.val {
+        None => None
+        Some(image) =>
+          @wgpu_native.runtime_read_offscreen_pixels(
+            image.id,
+            x,
+            y,
+            width,
+            height,
+          )
+      }
   }
 }
 
@@ -439,6 +462,7 @@ fn bridge_gfx_on_new_image(
 ) -> Unit {
   if active {
     @wgpu_native.register_offscreen_target(image_id, width, height)
+    last_offscreen_image.val = Some({ id: image_id, width, height, })
   }
 }
 
@@ -668,6 +692,7 @@ fn bridge_load_font_data(name : String) -> Array[Int]? {
 
 ///|
 pub fn uninstall() -> Unit {
+  last_offscreen_image.val = None
   clear_synced_source_generations()
   reset_touch_capture_state()
   @gfx.reset_native_graphics_hooks()

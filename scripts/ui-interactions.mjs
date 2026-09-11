@@ -1,6 +1,7 @@
 #!/usr/bin/env node
 import { mkdirSync, readFileSync, writeFileSync } from 'node:fs';
 import { resolve } from 'node:path';
+import { PNG } from 'pngjs';
 import { prepareBundle } from './render-frame.mjs';
 import { renderHeadlessFrame } from '../assets/web/kagura-headless-frame.js';
 import { analyzeSnapshot } from './ui-integrity-utils.mjs';
@@ -43,7 +44,7 @@ export async function runInteractions(example, { build = true, outDir, profile =
   const elements = resolve(out, 'elements.json');
   writeFileSync(elements, JSON.stringify(toVlmkitElements(snapshot, { scale: 1 })));
   const probes = [], integrity = [], hits = {};
-  const check = frame => integrity.push(...analyzeSnapshot(frame.uiSnapshot).findings);
+  const check = frame => integrity.push(...analyzeSnapshot(frame.uiSnapshot, { image: PNG.sync.read(readFileSync(frame.png)) }).findings);
   check(initial);
   for (const device of ['keyboard', 'gamepad']) {
     for (const direction of ['next', 'previous']) {

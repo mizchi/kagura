@@ -20,6 +20,8 @@ test('native artifacts require complete rendering and matching image dimensions'
   assert.throws(() => parseNativeCapture(png, JSON.stringify({ ...meta, skipped_commands: 1 }), snapshot), /incomplete/);
   assert.throws(() => parseNativeCapture(png, JSON.stringify({ ...meta, width: 640 }), snapshot), /dimensions/);
   assert.throws(() => parseNativeCapture(png, JSON.stringify(meta), 'null'), /snapshot/);
+  assert.equal(parseNativeCapture(png, JSON.stringify({ ...meta, backend: 'native-gpu' }), snapshot).backend, 'native-gpu');
+  assert.throws(() => parseNativeCapture(png, JSON.stringify({ ...meta, backend: 'webgpu' }), snapshot), /incomplete/);
 });
 
 test('native comparisons cannot rewrite the shared JS baseline', async () => {

@@ -17,6 +17,9 @@ importers:
       pixelmatch:
         specifier: ^7.2.0
         version: 7.2.0
+      pngjs:
+        specifier: ^7.0.0
+        version: 7.0.0
       vite:
         specifier: ^8.2.2
         version: 8.2.2

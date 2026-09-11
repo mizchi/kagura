@@ -239,9 +239,17 @@ e2e-vrt-update:
 
 # Deterministic UI integrity gate over a published UI snapshot.
 # Produce the snapshot from `globalThis.__kaguraUISnapshot` (js) or the native
-# capture's context_path, then: just ui-check output/ui-snapshot.json
+# capture's context_path, then:
+#   just ui-check output/ui-snapshot.json
+#   just ui-check output/ui-snapshot.json "--image output/frames/ui_demo/ui_demo.png"
 ui-check snapshot extra="":
     node scripts/ui-integrity-gate.mjs {{snapshot}} {{extra}}
+
+# Expand snapshot strings (vlmkit stress i18n for canvas UI) and re-run integrity.
+# Default profile is German-style +35% word inflation. Pass
+# --profiles all  for fullwidth / RTL / emoji / digit overflow + missing glyphs.
+ui-i18n-stress snapshot extra="":
+    node scripts/ui-i18n.mjs {{snapshot}} {{extra}}
 
 # Replay keyboard/gamepad/pointer input and verify real focus movement and pixels.
 ui-interactions example extra="":
@@ -255,9 +263,12 @@ ui-flipbook example transition extra="":
 check-capture-release target="js":
     node scripts/check-capture-release.mjs {{target}}
 
-# Capture a declared UI state using the native executable, without a window or GPU.
-ui-capture example state="idle" viewport="standard":
-    node scripts/ui-capture-native.mjs {{example}} {{state}} {{viewport}}
+# Capture a declared UI state using the native executable.
+# Default backend is cpu (portable 2D rasterizer). Pass --backend gpu for wgpu.
+#   just ui-capture ui_demo
+#   just ui-capture ui_demo idle standard "--backend gpu"
+ui-capture example state="idle" viewport="standard" extra="":
+    node scripts/ui-capture-native.mjs {{example}} {{state}} {{viewport}} {{extra}}
 
 # Verify rich canvas metadata through vlmkit's image-only integrity gate.
 ui-vlmkit-check snapshot image out_dir="output/ui-vlmkit-integrity":
@@ -276,6 +287,14 @@ ui-elements snapshot out="output/vlmkit-elements.json":
 # Vet a sprite / icon before it enters a UI slot (browser-free PNG math).
 ui-asset-check asset extra="":
     pnpm exec vlmkit check asset {{asset}} {{extra}}
+
+# Check a frame against the example's declared theme tokens.
+ui-theme-check image theme="examples/demos-2d/ui_demo/editor/theme.json":
+    node scripts/ui-theme.mjs {{image}} {{theme}}
+
+# Run `vlmkit check asset` for every entry in the example's editor/assets.json.
+ui-assets example extra="":
+    node scripts/ui-assets.mjs {{example}} {{extra}}
 
 # Render one frame of an example directly: no browser, no GPU, no Playwright.
 # The engine's headless path runs the example's own update/draw and rasterizes
@@ -301,13 +320,20 @@ frame-vrt-update extra="":
     node scripts/frame-vrt.mjs --update {{extra}}
 
 # Visual review loop: render a frame, run the deterministic gates over it, then
-# ask a VLM only about what a gate cannot measure (legibility, contrast,
-# hierarchy, balance). `--dry-run` builds the request without calling the API;
-# `--compare <png>` attributes the change since a baseline frame to UI nodes.
+# ask a VLM only about what a gate cannot measure (hierarchy, balance,
+# perceptual contrast beyond the WCAG crop). `--dry-run` builds the request
+# without calling the API. `--compare <png>` attributes the change since a
+# baseline frame to UI nodes.
 #   just vlm-ui-review ui_demo "--frames 3 --dry-run"
 #   OPENROUTER_API_KEY=... just vlm-ui-review ui_demo "--frames 3"
 vlm-ui-review example extra="":
     node scripts/vlm-ui-review.mjs {{example}} {{extra}}
+
+# Hold the example bundle and serve POST /review jobs. Defaults to --dry-run.
+#   just vlm-ui-daemon-start ui_demo
+#   OPENROUTER_API_KEY=... just vlm-ui-daemon-start ui_demo "--execute"
+vlm-ui-daemon-start example extra="":
+    node scripts/vlm-ui-daemon.mjs {{example}} {{extra}}
 
 native-vrt:
     cd examples/smoke/native_vrt && moon run . --target native
@@ -318,8 +344,11 @@ native-vrt-update:
 # Capture a frame + its context natively, the portable path: the web canvas
 # capture is transparent headless and the Linux Dawn readback never completes.
 # Stages the capture config the example reads, then runs it on the native
-# backend. Feed the artifacts to `just ui-check` / `vlmkit diff png`.
-capture example out_dir="output/capture":
+# backend. cpu is the 2D rasterizer; gpu is the real wgpu pipeline (3D).
+#   just capture ui_demo
+#   just capture pbr_demo output/capture "--backend gpu"
+# Feed the artifacts to `just ui-check` / `vlmkit diff png`.
+capture example out_dir="output/capture" extra="":
     #!/usr/bin/env bash
     set -euo pipefail
     dir=""
@@ -327,10 +356,11 @@ capture example out_dir="output/capture":
       if [ -f "$candidate/moon.mod" ] || [ -f "$candidate/moon.mod.json" ]; then dir="$candidate"; break; fi
     done
     if [ -z "$dir" ]; then echo "example not found: {{example}}"; exit 1; fi
-    out="$(cd "$(dirname {{out_dir}})" 2>/dev/null && pwd)/$(basename {{out_dir}})" || out="$PWD/{{out_dir}}"
-    mkdir -p "$out"
-    node scripts/stage-capture-config.mjs --example-dir "$dir" --out-dir "$out"
-    cd "$dir" && moon run . --target native
+    mkdir -p "{{out_dir}}"
+    out="$(cd "{{out_dir}}" && pwd)"
+    node scripts/stage-capture-config.mjs --example-dir "$dir" --out-dir "$out" {{extra}}
+    (cd "$dir" && moon run . --target native)
+    rm -f "$dir/kagura_native_capture_config.txt"
 
 hacknslash3d-gpu-perf port="8282" samples="120" warmup="30" extra="--headed":
     node scripts/hacknslash_3d_gpu_perf.mjs --serve --port {{port}} --samples {{samples}} --warmup {{warmup}} {{extra}}

@@ -85,6 +85,7 @@ export async function renderExampleState({
     cursorX: state.cursorX ?? undefined,
     cursorY: state.cursorY ?? undefined,
     keys: state.keys,
+    inputs: state.inputs,
   });
   mkdirSync(outDir, { recursive: true });
   const paths = artifactPaths(outDir, exampleName, state.name);

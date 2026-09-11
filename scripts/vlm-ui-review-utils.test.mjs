@@ -111,6 +111,7 @@ test("the prompt tells the model which defects are already settled", () => {
   });
   assert.match(prompt, /already been checked mechanically/);
   assert.match(prompt, /Do not report them/);
+  assert.match(prompt, /WCAG AA contrast/);
   assert.match(prompt, /button_1/);
 });
 
@@ -318,6 +319,12 @@ test("the review CLI accepts a comparison baseline and a forced review", () => {
   assert.equal(options.cursorX, 100);
   assert.equal(options.compare, "base.png");
   assert.equal(options.forceVlm, true);
+  assert.equal(options.dryRun, true);
+});
+
+test("the review CLI accepts --matrix to walk every declared state", () => {
+  const options = parseVlmUiReviewArgs(["ui_demo", "--matrix", "--dry-run"]);
+  assert.equal(options.matrix, true);
   assert.equal(options.dryRun, true);
 });
 

@@ -20,6 +20,22 @@ test "lifecycle hooks: no-op when not set" {
 }
 
 ///|
+test "lifecycle hooks: if_absent does not replace a real installer" {
+  let winner = Ref("")
+  set_lifecycle_hooks({
+    on_start: fn(_canvas, _title) { winner.val = "native" },
+    on_stop: fn() {  },
+  })
+  set_lifecycle_hooks_if_absent({
+    on_start: fn(_canvas, _title) { winner.val = "stub" },
+    on_stop: fn() {  },
+  })
+  invoke_on_start("#app", "test")
+  assert_eq(winner.val, "native")
+  reset_lifecycle_hooks()
+}
+
+///|
 test "lifecycle hooks: reset clears hooks" {
   let called = Ref(false)
   set_lifecycle_hooks({

@@ -21,6 +21,16 @@
 pub let capture_config_filename : String = "kagura_native_capture_config.txt"
 
 ///|
+/// How a native capture produces pixels.
+///
+/// `Cpu` is the portable 2D path (no window, no GPU). `Gpu` drives the real
+/// wgpu pipeline and can draw 3D commands the CPU rasterizer skips.
+pub(all) enum CaptureBackend {
+  Cpu
+  Gpu
+} derive(Eq, Debug)
+
+///|
 pub(all) struct CaptureConfig {
   /// Where the frame PNG goes.
   screenshot_path : String
@@ -31,6 +41,8 @@ pub(all) struct CaptureConfig {
   /// Reduce the frame to black and white. Silhouette review reads shape more
   /// reliably without colour.
   binarize : Bool
+  /// Pixel source. Missing `backend=` is CPU, so existing configs keep working.
+  backend : CaptureBackend
 } derive(Debug)
 
 ///|
@@ -110,6 +122,15 @@ fn config_bool(entries : Map[String, String], key : String) -> Bool {
 }
 
 ///|
+fn parse_capture_backend(entries : Map[String, String]) -> CaptureBackend? {
+  match entries.get("backend") {
+    None | Some("") | Some("cpu") | Some("native-cpu") => Some(Cpu)
+    Some("gpu") | Some("native-gpu") => Some(Gpu)
+    Some(_) => None
+  }
+}
+
+///|
 /// Parse a staged capture config.
 ///
 /// Returns `None` when a required path is missing, rather than aborting: a
@@ -129,12 +150,17 @@ pub fn parse_capture_config(text : String) -> CaptureConfig? {
         summary_path.is_empty() {
         None
       } else {
-        Some({
-          screenshot_path,
-          context_path,
-          summary_path,
-          binarize: config_bool(entries, "binarize"),
-        })
+        match parse_capture_backend(entries) {
+          None => None
+          Some(backend) =>
+            Some({
+              screenshot_path,
+              context_path,
+              summary_path,
+              binarize: config_bool(entries, "binarize"),
+              backend,
+            })
+        }
       }
     _ => None
   }

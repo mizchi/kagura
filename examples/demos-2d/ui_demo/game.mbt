@@ -440,7 +440,7 @@ fn DemoState::draw(
       Some(Button) => {
         // Button color based on state
         let color = if is_focused && is_hovered && self.mouse_down {
-          @renderer2d.color_from_hex(0x60DD60)
+          @renderer2d.color_from_hex(0x1E6B32)
         } else if is_focused {
           @renderer2d.color_from_hex(0x5566AA)
         } else if is_hovered {

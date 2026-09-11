@@ -6,6 +6,11 @@ All notable changes to this project will be documented in this file.
 
 ### Added
 
+- `just ui-check --image` scores WCAG AA contrast from the frame PNG. vlmkit's image-only integrity skips `low-contrast-text` (no computed colors); the gate crops each text node, splits ink from backdrop, and uses 4.5:1 (3:1 at 24px+).
+- `just ui-i18n-stress` is the canvas counterpart of `vlmkit stress i18n`: inflate snapshot strings, re-measure with `dot_text_size`, re-run integrity, and report glyphs the 3x5 HUD atlas cannot draw.
+- `just ui-theme-check` diffs a frame palette against a declared token table (`editor/theme.json`). Colors farther than `maxDistance` from every token are hard-coded literals. `just ui-assets` runs `vlmkit check asset` over `editor/assets.json`.
+- `just vlm-ui-review --matrix` walks every state x viewport in `editor/verification.json`. `just vlm-ui-daemon-start` keeps the example bundle warm and accepts `POST /review` (dry-run by default, `--execute` to call the VLM).
+- Native capture can drive the real wgpu pipeline (`backend=gpu`). CPU remains the portable 2D path; GPU is what 3D uses, because the CPU rasterizer skips those commands. `just capture pbr_demo output/capture "--backend gpu"` writes PNG + context through `@engine.run`.
 - Added high-level `@engine.run_game` and `@scene.run_game` helpers with `EngineGame` and `SceneGame` traits so simple examples can launch from state objects directly.
 - Added `@ui.UISnapshot` and `@ui.publish_ui_snapshot`, publishing the laid-out UI tree (rects, clip rects, measured text extents, hit rects, focus order) to `globalThis.__kaguraUISnapshot`. A canvas UI has no DOM, so this is what lets external tooling name a UI node instead of seeing one opaque canvas.
 - Added `@renderer2d.dot_text_size`, the dot-text measurement `append_dot_text` lays out with, so an overflow verdict measures with the same arithmetic that draws.

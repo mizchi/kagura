@@ -21,13 +21,17 @@ export const CAPTURE_CONFIG_FILENAME = "kagura_native_capture_config.txt";
  * Paths are resolved here rather than in the engine so the config is unambiguous
  * regardless of where the example is launched from.
  */
-export function buildCaptureConfig({ outDir, name, binarize = false }) {
+export function buildCaptureConfig({ outDir, name, binarize = false, backend = "cpu" }) {
+  if (backend !== "cpu" && backend !== "gpu") {
+    throw new Error(`capture backend must be cpu or gpu, got "${backend}"`);
+  }
   const dir = resolve(outDir);
   return [
     `screenshot_path=${join(dir, `${name}.png`)}`,
     `context_path=${join(dir, `${name}.context.json`)}`,
     `summary_path=${join(dir, `${name}.summary.txt`)}`,
     `binarize=${binarize ? "1" : "0"}`,
+    `backend=${backend}`,
     "",
   ].join("\n");
 }
@@ -41,12 +45,13 @@ function usage() {
     "  --out-dir <dir>      Where the captured artifacts go",
     "  --name <name>        Artifact basename (default: the example directory name)",
     "  --binarize           Capture in black and white (silhouette review)",
+    "  --backend cpu|gpu    Pixel source (default cpu). gpu drives the real wgpu pipeline",
     "  -h, --help           Show this help",
   ].join("\n");
 }
 
 function parseArgs(argv) {
-  const options = { exampleDir: null, outDir: null, name: null, binarize: false };
+  const options = { exampleDir: null, outDir: null, name: null, binarize: false, backend: "cpu" };
   for (let i = 0; i < argv.length; i += 1) {
     const arg = argv[i];
     switch (arg) {
@@ -67,6 +72,9 @@ function parseArgs(argv) {
       case "--binarize":
         options.binarize = true;
         break;
+      case "--backend":
+        options.backend = argv[++i] ?? null;
+        break;
       default:
         throw new Error(`unknown option: ${arg}`);
     }
@@ -83,7 +91,12 @@ function main(argv) {
   const name = options.name ?? basename(exampleDir);
   mkdirSync(outDir, { recursive: true });
   const configPath = join(exampleDir, CAPTURE_CONFIG_FILENAME);
-  writeFileSync(configPath, buildCaptureConfig({ outDir, name, binarize: options.binarize }));
+  writeFileSync(configPath, buildCaptureConfig({
+    outDir,
+    name,
+    binarize: options.binarize,
+    backend: options.backend,
+  }));
   process.stderr.write(`staged ${configPath}\n  artifacts -> ${join(outDir, `${name}.*`)}\n`);
   return 0;
 }

@@ -12,9 +12,34 @@ test "parse_capture_config reads the three paths and the binarize flag" {
       assert_eq(config.context_path, "/tmp/out/context.json")
       assert_eq(config.summary_path, "/tmp/out/summary.txt")
       assert_true(config.binarize)
+      assert_eq(config.backend, Cpu)
     }
     None => fail("expected a parsed config")
   }
+}
+
+///|
+test "parse_capture_config defaults backend to cpu" {
+  let text = "screenshot_path=a.png\ncontext_path=b.json\nsummary_path=c.txt\n"
+  match parse_capture_config(text) {
+    Some(config) => assert_eq(config.backend, Cpu)
+    None => fail("expected a parsed config")
+  }
+}
+
+///|
+test "parse_capture_config accepts gpu backend" {
+  let text = "screenshot_path=a.png\ncontext_path=b.json\nsummary_path=c.txt\nbackend=gpu\n"
+  match parse_capture_config(text) {
+    Some(config) => assert_eq(config.backend, Gpu)
+    None => fail("expected a gpu capture config")
+  }
+}
+
+///|
+test "parse_capture_config rejects an unknown backend" {
+  let text = "screenshot_path=a.png\ncontext_path=b.json\nsummary_path=c.txt\nbackend=metal\n"
+  assert_true(parse_capture_config(text) is None)
 }
 
 ///|

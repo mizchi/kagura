@@ -207,12 +207,16 @@ test "bench fixture 3d reset keeps the solver doing work" {
   for pass = 0; pass < 2; pass = pass + 1 {
     fixture.reset()
     bench_restore_constraints3d(constraints, template)
+    let vel = world.velocity_state
+    vel.load(world.bodies)
     world.phase_solve_velocities(
       constraints,
       [],
       [],
+      vel,
       config.velocity_iterations,
     )
+    vel.store(world.bodies)
     let mut moved = 0
     for i = 0; i < fixture.snapshot.length(); i = i + 1 {
       if world.bodies[i].velocity.y != fixture.snapshot[i].velocity.y {

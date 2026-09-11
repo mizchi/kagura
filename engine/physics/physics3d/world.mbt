@@ -323,31 +323,51 @@ fn PhysicsWorld::phase_joint_constraints(
 
 ///|
 /// Phase 4a: integrate velocities for one substep.
+///
+/// Reads and writes `vel`, not the bodies. `step` loads the buffer once before
+/// the substep loop and stores it once after, so a substep's accelerations,
+/// impulses and the next substep's accelerations all land in the same flat
+/// arrays -- which is what removes the `RigidBody` rebuild that used to happen
+/// here once per moving body per substep (2048 of them a frame on the 256-body
+/// pile, each carrying four or five `Vec3`).
+///
+/// Grouping is preserved site for site: `scale(s)` is `x * s` with `s` computed
+/// once, and `Vec3::length_squared` is `((x*x) + (y*y)) + (z*z)`.
 fn PhysicsWorld::phase_integrate_velocities(
   self : PhysicsWorld,
+  vel : VelocityState3D,
   sub_dt : Double,
 ) -> Unit {
+  let gravity = self.gravity
   let body_count = self.bodies.length()
   for i = 0; i < body_count; i = i + 1 {
     let body = self.bodies[i]
     if body.is_dynamic() && !body.is_sleeping {
-      let accel = self.gravity.add(body.force.scale(body.inv_mass))
-      let new_vel = body.velocity
-        .add(accel.scale(sub_dt))
-        .scale(1.0 - body.linear_damping * sub_dt)
-      let new_angular_vel = if body.angular_velocity.length_squared() <= 1.0e-24 &&
-        body.torque.length_squared() <= 1.0e-24 {
-        @math3d.Vec3::zero()
+      let force = body.force
+      let inv_mass = body.inv_mass
+      let accel_x = gravity.x + force.x * inv_mass
+      let accel_y = gravity.y + force.y * inv_mass
+      let accel_z = gravity.z + force.z * inv_mass
+      let linear_decay = 1.0 - body.linear_damping * sub_dt
+      vel.vx[i] = (vel.vx[i] + accel_x * sub_dt) * linear_decay
+      vel.vy[i] = (vel.vy[i] + accel_y * sub_dt) * linear_decay
+      vel.vz[i] = (vel.vz[i] + accel_z * sub_dt) * linear_decay
+      let wx = vel.wx[i]
+      let wy = vel.wy[i]
+      let wz = vel.wz[i]
+      let torque = body.torque
+      if wx * wx + wy * wy + wz * wz <= 1.0e-24 &&
+        torque.x * torque.x + torque.y * torque.y + torque.z * torque.z <=
+        1.0e-24 {
+        vel.wx[i] = 0.0
+        vel.wy[i] = 0.0
+        vel.wz[i] = 0.0
       } else {
-        let angular_accel = body.torque.scale(body.inv_inertia)
-        body.angular_velocity
-        .add(angular_accel.scale(sub_dt))
-        .scale(1.0 - body.angular_damping * sub_dt)
-      }
-      self.bodies[i] = {
-        ..body,
-        velocity: new_vel,
-        angular_velocity: new_angular_vel,
+        let inv_inertia = body.inv_inertia
+        let angular_decay = 1.0 - body.angular_damping * sub_dt
+        vel.wx[i] = (wx + torque.x * inv_inertia * sub_dt) * angular_decay
+        vel.wy[i] = (wy + torque.y * inv_inertia * sub_dt) * angular_decay
+        vel.wz[i] = (wz + torque.z * inv_inertia * sub_dt) * angular_decay
       }
     }
   }
@@ -360,14 +380,13 @@ fn PhysicsWorld::phase_solve_velocities(
   constraints : Array[ContactConstraintRuntime3D],
   dist_constraints : Array[DistanceJointConstraint3D],
   ball_constraints : Array[BallJointConstraint3D],
+  vel : VelocityState3D,
   iterations : Int,
   use_bias? : Bool = true,
 ) -> Unit {
-  // Velocities move into flat arrays for the duration of the pass and back out
-  // at the end, so the constraint loops below allocate nothing. Positions and
-  // masses are still read straight from the bodies -- neither changes here.
-  let vel = self.velocity_state
-  vel.load(self.bodies)
+  // Velocities live in `vel` for the whole substep loop, so this pass neither
+  // loads nor stores -- it allocates nothing at all. Positions and masses are
+  // still read straight from the bodies; neither changes here.
   for _iter = 0; _iter < iterations; _iter = _iter + 1 {
     for ci = 0; ci < constraints.length(); ci = ci + 1 {
       solve_constraint3d(constraints, ci, self.bodies, vel, use_bias)
@@ -386,7 +405,6 @@ fn PhysicsWorld::phase_solve_velocities(
       solve_ball_joint3d(ball_constraints, bi, self.bodies, vel, use_bias)
     }
   }
-  vel.store(self.bodies)
 }
 
 ///|
@@ -394,17 +412,33 @@ fn PhysicsWorld::phase_solve_velocities(
 /// path for bullet bodies.
 fn PhysicsWorld::phase_integrate_positions(
   self : PhysicsWorld,
+  vel : VelocityState3D,
   sub_dt : Double,
 ) -> Unit {
   let body_count = self.bodies.length()
   for i = 0; i < body_count; i = i + 1 {
     let body = self.bodies[i]
     if body.is_dynamic() && !body.is_sleeping {
-      let omega = body.angular_velocity
-      let omega_len_sq = omega.length_squared()
+      // Velocity comes from the buffer; the body's own copy is a substep stale
+      // by now. The `RigidBody` rebuild stays -- position and rotation do
+      // change here -- but the velocity `Vec3` that used to be built to scale
+      // and add does not.
+      let vx = vel.vx[i]
+      let vy = vel.vy[i]
+      let vz = vel.vz[i]
+      let wx = vel.wx[i]
+      let wy = vel.wy[i]
+      let wz = vel.wz[i]
+      let position = body.position
+      let omega_len_sq = wx * wx + wy * wy + wz * wz
       let new_rotation = if omega_len_sq > 1.0e-24 {
         let omega_len = omega_len_sq.sqrt()
-        let axis = omega.scale(1.0 / omega_len)
+        let inv_omega_len = 1.0 / omega_len
+        let axis = @math3d.Vec3::new(
+          wx * inv_omega_len,
+          wy * inv_omega_len,
+          wz * inv_omega_len,
+        )
         let angle = omega_len * sub_dt
         body.rotation
         .multiply(@math3d.Quaternion::from_axis_angle(axis, angle))
@@ -413,12 +447,17 @@ fn PhysicsWorld::phase_integrate_positions(
         body.rotation
       }
       if body.is_bullet {
-        match ccd_sweep_body3d(i, self.bodies, sub_dt) {
+        match ccd_sweep_body3d(i, self.bodies, vel, sub_dt) {
           Some(toi) => {
             let safe_toi = if toi > 0.01 { toi * 0.95 } else { 0.0 }
             let safe_rotation = if omega_len_sq > 1.0e-24 {
               let omega_len = omega_len_sq.sqrt()
-              let axis = omega.scale(1.0 / omega_len)
+              let inv_omega_len = 1.0 / omega_len
+              let axis = @math3d.Vec3::new(
+                wx * inv_omega_len,
+                wy * inv_omega_len,
+                wz * inv_omega_len,
+              )
               let angle = omega_len * sub_dt * safe_toi
               body.rotation
               .multiply(@math3d.Quaternion::from_axis_angle(axis, angle))
@@ -426,10 +465,13 @@ fn PhysicsWorld::phase_integrate_positions(
             } else {
               body.rotation
             }
+            let step_dt = sub_dt * safe_toi
             self.bodies[i] = {
               ..body,
-              position: body.position.add(
-                body.velocity.scale(sub_dt * safe_toi),
+              position: @math3d.Vec3::new(
+                position.x + vx * step_dt,
+                position.y + vy * step_dt,
+                position.z + vz * step_dt,
               ),
               rotation: safe_rotation,
             }
@@ -437,14 +479,22 @@ fn PhysicsWorld::phase_integrate_positions(
           None =>
             self.bodies[i] = {
               ..body,
-              position: body.position.add(body.velocity.scale(sub_dt)),
+              position: @math3d.Vec3::new(
+                position.x + vx * sub_dt,
+                position.y + vy * sub_dt,
+                position.z + vz * sub_dt,
+              ),
               rotation: new_rotation,
             }
         }
       } else {
         self.bodies[i] = {
           ..body,
-          position: body.position.add(body.velocity.scale(sub_dt)),
+          position: @math3d.Vec3::new(
+            position.x + vx * sub_dt,
+            position.y + vy * sub_dt,
+            position.z + vz * sub_dt,
+          ),
           rotation: new_rotation,
         }
       }
@@ -576,28 +626,43 @@ pub fn PhysicsWorld::step(self : PhysicsWorld, dt : Double) -> Unit {
     sub_dt,
   )
   let relax_iterations = config.relax_iterations
+  // One load in, one store out, for the whole substep loop. Everything inside
+  // reads and writes the flat arrays: the phases below build no `RigidBody` for
+  // velocity's sake, and `phase_solve_velocities` no longer pays a load and a
+  // store per substep (and another per relaxation pass).
+  //
+  // Ordering is load-bearing. `phase_contact_constraints` and the joint
+  // precomputes above read velocity off the bodies for restitution and bias, so
+  // the load has to come after them -- which it does, and at that point the two
+  // agree to the bit. `phase_update_sleep` below reads it off the bodies too,
+  // so the store has to come before that.
+  let vel = self.velocity_state
+  vel.load(self.bodies)
   for _s = 0; _s < substeps; _s = _s + 1 {
-    self.phase_integrate_velocities(sub_dt)
+    self.phase_integrate_velocities(vel, sub_dt)
     self.phase_solve_velocities(
       constraints,
       dist_constraints,
       ball_constraints,
+      vel,
       config.velocity_iterations,
     )
-    self.phase_integrate_positions(sub_dt)
+    self.phase_integrate_positions(vel, sub_dt)
     // Relaxation: the biased pass above had to inject velocity to push overlap
-    // out, and that velocity is still in the bodies. Solving the same
+    // out, and that velocity is still in the buffer. Solving the same
     // constraints rigidly takes it back out. Off by default.
     if relax_iterations > 0 {
       self.phase_solve_velocities(
         constraints,
         dist_constraints,
         ball_constraints,
+        vel,
         relax_iterations,
         use_bias=false,
       )
     }
   }
+  vel.store(self.bodies)
   self.phase_save_contact_cache(constraints)
   self.phase_clear_forces()
   self.phase_update_sleep(constraints, dt)

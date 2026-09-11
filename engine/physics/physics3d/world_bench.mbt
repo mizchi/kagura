@@ -164,6 +164,16 @@ test "bench physics3d phase reset floors pile 256" (b : @bench.T) {
     bench_restore_constraints3d(constraints, template)
     b.keep(constraints.length())
   })
+  // The floor for the `substep_` prefixes below, which open with the same load
+  // `step` does. Subtract this one, not the two above, from
+  // `substep_integrate_velocities`.
+  let vel = world.velocity_state
+  b.bench(name="physics3d/phase_reset_bodies_constraints_velocity_pile_256", fn() {
+    fixture.reset()
+    bench_restore_constraints3d(constraints, template)
+    vel.load(world.bodies)
+    b.keep(constraints.length())
+  })
 }
 
 ///|
@@ -195,10 +205,12 @@ test "bench physics3d phase contact constraints pile 256" (b : @bench.T) {
 test "bench physics3d phase integrate velocities pile 256" (b : @bench.T) {
   let fixture = bench_pile_fixture3d(256, bench_warm_frames3d)
   let world = fixture.world
+  let vel = world.velocity_state
   let sub_dt = bench_dt3d / world.solver_config.substeps.to_double()
   b.bench(name="physics3d/phase_integrate_velocities_pile_256", fn() {
     fixture.reset()
-    world.phase_integrate_velocities(sub_dt)
+    vel.load(world.bodies)
+    world.phase_integrate_velocities(vel, sub_dt)
     b.keep(world.body_count())
   })
 }
@@ -217,15 +229,23 @@ test "bench physics3d phase solve velocities pile 256" (b : @bench.T) {
     sub_dt,
   )
   let constraints = template.copy()
+  let vel = world.velocity_state
+  // The load and store stay inside the closure. They used to be inside
+  // `phase_solve_velocities` itself; `step` now hoists them out of the substep
+  // loop, but keeping them here is what makes this entry comparable with its
+  // recorded baseline and with the 2D entry of the same name.
   b.bench(name="physics3d/phase_solve_velocities_pile_256", fn() {
     fixture.reset()
     bench_restore_constraints3d(constraints, template)
+    vel.load(world.bodies)
     world.phase_solve_velocities(
       constraints,
       dist_constraints,
       ball_constraints,
+      vel,
       config.velocity_iterations,
     )
+    vel.store(world.bodies)
     b.keep(constraints.length())
   })
 }
@@ -236,10 +256,12 @@ test "bench physics3d phase solve velocities pile 256" (b : @bench.T) {
 test "bench physics3d phase integrate positions pile 256" (b : @bench.T) {
   let fixture = bench_pile_fixture3d(256, bench_warm_frames3d)
   let world = fixture.world
+  let vel = world.velocity_state
   let sub_dt = bench_dt3d / world.solver_config.substeps.to_double()
   b.bench(name="physics3d/phase_integrate_positions_pile_256", fn() {
     fixture.reset()
-    world.phase_integrate_positions(sub_dt)
+    vel.load(world.bodies)
+    world.phase_integrate_positions(vel, sub_dt)
     b.keep(world.body_count())
   })
 }
@@ -342,9 +364,14 @@ test "bench physics3d phase sleep islands resting 256" (b : @bench.T) {
 // setup hook, so whatever the closure needs in order to reach a realistic state
 // is inside the measurement. Read them by subtracting neighbours:
 //
-//   integrate_velocities = substep_integrate_velocities - phase_reset_bodies_constraints
+//   integrate_velocities = substep_integrate_velocities - phase_reset_bodies_constraints_velocity
 //   solve_velocities     = substep_solve_velocities     - substep_integrate_velocities
 //   integrate_positions  = substep_integrate_positions  - substep_solve_velocities
+//
+// Every prefix now opens with `vel.load`, because `step` does: velocities live
+// in the flat buffer for the whole substep loop. So the floor to subtract is
+// `phase_reset_bodies_constraints_velocity`, which is the same reset plus that
+// one load.
 //
 // The `phase_` benchmarks stay, unchanged: they are the low-noise,
 // floor-subtractable numbers, and they are what `physics2d` is comparable
@@ -364,20 +391,24 @@ test "bench physics3d substep prefix pile 256" (b : @bench.T) {
     sub_dt,
   )
   let constraints = template.copy()
+  let vel = world.velocity_state
   b.bench(name="physics3d/substep_integrate_velocities_pile_256", fn() {
     fixture.reset()
     bench_restore_constraints3d(constraints, template)
-    world.phase_integrate_velocities(sub_dt)
+    vel.load(world.bodies)
+    world.phase_integrate_velocities(vel, sub_dt)
     b.keep(world.body_count())
   })
   b.bench(name="physics3d/substep_solve_velocities_pile_256", fn() {
     fixture.reset()
     bench_restore_constraints3d(constraints, template)
-    world.phase_integrate_velocities(sub_dt)
+    vel.load(world.bodies)
+    world.phase_integrate_velocities(vel, sub_dt)
     world.phase_solve_velocities(
       constraints,
       dist_constraints,
       ball_constraints,
+      vel,
       config.velocity_iterations,
     )
     b.keep(constraints.length())
@@ -385,14 +416,16 @@ test "bench physics3d substep prefix pile 256" (b : @bench.T) {
   b.bench(name="physics3d/substep_integrate_positions_pile_256", fn() {
     fixture.reset()
     bench_restore_constraints3d(constraints, template)
-    world.phase_integrate_velocities(sub_dt)
+    vel.load(world.bodies)
+    world.phase_integrate_velocities(vel, sub_dt)
     world.phase_solve_velocities(
       constraints,
       dist_constraints,
       ball_constraints,
+      vel,
       config.velocity_iterations,
     )
-    world.phase_integrate_positions(sub_dt)
+    world.phase_integrate_positions(vel, sub_dt)
     b.keep(world.body_count())
   })
 }

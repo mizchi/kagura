@@ -8,7 +8,7 @@ import {
 }
 
 // Values
-pub fn ccd_sweep_body3d(Int, Array[RigidBody], Double) -> Double?
+pub fn ccd_sweep_body3d(Int, Array[RigidBody], VelocityState3D, Double) -> Double?
 
 pub fn generate_contact(RigidBody, RigidBody) -> Contact?
 

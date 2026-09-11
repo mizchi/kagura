@@ -40,6 +40,15 @@ function labeledSnapshot(node, screen = { width: 40, height: 16, dpr: 1 }) {
   };
 }
 
+test("ui_demo pressed green must keep yellow label above the AA floor", () => {
+  const yellow = [0xff, 0xff, 0x2d];
+  const oldPressed = [0x60, 0xdd, 0x60];
+  const pressed = [0x1e, 0x6b, 0x32];
+  assert.ok(contrastRatio(yellow, oldPressed) < WCAG_NORMAL_FLOOR);
+  assert.ok(contrastRatio(yellow, pressed) >= WCAG_NORMAL_FLOOR);
+  assert.ok(contrastRatio([255, 255, 255], pressed) >= WCAG_NORMAL_FLOOR);
+});
+
 test("relative luminance and contrast ratio match WCAG 2.x", () => {
   assert.equal(relativeLuminance(0, 0, 0), 0);
   assert.equal(relativeLuminance(255, 255, 255), 1);

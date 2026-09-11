@@ -1,13 +1,74 @@
 ///|
 /// Particle-like benchmark fixtures for sprite command build and dispatch.
+///
+/// `entries` is the number of images in the atlas, and it is load-bearing:
+/// every `append_atlas_sprite_draw_command` calls `@atlas.get_atlas_draw_source`,
+/// which scans `repo.images` comparing asset keys as strings with no early exit.
+/// A one-entry repository makes that scan free and hides its cost, so these
+/// fixtures size it after the only atlas in the repo that is drawn from every
+/// frame: `hacknslash_3d`'s icon atlas, at 6 patterns x 4 rarities + 6 skills
+/// = 30 entries. The looked-up key is registered last, which is also the
+/// average case -- with no early exit the scan always visits all of them.
 fn bench_particle_repo(
   atlas_id : Int,
   key_name : String,
+  entries? : Int = 30,
 ) -> (@atlas.SimpleAtlasImageRepository, @atlas.AssetKey) {
-  let repo = @atlas.new_simple_atlas_image_repository(8, 8, atlas_id)
+  let repo = @atlas.new_simple_atlas_image_repository(64, 64, atlas_id)
+  for i in 0..<(entries - 1) {
+    let _ = @atlas.create_atlas_image(
+      repo,
+      @atlas.new_asset_key(key_name + "/filler_" + i.to_string()),
+      @atlas.default_image_spec(2, 2),
+    )
+  }
   let key = @atlas.new_asset_key(key_name)
   let _ = @atlas.create_atlas_image(repo, key, @atlas.default_image_spec(2, 2))
   (repo, key)
+}
+
+///|
+/// Size sweep over the asset-key scan in `@atlas.get_atlas_draw_source`, which
+/// is what a per-quad atlas draw pays before it builds anything. Isolated from
+/// the command builders so the slope against `entries` is readable; compare
+/// against `particles/pipeline_same_state_10000`, which pays it 10,000 times.
+fn bench_atlas_lookup(
+  b : @bench.T,
+  name : String,
+  atlas_id : Int,
+  entries : Int,
+) -> Unit {
+  let (repo, key) = bench_particle_repo(atlas_id, "particle/lookup", entries~)
+  b.bench(name~, fn() {
+    let mut acc = 0
+    for _ in 0..<1000 {
+      match @atlas.get_atlas_draw_source(repo, key) {
+        Some(source) => acc = acc + source.page_image_id
+        None => panic()
+      }
+    }
+    b.keep(acc)
+  })
+}
+
+///|
+test "bench atlas draw source lookup 1 entry" (b : @bench.T) {
+  bench_atlas_lookup(b, "particles/atlas_lookup_1x1000", 730, 1)
+}
+
+///|
+test "bench atlas draw source lookup 8 entries" (b : @bench.T) {
+  bench_atlas_lookup(b, "particles/atlas_lookup_8x1000", 731, 8)
+}
+
+///|
+test "bench atlas draw source lookup 30 entries" (b : @bench.T) {
+  bench_atlas_lookup(b, "particles/atlas_lookup_30x1000", 732, 30)
+}
+
+///|
+test "bench atlas draw source lookup 128 entries" (b : @bench.T) {
+  bench_atlas_lookup(b, "particles/atlas_lookup_128x1000", 733, 128)
 }
 
 ///|
@@ -76,6 +137,30 @@ test "bench particle pipeline same state 10000" (b : @bench.T) {
   let blend = @gfx.BlendMode::from_int(1)
   let uniform_dwords = [1, 2, 3, 4]
   b.bench(name="particles/pipeline_same_state_10000", fn() {
+    let commands : Array[@gfx.DrawTrianglesCommand] = []
+    for i in 0..<10000 {
+      append_particle_command(
+        commands, repo, key, dst, shader, dst_region, 7, 11, blend, i, uniform_dwords,
+      )
+    }
+    b.keep(particle_pipeline_checksum(commands))
+  })
+}
+
+///|
+/// Paired with `particles/pipeline_same_state_10000`, differing only in the
+/// atlas entry count. The difference is what the asset-key scan in
+/// `@atlas.get_atlas_draw_source` costs inside the real per-quad path, rather
+/// than in isolation -- which is the number to quote when deciding whether that
+/// scan is worth indexing.
+test "bench particle pipeline same state 10000 one entry atlas" (b : @bench.T) {
+  let (repo, key) = bench_particle_repo(702, "particle/a", entries=1)
+  let dst = @gfx.new_image_handle(1, 1920, 1080)
+  let shader = @gfx.new_shader_handle(2, "particle_shader")
+  let dst_region = @gfx.new_dst_region(0, 0, 1920, 1080, 6)
+  let blend = @gfx.BlendMode::from_int(1)
+  let uniform_dwords = [1, 2, 3, 4]
+  b.bench(name="particles/pipeline_same_state_10000_atlas1", fn() {
     let commands : Array[@gfx.DrawTrianglesCommand] = []
     for i in 0..<10000 {
       append_particle_command(

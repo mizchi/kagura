@@ -173,7 +173,15 @@ JIT と cache に有利であり、この差は「取りこぼした phase」で
 
 > 3D 側の 1 / 3 / 4 は [physics3d-optimization.md](./physics3d-optimization.md) で対応済み
 > （broadphase 2.44x、`save_contact_cache` 9.47x、`step_pile_256` 全体で 2.48x）。
-> 2D 側は未着手。5 も未着手。
+> 2D 側（1 / 1b / 4）は [physics-followups.md](./physics-followups.md) で対応済み
+> （`step_pile_256` 4.08x）。**2 は
+> [physics-phase-boundaries.md](./physics-phase-boundaries.md) で対応済み**、
+> 6 は同 doc で「記録側を中央値にする」まで入れた（CI 投入は未）。5 は未着手（64 球 pile は
+> 寝るようになったが 256 球はまだ寝ない）。
+>
+> **上の phase 内訳の表はこの 3 周で作り替わっている。** 2D の `solve_velocities`
+> 41.4% と `broadphase` 17.5% はもう現状ではない。最新の内訳は
+> [physics-phase-boundaries.md](./physics-phase-boundaries.md) にある。
 
 1. **broadphase**: 1 回の呼び出しとしては両方で最も重く（2D 907 µs / 3D 1410 µs、step 比
    17.5% / 18.6%）、3D では最大の支配項。`get_pairs` は cell 内の候補 pair ごとに

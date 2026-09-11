@@ -258,8 +258,14 @@ VRT server、spec がこれを共有するので、置き場所の規則はこ�
 ```bash
 just bench          # 全 bench（moon bench）
 just bench-gate     # baseline と比較。両側（1.5x 遅い / 3x 速い の両方で落ちる）
-just bench-update   # 意図した変化のあとに貼り直す
+just bench-update   # 意図した変化のあとに貼り直す（既定で 3 回の中央値）
 ```
+
+**記録は 1 回の run ではなく中央値。** `--runs N` で N 回回して bench ごとの中央値を
+取り、baseline には**その中央値が何倍の幅で揺れていたか**（`spreads`）も書く。閾値より
+自分の幅が広い bench は、同じコードの再実行で閾値を越えるので**ゲートが判定できない** ——
+`REGRESSION` ではなく `NOISY` として幅を添えて報告し、落とさない。ノイズで落ちるゲートは
+全員に無視されるようになり、黙って通るゲートは本物の regression を隠す。
 
 `moon bench` は **closure 全体を計測し、iteration ごとの setup フックが無い**。
 だから closure がやったことは全部その数字に入る。名前で boundary を宣言すること
@@ -331,6 +337,13 @@ impulse 書き込みがガードに落ちる。allocation-bound なループで�
   **フィールド数の多い struct に移すと逆に遅くなる**。実測: constraint の `Vec3`
   フィールド 7 個を `Double` 21 個に潰して割り当てを 8→1 にしたら phase が 0.83x に
   なった（34 フィールドの object は 20 フィールド + 3 フィールド × 7 より V8 では高い）
+- **flat 配列の読み出しも無料ではない。** `Array[Double]` の添字は境界チェック付きなので、
+  **割り当てを 1 個も落とさない phase を flat 配列読みに移すと遅くなる**。実測:
+  `phase_integrate_positions` は position/rotation を書くので body struct の再構築が
+  残り、`Vec3` 1 個を配列読み 6 回と交換して 51.5 → 65.6 µs（うち 4.2 µs は bench 内の
+  `vel.load`）。同じ substep loop の中で `phase_integrate_velocities` は struct 再構築が
+  丸ごと消えるので 4.35x。**どちらも同じ 1 つの変更**で、substep 全体では 1.28x 速い ——
+  phase 単位の符号だけ見て判断しないこと
 - 効いたかどうかは**ペア測定 + 分離の判定**で見ること。このコンテナの run 間分散は
   phase 単位で ±25% ある。main と branch を交互に回して中央値を取り
   （`git worktree add /tmp/x origin/main`）、**main の全 run と branch の全 run が

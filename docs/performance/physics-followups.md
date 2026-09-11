@@ -242,6 +242,12 @@ baseline を撮り直して緑にしたが、これは数字を合わせただ�
 
 ## 残っている作業項目
 
+> **続きがある。** ここの 2 / 3 / 6 / 7 と 4 の半分は
+> [physics-phase-boundaries.md](./physics-phase-boundaries.md) で実装・実測した。
+> そこで**「割り当てを消す」の 3 つ目の境界**（割り当てを落とさない phase を flat 配列読みに
+> 移すと遅くなる）と、**broadphase は insert が重い**（pair の数え上げではない）ことが
+> 分かった。
+
 1. **`phase_contact_constraints` は 3D でまだ最大**（848 µs、frame の約 26%）。warm start を
    引いた残りは narrowphase 52 µs + precompute 約 400 µs。precompute の
    `Vec3` 一時オブジェクトは 1 周目で潰したので、残るのは constraint struct 1 個と

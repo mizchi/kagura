@@ -137,25 +137,19 @@ fn Game::resolve_collisions(self : Game) -> Unit {
             let nx = dx / dist
             let ny = dy / dist
             let push = overlap * push_strength * 0.5
-            self.world.set_transform(
+            // In place: `set_transform` with a rebuilt transform costs an
+            // allocation per push, and this runs per overlapping pair per frame.
+            self.world.set_position(
               a,
-              ta.with_position(
-                @math3d.Vec3::new(
-                  ta.position.x - nx * push,
-                  ta.position.y - ny * push,
-                  0.0,
-                ),
-              ),
+              ta.position.x - nx * push,
+              ta.position.y - ny * push,
+              0.0,
             )
-            self.world.set_transform(
+            self.world.set_position(
               b,
-              tb.with_position(
-                @math3d.Vec3::new(
-                  tb.position.x + nx * push,
-                  tb.position.y + ny * push,
-                  0.0,
-                ),
-              ),
+              tb.position.x + nx * push,
+              tb.position.y + ny * push,
+              0.0,
             )
           }
         }
@@ -189,10 +183,7 @@ fn Game::clamp_positions(self : Game) -> Unit {
       clamped = true
     }
     if clamped {
-      self.world.set_transform(
-        eid,
-        t.with_position(@math3d.Vec3::new(x, y, 0.0)),
-      )
+      self.world.set_position(eid, x, y, 0.0)
     }
   })
 }

@@ -1,6 +1,6 @@
 import { test, expect } from '@playwright/test';
 import { readFile } from 'node:fs/promises';
-const catalog = JSON.parse(await readFile(new URL('../examples/catalog.json', import.meta.url)));
+const catalog = JSON.parse(await readFile(new URL('../../../examples/catalog.json', import.meta.url)));
 
 test('example settings use editor history and WebMCP tools; switching projects disposes their runtime', async ({
   page,

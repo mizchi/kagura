@@ -88,7 +88,7 @@ async function main(argv) {
     return 1;
   }
 
-  const { renderHeadlessFrame } = await import("../lib/web/kagura-headless-frame.js");
+  const { renderHeadlessFrame } = await import("../assets/web/kagura-headless-frame.js");
   mkdirSync(outDir, { recursive: true });
   if (options.update) mkdirSync(baselineDir, { recursive: true });
 

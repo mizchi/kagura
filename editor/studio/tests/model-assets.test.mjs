@@ -45,15 +45,15 @@ test('GLB and OBJ sample resources prepare without the example runtime', async (
   const reader = {
     async read(path) {
       return new Blob([
-        await readFile(new URL('../../../examples/demos-3d/' + path, import.meta.url)),
+        await readFile(new URL('../../../examples/assets/' + path, import.meta.url)),
       ]);
     },
   };
-  const glb = await prepareModel(reader, 'gltf_viewer/assets/test_scene.glb');
+  const glb = await prepareModel(reader, 'model_assets/assets/test_scene.glb');
   assert.equal(glb.format, 'gltf');
   assert.ok(JSON.parse(glb.json).meshes.length > 0);
   assert.ok(glb.buffers[0].byteLength > 0);
-  const obj = await prepareModel(reader, 'obj_viewer/assets/bunny.obj');
+  const obj = await prepareModel(reader, 'model_assets/assets/bunny.obj');
   assert.equal(obj.format, 'obj');
   assert.match(obj.text, /^v /m);
 });

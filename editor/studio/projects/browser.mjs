@@ -111,6 +111,19 @@ export function installProjectUI({ host, panes, assets, setStatus }) {
   fetch(new URL('./examples/catalog.json', location.href))
     .then(async (response) => {
       if (!response.ok) throw Error('Examplesをビルドしてください: just studio-examples-build');
+      const groups = new Map();
+      const categories = {
+        games: 'Games · 統合例',
+        'demos-2d': '2D · 機能デモ',
+        'demos-3d': '3D · 機能デモ',
+        assets: 'Assets · エディタ素材',
+      };
+      for (const [category, label] of Object.entries(categories)) {
+        const group = document.createElement('optgroup');
+        group.label = label;
+        groups.set(category, group);
+        examples.append(group);
+      }
       for (const item of await response.json()) {
         if (disposed) return;
         const option = document.createElement('option');
@@ -119,7 +132,8 @@ export function installProjectUI({ host, panes, assets, setStatus }) {
           item.title +
           (item.preview === 'native' ? ' (native)' : item.preview === 'asset' ? ' (assets)' : '');
         option.dataset.manifest = item.manifest;
-        examples.append(option);
+        option.title = item.purpose;
+        (groups.get(item.category) ?? examples).append(option);
       }
     })
     .catch((error) => {

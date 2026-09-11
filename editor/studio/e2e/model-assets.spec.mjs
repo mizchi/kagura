@@ -6,7 +6,7 @@ test('generic model preview changes resources, preserves documents and releases 
   const errors = [];
   page.on('pageerror', (e) => errors.push(e.message));
   await page.goto('/');
-  await page.getByLabel('Examples', { exact: true }).selectOption('gltf_viewer');
+  await page.getByLabel('Examples', { exact: true }).selectOption('model_assets');
   await expect(page.getByRole('status')).toContainText('Opened project');
   await expect(page.getByRole('button', { name: 'Play', exact: true })).toBeDisabled();
   const before = await page.evaluate(() => kagura.snapshot());
@@ -47,7 +47,7 @@ test('generic model preview changes resources, preserves documents and releases 
 
 test('missing and superseded model loads cannot publish stale previews', async ({ page }) => {
   await page.goto('/');
-  await page.getByLabel('Examples', { exact: true }).selectOption('gltf_viewer');
+  await page.getByLabel('Examples', { exact: true }).selectOption('model_assets');
   await expect(page.getByRole('status')).toContainText('Opened project');
   const error = await page.evaluate(async () => {
     try {
@@ -79,10 +79,7 @@ test('a generic local project previews glTF with an external buffer without an e
       read: async () =>
         new Blob([
           await readFile(
-            new URL(
-              '../../../examples/demos-3d/gltf_viewer/assets/test_scene.glb',
-              import.meta.url,
-            ),
+            new URL('../../../examples/assets/model_assets/assets/test_scene.glb', import.meta.url),
           ),
         ]),
     },
@@ -135,3 +132,29 @@ test('a generic local project previews glTF with an external buffer without an e
   await page.getByRole('button', { name: 'Close model', exact: true }).click();
   await expect(page.locator('.model-frame')).toHaveCount(0);
 });
+
+for (const path of ['assets/test_scene.glb', 'assets/bunny.obj']) {
+  test('shared model renderer produces visible GPU pixels: ' + path, async ({ page }) => {
+    await page.addInitScript(() => {
+      globalThis.__kaguraVrtReadbackEnabled = true;
+    });
+    await page.goto('/');
+    await page.getByLabel('Examples', { exact: true }).selectOption('model_assets');
+    await expect(page.getByRole('status')).toContainText('Opened project');
+    await expect(page.getByLabel('Examples', { exact: true }).locator('optgroup')).toHaveCount(4);
+    await page.getByRole('button', { name: path, exact: true }).click();
+    await expect(page.locator('.model-frame')).toHaveAttribute('data-ready', 'true', {
+      timeout: 30000,
+    });
+    const frame = page.frameLocator('.model-frame');
+    const pixels = () => frame.locator('body').evaluate(() => __kaguraGfx.lastReadbackSummary());
+    await expect
+      .poll(async () => (await pixels())?.nonDarkPixelRatio ?? 0, { timeout: 15000 })
+      .toBeGreaterThan(0.01);
+    const summary = await pixels();
+    expect(summary.nonTransparentPixelRatio).toBeGreaterThan(0.99);
+    expect(summary.maxChannel).toBeGreaterThanOrEqual(64);
+    await page.getByRole('button', { name: 'Close model', exact: true }).click();
+    await expect(page.locator('.model-frame')).toHaveCount(0);
+  });
+}

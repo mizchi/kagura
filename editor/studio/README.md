@@ -130,12 +130,12 @@ Command consoleにも同じトランザクションJSONを貼り付けられま�
 
 | 層 | 場所 | 責務 |
 | --- | --- | --- |
-| コントラクト | `src/core/contracts.mbt`, `public/contract.d.ts` | バージョン・単位・ノード・演出・入力検証 |
-| 編集ロジック | `src/core/commands.mbt` | 入力を変更しないドキュメント遷移 |
-| 状態・操作 | `src/core/session.mbt`, `editor.mbt` | 原子的コミット、版の競合、Undo/Redo、選択・時刻、共通リクエスト |
-| Lunaビュー | `src/app/views.mbt`, `state.mbt` | コントローラ状態をSignalへ反映。UIも同じリクエストを発行 |
-| ヘッドレス | `src/headless`, `headless/` | Node向けエクスポート、JSONL CLI、ファイル保存 |
-| threeアダプター | `src/app/scene.mbt`, `web/viewport.mjs` | MoonBitからシーン生成、カメラ・ピック・プレビュー・破棄 |
+| コントラクト | `core/contracts.mbt`, `public/contract.d.ts` | バージョン・単位・ノード・演出・入力検証 |
+| 編集ロジック | `core/commands.mbt` | 入力を変更しないドキュメント遷移 |
+| 状態・操作 | `core/session.mbt`, `editor.mbt` | 原子的コミット、版の競合、Undo/Redo、選択・時刻、共通リクエスト |
+| Lunaビュー | `app/views.mbt`, `state.mbt` | コントローラ状態をSignalへ反映。UIも同じリクエストを発行 |
+| ヘッドレス | `headless/` | Node向けエクスポート、JSONL CLI、ファイル保存 |
+| threeアダプター | `app/scene.mbt`, `web/viewport.mjs` | MoonBitからシーン生成、カメラ・ピック・プレビュー・破棄 |
 | レイアウト | `web/layout-state.mjs`, `layout.mjs`, `layout.css` | 寸法・制限とドラッグ操作、画面内配置、独立スクロール |
 | ブラウザホスト | `web/main.mjs`, `api.mjs` | 永続化・ファイル・クリップボード・AIへのJSON境界 |
 
@@ -154,7 +154,7 @@ IRON YARDは以下の専用シーン編集に対応し、modeling-playgroundのS
 
 ### 既存examplesを開く
 
-ヘッダの **Examples…** からゲーム・2Dデモ・3Dデモの29プロジェクトを選択できます（一覧は [catalog.json](examples/catalog.json)）。`hacknslash_3d` も含みます。各exampleの直下に `.kgrprj` を置いているので、**Open project** でそのフォルダを選ぶこともできます。同梱版は読み取り専用で、Saveはプロジェクトのシーン形式（MoonBit / JSON）で書き出します。ローカルフォルダ版は `.kgrprj` が指定するシーンファイルに保存します。
+ヘッダの **Examples…** からゲーム・2Dデモ・3Dデモ・素材集の28プロジェクトを選択できます（一覧は [catalog.json](../../examples/catalog.json)）。`hacknslash_3d` も含みます。各exampleの直下に `.kgrprj` を置いているので、**Open project** でそのフォルダを選ぶこともできます。同梱版は読み取り専用で、Saveはプロジェクトのシーン形式（MoonBit / JSON）で書き出します。ローカルフォルダ版は `.kgrprj` が指定するシーンファイルに保存します。
 
 ```sh
 just studio-dev                         # 全exampleをビルドして起動
@@ -496,10 +496,12 @@ Arena / FPS は `scenes/*.mbt` を既定のシーン定義として使います�
 
 2D 配置は `kagura.scene2d` リソースと `game/scene2d` の型で共有します。WebMCP の `kagura.pane.studio.scene2d.scene_read` / `object_edit` も同じトランザクションを利用します。共通 UI は `scene2d/`、Flappy Bird 固有の制約は `examples/games/flappy_bird/editor/scene.mjs` です。他の 2D examples は起動設定とプレビューまで対応し、配置の編集にはゲーム側のアダプターを追加します。
 
-Studio 対象の 29 examples は MoonBit の `src/` を置かず、ソースを直下、シーンを `scenes/`、編集拡張を `editor/` に配置します。ビルド入口は `.` が既定です。具体的な読込規約は [プロジェクト設計](../../docs/editor/game-projects.md#ファイル配置と読み込みの命名規約) を参照してください。
+Studio 対象の 27 コード examples は MoonBit の `src/` を置かず、ソースを直下、シーンを `scenes/`、編集拡張を `editor/` に配置します。ビルド入口は `.` が既定です。具体的な読込規約は [プロジェクト設計](../../docs/editor/game-projects.md#ファイル配置と読み込みの命名規約) を参照してください。
 
 ### 宣言的な描画シーン
 
 Flappy Bird と Arena 3D は `view.mbt` の入れ子から描画とヒエラルキーを生成します。2D は既存 `@scene`、3D は `@scene3d.group / mesh / show / for_each` を使います。Play 中の **Scene hierarchy** と `kagura.runtime.hierarchy()` は同じツリーを参照します。[宣言 API と実装例](../../docs/editor/declarative-scenes.md) を参照してください。
 
 モデル閲覧は本体の [汎用モデルプレビュー](../../docs/editor/model-assets.md) を使用する。Project の GLB / glTF / OBJ をクリックすると、Kagura WebGPU で中央にプレビューする。ゲーム用の拡張や Play は不要。
+
+`Model Assets` は `examples/assets/model_assets/` の素材専用プロジェクトで、MoonBit のビルド設定やゲームランタイムを持ちません。旧 glTF / OBJ viewer の素材をここに統合しています。各 example の目的と整理方針は [examples/README](../../examples/README.md) を参照してください。

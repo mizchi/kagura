@@ -1,7 +1,7 @@
 import type { PanePlugin, PluginCallOptions, PluginReply, PublishedPaneTool, PluginSDK } from './plugins.d.ts';
 import type { RuntimeDebugAPI, SceneHierarchyNode } from './runtime.d.ts';
 import type { BrowserStorage } from './storage.d.ts';
-/** Kagura Studio v1. Runtime validation is owned by src/core, not this declaration. */
+/** Kagura Studio v1. Runtime validation is owned by core, not this declaration. */
 export type Vec3 = [number, number, number];
 export type AssetId = 'primitive.box' | 'primitive.sphere' | 'primitive.cylinder' | 'group';
 export interface SceneNode {

@@ -39,12 +39,12 @@ SceneとActionのレイアウトは同じビューを再配置するため、切
 
 ## ヘッドレスの境界
 
-`src/core/editor.mbt` の `Editor` がSessionと作業コンテキスト（選択、時刻、レイアウト名）を所有する。
+`core/editor.mbt` の `Editor` がSessionと作業コンテキスト（選択、時刻、レイアウト名）を所有する。
 LunaのSignalはその表示用の写しとし、ヘッドレス版へUI状態ロジックを複製しない。
 ブラウザ版とNode版のどちらも同じコントローラへリクエストを送り、JSONのsnapshotまたは構造化エラーを受け取る。
 ペーン寸法やカメラなど表示だけの状態はブラウザアダプターに残す。
 
-`src/headless` はcoreだけに依存するJSエクスポート。DOM・Luna・threeを読み込まず、プロセス内で独立したインスタンスを生成できる。
+`headless` はcoreだけに依存するJSエクスポート。DOM・Luna・threeを読み込まず、プロセス内で独立したインスタンスを生成できる。
 NodeのJSONL CLIはstdin/stdoutとファイルI/Oを担当し、部分的に成功した実行を完成データとして保存しない。
 正常な起動時ロードはrevision 0から開始し、履歴はそのプロセス中だけ保持する。稼働中の読込は通常のUndo可能な編集。
 MoonBitの内部Resultや構造体を公開する代わりに、初期化エラーだけJS例外へ変換し、操作は安定したJSON応答に統一する。

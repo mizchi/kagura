@@ -2,7 +2,7 @@ import { validateHierarchy } from '../runtime/hierarchy.mjs';
 import { createRuntimeSession } from '../runtime/session.mjs';
 import { runtimeEntry, runtimeSettings } from '../projects/settings.mjs';
 import { compileProject } from '../scene/profile.mjs';
-import catalog from './catalog.json';
+import catalog from '../../../examples/catalog.json';
 import { readLaunch, validateLaunch, launchTools, invokeLaunch } from './contract.mjs';
 import { defineJSPlugin } from '../plugins/adapters.mjs';
 import * as core from '../extensions/core.mjs';
@@ -15,7 +15,7 @@ export function validateDocument(document, manifest) {
   const config = readLaunch({ document: doc });
   if (manifest?.game && manifest.game !== config.example)
     throw Error('Project game does not match launch scene');
-  if (!catalog.some((e) => e.id === config.example && e.id !== 'iron_yard'))
+  if (!catalog.some((e) => e.id === config.example && e.id !== 'iron_yard' && e.preview !== 'asset'))
     throw Error('Unknown browser example');
   return doc;
 }

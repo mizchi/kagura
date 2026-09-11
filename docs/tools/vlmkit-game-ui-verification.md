@@ -20,7 +20,7 @@
 | #10 | **完了** | `engine/ui/snapshot.mbt`（`UISnapshot` + `to_json`）、`snapshot_publish_js.mbt`（`__kaguraUISnapshot`）、`scripts/ui-snapshot-to-vlmkit-elements.mjs`、`examples/demos-2d/ui_demo` で実配線 |
 | #12 | **完了** | `scripts/ui-integrity-gate.mjs` + `ui-integrity-utils.mjs`（9 種の欠陥、`--allow` 監査付き）、`just ui-check` |
 | #18 | **一部** | `just ui-asset-check`（素材入庫ゲート）。テーマ/パレット突き合わせはトークン表の宣言が未 |
-| #9 | **完了（2D）** | CPU ラスタライザ（`engine/kagura_engine/raster`）+ `@engine.run` の headless 経路 + `lib/web/kagura-headless-frame.js` + `just render`。browser も GPU も Playwright も要らない。3D は native capture のまま |
+| #9 | **完了（2D）** | CPU ラスタライザ（`engine/kagura_engine/raster`）+ `@engine.run` の headless 経路 + `assets/web/kagura-headless-frame.js` + `just render`。browser も GPU も Playwright も要らない。3D は native capture のまま |
 | #16 | **完了（2D UI）** | `scripts/vlm-ui-review.mjs` + `just vlm-ui-review`。決定的ゲート → VLM の順序を強制、`--compare` で修正の帰属確認 |
 | #8 | **2D は完了** | `scripts/frame-vrt.mjs` + `just frame-vrt`。CPU レンダリングは決定的なので閾値ゼロで gate でき、CI の js job が回している。baseline 13 枚（`e2e/frame-vrt-snapshots/`）。3D と実 GPU 経路は Playwright VRT のまま非 gating |
 | #13 #14 #15 #17 | 未着手 | 状態マトリクスの全走査・i18n・操作性・flipbook |
@@ -106,7 +106,7 @@ expect(readback.nonDarkPixelRatio).toBeGreaterThanOrEqual(expectedNonDark * floo
 ### 2.4 スナップショットモードは 1 example のみ
 
 `?snapshot=&frames=&tick=` の実装は `examples/games/hacknslash_3d/snapshot.mbt` だけ
-（`examples/*/*/src/snapshot.mbt` の全検索結果が 1 件）。`e2e/vrt.spec.ts` の `SNAPSHOT_TESTS` も
+（`examples/*/*/snapshot.mbt` の全検索結果が 1 件）。`e2e/vrt.spec.ts` の `SNAPSHOT_TESTS` も
 `hacknslash_3d` の 1 行のみ。UI が実際に問題を起こす状態（メニュー、ポーズ、インベントリ、
 レベルアップ、ゲームオーバー、ダイアログ）はどの example でもキャプチャされていない。
 
@@ -132,7 +132,7 @@ patch → apply → PR コメントまでの一式（`model-authoring-vlm-*.mjs`
 `vlm-*` ターゲット群、`docs/tools/vlm-modeling-runbook.md`）が既にある。
 native 側は `kagura_native_capture_config.txt` を stage して
 `screenshot_path` / `context_path` / `summary_path` に **PNG + JSON + サマリを直接書き出す**
-（`editor/modeling3d/examples/frog_authoring/src/main_native.mbt:300-308`）。
+（`editor/modeling3d/examples/frog_authoring/main_native.mbt:300-308`）。
 
 **この native capture 経路は Dawn / headless canvas の問題を完全に回避している。**
 UI にそのまま流用できる最短ルートがここにある。

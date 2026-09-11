@@ -30,7 +30,7 @@ test("createDataUrl base64 encodes binary payloads", () => {
 test("buildVlmReviewRequest attaches screenshot, bundle, and prompt as multimodal inputs", () => {
   const screenshotBytes = Buffer.from([0x89, 0x50, 0x4e, 0x47]);
   const bundleText =
-    '{"target_file":"editor/modeling3d/examples/model_authoring/src/model_doc.mbt","patch_payload":{"manual_issue_details":[]}}';
+    '{"target_file":"editor/modeling3d/examples/model_authoring/model_doc.mbt","patch_payload":{"manual_issue_details":[]}}';
   const promptText = "# Kagura review prompt\nReview the imported GLB diff.";
 
   const payload = buildVlmReviewRequest({
@@ -78,7 +78,7 @@ test("buildVlmReviewRequest accepts multi-view screenshots", () => {
   const screenshotBytes = Buffer.from([0x89, 0x50, 0x4e, 0x47]);
   const bundleText =
     JSON.stringify({
-      target_file: "editor/modeling3d/examples/frog_authoring/src/model_doc.mbt",
+      target_file: "editor/modeling3d/examples/frog_authoring/model_doc.mbt",
       review_profile: "organic_character",
       review_constraints: [
         "Aim for a squat frog silhouette instead of a generic blob.",
@@ -137,7 +137,7 @@ test("buildVlmReviewRequest accepts multi-view screenshots", () => {
 test("buildVlmReviewRequest supports OpenRouter chat completions with inline bundle and prompt text", () => {
   const screenshotBytes = Buffer.from([0x89, 0x50, 0x4e, 0x47]);
   const bundleText =
-    '{"target_file":"editor/modeling3d/examples/model_authoring/src/model_doc.mbt","patch_payload":{"manual_issue_details":[]}}';
+    '{"target_file":"editor/modeling3d/examples/model_authoring/model_doc.mbt","patch_payload":{"manual_issue_details":[]}}';
   const promptText = "# Kagura review prompt\nReview the imported GLB diff.";
 
   const payload = buildVlmReviewRequest({
@@ -192,7 +192,7 @@ test("buildVlmReviewInstructions uses bundle review profile and constraints", ()
     bundlePath: "vlm_frog_study_vlm_bundle.json",
     promptPath: "vlm_frog_study_vlm_review.md",
     bundleText: JSON.stringify({
-      target_file: "editor/modeling3d/examples/frog_authoring/src/model_doc.mbt",
+      target_file: "editor/modeling3d/examples/frog_authoring/model_doc.mbt",
       review_profile: "organic_character",
       review_constraints: [
         "Aim for a squat frog silhouette instead of a generic blob.",
@@ -218,7 +218,7 @@ test("buildVlmReviewInstructions falls back to legacy target_file inference", ()
     bundlePath: "vlm_chair_study_vlm_bundle.json",
     promptPath: "vlm_chair_study_vlm_review.md",
     bundleText:
-      '{"target_file":"editor/modeling3d/examples/chair_authoring/src/model_doc.mbt","patch_payload":{"manual_issue_details":[]}}',
+      '{"target_file":"editor/modeling3d/examples/chair_authoring/model_doc.mbt","patch_payload":{"manual_issue_details":[]}}',
   });
 
   assert.match(instructions, /hard-surface prop rubric:/i);
@@ -232,7 +232,7 @@ test("buildVlmReviewInstructions infers hard-surface rubric for shelf target fil
     bundlePath: "vlm_shelf_study_vlm_bundle.json",
     promptPath: "vlm_shelf_study_vlm_review.md",
     bundleText:
-      '{"target_file":"editor/modeling3d/examples/shelf_authoring/src/model_doc.mbt","patch_payload":{"manual_issue_details":[]}}',
+      '{"target_file":"editor/modeling3d/examples/shelf_authoring/model_doc.mbt","patch_payload":{"manual_issue_details":[]}}',
   });
 
   assert.match(instructions, /hard-surface prop rubric:/i);
@@ -255,7 +255,7 @@ test("buildVlmReviewInstructions adapts to current-state review bundles", () => 
     promptPath: "current-state-vlm-review.md",
     bundleText: JSON.stringify({
       review_mode: "current_state",
-      target_file: "editor/modeling3d/examples/frog_authoring/src/model_doc.mbt",
+      target_file: "editor/modeling3d/examples/frog_authoring/model_doc.mbt",
       review_profile: "organic_character",
       review_constraints: [
         "Aim for a squat frog silhouette instead of a generic blob.",
@@ -291,7 +291,7 @@ test("buildVlmReviewInstructions describes single-image atlas captures", () => {
     promptPath: "current-state-vlm-review.md",
     bundleText: JSON.stringify({
       review_mode: "current_state",
-      target_file: "editor/modeling3d/examples/frog_authoring/src/model_doc.mbt",
+      target_file: "editor/modeling3d/examples/frog_authoring/model_doc.mbt",
       review_profile: "organic_character",
       review_constraints: [],
       current_document: {},
@@ -456,7 +456,7 @@ test("buildVlmReviewHeaders adds OpenRouter ranking headers", () => {
 
 test("extractStructuredReview parses top-level output_text JSON", () => {
   const expected = {
-    target_file: "editor/modeling3d/examples/model_authoring/src/model_doc.mbt",
+    target_file: "editor/modeling3d/examples/model_authoring/model_doc.mbt",
     overall_summary: "Apply the pedestal transform patch and review sculpt drift manually.",
     confidence: "high",
     recommended_actions: [],
@@ -471,13 +471,13 @@ test("extractStructuredReview parses top-level output_text JSON", () => {
     source_task_report: "",
     pr_comment_lines: [
       "## Kagura VLM Review",
-      "- Target: `editor/modeling3d/examples/model_authoring/src/model_doc.mbt`",
+      "- Target: `editor/modeling3d/examples/model_authoring/model_doc.mbt`",
       "- Confidence: `high`",
       "- Summary: Apply the pedestal transform patch and review sculpt drift manually.",
     ],
     pr_comment_markdown: [
       "## Kagura VLM Review",
-      "- Target: `editor/modeling3d/examples/model_authoring/src/model_doc.mbt`",
+      "- Target: `editor/modeling3d/examples/model_authoring/model_doc.mbt`",
       "- Confidence: `high`",
       "- Summary: Apply the pedestal transform patch and review sculpt drift manually.",
     ].join("\n"),
@@ -491,7 +491,7 @@ test("extractStructuredReview parses top-level output_text JSON", () => {
 
 test("extractStructuredReview falls back to message content text", () => {
   const expected = {
-    target_file: "editor/modeling3d/examples/model_authoring/src/model_doc.mbt",
+    target_file: "editor/modeling3d/examples/model_authoring/model_doc.mbt",
     overall_summary: "Review the helper primitive before appending it.",
     confidence: "medium",
     recommended_actions: [],
@@ -506,13 +506,13 @@ test("extractStructuredReview falls back to message content text", () => {
     source_task_report: "",
     pr_comment_lines: [
       "## Kagura VLM Review",
-      "- Target: `editor/modeling3d/examples/model_authoring/src/model_doc.mbt`",
+      "- Target: `editor/modeling3d/examples/model_authoring/model_doc.mbt`",
       "- Confidence: `medium`",
       "- Summary: Review the helper primitive before appending it.",
     ],
     pr_comment_markdown: [
       "## Kagura VLM Review",
-      "- Target: `editor/modeling3d/examples/model_authoring/src/model_doc.mbt`",
+      "- Target: `editor/modeling3d/examples/model_authoring/model_doc.mbt`",
       "- Confidence: `medium`",
       "- Summary: Review the helper primitive before appending it.",
     ].join("\n"),
@@ -538,7 +538,7 @@ test("extractStructuredReview falls back to message content text", () => {
 
 test("extractStructuredReview parses OpenRouter chat completions output", () => {
   const expected = {
-    target_file: "editor/modeling3d/examples/model_authoring/src/model_doc.mbt",
+    target_file: "editor/modeling3d/examples/model_authoring/model_doc.mbt",
     overall_summary: "Use the safe auto patch and review the sculpt layer manually.",
     confidence: "medium",
     recommended_actions: [],
@@ -553,13 +553,13 @@ test("extractStructuredReview parses OpenRouter chat completions output", () => 
     source_task_report: "",
     pr_comment_lines: [
       "## Kagura VLM Review",
-      "- Target: `editor/modeling3d/examples/model_authoring/src/model_doc.mbt`",
+      "- Target: `editor/modeling3d/examples/model_authoring/model_doc.mbt`",
       "- Confidence: `medium`",
       "- Summary: Use the safe auto patch and review the sculpt layer manually.",
     ],
     pr_comment_markdown: [
       "## Kagura VLM Review",
-      "- Target: `editor/modeling3d/examples/model_authoring/src/model_doc.mbt`",
+      "- Target: `editor/modeling3d/examples/model_authoring/model_doc.mbt`",
       "- Confidence: `medium`",
       "- Summary: Use the safe auto patch and review the sculpt layer manually.",
     ].join("\n"),
@@ -581,7 +581,7 @@ test("extractStructuredReview parses OpenRouter chat completions output", () => 
 
 test("extractStructuredReview strips fenced JSON blocks from OpenRouter output", () => {
   const expected = {
-    target_file: "editor/modeling3d/examples/model_authoring/src/model_doc.mbt",
+    target_file: "editor/modeling3d/examples/model_authoring/model_doc.mbt",
     overall_summary: "Use the safe auto patch and review the sculpt layer manually.",
     confidence: "medium",
     recommended_actions: [],
@@ -596,13 +596,13 @@ test("extractStructuredReview strips fenced JSON blocks from OpenRouter output",
     source_task_report: "",
     pr_comment_lines: [
       "## Kagura VLM Review",
-      "- Target: `editor/modeling3d/examples/model_authoring/src/model_doc.mbt`",
+      "- Target: `editor/modeling3d/examples/model_authoring/model_doc.mbt`",
       "- Confidence: `medium`",
       "- Summary: Use the safe auto patch and review the sculpt layer manually.",
     ],
     pr_comment_markdown: [
       "## Kagura VLM Review",
-      "- Target: `editor/modeling3d/examples/model_authoring/src/model_doc.mbt`",
+      "- Target: `editor/modeling3d/examples/model_authoring/model_doc.mbt`",
       "- Confidence: `medium`",
       "- Summary: Use the safe auto patch and review the sculpt layer manually.",
     ].join("\n"),
@@ -628,7 +628,7 @@ test("extractStructuredReview normalizes legacy manual issue kinds", () => {
       {
         message: {
           content: JSON.stringify({
-            target_file: "editor/modeling3d/examples/model_authoring/src/model_doc.mbt",
+            target_file: "editor/modeling3d/examples/model_authoring/model_doc.mbt",
             overall_summary: "summary",
             confidence: "high",
             recommended_actions: [],
@@ -671,7 +671,7 @@ test("extractStructuredReview reclassifies node-kind followups into alignment an
       {
         message: {
           content: JSON.stringify({
-            target_file: "editor/modeling3d/examples/shelf_authoring/src/model_doc.mbt",
+            target_file: "editor/modeling3d/examples/shelf_authoring/model_doc.mbt",
             overall_summary: "summary",
             confidence: "high",
             recommended_actions: [],
@@ -714,7 +714,7 @@ test("extractStructuredReview splits composite source_id values into one item pe
       {
         message: {
           content: JSON.stringify({
-            target_file: "editor/modeling3d/examples/shelf_authoring/src/model_doc.mbt",
+            target_file: "editor/modeling3d/examples/shelf_authoring/model_doc.mbt",
             overall_summary: "summary",
             confidence: "high",
             recommended_actions: [
@@ -768,7 +768,7 @@ test("extractStructuredReview expands manual and visual source ids from related 
       {
         message: {
           content: JSON.stringify({
-            target_file: "editor/modeling3d/examples/shelf_authoring/src/model_doc.mbt",
+            target_file: "editor/modeling3d/examples/shelf_authoring/model_doc.mbt",
             overall_summary: "summary",
             confidence: "high",
             recommended_actions: [],
@@ -810,7 +810,7 @@ test("extractStructuredReview normalizes legacy visual finding areas", () => {
       {
         message: {
           content: JSON.stringify({
-            target_file: "editor/modeling3d/examples/model_authoring/src/model_doc.mbt",
+            target_file: "editor/modeling3d/examples/model_authoring/model_doc.mbt",
             overall_summary: "summary",
             confidence: "high",
             recommended_actions: [],
@@ -857,7 +857,7 @@ test("extractStructuredReview keeps explicit visual finding source_id values", (
       {
         message: {
           content: JSON.stringify({
-            target_file: "editor/modeling3d/examples/model_authoring/src/model_doc.mbt",
+            target_file: "editor/modeling3d/examples/model_authoring/model_doc.mbt",
             overall_summary: "summary",
             confidence: "high",
             recommended_actions: [],
@@ -887,7 +887,7 @@ test("extractStructuredReview rejects JSON that does not match the review schema
           {
             message: {
               content: JSON.stringify({
-                target_file: "editor/modeling3d/examples/model_authoring/src/model_doc.mbt",
+                target_file: "editor/modeling3d/examples/model_authoring/model_doc.mbt",
                 patch_payload: {},
               }),
             },
@@ -906,7 +906,7 @@ test("extractStructuredReview rejects unknown manual issue kinds", () => {
           {
             message: {
               content: JSON.stringify({
-                target_file: "editor/modeling3d/examples/model_authoring/src/model_doc.mbt",
+                target_file: "editor/modeling3d/examples/model_authoring/model_doc.mbt",
                 overall_summary: "summary",
                 confidence: "high",
                 recommended_actions: [],
@@ -936,7 +936,7 @@ test("extractStructuredReview rejects unknown visual finding areas", () => {
           {
             message: {
               content: JSON.stringify({
-                target_file: "editor/modeling3d/examples/model_authoring/src/model_doc.mbt",
+                target_file: "editor/modeling3d/examples/model_authoring/model_doc.mbt",
                 overall_summary: "summary",
                 confidence: "high",
                 recommended_actions: [],
@@ -965,7 +965,7 @@ test("extractStructuredReview rejects non-string visual finding source_id", () =
           {
             message: {
               content: JSON.stringify({
-                target_file: "editor/modeling3d/examples/model_authoring/src/model_doc.mbt",
+                target_file: "editor/modeling3d/examples/model_authoring/model_doc.mbt",
                 overall_summary: "summary",
                 confidence: "high",
                 recommended_actions: [],
@@ -995,7 +995,7 @@ test("extractStructuredReview rejects wrong confidence and item shapes", () => {
           {
             message: {
               content: JSON.stringify({
-                target_file: "editor/modeling3d/examples/model_authoring/src/model_doc.mbt",
+                target_file: "editor/modeling3d/examples/model_authoring/model_doc.mbt",
                 overall_summary: "summary",
                 confidence: 0.9,
                 recommended_actions: ["apply"],
@@ -1018,7 +1018,7 @@ test("extractStructuredReview rejects invalid recommended action enums", () => {
           {
             message: {
               content: JSON.stringify({
-                target_file: "editor/modeling3d/examples/model_authoring/src/model_doc.mbt",
+                target_file: "editor/modeling3d/examples/model_authoring/model_doc.mbt",
                 overall_summary: "summary",
                 confidence: "high",
                 recommended_actions: [
@@ -1049,7 +1049,7 @@ test("extractStructuredReview rejects non-string recommended action source_id", 
           {
             message: {
               content: JSON.stringify({
-                target_file: "editor/modeling3d/examples/model_authoring/src/model_doc.mbt",
+                target_file: "editor/modeling3d/examples/model_authoring/model_doc.mbt",
                 overall_summary: "summary",
                 confidence: "high",
                 recommended_actions: [
@@ -1080,7 +1080,7 @@ test("extractStructuredReview rejects non-string manual followup source_id", () 
           {
             message: {
               content: JSON.stringify({
-                target_file: "editor/modeling3d/examples/model_authoring/src/model_doc.mbt",
+                target_file: "editor/modeling3d/examples/model_authoring/model_doc.mbt",
                 overall_summary: "summary",
                 confidence: "high",
                 recommended_actions: [],
@@ -1104,7 +1104,7 @@ test("extractStructuredReview rejects non-string manual followup source_id", () 
 
 test("enrichStructuredReview groups actions and findings by source_id", () => {
   const review = enrichStructuredReview({
-    target_file: "editor/modeling3d/examples/model_authoring/src/model_doc.mbt",
+    target_file: "editor/modeling3d/examples/model_authoring/model_doc.mbt",
     overall_summary: "summary",
     confidence: "high",
     recommended_actions: [
@@ -1321,7 +1321,7 @@ test("enrichStructuredReview groups actions and findings by source_id", () => {
   );
   assert.deepEqual(review.pr_comment_lines, [
     "## Kagura VLM Review",
-    "- Target: `editor/modeling3d/examples/model_authoring/src/model_doc.mbt`",
+    "- Target: `editor/modeling3d/examples/model_authoring/model_doc.mbt`",
     "- Confidence: `high`",
     "- Summary: summary",
     "",
@@ -1343,7 +1343,7 @@ test("enrichStructuredReview groups actions and findings by source_id", () => {
     review.pr_comment_markdown,
     [
       "## Kagura VLM Review",
-      "- Target: `editor/modeling3d/examples/model_authoring/src/model_doc.mbt`",
+      "- Target: `editor/modeling3d/examples/model_authoring/model_doc.mbt`",
       "- Confidence: `high`",
       "- Summary: summary",
       "",
@@ -1366,7 +1366,7 @@ test("enrichStructuredReview groups actions and findings by source_id", () => {
 
 test("enrichStructuredReview prioritizes alignment and overlap issues separately", () => {
   const review = enrichStructuredReview({
-    target_file: "editor/modeling3d/examples/shelf_authoring/src/model_doc.mbt",
+    target_file: "editor/modeling3d/examples/shelf_authoring/model_doc.mbt",
     overall_summary: "summary",
     confidence: "high",
     recommended_actions: [],

@@ -12,7 +12,7 @@ import {
 test("landing page exposes additional public demos", () => {
   const html = renderLandingHtml({ demos: DEMO_PAGES });
 
-  assert.match(html, /gltf_viewer/);
+  assert.doesNotMatch(html, /gltf_viewer|obj_viewer/);
   assert.match(html, /fetch_image/);
   assert.doesNotMatch(html, /model_authoring/);
   assert.doesNotMatch(html, /chair_authoring/);
@@ -24,7 +24,7 @@ test("landing page exposes additional public demos", () => {
 
 test("demo page includes responsive layout and control guidance", () => {
   const html = renderDemoHtml({
-    demo: getDemoPage("gltf_viewer"),
+    demo: getDemoPage("particle_demo"),
     scriptTag: '<script type="module" src="./loader.js?v=test"></script>',
   });
 

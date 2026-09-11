@@ -1,0 +1,7 @@
+# Exclude generated browser output from packaging. Package discovery is handled by packagedPath().
+/dist/
+/public/
+/node_modules/
+/_build/
+/test-results/
+/.wrangler/

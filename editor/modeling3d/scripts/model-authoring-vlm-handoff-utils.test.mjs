@@ -216,7 +216,7 @@ test("buildModelAuthoringVlmHandoffPlan supports native live review artifacts", 
 test("resolveExampleReviewConfig exposes dragon organic review metadata", () => {
   const config = resolveExampleReviewConfig("dragon_authoring");
 
-  assert.equal(config.targetFile, "editor/modeling3d/examples/dragon_authoring/src/model_doc.mbt");
+  assert.equal(config.targetFile, "editor/modeling3d/examples/dragon_authoring/model_doc.mbt");
   assert.equal(config.profileId, "organic_character");
   assert.match(config.constraints.join("\n"), /dragon/i);
   assert.match(config.constraints.join("\n"), /tail/i);
@@ -401,7 +401,7 @@ test("decodeBrowserBinaryAsset decodes base64-encoded browser payloads", () => {
 
 test("resolveExampleReviewConfig maps authoring examples to review profiles", () => {
   assert.deepEqual(resolveExampleReviewConfig("model_authoring"), {
-    targetFile: "editor/modeling3d/examples/model_authoring/src/model_doc.mbt",
+    targetFile: "editor/modeling3d/examples/model_authoring/model_doc.mbt",
     profileId: "generic_model",
     constraints: [
       "Keep the primary silhouette readable from angled, front, side, and top views.",
@@ -409,7 +409,7 @@ test("resolveExampleReviewConfig maps authoring examples to review profiles", ()
     ],
   });
   assert.deepEqual(resolveExampleReviewConfig("chair_authoring"), {
-    targetFile: "editor/modeling3d/examples/chair_authoring/src/model_doc.mbt",
+    targetFile: "editor/modeling3d/examples/chair_authoring/model_doc.mbt",
     profileId: "hard_surface_prop",
     constraints: [
       "A chair should read as a stable seat, backrest, and support structure.",
@@ -417,7 +417,7 @@ test("resolveExampleReviewConfig maps authoring examples to review profiles", ()
     ],
   });
   assert.deepEqual(resolveExampleReviewConfig("shelf_authoring"), {
-    targetFile: "editor/modeling3d/examples/shelf_authoring/src/model_doc.mbt",
+    targetFile: "editor/modeling3d/examples/shelf_authoring/model_doc.mbt",
     profileId: "hard_surface_prop",
     constraints: [
       "A shelf should read as stacked horizontal boards supported by vertical uprights.",
@@ -435,7 +435,7 @@ test("buildLiveReviewBundle emits current-state bundle JSON", () => {
   const parsed = JSON.parse(bundleText);
 
   assert.equal(parsed.review_mode, "current_state");
-  assert.equal(parsed.target_file, "editor/modeling3d/examples/frog_authoring/src/model_doc.mbt");
+  assert.equal(parsed.target_file, "editor/modeling3d/examples/frog_authoring/model_doc.mbt");
   assert.equal(parsed.review_profile, "organic_character");
   assert.deepEqual(parsed.review_constraints, [
     "Aim for a squat frog silhouette instead of a generic blob.",
@@ -463,7 +463,7 @@ test("buildLiveReviewPrompt describes current-state review loop", () => {
   assert.match(promptText, /current-state review prompt/i);
   assert.match(promptText, /Review the current workbench state/i);
   assert.match(promptText, /This is not a round-trip diff/i);
-  assert.match(promptText, /examples\/chair_authoring\/src\/model_doc\.mbt/);
+  assert.match(promptText, /examples\/chair_authoring\/model_doc\.mbt/);
   assert.match(promptText, /CHAIR current state/);
   assert.match(promptText, /"primitive_count": 6/);
 });

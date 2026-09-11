@@ -69,7 +69,7 @@ FPSはrAFの実測で、ディスプレイの更新レートで頭打ちにな�
 
 | 機能 | 接続先 |
 | --- | --- |
-| GPU描画・深度・テクスチャ・オフスクリーン | `mizchi/gfx`、`platform/web_runtime_hooks`、既存 `lib/web/kagura-gfx.js` |
+| GPU描画・深度・テクスチャ・オフスクリーン | `mizchi/gfx`、`platform/web_runtime_hooks`、既存 `assets/web/kagura-gfx.js` |
 | メッシュ・座標・カメラ | `mesh3d`、`geom/math3d`、`geom/camera3d` |
 | PBR・金属度・粗さ・発光 | `kagura_engine/draw3d/shaders/standard.wgsl` |
 | ボーン姿勢・クリップ補間 | `anim3d/animation3d`、`anim3d/transform3d` |
@@ -152,6 +152,6 @@ Studioの編集は `editor/scene` の移植元互換契約を入口とし、検�
 
 ### Geometry・instancingとSIMD実験
 
-静的メッシュは更新世代付きで登録し、影・本描画・同型機のGPUバッファを共有する。PBR uniformとJSの描画コマンドを再利用し、互換な不透明描画を最大32インスタンスにまとめる。API契約は[GEOMETRY.md](../../../lib/web/GEOMETRY.md)、比較結果は[PERFORMANCE.md](PERFORMANCE.md)を参照。
+静的メッシュは更新世代付きで登録し、影・本描画・同型機のGPUバッファを共有する。PBR uniformとJSの描画コマンドを再利用し、互換な不透明描画を最大32インスタンスにまとめる。API契約は[GEOMETRY.md](../../../assets/web/GEOMETRY.md)、比較結果は[PERFORMANCE.md](PERFORMANCE.md)を参照。
 
 `just iron-yard-simd`でZig製MVPカーネルのスカラー/SIMD/`-Oz`をChromeで比較できる。Zig 0.16、wasm-tools、wasm-optが必要。一括入力と通常配列の逐次転送を分けて計測する。本番の描画経路はこの実験用Wasmに依存しない。

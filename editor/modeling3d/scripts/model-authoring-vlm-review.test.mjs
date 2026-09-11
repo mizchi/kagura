@@ -17,7 +17,7 @@ test("model-authoring-vlm-review emits a dry-run request JSON", () => {
     writeFileSync(
       bundlePath,
       JSON.stringify({
-        target_file: "editor/modeling3d/examples/model_authoring/src/model_doc.mbt",
+        target_file: "editor/modeling3d/examples/model_authoring/model_doc.mbt",
         current_document: { name: "vlm_clay_totem" },
         roundtrip_report: { missing_source_ids: [] },
         patch_payload: { manual_issue_details: [] },
@@ -71,7 +71,7 @@ test("model-authoring-vlm-review supports OpenRouter dry-run output", () => {
     writeFileSync(
       bundlePath,
       JSON.stringify({
-        target_file: "editor/modeling3d/examples/model_authoring/src/model_doc.mbt",
+        target_file: "editor/modeling3d/examples/model_authoring/model_doc.mbt",
         current_document: { name: "vlm_clay_totem" },
         roundtrip_report: { missing_source_ids: [] },
         patch_payload: { manual_issue_details: [] },
@@ -127,7 +127,7 @@ test("model-authoring-vlm-review resolves OpenRouter preset aliases", () => {
     const promptPath = join(tempDir, "review.md");
 
     writeFileSync(screenshotPath, Buffer.from([0x89, 0x50, 0x4e, 0x47]));
-    writeFileSync(bundlePath, '{"target_file":"editor/modeling3d/examples/model_authoring/src/model_doc.mbt"}');
+    writeFileSync(bundlePath, '{"target_file":"editor/modeling3d/examples/model_authoring/model_doc.mbt"}');
     writeFileSync(promptPath, "# Prompt\nReview the current model.");
 
     const result = spawnSync(
@@ -171,7 +171,7 @@ test("model-authoring-vlm-review resolves OpenRouter preview preset", () => {
     const promptPath = join(tempDir, "review.md");
 
     writeFileSync(screenshotPath, Buffer.from([0x89, 0x50, 0x4e, 0x47]));
-    writeFileSync(bundlePath, '{"target_file":"editor/modeling3d/examples/model_authoring/src/model_doc.mbt"}');
+    writeFileSync(bundlePath, '{"target_file":"editor/modeling3d/examples/model_authoring/model_doc.mbt"}');
     writeFileSync(promptPath, "# Prompt\nReview the current model.");
 
     const result = spawnSync(
@@ -219,7 +219,7 @@ test("model-authoring-vlm-review resolves OpenRouter free preset", () => {
     const promptPath = join(tempDir, "review.md");
 
     writeFileSync(screenshotPath, Buffer.from([0x89, 0x50, 0x4e, 0x47]));
-    writeFileSync(bundlePath, '{"target_file":"editor/modeling3d/examples/model_authoring/src/model_doc.mbt"}');
+    writeFileSync(bundlePath, '{"target_file":"editor/modeling3d/examples/model_authoring/model_doc.mbt"}');
     writeFileSync(promptPath, "# Prompt\nReview the current model.");
 
     const result = spawnSync(

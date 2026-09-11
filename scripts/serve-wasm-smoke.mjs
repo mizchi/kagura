@@ -39,7 +39,7 @@ const buildRuntimeSmoke = (target) => {
   }
   const result = spawnSync(
     "moon",
-    ["build", "src", "--target", target],
+    ["build", ".", "--target", target],
     { cwd: dir, stdio: "inherit" },
   );
   if (result.status !== 0) {
@@ -78,7 +78,7 @@ const VRT_EXAMPLES = [
   "scene_demo", "flappy_bird", "survivor", "ui_demo", "action_rpg",
   "fps_demo", "arena3d", "collision3d_demo", "physics2d_demo",
   "physics3d_demo", "postfx_demo", "shadow3d_demo", "skeletal_anim",
-  "ragdoll_demo", "obj_viewer", "gltf_viewer", "fetch_image",
+  "ragdoll_demo", "fetch_image",
   "hacknslash_3d", "effect_studio", "draw2d_ui_demo",
 ];
 
@@ -135,8 +135,6 @@ const ASSET_EXAMPLES = {
   action_rpg: [["assets/Tiny5-Regular.ttf", "/examples/games/action_rpg/assets/Tiny5-Regular.ttf"]],
   hacknslash_3d: [["assets/Tiny5-Regular.ttf", "/examples/games/hacknslash_3d/assets/Tiny5-Regular.ttf"]],
   fetch_image: [["assets/sample.png", "/examples/demos-2d/fetch_image/assets/sample.png"]],
-  gltf_viewer: [["assets/test_scene.glb", "/examples/demos-3d/gltf_viewer/assets/test_scene.glb"]],
-  obj_viewer: [["assets/bunny.obj", "/examples/demos-3d/obj_viewer/assets/bunny.obj"]],
   draw2d_ui_demo: [["assets/Tiny5-Regular.ttf", "/examples/demos-2d/draw2d_ui_demo/assets/Tiny5-Regular.ttf"]],
 };
 
@@ -168,9 +166,9 @@ const generateVrtHtml = (name) => {
     <canvas id="app" width="320" height="240"
       style="width: 320px; height: 240px; image-rendering: pixelated"></canvas>
     <script type="module">
-      import { initWebGPU, setupGlobalState, loadFonts, loadGameScript, showStartupError } from "/lib/web/kagura-init.js";
-      import { installAudioHelpers } from "/lib/web/kagura-audio.js";
-      import { installGfxHelpers } from "/lib/web/kagura-gfx.js";
+      import { initWebGPU, setupGlobalState, loadFonts, loadGameScript, showStartupError } from "/assets/web/kagura-init.js";
+      import { installAudioHelpers } from "/assets/web/kagura-audio.js";
+      import { installGfxHelpers } from "/assets/web/kagura-gfx.js";
 
       async function init() {
         const result = await initWebGPU("#app");

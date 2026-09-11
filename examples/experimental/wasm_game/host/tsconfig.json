@@ -10,5 +10,5 @@
     "allowJs": true,
     "types": ["vite/client"]
   },
-  "include": ["src", "../../../lib/web"]
+  "include": ["src", "../../../../assets/web"]
 }

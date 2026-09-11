@@ -83,7 +83,7 @@ jobs:
       - name: Test JS scripts
         run: node --test scripts/*.test.mjs
       - name: Test web libs
-        run: node --test lib/web/*.test.mjs
+        run: node --test assets/web/*.test.mjs
       - name: Release manifest check
         run: |
           node scripts/check-moon-release.mjs
@@ -151,7 +151,7 @@ jobs:
       - name: Coverage Analysis
         run: bash scripts/check-coverage.sh js
       - name: Runtime Smoke (JS)
-        run: cd examples/smoke/runtime_smoke && moon run src --target js
+        run: cd examples/smoke/runtime_smoke && moon run . --target js
       - name: Frame VRT (browser-free visual regression)
         # A real gate, unlike the Playwright VRT below. The frames come from
         # the engine's headless path through the CPU rasterizer, so they need
@@ -218,7 +218,7 @@ jobs:
       - name: Test
         run: moon test --target native
       - name: Build Native Triangle
-        run: cd examples/smoke/native_triangle && moon build src --target native
+        run: cd examples/smoke/native_triangle && moon build . --target native
 
   native-windows:
     runs-on: windows-latest
@@ -256,7 +256,7 @@ jobs:
       - name: Test
         run: moon test --target native
       - name: Build Native Triangle
-        run: cd examples/smoke/native_triangle && moon build src --target native
+        run: cd examples/smoke/native_triangle && moon build . --target native
 
   native-macos:
     runs-on: macos-latest
@@ -285,6 +285,6 @@ jobs:
       - name: Test
         run: moon test --target native
       - name: Runtime Smoke Build (Native)
-        run: cd examples/smoke/runtime_smoke_native && moon build src --target native
+        run: cd examples/smoke/runtime_smoke_native && moon build . --target native
       - name: Build Native Triangle
-        run: cd examples/smoke/native_triangle && moon build src --target native
+        run: cd examples/smoke/native_triangle && moon build . --target native

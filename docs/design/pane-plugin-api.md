@@ -135,7 +135,7 @@ kagura.panes.registerPlugin(kagura.plugins.fromJSONModule(module));
 kagura.panes.open('demo.moonbit');
 ```
 
-[実装](../../editor/studio/src/plugin_demo/main.mbt) と [export設定](../../editor/studio/src/plugin_demo/moon.pkg) は、ノード数を読む `count_nodes` と選択ノードの名前を編集する `rename_selected` を提供する。`just studio-build` / `just studio-plugin-test` で実際にコンパイルする。開発サーバーの起動時にも生成するが、デモソースの編集後は再ビルドして読み込み直す。
+[実装](../../editor/studio/plugin_demo/main.mbt) と [export設定](../../editor/studio/plugin_demo/moon.pkg) は、ノード数を読む `count_nodes` と選択ノードの名前を編集する `rename_selected` を提供する。`just studio-build` / `just studio-plugin-test` で実際にコンパイルする。開発サーバーの起動時にも生成するが、デモソースの編集後は再ビルドして読み込み直す。
 
 Lunaによる表示が必要な場合はJS側で `fromJSONModule(module, {mount})` に接続する。ツール部分はLunaやDOMをimportしなくてよい。MoonBitのWasmGC出力をこのwasm32 ABIへそのまま渡す対応は含めず、JS出力を動作確認済みの入口にする。
 

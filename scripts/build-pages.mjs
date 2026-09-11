@@ -118,7 +118,7 @@ function resolveExampleDir(name) {
 }
 
 function copySharedLib(fileName) {
-  cpSync(join(ROOT, "lib", "web", fileName), join(SITE, "lib", fileName));
+  cpSync(join(ROOT, "assets", "web", fileName), join(SITE, "lib", fileName));
 }
 
 function resolveCacheBust() {

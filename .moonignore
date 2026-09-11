@@ -41,3 +41,13 @@ justfile
 package.json
 pnpm-lock.yaml
 playwright.config.ts
+
+# The root facade is flat; workspace code and shared runtime assets ship separately.
+core
+platform
+engine
+game
+editor
+assets
+scripts
+modules

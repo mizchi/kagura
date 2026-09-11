@@ -79,7 +79,7 @@ User prompt
 
 ### AI が操作する対象
 
-1. **MoonBit ソースコード**: `examples/*/*/src/*.mbt` 内のゲームロジック
+1. **MoonBit ソースコード**: `examples/*/*/*.mbt` 内のゲームロジック
 2. **アセット参照**: コード内の asset path 文字列
 3. **シーン構築コード**: `@scene.rect()`, `@scene.label()` 等の宣言的 API
 4. **ゲームパラメータ**: 速度・サイズ・色など数値リテラル
@@ -123,12 +123,11 @@ fn main {
 ```
 my_game/
 ├── moon.mod.json
-├── src/
-│   ├── main_js.mbt      # JS entry: @scene.run / @engine.run
-│   ├── game.mbt          # Game struct, update, state
-│   ├── view.mbt          # Scene tree / draw commands
-│   ├── systems.mbt       # Physics, AI, etc.
-│   └── moon.pkg
+├── main_js.mbt      # JS entry: @scene.run / @engine.run
+├── game.mbt          # Game struct, update, state
+├── view.mbt          # Scene tree / draw commands
+├── systems.mbt       # Physics, AI, etc.
+├── moon.pkg
 └── assets/               # Static assets
 ```
 

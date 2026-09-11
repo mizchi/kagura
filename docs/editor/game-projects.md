@@ -69,7 +69,7 @@ kagura.runtime.resume(edited);
 
 ## 初期状態の fixture も MoonBit で管理
 
-新しいシーンの既定は `scenes/<name>.mbt` です。Studio 対象の 29 examples は `source` 指定を持たず、MoonBit のソースルートをプロジェクト直下に置きます。現在は Arena / FPS / Flappy Bird を移行済みで、Hack & Slash 3D / IRON YARD の既存 JSON シーンも引き続き読み書きできます。29 examples の拡張コード置き場は `editor/` に統一しています。
+新しいシーンの既定は `scenes/<name>.mbt` です。Studio 対象の 27 コード examples は `source` 指定を持たず、MoonBit のソースルートをプロジェクト直下に置きます。現在は Arena / FPS / Flappy Bird を移行済みで、Hack & Slash 3D / IRON YARD の既存 JSON シーンも引き続き読み書きできます。コード examples の拡張コード置き場は `editor/` に統一しています。
 
 - 配置は `@scene_document.Document` / `Node` / `Action` の型付きレコード。ゲーム固有のコンポーネントは `resources` に載せる。
 - エディタが管理する関数は `// kagura-scene:begin` と `// kagura-scene:end` で囲む。関数名を維持し、マーカー外の手書きコード・コメントは保存時に保持する。
@@ -111,7 +111,7 @@ Save はプロジェクトが参照する形式で保存します。`.mbt` な�
 
 `entryScene` は開始シーンの ID、`scenes` は ID とプロジェクト相対パスの対応です。旧 `scene` だけの設定も読めます。両形式を併記する場合、`scene` は開始シーンのパスと一致させます。未知の開始 ID、パスの重複、ディレクトリ外への参照を拒否します。読み込み後の `manifest.scene` は互換用に開始シーンのパスへ正規化します。
 
-29 examples は上記の設定を明示します。古いプロジェクトでは追加フィールドを省略でき、`resources.runtime` とカタログの画面サイズも互換用に読み取ります。`id` / `game` は対で指定し、省略時に表示名から永続 ID を生成しません。
+コード examples は上記の設定を明示します。素材専用の `examples/assets/model_assets` は汎用 editor と resources のみを持ち、game / runtime / build / save 設定は不要です。古いプロジェクトでは追加フィールドを省略でき、`resources.runtime` とカタログの画面サイズも互換用に読み取ります。`id` / `game` は対で指定し、省略時に表示名から永続 ID を生成しません。
 
 - `id` はプロジェクトを識別する安定した ID、`game` はゲーム実装・シーンの起動設定と照合する ID です。表示名を変更しても ID は変更しません。
 - `save.namespace` / `save.version` はセーブデータの保存領域と形式の版です。プロジェクトを複製して保存領域を分ける場合は namespace も変更します。今回の実装は設定の受け渡しまでで、セーブの読み書き・移行サービスはまだありません。

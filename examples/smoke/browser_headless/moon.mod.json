@@ -1,7 +1,6 @@
 {
   "name": "mizchi/browser_headless",
   "version": "0.1.0",
-  "source": "src",
   "supported_targets": "native",
   "warn-list": "-6-29-53-68",
   "deps": {

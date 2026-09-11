@@ -18,4 +18,4 @@ await cp(artifact, new URL('model-viewer.js', target));
 for (const name of ['runtime.mjs', 'index.html'])
   await cp(new URL('../assets/' + name, import.meta.url), new URL(name, target));
 for (const name of ['kagura-init.js', 'kagura-gfx.js'])
-  await cp(new URL('../../../lib/web/' + name, import.meta.url), new URL('lib/' + name, target));
+  await cp(new URL('../../../assets/web/' + name, import.meta.url), new URL('lib/' + name, target));

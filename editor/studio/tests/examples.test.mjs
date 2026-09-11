@@ -1,3 +1,4 @@
+import { catalog, catalogProjectDir } from '../../../scripts/example-catalog.mjs';
 import { runtimeEntry } from '../projects/settings.mjs';
 import { decodeSceneFile } from '../scene/moonbit.mjs';
 import { test } from 'node:test';
@@ -8,7 +9,6 @@ import {
   EXAMPLE_ROOT,
   listExampleNames,
   findExampleCategory,
-  findExampleDir,
 } from '../../../scripts/example-dirs.mjs';
 import { validateProject } from '../projects/project.mjs';
 import { createHeadlessEditor } from '../headless/index.mjs';
@@ -24,33 +24,38 @@ import { defineJSPlugin } from '../plugins/adapters.mjs';
 import { assetURL } from '../examples/assets.mjs';
 
 test('every game and demo has a loadable project with a shared scene or its own extension', async () => {
-  const catalog = JSON.parse(await readFile(new URL('../examples/catalog.json', import.meta.url)));
   const names = listExampleNames([EXAMPLE_ROOT.examples]).filter((n) =>
     ['games', 'demos-2d', 'demos-3d'].includes(findExampleCategory(n, [EXAMPLE_ROOT.examples])),
   );
-  assert.deepEqual(catalog.map((e) => e.id).sort(), names);
+  assert.deepEqual(
+    catalog
+      .filter((e) => e.category !== 'assets')
+      .map((e) => e.id)
+      .sort(),
+    names,
+  );
   for (const item of catalog) {
-    const dir = findExampleDir(item.id, [EXAMPLE_ROOT.examples]);
+    const dir = catalogProjectDir(item);
     const manifest = validateProject(JSON.parse(await readFile(join(dir, item.manifest))));
-    assert.equal(manifest.game, item.id);
-    assert.equal(manifest.id, 'mizchi.kagura.examples.' + item.id);
-    assert.equal(manifest.save.namespace, manifest.id);
-    assert.deepEqual(manifest.display, { width: item.width, height: item.height });
-    const pkg = await readFile(join(dir, manifest.build.package, 'moon.pkg'), 'utf8');
-    if (item.preview !== 'asset') assert.deepEqual(
-      manifest.runtime.targets,
-      pkg.match(/supported_targets\s*=\s*"([^"]+)"/)[1].split('+'),
-    );
     const doc = decodeSceneFile(manifest.scene, await readFile(join(dir, manifest.scene), 'utf8'));
-    if (item.id === 'iron_yard') {
-      assert.equal(manifest.editor.id, 'iron-yard');
-      continue;
-    }
     if (item.preview === 'asset') {
       assert.equal(manifest.editor.id, 'kagura.scene');
       assert.equal(manifest.runtime, undefined);
       assert.deepEqual(createHeadlessEditor(doc).snapshot().document.resources, []);
       for (const path of Object.values(manifest.resources)) await access(join(dir, path));
+      continue;
+    }
+    assert.equal(manifest.game, item.id);
+    assert.equal(manifest.id, 'mizchi.kagura.examples.' + item.id);
+    assert.equal(manifest.save.namespace, manifest.id);
+    assert.deepEqual(manifest.display, { width: item.width, height: item.height });
+    const pkg = await readFile(join(dir, manifest.build.package, 'moon.pkg'), 'utf8');
+    assert.deepEqual(
+        manifest.runtime.targets,
+        pkg.match(/supported_targets\s*=\s*"([^"]+)"/)[1].split('+'),
+      );
+    if (item.id === 'iron_yard') {
+      assert.equal(manifest.editor.id, 'iron-yard');
       continue;
     }
     const twoD =
@@ -117,4 +122,28 @@ test('runtime assets resolve within the project, leaving external fetches and re
   assert.equal(assetURL('https://remote.test/assets/model.glb', base, assets), null);
   assert.equal(assetURL('../assets/model.glb', base, assets), null);
   assert.equal(assetURL('assets/missing.glb', base, assets), null);
+});
+
+test('packaged Moon metadata stays downloadable without becoming a Studio package', async (t) => {
+  const { packagedPath } = await import('../examples/files.mjs');
+  const paths = ['moon.pkg', '_moon.pkg', '__moon.pkg', 'editor/moon.mod.json', 'moon.work', 'assets/bunny.obj'];
+  const packaged = paths.map(packagedPath);
+  assert.equal(new Set(packaged).size, paths.length);
+  assert.deepEqual(packaged, ['_moon.pkg', '__moon.pkg', '___moon.pkg', 'editor/_moon.mod.json', '_moon.work', 'assets/bunny.obj']);
+  const { exampleStore } = await import('../examples/store.mjs');
+  const base = new URL('https://example.test/examples/');
+  const published = new Map(packaged.map((name, i) => [new URL('model_assets/' + name, base).href, 'contents:' + paths[i]]));
+  t.mock.method(globalThis, 'fetch', async (url) => {
+    if (url.href === new URL('model_assets/files.json', base).href)
+      return Response.json(paths);
+    return published.has(url.href)
+      ? new Response(published.get(url.href))
+      : new Response('missing', { status: 404 });
+  });
+  const store = await exampleStore('model_assets', base);
+  assert.deepEqual((await store.list()).objects.map(({ key }) => key), paths);
+  for (const path of paths)
+    assert.equal(await (await store.read(path)).blob.text(), 'contents:' + path);
+  await assert.rejects(store.read('missing.mbt'), /Unknown example resource/);
+
 });

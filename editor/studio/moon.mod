@@ -2,8 +2,6 @@ name = "mizchi/kagura_studio"
 
 version = "0.1.0"
 
-source = "src"
-
 preferred_target = "js"
 
 import {

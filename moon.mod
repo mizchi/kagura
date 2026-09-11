@@ -28,8 +28,6 @@ warnings = "-6-29-53-68"
 
 preferred_target = "js"
 
-source = "src"
-
 options(
   "--moonbit-unstable-prebuild": "scripts/moon-prebuild-native-link-flags.cjs",
 )

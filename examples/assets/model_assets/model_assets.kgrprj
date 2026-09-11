@@ -1,0 +1,21 @@
+{
+  "format": "kagura.project",
+  "version": 1,
+  "name": "Model Assets",
+  "editor": {
+    "id": "kagura.scene",
+    "apiVersion": 1
+  },
+  "scene": "editor/studio.json",
+  "sceneSchema": {
+    "id": "kagura.scene",
+    "version": 1
+  },
+  "resources": {
+    "riggedfigure": "assets/RiggedFigure.glb",
+    "riggedsimple": "assets/RiggedSimple.glb",
+    "bunny": "assets/bunny.obj",
+    "skinned-test": "assets/skinned_test.glb",
+    "test-scene": "assets/test_scene.glb"
+  }
+}

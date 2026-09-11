@@ -48,7 +48,7 @@ async function main(argv) {
 
   const outDir = options.outDir ?? join(REPO_ROOT, "output", "ui-review", options.example);
   const { bundlePath } = prepareBundle(options.example, { build: options.build });
-  const { renderHeadlessFrame } = await import("../lib/web/kagura-headless-frame.js");
+  const { renderHeadlessFrame } = await import("../assets/web/kagura-headless-frame.js");
   const { frame, meta, written } = await renderExampleState({
     exampleName: options.example,
     bundlePath,

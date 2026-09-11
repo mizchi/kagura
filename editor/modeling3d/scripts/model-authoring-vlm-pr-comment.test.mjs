@@ -13,7 +13,7 @@ test("model-authoring-vlm-pr-comment emits markdown from parsed review JSON", ()
     writeFileSync(
       parsedPath,
       JSON.stringify({
-        target_file: "editor/modeling3d/examples/model_authoring/src/model_doc.mbt",
+        target_file: "editor/modeling3d/examples/model_authoring/model_doc.mbt",
         overall_summary: "summary",
         confidence: "high",
         recommended_actions: [],

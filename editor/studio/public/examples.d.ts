@@ -7,7 +7,9 @@ export interface ExampleLaunch {
 export interface ExampleCatalogEntry {
   id: string;
   title: string;
-  category: 'games' | 'demos-2d' | 'demos-3d';
+  category: 'games' | 'demos-2d' | 'demos-3d' | 'assets';
+  /** The distinct learning or verification objective of this example. */
+  purpose: string;
   manifest: string;
   controls: string[];
   width: number;

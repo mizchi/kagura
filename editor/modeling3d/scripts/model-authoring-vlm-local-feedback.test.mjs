@@ -15,7 +15,7 @@ test("model-authoring-vlm-local-feedback writes local review artifacts", () => {
     writeFileSync(
       bundlePath,
       JSON.stringify({
-        target_file: "editor/modeling3d/examples/model_authoring/src/model_doc.mbt",
+        target_file: "editor/modeling3d/examples/model_authoring/model_doc.mbt",
         current_document: {
           primitives: [
             {
@@ -97,7 +97,7 @@ test("model-authoring-vlm-local-feedback writes local review artifacts", () => {
     writeFileSync(
       parsedPath,
       JSON.stringify({
-        target_file: "editor/modeling3d/examples/model_authoring/src/model_doc.mbt",
+        target_file: "editor/modeling3d/examples/model_authoring/model_doc.mbt",
         overall_summary: "summary",
         confidence: "high",
         recommended_actions: [
@@ -153,7 +153,7 @@ test("model-authoring-vlm-local-feedback writes local review artifacts", () => {
 
     assert.equal(result.status, 0, result.stderr);
     const stdoutJson = JSON.parse(result.stdout);
-    assert.equal(stdoutJson.target_file, "editor/modeling3d/examples/model_authoring/src/model_doc.mbt");
+    assert.equal(stdoutJson.target_file, "editor/modeling3d/examples/model_authoring/model_doc.mbt");
     assert.equal(stdoutJson.patch_filename, "vlm_clay_totem_roundtrip_patch.mbt");
     assert.equal(stdoutJson.opt_in_patch_filename, "vlm_clay_totem_roundtrip_patch-opt-in.mbt");
     assert.equal(stdoutJson.review_patch_filename, "vlm_bundle-review-fixes.mbt");

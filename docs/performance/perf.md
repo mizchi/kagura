@@ -79,7 +79,7 @@ explicit geometry merge は未着手のまま重い。
 
 `pnpm exec playwright test e2e/vrt.spec.ts` は 2026-03-30 時点で `19 passed (53.9s)`。
 
-確認できたのは次のカテゴリ。
+確認できたのは次のカテゴリ（当時の構成）。現在、glTF / OBJ viewer は Studio の共通モデルプレビューへ統合し、GPU readback の回帰確認も `editor/studio/e2e/model-assets.spec.mjs` に移している。
 
 - `2d-scene`: `scene_demo`, `ui_demo`
 - `2d-game`: `flappy_bird`, `survivor`, `action_rpg`, `fps_demo`, `physics2d_demo`

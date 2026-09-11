@@ -1,3 +1,4 @@
+import { packagedPath } from './files.mjs';
 import { projectPath } from '../projects/project.mjs';
 /** Published examples use the same directory-scoped project API as local folders. */
 export async function exampleStore(id, base = new URL('./examples/', location.href)) {
@@ -10,7 +11,7 @@ export async function exampleStore(id, base = new URL('./examples/', location.hr
     async read(path) {
       projectPath(path);
       if (!paths.has(path)) throw Error('Unknown example resource: ' + path);
-      const response = await fetch(new URL(path, root));
+      const response = await fetch(new URL(packagedPath(path), root));
       if (!response.ok) throw Error('Missing example resource: ' + path);
       return { blob: await response.blob() };
     },

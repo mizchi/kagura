@@ -7,8 +7,8 @@
 // free that would fire ~60x/sec. It never does, which is why the frame clock
 // has to come from another thread.
 
-import { FRAME_SLOT, createFrameWait } from "/lib/web/kagura-wasm-worker.js";
-import { summarizeIntervals } from "/lib/web/kagura-frame-stats.js";
+import { FRAME_SLOT, createFrameWait } from "/assets/web/kagura-wasm-worker.js";
+import { summarizeIntervals } from "/assets/web/kagura-frame-stats.js";
 
 self.addEventListener("message", async (event) => {
   const message = event.data;

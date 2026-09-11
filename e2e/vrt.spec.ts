@@ -46,8 +46,6 @@ const VRT_EXAMPLES: string[] = [
   "physics3d_demo",
   "skeletal_anim",
   "ragdoll_demo",
-  "obj_viewer",
-  "gltf_viewer",
   "shadow3d_demo",
   "postfx_demo",
   "hacknslash_3d",

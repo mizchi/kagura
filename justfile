@@ -51,7 +51,7 @@ iron-yard-profile *args:
     node examples/games/iron_yard/scripts/profile.mjs "$@"
 
 iron-yard-gfx-test:
-    node --test lib/web/kagura-gfx.test.mjs
+    node --test assets/web/kagura-gfx.test.mjs
     moon -C platform/web_runtime_hooks test --target js
     moon -C engine/kagura_engine test draw3d shadow3d postfx --target js
     moon -C engine/audio test . --target js
@@ -98,7 +98,7 @@ studio-e2e:
 
 [positional-arguments]
 studio-headless *args:
-    @cd editor/studio && moon build --target js --release src/headless 1>&2
+    @cd editor/studio && moon build --target js --release headless 1>&2
     @node editor/studio/headless/cli.mjs "$@"
 
 studio-headless-test:
@@ -119,7 +119,7 @@ studio-worker-check: studio-build
     cd editor/studio && WRANGLER_SEND_METRICS=false pnpm exec wrangler deploy --dry-run --config worker/wrangler.jsonc --outdir .wrangler/dry-run
 
 studio-storage-test:
-    cd editor/studio && moon build --target js --release src/headless
+    cd editor/studio && moon build --target js --release headless
     cd editor/studio && node --test tests/storage.test.mjs tests/worker-storage.test.mjs
 
 studio-ci: studio-check studio-build
@@ -157,7 +157,7 @@ test: test-workspace test-examples
 # The workspace itself plus the JS-side unit tests, without the example projects.
 test-workspace:
     if [ "{{target}}" = "native" ]; then CPATH="$(brew --prefix glfw)/include:${CPATH:-}" LIBRARY_PATH="$(brew --prefix)/lib:${LIBRARY_PATH:-}" moon test --target native || { echo "::error title=moon test failed::root moon test --target native"; exit 1; }; else moon test --target {{target}} || { echo "::error title=moon test failed::root moon test --target {{target}}"; exit 1; }; fi
-    if [ "{{target}}" = "js" ] && ls lib/web/*.test.mjs >/dev/null 2>&1; then node --test lib/web/*.test.mjs || { echo "::error title=node test failed::lib/web/*.test.mjs"; exit 1; }; fi
+    if [ "{{target}}" = "js" ] && ls assets/web/*.test.mjs >/dev/null 2>&1; then node --test assets/web/*.test.mjs || { echo "::error title=node test failed::assets/web/*.test.mjs"; exit 1; }; fi
 
 # Every example/editor-example project whose tests can link on {{target}}.
 #
@@ -286,10 +286,10 @@ vlm-ui-review example extra="":
     node scripts/vlm-ui-review.mjs {{example}} {{extra}}
 
 native-vrt:
-    cd examples/smoke/native_vrt && moon run src --target native
+    cd examples/smoke/native_vrt && moon run . --target native
 
 native-vrt-update:
-    cd examples/smoke/native_vrt && touch .update_baselines && moon run src --target native && rm -f .update_baselines
+    cd examples/smoke/native_vrt && touch .update_baselines && moon run . --target native && rm -f .update_baselines
 
 # Capture a frame + its context natively, the portable path: the web canvas
 # capture is transparent headless and the Linux Dawn readback never completes.
@@ -306,7 +306,7 @@ capture example out_dir="output/capture":
     out="$(cd "$(dirname {{out_dir}})" 2>/dev/null && pwd)/$(basename {{out_dir}})" || out="$PWD/{{out_dir}}"
     mkdir -p "$out"
     node scripts/stage-capture-config.mjs --example-dir "$dir" --out-dir "$out"
-    cd "$dir" && moon run src --target native
+    cd "$dir" && moon run . --target native
 
 hacknslash3d-gpu-perf port="8282" samples="120" warmup="30" extra="--headed":
     node scripts/hacknslash_3d_gpu_perf.mjs --serve --port {{port}} --samples {{samples}} --warmup {{warmup}} {{extra}}
@@ -426,17 +426,17 @@ balance-hypothesis-record out_dir="examples/games/hacknslash_3d/data/hackslash/a
 
 # What the Atomics frame-clock handshake costs per frame, and how far above
 # 60Hz it holds up. Reporting only -- wake latency has scheduler outliers, so a
-# gate would flake. Run it when lib/web/kagura-wasm-worker.js changes.
+# gate would flake. Run it when assets/web/kagura-wasm-worker.js changes.
 bench-frame-clock extra="":
     node scripts/bench-frame-clock.mjs {{extra}}
 
 # Build the wasm1 guest that links moonbitlang/async and run it both ways:
-# single-threaded under lib/web/kagura-wasm-host.js, and in a worker with a
-# main-thread frame clock via lib/web/kagura-wasm-driver.js. `just test` covers
-# this too, via `node --test lib/web/*.test.mjs`.
+# single-threaded under assets/web/kagura-wasm-host.js, and in a worker with a
+# main-thread frame clock via assets/web/kagura-wasm-driver.js. `just test` covers
+# this too, via `node --test assets/web/*.test.mjs`.
 wasm-host-smoke:
     cd examples/smoke/wasm_async_smoke && moon build --target wasm
-    node --test lib/web/kagura-wasm-host.test.mjs lib/web/kagura-wasm-driver.test.mjs
+    node --test assets/web/kagura-wasm-host.test.mjs assets/web/kagura-wasm-driver.test.mjs
 
 # WASM game host tasks
 wasm-build-moonbit:

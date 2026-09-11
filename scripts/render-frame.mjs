@@ -79,6 +79,7 @@ export async function renderExampleState({
 }) {
   const frame = await renderHeadlessFrame(bundlePath, {
     frames: state.frames,
+    initialState: state.initialState,
     width: state.width ?? undefined,
     height: state.height ?? undefined,
     cursorX: state.cursorX ?? undefined,
@@ -102,6 +103,7 @@ export async function renderExampleState({
   const meta = {
     example: exampleName,
     state: state.name,
+    initial_state: frame.initialState ?? null,
     width: frame.width,
     height: frame.height,
     frames: frame.frames,
@@ -141,6 +143,7 @@ async function main(argv) {
     outDir,
     state: {
       name: options.state,
+      initialState: options.initialState,
       frames: options.frames,
       width: options.width,
       height: options.height,

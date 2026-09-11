@@ -37,6 +37,9 @@ pub fn set_headless_texture_provider(() -> Array[HeadlessTexture]) -> Unit
 pub fn set_lifecycle_hooks(LifecycleHooks) -> Unit
 
 // Errors
+pub suberror InitialStateError {
+  InitialStateError(String)
+}
 
 // Types and methods
 pub(all) struct EngineContext {
@@ -87,6 +90,15 @@ pub(all) struct HeadlessTexture {
   height : Int
   pixels : Array[Int]
 }
+
+pub struct InitialStates[T] {
+  default_factory : (Int, Int) -> T
+  named : Array[(String, (Int, Int) -> T)]
+}
+pub fn[T] InitialStates::create(Self[T], String?, width~ : Int, height~ : Int) -> T raise InitialStateError
+pub fn[T] InitialStates::create_for_capture(Self[T], width~ : Int, height~ : Int) -> T
+pub fn[T] InitialStates::names(Self[T]) -> Array[String]
+pub fn[T] InitialStates::new(default~ : (Int, Int) -> T, named? : Array[(String, (Int, Int) -> T)]) -> Self[T] raise InitialStateError
 
 pub(all) struct LifecycleHooks {
   on_start : (String, String) -> Unit

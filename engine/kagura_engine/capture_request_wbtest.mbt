@@ -1,9 +1,10 @@
 ///|
 test "capture request validates bounds and replays complete input steps" {
   let text =
-    #|{"width":360,"height":640,"frames":3,"inputs":[{"cursor_x":100,"cursor_y":74,"keys":[9],"mouse_buttons":[0],"gamepads":[{"id":0,"axes":[0.5],"buttons":[13]}]}]}
+    #|{"initial_state":"dialog","width":360,"height":640,"frames":3,"inputs":[{"cursor_x":100,"cursor_y":74,"keys":[9],"mouse_buttons":[0],"gamepads":[{"id":0,"axes":[0.5],"buttons":[13]}]}]}
   let request = parse_capture_request(text)
   assert_eq(request.width, 360)
+  assert_eq(request.initial_state, Some("dialog"))
   let input = request.input_at(0)
   assert_eq(input.pressed_keys, [9])
   assert_eq(input.pressed_mouse_buttons, [0])

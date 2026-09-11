@@ -63,13 +63,15 @@ extern "js" fn js_publish_headless_frame(
   skipped_commands : Int,
   drawn_triangles : Int,
   draw_commands : Int,
+  initial_state : String,
 ) -> Unit =
-  #| (width, height, frames, png, skipped_commands, drawn_triangles, draw_commands) => {
+  #| (width, height, frames, png, skipped_commands, drawn_triangles, draw_commands, initial_state) => {
   #|   const bytes = png instanceof Uint8Array
   #|     ? png
   #|     : new Uint8Array(png.buffer ?? png, png.byteOffset ?? 0, png.byteLength ?? png.length);
   #|   globalThis.__kaguraHeadlessFrame = {
   #|     width, height, frames, skipped_commands, drawn_triangles, draw_commands,
+  #|     initial_state: initial_state || null,
   #|     png: bytes,
   #|   };
   #| }
@@ -149,6 +151,12 @@ fn try_run_headless(
   if frames < 0 {
     return false
   }
+  if requested_initial_state() != applied_initial_state.val {
+    js_publish_headless_failure(
+      "Requested initial state was not applied by the game",
+    )
+    return true
+  }
   let input : HeadlessInput = {
     cursor_x: js_headless_double("cursor_x", -1.0),
     cursor_y: js_headless_double("cursor_y", -1.0),
@@ -178,6 +186,7 @@ fn try_run_headless(
         frame.skipped_commands,
         frame.drawn_triangles,
         frame.draw_commands,
+        applied_initial_state.val.or(""),
       )
     None => js_publish_headless_failure("failed to encode the frame as PNG")
   }
@@ -210,4 +219,19 @@ fn headless_sequence_input(
 ///|
 pub fn capture_viewport(width : Int, height : Int) -> (Int, Int) {
   (js_headless_int("width", width), js_headless_int("height", height))
+}
+
+///|
+fn requested_initial_state() -> String? {
+  let name = js_headless_string("initial_state")
+  if name == "" {
+    None
+  } else {
+    Some(name)
+  }
+}
+
+///|
+fn record_initial_state_failure(message : String) -> Unit {
+  js_publish_headless_failure(message)
 }

@@ -67,6 +67,12 @@
       ],
       "expectedFocus": null,
       "expectedState": "demo"
+    },
+    "initial_focus": {
+      "initialState": "last_button_focused",
+      "frames": 1,
+      "expectedFocus": "button_6",
+      "expectedState": "demo"
     }
   }
 }

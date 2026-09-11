@@ -4,7 +4,8 @@ import { runMatrix } from './ui-matrix.mjs';
 import { nativeCaptureRequest, parseNativeCapture } from './ui-capture-native.mjs';
 
 test('native request uses the same full input wire contract as JS', () => {
-  const request = nativeCaptureRequest({ width: 360, height: 640, frames: 2, inputs: [{}, { keys: [9], mouseButtons: [0] }] });
+  const request = nativeCaptureRequest({ width: 360, height: 640, frames: 2, initialState: 'dialog', inputs: [{}, { keys: [9], mouseButtons: [0] }] });
+  assert.equal(request.initial_state, 'dialog');
   assert.deepEqual(request.inputs[1], { cursor_x: -1, cursor_y: -1, keys: [9], mouse_buttons: [0], gamepads: [] });
   assert.throws(() => nativeCaptureRequest({ width: 0, height: 640, frames: 1 }), /viewport/);
 });

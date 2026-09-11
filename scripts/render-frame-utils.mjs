@@ -62,6 +62,7 @@ export function renderFrameUsage() {
     "  --height <px>       Override the example's viewport height",
     "  --cursor <x,y>      Synthesized cursor position, for hover states",
     "  --keys <a,b>        Key codes held during every tick, for focus states",
+    "  --initial-state <name>  Construct a named MoonBit initial state before updating",
     "  --state <name>      Label used in the artifact filenames (default: default)",
     "  --out-dir <dir>     Where to write (default: output/frames/<example>)",
     "  --no-build          Use the existing _build output instead of rebuilding",
@@ -120,6 +121,12 @@ export function parseRenderFrameArgs(argv) {
       case "--keys":
         options.keys = parseKeys(next());
         break;
+      case "--initial-state": {
+        const value = next();
+        if (!/^[a-zA-Z0-9_-]{1,128}$/.test(value)) throw Error('--initial-state wants a valid factory name');
+        options.initialState = value;
+        break;
+      }
       case "--state":
         options.state = next();
         break;

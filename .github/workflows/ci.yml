@@ -168,6 +168,8 @@ jobs:
         run: |
           node scripts/ui-flipbook.mjs ui_demo focus
           node scripts/ui-flipbook.mjs ui_demo hover
+      - name: Capture fixture release artifact gate
+        run: node scripts/check-capture-release.mjs js
       - name: Canvas UI state and viewport matrix
         run: node scripts/ui-matrix.mjs ui_demo
       - name: Install Playwright Browser
@@ -302,6 +304,8 @@ jobs:
         run: moon check --deny-warn --target native
       - name: Test
         run: moon test --target native
+      - name: Native capture fixture release artifact gate
+        run: node scripts/check-capture-release.mjs native
       - name: Native UI capture contracts
         run: node scripts/ui-capture-native.integration.mjs
       - name: Native UI matrix against shared JS baselines

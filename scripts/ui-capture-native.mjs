@@ -15,7 +15,7 @@ export function nativeCaptureRequest(cell) {
     { name: 'capture', width: cell.width, height: cell.height },
   ] })[0];
   const request = createHeadlessRequest({ ...valid, inputs: valid.inputs });
-  return { width: valid.width, height: valid.height, frames: valid.frames, inputs: request.inputs };
+  return { width: valid.width, height: valid.height, frames: valid.frames, inputs: request.inputs, ...(request.initial_state === undefined ? {} : { initial_state: request.initial_state }) };
 }
 
 export function parseNativeCapture(png, summary, context) {
@@ -33,7 +33,8 @@ export function parseNativeCapture(png, summary, context) {
   const frame = { png, width: meta.width, height: meta.height, frames: meta.frames,
     skippedCommands: meta.skipped_commands, drawnTriangles: meta.drawn_triangles, drawCommands: meta.draw_commands,
     uiSnapshotJson: context, uiSnapshot: snapshot, backend: meta.backend };
-  validateMatrixFrame(meta, frame);
+  frame.initialState = meta.initial_state ?? null;
+  validateMatrixFrame({ ...meta, initialState: frame.initialState }, frame);
   return frame;
 }
 
@@ -57,7 +58,11 @@ export function renderNativeCapture({ exampleDir, binaryPath }, cell, { timeout 
     writeFileSync(requestPath, JSON.stringify(request));
     writeFileSync(configPath, buildCaptureConfig({ outDir: staging, name: 'frame' }) + `request_path=${requestPath}\n`);
     // No shared file is staged in the game directory. Existing interactive/config state survives.
-    execFileSync(binaryPath, [], { cwd: exampleDir, env: { ...process.env, KAGURA_CAPTURE_CONFIG: configPath }, timeout, stdio: ['ignore', 'pipe', 'pipe'] });
+    try {
+      execFileSync(binaryPath, [], { cwd: exampleDir, env: { ...process.env, KAGURA_CAPTURE_CONFIG: configPath }, timeout, stdio: ['ignore', 'pipe', 'pipe'] });
+    } catch (error) {
+      throw Error(`Native capture failed: ${error.stdout?.toString().trim() || error.message}`);
+    }
     const frame = parseNativeCapture(readFileSync(join(staging, 'frame.png')),
       readFileSync(join(staging, 'frame.summary.txt'), 'utf8'), readFileSync(join(staging, 'frame.context.json'), 'utf8'));
     validateMatrixFrame(cell, frame);

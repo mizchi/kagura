@@ -23,6 +23,19 @@ try {
   writeFileSync(join(out, 'js.png'), browserless.png);
   assert.equal(diffPng(join(out, 'native.png'), join(out, 'js.png')).diffPixels, 0);
 
+  const initialized = { width: 360, height: 640, frames: 1, inputs: [], initialState: 'last_button_focused', expectedFocus: 'button_6' };
+  const initializedNative = renderNativeCapture(demo, initialized);
+  const initializedJs = await renderHeadlessFrame(js.bundlePath, initialized);
+  assert.equal(initializedNative.initialState, initialized.initialState);
+  assert.deepEqual(initializedNative.uiSnapshot, initializedJs.uiSnapshot);
+  assert.equal(initializedNative.uiSnapshot.frame, 1);
+  const advanced = { ...initialized, frames: 2, inputs: [{}, { keys: [9] }], expectedFocus: 'button_1' };
+  const advancedNative = renderNativeCapture(demo, advanced);
+  const advancedJs = await renderHeadlessFrame(js.bundlePath, advanced);
+  assert.deepEqual(advancedNative.uiSnapshot, advancedJs.uiSnapshot, 'inputs must run after named initialization');
+  await assert.rejects(renderHeadlessFrame(js.bundlePath, { ...initialized, initialState: 'missing' }), /Unknown initial state/);
+  assert.throws(() => renderNativeCapture(demo, { ...initialized, initialState: 'missing' }), /Unknown initial state/);
+
   // Textured game checks the native web-runtime adapter, not just untextured UI.
   const sprite = prepareNativeCapture('sprite_anim');
   const spriteJs = prepareBundle('sprite_anim');
@@ -36,6 +49,11 @@ try {
   const spriteFrame = await renderHeadlessFrame(spriteJs.bundlePath, { width: 320, height: 240, frames: 20 });
   writeFileSync(join(out, 'sprite-js.png'), spriteFrame.png);
   assert.equal(diffPng(join(unicodeDir, 'sprite.png'), join(out, 'sprite-js.png')).diffPixels, 0);
+
+  writeFileSync(request, JSON.stringify({ width: 320, height: 240, frames: 1, inputs: [], initial_state: 'unhandled' }));
+  assert.throws(() => execFileSync(sprite.binaryPath, [], { cwd: sprite.exampleDir,
+    env: { ...process.env, KAGURA_CAPTURE_CONFIG: config }, timeout: 5000, stdio: ['ignore', 'pipe', 'pipe'] }), error => /not applied/.test(error.stdout?.toString()));
+  await assert.rejects(renderHeadlessFrame(spriteJs.bundlePath, { initialState: 'unhandled' }), /not applied/);
 
   for (const bad of ['missing', 'bad-request', 'bad-config']) {
     if (bad === 'bad-request') writeFileSync(request, '{"width":0}');

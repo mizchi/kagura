@@ -76,7 +76,16 @@ fn try_run_native_capture(
     None => return false
     Some(value) => value
   }
-  let request = capture.request.or({ width, height, frames: 1, inputs: [], })
+  let request = capture.request.or({
+    width,
+    height,
+    frames: 1,
+    inputs: [],
+    initial_state: None,
+  })
+  if request.initial_state != applied_initial_state.val {
+    abort("Requested initial state was not applied by the game")
+  }
   native_capture_context.val = "null"
   let frame = render_headless_frame(
     update~,
@@ -113,9 +122,26 @@ fn try_run_native_capture(
     capture.config.context_path,
     native_capture_context.val,
   )
+  let initial_state = match applied_initial_state.val {
+    Some(name) => "\"" + name + "\""
+    None => "null"
+  }
   @capture.write_native_capture_text(
     capture.config.summary_path,
-    "{\"backend\":\"native-cpu\",\"width\":\{frame.width},\"height\":\{frame.height},\"frames\":\{frame.frames},\"skipped_commands\":\{frame.skipped_commands},\"drawn_triangles\":\{frame.drawn_triangles},\"draw_commands\":\{frame.draw_commands}}",
+    "{\"initial_state\":\{initial_state},\"backend\":\"native-cpu\",\"width\":\{frame.width},\"height\":\{frame.height},\"frames\":\{frame.frames},\"skipped_commands\":\{frame.skipped_commands},\"drawn_triangles\":\{frame.drawn_triangles},\"draw_commands\":\{frame.draw_commands}}",
   )
   true
+}
+
+///|
+fn requested_initial_state() -> String? {
+  match load_native_capture() {
+    Some({ request: Some(request), .. }) => request.initial_state
+    _ => None
+  }
+}
+
+///|
+fn record_initial_state_failure(_message : String) -> Unit {
+
 }

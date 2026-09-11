@@ -4,6 +4,7 @@ struct CaptureRequest {
   height : Int
   frames : Int
   inputs : Array[HeadlessInputStep]
+  initial_state : String?
 } derive(FromJson)
 
 ///|
@@ -25,6 +26,9 @@ fn parse_capture_request(text : String) -> CaptureRequest raise {
     raise InvalidCaptureRequest(
       "Invalid capture dimensions, frames or input length",
     )
+  }
+  if request.initial_state is Some(name) && !valid_initial_state_name(name) {
+    raise InvalidCaptureRequest("Invalid initial state name")
   }
   request
 }

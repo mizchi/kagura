@@ -12,7 +12,7 @@ Issue本文は旧ディレクトリ構成・vlmkit 0.9.1時点の調査を含む
 | [#9](https://github.com/mizchi/kagura/issues/9) native capture | `engine.run` からnative CPU captureへ接続。UIデモとsprite_animでPNG取得済み | 他ゲームのUI snapshot接続、実GPU captureの共通化 |
 | [#10](https://github.com/mizchi/kagura/issues/10) UI introspection | UISnapshot、JS publish、elements変換、native context_path出力を実装。UIデモのJS/native snapshot一致を検証 | 他ゲームへのadapter追加 |
 | [#12](https://github.com/mizchi/kagura/issues/12) integrity | 幾何・文字実測・hit矩形に加え、`ui-vlmkit-check` で画像版vlmkit integrityへ接続済み | PNG由来のコントラスト検査 |
-| [#13](https://github.com/mizchi/kagura/issues/13) 状態×解像度 | `ui-matrix` で入力レシピ×viewportを全走査。UIデモの12セルをJS/nativeで共通baselineと比較 | MoonBit初期状態API |
+| [#13](https://github.com/mizchi/kagura/issues/13) 状態×解像度 | `InitialStates[T]` と `initialState` でMoonBitの初期状態を指定。16セルをJS/nativeで共通baselineと比較 | 他ゲームでの状態ファクトリ宣言 |
 | [#14](https://github.com/mizchi/kagura/issues/14) i18n | 未実装 | 文字列置換、実フォントのmissing glyph検査、各状態の走査 |
 | [#16](https://github.com/mizchi/kagura/issues/16) VLM review | render→決定的gate→構造化reviewとdry-runは存在 | UI daemon、状態マトリクスとの接続 |
 | [#18](https://github.com/mizchi/kagura/issues/18) テーマ・素材 | `just ui-asset-check` は存在 | 宣言的テーマ・素材manifest・CI gate |
@@ -25,4 +25,4 @@ vlmkit側の [#116](https://github.com/mizchi/vlmkit/issues/116) はクローズ
 PNG差分用とは別に、文字実測・clip・z・ゼロサイズを保持するintegrity用elements変換を追加した。
 画像寸法とsnapshot座標が一致することも検査する。
 
-次は #13 のMoonBit初期状態APIを揃え、状態マトリクスの入力を #12/#14/#16/#18 に接続する。native CPU captureは実GPUの描画差を検証するものではない。
+次は状態マトリクスの入力を #12/#14/#16/#18 に接続する。native CPU captureは実GPUの描画差を検証するものではない。

@@ -457,10 +457,10 @@ kaguraの幾何・hit矩形ゲートを両方実行する。ゼロサイズは�
 }}
 ```
 
-状態名は再現する入力レシピのID。任意のゲーム状態を文字列から自動生成するものではない。
+`states` のキーは検証ケースのID。`initialState` が無ければ通常の初期状態から入力を再生する。
 `expectedState` で実際のsnapshot状態名、`expectedFocus` で実際の選択対象を検証できる。
-ゲーム固有のメニュー・ポーズ等も入力列で到達させる。初期状態を直接セットアップする
-MoonBit APIは引き続き #13 の残作業。入力レシピのnative共通化は9.1で対応。
+ゲーム固有のメニュー・ポーズ等も入力列で到達させられる。
+`initialState` を指定すると、MoonBitのファクトリで初期状態を直接作ってから入力を再生する（9.2）。
 
 既定のviewportは640×360、640×480、360×640、840×360。`viewports` 配列に
 `{"name":"small","width":320,"height":240}` の形式で指定すれば置き換えられる。
@@ -470,7 +470,7 @@ MoonBit APIは引き続き #13 の残作業。入力レシピのnative共通化�
 各セルで画像版integrity、kaguraの幾何ゲート、単色フレーム拒否、baselineとの
 `vlmkit diff png --threshold 0 --elements-json ...` を実行する。通常実行でbaselineを
 書き換えない。更新時も全セルのgateが通ってからコピーし、失敗したマトリクスを
-部分的に貼り直さない。UIデモの3状態×4解像度、計12枚をCIで比較する。
+部分的に貼り直さない。UIデモの入力レシピ3種と名前付き初期状態1種×4解像度、計16枚をCIで比較する。
 
 出力は `output/ui-matrix/<example>/<state>.<viewport>/` のPNG、snapshot、elements、
 integrityレポート、diff JSONと全体の `report.json`。
@@ -487,7 +487,7 @@ node scripts/ui-capture-native.integration.mjs
 
 `ui-capture` は `editor/verification.json` の状態とviewportを選び、native実行ファイルから
 PNGとUI snapshotを取得する。出力は `output/ui-capture/<example>/<state>.<viewport>/`。
-`ui-matrix --backend native` は同じ12セルに同じintegrityゲートをかけ、**JSと共通のbaseline**
+`ui-matrix --backend native` は同じ16セルに同じintegrityゲートをかけ、**JSと共通のbaseline**
 に差分ゼロを要求する。native専用の画像への貼り直しは許可しない。
 レポートは `output/ui-matrix-native/<example>/` に出る。macOS CIで継続検証する。
 
@@ -510,6 +510,62 @@ UIデモのPNGだけでなくクリック後のsnapshot全体、sprite_animの�
 これは**nativeコンパイルしたゲームをCPUラスタライズする経路**であり、Metal/WebGPUの反射・シェーダー・3D描画の一致を保証する検査ではない。
 3Dコマンドや未登録テクスチャは欠けた画像を成功扱いせず失敗する。
 
+### 9.2 MoonBitの名前付き初期状態
+
+`InitialStates[T]` はゲーム状態のファクトリを管理する。`T` はゲーム自身の型なので
+`EngineGame`、`SceneGame`、独自ループで共通に使える。実行中の遷移は既存の
+`SceneManager` / scene flowが担当し、このAPIは起動時に新しい状態を作る。
+
+UIデモは次の形で宣言する。
+
+```moonbit
+let states = @engine.InitialStates::new(
+  default=(width, height) => DemoState::new(width~, height~),
+  named=[("last_button_focused", last_button_focused_fixture)],
+) catch { @engine.InitialStateError(message) => abort(message) }
+let game = states.create_for_capture(width=640, height=480)
+@engine.run_game(game, width=game.width, height=game.height)
+```
+
+ファクトリは `(Int, Int) -> T`。指定されたviewportで新しい状態を構築し、フォーカス・
+所持品・HP・シーン等をMoonBitコードで設定する。通常起動と `initialState` 未指定時には
+`default` だけが呼ばれる。純粋なテストでは `states.create(Some("name"), width~, height~)` を
+呼び、フレームを一度も進めずに状態を確認できる。`states.names()` は登録名を返す。
+
+```json
+{"version": 1, "states": {
+  "initial_focus": {
+    "initialState": "last_button_focused",
+    "frames": 1,
+    "expectedFocus": "button_6",
+    "expectedState": "demo"
+  }
+}}
+```
+
+`initial_focus` は成果物名、`last_button_focused` はファクトリ名、`expectedState` は実際の
+UI snapshotの状態名。それぞれを混同しない。初期化後には従来の `inputs` を再生できる。
+
+```sh
+just render ui_demo "--initial-state last_button_focused"
+just ui-capture ui_demo initial_focus portrait
+just ui-matrix ui_demo
+just ui-matrix ui_demo "--backend native"
+just check-capture-release js
+just check-capture-release native
+```
+
+名前は英数字・`_`・`-` の1〜128文字、最大32個。重複・不正な登録名や未定義の名前は
+エラーになる。ファクトリを選んだ事実をフレームの `initialState` に記録するため、
+古いゲームが初期化要求を無視して通常画面を返した場合もゲートは失敗する。
+
+検証専用のファクトリは `verification_debug.mbt` に置き、`moon.pkg` の
+`targets: { "verification_debug.mbt": ["debug"], "verification_release.mbt": ["release"] }`
+で分ける。release側は同じ `initial_states()` 関数からdefaultだけを登録する。
+`check-capture-release` はdebug成果物にファクトリと登録名があること、release JS/生成Cに
+両方が無いことを検査する。JSでは通常起動のPNG・snapshotがdebug/releaseで一致し、
+releaseへの検証用状態の指定が拒否されることも確認する。
+
 ## 10. 残る作業
 
 | やりたいこと | 状況 |
@@ -517,7 +573,7 @@ UIデモのPNGだけでなくクリック後のsnapshot全体、sprite_animの�
 | 2D フレームの自動キャプチャ | **できる**（1.5）。native 経路 `just capture` は 3D と実 GPU 用 |
 | 3D フレームの browser 抜きキャプチャ | CPU ラスタライザは 2D のみ。native か実ブラウザが要る |
 | VRT の gating 化 | **2D は完了**（5.5、CI が `just frame-vrt` を回している）。3D と実 GPU 経路は [#8](https://github.com/mizchi/kagura/issues/8) のまま |
-| 状態 × 解像度マトリクス | **2D入力レシピの全走査を実装**（9）。JS/nativeで共通baselineを検査。MoonBit初期状態APIは [#13](https://github.com/mizchi/kagura/issues/13) |
+| 状態 × 解像度マトリクス | **2D入力レシピの全走査を実装**（9）。JS/nativeで共通baselineを検査。MoonBit初期状態APIも実装済み（9.2、[#13](https://github.com/mizchi/kagura/issues/13)） |
 | i18n ストレス | [#14](https://github.com/mizchi/kagura/issues/14) |
 | 操作性ゲート（フォーカス到達性） | **実装済み**（7）。UIデモの実入力とピクセル変化をCIで検査。他ゲームにはfixtureの追加が必要 |
 | 状態遷移のflipbook | **実装済み**（8）。UIデモのfocus/hoverをCIで検査 |

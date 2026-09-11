@@ -10,8 +10,10 @@ impl @engine.EngineGame for DemoState with fn draw_game(self, ctx) {
 
 ///|
 fn main {
-  let (width, height) = @engine.capture_viewport(screen_w, screen_h)
-  let state = DemoState::new(width~, height~)
+  let state = initial_states().create_for_capture(
+    width=screen_w,
+    height=screen_h,
+  )
   @engine.run_game(
     state,
     width=state.width,

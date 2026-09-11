@@ -22,6 +22,9 @@ options(
     },
   },
   targets: {
+    "verification_debug.mbt": [ "debug" ],
+    "verification_release.mbt": [ "release" ],
+    "verification_wbtest.mbt": [ "debug" ],
     "viewport_js.mbt": [ "js" ],
     "viewport_native.mbt": [ "native" ],
     "snapshot_js.mbt": [ "js" ],

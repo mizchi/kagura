@@ -104,3 +104,10 @@ test("the default state's artifacts are unsuffixed, other states are labelled", 
   assert.equal(hover.png, "out/ui_demo.hover.png");
   assert.equal(hover.elements, "out/ui_demo.hover.elements.json");
 });
+
+test('initial-state selects a constructor independently of the artifact label', () => {
+  const options = parseRenderFrameArgs(['ui_demo', '--state', 'review', '--initial-state', 'dialog']);
+  assert.equal(options.state, 'review');
+  assert.equal(options.initialState, 'dialog');
+  assert.throws(() => parseRenderFrameArgs(['ui_demo', '--initial-state', '../bad']), /initial-state/);
+});

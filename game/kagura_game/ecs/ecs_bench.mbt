@@ -60,6 +60,46 @@ test "bench system_movement 10000" (b : @bench.T) {
 }
 
 ///|
+/// The physics-to-ECS sync, which is the path every 3D example takes each frame.
+/// It reads a body out of the physics world and writes position and rotation onto
+/// the entity's transform -- two transform rebuilds per entity before this was
+/// done in place.
+fn setup_physics_sync_world(n : Int) -> (World, @physics3d.PhysicsWorld) {
+  let world = setup_world(n)
+  let physics = @physics3d.PhysicsWorld::new(
+    @math3d.Vec3::new(0.0, -9.81, 0.0),
+    2.0,
+  )
+  for i in 0..<n {
+    physics.add_body(
+      @physics3d.RigidBody::new_dynamic(
+        i,
+        @math3d.Vec3::new(i.to_double() * 0.5, 1.0, 0.0),
+        1.0,
+        @physics3d.SphereShape(@math3d.Vec3::zero(), 0.5),
+      ),
+    )
+    world.set_physics_body_id({ value: i, }, i)
+  }
+  (world, physics)
+}
+
+///|
+/// Sized at 1000, not 10000, on purpose. `PhysicsWorld::get_body` resolves a body
+/// id by scanning every body, and this system calls it once per entity, so the
+/// benchmark is quadratic in the entity count: at 10000 it reads 98 ms and the
+/// scan is 95% of that, which would hide everything else this system does. At
+/// 1000 the scan and the per-entity transform work are the same order, so the
+/// benchmark can actually see a change in either.
+test "bench system_sync_from_physics 1000" (b : @bench.T) {
+  let (world, physics) = setup_physics_sync_world(1000)
+  b.bench(name="ecs/system_sync_from_physics_1000", fn() {
+    system_sync_from_physics(world, physics)
+    b.keep(world.entity_count())
+  })
+}
+
+///|
 test "bench system_death 10000" (b : @bench.T) {
   b.bench(name="ecs/system_death_10000", fn() {
     let world = setup_world(10000)

@@ -121,6 +121,28 @@ pub fn World::set_transform(
 }
 
 ///|
+/// Move an entity without rebuilding its transform.
+///
+/// `set_transform` stores a transform the caller built; this updates the one the
+/// world already holds. On a hot path that difference is 14x -- see
+/// `system_movement` and `docs/performance/ecs-write-path.md`. Does nothing for an
+/// entity that has no transform yet.
+pub fn World::set_position(
+  self : World,
+  eid : EntityId,
+  x : Double,
+  y : Double,
+  z : Double,
+) -> Unit {
+  if eid.value >= 0 && eid.value < self.transforms.length() {
+    match self.transforms[eid.value] {
+      Some(t) => t.set_position(@math3d.Vec3::new(x, y, z))
+      None => ()
+    }
+  }
+}
+
+///|
 pub fn World::get_transform(
   self : World,
   eid : EntityId,

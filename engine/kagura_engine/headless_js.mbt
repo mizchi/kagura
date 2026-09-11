@@ -62,13 +62,14 @@ extern "js" fn js_publish_headless_frame(
   png : Bytes,
   skipped_commands : Int,
   drawn_triangles : Int,
+  draw_commands : Int,
 ) -> Unit =
-  #| (width, height, frames, png, skipped_commands, drawn_triangles) => {
+  #| (width, height, frames, png, skipped_commands, drawn_triangles, draw_commands) => {
   #|   const bytes = png instanceof Uint8Array
   #|     ? png
   #|     : new Uint8Array(png.buffer ?? png, png.byteOffset ?? 0, png.byteLength ?? png.length);
   #|   globalThis.__kaguraHeadlessFrame = {
-  #|     width, height, frames, skipped_commands, drawn_triangles,
+  #|     width, height, frames, skipped_commands, drawn_triangles, draw_commands,
   #|     png: bytes,
   #|   };
   #| }
@@ -175,6 +176,7 @@ fn try_run_headless(
         png,
         frame.skipped_commands,
         frame.drawn_triangles,
+        frame.draw_commands,
       )
     None => js_publish_headless_failure("failed to encode the frame as PNG")
   }

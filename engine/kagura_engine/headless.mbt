@@ -55,6 +55,13 @@ pub(all) struct HeadlessFrame {
   /// surface it rather than treat the frame as complete.
   skipped_commands : Int
   drawn_triangles : Int
+  /// How many commands the draw callback produced, skipped ones included.
+  ///
+  /// Reported separately from `drawn_triangles` because the two move
+  /// independently: batching a text run collapses ten commands into one
+  /// without changing a single triangle, and a renderer that starts emitting a
+  /// command per quad again would show up here and nowhere else.
+  draw_commands : Int
 }
 
 ///|
@@ -119,6 +126,7 @@ pub fn render_headless_frame(
     pixels: target.pixels,
     skipped_commands: target.skipped_commands,
     drawn_triangles: target.drawn_triangles,
+    draw_commands: cmds.length(),
   }
 }
 

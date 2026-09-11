@@ -202,7 +202,11 @@ test "append_line and append_rect_outline emit NDC primitive commands" {
 }
 
 ///|
-test "append_dot_text expands glyphs through rect fill path" {
+/// A text run is one command carrying every lit dot, not one command per dot.
+/// The dot count comes from `glyph_pattern` rather than a literal so the test
+/// keeps holding if a glyph is redrawn, and the assertion is on the triangle
+/// list -- that is what the rasterizer walks, and batching must not change it.
+test "append_dot_text batches a glyph into one command" {
   let frame = RenderFrame2D::new(
     dst=@gfx.new_image_handle(13, 160, 90),
     shader=@gfx.new_shader_handle(14, "solid"),
@@ -221,9 +225,29 @@ test "append_dot_text expands glyphs through rect fill path" {
       scale=1.0,
     ),
   )
-  assert_eq(cmds.length(), 10)
+  let mut lit = 0
+  for bit in glyph_pattern(65) {
+    if bit == 1 {
+      lit = lit + 1
+    }
+  }
+  assert_eq(lit, 10)
+  assert_eq(cmds.length(), 1)
   assert_eq(cmds[0].dst.id, 13)
-  assert_eq(cmds[0].indices.length(), 6)
+  assert_eq(cmds[0].indices.length(), lit * 6)
+  assert_eq(cmds[0].vertex_data.length(), lit * 16)
+  // The single dst_region has to claim every index, or the rasterizer draws
+  // only the first quad and silently loses the rest of the glyph.
+  assert_eq(cmds[0].dst_regions.length(), 1)
+  assert_eq(cmds[0].dst_regions[0].index_count, lit * 6)
+  // Indices address the batch, not a per-quad buffer.
+  let mut max_index = 0
+  for idx in cmds[0].indices {
+    if idx > max_index {
+      max_index = idx
+    }
+  }
+  assert_eq(max_index, lit * 4 - 1)
 }
 
 ///|
@@ -240,7 +264,15 @@ test "append_number expands numeric glyphs" {
     frame,
     Number2D::new(number=12, cx=40.0, cy=30.0, color=color_white(), scale=1.0),
   )
-  assert_true(cmds.length() > 10)
+  let mut lit = 0
+  for ch in [1, 2] {
+    for bit in glyph_pattern(ch) {
+      if bit == 1 {
+        lit = lit + 1
+      }
+    }
+  }
+  assert_eq(cmds.length(), 1)
   assert_eq(cmds[0].dst.id, 15)
-  assert_eq(cmds[0].indices.length(), 6)
+  assert_eq(cmds[0].indices.length(), lit * 6)
 }

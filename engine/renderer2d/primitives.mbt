@@ -82,27 +82,73 @@ pub fn RectFill2D::new(
 }
 
 ///|
+/// Push one axis-aligned quad's NDC geometry onto `vertices` / `indices`.
+///
+/// The only place the pixel-to-NDC arithmetic for a filled rect lives on the
+/// appending path, so the single-rect and batched callers cannot drift apart.
+/// Takes the screen size and the rect as scalars rather than a `RenderFrame2D`
+/// and a `RectFill2D` because a batched run calls it once per quad: the frame
+/// conversion hoists out of the loop and no `RectFill2D` is allocated per quad.
+fn push_rect_fill_geometry(
+  vertices : Array[Double],
+  indices : Array[Int],
+  screen_w : Double,
+  screen_h : Double,
+  x : Double,
+  y : Double,
+  w : Double,
+  h : Double,
+) -> Unit {
+  // Same arithmetic as `ndc_rect_fill_vertices`, written straight into the
+  // caller's arrays. Going through that helper allocated a tuple and two
+  // arrays per quad and then copied all 22 elements back out, which is most of
+  // what a batched text run used to pay per dot.
+  let x0 = x / screen_w * 2.0 - 1.0
+  let y0 = 1.0 - y / screen_h * 2.0
+  let x1 = (x + w) / screen_w * 2.0 - 1.0
+  let y1 = 1.0 - (y + h) / screen_h * 2.0
+  let base_vertex = vertices.length() / 4
+  vertices.push(x0)
+  vertices.push(y0)
+  vertices.push(0.0)
+  vertices.push(0.0)
+  vertices.push(x1)
+  vertices.push(y0)
+  vertices.push(1.0)
+  vertices.push(0.0)
+  vertices.push(x1)
+  vertices.push(y1)
+  vertices.push(1.0)
+  vertices.push(1.0)
+  vertices.push(x0)
+  vertices.push(y1)
+  vertices.push(0.0)
+  vertices.push(1.0)
+  indices.push(base_vertex)
+  indices.push(base_vertex + 1)
+  indices.push(base_vertex + 2)
+  indices.push(base_vertex + 2)
+  indices.push(base_vertex + 3)
+  indices.push(base_vertex)
+}
+
+///|
 pub fn append_rect_fill_geometry(
   vertices : Array[Double],
   indices : Array[Int],
   frame : RenderFrame2D,
   rect : RectFill2D,
 ) -> Unit {
-  let (rect_vertices, rect_indices) = ndc_rect_fill_vertices(
+  push_rect_fill_geometry(
+    vertices,
+    indices,
+    frame.screen_w.to_double(),
+    frame.screen_h.to_double(),
     rect.x,
     rect.y,
     rect.w,
     rect.h,
-    frame.screen_w.to_double(),
-    frame.screen_h.to_double(),
   )
-  let base_vertex = vertices.length() / 4
-  for value in rect_vertices {
-    vertices.push(value)
-  }
-  for idx in rect_indices {
-    indices.push(base_vertex + idx)
-  }
 }
 
 ///|

@@ -63,6 +63,7 @@ pub(all) struct HeadlessFrame {
   pixels : Array[Int]
   skipped_commands : Int
   drawn_triangles : Int
+  draw_commands : Int
 }
 
 pub(all) struct HeadlessInput {

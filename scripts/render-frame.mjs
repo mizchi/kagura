@@ -106,6 +106,10 @@ export async function renderExampleState({
     height: frame.height,
     frames: frame.frames,
     drawn_triangles: frame.drawnTriangles,
+    // Commands the draw callback emitted. Moves independently of the triangle
+    // count -- batching a text run divides this by ten and leaves the triangles
+    // alone -- so a renderer regressing to one command per quad shows up here.
+    draw_commands: frame.drawCommands ?? 0,
     skipped_commands: frame.skippedCommands,
     // How many source images the runtime hooks handed the rasterizer. Zero on
     // an example that draws only untextured geometry; zero on one that does
@@ -153,8 +157,8 @@ async function main(argv) {
   }
   process.stdout.write(
     `${meta.example} [${meta.state}]: ${meta.width}x${meta.height} ` +
-      `after ${meta.frames} tick(s), ${meta.drawn_triangles} triangles, ` +
-      `${meta.textures} texture(s)\n`,
+      `after ${meta.frames} tick(s), ${meta.drawn_triangles} triangles ` +
+      `in ${meta.draw_commands} command(s), ${meta.textures} texture(s)\n`,
   );
   for (const [kind, path] of Object.entries(meta.artifacts)) {
     process.stdout.write(`  ${kind}: ${path}\n`);

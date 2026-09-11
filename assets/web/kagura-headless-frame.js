@@ -196,6 +196,9 @@ export async function renderHeadlessFrame(bundlePath, options = {}) {
     frames: frame.frames,
     skippedCommands: frame.skipped_commands,
     drawnTriangles: frame.drawn_triangles,
+    // Older bundles published a frame without this field; report 0 rather than
+    // undefined so a caller can print it unconditionally.
+    drawCommands: frame.draw_commands ?? 0,
     uiSnapshotJson: snapshot?.json ?? null,
     uiSnapshot: snapshot?.parsed ?? null,
   };

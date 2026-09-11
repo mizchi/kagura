@@ -162,6 +162,11 @@ just vlm-ui-review ui_demo "--dry-run"     # 決定的ゲート → その後だ
   （`@gfx.GraphicsDriver` に upload が無く、platform は engine の下なので global を挟む）。
   `just render` が `N texture(s)` を出す。**0 なのにアトラスを使う example は絵が欠けている**
 - 未登録の texture id は 1x1 白のまま（WebGPU の未バインドスロットと同じ）
+- **`N triangles in M command(s)` の 2 つは独立に動く。** 同じ絵を command 何個で
+  描いたかは三角形数に出ないので、quad ごとに command を作る実装に戻っても
+  三角形数だけ見ていると気付けない。`append_dot_text` が点灯ドット 1 個ごとに
+  command を作っていたときは `machinations_demo` が 1 フレーム 1603 command
+  （現在 80）だった —— `docs/performance/dot-text-batching.md`
 - Node 側ホストは `assets/web/kagura-headless-frame.js`。viewport スタブは
   **engine が解決した実サイズ**を返す（CSS サイズでカーソルをスケールする example がずれる）
 
@@ -310,10 +315,27 @@ impulse 書き込みがガードに落ちる。allocation-bound なループで�
 `substeps` を変えると `sub_dt` も変わって solver の挙動が変わるので、**順位付けには
 使えるが絶対値として引用してはいけない**（実測で `substep_` 連鎖の 2 倍出た）。
 
+**倍率を主張するときは `just bench-gate` と同じ regime で測ること。**
+`moon bench -p <pkg>` はイテレーションを速く回すためのもので、**そのパッケージ自身の
+whitebox bench については絶対値も倍率も引用してはいけない。** 実測: 同じソースを
+`-p` と workspace 全体で測ると、`renderer2d` の whitebox bench 5 本は
+**0.36x〜19.6x 両方向にずれ**、`kagura_game` から `renderer2d` を呼ぶ bench 5 本は
+0.95〜1.08x でずれなかった。原因は切り分けていない。これで dot text の最適化を
+最初 **8.89x と読んだが、workspace regime では 1.40x** で、途中で「入れる」と
+判断しかけた配列の capacity 先取りも、ずれている側の bench だけが分離していた。
+`substeps` を振ったときの「順位付けには使えるが絶対値として引用してはいけない」と
+同じ制約が、bench の起動方法にも付いている。artifact は
+`moon bench -p mizchi/renderer2d` と `moon bench -p mizchi/kagura_game/scene` を
+並べれば再現する（`primitives/append_dot_text_scene_content_12` と
+`scene/append_dot_text_direct_12` が同じ呼び出しなのに 2.5x 離れ、`moon bench` では
+一致する）。
+
 設計・実測・ここから出た作業項目は `docs/performance/physics-benchmarks.md`、
 3D をこの bench で最適化した記録は `docs/performance/physics3d-optimization.md`、
 そこから出た項目を検証した記録（**仮説 3 つが外れている**）は
-`docs/performance/physics-followups.md`。
+`docs/performance/physics-followups.md`、物理の外（ECS の書き込み、id 解決、
+2D テキスト）に同じやり方を当てた記録は `docs/performance/ecs-write-path.md` /
+`docs/performance/physics-id-lookup.md` / `docs/performance/dot-text-batching.md`。
 
 ### JS ターゲットの割り当てコスト
 

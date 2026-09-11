@@ -1,4 +1,5 @@
 import {
+  "moonbitlang/core/bench",
   "mizchi/kagura_core/hierarchy",
   "mizchi/signals/ui",
   "mizchi/kagura_core" @core,

@@ -2,10 +2,24 @@
 /// Spatial transform combining position, rotation, and scale.
 
 ///|
+/// The three fields are mutable so a storage layer can update a transform it
+/// owns without rebuilding it.
+///
+/// That matters more than it looks: rebuilding one `Transform3D` per entity per
+/// frame measured **264 ns per entity** on the JS target -- 2.84 ms for a
+/// 10,000-entity `system_movement` against 203 us for the same loop assigning to
+/// `position` in place, a 14x difference (`docs/performance/ecs-write-path.md`).
+///
+/// **Whoever stores a transform owns that instance.** Hand a fresh one to a
+/// storage layer and do not keep a reference: `@ecs.World::set_transform` stores
+/// what you give it, so sharing one instance across entities would make an
+/// in-place update move all of them. Everything that merely reads a transform
+/// (scene graph, animation blending, IK) still treats it as a value, and the
+/// `with_*` helpers still return a new transform for those callers.
 pub struct Transform3D {
-  position : @math3d.Vec3
-  rotation : @math3d.Quaternion
-  scale : @math3d.Vec3
+  mut position : @math3d.Vec3
+  mut rotation : @math3d.Quaternion
+  mut scale : @math3d.Vec3
 } derive(Debug)
 
 ///|
@@ -85,6 +99,35 @@ pub fn Transform3D::with_position(
   pos : @math3d.Vec3,
 ) -> Transform3D {
   { ..self, position: pos, }
+}
+
+///|
+/// Update this transform's position in place.
+///
+/// For a transform the caller owns, this is the cheap form: `with_position`
+/// builds a new `Transform3D`, and one of those per entity per frame measured
+/// 264 ns per entity on the JS target. Use `with_position` when the transform is
+/// a value someone else may be holding; use this when you own the storage.
+pub fn Transform3D::set_position(
+  self : Transform3D,
+  pos : @math3d.Vec3,
+) -> Unit {
+  self.position = pos
+}
+
+///|
+/// Update this transform's rotation in place. See `set_position`.
+pub fn Transform3D::set_rotation(
+  self : Transform3D,
+  rot : @math3d.Quaternion,
+) -> Unit {
+  self.rotation = rot
+}
+
+///|
+/// Update this transform's scale in place. See `set_position`.
+pub fn Transform3D::set_scale(self : Transform3D, s : @math3d.Vec3) -> Unit {
+  self.scale = s
 }
 
 ///|

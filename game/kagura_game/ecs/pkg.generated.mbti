@@ -116,6 +116,7 @@ pub fn World::set_animation_player(Self, EntityId, @animation3d.AnimationPlayer)
 pub fn World::set_health(Self, EntityId, Health) -> Unit
 pub fn World::set_material(Self, EntityId, @scene3d.Material) -> Unit
 pub fn World::set_physics_body_id(Self, EntityId, Int) -> Unit
+pub fn World::set_position(Self, EntityId, Double, Double, Double) -> Unit
 pub fn World::set_scene_node_id(Self, EntityId, Int) -> Unit
 pub fn World::set_sprite(Self, EntityId, Sprite) -> Unit
 pub fn World::set_transform(Self, EntityId, @transform3d.Transform3D) -> Unit

@@ -12,9 +12,9 @@ import {
 
 // Types and methods
 pub struct Transform3D {
-  position : @math3d.Vec3
-  rotation : @math3d.Quaternion
-  scale : @math3d.Vec3
+  mut position : @math3d.Vec3
+  mut rotation : @math3d.Quaternion
+  mut scale : @math3d.Vec3
 } derive(@debug.Debug)
 pub fn Transform3D::forward(Self) -> @math3d.Vec3
 pub fn Transform3D::from_components(@math3d.Vec3, @math3d.Quaternion, @math3d.Vec3) -> Self
@@ -27,6 +27,9 @@ pub fn Transform3D::output(Self, &Logger) -> Unit
 pub fn Transform3D::right(Self) -> @math3d.Vec3
 pub fn Transform3D::rotate(Self, @math3d.Quaternion) -> Self
 pub fn Transform3D::scale_by(Self, @math3d.Vec3) -> Self
+pub fn Transform3D::set_position(Self, @math3d.Vec3) -> Unit
+pub fn Transform3D::set_rotation(Self, @math3d.Quaternion) -> Unit
+pub fn Transform3D::set_scale(Self, @math3d.Vec3) -> Unit
 pub fn Transform3D::to_mat4(Self) -> @math3d.Mat4
 pub fn Transform3D::to_repr(Self) -> @debug.Repr
 pub fn Transform3D::to_string(Self) -> String

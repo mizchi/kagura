@@ -119,3 +119,6 @@ canvas{display:block;width:100%;height:100%;outline-offset:-3px!important}
 .runtime-hierarchy h2 { font-size: 12px; margin: 0 0 10px; }
 .runtime-hierarchy details details, .runtime-hierarchy details p { margin: 5px 0 5px 12px; overflow-wrap: anywhere; }
 .runtime-hierarchy summary { cursor: pointer; }
+
+.runtime-inspector [aria-label="Selected runtime subject"] form { display: flex; align-items: end; gap: 6px; margin: 8px 0; }
+.runtime-inspector [aria-label="Selected runtime subject"] label { display: flex; flex: 1; flex-direction: column; gap: 4px; min-width: 0; }

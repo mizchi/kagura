@@ -2,7 +2,11 @@
 package "mizchi/kagura_core/hierarchy"
 
 // Values
+pub fn inspection_enabled() -> Bool
+
 pub fn valid_key(String) -> Bool
+
+pub fn valid_subject(String) -> Bool
 
 // Errors
 
@@ -12,6 +16,7 @@ pub(all) struct Node {
   name : String
   kind : String
   generated : Bool
+  subject : String?
   children : Array[Node]
 } derive(ToJson)
 

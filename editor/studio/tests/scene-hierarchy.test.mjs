@@ -15,3 +15,11 @@ test('scene hierarchy carries source nesting and rejects ambiguous node IDs', ()
     /parent/,
   );
 });
+
+test('render paths retain explicit logical subjects without requiring one visual per subject', () => {
+  const node = { id: 'body', name: 'Body', kind: 'mesh', generated: true, children: [], subject: 'enemy:42:3' };
+  const result = validateHierarchy([node, { ...node, id: 'minimap' }]);
+  assert.equal(result[0].subject, result[1].subject);
+  assert.deepEqual(validateHierarchy([{ ...node, subject: null }]), [{ id: 'body', name: 'Body', kind: 'mesh', generated: true, children: [] }]);
+  assert.throws(() => validateHierarchy([{ ...node, subject: 'invalid/path' }]), /Invalid/);
+});

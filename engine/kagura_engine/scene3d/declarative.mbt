@@ -5,6 +5,7 @@ pub(all) enum View {
   Fragment(Array[View])
   Dynamic(() -> Array[View])
   Component(() -> View)
+  Subject(String, View)
 }
 
 ///|
@@ -112,25 +113,37 @@ pub fn SceneRoot::render(self : SceneRoot, view : View) -> Unit raise {
     children : Array[Int],
     generated : Bool,
     depth : Int,
+    subject : String?,
   ) -> Array[@hierarchy.Node] raise {
     count += 1
     if count > 10000 || depth > 128 {
       fail("Scene view exceeds traversal limit")
     }
     match view {
+      Subject(id, child) => {
+        if !@hierarchy.valid_subject(id) {
+          fail("Invalid scene subject")
+        }
+        guard child is Element(_, _, _, _) else {
+          fail("subject() expects an element")
+        }
+        visit(child, parent, children, generated, depth + 1, Some(id))
+      }
       Component(render) =>
-        visit(render(), parent, children, generated, depth + 1)
+        visit(render(), parent, children, generated, depth + 1, None)
       Fragment(items) => {
         let result = []
         for item in items {
-          result.append(visit(item, parent, children, generated, depth + 1))
+          result.append(
+            visit(item, parent, children, generated, depth + 1, None),
+          )
         }
         result
       }
       Dynamic(render) => {
         let result = []
         for item in render() {
-          result.append(visit(item, parent, children, true, depth + 1))
+          result.append(visit(item, parent, children, true, depth + 1, None))
         }
         result
       }
@@ -157,27 +170,34 @@ pub fn SceneRoot::render(self : SceneRoot, view : View) -> Unit raise {
         let child_ids = []
         let outline = []
         for child in nested {
-          outline.append(visit(child, path, child_ids, generated, depth + 1))
+          outline.append(
+            visit(child, path, child_ids, generated, depth + 1, None),
+          )
         }
         graph.nodes[id] = { ..node, children: child_ids, }
         children.push(id)
-        [
-          {
-            id: path,
-            name,
-            kind: if node.mesh is Some(_) {
-              "mesh"
-            } else {
-              "group"
+        if @hierarchy.inspection_enabled() {
+          [
+            {
+              id: path,
+              name,
+              kind: if node.mesh is Some(_) {
+                "mesh"
+              } else {
+                "group"
+              },
+              generated,
+              subject,
+              children: outline,
             },
-            generated,
-            children: outline,
-          },
-        ]
+          ]
+        } else {
+          []
+        }
       }
     }
   }
-  let outline = visit(view, "", graph.roots, false, 0)
+  let outline = visit(view, "", graph.roots, false, 0, None)
   self.current = graph
   self.ids = ids
   self.outline = outline
@@ -198,4 +218,15 @@ pub fn scene(
   lighting? : @light3d.LightingEnvironment = @light3d.LightingEnvironment::default(),
 ) -> SceneView {
   { root, camera, lighting, }
+}
+
+///|
+/// Bind a visual element to game state without introducing another transform node.
+#inline
+pub fn subject(id : String, node : View) -> View {
+  if @hierarchy.inspection_enabled() {
+    Subject(id, node)
+  } else {
+    node
+  }
 }

@@ -1,3 +1,4 @@
+import { createSubjectInspector } from './subject-inspector.mjs';
 import { downloadBlob } from './storage.mjs';
 
 /** An explicit paused-state draft; it never writes authoring documents or source files. */
@@ -9,6 +10,7 @@ export function installRuntimeInspector(host, setStatus) {
     apply,
     file,
     base,
+    subjectInspector,
     dirty = false;
   const refreshDraft = (snapshot) => {
     base = snapshot;
@@ -102,7 +104,8 @@ export function installRuntimeInspector(host, setStatus) {
         inputFile.value = '';
       }
     });
-    panel.append(heading, caption, note, text, apply, read, save, file);
+    subjectInspector = createSubjectInspector(host, setStatus);
+    panel.append(heading, caption, note, subjectInspector.panel, text, apply, read, save, file);
     container.append(panel);
     container.classList.add('runtime-inspecting');
   }
@@ -111,12 +114,14 @@ export function installRuntimeInspector(host, setStatus) {
       panel?.remove();
       panel = undefined;
       base = undefined;
+      subjectInspector = undefined;
       dirty = false;
       container.classList.remove('runtime-inspecting');
       return;
     }
     if (!panel) mount();
     const snapshot = host.debug('snapshot');
+    subjectInspector.render();
     caption.textContent =
       (snapshot.paused ? 'Paused' : 'Running') + ' · revision ' + snapshot.revision;
     text.disabled = apply.disabled = file.disabled = !snapshot.paused;
@@ -125,6 +130,7 @@ export function installRuntimeInspector(host, setStatus) {
   const unsubscribe = host.subscribe(render);
   render();
   return {
+    selectSubject(id) { subjectInspector?.select(id); },
     dispose() {
       unsubscribe();
       panel?.remove();

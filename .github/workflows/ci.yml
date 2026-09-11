@@ -148,6 +148,8 @@ jobs:
         run: moon check --deny-warn --target js
       - name: Test
         run: moon test --target js
+      - name: Inspection release artifact gate
+        run: node scripts/check-inspection-release.mjs js
       - name: Coverage Analysis
         run: bash scripts/check-coverage.sh js
       - name: Runtime Smoke (JS)
@@ -273,6 +275,9 @@ jobs:
         run: |
           curl -fsSL https://cli.moonbitlang.com/install/unix.sh | bash
           echo "$HOME/.moon/bin" >> "$GITHUB_PATH"
+      - uses: actions/setup-node@v4
+        with:
+          node-version: "24"
       - name: Update MoonBit registry
         run: moon update
       - name: Setup wgpu-native and glfw
@@ -280,6 +285,8 @@ jobs:
       # --deny-warn used to come from the check-test-matrix native leg, which no
       # longer runs the workspace check. Keep it here so native warnings still
       # fail the build.
+      - name: Inspection release artifact gate
+        run: node scripts/check-inspection-release.mjs native
       - name: Check
         run: moon check --deny-warn --target native
       - name: Test

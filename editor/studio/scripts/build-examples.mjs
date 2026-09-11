@@ -29,7 +29,10 @@ await mkdir(destination, { recursive: true });
 const wrapper = new URL('public/example-runtime/', studio);
 await mkdir(new URL('lib/', wrapper), { recursive: true });
 for (const file of ['kagura-init.js', 'kagura-audio.js', 'kagura-gfx.js'])
-  await cp(new URL('../../../assets/web/' + file, import.meta.url), new URL('lib/' + file, wrapper));
+  await cp(
+    new URL('../../../assets/web/' + file, import.meta.url),
+    new URL('lib/' + file, wrapper),
+  );
 for (const file of ['runtime.mjs', 'assets.mjs', 'index.html'])
   await cp(new URL('examples/' + file, studio), new URL(file, wrapper));
 
@@ -42,10 +45,14 @@ for (const item of catalog.filter((e) => !selected.length || selected.includes(e
     (!manifest.runtime && item.id !== 'iron_yard' && item.preview === 'webgpu')
   ) {
     console.log('Building Studio example: ' + item.id);
-    const result = spawnSync('moon', ['build', settings.package, '--target', 'js', '--release'], {
-      cwd: dir,
-      stdio: 'inherit',
-    });
+    const result = spawnSync(
+      'moon',
+      ['build', settings.package, '--target', 'js', '--' + (settings.editorMode ?? 'release')],
+      {
+        cwd: dir,
+        stdio: 'inherit',
+      },
+    );
     if (result.status !== 0) process.exit(result.status ?? 1);
     if (settings.scenePackage) {
       const scenes = spawnSync(
@@ -63,7 +70,7 @@ for (const item of catalog.filter((e) => !selected.length || selected.includes(e
       if (headless.status !== 0) process.exit(headless.status ?? 1);
     }
     const artifact = resolveBuildArtifact(
-      join(dir, '_build/js/release/build/' + settings.artifact),
+      join(dir, '_build/js/' + (settings.editorMode ?? 'release') + '/build/' + settings.artifact),
     );
     if (!artifact) throw Error('Missing browser artifact for ' + item.id);
     await mkdir(dirname(join(dir, runtimeEntry(manifest))), { recursive: true });

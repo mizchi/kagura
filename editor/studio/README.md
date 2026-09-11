@@ -1,5 +1,7 @@
 # Kagura Studio
 
+[コードとエディタの契約](../../docs/editor/code-editor-contract.md): 宣言した subject を Hierarchy で選択し、ゲーム所有の型付きフィールドを Inspector / AI から編集します。Flappy Bird の Bird が最初の対応例です。
+
 Luna / MoonBit で書き直した、AIと人が同じコマンドで編集する統合オーサリング環境の最初の実装。
 シーン・プリミティブモデリング・短い演出プレビューを同じワークスペースで確認できます。
 

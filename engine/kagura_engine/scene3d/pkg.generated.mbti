@@ -67,6 +67,8 @@ pub fn scene_node(mesh? : @mesh3d.Mesh3D?, position? : @math3d.Vec3, rotation? :
 
 pub fn show(() -> Bool, () -> View) -> View
 
+pub fn subject(String, View) -> View
+
 pub fn uniform_instance_color(Array[@math3d.Vec4]) -> @math3d.Vec4?
 
 // Errors
@@ -154,6 +156,7 @@ pub(all) enum View {
   Fragment(Array[View])
   Dynamic(() -> Array[View])
   Component(() -> View)
+  Subject(String, View)
 }
 
 // Type aliases

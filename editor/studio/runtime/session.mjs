@@ -1,3 +1,4 @@
+import { validateInspection, validateInspectionEdit } from './inspection.mjs';
 /** Synchronous game-owned debugger. This module also runs without a DOM/GPU. */
 export function createRuntimeSession(adapter) {
   if (
@@ -52,9 +53,28 @@ export function createRuntimeSession(adapter) {
     if (token?.session !== session) throw Error('Runtime session conflict');
     if (token?.revision !== current.revision) throw Error('Runtime revision conflict');
     if (!current.paused) throw Error('Runtime must be paused');
+    return current;
   }
   return Object.freeze({
     snapshot,
+    inspect() {
+      const current = snapshot();
+      const subjects = adapter.inspector
+        ? validateInspection(copy(adapter.inspector.describe(copy(current.state))))
+        : [];
+      return { session, revision: current.revision, paused: current.paused, subjects };
+    },
+    edit(edit, token) {
+      const current = guard(token);
+      if (!adapter.inspector || typeof adapter.inspector.reduce !== 'function')
+        throw Error('Runtime inspector is not available');
+      const subjects = validateInspection(copy(adapter.inspector.describe(copy(current.state))));
+      const command = copy(edit);
+      validateInspectionEdit(command, subjects);
+      const next = copy(adapter.inspector.reduce(copy(current.state), command));
+      adapter.replace(next);
+      return snapshot();
+    },
     pause() {
       live();
       adapter.pause(true);

@@ -1,5 +1,7 @@
 # コードで動かし、実行状態を編集するゲームエディタ
 
+ゲームコードから選択・プロパティ編集・保存先までの対応は [コードとエディタの契約](code-editor-contract.md) を基準に再設計しています。実装済みの範囲と次の移行段階を同文書に記載しています。
+
 基本の開発ループは **MoonBit のコードで起動 → 任意の時点で Pause → 実行状態を変更 → Resume / Step** です。初期配置の大量の設定を前提にせず、生成済みオブジェクト・物理状態・進行状況を編集対象にします。状態の型と不変条件、初期化・更新・復元はゲーム側が所有し、エディタはその API に対する UI と AI 操作を提供します。
 
 Arena 3D / FPS Demo は、ゲーム配下にシーンとコンポーネント定義を置き、Studio の共通編集機能を拡張する実装例です。Hack & Slash 3D は同じシーン文書からタイルマップへ変換する別アダプター、IRON YARD は独自の編集ビューを持つアダプターです。Flappy Bird はこの実行状態編集の最初の対応例です。従来の 2D 配置編集も、初期状態の fixture を作る補助機能として利用できます。他の examples は起動設定とリソースの読み込みまで対応しており、レベル配置の編集にはゲーム側のアダプター実装が必要です。
@@ -40,7 +42,7 @@ examples/games/<game>/
 
 規約によるビルド入口は `projects/settings.mjs` の `projectBuild()` が解決し、明示設定を優先します。`editor.entry` 未指定時は登録済みの `editor.id` から読み込みます。`editor/` 内の全 JS を自動実行したり、全 `.mbt` をシーンとして解釈したりしません。`build.package: "."` はビルド専用のルート指定で、リソースパスの `.` / `..` 許可には使いません。
 
-現在の移行対象は Studio の 29 ゲーム／デモです。Studio 自身や experimental / smoke の内部配置は別です。
+Studio の一覧は 27 コード examples と 1 素材プロジェクトです。MoonBit は Studio / experimental / smoke も含めてフラット配置です。
 
 宣言的なシーン構文とヒエラルキーの契約は [declarative-scenes.md](declarative-scenes.md) を参照してください。
 
@@ -171,3 +173,7 @@ Arena / FPS の床面は Y=0、回転なし、キャラクターのサイズは�
 just studio-examples-build arena3d fps_demo
 just studio-scene-test
 ```
+
+## Inspector の共通登録と配布ビルド
+
+[game/inspection](../../game/inspection/README.md) の getter/setter 宣言と Runtime 登録を使う。Flappy Bird は共通 API に移行済み。`build.editorMode` は Studio がコンパイルするモード（debug / release、既定 release）。Flappy Bird / Arena は debug を指定し、配布用は別途 `moon build --release` する。登録の debug 限定化と配布物の除去検査は同 README を参照。

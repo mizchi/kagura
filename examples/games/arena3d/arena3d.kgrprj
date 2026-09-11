@@ -31,7 +31,8 @@
   "build": {
     "package": ".",
     "artifact": "arena3d.js",
-    "scenePackage": "scenes"
+    "scenePackage": "scenes",
+    "editorMode": "debug"
   },
   "display": {
     "width": 640,

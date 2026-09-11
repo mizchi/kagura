@@ -15,9 +15,9 @@ test('runtime hierarchy follows the declared scene, including generated branches
     .getByRole('button', { name: 'Pause', exact: true })
     .click();
   const tree = page.getByLabel('Scene hierarchy');
-  await expect(tree.locator('[data-scene-id="world/bird"]')).toBeVisible();
+  await expect(tree.locator('[data-scene-id="world/body"]')).toBeVisible();
   await expect(tree.locator('[data-scene-id="world/hud/score"]')).toBeVisible();
-  await expect(tree.locator('[data-scene-id="world/bird"]')).toHaveAttribute(
+  await expect(tree.locator('[data-scene-id="world/body"]')).toHaveAttribute(
     'data-generated',
     'false',
   );
@@ -35,7 +35,7 @@ test('runtime hierarchy follows the declared scene, including generated branches
     'world/sky',
     'world/ground',
     'world/pipes',
-    'world/bird',
+    'world/body',
     'world/hud',
   ]);
   expect(

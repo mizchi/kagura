@@ -515,3 +515,15 @@ studio-declarative-test:
     moon -C examples/games/flappy_bird test . --target {{target}}
     moon -C examples/games/arena3d test . --target {{target}}
     node --test editor/studio/tests/scene-hierarchy.test.mjs editor/studio/tests/runtime-debug.test.mjs
+
+# Code declarations -> hierarchy subjects -> game-owned Inspector / AI edits.
+studio-inspection-test:
+    moon -C game test inspection --target {{target}}
+    moon -C game test scene --target {{target}}
+    moon -C engine/kagura_engine test scene3d --target {{target}}
+    moon -C examples/games/flappy_bird test . --target {{target}}
+    node --test editor/studio/tests/inspection.test.mjs editor/studio/tests/scene-hierarchy.test.mjs editor/studio/tests/runtime-debug.test.mjs
+
+# Fails when code for inspection remains in the unminified release artifact.
+studio-inspection-release-check:
+    node scripts/check-inspection-release.mjs {{target}}

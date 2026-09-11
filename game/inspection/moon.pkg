@@ -1,0 +1,19 @@
+import {
+  "moonbitlang/core/json",
+  "mizchi/kagura_core/hierarchy",
+}
+
+supported_targets = "js+native+wasm-gc"
+
+// Control has profile-specific representations; pkg.generated.mbti shows debug.
+// Runtime/Inspector/register remain available in release. Exclude their callers
+// in the game's moon.pkg; see README.md for the artifact removal contract.
+
+options(
+  targets: {
+    "control_release_wbtest.mbt": [ "release" ],
+    "register_js.mbt": [ "js" ],
+    "control_debug.mbt": [ "debug" ],
+    "control_release.mbt": [ "release" ],
+  },
+)

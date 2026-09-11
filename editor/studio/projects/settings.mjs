@@ -55,7 +55,12 @@ export function validateSettings(input, path) {
       throw Error('Conflicting legacy runtime resource');
   }
   if (input.build !== undefined) {
-    fields(input.build, ['package', 'artifact', 'scenePackage'], 'build');
+    fields(input.build, ['package', 'artifact', 'scenePackage', 'editorMode'], 'build');
+    if (
+      input.build.editorMode !== undefined &&
+      !['debug', 'release'].includes(input.build.editorMode)
+    )
+      throw Error('Invalid editor build mode');
     const packagePath = (value) => {
       if (value === '.') return;
       path(value);
@@ -113,6 +118,7 @@ export function projectBuild(manifest, game = manifest.game) {
     manifest.build?.scenePackage ?? (manifest.scene?.endsWith('.mbt') ? 'scenes' : undefined);
   return {
     package: manifest.build?.package ?? '.',
+    ...(manifest.build?.editorMode ? { editorMode: manifest.build.editorMode } : {}),
     ...(artifact ? { artifact } : {}),
     ...(scenePackage ? { scenePackage } : {}),
   };

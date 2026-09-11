@@ -10,7 +10,7 @@ export function validateHierarchy(input) {
         !value ||
         typeof value !== 'object' ||
         Object.keys(value).some(
-          (k) => !['id', 'name', 'kind', 'generated', 'children'].includes(k),
+          (k) => !['id', 'name', 'kind', 'generated', 'children', 'subject'].includes(k),
         ) ||
         typeof value.id !== 'string' ||
         value.id.split('/').some((key) => !/^(?:[A-Za-z0-9_.-]{1,128}|@\d+)$/.test(key)) ||
@@ -20,7 +20,8 @@ export function validateHierarchy(input) {
         value.name.length > 256 ||
         typeof value.kind !== 'string' ||
         value.kind.length > 128 ||
-        typeof value.generated !== 'boolean'
+        typeof value.generated !== 'boolean' ||
+        (value.subject != null && (typeof value.subject !== 'string' || !/^[A-Za-z0-9_.:-]{1,128}$/.test(value.subject)))
       )
         throw Error('Invalid scene hierarchy node');
       if (ids.has(value.id)) throw Error('Duplicate scene hierarchy ID');
@@ -32,6 +33,7 @@ export function validateHierarchy(input) {
         name: value.name,
         kind: value.kind,
         generated: value.generated,
+        ...(value.subject != null ? { subject: value.subject } : {}),
         children: nodes(value.children, value.id, depth + 1),
       };
     });

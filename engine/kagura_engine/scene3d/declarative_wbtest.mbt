@@ -92,3 +92,21 @@ test "nested declarative transforms produce the same GPU uniforms as world trans
   assert_eq(nested_commands.length(), 1)
   assert_eq(nested_commands[0].uniform_dwords, flat_commands[0].uniform_dwords)
 }
+
+///|
+test "logical subject survives hierarchy reparenting without changing its identity" {
+  let root = SceneRoot::new()
+  root.render(
+    group(key="world", children=[
+      subject("enemy:42", group(key="body", children=[])),
+    ]),
+  )
+  assert_eq(root.hierarchy()[0].children[0].subject, Some("enemy:42"))
+  root.render(
+    group(key="other", children=[
+      subject("enemy:42", group(key="body", children=[])),
+    ]),
+  )
+  assert_eq(root.hierarchy()[0].children[0].id, "other/body")
+  assert_eq(root.hierarchy()[0].children[0].subject, Some("enemy:42"))
+}

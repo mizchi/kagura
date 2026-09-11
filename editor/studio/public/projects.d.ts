@@ -25,7 +25,12 @@ interface ProjectMetadata {
   sceneSchema?: SchemaVersion;
   runtime?: ProjectRuntime;
   /** package accepts "." for the flat MoonBit root; scenePackage defaults to "scenes". */
-  build?: { package: string; artifact?: string; scenePackage?: string };
+  build?: {
+    package: string;
+    artifact?: string;
+    scenePackage?: string;
+    editorMode?: 'debug' | 'release';
+  };
   display?: ProjectRuntimeSettings['display'];
   format: 'kagura.project';
   version: 1;

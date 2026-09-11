@@ -42,14 +42,19 @@ fn Game::view(self : Game) -> @scene.SceneNode {
         nodes
       }),
     ]),
-    // Bird
-    @scene.rect(
-      key="bird",
-      x=self.bird.x,
-      y=self.bird_y.get(),
-      w=self.bird.width,
-      h=self.bird.height,
-      fill=self.bird.color,
+    // Render path: world/body. Selecting it inspects logical subject "bird".
+    // The key identifies this visual; inspection.mbt declares the editable state.
+    @scene.subject(
+      "bird",
+      @scene.rect(
+        key="body",
+        name="Bird body",
+        x=self.bird.x,
+        y=self.bird_y.get(),
+        w=self.bird.width,
+        h=self.bird.height,
+        fill=self.bird.color,
+      ),
     ),
     @scene.group(key="hud", children=[
       // Score
@@ -96,19 +101,4 @@ fn Game::view(self : Game) -> @scene.SceneNode {
       }),
     ]),
   ])
-}
-
-///|
-/// Resolve once for drawing and retain that frame's hierarchy for inspection.
-fn Game::resolved_view(self : Game) -> @scene.SceneNode {
-  let scene = @scene.resolve(self.view()) catch {
-    error => abort(error.to_string())
-  }
-  self.scene_outline = scene.hierarchy
-  scene.node
-}
-
-///|
-fn Game::scene_hierarchy(self : Game) -> String {
-  self.scene_outline.to_json().stringify()
 }

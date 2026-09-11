@@ -77,7 +77,7 @@ app.mount(document.getElementById('app'));
 const panes = createPaneHost(document.querySelector('.agent'), api, app);
 panes.register(storagePane(storage, api, app.set_status));
 const plugins = Object.freeze({ defineJSPlugin, fromJSONModule, fromWasm });
-const runtime = Object.freeze({ ...Object.fromEntries(['snapshot', 'pause', 'resume', 'step', 'replace'].map(method => [method, (...args) => gameEditor.debug(method, ...args)])), hierarchy: () => gameEditor.hierarchy() });
+const runtime = Object.freeze({ ...Object.fromEntries(['snapshot', 'pause', 'resume', 'step', 'replace', 'inspect', 'edit'].map(method => [method, (...args) => gameEditor.debug(method, ...args)])), hierarchy: () => gameEditor.hierarchy() });
 const assets = Object.freeze(Object.fromEntries(['list', 'preview', 'close', 'snapshot'].map(method => [method, (...args) => modelAssets[method](...args)])));
 const browserAPI = Object.freeze({ ...api, panes, storage, plugins, runtime, assets });
 const webmcp = registerWebMCP(browserAPI, document.modelContext);
@@ -100,7 +100,7 @@ gameEditor = createExtensionHost({ editor: api, panes, viewport, setStatus: app.
 await gameEditor.useBuiltin(defaultEditor);
 const projectTransport = installProjectTransport(gameEditor, app.set_status);
 const runtimeInspector = installRuntimeInspector(gameEditor, app.set_status);
-const sceneHierarchy = installSceneHierarchy(gameEditor, app.set_status);
+const sceneHierarchy = installSceneHierarchy(gameEditor, app.set_status, runtimeInspector.selectSubject);
 modelAssets = installModelAssets({ host: gameEditor, panes, viewport, setStatus: app.set_status });
 const projectUI = installProjectUI({ host: gameEditor, panes, assets: modelAssets, setStatus: app.set_status });
 globalThis.kagura = Object.freeze({ ...globalThis.kagura, projects: { current: gameEditor.project } });

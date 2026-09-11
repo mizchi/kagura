@@ -130,3 +130,11 @@ test('build discovery uses the root and scenes convention unless explicitly over
     },
   );
 });
+
+test('editor builds explicitly select debug without changing the distribution build default', async () => {
+  const { projectBuild } = await import('../projects/settings.mjs');
+  const manifest = validateProject({ ...modern, build: { ...modern.build, editorMode: 'debug' } });
+  assert.equal(projectBuild(manifest).editorMode, 'debug');
+  assert.equal(projectBuild(modern).editorMode, undefined);
+  assert.throws(() => validateProject({ ...modern, build: { ...modern.build, editorMode: 'unsafe' } }));
+});

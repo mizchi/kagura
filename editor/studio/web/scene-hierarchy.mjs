@@ -1,5 +1,5 @@
 /** A read-only projection of the game's declaration, refreshed independently of source drafts. */
-export function installSceneHierarchy(host, setStatus) {
+export function installSceneHierarchy(host, setStatus, selectSubject = () => {}) {
   const container = document.querySelector('.hierarchy');
   let panel,
     signature,
@@ -42,6 +42,7 @@ export function installSceneHierarchy(host, setStatus) {
         row.dataset.sceneId = node.id;
         row.dataset.generated = String(node.generated);
         label.textContent = node.name + ' · ' + node.kind + (node.generated ? ' · generated' : '');
+        label.addEventListener('click', () => selectSubject(node.subject));
         row.open = expanded.get(node.id) ?? depth < 2;
         row.addEventListener('toggle', () => row.isConnected && expanded.set(node.id, row.open));
         row.append(label);

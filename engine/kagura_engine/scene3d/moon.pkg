@@ -10,3 +10,7 @@ import {
   "mizchi/kagura_engine/draw3d",
   "mizchi/anim3d/skeleton3d",
 }
+
+options(
+  targets: { "inspection_release_wbtest.mbt": [ "release" ] },
+)

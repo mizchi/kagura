@@ -12,16 +12,14 @@ pub fn rect(
 ) -> SceneNode {
   @ui.h(
     "rect",
-    [
+    with_metadata(key, name, [
       ("x", @ui.attr_static(SceneDouble(x))),
       ("y", @ui.attr_static(SceneDouble(y))),
       ("w", @ui.attr_static(SceneDouble(w))),
       ("h", @ui.attr_static(SceneDouble(h))),
       ("fill", @ui.attr_static(SceneInt(fill))),
       ("alpha", @ui.attr_static(SceneDouble(alpha))),
-      ("key", @ui.attr_static(SceneText(key))),
-      ("name", @ui.attr_static(SceneText(name))),
-    ],
+    ]),
     children,
   )
 }
@@ -38,15 +36,13 @@ pub fn label(
 ) -> SceneNode {
   @ui.h(
     "label",
-    [
+    with_metadata(key, name, [
       ("x", @ui.attr_static(SceneDouble(x))),
       ("y", @ui.attr_static(SceneDouble(y))),
       ("content", @ui.attr_static(SceneText(content))),
       ("color", @ui.attr_static(SceneInt(color))),
       ("scale", @ui.attr_static(SceneDouble(scale))),
-      ("key", @ui.attr_static(SceneText(key))),
-      ("name", @ui.attr_static(SceneText(name))),
-    ],
+    ]),
     [],
   )
 }
@@ -61,12 +57,10 @@ pub fn group(
 ) -> SceneNode {
   @ui.h(
     "group",
-    [
+    with_metadata(key, name, [
       ("x", @ui.attr_static(SceneDouble(x))),
       ("y", @ui.attr_static(SceneDouble(y))),
-      ("key", @ui.attr_static(SceneText(key))),
-      ("name", @ui.attr_static(SceneText(name))),
-    ],
+    ]),
     children,
   )
 }
@@ -84,16 +78,14 @@ pub fn line(
 ) -> SceneNode {
   @ui.h(
     "line",
-    [
+    with_metadata(key, name, [
       ("x0", @ui.attr_static(SceneDouble(x0))),
       ("y0", @ui.attr_static(SceneDouble(y0))),
       ("x1", @ui.attr_static(SceneDouble(x1))),
       ("y1", @ui.attr_static(SceneDouble(y1))),
       ("width", @ui.attr_static(SceneDouble(width))),
       ("color", @ui.attr_static(SceneInt(color))),
-      ("key", @ui.attr_static(SceneText(key))),
-      ("name", @ui.attr_static(SceneText(name))),
-    ],
+    ]),
     [],
   )
 }
@@ -111,16 +103,14 @@ pub fn rect_outline(
 ) -> SceneNode {
   @ui.h(
     "rect_outline",
-    [
+    with_metadata(key, name, [
       ("x", @ui.attr_static(SceneDouble(x))),
       ("y", @ui.attr_static(SceneDouble(y))),
       ("w", @ui.attr_static(SceneDouble(w))),
       ("h", @ui.attr_static(SceneDouble(h))),
       ("line_width", @ui.attr_static(SceneDouble(line_width))),
       ("color", @ui.attr_static(SceneInt(color))),
-      ("key", @ui.attr_static(SceneText(key))),
-      ("name", @ui.attr_static(SceneText(name))),
-    ],
+    ]),
     [],
   )
 }

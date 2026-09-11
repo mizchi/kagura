@@ -29,8 +29,10 @@ let pipe_speed : Double = 1.5
 let pipe_interval : Int = 120
 
 ///|
+// Input is replaced at debugger boundaries, compiled out in release.
+#warnings("-unused_mut")
 struct Game {
-  mut scene_outline : Array[@hierarchy.Node]
+  _inspection : @inspection.Control
   mut layout : @scene2d.Document
   mut bird : @scene2d.Element
   mut ground : @scene2d.Element
@@ -41,8 +43,6 @@ struct Game {
   pipes : @signals.Signal[Array[Pipe]]
   mut velocity : Double
   mut pipe_timer : Int
-  mut debug_paused : Bool
-  mut debug_revision : Int
   mut input : @inpututil.InputHelper
 }
 
@@ -56,12 +56,18 @@ fn pseudo_random(seed : Int) -> Double {
 ///|
 fn Game::new() -> Game {
   let layout = @scenes.layout() catch { error => abort(error.to_string()) }
-  validate_layout(layout) catch { error => abort(error.to_string()) }
+  validate_layout(layout) catch {
+    error => abort(error.to_string())
+  }
   let bird = layout.element("bird") catch { error => abort(error.to_string()) }
-  let ground = layout.element("ground") catch { error => abort(error.to_string()) }
+  let ground = layout.element("ground") catch {
+    error => abort(error.to_string())
+  }
   {
-    layout, bird, ground,
-    scene_outline: [],
+    layout,
+    bird,
+    ground,
+    _inspection: @inspection.new_control(),
     game_mode: @signals.signal(0),
     score: @signals.signal(0),
     bird_y: @signals.signal(bird.y),
@@ -70,7 +76,6 @@ fn Game::new() -> Game {
     velocity: 0.0,
     pipe_timer: 0,
     input: @inpututil.new_input_helper(),
-    debug_paused: false, debug_revision: 0,
   }
 }
 
@@ -85,9 +90,7 @@ fn Game::reset(self : Game) -> Unit {
 }
 
 ///|
-fn Game::update(self : Game, input : @core.InputSnapshot) -> Unit {
-  if self.debug_paused { return }
-  self.debug_revision += 1
+fn Game::update_tick(self : Game, input : @core.InputSnapshot) -> Unit {
   @inpututil.update_input_helper(self.input, input)
   @signals.batch(fn() {
     self.frame_count.set(self.frame_count.get() + 1)
@@ -143,7 +146,8 @@ fn Game::update(self : Game, input : @core.InputSnapshot) -> Unit {
         self.pipes.set(new_pipes)
         // Collision: ground/ceiling
         let ground_top = self.ground.y
-        if self.bird_y.get() + self.bird.height > ground_top || self.bird_y.get() < 0.0 {
+        if self.bird_y.get() + self.bird.height > ground_top ||
+          self.bird_y.get() < 0.0 {
           self.game_mode.set(2)
         }
         // Collision: pipes

@@ -42,8 +42,16 @@ pub fn resolve(view : SceneNode) -> ResolvedScene raise {
         })
         let mut key = ""
         let mut name = ""
+        let mut subject : String? = None
         for pair in attrs {
           let (slot, attr) = pair
+          if slot == "subject" {
+            guard attr is VStatic(SceneText(value)) &&
+              @hierarchy.valid_subject(value) else {
+              fail("Invalid scene subject")
+            }
+            subject = Some(value)
+          }
           if slot == "key" || slot == "name" {
             guard attr is VStatic(SceneText(value)) else {
               fail("Invalid scene metadata")
@@ -81,6 +89,7 @@ pub fn resolve(view : SceneNode) -> ResolvedScene raise {
           name,
           kind: el.tag,
           generated,
+          subject,
           children: nested,
         })
         @ui.h(el.tag, attrs, children)

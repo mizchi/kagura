@@ -5,6 +5,7 @@ pub(all) struct Node {
   name : String
   kind : String
   generated : Bool
+  subject : String?
   children : Array[Node]
 } derive(ToJson)
 
@@ -22,5 +23,23 @@ pub fn valid_key(key : String) -> Bool {
     c == '_' ||
     c == '-' ||
     c == '.'
+  })
+}
+
+///|
+/// Logical state identity is independent of render keys and may include an incarnation suffix.
+pub fn valid_subject(id : String) -> Bool {
+  id.length() > 0 &&
+  id.length() <= 128 &&
+  id
+  .iter()
+  .all(c => {
+    (c >= 'a' && c <= 'z') ||
+    (c >= 'A' && c <= 'Z') ||
+    (c >= '0' && c <= '9') ||
+    c == '_' ||
+    c == '-' ||
+    c == '.' ||
+    c == ':'
   })
 }

@@ -1,0 +1,89 @@
+// Generated using `moon info`, DON'T EDIT IT
+package "mizchi/kagura_game/inspection"
+
+import {
+  "mizchi/kagura_core/hierarchy",
+  "moonbitlang/core/json",
+}
+
+// Values
+pub fn[S] bind_subject(String, fields~ : Array[Property[S]], name? : String) -> SubjectBinding[S]
+
+pub fn[S] boolean_field(String, get~ : (S) -> Bool, set? : (S, Bool) -> S raise, label? : String) -> Property[S]
+
+pub fn[S : @json.FromJson + ToJson] decode_state(Json) -> S raise
+
+pub fn new_control() -> Control
+
+pub fn number(String, Double, label? : String, unit? : String, editable? : Bool) -> Field
+
+pub fn[S] number_field(String, get~ : (S) -> Double, set? : (S, Double) -> S raise, label? : String, unit? : String) -> Property[S]
+
+pub fn[S] text_field(String, get~ : (S) -> String, set? : (S, String) -> S raise, label? : String) -> Property[S]
+
+// Errors
+
+// Types and methods
+pub(all) struct Control {
+  mut paused : Bool
+  mut revision : Int
+  mut hierarchy : Array[@hierarchy.Node]
+}
+
+pub(all) enum Field {
+  Number(String, String, Double, String, Bool)
+  Text(String, String, String, Bool)
+  Boolean(String, String, Bool, Bool)
+}
+pub impl ToJson for Field
+
+pub struct Inspector[S] {
+  subjects : Array[SubjectBinding[S]]
+}
+pub fn[S] Inspector::describe(Self[S], S) -> Array[Subject]
+pub fn[S] Inspector::edit(Self[S], S, subject~ : String, field~ : String, value~ : Json) -> S raise
+pub fn[S] Inspector::new(Array[SubjectBinding[S]]) -> Self[S] raise
+
+pub struct Property[S] {
+  id : String
+  read : (S) -> Field
+  write : ((S, Json) -> S raise)?
+}
+
+pub struct Runtime[S] {
+  game : String
+  schema : String
+  version : Int
+  inspector : Inspector[S]
+  read : () -> Snapshot[S]
+  pause : (Bool) -> Unit
+  step : () -> Unit raise
+  replace : (S) -> Unit raise
+}
+pub fn[S : @json.FromJson + ToJson] Runtime::invoke(Self[S], String, String) -> String
+pub fn[S] Runtime::new(game~ : String, schema~ : String, version? : Int, inspector~ : Inspector[S], read~ : () -> Snapshot[S], pause~ : (Bool) -> Unit, step~ : () -> Unit raise, replace~ : (S) -> Unit raise) -> Self[S] raise
+pub fn[S : @json.FromJson + ToJson] Runtime::register(Self[S], scene? : () -> String, hierarchy? : () -> String) -> Unit
+
+pub(all) struct Snapshot[S] {
+  revision : Int
+  paused : Bool
+  state : S
+} derive(ToJson)
+
+pub(all) struct Subject {
+  id : String
+  name : String
+  fields : Array[Field]
+} derive(ToJson)
+
+pub struct SubjectBinding[S] {
+  id : String
+  name : String
+  fields : Array[Property[S]]
+}
+
+type WireEdit derive(ToJson, @json.FromJson)
+
+// Type aliases
+
+// Traits

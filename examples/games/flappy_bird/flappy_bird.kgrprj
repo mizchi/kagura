@@ -26,7 +26,8 @@
   "build": {
     "package": ".",
     "artifact": "flappy_bird.js",
-    "scenePackage": "scenes"
+    "scenePackage": "scenes",
+    "editorMode": "debug"
   },
   "display": {
     "width": 320,

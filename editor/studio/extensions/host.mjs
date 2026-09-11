@@ -121,10 +121,10 @@ export function createExtensionHost(context, catalog) {
     hierarchy: () => current.hierarchy?.(),
     debug(method, ...args) {
       const runtime = current.debug?.();
-      if (!runtime || !['snapshot', 'pause', 'resume', 'step', 'replace'].includes(method))
+      if (!runtime || !['snapshot', 'pause', 'resume', 'step', 'replace', 'inspect', 'edit'].includes(method))
         throw Error('Runtime debugger is not available');
       try { return runtime[method](...args); }
-      finally { if (method !== 'snapshot') notifyState(); }
+      finally { if (!['snapshot', 'inspect'].includes(method)) notifyState(); }
     },
     async play() {
       if (!project || !current.play || current.canPlay?.() === false)

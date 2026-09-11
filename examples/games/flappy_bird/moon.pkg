@@ -1,4 +1,5 @@
 import {
+  "mizchi/kagura_game/inspection",
   "mizchi/kagura_core/hierarchy",
   "moonbitlang/core/json",
   "mizchi/kagura_game/scene2d",
@@ -11,16 +12,11 @@ import {
   "mizchi/web_runtime_hooks" @web_hooks,
 }
 
-// The debug/studio surface -- Game::debug_state, debug_pause, debug_step,
-// debug_replace, decode_debug_state, Game::scene_hierarchy and the
-// debug_revision / debug_paused fields -- is called only from scene_js.mbt,
-// which `targets` below restricts to js. On native nothing outside the
-// whitebox tests references it, so `--deny-warn` rejects the package on
-// unused_value (1), unused_mut (2) and unused_field (7).
-//
-// Suppressed rather than split: moving debug.mbt to js only trades these for
-// unused_mut on the fields, which live in game.mbt and have to build on both
-// targets, and MoonBit has no per-target field declaration.
+// Native debug includes the inspection helpers for headless tests, but has no
+// browser registration entry point. Keep upstream's unused-item warning policy
+// for that profile. Release excludes these helpers and uses Control = Unit;
+// the artifact gate checks removal independently of warning suppression.
+
 warnings = "-29-1-2-7"
 
 supported_targets = "js+native"
@@ -28,7 +24,17 @@ supported_targets = "js+native"
 pkgtype(kind: "executable")
 
 options(
-  targets: { "scene_js.mbt": [ "js" ], "scene_native.mbt": [ "native" ] },
+  targets: {
+    "scene_js.mbt": [ "and", "js", "debug" ],
+    "scene_native.mbt": [ "or", "native", [ "and", "js", "release" ] ],
+    "debug.mbt": [ "debug" ],
+    "inspection.mbt": [ "debug" ],
+    "debug_wbtest.mbt": [ "debug" ],
+    "inspection_wbtest.mbt": [ "debug" ],
+    "inspection_js.mbt": [ "and", "js", "debug" ],
+    "view_inspection_debug.mbt": [ "debug" ],
+    "view_inspection_release.mbt": [ "release" ],
+  },
   link: {
     "native": {
       "cc": "${build.KAGURA_NATIVE_CC}",

@@ -51,6 +51,10 @@ export function registerWebMCP(editor, modelContext) {
     if (editor.runtime.hierarchy) tool('runtime_hierarchy', 'Read the hierarchy derived from the game declaration. Keys identify siblings; generated marks dynamic branches. This is not a second scene document.', record({}), true,
       () => ({ ok: true, hierarchy: editor.runtime.hierarchy() ?? null }));
     const token = record({ session: { type: 'string', minLength: 1 }, revision });
+    if (editor.runtime.inspect) tool('runtime_inspect', 'Read game-owned subjects and typed fields. access declares runtime editing or readonly. Values carry the current runtime token.', record({}), true,
+      () => ({ ok: true, inspection: editor.runtime.inspect() }));
+    if (editor.runtime.edit) tool('runtime_edit', 'Edit one declared field while paused through game validation. Does not write source. Requires the current runtime token.', record({ token, edit: record({ subject: { type: 'string' }, field: { type: 'string' }, value: { type: ['number', 'string', 'boolean'] } }) }), false,
+      ({ edit, token }) => ({ ok: true, snapshot: editor.runtime.edit(edit, token) }));
     tool('runtime_snapshot', 'Read the game-owned live state, schema, paused status and session/revision token. This is distinct from the authoring document.', record({}), true,
       () => ({ ok: true, snapshot: editor.runtime.snapshot() }));
     tool('runtime_pause', 'Pause simulation at the next synchronous debugger boundary and return its editable state and token. Rendering remains active.', record({}), false,

@@ -170,13 +170,20 @@ pub fn SpatialHashGrid::query_ray(
 }
 
 ///|
-/// Candidate overlapping pairs, each reported once.
+/// Candidate overlapping pairs, each reported once, as two parallel columns in
+/// the grid's own pooled arrays.
+///
+/// Returns the pair count; read the pairs as `pair_id_a[p]` / `pair_id_b[p]` for
+/// `p` in `0 ..< count`. `get_pairs` is this plus one heap tuple per pair, which
+/// on a 256-body pile is 1438 tuples a frame that the caller unpacks immediately.
 ///
 /// Cells are walked in first-touch order, which is the order the old
 /// `Map[Int64, _]` gave through `each` -- `Map` keeps an insertion-ordered
 /// linked list. Pair order reaches the solver, so this is load-bearing.
-pub fn SpatialHashGrid::get_pairs(self : SpatialHashGrid) -> Array[(Int, Int)] {
-  let result : Array[(Int, Int)] = []
+pub fn SpatialHashGrid::get_pairs_into(self : SpatialHashGrid) -> Int {
+  let ids_a = self.pair_id_a
+  let ids_b = self.pair_id_b
+  let mut count = 0
   for ci = 0; ci < self.cell_count; ci = ci + 1 {
     let bucket = self.cell_items[ci]
     let bucket_len = bucket.length()
@@ -199,19 +206,42 @@ pub fn SpatialHashGrid::get_pairs(self : SpatialHashGrid) -> Array[(Int, Int)] {
     }
     for i = 0; i < bucket_len; i = i + 1 {
       let mask_i = bucket_masks[i]
+      // Hoisted: this used to be re-read from `entries` for every `j`.
+      let a = self.entries[bucket[i]]
+      let a_id = a.id
+      let a_aabb = a.aabb
       for j = i + 1; j < bucket_len; j = j + 1 {
         if (mask_i | bucket_masks[j]) != 7 {
           continue
         }
-        let a = self.entries[bucket[i]]
         let b = self.entries[bucket[j]]
-        let min_id = if a.id < b.id { a.id } else { b.id }
-        let max_id = if a.id > b.id { a.id } else { b.id }
-        if a.aabb.intersects_aabb(b.aabb) {
-          result.push((min_id, max_id))
+        if a_aabb.intersects_aabb(b.aabb) {
+          let b_id = b.id
+          let min_id = if a_id < b_id { a_id } else { b_id }
+          let max_id = if a_id > b_id { a_id } else { b_id }
+          if count < ids_a.length() {
+            ids_a[count] = min_id
+            ids_b[count] = max_id
+          } else {
+            ids_a.push(min_id)
+            ids_b.push(max_id)
+          }
+          count = count + 1
         }
       }
     }
+  }
+  count
+}
+
+///|
+/// Candidate pairs as tuples. Prefer `get_pairs_into` on a hot path: this adds
+/// one heap tuple per pair on top of it.
+pub fn SpatialHashGrid::get_pairs(self : SpatialHashGrid) -> Array[(Int, Int)] {
+  let count = self.get_pairs_into()
+  let result : Array[(Int, Int)] = Array(capacity=count)
+  for p = 0; p < count; p = p + 1 {
+    result.push((self.pair_id_a[p], self.pair_id_b[p]))
   }
   result
 }

@@ -132,15 +132,15 @@ fn uf_union(parent : Array[Int], rank : Array[Int], a : Int, b : Int) -> Unit {
 ///
 /// `step` and `world_bench.mbt` both call this, so the benchmark can never
 /// drift away from the shipped pipeline.
-fn PhysicsWorld2D::phase_broadphase_pairs(
-  self : PhysicsWorld2D,
-) -> Array[(Int, Int)] {
+fn PhysicsWorld2D::phase_broadphase_pairs(self : PhysicsWorld2D) -> Int {
   let body_count = self.bodies.length()
   self.broadphase.clear()
   for i = 0; i < body_count; i = i + 1 {
     self.broadphase.insert(i, self.bodies[i].world_aabb())
   }
-  self.broadphase.get_pairs()
+  // Returns a count and leaves the pairs in the grid's pooled columns; the
+  // tuple-returning `get_pairs` stays for callers outside the step path.
+  self.broadphase.get_pairs_into()
 }
 
 ///|
@@ -152,13 +152,14 @@ fn PhysicsWorld2D::phase_broadphase_pairs(
 /// Note: avoid `continue` in for-loop due to MoonBit JS codegen bug
 fn PhysicsWorld2D::phase_narrowphase(
   self : PhysicsWorld2D,
-  pairs : Array[(Int, Int)],
+  pair_count : Int,
 ) -> Array[(Int, Int, Contact2D)] {
-  let raw_contacts : Array[(Int, Int, Contact2D)] = Array(
-    capacity=pairs.length(),
-  )
-  for p = 0; p < pairs.length(); p = p + 1 {
-    let (idx_a, idx_b) = pairs[p]
+  let raw_contacts : Array[(Int, Int, Contact2D)] = Array(capacity=pair_count)
+  let pair_id_a = self.broadphase.pair_id_a
+  let pair_id_b = self.broadphase.pair_id_b
+  for p = 0; p < pair_count; p = p + 1 {
+    let idx_a = pair_id_a[p]
+    let idx_b = pair_id_b[p]
     let body_a = self.bodies[idx_a]
     let body_b = self.bodies[idx_b]
     if body_a.inv_mass >= 1.0e-12 || body_b.inv_mass >= 1.0e-12 {
@@ -285,23 +286,24 @@ fn PhysicsWorld2D::phase_joint_constraints(
 /// Phase 4a: integrate velocities for one substep.
 fn PhysicsWorld2D::phase_integrate_velocities(
   self : PhysicsWorld2D,
+  vel : VelocityState2D,
   sub_dt : Double,
 ) -> Unit {
-  for i = 0; i < self.bodies.length(); i = i + 1 {
+  let gravity = self.gravity
+  let body_count = self.bodies.length()
+  for i = 0; i < body_count; i = i + 1 {
     let body = self.bodies[i]
     if body.is_dynamic() && !body.is_sleeping {
-      let accel = self.gravity.add(body.force.scale(body.inv_mass))
-      let new_vel = body.velocity
-        .add(accel.scale(sub_dt))
-        .scale(1.0 - body.linear_damping * sub_dt)
+      let force = body.force
+      let inv_mass = body.inv_mass
+      let accel_x = gravity.x + force.x * inv_mass
+      let accel_y = gravity.y + force.y * inv_mass
+      let linear_decay = 1.0 - body.linear_damping * sub_dt
+      vel.vx[i] = (vel.vx[i] + accel_x * sub_dt) * linear_decay
+      vel.vy[i] = (vel.vy[i] + accel_y * sub_dt) * linear_decay
       let angular_accel = body.torque * body.inv_inertia
-      let new_angular_vel = (body.angular_velocity + angular_accel * sub_dt) *
+      vel.w[i] = (vel.w[i] + angular_accel * sub_dt) *
         (1.0 - body.angular_damping * sub_dt)
-      self.bodies[i] = {
-        ..body,
-        velocity: new_vel,
-        angular_velocity: new_angular_vel,
-      }
     }
   }
 }
@@ -313,16 +315,16 @@ fn PhysicsWorld2D::phase_solve_velocities(
   constraints : Array[ContactConstraint2D],
   dist_constraints : Array[DistanceJointConstraint2D],
   rev_constraints : Array[RevoluteJointConstraint2D],
+  vel : VelocityState2D,
   iterations : Int,
+  use_bias? : Bool = true,
 ) -> Unit {
-  // Velocities move into flat arrays for the duration of the pass and back out
-  // at the end, so the constraint loops below allocate nothing. Positions and
-  // masses are still read straight from the bodies -- neither changes here.
-  let vel = self.velocity_state
-  vel.load(self.bodies)
+  // Velocities live in `vel` for the whole substep loop, so this pass neither
+  // loads nor stores -- it allocates nothing at all. Positions and masses are
+  // still read straight from the bodies; neither changes here.
   for _iter = 0; _iter < iterations; _iter = _iter + 1 {
     for ci = 0; ci < constraints.length(); ci = ci + 1 {
-      solve_constraint2d(constraints, ci, self.bodies, vel)
+      solve_constraint2d(constraints, ci, self.bodies, vel, use_bias)
     }
     for di = 0; di < dist_constraints.length(); di = di + 1 {
       solve_distance_joint(
@@ -331,13 +333,13 @@ fn PhysicsWorld2D::phase_solve_velocities(
         self.bodies,
         self.joints_distance[di],
         vel,
+        use_bias,
       )
     }
     for ri = 0; ri < rev_constraints.length(); ri = ri + 1 {
-      solve_revolute_joint(rev_constraints, ri, self.bodies, vel)
+      solve_revolute_joint(rev_constraints, ri, self.bodies, vel, use_bias)
     }
   }
-  vel.store(self.bodies)
 }
 
 ///|
@@ -345,36 +347,53 @@ fn PhysicsWorld2D::phase_solve_velocities(
 /// bullet bodies.
 fn PhysicsWorld2D::phase_integrate_positions(
   self : PhysicsWorld2D,
+  vel : VelocityState2D,
   sub_dt : Double,
 ) -> Unit {
-  for i = 0; i < self.bodies.length(); i = i + 1 {
+  let body_count = self.bodies.length()
+  for i = 0; i < body_count; i = i + 1 {
     let body = self.bodies[i]
     if body.is_dynamic() && !body.is_sleeping {
+      // Velocity comes from the buffer; the body's own copy is a substep stale
+      // by now. The `RigidBody2D` rebuild stays -- position and angle do change
+      // here -- but the two `Vec2` that scaled and added velocity do not.
+      let vx = vel.vx[i]
+      let vy = vel.vy[i]
+      let w = vel.w[i]
+      let position = body.position
       if body.is_bullet {
-        match ccd_sweep_body(i, self.bodies, sub_dt) {
+        match ccd_sweep_body(i, self.bodies, vel, sub_dt) {
           Some(toi) => {
             // Advance only to TOI (with small margin)
             let safe_toi = if toi > 0.01 { toi * 0.95 } else { 0.0 }
+            let step_dt = sub_dt * safe_toi
             self.bodies[i] = {
               ..body,
-              position: body.position.add(
-                body.velocity.scale(sub_dt * safe_toi),
+              position: @vector.Vec2::new(
+                position.x + vx * step_dt,
+                position.y + vy * step_dt,
               ),
-              angle: body.angle + body.angular_velocity * sub_dt * safe_toi,
+              angle: body.angle + w * sub_dt * safe_toi,
             }
           }
           None =>
             self.bodies[i] = {
               ..body,
-              position: body.position.add(body.velocity.scale(sub_dt)),
-              angle: body.angle + body.angular_velocity * sub_dt,
+              position: @vector.Vec2::new(
+                position.x + vx * sub_dt,
+                position.y + vy * sub_dt,
+              ),
+              angle: body.angle + w * sub_dt,
             }
         }
       } else {
         self.bodies[i] = {
           ..body,
-          position: body.position.add(body.velocity.scale(sub_dt)),
-          angle: body.angle + body.angular_velocity * sub_dt,
+          position: @vector.Vec2::new(
+            position.x + vx * sub_dt,
+            position.y + vy * sub_dt,
+          ),
+          angle: body.angle + w * sub_dt,
         }
       }
     }
@@ -417,6 +436,12 @@ fn PhysicsWorld2D::phase_clear_forces(self : PhysicsWorld2D) -> Unit {
 
 ///|
 /// Phase 7: advance sleep timers, then sleep or wake whole contact islands.
+/// The union-find pass is skipped entirely when no body is asleep and none has
+/// been at rest long enough to fall asleep -- the 3D shape, and the same
+/// argument: with no candidate, every island containing a dynamic body comes out
+/// `false`, and with nothing asleep the apply loop then writes nothing. So on a
+/// moving scene this is one pass over the bodies and no island bookkeeping at
+/// all.
 fn PhysicsWorld2D::phase_update_sleep(
   self : PhysicsWorld2D,
   constraints : Array[ContactConstraint2D],
@@ -424,6 +449,33 @@ fn PhysicsWorld2D::phase_update_sleep(
 ) -> Unit {
   let n = self.bodies.length()
   if n == 0 {
+    return
+  }
+  let mut has_sleeping_body = false
+  let mut has_sleep_candidate = false
+  // Update sleep timers per body
+  for i = 0; i < n; i = i + 1 {
+    let body = self.bodies[i]
+    if body.is_dynamic() {
+      if body.is_sleeping {
+        has_sleeping_body = true
+      }
+      let speed = body.velocity.length()
+      let angular_speed = body.angular_velocity.abs()
+      if speed < sleep_velocity_threshold &&
+        angular_speed < sleep_angular_threshold {
+        let sleep_timer = body.sleep_timer + dt
+        if sleep_timer >= sleep_time_threshold {
+          has_sleep_candidate = true
+        }
+        self.bodies[i] = { ..body, sleep_timer, }
+      } else {
+        // Wake up if moving
+        self.bodies[i] = { ..body, is_sleeping: false, sleep_timer: 0.0, }
+      }
+    }
+  }
+  if !has_sleeping_body && !has_sleep_candidate {
     return
   }
   // Build Union-Find for islands from active contacts
@@ -436,33 +488,23 @@ fn PhysicsWorld2D::phase_update_sleep(
     let con = constraints[c]
     uf_union(parent, rank, con.idx_a, con.idx_b)
   }
-  // Update sleep timers per body
-  for i = 0; i < n; i = i + 1 {
-    let body = self.bodies[i]
-    if body.is_dynamic() {
-      let speed = body.velocity.length()
-      let angular_speed = body.angular_velocity.abs()
-      if speed < sleep_velocity_threshold &&
-        angular_speed < sleep_angular_threshold {
-        self.bodies[i] = { ..body, sleep_timer: body.sleep_timer + dt, }
-      } else {
-        // Wake up if moving
-        self.bodies[i] = { ..body, is_sleeping: false, sleep_timer: 0.0, }
-      }
-    }
-  }
   // Check islands: if ALL dynamic bodies in an island are sleepy, put them to sleep
   // If ANY body in an island is awake/active, wake the whole island
-  let island_can_sleep : Map[Int, Bool] = Map([])
+  //
+  // Indexed by island root rather than hashed: this was a `Map[Int, Bool]` built
+  // from scratch every frame, with a lookup and an insert per dynamic body and
+  // another lookup per body in the apply loop. Roots are body indices, so an
+  // array of `n` covers them exactly. Entries for indices that are not roots are
+  // never read, and every dynamic body's own root is written before the apply
+  // loop reads it, so `true` is the safe initial value -- the same value the
+  // `None` arm gave the first body of each island.
+  let island_can_sleep : Array[Bool] = Array::make(n, true)
   for i = 0; i < n; i = i + 1 {
     let body = self.bodies[i]
     if body.is_dynamic() {
       let root = uf_find(parent, i)
-      let can_sleep = body.sleep_timer >= sleep_time_threshold
-      match island_can_sleep.get(root) {
-        Some(prev) => island_can_sleep.set(root, prev && can_sleep)
-        None => island_can_sleep.set(root, can_sleep)
-      }
+      island_can_sleep[root] = island_can_sleep[root] &&
+        body.sleep_timer >= sleep_time_threshold
     }
   }
   // Apply sleep/wake per island
@@ -470,20 +512,17 @@ fn PhysicsWorld2D::phase_update_sleep(
     let body = self.bodies[i]
     if body.is_dynamic() {
       let root = uf_find(parent, i)
-      match island_can_sleep.get(root) {
-        Some(true) =>
-          if !body.is_sleeping {
-            self.bodies[i] = {
-              ..body,
-              is_sleeping: true,
-              velocity: @vector.Vec2::zero(),
-              angular_velocity: 0.0,
-            }
+      if island_can_sleep[root] {
+        if !body.is_sleeping {
+          self.bodies[i] = {
+            ..body,
+            is_sleeping: true,
+            velocity: @vector.Vec2::zero(),
+            angular_velocity: 0.0,
           }
-        _ =>
-          if body.is_sleeping {
-            self.bodies[i] = { ..body, is_sleeping: false, sleep_timer: 0.0, }
-          }
+        }
+      } else if body.is_sleeping {
+        self.bodies[i] = { ..body, is_sleeping: false, sleep_timer: 0.0, }
       }
     }
   }
@@ -498,16 +537,39 @@ pub fn PhysicsWorld2D::step(self : PhysicsWorld2D, dt : Double) -> Unit {
   let raw_contacts = self.phase_narrowphase(pairs)
   let constraints = self.phase_contact_constraints(raw_contacts, sub_dt)
   let (dist_constraints, rev_constraints) = self.phase_joint_constraints(sub_dt)
+  // One load in, one store out, for the whole substep loop -- the 3D shape, see
+  // `physics3d/world.mbt`. Ordering is load-bearing the same way: the
+  // constraint and joint precomputes above read velocity off the bodies, so the
+  // load comes after them, and `phase_update_sleep` below reads it off the
+  // bodies, so the store comes before that.
+  let vel = self.velocity_state
+  let relax_iterations = config.relax_iterations
+  vel.load(self.bodies)
   for _s = 0; _s < substeps; _s = _s + 1 {
-    self.phase_integrate_velocities(sub_dt)
+    self.phase_integrate_velocities(vel, sub_dt)
     self.phase_solve_velocities(
       constraints,
       dist_constraints,
       rev_constraints,
+      vel,
       config.velocity_iterations,
     )
-    self.phase_integrate_positions(sub_dt)
+    self.phase_integrate_positions(vel, sub_dt)
+    // Relaxation: the biased pass above had to inject velocity to push overlap
+    // out, and that velocity is still in the buffer. Solving the same
+    // constraints rigidly takes it back out. Off by default.
+    if relax_iterations > 0 {
+      self.phase_solve_velocities(
+        constraints,
+        dist_constraints,
+        rev_constraints,
+        vel,
+        relax_iterations,
+        use_bias=false,
+      )
+    }
   }
+  vel.store(self.bodies)
   self.phase_save_contact_cache(constraints)
   self.phase_clear_forces()
   self.phase_update_sleep(constraints, dt)

@@ -159,6 +159,16 @@ test "bench physics2d phase reset floors pile 256" (b : @bench.T) {
     bench_restore_constraints2d(constraints, template)
     b.keep(constraints.length())
   })
+  // The floor for the phases that now need a loaded velocity buffer: `step`
+  // loads it once per frame, but an isolated phase has to load it itself, and
+  // `moon bench` has no per-iteration setup hook to put that in.
+  let vel = world.velocity_state
+  b.bench(name="physics2d/phase_reset_bodies_constraints_velocity_pile_256", fn() {
+    fixture.reset()
+    bench_restore_constraints2d(constraints, template)
+    vel.load(world.bodies)
+    b.keep(constraints.length())
+  })
 }
 
 ///|
@@ -167,7 +177,23 @@ test "bench physics2d phase reset floors pile 256" (b : @bench.T) {
 test "bench physics2d phase broadphase pile 256" (b : @bench.T) {
   let fixture = bench_pile_fixture2d(256, bench_warm_frames2d)
   b.bench(name="physics2d/phase_broadphase_pile_256", fn() {
-    b.keep(fixture.world.phase_broadphase_pairs().length())
+    b.keep(fixture.world.phase_broadphase_pairs())
+  })
+}
+
+///|
+/// Grid fill only: `clear` plus one `insert` per body, no pair enumeration.
+/// Subtract from `phase_broadphase_pile_256` for the cost of `get_pairs`, which
+/// is the half that grows with the square of the bucket occupancy.
+test "bench physics2d phase broadphase insert pile 256" (b : @bench.T) {
+  let fixture = bench_pile_fixture2d(256, bench_warm_frames2d)
+  let world = fixture.world
+  b.bench(name="physics2d/phase_broadphase_insert_pile_256", fn() {
+    world.broadphase.clear()
+    for i = 0; i < world.bodies.length(); i = i + 1 {
+      world.broadphase.insert(i, world.bodies[i].world_aabb())
+    }
+    b.keep(world.broadphase.count())
   })
 }
 
@@ -198,10 +224,12 @@ test "bench physics2d phase contact constraints pile 256" (b : @bench.T) {
 test "bench physics2d phase integrate velocities pile 256" (b : @bench.T) {
   let fixture = bench_pile_fixture2d(256, bench_warm_frames2d)
   let world = fixture.world
+  let vel = world.velocity_state
   let sub_dt = bench_dt2d / world.solver_config.substeps.to_double()
   b.bench(name="physics2d/phase_integrate_velocities_pile_256", fn() {
     fixture.reset()
-    world.phase_integrate_velocities(sub_dt)
+    vel.load(world.bodies)
+    world.phase_integrate_velocities(vel, sub_dt)
     b.keep(world.body_count())
   })
 }
@@ -220,15 +248,22 @@ test "bench physics2d phase solve velocities pile 256" (b : @bench.T) {
     sub_dt,
   )
   let constraints = template.copy()
+  let vel = world.velocity_state
+  // The load and store stay inside the closure: they used to be inside
+  // `phase_solve_velocities` itself, and keeping them here is what makes this
+  // entry comparable with its recorded baseline and with the 3D entry.
   b.bench(name="physics2d/phase_solve_velocities_pile_256", fn() {
     fixture.reset()
     bench_restore_constraints2d(constraints, template)
+    vel.load(world.bodies)
     world.phase_solve_velocities(
       constraints,
       dist_constraints,
       rev_constraints,
+      vel,
       config.velocity_iterations,
     )
+    vel.store(world.bodies)
     b.keep(constraints.length())
   })
 }
@@ -237,10 +272,12 @@ test "bench physics2d phase solve velocities pile 256" (b : @bench.T) {
 test "bench physics2d phase integrate positions pile 256" (b : @bench.T) {
   let fixture = bench_pile_fixture2d(256, bench_warm_frames2d)
   let world = fixture.world
+  let vel = world.velocity_state
   let sub_dt = bench_dt2d / world.solver_config.substeps.to_double()
   b.bench(name="physics2d/phase_integrate_positions_pile_256", fn() {
     fixture.reset()
-    world.phase_integrate_positions(sub_dt)
+    vel.load(world.bodies)
+    world.phase_integrate_positions(vel, sub_dt)
     b.keep(world.body_count())
   })
 }

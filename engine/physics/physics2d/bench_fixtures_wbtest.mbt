@@ -19,7 +19,7 @@ fn bench_pile_work2d(count : Int) -> (Int, Int, Int) {
   let pairs = world.phase_broadphase_pairs()
   let raw_contacts = world.phase_narrowphase(pairs)
   let constraints = world.phase_contact_constraints(raw_contacts, sub_dt)
-  (pairs.length(), raw_contacts.length(), constraints.length())
+  (pairs, raw_contacts.length(), constraints.length())
 }
 
 ///|
@@ -183,12 +183,16 @@ test "bench fixture 2d reset keeps the solver doing work" {
   for pass = 0; pass < 2; pass = pass + 1 {
     fixture.reset()
     bench_restore_constraints2d(constraints, template)
+    let vel = world.velocity_state
+    vel.load(world.bodies)
     world.phase_solve_velocities(
       constraints,
       [],
       [],
+      vel,
       config.velocity_iterations,
     )
+    vel.store(world.bodies)
     let mut moved = 0
     for i = 0; i < fixture.snapshot.length(); i = i + 1 {
       if world.bodies[i].velocity.y != fixture.snapshot[i].velocity.y {

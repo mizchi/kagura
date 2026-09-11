@@ -253,7 +253,7 @@ test "soft solve separates overlapping bodies" {
   let vel = VelocityState2D::new()
   vel.load(bodies)
   for _i = 0; _i < 4; _i = _i + 1 {
-    solve_constraint2d(constraints, 0, bodies, vel)
+    solve_constraint2d(constraints, 0, bodies, vel, true)
   }
   vel.store(bodies)
   // After solving, bodies should be pushed apart (velocity reversed)
@@ -302,14 +302,16 @@ test "relaxation reduces excess energy" {
     sub_dt,
   )
   let constraints : Array[ContactConstraint2D] = [c]
-  // Solve velocity
+  // Solve velocity, then relax: the relaxation pass is the same solver with
+  // `use_bias` false, which is how `step` runs it when `relax_iterations > 0`.
   let vel = VelocityState2D::new()
   vel.load(bodies)
-  solve_constraint2d(constraints, 0, bodies, vel)
+  solve_constraint2d(constraints, 0, bodies, vel, true)
   vel.store(bodies)
   let vy_after_solve = bodies[0].velocity.y
-  // Relaxation should not add energy (velocity magnitude should not increase)
-  _solve_relaxation2d(constraints, 0, bodies)
+  vel.load(bodies)
+  solve_constraint2d(constraints, 0, bodies, vel, false)
+  vel.store(bodies)
   let vy_after_relax = bodies[0].velocity.y
   // Relaxation should keep velocity bounded (not add energy)
   assert_true(vy_after_relax.abs() <= vy_after_solve.abs() + 1.0e-6)

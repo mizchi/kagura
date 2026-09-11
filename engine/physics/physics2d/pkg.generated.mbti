@@ -12,7 +12,7 @@ pub fn append_circular_wall_blocker(@types.Grid2D, Double, Double, Double, Doubl
 
 pub fn apply_position_correction2d(RigidBody2D, RigidBody2D, Contact2D, Double) -> (RigidBody2D, RigidBody2D)
 
-pub fn ccd_sweep_body(Int, Array[RigidBody2D], Double) -> Double?
+pub fn ccd_sweep_body(Int, Array[RigidBody2D], VelocityState2D, Double) -> Double?
 
 pub fn clone_terrain_grid(@types.Grid2D) -> @types.Grid2D
 
@@ -38,9 +38,9 @@ pub fn resolve_contact2d(RigidBody2D, RigidBody2D, Contact2D) -> (RigidBody2D, R
 
 pub fn resolve_velocity2d(RigidBody2D, RigidBody2D, Contact2D) -> (RigidBody2D, RigidBody2D)
 
-pub fn solve_distance_joint(Array[DistanceJointConstraint2D], Int, Array[RigidBody2D], DistanceJoint2D, VelocityState2D) -> Unit
+pub fn solve_distance_joint(Array[DistanceJointConstraint2D], Int, Array[RigidBody2D], DistanceJoint2D, VelocityState2D, Bool) -> Unit
 
-pub fn solve_revolute_joint(Array[RevoluteJointConstraint2D], Int, Array[RigidBody2D], VelocityState2D) -> Unit
+pub fn solve_revolute_joint(Array[RevoluteJointConstraint2D], Int, Array[RigidBody2D], VelocityState2D, Bool) -> Unit
 
 pub fn sweep_circle_aabb(@vector.Vec2, @vector.Vec2, Double, @vector.Vec2, @vector.Vec2) -> Double?
 
@@ -239,6 +239,7 @@ pub(all) struct SolverConfig2D {
   velocity_iterations : Int
   contact_hertz : Double
   contact_damping_ratio : Double
+  relax_iterations : Int
 }
 pub fn SolverConfig2D::default() -> Self
 
@@ -257,10 +258,13 @@ pub struct SpatialHashGrid2D {
   mut pair_count : Int
   mut pair_slots : FixedArray[Int]
   mut pair_slot_mask : Int
+  pair_id_a : Array[Int]
+  pair_id_b : Array[Int]
 }
 pub fn SpatialHashGrid2D::clear(Self) -> Unit
 pub fn SpatialHashGrid2D::count(Self) -> Int
 pub fn SpatialHashGrid2D::get_pairs(Self) -> Array[(Int, Int)]
+pub fn SpatialHashGrid2D::get_pairs_into(Self) -> Int
 pub fn SpatialHashGrid2D::insert(Self, Int, AABB2D) -> Unit
 pub fn SpatialHashGrid2D::new(Double) -> Self
 pub fn SpatialHashGrid2D::query_aabb(Self, AABB2D) -> Array[Int]

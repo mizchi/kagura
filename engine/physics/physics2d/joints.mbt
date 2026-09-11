@@ -82,6 +82,7 @@ pub fn solve_distance_joint(
   bodies : Array[RigidBody2D],
   joint : DistanceJoint2D,
   vel : VelocityState2D,
+  use_bias : Bool,
 ) -> Unit {
   let c = constraints[ci]
   let ia = c.idx_a
@@ -97,7 +98,7 @@ pub fn solve_distance_joint(
   let delta = world_b.sub(world_a)
   let current_length = delta.dot(axis)
   let error = current_length - joint.rest_length
-  let bias = c.bias_coefficient * error
+  let bias = if use_bias { c.bias_coefficient * error } else { 0.0 }
   // Relative velocity along axis
   let avx = vel.vx[ia]
   let avy = vel.vy[ia]
@@ -110,7 +111,23 @@ pub fn solve_distance_joint(
   let vbx = bvx + -r_b.y * bw
   let vby = bvy + r_b.x * bw
   let v_rel = (vbx - vax) * axis.x + (vby - vay) * axis.y
-  let lambda = -(v_rel + bias + c.gamma * c.acc_impulse) * c.effective_mass
+  let lambda = if use_bias {
+    -(v_rel + bias + c.gamma * c.acc_impulse) * c.effective_mass
+  } else {
+    // Rigid effective mass, recomputed rather than stored -- see the same branch
+    // in `solve_constraint2d` for why. Same expression the precompute uses.
+    let r_a_cross_n = r_a.x * axis.y - r_a.y * axis.x
+    let r_b_cross_n = r_b.x * axis.y - r_b.y * axis.x
+    let k = a.inv_mass +
+      b.inv_mass +
+      r_a_cross_n * r_a_cross_n * a.inv_inertia +
+      r_b_cross_n * r_b_cross_n * b.inv_inertia
+    if k > 1.0e-12 {
+      -v_rel * (1.0 / k)
+    } else {
+      0.0
+    }
+  }
   let new_acc = c.acc_impulse + lambda
   let delta_impulse = new_acc - c.acc_impulse
   if delta_impulse.abs() > 1.0e-15 {
@@ -191,6 +208,7 @@ pub fn solve_revolute_joint(
   ci : Int,
   bodies : Array[RigidBody2D],
   vel : VelocityState2D,
+  use_bias : Bool,
 ) -> Unit {
   let c = constraints[ci]
   let ia = c.idx_a
@@ -217,15 +235,53 @@ pub fn solve_revolute_joint(
   let v_rel_x = vbx - vax
   let v_rel_y = vby - vay
   // X constraint
-  let bias_x = c.bias_coefficient * error.x
-  let lambda_x = -(v_rel_x + bias_x + c.gamma * c.acc_impulse_x) *
+  // Rigid effective masses on the relax path, recomputed rather than stored --
+  // see `solve_constraint2d`. Same expressions the precompute uses.
+  let rigid_mass_x = if use_bias {
+    0.0
+  } else {
+    let r_a_cross_x = -r_a.y
+    let r_b_cross_x = -r_b.y
+    let k_x = a.inv_mass +
+      b.inv_mass +
+      r_a_cross_x * r_a_cross_x * a.inv_inertia +
+      r_b_cross_x * r_b_cross_x * b.inv_inertia
+    if k_x > 1.0e-12 {
+      1.0 / k_x
+    } else {
+      0.0
+    }
+  }
+  let rigid_mass_y = if use_bias {
+    0.0
+  } else {
+    let r_a_cross_y = r_a.x
+    let r_b_cross_y = r_b.x
+    let k_y = a.inv_mass +
+      b.inv_mass +
+      r_a_cross_y * r_a_cross_y * a.inv_inertia +
+      r_b_cross_y * r_b_cross_y * b.inv_inertia
+    if k_y > 1.0e-12 {
+      1.0 / k_y
+    } else {
+      0.0
+    }
+  }
+  let lambda_x = if use_bias {
+    -(v_rel_x + c.bias_coefficient * error.x + c.gamma * c.acc_impulse_x) *
     c.effective_mass_x
+  } else {
+    -v_rel_x * rigid_mass_x
+  }
   let new_acc_x = c.acc_impulse_x + lambda_x
   let delta_x = new_acc_x - c.acc_impulse_x
   // Y constraint
-  let bias_y = c.bias_coefficient * error.y
-  let lambda_y = -(v_rel_y + bias_y + c.gamma * c.acc_impulse_y) *
+  let lambda_y = if use_bias {
+    -(v_rel_y + c.bias_coefficient * error.y + c.gamma * c.acc_impulse_y) *
     c.effective_mass_y
+  } else {
+    -v_rel_y * rigid_mass_y
+  }
   let new_acc_y = c.acc_impulse_y + lambda_y
   let delta_y = new_acc_y - c.acc_impulse_y
   if delta_x.abs() > 1.0e-15 || delta_y.abs() > 1.0e-15 {

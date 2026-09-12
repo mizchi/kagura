@@ -152,6 +152,10 @@ pub let enemy_fire_nova_radius : Double
 
 pub let enemy_fire_nova_trigger_range : Double
 
+pub fn enemy_species(EnemyKind) -> EnemySpecies
+
+pub fn enemy_species_name(EnemySpecies) -> String
+
 pub let enemy_speed_basic : Double
 
 pub let enemy_speed_fast : Double
@@ -625,6 +629,13 @@ pub(all) enum EnemyKind {
 } derive(Eq)
 pub fn EnemyKind::equal(Self, Self) -> Bool
 pub fn EnemyKind::not_equal(Self, Self) -> Bool
+
+pub(all) enum EnemySpecies {
+  Goblin
+  Kobold
+  Skeleton
+} derive(Eq, @debug.Debug)
+pub impl Show for EnemySpecies
 
 pub(all) struct EnemyTypeConfig {
   kind : EnemyKind

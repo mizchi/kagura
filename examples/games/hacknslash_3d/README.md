@@ -10,6 +10,7 @@ just hunter-test    # JS型検査、ゲーム／描画の単体テスト
 just hunter-e2e     # Playwrightで実際に起動・移動・攻撃・回避・カメラ・停止を確認
 just hunter-capture # 起動済み8080からプレイ画面だけを output/ashen-hunt.png に保存
 just hunter-audio   # 11種類のオリジナル効果音と試聴WAVを再生成（ffmpegが必要）
+just hunter-cpu-profile # フレーム当たりのCPU時間とChrome用コールグラフを保存
 ```
 
 Node.js 24+、pnpm、MoonBit、just、WebGPU対応ブラウザが必要。
@@ -74,7 +75,7 @@ Dvorakでも同じ位置のWASDで移動、Q/Eでカメラを回転する。入�
 木・岩・祭壇の根元は描画と同じタイルで衝突を持つ。小石や草は歩き越せる低い装飾。
 元のダンジョン生成・native HUDは既存サンプルと検証用に残し、Webゲームから森を選択する。
 
-敵の骨格、装備・成長のルール、バランスは既存サンプルがベース。
+敵AI、装備・成長のルール、バランスは既存サンプルがベース。
 通常の近接攻撃は既存の周囲範囲攻撃を使用する。武器形状そのものの接触判定、
 攻撃の予約入力、武器種ごとの専用モーションは今後の拡張範囲。
 
@@ -82,3 +83,28 @@ Dvorakでも同じ位置のWASDで移動、Q/Eでカメラを回転する。入�
 を参照。`just game-components-test` はゲーム本体を起動せずにこれらの契約を検証する。
 狩人の寸法・材質は `app/hunter_model.mbt`、技との音声対応は `app/audio_runtime.mbt`、
 音源パスと音量は `app/audio_assets.mbt` に定義する。
+
+敵は共通の12ボーン素体から作る。`app/monster_assets.mbt` で顔・装備・5つの材質を追加し、
+`app/enemy_model.mbt` の共通歩行で腕・脚・尾を動かす。個体ごとのマテリアル描画を増やさず、
+種類と材質ごとにまとめて描画する。
+
+| 種族 | 特徴 | 戦闘での役割 |
+| --- | --- | --- |
+| ゴブリン | 緑の肌、大きな耳、鉈、小盾 | 近接。重装個体や小型の群れも同じ素体を使用 |
+| コボルト | 犬顔、長い尾、槍、青緑の腰布 | 素早い接近と突進 |
+| スケルトン | 頭蓋骨、隙間のある肋骨、弓と矢筒 | 距離を取る遠隔攻撃。術師・ボスにも展開 |
+
+序盤の小集団に3種が一体ずつ出現する。種族と既存AIの対応は `game/bestiary.mbt`、
+序盤の配置は `game/hunting_grounds.mbt`。素体自体はゲームに依存しない
+`@procedural3d.build_biped_base()` で生成できる。
+
+## CPU計測
+
+`just hunter-dev` の起動後に `just hunter-cpu-profile --out-dir output/cpu/check` を実行する。
+1280×900でゲーム進行を一時停止し、描画を動かしたまま240フレームを計測する。
+続けてChrome DevToolsで開ける4秒間の `profile.cpuprofile` を保存する。
+`summary.json` にはフレーム当たりのメインスレッド処理時間、フレーム間隔、負荷の高い関数を記録する。
+`--moving` を付けると移動・アニメーション・地形の切り替えを含めて計測できる。
+SSAO有効時は `--url 'http://localhost:8080/?ssao=1'` を指定する。
+比較時はブラウザ、画面サイズ、移動の有無、描画設定を揃える。
+CPUサンプリングは別に実行し、フレーム処理時間の計測にサンプリングの負荷を混ぜない。

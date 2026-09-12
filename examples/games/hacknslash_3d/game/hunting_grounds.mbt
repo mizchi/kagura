@@ -86,21 +86,32 @@ fn append_hunting_approach_enemies(
   // The dungeon spawner skips the starting room. In an open woodland this
   // left the whole initial camera empty; put a small pack ahead of the hunter.
   // Four tiles of breathing room keep the first encounter from being a spawn hit.
-  for offset in [(-4.0, -4.0), (-2.0, -5.0), (0.0, -5.5)] {
-    enemies.push(
-      make_enemy(
-        dungeon.start_x + offset.0 * tile_size,
-        dungeon.start_y + offset.1 * tile_size,
-        Basic,
-        params.scale_enemy_hp_for_floor(params.basic_hp.to_int().max(1), floor),
-        params.scale_enemy_speed_for_floor(
-          params.enemy_speed_basic * 0.6,
-          floor,
-        ),
-        10.0,
-        room_index=0,
+  for
+    (offset, kind) in [
+      ((-4.0, -4.0), Basic),
+      ((-2.0, -5.0), Fast),
+      ((0.0, -5.5), Ranged),
+    ] {
+    let config = find_enemy_type_config(kind)
+    let enemy = make_enemy(
+      dungeon.start_x + offset.0 * tile_size,
+      dungeon.start_y + offset.1 * tile_size,
+      kind,
+      params.scale_enemy_hp_for_floor(
+        (params.basic_hp * config.hp_param).to_int().max(1),
+        floor,
       ),
+      params.scale_enemy_speed_for_floor(
+        params.enemy_speed_basic * 0.6 * @cmp.minimum(1.0, config.speed_param),
+        floor,
+      ),
+      config.size,
+      room_index=0,
     )
+    // Let the first mixed pack be readable before ranged attacks and charges.
+    enemy.shoot_cooldown = 150
+    enemy.charge_cooldown = 180
+    enemies.push(enemy)
   }
 }
 

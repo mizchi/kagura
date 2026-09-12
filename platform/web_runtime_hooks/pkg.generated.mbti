@@ -20,6 +20,8 @@ pub fn register_source_image_rgba8(Int, Int, Int, Array[Int]) -> Unit
 
 pub fn register_source_image_solid_color(Int, @atlas.Rgba) -> Unit
 
+pub fn register_static_geometry(Array[Double], Array[Int]) -> Unit
+
 pub fn request_animation_frame(() -> Unit) -> Unit
 
 pub fn shutdown() -> Unit

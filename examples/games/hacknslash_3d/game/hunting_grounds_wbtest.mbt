@@ -71,6 +71,7 @@ test "woodland starts with a small nearby encounter and room to react on every f
         world.apply_dungeon(seed, floor)
       }
       let mut nearby = 0
+      let species : Array[EnemySpecies] = []
       for enemy in world.enemies {
         let dx = (enemy.x - world.player.x) / tile_size
         let dz = (enemy.y - world.player.y) / tile_size
@@ -78,7 +79,7 @@ test "woodland starts with a small nearby encounter and room to react on every f
         assert_true(distance >= 4.0)
         if distance <= 6.0 {
           nearby += 1
-          assert_true(enemy.kind == Basic)
+          species.push(enemy_species(enemy.kind))
           assert_true(
             !check_wall_collision(
               world.dungeon.grid,
@@ -90,6 +91,21 @@ test "woodland starts with a small nearby encounter and room to react on every f
         }
       }
       assert_eq(nearby, 3)
+      assert_true(species.contains(Goblin))
+      assert_true(species.contains(Kobold))
+      assert_true(species.contains(Skeleton))
     }
   }
+}
+
+///|
+test "opening mixed pack leaves time to learn touch controls before contact" {
+  let world = GameWorld::new(seed=42, hunting_grounds=true)
+  world.mode = Playing
+  world.manual_combat = true
+  let health = world.player.hp
+  for _ in 0..<90 {
+    world.tick(0.0, 0.0)
+  }
+  assert_eq(world.player.hp, health)
 }

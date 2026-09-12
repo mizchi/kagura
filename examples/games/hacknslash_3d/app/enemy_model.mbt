@@ -1,15 +1,15 @@
 // Procedural enemy models with skeletal animation
-// Shared 3-bone skeleton: root(0) -> body(1) -> head(2)
+// Shared 12-joint biped with articulated arms, legs and tail.
 // Each enemy kind gets a different mesh with unique proportions and decorations.
 
 ///|
-let enemy_bone_count : Int = 3
+let enemy_bone_count : Int = 12
 
 ///|
-let enemy_idle_duration : Double = 1.5
+let enemy_walk_duration : Double = 0.72
 
 ///|
-let enemy_idle_keyframes : Int = 12
+let enemy_walk_keyframes : Int = 18
 
 // Per-kind mesh data (pre-built, shared across instances)
 
@@ -18,6 +18,8 @@ struct EnemyMeshData {
   bind_mesh : @mesh3d.Mesh3D
   skin_data : @skeleton3d.SkinData
   packed_vertex_data : Array[Double]
+  parts : Array[EnemyMaterialPart]
+  mut material_pose_generation : Int
 }
 
 // All enemy models
@@ -25,11 +27,12 @@ struct EnemyMeshData {
 ///|
 struct EnemyModels {
   skeleton : @skeleton3d.Skeleton
-  idle_player : @animation3d.AnimationPlayer
+  walk_player : @animation3d.AnimationPlayer
   local_poses : Array[@transform3d.Transform3D]
   mut cached_skinning_matrices : Array[@math3d.Mat4]
   mut skinning_cache_dirty : Bool
   mut skinning_cache_builds : Int
+  mut pose_generation : Int
   mut cached_skinned_basic : @mesh3d.Mesh3D
   mut cached_skinned_fast : @mesh3d.Mesh3D
   mut cached_skinned_tank : @mesh3d.Mesh3D
@@ -49,278 +52,6 @@ struct EnemyModels {
   boss : EnemyMeshData
 }
 
-// Build shared enemy skeleton parameterized by body height
-
-///|
-fn build_enemy_skeleton(
-  body_h : Double,
-  head_offset : Double,
-) -> @skeleton3d.Skeleton {
-  let bones : Array[@skeleton3d.Bone] = []
-  // root
-  bones.push({
-    name: "root",
-    parent: -1,
-    local_transform: @transform3d.Transform3D::new(),
-  })
-  // body
-  bones.push({
-    name: "body",
-    parent: 0,
-    local_transform: @transform3d.Transform3D::from_position(
-      @math3d.Vec3::new(0.0, body_h, 0.0),
-    ),
-  })
-  // head
-  bones.push({
-    name: "head",
-    parent: 1,
-    local_transform: @transform3d.Transform3D::from_position(
-      @math3d.Vec3::new(0.0, head_offset, 0.0),
-    ),
-  })
-  let rest_poses : Array[@transform3d.Transform3D] = []
-  for i in 0..<enemy_bone_count {
-    rest_poses.push(bones[i].local_transform)
-  }
-  let world_mats : Array[@math3d.Mat4] = Array::make(
-    enemy_bone_count,
-    @math3d.Mat4::identity(),
-  )
-  for i in 0..<enemy_bone_count {
-    let local_mat = rest_poses[i].to_mat4()
-    let parent = bones[i].parent
-    if parent < 0 {
-      world_mats[i] = local_mat
-    } else {
-      world_mats[i] = world_mats[parent].multiply(local_mat)
-    }
-  }
-  let ibms : Array[@math3d.Mat4] = []
-  for i in 0..<enemy_bone_count {
-    ibms.push(world_mats[i].inverse())
-  }
-  @skeleton3d.Skeleton::new(bones, ibms)
-}
-
-// Build enemy mesh with parameterized dimensions
-
-///|
-fn build_enemy_body_mesh(
-  body_w : Double,
-  body_h : Double,
-  body_d : Double,
-  head_size : Double,
-  head_y : Double,
-) -> (@mesh3d.Mesh3D, @skeleton3d.SkinData) {
-  let verts : Array[Double] = []
-  let indices : Array[Int] = []
-  let joint_indices : Array[Int] = []
-  let weights_arr : Array[Double] = []
-  let vc = Ref(0)
-  // Body box
-  @procedural3d.append_box_segment(
-    verts,
-    indices,
-    joint_indices,
-    weights_arr,
-    vc,
-    -body_w,
-    0.0,
-    -body_d,
-    body_w,
-    body_h,
-    body_d,
-    0,
-    1,
-  )
-  // Head box
-  let hs = head_size
-  @procedural3d.append_box_segment(
-    verts,
-    indices,
-    joint_indices,
-    weights_arr,
-    vc,
-    -hs,
-    head_y,
-    -hs,
-    hs,
-    head_y + head_size * 1.2,
-    hs,
-    2,
-    2,
-  )
-  let mesh = @mesh3d.Mesh3D::new(verts, indices)
-  let skin : @skeleton3d.SkinData = {
-    joint_indices,
-    weights: weights_arr,
-    vertex_count: vc.val,
-  }
-  (mesh, skin)
-}
-
-// Specialized mesh builders per enemy kind
-
-///|
-fn build_basic_mesh() -> (@mesh3d.Mesh3D, @skeleton3d.SkinData) {
-  let verts : Array[Double] = []
-  let indices : Array[Int] = []
-  let ji : Array[Int] = []
-  let wa : Array[Double] = []
-  let vc = Ref(0)
-  // Body
-  @procedural3d.append_box_segment(
-    verts, indices, ji, wa, vc, -0.12, 0.0, -0.1, 0.12, 0.35, 0.1, 0, 1,
-  )
-  // Head
-  @procedural3d.append_box_segment(
-    verts, indices, ji, wa, vc, -0.07, 0.35, -0.07, 0.07, 0.48, 0.07, 2, 2,
-  )
-  // Arms (static, both sides)
-  @procedural3d.append_box_segment(
-    verts, indices, ji, wa, vc, -0.18, 0.15, -0.04, -0.12, 0.32, 0.04, 1, 1,
-  )
-  @procedural3d.append_box_segment(
-    verts, indices, ji, wa, vc, 0.12, 0.15, -0.04, 0.18, 0.32, 0.04, 1, 1,
-  )
-  let mesh = @mesh3d.Mesh3D::new(verts, indices)
-  (mesh, { joint_indices: ji, weights: wa, vertex_count: vc.val, })
-}
-
-///|
-fn build_fast_mesh() -> (@mesh3d.Mesh3D, @skeleton3d.SkinData) {
-  let verts : Array[Double] = []
-  let indices : Array[Int] = []
-  let ji : Array[Int] = []
-  let wa : Array[Double] = []
-  let vc = Ref(0)
-  // Lean body
-  @procedural3d.append_box_segment(
-    verts, indices, ji, wa, vc, -0.08, 0.0, -0.06, 0.08, 0.28, 0.06, 0, 1,
-  )
-  // Small head
-  @procedural3d.append_box_segment(
-    verts, indices, ji, wa, vc, -0.05, 0.28, -0.05, 0.05, 0.38, 0.05, 2, 2,
-  )
-  // Blades on sides (speed fins)
-  @procedural3d.append_box_segment(
-    verts, indices, ji, wa, vc, -0.16, 0.12, -0.01, -0.08, 0.25, 0.01, 1, 1,
-  )
-  @procedural3d.append_box_segment(
-    verts, indices, ji, wa, vc, 0.08, 0.12, -0.01, 0.16, 0.25, 0.01, 1, 1,
-  )
-  let mesh = @mesh3d.Mesh3D::new(verts, indices)
-  (mesh, { joint_indices: ji, weights: wa, vertex_count: vc.val, })
-}
-
-///|
-fn build_tank_mesh() -> (@mesh3d.Mesh3D, @skeleton3d.SkinData) {
-  let verts : Array[Double] = []
-  let indices : Array[Int] = []
-  let ji : Array[Int] = []
-  let wa : Array[Double] = []
-  let vc = Ref(0)
-  // Wide heavy body
-  @procedural3d.append_box_segment(
-    verts, indices, ji, wa, vc, -0.2, 0.0, -0.15, 0.2, 0.45, 0.15, 0, 1,
-  )
-  // Head (small relative to body)
-  @procedural3d.append_box_segment(
-    verts, indices, ji, wa, vc, -0.08, 0.45, -0.08, 0.08, 0.55, 0.08, 2, 2,
-  )
-  // Shoulder plates
-  @procedural3d.append_box_segment(
-    verts, indices, ji, wa, vc, -0.28, 0.32, -0.1, -0.2, 0.45, 0.1, 1, 1,
-  )
-  @procedural3d.append_box_segment(
-    verts, indices, ji, wa, vc, 0.2, 0.32, -0.1, 0.28, 0.45, 0.1, 1, 1,
-  )
-  let mesh = @mesh3d.Mesh3D::new(verts, indices)
-  (mesh, { joint_indices: ji, weights: wa, vertex_count: vc.val, })
-}
-
-///|
-fn build_ranged_mesh() -> (@mesh3d.Mesh3D, @skeleton3d.SkinData) {
-  let verts : Array[Double] = []
-  let indices : Array[Int] = []
-  let ji : Array[Int] = []
-  let wa : Array[Double] = []
-  let vc = Ref(0)
-  // Robed body (slightly wider at bottom)
-  @procedural3d.append_box_segment(
-    verts, indices, ji, wa, vc, -0.1, 0.0, -0.08, 0.1, 0.3, 0.08, 0, 1,
-  )
-  // Head (hooded)
-  @procedural3d.append_box_segment(
-    verts, indices, ji, wa, vc, -0.07, 0.3, -0.07, 0.07, 0.42, 0.07, 2, 2,
-  )
-  // Hood peak
-  @procedural3d.append_box_segment(
-    verts, indices, ji, wa, vc, -0.04, 0.42, -0.04, 0.04, 0.48, 0.04, 2, 2,
-  )
-  // Staff (right side)
-  @procedural3d.append_box_segment(
-    verts, indices, ji, wa, vc, 0.12, 0.0, -0.015, 0.15, 0.5, 0.015, 1, 1,
-  )
-  // Staff orb
-  @procedural3d.append_box_segment(
-    verts, indices, ji, wa, vc, 0.1, 0.48, -0.03, 0.17, 0.55, 0.03, 1, 1,
-  )
-  let mesh = @mesh3d.Mesh3D::new(verts, indices)
-  (mesh, { joint_indices: ji, weights: wa, vertex_count: vc.val, })
-}
-
-///|
-fn build_boss_mesh() -> (@mesh3d.Mesh3D, @skeleton3d.SkinData) {
-  let verts : Array[Double] = []
-  let indices : Array[Int] = []
-  let ji : Array[Int] = []
-  let wa : Array[Double] = []
-  let vc = Ref(0)
-  // Massive body
-  @procedural3d.append_box_segment(
-    verts, indices, ji, wa, vc, -0.3, 0.0, -0.2, 0.3, 0.6, 0.2, 0, 1,
-  )
-  // Head with horns
-  @procedural3d.append_box_segment(
-    verts, indices, ji, wa, vc, -0.12, 0.6, -0.1, 0.12, 0.78, 0.1, 2, 2,
-  )
-  // Left horn
-  @procedural3d.append_box_segment(
-    verts, indices, ji, wa, vc, -0.18, 0.72, -0.03, -0.12, 0.9, 0.03, 2, 2,
-  )
-  // Right horn
-  @procedural3d.append_box_segment(
-    verts, indices, ji, wa, vc, 0.12, 0.72, -0.03, 0.18, 0.9, 0.03, 2, 2,
-  )
-  // Arms
-  @procedural3d.append_box_segment(
-    verts, indices, ji, wa, vc, -0.42, 0.2, -0.08, -0.3, 0.55, 0.08, 1, 1,
-  )
-  @procedural3d.append_box_segment(
-    verts, indices, ji, wa, vc, 0.3, 0.2, -0.08, 0.42, 0.55, 0.08, 1, 1,
-  )
-  // Weapon (great sword, right side)
-  @procedural3d.append_box_segment(
-    verts, indices, ji, wa, vc, 0.35, 0.0, -0.02, 0.4, 0.7, 0.02, 1, 1,
-  )
-  let mesh = @mesh3d.Mesh3D::new(verts, indices)
-  (mesh, { joint_indices: ji, weights: wa, vertex_count: vc.val, })
-}
-
-///|
-fn build_mesh_data(
-  skeleton : @skeleton3d.Skeleton,
-  mesh : @mesh3d.Mesh3D,
-  skin : @skeleton3d.SkinData,
-) -> EnemyMeshData {
-  // Recompute packed data with *this* skeleton's IBM (all share same structure)
-  let _ = skeleton
-  let packed = @skeleton3d.build_skinned_vertex_data(mesh, skin)
-  { bind_mesh: mesh, skin_data: skin, packed_vertex_data: packed, }
-}
-
 ///|
 fn clone_vertex_data(data : Array[Double]) -> Array[Double] {
   let cloned : Array[Double] = Array::make(data.length(), 0.0)
@@ -330,60 +61,83 @@ fn clone_vertex_data(data : Array[Double]) -> Array[Double] {
   cloned
 }
 
-// Shared idle animation for enemies (body sway)
+// A shared gait keeps material batches instanced while articulating every limb.
 
 ///|
-fn build_enemy_idle_animation() -> @animation3d.AnimationClip {
+fn build_enemy_walk_animation() -> @animation3d.AnimationClip {
   let channels : Array[@animation3d.AnimChannel] = []
-  // Body Y-axis sway
-  let times : Array[Double] = []
-  let values : Array[Double] = []
-  for k in 0..<enemy_idle_keyframes {
-    let t = k.to_double() /
-      (enemy_idle_keyframes - 1).to_double() *
-      enemy_idle_duration
-    times.push(t)
-    let angle = 0.08 * @math.sin(t * 2.0 * @math.PI / enemy_idle_duration)
-    let q = @math3d.Quaternion::from_axis_angle(@math3d.Vec3::unit_y(), angle)
-    values.push(q.x)
-    values.push(q.y)
-    values.push(q.z)
-    values.push(q.w)
+  for joint in [1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11] {
+    let times : Array[Double] = []
+    let values : Array[Double] = []
+    for k in 0..<enemy_walk_keyframes {
+      let t = k.to_double() /
+        (enemy_walk_keyframes - 1).to_double() *
+        enemy_walk_duration
+      let wave = @math.sin(t * 2.0 * @math.PI / enemy_walk_duration)
+      let angle = match joint {
+        1 => 0.06 * wave
+        2 => -0.06 * wave
+        3 => -0.24 * wave
+        4 => -0.18 - 0.09 * wave
+        5 => 0.24 * wave
+        6 => -0.18 + 0.09 * wave
+        7 => 0.36 * wave
+        8 => 0.18 + 0.22 * @cmp.maximum(0.0, -wave)
+        9 => -0.36 * wave
+        10 => 0.18 + 0.22 * @cmp.maximum(0.0, wave)
+        _ => 0.28 * wave
+      }
+      let axis = if joint == 1 || joint == 2 || joint == 11 {
+        @math3d.Vec3::unit_y()
+      } else {
+        @math3d.Vec3::unit_x()
+      }
+      let q = @math3d.Quaternion::from_axis_angle(axis, angle)
+      times.push(t)
+      values.append([q.x, q.y, q.z, q.w])
+    }
+    channels.push({
+      node_index: joint,
+      target: @animation3d.Rotation,
+      interpolation: @animation3d.Linear,
+      times,
+      values,
+    })
   }
-  channels.push({
-    node_index: 1,
-    target: @animation3d.Rotation,
-    interpolation: @animation3d.Linear,
-    times,
-    values,
-  })
-  { name: "enemy_idle", channels, duration: enemy_idle_duration, }
+  { name: "biped_walk", channels, duration: enemy_walk_duration, }
 }
 
 ///|
 fn EnemyModels::new() -> EnemyModels {
-  // Use default skeleton proportions (body_h=0.35, head_offset=0.0)
-  let skeleton = build_enemy_skeleton(0.35, 0.0)
-  let idle_clip = build_enemy_idle_animation()
-  let idle_player = @animation3d.AnimationPlayer::new(idle_clip)
-  idle_player.set_looping(true)
-  idle_player.play()
+  let skeleton = @procedural3d.build_biped_skeleton(
+    @procedural3d.default_biped_proportions(),
+  )
+  let walk_clip = build_enemy_walk_animation()
+  let walk_player = @animation3d.AnimationPlayer::new(walk_clip)
+  walk_player.set_looping(true)
+  walk_player.play()
   let local_poses : Array[@transform3d.Transform3D] = []
   for i in 0..<enemy_bone_count {
     local_poses.push(skeleton.bones[i].local_transform)
   }
-  let (basic_mesh, basic_skin) = build_basic_mesh()
-  let (fast_mesh, fast_skin) = build_fast_mesh()
-  let (tank_mesh, tank_skin) = build_tank_mesh()
-  let (ranged_mesh, ranged_skin) = build_ranged_mesh()
-  let (boss_mesh, boss_skin) = build_boss_mesh()
+  let basic = build_monster_mesh_data(@game.Goblin)
+  let basic_mesh = basic.bind_mesh
+  let fast = build_monster_mesh_data(@game.Kobold)
+  let fast_mesh = fast.bind_mesh
+  let tank = build_monster_mesh_data(@game.Goblin, armor=1)
+  let tank_mesh = tank.bind_mesh
+  let ranged = build_monster_mesh_data(@game.Skeleton)
+  let ranged_mesh = ranged.bind_mesh
+  let boss = build_monster_mesh_data(@game.Skeleton, armor=2)
+  let boss_mesh = boss.bind_mesh
   {
     skeleton,
-    idle_player,
+    walk_player,
     local_poses,
     cached_skinning_matrices: [],
     skinning_cache_dirty: true,
     skinning_cache_builds: 0,
+    pose_generation: 0,
     cached_skinned_basic: basic_mesh,
     cached_skinned_fast: fast_mesh,
     cached_skinned_tank: tank_mesh,
@@ -396,17 +150,18 @@ fn EnemyModels::new() -> EnemyModels {
     cached_skinned_boss_data: clone_vertex_data(boss_mesh.vertex_data),
     skinned_mesh_cache_dirty: true,
     skinned_mesh_cache_builds: 0,
-    basic: build_mesh_data(skeleton, basic_mesh, basic_skin),
-    fast: build_mesh_data(skeleton, fast_mesh, fast_skin),
-    tank: build_mesh_data(skeleton, tank_mesh, tank_skin),
-    ranged: build_mesh_data(skeleton, ranged_mesh, ranged_skin),
-    boss: build_mesh_data(skeleton, boss_mesh, boss_skin),
+    basic,
+    fast,
+    tank,
+    ranged,
+    boss,
   }
 }
 
 ///|
 fn EnemyModels::update(self : EnemyModels, dt : Double) -> Unit {
-  self.idle_player.update(dt)
+  self.walk_player.update(dt)
+  self.pose_generation += 1
   self.skinning_cache_dirty = true
   self.skinned_mesh_cache_dirty = true
 }
@@ -433,7 +188,7 @@ fn EnemyModels::compute_skinning(self : EnemyModels) -> Array[@math3d.Mat4] {
   for i in 0..<enemy_bone_count {
     self.local_poses[i] = self.skeleton.bones[i].local_transform
   }
-  let poses = self.idle_player.sample()
+  let poses = self.walk_player.sample()
   for pose in poses {
     let idx = pose.node_index
     if idx >= 0 && idx < enemy_bone_count {
@@ -518,6 +273,32 @@ fn EnemyModels::rebuild_skinned_mesh_cache(self : EnemyModels) -> Unit {
   )
   self.skinned_mesh_cache_dirty = false
   self.skinned_mesh_cache_builds = self.skinned_mesh_cache_builds + 1
+}
+
+///|
+// Only displayed species need their material geometry. Combined meshes are
+// independently lazy for inspection/capture and never built by this draw path.
+fn EnemyModels::prepare_materials(
+  self : EnemyModels,
+  model : EnemyMeshData,
+) -> Unit {
+  if model.material_pose_generation == self.pose_generation {
+    return
+  }
+  let skinning = self.compute_skinning()
+  for part in model.parts {
+    @skeleton3d.apply_skin_into(
+      part.mesh,
+      part.skin,
+      skinning,
+      part.skinned_data,
+    )
+    part.skinned_mesh = @mesh3d.Mesh3D::new(
+      part.skinned_data,
+      part.mesh.indices,
+    )
+  }
+  model.material_pose_generation = self.pose_generation
 }
 
 ///|

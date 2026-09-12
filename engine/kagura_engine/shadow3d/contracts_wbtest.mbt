@@ -228,6 +228,29 @@ test "new_shadow_depth_command assigns stable resource_cache_key" {
 }
 
 ///|
+test "camera depth pass can delegate change detection to the backend" {
+  let mesh = @mesh3d.Mesh3D::cube(1.0)
+  let target = @gfx.new_image_handle(2, 512, 512)
+  let shader = @gfx.new_shader_handle(2, "camera_depth")
+  let identity = @math3d.Mat4::identity()
+  let casters = [ShadowCaster::new(mesh, identity)]
+  let cached = camera_depth_pass_commands(target, shader, casters, identity)
+  let direct = camera_depth_pass_commands(
+    target,
+    shader,
+    casters,
+    identity,
+    cache_resources=false,
+  )
+  assert_eq(direct.length(), cached.length())
+  assert_eq(direct[0].resource_cache_key, 0)
+  assert_true(cached[0].resource_cache_key != 0)
+  assert_eq(direct[0].vertex_data, cached[0].vertex_data)
+  assert_eq(direct[0].indices, cached[0].indices)
+  assert_eq(direct[0].uniform_dwords, cached[0].uniform_dwords)
+}
+
+///|
 test "new_camera_depth_command assigns stable resource_cache_key" {
   let mesh = @mesh3d.Mesh3D::cube(1.0)
   let depth_target = @gfx.new_image_handle(2, 512, 512)

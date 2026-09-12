@@ -99,9 +99,16 @@ export function unregisterGeometry(gpu, id) {
 
 /** Convenience registration for meshes whose source arrays never change. */
 export function registerStaticGeometry(gpu, vertices, indices) {
-  const registered = gpu._registeredGeometry?.get(vertices)?.get(indices);
+  const pairs = gpu._registeredGeometry ??= new WeakMap();
+  let byIndex = pairs.get(vertices);
+  const registered = byIndex?.get(indices);
   if (registered) return registered.snapshot;
-  return registerGeometry(gpu, Symbol("static geometry"), 0, vertices, indices);
+  if (!byIndex) pairs.set(vertices, byIndex = new WeakMap());
+  const snapshot = {vertexData:new Float32Array(vertices), indices:new Uint32Array(indices), immutableGeometry:true, sharedGeometry:true};
+  // Implicit registrations have no external ID to unregister. Weak ownership
+  // lets replaced terrain chunks/models go away with their source arrays.
+  byIndex.set(indices, {id:Symbol("static geometry"), snapshot});
+  return snapshot;
 }
 
 /** Opt-in adapter for the Standard/depth WGSL entry-point contract. Uniforms

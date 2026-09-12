@@ -11,9 +11,35 @@ import {
 // Values
 pub fn append_box_segment(Array[Double], Array[Int], Array[Int], Array[Double], @ref.Ref[Int], Double, Double, Double, Double, Double, Double, Int, Int) -> Unit
 
+pub fn build_biped_base(BipedProportions) -> BipedBase
+
+pub fn build_biped_skeleton(BipedProportions) -> @skeleton3d.Skeleton
+
+pub fn default_biped_proportions() -> BipedProportions
+
 // Errors
 
 // Types and methods
+pub struct BipedBase {
+  skeleton : @skeleton3d.Skeleton
+  head : RigidGeometry
+  torso : RigidGeometry
+  arms : RigidGeometry
+  legs : RigidGeometry
+}
+
+pub(all) struct BipedProportions {
+  hip_height : Double
+  knee_height : Double
+  shoulder_height : Double
+  shoulder_width : Double
+  head_height : Double
+  head_width : Double
+  head_depth : Double
+  torso_width : Double
+  limb_radius : Double
+}
+
 pub struct RigidGeometry {
   vertices : Array[Double]
   indices : Array[Int]
@@ -26,6 +52,7 @@ pub fn RigidGeometry::build_skin(Self) -> @skeleton3d.SkinData
 pub fn RigidGeometry::loft(Self, Double, Double, Array[(Double, Double, Double)], Int, Int) -> Unit
 pub fn RigidGeometry::new() -> Self
 pub fn RigidGeometry::quad(Self, @math3d.Vec3, @math3d.Vec3, @math3d.Vec3, @math3d.Vec3, Int) -> Unit
+pub fn RigidGeometry::segment(Self, @math3d.Vec3, @math3d.Vec3, Double, Double, Int, Int) -> Unit
 pub fn RigidGeometry::triangle(Self, @math3d.Vec3, @math3d.Vec3, @math3d.Vec3, Int) -> Unit
 
 // Type aliases

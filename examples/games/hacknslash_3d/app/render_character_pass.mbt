@@ -91,23 +91,19 @@ fn GameState::rebuild_enemy_render_buckets(
         dungeon.height_map[row * dungeon_width + col]
       }
       let color = if enemy.damage_timer > 0 {
-        color_player_hurt
+        @math3d.Vec4::new(1.8, 1.35, 1.35, 1.0)
       } else {
-        match enemy.kind {
-          @game.Fast | @game.Teleporter => color_enemy_fast
-          @game.Exploder => @math3d.Vec4::new(1.0, 0.4, 0.1, 1.0) // orange
-          @game.Tank | @game.Berserker => color_enemy_tank
-          @game.Ranged | @game.Summoner => color_enemy_ranged
-          @game.Caster => @math3d.Vec4::new(0.6, 0.2, 0.8, 1.0) // purple
-          @game.Swarm => @math3d.Vec4::new(0.5, 0.5, 0.3, 1.0) // pale
-          @game.Boss => color_enemy_boss
-          @game.Basic => color_enemy_basic
-        }
+        @math3d.Vec4::new(1.0, 1.0, 1.0, 1.0)
       }
       let dx = self.world.player.x - enemy.x
       let dy = self.world.player.y - enemy.y
-      // Match the hunter's new proportions while keeping feet on the terrain.
-      let scale = if self.world.hunting_grounds { 2.2 } else { 1.0 }
+      // The new models are authored at hunter scale, with feet at ground height.
+      let scale = match enemy.kind {
+        @game.Tank | @game.Berserker => 1.18
+        @game.Boss => 1.65
+        @game.Swarm => 0.78
+        _ => 1.0
+      }
       let model = enemy_facing_model_matrix(ex, ey, ez, dx, dy, scale~)
       match enemy.kind {
         @game.Fast | @game.Exploder | @game.Teleporter => {
@@ -209,74 +205,82 @@ fn GameState::push_enemy_render_bucket_groups_with_view_projection(
   cmds : Array[@gfx.DrawTrianglesCommand],
 ) -> Unit {
   fn push_enemy_group(
-    kind : @game.EnemyKind,
     mesh_data : EnemyMeshData,
     matrices : Array[@math3d.Mat4],
     colors : Array[@math3d.Vec4],
   ) -> Unit {
-    match @scene3d.uniform_instance_color(colors) {
-      Some(_) => {
-        let skinned_mesh = self.enemy_models.get_skinned_mesh(kind)
-        @scene3d.push_instanced_mesh_gpu_commands_with_color_optimization_and_view_projection(
-          skinned_mesh,
-          matrices,
-          colors,
-          view_projection,
-          self.lighting,
-          dst,
-          self.shader3d_colored,
-          self.shader3d_instanced,
-          self.shader3d_instanced_monochrome,
-          screen_w,
-          screen_h,
-          cmds,
+    if matrices.is_empty() {
+      return
+    }
+    // Skin once per material/pose, then instance the entire crowd in one draw.
+    self.enemy_models.prepare_materials(mesh_data)
+    for part in mesh_data.parts {
+      let part_colors = colors.map(fn(tint) {
+        @math3d.Vec4::new(
+          part.color.x * tint.x,
+          part.color.y * tint.y,
+          part.color.z * tint.z,
+          part.color.w,
         )
+      })
+      match @scene3d.uniform_instance_color(part_colors) {
+        Some(_) =>
+          @scene3d.push_instanced_mesh_gpu_commands_with_color_optimization_and_view_projection(
+            part.skinned_mesh,
+            matrices,
+            part_colors,
+            view_projection,
+            self.lighting,
+            dst,
+            self.shader3d_colored,
+            self.shader3d_instanced,
+            self.shader3d_instanced_monochrome,
+            screen_w,
+            screen_h,
+            cmds,
+          )
+        None =>
+          @scene3d.push_skinned_mesh_gpu_commands_with_color_optimization_and_view_projection(
+            part.mesh,
+            matrices,
+            part_colors,
+            part.packed,
+            enemy_skinning,
+            view_projection,
+            self.lighting,
+            dst,
+            self.shader3d_skinned,
+            self.shader3d_skinned_instanced,
+            self.shader3d_skinned_instanced_monochrome,
+            screen_w,
+            screen_h,
+            cmds,
+          )
       }
-      None =>
-        @scene3d.push_skinned_mesh_gpu_commands_with_color_optimization_and_view_projection(
-          mesh_data.bind_mesh,
-          matrices,
-          colors,
-          mesh_data.packed_vertex_data,
-          enemy_skinning,
-          view_projection,
-          self.lighting,
-          dst,
-          self.shader3d_skinned,
-          self.shader3d_skinned_instanced,
-          self.shader3d_skinned_instanced_monochrome,
-          screen_w,
-          screen_h,
-          cmds,
-        )
     }
   }
+
   push_enemy_group(
-    @game.Basic,
     self.enemy_models.basic,
     buckets.basic_matrices,
     buckets.basic_colors,
   )
   push_enemy_group(
-    @game.Fast,
     self.enemy_models.fast,
     buckets.fast_matrices,
     buckets.fast_colors,
   )
   push_enemy_group(
-    @game.Tank,
     self.enemy_models.tank,
     buckets.tank_matrices,
     buckets.tank_colors,
   )
   push_enemy_group(
-    @game.Ranged,
     self.enemy_models.ranged,
     buckets.ranged_matrices,
     buckets.ranged_colors,
   )
   push_enemy_group(
-    @game.Boss,
     self.enemy_models.boss,
     buckets.boss_matrices,
     buckets.boss_colors,
@@ -328,6 +332,7 @@ fn GameState::push_player_character_commands_with_view_projection(
     @math3d.Vec3::one(),
   )
   for part in self.character.parts {
+    @web_hooks.register_static_geometry(part.packed, part.mesh.indices)
     let color = if self.world.player.damage_timer > 0 {
       color_player_hurt
     } else {

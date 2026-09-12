@@ -296,7 +296,12 @@ fn GameState::draw_playing(
   if !gpu_capture {
     // === PostFX pipeline: camera depth → SSAO → bloom → tonemap → FXAA ===
     let depth_casters : Array[@shadow3d.ShadowCaster] = []
-    if visible_dungeon_cache.all_mesh.indices.length() > 0 {
+    if self.pipeline.config.ssao_config.enabled &&
+      visible_dungeon_cache.all_mesh.indices.length() > 0 {
+      @web_hooks.register_static_geometry(
+        visible_dungeon_cache.all_mesh.vertex_data,
+        visible_dungeon_cache.all_mesh.indices,
+      )
       depth_casters.push(
         @shadow3d.ShadowCaster::new(visible_dungeon_cache.all_mesh, identity),
       )
@@ -308,6 +313,7 @@ fn GameState::draw_playing(
       ctx.screen_w,
       ctx.screen_h,
       hit_flash=self.world.screen_flash,
+      cache_resources=!hunter_web_enabled(),
     )
     for cmd in postfx_cmds {
       cmds.push(cmd)

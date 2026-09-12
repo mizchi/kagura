@@ -121,20 +121,23 @@ pub fn RenderPipeline3D::compose_postfx(
   screen_w : Int,
   screen_h : Int,
   hit_flash? : Double = 0.0,
+  cache_resources? : Bool = true,
 ) -> Array[@gfx.DrawTrianglesCommand] {
   let cmds : Array[@gfx.DrawTrianglesCommand] = []
-  // Camera depth pass
-  let depth_cmds = @shadow3d.camera_depth_pass_commands(
-    self.camera_depth_target,
-    self.camera_depth_shader,
-    depth_casters,
-    view_projection,
-  )
-  for cmd in depth_cmds {
-    cmds.push(cmd)
-  }
   // SSAO (optional)
   let bloom_input_id = if self.config.ssao_config.enabled {
+    // SSAO is the only consumer of camera depth. Avoid building commands,
+    // hashing geometry and drawing a full extra scene when it is disabled.
+    let depth_cmds = @shadow3d.camera_depth_pass_commands(
+      self.camera_depth_target,
+      self.camera_depth_shader,
+      depth_casters,
+      view_projection,
+      cache_resources~,
+    )
+    for cmd in depth_cmds {
+      cmds.push(cmd)
+    }
     cmds.push(
       @postfx.new_ssao_command(
         self.ssao_target,

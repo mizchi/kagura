@@ -8,7 +8,26 @@ import {
   setRenderTargetFormat,
   snapshotDrawGeometry,
   registerGeometry,
+  registerStaticGeometry,
 } from "./kagura-gfx.js";
+
+test("static geometry registration skips element reads on reuse and does not retain discarded meshes", () => {
+  const gpu = {};
+  let reads = 0;
+  const vertices = [0, 1, 2], indices = [0, 1, 2];
+  Object.defineProperty(vertices, 0, {get() { reads++; return 0; }});
+  const first = registerStaticGeometry(gpu, vertices, indices);
+  reads = 0;
+  for (let frame = 0; frame < 100; frame++) {
+    assert.equal(registerStaticGeometry(gpu, vertices, indices), first);
+    assert.equal(snapshotDrawGeometry(gpu, vertices, indices), first);
+  }
+  assert.equal(reads, 0);
+  // Visible terrain is replaced as the camera changes chunks; only weak keys
+  // may own these implicit registrations. Named revisions have a separate map.
+  assert.equal(gpu._geometryRegistry?.size ?? 0, 0);
+  assert.notEqual(registerStaticGeometry(gpu, [3, 4, 5], indices), first);
+});
 
 test("geometry snapshots reuse unchanged data and preserve queued draws across in-place edits", () => {
   const gpu = {};

@@ -122,6 +122,12 @@ fn GameState::push_dungeon_chunk_commands(
   cmds : Array[@gfx.DrawTrianglesCommand],
 ) -> Unit {
   let identity = @math3d.Mat4::identity()
+  for group in visible_groups {
+    @web_hooks.register_static_geometry(
+      group.mesh.vertex_data,
+      group.mesh.indices,
+    )
+  }
   if self.world.hunting_grounds && self.world.authored_scene is None {
     self.push_hunting_ground_commands(
       visible_groups, view_projection, dst, cmds,
@@ -132,6 +138,10 @@ fn GameState::push_dungeon_chunk_commands(
   match shadow_state {
     Some(shadow) => {
       if visible_all_mesh.indices.length() > 0 {
+        @web_hooks.register_static_geometry(
+          visible_all_mesh.vertex_data,
+          visible_all_mesh.indices,
+        )
         cmds.push(
           @shadow3d.new_shadow_depth_command(
             self.shadow_map,
@@ -139,6 +149,7 @@ fn GameState::push_dungeon_chunk_commands(
             visible_all_mesh,
             identity,
             shadow.light_vp,
+            cache_resources=!hunter_web_enabled(),
           ),
         )
       }

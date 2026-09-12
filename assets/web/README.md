@@ -95,3 +95,37 @@ let skin = shape.build_skin()
 HTMLにはゲームのmodule scriptより先に `renderWebRuntimeImportMap(libPrefix)` の結果を置きます。
 これで `@kagura-web/` が開発時の `./assets/web/`、配布時の `../lib/` などに解決されます。
 固定のlocalhostパスに依存しません。表示・撮影の詳細は [PRESENTATION.md](./PRESENTATION.md) を参照。
+
+## 汎用の二足歩行素体
+
+```moonbit
+let proportions = @procedural3d.default_biped_proportions()
+let base = @procedural3d.build_biped_base(proportions)
+let head = base.head.build_mesh()
+let head_skin = base.head.build_skin()
+let skeleton = base.skeleton
+```
+
+`BipedBase` は無彩色の頭・胴・腕・脚とスケルトンを返す。それぞれの `RigidGeometry` に
+部品を追加したり、胴を肋骨などへ置き換えたりして外見を作る。`BipedProportions` で
+腰・膝・肩の高さ、肩幅、頭の寸法、胴幅、手足の太さを指定できる。
+足元がY=0、前が+Z、デフォルトの全高は約1.2m。寸法を変えたモデルは対応する
+`base.skeleton` と組み合わせる。共通スケルトンで一括描画する派生モデルは関節位置を揃える。
+
+ボーン順序は固定：root(0)、torso(1)、head(2)、左上腕/前腕(3/4)、右上腕/前腕(5/6)、
+左腿/すね(7/8)、右腿/すね(9/10)、tail(11)。武器と盾は前腕、耳と顔は頭、尾はtailへ割り当てる。
+バインド姿勢とアニメーションの状態は別に管理し、アニメーション中に元の形状を変更しない。
+任意の2点間の手足・尾・棒は `RigidGeometry::segment()` で生成できる。
+
+## 静的メッシュの登録
+
+MoonBit JSでは地形やバインド姿勢の描画前に
+`@web_hooks.register_static_geometry(vertices, indices)` を呼ぶ。
+同じ配列の組は定数時間で再利用し、描画パス間でもGPUバッファを共有する。
+登録した形状を変更するときは配列を置き換える。暗黙の登録は弱参照で管理し、
+不要になった地形チャンクを保持し続けない。他ターゲットでは何もしない。
+可変メッシュは従来どおり値を比較してスナップショットを取り、送信待ちの描画内容を保護する。
+
+カメラ深度パスはSSAOが使う場合だけ生成する。バックエンド自身が変更を検出する場合、
+`compose_postfx` とカメラ深度の生成関数に `cache_resources=false` を指定して全頂点のハッシュを省ける。
+省略時は従来のキャッシュキーを生成する。

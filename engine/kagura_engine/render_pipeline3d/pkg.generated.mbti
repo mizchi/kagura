@@ -37,7 +37,7 @@ pub struct RenderPipeline3D {
   camera_depth_shader : @gfx.ShaderHandle
   mut config : PostFXConfig
 }
-pub fn RenderPipeline3D::compose_postfx(Self, @gfx.ImageHandle, Array[@shadow3d.ShadowCaster], @math3d.Mat4, Int, Int, hit_flash? : Double) -> Array[@gfx.DrawTrianglesCommand]
+pub fn RenderPipeline3D::compose_postfx(Self, @gfx.ImageHandle, Array[@shadow3d.ShadowCaster], @math3d.Mat4, Int, Int, hit_flash? : Double, cache_resources? : Bool) -> Array[@gfx.DrawTrianglesCommand]
 pub fn RenderPipeline3D::new(Int, Int, Int, PostFXConfig) -> Self
 pub fn RenderPipeline3D::set_fxaa_enabled(Self, Bool) -> Unit
 

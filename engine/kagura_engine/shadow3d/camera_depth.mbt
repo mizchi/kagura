@@ -78,11 +78,13 @@ pub fn camera_depth_uniform_dwords(camera_vp : @math3d.Mat4) -> Array[Int] {
 
 ///|
 /// Create a DrawTrianglesCommand for camera depth pass.
+/// Disable cache_resources when the backend detects buffer changes itself.
 pub fn new_camera_depth_command(
   depth_target : @gfx.ImageHandle,
   shader : @gfx.ShaderHandle,
   mesh : @mesh3d.Mesh3D,
   camera_vp : @math3d.Mat4,
+  cache_resources? : Bool = true,
 ) -> @gfx.DrawTrianglesCommand {
   let uniform_dwords = camera_depth_uniform_dwords(camera_vp)
   let dst_region = @gfx.new_dst_region(
@@ -104,9 +106,13 @@ pub fn new_camera_depth_command(
     mesh.indices,
     [],
     uniform_dwords,
-    resource_cache_key=camera_depth_resource_cache_key(
-      depth_target, shader, mesh, uniform_dwords,
-    ),
+    resource_cache_key=if cache_resources {
+      camera_depth_resource_cache_key(
+        depth_target, shader, mesh, uniform_dwords,
+      )
+    } else {
+      0
+    },
   )
 }
 
@@ -119,12 +125,19 @@ pub fn camera_depth_pass_commands(
   depth_shader : @gfx.ShaderHandle,
   casters : Array[ShadowCaster],
   camera_vp : @math3d.Mat4,
+  cache_resources? : Bool = true,
 ) -> Array[@gfx.DrawTrianglesCommand] {
   let commands : Array[@gfx.DrawTrianglesCommand] = []
   for caster in casters {
     let mvp = camera_vp.multiply(caster.model_matrix)
     commands.push(
-      new_camera_depth_command(depth_target, depth_shader, caster.mesh, mvp),
+      new_camera_depth_command(
+        depth_target,
+        depth_shader,
+        caster.mesh,
+        mvp,
+        cache_resources~,
+      ),
     )
   }
   commands

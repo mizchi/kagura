@@ -17,6 +17,8 @@ supported_targets = "js+native+wasm+wasm-gc+llvm"
 
 options(
   targets: {
+    "geometry_js.mbt": [ "js" ],
+    "geometry_other.mbt": [ "native", "wasm", "wasm-gc", "llvm" ],
     "hooks_js.mbt": [ "js" ],
     "hooks_llvm.mbt": [ "llvm" ],
     "hooks_stub.mbt": [ "native" ],

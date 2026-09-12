@@ -528,8 +528,7 @@ test "draw_playing skips ssao and feeds scene target into bloom composite by def
     None => panic()
   }
   assert_eq(ssao_idx, None)
-  // Depth pass always runs now
-  assert_true(depth_idx is Some(_))
+  assert_eq(depth_idx, None)
 
   assert_true(threshold_idx > 0)
 }
@@ -926,7 +925,7 @@ test "push_enemy_character_commands emits skinned commands for visible enemies" 
 }
 
 ///|
-test "push_enemy_character_commands keeps stress enemies batched by kind" {
+test "push_enemy_character_commands keeps stress enemies batched by kind and material" {
   let state = GameState::new(seed=42)
   state.world.mode = @game.Playing
   let ctx = test_engine_context()
@@ -954,7 +953,19 @@ test "push_enemy_character_commands keeps stress enemies batched by kind" {
     cmd.shader.id == state.shader3d_skinned_instanced_monochrome.id ||
     cmd.shader.id == state.shader3d_instanced_monochrome.id
   })
-  assert_true(enemy_cmd_count <= 5)
+  let mut material_batches = 0
+  for
+    model in [
+      state.enemy_models.basic,
+      state.enemy_models.fast,
+      state.enemy_models.tank,
+      state.enemy_models.ranged,
+      state.enemy_models.boss,
+    ] {
+    material_batches += model.parts.length()
+  }
+  assert_true(enemy_cmd_count <= material_batches)
+  assert_true(enemy_cmd_count < 64)
   assert_true(
     count_matching_commands(commands, fn(cmd) {
       cmd.shader.id == state.shader3d_skinned_instanced.id ||

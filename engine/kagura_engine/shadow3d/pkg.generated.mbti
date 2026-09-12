@@ -9,7 +9,7 @@ import {
 }
 
 // Values
-pub fn camera_depth_pass_commands(@gfx.ImageHandle, @gfx.ShaderHandle, Array[ShadowCaster], @math3d.Mat4) -> Array[@gfx.DrawTrianglesCommand]
+pub fn camera_depth_pass_commands(@gfx.ImageHandle, @gfx.ShaderHandle, Array[ShadowCaster], @math3d.Mat4, cache_resources? : Bool) -> Array[@gfx.DrawTrianglesCommand]
 
 pub fn camera_depth_uniform_dwords(@math3d.Mat4) -> Array[Int]
 
@@ -19,7 +19,7 @@ pub fn light_space_matrix(@math3d.Vec3, @math3d.Vec3, Double, Double, Double, Do
 
 pub fn light_view_matrix(@math3d.Vec3, @math3d.Vec3, Double) -> @math3d.Mat4
 
-pub fn new_camera_depth_command(@gfx.ImageHandle, @gfx.ShaderHandle, @mesh3d.Mesh3D, @math3d.Mat4) -> @gfx.DrawTrianglesCommand
+pub fn new_camera_depth_command(@gfx.ImageHandle, @gfx.ShaderHandle, @mesh3d.Mesh3D, @math3d.Mat4, cache_resources? : Bool) -> @gfx.DrawTrianglesCommand
 
 pub fn new_shadow_clear_command(@gfx.ImageHandle, @gfx.ShaderHandle) -> @gfx.DrawTrianglesCommand
 

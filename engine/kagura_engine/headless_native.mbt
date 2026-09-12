@@ -12,6 +12,27 @@ let native_capture : Ref[NativeCapture??] = Ref(None)
 let native_capture_context : Ref[String] = Ref("null")
 
 ///|
+let gpu_capture_for_test : Ref[Bool] = Ref(false)
+
+///|
+/// Playing 3D in this game draws into `pipeline.scene_target` (handle ids 300+),
+/// which GPU capture never registered. When capturing, draw into `ctx.dst`.
+pub fn is_native_gpu_capture() -> Bool {
+  if gpu_capture_for_test.val {
+    return true
+  }
+  match load_native_capture() {
+    Some({ config, .. }) => config.backend == Gpu
+    None => false
+  }
+}
+
+///|
+pub fn set_gpu_capture_for_test(enabled : Bool) -> Unit {
+  gpu_capture_for_test.val = enabled
+}
+
+///|
 fn load_native_capture() -> NativeCapture? {
   if native_capture.val is Some(value) {
     return value
@@ -230,10 +251,30 @@ fn run_native_gpu_capture(
     }
   }
   let cmds = draw(ctx)
+  let scene_cmds : Array[@gfx.DrawTrianglesCommand] = []
+  let overlay_cmds : Array[@gfx.DrawTrianglesCommand] = []
+  for cmd in cmds {
+    if cmd.vertex_stride_hint >= 8 {
+      scene_cmds.push(cmd)
+    } else {
+      overlay_cmds.push(cmd)
+    }
+  }
   let mut rgba : Array[Int]? = None
   for _ in 0..<2 {
-    render_commands(graphics, cmds) catch {
-      err => abort("Native GPU capture failed to render: " + err.to_string())
+    if scene_cmds.length() > 0 {
+      render_commands(graphics, scene_cmds) catch {
+        err => abort("Native GPU capture failed to render: " + err.to_string())
+      }
+      if overlay_cmds.length() > 0 {
+        render_commands(graphics, overlay_cmds, clear_enabled=false) catch {
+          err => abort("Native GPU capture failed to render overlay: " + err.to_string())
+        }
+      }
+    } else {
+      render_commands(graphics, overlay_cmds) catch {
+        err => abort("Native GPU capture failed to render: " + err.to_string())
+      }
     }
     rgba = graphics.read_pixels(0, 0, request.width, request.height) catch {
       err => abort("Native GPU capture readback failed: " + err.to_string())

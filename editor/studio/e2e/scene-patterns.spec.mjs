@@ -6,10 +6,10 @@ for (const game of ['arena3d', 'fps_demo'])
     page.on('pageerror', (e) => errors.push(e.message));
     await page.goto('/');
     const scenes = page.getByLabel('Project scene', { exact: true });
-    await expect(scenes).toBeVisible();
-    await expect(scenes).toBeDisabled();
+    await expect(scenes).toBeHidden();
     await page.getByLabel('Examples', { exact: true }).selectOption(game);
     await expect(page.getByRole('status')).toContainText('Opened project');
+    await expect(scenes).toBeVisible();
     await expect(scenes).toHaveValue('training');
     const brand = await page.locator('.brand').boundingBox(), selector = await scenes.boundingBox();
     expect(selector.x).toBeGreaterThan(brand.x + brand.width);

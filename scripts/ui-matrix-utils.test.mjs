@@ -8,6 +8,19 @@ test('all declared states run at each distinct aspect ratio', () => {
   assert.equal(new Set(cells.map(c => c.name)).size, 8);
   assert.deepEqual(cells.find(c => c.state === 'focus').inputs, [{}, { keys: [9] }]);
 });
+test('a game that does not reflow can declare its native viewport only', () => {
+  const cells = matrixCells({
+    version: 1,
+    viewports: [{ name: 'native', width: 320, height: 240 }],
+    states: {
+      title: { frames: 1, expectedState: 'title', expectedFocus: null },
+      playing: { frames: 2, inputs: [{}, { keys: [32] }], expectedState: 'playing' },
+    },
+  });
+  assert.deepEqual(cells.map(c => c.name), ['title.native', 'playing.native']);
+  assert.equal(cells[0].width, 320);
+  assert.equal(cells[1].inputs[1].keys[0], 32);
+});
 test('empty matrices, duplicate viewports and unsafe artifact names are rejected', () => {
   for (const bad of [{ version: 1, states: {} }, { ...manifest, states: { '../oops': { frames: 1 } } },
     { ...manifest, viewports: [{ name: 'a', width: 10, height: 10 }, { name: 'a', width: 20, height: 20 }] },

@@ -1,6 +1,7 @@
 import { createPluginHost } from '../plugins/host.mjs';
 import { pluginPane } from './plugin-pane.mjs';
 import { FORM_KIND, validId, validateForm, validValue, exampleForm } from './form-contract.mjs';
+import { isWorkspacePane, paneTabRank } from './studio-parts.mjs';
 function check(condition, message) { if (!condition) throw new Error(message); }
 
 export function createPaneHost(host, editor, controls) {
@@ -29,14 +30,18 @@ export function createPaneHost(host, editor, controls) {
     for (const cleanup of current.cleanups) { try { cleanup(); } catch (error) { console.error('Pane cleanup failed', error); } }
     content.replaceChildren();
   }
+  function tabIds() {
+    return [...registry.keys()].sort((a, b) => paneTabRank(a) - paneTabRank(b));
+  }
   function drawTabs() {
     tabs.replaceChildren();
-    for (const [id, definition] of registry) {
+    for (const id of tabIds()) {
+      const definition = registry.get(id);
       const tab = button(definition.title, () => open(id));
       tab.id = 'pane-tab-' + id; tab.setAttribute('role', 'tab'); tab.setAttribute('aria-selected', String(id === active));
       tab.tabIndex = id === active ? 0 : -1;
       tab.addEventListener('keydown', event => {
-        const ids = [...registry.keys()], index = ids.indexOf(id);
+        const ids = tabIds(), index = ids.indexOf(id);
         const next = event.key === 'ArrowRight' ? ids[(index + 1) % ids.length] : event.key === 'ArrowLeft' ? ids[(index + ids.length - 1) % ids.length] : event.key === 'Home' ? ids[0] : event.key === 'End' ? ids.at(-1) : undefined;
         if (next) { event.preventDefault(); open(next); document.getElementById('pane-tab-' + next)?.focus(); }
       });
@@ -45,6 +50,9 @@ export function createPaneHost(host, editor, controls) {
     consolePage.hidden = active !== 'console'; content.hidden = active === 'console';
     (active === 'console' ? consolePage : content).setAttribute('aria-labelledby', 'pane-tab-' + active);
     closeButton.disabled = active === 'console';
+    const workspace = isWorkspacePane(active) || registry.get(active)?.workspace === true;
+    actions.hidden = workspace;
+    host.classList.toggle('workspace-part', workspace);
   }
   function open(id) {
     check(!disposed && registry.has(id), 'Unknown pane: ' + id);

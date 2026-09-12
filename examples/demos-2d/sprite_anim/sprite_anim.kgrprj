@@ -18,7 +18,8 @@
     "kind": "script",
     "apiVersion": 1,
     "targets": [
-      "js"
+      "js",
+      "native"
     ],
     "entry": "editor/dist/runtime.js"
   },

@@ -2,8 +2,8 @@
 pub struct Camera2D {
   mut x : Double
   mut y : Double
-  screen_w : Double
-  screen_h : Double
+  mut screen_w : Double
+  mut screen_h : Double
   world_w : Double
   world_h : Double
 }
@@ -26,6 +26,16 @@ pub fn Camera2D::world_to_screen_x(self : Camera2D, wx : Double) -> Double {
 ///|
 pub fn Camera2D::world_to_screen_y(self : Camera2D, wy : Double) -> Double {
   wy - self.y
+}
+
+///|
+pub fn Camera2D::set_screen(
+  self : Camera2D,
+  screen_w : Double,
+  screen_h : Double,
+) -> Unit {
+  self.screen_w = screen_w
+  self.screen_h = screen_h
 }
 
 ///|

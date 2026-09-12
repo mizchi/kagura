@@ -1,7 +1,7 @@
 ///|
 fn Game::view(self : Game) -> @scene.SceneNode {
-  let sw = screen_w.to_double()
-  let sh = screen_h.to_double()
+  let sw = self.screen_w.to_double()
+  let sh = self.screen_h.to_double()
   let ground_y = self.ground.y
   @scene.group(key="world", children=[
     // Sky
@@ -63,6 +63,7 @@ fn Game::view(self : Game) -> @scene.SceneNode {
         y=20.0,
         key="score",
         content=self.score.get().to_string(),
+        color=0x1A2A4A,
       ),
       // Title "TAP" (blinking)
       @scene.show(
@@ -76,6 +77,7 @@ fn Game::view(self : Game) -> @scene.SceneNode {
             key="title",
             content="TAP",
             scale=2.0,
+            color=0x1A2A4A,
           )
         },
       ),
@@ -87,8 +89,7 @@ fn Game::view(self : Game) -> @scene.SceneNode {
             y=sh / 2.0 - 20.0,
             w=100.0,
             h=40.0,
-            fill=0x000000,
-            alpha=0.5,
+            fill=0x1A1A2E,
           ),
           @scene.label(
             x=sw / 2.0,
@@ -96,6 +97,7 @@ fn Game::view(self : Game) -> @scene.SceneNode {
             key="game-over",
             content="END",
             scale=2.0,
+            color=0xFFFFFF,
           ),
         ])
       }),

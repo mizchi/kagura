@@ -1,5 +1,5 @@
 import type { PanePlugin, PluginCallOptions, PluginReply, PublishedPaneTool, PluginSDK } from './plugins.d.ts';
-import type { RuntimeDebugAPI, SceneHierarchyNode } from './runtime.d.ts';
+import type { RuntimeDebugAPI, SceneGraph, SceneHierarchyNode } from './runtime.d.ts';
 import type { BrowserStorage } from './storage.d.ts';
 /** Kagura Studio v1. Runtime validation is owned by core, not this declaration. */
 export type Vec3 = [number, number, number];
@@ -156,6 +156,15 @@ export interface BrowserStudioAPI extends StudioAPI {
   assets: ModelAssetsAPI;
   /** Throws when the current game does not expose a live debugger. */
   runtime: RuntimeDebugAPI & { hierarchy(): SceneHierarchyNode[] | undefined };
+  /** State-based hierarchy: project scenes, logical subjects, observed view. */
+  graph(): SceneGraph;
+  /** Switch the open project scene. No-op when the id is already active. */
+  selectScene(id: string): Promise<void>;
+  /** Generic scene-editor slots. Built-in 3D content is `default`; extensions adopt named views. */
+  workspace: {
+    list(): string[];
+    active(id: string): string;
+  };
   plugins: PluginSDK;
   storage: BrowserStorage;
   panes: PaneAPI;

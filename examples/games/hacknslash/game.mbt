@@ -180,6 +180,8 @@ struct GameState {
   mut attack_timer : Int
   mut screen_flash : Int
   mut floor_announce_timer : Int
+  mut view_w : Double
+  mut view_h : Double
 }
 
 // === Constructor ===
@@ -225,7 +227,16 @@ fn GameState::new(seed~ : Int) -> GameState {
     attack_timer: 0,
     screen_flash: 0,
     floor_announce_timer: 0,
+    view_w: screen_w.to_double(),
+    view_h: screen_h.to_double(),
   }
+}
+
+///|
+fn GameState::set_viewport(self : GameState, width : Int, height : Int) -> Unit {
+  self.view_w = width.to_double()
+  self.view_h = height.to_double()
+  self.camera.set_screen(self.view_w, self.view_h)
 }
 
 ///|
@@ -632,25 +643,44 @@ fn GameState::view(self : GameState) -> @scene.SceneNode {
     m if m == mode_playing => self.view_playing()
     m if m == mode_gameover => self.view_gameover()
     _ =>
-      @scene.rect(w=screen_w.to_double(), h=screen_h.to_double(), fill=0x000000)
+      @scene.rect(w=self.view_w, h=self.view_h, fill=0x000000)
+  }
+}
+
+///|
+fn GameState::as_gameover(self : GameState) -> Unit {
+  self.mode = mode_gameover
+}
+
+///|
+fn GameState::snapshot_state(self : GameState) -> String {
+  match self.mode {
+    m if m == mode_title => "title"
+    m if m == mode_playing => "playing"
+    m if m == mode_gameover => "gameover"
+    _ => "scene"
   }
 }
 
 ///|
 fn GameState::view_title(self : GameState) -> @scene.SceneNode {
+  let sw = self.view_w
+  let sh = self.view_h
   @scene.fragment([
-    @scene.rect(w=screen_w.to_double(), h=screen_h.to_double(), fill=0x1A1A2E),
+    @scene.rect(w=sw, h=sh, fill=0x1A1A2E),
     @scene.label(
-      x=screen_w.to_double() / 2.0,
-      y=screen_h.to_double() / 2.0 - 30.0,
+      key="title",
+      x=sw / 2.0,
+      y=sh / 2.0 - 30.0,
       content="HACK N SLASH",
       scale=2.0,
       color=0xFF4444,
     ),
     @scene.show(fn() { self.frame_count / 30 % 2 == 0 }, fn() {
       @scene.label(
-        x=screen_w.to_double() / 2.0,
-        y=screen_h.to_double() / 2.0 + 20.0,
+        key="prompt",
+        x=sw / 2.0,
+        y=sh / 2.0 + 20.0,
         content="PRESS SPACE",
         color=0xFFCC00,
       )
@@ -660,33 +690,40 @@ fn GameState::view_title(self : GameState) -> @scene.SceneNode {
 
 ///|
 fn GameState::view_gameover(self : GameState) -> @scene.SceneNode {
+  let sw = self.view_w
+  let sh = self.view_h
   @scene.fragment([
-    @scene.rect(w=screen_w.to_double(), h=screen_h.to_double(), fill=0x2E0000),
+    @scene.rect(w=sw, h=sh, fill=0x2E0000),
     @scene.label(
-      x=screen_w.to_double() / 2.0,
-      y=screen_h.to_double() / 2.0 - 30.0,
+      key="gameover",
+      x=sw / 2.0,
+      y=sh / 2.0 - 30.0,
       content="GAME OVER",
       color=0xFF0000,
       scale=2.0,
     ),
     @scene.label(
-      x=screen_w.to_double() / 2.0,
-      y=screen_h.to_double() / 2.0 + 5.0,
+      key="floor",
+      x=sw / 2.0,
+      y=sh / 2.0 + 5.0,
       content="FLOOR " + self.floor.to_string(),
       color=0xFFCC00,
     ),
     @scene.label(
-      x=screen_w.to_double() / 2.0,
-      y=screen_h.to_double() / 2.0 + 25.0,
+      key="score",
+      x=sw / 2.0,
+      y=sh / 2.0 + 25.0,
       content="SCORE " + self.score.to_string(),
+      color=0xFFFFFF,
       scale=1.5,
     ),
     @scene.show(fn() { self.frame_count / 30 % 2 == 0 }, fn() {
       @scene.label(
-        x=screen_w.to_double() / 2.0,
-        y=screen_h.to_double() / 2.0 + 55.0,
+        key="prompt",
+        x=sw / 2.0,
+        y=sh / 2.0 + 55.0,
         content="PRESS SPACE",
-        color=0x888888,
+        color=0xFFCC00,
       )
     }),
   ])
@@ -694,8 +731,8 @@ fn GameState::view_gameover(self : GameState) -> @scene.SceneNode {
 
 ///|
 fn GameState::view_playing(self : GameState) -> @scene.SceneNode {
-  let sw = screen_w.to_double()
-  let sh = screen_h.to_double()
+  let sw = self.view_w
+  let sh = self.view_h
   let view_left = self.camera.x
   let view_top = self.camera.y
   let px = self.player.x - view_left

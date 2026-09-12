@@ -87,6 +87,17 @@ ui_demo [default]: 640x480 after 3 tick(s), 980 triangles
 
 ## 2. snapshot を engine から出す
 
+### SceneGame（example 側の変更は不要）
+
+`@scene.run` / `@scene.run_game` は draw のたびに view tree からラベルを集めて
+snapshot を publish する。測り方は `append_dot_text` と同じ `dot_text_size`。
+キー付き `group` は path の祖先になる。keyed `rect` / `rect_outline` は描画矩形を
+hit box として出す（HP バー、End Turn）。ラベルのない world rect（パイプ、タイル）
+は出さない。`just render flappy_bird` が `.snapshot.json` を書くのはこの経路。
+
+`@ui` レイアウトや `@hud.HudContext` で描く画面は自動では出ない。ui_demo は前者、
+hacknslash_3d は後者で、どちらも example 側の adapter が `UISnapshot` を組む。
+
 ### JS ターゲット
 
 `@ui.publish_ui_snapshot` を毎フレーム呼ぶと `globalThis.__kaguraUISnapshot` に
@@ -271,6 +282,7 @@ selectors:
 ```sh
 just ui-theme-check output/frames/ui_demo/ui_demo.png
 just ui-theme-check output/frames/ui_demo/ui_demo.png examples/demos-2d/ui_demo/editor/theme.json
+just ui-matrix-gates --theme   # 各 example の editor/theme.json を *.standard セルに当てる
 ```
 
 スプライト / アイコンを UI スロットに入れる**前**に通す。browser 不要の純 PNG 演算。
@@ -505,6 +517,13 @@ kaguraの幾何・hit矩形ゲートを両方実行する。ゼロサイズは�
 
 既定のviewportは640×360、640×480、360×640、840×360。`viewports` 配列に
 `{"name":"small","width":320,"height":240}` の形式で指定すれば置き換えられる。
+HUD は `apply_viewport` で `capture_viewport` のサイズを受け取る。2D ゲームは
+既定の 4 viewport を使う。ワールドカメラは `Camera2D::set_screen` で追従する。
+
+CI の JS マトリクスは `just ui-matrix --all`（`scripts/ui-matrix-manifest.mjs`）。
+standard セルのあと `just ui-matrix-gates` が各 example の `editor/theme.json` と
+i18n ストレスを回す。i18n が gating なのは ui_demo だけ。scene の label は
+矩形が文字幅ぴったりなので DE 膨張は必ず溢れる。ゲーム側は advisory。
 各セルは独立したゲームインスタンスで再生する。UIデモは指定サイズで初期レイアウトを
 計算するため、同じ640×480の画像を引き伸ばしたものではない。
 
@@ -528,9 +547,18 @@ node scripts/ui-capture-native.integration.mjs
 
 `ui-capture` は `editor/verification.json` の状態とviewportを選び、native実行ファイルから
 PNGとUI snapshotを取得する。出力は `output/ui-capture/<example>/<state>.<viewport>/`。
-`ui-matrix --backend native` は同じ16セルに同じintegrityゲートをかけ、**JSと共通のbaseline**
+`ui-matrix --backend native` は同じセルに同じintegrityゲートをかけ、**JSと共通のbaseline**
 に差分ゼロを要求する。native専用の画像への貼り直しは許可しない。
-レポートは `output/ui-matrix-native/<example>/` に出る。macOS CIで継続検証する。
+`just ui-matrix --all --backend native` は `supported_targets` に native がある
+example だけ回す（hacknslash は js-only なので除外）。
+レポートは `output/ui-matrix-native/<example>/` に出る。macOS CIは `--all` で回す。
+
+3D は CPU ラスタライザが描かないので `just ui-matrix hacknslash_3d --backend gpu`。
+native wgpu の readback。ピクセル baseline は貼らない（機械で揺れる）。integrity と
+blank 拒否と snapshot state で見る。JS CI には入れない。playing は HUD を `ctx.dst`
+に載せる。3D ジオメトリは PostFX 用ハンドルがキャプチャデバイスに無いのでまだ黒。
+GPU エントリは `examples/games/hacknslash_3d/native/` で、ゲーム本体は
+`app/` library。`native_runtime_hooks` は js+native の main パッケージから import できない。
 
 各キャプチャは独立した子プロセスで実行する。一時ディレクトリ内の設定ファイルを
 `KAGURA_CAPTURE_CONFIG` で渡すので、ゲームのディレクトリにある既存の設定を書き換えない。
@@ -540,6 +568,8 @@ PNGとUI snapshotを取得する。出力は `output/ui-capture/<example>/<state
 
 他ゲームの接続は次の契約を使う。
 
+- `@scene.run` / `@scene.run_game` を使っている example はラベル snapshot が自動で出る。追加の adapter は不要。
+- `@ui` レイアウトや `@hud.HudContext` で描く画面は example 側で `UISnapshot` を組む（ui_demo / hacknslash_3d）。
 - 状態を構築する前に `@engine.capture_viewport(default_width, default_height)` を呼び、そのサイズでUIをレイアウトする。JS/native共通。
 - JSのsnapshot adapterは従来の `@ui.publish_ui_snapshot(snapshot)`。
 - nativeのsnapshot adapterは `@engine.publish_capture_context(snapshot.to_json())`。同じ更新・描画時点で呼ぶ。UIモジュールからengineへの依存は追加しない。
@@ -614,7 +644,7 @@ releaseへの検証用状態の指定が拒否されることも確認する。
 | 2D フレームの自動キャプチャ | **できる**（1.5）。native 経路 `just capture` は 3D と実 GPU 用 |
 | 3D フレームの browser 抜きキャプチャ | **できる**（`just capture <example> output/capture "--backend gpu"`）。`@engine.run` が wgpu readback する |
 | VRT の gating 化 | **2D は完了**（5.5、CI が `just frame-vrt` を回している）。3D と実 GPU 経路は [#8](https://github.com/mizchi/kagura/issues/8) のまま |
-| 状態 × 解像度マトリクス | **2D入力レシピの全走査を実装**（9）。JS/nativeで共通baselineを検査。MoonBit初期状態APIも実装済み（9.2、[#13](https://github.com/mizchi/kagura/issues/13)） |
-| i18n ストレス | **実装済み**（`just ui-i18n-stress`）。既定は DE 風の単語膨張。`--profiles all` で全角・RTL・絵文字・桁溢れと missing glyph |
+| 状態 × 解像度マトリクス | **2D入力レシピの全走査を実装**（9）。JS は `just ui-matrix --all`。native は js-only を除いて `--all --backend native`。MoonBit初期状態APIも実装済み（9.2、[#13](https://github.com/mizchi/kagura/issues/13)） |
+| i18n ストレス | **実装済み**（`just ui-i18n-stress` / `just ui-matrix-gates --i18n`）。既定は DE 風の単語膨張。scene label は矩形=文字幅なのでゲームは advisory。`--profiles all` で全角・RTL・絵文字・桁溢れと missing glyph |
 | 操作性ゲート（フォーカス到達性） | **実装済み**（7）。UIデモの実入力とピクセル変化をCIで検査。他ゲームにはfixtureの追加が必要 |
 | 状態遷移のflipbook | **実装済み**（8）。UIデモのfocus/hoverをCIで検査 |

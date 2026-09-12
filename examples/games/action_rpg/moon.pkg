@@ -9,6 +9,7 @@ import {
   "mizchi/geom/camera2d",
   "mizchi/renderer2d",
   "mizchi/kagura_core" @core,
+  "mizchi/kagura_engine" @engine,
   "mizchi/gfx",
   "mizchi/atlas",
   "mizchi/kagura_core/inpututil",
@@ -28,6 +29,10 @@ supported_targets = "js+native"
 pkgtype(kind: "executable")
 
 options(
+  targets: {
+    "verification_debug.mbt": [ "debug" ],
+    "verification_release.mbt": [ "release" ],
+  },
   link: {
     "native": {
       "cc": "${build.KAGURA_NATIVE_CC}",

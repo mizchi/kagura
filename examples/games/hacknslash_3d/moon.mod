@@ -10,6 +10,7 @@ import {
   "mizchi/font@0.7.3",
   "mizchi/kagura_effect_studio@0.1.0",
   "mizchi/web_runtime_hooks@0.1.0",
+  "mizchi/native_runtime_hooks@0.1.0",
   "mizchi/terrain@0.1.1",
   "mizchi/differentiable_ecs@0.2.1",
   "mizchi/parquet@0.2.1",

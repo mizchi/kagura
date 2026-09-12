@@ -38,6 +38,7 @@ code,textarea,.revision,.node-id{font-family:ui-monospace,SFMono-Regular,Consola
 .tree-node.selected{background:#3d3830;border-color:#6c5941;color:#f8c985}
 .node-icon{color:#b5c6d5;font-size:15px}
 .node-id{margin-left:auto;color:#8a97a6;font-size:9px}
+.tree-node.selected .node-id{color:#e8d3b0}
 .object-heading{display:flex;align-items:center;gap:12px;margin-bottom:20px}
 .object-heading code{display:block;font-size:10px;color:var(--muted);margin-top:4px}
 .object-icon{font-size:27px;border:1px solid #465260;border-radius:5px;padding:8px;color:var(--accent)}
@@ -108,16 +109,59 @@ canvas{display:block;width:100%;height:100%;outline-offset:-3px!important}
 .target-field input{width:95px;padding:5px}
 .transport code{overflow:hidden;text-overflow:ellipsis;max-width:70px;white-space:nowrap}
 
-.inspector.runtime-inspecting > :not(.runtime-inspector) { display: none !important; }
+.inspector:has(.plane-panel){display:flex;flex-direction:column}
+.inspector > .plane-panel{flex:1;min-height:0;overflow:auto}
+.part-tabs{display:flex;gap:4px;padding:6px 10px;border-bottom:1px solid var(--border);background:#242c36;position:sticky;top:0;z-index:2;flex-shrink:0}
+.part-tabs button{font-size:10px;padding:4px 8px;background:transparent;border-color:transparent}
+.part-tabs button[aria-selected=true]{background:#3a332a;color:#f4c78e;border-color:#665039}
+.workspace-slot{display:flex;flex-direction:column;min-height:0;overflow:auto}
+.slot-chrome:empty{display:none}
+.slot-chrome{flex-shrink:0}
+.slot-body,.slot-default,.slot-view{min-height:0}
+.inspector.part-inspector > .panel-heading,
+.inspector.part-debugger > .panel-heading,
+.inspector .slot-default > .panel-heading{display:none}
+.inspector.part-debugger .slot-default,
+.inspector.part-debugger .slot-view,
+.inspector.runtime-inspecting .slot-default,
+.inspector.runtime-inspecting .slot-view{display:none !important}
+.inspector.part-inspector .runtime-inspector{display:none}
 .runtime-inspector { padding: 12px; display: flex; flex-direction: column; gap: 8px; height: 100%; min-height: 0; box-sizing: border-box; overflow: auto; }
 .runtime-inspector h2, .runtime-inspector p { margin: 0; }
 .runtime-inspector p { font-size: 12px; }
 .runtime-inspector textarea { flex: 1; min-height: 220px; width: 100%; box-sizing: border-box; resize: vertical; font-family: monospace; }
 .runtime-inspector input { max-width: 100%; }
-.hierarchy.runtime-inspecting > :not(.runtime-hierarchy) { display: none !important; }
-.runtime-hierarchy { padding: 12px; overflow: auto; height: 100%; box-sizing: border-box; font-size: 12px; }
+.hierarchy.runtime-inspecting > .panel-body,
+.hierarchy.runtime-inspecting > .panel-note,
+.hierarchy.scene-graph > .panel-body,
+.hierarchy.scene-graph > .panel-note{display:none !important}
+.runtime-hierarchy { padding: 12px; overflow: auto; height: calc(100% - 39px); box-sizing: border-box; font-size: 12px; }
 .runtime-hierarchy h2 { font-size: 12px; margin: 0 0 10px; }
 .runtime-hierarchy details details, .runtime-hierarchy details p { margin: 5px 0 5px 12px; overflow-wrap: anywhere; }
+.runtime-hierarchy details.selected > summary{color:#f8c985}
+.graph-scene{display:flex;align-items:center;gap:8px;margin:0 0 10px;font-size:11px;color:#aebac8}
+.graph-scene select{width:auto;flex:1}
+.graph-subjects{display:flex;flex-direction:column;gap:4px;margin:0 0 12px}
+.graph-subject{width:100%;text-align:left;background:#293340;border-color:#404d5d;font-size:11px;padding:6px 8px}
+.graph-subject.selected{background:#3d3830;border-color:#6c5941;color:#f8c985}
+.studio-agent-pane{display:flex;flex-direction:column;min-height:0;height:100%;padding:8px 10px;gap:8px}
+.agent-status,.agent-empty{margin:0;font-size:10px;color:var(--muted)}
+.agent-log{flex:1;min-height:0;overflow:auto;padding:8px;background:#171d25;border:1px solid #3a4552;border-radius:3px;font-size:11px}
+.agent-line{margin:0 0 6px;white-space:pre-wrap}
+.agent-line-user{color:#f4c78e}
+.agent-line-assistant{color:#d9e0e8}
+.agent-line-tool{color:#8cafe6}
+.agent-line-error{color:#e9a19b}
+.agent-compose{display:flex;flex-direction:column;gap:6px;flex-shrink:0;margin:0}
+.agent-compose .primary{align-self:end}
+.pane-host.workspace-part .pane-actions{display:none}
+.runtime-json{margin-top:10px;border-top:1px solid var(--border);padding-top:8px}
+.runtime-json summary{cursor:pointer;font-size:11px;color:#aebac8;margin-bottom:8px}
+.hierarchy-scene-bar{display:flex;align-items:center;gap:8px;margin:0;padding:6px 14px;border-bottom:1px solid var(--border);font-size:11px;color:#aebac8;background:#242c36}
+.hierarchy-scene-bar select{width:auto;flex:1}
+.studio-terminal-pane{display:flex;flex-direction:column;min-height:0;height:100%;overflow:hidden;padding:8px 10px !important}
+.studio-terminal-pane .muted{flex-shrink:0;margin:0 0 6px}
+.studio-terminal{flex:1;min-height:160px;height:auto;background:#0f141a;overflow:hidden}
 .runtime-hierarchy summary { cursor: pointer; }
 
 .runtime-inspector [aria-label="Selected runtime subject"] form { display: flex; align-items: end; gap: 6px; margin: 8px 0; }

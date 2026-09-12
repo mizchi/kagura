@@ -147,6 +147,8 @@ just ui-i18n-stress output/ui-snapshot.json  # DE 風に文字列膨張 → over
 just ui-elements output/ui-snapshot.json   # vlmkit diff png --elements-json 用に変換
 just ui-asset-check <png>                  # スプライト/アイコンの入庫ゲート
 just ui-theme-check <png>                  # フレームパレット vs editor/theme.json
+just ui-matrix-gates                       # マトリクス standard セルの theme + i18n
+just ui-matrix hacknslash_3d "--backend gpu"  # 3D title HUD via native wgpu; not JS CI
 just ui-assets ui_demo                     # editor/assets.json の全素材
 just vlm-ui-review ui_demo "--dry-run"     # 決定的ゲート → その後だけ VLM
 just vlm-ui-review ui_demo "--matrix --dry-run"

@@ -182,6 +182,7 @@ fn GameState::draw(
     )
   }
   self.flush_text_atlas()
+  publish_ui_snapshot_frame(self)
   result
 }
 
@@ -201,7 +202,12 @@ fn GameState::draw_playing(
   )
   let lighting = self.lighting
   let cmds : Array[@gfx.DrawTrianglesCommand] = []
-  let rt = self.pipeline.scene_target
+  // GPU capture allocated `ctx.dst` on the live wgpu device. The PostFX
+  // ping-pong targets are bare handles (ids 300+) that were never registered,
+  // so drawing there and reading back yields a black frame. Capture skips
+  // PostFX and records the scene plus HUD onto dst.
+  let gpu_capture = @engine.is_native_gpu_capture()
+  let rt = if gpu_capture { ctx.dst } else { self.pipeline.scene_target }
   let identity = @math3d.Mat4::identity()
   let visible_dungeon_cache = self.get_visible_dungeon_mesh_cache_for_player()
   // === Pass 1-2: Dungeon shadow/depth + shaded geometry ===
@@ -256,23 +262,25 @@ fn GameState::draw_playing(
     ctx.screen_h,
     self.world.frame_count,
   )
-  // === PostFX pipeline: camera depth → SSAO → bloom → tonemap → FXAA ===
-  let depth_casters : Array[@shadow3d.ShadowCaster] = []
-  if visible_dungeon_cache.all_mesh.indices.length() > 0 {
-    depth_casters.push(
-      @shadow3d.ShadowCaster::new(visible_dungeon_cache.all_mesh, identity),
+  if !gpu_capture {
+    // === PostFX pipeline: camera depth → SSAO → bloom → tonemap → FXAA ===
+    let depth_casters : Array[@shadow3d.ShadowCaster] = []
+    if visible_dungeon_cache.all_mesh.indices.length() > 0 {
+      depth_casters.push(
+        @shadow3d.ShadowCaster::new(visible_dungeon_cache.all_mesh, identity),
+      )
+    }
+    let postfx_cmds = self.pipeline.compose_postfx(
+      ctx.dst,
+      depth_casters,
+      view_projection,
+      ctx.screen_w,
+      ctx.screen_h,
+      hit_flash=self.world.screen_flash,
     )
-  }
-  let postfx_cmds = self.pipeline.compose_postfx(
-    ctx.dst,
-    depth_casters,
-    view_projection,
-    ctx.screen_w,
-    ctx.screen_h,
-    hit_flash=self.world.screen_flash,
-  )
-  for cmd in postfx_cmds {
-    cmds.push(cmd)
+    for cmd in postfx_cmds {
+      cmds.push(cmd)
+    }
   }
   // 2D HUD overlay
   let hud_cmds = self.render_hud_cmds(ctx.dst, ctx.shader)

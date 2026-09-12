@@ -385,6 +385,28 @@ test "draw_playing wires camera depth into ssao postfx chain with fxaa enabled" 
 }
 
 ///|
+test "gpu capture draws the playing scene into ctx.dst and skips postfx" {
+  @engine.set_gpu_capture_for_test(true)
+  let state = GameState::new(seed=42)
+  state.world.mode = @game.Playing
+  let ctx = test_engine_context()
+  let commands = state.draw_playing(ctx)
+  @engine.set_gpu_capture_for_test(false)
+  let mut scene_on_dst = false
+  let mut tonemap = false
+  for cmd in commands {
+    if cmd.dst.id == ctx.dst.id && cmd.vertex_stride_hint >= 8 {
+      scene_on_dst = true
+    }
+    if cmd.shader.id == state.pipeline.tonemap_sh.id {
+      tonemap = true
+    }
+  }
+  assert_true(scene_on_dst)
+  assert_false(tonemap)
+}
+
+///|
 test "draw_playing skips fxaa and tonemaps directly into dst by default" {
   let state = state_with_ssao_enabled()
   state.world.mode = @game.Playing

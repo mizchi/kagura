@@ -3,6 +3,7 @@ import {
   "moonbitlang/core/math",
   "mizchi/geom/camera2d",
   "mizchi/kagura_core" @core,
+  "mizchi/kagura_engine" @engine,
   "mizchi/kagura_core/inpututil",
   "mizchi/pathfind",
   "mizchi/kagura_game/scene",
@@ -17,3 +18,10 @@ warnings = "-1-2-7-29"
 supported_targets = "js"
 
 pkgtype(kind: "executable")
+
+options(
+  targets: {
+    "verification_debug.mbt": [ "debug" ],
+    "verification_release.mbt": [ "release" ],
+  },
+)

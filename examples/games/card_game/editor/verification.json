@@ -1,0 +1,10 @@
+{
+  "version": 1,
+  "states": {
+    "battle": {
+      "frames": 1,
+      "expectedState": "battle",
+      "expectedFocus": null
+    }
+  }
+}

@@ -33,3 +33,10 @@ test "scene_game_view delegates to SceneGame trait" {
   let _ = scene_game_view(game)
   assert_eq(game.view_count, 1)
 }
+
+///|
+test "capture_viewport keeps the example size when no headless override is set" {
+  let (width, height) = @engine.capture_viewport(320, 240)
+  assert_eq(width, 320)
+  assert_eq(height, 240)
+}

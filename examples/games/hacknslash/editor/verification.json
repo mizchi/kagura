@@ -1,0 +1,22 @@
+{
+  "version": 1,
+  "states": {
+    "title": {
+      "frames": 1,
+      "expectedState": "title",
+      "expectedFocus": null
+    },
+    "playing": {
+      "frames": 2,
+      "inputs": [{}, { "keys": [32] }],
+      "expectedState": "playing",
+      "expectedFocus": null
+    },
+    "gameover": {
+      "initialState": "gameover",
+      "frames": 1,
+      "expectedState": "gameover",
+      "expectedFocus": null
+    }
+  }
+}

@@ -275,8 +275,17 @@ ui-vlmkit-check snapshot image out_dir="output/ui-vlmkit-integrity":
     node scripts/ui-vlmkit-integrity.mjs {{snapshot}} {{image}} {{out_dir}}
 
 # Game-declared input states x viewports; baseline updates are explicit.
+#   just ui-matrix ui_demo
+#   just ui-matrix --all
+#   just ui-matrix --all "--backend native"  # skips js-only examples (hacknslash)
+#   just ui-matrix hacknslash_3d "--backend gpu"  # 3D wgpu; not JS CI
 ui-matrix example extra="":
     node scripts/ui-matrix.mjs {{example}} {{extra}}
+
+# Theme + i18n follow-ups over output/ui-matrix/*.standard cells.
+# i18n gates ui_demo and is advisory for scene games (label rect = glyph box).
+ui-matrix-gates extra="--all":
+    node scripts/ui-matrix-gates.mjs {{extra}}
 
 # Convert a UI snapshot into a vlmkit --elements-json payload, so a pixel diff
 # names the UI node that changed instead of a bare region.

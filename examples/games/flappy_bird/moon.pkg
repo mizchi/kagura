@@ -7,6 +7,8 @@ import {
   "moonbitlang/core/bench",
   "mizchi/signals",
   "mizchi/kagura_game/scene",
+  "mizchi/kagura_ui" @kagura_ui,
+  "mizchi/kagura_engine" @engine,
   "mizchi/kagura_core" @core,
   "mizchi/kagura_core/inpututil",
   "mizchi/web_runtime_hooks" @web_hooks,
@@ -34,6 +36,8 @@ options(
     "inspection_js.mbt": [ "and", "js", "debug" ],
     "view_inspection_debug.mbt": [ "debug" ],
     "view_inspection_release.mbt": [ "release" ],
+    "verification_debug.mbt": [ "debug" ],
+    "verification_release.mbt": [ "release" ],
   },
   link: {
     "native": {

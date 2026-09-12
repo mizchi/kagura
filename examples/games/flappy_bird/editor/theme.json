@@ -1,0 +1,12 @@
+{
+  "version": 1,
+  "maxDistance": 16,
+  "minShare": 0.002,
+  "tokens": [
+    "#1c1c2c",
+    "#1c2c4c",
+    "#84ccec",
+    "#8c4414",
+    "#fcfcfc"
+  ]
+}

@@ -1,6 +1,10 @@
 import { installModelAssets } from '../assets/pane.mjs';
 import { installSceneHierarchy } from './scene-hierarchy.mjs';
 import { installRuntimeInspector } from './runtime-inspector.mjs';
+import { installInspectorParts } from './inspector-parts.mjs';
+import { agentChatPane } from './agent-chat.mjs';
+import { terminalPane } from './terminal-pane.mjs';
+import { buildSceneGraph, scenesFromManifest } from '../runtime/scene-graph.mjs';
 import { installProjectTransport } from './project-transport.mjs';
 import { decodeSceneFile } from '../scene/moonbit.mjs';
 import * as app from '../_build/js/release/build/app/app.js';
@@ -8,6 +12,7 @@ import { createAPI } from './api.mjs';
 import { createViewport } from './viewport.mjs';
 import { createWorkspaceLayout } from './layout.mjs';
 import { createPaneHost } from './panes.mjs';
+import { createWorkspace } from './workspace.mjs';
 import { registerWebMCP } from './webmcp.mjs';
 import { createBrowserStorage, downloadBlob } from './storage.mjs';
 import { storagePane } from './storage-pane.mjs';
@@ -75,6 +80,7 @@ globalThis.kaguraHost = async (action, data) => {
 };
 app.mount(document.getElementById('app'));
 const panes = createPaneHost(document.querySelector('.agent'), api, app);
+const workspace = createWorkspace();
 panes.register(storagePane(storage, api, app.set_status));
 const plugins = Object.freeze({ defineJSPlugin, fromJSONModule, fromWasm });
 const runtime = Object.freeze({ ...Object.fromEntries(['snapshot', 'pause', 'resume', 'step', 'replace', 'inspect', 'edit'].map(method => [method, (...args) => gameEditor.debug(method, ...args)])), hierarchy: () => gameEditor.hierarchy() });
@@ -96,14 +102,42 @@ try {
 } catch (error) { app.set_status('Error · Layout could not be restored: ' + error.message); }
 try { viewport = createViewport(document.getElementById('viewport'), app, api); }
 catch (error) { app.set_status('Error · 3D viewport: ' + error.message); }
-gameEditor = createExtensionHost({ editor: api, panes, viewport, setStatus: app.set_status }, editorExtensions);
+gameEditor = createExtensionHost({ editor: api, panes, viewport, workspace, setStatus: app.set_status }, editorExtensions);
 await gameEditor.useBuiltin(defaultEditor);
 const projectTransport = installProjectTransport(gameEditor, app.set_status);
-const runtimeInspector = installRuntimeInspector(gameEditor, app.set_status);
-const sceneHierarchy = installSceneHierarchy(gameEditor, app.set_status, runtimeInspector.selectSubject);
+const runtimeInspector = installRuntimeInspector(gameEditor, app.set_status, workspace);
+const inspectorParts = installInspectorParts(gameEditor, workspace);
+const sceneHierarchy = installSceneHierarchy(gameEditor, app.set_status, runtimeInspector.selectSubject, api, workspace);
 modelAssets = installModelAssets({ host: gameEditor, panes, viewport, setStatus: app.set_status });
 const projectUI = installProjectUI({ host: gameEditor, panes, assets: modelAssets, setStatus: app.set_status });
-globalThis.kagura = Object.freeze({ ...globalThis.kagura, projects: { current: gameEditor.project } });
+function graph() {
+  const debugging = gameEditor.transport().debugging;
+  let inspection = null;
+  try {
+    if (debugging) inspection = gameEditor.debug('inspect');
+  } catch { /* Play without an inspector still exposes the authored graph. */ }
+  const snapshot = api.snapshot();
+  return buildSceneGraph({
+    sceneId: gameEditor.sceneId(),
+    scenes: scenesFromManifest(gameEditor.project()?.manifest),
+    hierarchy: debugging ? gameEditor.hierarchy() : null,
+    inspection,
+    document: snapshot.document,
+    selection: snapshot.selection ? { kind: 'node', id: snapshot.selection } : undefined,
+  });
+}
+globalThis.kagura = Object.freeze({
+  ...globalThis.kagura,
+  projects: { current: gameEditor.project },
+  graph,
+  selectScene: (id) => gameEditor.selectScene(id),
+  workspace: Object.freeze({
+    list: () => workspace.list(),
+    active: (id) => workspace.slot(id).active(),
+  }),
+});
+panes.register(agentChatPane(globalThis.kagura));
+panes.register(terminalPane());
 const keyboard = event => {
   if (event.target?.closest?.('input, textarea, select, [contenteditable]')) return;
   if ((event.metaKey || event.ctrlKey) && event.key.toLowerCase() === 'z') {
@@ -116,4 +150,4 @@ const keyboard = event => {
   if (event.key.toLowerCase() === 'f') { if (gameEditor?.active()) gameEditor.frame(); else viewport?.frame(api.snapshot().selection); }
 };
 document.addEventListener('keydown', keyboard);
-if (import.meta.hot) import.meta.hot.dispose(() => { projectTransport.dispose(); runtimeInspector.dispose(); sceneHierarchy.dispose(); projectUI.dispose(); modelAssets.dispose(); gameEditor.dispose(); webmcp.dispose(); panes.dispose(); storage.dispose().catch(console.error); viewport?.dispose(); workspaceLayout?.dispose(); document.removeEventListener('keydown', keyboard); });
+if (import.meta.hot) import.meta.hot.dispose(() => { projectTransport.dispose(); runtimeInspector.dispose(); inspectorParts.dispose(); sceneHierarchy.dispose(); projectUI.dispose(); modelAssets.dispose(); gameEditor.dispose(); webmcp.dispose(); panes.dispose(); workspace.dispose(); storage.dispose().catch(console.error); viewport?.dispose(); workspaceLayout?.dispose(); document.removeEventListener('keydown', keyboard); });

@@ -332,7 +332,7 @@ fn GameState::build_hud_static_cmds(
         @scene.label(x=24.0, y=sh - 48.0, content="HP", color=0xFFFFFF),
         @scene.label(
           x=sw / 2.0,
-          y=8.0,
+          y=14.0,
           content="FLOOR " + self.world.floor.to_string(),
           color=0xCCCCCC,
           scale=1.2,

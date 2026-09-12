@@ -128,6 +128,8 @@ struct ShowcaseState {
   // SVG icon demo
   svg_icon_image_id : Int
   mut svg_icon_loaded : Bool
+  mut view_w : Double
+  mut view_h : Double
 }
 
 // === Tilemap Generation ===
@@ -373,7 +375,20 @@ fn ShowcaseState::new() -> ShowcaseState {
     text_renderer,
     svg_icon_image_id: 9000,
     svg_icon_loaded: false,
+    view_w: screen_w,
+    view_h: screen_h,
   }
+}
+
+///|
+fn ShowcaseState::set_viewport(
+  self : ShowcaseState,
+  width : Int,
+  height : Int,
+) -> Unit {
+  self.view_w = width.to_double()
+  self.view_h = height.to_double()
+  self.camera.set_screen(self.view_w, self.view_h)
 }
 
 // === Update Logic ===
@@ -691,24 +706,44 @@ fn ShowcaseState::view(self : ShowcaseState) -> @scene.SceneNode {
     m if m == mode_title => self.view_title()
     m if m == mode_playing || m == mode_paused => self.view_playing()
     m if m == mode_gameover => self.view_gameover()
-    _ => @scene.rect(w=screen_w, h=screen_h, fill=0x000000)
+    _ => @scene.rect(w=self.view_w, h=self.view_h, fill=0x000000)
+  }
+}
+
+///|
+fn ShowcaseState::as_gameover(self : ShowcaseState) -> Unit {
+  self.mode = mode_gameover
+}
+
+///|
+fn ShowcaseState::snapshot_state(self : ShowcaseState) -> String {
+  match self.mode {
+    m if m == mode_title => "title"
+    m if m == mode_playing => "playing"
+    m if m == mode_paused => "paused"
+    m if m == mode_gameover => "gameover"
+    _ => "scene"
   }
 }
 
 ///|
 fn ShowcaseState::view_title(self : ShowcaseState) -> @scene.SceneNode {
+  let sw = self.view_w
+  let sh = self.view_h
   @scene.fragment([
-    @scene.rect(w=screen_w, h=screen_h, fill=0x1A1A2E),
+    @scene.rect(w=sw, h=sh, fill=0x1A1A2E),
     @scene.label(
-      x=screen_w / 2.0,
-      y=screen_h / 2.0 - 30.0,
+      key="title",
+      x=sw / 2.0,
+      y=sh / 2.0 - 30.0,
       content="DUNGEON",
       scale=3.0,
     ),
     @scene.show(fn() { self.frame_count / 30 % 2 == 0 }, fn() {
       @scene.label(
-        x=screen_w / 2.0,
-        y=screen_h / 2.0 + 30.0,
+        key="prompt",
+        x=sw / 2.0,
+        y=sh / 2.0 + 30.0,
         content="PRESS SPACE",
         color=0xFFCC00,
       )
@@ -718,6 +753,8 @@ fn ShowcaseState::view_title(self : ShowcaseState) -> @scene.SceneNode {
 
 ///|
 fn ShowcaseState::view_playing(self : ShowcaseState) -> @scene.SceneNode {
+  let sw = self.view_w
+  let sh = self.view_h
   let view_left = self.camera.x
   let view_top = self.camera.y
   let px = self.player.x - view_left
@@ -733,7 +770,7 @@ fn ShowcaseState::view_playing(self : ShowcaseState) -> @scene.SceneNode {
   let item_alpha = 0.6 + 0.4 * @math.sin(self.frame_count.to_double() * 0.08)
   @scene.fragment([
     // Background
-    @scene.rect(w=screen_w, h=screen_h, fill=0x000000),
+    @scene.rect(w=sw, h=sh, fill=0x000000),
     // Tilemap
     @scene.for_each(fn() {
       let nodes : Array[@scene.SceneNode] = []
@@ -742,9 +779,9 @@ fn ShowcaseState::view_playing(self : ShowcaseState) -> @scene.SceneNode {
           let sx = col.to_double() * tile_size - view_left
           let sy = row.to_double() * tile_size - view_top
           if sx > -tile_size &&
-            sx < screen_w + tile_size &&
+            sx < sw + tile_size &&
             sy > -tile_size &&
-            sy < screen_h + tile_size {
+            sy < sh + tile_size {
             let idx = row * map_columns + col
             let fill = match self.tilemap[idx] {
               t if t == tile_wall => 0x6B4226
@@ -763,22 +800,22 @@ fn ShowcaseState::view_playing(self : ShowcaseState) -> @scene.SceneNode {
       let grid_spacing = tile_size
       let start_gx = @math.floor(view_left / grid_spacing) * grid_spacing
       let mut gx = start_gx
-      while gx < view_left + screen_w + grid_spacing {
+      while gx < view_left + sw + grid_spacing {
         let screen_x = gx - view_left
-        if screen_x >= 0.0 && screen_x < screen_w {
+        if screen_x >= 0.0 && screen_x < sw {
           nodes.push(
-            @scene.rect(x=screen_x, w=1.0, h=screen_h, fill=0x444444, alpha=0.3),
+            @scene.rect(x=screen_x, w=1.0, h=sh, fill=0x444444, alpha=0.3),
           )
         }
         gx = gx + grid_spacing
       }
       let start_gy = @math.floor(view_top / grid_spacing) * grid_spacing
       let mut gy = start_gy
-      while gy < view_top + screen_h + grid_spacing {
+      while gy < view_top + sh + grid_spacing {
         let screen_y = gy - view_top
-        if screen_y >= 0.0 && screen_y < screen_h {
+        if screen_y >= 0.0 && screen_y < sh {
           nodes.push(
-            @scene.rect(y=screen_y, w=screen_w, h=1.0, fill=0x444444, alpha=0.3),
+            @scene.rect(y=screen_y, w=sw, h=1.0, fill=0x444444, alpha=0.3),
           )
         }
         gy = gy + grid_spacing
@@ -793,9 +830,9 @@ fn ShowcaseState::view_playing(self : ShowcaseState) -> @scene.SceneNode {
           let sx = item.x - view_left
           let sy = item.y - view_top
           if sx >= -10.0 &&
-            sx <= screen_w + 10.0 &&
+            sx <= sw + 10.0 &&
             sy >= -10.0 &&
-            sy <= screen_h + 10.0 {
+            sy <= sh + 10.0 {
             let fill = if item.kind == 0 { 0x00FFFF } else { 0x00FF66 }
             nodes.push(
               @scene.rect(
@@ -820,9 +857,9 @@ fn ShowcaseState::view_playing(self : ShowcaseState) -> @scene.SceneNode {
           let sx = enemy.x - view_left
           let sy = enemy.y - view_top
           if sx >= -20.0 &&
-            sx <= screen_w + 20.0 &&
+            sx <= sw + 20.0 &&
             sy >= -20.0 &&
-            sy <= screen_h + 20.0 {
+            sy <= sh + 20.0 {
             let fill = if enemy.damage_timer > 0 { 0xFFFFFF } else { 0xCC2222 }
             let ehs = enemy.size / 2.0
             // Enemy body
@@ -950,9 +987,9 @@ fn ShowcaseState::view_playing(self : ShowcaseState) -> @scene.SceneNode {
     @scene.show(fn() { self.screen_flash > 0 }, fn() {
       let flash_alpha = self.screen_flash.to_double() / 5.0 * 0.15
       if self.player.damage_timer > 0 {
-        @scene.rect(w=screen_w, h=screen_h, fill=0xFF0000, alpha=flash_alpha)
+        @scene.rect(w=sw, h=sh, fill=0xFF0000, alpha=flash_alpha)
       } else {
-        @scene.rect(w=screen_w, h=screen_h, fill=0xFFFFFF, alpha=flash_alpha)
+        @scene.rect(w=sw, h=sh, fill=0xFFFFFF, alpha=flash_alpha)
       }
     }),
     // HUD: HP bar
@@ -963,7 +1000,7 @@ fn ShowcaseState::view_playing(self : ShowcaseState) -> @scene.SceneNode {
     ]),
     // HUD: Score
     @scene.label(
-      x=screen_w - 60.0,
+      x=self.view_w - 60.0,
       y=8.0,
       content=self.score.to_string(),
       color=0xFFCC00,
@@ -972,11 +1009,13 @@ fn ShowcaseState::view_playing(self : ShowcaseState) -> @scene.SceneNode {
     // Paused overlay
     @scene.show(fn() { self.mode == mode_paused }, fn() {
       let focused_id = self.focus_mgr.current_focus()
+      let sw = self.view_w
+      let sh = self.view_h
       @scene.fragment([
-        @scene.rect(w=screen_w, h=screen_h, fill=0x000000, alpha=0.5),
+        @scene.rect(w=sw, h=sh, fill=0x000000, alpha=0.5),
         @scene.label(
-          x=screen_w / 2.0,
-          y=screen_h / 2.0 - 20.0,
+          x=sw / 2.0,
+          y=sh / 2.0 - 20.0,
           content="PAUSED",
           scale=2.0,
         ),
@@ -990,8 +1029,8 @@ fn ShowcaseState::view_playing(self : ShowcaseState) -> @scene.SceneNode {
             }
             nodes.push(
               @scene.label(
-                x=screen_w / 2.0,
-                y=screen_h / 2.0 + 10.0 + i.to_double() * 18.0,
+                x=sw / 2.0,
+                y=sh / 2.0 + 10.0 + i.to_double() * 18.0,
                 content=labels[i],
                 color~,
               ),
@@ -1006,24 +1045,29 @@ fn ShowcaseState::view_playing(self : ShowcaseState) -> @scene.SceneNode {
 
 ///|
 fn ShowcaseState::view_gameover(self : ShowcaseState) -> @scene.SceneNode {
+  let sw = self.view_w
+  let sh = self.view_h
   @scene.fragment([
-    @scene.rect(w=screen_w, h=screen_h, fill=0x2E0000),
+    @scene.rect(w=sw, h=sh, fill=0x2E0000),
     @scene.label(
-      x=screen_w / 2.0,
-      y=screen_h / 2.0 - 20.0,
+      key="gameover",
+      x=sw / 2.0,
+      y=sh / 2.0 - 20.0,
       content="GAME OVER",
       color=0xFF0000,
       scale=2.0,
     ),
     @scene.label(
-      x=screen_w / 2.0,
-      y=screen_h / 2.0 + 10.0,
+      key="score_label",
+      x=sw / 2.0,
+      y=sh / 2.0 + 10.0,
       content="SCORE",
       color=0xFFCC00,
     ),
     @scene.label(
-      x=screen_w / 2.0,
-      y=screen_h / 2.0 + 30.0,
+      key="score",
+      x=sw / 2.0,
+      y=sh / 2.0 + 30.0,
       content=self.score.to_string(),
       scale=2.0,
     ),

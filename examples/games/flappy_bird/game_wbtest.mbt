@@ -1,4 +1,54 @@
 ///|
+fn title_hud_left_top(game : Game) -> (Double, Double) {
+  let snapshot : @kagura_ui.UISnapshot = @scene.ui_snapshot_from_scene(
+    game.view(),
+    screen_width=game.screen_w.to_double(),
+    screen_height=game.screen_h.to_double(),
+  )
+  for node in snapshot.nodes {
+    if node.id == "title" {
+      return (node.left, node.top)
+    }
+  }
+  abort("missing title HUD node")
+}
+
+///|
+test "title HUD recenters when the viewport changes" {
+  let game = Game::new()
+  let (left_compact, top_compact) = title_hud_left_top(game)
+  game.set_viewport(360, 640)
+  let (left_portrait, top_portrait) = title_hud_left_top(game)
+  assert_true(left_portrait > left_compact)
+  assert_true(top_portrait > top_compact + 100.0)
+}
+
+///|
+test "as_gameover starts on the END overlay" {
+  let game = Game::new()
+  game.as_gameover()
+  assert_eq(game.snapshot_state(), "gameover")
+}
+
+///|
+test "load_editor_scene does not wipe a gameover capture fixture" {
+  let game = Game::new()
+  game.as_gameover()
+  game.load_editor_scene()
+  assert_eq(game.snapshot_state(), "gameover")
+}
+
+///|
+test "snapshot_state names title, playing and gameover" {
+  let game = Game::new()
+  assert_eq(game.snapshot_state(), "title")
+  game.game_mode.set(1)
+  assert_eq(game.snapshot_state(), "playing")
+  game.game_mode.set(2)
+  assert_eq(game.snapshot_state(), "gameover")
+}
+
+///|
 test "update: title to playing on any key press" {
   let game = Game::new()
   game.game_mode.set(0)

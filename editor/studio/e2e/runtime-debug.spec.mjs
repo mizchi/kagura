@@ -29,6 +29,7 @@ test('pause, edit live physics and generated objects, step, checkpoint and resum
       }),
   );
   expect(await page.evaluate(() => kagura.runtime.snapshot())).toEqual(initial);
+  await page.getByText('Raw state JSON', { exact: true }).click();
   const input = page.getByLabel('Runtime state JSON');
   const state = {
     ...initial.state,

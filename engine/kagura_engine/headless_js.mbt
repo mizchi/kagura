@@ -222,6 +222,19 @@ pub fn capture_viewport(width : Int, height : Int) -> (Int, Int) {
 }
 
 ///|
+let gpu_capture_for_test : Ref[Bool] = Ref(false)
+
+///|
+pub fn is_native_gpu_capture() -> Bool {
+  gpu_capture_for_test.val
+}
+
+///|
+pub fn set_gpu_capture_for_test(enabled : Bool) -> Unit {
+  gpu_capture_for_test.val = enabled
+}
+
+///|
 fn requested_initial_state() -> String? {
   let name = js_headless_string("initial_state")
   if name == "" {

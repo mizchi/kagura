@@ -5,7 +5,20 @@ let card_w : Double = 70.0
 let card_h : Double = 90.0
 
 ///|
-let card_gap : Double = 8.0
+let layout_w : Ref[Double] = Ref(480.0)
+
+///|
+let layout_h : Ref[Double] = Ref(360.0)
+
+///|
+fn layout_sw() -> Double {
+  layout_w.val
+}
+
+///|
+fn layout_sh() -> Double {
+  layout_h.val
+}
 
 ///|
 /// Main game struct wrapping run state with UI state
@@ -27,6 +40,23 @@ pub impl @scene.SceneGame for Game with fn update_game(self, input) {
 ///|
 pub impl @scene.SceneGame for Game with fn view_game(self) {
   self.view()
+}
+
+///|
+pub fn Game::set_viewport(_self : Game, width : Int, height : Int) -> Unit {
+  layout_w.val = width.to_double()
+  layout_h.val = height.to_double()
+}
+
+///|
+pub fn Game::snapshot_state(self : Game) -> String {
+  match self.run.get().phase {
+    Battle => "battle"
+    CardReward => "card_reward"
+    RestSite => "rest"
+    RunVictory => "victory"
+    RunDefeat => "defeat"
+  }
 }
 
 ///|
@@ -157,7 +187,7 @@ pub fn Game::update(self : Game, input : @core.InputSnapshot) -> Unit {
 ///|
 /// Hit test for card reward selection (returns -2 if no hit, -1 for skip, 0-2 for card)
 fn hit_test_card_reward(run : RunState, cx : Double, cy : Double) -> Int {
-  let sw = screen_w.to_double()
+  let sw = layout_sw()
   let reward_w = 80.0
   let reward_h = 110.0
   let gap = 16.0
@@ -183,19 +213,37 @@ fn hit_test_card_reward(run : RunState, cx : Double, cy : Double) -> Int {
 }
 
 ///|
+fn hand_card_width(count : Int) -> Double {
+  if count <= 0 {
+    return card_w
+  }
+  let gap = 4.0
+  let avail = layout_sw() - 16.0
+  let width = (avail - (count - 1).to_double() * gap) / count.to_double()
+  if width > card_w {
+    card_w
+  } else if width < 40.0 {
+    40.0
+  } else {
+    width
+  }
+}
+
+///|
 fn hit_test_card(state : BattleState, cx : Double, cy : Double) -> Int {
   let hand_count = state.hand.length()
   if hand_count == 0 {
     return -1
   }
-  let total_w = hand_count.to_double() * card_w +
-    (hand_count - 1).to_double() * card_gap
-  let start_x = (screen_w.to_double() - total_w) / 2.0
-  let card_y = screen_h.to_double() - card_h - 10.0
+  let cw = hand_card_width(hand_count)
+  let gap = 4.0
+  let total_w = hand_count.to_double() * cw + (hand_count - 1).to_double() * gap
+  let start_x = (layout_sw() - total_w) / 2.0
+  let card_y = layout_sh() - card_h - 10.0
   let mut i = 0
   while i < hand_count {
-    let x = start_x + i.to_double() * (card_w + card_gap)
-    if cx >= x && cx <= x + card_w && cy >= card_y && cy <= card_y + card_h {
+    let x = start_x + i.to_double() * (cw + gap)
+    if cx >= x && cx <= x + cw && cy >= card_y && cy <= card_y + card_h {
       return i
     }
     i += 1
@@ -209,7 +257,7 @@ fn hit_test_enemy(state : BattleState, cx : Double, cy : Double) -> Int {
   let enemy_h = 80.0
   let count = state.enemies.length()
   let total_w = count.to_double() * enemy_w + (count - 1).to_double() * 20.0
-  let start_x = (screen_w.to_double() - total_w) / 2.0
+  let start_x = (layout_sw() - total_w) / 2.0
   let enemy_y = 40.0
   let mut i = 0
   while i < count {
@@ -229,15 +277,15 @@ fn hit_test_enemy(state : BattleState, cx : Double, cy : Double) -> Int {
 
 ///|
 fn hit_test_end_turn(cx : Double, cy : Double) -> Bool {
-  let bx = screen_w.to_double() - 90.0
-  let by = screen_h.to_double() - card_h - 50.0
+  let bx = layout_sw() - 90.0
+  let by = layout_sh() - card_h - 50.0
   cx >= bx && cx <= bx + 80.0 && cy >= by && cy <= by + 30.0
 }
 
 ///|
 pub fn Game::view(self : Game) -> @scene.SceneNode {
-  let sw = screen_w.to_double()
-  let sh = screen_h.to_double()
+  let sw = layout_sw()
+  let sh = layout_sh()
   let run = self.run.get()
   @scene.fragment([
     @scene.rect(w=sw, h=sh, fill=0x1a1a2e),
@@ -311,7 +359,7 @@ fn view_enemies(state : BattleState) -> @scene.SceneNode {
   let enemy_h = 80.0
   let count = state.enemies.length()
   let total_w = count.to_double() * enemy_w + (count - 1).to_double() * 20.0
-  let start_x = (screen_w.to_double() - total_w) / 2.0
+  let start_x = (layout_sw() - total_w) / 2.0
   let enemy_y = 40.0
   @scene.for_each(fn() {
     let nodes : Array[@scene.SceneNode] = []
@@ -326,19 +374,29 @@ fn view_enemies(state : BattleState) -> @scene.SceneNode {
           0xCC4444
         }
         nodes.push(
-          @scene.rect(x~, y=enemy_y, w=enemy_w, h=enemy_h, fill=body_color),
+          @scene.rect(
+            key="enemy_body_" + i.to_string(),
+            x~,
+            y=enemy_y,
+            w=enemy_w,
+            h=enemy_h,
+            fill=body_color,
+          ),
         )
         nodes.push(
           @scene.label(
-            x=x + 2.0,
-            y=enemy_y + 2.0,
+            key="enemy_" + i.to_string(),
+            x=x + enemy_w / 2.0,
+            y=enemy_y + 12.0,
             content=enemy.fighter.name,
             scale=0.6,
+            color=0xFFFFFF,
           ),
         )
         // HP bar
         nodes.push(
           @scene.rect(
+            key="enemy_hp_" + i.to_string(),
             x~,
             y=enemy_y + enemy_h + 2.0,
             w=enemy_w,
@@ -452,11 +510,12 @@ fn view_enemies(state : BattleState) -> @scene.SceneNode {
 fn view_player_info(state : BattleState) -> @scene.SceneNode {
   let p = state.player
   let info_x = 10.0
-  let info_y = screen_h.to_double() - card_h - 60.0
+  let info_y = layout_sh() - card_h - 60.0
   @scene.fragment([
     // HP bar
-    @scene.rect(x=info_x, y=info_y, w=100.0, h=12.0, fill=0x333333),
+    @scene.rect(key="hp_bar", x=info_x, y=info_y, w=100.0, h=12.0, fill=0x333333),
     @scene.rect(
+      key="hp_fill",
       x=info_x,
       y=info_y,
       w=100.0 * p.hp.to_double() / p.max_hp.to_double(),
@@ -464,10 +523,12 @@ fn view_player_info(state : BattleState) -> @scene.SceneNode {
       fill=0xCC4444,
     ),
     @scene.label(
-      x=info_x + 2.0,
-      y=info_y,
+      key="hp",
+      x=info_x + 50.0,
+      y=info_y + 6.0,
       content="HP " + p.hp.to_string() + "/" + p.max_hp.to_string(),
       scale=0.6,
+      color=0xFFFFFF,
     ),
     // Energy
     @scene.rect(x=info_x, y=info_y + 16.0, w=40.0, h=20.0, fill=0x2244AA),
@@ -540,38 +601,41 @@ fn view_player_info(state : BattleState) -> @scene.SceneNode {
     }),
     // Deck info
     @scene.label(
+      key="deck",
       x=info_x + 110.0,
       y=info_y,
       content="Deck:" + state.draw_pile.length().to_string(),
       scale=0.5,
-      color=0x888888,
+      color=0xDDDDDD,
     ),
     @scene.label(
+      key="discard",
       x=info_x + 110.0,
       y=info_y + 10.0,
       content="Disc:" + state.discard_pile.length().to_string(),
       scale=0.5,
-      color=0x888888,
+      color=0xDDDDDD,
     ),
     @scene.label(
+      key="exhaust",
       x=info_x + 110.0,
       y=info_y + 20.0,
       content="Exh:" + state.exhaust_pile.length().to_string(),
       scale=0.5,
-      color=0x666666,
+      color=0xDDDDDD,
     ),
   ])
 }
 
 ///|
 fn view_relics(state : BattleState) -> @scene.SceneNode {
-  let relic_y = screen_h.to_double() - card_h - 80.0
+  let relic_y = layout_sh() - card_h - 80.0
   let relic_size = 16.0
   let gap = 4.0
   @scene.for_each(fn() {
     let nodes : Array[@scene.SceneNode] = []
     let mut i = 0
-    let base_x = screen_w.to_double() - 100.0
+    let base_x = layout_sw() - 100.0
     while i < state.relics.length() {
       let def = relic_def(state.relics[i])
       let x = base_x + i.to_double() * (relic_size + gap)
@@ -632,17 +696,18 @@ fn relic_color(id : RelicId) -> Int {
 ///|
 fn view_hand(state : BattleState, selected : Int) -> @scene.SceneNode {
   let hand_count = state.hand.length()
-  let total_w = hand_count.to_double() * card_w +
-    (hand_count - 1).to_double() * card_gap
-  let start_x = (screen_w.to_double() - total_w) / 2.0
-  let base_y = screen_h.to_double() - card_h - 10.0
+  let cw = hand_card_width(hand_count)
+  let gap = 4.0
+  let total_w = hand_count.to_double() * cw + (hand_count - 1).to_double() * gap
+  let start_x = (layout_sw() - total_w) / 2.0
+  let base_y = layout_sh() - card_h - 10.0
   @scene.for_each(fn() {
     let nodes : Array[@scene.SceneNode] = []
     let mut i = 0
     while i < hand_count {
       let card_id = state.hand[i]
       let def = card_def(card_id)
-      let x = start_x + i.to_double() * (card_w + card_gap)
+      let x = start_x + i.to_double() * (cw + gap)
       let y = if i == selected { base_y - 10.0 } else { base_y }
       let can_play = state.player.energy >= def.cost &&
         state.phase == PlayerTurn
@@ -652,25 +717,42 @@ fn view_hand(state : BattleState, selected : Int) -> @scene.SceneNode {
       } else {
         match def.card_type {
           Attack => 0x884444
-          Skill => 0x448844
+          Skill => 0x165528
           Power => 0x444488
         }
       }
-      nodes.push(@scene.rect(x~, y~, w=card_w, h=card_h, fill=bg_color))
+      nodes.push(
+        @scene.rect(
+          key="card_frame_" + i.to_string(),
+          x~,
+          y~,
+          w=cw,
+          h=card_h,
+          fill=bg_color,
+        ),
+      )
       let border_color = if i == selected { 0xFFFF00 } else { 0x666666 }
       nodes.push(
-        @scene.rect_outline(x~, y~, w=card_w, h=card_h, color=border_color),
+        @scene.rect_outline(x~, y~, w=cw, h=card_h, color=border_color),
       )
       // Card name
       nodes.push(
-        @scene.label(x=x + 3.0, y=y + 4.0, content=def.name, scale=0.55),
+        @scene.label(
+          key="card_" + i.to_string(),
+          x=x + cw / 2.0,
+          y=y + 28.0,
+          content=def.name,
+          scale=0.55,
+          color=0xFFFFFF,
+        ),
       )
       // Cost
       nodes.push(@scene.rect(x~, y~, w=16.0, h=16.0, fill=0x2244AA))
       nodes.push(
         @scene.label(
-          x=x + 4.0,
-          y=y + 1.0,
+          key="cost_" + i.to_string(),
+          x=x + 12.0,
+          y=y + 8.0,
           content=def.cost.to_string(),
           color=0xFFDD44,
           scale=0.7,
@@ -679,11 +761,12 @@ fn view_hand(state : BattleState, selected : Int) -> @scene.SceneNode {
       // Description
       nodes.push(
         @scene.label(
-          x=x + 3.0,
-          y=y + 24.0,
+          key="desc_" + i.to_string(),
+          x=x + cw / 2.0,
+          y=y + 50.0,
           content=short_desc(def),
           scale=0.4,
-          color=0xCCCCCC,
+          color=0xFFFFFF,
         ),
       )
       // Exhaust indicator
@@ -754,18 +837,24 @@ fn short_desc(def : CardDef) -> String {
 
 ///|
 fn view_end_turn_button() -> @scene.SceneNode {
-  let bx = screen_w.to_double() - 90.0
-  let by = screen_h.to_double() - card_h - 50.0
+  let bx = layout_sw() - 90.0
+  let by = layout_sh() - card_h - 50.0
   @scene.fragment([
-    @scene.rect(x=bx, y=by, w=80.0, h=30.0, fill=0x885522),
-    @scene.rect_outline(x=bx, y=by, w=80.0, h=30.0, color=0xAA7744),
-    @scene.label(x=bx + 6.0, y=by + 6.0, content="End Turn", scale=0.7),
+    @scene.rect(key="end_turn_btn", x=bx, y=by, w=80.0, h=30.0, fill=0x885522),
+    @scene.rect_outline(key="end_turn_frame", x=bx, y=by, w=80.0, h=30.0, color=0xAA7744),
+    @scene.label(
+      key="end_turn",
+      x=bx + 40.0,
+      y=by + 15.0,
+      content="End Turn",
+      scale=0.7,
+      color=0xFFFFFF,
+    ),
   ])
 }
 
 ///|
 fn view_logs(state : BattleState) -> @scene.SceneNode {
-  let log_x = 10.0
   let log_y = 150.0
   @scene.for_each(fn() {
     let nodes : Array[@scene.SceneNode] = []
@@ -776,11 +865,12 @@ fn view_logs(state : BattleState) -> @scene.SceneNode {
     while i < logs.length() {
       nodes.push(
         @scene.label(
-          x=log_x,
+          key="log_" + idx.to_string(),
+          x=120.0,
           y=log_y + idx.to_double() * 12.0,
           content=logs[i],
           scale=0.45,
-          color=0x999999,
+          color=0xDDDDDD,
         ),
       )
       idx += 1
@@ -792,8 +882,8 @@ fn view_logs(state : BattleState) -> @scene.SceneNode {
 
 ///|
 fn view_battle_result(state : BattleState) -> @scene.SceneNode {
-  let sw = screen_w.to_double()
-  let sh = screen_h.to_double()
+  let sw = layout_sw()
+  let sh = layout_sh()
   let (text, color) = match state.phase {
     Victory => ("VICTORY!", 0x44FF44)
     Defeat => ("DEFEATED", 0xFF4444)
@@ -819,15 +909,22 @@ fn view_battle_result(state : BattleState) -> @scene.SceneNode {
 
 ///|
 fn view_floor_bar(run : RunState) -> @scene.SceneNode {
-  let sw = screen_w.to_double()
+  let sw = layout_sw()
   let bar_h = 16.0
   let nodes : Array[@scene.SceneNode] = []
   nodes.push(@scene.rect(w=sw, h=bar_h, fill=0x222244))
   // Floor dots
-  let dot_size = 10.0
-  let dot_gap = 6.0
-  let total = max_floor.to_double() * dot_size +
-    (max_floor - 1).to_double() * dot_gap
+  let n = max_floor.to_double()
+  let max_span = sw - 100.0
+  let dot_gap = 2.0
+  let mut dot_size = (max_span - (n - 1.0) * dot_gap) / n
+  if dot_size > 10.0 {
+    dot_size = 10.0
+  }
+  if dot_size < 4.0 {
+    dot_size = 4.0
+  }
+  let total = n * dot_size + (n - 1.0) * dot_gap
   let start_x = (sw - total) / 2.0
   let mut i = 1
   while i <= max_floor {
@@ -837,33 +934,42 @@ fn view_floor_bar(run : RunState) -> @scene.SceneNode {
     } else if i == run.floor {
       0xFFDD44 // current
     } else {
-      0x444466 // future
+      0x8888AA // future
     }
     nodes.push(@scene.rect(x~, y=3.0, w=dot_size, h=dot_size, fill=color))
-    // Floor type indicator
-    let label = match floor_type(i) {
-      Combat(Easy) => "E"
-      Combat(Normal) => "N"
-      Combat(Elite) => "!"
-      Combat(Boss) | Boss => "B"
-      Rest => "R"
+    if i <= run.floor {
+      let label = match floor_type(i) {
+        Combat(Easy) => "E"
+        Combat(Normal) => "N"
+        Combat(Elite) => "!"
+        Combat(Boss) | Boss => "B"
+        Rest => "R"
+      }
+      nodes.push(
+        @scene.label(
+          key="floor_" + i.to_string(),
+          x=x + dot_size / 2.0,
+          y=8.0,
+          content=label,
+          scale=0.45,
+          color=0x111122,
+        ),
+      )
     }
-    nodes.push(
-      @scene.label(x=x + 1.0, y=3.0, content=label, scale=0.45, color=0x000000),
-    )
     i += 1
   }
   // HP display on the right
   nodes.push(
     @scene.label(
-      x=sw - 80.0,
-      y=1.0,
+      key="run_hp",
+      x=sw - 40.0,
+      y=8.0,
       content="HP " +
         run.player_hp.to_string() +
         "/" +
         run.player_max_hp.to_string(),
       scale=0.55,
-      color=0xCC4444,
+      color=0xFFFFFF,
     ),
   )
   @scene.fragment(nodes)
@@ -879,7 +985,7 @@ fn view_player_info_from_run(run : RunState) -> @scene.SceneNode {
 
 ///|
 fn view_card_reward(run : RunState) -> @scene.SceneNode {
-  let sw = screen_w.to_double()
+  let sw = layout_sw()
   let nodes : Array[@scene.SceneNode] = []
   // Title
   nodes.push(
@@ -991,8 +1097,8 @@ fn view_card_reward(run : RunState) -> @scene.SceneNode {
 
 ///|
 fn view_rest_site(run : RunState) -> @scene.SceneNode {
-  let sw = screen_w.to_double()
-  let sh = screen_h.to_double()
+  let sw = layout_sw()
+  let sh = layout_sh()
   let heal = run.player_max_hp * 3 / 10
   @scene.fragment([
     @scene.label(
@@ -1035,8 +1141,8 @@ fn view_rest_site(run : RunState) -> @scene.SceneNode {
 
 ///|
 fn view_run_over(run : RunState) -> @scene.SceneNode {
-  let sw = screen_w.to_double()
-  let sh = screen_h.to_double()
+  let sw = layout_sw()
+  let sh = layout_sh()
   let (text, color) = match run.phase {
     RunVictory => ("RUN COMPLETE!", 0x44FF44)
     RunDefeat => ("RUN FAILED", 0xFF4444)

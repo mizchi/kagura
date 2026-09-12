@@ -8,6 +8,8 @@ test('2D layout dragging, resizing, AI edits and MoonBit export feed the real Fl
   await page.goto('/');
   await page.getByLabel('Examples', { exact: true }).selectOption('flappy_bird');
   await expect(page.getByRole('status')).toContainText('Opened project');
+  await expect.poll(() => page.evaluate(() => kagura.workspace.active('hierarchy'))).toBe('plane');
+  await expect.poll(() => page.evaluate(() => kagura.workspace.active('inspector'))).toBe('plane');
   const view = page.getByLabel('2D scene viewport', { exact: true });
   await expect(view).toBeVisible();
   await expect(page.getByLabel('3D scene viewport')).toBeHidden();

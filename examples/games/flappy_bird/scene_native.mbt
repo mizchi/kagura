@@ -1,4 +1,5 @@
 ///|
 fn Game::load_editor_scene(self : Game) -> Unit {
-  self.apply_scene(self.layout) catch { error => abort(error.to_string()) }
+  // Native has no live editor payload. Re-applying the baked layout calls
+  // reset() and would wipe named capture fixtures such as gameover.
 }

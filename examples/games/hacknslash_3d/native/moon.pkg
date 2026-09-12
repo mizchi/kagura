@@ -1,0 +1,22 @@
+// Native GPU capture entry. Separate package because
+// mizchi/native_runtime_hooks (and gfx_wgpu_native) are native-only;
+// importing them from the js+native game package would make JS check fail.
+import {
+  "mizchi/hacknslash_3d/app" @app,
+  "mizchi/native_runtime_hooks" @native_hooks,
+}
+
+warnings = "-1-2-29"
+
+supported_targets = "native"
+
+pkgtype(kind: "executable")
+
+options(
+  link: {
+    "native": {
+      "cc": "${build.KAGURA_NATIVE_CC}",
+      "cc-link-flags": "-L${build.KAGURA_NATIVE_WGPU_LIB_DIR} -lwgpu_native ${build.KAGURA_NATIVE_GLFW_LIBS} ${build.KAGURA_NATIVE_WGPU_RPATH} ${build.KAGURA_NATIVE_PLATFORM_LIBS}",
+    },
+  },
+)

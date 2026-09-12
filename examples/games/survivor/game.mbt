@@ -95,8 +95,8 @@ struct SurvivorState {
   mut selected_upgrade : Int
   mut random_seed : Int
   input : @inpututil.InputHelper
-  screen_w : Double
-  screen_h : Double
+  mut screen_w : Double
+  mut screen_h : Double
   world_w : Double
   world_h : Double
 }
@@ -214,6 +214,32 @@ fn SurvivorState::new() -> SurvivorState {
     screen_h: 240.0,
     world_w: 960.0,
     world_h: 720.0,
+  }
+}
+
+///|
+fn SurvivorState::set_viewport(
+  self : SurvivorState,
+  width : Int,
+  height : Int,
+) -> Unit {
+  self.screen_w = width.to_double()
+  self.screen_h = height.to_double()
+  self.camera.set_screen(self.screen_w, self.screen_h)
+}
+
+///|
+fn SurvivorState::as_gameover(self : SurvivorState) -> Unit {
+  self.game_mode = 3
+}
+
+///|
+fn SurvivorState::snapshot_state(self : SurvivorState) -> String {
+  match self.game_mode {
+    0 => "title"
+    1 => "playing"
+    2 => "levelup"
+    _ => "gameover"
   }
 }
 
@@ -858,6 +884,7 @@ fn SurvivorState::view_title(self : SurvivorState) -> @scene.SceneNode {
   @scene.fragment([
     @scene.rect(w=sw, h=sh, fill=0x1A1A2E),
     @scene.label(
+      key="title",
       x=sw / 2.0,
       y=sh / 2.0 - 30.0,
       content="SURVIVOR",
@@ -865,7 +892,12 @@ fn SurvivorState::view_title(self : SurvivorState) -> @scene.SceneNode {
       scale=2.0,
     ),
     @scene.show(fn() { self.frame_count / 30 % 2 == 0 }, fn() {
-      @scene.label(x=sw / 2.0, y=sh / 2.0 + 30.0, content="SPACE")
+      @scene.label(
+        key="prompt",
+        x=sw / 2.0,
+        y=sh / 2.0 + 30.0,
+        content="SPACE",
+      )
     }),
   ])
 }
@@ -1049,9 +1081,16 @@ fn SurvivorState::view_play(self : SurvivorState) -> @scene.SceneNode {
       }),
     ]),
     // Survival time
-    @scene.label(x=sw - 30.0, y=8.0, content=seconds.to_string(), scale=0.6),
+    @scene.label(
+      key="time",
+      x=sw - 30.0,
+      y=8.0,
+      content=seconds.to_string(),
+      scale=0.6,
+    ),
     // Score
     @scene.label(
+      key="score",
       x=sw - 30.0,
       y=22.0,
       content=self.score.to_string(),
@@ -1060,6 +1099,7 @@ fn SurvivorState::view_play(self : SurvivorState) -> @scene.SceneNode {
     ),
     // Level
     @scene.label(
+      key="level",
       x=22.0,
       y=26.0,
       content="LV" + self.level.to_string(),
@@ -1124,6 +1164,7 @@ fn SurvivorState::view_gameover(self : SurvivorState) -> @scene.SceneNode {
   @scene.fragment([
     @scene.rect(w=sw, h=sh, fill=0x1A0000),
     @scene.label(
+      key="gameover",
       x=sw / 2.0,
       y=sh / 2.0 - 40.0,
       content="GAME OVER",
@@ -1131,15 +1172,28 @@ fn SurvivorState::view_gameover(self : SurvivorState) -> @scene.SceneNode {
       scale=1.5,
     ),
     @scene.label(
+      key="score",
       x=sw / 2.0,
       y=sh / 2.0,
       content=self.score.to_string(),
       color=0xFFCC00,
       scale=1.5,
     ),
-    @scene.label(x=sw / 2.0, y=sh / 2.0 + 30.0, content=seconds.to_string()),
+    @scene.label(
+      key="time",
+      x=sw / 2.0,
+      y=sh / 2.0 + 30.0,
+      content=seconds.to_string(),
+      color=0xFFFFFF,
+    ),
     @scene.show(fn() { self.frame_count / 30 % 2 == 0 }, fn() {
-      @scene.label(x=sw / 2.0, y=sh / 2.0 + 70.0, content="SPACE")
+      @scene.label(
+        key="prompt",
+        x=sw / 2.0,
+        y=sh / 2.0 + 70.0,
+        content="SPACE",
+        color=0xFFCC00,
+      )
     }),
   ])
 }

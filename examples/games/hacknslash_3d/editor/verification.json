@@ -1,0 +1,19 @@
+{
+  "version": 1,
+  "viewports": [
+    { "name": "standard", "width": 640, "height": 480 }
+  ],
+  "states": {
+    "title": {
+      "frames": 1,
+      "expectedState": "title",
+      "expectedFocus": null
+    },
+    "playing": {
+      "initialState": "playing",
+      "frames": 1,
+      "expectedState": "playing",
+      "expectedFocus": null
+    }
+  }
+}

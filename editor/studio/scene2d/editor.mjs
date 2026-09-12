@@ -46,7 +46,7 @@ export function define2DEditor(profile) {
       }
       function open() {
         if (disposed) throw Error('2D editor is unloaded');
-        if (!ui) ui = createPlaneEditor({ editor, project, profile, edit, setStatus });
+        if (!ui) ui = createPlaneEditor({ editor, project, profile, edit, setStatus, workspace: context.workspace });
         ui.setActive(!common.playing());
         viewport?.setActive(false);
       }

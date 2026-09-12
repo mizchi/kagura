@@ -76,7 +76,7 @@ const RAW_DEMO_PAGES = [
       "I: inventory, K: skill tree, Esc: pause",
     ],
     tags: ["3D", "Combat", "RPG"],
-    sourcePath: "examples/games/hacknslash_3d/update.mbt",
+    sourcePath: "examples/games/hacknslash_3d/app/update.mbt",
     width: 640,
     height: 480,
   },

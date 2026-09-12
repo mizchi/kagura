@@ -15,7 +15,7 @@ Kagura のエディタは、ゲームが公開する **シーンの観測・状�
 | 現在の契約 | 足りない対応 |
 | --- | --- |
 | `scene_document.Document` → ゲーム別 compileScene | 初期配置は編集できるが、実行中のオブジェクトのどの値に対応するか不明 |
-| `view()` → `hierarchy.Node` | 入れ子は分かるが、選択したノードから論理状態を参照できない |
+| `view()` → `hierarchy.Node` | 入れ子は分かるが、選択したノードから論理状態を参照できない。Studio の Hierarchy は `kagura.graph()` で subjects（state）と view（観測）を並べ、subject があるノードだけ Inspector の編集対象になる |
 | DebugState → JSON → replace | 任意の状態は復元できるが、選択対象・型付きフォーム・単位・編集可否がない |
 | `for_each` → `generated: true` | 評価方法を表すだけで、生成元・永続性・ソース編集可否を表せない |
 | `editor/scene.mjs` の profile | ゲームの型・値・検証と同じ情報を JS に重複して書く箇所がある |

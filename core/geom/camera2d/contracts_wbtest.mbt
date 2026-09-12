@@ -1,4 +1,13 @@
 ///|
+test "Camera2D::set_screen updates follow centering" {
+  let cam = Camera2D::new(320.0, 240.0, 960.0, 720.0)
+  cam.set_screen(640.0, 360.0)
+  cam.follow_target(480.0, 360.0)
+  inspect(cam.x, content="160")
+  inspect(cam.y, content="180")
+}
+
+///|
 test "Camera2D::new initializes at origin" {
   let cam = Camera2D::new(320.0, 240.0, 960.0, 720.0)
   inspect(cam.x, content="0")

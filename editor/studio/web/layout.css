@@ -129,6 +129,8 @@ html, body, #app {
 .pane-content { min-height: 0; min-width: 0; overflow: auto; overscroll-behavior: contain; flex: 1; }
 .pane-content[hidden] { display: none; }
 .pane-content[role="tabpanel"] { padding: 10px; }
+.pane-host > .pane-content > .panel-heading { display: none; }
+.pane-host.workspace-part > .pane-content:not([hidden]) { display: flex; flex-direction: column; overflow: hidden; padding: 0; }
 .custom-field { display: flex; flex-direction: column; gap: 5px; margin: 12px 0; }
 .custom-field input, .custom-field select { min-width: 0; width: 100%; }
 .custom-field select, .iron-editor-panel select { font: inherit; color: #e0e6ed; background: #171d25; border: 1px solid #3a4552; border-radius: 3px; padding: 7px; }
@@ -183,6 +185,7 @@ html, body, #app {
 /* Keep scene navigation beside the brand, outside the scrolling project actions. */
 .toolbar.has-scene-selector > .project-title { display: none; }
 .scene-selector { display: flex; align-items: center; gap: 6px; flex: 0 0 auto; min-width: 0; font-size: 10px; }
+.scene-selector[hidden] { display: none; }
 .scene-selector > span { color: var(--muted); }
 .scene-selector select { width: clamp(100px, 13vw, 180px); min-width: 0; height: 26px; font-size: 11px; text-overflow: ellipsis; }
 .scene-selector select:disabled { opacity: .75; }

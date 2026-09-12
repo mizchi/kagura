@@ -1,8 +1,9 @@
 import { readScene2D, screenPoint, resizedObject } from './model.mjs';
+import { isInspectorChrome } from '../web/studio-parts.mjs';
 const ns = 'http://www.w3.org/2000/svg';
 const color = (value) => '#' + value.toString(16).padStart(6, '0');
 /** Event-driven layout view: local camera/selection, transactional document edits. */
-export function createPlaneEditor({ editor, project, profile, edit, setStatus }) {
+export function createPlaneEditor({ editor, project, profile, edit, setStatus, workspace }) {
   const lifetime = new AbortController(),
     signal = lifetime.signal;
   const occupied = [];
@@ -16,16 +17,29 @@ export function createPlaneEditor({ editor, project, profile, edit, setStatus })
       original = make('div'),
       panel = make('div');
     original.hidden = true;
-    original.append(...host.childNodes);
+    const keep = [...host.childNodes].filter((node) => isInspectorChrome(node));
+    original.append(...[...host.childNodes].filter((node) => !isInspectorChrome(node)));
     panel.className = 'plane-panel';
     host.append(original, panel);
+    for (const node of keep) host.insertBefore(node, original);
     occupied.push({ original, panel });
     return panel;
   }
-  const tree = occupy('.hierarchy'),
-    inspector = occupy('.inspector'),
-    resources = occupy('.assets'),
-    timeline = occupy('.timeline');
+  function fill(slotId, selector) {
+    if (!workspace) return occupy(selector);
+    const node = workspace.slot(slotId).adopt({
+      id: 'plane',
+      title: slotId,
+      mount({ element }) {
+        element.classList.add('plane-panel');
+      },
+    });
+    return node;
+  }
+  const tree = fill('hierarchy', '.hierarchy'),
+    inspector = fill('inspector', '.inspector'),
+    resources = fill('resources', '.assets'),
+    timeline = fill('timeline', '.timeline');
   const container = document.getElementById('viewport');
   const root = make('div');
   root.className = 'plane2d';
@@ -414,9 +428,13 @@ export function createPlaneEditor({ editor, project, profile, edit, setStatus })
       root.remove();
       container.classList.remove('plane-active');
       document.querySelector('.studio').classList.remove('editing-2d');
-      for (const { original, panel } of occupied) {
-        panel.remove();
-        original.replaceWith(...original.childNodes);
+      if (workspace) {
+        for (const id of ['hierarchy', 'inspector', 'resources', 'timeline']) workspace.slot(id).release('plane');
+      } else {
+        for (const { original, panel } of occupied) {
+          panel.remove();
+          original.replaceWith(...original.childNodes);
+        }
       }
     },
   };

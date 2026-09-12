@@ -68,6 +68,7 @@ export function installProjectUI({ host, panes, assets, setStatus }) {
       manifest?.scene ??
       'プロジェクトを開くとシーンを選択できます';
     sceneChooser.disabled = switchingScene || !manifest?.scenes || entries.length < 2;
+    sceneControl.hidden = sceneChooser.disabled && !manifest?.scenes;
   }
   sceneChooser.addEventListener('change', async () => {
     const selected = sceneChooser.value;

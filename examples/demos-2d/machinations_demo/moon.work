@@ -12,4 +12,5 @@ members = [
   "../../../engine/renderer2d",
   "../../../engine/text",
   "../../../platform/web_runtime_hooks",
+  "../../../engine/ui",
 ]

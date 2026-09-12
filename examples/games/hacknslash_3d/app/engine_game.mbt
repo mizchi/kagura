@@ -1,0 +1,32 @@
+///|
+impl @engine.EngineGame for GameState with fn update_game(self, input) {
+  self.update(input)
+}
+
+///|
+impl @engine.EngineGame for GameState with fn draw_game(self, ctx) {
+  self.draw(ctx)
+}
+
+///|
+fn initialize_native_runtime_state(state : GameState) -> Unit {
+  // Native builds keep these shared fields unset, but we still want the
+  // mutable contract to match the JS runtime that fills them asynchronously.
+  state.dungeon_floor_texture_image_id = None
+  state.dungeon_wall_texture_image_id = None
+}
+
+///|
+pub fn run_native_app() -> Unit {
+  let state = initial_states().create_for_capture(
+    width=screen_w,
+    height=screen_h,
+  )
+  initialize_native_runtime_state(state)
+  @engine.run_game(
+    state,
+    width=screen_w,
+    height=screen_h,
+    title="Hack & Slash 3D",
+  )
+}

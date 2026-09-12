@@ -1,0 +1,27 @@
+import { chromium } from '@playwright/test';
+import { mkdir } from 'node:fs/promises';
+
+const dir = new URL('../test-results/', import.meta.url);
+await mkdir(dir, { recursive: true });
+const browser = await chromium.launch();
+const page = await browser.newPage({ viewport: { width: 1440, height: 900 } });
+page.on('pageerror', (error) => console.error('pageerror', error.message));
+await page.goto('http://127.0.0.1:5190/', { waitUntil: 'domcontentloaded' });
+await page.waitForFunction(() => !!globalThis.kagura);
+await page.screenshot({ path: new URL('studio-console.png', dir).pathname });
+await page.getByRole('tab', { name: 'Agent', exact: true }).click();
+await page.screenshot({ path: new URL('studio-agent.png', dir).pathname });
+await page.getByRole('tab', { name: 'Terminal', exact: true }).click();
+await page.waitForTimeout(2000);
+await page.screenshot({ path: new URL('studio-terminal.png', dir).pathname });
+await page.getByRole('tab', { name: 'Inspector', exact: true }).click();
+await page.screenshot({ path: new URL('studio-inspector.png', dir).pathname });
+await page.getByLabel('Examples', { exact: true }).selectOption('flappy_bird');
+await page.getByRole('status').filter({ hasText: 'Opened project' }).waitFor();
+await page.screenshot({ path: new URL('studio-flappy.png', dir).pathname });
+await page.getByRole('group', { name: 'Project controls' }).getByRole('button', { name: 'Play', exact: true }).click();
+await page.locator('.game-frame').waitFor({ state: 'visible', timeout: 30000 });
+await page.waitForTimeout(1500);
+await page.screenshot({ path: new URL('studio-playing.png', dir).pathname });
+console.log('ok');
+await browser.close();

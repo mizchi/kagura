@@ -16,4 +16,5 @@ members = [
   "../../../engine/ui",
   "../../../editor/effect-studio",
   "../../../platform/web_runtime_hooks",
+  "../../../platform/native_runtime_hooks",
 ]

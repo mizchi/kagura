@@ -2,8 +2,7 @@
 
 [コードとエディタの契約](../../docs/editor/code-editor-contract.md): 宣言した subject を Hierarchy で選択し、ゲーム所有の型付きフィールドを Inspector / AI から編集します。Flappy Bird の Bird が最初の対応例です。
 
-Luna / MoonBit で書き直した、AIと人が同じコマンドで編集する統合オーサリング環境の最初の実装。
-シーン・プリミティブモデリング・短い演出プレビューを同じワークスペースで確認できます。
+シーンエディタの画面は汎用スロット（`hierarchy` / `resources` / `viewport` / `timeline` / `inspector` / `tools`）でできている。Luna の 3D 編集はそのデフォルト view。2D やゲーム拡張は `workspace.slot(id).adopt()` でスロットを埋める。CSS クラスを occupy して奪わない。`window.kagura.workspace.list()` / `active(id)` が同じ契約。
 
 ## 起動
 
@@ -17,7 +16,7 @@ just studio-dev
 
 `studio-dev` は MoonBit を初回ビルドし、変更監視と Vite を起動します。
 依存は独立した `moon.work` と固定バージョンで解決し、隣の luna.mbt / three-mbt のチェックアウトには依存しません。
-ブラウザ向け UI は `mizchi/luna@0.23.3`、シーン生成は `mizchi/three@0.1.3` を使います。
+ブラウザ向け UI は `mizchi/luna@0.25.0`、シーン生成は `mizchi/three@0.1.3` を使います。
 
 ```sh
 just studio-check                  # MoonBit warning-free check + core tests
@@ -98,7 +97,7 @@ console.log(result, editor.snapshot());
 
 [API型定義](public/contract.d.ts) が公開コントラクトです。ブラウザでは `/contract.d.ts` でも取得できます。
 `window.kagura` の編集APIはJSONだけを受け渡しし、ドキュメントにDOM・関数・レンダラーの型を持ち込みません。
-自然言語の推論や外部LLMへの通信はエージェント側が担当します。
+自然言語の推論や外部LLMへの通信はエージェント側が担当します。Studio 内では Agent ペーンが `@mariozechner/pi-coding-agent` に接続し、同じ `snapshot` / `dispatch` / `runtime_*` / `select_scene` をツールとして呼びます。Terminal ペーンは Ghostty（`@gespenst/core`）で、開発サーバの `/studio-pty` に OS シェルを繋ぎます。
 
 ```js
 const api = window.kagura;

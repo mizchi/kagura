@@ -38,13 +38,24 @@ export function parseNativeCapture(png, summary, context) {
   return frame;
 }
 
-export function prepareNativeCapture(example, { build = true } = {}) {
+export function nativeGpuBinaryPath(exampleDir, moduleName) {
+  return join(exampleDir, '_build/native/debug/build', moduleName, 'native', 'native.exe');
+}
+
+export function prepareNativeCapture(example, { build = true, backend = 'cpu' } = {}) {
   const exampleDir = findExampleDir(example, [EXAMPLE_ROOT.examples]);
   if (!exampleDir) throw Error(`Example not found: ${example}`);
   const manifest = join(exampleDir, existsSync(join(exampleDir, 'moon.mod')) ? 'moon.mod' : 'moon.mod.json');
   const moduleName = parseModuleName(readFileSync(manifest, 'utf8'));
-  if (build) execFileSync('moon', ['build', '.', '--target', 'native', '--debug'], { cwd: exampleDir, stdio: 'inherit' });
-  const binaryPath = join(exampleDir, '_build/native/debug/build', moduleName, `${basename(moduleName)}.exe`);
+  if (build) {
+    execFileSync('moon', ['build', '.', '--target', 'native', '--debug'], { cwd: exampleDir, stdio: 'inherit' });
+    if (backend === 'gpu' && existsSync(join(exampleDir, 'native/moon.pkg'))) {
+      execFileSync('moon', ['build', 'native', '--target', 'native', '--debug'], { cwd: exampleDir, stdio: 'inherit' });
+    }
+  }
+  const rootBinary = join(exampleDir, '_build/native/debug/build', moduleName, `${basename(moduleName)}.exe`);
+  const gpuBinary = nativeGpuBinaryPath(exampleDir, moduleName);
+  const binaryPath = backend === 'gpu' && existsSync(gpuBinary) ? gpuBinary : rootBinary;
   if (!existsSync(binaryPath)) throw Error(`Native executable missing: ${binaryPath}`);
   return { exampleDir, binaryPath };
 }
@@ -81,7 +92,7 @@ async function main(args) {
     if (extra[i] === '--backend' && extra[i + 1]) backend = extra[++i];
     else throw Error(`Unknown or incomplete option: ${extra[i]}`);
   }
-  const prepared = prepareNativeCapture(example);
+  const prepared = prepareNativeCapture(example, { backend });
   const cells = matrixCells(JSON.parse(readFileSync(join(prepared.exampleDir, 'editor/verification.json'), 'utf8')));
   const cell = cells.find(c => c.name === `${state}.${viewport}`);
   if (!cell) throw Error(`Unknown capture cell ${state}.${viewport}`);

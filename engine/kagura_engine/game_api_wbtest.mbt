@@ -43,3 +43,16 @@ test "engine_game_draw delegates to EngineGame trait" {
   let _ = engine_game_draw(game, make_test_engine_ctx())
   assert_eq(game.draw_count, 1)
 }
+
+///|
+test "is_native_gpu_capture is off by default" {
+  assert_false(is_native_gpu_capture())
+}
+
+///|
+test "is_native_gpu_capture can be forced for tests" {
+  set_gpu_capture_for_test(true)
+  assert_true(is_native_gpu_capture())
+  set_gpu_capture_for_test(false)
+  assert_false(is_native_gpu_capture())
+}

@@ -2,8 +2,9 @@ import { createSubjectInspector } from './subject-inspector.mjs';
 import { downloadBlob } from './storage.mjs';
 
 /** An explicit paused-state draft; it never writes authoring documents or source files. */
-export function installRuntimeInspector(host, setStatus) {
-  const container = document.querySelector('.inspector');
+export function installRuntimeInspector(host, setStatus, workspace) {
+  const shell = document.querySelector('.inspector');
+  const container = workspace?.slot('inspector').body ?? shell;
   let panel,
     text,
     caption,
@@ -105,9 +106,14 @@ export function installRuntimeInspector(host, setStatus) {
       }
     });
     subjectInspector = createSubjectInspector(host, setStatus);
-    panel.append(heading, caption, note, subjectInspector.panel, text, apply, read, save, file);
+    const raw = document.createElement('details');
+    raw.className = 'runtime-json';
+    const summary = document.createElement('summary');
+    summary.textContent = 'Raw state JSON';
+    raw.append(summary, text, apply, read, save, file);
+    panel.append(heading, caption, note, subjectInspector.panel, raw);
     container.append(panel);
-    container.classList.add('runtime-inspecting');
+    shell.classList.add('runtime-inspecting');
   }
   function render() {
     if (!host.transport().debugging) {
@@ -116,7 +122,7 @@ export function installRuntimeInspector(host, setStatus) {
       base = undefined;
       subjectInspector = undefined;
       dirty = false;
-      container.classList.remove('runtime-inspecting');
+      shell.classList.remove('runtime-inspecting');
       return;
     }
     if (!panel) mount();
@@ -134,7 +140,7 @@ export function installRuntimeInspector(host, setStatus) {
     dispose() {
       unsubscribe();
       panel?.remove();
-      container.classList.remove('runtime-inspecting');
+      shell.classList.remove('runtime-inspecting');
     },
   };
 }

@@ -10,12 +10,17 @@ impl @scene.SceneGame for GameState with fn view_game(self) {
 
 ///|
 fn main {
-  let state = GameState::new(seed=42)
+  let state = initial_states().create_for_capture(
+    width=screen_w,
+    height=screen_h,
+  )
   @scene.run_game(
     state,
     width=screen_w,
     height=screen_h,
     title="Hack & Slash",
     canvas="#app",
+    snapshot_state=fn() { state.snapshot_state() },
+    apply_viewport=fn(width, height) { state.set_viewport(width, height) },
   )
 }

@@ -71,6 +71,28 @@ export interface SceneHierarchyNode {
   subject?: string | null;
   children: SceneHierarchyNode[];
 }
+/** Origin is declared, never inferred from a path or display name. */
+export type SceneGraphOrigin = 'definition' | 'state' | 'derived';
+export interface SceneGraphViewNode extends SceneHierarchyNode {
+  origin: SceneGraphOrigin;
+  selected?: boolean;
+  children: SceneGraphViewNode[];
+}
+export interface SceneGraphSubject {
+  id: string;
+  name: string;
+  origin: 'state' | 'derived';
+  fields: InspectionField[];
+  visuals: string[];
+  selected: boolean;
+}
+export interface SceneGraph {
+  activeScene: string;
+  scenes: { id: string; path: string; entry: boolean }[];
+  subjects: SceneGraphSubject[];
+  view: SceneGraphViewNode[];
+  selection: { kind: 'node' | 'subject' | 'scene'; id: string } | null;
+}
 
 /** Version 1 inspector extension: primitive values, runtime edits and read-only observations. */
 export type InspectionField = {

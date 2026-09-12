@@ -4,6 +4,7 @@ import {
   "moonbitlang/core/math",
   "mizchi/geom/camera2d",
   "mizchi/kagura_core" @core,
+  "mizchi/kagura_engine" @engine,
   "mizchi/kagura_core/inpututil",
   "mizchi/kagura_game/scene",
   "mizchi/geom/vector",
@@ -17,6 +18,10 @@ supported_targets = "js+native"
 pkgtype(kind: "executable")
 
 options(
+  targets: {
+    "verification_debug.mbt": [ "debug" ],
+    "verification_release.mbt": [ "release" ],
+  },
   link: {
     "native": {
       "cc": "${build.KAGURA_NATIVE_CC}",

@@ -15,4 +15,5 @@ members = [
   "../../../../platform/kagura_platform",
   "../../../../engine/renderer2d",
   "../../../../engine/text",
+  "../../../../engine/ui",
 ]

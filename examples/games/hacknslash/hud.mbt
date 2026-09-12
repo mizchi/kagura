@@ -2,7 +2,7 @@
 
 ///|
 fn render_hud(state : GameState) -> @scene.SceneNode {
-  let sw = screen_w.to_double()
+  let sw = state.view_w
   let hp_ratio = state.player.hp.to_double() / state.player.max_hp.to_double()
   let hp_width = 60.0 * hp_ratio
   let hp_color = if hp_ratio > 0.5 {
@@ -20,14 +20,23 @@ fn render_hud(state : GameState) -> @scene.SceneNode {
     }
   }
   @scene.group(x=0.0, y=0.0, children=[
+    @scene.rect(w=sw, h=26.0, fill=0x101018),
     // HP bar background
     @scene.rect(x=4.0, y=4.0, w=62.0, h=8.0, fill=0x440000, alpha=0.8),
     // HP bar fill
     @scene.rect(x=5.0, y=5.0, w=hp_width, h=6.0, fill=hp_color),
     // HP text
-    @scene.label(x=36.0, y=8.0, content="HP", color=0xFFFFFF, scale=0.5),
+    @scene.label(
+      key="hp",
+      x=72.0,
+      y=8.0,
+      content="HP",
+      color=0xFFFFFF,
+      scale=0.5,
+    ),
     // Floor
     @scene.label(
+      key="floor",
       x=sw / 2.0,
       y=8.0,
       content="FLOOR " + state.floor.to_string(),
@@ -36,6 +45,7 @@ fn render_hud(state : GameState) -> @scene.SceneNode {
     ),
     // Score
     @scene.label(
+      key="score",
       x=sw - 40.0,
       y=8.0,
       content=state.score.to_string(),
@@ -44,10 +54,11 @@ fn render_hud(state : GameState) -> @scene.SceneNode {
     ),
     // Enemy count
     @scene.label(
+      key="enemies",
       x=sw - 40.0,
       y=20.0,
       content="x" + alive_count.to_string(),
-      color=0xCC2222,
+      color=0xFF8899,
       scale=0.6,
     ),
     // Dash cooldown indicator
@@ -70,8 +81,8 @@ fn render_hud(state : GameState) -> @scene.SceneNode {
 
 ///|
 fn render_minimap(state : GameState) -> @scene.SceneNode {
-  let sw = screen_w.to_double()
-  let sh = screen_h.to_double()
+  let sw = state.view_w
+  let sh = state.view_h
   let mm_w = 60.0
   let mm_h = 45.0
   let mm_x = sw - mm_w - 4.0

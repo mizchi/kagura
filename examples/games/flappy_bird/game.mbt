@@ -44,6 +44,8 @@ struct Game {
   mut velocity : Double
   mut pipe_timer : Int
   mut input : @inpututil.InputHelper
+  mut screen_w : Int
+  mut screen_h : Int
 }
 
 ///|
@@ -76,6 +78,29 @@ fn Game::new() -> Game {
     velocity: 0.0,
     pipe_timer: 0,
     input: @inpututil.new_input_helper(),
+    screen_w,
+    screen_h,
+  }
+}
+
+///|
+fn Game::set_viewport(self : Game, width : Int, height : Int) -> Unit {
+  self.screen_w = width
+  self.screen_h = height
+}
+
+///|
+fn Game::as_gameover(self : Game) -> Unit {
+  self.game_mode.set(2)
+}
+
+///|
+fn Game::snapshot_state(self : Game) -> String {
+  match self.game_mode.get() {
+    0 => "title"
+    1 => "playing"
+    2 => "gameover"
+    _ => "scene"
   }
 }
 
@@ -112,8 +137,8 @@ fn Game::update_tick(self : Game, input : @core.InputSnapshot) -> Unit {
         self.pipe_timer = self.pipe_timer + 1
         if self.pipe_timer >= pipe_interval {
           self.pipe_timer = 0
-          let sw = screen_w.to_double()
-          let sh = screen_h.to_double()
+          let sw = self.screen_w.to_double()
+          let sh = self.screen_h.to_double()
           let min_gap_y = 40.0
           let max_gap_y = sh - self.ground.height - pipe_gap - 40.0
           let gap_y = min_gap_y +

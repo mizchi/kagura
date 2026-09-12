@@ -1,7 +1,7 @@
 import { test } from 'node:test';
 import assert from 'node:assert/strict';
 import { runMatrix } from './ui-matrix.mjs';
-import { nativeCaptureRequest, parseNativeCapture } from './ui-capture-native.mjs';
+import { nativeCaptureRequest, nativeGpuBinaryPath, parseNativeCapture } from './ui-capture-native.mjs';
 
 test('native request uses the same full input wire contract as JS', () => {
   const request = nativeCaptureRequest({ width: 360, height: 640, frames: 2, initialState: 'dialog', inputs: [{}, { keys: [9], mouseButtons: [0] }] });
@@ -24,7 +24,13 @@ test('native artifacts require complete rendering and matching image dimensions'
   assert.throws(() => parseNativeCapture(png, JSON.stringify({ ...meta, backend: 'webgpu' }), snapshot), /incomplete/);
 });
 
+test('GPU capture uses the native-only hooks package binary', () => {
+  const path = nativeGpuBinaryPath('/repo/examples/games/hacknslash_3d', 'mizchi/hacknslash_3d');
+  assert.match(path, /hacknslash_3d\/native\/native\.exe$/);
+});
+
 test('native comparisons cannot rewrite the shared JS baseline', async () => {
   await assert.rejects(runMatrix('unused', { backend: 'native', update: true }), /shared baseline/);
+  await assert.rejects(runMatrix('unused', { backend: 'gpu', update: true }), /pixel baselines/);
   await assert.rejects(runMatrix('unused', { backend: 'unknown' }), /backend/);
 });

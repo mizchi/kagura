@@ -709,6 +709,7 @@ function submitEncodedFrame(
 ) {
   const frameSubmitStart = performanceNow();
   device.queue.submit([encoder.finish()]);
+  gpu._submittedFrameCount = (gpu._submittedFrameCount ?? 0) + 1;
   scheduleTimestampReadback(gpu, timestampSlot);
   scheduleVrtFrameReadback(gpu, readback);
   const frameSubmitEnd = performanceNow();
@@ -1412,7 +1413,14 @@ function prepareGpuSkinnedDraw(device, shaderSource, vertexData, uniformDwords) 
     /joints\s*:\s*vec4<f32>/.test(shaderSource) &&
     /weights\s*:\s*vec4<f32>/.test(shaderSource) &&
     /bone_matrices/.test(shaderSource);
-  if (!isSkinned) return null;
+  // This compute pass understands only the single-mesh uniform layout and its
+  // explicit pre-skinned bypass. Instanced shaders start bones at dword 32,
+  // not 60, and skin in the vertex shader: feeding them through here reads the
+  // wrong matrices and skins twice, collapsing monsters into thin triangles.
+  const hasComputeLayout =
+    /struct\s+Uniforms\s*\{\s*mvp\s*:\s*mat4x4<f32>\s*,\s*model\s*:\s*mat4x4<f32>/.test(shaderSource) &&
+    /uniforms\.num_bones\.y\s*>\s*0\.5/.test(shaderSource);
+  if (!isSkinned || !hasComputeLayout) return null;
   const floatCount = vertexData.length | 0;
   if (floatCount <= 0 || (floatCount % 16) !== 0) return null;
   if ((uniformDwords.length | 0) < 60) return null;

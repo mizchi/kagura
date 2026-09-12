@@ -69,8 +69,8 @@ fn GameState::rebuild_entity_instance_scratch(
       row >= 0 &&
       row < grid_h &&
       is_tile_visible(region, col, row) {
-      let ix = col.to_double()
-      let iz = row.to_double()
+      let ix = item.x / tile_size
+      let iz = item.y / tile_size
       let base_y = height_at_tile(self.world.dungeon, col, row)
       let bob = base_y + 0.3 + item_bob_offset
       let color = match item.kind {

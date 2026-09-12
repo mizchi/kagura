@@ -103,8 +103,8 @@ fn build_single_chunk(
   for row = start_row; row < end_row; row = row + 1 {
     for col = start_col; col < end_col; col = col + 1 {
       let tile = dungeon.grid.get(col, row)
-      let x = col.to_double()
-      let z = row.to_double()
+      let x = col.to_double() + 0.5
+      let z = row.to_double() + 0.5
       let y = dungeon.height_map[row * w + col]
       match tile {
         Floor | Start | Goal => {
@@ -129,11 +129,7 @@ fn build_single_chunk(
         }
         Door => {
           merge_mesh_at(door_v, door_i, meshes.floor_tile, x, y, z)
-          merge_mesh_at(pillar_v, pillar_i, meshes.pillar, x - 0.4, y, z)
-          merge_mesh_at(pillar_v, pillar_i, meshes.pillar, x + 0.4, y, z)
           merge_mesh_at(all_v, all_i, meshes.floor_tile, x, y, z)
-          merge_mesh_at(all_v, all_i, meshes.pillar, x - 0.4, y, z)
-          merge_mesh_at(all_v, all_i, meshes.pillar, x + 0.4, y, z)
         }
         Wall =>
           if has_adjacent_walkable(dungeon.grid, col, row) {
@@ -148,6 +144,10 @@ fn build_single_chunk(
             }
             merge_mesh_at(wall_v, wall_i, wall_mesh, x, y, z)
             merge_mesh_at(all_v, all_i, wall_mesh, x, y, z)
+            if wall_hash >= 85 {
+              merge_mesh_at(pillar_v, pillar_i, meshes.pillar, x, y, z)
+              merge_mesh_at(all_v, all_i, meshes.pillar, x, y, z)
+            }
           }
         Empty =>
           // Exterior ground: dark plane at y=-0.1 for void areas

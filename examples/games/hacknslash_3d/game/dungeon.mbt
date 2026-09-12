@@ -439,98 +439,17 @@ pub fn generate_dungeon(
   }
 }
 
-// Assign each room a base elevation, corridors get interpolated height
+// The simulation has a 2D collision plane and no authored stairs or ramps.
+// All connected walkable tiles must share that plane; per-room random elevations
+// produced unsupported ledges and scan-order-dependent corridor heights.
 
 ///|
 pub fn build_height_map(
   grid : @terrain.Grid2D,
-  rooms : Array[@terrain.Room],
-  seed : Int,
+  _rooms : Array[@terrain.Room],
+  _seed : Int,
 ) -> Array[Double] {
-  let w = grid.width
-  let h = grid.height
-  let map : Array[Double] = Array::make(w * h, -0.5)
-  // Assign room elevations: vary between 0.0 and 1.2
-  let room_heights : Array[Double] = []
-  for i = 0; i < rooms.length(); i = i + 1 {
-    // Deterministic pseudo-random height per room
-    let hash = (seed * 31 + i * 17 + 7) % 100
-    let elevation = hash.to_double() / 100.0 * 1.2
-    room_heights.push(elevation)
-  }
-  // Fill room tiles with their room's height
-  for i = 0; i < rooms.length(); i = i + 1 {
-    let room = rooms[i]
-    let rect = room.rect
-    for ry = rect.y; ry < rect.y + rect.h; ry = ry + 1 {
-      for rx = rect.x; rx < rect.x + rect.w; rx = rx + 1 {
-        if rx >= 0 && rx < w && ry >= 0 && ry < h {
-          map[ry * w + rx] = room_heights[i]
-        }
-      }
-    }
-  }
-  // Fill corridor/door tiles: find nearest room height or average
-  for row = 0; row < h; row = row + 1 {
-    for col = 0; col < w; col = col + 1 {
-      let tile = grid.get(col, row)
-      match tile {
-        Corridor | Door => {
-          // Average height of nearby floor tiles
-          let mut sum = 0.0
-          let mut count = 0
-          for dy = -3; dy <= 3; dy = dy + 1 {
-            for dx = -3; dx <= 3; dx = dx + 1 {
-              let nx = col + dx
-              let ny = row + dy
-              if nx >= 0 && nx < w && ny >= 0 && ny < h {
-                let idx = ny * w + nx
-                if map[idx] >= 0.0 {
-                  sum = sum + map[idx]
-                  count = count + 1
-                }
-              }
-            }
-          }
-          if count > 0 {
-            map[row * w + col] = sum / count.to_double()
-          } else {
-            map[row * w + col] = 0.0
-          }
-        }
-        _ => ()
-      }
-    }
-  }
-  // Wall tiles: match adjacent floor height
-  for row = 0; row < h; row = row + 1 {
-    for col = 0; col < w; col = col + 1 {
-      if grid.get(col, row) == @terrain.Wall {
-        let mut sum = 0.0
-        let mut count = 0
-        for dy = -1; dy <= 1; dy = dy + 1 {
-          for dx = -1; dx <= 1; dx = dx + 1 {
-            let nx = col + dx
-            let ny = row + dy
-            if nx >= 0 && nx < w && ny >= 0 && ny < h {
-              let adj_tile = grid.get(nx, ny)
-              match adj_tile {
-                Floor | Corridor | Door | Start | Goal => {
-                  sum = sum + map[ny * w + nx]
-                  count = count + 1
-                }
-                _ => ()
-              }
-            }
-          }
-        }
-        if count > 0 {
-          map[row * w + col] = sum / count.to_double()
-        }
-      }
-    }
-  }
-  map
+  Array::make(grid.width * grid.height, 0.0)
 }
 
 // Get tile height at world position
@@ -586,7 +505,37 @@ pub fn slide_move(
   vy : Double,
   size : Double,
 ) -> (Double, Double) {
-  @physics2d.grid_slide_move(grid, x, y, vx, vy, size, tile_size)
+  // Substep long displacements so a dash cannot jump across a blocked tile.
+  // Resolve each axis independently and retain the free fraction at contact.
+  let steps = @cmp.maximum(
+    1,
+    (@cmp.maximum(vx.abs(), vy.abs()) / (tile_size * 0.25)).ceil().to_int(),
+  )
+  let sx = vx / steps.to_double()
+  let sy = vy / steps.to_double()
+  let mut px = x
+  let mut py = y
+  fn free_fraction(x : Double, y : Double, dx : Double, dy : Double) -> Double {
+    if !check_wall_collision(grid, x + dx, y + dy, size) {
+      return 1.0
+    }
+    let mut lo = 0.0
+    let mut hi = 1.0
+    for _ in 0..<12 {
+      let mid = (lo + hi) * 0.5
+      if check_wall_collision(grid, x + dx * mid, y + dy * mid, size) {
+        hi = mid
+      } else {
+        lo = mid
+      }
+    }
+    lo
+  }
+  for _ in 0..<steps {
+    px += sx * free_fraction(px, py, sx, 0.0)
+    py += sy * free_fraction(px, py, 0.0, sy)
+  }
+  (px, py)
 }
 
 ///|

@@ -1,8 +1,11 @@
 // Shared WebGPU initialization for JS-target game engine examples
+import { installGamePresentation } from './kagura-presentation.js';
 
 export async function initWebGPU(canvasSelector) {
   const canvas = document.querySelector(canvasSelector);
-  if (!canvas || !navigator.gpu) {
+  if (!canvas) return null;
+  installGamePresentation(canvas);
+  if (!navigator.gpu) {
     return null;
   }
   try {
@@ -110,6 +113,7 @@ export function setupGlobalState(canvas, device, format, context) {
   });
   state.fonts = state.fonts || {};
   state.canvas = canvas;
+  state.webgpu._submittedFrameCount = 0;
   state.surfaceId = state.nextSurfaceId++;
   canvas.__kaguraSurfaceId = state.surfaceId;
   state.webgpu.context = context;

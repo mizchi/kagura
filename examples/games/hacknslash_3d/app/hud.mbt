@@ -137,7 +137,7 @@ fn GameState::draw_spell_cooldowns(
   self.draw_spell_cooldown_widget(
     ctx,
     cmds,
-    "CL",
+    "4 CL",
     start_x,
     bar_y,
     46.0,
@@ -148,7 +148,7 @@ fn GameState::draw_spell_cooldowns(
   self.draw_spell_cooldown_widget(
     ctx,
     cmds,
-    "FB",
+    "5 FB",
     start_x + slot_w,
     bar_y,
     46.0,
@@ -159,7 +159,7 @@ fn GameState::draw_spell_cooldowns(
   self.draw_spell_cooldown_widget(
     ctx,
     cmds,
-    "IN",
+    "6 IN",
     start_x + slot_w * 2.0,
     bar_y,
     46.0,
@@ -170,7 +170,7 @@ fn GameState::draw_spell_cooldowns(
   self.draw_spell_cooldown_widget(
     ctx,
     cmds,
-    "HM",
+    "7 HM",
     start_x + slot_w * 3.0,
     bar_y,
     46.0,
@@ -425,30 +425,30 @@ fn GameState::render_title_cmds(
   let cmds : Array[@gfx.DrawTrianglesCommand] = []
   let ctx = self.make_hud_ctx(dst, shader)
   // Background
-  ctx.draw_rect(cmds, 0.0, 0.0, sw, sh, @hud.hex_color(0x1A1A2E))
+  ctx.draw_rect(cmds, 0.0, 0.0, sw, sh, @hud.hex_color(0x10171B))
   match self.text_renderer {
     Some(tr) => {
       let _ = tr
       ctx.draw_text_centered(
         cmds,
-        "HACK N SLASH",
+        "ASHEN HUNT",
         48.0,
         sw / 2.0,
         sh / 2.0 - 60.0,
-        0xFF4444,
+        0xCBB68B,
       )
       ctx.draw_text_centered(
         cmds,
-        "3D",
+        "THE LONG NIGHT",
         32.0,
         sw / 2.0,
         sh / 2.0 - 10.0,
-        0x44AAFF,
+        0x84999D,
       )
       if self.world.frame_count / 30 % 2 == 0 {
         ctx.draw_text_centered(
           cmds,
-          "PRESS SPACE",
+          "SPACE  /  BEGIN THE HUNT",
           24.0,
           sw / 2.0,
           sh / 2.0 + 40.0,
@@ -461,22 +461,22 @@ fn GameState::render_title_cmds(
         @scene.label(
           x=sw / 2.0,
           y=sh / 2.0 - 60.0,
-          content="HACK N SLASH",
+          content="ASHEN HUNT",
           scale=3.0,
-          color=0xFF4444,
+          color=0xCBB68B,
         ),
         @scene.label(
           x=sw / 2.0,
           y=sh / 2.0 - 10.0,
-          content="3D",
+          content="THE LONG NIGHT",
           scale=2.0,
-          color=0x44AAFF,
+          color=0x84999D,
         ),
         @scene.show(fn() { self.world.frame_count / 30 % 2 == 0 }, fn() {
           @scene.label(
             x=sw / 2.0,
             y=sh / 2.0 + 40.0,
-            content="PRESS SPACE",
+            content="SPACE  /  BEGIN THE HUNT",
             color=0xFFCC00,
             scale=1.5,
           )
@@ -664,7 +664,7 @@ fn GameState::render_gameover_cmds(
       if self.world.frame_count / 30 % 2 == 0 {
         ctx.draw_text_centered(
           cmds,
-          "PRESS SPACE",
+          "SPACE  /  BEGIN THE HUNT",
           24.0,
           sw / 2.0,
           sh / 2.0 + 80.0,
@@ -698,7 +698,7 @@ fn GameState::render_gameover_cmds(
           @scene.label(
             x=sw / 2.0,
             y=sh / 2.0 + 80.0,
-            content="PRESS SPACE",
+            content="SPACE  /  BEGIN THE HUNT",
             color=0x888888,
             scale=1.5,
           )

@@ -181,6 +181,26 @@ extern "js" fn js_publish_runtime_state(
   #| }
 
 ///|
+extern "js" fn js_publish_hunter_state(
+  x : Double,
+  y : Double,
+  facing : Double,
+  animation : String,
+  attacks : Int,
+  dodges : Int,
+  yaw : Double,
+  pitch : Double,
+  distance : Double,
+  hp : Int,
+  paused : Bool,
+  bone_count : Int,
+  part_count : Int,
+) -> Unit =
+  #| (x,y,facing,animation,attacks,dodges,yaw,pitch,distance,hp,paused,bones,materials) => {
+  #|   globalThis.__ashenHunt = {x,y,facing,animation,attacks,dodges,yaw,pitch,distance,hp,paused,bones,materials};
+  #| }
+
+///|
 extern "js" fn js_publish_audio_debug_state(
   loaded_count : Int,
   playing_count : Int,
@@ -279,7 +299,11 @@ fn apply_initial_audio_settings(
 
 ///|
 extern "js" fn js_random_seed() -> Int =
-  #| () => (Math.random() * 2147483647) | 0
+  #| () => {
+  #|   const seed=new URLSearchParams(globalThis.location?.search??'').get('seed');
+  #|   if(seed!==null && /^\d{1,9}$/.test(seed))return Number(seed);
+  #|   return (Math.random()*2147483647)|0;
+  #| }
 
 ///|
 fn build_initial_state() -> GameState {
@@ -305,6 +329,7 @@ fn build_initial_state() -> GameState {
     postfx_config~,
     archetype=initial_archetype,
     build_policy=initial_build_policy,
+    hunting_grounds=true,
   )
   state.show_profiler = get_initial_profiler_enabled()
   state.pipeline.set_fxaa_enabled(get_initial_fxaa_enabled())
@@ -506,6 +531,28 @@ fn run_game_js(state : GameState, perf_capture_enabled : Bool) -> Unit {
         state.active_effects.length(),
         state.particle_manager.emitters.length(),
       )
+      js_publish_hunter_state(
+        state.world.player.x,
+        state.world.player.y,
+        state.world.player.facing_angle,
+        match state.character.anim_state {
+          Idle => "idle"
+          Running => "running"
+          Attacking => "attacking"
+          Hurt => "hurt"
+          Dodging => "dodging"
+        },
+        state.character.attack_count,
+        state.character.dodge_count,
+        state.camera.yaw,
+        state.camera.pitch,
+        state.camera.distance,
+        state.world.player.hp,
+        state.paused,
+        char_num_bones,
+        state.character.parts.length(),
+      )
+      state.publish_hunter_hud()
       js_publish_audio_debug_state(
         state.loaded_audio_player_count(),
         state.playing_audio_player_count(),
@@ -532,7 +579,10 @@ fn load_generated_prop_manifest_js(
 ) -> Unit {
   if index >= placements.length() {
     run_game_js(state, perf_capture_enabled)
-    load_dungeon_textures_js(state)
+    // Faceted stone is the default hunter art direction.
+    if js_get_query_param_bool("legacy_textures", false) {
+      load_dungeon_textures_js(state)
+    }
     return
   }
   let placement = placements[index]
@@ -615,7 +665,10 @@ pub fn run_js_app() -> Unit {
   if generated_prop_manifest.is_empty() {
     let state = build_initial_state()
     run_game_js(state, perf_capture_enabled)
-    load_dungeon_textures_js(state)
+    // Faceted stone is the default hunter art direction.
+    if js_get_query_param_bool("legacy_textures", false) {
+      load_dungeon_textures_js(state)
+    }
     return
   }
   let state = build_initial_state()

@@ -155,11 +155,11 @@ fn GameState::render_hud_cmds(
     self.world.player.max_hp,
   )
   let hp_color = if hp_ratio > 0.5 {
-    0x00CC00
+    0xB73E44
   } else if hp_ratio > 0.25 {
-    0xCCAA00
+    0xA8513F
   } else {
-    0xCC0000
+    0xD14D49
   }
   let mut alive_count = 0
   for enemy in self.world.enemies {

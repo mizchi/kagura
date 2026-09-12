@@ -122,6 +122,12 @@ fn GameState::push_dungeon_chunk_commands(
   cmds : Array[@gfx.DrawTrianglesCommand],
 ) -> Unit {
   let identity = @math3d.Mat4::identity()
+  if self.world.hunting_grounds && self.world.authored_scene is None {
+    self.push_hunting_ground_commands(
+      visible_groups, view_projection, dst, cmds,
+    )
+    return
+  }
   let tinted_cache = self.dungeon_tinted_lighting_cache
   match shadow_state {
     Some(shadow) => {
@@ -266,15 +272,19 @@ fn GameState::get_visible_chunks_for_player(
 fn GameState::get_visible_dungeon_mesh_cache_for_player(
   self : GameState,
 ) -> VisibleDungeonMeshCache {
-  let player_tile_x = (self.world.player.x / tile_size).to_int()
-  let player_tile_z = (self.world.player.y / tile_size).to_int()
+  let outdoors = self.world.hunting_grounds && self.world.authored_scene is None
+  let divisor = if outdoors { chunk_size } else { 1 }
+  let player_tile_x = (self.world.player.x / tile_size).to_int() / divisor
+  let player_tile_z = (self.world.player.y / tile_size).to_int() / divisor
   if self.visible_dungeon_mesh_cache.groups.is_empty() ||
     self.visible_dungeon_mesh_cache_player_tile_x != player_tile_x ||
     self.visible_dungeon_mesh_cache_player_tile_z != player_tile_z {
     let visible_chunks = self.get_visible_chunks_for_player()
-    self.visible_dungeon_mesh_cache = build_visible_dungeon_mesh_cache(
-      visible_chunks,
-    )
+    self.visible_dungeon_mesh_cache = if outdoors {
+      build_visible_hunting_mesh_cache(visible_chunks)
+    } else {
+      build_visible_dungeon_mesh_cache(visible_chunks)
+    }
     self.visible_dungeon_mesh_cache_player_tile_x = player_tile_x
     self.visible_dungeon_mesh_cache_player_tile_z = player_tile_z
     self.visible_dungeon_mesh_cache_builds = self.visible_dungeon_mesh_cache_builds +

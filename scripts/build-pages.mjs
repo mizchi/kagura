@@ -31,6 +31,7 @@ function buildPages() {
   mkdirSync(join(SITE, "lib"), { recursive: true });
 
   copySharedLib("kagura-init.js");
+  copySharedLib("kagura-presentation.js");
   copySharedLib("kagura-audio.js");
   copySharedLib("kagura-gfx.js");
 

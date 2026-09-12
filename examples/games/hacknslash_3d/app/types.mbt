@@ -155,7 +155,7 @@ struct GameState {
   mut dungeon_floor_texture_image_id : Int?
   mut dungeon_wall_texture_image_id : Int?
   // PostFX pipeline
-  pipeline : @render_pipeline3d.RenderPipeline3D
+  mut pipeline : @render_pipeline3d.RenderPipeline3D
   fog_sh : @gfx.ShaderHandle
   // Particles
   particle_manager : @particle3d.ParticleManager

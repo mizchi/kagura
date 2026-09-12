@@ -28,7 +28,7 @@ if (!selected.length) await rm(destination, { recursive: true, force: true });
 await mkdir(destination, { recursive: true });
 const wrapper = new URL('public/example-runtime/', studio);
 await mkdir(new URL('lib/', wrapper), { recursive: true });
-for (const file of ['kagura-init.js', 'kagura-audio.js', 'kagura-gfx.js'])
+for (const file of ['kagura-init.js', 'kagura-presentation.js', 'kagura-audio.js', 'kagura-gfx.js'])
   await cp(
     new URL('../../../assets/web/' + file, import.meta.url),
     new URL('lib/' + file, wrapper),

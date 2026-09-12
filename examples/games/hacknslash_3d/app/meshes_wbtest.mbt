@@ -41,3 +41,31 @@ test "make_pillar_mesh assigns varying uv coordinates" {
   }
   assert_true(has_nonzero_uv)
 }
+
+///|
+test "drawn wall footprint matches the collision tile rather than being shifted half a tile" {
+  let world = @game.GameWorld::new(seed=42)
+  for y in 0..<world.dungeon.grid.height {
+    for x in 0..<world.dungeon.grid.width {
+      world.dungeon.grid.set(x, y, @terrain.Empty)
+    }
+  }
+  world.dungeon.grid.set(3, 3, @terrain.Wall)
+  world.dungeon.grid.set(2, 3, @terrain.Floor)
+  let chunk = build_single_chunk(
+    world.dungeon,
+    Meshes3D::new(),
+    0,
+    0,
+    world.dungeon.grid.width,
+    world.dungeon.grid.height,
+  )
+  let mut min_x = 100.0
+  let mut max_x = 0.0
+  for i in 0..<(chunk.wall_mesh.vertex_data.length() / 8) {
+    min_x = @cmp.minimum(min_x, chunk.wall_mesh.vertex_data[i * 8])
+    max_x = @cmp.maximum(max_x, chunk.wall_mesh.vertex_data[i * 8])
+  }
+  assert_true((min_x - 3.0).abs() < 0.02)
+  assert_true((max_x - 4.0).abs() < 0.02)
+}

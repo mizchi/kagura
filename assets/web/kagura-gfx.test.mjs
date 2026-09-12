@@ -771,3 +771,32 @@ test('custom bind groups track actual sampler/view changes even without revision
  gpu.textures.delete(10);draw();assert.equal(groups.length,count+3);
  assert.equal(groups.at(-1).entries[1].resource,gpu._defaultTexView);
 });
+
+test("instanced skeletons keep their own bone layout and skin only in the vertex shader", () => {
+  for (const monochrome of [false, true]) {
+    const device=createFakeDevice(), context=createFakeContext(), gpu=createGpu(context);
+    let computeCalls=0;
+    device.createComputePipeline=()=>{ computeCalls++; throw new Error('wrong skinning layout'); };
+    gpu.commands=[{
+      ...createInstancedCustomCommand(3),
+      vertexData:new Float32Array(3*16),
+      uniformDwords:new Int32Array(2400),
+      shaderSource:`
+        struct Uniforms {
+          vp: mat4x4<f32>, light_dir: vec4<f32>, light_color: vec4<f32>,
+          ambient_color: vec4<f32>, num_bones: vec4<f32>,
+          bone_matrices: array<mat4x4<f32>, 64>, instance_count: vec4<f32>,
+          ${monochrome ? 'base_color: vec4<f32>,' : ''}
+        };
+        struct VertexInput {
+          @location(0) position: vec3<f32>, @location(1) normal: vec3<f32>,
+          @location(2) uv: vec2<f32>, @location(3) joints: vec4<f32>,
+          @location(4) weights: vec4<f32>,
+        };
+      `,
+    }];
+    renderGpu(gpu, device, context, [0,0,0,1], 'bgra8unorm');
+    assert.equal(computeCalls, 0);
+    assert.deepEqual(device.state.lastDrawIndexedArgs, [3,3]);
+  }
+});

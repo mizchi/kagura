@@ -4,6 +4,30 @@ target := "js"
 
 default: check test
 
+# ASHEN HUNT: the two-head-tall hunter built on hacknslash_3d.
+hunter-dev:
+    node scripts/dev-server.mjs hacknslash_3d
+
+# Rebuild the original sound bank and a WAV audition reel (requires ffmpeg).
+hunter-audio:
+    node examples/games/hacknslash_3d/scripts/design-audio.mjs
+
+hunter-test:
+    moon -C examples/games/hacknslash_3d check --target js --deny-warn
+    moon -C examples/games/hacknslash_3d test game app --target js
+    node --test examples/games/hacknslash_3d/web/*.test.mjs assets/web/kagura-presentation.test.mjs assets/web/kagura-audio.test.mjs
+
+hunter-e2e:
+    pnpm exec playwright test --config examples/games/hacknslash_3d/playwright.config.mjs
+
+# Engine-owned browser capture: only the game surface, without page chrome.
+[positional-arguments]
+capture-web *args:
+    node scripts/capture-web.mjs "$@"
+
+hunter-capture:
+    node scripts/capture-web.mjs --url 'http://localhost:8080/?snapshot=playing&frames=0&mute=1' --output output/ashen-hunt.png
+
 # IRON YARD: modeling-playground mech TPS on Kagura's renderer and MoonBit simulation.
 iron-yard-dev:
     node examples/games/iron_yard/scripts/dev.mjs

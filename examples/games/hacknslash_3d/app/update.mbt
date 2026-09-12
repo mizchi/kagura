@@ -40,8 +40,16 @@ fn GameState::new_with_params(
   postfx_config? : @render_pipeline3d.PostFXConfig = @render_pipeline3d.PostFXConfig::default(),
   archetype? : @game.CharacterArchetype = @game.default_character_archetype(),
   build_policy? : @game.ArchetypeBuildPolicy = @game.default_archetype_build_policy(),
+  hunting_grounds? : Bool = false,
 ) -> GameState {
-  let world = @game.GameWorld::new(seed~, params~, archetype~, build_policy~)
+  let world = @game.GameWorld::new(
+    seed~,
+    params~,
+    archetype~,
+    build_policy~,
+    hunting_grounds~,
+  )
+  world.manual_combat = true
   let sw = screen_w.to_double()
   let sh = screen_h.to_double()
   let init_y = @game.get_tile_height(
@@ -52,12 +60,12 @@ fn GameState::new_with_params(
   let camera = @camera3d.OrbitCamera::new(
     @math3d.Vec3::new(
       world.player.x / tile_size,
-      init_y,
+      init_y + 0.3,
       world.player.y / tile_size,
     ),
-    22.0, // pulled back for wider view
+    18.0, // pulled-back quarter view: combat space and readable hunter silhouette
     0.785, // yaw 45 degrees
-    1.1, // pitch ~63 degrees (more top-down like PoE)
+    0.78, // 45-degree quarter view
     @math.PI / 5.0,
     sw / sh,
     0.1,
@@ -66,16 +74,20 @@ fn GameState::new_with_params(
   let lighting = @light3d.LightingEnvironment::new(
     @light3d.DirectionalLight::new(
       @math3d.Vec3::new(-0.4, -1.0, -0.6),
-      @math3d.Vec3::new(1.0, 0.9, 0.7), // warm directional light
-      0.85,
+      @math3d.Vec3::new(0.80, 0.89, 1.0), // moonlit edges
+      1.15,
     ),
     @light3d.AmbientLight::new(
-      @math3d.Vec3::new(0.6, 0.65, 0.8), // cool blue ambient
-      0.2,
+      @math3d.Vec3::new(0.65, 0.72, 0.84), // keep dark cloth readable
+      0.48,
     ),
   )
   let meshes = Meshes3D::new()
-  let dungeon_chunks = build_dungeon_chunks(world.dungeon, meshes)
+  let dungeon_chunks = if hunting_grounds {
+    build_hunting_chunks(world.dungeon, seed)
+  } else {
+    build_dungeon_chunks(world.dungeon, meshes)
+  }
   let dungeon_tinted_lighting_cache = build_dungeon_tinted_lighting_cache(
     lighting,
   )
@@ -213,14 +225,71 @@ fn GameState::new_with_params(
 
 ///|
 fn GameState::update(self : GameState, input : @core.InputSnapshot) -> Unit {
+  let web_key = hunter_web_key()
+  let selection = hunter_web_selection()
+  if selection >= 0 {
+    if self.world.mode == @game.CharacterSelect &&
+      selection < @game.selectable_archetypes().length() {
+      self.world.select_cursor = selection
+    } else {
+      let count = match self.world.ui_mode {
+        Inventory => self.world.inventory.capacity
+        Skills => self.world.skills.nodes.length()
+        LevelUp => self.world.level_progress.current_offers.length()
+        None => 0
+      }
+      if selection < count {
+        self.world.ui_cursor = selection
+      }
+    }
+  }
+  let input = if web_key == 0 {
+    input
+  } else {
+    let keys = input.pressed_keys.copy()
+    if !keys.contains(web_key) {
+      keys.push(web_key)
+    }
+    @core.new_input_snapshot_full(
+      input.cursor_x,
+      input.cursor_y,
+      input.wheel_x,
+      input.wheel_y,
+      keys,
+      input.pressed_mouse_buttons,
+      input.touches,
+      input.gamepads,
+    )
+  }
   self.world.frame_count = self.world.frame_count + 1
+  let previous_x = self.world.cursor_x
+  let previous_y = self.world.cursor_y
+  let was_dragging = @inpututil.is_mouse_button_pressed(
+    self.input.mouse_state,
+    2,
+  )
   // Scale CSS cursor coordinates to logical game coordinates
   let css_w = canvas_css_width()
   let css_h = canvas_css_height()
+  if hunter_web_enabled() {
+    self.camera = hunter_responsive_camera(self.camera, css_w, css_h)
+  }
   let scale_x = screen_w.to_double() / css_w
   let scale_y = screen_h.to_double() / css_h
   self.world.cursor_x = input.cursor_x * scale_x
   self.world.cursor_y = input.cursor_y * scale_y
+  if self.world.mode == @game.Playing &&
+    self.world.ui_mode == @game.UIMode::None {
+    self.camera = hunter_camera_input(
+      self.camera,
+      input,
+      previous_x,
+      previous_y,
+      was_dragging,
+      scale_x,
+      scale_y,
+    )
+  }
   @inpututil.update_input_helper(self.input, input)
   // Profiler toggle (works in any mode)
   if @inpututil.is_key_just_pressed(self.input.key_state, key_f3) {
@@ -262,6 +331,7 @@ fn GameState::update_title(
   if @inpututil.is_confirm_just_pressed(self.input) {
     // Try loading save first
     if self.load_game() {
+      self.world.ensure_hunter_loadout()
       self.world.mode = @game.Playing
     } else {
       // No save — go to character select
@@ -394,6 +464,8 @@ fn GameState::update_playing(self : GameState) -> Unit {
   if self.paused {
     return
   }
+  let previous_player_x = self.world.player.x
+  let previous_player_y = self.world.player.y
   // Determine movement input
   if self.world.auto_play {
     // Auto-play: let world handle everything
@@ -418,7 +490,9 @@ fn GameState::update_playing(self : GameState) -> Unit {
     if @inpututil.is_move_right(self.input.key_state) {
       raw_dx = raw_dx + 1.0
     }
-    if raw_dx != 0.0 && raw_dy != 0.0 {
+    raw_dx += hunter_web_move_x()
+    raw_dy += hunter_web_move_y()
+    if raw_dx * raw_dx + raw_dy * raw_dy > 1.0 {
       let v = @vector.Vec2::new(raw_dx, raw_dy).normalize()
       raw_dx = v.x
       raw_dy = v.y
@@ -433,10 +507,24 @@ fn GameState::update_playing(self : GameState) -> Unit {
       self.input.key_state,
       key_shift,
     )
-    if shift_pressed &&
+    let dodge_pressed = shift_pressed ||
+      @inpututil.is_key_just_pressed(self.input.key_state, 32)
+    if dodge_pressed &&
       self.world.player.dash_cooldown_timer <= 0 &&
-      (dx != 0.0 || dy != 0.0) {
-      @game.start_dash(self.world, dx, dy)
+      (dx != 0.0 || dy != 0.0 || hunter_web_enabled()) {
+      let dodge_x = if dx == 0.0 && dy == 0.0 {
+        @math.cos(self.world.player.facing_angle)
+      } else {
+        dx
+      }
+      let dodge_y = if dx == 0.0 && dy == 0.0 {
+        @math.sin(self.world.player.facing_angle)
+      } else {
+        dy
+      }
+      @game.start_dash(self.world, dodge_x, dodge_y)
+      self.character.trigger_dodge()
+      self.play_sound_cue(SfxDodge)
     }
     // Skill activation: 1/2/3 keys
     if @inpututil.is_key_just_pressed(self.input.key_state, key_1) {
@@ -446,10 +534,24 @@ fn GameState::update_playing(self : GameState) -> Unit {
       @game.activate_skill(self.world, 1)
     }
     if @inpututil.is_key_just_pressed(self.input.key_state, key_3) {
-      @game.activate_skill(self.world, 2)
+      @game.activate_skill(
+        self.world,
+        if self.world.hunting_grounds {
+          4
+        } else {
+          2
+        },
+      )
     }
     if @inpututil.is_key_just_pressed(self.input.key_state, key_4) {
-      @game.activate_skill(self.world, 3)
+      @game.activate_skill(
+        self.world,
+        if self.world.hunting_grounds {
+          5
+        } else {
+          3
+        },
+      )
     }
     if @inpututil.is_key_just_pressed(self.input.key_state, key_5) {
       @game.activate_skill(self.world, 4)
@@ -462,6 +564,28 @@ fn GameState::update_playing(self : GameState) -> Unit {
     }
     if @inpututil.is_key_just_pressed(self.input.key_state, key_8) {
       @game.activate_skill(self.world, 7)
+    }
+    if @inpututil.is_mouse_button_pressed(self.input.mouse_state, 0) ||
+      @inpututil.is_key_pressed(self.input.key_state, 74) ||
+      hunter_web_attacking() {
+      let angle = if hunter_web_attacking() {
+        hunter_assisted_aim(self.world)
+      } else {
+        hunter_aim_angle(
+          self.camera,
+          self.world.cursor_x,
+          self.world.cursor_y,
+          self.world.player.x,
+          self.world.player.y,
+          @game.get_tile_height(
+            self.world.dungeon,
+            self.world.player.x,
+            self.world.player.y,
+          ),
+          self.world.player.facing_angle,
+        )
+      }
+      let _ = self.world.request_basic_attack(angle)
     }
     // Tick world with movement
     match self.build_generated_prop_enemy_ai_grid() {
@@ -534,10 +658,7 @@ fn GameState::update_playing(self : GameState) -> Unit {
       }
       @game.EnemyTelegraphRing(x, y, radius) =>
         self.queue_enemy_telegraph_effect(x, y, radius)
-      @game.MeleeSlash(x, y, _radius) => {
-        spawn_death_burst(self.particle_manager, x, y)
-        spawn_hit_sparks(self.particle_manager, x, y)
-      }
+      @game.MeleeSlash(_x, _y, _radius) => () // the rig drives the blade trail
       @game.RoomCleared(_room_idx, x, y) => {
         // Celebration burst for room clear
         spawn_death_burst(self.particle_manager, x, y)
@@ -562,24 +683,14 @@ fn GameState::update_playing(self : GameState) -> Unit {
   self.camera = self.camera.with_target(
     @math3d.Vec3::new(
       self.world.player.x / tile_size,
-      cam_y,
+      cam_y + 0.3,
       self.world.player.y / tile_size,
     ),
   )
   // Update character animation
-  let is_moving = self.world.player.dash_timer > 0 ||
-    (
-    // check if player moved this frame by seeing if facing angle changed or velocity != 0
-    // simpler: check if any movement keys are held
-      !self.world.auto_play &&
-      (
-        @inpututil.is_move_up(self.input.key_state) ||
-        @inpututil.is_move_down(self.input.key_state) ||
-        @inpututil.is_move_left(self.input.key_state) ||
-        @inpututil.is_move_right(self.input.key_state)
-      )
-    ) ||
-    self.world.auto_play
+  let moved_x = self.world.player.x - previous_player_x
+  let moved_y = self.world.player.y - previous_player_y
+  let is_moving = moved_x * moved_x + moved_y * moved_y > 0.0001
   self.character.set_moving(is_moving)
   self.character.update(1.0 / 60.0)
   self.enemy_models.update(1.0 / 60.0)
@@ -625,7 +736,12 @@ fn GameState::update_damage_popups(self : GameState) -> Unit {
 
 ///|
 fn GameState::rebuild_dungeon_rendering(self : GameState) -> Unit {
-  self.dungeon_chunks = build_dungeon_chunks(self.world.dungeon, self.meshes)
+  self.dungeon_chunks = if self.world.hunting_grounds &&
+    self.world.authored_scene is None {
+    build_hunting_chunks(self.world.dungeon, self.world.seed)
+  } else {
+    build_dungeon_chunks(self.world.dungeon, self.meshes)
+  }
   self.dungeon_tinted_lighting_cache = build_dungeon_tinted_lighting_cache(
     self.lighting,
   )

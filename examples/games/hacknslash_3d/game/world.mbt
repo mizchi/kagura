@@ -2,6 +2,7 @@
 
 ///|
 pub(all) struct GameWorld {
+  hunting_grounds : Bool
   mut authored_scene : AuthoredScene?
   params : BalanceParams
   mut archetype : CharacterArchetype
@@ -30,6 +31,7 @@ pub(all) struct GameWorld {
   mut player_stats : PlayerStats
   mut ui_mode : UIMode
   mut ui_cursor : Int
+  mut manual_combat : Bool
   mut auto_play : Bool
   mut auto_nav_target : @terrain.Point?
   mut auto_nav_path : Array[@terrain.Point]
@@ -68,10 +70,18 @@ pub fn GameWorld::new(
   params? : BalanceParams = BalanceParams::default(),
   archetype? : CharacterArchetype = default_character_archetype(),
   build_policy? : ArchetypeBuildPolicy = default_archetype_build_policy(),
+  hunting_grounds? : Bool = false,
 ) -> GameWorld {
-  let dungeon = generate_dungeon(seed, params~)
+  let dungeon = if hunting_grounds {
+    generate_hunting_grounds(seed)
+  } else {
+    generate_dungeon(seed, params~)
+  }
   let equipment = Equipment::new()
   let skills = SkillTree::new_for_archetype(archetype)
+  if hunting_grounds {
+    equip_hunter_skills(skills)
+  }
   let player_stats = compute_player_stats(
     equipment,
     skills,
@@ -101,11 +111,15 @@ pub fn GameWorld::new(
     seed,
     params,
   )
+  if hunting_grounds {
+    append_hunting_approach_enemies(enemies, dungeon, params, 1)
+  }
   let (discovered_rooms, discovered_rooms_version) = initial_discovered_rooms_for_dungeon(
     dungeon,
   )
   {
     params,
+    hunting_grounds,
     authored_scene: None,
     archetype,
     build_policy,
@@ -133,6 +147,7 @@ pub fn GameWorld::new(
     player_stats,
     ui_mode: UIMode::None,
     ui_cursor: 0,
+    manual_combat: false,
     auto_play: false,
     auto_nav_target: None,
     auto_nav_path: [],
@@ -174,6 +189,9 @@ pub fn GameWorld::apply_archetype(
     }
   }
   // Recompute stats with new archetype
+  if self.hunting_grounds {
+    equip_hunter_skills(self.skills)
+  }
   self.player_stats = compute_player_stats(
     self.equipment,
     self.skills,
@@ -217,7 +235,12 @@ pub fn GameWorld::apply_dungeon(
 ) -> Unit {
   let dungeon = match self.authored_scene {
     Some(scene) => scene_dungeon(scene)
-    None => generate_dungeon(seed, floor~, params=self.params)
+    None =>
+      if self.hunting_grounds {
+        generate_hunting_grounds(seed)
+      } else {
+        generate_dungeon(seed, floor~, params=self.params)
+      }
   }
   self.dungeon.grid = dungeon.grid
   self.dungeon.rooms.clear()
@@ -234,13 +257,17 @@ pub fn GameWorld::apply_dungeon(
   self.player.y = dungeon.start_y
   self.enemies = match self.authored_scene {
     Some(scene) => scene_enemies(scene, dungeon)
-    None => spawn_enemies_for_floor_with_params(
-    dungeon.rooms,
-    0,
-    seed,
-    floor,
-    self.params,
-    )
+    None =>
+      spawn_enemies_for_floor_with_params(
+        dungeon.rooms,
+        0,
+        seed,
+        floor,
+        self.params,
+      )
+  }
+  if self.hunting_grounds && self.authored_scene is None {
+    append_hunting_approach_enemies(self.enemies, dungeon, self.params, floor)
   }
   self.items = []
   self.projectiles = []
@@ -968,7 +995,9 @@ pub fn GameWorld::tick_meteor_damage_phase(self : GameWorld) -> Unit {
 ///|
 pub fn GameWorld::tick_floor_completion_phase(self : GameWorld) -> Unit {
   // Authored scenes are finite levels. Do not silently generate a new dungeon on completion.
-  if self.authored_scene is Some(_) { return }
+  if self.authored_scene is Some(_) {
+    return
+  }
   let mut all_dead = true
   for enemy in self.enemies {
     if enemy.alive {
@@ -1137,7 +1166,11 @@ pub fn GameWorld::tick_with_enemy_ai_grid(
   }
   // 3. Update facing angle: aim at nearest enemy (twin-stick style)
   // Fall back to movement direction only when no enemy is in range
-  let aim_target = find_nearest_enemy(self, self.params.arrow_range)
+  let aim_target : Enemy? = if self.manual_combat && !self.auto_play {
+    None
+  } else {
+    find_nearest_enemy(self, self.params.arrow_range)
+  }
   match aim_target {
     Some(enemy) => {
       let adx = enemy.x - self.player.x
@@ -1147,7 +1180,8 @@ pub fn GameWorld::tick_with_enemy_ai_grid(
       }
     }
     None =>
-      if dx != 0.0 || dy != 0.0 {
+      if (dx != 0.0 || dy != 0.0) &&
+        (!self.manual_combat || self.attack_timer <= 0) {
         self.player.facing_angle = @math.atan2(dy, dx)
       }
   }
@@ -1199,11 +1233,13 @@ pub fn GameWorld::tick_with_enemy_ai_grid(
   self.mark_current_room_discovered()
   // 8. Auto-cast spell slots based on nearest visible enemy
   let (skill_enemy_idx, skill_enemy_dist_sq) = find_nearest_visible_enemy(self)
-  self.auto_activate_spell_slots(skill_enemy_idx, skill_enemy_dist_sq)
+  if !self.manual_combat || self.auto_play {
+    self.auto_activate_spell_slots(skill_enemy_idx, skill_enemy_dist_sq)
+  }
   // 9. Auto-attack: archetype-specific basic attack
   if self.attack_timer > 0 {
     self.attack_timer = self.attack_timer - 1
-  } else {
+  } else if !self.manual_combat || self.auto_play {
     match self.archetype {
       Melee => {
         // Melee: circular AoE slash around player

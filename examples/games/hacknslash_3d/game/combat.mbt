@@ -347,3 +347,29 @@ fn apply_player_damage_to_enemy(
     apply_enemy_death_rewards(world, enemy)
   }
 }
+
+///|
+// Manual input enters through this command; cooldown, damage, and events stay in game/.
+pub fn GameWorld::request_basic_attack(
+  self : GameWorld,
+  angle : Double,
+) -> Bool {
+  if self.mode != Playing ||
+    self.ui_mode != UIMode::None ||
+    self.attack_timer > 0 ||
+    self.player.dash_timer > 0 {
+    return false
+  }
+  self.player.facing_angle = angle
+  match self.archetype {
+    Melee => melee_slash(self)
+    Mage => if !cast_chain_lightning(self) { return false }
+    _ => shoot_arrow(self, None)
+  }
+  self.attack_timer = @cmp.maximum(
+    3,
+    (self.params.bow_cooldown * (1.0 - self.player_stats.cooldown_reduction)).to_int(),
+  )
+  self.events.push(AttackTriggered)
+  true
+}

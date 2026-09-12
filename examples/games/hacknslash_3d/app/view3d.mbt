@@ -3,19 +3,19 @@
 // Colors (RGBA, 0-1 range) — natural field palette
 
 ///|
-let color_floor : @math3d.Vec4 = @math3d.Vec4::new(0.28, 0.26, 0.22, 1.0) // dark stone
+let color_floor : @math3d.Vec4 = @math3d.Vec4::new(0.085, 0.115, 0.135, 1.0) // dark stone
 
 ///|
-let color_corridor : @math3d.Vec4 = @math3d.Vec4::new(0.22, 0.20, 0.18, 1.0) // darker passage
+let color_corridor : @math3d.Vec4 = @math3d.Vec4::new(0.07, 0.095, 0.11, 1.0) // darker passage
 
 ///|
-let color_wall : @math3d.Vec4 = @math3d.Vec4::new(0.35, 0.30, 0.25, 1.0) // warm rock
+let color_wall : @math3d.Vec4 = @math3d.Vec4::new(0.14, 0.18, 0.21, 1.0) // warm rock
 
 ///|
-let color_door : @math3d.Vec4 = @math3d.Vec4::new(0.40, 0.32, 0.18, 1.0) // aged wood
+let color_door : @math3d.Vec4 = @math3d.Vec4::new(0.35, 0.29, 0.21, 1.0) // aged wood
 
 ///|
-let color_pillar : @math3d.Vec4 = @math3d.Vec4::new(0.38, 0.34, 0.28, 1.0) // carved stone
+let color_pillar : @math3d.Vec4 = @math3d.Vec4::new(0.19, 0.23, 0.24, 1.0) // carved stone
 
 ///|
 let color_exterior : @math3d.Vec4 = @math3d.Vec4::new(0.08, 0.07, 0.06, 1.0) // near-black ground
@@ -33,19 +33,19 @@ let color_player_dash : @math3d.Vec4 = @math3d.Vec4::new(0.4, 0.87, 1.0, 1.0)
 let color_player_hurt : @math3d.Vec4 = @math3d.Vec4::new(1.0, 1.0, 1.0, 1.0)
 
 ///|
-let color_enemy_basic : @math3d.Vec4 = @math3d.Vec4::new(0.8, 0.13, 0.13, 1.0)
+let color_enemy_basic : @math3d.Vec4 = @math3d.Vec4::new(0.52, 0.24, 0.24, 1.0)
 
 ///|
-let color_enemy_fast : @math3d.Vec4 = @math3d.Vec4::new(1.0, 0.53, 0.0, 1.0)
+let color_enemy_fast : @math3d.Vec4 = @math3d.Vec4::new(0.63, 0.43, 0.26, 1.0)
 
 ///|
-let color_enemy_tank : @math3d.Vec4 = @math3d.Vec4::new(0.53, 0.27, 0.8, 1.0)
+let color_enemy_tank : @math3d.Vec4 = @math3d.Vec4::new(0.43, 0.35, 0.47, 1.0)
 
 ///|
-let color_enemy_ranged : @math3d.Vec4 = @math3d.Vec4::new(0.27, 0.67, 1.0, 1.0)
+let color_enemy_ranged : @math3d.Vec4 = @math3d.Vec4::new(0.35, 0.51, 0.56, 1.0)
 
 ///|
-let color_enemy_boss : @math3d.Vec4 = @math3d.Vec4::new(1.0, 0.13, 0.4, 1.0)
+let color_enemy_boss : @math3d.Vec4 = @math3d.Vec4::new(0.70, 0.22, 0.26, 1.0)
 
 ///|
 let color_item_health : @math3d.Vec4 = @math3d.Vec4::new(0.0, 1.0, 0.4, 1.0)
@@ -148,12 +148,31 @@ fn GameState::draw(
   self : GameState,
   ctx : @engine.EngineContext,
 ) -> Array[@gfx.DrawTrianglesCommand] {
-  let result = match self.world.mode {
-    @game.Title => self.render_title_cmds(ctx.dst, ctx.shader)
-    @game.CharacterSelect =>
-      self.render_character_select_cmds(ctx.dst, ctx.shader)
-    @game.GameOver => self.render_gameover_cmds(ctx.dst, ctx.shader)
-    @game.Playing => self.draw_playing(ctx)
+  if hunter_web_enabled() {
+    let (width, height) = hunter_render_size(
+      canvas_css_width(),
+      canvas_css_height(),
+    )
+    if self.pipeline.scene_target.width != width ||
+      self.pipeline.scene_target.height != height {
+      self.pipeline = @render_pipeline3d.RenderPipeline3D::new(
+        300,
+        width,
+        height,
+        self.pipeline.config,
+      )
+    }
+  }
+  let result = if hunter_web_enabled() {
+    self.draw_playing(ctx)
+  } else {
+    match self.world.mode {
+      @game.Title => self.render_title_cmds(ctx.dst, ctx.shader)
+      @game.CharacterSelect =>
+        self.render_character_select_cmds(ctx.dst, ctx.shader)
+      @game.GameOver => self.render_gameover_cmds(ctx.dst, ctx.shader)
+      @game.Playing => self.draw_playing(ctx)
+    }
   }
   // Profiler HUD (after all other rendering)
   if self.show_profiler {
@@ -227,13 +246,24 @@ fn GameState::draw_playing(
     cmds,
   )
   // Compute visible region for occlusion culling
-  let vis_region = compute_visible_region(
-    self.world.dungeon.rooms,
-    self.world.player.x,
-    self.world.player.y,
-    self.world.dungeon.grid.width,
-    self.world.dungeon.grid.height,
-  )
+  let vis_region = if self.world.hunting_grounds &&
+    self.world.authored_scene is None {
+    {
+      min_col: 0,
+      max_col: self.world.dungeon.grid.width - 1,
+      min_row: 0,
+      max_row: self.world.dungeon.grid.height - 1,
+    }
+  } else {
+    compute_visible_region(
+      self.world.dungeon.rooms,
+      self.world.player.x,
+      self.world.player.y,
+      self.world.dungeon.grid.width,
+      self.world.dungeon.grid.height,
+    )
+  }
+  self.push_hunter_lanterns(view_projection, rt, cmds)
   // === Pass 3: Entities (items/projectiles) → instanced draw commands ===
   push_entity_instanced_cmds(
     self,
@@ -253,6 +283,7 @@ fn GameState::draw_playing(
     ctx.screen_h,
     cmds,
   )
+  self.push_hunter_slash(view_projection, rt, cmds)
   // === Pass 6: Particles ===
   self.particle_manager.append_draw_commands(
     cmds,
@@ -283,11 +314,15 @@ fn GameState::draw_playing(
     }
   }
   // 2D HUD overlay
-  let hud_cmds = self.render_hud_cmds(ctx.dst, ctx.shader)
+  let hud_cmds = if hunter_web_enabled() {
+    []
+  } else {
+    self.render_hud_cmds(ctx.dst, ctx.shader)
+  }
   for cmd in hud_cmds {
     cmds.push(cmd)
   }
-  if self.world.ui_mode != @game.UIMode::None {
+  if self.world.ui_mode != @game.UIMode::None && !hunter_web_enabled() {
     let ui_cmds = self.render_rpg_ui_cmds(ctx.dst, ctx.shader)
     for cmd in ui_cmds {
       cmds.push(cmd)

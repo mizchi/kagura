@@ -133,3 +133,50 @@ test "segment_hits_wall detects blocking wall between points" {
     ),
   )
 }
+
+///|
+test "walkable room and corridor tiles share a continuous floor without unsupported ledges" {
+  for seed in [42, 17, 99] {
+    for floor in [1, 2, 3, 5] {
+      let dungeon = generate_dungeon(seed, floor~)
+      for row in 1..<(dungeon.grid.height - 1) {
+        for col in 1..<(dungeon.grid.width - 1) {
+          let tile = dungeon.grid.get(col, row)
+          if tile == @terrain.Wall || tile == @terrain.Empty {
+            continue
+          }
+          let height = get_tile_height(
+            dungeon,
+            (col.to_double() + 0.5) * tile_size,
+            (row.to_double() + 0.5) * tile_size,
+          )
+          for (dx, dy) in [(1, 0), (0, 1)] {
+            let next = dungeon.grid.get(col + dx, row + dy)
+            if next != @terrain.Wall && next != @terrain.Empty {
+              assert_true(
+                (height -
+                dungeon.height_map[(row + dy) * dungeon.grid.width + col + dx]).abs() <
+                0.001,
+              )
+            }
+          }
+        }
+      }
+    }
+  }
+}
+
+///|
+test "slide move reaches the wall surface and preserves tangent motion even during a fast dash" {
+  let grid = @terrain.Grid2D::make(12, 8, @terrain.Floor)
+  for y in 0..<8 {
+    grid.set(5, y, @terrain.Wall)
+  }
+  let (x, y) = slide_move(grid, 60.0, 40.0, 80.0, 5.0, 12.0)
+  assert_true((x - 74.0).abs() < 0.02)
+  assert_true(!check_wall_collision(grid, x, y, 12.0))
+  assert_eq(y, 45.0)
+  let (again_x, again_y) = slide_move(grid, x, y, 7.0, 2.0, 12.0)
+  assert_true((again_x - x).abs() < 0.02)
+  assert_eq(again_y, 47.0)
+}

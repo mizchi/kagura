@@ -473,6 +473,20 @@ test "is_move_right detects D key" {
 }
 
 ///|
+test "physical E O and comma are not movement or menu aliases" {
+  for key in [key_e, key_o, key_comma] {
+    let helper = new_input_helper()
+    update_input_helper(helper, snapshot_with_pressed_keys([key]))
+    assert_true(!is_move_up(helper.key_state))
+    assert_true(!is_move_down(helper.key_state))
+    assert_true(!is_move_left(helper.key_state))
+    assert_true(!is_move_right(helper.key_state))
+    assert_true(!is_up_just_pressed(helper))
+    assert_true(!is_down_just_pressed(helper))
+  }
+}
+
+///|
 test "is_confirm_just_pressed detects space" {
   let helper = new_input_helper()
   let input = @core.new_input_snapshot(0.0, 0.0, 0.0, 0.0, [32])

@@ -66,7 +66,7 @@ const server = await createServer({
             const assetPath = join(exampleDir, url);
             if (existsSync(assetPath)) {
               const ext = assetPath.split(".").pop();
-              const types = { ttf: "font/ttf", otf: "font/otf", png: "image/png", jpg: "image/jpeg", glb: "model/gltf-binary", obj: "text/plain" };
+              const types = { ttf: "font/ttf", otf: "font/otf", png: "image/png", jpg: "image/jpeg", glb: "model/gltf-binary", obj: "text/plain", mjs: "text/javascript", js: "text/javascript", css: "text/css", svg: "image/svg+xml" };
               res.setHeader("Content-Type", types[ext] || "application/octet-stream");
               res.setHeader("Cache-Control", "no-store");
               res.end(readFileSync(assetPath));

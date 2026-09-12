@@ -1,0 +1,117 @@
+{
+  "version": 1,
+  "author": "ASHEN HUNT",
+  "source": "Original procedural sound design; no third-party samples.",
+  "sounds": [
+    {
+      "id": "attack_slash",
+      "file": "attack_slash.ogg",
+      "label": "斬撃",
+      "description": "短い刃の風切り、革の擦れ、控えめな鋼の余韻",
+      "duration": 0.28,
+      "sampleRate": 44100,
+      "channels": 2,
+      "pcmSha256": "d3bc35f1952b1afb25f8d3608e8c35234fb1a2e4ccbf45b952618d4fb2746ced"
+    },
+    {
+      "id": "enemy_hit",
+      "file": "enemy_hit.ogg",
+      "label": "命中",
+      "description": "肉厚な打撃に、乾いた骨と革のひびを重ねる",
+      "duration": 0.2,
+      "sampleRate": 44100,
+      "channels": 2,
+      "pcmSha256": "3709e23085f2f3774d6492866f547e038fc0990bade218e337271cb16809905f"
+    },
+    {
+      "id": "hurt_hit",
+      "file": "hurt_hit.ogg",
+      "label": "被弾",
+      "description": "低い衝撃と厚手のコートが擦れる音",
+      "duration": 0.36,
+      "sampleRate": 44100,
+      "channels": 2,
+      "pcmSha256": "1ba4b90ceb22f1143bd8280af99e786fe908fc6aeb9aeed9485a15bcf87a44df"
+    },
+    {
+      "id": "dodge_cloak",
+      "file": "dodge_cloak.ogg",
+      "label": "回避",
+      "description": "コートの裾と靴が素早く空気を払う",
+      "duration": 0.32,
+      "sampleRate": 44100,
+      "channels": 2,
+      "pcmSha256": "7bd7a2f69ba508416585256a457e1f1fe529eac7c7043b409138b9c694d12bc7"
+    },
+    {
+      "id": "pickup_loot",
+      "file": "pickup_loot.ogg",
+      "label": "戦利品",
+      "description": "小さな金属片が袋へ落ちる三つの軽い音",
+      "duration": 0.44,
+      "sampleRate": 44100,
+      "channels": 2,
+      "pcmSha256": "6da132eef128b8c3bd01cf891fbb15c3ec953c3b3f5a4c0f0f18d16ca7984047"
+    },
+    {
+      "id": "pickup_health",
+      "file": "pickup_health.ogg",
+      "label": "回復",
+      "description": "小瓶の液体と丸い気泡、淡い余韻",
+      "duration": 0.48,
+      "sampleRate": 44100,
+      "channels": 2,
+      "pcmSha256": "ee2d700214608c920579af9c9023c5948e601dce2aa44e16aa8595f8c9b921dc"
+    },
+    {
+      "id": "spell_chain_lightning",
+      "file": "spell_chain_lightning.ogg",
+      "label": "連鎖雷撃",
+      "description": "鋭い放電と低い雷鳴。鐘の音は使わない",
+      "duration": 0.65,
+      "sampleRate": 44100,
+      "channels": 2,
+      "pcmSha256": "72725be5f3df1159695fd8a5b66427a1460d29bbbc80d08a0a2f899bd25e101d"
+    },
+    {
+      "id": "spell_fireball",
+      "file": "spell_fireball.ogg",
+      "label": "分裂火弾",
+      "description": "低く押し出す発火と短い燃焼、火の粉",
+      "duration": 0.58,
+      "sampleRate": 44100,
+      "channels": 2,
+      "pcmSha256": "5eba89edda604877a4111c9147a96e2e4e4684ef4e0ef5d2310c0832e15a0352"
+    },
+    {
+      "id": "spell_ice_nova",
+      "file": "spell_ice_nova.ogg",
+      "label": "霜の輪",
+      "description": "氷面が割れ、細かな欠片が広がる",
+      "duration": 0.68,
+      "sampleRate": 44100,
+      "channels": 2,
+      "pcmSha256": "e724ceedb2a24fb2915830c99a3f4a31a7ed830f21bd3feef85b935c6490fdb4"
+    },
+    {
+      "id": "spell_homing_missile",
+      "file": "spell_homing_missile.ogg",
+      "label": "追尾の呪弾",
+      "description": "空洞を通る風と低い呪力の共鳴",
+      "duration": 0.55,
+      "sampleRate": 44100,
+      "channels": 2,
+      "pcmSha256": "a414ea1b455d6332dc631bed84460a752b3b90763f9076ab72c744dbde4bb1d0"
+    },
+    {
+      "id": "floor_complete",
+      "file": "floor_complete.ogg",
+      "label": "夜の終わり",
+      "description": "遠くの低い鐘が一度だけ響き、静かに消える",
+      "duration": 2.2,
+      "sampleRate": 44100,
+      "channels": 2,
+      "pcmSha256": "5392d19cb77c1c6e35b7f4a7d03731c9fcc018ea138e90bb20e820b714bf9c69"
+    }
+  ]
+}

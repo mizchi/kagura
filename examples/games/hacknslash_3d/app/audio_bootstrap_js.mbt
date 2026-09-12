@@ -161,55 +161,67 @@ fn load_hacknslash_audio_js(state : GameState) -> Unit {
     state,
     SfxAttack,
     "./assets/audio/attack_slash.ogg",
-    0.65,
+    0.60,
+  )
+  load_hacknslash_audio_clip_js(
+    state,
+    SfxEnemyHit,
+    "./assets/audio/enemy_hit.ogg",
+    0.52,
+  )
+  load_hacknslash_audio_clip_js(
+    state,
+    SfxDodge,
+    "./assets/audio/dodge_cloak.ogg",
+    0.48,
   )
   load_hacknslash_audio_clip_js(
     state,
     SfxHurt,
     "./assets/audio/hurt_hit.ogg",
-    0.85,
+    0.65,
   )
   load_hacknslash_audio_clip_js(
     state,
     SfxPickupLoot,
     "./assets/audio/pickup_loot.ogg",
-    0.55,
+    0.42,
   )
   load_hacknslash_audio_clip_js(
     state,
     SfxPickupHealth,
     "./assets/audio/pickup_health.ogg",
-    0.60,
+    0.48,
   )
   load_hacknslash_audio_clip_js(
     state,
     SfxSpellChainLightning,
     "./assets/audio/spell_chain_lightning.ogg",
-    0.90,
+    0.56,
   )
   load_hacknslash_audio_clip_js(
     state,
     SfxSpellFireball,
     "./assets/audio/spell_fireball.ogg",
-    0.75,
+    0.60,
   )
   load_hacknslash_audio_clip_js(
     state,
     SfxSpellIceNova,
     "./assets/audio/spell_ice_nova.ogg",
-    0.80,
+    0.56,
   )
   load_hacknslash_audio_clip_js(
     state,
     SfxSpellHomingMissile,
     "./assets/audio/spell_homing_missile.ogg",
-    0.78,
+    0.48,
   )
   load_hacknslash_audio_clip_js(
     state,
     SfxFloorComplete,
     "./assets/audio/floor_complete.ogg",
-    0.85,
+    0.62,
   )
 }
 

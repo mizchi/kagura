@@ -1,3 +1,4 @@
+import { renderHunterPage } from "../examples/games/hacknslash_3d/web/page.mjs";
 import { existsSync, readdirSync, statSync } from "node:fs";
 import { join } from "node:path";
 
@@ -66,14 +67,15 @@ const RAW_DEMO_PAGES = [
   },
   {
     name: "hacknslash_3d",
-    title: "Hack & Slash 3D",
+    title: "ASHEN HUNT",
     group: "Games",
-    summary: "3D action prototype with RPG overlays.",
+    summary: "A low-poly hunter in a moonlit, loot-filled ruin.",
     start: "Press Space to begin, then move into combat.",
     controls: [
       "WASD / Arrow: move",
-      "Space: confirm / use skill prompt",
-      "I: inventory, K: skill tree, Esc: pause",
+      "Left click / J: attack; Space / Shift: dodge",
+      "Q / E / right drag: orbit; wheel: zoom; R: reset view",
+      "I: inventory; K: skill tree; P: pause",
     ],
     tags: ["3D", "Combat", "RPG"],
     sourcePath: "examples/games/hacknslash_3d/app/update.mbt",
@@ -583,6 +585,7 @@ export function renderDemoHtml({
   homeHref = "../",
   homeLabel = "Gallery",
 }) {
+  if (demo.name === "hacknslash_3d") return renderHunterPage({ scriptTag, homeHref, homeLabel });
   const tagHtml = demo.tags.map((tag) => `<li>${escapeHtml(tag)}</li>`).join("");
   const controlsHtml = demo.controls
     .map((control) => `<li>${escapeHtml(control)}</li>`)

@@ -966,7 +966,7 @@ test "push_enemy_character_commands keeps stress enemies batched by kind" {
 }
 
 ///|
-test "push_player_character_commands emits one skinned command for player" {
+test "push_player_character_commands shares skinning across hunter materials" {
   let state = GameState::new(seed=42)
   state.world.mode = @game.Playing
   let ctx = test_engine_context()
@@ -979,8 +979,11 @@ test "push_player_character_commands emits one skinned command for player" {
     commands,
   )
 
-  assert_eq(commands.length(), 1)
-  assert_eq(commands[0].shader.id, state.shader3d_skinned.id)
+  assert_eq(commands.length(), state.character.parts.length())
+  for command in commands {
+    assert_eq(command.shader.id, state.shader3d_skinned.id)
+  }
+  assert_eq(state.character.skinning_cache_builds, 1)
 }
 
 ///|

@@ -213,7 +213,7 @@ fn GameState::update_skills_ui(self : GameState) -> Unit {
   // but cursor coords are already in CSS space which maps 1:1 to logical.
   let mx = self.world.cursor_x
   let my = self.world.cursor_y
-  if mx > 1.0 || my > 1.0 {
+  if !hunter_web_enabled() && (mx > 1.0 || my > 1.0) {
     let mut hover_best = -1
     let mut hover_best_dist = 9999.0
     for i, node in nodes {

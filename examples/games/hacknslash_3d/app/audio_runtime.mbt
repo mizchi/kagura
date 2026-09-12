@@ -1,6 +1,8 @@
 ///|
 enum GameSoundCue {
   SfxAttack
+  SfxEnemyHit
+  SfxDodge
   SfxHurt
   SfxPickupLoot
   SfxPickupHealth
@@ -19,6 +21,8 @@ pub impl Show for GameSoundCue with fn output(self, logger) {
 ///|
 struct GameAudioPlayers {
   mut attack : @audio.PlayerId?
+  mut enemy_hit : @audio.PlayerId?
+  mut dodge : @audio.PlayerId?
   mut hurt : @audio.PlayerId?
   mut pickup_loot : @audio.PlayerId?
   mut pickup_health : @audio.PlayerId?
@@ -33,6 +37,8 @@ struct GameAudioPlayers {
 fn default_game_audio_players() -> GameAudioPlayers {
   {
     attack: None,
+    enemy_hit: None,
+    dodge: None,
     hurt: None,
     pickup_loot: None,
     pickup_health: None,
@@ -48,6 +54,7 @@ fn default_game_audio_players() -> GameAudioPlayers {
 fn sound_cue_for_event(event : @game.GameEvent) -> GameSoundCue? {
   match event {
     @game.AttackTriggered => Some(SfxAttack)
+    @game.HitSparks(_, _) => Some(SfxEnemyHit)
     @game.HurtTriggered => Some(SfxHurt)
     @game.ItemPickup(_, _, true) => Some(SfxPickupHealth)
     @game.ItemPickup(_, _, false) => Some(SfxPickupLoot)
@@ -67,6 +74,8 @@ fn GameAudioPlayers::lookup(
 ) -> @audio.PlayerId? {
   match cue {
     SfxAttack => self.attack
+    SfxEnemyHit => self.enemy_hit
+    SfxDodge => self.dodge
     SfxHurt => self.hurt
     SfxPickupLoot => self.pickup_loot
     SfxPickupHealth => self.pickup_health
@@ -86,6 +95,8 @@ fn GameAudioPlayers::assign(
 ) -> Unit {
   match cue {
     SfxAttack => self.attack = Some(player)
+    SfxEnemyHit => self.enemy_hit = Some(player)
+    SfxDodge => self.dodge = Some(player)
     SfxHurt => self.hurt = Some(player)
     SfxPickupLoot => self.pickup_loot = Some(player)
     SfxPickupHealth => self.pickup_health = Some(player)
@@ -101,6 +112,8 @@ fn GameAudioPlayers::assign(
 fn sound_cue_name(cue : GameSoundCue) -> String {
   match cue {
     SfxAttack => "attack"
+    SfxEnemyHit => "enemy_hit"
+    SfxDodge => "dodge"
     SfxHurt => "hurt"
     SfxPickupLoot => "pickup_loot"
     SfxPickupHealth => "pickup_health"
@@ -125,6 +138,8 @@ fn player_state_name(state : @audio.PlayerState) -> String {
 fn game_sound_cues() -> Array[GameSoundCue] {
   [
     SfxAttack,
+    SfxEnemyHit,
+    SfxDodge,
     SfxHurt,
     SfxPickupLoot,
     SfxPickupHealth,
@@ -164,6 +179,15 @@ fn GameState::play_sound_cue(self : GameState, cue : GameSoundCue) -> Unit {
   }
   match self.audio_players.lookup(cue) {
     Some(player) => {
+      // Chain arcs, pellets and crowds can emit many instances in one frame.
+      // Give each material its own voice and let its transient finish naturally.
+      match self.audio_ctx.state(player) {
+        @audio.PlayerState::Playing => {
+          self.audio_last_played_state = "suppressed"
+          return
+        }
+        _ => ()
+      }
       self.audio_ctx.seek(player, 0.0) catch {
         _ => ()
       }

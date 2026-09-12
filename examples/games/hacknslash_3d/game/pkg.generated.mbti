@@ -186,6 +186,8 @@ pub fn find_room_at(Array[@types.Room], Double, Double) -> Int
 
 pub fn generate_dungeon(Int, floor? : Int, params? : BalanceParams) -> DungeonData
 
+pub fn generate_hunting_grounds(Int) -> DungeonData
+
 pub fn generate_item(Int, Int) -> ItemData
 
 pub fn generate_item_with_profile(Int, Int, AffixProfile) -> ItemData
@@ -215,6 +217,14 @@ pub let homing_missile_speed : Double
 pub let homing_missile_telegraph_radius : Double
 
 pub let homing_missile_turn_rate : Double
+
+pub fn hunting_clearings() -> Array[@types.Room]
+
+pub fn hunting_hash(Int, Int, Int) -> Int
+
+pub fn hunting_landmark(Int, Int) -> Bool
+
+pub fn hunting_road_z(Int) -> Double
 
 pub let ice_nova_cooldown : Int
 
@@ -699,6 +709,7 @@ pub fn GameMode::equal(Self, Self) -> Bool
 pub fn GameMode::not_equal(Self, Self) -> Bool
 
 pub(all) struct GameWorld {
+  hunting_grounds : Bool
   mut authored_scene : AuthoredScene?
   params : BalanceParams
   mut archetype : CharacterArchetype
@@ -727,6 +738,7 @@ pub(all) struct GameWorld {
   mut player_stats : PlayerStats
   mut ui_mode : UIMode
   mut ui_cursor : Int
+  mut manual_combat : Bool
   mut auto_play : Bool
   mut auto_nav_target : @types.Point?
   mut auto_nav_path : Array[@types.Point]
@@ -757,11 +769,13 @@ pub fn GameWorld::auto_equip_best(Self) -> Unit
 pub fn GameWorld::collect_equipment_pickup(Self, ItemData) -> Bool
 pub fn GameWorld::deal_player_damage(Self, Int) -> Unit
 pub fn GameWorld::drain_events(Self) -> Array[GameEvent]
+pub fn GameWorld::ensure_hunter_loadout(Self) -> Unit
 pub fn GameWorld::mark_current_room_discovered(Self) -> Unit
-pub fn GameWorld::new(seed~ : Int, params? : BalanceParams, archetype? : CharacterArchetype, build_policy? : ArchetypeBuildPolicy) -> Self
+pub fn GameWorld::new(seed~ : Int, params? : BalanceParams, archetype? : CharacterArchetype, build_policy? : ArchetypeBuildPolicy, hunting_grounds? : Bool) -> Self
 pub fn GameWorld::open_levelup_ui_if_needed(Self) -> Unit
 pub fn GameWorld::push_item_log(Self, String, Int) -> Unit
 pub fn GameWorld::refresh_player_stats(Self) -> Unit
+pub fn GameWorld::request_basic_attack(Self, Double) -> Bool
 pub fn GameWorld::reset_floor(Self) -> Unit
 pub fn GameWorld::resolve_enemy_enemy_separation(Self) -> Unit
 pub fn GameWorld::scene_snapshot_json(Self) -> String

@@ -1,5 +1,6 @@
 import * as THREE from 'three';
 import { OrbitControls } from 'three/addons/controls/OrbitControls.js';
+import { createSceneGrid } from './scene-grid.mjs';
 
 export function createViewport(container, app, api) {
   const renderer = new THREE.WebGLRenderer({ antialias: true, preserveDrawingBuffer: true });
@@ -16,16 +17,13 @@ export function createViewport(container, app, api) {
   const sun = new THREE.DirectionalLight(0xffe4c3, 3.5);
   sun.position.set(4, 8, 5);
   scene.add(hemisphere, sun);
-  const grid = new THREE.GridHelper(40, 40, 0x697784, 0x384450);
-  grid.position.y = 0.01;
-  scene.add(grid);
   const selectionBox = new THREE.BoxHelper(new THREE.Object3D(), 0xffc775);
   selectionBox.visible = false;
   scene.add(selectionBox);
   const flash = new THREE.Mesh(new THREE.SphereGeometry(0.24, 12, 8), new THREE.MeshBasicMaterial({ color: 0xffdd8b }));
   flash.visible = false;
   scene.add(flash);
-  let root, currentRevision = -1, current, playing = false, lastFrame = 0, frame, active = true, suspensions = 0;
+  let root, grid, currentRevision = -1, current, playing = false, lastFrame = 0, frame, active = true, suspensions = 0;
   function disposeTree(object) {
     object.traverse(n => {
       n.geometry?.dispose();
@@ -38,7 +36,9 @@ export function createViewport(container, app, api) {
       playing = false;
       if (root) { scene.remove(root); disposeTree(root); }
       root = app.build_scene();
-      scene.add(root);
+      if (grid) { scene.remove(grid); disposeTree(grid); }
+      grid = createSceneGrid(new THREE.Box3().setFromObject(root));
+      scene.add(root, grid);
       currentRevision = snapshot.revision;
     }
     const actor = snapshot.document.action.target ? root.getObjectByName(snapshot.document.action.target) : undefined;

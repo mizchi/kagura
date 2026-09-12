@@ -55,8 +55,12 @@ test "scene snapshot omits unlabeled world rects and keeps labels" {
 test "scene snapshot skips hidden show() branches" {
   let tree = fragment([
     label(key="always", x=10.0, y=10.0, content="A"),
-    show(fn() { false }, fn() { label(key="hidden", x=10.0, y=20.0, content="B") }),
-    show(fn() { true }, fn() { label(key="visible", x=10.0, y=30.0, content="C") }),
+    show(fn() { false }, fn() {
+      label(key="hidden", x=10.0, y=20.0, content="B")
+    }),
+    show(fn() { true }, fn() {
+      label(key="visible", x=10.0, y=30.0, content="C")
+    }),
   ])
   let snapshot = ui_snapshot_from_scene(
     tree,
@@ -108,7 +112,14 @@ test "scene snapshot publishes keyed rects with the drawn hit box" {
     rect(w=320.0, h=240.0, fill=0x112233),
     group(key="hud", x=8.0, y=4.0, children=[
       rect(key="hp_bar", x=10.0, y=6.0, w=100.0, h=12.0, fill=0x333333),
-      rect_outline(key="end_turn", x=20.0, y=30.0, w=80.0, h=24.0, color=0xAA7744),
+      rect_outline(
+        key="end_turn",
+        x=20.0,
+        y=30.0,
+        w=80.0,
+        h=24.0,
+        color=0xAA7744,
+      ),
       label(key="hp", x=60.0, y=12.0, content="HP"),
     ]),
   ])

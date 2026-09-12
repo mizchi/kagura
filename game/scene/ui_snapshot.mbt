@@ -51,13 +51,17 @@ pub fn ui_snapshot_from_scene(
               width: tw,
               height: th,
             }
-            let metrics : @kagura_ui.UITextMetrics = { width: tw, height: th }
+            let metrics : @kagura_ui.UITextMetrics = { width: tw, height: th, }
             nodes.push({
               ..@kagura_ui.default_ui_snapshot_node(),
               path,
               id,
               role: "label",
-              classes: if key == "" { "label" } else { key },
+              classes: if key == "" {
+                "label"
+              } else {
+                key
+              },
               left,
               top,
               width: tw,
@@ -79,12 +83,7 @@ pub fn ui_snapshot_from_scene(
           }
           "rect" => {
             let child_path = push_keyed_box(
-              nodes,
-              el,
-              offset_x,
-              offset_y,
-              parent_path,
-              "rect",
+              nodes, el, offset_x, offset_y, parent_path, "rect",
             )
             let x = scene_attr_double(el.attrs, "x", 0.0)
             let y = scene_attr_double(el.attrs, "y", 0.0)
@@ -94,12 +93,7 @@ pub fn ui_snapshot_from_scene(
           }
           "rect_outline" => {
             let _ = push_keyed_box(
-              nodes,
-              el,
-              offset_x,
-              offset_y,
-              parent_path,
-              "outline",
+              nodes, el, offset_x, offset_y, parent_path, "outline",
             )
           }
           _ =>
@@ -140,10 +134,7 @@ pub fn ui_snapshot_from_scene(
 
   walk(node, 0.0, 0.0, "")
   {
-    ..@kagura_ui.default_ui_snapshot(
-      screen_width~,
-      screen_height~,
-    ),
+    ..@kagura_ui.default_ui_snapshot(screen_width~, screen_height~),
     frame,
     state,
     nodes,
@@ -168,7 +159,7 @@ fn push_keyed_box(
   let width = scene_attr_double(el.attrs, "w", 0.0)
   let height = scene_attr_double(el.attrs, "h", 0.0)
   let path = join_snapshot_path(parent_path, key)
-  let hit : @kagura_ui.UISnapshotRect = { left, top, width, height }
+  let hit : @kagura_ui.UISnapshotRect = { left, top, width, height, }
   nodes.push({
     ..@kagura_ui.default_ui_snapshot_node(),
     path,

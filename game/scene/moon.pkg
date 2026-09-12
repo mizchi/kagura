@@ -9,7 +9,7 @@ import {
   "mizchi/kagura_platform" @platform,
   "mizchi/kagura_engine/runtime",
   "mizchi/kagura_engine" @engine,
-  "mizchi/kagura_ui" @kagura_ui,
+  "mizchi/kagura_ui",
   "moonbitlang/core/debug",
 }
 

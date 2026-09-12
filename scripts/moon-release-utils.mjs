@@ -29,6 +29,7 @@ export const DEFAULT_RELEASE_DEP_POLICY = Object.freeze({
     "mizchi/kagura_core",
     "mizchi/kagura_platform",
     "mizchi/kagura_engine",
+    "mizchi/kagura_ui",
     "mizchi/kagura_audio",
     "mizchi/physics",
   ],

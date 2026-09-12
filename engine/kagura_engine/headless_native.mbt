@@ -268,7 +268,10 @@ fn run_native_gpu_capture(
       }
       if overlay_cmds.length() > 0 {
         render_commands(graphics, overlay_cmds, clear_enabled=false) catch {
-          err => abort("Native GPU capture failed to render overlay: " + err.to_string())
+          err =>
+            abort(
+              "Native GPU capture failed to render overlay: " + err.to_string(),
+            )
         }
       }
     } else {

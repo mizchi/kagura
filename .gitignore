@@ -21,3 +21,4 @@ __pycache__/
 
 # Generated runtime bundles for per-game editor projects.
 /examples/**/editor/dist/
+.env

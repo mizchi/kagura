@@ -220,6 +220,7 @@ fn GameState::new_with_params(
     hud_static_cache_text_mode: -1,
     hud_static_cache_builds: 0,
     paused: false,
+    motion_preview: false,
   }
 }
 
@@ -309,7 +310,11 @@ fn GameState::update(self : GameState, input : @core.InputSnapshot) -> Unit {
   // Pause toggle (only during Playing)
   if @inpututil.is_key_just_pressed(self.input.key_state, key_p) &&
     self.world.mode == @game.Playing {
-    self.paused = !self.paused
+    if self.motion_preview {
+      self.motion_preview = false
+    } else {
+      self.paused = !self.paused
+    }
   }
   match self.world.mode {
     @game.Title => self.update_title(input)
@@ -461,7 +466,7 @@ fn GameState::update_playing(self : GameState) -> Unit {
     return
   }
   // Skip game tick while paused
-  if self.paused {
+  if self.paused || self.motion_preview {
     return
   }
   let previous_player_x = self.world.player.x

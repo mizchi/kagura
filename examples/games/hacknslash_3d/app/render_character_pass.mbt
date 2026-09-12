@@ -8,6 +8,8 @@ struct EnemyRenderBuckets {
   tank_colors : Array[@math3d.Vec4]
   ranged_matrices : Array[@math3d.Mat4]
   ranged_colors : Array[@math3d.Vec4]
+  caster_matrices : Array[@math3d.Mat4]
+  caster_colors : Array[@math3d.Vec4]
   boss_matrices : Array[@math3d.Mat4]
   boss_colors : Array[@math3d.Vec4]
 }
@@ -23,6 +25,8 @@ fn default_enemy_render_buckets() -> EnemyRenderBuckets {
     tank_colors: [],
     ranged_matrices: [],
     ranged_colors: [],
+    caster_matrices: [],
+    caster_colors: [],
     boss_matrices: [],
     boss_colors: [],
   }
@@ -38,6 +42,8 @@ fn clear_enemy_render_buckets(buckets : EnemyRenderBuckets) -> Unit {
   buckets.tank_colors.clear()
   buckets.ranged_matrices.clear()
   buckets.ranged_colors.clear()
+  buckets.caster_matrices.clear()
+  buckets.caster_colors.clear()
   buckets.boss_matrices.clear()
   buckets.boss_colors.clear()
 }
@@ -71,8 +77,11 @@ fn GameState::rebuild_enemy_render_buckets(
   self : GameState,
   vis_region : VisibleRegion,
 ) -> Unit {
-  let buckets = self.enemy_render_buckets
-  clear_enemy_render_buckets(buckets)
+  clear_enemy_render_buckets(self.enemy_render_buckets)
+  for key in self.enemy_models.active_attack_keys {
+    clear_enemy_render_buckets(self.enemy_models.attack_buckets[key])
+  }
+  self.enemy_models.active_attack_keys.clear()
   let dungeon = self.world.dungeon
   let dungeon_width = dungeon.grid.width
   let dungeon_height = dungeon.grid.height
@@ -95,8 +104,43 @@ fn GameState::rebuild_enemy_render_buckets(
       } else {
         @math3d.Vec4::new(1.0, 1.0, 1.0, 1.0)
       }
-      let dx = self.world.player.x - enemy.x
-      let dy = self.world.player.y - enemy.y
+      let clip_index = enemy_attack_clip_index(enemy.attack_motion)
+      let buckets = if clip_index < 0 {
+        self.enemy_render_buckets
+      } else {
+        let clip = self.enemy_models.attack_clips[clip_index]
+        let key = clip_index * enemy_attack_pose_stride +
+          clip.frame_index(enemy.attack_phase())
+        let result = match self.enemy_models.attack_buckets.get(key) {
+          Some(existing) => existing
+          None => {
+            let fresh = default_enemy_render_buckets()
+            self.enemy_models.attack_buckets[key] = fresh
+            fresh
+          }
+        }
+        if result.basic_matrices.is_empty() &&
+          result.fast_matrices.is_empty() &&
+          result.tank_matrices.is_empty() &&
+          result.ranged_matrices.is_empty() &&
+          result.caster_matrices.is_empty() &&
+          result.boss_matrices.is_empty() {
+          self.enemy_models.active_attack_keys.push(key)
+        }
+        result
+      }
+      let dx = (if clip_index < 0 {
+          self.world.player.x
+        } else {
+          enemy.attack_target_x
+        }) -
+        enemy.x
+      let dy = (if clip_index < 0 {
+          self.world.player.y
+        } else {
+          enemy.attack_target_y
+        }) -
+        enemy.y
       // The new models are authored at hunter scale, with feet at ground height.
       let scale = match enemy.kind {
         @game.Tank | @game.Berserker => 1.18
@@ -114,9 +158,13 @@ fn GameState::rebuild_enemy_render_buckets(
           buckets.tank_matrices.push(model)
           buckets.tank_colors.push(color)
         }
-        @game.Ranged | @game.Summoner | @game.Caster => {
+        @game.Ranged => {
           buckets.ranged_matrices.push(model)
           buckets.ranged_colors.push(color)
+        }
+        @game.Summoner | @game.Caster => {
+          buckets.caster_matrices.push(model)
+          buckets.caster_colors.push(color)
         }
         @game.Boss => {
           buckets.boss_matrices.push(model)
@@ -191,6 +239,20 @@ fn GameState::push_enemy_character_commands_with_view_projection(
     screen_h,
     cmds,
   )
+  for key in self.enemy_models.active_attack_keys {
+    let buckets = self.enemy_models.attack_buckets[key]
+    let clip = self.enemy_models.attack_clips[key / enemy_attack_pose_stride]
+    self.push_enemy_render_bucket_groups_with_view_projection(
+      buckets,
+      clip.matrices(key % enemy_attack_pose_stride),
+      view_projection,
+      dst,
+      screen_w,
+      screen_h,
+      cmds,
+      gpu_pose=true,
+    )
+  }
 }
 
 ///|
@@ -203,6 +265,7 @@ fn GameState::push_enemy_render_bucket_groups_with_view_projection(
   screen_w : Int,
   screen_h : Int,
   cmds : Array[@gfx.DrawTrianglesCommand],
+  gpu_pose? : Bool = false,
 ) -> Unit {
   fn push_enemy_group(
     mesh_data : EnemyMeshData,
@@ -222,7 +285,12 @@ fn GameState::push_enemy_render_bucket_groups_with_view_projection(
           part.color.w,
         )
       })
-      match @scene3d.uniform_instance_color(part_colors) {
+      match
+        (if gpu_pose {
+          None
+        } else {
+          @scene3d.uniform_instance_color(part_colors)
+        }) {
         Some(_) =>
           @scene3d.push_instanced_mesh_gpu_commands_with_color_optimization_and_view_projection(
             part.geometry.skinned_mesh(
@@ -241,7 +309,11 @@ fn GameState::push_enemy_render_bucket_groups_with_view_projection(
             screen_h,
             cmds,
           )
-        None =>
+        None => {
+          @web_hooks.register_static_geometry(
+            part.geometry.packed_vertex_data,
+            part.geometry.bind_mesh.indices,
+          )
           @scene3d.push_skinned_mesh_gpu_commands_with_color_optimization_and_view_projection(
             part.geometry.bind_mesh,
             matrices,
@@ -258,6 +330,7 @@ fn GameState::push_enemy_render_bucket_groups_with_view_projection(
             screen_h,
             cmds,
           )
+        }
       }
     }
   }
@@ -281,6 +354,11 @@ fn GameState::push_enemy_render_bucket_groups_with_view_projection(
     self.enemy_models.ranged,
     buckets.ranged_matrices,
     buckets.ranged_colors,
+  )
+  push_enemy_group(
+    self.enemy_models.caster,
+    buckets.caster_matrices,
+    buckets.caster_colors,
   )
   push_enemy_group(
     self.enemy_models.boss,

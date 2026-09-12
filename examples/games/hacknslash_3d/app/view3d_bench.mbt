@@ -101,6 +101,7 @@ fn bench_state_with_visible_enemy() -> GameState {
   let py = state.world.player.y
   state.world.enemies = [
     {
+      ..@game.make_enemy(0.0, 0.0, @game.Basic, 1, 0.0, 10.0),
       x: px,
       y: py,
       vx: 0.0,
@@ -560,6 +561,7 @@ fn run_rebuild_enemy_render_buckets_bench(
       buckets.fast_matrices.length() +
       buckets.tank_matrices.length() +
       buckets.ranged_matrices.length() +
+      buckets.caster_matrices.length() +
       buckets.boss_matrices.length(),
     )
   })

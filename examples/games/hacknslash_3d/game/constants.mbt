@@ -227,3 +227,7 @@ pub let enemy_death_explosion_radius : Double = 26.0
 
 ///|
 pub let enemy_death_explosion_projectile_count : Int = 8
+
+///|
+/// A readable draw and aim before the arrow is released (60 Hz gameplay).
+pub let enemy_bow_draw_frames : Int = 36

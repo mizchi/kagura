@@ -48,11 +48,11 @@ pub fn behavior_beam_attack(EnemyAIContext) -> Bool
 
 pub fn behavior_berserker_rage(EnemyAIContext) -> Bool
 
+pub fn behavior_bow_shot(EnemyAIContext) -> Bool
+
 pub fn behavior_cast_meteor(EnemyAIContext) -> Bool
 
 pub fn behavior_fire_nova(EnemyAIContext) -> Bool
-
-pub fn behavior_ranged_barrage(EnemyAIContext) -> Bool
 
 pub fn behavior_summon_minion(EnemyAIContext) -> Bool
 
@@ -135,6 +135,8 @@ pub let enemy_barrage_spread_angle : Double
 pub let enemy_bolt_telegraph_frames : Int
 
 pub let enemy_bolt_telegraph_radius : Double
+
+pub let enemy_bow_draw_frames : Int
 
 pub let enemy_death_explosion_projectile_count : Int
 
@@ -596,8 +598,18 @@ pub(all) struct Enemy {
   mut beam_cast_timer : Int
   mut beam_target_x : Double
   mut beam_target_y : Double
+  mut attack_motion : EnemyAttackMotion
+  mut attack_frame : Int
+  mut attack_windup : Int
+  mut attack_recovery : Int
+  mut attack_cooldown : Int
+  mut attack_target_x : Double
+  mut attack_target_y : Double
+  mut attack_hit_pending : Bool
   room_index : Int
 }
+pub fn Enemy::attack_phase(Self) -> Double
+pub fn Enemy::begin_attack(Self, EnemyAttackMotion, Int, Int, Double, Double) -> Unit
 
 pub(all) struct EnemyAIContext {
   enemy : Enemy
@@ -613,6 +625,14 @@ pub(all) struct EnemyAIContext {
   chase_range_sq : Double
   same_room_visible : Bool
 }
+
+pub(all) enum EnemyAttackMotion {
+  NoAttack
+  Punch
+  SpearThrust
+  CastSpell
+  BowShot
+} derive(Eq, @debug.Debug)
 
 pub(all) enum EnemyKind {
   Basic

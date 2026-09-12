@@ -1,0 +1,12 @@
+{
+  "version": 1,
+  "model": "fal-ai/hunyuan-motion",
+  "requestId": "01a0966e-1e84-7620-b17f-076950265cec",
+  "input": {
+    "version": 1,
+    "prompt": "A person performs one clear archery shot at a target straight ahead. They hold a tall vertical bow in the left hand, raise and fully extend the left arm toward the target at shoulder height, and pull the bowstring back with the right hand to the right cheek. The right elbow moves backward and outward as they draw and briefly aim. They release the string once, the right hand follows back past the cheek, then lower the bow and return to the starting stance. Feet remain planted, no walking, no spinning. One deliberate draw, aim, release, and recovery.",
+    "duration": 3.5,
+    "seed": 1303,
+    "guidanceScale": 5
+  }
+}

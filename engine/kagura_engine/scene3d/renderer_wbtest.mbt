@@ -481,6 +481,11 @@ test "push_skinned_mesh_gpu_commands uses packed vertices and culls per instance
   assert_eq(cmds.length(), 1)
   assert_eq(cmds[0].shader.id, shader3d_skinned.id)
   assert_eq(cmds[0].vertex_data[0], 123.0)
+  // A single survivor of culling must keep its red material tint.
+  assert_eq(cmds[0].uniform_dwords[49], 0)
+  assert_eq(cmds[0].uniform_dwords[50], 0)
+  assert_eq(cmds[0].uniform_dwords[53], 0)
+  assert_eq(cmds[0].uniform_dwords[54], 0)
   assert_eq(cmds[0].instance_count, 1)
   assert_eq(cmds[0].uniform_dwords.length(), 56 + 4 + 64 * 16)
 }

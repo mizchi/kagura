@@ -902,7 +902,7 @@ fn push_skinned_mesh_gpu_commands_from_matrices_with_frustum(
 fn push_single_skinned_mesh_gpu_command_from_matrix_with_frustum(
   mesh : @mesh3d.Mesh3D,
   model : @math3d.Mat4,
-  _color : @math3d.Vec4,
+  color : @math3d.Vec4,
   packed_vertex_data : Array[Double],
   skinning_matrices : Array[@math3d.Mat4],
   view_projection : @math3d.Mat4,
@@ -934,7 +934,7 @@ fn push_single_skinned_mesh_gpu_command_from_matrix_with_frustum(
       mesh.indices,
       model,
       view_projection,
-      lighting,
+      tint_skinned_lighting(lighting, color),
       skinning_matrices,
       [],
     ),
@@ -1009,25 +1009,7 @@ fn push_single_skinned_mesh_gpu_command_with_frustum(
   if frustum_cull_aabb(frustum, wmin_x, wmin_y, wmin_z, wmax_x, wmax_y, wmax_z) {
     return
   }
-  let tinted_lighting = @light3d.LightingEnvironment::new(
-    @light3d.DirectionalLight::new(
-      lighting.directional.direction,
-      @math3d.Vec3::new(
-        lighting.directional.color.x * color.x,
-        lighting.directional.color.y * color.y,
-        lighting.directional.color.z * color.z,
-      ),
-      lighting.directional.intensity,
-    ),
-    @light3d.AmbientLight::new(
-      @math3d.Vec3::new(
-        lighting.ambient.color.x * color.x,
-        lighting.ambient.color.y * color.y,
-        lighting.ambient.color.z * color.z,
-      ),
-      lighting.ambient.intensity,
-    ),
-  )
+  let tinted_lighting = tint_skinned_lighting(lighting, color)
   let dst_region = @gfx.new_dst_region(
     0,
     0,
@@ -1342,5 +1324,33 @@ pub fn render_instanced_gpu_with_view_projection(
     lighting,
     instance_matrices,
     instance_colors,
+  )
+}
+
+///|
+// Single-mesh skinned shaders sample a white texture; RGB tint is folded into
+// lighting, matching the instanced material path without repacking vertices.
+fn tint_skinned_lighting(
+  lighting : @light3d.LightingEnvironment,
+  color : @math3d.Vec4,
+) -> @light3d.LightingEnvironment {
+  @light3d.LightingEnvironment::new(
+    @light3d.DirectionalLight::new(
+      lighting.directional.direction,
+      @math3d.Vec3::new(
+        lighting.directional.color.x * color.x,
+        lighting.directional.color.y * color.y,
+        lighting.directional.color.z * color.z,
+      ),
+      lighting.directional.intensity,
+    ),
+    @light3d.AmbientLight::new(
+      @math3d.Vec3::new(
+        lighting.ambient.color.x * color.x,
+        lighting.ambient.color.y * color.y,
+        lighting.ambient.color.z * color.z,
+      ),
+      lighting.ambient.intensity,
+    ),
   )
 }

@@ -649,7 +649,18 @@ pub fn GameWorld::tick_enemy_movement_and_contact_phase(
       }
       enemy.vx = 0.0
       enemy.vy = 0.0
-      if can_contact_player {
+      if enemy.attack_hit_pending {
+        enemy.attack_hit_pending = false
+        if can_contact_player &&
+          enemy_melee_hits(enemy, self.player, self.dungeon.grid) {
+          self.deal_player_damage(enemy_contact_damage)
+          can_contact_player = false
+        }
+      }
+      // Body contact is damaging only during an active charge.
+      if can_contact_player &&
+        enemy.charge_timer > 0 &&
+        enemy.charge_timer < enemy_tackle_active_frames {
         let overlap_half = player_half + enemy.size / 2.0
         let dx = (player_x - enemy.x).abs()
         if dx < overlap_half {

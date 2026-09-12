@@ -69,6 +69,7 @@ fn monster_eyes(
 fn build_monster_mesh_data(
   species : @game.EnemySpecies,
   armor? : Int = 0,
+  archer? : Bool = false,
 ) -> EnemyMeshData {
   let goblin = species == @game.Goblin
   let kobold = species == @game.Kobold
@@ -154,24 +155,35 @@ fn build_monster_mesh_data(
       for side in [-1.0, 1.0] {
         iron.box(side * 0.055, 0.872, 0.211, 0.027, 0.047, 0.025, 2)
       }
-      // Cleaver and wooden buckler follow the forearms.
-      dark.box(0.31, 0.37, 0.12, 0.045, 0.19, 0.045, 6)
-      iron.box(0.355, 0.60, 0.12, 0.16, 0.31, 0.046, 6)
-      iron.triangle(
-        @math3d.Vec3::new(0.275, 0.755, 0.143),
-        @math3d.Vec3::new(0.435, 0.755, 0.143),
-        @math3d.Vec3::new(0.405, 0.83, 0.143),
-        6,
-      )
-      cloth.segment(
-        @math3d.Vec3::new(-0.31, 0.40, 0.075),
-        @math3d.Vec3::new(-0.31, 0.40, 0.135),
-        0.16,
-        0.16,
-        8,
-        4,
-      )
-      iron.box(-0.31, 0.40, 0.145, 0.12, 0.032, 0.024, 4)
+      // Broad knuckles make the punch readable from the overhead camera.
+      for side in [-1.0, 1.0] {
+        iron.box(
+          side * 0.275,
+          0.34,
+          0.083,
+          0.18,
+          0.14,
+          0.17,
+          if side < 0.0 {
+            4
+          } else {
+            6
+          },
+        )
+        cloth.box(
+          side * 0.268,
+          0.43,
+          0.04,
+          0.13,
+          0.07,
+          0.12,
+          if side < 0.0 {
+            4
+          } else {
+            6
+          },
+        )
+      }
     } else {
       // Canine muzzle, black nose, tall ears and a bent, animated tail.
       flesh.loft(
@@ -228,16 +240,16 @@ fn build_monster_mesh_data(
         0.022,
         0.022,
         6,
-        6,
+        12,
       )
       iron.loft(
         0.34,
         0.14,
         [(1.12, 0.015, 0.012), (1.20, 0.066, 0.021), (1.39, 0.003, 0.003)],
         4,
-        6,
+        12,
       )
-      cloth.box(0.34, 1.08, 0.14, 0.09, 0.10, 0.06, 6)
+      cloth.box(0.34, 1.08, 0.14, 0.09, 0.10, 0.06, 12)
     }
   } else {
     flesh.append(base.legs)
@@ -337,16 +349,18 @@ fn build_monster_mesh_data(
         1,
       )
     }
-    let bow = [
-      @math3d.Vec3::new(-0.31, 0.16, 0.12),
-      @math3d.Vec3::new(-0.40, 0.31, 0.22),
-      @math3d.Vec3::new(-0.40, 0.57, 0.22),
-      @math3d.Vec3::new(-0.31, 0.74, 0.12),
-    ]
-    for i in 1..<bow.length() {
-      dark.segment(bow[i - 1], bow[i], 0.024, 0.020, 5, 4)
+    if archer {
+      build_skeleton_bow(flesh, cloth, iron)
+    } else {
+      iron.box(-0.275, 0.35, 0.08, 0.085, 0.065, 0.10, 4)
+      glow.loft(
+        -0.275,
+        0.12,
+        [(0.32, 0.025, 0.025), (0.37, 0.065, 0.065), (0.45, 0.003, 0.003)],
+        6,
+        4,
+      )
     }
-    iron.segment(bow[0], bow[3], 0.005, 0.005, 4, 4)
   }
   // Heavy variants reuse the species silhouette and add readable armor.
   if armor > 0 {
@@ -419,4 +433,56 @@ fn build_monster_mesh_data(
   let mesh = combined.build_mesh()
   let skin = combined.build_skin()
   { geometry: @scene3d.SkinnedMeshAsset::new(mesh, skin), parts, }
+}
+
+///|
+/// A curved bone bow; string endpoints follow the bow and its center follows
+/// the pulling hand. All geometry shares the existing material/GPU batches.
+fn build_skeleton_bow(
+  bone : @procedural3d.RigidGeometry,
+  wrap : @procedural3d.RigidGeometry,
+  metal : @procedural3d.RigidGeometry,
+) -> Unit {
+  let points = [
+    @math3d.Vec3::new(-0.275, -0.10, -0.07),
+    @math3d.Vec3::new(-0.275, 0.06, 0.07),
+    @math3d.Vec3::new(-0.275, 0.22, 0.11),
+    @math3d.Vec3::new(-0.275, 0.35, 0.06),
+    @math3d.Vec3::new(-0.275, 0.48, 0.11),
+    @math3d.Vec3::new(-0.275, 0.64, 0.07),
+    @math3d.Vec3::new(-0.275, 0.80, -0.07),
+  ]
+  for i in 0..<(points.length() - 1) {
+    bone.segment(points[i], points[i + 1], 0.028, 0.024, 5, 13)
+  }
+  wrap.box(-0.275, 0.35, 0.06, 0.074, 0.14, 0.075, 13)
+  for tip in [points[0], points[6]] {
+    let start = metal.vertices.length() / 8
+    let middle = @math3d.Vec3::new(-0.275, 0.35, -0.07)
+    metal.segment(tip, middle, 0.008, 0.008, 4, 13)
+    // Segment emits end rings plus caps. Classify the endpoint by its Y;
+    // each vertex stays rigidly attached, with no runtime geometry edits.
+    for v in start..<(metal.vertices.length() / 8) {
+      if (metal.vertices[v * 8 + 1] - 0.35).abs() < 0.02 {
+        metal.joints[v * 4] = 14
+      }
+    }
+  }
+  wrap.segment(
+    @math3d.Vec3::new(-0.275, 0.35, -0.07),
+    @math3d.Vec3::new(-0.275, 0.35, 0.73),
+    0.012,
+    0.009,
+    4,
+    15,
+  )
+  metal.segment(
+    @math3d.Vec3::new(-0.275, 0.35, 0.70),
+    @math3d.Vec3::new(-0.275, 0.35, 0.86),
+    0.034,
+    0.001,
+    4,
+    15,
+  )
+  wrap.box(-0.275, 0.35, -0.02, 0.065, 0.012, 0.09, 15)
 }

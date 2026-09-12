@@ -9,6 +9,7 @@ just hunter-dev     # http://127.0.0.1:8080/
 just hunter-test    # JS型検査、ゲーム／描画の単体テスト
 just hunter-e2e     # Playwrightで実際に起動・移動・攻撃・回避・カメラ・停止を確認
 just hunter-capture # 起動済み8080からプレイ画面だけを output/ashen-hunt.png に保存
+just hunter-motions-build # HY Motionの敵攻撃を元データから再生成（通信なし）
 just hunter-audio   # 11種類のオリジナル効果音と試聴WAVを再生成（ffmpegが必要）
 just hunter-cpu-profile # フレーム当たりのCPU時間とChrome用コールグラフを保存
 ```
@@ -84,21 +85,30 @@ Dvorakでも同じ位置のWASDで移動、Q/Eでカメラを回転する。入�
 狩人の寸法・材質は `app/hunter_model.mbt`、技との音声対応は `app/audio_runtime.mbt`、
 音源パスと音量は `app/audio_assets.mbt` に定義する。
 
-敵は共通の12ボーン素体から作る。`app/monster_assets.mbt` で顔・装備・5つの材質を追加し、
-`app/enemy_model.mbt` の共通歩行で腕・脚・尾を動かす。個体ごとのマテリアル描画を増やさず、
-種類と材質ごとにまとめて描画する。
+敵は共通の12ボーン素体に、槍を保持する武器ソケットを1つ加えて作る。`app/monster_assets.mbt` で顔・装備・5つの材質を追加し、
+`app/enemy_model.mbt` の共通歩行で腕・脚・尾を動かす。歩行は種類と材質ごとに、攻撃はさらに同じポーズごとにまとめて描画する。
 形状の結合には `RigidGeometry::append`、CPU変形の遅延更新にはKaguraの
 `scene3d.SkinnedMeshAsset` を使う。
 
 | 種族 | 特徴 | 戦闘での役割 |
 | --- | --- | --- |
-| ゴブリン | 緑の肌、大きな耳、鉈、小盾 | 近接。重装個体や小型の群れも同じ素体を使用 |
-| コボルト | 犬顔、長い尾、槍、青緑の腰布 | 素早い接近と突進 |
-| スケルトン | 頭蓋骨、隙間のある肋骨、弓と矢筒 | 距離を取る遠隔攻撃。術師・ボスにも展開 |
+| ゴブリン | 緑の肌、大きな耳、鉄の拳 | 近接。重装個体や小型の群れも同じ素体を使用 |
+| コボルト | 犬顔、長い尾、槍、青緑の腰布 | 素早い接近、槍の刺突と突進 |
+| スケルトン | 頭蓋骨、隙間のある肋骨、骨の弓／魔法触媒 | 距離を取る遠隔攻撃。術師・ボスにも展開 |
 
 序盤の小集団に3種が一体ずつ出現する。種族と既存AIの対応は `game/bestiary.mbt`、
 序盤の配置は `game/hunting_grounds.mbt`。素体自体はゲームに依存しない
 `@procedural3d.build_biped_base()` で生成できる。
+
+
+敵の刺突・パンチ・魔法発射・弓射撃は、fal HY Motionで生成した動きを2等身の共通素体へ移して再生する。
+ゴブリンは鉄の拳、コボルトは槍、スケルトン射手は骨の弓、術師は魔法の触媒を持つ。予備動作、命中、硬直を分け、
+近接攻撃は向きを固定した命中フレームでだけ判定する。通常の接触ダメージは突進中だけに限定する。
+`?snapshot=motions&frames=24&seed=42&mute=1` で3種類の命中ポーズを並べて確認できる。
+`?snapshot=bow&frames=22&seed=42&mute=1` で弓の引き絞り、`frames=26` でリリース後を確認できる。
+射手は狙いを固定して弦を引き、36フレーム目に矢を1本放つ。
+生成、再取り込み、ポーズ共有の詳細は [モーションパイプライン](../../../docs/motion-pipeline.md) を参照。
+
 
 ## CPU計測
 

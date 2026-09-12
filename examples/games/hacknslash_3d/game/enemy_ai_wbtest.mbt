@@ -46,7 +46,7 @@ test "update_enemy_ai falls back to pathfinding when same-room direct chase is b
 }
 
 ///|
-test "update_enemy_ai telegraphs ranged bolt before spawning projectile" {
+test "update_enemy_ai telegraphs bow shot before spawning projectile" {
   let grid = @terrain.Grid2D::make(8, 3, @terrain.Floor)
   let rooms : Array[@terrain.Room] = [
     { rect: { x: 0, y: 0, w: 8, h: 3, }, id: 0, },
@@ -90,7 +90,7 @@ test "update_enemy_ai telegraphs ranged bolt before spawning projectile" {
   assert_true(saw_line)
 
   let settle_events : Array[GameEvent] = []
-  for frame = 0; frame < enemy_bolt_telegraph_frames; frame = frame + 1 {
+  for frame = 0; frame < enemy_bow_draw_frames; frame = frame + 1 {
     update_enemy_ai(
       enemies,
       player,
@@ -101,14 +101,14 @@ test "update_enemy_ai telegraphs ranged bolt before spawning projectile" {
       settle_events,
     )
   }
-  assert_eq(projectiles.length(), enemy_barrage_projectile_count)
+  assert_eq(projectiles.length(), 1)
   for projectile in projectiles {
-    assert_eq(projectile.kind, EnemyBolt)
+    assert_eq(projectile.kind, Arrow)
   }
 }
 
 ///|
-test "update_enemy_ai uses ranged pressure parameters for bolt damage and cooldown" {
+test "update_enemy_ai uses ranged pressure parameters for arrow damage and cooldown" {
   let grid = @terrain.Grid2D::make(8, 3, @terrain.Floor)
   let rooms : Array[@terrain.Room] = [
     { rect: { x: 0, y: 0, w: 8, h: 3, }, id: 0, },
@@ -144,7 +144,7 @@ test "update_enemy_ai uses ranged pressure parameters for bolt damage and cooldo
   assert_eq(enemies[0].shoot_cooldown, 44)
 
   let settle_events : Array[GameEvent] = []
-  for frame = 0; frame < enemy_bolt_telegraph_frames; frame = frame + 1 {
+  for frame = 0; frame < enemy_bow_draw_frames; frame = frame + 1 {
     update_enemy_ai(
       enemies,
       player,
@@ -156,8 +156,8 @@ test "update_enemy_ai uses ranged pressure parameters for bolt damage and cooldo
       params~,
     )
   }
-  assert_eq(projectiles.length(), enemy_barrage_projectile_count)
-  assert_eq(projectiles[enemy_barrage_projectile_count / 2].damage, 4)
+  assert_eq(projectiles.length(), 1)
+  assert_eq(projectiles[0].damage, 4)
 }
 
 ///|
@@ -242,7 +242,7 @@ test "update_enemy_ai telegraphs tank fire nova and emits radial bolts" {
     counter_cooldown_timer: 0,
   }
   let enemies = [
-    make_enemy(2.6 * tile_size, 1.5 * tile_size, Tank, 8, 0.4, 14.0),
+    make_enemy(3.0 * tile_size, 1.5 * tile_size, Tank, 8, 0.4, 14.0),
   ]
   let projectiles : Array[Projectile] = []
   let events : Array[GameEvent] = []

@@ -37,6 +37,14 @@ pub fn make_enemy(
     beam_cast_timer: 0,
     beam_target_x: cx,
     beam_target_y: cy,
+    attack_motion: NoAttack,
+    attack_frame: 0,
+    attack_windup: 0,
+    attack_recovery: 0,
+    attack_cooldown: 0,
+    attack_target_x: cx,
+    attack_target_y: cy,
+    attack_hit_pending: false,
     room_index,
   }
 }

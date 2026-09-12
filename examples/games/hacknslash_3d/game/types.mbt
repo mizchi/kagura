@@ -46,6 +46,14 @@ pub(all) struct Enemy {
   mut beam_cast_timer : Int // >0 = charging beam
   mut beam_target_x : Double
   mut beam_target_y : Double
+  mut attack_motion : EnemyAttackMotion
+  mut attack_frame : Int
+  mut attack_windup : Int
+  mut attack_recovery : Int
+  mut attack_cooldown : Int
+  mut attack_target_x : Double
+  mut attack_target_y : Double
+  mut attack_hit_pending : Bool
   room_index : Int // which room this enemy was spawned in (-1 = unknown)
 }
 

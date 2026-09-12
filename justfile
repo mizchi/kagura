@@ -12,16 +12,27 @@ hunter-dev:
 hunter-audio:
     node examples/games/hacknslash_3d/scripts/design-audio.mjs
 
+# Node-only HY Motion queue client. plan is offline; submit --execute generates.
+[positional-arguments]
+motion-generate *args:
+    node --env-file-if-exists=.env scripts/motion/generation/cli.ts "$@"
+
+# Rebuild game clips from checked-in skeleton/rotation sources, with no API call.
+hunter-motions-build:
+    node examples/games/hacknslash_3d/scripts/build-motions.mjs
+    moonfmt -w examples/games/hacknslash_3d/app/enemy_motion_generated.mbt
+
 # Reusable game components can be verified without building a particular game.
 game-components-test:
     moon -C engine/audio test . --target js
     moon -C engine/kagura_engine test procedural3d scene3d shadow3d render_pipeline3d --target js
+    node --test scripts/motion/generation/generation.test.ts scripts/motion/retarget.test.mjs
     node --test assets/web/kagura-controls.test.mjs assets/web/kagura-audio.test.mjs assets/web/kagura-presentation.test.mjs assets/web/kagura-gfx.test.mjs assets/web/kagura-profile.test.mjs scripts/profile-web.test.mjs scripts/hacknslash_3d_gpu_perf_utils.test.mjs scripts/web-runtime-assets.test.mjs scripts/web-demo-pages.test.mjs
 
 hunter-test: game-components-test
     moon -C examples/games/hacknslash_3d check --target js --deny-warn
     moon -C examples/games/hacknslash_3d test game app --target js
-    node --test examples/games/hacknslash_3d/web/*.test.mjs
+    node --test examples/games/hacknslash_3d/web/*.test.mjs examples/games/hacknslash_3d/scripts/motions.test.mjs
 
 hunter-e2e:
     pnpm exec playwright test --config examples/games/hacknslash_3d/playwright.config.mjs

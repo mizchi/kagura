@@ -1,7 +1,8 @@
 ///|
 /// Immutable bind geometry for GPU skinning, with an independent lazy CPU cache.
-/// Share an asset only between actors using the same pose. The caller changes
-/// the pose revision whenever skinning matrices change, including rig switches.
+/// GPU bind data can be shared across poses. CPU callers retaining different
+/// simultaneous poses need separate assets because the CPU buffer is borrowed.
+/// Change the CPU pose revision whenever matrices change, including rig switches.
 /// Mesh uses position/normal/UV vertices (stride 8); skin has four influences
 /// per vertex. Both inputs remain immutable for the lifetime of the asset.
 pub struct SkinnedMeshAsset {

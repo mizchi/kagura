@@ -9,6 +9,7 @@ import {
   "mizchi/anim3d/transform3d",
   "mizchi/kagura_engine/draw3d",
   "mizchi/anim3d/skeleton3d",
+  "mizchi/anim3d/animation3d",
 }
 
 options(

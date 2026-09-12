@@ -66,6 +66,13 @@ pub fn behavior_cast_meteor(ctx : EnemyAIContext) -> Bool {
     ctx.dist_sq < caster_min_distance_sq {
     return false
   }
+  ctx.enemy.begin_attack(
+    CastSpell,
+    meteor_cast_frames,
+    24,
+    ctx.player.x,
+    ctx.player.y,
+  )
   ctx.enemy.meteor_cast_timer = meteor_cast_frames
   ctx.enemy.meteor_target_x = ctx.player.x
   ctx.enemy.meteor_target_y = ctx.player.y
@@ -80,34 +87,13 @@ pub fn behavior_summon_minion(ctx : EnemyAIContext) -> Bool {
     return false
   }
   ctx.enemy.shoot_cooldown = summoner_cooldown
-  let summon_x = ctx.enemy.x +
-    (ctx.frame_count * 17 % (summoner_spawn_offset * 2) - summoner_spawn_offset).to_double()
-  let summon_y = ctx.enemy.y +
-    (ctx.frame_count * 13 % (summoner_spawn_offset * 2) - summoner_spawn_offset).to_double()
-  let summon_hp = ctx.params.scale_enemy_hp_for_floor(
-    ctx.params.basic_hp.to_int(),
-    ctx.floor,
-  )
-  let summon_speed = ctx.params.scale_enemy_speed_for_floor(
-    ctx.params.enemy_speed_basic,
-    ctx.floor,
-  )
-  ctx.enemies.push(
-    make_enemy(
-      summon_x,
-      summon_y,
-      Swarm,
-      summon_hp / 2,
-      summon_speed * summoner_minion_speed_mult,
-      summoner_minion_size,
-    ),
-  )
-  ctx.events.push(DeathBurst(ctx.enemy.x, ctx.enemy.y))
+  ctx.enemy.begin_attack(CastSpell, 30, 22, ctx.player.x, ctx.player.y)
+
   true
 }
 
 ///|
-pub fn behavior_ranged_barrage(ctx : EnemyAIContext) -> Bool {
+pub fn behavior_bow_shot(ctx : EnemyAIContext) -> Bool {
   if ctx.dist_sq <= ranged_min_distance_sq || ctx.dist_sq < 0.000001 {
     return false
   }
@@ -120,13 +106,15 @@ pub fn behavior_ranged_barrage(ctx : EnemyAIContext) -> Bool {
     ctx.enemy.vy = -(cdy / dist) * ctx.enemy.speed * ranged_retreat_speed
     return true
   }
-  // Chance to cast meteor instead of barrage
-  let meteor_roll = (ctx.frame_count * 31 + ctx.enemy.x.to_int() * 7) % 100
-  if meteor_roll < ranged_meteor_chance {
-    return behavior_cast_meteor(ctx)
-  }
   ctx.enemy.shoot_cooldown = ctx.params.ranged_shot_cooldown_frames()
-  ctx.enemy.pending_bolt_timer = enemy_bolt_telegraph_frames
+  ctx.enemy.begin_attack(
+    BowShot,
+    enemy_bow_draw_frames,
+    22,
+    ctx.player.x,
+    ctx.player.y,
+  )
+  ctx.enemy.pending_bolt_timer = enemy_bow_draw_frames
   ctx.enemy.pending_bolt_target_x = ctx.player.x
   ctx.enemy.pending_bolt_target_y = ctx.player.y
   ctx.events.push(
@@ -135,10 +123,8 @@ pub fn behavior_ranged_barrage(ctx : EnemyAIContext) -> Bool {
   ctx.events.push(
     EnemyTelegraphRing(ctx.player.x, ctx.player.y, enemy_bolt_telegraph_radius),
   )
-  let cdx = ctx.player.x - ctx.enemy.x
-  let cdy = ctx.player.y - ctx.enemy.y
-  ctx.enemy.vx = -(cdx / dist) * ctx.enemy.speed * ranged_retreat_speed
-  ctx.enemy.vy = -(cdy / dist) * ctx.enemy.speed * ranged_retreat_speed
+  ctx.enemy.vx = 0.0
+  ctx.enemy.vy = 0.0
   true
 }
 
@@ -149,6 +135,13 @@ pub fn behavior_beam_attack(ctx : EnemyAIContext) -> Bool {
     ctx.dist_sq < 900.0 {
     return false
   }
+  ctx.enemy.begin_attack(
+    CastSpell,
+    beam_cast_frames,
+    24,
+    ctx.player.x,
+    ctx.player.y,
+  )
   ctx.enemy.beam_cast_timer = beam_cast_frames
   ctx.enemy.beam_target_x = ctx.player.x
   ctx.enemy.beam_target_y = ctx.player.y
@@ -174,7 +167,41 @@ pub fn get_special_behaviors(
     Teleporter => [behavior_teleport_behind]
     Caster => [behavior_cast_meteor, behavior_beam_attack]
     Summoner => [behavior_summon_minion]
-    Ranged => [behavior_ranged_barrage]
+    Ranged => [behavior_bow_shot]
     Basic | Swarm => []
   }
+}
+
+///|
+fn spawn_summoned_minion(
+  enemy : Enemy,
+  enemies : Array[Enemy],
+  params : BalanceParams,
+  floor : Int,
+  frame_count : Int,
+  events : Array[GameEvent],
+) -> Unit {
+  let summon_x = enemy.x +
+    (frame_count * 17 % (summoner_spawn_offset * 2) - summoner_spawn_offset).to_double()
+  let summon_y = enemy.y +
+    (frame_count * 13 % (summoner_spawn_offset * 2) - summoner_spawn_offset).to_double()
+  let summon_hp = params.scale_enemy_hp_for_floor(
+    params.basic_hp.to_int(),
+    floor,
+  )
+  let summon_speed = params.scale_enemy_speed_for_floor(
+    params.enemy_speed_basic,
+    floor,
+  )
+  enemies.push(
+    make_enemy(
+      summon_x,
+      summon_y,
+      Swarm,
+      summon_hp / 2,
+      summon_speed * summoner_minion_speed_mult,
+      summoner_minion_size,
+    ),
+  )
+  events.push(DeathBurst(enemy.x, enemy.y))
 }

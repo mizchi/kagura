@@ -2,6 +2,7 @@
 package "mizchi/kagura_engine/scene3d"
 
 import {
+  "mizchi/anim3d/animation3d",
   "mizchi/anim3d/skeleton3d",
   "mizchi/anim3d/transform3d",
   "mizchi/geom/camera3d",
@@ -74,6 +75,14 @@ pub fn uniform_instance_color(Array[@math3d.Vec4]) -> @math3d.Vec4?
 // Errors
 
 // Types and methods
+pub struct BakedSkinningClip {
+  frame_count : Int
+  // private fields
+}
+pub fn BakedSkinningClip::frame_index(Self, Double) -> Int
+pub fn BakedSkinningClip::matrices(Self, Int) -> Array[@math3d.Mat4]
+pub fn BakedSkinningClip::new(@skeleton3d.Skeleton, @animation3d.AnimationClip, Int) -> Self
+
 pub(all) struct InstanceData {
   transform : @transform3d.Transform3D
   color : @math3d.Vec4

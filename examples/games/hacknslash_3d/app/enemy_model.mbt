@@ -1,9 +1,9 @@
 // Procedural enemy models with skeletal animation
-// Shared 12-joint biped with articulated arms, legs and tail.
+// Shared 12-joint biped plus spear, bow, string and arrow sockets.
 // Each enemy kind gets a different mesh with unique proportions and decorations.
 
 ///|
-let enemy_bone_count : Int = 12
+let enemy_bone_count : Int = 16
 
 ///|
 let enemy_walk_duration : Double = 0.72
@@ -33,8 +33,12 @@ struct EnemyModels {
   basic : EnemyMeshData
   fast : EnemyMeshData
   tank : EnemyMeshData
+  caster : EnemyMeshData
   ranged : EnemyMeshData
   boss : EnemyMeshData
+  attack_clips : Array[@scene3d.BakedSkinningClip]
+  attack_buckets : Map[Int, EnemyRenderBuckets]
+  active_attack_keys : Array[Int]
 }
 
 ///|
@@ -89,14 +93,20 @@ fn build_enemy_walk_animation() -> @animation3d.AnimationClip {
       values,
     })
   }
+  channels.push({
+    node_index: 15,
+    target: @animation3d.Scale,
+    interpolation: @animation3d.Step,
+    times: [0.0],
+    values: [0.0, 0.0, 0.0],
+  })
   { name: "biped_walk", channels, duration: enemy_walk_duration, }
 }
 
 ///|
 fn EnemyModels::new() -> EnemyModels {
-  let skeleton = @procedural3d.build_biped_skeleton(
-    @procedural3d.default_biped_proportions(),
-  )
+  let skeleton = shared_enemy_skeleton
+  let attack_clips = shared_enemy_attack_clips
   let walk_clip = build_enemy_walk_animation()
   let walk_player = @animation3d.AnimationPlayer::new(walk_clip)
   walk_player.set_looping(true)
@@ -108,7 +118,8 @@ fn EnemyModels::new() -> EnemyModels {
   let basic = build_monster_mesh_data(@game.Goblin)
   let fast = build_monster_mesh_data(@game.Kobold)
   let tank = build_monster_mesh_data(@game.Goblin, armor=1)
-  let ranged = build_monster_mesh_data(@game.Skeleton)
+  let ranged = build_monster_mesh_data(@game.Skeleton, archer=true)
+  let caster = build_monster_mesh_data(@game.Skeleton)
   let boss = build_monster_mesh_data(@game.Skeleton, armor=2)
   {
     skeleton,
@@ -122,7 +133,11 @@ fn EnemyModels::new() -> EnemyModels {
     fast,
     tank,
     ranged,
+    caster,
     boss,
+    attack_clips,
+    attack_buckets: Map([]),
+    active_attack_keys: [],
   }
 }
 
@@ -141,7 +156,8 @@ fn EnemyModels::get_mesh_data(
   match kind {
     @game.Fast | @game.Exploder | @game.Teleporter => self.fast
     @game.Tank | @game.Berserker => self.tank
-    @game.Ranged | @game.Summoner | @game.Caster => self.ranged
+    @game.Ranged => self.ranged
+    @game.Summoner | @game.Caster => self.caster
     @game.Boss => self.boss
     @game.Basic | @game.Swarm => self.basic
   }
@@ -162,6 +178,10 @@ fn EnemyModels::compute_skinning(self : EnemyModels) -> Array[@math3d.Mat4] {
       match pose.rotation {
         Some(q) =>
           self.local_poses[idx] = self.local_poses[idx].with_rotation(q)
+        None => ()
+      }
+      match pose.scale {
+        Some(v) => self.local_poses[idx] = self.local_poses[idx].with_scale(v)
         None => ()
       }
       match pose.translation {
@@ -192,3 +212,88 @@ fn EnemyModels::get_skinned_mesh(
     self.compute_skinning(),
   )
 }
+
+///|
+fn enemy_attack_clip_index(motion : @game.EnemyAttackMotion) -> Int {
+  match motion {
+    @game.Punch => 0
+    @game.SpearThrust => 1
+    @game.CastSpell => 2
+    @game.BowShot => 3
+    @game.NoAttack => -1
+  }
+}
+
+///|
+fn build_enemy_skeleton() -> @skeleton3d.Skeleton {
+  let skeleton = @procedural3d.build_biped_skeleton(
+    @procedural3d.default_biped_proportions(),
+  )
+  skeleton.bones.push({
+    name: "weapon",
+    parent: 6,
+    local_transform: @transform3d.Transform3D::from_position(
+      @math3d.Vec3::new(0.085, -0.15, 0.115),
+    ),
+  })
+  skeleton.inverse_bind_matrices.push(
+    @math3d.Mat4::translation(-0.34, -0.36, -0.14),
+  )
+  for
+    (name, parent, offset, bind) in [
+      (
+        "bow",
+        4,
+        @math3d.Vec3::new(-0.02, -0.16, 0.035),
+        @math3d.Vec3::new(-0.275, 0.35, 0.06),
+      ),
+      (
+        "bow_string",
+        13,
+        @math3d.Vec3::new(0.0, 0.0, -0.13),
+        @math3d.Vec3::new(-0.275, 0.35, -0.07),
+      ),
+      (
+        "nocked_arrow",
+        14,
+        @math3d.Vec3::zero(),
+        @math3d.Vec3::new(-0.275, 0.35, -0.07),
+      ),
+    ] {
+    skeleton.bones.push({
+      name,
+      parent,
+      local_transform: @transform3d.Transform3D::from_position(offset),
+    })
+    skeleton.inverse_bind_matrices.push(
+      @math3d.Mat4::translation(-bind.x, -bind.y, -bind.z),
+    )
+  }
+  skeleton
+}
+
+///|
+let shared_enemy_skeleton : @skeleton3d.Skeleton = build_enemy_skeleton()
+
+///|
+let shared_enemy_attack_clips : Array[@scene3d.BakedSkinningClip] = [
+  @scene3d.BakedSkinningClip::new(shared_enemy_skeleton, build_punch_clip(), 49),
+  @scene3d.BakedSkinningClip::new(
+    shared_enemy_skeleton,
+    build_spear_thrust_clip(),
+    49,
+  ),
+  @scene3d.BakedSkinningClip::new(
+    shared_enemy_skeleton,
+    build_cast_spell_clip(),
+    241,
+  ),
+  @scene3d.BakedSkinningClip::new(
+    shared_enemy_skeleton,
+    build_bow_shot_clip(),
+    97,
+  ),
+]
+
+///|
+let enemy_attack_pose_stride : Int = 241

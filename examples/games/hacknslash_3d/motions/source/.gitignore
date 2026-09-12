@@ -1,0 +1,2 @@
+# Raw FBX includes a preview human mesh; retain extracted source-motion.json instead.
+*.fbx

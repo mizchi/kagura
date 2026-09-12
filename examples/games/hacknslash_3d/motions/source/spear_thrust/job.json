@@ -1,0 +1,12 @@
+{
+  "version": 1,
+  "model": "fal-ai/hunyuan-motion",
+  "requestId": "01a09652-7565-7381-a769-8def22b71fc4",
+  "input": {
+    "version": 1,
+    "prompt": "A person stands facing forward in a combat stance holding a spear in the right hand. They pull the right hand back beside their waist, then thrust the spear straight forward at chest height with the right arm, extending the elbow with a small forward lunge. The left hand balances in front. They retract the spear and return to their initial stance. Perform exactly one sharp thrust, remain facing the same direction, no spinning, no walking away.",
+    "duration": 3,
+    "seed": 1300,
+    "guidanceScale": 5
+  }
+}

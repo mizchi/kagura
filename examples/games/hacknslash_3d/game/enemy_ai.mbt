@@ -79,28 +79,20 @@ fn update_enemy_bolt_castup(
       Ranged =>
         if dist_sq > 0.000001 {
           let dist = dist_sq.sqrt()
-          let base_angle = @math.atan2(cdy, cdx)
-          let center = enemy_barrage_projectile_count / 2
-          let bolt_damage = params.scale_enemy_damage_for_floor(
-            params.enemy_bolt_damage_int(),
-            floor,
-          )
-          for idx = 0; idx < enemy_barrage_projectile_count; idx = idx + 1 {
-            let offset = (idx - center).to_double()
-            let angle = base_angle + offset * enemy_barrage_spread_angle
-            let bspeed = 2.0
-            projectiles.push({
-              x: enemy.x,
-              y: enemy.y,
-              vx: @math.cos(angle) * bspeed,
-              vy: @math.sin(angle) * bspeed,
-              age: 0,
-              alive: true,
-              damage: bolt_damage,
-              is_player: false,
-              kind: EnemyBolt,
-            })
-          }
+          projectiles.push({
+            x: enemy.x,
+            y: enemy.y,
+            vx: cdx / dist * 3.0,
+            vy: cdy / dist * 3.0,
+            age: 0,
+            alive: true,
+            damage: params.scale_enemy_damage_for_floor(
+              params.enemy_bolt_damage_int(),
+              floor,
+            ),
+            is_player: false,
+            kind: Arrow,
+          })
         }
       Tank | Boss => {
         events.push(FireballBurst(enemy.x, enemy.y))
@@ -194,6 +186,13 @@ fn try_start_enemy_fire_nova(
     return false
   }
   enemy.shoot_cooldown = enemy_fire_nova_cooldown_frames
+  enemy.begin_attack(
+    CastSpell,
+    enemy_fire_nova_cast_frames,
+    22,
+    player.x,
+    player.y,
+  )
   enemy.pending_bolt_timer = enemy_fire_nova_cast_frames
   enemy.pending_bolt_target_x = player.x
   enemy.pending_bolt_target_y = player.y
@@ -249,6 +248,7 @@ pub fn update_enemy_ai(
     if !enemy.alive {
       continue
     }
+    tick_enemy_attack(enemy)
     // Meteor casting: channeled, interruptible by killing the caster
     if enemy.meteor_cast_timer > 0 {
       enemy.meteor_cast_timer = enemy.meteor_cast_timer - 1
@@ -295,6 +295,17 @@ pub fn update_enemy_ai(
       tick_enemy_pattern_cooldowns(enemy)
       continue
     }
+    if enemy.attack_motion != NoAttack {
+      if enemy.kind == Summoner && enemy.attack_frame == enemy.attack_windup {
+        spawn_summoned_minion(
+          enemy, enemies, params, floor, frame_count, events,
+        )
+      }
+      enemy.vx = 0.0
+      enemy.vy = 0.0
+      tick_enemy_pattern_cooldowns(enemy)
+      continue
+    }
     if update_enemy_tackle(enemy) {
       tick_enemy_pattern_cooldowns(enemy)
       continue
@@ -311,6 +322,20 @@ pub fn update_enemy_ai(
         180.0
       enemy.vx = @math.cos(angle) * enemy.speed * 0.3
       enemy.vy = @math.sin(angle) * enemy.speed * 0.3
+      tick_enemy_pattern_cooldowns(enemy)
+      continue
+    }
+    // Ranged actors create casting room instead of walking into harmless contact.
+    if (enemy.kind == Ranged || enemy.kind == Caster) &&
+      dist_sq < ranged_min_distance_sq &&
+      dist_sq > 0.000001 {
+      let dist = dist_sq.sqrt()
+      enemy.vx = -cdx / dist * enemy.speed
+      enemy.vy = -cdy / dist * enemy.speed
+      tick_enemy_pattern_cooldowns(enemy)
+      continue
+    }
+    if try_start_enemy_melee(enemy, player, grid) {
       tick_enemy_pattern_cooldowns(enemy)
       continue
     }

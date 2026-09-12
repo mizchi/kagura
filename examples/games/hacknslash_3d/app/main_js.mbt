@@ -243,6 +243,10 @@ fn apply_initial_mode_overrides(
     for i = 0; i < frames; i = i + 1 {
       state.update(@core.empty_input_snapshot())
     }
+  } else if snapshot_mode == "bow" {
+    apply_bow_motion_preview(state, snapshot_frames)
+  } else if snapshot_mode == "motions" {
+    apply_enemy_motion_preview(state, snapshot_frames)
   } else if snapshot_mode == "gameover" {
     state.world.mode = @game.GameOver
   } else if snapshot_mode == "character_select" {

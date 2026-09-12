@@ -218,24 +218,38 @@ fn GameState::rebuild_entity_instance_scratch(
       let prx = proj.x / tile_size
       let prz = proj.y / tile_size
       let base_y = height_at_tile(self.world.dungeon, col, row)
-      if proj.is_player {
-        match proj.kind {
-          @game.Arrow => {
-            let angle = @math.atan2(proj.vy, proj.vx)
-            let rot = @math3d.Quaternion::from_axis_angle(
-              @math3d.Vec3::unit_y(),
-              -angle,
-            )
-            self.entity_instance_scratch.arrow_instances.push(
-              @scene3d.InstanceData::new(
-                transform=@transform3d.Transform3D::from_position_rotation(
-                  @math3d.Vec3::new(prx, base_y + 0.3, prz),
-                  rot,
-                ),
-                color=color_arrow,
+      if proj.kind == @game.Arrow {
+        let angle = @math.atan2(proj.vy, proj.vx)
+        let rot = @math3d.Quaternion::from_axis_angle(
+          @math3d.Vec3::unit_y(),
+          -angle,
+        )
+        self.entity_instance_scratch.arrow_instances.push(
+          @scene3d.InstanceData::new(
+            transform=@transform3d.Transform3D::from_position_rotation(
+              @math3d.Vec3::new(
+                prx,
+                base_y + (if proj.is_player { 0.3 } else { 0.72 }),
+                prz,
               ),
-            )
-          }
+              rot,
+            ).with_scale(
+              if proj.is_player {
+                @math3d.Vec3::new(1.0, 1.0, 1.0)
+              } else {
+                @math3d.Vec3::new(1.35, 0.28, 0.28)
+              },
+            ),
+            color=if proj.is_player {
+              color_arrow
+            } else {
+              @math3d.Vec4::new(1.0, 0.65, 0.30, 1.0)
+            },
+          ),
+        )
+      } else if proj.is_player {
+        match proj.kind {
+          @game.Arrow => ()
           @game.Fireball(_) =>
             self.entity_instance_scratch.fireball_instances.push(
               @scene3d.InstanceData::new(
@@ -297,47 +311,16 @@ fn push_entity_instances_if_any(
   view_projection : @math3d.Mat4,
   lighting : @light3d.LightingEnvironment,
   dst : @gfx.ImageHandle,
-  shader3d : @gfx.ShaderHandle,
+  shader3d_colored : @gfx.ShaderHandle,
   shader3d_instanced : @gfx.ShaderHandle,
+  shader3d_monochrome : @gfx.ShaderHandle,
   screen_w : Int,
   screen_h : Int,
   cmds : Array[@gfx.DrawTrianglesCommand],
 ) -> Unit {
-  if instances.length() == 0 {
-    return
-  }
-  if instances.length() == 1 {
-    let inst = instances[0]
-    let dst_region = @gfx.new_dst_region(
-      0,
-      0,
-      screen_w,
-      screen_h,
-      mesh.indices.length(),
-    )
-    cmds.push(
-      @draw3d.new_lit_mesh_draw_command(
-        dst,
-        shader3d,
-        dst_region,
-        0,
-        0,
-        0,
-        @gfx.BlendMode::from_int(1),
-        mesh,
-        inst.transform.to_mat4(),
-        view_projection,
-        lighting,
-        [],
-      ),
-    )
-    return
-  }
-  cmds.push(
-    @scene3d.render_instanced_gpu_with_view_projection(
-      mesh, instances, view_projection, lighting, dst, shader3d_instanced, screen_w,
-      screen_h,
-    ),
+  @scene3d.push_instanced_instance_data_gpu_commands_with_color_optimization_and_view_projection(
+    mesh, instances, view_projection, lighting, dst, shader3d_colored, shader3d_instanced,
+    shader3d_monochrome, screen_w, screen_h, cmds,
   )
 }
 
@@ -389,8 +372,9 @@ fn push_item_instance_cmds(
     view_projection,
     state.lighting,
     dst,
-    state.shader3d,
+    state.shader3d_colored,
     state.shader3d_instanced,
+    state.shader3d_instanced_monochrome,
     screen_w,
     screen_h,
     cmds,
@@ -412,8 +396,9 @@ fn push_arrow_instance_cmds(
     view_projection,
     state.lighting,
     dst,
-    state.shader3d,
+    state.shader3d_colored,
     state.shader3d_instanced,
+    state.shader3d_instanced_monochrome,
     screen_w,
     screen_h,
     cmds,
@@ -491,8 +476,9 @@ fn push_enemy_projectile_instance_cmds(
     view_projection,
     state.lighting,
     dst,
-    state.shader3d,
+    state.shader3d_colored,
     state.shader3d_instanced,
+    state.shader3d_instanced_monochrome,
     screen_w,
     screen_h,
     cmds,
@@ -660,8 +646,9 @@ fn push_entity_instanced_cmds(
     view_projection,
     state.lighting,
     dst,
-    state.shader3d,
+    state.shader3d_colored,
     state.shader3d_instanced,
+    state.shader3d_instanced_monochrome,
     screen_w,
     screen_h,
     cmds,

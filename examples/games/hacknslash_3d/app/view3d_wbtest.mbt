@@ -729,6 +729,7 @@ test "summarize_draw_playing_commands tracks instancing workload" {
   ]
   state.world.enemies = [
     {
+      ..@game.make_enemy(0.0, 0.0, @game.Basic, 1, 0.0, 10.0),
       x: px,
       y: py,
       vx: 0.0,
@@ -758,6 +759,7 @@ test "summarize_draw_playing_commands tracks instancing workload" {
       room_index: -1,
     },
     {
+      ..@game.make_enemy(0.0, 0.0, @game.Basic, 1, 0.0, 10.0),
       x: px + tile_size * 0.5,
       y: py,
       vx: 0.0,
@@ -839,6 +841,7 @@ test "push_enemy_character_commands emits skinned commands for visible enemies" 
   let py = state.world.player.y
   state.world.enemies = [
     {
+      ..@game.make_enemy(0.0, 0.0, @game.Basic, 1, 0.0, 10.0),
       x: px,
       y: py,
       vx: 0.0,
@@ -868,6 +871,7 @@ test "push_enemy_character_commands emits skinned commands for visible enemies" 
       room_index: -1,
     },
     {
+      ..@game.make_enemy(0.0, 0.0, @game.Basic, 1, 0.0, 10.0),
       x: px + tile_size * 0.5,
       y: py,
       vx: 0.0,
@@ -960,6 +964,7 @@ test "push_enemy_character_commands keeps stress enemies batched by kind and mat
       state.enemy_models.fast,
       state.enemy_models.tank,
       state.enemy_models.ranged,
+      state.enemy_models.caster,
       state.enemy_models.boss,
     ] {
     material_batches += model.parts.length()
@@ -1011,6 +1016,7 @@ test "rebuild_enemy_render_buckets clears stale enemy groups" {
   )
   state.world.enemies = [
     {
+      ..@game.make_enemy(0.0, 0.0, @game.Basic, 1, 0.0, 10.0),
       x: px,
       y: py,
       vx: 0.0,
@@ -1160,8 +1166,8 @@ test "entity subpass helpers emit one instanced command each from scratch" {
   assert_eq(cmds[1].instance_count, 1)
   assert_eq(cmds[2].instance_count, 1)
   assert_eq(cmds[0].shader.id, state.shader3d_colored.id)
-  assert_eq(cmds[1].shader.id, state.shader3d.id)
-  assert_eq(cmds[2].shader.id, state.shader3d.id)
+  assert_eq(cmds[1].shader.id, state.shader3d_colored.id)
+  assert_eq(cmds[2].shader.id, state.shader3d_colored.id)
   assert_eq(cmds[0].uniform_dwords.length(), 60)
   // draw3d/light3d encode uniforms via Double::to_float().reinterpret_as_int()
   // (round-to-nearest-even f32 bits) rather than gfx.double_to_f32_bits's

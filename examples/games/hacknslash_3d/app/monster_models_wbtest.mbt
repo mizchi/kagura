@@ -1,7 +1,7 @@
 ///|
 test "bestiary models have readable species silhouettes and independently skinned materials" {
   let models = EnemyModels::new()
-  assert_eq(enemy_bone_count, 12)
+  assert_eq(enemy_bone_count, 16)
   for kind in [@game.Basic, @game.Fast, @game.Ranged] {
     let data = models.get_mesh_data(kind)
     assert_true(data.parts.length() >= 4)
@@ -17,7 +17,7 @@ test "bestiary models have readable species silhouettes and independently skinne
         part.geometry.bind_mesh.vertex_count() * 4,
       )
       for joint in part.geometry.skin_data.joint_indices {
-        assert_true(joint >= 0 && joint < 12)
+        assert_true(joint >= 0 && joint < enemy_bone_count)
       }
     }
   }

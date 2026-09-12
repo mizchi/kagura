@@ -100,6 +100,8 @@ Each example is an independent MoonBit module. Run with:
 - [Getting Started](docs/user/getting_started.md)
 - [Tutorials](docs/user/tutorials.md)
 - [API Guide](docs/user/api_guide.md)
+- [Reusable Game Components](assets/web/README.md)
+- [Rendering Performance and Profiling](docs/performance.md)
 
 ### For Contributors
 

@@ -3,31 +3,8 @@ extern "js" fn instance_shader(source : String, dwords : Int) -> String =
   #| (source, dwords) => globalThis.__kaguraGfx?.instanceUniformShader?.(source, dwords) ?? source
 
 ///|
-#external
-priv type GeometryArray
-
-///|
-fn geometry_vertices(values : Array[Double]) -> GeometryArray = "%identity"
-
-///|
-fn geometry_indices(values : Array[Int]) -> GeometryArray = "%identity"
-
-///|
-extern "js" fn register_static_geometry(
-  vertices : GeometryArray,
-  indices : GeometryArray,
-) -> Unit =
-  #| (vertices, indices) => {
-  #|   const gpu = globalThis.__kaguraWebRuntime?.webgpu;
-  #|   if (gpu) globalThis.__kaguraGfx?.registerStaticGeometry(gpu, vertices, indices);
-  #| }
-
-///|
 fn retain_mesh(mesh : @mesh3d.Mesh3D) -> Unit {
-  register_static_geometry(
-    geometry_vertices(mesh.vertex_data),
-    geometry_indices(mesh.indices),
-  )
+  @hooks.register_static_geometry(mesh.vertex_data, mesh.indices)
 }
 
 ///|

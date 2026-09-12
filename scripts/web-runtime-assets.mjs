@@ -9,6 +9,7 @@ export const WEB_RUNTIME_FILES = Object.freeze([
   'kagura-audio.js',
   'kagura-controls.js',
   'kagura-gfx.js',
+  'kagura-profile.js',
 ]);
 
 /** @param {string | URL} destination */

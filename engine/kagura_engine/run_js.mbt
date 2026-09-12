@@ -11,6 +11,21 @@ extern "js" fn js_performance_now() -> Double =
   #| () => (globalThis.performance?.now?.() ?? Date.now())
 
 ///|
+extern "js" fn js_publish_frame_phases(
+  update_ms : Double,
+  draw_ms : Double,
+  render_ms : Double,
+) -> Unit =
+  #| (updateMs, drawCallbackMs, renderCommandsMs) => {
+  #|   const runtime = globalThis.__kaguraWebRuntime;
+  #|   if (!runtime) return;
+  #|   const profile = runtime.frameProfile ??= {};
+  #|   profile.updateMs = updateMs;
+  #|   profile.drawCallbackMs = drawCallbackMs;
+  #|   profile.renderCommandsMs = renderCommandsMs;
+  #| }
+
+///|
 pub fn run(
   update~ : (@core.InputSnapshot) -> Unit,
   draw~ : (EngineContext) -> Array[@gfx.DrawTrianglesCommand],
@@ -94,6 +109,7 @@ pub fn run(
     }
     let input = platform.capture_input(tick.val)
     tick.val = tick.val + 1
+    let update_start = js_performance_now()
     update(input)
     match on_frame {
       Some(f) => f()
@@ -107,6 +123,11 @@ pub fn run(
       e => println("[engine] render_commands failed: \{e}")
     }
     let render_end = js_performance_now()
+    js_publish_frame_phases(
+      draw_callback_start - update_start,
+      draw_callback_end - draw_callback_start,
+      render_end - render_start,
+    )
     match after_render {
       Some(f) =>
         f(draw_callback_end - draw_callback_start, render_end - render_start)

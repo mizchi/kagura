@@ -15,6 +15,25 @@ pub fn RigidGeometry::new() -> RigidGeometry {
 }
 
 ///|
+/// Append a geometry snapshot, preserving skin weights and offsetting indices.
+/// Bone indices keep their meaning in the destination's skeleton.
+pub fn RigidGeometry::append(
+  self : RigidGeometry,
+  source : RigidGeometry,
+) -> Unit {
+  let offset = self.vertices.length() / 8
+  // Copy before appending so self-composition is finite and well-defined.
+  let indices = source.indices.map(index => index + offset)
+  let vertices = source.vertices.copy()
+  let joints = source.joints.copy()
+  let weights = source.weights.copy()
+  self.vertices.append(vertices)
+  self.indices.append(indices)
+  self.joints.append(joints)
+  self.weights.append(weights)
+}
+
+///|
 pub fn RigidGeometry::triangle(
   self : RigidGeometry,
   a : @math3d.Vec3,

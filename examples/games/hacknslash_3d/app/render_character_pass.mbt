@@ -213,7 +213,6 @@ fn GameState::push_enemy_render_bucket_groups_with_view_projection(
       return
     }
     // Skin once per material/pose, then instance the entire crowd in one draw.
-    self.enemy_models.prepare_materials(mesh_data)
     for part in mesh_data.parts {
       let part_colors = colors.map(fn(tint) {
         @math3d.Vec4::new(
@@ -226,7 +225,10 @@ fn GameState::push_enemy_render_bucket_groups_with_view_projection(
       match @scene3d.uniform_instance_color(part_colors) {
         Some(_) =>
           @scene3d.push_instanced_mesh_gpu_commands_with_color_optimization_and_view_projection(
-            part.skinned_mesh,
+            part.geometry.skinned_mesh(
+              self.enemy_models.pose_generation,
+              enemy_skinning,
+            ),
             matrices,
             part_colors,
             view_projection,
@@ -241,10 +243,10 @@ fn GameState::push_enemy_render_bucket_groups_with_view_projection(
           )
         None =>
           @scene3d.push_skinned_mesh_gpu_commands_with_color_optimization_and_view_projection(
-            part.mesh,
+            part.geometry.bind_mesh,
             matrices,
             part_colors,
-            part.packed,
+            part.geometry.packed_vertex_data,
             enemy_skinning,
             view_projection,
             self.lighting,

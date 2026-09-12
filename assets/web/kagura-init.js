@@ -112,6 +112,7 @@ export function setupGlobalState(canvas, device, format, context) {
     },
   });
   state.fonts = state.fonts || {};
+  state.frameProfile = null;
   state.canvas = canvas;
   state.webgpu._submittedFrameCount = 0;
   state.surfaceId = state.nextSurfaceId++;

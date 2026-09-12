@@ -1,5 +1,6 @@
 // Shared GFX/WebGPU backend for kagura — used by both JS-target (via globalThis.__kaguraGfx)
 // and WASM-target (via ES module import)
+import {installFrameProfiler} from './kagura-profile.js';
 
 const SHADER_CODE = `
 struct Uniforms { color: vec4f }
@@ -2045,6 +2046,7 @@ export function renderGpu(gpu, device, context, clearColor, format) {
  * Install GFX helpers on globalThis for use from MoonBit extern "js" inline code.
  */
 export function installGfxHelpers() {
+  installFrameProfiler();
   globalThis.__kaguraGfx = {
     snapshotDrawGeometry,
     registerGeometry,

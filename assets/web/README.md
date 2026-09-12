@@ -10,6 +10,8 @@
 | ローポリ形状 | `mizchi/kagura_engine/procedural3d` | 寸法、リング形状、ボーン番号、色、配置 |
 | 表示・撮影 | `kagura-presentation.js` | アスペクト比、表示モード、HUDを含むルート |
 | 音声出力 | `kagura-audio.js` | ミキサーから完成したPCMフレーム |
+| スキニング | `scene3d.SkinnedMeshAsset` | 不変の形状とスキン、ポーズの更新番号 |
+| 性能計測 | `kagura-profile.js` / `just profile-web` | URL、再現操作、画面サイズ |
 
 ## タッチ入力
 
@@ -82,7 +84,8 @@ let skin = shape.build_skin()
 上下で異なるボーンを使う箱には `append_box_segment()` を使えます。
 
 バッファは `Mesh3D` の8要素（位置3・法線3・UV2）と `SkinData` の4要素の規約に従います。
-直接バッファを結合する場合はインデックスのオフセットとスキンの頂点数を呼び出し側で揃えます。
+`shape.append(part)` で部品を結合でき、インデックスのオフセットとスキンの頂点数を保ちます。
+ボーン番号は結合先の骨格と揃えます。
 `build_mesh()` と `build_skin()` は独立したコピーを返し、その後の形状追加で変化しません。
 狩人、敵、樹木、岩は同じプリミティブを使い、造形・マテリアル・マップ配置はゲーム側で定義します。
 
@@ -129,3 +132,6 @@ MoonBit JSでは地形やバインド姿勢の描画前に
 カメラ深度パスはSSAOが使う場合だけ生成する。バックエンド自身が変更を検出する場合、
 `compose_postfx` とカメラ深度の生成関数に `cache_resources=false` を指定して全頂点のハッシュを省ける。
 省略時は従来のキャッシュキーを生成する。
+
+共通API、ポーズの遅延更新、CPU/GPU時間を分けた計測と改善手順は
+[描画性能のガイド](../../docs/performance.md) を参照。

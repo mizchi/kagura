@@ -87,6 +87,8 @@ Dvorakでも同じ位置のWASDで移動、Q/Eでカメラを回転する。入�
 敵は共通の12ボーン素体から作る。`app/monster_assets.mbt` で顔・装備・5つの材質を追加し、
 `app/enemy_model.mbt` の共通歩行で腕・脚・尾を動かす。個体ごとのマテリアル描画を増やさず、
 種類と材質ごとにまとめて描画する。
+形状の結合には `RigidGeometry::append`、CPU変形の遅延更新にはKaguraの
+`scene3d.SkinnedMeshAsset` を使う。
 
 | 種族 | 特徴 | 戦闘での役割 |
 | --- | --- | --- |
@@ -108,3 +110,6 @@ Dvorakでも同じ位置のWASDで移動、Q/Eでカメラを回転する。入�
 SSAO有効時は `--url 'http://localhost:8080/?ssao=1'` を指定する。
 比較時はブラウザ、画面サイズ、移動の有無、描画設定を揃える。
 CPUサンプリングは別に実行し、フレーム処理時間の計測にサンプリングの負荷を混ぜない。
+ゲーム側のスクリプトはシードと操作だけを指定する。計測・統計・コールグラフ出力は
+共通の `scripts/profile-web.mjs` を使う。他のゲームでは `just profile-web --url URL` を利用できる。
+詳細は [Kaguraの性能計測](../../../docs/performance.md) を参照。

@@ -15,8 +15,8 @@ hunter-audio:
 # Reusable game components can be verified without building a particular game.
 game-components-test:
     moon -C engine/audio test . --target js
-    moon -C engine/kagura_engine test procedural3d shadow3d render_pipeline3d --target js
-    node --test assets/web/kagura-controls.test.mjs assets/web/kagura-audio.test.mjs assets/web/kagura-presentation.test.mjs assets/web/kagura-gfx.test.mjs scripts/web-runtime-assets.test.mjs scripts/web-demo-pages.test.mjs
+    moon -C engine/kagura_engine test procedural3d scene3d shadow3d render_pipeline3d --target js
+    node --test assets/web/kagura-controls.test.mjs assets/web/kagura-audio.test.mjs assets/web/kagura-presentation.test.mjs assets/web/kagura-gfx.test.mjs assets/web/kagura-profile.test.mjs scripts/profile-web.test.mjs scripts/hacknslash_3d_gpu_perf_utils.test.mjs scripts/web-runtime-assets.test.mjs scripts/web-demo-pages.test.mjs
 
 hunter-test: game-components-test
     moon -C examples/games/hacknslash_3d check --target js --deny-warn
@@ -30,6 +30,11 @@ hunter-e2e:
 [positional-arguments]
 hunter-cpu-profile *args:
     node scripts/hacknslash_3d_cpu_perf.mjs "$@"
+
+# Any Kagura game URL; no game-specific input or query parameters are assumed.
+[positional-arguments]
+profile-web *args:
+    node scripts/profile-web.mjs "$@"
 
 # Engine-owned browser capture: only the game surface, without page chrome.
 [positional-arguments]

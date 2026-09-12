@@ -46,6 +46,7 @@ pub struct RigidGeometry {
   joints : Array[Int]
   weights : Array[Double]
 }
+pub fn RigidGeometry::append(Self, Self) -> Unit
 pub fn RigidGeometry::box(Self, Double, Double, Double, Double, Double, Double, Int) -> Unit
 pub fn RigidGeometry::build_mesh(Self) -> @mesh3d.Mesh3D
 pub fn RigidGeometry::build_skin(Self) -> @skeleton3d.SkinData

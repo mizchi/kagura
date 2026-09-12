@@ -143,6 +143,16 @@ pub(all) struct SceneView {
   lighting : @light3d.LightingEnvironment
 }
 
+pub struct SkinnedMeshAsset {
+  bind_mesh : @mesh3d.Mesh3D
+  skin_data : @skeleton3d.SkinData
+  packed_vertex_data : Array[Double]
+  // private fields
+}
+pub fn SkinnedMeshAsset::cpu_skin_count(Self) -> Int
+pub fn SkinnedMeshAsset::new(@mesh3d.Mesh3D, @skeleton3d.SkinData) -> Self
+pub fn SkinnedMeshAsset::skinned_mesh(Self, Int, Array[@math3d.Mat4]) -> @mesh3d.Mesh3D
+
 pub(all) struct SkinningState {
   skin : @skeleton3d.SkinData
   skinning_matrices : Array[@math3d.Mat4]

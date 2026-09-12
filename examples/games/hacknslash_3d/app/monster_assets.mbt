@@ -4,26 +4,8 @@
 ///|
 struct EnemyMaterialPart {
   name : String
-  mesh : @mesh3d.Mesh3D
-  skin : @skeleton3d.SkinData
-  packed : Array[Double]
+  geometry : @scene3d.SkinnedMeshAsset
   color : @math3d.Vec4
-  skinned_data : Array[Double]
-  mut skinned_mesh : @mesh3d.Mesh3D
-}
-
-///|
-fn append_monster_geometry(
-  target : @procedural3d.RigidGeometry,
-  source : @procedural3d.RigidGeometry,
-) -> Unit {
-  let offset = target.vertices.length() / 8
-  target.vertices.append(source.vertices)
-  for index in source.indices {
-    target.indices.push(index + offset)
-  }
-  target.joints.append(source.joints)
-  target.weights.append(source.weights)
 }
 
 ///|
@@ -36,12 +18,8 @@ fn monster_material(
   let skin = geometry.build_skin()
   {
     name,
-    mesh,
-    skin,
+    geometry: @scene3d.SkinnedMeshAsset::new(mesh, skin),
     color: hex_to_vec4(color),
-    packed: @skeleton3d.build_skinned_vertex_data(mesh, skin),
-    skinned_data: mesh.vertex_data.copy(),
-    skinned_mesh: mesh,
   }
 }
 
@@ -114,11 +92,11 @@ fn build_monster_mesh_data(
   let dark = @procedural3d.RigidGeometry::new()
   let iron = @procedural3d.RigidGeometry::new()
   let glow = @procedural3d.RigidGeometry::new()
-  append_monster_geometry(flesh, base.arms)
+  flesh.append(base.arms)
   if goblin || kobold {
-    append_monster_geometry(flesh, base.head)
-    append_monster_geometry(flesh, base.torso)
-    append_monster_geometry(dark, base.legs)
+    flesh.append(base.head)
+    flesh.append(base.torso)
+    dark.append(base.legs)
     // Loincloth and a broad scarf break up the silhouette and remain visible above grass.
     cloth.loft(
       0.0,
@@ -262,7 +240,7 @@ fn build_monster_mesh_data(
       cloth.box(0.34, 1.08, 0.14, 0.09, 0.10, 0.06, 6)
     }
   } else {
-    append_monster_geometry(flesh, base.legs)
+    flesh.append(base.legs)
     // Open ribcage: discrete ribs and spine leave real gaps, not a painted torso.
     flesh.segment(
       @math3d.Vec3::new(0.0, 0.39, -0.035),
@@ -436,15 +414,9 @@ fn build_monster_mesh_data(
   ]
   let combined = @procedural3d.RigidGeometry::new()
   for g in [flesh, cloth, dark, iron, glow] {
-    append_monster_geometry(combined, g)
+    combined.append(g)
   }
   let mesh = combined.build_mesh()
   let skin = combined.build_skin()
-  {
-    bind_mesh: mesh,
-    skin_data: skin,
-    packed_vertex_data: @skeleton3d.build_skinned_vertex_data(mesh, skin),
-    parts,
-    material_pose_generation: -1,
-  }
+  { geometry: @scene3d.SkinnedMeshAsset::new(mesh, skin), parts, }
 }

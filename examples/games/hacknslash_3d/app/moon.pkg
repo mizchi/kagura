@@ -10,6 +10,7 @@ import {
   "mizchi/kagura_engine/draw3d",
   "mizchi/kagura_engine" @engine,
   "mizchi/kagura_engine/gltf",
+  "mizchi/kagura_engine/procedural3d",
   "mizchi/gfx",
   "mizchi/kagura_game/gameplay2d",
   "mizchi/kagura_core/inpututil",

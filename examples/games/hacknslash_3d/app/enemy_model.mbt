@@ -119,7 +119,7 @@ fn build_enemy_body_mesh(
   let weights_arr : Array[Double] = []
   let vc = Ref(0)
   // Body box
-  add_box_segment(
+  @procedural3d.append_box_segment(
     verts,
     indices,
     joint_indices,
@@ -136,7 +136,7 @@ fn build_enemy_body_mesh(
   )
   // Head box
   let hs = head_size
-  add_box_segment(
+  @procedural3d.append_box_segment(
     verts,
     indices,
     joint_indices,
@@ -170,18 +170,18 @@ fn build_basic_mesh() -> (@mesh3d.Mesh3D, @skeleton3d.SkinData) {
   let wa : Array[Double] = []
   let vc = Ref(0)
   // Body
-  add_box_segment(
+  @procedural3d.append_box_segment(
     verts, indices, ji, wa, vc, -0.12, 0.0, -0.1, 0.12, 0.35, 0.1, 0, 1,
   )
   // Head
-  add_box_segment(
+  @procedural3d.append_box_segment(
     verts, indices, ji, wa, vc, -0.07, 0.35, -0.07, 0.07, 0.48, 0.07, 2, 2,
   )
   // Arms (static, both sides)
-  add_box_segment(
+  @procedural3d.append_box_segment(
     verts, indices, ji, wa, vc, -0.18, 0.15, -0.04, -0.12, 0.32, 0.04, 1, 1,
   )
-  add_box_segment(
+  @procedural3d.append_box_segment(
     verts, indices, ji, wa, vc, 0.12, 0.15, -0.04, 0.18, 0.32, 0.04, 1, 1,
   )
   let mesh = @mesh3d.Mesh3D::new(verts, indices)
@@ -196,18 +196,18 @@ fn build_fast_mesh() -> (@mesh3d.Mesh3D, @skeleton3d.SkinData) {
   let wa : Array[Double] = []
   let vc = Ref(0)
   // Lean body
-  add_box_segment(
+  @procedural3d.append_box_segment(
     verts, indices, ji, wa, vc, -0.08, 0.0, -0.06, 0.08, 0.28, 0.06, 0, 1,
   )
   // Small head
-  add_box_segment(
+  @procedural3d.append_box_segment(
     verts, indices, ji, wa, vc, -0.05, 0.28, -0.05, 0.05, 0.38, 0.05, 2, 2,
   )
   // Blades on sides (speed fins)
-  add_box_segment(
+  @procedural3d.append_box_segment(
     verts, indices, ji, wa, vc, -0.16, 0.12, -0.01, -0.08, 0.25, 0.01, 1, 1,
   )
-  add_box_segment(
+  @procedural3d.append_box_segment(
     verts, indices, ji, wa, vc, 0.08, 0.12, -0.01, 0.16, 0.25, 0.01, 1, 1,
   )
   let mesh = @mesh3d.Mesh3D::new(verts, indices)
@@ -222,18 +222,18 @@ fn build_tank_mesh() -> (@mesh3d.Mesh3D, @skeleton3d.SkinData) {
   let wa : Array[Double] = []
   let vc = Ref(0)
   // Wide heavy body
-  add_box_segment(
+  @procedural3d.append_box_segment(
     verts, indices, ji, wa, vc, -0.2, 0.0, -0.15, 0.2, 0.45, 0.15, 0, 1,
   )
   // Head (small relative to body)
-  add_box_segment(
+  @procedural3d.append_box_segment(
     verts, indices, ji, wa, vc, -0.08, 0.45, -0.08, 0.08, 0.55, 0.08, 2, 2,
   )
   // Shoulder plates
-  add_box_segment(
+  @procedural3d.append_box_segment(
     verts, indices, ji, wa, vc, -0.28, 0.32, -0.1, -0.2, 0.45, 0.1, 1, 1,
   )
-  add_box_segment(
+  @procedural3d.append_box_segment(
     verts, indices, ji, wa, vc, 0.2, 0.32, -0.1, 0.28, 0.45, 0.1, 1, 1,
   )
   let mesh = @mesh3d.Mesh3D::new(verts, indices)
@@ -248,23 +248,23 @@ fn build_ranged_mesh() -> (@mesh3d.Mesh3D, @skeleton3d.SkinData) {
   let wa : Array[Double] = []
   let vc = Ref(0)
   // Robed body (slightly wider at bottom)
-  add_box_segment(
+  @procedural3d.append_box_segment(
     verts, indices, ji, wa, vc, -0.1, 0.0, -0.08, 0.1, 0.3, 0.08, 0, 1,
   )
   // Head (hooded)
-  add_box_segment(
+  @procedural3d.append_box_segment(
     verts, indices, ji, wa, vc, -0.07, 0.3, -0.07, 0.07, 0.42, 0.07, 2, 2,
   )
   // Hood peak
-  add_box_segment(
+  @procedural3d.append_box_segment(
     verts, indices, ji, wa, vc, -0.04, 0.42, -0.04, 0.04, 0.48, 0.04, 2, 2,
   )
   // Staff (right side)
-  add_box_segment(
+  @procedural3d.append_box_segment(
     verts, indices, ji, wa, vc, 0.12, 0.0, -0.015, 0.15, 0.5, 0.015, 1, 1,
   )
   // Staff orb
-  add_box_segment(
+  @procedural3d.append_box_segment(
     verts, indices, ji, wa, vc, 0.1, 0.48, -0.03, 0.17, 0.55, 0.03, 1, 1,
   )
   let mesh = @mesh3d.Mesh3D::new(verts, indices)
@@ -279,30 +279,30 @@ fn build_boss_mesh() -> (@mesh3d.Mesh3D, @skeleton3d.SkinData) {
   let wa : Array[Double] = []
   let vc = Ref(0)
   // Massive body
-  add_box_segment(
+  @procedural3d.append_box_segment(
     verts, indices, ji, wa, vc, -0.3, 0.0, -0.2, 0.3, 0.6, 0.2, 0, 1,
   )
   // Head with horns
-  add_box_segment(
+  @procedural3d.append_box_segment(
     verts, indices, ji, wa, vc, -0.12, 0.6, -0.1, 0.12, 0.78, 0.1, 2, 2,
   )
   // Left horn
-  add_box_segment(
+  @procedural3d.append_box_segment(
     verts, indices, ji, wa, vc, -0.18, 0.72, -0.03, -0.12, 0.9, 0.03, 2, 2,
   )
   // Right horn
-  add_box_segment(
+  @procedural3d.append_box_segment(
     verts, indices, ji, wa, vc, 0.12, 0.72, -0.03, 0.18, 0.9, 0.03, 2, 2,
   )
   // Arms
-  add_box_segment(
+  @procedural3d.append_box_segment(
     verts, indices, ji, wa, vc, -0.42, 0.2, -0.08, -0.3, 0.55, 0.08, 1, 1,
   )
-  add_box_segment(
+  @procedural3d.append_box_segment(
     verts, indices, ji, wa, vc, 0.3, 0.2, -0.08, 0.42, 0.55, 0.08, 1, 1,
   )
   // Weapon (great sword, right side)
-  add_box_segment(
+  @procedural3d.append_box_segment(
     verts, indices, ji, wa, vc, 0.35, 0.0, -0.02, 0.4, 0.7, 0.02, 1, 1,
   )
   let mesh = @mesh3d.Mesh3D::new(verts, indices)

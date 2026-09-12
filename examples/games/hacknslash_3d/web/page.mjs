@@ -1,8 +1,10 @@
+import {renderWebRuntimeImportMap} from '../../../../scripts/web-runtime-assets.mjs';
 // Shared dev/gallery shell. Gameplay HUD is part of Kagura's capture surface.
-export function renderHunterPage({scriptTag,homeHref,homeLabel}) {
+export function renderHunterPage({scriptTag,homeHref,homeLabel,libPrefix}) {
   const escape=value=>String(value).replaceAll('&','&amp;').replaceAll('"','&quot;').replaceAll('<','&lt;');
   return `<!doctype html>
 <html lang="ja"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+${renderWebRuntimeImportMap(libPrefix)}
 <meta name="theme-color" content="#14231a"><title>ASHEN HUNT — 灰の森</title>
 <link rel="stylesheet" href="./assets/hunter-ui.css"></head><body>
 <main id="game-surface" data-kagura-surface aria-label="ASHEN HUNT ゲーム画面">

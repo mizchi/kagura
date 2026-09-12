@@ -1,3 +1,4 @@
+import {copyWebRuntimeAssets} from './web-runtime-assets.mjs';
 import { spawnSync } from "node:child_process";
 import {
   cpSync,
@@ -30,10 +31,7 @@ function buildPages() {
   rmSync(SITE, { recursive: true, force: true });
   mkdirSync(join(SITE, "lib"), { recursive: true });
 
-  copySharedLib("kagura-init.js");
-  copySharedLib("kagura-presentation.js");
-  copySharedLib("kagura-audio.js");
-  copySharedLib("kagura-gfx.js");
+  copyWebRuntimeAssets(join(SITE, "lib"));
 
   for (const demo of DEMO_PAGES) {
     buildExample(demo.name);
@@ -116,10 +114,6 @@ function resolveExampleDir(name) {
     }
   }
   return flat;
-}
-
-function copySharedLib(fileName) {
-  cpSync(join(ROOT, "assets", "web", fileName), join(SITE, "lib", fileName));
 }
 
 function resolveCacheBust() {

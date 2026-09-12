@@ -1,0 +1,33 @@
+// Generated using `moon info`, DON'T EDIT IT
+package "mizchi/kagura_engine/procedural3d"
+
+import {
+  "mizchi/anim3d/skeleton3d",
+  "mizchi/geom/math3d",
+  "mizchi/mesh3d",
+  "moonbitlang/core/ref",
+}
+
+// Values
+pub fn append_box_segment(Array[Double], Array[Int], Array[Int], Array[Double], @ref.Ref[Int], Double, Double, Double, Double, Double, Double, Int, Int) -> Unit
+
+// Errors
+
+// Types and methods
+pub struct RigidGeometry {
+  vertices : Array[Double]
+  indices : Array[Int]
+  joints : Array[Int]
+  weights : Array[Double]
+}
+pub fn RigidGeometry::box(Self, Double, Double, Double, Double, Double, Double, Int) -> Unit
+pub fn RigidGeometry::build_mesh(Self) -> @mesh3d.Mesh3D
+pub fn RigidGeometry::build_skin(Self) -> @skeleton3d.SkinData
+pub fn RigidGeometry::loft(Self, Double, Double, Array[(Double, Double, Double)], Int, Int) -> Unit
+pub fn RigidGeometry::new() -> Self
+pub fn RigidGeometry::quad(Self, @math3d.Vec3, @math3d.Vec3, @math3d.Vec3, @math3d.Vec3, Int) -> Unit
+pub fn RigidGeometry::triangle(Self, @math3d.Vec3, @math3d.Vec3, @math3d.Vec3, Int) -> Unit
+
+// Type aliases
+
+// Traits

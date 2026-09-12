@@ -142,6 +142,14 @@ pub fn BufferedAudioStream::read(Self, FixedArray[Byte], Int) -> Int
 pub fn BufferedAudioStream::reset(Self) -> Unit
 pub impl AudioStream for BufferedAudioStream
 
+pub(all) enum CuePlayback {
+  Played
+  Suppressed
+  Muted
+  Missing
+} derive(Eq, @debug.Debug)
+pub impl Show for CuePlayback
+
 pub struct MixerAudioContext {
   mixer : @audio.Mixer
   mut player_map : Array[(PlayerId, @audio.VoiceId)]
@@ -222,6 +230,19 @@ pub struct SimpleAudioPlayer {
   mut volume : Double
   mut position_samples : Int
 }
+
+pub struct SoundBank[Key] {
+  // private fields
+}
+pub fn[Key] SoundBank::clear(Self[Key]) -> Unit
+pub fn[Key] SoundBank::is_muted(Self[Key]) -> Bool
+pub fn[Key] SoundBank::loaded_count(Self[Key]) -> Int
+pub fn[Key] SoundBank::new(MixerAudioContext) -> Self[Key]
+pub fn[Key : Eq] SoundBank::play(Self[Key], Key, restart? : Bool) -> CuePlayback raise
+pub fn[Key : Eq] SoundBank::player(Self[Key], Key) -> PlayerId?
+pub fn[Key] SoundBank::playing_count(Self[Key]) -> Int
+pub fn[Key : Eq] SoundBank::register(Self[Key], Key, AudioClip, volume? : Double) -> Unit raise
+pub fn[Key] SoundBank::set_muted(Self[Key], Bool) -> Unit
 
 // Type aliases
 

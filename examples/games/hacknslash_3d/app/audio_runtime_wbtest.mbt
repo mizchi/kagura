@@ -44,8 +44,8 @@ test "repeated combat cues finish naturally and can play again after mute" {
     Bytes::make(4410 * 4, 16),
     false,
   )
-  let player = state.audio_ctx.create_player(clip)
-  state.audio_players.assign(SfxSpellChainLightning, player)
+  state.audio_bank.register(SfxSpellChainLightning, clip)
+  let player = state.audio_bank.player(SfxSpellChainLightning).unwrap()
   state.play_sound_cue(SfxSpellChainLightning)
   let output : FixedArray[Float] = FixedArray::make(882, 0.0)
   state.audio_ctx.render(441, output)
@@ -60,13 +60,13 @@ test "repeated combat cues finish naturally and can play again after mute" {
   }
   state.play_sound_cue(SfxSpellChainLightning)
   assert_eq(state.audio_ctx.current_position(player), 0.0)
-  assert_eq(player_state_name(state.audio_ctx.state(player)), "playing")
+  assert_eq(state.playing_audio_player_count(), 1)
   state.set_audio_muted(true)
   state.audio_ctx.render(441, output)
   assert_eq(state.playing_audio_player_count(), 0)
   state.set_audio_muted(false)
   state.play_sound_cue(SfxSpellChainLightning)
-  assert_eq(player_state_name(state.audio_ctx.state(player)), "playing")
+  assert_eq(state.playing_audio_player_count(), 1)
 }
 
 ///|
@@ -76,7 +76,7 @@ test "play_sound_cue reports muted state when audio is muted" {
   state.set_audio_muted(true)
   state.play_sound_cue(SfxAttack)
 
-  assert_true(state.audio_muted)
+  assert_true(state.audio_bank.is_muted())
   assert_eq(state.audio_last_played_cue, "attack")
   assert_eq(state.audio_last_played_state, "muted")
   assert_eq(state.playing_audio_player_count(), 0)

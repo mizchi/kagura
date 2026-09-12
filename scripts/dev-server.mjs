@@ -42,6 +42,7 @@ const indexHtml = renderDemoHtml({
   demo,
   homeHref: "https://github.com/mizchi/kagura",
   homeLabel: "Repository",
+  libPrefix: "./assets/web",
   scriptTag,
 });
 

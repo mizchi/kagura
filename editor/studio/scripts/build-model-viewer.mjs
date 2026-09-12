@@ -1,3 +1,4 @@
+import {copyWebRuntimeAssets} from '../../../scripts/web-runtime-assets.mjs';
 import { spawnSync } from 'node:child_process';
 import { cp, mkdir } from 'node:fs/promises';
 import { resolveBuildArtifact } from '../../../scripts/moon-build-artifact-utils.mjs';
@@ -17,5 +18,4 @@ if (!artifact) throw Error('Missing model viewer build');
 await cp(artifact, new URL('model-viewer.js', target));
 for (const name of ['runtime.mjs', 'index.html'])
   await cp(new URL('../assets/' + name, import.meta.url), new URL(name, target));
-for (const name of ['kagura-init.js', 'kagura-presentation.js', 'kagura-gfx.js'])
-  await cp(new URL('../../../assets/web/' + name, import.meta.url), new URL('lib/' + name, target));
+copyWebRuntimeAssets(new URL('lib/', target));

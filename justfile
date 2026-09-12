@@ -12,10 +12,16 @@ hunter-dev:
 hunter-audio:
     node examples/games/hacknslash_3d/scripts/design-audio.mjs
 
-hunter-test:
+# Reusable game components can be verified without building a particular game.
+game-components-test:
+    moon -C engine/audio test . --target js
+    moon -C engine/kagura_engine test procedural3d --target js
+    node --test assets/web/kagura-controls.test.mjs assets/web/kagura-audio.test.mjs assets/web/kagura-presentation.test.mjs scripts/web-runtime-assets.test.mjs scripts/web-demo-pages.test.mjs
+
+hunter-test: game-components-test
     moon -C examples/games/hacknslash_3d check --target js --deny-warn
     moon -C examples/games/hacknslash_3d test game app --target js
-    node --test examples/games/hacknslash_3d/web/*.test.mjs assets/web/kagura-presentation.test.mjs assets/web/kagura-audio.test.mjs
+    node --test examples/games/hacknslash_3d/web/*.test.mjs
 
 hunter-e2e:
     pnpm exec playwright test --config examples/games/hacknslash_3d/playwright.config.mjs

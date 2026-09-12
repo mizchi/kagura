@@ -2,7 +2,7 @@
 
 ///|
 fn make_hunter_pavers() -> @mesh3d.Mesh3D {
-  let g = HunterGeometry::new()
+  let g = @procedural3d.RigidGeometry::new()
   g.box(-0.251, -0.035, 0.0, 0.486, 0.07, 0.976, 0)
   g.box(0.251, -0.035, -0.251, 0.486, 0.07, 0.474, 0)
   g.box(0.251, -0.035, 0.251, 0.486, 0.07, 0.474, 0)
@@ -11,7 +11,7 @@ fn make_hunter_pavers() -> @mesh3d.Mesh3D {
 
 ///|
 fn make_hunter_fence(height : Double) -> @mesh3d.Mesh3D {
-  let g = HunterGeometry::new()
+  let g = @procedural3d.RigidGeometry::new()
   g.box(0.0, height / 2.0, 0.0, 0.97, height, 0.97, 0)
   g.box(0.0, height + 0.04, 0.0, 1.0, 0.08, 1.0, 0)
   for x in [-0.36, -0.12, 0.12, 0.36] {
@@ -33,7 +33,7 @@ fn make_hunter_fence(height : Double) -> @mesh3d.Mesh3D {
 
 ///|
 fn make_hunter_pillar() -> @mesh3d.Mesh3D {
-  let g = HunterGeometry::new()
+  let g = @procedural3d.RigidGeometry::new()
   g.loft(
     0.0,
     0.0,
@@ -54,7 +54,7 @@ fn make_hunter_pillar() -> @mesh3d.Mesh3D {
 
 ///|
 let hunter_lantern_mesh : @mesh3d.Mesh3D = {
-  let g = HunterGeometry::new()
+  let g = @procedural3d.RigidGeometry::new()
   g.loft(
     0.0,
     0.0,
@@ -164,7 +164,7 @@ fn GameState::push_hunter_lanterns(
 
 ///|
 let hunter_slash_mesh : @mesh3d.Mesh3D = {
-  let g = HunterGeometry::new()
+  let g = @procedural3d.RigidGeometry::new()
   for i in 0..<18 {
     let t = i.to_double() / 18.0
     let next = (i + 1).to_double() / 18.0

@@ -147,8 +147,7 @@ struct GameState {
   mut active_effects : Array[ActiveEffectInstance]
   mut damage_popups : Array[DamagePopup]
   audio_ctx : @audio.MixerAudioContext
-  mut audio_muted : Bool
-  audio_players : GameAudioPlayers
+  audio_bank : @audio.SoundBank[GameSoundCue]
   audio_failed_paths : Array[String]
   mut audio_last_played_cue : String
   mut audio_last_played_state : String

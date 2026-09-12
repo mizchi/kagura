@@ -1,17 +1,11 @@
 import test from 'node:test';
 import assert from 'node:assert/strict';
-import { createHunterInput, stickVector, skillStatus } from '../assets/hunter-input.mjs';
+import { createHunterInput, skillStatus } from '../assets/hunter-input.mjs';
 
-test('stick has a dead zone, proportional movement and a circular speed limit', () => {
-  assert.deepEqual(stickVector(2,3,50),{x:0,y:0});
-  const slow=stickVector(25,0,50);
-  assert.ok(slow.x>0 && slow.x<1);
-  const fast=stickVector(100,-100,50);
-  assert.ok(Math.abs(Math.hypot(fast.x,fast.y)-1)<1e-8);
-  assert.ok(fast.x>0 && fast.y<0);
-});
+import {createControlInput} from '../../../../assets/web/kagura-controls.js';
+
 test('multitouch owns independent actions; cancellation releases every held input', () => {
-  const input=createHunterInput();
+  const input=createHunterInput(createControlInput());
   input.move(7,.5,-.5);
   input.hold(8,'attack');
   input.hold(9,'attack');

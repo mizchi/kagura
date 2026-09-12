@@ -584,8 +584,9 @@ export function renderDemoHtml({
   scriptTag,
   homeHref = "../",
   homeLabel = "Gallery",
+  libPrefix = "../lib",
 }) {
-  if (demo.name === "hacknslash_3d") return renderHunterPage({ scriptTag, homeHref, homeLabel });
+  if (demo.name === "hacknslash_3d") return renderHunterPage({ scriptTag, homeHref, homeLabel, libPrefix });
   const tagHtml = demo.tags.map((tag) => `<li>${escapeHtml(tag)}</li>`).join("");
   const controlsHtml = demo.controls
     .map((control) => `<li>${escapeHtml(control)}</li>`)

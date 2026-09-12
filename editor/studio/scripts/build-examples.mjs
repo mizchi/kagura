@@ -1,3 +1,4 @@
+import {copyWebRuntimeAssets} from '../../../scripts/web-runtime-assets.mjs';
 import { packagedPath } from '../examples/files.mjs';
 import { runtimeEntry, projectBuild } from '../projects/settings.mjs';
 import { validateProject } from '../projects/project.mjs';
@@ -28,11 +29,7 @@ if (!selected.length) await rm(destination, { recursive: true, force: true });
 await mkdir(destination, { recursive: true });
 const wrapper = new URL('public/example-runtime/', studio);
 await mkdir(new URL('lib/', wrapper), { recursive: true });
-for (const file of ['kagura-init.js', 'kagura-presentation.js', 'kagura-audio.js', 'kagura-gfx.js'])
-  await cp(
-    new URL('../../../assets/web/' + file, import.meta.url),
-    new URL('lib/' + file, wrapper),
-  );
+copyWebRuntimeAssets(new URL('lib/', wrapper));
 for (const file of ['runtime.mjs', 'assets.mjs', 'index.html'])
   await cp(new URL('examples/' + file, studio), new URL(file, wrapper));
 

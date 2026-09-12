@@ -297,7 +297,7 @@ fn GameState::render_hud_cmds(
   if self.world.auto_play {
     ctx.draw_text(cmds, "AUTO", 10.0, 8.0, 38.0, 0x00FFAA)
   }
-  if self.audio_muted {
+  if self.audio_bank.is_muted() {
     ctx.draw_text(cmds, "MUTE", 12.0, sw - 56.0, sh - 10.0, 0xFF8899)
   }
   self.draw_damage_popups(ctx, cmds)

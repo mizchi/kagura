@@ -9,7 +9,7 @@ fn build_hunting_chunks(
   for cz in 0..<((h + chunk_size - 1) / chunk_size) {
     for cx in 0..<((w + chunk_size - 1) / chunk_size) {
       let accum = Array::makei(hunting_palette.length(), fn(_) {
-        HunterGeometry::new()
+        @procedural3d.RigidGeometry::new()
       })
       for z in (cz * chunk_size)..<@cmp.minimum(h, (cz + 1) * chunk_size) {
         for x in (cx * chunk_size)..<@cmp.minimum(w, (cx + 1) * chunk_size) {
@@ -216,7 +216,7 @@ fn GameState::push_hunting_ground_commands(
 
 ///|
 let hunter_contact_shadow : @mesh3d.Mesh3D = {
-  let g = HunterGeometry::new()
+  let g = @procedural3d.RigidGeometry::new()
   hunting_ground_shadow(g, 0.0, 0.0, 0.31, 0.23)
   @mesh3d.Mesh3D::new(g.vertices, g.indices)
 }

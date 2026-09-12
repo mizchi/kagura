@@ -19,38 +19,6 @@ pub impl Show for GameSoundCue with fn output(self, logger) {
 }
 
 ///|
-struct GameAudioPlayers {
-  mut attack : @audio.PlayerId?
-  mut enemy_hit : @audio.PlayerId?
-  mut dodge : @audio.PlayerId?
-  mut hurt : @audio.PlayerId?
-  mut pickup_loot : @audio.PlayerId?
-  mut pickup_health : @audio.PlayerId?
-  mut spell_chain_lightning : @audio.PlayerId?
-  mut spell_fireball : @audio.PlayerId?
-  mut spell_ice_nova : @audio.PlayerId?
-  mut spell_homing_missile : @audio.PlayerId?
-  mut floor_complete : @audio.PlayerId?
-}
-
-///|
-fn default_game_audio_players() -> GameAudioPlayers {
-  {
-    attack: None,
-    enemy_hit: None,
-    dodge: None,
-    hurt: None,
-    pickup_loot: None,
-    pickup_health: None,
-    spell_chain_lightning: None,
-    spell_fireball: None,
-    spell_ice_nova: None,
-    spell_homing_missile: None,
-    floor_complete: None,
-  }
-}
-
-///|
 fn sound_cue_for_event(event : @game.GameEvent) -> GameSoundCue? {
   match event {
     @game.AttackTriggered => Some(SfxAttack)
@@ -64,47 +32,6 @@ fn sound_cue_for_event(event : @game.GameEvent) -> GameSoundCue? {
     @game.IceNovaCast(_, _, _) => Some(SfxSpellIceNova)
     @game.FloorComplete => Some(SfxFloorComplete)
     _ => None
-  }
-}
-
-///|
-fn GameAudioPlayers::lookup(
-  self : GameAudioPlayers,
-  cue : GameSoundCue,
-) -> @audio.PlayerId? {
-  match cue {
-    SfxAttack => self.attack
-    SfxEnemyHit => self.enemy_hit
-    SfxDodge => self.dodge
-    SfxHurt => self.hurt
-    SfxPickupLoot => self.pickup_loot
-    SfxPickupHealth => self.pickup_health
-    SfxSpellChainLightning => self.spell_chain_lightning
-    SfxSpellFireball => self.spell_fireball
-    SfxSpellIceNova => self.spell_ice_nova
-    SfxSpellHomingMissile => self.spell_homing_missile
-    SfxFloorComplete => self.floor_complete
-  }
-}
-
-///|
-fn GameAudioPlayers::assign(
-  self : GameAudioPlayers,
-  cue : GameSoundCue,
-  player : @audio.PlayerId,
-) -> Unit {
-  match cue {
-    SfxAttack => self.attack = Some(player)
-    SfxEnemyHit => self.enemy_hit = Some(player)
-    SfxDodge => self.dodge = Some(player)
-    SfxHurt => self.hurt = Some(player)
-    SfxPickupLoot => self.pickup_loot = Some(player)
-    SfxPickupHealth => self.pickup_health = Some(player)
-    SfxSpellChainLightning => self.spell_chain_lightning = Some(player)
-    SfxSpellFireball => self.spell_fireball = Some(player)
-    SfxSpellIceNova => self.spell_ice_nova = Some(player)
-    SfxSpellHomingMissile => self.spell_homing_missile = Some(player)
-    SfxFloorComplete => self.floor_complete = Some(player)
   }
 }
 
@@ -126,108 +53,41 @@ fn sound_cue_name(cue : GameSoundCue) -> String {
 }
 
 ///|
-fn player_state_name(state : @audio.PlayerState) -> String {
-  match state {
-    @audio.PlayerState::Stopped => "stopped"
-    @audio.PlayerState::Playing => "playing"
-    @audio.PlayerState::Paused => "paused"
-  }
-}
-
-///|
-fn game_sound_cues() -> Array[GameSoundCue] {
-  [
-    SfxAttack,
-    SfxEnemyHit,
-    SfxDodge,
-    SfxHurt,
-    SfxPickupLoot,
-    SfxPickupHealth,
-    SfxSpellChainLightning,
-    SfxSpellFireball,
-    SfxSpellIceNova,
-    SfxSpellHomingMissile,
-    SfxFloorComplete,
-  ]
-}
-
-///|
 fn GameState::set_audio_muted(self : GameState, muted : Bool) -> Unit {
-  self.audio_muted = muted
+  self.audio_bank.set_muted(muted)
   self.audio_last_played_state = if muted { "muted" } else { "unmuted" }
-  if muted {
-    for cue in game_sound_cues() {
-      match self.audio_players.lookup(cue) {
-        Some(player) => self.audio_ctx.stop(player) catch { _ => () }
-        None => ()
-      }
-    }
-  }
 }
 
 ///|
 fn GameState::toggle_audio_muted(self : GameState) -> Unit {
-  self.set_audio_muted(!self.audio_muted)
+  self.set_audio_muted(!self.audio_bank.is_muted())
 }
 
 ///|
 fn GameState::play_sound_cue(self : GameState, cue : GameSoundCue) -> Unit {
   self.audio_last_played_cue = sound_cue_name(cue)
-  if self.audio_muted {
-    self.audio_last_played_state = "muted"
-    return
-  }
-  match self.audio_players.lookup(cue) {
-    Some(player) => {
-      // Chain arcs, pellets and crowds can emit many instances in one frame.
-      // Give each material its own voice and let its transient finish naturally.
-      match self.audio_ctx.state(player) {
-        @audio.PlayerState::Playing => {
-          self.audio_last_played_state = "suppressed"
-          return
-        }
-        _ => ()
-      }
-      self.audio_ctx.seek(player, 0.0) catch {
-        _ => ()
-      }
-      self.audio_ctx.play(player) catch {
-        _ => ()
-      }
-      self.audio_last_played_state = player_state_name(
-        self.audio_ctx.state(player),
-      )
+  let result = self.audio_bank.play(cue) catch {
+    _ => {
+      self.audio_last_played_state = "failed"
+      return
     }
-    None => self.audio_last_played_state = "missing"
+  }
+  self.audio_last_played_state = match result {
+    @audio.Played => "playing"
+    @audio.Suppressed => "suppressed"
+    @audio.Muted => "muted"
+    @audio.Missing => "missing"
   }
 }
 
 ///|
 fn GameState::loaded_audio_player_count(self : GameState) -> Int {
-  let mut count = 0
-  for cue in game_sound_cues() {
-    match self.audio_players.lookup(cue) {
-      Some(_) => count = count + 1
-      None => ()
-    }
-  }
-  count
+  self.audio_bank.loaded_count()
 }
 
 ///|
 fn GameState::playing_audio_player_count(self : GameState) -> Int {
-  let mut count = 0
-  for cue in game_sound_cues() {
-    match self.audio_players.lookup(cue) {
-      Some(player) =>
-        match self.audio_ctx.state(player) {
-          @audio.PlayerState::Playing => count = count + 1
-          _ => ()
-        }
-      None => ()
-    }
-  }
-  count
+  self.audio_bank.playing_count()
 }
 
 ///|

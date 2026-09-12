@@ -1,4 +1,5 @@
-import {createHunterInput,stickVector,skillStatus} from './hunter-input.mjs';
+import {createControlInput, bindVirtualStick} from '@kagura-web/kagura-controls.js';
+import {createHunterInput, skillStatus} from './hunter-input.mjs';
 
 const paths={
   blade:'M6 26 25 5l2 9-15 15M6 22l8 8M5 31l5-5',
@@ -13,7 +14,8 @@ const paths={
 const icon=name=>`<svg viewBox="0 0 34 34" aria-hidden="true"><path d="${paths[name]}"/></svg>`;
 const escape=value=>String(value).replaceAll('&','&amp;').replaceAll('<','&lt;').replaceAll('"','&quot;');
 const root=document.querySelector('#hunter-hud');
-const input=createHunterInput();
+const controls=createControlInput();
+const input=createHunterInput(controls);
 globalThis.__ashenControls=input;
 let current=null;
 let panelKey='';
@@ -43,29 +45,25 @@ root.innerHTML=`
 const $=id=>document.getElementById(id);
 const setText=(id,value)=>{const e=$(id);if(e.textContent!==String(value))e.textContent=String(value);};
 const stick=$('move-stick');
-let stickId=null;
-let stickOrigin={x:0,y:0};
-const clear=()=>{input.clear();stickId=null;$('stick-thumb').style.transform='translate(0,0)';root.querySelectorAll('[data-pressed]').forEach(e=>e.removeAttribute('data-pressed'));};
+const clear=()=>{input.clear();virtualStick.reset();$('stick-thumb').style.transform='translate(0,0)';root.querySelectorAll('[data-pressed]').forEach(e=>e.removeAttribute('data-pressed'));};
 
 for(const event of ['mousedown','mouseup','touchstart','touchmove','touchend','touchcancel']) root.addEventListener(event,e=>e.stopPropagation(),{passive:true});
 // Keep actual keyboard controls working when focus is on a HUD button.
 root.addEventListener('keydown',e=>{if(e.target instanceof HTMLButtonElement && ['Space','Enter'].includes(e.code))e.stopPropagation();});
 root.addEventListener('keyup',e=>{if(e.target instanceof HTMLButtonElement && ['Space','Enter'].includes(e.code))e.stopPropagation();});
 
-stick.addEventListener('pointerdown',e=>{
-  if(stickId!==null || current?.paused || current?.menu!=='none')return;
-  e.preventDefault();e.stopPropagation();stickId=e.pointerId;stick.setPointerCapture(stickId);
-  const r=stick.querySelector('.stick-ring').getBoundingClientRect();stickOrigin={x:r.x+r.width/2,y:r.y+r.height/2};
-  moveStick(e);
+const virtualStick=bindVirtualStick(stick, {
+  input: controls,
+  radius: 48,
+  enabled: () => !current?.paused && current?.menu === 'none',
+  center: () => {
+    const rect=stick.querySelector('.stick-ring').getBoundingClientRect();
+    return {x:rect.x+rect.width/2,y:rect.y+rect.height/2};
+  },
+  onChange: vector => {
+    $('stick-thumb').style.transform=`translate(${vector.x*36}px,${vector.y*36}px)`;
+  },
 });
-function moveStick(e){
-  if(e.pointerId!==stickId)return;
-  e.preventDefault();e.stopPropagation();
-  const v=stickVector(e.clientX-stickOrigin.x,e.clientY-stickOrigin.y,48);
-  input.move(stickId,v.x,v.y);$('stick-thumb').style.transform=`translate(${v.x*36}px,${v.y*36}px)`;
-}
-stick.addEventListener('pointermove',moveStick);
-for(const type of ['pointerup','pointercancel','lostpointercapture'])stick.addEventListener(type,e=>{input.release(e.pointerId);if(e.pointerId===stickId){stickId=null;$('stick-thumb').style.transform='translate(0,0)';}});
 
 function activate(button,e){
   if(button.disabled)return;

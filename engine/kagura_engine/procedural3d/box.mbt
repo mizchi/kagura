@@ -1,7 +1,8 @@
-// Shared rigid box helper; also used by enemy models.
+// Append a box to existing Mesh3D/SkinData buffers. vertex_count must match
+// the current number of vertices. Lower and upper halves may use different joints.
 
 ///|
-fn add_box_segment(
+pub fn append_box_segment(
   verts : Array[Double],
   indices : Array[Int],
   joint_indices : Array[Int],

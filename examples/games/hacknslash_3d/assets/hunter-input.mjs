@@ -1,29 +1,21 @@
-// Input intent only. The MoonBit simulation owns damage, cooldowns and movement.
-export function stickVector(dx, dy, radius) {
-  const length=Math.hypot(dx,dy);
-  if (length < radius*.14) return {x:0,y:0};
-  const magnitude=Math.min(1,(length/radius-.14)/.86);
-  return {x:dx/length*magnitude,y:dy/length*magnitude};
-}
-
-export function createHunterInput() {
-  const held=new Map();
-  const keys=[];
-  let stick=null;
-  let x=0,y=0;
-  let keyReleased=true;
-  let selection=-1;
+// Game-specific bridge over Kagura's generic input intents.
+// Injecting the input keeps this adapter independent of browser/module resolution.
+export function createHunterInput(controls) {
+  let selection = -1;
   return {
-    version:1,
-    move(id,dx,dy) { if (stick!==null && stick!==id) return; stick=id; x=dx; y=dy; },
-    hold(id,action) { held.set(id,action); },
-    release(id) { held.delete(id); if (stick===id) {stick=null;x=0;y=0;} },
-    tap(key, selected=-1) { if (keys.length<8) keys.push({key,selected}); },
-    // Insert a release tick so two consecutive taps of one key remain two presses.
-    consumeKey() { selection=-1; if (!keyReleased) {keyReleased=true;return 0;} const command=keys.shift(); const key=command?.key??0; selection=command?.selected??-1; keyReleased=key===0; return key; },
+    ...controls,
+    tap(key, selected = -1) { return controls.tap(key, {selection: selected}); },
+    consumeKey() {
+      const command = controls.consumeCommand();
+      selection = command?.payload?.selection ?? -1;
+      return command?.key ?? 0;
+    },
     selection() { return selection; },
-    snapshot() { return {x,y,attack:[...held.values()].includes('attack')}; },
-    clear() { held.clear();keys.length=0;stick=null;x=0;y=0;keyReleased=true;selection=-1; },
+    snapshot() {
+      const {x, y, actions} = controls.snapshot();
+      return {x, y, attack: actions.includes('attack')};
+    },
+    clear() { controls.clear(); selection = -1; },
   };
 }
 

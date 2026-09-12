@@ -1,0 +1,6 @@
+import {
+  "moonbitlang/core/math",
+  "mizchi/geom/math3d",
+  "mizchi/mesh3d",
+  "mizchi/anim3d/skeleton3d",
+}

@@ -559,7 +559,7 @@ fn run_game_js(state : GameState, perf_capture_enabled : Bool) -> Unit {
         state.audio_failed_paths.length(),
         state.audio_last_played_cue,
         state.audio_last_played_state,
-        state.audio_muted,
+        state.audio_bank.is_muted(),
       )
     },
     audio_ctx=state.audio_ctx,

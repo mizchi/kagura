@@ -49,6 +49,7 @@ fn GameState::new_with_params(
     build_policy~,
     hunting_grounds~,
   )
+  let audio_ctx = @audio.MixerAudioContext::new(44100)
   world.manual_combat = true
   let sw = screen_w.to_double()
   let sh = screen_h.to_double()
@@ -185,9 +186,8 @@ fn GameState::new_with_params(
     generated_props: [],
     active_effects: [],
     damage_popups: [],
-    audio_ctx: @audio.MixerAudioContext::new(44100),
-    audio_muted: false,
-    audio_players: default_game_audio_players(),
+    audio_ctx,
+    audio_bank: @audio.SoundBank::new(audio_ctx),
     audio_failed_paths: [],
     audio_last_played_cue: "",
     audio_last_played_state: "",

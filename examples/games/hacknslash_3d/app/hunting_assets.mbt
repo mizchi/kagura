@@ -58,7 +58,7 @@ let hunting_palette : Array[@math3d.Vec4] = [
 
 ///|
 fn hunting_ground_shadow(
-  g : HunterGeometry,
+  g : @procedural3d.RigidGeometry,
   x : Double,
   z : Double,
   rx : Double,
@@ -78,13 +78,16 @@ fn hunting_ground_shadow(
 }
 
 ///|
-fn hunting_part(g : HunterGeometry, material : Int) -> HuntingAssetPart {
+fn hunting_part(
+  g : @procedural3d.RigidGeometry,
+  material : Int,
+) -> HuntingAssetPart {
   { mesh: @mesh3d.Mesh3D::new(g.vertices, g.indices), material, }
 }
 
 ///|
 fn make_hunting_pine() -> HuntingAsset {
-  let bark = HunterGeometry::new()
+  let bark = @procedural3d.RigidGeometry::new()
   bark.loft(
     0.0,
     0.0,
@@ -97,7 +100,7 @@ fn make_hunting_pine() -> HuntingAsset {
     7,
     0,
   )
-  let lower = HunterGeometry::new()
+  let lower = @procedural3d.RigidGeometry::new()
   lower.loft(
     0.0,
     0.0,
@@ -112,7 +115,7 @@ fn make_hunting_pine() -> HuntingAsset {
     7,
     0,
   )
-  let upper = HunterGeometry::new()
+  let upper = @procedural3d.RigidGeometry::new()
   upper.loft(
     -0.02,
     0.0,
@@ -132,7 +135,7 @@ fn make_hunting_pine() -> HuntingAsset {
 
 ///|
 fn hunting_branch(
-  g : HunterGeometry,
+  g : @procedural3d.RigidGeometry,
   a : @math3d.Vec3,
   b : @math3d.Vec3,
   radius : Double,
@@ -163,7 +166,7 @@ fn hunting_branch(
 
 ///|
 fn make_hunting_deadwood() -> HuntingAsset {
-  let g = HunterGeometry::new()
+  let g = @procedural3d.RigidGeometry::new()
   g.loft(
     0.0,
     0.0,
@@ -205,7 +208,7 @@ fn make_hunting_deadwood() -> HuntingAsset {
 
 ///|
 fn make_hunting_boulder() -> HuntingAsset {
-  let rock = HunterGeometry::new()
+  let rock = @procedural3d.RigidGeometry::new()
   rock.loft(
     0.0,
     0.0,
@@ -218,7 +221,7 @@ fn make_hunting_boulder() -> HuntingAsset {
     7,
     0,
   )
-  let moss = HunterGeometry::new()
+  let moss = @procedural3d.RigidGeometry::new()
   moss.loft(
     -0.05,
     0.01,
@@ -231,7 +234,7 @@ fn make_hunting_boulder() -> HuntingAsset {
 
 ///|
 fn make_hunting_shrine() -> HuntingAsset {
-  let stone = HunterGeometry::new()
+  let stone = @procedural3d.RigidGeometry::new()
   stone.box(0.0, 0.13, 0.0, 0.98, 0.26, 0.98, 0)
   stone.loft(
     0.0,
@@ -240,7 +243,7 @@ fn make_hunting_shrine() -> HuntingAsset {
     6,
     0,
   )
-  let iron = HunterGeometry::new()
+  let iron = @procedural3d.RigidGeometry::new()
   for x in [-0.37, 0.37] {
     iron.box(x, 1.7, 0.0, 0.1, 2.7, 0.12, 0)
   }
@@ -259,7 +262,7 @@ fn make_hunting_shrine() -> HuntingAsset {
     7,
     0,
   )
-  let flame = HunterGeometry::new()
+  let flame = @procedural3d.RigidGeometry::new()
   flame.loft(
     0.0,
     0.0,
@@ -287,7 +290,7 @@ let hunting_assets : Array[HuntingAsset] = [
 
 ///|
 fn hunting_grass(
-  g : HunterGeometry,
+  g : @procedural3d.RigidGeometry,
   x : Double,
   z : Double,
   seed : Int,

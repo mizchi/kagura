@@ -126,17 +126,14 @@ fn load_hacknslash_audio_clip_browser_decoded_js(
   js_decode_audio_url_to_pcm_payload(path, fn(payload) {
     let clip_opt = decoded_pcm_payload_to_audio_clip(payload, false)
     match clip_opt {
-      Some(clip) => {
-        let player = state.audio_ctx.create_player(clip) catch {
+      Some(clip) =>
+        state.audio_bank.register(cue, clip, volume~) catch {
           _ => {
             println("Failed to create audio player: " + path)
             state.audio_failed_paths.push(path + " (create_player)")
             return
           }
         }
-        state.audio_ctx.set_volume(player, volume)
-        state.audio_players.assign(cue, player)
-      }
       None => {
         println("Failed to decode browser audio payload: " + path)
         state.audio_failed_paths.push(path + " (browser_decode)")
@@ -146,83 +143,15 @@ fn load_hacknslash_audio_clip_browser_decoded_js(
 }
 
 ///|
-fn load_hacknslash_audio_clip_js(
-  state : GameState,
-  cue : GameSoundCue,
-  path : String,
-  volume : Double,
-) -> Unit {
-  load_hacknslash_audio_clip_browser_decoded_js(state, cue, path, volume)
-}
-
-///|
 fn load_hacknslash_audio_js(state : GameState) -> Unit {
-  load_hacknslash_audio_clip_js(
-    state,
-    SfxAttack,
-    "./assets/audio/attack_slash.ogg",
-    0.60,
-  )
-  load_hacknslash_audio_clip_js(
-    state,
-    SfxEnemyHit,
-    "./assets/audio/enemy_hit.ogg",
-    0.52,
-  )
-  load_hacknslash_audio_clip_js(
-    state,
-    SfxDodge,
-    "./assets/audio/dodge_cloak.ogg",
-    0.48,
-  )
-  load_hacknslash_audio_clip_js(
-    state,
-    SfxHurt,
-    "./assets/audio/hurt_hit.ogg",
-    0.65,
-  )
-  load_hacknslash_audio_clip_js(
-    state,
-    SfxPickupLoot,
-    "./assets/audio/pickup_loot.ogg",
-    0.42,
-  )
-  load_hacknslash_audio_clip_js(
-    state,
-    SfxPickupHealth,
-    "./assets/audio/pickup_health.ogg",
-    0.48,
-  )
-  load_hacknslash_audio_clip_js(
-    state,
-    SfxSpellChainLightning,
-    "./assets/audio/spell_chain_lightning.ogg",
-    0.56,
-  )
-  load_hacknslash_audio_clip_js(
-    state,
-    SfxSpellFireball,
-    "./assets/audio/spell_fireball.ogg",
-    0.60,
-  )
-  load_hacknslash_audio_clip_js(
-    state,
-    SfxSpellIceNova,
-    "./assets/audio/spell_ice_nova.ogg",
-    0.56,
-  )
-  load_hacknslash_audio_clip_js(
-    state,
-    SfxSpellHomingMissile,
-    "./assets/audio/spell_homing_missile.ogg",
-    0.48,
-  )
-  load_hacknslash_audio_clip_js(
-    state,
-    SfxFloorComplete,
-    "./assets/audio/floor_complete.ogg",
-    0.62,
-  )
+  for asset in game_sound_assets() {
+    load_hacknslash_audio_clip_browser_decoded_js(
+      state,
+      asset.cue,
+      asset.path,
+      asset.volume,
+    )
+  }
 }
 
 ///|

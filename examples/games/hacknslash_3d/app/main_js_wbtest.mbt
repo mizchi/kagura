@@ -56,7 +56,7 @@ test "apply_initial_audio_settings enables mute from startup settings" {
 
   apply_initial_audio_settings(state, true)
 
-  assert_true(state.audio_muted)
+  assert_true(state.audio_bank.is_muted())
   assert_eq(state.audio_last_played_state, "muted")
 }
 

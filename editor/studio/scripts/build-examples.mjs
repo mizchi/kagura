@@ -60,6 +60,8 @@ for (const item of catalog.filter((e) => !selected.length || selected.includes(e
       if (scenes.status !== 0) process.exit(scenes.status ?? 1);
     }
     if (item.id === 'hacknslash_3d') {
+      const motions = spawnSync(process.execPath, [join(dir, 'scripts/export-motion-assets.mjs')], { cwd: dir, stdio: 'inherit' });
+      if (motions.status !== 0) process.exit(motions.status ?? 1);
       const headless = spawnSync('moon', ['build', 'scene_api', '--target', 'js', '--release'], {
         cwd: dir,
         stdio: 'inherit',

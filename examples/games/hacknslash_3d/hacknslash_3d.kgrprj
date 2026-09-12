@@ -8,6 +8,7 @@
   },
   "scene": "scenes/training.kgrscene",
   "resources": {
+    "motion.enemies": "motions/enemies.kgrmotion",
     "asset.0": "assets/Tiny5-Regular.ttf",
     "asset.1": "assets/audio/README.md",
     "asset.2": "assets/audio/attack_slash.ogg",

@@ -1,3 +1,4 @@
+import { installMotionAssets } from '../motions/pane.mjs';
 import { installModelAssets } from '../assets/pane.mjs';
 import { installSceneHierarchy } from './scene-hierarchy.mjs';
 import { installRuntimeInspector } from './runtime-inspector.mjs';
@@ -25,7 +26,7 @@ import './layout.css';
 
 const LAYOUT = 'kagura.studio.layout.v1';
 const api = createAPI(app);
-let viewport, workspaceLayout, gameEditor, modelAssets;
+let viewport, workspaceLayout, gameEditor, modelAssets, motionAssets;
 const storage = createBrowserStorage(api);
 try { const restored = await storage.restore(); if (restored) app.set_status(restored); }
 catch (error) { app.set_status('Error · Saved scene could not be restored: ' + error.message); }
@@ -85,7 +86,8 @@ panes.register(storagePane(storage, api, app.set_status));
 const plugins = Object.freeze({ defineJSPlugin, fromJSONModule, fromWasm });
 const runtime = Object.freeze({ ...Object.fromEntries(['snapshot', 'pause', 'resume', 'step', 'replace', 'inspect', 'edit'].map(method => [method, (...args) => gameEditor.debug(method, ...args)])), hierarchy: () => gameEditor.hierarchy() });
 const assets = Object.freeze(Object.fromEntries(['list', 'preview', 'close', 'snapshot'].map(method => [method, (...args) => modelAssets[method](...args)])));
-const browserAPI = Object.freeze({ ...api, panes, storage, plugins, runtime, assets });
+const motions = Object.freeze(Object.fromEntries(['list', 'preview', 'importAsset', 'snapshot', 'selectModel', 'selectClip', 'play', 'pause', 'seek', 'step', 'setSpeed', 'setLoop', 'showSkeleton', 'close'].map(method => [method, (...args) => motionAssets[method](...args)])));
+const browserAPI = Object.freeze({ ...api, panes, storage, plugins, runtime, assets, motions });
 const webmcp = registerWebMCP(browserAPI, document.modelContext);
 globalThis.kagura = Object.freeze({ ...browserAPI, webmcp });
 const webmcpStatus = document.createElement('p');
@@ -109,7 +111,8 @@ const runtimeInspector = installRuntimeInspector(gameEditor, app.set_status, wor
 const inspectorParts = installInspectorParts(gameEditor, workspace);
 const sceneHierarchy = installSceneHierarchy(gameEditor, app.set_status, runtimeInspector.selectSubject, api, workspace);
 modelAssets = installModelAssets({ host: gameEditor, panes, viewport, setStatus: app.set_status });
-const projectUI = installProjectUI({ host: gameEditor, panes, assets: modelAssets, setStatus: app.set_status });
+motionAssets = installMotionAssets({ host: gameEditor, panes, viewport, workspace, setStatus: app.set_status });
+const projectUI = installProjectUI({ host: gameEditor, panes, assets: modelAssets, motions: motionAssets, setStatus: app.set_status });
 function graph() {
   const debugging = gameEditor.transport().debugging;
   let inspection = null;
@@ -150,4 +153,4 @@ const keyboard = event => {
   if (event.key.toLowerCase() === 'f') { if (gameEditor?.active()) gameEditor.frame(); else viewport?.frame(api.snapshot().selection); }
 };
 document.addEventListener('keydown', keyboard);
-if (import.meta.hot) import.meta.hot.dispose(() => { projectTransport.dispose(); runtimeInspector.dispose(); inspectorParts.dispose(); sceneHierarchy.dispose(); projectUI.dispose(); modelAssets.dispose(); gameEditor.dispose(); webmcp.dispose(); panes.dispose(); workspace.dispose(); storage.dispose().catch(console.error); viewport?.dispose(); workspaceLayout?.dispose(); document.removeEventListener('keydown', keyboard); });
+if (import.meta.hot) import.meta.hot.dispose(() => { projectTransport.dispose(); runtimeInspector.dispose(); inspectorParts.dispose(); sceneHierarchy.dispose(); projectUI.dispose(); modelAssets.dispose(); motionAssets.dispose(); gameEditor.dispose(); webmcp.dispose(); panes.dispose(); workspace.dispose(); storage.dispose().catch(console.error); viewport?.dispose(); workspaceLayout?.dispose(); document.removeEventListener('keydown', keyboard); });

@@ -79,6 +79,9 @@ just hunter-e2e
 
 ## 見た目の確認
 
+Studio の **Motions** ペーンでも、実モデルとクリップをゲーム起動なしで再生できる。
+`just hunter-motion-assets` で共通ファイルへ書き出す。操作は [汎用モーションビューア](editor/motion-viewer.md) を参照。
+
 ```text
 http://localhost:8080/?snapshot=motions&frames=12&seed=42&mute=1
 http://localhost:8080/?snapshot=motions&frames=24&seed=42&mute=1

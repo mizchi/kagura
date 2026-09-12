@@ -19,7 +19,8 @@
     "games/*.d.mts",
     "runtime/*.d.mts",
     "../../examples/games/iron_yard/editor/**/*.ts",
-    "assets/*.d.mts"
+    "assets/*.d.mts",
+    "motions/*.d.mts"
   ],
   "exclude": [
     "**/dist/**",

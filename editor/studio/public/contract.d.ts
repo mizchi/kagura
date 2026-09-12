@@ -1,3 +1,4 @@
+import type { MotionAssetsAPI } from './motions.d.ts';
 import type { PanePlugin, PluginCallOptions, PluginReply, PublishedPaneTool, PluginSDK } from './plugins.d.ts';
 import type { RuntimeDebugAPI, SceneGraph, SceneHierarchyNode } from './runtime.d.ts';
 import type { BrowserStorage } from './storage.d.ts';
@@ -154,6 +155,7 @@ export interface ModelAssetsAPI {
 }
 export interface BrowserStudioAPI extends StudioAPI {
   assets: ModelAssetsAPI;
+  motions: MotionAssetsAPI;
   /** Throws when the current game does not expose a live debugger. */
   runtime: RuntimeDebugAPI & { hierarchy(): SceneHierarchyNode[] | undefined };
   /** State-based hierarchy: project scenes, logical subjects, observed view. */

@@ -1,3 +1,4 @@
+import { motionFormat } from '../motions/contract.mjs';
 import { modelFormat } from '../assets/model.mjs';
 import { createFileSystemStore } from '../storage/filesystem.mjs';
 import { openProject } from './project.mjs';
@@ -16,7 +17,7 @@ export function filesStore(files) {
     },
   };
 }
-export function installProjectUI({ host, panes, assets, setStatus }) {
+export function installProjectUI({ host, panes, assets, motions, setStatus }) {
   let store,
     paths = [],
     disposed = false;
@@ -273,14 +274,15 @@ export function installProjectUI({ host, panes, assets, setStatus }) {
           row.className = 'project-resource';
           row.addEventListener('click', async () => {
             try {
-              if (assets && modelFormat(path)) await assets.preview(path);
+              if (motions && motionFormat(path)) await motions.preview(path);
+              else if (assets && modelFormat(path)) await assets.preview(path);
               else downloadBlob(await p.read(path), path.split('/').at(-1));
             } catch (error) {
               setStatus(error.message);
             }
           });
-          if (assets && modelFormat(path)) {
-            row.title = 'Preview model';
+          if (assets && modelFormat(path) || motions && motionFormat(path)) {
+            row.title = motionFormat(path) ? 'Preview motion' : 'Preview model';
             const actions = document.createElement('div');
             actions.className = 'project-resource-actions';
             const download = document.createElement('button');

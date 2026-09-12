@@ -505,4 +505,11 @@ Flappy Bird と Arena 3D は `view.mbt` の入れ子から描画とヒエラル�
 
 モデル閲覧は本体の [汎用モデルプレビュー](../../docs/editor/model-assets.md) を使用する。Project の GLB / glTF / OBJ をクリックすると、Kagura WebGPU で中央にプレビューする。ゲーム用の拡張や Play は不要。
 
+### モーションを単体で確認する
+
+**Motions** ペーンでモデル・クリップを選び、再生、速度変更、前後1コマ、シーク、命中時刻へのジャンプ、骨格表示を行える。
+**Examples → Hack & Slash 3D → Project → motions/enemies.kgrmotion** で今回の6モデル・4モーションを開く。
+共通の `.kgrmotion` ファイルを読み込むため、別のゲームやプロジェクト未選択の状態でも使える。
+操作、出力方法、APIは [モーションビューア](../../docs/editor/motion-viewer.md) を参照。
+
 `Model Assets` は `examples/assets/model_assets/` の素材専用プロジェクトで、MoonBit のビルド設定やゲームランタイムを持ちません。旧 glTF / OBJ viewer の素材をここに統合しています。各 example の目的と整理方針は [examples/README](../../examples/README.md) を参照してください。

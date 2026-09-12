@@ -1,0 +1,155 @@
+.motion-overlay {
+  position: absolute;
+  inset: 0;
+  z-index: 6;
+  display: flex;
+  flex-direction: column;
+  background: #121c26;
+  color: #d6e2ec;
+  min-width: 0;
+  min-height: 0;
+}
+.motion-overlay[hidden] {
+  display: none;
+}
+.motion-toolbar {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+  padding: 10px 14px;
+  background: #1b2835;
+  border-bottom: 1px solid #344552;
+  font-size: 12px;
+}
+.motion-toolbar strong {
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+.motion-stage {
+  flex: 1;
+  min-height: 120px;
+  min-width: 0;
+  position: relative;
+  overflow: hidden;
+}
+.motion-stage canvas {
+  display: block;
+  width: 100%;
+  height: 100%;
+  touch-action: none;
+  outline-offset: -3px;
+}
+.motion-timeline {
+  margin: 0;
+  border: 0;
+  border-top: 1px solid #344552;
+  padding: 12px 16px;
+  background: #1b2835;
+  display: grid;
+  grid-template-columns: 1fr auto;
+  gap: 10px 16px;
+  min-width: 0;
+}
+.motion-transport {
+  display: flex;
+  gap: 6px;
+  align-items: center;
+  flex-wrap: wrap;
+  grid-column: 1/-1;
+}
+.motion-transport button {
+  min-width: 36px;
+  font-size: 15px;
+}
+.motion-transport button[aria-label="Play motion"],
+.motion-transport button[aria-label="Pause motion"] {
+  min-width: 88px;
+  background: #315d6b;
+  color: #ecfbff;
+}
+.motion-transport select {
+  width: 72px;
+}
+.motion-transport label,
+.motion-options label {
+  display: flex;
+  align-items: center;
+  gap: 7px;
+}
+.motion-timeline input[type="range"] {
+  width: 100%;
+  min-width: 0;
+  accent-color: #92c9c1;
+}
+.motion-timeline .motion-time {
+  font-size: 12px;
+  font-variant-numeric: tabular-nums;
+  align-self: center;
+  white-space: nowrap;
+}
+.motion-events {
+  grid-column: 1/-1;
+  display: flex;
+  gap: 6px;
+}
+.motion-events button {
+  border-color: #9f8753;
+  color: #ebd4a2;
+  font-size: 11px;
+}
+.motion-options {
+  border: 0;
+  margin: 12px 0;
+  padding: 0;
+  display: grid;
+  gap: 12px;
+}
+.motion-options label:has(select) {
+  display: grid;
+  gap: 5px;
+}
+.motion-options select,
+select[aria-label="Motion resource"] {
+  width: 100%;
+  min-width: 0;
+}
+.motion-camera {
+  display: flex;
+  gap: 5px;
+  flex-wrap: wrap;
+}
+input[aria-label="Import motion asset"] {
+  margin-top: 10px;
+  font-size: 11px;
+  width: 100%;
+}
+@media (max-width: 800px) {
+  .motion-timeline {
+    padding: 8px;
+    grid-template-columns: 1fr;
+  }
+  .motion-timeline .motion-time {
+    grid-row: 3;
+  }
+  .motion-toolbar {
+    padding: 8px;
+  }
+  .motion-toolbar strong {
+    white-space: normal;
+  }
+  .motion-events {
+    flex-wrap: wrap;
+  }
+}
+
+.motion-transport label {
+  white-space: nowrap;
+  flex-shrink: 0;
+}
+.motion-transport input[type="checkbox"],
+.motion-options input[type="checkbox"] {
+  width: auto;
+  flex: 0 0 auto;
+}

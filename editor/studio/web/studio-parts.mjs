@@ -25,6 +25,7 @@ const PANE_TAB_ORDER = [
   'studio.terminal',
   'studio.storage',
   'studio.models',
+  'studio.motions',
   'studio.project',
   'creator',
 ];

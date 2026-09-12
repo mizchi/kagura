@@ -21,6 +21,7 @@ motion-generate *args:
 hunter-motions-build:
     node examples/games/hacknslash_3d/scripts/build-motions.mjs
     moonfmt -w examples/games/hacknslash_3d/app/enemy_motion_generated.mbt
+    node examples/games/hacknslash_3d/scripts/export-motion-assets.mjs
 
 # Reusable game components can be verified without building a particular game.
 game-components-test:
@@ -130,6 +131,14 @@ studio-plugin-test:
     cd editor/studio && moon build --target js --release
     cd editor/studio && node scripts/build-plugins.mjs
     cd editor/studio && node --test tests/plugins.test.mjs tests/plugin-adapters.test.mjs tests/plugin-publication.test.mjs
+
+# Portable models and clips for the generic Studio motion viewer.
+hunter-motion-assets:
+    node examples/games/hacknslash_3d/scripts/export-motion-assets.mjs
+
+studio-motion-test: hunter-motion-assets
+    node --test editor/studio/tests/motions.test.mjs editor/studio/tests/motion-scene.test.mjs
+    cd editor/studio && pnpm exec tsc -p tsconfig.contracts.json
 
 studio-model-test:
     moon -C editor/model-viewer test . --target js

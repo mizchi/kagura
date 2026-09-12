@@ -248,3 +248,9 @@ test("flat root facade staging excludes shared assets, tooling and dependency ca
     assert.ok(fs.existsSync(path.join(staged, 'scripts/moon-prebuild-native-link-flags.cjs')));
   } finally { fs.rmSync(root, { recursive: true, force: true }); }
 });
+
+test("the live workspace satisfies the release dep policy", () => {
+  const result = validateReleaseWorkspace();
+  assert.deepEqual(result.errors, []);
+});
+

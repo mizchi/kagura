@@ -49,6 +49,7 @@ All notable changes to this project will be documented in this file.
 
 ### Fixed
 
+- `just check-release` allows `mizchi/kagura_game` to depend on `mizchi/kagura_ui`. Scene UI snapshots import the engine UI module; the import boundary already allowed it, the release dep policy did not.
 - `aabb_from_mesh` panicked on a mesh with no vertices: it guarded `count > 0` and then read `data[0]`. It now returns the degenerate box at the origin, so a placeholder or not-yet-loaded mesh passes through broadphase.
 - UI snapshot and authoring JSON generation escaped only five characters by hand, so a control character produced a document the consumer could not parse. Both now use the stdlib encoder.
 - `model-authoring-vlm-daemon-utils.test.mjs` asserted a literal absolute path, so `just modeling3d-test` only passed on the machine it was recorded on.

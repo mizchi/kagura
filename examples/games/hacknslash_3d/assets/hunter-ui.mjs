@@ -1,5 +1,6 @@
 import {createControlInput, bindVirtualStick} from '@kagura-web/kagura-controls.js';
 import {createHunterInput, skillStatus} from './hunter-input.mjs';
+import {bindHunterAim} from './hunter-aim.mjs';
 import {createInventoryPanel} from './hunter-inventory.mjs';
 import {bindHunterArts} from './hunter-arts.mjs';
 import {renderWorldMap} from './hunter-world-map.mjs';
@@ -31,11 +32,15 @@ const controls=createControlInput();
 const input=createHunterInput(controls);
 globalThis.__ashenControls=input;
 let current=null;
+bindHunterAim({stage:document.querySelector('#app'),hud:root,input,
+  enabled:()=>current?.mode==='playing'&&!current.paused&&current.menu==='none'});
+
 let panelKey='';
 let showTreeDetail=false;
 const names=['処刑の一撃','ワールウィンド','分裂火弾','霜の輪'];
 root.innerHTML=`
   <div class="edge-shade" aria-hidden="true"></div>
+  <div id="damage-numbers" aria-hidden="true"></div>
   <section class="vitals" aria-label="狩人の状態">
     <div class="hunter-seal" aria-hidden="true">${icon('blade')}</div>
     <div class="vital-lines"><div class="vital-caption"><span>HUNTER <b id="hunter-level">01</b></span><span id="health-text">—</span></div>
@@ -58,7 +63,7 @@ root.innerHTML=`
       <label class="weapon-picker">武器 <select id="player-weapon" aria-label="プレーヤーの武器"></select><kbd>X</kbd></label>
       <div class="skill-buttons">${names.map((name,i)=>`<button class="skill skill-${i}" ${i===1?'data-hold="whirlwind"':`data-key="${49+i}"`} data-skill="${i}" aria-label="${name}"><kbd>${i+1}</kbd><span class="skill-glyph">${icon(['blade','whirl','fire','frost'][i])}<i class="cooldown-sweep"></i></span><strong>${name}</strong><small class="skill-status">使用可能</small><span class="skill-tooltip"></span></button>`).join('')}</div>
       <button id="charge-button" class="charge-button" data-key="67" aria-label="突進"><span>${icon('dodge')}</span><strong>突進</strong><small id="charge-status">C</small></button>
-      <div class="primary-actions"><button id="attack-button" data-hold="attack" aria-label="通常攻撃"><span id="weapon-icon">${icon('blade')}</span><strong id="weapon-action">斬撃</strong><kbd>J / 左クリック</kbd></button><button id="dodge-button" data-key="32" aria-label="回避"><span>${icon('dodge')}</span><strong>回避</strong><small id="dodge-status">SPACE</small></button></div>
+      <div class="primary-actions"><button id="attack-button" data-hold="attack" aria-label="通常攻撃"><span id="combo-chain" hidden aria-hidden="true"><i>1</i><i>2</i><i>3</i></span><span id="weapon-icon">${icon('blade')}</span><strong id="weapon-action">斬撃</strong><kbd>J / 左クリック</kbd></button><button id="dodge-button" data-key="32" aria-label="回避"><span>${icon('dodge')}</span><strong>回避</strong><small id="dodge-status">SPACE</small></button></div>
     </div>
   </div>
   <div id="target-surface" aria-label="星落としの位置指定" hidden></div>
@@ -222,7 +227,21 @@ function panel(hud){
 }
 
 let previousHp=null;
+const damageLabels=[];
+function renderDamage(combat){
+  const entries=combat?.damage??[];
+  while(damageLabels.length<entries.length){const el=document.createElement('span');el.className='damage-number';$('damage-numbers').append(el);damageLabels.push(el);}
+  for(let i=0;i<damageLabels.length;i++){
+    const el=damageLabels[i],v=entries[i];el.hidden=!v;
+    if(!v)continue;
+    const value=String(v.amount);if(el.textContent!==value)el.textContent=value;
+    el.classList.toggle('player-damage',v.player);
+    el.style.left=`${v.x}%`;el.style.top=`${v.y}%`;
+    el.style.opacity=v.alpha;el.style.transform=`translate(-50%,-50%) scale(${v.scale})`;
+  }
+}
 function render(hud){
+  renderDamage(hud.combat);
   current=hud;
   root.dataset.mode=hud.mode;
   const weapons=$('player-weapon');
@@ -230,6 +249,14 @@ function render(hud){
   if(weapons.value!==String(hud.weapon_index))weapons.value=String(hud.weapon_index);
   weapons.disabled=hud.mode!=='playing'||hud.paused||hud.menu!=='none'||hud.weapon_locked;
   $('attack-button').title=hud.weapon_index===3?'前方の敵を緩く追う魔法弾。敵を外すと直進し、壁に当たると消える。':'';
+  const combo=$('combo-chain'),step=hud.combat?.combo_step??0;
+  combo.hidden=step===0;
+  if(step){
+    combo.dataset.active=String(!!hud.combat.combo_active);
+    combo.dataset.recovery=String(!!hud.combat.combo_recovery);
+    [...combo.children].forEach((pip,i)=>pip.dataset.current=String(i+1===step));
+    $('attack-button').title=`${hud.combat.combo_active?'':'次：'}${['横薙ぎ ×1.0','返し斬り ×1.4','叩き斬り ×2.6'][step-1]}。1・2段目は踏み込み、3段目は高威力だが攻撃後の隙が長い。`;
+  }
   setText('weapon-action',hud.weapon_action);
   if($('weapon-icon').dataset.weapon!==String(hud.weapon_index)){
     $('weapon-icon').innerHTML=icon(['blade','spear','fist','fire','bow'][hud.weapon_index]);

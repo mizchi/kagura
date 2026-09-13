@@ -4,7 +4,7 @@ test('new sound bank plays through the mixer and worklet, mutes and resumes', as
   const errors: string[]=[];
   page.on('pageerror', error=>errors.push(error.message));
   await page.goto('/?snapshot=playing&frames=0&seed=42');
-  await page.waitForFunction(()=>globalThis.__hacknslash3dAudioDebug?.loadedCount === 11);
+  await page.waitForFunction(()=>globalThis.__hacknslash3dAudioDebug?.loadedCount === 15);
   await page.locator('canvas').focus();
   await page.keyboard.press('KeyF'); // A physical gesture unlocks browser audio.
   await page.waitForFunction(()=>globalThis.__kaguraWebRuntime.audio?.useWorklet &&

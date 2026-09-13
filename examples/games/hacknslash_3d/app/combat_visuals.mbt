@@ -2,6 +2,7 @@
 
 ///|
 enum CombatVisualKind {
+  Melee
   Impact(@game.CombatImpactKind)
   Bolt
   Block(Bool)
@@ -26,6 +27,22 @@ fn GameState::queue_combat_visual(
   event : @game.GameEvent,
 ) -> Unit {
   let visual = match event {
+    @game.MeleeImpact(weapon, combo, x, y, angle, hits) =>
+      Some({
+        kind: Melee,
+        x,
+        y,
+        end_x: x,
+        end_y: y,
+        radius: if weapon == @game.Cleaver && combo == @game.Finisher {
+          1.45
+        } else {
+          1.0
+        },
+        hits,
+        angle,
+        age: 0,
+      })
     @game.CombatImpact(kind, x, y, radius, hits) =>
       Some({
         kind: Impact(kind),
@@ -77,6 +94,7 @@ fn GameState::tick_combat_visuals(self : GameState) -> Unit {
   self.combat_visuals = self.combat_visuals.filter(v => {
     v.age <
     (match v.kind {
+      Melee => 12
       Bolt => 18
       Block(_) => 16
       Impact(_) => 30
@@ -245,6 +263,7 @@ fn GameState::push_combat_visuals(
   dst : @gfx.ImageHandle,
   cmds : Array[@gfx.DrawTrianglesCommand],
 ) -> Unit {
+  self.push_melee_warnings(vp, dst, cmds)
   self.push_whirlwind_trail(vp, dst, cmds)
   if self.ground_targeting && self.world.ui_mode == @game.UIMode::None {
     self.draw_skill_circle(
@@ -282,6 +301,7 @@ fn GameState::push_combat_visuals(
     let z = v.y / tile_size
     let t = v.age.to_double() / 30.0
     match v.kind {
+      Melee => self.push_melee_impact(v, vp, dst, cmds)
       Impact(@game.WhirlwindCut) => () // The channel owns its moving footprint.
       Impact(kind) => {
         let r = v.radius / tile_size

@@ -15,7 +15,11 @@ pub fn build_biped_base(BipedProportions) -> BipedBase
 
 pub fn build_biped_skeleton(BipedProportions) -> @skeleton3d.Skeleton
 
+pub fn build_quadruped_skeleton(QuadrupedProportions) -> @skeleton3d.Skeleton
+
 pub fn default_biped_proportions() -> BipedProportions
+
+pub fn default_quadruped_proportions() -> QuadrupedProportions
 
 // Errors
 
@@ -38,6 +42,16 @@ pub(all) struct BipedProportions {
   head_depth : Double
   torso_width : Double
   limb_radius : Double
+}
+
+pub(all) struct QuadrupedProportions {
+  shoulder_height : Double
+  hip_height : Double
+  half_width : Double
+  front_z : Double
+  rear_z : Double
+  head_height : Double
+  head_z : Double
 }
 
 pub struct RigidGeometry {

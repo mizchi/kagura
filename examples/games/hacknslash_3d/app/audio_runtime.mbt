@@ -2,6 +2,10 @@
 enum GameSoundCue {
   SfxAttack
   SfxEnemyHit
+  SfxMeleeCleaver
+  SfxMeleePierce
+  SfxMeleePunch
+  SfxEnemyWindup
   SfxDodge
   SfxHurt
   SfxPickupLoot
@@ -22,6 +26,15 @@ pub impl Show for GameSoundCue with fn output(self, logger) {
 fn sound_cue_for_event(event : @game.GameEvent) -> GameSoundCue? {
   match event {
     @game.AttackTriggered => Some(SfxAttack)
+    @game.MeleeImpact(weapon, _, _, _, _, _) =>
+      Some(
+        match weapon {
+          @game.Cleaver => SfxMeleeCleaver
+          @game.Spear => SfxMeleePierce
+          _ => SfxMeleePunch
+        },
+      )
+    @game.EnemyMeleeWarning(_, _) => Some(SfxEnemyWindup)
     @game.HitSparks(_, _) => Some(SfxEnemyHit)
     @game.HurtTriggered => Some(SfxHurt)
     @game.ItemPickup(_, _, true) => Some(SfxPickupHealth)
@@ -40,6 +53,10 @@ fn sound_cue_name(cue : GameSoundCue) -> String {
   match cue {
     SfxAttack => "attack"
     SfxEnemyHit => "enemy_hit"
+    SfxMeleeCleaver => "melee_cleaver"
+    SfxMeleePierce => "melee_pierce"
+    SfxMeleePunch => "melee_punch"
+    SfxEnemyWindup => "enemy_windup"
     SfxDodge => "dodge"
     SfxHurt => "hurt"
     SfxPickupLoot => "pickup_loot"

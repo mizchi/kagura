@@ -106,6 +106,16 @@ fn CharacterModel::equip_weapon(
 
 ///|
 fn CharacterModel::sample_weapon_attack(self : CharacterModel) -> Unit {
+  if self.weapon.kind == @game.Cleaver {
+    for
+      (bone, x, y, z) in sample_cleaver_combo(
+        self.action_time / self.attack_duration(),
+        self.cleaver_combo,
+      ) {
+      self.rotate_bone(bone, x, y, z)
+    }
+    return
+  }
   match self.attack_player {
     Some(player) => {
       let contact = self.weapon.kind.profile().windup.to_double() / 60.0
@@ -116,6 +126,11 @@ fn CharacterModel::sample_weapon_attack(self : CharacterModel) -> Unit {
         (self.action_time - contact) /
         (self.weapon.attack_duration - contact) *
         0.5
+      }
+      let phase = if self.weapon.kind.is_melee() {
+        melee_motion_phase(phase)
+      } else {
+        phase
       }
       player.set_time(phase.max(0.0).min(1.0))
       // Keep the player's running legs and coat; the weapon animates the upper body.

@@ -4,6 +4,20 @@ import { createHunterInput, skillStatus } from '../assets/hunter-input.mjs';
 
 import {createControlInput} from '../../../../assets/web/kagura-controls.js';
 
+test('pointer aim is independent of movement and clears for automatic controls and focus loss',()=>{
+  const input=createHunterInput(createControlInput());
+  assert.equal(input.pointerAim(),null);
+  input.aimPointer(.8,.3);
+  input.move(1,.5,-.5);
+  assert.deepEqual(input.pointerAim(),{x:.8,y:.3});
+  input.useAutoAim();
+  assert.equal(input.pointerAim(),null);
+  input.aimPointer(.7,.4);input.clear();
+  assert.equal(input.pointerAim(),null);
+  input.aimPointer(Number.NaN,.3);
+  assert.equal(input.pointerAim(),null);
+});
+
 test('whirlwind hold is independent of movement and survives release of a different pointer', () => {
   const input=createHunterInput(createControlInput());
   input.move(1,.5,-.5);

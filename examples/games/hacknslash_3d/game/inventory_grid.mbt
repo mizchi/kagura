@@ -303,6 +303,7 @@ fn GameWorld::exchange_inventory(
     _ => false
   }
   if weapon_changed {
+    self.reset_cleaver_combo()
     self.player_weapon = match self.equipment.weapon {
       Some(item) => item.motion_weapon().or(Knuckles)
       None => Knuckles

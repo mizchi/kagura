@@ -41,6 +41,7 @@ struct HunterExtraSkillView {
 
 ///|
 struct HunterHudView {
+  combat : HunterCombatView
   version : Int
   mode : String
   menu : String
@@ -168,6 +169,7 @@ fn GameState::hunter_hud_view(self : GameState) -> HunterHudView {
   {
     version: 1,
     arts: self.hunter_arts_view(),
+    combat: self.hunter_combat_view(),
     weapon: w.player_weapon.profile().name,
     weapon_index: w.player_weapon.index(),
     weapon_action: w.player_weapon.profile().action,

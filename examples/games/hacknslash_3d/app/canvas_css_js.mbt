@@ -93,3 +93,11 @@ extern "js" fn hunter_web_target_y() -> Double =
 ///|
 extern "js" fn hunter_web_target_confirmed() -> Bool =
   #| () => globalThis.__ashenControls?.targetConfirmed() ?? false
+
+///|
+extern "js" fn hunter_web_pointer_x() -> Double =
+  #| () => globalThis.__ashenControls?.pointerAim()?.x ?? -1
+
+///|
+extern "js" fn hunter_web_pointer_y() -> Double =
+  #| () => globalThis.__ashenControls?.pointerAim()?.y ?? -1

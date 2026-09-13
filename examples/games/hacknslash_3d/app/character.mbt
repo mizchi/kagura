@@ -46,6 +46,7 @@ struct CharacterModel {
   mut action_time : Double
   mut attack_count : Int
   mut dodge_count : Int
+  mut cleaver_combo : @game.CleaverComboStep
   mut attack_side : Double
   local_poses : Array[@transform3d.Transform3D]
   mut cached_skinning_matrices : Array[@math3d.Mat4]
@@ -134,6 +135,7 @@ fn CharacterModel::new(species? : CharacterSpecies = Human) -> CharacterModel {
     moving: false,
     time: 0.0,
     action_time: 0.0,
+    cleaver_combo: @game.Opening,
     attack_side: 1.0,
     attack_count: 0,
     dodge_count: 0,
@@ -145,12 +147,24 @@ fn CharacterModel::new(species? : CharacterSpecies = Human) -> CharacterModel {
 }
 
 ///|
-fn CharacterModel::trigger_attack(self : CharacterModel) -> Unit {
+fn CharacterModel::trigger_attack(
+  self : CharacterModel,
+  combo? : @game.CleaverComboStep = @game.Opening,
+) -> Unit {
   if self.anim_state == Dodging {
     return
   }
   self.attack_count += 1
-  self.attack_side = -self.attack_side
+  self.cleaver_combo = combo
+  self.attack_side = if self.weapon.kind == @game.Cleaver {
+    if combo == @game.Return {
+      1.0
+    } else {
+      -1.0
+    }
+  } else {
+    -self.attack_side
+  }
   self.anim_state = Attacking
   self.action_time = 0.0
   self.skinning_cache_dirty = true
@@ -191,7 +205,7 @@ fn CharacterModel::update(self : CharacterModel, dt : Double) -> Unit {
   self.action_time += dt
   let duration = match self.anim_state {
     Charging => @game.player_charge_profile.duration().to_double() / 60.0
-    Attacking => self.weapon.attack_duration
+    Attacking => self.attack_duration()
     Hurt => 0.24
     Dodging => 0.24
     _ => -1.0

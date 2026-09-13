@@ -189,8 +189,10 @@ fn GameState::push_hunter_slash(
     self.character.weapon.kind != @game.Cleaver {
     return
   }
-  let t = self.character.action_time / self.character.weapon.attack_duration
-  if t < 0.16 || t > 0.86 {
+  let frame = self.character.action_time * 60.0
+  let contact = self.character.cleaver_combo.profile().windup.to_double()
+  let t = (frame - contact + 2.0) / 7.0
+  if t < 0.0 || t > 1.0 {
     return
   }
   let p = self.world.player
@@ -204,25 +206,28 @@ fn GameState::push_hunter_slash(
       @math3d.Vec3::unit_y(),
       -p.facing_angle +
       @math.PI / 2.0 +
-      (t - 0.5) * self.character.attack_side * 2.0,
+      (if self.character.cleaver_combo == @game.Finisher {
+        0.0
+      } else {
+        (t - 0.5) * self.character.attack_side * 2.0
+      }),
     ),
   )
+  let slash_mesh = if self.character.cleaver_combo == @game.Finisher {
+    hunter_overhead_slash_mesh
+  } else {
+    hunter_slash_mesh
+  }
   cmds.push(
     @draw3d.new_lit_colored_mesh_draw_command(
       dst,
       self.shader3d_colored,
-      @gfx.new_dst_region(
-        0,
-        0,
-        screen_w,
-        screen_h,
-        hunter_slash_mesh.indices.length(),
-      ),
+      @gfx.new_dst_region(0, 0, screen_w, screen_h, slash_mesh.indices.length()),
       0,
       0,
       0,
       @gfx.BlendMode::from_int(1),
-      hunter_slash_mesh,
+      slash_mesh,
       model.to_mat4(),
       vp,
       self.lighting,
@@ -230,4 +235,20 @@ fn GameState::push_hunter_slash(
       [],
     ),
   )
+}
+
+///|
+let hunter_overhead_slash_mesh : @mesh3d.Mesh3D = {
+  let g = @procedural3d.RigidGeometry::new()
+  for i in 0..<18 {
+    let t = i.to_double() / 18.0
+    let next = (i + 1).to_double() / 18.0
+    fn p(t : Double, outer : Bool) -> @math3d.Vec3 {
+      let a = (t - 0.5) * 2.0
+      let r = if outer { 1.8 } else { 1.8 - 0.3 * @math.sin(t * @math.PI) }
+      @math3d.Vec3::new(0.0, 1.35 + @math.sin(a) * r, @math.cos(a) * r)
+    }
+    g.quad(p(t, false), p(t, true), p(next, true), p(next, false), 0)
+  }
+  @mesh3d.Mesh3D::new(g.vertices, g.indices)
 }

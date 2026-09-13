@@ -105,6 +105,8 @@ struct DamagePopup {
 ///|
 struct GameState {
   world : @game.GameWorld
+  aim : HunterAimState
+  combat_feedback : CombatFeedbackState
   input : @inpututil.InputHelper
   // Profiler
   mut show_profiler : Bool

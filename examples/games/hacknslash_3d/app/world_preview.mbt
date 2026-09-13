@@ -56,3 +56,42 @@ fn apply_hunter_arts_preview(state : GameState) -> Unit {
   w.player_stats = { ..w.player_stats, max_hp: 100, }
   state.rebuild_dungeon_rendering()
 }
+
+///|
+/// Close combat fixture: real AI, no autoplay, generous health, reproducible spacing.
+fn apply_melee_preview(state : GameState) -> Unit {
+  apply_hunter_arts_preview(state)
+  let w = state.world
+  w.player.facing_angle = 0.0
+  w.enemies = [
+    @game.make_enemy(
+      w.player.x + 23.0,
+      w.player.y + 5.0,
+      @game.Basic,
+      160,
+      0.22,
+      10.0,
+    ),
+    @game.make_enemy(
+      w.player.x + 42.0,
+      w.player.y - 20.0,
+      @game.Fast,
+      160,
+      0.16,
+      10.0,
+    ),
+  ]
+  state.camera = state.camera.with_distance(10.5)
+}
+
+///|
+/// A live wolf encounter for checking pursuit, warned bites and counterattacks.
+fn apply_wolf_combat_preview(state : GameState) -> Unit {
+  apply_hunter_arts_preview(state)
+  let w = state.world
+  w.player.facing_angle = 0.0
+  w.enemies = [
+    @game.make_enemy(w.player.x + 64.0, w.player.y, @game.Wolf, 24, 0.9, 11.0),
+  ]
+  state.camera = state.camera.with_distance(9.0)
+}

@@ -168,7 +168,7 @@ pub fn get_special_behaviors(
     Caster => [behavior_cast_meteor, behavior_beam_attack]
     Summoner => [behavior_summon_minion]
     Ranged => [behavior_bow_shot]
-    Basic | Swarm => []
+    Wolf | Basic | Swarm => []
   }
 }
 

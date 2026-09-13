@@ -371,6 +371,7 @@ pub fn GameWorld::enter_region(
   self.arts.strike = None
   self.player.dash_timer = 0
   self.weapon_attack = None
+  self.reset_cleaver_combo()
   self.player_charge = None
   self.projectiles = []
   self.telegraph_markers = []

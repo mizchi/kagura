@@ -14,7 +14,7 @@ const artifact = resolveBuildArtifact(
   fileURLToPath(new URL("_build/js/release/build/motion_api.js", root)),
 );
 if (!artifact) throw Error("Missing motion API build");
-const { export_asset, export_hunter_asset } = await import(
+const { export_asset, export_hunter_asset, export_wolf_asset } = await import(
   pathToFileURL(artifact)
 );
 const asset = validateMotionAsset(JSON.parse(export_asset()));
@@ -31,3 +31,7 @@ await writeFile(
   JSON.stringify(hunter) + "\n",
 );
 console.log(`${hunter.weapons.length} hunter weapon/motion sets exported`);
+
+const wolf = validateMotionAsset(JSON.parse(export_wolf_asset()));
+await writeFile(new URL("motions/wolf.kgrmotion", root), JSON.stringify(wolf) + "\n");
+console.log(`${wolf.skeleton.length} quadruped joints / ${wolf.clips.length} wolf motions exported`);

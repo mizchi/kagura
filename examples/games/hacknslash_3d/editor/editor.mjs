@@ -67,7 +67,7 @@ export function activate(context) {
             inputSchema: schema({
               id: { type: 'string' },
               properties: schema({
-                kind: { enum: ['basic', 'fast', 'tank', 'ranged'] },
+                kind: { enum: ['basic', 'fast', 'tank', 'ranged', 'wolf'] },
                 hp: { type: 'integer', minimum: 1, maximum: 10000 },
               }),
             }),
@@ -141,7 +141,7 @@ export function activate(context) {
         kindLabel.textContent = '種類';
         const kind = document.createElement('select');
         kind.setAttribute('aria-label', 'Enemy kind');
-        for (const name of ['basic', 'fast', 'tank', 'ranged']) {
+        for (const name of ['basic', 'fast', 'tank', 'ranged', 'wolf']) {
           const option = document.createElement('option');
           option.value = name;
           option.textContent = name;

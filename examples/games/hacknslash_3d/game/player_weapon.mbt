@@ -111,6 +111,7 @@ pub fn player_weapon_from_id(id : String) -> PlayerWeaponKind? {
 ///|
 pub(all) struct PlayerWeaponAttack {
   weapon : PlayerWeaponKind
+  combo : CleaverComboStep
   angle : Double
   mut frame : Int
 }
@@ -128,19 +129,32 @@ pub fn GameWorld::equip_player_weapon(
     self.player.dash_timer > 0 {
     return false
   }
+  if self.player_weapon != weapon {
+    self.reset_cleaver_combo()
+  }
   self.player_weapon = weapon
   true
 }
 
 ///|
 pub fn GameWorld::tick_player_weapon_attack(self : GameWorld) -> Unit {
+  if self.cleaver_combo_timer > 0 {
+    self.cleaver_combo_timer -= 1
+    if self.cleaver_combo_timer == 0 {
+      self.reset_cleaver_combo()
+    }
+  }
+  if self.player.dash_timer > 0 || self.player.hp <= 0 {
+    self.reset_cleaver_combo()
+  }
   guard self.weapon_attack is Some(attack) else { return }
   if self.player.dash_timer > 0 || self.player.hp <= 0 {
     self.weapon_attack = None
     return
   }
   attack.frame += 1
-  let profile = attack.weapon.profile()
+  let profile = attack.profile()
+  self.step_into_melee(attack)
   // Keep the committed attack direction while moving, so contact matches the rig.
   self.player.facing_angle = attack.angle
   if attack.frame == profile.windup {
@@ -187,10 +201,20 @@ pub fn GameWorld::tick_player_weapon_attack(self : GameWorld) -> Unit {
         }
       }
       _ => {
-        let damage = (physical.to_double() *
+        let base_damage = (physical.to_double() *
           self.archetype.basic_attack_multiplier())
           .to_int()
           .max(1)
+        let damage = if attack.weapon == Cleaver {
+          (base_damage.to_double() * attack.combo.damage_multiplier())
+          .ceil()
+          .to_int()
+        } else {
+          base_damage
+        }
+        let mut hits = 0
+        let mut impact_x = 0.0
+        let mut impact_y = 0.0
         for enemy in self.enemies {
           if !enemy.alive {
             continue
@@ -211,7 +235,28 @@ pub fn GameWorld::tick_player_weapon_attack(self : GameWorld) -> Unit {
               1.0,
             ) {
             apply_player_damage_to_enemy(self, enemy, damage, x, y)
+            apply_melee_reaction(
+              enemy,
+              attack.weapon,
+              attack.angle,
+              combo=attack.combo,
+            )
+            hits += 1
+            impact_x += enemy.x
+            impact_y += enemy.y
           }
+        }
+        if hits > 0 {
+          self.events.push(
+            MeleeImpact(
+              attack.weapon,
+              attack.combo,
+              impact_x / hits.to_double(),
+              impact_y / hits.to_double(),
+              attack.angle,
+              hits,
+            ),
+          )
         }
         if attack.weapon == Cleaver {
           self.events.push(MeleeSlash(x, y, profile.reach))

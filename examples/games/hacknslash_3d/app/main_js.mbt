@@ -201,9 +201,12 @@ extern "js" fn js_publish_hunter_state(
   appearance_key : Int,
   appearance_builds : Int,
   species : String,
+  focus_x : Double,
+  focus_y : Double,
+  mouse_aim : Bool,
 ) -> Unit =
-  #| (x,y,facing,animation,attacks,dodges,yaw,pitch,distance,hp,paused,bones,materials,weapon,attackFrame,projectiles,appearanceKey,appearanceBuilds,species) => {
-  #|   globalThis.__ashenHunt = {x,y,facing,animation,attacks,dodges,yaw,pitch,distance,hp,paused,bones,materials,weapon,attackFrame,projectiles,appearanceKey,appearanceBuilds,species};
+  #| (x,y,facing,animation,attacks,dodges,yaw,pitch,distance,hp,paused,bones,materials,weapon,attackFrame,projectiles,appearanceKey,appearanceBuilds,species,focusX,focusY,mouseAim) => {
+  #|   globalThis.__ashenHunt = {x,y,facing,animation,attacks,dodges,yaw,pitch,distance,hp,paused,bones,materials,weapon,attackFrame,projectiles,appearanceKey,appearanceBuilds,species,focusX,focusY,aimMode:mouseAim?"mouse":"auto"};
   #| }
 
 ///|
@@ -249,6 +252,8 @@ fn apply_initial_mode_overrides(
     for i = 0; i < frames; i = i + 1 {
       state.update(@core.empty_input_snapshot())
     }
+  } else if snapshot_mode == "melee" {
+    apply_melee_preview(state)
   } else if snapshot_mode == "arts" {
     apply_hunter_arts_preview(state)
   } else if snapshot_mode == "border" || snapshot_mode == "waypoint" {
@@ -265,7 +270,24 @@ fn apply_initial_mode_overrides(
     let kind = @game.player_weapon_from_id(js_get_query_param("weapon")).or(
       @game.Cleaver,
     )
-    apply_hunter_motion_preview(state, kind, snapshot_frames)
+    apply_hunter_motion_preview(
+      state,
+      kind,
+      snapshot_frames,
+      combo=match js_get_query_param("combo") {
+        "2" => @game.Return
+        "3" => @game.Finisher
+        _ => @game.Opening
+      },
+    )
+  } else if snapshot_mode == "wolves" {
+    apply_wolf_combat_preview(state)
+  } else if snapshot_mode == "wolf" {
+    apply_wolf_motion_preview(
+      state,
+      js_get_query_param("motion"),
+      snapshot_frames,
+    )
   } else if snapshot_mode == "bow" {
     apply_bow_motion_preview(state, snapshot_frames)
   } else if snapshot_mode == "motions" {
@@ -597,6 +619,9 @@ fn run_game_js(state : GameState, perf_capture_enabled : Bool) -> Unit {
         state.character.outfit.key(),
         state.character.appearance_builds,
         state.character.species.id(),
+        state.camera.target.x * tile_size,
+        state.camera.target.z * tile_size,
+        state.aim.pointer is Some(_),
       )
       state.publish_hunter_hud()
       js_publish_audio_debug_state(

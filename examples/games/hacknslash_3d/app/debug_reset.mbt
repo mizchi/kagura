@@ -153,6 +153,11 @@ fn GameState::reset_save_and_restart(self : GameState) -> Unit {
   self.world.player.hp = self.world.player_stats.max_hp
   self.world.events = []
   self.active_effects.clear()
+  self.aim.pointer = None
+  self.aim.native_cursor = None
+  self.combat_feedback.hitstop = 0
+  self.combat_feedback.look_x = 0.0
+  self.combat_feedback.look_y = 0.0
   self.damage_popups.clear()
   self.particle_manager.emitters.clear()
   self.particle_manager.vertex_scratch.clear()

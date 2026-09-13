@@ -82,6 +82,7 @@ fn GameState::rebuild_enemy_render_buckets(
     clear_enemy_render_buckets(self.enemy_models.attack_buckets[key])
   }
   self.enemy_models.active_attack_keys.clear()
+  self.enemy_models.wolf.clear()
   let dungeon = self.world.dungeon
   let dungeon_width = dungeon.grid.width
   let dungeon_height = dungeon.grid.height
@@ -103,6 +104,24 @@ fn GameState::rebuild_enemy_render_buckets(
         @math3d.Vec4::new(1.8, 1.35, 1.35, 1.0)
       } else {
         @math3d.Vec4::new(1.0, 1.0, 1.0, 1.0)
+      }
+      if enemy.kind == @game.Wolf {
+        let dx = if enemy.attack_motion == @game.Bite {
+          enemy.attack_target_x - enemy.x
+        } else {
+          @math.cos(enemy.move_angle)
+        }
+        let dy = if enemy.attack_motion == @game.Bite {
+          enemy.attack_target_y - enemy.y
+        } else {
+          @math.sin(enemy.move_angle)
+        }
+        self.enemy_models.wolf.add(
+          wolf_pose_key(enemy),
+          enemy_facing_model_matrix(ex, ey, ez, dx, dy),
+          color,
+        )
+        continue
       }
       let clip_index = enemy_attack_clip_index(enemy.attack_motion)
       let buckets = if clip_index < 0 {
@@ -150,6 +169,7 @@ fn GameState::rebuild_enemy_render_buckets(
       }
       let model = enemy_facing_model_matrix(ex, ey, ez, dx, dy, scale~)
       match enemy.kind {
+        @game.Wolf => ()
         @game.Fast | @game.Exploder | @game.Teleporter => {
           buckets.fast_matrices.push(model)
           buckets.fast_colors.push(color)
@@ -239,6 +259,7 @@ fn GameState::push_enemy_character_commands_with_view_projection(
     screen_h,
     cmds,
   )
+  self.push_wolf_commands(view_projection, dst, screen_w, screen_h, cmds)
   for key in self.enemy_models.active_attack_keys {
     let buckets = self.enemy_models.attack_buckets[key]
     let clip = self.enemy_models.attack_clips[key / enemy_attack_pose_stride]

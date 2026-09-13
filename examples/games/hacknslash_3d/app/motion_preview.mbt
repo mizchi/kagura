@@ -61,15 +61,18 @@ fn apply_hunter_motion_preview(
   state : GameState,
   kind : @game.PlayerWeaponKind,
   frame : Int,
+  combo? : @game.CleaverComboStep = @game.Opening,
 ) -> Unit {
   state.world.mode = @game.Playing
   state.world.enemies.clear()
   state.world.projectiles.clear()
   let _ = state.world.equip_player_weapon(kind)
   state.character.equip_weapon(kind)
+  state.world.cleaver_next = combo
   let _ = state.world.request_basic_attack(@math.PI / 2.0)
-  state.character.trigger_attack()
-  let count = frame.max(0).min(kind.profile().windup + kind.profile().recovery)
+  state.character.trigger_attack(combo~)
+  let profile = state.world.weapon_attack.unwrap().profile()
+  let count = frame.max(0).min(profile.windup + profile.recovery)
   for _ in 0..<count {
     state.world.tick_player_weapon_attack()
   }
@@ -162,5 +165,44 @@ fn apply_character_wardrobe_preview(state : GameState, outfit : String) -> Unit 
     .with_distance(3.6)
     .orbit(0.4 - state.camera.yaw, 0.40 - state.camera.pitch)
     .with_target(@math3d.Vec3::new(x, 0.65, z))
+  state.motion_preview = true
+}
+
+///|
+/// ?snapshot=wolf&motion=walk|run|bite&frames=N; static authoring pose.
+fn apply_wolf_motion_preview(
+  state : GameState,
+  motion : String,
+  frame : Int,
+) -> Unit {
+  state.world.mode = @game.Playing
+  state.world.enemies.clear()
+  state.world.projectiles.clear()
+  let x = state.world.player.x
+  let y = state.world.player.y - tile_size * 2.5
+  let wolf = @game.make_enemy(x, y, @game.Wolf, 100, 1.0, 11.0)
+  wolf.move_angle = @math.PI / 2.0
+  if motion == "bite" {
+    let profile = @game.Bite.melee_profile().unwrap()
+    wolf.begin_attack(
+      @game.Bite,
+      profile.windup,
+      profile.recovery,
+      x,
+      y + 100.0,
+    )
+    wolf.attack_frame = frame.max(0).min(profile.windup + profile.recovery)
+  } else {
+    let running = motion == "run"
+    wolf.move_speed = if running { 1.0 } else { 0.3 }
+    wolf.travel_distance = frame.max(0).to_double() /
+      (if running { 30.0 } else { 54.0 }) *
+      (if running { 28.0 } else { 16.0 })
+  }
+  state.world.enemies.push(wolf)
+  state.camera = state.camera
+    .with_distance(4.8)
+    .orbit(0.9 - state.camera.yaw, 0.5 - state.camera.pitch)
+    .with_target(@math3d.Vec3::new(x / tile_size, 0.45, y / tile_size))
   state.motion_preview = true
 }

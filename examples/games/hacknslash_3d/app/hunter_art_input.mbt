@@ -1,8 +1,9 @@
 ///|
-fn hunter_pointer_ground(
+fn hunter_ground_point(
   camera : @camera3d.OrbitCamera,
   x : Double,
   y : Double,
+  ground_y : Double,
 ) -> (Double, Double)? {
   let inv = camera.to_camera3d().view_projection_matrix().inverse()
   let clip = inv.mul_vec4(
@@ -22,12 +23,21 @@ fn hunter_pointer_ground(
   if direction.y.abs() < 0.00001 {
     return None
   }
-  let t = -origin.y / direction.y
+  let t = (ground_y - origin.y) / direction.y
   if t <= 0.0 {
     return None
   }
   let p = origin.add(direction.scale(t))
   Some((p.x * tile_size, p.z * tile_size))
+}
+
+///|
+fn hunter_pointer_ground(
+  camera : @camera3d.OrbitCamera,
+  x : Double,
+  y : Double,
+) -> (Double, Double)? {
+  hunter_ground_point(camera, x, y, 0.0)
 }
 
 ///|
@@ -48,7 +58,9 @@ fn GameState::update_hunter_art_input(
   )
   let held = hunter_web_guarding() ||
     @inpututil.is_key_pressed(self.input.key_state, 70)
-  let angle = if dx * dx + dy * dy > 0.001 {
+  let angle = if self.pointer_aim_angle() is Some(angle) {
+    angle
+  } else if dx * dx + dy * dy > 0.001 {
     @math.atan2(dy, dx)
   } else {
     hunter_assisted_aim(w)

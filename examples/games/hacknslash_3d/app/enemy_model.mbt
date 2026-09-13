@@ -41,6 +41,7 @@ struct EnemyModels {
   attack_clips : Array[@scene3d.BakedSkinningClip]
   attack_buckets : Map[Int, EnemyRenderBuckets]
   active_attack_keys : Array[Int]
+  wolf : WolfRenderState
 }
 
 ///|
@@ -142,6 +143,7 @@ fn EnemyModels::new() -> EnemyModels {
     attack_clips,
     attack_buckets: Map([]),
     active_attack_keys: [],
+    wolf: { buckets: Map([]), active_keys: [], },
   }
 }
 
@@ -158,6 +160,7 @@ fn EnemyModels::get_mesh_data(
   kind : @game.EnemyKind,
 ) -> EnemyMeshData {
   match kind {
+    @game.Wolf => wolf_mesh
     @game.Fast | @game.Exploder | @game.Teleporter => self.fast
     @game.Tank | @game.Berserker => self.tank
     @game.Ranged => self.ranged
@@ -211,6 +214,12 @@ fn EnemyModels::get_skinned_mesh(
   self : EnemyModels,
   kind : @game.EnemyKind,
 ) -> @mesh3d.Mesh3D {
+  if kind == @game.Wolf {
+    return wolf_mesh.geometry.skinned_mesh(
+      self.pose_generation,
+      wolf_rest_skinning,
+    )
+  }
   self.get_mesh_data(kind).geometry.skinned_mesh(
     self.pose_generation,
     self.compute_skinning(),

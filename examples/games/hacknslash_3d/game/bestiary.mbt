@@ -5,6 +5,7 @@ pub(all) enum EnemySpecies {
   Goblin
   Kobold
   Skeleton
+  Wolf
 } derive(Eq, Debug)
 
 ///|
@@ -15,6 +16,7 @@ pub impl Show for EnemySpecies with fn output(self, logger) {
 ///|
 pub fn enemy_species(kind : EnemyKind) -> EnemySpecies {
   match kind {
+    Wolf => EnemySpecies::Wolf
     Basic | Swarm | Tank | Berserker => Goblin
     Fast | Exploder | Teleporter => Kobold
     Ranged | Summoner | Caster | Boss => Skeleton
@@ -27,5 +29,6 @@ pub fn enemy_species_name(species : EnemySpecies) -> String {
     Goblin => "ゴブリン"
     Kobold => "コボルト"
     Skeleton => "スケルトン"
+    Wolf => "灰狼"
   }
 }

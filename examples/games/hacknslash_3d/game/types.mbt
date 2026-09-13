@@ -31,6 +31,9 @@ pub(all) struct Enemy {
   mut alive : Bool
   mut damage_timer : Int
   kind : EnemyKind
+  mut move_speed : Double
+  mut move_angle : Double
+  mut travel_distance : Double
   mut path_cache : Array[@terrain.Point]
   mut path_index : Int
   mut path_timer : Int
@@ -53,6 +56,9 @@ pub(all) struct Enemy {
   mut attack_cooldown : Int
   mut attack_target_x : Double
   mut attack_target_y : Double
+  mut knockback_x : Double
+  mut knockback_y : Double
+  mut stagger_frames : Int
   mut attack_hit_pending : Bool
   room_index : Int // which room this enemy was spawned in (-1 = unknown)
 }
@@ -112,6 +118,7 @@ pub(all) struct DungeonData {
 
 ///|
 pub(all) enum EnemyKind {
+  Wolf
   Basic
   Fast
   Tank
@@ -185,6 +192,8 @@ pub(all) enum GameEvent {
   RoomCleared(Int, Double, Double) // room_index, center_x, center_y
   GuardBlocked(Double, Double, Bool)
   CombatImpact(CombatImpactKind, Double, Double, Double, Int)
+  MeleeImpact(PlayerWeaponKind, CleaverComboStep, Double, Double, Double, Int) // weapon, combo, x, y, angle, hit count
+  EnemyMeleeWarning(Double, Double)
   AttackTriggered
   HurtTriggered
   FloorComplete

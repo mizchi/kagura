@@ -220,3 +220,58 @@ test('whirlwind is a seamless spinning clip shared by every main weapon',async()
     }
   } finally {scene.dispose();}
 });
+
+test('cleaver exports three independent cuts with a longer overhead recovery',async()=>{
+  const data=validateMotionAsset(JSON.parse(await readFile(new URL('../../../examples/games/hacknslash_3d/motions/hunter.kgrmotion',import.meta.url),'utf8')));
+  const weapon=data.weapons.find(w=>w.id==='cleaver_flintlock');
+  const cuts=weapon.clips.slice(0,3).map(id=>data.clips.find(c=>c.id===id));
+  assert.deepEqual(cuts.map(c=>c.events[0].time),[7,8,16].map(n=>n/60));
+  assert.deepEqual(cuts.map(c=>c.duration),[19,22,48].map(n=>n/60));
+  const scene=createMotionScene(data);
+  try{
+    scene.selectWeapon(weapon.id);
+    const poses=cuts.map(clip=>{
+      scene.pose(clip.id,clip.events[0].time);
+      assert.ok(!scene.bounds().isEmpty());
+      return scene.bones[2].getWorldQuaternion(new Quaternion());
+    });
+    assert.ok(poses[0].angleTo(poses[1])>.2);
+    assert.ok(poses[1].angleTo(poses[2])>.2);
+    scene.pose(cuts[2].id,40/60);
+    const recovering=scene.bones[1].quaternion.clone();
+    scene.pose(cuts[2].id,48/60);
+    assert.ok(recovering.angleTo(scene.bones[1].quaternion)>.01);
+  }finally{scene.dispose();}
+});
+
+test('wolf asset uses four legs, loops walk/run in place and closes its jaw at bite contact',async()=>{
+  const data=validateMotionAsset(JSON.parse(await readFile(new URL('../../../examples/games/hacknslash_3d/motions/wolf.kgrmotion',import.meta.url),'utf8')));
+  assert.equal(data.skeleton.length,15);
+  assert.deepEqual(data.clips.map(c=>c.id),['wolf_walk','wolf_run','wolf_bite']);
+  const scene=createMotionScene(data);
+  try{
+    scene.selectModel('wolf');
+    for(const clip of data.clips.slice(0,2)){
+      scene.pose(clip.id,0);
+      const start=scene.bones.map(b=>b.getWorldQuaternion(new Quaternion()));
+      scene.pose(clip.id,clip.duration/4);
+      for(const joint of [7,9,11,13]) assert.ok(start[joint].angleTo(scene.bones[joint].getWorldQuaternion(new Quaternion()))>.1);
+      assert.equal(scene.bones[0].position.z,0);
+      scene.pose(clip.id,clip.duration);
+      scene.bones.forEach((b,i)=>assert.ok(start[i].angleTo(b.getWorldQuaternion(new Quaternion()))<.001));
+      for(let i=0;i<=24;i++){
+        scene.pose(clip.id,clip.duration*i/24);
+        assert.ok(scene.bounds().min.y>-.06,`${clip.id} feet must not sink through the ground`);
+      }
+    }
+    const bite=data.clips[2];
+    assert.equal(bite.events[0].time,34/60);
+    scene.pose(bite.id,24/60);
+    assert.ok(scene.bones[4].quaternion.x>.2,'jaw opens during anticipation');
+    scene.pose(bite.id,bite.events[0].time);
+    assert.ok(Math.abs(scene.bones[4].quaternion.x)<.001,'jaw closes exactly on impact');
+    assert.ok(scene.bones[0].position.z>.2,'head and body snap forward');
+    scene.pose(bite.id,bite.duration);
+    assert.equal(scene.bones[0].position.z,0);
+  }finally{scene.dispose();}
+});

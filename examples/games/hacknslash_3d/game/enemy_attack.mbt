@@ -2,6 +2,7 @@
 pub(all) enum EnemyAttackMotion {
   NoAttack
   Punch
+  Bite
   SpearThrust
   CastSpell
   BowShot
@@ -61,7 +62,7 @@ fn tick_enemy_attack(enemy : Enemy) -> Unit {
   }
   enemy.attack_frame += 1
   if enemy.attack_frame == enemy.attack_windup &&
-    (enemy.attack_motion == Punch || enemy.attack_motion == SpearThrust) {
+    enemy.attack_motion.melee_profile() is Some(_) {
     enemy.attack_hit_pending = true
   }
   if enemy.attack_frame > enemy.attack_windup + enemy.attack_recovery {
@@ -74,16 +75,19 @@ fn try_start_enemy_melee(
   enemy : Enemy,
   player : Player,
   grid : @terrain.Grid2D,
+  events : Array[GameEvent],
 ) -> Bool {
   if enemy.attack_cooldown > 0 {
     return false
   }
   let motion = match enemy.kind {
+    Wolf => Bite
     Fast | Teleporter => SpearThrust
     Basic | Swarm | Tank | Berserker => Punch
     _ => return false
   }
-  let range = if motion == SpearThrust { 26.0 } else { 16.0 }
+  let profile = motion.melee_profile().unwrap()
+  let range = profile.reach - 2.0
   let dx = player.x - enemy.x
   let dy = player.y - enemy.y
   if dx * dx + dy * dy > range * range ||
@@ -97,10 +101,11 @@ fn try_start_enemy_melee(
     ) {
     return false
   }
-  let windup = if motion == SpearThrust { 24 } else { 18 }
-  let recovery = if motion == SpearThrust { 24 } else { 22 }
+  let windup = profile.windup
+  let recovery = profile.recovery
   enemy.begin_attack(motion, windup, recovery, player.x, player.y)
   enemy.attack_cooldown = windup + recovery + 18
+  events.push(EnemyMeleeWarning(enemy.x, enemy.y))
   true
 }
 
@@ -119,8 +124,11 @@ fn enemy_melee_hits(
   let ax = enemy.attack_target_x - enemy.x
   let ay = enemy.attack_target_y - enemy.y
   let len = (ax * ax + ay * ay).sqrt()
-  let reach = if enemy.attack_motion == SpearThrust { 30.0 } else { 18.0 }
-  let width = if enemy.attack_motion == SpearThrust { 7.0 } else { 10.0 }
+  guard enemy.attack_motion.melee_profile() is Some(profile) else {
+    return false
+  }
+  let reach = profile.reach
+  let width = profile.width
   if len > 0.001 {
     let forward = (dx * ax + dy * ay) / len
     let lateral = (dx * ay - dy * ax).abs() / len
@@ -140,4 +148,25 @@ fn enemy_melee_hits(
     player.y,
     1.0,
   )
+}
+
+///|
+/// One footprint and timing contract drives both the damage test and its ground warning.
+pub(all) struct EnemyMeleeProfile {
+  windup : Int
+  recovery : Int
+  reach : Double
+  width : Double
+}
+
+///|
+pub fn EnemyAttackMotion::melee_profile(
+  self : EnemyAttackMotion,
+) -> EnemyMeleeProfile? {
+  match self {
+    Bite => Some({ windup: 34, recovery: 30, reach: 24.0, width: 8.0, })
+    Punch => Some({ windup: 32, recovery: 28, reach: 24.0, width: 12.0, })
+    SpearThrust => Some({ windup: 40, recovery: 30, reach: 38.0, width: 7.0, })
+    _ => None
+  }
 }

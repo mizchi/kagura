@@ -24,6 +24,46 @@
       "pcmSha256": "3709e23085f2f3774d6492866f547e038fc0990bade218e337271cb16809905f"
     },
     {
+      "id": "melee_cleaver",
+      "file": "melee_cleaver.ogg",
+      "label": "鉈の命中",
+      "description": "重い斬断の衝撃、乾いた裂け、短い鋼の尾",
+      "duration": 0.27,
+      "sampleRate": 44100,
+      "channels": 2,
+      "pcmSha256": "a880f296645cbdc91a596de40e8b2e654a61cafe02f98f9de1004530f06db22f"
+    },
+    {
+      "id": "melee_pierce",
+      "file": "melee_pierce.ogg",
+      "label": "槍の命中",
+      "description": "鋭い刺突、木の柄の振動と短い金属音",
+      "duration": 0.23,
+      "sampleRate": 44100,
+      "channels": 2,
+      "pcmSha256": "3e6359244cfe72239b0117b094aa85402f06ba51730a5a036f98e2b8a5eea1f4"
+    },
+    {
+      "id": "melee_punch",
+      "file": "melee_punch.ogg",
+      "label": "拳の命中",
+      "description": "素早い低音の打撃と革の破裂音",
+      "duration": 0.19,
+      "sampleRate": 44100,
+      "channels": 2,
+      "pcmSha256": "62e1dd0d42e90c7a2175d21d729a100c2ebfbb88fd5f27ad6938588a7cce5a3d"
+    },
+    {
+      "id": "enemy_windup",
+      "file": "enemy_windup.ogg",
+      "label": "敵の構え",
+      "description": "革と武器が引かれる乾いた擦れ。命中音とは分ける",
+      "duration": 0.29,
+      "sampleRate": 44100,
+      "channels": 2,
+      "pcmSha256": "5708e7fac8abe31f4b57f857acaa981d67ef0834c6a431fedddb09eebfdb1f45"
+    },
+    {
       "id": "hurt_hit",
       "file": "hurt_hit.ogg",
       "label": "被弾",

@@ -254,6 +254,12 @@ pub fn update_enemy_ai(
     if !enemy.alive {
       continue
     }
+    if enemy.stagger_frames > 0 {
+      enemy.stagger_frames -= 1
+      enemy.vx = 0.0
+      enemy.vy = 0.0
+      continue
+    }
     tick_enemy_attack(enemy)
     // Meteor casting: channeled, interruptible by killing the caster
     if enemy.meteor_cast_timer > 0 {
@@ -341,7 +347,7 @@ pub fn update_enemy_ai(
       tick_enemy_pattern_cooldowns(enemy)
       continue
     }
-    if try_start_enemy_melee(enemy, player, grid) {
+    if try_start_enemy_melee(enemy, player, grid, events) {
       tick_enemy_pattern_cooldowns(enemy)
       continue
     }

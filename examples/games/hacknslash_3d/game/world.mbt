@@ -20,6 +20,8 @@ pub(all) struct GameWorld {
   mut dungeon : DungeonData
   mut attack_timer : Int
   mut player_weapon : PlayerWeaponKind
+  mut cleaver_next : CleaverComboStep
+  mut cleaver_combo_timer : Int
   mut weapon_attack : PlayerWeaponAttack?
   mut player_charge : PlayerCharge?
   arts : HunterArts
@@ -150,6 +152,8 @@ pub fn GameWorld::new(
       Mage => Focus
       _ => Bow
     },
+    cleaver_next: Opening,
+    cleaver_combo_timer: 0,
     weapon_attack: None,
     player_charge: None,
     arts: HunterArts::new(),
@@ -211,6 +215,7 @@ pub fn GameWorld::apply_archetype(
   self.cancel_hunter_action()
   self.arts.strike = None
   self.weapon_attack = None
+  self.reset_cleaver_combo()
   self.player_charge = None
   // Reset skills and apply archetype starting skills
   for node in self.skills.nodes {
@@ -284,6 +289,7 @@ pub fn GameWorld::apply_dungeon(
   self.cancel_hunter_action()
   self.arts.strike = None
   self.weapon_attack = None
+  self.reset_cleaver_combo()
   self.player_charge = None
   let dungeon = match self.authored_scene {
     Some(scene) => scene_dungeon(scene)
@@ -689,6 +695,8 @@ pub fn GameWorld::tick_enemy_movement_and_contact_phase(
   )
   for enemy in self.enemies {
     if enemy.alive {
+      let previous_x = enemy.x
+      let previous_y = enemy.y
       if enemy.vx != 0.0 || enemy.vy != 0.0 {
         let (ex, ey) = slide_move(
           self.dungeon.grid,
@@ -707,6 +715,31 @@ pub fn GameWorld::tick_enemy_movement_and_contact_phase(
         }
         enemy.x = ex
         enemy.y = ey
+      }
+      let moved_x = enemy.x - previous_x
+      let moved_y = enemy.y - previous_y
+      enemy.move_speed = (moved_x * moved_x + moved_y * moved_y).sqrt()
+      if enemy.move_speed > 0.001 {
+        enemy.move_angle = @math.atan2(moved_y, moved_x)
+        enemy.travel_distance += enemy.move_speed
+      }
+      // Recoil is separate from AI velocity and survives every chase/cast update.
+      if enemy.knockback_x.abs() + enemy.knockback_y.abs() > 0.05 {
+        let (x, y) = slide_move(
+          self.dungeon.grid,
+          enemy.x,
+          enemy.y,
+          enemy.knockback_x,
+          enemy.knockback_y,
+          enemy.size,
+        )
+        enemy.x = x
+        enemy.y = y
+        enemy.knockback_x *= 0.65
+        enemy.knockback_y *= 0.65
+      } else {
+        enemy.knockback_x = 0.0
+        enemy.knockback_y = 0.0
       }
       enemy.vx = 0.0
       enemy.vy = 0.0

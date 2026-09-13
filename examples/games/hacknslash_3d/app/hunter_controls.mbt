@@ -30,7 +30,7 @@ fn hunter_responsive_camera(
 
 ///|
 fn hunter_assisted_aim(world : @game.GameWorld) -> Double {
-  match @game.find_nearest_enemy(world, 160.0) {
+  match hunter_auto_target(world) {
     Some(enemy) =>
       @math.atan2(enemy.y - world.player.y, enemy.x - world.player.x)
     None => world.player.facing_angle
@@ -98,28 +98,14 @@ fn hunter_aim_angle(
   ground_y : Double,
   fallback : Double,
 ) -> Double {
-  let inv = camera.to_camera3d().view_projection_matrix().inverse()
-  let x = cursor_x / screen_w.to_double() * 2.0 - 1.0
-  let y = 1.0 - cursor_y / screen_h.to_double() * 2.0
-  let clip = inv.mul_vec4(@math3d.Vec4::new(x, y, 1.0, 1.0))
-  if clip.w.abs() < 0.00001 {
+  guard hunter_ground_point(camera, cursor_x, cursor_y, ground_y)
+    is Some((x, y)) else {
     return fallback
   }
-  let far = @math3d.Vec3::new(clip.x / clip.w, clip.y / clip.w, clip.z / clip.w)
-  let origin = camera.position()
-  let direction = far.sub(origin)
-  if direction.y.abs() < 0.00001 {
+  let dx = x - player_x
+  let dy = y - player_y
+  if dx * dx + dy * dy < 0.64 {
     return fallback
   }
-  let t = (ground_y - origin.y) / direction.y
-  if t <= 0.0 {
-    return fallback
-  }
-  let target = origin.add(direction.scale(t))
-  let dx = target.x - player_x / tile_size
-  let dz = target.z - player_y / tile_size
-  if dx * dx + dz * dz < 0.0025 {
-    return fallback
-  }
-  @math.atan2(dz, dx)
+  @math.atan2(dy, dx)
 }

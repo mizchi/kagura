@@ -126,6 +126,16 @@ pub fn enemy_type_configs() -> Array[EnemyTypeConfig] {
       drop_chance: 10,
       drop_count_max: 1,
     },
+    {
+      kind: Wolf,
+      hp_param: 1.2,
+      speed_param: 1.6,
+      size: 11.0,
+      spawn_weight: 2,
+      xp_reward: 2,
+      drop_chance: 40,
+      drop_count_max: 1,
+    },
   ]
 }
 

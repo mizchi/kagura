@@ -1333,3 +1333,15 @@ canvas#app {
 @media (max-width:760px) {
   .skill[data-hold="whirlwind"]>strong { font-size: 9px; }
 }
+
+/* Pooled damage labels are positioned by the same camera as the rendered game. */
+#damage-numbers{position:absolute;inset:0;pointer-events:none;z-index:6;overflow:hidden}
+.damage-number{position:absolute;font:800 clamp(21px,2.1vw,30px)/1 system-ui,sans-serif;color:#fff1bb;white-space:nowrap;text-shadow:0 2px 2px #000,2px 0 1px #16100b,-2px 0 1px #16100b,0 -2px 1px #16100b;will-change:transform,opacity}
+.damage-number[hidden]{display:none}.damage-number.player-damage{color:#ff8581}
+
+#combo-chain { position:absolute; top:-10px; display:flex; gap:4px; pointer-events:none; }
+#combo-chain[hidden] { display:none; }
+#combo-chain i { display:grid; place-items:center; width:17px; height:17px; border:1px solid #796751; border-radius:50%; background:#171d1c; color:#a69a84; font:700 10px system-ui; }
+#combo-chain i[data-current=true] { color:#ffe5b0; border-color:#efc780; background:#62412e; }
+#combo-chain[data-active=true] i[data-current=true] { box-shadow:0 0 8px #e9aa6866; }
+#combo-chain[data-recovery=true] i[data-current=true] { background:#402c27; color:#c29a79; }

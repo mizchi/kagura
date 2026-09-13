@@ -9,8 +9,12 @@ export function createHunterInput(controls) {
   let target = null;
   let targetConfirmed = false;
   let whirlwindPressed = false;
+  let pointer = null;
   return {
     ...controls,
+    aimPointer(x,y) { pointer=Number.isFinite(x)&&Number.isFinite(y)&&x>=0&&x<=1&&y>=0&&y<=1 ? {x,y} : null; },
+    pointerAim() { return pointer; },
+    useAutoAim() { pointer=null; },
     hold(id,action) {
       if(action==='whirlwind'&&!controls.snapshot().actions.includes(action))whirlwindPressed=true;
       controls.hold(id,action);
@@ -37,7 +41,7 @@ export function createHunterInput(controls) {
       const {x, y, actions} = controls.snapshot();
       return {x, y, attack: actions.includes('attack'), guard: actions.includes('guard'), whirlwind: actions.includes('whirlwind')};
     },
-    clear() { controls.clear(); whirlwindPressed=false; selection = -1; inventoryMove = null; target = null; targetConfirmed = false; },
+    clear() { controls.clear(); pointer=null; whirlwindPressed=false; selection = -1; inventoryMove = null; target = null; targetConfirmed = false; },
   };
 }
 

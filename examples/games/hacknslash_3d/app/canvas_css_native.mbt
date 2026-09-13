@@ -72,3 +72,13 @@ fn hunter_web_target_y() -> Double {
 fn hunter_web_target_confirmed() -> Bool {
   false
 }
+
+///|
+fn hunter_web_pointer_x() -> Double {
+  -1.0
+}
+
+///|
+fn hunter_web_pointer_y() -> Double {
+  -1.0
+}

@@ -146,6 +146,9 @@ fn EnemyModels::get_equipped_mesh_data(
   kind : @game.EnemyKind,
   weapon_index? : Int = default_enemy_weapon_index(kind),
 ) -> EnemyMeshData {
+  if kind == @game.Wolf {
+    return wolf_mesh
+  }
   let body_index = match kind {
     @game.Fast | @game.Exploder | @game.Teleporter => 1
     @game.Tank | @game.Berserker => 2

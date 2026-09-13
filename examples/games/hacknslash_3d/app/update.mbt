@@ -111,6 +111,8 @@ fn GameState::new_with_params(
   character.equip_outfit(CharacterOutfit::from_equipment(world.equipment))
   {
     world,
+    aim: HunterAimState::new(),
+    combat_feedback: CombatFeedbackState::new(),
     input: @inpututil.new_input_helper(),
     show_profiler: false,
     profile: @engine.default_frame_profile(),
@@ -296,7 +298,8 @@ fn GameState::update(self : GameState, input : @core.InputSnapshot) -> Unit {
     (
       !self.paused &&
       self.world.ui_mode == @game.UIMode::None &&
-      !self.motion_preview
+      !self.motion_preview &&
+      self.combat_feedback.hitstop == 0
     ) {
     self.world.frame_count = self.world.frame_count + 1
   }
@@ -312,6 +315,7 @@ fn GameState::update(self : GameState, input : @core.InputSnapshot) -> Unit {
   let scale_y = screen_h.to_double() / css_h
   self.world.cursor_x = input.cursor_x * scale_x
   self.world.cursor_y = input.cursor_y * scale_y
+  self.update_aim_input(input)
   if self.world.mode == @game.Playing &&
     !self.paused &&
     self.world.ui_mode == @game.UIMode::None {
@@ -343,7 +347,7 @@ fn GameState::update(self : GameState, input : @core.InputSnapshot) -> Unit {
   match self.world.mode {
     @game.Title => self.update_title(input)
     @game.CharacterSelect => self.update_character_select(input)
-    @game.Playing => self.update_playing(web_attack=web_key == 74)
+    @game.Playing => self.update_playing()
     @game.GameOver => self.update_gameover(input)
   }
 }
@@ -450,10 +454,7 @@ fn GameState::update_gameover(
 }
 
 ///|
-fn GameState::update_playing(
-  self : GameState,
-  web_attack? : Bool = false,
-) -> Unit {
+fn GameState::update_playing(self : GameState) -> Unit {
   self.sync_character_equipment()
   // Auto-play toggle (F2)
   if !self.paused &&
@@ -514,6 +515,18 @@ fn GameState::update_playing(
   // Skip game tick while paused
   if self.paused || self.motion_preview {
     return
+  }
+  if self.combat_feedback.hitstop > 0 {
+    // Dodge wins over hitstop; a quick press must never disappear into the freeze.
+    if @inpututil.is_key_just_pressed(self.input.key_state, 32) ||
+      @inpututil.is_key_just_pressed(self.input.key_state, key_shift) {
+      self.combat_feedback.hitstop = 0
+    } else {
+      self.combat_feedback.hitstop -= 1
+      self.update_damage_popups()
+      self.update_combat_camera()
+      return
+    }
   }
   // Physical X, or the same intent with a selected weapon from the mobile HUD.
   if @inpututil.is_key_just_pressed(self.input.key_state, 88) {
@@ -596,7 +609,9 @@ fn GameState::update_playing(
       self.play_sound_cue(SfxDodge)
     }
     if @inpututil.is_key_just_pressed(self.input.key_state, 67) {
-      let angle = if dx != 0.0 || dy != 0.0 {
+      let angle = if self.pointer_aim_angle() is Some(angle) {
+        angle
+      } else if dx != 0.0 || dy != 0.0 {
         @math.atan2(dy, dx)
       } else {
         hunter_assisted_aim(self.world)
@@ -655,22 +670,17 @@ fn GameState::update_playing(
         @inpututil.is_key_pressed(self.input.key_state, 74) ||
         hunter_web_attacking()
       ) {
-      let angle = if hunter_web_attacking() || web_attack {
-        hunter_assisted_aim(self.world)
-      } else {
-        hunter_aim_angle(
-          self.camera,
-          self.world.cursor_x,
-          self.world.cursor_y,
-          self.world.player.x,
-          self.world.player.y,
-          @game.get_tile_height(
-            self.world.dungeon,
-            self.world.player.x,
-            self.world.player.y,
-          ),
-          self.world.player.facing_angle,
-        )
+      let angle = match self.pointer_aim_angle() {
+        Some(angle) => angle
+        None =>
+          if self.world.player_weapon.is_melee() && (dx != 0.0 || dy != 0.0) {
+            self.world.assist_melee_angle(
+              @math.atan2(dy, dx),
+              self.world.player_weapon,
+            )
+          } else {
+            hunter_assisted_aim(self.world)
+          }
       }
       let _ = self.world.request_basic_attack(angle)
     }
@@ -687,8 +697,18 @@ fn GameState::update_playing(
     return
   }
   let events = self.world.drain_events()
+  let melee_hit = events.any(e => {
+    match e {
+      @game.MeleeImpact(_, _, _, _, _, _) => true
+      _ => false
+    }
+  })
   for event in events {
-    self.play_sound_for_event(event)
+    self.apply_melee_feedback(event)
+    if !(melee_hit && event is @game.HitSparks(_, _)) &&
+      !(self.world.player_weapon.is_melee() && event is @game.AttackTriggered) {
+      self.play_sound_for_event(event)
+    }
     self.queue_combat_visual(event)
     match event {
       @game.GuardBlocked(_, _, _) => self.play_sound_cue(SfxEnemyHit)
@@ -702,6 +722,7 @@ fn GameState::update_playing(
             SfxSpellChainLightning
           },
         )
+      @game.MeleeImpact(_, _, _, _, _, _) | @game.EnemyMeleeWarning(_, _) => ()
       @game.HitSparks(x, y) => spawn_hit_sparks(self.particle_manager, x, y)
       @game.DeathBurst(x, y) => spawn_death_burst(self.particle_manager, x, y)
       @game.DashTrail(x, y) => spawn_dash_trail(self.particle_manager, x, y)
@@ -765,7 +786,10 @@ fn GameState::update_playing(
         spawn_death_burst(self.particle_manager, x, y)
         self.queue_fireball_burst_effect(x, y)
       }
-      @game.AttackTriggered => self.character.trigger_attack()
+      @game.AttackTriggered =>
+        self.character.trigger_attack(
+          combo=self.world.weapon_attack.map(a => a.combo).or(@game.Opening),
+        )
       @game.HurtTriggered => self.character.trigger_hurt()
       @game.FloorComplete => {
         self.rebuild_dungeon_rendering()
@@ -774,19 +798,20 @@ fn GameState::update_playing(
     }
   }
   self.apply_generated_prop_roles_for_current_floor()
-  // Camera follow (3D: convert 2D coords to 3D with height)
-  let cam_y = @game.get_tile_height(
-    self.world.dungeon,
-    self.world.player.x,
-    self.world.player.y,
-  )
-  self.camera = self.camera.with_target(
-    @math3d.Vec3::new(
-      self.world.player.x / tile_size,
-      cam_y + 0.3,
-      self.world.player.y / tile_size,
-    ),
-  )
+  if self.world.weapon_attack is None &&
+    self.world.player_charge is None &&
+    self.world.player.dash_timer <= 0 &&
+    !self.world.hunter_action_locked() {
+    if self.pointer_aim_angle() is Some(angle) {
+      self.world.player.facing_angle = angle
+    }
+  }
+  self.update_combat_camera()
+  if self.world.weapon_attack is Some(attack) {
+    if attack.weapon.is_melee() && attack.frame == attack.profile().windup - 2 {
+      self.play_sound_cue(SfxAttack)
+    }
+  }
   // Update character animation
   let moved_x = self.world.player.x - previous_player_x
   let moved_y = self.world.player.y - previous_player_y
@@ -851,7 +876,18 @@ fn GameState::spawn_damage_popup(
   amount : Int,
   color_hex : Int,
 ) -> Unit {
-  self.damage_popups.push({ x, y, amount, color_hex, ttl: 30, rise: 0.0, })
+  if self.damage_popups.length() >= 48 {
+    ignore(self.damage_popups.remove(0))
+  }
+  let scatter = (self.damage_popups.length() % 3 - 1).to_double() * 3.5
+  self.damage_popups.push({
+    x: x + scatter,
+    y,
+    amount,
+    color_hex,
+    ttl: 48,
+    rise: 0.0,
+  })
 }
 
 ///|
@@ -859,7 +895,7 @@ fn GameState::update_damage_popups(self : GameState) -> Unit {
   let still_active : Array[DamagePopup] = []
   for popup in self.damage_popups {
     popup.ttl = popup.ttl - 1
-    popup.rise = popup.rise + 0.025
+    popup.rise = popup.rise + 0.018
     if popup.ttl > 0 {
       still_active.push(popup)
     }
@@ -871,6 +907,9 @@ fn GameState::update_damage_popups(self : GameState) -> Unit {
 
 ///|
 fn GameState::rebuild_dungeon_rendering(self : GameState) -> Unit {
+  self.combat_feedback.hitstop = 0
+  self.combat_feedback.look_x = 0.0
+  self.combat_feedback.look_y = 0.0
   self.ground_targeting = false
   self.combat_visuals.clear()
   for i in 0..<self.region_meshes.length() {

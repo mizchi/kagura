@@ -1,0 +1,88 @@
+///|
+struct WolfRenderBucket {
+  matrices : Array[@math3d.Mat4]
+  colors : Array[@math3d.Vec4]
+}
+
+///|
+struct WolfRenderState {
+  buckets : Map[Int, WolfRenderBucket]
+  active_keys : Array[Int]
+}
+
+///|
+fn WolfRenderState::clear(self : WolfRenderState) -> Unit {
+  for key in self.active_keys {
+    self.buckets[key].matrices.clear()
+    self.buckets[key].colors.clear()
+  }
+  self.active_keys.clear()
+}
+
+///|
+fn WolfRenderState::add(
+  self : WolfRenderState,
+  key : Int,
+  model : @math3d.Mat4,
+  color : @math3d.Vec4,
+) -> Unit {
+  let bucket = match self.buckets.get(key) {
+    Some(bucket) => bucket
+    None => {
+      let bucket : WolfRenderBucket = { matrices: [], colors: [], }
+      self.buckets[key] = bucket
+      bucket
+    }
+  }
+  if bucket.matrices.is_empty() {
+    self.active_keys.push(key)
+  }
+  bucket.matrices.push(model)
+  bucket.colors.push(color)
+}
+
+///|
+// Reuse bind geometry and baked palettes; only instance transforms change.
+fn GameState::push_wolf_commands(
+  self : GameState,
+  view_projection : @math3d.Mat4,
+  dst : @gfx.ImageHandle,
+  screen_w : Int,
+  screen_h : Int,
+  cmds : Array[@gfx.DrawTrianglesCommand],
+) -> Unit {
+  for key in self.enemy_models.wolf.active_keys {
+    let bucket = self.enemy_models.wolf.buckets[key]
+    let skinning = wolf_skinning_for_key(key)
+    for part in wolf_mesh.parts {
+      let colors = bucket.colors.map(tint => {
+        @math3d.Vec4::new(
+          part.color.x * tint.x,
+          part.color.y * tint.y,
+          part.color.z * tint.z,
+          part.color.w,
+        )
+      })
+      @web_hooks.register_static_geometry(
+        part.geometry.packed_vertex_data,
+        part.geometry.bind_mesh.indices,
+      )
+      @scene3d.push_skinned_mesh_gpu_commands_with_color_optimization_and_view_projection(
+        part.geometry.bind_mesh,
+        bucket.matrices,
+        colors,
+        part.geometry.packed_vertex_data,
+        skinning,
+        view_projection,
+        self.lighting,
+        dst,
+        self.shader3d_skinned,
+        self.shader3d_skinned_instanced,
+        self.shader3d_skinned_instanced_monochrome,
+        screen_w,
+        screen_h,
+        cmds,
+      )
+    }
+  }
+}

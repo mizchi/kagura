@@ -93,7 +93,21 @@ export function createSoundBank(){
       .modes(0,.14,118,[[1,1],[1.61,.38],[2.37,.2,.5]],{gain:.35,decay:.035,bend:.22})
       .air(0,.095,{gain:1.2,low:280,high:2600,decay:.018})
       .crackle(.008,.045,4,.38),{peak:.48,room:.04});
-  add('hurt_hit','被弾','低い衝撃と厚手のコートが擦れる音',
+  add('melee_cleaver','鉈の命中','重い斬断の衝撃、乾いた裂け、短い鋼の尾',
+    new Sound(.27,1201).modes(0,.18,88,[[1,1],[1.57,.45],[2.7,.16,.45]],{gain:.65,decay:.043,bend:.3})
+      .air(0,.105,{gain:2.2,low:350,high:4100,decay:.014})
+      .crackle(.009,.06,6,.7).modes(.012,.19,810,[[1,1],[1.71,.24]],{gain:.075,decay:.04}),{peak:.64,room:.06});
+  add('melee_pierce','槍の命中','鋭い刺突、木の柄の振動と短い金属音',
+    new Sound(.23,1213).air(0,.075,{gain:2.0,low:650,high:4700,decay:.011})
+      .modes(0,.15,165,[[1,1],[2.13,.31]],{gain:.52,decay:.027,bend:.18})
+      .modes(.008,.17,1290,[[1,1],[1.62,.2]],{gain:.045,decay:.035}),{peak:.63,room:.04});
+  add('melee_punch','拳の命中','素早い低音の打撃と革の破裂音',
+    new Sound(.19,1223).modes(0,.145,72,[[1,1],[1.72,.28],[3.2,.13,.6]],{gain:.85,decay:.035,bend:.55})
+      .air(0,.07,{gain:1.6,low:190,high:1900,decay:.012}),{peak:.65,room:.025});
+  add('enemy_windup','敵の構え','革と武器が引かれる乾いた擦れ。命中音とは分ける',
+    new Sound(.29,1237).air(0,.21,{gain:1.3,low:240,high:1700,endHigh:3100,swell:true})
+      .modes(.015,.16,370,[[1,1],[1.46,.21]],{gain:.06,decay:.055}),{peak:.36,room:.03});
+  add('hurt_hit' ,'被弾','低い衝撃と厚手のコートが擦れる音',
     new Sound(.36,307)
       .modes(0,.23,77,[[1,1],[1.46,.45],[2.34,.17,.7]],{gain:.48,decay:.068,bend:.15})
       .air(.002,.22,{gain:1.5,low:100,high:1450,endHigh:430,decay:.075})

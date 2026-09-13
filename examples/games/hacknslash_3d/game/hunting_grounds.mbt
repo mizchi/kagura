@@ -91,6 +91,8 @@ fn append_hunting_approach_enemies(
       ((-4.0, -4.0), Basic),
       ((-2.0, -5.0), Fast),
       ((0.0, -5.5), Ranged),
+      ((3.0, -6.0), Wolf),
+      ((4.5, -6.0), Wolf),
     ] {
     let config = find_enemy_type_config(kind)
     let enemy = make_enemy(

@@ -322,8 +322,8 @@ fn apply_player_damage_to_enemy(
   let dist_sq = edx * edx + edy * edy
   if dist_sq > 0.001 {
     let dist = dist_sq.sqrt()
-    enemy.vx = enemy.vx - edx / dist * world.params.knockback_strength
-    enemy.vy = enemy.vy - edy / dist * world.params.knockback_strength
+    enemy.knockback_x = -edx / dist * world.params.knockback_strength
+    enemy.knockback_y = -edy / dist * world.params.knockback_strength
   }
   if enemy.hp <= 0 {
     enemy.alive = false
@@ -346,13 +346,35 @@ pub fn GameWorld::request_basic_attack(
     self.player.dash_timer > 0 {
     return false
   }
+  let angle = self.assist_melee_angle(angle, self.player_weapon)
   self.player.facing_angle = angle
-  let profile = self.player_weapon.profile()
-  self.weapon_attack = Some({ weapon: self.player_weapon, angle, frame: 0, })
-  self.attack_timer = @cmp.maximum(
-    profile.windup + profile.recovery,
-    (self.params.bow_cooldown * (1.0 - self.player_stats.cooldown_reduction)).to_int(),
-  )
+  let combo = if self.player_weapon == Cleaver {
+    self.cleaver_next
+  } else {
+    Opening
+  }
+  let attack : PlayerWeaponAttack = {
+    weapon: self.player_weapon,
+    combo,
+    angle,
+    frame: 0,
+  }
+  let profile = attack.profile()
+  self.weapon_attack = Some(attack)
+  if self.player_weapon == Cleaver {
+    self.cleaver_next = combo.next()
+    self.cleaver_combo_timer = profile.windup +
+      profile.recovery +
+      cleaver_combo_window
+  }
+  self.attack_timer = if self.player_weapon.is_melee() {
+    profile.windup + profile.recovery
+  } else {
+    @cmp.maximum(
+      profile.windup + profile.recovery,
+      (self.params.bow_cooldown * (1.0 - self.player_stats.cooldown_reduction)).to_int(),
+    )
+  }
   self.events.push(AttackTriggered)
   true
 }

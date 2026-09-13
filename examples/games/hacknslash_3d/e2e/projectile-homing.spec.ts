@@ -12,14 +12,14 @@ for(const touch of [false,true]){
       await picker.selectOption('3');
       await expect(attack).toHaveAttribute('title',/追う魔法弾/);
       if(touch)await attack.tap();else await attack.click();
-      await expect.poll(()=>page.evaluate(()=>globalThis.__ashenHunt.projectiles)).toBeGreaterThan(0);
+      await page.waitForFunction(()=>globalThis.__ashenHunt.projectiles>0);
       await captureGameFrame(page,{path:info.outputPath('focus-homing.png')});
       await expect.poll(()=>page.evaluate(()=>globalThis.__ashenHud.arts.feedback)).toMatch(/^[1-9]\d* HIT$/);
       await expect(page.locator('[data-skill="2"]')).toBeEnabled();
       // Let the previous impact feedback expire before checking the next cast.
       await expect.poll(()=>page.evaluate(()=>globalThis.__ashenHud.arts.feedback)).toBe('');
       if(touch)await page.locator('[data-skill="2"]').tap();else await page.keyboard.press('Digit3');
-      await expect.poll(()=>page.evaluate(()=>globalThis.__ashenHunt.projectiles)).toBeGreaterThan(0);
+      await page.waitForFunction(()=>globalThis.__ashenHunt.projectiles>0);
       await expect.poll(()=>page.evaluate(()=>globalThis.__ashenHud.arts.feedback)).toMatch(/^[1-9]\d* HIT$/);
       await expect(page.locator('[data-skill="2"] .skill-tooltip')).toContainText('分裂した弾も追尾');
       await captureGameFrame(page,{path:info.outputPath('split-homing-hit.png')});

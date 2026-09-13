@@ -1,7 +1,7 @@
 import { readGameScene, bindingsCommand } from '../../../../editor/studio/scene/contract.mjs';
 const game = 'hacknslash_3d';
 const kinds = ['floor', 'wall', 'spawn', 'enemy'];
-const enemyKinds = ['basic', 'fast', 'tank', 'ranged'];
+const enemyKinds = ['basic', 'fast', 'tank', 'ranged', 'wolf'];
 export function compileScene(document) {
   const scene = readGameScene(document, game),
     rectangles = [],

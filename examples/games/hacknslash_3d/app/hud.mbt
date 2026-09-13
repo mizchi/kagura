@@ -294,7 +294,7 @@ fn GameState::draw_damage_popups(
         ctx.draw_text_centered(
           cmds,
           popup.amount.to_string(),
-          12.0,
+          18.0,
           sx,
           sy - 8.0,
           popup.color_hex,

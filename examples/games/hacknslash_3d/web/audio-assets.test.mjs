@@ -5,7 +5,7 @@ import {createSoundBank, encodeWav} from '../scripts/design-audio.mjs';
 
 test('hunter sounds are distinct, reproducible PCM with headroom and smooth silent edges', () => {
   const bank=createSoundBank();
-  assert.equal(bank.length,11);
+  assert.equal(bank.length,15);
   const hashes=new Set();
   for(const sound of bank){
     const {samples,sampleRate,channels}=sound;

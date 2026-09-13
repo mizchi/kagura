@@ -9,6 +9,26 @@ struct GameSoundAsset {
 fn game_sound_assets() -> Array[GameSoundAsset] {
   [
     { cue: SfxAttack, path: "./assets/audio/attack_slash.ogg", volume: 0.60, },
+    {
+      cue: SfxMeleeCleaver,
+      path: "./assets/audio/melee_cleaver.ogg",
+      volume: 0.74,
+    },
+    {
+      cue: SfxMeleePierce,
+      path: "./assets/audio/melee_pierce.ogg",
+      volume: 0.67,
+    },
+    {
+      cue: SfxMeleePunch,
+      path: "./assets/audio/melee_punch.ogg",
+      volume: 0.76,
+    },
+    {
+      cue: SfxEnemyWindup,
+      path: "./assets/audio/enemy_windup.ogg",
+      volume: 0.38,
+    },
     { cue: SfxEnemyHit, path: "./assets/audio/enemy_hit.ogg", volume: 0.52, },
     { cue: SfxDodge, path: "./assets/audio/dodge_cloak.ogg", volume: 0.48, },
     { cue: SfxHurt, path: "./assets/audio/hurt_hit.ogg", volume: 0.65, },

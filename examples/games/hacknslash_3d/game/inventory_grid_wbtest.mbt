@@ -114,7 +114,12 @@ test "bag swaps preserve identities, equipment swaps validate slots, and in-flig
   assert_eq(world.inventory.items[1].unwrap().atk_bonus, 3)
   assert_eq(world.inventory.grid.unwrap().placement(1).unwrap().x, 3)
   assert_true(world.transfer_inventory(Bag(0), Wear(Weapon)))
-  world.weapon_attack = Some({ weapon: Spear, angle: 0.0, frame: 2, })
+  world.weapon_attack = Some({
+    weapon: Spear,
+    combo: Opening,
+    angle: 0.0,
+    frame: 2,
+  })
   assert_false(world.transfer_inventory(Bag(1), Wear(Weapon)))
   assert_eq(world.equipment.weapon.unwrap().atk_bonus, 7)
   assert_eq(world.inventory.items[1].unwrap().atk_bonus, 3)

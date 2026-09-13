@@ -4,6 +4,8 @@ A 2D-first (with future 3D) game engine for [MoonBit](https://www.moonbitlang.co
 
 [日本語](README_ja.md)
 
+[Playground](https://mizchi.github.io/kagura/) · [Play ASHEN HUNT](https://mizchi.github.io/kagura/hacknslash_3d/) — a low-poly action RPG with melee, magic and summoner builds.
+
 ## Features
 
 - **Contract-first architecture** -- API contracts are defined before implementations, keeping the codebase modular and replaceable
@@ -57,6 +59,16 @@ just dev flappy_bird
 ```
 
 Builds and serves at `http://localhost:8080`. Browser demos currently require WebGPU (Chrome 113+, Edge 113+).
+
+### Publish the playground
+
+`just pages` builds release bundles and relative assets into `_site/`. Pushing
+`main` publishes them to GitHub Pages through `.github/workflows/deploy.yml`.
+The repository's Pages source must be **GitHub Actions**.
+
+After deployment, `just pages-test https://mizchi.github.io/kagura/` checks the
+public gallery, save selection and summoner gameplay with Playwright. It also
+accepts a locally served `_site/` URL, including a project subdirectory.
 
 ### Native
 

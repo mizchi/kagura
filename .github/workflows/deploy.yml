@@ -1,6 +1,7 @@
 name: deploy
 
 on:
+  workflow_dispatch:
   push:
     branches: [main]
 
@@ -21,6 +22,9 @@ jobs:
     runs-on: macos-latest
     steps:
       - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 24
       - name: Checkout terrain path dependency
         run: git clone --depth=1 https://github.com/mizchi/terrain.git ../terrain
       - name: Install MoonBit CLI
@@ -28,6 +32,7 @@ jobs:
           curl -fsSL https://cli.moonbitlang.com/install/unix.sh | bash
           echo "$HOME/.moon/bin" >> "$GITHUB_PATH"
       - run: moon update
+      - run: node --test scripts/web-demo-package.test.mjs scripts/web-demo-pages.test.mjs scripts/moon-build-artifact-utils.test.mjs
       - run: bash scripts/build-pages.sh
       - uses: actions/configure-pages@v5
       - uses: actions/upload-pages-artifact@v3

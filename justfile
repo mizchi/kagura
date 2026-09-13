@@ -522,6 +522,9 @@ run-native name:
 pages:
     bash scripts/build-pages.sh
 
+pages-test url="http://127.0.0.1:8082/kagura/":
+    KAGURA_PAGES_URL="{{url}}" pnpm exec playwright test -c playwright.pages.config.mjs
+
 check-release:
     node --test scripts/*.test.mjs
     node scripts/check-moon-release.mjs

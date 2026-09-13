@@ -1,7 +1,7 @@
 import {copyWebRuntimeAssets} from './web-runtime-assets.mjs';
+import { emitExamplePage } from './web-demo-package.mjs';
 import { spawnSync } from "node:child_process";
 import {
-  cpSync,
   existsSync,
   mkdirSync,
   readdirSync,
@@ -13,10 +13,7 @@ import { join, resolve } from "node:path";
 
 import {
   DEMO_PAGES,
-  detectFontEntries,
-  renderDemoHtml,
   renderLandingHtml,
-  renderLoaderModule,
 } from "./web-demo-pages.mjs";
 
 const ROOT = resolve(import.meta.dirname, "..");
@@ -35,7 +32,7 @@ function buildPages() {
 
   for (const demo of DEMO_PAGES) {
     buildExample(demo.name);
-    emitExamplePage(demo);
+    emitExamplePage({ demo, exampleDir: resolveExampleDir(demo.name), site: SITE, cacheBust: CACHE_BUST });
   }
 
   writeFileSync(join(SITE, "index.html"), renderLandingHtml({ demos: DEMO_PAGES }));
@@ -44,51 +41,13 @@ function buildPages() {
 
 function buildExample(name) {
   console.log(`Building ${name} ...`);
-  const result = spawnSync("moon", ["build", existsSync(join(resolveExampleDir(name), "moon.pkg")) ? "." : "src", "--target", "js"], {
+  const result = spawnSync("moon", ["build", existsSync(join(resolveExampleDir(name), "moon.pkg")) ? "." : "src", "--target", "js", "--release"], {
     cwd: resolveExampleDir(name),
     stdio: "inherit",
   });
   if (result.status !== 0) {
     process.exit(result.status ?? 1);
   }
-}
-
-function emitExamplePage(demo) {
-  const exampleDir = resolveExampleDir(demo.name);
-  const demoDir = join(SITE, demo.name);
-  mkdirSync(demoDir, { recursive: true });
-
-  const builtScript = join(
-    exampleDir,
-    "_build",
-    "js",
-    "debug",
-    "build",
-    `${demo.name}.js`,
-  );
-  cpSync(builtScript, join(demoDir, `${demo.name}.js`));
-
-  const assetsDir = join(exampleDir, "assets");
-  if (existsSync(assetsDir)) {
-    cpSync(assetsDir, join(demoDir, "assets"), { recursive: true });
-  }
-
-  const fontEntries = detectFontEntries(exampleDir);
-  writeFileSync(
-    join(demoDir, "loader.js"),
-    renderLoaderModule({
-      fontEntries,
-      scriptPath: `./${demo.name}.js?v=${CACHE_BUST}`,
-      libPrefix: "../lib",
-    }),
-  );
-  writeFileSync(
-    join(demoDir, "index.html"),
-    renderDemoHtml({
-      demo,
-      scriptTag: `<script type="module" src="./loader.js?v=${CACHE_BUST}"></script>`,
-    }),
-  );
 }
 
 function resolveExampleDir(name) {

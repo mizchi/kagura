@@ -9,6 +9,8 @@ const chromiumArgs = [
 
 export default defineConfig({
   testDir: "./e2e",
+  // Public release pages use playwright.pages.config.mjs and a static site.
+  testIgnore: "pages.spec.ts",
   timeout: 30_000,
   retries: process.env.CI ? 2 : 0,
   use: {

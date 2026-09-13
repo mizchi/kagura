@@ -37,6 +37,15 @@ fn GameState::update_hunter_art_input(
   dy : Double,
 ) -> Bool {
   let w = self.world
+  w.set_whirlwind(
+    !self.ground_targeting &&
+    (
+      hunter_web_whirling() ||
+      @inpututil.is_key_pressed(self.input.key_state, key_2)
+    ),
+    pressed=hunter_web_whirlwind_pressed() ||
+      @inpututil.is_key_just_pressed(self.input.key_state, key_2),
+  )
   let held = hunter_web_guarding() ||
     @inpututil.is_key_pressed(self.input.key_state, 70)
   let angle = if dx * dx + dy * dy > 0.001 {

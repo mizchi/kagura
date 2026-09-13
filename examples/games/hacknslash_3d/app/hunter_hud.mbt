@@ -84,7 +84,7 @@ struct HunterHudView {
 fn hunter_skill_name(id : @game.SkillId) -> String {
   match id {
     PowerStrike => "処刑の一撃"
-    Whirlwind => "回転斬り"
+    Whirlwind => "ワールウィンド"
     SplittingFireball => "分裂火弾"
     IceNova => "霜の輪"
     ChainLightning => "連鎖雷撃"
@@ -114,7 +114,7 @@ fn GameState::hunter_hud_view(self : GameState) -> HunterHudView {
     @game.IceNova,
   ]
   let descriptions = [
-    "周囲を強く斬る。通常攻撃と待ち時間を共有。", "広い範囲をなぎ払う。通常攻撃と待ち時間を共有。",
+    "周囲を強く斬る。通常攻撃と待ち時間を共有。", "2／ボタンを長押しして回転しながら移動。全武器対応、離すと停止。",
     "敵を狙い、命中すると分裂する火の弾。", "自分を中心に冷気を放つ範囲攻撃。",
   ]
   let timers = [
@@ -125,7 +125,7 @@ fn GameState::hunter_hud_view(self : GameState) -> HunterHudView {
   ]
   let totals = [
     w.params.attack_cooldown.to_int(),
-    w.params.attack_cooldown.to_int() + 5,
+    @game.whirlwind_recovery_frames,
     w.params.splitting_fireball_cooldown_frames(),
     w.params.ice_nova_cooldown_frames(),
   ]

@@ -529,70 +529,14 @@ pub fn activate_skill(world : GameWorld, slot : Int) -> Unit {
         world.events.push(AttackTriggered)
       }
     }
-    1 => {
-      // Slot 2: Whirlwind
-      let level = world.skills.get_level(Whirlwind)
-      if level > 0 && world.attack_timer <= 0 {
-        world.attack_timer = world.params.attack_cooldown.to_int() + 5
-        match world.archetype {
-          Melee => {
-            // Melee: large 360-degree AoE slash
-            let damage = (player_basic_attack_damage(
-                world.player_stats,
-                world.archetype,
-              ).to_double() *
-              skill_level_damage_multiplier(Whirlwind, level))
-              .to_int()
-              .max(1)
-            let radius = effective_aoe_radius(
-              world.player_stats,
-              Whirlwind,
-              melee_slash_radius * 1.8,
-            )
-            let r_sq = radius * radius
-            let px = world.player.x
-            let py = world.player.y
-            for enemy in world.enemies {
-              if !enemy.alive {
-                continue
-              }
-              let dx = enemy.x - px
-              let dy = enemy.y - py
-              if dx * dx + dy * dy <= r_sq + enemy.size * enemy.size {
-                apply_player_damage_to_enemy(world, enemy, damage, px, py)
-              }
-            }
-            world.events.push(MeleeSlash(px, py, radius))
-            world.events.push(DeathBurst(px, py))
-          }
-          _ => {
-            // Ranged: 8-way arrow burst
-            for i = 0; i < 8; i = i + 1 {
-              let a = i.to_double() * @math.PI / 4.0
-              world.projectiles.push({
-                x: world.player.x,
-                y: world.player.y,
-                vx: @math.cos(a) * world.params.arrow_speed,
-                vy: @math.sin(a) * world.params.arrow_speed,
-                age: 0,
-                alive: true,
-                damage: (player_basic_attack_damage(
-                  world.player_stats,
-                  world.archetype,
-                ).to_double() *
-                skill_level_damage_multiplier(Whirlwind, level))
-                .to_int()
-                .max(1),
-                is_player: true,
-                kind: Arrow,
-              })
-            }
-            world.events.push(DeathBurst(world.player.x, world.player.y))
-          }
-        }
+    1 =>
+      // Discrete callers (autoplay/legacy modes) perform one sweep. Manual
+      // hunter input owns the continuous channel through set_whirlwind.
+      if world.skills.get_level(Whirlwind) > 0 && world.attack_timer <= 0 {
+        world.whirlwind_contact()
+        world.attack_timer = whirlwind_cycle_frames
         world.events.push(AttackTriggered)
       }
-    }
     2 => {
       // Slot 3: Dash
       let level = world.skills.get_level(DashMastery)

@@ -561,6 +561,7 @@ fn run_game_js(state : GameState, perf_capture_enabled : Bool) -> Unit {
           Idle => "idle"
           Running => "running"
           Attacking => "attacking"
+          Whirling => "whirling"
           Guarding => "guarding"
           Casting(_) => "casting"
           Charging => "charging"

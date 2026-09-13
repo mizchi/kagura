@@ -8,8 +8,14 @@ export function createHunterInput(controls) {
   const targetCommand = 65538;
   let target = null;
   let targetConfirmed = false;
+  let whirlwindPressed = false;
   return {
     ...controls,
+    hold(id,action) {
+      if(action==='whirlwind'&&!controls.snapshot().actions.includes(action))whirlwindPressed=true;
+      controls.hold(id,action);
+    },
+    consumeWhirlwindPress() { const pressed=whirlwindPressed;whirlwindPressed=false;return pressed; },
     tap(key, selected = -1) { return controls.tap(key, {selection: selected}); },
     select(selected) { return controls.tap(selectionCommand, {selection: selected}); },
     moveItem(move) { return controls.tap(inventoryCommand, {inventoryMove: {...move}}); },
@@ -29,9 +35,9 @@ export function createHunterInput(controls) {
     selection() { return selection; },
     snapshot() {
       const {x, y, actions} = controls.snapshot();
-      return {x, y, attack: actions.includes('attack'), guard: actions.includes('guard')};
+      return {x, y, attack: actions.includes('attack'), guard: actions.includes('guard'), whirlwind: actions.includes('whirlwind')};
     },
-    clear() { controls.clear(); selection = -1; inventoryMove = null; target = null; targetConfirmed = false; },
+    clear() { controls.clear(); whirlwindPressed=false; selection = -1; inventoryMove = null; target = null; targetConfirmed = false; },
   };
 }
 

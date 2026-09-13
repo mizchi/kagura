@@ -416,6 +416,12 @@ pub let tile_size : Double
 
 pub fn update_enemy_ai(Array[Enemy], Player, @types.Grid2D, Array[@types.Room], Int, Array[Projectile], Array[GameEvent], params? : BalanceParams, floor? : Int) -> Unit
 
+pub let whirlwind_contact_frame : Int
+
+pub let whirlwind_cycle_frames : Int
+
+pub let whirlwind_recovery_frames : Int
+
 pub let world_h : Double
 
 pub let world_regions : Array[WorldRegion]
@@ -589,6 +595,7 @@ pub(all) enum CombatImpactKind {
   FlameBlast
   AstralBlast
   DashCut
+  WhirlwindCut
 } derive(Eq, @debug.Debug)
 
 pub(all) struct DropTableConfig {
@@ -907,7 +914,9 @@ pub fn GameWorld::restore_world_progress(Self, String) -> Bool
 pub fn GameWorld::scene_snapshot_json(Self) -> String
 pub fn GameWorld::serialize_world_progress(Self) -> String
 pub fn GameWorld::set_guard(Self, Bool, Double) -> Unit
+pub fn GameWorld::set_whirlwind(Self, Bool, pressed? : Bool) -> Unit
 pub fn GameWorld::skill_allowed(Self, SkillId) -> Bool
+pub fn GameWorld::stop_whirlwind(Self) -> Unit
 pub fn GameWorld::tick(Self, Double, Double) -> Unit
 pub fn GameWorld::tick_auto(Self) -> Unit
 pub fn GameWorld::tick_auto_with_enemy_ai_grid(Self, @types.Grid2D) -> Unit
@@ -927,6 +936,7 @@ pub fn GameWorld::tick_projectiles_phase(Self) -> Unit
 pub fn GameWorld::tick_room_clear_rewards(Self) -> Unit
 pub fn GameWorld::tick_with_enemy_ai_grid(Self, Double, Double, @types.Grid2D) -> Unit
 pub fn GameWorld::transfer_inventory(Self, InventorySource, InventoryTarget) -> Bool
+pub fn GameWorld::whirlwind_radius(Self) -> Double
 
 pub(all) struct GroundStrike {
   x : Double
@@ -949,6 +959,7 @@ pub(all) enum HunterArtKind {
 } derive(Eq, @debug.Debug)
 
 pub(all) struct HunterArts {
+  whirlwind : WhirlwindChannel
   mut guarding : Bool
   mut guard_frame : Int
   mut guard_energy : Double
@@ -1309,6 +1320,12 @@ pub(all) enum UIMode {
 } derive(Eq)
 pub fn UIMode::equal(Self, Self) -> Bool
 pub fn UIMode::not_equal(Self, Self) -> Bool
+
+pub(all) struct WhirlwindChannel {
+  mut active : Bool
+  mut frame : Int
+  mut interrupted : Bool
+}
 
 pub(all) struct WorldAtlas {
   world_seed : Int

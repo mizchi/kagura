@@ -454,6 +454,15 @@ fn GameState::update_playing(
     @inpututil.is_key_just_pressed(self.input.key_state, key_f2) {
     self.world.auto_play = !self.world.auto_play
   }
+  if self.paused ||
+    self.motion_preview ||
+    self.world.ui_mode != @game.UIMode::None ||
+    @inpututil.is_key_just_pressed(self.input.key_state, key_i) ||
+    @inpututil.is_key_just_pressed(self.input.key_state, key_k) ||
+    @inpututil.is_key_just_pressed(self.input.key_state, 71) ||
+    @inpututil.is_key_just_pressed(self.input.key_state, key_f2) {
+    self.world.stop_whirlwind()
+  }
   if self.world.ui_mode == @game.LevelUp {
     self.update_ui()
     return
@@ -594,9 +603,6 @@ fn GameState::update_playing(
     if @inpututil.is_key_just_pressed(self.input.key_state, key_1) {
       @game.activate_skill(self.world, 0)
     }
-    if @inpututil.is_key_just_pressed(self.input.key_state, key_2) {
-      @game.activate_skill(self.world, 1)
-    }
     if @inpututil.is_key_just_pressed(self.input.key_state, key_3) {
       if self.world.hunting_grounds {
         ignore(self.world.request_hunter_spell(@game.FlameArt))
@@ -682,7 +688,9 @@ fn GameState::update_playing(
       @game.GuardBlocked(_, _, _) => self.play_sound_cue(SfxEnemyHit)
       @game.CombatImpact(kind, _, _, _, _) =>
         self.play_sound_cue(
-          if kind == @game.FlameBlast {
+          if kind == @game.WhirlwindCut {
+            SfxAttack
+          } else if kind == @game.FlameBlast {
             SfxSpellFireball
           } else {
             SfxSpellChainLightning
@@ -794,7 +802,12 @@ fn GameState::update_playing(
     self.character.anim_state = if is_moving { Running } else { Idle }
     self.character.skinning_cache_dirty = true
   }
-  if self.world.arts.guarding {
+  if self.world.arts.whirlwind.active {
+    self.character.anim_state = Whirling
+    self.character.action_time = self.world.arts.whirlwind.frame.to_double() /
+      60.0
+    self.character.skinning_cache_dirty = true
+  } else if self.world.arts.guarding {
     self.character.anim_state = Guarding
     self.character.action_time = self.world.arts.guard_frame.to_double() / 60.0
     self.character.skinning_cache_dirty = true
@@ -802,7 +815,8 @@ fn GameState::update_playing(
     self.character.anim_state = Casting(action.kind)
     self.character.action_time = action.frame.to_double() / 60.0
     self.character.skinning_cache_dirty = true
-  } else if self.character.anim_state == Guarding ||
+  } else if self.character.anim_state == Whirling ||
+    self.character.anim_state == Guarding ||
     self.character.anim_state is Casting(_) {
     self.character.anim_state = if is_moving { Running } else { Idle }
     self.character.skinning_cache_dirty = true

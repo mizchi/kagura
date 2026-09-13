@@ -193,3 +193,25 @@ test('hunter combat arts export the actual contact frames and a separate shield 
     }
   } finally {scene.dispose();}
 });
+
+test('whirlwind is a seamless spinning clip shared by every main weapon',async()=>{
+  const data=validateMotionAsset(JSON.parse(await readFile(new URL('../../../examples/games/hacknslash_3d/motions/hunter.kgrmotion',import.meta.url),'utf8')));
+  const clip=data.clips.find(c=>c.id==='whirlwind');
+  assert.ok(clip);
+  assert.equal(clip.duration,24/60);
+  assert.equal(clip.events[0].time,6/60);
+  const scene=createMotionScene(data);
+  try {
+    for(const weapon of data.weapons.filter(w=>w.id!=='shield_guard')){
+      assert.ok(weapon.clips.includes(clip.id));
+      scene.selectWeapon(weapon.id);
+      scene.pose(clip.id,0);
+      const start=scene.bones.map(b=>b.getWorldQuaternion(new Quaternion()));
+      scene.pose(clip.id,clip.duration/2);
+      assert.ok(start[0].angleTo(scene.bones[0].getWorldQuaternion(new Quaternion()))>3);
+      scene.pose(clip.id,clip.duration);
+      scene.bones.forEach((b,i)=>assert.ok(start[i].angleTo(b.getWorldQuaternion(new Quaternion()))<.001));
+      assert.ok(!scene.bounds().isEmpty());
+    }
+  } finally {scene.dispose();}
+});

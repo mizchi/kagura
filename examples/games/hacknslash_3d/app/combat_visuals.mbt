@@ -245,6 +245,7 @@ fn GameState::push_combat_visuals(
   dst : @gfx.ImageHandle,
   cmds : Array[@gfx.DrawTrianglesCommand],
 ) -> Unit {
+  self.push_whirlwind_trail(vp, dst, cmds)
   if self.ground_targeting && self.world.ui_mode == @game.UIMode::None {
     self.draw_skill_circle(
       self.ground_target_x,
@@ -281,13 +282,14 @@ fn GameState::push_combat_visuals(
     let z = v.y / tile_size
     let t = v.age.to_double() / 30.0
     match v.kind {
+      Impact(@game.WhirlwindCut) => () // The channel owns its moving footprint.
       Impact(kind) => {
         let r = v.radius / tile_size
         let color = match kind {
           FlameBlast =>
             @math3d.Vec4::new(2.0, 0.75 * (1.0 - t) + 0.2, 0.08, 1.0)
           AstralBlast => @math3d.Vec4::new(0.9, 1.5, 2.0, 1.0)
-          DashCut => @math3d.Vec4::new(1.65, 1.55, 1.15, 1.0)
+          WhirlwindCut | DashCut => @math3d.Vec4::new(1.65, 1.55, 1.15, 1.0)
         }
         if kind == @game.DashCut {
           self.push_combat_mesh(

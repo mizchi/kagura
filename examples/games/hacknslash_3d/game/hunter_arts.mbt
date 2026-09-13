@@ -13,6 +13,7 @@ pub(all) enum CombatImpactKind {
   FlameBlast
   AstralBlast
   DashCut
+  WhirlwindCut
 } derive(Eq, Debug)
 
 ///|
@@ -32,6 +33,7 @@ pub(all) struct GroundStrike {
 
 ///|
 pub(all) struct HunterArts {
+  whirlwind : WhirlwindChannel
   mut guarding : Bool
   mut guard_frame : Int
   mut guard_energy : Double
@@ -45,6 +47,7 @@ pub(all) struct HunterArts {
 ///|
 pub fn HunterArts::new() -> HunterArts {
   {
+    whirlwind: { active: false, frame: 0, interrupted: false, },
     guarding: false,
     guard_frame: 0,
     guard_energy: 100.0,
@@ -73,7 +76,9 @@ pub let dash_strike_cooldown : Int = 150
 
 ///|
 pub fn GameWorld::hunter_action_locked(self : GameWorld) -> Bool {
-  self.arts.guarding || self.arts.action is Some(_)
+  self.arts.whirlwind.active ||
+  self.arts.guarding ||
+  self.arts.action is Some(_)
 }
 
 ///|
@@ -90,6 +95,7 @@ fn GameWorld::can_begin_art(self : GameWorld) -> Bool {
 
 ///|
 pub fn GameWorld::cancel_hunter_action(self : GameWorld) -> Unit {
+  self.stop_whirlwind()
   self.arts.guarding = false
   self.arts.action = None
 }
@@ -285,6 +291,7 @@ pub fn GameWorld::tick_hunter_arts(
     arts.strike = None
     return
   }
+  self.tick_whirlwind()
   arts.ground_cooldown = (arts.ground_cooldown - 1).max(0)
   arts.dash_cooldown = (arts.dash_cooldown - 1).max(0)
   arts.guard_recovery = (arts.guard_recovery - 1).max(0)

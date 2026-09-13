@@ -16,6 +16,7 @@ enum CharAnimState {
   Attacking
   Charging
   Guarding
+  Whirling
   Casting(@game.HunterArtKind)
   Running
   Hurt
@@ -248,6 +249,7 @@ fn PlayerCharacter::compute_skinning(
   self.rotate_bone(13, -0.18 - stride.abs() * 0.25, 0.0, -stride * 0.12)
   self.local_poses[16] = self.local_poses[16].with_scale(@math3d.Vec3::zero())
   match self.anim_state {
+    Whirling => self.sample_whirlwind()
     Guarding => self.sample_guard()
     Casting(kind) => self.sample_hunter_art(kind)
     Charging => self.sample_charge()

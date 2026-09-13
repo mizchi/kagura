@@ -93,6 +93,8 @@ just studio-motion-test          # 契約・時計・骨格・発射タイミン
 盾ガードは独立した副手装備`shield_guard`から再生する。既存の5武器には`lightning_cast`・`flame_cast`・`astral_cast`・`dash_strike`を追加している。
 `app/hunter_art_motion.mbt`のゲーム用サンプラーをそのまま書き出し、Contactイベントは雷撃10・炎弾14・星落とし30・踏込斬り16フレームに一致する。
 これらはコードで作った動作で、HYの生成結果とは分けて管理する。盾の形状は`app/combat_visuals.mbt`の独立したパーツとして定義する。
+ワールウィンドは全5武器に共通の`whirlwind`クリップ。24フレームで1回転し、Contactは6フレーム目、先頭と末尾の姿勢が一致する。
+`app/whirlwind_motion.mbt`の回転と`game/whirlwind.mbt`の連続攻撃は同じフレーム定数を使い、水平移動はゲームが担当する。
 別ゲームも同じ形式へ書き出せば、ビューアへの専用コード追加は不要。
 
 ## API

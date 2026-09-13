@@ -44,6 +44,16 @@ fn hunter_web_inventory_move() -> Array[Int] {
 }
 
 ///|
+fn hunter_web_whirlwind_pressed() -> Bool {
+  false
+}
+
+///|
+fn hunter_web_whirling() -> Bool {
+  false
+}
+
+///|
 fn hunter_web_guarding() -> Bool {
   false
 }

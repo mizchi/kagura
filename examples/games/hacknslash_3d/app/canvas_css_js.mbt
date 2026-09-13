@@ -71,6 +71,14 @@ extern "js" fn hunter_web_inventory_move() -> Array[Int] =
   #| }
 
 ///|
+extern "js" fn hunter_web_whirlwind_pressed() -> Bool =
+  #| () => globalThis.__ashenControls?.consumeWhirlwindPress() ?? false
+
+///|
+extern "js" fn hunter_web_whirling() -> Bool =
+  #| () => globalThis.__ashenControls?.snapshot().whirlwind ?? false
+
+///|
 extern "js" fn hunter_web_guarding() -> Bool =
   #| () => globalThis.__ashenControls?.snapshot().guard ?? false
 

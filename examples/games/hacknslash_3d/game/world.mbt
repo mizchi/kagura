@@ -1293,7 +1293,13 @@ pub fn GameWorld::tick_with_enemy_ai_grid(
     // 6. Normal movement with slide_move
     let effective_speed = self.params.player_speed *
       (1.0 + self.player_stats.speed_bonus) *
-      (if self.arts.guarding { 0.35 } else { 1.0 })
+      (if self.arts.guarding {
+        0.35
+      } else if self.arts.whirlwind.active {
+        0.75
+      } else {
+        1.0
+      })
     let (px, py) = slide_move(
       self.dungeon.grid,
       self.player.x,

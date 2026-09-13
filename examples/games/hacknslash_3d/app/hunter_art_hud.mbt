@@ -1,5 +1,8 @@
 ///|
 struct HunterArtsView {
+  whirling : Bool
+  whirlwind_frame : Int
+  whirlwind_radius : Double
   guarding : Bool
   guard_energy : Int
   guard_recovery : Int
@@ -20,6 +23,9 @@ struct HunterArtsView {
 fn GameState::hunter_arts_view(self : GameState) -> HunterArtsView {
   let arts = self.world.arts
   {
+    whirling: arts.whirlwind.active,
+    whirlwind_frame: arts.whirlwind.frame,
+    whirlwind_radius: self.world.whirlwind_radius() / tile_size,
     guarding: arts.guarding,
     guard_energy: arts.guard_energy.to_int(),
     guard_recovery: arts.guard_recovery,
@@ -47,11 +53,23 @@ fn GameState::hunter_arts_view(self : GameState) -> HunterArtsView {
           AstralArt => "astral"
           DashArt => "dash_strike"
         }
-      None => if arts.guarding { "guard" } else { "none" }
+      None =>
+        if arts.whirlwind.active {
+          "whirlwind"
+        } else if arts.guarding {
+          "guard"
+        } else {
+          "none"
+        }
     },
     action_frame: match arts.action {
       Some(action) => action.frame
-      None => arts.guard_frame
+      None =>
+        if arts.whirlwind.active {
+          arts.whirlwind.frame
+        } else {
+          arts.guard_frame
+        }
     },
     impact_pending: arts.strike is Some(_),
     feedback: self.combat_feedback(),

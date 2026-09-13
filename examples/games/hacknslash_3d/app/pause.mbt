@@ -6,6 +6,7 @@ fn GameState::set_paused(self : GameState, paused : Bool) -> Unit {
   }
   self.paused = paused
   if paused {
+    self.world.stop_whirlwind()
     self.ground_targeting = false
     self.pause_return_ui = self.world.ui_mode
     self.pause_return_cursor = self.world.ui_cursor

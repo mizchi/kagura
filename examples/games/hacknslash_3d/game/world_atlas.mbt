@@ -255,7 +255,8 @@ pub fn GameWorld::boundary_destination(
   self : GameWorld,
 ) -> (Int, Double, Double)? {
   guard self.atlas is Some(atlas) else { return None }
-  if self.hunter_action_locked() ||
+  if self.arts.guarding ||
+    self.arts.action is Some(_) ||
     self.mode != Playing ||
     self.ui_mode != UIMode::None ||
     self.authored_scene is Some(_) {

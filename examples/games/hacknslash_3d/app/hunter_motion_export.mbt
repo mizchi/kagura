@@ -30,7 +30,8 @@ pub fn export_hunter_motion_asset() -> String {
       "name": profile.name.to_json(),
       "parts": export_hunter_parts(weapon.parts).to_json(),
       "clips": [
-        id, "charge", "lightning_cast", "flame_cast", "astral_cast", "dash_strike",
+        id, "charge", "whirlwind", "lightning_cast", "flame_cast", "astral_cast",
+        "dash_strike",
       ].to_json(),
       "defaultClip": id.to_json(),
     })
@@ -109,6 +110,12 @@ pub fn export_hunter_motion_asset() -> String {
   for
     (id, name, state, contact) in [
       ("guard", "盾ガード", Guarding, 5),
+      (
+        "whirlwind",
+        "ワールウィンド / ループ",
+        Whirling,
+        @game.whirlwind_contact_frame,
+      ),
       ("lightning_cast", "連鎖雷撃", Casting(@game.LightningArt), 10),
       ("flame_cast", "炎弾の詠唱", Casting(@game.FlameArt), 14),
       ("astral_cast", "星落とし", Casting(@game.AstralArt), 30),
@@ -148,13 +155,23 @@ fn export_hunter_art_clip(
   contact : Int,
 ) -> Json {
   let actor = PlayerCharacter::new()
-  let count = if state == Guarding { 61 } else { 37 }
+  let count = if state == Whirling {
+    @game.whirlwind_cycle_frames + 1
+  } else if state == Guarding {
+    61
+  } else {
+    37
+  }
   let times = Array::makei(count, i => i.to_double() / 60.0)
   let rotations : Array[Array[Double]] = Array::makei(char_num_bones, _ => [])
   let translations : Array[Array[Double]] = Array::makei(char_num_bones, _ => [])
   let scales : Array[Array[Double]] = Array::makei(char_num_bones, _ => [])
   for frame in 0..<count {
-    actor.anim_state = if frame == count - 1 { Idle } else { state }
+    actor.anim_state = if frame == count - 1 && state != Whirling {
+      Idle
+    } else {
+      state
+    }
     actor.action_time = times[frame]
     actor.skinning_cache_dirty = true
     ignore(actor.compute_skinning())

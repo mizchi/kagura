@@ -33,7 +33,7 @@ globalThis.__ashenControls=input;
 let current=null;
 let panelKey='';
 let showTreeDetail=false;
-const names=['処刑の一撃','回転斬り','分裂火弾','霜の輪'];
+const names=['処刑の一撃','ワールウィンド','分裂火弾','霜の輪'];
 root.innerHTML=`
   <div class="edge-shade" aria-hidden="true"></div>
   <section class="vitals" aria-label="狩人の状態">
@@ -56,7 +56,7 @@ root.innerHTML=`
       </div>
       <div class="learned-arts" id="learned-arts" aria-label="習得した技" hidden></div>
       <label class="weapon-picker">武器 <select id="player-weapon" aria-label="プレーヤーの武器"></select><kbd>X</kbd></label>
-      <div class="skill-buttons">${names.map((name,i)=>`<button class="skill skill-${i}" data-key="${49+i}" data-skill="${i}" aria-label="${name}"><kbd>${i+1}</kbd><span class="skill-glyph">${icon(['blade','whirl','fire','frost'][i])}<i class="cooldown-sweep"></i></span><strong>${name}</strong><small class="skill-status">使用可能</small><span class="skill-tooltip"></span></button>`).join('')}</div>
+      <div class="skill-buttons">${names.map((name,i)=>`<button class="skill skill-${i}" ${i===1?'data-hold="whirlwind"':`data-key="${49+i}"`} data-skill="${i}" aria-label="${name}"><kbd>${i+1}</kbd><span class="skill-glyph">${icon(['blade','whirl','fire','frost'][i])}<i class="cooldown-sweep"></i></span><strong>${name}</strong><small class="skill-status">使用可能</small><span class="skill-tooltip"></span></button>`).join('')}</div>
       <button id="charge-button" class="charge-button" data-key="67" aria-label="突進"><span>${icon('dodge')}</span><strong>突進</strong><small id="charge-status">C</small></button>
       <div class="primary-actions"><button id="attack-button" data-hold="attack" aria-label="通常攻撃"><span id="weapon-icon">${icon('blade')}</span><strong id="weapon-action">斬撃</strong><kbd>J / 左クリック</kbd></button><button id="dodge-button" data-key="32" aria-label="回避"><span>${icon('dodge')}</span><strong>回避</strong><small id="dodge-status">SPACE</small></button></div>
     </div>
@@ -100,7 +100,7 @@ const virtualStick=bindVirtualStick(stick, {
 function activate(button,e){
   if(button.disabled)return;
   const selection=Number(button.dataset.selection??-1);
-  if(button.dataset.hold){input.tap(button.dataset.hold==='guard'?70:74);input.hold(e.pointerId,button.dataset.hold);button.setPointerCapture(e.pointerId);button.dataset.pressed='';}
+  if(button.dataset.hold){if(button.dataset.hold!=='whirlwind')input.tap(button.dataset.hold==='guard'?70:74);input.hold(e.pointerId,button.dataset.hold);button.setPointerCapture(e.pointerId);button.dataset.pressed='';}
   else if(button.dataset.key)input.tap(Number(button.dataset.key),selection);
 }
 root.addEventListener('pointerdown',e=>{
@@ -113,6 +113,7 @@ root.addEventListener('click',e=>{
   const b=e.target.closest('button');if(!b||b.disabled||b.closest('[data-inventory-view]'))return;
   if(b.closest('.combat-controls') && e.detail!==0)return;
   e.preventDefault();e.stopPropagation();
+  if(b.dataset.hold==='whirlwind')return;
   if(b.hasAttribute('data-tree-return')){
     const node=$('hunter-panel').querySelector('[data-tree-node][aria-pressed=true]');
     node?.focus({preventScroll:true});node?.scrollIntoView({block:'center'});return;
@@ -125,6 +126,19 @@ root.addEventListener('click',e=>{
     input.select(Number(b.dataset.selection));return;
   }
   input.tap(b.dataset.hold?(b.dataset.hold==='guard'?70:74):Number(b.dataset.key),Number(b.dataset.selection??-1));
+});
+// Keyboard activation of the focused channel button also follows hold/release.
+root.addEventListener('keydown',e=>{
+  if(e.target?.dataset?.hold!=='whirlwind'||!['Space','Enter'].includes(e.code))return;
+  e.preventDefault();e.stopPropagation();
+  if(!e.repeat&&!e.target.disabled)input.hold(-51,'whirlwind');
+});
+root.addEventListener('keyup',e=>{
+  if(['Space','Enter'].includes(e.code))input.release(-51);
+});
+root.addEventListener('focusout',()=>input.release(-51));
+window.addEventListener('keyup',e=>{
+  if(e.code==='Digit2'){input.release(-50);e.preventDefault();e.stopImmediatePropagation();}
 });
 window.addEventListener('blur',()=>{inventoryPanel.cancelDrag();clear();});
 const heldKeyboardCodes=new Set([
@@ -143,7 +157,12 @@ window.addEventListener('keydown',e=>{
   }
   if(e.ctrlKey || e.metaKey || e.altKey || e.target?.isContentEditable || e.target?.closest?.('input,textarea,select'))return;
   if(e.target instanceof HTMLButtonElement && ['Space','Enter'].includes(e.code))return;
-  const keys={Space:32,Enter:13,Escape:27,KeyP:80,KeyI:73,KeyK:75,KeyG:71,KeyX:88,KeyC:67,KeyT:84,KeyV:86,Digit1:49,Digit2:50,Digit3:51,Digit4:52,Digit5:53,Digit6:54,Digit8:56};
+  if(e.code==='Digit2'){
+    e.preventDefault();e.stopImmediatePropagation();
+    if(!e.repeat&&current?.mode==='playing'&&!current.paused&&current.menu==='none')input.hold(-50,'whirlwind');
+    return;
+  }
+  const keys={Space:32,Enter:13,Escape:27,KeyP:80,KeyI:73,KeyK:75,KeyG:71,KeyX:88,KeyC:67,KeyT:84,KeyV:86,Digit1:49,Digit3:51,Digit4:52,Digit5:53,Digit6:54,Digit8:56};
   if(current?.menu==='inventory')keys.KeyE=69;
   const code=keys[e.code];
   if(!code){
@@ -245,11 +264,14 @@ function render(hud){
   $('map-player').setAttribute('cx',hud.map_x);$('map-player').setAttribute('cy',hud.map_z);
   hud.skills.forEach((skill,i)=>{
     const b=root.querySelector(`[data-skill="${i}"]`),status=skillStatus(skill);
-    b.disabled=status.disabled || hud.arts?.targeting || hud.paused || hud.menu!=='none' || hud.weapon_locked;
+    const channel=i===1,whirling=channel&&hud.arts?.whirling;
+    const label=whirling?'回転中 · 離すと停止':channel&&!status.disabled?'長押しで回転':status.label;
+    b.disabled=(!whirling&&(status.disabled||hud.weapon_locked)) || hud.arts?.targeting || hud.paused || hud.menu!=='none';
+    if(channel)b.setAttribute('aria-pressed',String(!!whirling));
     b.style.setProperty('--cooldown',`${status.progress}turn`);
-    b.querySelector('.skill-status').textContent=hud.weapon_locked && !status.disabled?'動作中':status.label;
+    b.querySelector('.skill-status').textContent=hud.weapon_locked&&!whirling&&!status.disabled?'動作中':label;
     b.querySelector('.skill-tooltip').textContent=skill.description;
-    b.setAttribute('aria-label',`${skill.name} · ${status.label}`);
+    b.setAttribute('aria-label',`${skill.name} · ${label}`);
   });
   setText('charge-status',hud.charge.remaining>0?`${(hud.charge.remaining/60).toFixed(1)}s`:'C');
   $('charge-button').disabled=hud.charge.remaining>0||hud.weapon_locked||hud.attack_remaining>0||hud.paused||hud.menu!=='none';

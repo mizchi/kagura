@@ -4,6 +4,36 @@ import { createHunterInput, skillStatus } from '../assets/hunter-input.mjs';
 
 import {createControlInput} from '../../../../assets/web/kagura-controls.js';
 
+test('whirlwind hold is independent of movement and survives release of a different pointer', () => {
+  const input=createHunterInput(createControlInput());
+  input.move(1,.5,-.5);
+  input.hold(2,'whirlwind');
+  input.hold(3,'whirlwind');
+  input.release(2);
+  assert.equal(input.snapshot().whirlwind,true);
+  assert.equal(input.snapshot().attack,false);
+  assert.equal(input.snapshot().x,.5);
+  input.release(3);
+  assert.equal(input.snapshot().whirlwind,false);
+  input.hold(2,'whirlwind');input.clear();
+  assert.equal(input.snapshot().whirlwind,false);
+  assert.equal(input.snapshot().x,0);
+});
+
+test('a fast whirlwind release and re-press retains a fresh edge between simulation frames',()=>{
+  const input=createHunterInput(createControlInput());
+  input.hold(1,'whirlwind');
+  assert.equal(input.consumeWhirlwindPress(),true);
+  assert.equal(input.consumeWhirlwindPress(),false);
+  input.hold(2,'whirlwind');
+  assert.equal(input.consumeWhirlwindPress(),false);
+  input.release(1);input.release(2);input.hold(3,'whirlwind');
+  assert.equal(input.snapshot().whirlwind,true);
+  assert.equal(input.consumeWhirlwindPress(),true);
+  input.release(3);input.hold(1,'whirlwind');input.clear();
+  assert.equal(input.consumeWhirlwindPress(),false);
+});
+
 test('selecting a tree node carries an index without a confirmation key', () => {
   const input=createHunterInput(createControlInput());
   input.select(5);

@@ -1320,3 +1320,16 @@ canvas#app {
   .pause-actions .begin-button { margin:0; }
   .pause-hint { margin-top:10px; }
 }
+
+/* Keep the held skill legible and hittable throughout the channel. */
+.skill[data-hold="whirlwind"]>strong { font-size: 10px; }
+.skill[data-hold="whirlwind"][aria-pressed="true"] {
+  border-color: #c9e3cf;
+  background: #294438;
+  box-shadow: 0 0 18px #a6ddba40, inset 0 0 18px #b3dfbe18;
+}
+.skill[data-hold="whirlwind"][aria-pressed="true"] .skill-status { color: #dcf7d3; }
+
+@media (max-width:760px) {
+  .skill[data-hold="whirlwind"]>strong { font-size: 9px; }
+}

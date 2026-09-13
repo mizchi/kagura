@@ -18,7 +18,7 @@ fn hunter_skill_description(id : @game.SkillId) -> String {
     PowerStrike =>
       "周囲を強く斬る技。筋力と通常攻撃も高める。物理キー1で発動。"
     Whirlwind =>
-      "大きく回転し、周囲の群れをなぎ払う。物理キー2で発動。"
+      "物理キー2／ボタンを押している間、装備した武器で回り続ける。移動可能。1回転ごとに周囲へ命中、離すと停止。全武器対応。"
     CriticalHit =>
       "敵の隙を見抜き、すべての攻撃の会心率を高める。"
     Counter =>
@@ -37,7 +37,7 @@ fn hunter_skill_description(id : @game.SkillId) -> String {
     HomingMissile =>
       "敵へ向かって軌道を変える呪弾。物理キー6で発動。"
     PhysicalMastery =>
-      "物理の技を磨く。処刑の一撃・回転斬りなどを強化。"
+      "物理の技を磨く。処刑の一撃・ワールウィンドなどを強化。"
     AoEMastery =>
       "範囲攻撃の威力と会心率、効果半径を広げる。"
     LightningMastery => "雷の技の威力と会心率を高める。"

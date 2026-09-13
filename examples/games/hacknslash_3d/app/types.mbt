@@ -187,6 +187,10 @@ struct GameState {
   mut region_chunks_built : Int
   mut inventory_notice : String
   mut paused : Bool
+  mut ground_targeting : Bool
+  mut ground_target_x : Double
+  mut ground_target_y : Double
+  mut combat_visuals : Array[CombatVisual]
   mut motion_preview : Bool
 }
 

@@ -69,3 +69,19 @@ extern "js" fn hunter_web_inventory_move() -> Array[Int] =
   #|   const move=globalThis.__ashenControls?.inventoryMove();
   #|   return move ? [move.source, move.target, move.x, move.y, move.rotated ? 1 : 0] : [];
   #| }
+
+///|
+extern "js" fn hunter_web_guarding() -> Bool =
+  #| () => globalThis.__ashenControls?.snapshot().guard ?? false
+
+///|
+extern "js" fn hunter_web_target_x() -> Double =
+  #| () => globalThis.__ashenControls?.targetPoint()?.x ?? -1
+
+///|
+extern "js" fn hunter_web_target_y() -> Double =
+  #| () => globalThis.__ashenControls?.targetPoint()?.y ?? -1
+
+///|
+extern "js" fn hunter_web_target_confirmed() -> Bool =
+  #| () => globalThis.__ashenControls?.targetConfirmed() ?? false

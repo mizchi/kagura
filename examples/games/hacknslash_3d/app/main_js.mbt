@@ -246,6 +246,8 @@ fn apply_initial_mode_overrides(
     for i = 0; i < frames; i = i + 1 {
       state.update(@core.empty_input_snapshot())
     }
+  } else if snapshot_mode == "arts" {
+    apply_hunter_arts_preview(state)
   } else if snapshot_mode == "border" || snapshot_mode == "waypoint" {
     apply_world_preview(
       state,
@@ -559,6 +561,8 @@ fn run_game_js(state : GameState, perf_capture_enabled : Bool) -> Unit {
           Idle => "idle"
           Running => "running"
           Attacking => "attacking"
+          Guarding => "guarding"
+          Casting(_) => "casting"
           Charging => "charging"
           Hurt => "hurt"
           Dodging => "dodging"

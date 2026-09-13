@@ -6,6 +6,7 @@ fn GameState::set_paused(self : GameState, paused : Bool) -> Unit {
   }
   self.paused = paused
   if paused {
+    self.ground_targeting = false
     self.pause_return_ui = self.world.ui_mode
     self.pause_return_cursor = self.world.ui_cursor
     self.world.ui_mode = @game.UIMode::None
@@ -25,6 +26,10 @@ fn GameState::handle_pause_input(self : GameState) -> Bool {
     return false
   }
   let escape = @inpututil.is_key_just_pressed(self.input.key_state, key_escape)
+  if escape && self.ground_targeting {
+    self.ground_targeting = false
+    return true
+  }
   let legacy = @inpututil.is_key_just_pressed(self.input.key_state, key_p)
   let confirm = self.paused &&
     self.world.ui_mode == @game.UIMode::None &&

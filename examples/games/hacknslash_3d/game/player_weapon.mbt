@@ -120,7 +120,8 @@ pub fn GameWorld::equip_player_weapon(
   self : GameWorld,
   weapon : PlayerWeaponKind,
 ) -> Bool {
-  if self.mode != Playing ||
+  if self.hunter_action_locked() ||
+    self.mode != Playing ||
     self.ui_mode != UIMode::None ||
     self.weapon_attack is Some(_) ||
     self.player_charge is Some(_) ||

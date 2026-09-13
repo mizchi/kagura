@@ -42,3 +42,23 @@ fn hunter_web_selection() -> Int {
 fn hunter_web_inventory_move() -> Array[Int] {
   []
 }
+
+///|
+fn hunter_web_guarding() -> Bool {
+  false
+}
+
+///|
+fn hunter_web_target_x() -> Double {
+  -1.0
+}
+
+///|
+fn hunter_web_target_y() -> Double {
+  -1.0
+}
+
+///|
+fn hunter_web_target_confirmed() -> Bool {
+  false
+}

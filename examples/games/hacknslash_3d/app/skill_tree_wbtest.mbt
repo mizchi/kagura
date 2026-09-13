@@ -44,8 +44,15 @@ test "newly learned active skills can be cast from physical keys" {
   assert_eq(state.hunter_hud_view().extra_skills.length(), 2)
   state.world.ui_mode = @game.UIMode::None
   state.update(@core.new_input_snapshot(0.0, 0.0, 0.0, 0.0, [53]))
+  assert_true(state.world.arts.action is Some(_))
+  for _ in 0..<10 {
+    state.update(@core.empty_input_snapshot())
+  }
   assert_true(state.world.chain_lightning_cooldown_timer > 0)
   assert_eq(state.world.splitting_fireball_cooldown_timer, 0)
+  for _ in 0..<50 {
+    state.update(@core.empty_input_snapshot())
+  }
   state.update(@core.new_input_snapshot(0.0, 0.0, 0.0, 0.0, [54]))
   assert_true(state.world.homing_missile_cooldown_timer > 0)
   assert_eq(state.world.ice_nova_cooldown_timer, 0)

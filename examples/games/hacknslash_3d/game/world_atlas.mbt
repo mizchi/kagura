@@ -255,7 +255,8 @@ pub fn GameWorld::boundary_destination(
   self : GameWorld,
 ) -> (Int, Double, Double)? {
   guard self.atlas is Some(atlas) else { return None }
-  if self.mode != Playing ||
+  if self.hunter_action_locked() ||
+    self.mode != Playing ||
     self.ui_mode != UIMode::None ||
     self.authored_scene is Some(_) {
     return None
@@ -301,7 +302,8 @@ pub fn GameWorld::near_waypoint(self : GameWorld) -> Bool {
 ///|
 pub fn GameWorld::activate_nearby_waypoint(self : GameWorld) -> Bool {
   guard self.atlas is Some(atlas) else { return false }
-  if self.mode != Playing ||
+  if self.hunter_action_locked() ||
+    self.mode != Playing ||
     !self.near_waypoint() ||
     atlas.unlocked[atlas.current] {
     return false
@@ -314,7 +316,8 @@ pub fn GameWorld::activate_nearby_waypoint(self : GameWorld) -> Bool {
 ///|
 pub fn GameWorld::request_waypoint(self : GameWorld, id : Int) -> Bool {
   guard self.atlas is Some(atlas) else { return false }
-  if self.mode != Playing ||
+  if self.hunter_action_locked() ||
+    self.mode != Playing ||
     self.ui_mode != Waypoints ||
     !self.near_waypoint() ||
     id < 0 ||
@@ -363,6 +366,8 @@ pub fn GameWorld::enter_region(
   self.player.x = x
   self.player.y = y
   self.player.iframe_timer = self.player.iframe_timer.max(60)
+  self.cancel_hunter_action()
+  self.arts.strike = None
   self.player.dash_timer = 0
   self.weapon_attack = None
   self.player_charge = None

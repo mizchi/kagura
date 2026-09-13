@@ -22,6 +22,7 @@ pub(all) struct GameWorld {
   mut player_weapon : PlayerWeaponKind
   mut weapon_attack : PlayerWeaponAttack?
   mut player_charge : PlayerCharge?
+  arts : HunterArts
   mut charge_cooldown : Int
   mut screen_flash : Double
   mut floor_announce_timer : Int
@@ -148,6 +149,7 @@ pub fn GameWorld::new(
     },
     weapon_attack: None,
     player_charge: None,
+    arts: HunterArts::new(),
     charge_cooldown: 0,
     screen_flash: 0.0,
     floor_announce_timer: 0,
@@ -203,6 +205,8 @@ pub fn GameWorld::apply_archetype(
     Mage => Focus
     _ => Bow
   }
+  self.cancel_hunter_action()
+  self.arts.strike = None
   self.weapon_attack = None
   self.player_charge = None
   // Reset skills and apply archetype starting skills
@@ -238,12 +242,22 @@ pub fn GameWorld::drain_events(self : GameWorld) -> Array[GameEvent] {
 }
 
 ///|
-pub fn GameWorld::deal_player_damage(self : GameWorld, raw_dmg : Int) -> Unit {
+pub fn GameWorld::deal_player_damage(
+  self : GameWorld,
+  raw_dmg : Int,
+  source? : (Double, Double),
+) -> Unit {
   // Counter stance: immune to all damage
   if self.player.counter_timer > 0 {
     return
   }
-  let actual_dmg = @cmp.maximum(1, raw_dmg - self.player_stats.def)
+  let actual_dmg = self.guard_damage(
+    @cmp.maximum(1, raw_dmg - self.player_stats.def),
+    source,
+  )
+  if actual_dmg == 0 {
+    return
+  }
   self.player.hp = self.player.hp - actual_dmg
   self.player.damage_timer = damage_flash_duration
   self.player.iframe_timer = self.params.iframe_duration.to_int()
@@ -252,6 +266,8 @@ pub fn GameWorld::deal_player_damage(self : GameWorld, raw_dmg : Int) -> Unit {
   self.events.push(PlayerDamageNumber(self.player.x, self.player.y, actual_dmg))
   self.events.push(HurtTriggered)
   if self.player.hp <= 0 {
+    self.cancel_hunter_action()
+    self.arts.strike = None
     self.mode = GameOver
   }
 }
@@ -262,6 +278,8 @@ pub fn GameWorld::apply_dungeon(
   seed : Int,
   floor : Int,
 ) -> Unit {
+  self.cancel_hunter_action()
+  self.arts.strike = None
   self.weapon_attack = None
   self.player_charge = None
   let dungeon = match self.authored_scene {
@@ -621,6 +639,7 @@ pub fn GameWorld::resolve_enemy_enemy_separation(self : GameWorld) -> Unit {
 
 ///|
 pub fn start_dash(world : GameWorld, dir_x : Double, dir_y : Double) -> Unit {
+  world.cancel_hunter_action()
   let p = world.params
   world.player.dash_timer = p.dash_duration.to_int()
   world.player.dash_cooldown_timer = world.player_stats.dash_cooldown
@@ -692,7 +711,10 @@ pub fn GameWorld::tick_enemy_movement_and_contact_phase(
         enemy.attack_hit_pending = false
         if can_contact_player &&
           enemy_melee_hits(enemy, self.player, self.dungeon.grid) {
-          self.deal_player_damage(enemy_contact_damage)
+          self.deal_player_damage(
+            enemy_contact_damage,
+            source=(enemy.x, enemy.y),
+          )
           can_contact_player = false
         }
       }
@@ -703,7 +725,10 @@ pub fn GameWorld::tick_enemy_movement_and_contact_phase(
         if dx < overlap_half {
           let dy = (player_y - enemy.y).abs()
           if dy < overlap_half {
-            self.deal_player_damage(enemy_contact_damage)
+            self.deal_player_damage(
+              enemy_contact_damage,
+              source=(enemy.x, enemy.y),
+            )
             enemy.stop_charge()
             can_contact_player = false
           }
@@ -808,7 +833,10 @@ pub fn GameWorld::tick_projectiles_phase(self : GameWorld) -> Unit {
             proj.damage = proj.damage * 2
             self.events.push(HitSparks(proj.x, proj.y))
           } else {
-            self.deal_player_damage(proj.damage)
+            self.deal_player_damage(
+              proj.damage,
+              source=(prev_x - proj.vx, prev_y - proj.vy),
+            )
             proj.alive = false
           }
         }
@@ -1231,7 +1259,8 @@ pub fn GameWorld::tick_with_enemy_ai_grid(
     }
     None =>
       if (dx != 0.0 || dy != 0.0) &&
-        (!self.manual_combat || self.attack_timer <= 0) {
+        (!self.manual_combat || self.attack_timer <= 0) &&
+        !self.hunter_action_locked() {
         self.player.facing_angle = @math.atan2(dy, dx)
       }
   }
@@ -1258,12 +1287,13 @@ pub fn GameWorld::tick_with_enemy_ai_grid(
     )
     self.player.x = px
     self.player.y = py
-  } else if self.player_charge is Some(_) {
+  } else if self.player_charge is Some(_) || self.arts.action is Some(_) {
     // Charge owns movement until recovery ends.
   } else {
     // 6. Normal movement with slide_move
     let effective_speed = self.params.player_speed *
-      (1.0 + self.player_stats.speed_bonus)
+      (1.0 + self.player_stats.speed_bonus) *
+      (if self.arts.guarding { 0.35 } else { 1.0 })
     let (px, py) = slide_move(
       self.dungeon.grid,
       self.player.x,
@@ -1286,6 +1316,7 @@ pub fn GameWorld::tick_with_enemy_ai_grid(
     @cmp.minimum(world_h - half, self.player.y),
   )
   self.tick_player_charge(enemy_ai_grid)
+  self.tick_hunter_arts(enemy_ai_grid)
   self.mark_current_room_discovered()
   self.tick_player_weapon_attack()
   // 8. Auto-cast spell slots based on nearest visible enemy

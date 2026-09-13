@@ -1,7 +1,7 @@
 import { test } from "node:test";
 import assert from "node:assert/strict";
 import { readFile } from "node:fs/promises";
-import { Vector3 } from "three";
+import { Vector3, Quaternion } from "three";
 import { validateMotionAsset } from "../motions/contract.mjs";
 import { createMotionScene } from "../motions/scene.mjs";
 const asset = validateMotionAsset(
@@ -109,13 +109,13 @@ test("hunter exports every playable weapon with matching contact and bow attachm
     );
     assert.deepEqual(
       hunter.weapons.map((w) => w.id),
-      ["cleaver_flintlock", "spear", "knuckles", "focus", "bow"],
+      ["cleaver_flintlock", "spear", "knuckles", "focus", "bow", "shield_guard"],
     );
     scene.selectModel("hunter");
     for (const [index, weapon] of hunter.weapons.entries()) {
       scene.selectWeapon(weapon.id);
       const clip = hunter.clips.find((c) => c.id === weapon.defaultClip);
-      assert.equal(clip.events[0].time, [7, 16, 10, 24, 30][index] / 60);
+      assert.equal(clip.events[0].time, [7, 16, 10, 24, 30, 5][index] / 60);
       scene.pose(clip.id, clip.events[0].time - 1 / 60);
       assert.ok(!scene.bounds().isEmpty());
       if (weapon.id === "bow") {
@@ -152,7 +152,7 @@ test("charge is shared across weapon sets with launch and brake events and no ro
         ),
       ),
     );
-    for (const weapon of data.weapons)
+    for (const weapon of data.weapons.filter(w => w.id !== "shield_guard"))
       assert.ok(weapon.clips.includes("charge"));
     const clip = data.clips.find((c) => c.id === "charge");
     assert.deepEqual(clip.events, [
@@ -176,4 +176,20 @@ test("charge is shared across weapon sets with launch and brake events and no ro
       scene.dispose();
     }
   }
+});
+
+test('hunter combat arts export the actual contact frames and a separate shield attachment',async()=>{
+  const data=validateMotionAsset(JSON.parse(await readFile(new URL('../../../examples/games/hacknslash_3d/motions/hunter.kgrmotion',import.meta.url),'utf8')));
+  const scene=createMotionScene(data);
+  try {
+    for(const [id,frame] of [['lightning_cast',10],['flame_cast',14],['astral_cast',30],['dash_strike',16],['guard',5]]){
+      const clip=data.clips.find(c=>c.id===id);
+      assert.equal(clip.events[0].time,frame/60);
+      scene.selectWeapon(id==='guard'?'shield_guard':'cleaver_flintlock');
+      scene.pose(id,.02);const before=scene.bones[7].getWorldQuaternion(new Quaternion());
+      scene.pose(id,frame/60);
+      assert.ok(before.angleTo(scene.bones[7].getWorldQuaternion(new Quaternion()))>.01);
+      assert.ok(!scene.bounds().isEmpty());
+    }
+  } finally {scene.dispose();}
 });

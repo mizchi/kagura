@@ -359,7 +359,8 @@ pub fn GameWorld::request_basic_attack(
   self : GameWorld,
   angle : Double,
 ) -> Bool {
-  if self.mode != Playing ||
+  if self.hunter_action_locked() ||
+    self.mode != Playing ||
     self.ui_mode != UIMode::None ||
     self.attack_timer > 0 ||
     self.weapon_attack is Some(_) ||

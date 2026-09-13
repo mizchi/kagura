@@ -57,7 +57,8 @@ pub(all) struct PlayerCharge {
 
 ///|
 pub fn GameWorld::request_charge(self : GameWorld, angle : Double) -> Bool {
-  if self.mode != Playing ||
+  if self.hunter_action_locked() ||
+    self.mode != Playing ||
     self.ui_mode != UIMode::None ||
     self.player.hp <= 0 ||
     self.charge_cooldown > 0 ||

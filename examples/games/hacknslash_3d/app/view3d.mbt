@@ -286,6 +286,8 @@ fn GameState::draw_playing(
     cmds,
   )
   self.push_hunter_slash(view_projection, rt, cmds)
+  self.push_hunter_guard(view_projection, rt, cmds)
+  self.push_combat_visuals(view_projection, rt, cmds)
   // === Pass 6: Particles ===
   self.particle_manager.append_draw_commands(
     cmds,

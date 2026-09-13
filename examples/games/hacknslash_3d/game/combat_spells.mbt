@@ -384,6 +384,24 @@ fn explode_player_fireball(
     return
   }
   projectile.alive = false
+  let radius = effective_aoe_radius(
+    world.player_stats,
+    SplittingFireball,
+    if remaining_splits > 0 {
+      28.0
+    } else {
+      18.0
+    },
+  )
+  let hits = world.damage_visible_circle(
+    projectile.x,
+    projectile.y,
+    radius,
+    projectile.damage,
+  )
+  world.events.push(
+    CombatImpact(FlameBlast, projectile.x, projectile.y, radius, hits),
+  )
   world.events.push(FireballBurst(projectile.x, projectile.y))
   spawn_split_fireball_projectiles(
     world, projectile, spawned_projectiles, remaining_splits,
@@ -419,18 +437,10 @@ pub fn process_player_projectiles(
               proj.y,
             )
           }
-          Fireball(remaining_splits) => {
-            apply_player_damage_to_enemy(
-              world,
-              enemy,
-              proj.damage,
-              proj.x,
-              proj.y,
-            )
+          Fireball(remaining_splits) =>
             explode_player_fireball(
               world, proj, spawned_projectiles, remaining_splits,
             )
-          }
           HomingMissile => {
             proj.alive = false
             apply_player_damage_to_enemy(
@@ -454,7 +464,9 @@ pub fn process_player_projectiles(
 
 ///|
 pub fn activate_skill(world : GameWorld, slot : Int) -> Unit {
-  if world.weapon_attack is Some(_) || world.player_charge is Some(_) {
+  if world.hunter_action_locked() ||
+    world.weapon_attack is Some(_) ||
+    world.player_charge is Some(_) {
     return
   }
   match slot {

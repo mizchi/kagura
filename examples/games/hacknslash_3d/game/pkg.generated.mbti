@@ -122,6 +122,8 @@ pub let dash_duration : Int
 
 pub let dash_speed_mult : Double
 
+pub let dash_strike_cooldown : Int
+
 pub fn default_archetype_build_policy() -> ArchetypeBuildPolicy
 
 pub fn default_character_archetype() -> CharacterArchetype
@@ -213,6 +215,14 @@ pub fn generate_world_region(Int, Int) -> DungeonData
 pub fn get_special_behaviors(EnemyKind) -> Array[(EnemyAIContext) -> Bool]
 
 pub fn get_tile_height(DungeonData, Double, Double) -> Double
+
+pub let ground_strike_cooldown : Int
+
+pub let ground_strike_delay : Int
+
+pub let ground_strike_radius : Double
+
+pub let ground_strike_range : Double
 
 pub let homing_missile_arc_frames : Int
 
@@ -575,6 +585,12 @@ pub fn ChargeProfile::duration(Self) -> Int
 pub fn ChargeProfile::is_active(Self, Int) -> Bool
 pub fn ChargeProfile::phase(Self, Int) -> Double
 
+pub(all) enum CombatImpactKind {
+  FlameBlast
+  AstralBlast
+  DashCut
+} derive(Eq, @debug.Debug)
+
 pub(all) struct DropTableConfig {
   equipment_weight : Int
   health_weight : Int
@@ -776,6 +792,8 @@ pub(all) enum GameEvent {
   BeamFire(Double, Double, Double, Double, Bool)
   MeleeSlash(Double, Double, Double)
   RoomCleared(Int, Double, Double)
+  GuardBlocked(Double, Double, Bool)
+  CombatImpact(CombatImpactKind, Double, Double, Double, Int)
   AttackTriggered
   HurtTriggered
   FloorComplete
@@ -811,6 +829,7 @@ pub(all) struct GameWorld {
   mut player_weapon : PlayerWeaponKind
   mut weapon_attack : PlayerWeaponAttack?
   mut player_charge : PlayerCharge?
+  arts : HunterArts
   mut charge_cooldown : Int
   mut screen_flash : Double
   mut floor_announce_timer : Int
@@ -856,13 +875,17 @@ pub fn GameWorld::auto_activate_spell_slots(Self, Int, Double) -> Unit
 pub fn GameWorld::auto_choose_levelup_offer(Self) -> Unit
 pub fn GameWorld::auto_equip_best(Self) -> Unit
 pub fn GameWorld::boundary_destination(Self) -> (Int, Double, Double)?
+pub fn GameWorld::cancel_hunter_action(Self) -> Unit
 pub fn GameWorld::capture_region(Self) -> Unit
 pub fn GameWorld::collect_equipment_pickup(Self, ItemData) -> Bool
-pub fn GameWorld::deal_player_damage(Self, Int) -> Unit
+pub fn GameWorld::deal_player_damage(Self, Int, source? : (Double, Double)) -> Unit
 pub fn GameWorld::drain_events(Self) -> Array[GameEvent]
 pub fn GameWorld::ensure_hunter_loadout(Self) -> Unit
 pub fn GameWorld::enter_region(Self, Int, Double, Double) -> Bool
 pub fn GameWorld::equip_player_weapon(Self, PlayerWeaponKind) -> Bool
+pub fn GameWorld::ground_strike_target(Self, Double, Double) -> (Double, Double)
+pub fn GameWorld::ground_strike_target_valid(Self, Double, Double) -> Bool
+pub fn GameWorld::hunter_action_locked(Self) -> Bool
 pub fn GameWorld::mark_current_room_discovered(Self) -> Unit
 pub fn GameWorld::near_waypoint(Self) -> Bool
 pub fn GameWorld::new(seed~ : Int, params? : BalanceParams, archetype? : CharacterArchetype, build_policy? : ArchetypeBuildPolicy, hunting_grounds? : Bool) -> Self
@@ -873,6 +896,9 @@ pub fn GameWorld::push_item_log(Self, String, Int) -> Unit
 pub fn GameWorld::refresh_player_stats(Self) -> Unit
 pub fn GameWorld::request_basic_attack(Self, Double) -> Bool
 pub fn GameWorld::request_charge(Self, Double) -> Bool
+pub fn GameWorld::request_dash_strike(Self, Double) -> Bool
+pub fn GameWorld::request_ground_strike(Self, Double, Double) -> Bool
+pub fn GameWorld::request_hunter_spell(Self, HunterArtKind) -> Bool
 pub fn GameWorld::request_waypoint(Self, Int) -> Bool
 pub fn GameWorld::reset_floor(Self) -> Unit
 pub fn GameWorld::reset_world_atlas(Self, Int) -> Unit
@@ -880,6 +906,7 @@ pub fn GameWorld::resolve_enemy_enemy_separation(Self) -> Unit
 pub fn GameWorld::restore_world_progress(Self, String) -> Bool
 pub fn GameWorld::scene_snapshot_json(Self) -> String
 pub fn GameWorld::serialize_world_progress(Self) -> String
+pub fn GameWorld::set_guard(Self, Bool, Double) -> Unit
 pub fn GameWorld::skill_allowed(Self, SkillId) -> Bool
 pub fn GameWorld::tick(Self, Double, Double) -> Unit
 pub fn GameWorld::tick_auto(Self) -> Unit
@@ -888,6 +915,7 @@ pub fn GameWorld::tick_enemy_ai_phase(Self) -> Unit
 pub fn GameWorld::tick_enemy_ai_phase_with_grid(Self, @types.Grid2D) -> Unit
 pub fn GameWorld::tick_enemy_movement_and_contact_phase(Self) -> Unit
 pub fn GameWorld::tick_floor_completion_phase(Self) -> Unit
+pub fn GameWorld::tick_hunter_arts(Self, @types.Grid2D) -> Unit
 pub fn GameWorld::tick_item_log(Self) -> Unit
 pub fn GameWorld::tick_items_phase(Self) -> Unit
 pub fn GameWorld::tick_meteor_damage_phase(Self) -> Unit
@@ -899,6 +927,38 @@ pub fn GameWorld::tick_projectiles_phase(Self) -> Unit
 pub fn GameWorld::tick_room_clear_rewards(Self) -> Unit
 pub fn GameWorld::tick_with_enemy_ai_grid(Self, Double, Double, @types.Grid2D) -> Unit
 pub fn GameWorld::transfer_inventory(Self, InventorySource, InventoryTarget) -> Bool
+
+pub(all) struct GroundStrike {
+  x : Double
+  y : Double
+  radius : Double
+  mut frame : Int
+}
+
+pub(all) struct HunterArt {
+  kind : HunterArtKind
+  angle : Double
+  mut frame : Int
+}
+
+pub(all) enum HunterArtKind {
+  LightningArt
+  FlameArt
+  AstralArt
+  DashArt
+} derive(Eq, @debug.Debug)
+
+pub(all) struct HunterArts {
+  mut guarding : Bool
+  mut guard_frame : Int
+  mut guard_energy : Double
+  mut guard_recovery : Int
+  mut action : HunterArt?
+  mut strike : GroundStrike?
+  mut ground_cooldown : Int
+  mut dash_cooldown : Int
+}
+pub fn HunterArts::new() -> Self
 
 pub(all) struct Inventory {
   items : Array[ItemData?]

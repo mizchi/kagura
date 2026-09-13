@@ -219,6 +219,7 @@ fn GameWorld::exchange_inventory(
   }
   if item.slot == Weapon &&
     (
+      self.hunter_action_locked() ||
       self.weapon_attack is Some(_) ||
       self.player_charge is Some(_) ||
       self.player.dash_timer > 0

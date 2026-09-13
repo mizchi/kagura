@@ -1,6 +1,7 @@
 import {createControlInput, bindVirtualStick} from '@kagura-web/kagura-controls.js';
 import {createHunterInput, skillStatus} from './hunter-input.mjs';
 import {createInventoryPanel} from './hunter-inventory.mjs';
+import {bindHunterArts} from './hunter-arts.mjs';
 import {renderWorldMap} from './hunter-world-map.mjs';
 import {renderSkillTree} from './hunter-skill-tree.mjs';
 
@@ -48,6 +49,11 @@ root.innerHTML=`
   <div class="combat-controls">
     <div id="move-stick" role="group" aria-label="仮想移動スティック"><div class="stick-ring"><i class="stick-cross"></i><i id="stick-thumb"></i></div><span>移動</span></div>
     <div class="action-dock">
+      <div class="hunter-arts" aria-label="狩人の戦技">
+        <button id="guard-button" data-hold="guard" aria-label="盾ガード" title="Fを押して構える。正面120度の攻撃を軽減。構え始めは完全防御。"><span>${icon('shield')}</span><strong>盾ガード</strong><small id="guard-status">F / 長押し</small><i class="guard-reserve"><i id="guard-reserve-fill"></i></i></button>
+        <button id="astral-button" data-key="84" aria-label="星落とし" title="Tで照準、地面をクリック／タップして指定。円の中に0.5秒後に落雷。"><span>${icon('lightning')}</span><strong>星落とし</strong><small id="astral-status">T / 位置指定</small></button>
+        <button id="dash-strike-button" data-key="86" aria-label="踏込斬り" title="Vで踏み込み、敵の手前で止まって斬る。壁で停止、回避で中断。"><span>${icon('blade')}</span><strong>踏込斬り</strong><small id="dash-strike-status">V</small></button>
+      </div>
       <div class="learned-arts" id="learned-arts" aria-label="習得した技" hidden></div>
       <label class="weapon-picker">武器 <select id="player-weapon" aria-label="プレーヤーの武器"></select><kbd>X</kbd></label>
       <div class="skill-buttons">${names.map((name,i)=>`<button class="skill skill-${i}" data-key="${49+i}" data-skill="${i}" aria-label="${name}"><kbd>${i+1}</kbd><span class="skill-glyph">${icon(['blade','whirl','fire','frost'][i])}<i class="cooldown-sweep"></i></span><strong>${name}</strong><small class="skill-status">使用可能</small><span class="skill-tooltip"></span></button>`).join('')}</div>
@@ -55,11 +61,15 @@ root.innerHTML=`
       <div class="primary-actions"><button id="attack-button" data-hold="attack" aria-label="通常攻撃"><span id="weapon-icon">${icon('blade')}</span><strong id="weapon-action">斬撃</strong><kbd>J / 左クリック</kbd></button><button id="dodge-button" data-key="32" aria-label="回避"><span>${icon('dodge')}</span><strong>回避</strong><small id="dodge-status">SPACE</small></button></div>
     </div>
   </div>
+  <div id="target-surface" aria-label="星落としの位置指定" hidden></div>
+  <div id="target-hint" role="status" hidden><strong>星落とし</strong><span>地面をクリック／タップして発動</span><button data-key="84" aria-label="位置指定を取り消す">取消 <kbd>ESC</kbd></button></div>
   <button id="waypoint-prompt" class="waypoint-prompt" data-key="71" aria-label="ウェイポイントを使う" hidden>${icon('waypoint')}<span>ウェイポイント</span><kbd>G</kbd></button>
   <section id="hunter-panel" class="modal-wrap" hidden aria-live="polite"></section>
+  <div id="combat-feedback" role="status" hidden></div>
   <div id="damage-edge" aria-hidden="true"></div>
 `;
 const $=id=>document.getElementById(id);
+const renderArts=bindHunterArts({root,input});
 const inventoryPanel=createInventoryPanel($('hunter-panel'),{input,icon,escape});
 $('player-weapon').addEventListener('change',e=>{
   input.tap(88,Number(e.target.value));
@@ -90,7 +100,7 @@ const virtualStick=bindVirtualStick(stick, {
 function activate(button,e){
   if(button.disabled)return;
   const selection=Number(button.dataset.selection??-1);
-  if(button.dataset.hold){input.tap(74);input.hold(e.pointerId,'attack');button.setPointerCapture(e.pointerId);button.dataset.pressed='';}
+  if(button.dataset.hold){input.tap(button.dataset.hold==='guard'?70:74);input.hold(e.pointerId,button.dataset.hold);button.setPointerCapture(e.pointerId);button.dataset.pressed='';}
   else if(button.dataset.key)input.tap(Number(button.dataset.key),selection);
 }
 root.addEventListener('pointerdown',e=>{
@@ -114,11 +124,11 @@ root.addEventListener('click',e=>{
     }
     input.select(Number(b.dataset.selection));return;
   }
-  input.tap(b.dataset.hold?74:Number(b.dataset.key),Number(b.dataset.selection??-1));
+  input.tap(b.dataset.hold?(b.dataset.hold==='guard'?70:74):Number(b.dataset.key),Number(b.dataset.selection??-1));
 });
 window.addEventListener('blur',()=>{inventoryPanel.cancelDrag();clear();});
 const heldKeyboardCodes=new Set([
-  'KeyW','KeyA','KeyS','KeyD','KeyQ','KeyE','KeyR','KeyJ','KeyM',
+  'KeyW','KeyA','KeyS','KeyD','KeyQ','KeyE','KeyR','KeyJ','KeyM','KeyF',
   'ArrowUp','ArrowDown','ArrowLeft','ArrowRight','ShiftLeft','ShiftRight',
   'Digit7','F2','F3','F4','F5',
 ]);
@@ -133,7 +143,7 @@ window.addEventListener('keydown',e=>{
   }
   if(e.ctrlKey || e.metaKey || e.altKey || e.target?.isContentEditable || e.target?.closest?.('input,textarea,select'))return;
   if(e.target instanceof HTMLButtonElement && ['Space','Enter'].includes(e.code))return;
-  const keys={Space:32,Enter:13,Escape:27,KeyP:80,KeyI:73,KeyK:75,KeyG:71,KeyX:88,KeyC:67,Digit1:49,Digit2:50,Digit3:51,Digit4:52,Digit5:53,Digit6:54,Digit8:56};
+  const keys={Space:32,Enter:13,Escape:27,KeyP:80,KeyI:73,KeyK:75,KeyG:71,KeyX:88,KeyC:67,KeyT:84,KeyV:86,Digit1:49,Digit2:50,Digit3:51,Digit4:52,Digit5:53,Digit6:54,Digit8:56};
   if(current?.menu==='inventory')keys.KeyE=69;
   const code=keys[e.code];
   if(!code){
@@ -178,7 +188,7 @@ function panel(hud){
   if(state==='pause')body=`<div class="pause-mark">${icon('pause')}</div>${heading('THE NIGHT CAN WAIT','一時停止')}<p class="panel-description">ここで、ひと息。<br>狩場の時間は止まっています。</p><div class="pause-actions"><button class="begin-button" data-key="27" data-autofocus>狩りを再開する <kbd>ESC</kbd></button><button data-key="73">${icon('bag')}<span>装備袋</span><kbd>I</kbd></button><button data-key="75">${icon('book')}<span>技と成長</span><kbd>K</kbd></button><button data-key="71">${icon('waypoint')}<span>世界地図</span><kbd>G</kbd></button><button data-key="77" aria-label="サウンド" aria-pressed="${!hud.muted}"><span>サウンド</span><strong>${hud.muted?'OFF':'ON'}</strong><kbd>M</kbd></button></div><p class="pause-hint">メニューを確認している間も一時停止します。</p>`;
   if(state==='inventory')body=`${close}${inventoryPanel.render(hud.inventory_grid)}`;
   if(state==='waypoints')body=`${close}${renderWorldMap(hud,{icon,escape})}`;
-  if(state==='skills')body=`${close}${renderSkillTree(hud,{icon,escape})}<div class="tree-guide"><h3>狩場での操作</h3><div class="skill-guide">${hud.skills.map((s,i)=>`<article>${icon(['blade','whirl','fire','frost'][i])}<div><strong><kbd>${i+1}</kbd> ${escape(s.name)}</strong><p>${escape(s.description)}</p></div></article>`).join('')}</div><p class="panel-description"><strong>C · 突進</strong><br>${escape(hud.charge.description)} 全武器で使用可能・再使用まで3秒。</p></div>`;
+  if(state==='skills')body=`${close}${renderSkillTree(hud,{icon,escape})}<div class="tree-guide"><h3>狩場での操作</h3><div class="skill-guide">${hud.skills.map((s,i)=>`<article>${icon(['blade','whirl','fire','frost'][i])}<div><strong><kbd>${i+1}</kbd> ${escape(s.name)}</strong><p>${escape(s.description)}</p></div></article>`).join('')}</div><p class="panel-description"><strong>C · 突進</strong><br>${escape(hud.charge.description)} 全武器で使用可能・再使用まで3秒。</p><div class="arts-guide"><p><strong>F · 盾ガード</strong><br>長押しで盾を構え、正面120度からの攻撃を80%軽減。構え始め8フレームは完全防御。防御力を使い切ると1.5秒間、体勢を立て直します。</p><p><strong>T · 星落とし</strong><br>地面を指定し、表示された円に0.5秒後に落雷。クリック／タップで確定、ESCで取消。再使用まで4秒。</p><p><strong>V · 踏込斬り</strong><br>前方へ踏み込み、敵の手前で停止して斬る。壁で停止し、回避で中断できます。再使用まで2.5秒。</p><p><strong>5 · 連鎖雷撃</strong><br>呪術のスキルツリーで習得。近くの敵へ雷をつなぎます。</p></div></div>`;
   if(state==='levelup')body=`${heading('BLOOD & EXPERIENCE','新たな力を選ぶ')}<p class="panel-description">ひとつ選ぶと狩りを再開します。</p><div class="oath-list">${hud.offers.map((name,i)=>`<button data-key="13" data-selection="${i}" class="${hud.cursor===i?'selected':''}">${icon('book')}<strong>${escape(name)}</strong><span>→</span></button>`).join('')}</div>`;
   el.innerHTML=`<div class="hunter-panel panel-${state}" role="dialog" aria-modal="true" aria-label="${state==='pause'?'一時停止メニュー':state}">${body}</div>`;
   el.querySelector('.hunter-panel').scrollTop=scrollTop;
@@ -229,13 +239,13 @@ function render(hud){
     setText('region-name',hud.atlas.name);setText('minimap-region',hud.atlas.name);setText('minimap-subtitle',hud.atlas.subtitle);
     root.querySelector('.map-card').setAttribute('aria-label',`${hud.atlas.name}の地図`);
   }
-  $('waypoint-prompt').hidden=!hud.atlas?.near_waypoint||hud.mode!=='playing'||hud.paused||hud.menu!=='none';
+  $('waypoint-prompt').hidden=hud.arts?.targeting||!hud.atlas?.near_waypoint||hud.mode!=='playing'||hud.paused||hud.menu!=='none';
   setText('night-label',`第 ${hud.floor} 夜 · THE LONG NIGHT`);
   setText('hunt-objective',`灯火をたどり、群れを狩る · 残り ${hud.remaining}`);
   $('map-player').setAttribute('cx',hud.map_x);$('map-player').setAttribute('cy',hud.map_z);
   hud.skills.forEach((skill,i)=>{
     const b=root.querySelector(`[data-skill="${i}"]`),status=skillStatus(skill);
-    b.disabled=status.disabled || hud.paused || hud.menu!=='none' || hud.weapon_locked;
+    b.disabled=status.disabled || hud.arts?.targeting || hud.paused || hud.menu!=='none' || hud.weapon_locked;
     b.style.setProperty('--cooldown',`${status.progress}turn`);
     b.querySelector('.skill-status').textContent=hud.weapon_locked && !status.disabled?'動作中':status.label;
     b.querySelector('.skill-tooltip').textContent=skill.description;
@@ -262,6 +272,7 @@ function render(hud){
   });
   $('tree-sp-badge').hidden=hud.skill_points===0;
   setText('tree-sp-badge',`${hud.skill_points} SP`);
+  renderArts(hud);
   panel(hud);
 }
 globalThis.__ashenUI=Object.freeze({version:1,render});

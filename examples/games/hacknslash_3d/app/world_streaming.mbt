@@ -182,6 +182,8 @@ fn GameState::adopt_region_mesh(
   self.dungeon_chunks = self.region_meshes[id].unwrap().chunks
   self.invalidate_visible_chunk_cache()
   self.invalidate_minimap_cache()
+  self.ground_targeting = false
+  self.combat_visuals.clear()
   self.active_effects.clear()
   self.damage_popups.clear()
   self.particle_manager.emitters.clear()

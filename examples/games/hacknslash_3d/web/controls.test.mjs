@@ -60,3 +60,21 @@ test('inventory moves carry an immutable intent without synthetic game keys', ()
   input.moveItem(move);input.clear();input.consumeKey();
   assert.equal(input.inventoryMove(),null);
 });
+
+test('guard and normalized targeting remain separate from attack and clear on cancellation',()=>{
+  const input=createHunterInput(createControlInput());
+  input.hold(3,'guard');
+  assert.equal(input.snapshot().guard,true);
+  assert.equal(input.snapshot().attack,false);
+  input.aimAt(.4,.6);
+  assert.deepEqual(input.targetPoint(),{x:.4,y:.6});
+  input.confirmTarget(.5,.7);
+  assert.equal(input.consumeKey(),0);
+  assert.equal(input.targetConfirmed(),true);
+  assert.deepEqual(input.targetPoint(),{x:.5,y:.7});
+  input.consumeKey();
+  assert.equal(input.targetConfirmed(),false);
+  input.clear();
+  assert.equal(input.snapshot().guard,false);
+  assert.equal(input.targetPoint(),null);
+});

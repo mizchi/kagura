@@ -226,6 +226,10 @@ fn GameState::new_with_params(
     paused: false,
     pause_return_ui: @game.UIMode::None,
     pause_return_cursor: 0,
+    ground_targeting: false,
+    ground_target_x: world.player.x,
+    ground_target_y: world.player.y,
+    combat_visuals: [],
     motion_preview: false,
   }
 }
@@ -551,6 +555,7 @@ fn GameState::update_playing(
     let sin_yaw = @math.sin(yaw)
     let dx = raw_dx * cos_yaw + raw_dy * sin_yaw
     let dy = -raw_dx * sin_yaw + raw_dy * cos_yaw
+    let targeting = self.update_hunter_art_input(dx, dy)
     // Dash via shift
     let shift_pressed = @inpututil.is_key_just_pressed(
       self.input.key_state,
@@ -593,14 +598,11 @@ fn GameState::update_playing(
       @game.activate_skill(self.world, 1)
     }
     if @inpututil.is_key_just_pressed(self.input.key_state, key_3) {
-      @game.activate_skill(
-        self.world,
-        if self.world.hunting_grounds {
-          4
-        } else {
-          2
-        },
-      )
+      if self.world.hunting_grounds {
+        ignore(self.world.request_hunter_spell(@game.FlameArt))
+      } else {
+        @game.activate_skill(self.world, 2)
+      }
     }
     if @inpututil.is_key_just_pressed(self.input.key_state, key_4) {
       @game.activate_skill(
@@ -613,14 +615,11 @@ fn GameState::update_playing(
       )
     }
     if @inpututil.is_key_just_pressed(self.input.key_state, key_5) {
-      @game.activate_skill(
-        self.world,
-        if self.world.hunting_grounds {
-          3
-        } else {
-          4
-        },
-      )
+      if self.world.hunting_grounds {
+        ignore(self.world.request_hunter_spell(@game.LightningArt))
+      } else {
+        @game.activate_skill(self.world, 4)
+      }
     }
     if @inpututil.is_key_just_pressed(self.input.key_state, key_6) {
       @game.activate_skill(
@@ -638,9 +637,12 @@ fn GameState::update_playing(
     if @inpututil.is_key_just_pressed(self.input.key_state, key_8) {
       @game.activate_skill(self.world, 7)
     }
-    if @inpututil.is_mouse_button_pressed(self.input.mouse_state, 0) ||
-      @inpututil.is_key_pressed(self.input.key_state, 74) ||
-      hunter_web_attacking() {
+    if !targeting &&
+      (
+        @inpututil.is_mouse_button_pressed(self.input.mouse_state, 0) ||
+        @inpututil.is_key_pressed(self.input.key_state, 74) ||
+        hunter_web_attacking()
+      ) {
       let angle = if hunter_web_attacking() || web_attack {
         hunter_assisted_aim(self.world)
       } else {
@@ -675,7 +677,17 @@ fn GameState::update_playing(
   let events = self.world.drain_events()
   for event in events {
     self.play_sound_for_event(event)
+    self.queue_combat_visual(event)
     match event {
+      @game.GuardBlocked(_, _, _) => self.play_sound_cue(SfxEnemyHit)
+      @game.CombatImpact(kind, _, _, _, _) =>
+        self.play_sound_cue(
+          if kind == @game.FlameBlast {
+            SfxSpellFireball
+          } else {
+            SfxSpellChainLightning
+          },
+        )
       @game.HitSparks(x, y) => spawn_hit_sparks(self.particle_manager, x, y)
       @game.DeathBurst(x, y) => spawn_death_burst(self.particle_manager, x, y)
       @game.DashTrail(x, y) => spawn_dash_trail(self.particle_manager, x, y)
@@ -683,15 +695,14 @@ fn GameState::update_playing(
       @game.PlayerDamageNumber(x, y, amount) =>
         self.spawn_damage_popup(x, y, amount, 0xFF7777)
       @game.EnemyDamageNumber(x, y, amount) =>
-        self.spawn_damage_popup(x, y, amount, 0xFF4444)
+        self.spawn_damage_popup(x, y, amount, 0xFFF0BB)
       @game.ItemPickup(x, y, is_health) =>
         spawn_item_pickup(self.particle_manager, x, y, is_health)
       @game.GroundTelegraphRing(x, y, radius) =>
         self.queue_ground_ring_telegraph_effect(x, y, radius)
       @game.GroundTelegraphLine(x0, y0, x1, y1) =>
         self.queue_ground_line_telegraph_effect(x0, y0, x1, y1)
-      @game.ChainLightningArc(x0, y0, x1, y1) =>
-        self.queue_chain_lightning_effect(x0, y0, x1, y1)
+      @game.ChainLightningArc(_, _, _, _) => ()
       @game.HomingMissileLaunch(x0, y0, x1, y1) =>
         self.queue_homing_missile_effect(x0, y0, x1, y1)
       @game.HomingMissileTrail(x0, y0, x1, y1) =>
@@ -699,9 +710,8 @@ fn GameState::update_playing(
       @game.HomingMissileImpact(x, y) =>
         self.queue_homing_missile_impact_effect(x, y)
       @game.FireballCast(x, y) => self.queue_fireball_cast_effect(x, y)
-      @game.FireballTrail(x, y) =>
-        spawn_fireball_trail(self.particle_manager, x, y)
-      @game.FireballBurst(x, y) => self.queue_fireball_burst_effect(x, y)
+      @game.FireballTrail(_, _) => ()
+      @game.FireballBurst(_, _) => ()
       @game.IceNovaCast(x, y, radius) =>
         self.queue_ice_nova_effect(x, y, radius)
       @game.BeamFire(x0, y0, x1, y1, _is_player) => {
@@ -784,6 +794,20 @@ fn GameState::update_playing(
     self.character.anim_state = if is_moving { Running } else { Idle }
     self.character.skinning_cache_dirty = true
   }
+  if self.world.arts.guarding {
+    self.character.anim_state = Guarding
+    self.character.action_time = self.world.arts.guard_frame.to_double() / 60.0
+    self.character.skinning_cache_dirty = true
+  } else if self.world.arts.action is Some(action) {
+    self.character.anim_state = Casting(action.kind)
+    self.character.action_time = action.frame.to_double() / 60.0
+    self.character.skinning_cache_dirty = true
+  } else if self.character.anim_state == Guarding ||
+    self.character.anim_state is Casting(_) {
+    self.character.anim_state = if is_moving { Running } else { Idle }
+    self.character.skinning_cache_dirty = true
+  }
+  self.tick_combat_visuals()
   self.enemy_models.update(1.0 / 60.0)
   // Ambient dust particles (every 15 frames)
   if self.world.frame_count % 15 == 0 {
@@ -827,6 +851,8 @@ fn GameState::update_damage_popups(self : GameState) -> Unit {
 
 ///|
 fn GameState::rebuild_dungeon_rendering(self : GameState) -> Unit {
+  self.ground_targeting = false
+  self.combat_visuals.clear()
   for i in 0..<self.region_meshes.length() {
     self.region_meshes[i] = None
   }

@@ -64,6 +64,7 @@ struct HunterHudView {
   charge_frame : Int
   skills : Array[HunterSkillView]
   extra_skills : Array[HunterExtraSkillView]
+  arts : HunterArtsView
   atlas : HunterAtlasView?
   inventory_grid : HunterInventoryView?
   inventory : Array[String]
@@ -165,11 +166,13 @@ fn GameState::hunter_hud_view(self : GameState) -> HunterHudView {
   }
   {
     version: 1,
+    arts: self.hunter_arts_view(),
     weapon: w.player_weapon.profile().name,
     weapon_index: w.player_weapon.index(),
     weapon_action: w.player_weapon.profile().action,
     attack_remaining: w.attack_timer.max(0),
-    weapon_locked: w.weapon_attack is Some(_) ||
+    weapon_locked: w.hunter_action_locked() ||
+    w.weapon_attack is Some(_) ||
     w.player.dash_timer > 0 ||
     w.player_charge is Some(_),
     charging: w.player_charge is Some(_),

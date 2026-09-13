@@ -176,7 +176,7 @@ fn GameState::push_world_waypoint(
     @math3d.Vec3::new(x / tile_size, 0.0, y / tile_size),
   ).to_mat4()
   let color = if atlas.unlocked[atlas.current] {
-    @math3d.Vec4::new(1.3, 1.65, 1.3, 1.0)
+    @math3d.Vec4::new(0.50, 0.65, 0.38, 1.0)
   } else {
     hex_to_vec4(0x738477)
   }

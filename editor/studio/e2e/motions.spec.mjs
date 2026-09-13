@@ -28,11 +28,35 @@ test("motion viewer selects real models, scrubs poses, steps and plays without c
   page.on("pageerror", (e) => errors.push(e.message));
   await open(page);
   const before = await page.evaluate(() => kagura.snapshot());
-  await page.getByLabel("Motion model", { exact: true }).selectOption("archer");
+  await page
+    .getByLabel("Motion model", { exact: true })
+    .selectOption("skeleton");
+  await page.getByLabel("Motion weapon", { exact: true }).selectOption("bow");
   await expect(page.getByLabel("Motion clip", { exact: true })).toHaveValue(
     "bow_shot",
   );
   await page.evaluate(() => kagura.motions.seek(0.2));
+  await page.getByLabel("Motion model", { exact: true }).selectOption("goblin");
+  const equipped = await page.evaluate(() => kagura.motions.snapshot());
+  expect(equipped.model).toBe("goblin");
+  expect(equipped.weapon).toBe("bow");
+  expect(equipped.transport.clip).toBe("bow_shot");
+  expect(equipped.transport.time).toBe(0.2);
+  expect(equipped.clips.map((clip) => clip.id)).toEqual(["bow_shot", "charge"]);
+  await expect(
+    page.getByLabel("Motion clip", { exact: true }).locator("option"),
+  ).toHaveCount(2);
+  const invalid = await page.evaluate(() => {
+    try {
+      kagura.motions.selectClip("punch");
+    } catch (error) {
+      return error.message;
+    }
+  });
+  expect(invalid).toContain("selected weapon");
+  expect(await page.evaluate(() => kagura.motions.snapshot())).toEqual(
+    equipped,
+  );
   await expect(page.locator(".motion-stage")).toHaveAttribute(
     "data-frame",
     "12",
@@ -142,7 +166,10 @@ test("generic editor imports motion files without a game extension and disposes 
     "data-ready",
     "true",
   );
-  await page.getByLabel("Motion model", { exact: true }).selectOption("caster");
+  await page
+    .getByLabel("Motion model", { exact: true })
+    .selectOption("skeleton");
+  await page.getByLabel("Motion weapon", { exact: true }).selectOption("focus");
   await expect(page.getByLabel("Motion clip", { exact: true })).toHaveValue(
     "cast_spell",
   );
@@ -185,4 +212,73 @@ test("superseded loads and project switches cannot leave a stale motion renderer
   expect((await page.evaluate(() => kagura.motions.snapshot())).state).toBe(
     "idle",
   );
+});
+
+test("hunter resource previews the same five playable weapon sets", async ({
+  page,
+}, info) => {
+  const errors = [];
+  page.on("pageerror", (error) => errors.push(error.message));
+  await page.goto("/");
+  await page
+    .getByLabel("Examples", { exact: true })
+    .selectOption("hacknslash_3d");
+  await expect(page.getByRole("status")).toContainText("Opened project");
+  await page
+    .getByRole("button", { name: "motions/hunter.kgrmotion", exact: true })
+    .click();
+  await expect(page.locator(".motion-stage")).toHaveAttribute(
+    "data-ready",
+    "true",
+  );
+  await expect(page.getByLabel("Motion model", { exact: true })).toHaveValue(
+    "hunter",
+  );
+  const picker = page.getByLabel("Motion weapon", { exact: true });
+  await expect(picker.locator("option")).toHaveCount(5);
+  for (const weapon of [
+    "cleaver_flintlock",
+    "spear",
+    "knuckles",
+    "focus",
+    "bow",
+  ]) {
+    await picker.selectOption(weapon);
+    await expect(page.getByLabel("Motion clip", { exact: true })).toHaveValue(
+      weapon + "_attack",
+    );
+    await page.evaluate(() => {
+      const state = kagura.motions.snapshot();
+      kagura.motions.seek(state.clips[0].events[0].time - 1 / 60);
+    });
+    await page
+      .getByLabel("Motion viewer workspace", { exact: true })
+      .screenshot({ path: info.outputPath("hunter-" + weapon + ".png") });
+  }
+  await page
+    .getByRole("button", { name: "Release · 0.50s", exact: true })
+    .click();
+  await expect(page.locator(".motion-stage")).toHaveAttribute(
+    "data-frame",
+    "30",
+  );
+  await page.getByLabel("Motion clip", { exact: true }).selectOption("charge");
+  await page
+    .getByRole("button", { name: "Launch · 0.20s", exact: true })
+    .click();
+  await expect(page.locator(".motion-stage")).toHaveAttribute(
+    "data-frame",
+    "12",
+  );
+  await page
+    .getByRole("button", { name: "Brake · 0.40s", exact: true })
+    .click();
+  await expect(page.locator(".motion-stage")).toHaveAttribute(
+    "data-frame",
+    "24",
+  );
+  await page
+    .getByLabel("Motion viewer workspace", { exact: true })
+    .screenshot({ path: info.outputPath("hunter-charge.png") });
+  expect(errors).toEqual([]);
 });

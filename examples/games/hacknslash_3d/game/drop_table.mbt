@@ -128,8 +128,8 @@ fn weighted_slot_pick(seed : Int, config : DropTableConfig) -> EquipSlot {
 fn equip_slot_icon_base(slot : EquipSlot) -> Int {
   match slot {
     Weapon => 0
-    Armor => 1
-    Accessory => 2
+    Armor | Helmet | Gloves | Boots | Offhand => 1
+    Accessory | Amulet => 2
   }
 }
 
@@ -233,7 +233,7 @@ pub fn generate_item_with_profile_and_drop_config(
           )
       }
     }
-    Armor => {
+    Armor | Helmet | Gloves | Boots | Offhand => {
       let def = scaled_base_item_stat(
         base, base_tier, rarity_mult, modifier_tier,
       )
@@ -247,7 +247,7 @@ pub fn generate_item_with_profile_and_drop_config(
         _ => (0, def, hp, 0, 0, primary_bonus, 0.0, 0.0, secondary_scaling)
       }
     }
-    Accessory => {
+    Accessory | Amulet => {
       let atk = @cmp.maximum(
         1,
         (base.to_double() * (1.0 + base_tier * 0.2)).to_int(),
@@ -280,8 +280,8 @@ pub fn generate_item_with_profile_and_drop_config(
   }
   let slot_name = match slot {
     Weapon => "Sword"
-    Armor => "Armor"
-    Accessory => "Ring"
+    Armor | Helmet | Gloves | Boots | Offhand => "Armor"
+    Accessory | Amulet => "Ring"
   }
   let prefixes = prefix_table_for(profile)
   let suffixes = suffix_table_for(profile)

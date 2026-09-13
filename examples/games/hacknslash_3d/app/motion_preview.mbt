@@ -54,3 +54,72 @@ fn apply_bow_motion_preview(state : GameState, frame : Int) -> Unit {
   }
   state.camera = state.camera.with_distance(6.0).orbit(0.6, -0.15)
 }
+
+///|
+/// Player authoring fixture: ?snapshot=hunter&weapon=bow&frames=29.
+fn apply_hunter_motion_preview(
+  state : GameState,
+  kind : @game.PlayerWeaponKind,
+  frame : Int,
+) -> Unit {
+  state.world.mode = @game.Playing
+  state.world.enemies.clear()
+  state.world.projectiles.clear()
+  let _ = state.world.equip_player_weapon(kind)
+  state.character.equip_weapon(kind)
+  let _ = state.world.request_basic_attack(@math.PI / 2.0)
+  state.character.trigger_attack()
+  let count = frame.max(0).min(kind.profile().windup + kind.profile().recovery)
+  for _ in 0..<count {
+    state.world.tick_player_weapon_attack()
+  }
+  state.character.update(count.to_double() / 60.0)
+  let _ = state.world.drain_events()
+  let x = state.world.player.x / tile_size
+  let z = state.world.player.y / tile_size
+  state.camera = state.camera
+    .with_distance(4.5)
+    .orbit(0.65 - state.camera.yaw, 0.6 - state.camera.pitch)
+    .with_target(@math3d.Vec3::new(x, 0.48, z))
+  state.motion_preview = true
+}
+
+///|
+/// Side-by-side in-engine authoring view: ?snapshot=charge&frames=0..42.
+fn apply_charge_motion_preview(state : GameState, frame : Int) -> Unit {
+  state.world.mode = @game.Playing
+  state.world.enemies.clear()
+  state.world.projectiles.clear()
+  let _ = state.world.equip_player_weapon(@game.Spear)
+  state.character.equip_weapon(@game.Spear)
+  let _ = state.world.request_charge(@math.PI / 2.0)
+  let frame = frame.max(0).min(@game.player_charge_profile.duration())
+  state.world.player_charge.unwrap().frame = frame
+  state.character.anim_state = Charging
+  state.character.action_time = frame.to_double() / 60.0
+  state.character.skinning_cache_dirty = true
+  let x = state.world.player.x
+  let y = state.world.player.y
+  let enemy = @game.make_enemy(
+    x - tile_size * 1.8,
+    y,
+    @game.Fast,
+    100,
+    0.0,
+    8.0,
+  )
+  enemy.begin_attack(
+    @game.Charge,
+    @game.enemy_charge_profile.windup,
+    @game.enemy_charge_profile.active + @game.enemy_charge_profile.recovery,
+    enemy.x,
+    y + 1000.0,
+  )
+  enemy.attack_frame = frame.min(@game.enemy_charge_profile.duration())
+  state.world.enemies.push(enemy)
+  state.camera = state.camera
+    .with_distance(6.0)
+    .orbit(-state.camera.yaw + 0.15, 0.6 - state.camera.pitch)
+    .with_target(@math3d.Vec3::new(x / tile_size - 0.9, 0.45, y / tile_size))
+  state.motion_preview = true
+}

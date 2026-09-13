@@ -19,7 +19,7 @@ let save_key : String = "hacknslash3d_save"
 // Encode game state as a simple key=value format
 // Format:
 // floor|score|legacy_sp|weapon|armor|accessory|skills|items|
-// level|xp|next_xp|pending_choices|offer_ids
+// level|xp|next_xp|pending_choices|offer_ids|weapon_set|tree-v1|positions|extra_equipment|inventory-v1
 
 ///|
 fn GameState::serialize_save(self : GameState) -> String {
@@ -58,6 +58,36 @@ fn GameState::serialize_save(self : GameState) -> String {
     offer_parts.push(@game.skill_id_to_int(offer).to_string())
   }
   parts.push(join_strings(offer_parts, ","))
+  // 13: weapon motion set; old saves default to the cleaver.
+  parts.push(self.world.player_weapon.profile().id)
+  // 14: tree point economy version; old saves receive their points once.
+  parts.push("tree-v1")
+  // 15-17: spatial layout and the five additional body slots.
+  let positions : Array[String] = []
+  for i in 0..<self.world.inventory.capacity {
+    let position = match self.world.inventory.grid {
+      Some(grid) => grid.placement(i)
+      None => None
+    }
+    positions.push(
+      match position {
+        Some(pos) =>
+          pos.x.to_string() +
+          "," +
+          pos.y.to_string() +
+          "," +
+          (if pos.rotated { "1" } else { "0" })
+        None => "-"
+      },
+    )
+  }
+  parts.push(join_strings(positions, ";"))
+  let extra = @game.equipment_slots()
+    .filter(slot => slot.index() >= 3)
+    .map(slot => serialize_opt_item(self.world.equipment.item_for_slot(slot)))
+  parts.push(join_strings(extra, ";"))
+  parts.push("inventory-v1")
+  parts.push(js_encode_world_progress(self.world.serialize_world_progress()))
   join_strings(parts, "|")
 }
 
@@ -97,7 +127,62 @@ fn serialize_affix(a : @game.Affix) -> String {
   "~" +
   a.int_scaling.to_string() +
   "~" +
-  a.dex_scaling.to_string()
+  a.dex_scaling.to_string() +
+  "~" +
+  a.spell_damage_pct.to_string() +
+  "~" +
+  a.chain_bonus.to_string() +
+  "~" +
+  join_strings(
+    a.tag_bonuses.map(entry => {
+      join_strings(
+        [
+          @game.skill_tag_to_int(entry.tag).to_string(),
+          entry.damage_pct.to_string(),
+          entry.cooldown_reduction.to_string(),
+          entry.extra_targets.to_string(),
+          entry.aoe_radius_pct.to_string(),
+          entry.crit_bonus.to_string(),
+        ],
+        ":",
+      )
+    }),
+    "/",
+  )
+}
+
+///|
+fn deserialize_item_tag_bonuses(value : String) -> Array[@game.TagBonusEntry] {
+  let entries : Array[@game.TagBonusEntry] = []
+  let tags = [
+    @game.Lightning,
+    @game.Fire,
+    @game.Cold,
+    @game.Physical,
+    @game.Projectile,
+    @game.AoE,
+    @game.Defense,
+    @game.Utility,
+  ]
+  for value in split_string(value, '/') {
+    let fields = split_string(value, ':')
+    if fields.length() != 6 {
+      continue
+    }
+    let id = parse_int(fields[0])
+    if id < 0 || id >= tags.length() {
+      continue
+    }
+    entries.push({
+      tag: tags[id],
+      damage_pct: parse_double(fields[1]),
+      cooldown_reduction: parse_double(fields[2]),
+      extra_targets: parse_int(fields[3]),
+      aoe_radius_pct: parse_double(fields[4]),
+      crit_bonus: parse_double(fields[5]),
+    })
+  }
+  entries
 }
 
 ///|
@@ -166,7 +251,11 @@ fn deserialize_affix(s : String) -> @game.Affix? {
     } else {
       0
     },
-    tag_bonuses: [],
+    tag_bonuses: if parts.length() > 16 {
+      deserialize_item_tag_bonuses(parts[16])
+    } else {
+      []
+    },
   })
 }
 
@@ -188,11 +277,7 @@ fn serialize_item(item : @game.ItemData) -> String {
     @game.Rare => 2
     @game.Epic => 3
   }
-  let slot_int = match item.slot {
-    @game.Weapon => 0
-    @game.Armor => 1
-    @game.Accessory => 2
-  }
+  let slot_int = item.slot.index()
   item.name +
   "," +
   rarity_int.to_string() +
@@ -236,11 +321,7 @@ fn deserialize_item(s : String) -> @game.ItemData? {
     3 => @game.Epic
     _ => @game.Common
   }
-  let slot = match parse_int(parts[2]) {
-    1 => @game.Armor
-    2 => @game.Accessory
-    _ => @game.Weapon
-  }
+  let slot = @game.equip_slot_from_index(parse_int(parts[2])).or(@game.Weapon)
   let prefix = if parts.length() > 7 {
     deserialize_affix(parts[7])
   } else {
@@ -315,7 +396,8 @@ fn GameState::load_game(self : GameState) -> Bool {
   // 1: score
   self.world.score = parse_int(parts[1])
   // 2: skill points
-  self.world.skills.skill_points = parse_int(parts[2])
+  self.world.skills.skill_points = parse_int(parts[2]).max(0)
+  self.world.equipment.clear()
   // 3-5: equipment
   self.world.equipment.weapon = deserialize_opt_item(parts[3])
   self.world.equipment.armor = deserialize_opt_item(parts[4])
@@ -330,6 +412,7 @@ fn GameState::load_game(self : GameState) -> Bool {
     self.world.skills.nodes[i].level = parse_int(skill_parts[i])
   }
   // 7: inventory
+  self.world.inventory.clear()
   let inv_parts = split_string(parts[7], ';')
   for i in 0..<@cmp.minimum(inv_parts.length(), self.world.inventory.capacity) {
     self.world.inventory.items[i] = deserialize_opt_item(inv_parts[i])
@@ -359,20 +442,56 @@ fn GameState::load_game(self : GameState) -> Bool {
       level_progress.pending_choices = 0
     }
   }
+  let positions : Array[(Int, Int, Bool)?] = []
+  if parts.length() > 15 {
+    for entry in split_string(parts[15], ';') {
+      let fields = split_string(entry, ',')
+      positions.push(
+        if fields.length() == 3 {
+          Some((parse_int(fields[0]), parse_int(fields[1]), fields[2] == "1"))
+        } else {
+          None
+        },
+      )
+    }
+  }
+  self.world.inventory.restore_layout(positions)
+  if parts.length() > 16 {
+    for entry in split_string(parts[16], ';') {
+      if deserialize_opt_item(entry) is Some(item) {
+        ignore(self.world.equipment.equip(item))
+      }
+    }
+  }
   self.world.level_progress = level_progress
+  let migrate_tree_points = self.world.hunting_grounds && parts.length() < 15
+  if migrate_tree_points {
+    self.world.skills.skill_points += 3 + level_progress.level - 1
+  }
+  self.world.player_weapon = if parts.length() > 13 {
+    @game.player_weapon_from_id(parts[13]).or(@game.Cleaver)
+  } else {
+    @game.Cleaver
+  }
+  self.world.weapon_attack = None
+  self.character.equip_weapon(self.world.player_weapon)
   // Recompute stats
-  self.world.player_stats = @game.compute_player_stats(
-    self.world.equipment,
-    self.world.skills,
-    base_hp=self.world.params.player_base_hp.to_int(),
-  )
+  self.world.refresh_player_stats()
   self.world.player.hp = self.world.player_stats.max_hp
   // Regenerate dungeon for current floor
   self.world.seed = 42 + self.world.floor - 1
   self.world.apply_dungeon(self.world.seed, self.world.floor)
+  if parts.length() > 18 {
+    ignore(
+      self.world.restore_world_progress(js_decode_world_progress(parts[18])),
+    )
+  }
   // Rebuild rendering state
   self.rebuild_dungeon_rendering()
   self.world.open_levelup_ui_if_needed()
+  if migrate_tree_points || parts.length() < 19 {
+    self.save_game()
+  }
   true
 }
 
@@ -473,3 +592,11 @@ fn parse_double(s : String) -> Double {
     result
   }
 }
+
+///|
+extern "js" fn js_encode_world_progress(value : String) -> String =
+  #| value => encodeURIComponent(value)
+
+///|
+extern "js" fn js_decode_world_progress(value : String) -> String =
+  #| value => { try { return decodeURIComponent(value); } catch { return ""; } }

@@ -62,3 +62,10 @@ extern "js" fn hunter_publish_hud_json(value : String) -> Unit =
 fn GameState::publish_hunter_hud(self : GameState) -> Unit {
   hunter_publish_hud_json(self.hunter_hud_view().to_json().stringify())
 }
+
+///|
+extern "js" fn hunter_web_inventory_move() -> Array[Int] =
+  #| () => {
+  #|   const move=globalThis.__ashenControls?.inventoryMove();
+  #|   return move ? [move.source, move.target, move.x, move.y, move.rotated ? 1 : 0] : [];
+  #| }

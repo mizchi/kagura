@@ -336,32 +336,32 @@ fn GameState::push_enemy_render_bucket_groups_with_view_projection(
   }
 
   push_enemy_group(
-    self.enemy_models.basic,
+    self.enemy_models.get_equipped_mesh_data(@game.Basic),
     buckets.basic_matrices,
     buckets.basic_colors,
   )
   push_enemy_group(
-    self.enemy_models.fast,
+    self.enemy_models.get_equipped_mesh_data(@game.Fast),
     buckets.fast_matrices,
     buckets.fast_colors,
   )
   push_enemy_group(
-    self.enemy_models.tank,
+    self.enemy_models.get_equipped_mesh_data(@game.Tank),
     buckets.tank_matrices,
     buckets.tank_colors,
   )
   push_enemy_group(
-    self.enemy_models.ranged,
+    self.enemy_models.get_equipped_mesh_data(@game.Ranged),
     buckets.ranged_matrices,
     buckets.ranged_colors,
   )
   push_enemy_group(
-    self.enemy_models.caster,
+    self.enemy_models.get_equipped_mesh_data(@game.Caster),
     buckets.caster_matrices,
     buckets.caster_colors,
   )
   push_enemy_group(
-    self.enemy_models.boss,
+    self.enemy_models.get_equipped_mesh_data(@game.Boss),
     buckets.boss_matrices,
     buckets.boss_colors,
   )

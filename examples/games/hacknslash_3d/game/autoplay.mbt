@@ -168,6 +168,31 @@ pub fn GameWorld::apply_equipment_pickup_plan(
   item : ItemData,
   plan : @gameplay2d.EquipmentPickupPlan,
 ) -> Bool {
+  if self.inventory.grid is Some(_) {
+    if !plan.equip_incoming {
+      return plan.store_incoming && self.inventory.add(item)
+    }
+    if item.slot == Weapon &&
+      (
+        self.weapon_attack is Some(_) ||
+        self.player_charge is Some(_) ||
+        self.player.dash_timer > 0
+      ) {
+      return false
+    }
+    // A planned replacement must still respect spatial capacity. Keep the drop on the ground on failure.
+    if self.equipment.item_for_slot(item.slot) is Some(previous) {
+      if !self.inventory.add(previous) {
+        return false
+      }
+    }
+    ignore(self.equipment.equip(item))
+    if item.motion_weapon() is Some(kind) {
+      self.player_weapon = kind
+    }
+    self.refresh_player_stats()
+    return true
+  }
   if plan.equip_incoming {
     let previous = self.equipment.equip(item)
     match (previous, plan.store_previous_equipped) {
@@ -205,6 +230,9 @@ pub fn GameWorld::collect_equipment_pickup(
   self : GameWorld,
   item : ItemData,
 ) -> Bool {
+  if self.inventory.grid is Some(_) {
+    return self.inventory.add(item)
+  }
   let plan = @gameplay2d.plan_equipment_pickup(
     auto_play=self.auto_play,
     should_equip=self.equipment.should_equip_for_build(
@@ -252,6 +280,10 @@ fn auto_equip_inventory_item(
   let hp_delta = (tmp_stats.max_hp - world.player_stats.max_hp).to_double()
   let effective_new = new_dps + hp_delta * 0.5
   if effective_new > current_dps {
+    if world.inventory.grid is Some(_) {
+      ignore(world.exchange_inventory(Bag(index), Wear(item.slot)))
+      return
+    }
     let prev = world.equipment.equip(item)
     world.inventory.items[index] = prev
     world.player_stats = compute_player_stats(

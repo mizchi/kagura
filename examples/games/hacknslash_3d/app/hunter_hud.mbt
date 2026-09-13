@@ -11,6 +11,18 @@ struct HunterSkillView {
 
 ///|
 struct HunterNodeView {
+  id : Int
+  index : Int
+  branch : Int
+  x : Double
+  y : Double
+  prereqs : Array[Int]
+  description : String
+  effect : String
+  next_effect : String
+  glyph : String
+  kind : String
+  status : String
   name : String
   level : Int
   max_level : Int
@@ -19,11 +31,21 @@ struct HunterNodeView {
 } derive(ToJson)
 
 ///|
+struct HunterExtraSkillView {
+  key : Int
+  name : String
+  glyph : String
+  remaining : Int
+  total : Int
+} derive(ToJson)
+
+///|
 struct HunterHudView {
   version : Int
   mode : String
   menu : String
   paused : Bool
+  muted : Bool
   cursor : Int
   hp : Int
   max_hp : Int
@@ -37,11 +59,24 @@ struct HunterHudView {
   map_z : Double
   dodge : Int
   dodge_total : Int
+  charge : HunterSkillView
+  charging : Bool
+  charge_frame : Int
   skills : Array[HunterSkillView]
+  extra_skills : Array[HunterExtraSkillView]
+  atlas : HunterAtlasView?
+  inventory_grid : HunterInventoryView?
   inventory : Array[String]
   equipment : Array[String]
   nodes : Array[HunterNodeView]
+  skill_points : Int
   offers : Array[String]
+  weapon : String
+  weapon_index : Int
+  weapon_action : String
+  attack_remaining : Int
+  weapon_locked : Bool
+  weapons : Array[String]
 } derive(ToJson)
 
 ///|
@@ -130,6 +165,32 @@ fn GameState::hunter_hud_view(self : GameState) -> HunterHudView {
   }
   {
     version: 1,
+    weapon: w.player_weapon.profile().name,
+    weapon_index: w.player_weapon.index(),
+    weapon_action: w.player_weapon.profile().action,
+    attack_remaining: w.attack_timer.max(0),
+    weapon_locked: w.weapon_attack is Some(_) ||
+    w.player.dash_timer > 0 ||
+    w.player_charge is Some(_),
+    charging: w.player_charge is Some(_),
+    charge_frame: match w.player_charge {
+      Some(charge) => charge.frame
+      None => -1
+    },
+    charge: {
+      name: "突進",
+      description: "構えてから前方へ突進。壁で止まり、敵ごとに一度だけダメージ。移動方向、停止中は近くの敵へ向かう。回避で中断。",
+      level: 1,
+      remaining: w.charge_cooldown,
+      total: @game.player_charge_cooldown,
+    },
+    weapons: [
+      @game.Cleaver,
+      @game.Spear,
+      @game.Knuckles,
+      @game.Focus,
+      @game.Bow,
+    ].map(kind => kind.profile().name),
     mode: match w.mode {
       Title => "title"
       CharacterSelect => "character_select"
@@ -138,11 +199,13 @@ fn GameState::hunter_hud_view(self : GameState) -> HunterHudView {
     },
     menu: match w.ui_mode {
       None => "none"
+      Waypoints => "waypoints"
       Inventory => "inventory"
       Skills => "skills"
       LevelUp => "levelup"
     },
     paused: self.paused,
+    muted: self.audio_bank.is_muted(),
     cursor: if w.mode == @game.CharacterSelect {
       w.select_cursor
     } else {
@@ -161,19 +224,13 @@ fn GameState::hunter_hud_view(self : GameState) -> HunterHudView {
     dodge: w.player.dash_cooldown_timer,
     dodge_total: w.player_stats.dash_cooldown,
     skills,
+    extra_skills: self.hunter_extra_skills(),
+    atlas: self.hunter_atlas_view(),
+    inventory_grid: self.hunter_inventory_view(),
     inventory,
     equipment,
-    nodes: w.skills.nodes.map(fn(node) {
-      {
-        name: hunter_skill_name(node.id),
-        level: node.level,
-        max_level: node.max_level,
-        cost: node.cost,
-        available: w.skills.skill_points >= node.cost &&
-        w.archetype.can_learn_skill(node.id) &&
-        w.skills.can_learn_level_up_skill(node.id),
-      }
-    }),
+    nodes: self.hunter_tree_nodes(),
+    skill_points: w.skills.skill_points,
     offers: w.level_progress.current_offers.map(hunter_skill_name),
   }
 }

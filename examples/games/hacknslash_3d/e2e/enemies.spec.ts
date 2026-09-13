@@ -6,7 +6,7 @@ test('goblin, kobold and skeleton silhouettes are rendered on desktop and portra
   for (const viewport of [{width:1280,height:900}, {width:390,height:844}]) {
     await page.setViewportSize(viewport);
     await page.goto('/?snapshot=playing&frames=0&mute=1&seed=42');
-    await page.waitForFunction(() => globalThis.__ashenHunt?.bones === 14);
+    await page.waitForFunction(() => globalThis.__ashenHunt?.bones === 17);
     const body = await captureGameFrame(page, {path:testInfo.outputPath(`enemies-${viewport.width}.png`)});
     const png = PNG.sync.read(body);
     // Actual lit materials, excluding HUD bars and buttons. All three species

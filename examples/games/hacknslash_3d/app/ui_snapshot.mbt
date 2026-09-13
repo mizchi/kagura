@@ -18,9 +18,15 @@ fn GameState::ui_snapshot(self : GameState) -> @ui.UISnapshot {
     @game.GameOver => collect_gameover_snapshot(self, ctx, nodes, sw, sh)
     @game.Playing => {
       collect_playing_hud_snapshot(self, ctx, nodes, sw, sh)
+      if self.paused && self.world.ui_mode == @game.UIMode::None {
+        collect_named_overlay_snapshot(ctx, nodes, "pause", "PAUSED")
+      }
       match self.world.ui_mode {
+        @game.Waypoints =>
+          collect_named_overlay_snapshot(ctx, nodes, "waypoints", "WORLD MAP")
         @game.Inventory => collect_inventory_snapshot(ctx, nodes, sw, sh)
-        @game.Skills => collect_named_overlay_snapshot(ctx, nodes, "skills", "SKILLS")
+        @game.Skills =>
+          collect_named_overlay_snapshot(ctx, nodes, "skills", "SKILLS")
         @game.LevelUp =>
           collect_named_overlay_snapshot(ctx, nodes, "levelup", "LEVEL UP")
         @game.UIMode::None => ()
@@ -43,10 +49,11 @@ fn ui_snapshot_state_name(state : GameState) -> String {
     @game.GameOver => "gameover"
     @game.Playing =>
       match state.world.ui_mode {
+        @game.Waypoints => "waypoints"
         @game.Inventory => "inventory"
         @game.Skills => "skills"
         @game.LevelUp => "levelup"
-        @game.UIMode::None => "playing"
+        @game.UIMode::None => if state.paused { "pause" } else { "playing" }
       }
   }
 }
@@ -62,7 +69,7 @@ fn push_snapshot_rect(
   width : Double,
   height : Double,
 ) -> Unit {
-  let hit : @ui.UISnapshotRect = { left, top, width, height }
+  let hit : @ui.UISnapshotRect = { left, top, width, height, }
   nodes.push({
     ..@ui.default_ui_snapshot_node(),
     path,
@@ -96,13 +103,8 @@ fn push_snapshot_text(
   let (tw, th) = ctx.measure_text(text, size)
   let left = if centered { x - tw / 2.0 } else { x }
   let top = if centered { y - th / 2.0 } else { y }
-  let hit : @ui.UISnapshotRect = {
-    left,
-    top,
-    width: tw,
-    height: th,
-  }
-  let metrics : @ui.UITextMetrics = { width: tw, height: th }
+  let hit : @ui.UISnapshotRect = { left, top, width: tw, height: th, }
+  let metrics : @ui.UITextMetrics = { width: tw, height: th, }
   nodes.push({
     ..@ui.default_ui_snapshot_node(),
     path,
@@ -135,11 +137,15 @@ fn push_dot_label(
   let th = 15.0 * scale
   let left = cx - tw / 2.0
   let top = cy - th / 2.0
-  let hit : @ui.UISnapshotRect = { left, top, width: tw, height: th }
-  let metrics : @ui.UITextMetrics = { width: tw, height: th }
+  let hit : @ui.UISnapshotRect = { left, top, width: tw, height: th, }
+  let metrics : @ui.UITextMetrics = { width: tw, height: th, }
   nodes.push({
     ..@ui.default_ui_snapshot_node(),
-    path: if path == "" { id } else { path },
+    path: if path == "" {
+      id
+    } else {
+      path
+    },
     id,
     role: "label",
     classes: id,
@@ -191,23 +197,31 @@ fn collect_title_snapshot(
       )
     }
     None => {
-      push_dot_label(nodes, "title", "HACK N SLASH", sw / 2.0, sh / 2.0 - 60.0, 3.0)
+      push_dot_label(
+        nodes,
+        "title",
+        "HACK N SLASH",
+        sw / 2.0,
+        sh / 2.0 - 60.0,
+        3.0,
+      )
       push_dot_label(nodes, "subtitle", "3D", sw / 2.0, sh / 2.0 - 10.0, 2.0)
     }
   }
   if state.world.frame_count / 30 % 2 == 0 {
     match state.text_renderer {
-      Some(_) => push_snapshot_text(
-        ctx,
-        nodes,
-        "prompt",
-        "prompt",
-        "PRESS SPACE",
-        24.0,
-        sw / 2.0,
-        sh / 2.0 + 40.0,
-        true,
-      )
+      Some(_) =>
+        push_snapshot_text(
+          ctx,
+          nodes,
+          "prompt",
+          "prompt",
+          "PRESS SPACE",
+          24.0,
+          sw / 2.0,
+          sh / 2.0 + 40.0,
+          true,
+        )
       None =>
         push_dot_label(
           nodes,
@@ -298,7 +312,9 @@ fn collect_playing_hud_snapshot(
     state.world.player.hp,
     state.world.player.max_hp,
   )
-  push_snapshot_rect(nodes, "hud>hp_bar", "hp_bar", "bar", 8.0, hp_y, 140.0, 14.0)
+  push_snapshot_rect(
+    nodes, "hud>hp_bar", "hp_bar", "bar", 8.0, hp_y, 140.0, 14.0,
+  )
   if hp_ratio > 0.0 {
     push_snapshot_rect(
       nodes,
@@ -407,26 +423,10 @@ fn collect_inventory_snapshot(
   sw : Double,
   sh : Double,
 ) -> Unit {
-  push_snapshot_rect(
-    nodes,
-    "inventory",
-    "inventory",
-    "panel",
-    0.0,
-    0.0,
-    sw,
-    sh,
-  )
+  push_snapshot_rect(nodes, "inventory", "inventory", "panel", 0.0, 0.0, sw, sh)
   push_snapshot_text(
-    ctx,
-    nodes,
-    "inventory>title",
-    "inventory_title",
-    "INVENTORY",
-    ui_font_lg,
-    ui_pad,
-    ui_pad,
-    false,
+    ctx, nodes, "inventory>title", "inventory_title", "INVENTORY", ui_font_lg, ui_pad,
+    ui_pad, false,
   )
 }
 

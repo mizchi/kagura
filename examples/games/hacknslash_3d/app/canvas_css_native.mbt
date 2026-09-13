@@ -37,3 +37,8 @@ fn hunter_web_attacking() -> Bool {
 fn hunter_web_selection() -> Int {
   -1
 }
+
+///|
+fn hunter_web_inventory_move() -> Array[Int] {
+  []
+}

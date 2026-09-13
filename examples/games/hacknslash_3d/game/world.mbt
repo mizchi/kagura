@@ -3,6 +3,7 @@
 ///|
 pub(all) struct GameWorld {
   hunting_grounds : Bool
+  mut atlas : WorldAtlas?
   mut authored_scene : AuthoredScene?
   params : BalanceParams
   mut archetype : CharacterArchetype
@@ -16,8 +17,12 @@ pub(all) struct GameWorld {
   mut enemies : Array[Enemy]
   mut items : Array[ItemDrop]
   mut projectiles : Array[Projectile]
-  dungeon : DungeonData
+  mut dungeon : DungeonData
   mut attack_timer : Int
+  mut player_weapon : PlayerWeaponKind
+  mut weapon_attack : PlayerWeaponAttack?
+  mut player_charge : PlayerCharge?
+  mut charge_cooldown : Int
   mut screen_flash : Double
   mut floor_announce_timer : Int
   mut chain_lightning_cooldown_timer : Int
@@ -73,7 +78,7 @@ pub fn GameWorld::new(
   hunting_grounds? : Bool = false,
 ) -> GameWorld {
   let dungeon = if hunting_grounds {
-    generate_hunting_grounds(seed)
+    generate_world_region(seed, 0)
   } else {
     generate_dungeon(seed, params~)
   }
@@ -81,6 +86,7 @@ pub fn GameWorld::new(
   let skills = SkillTree::new_for_archetype(archetype)
   if hunting_grounds {
     equip_hunter_skills(skills)
+    skills.skill_points = 3
   }
   let player_stats = compute_player_stats(
     equipment,
@@ -117,9 +123,10 @@ pub fn GameWorld::new(
   let (discovered_rooms, discovered_rooms_version) = initial_discovered_rooms_for_dungeon(
     dungeon,
   )
-  {
+  let world : GameWorld = {
     params,
     hunting_grounds,
+    atlas: None,
     authored_scene: None,
     archetype,
     build_policy,
@@ -134,13 +141,25 @@ pub fn GameWorld::new(
     projectiles: [],
     dungeon,
     attack_timer: 0,
+    player_weapon: match archetype {
+      Melee => Cleaver
+      Mage => Focus
+      _ => Bow
+    },
+    weapon_attack: None,
+    player_charge: None,
+    charge_cooldown: 0,
     screen_flash: 0.0,
     floor_announce_timer: 0,
     chain_lightning_cooldown_timer: 0,
     homing_missile_cooldown_timer: 0,
     splitting_fireball_cooldown_timer: 0,
     ice_nova_cooldown_timer: 0,
-    inventory: Inventory::new(20),
+    inventory: if hunting_grounds {
+      new_hunter_inventory()
+    } else {
+      Inventory::new(20)
+    },
     equipment,
     skills,
     level_progress,
@@ -169,6 +188,8 @@ pub fn GameWorld::new(
     enemy_separation_next_indices: [],
     enemy_separation_cell_indices: [],
   }
+  world.reset_world_atlas(seed)
+  world
 }
 
 ///|
@@ -177,6 +198,13 @@ pub fn GameWorld::apply_archetype(
   archetype : CharacterArchetype,
 ) -> Unit {
   self.archetype = archetype
+  self.player_weapon = match archetype {
+    Melee => Cleaver
+    Mage => Focus
+    _ => Bow
+  }
+  self.weapon_attack = None
+  self.player_charge = None
   // Reset skills and apply archetype starting skills
   for node in self.skills.nodes {
     node.level = 0
@@ -191,6 +219,7 @@ pub fn GameWorld::apply_archetype(
   // Recompute stats with new archetype
   if self.hunting_grounds {
     equip_hunter_skills(self.skills)
+    self.skills.skill_points = 3
   }
   self.player_stats = compute_player_stats(
     self.equipment,
@@ -233,11 +262,13 @@ pub fn GameWorld::apply_dungeon(
   seed : Int,
   floor : Int,
 ) -> Unit {
+  self.weapon_attack = None
+  self.player_charge = None
   let dungeon = match self.authored_scene {
     Some(scene) => scene_dungeon(scene)
     None =>
       if self.hunting_grounds {
-        generate_hunting_grounds(seed)
+        generate_world_region(seed, 0)
       } else {
         generate_dungeon(seed, floor~, params=self.params)
       }
@@ -286,6 +317,7 @@ pub fn GameWorld::apply_dungeon(
   self.auto_nav_target = None
   self.auto_nav_path = []
   self.auto_nav_index = 0
+  self.reset_world_atlas(seed)
 }
 
 ///|
@@ -644,6 +676,13 @@ pub fn GameWorld::tick_enemy_movement_and_contact_phase(
           enemy.vy,
           enemy.size,
         )
+        if enemy.is_charging() &&
+          (
+            (ex - enemy.x - enemy.vx).abs() > 0.01 ||
+            (ey - enemy.y - enemy.vy).abs() > 0.01
+          ) {
+          enemy.stop_charge()
+        }
         enemy.x = ex
         enemy.y = ey
       }
@@ -658,15 +697,14 @@ pub fn GameWorld::tick_enemy_movement_and_contact_phase(
         }
       }
       // Body contact is damaging only during an active charge.
-      if can_contact_player &&
-        enemy.charge_timer > 0 &&
-        enemy.charge_timer < enemy_tackle_active_frames {
+      if can_contact_player && enemy.is_charging() {
         let overlap_half = player_half + enemy.size / 2.0
         let dx = (player_x - enemy.x).abs()
         if dx < overlap_half {
           let dy = (player_y - enemy.y).abs()
           if dy < overlap_half {
             self.deal_player_damage(enemy_contact_damage)
+            enemy.stop_charge()
             can_contact_player = false
           }
         }
@@ -806,7 +844,8 @@ pub fn GameWorld::tick_items_phase(self : GameWorld) -> Unit {
           item.vy = 0.0
         }
       }
-      if self.frame_count - item.spawn_frame > 600 {
+      if (self.atlas is None || self.authored_scene is Some(_)) &&
+        self.frame_count - item.spawn_frame > 600 {
         item.alive = false
         continue
       }
@@ -1006,7 +1045,7 @@ pub fn GameWorld::tick_meteor_damage_phase(self : GameWorld) -> Unit {
 ///|
 pub fn GameWorld::tick_floor_completion_phase(self : GameWorld) -> Unit {
   // Authored scenes are finite levels. Do not silently generate a new dungeon on completion.
-  if self.authored_scene is Some(_) {
+  if self.authored_scene is Some(_) || self.atlas is Some(_) {
     return
   }
   let mut all_dead = true
@@ -1196,6 +1235,9 @@ pub fn GameWorld::tick_with_enemy_ai_grid(
         self.player.facing_angle = @math.atan2(dy, dx)
       }
   }
+  if self.charge_cooldown > 0 {
+    self.charge_cooldown -= 1
+  }
   // 4. Dash cooldown decrement
   if self.player.dash_cooldown_timer > 0 {
     self.player.dash_cooldown_timer = self.player.dash_cooldown_timer - 1
@@ -1216,6 +1258,8 @@ pub fn GameWorld::tick_with_enemy_ai_grid(
     )
     self.player.x = px
     self.player.y = py
+  } else if self.player_charge is Some(_) {
+    // Charge owns movement until recovery ends.
   } else {
     // 6. Normal movement with slide_move
     let effective_speed = self.params.player_speed *
@@ -1241,16 +1285,27 @@ pub fn GameWorld::tick_with_enemy_ai_grid(
     half,
     @cmp.minimum(world_h - half, self.player.y),
   )
+  self.tick_player_charge(enemy_ai_grid)
   self.mark_current_room_discovered()
+  self.tick_player_weapon_attack()
   // 8. Auto-cast spell slots based on nearest visible enemy
   let (skill_enemy_idx, skill_enemy_dist_sq) = find_nearest_visible_enemy(self)
-  if !self.manual_combat || self.auto_play {
+  if (!self.manual_combat || self.auto_play) &&
+    self.weapon_attack is None &&
+    self.player_charge is None {
     self.auto_activate_spell_slots(skill_enemy_idx, skill_enemy_dist_sq)
   }
   // 9. Auto-attack: archetype-specific basic attack
   if self.attack_timer > 0 {
     self.attack_timer = self.attack_timer - 1
-  } else if !self.manual_combat || self.auto_play {
+  } else if self.manual_combat && self.auto_play {
+    let target = find_nearest_enemy(self, self.player_weapon.profile().reach)
+    if target is Some(enemy) {
+      let _ = self.request_basic_attack(
+        @math.atan2(enemy.y - self.player.y, enemy.x - self.player.x),
+      )
+    }
+  } else if !self.manual_combat {
     match self.archetype {
       Melee => {
         // Melee: circular AoE slash around player

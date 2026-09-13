@@ -236,6 +236,7 @@ pub struct SoundBank[Key] {
 }
 pub fn[Key] SoundBank::clear(Self[Key]) -> Unit
 pub fn[Key] SoundBank::is_muted(Self[Key]) -> Bool
+pub fn[Key] SoundBank::is_paused(Self[Key]) -> Bool
 pub fn[Key] SoundBank::loaded_count(Self[Key]) -> Int
 pub fn[Key] SoundBank::new(MixerAudioContext) -> Self[Key]
 pub fn[Key : Eq] SoundBank::play(Self[Key], Key, restart? : Bool) -> CuePlayback raise
@@ -243,6 +244,7 @@ pub fn[Key : Eq] SoundBank::player(Self[Key], Key) -> PlayerId?
 pub fn[Key] SoundBank::playing_count(Self[Key]) -> Int
 pub fn[Key : Eq] SoundBank::register(Self[Key], Key, AudioClip, volume? : Double) -> Unit raise
 pub fn[Key] SoundBank::set_muted(Self[Key], Bool) -> Unit
+pub fn[Key] SoundBank::set_paused(Self[Key], Bool) -> Unit
 
 // Type aliases
 

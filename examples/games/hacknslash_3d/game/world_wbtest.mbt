@@ -169,7 +169,8 @@ test "tick_enemy_movement_and_contact_phase applies active charge damage once" {
     make_enemy(world.player.x, world.player.y, Basic, 3, 1.0, 10.0),
     make_enemy(world.player.x + 1.0, world.player.y, Fast, 2, 1.0, 8.0),
   ]
-  world.enemies[0].charge_timer = enemy_tackle_active_frames - 1
+  start_enemy_tackle(world.enemies[0], world.player, world.events)
+  world.enemies[0].attack_frame = enemy_tackle_telegraph_frames
   world.tick_enemy_movement_and_contact_phase()
   assert_true(world.player.hp < before_hp)
   assert_true(world.player.iframe_timer > 0)

@@ -128,8 +128,9 @@ fn generated_prop_item_rarity_multiplier(rarity : @game.ItemRarity) -> Int {
 fn generated_prop_item_slot_name(slot : @game.EquipSlot) -> String {
   match slot {
     @game.Weapon => "Sword"
-    @game.Armor => "Armor"
-    @game.Accessory => "Ring"
+    @game.Armor | @game.Helmet | @game.Gloves | @game.Boots | @game.Offhand =>
+      "Armor"
+    @game.Accessory | @game.Amulet => "Ring"
   }
 }
 
@@ -137,8 +138,8 @@ fn generated_prop_item_slot_name(slot : @game.EquipSlot) -> String {
 fn generated_prop_item_slot_index(slot : @game.EquipSlot) -> Int {
   match slot {
     @game.Weapon => 0
-    @game.Armor => 1
-    @game.Accessory => 2
+    @game.Armor | @game.Helmet | @game.Gloves | @game.Boots | @game.Offhand => 1
+    @game.Accessory | @game.Amulet => 2
   }
 }
 
@@ -152,8 +153,9 @@ fn generated_prop_item_base_stats(
   let base = 1 + floor / 3
   match slot {
     @game.Weapon => (base * rarity_mult, 0, 0)
-    @game.Armor => (0, base * rarity_mult, base)
-    @game.Accessory => (base, base, base * rarity_mult)
+    @game.Armor | @game.Helmet | @game.Gloves | @game.Boots | @game.Offhand =>
+      (0, base * rarity_mult, base)
+    @game.Accessory | @game.Amulet => (base, base, base * rarity_mult)
   }
 }
 

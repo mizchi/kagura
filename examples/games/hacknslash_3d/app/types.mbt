@@ -180,6 +180,12 @@ struct GameState {
   mut hud_static_cache_shader_id : Int
   mut hud_static_cache_text_mode : Int
   mut hud_static_cache_builds : Int
+  mut pause_return_ui : @game.UIMode
+  mut pause_return_cursor : Int
+  region_meshes : Array[RegionMeshCache?]
+  mut region_mesh_stamp : Int
+  mut region_chunks_built : Int
+  mut inventory_notice : String
   mut paused : Bool
   mut motion_preview : Bool
 }

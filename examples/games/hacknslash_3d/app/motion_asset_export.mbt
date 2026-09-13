@@ -20,49 +20,34 @@ pub fn export_enemy_motion_asset() -> String {
   })
   let characters : Array[Json] = []
   for
-    (id, name, data, clip) in [
-      ("goblin", "Goblin", models.basic, "punch"),
-      ("kobold", "Kobold", models.fast, "spear_thrust"),
-      ("archer", "Skeleton archer", models.ranged, "bow_shot"),
-      ("caster", "Skeleton mage", models.caster, "cast_spell"),
-      ("tank", "Armored goblin", models.tank, "punch"),
-      ("boss", "Skeleton lord", models.boss, "cast_spell"),
+    (id, name, data) in [
+      ("goblin", "Goblin", models.basic),
+      ("kobold", "Kobold", models.fast),
+      ("skeleton", "Skeleton", models.caster),
+      ("tank", "Armored goblin", models.tank),
+      ("boss", "Skeleton lord", models.boss),
     ] {
-    let parts : Array[Json] = data.parts.map(part => {
-      "name": part.name.to_json(),
-      "color": [part.color.x, part.color.y, part.color.z, part.color.w].to_json(),
-      "vertices": part.geometry.bind_mesh.vertex_data.to_json(),
-      "indices": part.geometry.bind_mesh.indices.to_json(),
-      "joints": part.geometry.skin_data.joint_indices.to_json(),
-      "weights": part.geometry.skin_data.weights.to_json(),
-    })
     characters.push({
       "id": id.to_json(),
       "name": name.to_json(),
-      "defaultClip": clip.to_json(),
-      "parts": parts.to_json(),
+      "parts": export_motion_parts(data.parts).to_json(),
     })
   }
   let clips : Array[Json] = []
-  for
-    (id, name, clip, windup, recovery) in [
-      ("punch", "Punch", build_punch_clip(), 18, 22),
-      ("spear_thrust", "Spear thrust", build_spear_thrust_clip(), 24, 24),
-      (
-        "cast_spell",
-        "Cast spell",
-        build_cast_spell_clip(),
-        @game.meteor_cast_frames,
-        24,
-      ),
-      (
-        "bow_shot",
-        "Bow shot",
-        build_bow_shot_clip(),
-        @game.enemy_bow_draw_frames,
-        22,
-      ),
-    ] {
+  let weapons : Array[Json] = []
+  for weapon in models.weapons {
+    let id = weapon.clip_id
+    let name = weapon.clip_name
+    let clip = weapon.clip
+    let windup = weapon.windup
+    let recovery = weapon.recovery
+    weapons.push({
+      "id": weapon.id.to_json(),
+      "name": weapon.name.to_json(),
+      "parts": export_motion_parts(weapon.mesh.parts).to_json(),
+      "clips": [id, "charge"].to_json(),
+      "defaultClip": id.to_json(),
+    })
     let contact = windup.to_double() / 60.0
     let duration = (windup + recovery).to_double() / 60.0
     let channels : Array[Json] = clip.channels.map(channel => {
@@ -109,13 +94,29 @@ pub fn export_enemy_motion_asset() -> String {
       "channels": channels.to_json(),
     })
   }
+  clips.push(
+    export_charge_clip(shared_enemy_charge_clip, @game.enemy_charge_profile),
+  )
   (
     {
       "format": "kagura.motion",
-      "version": 1,
+      "version": 2,
       "name": "ASHEN HUNT",
       "skeleton": skeleton.to_json(),
       "models": characters.to_json(),
+      "weapons": weapons.to_json(),
       "clips": clips.to_json(),
     } : Json).stringify()
+}
+
+///|
+fn export_motion_parts(parts : Array[EnemyMaterialPart]) -> Array[Json] {
+  parts.map(part => {
+    "name": part.name.to_json(),
+    "color": [part.color.x, part.color.y, part.color.z, part.color.w].to_json(),
+    "vertices": part.geometry.bind_mesh.vertex_data.to_json(),
+    "indices": part.geometry.bind_mesh.indices.to_json(),
+    "joints": part.geometry.skin_data.joint_indices.to_json(),
+    "weights": part.geometry.skin_data.weights.to_json(),
+  })
 }

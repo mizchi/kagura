@@ -118,6 +118,10 @@ export function createMotionViewer(container, asset, player, onFrame) {
       actor.selectModel(id);
       dirty = true;
     },
+    weapon(id) {
+      actor.selectWeapon(id);
+      dirty = true;
+    },
     skeleton(show) {
       actor.helper.visible = show;
       dirty = true;

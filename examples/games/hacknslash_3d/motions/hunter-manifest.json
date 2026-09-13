@@ -1,0 +1,347 @@
+{
+  "version": 1,
+  "profile": {
+    "joints": [
+      {
+        "name": "root",
+        "parent": -1,
+        "position": [
+          0,
+          0,
+          0
+        ],
+        "aimWeapon": false
+      },
+      {
+        "name": "torso",
+        "parent": 0,
+        "position": [
+          0,
+          0.55,
+          0
+        ],
+        "source": "Spine3",
+        "aimWeapon": false
+      },
+      {
+        "name": "r_upper_arm",
+        "parent": 1,
+        "position": [
+          0.24,
+          0.63,
+          0
+        ],
+        "source": "R_Shoulder",
+        "sourceTip": "R_Elbow",
+        "tip": [
+          0.3,
+          0.46,
+          0.02
+        ],
+        "aimWeapon": false
+      },
+      {
+        "name": "r_forearm",
+        "parent": 2,
+        "position": [
+          0.3,
+          0.46,
+          0.02
+        ],
+        "source": "R_Elbow",
+        "sourceTip": "R_Wrist",
+        "tip": [
+          0.33,
+          0.33,
+          0.08
+        ],
+        "aimWeapon": false
+      },
+      {
+        "name": "sword",
+        "parent": 3,
+        "position": [
+          0.33,
+          0.33,
+          0.08
+        ],
+        "aimWeapon": true
+      },
+      {
+        "name": "head",
+        "parent": 1,
+        "position": [
+          0,
+          0.7,
+          0
+        ],
+        "source": "Head",
+        "aimWeapon": false
+      },
+      {
+        "name": "l_upper_arm",
+        "parent": 1,
+        "position": [
+          -0.24,
+          0.63,
+          0
+        ],
+        "source": "L_Shoulder",
+        "sourceTip": "L_Elbow",
+        "tip": [
+          -0.3,
+          0.46,
+          0.02
+        ],
+        "aimWeapon": false
+      },
+      {
+        "name": "l_forearm",
+        "parent": 6,
+        "position": [
+          -0.3,
+          0.46,
+          0.02
+        ],
+        "source": "L_Elbow",
+        "sourceTip": "L_Wrist",
+        "tip": [
+          -0.32,
+          0.3,
+          0.08
+        ],
+        "aimWeapon": false
+      },
+      {
+        "name": "l_thigh",
+        "parent": 0,
+        "position": [
+          -0.115,
+          0.38,
+          0
+        ],
+        "source": "L_Hip",
+        "sourceTip": "L_Knee",
+        "tip": [
+          -0.115,
+          0.2,
+          0
+        ],
+        "aimWeapon": false
+      },
+      {
+        "name": "l_shin",
+        "parent": 8,
+        "position": [
+          -0.115,
+          0.2,
+          0
+        ],
+        "source": "L_Knee",
+        "sourceTip": "L_Ankle",
+        "tip": [
+          -0.115,
+          0.055,
+          0.045
+        ],
+        "aimWeapon": false
+      },
+      {
+        "name": "r_thigh",
+        "parent": 0,
+        "position": [
+          0.115,
+          0.38,
+          0
+        ],
+        "source": "R_Hip",
+        "sourceTip": "R_Knee",
+        "tip": [
+          0.115,
+          0.2,
+          0
+        ],
+        "aimWeapon": false
+      },
+      {
+        "name": "r_shin",
+        "parent": 10,
+        "position": [
+          0.115,
+          0.2,
+          0
+        ],
+        "source": "R_Knee",
+        "sourceTip": "R_Ankle",
+        "tip": [
+          0.115,
+          0.055,
+          0.045
+        ],
+        "aimWeapon": false
+      },
+      {
+        "name": "coat_l",
+        "parent": 1,
+        "position": [
+          -0.12,
+          0.46,
+          -0.14
+        ],
+        "aimWeapon": false
+      },
+      {
+        "name": "coat_r",
+        "parent": 1,
+        "position": [
+          0.12,
+          0.46,
+          -0.14
+        ],
+        "aimWeapon": false
+      },
+      {
+        "name": "bow",
+        "parent": 7,
+        "position": [
+          -0.32,
+          0.3,
+          0.08
+        ],
+        "aimWeapon": false
+      },
+      {
+        "name": "bow_string",
+        "parent": 14,
+        "position": [
+          -0.32,
+          0.3,
+          -0.05
+        ],
+        "aimWeapon": false
+      },
+      {
+        "name": "nocked_arrow",
+        "parent": 15,
+        "position": [
+          -0.32,
+          0.3,
+          -0.05
+        ],
+        "aimWeapon": false
+      }
+    ],
+    "bow": {
+      "handJoint": 3,
+      "handPosition": [
+        0.33,
+        0.33,
+        0.08
+      ]
+    },
+    "soles": [
+      {
+        "joint": 9,
+        "position": [
+          -0.115,
+          0,
+          -0.1
+        ]
+      },
+      {
+        "joint": 9,
+        "position": [
+          -0.115,
+          0,
+          0.19
+        ]
+      },
+      {
+        "joint": 11,
+        "position": [
+          0.115,
+          0,
+          -0.1
+        ]
+      },
+      {
+        "joint": 11,
+        "position": [
+          0.115,
+          0,
+          0.19
+        ]
+      }
+    ]
+  },
+  "clips": [
+    {
+      "source": "spear_thrust",
+      "options": {
+        "name": "hunter_spear_thrust",
+        "frames": 49,
+        "duration": 1,
+        "start": 0,
+        "end": 2.9666666984558105,
+        "contact": 0.5,
+        "blend": 0.1,
+        "mirrorX": true,
+        "impact": 1.97,
+        "aimBone": "R_Wrist",
+        "aimOrigin": "R_Shoulder",
+        "motion": "spear_thrust"
+      }
+    },
+    {
+      "source": "punch",
+      "options": {
+        "name": "hunter_punch",
+        "frames": 49,
+        "duration": 1,
+        "start": 0,
+        "end": 2.9666666984558105,
+        "contact": 0.5,
+        "blend": 0.1,
+        "mirrorX": true,
+        "impact": 1.25,
+        "aimBone": "R_Wrist",
+        "aimOrigin": "R_Shoulder",
+        "motion": "punch"
+      }
+    },
+    {
+      "source": "cast_spell",
+      "options": {
+        "name": "hunter_cast_spell",
+        "frames": 49,
+        "duration": 1,
+        "start": 0,
+        "end": 2.9666666984558105,
+        "contact": 0.5,
+        "blend": 0.1,
+        "mirrorX": true,
+        "impact": 1.5,
+        "aimBone": "L_Wrist",
+        "aimOrigin": "L_Shoulder",
+        "motion": "cast_spell"
+      }
+    },
+    {
+      "source": "bow_shot",
+      "options": {
+        "name": "hunter_bow_shot",
+        "frames": 49,
+        "duration": 1,
+        "start": 0,
+        "end": 3.4666666984558105,
+        "contact": 0.5,
+        "blend": 0.1,
+        "mirrorX": true,
+        "impact": 2.5,
+        "aimBone": "L_Wrist",
+        "aimOrigin": "L_Shoulder",
+        "motion": "bow_shot"
+      }
+    }
+  ]
+}

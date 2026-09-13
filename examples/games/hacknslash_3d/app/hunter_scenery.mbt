@@ -185,10 +185,11 @@ fn GameState::push_hunter_slash(
   dst : @gfx.ImageHandle,
   cmds : Array[@gfx.DrawTrianglesCommand],
 ) -> Unit {
-  if self.character.anim_state != Attacking {
+  if self.character.anim_state != Attacking ||
+    self.character.weapon.kind != @game.Cleaver {
     return
   }
-  let t = self.character.action_time / attack_anim_duration
+  let t = self.character.action_time / self.character.weapon.attack_duration
   if t < 0.16 || t > 0.86 {
     return
   }

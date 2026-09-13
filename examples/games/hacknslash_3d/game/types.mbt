@@ -73,7 +73,7 @@ pub(all) struct ItemDrop {
   kind : ItemKind
   mut alive : Bool
   spawn_frame : Int
-}
+} derive(ToJson, FromJson)
 
 ///|
 pub(all) struct Projectile {
@@ -123,14 +123,14 @@ pub(all) enum EnemyKind {
   Teleporter // blinks behind player periodically
   Swarm // tiny, weak, spawns in large groups
   Caster // channels area damage spells, must be interrupted
-} derive(Eq)
+} derive(Eq, ToJson, FromJson)
 
 ///|
 pub(all) enum ItemKind {
   Health
   Score
   Equipment(ItemData)
-}
+} derive(ToJson, FromJson)
 
 ///|
 pub fn ItemKind::op_equal(self : ItemKind, other : ItemKind) -> Bool {
@@ -154,6 +154,7 @@ pub(all) enum UIMode {
   None
   Inventory
   Skills
+  Waypoints
   LevelUp
 } derive(Eq)
 

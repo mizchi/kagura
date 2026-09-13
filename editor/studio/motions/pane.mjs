@@ -21,18 +21,33 @@ export function installMotionAssets({
     resumeViewport,
     sequence = 0,
     disposed = false;
-  let state = { path: null, state: "idle", model: null, skeleton: false };
+  let state = {
+    path: null,
+    state: "idle",
+    model: null,
+    weapon: null,
+    skeleton: false,
+  };
   const snapshot = () => ({
     ...state,
     transport: player?.snapshot() ?? null,
     models: asset?.models.map(({ id, name }) => ({ id, name })) ?? [],
-    clips:
-      asset?.clips.map(({ id, name, duration, events }) => ({
+    weapons:
+      asset?.weapons.map(({ id, name, clips, defaultClip }) => ({
         id,
         name,
-        duration,
-        events: structuredClone(events),
+        clips: [...clips],
+        defaultClip,
       })) ?? [],
+    clips:
+      asset?.clips
+        .filter((clip) => selectedWeapon()?.clips.includes(clip.id))
+        .map(({ id, name, duration, events }) => ({
+          id,
+          name,
+          duration,
+          events: structuredClone(events),
+        })) ?? [],
   });
   function reset() {
     sequence++;
@@ -42,7 +57,13 @@ export function installMotionAssets({
     asset = undefined;
     resumeViewport?.();
     resumeViewport = undefined;
-    state = { path: null, state: "idle", model: null, skeleton: false };
+    state = {
+      path: null,
+      state: "idle",
+      model: null,
+      weapon: null,
+      skeleton: false,
+    };
     if (mounted) {
       mounted.overlay.hidden = true;
       mounted.stage.replaceChildren();
@@ -91,6 +112,8 @@ export function installMotionAssets({
     return player;
   }
   function selectClip(id) {
+    if (!selectedWeapon()?.clips.includes(id))
+      throw Error("Clip is not available for the selected weapon");
     requirePlayer().selectClip(id);
     mounted.clips.value = id;
     const clip = asset.clips.find((c) => c.id === id);
@@ -101,13 +124,21 @@ export function installMotionAssets({
         ),
       ),
     );
+    updateTitle();
+    sync(player.snapshot());
+  }
+  function selectedWeapon() {
+    return asset?.weapons.find((weapon) => weapon.id === state.weapon);
+  }
+  function updateTitle() {
     mounted.title.textContent =
       asset.name +
       " / " +
       asset.models.find((m) => m.id === state.model).name +
       " / " +
-      clip.name;
-    sync(player.snapshot());
+      selectedWeapon().name +
+      " / " +
+      asset.clips.find((clip) => clip.id === player.snapshot().clip).name;
   }
   function selectModel(id) {
     requirePlayer();
@@ -116,7 +147,22 @@ export function installMotionAssets({
     state.model = id;
     mounted.models.value = id;
     viewer.model(id);
-    selectClip(model.defaultClip);
+    updateTitle();
+  }
+  function selectWeapon(id) {
+    requirePlayer();
+    const weapon = asset.weapons.find((weapon) => weapon.id === id);
+    if (!weapon) throw Error("Unknown motion weapon");
+    viewer.weapon(id);
+    state.weapon = id;
+    mounted.weapons.value = id;
+    mounted.clips.replaceChildren(
+      ...weapon.clips.map((id) => {
+        const clip = asset.clips.find((clip) => clip.id === id);
+        return new Option(clip.name, id);
+      }),
+    );
+    selectClip(weapon.defaultClip);
   }
   function seek(time) {
     requirePlayer().seek(time);
@@ -179,8 +225,8 @@ export function installMotionAssets({
       target.models.replaceChildren(
         ...data.models.map((m) => new Option(m.name, m.id)),
       );
-      target.clips.replaceChildren(
-        ...data.clips.map((c) => new Option(c.name, c.id)),
+      target.weapons.replaceChildren(
+        ...data.weapons.map((weapon) => new Option(weapon.name, weapon.id)),
       );
       target.controls.disabled = false;
       target.timeline.disabled = false;
@@ -190,10 +236,12 @@ export function installMotionAssets({
         path,
         state: "ready",
         model: data.models[0].id,
+        weapon: data.weapons[0].id,
         skeleton: false,
       };
       selectModel(state.model);
-      target.result.textContent = `${data.skeleton.length} joints · ${data.models.length} models · ${data.clips.length} clips`;
+      selectWeapon(state.weapon);
+      target.result.textContent = `${data.models.length} models · ${data.weapons.length} weapons · ${data.clips.length} clips`;
       setStatus("Motion viewer · " + data.name);
       return snapshot();
     } catch (error) {
@@ -251,7 +299,7 @@ export function installMotionAssets({
       const note = document.createElement("p");
       note.className = "panel-note";
       note.textContent =
-        "モデルと動作を選び、コマ送りで確認します。ドラッグで回転、ホイールで拡大。";
+        "素体と武器を組み合わせ、武器に対応する動作を確認します。ドラッグで回転、ホイールで拡大。";
       const resources = select("Motion resource");
       resources.addEventListener("change", () => {
         if (resources.value) preview(resources.value).catch(report);
@@ -274,12 +322,17 @@ export function installMotionAssets({
       controls.disabled = true;
       controls.className = "motion-options";
       const models = select("Motion model"),
+        weapons = select("Motion weapon"),
         clips = select("Motion clip");
       models.addEventListener("change", () => selectModel(models.value));
+      weapons.addEventListener("change", () => selectWeapon(weapons.value));
       clips.addEventListener("change", () => selectClip(clips.value));
       const modelLabel = document.createElement("label");
-      modelLabel.textContent = "モデル";
+      modelLabel.textContent = "素体";
       modelLabel.append(models);
+      const weaponLabel = document.createElement("label");
+      weaponLabel.textContent = "武器・モーションセット";
+      weaponLabel.append(weapons);
       const clipLabel = document.createElement("label");
       clipLabel.textContent = "モーション";
       clipLabel.append(clips);
@@ -303,7 +356,14 @@ export function installMotionAssets({
         camera.append(
           button(name, () => viewer?.view(id), "Motion camera " + id),
         );
-      controls.append(modelLabel, clipLabel, bones.label, grid.label, camera);
+      controls.append(
+        modelLabel,
+        weaponLabel,
+        clipLabel,
+        bones.label,
+        grid.label,
+        camera,
+      );
       const result = document.createElement("p");
       result.setAttribute("aria-label", "Motion information");
       result.className = "panel-note";
@@ -402,6 +462,7 @@ export function installMotionAssets({
         timeline,
         resources,
         models,
+        weapons,
         clips,
         result,
         title,
@@ -440,6 +501,7 @@ export function installMotionAssets({
     importAsset,
     snapshot,
     selectModel,
+    selectWeapon,
     selectClip,
     seek,
     step,

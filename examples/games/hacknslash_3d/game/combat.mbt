@@ -204,13 +204,18 @@ fn roll_drop_item_kind(world : GameWorld, item_seed : Int) -> ItemKind {
     (item_seed * 37 % total_weight + total_weight) % total_weight
   }
   if roll < equipment_weight {
+    let item = generate_item_with_profile_and_drop_config(
+      item_seed,
+      world.floor,
+      world.params.get_affix_profile(),
+      config,
+    )
     Equipment(
-      generate_item_with_profile_and_drop_config(
-        item_seed,
-        world.floor,
-        world.params.get_affix_profile(),
-        config,
-      ),
+      if world.hunting_grounds {
+        hunter_drop_variant(item, item_seed)
+      } else {
+        item
+      },
     )
   } else if roll < equipment_weight + health_weight {
     Health
@@ -357,17 +362,16 @@ pub fn GameWorld::request_basic_attack(
   if self.mode != Playing ||
     self.ui_mode != UIMode::None ||
     self.attack_timer > 0 ||
+    self.weapon_attack is Some(_) ||
+    self.player_charge is Some(_) ||
     self.player.dash_timer > 0 {
     return false
   }
   self.player.facing_angle = angle
-  match self.archetype {
-    Melee => melee_slash(self)
-    Mage => if !cast_chain_lightning(self) { return false }
-    _ => shoot_arrow(self, None)
-  }
+  let profile = self.player_weapon.profile()
+  self.weapon_attack = Some({ weapon: self.player_weapon, angle, frame: 0, })
   self.attack_timer = @cmp.maximum(
-    3,
+    profile.windup + profile.recovery,
     (self.params.bow_cooldown * (1.0 - self.player_stats.cooldown_reduction)).to_int(),
   )
   self.events.push(AttackTriggered)

@@ -61,3 +61,45 @@ test "mute stops all cues and replacing a clip does not leak voices" {
   assert_eq(bank.loaded_count(), 0)
   assert_eq(bank.play(7), @kagura_audio.CuePlayback::Missing)
 }
+
+///|
+test "pausing a sound bank freezes voices and resumes only those that were playing" {
+  let context = @kagura_audio.MixerAudioContext::new(44100)
+  let bank : @kagura_audio.SoundBank[String] = @kagura_audio.SoundBank::new(
+    context,
+  )
+  let clip = @kagura_audio.new_audio_clip(
+    @kagura_audio.default_audio_format(),
+    Bytes::make(4410 * 4, 16),
+    false,
+  )
+  bank.register("attack", clip)
+  bank.register("idle", clip)
+  ignore(bank.play("attack"))
+  let out : FixedArray[Float] = FixedArray::make(882, 0.0)
+  context.render(441, out)
+  let voice = bank.player("attack").unwrap()
+  let position = context.current_position(voice)
+  bank.set_paused(true)
+  bank.set_paused(true)
+  for _ in 0..<20 {
+    context.render(441, out)
+  }
+  assert_eq(context.current_position(voice), position)
+  assert_eq(bank.playing_count(), 0)
+  assert_eq(bank.play("idle"), @kagura_audio.CuePlayback::Suppressed)
+  bank.set_paused(false)
+  assert_eq(bank.playing_count(), 1)
+  context.render(441, out)
+  assert_true(context.current_position(voice) > position)
+  bank.set_paused(true)
+  bank.set_muted(true)
+  bank.set_muted(false)
+  bank.set_paused(false)
+  assert_eq(bank.playing_count(), 0)
+  ignore(bank.play("attack"))
+  bank.set_paused(true)
+  bank.register("attack", clip)
+  bank.set_paused(false)
+  assert_eq(bank.playing_count(), 0)
+}

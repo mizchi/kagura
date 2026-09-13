@@ -1,0 +1,547 @@
+.hunter-panel.panel-skills {
+  width: min(1220px, 100%);
+  padding: 28px;
+  background:
+    radial-gradient(ellipse at 30% 25%, #26382be8, transparent 65%), #111d17f7;
+}
+.tree-heading {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin: 0 34px 26px 0;
+  gap: 16px;
+}
+.tree-heading h2 {
+  margin-bottom: 8px;
+}
+.tree-heading p:last-child {
+  font-size: 11px;
+  color: #a6b09c;
+  margin: 0;
+}
+.tree-points {
+  flex: none;
+  text-align: right;
+  color: #e3c58b;
+}
+.tree-points strong {
+  font:
+    40px Georgia,
+    serif;
+}
+.tree-points > span {
+  font-size: 12px;
+  margin-left: 8px;
+}
+.tree-points small {
+  display: block;
+  color: #a5ae98;
+  font-size: 10px;
+  margin-top: 4px;
+}
+.tree-layout {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) 250px;
+  gap: 24px;
+  align-items: start;
+}
+.tree-map {
+  min-width: 0;
+  border: 1px solid #bca67924;
+  border-radius: 3px;
+  background:
+    radial-gradient(ellipse at 50% 44%, #76916a10, transparent 50%), #0b17113d;
+}
+.tree-branches {
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  border-bottom: 1px solid #bca67924;
+}
+#hunter-hud .tree-branches > button {
+  padding: 16px 6px 14px;
+  text-align: center;
+  color: #ddd4b9;
+  background: transparent;
+  border: 0;
+  border-bottom: 2px solid transparent;
+  cursor: pointer;
+}
+.tree-branches > button + button {
+  border-left: 1px solid #bca67924 !important;
+}
+.tree-branches small {
+  display: block;
+  color: #b19c70;
+  letter-spacing: 0.16em;
+  font-size: 8px;
+  margin-bottom: 6px;
+}
+.tree-branches strong {
+  display: block;
+  font:
+    18px "Yu Mincho",
+    Georgia,
+    serif;
+  letter-spacing: 0.2em;
+}
+.tree-branches span {
+  display: block;
+  color: #8f9c89;
+  font-size: 9px;
+  margin-top: 7px;
+}
+#hunter-hud .tree-branches > button[aria-pressed="true"] {
+  border-bottom-color: #d6ba80;
+  background: #c4af7e0a;
+}
+.tree-window {
+  overflow: hidden;
+}
+.tree-board {
+  width: 100%;
+  height: 490px;
+  position: relative;
+  background: linear-gradient(
+    90deg,
+    transparent 33.2%,
+    #bca67910 33.3%,
+    transparent 33.4%,
+    transparent 66.5%,
+    #bca67910 66.6%,
+    transparent 66.7%
+  );
+}
+.tree-connections {
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+  overflow: visible;
+  pointer-events: none;
+}
+.tree-connections path {
+  fill: none;
+  stroke: #52604c;
+  stroke-width: 1.4;
+  stroke-dasharray: 3 5;
+}
+.tree-connections .path-open {
+  stroke: #a28a58;
+  stroke-dasharray: none;
+}
+.tree-connections .path-learned {
+  stroke: #d3bc82;
+  stroke-width: 2;
+}
+#hunter-hud .tree-node {
+  position: absolute;
+  left: var(--node-x);
+  top: var(--node-y);
+  transform: translate(-50%, -26px);
+  width: 104px;
+  padding: 0;
+  display: flex;
+  align-items: center;
+  flex-direction: column;
+  gap: 5px;
+  background: transparent;
+  border: 0;
+  color: #acb4a0;
+  cursor: pointer;
+}
+.tree-node-ring {
+  display: grid;
+  place-items: center;
+  width: 46px;
+  height: 46px;
+  border-radius: 50%;
+  border: 1px solid #6f7b60;
+  outline: 3px solid #17221a;
+  box-shadow: 0 0 0 4px #6f7b6025;
+  background: #152119;
+}
+.tree-node svg,
+.tree-detail-title svg {
+  width: 23px;
+  height: 23px;
+  fill: none;
+  stroke: currentColor;
+  stroke-width: 1.5;
+}
+.tree-node > strong {
+  font-size: 11px;
+  font-weight: 500;
+  text-shadow: 0 1px 4px #08110a;
+}
+.tree-node > small {
+  font: 9px system-ui;
+  color: #8d9b83;
+}
+.tree-ranks {
+  display: flex;
+  gap: 3px;
+}
+.tree-ranks i {
+  width: 7px;
+  height: 2px;
+  background: #64725970;
+}
+.tree-ranks .filled {
+  background: #ceba83;
+}
+.tree-node.learned {
+  color: #e5d4a2 !important;
+}
+.tree-node.learned .tree-node-ring {
+  background: #34402a;
+  border-color: #c5b079;
+  box-shadow:
+    0 0 0 4px #bca67920,
+    inset 0 0 16px #b6a76c17;
+}
+.tree-node.available .tree-node-ring {
+  border-color: #e0be74;
+  color: #e5c995;
+}
+.tree-node.prerequisite .tree-node-ring {
+  border-style: dashed;
+}
+.tree-node.maxed .tree-node-ring {
+  border-color: #9ec8a7;
+}
+.tree-node[aria-pressed="true"] .tree-node-ring {
+  outline: 2px solid #f0d28c;
+  outline-offset: 5px;
+  box-shadow: 0 0 22px #dbc48528;
+}
+#hunter-hud .tree-node:focus-visible {
+  outline: 0;
+}
+.tree-node:focus-visible .tree-node-ring {
+  outline: 3px solid #fff0c0;
+  outline-offset: 5px;
+}
+.tree-node:hover .tree-node-ring {
+  border-color: #f0d28c;
+}
+.tree-legend {
+  display: flex;
+  align-items: center;
+  flex-wrap: wrap;
+  gap: 12px;
+  padding: 14px;
+  border-top: 1px solid #bca67920;
+  font-size: 9px;
+  color: #9eaa94;
+}
+.tree-legend > span {
+  display: flex;
+  align-items: center;
+  gap: 5px;
+}
+.tree-legend i {
+  width: 6px;
+  height: 6px;
+  border: 1px solid #707c65;
+  border-radius: 50%;
+}
+.tree-legend .learned {
+  background: #bba775;
+  border-color: #bba775;
+}
+.tree-legend .available {
+  border-color: #e0be74;
+}
+.tree-legend small {
+  margin-left: auto;
+  font-size: 9px;
+}
+.tree-detail {
+  background: #0a151074;
+  border: 1px solid #bca67940;
+  border-top: 2px solid #bba775;
+  border-radius: 3px;
+  padding: 20px;
+  position: sticky;
+  top: 24px;
+}
+.tree-detail-caption {
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: space-between;
+  gap: 8px;
+  font-size: 9px;
+  color: #afbd9d;
+}
+.tree-detail-caption b {
+  font-weight: 400;
+  color: #d6c08b;
+}
+.tree-detail-title {
+  display: flex;
+  gap: 12px;
+  align-items: center;
+  color: #e3c996;
+  margin-top: 24px;
+}
+.hunter-panel .tree-detail h3 {
+  font:
+    20px "Yu Mincho",
+    Georgia,
+    serif;
+  margin: 0;
+}
+.tree-description {
+  color: #b0bca4;
+  font-size: 11px;
+  line-height: 1.9;
+  margin: 18px 0 22px;
+}
+.tree-effects {
+  font-size: 11px;
+  margin: 0;
+}
+.tree-effects > div {
+  padding: 12px 0;
+  border-top: 1px solid #bca67925;
+}
+.tree-effects dt {
+  font-size: 9px;
+  color: #8c9a80;
+  margin-bottom: 6px;
+}
+.tree-effects dd {
+  margin: 0;
+  line-height: 1.8;
+  color: #b3beaa;
+}
+.tree-effects .next-effect dd {
+  color: #e7cb92;
+}
+.tree-requirements {
+  margin: 20px 0;
+}
+.tree-requirements h4 {
+  font-size: 10px;
+  font-weight: 400;
+  color: #8c9a80;
+  margin: 0 0 9px;
+}
+.tree-requirements p {
+  font-size: 11px;
+  color: #a2ae95;
+}
+#hunter-hud .tree-requirements button {
+  display: flex;
+  gap: 8px;
+  align-items: center;
+  width: 100%;
+  min-height: 36px;
+  padding: 5px 0;
+  border: 0;
+  background: transparent;
+  color: #b7aa8e;
+  font-size: 11px;
+  text-align: left;
+  cursor: pointer;
+}
+.tree-requirements small {
+  margin-left: auto;
+  font-size: 9px;
+}
+#hunter-hud .tree-requirements .met {
+  color: #b2c696;
+}
+#hunter-hud .tree-allocate {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  width: 100%;
+  min-height: 48px;
+  padding: 12px 16px;
+  border: 1px solid #d2b783;
+  background: #c3a774;
+  color: #162019;
+  font-size: 13px;
+  cursor: pointer;
+}
+.tree-allocate strong {
+  font: 13px system-ui;
+}
+#hunter-hud .tree-allocate:disabled {
+  background: #65705a1a;
+  border-color: #83947440;
+  color: #98a28d;
+  cursor: default;
+}
+.tree-availability {
+  font-size: 10px;
+  color: #a6b293;
+  text-align: center;
+  margin: 12px 0 0;
+  min-height: 15px;
+}
+.tree-guide {
+  margin: 28px 0 0;
+  padding-top: 18px;
+  border-top: 1px solid #bca67920;
+}
+.tree-guide .skill-guide {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 12px;
+}
+.tree-return {
+  display: none;
+}
+#tree-sp-badge {
+  margin-left: 6px;
+  color: #edcb83;
+  font-size: 9px;
+  font-weight: 500;
+}
+.learned-arts {
+  display: flex;
+  gap: 6px;
+}
+#hunter-hud .learned-arts button {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 4px;
+  width: 58px;
+  min-height: 72px;
+  padding: 6px 3px;
+  background: #1e2c22ee;
+  color: #d8c899;
+  border: 1px solid #bdad7c70;
+  border-radius: 4px;
+  cursor: pointer;
+}
+.learned-arts svg {
+  width: 23px;
+  height: 23px;
+  fill: none;
+  stroke: currentColor;
+  stroke-width: 1.5;
+}
+.learned-arts strong {
+  font-size: 9px;
+  font-weight: 400;
+}
+.learned-arts small {
+  font-size: 9px;
+}
+.learned-arts button:disabled {
+  opacity: 0.5;
+  cursor: default;
+}
+@media (pointer: coarse), (max-width: 700px) {
+  .learned-arts {
+    width: 100%;
+    order: 1;
+  }
+  #hunter-hud .learned-arts button {
+    width: 100%;
+    min-width: 0;
+    min-height: 48px;
+    gap: 2px;
+  }
+  .learned-arts svg {
+    width: 18px;
+    height: 18px;
+  }
+  .learned-arts strong {
+    font-size: 8px;
+  }
+}
+@media (max-width: 1000px) {
+  .tree-layout {
+    grid-template-columns: minmax(0, 1fr) 210px;
+    gap: 16px;
+  }
+  .tree-detail {
+    padding: 16px;
+  }
+}
+@media (max-width: 760px) {
+  .hunter-panel.panel-skills {
+    padding: 20px 16px;
+  }
+  .tree-heading {
+    margin: 0 26px 20px 0;
+    gap: 10px;
+  }
+  .tree-heading h2 {
+    font-size: 23px;
+  }
+  .tree-heading .eyebrow {
+    font-size: 7px;
+    letter-spacing: 0.16em;
+  }
+  .tree-heading p:last-child {
+    font-size: 9px;
+  }
+  .tree-points strong {
+    font-size: 32px;
+  }
+  .tree-points small {
+    font-size: 8px;
+  }
+  .tree-layout {
+    display: block;
+  }
+  .tree-board {
+    width: 300%;
+  }
+  .tree-window[data-branch="1"] .tree-board {
+    transform: translateX(-33.333333%);
+  }
+  .tree-window[data-branch="2"] .tree-board {
+    transform: translateX(-66.666667%);
+  }
+  .tree-branches span {
+    display: none;
+  }
+  .tree-branches small {
+    font-size: 7px;
+    letter-spacing: 0.06em;
+  }
+  .tree-branches strong {
+    font-size: 16px;
+  }
+  .tree-legend {
+    gap: 9px;
+    padding: 12px;
+  }
+  .tree-legend small {
+    width: 100%;
+    margin: 0;
+  }
+  .tree-detail {
+    position: static;
+    margin-top: 16px;
+    padding: 20px;
+  }
+  #hunter-hud .tree-return {
+    display: block;
+    width: 100%;
+    min-height: 40px;
+    margin: -4px 0 16px;
+    padding: 6px;
+    border: 1px solid #bca67940;
+    background: transparent;
+    color: #c9b787;
+    font-size: 11px;
+    cursor: pointer;
+  }
+  .tree-guide .skill-guide {
+    grid-template-columns: 1fr;
+  }
+}
+@media (max-height: 500px) and (min-width: 761px) {
+  .tree-detail {
+    position: static;
+  }
+}

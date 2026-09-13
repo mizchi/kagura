@@ -96,6 +96,7 @@ fn GameState::draw_debug_reset_button(
 
 ///|
 fn GameState::reset_save_and_restart(self : GameState) -> Unit {
+  self.set_paused(false)
   let auto_play = self.world.auto_play
   self.delete_save()
   self.world.mode = @game.Playing
@@ -105,6 +106,12 @@ fn GameState::reset_save_and_restart(self : GameState) -> Unit {
   self.world.seed = self.random_seed()
   self.world.apply_dungeon(self.world.seed, 1)
   self.world.attack_timer = 0
+  self.world.charge_cooldown = 0
+  self.world.player_weapon = @game.Cleaver
+  self.character.equip_weapon(@game.Cleaver)
+  self.character.anim_state = Idle
+  self.character.action_time = 0.0
+  self.character.skinning_cache_dirty = true
   self.world.screen_flash = 0.0
   self.world.item_log = []
   self.world.floor_announce_timer = 0
@@ -123,16 +130,15 @@ fn GameState::reset_save_and_restart(self : GameState) -> Unit {
   self.world.player.counter_cooldown_timer = 0
   self.world.ui_mode = @game.UIMode::None
   self.world.ui_cursor = 0
-  for i in 0..<self.world.inventory.capacity {
-    self.world.inventory.items[i] = None
-  }
-  self.world.equipment.weapon = None
-  self.world.equipment.armor = None
-  self.world.equipment.accessory = None
+  self.world.inventory.clear()
+  self.world.equipment.clear()
   for node in self.world.skills.nodes {
     node.level = 0
   }
   self.world.skills.skill_points = 0
+  if self.world.hunting_grounds {
+    self.world.apply_archetype(self.world.archetype)
+  }
   self.world.level_progress = @game.LevelProgression::new(
     config=self.world.params.levelup_config(),
   )

@@ -151,8 +151,10 @@ pub fn LevelProgression::add_xp(
   config : LevelUpConfig,
 ) -> Bool {
   let core = self.to_core()
+  let previous_level = self.level
   let leveled = core.add_xp(gained_xp, config)
   self.sync_from_core(core)
+  skills.skill_points += self.level - previous_level
   if self.current_offers.length() == 0 && self.pending_choices > 0 {
     self.current_offers = build_level_up_offers(
       skills,

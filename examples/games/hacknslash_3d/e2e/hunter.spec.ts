@@ -13,7 +13,7 @@ test.afterEach(async ({ page }, testInfo) => {
 
 test('engine fills the viewport and captures only the game after landscape and portrait resizes', async ({ page }, testInfo) => {
   await page.goto('/?snapshot=playing&frames=0&mute=1');
-  await page.waitForFunction(() => globalThis.__ashenHunt?.bones === 14);
+  await page.waitForFunction(() => globalThis.__ashenHunt?.bones === 17);
   const canvas = page.locator('canvas');
   expect(await canvas.boundingBox()).toEqual({x:0,y:0,width:1280,height:900});
   await page.setViewportSize({width:1600,height:900});
@@ -47,7 +47,7 @@ test('hunter can run, attack, dodge, orbit, zoom and pause in the actual dungeon
   const errors: string[] = [];
   page.on('pageerror', e => errors.push(e.message));
   await page.goto('/?snapshot=playing&frames=0&mute=1');
-  await page.waitForFunction(() => globalThis.__ashenHunt?.bones === 14);
+  await page.waitForFunction(() => globalThis.__ashenHunt?.bones === 17);
   const canvas = page.locator('canvas');
   await expect(canvas).toBeVisible();
   await expect(page).toHaveTitle(/ASHEN HUNT/);

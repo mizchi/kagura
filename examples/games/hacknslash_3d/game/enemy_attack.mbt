@@ -5,6 +5,7 @@ pub(all) enum EnemyAttackMotion {
   SpearThrust
   CastSpell
   BowShot
+  Charge
 } derive(Eq, Debug)
 
 ///|
@@ -31,6 +32,9 @@ pub fn Enemy::begin_attack(
 ///|
 /// Phase 0.5 is contact for every clip, regardless of gameplay cast duration.
 pub fn Enemy::attack_phase(self : Enemy) -> Double {
+  if self.attack_motion == Charge {
+    return enemy_charge_profile.phase(self.attack_frame)
+  }
   if self.attack_motion == NoAttack {
     return 0.0
   }

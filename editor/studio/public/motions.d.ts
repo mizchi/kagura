@@ -1,7 +1,7 @@
-/** Renderer-independent v1 motion preview data. Positions use metres, rotations XYZW, times seconds. */
+/** Renderer-independent motion data. Positions use metres, rotations XYZW, times seconds. */
 export interface MotionAsset {
   format: "kagura.motion";
-  version: 1;
+  version: 2;
   name: string;
   skeleton: Array<{
     name: string;
@@ -13,17 +13,16 @@ export interface MotionAsset {
   models: Array<{
     id: string;
     name: string;
+    /** Body, clothing and armor only. Equipment selection is independent. */
+    parts: MotionPart[];
+  }>;
+  weapons: Array<{
+    id: string;
+    name: string;
+    /** Bind geometry using the shared skeleton, including hand and prop sockets. */
+    parts: MotionPart[];
+    clips: string[];
     defaultClip: string;
-    parts: Array<{
-      name: string;
-      color: [number, number, number, number];
-      /** Interleaved bind-pose position (3), normal (3), UV (2). */
-      vertices: number[];
-      indices: number[];
-      /** Four joint indices and normalized weights per vertex. */
-      joints: number[];
-      weights: number[];
-    }>;
   }>;
   clips: Array<{
     id: string;
@@ -40,6 +39,24 @@ export interface MotionAsset {
     }>;
   }>;
 }
+export interface MotionPart {
+  name: string;
+  color: [number, number, number, number];
+  /** Interleaved bind-pose position (3), normal (3), UV (2). */
+  vertices: number[];
+  indices: number[];
+  /** Four joint indices and normalized weights per vertex. */
+  joints: number[];
+  weights: number[];
+}
+/** v1 imports retain embedded equipment; validation upgrades them to a v2 embedded set. */
+export type LegacyMotionAsset = Omit<
+  MotionAsset,
+  "version" | "models" | "weapons"
+> & {
+  version: 1;
+  models: Array<MotionAsset["models"][number] & { defaultClip: string }>;
+};
 export interface MotionTransport {
   clip: string;
   time: number;
@@ -54,9 +71,16 @@ export interface MotionPreviewSnapshot {
   path: string | null;
   state: "idle" | "loading" | "ready" | "error";
   model: string | null;
+  weapon: string | null;
   skeleton: boolean;
   transport: MotionTransport | null;
   models: Array<{ id: string; name: string }>;
+  weapons: Array<{
+    id: string;
+    name: string;
+    clips: string[];
+    defaultClip: string;
+  }>;
   clips: Array<{
     id: string;
     name: string;
@@ -68,11 +92,12 @@ export interface MotionAssetsAPI {
   list(): Promise<string[]>;
   preview(projectPath: string): Promise<MotionPreviewSnapshot>;
   importAsset(
-    asset: MotionAsset,
+    asset: MotionAsset | LegacyMotionAsset,
     name?: string,
   ): Promise<MotionPreviewSnapshot>;
   snapshot(): MotionPreviewSnapshot;
   selectModel(id: string): void;
+  selectWeapon(id: string): void;
   selectClip(id: string): void;
   play(): void;
   pause(): void;

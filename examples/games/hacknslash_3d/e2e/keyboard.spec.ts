@@ -35,7 +35,7 @@ test('engine normalizes physical codes independently of Dvorak characters and ke
 
 test('Dvorak physical movement and camera keys never trigger each other', async ({ page, context }) => {
   await page.goto('/?snapshot=playing&frames=0&mute=1&seed=42');
-  await page.waitForFunction(() => globalThis.__ashenHunt?.bones === 14);
+  await page.waitForFunction(() => globalThis.__ashenHunt?.bones === 17);
   await page.locator('canvas').focus();
   const session=await context.newCDPSession(page);
   const actor=()=>page.evaluate(() => globalThis.__ashenHunt);

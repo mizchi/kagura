@@ -454,6 +454,9 @@ pub fn process_player_projectiles(
 
 ///|
 pub fn activate_skill(world : GameWorld, slot : Int) -> Unit {
+  if world.weapon_attack is Some(_) || world.player_charge is Some(_) {
+    return
+  }
   match slot {
     0 => {
       // Slot 1: Power Strike
@@ -598,7 +601,7 @@ pub fn activate_skill(world : GameWorld, slot : Int) -> Unit {
         world.player.counter_timer <= 0 &&
         world.player.counter_cooldown_timer <= 0 {
         world.player.counter_timer = counter_duration_frames
-        world.player.counter_cooldown_timer = counter_cooldown_frames
+        world.player.counter_cooldown_timer = counter_cooldown_for_level(level)
         world.events.push(DeathBurst(world.player.x, world.player.y))
       }
     }

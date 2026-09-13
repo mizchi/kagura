@@ -2,7 +2,7 @@
 // Geometry and palette live in hunter_model.mbt; motion never edits the bind mesh.
 
 ///|
-let char_num_bones : Int = 14
+let char_num_bones : Int = 17
 
 ///|
 let hunter_head_height : Double = 0.7
@@ -11,12 +11,10 @@ let hunter_head_height : Double = 0.7
 let run_anim_duration : Double = 0.48
 
 ///|
-let attack_anim_duration : Double = 0.32
-
-///|
 enum CharAnimState {
   Idle
   Attacking
+  Charging
   Running
   Hurt
   Dodging
@@ -25,11 +23,17 @@ enum CharAnimState {
 ///|
 struct PlayerCharacter {
   skeleton : @skeleton3d.Skeleton
-  parts : Array[HunterPart]
+  body_parts : Array[HunterPart]
+  mut weapon : HunterWeaponSet
+  equipped_cache : Map[Int, HunterEquippedMesh]
+  charge_player : @animation3d.AnimationPlayer
+  mut attack_player : @animation3d.AnimationPlayer?
+  // Composed once for rendering, preserving shared material batches.
+  mut parts : Array[HunterPart]
   // Combined mesh is kept for geometry inspection and existing tooling.
-  bind_mesh : @mesh3d.Mesh3D
-  skin_data : @skeleton3d.SkinData
-  packed_vertex_data : Array[Double]
+  mut bind_mesh : @mesh3d.Mesh3D
+  mut skin_data : @skeleton3d.SkinData
+  mut packed_vertex_data : Array[Double]
   mut anim_state : CharAnimState
   mut moving : Bool
   mut time : Double
@@ -62,6 +66,9 @@ fn build_character_skeleton() -> @skeleton3d.Skeleton {
     ("r_shin", 10, 0.115, 0.20, 0.0),
     ("coat_l", 1, -0.12, 0.46, -0.14),
     ("coat_r", 1, 0.12, 0.46, -0.14),
+    ("bow", 7, -0.32, 0.30, 0.08),
+    ("bow_string", 14, -0.32, 0.30, -0.05),
+    ("nocked_arrow", 15, -0.32, 0.30, -0.05),
   ]
   let bones : Array[@skeleton3d.Bone] = []
   let ibms : Array[@math3d.Mat4] = []
@@ -88,16 +95,29 @@ fn build_character_skeleton() -> @skeleton3d.Skeleton {
 ///|
 fn PlayerCharacter::new() -> PlayerCharacter {
   let skeleton = build_character_skeleton()
-  let parts = build_hunter_parts()
+  let body_parts = build_hunter_parts()
+  let weapon = shared_hunter_weapon_sets[0]
+  let parts = equip_hunter_parts(body_parts, weapon)
   let (bind_mesh, skin_data) = combine_hunter_parts(parts)
+  let packed_vertex_data = @skeleton3d.build_skinned_vertex_data(
+    bind_mesh, skin_data,
+  )
   {
     skeleton,
+    body_parts,
+    weapon,
+    equipped_cache: Map([
+      (
+        0,
+        { parts, mesh: bind_mesh, skin: skin_data, packed: packed_vertex_data, },
+      ),
+    ]),
+    attack_player: None,
+    charge_player: @animation3d.AnimationPlayer::new(shared_hunter_charge_clip),
     parts,
     bind_mesh,
     skin_data,
-    packed_vertex_data: @skeleton3d.build_skinned_vertex_data(
-      bind_mesh, skin_data,
-    ),
+    packed_vertex_data,
     anim_state: Idle,
     moving: false,
     time: 0.0,
@@ -126,7 +146,9 @@ fn PlayerCharacter::trigger_attack(self : PlayerCharacter) -> Unit {
 
 ///|
 fn PlayerCharacter::trigger_hurt(self : PlayerCharacter) -> Unit {
-  if self.anim_state == Dodging || self.anim_state == Attacking {
+  if self.anim_state == Dodging ||
+    self.anim_state == Attacking ||
+    self.anim_state == Charging {
     return
   }
   self.anim_state = Hurt
@@ -156,7 +178,8 @@ fn PlayerCharacter::update(self : PlayerCharacter, dt : Double) -> Unit {
   self.time += dt
   self.action_time += dt
   let duration = match self.anim_state {
-    Attacking => attack_anim_duration
+    Charging => @game.player_charge_profile.duration().to_double() / 60.0
+    Attacking => self.weapon.attack_duration
     Hurt => 0.24
     Dodging => 0.24
     _ => -1.0
@@ -221,22 +244,10 @@ fn PlayerCharacter::compute_skinning(
   )
   self.rotate_bone(12, -0.18 - stride.abs() * 0.25, 0.0, stride * 0.12)
   self.rotate_bone(13, -0.18 - stride.abs() * 0.25, 0.0, -stride * 0.12)
+  self.local_poses[16] = self.local_poses[16].with_scale(@math3d.Vec3::zero())
   match self.anim_state {
-    Attacking => {
-      let t = self.action_time / attack_anim_duration
-      // Anticipation -> fast cross-body sweep -> recovery to ready stance.
-      let swing = if t < 0.24 {
-        t / 0.24 * -0.65
-      } else if t < 0.62 {
-        -0.65 + (t - 0.24) / 0.38 * 2.1
-      } else {
-        1.45 * (1.0 - (t - 0.62) / 0.38)
-      }
-      self.rotate_bone(1, 0.08, swing * self.attack_side * 0.45, 0.0)
-      self.rotate_bone(2, -1.0, swing * self.attack_side, -0.35)
-      self.rotate_bone(3, -0.35, 0.0, -0.3)
-      self.rotate_bone(5, 0.0, -swing * self.attack_side * 0.2, 0.0)
-    }
+    Charging => self.sample_charge()
+    Attacking => self.sample_weapon_attack()
     Hurt =>
       self.rotate_bone(
         1,

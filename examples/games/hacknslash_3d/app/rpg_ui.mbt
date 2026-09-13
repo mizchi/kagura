@@ -148,6 +148,7 @@ fn draw_stat_pct_with_diff(
 fn GameState::update_ui(self : GameState) -> Unit {
   match self.world.ui_mode {
     @game.Inventory => self.update_inventory_ui()
+    @game.Waypoints => self.update_waypoints_ui()
     @game.Skills => self.update_skills_ui()
     @game.LevelUp => self.update_levelup_ui()
     @game.UIMode::None => ()
@@ -178,6 +179,18 @@ fn GameState::update_inventory_ui(self : GameState) -> Unit {
   if @inpututil.is_key_just_pressed(self.input.key_state, key_e) {
     match self.world.inventory.items[self.world.ui_cursor] {
       Some(item) => {
+        if self.world.inventory.grid is Some(_) {
+          ignore(
+            self.apply_inventory_command([
+              self.world.ui_cursor,
+              item.slot.index(),
+              0,
+              0,
+              0,
+            ]),
+          )
+          return
+        }
         let prev = self.world.equipment.equip(item)
         self.world.inventory.items[self.world.ui_cursor] = prev
         self.world.player_stats = @game.compute_player_stats(
@@ -246,18 +259,8 @@ fn GameState::update_skills_ui(self : GameState) -> Unit {
     let sel_idx = self.world.ui_cursor
     if sel_idx >= 0 && sel_idx < nodes.length() {
       let skill_id = nodes[sel_idx].id
-      if self.world.archetype.can_learn_skill(skill_id) &&
-        self.world.skills.learn(skill_id) {
-        self.world.player_stats = @game.compute_player_stats(
-          self.world.equipment,
-          self.world.skills,
-          base_hp=self.world.params.player_base_hp.to_int(),
-          archetype=Some(self.world.archetype),
-        )
-        self.world.player.hp = @cmp.minimum(
-          self.world.player.hp,
-          self.world.player_stats.max_hp,
-        )
+      if self.world.allocate_skill(skill_id) {
+        self.save_game()
       }
     }
   }
@@ -381,6 +384,7 @@ fn GameState::render_rpg_ui_cmds(
   self.sync_icon_atlas()
   match self.world.ui_mode {
     @game.Inventory => self.render_inventory_ui(dst, shader, cmds)
+    @game.Waypoints => self.render_waypoints_ui(dst, shader, cmds)
     @game.Skills => self.render_skills_ui(dst, shader, cmds)
     @game.LevelUp => self.render_levelup_ui(dst, shader, cmds)
     @game.UIMode::None => ()
@@ -409,23 +413,25 @@ fn GameState::render_inventory_ui(
   // ---- Equipment section ----
   ctx.draw_text(cmds, "EQUIPPED", ui_font_sm, p, y, 0x888888)
   y = y + 18.0
-  let slot_labels = ["WPN", "ARM", "ACC"]
-  let slot_items = [
-    self.world.equipment.weapon,
-    self.world.equipment.armor,
-    self.world.equipment.accessory,
+  let slot_labels = [
+    "WPN", "ARM", "RING", "HEAD", "HAND", "FEET", "OFF", "NECK",
   ]
+  let slot_items = @game.equipment_slots().map(slot => {
+    self.world.equipment.item_for_slot(slot)
+  })
+  let column_width = (sw - p * 3.0) / 2.0
   for i, label in slot_labels {
-    let row_y = y + i.to_double() * rh
+    let row_y = y + (i / 2).to_double() * rh
+    let row_x = p + (i % 2).to_double() * (column_width + p)
     ctx.draw_rect(
       cmds,
-      p,
+      row_x,
       row_y,
-      sw - p * 2.0,
+      column_width,
       rh - 2.0,
       @hud.hex_color(0x1A1A33),
     )
-    ctx.draw_text(cmds, label, ui_font_sm, p + 4.0, row_y + 4.0, 0x666688)
+    ctx.draw_text(cmds, label, ui_font_sm, row_x + 4.0, row_y + 4.0, 0x666688)
     match slot_items[i] {
       Some(item) => {
         let _ = self.append_item_icon(
@@ -433,23 +439,30 @@ fn GameState::render_inventory_ui(
           dst,
           shader,
           item,
-          p + 30.0,
+          row_x + 34.0,
           row_y + 2.0,
         )
         ctx.draw_text(
           cmds,
           item.display_name(),
           ui_font_sm,
-          p + 52.0,
+          row_x + 56.0,
           row_y + 4.0,
           item.rarity.color(),
         )
       }
       None =>
-        ctx.draw_text(cmds, "---", ui_font_sm, p + 52.0, row_y + 4.0, 0x444444)
+        ctx.draw_text(
+          cmds,
+          "---",
+          ui_font_sm,
+          row_x + 56.0,
+          row_y + 4.0,
+          0x444444,
+        )
     }
   }
-  y = y + 3.0 * rh + 4.0
+  y = y + 4.0 * rh + 4.0
   // ---- Stats panel with equip preview ----
   let s = self.world.player_stats
   // Compute preview stats if cursor is on an equippable item
@@ -679,7 +692,12 @@ fn GameState::render_inventory_ui(
         let slot_name = match item.slot {
           @game.Weapon => "WPN"
           @game.Armor => "ARM"
-          @game.Accessory => "ACC"
+          @game.Accessory => "RNG"
+          @game.Helmet => "HEAD"
+          @game.Gloves => "HAND"
+          @game.Boots => "FEET"
+          @game.Offhand => "OFF"
+          @game.Amulet => "NECK"
         }
         ctx.draw_text(cmds, slot_name, ui_font_sm, dx, detail_y, 0x888888)
         dx = dx + 80.0
@@ -786,7 +804,7 @@ fn GameState::render_skills_ui(
   for node in self.world.skills.nodes {
     let nx = margin + node.tree_x * (sw - margin * 2.0)
     let ny = margin + 20.0 + node.tree_y * (sh - margin * 2.0 - 20.0)
-    for conn_id in node.connections {
+    for conn_id in node.prereqs {
       match self.world.skills.find(conn_id) {
         Some(pn) => {
           let px = margin + pn.tree_x * (sw - margin * 2.0)
@@ -824,7 +842,7 @@ fn GameState::render_skills_ui(
     let nx = margin + node.tree_x * (sw - margin * 2.0)
     let ny = margin + 20.0 + node.tree_y * (sh - margin * 2.0 - 20.0)
     let sel = i == self.world.ui_cursor
-    let archetype_allowed = self.world.archetype.can_learn_skill(node.id)
+    let archetype_allowed = self.world.skill_allowed(node.id)
     let can_learn = archetype_allowed && self.world.skills.can_learn(node.id)
     // Node radius by size
     let base_r = match node.node_size {

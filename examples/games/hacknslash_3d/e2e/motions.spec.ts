@@ -9,7 +9,7 @@ for(const viewport of [{width:1280,height:900},{width:390,height:844}]) {
   const shots:PNG[]=[];
   for(const frame of [12,24]){
    await page.goto(`/?snapshot=motions&frames=${frame}&seed=42&mute=1`);
-   await page.waitForFunction(()=>globalThis.__ashenHunt?.bones===14);
+   await page.waitForFunction(()=>globalThis.__ashenHunt?.bones === 17);
    shots.push(PNG.sync.read(await captureGameFrame(page,{path:info.outputPath(`motion-${frame}.png`)})));
   }
   const [a,b]=shots,changed=[0,0,0],colored=[0,0,0];
@@ -41,7 +41,7 @@ for(const viewport of [{width:1280,height:900},{width:390,height:844}]) {
   const shots:PNG[]=[];
   for(const frame of [6,22,26]){
    await page.goto(`/?snapshot=bow&frames=${frame}&seed=42&mute=1`);
-   await page.waitForFunction(()=>globalThis.__ashenHunt?.bones===14);
+   await page.waitForFunction(()=>globalThis.__ashenHunt?.bones === 17);
    shots.push(PNG.sync.read(await captureGameFrame(page,{path:info.outputPath(`bow-${frame}.png`)})));
   }
   for(const [a,b] of [[shots[0],shots[1]],[shots[1],shots[2]]]){

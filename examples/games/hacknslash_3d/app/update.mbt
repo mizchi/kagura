@@ -85,7 +85,7 @@ fn GameState::new_with_params(
   )
   let meshes = Meshes3D::new()
   let dungeon_chunks = if hunting_grounds {
-    build_hunting_chunks(world.dungeon, seed)
+    build_hunting_chunks(world.dungeon, seed, region=0)
   } else {
     build_dungeon_chunks(world.dungeon, meshes)
   }
@@ -219,7 +219,13 @@ fn GameState::new_with_params(
     hud_static_cache_shader_id: -1,
     hud_static_cache_text_mode: -1,
     hud_static_cache_builds: 0,
+    region_meshes: [None, None, None, None],
+    region_mesh_stamp: 0,
+    region_chunks_built: 0,
+    inventory_notice: "",
     paused: false,
+    pause_return_ui: @game.UIMode::None,
+    pause_return_cursor: 0,
     motion_preview: false,
   }
 }
@@ -234,6 +240,7 @@ fn GameState::update(self : GameState, input : @core.InputSnapshot) -> Unit {
       self.world.select_cursor = selection
     } else {
       let count = match self.world.ui_mode {
+        Waypoints => @game.world_regions.length()
         Inventory => self.world.inventory.capacity
         Skills => self.world.skills.nodes.length()
         LevelUp => self.world.level_progress.current_offers.length()
@@ -262,13 +269,32 @@ fn GameState::update(self : GameState, input : @core.InputSnapshot) -> Unit {
       input.gamepads,
     )
   }
-  self.world.frame_count = self.world.frame_count + 1
-  let previous_x = self.world.cursor_x
-  let previous_y = self.world.cursor_y
   let was_dragging = @inpututil.is_mouse_button_pressed(
     self.input.mouse_state,
     2,
   )
+  @inpututil.update_input_helper(self.input, input)
+  let inventory_command = hunter_web_inventory_move()
+  if inventory_command.length() > 0 {
+    ignore(self.apply_inventory_command(inventory_command))
+    return
+  }
+  if self.handle_pause_input() {
+    return
+  }
+  if self.update_region_streaming() {
+    return
+  }
+  if self.world.mode != @game.Playing ||
+    (
+      !self.paused &&
+      self.world.ui_mode == @game.UIMode::None &&
+      !self.motion_preview
+    ) {
+    self.world.frame_count = self.world.frame_count + 1
+  }
+  let previous_x = self.world.cursor_x
+  let previous_y = self.world.cursor_y
   // Scale CSS cursor coordinates to logical game coordinates
   let css_w = canvas_css_width()
   let css_h = canvas_css_height()
@@ -280,6 +306,7 @@ fn GameState::update(self : GameState, input : @core.InputSnapshot) -> Unit {
   self.world.cursor_x = input.cursor_x * scale_x
   self.world.cursor_y = input.cursor_y * scale_y
   if self.world.mode == @game.Playing &&
+    !self.paused &&
     self.world.ui_mode == @game.UIMode::None {
     self.camera = hunter_camera_input(
       self.camera,
@@ -291,7 +318,6 @@ fn GameState::update(self : GameState, input : @core.InputSnapshot) -> Unit {
       scale_y,
     )
   }
-  @inpututil.update_input_helper(self.input, input)
   // Profiler toggle (works in any mode)
   if @inpututil.is_key_just_pressed(self.input.key_state, key_f3) {
     self.show_profiler = !self.show_profiler
@@ -307,19 +333,10 @@ fn GameState::update(self : GameState, input : @core.InputSnapshot) -> Unit {
   if @inpututil.is_key_just_pressed(self.input.key_state, key_m) {
     self.toggle_audio_muted()
   }
-  // Pause toggle (only during Playing)
-  if @inpututil.is_key_just_pressed(self.input.key_state, key_p) &&
-    self.world.mode == @game.Playing {
-    if self.motion_preview {
-      self.motion_preview = false
-    } else {
-      self.paused = !self.paused
-    }
-  }
   match self.world.mode {
     @game.Title => self.update_title(input)
     @game.CharacterSelect => self.update_character_select(input)
-    @game.Playing => self.update_playing()
+    @game.Playing => self.update_playing(web_attack=web_key == 74)
     @game.GameOver => self.update_gameover(input)
   }
 }
@@ -404,12 +421,8 @@ fn GameState::update_gameover(
     // Reset RPG state
     self.world.ui_mode = @game.UIMode::None
     self.world.ui_cursor = 0
-    for i in 0..<self.world.inventory.capacity {
-      self.world.inventory.items[i] = None
-    }
-    self.world.equipment.weapon = None
-    self.world.equipment.armor = None
-    self.world.equipment.accessory = None
+    self.world.inventory.clear()
+    self.world.equipment.clear()
     for node in self.world.skills.nodes {
       node.level = 0
     }
@@ -427,17 +440,36 @@ fn GameState::update_gameover(
 }
 
 ///|
-fn GameState::update_playing(self : GameState) -> Unit {
+fn GameState::update_playing(
+  self : GameState,
+  web_attack? : Bool = false,
+) -> Unit {
+  self.character.equip_weapon(self.world.player_weapon)
   // Auto-play toggle (F2)
-  if @inpututil.is_key_just_pressed(self.input.key_state, key_f2) {
+  if !self.paused &&
+    @inpututil.is_key_just_pressed(self.input.key_state, key_f2) {
     self.world.auto_play = !self.world.auto_play
   }
   if self.world.ui_mode == @game.LevelUp {
     self.update_ui()
     return
   }
+  if @inpututil.is_key_just_pressed(self.input.key_state, 71) &&
+    self.world.atlas is Some(_) &&
+    self.world.authored_scene is None &&
+    !self.motion_preview {
+    if self.world.ui_mode == @game.Waypoints {
+      self.world.ui_mode = @game.UIMode::None
+    } else {
+      self.world.ui_mode = @game.Waypoints
+      self.world.ui_cursor = self.world.atlas.unwrap().current
+    }
+    self.world.atlas.unwrap().travel_target = None
+    return
+  }
   // UI toggle (works while paused)
   if @inpututil.is_key_just_pressed(self.input.key_state, key_i) {
+    self.inventory_notice = ""
     self.world.ui_mode = if self.world.ui_mode == @game.Inventory {
       @game.UIMode::None
     } else {
@@ -455,11 +487,6 @@ fn GameState::update_playing(self : GameState) -> Unit {
     self.world.ui_cursor = 0
     return
   }
-  if @inpututil.is_key_just_pressed(self.input.key_state, key_escape) &&
-    self.world.ui_mode != @game.UIMode::None {
-    self.world.ui_mode = @game.UIMode::None
-    return
-  }
   // UI interaction mode (works while paused)
   if self.world.ui_mode != @game.UIMode::None {
     self.update_ui()
@@ -468,6 +495,23 @@ fn GameState::update_playing(self : GameState) -> Unit {
   // Skip game tick while paused
   if self.paused || self.motion_preview {
     return
+  }
+  // Physical X, or the same intent with a selected weapon from the mobile HUD.
+  if @inpututil.is_key_just_pressed(self.input.key_state, 88) {
+    let selected = hunter_web_selection()
+    let index = if selected >= 0 {
+      selected
+    } else {
+      (self.world.player_weapon.index() + 1) % 5
+    }
+    match @game.player_weapon_from_index(index) {
+      Some(weapon) =>
+        if self.world.equip_player_weapon(weapon) {
+          self.character.equip_weapon(weapon)
+          self.save_game()
+        }
+      None => ()
+    }
   }
   let previous_player_x = self.world.player.x
   let previous_player_y = self.world.player.y
@@ -531,6 +575,16 @@ fn GameState::update_playing(self : GameState) -> Unit {
       self.character.trigger_dodge()
       self.play_sound_cue(SfxDodge)
     }
+    if @inpututil.is_key_just_pressed(self.input.key_state, 67) {
+      let angle = if dx != 0.0 || dy != 0.0 {
+        @math.atan2(dy, dx)
+      } else {
+        hunter_assisted_aim(self.world)
+      }
+      if self.world.request_charge(angle) {
+        self.play_sound_cue(SfxAttack)
+      }
+    }
     // Skill activation: 1/2/3 keys
     if @inpututil.is_key_just_pressed(self.input.key_state, key_1) {
       @game.activate_skill(self.world, 0)
@@ -559,10 +613,24 @@ fn GameState::update_playing(self : GameState) -> Unit {
       )
     }
     if @inpututil.is_key_just_pressed(self.input.key_state, key_5) {
-      @game.activate_skill(self.world, 4)
+      @game.activate_skill(
+        self.world,
+        if self.world.hunting_grounds {
+          3
+        } else {
+          4
+        },
+      )
     }
     if @inpututil.is_key_just_pressed(self.input.key_state, key_6) {
-      @game.activate_skill(self.world, 5)
+      @game.activate_skill(
+        self.world,
+        if self.world.hunting_grounds {
+          6
+        } else {
+          5
+        },
+      )
     }
     if @inpututil.is_key_just_pressed(self.input.key_state, key_7) {
       @game.activate_skill(self.world, 6)
@@ -573,7 +641,7 @@ fn GameState::update_playing(self : GameState) -> Unit {
     if @inpututil.is_mouse_button_pressed(self.input.mouse_state, 0) ||
       @inpututil.is_key_pressed(self.input.key_state, 74) ||
       hunter_web_attacking() {
-      let angle = if hunter_web_attacking() {
+      let angle = if hunter_web_attacking() || web_attack {
         hunter_assisted_aim(self.world)
       } else {
         hunter_aim_angle(
@@ -601,6 +669,9 @@ fn GameState::update_playing(self : GameState) -> Unit {
   }
   self.update_damage_popups()
   // Process events from world tick
+  if self.try_cross_region_boundary() {
+    return
+  }
   let events = self.world.drain_events()
   for event in events {
     self.play_sound_for_event(event)
@@ -698,6 +769,21 @@ fn GameState::update_playing(self : GameState) -> Unit {
   let is_moving = moved_x * moved_x + moved_y * moved_y > 0.0001
   self.character.set_moving(is_moving)
   self.character.update(1.0 / 60.0)
+  // Sample the same integer frame as combat; float accumulation must not delay release.
+  if self.world.weapon_attack is Some(attack) {
+    self.character.action_time = attack.frame.to_double() / 60.0
+  }
+  if self.world.player_charge is Some(charge) {
+    self.character.anim_state = Charging
+    self.character.action_time = charge.frame.to_double() / 60.0
+    self.character.skinning_cache_dirty = true
+    if charge.frame == @game.player_charge_profile.windup {
+      self.play_sound_cue(SfxDodge)
+    }
+  } else if self.character.anim_state == Charging {
+    self.character.anim_state = if is_moving { Running } else { Idle }
+    self.character.skinning_cache_dirty = true
+  }
   self.enemy_models.update(1.0 / 60.0)
   // Ambient dust particles (every 15 frames)
   if self.world.frame_count % 15 == 0 {
@@ -741,9 +827,16 @@ fn GameState::update_damage_popups(self : GameState) -> Unit {
 
 ///|
 fn GameState::rebuild_dungeon_rendering(self : GameState) -> Unit {
+  for i in 0..<self.region_meshes.length() {
+    self.region_meshes[i] = None
+  }
   self.dungeon_chunks = if self.world.hunting_grounds &&
     self.world.authored_scene is None {
-    build_hunting_chunks(self.world.dungeon, self.world.seed)
+    build_hunting_chunks(
+      self.world.dungeon,
+      self.world.seed,
+      region=self.world.atlas.map(atlas => atlas.current).or(-1),
+    )
   } else {
     build_dungeon_chunks(self.world.dungeon, self.meshes)
   }

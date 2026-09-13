@@ -62,7 +62,14 @@ export const fixture = () => ({
 test("portable assets validate skin indices, hierarchy, animation and contact references", () => {
   const raw = fixture(),
     asset = validateMotionAsset(raw);
-  assert.deepEqual(asset, raw);
+  assert.equal(asset.version, 2);
+  assert.deepEqual(asset.models[0].parts, raw.models[0].parts);
+  assert.equal(asset.weapons[0].defaultClip, "punch");
+  assert.deepEqual(
+    asset.weapons[0].parts,
+    [],
+    "legacy embedded equipment stays in its original geometry",
+  );
   assert.notEqual(asset, raw);
   for (const mutate of [
     (x) => (x.skeleton[0].parent = 0),
@@ -80,6 +87,44 @@ test("portable assets validate skin indices, hierarchy, animation and contact re
     (x) => (x.unexpected = true),
   ]) {
     const bad = fixture();
+    mutate(bad);
+    assert.throws(() => validateMotionAsset(bad));
+  }
+});
+
+test("weapon sets validate their own geometry and clip references independently of models", () => {
+  const make = () => {
+    const raw = fixture();
+    raw.version = 2;
+    delete raw.models[0].defaultClip;
+    raw.weapons = [
+      {
+        id: "gloves",
+        name: "Gloves",
+        parts: structuredClone(raw.models[0].parts),
+        clips: ["punch"],
+        defaultClip: "punch",
+      },
+    ];
+    return raw;
+  };
+  const raw = make();
+  assert.deepEqual(validateMotionAsset(raw), raw);
+  for (const mutate of [
+    (x) => x.weapons.push(structuredClone(x.weapons[0])),
+    (x) => x.weapons[0].clips.push("missing"),
+    (x) => x.weapons[0].clips.push("punch"),
+    (x) => (x.weapons[0].defaultClip = "missing"),
+    (x) => {
+      x.clips.push({ ...structuredClone(x.clips[0]), id: "other" });
+      x.weapons[0].defaultClip = "other";
+    },
+    (x) => (x.weapons[0].parts[0].joints[0] = 99),
+    (x) => (x.weapons[0].parts[0].weights[0] = 0.2),
+    (x) => (x.weapons[0].parts[0].vertices[0] = Infinity),
+    (x) => (x.models[0].defaultClip = "punch"),
+  ]) {
+    const bad = make();
     mutate(bad);
     assert.throws(() => validateMotionAsset(bad));
   }

@@ -108,6 +108,8 @@ pub fn compute_total_dps(SkillTree, PlayerStats, BalanceParams, CharacterArchety
 
 pub fn count_enemies_in_room(Array[Enemy], @types.Room) -> Int
 
+pub fn counter_cooldown_for_level(Int) -> Int
+
 pub let counter_cooldown_frames : Int
 
 pub let counter_duration_frames : Int
@@ -137,6 +139,8 @@ pub let enemy_bolt_telegraph_frames : Int
 pub let enemy_bolt_telegraph_radius : Double
 
 pub let enemy_bow_draw_frames : Int
+
+pub let enemy_charge_profile : ChargeProfile
 
 pub let enemy_death_explosion_projectile_count : Int
 
@@ -176,6 +180,10 @@ pub let enemy_tackle_trigger_range : Double
 
 pub fn enemy_type_configs() -> Array[EnemyTypeConfig]
 
+pub fn equip_slot_from_index(Int) -> EquipSlot?
+
+pub fn equipment_slots() -> Array[EquipSlot]
+
 pub let exploder_damage_mult : Int
 
 pub let exploder_radius_mult : Double
@@ -200,6 +208,8 @@ pub fn generate_item_with_profile(Int, Int, AffixProfile) -> ItemData
 
 pub fn generate_item_with_profile_and_drop_config(Int, Int, AffixProfile, DropTableConfig) -> ItemData
 
+pub fn generate_world_region(Int, Int) -> DungeonData
+
 pub fn get_special_behaviors(EnemyKind) -> Array[(EnemyAIContext) -> Bool]
 
 pub fn get_tile_height(DungeonData, Double, Double) -> Double
@@ -223,6 +233,8 @@ pub let homing_missile_speed : Double
 pub let homing_missile_telegraph_radius : Double
 
 pub let homing_missile_turn_rate : Double
+
+pub fn hunter_equipment_item(EquipSlot, weapon? : PlayerWeaponKind, rarity? : ItemRarity) -> ItemData
 
 pub fn hunting_clearings() -> Array[@types.Room]
 
@@ -262,6 +274,8 @@ pub let meteor_damage_mult : Int
 
 pub let meteor_radius : Double
 
+pub fn new_hunter_inventory() -> Inventory
+
 pub fn new_tag_bonuses_array() -> Array[TagBonus]
 
 pub let path_update_interval : Int
@@ -270,9 +284,17 @@ pub let pickup_radius_sq : Double
 
 pub fn player_basic_attack_damage(PlayerStats, CharacterArchetype) -> Int
 
+pub let player_charge_cooldown : Int
+
+pub let player_charge_profile : ChargeProfile
+
 pub let player_speed : Double
 
 pub fn player_spell_damage(PlayerStats, BalanceParams, CharacterArchetype, SkillId, skill_level? : Int) -> Int
+
+pub fn player_weapon_from_id(String) -> PlayerWeaponKind?
+
+pub fn player_weapon_from_index(Int) -> PlayerWeaponKind?
 
 pub fn prefix_table() -> Array[Affix]
 
@@ -285,6 +307,10 @@ pub let ranged_meteor_chance : Int
 pub let ranged_min_distance_sq : Double
 
 pub let ranged_retreat_speed : Double
+
+pub fn region_neighbor(Int, Int, Int) -> Int?
+
+pub fn region_seed(Int, Int) -> Int
 
 pub fn roll_item_rarity(Int, Int, DropTableConfig) -> ItemRarity
 
@@ -382,7 +408,11 @@ pub fn update_enemy_ai(Array[Enemy], Player, @types.Grid2D, Array[@types.Room], 
 
 pub let world_h : Double
 
+pub let world_regions : Array[WorldRegion]
+
 pub let world_w : Double
+
+pub fn world_waypoint_position(Int) -> (Double, Double)
 
 // Errors
 
@@ -405,7 +435,7 @@ pub(all) struct Affix {
   spell_damage_pct : Double
   chain_bonus : Int
   tag_bonuses : Array[TagBonusEntry]
-}
+} derive(ToJson, @json.FromJson)
 
 pub(all) enum AffixProfile {
   Classic
@@ -536,6 +566,15 @@ pub fn CharacterArchetype::speed_modifier(Self) -> Double
 pub fn CharacterArchetype::starting_skill_ids(Self) -> Array[SkillId]
 pub fn CharacterArchetype::to_string(Self) -> String
 
+pub(all) struct ChargeProfile {
+  windup : Int
+  active : Int
+  recovery : Int
+}
+pub fn ChargeProfile::duration(Self) -> Int
+pub fn ChargeProfile::is_active(Self, Int) -> Bool
+pub fn ChargeProfile::phase(Self, Int) -> Double
+
 pub(all) struct DropTableConfig {
   equipment_weight : Int
   health_weight : Int
@@ -610,6 +649,7 @@ pub(all) struct Enemy {
 }
 pub fn Enemy::attack_phase(Self) -> Double
 pub fn Enemy::begin_attack(Self, EnemyAttackMotion, Int, Int, Double, Double) -> Unit
+pub fn Enemy::is_charging(Self) -> Bool
 
 pub(all) struct EnemyAIContext {
   enemy : Enemy
@@ -632,6 +672,7 @@ pub(all) enum EnemyAttackMotion {
   SpearThrust
   CastSpell
   BowShot
+  Charge
 } derive(Eq, @debug.Debug)
 
 pub(all) enum EnemyKind {
@@ -646,7 +687,7 @@ pub(all) enum EnemyKind {
   Teleporter
   Swarm
   Caster
-} derive(Eq)
+} derive(Eq, ToJson, @json.FromJson)
 pub fn EnemyKind::equal(Self, Self) -> Bool
 pub fn EnemyKind::not_equal(Self, Self) -> Bool
 
@@ -672,13 +713,22 @@ pub(all) enum EquipSlot {
   Weapon
   Armor
   Accessory
-}
+  Helmet
+  Gloves
+  Boots
+  Offhand
+  Amulet
+} derive(Eq, ToJson, @json.FromJson)
+pub fn EquipSlot::index(Self) -> Int
+pub fn EquipSlot::label(Self) -> String
 
 pub(all) struct Equipment {
   mut weapon : ItemData?
   mut armor : ItemData?
   mut accessory : ItemData?
+  extra : Array[ItemData?]
 }
+pub fn Equipment::clear(Self) -> Unit
 pub fn Equipment::clone(Self) -> Self
 pub fn Equipment::equip(Self, ItemData) -> ItemData?
 pub fn Equipment::item_for_slot(Self, EquipSlot) -> ItemData?
@@ -700,6 +750,7 @@ pub fn Equipment::total_speed_bonus(Self) -> Double
 pub fn Equipment::total_spell_damage_pct(Self) -> Double
 pub fn Equipment::total_str_bonus(Self) -> Int
 pub fn Equipment::total_str_scaling(Self) -> Double
+pub fn Equipment::unequip(Self, EquipSlot) -> ItemData?
 
 pub(all) enum GameEvent {
   HitSparks(Double, Double)
@@ -741,6 +792,7 @@ pub fn GameMode::not_equal(Self, Self) -> Bool
 
 pub(all) struct GameWorld {
   hunting_grounds : Bool
+  mut atlas : WorldAtlas?
   mut authored_scene : AuthoredScene?
   params : BalanceParams
   mut archetype : CharacterArchetype
@@ -754,8 +806,12 @@ pub(all) struct GameWorld {
   mut enemies : Array[Enemy]
   mut items : Array[ItemDrop]
   mut projectiles : Array[Projectile]
-  dungeon : DungeonData
+  mut dungeon : DungeonData
   mut attack_timer : Int
+  mut player_weapon : PlayerWeaponKind
+  mut weapon_attack : PlayerWeaponAttack?
+  mut player_charge : PlayerCharge?
+  mut charge_cooldown : Int
   mut screen_flash : Double
   mut floor_announce_timer : Int
   mut chain_lightning_cooldown_timer : Int
@@ -788,6 +844,8 @@ pub(all) struct GameWorld {
   mut enemy_separation_next_indices : Array[Int]
   mut enemy_separation_cell_indices : Array[Int]
 }
+pub fn GameWorld::activate_nearby_waypoint(Self) -> Bool
+pub fn GameWorld::allocate_skill(Self, SkillId) -> Bool
 pub fn GameWorld::apply_archetype(Self, CharacterArchetype) -> Unit
 pub fn GameWorld::apply_dungeon(Self, Int, Int) -> Unit
 pub fn GameWorld::apply_equipment_pickup_plan(Self, ItemData, @gameplay2d.EquipmentPickupPlan) -> Bool
@@ -797,19 +855,32 @@ pub fn GameWorld::auto_activate_skills(Self, Int) -> Unit
 pub fn GameWorld::auto_activate_spell_slots(Self, Int, Double) -> Unit
 pub fn GameWorld::auto_choose_levelup_offer(Self) -> Unit
 pub fn GameWorld::auto_equip_best(Self) -> Unit
+pub fn GameWorld::boundary_destination(Self) -> (Int, Double, Double)?
+pub fn GameWorld::capture_region(Self) -> Unit
 pub fn GameWorld::collect_equipment_pickup(Self, ItemData) -> Bool
 pub fn GameWorld::deal_player_damage(Self, Int) -> Unit
 pub fn GameWorld::drain_events(Self) -> Array[GameEvent]
 pub fn GameWorld::ensure_hunter_loadout(Self) -> Unit
+pub fn GameWorld::enter_region(Self, Int, Double, Double) -> Bool
+pub fn GameWorld::equip_player_weapon(Self, PlayerWeaponKind) -> Bool
 pub fn GameWorld::mark_current_room_discovered(Self) -> Unit
+pub fn GameWorld::near_waypoint(Self) -> Bool
 pub fn GameWorld::new(seed~ : Int, params? : BalanceParams, archetype? : CharacterArchetype, build_policy? : ArchetypeBuildPolicy, hunting_grounds? : Bool) -> Self
 pub fn GameWorld::open_levelup_ui_if_needed(Self) -> Unit
+pub fn GameWorld::preload_regions(Self) -> Array[Int]
+pub fn GameWorld::prepare_region(Self, Int) -> Bool
 pub fn GameWorld::push_item_log(Self, String, Int) -> Unit
 pub fn GameWorld::refresh_player_stats(Self) -> Unit
 pub fn GameWorld::request_basic_attack(Self, Double) -> Bool
+pub fn GameWorld::request_charge(Self, Double) -> Bool
+pub fn GameWorld::request_waypoint(Self, Int) -> Bool
 pub fn GameWorld::reset_floor(Self) -> Unit
+pub fn GameWorld::reset_world_atlas(Self, Int) -> Unit
 pub fn GameWorld::resolve_enemy_enemy_separation(Self) -> Unit
+pub fn GameWorld::restore_world_progress(Self, String) -> Bool
 pub fn GameWorld::scene_snapshot_json(Self) -> String
+pub fn GameWorld::serialize_world_progress(Self) -> String
+pub fn GameWorld::skill_allowed(Self, SkillId) -> Bool
 pub fn GameWorld::tick(Self, Double, Double) -> Unit
 pub fn GameWorld::tick_auto(Self) -> Unit
 pub fn GameWorld::tick_auto_with_enemy_ai_grid(Self, @types.Grid2D) -> Unit
@@ -820,21 +891,39 @@ pub fn GameWorld::tick_floor_completion_phase(Self) -> Unit
 pub fn GameWorld::tick_item_log(Self) -> Unit
 pub fn GameWorld::tick_items_phase(Self) -> Unit
 pub fn GameWorld::tick_meteor_damage_phase(Self) -> Unit
+pub fn GameWorld::tick_player_charge(Self, @types.Grid2D) -> Unit
 pub fn GameWorld::tick_player_enemy_separation_phase(Self) -> Unit
 pub fn GameWorld::tick_player_timers_phase(Self) -> Unit
+pub fn GameWorld::tick_player_weapon_attack(Self) -> Unit
 pub fn GameWorld::tick_projectiles_phase(Self) -> Unit
 pub fn GameWorld::tick_room_clear_rewards(Self) -> Unit
 pub fn GameWorld::tick_with_enemy_ai_grid(Self, Double, Double, @types.Grid2D) -> Unit
+pub fn GameWorld::transfer_inventory(Self, InventorySource, InventoryTarget) -> Bool
 
 pub(all) struct Inventory {
   items : Array[ItemData?]
   capacity : Int
+  mut grid : @gameplay2d.ItemGrid?
 }
 pub fn Inventory::add(Self, ItemData) -> Bool
 pub fn Inventory::add_fifo(Self, ItemData) -> ItemData?
+pub fn Inventory::clear(Self) -> Unit
 pub fn Inventory::count(Self) -> Int
 pub fn Inventory::new(Int) -> Self
+pub fn Inventory::new_grid(Int, Int) -> Self
 pub fn Inventory::remove(Self, Int) -> ItemData?
+pub fn Inventory::repack(Self) -> Unit
+pub fn Inventory::restore_layout(Self, Array[(Int, Int, Bool)?]) -> Unit
+
+pub(all) enum InventorySource {
+  Bag(Int)
+  Equipped(EquipSlot)
+}
+
+pub(all) enum InventoryTarget {
+  Cell(Int, Int, Bool)
+  Wear(EquipSlot)
+}
 
 pub(all) struct ItemData {
   name : String
@@ -852,10 +941,12 @@ pub(all) struct ItemData {
   prefix : Affix?
   suffix : Affix?
   icon_id : Int
-}
+} derive(ToJson, @json.FromJson)
 pub fn ItemData::archetype_fit_score(Self, CharacterArchetype) -> Double
 pub fn ItemData::build_policy_fit_score(Self, CharacterArchetype, ArchetypeBuildPolicy) -> Double
 pub fn ItemData::display_name(Self) -> String
+pub fn ItemData::footprint(Self) -> @gameplay2d.GridFootprint
+pub fn ItemData::motion_weapon(Self) -> PlayerWeaponKind?
 pub fn ItemData::total_atk(Self) -> Int
 pub fn ItemData::total_chain_bonus(Self) -> Int
 pub fn ItemData::total_cooldown_reduction(Self) -> Double
@@ -881,13 +972,13 @@ pub(all) struct ItemDrop {
   kind : ItemKind
   mut alive : Bool
   spawn_frame : Int
-}
+} derive(ToJson, @json.FromJson)
 
 pub(all) enum ItemKind {
   Health
   Score
   Equipment(ItemData)
-}
+} derive(ToJson, @json.FromJson)
 pub fn ItemKind::op_equal(Self, Self) -> Bool
 
 pub(all) struct ItemLogEntry {
@@ -901,7 +992,7 @@ pub(all) enum ItemRarity {
   Uncommon
   Rare
   Epic
-}
+} derive(ToJson, @json.FromJson)
 pub fn ItemRarity::color(Self) -> Int
 
 pub(all) struct LevelProgression {
@@ -932,6 +1023,12 @@ pub(all) struct Player {
   mut counter_cooldown_timer : Int
 }
 
+pub(all) struct PlayerCharge {
+  angle : Double
+  mut frame : Int
+  hit_enemies : Array[Int]
+}
+
 pub(all) struct PlayerStats {
   max_hp : Int
   atk : Int
@@ -950,6 +1047,32 @@ pub(all) struct PlayerStats {
   spell_damage_pct : Double
   chain_bonus : Int
   tag_bonuses : Array[TagBonus]
+}
+
+pub(all) struct PlayerWeaponAttack {
+  weapon : PlayerWeaponKind
+  angle : Double
+  mut frame : Int
+}
+
+pub(all) enum PlayerWeaponKind {
+  Cleaver
+  Spear
+  Knuckles
+  Focus
+  Bow
+} derive(Eq, @debug.Debug)
+pub fn PlayerWeaponKind::index(Self) -> Int
+pub fn PlayerWeaponKind::profile(Self) -> PlayerWeaponProfile
+
+pub(all) struct PlayerWeaponProfile {
+  id : String
+  name : String
+  action : String
+  windup : Int
+  recovery : Int
+  reach : Double
+  width : Double
 }
 
 pub(all) struct Projectile {
@@ -976,6 +1099,21 @@ pub fn ProjectileKind::output(Self, &Logger) -> Unit
 pub fn ProjectileKind::to_repr(Self) -> @debug.Repr
 pub fn ProjectileKind::to_string(Self) -> String
 pub impl Show for ProjectileKind
+
+type RegionEnemyProgress derive(ToJson, @json.FromJson)
+
+type RegionProgress derive(ToJson, @json.FromJson)
+
+pub(all) struct RegionState {
+  id : Int
+  seed : Int
+  dungeon : DungeonData
+  enemies : Array[Enemy]
+  items : Array[ItemDrop]
+  discovered : Array[Bool]
+  rewarded : Array[Bool]
+  cleared : Array[Bool]
+}
 
 pub(all) struct SceneEnemy {
   id : String
@@ -1047,7 +1185,7 @@ pub(all) enum SkillTag {
   AoE
   Defense
   Utility
-} derive(Eq)
+} derive(Eq, ToJson, @json.FromJson)
 pub fn SkillTag::equal(Self, Self) -> Bool
 pub fn SkillTag::not_equal(Self, Self) -> Bool
 
@@ -1082,7 +1220,7 @@ pub(all) struct TagBonusEntry {
   extra_targets : Int
   aoe_radius_pct : Double
   crit_bonus : Double
-}
+} derive(ToJson, @json.FromJson)
 
 pub(all) struct TelegraphMarker {
   x : Double
@@ -1106,10 +1244,33 @@ pub(all) enum UIMode {
   None
   Inventory
   Skills
+  Waypoints
   LevelUp
 } derive(Eq)
 pub fn UIMode::equal(Self, Self) -> Bool
 pub fn UIMode::not_equal(Self, Self) -> Bool
+
+pub(all) struct WorldAtlas {
+  world_seed : Int
+  mut current : Int
+  regions : Array[RegionState?]
+  unlocked : Array[Bool]
+  visited : Array[Bool]
+  mut travel_target : Int?
+  mut revision : Int
+}
+pub fn WorldAtlas::new(Int) -> Self
+
+type WorldProgress derive(ToJson, @json.FromJson)
+
+pub(all) struct WorldRegion {
+  id : Int
+  name : String
+  subtitle : String
+  x : Int
+  z : Int
+  tier : Int
+} derive(ToJson)
 
 // Type aliases
 pub using @progression {type LevelUpConfig}

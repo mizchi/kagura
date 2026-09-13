@@ -30,7 +30,7 @@ pub(all) struct TagBonusEntry {
   extra_targets : Int
   aoe_radius_pct : Double
   crit_bonus : Double
-}
+} derive(ToJson, FromJson)
 
 ///|
 pub fn new_tag_bonuses_array() -> Array[TagBonus] {
@@ -49,7 +49,7 @@ pub(all) enum ItemRarity {
   Uncommon
   Rare
   Epic
-}
+} derive(ToJson, FromJson)
 
 ///|
 pub fn ItemRarity::color(self : ItemRarity) -> Int {
@@ -66,7 +66,12 @@ pub(all) enum EquipSlot {
   Weapon
   Armor
   Accessory
-}
+  Helmet
+  Gloves
+  Boots
+  Offhand
+  Amulet
+} derive(Eq, ToJson, FromJson)
 
 ///|
 pub(all) struct Affix {
@@ -87,7 +92,7 @@ pub(all) struct Affix {
   spell_damage_pct : Double // +% spell damage (legacy, converted to tag bonus)
   chain_bonus : Int // +chain targets (legacy, converted to tag bonus)
   tag_bonuses : Array[TagBonusEntry]
-}
+} derive(ToJson, FromJson)
 
 ///|
 pub(all) struct ItemData {
@@ -106,7 +111,7 @@ pub(all) struct ItemData {
   prefix : Affix?
   suffix : Affix?
   icon_id : Int
-}
+} derive(ToJson, FromJson)
 
 ///|
 fn affix_sum_int(item : ItemData, base : Int, f : (Affix) -> Int) -> Int {
@@ -323,6 +328,7 @@ pub fn ItemData::display_name(self : ItemData) -> String {
 pub(all) struct Inventory {
   items : Array[ItemData?]
   capacity : Int
+  mut grid : @gameplay2d.ItemGrid?
 }
 
 ///|
@@ -331,15 +337,14 @@ pub fn Inventory::new(capacity : Int) -> Inventory {
   for _i in 0..<capacity {
     items.push(None)
   }
-  { items, capacity, }
+  { items, capacity, grid: None, }
 }
 
 ///|
 pub fn Inventory::add(self : Inventory, item : ItemData) -> Bool {
   for i in 0..<self.capacity {
     if self.items[i] is None {
-      self.items[i] = Some(item)
-      return true
+      return self.put_item(i, item, None)
     }
   }
   false
@@ -365,6 +370,9 @@ fn inventory_compact(inv : Inventory) -> Int {
 
 ///|
 pub fn Inventory::add_fifo(self : Inventory, item : ItemData) -> ItemData? {
+  if self.grid is Some(_) {
+    return if self.add(item) { None } else { Some(item) }
+  }
   let used = inventory_compact(self)
   if used < self.capacity {
     self.items[used] = Some(item)
@@ -387,6 +395,9 @@ pub fn Inventory::remove(self : Inventory, index : Int) -> ItemData? {
     return None
   }
   let item = self.items[index]
+  if self.grid is Some(grid) {
+    grid.remove(index)
+  }
   self.items[index] = None
   item
 }
@@ -409,37 +420,60 @@ pub(all) struct Equipment {
   mut weapon : ItemData?
   mut armor : ItemData?
   mut accessory : ItemData?
+  extra : Array[ItemData?]
 }
 
 ///|
 pub fn Equipment::new() -> Equipment {
-  { weapon: None, armor: None, accessory: None, }
+  {
+    weapon: None,
+    armor: None,
+    accessory: None,
+    extra: [None, None, None, None, None],
+  }
 }
 
 ///|
 pub fn Equipment::equip(self : Equipment, item : ItemData) -> ItemData? {
-  match item.slot {
-    Weapon => {
-      let old = self.weapon
-      self.weapon = Some(item)
-      old
-    }
-    Armor => {
-      let old = self.armor
-      self.armor = Some(item)
-      old
-    }
-    Accessory => {
-      let old = self.accessory
-      self.accessory = Some(item)
-      old
-    }
+  self.replace_slot(item.slot, Some(item))
+}
+
+///|
+fn Equipment::replace_slot(
+  self : Equipment,
+  slot : EquipSlot,
+  item : ItemData?,
+) -> ItemData? {
+  let old = self.item_for_slot(slot)
+  match slot {
+    Weapon => self.weapon = item
+    Armor => self.armor = item
+    Accessory => self.accessory = item
+    _ => self.extra[slot.index() - 3] = item
+  }
+  old
+}
+
+///|
+pub fn Equipment::unequip(self : Equipment, slot : EquipSlot) -> ItemData? {
+  self.replace_slot(slot, None)
+}
+
+///|
+pub fn Equipment::clear(self : Equipment) -> Unit {
+  for slot in equipment_slots() {
+    ignore(self.unequip(slot))
   }
 }
 
 ///|
 pub fn Equipment::clone(self : Equipment) -> Equipment {
-  { weapon: self.weapon, armor: self.armor, accessory: self.accessory, }
+  {
+    weapon: self.weapon,
+    armor: self.armor,
+    accessory: self.accessory,
+    extra: self.extra.copy(),
+  }
 }
 
 ///|
@@ -451,6 +485,7 @@ pub fn Equipment::item_for_slot(
     Weapon => self.weapon
     Armor => self.armor
     Accessory => self.accessory
+    _ => self.extra[slot.index() - 3]
   }
 }
 
@@ -480,17 +515,10 @@ pub fn Equipment::should_equip_for_build(
 ///|
 fn equipment_sum(equip : Equipment, f : (ItemData) -> Int) -> Int {
   let mut total = 0
-  match equip.weapon {
-    Some(item) => total = total + f(item)
-    None => ()
-  }
-  match equip.armor {
-    Some(item) => total = total + f(item)
-    None => ()
-  }
-  match equip.accessory {
-    Some(item) => total = total + f(item)
-    None => ()
+  for slot in equipment_slots() {
+    if equip.item_for_slot(slot) is Some(item) {
+      total += f(item)
+    }
   }
   total
 }
@@ -498,17 +526,10 @@ fn equipment_sum(equip : Equipment, f : (ItemData) -> Int) -> Int {
 ///|
 fn equipment_sum_f(equip : Equipment, f : (ItemData) -> Double) -> Double {
   let mut total = 0.0
-  match equip.weapon {
-    Some(item) => total = total + f(item)
-    None => ()
-  }
-  match equip.armor {
-    Some(item) => total = total + f(item)
-    None => ()
-  }
-  match equip.accessory {
-    Some(item) => total = total + f(item)
-    None => ()
+  for slot in equipment_slots() {
+    if equip.item_for_slot(slot) is Some(item) {
+      total += f(item)
+    }
   }
   total
 }

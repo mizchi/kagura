@@ -135,8 +135,18 @@ fn start_enemy_tackle(
   events : Array[GameEvent],
 ) -> Unit {
   enemy.charge_cooldown = 120
-  enemy.charge_timer = enemy_tackle_telegraph_frames +
-    enemy_tackle_active_frames
+  enemy.charge_timer = enemy_charge_profile.duration()
+  let dx = player.x - enemy.x
+  let dy = player.y - enemy.y
+  let length = (dx * dx + dy * dy).sqrt().max(0.001)
+  // Extend the committed aim ray so passing the original target cannot reverse the lunge.
+  enemy.begin_attack(
+    Charge,
+    enemy_charge_profile.windup,
+    enemy_charge_profile.active + enemy_charge_profile.recovery,
+    enemy.x + dx / length * 10000.0,
+    enemy.y + dy / length * 10000.0,
+  )
   enemy.pending_bolt_target_x = player.x
   enemy.pending_bolt_target_y = player.y
   events.push(GroundTelegraphLine(enemy.x, enemy.y, player.x, player.y))
@@ -147,26 +157,22 @@ fn start_enemy_tackle(
 
 ///|
 fn update_enemy_tackle(enemy : Enemy) -> Bool {
-  if enemy.charge_timer <= 0 {
+  if enemy.attack_motion != Charge {
     return false
   }
-  enemy.charge_timer = enemy.charge_timer - 1
-  if enemy.charge_timer >= enemy_tackle_active_frames {
+  enemy.charge_timer = (enemy_charge_profile.duration() - enemy.attack_frame).max(
+    0,
+  )
+  if !enemy.is_charging() {
     enemy.vx = 0.0
     enemy.vy = 0.0
     return true
   }
-  let dx = enemy.pending_bolt_target_x - enemy.x
-  let dy = enemy.pending_bolt_target_y - enemy.y
-  let dist_sq = dx * dx + dy * dy
-  if dist_sq > 0.000001 {
-    let dist = dist_sq.sqrt()
-    enemy.vx = dx / dist * enemy.speed * enemy_tackle_speed_mult
-    enemy.vy = dy / dist * enemy.speed * enemy_tackle_speed_mult
-  } else {
-    enemy.vx = 0.0
-    enemy.vy = 0.0
-  }
+  let dx = enemy.attack_target_x - enemy.x
+  let dy = enemy.attack_target_y - enemy.y
+  let dist = (dx * dx + dy * dy).sqrt().max(0.001)
+  enemy.vx = dx / dist * enemy.speed * enemy_tackle_speed_mult
+  enemy.vy = dy / dist * enemy.speed * enemy_tackle_speed_mult
   true
 }
 
@@ -295,6 +301,10 @@ pub fn update_enemy_ai(
       tick_enemy_pattern_cooldowns(enemy)
       continue
     }
+    if update_enemy_tackle(enemy) {
+      tick_enemy_pattern_cooldowns(enemy)
+      continue
+    }
     if enemy.attack_motion != NoAttack {
       if enemy.kind == Summoner && enemy.attack_frame == enemy.attack_windup {
         spawn_summoned_minion(
@@ -303,10 +313,6 @@ pub fn update_enemy_ai(
       }
       enemy.vx = 0.0
       enemy.vy = 0.0
-      tick_enemy_pattern_cooldowns(enemy)
-      continue
-    }
-    if update_enemy_tackle(enemy) {
       tick_enemy_pattern_cooldowns(enemy)
       continue
     }

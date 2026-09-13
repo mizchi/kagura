@@ -52,9 +52,18 @@ export const motionFormat = (path) =>
 
 /** Portable bind geometry + local TRS channels. No executable code, renderer types or network URLs. */
 export function validateMotionAsset(input) {
-  record(input, ["format", "version", "name", "skeleton", "models", "clips"]);
+  const legacy = input?.version === 1;
+  record(input, [
+    "format",
+    "version",
+    "name",
+    "skeleton",
+    "models",
+    "clips",
+    ...(legacy ? [] : ["weapons"]),
+  ]);
   check(
-    input.format === "kagura.motion" && input.version === 1,
+    input.format === "kagura.motion" && [1, 2].includes(input.version),
     "unsupported format/version",
   );
   text(input.name);
@@ -138,11 +147,37 @@ export function validateMotionAsset(input) {
   unique(input.models, "id");
   let vertices = 0;
   for (const model of input.models) {
-    record(model, ["id", "name", "defaultClip", "parts"]);
+    record(model, ["id", "name", "parts", ...(legacy ? ["defaultClip"] : [])]);
     text(model.name);
-    check(clips.has(model.defaultClip), "missing default clip");
+    if (legacy) check(clips.has(model.defaultClip), "missing default clip");
     array(model.parts, 1, 64);
-    for (const part of model.parts) {
+    validateParts(model.parts);
+  }
+  if (!legacy) {
+    array(input.weapons, 1, 128);
+    unique(input.weapons, "id");
+    for (const weapon of input.weapons) {
+      record(weapon, ["id", "name", "parts", "clips", "defaultClip"]);
+      text(weapon.name);
+      array(weapon.clips, 1, 128);
+      check(
+        new Set(weapon.clips).size === weapon.clips.length,
+        "duplicate weapon clip",
+      );
+      check(
+        weapon.clips.every((id) => clips.has(id)),
+        "missing weapon clip",
+      );
+      check(
+        weapon.clips.includes(weapon.defaultClip),
+        "missing weapon default clip",
+      );
+      array(weapon.parts, 0, 64);
+      validateParts(weapon.parts);
+    }
+  }
+  function validateParts(parts) {
+    for (const part of parts) {
       record(part, [
         "name",
         "color",
@@ -188,7 +223,21 @@ export function validateMotionAsset(input) {
         );
     }
   }
-  return structuredClone(input);
+  const result = structuredClone(input);
+  if (legacy) {
+    result.version = 2;
+    result.weapons = [
+      {
+        id: "embedded",
+        name: "既存モデルの装備",
+        parts: [],
+        clips: result.clips.map((clip) => clip.id),
+        defaultClip: result.models[0].defaultClip,
+      },
+    ];
+    for (const model of result.models) delete model.defaultClip;
+  }
+  return result;
 }
 export async function prepareMotionAsset(resources, path) {
   projectPath(path);

@@ -265,9 +265,16 @@ fn bench_state_with_enemy_ai_tackle_phase(count : Int) -> GameState {
   let target_x = state.world.player.x + tile_size
   let target_y = state.world.player.y
   for enemy in state.world.enemies {
-    enemy.charge_timer = @game.enemy_tackle_active_frames
-    enemy.pending_bolt_target_x = target_x
-    enemy.pending_bolt_target_y = target_y
+    enemy.begin_attack(
+      @game.Charge,
+      @game.enemy_charge_profile.windup,
+      @game.enemy_charge_profile.active + @game.enemy_charge_profile.recovery,
+      target_x,
+      target_y,
+    )
+    enemy.attack_frame = @game.enemy_charge_profile.windup
+    enemy.charge_timer = @game.enemy_charge_profile.active +
+      @game.enemy_charge_profile.recovery
   }
   state
 }

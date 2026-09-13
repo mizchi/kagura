@@ -1,3 +1,7 @@
+@import './hunter-world-map.css';
+@import './hunter-inventory.css';
+@import './hunter-skill-tree.css';
+
 :root {
   color-scheme:dark;
   --ink:#e5dfce;
@@ -345,6 +349,36 @@ canvas#app {
 .skill-buttons {
   display:flex;
   gap:8px
+}
+
+.weapon-picker {
+  position:absolute;
+  right:0;
+  bottom:calc(100% + 10px);
+  display:flex;
+  align-items:center;
+  gap:7px;
+  padding:5px 8px;
+  border:1px solid var(--line);
+  border-radius:5px;
+  background:#131d17ee;
+  color:#d9d5bd;
+  font-size:11px;
+  pointer-events:auto;
+  white-space:nowrap;
+}
+.weapon-picker select {
+  max-width:116px;
+  min-height:32px;
+  border:0;
+  color:inherit;
+  background:#202d24;
+  font:inherit;
+}
+.weapon-picker select:disabled { opacity:.55; }
+@media(pointer:coarse),(max-width:700px) {
+  .weapon-picker { gap:4px; padding:3px 5px; }
+  .weapon-picker kbd { display:none; }
 }
 
 .skill {
@@ -1235,4 +1269,53 @@ canvas#app {
   background:#1e2b21;
   border:1px solid var(--line);
   border-radius:3px;
+}
+
+.charge-button {
+  pointer-events:auto;
+  display:flex;
+  flex-direction:column;
+  align-items:center;
+  justify-content:center;
+  gap:3px;
+  width:64px;
+  min-height:76px;
+  color:#ead9b0;
+  background:linear-gradient(145deg,#413524e8,#17251ee8);
+  border:1px solid #c5a96b80;
+  border-radius:5px;
+  cursor:pointer;
+}
+.charge-button svg { width:25px; height:25px; }
+.charge-button strong { font-size:11px; }
+.charge-button small { font-size:10px; color:#d5c391; }
+.charge-button:disabled { opacity:.5; cursor:default; }
+@media (max-width:700px) and (orientation:portrait) {
+  .charge-button { width:100%; min-height:40px; flex-direction:row; gap:12px; }
+}
+@media (max-height:500px) and (orientation:landscape) {
+  .charge-button { width:48px; min-height:56px; }
+}
+
+.panel-pause { width:min(420px,100%); padding:32px; }
+.pause-mark { width:42px; height:42px; display:grid; place-items:center; border:1px solid #b8a37166; border-radius:50%; color:#d5bd8f; margin-bottom:22px; }
+.pause-mark svg { width:21px; height:21px; fill:none; stroke:currentColor; stroke-width:2; }
+.pause-actions { display:grid; gap:9px; }
+.pause-actions>button { display:flex; align-items:center; gap:12px; min-height:48px; padding:12px 16px; border:1px solid #b8a37140; background:#15241ccc; color:#dfdccb; text-align:left; }
+.pause-actions>button>span { flex:1; }
+.pause-actions>button>svg { width:20px; height:20px; color:#c4ac76; }
+.pause-actions .begin-button { background:#c5ab7b; color:#17231a; justify-content:space-between; margin-bottom:5px; }
+.pause-actions kbd { font:10px system-ui; opacity:.75; }
+.pause-actions strong { font-size:11px; color:#c4ac76; }
+.pause-actions>button:hover { border-color:#ddc595; }
+.pause-actions>button:focus-visible,.hunter-panel button:focus-visible { outline:2px solid #e6c999; outline-offset:3px; }
+.pause-hint { margin:20px 0 0; color:#98a590; font-size:10px; line-height:1.7; }
+@media (max-height:500px) and (orientation:landscape) {
+  .panel-pause { width:min(560px,100%); padding:20px; }
+  .panel-pause .pause-mark { display:none; }
+  .panel-pause h2 { margin-bottom:8px; }
+  .panel-pause .panel-description { margin-bottom:12px; }
+  .pause-actions { grid-template-columns:repeat(2,minmax(0,1fr)); }
+  .pause-actions .begin-button { margin:0; }
+  .pause-hint { margin-top:10px; }
 }

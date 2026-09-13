@@ -1,0 +1,189 @@
+// Durable progress: inactive areas keep their loot, slain enemies and one-time rewards.
+
+///|
+struct RegionEnemyProgress {
+  kind : EnemyKind
+  x : Double
+  y : Double
+  hp : Int
+  max_hp : Int
+  speed : Double
+  size : Double
+  alive : Bool
+  room : Int
+} derive(ToJson, FromJson)
+
+///|
+struct RegionProgress {
+  id : Int
+  enemies : Array[RegionEnemyProgress]
+  items : Array[ItemDrop]
+  discovered : Array[Bool]
+  rewarded : Array[Bool]
+  cleared : Array[Bool]
+} derive(ToJson, FromJson)
+
+///|
+struct WorldProgress {
+  version : Int
+  seed : Int
+  current : Int
+  x : Double
+  y : Double
+  unlocked : Array[Bool]
+  regions : Array[RegionProgress]
+} derive(ToJson, FromJson)
+
+///|
+pub fn GameWorld::serialize_world_progress(self : GameWorld) -> String {
+  guard self.atlas is Some(atlas) else { return "" }
+  if self.authored_scene is Some(_) {
+    return ""
+  }
+  self.capture_region()
+  let regions : Array[RegionProgress] = []
+  for id, state in atlas.regions {
+    if atlas.visited[id] {
+      if state is Some(state) {
+        regions.push({
+          id,
+          items: state.items,
+          discovered: state.discovered,
+          rewarded: state.rewarded,
+          cleared: state.cleared,
+          enemies: state.enemies.map(enemy => {
+            kind: enemy.kind,
+            x: enemy.x,
+            y: enemy.y,
+            hp: enemy.hp,
+            max_hp: enemy.max_hp,
+            speed: enemy.speed,
+            size: enemy.size,
+            alive: enemy.alive,
+            room: enemy.room_index,
+          }),
+        })
+      }
+    }
+  }
+  WorldProgress::{
+    version: 1,
+    seed: atlas.world_seed,
+    current: atlas.current,
+    x: self.player.x,
+    y: self.player.y,
+    unlocked: atlas.unlocked,
+    regions,
+  }
+  .to_json()
+  .stringify()
+}
+
+///|
+fn parse_world_progress(source : String) -> WorldProgress? {
+  try {
+    let progress : WorldProgress = @json.from_json(@json.parse(source))
+    if progress.version != 1 ||
+      progress.current < 0 ||
+      progress.current >= 4 ||
+      progress.unlocked.length() != 4 ||
+      progress.regions.length() > 4 ||
+      progress.x < 0.0 ||
+      progress.y < 0.0 ||
+      progress.x >= map_cols.to_double() * tile_size ||
+      progress.y >= map_rows.to_double() * tile_size {
+      return None
+    }
+    let ids : Array[Int] = []
+    for region in progress.regions {
+      if region.id < 0 ||
+        region.id >= 4 ||
+        ids.contains(region.id) ||
+        region.enemies.length() > 2048 ||
+        region.items.length() > 4096 ||
+        region.discovered.length() != 5 ||
+        region.rewarded.length() != 5 ||
+        region.cleared.length() != 5 {
+        return None
+      }
+      ids.push(region.id)
+    }
+    if !ids.contains(progress.current) {
+      return None
+    }
+    Some(progress)
+  } catch {
+    _ => None
+  }
+}
+
+///|
+pub fn GameWorld::restore_world_progress(
+  self : GameWorld,
+  source : String,
+) -> Bool {
+  if !self.hunting_grounds || self.authored_scene is Some(_) {
+    return false
+  }
+  guard parse_world_progress(source) is Some(progress) else { return false }
+  let atlas = WorldAtlas::new(progress.seed)
+  for state in progress.regions {
+    let seed = region_seed(progress.seed, state.id)
+    let dungeon = generate_world_region(seed, state.id)
+    let enemies = state.enemies.map(saved => {
+      let enemy = make_enemy(
+        saved.x,
+        saved.y,
+        saved.kind,
+        saved.max_hp.max(1),
+        saved.speed,
+        saved.size,
+        room_index=saved.room,
+      )
+      enemy.hp = saved.hp.min(enemy.max_hp)
+      enemy.alive = saved.alive && enemy.hp > 0
+      enemy
+    })
+    atlas.regions[state.id] = Some({
+      id: state.id,
+      seed,
+      dungeon,
+      enemies,
+      items: state.items,
+      discovered: state.discovered,
+      rewarded: state.rewarded,
+      cleared: state.cleared,
+    })
+    atlas.visited[state.id] = true
+  }
+  for i in 0..<4 {
+    atlas.unlocked[i] = progress.unlocked[i] && atlas.visited[i]
+  }
+  atlas.unlocked[0] = true
+  // Avoid capturing the old world's active arrays into the restored atlas.
+  let region = atlas.regions[progress.current].unwrap()
+  atlas.current = progress.current
+  self.atlas = Some(atlas)
+  self.dungeon = region.dungeon
+  self.enemies = region.enemies
+  self.items = region.items
+  self.discovered_rooms = region.discovered
+  self.reward_cleared_rooms = region.rewarded
+  self.auto_cleared_rooms = region.cleared
+  self.seed = region.seed
+  self.floor = world_regions[progress.current].tier
+  let (x, y) = if check_wall_collision(
+      region.dungeon.grid,
+      progress.x,
+      progress.y,
+      self.player.size,
+    ) {
+    world_waypoint_position(progress.current)
+  } else {
+    (progress.x, progress.y)
+  }
+  self.player.x = x
+  self.player.y = y
+  self.discovered_rooms_version += 1
+  true
+}

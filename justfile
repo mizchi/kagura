@@ -21,10 +21,12 @@ motion-generate *args:
 hunter-motions-build:
     node examples/games/hacknslash_3d/scripts/build-motions.mjs
     moonfmt -w examples/games/hacknslash_3d/app/enemy_motion_generated.mbt
+    moonfmt -w examples/games/hacknslash_3d/app/hunter_motion_generated.mbt
     node examples/games/hacknslash_3d/scripts/export-motion-assets.mjs
 
 # Reusable game components can be verified without building a particular game.
 game-components-test:
+    moon -C game test gameplay2d --target js
     moon -C engine/audio test . --target js
     moon -C engine/kagura_engine test procedural3d scene3d shadow3d render_pipeline3d --target js
     node --test scripts/motion/generation/generation.test.ts scripts/motion/retarget.test.mjs

@@ -1,0 +1,192 @@
+// Presentation only: the game validates and commits every inventory move.
+const gearPaths={
+  coat:'M12 4h10l8 6-4 10-5-3 6 14H7l6-14-5 3-4-10ZM17 7v22M13 4l4 8 4-8',
+  hat:'M10 21 14 6l8-2 4 18M2 24q15-10 30 0-15 7-30 0ZM12 17l12 1',
+  gloves:'M7 29 4 18l3-2 4 5V5q3-3 4 0v10-12q3-2 4 1v12-10q3-2 4 1v10-6q3-2 4 1v12l-5 6Z',
+  boots:'M9 3h15l-2 18 6 5v5H5v-6l5-7ZM11 10h11M10 15h12M5 27h23',
+  ring:'M12 8 17 2l5 6-5 6ZM12 11a11 11 0 1 0 10 0M13 17a6 6 0 1 0 8 0',
+  amulet:'M6 3q0 16 11 19Q28 19 28 3M17 18l6 7-6 7-6-7Z',
+};
+const rarityNames={common:'一般',uncommon:'上質',rare:'希少',epic:'至宝'};
+export const rotatedCells=(item,rotated=item.rotated)=>item.cells.map(([x,y])=>rotated?[item.height-1-y,x]:[x,y]);
+const dimensions=(item,rotated=item.rotated)=>rotated?[item.height,item.width]:[item.width,item.height];
+export function previewPlacement(view,item,x,y,rotated) {
+  const cells=rotatedCells(item,rotated).map(([cx,cy])=>[x+cx,y+cy]);
+  const inside=cells.every(([cx,cy])=>cx>=0&&cy>=0&&cx<view.width&&cy<view.height);
+  const overlaps=view.items.filter(other=>other.source!==item.source&&other.x>=0&&rotatedCells(other).some(([cx,cy])=>cells.some(([tx,ty])=>tx===other.x+cx&&ty===other.y+cy)));
+  return {cells,valid:inside&&overlaps.length<=1&&(item.source>=0||overlaps.every(other=>other.slot===item.slot)),swap:overlaps.length===1};
+}
+
+export function createInventoryPanel(panel,{input,icon,escape}) {
+  let view=null,selected=null,rotated=false,drag=null,ghost=null,scrollFrame=0,localNotice='';
+  const gearIcon=name=>gearPaths[name]?`<svg viewBox="0 0 34 34" aria-hidden="true"><path d="${gearPaths[name]}"/></svg>`:icon(name);
+  const findItem=source=>view?.items.find(i=>i.source===source)??view?.equipment.find(s=>s.item?.source===source)?.item;
+  const selectedItem=()=>findItem(selected);
+  const glyph=item=>`<span class="inv-glyph">${gearIcon(item.glyph)}</span>`;
+  function itemMarkup(item) {
+    const [w,h]=dimensions(item);
+    return `<button class="inv-item rarity-${item.rarity} ${item.rotated?'turned':''} ${item.cells.length<item.width*item.height?'irregular':''}" data-inv-item="${item.source}" data-focus="inv-${item.source}" aria-label="${escape(item.name)}・${item.slot_name}・${w}×${h}" aria-pressed="${selected===item.source}" style="left:${item.x/view.width*100}%;top:${item.y/view.height*100}%;width:${w/view.width*100}%;height:${h/view.height*100}%;--iw:${w};--ih:${h}">${rotatedCells(item).map(([x,y])=>`<span class="inv-item-cell" data-item-cell="${x},${y}" style="grid-column:${x+1};grid-row:${y+1}"></span>`).join('')}${glyph(item)}</button>`;
+  }
+  function detailMarkup() {
+    const item=selectedItem();
+    if(!item)return `<div class="inv-detail-empty">${gearIcon('bag')}<h3>次の狩りに備える</h3><p>品を選ぶと性能を比較できます。<br>ドラッグ、または品と移動先を順にタップ。</p></div>`;
+    const comparison=view.equipment.find(s=>s.id===item.slot)?.item;
+    const [w,h]=dimensions(item,rotated);
+    const stats=item.stats.map(([label,value],i)=>{
+      const before=comparison?.stats[i]?.[1]??0,delta=value-before;
+      if(!value&&!before)return '';
+      return `<div><dt>${escape(label)}</dt><dd>${Number(value.toFixed(1))}${item.source>=0&&delta?`<small class="${delta>0?'better':'worse'}">${delta>0?'+':''}${Number(delta.toFixed(1))}</small>`:''}</dd></div>`;
+    }).join('');
+    return `<div class="inv-detail-heading rarity-${item.rarity}">${glyph(item)}<div><small>${rarityNames[item.rarity]} · ${item.slot_name}${item.source<0?' · 装備中':''}</small><h3>${escape(item.name)}</h3><p>${w} × ${h} · ${item.cells.length}マス${item.cells.length<item.width*item.height?' · L字形':''}</p></div></div><dl class="inv-item-stats">${stats||'<p>追加補正なし</p>'}</dl><p class="inv-comparison">装備の補正値${item.source>=0?' · 右の数値は装備中の品との差':''}</p><div class="inv-detail-actions"><button data-inv-action="equip" data-focus="inv-equip">${item.source<0?'バッグへ外す':'装備する'}</button><button data-inv-action="rotate" data-focus="inv-rotate">↻ 回転 <kbd>R</kbd></button></div>`;
+  }
+  function contentMarkup() {
+    const overflow=view.items.filter(item=>item.x<0);
+    return `<div class="inv-layout"><section class="inv-loadout" aria-label="装備部位"><div class="inv-section-title"><h3>狩人の装備</h3><small>8 部位</small></div><div class="inv-body"><svg class="inv-silhouette" viewBox="0 0 150 240" aria-hidden="true"><path d="m51 39 8-30 27-3 11 34 33 10-55 12-56-12Zm8 30h34l14 23-12 33 27 61-38-5-9-28-9 28-38 5 26-61-14-33Zm-3 117h17l-4 45-26 3 8-14Zm25 0h17l4 34 8 14-27-3Z"/></svg>${view.equipment.map(slot=>`<button class="inv-equip inv-slot-${slot.id} ${slot.item?'rarity-'+slot.item.rarity:''}" data-equip-slot="${slot.id}" ${slot.item?`data-inv-item="${slot.item.source}"`:''} data-focus="slot-${slot.id}" aria-label="${slot.label}スロット：${escape(slot.item?.name??'未装備')}" aria-pressed="${slot.item&&selected===slot.item.source?'true':'false'}"><small>${slot.label}</small>${gearIcon(slot.item?.glyph??slot.glyph)}<span>${escape(slot.item?.name??'未装備')}</span></button>`).join('')}</div><dl class="inv-player-stats"><div><dt>攻撃力</dt><dd>${view.atk}</dd></div><div><dt>防御力</dt><dd>${view.def}</dd></div><div><dt>最大体力</dt><dd>${view.hp}</dd></div></dl></section><section class="inv-bag-section" aria-label="所持品"><div class="inv-section-title"><h3>所持品</h3><span><b>${view.used}</b> / ${view.width*view.height} マス</span></div><div class="inv-bag" aria-label="${view.width}列 ${view.height}行のバッグ" style="--cols:${view.width};--rows:${view.height};aspect-ratio:${view.width}/${view.height}"><div class="inv-cells">${Array.from({length:view.width*view.height},(_,i)=>`<button class="inv-cell" data-cell-x="${i%view.width}" data-cell-y="${Math.floor(i/view.width)}" aria-label="バッグ ${i%view.width+1}列 ${Math.floor(i/view.width)+1}行"></button>`).join('')}</div>${view.items.filter(item=>item.x>=0).map(itemMarkup).join('')}<div class="inv-preview" aria-hidden="true"></div></div><p class="inv-bag-help">ドラッグして移動・装備 <span>↻ R で回転</span></p>${overflow.length?`<div class="inv-overflow"><h3>保管待ち <small>${overflow.length}点</small></h3><p>以前の装備袋から引き継いだ品です。空きマスに移すか装備できます。</p>${overflow.map(item=>`<button data-inv-item="${item.source}" data-focus="inv-${item.source}" aria-pressed="${selected===item.source}">${gearIcon(item.glyph)}<span>${escape(item.name)}</span><small>${item.width}×${item.height}</small></button>`).join('')}</div>`:''}<aside class="inv-detail" aria-label="選択したアイテムの詳細">${detailMarkup()}</aside></section></div><p class="inv-notice" role="status">${escape(localNotice||view.notice||'装備袋を開いている間、狩場の時間は止まります。')}</p>`;
+  }
+  function paint() {
+    const content=panel.querySelector('[data-inventory-view]');
+    if(!content||!view)return;
+    const focus=panel.contains(document.activeElement)?document.activeElement.dataset.focus:null;
+    content.innerHTML=contentMarkup();
+    if(focus)content.querySelector(`[data-focus="${focus}"]`)?.focus({preventScroll:true});
+  }
+  function render(next) {
+    cancelDrag();
+    view=next;
+    if(!view)return '<p>インベントリを読み込んでいます</p>';
+    if(!selectedItem())selected=null;
+    if(selectedItem())rotated=selectedItem().rotated;
+    localNotice='';
+    return `<p class="eyebrow">BELONGINGS / ASHEN HUNT</p><h2>装備袋</h2><div data-inventory-view>${contentMarkup()}</div>`;
+  }
+  function select(source) {
+    selected=source;rotated=selectedItem()?.rotated??false;localNotice='';paint();
+  }
+  function clearPreview() {
+    panel.querySelector('.inv-preview')?.replaceChildren();
+    panel.querySelectorAll('[data-drop-valid]').forEach(el=>el.removeAttribute('data-drop-valid'));
+  }
+  function cancelDrag() {
+    if(drag&&panel.hasPointerCapture(drag.id))panel.releasePointerCapture(drag.id);
+    drag=null;cancelAnimationFrame(scrollFrame);scrollFrame=0;ghost?.remove();ghost=null;clearPreview();
+  }
+  function targetAt(x,y,offset={x:0,y:0}) {
+    const slot=document.elementFromPoint(x,y)?.closest('[data-equip-slot]');
+    if(slot&&panel.contains(slot))return {target:Number(slot.dataset.equipSlot),x:0,y:0};
+    const bag=panel.querySelector('.inv-bag'),r=bag?.getBoundingClientRect();
+    if(r&&x>=r.left&&y>=r.top&&x<r.right&&y<r.bottom)return {target:-1,x:Math.floor((x-r.left)/r.width*view.width)-offset.x,y:Math.floor((y-r.top)/r.height*view.height)-offset.y};
+    return null;
+  }
+  function showPreview(target) {
+    clearPreview();const item=selectedItem();if(!target||!item)return false;
+    if(target.target>=0){
+      const valid=target.target===item.slot;
+      panel.querySelector(`[data-equip-slot="${target.target}"]`)?.setAttribute('data-drop-valid',String(valid));
+      return valid;
+    }
+    const preview=previewPlacement(view,item,target.x,target.y,rotated);
+    const layer=panel.querySelector('.inv-preview');
+    if(layer)layer.innerHTML=preview.cells.filter(([x,y])=>x>=0&&y>=0&&x<view.width&&y<view.height).map(([x,y])=>`<i class="${preview.valid?'valid':'invalid'}" style="left:${x/view.width*100}%;top:${y/view.height*100}%;width:${100/view.width}%;height:${100/view.height}%"></i>`).join('');
+    return preview.valid;
+  }
+  function moveTo(target) {
+    const item=selectedItem();if(!item||!target)return;
+    if(target.target>=0&&target.target!==item.slot){localNotice=`この品は「${item.slot_name}」に装備できます`;paint();return;}
+    input.moveItem({source:selected,...target,rotated});
+    selected=target.target>=0?-1-target.target:item.source>=0?item.source:null;
+    localNotice='';
+  }
+  function rotate() {
+    const item=selectedItem();if(!item)return;
+    const [,height]=dimensions(item,rotated);
+    rotated=!rotated;
+    if(drag){
+      // Toggle between base and clockwise footprints, preserving the grabbed cell.
+      drag.offset=rotated?{x:height-1-drag.offset.y,y:drag.offset.x}:{x:drag.offset.y,y:dimensions(item,rotated)[1]-1-drag.offset.x};
+      updateDrag();
+    }else{localNotice='回転しました。置くマスを選んでください';paint();}
+  }
+  function autoScroll() {
+    scrollFrame=0;
+    if(!drag?.active)return;
+    const container=panel.querySelector('.hunter-panel'),r=container.getBoundingClientRect();
+    const edge=Math.min(50,r.height/6);
+    const speed=drag.y<r.top+edge?-Math.min(10,(r.top+edge-drag.y)/4):drag.y>r.bottom-edge?Math.min(10,(drag.y-r.bottom+edge)/4):0;
+    if(speed){container.scrollTop+=speed;updateDrag();}
+    scrollFrame=requestAnimationFrame(autoScroll);
+  }
+  function updateDrag() {
+    if(!drag?.active)return;
+    const item=selectedItem(),[w,h]=dimensions(item,rotated);
+    if(!ghost){ghost=document.createElement('div');ghost.className='inv-drag-ghost';ghost.setAttribute('aria-hidden','true');document.body.append(ghost);}
+    const cell=panel.querySelector('.inv-bag').getBoundingClientRect().width/view.width;
+    ghost.style.cssText=`left:${drag.x-(drag.offset.x+.5)*cell}px;top:${drag.y-(drag.offset.y+.5)*cell}px;width:${w*cell}px;height:${h*cell}px`;
+    ghost.innerHTML=itemMarkup({...item,x:0,y:0,rotated}).replace('width:'+w/view.width*100+'%','width:100%').replace('height:'+h/view.height*100+'%','height:100%');
+    ghost.querySelector('button')?.setAttribute('tabindex','-1');
+    showPreview(targetAt(drag.x,drag.y,drag.offset));
+  }
+  panel.addEventListener('pointerdown',e=>{
+    if(e.button!==0||drag||!e.target.closest('[data-inventory-view]'))return;
+    const element=e.target.closest('[data-inv-item]');if(!element)return;
+    const source=Number(element.dataset.invItem),item=findItem(source);if(!item)return;
+    // With a selection, clicking an equipment slot is a placement intent.
+    if(selected!==null&&selected!==source&&element.hasAttribute('data-equip-slot'))return;
+    if(selected!==source){selected=source;rotated=item.rotated;}
+    const r=element.getBoundingClientRect(),[w,h]=dimensions(item);
+    const offset=element.classList.contains('inv-item')&&rotated===item.rotated?{x:Math.min(w-1,Math.floor((e.clientX-r.left)/r.width*w)),y:Math.min(h-1,Math.floor((e.clientY-r.top)/r.height*h))}:{x:0,y:0};
+    drag={id:e.pointerId,source,startX:e.clientX,startY:e.clientY,x:e.clientX,y:e.clientY,offset,active:false};
+    panel.setPointerCapture(e.pointerId);e.preventDefault();e.stopPropagation();
+  });
+  panel.addEventListener('pointermove',e=>{
+    if(!drag||drag.id!==e.pointerId)return;
+    drag.x=e.clientX;drag.y=e.clientY;
+    if(Math.hypot(drag.x-drag.startX,drag.y-drag.startY)>6)drag.active=true;
+    updateDrag();if(drag.active&&!scrollFrame)scrollFrame=requestAnimationFrame(autoScroll);e.preventDefault();e.stopPropagation();
+  });
+  panel.addEventListener('pointerup',e=>{
+    if(!drag||drag.id!==e.pointerId)return;
+    const {active,offset}=drag,target=active?targetAt(e.clientX,e.clientY,offset):null;
+    const valid=active&&showPreview(target);cancelDrag();
+    if(active&&valid)moveTo(target);
+    else if(active){localNotice='配置を取り消しました';paint();}
+    else paint();
+    e.preventDefault();e.stopPropagation();
+  });
+  for(const type of ['pointercancel','lostpointercapture'])panel.addEventListener(type,e=>{if(drag?.id===e.pointerId)cancelDrag();});
+  panel.addEventListener('click',e=>{
+    if(!e.target.closest('[data-inventory-view]'))return;
+    e.preventDefault();e.stopPropagation();
+    const action=e.target.closest('[data-inv-action]')?.dataset.invAction;
+    if(action==='rotate'){rotate();return;}
+    if(action==='equip'){
+      const item=selectedItem();if(!item)return;
+      if(item.source>=0)moveTo({target:item.slot,x:0,y:0});
+      else {
+        for(const orientation of [rotated,!rotated])for(let y=0;y<view.height;y++)for(let x=0;x<view.width;x++){
+          const p=previewPlacement(view,item,x,y,orientation);
+          if(p.valid&&!p.swap){rotated=orientation;moveTo({target:-1,x,y});return;}
+        }
+        localNotice='バッグに空きがありません。先に品を移動してください';paint();
+      }
+      return;
+    }
+    const slot=e.target.closest('[data-equip-slot]');
+    if(slot&&selectedItem()){moveTo({target:Number(slot.dataset.equipSlot),x:0,y:0});return;}
+    const cell=e.target.closest('[data-cell-x]');
+    if(cell&&selectedItem()){moveTo({target:-1,x:Number(cell.dataset.cellX),y:Number(cell.dataset.cellY)});return;}
+    const item=e.target.closest('[data-inv-item]');
+    if(item)select(Number(item.dataset.invItem));
+  });
+  return {
+    render,
+    close(){cancelDrag();view=null;selected=null;localNotice='';},
+    cancelDrag,
+    handleKeyDown(e){
+      if(!view||e.ctrlKey||e.metaKey||e.altKey)return false;
+      if(e.code==='Escape'&&drag){cancelDrag();localNotice='配置を取り消しました';paint();return true;}
+      if(e.code==='KeyE'){if(!e.repeat)panel.querySelector('[data-inv-action="equip"]')?.click();return true;}
+      if(e.code==='KeyR'){if(!e.repeat)rotate();return true;}
+      return false;
+    },
+  };
+}

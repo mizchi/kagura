@@ -18,12 +18,14 @@ pub impl Show for CuePlayback with fn output(self, logger) {
 pub struct SoundBank[Key] {
   priv context : MixerAudioContext
   priv entries : Array[(Key, PlayerId)]
+  priv mut paused : Bool
+  priv mut paused_players : Array[PlayerId]
   priv mut muted : Bool
 }
 
 ///|
 pub fn[Key] SoundBank::new(context : MixerAudioContext) -> SoundBank[Key] {
-  { context, entries: [], muted: false, }
+  { context, entries: [], muted: false, paused: false, paused_players: [], }
 }
 
 ///|
@@ -52,6 +54,9 @@ pub fn[Key : Eq] SoundBank::register(
   for i in 0..<self.entries.length() {
     let (key, old) = self.entries[i]
     if key == cue {
+      self.paused_players = self.paused_players.filter(id => {
+        id.value != old.value
+      })
       self.context.dispose(old)
       self.entries[i] = (cue, player)
       return
@@ -69,6 +74,9 @@ pub fn[Key : Eq] SoundBank::play(
 ) -> CuePlayback raise {
   if self.muted {
     return Muted
+  }
+  if self.paused {
+    return Suppressed
   }
   match self.player(cue) {
     None => Missing
@@ -88,6 +96,7 @@ pub fn[Key : Eq] SoundBank::play(
 pub fn[Key] SoundBank::set_muted(self : SoundBank[Key], muted : Bool) -> Unit {
   self.muted = muted
   if muted {
+    self.paused_players.clear()
     for (_, player) in self.entries {
       self.context.stop(player) catch {
         _ => ()
@@ -124,4 +133,39 @@ pub fn[Key] SoundBank::clear(self : SoundBank[Key]) -> Unit {
     self.context.dispose(player)
   }
   self.entries.clear()
+  self.paused_players.clear()
+}
+
+///|
+/// Freeze cue positions without changing the user's mute preference.
+/// Only voices playing at entry resume; replaced and muted cues stay stopped.
+pub fn[Key] SoundBank::set_paused(self : SoundBank[Key], paused : Bool) -> Unit {
+  if self.paused == paused {
+    return
+  }
+  self.paused = paused
+  if paused {
+    for (_, player) in self.entries {
+      if self.context.state(player) is Playing {
+        self.context.pause(player) catch {
+          _ => continue
+        }
+        self.paused_players.push(player)
+      }
+    }
+  } else {
+    if !self.muted {
+      for player in self.paused_players {
+        self.context.play(player) catch {
+          _ => ()
+        }
+      }
+    }
+    self.paused_players.clear()
+  }
+}
+
+///|
+pub fn[Key] SoundBank::is_paused(self : SoundBank[Key]) -> Bool {
+  self.paused
 }

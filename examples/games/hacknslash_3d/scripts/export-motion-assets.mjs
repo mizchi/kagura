@@ -14,12 +14,20 @@ const artifact = resolveBuildArtifact(
   fileURLToPath(new URL("_build/js/release/build/motion_api.js", root)),
 );
 if (!artifact) throw Error("Missing motion API build");
-const { export_asset } = await import(pathToFileURL(artifact));
+const { export_asset, export_hunter_asset } = await import(
+  pathToFileURL(artifact)
+);
 const asset = validateMotionAsset(JSON.parse(export_asset()));
 await writeFile(
   new URL("motions/enemies.kgrmotion", root),
   JSON.stringify(asset) + "\n",
 );
 console.log(
-  `${asset.models.length} models / ${asset.clips.length} clips exported from game assets`,
+  `${asset.models.length} models / ${asset.weapons.length} weapon sets / ${asset.clips.length} clips exported from game assets`,
 );
+const hunter = validateMotionAsset(JSON.parse(export_hunter_asset()));
+await writeFile(
+  new URL("motions/hunter.kgrmotion", root),
+  JSON.stringify(hunter) + "\n",
+);
+console.log(`${hunter.weapons.length} hunter weapon/motion sets exported`);

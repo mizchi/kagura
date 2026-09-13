@@ -67,9 +67,9 @@ test "attack poses batch by phase and never deform a CPU mesh per enemy" {
   assert_eq(state.enemy_models.attack_buckets.length(), 4)
   for
     data in [
-      state.enemy_models.basic,
-      state.enemy_models.fast,
-      state.enemy_models.caster,
+      state.enemy_models.get_equipped_mesh_data(@game.Basic),
+      state.enemy_models.get_equipped_mesh_data(@game.Fast),
+      state.enemy_models.get_equipped_mesh_data(@game.Caster),
     ] {
     for part in data.parts {
       assert_eq(part.geometry.cpu_skin_count(), 0)
@@ -82,7 +82,10 @@ test "attack poses batch by phase and never deform a CPU mesh per enemy" {
       pairs += 1
     }
   }
-  assert_eq(pairs, state.enemy_models.basic.parts.length())
+  assert_eq(
+    pairs,
+    state.enemy_models.get_equipped_mesh_data(@game.Basic).parts.length(),
+  )
 }
 
 ///|
@@ -111,12 +114,12 @@ test "bow props stay attached and nocked arrow disappears exactly on release" {
   assert_true(walking.x.abs() + walking.y.abs() + walking.z.abs() < 0.001)
   let mut archer_prop_vertices = 0
   let mut caster_prop_vertices = 0
-  for j in models.ranged.geometry.skin_data.joint_indices {
+  for j in models.weapons[3].mesh.geometry.skin_data.joint_indices {
     if j >= 13 {
       archer_prop_vertices += 1
     }
   }
-  for j in models.caster.geometry.skin_data.joint_indices {
+  for j in models.weapons[2].mesh.geometry.skin_data.joint_indices {
     if j >= 13 {
       caster_prop_vertices += 1
     }
@@ -140,7 +143,7 @@ test "enemy arrows use the arrow mesh and archer casts use GPU pose batches" {
   let buckets = state.enemy_models.attack_buckets[state.enemy_models.active_attack_keys[0]]
   assert_eq(buckets.ranged_matrices.length(), 1)
   assert_eq(buckets.caster_matrices.length(), 0)
-  for part in state.enemy_models.ranged.parts {
+  for part in state.enemy_models.get_equipped_mesh_data(@game.Ranged).parts {
     assert_eq(part.geometry.cpu_skin_count(), 0)
   }
 }

@@ -195,9 +195,12 @@ extern "js" fn js_publish_hunter_state(
   paused : Bool,
   bone_count : Int,
   part_count : Int,
+  weapon : String,
+  attack_frame : Int,
+  player_projectiles : Int,
 ) -> Unit =
-  #| (x,y,facing,animation,attacks,dodges,yaw,pitch,distance,hp,paused,bones,materials) => {
-  #|   globalThis.__ashenHunt = {x,y,facing,animation,attacks,dodges,yaw,pitch,distance,hp,paused,bones,materials};
+  #| (x,y,facing,animation,attacks,dodges,yaw,pitch,distance,hp,paused,bones,materials,weapon,attackFrame,projectiles) => {
+  #|   globalThis.__ashenHunt = {x,y,facing,animation,attacks,dodges,yaw,pitch,distance,hp,paused,bones,materials,weapon,attackFrame,projectiles};
   #| }
 
 ///|
@@ -243,6 +246,19 @@ fn apply_initial_mode_overrides(
     for i = 0; i < frames; i = i + 1 {
       state.update(@core.empty_input_snapshot())
     }
+  } else if snapshot_mode == "border" || snapshot_mode == "waypoint" {
+    apply_world_preview(
+      state,
+      parse_int(js_get_query_param("region")),
+      snapshot_mode == "border",
+    )
+  } else if snapshot_mode == "charge" {
+    apply_charge_motion_preview(state, snapshot_frames)
+  } else if snapshot_mode == "hunter" {
+    let kind = @game.player_weapon_from_id(js_get_query_param("weapon")).or(
+      @game.Cleaver,
+    )
+    apply_hunter_motion_preview(state, kind, snapshot_frames)
   } else if snapshot_mode == "bow" {
     apply_bow_motion_preview(state, snapshot_frames)
   } else if snapshot_mode == "motions" {
@@ -543,6 +559,7 @@ fn run_game_js(state : GameState, perf_capture_enabled : Bool) -> Unit {
           Idle => "idle"
           Running => "running"
           Attacking => "attacking"
+          Charging => "charging"
           Hurt => "hurt"
           Dodging => "dodging"
         },
@@ -555,6 +572,12 @@ fn run_game_js(state : GameState, perf_capture_enabled : Bool) -> Unit {
         state.paused,
         char_num_bones,
         state.character.parts.length(),
+        state.world.player_weapon.profile().id,
+        match state.world.weapon_attack {
+          Some(attack) => attack.frame
+          None => -1
+        },
+        state.world.projectiles.filter(p => p.is_player && p.alive).length(),
       )
       state.publish_hunter_hud()
       js_publish_audio_debug_state(

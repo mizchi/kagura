@@ -36,6 +36,8 @@ struct EnemyModels {
   caster : EnemyMeshData
   ranged : EnemyMeshData
   boss : EnemyMeshData
+  weapons : Array[EnemyWeaponSet]
+  equipped_meshes : Map[Int, EnemyMeshData]
   attack_clips : Array[@scene3d.BakedSkinningClip]
   attack_buckets : Map[Int, EnemyRenderBuckets]
   active_attack_keys : Array[Int]
@@ -118,8 +120,8 @@ fn EnemyModels::new() -> EnemyModels {
   let basic = build_monster_mesh_data(@game.Goblin)
   let fast = build_monster_mesh_data(@game.Kobold)
   let tank = build_monster_mesh_data(@game.Goblin, armor=1)
-  let ranged = build_monster_mesh_data(@game.Skeleton, archer=true)
   let caster = build_monster_mesh_data(@game.Skeleton)
+  let ranged = caster
   let boss = build_monster_mesh_data(@game.Skeleton, armor=2)
   {
     skeleton,
@@ -135,6 +137,8 @@ fn EnemyModels::new() -> EnemyModels {
     ranged,
     caster,
     boss,
+    weapons: shared_enemy_weapons,
+    equipped_meshes: Map([]),
     attack_clips,
     attack_buckets: Map([]),
     active_attack_keys: [],
@@ -215,13 +219,15 @@ fn EnemyModels::get_skinned_mesh(
 
 ///|
 fn enemy_attack_clip_index(motion : @game.EnemyAttackMotion) -> Int {
-  match motion {
-    @game.Punch => 0
-    @game.SpearThrust => 1
-    @game.CastSpell => 2
-    @game.BowShot => 3
-    @game.NoAttack => -1
+  if motion == @game.Charge {
+    return shared_enemy_weapons.length()
   }
+  for i in 0..<shared_enemy_weapons.length() {
+    if shared_enemy_weapons[i].motion == motion {
+      return i
+    }
+  }
+  -1
 }
 
 ///|
@@ -276,24 +282,24 @@ fn build_enemy_skeleton() -> @skeleton3d.Skeleton {
 let shared_enemy_skeleton : @skeleton3d.Skeleton = build_enemy_skeleton()
 
 ///|
-let shared_enemy_attack_clips : Array[@scene3d.BakedSkinningClip] = [
-  @scene3d.BakedSkinningClip::new(shared_enemy_skeleton, build_punch_clip(), 49),
-  @scene3d.BakedSkinningClip::new(
-    shared_enemy_skeleton,
-    build_spear_thrust_clip(),
-    49,
-  ),
-  @scene3d.BakedSkinningClip::new(
-    shared_enemy_skeleton,
-    build_cast_spell_clip(),
-    241,
-  ),
-  @scene3d.BakedSkinningClip::new(
-    shared_enemy_skeleton,
-    build_bow_shot_clip(),
-    97,
-  ),
-]
+let shared_enemy_attack_clips : Array[@scene3d.BakedSkinningClip] = build_enemy_attack_clips()
+
+///|
+fn build_enemy_attack_clips() -> Array[@scene3d.BakedSkinningClip] {
+  let clips = shared_enemy_weapons.map(weapon => {
+    @scene3d.BakedSkinningClip::new(
+      shared_enemy_skeleton,
+      weapon.clip,
+      weapon.bake_frames,
+    )
+  })
+  clips.push(
+    @scene3d.BakedSkinningClip::new(
+      shared_enemy_skeleton, shared_enemy_charge_clip, 241,
+    ),
+  )
+  clips
+}
 
 ///|
 let enemy_attack_pose_stride : Int = 241

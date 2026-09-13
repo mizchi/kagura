@@ -263,6 +263,8 @@ fn GameState::draw_playing(
       self.world.dungeon.grid.height,
     )
   }
+  self.push_neighbor_region_commands(view_projection, rt, cmds)
+  self.push_world_waypoint(view_projection, rt, cmds)
   self.push_hunter_lanterns(view_projection, rt, cmds)
   // === Pass 3: Entities (items/projectiles) → instanced draw commands ===
   push_entity_instanced_cmds(
@@ -327,6 +329,11 @@ fn GameState::draw_playing(
   }
   for cmd in hud_cmds {
     cmds.push(cmd)
+  }
+  if self.paused &&
+    self.world.ui_mode == @game.UIMode::None &&
+    !hunter_web_enabled() {
+    self.draw_pause_menu(ctx, cmds)
   }
   if self.world.ui_mode != @game.UIMode::None && !hunter_web_enabled() {
     let ui_cmds = self.render_rpg_ui_cmds(ctx.dst, ctx.shader)

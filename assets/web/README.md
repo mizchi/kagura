@@ -63,6 +63,9 @@ sounds.clear()
 既定では再生中の同じ音を最後まで鳴らします。明示的な巻き戻しは `play(cue, restart=true)`。
 結果は `Played / Suppressed / Muted / Missing` で、再生処理自体のエラーは呼び出し元へ返します。
 登録の置き換えと `clear()` は以前の音声を破棄し、ミュートはすべての音を停止します。
+`set_paused(true)` は再生位置とミュート設定を保って一時停止し、`set_paused(false)` で
+停止前に再生中だった音だけを再開します。停止中の `play()` は `Suppressed` を返します
+（ミュート中は `Muted`）。停止中にミュート・置き換え・破棄した音は再開しません。
 音源の生成・ブラウザでのデコード・ゲームイベントとの対応は呼び出し側の責務です。
 
 ASHEN HUNTの音源設定は `app/audio_assets.mbt`、イベント対応は `app/audio_runtime.mbt` にあります。
@@ -135,3 +138,19 @@ MoonBit JSでは地形やバインド姿勢の描画前に
 
 共通API、ポーズの遅延更新、CPU/GPU時間を分けた計測と改善手順は
 [描画性能のガイド](../../docs/performance.md) を参照。
+
+## 複数マスのアイテム配置
+
+`mizchi/kagura_game/gameplay2d` の `GridFootprint` と `ItemGrid` は、描画・装備ルール・アイテム本体から独立した配置コンポーネントです。
+
+```moonbit
+let grid = @gameplay2d.ItemGrid::new(8, 6)
+let shape = @gameplay2d.GridFootprint::new([(0, 0), (1, 0), (0, 1), (0, 2)]).unwrap()
+let placed = grid.place(0, shape, 2, 1, rotated=true)
+```
+
+`rectangle` で長方形、`new` で任意の占有セルを定義します。各軸は0〜127、重複・負数・空の形状は拒否します。
+`rotated=true` は基準形を時計回りに90度回転した向き。形状内の空きセルには別の品を配置できます。
+`place` は同じIDの旧位置を除外して検査し、境界・衝突で失敗した場合は元の配置を保持します。
+`overlaps` は重なるID、`find_space` は左上からの空き位置、`used_cells` は実占有数を返します。
+`clone` で配置を分離し、装備交換など複数の変更を成功時だけ確定できます。アイテムの所有権と交換先の制約は呼び出し側が管理します。

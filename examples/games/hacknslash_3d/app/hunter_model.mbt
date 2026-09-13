@@ -36,7 +36,6 @@ fn build_hunter_parts() -> Array[HunterPart] {
   let trim = @procedural3d.RigidGeometry::new()
   let cloth = @procedural3d.RigidGeometry::new()
   let shadow = @procedural3d.RigidGeometry::new()
-  let steel = @procedural3d.RigidGeometry::new()
   // Short tailored torso and separately animated split coat tails.
   coat.loft(
     0.0,
@@ -179,35 +178,6 @@ fn build_hunter_parts() -> Array[HunterPart] {
   for y in [0.52, 0.58] {
     trim.box(0.10, y, 0.15, 0.026, 0.026, 0.02, 1)
   }
-  // Right-hand cleaver: long steel silhouette, six saw teeth, bound handle.
-  leather.box(0.33, 0.34, 0.15, 0.065, 0.075, 0.29, 4)
-  trim.box(0.33, 0.34, 0.27, 0.19, 0.07, 0.04, 4)
-  steel.loft(
-    0.33,
-    0.61,
-    [(0.31, 0.085, 0.33), (0.36, 0.095, 0.33), (0.39, 0.065, 0.28)],
-    4,
-    4,
-  )
-  for i in 0..<6 {
-    let z = 0.35 + i.to_double() * 0.10
-    steel.triangle(
-      @math3d.Vec3::new(0.25, 0.35, z),
-      @math3d.Vec3::new(0.18, 0.35, z + 0.07),
-      @math3d.Vec3::new(0.25, 0.35, z + 0.08),
-      4,
-    )
-    steel.triangle(
-      @math3d.Vec3::new(0.25, 0.35, z + 0.08),
-      @math3d.Vec3::new(0.18, 0.35, z + 0.07),
-      @math3d.Vec3::new(0.25, 0.35, z),
-      4,
-    )
-  }
-  // Off-hand flintlock, slightly oversized muzzle.
-  leather.box(-0.32, 0.32, 0.13, 0.075, 0.14, 0.12, 7)
-  steel.box(-0.32, 0.39, 0.26, 0.10, 0.085, 0.30, 7)
-  trim.box(-0.32, 0.39, 0.40, 0.13, 0.105, 0.04, 7)
   return [
     finish_hunter_part(coat, "coat", 0x35414A),
     finish_hunter_part(leather, "leather", 0x443735),
@@ -215,7 +185,6 @@ fn build_hunter_parts() -> Array[HunterPart] {
     finish_hunter_part(trim, "brass", 0xB29462),
     finish_hunter_part(cloth, "cloth", 0x9B8170),
     finish_hunter_part(shadow, "shadow", 0x171C23),
-    finish_hunter_part(steel, "weapon", 0xAFBCC2),
   ]
 }
 

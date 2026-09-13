@@ -49,19 +49,18 @@ export function createMotionScene(asset) {
       ),
   );
   const mixer = new THREE.AnimationMixer(root),
-    models = new Map();
-  let model, action, clipId, lastTime;
+    groups = new Map();
+  let model, weapon, action, clipId, lastTime;
   const helper = new THREE.SkeletonHelper(root);
   helper.material.depthTest = false;
   helper.renderOrder = 10;
   helper.visible = false;
-  function selectModel(id) {
-    const definition = asset.models.find((m) => m.id === id);
-    if (!definition) throw Error("Unknown motion model");
-    if (model) model.visible = false;
-    model = models.get(id);
-    if (!model) {
-      model = new THREE.Group();
+  function groupFor(definition, prefix) {
+    const key = prefix + definition.id;
+    let group = groups.get(key);
+    if (!group) {
+      group = new THREE.Group();
+      group.name = key;
       for (const part of definition.parts) {
         const geometry = new THREE.BufferGeometry(),
           count = part.vertices.length / 8;
@@ -102,12 +101,28 @@ export function createMotionScene(asset) {
         mesh.bind(skeleton, new THREE.Matrix4());
         mesh.castShadow = true;
         mesh.receiveShadow = true;
-        model.add(mesh);
+        mesh.name = part.name;
+        group.add(mesh);
       }
-      models.set(id, model);
-      root.add(model);
+      groups.set(key, group);
+      root.add(group);
     }
+    return group;
+  }
+  function selectModel(id) {
+    const definition = asset.models.find((model) => model.id === id);
+    if (!definition) throw Error("Unknown motion model");
+    if (model) model.visible = false;
+    model = groupFor(definition, "body:");
     model.visible = true;
+    return definition;
+  }
+  function selectWeapon(id) {
+    const definition = asset.weapons.find((weapon) => weapon.id === id);
+    if (!definition) throw Error("Unknown motion weapon");
+    if (weapon) weapon.visible = false;
+    weapon = groupFor(definition, "weapon:");
+    weapon.visible = true;
     return definition;
   }
   function pose(id, time) {
@@ -138,15 +153,21 @@ export function createMotionScene(asset) {
     }
   }
   selectModel(asset.models[0].id);
+  selectWeapon(asset.weapons[0].id);
   return {
     root,
     helper,
     bones,
     selectModel,
+    selectWeapon,
     pose,
     bounds() {
-      model.children.forEach((mesh) => mesh.computeBoundingBox());
-      return new THREE.Box3().setFromObject(model);
+      const bounds = new THREE.Box3();
+      for (const group of [model, weapon]) {
+        group.children.forEach((mesh) => mesh.computeBoundingBox());
+        bounds.union(new THREE.Box3().setFromObject(group));
+      }
+      return bounds;
     },
     dispose() {
       mixer.stopAllAction();

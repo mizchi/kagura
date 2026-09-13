@@ -9,6 +9,22 @@ test "PlayerCharacter::compute_skinning caches unchanged pose" {
 }
 
 ///|
+test "hunter body excludes the cleaver socket and the weapon set owns its attack" {
+  let character = PlayerCharacter::new()
+  for part in character.body_parts {
+    for joint in part.skin.joint_indices {
+      assert_true(joint != 4)
+    }
+  }
+  assert_eq(character.weapon.id, "cleaver_flintlock")
+  assert_true(character.weapon.parts.length() > 0)
+  assert_eq(character.weapon.attack_duration, 19.0 / 60.0)
+  character.trigger_attack()
+  character.update(character.weapon.attack_duration + 0.01)
+  assert_eq(character.anim_state, Idle)
+}
+
+///|
 test "PlayerCharacter::update invalidates skinning cache" {
   let character = PlayerCharacter::new()
   let _ = character.compute_skinning()

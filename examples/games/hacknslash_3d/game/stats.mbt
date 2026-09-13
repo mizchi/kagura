@@ -228,11 +228,7 @@ pub fn compute_player_stats(
   // Aggregate tag bonuses from equipment affixes and mastery skills
   let tag_bonuses = new_tag_bonuses_array()
   // Collect from equipment affixes
-  let equip_items : Array[ItemData?] = [
-    equipment.weapon,
-    equipment.armor,
-    equipment.accessory,
-  ]
+  let equip_items = equipment_slots().map(slot => equipment.item_for_slot(slot))
   for opt_item in equip_items {
     match opt_item {
       Some(item) => {

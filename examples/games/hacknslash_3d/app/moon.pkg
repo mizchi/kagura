@@ -59,6 +59,7 @@ options(
     "main_js.mbt": [ "js" ],
     "main_js_wbtest.mbt": [ "js" ],
     "save_load.mbt": [ "js" ],
+    "inventory_save_js_wbtest.mbt": [ "js" ],
     "save_load_native.mbt": [ "native" ],
     "snapshot.mbt": [ "js" ],
     "snapshot_native.mbt": [ "native" ],

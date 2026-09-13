@@ -4,10 +4,12 @@ export function comparisonRows(view,item) {
   return item.stats.map(([label,value])=>({label,value,before:previous.get(label)??0,delta:value-(previous.get(label)??0)})).filter(row=>row.value||row.before);
 }
 const number=value=>Number(value.toFixed(1));
-export function comparisonMarkup(view,item,escape) {
+export function comparisonMarkup(view,item,escape,{page=0,pageSize=Infinity}={}) {
   const equipped=view.equipment.find(slot=>slot.id===item.slot)?.item;
   const rows=comparisonRows(view,item);
-  return `<p class="inv-comparison">${item.source<0?'装備中':`比較：${escape(equipped?.name??'未装備')}`}</p><table class="inv-stat-comparison"><thead><tr><th>補正</th><th>この品</th><th>装備中</th><th>差</th></tr></thead><tbody>${rows.map(({label,value,before,delta})=>`<tr><th>${escape(label)}</th><td>${number(value)}</td><td>${number(before)}</td><td class="${delta>0?'better':delta<0?'worse':''}">${delta>0?'+':''}${number(delta)}</td></tr>`).join('')||'<tr><td colspan="4">追加補正なし</td></tr>'}</tbody></table>`;
+  const pages=Math.ceil(rows.length/pageSize),current=Math.max(0,Math.min(page,pages-1));
+  const shown=Number.isFinite(pageSize)?rows.slice(current*pageSize,(current+1)*pageSize):rows;
+  return `<p class="inv-comparison">${item.source<0?'装備中':`比較：${escape(equipped?.name??'未装備')}`}</p><table class="inv-stat-comparison"><thead><tr><th>補正</th><th>この品</th><th>装備中</th><th>差</th></tr></thead><tbody>${shown.map(({label,value,before,delta})=>`<tr><th>${escape(label)}</th><td>${number(value)}</td><td>${number(before)}</td><td class="${delta>0?'better':delta<0?'worse':''}">${delta>0?'+':''}${number(delta)}</td></tr>`).join('')||'<tr><td colspan="4">追加補正なし</td></tr>'}</tbody></table>${pages>1?`<nav class="inv-pages" aria-label="比較のページ"><button data-inv-action="detail-prev" data-focus="inv-detail-prev" aria-label="前の比較" ${current===0?'disabled':''}>←</button><span>補正 ${current+1} / ${pages}</span><button data-inv-action="detail-next" data-focus="inv-detail-next" aria-label="次の比較" ${current+1===pages?'disabled':''}>→</button></nav>`:''}`;
 }
 
 // Read-only hover overlay: never selects or replaces the bag underneath the pointer.

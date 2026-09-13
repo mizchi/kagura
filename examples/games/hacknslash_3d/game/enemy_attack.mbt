@@ -76,7 +76,7 @@ fn tick_enemy_attack(enemy : Enemy) -> Unit {
 ///|
 fn try_start_enemy_melee(
   enemy : Enemy,
-  player : Player,
+  target : CombatTarget,
   grid : @terrain.Grid2D,
   events : Array[GameEvent],
 ) -> Bool {
@@ -91,22 +91,22 @@ fn try_start_enemy_melee(
   }
   let profile = motion.melee_profile().unwrap()
   let range = profile.reach - 2.0
-  let dx = player.x - enemy.x
-  let dy = player.y - enemy.y
+  let dx = target.x - enemy.x
+  let dy = target.y - enemy.y
   if dx * dx + dy * dy > range * range ||
     enemy_direct_chase_path_blocked(
       grid,
       enemy.x,
       enemy.y,
-      player.x,
-      player.y,
+      target.x,
+      target.y,
       1.0,
     ) {
     return false
   }
   let windup = profile.windup
   let recovery = profile.recovery
-  enemy.begin_attack(motion, windup, recovery, player.x, player.y)
+  enemy.begin_attack(motion, windup, recovery, target.x, target.y)
   enemy.attack_cooldown = windup + recovery + 18
   events.push(EnemyMeleeWarning(enemy.x, enemy.y))
   true
@@ -115,15 +115,15 @@ fn try_start_enemy_melee(
 ///|
 fn enemy_melee_hits(
   enemy : Enemy,
-  player : Player,
+  target : CombatTarget,
   grid : @terrain.Grid2D,
 ) -> Bool {
   if check_wall_collision(grid, enemy.x, enemy.y, 1.0) ||
-    check_wall_collision(grid, player.x, player.y, 1.0) {
+    check_wall_collision(grid, target.x, target.y, 1.0) {
     return false
   }
-  let dx = player.x - enemy.x
-  let dy = player.y - enemy.y
+  let dx = target.x - enemy.x
+  let dy = target.y - enemy.y
   let ax = enemy.attack_target_x - enemy.x
   let ay = enemy.attack_target_y - enemy.y
   let len = (ax * ax + ay * ay).sqrt()
@@ -135,9 +135,9 @@ fn enemy_melee_hits(
   if len > 0.001 {
     let forward = (dx * ax + dy * ay) / len
     let lateral = (dx * ay - dy * ax).abs() / len
-    if forward < -player.size / 4.0 ||
+    if forward < -target.size / 4.0 ||
       forward > reach ||
-      lateral > width + player.size / 2.0 {
+      lateral > width + target.size / 2.0 {
       return false
     }
   } else if dx * dx + dy * dy > width * width {
@@ -147,8 +147,8 @@ fn enemy_melee_hits(
     grid,
     enemy.x,
     enemy.y,
-    player.x,
-    player.y,
+    target.x,
+    target.y,
     1.0,
   )
 }

@@ -238,16 +238,21 @@ test('mouse hover comparison remains visible after pad inventory navigation',asy
   await expect(page.getByRole('tooltip',{name:'装備との比較'})).toBeVisible();
 });
 
-test('portrait inventory scrolls with the right stick and can discard worn equipment',async({page},info)=>{
+test('portrait inventory needs no scrolling and can discard worn equipment',async({page},info)=>{
   await page.setViewportSize({width:390,height:844});await install(page);
   await page.goto('/?snapshot=playing&frames=0&seed=42&mute=1');
   await expect.poll(async()=>(await hud(page))?.mode).toBe('playing');
   await tap(page,8);await tap(page,2); // Equip spear, then switch to its body slot.
   await expect.poll(async()=>(await hud(page)).inventory_grid.equipment[0].item?.glyph).toBe('spear');
   await tap(page,4);
-  const panel=page.locator('.hunter-panel'),scroll=await panel.evaluate(e=>e.scrollTop);
+  await tap(page,15);
+  await expect(page.locator('[data-equip-slot="1"]')).toHaveClass(/inv-pad-cursor/);
+  await tap(page,14);
+  const panel=page.locator('.hunter-panel');
   await setPad(page,[0,0,0,1]);
-  await expect.poll(()=>panel.evaluate(e=>e.scrollTop)).toBeGreaterThan(scroll+150);
+  await page.waitForTimeout(150);
+  expect(await panel.evaluate(e=>e.scrollTop)).toBe(0);
+  expect(await panel.evaluate(e=>e.scrollHeight<=e.clientHeight)).toBe(true);
   await expect(page.locator('[data-inv-action="drop"]')).toBeInViewport();
   await setPad(page);
   await captureGameFrame(page,{path:info.outputPath('inventory-gamepad-portrait.png')});

@@ -7,7 +7,7 @@ const branches = [
     description: "一撃を研ぎ、群れを断つ。",
   },
   {
-    name: "生存",
+    name: "生存・召喚",
     subtitle: "THE BLOOD",
     description: "傷を越え、狩りを続ける。",
   },

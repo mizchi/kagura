@@ -69,6 +69,7 @@ pub fn skill_level_damage_multiplier(id : SkillId, level : Int) -> Double {
     SplittingFireball => (1.5, 0.4)
     IceNova => (1.5, 0.4)
     HomingMissile => (1.5, 0.4)
+    RaiseZombie | SummonFlamingSkull => (1.0, 0.3)
     _ => (1.0, 0.0)
   }
   base + (level - 1).to_double() * growth

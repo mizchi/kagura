@@ -3,7 +3,7 @@
 
 ///|
 pub let hunter_slot_actions : Array[Int] = [
-  74, 50, 86, 70, 84, 51, 52, 53, 54, 56,
+  74, 50, 86, 70, 84, 51, 52, 53, 54, 56, 57, 48,
 ]
 
 ///|
@@ -16,6 +16,8 @@ pub fn GameWorld::hunter_action_learned(self : GameWorld, key : Int) -> Bool {
     53 => self.skills.get_level(ChainLightning) > 0
     54 => self.skills.get_level(HomingMissile) > 0
     56 => self.skills.get_level(Counter) > 0
+    57 => self.skills.get_level(SummonFlamingSkull) > 0
+    48 => self.skills.get_level(RaiseZombie) > 0
     _ => false
   }
 }

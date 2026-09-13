@@ -7,7 +7,7 @@ fn hunter_skill_branch(id : @game.SkillId) -> Int {
     | PhysicalMastery
     | AoEMastery
     | Counter => 0
-    Vitality | DashMastery | LifeSteal => 1
+    Vitality | DashMastery | LifeSteal | RaiseZombie | SummonFlamingSkull => 1
     _ => 2
   }
 }
@@ -15,6 +15,10 @@ fn hunter_skill_branch(id : @game.SkillId) -> Int {
 ///|
 fn hunter_skill_description(id : @game.SkillId) -> String {
   match id {
+    RaiseZombie =>
+      "敵を引きつける味方ゾンビを最大2体召喚。足を引きずって追従し、両腕で飛びかかる。倒れるまで同行し、上限時は古い1体を再召喚。地域移動で帰還。"
+    SummonFlamingSkull =>
+      "燃える頭蓋を最大8体召喚。6秒間、敵と地形をすり抜けて自動追尾・攻撃する。敵の攻撃を受けず、長押しで連続召喚。"
     PowerStrike => "筋力と通常攻撃を高める常時効果。"
     Whirlwind =>
       "設定したキー／ボタンを押している間、装備した武器で回り続ける。移動可能。1回転ごとに周囲へ命中、離すと停止。全武器対応。"
@@ -49,6 +53,14 @@ fn hunter_skill_description(id : @game.SkillId) -> String {
 ///|
 fn hunter_skill_effect(id : @game.SkillId, level : Int) -> String {
   match id {
+    RaiseZombie =>
+      "ゾンビ体力 +" +
+      (level * 8).to_string() +
+      " / 威力 " +
+      (@game.skill_level_damage_multiplier(id, level) * 100.0)
+      .to_int()
+      .to_string() +
+      "%"
     PowerStrike =>
       "筋力 +" +
       level.to_string() +
@@ -109,6 +121,18 @@ fn GameState::hunter_extra_skills(
   for
     entry in [
       (
+        @game.RaiseZombie,
+        48,
+        w.summons.zombie_cooldown,
+        @game.summoned_zombie_cooldown,
+      ),
+      (
+        @game.SummonFlamingSkull,
+        57,
+        w.summons.skull_cooldown,
+        @game.flaming_skull_cooldown,
+      ),
+      (
         @game.ChainLightning,
         53,
         w.chain_lightning_cooldown_timer,
@@ -154,6 +178,8 @@ fn hunter_frames_seconds(frames : Int) -> String {
 ///|
 fn hunter_skill_glyph(id : @game.SkillId) -> String {
   match id {
+    RaiseZombie => "zombie"
+    SummonFlamingSkull => "skull"
     PowerStrike | PhysicalMastery => "blade"
     Whirlwind | AoEMastery => "whirl"
     CriticalHit => "eye"
@@ -206,7 +232,9 @@ fn GameState::hunter_tree_nodes(self : GameState) -> Array[HunterNodeView] {
         | ChainLightning
         | SplittingFireball
         | IceNova
-        | HomingMissile => "発動技"
+        | HomingMissile
+        | RaiseZombie
+        | SummonFlamingSkull => "発動技"
         _ => "常時効果"
       },
       status,

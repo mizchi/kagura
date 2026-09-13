@@ -3,6 +3,7 @@ pub(all) enum HunterPreset {
   BladePreset
   StormPreset
   MarksmanPreset
+  SummonerPreset
 } derive(Eq, Debug)
 
 ///|
@@ -19,6 +20,7 @@ pub let hunter_presets : Array[HunterPresetProfile] = [
   { id: "blade", name: "近接", weapon: Cleaver, keys: [74, 50, 86, 70], },
   { id: "storm", name: "魔法", weapon: Focus, keys: [53, 84, 51, 52], },
   { id: "marksman", name: "遠距離", weapon: Bow, keys: [54, 84, 51, 52], },
+  { id: "summoner", name: "召喚", weapon: Focus, keys: [57, 48, 52, 86], },
 ]
 
 ///|
@@ -27,6 +29,7 @@ pub fn HunterPreset::index(self : HunterPreset) -> Int {
     BladePreset => 0
     StormPreset => 1
     MarksmanPreset => 2
+    SummonerPreset => 3
   }
 }
 
@@ -41,6 +44,7 @@ pub fn hunter_preset_from_id(id : String) -> HunterPreset? {
     "blade" => Some(BladePreset)
     "storm" => Some(StormPreset)
     "marksman" => Some(MarksmanPreset)
+    "summoner" => Some(SummonerPreset)
     _ => None
   }
 }
@@ -50,6 +54,7 @@ pub fn default_hunter_preset(archetype : CharacterArchetype) -> HunterPreset {
   match archetype {
     Melee => BladePreset
     Mage => StormPreset
+    Summoner => SummonerPreset
     _ => MarksmanPreset
   }
 }

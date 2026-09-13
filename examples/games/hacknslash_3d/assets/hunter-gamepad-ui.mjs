@@ -9,7 +9,7 @@ export const gamepadGuide=`<details id="gamepad-guide"><summary id="gamepad-stat
   <p>習得後：<br>LT / L2 ＋ 十字 ↑：連鎖雷撃<br>LT / L2 ＋ 十字 ←：追尾の呪弾<br>LT / L2 ＋ 十字 →：反撃の構え</p>
   <p>十字 ↑：宝箱を開ける<br>十字 ←：武器切替<br>十字 ↓：星落とし<br>十字 →：突進斬り<br>L3：突進斬り / R3：TPS切替</p>
   <p>View / Share：装備袋<br>Menu / Options：一時停止<br>メニュー：十字／左スティックで選択、A / ×で決定、B / ○で戻る<br>スライダー：左右で調整</p>
-  <p>装備袋：十字／左スティックでマス選択、右スティックでスクロール、A / ×で持つ・置く、X / □で装備・外す、Y / △で回転、LB/RB / L1/R1で部位とバッグ切替、R3で捨てる、B / ○で取消・閉じる</p>
+  <p>装備袋：十字／左スティックでマス選択、右スティックで比較ページ切替、A / ×で持つ・置く、X / □で装備・外す、Y / △で回転、LB/RB / L1/R1で部位とバッグ切替、R3で捨てる、B / ○で取消・閉じる</p>
   <p>星落とし：右スティックで位置指定、A / ×で発動、B / ○で取消</p>
 </div></details>`;
 
@@ -48,7 +48,7 @@ export function createGamepadGuide(root){
       }
     },
     render(hud,active){
-      guide.hidden=!connected&&hud.mode==='playing'&&!hud.paused&&hud.menu==='none';
+      guide.hidden=hud.menu==='inventory'||(!connected&&hud.mode==='playing'&&!hud.paused&&hud.menu==='none');
       root.classList.toggle('gamepad-active',active);
       text(root.querySelector('#gamepad-primary-skills'),['Y / △','RT / R2','LB / L1','LT / L2 ＋ 十字 ↓'].map((label,i)=>`${label}：${hud.skills?.[i]?.name??''}${hud.skills?.[i]?.hold?'（長押し）':''}`).join('\n'));
       for(const [i,label] of ['Y / △','RT / R2','LB / L1','LT / L2 + ↓'].entries())text(root.querySelector(`[data-skill="${i}"] kbd`),active?label:i<2?`${i+1} / ${i===0?'左':'右'}`:String(i+1));

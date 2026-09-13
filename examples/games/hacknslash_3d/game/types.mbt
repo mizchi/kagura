@@ -192,6 +192,8 @@ pub(all) enum GameEvent {
   FireballCast(Double, Double)
   FireballTrail(Double, Double)
   FireballBurst(Double, Double)
+  EnemyAreaDamage(Double, Double, Double, Int)
+  SummonReleased(Double, Double, Bool)
   IceNovaCast(Double, Double, Double)
   MeteorCastStart(Double, Double, Double)
   MeteorImpact(Double, Double, Double)

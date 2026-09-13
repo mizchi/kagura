@@ -31,3 +31,30 @@ test('hover comparison uses the matching body slot and shows losses, gains and r
   ]);
   assert.equal(comparisonRows({equipment:[]},candidate)[0].before,0);
 });
+
+test('ground drop is only the visible margin outside the inventory dialog',async()=>{
+  const {isInventoryGroundDrop}=await import('../assets/hunter-inventory-grid.mjs');
+  const dialog={left:40,top:30,right:360,bottom:600};
+  const surface={left:0,top:0,right:400,bottom:680};
+  assert.equal(isInventoryGroundDrop(20,200,dialog,surface),true);
+  assert.equal(isInventoryGroundDrop(200,640,dialog,surface),true);
+  assert.equal(isInventoryGroundDrop(200,200,dialog,surface),false);
+  assert.equal(isInventoryGroundDrop(40,30,dialog,surface),false);
+  assert.equal(isInventoryGroundDrop(-1,200,dialog,surface),false);
+  assert.equal(isInventoryGroundDrop(200,680,dialog,surface),false);
+  assert.equal(isInventoryGroundDrop(20,200,null,surface),false);
+});
+
+test('comparison pages retain every modifier, while hover still shows the complete comparison',async()=>{
+  const {comparisonMarkup}=await import('../assets/hunter-item-comparison.mjs');
+  const item={slot:0,source:0,stats:Array.from({length:10},(_,i)=>['modifier-'+i,i+1])};
+  const view={equipment:[]},escape=s=>s;
+  for(const page of [0,1,2]){
+    const html=comparisonMarkup(view,item,escape,{page,pageSize:4});
+    for(let i=0;i<10;i++)assert.equal(html.includes('modifier-'+i),Math.floor(i/4)===page);
+    assert.ok(html.includes(`補正 ${page+1} / 3`));
+  }
+  const hover=comparisonMarkup(view,item,escape);
+  for(let i=0;i<10;i++)assert.ok(hover.includes('modifier-'+i));
+  assert.ok(!hover.includes('data-inv-action'));
+});

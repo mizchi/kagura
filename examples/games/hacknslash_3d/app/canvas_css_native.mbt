@@ -122,3 +122,8 @@ fn hunter_web_stick_aim() -> Array[Double] {
 fn hunter_web_ground_stick() -> Array[Double] {
   []
 }
+
+///|
+fn hunter_web_skull_held() -> Bool {
+  false
+}

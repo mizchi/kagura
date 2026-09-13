@@ -624,6 +624,15 @@ fn GameState::update_playing(self : GameState) -> Unit {
         self.play_sound_cue(SfxAttack)
       }
     }
+    if !targeting && self.world.hunting_grounds {
+      if @inpututil.is_key_just_pressed(self.input.key_state, 48) {
+        ignore(self.world.request_hunter_spell(@game.RaiseZombieArt))
+      }
+      if @inpututil.is_key_pressed(self.input.key_state, 57) ||
+        hunter_web_skull_held() {
+        ignore(self.world.request_hunter_spell(@game.FlamingSkullArt))
+      }
+    }
     // Skill activation: 1/2/3 keys
     if @inpututil.is_key_just_pressed(self.input.key_state, key_1) {
       @game.activate_skill(self.world, 0)
@@ -718,6 +727,13 @@ fn GameState::update_playing(self : GameState) -> Unit {
     }
     self.queue_combat_visual(event)
     match event {
+      @game.EnemyAreaDamage(_, _, _, _) => ()
+      @game.SummonReleased(x, y, fire) =>
+        if fire {
+          self.queue_fireball_cast_effect(x, y)
+        } else {
+          spawn_item_pickup(self.particle_manager, x, y, true)
+        }
       @game.GuardBlocked(_, _, _) => self.play_sound_cue(SfxEnemyHit)
       @game.CombatImpact(kind, _, _, _, _) =>
         self.play_sound_cue(

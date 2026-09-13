@@ -149,3 +149,7 @@ extern "js" fn hunter_web_stick_aim() -> Array[Double] =
 ///|
 extern "js" fn hunter_web_ground_stick() -> Array[Double] =
   #| () => { const p=globalThis.__ashenControls?.groundStick(); return p?[p.x,p.y]:[]; }
+
+///|
+extern "js" fn hunter_web_skull_held() -> Bool =
+  #| () => globalThis.__ashenControls?.isHeld("skull") ?? false

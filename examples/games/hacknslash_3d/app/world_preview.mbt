@@ -174,3 +174,48 @@ fn apply_zombie_combat_preview(state : GameState) -> Unit {
   ]
   state.camera = state.camera.with_distance(9.0)
 }
+
+///|
+/// Interactive summon sandbox, with the same input and simulation as a saved hunter.
+fn apply_player_summon_preview(state : GameState, peaceful : Bool) -> Unit {
+  apply_hunter_arts_preview(state)
+  let w = state.world
+  w.apply_archetype(@game.CharacterArchetype::Summoner)
+  state.sync_character_equipment()
+  w.player.facing_angle = 0.0
+  w.enemies = if peaceful {
+    []
+  } else {
+    [
+      @game.make_enemy(
+        w.player.x + 100.0,
+        w.player.y - 20.0,
+        @game.Basic,
+        180,
+        0.55,
+        11.0,
+      ),
+      @game.make_enemy(
+        w.player.x + 115.0,
+        w.player.y + 22.0,
+        @game.Basic,
+        180,
+        0.55,
+        11.0,
+      ),
+      @game.make_enemy(
+        w.player.x + 140.0,
+        w.player.y,
+        @game.Ranged,
+        160,
+        0.4,
+        10.0,
+      ),
+    ]
+  }
+  // Allow the player to complete the first summon before ranged actors commit aim.
+  for enemy in w.enemies {
+    enemy.shoot_cooldown = 120
+  }
+  state.camera = state.camera.with_distance(11.0)
+}

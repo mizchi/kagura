@@ -6,6 +6,8 @@ pub(all) enum HunterArtKind {
   FlameArt
   AstralArt
   DashArt
+  RaiseZombieArt
+  FlamingSkullArt
 } derive(Eq, Debug)
 
 ///|
@@ -246,6 +248,12 @@ pub fn GameWorld::request_hunter_spell(
     FlameArt =>
       self.skills.get_level(SplittingFireball) > 0 &&
       self.splitting_fireball_cooldown_timer <= 0
+    RaiseZombieArt =>
+      self.skills.get_level(RaiseZombie) > 0 &&
+      self.summons.zombie_cooldown <= 0
+    FlamingSkullArt =>
+      self.skills.get_level(SummonFlamingSkull) > 0 &&
+      self.summons.skull_cooldown <= 0
     _ => false
   }
   if !ready {
@@ -339,6 +347,10 @@ pub fn GameWorld::tick_hunter_arts(
   match action.kind {
     LightningArt => if action.frame == 10 { ignore(cast_chain_lightning(self)) }
     FlameArt => if action.frame == 14 { ignore(cast_splitting_fireball(self)) }
+    RaiseZombieArt | FlamingSkullArt =>
+      if action.frame == 18 {
+        self.release_player_summon(action.kind)
+      }
     AstralArt => ()
     DashArt => {
       if action.frame >= 4 && action.frame < 16 {

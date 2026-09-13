@@ -29,7 +29,7 @@ test("tree inspects locked nodes, allocates real stats once, and persists the bu
   page.on("pageerror", (error) => errors.push(error.message));
   await page.goto("/?snapshot=playing&frames=0&seed=42&mute=1");
   await page.keyboard.press("KeyK");
-  await expect(page.locator("[data-tree-node]")).toHaveCount(17);
+  await expect(page.locator("[data-tree-node]")).toHaveCount(19);
   const detail = page.getByRole("complementary", {
     name: "選択したスキルの詳細",
   });
@@ -149,7 +149,7 @@ test.describe("touch skill tree", () => {
       .getByRole("dialog")
       .getByRole("button", { name: /技と成長/ })
       .tap();
-    await expect(page.locator("[data-tree-node]")).toHaveCount(17);
+    await expect(page.locator("[data-tree-node]")).toHaveCount(19);
     const branches = page.locator(".tree-branches");
     await branches.getByRole("button", { name: /生存/ }).tap();
     await page.locator('[data-tree-node="5"]').tap();

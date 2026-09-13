@@ -81,6 +81,7 @@ struct HunterHudView {
   slot_options : Array[HunterSkillView]
   skills : Array[HunterSkillView]
   extra_skills : Array[HunterExtraSkillView]
+  summons : HunterSummonsView
   arts : HunterArtsView
   atlas : HunterAtlasView?
   inventory_grid : HunterInventoryView?
@@ -117,6 +118,8 @@ fn hunter_skill_name(id : @game.SkillId) -> String {
     PhysicalMastery => "刃の熟練"
     ProjectileMastery => "弾の熟練"
     AoEMastery => "範囲の熟練"
+    RaiseZombie => "ゾンビ召喚"
+    SummonFlamingSkull => "炎の頭蓋"
   }
 }
 
@@ -173,6 +176,7 @@ fn GameState::hunter_hud_view(self : GameState) -> HunterHudView {
     .or("入口"),
     terrain: self.terrain_lab_view(),
     arts: self.hunter_arts_view(),
+    summons: self.hunter_summons_view(),
     combat: self.hunter_combat_view(),
     loot: self.hunter_loot_view(),
     exploration: self.hunter_exploration_view(),

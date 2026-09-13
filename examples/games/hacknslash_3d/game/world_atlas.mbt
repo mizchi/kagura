@@ -386,6 +386,7 @@ pub fn GameWorld::enter_region(
   self.reset_cleaver_combo()
   self.player_charge = None
   self.projectiles = []
+  self.summons.clear()
   self.telegraph_markers = []
   self.events = []
   self.auto_nav_target = None

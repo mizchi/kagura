@@ -212,6 +212,15 @@ fn apply_enemy_death_rewards(world : GameWorld, enemy : Enemy) -> Unit {
     world.events.push(FireballBurst(enemy.x, enemy.y))
     world.events.push(FireballBurst(enemy.x, enemy.y))
     let explode_radius = enemy_death_explosion_radius * exploder_radius_mult
+    world.damage_summons_circle(
+      enemy.x,
+      enemy.y,
+      explode_radius,
+      world.params.scale_enemy_damage_for_floor(
+        world.params.enemy_contact_damage.to_int() * exploder_damage_mult,
+        world.floor,
+      ),
+    )
     let dx = world.player.x - enemy.x
     let dy = world.player.y - enemy.y
     if dx * dx + dy * dy <= explode_radius * explode_radius &&
@@ -225,6 +234,15 @@ fn apply_enemy_death_rewards(world : GameWorld, enemy : Enemy) -> Unit {
     world.events.push(EnemyTelegraphRing(enemy.x, enemy.y, explode_radius))
   }
   if enemy.kind == Tank || enemy.kind == Boss {
+    world.damage_summons_circle(
+      enemy.x,
+      enemy.y,
+      enemy_death_explosion_radius,
+      world.params.scale_enemy_damage_for_floor(
+        world.params.enemy_contact_damage.to_int().max(1),
+        world.floor,
+      ),
+    )
     world.events.push(FireballBurst(enemy.x, enemy.y))
     let dx = world.player.x - enemy.x
     let dy = world.player.y - enemy.y
@@ -313,12 +331,15 @@ fn apply_player_damage_to_enemy(
   damage : Int,
   source_x : Double,
   source_y : Double,
+  life_steal? : Bool = true,
 ) -> Unit {
   enemy.hp = enemy.hp - damage
   enemy.damage_timer = damage_flash_duration
   world.events.push(HitSparks(enemy.x, enemy.y))
   world.events.push(EnemyDamageNumber(enemy.x, enemy.y, damage))
-  apply_life_steal(world, damage)
+  if life_steal {
+    apply_life_steal(world, damage)
+  }
   let edx = source_x - enemy.x
   let edy = source_y - enemy.y
   let dist_sq = edx * edx + edy * edy

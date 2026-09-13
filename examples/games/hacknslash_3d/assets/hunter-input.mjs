@@ -25,6 +25,7 @@ export function createHunterInput(controls) {
       if(action==='whirlwind'&&!controls.snapshot().actions.includes(action))whirlwindPressed=true;
       controls.hold(id,action);
     },
+    isHeld(action) { return controls.snapshot().actions.includes(action); },
     consumeWhirlwindPress() { const pressed=whirlwindPressed;whirlwindPressed=false;return pressed; },
     tap(key, selected = -1) { return controls.tap(key, {selection: selected}); },
     select(selected) { return controls.tap(selectionCommand, {selection: selected}); },

@@ -142,13 +142,13 @@ fn GameState::rebuild_enemy_render_buckets(
         result
       }
       let dx = (if clip_index < 0 {
-          self.world.player.x
+          enemy.x + @math.cos(enemy.move_angle)
         } else {
           enemy.attack_target_x
         }) -
         enemy.x
       let dy = (if clip_index < 0 {
-          self.world.player.y
+          enemy.y + @math.sin(enemy.move_angle)
         } else {
           enemy.attack_target_y
         }) -
@@ -190,6 +190,32 @@ fn GameState::rebuild_enemy_render_buckets(
       }
     }
   }
+  for zombie in self.world.summons.zombies {
+    let body = zombie.body
+    if !body.alive || !is_entity_visible(vis_region, body.x, body.y) {
+      continue
+    }
+    let angle = if body.attack_motion == @game.Pounce {
+      @math.atan2(body.attack_target_y - body.y, body.attack_target_x - body.x)
+    } else {
+      body.move_angle
+    }
+    self.enemy_models.zombie.add(
+      zombie_pose_key(body),
+      enemy_facing_model_matrix(
+        body.x / tile_size,
+        @game.get_tile_height(dungeon, body.x, body.y),
+        body.y / tile_size,
+        @math.cos(angle),
+        @math.sin(angle),
+      ),
+      if body.damage_timer > 0 {
+        @math3d.Vec4::new(1.7, 1.8, 1.7, 1.0)
+      } else {
+        @math3d.Vec4::new(0.85, 1.4, 1.2, 1.0)
+      },
+    )
+  }
 }
 
 ///|
@@ -208,6 +234,9 @@ fn GameState::push_character_commands(
   )
   self.push_player_character_commands_with_view_projection(
     view_projection, dst, screen_w, screen_h, cmds,
+  )
+  self.push_player_summon_commands(
+    vis_region, view_projection, dst, screen_w, screen_h, cmds,
   )
 }
 

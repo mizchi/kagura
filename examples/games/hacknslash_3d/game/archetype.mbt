@@ -132,7 +132,7 @@ pub fn CharacterArchetype::starting_skill_ids(
   match self {
     Melee => [PowerStrike]
     Mage => [ChainLightning]
-    Summoner => [HomingMissile]
+    Summoner => [HomingMissile, RaiseZombie, SummonFlamingSkull]
     Ranger => [CriticalHit]
   }
 }
@@ -169,6 +169,9 @@ pub fn CharacterArchetype::allowed_skills(
       ]
     Summoner =>
       [
+        RaiseZombie,
+        SummonFlamingSkull,
+        FireMastery,
         HomingMissile,
         IceNova,
         ChainLightning,
@@ -372,7 +375,7 @@ pub fn CharacterArchetype::skill_damage_multiplier(
 
 ///|
 pub fn selectable_archetypes() -> Array[CharacterArchetype] {
-  [Melee, Mage, Ranger]
+  [Melee, Mage, Ranger, Summoner]
 }
 
 ///|

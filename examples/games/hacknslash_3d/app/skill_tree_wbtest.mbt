@@ -9,7 +9,7 @@ test "skill tree view exposes real prerequisites, effects, affordability and mas
   state.world.ui_mode = @game.Skills
   let hud = state.hunter_hud_view()
   assert_eq(hud.skill_points, 3)
-  assert_eq(hud.nodes.length(), 17)
+  assert_eq(hud.nodes.length(), 19)
   let vitality = hud.nodes[3]
   assert_eq(vitality.id, @game.skill_id_to_int(@game.Vitality))
   assert_eq(vitality.effect, "最大体力 +0")

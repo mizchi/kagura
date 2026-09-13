@@ -52,6 +52,8 @@ fn GameState::hunter_arts_view(self : GameState) -> HunterArtsView {
           FlameArt => "flame"
           AstralArt => "astral"
           DashArt => "dash_strike"
+          RaiseZombieArt => "raise_zombie"
+          FlamingSkullArt => "flaming_skull"
         }
       None =>
         if arts.whirlwind.active {

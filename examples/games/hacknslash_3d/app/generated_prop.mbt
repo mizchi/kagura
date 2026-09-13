@@ -451,26 +451,29 @@ fn GameState::apply_generated_prop_roles_for_current_floor(
   )
   player_x = player_frame.actor_x
   player_y = player_frame.actor_y
-  for enemy in self.world.enemies {
-    if !enemy.alive {
-      continue
+  for
+    actors in [self.world.enemies, self.world.summons.zombies.map(z => z.body)] {
+    for enemy in actors {
+      if !enemy.alive {
+        continue
+      }
+      let (resolved_enemy_x, resolved_enemy_y) = @interactable2d.resolve_actor_circular_blockers(
+        floor_interactables,
+        enemy.x,
+        enemy.y,
+        enemy.size,
+        fn(next_x, next_y, size) {
+          !@game.check_wall_collision(
+            self.world.dungeon.grid,
+            next_x,
+            next_y,
+            size,
+          )
+        },
+      )
+      enemy.x = resolved_enemy_x
+      enemy.y = resolved_enemy_y
     }
-    let (resolved_enemy_x, resolved_enemy_y) = @interactable2d.resolve_actor_circular_blockers(
-      floor_interactables,
-      enemy.x,
-      enemy.y,
-      enemy.size,
-      fn(next_x, next_y, size) {
-        !@game.check_wall_collision(
-          self.world.dungeon.grid,
-          next_x,
-          next_y,
-          size,
-        )
-      },
-    )
-    enemy.x = resolved_enemy_x
-    enemy.y = resolved_enemy_y
   }
   let mut floor_index = 0
   for prop in self.generated_props {

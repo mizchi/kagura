@@ -107,6 +107,20 @@ fn GameState::hunter_action_view(
     }
   }
   let (id, remaining, total, description) = match key {
+    48 =>
+      (
+        @game.RaiseZombie,
+        w.summons.zombie_cooldown,
+        @game.summoned_zombie_cooldown,
+        "敵を引きつける味方ゾンビを召喚。最大2体。倒れるまで同行、上限時は古い1体を再召喚。",
+      )
+    57 =>
+      (
+        @game.SummonFlamingSkull,
+        w.summons.skull_cooldown,
+        @game.flaming_skull_cooldown,
+        "6秒間、敵と地形をすり抜けて追尾・攻撃する炎の頭蓋。最大8体。長押しで連続召喚。",
+      )
     50 =>
       (
         @game.Whirlwind,
@@ -153,7 +167,9 @@ fn GameState::hunter_action_view(
   {
     key,
     glyph: hunter_skill_glyph(id),
-    hold: if key == 50 {
+    hold: if key == 57 {
+      "skull"
+    } else if key == 50 {
       "whirlwind"
     } else {
       ""

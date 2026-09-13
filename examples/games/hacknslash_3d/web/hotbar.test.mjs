@@ -20,3 +20,18 @@ test('a short basic attack click remains queued after releasing before the next 
   pressHunterSlot(input,{skills:[{key:74,hold:'attack'}]},0,1);input.release(1);
   assert.equal(input.snapshot().attack,false);assert.equal(input.consumeKey(),74);assert.equal(input.consumeKey(),0);
 });
+
+test('held skull summoning keeps its own input owner and never becomes a basic attack',()=>{
+  const input=createHunterInput(createControlInput());
+  const hud={skills:[{key:57,hold:'skull'},{key:48,hold:''}]};
+  pressHunterSlot(input,hud,0,101);
+  assert.equal(input.consumeKey(),57);
+  assert.equal(input.isHeld('skull'),true);
+  assert.equal(input.snapshot().attack,false);
+  input.hold(102,'skull');input.release(101);
+  assert.equal(input.isHeld('skull'),true);
+  input.release(102);assert.equal(input.isHeld('skull'),false);
+  pressHunterSlot(input,hud,1,103);input.consumeKey();
+  assert.equal(input.consumeKey(),48);
+  input.hold(104,'skull');input.clear();assert.equal(input.isHeld('skull'),false);
+});

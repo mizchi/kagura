@@ -205,6 +205,12 @@ pub fn find_next_target_room(GameWorld) -> Int
 
 pub fn find_room_at(Array[@types.Room], Double, Double) -> Int
 
+pub let flaming_skull_cooldown : Int
+
+pub let flaming_skull_lifetime : Int
+
+pub let flaming_skull_limit : Int
+
 pub fn generate_dungeon(Int, floor? : Int, params? : BalanceParams) -> DungeonData
 
 pub fn generate_hunting_grounds(Int) -> DungeonData
@@ -415,6 +421,12 @@ pub fn suffix_table() -> Array[Affix]
 
 pub fn suffix_table_for(AffixProfile) -> Array[Affix]
 
+pub let summoned_zombie_cooldown : Int
+
+pub let summoned_zombie_limit : Int
+
+pub let summoned_zombie_taunt_radius : Double
+
 pub let summoner_cooldown : Int
 
 pub let summoner_minion_size : Double
@@ -435,7 +447,7 @@ pub fn tick_telegraph_markers(GameWorld) -> Unit
 
 pub let tile_size : Double
 
-pub fn update_enemy_ai(Array[Enemy], Player, @types.Grid2D, Array[@types.Room], Int, Array[Projectile], Array[GameEvent], params? : BalanceParams, floor? : Int) -> Unit
+pub fn update_enemy_ai(Array[Enemy], Player, @types.Grid2D, Array[@types.Room], Int, Array[Projectile], Array[GameEvent], params? : BalanceParams, floor? : Int, zombies? : Array[SummonedZombie]) -> Unit
 
 pub let whirlwind_contact_frame : Int
 
@@ -638,6 +650,12 @@ pub(all) enum CombatImpactKind {
   WhirlwindCut
 } derive(Eq, @debug.Debug)
 
+pub(all) struct CombatTarget {
+  x : Double
+  y : Double
+  size : Double
+}
+
 pub(all) struct DropTableConfig {
   equipment_weight : Int
   health_weight : Int
@@ -720,12 +738,13 @@ pub(all) struct Enemy {
 }
 pub fn Enemy::attack_phase(Self) -> Double
 pub fn Enemy::begin_attack(Self, EnemyAttackMotion, Int, Int, Double, Double) -> Unit
+pub fn Enemy::combat_target(Self) -> CombatTarget
 pub fn Enemy::is_charging(Self) -> Bool
 pub fn Enemy::pounce_airborne(Self) -> Bool
 
 pub(all) struct EnemyAIContext {
   enemy : Enemy
-  player : Player
+  target : CombatTarget
   grid : @types.Grid2D
   enemies : Array[Enemy]
   projectiles : Array[Projectile]
@@ -846,6 +865,15 @@ pub fn Equipment::total_str_bonus(Self) -> Int
 pub fn Equipment::total_str_scaling(Self) -> Double
 pub fn Equipment::unequip(Self, EquipSlot) -> ItemData?
 
+pub(all) struct FlamingSkull {
+  mut x : Double
+  mut y : Double
+  mut angle : Double
+  mut age : Int
+  mut attack_cooldown : Int
+  mut target : Enemy?
+}
+
 pub(all) enum GameEvent {
   HitSparks(Double, Double)
   DeathBurst(Double, Double)
@@ -865,6 +893,8 @@ pub(all) enum GameEvent {
   FireballCast(Double, Double)
   FireballTrail(Double, Double)
   FireballBurst(Double, Double)
+  EnemyAreaDamage(Double, Double, Double, Int)
+  SummonReleased(Double, Double, Bool)
   IceNovaCast(Double, Double, Double)
   MeteorCastStart(Double, Double, Double)
   MeteorImpact(Double, Double, Double)
@@ -916,6 +946,7 @@ pub(all) struct GameWorld {
   mut cleaver_combo_timer : Int
   mut weapon_attack : PlayerWeaponAttack?
   mut player_charge : PlayerCharge?
+  summons : PlayerSummons
   arts : HunterArts
   mut charge_cooldown : Int
   mut screen_flash : Double
@@ -1023,6 +1054,7 @@ pub fn GameWorld::tick_items_phase(Self) -> Unit
 pub fn GameWorld::tick_meteor_damage_phase(Self) -> Unit
 pub fn GameWorld::tick_player_charge(Self, @types.Grid2D) -> Unit
 pub fn GameWorld::tick_player_enemy_separation_phase(Self) -> Unit
+pub fn GameWorld::tick_player_summons(Self) -> Unit
 pub fn GameWorld::tick_player_timers_phase(Self) -> Unit
 pub fn GameWorld::tick_player_weapon_attack(Self) -> Unit
 pub fn GameWorld::tick_projectiles_phase(Self) -> Unit
@@ -1049,6 +1081,8 @@ pub(all) enum HunterArtKind {
   FlameArt
   AstralArt
   DashArt
+  RaiseZombieArt
+  FlamingSkullArt
 } derive(Eq, @debug.Debug)
 
 pub(all) struct HunterArts {
@@ -1068,6 +1102,7 @@ pub(all) enum HunterPreset {
   BladePreset
   StormPreset
   MarksmanPreset
+  SummonerPreset
 } derive(Eq, @debug.Debug)
 pub fn HunterPreset::index(Self) -> Int
 pub fn HunterPreset::profile(Self) -> HunterPresetProfile
@@ -1243,6 +1278,7 @@ pub(all) struct Player {
   mut counter_timer : Int
   mut counter_cooldown_timer : Int
 }
+pub fn Player::combat_target(Self) -> CombatTarget
 
 pub(all) struct PlayerCharge {
   angle : Double
@@ -1269,6 +1305,15 @@ pub(all) struct PlayerStats {
   chain_bonus : Int
   tag_bonuses : Array[TagBonus]
 }
+
+pub(all) struct PlayerSummons {
+  zombies : Array[SummonedZombie]
+  skulls : Array[FlamingSkull]
+  mut zombie_cooldown : Int
+  mut skull_cooldown : Int
+}
+pub fn PlayerSummons::clear(Self) -> Unit
+pub fn PlayerSummons::new() -> Self
 
 pub(all) struct PlayerWeaponAttack {
   weapon : PlayerWeaponKind
@@ -1392,6 +1437,8 @@ pub(all) enum SkillId {
   PhysicalMastery
   ProjectileMastery
   AoEMastery
+  RaiseZombie
+  SummonFlamingSkull
 } derive(Eq)
 pub fn SkillId::equal(Self, Self) -> Bool
 pub fn SkillId::not_equal(Self, Self) -> Bool
@@ -1437,6 +1484,10 @@ pub fn SkillTree::learn_level_up_skill(Self, SkillId) -> Bool
 pub fn SkillTree::learned_node_count(Self) -> Int
 pub fn SkillTree::new() -> Self
 pub fn SkillTree::new_for_archetype(CharacterArchetype) -> Self
+
+pub(all) struct SummonedZombie {
+  body : Enemy
+}
 
 pub(all) struct TagBonus {
   mut damage_pct : Double

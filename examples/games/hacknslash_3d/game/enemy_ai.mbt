@@ -61,7 +61,6 @@ fn update_enemy_bolt_castup(
   enemy : Enemy,
   projectiles : Array[Projectile],
   events : Array[GameEvent],
-  player : Player,
   params : BalanceParams,
   floor : Int,
 ) -> Bool {
@@ -115,12 +114,9 @@ fn update_enemy_bolt_castup(
             kind: EnemyBolt,
           })
         }
-        let pdx = player.x - enemy.x
-        let pdy = player.y - enemy.y
-        if pdx * pdx + pdy * pdy <=
-          enemy_fire_nova_radius * enemy_fire_nova_radius {
-          events.push(PlayerHurt(player.x, player.y))
-        }
+        events.push(
+          EnemyAreaDamage(enemy.x, enemy.y, enemy_fire_nova_radius, damage),
+        )
       }
       _ => ()
     }
@@ -131,13 +127,13 @@ fn update_enemy_bolt_castup(
 ///|
 fn start_enemy_tackle(
   enemy : Enemy,
-  player : Player,
+  target : CombatTarget,
   events : Array[GameEvent],
 ) -> Unit {
   enemy.charge_cooldown = 120
   enemy.charge_timer = enemy_charge_profile.duration()
-  let dx = player.x - enemy.x
-  let dy = player.y - enemy.y
+  let dx = target.x - enemy.x
+  let dy = target.y - enemy.y
   let length = (dx * dx + dy * dy).sqrt().max(0.001)
   // Extend the committed aim ray so passing the original target cannot reverse the lunge.
   enemy.begin_attack(
@@ -147,11 +143,11 @@ fn start_enemy_tackle(
     enemy.x + dx / length * 10000.0,
     enemy.y + dy / length * 10000.0,
   )
-  enemy.pending_bolt_target_x = player.x
-  enemy.pending_bolt_target_y = player.y
-  events.push(GroundTelegraphLine(enemy.x, enemy.y, player.x, player.y))
+  enemy.pending_bolt_target_x = target.x
+  enemy.pending_bolt_target_y = target.y
+  events.push(GroundTelegraphLine(enemy.x, enemy.y, target.x, target.y))
   events.push(
-    EnemyTelegraphRing(player.x, player.y, enemy_tackle_telegraph_radius),
+    EnemyTelegraphRing(target.x, target.y, enemy_tackle_telegraph_radius),
   )
 }
 
@@ -179,11 +175,11 @@ fn update_enemy_tackle(enemy : Enemy) -> Bool {
 ///|
 fn try_start_enemy_fire_nova(
   enemy : Enemy,
-  player : Player,
+  target : CombatTarget,
   events : Array[GameEvent],
 ) -> Bool {
-  let dx = player.x - enemy.x
-  let dy = player.y - enemy.y
+  let dx = target.x - enemy.x
+  let dy = target.y - enemy.y
   if dx * dx + dy * dy >
     enemy_fire_nova_trigger_range * enemy_fire_nova_trigger_range {
     return false
@@ -196,12 +192,12 @@ fn try_start_enemy_fire_nova(
     CastSpell,
     enemy_fire_nova_cast_frames,
     22,
-    player.x,
-    player.y,
+    target.x,
+    target.y,
   )
   enemy.pending_bolt_timer = enemy_fire_nova_cast_frames
-  enemy.pending_bolt_target_x = player.x
-  enemy.pending_bolt_target_y = player.y
+  enemy.pending_bolt_target_x = target.x
+  enemy.pending_bolt_target_y = target.y
   events.push(EnemyTelegraphRing(enemy.x, enemy.y, enemy_fire_nova_radius))
   true
 }
@@ -209,18 +205,18 @@ fn try_start_enemy_fire_nova(
 ///|
 fn try_start_enemy_tackle(
   enemy : Enemy,
-  player : Player,
+  target : CombatTarget,
   events : Array[GameEvent],
 ) -> Bool {
   if enemy.charge_cooldown > 0 || enemy.charge_timer > 0 {
     return false
   }
-  let dx = player.x - enemy.x
-  let dy = player.y - enemy.y
+  let dx = target.x - enemy.x
+  let dy = target.y - enemy.y
   if dx * dx + dy * dy > enemy_tackle_trigger_range * enemy_tackle_trigger_range {
     return false
   }
-  start_enemy_tackle(enemy, player, events)
+  start_enemy_tackle(enemy, target, events)
   true
 }
 
@@ -245,10 +241,8 @@ pub fn update_enemy_ai(
   events : Array[GameEvent],
   params? : BalanceParams = BalanceParams::default(),
   floor? : Int = 1,
+  zombies? : Array[SummonedZombie] = [],
 ) -> Unit {
-  let player_tile_x = (player.x / tile_size).to_int()
-  let player_tile_y = (player.y / tile_size).to_int()
-  let player_room = find_room_at(rooms, player.x, player.y)
   let chase_range_sq = params.chase_range * params.chase_range
   for enemy in enemies {
     if !enemy.alive {
@@ -301,9 +295,7 @@ pub fn update_enemy_ai(
       tick_enemy_pattern_cooldowns(enemy)
       continue
     }
-    if update_enemy_bolt_castup(
-        enemy, projectiles, events, player, params, floor,
-      ) {
+    if update_enemy_bolt_castup(enemy, projectiles, events, params, floor) {
       tick_enemy_pattern_cooldowns(enemy)
       continue
     }
@@ -326,8 +318,12 @@ pub fn update_enemy_ai(
       tick_enemy_pattern_cooldowns(enemy)
       continue
     }
-    let cdx = player.x - enemy.x
-    let cdy = player.y - enemy.y
+    let target = enemy_aggro_target(enemy, player, zombies, grid)
+    let player_tile_x = (target.x / tile_size).to_int()
+    let player_tile_y = (target.y / tile_size).to_int()
+    let player_room = find_room_at(rooms, target.x, target.y)
+    let cdx = target.x - enemy.x
+    let cdy = target.y - enemy.y
     let dist_sq = cdx * cdx + cdy * cdy
     let enemy_room = find_room_at(rooms, enemy.x, enemy.y)
     let same_room_visible = player_room >= 0 && enemy_room == player_room
@@ -351,15 +347,15 @@ pub fn update_enemy_ai(
       tick_enemy_pattern_cooldowns(enemy)
       continue
     }
-    if try_start_zombie_pounce(enemy, player, grid, events) ||
-      try_start_enemy_melee(enemy, player, grid, events) {
+    if try_start_zombie_pounce(enemy, target, grid, events) ||
+      try_start_enemy_melee(enemy, target, grid, events) {
       tick_enemy_pattern_cooldowns(enemy)
       continue
     }
     // Dispatch special behaviors (only when in chase range)
     let ctx : EnemyAIContext = {
       enemy,
-      player,
+      target,
       grid,
       enemies,
       projectiles,
@@ -390,8 +386,8 @@ pub fn update_enemy_ai(
           grid,
           enemy.x,
           enemy.y,
-          player.x,
-          player.y,
+          target.x,
+          target.y,
           enemy.size,
         ) {
         let chase_vx = cdx / dist * enemy.speed
@@ -403,6 +399,10 @@ pub fn update_enemy_ai(
         enemy.vy = chase_vy
         continue
       }
+    }
+    if enemy.path_cache.last() is Some(goal) &&
+      (goal.x != player_tile_x || goal.y != player_tile_y) {
+      enemy.path_timer = 0
     }
     // Update pathfinding cache periodically
     if enemy.path_timer <= 0 {

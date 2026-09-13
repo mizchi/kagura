@@ -48,6 +48,8 @@ pub(all) enum SkillId {
   PhysicalMastery
   ProjectileMastery
   AoEMastery
+  RaiseZombie
+  SummonFlamingSkull
 } derive(Eq)
 
 ///|
@@ -301,6 +303,32 @@ pub fn SkillTree::new() -> SkillTree {
         node_size: 0,
         connections: [],
       },
+      {
+        id: RaiseZombie,
+        name: "Raise Zombie",
+        max_level: 3,
+        level: 0,
+        cost: 1,
+        icon_id: 27,
+        prereqs: [],
+        tree_x: 0.39,
+        tree_y: 0.88,
+        node_size: 1,
+        connections: [SummonFlamingSkull],
+      },
+      {
+        id: SummonFlamingSkull,
+        name: "Flaming Skulls",
+        max_level: 3,
+        level: 0,
+        cost: 1,
+        icon_id: 28,
+        prereqs: [],
+        tree_x: 0.61,
+        tree_y: 0.88,
+        node_size: 1,
+        connections: [],
+      },
     ],
     skill_points: 0,
   }
@@ -324,6 +352,10 @@ pub fn SkillTree::new_for_archetype(
 pub fn infer_character_archetype_from_skills(
   skills : SkillTree,
 ) -> CharacterArchetype? {
+  if skills.get_level(RaiseZombie) > 0 ||
+    skills.get_level(SummonFlamingSkull) > 0 {
+    return Some(Summoner)
+  }
   if skills.get_level(PowerStrike) > 0 {
     return Some(Melee)
   }
@@ -395,6 +427,8 @@ pub fn skill_id_to_int(id : SkillId) -> Int {
     PhysicalMastery => 14
     ProjectileMastery => 15
     AoEMastery => 16
+    RaiseZombie => 17
+    SummonFlamingSkull => 18
   }
 }
 
@@ -418,6 +452,8 @@ pub fn skill_id_from_int(id : Int) -> SkillId? {
     14 => Some(PhysicalMastery)
     15 => Some(ProjectileMastery)
     16 => Some(AoEMastery)
+    17 => Some(RaiseZombie)
+    18 => Some(SummonFlamingSkull)
     _ => None
   }
 }
@@ -442,6 +478,8 @@ pub fn skill_tags(id : SkillId) -> Array[SkillTag] {
     PhysicalMastery => [Physical]
     ProjectileMastery => [Projectile]
     AoEMastery => [AoE]
+    RaiseZombie => [Physical, Utility]
+    SummonFlamingSkull => [Fire, Utility]
   }
 }
 

@@ -4,7 +4,7 @@
 ///|
 pub(all) struct EnemyAIContext {
   enemy : Enemy
-  player : Player
+  target : CombatTarget
   grid : @terrain.Grid2D
   enemies : Array[Enemy]
   projectiles : Array[Projectile]
@@ -21,12 +21,12 @@ pub(all) struct EnemyAIContext {
 
 ///|
 pub fn behavior_fire_nova(ctx : EnemyAIContext) -> Bool {
-  try_start_enemy_fire_nova(ctx.enemy, ctx.player, ctx.events)
+  try_start_enemy_fire_nova(ctx.enemy, ctx.target, ctx.events)
 }
 
 ///|
 pub fn behavior_tackle(ctx : EnemyAIContext) -> Bool {
-  try_start_enemy_tackle(ctx.enemy, ctx.player, ctx.events)
+  try_start_enemy_tackle(ctx.enemy, ctx.target, ctx.events)
 }
 
 ///|
@@ -44,12 +44,12 @@ pub fn behavior_teleport_behind(ctx : EnemyAIContext) -> Bool {
   if ctx.enemy.shoot_cooldown > 0 || ctx.dist_sq >= ctx.chase_range_sq {
     return false
   }
-  let cdx = ctx.player.x - ctx.enemy.x
-  let cdy = ctx.player.y - ctx.enemy.y
+  let cdx = ctx.target.x - ctx.enemy.x
+  let cdy = ctx.target.y - ctx.enemy.y
   let behind_angle = @math.atan2(-cdy, -cdx) + teleporter_angle_offset
   let tp_dist = teleporter_blink_distance
-  let new_x = ctx.player.x + @math.cos(behind_angle) * tp_dist
-  let new_y = ctx.player.y + @math.sin(behind_angle) * tp_dist
+  let new_x = ctx.target.x + @math.cos(behind_angle) * tp_dist
+  let new_y = ctx.target.y + @math.sin(behind_angle) * tp_dist
   if !check_wall_collision(ctx.grid, new_x, new_y, ctx.enemy.size) {
     ctx.enemy.x = new_x
     ctx.enemy.y = new_y
@@ -70,14 +70,14 @@ pub fn behavior_cast_meteor(ctx : EnemyAIContext) -> Bool {
     CastSpell,
     meteor_cast_frames,
     24,
-    ctx.player.x,
-    ctx.player.y,
+    ctx.target.x,
+    ctx.target.y,
   )
   ctx.enemy.meteor_cast_timer = meteor_cast_frames
-  ctx.enemy.meteor_target_x = ctx.player.x
-  ctx.enemy.meteor_target_y = ctx.player.y
-  ctx.events.push(MeteorCastStart(ctx.player.x, ctx.player.y, meteor_radius))
-  ctx.events.push(EnemyTelegraphRing(ctx.player.x, ctx.player.y, meteor_radius))
+  ctx.enemy.meteor_target_x = ctx.target.x
+  ctx.enemy.meteor_target_y = ctx.target.y
+  ctx.events.push(MeteorCastStart(ctx.target.x, ctx.target.y, meteor_radius))
+  ctx.events.push(EnemyTelegraphRing(ctx.target.x, ctx.target.y, meteor_radius))
   true
 }
 
@@ -87,7 +87,7 @@ pub fn behavior_summon_minion(ctx : EnemyAIContext) -> Bool {
     return false
   }
   ctx.enemy.shoot_cooldown = summoner_cooldown
-  ctx.enemy.begin_attack(CastSpell, 30, 22, ctx.player.x, ctx.player.y)
+  ctx.enemy.begin_attack(CastSpell, 30, 22, ctx.target.x, ctx.target.y)
 
   true
 }
@@ -100,8 +100,8 @@ pub fn behavior_bow_shot(ctx : EnemyAIContext) -> Bool {
   let dist = ctx.dist_sq.sqrt()
   if ctx.enemy.shoot_cooldown > 0 {
     // Slight retreat while on cooldown
-    let cdx = ctx.player.x - ctx.enemy.x
-    let cdy = ctx.player.y - ctx.enemy.y
+    let cdx = ctx.target.x - ctx.enemy.x
+    let cdy = ctx.target.y - ctx.enemy.y
     ctx.enemy.vx = -(cdx / dist) * ctx.enemy.speed * ranged_retreat_speed
     ctx.enemy.vy = -(cdy / dist) * ctx.enemy.speed * ranged_retreat_speed
     return true
@@ -111,17 +111,17 @@ pub fn behavior_bow_shot(ctx : EnemyAIContext) -> Bool {
     BowShot,
     enemy_bow_draw_frames,
     22,
-    ctx.player.x,
-    ctx.player.y,
+    ctx.target.x,
+    ctx.target.y,
   )
   ctx.enemy.pending_bolt_timer = enemy_bow_draw_frames
-  ctx.enemy.pending_bolt_target_x = ctx.player.x
-  ctx.enemy.pending_bolt_target_y = ctx.player.y
+  ctx.enemy.pending_bolt_target_x = ctx.target.x
+  ctx.enemy.pending_bolt_target_y = ctx.target.y
   ctx.events.push(
-    GroundTelegraphLine(ctx.enemy.x, ctx.enemy.y, ctx.player.x, ctx.player.y),
+    GroundTelegraphLine(ctx.enemy.x, ctx.enemy.y, ctx.target.x, ctx.target.y),
   )
   ctx.events.push(
-    EnemyTelegraphRing(ctx.player.x, ctx.player.y, enemy_bolt_telegraph_radius),
+    EnemyTelegraphRing(ctx.target.x, ctx.target.y, enemy_bolt_telegraph_radius),
   )
   ctx.enemy.vx = 0.0
   ctx.enemy.vy = 0.0
@@ -139,15 +139,15 @@ pub fn behavior_beam_attack(ctx : EnemyAIContext) -> Bool {
     CastSpell,
     beam_cast_frames,
     24,
-    ctx.player.x,
-    ctx.player.y,
+    ctx.target.x,
+    ctx.target.y,
   )
   ctx.enemy.beam_cast_timer = beam_cast_frames
-  ctx.enemy.beam_target_x = ctx.player.x
-  ctx.enemy.beam_target_y = ctx.player.y
+  ctx.enemy.beam_target_x = ctx.target.x
+  ctx.enemy.beam_target_y = ctx.target.y
   // Line telegraph event (converted to marker in world.mbt)
   ctx.events.push(
-    GroundTelegraphLine(ctx.enemy.x, ctx.enemy.y, ctx.player.x, ctx.player.y),
+    GroundTelegraphLine(ctx.enemy.x, ctx.enemy.y, ctx.target.x, ctx.target.y),
   )
   ctx.enemy.shoot_cooldown = beam_cooldown_frames
   true

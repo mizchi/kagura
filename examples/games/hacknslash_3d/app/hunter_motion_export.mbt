@@ -55,6 +55,7 @@ pub fn export_hunter_motion_asset() -> String {
     }
     clip_ids.append([
       "charge", "whirlwind", "lightning_cast", "flame_cast", "astral_cast", "dash_strike",
+      "raise_zombie", "flaming_skull",
     ])
     weapons.push({
       "id": weapon.id.to_json(),
@@ -170,6 +171,8 @@ pub fn export_hunter_motion_asset() -> String {
       ("flame_cast", "炎弾の詠唱", Casting(@game.FlameArt), 14),
       ("astral_cast", "星落とし", Casting(@game.AstralArt), 30),
       ("dash_strike", "突進斬り", Casting(@game.DashArt), 16),
+      ("raise_zombie", "ゾンビ召喚", Casting(@game.RaiseZombieArt), 18),
+      ("flaming_skull", "炎の頭蓋", Casting(@game.FlamingSkullArt), 18),
     ] {
     clips.push(export_hunter_art_clip(id, name, state, contact))
   }

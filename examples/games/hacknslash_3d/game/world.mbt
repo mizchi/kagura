@@ -28,6 +28,7 @@ pub(all) struct GameWorld {
   mut cleaver_combo_timer : Int
   mut weapon_attack : PlayerWeaponAttack?
   mut player_charge : PlayerCharge?
+  summons : PlayerSummons
   arts : HunterArts
   mut charge_cooldown : Int
   mut screen_flash : Double
@@ -170,6 +171,7 @@ pub fn GameWorld::new(
     weapon_attack: None,
     player_charge: None,
     arts: HunterArts::new(),
+    summons: PlayerSummons::new(),
     charge_cooldown: 0,
     screen_flash: 0.0,
     floor_announce_timer: 0,
@@ -287,6 +289,7 @@ pub fn GameWorld::deal_player_damage(
   if self.player.hp <= 0 {
     self.cancel_hunter_action()
     self.arts.strike = None
+    self.summons.clear()
     self.mode = GameOver
   }
 }
@@ -297,6 +300,7 @@ pub fn GameWorld::apply_dungeon(
   seed : Int,
   floor : Int,
 ) -> Unit {
+  self.summons.clear()
   self.cancel_hunter_action()
   self.arts.strike = None
   self.weapon_attack = None
@@ -518,8 +522,11 @@ fn resolve_enemy_enemy_pair(
   a_idx : Int,
   b_idx : Int,
 ) -> Unit {
-  let a = enemies[a_idx]
-  let b = enemies[b_idx]
+  resolve_creature_pair(enemies[a_idx], enemies[b_idx], grid)
+}
+
+///|
+fn resolve_creature_pair(a : Enemy, b : Enemy, grid : @terrain.Grid2D) -> Unit {
   let min_dist = (a.size + b.size) / 2.0
   let sep_dx = a.x - b.x
   if sep_dx.abs() >= min_dist {
@@ -530,11 +537,11 @@ fn resolve_enemy_enemy_pair(
     return
   }
   let sep_dist_sq = sep_dx * sep_dx + sep_dy * sep_dy
-  if sep_dist_sq < min_dist * min_dist && sep_dist_sq > 0.000001 {
+  if sep_dist_sq < min_dist * min_dist {
     let sep_dist = sep_dist_sq.sqrt()
     let push = (min_dist - sep_dist) / 2.0
-    let nx = sep_dx / sep_dist
-    let ny = sep_dy / sep_dist
+    let nx = if sep_dist > 0.000001 { sep_dx / sep_dist } else { 1.0 }
+    let ny = if sep_dist > 0.000001 { sep_dy / sep_dist } else { 0.0 }
     let ax_new = a.x + nx * push
     let ay_new = a.y + ny * push
     if !check_wall_collision(grid, ax_new, a.y, a.size) {
@@ -697,6 +704,7 @@ pub fn GameWorld::tick_enemy_ai_phase_with_grid(
     self.events,
     params=self.params,
     floor=self.floor,
+    zombies=self.summons.zombies,
   )
 }
 
@@ -776,13 +784,40 @@ pub fn GameWorld::tick_enemy_movement_and_contact_phase(
       enemy.vy = 0.0
       if enemy.attack_hit_pending {
         enemy.attack_hit_pending = false
+        for zombie in self.summons.zombies {
+          if zombie.body.alive &&
+            enemy_melee_hits(
+              enemy,
+              zombie.body.combat_target(),
+              self.dungeon.grid,
+            ) {
+            hurt_summoned_zombie(zombie, enemy_contact_damage)
+          }
+        }
         if can_contact_player &&
-          enemy_melee_hits(enemy, self.player, self.dungeon.grid) {
+          enemy_melee_hits(
+            enemy,
+            self.player.combat_target(),
+            self.dungeon.grid,
+          ) {
           self.deal_player_damage(
             enemy_contact_damage,
             source=(enemy.x, enemy.y),
           )
           can_contact_player = false
+        }
+      }
+      if enemy.is_charging() {
+        for zombie in self.summons.zombies {
+          let body = zombie.body
+          let half = (body.size + enemy.size) / 2.0
+          if body.alive &&
+            (body.x - enemy.x).abs() < half &&
+            (body.y - enemy.y).abs() < half {
+            hurt_summoned_zombie(zombie, enemy_contact_damage)
+            enemy.stop_charge()
+            break
+          }
         }
       }
       // Body contact is damaging only during an active charge.
@@ -865,6 +900,7 @@ pub fn GameWorld::tick_projectiles_phase(self : GameWorld) -> Unit {
           _ => proj.alive = false
         }
       }
+      self.intercept_summon_projectile(proj, prev_x, prev_y)
       if proj.alive && !proj.is_player && self.player.iframe_timer <= 0 {
         let pdx = proj.x - self.player.x
         let pdy = proj.y - self.player.y
@@ -998,6 +1034,26 @@ pub fn GameWorld::tick_meteor_damage_phase(self : GameWorld) -> Unit {
         add_telegraph_line(self, x0, y0, x1, y1, beam_width, beam_cast_frames)
       BeamFire(x0, y0, x1, y1, is_player) =>
         if !is_player {
+          for zombie in self.summons.zombies {
+            if segment_circle_contact(
+                x0,
+                y0,
+                x1,
+                y1,
+                zombie.body.x,
+                zombie.body.y,
+                beam_width / 2.0,
+              )
+              is Some(_) {
+              hurt_summoned_zombie(
+                zombie,
+                self.params.scale_enemy_damage_for_floor(
+                  self.params.enemy_contact_damage.to_int() * beam_damage_mult,
+                  self.floor,
+                ),
+              )
+            }
+          }
           // Enemy beam: damage player if within beam width
           let beam_dx = x1 - x0
           let beam_dy = y1 - y0
@@ -1046,7 +1102,24 @@ pub fn GameWorld::tick_meteor_damage_phase(self : GameWorld) -> Unit {
             }
           }
         }
+      EnemyAreaDamage(x, y, radius, damage) => {
+        self.damage_summons_circle(x, y, radius, damage)
+        let dx = self.player.x - x
+        let dy = self.player.y - y
+        if dx * dx + dy * dy <= radius * radius && self.player.iframe_timer <= 0 {
+          self.deal_player_damage(damage)
+        }
+      }
       MeteorImpact(x, y, radius) => {
+        self.damage_summons_circle(
+          x,
+          y,
+          radius,
+          self.params.scale_enemy_damage_for_floor(
+            self.params.enemy_contact_damage.to_int() * meteor_damage_mult,
+            self.floor,
+          ),
+        )
         let pdx = self.player.x - x
         let pdy = self.player.y - y
         if pdx * pdx + pdy * pdy <= radius * radius &&
@@ -1370,6 +1443,7 @@ pub fn GameWorld::tick_with_enemy_ai_grid(
       }
     }
   }
+  self.tick_player_summons_with_grid(enemy_ai_grid)
   // 10. Update enemy AI
   self.tick_enemy_ai_phase_with_grid(enemy_ai_grid)
   // 10b. Process meteor impacts (damage in game logic, not render layer)
@@ -1388,6 +1462,7 @@ pub fn GameWorld::tick_with_enemy_ai_grid(
   self.tick_player_enemy_separation_phase()
   // 17. Enemy-enemy separation
   self.resolve_enemy_enemy_separation()
+  self.resolve_summon_separation()
   // 17b. Room clear rewards (treasure drops for cleared large rooms)
   self.tick_room_clear_rewards()
   // 18. Floor completion check

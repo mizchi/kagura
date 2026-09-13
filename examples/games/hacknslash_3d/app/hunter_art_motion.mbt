@@ -20,6 +20,7 @@ fn CharacterModel::sample_hunter_art(
     FlameArt => 14.0
     AstralArt => 24.0
     DashArt => 16.0
+    RaiseZombieArt | FlamingSkullArt => 18.0
   }
   let windup = (frame / release).min(1.0)
   let follow = ((frame - release) / (36.0 - release)).max(0.0).min(1.0)
@@ -58,7 +59,7 @@ fn CharacterModel::sample_hunter_art(
       self.rotate_bone(12, -0.8 * drive, 0.0, 0.0)
       self.rotate_bone(13, -0.8 * drive, 0.0, 0.0)
     }
-    AstralArt => {
+    AstralArt | RaiseZombieArt => {
       self.rotate_bone(1, -0.18 * power, 0.0, 0.0)
       self.rotate_bone(2, -2.5 * power, 0.0, -0.35 * power)
       self.rotate_bone(6, -2.4 * power, 0.0, 0.35 * power)

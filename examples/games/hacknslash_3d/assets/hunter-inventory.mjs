@@ -1,6 +1,6 @@
-import {rotatedCells,dimensions,previewPlacement} from './hunter-inventory-grid.mjs';
+import {rotatedCells,dimensions,previewPlacement,isInventoryGroundDrop} from './hunter-inventory-grid.mjs';
 export {rotatedCells,previewPlacement} from './hunter-inventory-grid.mjs';
-import {comparisonMarkup,createInventoryTooltip} from './hunter-item-comparison.mjs';
+import {comparisonRows,comparisonMarkup,createInventoryTooltip} from './hunter-item-comparison.mjs';
 import {createInventoryGamepad} from './hunter-inventory-pad.mjs';
 // Presentation only: the game validates and commits every inventory move.
 const gearPaths={
@@ -14,7 +14,8 @@ const gearPaths={
 const rarityNames={common:'一般',uncommon:'上質',rare:'希少',epic:'至宝'};
 
 export function createInventoryPanel(panel,{input,icon,escape}) {
-  let view=null,selected=null,rotated=false,drag=null,ghost=null,scrollFrame=0,localNotice='';
+  let view=null,selected=null,rotated=false,drag=null,ghost=null,localNotice='',bagArea='bag',overflowPage=0,detailPage=0,lastDetailTurn=0;
+  const overflowPageSize=3;
   const gearIcon=name=>gearPaths[name]?`<svg viewBox="0 0 34 34" aria-hidden="true"><path d="${gearPaths[name]}"/></svg>`:icon(name);
   const findItem=source=>view?.items.find(i=>i.source===source)??view?.equipment.find(s=>s.item?.source===source)?.item;
   const selectedItem=()=>findItem(selected);
@@ -27,11 +28,34 @@ export function createInventoryPanel(panel,{input,icon,escape}) {
     const item=selectedItem();
     if(!item)return `<div class="inv-detail-empty">${gearIcon('bag')}<h3>次の狩りに備える</h3><p>品を選ぶと性能を比較できます。<br>ドラッグ、または品と移動先を順にタップ。</p></div>`;
     const [w,h]=dimensions(item,rotated);
-    return `<div class="inv-detail-heading rarity-${item.rarity}">${glyph(item)}<div><small>${rarityNames[item.rarity]} · ${item.slot_name}${item.source<0?' · 装備中':''}</small><h3>${escape(item.name)}</h3><p>${w} × ${h} · ${item.cells.length}マス${item.cells.length<item.width*item.height?' · L字形':''}</p></div></div>${comparisonMarkup(view,item,escape)}<div class="inv-detail-actions"><button data-inv-action="equip" data-focus="inv-equip">${item.source<0?'バッグへ外す':'装備する'}</button><button data-inv-action="rotate" data-focus="inv-rotate">↻ 回転 <kbd>R</kbd></button><button data-inv-action="drop" data-focus="inv-drop">地面に捨てる</button></div>`;
+    return `<div class="inv-detail-heading rarity-${item.rarity}">${glyph(item)}<div><small>${rarityNames[item.rarity]} · ${item.slot_name}${item.source<0?' · 装備中':''}</small><h3 title="${escape(item.name)}">${escape(item.name)}</h3><p>${w} × ${h} · ${item.cells.length}マス${item.cells.length<item.width*item.height?' · L字形':''}</p></div></div>${comparisonMarkup(view,item,escape,{page:detailPage,pageSize:4})}<div class="inv-detail-actions"><button data-inv-action="equip" data-focus="inv-equip">${item.source<0?'バッグへ外す':'装備する'}</button><button data-inv-action="rotate" data-focus="inv-rotate">↻ 回転 <kbd>R</kbd></button><button data-inv-action="drop" data-focus="inv-drop">地面に捨てる</button></div>`;
+  }
+  function equipmentMarkup() {
+    return `<section class="inv-loadout" aria-label="装備部位">
+      <div class="inv-section-title"><h3>装備</h3><dl class="inv-player-stats"><div><dt>攻撃</dt><dd>${view.atk}</dd></div><div><dt>防御</dt><dd>${view.def}</dd></div><div><dt>体力</dt><dd>${view.hp}</dd></div></dl></div>
+      <div class="inv-body"><svg class="inv-silhouette" viewBox="0 0 150 240" aria-hidden="true"><path d="m51 39 8-30 27-3 11 34 33 10-55 12-56-12Zm8 30h34l14 23-12 33 27 61-38-5-9-28-9 28-38 5 26-61-14-33Zm-3 117h17l-4 45-26 3 8-14Zm25 0h17l4 34 8 14-27-3Z"/></svg>
+      ${view.equipment.map(slot=>`<button class="inv-equip inv-slot-${slot.id} ${slot.item?'rarity-'+slot.item.rarity:''}" data-equip-slot="${slot.id}" ${slot.item?`data-inv-item="${slot.item.source}"`:''} data-focus="slot-${slot.id}" aria-label="${slot.label}スロット：${escape(slot.item?.name??'未装備')}" aria-pressed="${slot.item&&selected===slot.item.source?'true':'false'}"><small>${slot.label}</small>${gearIcon(slot.item?.glyph??slot.glyph)}<span>${escape(slot.item?.name??'未装備')}</span></button>`).join('')}</div>
+    </section>`;
+  }
+  function bagMarkup() {
+    const overflow=view.items.filter(item=>item.x<0),pages=Math.ceil(overflow.length/overflowPageSize);
+    if(!overflow.length)bagArea='bag';
+    overflowPage=Math.max(0,Math.min(overflowPage,pages-1));
+    return `<section class="inv-bag-section" aria-label="所持品">
+      <div class="inv-section-title"><h3>所持品</h3><span><b>${view.used}</b> / ${view.width*view.height}</span></div>
+      ${overflow.length?`<nav class="inv-bag-tabs" aria-label="所持品の切り替え"><button data-inv-action="bag" data-focus="inv-bag" aria-pressed="${bagArea==='bag'}">バッグ</button><button data-inv-action="overflow" data-focus="inv-overflow" aria-pressed="${bagArea==='overflow'}">保管待ち ${overflow.length}</button></nav>`:''}
+      <div class="inv-bag-frame" ${bagArea!=='bag'?'hidden':''} style="--cols:${view.width};--rows:${view.height}">
+        <div class="inv-bag" aria-label="${view.width}列 ${view.height}行のバッグ">
+          <div class="inv-cells">${Array.from({length:view.width*view.height},(_,i)=>`<button class="inv-cell" data-focus="cell-${i%view.width}-${Math.floor(i/view.width)}" data-cell-x="${i%view.width}" data-cell-y="${Math.floor(i/view.width)}" aria-label="バッグ ${i%view.width+1}列 ${Math.floor(i/view.width)+1}行"></button>`).join('')}</div>
+          ${view.items.filter(item=>item.x>=0).map(itemMarkup).join('')}<div class="inv-preview" aria-hidden="true"></div>
+        </div>
+      </div>
+      ${overflow.length?`<div class="inv-overflow" ${bagArea!=='overflow'?'hidden':''}><div class="inv-overflow-items">${overflow.slice(overflowPage*overflowPageSize,(overflowPage+1)*overflowPageSize).map(item=>`<button data-inv-item="${item.source}" data-focus="inv-${item.source}" aria-pressed="${selected===item.source}">${gearIcon(item.glyph)}<span>${escape(item.name)}</span><small>${item.width}×${item.height}</small></button>`).join('')}</div><nav class="inv-pages" aria-label="保管待ちのページ"><button data-inv-action="overflow-prev" data-focus="inv-overflow-prev" aria-label="前の保管待ち" ${overflowPage===0?'disabled':''}>←</button><span>${overflowPage+1} / ${pages}</span><button data-inv-action="overflow-next" data-focus="inv-overflow-next" aria-label="次の保管待ち" ${overflowPage+1===pages?'disabled':''}>→</button></nav></div>`:''}
+    </section>`;
   }
   function contentMarkup() {
-    const overflow=view.items.filter(item=>item.x<0);
-    return `<div class="inv-layout"><section class="inv-loadout" aria-label="装備部位"><div class="inv-section-title"><h3>狩人の装備</h3><small>8 部位</small></div><div class="inv-body"><svg class="inv-silhouette" viewBox="0 0 150 240" aria-hidden="true"><path d="m51 39 8-30 27-3 11 34 33 10-55 12-56-12Zm8 30h34l14 23-12 33 27 61-38-5-9-28-9 28-38 5 26-61-14-33Zm-3 117h17l-4 45-26 3 8-14Zm25 0h17l4 34 8 14-27-3Z"/></svg>${view.equipment.map(slot=>`<button class="inv-equip inv-slot-${slot.id} ${slot.item?'rarity-'+slot.item.rarity:''}" data-equip-slot="${slot.id}" ${slot.item?`data-inv-item="${slot.item.source}"`:''} data-focus="slot-${slot.id}" aria-label="${slot.label}スロット：${escape(slot.item?.name??'未装備')}" aria-pressed="${slot.item&&selected===slot.item.source?'true':'false'}"><small>${slot.label}</small>${gearIcon(slot.item?.glyph??slot.glyph)}<span>${escape(slot.item?.name??'未装備')}</span></button>`).join('')}</div><dl class="inv-player-stats"><div><dt>攻撃力</dt><dd>${view.atk}</dd></div><div><dt>防御力</dt><dd>${view.def}</dd></div><div><dt>最大体力</dt><dd>${view.hp}</dd></div></dl></section><section class="inv-bag-section" aria-label="所持品"><div class="inv-section-title"><h3>所持品</h3><span><b>${view.used}</b> / ${view.width*view.height} マス</span></div><div class="inv-bag" aria-label="${view.width}列 ${view.height}行のバッグ" style="--cols:${view.width};--rows:${view.height};aspect-ratio:${view.width}/${view.height}"><div class="inv-cells">${Array.from({length:view.width*view.height},(_,i)=>`<button class="inv-cell" data-focus="cell-${i%view.width}-${Math.floor(i/view.width)}" data-cell-x="${i%view.width}" data-cell-y="${Math.floor(i/view.width)}" aria-label="バッグ ${i%view.width+1}列 ${Math.floor(i/view.width)+1}行"></button>`).join('')}</div>${view.items.filter(item=>item.x>=0).map(itemMarkup).join('')}<div class="inv-preview" aria-hidden="true"></div></div><p class="inv-pad-help"><strong class="inv-pad-state">× 持つ / □ 装備・外す</strong><span>十字 / 左スティック：選択 · △ 回転 · 右スティック：スクロール<br>L1 / R1：バッグ・装備切替 · R3 捨てる · ○ 戻る</span></p><p class="inv-bag-help">ドラッグして移動・装備 <span>↻ R で回転</span></p>${overflow.length?`<div class="inv-overflow"><h3>保管待ち <small>${overflow.length}点</small></h3><p>以前の装備袋から引き継いだ品です。空きマスに移すか装備できます。</p>${overflow.map(item=>`<button data-inv-item="${item.source}" data-focus="inv-${item.source}" aria-pressed="${selected===item.source}">${gearIcon(item.glyph)}<span>${escape(item.name)}</span><small>${item.width}×${item.height}</small></button>`).join('')}</div>`:''}<aside class="inv-detail" aria-label="選択したアイテムの詳細">${detailMarkup()}</aside></section></div><p class="inv-notice" role="status">${escape(localNotice||view.notice||'装備袋を開いている間、狩場の時間は止まります。')}</p>`;
+    return `<div class="inv-layout">${equipmentMarkup()}${bagMarkup()}<aside class="inv-detail" aria-label="選択したアイテムの詳細">${detailMarkup()}</aside></div>
+    <footer class="inv-footer"><p class="inv-bag-help">ドラッグで移動・装備 <span>R 回転 · E 装備</span></p><p class="inv-pad-help"><strong class="inv-pad-state">× 持つ / □ 装備・外す</strong><span>十字 選択 · △ 回転 · L1/R1 切替 · 右スティック 比較 · R3 捨てる</span></p><p class="inv-notice" role="status">${escape(localNotice||view.notice||'装備袋を開いている間、狩場の時間は止まります。')}</p></footer>`;
   }
   function paint() {
     const content=panel.querySelector('[data-inventory-view]');
@@ -39,7 +63,11 @@ export function createInventoryPanel(panel,{input,icon,escape}) {
     const focus=panel.contains(document.activeElement)?document.activeElement.dataset.focus:null;
     tooltip.hide();
     content.innerHTML=contentMarkup();
-    if(focus)content.querySelector(`[data-focus="${focus}"]`)?.focus({preventScroll:true});
+    if(focus){
+      let target=content.querySelector(`[data-focus="${focus}"]`);
+      if(target?.disabled)target=target.closest('nav')?.querySelector('button:not(:disabled)');
+      target?.focus({preventScroll:true});
+    }
   }
   function render(next) {
     cancelDrag();tooltip.hide();
@@ -48,28 +76,36 @@ export function createInventoryPanel(panel,{input,icon,escape}) {
     if(!selectedItem())selected=null;
     if(selectedItem()&&!pad.carrying)rotated=selectedItem().rotated;
     localNotice='';
-    return `<p class="eyebrow">BELONGINGS / ASHEN HUNT</p><h2>装備袋</h2><div data-inventory-view>${contentMarkup()}</div>`;
+    return `<header class="inv-header"><p class="eyebrow">BELONGINGS</p><h2>装備袋</h2></header><div data-inventory-view>${contentMarkup()}</div>`;
   }
   function select(source) {
-    selected=source;rotated=selectedItem()?.rotated??false;localNotice='';paint();
+    if(selected!==source)detailPage=0;
+    selected=source;rotated=selectedItem()?.rotated??false;localNotice='';
+    const item=selectedItem();
+    if(item?.source>=0){bagArea=item.x<0?'overflow':'bag';if(item.x<0)overflowPage=Math.floor(view.items.filter(i=>i.x<0).indexOf(item)/overflowPageSize);}
+    paint();
   }
   function clearPreview() {
     panel.querySelector('.inv-preview')?.replaceChildren();
+    delete panel.dataset.invGroundDrop;
+    const hint=panel.querySelector('.inv-drop-zone');if(hint)hint.textContent='外側にドラッグして捨てる';
     panel.querySelectorAll('[data-drop-valid]').forEach(el=>el.removeAttribute('data-drop-valid'));
   }
   function cancelDrag() {
     if(drag&&panel.hasPointerCapture(drag.id))panel.releasePointerCapture(drag.id);
-    drag=null;cancelAnimationFrame(scrollFrame);scrollFrame=0;ghost?.remove();ghost=null;clearPreview();
+    drag=null;ghost?.remove();ghost=null;clearPreview();
   }
   function targetAt(x,y,offset={x:0,y:0}) {
     const slot=document.elementFromPoint(x,y)?.closest('[data-equip-slot]');
     if(slot&&panel.contains(slot))return {target:Number(slot.dataset.equipSlot),x:0,y:0};
     const bag=panel.querySelector('.inv-bag'),r=bag?.getBoundingClientRect();
     if(r&&x>=r.left&&y>=r.top&&x<r.right&&y<r.bottom)return {target:-1,x:Math.floor((x-r.left)/r.width*view.width)-offset.x,y:Math.floor((y-r.top)/r.height*view.height)-offset.y};
+    if(isInventoryGroundDrop(x,y,panel.querySelector('.panel-inventory')?.getBoundingClientRect(),panel.getBoundingClientRect()))return {target:-2,x:0,y:0};
     return null;
   }
   function showPreview(target) {
     clearPreview();const item=selectedItem();if(!target||!item)return false;
+    if(target.target===-2){panel.dataset.invGroundDrop='true';const hint=panel.querySelector('.inv-drop-zone');if(hint)hint.textContent='離して地面に捨てる';return true;}
     if(target.target>=0){
       const valid=target.target===item.slot;
       panel.querySelector(`[data-equip-slot="${target.target}"]`)?.setAttribute('data-drop-valid',String(valid));
@@ -82,6 +118,7 @@ export function createInventoryPanel(panel,{input,icon,escape}) {
   }
   function moveTo(target) {
     const item=selectedItem();if(!item||!target)return false;
+    if(target.target===-2){drop();return true;}
     if(target.target>=0&&target.target!==item.slot){localNotice=`この品は「${item.slot_name}」に装備できます`;paint();return false;}
     if(target.target===-1&&!previewPlacement(view,item,target.x,target.y,rotated).valid){localNotice='配置できません。空きマスを選んでください';paint();return false;}
     input.moveItem({source:selected,...target,rotated});
@@ -116,21 +153,26 @@ export function createInventoryPanel(panel,{input,icon,escape}) {
     selected=null;localNotice='';tooltip.hide();paint();
   }
   const tooltip=createInventoryTooltip(panel,{getView:()=>view,findItem,escape});
-  const pad=createInventoryGamepad(panel,{getView:()=>view,select,moveTo,equip:autoEquip,rotate,drop,showPreview,clearPreview});
-  function autoScroll() {
-    scrollFrame=0;
-    if(!drag?.active)return;
-    const container=panel.querySelector('.hunter-panel'),r=container.getBoundingClientRect();
-    const edge=Math.min(50,r.height/6);
-    const speed=drag.y<r.top+edge?-Math.min(10,(r.top+edge-drag.y)/4):drag.y>r.bottom-edge?Math.min(10,(drag.y-r.bottom+edge)/4):0;
-    if(speed){container.scrollTop+=speed;updateDrag();}
-    scrollFrame=requestAnimationFrame(autoScroll);
+  function showArea(area) {
+    if(!['bag','overflow'].includes(area)||bagArea===area)return;
+    bagArea=area;paint();
   }
+  function pageDetail(direction) {
+    const item=selectedItem();if(!item)return;
+    const next=Math.max(0,Math.min(Math.ceil(comparisonRows(view,item).length/4)-1,detailPage+direction));
+    if(next!==detailPage){detailPage=next;paint();}
+  }
+  const pad=createInventoryGamepad(panel,{getView:()=>view,select,moveTo,equip:autoEquip,rotate,drop,showPreview,clearPreview,showArea,pageDetail(value){
+    const now=performance.now();if(now-lastDetailTurn<300)return;
+    lastDetailTurn=now;pageDetail(Math.sign(value));
+  }});
   function updateDrag() {
     if(!drag?.active)return;
+    const tab=document.elementFromPoint(drag.x,drag.y)?.closest('[data-inv-action="bag"]');
+    if(tab&&panel.contains(tab))showArea('bag');
     const item=selectedItem(),[w,h]=dimensions(item,rotated);
     if(!ghost){ghost=document.createElement('div');ghost.className='inv-drag-ghost';ghost.setAttribute('aria-hidden','true');document.body.append(ghost);}
-    const cell=panel.querySelector('.inv-bag').getBoundingClientRect().width/view.width;
+    const cell=Math.max(24,panel.querySelector('.inv-bag').getBoundingClientRect().width/view.width);
     ghost.style.cssText=`left:${drag.x-(drag.offset.x+.5)*cell}px;top:${drag.y-(drag.offset.y+.5)*cell}px;width:${w*cell}px;height:${h*cell}px`;
     ghost.innerHTML=itemMarkup({...item,x:0,y:0,rotated}).replace('width:'+w/view.width*100+'%','width:100%').replace('height:'+h/view.height*100+'%','height:100%');
     ghost.querySelector('button')?.setAttribute('tabindex','-1');
@@ -153,7 +195,7 @@ export function createInventoryPanel(panel,{input,icon,escape}) {
     if(!drag||drag.id!==e.pointerId)return;
     drag.x=e.clientX;drag.y=e.clientY;
     if(Math.hypot(drag.x-drag.startX,drag.y-drag.startY)>6)drag.active=true;
-    updateDrag();if(drag.active&&!scrollFrame)scrollFrame=requestAnimationFrame(autoScroll);e.preventDefault();e.stopPropagation();
+    updateDrag();e.preventDefault();e.stopPropagation();
   });
   panel.addEventListener('pointerup',e=>{
     if(!drag||drag.id!==e.pointerId)return;
@@ -169,6 +211,9 @@ export function createInventoryPanel(panel,{input,icon,escape}) {
     if(!e.target.closest('[data-inventory-view]'))return;
     e.preventDefault();e.stopPropagation();
     const action=e.target.closest('[data-inv-action]')?.dataset.invAction;
+    if(action==='bag'||action==='overflow'){showArea(action);return;}
+    if(action==='overflow-prev'||action==='overflow-next'){overflowPage+=action==='overflow-next'?1:-1;paint();return;}
+    if(action==='detail-prev'||action==='detail-next'){pageDetail(action==='detail-next'?1:-1);return;}
     if(action==='rotate'){rotate();return;}
     if(action==='equip'){autoEquip();return;}
     if(action==='drop'){drop();return;}
@@ -181,7 +226,7 @@ export function createInventoryPanel(panel,{input,icon,escape}) {
   });
   return {
     render,
-    close(){cancelDrag();tooltip.hide();pad.reset();view=null;selected=null;localNotice='';},
+    close(){cancelDrag();tooltip.hide();pad.reset();view=null;selected=null;localNotice='';bagArea='bag';overflowPage=0;detailPage=0;},
     cancelDrag,
     handleGamepad(action,value){if(action!=='sync')tooltip.hide();return pad.handle(action,value);},
     handleKeyDown(e){

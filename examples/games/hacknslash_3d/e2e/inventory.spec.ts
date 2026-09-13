@@ -53,7 +53,7 @@ test('spatial bag equips, swaps, rotates, persists and keeps the game stopped',a
   expect(errors).toEqual([]);
 });
 
-test('wrong slots, multi-item collisions, outside drops and ESC cancel lose no items',async({page})=>{
+test('wrong slots, multi-item collisions, panel whitespace and ESC cancel lose no items',async({page})=>{
   await start(page);
   const before=(await inventory(page)).items;
   await drag(page,0,page.locator('[data-equip-slot="3"]'));
@@ -97,9 +97,13 @@ test('older overflowing bags retain every item and can recover through equipment
   await page.locator('[data-save-slot="0"]').click();
   await expect.poll(async()=>(await hud(page)).mode).toBe('playing');
   await page.keyboard.press('KeyI');
-  await expect(page.locator('.inv-overflow button')).toHaveCount(12);
+  await page.getByRole('button',{name:'保管待ち 12',exact:true}).click();
+  await expect(page.locator('.inv-overflow [data-inv-item]')).toHaveCount(3);
+  await page.getByRole('button',{name:'次の保管待ち',exact:true}).click();
+  await expect(page.locator('.inv-overflow [data-inv-item]').first()).toContainText('古い外套11');
+  await page.getByRole('button',{name:'前の保管待ち',exact:true}).click();
   expect((await inventory(page)).items).toHaveLength(20);
-  await page.locator('.inv-overflow button').first().click();
+  await page.locator('.inv-overflow [data-inv-item]').first().click();
   await page.getByRole('button',{name:'装備する',exact:true}).click();
   await expect.poll(async()=>(await inventory(page)).equipment[1].item?.name).toBe('古い外套8');
   await page.getByRole('button',{name:'バッグへ外す',exact:true}).click();
@@ -109,7 +113,8 @@ test('older overflowing bags retain every item and can recover through equipment
   await page.locator('[data-save-slot="0"]').click();
   await expect.poll(async()=>(await hud(page)).mode).toBe('playing');
   await page.keyboard.press('KeyI');
-  await expect(page.locator('.inv-overflow button')).toHaveCount(11);
+  await page.getByRole('button',{name:'保管待ち 11',exact:true}).click();
+  await expect(page.locator('.inv-overflow [data-inv-item]')).toHaveCount(3);
   expect((await inventory(page)).equipment[1].item.name).toBe('古い外套8');
 });
 

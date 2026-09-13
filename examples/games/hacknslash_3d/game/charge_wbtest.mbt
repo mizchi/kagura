@@ -64,7 +64,7 @@ test "enemy tackle has anticipation, committed travel and a motion recovery" {
   world.player.y = 64.0
   let enemy = make_enemy(64.0, 64.0, Fast, 100, 1.2, 8.0)
   world.enemies = [enemy]
-  start_enemy_tackle(enemy, world.player, world.events)
+  start_enemy_tackle(enemy, world.player.combat_target(), world.events)
   assert_eq(enemy.attack_motion, Charge)
   for _ in 0..<(enemy_tackle_telegraph_frames - 1) {
     tick_enemy_attack(enemy)

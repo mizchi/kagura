@@ -477,7 +477,7 @@ test "inventory add_fifo keeps newest items when capacity is full" {
 test "available_level_up_skill_ids excludes locked and maxed skills" {
   let skills = SkillTree::new()
   let offers0 = skills.available_level_up_skill_ids()
-  assert_eq(offers0.length(), 7)
+  assert_eq(offers0.length(), 9)
   assert_true(contains_skill_id(offers0, PowerStrike))
   assert_true(contains_skill_id(offers0, DashMastery))
   assert_true(contains_skill_id(offers0, Vitality))
@@ -485,6 +485,8 @@ test "available_level_up_skill_ids excludes locked and maxed skills" {
   assert_true(contains_skill_id(offers0, SplittingFireball))
   assert_true(contains_skill_id(offers0, IceNova))
   assert_true(contains_skill_id(offers0, HomingMissile))
+  assert_true(contains_skill_id(offers0, RaiseZombie))
+  assert_true(contains_skill_id(offers0, SummonFlamingSkull))
   assert_false(contains_skill_id(offers0, Whirlwind))
   skills.learn_level_up_skill(Vitality) |> ignore
   skills.learn_level_up_skill(PowerStrike) |> ignore

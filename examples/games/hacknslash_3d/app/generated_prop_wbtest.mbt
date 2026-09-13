@@ -507,6 +507,8 @@ test "update_playing pushes enemy away from blocking generated prop" {
     ),
   )
 
+  let ally = @game.make_enemy(prop_x, prop_y, @game.Zombie, 100, 0.0, 11.0)
+  state.world.summons.zombies.push({ body: ally, })
   state.update_playing()
 
   let enemy = state.world.enemies[0]
@@ -515,6 +517,11 @@ test "update_playing pushes enemy away from blocking generated prop" {
   let min_dist = enemy.size / 2.0 +
     generated_prop_blocking_radius(state.generated_props[0].placement)
   assert_true(dx * dx + dy * dy >= min_dist * min_dist - 0.0001)
+  let ax = ally.x - prop_x
+  let ay = ally.y - prop_y
+  let ally_min = ally.size / 2.0 +
+    generated_prop_blocking_radius(state.generated_props[0].placement)
+  assert_true(ax * ax + ay * ay >= ally_min * ally_min - 0.0001)
 }
 
 ///|

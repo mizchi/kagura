@@ -40,3 +40,7 @@ export function bindHunterMouse({stage,hud,input,view}){
   stage.addEventListener('pointerleave',clear);
   return clear;
 }
+
+export function hunterHeldActionKey(action){
+  return {attack:74,guard:70,whirlwind:50,skull:57}[action];
+}

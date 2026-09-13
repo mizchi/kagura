@@ -42,6 +42,8 @@ fn sound_cue_for_event(event : @game.GameEvent) -> GameSoundCue? {
     @game.ItemPickup(_, _, false) => Some(SfxPickupLoot)
     @game.ChainLightningArc(_, _, _, _) => Some(SfxSpellChainLightning)
     @game.FireballCast(_, _) => Some(SfxSpellFireball)
+    @game.SummonReleased(_, _, fire) =>
+      Some(if fire { SfxSpellFireball } else { SfxSpellHomingMissile })
     @game.HomingMissileLaunch(_, _, _, _) => Some(SfxSpellHomingMissile)
     @game.IceNovaCast(_, _, _) => Some(SfxSpellIceNova)
     @game.FloorComplete => Some(SfxFloorComplete)

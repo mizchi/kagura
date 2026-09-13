@@ -25,15 +25,15 @@ pub(all) struct EnemyPounce {
 ///|
 fn try_start_zombie_pounce(
   enemy : Enemy,
-  player : Player,
+  target : CombatTarget,
   grid : @terrain.Grid2D,
   events : Array[GameEvent],
 ) -> Bool {
   if enemy.kind != Zombie || enemy.attack_cooldown > 0 {
     return false
   }
-  let dx = player.x - enemy.x
-  let dy = player.y - enemy.y
+  let dx = target.x - enemy.x
+  let dy = target.y - enemy.y
   let distance = (dx * dx + dy * dy).sqrt()
   if distance > zombie_pounce_range ||
     distance < 0.01 ||
@@ -41,8 +41,8 @@ fn try_start_zombie_pounce(
       grid,
       enemy.x,
       enemy.y,
-      player.x,
-      player.y,
+      target.x,
+      target.y,
       1.0,
     ) {
     return false

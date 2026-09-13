@@ -104,7 +104,7 @@ test('inventory routes navigation, equip, rotation and discard without leaking c
   f.set();f.set([0,0,0,0],[1]);assert.equal(events.at(-1),'cancel');assert.equal(f.input.consumeKey(),27);
 });
 
-test('inventory right stick scrolls details without moving the player or the camera',()=>{
+test('inventory right stick requests comparison navigation without moving the player or camera',()=>{
   const events=[];const f=fixture((action,value)=>{events.push([action,value]);return true;});
   f.hud.menu='inventory';f.set();f.set([0,0,0,1]);
   const scroll=events.find(([action])=>action==='scroll');

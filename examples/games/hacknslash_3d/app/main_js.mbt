@@ -295,6 +295,8 @@ fn apply_initial_mode_overrides(
       js_get_query_param("peaceful") == "1",
       js_get_query_param("overview") == "1",
     )
+  } else if snapshot_mode == "summons" {
+    apply_player_summon_preview(state, js_get_query_param("peaceful") == "1")
   } else if snapshot_mode == "zombies" {
     apply_zombie_combat_preview(state)
   } else if snapshot_mode == "zombie" {

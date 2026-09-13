@@ -16,7 +16,7 @@ pub(all) struct HunterPresetProfile {
 
 ///|
 pub let hunter_presets : Array[HunterPresetProfile] = [
-  { id: "blade", name: "近接", weapon: Cleaver, keys: [49, 50, 51, 52], },
+  { id: "blade", name: "近接", weapon: Cleaver, keys: [74, 50, 86, 70], },
   { id: "storm", name: "魔法", weapon: Focus, keys: [53, 84, 51, 52], },
   { id: "marksman", name: "遠距離", weapon: Bow, keys: [54, 84, 51, 52], },
 ]
@@ -63,5 +63,6 @@ pub fn GameWorld::apply_hunter_preset(
     return false
   }
   self.hunter_preset = preset
+  self.hunter_slots = preset.profile().keys.copy()
   true
 }

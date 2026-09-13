@@ -50,7 +50,7 @@ fn hunter_camera_input(
   scale_y : Double,
   tps? : Bool = false,
 ) -> @camera3d.OrbitCamera {
-  let dragging = input.pressed_mouse_buttons.contains(2)
+  let dragging = input.pressed_mouse_buttons.contains(1)
   let yaw_delta = (if input.pressed_keys.contains(81) { 0.025 } else { 0.0 }) +
     (if input.pressed_keys.contains(69) { -0.025 } else { 0.0 }) +
     (if dragging && was_dragging {

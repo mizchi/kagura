@@ -56,6 +56,7 @@ struct HunterHudView {
   camera : HunterCameraView
   exploration : HunterExplorationView
   combat : HunterCombatView
+  loot : Array[HunterLootView]
   version : Int
   mode : String
   menu : String
@@ -77,6 +78,7 @@ struct HunterHudView {
   charge : HunterSkillView
   charging : Bool
   charge_frame : Int
+  slot_options : Array[HunterSkillView]
   skills : Array[HunterSkillView]
   extra_skills : Array[HunterExtraSkillView]
   arts : HunterArtsView
@@ -98,7 +100,7 @@ struct HunterHudView {
 ///|
 fn hunter_skill_name(id : @game.SkillId) -> String {
   match id {
-    PowerStrike => "処刑の一撃"
+    PowerStrike => "武器鍛錬"
     Whirlwind => "ワールウィンド"
     SplittingFireball => "分裂火弾"
     IceNova => "霜の輪"
@@ -150,6 +152,11 @@ fn GameState::hunter_hud_view(self : GameState) -> HunterHudView {
   }
   {
     version: 1,
+    slot_options: if w.ui_mode == @game.Skills {
+      @game.hunter_slot_actions.map(key => self.hunter_action_view(key))
+    } else {
+      []
+    },
     camera: self.hunter_camera_view(),
     preset: w.hunter_preset.index(),
     preset_name: w.hunter_preset.profile().name,
@@ -167,6 +174,7 @@ fn GameState::hunter_hud_view(self : GameState) -> HunterHudView {
     terrain: self.terrain_lab_view(),
     arts: self.hunter_arts_view(),
     combat: self.hunter_combat_view(),
+    loot: self.hunter_loot_view(),
     exploration: self.hunter_exploration_view(),
     weapon: w.player_weapon.profile().name,
     weapon_index: w.player_weapon.index(),
@@ -176,21 +184,12 @@ fn GameState::hunter_hud_view(self : GameState) -> HunterHudView {
     w.weapon_attack is Some(_) ||
     w.player.dash_timer > 0 ||
     w.player_charge is Some(_),
-    charging: w.player_charge is Some(_),
-    charge_frame: match w.player_charge {
-      Some(charge) => charge.frame
-      None => -1
+    charging: w.arts.action is Some({ kind: @game.DashArt, .. }),
+    charge_frame: match w.arts.action {
+      Some({ kind: @game.DashArt, frame, .. }) => frame
+      _ => -1
     },
-    charge: {
-      key: 67,
-      glyph: "dodge",
-      hold: "",
-      name: "突進",
-      description: "構えてから前方へ突進。壁で止まり、敵ごとに一度だけダメージ。移動方向、停止中は近くの敵へ向かう。回避で中断。",
-      level: 1,
-      remaining: w.charge_cooldown,
-      total: @game.player_charge_cooldown,
-    },
+    charge: self.hunter_action_view(86),
     weapons: [
       @game.Cleaver,
       @game.Spear,

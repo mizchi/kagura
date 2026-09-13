@@ -57,6 +57,9 @@ pub(all) struct PlayerCharge {
 
 ///|
 pub fn GameWorld::request_charge(self : GameWorld, angle : Double) -> Bool {
+  if self.hunting_grounds {
+    return self.request_dash_strike(angle)
+  }
   if self.hunter_action_locked() ||
     self.mode != Playing ||
     self.ui_mode != UIMode::None ||

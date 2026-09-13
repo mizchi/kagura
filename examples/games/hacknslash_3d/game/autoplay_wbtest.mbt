@@ -27,6 +27,8 @@ test "auto_play_input routes toward nearby equipment pickup when no enemy is vis
       }),
       alive: true,
       spawn_frame: world.frame_count,
+      pickup_blocked: None,
+      pickup_id: None,
     },
   ]
 
@@ -51,6 +53,8 @@ test "auto_play_input routes toward nearby score pickup when no enemy is visible
       kind: Score,
       alive: true,
       spawn_frame: world.frame_count,
+      pickup_blocked: None,
+      pickup_id: None,
     },
   ]
 
@@ -75,6 +79,8 @@ test "auto_play_input moves toward pickup on same tile when item is still outsid
       kind: Score,
       alive: true,
       spawn_frame: world.frame_count,
+      pickup_blocked: None,
+      pickup_id: None,
     },
   ]
 
@@ -260,6 +266,8 @@ test "auto_play_input_with_nav_grid still routes toward equipment pickup when in
       }),
       alive: true,
       spawn_frame: world.frame_count,
+      pickup_blocked: None,
+      pickup_id: None,
     },
   ]
 

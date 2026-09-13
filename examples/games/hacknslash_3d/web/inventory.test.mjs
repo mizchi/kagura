@@ -18,3 +18,16 @@ test('preview rejects multiple overlaps and wrong-slot swaps when unequipping',(
   assert.equal(previewPlacement(view,{...cleaver,source:3},1,1,false).valid,true);
   assert.equal(previewPlacement(view,{...cleaver,source:-1},1,1,false).valid,false);
 });
+
+
+test('hover comparison uses the matching body slot and shows losses, gains and removed modifiers',async()=>{
+  const {comparisonRows}=await import('../assets/hunter-item-comparison.mjs');
+  const candidate={slot:0,stats:[['攻撃力',10],['防御力',0],['会心率 %',8]]};
+  const view={equipment:[{id:1,item:{stats:[['攻撃力',999]]}},{id:0,item:{name:'古い槍',stats:[['防御力',3],['攻撃力',6],['会心率 %',0]]}}]};
+  assert.deepEqual(comparisonRows(view,candidate),[
+    {label:'攻撃力',value:10,before:6,delta:4},
+    {label:'防御力',value:0,before:3,delta:-3},
+    {label:'会心率 %',value:8,before:0,delta:8},
+  ]);
+  assert.equal(comparisonRows({equipment:[]},candidate)[0].before,0);
+});

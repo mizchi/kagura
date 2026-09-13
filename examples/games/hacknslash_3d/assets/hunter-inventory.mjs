@@ -1,3 +1,7 @@
+import {rotatedCells,dimensions,previewPlacement} from './hunter-inventory-grid.mjs';
+export {rotatedCells,previewPlacement} from './hunter-inventory-grid.mjs';
+import {comparisonMarkup,createInventoryTooltip} from './hunter-item-comparison.mjs';
+import {createInventoryGamepad} from './hunter-inventory-pad.mjs';
 // Presentation only: the game validates and commits every inventory move.
 const gearPaths={
   coat:'M12 4h10l8 6-4 10-5-3 6 14H7l6-14-5 3-4-10ZM17 7v22M13 4l4 8 4-8',
@@ -8,14 +12,6 @@ const gearPaths={
   amulet:'M6 3q0 16 11 19Q28 19 28 3M17 18l6 7-6 7-6-7Z',
 };
 const rarityNames={common:'一般',uncommon:'上質',rare:'希少',epic:'至宝'};
-export const rotatedCells=(item,rotated=item.rotated)=>item.cells.map(([x,y])=>rotated?[item.height-1-y,x]:[x,y]);
-const dimensions=(item,rotated=item.rotated)=>rotated?[item.height,item.width]:[item.width,item.height];
-export function previewPlacement(view,item,x,y,rotated) {
-  const cells=rotatedCells(item,rotated).map(([cx,cy])=>[x+cx,y+cy]);
-  const inside=cells.every(([cx,cy])=>cx>=0&&cy>=0&&cx<view.width&&cy<view.height);
-  const overlaps=view.items.filter(other=>other.source!==item.source&&other.x>=0&&rotatedCells(other).some(([cx,cy])=>cells.some(([tx,ty])=>tx===other.x+cx&&ty===other.y+cy)));
-  return {cells,valid:inside&&overlaps.length<=1&&(item.source>=0||overlaps.every(other=>other.slot===item.slot)),swap:overlaps.length===1};
-}
 
 export function createInventoryPanel(panel,{input,icon,escape}) {
   let view=null,selected=null,rotated=false,drag=null,ghost=null,scrollFrame=0,localNotice='';
@@ -30,32 +26,27 @@ export function createInventoryPanel(panel,{input,icon,escape}) {
   function detailMarkup() {
     const item=selectedItem();
     if(!item)return `<div class="inv-detail-empty">${gearIcon('bag')}<h3>次の狩りに備える</h3><p>品を選ぶと性能を比較できます。<br>ドラッグ、または品と移動先を順にタップ。</p></div>`;
-    const comparison=view.equipment.find(s=>s.id===item.slot)?.item;
     const [w,h]=dimensions(item,rotated);
-    const stats=item.stats.map(([label,value],i)=>{
-      const before=comparison?.stats[i]?.[1]??0,delta=value-before;
-      if(!value&&!before)return '';
-      return `<div><dt>${escape(label)}</dt><dd>${Number(value.toFixed(1))}${item.source>=0&&delta?`<small class="${delta>0?'better':'worse'}">${delta>0?'+':''}${Number(delta.toFixed(1))}</small>`:''}</dd></div>`;
-    }).join('');
-    return `<div class="inv-detail-heading rarity-${item.rarity}">${glyph(item)}<div><small>${rarityNames[item.rarity]} · ${item.slot_name}${item.source<0?' · 装備中':''}</small><h3>${escape(item.name)}</h3><p>${w} × ${h} · ${item.cells.length}マス${item.cells.length<item.width*item.height?' · L字形':''}</p></div></div><dl class="inv-item-stats">${stats||'<p>追加補正なし</p>'}</dl><p class="inv-comparison">装備の補正値${item.source>=0?' · 右の数値は装備中の品との差':''}</p><div class="inv-detail-actions"><button data-inv-action="equip" data-focus="inv-equip">${item.source<0?'バッグへ外す':'装備する'}</button><button data-inv-action="rotate" data-focus="inv-rotate">↻ 回転 <kbd>R</kbd></button></div>`;
+    return `<div class="inv-detail-heading rarity-${item.rarity}">${glyph(item)}<div><small>${rarityNames[item.rarity]} · ${item.slot_name}${item.source<0?' · 装備中':''}</small><h3>${escape(item.name)}</h3><p>${w} × ${h} · ${item.cells.length}マス${item.cells.length<item.width*item.height?' · L字形':''}</p></div></div>${comparisonMarkup(view,item,escape)}<div class="inv-detail-actions"><button data-inv-action="equip" data-focus="inv-equip">${item.source<0?'バッグへ外す':'装備する'}</button><button data-inv-action="rotate" data-focus="inv-rotate">↻ 回転 <kbd>R</kbd></button><button data-inv-action="drop" data-focus="inv-drop">地面に捨てる</button></div>`;
   }
   function contentMarkup() {
     const overflow=view.items.filter(item=>item.x<0);
-    return `<div class="inv-layout"><section class="inv-loadout" aria-label="装備部位"><div class="inv-section-title"><h3>狩人の装備</h3><small>8 部位</small></div><div class="inv-body"><svg class="inv-silhouette" viewBox="0 0 150 240" aria-hidden="true"><path d="m51 39 8-30 27-3 11 34 33 10-55 12-56-12Zm8 30h34l14 23-12 33 27 61-38-5-9-28-9 28-38 5 26-61-14-33Zm-3 117h17l-4 45-26 3 8-14Zm25 0h17l4 34 8 14-27-3Z"/></svg>${view.equipment.map(slot=>`<button class="inv-equip inv-slot-${slot.id} ${slot.item?'rarity-'+slot.item.rarity:''}" data-equip-slot="${slot.id}" ${slot.item?`data-inv-item="${slot.item.source}"`:''} data-focus="slot-${slot.id}" aria-label="${slot.label}スロット：${escape(slot.item?.name??'未装備')}" aria-pressed="${slot.item&&selected===slot.item.source?'true':'false'}"><small>${slot.label}</small>${gearIcon(slot.item?.glyph??slot.glyph)}<span>${escape(slot.item?.name??'未装備')}</span></button>`).join('')}</div><dl class="inv-player-stats"><div><dt>攻撃力</dt><dd>${view.atk}</dd></div><div><dt>防御力</dt><dd>${view.def}</dd></div><div><dt>最大体力</dt><dd>${view.hp}</dd></div></dl></section><section class="inv-bag-section" aria-label="所持品"><div class="inv-section-title"><h3>所持品</h3><span><b>${view.used}</b> / ${view.width*view.height} マス</span></div><div class="inv-bag" aria-label="${view.width}列 ${view.height}行のバッグ" style="--cols:${view.width};--rows:${view.height};aspect-ratio:${view.width}/${view.height}"><div class="inv-cells">${Array.from({length:view.width*view.height},(_,i)=>`<button class="inv-cell" data-cell-x="${i%view.width}" data-cell-y="${Math.floor(i/view.width)}" aria-label="バッグ ${i%view.width+1}列 ${Math.floor(i/view.width)+1}行"></button>`).join('')}</div>${view.items.filter(item=>item.x>=0).map(itemMarkup).join('')}<div class="inv-preview" aria-hidden="true"></div></div><p class="inv-bag-help">ドラッグして移動・装備 <span>↻ R で回転</span></p>${overflow.length?`<div class="inv-overflow"><h3>保管待ち <small>${overflow.length}点</small></h3><p>以前の装備袋から引き継いだ品です。空きマスに移すか装備できます。</p>${overflow.map(item=>`<button data-inv-item="${item.source}" data-focus="inv-${item.source}" aria-pressed="${selected===item.source}">${gearIcon(item.glyph)}<span>${escape(item.name)}</span><small>${item.width}×${item.height}</small></button>`).join('')}</div>`:''}<aside class="inv-detail" aria-label="選択したアイテムの詳細">${detailMarkup()}</aside></section></div><p class="inv-notice" role="status">${escape(localNotice||view.notice||'装備袋を開いている間、狩場の時間は止まります。')}</p>`;
+    return `<div class="inv-layout"><section class="inv-loadout" aria-label="装備部位"><div class="inv-section-title"><h3>狩人の装備</h3><small>8 部位</small></div><div class="inv-body"><svg class="inv-silhouette" viewBox="0 0 150 240" aria-hidden="true"><path d="m51 39 8-30 27-3 11 34 33 10-55 12-56-12Zm8 30h34l14 23-12 33 27 61-38-5-9-28-9 28-38 5 26-61-14-33Zm-3 117h17l-4 45-26 3 8-14Zm25 0h17l4 34 8 14-27-3Z"/></svg>${view.equipment.map(slot=>`<button class="inv-equip inv-slot-${slot.id} ${slot.item?'rarity-'+slot.item.rarity:''}" data-equip-slot="${slot.id}" ${slot.item?`data-inv-item="${slot.item.source}"`:''} data-focus="slot-${slot.id}" aria-label="${slot.label}スロット：${escape(slot.item?.name??'未装備')}" aria-pressed="${slot.item&&selected===slot.item.source?'true':'false'}"><small>${slot.label}</small>${gearIcon(slot.item?.glyph??slot.glyph)}<span>${escape(slot.item?.name??'未装備')}</span></button>`).join('')}</div><dl class="inv-player-stats"><div><dt>攻撃力</dt><dd>${view.atk}</dd></div><div><dt>防御力</dt><dd>${view.def}</dd></div><div><dt>最大体力</dt><dd>${view.hp}</dd></div></dl></section><section class="inv-bag-section" aria-label="所持品"><div class="inv-section-title"><h3>所持品</h3><span><b>${view.used}</b> / ${view.width*view.height} マス</span></div><div class="inv-bag" aria-label="${view.width}列 ${view.height}行のバッグ" style="--cols:${view.width};--rows:${view.height};aspect-ratio:${view.width}/${view.height}"><div class="inv-cells">${Array.from({length:view.width*view.height},(_,i)=>`<button class="inv-cell" data-focus="cell-${i%view.width}-${Math.floor(i/view.width)}" data-cell-x="${i%view.width}" data-cell-y="${Math.floor(i/view.width)}" aria-label="バッグ ${i%view.width+1}列 ${Math.floor(i/view.width)+1}行"></button>`).join('')}</div>${view.items.filter(item=>item.x>=0).map(itemMarkup).join('')}<div class="inv-preview" aria-hidden="true"></div></div><p class="inv-pad-help"><strong class="inv-pad-state">× 持つ / □ 装備・外す</strong><span>十字 / 左スティック：選択 · △ 回転 · 右スティック：スクロール<br>L1 / R1：バッグ・装備切替 · R3 捨てる · ○ 戻る</span></p><p class="inv-bag-help">ドラッグして移動・装備 <span>↻ R で回転</span></p>${overflow.length?`<div class="inv-overflow"><h3>保管待ち <small>${overflow.length}点</small></h3><p>以前の装備袋から引き継いだ品です。空きマスに移すか装備できます。</p>${overflow.map(item=>`<button data-inv-item="${item.source}" data-focus="inv-${item.source}" aria-pressed="${selected===item.source}">${gearIcon(item.glyph)}<span>${escape(item.name)}</span><small>${item.width}×${item.height}</small></button>`).join('')}</div>`:''}<aside class="inv-detail" aria-label="選択したアイテムの詳細">${detailMarkup()}</aside></section></div><p class="inv-notice" role="status">${escape(localNotice||view.notice||'装備袋を開いている間、狩場の時間は止まります。')}</p>`;
   }
   function paint() {
     const content=panel.querySelector('[data-inventory-view]');
     if(!content||!view)return;
     const focus=panel.contains(document.activeElement)?document.activeElement.dataset.focus:null;
+    tooltip.hide();
     content.innerHTML=contentMarkup();
     if(focus)content.querySelector(`[data-focus="${focus}"]`)?.focus({preventScroll:true});
   }
   function render(next) {
-    cancelDrag();
+    cancelDrag();tooltip.hide();
     view=next;
     if(!view)return '<p>インベントリを読み込んでいます</p>';
     if(!selectedItem())selected=null;
-    if(selectedItem())rotated=selectedItem().rotated;
+    if(selectedItem()&&!pad.carrying)rotated=selectedItem().rotated;
     localNotice='';
     return `<p class="eyebrow">BELONGINGS / ASHEN HUNT</p><h2>装備袋</h2><div data-inventory-view>${contentMarkup()}</div>`;
   }
@@ -90,11 +81,13 @@ export function createInventoryPanel(panel,{input,icon,escape}) {
     return preview.valid;
   }
   function moveTo(target) {
-    const item=selectedItem();if(!item||!target)return;
-    if(target.target>=0&&target.target!==item.slot){localNotice=`この品は「${item.slot_name}」に装備できます`;paint();return;}
+    const item=selectedItem();if(!item||!target)return false;
+    if(target.target>=0&&target.target!==item.slot){localNotice=`この品は「${item.slot_name}」に装備できます`;paint();return false;}
+    if(target.target===-1&&!previewPlacement(view,item,target.x,target.y,rotated).valid){localNotice='配置できません。空きマスを選んでください';paint();return false;}
     input.moveItem({source:selected,...target,rotated});
     selected=target.target>=0?-1-target.target:item.source>=0?item.source:null;
     localNotice='';
+    return true;
   }
   function rotate() {
     const item=selectedItem();if(!item)return;
@@ -106,6 +99,24 @@ export function createInventoryPanel(panel,{input,icon,escape}) {
       updateDrag();
     }else{localNotice='回転しました。置くマスを選んでください';paint();}
   }
+  function autoEquip() {
+    const item=selectedItem();if(!item)return;
+    if(item.source>=0)moveTo({target:item.slot,x:0,y:0});
+    else {
+      for(const orientation of [rotated,!rotated])for(let y=0;y<view.height;y++)for(let x=0;x<view.width;x++){
+        const p=previewPlacement(view,item,x,y,orientation);
+        if(p.valid&&!p.swap){rotated=orientation;moveTo({target:-1,x,y});return;}
+      }
+      localNotice='バッグに空きがありません。先に品を移動してください';paint();
+    }
+  }
+  function drop() {
+    if(!selectedItem())return;
+    input.moveItem({source:selected,target:-2,x:0,y:0,rotated:false});
+    selected=null;localNotice='';tooltip.hide();paint();
+  }
+  const tooltip=createInventoryTooltip(panel,{getView:()=>view,findItem,escape});
+  const pad=createInventoryGamepad(panel,{getView:()=>view,select,moveTo,equip:autoEquip,rotate,drop,showPreview,clearPreview});
   function autoScroll() {
     scrollFrame=0;
     if(!drag?.active)return;
@@ -127,6 +138,7 @@ export function createInventoryPanel(panel,{input,icon,escape}) {
   }
   panel.addEventListener('pointerdown',e=>{
     if(e.button!==0||drag||!e.target.closest('[data-inventory-view]'))return;
+    pad.reset();
     const element=e.target.closest('[data-inv-item]');if(!element)return;
     const source=Number(element.dataset.invItem),item=findItem(source);if(!item)return;
     // With a selection, clicking an equipment slot is a placement intent.
@@ -158,18 +170,8 @@ export function createInventoryPanel(panel,{input,icon,escape}) {
     e.preventDefault();e.stopPropagation();
     const action=e.target.closest('[data-inv-action]')?.dataset.invAction;
     if(action==='rotate'){rotate();return;}
-    if(action==='equip'){
-      const item=selectedItem();if(!item)return;
-      if(item.source>=0)moveTo({target:item.slot,x:0,y:0});
-      else {
-        for(const orientation of [rotated,!rotated])for(let y=0;y<view.height;y++)for(let x=0;x<view.width;x++){
-          const p=previewPlacement(view,item,x,y,orientation);
-          if(p.valid&&!p.swap){rotated=orientation;moveTo({target:-1,x,y});return;}
-        }
-        localNotice='バッグに空きがありません。先に品を移動してください';paint();
-      }
-      return;
-    }
+    if(action==='equip'){autoEquip();return;}
+    if(action==='drop'){drop();return;}
     const slot=e.target.closest('[data-equip-slot]');
     if(slot&&selectedItem()){moveTo({target:Number(slot.dataset.equipSlot),x:0,y:0});return;}
     const cell=e.target.closest('[data-cell-x]');
@@ -179,11 +181,13 @@ export function createInventoryPanel(panel,{input,icon,escape}) {
   });
   return {
     render,
-    close(){cancelDrag();view=null;selected=null;localNotice='';},
+    close(){cancelDrag();tooltip.hide();pad.reset();view=null;selected=null;localNotice='';},
     cancelDrag,
+    handleGamepad(action,value){if(action!=='sync')tooltip.hide();return pad.handle(action,value);},
     handleKeyDown(e){
       if(!view||e.ctrlKey||e.metaKey||e.altKey)return false;
       if(e.code==='Escape'&&drag){cancelDrag();localNotice='配置を取り消しました';paint();return true;}
+      if(e.code==='Escape'&&pad.carrying&&pad.handle('cancel'))return true;
       if(e.code==='KeyE'){if(!e.repeat)panel.querySelector('[data-inv-action="equip"]')?.click();return true;}
       if(e.code==='KeyR'){if(!e.repeat)rotate();return true;}
       return false;

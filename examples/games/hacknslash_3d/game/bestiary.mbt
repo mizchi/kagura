@@ -2,6 +2,7 @@
 /// Species and combat roles are separate: heavy goblins and skeletal casters
 /// reuse their species' body while keeping the existing role-specific AI.
 pub(all) enum EnemySpecies {
+  Zombie
   Goblin
   Kobold
   Skeleton
@@ -16,6 +17,7 @@ pub impl Show for EnemySpecies with fn output(self, logger) {
 ///|
 pub fn enemy_species(kind : EnemyKind) -> EnemySpecies {
   match kind {
+    Zombie => EnemySpecies::Zombie
     Wolf => EnemySpecies::Wolf
     Basic | Swarm | Tank | Berserker => Goblin
     Fast | Exploder | Teleporter => Kobold
@@ -29,6 +31,7 @@ pub fn enemy_species_name(species : EnemySpecies) -> String {
     Goblin => "ゴブリン"
     Kobold => "コボルト"
     Skeleton => "スケルトン"
+    Zombie => "ゾンビ"
     Wolf => "灰狼"
   }
 }

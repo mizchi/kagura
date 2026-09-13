@@ -31,6 +31,7 @@ fn scene_enemy_kind(name : String) -> EnemyKind {
     "fast" => Fast
     "tank" => Tank
     "ranged" => Ranged
+    "zombie" => Zombie
     "wolf" => Wolf
     _ => Basic
   }
@@ -86,7 +87,9 @@ fn scene_enemies(scene : AuthoredScene, dungeon : DungeonData) -> Array[Enemy] {
       enemy.z * tile_size,
       kind,
       enemy.hp,
-      if kind == Fast || kind == Wolf {
+      if kind == Zombie {
+        enemy_speed_basic * 0.55
+      } else if kind == Fast || kind == Wolf {
         enemy_speed_fast
       } else if kind == Tank {
         enemy_speed_tank

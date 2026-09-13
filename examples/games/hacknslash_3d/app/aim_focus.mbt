@@ -39,7 +39,7 @@ fn GameState::update_aim_input(
       !input.pressed_mouse_buttons.contains(0)
     ) {
     self.aim.pointer = None
-  } else if !input.pressed_mouse_buttons.contains(2) &&
+  } else if !input.pressed_mouse_buttons.contains(1) &&
     (moved || input.pressed_mouse_buttons.contains(0)) {
     self.aim.pointer = Some(
       (

@@ -179,6 +179,7 @@ pub(all) enum InventorySource {
 pub(all) enum InventoryTarget {
   Cell(Int, Int, Bool)
   Wear(EquipSlot)
+  Ground
 }
 
 ///|
@@ -227,6 +228,7 @@ fn GameWorld::exchange_inventory(
     return false
   }
   match target {
+    Ground => ()
     Wear(slot) => {
       if item.slot != slot {
         return false
@@ -310,5 +312,10 @@ fn GameWorld::exchange_inventory(
     }
   }
   self.refresh_player_stats()
+  if target is Ground {
+    spawn_ground_item(self, self.player.x, self.player.y, Equipment(item))
+    // Keep the exact item recoverable, but don't collect it again while standing here.
+    self.items[self.items.length() - 1].pickup_blocked = Some(true)
+  }
   true
 }

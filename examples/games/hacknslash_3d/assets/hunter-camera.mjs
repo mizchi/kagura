@@ -40,7 +40,7 @@ export function renderCameraPanel(camera) {
       if(tps&&id===1){min=5;max=60;}if(tps&&id===2){min=2;max=8;}
       return `<label><span>${label}<output data-camera-output="${id}">${display(id,camera.tuning[key])}</output></span><input type="range" aria-label="${label}" data-camera-field="${id}" data-camera-name="${key}" min="${min}" max="${max}" step="${step}" value="${camera.tuning[key]}"></label>`;
     }).join('')}</div>
-    <p class="camera-help">左右・前後は視点を基準に調整します。<br>${tps?'右ドラッグで見回し、マウス操作中は中央を狙います。タッチでは画面の空いた場所をドラッグ。':'Q・E／右ドラッグで回転。ホイールで距離を調整。'}<br>設定はモードごとに自動保存。Zで視点切替。</p>
+    <p class="camera-help">左右・前後は視点を基準に調整します。<br>${tps?'中ボタンドラッグで見回し、マウス操作中は中央を狙います。タッチでは画面の空いた場所をドラッグ。':'Q・E／中ボタンドラッグで回転。ホイールで距離を調整。'}<br>設定はモードごとに自動保存。Zで視点切替。</p>
     <div class="camera-actions"><button data-key="78">地形実験</button><button data-camera-reset>この視点をリセット</button><button data-key="80">狩りを再開する</button></div>`;
 }
 

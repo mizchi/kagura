@@ -84,6 +84,8 @@ test "world archives retain slain enemies, ground equipment, unlocks and active 
     alive: true,
     kind: Equipment(hunter_equipment_item(Amulet)),
     spawn_frame: 0,
+    pickup_blocked: None,
+    pickup_id: None,
   })
   world.reward_cleared_rooms[2] = true
   assert_true(world.prepare_region(2))
@@ -121,6 +123,8 @@ test "loot in a visited open-world area survives a long absence" {
       alive: true,
       kind: Equipment(hunter_equipment_item(Weapon)),
       spawn_frame: 0,
+      pickup_blocked: None,
+      pickup_id: None,
     },
   ]
   assert_true(world.prepare_region(1))

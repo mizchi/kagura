@@ -44,6 +44,8 @@ fn bench_state_with_visible_entities() -> GameState {
       kind: @game.Health,
       alive: true,
       spawn_frame: 0,
+      pickup_blocked: None,
+      pickup_id: None,
     },
     {
       x: px + 8.0,
@@ -53,6 +55,8 @@ fn bench_state_with_visible_entities() -> GameState {
       kind: @game.Score,
       alive: true,
       spawn_frame: 0,
+      pickup_blocked: None,
+      pickup_id: None,
     },
   ]
   state.world.projectiles = [
@@ -201,6 +205,8 @@ fn bench_state_with_collectible_item() -> GameState {
       kind: @game.Score,
       alive: true,
       spawn_frame: state.world.frame_count,
+      pickup_blocked: None,
+      pickup_id: None,
     },
   ]
   state

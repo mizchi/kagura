@@ -151,3 +151,92 @@ test "invalid saved positions are repaired without changing valid placements or 
   assert_eq(inventory.count(), 4)
   assert_eq(grid.used_cells(), 8)
 }
+
+///|
+test "discard moves exact equipment onto the ground once and waits for the player to leave before pickup" {
+  let w = GameWorld::new(seed=42, hunting_grounds=true)
+  w.mode = Playing
+  w.ui_mode = Inventory
+  let item = w.inventory.items[0].unwrap()
+  let before = w.inventory.count()
+  assert_true(w.transfer_inventory(Bag(0), Ground))
+  assert_eq(w.inventory.count(), before - 1)
+  assert_true(w.inventory.grid.unwrap().placement(0) is None)
+  assert_false(w.transfer_inventory(Bag(0), Ground))
+  assert_eq(w.items.length(), 1)
+  assert_true(w.items[0].kind is Equipment(_))
+  assert_eq(w.items[0].x, w.player.x)
+  for _ in 0..<200 {
+    w.tick_items_phase()
+  }
+  assert_eq(w.items.length(), 1)
+  let saved = w.serialize_world_progress()
+  assert_true(w.restore_world_progress(saved))
+  w.tick_items_phase()
+  assert_eq(w.items.length(), 1)
+  let x = w.player.x
+  w.player.x += 20.0
+  w.tick_items_phase()
+  w.player.x = x
+  w.tick_items_phase()
+  assert_eq(w.items.length(), 0)
+  assert_eq(w.inventory.count(), before)
+  assert_eq(w.inventory.items[0].unwrap().to_json(), item.to_json())
+}
+
+///|
+test "discarding equipped weapons refreshes stats and respects active attack and menu locks" {
+  let w = GameWorld::new(seed=42, hunting_grounds=true)
+  w.mode = Playing
+  w.ui_mode = Inventory
+  assert_true(w.transfer_inventory(Bag(0), Wear(Weapon)))
+  let atk = w.player_stats.atk
+  w.weapon_attack = Some({
+    weapon: Spear,
+    combo: Opening,
+    frame: 0,
+    angle: 0.0,
+  })
+  assert_false(w.transfer_inventory(Equipped(Weapon), Ground))
+  w.weapon_attack = None
+  assert_true(w.transfer_inventory(Equipped(Weapon), Ground))
+  assert_true(w.equipment.weapon is None)
+  assert_true(w.player_weapon == Knuckles)
+  assert_true(w.player_stats.atk < atk)
+  w.ui_mode = UIMode::None
+  assert_false(w.transfer_inventory(Bag(1), Ground))
+}
+
+///|
+test "legacy ground loot without a discard marker still restores and collects normally" {
+  let w = GameWorld::new(seed=42, hunting_grounds=true)
+  spawn_ground_item(
+    w,
+    w.player.x,
+    w.player.y,
+    Equipment(inventory_test_item(Accessory, power=7)),
+  )
+  let json = @json.parse(w.serialize_world_progress())
+  guard json is Object(root) else { fail("world object") }
+  guard root["regions"] is Array(regions) else { fail("regions") }
+  for region in regions {
+    if region is Object(fields) {
+      if fields["items"] is Array(items) {
+        for item in items {
+          if item is Object(fields) {
+            fields.remove("pickup_blocked")
+            fields.remove("pickup_id")
+          }
+        }
+      }
+    }
+  }
+  let restored = GameWorld::new(seed=1, hunting_grounds=true)
+  assert_true(restored.restore_world_progress(json.stringify()))
+  assert_eq(restored.items.length(), 1)
+  assert_true(restored.items[0].pickup_blocked is None)
+  let count = restored.inventory.count()
+  restored.tick_items_phase()
+  assert_eq(restored.items.length(), 0)
+  assert_eq(restored.inventory.count(), count + 1)
+}

@@ -95,9 +95,15 @@ fn apply_charge_motion_preview(state : GameState, frame : Int) -> Unit {
   state.world.projectiles.clear()
   let _ = state.world.equip_player_weapon(@game.Spear)
   state.character.equip_weapon(@game.Spear)
-  let _ = state.world.request_charge(@math.PI / 2.0)
+  // This authoring fixture samples the retained tackle clip directly. Gameplay
+  // request_charge is now an alias of the unified dash strike.
   let frame = frame.max(0).min(@game.player_charge_profile.duration())
-  state.world.player_charge.unwrap().frame = frame
+  state.world.player_charge = Some({
+    angle: @math.PI / 2.0,
+    frame,
+    hit_enemies: [],
+  })
+  state.world.player.facing_angle = @math.PI / 2.0
   state.character.anim_state = Charging
   state.character.action_time = frame.to_double() / 60.0
   state.character.skinning_cache_dirty = true
@@ -200,6 +206,44 @@ fn apply_wolf_motion_preview(
       (if running { 28.0 } else { 16.0 })
   }
   state.world.enemies.push(wolf)
+  state.camera = state.camera
+    .with_distance(4.8)
+    .orbit(0.9 - state.camera.yaw, 0.5 - state.camera.pitch)
+    .with_target(@math3d.Vec3::new(x / tile_size, 0.45, y / tile_size))
+  state.motion_preview = true
+}
+
+///|
+/// ?snapshot=zombie&motion=idle|walk|pounce&frames=N; static authoring pose.
+fn apply_zombie_motion_preview(
+  state : GameState,
+  motion : String,
+  frame : Int,
+) -> Unit {
+  state.world.mode = @game.Playing
+  state.world.enemies.clear()
+  state.world.projectiles.clear()
+  let x = state.world.player.x
+  let y = state.world.player.y - tile_size * 2.5
+  let zombie = @game.make_enemy(x, y, @game.Zombie, 100, 1.0, 11.0)
+  zombie.move_angle = @math.PI / 2.0
+  if motion == "pounce" {
+    let profile = @game.Pounce.melee_profile().unwrap()
+    zombie.begin_attack(
+      @game.Pounce,
+      profile.windup,
+      profile.recovery,
+      x,
+      y + 100.0,
+    )
+    zombie.attack_frame = frame.max(0).min(profile.windup + profile.recovery)
+  } else if motion == "walk" {
+    zombie.move_speed = 0.3
+    zombie.travel_distance = frame.max(0).to_double() /
+      72.0 *
+      @game.zombie_stride_distance
+  }
+  state.world.enemies.push(zombie)
   state.camera = state.camera
     .with_distance(4.8)
     .orbit(0.9 - state.camera.yaw, 0.5 - state.camera.pitch)

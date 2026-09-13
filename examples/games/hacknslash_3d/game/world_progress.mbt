@@ -70,7 +70,7 @@ pub fn GameWorld::serialize_world_progress(self : GameWorld) -> String {
     }
   }
   WorldProgress::{
-    version: 2,
+    version: 3,
     seed: atlas.world_seed,
     current: atlas.current,
     last_waypoint: Some(atlas.last_waypoint),
@@ -87,7 +87,7 @@ pub fn GameWorld::serialize_world_progress(self : GameWorld) -> String {
 fn parse_world_progress(source : String) -> WorldProgress? {
   try {
     let progress : WorldProgress = @json.from_json(@json.parse(source))
-    if (progress.version != 1 && progress.version != 2) ||
+    if (progress.version < 1 || progress.version > 3) ||
       progress.current < 0 ||
       progress.current >= 4 ||
       progress.unlocked.length() != 4 ||
@@ -116,7 +116,7 @@ fn parse_world_progress(source : String) -> WorldProgress? {
         return None
       }
       let opened = region.opened_chests.or([])
-      if (progress.version == 2 && region.opened_chests is None) ||
+      if (progress.version >= 2 && region.opened_chests is None) ||
         opened.length() > hunting_sites.length() {
         return None
       }
@@ -166,7 +166,7 @@ pub fn GameWorld::restore_world_progress(
       enemy.alive = saved.alive && enemy.hp > 0
       enemy
     })
-    if progress.version == 1 {
+    if progress.version < 3 {
       let additions : Array[Enemy] = []
       append_hunting_site_enemies(
         additions,
@@ -176,6 +176,9 @@ pub fn GameWorld::restore_world_progress(
       )
       let (wx, wy) = world_waypoint_position(state.id)
       for enemy in additions {
+        if progress.version == 2 && enemy.kind != Zombie {
+          continue
+        }
         let dx = enemy.x - wx
         let dy = enemy.y - wy
         let px = enemy.x - progress.x
@@ -195,6 +198,7 @@ pub fn GameWorld::restore_world_progress(
       chest.opened = state.opened_chests.or([]).contains(chest.id)
     }
     for item in state.items {
+      item.pickup_id = Some(self.allocate_pickup_id())
       let (x, y) = hunting_safe_position(dungeon, item.x, item.y, 4.0)
       item.x = x
       item.y = y
@@ -217,7 +221,11 @@ pub fn GameWorld::restore_world_progress(
   }
   atlas.unlocked[0] = true
   let checkpoint = progress.last_waypoint.or(
-    if atlas.unlocked[progress.current] { progress.current } else { 0 },
+    if atlas.unlocked[progress.current] {
+      progress.current
+    } else {
+      0
+    },
   )
   atlas.last_waypoint = if atlas.unlocked[checkpoint] { checkpoint } else { 0 }
   // Avoid capturing the old world's active arrays into the restored atlas.

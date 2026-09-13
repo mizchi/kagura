@@ -77,6 +77,11 @@ test.describe('touch arts',()=>{
 
 test('flame cast releases a readable projectile and confirms real explosion hits',async({page},info)=>{
   await start(page);
+  await page.keyboard.press('KeyK');
+  await page.getByLabel('スキルスロット 3',{exact:true}).selectOption('51');
+  await expect.poll(async()=>(await hud(page)).skills[2].key).toBe(51);
+  await page.keyboard.press('Escape');
+  await expect.poll(async()=>(await hud(page)).menu).toBe('none');
   await page.keyboard.press('Digit3');
   await expect.poll(async()=>(await hud(page)).arts.action).toBe('flame');
   await expect(page.locator('[data-skill="2"]')).toBeDisabled();

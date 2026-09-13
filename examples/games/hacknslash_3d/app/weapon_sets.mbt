@@ -146,6 +146,9 @@ fn EnemyModels::get_equipped_mesh_data(
   kind : @game.EnemyKind,
   weapon_index? : Int = default_enemy_weapon_index(kind),
 ) -> EnemyMeshData {
+  if kind == @game.Zombie {
+    return zombie_mesh
+  }
   if kind == @game.Wolf {
     return wolf_mesh
   }

@@ -4,7 +4,7 @@
 // Format:
 // floor|score|legacy_sp|weapon|armor|accessory|skills|items|
 // level|xp|next_xp|pending_choices|offer_ids|weapon_set|tree-v1|positions|extra_equipment|inventory-v1|
-// encoded_world_progress|archetype|alive_or_dead|hunter_preset
+// encoded_world_progress|archetype|alive_or_dead|hunter_preset|hunter_slots
 
 ///|
 fn GameState::serialize_save(self : GameState) -> String {
@@ -76,6 +76,7 @@ fn GameState::serialize_save(self : GameState) -> String {
   parts.push(self.world.archetype.to_string())
   parts.push(if self.world.mode == @game.GameOver { "dead" } else { "alive" })
   parts.push(self.world.hunter_preset.profile().id)
+  parts.push(self.world.hunter_slots.map(key => key.to_string()).join(","))
   join_strings(parts, "|")
 }
 
@@ -470,10 +471,19 @@ fn GameState::restore_save(self : GameState, data : String) -> Bool {
   }
   self.world.weapon_attack = None
   self.world.hunter_preset = if parts.length() > 21 {
-    @game.hunter_preset_from_id(parts[21]).or(@game.default_hunter_preset(self.world.archetype))
+    @game.hunter_preset_from_id(parts[21]).or(
+      @game.default_hunter_preset(self.world.archetype),
+    )
   } else {
     @game.default_hunter_preset(self.world.archetype)
   }
+  self.world.restore_hunter_slots(
+    if parts.length() > 22 {
+      split_string(parts[22], ',').map(parse_int)
+    } else {
+      []
+    },
+  )
   self.sync_character_equipment()
   // Recompute stats
   self.world.refresh_player_stats()

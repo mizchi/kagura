@@ -169,7 +169,7 @@ pub fn export_hunter_motion_asset() -> String {
       ("lightning_cast", "連鎖雷撃", Casting(@game.LightningArt), 10),
       ("flame_cast", "炎弾の詠唱", Casting(@game.FlameArt), 14),
       ("astral_cast", "星落とし", Casting(@game.AstralArt), 30),
-      ("dash_strike", "踏込斬り", Casting(@game.DashArt), 16),
+      ("dash_strike", "突進斬り", Casting(@game.DashArt), 16),
     ] {
     clips.push(export_hunter_art_clip(id, name, state, contact))
   }

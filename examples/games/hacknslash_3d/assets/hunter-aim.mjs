@@ -4,18 +4,18 @@ export function bindHunterAim({stage,hud,input,enabled,tps=()=>false}) {
   let mouseHeld=false;
   function pointer(event){
     if(event.pointerType!=='mouse') { mouseHeld=false;input.useAutoAim();return; }
-    mouseHeld=(event.buttons&1)!==0;
+    mouseHeld=(event.buttons&3)!==0;
     const targetSurface=event.target.id==='target-surface';
     if(!enabled() || (!targetSurface&&(hud.contains(event.target)||!stage.contains(event.target)))){
       input.useAutoAim();return;
     }
-    if(event.buttons&2){if(tps())input.aimPointer(.5,.5);return;} // Right drag orbits without retargeting the cursor.
+    if(event.buttons&4){if(tps())input.aimPointer(.5,.5);return;} // Middle drag orbits without retargeting the cursor.
     const rect=stage.getBoundingClientRect();
     input.aimPointer((event.clientX-rect.left)/rect.width,(event.clientY-rect.top)/rect.height);
   }
   function key(event){if(event.code==='KeyJ'&&!mouseHeld)input.useAutoAim();}
   function clear(){mouseHeld=false;input.useAutoAim();}
-  function release(event){if(event.pointerType==='mouse')mouseHeld=(event.buttons&1)!==0;}
+  function release(event){if(event.pointerType==='mouse')mouseHeld=(event.buttons&3)!==0;}
   document.addEventListener('pointermove',pointer,true);
   document.addEventListener('pointerdown',pointer,true);
   document.addEventListener('pointerup',release,true);

@@ -72,6 +72,7 @@ test "hunter HUD reads usable skills and their real cooldowns from simulation" {
     assert_true(skill.level > 0)
     assert_eq(skill.remaining, 0)
   }
+  assert_true(state.world.assign_hunter_slot(2, 51))
   @game.activate_skill(state.world, 4)
   let cooldown = state.hunter_hud_view().skills[2]
   assert_true(cooldown.remaining > 0)

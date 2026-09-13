@@ -210,6 +210,9 @@ fn GameState::update_inventory_ui(self : GameState) -> Unit {
 
 ///|
 fn GameState::update_skills_ui(self : GameState) -> Unit {
+  if self.handle_hunter_slot_input() {
+    return
+  }
   let nodes = self.world.skills.nodes
   let cur = self.world.ui_cursor
   if cur >= nodes.length() {

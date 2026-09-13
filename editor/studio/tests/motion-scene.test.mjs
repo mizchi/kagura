@@ -124,7 +124,7 @@ test("hunter exports every playable weapon with matching contact and bow attachm
         assert.ok(!scene.bounds().isEmpty());
         if (weapon.id === "bow") {
           const hand = scene.bones[3].localToWorld(
-            new Vector3(0.03, -0.13, 0.06),
+            new Vector3(-0.03, -0.13, 0.06),
           );
           assert.ok(
             scene.bones[15].getWorldPosition(new Vector3()).distanceTo(hand) <
@@ -274,4 +274,38 @@ test('wolf asset uses four legs, loops walk/run in place and closes its jaw at b
     scene.pose(bite.id,bite.duration);
     assert.equal(scene.bones[0].position.z,0);
   }finally{scene.dispose();}
+});
+
+test('zombie asset shows a dragging gait and raises its hands before the landing event',async()=>{
+  const data=validateMotionAsset(JSON.parse(await readFile(new URL('../../../examples/games/hacknslash_3d/motions/zombie.kgrmotion',import.meta.url),'utf8')));
+  assert.equal(data.skeleton.length,16);
+  assert.deepEqual(data.clips.map(c=>c.id),['zombie_idle','zombie_shamble','zombie_pounce']);
+  assert.equal(data.weapons[0].parts.length,0);
+  const scene=createMotionScene(data);
+  try {
+    scene.selectModel('zombie');
+    const walk=data.clips[1],pounce=data.clips[2];
+    scene.pose(walk.id,0);
+    const start=scene.bones.map(b=>b.quaternion.clone());
+    scene.pose(walk.id,walk.duration/4);
+    assert.ok(start[7].angleTo(scene.bones[7].quaternion)>start[9].angleTo(scene.bones[9].quaternion)*2);
+    scene.pose(walk.id,walk.duration);
+    scene.bones.forEach((b,i)=>assert.ok(start[i].angleTo(b.quaternion)<.001));
+    for(const clip of data.clips)for(let i=0;i<=30;i++) {
+      scene.pose(clip.id,clip.duration*i/30);
+      assert.ok(scene.bounds().min.y>-.06,`${clip.id} feet must not sink into the floor`);
+      assert.equal(scene.bones[0].position.z,0,'simulation owns forward movement');
+    }
+    scene.pose(pounce.id,36/60);
+    const head=scene.bones[2].getWorldPosition(new Vector3());
+    for(const joint of [4,6]) {
+      const hand=scene.bones[joint].localToWorld(new Vector3(0,-.17,.05));
+      assert.ok(hand.y>head.y+.2,'both hands rise above the neck before takeoff');
+    }
+    scene.pose(pounce.id,43/60);
+    assert.ok(scene.bones[0].position.y>.4);
+    assert.equal(pounce.events[0].time,50/60);
+    scene.pose(pounce.id,pounce.events[0].time);
+    assert.ok(Math.abs(scene.bones[0].position.y)<.001,'impact is exactly at landing');
+  } finally {scene.dispose();}
 });

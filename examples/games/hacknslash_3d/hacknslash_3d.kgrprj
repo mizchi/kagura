@@ -23,6 +23,7 @@
     "asset.10": "assets/audio/spell_ice_nova.ogg",
     "asset.11": "assets/textures/old_stone_wall_02_diff_1k.jpg",
     "asset.12": "assets/textures/stone_pavers_diff_1k.jpg",
+    "motion.zombie": "motions/zombie.kgrmotion",
     "motion.wolf": "motions/wolf.kgrmotion"
   },
   "id": "mizchi.kagura.examples.hacknslash_3d",

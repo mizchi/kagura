@@ -30,6 +30,7 @@ export function createHunterInput(controls) {
     select(selected) { return controls.tap(selectionCommand, {selection: selected}); },
     moveItem(move) { return controls.tap(inventoryCommand, {inventoryMove: {...move}}); },
     inventoryMove() { return inventoryMove; },
+    pickupItem(id=0) { if(Number.isSafeInteger(id)&&id>=0) return controls.tap(204,{selection:id}); },
     aimAt(x,y) { gamepadActive=false;groundStick=null;target = {x:Math.max(0,Math.min(1,x)),y:Math.max(0,Math.min(1,y))}; },
     confirmTarget(x,y) { gamepadActive=false;groundStick=null;controls.tap(targetCommand,{target:{x,y}}); },
     targetPoint() { return target; },

@@ -1,3 +1,3 @@
 import { "mizchi/hacknslash_3d/app" }
 supported_targets = "js"
-options(link: { "js": { "exports": [ "export_asset", "export_hunter_asset", "export_wolf_asset" ], "format": "esm" } })
+options(link: { "js": { "exports": [ "export_asset", "export_hunter_asset", "export_wolf_asset", "export_zombie_asset" ], "format": "esm" } })

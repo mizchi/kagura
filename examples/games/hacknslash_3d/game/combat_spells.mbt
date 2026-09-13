@@ -337,6 +337,8 @@ fn spawn_scatter_item(
     kind,
     alive: true,
     spawn_frame: world.frame_count,
+    pickup_blocked: None,
+    pickup_id: Some(world.allocate_pickup_id()),
   })
 }
 
@@ -464,7 +466,8 @@ pub fn process_player_projectiles(
 
 ///|
 pub fn activate_skill(world : GameWorld, slot : Int) -> Unit {
-  if world.hunter_action_locked() ||
+  if (world.hunting_grounds && slot == 0) ||
+    world.hunter_action_locked() ||
     world.weapon_attack is Some(_) ||
     world.player_charge is Some(_) {
     return

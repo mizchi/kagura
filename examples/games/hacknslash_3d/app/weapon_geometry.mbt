@@ -41,13 +41,15 @@ fn build_knuckles_weapon() -> EnemyMeshData {
 }
 
 ///|
-fn build_spear_weapon() -> EnemyMeshData {
+fn build_spear_weapon(length_scale? : Double = 1.0) -> EnemyMeshData {
+  // Extend the shaft ahead of the grip, keeping the hand anchor, width and head shape.
+  let extension = 1.05 * (length_scale - 1.0)
   let iron = @procedural3d.RigidGeometry::new()
   let cloth = @procedural3d.RigidGeometry::new()
   let dark = @procedural3d.RigidGeometry::new()
   dark.segment(
     @math3d.Vec3::new(0.34, 0.16, 0.14),
-    @math3d.Vec3::new(0.34, 1.18, 0.14),
+    @math3d.Vec3::new(0.34, 1.18 + extension, 0.14),
     0.022,
     0.022,
     6,
@@ -56,11 +58,15 @@ fn build_spear_weapon() -> EnemyMeshData {
   iron.loft(
     0.34,
     0.14,
-    [(1.12, 0.015, 0.012), (1.20, 0.066, 0.021), (1.39, 0.003, 0.003)],
+    [
+      (1.12 + extension, 0.015, 0.012),
+      (1.20 + extension, 0.066, 0.021),
+      (1.39 + extension, 0.003, 0.003),
+    ],
     4,
     12,
   )
-  cloth.box(0.34, 1.08, 0.14, 0.09, 0.10, 0.06, 12)
+  cloth.box(0.34, 1.08 + extension, 0.14, 0.09, 0.10, 0.06, 12)
 
   combine_enemy_parts([
     monster_material("shadow", dark, 0x372B27),

@@ -289,7 +289,7 @@ fn GameState::update(self : GameState, input : @core.InputSnapshot) -> Unit {
   }
   let was_dragging = @inpututil.is_mouse_button_pressed(
     self.input.mouse_state,
-    2,
+    1,
   )
   @inpututil.update_input_helper(self.input, input)
   if self.handle_hunter_preset_input() {
@@ -385,7 +385,8 @@ fn GameState::update_title(
   self : GameState,
   input : @core.InputSnapshot,
 ) -> Unit {
-  if !self.world.hunting_grounds && input_snapshot_requests_debug_reset(input, self.world.mode) {
+  if !self.world.hunting_grounds &&
+    input_snapshot_requests_debug_reset(input, self.world.mode) {
     self.reset_save_and_restart()
     return
   }
@@ -393,7 +394,8 @@ fn GameState::update_title(
     return
   }
   if @inpututil.is_up_just_pressed(self.input) {
-    self.world.select_cursor = (self.world.select_cursor + save_slot_count - 1) % save_slot_count
+    self.world.select_cursor = (self.world.select_cursor + save_slot_count - 1) %
+      save_slot_count
   }
   if @inpututil.is_down_just_pressed(self.input) {
     self.world.select_cursor = (self.world.select_cursor + 1) % save_slot_count
@@ -527,6 +529,9 @@ fn GameState::update_playing(self : GameState) -> Unit {
       return
     }
   }
+  if @inpututil.is_key_just_pressed(self.input.key_state, key_pickup_item) {
+    ignore(self.apply_loot_pickup(hunter_web_selection()))
+  }
   // Physical X, or the same intent with a selected weapon from the mobile HUD.
   if @inpututil.is_key_just_pressed(self.input.key_state, 88) {
     let selected = hunter_web_selection()
@@ -607,7 +612,7 @@ fn GameState::update_playing(self : GameState) -> Unit {
       self.character.trigger_dodge()
       self.play_sound_cue(SfxDodge)
     }
-    if @inpututil.is_key_just_pressed(self.input.key_state, 67) {
+    if !targeting && @inpututil.is_key_just_pressed(self.input.key_state, 67) {
       let angle = if self.pointer_aim_angle() is Some(angle) {
         angle
       } else if dx != 0.0 || dy != 0.0 {
@@ -665,7 +670,10 @@ fn GameState::update_playing(self : GameState) -> Unit {
     }
     if !targeting &&
       (
-        @inpututil.is_mouse_button_pressed(self.input.mouse_state, 0) ||
+        (
+          !self.world.hunting_grounds &&
+          @inpututil.is_mouse_button_pressed(self.input.mouse_state, 0)
+        ) ||
         @inpututil.is_key_pressed(self.input.key_state, 74) ||
         hunter_web_attacking()
       ) {

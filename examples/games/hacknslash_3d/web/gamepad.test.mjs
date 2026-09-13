@@ -5,10 +5,10 @@ import {createGamepadReader} from '../../../../assets/web/kagura-gamepad.js';
 import {createHunterInput} from '../assets/hunter-input.mjs';
 import {createHunterGamepad} from '../assets/hunter-gamepad.mjs';
 const pad=(axes=[0,0,0,0],down=[])=>({index:0,id:'Test',mapping:'standard',connected:true,axes,buttons:Array.from({length:17},(_,i)=>({pressed:down.includes(i),value:down.includes(i)?1:0}))});
-function fixture(){
+function fixture(inventory=()=>false){
   const input=createHunterInput(createControlInput());let pads=[pad()],hud={mode:'playing',paused:false,menu:'none',camera:{mode:0},arts:{targeting:false}},time=0;
   const navigation=[],look=[];let confirms=0;
-  const gamepad=createHunterGamepad({reader:createGamepadReader(),input,camera:{look:(...v)=>look.push(v)},view:()=>hud,getPads:()=>pads,enabled:()=>true,now:()=>time+=16,navigate:d=>navigation.push(d),confirm:()=>confirms++});
+  const gamepad=createHunterGamepad({inventory,reader:createGamepadReader(),input,camera:{look:(...v)=>look.push(v)},view:()=>hud,getPads:()=>pads,enabled:()=>true,now:()=>time+=16,navigate:d=>navigation.push(d),confirm:()=>confirms++});
   const set=(axes=[0,0,0,0],down=[])=>{pads=[pad(axes,down)];gamepad.poll();};set();
   return {input,hud,set,gamepad,navigation,look,confirms:()=>confirms,disconnect:()=>{pads=[];gamepad.poll();}};
 }
@@ -55,8 +55,8 @@ test('pad targeting starts from assisted aim without reusing an old mouse point'
   assert.deepEqual(f.input.pointerAim(),{x:.4,y:.3});
 });
 
-test('confirm never casts a combat skill and the spell modifier preserves basic combat buttons',()=>{
-  const f=fixture();f.set([0,0,0,0],[0]);assert.equal(f.input.consumeKey(),0);
+test('cross requests loot without casting a combat skill and the spell modifier preserves basic combat buttons',()=>{
+  const f=fixture();f.set([0,0,0,0],[0]);assert.equal(f.input.consumeKey(),204);assert.equal(f.input.consumeKey(),0);
   f.set();f.set([0,0,0,0],[6,2,5]);
   assert.equal(f.input.snapshot().attack,true);assert.equal(f.input.snapshot().guard,true);assert.equal(f.input.consumeKey(),0);
   f.set([0,0,0,0],[6,1]);assert.equal(f.input.consumeKey(),32);assert.equal(f.input.snapshot().whirlwind,false);
@@ -65,7 +65,7 @@ test('confirm never casts a combat skill and the spell modifier preserves basic 
 });
 
 test('relocated skills and L2 spell directions do not also fire the unmodified action',()=>{
-  for(const [buttons,key] of [[[3],49],[[4],51],[[6,12],53],[[6,13],52],[[6,14],54],[[6,15],56]]){
+  for(const [buttons,key] of [[[4],86],[[6,12],53],[[6,14],54],[[6,15],56]]){
     const f=fixture();f.set([0,0,0,0],buttons);
     assert.equal(f.input.consumeKey(),key);assert.equal(f.input.consumeKey(),0);
     assert.equal(f.input.snapshot().guard,false);assert.equal(f.input.snapshot().attack,false);
@@ -79,4 +79,45 @@ test('mage primary pad slots cast lightning and target an explosion without chan
   f.set();f.set([0,0,0,0],[7]);
   assert.equal(f.input.consumeKey(),84);assert.equal(f.input.snapshot().whirlwind,false);
   f.set([0,0,0,0],[7]);assert.equal(f.input.consumeKey(),0);
+});
+
+test('all customized pad slots support independent holds and release on context changes',()=>{
+  const f=fixture();f.hud.skills=[{key:50,hold:'whirlwind'},{key:70,hold:'guard'},{key:74,hold:'attack'},{key:50,hold:'whirlwind'}];
+  for(const [buttons,action] of [[[3],'whirlwind'],[[7],'guard'],[[4],'attack'],[[6,13],'whirlwind']]){
+    f.set();f.set([0,0,0,0],buttons);assert.equal(f.input.snapshot()[action],true);
+    f.hud.paused=true;f.set([0,0,0,0],buttons);assert.equal(f.input.snapshot()[action],false);
+    f.hud.paused=false;f.set([0,0,0,0],buttons);assert.equal(f.input.snapshot()[action],false);
+  }
+});
+
+
+test('inventory routes navigation, equip, rotation and discard without leaking combat buttons',()=>{
+  const events=[];
+  const f=fixture(action=>{if(!['open','sync'].includes(action))events.push(action);return action!=='cancel';});
+  f.hud.menu='inventory';f.set();
+  for(const [button,action] of [[15,'right'],[0,'confirm'],[2,'equip'],[3,'rotate'],[4,'previous'],[5,'next'],[11,'drop']]){
+    f.set();f.set([0,0,0,0],[button]);assert.equal(events.at(-1),action);
+    assert.equal(f.input.snapshot().attack,false);assert.equal(f.input.snapshot().guard,false);
+    assert.equal(f.input.consumeKey(),0);
+  }
+  assert.equal(f.confirms(),0);assert.deepEqual(f.navigation,[]);
+  f.set();f.set([0,0,0,0],[1]);assert.equal(events.at(-1),'cancel');assert.equal(f.input.consumeKey(),27);
+});
+
+test('inventory right stick scrolls details without moving the player or the camera',()=>{
+  const events=[];const f=fixture((action,value)=>{events.push([action,value]);return true;});
+  f.hud.menu='inventory';f.set();f.set([0,0,0,1]);
+  const scroll=events.find(([action])=>action==='scroll');
+  assert.ok(scroll?.[1]>0);
+  assert.equal(f.input.snapshot().y,0);assert.deepEqual(f.look,[]);
+});
+
+test('cross picks one nearby drop only in play and is suppressed across confirmation contexts',()=>{
+  const f=fixture();f.hud.loot=[{id:17,nearest:true,reachable:true}];
+  f.set([0,0,0,0],[0]);assert.equal(f.input.consumeKey(),204);assert.equal(f.input.selection(),0);
+  f.set([0,0,0,0],[0]);assert.equal(f.input.consumeKey(),0);
+  assert.equal(f.input.snapshot().attack,false);
+  f.hud.arts.targeting=true;f.set();f.set([0,0,0,0],[0]);assert.equal(f.input.consumeKey(),13);
+  f.hud.arts.targeting=false;f.set([0,0,0,0],[0]);assert.equal(f.input.consumeKey(),0);
+  f.set();f.set([0,0,0,0],[0]);assert.equal(f.input.consumeKey(),204);
 });

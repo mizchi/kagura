@@ -36,7 +36,13 @@ fn build_hunter_motion_weapon(
     joints[3] = 2
     joints[4] = 3
   }
-  let parts = shared_enemy_weapons[source_index].mesh.parts.map(part => {
+  // Only hunter equipment grows with player reach; enemies retain their authored weapons.
+  let weapon_mesh = if kind == @game.Spear {
+    build_spear_weapon(length_scale=kind.profile().reach / 44.0)
+  } else {
+    shared_enemy_weapons[source_index].mesh
+  }
+  let parts = weapon_mesh.parts.map(part => {
     let data = @procedural3d.RigidGeometry::new()
     let mesh = part.geometry.bind_mesh
     let skin = part.geometry.skin_data

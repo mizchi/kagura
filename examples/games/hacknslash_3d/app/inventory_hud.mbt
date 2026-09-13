@@ -75,12 +75,7 @@ fn hunter_item_view(
     name: item.display_name(),
     slot: item.slot.index(),
     slot_name: item.slot.label(),
-    rarity: match item.rarity {
-      Common => "common"
-      Uncommon => "uncommon"
-      Rare => "rare"
-      Epic => "epic"
-    },
+    rarity: rarity_name(item.rarity),
     glyph,
     width,
     height,
@@ -163,6 +158,8 @@ fn GameState::apply_inventory_command(
   }
   let target : @game.InventoryTarget = if command[1] == -1 {
     @game.Cell(command[2], command[3], command[4] == 1)
+  } else if command[1] == -2 {
+    @game.Ground
   } else {
     guard @game.equip_slot_from_index(command[1]) is Some(slot) else {
       return false
@@ -174,7 +171,11 @@ fn GameState::apply_inventory_command(
     return false
   }
   self.sync_character_equipment()
-  self.inventory_notice = "装備袋を保存しました"
+  self.inventory_notice = if target is @game.Ground {
+    "足元に捨てました。一度離れてから戻ると拾えます。"
+  } else {
+    "装備袋を保存しました"
+  }
   self.save_game()
   true
 }

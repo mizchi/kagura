@@ -170,7 +170,8 @@ let hunter_slash_mesh : @mesh3d.Mesh3D = {
     let next = (i + 1).to_double() / 18.0
     fn p(t : Double, outer : Bool) -> @math3d.Vec3 {
       let a = (t - 0.5) * 2.5
-      let r = if outer { 1.62 } else { 1.62 - 0.24 * @math.sin(t * @math.PI) }
+      let reach = @game.Cleaver.profile().reach / tile_size
+      let r = if outer { reach } else { reach - 0.24 * @math.sin(t * @math.PI) }
       @math3d.Vec3::new(@math.sin(a) * r, 0.52, @math.cos(a) * r)
     }
     g.quad(p(t, false), p(t, true), p(next, true), p(next, false), 0)
@@ -246,7 +247,8 @@ let hunter_overhead_slash_mesh : @mesh3d.Mesh3D = {
     let next = (i + 1).to_double() / 18.0
     fn p(t : Double, outer : Bool) -> @math3d.Vec3 {
       let a = (t - 0.5) * 2.0
-      let r = if outer { 1.8 } else { 1.8 - 0.3 * @math.sin(t * @math.PI) }
+      let reach = @game.Cleaver.profile().reach / tile_size
+      let r = if outer { reach } else { reach - 0.3 * @math.sin(t * @math.PI) }
       @math3d.Vec3::new(0.0, 1.35 + @math.sin(a) * r, @math.cos(a) * r)
     }
     g.quad(p(t, false), p(t, true), p(next, true), p(next, false), 0)

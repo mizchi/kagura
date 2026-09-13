@@ -70,6 +70,9 @@ fn build_monster_mesh_data(
   species : @game.EnemySpecies,
   armor? : Int = 0,
 ) -> EnemyMeshData {
+  if species == @game.Zombie {
+    return zombie_mesh
+  }
   let goblin = species == @game.Goblin
   let kobold = species == @game.Kobold
   let defaults = @procedural3d.default_biped_proportions()

@@ -19,8 +19,14 @@ fn GameState::push_melee_warnings(
     let s = @math.sin(angle)
     let reach = profile.reach / tile_size
     let width = profile.width * 2.0 / tile_size
-    let x = enemy.x / tile_size
-    let z = enemy.y / tile_size
+    let (origin_x, origin_y) = if enemy.attack_motion == @game.Pounce {
+      guard enemy.pounce is Some(leap) else { continue }
+      (leap.landing_x, leap.landing_y)
+    } else {
+      (enemy.x, enemy.y)
+    }
+    let x = origin_x / tile_size
+    let z = origin_y / tile_size
     let height = 0.05
     let progress = (enemy.attack_frame.to_double() /
     enemy.attack_windup.to_double()).min(1.0)

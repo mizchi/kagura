@@ -1,3 +1,4 @@
+@import "./hunter-loot.css";
 @import "./hunter-gamepad.css";
 @import "./hunter-terrain.css";
 @import './hunter-arts.css';
@@ -1275,31 +1276,7 @@ canvas#app {
   border-radius:3px;
 }
 
-.charge-button {
-  pointer-events:auto;
-  display:flex;
-  flex-direction:column;
-  align-items:center;
-  justify-content:center;
-  gap:3px;
-  width:64px;
-  min-height:76px;
-  color:#ead9b0;
-  background:linear-gradient(145deg,#413524e8,#17251ee8);
-  border:1px solid #c5a96b80;
-  border-radius:5px;
-  cursor:pointer;
-}
-.charge-button svg { width:25px; height:25px; }
-.charge-button strong { font-size:11px; }
-.charge-button small { font-size:10px; color:#d5c391; }
-.charge-button:disabled { opacity:.5; cursor:default; }
-@media (max-width:700px) and (orientation:portrait) {
-  .charge-button { width:100%; min-height:40px; flex-direction:row; gap:12px; }
-}
-@media (max-height:500px) and (orientation:landscape) {
-  .charge-button { width:48px; min-height:56px; }
-}
+
 
 .panel-pause { width:min(420px,100%); padding:32px; }
 .pause-mark { width:42px; height:42px; display:grid; place-items:center; border:1px solid #b8a37166; border-radius:50%; color:#d5bd8f; margin-bottom:22px; }

@@ -15,29 +15,28 @@ fn hunter_skill_branch(id : @game.SkillId) -> Int {
 ///|
 fn hunter_skill_description(id : @game.SkillId) -> String {
   match id {
-    PowerStrike =>
-      "周囲を強く斬る技。筋力と通常攻撃も高める。物理キー1で発動。"
+    PowerStrike => "筋力と通常攻撃を高める常時効果。"
     Whirlwind =>
-      "物理キー2／ボタンを押している間、装備した武器で回り続ける。移動可能。1回転ごとに周囲へ命中、離すと停止。全武器対応。"
+      "設定したキー／ボタンを押している間、装備した武器で回り続ける。移動可能。1回転ごとに周囲へ命中、離すと停止。全武器対応。"
     CriticalHit =>
       "敵の隙を見抜き、すべての攻撃の会心率を高める。"
     Counter =>
-      "短時間、無敵の構えを取り、敵の弾を反射する。物理キー8で発動。"
+      "短時間、無敵の構えを取り、敵の弾を反射する。スキルスロットに設定して使用。"
     DashMastery =>
       "回避を素早く繰り返せるようにし、技量も高める。"
     Vitality => "最大体力を高め、激しい戦闘を生き延びる。"
     LifeSteal =>
       "攻撃で与えたダメージの一部を体力として奪う。急所狙いと生命力が必要。"
     SplittingFireball =>
-      "腕を振って前方の敵を緩く追う火弾を放つ。敵や壁への接触で円内に爆発し、3方向へ分裂して再び追尾する。白い閃光と命中数がヒットの目印。物理キー3で発動。"
+      "腕を振って前方の敵を緩く追う火弾を放つ。敵や壁への接触で円内に爆発し、3方向へ分裂して再び追尾する。白い閃光と命中数がヒットの目印。スキルスロットに設定して使用。"
     IceNova =>
-      "自分を中心に冷気の輪を広げる。物理キー4で発動。"
+      "自分を中心に冷気の輪を広げる。スキルスロットに設定して使用。"
     ChainLightning =>
-      "腕を突き出し、見通せる敵を次々につなぐ雷撃。白い雷の芯と敵の発光が命中の目印。物理キー5で発動。"
+      "腕を突き出し、見通せる敵を次々につなぐ雷撃。白い雷の芯と敵の発光が命中の目印。スキルスロットに設定して使用。"
     HomingMissile =>
-      "敵へ向かって軌道を変える呪弾。物理キー6で発動。"
+      "敵へ向かって軌道を変える呪弾。スキルスロットに設定して使用。"
     PhysicalMastery =>
-      "物理の技を磨く。処刑の一撃・ワールウィンドなどを強化。"
+      "物理の技を磨く。ワールウィンドなどを強化。"
     AoEMastery =>
       "範囲攻撃の威力と会心率、効果半径を広げる。"
     LightningMastery => "雷の技の威力と会心率を高める。"
@@ -50,6 +49,11 @@ fn hunter_skill_description(id : @game.SkillId) -> String {
 ///|
 fn hunter_skill_effect(id : @game.SkillId, level : Int) -> String {
   match id {
+    PowerStrike =>
+      "筋力 +" +
+      level.to_string() +
+      " / 基礎攻撃力 +" +
+      level.to_string()
     Vitality => "最大体力 +" + (level * 3).to_string()
     DashMastery =>
       "回避待ち時間 " +
@@ -91,12 +95,7 @@ fn hunter_skill_effect(id : @game.SkillId, level : Int) -> String {
         (@game.skill_level_damage_multiplier(id, level) * 100.0)
         .to_int()
         .to_string() +
-        "%" +
-        (if id == @game.PowerStrike {
-          " / 筋力 +" + level.to_string()
-        } else {
-          ""
-        })
+        "%"
       }
   }
 }
@@ -129,7 +128,7 @@ fn GameState::hunter_extra_skills(
       ),
     ] {
     let (id, key, remaining, total) = entry
-    if w.skills.get_level(id) > 0 && !w.hunter_preset.profile().keys.contains(key) {
+    if w.skills.get_level(id) > 0 && !w.hunter_slots.contains(key) {
       skills.push({
         key,
         name: hunter_skill_name(id),
@@ -202,8 +201,7 @@ fn GameState::hunter_tree_nodes(self : GameState) -> Array[HunterNodeView] {
       ),
       glyph: hunter_skill_glyph(node.id),
       kind: match node.id {
-        PowerStrike
-        | Whirlwind
+        Whirlwind
         | Counter
         | ChainLightning
         | SplittingFireball

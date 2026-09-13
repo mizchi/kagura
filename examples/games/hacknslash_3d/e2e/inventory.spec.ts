@@ -149,3 +149,77 @@ test.describe('touch inventory',()=>{
     expect(errors).toEqual([]);
   });
 });
+
+test('hover compares with the matching equipped item without changing the current selection',async({page},info)=>{
+  await start(page);
+  await drag(page,0,page.locator('[data-equip-slot="0"]'));
+  await expect.poll(async()=>(await inventory(page)).equipment[0].item?.glyph).toBe('spear');
+  const equipped=(await inventory(page)).equipment[0].item;
+  await page.locator('[data-inv-item="3"] [data-item-cell]').first().click();
+  const selected=await page.locator('.inv-detail h3').textContent();
+  await page.locator('[data-inv-item="1"] [data-item-cell]').first().hover();
+  const tooltip=page.getByRole('tooltip',{name:'装備との比較'});
+  await expect(tooltip).toBeVisible();
+  await expect(tooltip).toContainText(equipped.name);
+  await expect(tooltip.locator('h3')).toHaveText((await item(page,1)).name);
+  await expect(tooltip.locator('tbody tr').filter({hasText:'攻撃力'}).locator('th,td')).toHaveText(['攻撃力','1','1','0']);
+  await expect(page.locator('.inv-detail h3')).toHaveText(selected!);
+  await captureGameFrame(page,{path:info.outputPath('inventory-hover-comparison.png')});
+  await page.locator('.panel-inventory h2').hover();
+  await expect(tooltip).toBeHidden();
+});
+
+test('discarded equipment is visible at the feet, survives saving and is not immediately picked up',async({page},info)=>{
+  const errors:string[]=[];page.on('pageerror',e=>errors.push(e.message));
+  await start(page);
+  const dropped=await item(page,0);
+  await page.locator('[data-inv-item="0"] [data-item-cell]').first().click();
+  await page.getByRole('button',{name:'地面に捨てる',exact:true}).click();
+  await expect.poll(async()=>(await inventory(page)).items.length).toBe(5);
+  await expect(page.locator('.inv-notice')).toContainText('足元に捨てました');
+  await page.keyboard.press('Escape');
+  await expect.poll(async()=>(await hud(page)).menu).toBe('none');
+  const label=page.locator('.ground-loot-label').filter({hasText:dropped.name});
+  await expect(label).toBeVisible();
+  await expect(label).toHaveAttribute('data-blocked','true');
+  await page.waitForTimeout(300);
+  await expect(label).toBeVisible();
+  await captureGameFrame(page,{path:info.outputPath('discarded-ground-loot.png')});
+  await page.goto('/?seed=42&mute=1');
+  await page.locator('[data-save-slot="0"]').click();
+  await expect.poll(async()=>(await hud(page)).mode).toBe('playing');
+  await expect(label).toBeVisible();
+  await expect(label).toHaveAttribute('data-blocked','true');
+  await page.keyboard.press('KeyI');
+  await expect.poll(async()=>(await inventory(page))?.items.length).toBe(5);
+  expect(errors).toEqual([]);
+});
+
+test('clicking a ground label picks that exact drop, keeps combat idle and persists the pickup',async({page},info)=>{
+  const errors:string[]=[];page.on('pageerror',e=>errors.push(e.message));
+  await start(page);
+  const spear=await item(page,0),hat=await item(page,3);
+  for(const source of [0,3]){
+    await page.locator(`[data-inv-item="${source}"] [data-item-cell]`).first().click();
+    await page.getByRole('button',{name:'地面に捨てる',exact:true}).click();
+    await expect.poll(async()=>(await item(page,source))??null).toBeNull();
+  }
+  await page.keyboard.press('Escape');
+  await expect.poll(async()=>(await hud(page)).menu).toBe('none');
+  const attacks=await page.evaluate(()=>globalThis.__ashenHunt.attacks);
+  await captureGameFrame(page,{path:info.outputPath('clickable-ground-loot.png')});
+  await page.getByRole('button',{name:hat.name+'を拾う',exact:true}).click();
+  await expect.poll(async()=>(await hud(page)).loot.map(i=>i.name)).toEqual([spear.name]);
+  expect(await page.evaluate(()=>globalThis.__ashenHunt.attacks)).toBe(attacks);
+  expect(await page.evaluate(()=>globalThis.__ashenControls.snapshot().attack)).toBe(false);
+  await page.goto('/?seed=42&mute=1');
+  await page.locator('[data-save-slot="0"]').click();
+  await expect.poll(async()=>(await hud(page)).mode).toBe('playing');
+  await expect.poll(async()=>(await hud(page)).loot.map(i=>i.name)).toEqual([spear.name]);
+  await page.getByRole('button',{name:spear.name+'を拾う',exact:true}).click();
+  await expect.poll(async()=>(await hud(page)).loot.length).toBe(0);
+  await page.keyboard.press('KeyI');
+  await expect.poll(async()=>(await inventory(page))?.items.length).toBe(6);
+  expect((await inventory(page)).items.some(i=>i.name===hat.name)).toBe(true);
+  expect(errors).toEqual([]);
+});

@@ -27,7 +27,7 @@ let player_weapon_profiles : Array[PlayerWeaponProfile] = [
     action: "斬撃",
     windup: 7,
     recovery: 12,
-    reach: 28.0,
+    reach: 40.0,
     width: 28.0,
   },
   {
@@ -36,7 +36,7 @@ let player_weapon_profiles : Array[PlayerWeaponProfile] = [
     action: "刺突",
     windup: 16,
     recovery: 18,
-    reach: 44.0,
+    reach: 80.0,
     width: 6.0,
   },
   {

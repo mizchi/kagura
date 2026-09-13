@@ -224,6 +224,7 @@ pub fn GameWorld::request_dash_strike(self : GameWorld, angle : Double) -> Bool 
   if !self.can_begin_art() || self.arts.dash_cooldown > 0 {
     return false
   }
+  let angle = self.assist_melee_angle(angle, self.player_weapon)
   self.arts.action = Some({ kind: DashArt, angle, frame: 0, })
   self.arts.dash_cooldown = dash_strike_cooldown
   self.player.facing_angle = angle

@@ -41,7 +41,8 @@ struct EnemyModels {
   attack_clips : Array[@scene3d.BakedSkinningClip]
   attack_buckets : Map[Int, EnemyRenderBuckets]
   active_attack_keys : Array[Int]
-  wolf : WolfRenderState
+  wolf : PoseRenderState
+  zombie : PoseRenderState
 }
 
 ///|
@@ -144,6 +145,7 @@ fn EnemyModels::new() -> EnemyModels {
     attack_buckets: Map([]),
     active_attack_keys: [],
     wolf: { buckets: Map([]), active_keys: [], },
+    zombie: { buckets: Map([]), active_keys: [], },
   }
 }
 
@@ -160,6 +162,7 @@ fn EnemyModels::get_mesh_data(
   kind : @game.EnemyKind,
 ) -> EnemyMeshData {
   match kind {
+    @game.Zombie => zombie_mesh
     @game.Wolf => wolf_mesh
     @game.Fast | @game.Exploder | @game.Teleporter => self.fast
     @game.Tank | @game.Berserker => self.tank
@@ -219,6 +222,9 @@ fn EnemyModels::get_skinned_mesh(
       self.pose_generation,
       wolf_rest_skinning,
     )
+  }
+  if kind == @game.Zombie {
+    return zombie_mesh.geometry.skinned_mesh(0, zombie_skinning_for_key(0))
   }
   self.get_mesh_data(kind).geometry.skinned_mesh(
     self.pose_generation,

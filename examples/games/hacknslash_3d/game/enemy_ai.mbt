@@ -307,6 +307,10 @@ pub fn update_enemy_ai(
       tick_enemy_pattern_cooldowns(enemy)
       continue
     }
+    if update_zombie_pounce(enemy) {
+      tick_enemy_pattern_cooldowns(enemy)
+      continue
+    }
     if update_enemy_tackle(enemy) {
       tick_enemy_pattern_cooldowns(enemy)
       continue
@@ -347,7 +351,8 @@ pub fn update_enemy_ai(
       tick_enemy_pattern_cooldowns(enemy)
       continue
     }
-    if try_start_enemy_melee(enemy, player, grid, events) {
+    if try_start_zombie_pounce(enemy, player, grid, events) ||
+      try_start_enemy_melee(enemy, player, grid, events) {
       tick_enemy_pattern_cooldowns(enemy)
       continue
     }

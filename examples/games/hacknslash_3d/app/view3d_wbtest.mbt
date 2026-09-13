@@ -568,6 +568,8 @@ test "draw_playing batches repeated entity meshes into instanced draw commands" 
       kind: @game.Health,
       alive: true,
       spawn_frame: 0,
+      pickup_blocked: None,
+      pickup_id: None,
     },
     {
       x: px + 8.0,
@@ -577,6 +579,8 @@ test "draw_playing batches repeated entity meshes into instanced draw commands" 
       kind: @game.Score,
       alive: true,
       spawn_frame: 0,
+      pickup_blocked: None,
+      pickup_id: None,
     },
   ]
   state.world.projectiles = [
@@ -692,6 +696,8 @@ test "summarize_draw_playing_commands tracks instancing workload" {
       kind: @game.Health,
       alive: true,
       spawn_frame: 0,
+      pickup_blocked: None,
+      pickup_id: None,
     },
     {
       x: px + 8.0,
@@ -701,6 +707,8 @@ test "summarize_draw_playing_commands tracks instancing workload" {
       kind: @game.Score,
       alive: true,
       spawn_frame: 0,
+      pickup_blocked: None,
+      pickup_id: None,
     },
   ]
   state.world.projectiles = [
@@ -1107,6 +1115,8 @@ test "entity subpass helpers emit one instanced command each from scratch" {
       kind: @game.Health,
       alive: true,
       spawn_frame: 0,
+      pickup_blocked: None,
+      pickup_id: None,
     },
   ]
   state.world.projectiles = [
@@ -1211,6 +1221,8 @@ test "rebuild_entity_instance_scratch clears stale instanced data" {
       kind: @game.Health,
       alive: true,
       spawn_frame: 0,
+      pickup_blocked: None,
+      pickup_id: None,
     },
   ]
   state.world.projectiles = [

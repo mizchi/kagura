@@ -13,7 +13,7 @@ pub fn GameWorld::melee_lock_target(
   if !weapon.is_melee() {
     return None
   }
-  let range = weapon.profile().reach + 12.0
+  let range = weapon.profile().reach + 24.0
   let c = @math.cos(angle)
   let s = @math.sin(angle)
   let mut target : Enemy? = None
@@ -29,7 +29,7 @@ pub fn GameWorld::melee_lock_target(
       continue
     }
     let alignment = (dx * c + dy * s) / dist
-    if alignment < 0.5 ||
+    if alignment < 0.15 ||
       enemy_direct_chase_path_blocked(
         self.dungeon.grid,
         self.player.x,
@@ -40,7 +40,7 @@ pub fn GameWorld::melee_lock_target(
       ) {
       continue
     }
-    let candidate = dist / range + (1.0 - alignment) * 1.5
+    let candidate = dist / range + (1.0 - alignment) * 1.1
     if candidate < score {
       score = candidate
       target = Some(enemy)
@@ -89,6 +89,7 @@ fn apply_melee_reaction(
       10
     }
     enemy.attack_motion = NoAttack
+    enemy.pounce = None
     enemy.attack_hit_pending = false
     enemy.pending_bolt_timer = 0
     enemy.meteor_cast_timer = 0
@@ -116,6 +117,17 @@ fn GameWorld::step_into_melee(
     Knuckles => 1.2
     Cleaver => if attack.combo == Finisher { 1.4 } else { 2.5 }
     _ => 1.6
+  }
+  // Close the extra lock distance during windup; the existing swept-body and
+  // wall checks below still decide how much movement is safe.
+  if self.melee_lock_target(attack.angle, attack.weapon) is Some(target) {
+    let dx = target.x - self.player.x
+    let dy = target.y - self.player.y
+    let gap = (dx * dx + dy * dy).sqrt() -
+      attack.profile().reach -
+      target.size / 2.0 +
+      2.0
+    step = step.max(gap / (windup - attack.frame).to_double()).min(6.0)
   }
   let c = @math.cos(attack.angle)
   let s = @math.sin(attack.angle)

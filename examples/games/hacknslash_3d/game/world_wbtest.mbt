@@ -189,6 +189,8 @@ test "tick_items_phase collects score item and compacts" {
       kind: Score,
       alive: true,
       spawn_frame: world.frame_count,
+      pickup_blocked: None,
+      pickup_id: None,
     },
   ]
   world.tick_items_phase()
@@ -361,6 +363,8 @@ test "tick_items_phase in auto_play replaces oldest inventory item and auto equi
       }),
       alive: true,
       spawn_frame: world.frame_count,
+      pickup_blocked: None,
+      pickup_id: None,
     },
   ]
 

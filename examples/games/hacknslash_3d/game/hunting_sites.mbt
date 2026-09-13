@@ -178,7 +178,7 @@ fn append_hunting_site_enemies(
       let kind : EnemyKind = if site.kind == Encampment {
         [EnemyKind::Wolf, EnemyKind::Wolf, Basic, Ranged][i]
       } else {
-        [Fast, Basic, Ranged, Caster][i]
+        [EnemyKind::Zombie, EnemyKind::Zombie, Ranged, Caster][i]
       }
       let config = find_enemy_type_config(kind)
       let enemy = make_enemy(

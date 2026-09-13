@@ -295,6 +295,14 @@ fn apply_initial_mode_overrides(
       js_get_query_param("peaceful") == "1",
       js_get_query_param("overview") == "1",
     )
+  } else if snapshot_mode == "zombies" {
+    apply_zombie_combat_preview(state)
+  } else if snapshot_mode == "zombie" {
+    apply_zombie_motion_preview(
+      state,
+      js_get_query_param("motion"),
+      snapshot_frames,
+    )
   } else if snapshot_mode == "wolves" {
     apply_wolf_combat_preview(state)
   } else if snapshot_mode == "wolf" {

@@ -12,7 +12,7 @@ for (const mobile of [false, true]) {
     const errors: string[] = [];
     page.on("pageerror", (e) => errors.push(e.message));
     await page.goto("/?snapshot=playing&frames=0&seed=42&mute=1");
-    const button = page.getByRole("button", { name: "突進", exact: true });
+    const button = page.locator("#dash-strike-button");
     await expect(button).toBeEnabled();
     await page.waitForFunction(() => globalThis.__ashenHunt !== undefined);
     const start = await page.evaluate(() => globalThis.__ashenHunt);
@@ -32,8 +32,8 @@ for (const mobile of [false, true]) {
         );
       });
     await expect
-      .poll(() => page.evaluate(() => globalThis.__ashenHunt.animation))
-      .toBe("charging");
+      .poll(() => page.evaluate(() => globalThis.__ashenHud.arts.action))
+      .toBe("dash_strike");
     await expect(
       page.getByLabel("プレーヤーの武器", { exact: true }),
     ).toBeDisabled();

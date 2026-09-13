@@ -545,3 +545,15 @@
     position: static;
   }
 }
+
+.slot-editor { margin: 16px 0 24px; padding: 18px; border: 1px solid var(--line); background: #122019; }
+.slot-heading { display: flex; flex-wrap: wrap; justify-content: space-between; align-items: center; gap: 10px; }
+.slot-heading h3 { margin: 0 0 6px; color: var(--gold); }
+.slot-heading p, .slot-hint { margin: 6px 0; font-size: 12px; color: #bbc5b4; }
+.slot-heading > span { font-size: 12px; color: var(--gold); }
+.slot-assignments { display: grid; grid-template-columns: repeat(4, minmax(0, 1fr)); gap: 12px; margin: 16px 0; }
+.slot-assignments label { display: flex; flex-direction: column; min-width: 0; gap: 8px; font-size: 12px; }
+.slot-assignments select { width: 100%; min-width: 0; min-height: 44px; padding: 8px; color: #ede8d3; background: #203227; border: 1px solid #6e8062; border-radius: 3px; font: inherit; }
+.slot-assignments select:focus-visible { outline: 2px solid #e3c881; outline-offset: 2px; }
+@media (max-width: 900px) { .slot-assignments { grid-template-columns: repeat(2, minmax(0,1fr)); } .slot-editor { padding: 12px; } }
+@media (max-width: 560px) { .slot-assignments { grid-template-columns: minmax(0,1fr); } }

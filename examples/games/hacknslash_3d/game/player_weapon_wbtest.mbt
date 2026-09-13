@@ -91,3 +91,64 @@ test "hunter autoplay uses the equipped weapon and cancels attacks when changing
   assert_true(world.weapon_attack is None)
   assert_eq(world.player_weapon, Spear)
 }
+
+///|
+test "all three cleaver cuts reach farther while a spear reaches twice as far in a narrow line" {
+  for weapon in [Cleaver, Spear] {
+    for combo in [Opening, Return, Finisher] {
+      let w = melee_test_world()
+      let far = if weapon == Spear { 76.0 } else { 38.0 }
+      let front = make_enemy(120.0 + far, 120.0, Basic, 1000, 0.0, 8.0)
+      let beyond = make_enemy(
+        120.0 + (if weapon == Spear { 85.0 } else { 45.0 }),
+        120.0,
+        Basic,
+        1000,
+        0.0,
+        8.0,
+      )
+      let side = make_enemy(150.0, 138.0, Basic, 1000, 0.0, 8.0)
+      w.enemies = [front, beyond, side]
+      // Commit the contact pose so auto aim and the earlier step cannot inflate range.
+      w.weapon_attack = Some({
+        weapon,
+        combo,
+        angle: 0.0,
+        frame: (if weapon == Cleaver {
+          combo.profile()
+        } else {
+          weapon.profile()
+        }).windup -
+        1,
+      })
+      w.tick_player_weapon_attack()
+      assert_true(front.hp < 1000)
+      assert_eq(beyond.hp, 1000)
+      assert_eq(side.hp < 1000, weapon == Cleaver)
+      let hp = front.hp
+      for _ in 0..<40 {
+        w.tick_player_weapon_attack()
+      }
+      assert_eq(front.hp, hp)
+    }
+  }
+  assert_true(Spear.profile().reach >= Cleaver.profile().reach * 2.0)
+}
+
+///|
+test "extended spear contact and target assist both respect intervening walls" {
+  let w = melee_test_world()
+  let e = make_enemy(196.0, 120.0, Basic, 1000, 0.0, 8.0)
+  w.enemies = [e]
+  assert_true(w.melee_lock_target(0.0, Spear) is Some(_))
+  w.dungeon.grid.set(9, 7, @terrain.Wall)
+  assert_true(w.melee_lock_target(0.0, Spear) is None)
+  w.weapon_attack = Some({
+    weapon: Spear,
+    combo: Opening,
+    angle: 0.0,
+    frame: Spear.profile().windup - 1,
+  })
+  w.tick_player_weapon_attack()
+  assert_eq(e.hp, 1000)
+}

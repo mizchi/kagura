@@ -60,6 +60,7 @@ pub(all) struct Enemy {
   mut knockback_y : Double
   mut stagger_frames : Int
   mut attack_hit_pending : Bool
+  mut pounce : EnemyPounce?
   room_index : Int // which room this enemy was spawned in (-1 = unknown)
 }
 
@@ -79,6 +80,10 @@ pub(all) struct ItemDrop {
   kind : ItemKind
   mut alive : Bool
   spawn_frame : Int
+  // Optional for compatibility with world progress saved before manual drops.
+  mut pickup_blocked : Bool?
+  // Session identity, reassigned when loading legacy or saved region loot.
+  mut pickup_id : Int?
 } derive(ToJson, FromJson)
 
 ///|
@@ -119,6 +124,7 @@ pub(all) struct DungeonData {
 
 ///|
 pub(all) enum EnemyKind {
+  Zombie
   Wolf
   Basic
   Fast

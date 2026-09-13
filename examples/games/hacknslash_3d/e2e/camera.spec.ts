@@ -47,7 +47,7 @@ test('camera settings preview while paused, retain each mode and survive reload'
   expect(errors).toEqual([]);
 });
 
-test('physical Z switches TPS, right drag looks around, and WASD follows camera yaw',async({page})=>{
+test('physical Z switches TPS, middle drag looks around, and WASD follows camera yaw',async({page})=>{
   await page.goto(scene);
   await expect.poll(()=>page.evaluate(()=>globalThis.__ashenHud?.mode)).toBe('playing');
   await page.evaluate(()=>{
@@ -65,9 +65,9 @@ test('physical Z switches TPS, right drag looks around, and WASD follows camera 
   await expect.poll(()=>page.evaluate(()=>globalThis.__ashenHunt.yaw)).toBeLessThan(beforeE-.05);
   await page.keyboard.up('KeyE');
   const yaw=await page.evaluate(()=>globalThis.__ashenHunt.yaw);
-  await page.mouse.down({button:'right'});
+  await page.mouse.down({button:'middle'});
   await page.mouse.move(740,370,{steps:15});
-  await page.mouse.up({button:'right'});
+  await page.mouse.up({button:'middle'});
   await expect.poll(()=>page.evaluate(()=>globalThis.__ashenHunt.yaw)).toBeGreaterThan(yaw+.1);
   await expect(page.locator('#tps-crosshair')).toBeVisible();
   await page.keyboard.press('KeyJ');

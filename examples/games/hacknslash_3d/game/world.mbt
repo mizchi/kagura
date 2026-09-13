@@ -17,11 +17,13 @@ pub(all) struct GameWorld {
   mut enemies : Array[Enemy]
   mut chests : Array[TreasureChest]
   mut items : Array[ItemDrop]
+  mut next_pickup_id : Int
   mut projectiles : Array[Projectile]
   mut dungeon : DungeonData
   mut attack_timer : Int
   mut player_weapon : PlayerWeaponKind
   mut hunter_preset : HunterPreset
+  mut hunter_slots : Array[Int]
   mut cleaver_next : CleaverComboStep
   mut cleaver_combo_timer : Int
   mut weapon_attack : PlayerWeaponAttack?
@@ -156,10 +158,12 @@ pub fn GameWorld::new(
       []
     },
     items: [],
+    next_pickup_id: 1,
     projectiles: [],
     dungeon,
     attack_timer: 0,
     hunter_preset: default_hunter_preset(archetype),
+    hunter_slots: default_hunter_preset(archetype).profile().keys.copy(),
     player_weapon: default_hunter_preset(archetype).profile().weapon,
     cleaver_next: Opening,
     cleaver_combo_timer: 0,
@@ -217,6 +221,7 @@ pub fn GameWorld::apply_archetype(
 ) -> Unit {
   self.archetype = archetype
   self.hunter_preset = default_hunter_preset(archetype)
+  self.hunter_slots = self.hunter_preset.profile().keys.copy()
   self.player_weapon = self.hunter_preset.profile().weapon
   self.cancel_hunter_action()
   self.arts.strike = None
@@ -709,6 +714,11 @@ pub fn GameWorld::tick_enemy_movement_and_contact_phase(
   )
   for enemy in self.enemies {
     if enemy.alive {
+      if enemy.kind == Zombie && enemy.attack_motion == NoAttack {
+        let shuffle = zombie_shuffle_speed(enemy)
+        enemy.vx *= shuffle
+        enemy.vy *= shuffle
+      }
       let previous_x = enemy.x
       let previous_y = enemy.y
       if enemy.vx != 0.0 || enemy.vy != 0.0 {
@@ -720,6 +730,13 @@ pub fn GameWorld::tick_enemy_movement_and_contact_phase(
           enemy.vy,
           enemy.size,
         )
+        if enemy.pounce_airborne() &&
+          (
+            (ex - enemy.x - enemy.vx).abs() > 0.01 ||
+            (ey - enemy.y - enemy.vy).abs() > 0.01
+          ) {
+          enemy.stop_pounce()
+        }
         if enemy.is_charging() &&
           (
             (ex - enemy.x - enemy.vx).abs() > 0.01 ||
@@ -906,65 +923,14 @@ pub fn GameWorld::tick_items_phase(self : GameWorld) -> Unit {
       }
       let idx = item.x - self.player.x
       let idy = item.y - self.player.y
-      if idx * idx + idy * idy < pickup_radius_sq {
-        match item.kind {
-          Health => {
-            let rewards = @gameplay2d.PickupRewardConfig::new(
-              score_amount=5,
-              heal_amount=2,
-            )
-            match
-              @gameplay2d.apply_builtin_pickup(
-                HealthPickup,
-                self.player.hp,
-                self.player_stats.max_hp,
-                self.score,
-                rewards,
-              ) {
-              Some(application) => {
-                item.alive = false
-                self.events.push(
-                  ItemPickup(item.x, item.y, application.heal_feedback),
-                )
-                self.player.hp = application.next_hp
-                self.score = application.next_score
-                self.push_item_log("+Health", 0x44DD44)
-              }
-              None => abort("health pickup should always resolve")
-            }
-          }
-          Score => {
-            let rewards = @gameplay2d.PickupRewardConfig::new(
-              score_amount=5,
-              heal_amount=2,
-            )
-            match
-              @gameplay2d.apply_builtin_pickup(
-                ScorePickup,
-                self.player.hp,
-                self.player_stats.max_hp,
-                self.score,
-                rewards,
-              ) {
-              Some(application) => {
-                item.alive = false
-                self.events.push(
-                  ItemPickup(item.x, item.y, application.heal_feedback),
-                )
-                self.player.hp = application.next_hp
-                self.score = application.next_score
-                self.push_item_log("+Score", 0xDDDD44)
-              }
-              None => abort("score pickup should always resolve")
-            }
-          }
-          Equipment(data) =>
-            if self.collect_equipment_pickup(data) {
-              item.alive = false
-              self.events.push(ItemPickup(item.x, item.y, false))
-              self.push_item_log(data.name, data.rarity.color())
-            }
+      if item.pickup_blocked.or(false) {
+        if idx * idx + idy * idy >= pickup_radius_sq {
+          item.pickup_blocked = None
         }
+        continue
+      }
+      if idx * idx + idy * idy < pickup_radius_sq {
+        ignore(self.collect_ground_drop(item))
       }
     }
   }

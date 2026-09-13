@@ -143,6 +143,8 @@ pub fn spawn_ground_item(
     kind,
     alive: true,
     spawn_frame: world.frame_count,
+    pickup_blocked: None,
+    pickup_id: Some(world.allocate_pickup_id()),
   })
 }
 

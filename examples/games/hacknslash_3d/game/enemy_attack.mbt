@@ -1,6 +1,7 @@
 ///|
 pub(all) enum EnemyAttackMotion {
   NoAttack
+  Pounce
   Punch
   Bite
   SpearThrust
@@ -19,6 +20,7 @@ pub fn Enemy::begin_attack(
   target_x : Double,
   target_y : Double,
 ) -> Unit {
+  self.pounce = None
   self.attack_motion = motion
   self.attack_frame = 0
   self.attack_windup = windup
@@ -67,6 +69,7 @@ fn tick_enemy_attack(enemy : Enemy) -> Unit {
   }
   if enemy.attack_frame > enemy.attack_windup + enemy.attack_recovery {
     enemy.attack_motion = NoAttack
+    enemy.pounce = None
   }
 }
 
@@ -164,6 +167,13 @@ pub fn EnemyAttackMotion::melee_profile(
   self : EnemyAttackMotion,
 ) -> EnemyMeleeProfile? {
   match self {
+    Pounce =>
+      Some({
+        windup: zombie_pounce_anticipation + zombie_pounce_flight,
+        recovery: zombie_pounce_recovery,
+        reach: 18.0,
+        width: 10.0,
+      })
     Bite => Some({ windup: 34, recovery: 30, reach: 24.0, width: 8.0, })
     Punch => Some({ windup: 32, recovery: 28, reach: 24.0, width: 12.0, })
     SpearThrust => Some({ windup: 40, recovery: 30, reach: 38.0, width: 7.0, })

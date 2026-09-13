@@ -76,7 +76,7 @@ fn GameState::rebuild_entity_instance_scratch(
       let ix = item.x / tile_size
       let iz = item.y / tile_size
       let base_y = @game.get_tile_height(self.world.dungeon, item.x, item.y)
-      let bob = base_y + 0.3 + item_bob_offset
+      let bob = base_y + 0.45 + item_bob_offset
       let color = match item.kind {
         @game.Health => color_item_health
         @game.Equipment(data) => hex_to_vec4(data.rarity.color())
@@ -86,7 +86,7 @@ fn GameState::rebuild_entity_instance_scratch(
         @scene3d.InstanceData::new(
           transform=@transform3d.Transform3D::from_position(
             @math3d.Vec3::new(ix, bob, iz),
-          ),
+          ).with_scale(@math3d.Vec3::new(1.4, 1.4, 1.4)),
           color~,
         ),
       )
@@ -94,10 +94,10 @@ fn GameState::rebuild_entity_instance_scratch(
       match item.kind {
         @game.Equipment(data) => {
           let beam_color = match data.rarity {
-            @game.Common => @math3d.Vec4::new(0.6, 0.6, 0.5, 1.0)
-            @game.Uncommon => @math3d.Vec4::new(0.3, 0.7, 1.0, 1.0)
-            @game.Rare => @math3d.Vec4::new(1.0, 0.85, 0.2, 1.0)
-            @game.Epic => @math3d.Vec4::new(0.8, 0.3, 1.0, 1.0)
+            @game.Common => @math3d.Vec4::new(0.85, 0.9, 0.8, 1.0)
+            @game.Uncommon => @math3d.Vec4::new(0.6, 1.0, 0.5, 1.0)
+            @game.Rare => @math3d.Vec4::new(0.4, 0.75, 1.0, 1.0)
+            @game.Epic => @math3d.Vec4::new(0.9, 0.5, 1.0, 1.0)
           }
           let beam_scale_y = match data.rarity {
             @game.Common => 0.5
@@ -109,7 +109,7 @@ fn GameState::rebuild_entity_instance_scratch(
             @scene3d.InstanceData::new(
               transform=@transform3d.Transform3D::from_position(
                 @math3d.Vec3::new(ix, base_y, iz),
-              ).with_scale(@math3d.Vec3::new(1.0, beam_scale_y, 1.0)),
+              ).with_scale(@math3d.Vec3::new(2.2, beam_scale_y, 2.2)),
               color=beam_color,
             ),
           )

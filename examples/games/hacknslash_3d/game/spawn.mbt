@@ -51,6 +51,7 @@ pub fn make_enemy(
     knockback_y: 0.0,
     stagger_frames: 0,
     attack_hit_pending: false,
+    pounce: None,
     room_index,
   }
 }

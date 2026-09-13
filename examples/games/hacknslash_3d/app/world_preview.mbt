@@ -155,3 +155,22 @@ fn apply_hunting_terrain_preview(state : GameState) -> Unit {
   state.rebuild_dungeon_rendering()
   state.update_combat_camera()
 }
+
+///|
+/// A live zombie encounter for checking pursuit, warned pounces and counterattacks.
+fn apply_zombie_combat_preview(state : GameState) -> Unit {
+  apply_hunter_arts_preview(state)
+  let w = state.world
+  w.player.facing_angle = 0.0
+  w.enemies = [
+    @game.make_enemy(
+      w.player.x + 76.0,
+      w.player.y,
+      @game.Zombie,
+      24,
+      0.55,
+      11.0,
+    ),
+  ]
+  state.camera = state.camera.with_distance(9.0)
+}

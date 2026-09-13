@@ -12,6 +12,7 @@ fn stress_enemy_kind(index : Int) -> @game.EnemyKind {
 ///|
 fn stress_enemy_stats(kind : @game.EnemyKind) -> (Int, Double, Double) {
   match kind {
+    @game.Zombie => (5, 0.55, 11.0)
     @game.Wolf => (3, 1.6, 11.0)
     @game.Basic | @game.Swarm => (3, 1.0, 10.0)
     @game.Fast | @game.Exploder | @game.Teleporter => (2, 1.4, 8.0)

@@ -1,17 +1,17 @@
 ///|
-struct WolfRenderBucket {
+struct PoseRenderBucket {
   matrices : Array[@math3d.Mat4]
   colors : Array[@math3d.Vec4]
 }
 
 ///|
-struct WolfRenderState {
-  buckets : Map[Int, WolfRenderBucket]
+struct PoseRenderState {
+  buckets : Map[Int, PoseRenderBucket]
   active_keys : Array[Int]
 }
 
 ///|
-fn WolfRenderState::clear(self : WolfRenderState) -> Unit {
+fn PoseRenderState::clear(self : PoseRenderState) -> Unit {
   for key in self.active_keys {
     self.buckets[key].matrices.clear()
     self.buckets[key].colors.clear()
@@ -20,8 +20,8 @@ fn WolfRenderState::clear(self : WolfRenderState) -> Unit {
 }
 
 ///|
-fn WolfRenderState::add(
-  self : WolfRenderState,
+fn PoseRenderState::add(
+  self : PoseRenderState,
   key : Int,
   model : @math3d.Mat4,
   color : @math3d.Vec4,
@@ -29,7 +29,7 @@ fn WolfRenderState::add(
   let bucket = match self.buckets.get(key) {
     Some(bucket) => bucket
     None => {
-      let bucket : WolfRenderBucket = { matrices: [], colors: [], }
+      let bucket : PoseRenderBucket = { matrices: [], colors: [], }
       self.buckets[key] = bucket
       bucket
     }
@@ -43,18 +43,21 @@ fn WolfRenderState::add(
 
 ///|
 // Reuse bind geometry and baked palettes; only instance transforms change.
-fn GameState::push_wolf_commands(
+fn GameState::push_baked_enemy_commands(
   self : GameState,
+  poses : PoseRenderState,
+  mesh : EnemyMeshData,
+  skinning_for_key : (Int) -> Array[@math3d.Mat4],
   view_projection : @math3d.Mat4,
   dst : @gfx.ImageHandle,
   screen_w : Int,
   screen_h : Int,
   cmds : Array[@gfx.DrawTrianglesCommand],
 ) -> Unit {
-  for key in self.enemy_models.wolf.active_keys {
-    let bucket = self.enemy_models.wolf.buckets[key]
-    let skinning = wolf_skinning_for_key(key)
-    for part in wolf_mesh.parts {
+  for key in poses.active_keys {
+    let bucket = poses.buckets[key]
+    let skinning = skinning_for_key(key)
+    for part in mesh.parts {
       let colors = bucket.colors.map(tint => {
         @math3d.Vec4::new(
           part.color.x * tint.x,

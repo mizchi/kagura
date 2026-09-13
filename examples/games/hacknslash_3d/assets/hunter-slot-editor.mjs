@@ -1,0 +1,4 @@
+// The HUD supplies available actions and current slots. Assignment is a game intent.
+export function renderHunterSlotEditor(hud,{escape}){
+  return `<section class="slot-editor" aria-label="スキルスロット設定"><div class="slot-heading"><div><h3>スキルスロット</h3><p>使う技と並び順を選択。設定はセーブごとに保存されます。</p></div><span>左クリック ＝ 1　右クリック ＝ 2</span></div><div class="slot-assignments">${hud.skills.map((skill,i)=>`<label><span><kbd>${i+1}</kbd> ${['左クリック','右クリック','キー 3','キー 4'][i]}</span><select data-hunter-slot="${i}" data-focus="slot-${i}" aria-label="スキルスロット ${i+1}">${hud.slot_options.map(action=>`<option value="${action.key}" ${action.key===skill.key?'selected':''} ${action.level<=0?'disabled':''}>${escape(action.name)}${action.level<=0?'（未習得）':action.hold?'（長押し）':''}</option>`).join('')}</select></label>`).join('')}</div><p class="slot-hint">別のスロットにある技を選ぶと入れ替えます。未習得の技は下のツリーで解放。</p></section>`;
+}

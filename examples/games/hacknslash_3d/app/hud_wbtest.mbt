@@ -192,6 +192,8 @@ test "render_hud_cmds adds dropped item labels for visible equipment" {
       }),
       alive: true,
       spawn_frame: state.world.frame_count,
+      pickup_blocked: None,
+      pickup_id: None,
     },
   ]
   let labeled_cmds = state.render_hud_cmds(ctx.dst, ctx.shader)

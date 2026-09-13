@@ -181,7 +181,107 @@ test('unmapped pad cannot issue actions, while mobile pad guide and inventory st
   await captureGameFrame(page,{path:info.outputPath('gamepad-mobile-guide.png')});
   await tap(page,8);await expect(page.locator('.panel-inventory')).toBeVisible();
   await tap(page,13);await tap(page,0);await tap(page,1);
+  await expect(page.locator('.panel-inventory')).toBeVisible(); // Cancel the carried item first.
+  await tap(page,1);
   await expect(page.locator('.panel-inventory')).toBeHidden();
   await expect.poll(async()=>(await hud(page)).menu).toBe('none');
   expect(errors).toEqual([]);
+});
+
+test('inventory pad cursor carries, rotates, cancels, equips, unequips and discards',async({page},info)=>{
+  const errors:string[]=[];page.on('pageerror',e=>errors.push(e.message));await install(page);
+  await page.goto('/?snapshot=playing&frames=0&seed=42&mute=1');
+  await expect.poll(async()=>(await hud(page))?.mode).toBe('playing');
+  await tap(page,8);
+  await expect(page.locator('.panel-inventory')).toBeVisible();
+  const inv=async()=>(await hud(page)).inventory_grid;
+  const spearName=(await inv()).items[0].name;
+  const frame=await page.evaluate(()=>globalThis.__hacknslash3dRuntime.frame);
+  await expect(page.locator('.inv-detail h3')).toHaveText(spearName);
+  await tap(page,0);await expect(page.locator('.inv-pad-state')).toContainText('持っています');
+  await tap(page,1);await expect(page.locator('.inv-pad-state')).not.toContainText('持っています');
+  expect((await hud(page)).menu).toBe('inventory');
+  await tap(page,0);await tap(page,3);
+  for(let i=0;i<4;i++)await tap(page,13);
+  for(let i=0;i<3;i++)await tap(page,15);
+  await expect(page.locator('.inv-preview .valid')).toHaveCount(4);
+  await captureGameFrame(page,{path:info.outputPath('inventory-gamepad-placement.png')});
+  await tap(page,0);
+  await expect.poll(async()=>{const s=(await inv()).items.find(i=>i.source===0);return [s.x,s.y,s.rotated];}).toEqual([3,4,true]);
+  await tap(page,2);
+  await expect.poll(async()=>(await inv()).equipment[0].item?.name).toBe(spearName);
+  await tap(page,4);
+  await expect(page.locator('[data-equip-slot="0"]')).toHaveClass(/inv-pad-cursor/);
+  await tap(page,2);
+  await expect.poll(async()=>(await inv()).equipment[0].item).toBeUndefined();
+  await tap(page,5);
+  for(let i=0;i<3;i++)await tap(page,14);
+  for(let i=0;i<4;i++)await tap(page,12);
+  await expect(page.locator('.inv-detail h3')).toHaveText(spearName);
+  await tap(page,11);
+  await expect.poll(async()=>(await inv()).items.length).toBe(5);
+  expect(await page.evaluate(()=>globalThis.__hacknslash3dRuntime.frame)).toBe(frame);
+  await tap(page,1);
+  await expect.poll(async()=>(await hud(page)).menu).toBe('none');
+  await expect(page.locator('.ground-loot-label').filter({hasText:spearName})).toBeVisible();
+  expect(await page.evaluate(()=>globalThis.__ashenControls.snapshot())).toMatchObject({x:0,y:0,attack:false,guard:false});
+  expect(errors).toEqual([]);
+});
+
+test('mouse hover comparison remains visible after pad inventory navigation',async({page})=>{
+  await install(page);
+  await page.goto('/?snapshot=playing&frames=0&seed=42&mute=1');
+  await expect.poll(async()=>(await hud(page))?.mode).toBe('playing');
+  await tap(page,8);await tap(page,15);
+  await page.locator('[data-inv-item="0"] [data-item-cell]').first().hover();
+  await page.waitForTimeout(120);
+  await expect(page.getByRole('tooltip',{name:'装備との比較'})).toBeVisible();
+});
+
+test('portrait inventory scrolls with the right stick and can discard worn equipment',async({page},info)=>{
+  await page.setViewportSize({width:390,height:844});await install(page);
+  await page.goto('/?snapshot=playing&frames=0&seed=42&mute=1');
+  await expect.poll(async()=>(await hud(page))?.mode).toBe('playing');
+  await tap(page,8);await tap(page,2); // Equip spear, then switch to its body slot.
+  await expect.poll(async()=>(await hud(page)).inventory_grid.equipment[0].item?.glyph).toBe('spear');
+  await tap(page,4);
+  const panel=page.locator('.hunter-panel'),scroll=await panel.evaluate(e=>e.scrollTop);
+  await setPad(page,[0,0,0,1]);
+  await expect.poll(()=>panel.evaluate(e=>e.scrollTop)).toBeGreaterThan(scroll+150);
+  await expect(page.locator('[data-inv-action="drop"]')).toBeInViewport();
+  await setPad(page);
+  await captureGameFrame(page,{path:info.outputPath('inventory-gamepad-portrait.png')});
+  const atk=(await hud(page)).inventory_grid.atk;
+  await tap(page,11);
+  await expect.poll(async()=>(await hud(page)).inventory_grid.equipment[0].item).toBeUndefined();
+  expect((await hud(page)).inventory_grid.atk).toBeLessThan(atk);
+  expect((await hud(page)).weapon_index).toBe(2); // Empty hands.
+  expect((await hud(page)).loot).toHaveLength(1);
+});
+
+test('cross picks nearby ground items once per press and does not attack',async({page},info)=>{
+  await install(page);
+  await page.goto('/?snapshot=playing&frames=0&seed=42&mute=1');
+  await expect.poll(async()=>(await hud(page))?.mode).toBe('playing');
+  await page.keyboard.press('KeyI');
+  await expect.poll(async()=>(await hud(page)).menu).toBe('inventory');
+  for(const source of [0,3]){
+    await page.locator(`[data-inv-item="${source}"] [data-item-cell]`).first().click();
+    await page.getByRole('button',{name:'地面に捨てる',exact:true}).click();
+    await expect.poll(async()=>(await hud(page)).inventory_grid.items.some(i=>i.source===source)).toBe(false);
+  }
+  await page.keyboard.press('Escape');
+  await expect.poll(async()=>(await hud(page)).menu).toBe('none');
+  const attacks=(await hero(page)).attacks;
+  await setPad(page,[0,0,0,0],[0]);
+  await expect.poll(async()=>(await hud(page)).loot.length).toBe(1);
+  await page.waitForTimeout(220);
+  expect((await hud(page)).loot.length).toBe(1);
+  await expect(page.locator('.ground-loot-label[data-nearest="true"]')).toBeEnabled();
+  await captureGameFrame(page,{path:info.outputPath('gamepad-loot-prompt.png')});
+  await setPad(page);await page.waitForTimeout(80);await tap(page,0);
+  await expect.poll(async()=>(await hud(page)).loot.length).toBe(0);
+  expect((await hero(page)).attacks).toBe(attacks);
+  await tap(page,8);
+  await expect.poll(async()=>(await hud(page)).inventory_grid?.items.length).toBe(6);
 });

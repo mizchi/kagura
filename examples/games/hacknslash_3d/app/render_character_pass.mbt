@@ -83,6 +83,7 @@ fn GameState::rebuild_enemy_render_buckets(
   }
   self.enemy_models.active_attack_keys.clear()
   self.enemy_models.wolf.clear()
+  self.enemy_models.zombie.clear()
   let dungeon = self.world.dungeon
   for enemy in self.world.enemies {
     if enemy.alive && is_entity_visible(vis_region, enemy.x, enemy.y) {
@@ -94,22 +95,25 @@ fn GameState::rebuild_enemy_render_buckets(
       } else {
         @math3d.Vec4::new(1.0, 1.0, 1.0, 1.0)
       }
-      if enemy.kind == @game.Wolf {
-        let dx = if enemy.attack_motion == @game.Bite {
+      if enemy.kind == @game.Wolf || enemy.kind == @game.Zombie {
+        let attacking = enemy.attack_motion == @game.Bite ||
+          enemy.attack_motion == @game.Pounce
+        let dx = if attacking {
           enemy.attack_target_x - enemy.x
         } else {
           @math.cos(enemy.move_angle)
         }
-        let dy = if enemy.attack_motion == @game.Bite {
+        let dy = if attacking {
           enemy.attack_target_y - enemy.y
         } else {
           @math.sin(enemy.move_angle)
         }
-        self.enemy_models.wolf.add(
-          wolf_pose_key(enemy),
-          enemy_facing_model_matrix(ex, ey, ez, dx, dy),
-          color,
-        )
+        let (poses, key) = if enemy.kind == @game.Zombie {
+          (self.enemy_models.zombie, zombie_pose_key(enemy))
+        } else {
+          (self.enemy_models.wolf, wolf_pose_key(enemy))
+        }
+        poses.add(key, enemy_facing_model_matrix(ex, ey, ez, dx, dy), color)
         continue
       }
       let clip_index = enemy_attack_clip_index(enemy.attack_motion)
@@ -158,7 +162,7 @@ fn GameState::rebuild_enemy_render_buckets(
       }
       let model = enemy_facing_model_matrix(ex, ey, ez, dx, dy, scale~)
       match enemy.kind {
-        @game.Wolf => ()
+        @game.Wolf | @game.Zombie => ()
         @game.Fast | @game.Exploder | @game.Teleporter => {
           buckets.fast_matrices.push(model)
           buckets.fast_colors.push(color)
@@ -248,7 +252,26 @@ fn GameState::push_enemy_character_commands_with_view_projection(
     screen_h,
     cmds,
   )
-  self.push_wolf_commands(view_projection, dst, screen_w, screen_h, cmds)
+  self.push_baked_enemy_commands(
+    self.enemy_models.wolf,
+    wolf_mesh,
+    wolf_skinning_for_key,
+    view_projection,
+    dst,
+    screen_w,
+    screen_h,
+    cmds,
+  )
+  self.push_baked_enemy_commands(
+    self.enemy_models.zombie,
+    zombie_mesh,
+    zombie_skinning_for_key,
+    view_projection,
+    dst,
+    screen_w,
+    screen_h,
+    cmds,
+  )
   for key in self.enemy_models.active_attack_keys {
     let buckets = self.enemy_models.attack_buckets[key]
     let clip = self.enemy_models.attack_clips[key / enemy_attack_pose_stride]

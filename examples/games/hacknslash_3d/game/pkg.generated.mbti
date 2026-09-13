@@ -255,6 +255,8 @@ pub fn hunter_preset_from_id(String) -> HunterPreset?
 
 pub let hunter_presets : Array[HunterPresetProfile]
 
+pub let hunter_slot_actions : Array[Int]
+
 pub fn hunting_chests() -> Array[TreasureChest]
 
 pub fn hunting_clearings() -> Array[@types.Room]
@@ -286,6 +288,8 @@ pub fn item_rarity_rank(ItemRarity) -> Int
 pub let knockback_strength : Double
 
 pub fn make_enemy(Double, Double, EnemyKind, Int, Double, Double, room_index? : Int) -> Enemy
+
+pub let manual_pickup_radius : Double
 
 pub let map_cols : Int
 
@@ -446,6 +450,16 @@ pub let world_regions : Array[WorldRegion]
 pub let world_w : Double
 
 pub fn world_waypoint_position(Int) -> (Double, Double)
+
+pub let zombie_pounce_anticipation : Int
+
+pub let zombie_pounce_flight : Int
+
+pub let zombie_pounce_range : Double
+
+pub let zombie_pounce_recovery : Int
+
+pub let zombie_stride_distance : Double
 
 // Errors
 
@@ -701,11 +715,13 @@ pub(all) struct Enemy {
   mut knockback_y : Double
   mut stagger_frames : Int
   mut attack_hit_pending : Bool
+  mut pounce : EnemyPounce?
   room_index : Int
 }
 pub fn Enemy::attack_phase(Self) -> Double
 pub fn Enemy::begin_attack(Self, EnemyAttackMotion, Int, Int, Double, Double) -> Unit
 pub fn Enemy::is_charging(Self) -> Bool
+pub fn Enemy::pounce_airborne(Self) -> Bool
 
 pub(all) struct EnemyAIContext {
   enemy : Enemy
@@ -724,6 +740,7 @@ pub(all) struct EnemyAIContext {
 
 pub(all) enum EnemyAttackMotion {
   NoAttack
+  Pounce
   Punch
   Bite
   SpearThrust
@@ -734,6 +751,7 @@ pub(all) enum EnemyAttackMotion {
 pub fn EnemyAttackMotion::melee_profile(Self) -> EnemyMeleeProfile?
 
 pub(all) enum EnemyKind {
+  Zombie
   Wolf
   Basic
   Fast
@@ -757,7 +775,16 @@ pub(all) struct EnemyMeleeProfile {
   width : Double
 }
 
+pub(all) struct EnemyPounce {
+  dx : Double
+  dy : Double
+  distance : Double
+  landing_x : Double
+  landing_y : Double
+}
+
 pub(all) enum EnemySpecies {
+  Zombie
   Goblin
   Kobold
   Skeleton
@@ -878,11 +905,13 @@ pub(all) struct GameWorld {
   mut enemies : Array[Enemy]
   mut chests : Array[TreasureChest]
   mut items : Array[ItemDrop]
+  mut next_pickup_id : Int
   mut projectiles : Array[Projectile]
   mut dungeon : DungeonData
   mut attack_timer : Int
   mut player_weapon : PlayerWeaponKind
   mut hunter_preset : HunterPreset
+  mut hunter_slots : Array[Int]
   mut cleaver_next : CleaverComboStep
   mut cleaver_combo_timer : Int
   mut weapon_attack : PlayerWeaponAttack?
@@ -929,6 +958,7 @@ pub fn GameWorld::apply_equipment_pickup_plan(Self, ItemData, @gameplay2d.Equipm
 pub fn GameWorld::apply_hunter_preset(Self, HunterPreset) -> Bool
 pub fn GameWorld::apply_levelup_offer_choice(Self, Int, Int) -> Bool
 pub fn GameWorld::apply_scene_json(Self, String) -> Unit raise
+pub fn GameWorld::assign_hunter_slot(Self, Int, Int) -> Bool
 pub fn GameWorld::assist_melee_angle(Self, Double, PlayerWeaponKind) -> Double
 pub fn GameWorld::auto_activate_skills(Self, Int) -> Unit
 pub fn GameWorld::auto_activate_spell_slots(Self, Int, Double) -> Unit
@@ -945,14 +975,18 @@ pub fn GameWorld::enter_region(Self, Int, Double, Double) -> Bool
 pub fn GameWorld::equip_player_weapon(Self, PlayerWeaponKind) -> Bool
 pub fn GameWorld::ground_strike_target(Self, Double, Double) -> (Double, Double)
 pub fn GameWorld::ground_strike_target_valid(Self, Double, Double) -> Bool
+pub fn GameWorld::hunter_action_learned(Self, Int) -> Bool
 pub fn GameWorld::hunter_action_locked(Self) -> Bool
+pub fn GameWorld::loot_in_reach(Self, ItemDrop) -> Bool
 pub fn GameWorld::mark_current_room_discovered(Self) -> Unit
 pub fn GameWorld::melee_lock_target(Self, Double, PlayerWeaponKind) -> Enemy?
 pub fn GameWorld::near_waypoint(Self) -> Bool
 pub fn GameWorld::nearby_chest(Self) -> TreasureChest?
+pub fn GameWorld::nearest_pickup_id(Self) -> Int?
 pub fn GameWorld::new(seed~ : Int, params? : BalanceParams, archetype? : CharacterArchetype, build_policy? : ArchetypeBuildPolicy, hunting_grounds? : Bool) -> Self
 pub fn GameWorld::open_levelup_ui_if_needed(Self) -> Unit
 pub fn GameWorld::open_nearby_chest(Self) -> Bool
+pub fn GameWorld::pickup_item(Self, Int) -> Bool
 pub fn GameWorld::preload_regions(Self) -> Array[Int]
 pub fn GameWorld::prepare_region(Self, Int) -> Bool
 pub fn GameWorld::push_item_log(Self, String, Int) -> Unit
@@ -967,6 +1001,7 @@ pub fn GameWorld::reset_floor(Self) -> Unit
 pub fn GameWorld::reset_world_atlas(Self, Int) -> Unit
 pub fn GameWorld::resolve_enemy_enemy_separation(Self) -> Unit
 pub fn GameWorld::respawn_at_waypoint(Self) -> Bool
+pub fn GameWorld::restore_hunter_slots(Self, Array[Int]) -> Unit
 pub fn GameWorld::restore_world_progress(Self, String) -> Bool
 pub fn GameWorld::scene_snapshot_json(Self) -> String
 pub fn GameWorld::serialize_world_progress(Self) -> String
@@ -1106,6 +1141,7 @@ pub(all) enum InventorySource {
 pub(all) enum InventoryTarget {
   Cell(Int, Int, Bool)
   Wear(EquipSlot)
+  Ground
 }
 
 pub(all) struct ItemData {
@@ -1155,6 +1191,8 @@ pub(all) struct ItemDrop {
   kind : ItemKind
   mut alive : Bool
   spawn_frame : Int
+  mut pickup_blocked : Bool?
+  mut pickup_id : Int?
 } derive(ToJson, @json.FromJson)
 
 pub(all) enum ItemKind {

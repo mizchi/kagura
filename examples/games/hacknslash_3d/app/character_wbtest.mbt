@@ -112,7 +112,7 @@ test "hunter camera drag starts without a jump, zoom clamps, reset restores quar
     0.0,
     -10000.0,
     [],
-    [2],
+    [1],
     [],
     [],
   )

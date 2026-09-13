@@ -55,3 +55,16 @@ test "charge input updates gameplay and rig on the same frame and recovery resto
   assert_true(state.world.player_charge is None)
   assert_eq(state.character.anim_state, Idle)
 }
+
+///|
+test "hunter authoring preview retains tackle frames independently of the merged gameplay action" {
+  let s = GameState::new_with_params(
+    seed=42,
+    @game.BalanceParams::default(),
+    hunting_grounds=true,
+  )
+  apply_charge_motion_preview(s, 16)
+  assert_true(s.world.player_charge is Some({ frame: 16, .. }))
+  assert_true(s.world.arts.action is None)
+  assert_eq(s.character.anim_state, Charging)
+}

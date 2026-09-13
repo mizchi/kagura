@@ -12,11 +12,11 @@ test("older saves receive earned tree points once and retain learned skills", as
       "1|0|0||||1,1,0,0,0,0,0,1,1,0,0,0,0,0,0,0,0||4|0|100|0||cleaver",
     ),
   );
-  await page.getByRole("button", { name: /狩りを始める/ }).click();
+  await page.locator('[data-save-slot="0"]').click();
   await expect.poll(async () => (await hud(page)).mode).toBe("playing");
   expect((await hud(page)).skill_points).toBe(6);
   await page.reload();
-  await page.getByRole("button", { name: /狩りを始める/ }).click();
+  await page.locator('[data-save-slot="0"]').click();
   await expect.poll(async () => (await hud(page)).mode).toBe("playing");
   expect((await hud(page)).skill_points).toBe(6);
   expect((await hud(page)).nodes[0].level).toBe(1);
@@ -60,7 +60,7 @@ test("tree inspects locked nodes, allocates real stats once, and persists the bu
     path: info.outputPath("skill-tree-desktop.png"),
   });
   await page.goto("/?seed=42&mute=1");
-  await page.getByRole("button", { name: /狩りを始める/ }).click();
+  await page.locator('[data-save-slot="0"]').click();
   await expect.poll(async () => (await hud(page)).mode).toBe("playing");
   await page.keyboard.press("KeyK");
   await expect(page.locator('[data-tree-node="3"]')).toHaveAttribute(
@@ -92,7 +92,7 @@ test.describe("touch skill tree", () => {
         "1|0|0||||1,1,0,0,0,0,0,1,1,0,0,0,0,0,0,0,0||4|0|100|0||cleaver",
       ),
     );
-    await page.getByRole("button", { name: /狩りを始める/ }).tap();
+    await page.locator('[data-save-slot="0"]').tap();
     await expect.poll(async () => (await hud(page)).mode).toBe("playing");
     await page.getByRole("button", { name: "技と成長", exact: true }).tap();
     for (const [branch, id] of [

@@ -2,6 +2,9 @@
 
 ///|
 struct HunterSkillView {
+  key : Int
+  glyph : String
+  hold : String
   name : String
   description : String
   level : Int
@@ -41,6 +44,14 @@ struct HunterExtraSkillView {
 
 ///|
 struct HunterHudView {
+  preset : Int
+  preset_name : String
+  presets : Array[String]
+  save_slots : Array[SaveSlotView]
+  active_save_slot : Int
+  save_notice : String
+  save_delete_slot : Int
+  respawn_region : String
   terrain : TerrainLabView
   camera : HunterCameraView
   exploration : HunterExplorationView
@@ -110,39 +121,7 @@ fn hunter_skill_name(id : @game.SkillId) -> String {
 ///|
 fn GameState::hunter_hud_view(self : GameState) -> HunterHudView {
   let w = self.world
-  let skills : Array[HunterSkillView] = []
-  let ids = [
-    @game.PowerStrike,
-    @game.Whirlwind,
-    @game.SplittingFireball,
-    @game.IceNova,
-  ]
-  let descriptions = [
-    "周囲を強く斬る。通常攻撃と待ち時間を共有。", "2／ボタンを長押しして回転しながら移動。全武器対応、離すと停止。",
-    "前方の敵を緩く追う火弾。命中後に分裂した弾も追尾する。",
-    "自分を中心に冷気を放つ範囲攻撃。",
-  ]
-  let timers = [
-    w.attack_timer,
-    w.attack_timer,
-    w.splitting_fireball_cooldown_timer,
-    w.ice_nova_cooldown_timer,
-  ]
-  let totals = [
-    w.params.attack_cooldown.to_int(),
-    @game.whirlwind_recovery_frames,
-    w.params.splitting_fireball_cooldown_frames(),
-    w.params.ice_nova_cooldown_frames(),
-  ]
-  for i in 0..<ids.length() {
-    skills.push({
-      name: hunter_skill_name(ids[i]),
-      description: descriptions[i],
-      level: w.skills.get_level(ids[i]),
-      remaining: @cmp.maximum(0, timers[i]),
-      total: totals[i],
-    })
-  }
+  let skills = self.hunter_preset_skills()
   let inventory = w.inventory.items.map(fn(item) {
     match item {
       Some(item) =>
@@ -172,6 +151,19 @@ fn GameState::hunter_hud_view(self : GameState) -> HunterHudView {
   {
     version: 1,
     camera: self.hunter_camera_view(),
+    preset: w.hunter_preset.index(),
+    preset_name: w.hunter_preset.profile().name,
+    presets: @game.hunter_presets.map(p => p.name),
+    save_slots: self.save_slots,
+    active_save_slot: self.active_save_slot,
+    save_notice: self.save_notice,
+    save_delete_slot: match self.pending_save_deletion {
+      Some(pending) => pending.slot
+      None => -1
+    },
+    respawn_region: self.world.atlas
+    .map(a => @game.world_regions[a.last_waypoint].name)
+    .or("入口"),
     terrain: self.terrain_lab_view(),
     arts: self.hunter_arts_view(),
     combat: self.hunter_combat_view(),
@@ -190,6 +182,9 @@ fn GameState::hunter_hud_view(self : GameState) -> HunterHudView {
       None => -1
     },
     charge: {
+      key: 67,
+      glyph: "dodge",
+      hold: "",
       name: "突進",
       description: "構えてから前方へ突進。壁で止まり、敵ごとに一度だけダメージ。移動方向、停止中は近くの敵へ向かう。回避で中断。",
       level: 1,
@@ -218,7 +213,7 @@ fn GameState::hunter_hud_view(self : GameState) -> HunterHudView {
     },
     paused: self.paused,
     muted: self.audio_bank.is_muted(),
-    cursor: if w.mode == @game.CharacterSelect {
+    cursor: if w.mode == @game.CharacterSelect || w.mode == @game.Title {
       w.select_cursor
     } else {
       w.ui_cursor

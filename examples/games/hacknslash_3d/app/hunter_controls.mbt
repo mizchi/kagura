@@ -199,3 +199,14 @@ fn GameState::update_camera_controls(
     hunter_save_camera_preferences(self.camera_settings.serialize())
   }
 }
+
+///|
+fn hunter_camera_relative_vector(
+  yaw : Double,
+  x : Double,
+  y : Double,
+) -> (Double, Double) {
+  let c = @math.cos(yaw)
+  let s = @math.sin(yaw)
+  (x * c + y * s, -x * s + y * c)
+}

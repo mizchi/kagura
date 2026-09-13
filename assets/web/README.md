@@ -6,6 +6,7 @@
 | 用途 | エントリー | ゲームが指定するもの |
 | --- | --- | --- |
 | タッチ入力 | `kagura-controls.js` | ボタン配置、アクション名、シミュレーションへの変換 |
+| ゲームパッド入力 | `kagura-gamepad.js` | 標準配置のアクション割当、メニュー、入力デバイスの切替 |
 | 効果音管理 | `mizchi/kagura_audio.SoundBank[Key]` | キューの型、イベント対応、音源、音量 |
 | ローポリ形状 | `mizchi/kagura_engine/procedural3d` | 寸法、リング形状、ボーン番号、色、配置 |
 | 表示・撮影 | `kagura-presentation.js` | アスペクト比、表示モード、HUDを含むルート |
@@ -46,6 +47,62 @@ input.clear();   // メニュー遷移などで全入力を破棄
 DOMのスティックはキャンセル、ポインターキャプチャ喪失、blur、非表示で入力を解放します。
 外見や技の使用可否はゲーム側が描画します。ASHEN HUNTでは `hunter-input.mjs` が
 `attack` とメニュー選択番号をMoonBit向けの既存インターフェースへ変換します。
+
+## ゲームパッド入力
+
+Webランタイムは入力フレームの取得時に `navigator.getGamepads()` を一度だけ呼び、
+各デバイスの軸とボタンをコピーします。MoonBitの既存 `GamepadSnapshot` と、
+JSの `globalThis.__kaguraWebRuntime.gamepadFrame` が同じフレームの入力を参照します。
+後者は `{index, id, mapping, connected, axes, buttons, pressedButtons}[]`。
+`buttons` は `{pressed, value}[]`、`index` はブラウザの機器番号です。
+未割当のHID十字キーは中立を1より大きい軸値で表すため、受信時に軸を丸めません。
+スティックの範囲制限は、機器別の割当を適用した後に行います。
+切断・非表示・フォーカス喪失・API利用拒否では空のフレームになります。
+`gamepadCaptureStatus` で `ready` / `unavailable` / `hidden` / `unfocused` /
+`denied` / `error` を区別できます。`ready` でも機器数が0ならブラウザからは未検出です。
+OSでUSB機器として認識されることと、Gamepad APIへ入力が公開されることは別に確認します。
+
+```js
+import {createGamepadReader, navigateGamepadMenu} from '@kagura-web/kagura-gamepad.js';
+
+const reader = createGamepadReader({deadZone: 0.18});
+// ゲームの入力フェーズから一度呼ぶ。別のRAFや再ポーリングは不要。
+const frame = reader.step(globalThis.__kaguraWebRuntime.gamepadFrame, {
+  enabled: !document.hidden && document.hasFocus(),
+  now: performance.now(), // ミリ秒
+});
+if (frame.navigation) navigateGamepadMenu(menuElement, frame.navigation);
+// frame.move / look: 円形デッドゾーン補正後、長さ0〜1の{x,y}。
+// frame.down / pressed / released: 標準配置のボタン番号。
+// frame.ready: 操作可能。activity: ボタン変化かデッドゾーン外の軸変化。
+// frame.dt: カメラ操作用の秒数（最大0.05）。ゲームの進行時間とは独立。
+```
+
+標準配置、または既知の機器別割当があるパッドを1台選び、接続中は保持します。複数パッドの入力を混ぜません。
+接続・機器変更・フォーカス復帰後は、全ボタンと両スティックが中立になるまで操作を抑止します。
+トリガーは `pressed` または `value >= 0.55` で押下とし、ボタンの解放は切断時にも通知します。
+デッドゾーン内の揺れを `activity` に含めないため、マウスとの持ち替え判定にも使えます。
+`navigateGamepadMenu()` は見えるボタンへ空間的にフォーカスを移し、数値・範囲入力と
+セレクトは左右で調整します。十字キー／左スティックの長押しは400ms後から140ms間隔で反復します。
+
+`kagura-gamepad-mappings.js` の `normalizeGamepad()` は、ブラウザが `standard` を返す場合は
+その割当を優先し、未割当の場合だけ機器IDと軸・ボタン構成に一致するプロファイルを適用します。
+現在はMac版ChromeのVictrix Pro BFG PS5有線（`0e6f:0218`、10軸、14ボタン以上）に対応。
+`frame.profile` は `standard` / `victrix-pro-bfg-ps5-mac` / `null` です。
+PS5の軸0・1は左スティック、2・5は右スティック、3・4はL2/R2、9は十字キー。
+十字キーは8方向を標準ボタンへ展開し、1を超える中立値では何も押しません。
+受信したデータは変更せず、未知の機器・別レイアウトを推測で割り当てることはしません。
+割当の参照元：[ChromiumのMac向けPS5変換](https://github.com/chromium/chromium/blob/main/device/gamepad/gamepad_standard_mappings_mac.mm)、
+[十字キーの軸表現](https://github.com/chromium/chromium/blob/main/device/gamepad/gamepad_standard_mappings.cc)。
+
+一時停止・照準・スキル割当・メニューを跨ぐ長押しの抑止はゲーム側の責務です。
+ASHEN HUNTの `hunter-gamepad.mjs` はパッド専用の入力所有者IDを使い、
+切断時もタッチやマウスの保持入力を消しません。
+
+仕様の参照先：
+[MDN: Gamepad APIの使用](https://developer.mozilla.org/ja/docs/Web/API/Gamepad_API/Using_the_Gamepad_API)、
+[W3C: 標準配置](https://w3c.github.io/gamepad/#remapping)。
+ブラウザが機器を公開するには、ページを表示した状態でパッドを一度操作する必要がある場合があります。
 
 ## 効果音
 

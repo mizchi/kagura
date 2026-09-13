@@ -1,13 +1,14 @@
 ///|
 // Normalized pointer coordinates are input state; camera offsets remain presentation state.
 struct HunterAimState {
+  mut stick : (Double, Double)?
   mut pointer : (Double, Double)?
   mut native_cursor : (Double, Double)?
 }
 
 ///|
 fn HunterAimState::new() -> HunterAimState {
-  { pointer: None, native_cursor: None, }
+  { pointer: None, stick: None, native_cursor: None, }
 }
 
 ///|
@@ -16,6 +17,12 @@ fn GameState::update_aim_input(
   input : @core.InputSnapshot,
 ) -> Unit {
   if hunter_web_enabled() {
+    let stick = hunter_web_stick_aim()
+    self.aim.stick = if stick.length() == 2 {
+      Some((stick[0], stick[1]))
+    } else {
+      None
+    }
     let x = hunter_web_pointer_x()
     let y = hunter_web_pointer_y()
     self.aim.pointer = if x >= 0.0 && y >= 0.0 { Some((x, y)) } else { None }
@@ -54,7 +61,16 @@ fn hunter_auto_target(world : @game.GameWorld) -> @game.Enemy? {
 
 ///|
 fn GameState::pointer_aim_angle(self : GameState) -> Double? {
-  self.aim.pointer.map(p => {
+  if self.aim.stick is Some((x, y)) && self.camera_settings.mode == 0 {
+    let (dx, dy) = hunter_camera_relative_vector(self.camera.yaw, x, y)
+    return Some(@math.atan2(dy, dx))
+  }
+  let point = if self.aim.stick is Some(_) {
+    Some((0.5, 0.5))
+  } else {
+    self.aim.pointer
+  }
+  point.map(p => {
     hunter_aim_angle(
       self.camera,
       (if self.camera_settings.mode == 1 { 0.5 } else { p.0 }) *
@@ -80,20 +96,27 @@ fn GameState::combat_focus_offset(self : GameState) -> (Double, Double) {
     return (0.0, 0.0)
   }
   let p = self.world.player
-  let target = match self.aim.pointer {
-    Some((x, y)) => {
-      let height = @game.get_tile_height(self.world.dungeon, p.x, p.y)
-      // Solve against the centered camera so following the pointer cannot feed back into itself.
-      let centered = self.camera.with_target(self.camera_framing_target(height))
-      hunter_ground_point(
-        centered,
-        x * screen_w.to_double(),
-        y * screen_h.to_double(),
-        height,
-        dungeon=Some(self.world.dungeon),
-      )
+  let target = if self.aim.stick is Some((x, y)) {
+    let (dx, dy) = hunter_camera_relative_vector(self.camera.yaw, x, y)
+    Some((p.x + dx * 128.0, p.y + dy * 128.0))
+  } else {
+    match self.aim.pointer {
+      Some((x, y)) => {
+        let height = @game.get_tile_height(self.world.dungeon, p.x, p.y)
+        // Solve against the centered camera so following the pointer cannot feed back into itself.
+        let centered = self.camera.with_target(
+          self.camera_framing_target(height),
+        )
+        hunter_ground_point(
+          centered,
+          x * screen_w.to_double(),
+          y * screen_h.to_double(),
+          height,
+          dungeon=Some(self.world.dungeon),
+        )
+      }
+      None => hunter_auto_target(self.world).map(e => (e.x, e.y))
     }
-    None => hunter_auto_target(self.world).map(e => (e.x, e.y))
   }
   guard target is Some((x, y)) else { return (0.0, 0.0) }
   let dx = (x - p.x) / tile_size * 0.25

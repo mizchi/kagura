@@ -23,7 +23,7 @@ fn build_hunter_motion_weapon(
   clip : @animation3d.AnimationClip,
 ) -> HunterWeaponSet {
   let source = shared_enemy_skeleton
-  let target = build_character_skeleton()
+  let target = build_character_skeleton(authored=true)
   let source_world = source.compute_world_transforms(
     source.bones.map(b => b.local_transform),
   )
@@ -32,6 +32,10 @@ fn build_hunter_motion_weapon(
   )
   // Shared biped -> hunter joints. The enemy tail is not used by equipment.
   let joints = [0, 1, 5, 6, 7, 2, 3, 8, 9, 10, 11, 0, 4, 14, 15, 16]
+  if kind == @game.Focus {
+    joints[3] = 2
+    joints[4] = 3
+  }
   let parts = shared_enemy_weapons[source_index].mesh.parts.map(part => {
     let data = @procedural3d.RigidGeometry::new()
     let mesh = part.geometry.bind_mesh
@@ -64,13 +68,13 @@ fn build_hunter_motion_weapon(
     }
     let mesh = data.build_mesh()
     let skin = data.build_skin()
-    {
+    right_handed_hunter_part({
       name: part.name,
       color: part.color,
       mesh,
       skin,
       packed: @skeleton3d.build_skinned_vertex_data(mesh, skin),
-    }
+    })
   })
   let profile = kind.profile()
   {
@@ -142,6 +146,9 @@ fn CharacterModel::sample_weapon_attack(self : CharacterModel) -> Unit {
           (p.node_index > 0 && p.node_index < 8) || p.node_index >= 14
         }),
       )
+      if self.weapon.kind == @game.Focus {
+        self.use_right_hand_for_focus()
+      }
     }
     None =>
       for

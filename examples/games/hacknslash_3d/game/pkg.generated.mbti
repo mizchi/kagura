@@ -129,6 +129,8 @@ pub fn default_archetype_build_policy() -> ArchetypeBuildPolicy
 
 pub fn default_character_archetype() -> CharacterArchetype
 
+pub fn default_hunter_preset(CharacterArchetype) -> HunterPreset
+
 pub fn effective_aoe_radius(PlayerStats, SkillId, Double) -> Double
 
 pub fn effective_extra_chain_targets(PlayerStats, SkillId) -> Int
@@ -248,6 +250,10 @@ pub let homing_missile_telegraph_radius : Double
 pub let homing_missile_turn_rate : Double
 
 pub fn hunter_equipment_item(EquipSlot, weapon? : PlayerWeaponKind, rarity? : ItemRarity) -> ItemData
+
+pub fn hunter_preset_from_id(String) -> HunterPreset?
+
+pub let hunter_presets : Array[HunterPresetProfile]
 
 pub fn hunting_chests() -> Array[TreasureChest]
 
@@ -876,6 +882,7 @@ pub(all) struct GameWorld {
   mut dungeon : DungeonData
   mut attack_timer : Int
   mut player_weapon : PlayerWeaponKind
+  mut hunter_preset : HunterPreset
   mut cleaver_next : CleaverComboStep
   mut cleaver_combo_timer : Int
   mut weapon_attack : PlayerWeaponAttack?
@@ -919,6 +926,7 @@ pub fn GameWorld::allocate_skill(Self, SkillId) -> Bool
 pub fn GameWorld::apply_archetype(Self, CharacterArchetype) -> Unit
 pub fn GameWorld::apply_dungeon(Self, Int, Int) -> Unit
 pub fn GameWorld::apply_equipment_pickup_plan(Self, ItemData, @gameplay2d.EquipmentPickupPlan) -> Bool
+pub fn GameWorld::apply_hunter_preset(Self, HunterPreset) -> Bool
 pub fn GameWorld::apply_levelup_offer_choice(Self, Int, Int) -> Bool
 pub fn GameWorld::apply_scene_json(Self, String) -> Unit raise
 pub fn GameWorld::assist_melee_angle(Self, Double, PlayerWeaponKind) -> Double
@@ -958,6 +966,7 @@ pub fn GameWorld::request_waypoint(Self, Int) -> Bool
 pub fn GameWorld::reset_floor(Self) -> Unit
 pub fn GameWorld::reset_world_atlas(Self, Int) -> Unit
 pub fn GameWorld::resolve_enemy_enemy_separation(Self) -> Unit
+pub fn GameWorld::respawn_at_waypoint(Self) -> Bool
 pub fn GameWorld::restore_world_progress(Self, String) -> Bool
 pub fn GameWorld::scene_snapshot_json(Self) -> String
 pub fn GameWorld::serialize_world_progress(Self) -> String
@@ -1019,6 +1028,21 @@ pub(all) struct HunterArts {
   mut dash_cooldown : Int
 }
 pub fn HunterArts::new() -> Self
+
+pub(all) enum HunterPreset {
+  BladePreset
+  StormPreset
+  MarksmanPreset
+} derive(Eq, @debug.Debug)
+pub fn HunterPreset::index(Self) -> Int
+pub fn HunterPreset::profile(Self) -> HunterPresetProfile
+
+pub(all) struct HunterPresetProfile {
+  id : String
+  name : String
+  weapon : PlayerWeaponKind
+  keys : Array[Int]
+}
 
 pub(all) struct HuntingElevation {
   config : @terrain3d.TerrainConfig
@@ -1441,6 +1465,7 @@ pub(all) struct WorldAtlas {
   mut elevation : HuntingElevation?
   world_seed : Int
   mut current : Int
+  mut last_waypoint : Int
   regions : Array[RegionState?]
   unlocked : Array[Bool]
   visited : Array[Bool]

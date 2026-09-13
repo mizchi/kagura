@@ -72,7 +72,7 @@ extern "js" fn hunter_web_enabled() -> Bool =
 
 ///|
 extern "js" fn hunter_web_key() -> Int =
-  #| () => globalThis.__ashenControls?.consumeKey() ?? 0
+  #| () => { globalThis.__ashenGamepad?.poll(); return globalThis.__ashenControls?.consumeKey() ?? 0; }
 
 ///|
 extern "js" fn hunter_web_move_x() -> Double =
@@ -141,3 +141,11 @@ extern "js" fn hunter_web_pointer_x() -> Double =
 ///|
 extern "js" fn hunter_web_pointer_y() -> Double =
   #| () => globalThis.__ashenControls?.pointerAim()?.y ?? -1
+
+///|
+extern "js" fn hunter_web_stick_aim() -> Array[Double] =
+  #| () => { const p=globalThis.__ashenControls?.stickAim(); return p?[p.x,p.y]:[]; }
+
+///|
+extern "js" fn hunter_web_ground_stick() -> Array[Double] =
+  #| () => { const p=globalThis.__ashenControls?.groundStick(); return p?[p.x,p.y]:[]; }

@@ -120,8 +120,14 @@ fn append_hunting_approach_enemies(
 }
 
 ///|
-fn equip_hunter_skills(skills : SkillTree) -> Unit {
-  for id in [PowerStrike, Whirlwind, SplittingFireball, IceNova] {
+fn equip_hunter_skills(skills : SkillTree, archetype~ : CharacterArchetype) -> Unit {
+  let ids = [PowerStrike, Whirlwind, SplittingFireball, IceNova]
+  match archetype {
+    Mage => ids.push(ChainLightning)
+    Ranger | Summoner => ids.push(HomingMissile)
+    _ => ()
+  }
+  for id in ids {
     let index = skills.find_index(id)
     if index >= 0 && skills.nodes[index].level == 0 {
       skills.nodes[index].level = 1
@@ -132,7 +138,7 @@ fn equip_hunter_skills(skills : SkillTree) -> Unit {
 ///|
 pub fn GameWorld::ensure_hunter_loadout(self : GameWorld) -> Unit {
   if self.hunting_grounds {
-    equip_hunter_skills(self.skills)
+    equip_hunter_skills(self.skills, archetype=self.archetype)
     self.refresh_player_stats()
   }
 }

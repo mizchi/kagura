@@ -112,3 +112,13 @@ fn hunter_web_pointer_x() -> Double {
 fn hunter_web_pointer_y() -> Double {
   -1.0
 }
+
+///|
+fn hunter_web_stick_aim() -> Array[Double] {
+  []
+}
+
+///|
+fn hunter_web_ground_stick() -> Array[Double] {
+  []
+}

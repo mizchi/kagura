@@ -55,7 +55,7 @@ struct CharacterModel {
 }
 
 ///|
-fn build_character_skeleton() -> @skeleton3d.Skeleton {
+fn build_character_skeleton(authored? : Bool = false) -> @skeleton3d.Skeleton {
   // World-space rest anchors: root, chest, R arm/forearm/weapon, head,
   // L arm/forearm, L thigh/shin, R thigh/shin, coat tails L/R.
   let anchors = [
@@ -80,12 +80,13 @@ fn build_character_skeleton() -> @skeleton3d.Skeleton {
   let bones : Array[@skeleton3d.Bone] = []
   let ibms : Array[@math3d.Mat4] = []
   for (name, parent, x, y, z) in anchors {
+    let x = if authored { x } else { -x }
     let pos = @math3d.Vec3::new(x, y, z)
     let parent_pos = if parent < 0 {
       @math3d.Vec3::zero()
     } else {
       let (_, _, px, py, pz) = anchors[parent]
-      @math3d.Vec3::new(px, py, pz)
+      @math3d.Vec3::new(if authored { px } else { -px }, py, pz)
     }
     bones.push({
       name,
@@ -238,7 +239,8 @@ fn CharacterModel::compute_skinning(
     return self.cached_skinning_matrices
   }
   for i in 0..<char_num_bones {
-    self.local_poses[i] = self.skeleton.bones[i].local_transform
+    // Sample existing authored clips and procedural poses in their original space.
+    self.local_poses[i] = reflect_hunter_pose(self.skeleton.bones[i].local_transform)
   }
   let phase = self.time * 2.0 * @math.PI / run_anim_duration
   let stride = if self.moving { @math.sin(phase) } else { 0.0 }
@@ -296,6 +298,9 @@ fn CharacterModel::compute_skinning(
       self.rotate_bone(13, -0.9, 0.0, 0.2)
     }
     _ => ()
+  }
+  for i in 0..<char_num_bones {
+    self.local_poses[i] = reflect_hunter_pose(self.local_poses[i])
   }
   let world = self.skeleton.compute_world_transforms(self.local_poses)
   self.cached_skinning_matrices = self.skeleton.compute_skinning_matrices(world)

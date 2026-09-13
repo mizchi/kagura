@@ -1,31 +1,15 @@
-// Native stubs for save/load (no localStorage on native)
+// Native has no persistent storage backend yet.
+///|
+fn js_storage_set(_key : String, _value : String) -> Bool { false }
 
 ///|
-fn js_storage_set(_key : String, _value : String) -> Unit {
-
-}
+fn js_storage_get(_key : String) -> String { "" }
 
 ///|
-fn js_storage_get(_key : String) -> String {
-  ""
-}
+fn js_storage_remove(_key : String) -> Bool { false }
 
 ///|
-fn js_storage_remove(_key : String) -> Unit {
-
-}
+fn js_encode_world_progress(value : String) -> String { value }
 
 ///|
-fn GameState::save_game(_self : GameState) -> Unit {
-
-}
-
-///|
-fn GameState::load_game(_self : GameState) -> Bool {
-  false
-}
-
-///|
-fn GameState::delete_save(_self : GameState) -> Unit {
-
-}
+fn js_decode_world_progress(value : String) -> String { value }

@@ -107,20 +107,43 @@ fn GameState::update_hunter_art_input(
   if !self.ground_targeting {
     return false
   }
-  let tx = hunter_web_target_x()
-  let ty = hunter_web_target_y()
-  let pointer_x = if tx >= 0.0 { tx * screen_w.to_double() } else { w.cursor_x }
-  let pointer_y = if ty >= 0.0 { ty * screen_h.to_double() } else { w.cursor_y }
-  if hunter_pointer_ground(
-      self.camera,
-      pointer_x,
-      pointer_y,
-      dungeon=Some(w.dungeon),
+  let stick = hunter_web_ground_stick()
+  if stick.length() == 2 {
+    let (dx, dy) = hunter_camera_relative_vector(
+      self.camera.yaw,
+      stick[0],
+      stick[1],
     )
-    is Some((x, y)) {
-    let (x, y) = w.ground_strike_target(x, y)
+    let (x, y) = w.ground_strike_target(
+      self.ground_target_x + dx * 3.0,
+      self.ground_target_y + dy * 3.0,
+    )
     self.ground_target_x = x
     self.ground_target_y = y
+  } else {
+    let tx = hunter_web_target_x()
+    let ty = hunter_web_target_y()
+    let pointer_x = if tx >= 0.0 {
+      tx * screen_w.to_double()
+    } else {
+      w.cursor_x
+    }
+    let pointer_y = if ty >= 0.0 {
+      ty * screen_h.to_double()
+    } else {
+      w.cursor_y
+    }
+    if hunter_pointer_ground(
+        self.camera,
+        pointer_x,
+        pointer_y,
+        dungeon=Some(w.dungeon),
+      )
+      is Some((x, y)) {
+      let (x, y) = w.ground_strike_target(x, y)
+      self.ground_target_x = x
+      self.ground_target_y = y
+    }
   }
   if hunter_web_target_confirmed() ||
     @inpututil.is_mouse_button_just_pressed(self.input.mouse_state, 0) ||

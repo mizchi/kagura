@@ -120,7 +120,7 @@ test.describe("touch pause menu", () => {
       { width: 320, height: 640 },
     ]) {
       await page.setViewportSize(viewport);
-      for (const button of await menu.getByRole("button").all()) {
+      for (const button of await menu.locator("button,select").all()) {
         const rect = (await button.boundingBox())!;
         expect(rect.x).toBeGreaterThanOrEqual(0);
         expect(rect.y).toBeGreaterThanOrEqual(0);

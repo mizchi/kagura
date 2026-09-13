@@ -129,7 +129,7 @@ fn GameState::hunter_extra_skills(
       ),
     ] {
     let (id, key, remaining, total) = entry
-    if w.skills.get_level(id) > 0 {
+    if w.skills.get_level(id) > 0 && !w.hunter_preset.profile().keys.contains(key) {
       skills.push({
         key,
         name: hunter_skill_name(id),

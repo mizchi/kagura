@@ -44,7 +44,7 @@ test('spatial bag equips, swaps, rotates, persists and keeps the game stopped',a
   await captureGameFrame(page,{path:info.outputPath('inventory-desktop.png')});
   const saved=await inventory(page);
   await page.goto('/?seed=42&mute=1');
-  await page.getByRole('button',{name:/狩りを始める/}).click();
+  await page.locator('[data-save-slot="0"]').click();
   await expect.poll(async()=>(await hud(page)).mode).toBe('playing');
   await page.keyboard.press('KeyI');
   await expect(page.locator('.inv-cell')).toHaveCount(48);
@@ -94,7 +94,7 @@ test('L-shaped holes accept a different item and physical E equips the selected 
 test('older overflowing bags retain every item and can recover through equipment',async({page})=>{
   await page.goto('/?mute=1');
   await page.evaluate(()=>localStorage.setItem('hacknslash3d_save',`1|0|0|-|-|-|1,1,0,0,0,0,0,1,1,0,0,0,0,0,0,0,0|${Array.from({length:20},(_,i)=>`古い外套${i},0,1,0,1,0,1`).join(';')}|1|0|100|0||cleaver|tree-v1`));
-  await page.getByRole('button',{name:/狩りを始める/}).click();
+  await page.locator('[data-save-slot="0"]').click();
   await expect.poll(async()=>(await hud(page)).mode).toBe('playing');
   await page.keyboard.press('KeyI');
   await expect(page.locator('.inv-overflow button')).toHaveCount(12);
@@ -106,7 +106,7 @@ test('older overflowing bags retain every item and can recover through equipment
   await expect(page.locator('.inv-notice')).toContainText('空きがありません');
   expect((await inventory(page)).items).toHaveLength(19);
   await page.reload();
-  await page.getByRole('button',{name:/狩りを始める/}).click();
+  await page.locator('[data-save-slot="0"]').click();
   await expect.poll(async()=>(await hud(page)).mode).toBe('playing');
   await page.keyboard.press('KeyI');
   await expect(page.locator('.inv-overflow button')).toHaveCount(11);

@@ -39,7 +39,7 @@ test "hunter bowstring follows the drawing hand and hides the arrow on the relea
   let _ = character.compute_skinning()
   let world = character.skeleton.compute_world_transforms(character.local_poses)
   let string = world[15].mul_vec4(@math3d.Vec4::new(0.0, 0.0, 0.0, 1.0))
-  let hand = world[3].mul_vec4(@math3d.Vec4::new(0.03, -0.13, 0.06, 1.0))
+  let hand = world[3].mul_vec4(@math3d.Vec4::new(-0.03, -0.13, 0.06, 1.0))
   assert_true(
     (string.x - hand.x).abs() +
     (string.y - hand.y).abs() +

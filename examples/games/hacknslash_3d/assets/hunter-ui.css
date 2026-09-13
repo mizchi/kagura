@@ -1,3 +1,4 @@
+@import "./hunter-gamepad.css";
 @import "./hunter-terrain.css";
 @import './hunter-arts.css';
 @import './hunter-camera.css';
@@ -1359,3 +1360,63 @@ canvas#app {
 #site-label{display:block;color:#e4c486;letter-spacing:.12em;margin-top:8px;font-size:13px;}
 #site-label[hidden]{display:none;}
 #chest-prompt{border-color:#c9a25e;box-shadow:0 0 18px #b3802738;}
+
+/* Save slots share the stopped menu surface and remain selectable on narrow screens. */
+.panel-title { width:min(580px,100%); padding:30px; }
+.panel-title h2 { font-size:26px; letter-spacing:.06em; }
+.save-slots { display:grid; gap:10px; }
+.save-slot { display:flex; align-items:center; gap:14px; padding:18px 14px; min-height:82px; width:100%; text-align:left; background:#14221bcc; border:1px solid #b8a37155; }
+.save-slot.selected,.save-slot:hover { border-color:#d8bd82; background:#2b3528; }
+.save-number { color:#c4ac76; font:22px Georgia,serif; }
+.save-info { display:grid; gap:7px; min-width:0; flex:1; }
+.save-info strong { font-size:14px; font-weight:500; }
+.save-info small { color:#aeb9a4; font-size:10px; line-height:1.6; }
+.save-action { color:#c4ac76; font-size:11px; flex-shrink:0; }
+.save-back { margin-top:18px; padding:12px 0; background:transparent; border:0; color:#c4ac76; }
+.save-notice { color:#ecb99b; font-size:12px; line-height:1.7; }
+.save-notice:empty { display:none; }
+@media (max-width:400px) {
+  .panel-title { padding:22px 18px; }
+  .panel-title h2 { font-size:23px; }
+  .save-slot { padding:14px 10px; gap:10px; }
+  .save-info strong { font-size:13px; }
+  .panel-pause .pause-hint { display:none; }
+}
+@media (max-height:500px) and (orientation:landscape) {
+  .panel-title { padding:20px; }
+  .panel-title>small { margin-top:14px; }
+}
+
+/* The preset groups four primary actions without adding another combat row. */
+.preset-picker { display:grid; grid-template-columns:1fr auto; align-items:center; gap:6px 12px; padding:12px 16px; border:1px solid #b8a37140; background:#15241ccc; color:#dfdccb; font-size:13px; }
+.preset-picker select { min-height:36px; padding:4px 10px; border:1px solid #b8a37166; background:#202d24; color:#dfdccb; font:inherit; }
+.preset-picker small { grid-column:1/-1; color:#a8b1a4; font-size:11px; }
+.preset-picker select:focus-visible { outline:2px solid #e6c999; outline-offset:3px; }
+#gamepad-primary-skills { white-space:pre-line; }
+
+@media (max-height:700px) {
+  .panel-pause .panel-description { display:none; }
+  .panel-pause .pause-hint { margin-top:8px; }
+}
+@media (max-height:500px) and (orientation:landscape) {
+  .panel-pause { width:min(780px,100%); padding:16px; }
+  .panel-pause .pause-actions { grid-template-columns:repeat(3,minmax(0,1fr)); gap:8px; }
+  .panel-pause .pause-actions>button { min-height:44px; padding:8px; }
+  .panel-pause .preset-picker { padding:8px; gap:4px; font-size:11px; }
+  .panel-pause .preset-picker small { display:none; }
+}
+
+.save-slot-row { display:flex; align-items:stretch; gap:6px; min-width:0; }
+.save-slot-row .save-slot { flex:1; min-width:0; }
+.save-delete { flex:0 0 46px; border:1px solid #ad75604d; background:#38231e80; color:#d9a694; font-size:11px; }
+.save-delete:hover { background:#58332b; border-color:#c89580; }
+.save-delete-summary { padding:16px; border:1px solid #b8a37155; background:#14221bcc; color:#dfdccb; }
+.save-delete-summary p { margin:8px 0 0; font-size:12px; line-height:1.6; color:#aeb9a4; }
+.save-delete-actions { display:flex; gap:12px; }
+.save-delete-actions button { flex:1; min-height:48px; border:1px solid #b8a37166; background:#25382c; color:#dfdccb; }
+.save-delete-actions .save-delete-confirm { background:#63382e; border-color:#b67962; color:#fff0e6; }
+@media(max-width:400px) {
+  .save-slot-row .save-slot { gap:8px; flex-wrap:wrap; }
+  .save-slot-row .save-action { margin-left:auto; }
+  .save-delete-summary { padding:12px; }
+}

@@ -1,3 +1,8 @@
+import {hunterSlot,hunterDigitSlot} from './hunter-hotbar.mjs';
+import {renderSaveSelect} from './hunter-save-select.mjs';
+import {createGamepadReader,navigateGamepadMenu} from '@kagura-web/kagura-gamepad.js';
+import {createHunterGamepad} from './hunter-gamepad.mjs';
+import {gamepadGuide,createGamepadGuide} from './hunter-gamepad-ui.mjs';
 import {createControlInput, bindVirtualStick} from '@kagura-web/kagura-controls.js';
 import {createHunterInput, skillStatus} from './hunter-input.mjs';
 import {bindHunterAim} from './hunter-aim.mjs';
@@ -49,6 +54,7 @@ let panelKey='';
 let showTreeDetail=false;
 const names=['処刑の一撃','ワールウィンド','分裂火弾','霜の輪'];
 root.innerHTML=`
+  ${gamepadGuide}
   <div class="edge-shade" aria-hidden="true"></div>
   <div id="damage-numbers" aria-hidden="true"></div>
   <div id="tps-crosshair" aria-hidden="true" hidden></div>
@@ -71,7 +77,7 @@ root.innerHTML=`
         <button id="dash-strike-button" data-key="86" aria-label="踏込斬り" title="Vで踏み込み、敵の手前で止まって斬る。壁で停止、回避で中断。"><span>${icon('blade')}</span><strong>踏込斬り</strong><small id="dash-strike-status">V</small></button>
       </div>
       <div class="learned-arts" id="learned-arts" aria-label="習得した技" hidden></div>
-      <label class="weapon-picker">武器 <select id="player-weapon" aria-label="プレーヤーの武器"></select><kbd>X</kbd></label>
+      <label class="weapon-picker"><span id="hunter-preset-name"></span> · 武器 <select id="player-weapon" aria-label="プレーヤーの武器"></select><kbd>X</kbd></label>
       <div class="skill-buttons">${names.map((name,i)=>`<button class="skill skill-${i}" ${i===1?'data-hold="whirlwind"':`data-key="${49+i}"`} data-skill="${i}" aria-label="${name}"><kbd>${i+1}</kbd><span class="skill-glyph">${icon(['blade','whirl','fire','frost'][i])}<i class="cooldown-sweep"></i></span><strong>${name}</strong><small class="skill-status">使用可能</small><span class="skill-tooltip"></span></button>`).join('')}</div>
       <button id="charge-button" class="charge-button" data-key="67" aria-label="突進"><span>${icon('dodge')}</span><strong>突進</strong><small id="charge-status">C</small></button>
       <div class="primary-actions"><button id="attack-button" data-hold="attack" aria-label="通常攻撃"><span id="combo-chain" hidden aria-hidden="true"><i>1</i><i>2</i><i>3</i></span><span id="weapon-icon">${icon('blade')}</span><strong id="weapon-action">斬撃</strong><kbd>J / 左クリック</kbd></button><button id="dodge-button" data-key="32" aria-label="回避"><span>${icon('dodge')}</span><strong>回避</strong><small id="dodge-status">SPACE</small></button></div>
@@ -87,6 +93,7 @@ root.innerHTML=`
 `;
 const $=id=>document.getElementById(id);
 const renderArts=bindHunterArts({root,input});
+const gamepadGuideView=createGamepadGuide(root);
 bindTerrainPanel($('hunter-panel'),terrainInput);
 const syncCameraPanel=bindCameraPanel($('hunter-panel'),cameraInput);
 window.addEventListener('resize',()=>syncCameraViewport($('hunter-panel'),current?.camera?.editing||current?.terrain?.editing));
@@ -94,6 +101,9 @@ const inventoryPanel=createInventoryPanel($('hunter-panel'),{input,icon,escape})
 $('player-weapon').addEventListener('change',e=>{
   input.tap(88,Number(e.target.value));
   document.querySelector('#app')?.focus({preventScroll:true});
+});
+$('hunter-panel').addEventListener('change',e=>{
+  if(e.target.id==='hunter-preset')input.tap(76,Number(e.target.value));
 });
 const setText=(id,value)=>{const e=$(id);if(e.textContent!==String(value))e.textContent=String(value);};
 const stick=$('move-stick');
@@ -158,7 +168,7 @@ root.addEventListener('keyup',e=>{
 });
 root.addEventListener('focusout',()=>input.release(-51));
 window.addEventListener('keyup',e=>{
-  if(e.code==='Digit2'){input.release(-50);e.preventDefault();e.stopImmediatePropagation();}
+  if(e.code==='Digit2'){input.release(-50);e.preventDefault();}
 });
 window.addEventListener('blur',()=>{inventoryPanel.cancelDrag();clear();});
 const heldKeyboardCodes=new Set([
@@ -168,6 +178,8 @@ const heldKeyboardCodes=new Set([
 ]);
 // Discrete keys are intents, retained until a simulation tick consumes them.
 // A short key tap must survive a busy GPU frame just like a touch button tap.
+// Capture owned commands before runtime listeners, regardless of module load order.
+// Keyup still reaches the runtime so an earlier physical press can always clear.
 window.addEventListener('keydown',e=>{
   if(current?.menu==='inventory'&&inventoryPanel.handleKeyDown(e)){e.preventDefault();e.stopImmediatePropagation();return;}
   if(e.code==='Escape' && !e.ctrlKey && !e.metaKey && !e.altKey){
@@ -177,12 +189,17 @@ window.addEventListener('keydown',e=>{
   }
   if(e.ctrlKey || e.metaKey || e.altKey || e.target?.isContentEditable || e.target?.closest?.('input,textarea,select'))return;
   if(e.target instanceof HTMLButtonElement && ['Space','Enter'].includes(e.code))return;
-  if(e.code==='Digit2'){
+  const slotIndex=hunterDigitSlot(e.code);
+  if(slotIndex>=0&&current?.mode==='playing'&&!current.paused&&current.menu==='none'){
     e.preventDefault();e.stopImmediatePropagation();
-    if(!e.repeat&&current?.mode==='playing'&&!current.paused&&current.menu==='none')input.hold(-50,'whirlwind');
+    if(!e.repeat){
+      const slot=hunterSlot(current,slotIndex);
+      if(slot.hold==='whirlwind')input.hold(-50,'whirlwind');
+      else input.tap(slot.key);
+    }
     return;
   }
-  const keys={Space:32,Enter:13,Escape:27,KeyP:80,KeyI:73,KeyK:75,KeyG:71,KeyB:66,KeyO:79,KeyN:78,KeyZ:90,KeyX:88,KeyC:67,KeyT:84,KeyV:86,Digit1:49,Digit3:51,Digit4:52,Digit5:53,Digit6:54,Digit8:56};
+  const keys={Space:32,Enter:13,Escape:27,KeyP:80,KeyH:72,KeyI:73,KeyK:75,KeyG:71,KeyB:66,KeyO:79,KeyN:78,KeyZ:90,KeyX:88,KeyC:67,KeyT:84,KeyV:86,Digit1:49,Digit3:51,Digit4:52,Digit5:53,Digit6:54,Digit8:56};
   if(current?.menu==='inventory')keys.KeyE=69;
   const code=keys[e.code];
   if(!code){
@@ -193,14 +210,14 @@ window.addEventListener('keydown',e=>{
   }
   e.preventDefault();e.stopImmediatePropagation();
   if(!e.repeat)input.tap(code);
-});
+},true);
 window.addEventListener('resize',()=>{inventoryPanel.cancelDrag();clear();});
 document.addEventListener('visibilitychange',()=>{if(document.hidden){inventoryPanel.cancelDrag();clear();}});
 
 let previousPanelState="";
 function panel(hud){
   const state=hud.mode!=='playing'?hud.mode:hud.terrain?.editing?'terrain':hud.camera?.editing?'camera':hud.menu!=='none'?hud.menu:hud.paused?'pause':'';
-  const signature=JSON.stringify([state,state==='terrain'?hud.terrain?.revision:null,hud.camera?.mode,hud.paused,hud.muted,hud.skill_points,hud.cursor,hud.inventory,hud.equipment,hud.inventory_grid,state==='waypoints'?hud.atlas:null,hud.nodes,hud.offers]);
+  const signature=JSON.stringify([state,state==='terrain'?hud.terrain?.revision:null,hud.camera?.mode,hud.preset,hud.paused,hud.muted,hud.skill_points,hud.cursor,hud.inventory,hud.equipment,hud.inventory_grid,state==='waypoints'?hud.atlas:null,hud.nodes,hud.offers,state==='title'?hud.save_slots:null,hud.save_notice,hud.save_delete_slot]);
   if(signature===panelKey){if(state==='camera')syncCameraPanel(hud.camera);return;}panelKey=signature;
   const el=$('hunter-panel');el.hidden=!state;
   el.setAttribute('aria-live',state==='inventory'||state==='camera'||state==='terrain'?'off':'polite');
@@ -225,20 +242,20 @@ function panel(hud){
   const close=`<button class="close-panel" data-key="27" aria-label="${hud.paused?'一時停止メニューに戻る':'閉じる'}">${hud.paused?'←':'×'}</button>`;
   const heading=(eyebrow,title)=>`<p class="eyebrow">${eyebrow}</p><h2>${title}</h2>`;
   let body='';
-  if(state==='title')body=`${heading('A HUNTER’S NIGHT','ASHEN HUNT')}<p class="title-jp">灰の森に、灯を。</p><p class="panel-description">途切れた旧街道。眠らない群れ。<br>灯火をたどり、夜の狩場へ。</p><button class="begin-button" data-key="32">狩りを始める <span>→</span></button><small>WASDで移動 · 左クリックで通常攻撃 · Xで武器切替 · Cで突進<br>モバイルでは画面のスティックとボタンで操作</small>`;
-  if(state==='character_select')body=`${heading('CHOOSE YOUR OATH','狩人の誓い')}<p class="panel-description">4つの技を携え、灰の森へ踏み入る。</p><div class="oath-list">${['刃の狩人','術の狩人','呪弾の狩人'].map((n,i)=>`<button data-key="13" data-selection="${i}" class="${hud.cursor===i?'selected':''}">${icon(['blade','fire','frost'][i])}<strong>${n}</strong><small>${['体力と近接攻撃に優れる','術の威力に優れる','遠距離から群れを狙う'][i]}</small><span>→</span></button>`).join('')}</div>`;
-  if(state==='gameover')body=`${heading('THE NIGHT REMAINS','灯は、まだ消えない。')}<p class="panel-description">灰の森で倒れた。もう一度、夜の向こうへ。</p><button class="begin-button" data-key="32">再び立ち上がる →</button>`;
-  if(state==='pause')body=`<div class="pause-mark">${icon('pause')}</div>${heading('THE NIGHT CAN WAIT','一時停止')}<p class="panel-description">ここで、ひと息。<br>狩場の時間は止まっています。</p><div class="pause-actions"><button class="begin-button" data-key="27" data-autofocus>狩りを再開する <kbd>ESC</kbd></button><button data-key="73">${icon('bag')}<span>装備袋</span><kbd>I</kbd></button><button data-key="75">${icon('book')}<span>技と成長</span><kbd>K</kbd></button><button data-key="71">${icon('waypoint')}<span>世界地図</span><kbd>G</kbd></button><button data-key="79">${icon('eye')}<span>カメラ設定</span><kbd>O</kbd></button>${hud.terrain?.enabled?'<button data-key="78"><span>地形実験</span><kbd>N</kbd></button>':''}<button data-key="77" aria-label="サウンド" aria-pressed="${!hud.muted}"><span>サウンド</span><strong>${hud.muted?'OFF':'ON'}</strong><kbd>M</kbd></button></div><p class="pause-hint">メニューを確認している間も一時停止します。</p>`;
+  if(state==='title')body=renderSaveSelect(hud,{escape});
+  if(state==='character_select')body=`${heading('CHOOSE YOUR OATH','狩人の誓い')}<p class="panel-description">セーブ ${hud.active_save_slot+1} · 4つの技を携え、灰の森へ踏み入る。</p><div class="oath-list">${['刃の狩人','術の狩人','呪弾の狩人'].map((n,i)=>`<button data-key="13" data-selection="${i}" class="${hud.cursor===i?'selected':''}">${icon(['blade','fire','frost'][i])}<strong>${n}</strong><small>${['体力と近接攻撃に優れる','チェインライトニングと星落としで群れを制圧','弓と追尾の呪弾で遠距離から狙う'][i]}</small><span>→</span></button>`).join('')}</div><button class="save-back" data-key="27">← セーブデータ選択に戻る</button>`;
+  if(state==='gameover')body=`${heading('THE NIGHT REMAINS','灯は、まだ消えない。')}<p class="panel-description">装備と成長、探索の記録は残っています。<br>${escape(hud.respawn_region)}の灯火で、再び夜の向こうへ。</p><button class="begin-button" data-key="13">ウェイポイントから再開 →</button>`;
+  if(state==='pause')body=`<div class="pause-mark">${icon('pause')}</div>${heading('THE NIGHT CAN WAIT','一時停止')}<p class="panel-description">ここで、ひと息。<br>狩場の時間は止まっています。</p><div class="pause-actions"><button class="begin-button" data-key="27" data-autofocus>狩りを再開する <kbd>ESC</kbd></button><button data-key="73">${icon('bag')}<span>装備袋</span><kbd>I</kbd></button><button data-key="75">${icon('book')}<span>技と成長</span><kbd>K</kbd></button><button data-key="71">${icon('waypoint')}<span>世界地図</span><kbd>G</kbd></button><button data-key="79">${icon('eye')}<span>カメラ設定</span><kbd>O</kbd></button>${hud.terrain?.enabled?'<button data-key="78"><span>地形実験</span><kbd>N</kbd></button>':''}<label class="preset-picker">武器と技のプリセット<select id="hunter-preset" aria-label="武器と技のプリセット" data-focus="preset" ${hud.weapon_locked||hud.attack_remaining>0?'disabled':''}>${hud.presets.map((name,i)=>`<option value="${i}" ${hud.preset===i?'selected':''}>${escape(name)}</option>`).join('')}</select><small>未習得の技はスキルツリーで解放</small></label><button data-key="72"><span>セーブして選択画面へ</span><kbd>H</kbd></button><button data-key="77" aria-label="サウンド" aria-pressed="${!hud.muted}"><span>サウンド</span><strong>${hud.muted?'OFF':'ON'}</strong><kbd>M</kbd></button></div><p class="pause-hint">メニューを確認している間も一時停止します。</p><p class="save-notice" role="status">${escape(hud.save_notice)}</p>`;
   if(state==='camera')body=renderCameraPanel(hud.camera);
   if(state==='terrain')body=renderTerrainPanel(hud.terrain);
   if(state==='inventory')body=`${close}${inventoryPanel.render(hud.inventory_grid)}`;
   if(state==='waypoints')body=`${close}${renderWorldMap(hud,{icon,escape})}`;
-  if(state==='skills')body=`${close}${renderSkillTree(hud,{icon,escape})}<div class="tree-guide"><h3>狩場での操作</h3><div class="skill-guide">${hud.skills.map((s,i)=>`<article>${icon(['blade','whirl','fire','frost'][i])}<div><strong><kbd>${i+1}</kbd> ${escape(s.name)}</strong><p>${escape(s.description)}</p></div></article>`).join('')}</div><p class="panel-description"><strong>C · 突進</strong><br>${escape(hud.charge.description)} 全武器で使用可能・再使用まで3秒。</p><div class="arts-guide"><p><strong>F · 盾ガード</strong><br>長押しで盾を構え、正面120度からの攻撃を80%軽減。構え始め8フレームは完全防御。防御力を使い切ると1.5秒間、体勢を立て直します。</p><p><strong>T · 星落とし</strong><br>地面を指定し、表示された円に0.5秒後に落雷。クリック／タップで確定、ESCで取消。再使用まで4秒。</p><p><strong>V · 踏込斬り</strong><br>前方へ踏み込み、敵の手前で停止して斬る。壁で停止し、回避で中断できます。再使用まで2.5秒。</p><p><strong>5 · 連鎖雷撃</strong><br>呪術のスキルツリーで習得。近くの敵へ雷をつなぎます。</p></div></div>`;
+  if(state==='skills')body=`${close}${renderSkillTree(hud,{icon,escape})}<div class="tree-guide"><h3>狩場での操作</h3><div class="skill-guide">${hud.skills.map((s,i)=>`<article>${icon(s.glyph)}<div><strong><kbd>${i+1}</kbd> ${escape(s.name)}</strong><p>${escape(s.description)}</p></div></article>`).join('')}</div><p class="panel-description"><strong>C · 突進</strong><br>${escape(hud.charge.description)} 全武器で使用可能・再使用まで3秒。</p><div class="arts-guide"><p><strong>F · 盾ガード</strong><br>長押しで盾を構え、正面120度からの攻撃を80%軽減。構え始め8フレームは完全防御。防御力を使い切ると1.5秒間、体勢を立て直します。</p><p><strong>T · 星落とし</strong><br>地面を指定し、表示された円に0.5秒後に落雷。クリック／タップで確定、ESCで取消。再使用まで4秒。</p><p><strong>V · 踏込斬り</strong><br>前方へ踏み込み、敵の手前で停止して斬る。壁で停止し、回避で中断できます。再使用まで2.5秒。</p><p><strong>5 · 連鎖雷撃</strong><br>呪術のスキルツリーで習得。近くの敵へ雷をつなぎます。</p></div></div>`;
   if(state==='levelup')body=`${heading('BLOOD & EXPERIENCE','新たな力を選ぶ')}<p class="panel-description">ひとつ選ぶと狩りを再開します。</p><div class="oath-list">${hud.offers.map((name,i)=>`<button data-key="13" data-selection="${i}" class="${hud.cursor===i?'selected':''}">${icon('book')}<strong>${escape(name)}</strong><span>→</span></button>`).join('')}</div>`;
   el.innerHTML=`<div class="hunter-panel panel-${state}" role="dialog" aria-modal="true" aria-label="${state==='pause'?'一時停止メニュー':state==='camera'?'カメラ設定':state==='terrain'?'地形実験':state}">${body}</div>`;
   el.querySelector('.hunter-panel').scrollTop=scrollTop;
   syncCameraViewport(el,state==='camera'||state==='terrain');
-  if(hud.paused||state==='skills'||state==='inventory'||state==='waypoints'){
+  if(hud.paused||['title','character_select','gameover','levelup','skills','inventory','waypoints'].includes(state)){
     let focus=null;
     if(!changed&&focusedTree)focus=el.querySelector(`[data-tree-node][data-selection="${hud.cursor}"]`);
     else if(!changed&&focusedName)focus=el.querySelector(`[data-focus="${focusedName}"]:not(:disabled)`);
@@ -279,6 +296,7 @@ function render(hud){
     [...combo.children].forEach((pip,i)=>pip.dataset.current=String(i+1===step));
     $('attack-button').title=`${hud.combat.combo_active?'':'次：'}${['横薙ぎ ×1.0','返し斬り ×1.4','叩き斬り ×2.6'][step-1]}。1・2段目は踏み込み、3段目は高威力だが攻撃後の隙が長い。`;
   }
+  setText('hunter-preset-name',hud.preset_name);
   setText('weapon-action',hud.weapon_action);
   if($('weapon-icon').dataset.weapon!==String(hud.weapon_index)){
     $('weapon-icon').innerHTML=icon(['blade','spear','fist','fire','bow'][hud.weapon_index]);
@@ -327,7 +345,14 @@ function render(hud){
   $('map-player').setAttribute('cx',hud.map_x);$('map-player').setAttribute('cy',hud.map_z);
   hud.skills.forEach((skill,i)=>{
     const b=root.querySelector(`[data-skill="${i}"]`),status=skillStatus(skill);
-    const channel=i===1,whirling=channel&&hud.arts?.whirling;
+    const channel=skill.hold==='whirlwind',whirling=channel&&hud.arts?.whirling;
+    if(b.dataset.action!==String(skill.key)){
+      b.dataset.action=String(skill.key);
+      if(channel){b.dataset.hold='whirlwind';delete b.dataset.key;}
+      else {b.dataset.key=String(skill.key);delete b.dataset.hold;b.removeAttribute('aria-pressed');}
+      b.querySelector('.skill-glyph svg').outerHTML=icon(skill.glyph);
+      b.querySelector('strong').textContent=skill.name;
+    }
     const label=whirling?'回転中 · 離すと停止':channel&&!status.disabled?'長押しで回転':status.label;
     b.disabled=(!whirling&&(status.disabled||hud.weapon_locked)) || hud.arts?.targeting || hud.paused || hud.menu!=='none';
     if(channel)b.setAttribute('aria-pressed',String(!!whirling));
@@ -359,15 +384,32 @@ function render(hud){
   setText('tree-sp-badge',`${hud.skill_points} SP`);
   $('tps-crosshair').hidden=!hud.camera?.crosshair||hud.menu!=='none';
   renderArts(hud);
+  $('astral-button').hidden=hud.skills.some(s=>s.key===84);
   panel(hud);
+  gamepadGuideView.render(hud,input.gamepadActive());
 }
 globalThis.__ashenUI=Object.freeze({version:1,render});
 
 // Keep keyboard navigation inside the stopped menu, including its submenus.
 $('hunter-panel').addEventListener('keydown',e=>{
-  if((!current?.paused && !['skills','inventory','waypoints'].includes(current?.menu)) || e.code!=='Tab')return;
+  if(e.code!=='Tab'||e.currentTarget.hidden)return;
   const buttons=[...e.currentTarget.querySelectorAll('button:not(:disabled):not([tabindex="-1"]),select:not(:disabled),input:not(:disabled),a[href]')];
   const first=buttons[0],last=buttons.at(-1);
   if(e.shiftKey&&document.activeElement===first){e.preventDefault();last?.focus();}
   else if(!e.shiftKey&&document.activeElement===last){e.preventDefault();first?.focus();}
 });
+
+// Sample in the simulation input phase, using the engine's once-per-frame snapshot.
+const gamepad=createHunterGamepad({reader:createGamepadReader(),input,camera:cameraInput,view:()=>current,
+  navigate:direction=>navigateGamepadMenu($('hunter-panel'),direction),
+  confirm:()=>{
+    const panel=$('hunter-panel');
+    const focused=panel.contains(document.activeElement)?document.activeElement:null;
+    const button=focused?(focused.matches('button:not(:disabled)')?focused:null):panel.querySelector('[data-autofocus],button:not(:disabled)');
+    button?.click();
+  },
+  status:(frame,active)=>gamepadGuideView.status(frame,active),
+});
+globalThis.__ashenGamepad=gamepad;
+window.addEventListener('blur',()=>gamepad.reset());
+document.addEventListener('visibilitychange',()=>{if(document.hidden)gamepad.reset();});

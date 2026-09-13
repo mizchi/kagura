@@ -62,14 +62,15 @@ test('Dvorak physical movement and camera keys never trigger each other', async 
 
 test('game keys consume native text input, including repeats and HUD focus', async ({ page }) => {
   for (const target of ['canvas', 'body', '#hunter-panel button']) {
-    await page.locator(target).first().evaluate(element => {
-      element.setAttribute('tabindex', '0');
-      element.focus();
-    });
     const keys = ['w', 'a', 's', 'd', 'q', 'e', 'r', 'j', 'm', 'o', 'z', 'ArrowUp', 'ArrowDown'];
     // The engine also consumes printable keys not bound by the game's HUD.
     if (target === 'canvas') keys.push('l');
     for (const key of keys) {
+      // O opens settings and moves focus; restore the target for each assertion.
+      await page.locator(target).first().evaluate(element => {
+        element.setAttribute('tabindex', '0');
+        element.focus();
+      });
       await page.keyboard.down(key);
       await page.keyboard.down(key);
       const events = await page.evaluate(() => globalThis.__keyEvents.slice(-2).map(event => ({
@@ -112,7 +113,7 @@ test('text fields, browser shortcuts and Tab retain their native behavior', asyn
   await page.keyboard.down('w');
   expect(await page.evaluate(() => globalThis.__kaguraWebRuntime.pressedKeys)).toEqual([]);
   await page.keyboard.up('w');
-  await page.locator('#hunter-panel button').focus();
+  await page.locator('[data-save-slot="0"]').focus();
   await page.keyboard.press('Enter');
   await page.waitForFunction(() => globalThis.__hacknslash3dRuntime?.mode === 'character_select');
 });

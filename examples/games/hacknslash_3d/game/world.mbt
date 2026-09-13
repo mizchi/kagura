@@ -21,6 +21,7 @@ pub(all) struct GameWorld {
   mut dungeon : DungeonData
   mut attack_timer : Int
   mut player_weapon : PlayerWeaponKind
+  mut hunter_preset : HunterPreset
   mut cleaver_next : CleaverComboStep
   mut cleaver_combo_timer : Int
   mut weapon_attack : PlayerWeaponAttack?
@@ -92,7 +93,7 @@ pub fn GameWorld::new(
   }
   let skills = SkillTree::new_for_archetype(archetype)
   if hunting_grounds {
-    equip_hunter_skills(skills)
+    equip_hunter_skills(skills, archetype~)
     skills.skill_points = 3
   }
   let player_stats = compute_player_stats(
@@ -158,11 +159,8 @@ pub fn GameWorld::new(
     projectiles: [],
     dungeon,
     attack_timer: 0,
-    player_weapon: match archetype {
-      Melee => Cleaver
-      Mage => Focus
-      _ => Bow
-    },
+    hunter_preset: default_hunter_preset(archetype),
+    player_weapon: default_hunter_preset(archetype).profile().weapon,
     cleaver_next: Opening,
     cleaver_combo_timer: 0,
     weapon_attack: None,
@@ -218,11 +216,8 @@ pub fn GameWorld::apply_archetype(
   archetype : CharacterArchetype,
 ) -> Unit {
   self.archetype = archetype
-  self.player_weapon = match archetype {
-    Melee => Cleaver
-    Mage => Focus
-    _ => Bow
-  }
+  self.hunter_preset = default_hunter_preset(archetype)
+  self.player_weapon = self.hunter_preset.profile().weapon
   self.cancel_hunter_action()
   self.arts.strike = None
   self.weapon_attack = None
@@ -241,7 +236,7 @@ pub fn GameWorld::apply_archetype(
   }
   // Recompute stats with new archetype
   if self.hunting_grounds {
-    equip_hunter_skills(self.skills)
+    equip_hunter_skills(self.skills, archetype~)
     self.skills.skill_points = 3
   }
   self.player_stats = compute_player_stats(

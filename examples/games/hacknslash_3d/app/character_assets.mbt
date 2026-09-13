@@ -55,13 +55,13 @@ fn build_character_head(species : CharacterSpecies) -> Array[CharacterPart] {
       }
       let mesh = data.build_mesh()
       let skin = data.build_skin()
-      parts.push({
+      parts.push(right_handed_hunter_part({
         name: "head_" + part.name,
         mesh,
         skin,
         packed: @skeleton3d.build_skinned_vertex_data(mesh, skin),
         color: part.color,
-      })
+      }))
     }
   }
   parts

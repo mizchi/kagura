@@ -19,13 +19,13 @@ fn finish_hunter_part(
 ) -> CharacterPart {
   let mesh = geometry.build_mesh()
   let skin = geometry.build_skin()
-  {
+  right_handed_hunter_part({
     name,
     mesh,
     skin,
     packed: @skeleton3d.build_skinned_vertex_data(mesh, skin),
     color: hex_to_vec4(color),
-  }
+  })
 }
 
 ///|

@@ -140,7 +140,7 @@ fn GameState::hunter_camera_view(self : GameState) -> HunterCameraView {
     editing: self.camera_settings.editing,
     tuning: self.camera_settings.active(),
     crosshair: self.camera_settings.mode == 1 &&
-    self.aim.pointer is Some(_) &&
+    (self.aim.pointer is Some(_) || self.aim.stick is Some(_)) &&
     !self.paused &&
     !self.ground_targeting,
   }

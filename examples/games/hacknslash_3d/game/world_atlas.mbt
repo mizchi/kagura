@@ -64,6 +64,7 @@ pub(all) struct WorldAtlas {
   mut elevation : HuntingElevation?
   world_seed : Int
   mut current : Int
+  mut last_waypoint : Int
   regions : Array[RegionState?]
   unlocked : Array[Bool]
   visited : Array[Bool]
@@ -77,6 +78,7 @@ pub fn WorldAtlas::new(seed : Int) -> WorldAtlas {
     elevation: None,
     world_seed: seed,
     current: 0,
+    last_waypoint: 0,
     regions: [None, None, None, None],
     unlocked: [true, false, false, false],
     visited: [true, false, false, false],
@@ -314,10 +316,11 @@ pub fn GameWorld::activate_nearby_waypoint(self : GameWorld) -> Bool {
   if self.hunter_action_locked() ||
     self.mode != Playing ||
     !self.near_waypoint() ||
-    atlas.unlocked[atlas.current] {
+    (atlas.unlocked[atlas.current] && atlas.last_waypoint == atlas.current) {
     return false
   }
   atlas.unlocked[atlas.current] = true
+  atlas.last_waypoint = atlas.current
   atlas.revision += 1
   true
 }

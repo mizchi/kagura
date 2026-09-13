@@ -61,7 +61,7 @@ test('portrait hunter moves and attacks with two fingers, cancels cleanly, and c
 
 test('mobile title, class selection, skill guide and inventory work without a keyboard',async({page,context},testInfo)=>{
   await page.goto('/?mute=1&seed=42');
-  await page.getByRole('button',{name:/狩りを始める/}).tap();
+  await page.locator('[data-save-slot="0"]').tap();
   await page.getByRole('button',{name:/刃の狩人/}).tap();
   await page.waitForFunction(()=>globalThis.__ashenHud?.mode==='playing');
   await page.getByRole('button',{name:'技と成長',exact:true}).tap();

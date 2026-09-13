@@ -9,12 +9,18 @@ export function createHunterInput(controls) {
   let target = null;
   let targetConfirmed = false;
   let whirlwindPressed = false;
-  let pointer = null;
+  let pointer = null,stick=null,groundStick=null,gamepadActive=false;
   return {
     ...controls,
-    aimPointer(x,y) { pointer=Number.isFinite(x)&&Number.isFinite(y)&&x>=0&&x<=1&&y>=0&&y<=1 ? {x,y} : null; },
+    aimPointer(x,y) { stick=null;groundStick=null;gamepadActive=false;pointer=Number.isFinite(x)&&Number.isFinite(y)&&x>=0&&x<=1&&y>=0&&y<=1 ? {x,y} : null; },
     pointerAim() { return pointer; },
-    useAutoAim() { pointer=null; },
+    useAutoAim() { pointer=null;stick=null;groundStick=null;gamepadActive=false; },
+    useGamepad() { pointer=null;gamepadActive=true; },
+    gamepadActive() { return gamepadActive; },
+    aimStick(x,y) { stick=Number.isFinite(x)&&Number.isFinite(y)&&(x*x+y*y>0)?{x,y}:null; },
+    stickAim() { return stick; },
+    aimGroundStick(value) { groundStick=value; },
+    groundStick() { return groundStick; },
     hold(id,action) {
       if(action==='whirlwind'&&!controls.snapshot().actions.includes(action))whirlwindPressed=true;
       controls.hold(id,action);
@@ -24,8 +30,8 @@ export function createHunterInput(controls) {
     select(selected) { return controls.tap(selectionCommand, {selection: selected}); },
     moveItem(move) { return controls.tap(inventoryCommand, {inventoryMove: {...move}}); },
     inventoryMove() { return inventoryMove; },
-    aimAt(x,y) { target = {x:Math.max(0,Math.min(1,x)),y:Math.max(0,Math.min(1,y))}; },
-    confirmTarget(x,y) { controls.tap(targetCommand,{target:{x,y}}); },
+    aimAt(x,y) { gamepadActive=false;groundStick=null;target = {x:Math.max(0,Math.min(1,x)),y:Math.max(0,Math.min(1,y))}; },
+    confirmTarget(x,y) { gamepadActive=false;groundStick=null;controls.tap(targetCommand,{target:{x,y}}); },
     targetPoint() { return target; },
     targetConfirmed() { return targetConfirmed; },
     consumeKey() {
@@ -41,7 +47,7 @@ export function createHunterInput(controls) {
       const {x, y, actions} = controls.snapshot();
       return {x, y, attack: actions.includes('attack'), guard: actions.includes('guard'), whirlwind: actions.includes('whirlwind')};
     },
-    clear() { controls.clear(); pointer=null; whirlwindPressed=false; selection = -1; inventoryMove = null; target = null; targetConfirmed = false; },
+    clear() { controls.clear(); pointer=null;stick=null;groundStick=null; whirlwindPressed=false; selection = -1; inventoryMove = null; target = null; targetConfirmed = false; },
   };
 }
 

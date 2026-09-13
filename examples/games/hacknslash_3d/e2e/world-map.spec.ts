@@ -78,7 +78,7 @@ test('waypoint jump prepares the destination, retains unlocks and saves the curr
   expect((await hud(page)).hp).toBe(hp);
   expect((await atlas(page)).regions.filter(r=>r.unlocked).map(r=>r.id)).toEqual([0,1]);
   await page.goto('/?mute=1&seed=42');
-  await page.getByRole('button',{name:/狩りを始める/}).click();
+  await page.locator('[data-save-slot="0"]').click();
   await expect.poll(async()=>(await hud(page)).mode).toBe('playing');
   expect((await atlas(page)).current).toBe(0);
   await page.keyboard.press('KeyG');
@@ -86,7 +86,7 @@ test('waypoint jump prepares the destination, retains unlocks and saves the curr
   await page.locator('.atlas-travel').click();
   await expect.poll(async()=>(await atlas(page)).current).toBe(1);
   await page.reload();
-  await page.getByRole('button',{name:/狩りを始める/}).click();
+  await page.locator('[data-save-slot="0"]').click();
   await expect.poll(async()=>(await hud(page)).mode).toBe('playing');
   expect((await atlas(page)).current).toBe(1);
   expect((await atlas(page)).near_waypoint).toBe(true);

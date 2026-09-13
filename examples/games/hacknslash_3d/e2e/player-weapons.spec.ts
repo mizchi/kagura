@@ -64,7 +64,7 @@ for (const viewport of [
     expect(rect.y + rect.height).toBeLessThanOrEqual(viewport.height);
     await captureGameFrame(page, { path: info.outputPath("weapons-ui.png") });
     await page.goto("/?seed=42&mute=1");
-    await page.getByRole("button", { name: /狩りを始める/ }).click();
+    await page.locator('[data-save-slot="0"]').click();
     await expect
       .poll(() => page.evaluate(() => globalThis.__ashenHunt.weapon))
       .toBe("bow");

@@ -16,7 +16,7 @@ fn GameState::push_whirlwind_trail(
   let y = @game.get_tile_height(self.world.dungeon, p.x, p.y)
   let radius = self.world.whirlwind_radius() / tile_size
   let angle = @math.PI / 2.0 -
-    p.facing_angle -
+    p.facing_angle +
     channel.frame.to_double() /
     @game.whirlwind_cycle_frames.to_double() *
     @math.PI *

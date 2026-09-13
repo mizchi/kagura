@@ -231,6 +231,10 @@ fn GameState::new_with_params(
     region_chunks_built: 0,
     inventory_notice: "",
     paused: false,
+    active_save_slot: 0,
+    save_slots: read_save_slots(),
+    save_notice: "",
+    pending_save_deletion: None,
     pause_return_ui: @game.UIMode::None,
     pause_return_cursor: 0,
     ground_targeting: false,
@@ -243,10 +247,13 @@ fn GameState::new_with_params(
 
 ///|
 fn GameState::update(self : GameState, input : @core.InputSnapshot) -> Unit {
+  let input = self.resolve_hunter_hotbar(input)
   let web_key = hunter_web_key()
   let selection = hunter_web_selection()
   if selection >= 0 {
-    if self.world.mode == @game.CharacterSelect &&
+    if self.world.mode == @game.Title && selection < save_slot_count {
+      self.world.select_cursor = selection
+    } else if self.world.mode == @game.CharacterSelect &&
       selection < @game.selectable_archetypes().length() {
       self.world.select_cursor = selection
     } else {
@@ -285,6 +292,9 @@ fn GameState::update(self : GameState, input : @core.InputSnapshot) -> Unit {
     2,
   )
   @inpututil.update_input_helper(self.input, input)
+  if self.handle_hunter_preset_input() {
+    return
+  }
   let inventory_command = hunter_web_inventory_move()
   if inventory_command.length() > 0 {
     ignore(self.apply_inventory_command(inventory_command))
@@ -375,20 +385,21 @@ fn GameState::update_title(
   self : GameState,
   input : @core.InputSnapshot,
 ) -> Unit {
-  if input_snapshot_requests_debug_reset(input, self.world.mode) {
+  if !self.world.hunting_grounds && input_snapshot_requests_debug_reset(input, self.world.mode) {
     self.reset_save_and_restart()
     return
   }
+  if self.world.hunting_grounds && self.handle_save_delete_input() {
+    return
+  }
+  if @inpututil.is_up_just_pressed(self.input) {
+    self.world.select_cursor = (self.world.select_cursor + save_slot_count - 1) % save_slot_count
+  }
+  if @inpututil.is_down_just_pressed(self.input) {
+    self.world.select_cursor = (self.world.select_cursor + 1) % save_slot_count
+  }
   if @inpututil.is_confirm_just_pressed(self.input) {
-    // Try loading save first
-    if self.load_game() {
-      self.world.ensure_hunter_loadout()
-      self.world.mode = @game.Playing
-    } else {
-      // No save — go to character select
-      self.world.select_cursor = 0
-      self.world.mode = @game.CharacterSelect
-    }
+    ignore(self.select_save_slot(self.world.select_cursor))
   }
 }
 
@@ -417,57 +428,24 @@ fn GameState::update_character_select(
     let chosen = archetypes[self.world.select_cursor]
     self.world.apply_archetype(chosen)
     self.world.mode = @game.Playing
+    self.sync_character_equipment()
+    self.save_game()
   }
   // ESC to go back to title
   if @inpututil.is_key_just_pressed(self.input.key_state, key_escape) {
     self.world.mode = @game.Title
+    self.world.select_cursor = self.active_save_slot
+    self.save_slots = read_save_slots()
   }
 }
 
 ///|
 fn GameState::update_gameover(
   self : GameState,
-  input : @core.InputSnapshot,
+  _input : @core.InputSnapshot,
 ) -> Unit {
-  if input_snapshot_requests_debug_reset(input, self.world.mode) {
-    self.reset_save_and_restart()
-    return
-  }
   if @inpututil.is_confirm_just_pressed(self.input) {
-    self.world.mode = @game.Title
-    self.world.floor = 1
-    self.world.score = 0
-    self.world.seed = self.random_seed()
-    self.world.apply_dungeon(self.world.seed, 1)
-    // Rebuild rendering state after dungeon change
-    self.rebuild_dungeon_rendering()
-    self.world.player.damage_timer = 0
-    self.world.player.iframe_timer = 0
-    self.world.floor_announce_timer = 0
-    self.world.player.dash_timer = 0
-    self.world.player.dash_cooldown_timer = 0
-    self.delete_save()
-    // Reset RPG state
-    self.world.ui_mode = @game.UIMode::None
-    self.world.ui_cursor = 0
-    self.world.inventory.clear()
-    self.world.equipment.clear()
-    if self.world.hunting_grounds {
-      @game.equip_hunter_starting_clothes(self.world.equipment)
-    }
-    for node in self.world.skills.nodes {
-      node.level = 0
-    }
-    self.world.skills.skill_points = 0
-    self.world.level_progress = @game.LevelProgression::new(
-      config=self.world.params.levelup_config(),
-    )
-    self.world.player_stats = @game.compute_player_stats(
-      self.world.equipment,
-      self.world.skills,
-      base_hp=self.world.params.player_base_hp.to_int(),
-    )
-    self.world.player.hp = self.world.player_stats.max_hp
+    self.respawn_player()
   }
 }
 
@@ -821,6 +799,9 @@ fn GameState::update_playing(self : GameState) -> Unit {
         self.save_game()
       }
     }
+  }
+  if self.world.mode == @game.GameOver {
+    self.save_game()
   }
   self.apply_generated_prop_roles_for_current_floor()
   if self.world.weapon_attack is None &&

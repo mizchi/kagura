@@ -104,7 +104,11 @@ struct DamagePopup {
 
 ///|
 struct GameState {
-  world : @game.GameWorld
+  mut world : @game.GameWorld
+  mut active_save_slot : Int
+  mut save_slots : Array[SaveSlotView]
+  mut save_notice : String
+  mut pending_save_deletion : SaveDeletion?
   aim : HunterAimState
   combat_feedback : CombatFeedbackState
   input : @inpututil.InputHelper

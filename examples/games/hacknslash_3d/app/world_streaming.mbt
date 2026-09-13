@@ -164,6 +164,7 @@ fn GameState::update_region_streaming(self : GameState) -> Bool {
     if self.region_mesh_ready(id) {
       let (x, y) = @game.world_waypoint_position(id)
       if self.world.enter_region(id, x, y) {
+        ignore(self.world.activate_nearby_waypoint())
         self.adopt_region_mesh(id, waypoint=true)
         return true
       }

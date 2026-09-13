@@ -29,6 +29,7 @@ struct WorldProgress {
   version : Int
   seed : Int
   current : Int
+  last_waypoint : Int?
   x : Double
   y : Double
   unlocked : Array[Bool]
@@ -72,6 +73,7 @@ pub fn GameWorld::serialize_world_progress(self : GameWorld) -> String {
     version: 2,
     seed: atlas.world_seed,
     current: atlas.current,
+    last_waypoint: Some(atlas.last_waypoint),
     x: self.player.x,
     y: self.player.y,
     unlocked: atlas.unlocked,
@@ -97,6 +99,11 @@ fn parse_world_progress(source : String) -> WorldProgress? {
       return None
     }
     let ids : Array[Int] = []
+    if progress.last_waypoint is Some(id) {
+      if id < 0 || id >= 4 || !progress.unlocked[id] {
+        return None
+      }
+    }
     for region in progress.regions {
       if region.id < 0 ||
         region.id >= 4 ||
@@ -209,6 +216,10 @@ pub fn GameWorld::restore_world_progress(
     atlas.unlocked[i] = progress.unlocked[i] && atlas.visited[i]
   }
   atlas.unlocked[0] = true
+  let checkpoint = progress.last_waypoint.or(
+    if atlas.unlocked[progress.current] { progress.current } else { 0 },
+  )
+  atlas.last_waypoint = if atlas.unlocked[checkpoint] { checkpoint } else { 0 }
   // Avoid capturing the old world's active arrays into the restored atlas.
   let region = atlas.regions[progress.current].unwrap()
   atlas.current = progress.current

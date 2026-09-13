@@ -1006,196 +1006,103 @@ extern "js" fn js_input_touch_y_at(index : Int) -> Double =
 ///|
 extern "js" fn js_input_gamepad_count() -> Int =
   #| () => {
-  #|   const root = globalThis;
-  #|   const state = root.__kaguraWebRuntime;
-  #|   if (state != null && Array.isArray(state.testGamepads) && state.testGamepads.length > 0) {
-  #|     return Math.max(0, Number(state.testGamepads.length) | 0);
-  #|   }
-  #|   const nav = root.navigator;
-  #|   if (nav == null || typeof nav.getGamepads !== "function") return 0;
-  #|   const pads = nav.getGamepads();
-  #|   if (pads == null || typeof pads.length !== "number") return 0;
-  #|   let count = 0;
-  #|   for (let i = 0; i < pads.length; i++) {
-  #|     if (pads[i] != null) count++;
-  #|   }
-  #|   return count | 0;
+  #|   const root=globalThis,state=root.__kaguraWebRuntime??(root.__kaguraWebRuntime={});
+  #|   const test=Array.isArray(state.testGamepads)&&state.testGamepads.length>0;
+  #|   let pads=[];
+  #|   state.gamepadCaptureStatus='ready';
+  #|   try {
+  #|     const doc=root.document;
+  #|     if(test) pads=state.testGamepads;
+  #|     else if(typeof root.navigator?.getGamepads!=="function") state.gamepadCaptureStatus='unavailable';
+  #|     else if(doc?.hidden) state.gamepadCaptureStatus='hidden';
+  #|     else if(typeof doc?.hasFocus==='function'&&!doc.hasFocus()) state.gamepadCaptureStatus='unfocused';
+  #|     else pads=root.navigator.getGamepads()??[];
+  #|   } catch(error) { state.gamepadCaptureStatus=error?.name==='SecurityError'?'denied':'error'; }
+  #|   // Preserve unmapped HID hat sentinels (>1); sticks are clamped after mapping.
+  #|   const finite=v=>Number.isFinite(v)?v:0;
+  #|   state.gamepadFrame=Array.from(pads??[]).flatMap((pad,index)=>{
+  #|     if(!pad||pad.connected===false)return [];
+  #|     const buttons=test?Array.from({length:Math.max(17,...(pad.pressedButtons??[]).map(i=>i+1))},(_,i)=>({pressed:pad.pressedButtons?.includes(i)??false,value:pad.pressedButtons?.includes(i)?1:0})):Array.from(pad.buttons??[],b=>({pressed:!!b?.pressed,value:Number.isFinite(b?.value)?Math.max(0,Math.min(1,b.value)):0}));
+  #|     return [{index:test?Number(pad.id??index)|0:Number(pad.index??index)|0,id:String(pad.id??''),mapping:test?'standard':String(pad.mapping??''),connected:true,axes:Array.from(pad.axes??[],finite),buttons,pressedButtons:buttons.flatMap((b,i)=>b.pressed?[i]:[])}];
+  #|   });
+  #|   return state.gamepadFrame.length;
   #| }
 
 ///|
 extern "js" fn js_input_gamepad_id_at(index : Int) -> Int =
-  #| (index) => {
-  #|   const root = globalThis;
-  #|   const i = Number(index) | 0;
-  #|   if (i < 0) return -1;
-  #|   const state = root.__kaguraWebRuntime;
-  #|   const testPads = state != null && Array.isArray(state.testGamepads) ? state.testGamepads : null;
-  #|   if (testPads != null && testPads.length > 0) {
-  #|     if (i >= testPads.length || testPads[i] == null) return -1;
-  #|     return Number(testPads[i].id ?? i) | 0;
-  #|   }
-  #|   const nav = root.navigator;
-  #|   if (nav == null || typeof nav.getGamepads !== "function") return -1;
-  #|   const pads = nav.getGamepads();
-  #|   if (pads == null || typeof pads.length !== "number") return -1;
-  #|   let found = 0;
-  #|   for (let padIndex = 0; padIndex < pads.length; padIndex++) {
-  #|     const pad = pads[padIndex];
-  #|     if (pad == null) continue;
-  #|     if (found === i) {
-  #|       return Number(pad.index ?? padIndex) | 0;
-  #|     }
-  #|     found++;
-  #|   }
-  #|   return -1;
-  #| }
+  #| index => globalThis.__kaguraWebRuntime?.gamepadFrame?.[index]?.index ?? -1
 
 ///|
 extern "js" fn js_input_gamepad_pressed_button_count(
   gamepad_index : Int,
 ) -> Int =
-  #| (gamepadIndex) => {
-  #|   const root = globalThis;
-  #|   const gpIndex = Number(gamepadIndex) | 0;
-  #|   if (gpIndex < 0) return 0;
-  #|   const state = root.__kaguraWebRuntime;
-  #|   const testPads = state != null && Array.isArray(state.testGamepads) ? state.testGamepads : null;
-  #|   const target = testPads != null && testPads.length > 0 ? testPads[gpIndex] : null;
-  #|   if (target != null && Array.isArray(target.pressedButtons)) {
-  #|     return Math.max(0, Number(target.pressedButtons.length) | 0);
-  #|   }
-  #|   const nav = root.navigator;
-  #|   if (nav == null || typeof nav.getGamepads !== "function") return 0;
-  #|   const pads = nav.getGamepads();
-  #|   if (pads == null) return 0;
-  #|   let found = 0;
-  #|   let pad = null;
-  #|   for (let i = 0; i < pads.length; i++) {
-  #|     if (pads[i] == null) continue;
-  #|     if (found === gpIndex) {
-  #|       pad = pads[i];
-  #|       break;
-  #|     }
-  #|     found++;
-  #|   }
-  #|   if (pad == null || !Array.isArray(pad.buttons)) return 0;
-  #|   let count = 0;
-  #|   for (let i = 0; i < pad.buttons.length; i++) {
-  #|     const button = pad.buttons[i];
-  #|     if (button != null && !!button.pressed) count++;
-  #|   }
-  #|   return count | 0;
-  #| }
+  #| index => globalThis.__kaguraWebRuntime?.gamepadFrame?.[index]?.pressedButtons.length ?? 0
 
 ///|
 extern "js" fn js_input_gamepad_pressed_button_at(
   gamepad_index : Int,
   button_index : Int,
 ) -> Int =
-  #| (gamepadIndex, buttonIndex) => {
-  #|   const root = globalThis;
-  #|   const gpIndex = Number(gamepadIndex) | 0;
-  #|   const btnIndex = Number(buttonIndex) | 0;
-  #|   if (gpIndex < 0 || btnIndex < 0) return -1;
-  #|   const state = root.__kaguraWebRuntime;
-  #|   const testPads = state != null && Array.isArray(state.testGamepads) ? state.testGamepads : null;
-  #|   const target = testPads != null && testPads.length > 0 ? testPads[gpIndex] : null;
-  #|   if (target != null && Array.isArray(target.pressedButtons)) {
-  #|     if (btnIndex >= target.pressedButtons.length) return -1;
-  #|     return Number(target.pressedButtons[btnIndex] ?? -1) | 0;
-  #|   }
-  #|   const nav = root.navigator;
-  #|   if (nav == null || typeof nav.getGamepads !== "function") return -1;
-  #|   const pads = nav.getGamepads();
-  #|   if (pads == null) return -1;
-  #|   let foundPad = null;
-  #|   let found = 0;
-  #|   for (let i = 0; i < pads.length; i++) {
-  #|     if (pads[i] == null) continue;
-  #|     if (found === gpIndex) {
-  #|       foundPad = pads[i];
-  #|       break;
-  #|     }
-  #|     found++;
-  #|   }
-  #|   const pad = foundPad;
-  #|   if (pad == null || !Array.isArray(pad.buttons)) return -1;
-  #|   let pressedFound = 0;
-  #|   for (let i = 0; i < pad.buttons.length; i++) {
-  #|     const button = pad.buttons[i];
-  #|     if (button != null && !!button.pressed) {
-  #|       if (pressedFound === btnIndex) return i;
-  #|       pressedFound++;
-  #|     }
-  #|   }
-  #|   return -1;
-  #| }
+  #| (index,button) => globalThis.__kaguraWebRuntime?.gamepadFrame?.[index]?.pressedButtons[button] ?? -1
 
 ///|
 extern "js" fn js_input_gamepad_axis_count(gamepad_index : Int) -> Int =
-  #| (gamepadIndex) => {
-  #|   const root = globalThis;
-  #|   const gpIndex = Number(gamepadIndex) | 0;
-  #|   if (gpIndex < 0) return 0;
-  #|   const state = root.__kaguraWebRuntime;
-  #|   const testPads = state != null && Array.isArray(state.testGamepads) ? state.testGamepads : null;
-  #|   const target = testPads != null && testPads.length > 0 ? testPads[gpIndex] : null;
-  #|   if (target != null && Array.isArray(target.axes)) {
-  #|     return Math.max(0, Number(target.axes.length) | 0);
-  #|   }
-  #|   const nav = root.navigator;
-  #|   if (nav == null || typeof nav.getGamepads !== "function") return 0;
-  #|   const pads = nav.getGamepads();
-  #|   if (pads == null) return 0;
-  #|   let found = 0;
-  #|   let pad = null;
-  #|   for (let i = 0; i < pads.length; i++) {
-  #|     if (pads[i] == null) continue;
-  #|     if (found === gpIndex) {
-  #|       pad = pads[i];
-  #|       break;
-  #|     }
-  #|     found++;
-  #|   }
-  #|   if (pad == null || !Array.isArray(pad.axes)) return 0;
-  #|   return Math.max(0, Number(pad.axes.length) | 0);
-  #| }
+  #| index => globalThis.__kaguraWebRuntime?.gamepadFrame?.[index]?.axes.length ?? 0
 
 ///|
 extern "js" fn js_input_gamepad_axis_at(
   gamepad_index : Int,
   axis_index : Int,
 ) -> Double =
-  #| (gamepadIndex, axisIndex) => {
-  #|   const root = globalThis;
-  #|   const gpIndex = Number(gamepadIndex) | 0;
-  #|   const axIndex = Number(axisIndex) | 0;
-  #|   if (gpIndex < 0 || axIndex < 0) return 0;
-  #|   const state = root.__kaguraWebRuntime;
-  #|   const testPads = state != null && Array.isArray(state.testGamepads) ? state.testGamepads : null;
-  #|   const target = testPads != null && testPads.length > 0 ? testPads[gpIndex] : null;
-  #|   if (target != null && Array.isArray(target.axes)) {
-  #|     if (axIndex >= target.axes.length) return 0;
-  #|     return Number(target.axes[axIndex] ?? 0) || 0;
-  #|   }
-  #|   const nav = root.navigator;
-  #|   if (nav == null || typeof nav.getGamepads !== "function") return 0;
-  #|   const pads = nav.getGamepads();
-  #|   if (pads == null) return 0;
-  #|   let found = 0;
-  #|   let pad = null;
-  #|   for (let i = 0; i < pads.length; i++) {
-  #|     if (pads[i] == null) continue;
-  #|     if (found === gpIndex) {
-  #|       pad = pads[i];
-  #|       break;
-  #|     }
-  #|     found++;
-  #|   }
-  #|   if (pad == null || !Array.isArray(pad.axes)) return 0;
-  #|   if (axIndex >= pad.axes.length) return 0;
-  #|   return Number(pad.axes[axIndex] ?? 0) || 0;
+  #| (index,axis) => globalThis.__kaguraWebRuntime?.gamepadFrame?.[index]?.axes[axis] ?? 0
+
+///|
+extern "js" fn test_gamepad_browser_setup() -> Unit =
+  #| () => {
+  #|   const nav=globalThis.navigator??(globalThis.navigator={});
+  #|   globalThis.__padBrowserTest={descriptor:Object.getOwnPropertyDescriptor(nav,'getGamepads'),reads:0,deny:false,pad:{index:3,id:'test',mapping:'standard',connected:true,axes:[.5,-.5,9/7],buttons:[{pressed:true,value:1}]}};
+  #|   Object.defineProperty(nav,'getGamepads',{configurable:true,value:()=>{const t=globalThis.__padBrowserTest;t.reads++;if(t.deny)throw new Error('denied');return [null,null,null,t.pad];}});
   #| }
+
+///|
+extern "js" fn test_gamepad_browser_reads() -> Int =
+  #| () => globalThis.__padBrowserTest.reads
+
+///|
+extern "js" fn test_gamepad_capture_status() -> String =
+  #| () => globalThis.__kaguraWebRuntime?.gamepadCaptureStatus ?? "uninitialized"
+
+///|
+extern "js" fn test_gamepad_browser_change(deny : Bool) -> Unit =
+  #| deny => { const t=globalThis.__padBrowserTest;t.pad.axes[0]=.9;t.pad.buttons[0].pressed=false;t.deny=deny; }
+
+///|
+extern "js" fn test_gamepad_browser_restore() -> Unit =
+  #| () => { const d=globalThis.__padBrowserTest.descriptor;if(d)Object.defineProperty(navigator,'getGamepads',d);else delete navigator.getGamepads;delete globalThis.__padBrowserTest; }
+
+///|
+test "gamepad capture polls once, freezes sparse device state and safely releases denied input" {
+  test_reset_gamepad_state()
+  test_gamepad_browser_setup()
+  assert_eq(js_input_gamepad_count(), 1)
+  assert_eq(test_gamepad_capture_status(), "ready")
+  test_gamepad_browser_change(false)
+  assert_eq(js_input_gamepad_id_at(0), 3)
+  assert_eq(js_input_gamepad_axis_count(0), 3)
+  assert_eq(js_input_gamepad_axis_at(0, 0), 0.5)
+  // Unmapped HID hats encode neutral outside [-1, 1]. Preserve it until mapping.
+  assert_true(js_input_gamepad_axis_at(0, 2) > 1.0)
+  assert_eq(js_input_gamepad_pressed_button_count(0), 1)
+  assert_eq(js_input_gamepad_pressed_button_at(0, 0), 0)
+  assert_eq(test_gamepad_browser_reads(), 1)
+  assert_eq(js_input_gamepad_count(), 1)
+  assert_eq(js_input_gamepad_axis_at(0, 0), 0.9)
+  test_gamepad_browser_change(true)
+  assert_eq(js_input_gamepad_count(), 0)
+  assert_eq(test_gamepad_capture_status(), "error")
+  assert_eq(js_input_gamepad_axis_at(0, 0), 0.0)
+  test_gamepad_browser_restore()
+}
 
 ///|
 extern "js" fn js_request_attention() -> Unit =

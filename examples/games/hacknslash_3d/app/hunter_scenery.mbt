@@ -209,7 +209,8 @@ fn GameState::push_hunter_slash(
       (if self.character.cleaver_combo == @game.Finisher {
         0.0
       } else {
-        (t - 0.5) * self.character.attack_side * 2.0
+        // Match the reflected right-handed rig's swing direction.
+        -(t - 0.5) * self.character.attack_side * 2.0
       }),
     ),
   )

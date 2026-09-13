@@ -43,7 +43,7 @@ for(const touch of [false,true]){
       await captureGameFrame(page,{path:info.outputPath('no-helmet.png')});
       // Loading equipment must keep an explicitly empty slot empty.
       await page.goto('/?seed=42&mute=1');
-      await page.getByRole('button',{name:/狩りを始める/}).click();
+      await page.locator('[data-save-slot="0"]').click();
       await expect.poll(async()=>(await appearance(page)).appearanceKey).toBe(bare.appearanceKey);
       await openBag(page);
       expect(await page.evaluate(()=>globalThis.__ashenHud.inventory_grid.equipment[3].item)).toBeUndefined();

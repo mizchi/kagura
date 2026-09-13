@@ -29,7 +29,7 @@ for(const mobile of [false,true]){
       await page.evaluate(async()=>{for(let i=0;i<24;i++)await new Promise(requestAnimationFrame)});
       await captureGameFrame(page,{path:info.outputPath('chest-open.png')});
       await page.goto('/?seed=42&mute=1');
-      await page.getByRole('button',{name:/狩りを始める/}).click();
+      await page.locator('[data-save-slot="0"]').click();
       await page.waitForFunction(()=>globalThis.__ashenHud?.mode==='playing');
       expect(await page.evaluate(()=>globalThis.__ashenHud.exploration.chests[1].opened)).toBe(true);
       await expect(button).toBeHidden();

@@ -1,25 +1,10 @@
-// Save/Load system via localStorage (JS target only)
-// Serializes character progress: inventory, equipment, skills, floor, score
-
-///|
-extern "js" fn js_storage_set(key : String, value : String) -> Unit =
-  #| (key, value) => { try { localStorage.setItem(key, value); } catch(e) {} }
-
-///|
-extern "js" fn js_storage_get(key : String) -> String =
-  #| (key) => { try { return localStorage.getItem(key) ?? ""; } catch(e) { return ""; } }
-
-///|
-extern "js" fn js_storage_remove(key : String) -> Unit =
-  #| (key) => { try { localStorage.removeItem(key); } catch(e) {} }
-
-///|
-let save_key : String = "hacknslash3d_save"
+// Portable character save codec; storage and world progress have separate contracts.
 
 // Encode game state as a simple key=value format
 // Format:
 // floor|score|legacy_sp|weapon|armor|accessory|skills|items|
-// level|xp|next_xp|pending_choices|offer_ids|weapon_set|tree-v1|positions|extra_equipment|inventory-v1
+// level|xp|next_xp|pending_choices|offer_ids|weapon_set|tree-v1|positions|extra_equipment|inventory-v1|
+// encoded_world_progress|archetype|alive_or_dead|hunter_preset
 
 ///|
 fn GameState::serialize_save(self : GameState) -> String {
@@ -88,6 +73,9 @@ fn GameState::serialize_save(self : GameState) -> String {
   parts.push(join_strings(extra, ";"))
   parts.push("inventory-v1")
   parts.push(js_encode_world_progress(self.world.serialize_world_progress()))
+  parts.push(self.world.archetype.to_string())
+  parts.push(if self.world.mode == @game.GameOver { "dead" } else { "alive" })
+  parts.push(self.world.hunter_preset.profile().id)
   join_strings(parts, "|")
 }
 
@@ -377,20 +365,27 @@ fn deserialize_item(s : String) -> @game.ItemData? {
 
 ///|
 fn GameState::save_game(self : GameState) -> Unit {
-  let data = self.serialize_save()
-  js_storage_set(save_key, data)
+  ignore(self.persist_save())
 }
 
 ///|
 fn GameState::load_game(self : GameState) -> Bool {
-  let data = js_storage_get(save_key)
-  if data == "" {
+  self.restore_save(js_storage_get(save_slot_key(self.active_save_slot)))
+}
+
+///|
+fn GameState::restore_save(self : GameState, data : String) -> Bool {
+  if !valid_save_data(data) {
     return false
   }
   let parts = split_string(data, '|')
-  if parts.length() < 8 {
-    return false
-  }
+  self.world.apply_archetype(
+    if parts.length() > 19 {
+      @game.character_archetype_from_string(parts[19]).or(@game.Melee)
+    } else {
+      @game.Melee
+    },
+  )
   // 0: floor
   self.world.floor = parse_int(parts[0])
   // 1: score
@@ -474,6 +469,11 @@ fn GameState::load_game(self : GameState) -> Bool {
     @game.Cleaver
   }
   self.world.weapon_attack = None
+  self.world.hunter_preset = if parts.length() > 21 {
+    @game.hunter_preset_from_id(parts[21]).or(@game.default_hunter_preset(self.world.archetype))
+  } else {
+    @game.default_hunter_preset(self.world.archetype)
+  }
   self.sync_character_equipment()
   // Recompute stats
   self.world.refresh_player_stats()
@@ -485,6 +485,10 @@ fn GameState::load_game(self : GameState) -> Bool {
     self.world.restore_world_progress(js_decode_world_progress(parts[18]))
   } else {
     false
+  }
+  if parts.length() > 20 && parts[20] == "dead" {
+    self.world.mode = @game.GameOver
+    ignore(self.world.respawn_at_waypoint())
   }
   // Rebuild rendering state
   self.rebuild_dungeon_rendering()
@@ -504,8 +508,8 @@ fn deserialize_opt_item(s : String) -> @game.ItemData? {
 }
 
 ///|
-fn GameState::delete_save(_self : GameState) -> Unit {
-  js_storage_remove(save_key)
+fn GameState::delete_save(self : GameState) -> Unit {
+  ignore(js_storage_remove(save_slot_key(self.active_save_slot)))
 }
 
 // Simple string utilities
@@ -592,11 +596,3 @@ fn parse_double(s : String) -> Double {
     result
   }
 }
-
-///|
-extern "js" fn js_encode_world_progress(value : String) -> String =
-  #| value => encodeURIComponent(value)
-
-///|
-extern "js" fn js_decode_world_progress(value : String) -> String =
-  #| value => { try { return decodeURIComponent(value); } catch { return ""; } }

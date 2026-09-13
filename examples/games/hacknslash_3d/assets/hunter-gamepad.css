@@ -1,0 +1,12 @@
+#gamepad-guide { position:absolute; bottom:24px; left:24px; z-index:9; max-width:300px; color:var(--gold); font-size:11px; pointer-events:auto; }
+#gamepad-guide summary { padding:9px 12px; border:1px solid var(--line); background:#14231aee; cursor:pointer; }
+#gamepad-guide>div { position:absolute; bottom:100%; left:0; width:280px; padding:16px; max-height:65dvh; overflow:auto; background:#14231af5; border:1px solid var(--line); color:#dfdccb; line-height:1.8; }
+#gamepad-guide p { margin:10px 0; }
+#gamepad-connection { color:var(--gold); }
+#gamepad-raw-input { font:10px/1.6 monospace; white-space:pre-wrap; overflow-wrap:anywhere; color:#b0b5a7; }
+.gamepad-connected .journey-note { visibility:hidden; }
+.gamepad-active #move-stick { visibility:hidden; }
+@media(max-width:680px) and (orientation:portrait) {
+  #gamepad-guide { left:12px; bottom:14px; max-width:180px; font-size:9px; }
+  #gamepad-guide>div { width:260px; }
+}

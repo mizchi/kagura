@@ -21,8 +21,7 @@ fn GameState::push_melee_warnings(
     let width = profile.width * 2.0 / tile_size
     let x = enemy.x / tile_size
     let z = enemy.y / tile_size
-    let height = @game.get_tile_height(self.world.dungeon, enemy.x, enemy.y) +
-      0.05
+    let height = 0.05
     let progress = (enemy.attack_frame.to_double() /
     enemy.attack_windup.to_double()).min(1.0)
     let center_x = x + c * reach * 0.5
@@ -34,7 +33,7 @@ fn GameState::push_melee_warnings(
     } else {
       @math3d.Vec4::new(1.65, 0.32, 0.12, 1.0)
     }
-    self.push_combat_mesh(
+    self.push_surface_combat_mesh(
       combat_core,
       combat_transform(center_x, height, center_z, width, 0.015, reach, yaw~),
       @math3d.Vec4::new(0.48 + progress * 0.5, 0.10, 0.055, 1.0),
@@ -43,7 +42,7 @@ fn GameState::push_melee_warnings(
       cmds,
     )
     for side in [-1.0, 1.0] {
-      self.push_combat_mesh(
+      self.push_surface_combat_mesh(
         combat_core,
         combat_transform(
           center_x - s * width * 0.5 * side,
@@ -61,7 +60,7 @@ fn GameState::push_melee_warnings(
       )
     }
     for t in [0.0, progress, 1.0] {
-      self.push_combat_mesh(
+      self.push_surface_combat_mesh(
         combat_core,
         combat_transform(
           x + c * reach * t,
@@ -79,7 +78,7 @@ fn GameState::push_melee_warnings(
       )
     }
     // The shrinking ring and forward-moving bar communicate the same remaining time.
-    self.push_combat_mesh(
+    self.push_surface_combat_mesh(
       combat_ring,
       combat_transform(
         x,
@@ -102,9 +101,8 @@ fn GameState::push_melee_warnings(
       )
       is Some(enemy) {
       let r = (enemy.size * 0.5 + 3.0) / tile_size
-      let height = @game.get_tile_height(self.world.dungeon, enemy.x, enemy.y) +
-        0.085
-      self.push_combat_mesh(
+      let height = 0.085
+      self.push_surface_combat_mesh(
         combat_ring,
         combat_transform(
           enemy.x / tile_size,

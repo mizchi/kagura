@@ -47,6 +47,6 @@ test "opening woodland enemies fit the desktop and portrait camera with readable
         visible += 1
       }
     }
-    assert_eq(visible, 3)
+    assert_eq(visible, 4)
   }
 }

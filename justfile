@@ -26,7 +26,7 @@ hunter-motions-build:
 
 # Reusable game components can be verified without building a particular game.
 game-components-test:
-    moon -C game test gameplay2d --target js
+    moon -C game test gameplay2d terrain3d --target js
     moon -C engine/audio test . --target js
     moon -C engine/kagura_engine test procedural3d scene3d shadow3d render_pipeline3d --target js
     node --test scripts/motion/generation/generation.test.ts scripts/motion/retarget.test.mjs

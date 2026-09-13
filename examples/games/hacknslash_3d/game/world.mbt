@@ -15,6 +15,7 @@ pub(all) struct GameWorld {
   mut score : Int
   player : Player
   mut enemies : Array[Enemy]
+  mut chests : Array[TreasureChest]
   mut items : Array[ItemDrop]
   mut projectiles : Array[Projectile]
   mut dungeon : DungeonData
@@ -125,6 +126,7 @@ pub fn GameWorld::new(
   )
   if hunting_grounds {
     append_hunting_approach_enemies(enemies, dungeon, params, 1)
+    append_hunting_site_enemies(enemies, dungeon, params, 1)
   }
   let (discovered_rooms, discovered_rooms_version) = initial_discovered_rooms_for_dungeon(
     dungeon,
@@ -142,7 +144,16 @@ pub fn GameWorld::new(
     floor: 1,
     score: 0,
     player,
-    enemies,
+    enemies: if hunting_grounds {
+      remove_blocked_hunting_spawns(enemies, dungeon)
+    } else {
+      enemies
+    },
+    chests: if hunting_grounds {
+      hunting_chests()
+    } else {
+      []
+    },
     items: [],
     projectiles: [],
     dungeon,
@@ -301,6 +312,7 @@ pub fn GameWorld::apply_dungeon(
       }
   }
   self.dungeon.grid = dungeon.grid
+  self.dungeon.terrain_surface = dungeon.terrain_surface
   self.dungeon.rooms.clear()
   for room in dungeon.rooms {
     self.dungeon.rooms.push(room)
@@ -326,6 +338,13 @@ pub fn GameWorld::apply_dungeon(
   }
   if self.hunting_grounds && self.authored_scene is None {
     append_hunting_approach_enemies(self.enemies, dungeon, self.params, floor)
+    append_hunting_site_enemies(self.enemies, dungeon, self.params, floor)
+    self.enemies = remove_blocked_hunting_spawns(self.enemies, dungeon)
+  }
+  self.chests = if self.hunting_grounds && self.authored_scene is None {
+    hunting_chests()
+  } else {
+    []
   }
   self.items = []
   self.projectiles = []

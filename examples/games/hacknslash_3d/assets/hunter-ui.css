@@ -1,4 +1,6 @@
+@import "./hunter-terrain.css";
 @import './hunter-arts.css';
+@import './hunter-camera.css';
 @import './hunter-world-map.css';
 @import './hunter-inventory.css';
 @import './hunter-skill-tree.css';
@@ -1311,6 +1313,14 @@ canvas#app {
 .pause-actions>button:hover { border-color:#ddc595; }
 .pause-actions>button:focus-visible,.hunter-panel button:focus-visible { outline:2px solid #e6c999; outline-offset:3px; }
 .pause-hint { margin:20px 0 0; color:#98a590; font-size:10px; line-height:1.7; }
+@media(max-width:400px) and (orientation:portrait) {
+  .panel-pause { padding:20px; }
+  .panel-pause .pause-mark { display:none; }
+  .panel-pause .panel-description { margin:12px 0; }
+  .panel-pause .pause-actions { gap:6px; }
+  .panel-pause .pause-actions>button { min-height:44px; padding:10px 12px; }
+  .panel-pause .pause-hint { margin-top:12px; }
+}
 @media (max-height:500px) and (orientation:landscape) {
   .panel-pause { width:min(560px,100%); padding:20px; }
   .panel-pause .pause-mark { display:none; }
@@ -1345,3 +1355,7 @@ canvas#app {
 #combo-chain i[data-current=true] { color:#ffe5b0; border-color:#efc780; background:#62412e; }
 #combo-chain[data-active=true] i[data-current=true] { box-shadow:0 0 8px #e9aa6866; }
 #combo-chain[data-recovery=true] i[data-current=true] { background:#402c27; color:#c29a79; }
+
+#site-label{display:block;color:#e4c486;letter-spacing:.12em;margin-top:8px;font-size:13px;}
+#site-label[hidden]{display:none;}
+#chest-prompt{border-color:#c9a25e;box-shadow:0 0 18px #b3802738;}

@@ -21,6 +21,7 @@ struct RegionProgress {
   discovered : Array[Bool]
   rewarded : Array[Bool]
   cleared : Array[Bool]
+  opened_chests : Array[Int]?
 } derive(ToJson, FromJson)
 
 ///|
@@ -51,6 +52,7 @@ pub fn GameWorld::serialize_world_progress(self : GameWorld) -> String {
           discovered: state.discovered,
           rewarded: state.rewarded,
           cleared: state.cleared,
+          opened_chests: Some(state.chests.filter(c => c.opened).map(c => c.id)),
           enemies: state.enemies.map(enemy => {
             kind: enemy.kind,
             x: enemy.x,
@@ -67,7 +69,7 @@ pub fn GameWorld::serialize_world_progress(self : GameWorld) -> String {
     }
   }
   WorldProgress::{
-    version: 1,
+    version: 2,
     seed: atlas.world_seed,
     current: atlas.current,
     x: self.player.x,
@@ -83,7 +85,7 @@ pub fn GameWorld::serialize_world_progress(self : GameWorld) -> String {
 fn parse_world_progress(source : String) -> WorldProgress? {
   try {
     let progress : WorldProgress = @json.from_json(@json.parse(source))
-    if progress.version != 1 ||
+    if (progress.version != 1 && progress.version != 2) ||
       progress.current < 0 ||
       progress.current >= 4 ||
       progress.unlocked.length() != 4 ||
@@ -105,6 +107,18 @@ fn parse_world_progress(source : String) -> WorldProgress? {
         region.rewarded.length() != 5 ||
         region.cleared.length() != 5 {
         return None
+      }
+      let opened = region.opened_chests.or([])
+      if (progress.version == 2 && region.opened_chests is None) ||
+        opened.length() > hunting_sites.length() {
+        return None
+      }
+      let seen : Array[Int] = []
+      for id in opened {
+        if id < 0 || id >= hunting_sites.length() || seen.contains(id) {
+          return None
+        }
+        seen.push(id)
       }
       ids.push(region.id)
     }
@@ -131,9 +145,10 @@ pub fn GameWorld::restore_world_progress(
     let seed = region_seed(progress.seed, state.id)
     let dungeon = generate_world_region(seed, state.id)
     let enemies = state.enemies.map(saved => {
+      let (x, y) = hunting_safe_position(dungeon, saved.x, saved.y, saved.size)
       let enemy = make_enemy(
-        saved.x,
-        saved.y,
+        x,
+        y,
         saved.kind,
         saved.max_hp.max(1),
         saved.speed,
@@ -144,12 +159,46 @@ pub fn GameWorld::restore_world_progress(
       enemy.alive = saved.alive && enemy.hp > 0
       enemy
     })
+    if progress.version == 1 {
+      let additions : Array[Enemy] = []
+      append_hunting_site_enemies(
+        additions,
+        dungeon,
+        self.params,
+        world_regions[state.id].tier,
+      )
+      let (wx, wy) = world_waypoint_position(state.id)
+      for enemy in additions {
+        let dx = enemy.x - wx
+        let dy = enemy.y - wy
+        let px = enemy.x - progress.x
+        let py = enemy.y - progress.y
+        if dx * dx + dy * dy > tile_size * tile_size * 25.0 &&
+          (
+            state.id != progress.current ||
+            px * px + py * py > tile_size * tile_size * 16.0
+          ) {
+          enemies.push(enemy)
+        }
+      }
+    }
+    let enemies = remove_blocked_hunting_spawns(enemies, dungeon)
+    let chests = hunting_chests()
+    for chest in chests {
+      chest.opened = state.opened_chests.or([]).contains(chest.id)
+    }
+    for item in state.items {
+      let (x, y) = hunting_safe_position(dungeon, item.x, item.y, 4.0)
+      item.x = x
+      item.y = y
+    }
     atlas.regions[state.id] = Some({
       id: state.id,
       seed,
       dungeon,
       enemies,
       items: state.items,
+      chests,
       discovered: state.discovered,
       rewarded: state.rewarded,
       cleared: state.cleared,
@@ -167,6 +216,7 @@ pub fn GameWorld::restore_world_progress(
   self.dungeon = region.dungeon
   self.enemies = region.enemies
   self.items = region.items
+  self.chests = region.chests
   self.discovered_rooms = region.discovered
   self.reward_cleared_rooms = region.rewarded
   self.auto_cleared_rooms = region.cleared

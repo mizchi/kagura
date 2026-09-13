@@ -436,6 +436,7 @@ pub fn generate_dungeon(
     start_x: center.x.to_double() * tile_size + tile_size / 2.0,
     start_y: center.y.to_double() * tile_size + tile_size / 2.0,
     height_map,
+    terrain_surface: None,
   }
 }
 
@@ -456,6 +457,9 @@ pub fn build_height_map(
 
 ///|
 pub fn get_tile_height(dungeon : DungeonData, x : Double, y : Double) -> Double {
+  if dungeon.terrain_surface is Some(surface) {
+    return surface.sample(x / tile_size, y / tile_size)
+  }
   let col = (x / tile_size).to_int()
   let row = (y / tile_size).to_int()
   if col < 0 ||

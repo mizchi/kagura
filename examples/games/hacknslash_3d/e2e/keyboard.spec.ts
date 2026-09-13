@@ -9,7 +9,7 @@ test.beforeEach(async ({ page }) => {
   });
 });
 
-test('engine normalizes physical codes independently of Dvorak characters and keyCode', async ({ page }) => {
+test('held keys and discrete camera intents use physical codes independently of Dvorak characters', async ({ page }) => {
   await page.locator('canvas').focus();
   const cases: [string,string,number,number][] = [
     ['KeyW',',',188,87], ['KeyA','a',65,65], ['KeyS','o',79,83], ['KeyD','e',69,68],
@@ -20,6 +20,7 @@ test('engine normalizes physical codes independently of Dvorak characters and ke
   ];
   for (const [code,key,keyCode,expected] of cases) {
     const result = await page.evaluate(({code,key,keyCode}) => {
+      globalThis.__ashenControls.clear();
       const target=document.activeElement;
       for (const repeat of [false,true]) target.dispatchEvent(new KeyboardEvent('keydown', {
         code,key,keyCode,repeat,bubbles:true,cancelable:true,
@@ -27,9 +28,10 @@ test('engine normalizes physical codes independently of Dvorak characters and ke
       const pressed=[...globalThis.__kaguraWebRuntime.pressedKeys];
       // Layout/Shift/IME changes between down and up must not leave keys stuck.
       target.dispatchEvent(new KeyboardEvent('keyup', {code,key:'Unidentified',keyCode:229,bubbles:true}));
-      return {pressed,released:[...globalThis.__kaguraWebRuntime.pressedKeys]};
+      return {pressed,released:[...globalThis.__kaguraWebRuntime.pressedKeys],intent:globalThis.__ashenControls.consumeKey()};
     }, {code,key,keyCode});
-    expect(result, code).toEqual({pressed:expected ? [expected] : [],released:[]});
+    const discrete=code==='KeyO'||code==='KeyZ';
+    expect(result, code).toEqual({pressed:expected&&!discrete ? [expected] : [],released:[],intent:discrete?expected:0});
   }
 });
 
@@ -46,7 +48,7 @@ test('Dvorak physical movement and camera keys never trigger each other', async 
   expect((await actor()).yaw).toBe(start.yaw);
   const stopped=await actor();
   await session.send('Input.dispatchKeyEvent',{type:'keyDown',code:'KeyE',key:'.',windowsVirtualKeyCode:190});
-  await expect.poll(async()=>(await actor()).yaw).toBeGreaterThan(stopped.yaw+.05);
+  await expect.poll(async()=>(await actor()).yaw).toBeLessThan(stopped.yaw-.05);
   await session.send('Input.dispatchKeyEvent',{type:'keyUp',code:'KeyE',key:'.',windowsVirtualKeyCode:190});
   const turned=await actor();
   expect([turned.x,turned.y]).toEqual([stopped.x,stopped.y]);
@@ -64,9 +66,9 @@ test('game keys consume native text input, including repeats and HUD focus', asy
       element.setAttribute('tabindex', '0');
       element.focus();
     });
-    const keys = ['w', 'a', 's', 'd', 'q', 'e', 'r', 'j', 'm', 'ArrowUp', 'ArrowDown'];
+    const keys = ['w', 'a', 's', 'd', 'q', 'e', 'r', 'j', 'm', 'o', 'z', 'ArrowUp', 'ArrowDown'];
     // The engine also consumes printable keys not bound by the game's HUD.
-    if (target === 'canvas') keys.push('z');
+    if (target === 'canvas') keys.push('l');
     for (const key of keys) {
       await page.keyboard.down(key);
       await page.keyboard.down(key);

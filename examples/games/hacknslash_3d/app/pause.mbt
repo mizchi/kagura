@@ -12,6 +12,8 @@ fn GameState::set_paused(self : GameState, paused : Bool) -> Unit {
     self.pause_return_cursor = self.world.ui_cursor
     self.world.ui_mode = @game.UIMode::None
   } else {
+    self.camera_settings.editing = false
+    self.terrain_lab.editing = false
     self.world.ui_mode = self.pause_return_ui
     self.world.ui_cursor = self.pause_return_cursor
     self.pause_return_ui = @game.UIMode::None
@@ -26,12 +28,40 @@ fn GameState::handle_pause_input(self : GameState) -> Bool {
   if self.world.mode != @game.Playing {
     return false
   }
+  if @inpututil.is_key_just_pressed(self.input.key_state, 78) &&
+    self.world.atlas is Some(_) &&
+    self.world.authored_scene is None {
+    if !self.paused {
+      self.set_paused(true)
+    }
+    self.world.ui_mode = @game.UIMode::None
+    self.camera_settings.editing = false
+    self.terrain_lab.editing = !self.terrain_lab.editing
+    return true
+  }
+  if @inpututil.is_key_just_pressed(self.input.key_state, 79) {
+    if !self.paused {
+      self.set_paused(true)
+    }
+    self.world.ui_mode = @game.UIMode::None
+    self.terrain_lab.editing = false
+    self.camera_settings.editing = !self.camera_settings.editing
+    return true
+  }
   let escape = @inpututil.is_key_just_pressed(self.input.key_state, key_escape)
   if escape && self.ground_targeting {
     self.ground_targeting = false
     return true
   }
   let legacy = @inpututil.is_key_just_pressed(self.input.key_state, key_p)
+  if escape && self.terrain_lab.editing {
+    self.terrain_lab.editing = false
+    return true
+  }
+  if escape && self.camera_settings.editing {
+    self.camera_settings.editing = false
+    return true
+  }
   let confirm = self.paused &&
     self.world.ui_mode == @game.UIMode::None &&
     !hunter_web_enabled() &&

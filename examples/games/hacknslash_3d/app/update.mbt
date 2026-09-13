@@ -117,6 +117,8 @@ fn GameState::new_with_params(
     show_profiler: false,
     profile: @engine.default_frame_profile(),
     camera,
+    camera_settings: HunterCameraSettings::new(),
+    terrain_lab: TerrainLabState::new(),
     lighting,
     shader3d: @gfx.new_shader_handle(
       100,
@@ -291,6 +293,23 @@ fn GameState::update(self : GameState, input : @core.InputSnapshot) -> Unit {
   if self.handle_pause_input() {
     return
   }
+  let camera_command = hunter_web_camera_command()
+  let terrain_command = hunter_web_terrain_command()
+  if self.terrain_lab.editing && terrain_command.length() > 0 {
+    ignore(self.apply_terrain_lab(terrain_command))
+  }
+  if camera_command.length() > 0 && self.camera_settings.editing {
+    ignore(self.apply_camera_command(camera_command))
+  }
+  if self.camera_settings.editing || self.terrain_lab.editing {
+    self.camera = hunter_responsive_camera(
+      self.camera,
+      canvas_css_width(),
+      canvas_css_height(),
+      tps=self.camera_settings.mode == 1,
+    )
+    return
+  }
   if self.update_region_streaming() {
     return
   }
@@ -309,7 +328,12 @@ fn GameState::update(self : GameState, input : @core.InputSnapshot) -> Unit {
   let css_w = canvas_css_width()
   let css_h = canvas_css_height()
   if hunter_web_enabled() {
-    self.camera = hunter_responsive_camera(self.camera, css_w, css_h)
+    self.camera = hunter_responsive_camera(
+      self.camera,
+      css_w,
+      css_h,
+      tps=self.camera_settings.mode == 1,
+    )
   }
   let scale_x = screen_w.to_double() / css_w
   let scale_y = screen_h.to_double() / css_h
@@ -319,14 +343,8 @@ fn GameState::update(self : GameState, input : @core.InputSnapshot) -> Unit {
   if self.world.mode == @game.Playing &&
     !self.paused &&
     self.world.ui_mode == @game.UIMode::None {
-    self.camera = hunter_camera_input(
-      self.camera,
-      input,
-      previous_x,
-      previous_y,
-      was_dragging,
-      scale_x,
-      scale_y,
+    self.update_camera_controls(
+      input, previous_x, previous_y, was_dragging, scale_x, scale_y,
     )
   }
   // Profiler toggle (works in any mode)
@@ -515,6 +533,9 @@ fn GameState::update_playing(self : GameState) -> Unit {
   // Skip game tick while paused
   if self.paused || self.motion_preview {
     return
+  }
+  if @inpututil.is_key_just_pressed(self.input.key_state, 66) {
+    ignore(self.world.open_nearby_chest())
   }
   if self.combat_feedback.hitstop > 0 {
     // Dodge wins over hitstop; a quick press must never disappear into the freeze.
@@ -731,6 +752,10 @@ fn GameState::update_playing(self : GameState) -> Unit {
         self.spawn_damage_popup(x, y, amount, 0xFF7777)
       @game.EnemyDamageNumber(x, y, amount) =>
         self.spawn_damage_popup(x, y, amount, 0xFFF0BB)
+      @game.ChestOpened(x, y) => {
+        spawn_item_pickup(self.particle_manager, x, y, false)
+        self.save_game()
+      }
       @game.ItemPickup(x, y, is_health) =>
         spawn_item_pickup(self.particle_manager, x, y, is_health)
       @game.GroundTelegraphRing(x, y, radius) =>
@@ -907,6 +932,8 @@ fn GameState::update_damage_popups(self : GameState) -> Unit {
 
 ///|
 fn GameState::rebuild_dungeon_rendering(self : GameState) -> Unit {
+  ignore(self.world.set_hunting_terrain(self.terrain_lab.config))
+  self.refresh_terrain_stats()
   self.combat_feedback.hitstop = 0
   self.combat_feedback.look_x = 0.0
   self.combat_feedback.look_y = 0.0

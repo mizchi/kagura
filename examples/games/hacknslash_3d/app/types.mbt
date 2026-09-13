@@ -113,6 +113,8 @@ struct GameState {
   mut profile : @engine.FrameProfile
   // 3D-specific
   mut camera : @camera3d.OrbitCamera
+  camera_settings : HunterCameraSettings
+  terrain_lab : TerrainLabState
   lighting : @light3d.LightingEnvironment
   shader3d : @gfx.ShaderHandle
   shader3d_textured : @gfx.ShaderHandle

@@ -54,6 +54,12 @@ let hunting_palette : Array[@math3d.Vec4] = [
   hex_to_vec4(0x4F6844),
   hex_to_vec4(0x28464A),
   hex_to_vec4(0x14271B),
+  hex_to_vec4(0x55574B), // ruined paving
+  hex_to_vec4(0x51402E), // trampled camp earth
+  hex_to_vec4(0x673D32), // weathered red canvas
+  hex_to_vec4(0x978064), // tent flaps
+  hex_to_vec4(0x272E2D), // iron bands
+  hex_to_vec4(0x8A6744), // split timber
 ]
 
 ///|

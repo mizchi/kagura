@@ -2,6 +2,26 @@ import { test } from 'node:test';
 import assert from 'node:assert/strict';
 import { fitGameViewport, installGamePresentation } from './kagura-presentation.js';
 
+test('editor insets reserve a preview viewport without shrinking the game capture surface',()=>{
+  const listeners=new Map(),attrs=new Map();
+  const host={innerWidth:1280,innerHeight:900,addEventListener:(k,v)=>listeners.set(k,v),removeEventListener:k=>listeners.delete(k)};
+  const surface={getAttribute:k=>attrs.get(k)??null,setAttribute:(k,v)=>attrs.set(k,v),removeAttribute:k=>attrs.delete(k),getBoundingClientRect:()=>({x:0,y:0,width:host.innerWidth,height:host.innerHeight})};
+  const canvas={width:640,height:480,style:{cssText:''},getAttribute:()=>null,closest:()=>surface,ownerDocument:{defaultView:host}};
+  const p=installGamePresentation(canvas,{mode:'fullscreen',fit:'viewport'});
+  p.setViewportInsets({right:352});
+  assert.equal(canvas.style.width,'928px');assert.equal(canvas.style.height,'900px');
+  assert.equal(p.captureTarget().rect.width,1280);
+  host.innerWidth=390;host.innerHeight=844;
+  p.setViewportInsets({bottom:405});
+  assert.equal(canvas.style.width,'390px');assert.equal(canvas.style.height,'439px');
+  assert.throws(()=>p.setViewportInsets({left:-1}),RangeError);
+  assert.equal(canvas.style.height,'439px');
+  p.setViewportInsets();assert.equal(canvas.style.height,'844px');
+  host.innerWidth=844;host.innerHeight=390;listeners.get('resize')();
+  assert.equal(canvas.style.width,'844px');assert.equal(canvas.style.height,'390px');
+  p.dispose();assert.throws(()=>p.setViewportInsets({right:100}),/disposed/);
+});
+
 test('fullscreen contain uses the maximum viewport area without stretching or cropping', () => {
   assert.deepEqual(fitGameViewport(1600,900,4/3),{x:200,y:0,width:1200,height:900});
   assert.deepEqual(fitGameViewport(600,900,4/3),{x:0,y:225,width:600,height:450});

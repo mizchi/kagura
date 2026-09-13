@@ -66,6 +66,7 @@ pub fn generate_hunting_grounds(seed : Int) -> DungeonData {
       }
     }
   }
+  stamp_hunting_sites(grid, seed)
   let start = rooms[0].rect.center()
   {
     grid,
@@ -73,6 +74,7 @@ pub fn generate_hunting_grounds(seed : Int) -> DungeonData {
     start_x: start.x.to_double() * tile_size + tile_size / 2.0,
     start_y: start.y.to_double() * tile_size + tile_size / 2.0,
     height_map: Array::make(map_cols * map_rows, 0.0),
+    terrain_surface: None,
   }
 }
 
@@ -91,7 +93,7 @@ fn append_hunting_approach_enemies(
       ((-4.0, -4.0), Basic),
       ((-2.0, -5.0), Fast),
       ((0.0, -5.5), Ranged),
-      ((3.0, -6.0), Wolf),
+      ((1.0, -4.5), Wolf),
       ((4.5, -6.0), Wolf),
     ] {
     let config = find_enemy_type_config(kind)

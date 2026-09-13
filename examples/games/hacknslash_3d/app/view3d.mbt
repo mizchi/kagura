@@ -265,6 +265,7 @@ fn GameState::draw_playing(
   }
   self.push_neighbor_region_commands(view_projection, rt, cmds)
   self.push_world_waypoint(view_projection, rt, cmds)
+  self.push_treasure_commands(view_projection, rt, cmds)
   self.push_hunter_lanterns(view_projection, rt, cmds)
   // === Pass 3: Entities (items/projectiles) → instanced draw commands ===
   push_entity_instanced_cmds(

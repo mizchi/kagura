@@ -280,6 +280,21 @@ fn apply_initial_mode_overrides(
         _ => @game.Opening
       },
     )
+  } else if snapshot_mode == "terrain" {
+    apply_hunting_terrain_preview(state)
+  } else if snapshot_mode == "site" {
+    let id = match js_get_query_param("site") {
+      "camp" => 1
+      "chapel" => 2
+      "outpost" => 3
+      _ => 0
+    }
+    apply_hunting_site_preview(
+      state,
+      id,
+      js_get_query_param("peaceful") == "1",
+      js_get_query_param("overview") == "1",
+    )
   } else if snapshot_mode == "wolves" {
     apply_wolf_combat_preview(state)
   } else if snapshot_mode == "wolf" {
@@ -409,6 +424,19 @@ fn build_initial_state() -> GameState {
     state.world.mode = @game.Playing
     state.rebuild_dungeon_rendering()
     js_install_scene_runtime(fn() { state.world.scene_snapshot_json() })
+  }
+  if !state.motion_preview &&
+    state.camera_settings.restore(hunter_load_camera_preferences()) {
+    if state.camera_settings.mode == 1 {
+      state.align_tps_camera()
+    }
+    state.apply_camera_tuning()
+  }
+  let initial = hunter_initial_terrain()
+  if initial.length() > 0 {
+    ignore(state.apply_terrain_lab(initial))
+  } else if !state.motion_preview {
+    state.restore_terrain_lab(hunter_load_terrain_preferences())
   }
   state
 }

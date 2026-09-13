@@ -114,6 +114,7 @@ pub(all) struct DungeonData {
   mut start_x : Double
   mut start_y : Double
   height_map : Array[Double]
+  mut terrain_surface : @terrain3d.HeightField?
 }
 
 ///|
@@ -173,6 +174,7 @@ pub(all) enum GameEvent {
   PlayerHurt(Double, Double)
   PlayerDamageNumber(Double, Double, Int)
   EnemyDamageNumber(Double, Double, Int)
+  ChestOpened(Double, Double)
   ItemPickup(Double, Double, Bool)
   GroundTelegraphRing(Double, Double, Double) // player skill indicators (blue)
   GroundTelegraphLine(Double, Double, Double, Double)

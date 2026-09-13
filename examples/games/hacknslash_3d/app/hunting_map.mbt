@@ -21,6 +21,21 @@ fn build_hunting_chunk(
   cz : Int,
   region? : Int = -1,
 ) -> DungeonChunk {
+  let props = @game.hunting_site_props(seed).filter(p => {
+    @game.hunting_prop_present(p, dungeon.grid)
+  })
+  let occupied : Map[Int, Bool] = Map([])
+  for prop in props {
+    for z in prop.z..<(prop.z + prop.depth) {
+      for x in prop.x..<(prop.x + prop.width) {
+        occupied[z * dungeon.grid.width + x] = true
+      }
+    }
+  }
+  for chest in @game.hunting_chests() {
+    occupied[(chest.y / tile_size).to_int() * dungeon.grid.width +
+    (chest.x / tile_size).to_int()] = true
+  }
   let w = dungeon.grid.width
   let h = dungeon.grid.height
   let palette = world_region_palette(region)
@@ -42,15 +57,35 @@ fn build_hunting_chunk(
       let tile = dungeon.grid.get(x, z)
       let px = x.to_double()
       let pz = z.to_double()
-      let material = if tile == @terrain.Corridor {
+      let mut site_material = -1
+      for site in @game.hunting_sites {
+        let dx = (x - site.x).to_double()
+        let dz = (z - site.z).to_double()
+        if site.kind == @game.Ruins && dx.abs() <= 5.0 && dz.abs() <= 4.0 {
+          site_material = 13
+        } else if site.kind == @game.Encampment &&
+          dx * dx / 49.0 + dz * dz / 36.0 < 1.0 {
+          site_material = 14
+        }
+      }
+      let material = if site_material >= 0 {
+        14
+      } else if tile == @terrain.Corridor {
         2
       } else if hash % 7 < 2 {
         1
       } else {
         0
       }
-      // Coplanar ground facets; small stones and grass are visibly step-over detail.
+      // Surface triangles share their diagonal with HeightField.sample/raycast.
       fn ground_corner(gx : Int, gz : Int) -> @math3d.Vec3 {
+        if dungeon.terrain_surface is Some(surface) {
+          return @math3d.Vec3::new(
+            gx.to_double(),
+            surface.at(gx, gz),
+            gz.to_double(),
+          )
+        }
         if gx <= 1 || gx >= w - 1 || gz <= 1 || gz >= h - 1 {
           return @math3d.Vec3::new(gx.to_double(), 0.0, gz.to_double())
         }
@@ -68,6 +103,19 @@ fn build_hunting_chunk(
         ground_corner(x + 1, z),
         0,
       )
+      if site_material == 13 && hash % 8 != 0 {
+        hunting_broken_paving(
+          accum[if hash % 3 == 0 { 6 } else { 13 }],
+          px,
+          pz,
+          hash,
+        )
+      } else if site_material == 13 && hash % 3 == 0 {
+        hunting_surface_grass(accum[10], px + 0.5, pz + 0.5, hash, dungeon)
+      }
+      if occupied.contains(z * w + x) {
+        continue
+      }
       if tile == @terrain.Wall {
         let border = x < 2 || z < 2 || x >= w - 2 || z >= h - 2
         let kind = if @game.hunting_landmark(x, z) {
@@ -81,7 +129,7 @@ fn build_hunting_chunk(
         } else {
           hash % 3
         }
-        hunting_ground_shadow(
+        hunting_surface_shadow(
           accum[12],
           px + 0.64,
           pz + 0.75,
@@ -95,6 +143,7 @@ fn build_hunting_chunk(
           } else {
             0.61
           },
+          dungeon,
         )
         for part in hunting_assets[kind].parts {
           let mesh = if kind == 3 {
@@ -105,14 +154,18 @@ fn build_hunting_chunk(
           merge_mesh_at(
             accum[part.material].vertices,
             accum[part.material].indices,
-            mesh,
+            hunting_grounded_asset(mesh, dungeon, px + 0.5, pz + 0.5),
             px + 0.5,
-            0.0,
+            @game.get_tile_height(
+              dungeon,
+              (px + 0.5) * tile_size,
+              (pz + 0.5) * tile_size,
+            ),
             pz + 0.5,
           )
         }
-      } else if tile != @terrain.Corridor && hash % 4 == 0 {
-        hunting_grass(accum[10], px + 0.5, pz + 0.5, hash)
+      } else if site_material < 0 && tile != @terrain.Corridor && hash % 4 == 0 {
+        hunting_surface_grass(accum[10], px + 0.5, pz + 0.5, hash, dungeon)
       } else if tile == @terrain.Corridor && hash % 9 == 0 {
         accum[6].loft(
           px + 0.5,
@@ -122,6 +175,31 @@ fn build_hunting_chunk(
           0,
         )
       }
+    }
+  }
+  for prop in props {
+    if prop.x / chunk_size != cx || prop.z / chunk_size != cz {
+      continue
+    }
+    let px = prop.x.to_double() + prop.width.to_double() / 2.0
+    let pz = prop.z.to_double() + prop.depth.to_double() / 2.0
+    hunting_surface_shadow(
+      accum[12],
+      px + 0.10,
+      pz + 0.12,
+      prop.width.to_double() / 2.0,
+      prop.depth.to_double() / 2.0,
+      dungeon,
+    )
+    for part in hunting_prop_asset(prop).parts {
+      merge_mesh_at(
+        accum[part.material].vertices,
+        accum[part.material].indices,
+        part.mesh,
+        px,
+        @game.get_tile_height(dungeon, px * tile_size, pz * tile_size),
+        pz,
+      )
     }
   }
   let groups : Array[DungeonMeshGroup] = []
@@ -221,25 +299,34 @@ fn GameState::push_hunting_ground_commands(
     )
   }
   let player = self.world.player
+  let shadow = if self.world.dungeon.terrain_surface is Some(surface) {
+    terrain_shadow_mesh(
+      surface,
+      player.x / tile_size,
+      player.y / tile_size,
+      0.31,
+      0.23,
+    )
+  } else {
+    hunter_contact_shadow
+  }
   cmds.push(
     @draw3d.new_lit_colored_mesh_draw_command(
       dst,
       self.shader3d_colored,
-      @gfx.new_dst_region(
-        0,
-        0,
-        screen_w,
-        screen_h,
-        hunter_contact_shadow.indices.length(),
-      ),
+      @gfx.new_dst_region(0, 0, screen_w, screen_h, shadow.indices.length()),
       0,
       0,
       0,
       @gfx.BlendMode::from_int(0),
-      hunter_contact_shadow,
-      @transform3d.Transform3D::from_position(
-        @math3d.Vec3::new(player.x / tile_size, 0.002, player.y / tile_size),
-      ).to_mat4(),
+      shadow,
+      if self.world.dungeon.terrain_surface is Some(_) {
+        @math3d.Mat4::identity()
+      } else {
+        @transform3d.Transform3D::from_position(
+          @math3d.Vec3::new(player.x / tile_size, 0.002, player.y / tile_size),
+        ).to_mat4()
+      },
       vp,
       self.lighting,
       hunting_palette[12],
@@ -253,4 +340,33 @@ let hunter_contact_shadow : @mesh3d.Mesh3D = {
   let g = @procedural3d.RigidGeometry::new()
   hunting_ground_shadow(g, 0.0, 0.0, 0.31, 0.23)
   @mesh3d.Mesh3D::new(g.vertices, g.indices)
+}
+
+///|
+// Shallow, broken paving shares the terrain plane; it never changes walking height.
+fn hunting_broken_paving(
+  g : @procedural3d.RigidGeometry,
+  x : Double,
+  z : Double,
+  hash : Int,
+) -> Unit {
+  for
+    i, rect in [
+      (0.04, 0.04, 0.47, 0.96),
+      (0.53, 0.04, 0.96, 0.47),
+      (0.53, 0.53, 0.96, 0.96),
+    ] {
+    if (hash + i * 3) % 11 == 0 {
+      continue
+    }
+    let (a, b, c, d) = rect
+    fn p(px : Double, pz : Double) -> @math3d.Vec3 {
+      if hash % 2 == 0 {
+        @math3d.Vec3::new(x + px, 0.004, z + pz)
+      } else {
+        @math3d.Vec3::new(x + 1.0 - pz, 0.004, z + px)
+      }
+    }
+    g.quad(p(a, b), p(a, d), p(c, d), p(c, b), 0)
+  }
 }

@@ -481,15 +481,15 @@ fn GameState::load_game(self : GameState) -> Bool {
   // Regenerate dungeon for current floor
   self.world.seed = 42 + self.world.floor - 1
   self.world.apply_dungeon(self.world.seed, self.world.floor)
-  if parts.length() > 18 {
-    ignore(
-      self.world.restore_world_progress(js_decode_world_progress(parts[18])),
-    )
+  let restored_world = if parts.length() > 18 {
+    self.world.restore_world_progress(js_decode_world_progress(parts[18]))
+  } else {
+    false
   }
   // Rebuild rendering state
   self.rebuild_dungeon_rendering()
   self.world.open_levelup_ui_if_needed()
-  if migrate_tree_points || parts.length() < 19 {
+  if migrate_tree_points || parts.length() < 19 || restored_world {
     self.save_game()
   }
   true

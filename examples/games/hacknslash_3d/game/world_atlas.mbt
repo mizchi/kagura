@@ -53,6 +53,7 @@ pub(all) struct RegionState {
   dungeon : DungeonData
   enemies : Array[Enemy]
   items : Array[ItemDrop]
+  chests : Array[TreasureChest]
   discovered : Array[Bool]
   rewarded : Array[Bool]
   cleared : Array[Bool]
@@ -60,6 +61,7 @@ pub(all) struct RegionState {
 
 ///|
 pub(all) struct WorldAtlas {
+  mut elevation : HuntingElevation?
   world_seed : Int
   mut current : Int
   regions : Array[RegionState?]
@@ -72,6 +74,7 @@ pub(all) struct WorldAtlas {
 ///|
 pub fn WorldAtlas::new(seed : Int) -> WorldAtlas {
   {
+    elevation: None,
     world_seed: seed,
     current: 0,
     regions: [None, None, None, None],
@@ -150,6 +153,7 @@ pub fn generate_world_region(seed : Int, id : Int) -> DungeonData {
       grid.set(x, z, @terrain.Floor)
     }
   }
+  stamp_hunting_chests(grid)
   dungeon
 }
 
@@ -162,6 +166,7 @@ pub fn GameWorld::capture_region(self : GameWorld) -> Unit {
     dungeon: self.dungeon,
     enemies: self.enemies,
     items: self.items,
+    chests: self.chests,
     discovered: self.discovered_rooms,
     rewarded: self.reward_cleared_rooms,
     cleared: self.auto_cleared_rooms,
@@ -192,6 +197,7 @@ pub fn GameWorld::prepare_region(self : GameWorld, id : Int) -> Bool {
   }
   let seed = region_seed(atlas.world_seed, id)
   let dungeon = generate_world_region(seed, id)
+  apply_region_elevation(atlas, dungeon, id)
   let tier = world_regions[id].tier
   let enemies = spawn_enemies_for_floor_with_params(
     dungeon.rooms,
@@ -201,6 +207,7 @@ pub fn GameWorld::prepare_region(self : GameWorld, id : Int) -> Bool {
     self.params,
   )
   append_hunting_approach_enemies(enemies, dungeon, self.params, tier)
+  append_hunting_site_enemies(enemies, dungeon, self.params, tier)
   let (wx, wy) = world_waypoint_position(id)
   let enemies = enemies.filter(enemy => {
     let dx = enemy.x - wx
@@ -214,6 +221,7 @@ pub fn GameWorld::prepare_region(self : GameWorld, id : Int) -> Bool {
     dungeon,
     enemies,
     items: [],
+    chests: hunting_chests(),
     discovered: Array::make(dungeon.rooms.length(), false),
     rewarded: Array::make(dungeon.rooms.length(), false),
     cleared: Array::make(dungeon.rooms.length(), false),
@@ -360,6 +368,7 @@ pub fn GameWorld::enter_region(
   self.floor = world_regions[id].tier
   self.enemies = region.enemies
   self.items = region.items
+  self.chests = region.chests
   self.discovered_rooms = region.discovered
   self.reward_cleared_rooms = region.rewarded
   self.auto_cleared_rooms = region.cleared

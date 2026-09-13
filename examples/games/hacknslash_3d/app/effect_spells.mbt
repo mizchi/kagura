@@ -14,6 +14,23 @@ fn queue_active_effect(
   doc : @effect.EffectDocument,
   placement : @effect.EffectPlacement,
 ) -> Unit {
+  fn lift(p : @math3d.Vec3) -> @math3d.Vec3 {
+    @math3d.Vec3::new(
+      p.x,
+      p.y +
+      @game.get_tile_height(
+        state.world.dungeon,
+        p.x * tile_size,
+        p.z * tile_size,
+      ),
+      p.z,
+    )
+  }
+  let placement = @effect.new_effect_placement(
+    lift(placement.origin),
+    placement.target.map(lift),
+    placement.scale,
+  )
   state.active_effects.push({ label, doc, placement, elapsed: 0.0, })
 }
 

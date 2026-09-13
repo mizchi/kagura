@@ -1,5 +1,5 @@
 ///|
-test "hunting grounds are open, connected, and every encounter clearing is safe to spawn in" {
+test "hunting grounds are open, connected, and encounter clearings have reachable floors" {
   for seed in [1, 42, 2026, 9471] {
     let map = generate_hunting_grounds(seed)
     let mut walkable = 0
@@ -32,6 +32,9 @@ test "hunting grounds are open, connected, and every encounter clearing is safe 
       let r = room.rect
       for z in r.y..<(r.y + r.h) {
         for x in r.x..<(r.x + r.w) {
+          if map.grid.get(x, z) == @terrain.Wall {
+            continue
+          }
           assert_true(
             !check_wall_collision(
               map.grid,
@@ -90,10 +93,11 @@ test "woodland starts with a small nearby encounter and room to react on every f
           )
         }
       }
-      assert_eq(nearby, 3)
+      assert_eq(nearby, 4)
       assert_true(species.contains(Goblin))
       assert_true(species.contains(Kobold))
       assert_true(species.contains(Skeleton))
+      assert_true(species.contains(Wolf))
     }
   }
 }

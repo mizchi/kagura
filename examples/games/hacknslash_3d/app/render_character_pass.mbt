@@ -84,22 +84,11 @@ fn GameState::rebuild_enemy_render_buckets(
   self.enemy_models.active_attack_keys.clear()
   self.enemy_models.wolf.clear()
   let dungeon = self.world.dungeon
-  let dungeon_width = dungeon.grid.width
-  let dungeon_height = dungeon.grid.height
   for enemy in self.world.enemies {
     if enemy.alive && is_entity_visible(vis_region, enemy.x, enemy.y) {
       let ex = enemy.x / tile_size
       let ez = enemy.y / tile_size
-      let col = ex.to_int()
-      let row = ez.to_int()
-      let ey = if col < 0 ||
-        col >= dungeon_width ||
-        row < 0 ||
-        row >= dungeon_height {
-        0.0
-      } else {
-        dungeon.height_map[row * dungeon_width + col]
-      }
+      let ey = @game.get_tile_height(dungeon, enemy.x, enemy.y)
       let color = if enemy.damage_timer > 0 {
         @math3d.Vec4::new(1.8, 1.35, 1.35, 1.0)
       } else {

@@ -5,8 +5,11 @@ import {createInventoryPanel} from './hunter-inventory.mjs';
 import {bindHunterArts} from './hunter-arts.mjs';
 import {renderWorldMap} from './hunter-world-map.mjs';
 import {renderSkillTree} from './hunter-skill-tree.mjs';
+import {createTerrainInput,renderTerrainPanel,bindTerrainPanel} from './hunter-terrain.mjs';
+import {createCameraInput,renderCameraPanel,bindCameraPanel,bindTouchCamera,syncCameraViewport} from './hunter-camera.mjs';
 
 const paths={
+  chest:'M4 15v14h26V15ZM4 15V9l4-5h18l4 5v6M17 15v7M8 15V6M26 15V6',
   waypoint:'M17 2 26 17 17 30 8 17ZM3 28q14 9 28 0M17 9v13',
   spear:'M5 30 24 8M20 8 30 3 25 14ZM10 22l3 3',
   fist:'M10 18V8q0-4 4-2v10-11q2-3 4 0v11-9q3-3 4 0v10-7q4-2 4 2v12l-7 7H10L4 20q-1-4 3-3l5 5',
@@ -32,8 +35,15 @@ const controls=createControlInput();
 const input=createHunterInput(controls);
 globalThis.__ashenControls=input;
 let current=null;
+const cameraInput=createCameraInput({save:value=>{try{localStorage.setItem('ashen-hunt-camera-v1',value);}catch{}}});
+globalThis.__ashenCamera=cameraInput;
+const terrainInput=createTerrainInput();
+globalThis.__ashenTerrain=terrainInput;
+window.addEventListener('pagehide',()=>cameraInput.flush());
+document.addEventListener('visibilitychange',()=>{if(document.hidden)cameraInput.flush();});
+bindTouchCamera(document.querySelector('#app'),cameraInput,()=>current?.camera?.mode===1&&current.mode==='playing'&&!current.paused&&current.menu==='none'&&!current.arts?.targeting);
 bindHunterAim({stage:document.querySelector('#app'),hud:root,input,
-  enabled:()=>current?.mode==='playing'&&!current.paused&&current.menu==='none'});
+  enabled:()=>current?.mode==='playing'&&!current.paused&&current.menu==='none',tps:()=>current?.camera?.mode===1});
 
 let panelKey='';
 let showTreeDetail=false;
@@ -41,15 +51,16 @@ const names=['処刑の一撃','ワールウィンド','分裂火弾','霜の輪
 root.innerHTML=`
   <div class="edge-shade" aria-hidden="true"></div>
   <div id="damage-numbers" aria-hidden="true"></div>
+  <div id="tps-crosshair" aria-hidden="true" hidden></div>
   <section class="vitals" aria-label="狩人の状態">
     <div class="hunter-seal" aria-hidden="true">${icon('blade')}</div>
     <div class="vital-lines"><div class="vital-caption"><span>HUNTER <b id="hunter-level">01</b></span><span id="health-text">—</span></div>
     <div class="health-track" role="progressbar" aria-label="体力"><i id="health-fill"></i></div>
     <div class="xp-track" role="progressbar" aria-label="経験値"><i id="xp-fill"></i></div></div>
   </section>
-  <section class="expedition" aria-label="狩場の目標"><p id="night-label">第一夜</p><h1 id="region-name">灰の森</h1><div><i></i><span id="hunt-objective">灯火をたどり、群れを狩る</span></div></section>
-  <aside class="map-card" aria-label="灰の森の地図"><span id="minimap-region">ASHWOOD</span><svg viewBox="0 0 100 80" aria-hidden="true"><path class="map-outline" d="M2 2h96v76H2z"/><path class="map-road" d="M2 42Q18 62 35 40T67 33 98 44M43 36v30"/><path class="map-clearing" d="M14 43h12v12H14zM33 30h12v12H33zM53 23h14v14H53zM70 41h14v14H70zM37 56h12v12H37z"/><g class="map-lights"><circle cx="27" cy="46" r="2"/><circle cx="51" cy="28" r="2"/><circle cx="87" cy="48" r="2"/></g><g id="minimap-exits" stroke="#bdb589" fill="#bdb589" stroke-width="1"/><path id="minimap-waypoint" d="M0 -3 3 0 0 3 -3 0Z" fill="#e9d294" stroke="#284633" stroke-width=".6"/><circle id="map-player" r="2.2" cx="20" cy="49"/></svg><small id="minimap-subtitle">灯火の旧街道</small></aside>
-  <div class="utility" aria-label="メニュー"><button data-key="73" aria-label="装備袋">${icon('bag')}<span>装備 <kbd>I</kbd></span></button><button data-key="75" aria-label="技と成長">${icon('book')}<span>技 <kbd>K</kbd><b id="tree-sp-badge" hidden></b></span></button><button data-key="71" aria-label="世界地図">${icon('waypoint')}<span>地図 <kbd>G</kbd></span></button><button data-key="27" aria-label="一時停止メニュー">${icon('pause')}<kbd>ESC</kbd></button></div>
+  <section class="expedition" aria-label="狩場の目標"><p id="night-label">第一夜</p><h1 id="region-name">灰の森</h1><div><i></i><span id="hunt-objective">灯火をたどり、群れを狩る</span></div><small id="site-label" hidden></small></section>
+  <aside class="map-card" aria-label="灰の森の地図"><span id="minimap-region">ASHWOOD</span><svg viewBox="0 0 100 80" aria-hidden="true"><path class="map-outline" d="M2 2h96v76H2z"/><path class="map-road" d="M2 42Q18 62 35 40T67 33 98 44M43 36v30"/><path class="map-clearing" d="M14 43h12v12H14zM33 30h12v12H33zM53 23h14v14H53zM70 41h14v14H70zM37 56h12v12H37z"/><g class="map-lights"><circle cx="27" cy="46" r="2"/><circle cx="51" cy="28" r="2"/><circle cx="87" cy="48" r="2"/></g><g id="minimap-sites"/><g id="minimap-exits" stroke="#bdb589" fill="#bdb589" stroke-width="1"/><path id="minimap-waypoint" d="M0 -3 3 0 0 3 -3 0Z" fill="#e9d294" stroke="#284633" stroke-width=".6"/><circle id="map-player" r="2.2" cx="20" cy="49"/></svg><small id="minimap-subtitle">灯火の旧街道</small></aside>
+  <div class="utility" aria-label="メニュー"><button data-key="73" aria-label="装備袋">${icon('bag')}<span>装備 <kbd>I</kbd></span></button><button data-key="75" aria-label="技と成長">${icon('book')}<span>技 <kbd>K</kbd><b id="tree-sp-badge" hidden></b></span></button><button data-key="71" aria-label="世界地図">${icon('waypoint')}<span>地図 <kbd>G</kbd></span></button><button data-key="79" aria-label="カメラ設定">${icon('eye')}<span>視点 <kbd>O</kbd></span></button><button data-key="27" aria-label="一時停止メニュー">${icon('pause')}<kbd>ESC</kbd></button></div>
   <div class="journey-note"><span>ASHEN HUNT</span><p>鐘が消えるまで、夜は明けない。</p></div>
   <div class="combat-controls">
     <div id="move-stick" role="group" aria-label="仮想移動スティック"><div class="stick-ring"><i class="stick-cross"></i><i id="stick-thumb"></i></div><span>移動</span></div>
@@ -68,6 +79,7 @@ root.innerHTML=`
   </div>
   <div id="target-surface" aria-label="星落としの位置指定" hidden></div>
   <div id="target-hint" role="status" hidden><strong>星落とし</strong><span>地面をクリック／タップして発動</span><button data-key="84" aria-label="位置指定を取り消す">取消 <kbd>ESC</kbd></button></div>
+  <button id="chest-prompt" class="waypoint-prompt" data-key="66" aria-label="宝箱を開ける" hidden>${icon('chest')}<span>宝箱を開ける</span><kbd>B</kbd></button>
   <button id="waypoint-prompt" class="waypoint-prompt" data-key="71" aria-label="ウェイポイントを使う" hidden>${icon('waypoint')}<span>ウェイポイント</span><kbd>G</kbd></button>
   <section id="hunter-panel" class="modal-wrap" hidden aria-live="polite"></section>
   <div id="combat-feedback" role="status" hidden></div>
@@ -75,6 +87,9 @@ root.innerHTML=`
 `;
 const $=id=>document.getElementById(id);
 const renderArts=bindHunterArts({root,input});
+bindTerrainPanel($('hunter-panel'),terrainInput);
+const syncCameraPanel=bindCameraPanel($('hunter-panel'),cameraInput);
+window.addEventListener('resize',()=>syncCameraViewport($('hunter-panel'),current?.camera?.editing||current?.terrain?.editing));
 const inventoryPanel=createInventoryPanel($('hunter-panel'),{input,icon,escape});
 $('player-weapon').addEventListener('change',e=>{
   input.tap(88,Number(e.target.value));
@@ -167,7 +182,7 @@ window.addEventListener('keydown',e=>{
     if(!e.repeat&&current?.mode==='playing'&&!current.paused&&current.menu==='none')input.hold(-50,'whirlwind');
     return;
   }
-  const keys={Space:32,Enter:13,Escape:27,KeyP:80,KeyI:73,KeyK:75,KeyG:71,KeyX:88,KeyC:67,KeyT:84,KeyV:86,Digit1:49,Digit3:51,Digit4:52,Digit5:53,Digit6:54,Digit8:56};
+  const keys={Space:32,Enter:13,Escape:27,KeyP:80,KeyI:73,KeyK:75,KeyG:71,KeyB:66,KeyO:79,KeyN:78,KeyZ:90,KeyX:88,KeyC:67,KeyT:84,KeyV:86,Digit1:49,Digit3:51,Digit4:52,Digit5:53,Digit6:54,Digit8:56};
   if(current?.menu==='inventory')keys.KeyE=69;
   const code=keys[e.code];
   if(!code){
@@ -184,16 +199,20 @@ document.addEventListener('visibilitychange',()=>{if(document.hidden){inventoryP
 
 let previousPanelState="";
 function panel(hud){
-  const state=hud.mode!=='playing'?hud.mode:hud.menu!=='none'?hud.menu:hud.paused?'pause':'';
-  const signature=JSON.stringify([state,hud.paused,hud.muted,hud.skill_points,hud.cursor,hud.inventory,hud.equipment,hud.inventory_grid,state==='waypoints'?hud.atlas:null,hud.nodes,hud.offers]);
-  if(signature===panelKey)return;panelKey=signature;
+  const state=hud.mode!=='playing'?hud.mode:hud.terrain?.editing?'terrain':hud.camera?.editing?'camera':hud.menu!=='none'?hud.menu:hud.paused?'pause':'';
+  const signature=JSON.stringify([state,state==='terrain'?hud.terrain?.revision:null,hud.camera?.mode,hud.paused,hud.muted,hud.skill_points,hud.cursor,hud.inventory,hud.equipment,hud.inventory_grid,state==='waypoints'?hud.atlas:null,hud.nodes,hud.offers]);
+  if(signature===panelKey){if(state==='camera')syncCameraPanel(hud.camera);return;}panelKey=signature;
   const el=$('hunter-panel');el.hidden=!state;
-  el.setAttribute('aria-live',state==='inventory'?'off':'polite');
+  el.setAttribute('aria-live',state==='inventory'||state==='camera'||state==='terrain'?'off':'polite');
+  el.classList.toggle('camera-open',state==='camera'||state==='terrain');
+  document.body.classList.toggle('camera-editor-open',state==='camera'||state==='terrain');
   root.dataset.blocked=state?'true':'false';
   const changed=state!==previousPanelState;
   previousPanelState=state;
+  if(changed){cameraInput.clear();terrainInput.clear();}
   if(state!=='inventory')inventoryPanel.close();
   if(!state){
+    syncCameraViewport(el,false);
     if(changed){clear();document.querySelector('#app')?.focus({preventScroll:true});}
     return;
   }
@@ -209,13 +228,16 @@ function panel(hud){
   if(state==='title')body=`${heading('A HUNTER’S NIGHT','ASHEN HUNT')}<p class="title-jp">灰の森に、灯を。</p><p class="panel-description">途切れた旧街道。眠らない群れ。<br>灯火をたどり、夜の狩場へ。</p><button class="begin-button" data-key="32">狩りを始める <span>→</span></button><small>WASDで移動 · 左クリックで通常攻撃 · Xで武器切替 · Cで突進<br>モバイルでは画面のスティックとボタンで操作</small>`;
   if(state==='character_select')body=`${heading('CHOOSE YOUR OATH','狩人の誓い')}<p class="panel-description">4つの技を携え、灰の森へ踏み入る。</p><div class="oath-list">${['刃の狩人','術の狩人','呪弾の狩人'].map((n,i)=>`<button data-key="13" data-selection="${i}" class="${hud.cursor===i?'selected':''}">${icon(['blade','fire','frost'][i])}<strong>${n}</strong><small>${['体力と近接攻撃に優れる','術の威力に優れる','遠距離から群れを狙う'][i]}</small><span>→</span></button>`).join('')}</div>`;
   if(state==='gameover')body=`${heading('THE NIGHT REMAINS','灯は、まだ消えない。')}<p class="panel-description">灰の森で倒れた。もう一度、夜の向こうへ。</p><button class="begin-button" data-key="32">再び立ち上がる →</button>`;
-  if(state==='pause')body=`<div class="pause-mark">${icon('pause')}</div>${heading('THE NIGHT CAN WAIT','一時停止')}<p class="panel-description">ここで、ひと息。<br>狩場の時間は止まっています。</p><div class="pause-actions"><button class="begin-button" data-key="27" data-autofocus>狩りを再開する <kbd>ESC</kbd></button><button data-key="73">${icon('bag')}<span>装備袋</span><kbd>I</kbd></button><button data-key="75">${icon('book')}<span>技と成長</span><kbd>K</kbd></button><button data-key="71">${icon('waypoint')}<span>世界地図</span><kbd>G</kbd></button><button data-key="77" aria-label="サウンド" aria-pressed="${!hud.muted}"><span>サウンド</span><strong>${hud.muted?'OFF':'ON'}</strong><kbd>M</kbd></button></div><p class="pause-hint">メニューを確認している間も一時停止します。</p>`;
+  if(state==='pause')body=`<div class="pause-mark">${icon('pause')}</div>${heading('THE NIGHT CAN WAIT','一時停止')}<p class="panel-description">ここで、ひと息。<br>狩場の時間は止まっています。</p><div class="pause-actions"><button class="begin-button" data-key="27" data-autofocus>狩りを再開する <kbd>ESC</kbd></button><button data-key="73">${icon('bag')}<span>装備袋</span><kbd>I</kbd></button><button data-key="75">${icon('book')}<span>技と成長</span><kbd>K</kbd></button><button data-key="71">${icon('waypoint')}<span>世界地図</span><kbd>G</kbd></button><button data-key="79">${icon('eye')}<span>カメラ設定</span><kbd>O</kbd></button>${hud.terrain?.enabled?'<button data-key="78"><span>地形実験</span><kbd>N</kbd></button>':''}<button data-key="77" aria-label="サウンド" aria-pressed="${!hud.muted}"><span>サウンド</span><strong>${hud.muted?'OFF':'ON'}</strong><kbd>M</kbd></button></div><p class="pause-hint">メニューを確認している間も一時停止します。</p>`;
+  if(state==='camera')body=renderCameraPanel(hud.camera);
+  if(state==='terrain')body=renderTerrainPanel(hud.terrain);
   if(state==='inventory')body=`${close}${inventoryPanel.render(hud.inventory_grid)}`;
   if(state==='waypoints')body=`${close}${renderWorldMap(hud,{icon,escape})}`;
   if(state==='skills')body=`${close}${renderSkillTree(hud,{icon,escape})}<div class="tree-guide"><h3>狩場での操作</h3><div class="skill-guide">${hud.skills.map((s,i)=>`<article>${icon(['blade','whirl','fire','frost'][i])}<div><strong><kbd>${i+1}</kbd> ${escape(s.name)}</strong><p>${escape(s.description)}</p></div></article>`).join('')}</div><p class="panel-description"><strong>C · 突進</strong><br>${escape(hud.charge.description)} 全武器で使用可能・再使用まで3秒。</p><div class="arts-guide"><p><strong>F · 盾ガード</strong><br>長押しで盾を構え、正面120度からの攻撃を80%軽減。構え始め8フレームは完全防御。防御力を使い切ると1.5秒間、体勢を立て直します。</p><p><strong>T · 星落とし</strong><br>地面を指定し、表示された円に0.5秒後に落雷。クリック／タップで確定、ESCで取消。再使用まで4秒。</p><p><strong>V · 踏込斬り</strong><br>前方へ踏み込み、敵の手前で停止して斬る。壁で停止し、回避で中断できます。再使用まで2.5秒。</p><p><strong>5 · 連鎖雷撃</strong><br>呪術のスキルツリーで習得。近くの敵へ雷をつなぎます。</p></div></div>`;
   if(state==='levelup')body=`${heading('BLOOD & EXPERIENCE','新たな力を選ぶ')}<p class="panel-description">ひとつ選ぶと狩りを再開します。</p><div class="oath-list">${hud.offers.map((name,i)=>`<button data-key="13" data-selection="${i}" class="${hud.cursor===i?'selected':''}">${icon('book')}<strong>${escape(name)}</strong><span>→</span></button>`).join('')}</div>`;
-  el.innerHTML=`<div class="hunter-panel panel-${state}" role="dialog" aria-modal="true" aria-label="${state==='pause'?'一時停止メニュー':state}">${body}</div>`;
+  el.innerHTML=`<div class="hunter-panel panel-${state}" role="dialog" aria-modal="true" aria-label="${state==='pause'?'一時停止メニュー':state==='camera'?'カメラ設定':state==='terrain'?'地形実験':state}">${body}</div>`;
   el.querySelector('.hunter-panel').scrollTop=scrollTop;
+  syncCameraViewport(el,state==='camera'||state==='terrain');
   if(hud.paused||state==='skills'||state==='inventory'||state==='waypoints'){
     let focus=null;
     if(!changed&&focusedTree)focus=el.querySelector(`[data-tree-node][data-selection="${hud.cursor}"]`);
@@ -286,7 +308,20 @@ function render(hud){
     setText('region-name',hud.atlas.name);setText('minimap-region',hud.atlas.name);setText('minimap-subtitle',hud.atlas.subtitle);
     root.querySelector('.map-card').setAttribute('aria-label',`${hud.atlas.name}の地図`);
   }
-  $('waypoint-prompt').hidden=hud.arts?.targeting||!hud.atlas?.near_waypoint||hud.mode!=='playing'||hud.paused||hud.menu!=='none';
+  const exploration=hud.exploration;
+  const canOpenChest=exploration?.nearby_chest>=0&&!hud.arts?.targeting&&hud.mode==='playing'&&!hud.paused&&hud.menu==='none';
+  $('chest-prompt').hidden=!canOpenChest;
+  $('site-label').hidden=!exploration?.site_name;
+  setText('site-label',exploration?.site_name??'');
+  if(exploration){
+    root.querySelector('.map-road').setAttribute('d',exploration.road_path);
+    const sites=$('minimap-sites'),signature=JSON.stringify(exploration.chests);
+    if(sites.dataset.signature!==signature){
+      sites.dataset.signature=signature;
+      sites.innerHTML=exploration.chests.map(c=>`<g transform="translate(${c.x} ${c.z})" opacity="${c.opened ? 0.35 : 1}"><title>${escape(c.name)}${c.opened?'（開封済み）':''}</title><path d="${c.kind==='camp'?'M-3 2 0-3 3 2Z':'M-2-2h4v4h-4Z'}" fill="#d9b76f" stroke="#252c24" stroke-width=".7"/></g>`).join('');
+    }
+  }
+  $('waypoint-prompt').hidden=canOpenChest||hud.arts?.targeting||!hud.atlas?.near_waypoint||hud.mode!=='playing'||hud.paused||hud.menu!=='none';
   setText('night-label',`第 ${hud.floor} 夜 · THE LONG NIGHT`);
   setText('hunt-objective',`灯火をたどり、群れを狩る · 残り ${hud.remaining}`);
   $('map-player').setAttribute('cx',hud.map_x);$('map-player').setAttribute('cy',hud.map_z);
@@ -322,6 +357,7 @@ function render(hud){
   });
   $('tree-sp-badge').hidden=hud.skill_points===0;
   setText('tree-sp-badge',`${hud.skill_points} SP`);
+  $('tps-crosshair').hidden=!hud.camera?.crosshair||hud.menu!=='none';
   renderArts(hud);
   panel(hud);
 }
@@ -330,7 +366,7 @@ globalThis.__ashenUI=Object.freeze({version:1,render});
 // Keep keyboard navigation inside the stopped menu, including its submenus.
 $('hunter-panel').addEventListener('keydown',e=>{
   if((!current?.paused && !['skills','inventory','waypoints'].includes(current?.menu)) || e.code!=='Tab')return;
-  const buttons=[...e.currentTarget.querySelectorAll('button:not(:disabled):not([tabindex="-1"]),select:not(:disabled),a[href]')];
+  const buttons=[...e.currentTarget.querySelectorAll('button:not(:disabled):not([tabindex="-1"]),select:not(:disabled),input:not(:disabled),a[href]')];
   const first=buttons[0],last=buttons.at(-1);
   if(e.shiftKey&&document.activeElement===first){e.preventDefault();last?.focus();}
   else if(!e.shiftKey&&document.activeElement===last){e.preventDefault();first?.focus();}

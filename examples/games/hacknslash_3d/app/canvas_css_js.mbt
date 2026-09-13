@@ -22,6 +22,46 @@ fn canvas_css_width() -> Double {
 }
 
 ///|
+extern "js" fn hunter_web_camera_command() -> Array[Double] =
+  #| () => globalThis.__ashenCamera?.consumeCommand() ?? []
+
+///|
+extern "js" fn hunter_web_terrain_command() -> Array[Double] =
+  #| () => globalThis.__ashenTerrain?.consume() ?? []
+
+///|
+extern "js" fn hunter_terrain_clock() -> Double =
+  #| () => globalThis.performance?.now() ?? Date.now()
+
+///|
+extern "js" fn hunter_save_terrain_preferences(value : String) -> Unit =
+  #| value => { try { localStorage.setItem('ashen-hunt-terrain-v1',value); } catch {} }
+
+///|
+extern "js" fn hunter_load_terrain_preferences() -> String =
+  #| () => { try { return localStorage.getItem('ashen-hunt-terrain-v1') ?? ''; } catch { return ''; } }
+
+///|
+extern "js" fn hunter_initial_terrain() -> Array[Double] =
+  #| () => {
+  #|   const q=new URLSearchParams(globalThis.location?.search??'');
+  #|   const pattern=['flat','perlin','diamond','voronoi','hybrid'].indexOf(q.get('terrain'));
+  #|   return pattern<0?[]:[pattern,Number(q.get('terrain_seed')??q.get('seed')??42),Number(q.get('relief')??4),Number(q.get('terrain_scale')??18),Number(q.get('roughness')??.5)];
+  #| }
+
+///|
+extern "js" fn hunter_web_camera_look() -> Array[Double] =
+  #| () => globalThis.__ashenCamera?.consumeLook() ?? []
+
+///|
+extern "js" fn hunter_load_camera_preferences() -> String =
+  #| () => { try { return localStorage.getItem('ashen-hunt-camera-v1') ?? ''; } catch { return ''; } }
+
+///|
+extern "js" fn hunter_save_camera_preferences(value : String) -> Unit =
+  #| value => globalThis.__ashenCamera?.save(value)
+
+///|
 fn canvas_css_height() -> Double {
   js_canvas_css_height()
 }

@@ -4,6 +4,7 @@ package "mizchi/hacknslash_3d/game"
 import {
   "mizchi/kagura_game/gameplay2d",
   "mizchi/kagura_game/progression",
+  "mizchi/kagura_game/terrain3d",
   "mizchi/terrain/types",
   "moonbitlang/core/debug",
   "moonbitlang/core/json",
@@ -210,7 +211,7 @@ pub fn generate_item(Int, Int) -> ItemData
 
 pub fn generate_item_with_profile(Int, Int, AffixProfile) -> ItemData
 
-pub fn generate_item_with_profile_and_drop_config(Int, Int, AffixProfile, DropTableConfig) -> ItemData
+pub fn generate_item_with_profile_and_drop_config(Int, Int, AffixProfile, DropTableConfig, rarity? : ItemRarity) -> ItemData
 
 pub fn generate_world_region(Int, Int) -> DungeonData
 
@@ -248,13 +249,21 @@ pub let homing_missile_turn_rate : Double
 
 pub fn hunter_equipment_item(EquipSlot, weapon? : PlayerWeaponKind, rarity? : ItemRarity) -> ItemData
 
+pub fn hunting_chests() -> Array[TreasureChest]
+
 pub fn hunting_clearings() -> Array[@types.Room]
 
 pub fn hunting_hash(Int, Int, Int) -> Int
 
 pub fn hunting_landmark(Int, Int) -> Bool
 
+pub fn hunting_prop_present(HuntingProp, @types.Grid2D) -> Bool
+
 pub fn hunting_road_z(Int) -> Double
+
+pub fn hunting_site_props(Int) -> Array[HuntingProp]
+
+pub let hunting_sites : Array[HuntingSite]
 
 pub let ice_nova_cooldown : Int
 
@@ -634,6 +643,7 @@ pub(all) struct DungeonData {
   mut start_x : Double
   mut start_y : Double
   height_map : Array[Double]
+  mut terrain_surface : @terrain3d.HeightField?
 }
 
 type DungeonGeneratorKind derive(Eq, @debug.Debug)
@@ -810,6 +820,7 @@ pub(all) enum GameEvent {
   PlayerHurt(Double, Double)
   PlayerDamageNumber(Double, Double, Int)
   EnemyDamageNumber(Double, Double, Int)
+  ChestOpened(Double, Double)
   ItemPickup(Double, Double, Bool)
   GroundTelegraphRing(Double, Double, Double)
   GroundTelegraphLine(Double, Double, Double, Double)
@@ -859,6 +870,7 @@ pub(all) struct GameWorld {
   mut score : Int
   player : Player
   mut enemies : Array[Enemy]
+  mut chests : Array[TreasureChest]
   mut items : Array[ItemDrop]
   mut projectiles : Array[Projectile]
   mut dungeon : DungeonData
@@ -929,8 +941,10 @@ pub fn GameWorld::hunter_action_locked(Self) -> Bool
 pub fn GameWorld::mark_current_room_discovered(Self) -> Unit
 pub fn GameWorld::melee_lock_target(Self, Double, PlayerWeaponKind) -> Enemy?
 pub fn GameWorld::near_waypoint(Self) -> Bool
+pub fn GameWorld::nearby_chest(Self) -> TreasureChest?
 pub fn GameWorld::new(seed~ : Int, params? : BalanceParams, archetype? : CharacterArchetype, build_policy? : ArchetypeBuildPolicy, hunting_grounds? : Bool) -> Self
 pub fn GameWorld::open_levelup_ui_if_needed(Self) -> Unit
+pub fn GameWorld::open_nearby_chest(Self) -> Bool
 pub fn GameWorld::preload_regions(Self) -> Array[Int]
 pub fn GameWorld::prepare_region(Self, Int) -> Bool
 pub fn GameWorld::push_item_log(Self, String, Int) -> Unit
@@ -948,6 +962,7 @@ pub fn GameWorld::restore_world_progress(Self, String) -> Bool
 pub fn GameWorld::scene_snapshot_json(Self) -> String
 pub fn GameWorld::serialize_world_progress(Self) -> String
 pub fn GameWorld::set_guard(Self, Bool, Double) -> Unit
+pub fn GameWorld::set_hunting_terrain(Self, @terrain3d.TerrainConfig) -> Bool
 pub fn GameWorld::set_whirlwind(Self, Bool, pressed? : Bool) -> Unit
 pub fn GameWorld::skill_allowed(Self, SkillId) -> Bool
 pub fn GameWorld::stop_whirlwind(Self) -> Unit
@@ -1004,6 +1019,45 @@ pub(all) struct HunterArts {
   mut dash_cooldown : Int
 }
 pub fn HunterArts::new() -> Self
+
+pub(all) struct HuntingElevation {
+  config : @terrain3d.TerrainConfig
+  surface : @terrain3d.HeightField
+}
+
+pub(all) struct HuntingProp {
+  kind : HuntingPropKind
+  x : Int
+  z : Int
+  width : Int
+  depth : Int
+  variant : Int
+}
+
+pub(all) enum HuntingPropKind {
+  RuinWall
+  RuinColumn
+  Tent
+  Palisade
+  Campfire
+  SupplyCrate
+  RoadSign
+  BrokenCart
+} derive(Eq, @debug.Debug)
+
+pub(all) struct HuntingSite {
+  id : Int
+  name : String
+  kind : HuntingSiteKind
+  x : Int
+  z : Int
+  room : Int
+}
+
+pub(all) enum HuntingSiteKind {
+  Ruins
+  Encampment
+} derive(Eq, @debug.Debug)
 
 pub(all) struct Inventory {
   items : Array[ItemData?]
@@ -1227,6 +1281,7 @@ pub(all) struct RegionState {
   dungeon : DungeonData
   enemies : Array[Enemy]
   items : Array[ItemDrop]
+  chests : Array[TreasureChest]
   discovered : Array[Bool]
   rewarded : Array[Bool]
   cleared : Array[Bool]
@@ -1357,6 +1412,15 @@ pub(all) enum TelegraphShape {
   Line
 }
 
+pub(all) struct TreasureChest {
+  id : Int
+  site : Int
+  x : Double
+  y : Double
+  mut opened : Bool
+  mut opened_frame : Int
+}
+
 pub(all) enum UIMode {
   None
   Inventory
@@ -1374,6 +1438,7 @@ pub(all) struct WhirlwindChannel {
 }
 
 pub(all) struct WorldAtlas {
+  mut elevation : HuntingElevation?
   world_seed : Int
   mut current : Int
   regions : Array[RegionState?]

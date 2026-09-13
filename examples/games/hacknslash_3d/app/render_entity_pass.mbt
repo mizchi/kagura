@@ -40,7 +40,11 @@ fn height_at_tile(dungeon : @game.DungeonData, col : Int, row : Int) -> Double {
     row >= dungeon.grid.height {
     return 0.0
   }
-  dungeon.height_map[row * dungeon.grid.width + col]
+  @game.get_tile_height(
+    dungeon,
+    (col.to_double() + 0.5) * tile_size,
+    (row.to_double() + 0.5) * tile_size,
+  )
 }
 
 ///|
@@ -71,7 +75,7 @@ fn GameState::rebuild_entity_instance_scratch(
       is_tile_visible(region, col, row) {
       let ix = item.x / tile_size
       let iz = item.y / tile_size
-      let base_y = height_at_tile(self.world.dungeon, col, row)
+      let base_y = @game.get_tile_height(self.world.dungeon, item.x, item.y)
       let bob = base_y + 0.3 + item_bob_offset
       let color = match item.kind {
         @game.Health => color_item_health
@@ -217,7 +221,7 @@ fn GameState::rebuild_entity_instance_scratch(
       is_tile_visible(region, col, row) {
       let prx = proj.x / tile_size
       let prz = proj.y / tile_size
-      let base_y = height_at_tile(self.world.dungeon, col, row)
+      let base_y = @game.get_tile_height(self.world.dungeon, proj.x, proj.y)
       if proj.kind == @game.Arrow {
         let angle = @math.atan2(proj.vy, proj.vx)
         let rot = @math3d.Quaternion::from_axis_angle(

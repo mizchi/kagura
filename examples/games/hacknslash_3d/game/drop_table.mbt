@@ -164,10 +164,10 @@ pub fn generate_item_with_profile_and_drop_config(
   floor : Int,
   profile : AffixProfile,
   config : DropTableConfig,
+  rarity? : ItemRarity = roll_item_rarity(seed & 0x7FFFFFFF, floor, config),
 ) -> ItemData {
   let rng = seed & 0x7FFFFFFF
   let slot = weighted_slot_pick(rng, config)
-  let rarity = roll_item_rarity(rng, floor, config)
   let rarity_mult = rarity_multiplier(rarity)
   let base_tier = item_tier_value(
     config.base_item_tier_base,

@@ -37,6 +37,7 @@ fn sound_cue_for_event(event : @game.GameEvent) -> GameSoundCue? {
     @game.EnemyMeleeWarning(_, _) => Some(SfxEnemyWindup)
     @game.HitSparks(_, _) => Some(SfxEnemyHit)
     @game.HurtTriggered => Some(SfxHurt)
+    @game.ChestOpened(_, _) => Some(SfxPickupLoot)
     @game.ItemPickup(_, _, true) => Some(SfxPickupHealth)
     @game.ItemPickup(_, _, false) => Some(SfxPickupLoot)
     @game.ChainLightningArc(_, _, _, _) => Some(SfxSpellChainLightning)

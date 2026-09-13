@@ -161,8 +161,20 @@ fn GameState::push_combat_mesh(
   vp : @math3d.Mat4,
   dst : @gfx.ImageHandle,
   cmds : Array[@gfx.DrawTrianglesCommand],
+  terrain_relative? : Bool = false,
 ) -> Unit {
-  @web_hooks.register_static_geometry(mesh.vertex_data, mesh.indices)
+  if !terrain_relative || self.world.dungeon.terrain_surface is None {
+    @web_hooks.register_static_geometry(mesh.vertex_data, mesh.indices)
+  }
+  let (mesh, model) = if terrain_relative &&
+    self.world.dungeon.terrain_surface is Some(_) {
+    (
+      surface_effect_mesh(mesh, model, self.world.dungeon),
+      @math3d.Mat4::identity(),
+    )
+  } else {
+    (mesh, model)
+  }
   cmds.push(
     @draw3d.new_lit_colored_mesh_draw_command(
       dst,
@@ -218,7 +230,7 @@ fn GameState::draw_skill_circle(
   } else {
     @math3d.Vec4::new(1.5, 0.25, 0.22, 1.0)
   }
-  self.push_combat_mesh(
+  self.push_surface_combat_mesh(
     combat_ring,
     combat_transform(x / tile_size, 0.055, y / tile_size, r, 1.0, r),
     color,
@@ -227,7 +239,7 @@ fn GameState::draw_skill_circle(
     cmds,
   )
   let inner = r * (0.18 + 0.74 * progress)
-  self.push_combat_mesh(
+  self.push_surface_combat_mesh(
     combat_ring,
     combat_transform(x / tile_size, 0.065, y / tile_size, inner, 1.0, inner),
     color,
@@ -237,7 +249,7 @@ fn GameState::draw_skill_circle(
   )
   for i in 0..<8 {
     let a = i.to_double() * @math.PI / 4.0
-    self.push_combat_mesh(
+    self.push_surface_combat_mesh(
       combat_core,
       combat_transform(
         x / tile_size + @math.sin(a) * r,
@@ -312,7 +324,7 @@ fn GameState::push_combat_visuals(
           WhirlwindCut | DashCut => @math3d.Vec4::new(1.65, 1.55, 1.15, 1.0)
         }
         if kind == @game.DashCut {
-          self.push_combat_mesh(
+          self.push_surface_combat_mesh(
             combat_arc,
             combat_transform(
               x,
@@ -329,7 +341,7 @@ fn GameState::push_combat_visuals(
             cmds,
           )
         } else {
-          self.push_combat_mesh(
+          self.push_surface_combat_mesh(
             combat_ring,
             combat_transform(x, 0.08, z, r, 1.0, r),
             color,
@@ -339,7 +351,7 @@ fn GameState::push_combat_visuals(
           )
           if v.age < 12 {
             let size = r * (0.25 + t * 1.6)
-            self.push_combat_mesh(
+            self.push_surface_combat_mesh(
               combat_disk,
               combat_transform(x, 0.09, z, size, 1.0, size),
               @math3d.Vec4::new(2.0, 1.9, 1.5, 1.0),
@@ -349,7 +361,7 @@ fn GameState::push_combat_visuals(
             )
           }
           if kind == @game.AstralBlast && v.age < 10 {
-            self.push_combat_mesh(
+            self.push_surface_combat_mesh(
               combat_core,
               combat_transform(x, 2.5, z, 0.18, 5.0, 0.18),
               @math3d.Vec4::new(1.8, 2.0, 2.3, 1.0),
@@ -361,7 +373,7 @@ fn GameState::push_combat_visuals(
           // Hit confirmation is a brief cross above the impact, absent for an empty explosion.
           if v.hits > 0 && v.age < 10 {
             for yaw in [-0.65, 0.65] {
-              self.push_combat_mesh(
+              self.push_surface_combat_mesh(
                 combat_core,
                 combat_transform(x, 0.9, z, 0.07, 0.07, 0.9, yaw~),
                 @math3d.Vec4::new(2.0, 2.0, 1.7, 1.0),
@@ -378,7 +390,7 @@ fn GameState::push_combat_visuals(
         let dz = (v.end_y - v.y) / tile_size
         let length = (dx * dx + dz * dz).sqrt()
         let yaw = @math.atan2(dx, dz)
-        self.push_combat_mesh(
+        self.push_surface_combat_mesh(
           combat_bolt_outer,
           combat_transform(x, 0.72, z, 1.0, 1.0, length, yaw~),
           @math3d.Vec4::new(0.25, 0.9, 2.0, 1.0),
@@ -386,7 +398,7 @@ fn GameState::push_combat_visuals(
           dst,
           cmds,
         )
-        self.push_combat_mesh(
+        self.push_surface_combat_mesh(
           combat_bolt_inner,
           combat_transform(x, 0.73, z, 1.0, 1.0, length, yaw~),
           @math3d.Vec4::new(2.0, 2.0, 2.0, 1.0),
@@ -394,7 +406,7 @@ fn GameState::push_combat_visuals(
           dst,
           cmds,
         )
-        self.push_combat_mesh(
+        self.push_surface_combat_mesh(
           combat_ring,
           combat_transform(
             v.end_x / tile_size,
@@ -411,7 +423,7 @@ fn GameState::push_combat_visuals(
         )
       }
       Block(perfect) =>
-        self.push_combat_mesh(
+        self.push_surface_combat_mesh(
           combat_arc,
           combat_transform(
             x,
@@ -438,7 +450,7 @@ fn GameState::push_combat_visuals(
       let x = p.x / tile_size
       let z = p.y / tile_size
       let yaw = @math.atan2(p.vx, p.vy)
-      self.push_combat_mesh(
+      self.push_surface_combat_mesh(
         combat_core,
         combat_transform(x, 0.4, z, 0.17, 0.17, 0.42, yaw~),
         @math3d.Vec4::new(2.5, 2.0, 0.95, 1.0),
@@ -450,7 +462,7 @@ fn GameState::push_combat_visuals(
       for i in 1..<4 {
         let distance = i.to_double() * 0.28
         let size = 0.18 - i.to_double() * 0.035
-        self.push_combat_mesh(
+        self.push_surface_combat_mesh(
           combat_core,
           combat_transform(
             x - p.vx / speed * distance,
@@ -502,7 +514,11 @@ fn GameState::push_hunter_guard(
     @math.PI / 2.0 - p.facing_angle,
   )
   let transform = @transform3d.Transform3D::from_position_rotation(
-    @math3d.Vec3::new(p.x / tile_size, 0.0, p.y / tile_size),
+    @math3d.Vec3::new(
+      p.x / tile_size,
+      @game.get_tile_height(self.world.dungeon, p.x, p.y),
+      p.y / tile_size,
+    ),
     rotation,
   )
   for

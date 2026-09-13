@@ -22,9 +22,9 @@ fn GameState::push_whirlwind_trail(
     @math.PI *
     2.0
   let contact = (channel.frame - @game.whirlwind_contact_frame).abs() < 3
-  self.push_combat_mesh(
+  self.push_surface_combat_mesh(
     combat_ring,
-    combat_transform(x, y + 0.04, z, radius, 1.0, radius),
+    combat_transform(x, 0.04, z, radius, 1.0, radius),
     @math3d.Vec4::new(0.40, 0.62, 0.51, 1.0),
     vp,
     dst,

@@ -1,5 +1,5 @@
 // Movement and aim have independent owners: WASD must not cancel a mouse aim.
-export function bindHunterAim({stage,hud,input,enabled}) {
+export function bindHunterAim({stage,hud,input,enabled,tps=()=>false}) {
   const document=stage.ownerDocument,window=document.defaultView;
   let mouseHeld=false;
   function pointer(event){
@@ -9,7 +9,7 @@ export function bindHunterAim({stage,hud,input,enabled}) {
     if(!enabled() || (!targetSurface&&(hud.contains(event.target)||!stage.contains(event.target)))){
       input.useAutoAim();return;
     }
-    if(event.buttons&2)return; // Right drag orbits without retargeting the cursor.
+    if(event.buttons&2){if(tps())input.aimPointer(.5,.5);return;} // Right drag orbits without retargeting the cursor.
     const rect=stage.getBoundingClientRect();
     input.aimPointer((event.clientX-rect.left)/rect.width,(event.clientY-rect.top)/rect.height);
   }

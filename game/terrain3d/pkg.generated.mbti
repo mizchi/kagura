@@ -4,16 +4,58 @@ package "mizchi/kagura_game/terrain3d"
 import {
   "mizchi/mesh3d",
   "mizchi/terrain/types",
+  "moonbitlang/core/debug",
+  "moonbitlang/core/json",
 }
 
 // Values
+pub fn generate_height_field(Int, Int, TerrainConfig) -> HeightField
+
 pub fn grid_to_mesh3d(@types.Grid2D, tile_size? : Double, wall_height? : Double) -> @mesh3d.Mesh3D
 
 // Errors
 
 // Types and methods
+pub struct HeightField {
+  cells_x : Int
+  cells_z : Int
+  values : Array[Double]
+}
+pub fn HeightField::at(Self, Int, Int) -> Double
+pub fn HeightField::crop(Self, Int, Int, Int, Int) -> Self
+pub fn HeightField::limit_slope(Self, Double) -> Unit
+pub fn HeightField::new(Int, Int, Array[Double]) -> Self
+pub fn HeightField::project_polygon(Self, Array[(Double, Double)], lift? : Double) -> @mesh3d.Mesh3D
+pub fn HeightField::raycast(Self, Double, Double, Double, Double, Double, Double, max_distance? : Double) -> (Double, Double, Double)?
+pub fn HeightField::sample(Self, Double, Double) -> Double
+pub fn HeightField::set(Self, Int, Int, Double) -> Unit
+pub fn HeightField::statistics(Self) -> HeightFieldStats
+
+pub(all) struct HeightFieldStats {
+  minimum : Double
+  maximum : Double
+  max_slope : Double
+  triangles : Int
+} derive(ToJson)
+
+pub(all) struct TerrainConfig {
+  pattern : TerrainPattern
+  seed : Int
+  amplitude : Double
+  scale : Double
+  roughness : Double
+} derive(Eq, ToJson, @json.FromJson)
+pub fn TerrainConfig::default() -> Self
+pub fn TerrainConfig::validated(Self) -> Self
+
+pub(all) enum TerrainPattern {
+  Flat
+  Perlin
+  DiamondSquare
+  Voronoi
+  Hybrid
+} derive(Eq, ToJson, @debug.Debug, @json.FromJson)
 
 // Type aliases
 
 // Traits
-

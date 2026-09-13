@@ -4,6 +4,7 @@ fn hunter_ground_point(
   x : Double,
   y : Double,
   ground_y : Double,
+  dungeon? : @game.DungeonData? = None,
 ) -> (Double, Double)? {
   let inv = camera.to_camera3d().view_projection_matrix().inverse()
   let clip = inv.mul_vec4(
@@ -20,6 +21,20 @@ fn hunter_ground_point(
   let far = @math3d.Vec3::new(clip.x / clip.w, clip.y / clip.w, clip.z / clip.w)
   let origin = camera.position()
   let direction = far.sub(origin)
+  if dungeon is Some({ terrain_surface: Some(surface), .. }) {
+    let dir = direction.normalize()
+    return surface
+      .raycast(
+        origin.x,
+        origin.y,
+        origin.z,
+        dir.x,
+        dir.y,
+        dir.z,
+        max_distance=camera.far,
+      )
+      .map(hit => (hit.0 * tile_size, hit.2 * tile_size))
+  }
   if direction.y.abs() < 0.00001 {
     return None
   }
@@ -36,8 +51,9 @@ fn hunter_pointer_ground(
   camera : @camera3d.OrbitCamera,
   x : Double,
   y : Double,
+  dungeon? : @game.DungeonData? = None,
 ) -> (Double, Double)? {
-  hunter_ground_point(camera, x, y, 0.0)
+  hunter_ground_point(camera, x, y, 0.0, dungeon~)
 }
 
 ///|
@@ -95,7 +111,13 @@ fn GameState::update_hunter_art_input(
   let ty = hunter_web_target_y()
   let pointer_x = if tx >= 0.0 { tx * screen_w.to_double() } else { w.cursor_x }
   let pointer_y = if ty >= 0.0 { ty * screen_h.to_double() } else { w.cursor_y }
-  if hunter_pointer_ground(self.camera, pointer_x, pointer_y) is Some((x, y)) {
+  if hunter_pointer_ground(
+      self.camera,
+      pointer_x,
+      pointer_y,
+      dungeon=Some(w.dungeon),
+    )
+    is Some((x, y)) {
     let (x, y) = w.ground_strike_target(x, y)
     self.ground_target_x = x
     self.ground_target_y = y

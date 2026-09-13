@@ -41,6 +41,9 @@ struct HunterExtraSkillView {
 
 ///|
 struct HunterHudView {
+  terrain : TerrainLabView
+  camera : HunterCameraView
+  exploration : HunterExplorationView
   combat : HunterCombatView
   version : Int
   mode : String
@@ -168,8 +171,11 @@ fn GameState::hunter_hud_view(self : GameState) -> HunterHudView {
   }
   {
     version: 1,
+    camera: self.hunter_camera_view(),
+    terrain: self.terrain_lab_view(),
     arts: self.hunter_arts_view(),
     combat: self.hunter_combat_view(),
+    exploration: self.hunter_exploration_view(),
     weapon: w.player_weapon.profile().name,
     weapon_index: w.player_weapon.index(),
     weapon_action: w.player_weapon.profile().action,

@@ -3,6 +3,7 @@
 
 /** @typedef {'embedded' | 'fullscreen'} PresentationMode */
 /** @typedef {{x: number, y: number, width: number, height: number}} ViewportRect */
+/** @typedef {{left?: number, top?: number, right?: number, bottom?: number}} ViewportInsets */
 /**
  * @typedef {object} GameCaptureTarget
  * @property {1} version
@@ -43,10 +44,14 @@ export function installGamePresentation(canvas, {
   const surface = canvas.closest?.('[data-kagura-surface]') ?? canvas;
   const originalCapture = surface.getAttribute('data-kagura-capture');
   surface.setAttribute('data-kagura-capture', 'game');
+  let insets={left:0,top:0,right:0,bottom:0};
   const resize = () => {
     if (mode !== 'fullscreen') return;
-    const rect = fit === 'viewport' ? {x:0,y:0,width:host.innerWidth,height:host.innerHeight}
-      : fitGameViewport(host.innerWidth, host.innerHeight, aspectRatio);
+    const width=Math.max(1,host.innerWidth-insets.left-insets.right);
+    const height=Math.max(1,host.innerHeight-insets.top-insets.bottom);
+    const rect = fit === 'viewport' ? {x:0,y:0,width,height}
+      : fitGameViewport(width,height,aspectRatio);
+    rect.x+=insets.left;rect.y+=insets.top;
     Object.assign(canvas.style, {
       position: 'fixed', display: 'block', margin: '0', border: '0', padding: '0',
       boxSizing: 'border-box', maxWidth: 'none', maxHeight: 'none',
@@ -62,6 +67,15 @@ export function installGamePresentation(canvas, {
     mode,
     fit,
     aspectRatio,
+    /** Reserve space for editor panels; capture still includes the whole game surface.
+     * @param {ViewportInsets} next Empty insets restore the normal fullscreen view.
+     */
+    setViewportInsets(next={}) {
+      if(disposed)throw new Error('Game presentation has been disposed');
+      const value={left:next.left??0,top:next.top??0,right:next.right??0,bottom:next.bottom??0};
+      if(!Object.values(value).every(n=>Number.isFinite(n)&&n>=0))throw new RangeError('Viewport insets must be nonnegative and finite');
+      insets=value;resize();
+    },
     /** @returns {GameCaptureTarget} */
     captureTarget() {
       if (disposed) throw new Error('Game presentation has been disposed');

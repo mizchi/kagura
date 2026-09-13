@@ -41,13 +41,17 @@ fn GameState::update_combat_camera(self : GameState) -> Unit {
   feedback.look_x += (x - feedback.look_x) * 0.12
   feedback.look_y += (y - feedback.look_y) * 0.12
   let height = @game.get_tile_height(self.world.dungeon, p.x, p.y)
+  let target = self.camera_framing_target(height)
   self.camera = self.camera.with_target(
     @math3d.Vec3::new(
-      p.x / tile_size + feedback.look_x,
-      height + 0.4,
-      p.y / tile_size + feedback.look_y,
+      target.x + feedback.look_x,
+      target.y,
+      target.z + feedback.look_y,
     ),
   )
+  if self.camera_settings.mode == 1 {
+    self.resolve_tps_camera(height)
+  }
 }
 
 ///|

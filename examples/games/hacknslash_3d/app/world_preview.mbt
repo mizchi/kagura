@@ -95,3 +95,63 @@ fn apply_wolf_combat_preview(state : GameState) -> Unit {
   ]
   state.camera = state.camera.with_distance(9.0)
 }
+
+///|
+fn apply_hunting_site_preview(
+  state : GameState,
+  id : Int,
+  peaceful : Bool,
+  overview : Bool,
+) -> Unit {
+  let site = @game.hunting_sites[id.max(0).min(3)]
+  state.world.mode = @game.Playing
+  state.world.auto_play = false
+  if peaceful {
+    state.world.enemies.clear()
+  }
+  if state.world.chests.length() <= site.id {
+    return
+  }
+  let chest = state.world.chests[site.id]
+  state.world.player.x = chest.x
+  state.world.player.y = chest.y + 24.0
+  state.world.player.facing_angle = -@math.PI / 2.0
+  state.camera = state.camera
+    .with_distance(if overview { 18.0 } else { 11.0 })
+    .orbit(0.35 - state.camera.yaw, 0.85 - state.camera.pitch)
+    .with_target(
+      @math3d.Vec3::new(
+        site.x.to_double() + 0.5,
+        0.35,
+        site.z.to_double() + 0.5,
+      ),
+    )
+  state.motion_preview = overview
+}
+
+///|
+/// Repeatable woodland viewpoint, with live movement and terrain/camera editors.
+fn apply_hunting_terrain_preview(state : GameState) -> Unit {
+  state.world.mode = @game.Playing
+  state.world.auto_play = false
+  state.world.enemies.clear()
+  // Open woodland north of the road, away from the protected settlement pads.
+  state.world.player.x = 53.5 * tile_size
+  state.world.player.y = 16.5 * tile_size
+  for z in 15..<18 {
+    for x in 52..<55 {
+      state.world.dungeon.grid.set(x, z, @terrain.Floor)
+    }
+  }
+  state.world.player.facing_angle = -@math.PI / 2.0
+  state.camera = state.camera
+    .orbit(0.35 - state.camera.yaw, 0.55 - state.camera.pitch)
+    .with_distance(22.0)
+  state.camera_settings.quarter = {
+    ..state.camera_settings.quarter,
+    tilt: 0.55 * 180.0 / @math.PI,
+    distance: 22.0,
+  }
+  state.rebuild_dungeon_rendering()
+  state.update_combat_camera()
+}

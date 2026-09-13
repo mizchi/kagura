@@ -57,8 +57,10 @@ fn GameState::pointer_aim_angle(self : GameState) -> Double? {
   self.aim.pointer.map(p => {
     hunter_aim_angle(
       self.camera,
-      p.0 * screen_w.to_double(),
-      p.1 * screen_h.to_double(),
+      (if self.camera_settings.mode == 1 { 0.5 } else { p.0 }) *
+      screen_w.to_double(),
+      (if self.camera_settings.mode == 1 { 0.5 } else { p.1 }) *
+      screen_h.to_double(),
       self.world.player.x,
       self.world.player.y,
       @game.get_tile_height(
@@ -67,25 +69,28 @@ fn GameState::pointer_aim_angle(self : GameState) -> Double? {
         self.world.player.y,
       ),
       self.world.player.facing_angle,
+      dungeon=Some(self.world.dungeon),
     )
   })
 }
 
 ///|
 fn GameState::combat_focus_offset(self : GameState) -> (Double, Double) {
+  if self.camera_settings.mode == 1 {
+    return (0.0, 0.0)
+  }
   let p = self.world.player
   let target = match self.aim.pointer {
     Some((x, y)) => {
       let height = @game.get_tile_height(self.world.dungeon, p.x, p.y)
       // Solve against the centered camera so following the pointer cannot feed back into itself.
-      let centered = self.camera.with_target(
-        @math3d.Vec3::new(p.x / tile_size, height + 0.4, p.y / tile_size),
-      )
+      let centered = self.camera.with_target(self.camera_framing_target(height))
       hunter_ground_point(
         centered,
         x * screen_w.to_double(),
         y * screen_h.to_double(),
         height,
+        dungeon=Some(self.world.dungeon),
       )
     }
     None => hunter_auto_target(self.world).map(e => (e.x, e.y))

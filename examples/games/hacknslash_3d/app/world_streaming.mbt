@@ -179,6 +179,7 @@ fn GameState::adopt_region_mesh(
   id : Int,
   waypoint? : Bool = false,
 ) -> Unit {
+  self.refresh_terrain_stats()
   self.dungeon_chunks = self.region_meshes[id].unwrap().chunks
   self.invalidate_visible_chunk_cache()
   self.invalidate_minimap_cache()

@@ -1,6 +1,6 @@
 ///|
 test "hunter equips all motion weapon sets without rebuilding cached geometry" {
-  let character = PlayerCharacter::new()
+  let character = CharacterModel::new()
   for _ in 0..<2 {
     for
       kind in [
@@ -16,7 +16,7 @@ test "hunter equips all motion weapon sets without rebuilding cached geometry" {
         character.weapon.attack_duration,
         (kind.profile().windup + kind.profile().recovery).to_double() / 60.0,
       )
-      assert_true(character.parts.length() <= 10)
+      assert_true(character.parts.length() <= 24)
       character.trigger_attack()
       character.update(kind.profile().windup.to_double() / 60.0)
       let pose = character.compute_skinning()
@@ -31,7 +31,7 @@ test "hunter equips all motion weapon sets without rebuilding cached geometry" {
 
 ///|
 test "hunter bowstring follows the drawing hand and hides the arrow on the release frame" {
-  let character = PlayerCharacter::new()
+  let character = CharacterModel::new()
   character.equip_weapon(@game.Bow)
   character.trigger_attack()
   let contact = @game.Bow.profile().windup.to_double() / 60.0

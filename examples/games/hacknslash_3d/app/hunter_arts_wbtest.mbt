@@ -1,6 +1,6 @@
 ///|
 test "guard and art samples articulate the rig without mutating geometry or translating gameplay" {
-  let actor = PlayerCharacter::new()
+  let actor = CharacterModel::new()
   let vertices = actor.packed_vertex_data.copy()
   for
     state in [

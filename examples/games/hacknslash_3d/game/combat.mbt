@@ -24,28 +24,6 @@ pub fn find_nearest_enemy(world : GameWorld, max_range : Double) -> Enemy? {
 }
 
 ///|
-fn find_nearest_enemy_index_from_point(
-  world : GameWorld,
-  source_x : Double,
-  source_y : Double,
-  max_range : Double,
-) -> Int {
-  let (nearest_idx, _nearest_dist_sq) = @physics2d.grid_find_nearest_visible_candidate_index(
-    world.dungeon.grid,
-    source_x,
-    source_y,
-    0.0,
-    max_range,
-    world.enemies.length(),
-    fn(idx) { world.enemies[idx].alive },
-    fn(idx) { world.enemies[idx].x },
-    fn(idx) { world.enemies[idx].y },
-    tile_size,
-  )
-  nearest_idx
-}
-
-///|
 let spell_cast_attack_lock_frames = 18
 
 ///|

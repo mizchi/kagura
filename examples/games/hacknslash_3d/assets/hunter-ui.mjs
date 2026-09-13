@@ -229,6 +229,7 @@ function render(hud){
   if(!weapons.options.length)weapons.replaceChildren(...hud.weapons.map((name,index)=>new Option(name,String(index))));
   if(weapons.value!==String(hud.weapon_index))weapons.value=String(hud.weapon_index);
   weapons.disabled=hud.mode!=='playing'||hud.paused||hud.menu!=='none'||hud.weapon_locked;
+  $('attack-button').title=hud.weapon_index===3?'前方の敵を緩く追う魔法弾。敵を外すと直進し、壁に当たると消える。':'';
   setText('weapon-action',hud.weapon_action);
   if($('weapon-icon').dataset.weapon!==String(hud.weapon_index)){
     $('weapon-icon').innerHTML=icon(['blade','spear','fist','fire','bow'][hud.weapon_index]);

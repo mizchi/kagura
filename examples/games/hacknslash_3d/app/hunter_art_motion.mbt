@@ -1,5 +1,5 @@
 ///|
-fn PlayerCharacter::sample_guard(self : PlayerCharacter) -> Unit {
+fn CharacterModel::sample_guard(self : CharacterModel) -> Unit {
   let lift = (self.action_time * 12.0).min(1.0)
   self.rotate_bone(1, 0.14 * lift, 0.22 * lift, 0.0)
   self.rotate_bone(6, -1.15 * lift, 0.2 * lift, 0.28 * lift)
@@ -10,8 +10,8 @@ fn PlayerCharacter::sample_guard(self : PlayerCharacter) -> Unit {
 }
 
 ///|
-fn PlayerCharacter::sample_hunter_art(
-  self : PlayerCharacter,
+fn CharacterModel::sample_hunter_art(
+  self : CharacterModel,
   kind : @game.HunterArtKind,
 ) -> Unit {
   let frame = self.action_time * 60.0

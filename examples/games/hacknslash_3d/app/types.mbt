@@ -123,7 +123,7 @@ struct GameState {
   shader3d_skinned_instanced : @gfx.ShaderHandle
   shader3d_skinned_instanced_monochrome : @gfx.ShaderHandle
   meshes : Meshes3D
-  character : PlayerCharacter
+  character : CharacterModel
   enemy_models : EnemyModels
   enemy_render_buckets : EnemyRenderBuckets
   // Shadow mapping

@@ -1,5 +1,6 @@
 import {
   "moonbitlang/core/prelude",
+  "moonbitlang/core/math",
   "mizchi/kagura_game/interactable2d",
   "moonbitlang/core/debug",
 }

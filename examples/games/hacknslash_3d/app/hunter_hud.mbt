@@ -115,7 +115,8 @@ fn GameState::hunter_hud_view(self : GameState) -> HunterHudView {
   ]
   let descriptions = [
     "周囲を強く斬る。通常攻撃と待ち時間を共有。", "2／ボタンを長押しして回転しながら移動。全武器対応、離すと停止。",
-    "敵を狙い、命中すると分裂する火の弾。", "自分を中心に冷気を放つ範囲攻撃。",
+    "前方の敵を緩く追う火弾。命中後に分裂した弾も追尾する。",
+    "自分を中心に冷気を放つ範囲攻撃。",
   ]
   let timers = [
     w.attack_timer,

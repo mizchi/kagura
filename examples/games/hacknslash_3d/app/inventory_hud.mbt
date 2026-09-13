@@ -173,7 +173,7 @@ fn GameState::apply_inventory_command(
     self.inventory_notice = "配置できません。空きマスと装備部位を確認してください。"
     return false
   }
-  self.character.equip_weapon(self.world.player_weapon)
+  self.sync_character_equipment()
   self.inventory_notice = "装備袋を保存しました"
   self.save_game()
   true

@@ -15,6 +15,8 @@ pub fn resolve_builtin_pickup_effect(@interactable2d.InteractablePickupEffect, I
 
 pub fn resolve_pickup(@interactable2d.InteractablePickupEffect, Int, Int, PickupRewardConfig, auto_play~ : Bool, should_equip~ : Bool, inventory_has_space~ : Bool, has_previous_equipped~ : Bool) -> PickupResolution
 
+pub fn turn_velocity_towards(Double, Double, Double, Double, Double) -> (Double, Double)
+
 // Errors
 
 // Types and methods

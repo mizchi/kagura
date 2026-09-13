@@ -29,6 +29,7 @@ test "grid inventory moves, rotates and equips atomically without losing a displ
   world.mode = Playing
   world.ui_mode = Inventory
   world.inventory.clear()
+  world.equipment.clear()
   let spear = inventory_test_item(Weapon, icon=41, power=7)
   let coat = inventory_test_item(Armor, power=4)
   assert_true(world.inventory.add(spear))

@@ -474,7 +474,7 @@ fn GameState::load_game(self : GameState) -> Bool {
     @game.Cleaver
   }
   self.world.weapon_attack = None
-  self.character.equip_weapon(self.world.player_weapon)
+  self.sync_character_equipment()
   // Recompute stats
   self.world.refresh_player_stats()
   self.world.player.hp = self.world.player_stats.max_hp

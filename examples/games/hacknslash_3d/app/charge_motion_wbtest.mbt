@@ -8,7 +8,7 @@ test "charge articulates both rigs and every player weapon while preserving GPU 
   let drive = clip.matrices(clip.frame_index(0.45))
   assert_false(prepare[1].approx_eq(drive[1], 0.01))
   assert_false(prepare[7].approx_eq(drive[7], 0.01))
-  let actor = PlayerCharacter::new()
+  let actor = CharacterModel::new()
   for
     weapon in [
       @game.Cleaver,

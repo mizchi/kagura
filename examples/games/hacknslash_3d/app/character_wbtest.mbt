@@ -1,6 +1,6 @@
 ///|
-test "PlayerCharacter::compute_skinning caches unchanged pose" {
-  let character = PlayerCharacter::new()
+test "CharacterModel::compute_skinning caches unchanged pose" {
+  let character = CharacterModel::new()
   let first = character.compute_skinning()
   let second = character.compute_skinning()
   assert_eq(first.length(), char_num_bones)
@@ -10,7 +10,7 @@ test "PlayerCharacter::compute_skinning caches unchanged pose" {
 
 ///|
 test "hunter body excludes the cleaver socket and the weapon set owns its attack" {
-  let character = PlayerCharacter::new()
+  let character = CharacterModel::new()
   for part in character.body_parts {
     for joint in part.skin.joint_indices {
       assert_true(joint != 4)
@@ -25,8 +25,8 @@ test "hunter body excludes the cleaver socket and the weapon set owns its attack
 }
 
 ///|
-test "PlayerCharacter::update invalidates skinning cache" {
-  let character = PlayerCharacter::new()
+test "CharacterModel::update invalidates skinning cache" {
+  let character = CharacterModel::new()
   let _ = character.compute_skinning()
   let _ = character.compute_skinning()
   assert_eq(character.skinning_cache_builds, 1)
@@ -69,7 +69,7 @@ test "hunter silhouette is two heads tall with a wide brim and grounded boots" {
 
 ///|
 test "hunter keeps running legs during an attack and returns to running" {
-  let character = PlayerCharacter::new()
+  let character = CharacterModel::new()
   character.set_moving(true)
   character.update(0.05)
   let before = character.compute_skinning()[8]
@@ -84,7 +84,7 @@ test "hunter keeps running legs during an attack and returns to running" {
 
 ///|
 test "hunter locomotion loops and dodge recovers without leaving a rotated root" {
-  let character = PlayerCharacter::new()
+  let character = CharacterModel::new()
   character.set_moving(true)
   character.update(0.1)
   let pose = character.compute_skinning()[8]

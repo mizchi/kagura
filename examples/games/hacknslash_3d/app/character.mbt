@@ -24,15 +24,18 @@ enum CharAnimState {
 } derive(Eq, Debug)
 
 ///|
-struct PlayerCharacter {
+struct CharacterModel {
   skeleton : @skeleton3d.Skeleton
-  body_parts : Array[HunterPart]
+  species : CharacterSpecies
+  body_parts : Array[CharacterPart]
+  mut outfit : CharacterOutfit
+  mut appearance_builds : Int
   mut weapon : HunterWeaponSet
-  equipped_cache : Map[Int, HunterEquippedMesh]
+  equipped_cache : Map[Int, CharacterEquippedMesh]
   charge_player : @animation3d.AnimationPlayer
   mut attack_player : @animation3d.AnimationPlayer?
   // Composed once for rendering, preserving shared material batches.
-  mut parts : Array[HunterPart]
+  mut parts : Array[CharacterPart]
   // Combined mesh is kept for geometry inspection and existing tooling.
   mut bind_mesh : @mesh3d.Mesh3D
   mut skin_data : @skeleton3d.SkinData
@@ -96,11 +99,14 @@ fn build_character_skeleton() -> @skeleton3d.Skeleton {
 }
 
 ///|
-fn PlayerCharacter::new() -> PlayerCharacter {
+fn CharacterModel::new(species? : CharacterSpecies = Human) -> CharacterModel {
   let skeleton = build_character_skeleton()
-  let body_parts = build_hunter_parts()
+  let outfit = CharacterOutfit::starter()
+  let body_parts = character_base_parts.copy()
+  body_parts.append(character_head_parts(species))
   let weapon = shared_hunter_weapon_sets[0]
-  let parts = equip_hunter_parts(body_parts, weapon)
+  let parts = character_outfit_parts(species, outfit)
+  parts.append(weapon.parts)
   let (bind_mesh, skin_data) = combine_hunter_parts(parts)
   let packed_vertex_data = @skeleton3d.build_skinned_vertex_data(
     bind_mesh, skin_data,
@@ -108,10 +114,13 @@ fn PlayerCharacter::new() -> PlayerCharacter {
   {
     skeleton,
     body_parts,
+    species,
+    outfit,
+    appearance_builds: 1,
     weapon,
     equipped_cache: Map([
       (
-        0,
+        outfit.key() * 5,
         { parts, mesh: bind_mesh, skin: skin_data, packed: packed_vertex_data, },
       ),
     ]),
@@ -136,7 +145,7 @@ fn PlayerCharacter::new() -> PlayerCharacter {
 }
 
 ///|
-fn PlayerCharacter::trigger_attack(self : PlayerCharacter) -> Unit {
+fn CharacterModel::trigger_attack(self : CharacterModel) -> Unit {
   if self.anim_state == Dodging {
     return
   }
@@ -148,7 +157,7 @@ fn PlayerCharacter::trigger_attack(self : PlayerCharacter) -> Unit {
 }
 
 ///|
-fn PlayerCharacter::trigger_hurt(self : PlayerCharacter) -> Unit {
+fn CharacterModel::trigger_hurt(self : CharacterModel) -> Unit {
   if self.anim_state == Dodging ||
     self.anim_state == Attacking ||
     self.anim_state == Charging {
@@ -160,7 +169,7 @@ fn PlayerCharacter::trigger_hurt(self : PlayerCharacter) -> Unit {
 }
 
 ///|
-fn PlayerCharacter::trigger_dodge(self : PlayerCharacter) -> Unit {
+fn CharacterModel::trigger_dodge(self : CharacterModel) -> Unit {
   self.dodge_count += 1
   self.anim_state = Dodging
   self.action_time = 0.0
@@ -168,7 +177,7 @@ fn PlayerCharacter::trigger_dodge(self : PlayerCharacter) -> Unit {
 }
 
 ///|
-fn PlayerCharacter::set_moving(self : PlayerCharacter, moving : Bool) -> Unit {
+fn CharacterModel::set_moving(self : CharacterModel, moving : Bool) -> Unit {
   self.moving = moving
   if self.anim_state == Idle || self.anim_state == Running {
     self.anim_state = if moving { Running } else { Idle }
@@ -177,7 +186,7 @@ fn PlayerCharacter::set_moving(self : PlayerCharacter, moving : Bool) -> Unit {
 }
 
 ///|
-fn PlayerCharacter::update(self : PlayerCharacter, dt : Double) -> Unit {
+fn CharacterModel::update(self : CharacterModel, dt : Double) -> Unit {
   self.time += dt
   self.action_time += dt
   let duration = match self.anim_state {
@@ -194,8 +203,8 @@ fn PlayerCharacter::update(self : PlayerCharacter, dt : Double) -> Unit {
 }
 
 ///|
-fn PlayerCharacter::rotate_bone(
-  self : PlayerCharacter,
+fn CharacterModel::rotate_bone(
+  self : CharacterModel,
   index : Int,
   x : Double,
   y : Double,
@@ -208,8 +217,8 @@ fn PlayerCharacter::rotate_bone(
 }
 
 ///|
-fn PlayerCharacter::compute_skinning(
-  self : PlayerCharacter,
+fn CharacterModel::compute_skinning(
+  self : CharacterModel,
 ) -> Array[@math3d.Mat4] {
   if !self.skinning_cache_dirty {
     return self.cached_skinning_matrices

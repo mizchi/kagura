@@ -1,7 +1,7 @@
 ///|
 /// Root rotation spins the equipped rig; movement remains owned by simulation.
 /// The loop is weapon-independent, including the bow's left-hand attachment.
-fn PlayerCharacter::sample_whirlwind(self : PlayerCharacter) -> Unit {
+fn CharacterModel::sample_whirlwind(self : CharacterModel) -> Unit {
   let phase = self.action_time *
     60.0 /
     @game.whirlwind_cycle_frames.to_double() *

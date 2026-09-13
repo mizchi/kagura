@@ -124,7 +124,7 @@ pub let homing_missile_speed : Double = 3.2
 pub let homing_missile_cooldown : Int = 54
 
 ///|
-pub let homing_missile_turn_rate : Double = 0.36
+pub let homing_missile_turn_rate : Double = 0.52 // radians per simulation tick
 
 ///|
 pub let homing_missile_launch_offset : Double = 8.0

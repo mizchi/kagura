@@ -105,30 +105,35 @@ test("hunter exports every playable weapon with matching contact and bow attachm
   try {
     assert.deepEqual(
       hunter.models.map((m) => m.id),
-      ["hunter"],
+      [
+        "hunter", "hunter_goblin", "hunter_kobold", "hunter_skeleton",
+        "hunter_bare", "hunter_leather", "hunter_plate", "hunter_occult",
+      ],
     );
     assert.deepEqual(
       hunter.weapons.map((w) => w.id),
       ["cleaver_flintlock", "spear", "knuckles", "focus", "bow", "shield_guard"],
     );
-    scene.selectModel("hunter");
-    for (const [index, weapon] of hunter.weapons.entries()) {
-      scene.selectWeapon(weapon.id);
-      const clip = hunter.clips.find((c) => c.id === weapon.defaultClip);
-      assert.equal(clip.events[0].time, [7, 16, 10, 24, 30, 5][index] / 60);
-      scene.pose(clip.id, clip.events[0].time - 1 / 60);
-      assert.ok(!scene.bounds().isEmpty());
-      if (weapon.id === "bow") {
-        const hand = scene.bones[3].localToWorld(
-          new Vector3(0.03, -0.13, 0.06),
-        );
-        assert.ok(
-          scene.bones[15].getWorldPosition(new Vector3()).distanceTo(hand) <
-            0.005,
-        );
-        assert.equal(scene.bones[16].scale.x, 1);
-        scene.pose(clip.id, clip.events[0].time);
-        assert.equal(scene.bones[16].scale.x, 0);
+    for (const model of hunter.models) {
+      scene.selectModel(model.id);
+      for (const [index, weapon] of hunter.weapons.entries()) {
+        scene.selectWeapon(weapon.id);
+        const clip = hunter.clips.find((c) => c.id === weapon.defaultClip);
+        assert.equal(clip.events[0].time, [7, 16, 10, 24, 30, 5][index] / 60);
+        scene.pose(clip.id, clip.events[0].time - 1 / 60);
+        assert.ok(!scene.bounds().isEmpty());
+        if (weapon.id === "bow") {
+          const hand = scene.bones[3].localToWorld(
+            new Vector3(0.03, -0.13, 0.06),
+          );
+          assert.ok(
+            scene.bones[15].getWorldPosition(new Vector3()).distanceTo(hand) <
+              0.005,
+          );
+          assert.equal(scene.bones[16].scale.x, 1);
+          scene.pose(clip.id, clip.events[0].time);
+          assert.equal(scene.bones[16].scale.x, 0);
+        }
       }
     }
   } finally {

@@ -1,7 +1,7 @@
 ///|
 /// The body remains immutable. Each equipment combination is composed once.
-struct HunterEquippedMesh {
-  parts : Array[HunterPart]
+struct CharacterEquippedMesh {
+  parts : Array[CharacterPart]
   mesh : @mesh3d.Mesh3D
   skin : @skeleton3d.SkinData
   packed : Array[Double]
@@ -84,34 +84,16 @@ fn build_hunter_motion_weapon(
 }
 
 ///|
-fn PlayerCharacter::equip_weapon(
-  self : PlayerCharacter,
+fn CharacterModel::equip_weapon(
+  self : CharacterModel,
   kind : @game.PlayerWeaponKind,
 ) -> Unit {
   if self.weapon.kind == kind {
     return
   }
   let weapon = shared_hunter_weapon_sets[kind.index()]
-  let equipped = match self.equipped_cache.get(kind.index()) {
-    Some(cached) => cached
-    None => {
-      let parts = equip_hunter_parts(self.body_parts, weapon)
-      let (mesh, skin) = combine_hunter_parts(parts)
-      let entry = {
-        parts,
-        mesh,
-        skin,
-        packed: @skeleton3d.build_skinned_vertex_data(mesh, skin),
-      }
-      self.equipped_cache[kind.index()] = entry
-      entry
-    }
-  }
   self.weapon = weapon
-  self.parts = equipped.parts
-  self.bind_mesh = equipped.mesh
-  self.skin_data = equipped.skin
-  self.packed_vertex_data = equipped.packed
+  self.refresh_equipped_mesh()
   self.attack_player = weapon.clip.map(clip => {
     let player = @animation3d.AnimationPlayer::new(clip)
     player.set_looping(false)
@@ -123,7 +105,7 @@ fn PlayerCharacter::equip_weapon(
 }
 
 ///|
-fn PlayerCharacter::sample_weapon_attack(self : PlayerCharacter) -> Unit {
+fn CharacterModel::sample_weapon_attack(self : CharacterModel) -> Unit {
   match self.attack_player {
     Some(player) => {
       let contact = self.weapon.kind.profile().windup.to_double() / 60.0

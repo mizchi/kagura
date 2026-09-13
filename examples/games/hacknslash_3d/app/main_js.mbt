@@ -198,9 +198,12 @@ extern "js" fn js_publish_hunter_state(
   weapon : String,
   attack_frame : Int,
   player_projectiles : Int,
+  appearance_key : Int,
+  appearance_builds : Int,
+  species : String,
 ) -> Unit =
-  #| (x,y,facing,animation,attacks,dodges,yaw,pitch,distance,hp,paused,bones,materials,weapon,attackFrame,projectiles) => {
-  #|   globalThis.__ashenHunt = {x,y,facing,animation,attacks,dodges,yaw,pitch,distance,hp,paused,bones,materials,weapon,attackFrame,projectiles};
+  #| (x,y,facing,animation,attacks,dodges,yaw,pitch,distance,hp,paused,bones,materials,weapon,attackFrame,projectiles,appearanceKey,appearanceBuilds,species) => {
+  #|   globalThis.__ashenHunt = {x,y,facing,animation,attacks,dodges,yaw,pitch,distance,hp,paused,bones,materials,weapon,attackFrame,projectiles,appearanceKey,appearanceBuilds,species};
   #| }
 
 ///|
@@ -256,6 +259,8 @@ fn apply_initial_mode_overrides(
     )
   } else if snapshot_mode == "charge" {
     apply_charge_motion_preview(state, snapshot_frames)
+  } else if snapshot_mode == "wardrobe" {
+    apply_character_wardrobe_preview(state, js_get_query_param("outfit"))
   } else if snapshot_mode == "hunter" {
     let kind = @game.player_weapon_from_id(js_get_query_param("weapon")).or(
       @game.Cleaver,
@@ -352,6 +357,12 @@ fn build_initial_state() -> GameState {
     archetype=initial_archetype,
     build_policy=initial_build_policy,
     hunting_grounds=true,
+    species=match js_get_query_param("species") {
+      "goblin" => Goblin
+      "kobold" => Kobold
+      "skeleton" => Skeleton
+      _ => Human
+    },
   )
   state.show_profiler = get_initial_profiler_enabled()
   state.pipeline.set_fxaa_enabled(get_initial_fxaa_enabled())
@@ -583,6 +594,9 @@ fn run_game_js(state : GameState, perf_capture_enabled : Bool) -> Unit {
           None => -1
         },
         state.world.projectiles.filter(p => p.is_player && p.alive).length(),
+        state.character.outfit.key(),
+        state.character.appearance_builds,
+        state.character.species.id(),
       )
       state.publish_hunter_hud()
       js_publish_audio_debug_state(

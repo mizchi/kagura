@@ -2,7 +2,7 @@
 /// Sample the actual player rig, including upper-body masking and release keys.
 /// The viewer and combat share the same weapon profile measured in 60 Hz frames.
 pub fn export_hunter_motion_asset() -> String {
-  let actor = PlayerCharacter::new()
+  let actor = CharacterModel::new()
   let skeleton : Array[Json] = actor.skeleton.bones.map(bone => {
     let p = bone.local_transform
     {
@@ -17,9 +17,33 @@ pub fn export_hunter_motion_asset() -> String {
     {
       "id": "hunter",
       "name": "Hunter",
-      "parts": export_hunter_parts(actor.body_parts).to_json(),
+      "parts": export_hunter_parts(character_outfit_parts(Human, actor.outfit)).to_json(),
     },
   ]
+  for species in [Goblin, Kobold, Skeleton] {
+    models.push({
+      "id": ("hunter_" + species.id()).to_json(),
+      "name": species.id().to_json(),
+      "parts": export_hunter_parts(
+        character_outfit_parts(species, CharacterOutfit::starter()),
+      ).to_json(),
+    })
+  }
+  for
+    (id, style) in [
+      ("bare", None),
+      ("leather", Some(Leather)),
+      ("plate", Some(Plate)),
+      ("occult", Some(Occult)),
+    ] {
+    models.push({
+      "id": ("hunter_" + id).to_json(),
+      "name": ("Human / " + id).to_json(),
+      "parts": export_hunter_parts(
+        character_outfit_parts(Human, character_outfit_preset(style)),
+      ).to_json(),
+    })
+  }
   let weapons : Array[Json] = []
   let clips : Array[Json] = []
   for weapon in shared_hunter_weapon_sets {
@@ -136,7 +160,7 @@ pub fn export_hunter_motion_asset() -> String {
 }
 
 ///|
-fn export_hunter_parts(parts : Array[HunterPart]) -> Array[Json] {
+fn export_hunter_parts(parts : Array[CharacterPart]) -> Array[Json] {
   parts.map(part => {
     "name": part.name.to_json(),
     "color": [part.color.x, part.color.y, part.color.z, part.color.w].to_json(),
@@ -154,7 +178,7 @@ fn export_hunter_art_clip(
   state : CharAnimState,
   contact : Int,
 ) -> Json {
-  let actor = PlayerCharacter::new()
+  let actor = CharacterModel::new()
   let count = if state == Whirling {
     @game.whirlwind_cycle_frames + 1
   } else if state == Guarding {

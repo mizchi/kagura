@@ -84,6 +84,9 @@ pub fn GameWorld::new(
     generate_dungeon(seed, params~)
   }
   let equipment = Equipment::new()
+  if hunting_grounds {
+    equip_hunter_starting_clothes(equipment)
+  }
   let skills = SkillTree::new_for_archetype(archetype)
   if hunting_grounds {
     equip_hunter_skills(skills)
@@ -748,42 +751,13 @@ pub fn GameWorld::tick_projectiles_phase(self : GameWorld) -> Unit {
     if proj.alive {
       let prev_x = proj.x
       let prev_y = proj.y
-      match proj.kind {
-        HomingMissile if proj.is_player => {
-          let target_index = find_nearest_enemy_index_from_point(
-            self,
-            proj.x,
-            proj.y,
-            homing_missile_seek_range,
-          )
-          if target_index >= 0 {
-            let target = self.enemies[target_index]
-            let dx = target.x - proj.x
-            let dy = target.y - proj.y
-            let dist_sq = dx * dx + dy * dy
-            if dist_sq > 0.000001 {
-              let dist = dist_sq.sqrt()
-              let desired_vx = dx / dist * homing_missile_speed
-              let desired_vy = dy / dist * homing_missile_speed
-              let keep = 1.0 - homing_missile_turn_rate
-              let blended_vx = proj.vx * keep +
-                desired_vx * homing_missile_turn_rate
-              let blended_vy = proj.vy * keep +
-                desired_vy * homing_missile_turn_rate
-              let blended_dist_sq = blended_vx * blended_vx +
-                blended_vy * blended_vy
-              if blended_dist_sq > 0.000001 {
-                let blended_dist = blended_dist_sq.sqrt()
-                proj.vx = blended_vx / blended_dist * homing_missile_speed
-                proj.vy = blended_vy / blended_dist * homing_missile_speed
-              } else {
-                proj.vx = desired_vx
-                proj.vy = desired_vy
-              }
-            }
-          }
-        }
-        _ => ()
+      let homing = if proj.is_player {
+        proj.kind.homing_profile()
+      } else {
+        None
+      }
+      if homing is Some(profile) {
+        self.steer_projectile(proj, profile)
       }
       proj.x = proj.x + proj.vx
       proj.y = proj.y + proj.vy
@@ -797,9 +771,15 @@ pub fn GameWorld::tick_projectiles_phase(self : GameWorld) -> Unit {
           _ => ()
         }
       }
-      if proj.kind == HomingMissile && proj.age > homing_missile_lifetime {
+      if homing is Some(profile) && proj.age > profile.lifetime {
         proj.alive = false
-        self.events.push(HomingMissileImpact(proj.x, proj.y))
+        match proj.kind {
+          HomingMissile => self.events.push(HomingMissileImpact(proj.x, proj.y))
+          Fireball(_) => self.events.push(FireballBurst(proj.x, proj.y))
+          _ => ()
+        }
+        // Expiration is visual only: no split, blast damage or duplicate impact.
+        continue
       }
       if segment_hits_wall(
           self.dungeon.grid,

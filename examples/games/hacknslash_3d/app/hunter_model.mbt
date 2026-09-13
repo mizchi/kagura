@@ -3,7 +3,7 @@
 // No traveler geometry, facial features, textures or runtime dependencies.
 
 ///|
-struct HunterPart {
+struct CharacterPart {
   name : String
   mesh : @mesh3d.Mesh3D
   skin : @skeleton3d.SkinData
@@ -16,7 +16,7 @@ fn finish_hunter_part(
   geometry : @procedural3d.RigidGeometry,
   name : String,
   color : Int,
-) -> HunterPart {
+) -> CharacterPart {
   let mesh = geometry.build_mesh()
   let skin = geometry.build_skin()
   {
@@ -29,7 +29,7 @@ fn finish_hunter_part(
 }
 
 ///|
-fn build_hunter_parts() -> Array[HunterPart] {
+fn build_hunter_parts() -> Array[CharacterPart] {
   let coat = @procedural3d.RigidGeometry::new()
   let leather = @procedural3d.RigidGeometry::new()
   let hat = @procedural3d.RigidGeometry::new()
@@ -190,7 +190,7 @@ fn build_hunter_parts() -> Array[HunterPart] {
 
 ///|
 fn combine_hunter_parts(
-  parts : Array[HunterPart],
+  parts : Array[CharacterPart],
 ) -> (@mesh3d.Mesh3D, @skeleton3d.SkinData) {
   let data = @procedural3d.RigidGeometry::new()
   for part in parts {

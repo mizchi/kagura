@@ -412,6 +412,9 @@ fn GameState::push_player_character_commands_with_view_projection(
     @math3d.Vec3::one(),
   )
   for part in self.character.parts {
+    if self.world.arts.guarding && is_stowed_shield(part) {
+      continue
+    }
     @web_hooks.register_static_geometry(part.packed, part.mesh.indices)
     let color = if self.world.player.damage_timer > 0 {
       color_player_hurt

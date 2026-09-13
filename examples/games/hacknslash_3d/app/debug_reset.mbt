@@ -132,6 +132,9 @@ fn GameState::reset_save_and_restart(self : GameState) -> Unit {
   self.world.ui_cursor = 0
   self.world.inventory.clear()
   self.world.equipment.clear()
+  if self.world.hunting_grounds {
+    @game.equip_hunter_starting_clothes(self.world.equipment)
+  }
   for node in self.world.skills.nodes {
     node.level = 0
   }

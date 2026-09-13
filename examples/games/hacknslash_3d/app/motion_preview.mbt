@@ -123,3 +123,44 @@ fn apply_charge_motion_preview(state : GameState, frame : Int) -> Unit {
     .with_target(@math3d.Vec3::new(x / tile_size - 0.9, 0.45, y / tile_size))
   state.motion_preview = true
 }
+
+///|
+/// Static authoring fixture uses the exact equipment path, with inventory enabled.
+fn apply_character_wardrobe_preview(state : GameState, outfit : String) -> Unit {
+  state.world.mode = @game.Playing
+  state.world.enemies.clear()
+  state.world.projectiles.clear()
+  state.world.equipment.clear()
+  let rarity = match outfit {
+    "none" => None
+    "leather" => Some(@game.Uncommon)
+    "plate" => Some(@game.Rare)
+    "occult" => Some(@game.Epic)
+    _ => Some(@game.Common)
+  }
+  if rarity is Some(rarity) {
+    for
+      slot in [
+        @game.Armor,
+        @game.Helmet,
+        @game.Gloves,
+        @game.Boots,
+        @game.Accessory,
+        @game.Amulet,
+        @game.Offhand,
+      ] {
+      ignore(
+        state.world.equipment.equip(@game.hunter_equipment_item(slot, rarity~)),
+      )
+    }
+  }
+  state.sync_character_equipment()
+  let x = state.world.player.x / tile_size
+  let z = state.world.player.y / tile_size
+  state.world.player.facing_angle = @math.PI / 2.0
+  state.camera = state.camera
+    .with_distance(3.6)
+    .orbit(0.4 - state.camera.yaw, 0.40 - state.camera.pitch)
+    .with_target(@math3d.Vec3::new(x, 0.65, z))
+  state.motion_preview = true
+}

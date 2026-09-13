@@ -79,8 +79,8 @@ test('flame cast releases a readable projectile and confirms real explosion hits
   await start(page);
   await page.keyboard.press('Digit3');
   await expect.poll(async()=>(await hud(page)).arts.action).toBe('flame');
+  await expect(page.locator('[data-skill="2"]')).toBeDisabled();
   await page.waitForFunction(()=>globalThis.__ashenHud.arts.feedback.endsWith('HIT'));
   expect((await hud(page)).arts.feedback).toMatch(/^[1-9]\d* HIT$/);
   await captureGameFrame(page,{path:info.outputPath('fire-hit.png')});
-  await expect(page.locator('[data-skill="2"]')).toBeDisabled();
 });

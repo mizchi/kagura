@@ -452,7 +452,7 @@ fn GameState::push_combat_visuals(
 }
 
 ///|
-let hunter_guard_parts : Array[HunterPart] = {
+let hunter_guard_parts : Array[CharacterPart] = {
   let rim = @procedural3d.RigidGeometry::new()
   let face = @procedural3d.RigidGeometry::new()
   rim.loft(-0.30, 0.02, [(0.38, 0.32, 0.40), (0.46, 0.32, 0.40)], 8, 7)
@@ -485,7 +485,10 @@ fn GameState::push_hunter_guard(
     @math3d.Vec3::new(p.x / tile_size, 0.0, p.y / tile_size),
     rotation,
   )
-  for part in hunter_guard_parts {
+  for
+    part in character_guard_parts(
+      self.character.outfit.style(@game.Offhand).or(Worn),
+    ) {
     @web_hooks.register_static_geometry(part.packed, part.mesh.indices)
     @scene3d.push_single_skinned_mesh_gpu_command_with_view_projection(
       part.mesh,

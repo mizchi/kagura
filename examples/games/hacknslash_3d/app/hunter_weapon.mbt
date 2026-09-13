@@ -5,7 +5,7 @@
 struct HunterWeaponSet {
   kind : @game.PlayerWeaponKind
   id : String
-  parts : Array[HunterPart]
+  parts : Array[CharacterPart]
   attack_duration : Double
   sample_attack : (Double, Double) -> Array[(Int, Double, Double, Double)]
   clip : @animation3d.AnimationClip?
@@ -79,38 +79,4 @@ fn sample_hunter_cleaver_attack(
     (3, -0.35, 0.0, -0.3),
     (5, 0.0, -swing * side * 0.2, 0.0),
   ]
-}
-
-///|
-fn equip_hunter_parts(
-  body : Array[HunterPart],
-  weapon : HunterWeaponSet,
-) -> Array[HunterPart] {
-  let result = body.copy()
-  for part in weapon.parts {
-    let mut found = -1
-    for i in 0..<result.length() {
-      if result[i].name == part.name &&
-        result[i].color.x == part.color.x &&
-        result[i].color.y == part.color.y &&
-        result[i].color.z == part.color.z &&
-        result[i].color.w == part.color.w {
-        found = i
-        break
-      }
-    }
-    if found < 0 {
-      result.push(part)
-    } else {
-      let (mesh, skin) = combine_hunter_parts([result[found], part])
-      result[found] = {
-        name: part.name,
-        mesh,
-        skin,
-        color: part.color,
-        packed: @skeleton3d.build_skinned_vertex_data(mesh, skin),
-      }
-    }
-  }
-  result
 }

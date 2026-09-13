@@ -182,6 +182,8 @@ pub let enemy_tackle_trigger_range : Double
 
 pub fn enemy_type_configs() -> Array[EnemyTypeConfig]
 
+pub fn equip_hunter_starting_clothes(Equipment) -> Unit
+
 pub fn equip_slot_from_index(Int) -> EquipSlot?
 
 pub fn equipment_slots() -> Array[EquipSlot]
@@ -1158,6 +1160,14 @@ pub(all) struct Projectile {
   kind : ProjectileKind
 }
 
+pub(all) struct ProjectileHomingProfile {
+  seek_range : Double
+  min_alignment : Double
+  turn_radians : Double
+  delay_frames : Int
+  lifetime : Int
+}
+
 pub(all) enum ProjectileKind {
   Arrow
   Fireball(Int)
@@ -1165,6 +1175,7 @@ pub(all) enum ProjectileKind {
   EnemyBolt
 } derive(Eq, @debug.Debug)
 pub fn ProjectileKind::equal(Self, Self) -> Bool
+pub fn ProjectileKind::homing_profile(Self) -> ProjectileHomingProfile?
 pub fn ProjectileKind::not_equal(Self, Self) -> Bool
 pub fn ProjectileKind::output(Self, &Logger) -> Unit
 pub fn ProjectileKind::to_repr(Self) -> @debug.Repr

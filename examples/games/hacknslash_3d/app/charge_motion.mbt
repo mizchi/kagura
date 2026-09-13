@@ -105,7 +105,7 @@ let shared_enemy_charge_clip : @animation3d.AnimationClip = build_charge_clip(
 )
 
 ///|
-fn PlayerCharacter::sample_charge(self : PlayerCharacter) -> Unit {
+fn CharacterModel::sample_charge(self : CharacterModel) -> Unit {
   let frame = (self.action_time * 60.0).round().to_int()
   self.charge_player.set_time(@game.player_charge_profile.phase(frame))
   @animation3d.apply_node_poses(self.local_poses, self.charge_player.sample())

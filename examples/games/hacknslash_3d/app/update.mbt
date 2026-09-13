@@ -41,6 +41,7 @@ fn GameState::new_with_params(
   archetype? : @game.CharacterArchetype = @game.default_character_archetype(),
   build_policy? : @game.ArchetypeBuildPolicy = @game.default_archetype_build_policy(),
   hunting_grounds? : Bool = false,
+  species? : CharacterSpecies = Human,
 ) -> GameState {
   let world = @game.GameWorld::new(
     seed~,
@@ -106,6 +107,8 @@ fn GameState::new_with_params(
     ), // center (player pos)
     0.005, // bias
   )
+  let character = CharacterModel::new(species~)
+  character.equip_outfit(CharacterOutfit::from_equipment(world.equipment))
   {
     world,
     input: @inpututil.new_input_helper(),
@@ -151,7 +154,7 @@ fn GameState::new_with_params(
       @draw3d.shader3d_lit_skinned_instanced_monochrome_wgsl(),
     ),
     meshes,
-    character: PlayerCharacter::new(),
+    character,
     enemy_models: EnemyModels::new(),
     enemy_render_buckets: default_enemy_render_buckets(),
     // Shadow mapping
@@ -427,6 +430,9 @@ fn GameState::update_gameover(
     self.world.ui_cursor = 0
     self.world.inventory.clear()
     self.world.equipment.clear()
+    if self.world.hunting_grounds {
+      @game.equip_hunter_starting_clothes(self.world.equipment)
+    }
     for node in self.world.skills.nodes {
       node.level = 0
     }
@@ -448,7 +454,7 @@ fn GameState::update_playing(
   self : GameState,
   web_attack? : Bool = false,
 ) -> Unit {
-  self.character.equip_weapon(self.world.player_weapon)
+  self.sync_character_equipment()
   // Auto-play toggle (F2)
   if !self.paused &&
     @inpututil.is_key_just_pressed(self.input.key_state, key_f2) {

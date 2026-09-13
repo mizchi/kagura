@@ -1,6 +1,6 @@
 ///|
 test "whirlwind loops the entire rig with every weapon without translating or rebuilding geometry" {
-  let actor = PlayerCharacter::new()
+  let actor = CharacterModel::new()
   for
     weapon in [
       @game.Cleaver,

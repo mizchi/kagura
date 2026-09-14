@@ -1,0 +1,23 @@
+// Generated using `moon info`, DON'T EDIT IT
+package "mizchi/kagura_platform_web/input"
+
+import {
+  "mizchi/js/core",
+}
+
+// Values
+pub fn create_control_input(@core.Any) -> @core.Any
+
+pub fn create_gamepad_reader(@core.Any) -> @core.Any
+
+pub fn normalize_gamepad(@core.Any) -> @core.Any
+
+pub fn stick_vector(@core.Any, @core.Any, @core.Any, @core.Any) -> @core.Any
+
+// Errors
+
+// Types and methods
+
+// Type aliases
+
+// Traits

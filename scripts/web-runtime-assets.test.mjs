@@ -5,7 +5,26 @@ import {tmpdir} from 'node:os';
 import {join} from 'node:path';
 import {WEB_RUNTIME_FILES, copyWebRuntimeAssets} from './web-runtime-assets.mjs';
 import {getDemoPage, renderDemoHtml} from './web-demo-pages.mjs';
-import {WEB_RUNTIME_BUILDS, webRuntimeSourceHash} from './web-runtime-source.mjs';
+import {WEB_RUNTIME_BUILDS, webRuntimeSourceHash, webRuntimeSourceFiles, WEB_HOST_SOURCE_DIR, webHostFiles} from './web-runtime-source.mjs';
+
+test('distributed host code and declarations match their owning source packages',()=>{
+  for(const file of webHostFiles())
+    assert.equal(readFileSync(new URL('../assets/web/'+file,import.meta.url),'utf8'),readFileSync(join(WEB_HOST_SOURCE_DIR,file),'utf8'),file);
+  for(const build of WEB_RUNTIME_BUILDS)
+    assert.equal(readFileSync(new URL('../assets/web/'+build.output.replace(/\.js$/,'.d.ts'),import.meta.url),'utf8'),
+      readFileSync(new URL('../'+build.moduleDir+'/'+build.package+'/exports.d.ts',import.meta.url),'utf8'));
+});
+
+test('source freshness and hot reload include typed transitive implementations',()=>{
+  const runtime=webRuntimeSourceFiles(WEB_RUNTIME_BUILDS[0]);
+  const inventory=webRuntimeSourceFiles(WEB_RUNTIME_BUILDS[1]);
+  assert.ok(runtime.includes('core/anim3d/playback/timeline.mbt'));
+  assert.ok(runtime.includes('core/statistics/intervals.mbt'));
+  assert.ok(runtime.includes('platform_web/render/geometry.mbt'));
+  assert.ok(inventory.includes('game/inventory/item_grid.mbt'));
+  assert.ok(inventory.includes('game/inventory/preview.mbt'));
+  assert.ok(!runtime.some(file=>file.endsWith('_wbtest.mbt')));
+});
 
 test('checked-in runtime matches the MoonBit sources without requiring a compiler in Node-only jobs',()=>{
   for (const build of WEB_RUNTIME_BUILDS) {

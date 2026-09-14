@@ -48,10 +48,7 @@ pub(all) struct NodePose {
 ///|
 pub struct AnimationPlayer {
   clip : AnimationClip
-  mut time : Double
-  mut playing : Bool
-  mut looping : Bool
-  mut speed : Double
+  timeline : @playback.Timeline
 }
 
 ///|

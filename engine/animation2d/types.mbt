@@ -14,10 +14,7 @@ pub(all) struct SpriteAnimationClip {
 ///|
 pub struct SpriteAnimationPlayer {
   mut clip : SpriteAnimationClip
-  mut time : Double
-  mut playing : Bool
-  mut looping : Bool
-  mut speed : Double
+  timeline : @playback.Timeline
 }
 
 ///|

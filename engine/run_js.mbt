@@ -1,31 +1,4 @@
 ///|
-extern "js" fn js_request_animation_frame(f : () -> Unit) -> Unit =
-  #| (f) => { requestAnimationFrame(() => f()); }
-
-///|
-extern "js" fn js_on_beforeunload(f : () -> Unit) -> Unit =
-  #| (f) => { window.addEventListener("beforeunload", () => f()); }
-
-///|
-extern "js" fn js_performance_now() -> Double =
-  #| () => (globalThis.performance?.now?.() ?? Date.now())
-
-///|
-extern "js" fn js_publish_frame_phases(
-  update_ms : Double,
-  draw_ms : Double,
-  render_ms : Double,
-) -> Unit =
-  #| (updateMs, drawCallbackMs, renderCommandsMs) => {
-  #|   const runtime = globalThis.__kaguraWebRuntime;
-  #|   if (!runtime) return;
-  #|   const profile = runtime.frameProfile ??= {};
-  #|   profile.updateMs = updateMs;
-  #|   profile.drawCallbackMs = drawCallbackMs;
-  #|   profile.renderCommandsMs = renderCommandsMs;
-  #| }
-
-///|
 pub fn run(
   update~ : (@core.InputSnapshot) -> Unit,
   draw~ : (EngineContext) -> Array[@gfx.DrawTrianglesCommand],
@@ -85,7 +58,7 @@ pub fn run(
   // Audio accumulator: tick audio at fixed intervals independent of frame rate
   let audio_tick_ms = audio_frames_per_tick.to_double() / 44100.0 * 1000.0
   let audio_accum : Ref[Double] = Ref(0.0)
-  let prev_time : Ref[Double] = Ref(js_performance_now())
+  let prev_time : Ref[Double] = Ref(@runtime.clock_now_ms())
   fn frame() {
     platform.poll_events()
     // Resize tracking
@@ -109,21 +82,21 @@ pub fn run(
     }
     let input = platform.capture_input(tick.val)
     tick.val = tick.val + 1
-    let update_start = js_performance_now()
+    let update_start = @runtime.clock_now_ms()
     update(input)
     match on_frame {
       Some(f) => f()
       None => ()
     }
-    let draw_callback_start = js_performance_now()
+    let draw_callback_start = @runtime.clock_now_ms()
     let cmds = draw(ctx)
-    let draw_callback_end = js_performance_now()
-    let render_start = js_performance_now()
+    let draw_callback_end = @runtime.clock_now_ms()
+    let render_start = @runtime.clock_now_ms()
     render_commands(graphics, cmds) catch {
       e => println("[engine] render_commands failed: \{e}")
     }
-    let render_end = js_performance_now()
-    js_publish_frame_phases(
+    let render_end = @runtime.clock_now_ms()
+    @services.publish_frame_phases(
       draw_callback_start - update_start,
       draw_callback_end - draw_callback_start,
       render_end - render_start,
@@ -134,7 +107,7 @@ pub fn run(
       None => ()
     }
     // Time-based audio ticking
-    let now = js_performance_now()
+    let now = @runtime.clock_now_ms()
     let elapsed = now - prev_time.val
     prev_time.val = now
     match audio_ctx {
@@ -149,8 +122,8 @@ pub fn run(
       }
       None => ()
     }
-    js_request_animation_frame(frame)
+    @services.request_frame(frame)
   }
-  js_on_beforeunload(fn() { invoke_on_stop() })
-  js_request_animation_frame(frame)
+  @services.on_exit(fn() { invoke_on_stop() })
+  @services.request_frame(frame)
 }

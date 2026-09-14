@@ -1,0 +1,47 @@
+// Generated using `moon info`, DON'T EDIT IT
+package "mizchi/kagura_platform_web/interop"
+
+import {
+  "mizchi/js/core",
+}
+
+// Values
+pub fn argument(@core.Any, @core.Any) -> @core.Any
+
+pub fn array_values(@core.Any) -> Array[@core.Any]
+
+pub fn clamp(Double, Double, Double) -> Double
+
+pub fn delete_key(@core.Any, String) -> Unit
+
+pub fn fallback(@core.Any, @core.Any) -> @core.Any
+
+pub fn field(@core.Any, String) -> @core.Any
+
+pub fn finite(@core.Any) -> Bool
+
+pub fn fixed_decimal(Double, Int) -> Double
+
+pub fn length(@core.Any) -> Int
+
+pub fn number(@core.Any) -> Double
+
+pub fn number_field(@core.Any, String, Double) -> Double
+
+pub fn object_spread(@core.Any, @core.Any) -> @core.Any
+
+pub fn range_error(String) -> Unit
+
+pub fn safe_integer(@core.Any) -> Bool
+
+pub fn truthy(@core.Any) -> Bool
+
+pub fn vector(Double, Double) -> @core.Any
+
+// Errors
+
+// Types and methods
+
+// Type aliases
+
+// Traits

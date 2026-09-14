@@ -14,4 +14,5 @@ members = [
   "../../../engine/text",
   "../../../platform_web/runtime_hooks",
   "../../../engine/ui",
+  "../../../platform_native",
 ]

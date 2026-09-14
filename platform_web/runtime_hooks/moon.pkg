@@ -1,4 +1,7 @@
 import {
+  "mizchi/native_runtime_hooks/services" @native_services,
+  "mizchi/kagura_platform/services",
+  "mizchi/kagura_platform_web/services" @host_services,
   "mizchi/kagura_platform_web" @platform_web,
   "moonbitlang/core/encoding/utf8",
   "mizchi/atlas",

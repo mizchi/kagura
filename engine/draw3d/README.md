@@ -84,4 +84,4 @@ if !kagura_dither_visible(opacity, fragment_position.xy) { discard; }
 `skinning_uniform_wbtest.mbt` が骨・インスタンスの0個／通常数／上限／上限超過と、
 モデル変換・色・パディングを含む全dwordの一致を確認する。
 consumer側の64体・8組のベンチは
-[`engine/landscape_bench`](../../../engine/landscape_bench/README.md) にある。
+[`benchmarks/landscape`](../../../benchmarks/landscape/README.md) にある。

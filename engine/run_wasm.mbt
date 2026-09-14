@@ -5,7 +5,6 @@
 /// `requestAnimationFrame`: the host drives instead. `run` performs the same
 /// setup as `run_js.mbt`, parks the per-frame body in a global, and the JS
 /// host calls the exported `kagura_frame` once per animation frame.
-extern "wasm" fn host_now_ms() -> Double = "kagura_web" "now_ms"
 
 ///|
 let wasm_frame_body : Ref[(() -> Unit)?] = Ref(None)
@@ -82,7 +81,7 @@ pub fn run(
   }
   let audio_tick_ms = audio_frames_per_tick.to_double() / 44100.0 * 1000.0
   let audio_accum : Ref[Double] = Ref(0.0)
-  let prev_time : Ref[Double] = Ref(host_now_ms())
+  let prev_time : Ref[Double] = Ref(@services.now_ms())
   fn frame() {
     platform.poll_events()
     let outside = platform.outside_size()
@@ -110,20 +109,20 @@ pub fn run(
       Some(f) => f()
       None => ()
     }
-    let draw_callback_start = host_now_ms()
+    let draw_callback_start = @services.now_ms()
     let cmds = draw(ctx)
-    let draw_callback_end = host_now_ms()
-    let render_start = host_now_ms()
+    let draw_callback_end = @services.now_ms()
+    let render_start = @services.now_ms()
     render_commands(graphics, cmds) catch {
       e => println("[engine] render_commands failed: \{e}")
     }
-    let render_end = host_now_ms()
+    let render_end = @services.now_ms()
     match after_render {
       Some(f) =>
         f(draw_callback_end - draw_callback_start, render_end - render_start)
       None => ()
     }
-    let now = host_now_ms()
+    let now = @services.now_ms()
     let elapsed = now - prev_time.val
     prev_time.val = now
     match audio_ctx {

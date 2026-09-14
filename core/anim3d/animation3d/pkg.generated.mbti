@@ -2,6 +2,7 @@
 package "mizchi/anim3d/animation3d"
 
 import {
+  "mizchi/anim3d/playback",
   "mizchi/anim3d/transform3d",
   "mizchi/geom/math3d",
   "moonbitlang/core/debug",
@@ -44,10 +45,7 @@ pub(all) struct AnimationClip {
 
 pub struct AnimationPlayer {
   clip : AnimationClip
-  mut time : Double
-  mut playing : Bool
-  mut looping : Bool
-  mut speed : Double
+  timeline : @playback.Timeline
 }
 pub fn AnimationPlayer::current_time(Self) -> Double
 pub fn AnimationPlayer::new(AnimationClip) -> Self

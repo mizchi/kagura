@@ -3598,6 +3598,7 @@ pub fn request_animation_frame(f : () -> Unit) -> Unit {
 
 ///|
 fn init {
+  @host_services.install()
   @engine.set_lifecycle_hooks({
     on_start: fn(canvas, _title) { install(canvas) },
     on_stop: fn() { shutdown() },

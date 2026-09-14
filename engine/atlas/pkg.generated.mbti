@@ -54,6 +54,10 @@ pub fn encode_jpeg_image_spec(ImageSpec, quality? : Int) -> Bytes raise @image.E
 
 pub fn encode_png_image_spec(ImageSpec) -> Bytes raise @image.EncodeError
 
+pub fn fetch_bytes(String, (Bytes?) -> Unit) -> Unit
+
+pub fn fetch_image(String, (ImageSpec?) -> Unit) -> Unit
+
 pub fn get_atlas_draw_source(SimpleAtlasImageRepository, AssetKey) -> AtlasDrawSource?
 
 pub fn get_atlas_image_region(SimpleAtlasImageRepository, AssetKey) -> AtlasRegion?
@@ -214,23 +218,6 @@ pub fn AtlasRegion::output(Self, &Logger) -> Unit
 pub fn AtlasRegion::to_repr(Self) -> @debug.Repr
 pub fn AtlasRegion::to_string(Self) -> String
 pub impl Show for AtlasRegion
-
-pub(all) struct FetchHandle {
-  id : Int
-} derive(@debug.Debug)
-pub fn FetchHandle::output(Self, &Logger) -> Unit
-pub fn FetchHandle::to_repr(Self) -> @debug.Repr
-pub fn FetchHandle::to_string(Self) -> String
-pub impl Show for FetchHandle
-
-pub(all) struct FetchProgress {
-  loaded : Int
-  total : Int
-} derive(@debug.Debug)
-pub fn FetchProgress::output(Self, &Logger) -> Unit
-pub fn FetchProgress::to_repr(Self) -> @debug.Repr
-pub fn FetchProgress::to_string(Self) -> String
-pub impl Show for FetchProgress
 
 pub struct ImagePalette2x2 {
   p00 : Rgba
@@ -429,12 +416,6 @@ pub impl Show for SourceImageDirtyRect
 pub trait AtlasAllocator {
   fn allocate(Self, Int, Int) -> AtlasRegion?
   fn release(Self, AtlasRegion) -> Unit
-}
-
-pub(open) trait BytesFetcher {
-  fn fetch(Self, String, (FetchProgress) -> Unit, (Bytes?) -> Unit) -> FetchHandle
-  fn cancel(Self, FetchHandle) -> Unit
-  fn poll(Self) -> Unit
 }
 
 pub trait ImageRepository {

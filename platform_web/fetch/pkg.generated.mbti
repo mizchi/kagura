@@ -1,0 +1,22 @@
+// Generated using `moon info`, DON'T EDIT IT
+package "mizchi/kagura_platform_web/fetch"
+
+// Values
+pub fn fetch_bytes(String, (Bytes?) -> Unit) -> Unit
+
+pub fn new_js_fetcher() -> JsFetcher
+
+// Errors
+
+// Types and methods
+pub struct JsFetcher {
+  mut next_id : Int
+}
+pub fn JsFetcher::cancel(Self, @mizchi/kagura_platform/fetch.FetchHandle) -> Unit
+pub fn JsFetcher::fetch(Self, String, (@mizchi/kagura_platform/fetch.FetchProgress) -> Unit, (Bytes?) -> Unit) -> @mizchi/kagura_platform/fetch.FetchHandle
+pub fn JsFetcher::poll(Self) -> Unit
+pub impl @mizchi/kagura_platform/fetch.BytesFetcher for JsFetcher
+
+// Type aliases
+
+// Traits

@@ -1,0 +1,19 @@
+// Generated using `moon info`, DON'T EDIT IT
+package "mizchi/kagura_platform_web/ui_sync"
+
+import {
+  "mizchi/js/core",
+}
+
+// Values
+pub fn apply_object_patch(@core.Any, @core.Any) -> @core.Any
+
+pub fn create_dependency_gate() -> @core.Any
+
+// Errors
+
+// Types and methods
+
+// Type aliases
+
+// Traits

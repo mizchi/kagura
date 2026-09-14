@@ -140,8 +140,8 @@ fn DemoState::draw(
   )
   let commands : Array[@gfx.DrawTrianglesCommand] = []
   for emitter in self.emitters {
-    let (vertex_data, indices) = emitter.build_billboard_vertices(
-      cam_right, cam_up,
+    let (vertex_data, indices) = @particle3d.build_billboard_vertices(
+      emitter, cam_right, cam_up,
     )
     if indices.length() > 0 {
       let region = @gfx.new_dst_region(

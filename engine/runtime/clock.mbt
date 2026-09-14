@@ -1,28 +1,6 @@
 ///|
-#cfg(target="native")
-extern "C" fn native_runtime_clock_now_ms() -> Double = "kagura_runtime_now_ms"
-
-///|
-#cfg(target="js")
-extern "js" fn js_runtime_clock_now_ms() -> Double =
-  #|() => (globalThis.performance?.now?.() ?? Date.now())
-
-///|
-#cfg(target="native")
 fn default_runtime_clock_now_ms() -> Double {
-  native_runtime_clock_now_ms()
-}
-
-///|
-#cfg(target="js")
-fn default_runtime_clock_now_ms() -> Double {
-  js_runtime_clock_now_ms()
-}
-
-///|
-#cfg(any(target="wasm", target="wasm-gc"))
-fn default_runtime_clock_now_ms() -> Double {
-  0.0
+  @services.now_ms()
 }
 
 ///|
@@ -41,7 +19,7 @@ pub fn reset_runtime_clock_provider() -> Unit {
 }
 
 ///|
-/// Read through the package that owns the native clock stub and its lifetime.
+/// Read through the installed host clock, with an optional test override.
 pub fn clock_now_ms() -> Double {
   (runtime_clock_provider.val)()
 }

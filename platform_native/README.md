@@ -14,3 +14,5 @@ wgpu-native、音声、フォントの hook も起動時に結線します。
 `gfx_wgpu_native/` は GPU・GLFW・音声 FFI と backend state を所有します。
 `capture/` は engine のキャプチャデータをファイルへ出力する native adapter です。
 両方ともこの module の prebuild を共有し、engine からは import しません。
+
+`services/` は GPU 初期化不要の時計・ファイル I/O。native の起動 hook と Web hook の native 互換経路が、ゲーム状態の構築前に登録します。`fetch/` は注入したファイル読み取りを使う取得実装です。

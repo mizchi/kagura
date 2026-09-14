@@ -12,4 +12,5 @@ members = [
   "../../engine/renderer2d",
   "../../engine/text",
   "../../engine/ui",
+  "../../platform_native",
 ]

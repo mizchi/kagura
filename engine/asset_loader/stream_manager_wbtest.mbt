@@ -2,7 +2,7 @@
 struct MockRequest {
   id : Int
   url : String
-  _on_progress : (@atlas.FetchProgress) -> Unit
+  _on_progress : (@fetch.FetchProgress) -> Unit
   on_complete : (Bytes?) -> Unit
   mut cancelled : Bool
 }
@@ -19,7 +19,7 @@ fn new_mock_fetcher() -> MockFetcher {
 }
 
 ///|
-impl @atlas.BytesFetcher for MockFetcher with fn fetch(
+impl @fetch.BytesFetcher for MockFetcher with fn fetch(
   self,
   url,
   on_progress,
@@ -38,7 +38,7 @@ impl @atlas.BytesFetcher for MockFetcher with fn fetch(
 }
 
 ///|
-impl @atlas.BytesFetcher for MockFetcher with fn cancel(self, handle) {
+impl @fetch.BytesFetcher for MockFetcher with fn cancel(self, handle) {
   for req in self.requests {
     if req.id == handle.id {
       req.cancelled = true
@@ -47,7 +47,7 @@ impl @atlas.BytesFetcher for MockFetcher with fn cancel(self, handle) {
 }
 
 ///|
-impl @atlas.BytesFetcher for MockFetcher with fn poll(_) {
+impl @fetch.BytesFetcher for MockFetcher with fn poll(_) {
   // no-op for mock
 }
 

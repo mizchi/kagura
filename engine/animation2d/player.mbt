@@ -2,7 +2,7 @@
 pub fn SpriteAnimationPlayer::new(
   clip : SpriteAnimationClip,
 ) -> SpriteAnimationPlayer {
-  { clip, time: 0.0, playing: true, looping: true, speed: 1.0, }
+  { clip, timeline: @playback.Timeline::new(playing=true), }
 }
 
 ///|
@@ -10,26 +10,10 @@ pub fn SpriteAnimationPlayer::update(
   self : SpriteAnimationPlayer,
   dt : Double,
 ) -> Unit {
-  if !self.playing || self.clip.frames.is_empty() {
+  if !self.timeline.playing || self.clip.frames.is_empty() {
     return
   }
-  self.time = self.time + dt * self.speed
-  if self.looping {
-    if self.clip.total_duration > 0.0 {
-      while self.time >= self.clip.total_duration {
-        self.time = self.time - self.clip.total_duration
-      }
-      while self.time < 0.0 {
-        self.time = self.time + self.clip.total_duration
-      }
-    }
-  } else if self.time >= self.clip.total_duration {
-    self.time = self.clip.total_duration
-    self.playing = false
-  } else if self.time < 0.0 {
-    self.time = 0.0
-    self.playing = false
-  }
+  self.timeline.advance(dt, self.clip.total_duration, subtract_wrap=true)
 }
 
 ///|
@@ -43,7 +27,7 @@ pub fn SpriteAnimationPlayer::current_frame_index(
   let mut elapsed = 0.0
   for i in 0..<self.clip.frames.length() {
     elapsed = elapsed + self.clip.frames[i].duration
-    if self.time < elapsed {
+    if self.timeline.time < elapsed {
       return i
     }
   }
@@ -61,12 +45,12 @@ pub fn SpriteAnimationPlayer::current_key(
 
 ///|
 pub fn SpriteAnimationPlayer::play(self : SpriteAnimationPlayer) -> Unit {
-  self.playing = true
+  self.timeline.playing = true
 }
 
 ///|
 pub fn SpriteAnimationPlayer::pause(self : SpriteAnimationPlayer) -> Unit {
-  self.playing = false
+  self.timeline.playing = false
 }
 
 ///|
@@ -75,8 +59,8 @@ pub fn SpriteAnimationPlayer::set_clip(
   clip : SpriteAnimationClip,
 ) -> Unit {
   self.clip = clip
-  self.time = 0.0
-  self.playing = true
+  self.timeline.time = 0.0
+  self.timeline.playing = true
 }
 
 ///|
@@ -84,7 +68,7 @@ pub fn SpriteAnimationPlayer::set_speed(
   self : SpriteAnimationPlayer,
   speed : Double,
 ) -> Unit {
-  self.speed = speed
+  self.timeline.speed = speed
 }
 
 ///|
@@ -92,5 +76,5 @@ pub fn SpriteAnimationPlayer::set_looping(
   self : SpriteAnimationPlayer,
   looping : Bool,
 ) -> Unit {
-  self.looping = looping
+  self.timeline.looping = looping
 }

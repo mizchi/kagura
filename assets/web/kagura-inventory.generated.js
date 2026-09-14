@@ -1,5 +1,5 @@
 // Generated from game/inventory_web/*.mbt by just web-runtime-build. DO NOT EDIT.
-// Source SHA-256: 401b2cb30030aadd9ffec2cae998b53740b760b452c1dcfc9eabfea9d16dbad7
+// Source SHA-256: 90197d3d4ea602e174ee118a54b1f8c4ef3385a1c6ef5a519836525bd61d7fe2
 const _M0FPB12random__seed = () => {
   if (globalThis.crypto?.getRandomValues) {
     const array = new Uint32Array(1);
@@ -46,19 +46,70 @@ function _M0DTPC16option6OptionGdE4Some(param0) {
   this._0 = param0;
 }
 _M0DTPC16option6OptionGdE4Some.prototype.$tag = 1;
+const _M0MPB7JSArray4copy = (arr) => arr.slice(0);
 const _M0FP36mizchi2js4core9undefined = () => undefined;
 const _M0MP36mizchi2js4core3Any16__get__by__index = (obj, key) => obj[key];
 const _M0MP36mizchi2js4core3Any5__get = (obj, key) => obj[key];
 const _M0FP36mizchi2js4core11is__nullish = (v) => v == null;
+const _M0FP36mizchi2js4core12throw__error = (msg) => { throw new Error(msg); };
 const _M0FP36mizchi2js4core13is__undefined = (v) => v === undefined;
 const _M0FP36mizchi2js4core5equal = (a, b) => a === b;
 const _M0FP36mizchi2js4core13from__entries = (entries) => Object.fromEntries(entries.map(e => [e._0, e._1]));
 const _M0FP36mizchi2js4core11array__from = (v) => Array.from(v);
-const _M0FP36mizchi12kagura__game14inventory__web6truthy = (value) => !!value;
+function _M0TP36mizchi12kagura__game9inventory8ItemGrid(param0, param1, param2) {
+  this.width = param0;
+  this.height = param1;
+  this.entries = param2;
+}
+function _M0DTPC16option6OptionGRPB5ArrayGiEE4None() {}
+_M0DTPC16option6OptionGRPB5ArrayGiEE4None.prototype.$tag = 0;
+const _M0DTPC16option6OptionGRPB5ArrayGiEE4None__ = new _M0DTPC16option6OptionGRPB5ArrayGiEE4None();
+function _M0DTPC16option6OptionGRPB5ArrayGiEE4Some(param0) {
+  this._0 = param0;
+}
+_M0DTPC16option6OptionGRPB5ArrayGiEE4Some.prototype.$tag = 1;
+function _M0TP36mizchi12kagura__game9inventory13GridPlacement(param0, param1, param2, param3, param4) {
+  this.id = param0;
+  this.footprint = param1;
+  this.x = param2;
+  this.y = param3;
+  this.rotated = param4;
+}
+function _M0TP36mizchi12kagura__game9inventory16PlacementPreview(param0, param1, param2) {
+  this.cells = param0;
+  this.valid = param1;
+  this.swap = param2;
+}
 function _M0TPB9ArrayViewGUsdEE(param0, param1, param2) {
   this.buf = param0;
   this.start = param1;
   this.end = param2;
+}
+function _M0TP36mizchi12kagura__game9inventory14StatComparison(param0, param1, param2, param3) {
+  this.label = param0;
+  this.value = param1;
+  this.before = param2;
+  this.delta = param3;
+}
+function _M0TP36mizchi12kagura__game9inventory13GridFootprint(param0, param1, param2) {
+  this.width = param0;
+  this.height = param1;
+  this.cells = param2;
+}
+const _M0FP36mizchi12kagura__game14inventory__web6truthy = (value) => !!value;
+function _M0TP36mizchi12kagura__game9inventory11PreviewItem(param0, param1, param2, param3, param4, param5) {
+  this.source = param0;
+  this.slot = param1;
+  this.footprint = param2;
+  this.x = param3;
+  this.y = param4;
+  this.rotated = param5;
+}
+function _M0TP36mizchi12kagura__game9inventory8DropRect(param0, param1, param2, param3) {
+  this.left = param0;
+  this.top = param1;
+  this.right = param2;
+  this.bottom = param3;
 }
 const _M0FPB4seed = _M0FPB12random__seed();
 function _M0FPB13consume4__acc(acc, input) {
@@ -78,8 +129,20 @@ function _M0FPB14avalanche__acc(acc) {
 function _M0FPB13finalize__acc(acc) {
   return _M0FPB14avalanche__acc(acc);
 }
-function _M0MPC15array5Array4pushGRP36mizchi2js4core3AnyE(self, value) {
+function _M0MPC15array5Array4pushGRP36mizchi12kagura__game9inventory13GridPlacementE(self, value) {
   _M0MPB7JSArray4push(self, value);
+}
+function _M0MPC15array5Array4pushGiE(self, value) {
+  _M0MPB7JSArray4push(self, value);
+}
+function _M0MPC16option6Option10unwrap__orGRPB5ArrayGiEE(self, default_) {
+  if (self.$tag === 1) {
+    const _Some = self;
+    const _t = _Some._0;
+    return _t;
+  } else {
+    return default_;
+  }
 }
 function _M0MPC16option6Option10unwrap__orGdE(self, default_) {
   if (self.$tag === 1) {
@@ -88,6 +151,15 @@ function _M0MPC16option6Option10unwrap__orGdE(self, default_) {
     return _t;
   } else {
     return default_;
+  }
+}
+function _M0MPC16option6Option16unwrap__or__elseGRP36mizchi12kagura__game9inventory13GridFootprintE(self, default_) {
+  if (self === undefined) {
+    return default_();
+  } else {
+    const _Some = self;
+    const _t = _Some;
+    return _t;
   }
 }
 function _M0MPC13int3Int20next__power__of__two(self) {
@@ -357,6 +429,26 @@ function _M0IPC16string6StringPB4Hash4hash(self) {
   }
   return _M0FPB13finalize__acc(acc);
 }
+function _M0MPC15array5Array4copyGUiiEE(self) {
+  return _M0MPB7JSArray4copy(self);
+}
+function _M0MPC15array5Array8containsGiE(self, value) {
+  const _bind = self.length;
+  let _tmp = 0;
+  while (true) {
+    const _ = _tmp;
+    if (_ < _bind) {
+      const v = self[_];
+      if (v === value) {
+        return true;
+      }
+      _tmp = _ + 1 | 0;
+      continue;
+    } else {
+      return false;
+    }
+  }
+}
 function _M0MPC15array5Array8containsGUiiEE(self, value) {
   const _bind = self.length;
   let _tmp = 0;
@@ -374,11 +466,262 @@ function _M0MPC15array5Array8containsGUiiEE(self, value) {
     }
   }
 }
+function _M0MP36mizchi12kagura__game9inventory13GridFootprint13cells_2einner(self, rotated) {
+  if (rotated) {
+    const _p = self.cells;
+    const _p$2 = new Array(_p.length);
+    const _p$3 = _p.length;
+    let _tmp = 0;
+    while (true) {
+      const _p$4 = _tmp;
+      if (_p$4 < _p$3) {
+        const _p$5 = _p[_p$4];
+        _p$2[_p$4] = { _0: (self.height - 1 | 0) - _p$5._1 | 0, _1: _p$5._0 };
+        _tmp = _p$4 + 1 | 0;
+        continue;
+      } else {
+        break;
+      }
+    }
+    return _p$2;
+  } else {
+    return _M0MPC15array5Array4copyGUiiEE(self.cells);
+  }
+}
+function _M0MP36mizchi12kagura__game9inventory8ItemGrid3new(width, height) {
+  const _p = 0;
+  const _tmp = width > _p ? width : _p;
+  const _p$2 = 0;
+  return new _M0TP36mizchi12kagura__game9inventory8ItemGrid(_tmp, height > _p$2 ? height : _p$2, []);
+}
+function _M0MP36mizchi12kagura__game9inventory13GridFootprint12size_2einner(self, rotated) {
+  return rotated ? { _0: self.height, _1: self.width } : { _0: self.width, _1: self.height };
+}
+function _M0MP36mizchi12kagura__game9inventory8ItemGrid20occupied__by_2einner(self, x, y, ignore_id) {
+  const _bind = self.entries;
+  const _bind$2 = _bind.length;
+  let _tmp = 0;
+  while (true) {
+    const _ = _tmp;
+    if (_ < _bind$2) {
+      const entry = _bind[_];
+      _L: {
+        if (entry.id === ignore_id) {
+          break _L;
+        }
+        const _bind$3 = _M0MP36mizchi12kagura__game9inventory13GridFootprint13cells_2einner(entry.footprint, entry.rotated);
+        const _bind$4 = _bind$3.length;
+        let _tmp$2 = 0;
+        while (true) {
+          const _$2 = _tmp$2;
+          if (_$2 < _bind$4) {
+            const cell = _bind$3[_$2];
+            if ((entry.x + cell._0 | 0) === x && (entry.y + cell._1 | 0) === y) {
+              return entry.id;
+            }
+            _tmp$2 = _$2 + 1 | 0;
+            continue;
+          } else {
+            break;
+          }
+        }
+        break _L;
+      }
+      _tmp = _ + 1 | 0;
+      continue;
+    } else {
+      break;
+    }
+  }
+  return undefined;
+}
+function _M0MP36mizchi12kagura__game9inventory8ItemGrid16overlaps_2einner(self, footprint, x, y, rotated, ignore_id) {
+  const _bind = _M0MP36mizchi12kagura__game9inventory13GridFootprint12size_2einner(footprint, rotated);
+  const _width = _bind._0;
+  const _height = _bind._1;
+  if (x < 0 || (y < 0 || (_width > self.width || (_height > self.height || (x > (self.width - _width | 0) || y > (self.height - _height | 0)))))) {
+    return _M0DTPC16option6OptionGRPB5ArrayGiEE4None__;
+  }
+  const ids = [];
+  const _bind$2 = _M0MP36mizchi12kagura__game9inventory13GridFootprint13cells_2einner(footprint, rotated);
+  const _bind$3 = _bind$2.length;
+  let _tmp = 0;
+  while (true) {
+    const _ = _tmp;
+    if (_ < _bind$3) {
+      const cell = _bind$2[_];
+      const _bind$4 = _M0MP36mizchi12kagura__game9inventory8ItemGrid20occupied__by_2einner(self, x + cell._0 | 0, y + cell._1 | 0, ignore_id);
+      if (_bind$4 === undefined) {
+      } else {
+        const _Some = _bind$4;
+        const _id = _Some;
+        if (!_M0MPC15array5Array8containsGiE(ids, _id)) {
+          _M0MPC15array5Array4pushGiE(ids, _id);
+        }
+      }
+      _tmp = _ + 1 | 0;
+      continue;
+    } else {
+      break;
+    }
+  }
+  return new _M0DTPC16option6OptionGRPB5ArrayGiEE4Some(ids);
+}
+function _M0FP36mizchi12kagura__game9inventory18preview__placement(width, height, items, item, x, y, rotated) {
+  const grid = _M0MP36mizchi12kagura__game9inventory8ItemGrid3new(width, height);
+  const _bind = items.length;
+  let _tmp = 0;
+  while (true) {
+    const _ = _tmp;
+    if (_ < _bind) {
+      const other = items[_];
+      if (other.x >= 0 && other.source >= 0) {
+        _M0MPC15array5Array4pushGRP36mizchi12kagura__game9inventory13GridPlacementE(grid.entries, new _M0TP36mizchi12kagura__game9inventory13GridPlacement(other.source, other.footprint, other.x, other.y, other.rotated));
+      }
+      _tmp = _ + 1 | 0;
+      continue;
+    } else {
+      break;
+    }
+  }
+  const _p = _M0MP36mizchi12kagura__game9inventory13GridFootprint13cells_2einner(item.footprint, rotated);
+  const _p$2 = new Array(_p.length);
+  const _p$3 = _p.length;
+  let _tmp$2 = 0;
+  while (true) {
+    const _p$4 = _tmp$2;
+    if (_p$4 < _p$3) {
+      const _p$5 = _p[_p$4];
+      _p$2[_p$4] = { _0: x + _p$5._0 | 0, _1: y + _p$5._1 | 0 };
+      _tmp$2 = _p$4 + 1 | 0;
+      continue;
+    } else {
+      break;
+    }
+  }
+  const cells = _p$2;
+  const overlaps = _M0MP36mizchi12kagura__game9inventory8ItemGrid16overlaps_2einner(grid, item.footprint, x, y, rotated, item.source);
+  const ids = _M0MPC16option6Option10unwrap__orGRPB5ArrayGiEE(overlaps, []);
+  let matching = true;
+  if (item.source < 0) {
+    const _bind$2 = items.length;
+    let _tmp$3 = 0;
+    while (true) {
+      const _ = _tmp$3;
+      if (_ < _bind$2) {
+        const other = items[_];
+        if (_M0MPC15array5Array8containsGiE(ids, other.source) && other.slot !== item.slot) {
+          matching = false;
+        }
+        _tmp$3 = _ + 1 | 0;
+        continue;
+      } else {
+        break;
+      }
+    }
+  }
+  let _tmp$3;
+  if (overlaps.$tag === 1) {
+    _tmp$3 = ids.length <= 1 && matching;
+  } else {
+    _tmp$3 = false;
+  }
+  return new _M0TP36mizchi12kagura__game9inventory16PlacementPreview(cells, _tmp$3, ids.length === 1);
+}
+function _M0FP36mizchi12kagura__game9inventory14compare__stats(current, previous) {
+  const _bind = [];
+  const old = _M0MPB3Map3MapGsdE(new _M0TPB9ArrayViewGUsdEE(_bind, 0, 0), undefined);
+  const _bind$2 = previous.length;
+  let _tmp = 0;
+  while (true) {
+    const _ = _tmp;
+    if (_ < _bind$2) {
+      const _foreach_element = previous[_];
+      const _label = _foreach_element._0;
+      const _value = _foreach_element._1;
+      _M0MPB3Map3setGsdE(old, _label, _value);
+      _tmp = _ + 1 | 0;
+      continue;
+    } else {
+      break;
+    }
+  }
+  const rows = [];
+  const _bind$3 = current.length;
+  let _tmp$2 = 0;
+  while (true) {
+    const _ = _tmp$2;
+    if (_ < _bind$3) {
+      const _foreach_element = current[_];
+      const _label = _foreach_element._0;
+      const _value = _foreach_element._1;
+      const before = _M0MPC16option6Option10unwrap__orGdE(_M0MPB3Map3getGsdE(old, _label), 0);
+      if (_value !== 0 || before !== 0) {
+        _M0MPC15array5Array4pushGRP36mizchi12kagura__game9inventory13GridPlacementE(rows, new _M0TP36mizchi12kagura__game9inventory14StatComparison(_label, _value, before, _value - before));
+      }
+      _tmp$2 = _ + 1 | 0;
+      continue;
+    } else {
+      break;
+    }
+  }
+  return rows;
+}
+function _M0MP36mizchi12kagura__game9inventory8DropRect8contains(self, x, y) {
+  return x >= self.left && (y >= self.top && (x < self.right && y < self.bottom));
+}
+function _M0FP36mizchi12kagura__game9inventory16is__ground__drop(x, y, dialog, surface) {
+  if (dialog === undefined) {
+    return false;
+  } else {
+    const _Some = dialog;
+    const _dialog = _Some;
+    if (surface === undefined) {
+      return false;
+    } else {
+      const _Some$2 = surface;
+      const _surface = _Some$2;
+      return _M0MP36mizchi12kagura__game9inventory8DropRect8contains(_surface, x, y) && !_M0MP36mizchi12kagura__game9inventory8DropRect8contains(_dialog, x, y);
+    }
+  }
+}
+function _M0MP36mizchi12kagura__game9inventory13GridFootprint3new(cells) {
+  if (cells.length === 0) {
+    return undefined;
+  }
+  let width = 0;
+  let height = 0;
+  const copied = [];
+  const _bind = cells.length;
+  let _tmp = 0;
+  while (true) {
+    const _ = _tmp;
+    if (_ < _bind) {
+      const cell = cells[_];
+      const _x = cell._0;
+      const _y = cell._1;
+      if (_x < 0 || (_y < 0 || (_x >= 128 || (_y >= 128 || _M0MPC15array5Array8containsGUiiEE(copied, cell))))) {
+        return undefined;
+      }
+      _M0MPC15array5Array4pushGRP36mizchi12kagura__game9inventory13GridPlacementE(copied, cell);
+      const _p = width;
+      const _p$2 = _x + 1 | 0;
+      width = _p > _p$2 ? _p : _p$2;
+      const _p$3 = height;
+      const _p$4 = _y + 1 | 0;
+      height = _p$3 > _p$4 ? _p$3 : _p$4;
+      _tmp = _ + 1 | 0;
+      continue;
+    } else {
+      break;
+    }
+  }
+  return new _M0TP36mizchi12kagura__game9inventory13GridFootprint(width, height, copied);
+}
 function _M0FP36mizchi12kagura__game14inventory__web13array__values(value) {
   return _M0FP36mizchi2js4core11is__nullish(value) ? [] : _M0FP36mizchi2js4core11array__from(value);
 }
-function _M0FP36mizchi12kagura__game14inventory__web9footprint(item, rotated) {
-  const height = _M0MP36mizchi2js4core3Any5__get(item, "height");
+function _M0FP36mizchi12kagura__game14inventory__web5shape(item) {
   const _p = _M0FP36mizchi12kagura__game14inventory__web13array__values(_M0MP36mizchi2js4core3Any5__get(item, "cells"));
   const _p$2 = new Array(_p.length);
   const _p$3 = _p.length;
@@ -387,16 +730,20 @@ function _M0FP36mizchi12kagura__game14inventory__web9footprint(item, rotated) {
     const _p$4 = _tmp;
     if (_p$4 < _p$3) {
       const _p$5 = _p[_p$4];
-      const _p$6 = _M0MP36mizchi2js4core3Any16__get__by__index(_p$5, 0);
-      const _p$7 = _M0MP36mizchi2js4core3Any16__get__by__index(_p$5, 1);
-      _p$2[_p$4] = rotated ? { _0: (height - 1 | 0) - _p$7 | 0, _1: _p$6 } : { _0: _p$6, _1: _p$7 };
+      _p$2[_p$4] = { _0: _M0MP36mizchi2js4core3Any16__get__by__index(_p$5, 0), _1: _M0MP36mizchi2js4core3Any16__get__by__index(_p$5, 1) };
       _tmp = _p$4 + 1 | 0;
       continue;
     } else {
       break;
     }
   }
-  return _p$2;
+  return _M0MPC16option6Option16unwrap__or__elseGRP36mizchi12kagura__game9inventory13GridFootprintE(_M0MP36mizchi12kagura__game9inventory13GridFootprint3new(_p$2), () => {
+    _M0FP36mizchi2js4core12throw__error("Invalid inventory footprint");
+    return $panic();
+  });
+}
+function _M0FP36mizchi12kagura__game14inventory__web9footprint(item, rotated) {
+  return _M0MP36mizchi12kagura__game9inventory13GridFootprint13cells_2einner(_M0FP36mizchi12kagura__game14inventory__web5shape(item), rotated);
 }
 function _M0FP36mizchi12kagura__game14inventory__web13cells__to__js(cells) {
   const _p = new Array(cells.length);
@@ -415,6 +762,9 @@ function _M0FP36mizchi12kagura__game14inventory__web13cells__to__js(cells) {
   }
   return _p;
 }
+function _M0FP36mizchi12kagura__game14inventory__web13preview__item(item) {
+  return new _M0TP36mizchi12kagura__game9inventory11PreviewItem(_M0MP36mizchi2js4core3Any5__get(item, "source"), _M0MP36mizchi2js4core3Any5__get(item, "slot"), _M0FP36mizchi12kagura__game14inventory__web5shape(item), _M0MP36mizchi2js4core3Any5__get(item, "x"), _M0MP36mizchi2js4core3Any5__get(item, "y"), _M0FP36mizchi12kagura__game14inventory__web6truthy(_M0MP36mizchi2js4core3Any5__get(item, "rotated")));
+}
 function _M0FP36mizchi12kagura__game14inventory__web8argument(value, default_) {
   return _M0FP36mizchi2js4core13is__undefined(value) ? default_ : value;
 }
@@ -422,12 +772,50 @@ function _M0FP36mizchi12kagura__game14inventory__web14rotated__cells(item, rotat
   return _M0FP36mizchi12kagura__game14inventory__web13cells__to__js(_M0FP36mizchi12kagura__game14inventory__web9footprint(item, _M0FP36mizchi12kagura__game14inventory__web6truthy(_M0FP36mizchi12kagura__game14inventory__web8argument(rotated, _M0MP36mizchi2js4core3Any5__get(item, "rotated")))));
 }
 function _M0FP36mizchi12kagura__game14inventory__web10dimensions(item, rotated) {
-  const width = _M0MP36mizchi2js4core3Any5__get(item, "width");
-  const height = _M0MP36mizchi2js4core3Any5__get(item, "height");
-  return _M0FP36mizchi12kagura__game14inventory__web6truthy(_M0FP36mizchi12kagura__game14inventory__web8argument(rotated, _M0MP36mizchi2js4core3Any5__get(item, "rotated"))) ? [height, width] : [width, height];
+  const _bind = _M0MP36mizchi12kagura__game9inventory13GridFootprint12size_2einner(_M0FP36mizchi12kagura__game14inventory__web5shape(item), _M0FP36mizchi12kagura__game14inventory__web6truthy(_M0FP36mizchi12kagura__game14inventory__web8argument(rotated, _M0MP36mizchi2js4core3Any5__get(item, "rotated"))));
+  const _width = _bind._0;
+  const _height = _bind._1;
+  return [_width, _height];
 }
 function _M0FP36mizchi12kagura__game14inventory__web18preview__placement(view, item, x, y, rotated) {
-  const _p = _M0FP36mizchi12kagura__game14inventory__web9footprint(item, _M0FP36mizchi12kagura__game14inventory__web6truthy(_M0FP36mizchi12kagura__game14inventory__web8argument(rotated, _M0MP36mizchi2js4core3Any5__get(item, "rotated"))));
+  const _tmp = _M0MP36mizchi2js4core3Any5__get(view, "width");
+  const _tmp$2 = _M0MP36mizchi2js4core3Any5__get(view, "height");
+  const _p = _M0FP36mizchi12kagura__game14inventory__web13array__values(_M0MP36mizchi2js4core3Any5__get(view, "items"));
+  const _p$2 = new Array(_p.length);
+  const _p$3 = _p.length;
+  let _tmp$3 = 0;
+  while (true) {
+    const _p$4 = _tmp$3;
+    if (_p$4 < _p$3) {
+      const _p$5 = _p[_p$4];
+      _p$2[_p$4] = _M0FP36mizchi12kagura__game14inventory__web13preview__item(_p$5);
+      _tmp$3 = _p$4 + 1 | 0;
+      continue;
+    } else {
+      break;
+    }
+  }
+  const result = _M0FP36mizchi12kagura__game9inventory18preview__placement(_tmp, _tmp$2, _p$2, _M0FP36mizchi12kagura__game14inventory__web13preview__item(item), x, y, _M0FP36mizchi12kagura__game14inventory__web6truthy(_M0FP36mizchi12kagura__game14inventory__web8argument(rotated, _M0MP36mizchi2js4core3Any5__get(item, "rotated"))));
+  return _M0FP36mizchi2js4core13from__entries([{ _0: "cells", _1: _M0FP36mizchi12kagura__game14inventory__web13cells__to__js(result.cells) }, { _0: "valid", _1: result.valid }, { _0: "swap", _1: result.swap }]);
+}
+function _M0FP36mizchi12kagura__game14inventory__web4rect(value) {
+  if (!_M0FP36mizchi12kagura__game14inventory__web6truthy(value)) {
+    return undefined;
+  }
+  const _p = _M0MP36mizchi2js4core3Any5__get(value, "left");
+  const _p$2 = _M0MP36mizchi2js4core3Any5__get(value, "top");
+  const _p$3 = _M0MP36mizchi2js4core3Any5__get(value, "right");
+  const _p$4 = _M0MP36mizchi2js4core3Any5__get(value, "bottom");
+  return new _M0TP36mizchi12kagura__game9inventory8DropRect(_p, _p$2, _p$3, _p$4);
+}
+function _M0FP36mizchi12kagura__game14inventory__web27is__inventory__ground__drop(x, y, dialog, surface) {
+  return _M0FP36mizchi12kagura__game9inventory16is__ground__drop(x, y, _M0FP36mizchi12kagura__game14inventory__web4rect(dialog), _M0FP36mizchi12kagura__game14inventory__web4rect(surface));
+}
+function _M0FP36mizchi12kagura__game14inventory__web5field(value, key) {
+  return _M0FP36mizchi2js4core11is__nullish(value) ? _M0FP36mizchi2js4core9undefined() : _M0MP36mizchi2js4core3Any5__get(value, key);
+}
+function _M0FP36mizchi12kagura__game14inventory__web5stats(item) {
+  const _p = _M0FP36mizchi12kagura__game14inventory__web13array__values(_M0FP36mizchi12kagura__game14inventory__web5field(item, "stats"));
   const _p$2 = new Array(_p.length);
   const _p$3 = _p.length;
   let _tmp = 0;
@@ -435,157 +823,28 @@ function _M0FP36mizchi12kagura__game14inventory__web18preview__placement(view, i
     const _p$4 = _tmp;
     if (_p$4 < _p$3) {
       const _p$5 = _p[_p$4];
-      _p$2[_p$4] = { _0: x + _p$5._0 | 0, _1: y + _p$5._1 | 0 };
+      const _tmp$2 = _M0MP36mizchi2js4core3Any16__get__by__index(_p$5, 0);
+      const _p$6 = _M0MP36mizchi2js4core3Any16__get__by__index(_p$5, 1);
+      _p$2[_p$4] = { _0: _tmp$2, _1: _p$6 };
       _tmp = _p$4 + 1 | 0;
       continue;
     } else {
       break;
     }
   }
-  const cells = _p$2;
-  const width = _M0MP36mizchi2js4core3Any5__get(view, "width");
-  const height = _M0MP36mizchi2js4core3Any5__get(view, "height");
-  let inside = true;
-  const _bind = cells.length;
-  let _tmp$2 = 0;
-  while (true) {
-    const _ = _tmp$2;
-    if (_ < _bind) {
-      const _foreach_element = cells[_];
-      const _cx = _foreach_element._0;
-      const _cy = _foreach_element._1;
-      if (_cx < 0 || (_cy < 0 || (_cx >= width || _cy >= height))) {
-        inside = false;
-      }
-      _tmp$2 = _ + 1 | 0;
-      continue;
-    } else {
-      break;
-    }
-  }
-  let overlaps = 0;
-  let matching_slots = true;
-  const _bind$2 = _M0FP36mizchi12kagura__game14inventory__web13array__values(_M0MP36mizchi2js4core3Any5__get(view, "items"));
-  const _bind$3 = _bind$2.length;
-  let _tmp$3 = 0;
-  while (true) {
-    const _ = _tmp$3;
-    if (_ < _bind$3) {
-      const other = _bind$2[_];
-      _L: {
-        const ox = _M0MP36mizchi2js4core3Any5__get(other, "x");
-        if (_M0FP36mizchi2js4core5equal(_M0MP36mizchi2js4core3Any5__get(other, "source"), _M0MP36mizchi2js4core3Any5__get(item, "source")) || ox < 0) {
-          break _L;
-        }
-        const oy = _M0MP36mizchi2js4core3Any5__get(other, "y");
-        const _bind$4 = _M0FP36mizchi12kagura__game14inventory__web9footprint(other, _M0FP36mizchi12kagura__game14inventory__web6truthy(_M0MP36mizchi2js4core3Any5__get(other, "rotated")));
-        const _bind$5 = _bind$4.length;
-        let _tmp$4 = 0;
-        while (true) {
-          const _$2 = _tmp$4;
-          if (_$2 < _bind$5) {
-            const _foreach_element = _bind$4[_$2];
-            const _cx = _foreach_element._0;
-            const _cy = _foreach_element._1;
-            if (_M0MPC15array5Array8containsGUiiEE(cells, { _0: ox + _cx | 0, _1: oy + _cy | 0 })) {
-              overlaps = overlaps + 1 | 0;
-              if (!_M0FP36mizchi2js4core5equal(_M0MP36mizchi2js4core3Any5__get(other, "slot"), _M0MP36mizchi2js4core3Any5__get(item, "slot"))) {
-                matching_slots = false;
-              }
-              break;
-            }
-            _tmp$4 = _$2 + 1 | 0;
-            continue;
-          } else {
-            break;
-          }
-        }
-        break _L;
-      }
-      _tmp$3 = _ + 1 | 0;
-      continue;
-    } else {
-      break;
-    }
-  }
-  const _tmp$4 = { _0: "cells", _1: _M0FP36mizchi12kagura__game14inventory__web13cells__to__js(cells) };
-  let _tmp$5;
-  if (inside) {
-    let _tmp$6;
-    if (overlaps <= 1) {
-      let _tmp$7;
-      const _p$4 = _M0MP36mizchi2js4core3Any5__get(item, "source");
-      if (_p$4 >= 0) {
-        _tmp$7 = true;
-      } else {
-        _tmp$7 = matching_slots;
-      }
-      _tmp$6 = _tmp$7;
-    } else {
-      _tmp$6 = false;
-    }
-    _tmp$5 = _tmp$6;
-  } else {
-    _tmp$5 = false;
-  }
-  return _M0FP36mizchi2js4core13from__entries([_tmp$4, { _0: "valid", _1: _tmp$5 }, { _0: "swap", _1: overlaps === 1 }]);
-}
-function _M0FP36mizchi12kagura__game14inventory__web12inside__rect(x, y, rect) {
-  const _p = _M0MP36mizchi2js4core3Any5__get(rect, "left");
-  if (x >= _p) {
-    let _tmp;
-    const _p$2 = _M0MP36mizchi2js4core3Any5__get(rect, "top");
-    if (y >= _p$2) {
-      let _tmp$2;
-      const _p$3 = _M0MP36mizchi2js4core3Any5__get(rect, "right");
-      if (x < _p$3) {
-        const _p$4 = _M0MP36mizchi2js4core3Any5__get(rect, "bottom");
-        _tmp$2 = y < _p$4;
-      } else {
-        _tmp$2 = false;
-      }
-      _tmp = _tmp$2;
-    } else {
-      _tmp = false;
-    }
-    return _tmp;
-  } else {
-    return false;
-  }
-}
-function _M0FP36mizchi12kagura__game14inventory__web27is__inventory__ground__drop(x, y, dialog, surface) {
-  return _M0FP36mizchi12kagura__game14inventory__web6truthy(dialog) && (_M0FP36mizchi12kagura__game14inventory__web6truthy(surface) && (_M0FP36mizchi12kagura__game14inventory__web12inside__rect(x, y, surface) && !_M0FP36mizchi12kagura__game14inventory__web12inside__rect(x, y, dialog)));
-}
-function _M0FP36mizchi12kagura__game14inventory__web5field(value, key) {
-  return _M0FP36mizchi2js4core11is__nullish(value) ? _M0FP36mizchi2js4core9undefined() : _M0MP36mizchi2js4core3Any5__get(value, key);
+  return _p$2;
 }
 function _M0FP36mizchi12kagura__game14inventory__web16comparison__rows(view, item) {
-  const _bind = [];
-  const previous = _M0MPB3Map3MapGsdE(new _M0TPB9ArrayViewGUsdEE(_bind, 0, 0), undefined);
-  const _bind$2 = _M0FP36mizchi12kagura__game14inventory__web13array__values(_M0MP36mizchi2js4core3Any5__get(view, "equipment"));
-  const _bind$3 = _bind$2.length;
+  let previous = [];
+  const _bind = _M0FP36mizchi12kagura__game14inventory__web13array__values(_M0MP36mizchi2js4core3Any5__get(view, "equipment"));
+  const _bind$2 = _bind.length;
   let _tmp = 0;
   while (true) {
     const _ = _tmp;
-    if (_ < _bind$3) {
-      const slot = _bind$2[_];
+    if (_ < _bind$2) {
+      const slot = _bind[_];
       if (_M0FP36mizchi2js4core5equal(_M0MP36mizchi2js4core3Any5__get(slot, "id"), _M0MP36mizchi2js4core3Any5__get(item, "slot"))) {
-        const _bind$4 = _M0FP36mizchi12kagura__game14inventory__web13array__values(_M0FP36mizchi12kagura__game14inventory__web5field(_M0MP36mizchi2js4core3Any5__get(slot, "item"), "stats"));
-        const _bind$5 = _bind$4.length;
-        let _tmp$2 = 0;
-        while (true) {
-          const _$2 = _tmp$2;
-          if (_$2 < _bind$5) {
-            const stat = _bind$4[_$2];
-            const _tmp$3 = _M0MP36mizchi2js4core3Any16__get__by__index(stat, 0);
-            const _p = _M0MP36mizchi2js4core3Any16__get__by__index(stat, 1);
-            _M0MPB3Map3setGsdE(previous, _tmp$3, _p);
-            _tmp$2 = _$2 + 1 | 0;
-            continue;
-          } else {
-            break;
-          }
-        }
+        previous = _M0FP36mizchi12kagura__game14inventory__web5stats(_M0MP36mizchi2js4core3Any5__get(slot, "item"));
         break;
       }
       _tmp = _ + 1 | 0;
@@ -594,27 +853,21 @@ function _M0FP36mizchi12kagura__game14inventory__web16comparison__rows(view, ite
       break;
     }
   }
-  const rows = [];
-  const _bind$4 = _M0FP36mizchi12kagura__game14inventory__web13array__values(_M0MP36mizchi2js4core3Any5__get(item, "stats"));
-  const _bind$5 = _bind$4.length;
+  const _p = _M0FP36mizchi12kagura__game9inventory14compare__stats(_M0FP36mizchi12kagura__game14inventory__web5stats(item), previous);
+  const _p$2 = new Array(_p.length);
+  const _p$3 = _p.length;
   let _tmp$2 = 0;
   while (true) {
-    const _ = _tmp$2;
-    if (_ < _bind$5) {
-      const stat = _bind$4[_];
-      const label = _M0MP36mizchi2js4core3Any16__get__by__index(stat, 0);
-      const _p = _M0MP36mizchi2js4core3Any16__get__by__index(stat, 1);
-      const value = _p;
-      const before = _M0MPC16option6Option10unwrap__orGdE(_M0MPB3Map3getGsdE(previous, label), 0);
-      if (value !== 0 || before !== 0) {
-        _M0MPC15array5Array4pushGRP36mizchi2js4core3AnyE(rows, _M0FP36mizchi2js4core13from__entries([{ _0: "label", _1: label }, { _0: "value", _1: value }, { _0: "before", _1: before }, { _0: "delta", _1: value - before }]));
-      }
-      _tmp$2 = _ + 1 | 0;
+    const _p$4 = _tmp$2;
+    if (_p$4 < _p$3) {
+      const _p$5 = _p[_p$4];
+      _p$2[_p$4] = _M0FP36mizchi2js4core13from__entries([{ _0: "label", _1: _p$5.label }, { _0: "value", _1: _p$5.value }, { _0: "before", _1: _p$5.before }, { _0: "delta", _1: _p$5.delta }]);
+      _tmp$2 = _p$4 + 1 | 0;
       continue;
     } else {
       break;
     }
   }
-  return rows;
+  return _p$2;
 }
 export { _M0FP36mizchi12kagura__game14inventory__web14rotated__cells as rotatedCells, _M0FP36mizchi12kagura__game14inventory__web10dimensions as dimensions, _M0FP36mizchi12kagura__game14inventory__web18preview__placement as previewPlacement, _M0FP36mizchi12kagura__game14inventory__web27is__inventory__ground__drop as isInventoryGroundDrop, _M0FP36mizchi12kagura__game14inventory__web16comparison__rows as comparisonRows }

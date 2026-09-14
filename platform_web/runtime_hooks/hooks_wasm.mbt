@@ -1,4 +1,7 @@
 ///|
+extern "wasm" fn host_now_ms() -> Double = "kagura_web" "now_ms"
+
+///|
 let web_canvas_selector : Ref[String] = Ref("#app")
 
 ///|
@@ -1163,6 +1166,7 @@ pub fn request_animation_frame(_f : () -> Unit) -> Unit {
 
 ///|
 fn init {
+  @services.set_clock(host_now_ms)
   @engine.set_lifecycle_hooks({
     on_start: fn(canvas, _title) { install(canvas) },
     on_stop: fn() { shutdown() },

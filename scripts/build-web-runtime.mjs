@@ -2,14 +2,21 @@
 // hosts, Node and Workers without a compiler or a bundler at runtime.
 import {spawnSync} from 'node:child_process';
 import {existsSync, readFileSync, writeFileSync} from 'node:fs';
-import {resolve} from 'node:path';
+import {resolve, dirname} from 'node:path';
 import {pathToFileURL} from 'node:url';
-import {WEB_RUNTIME_BUILDS, webRuntimeSourceHash} from './web-runtime-source.mjs';
+import {WEB_RUNTIME_BUILDS, webRuntimeSourceHash, webRuntimeSourceFiles, WEB_HOST_SOURCE_DIR, webHostFiles} from './web-runtime-source.mjs';
 
 const root=resolve(import.meta.dirname,'..');
 
 export function buildWebRuntime({check=false}={}) {
   const pending=[];
+  function prepare(destination, source) {
+    let previous;
+    try {previous=readFileSync(destination,'utf8');} catch(error) {if(error.code!=='ENOENT') throw error;}
+    if(previous===source) return;
+    if(check) throw new Error('Generated web runtime is stale. Run just web-runtime-build and include the generated assets.');
+    pending.push({destination,source});
+  }
   for (const build of WEB_RUNTIME_BUILDS) {
     const sourceDir=build.moduleDir+'/'+build.package;
     const destination=resolve(root,'assets/web',build.output);
@@ -25,18 +32,15 @@ export function buildWebRuntime({check=false}={}) {
     if(!artifact) throw new Error('MoonBit web runtime artifact is missing');
     const source=`// Generated from ${sourceDir}/*.mbt by just web-runtime-build. DO NOT EDIT.\n`+
       `// Source SHA-256: ${webRuntimeSourceHash(build)}\n`+readFileSync(artifact,'utf8');
-    let previous;
-    try {previous=readFileSync(destination,'utf8');} catch(error) {if(error.code!=='ENOENT') throw error;}
-    if(previous===source) continue;
-    if(check) throw new Error('Generated web runtime is stale. Run just web-runtime-build and include the generated ESM.');
-    pending.push({destination,source});
+    prepare(destination, source);
+    prepare(destination.replace(/\.js$/,'.d.ts'),readFileSync(resolve(root,sourceDir,'exports.d.ts'),'utf8'));
   }
+  for(const file of webHostFiles()) prepare(resolve(root,'assets/web',file),readFileSync(resolve(WEB_HOST_SOURCE_DIR,file),'utf8'));
   for (const {destination,source} of pending) writeFileSync(destination,source);
 }
 
-const watchedSources=WEB_RUNTIME_BUILDS.flatMap(build=>[
-  resolve(root,build.moduleDir,build.package), resolve(root,build.moduleDir,'moon.mod'),
-]);
+const watchedSources=()=>[...new Set(WEB_RUNTIME_BUILDS.flatMap(build=>
+  webRuntimeSourceFiles(build).map(file=>dirname(resolve(root,file)))) )];
 
 /** Vite hook shared by standalone games and Studio. Compile before publication;
  * reload only after a successful write so consumers never see half-built ESM. */
@@ -45,10 +49,11 @@ export function moonbitWebRuntimePlugin() {
     name:'kagura-moonbit-web-runtime',
     buildStart() { buildWebRuntime(); },
     configureServer(server) {
-      server.watcher.add(watchedSources);
+      server.watcher.add([...watchedSources(), WEB_HOST_SOURCE_DIR]);
     },
     handleHotUpdate({file,server}) {
-      if(watchedSources.some(source=>file===source || file.startsWith(source+'/')) && /\.(mbt|pkg|mod)$/.test(file)) {
+      if((watchedSources().some(source=>dirname(file)===source) && /\.(mbt|pkg|mod|ts)$/.test(file)) ||
+        (dirname(file)===WEB_HOST_SOURCE_DIR && file.endsWith('.js'))) {
         buildWebRuntime();
         server.ws.send({type:'full-reload'});
         return [];

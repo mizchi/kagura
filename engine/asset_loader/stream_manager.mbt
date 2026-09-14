@@ -41,13 +41,13 @@ struct StreamRequest {
   url : String
   priority : AssetPriority
   on_complete : (Bytes?) -> Unit
-  mut handle : @atlas.FetchHandle?
+  mut handle : @fetch.FetchHandle?
   mut done : Bool
 }
 
 ///|
 pub struct AssetStreamManager {
-  fetcher : &@atlas.BytesFetcher
+  fetcher : &@fetch.BytesFetcher
   max_concurrent : Int
   mut next_id : Int
   pending : Array[StreamRequest]
@@ -58,7 +58,7 @@ pub struct AssetStreamManager {
 
 ///|
 pub fn AssetStreamManager::new(
-  fetcher : &@atlas.BytesFetcher,
+  fetcher : &@fetch.BytesFetcher,
   max_concurrent? : Int = 4,
 ) -> AssetStreamManager {
   {

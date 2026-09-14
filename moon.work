@@ -1,4 +1,6 @@
 members = [
+  "./benchmarks",
+  "./experiments",
   ".",
   "./core/mesh3d",
   "./core/anim3d",

@@ -1,4 +1,5 @@
 import {
+  "mizchi/kagura_core/particle3d" @particles,
   "mizchi/geom/camera3d",
   "mizchi/kagura_engine/draw3d",
   "mizchi/gfx",

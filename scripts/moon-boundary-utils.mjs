@@ -13,7 +13,7 @@ export const DEFAULT_IMPORT_BOUNDARY_POLICY = Object.freeze({
   "mizchi/kagura_platform": ["mizchi/kagura_core"],
   "mizchi/kagura_ui": ["mizchi/kagura_core"],
   "mizchi/kagura_audio": [],
-  "mizchi/kagura_asset_loader": [],
+  "mizchi/kagura_asset_loader": ["mizchi/kagura_platform"],
   "mizchi/kagura_engine": ["mizchi/kagura_core", "mizchi/kagura_platform", "mizchi/kagura_audio", "mizchi/kagura_ui"],
   "mizchi/kagura_game": [
     "mizchi/kagura_core",

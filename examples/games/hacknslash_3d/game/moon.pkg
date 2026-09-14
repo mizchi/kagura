@@ -1,4 +1,5 @@
 import {
+  "mizchi/kagura_game/inventory",
   "mizchi/kagura_core/terrain3d",
   "moonbitlang/core/json",
   "moonbitlang/core/cmp",

@@ -26,7 +26,10 @@ pub fn pack_sprites(
     area_b.compare(area_a)
   })
   let pad = config.padding
-  let alloc = new_maxrects_allocator(config.max_width, config.max_height)
+  let alloc = @packing2d.new_maxrects_allocator(
+    config.max_width,
+    config.max_height,
+  )
   let sprites : Array[PackedSprite] = []
   for item in indexed {
     let (_, inp) = item

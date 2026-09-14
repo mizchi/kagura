@@ -18,7 +18,8 @@ See [game project patterns](../docs/editor/game-projects.md).
 
 Physics, IK, pathfinding and terrain calculations live in `core`. Display scenes,
 HUD, tile rendering, sprite packing and inspection live in `engine`.
-`inventory_web/` owns the MoonBit JS adapter for inventory previews and comparisons;
+`inventory/` owns typed item footprints, grid placement, exchange previews and stat comparisons.
+Both the simulation and `inventory_web/` use these contracts. `inventory_web/` only converts JS objects;
 `just web-runtime-build` emits `assets/web/kagura-inventory.generated.js`.
 
 `inpututil/` maps physical input states to game movement/confirmation commands.

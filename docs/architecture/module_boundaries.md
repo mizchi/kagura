@@ -6,9 +6,9 @@
 | --- | --- | --- |
 | `core` | 入力値と状態から結果を計算する処理。ホスト・GPU・ゲームルールに依存しない | `geom`, `mesh3d`, `physics2d`, `physics3d`, `collision3d`, `anim3d/ik3d`, `pathfind`, `terrain3d`, `procedural3d`, `hierarchy`, `inputstate` |
 | `engine` | 描画コマンド、表示ツリー、アセット、音声、アプリケーションの実行 | `draw3d`, `scene3d`, `scene`, `hud`, `tilemap2d`, `sprite_packer`, `inspection`, `application`, `runtime` |
-| `game` | プレイヤー・敵・アイテムなどの意味とルール、進行や遷移 | `gameplay2d`, `inpututil`, `ecs`, `progression`, `interactable2d`, `scene_flow`, `scene_manager`, `scene_data`, `scene_document`, `machinations`, `inventory_web` |
+| `game` | プレイヤー・敵・アイテムなどの意味とルール、進行や遷移 | `gameplay2d`, `inventory`, `inpututil`, `ecs`, `progression`, `interactable2d`, `scene_flow`, `scene_manager`, `scene_data`, `scene_document`, `machinations`, `inventory_web` |
 | `platform` | ウィンドウ・入力・surface の共通コントラクトと型付き hook | `PlatformDriver`, `WebCanvasHooks`, `DesktopNativeHooks` |
-| `platform_web` | ブラウザ環境の実装と接続 | `web_core`, `gfx_webgpu`, `runtime_hooks` |
+| `platform_web` | ブラウザ環境の実装と接続 | `input`, `render`, `diagnostics`, `playback`, `ui_sync`, `services`, `fetch`, `host`, `runtime_hooks` |
 | `platform_native` | ネイティブ環境の実装と接続 | `gfx_wgpu_native`, `capture`, root hooks |
 | `editor` | オーサリングと検証ツール | Studio、model-viewer、effect-studio、modeling3d |
 
@@ -104,3 +104,29 @@ module 内に置く。共通 prebuild 変数を同じ module で解決できる�
 
 骨格・経路探索の独立 module 名は維持する。物理は `mizchi/kagura_core` に統合する。互換のため core から engine へ
 再 export するような逆依存は作らず、利用側の import を更新する。
+
+## パッケージ内部の責務分割
+
+| 型・処理 | 所有者 |
+| --- | --- |
+| 時計・ファイル I/O・フレーム予約の契約 | `platform/services` |
+| BytesFetcher / FetchProgress / FetchHandle | `platform/fetch`（旧 atlas） |
+| 実時計・ファイルアクセス | `platform_native/services`、`platform_web/services` |
+| ブラウザ通信・キャンセル | `platform_web/fetch` |
+| ロード待ち行列・画像デコード・アトラス | `engine/asset_loader`、`engine/atlas` |
+| GridFootprint / ItemGrid・配置プレビュー・比較 | `game/inventory`（旧 gameplay2d / inventory_web） |
+| JS オブジェクトとの変換 | `game/inventory_web` |
+| Timeline・再生時間の進行 | `core/anim3d/playback` |
+| 矩形パッキング・粒子の運動・統計 | `core/packing2d`、`core/particle3d`、`core/statistics` |
+| 粒子の描画・sprite と atlas の対応付け | `engine/particle3d`、`engine/sprite_packer`、`engine/animation2d` |
+
+再生時間は独立 anim3d module 内に置き、core root → anim3d の既存依存を逆転させない。
+`Timeline` の完了時停止と端点保持は用途別に選べる。2D の繰り返し減算による丸めも保持する。
+
+`engine.particle3d.build_billboard_vertices(emitter, ...)` は描画側の関数。
+以前の `emitter.build_billboard_vertices(...)` の利用側はこの関数へ移行する。
+`ParticleEmitter` の状態と更新メソッドは core の型を engine が再公開する。
+
+`assets/web` は配布先。手書き JS と Node テストは `platform_web/host`、型宣言の原本は
+各 ESM entry package の `exports.d.ts`。ビルドはローカルの推移的な依存を hash と監視に含む。
+`benchmarks/landscape` と `experiments/webgpu` は非公開の利用側であり、ライブラリから参照しない。

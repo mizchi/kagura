@@ -1,4 +1,5 @@
 import {
+  "mizchi/kagura_platform/services",
   "mizchi/atlas",
   "moonbitlang/core/encoding/utf8",
 }
@@ -6,6 +7,5 @@ import {
 warnings = "-6-29-53-68"
 
 options(
-  "native-stub": [ "io_native.c" ],
   targets: { "io_native.mbt": [ "native" ] },
 )

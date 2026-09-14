@@ -105,7 +105,8 @@ pub fn ParticleManager::append_draw_commands(
     view.elements[9],
   )
   for be in self.emitters {
-    be.emitter.append_billboard_vertices(
+    append_billboard_vertices(
+      be.emitter,
       cam_right,
       cam_up,
       self.vertex_scratch,

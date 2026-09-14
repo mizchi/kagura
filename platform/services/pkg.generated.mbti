@@ -1,0 +1,45 @@
+// Generated using `moon info`, DON'T EDIT IT
+package "mizchi/kagura_platform/services"
+
+// Values
+pub fn now_ms() -> Double
+
+pub fn on_exit(() -> Unit) -> Unit
+
+pub fn publish_frame_phases(Double, Double, Double) -> Unit
+
+pub fn read_file(String, override_env? : String?) -> Bytes?
+
+pub fn request_frame(() -> Unit) -> Unit
+
+pub fn reset_clock() -> Unit
+
+pub fn reset_file_access() -> Unit
+
+pub fn reset_frame_host() -> Unit
+
+pub fn set_clock(() -> Double) -> Unit
+
+pub fn set_file_access(FileAccess) -> Unit
+
+pub fn set_frame_host(FrameHost) -> Unit
+
+pub fn write_file(String, Bytes) -> Bool
+
+// Errors
+
+// Types and methods
+pub(all) struct FileAccess {
+  read : (String, String?) -> Bytes?
+  write : (String, Bytes) -> Bool
+}
+
+pub(all) struct FrameHost {
+  request_frame : (() -> Unit) -> Unit
+  on_exit : (() -> Unit) -> Unit
+  publish_phases : (Double, Double, Double) -> Unit
+}
+
+// Type aliases
+
+// Traits

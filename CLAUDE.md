@@ -105,9 +105,9 @@ parquet 側が x 0.4.50 に追従したら font の天井を外せる。上げ�
 ### Web ランタイムの実装言語
 
 ブラウザ固有 API の接続以外のコアロジックは、原則 MoonBit で書く。
-ブラウザ向け基盤は `platform_web/web_core/` に追加し、
+ブラウザ向け基盤は `platform_web/{input,render,diagnostics,playback,ui_sync}/` に追加し、公開窓口を `web_core/exports.mbt` に定義する。
 `just web-runtime-build` で `assets/web/kagura-runtime.generated.js` を生成する。
-ゲームのインベントリ判定は `game/inventory_web/` に置き、同じタスクで
+ゲームのインベントリ判定は型付きの `game/inventory/`、JS 変換は `game/inventory_web/` に置き、同じタスクで
 `assets/web/kagura-inventory.generated.js` を生成する。
 入力・UI 同期・再生・geometry キャッシュの状態遷移を手書き JS に戻さない。
 `extern "js"` は組み込みやホスト API の小さな FFI に限り、アルゴリズムを埋め込まない。
@@ -125,7 +125,7 @@ just check-release  # リリース前チェック（ローカルパス依存の�
 
 ```bash
 just check-workspace          # moon check --deny-warn だけ
-just test-workspace           # root の moon test + assets/web/*.test.mjs だけ
+just test-workspace           # root の moon test + platform_web/host/*.test.mjs だけ
 just check-examples 2/4       # example の 2/4 shard だけ
 just test-examples 2/4        # 同上
 ```
@@ -496,7 +496,7 @@ just wasm-host-smoke   # 単体ホストと worker + フレームクロックの
 | 単体ホスト（フレーム源なし） | 0 | 127 | 536ms |
 | worker + 8ms フレームクロック | 5 | 25 | 147ms |
 
-node の `worker_threads` 経路は `assets/web/kagura-wasm-driver.test.mjs` が、
+node の `worker_threads` 経路は `platform_web/host/kagura-wasm-driver.test.mjs` が、
 ブラウザ側の前提は `e2e/offscreen_worker.spec.ts` が固定している。
 
 ### ブラウザでの実測（Chromium, OffscreenCanvas）
@@ -605,3 +605,12 @@ FFI で `FixedArray` を渡す方法自体は動く（`#unsafe_skip_stub_check` 
 
 - `cc-link-flags` は依存パッケージから伝播しない。native ビルドする example では個別に `-lglfw` 等を指定する必要がある
 - `extern "C"` を含む `.mbt` ファイルは `moon.pkg` の `targets` で native のみに制限する（`supported-targets` だけでは不十分）
+
+## 計算・ホストの分離
+
+- `platform/services` は時計、ファイル I/O、フレーム予約の注入契約。`platform/fetch` はバイト取得の契約。
+- native の `platform_native/services` は GPU を必要とせず、起動 hook が早期に登録する。キャプチャ設定はウィンドウ初期化前に読まれる。
+- engine の runtime / capture / atlas はこの契約を使う。OS ファイル操作・時計・fetch を engine に戻さない。
+- 再生時間は `core/anim3d/playback`（独立 anim3d module の循環依存を避ける配置）、粒子の運動は `core/particle3d`、矩形配置は `core/packing2d`、統計は `core/statistics`。
+- 手書き Web ホストの原本は `platform_web/host`。`assets/web` を直接編集せず `just web-runtime-build` で同期する。型宣言の原本は各 ESM package の `exports.d.ts`。
+- `benchmarks` と `experiments` は非公開の利用側。ライブラリから依存しない。

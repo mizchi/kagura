@@ -35,7 +35,7 @@ test('platform contract and JS implementation stage as separate publishable modu
   const contractDir = join(outDir, 'mizchi__kagura_platform');
   const implementationDir = join(outDir, 'mizchi__kagura_platform_web');
   assert.ok(existsSync(join(contractDir, 'contracts.mbt')));
-  assert.ok(existsSync(join(implementationDir, 'web_core', 'controls.mbt')));
+  assert.ok(existsSync(join(implementationDir, 'input', 'controls.mbt')));
   for (const nested of ['web_runtime_hooks', 'native_runtime_hooks', 'platform_web']) {
     assert.equal(existsSync(join(contractDir, nested)), false, `contract must not bundle ${nested}`);
   }

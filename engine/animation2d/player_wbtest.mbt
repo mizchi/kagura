@@ -36,7 +36,7 @@ test "player non-looping stops at end" {
   player.set_looping(false)
   player.update(0.5) // past total_duration
   assert_eq(player.current_frame_index(), 3) // last frame
-  assert_eq(player.playing, false)
+  assert_eq(player.timeline.playing, false)
 }
 
 ///|

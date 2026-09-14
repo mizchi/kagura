@@ -1,10 +1,10 @@
 import {
   "mizchi/js/core",
-  "mizchi/js/builtins/object",
-  "mizchi/js/builtins/math" @jsmath,
-  "mizchi/js/builtins/regexp",
-  "mizchi/js/builtins/weak",
-  "mizchi/js/builtins/collection",
+  "mizchi/kagura_platform_web/input",
+  "mizchi/kagura_platform_web/render",
+  "mizchi/kagura_platform_web/diagnostics",
+  "mizchi/kagura_platform_web/playback",
+  "mizchi/kagura_platform_web/ui_sync",
 }
 
 supported_targets = "js"

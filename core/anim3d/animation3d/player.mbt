@@ -1,30 +1,12 @@
 ///|
 pub fn AnimationPlayer::new(clip : AnimationClip) -> AnimationPlayer {
-  { clip, time: 0.0, playing: true, looping: true, speed: 1.0, }
+  { clip, timeline: @playback.Timeline::new(playing=true), }
 }
 
 ///|
 /// Advance the animation time by dt seconds.
 pub fn AnimationPlayer::update(self : AnimationPlayer, dt : Double) -> Unit {
-  if !self.playing {
-    return
-  }
-  self.time = self.time + dt * self.speed
-  if self.looping && self.clip.duration > 0.0 {
-    // Wrap around using modulo (safe even for large dt values)
-    self.time = self.time % self.clip.duration
-    if self.time < 0.0 {
-      self.time = self.time + self.clip.duration
-    }
-  } else {
-    // Clamp
-    if self.time < 0.0 {
-      self.time = 0.0
-    }
-    if self.time > self.clip.duration {
-      self.time = self.clip.duration
-    }
-  }
+  self.timeline.advance(dt, self.clip.duration, stop_at_end=false)
 }
 
 ///|
@@ -48,15 +30,15 @@ pub fn AnimationPlayer::sample(self : AnimationPlayer) -> Array[NodePose] {
     }
     match channel.target {
       Translation => {
-        let v = sample_vec3(channel, self.time)
+        let v = sample_vec3(channel, self.timeline.time)
         pose_map[node_idx] = { ..pose, translation: Some(v), }
       }
       Rotation => {
-        let q = sample_quat(channel, self.time)
+        let q = sample_quat(channel, self.timeline.time)
         pose_map[node_idx] = { ..pose, rotation: Some(q), }
       }
       Scale => {
-        let v = sample_vec3(channel, self.time)
+        let v = sample_vec3(channel, self.timeline.time)
         pose_map[node_idx] = { ..pose, scale: Some(v), }
       }
     }
@@ -68,12 +50,12 @@ pub fn AnimationPlayer::sample(self : AnimationPlayer) -> Array[NodePose] {
 
 ///|
 pub fn AnimationPlayer::play(self : AnimationPlayer) -> Unit {
-  self.playing = true
+  self.timeline.playing = true
 }
 
 ///|
 pub fn AnimationPlayer::pause(self : AnimationPlayer) -> Unit {
-  self.playing = false
+  self.timeline.playing = false
 }
 
 ///|
@@ -81,7 +63,7 @@ pub fn AnimationPlayer::set_looping(
   self : AnimationPlayer,
   looping : Bool,
 ) -> Unit {
-  self.looping = looping
+  self.timeline.looping = looping
 }
 
 ///|
@@ -89,17 +71,17 @@ pub fn AnimationPlayer::set_speed(
   self : AnimationPlayer,
   speed : Double,
 ) -> Unit {
-  self.speed = speed
+  self.timeline.speed = speed
 }
 
 ///|
 pub fn AnimationPlayer::set_time(self : AnimationPlayer, time : Double) -> Unit {
-  self.time = time
+  self.timeline.time = time
 }
 
 ///|
 pub fn AnimationPlayer::current_time(self : AnimationPlayer) -> Double {
-  self.time
+  self.timeline.time
 }
 
 ///|

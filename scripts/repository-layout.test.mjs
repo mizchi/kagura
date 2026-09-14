@@ -7,6 +7,18 @@ import { REPO_ROOT } from './example-dirs.mjs';
 import { loadReleaseModules, writePreparedManifests, readMoonWorkMembers } from './moon-release-utils.mjs';
 import { readModuleManifest } from './moon-mod-manifest.mjs';
 
+test('portable algorithms and host capabilities have separate packages', () => {
+  for (const file of [
+    'core/packing2d/moon.pkg', 'core/particle3d/moon.pkg',
+    'core/anim3d/playback/moon.pkg', 'core/statistics/moon.pkg',
+    'game/inventory/moon.pkg', 'platform/services/moon.pkg', 'platform/fetch/moon.pkg',
+    'platform_native/services/files_native.c', 'platform_web/services/services_js.mbt',
+  ]) assert.ok(existsSync(join(REPO_ROOT, file)), file);
+  for (const file of ['engine/capture/io_native.c', 'engine/runtime/runtime_clock_native.c',
+    'engine/atlas/fetch_js.mbt', 'engine/atlas/fetcher_js.mbt'])
+    assert.equal(existsSync(join(REPO_ROOT, file)), false, file);
+});
+
 test('static Moon test and benchmark task paths resolve after package moves', () => {
   const source = readFileSync(join(REPO_ROOT, 'justfile'), 'utf8');
   for (const match of source.matchAll(/^\s+moon -C (\S+) (?:test|bench) ([^\n]+)/gm)) {
@@ -41,7 +53,7 @@ test('calculation, rendering, and gameplay packages have distinct owners', () =>
     'core/terrain3d/moon.pkg', 'core/procedural3d/moon.pkg',
     'engine/application/moon.pkg', 'engine/scene/moon.pkg', 'engine/scene2d/moon.pkg',
     'engine/hud/moon.pkg', 'engine/tilemap2d/moon.pkg', 'engine/sprite_packer/moon.pkg',
-    'engine/inspection/moon.pkg', 'engine/landscape_bench/moon.pkg',
+    'engine/inspection/moon.pkg', 'benchmarks/landscape/moon.pkg',
     'game/gameplay2d/moon.pkg', 'game/progression/moon.pkg',
     'game/scene_flow/moon.pkg', 'game/scene_manager/moon.pkg', 'game/inventory_web/moon.pkg',
     'core/inputstate/moon.pkg', 'game/inpututil/moon.pkg',

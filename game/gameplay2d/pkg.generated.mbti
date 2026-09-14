@@ -45,38 +45,6 @@ pub fn EquipmentPickupPlan::to_repr(Self) -> @debug.Repr
 pub fn EquipmentPickupPlan::to_string(Self) -> String
 pub impl Show for EquipmentPickupPlan
 
-pub struct GridFootprint {
-  // private fields
-}
-pub fn GridFootprint::cells(Self, rotated? : Bool) -> Array[(Int, Int)]
-pub fn GridFootprint::new(Array[(Int, Int)]) -> Self?
-pub fn GridFootprint::rectangle(Int, Int) -> Self?
-pub fn GridFootprint::size(Self, rotated? : Bool) -> (Int, Int)
-
-pub(all) struct GridPlacement {
-  id : Int
-  footprint : GridFootprint
-  x : Int
-  y : Int
-  rotated : Bool
-}
-
-pub(all) struct ItemGrid {
-  width : Int
-  height : Int
-  // private fields
-}
-pub fn ItemGrid::clear(Self) -> Unit
-pub fn ItemGrid::clone(Self) -> Self
-pub fn ItemGrid::find_space(Self, GridFootprint, rotated? : Bool, ignore_id? : Int) -> (Int, Int)?
-pub fn ItemGrid::new(Int, Int) -> Self
-pub fn ItemGrid::occupied_by(Self, Int, Int, ignore_id? : Int) -> Int?
-pub fn ItemGrid::overlaps(Self, GridFootprint, Int, Int, rotated? : Bool, ignore_id? : Int) -> Array[Int]?
-pub fn ItemGrid::place(Self, Int, GridFootprint, Int, Int, rotated? : Bool) -> Bool
-pub fn ItemGrid::placement(Self, Int) -> GridPlacement?
-pub fn ItemGrid::remove(Self, Int) -> Unit
-pub fn ItemGrid::used_cells(Self) -> Int
-
 pub(all) enum PickupResolution {
   Builtin(Int, Int, Bool)
   Equipment(EquipmentPickupPlan)

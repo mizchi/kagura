@@ -12,6 +12,8 @@
 
 物理・IK・地形の計算は `core`、敵やアイテム・進行は `game`、wgpu-native と
 ネイティブキャプチャ IO は `platform_native` に置きます。
+時計・ファイル操作・フレーム予約は `platform/services`、バイト取得は `platform/fetch` の契約を使います。
+アトラスのデコード・管理とロード待ち行列は engine に残し、通信実装を注入します。
 `renderer2d`, `text`, `widget2d`, `ui`, `atlas`, `asset_loader`, `audio` は独立 module です。
 
 [層の責務と依存方向](../docs/architecture/module_boundaries.md)

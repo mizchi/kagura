@@ -1,0 +1,1935 @@
+import {registerGeometry,unregisterGeometry,registerStaticGeometry,snapshotDrawGeometry} from './kagura-runtime.generated.js';
+export {registerGeometry,unregisterGeometry,registerStaticGeometry,snapshotDrawGeometry};
+import {isStride32,isStride64,is3DShader,commandNeedsDepth,parseTextureBindings,getInstanceCount,getResourceCacheKey,equalDwords,instanceUniformShader} from './kagura-runtime.generated.js';
+export {instanceUniformShader};
+// Shared GFX/WebGPU backend for kagura — used by both JS-target (via globalThis.__kaguraGfx)
+// and WASM-target (via ES module import)
+import {installFrameProfiler} from './kagura-profile.js';
+
+const SHADER_CODE = `
+struct Uniforms { color: vec4f }
+@group(0) @binding(0) var<uniform> uniforms: Uniforms;
+@group(1) @binding(0) var tex: texture_2d<f32>;
+@group(1) @binding(1) var tex_sampler: sampler;
+struct VertexOutput {
+  @builtin(position) position: vec4f,
+  @location(0) uv: vec2f,
+}
+@vertex fn vs_main(@location(0) pos: vec2f, @location(1) uv: vec2f) -> VertexOutput {
+  var out: VertexOutput;
+  out.position = vec4f(pos, 0.0, 1.0);
+  out.uv = uv;
+  return out;
+}
+@fragment fn fs_main(input: VertexOutput) -> @location(0) vec4f {
+  let tex_color = textureSample(tex, tex_sampler, input.uv);
+  return tex_color * uniforms.color;
+}`;
+
+function drawIndexedRange(pass, cmd) {
+  const count = cmd.indexCount ?? cmd.indices.length;
+  const first = cmd.firstIndex ?? 0;
+  if (first === 0 && count === cmd.indices.length) pass.drawIndexed(count, getInstanceCount(cmd));
+  else pass.drawIndexed(count, getInstanceCount(cmd), first);
+}
+
+function instanceDwords(gpu, source) {
+  const layouts = gpu._instanceLayouts ??= new Map();
+  let words = layouts.get(source);
+  if (words === undefined) {
+    words = Number(/^\/\/ kagura-instance-dwords: (\d+)\n/.exec(source)?.[1] ?? 0);
+    layouts.set(source, words);
+  }
+  return words;
+}
+
+export function beginDrawFrame(gpu) {
+  gpu.commands ??= [];
+  gpu.commands.length = 0;
+  gpu._commandCursor = 0;
+}
+
+/** Frame-scoped pool: each queued draw owns its storage until submission. */
+export function enqueueCustomDraw(gpu, source) {
+  return queueCustomDraw(gpu, source.shaderId, source.shaderSource, source,
+    source.uniformDwords, source.srcImageIds, source.dstImageId, source.dstWidth,
+    source.dstHeight, source.blendMode, getInstanceCount(source), source.vertexStrideHint,
+    getResourceCacheKey(source), source.firstIndex ?? 0, source.indexCount ?? source.indices.length);
+}
+
+/** Positional MoonBit JS bridge. Borrowed arrays are consumed synchronously;
+ * no temporary descriptor or spread copy is created per source draw. */
+export function submitCustomDraw(gpu, shaderId, shaderSource, vertices, indices,
+  uniforms, sources, dstId, width, height, blendMode, instanceCount, stride, firstIndex = 0, indexCount = indices.length) {
+  return queueCustomDraw(gpu, shaderId, shaderSource, snapshotDrawGeometry(gpu, vertices, indices),
+    uniforms, sources, dstId, Math.max(1, width), Math.max(1, height), blendMode, instanceCount, stride, 0, firstIndex, indexCount);
+}
+
+function queueCustomDraw(gpu, shaderId, shaderSource, geometry, uniformData, sourceIds,
+  dstImageId, dstWidth, dstHeight, blendMode, instanceCount, vertexStrideHint, resourceCacheKey, firstIndex, indexCount) {
+  if (!Number.isInteger(firstIndex) || !Number.isInteger(indexCount) || firstIndex < 0 || indexCount < 0 || firstIndex + indexCount > geometry.indices.length) throw new RangeError("Invalid geometry index range");
+  const words = instanceDwords(gpu, shaderSource);
+  if (words && (uniformData.length !== words || instanceCount !== 1)) throw new RangeError("Instance uniform draw requires one complete uniform record");
+  const commands = gpu.commands ??= [];
+  const previous = commands[commands.length - 1];
+  if (words && geometry.immutableGeometry && blendMode === 0 && previous?.blendMode === 0 &&
+      previous.shaderSource === shaderSource && previous.shaderId === shaderId &&
+      previous.vertexData === geometry.vertexData && previous.indices === geometry.indices &&
+      previous.dstImageId === dstImageId && previous.dstWidth === dstWidth && previous.dstHeight === dstHeight &&
+      previous.vertexStrideHint === vertexStrideHint && previous.instanceCount < 32 &&
+      previous.firstIndex === firstIndex && previous.indexCount === indexCount &&
+      equalDwords(previous.srcImageIds, sourceIds)) {
+    previous.uniformDwords.set(uniformData, previous.instanceCount * words);
+    previous.instanceCount++;
+    previous.uniformUsedDwords = previous.instanceCount * words;
+    return previous;
+  }
+  const pool = gpu._commandPool ??= [];
+  const index = gpu._commandCursor ?? 0;
+  gpu._commandCursor = index + 1;
+  const command = pool[index] ??= {};
+  let uniforms = command.uniformDwords, sources = command.srcImageIds;
+  const size = words ? words * 32 : uniformData.length;
+  if (uniforms?.length !== size) uniforms = new Int32Array(size);
+  if (sources?.length !== sourceIds.length) sources = new Int32Array(sourceIds.length);
+  uniforms.set(uniformData);
+  sources.set(sourceIds);
+  // Keep one stable object shape; all render fields are overwritten on reuse.
+  command.isCustom = true;
+  command.shaderId = shaderId;
+  command.shaderSource = shaderSource;
+  command.vertexData = geometry.vertexData;
+  command.indices = geometry.indices;
+  command.firstIndex = firstIndex;
+  command.indexCount = indexCount;
+  command.dstImageId = dstImageId;
+  command.dstWidth = dstWidth;
+  command.dstHeight = dstHeight;
+  command.blendMode = blendMode;
+  command.instanceCount = instanceCount;
+  command.immutableGeometry = geometry.immutableGeometry === true;
+  command.sharedGeometry = geometry.sharedGeometry === true;
+  // Every record participates in batch dirtiness, regardless of the first key.
+  command.resourceCacheKey = words ? 0 : resourceCacheKey;
+  command.vertexStrideHint = vertexStrideHint;
+  command.uniformDwords = uniforms;
+  command.uniformUsedDwords = uniformData.length;
+  command.srcImageIds = sources;
+  commands.push(command);
+  return command;
+}
+
+// Snapshot arrays are immutable. Share buffers across shadow/main passes and
+// draw positions. Sweep unused entries after 120 frames, and destroy on release.
+function sharedGeometryBuffer(gpu, device, data, kind) {
+  const shared = gpu._sharedGeometryBuffers ??= {vertex:new WeakMap(), index:new WeakMap(), resident:new Set()};
+  let entry = shared[kind].get(data);
+  if (!entry || !entry.buffer) {
+    entry = {buffer:device.createBuffer({size:Math.max(16,data.byteLength), usage:GPUBufferUsage.COPY_DST | (kind === "vertex" ? GPUBufferUsage.VERTEX : GPUBufferUsage.INDEX)}), frame:0};
+    device.queue.writeBuffer(entry.buffer, 0, data);
+    shared[kind].set(data, entry);
+    shared.resident.add(entry);
+  }
+  entry.frame = gpu._geometryFrame;
+  return entry.buffer;
+}
+
+function sweepGeometryBuffers(gpu) {
+  gpu._geometryFrame = (gpu._geometryFrame ?? 0) + 1;
+  if (gpu._geometryFrame % 120 !== 0) return;
+  for (const entry of gpu._sharedGeometryBuffers?.resident ?? []) {
+    if (gpu._geometryFrame - entry.frame > 120) {
+      entry.buffer.destroy();
+      entry.buffer = null;
+      gpu._sharedGeometryBuffers.resident.delete(entry);
+    }
+  }
+  // Bound retained command storage after a temporary peak in scene complexity.
+  if (gpu._commandPool) gpu._commandPool.length = gpu._commandCursor ?? 0;
+}
+
+function performanceNow() {
+  return globalThis.performance?.now?.() ?? Date.now();
+}
+
+function recordCompletedFrameMs(gpu, frameMs) {
+  const safeFrameMs = Math.max(0, frameMs);
+  gpu._lastCompletedFrameMs = safeFrameMs;
+  if (gpu._completedFrameMsQueue == null) gpu._completedFrameMsQueue = [];
+  gpu._completedFrameMsQueue.push(safeFrameMs);
+  if (gpu._completedFrameMsQueue.length > 120) {
+    gpu._completedFrameMsQueue.shift();
+  }
+}
+
+function consumeCompletedFrameMs(gpu) {
+  if (gpu == null || gpu._completedFrameMsQueue == null || gpu._completedFrameMsQueue.length === 0) {
+    return -1;
+  }
+  return gpu._completedFrameMsQueue.shift();
+}
+
+function recordTimestampFrameMs(gpu, frameMs) {
+  const safeFrameMs = Math.max(0, frameMs);
+  gpu._lastTimestampFrameMs = safeFrameMs;
+  if (gpu._timestampFrameMsQueue == null) gpu._timestampFrameMsQueue = [];
+  gpu._timestampFrameMsQueue.push(safeFrameMs);
+  if (gpu._timestampFrameMsQueue.length > 120) {
+    gpu._timestampFrameMsQueue.shift();
+  }
+}
+
+function recordTimestampRawDeltaNs(gpu, deltaNs) {
+  gpu._lastTimestampRawDeltaNs = deltaNs;
+}
+
+function recordRenderCpuMetrics(gpu, encodeCpuMs, submitCpuMs) {
+  gpu._lastRenderEncodeCpuMs = Math.max(0, encodeCpuMs);
+  gpu._lastRenderSubmitCpuMs = Math.max(0, submitCpuMs);
+  gpu._lastRenderCpuMs = gpu._lastRenderEncodeCpuMs + gpu._lastRenderSubmitCpuMs;
+}
+
+function recordRenderCpuStageMetrics(
+  gpu,
+  acquireCpuMs,
+  passSetupCpuMs,
+  drawEncodeCpuMs,
+  cleanupCpuMs,
+) {
+  gpu._lastRenderAcquireCpuMs = Math.max(0, acquireCpuMs);
+  gpu._lastRenderPassSetupCpuMs = Math.max(0, passSetupCpuMs);
+  gpu._lastRenderDrawEncodeCpuMs = Math.max(0, drawEncodeCpuMs);
+  gpu._lastRenderCleanupCpuMs = Math.max(0, cleanupCpuMs);
+}
+
+function recordRenderDrawBreakdownMetrics(
+  gpu,
+  uploadCpuMs,
+  bindGroupCpuMs,
+  passEncodeCpuMs,
+) {
+  gpu._lastRenderUploadCpuMs = Math.max(0, uploadCpuMs);
+  gpu._lastRenderBindGroupCpuMs = Math.max(0, bindGroupCpuMs);
+  gpu._lastRenderPassEncodeCpuMs = Math.max(0, passEncodeCpuMs);
+}
+
+function consumeTimestampFrameMs(gpu) {
+  if (gpu == null || gpu._timestampFrameMsQueue == null || gpu._timestampFrameMsQueue.length === 0) {
+    return -1;
+  }
+  return gpu._timestampFrameMsQueue.shift();
+}
+
+function hasFeature(features, featureName) {
+  if (features == null) return false;
+  if (typeof features.has === "function") {
+    return features.has(featureName);
+  }
+  if (Array.isArray(features)) {
+    return features.includes(featureName);
+  }
+  return false;
+}
+
+function copyMappedRange(range) {
+  if (range instanceof ArrayBuffer) {
+    return range.slice(0);
+  }
+  if (ArrayBuffer.isView(range)) {
+    return range.buffer.slice(range.byteOffset, range.byteOffset + range.byteLength);
+  }
+  return null;
+}
+
+function configureCanvasContext(context, device, format) {
+  const descriptor = { device, format, alphaMode: "opaque" };
+  if (globalThis.GPUTextureUsage?.COPY_SRC != null) {
+    descriptor.usage =
+      globalThis.GPUTextureUsage.RENDER_ATTACHMENT | globalThis.GPUTextureUsage.COPY_SRC;
+  }
+  context.configure(descriptor);
+}
+
+function queueVrtFrameReadback(gpu, device, encoder, texture, format) {
+  if (globalThis.__kaguraVrtReadbackEnabled !== true) return null;
+  if (gpu._vrtReadbackPending === true) return null;
+  if (
+    texture == null ||
+    typeof encoder.copyTextureToBuffer !== "function" ||
+    typeof device.createBuffer !== "function" ||
+    typeof GPUBufferUsage === "undefined" ||
+    typeof GPUMapMode === "undefined" ||
+    !Number.isFinite(GPUBufferUsage.COPY_DST) ||
+    !Number.isFinite(GPUBufferUsage.MAP_READ)
+  ) {
+    return null;
+  }
+  const runtime = globalThis.__kaguraWebRuntime;
+  const width = Math.max(1, Number(texture.width ?? runtime?.width ?? 0) | 0);
+  const height = Math.max(1, Number(texture.height ?? runtime?.height ?? 0) | 0);
+  const unpaddedBytesPerRow = width * 4;
+  const bytesPerRow = Math.ceil(unpaddedBytesPerRow / 256) * 256;
+  const buffer = device.createBuffer({
+    size: bytesPerRow * height,
+    usage: GPUBufferUsage.COPY_DST | GPUBufferUsage.MAP_READ,
+  });
+  encoder.copyTextureToBuffer(
+    { texture },
+    { buffer, bytesPerRow, rowsPerImage: height },
+    { width, height },
+  );
+  const id = (gpu._vrtReadbackId ?? 0) + 1;
+  gpu._vrtReadbackId = id;
+  gpu._vrtReadbackPending = true;
+  return { id, buffer, width, height, bytesPerRow, format };
+}
+
+function summarizeVrtFrameReadback(readback, copied) {
+  if (copied == null) return null;
+  const data = new Uint8Array(copied);
+  const isBgra = typeof readback.format === "string" && readback.format.startsWith("bgra");
+  let nonTransparent = 0;
+  let nonDark = 0;
+  let maxChannel = 0;
+  let firstPixelRgba = null;
+  for (let y = 0; y < readback.height; y += 1) {
+    const row = y * readback.bytesPerRow;
+    for (let x = 0; x < readback.width; x += 1) {
+      const offset = row + x * 4;
+      const c0 = data[offset] ?? 0;
+      const c1 = data[offset + 1] ?? 0;
+      const c2 = data[offset + 2] ?? 0;
+      const a = data[offset + 3] ?? 0;
+      const r = isBgra ? c2 : c0;
+      const g = c1;
+      const b = isBgra ? c0 : c2;
+      if (firstPixelRgba == null) firstPixelRgba = [r, g, b, a];
+      if (a > 0) nonTransparent += 1;
+      if (a > 0 && r + g + b > 30) nonDark += 1;
+      maxChannel = Math.max(maxChannel, r, g, b, a);
+    }
+  }
+  const total = readback.width * readback.height;
+  return {
+    id: readback.id,
+    width: readback.width,
+    height: readback.height,
+    format: readback.format,
+    firstPixelRgba,
+    maxChannel,
+    nonTransparent,
+    nonDark,
+    nonTransparentPixelRatio: total > 0 ? nonTransparent / total : 0,
+    nonDarkPixelRatio: total > 0 ? nonDark / total : 0,
+  };
+}
+
+function scheduleVrtFrameReadback(gpu, readback) {
+  if (readback == null || readback.buffer == null) return;
+  const pending = readback.buffer.mapAsync(GPUMapMode.READ);
+  if (pending == null || typeof pending.then !== "function") {
+    gpu._vrtReadbackPending = false;
+    return;
+  }
+  pending.then(() => {
+    const mappedRange = readback.buffer.getMappedRange?.();
+    const copied = copyMappedRange(mappedRange);
+    try {
+      readback.buffer.unmap?.();
+    } catch (_) {}
+    try {
+      readback.buffer.destroy?.();
+    } catch (_) {}
+    const summary = summarizeVrtFrameReadback(readback, copied);
+    if (summary != null && gpu._vrtReadbackId === readback.id) {
+      gpu._vrtLastReadback = summary;
+      globalThis.__kaguraVrtLastReadback = summary;
+    }
+    gpu._vrtReadbackPending = false;
+  }).catch(() => {
+    try {
+      readback.buffer.unmap?.();
+    } catch (_) {}
+    try {
+      readback.buffer.destroy?.();
+    } catch (_) {}
+    gpu._vrtReadbackPending = false;
+  });
+}
+
+function canUseTimestampQueries(device) {
+  return (
+    device != null &&
+    hasFeature(device.features, "timestamp-query") &&
+    typeof device.createQuerySet === "function" &&
+    typeof GPUBufferUsage !== "undefined" &&
+    typeof GPUMapMode !== "undefined" &&
+    Number.isFinite(GPUBufferUsage.QUERY_RESOLVE) &&
+    Number.isFinite(GPUBufferUsage.COPY_SRC) &&
+    Number.isFinite(GPUBufferUsage.COPY_DST) &&
+    Number.isFinite(GPUBufferUsage.MAP_READ)
+  );
+}
+
+function ensureTimestampQueryState(gpu, device) {
+  if (gpu._timestampQueryStateInitialized === true) {
+    return gpu._timestampQueryState ?? null;
+  }
+  gpu._timestampQueryStateInitialized = true;
+  if (!canUseTimestampQueries(device)) {
+    gpu._gpuTimingMethod = "queue-completion";
+    gpu._timestampQueryState = null;
+    return null;
+  }
+  const slots = [];
+  for (let i = 0; i < 4; i += 1) {
+    slots.push({
+      querySet: device.createQuerySet({ type: "timestamp", count: 2 }),
+      resolveBuffer: device.createBuffer({
+        size: 16,
+        usage: GPUBufferUsage.QUERY_RESOLVE | GPUBufferUsage.COPY_SRC,
+      }),
+      readBuffer: device.createBuffer({
+        size: 16,
+        usage: GPUBufferUsage.COPY_DST | GPUBufferUsage.MAP_READ,
+      }),
+      pending: false,
+    });
+  }
+  gpu._gpuTimingMethod = "timestamp-query";
+  gpu._timestampQueryState = {
+    slots,
+    nextSlot: 0,
+  };
+  return gpu._timestampQueryState;
+}
+
+function reserveTimestampQuerySlot(gpu, device) {
+  const state = ensureTimestampQueryState(gpu, device);
+  if (state == null) {
+    return null;
+  }
+  for (let step = 0; step < state.slots.length; step += 1) {
+    const slotIndex = (state.nextSlot + step) % state.slots.length;
+    const slot = state.slots[slotIndex];
+    if (slot.pending) continue;
+    slot.pending = true;
+    state.nextSlot = (slotIndex + 1) % state.slots.length;
+    return slot;
+  }
+  return null;
+}
+
+function buildPassTimestampWrites(slot, writeStart, writeEnd) {
+  if (slot == null || (!writeStart && !writeEnd)) {
+    return undefined;
+  }
+  const timestampWrites = {
+    querySet: slot.querySet,
+  };
+  if (writeStart) {
+    timestampWrites.beginningOfPassWriteIndex = 0;
+  }
+  if (writeEnd) {
+    timestampWrites.endOfPassWriteIndex = 1;
+  }
+  return timestampWrites;
+}
+
+function resolveTimestampQuery(encoder, slot) {
+  if (
+    slot == null ||
+    typeof encoder.resolveQuerySet !== "function" ||
+    typeof encoder.copyBufferToBuffer !== "function"
+  ) {
+    if (slot != null) slot.pending = false;
+    return;
+  }
+  encoder.resolveQuerySet(slot.querySet, 0, 2, slot.resolveBuffer, 0);
+  encoder.copyBufferToBuffer(slot.resolveBuffer, 0, slot.readBuffer, 0, 16);
+}
+
+function countRenderPasses(drawCommands) {
+  let passCount = 0;
+  let lastTargetId = 0;
+  let lastNeedsDepth = false;
+  for (let i = 0; i < drawCommands.length; i += 1) {
+    const cmd = drawCommands[i];
+    const targetId = cmd.dstImageId | 0;
+    const needsDepth = commandNeedsDepth(cmd);
+    if (passCount === 0 || targetId !== lastTargetId || needsDepth !== lastNeedsDepth) {
+      passCount += 1;
+      lastTargetId = targetId;
+      lastNeedsDepth = needsDepth;
+    }
+  }
+  return passCount;
+}
+
+function scheduleTimestampReadback(gpu, slot) {
+  if (slot == null || slot.readBuffer == null || typeof slot.readBuffer.mapAsync !== "function") {
+    if (slot != null) slot.pending = false;
+    return;
+  }
+  const pending = slot.readBuffer.mapAsync(GPUMapMode.READ);
+  if (pending == null || typeof pending.then !== "function") {
+    slot.pending = false;
+    return;
+  }
+  pending.then(() => {
+    const mappedRange = slot.readBuffer.getMappedRange?.();
+    const copied = copyMappedRange(mappedRange);
+    try {
+      slot.readBuffer.unmap?.();
+    } catch (_) {}
+    slot.pending = false;
+    if (copied == null || copied.byteLength < 16) return;
+    const values = new BigUint64Array(copied);
+    if (values.length < 2) return;
+    const startNs = values[0];
+    const endNs = values[1];
+    if (endNs <= startNs) return;
+    recordTimestampRawDeltaNs(gpu, (endNs - startNs).toString());
+    recordTimestampFrameMs(gpu, Number(endNs - startNs) / 1_000_000);
+  }).catch(() => {
+    try {
+      slot.readBuffer.unmap?.();
+    } catch (_) {}
+    slot.pending = false;
+  });
+}
+
+function consumeGpuFrameMs(gpu) {
+  const timestampFrameMs = consumeTimestampFrameMs(gpu);
+  if (timestampFrameMs >= 0) {
+    return timestampFrameMs;
+  }
+  return consumeCompletedFrameMs(gpu);
+}
+
+function createDrawEncodeBreakdown(enabled) {
+  return {
+    enabled,
+    uploadCpuMs: 0,
+    bindGroupCpuMs: 0,
+    passEncodeCpuMs: 0,
+  };
+}
+
+function measureDrawBreakdown(breakdown, key, fn) {
+  if (breakdown == null || breakdown.enabled !== true) {
+    return fn();
+  }
+  const start = performanceNow();
+  const result = fn();
+  breakdown[key] += performanceNow() - start;
+  return result;
+}
+
+function createDrawResourceCache() {
+  return {
+    vertexBuffers: [],
+    indexBuffers: [],
+    uniformBuffers: [],
+    uniformBindGroups: [],
+    uniformBindBuffers: [],
+    textureBindGroups: [],
+    textureBindImageIds: [],
+    textureBindRevisions: [],
+    vertexDataRefs: [],
+    vertexDataSizes: [],
+    indexDataRefs: [],
+    indexDataSizes: [],
+    uniformColorKeys: [],
+    resourceCacheKeys: [],
+    customVertexBuffers: [],
+    customVertexDataRefs: [],
+    customVertexDataSizes: [],
+    customIndexBuffers: [],
+    customIndexDataRefs: [],
+    customIndexDataSizes: [],
+    customUniformBuffers: [],
+    customUniformDataRefs: [],
+    customUniformDataSizes: [],
+    customBindGroups: [],
+    customBindLayouts: [],
+    customBindUniformBuffers: [],
+    customBindResources: [],
+    customResourceCacheKeys: [],
+    skinnedDraws: [],
+  };
+}
+
+function submitEncodedFrame(
+  gpu,
+  device,
+  encoder,
+  timestampSlot,
+  renderCpuStart,
+  stageMetrics,
+  cleanupBuffers = null,
+  readback = null,
+) {
+  const frameSubmitStart = performanceNow();
+  device.queue.submit([encoder.finish()]);
+  gpu._submittedFrameCount = (gpu._submittedFrameCount ?? 0) + 1;
+  scheduleTimestampReadback(gpu, timestampSlot);
+  scheduleVrtFrameReadback(gpu, readback);
+  const frameSubmitEnd = performanceNow();
+  let cleanupCpuMs = 0;
+  if (Array.isArray(cleanupBuffers) && cleanupBuffers.length > 0) {
+    const cleanupStart = performanceNow();
+    for (let i = 0; i < cleanupBuffers.length; i += 1) {
+      const buffer = cleanupBuffers[i];
+      if (buffer != null && typeof buffer.destroy === "function") {
+        try { buffer.destroy(); } catch (_) {}
+      }
+    }
+    cleanupCpuMs = performanceNow() - cleanupStart;
+  }
+  recordRenderCpuStageMetrics(
+    gpu,
+    stageMetrics.acquireCpuMs ?? 0,
+    stageMetrics.passSetupCpuMs ?? 0,
+    stageMetrics.drawEncodeCpuMs ?? Math.max(0, frameSubmitStart - renderCpuStart),
+    cleanupCpuMs,
+  );
+  recordRenderCpuMetrics(
+    gpu,
+    frameSubmitStart - renderCpuStart,
+    frameSubmitEnd - frameSubmitStart,
+  );
+  const submitted = device.queue?.onSubmittedWorkDone?.();
+  if (submitted != null && typeof submitted.then === "function") {
+    submitted.then(() => {
+      recordCompletedFrameMs(gpu, performanceNow() - frameSubmitEnd);
+    }).catch(() => {});
+  }
+}
+
+// --- Custom pipeline creation & caching ---
+
+function getOrCreateCustomPipeline(gpu, device, cmd, format) {
+  if (gpu._customPipelines == null) gpu._customPipelines = new Map();
+  const samples = targetSampleCount(gpu, cmd.dstImageId);
+  const raster = gpu._shaderRasterStates?.get(cmd.shaderId) ?? {};
+  const key = `${cmd.shaderId}_${format}_${cmd.blendMode}_${samples}_${raster.cullMode}_${raster.depthCompare}_${raster.depthWriteEnabled}`;
+  const cached = gpu._customPipelines.get(key);
+  if (cached != null) return cached;
+
+  const shaderModule = device.createShaderModule({ code: cmd.shaderSource });
+  shaderModule.getCompilationInfo().then(info => {
+    for (const msg of info.messages) {
+      if (msg.type === "error") console.error(`[WGSL ${msg.type}] shader=${cmd.shaderId} line=${msg.lineNum}: ${msg.message}`);
+    }
+  });
+  // Use explicit stride hint when available, fall back to shader regex detection
+  const hint = cmd.vertexStrideHint || 0;
+  const stride64 = hint > 0 ? hint >= 16 : isStride64(cmd.shaderSource);
+  const stride32 = hint > 0 ? hint >= 8 : isStride32(cmd.shaderSource);
+  const is3D = hint > 0 ? hint >= 8 : is3DShader(cmd.shaderSource);
+
+  let vertexBufferLayout;
+  if (stride64) {
+    // Skinned 3D vertex: position(vec3f)+normal(vec3f)+uv(vec2f)+joints(vec4f)+weights(vec4f) = 64 bytes
+    vertexBufferLayout = {
+      arrayStride: 64,
+      attributes: [
+        { shaderLocation: 0, offset: 0, format: "float32x3" },
+        { shaderLocation: 1, offset: 12, format: "float32x3" },
+        { shaderLocation: 2, offset: 24, format: "float32x2" },
+        { shaderLocation: 3, offset: 32, format: "float32x4" },
+        { shaderLocation: 4, offset: 48, format: "float32x4" },
+      ],
+    };
+  } else if (stride32) {
+    // 3D vertex: position(vec3f) + normal(vec3f) + uv(vec2f) = 32 bytes
+    vertexBufferLayout = {
+      arrayStride: 32,
+      attributes: [
+        { shaderLocation: 0, offset: 0, format: "float32x3" },
+        { shaderLocation: 1, offset: 12, format: "float32x3" },
+        { shaderLocation: 2, offset: 24, format: "float32x2" },
+      ],
+    };
+  } else {
+    // 2D vertex: position(vec2f) + uv(vec2f) = 16 bytes
+    vertexBufferLayout = {
+      arrayStride: 16,
+      attributes: [
+        { shaderLocation: 0, offset: 0, format: "float32x2" },
+        { shaderLocation: 1, offset: 8, format: "float32x2" },
+      ],
+    };
+  }
+
+  let blend = undefined;
+  if (cmd.blendMode === 0) {
+    // Copy: no blending
+    blend = {
+      color: { srcFactor: "one", dstFactor: "zero", operation: "add" },
+      alpha: { srcFactor: "one", dstFactor: "zero", operation: "add" },
+    };
+  } else if (cmd.blendMode === 1) {
+    // Alpha blend
+    blend = {
+      color: { srcFactor: "src-alpha", dstFactor: "one-minus-src-alpha", operation: "add" },
+      alpha: { srcFactor: "one", dstFactor: "one-minus-src-alpha", operation: "add" },
+    };
+  } else if (cmd.blendMode === 2) {
+    // Additive
+    blend = {
+      color: { srcFactor: "src-alpha", dstFactor: "one", operation: "add" },
+      alpha: { srcFactor: "one", dstFactor: "one", operation: "add" },
+    };
+  }
+
+  const pipelineDesc = {
+    layout: "auto",
+    vertex: {
+      module: shaderModule,
+      entryPoint: "vs_main",
+      buffers: [vertexBufferLayout],
+    },
+    fragment: {
+      module: shaderModule,
+      entryPoint: "fs_main",
+      targets: [{ format, blend }],
+    },
+    primitive: {
+      topology: "triangle-list",
+      cullMode: raster.cullMode ?? (is3D ? "back" : "none"),
+    },
+  };
+
+  if (is3D) {
+    pipelineDesc.depthStencil = {
+      format: "depth24plus",
+      depthWriteEnabled: raster.depthWriteEnabled ?? true,
+      depthCompare: raster.depthCompare ?? "less",
+    };
+  }
+
+  pipelineDesc.multisample = { count: samples };
+  const pipeline = device.createRenderPipeline(pipelineDesc);
+  const bgl = pipeline.getBindGroupLayout(0);
+
+  const result = { pipeline, bindGroupLayout: bgl, stride32: is3D,
+    textureBindings:parseTextureBindings(cmd.shaderSource),
+    skinned:isStride64(cmd.shaderSource) && /bone_matrices/.test(cmd.shaderSource),
+    computeSkinning: /struct\s+Uniforms\s*\{\s*mvp\s*:\s*mat4x4<f32>\s*,\s*model\s*:\s*mat4x4<f32>/.test(cmd.shaderSource) &&
+      /uniforms\.num_bones\.y\s*>\s*0\.5/.test(cmd.shaderSource) };
+  gpu._customPipelines.set(key, result);
+  return result;
+}
+
+// --- Render target management ---
+
+/** Select a format for an off-screen image before its next render pass.
+ * Existing callers stay on rgba8unorm. Use rgba16float for HDR lighting or
+ * higher-precision display-color composition; only the selected image changes.
+ */
+export function setRenderTargetFormat(gpu, imageId, format) {
+  if (!Number.isInteger(imageId) || imageId <= 0) throw new TypeError("Expected a positive off-screen image id");
+  if (format !== "rgba8unorm" && format !== "rgba16float") throw new RangeError("Unsupported render target format");
+  gpu._renderTargetFormats ??= new Map();
+  gpu._renderTargetFormats.set(imageId, format);
+}
+
+/** Off-screen MSAA is opt-in; resolved textures remain ordinary sampled images. */
+export function setRenderTargetSampleCount(gpu, imageId, count) {
+  if (!Number.isSafeInteger(imageId) || imageId <= 0) throw new RangeError("Invalid image id");
+  if (count !== 1 && count !== 4) throw new RangeError("Supported sample counts are 1 and 4");
+  (gpu._renderTargetSamples ??= new Map()).set(imageId, count);
+}
+
+function targetSampleCount(gpu, imageId) {
+  return imageId === 0 || imageId === gpu._screenTargetId ? 1 : gpu._renderTargetSamples?.get(imageId) ?? 1;
+}
+
+/** Override raster state for a shader without changing the legacy 3D defaults. */
+export function setShaderRasterState(gpu, shaderId, state) {
+  if (!Number.isSafeInteger(shaderId) || shaderId <= 0) throw new RangeError("Invalid shader id");
+  const allowed = {cullMode: ["none", "front", "back"], depthCompare: ["less", "less-equal", "always"], depthWriteEnabled: [true, false]};
+  for (const [key, value] of Object.entries(state)) {
+    if (!allowed[key]?.includes(value)) throw new RangeError(`Unsupported raster state ${key}`);
+  }
+  (gpu._shaderRasterStates ??= new Map()).set(shaderId, {...state});
+}
+
+function renderTargetFormat(gpu, imageId) {
+  return gpu._renderTargetFormats?.get(imageId) ?? "rgba8unorm";
+}
+
+function ensureRenderTarget(gpu, device, imageId, width, height) {
+  if (gpu._renderTargets == null) gpu._renderTargets = new Map();
+  const key = imageId;
+  const format = renderTargetFormat(gpu, imageId);
+  const samples = targetSampleCount(gpu, imageId);
+  const existing = gpu._renderTargets.get(key);
+  if (existing != null && existing.width === width && existing.height === height && existing.format === format && existing.samples === samples) {
+    return existing;
+  }
+  if (existing != null && existing.texture != null) {
+    try { existing.texture.destroy(); } catch (_) {}
+  }
+  const texture = device.createTexture({
+    size: { width, height },
+    format,
+    usage: GPUTextureUsage.TEXTURE_BINDING | GPUTextureUsage.RENDER_ATTACHMENT | GPUTextureUsage.COPY_DST,
+  });
+  const view = texture.createView();
+  existing?.msaaTexture?.destroy();
+  const msaaTexture = samples > 1 ? device.createTexture({
+    size: {width, height}, format, sampleCount: samples, usage: GPUTextureUsage.RENDER_ATTACHMENT,
+  }) : null;
+  const entry = { texture, view, width, height, format, samples, msaaTexture, msaaView: msaaTexture?.createView() };
+  gpu._renderTargets.set(key, entry);
+  // Also register in gpu.textures so subsequent passes can sample it
+  if (gpu.textures == null) gpu.textures = new Map();
+  const sampler = gpu._linearSampler || gpu._defaultSampler;
+  gpu._renderTargetRevision = (gpu._renderTargetRevision ?? 0) + 1;
+  gpu.textures.set(imageId, { texture, view, sampler, width, height, revision: -gpu._renderTargetRevision });
+  return entry;
+}
+
+// --- Depth buffer management ---
+
+function ensureDepthTexture(gpu, device, targetId, width, height, samples = 1) {
+  if (gpu._depthTextures == null) gpu._depthTextures = new Map();
+  const key = targetId;
+  const existing = gpu._depthTextures.get(key);
+  if (existing != null && existing.width === width && existing.height === height && existing.samples === samples) return existing;
+  existing?.texture?.destroy();
+  const texture = device.createTexture({
+    size: { width, height },
+    format: "depth24plus",
+    sampleCount: samples,
+    usage: GPUTextureUsage.RENDER_ATTACHMENT,
+  });
+  const view = texture.createView();
+  const entry = { texture, view, width, height, samples };
+  gpu._depthTextures.set(key, entry);
+  return entry;
+}
+
+/**
+ * Ensure the GPU render pipeline, bind group layouts, and default texture are created.
+ * Returns true if pipeline is ready.
+ */
+export function ensureGpuPipeline(gpu, device, format) {
+  if (gpu._pipeline != null && gpu._pipelineFormat === format) {
+    return true;
+  }
+  try {
+    const shaderModule = device.createShaderModule({ code: SHADER_CODE });
+    const texBGL = device.createBindGroupLayout({
+      entries: [
+        { binding: 0, visibility: GPUShaderStage.FRAGMENT, texture: { sampleType: "float" } },
+        { binding: 1, visibility: GPUShaderStage.FRAGMENT, sampler: {} },
+      ],
+    });
+    const uniformBGL = device.createBindGroupLayout({
+      entries: [
+        { binding: 0, visibility: GPUShaderStage.FRAGMENT | GPUShaderStage.VERTEX, buffer: { type: "uniform" } },
+      ],
+    });
+    const pipelineLayout = device.createPipelineLayout({ bindGroupLayouts: [uniformBGL, texBGL] });
+    const pipelineDescription = {
+      layout: pipelineLayout,
+      vertex: {
+        module: shaderModule,
+        entryPoint: "vs_main",
+        buffers: [{
+          arrayStride: 16,
+          attributes: [
+            { shaderLocation: 0, offset: 0, format: "float32x2" },
+            { shaderLocation: 1, offset: 8, format: "float32x2" },
+          ],
+        }],
+      },
+      fragment: {
+        module: shaderModule,
+        entryPoint: "fs_main",
+        targets: [{
+          format,
+          blend: {
+            color: { srcFactor: "src-alpha", dstFactor: "one-minus-src-alpha", operation: "add" },
+            alpha: { srcFactor: "one", dstFactor: "one-minus-src-alpha", operation: "add" },
+          },
+        }],
+      },
+      primitive: { topology: "triangle-list", cullMode: "none" },
+    };
+    const pipeline = device.createRenderPipeline(pipelineDescription);
+    gpu._defaultPipelineDescription = pipelineDescription;
+    gpu._pipelineHDR = null;
+    gpu._defaultPipelineVariants = new Map();
+
+    const defaultTex = device.createTexture({
+      size: { width: 1, height: 1 },
+      format: "rgba8unorm",
+      usage: GPUTextureUsage.TEXTURE_BINDING | GPUTextureUsage.COPY_DST,
+    });
+    device.queue.writeTexture(
+      { texture: defaultTex },
+      new Uint8Array([255, 255, 255, 255]),
+      { bytesPerRow: 4 },
+      { width: 1, height: 1 },
+    );
+    gpu._pipeline = pipeline;
+    gpu._pipelineFormat = format;
+    gpu._uniformBGL = uniformBGL;
+    gpu._texBGL = texBGL;
+    // Also create an rgba8unorm variant for off-screen targets
+    if (format !== "rgba8unorm") {
+      const offscreenPipeline = device.createRenderPipeline({
+        layout: pipelineLayout,
+        vertex: {
+          module: shaderModule,
+          entryPoint: "vs_main",
+          buffers: [{
+            arrayStride: 16,
+            attributes: [
+              { shaderLocation: 0, offset: 0, format: "float32x2" },
+              { shaderLocation: 1, offset: 8, format: "float32x2" },
+            ],
+          }],
+        },
+        fragment: {
+          module: shaderModule,
+          entryPoint: "fs_main",
+          targets: [{
+            format: "rgba8unorm",
+            blend: {
+              color: { srcFactor: "src-alpha", dstFactor: "one-minus-src-alpha", operation: "add" },
+              alpha: { srcFactor: "one", dstFactor: "one-minus-src-alpha", operation: "add" },
+            },
+          }],
+        },
+        primitive: { topology: "triangle-list", cullMode: "none" },
+      });
+      gpu._pipelineOffscreen = offscreenPipeline;
+    } else {
+      gpu._pipelineOffscreen = pipeline;
+    }
+    gpu._defaultTexture = defaultTex;
+    gpu._defaultTexView = defaultTex.createView();
+    gpu._defaultSampler = device.createSampler({ magFilter: "nearest", minFilter: "nearest" });
+    gpu._linearSampler = device.createSampler({
+      magFilter: "linear",
+      minFilter: "linear",
+      addressModeU: "clamp-to-edge",
+      addressModeV: "clamp-to-edge",
+    });
+    gpu._drawResourceCache = null;
+    gpu._skinnedComputePipeline = null;
+    return true;
+  } catch (_) {
+    gpu._pipeline = null;
+    gpu._pipelineFormat = "";
+    gpu._uniformBGL = null;
+    gpu._texBGL = null;
+    gpu._defaultTexture = null;
+    gpu._defaultTexView = null;
+    gpu._defaultSampler = null;
+    gpu._linearSampler = null;
+    gpu._drawResourceCache = null;
+    gpu._skinnedComputePipeline = null;
+    return false;
+  }
+}
+
+const releaseBufferEntries = (entries) => {
+  if (!Array.isArray(entries)) return;
+  for (let i = 0; i < entries.length; i += 1) {
+    const entry = entries[i];
+    const buffer = entry == null ? null : entry.buffer;
+    if (buffer != null && typeof buffer.destroy === "function") {
+      try { buffer.destroy(); } catch (_) {}
+    }
+  }
+};
+
+/**
+ * Release all GPU resources (buffers, textures, pipeline, etc.) and reset state.
+ */
+export function releaseGpuResources(gpu) {
+  if (gpu == null) return;
+  const cache = gpu._drawResourceCache;
+  if (cache != null) {
+    releaseBufferEntries(cache.vertexBuffers);
+    releaseBufferEntries(cache.indexBuffers);
+    releaseBufferEntries(cache.uniformBuffers);
+    releaseBufferEntries(cache.customVertexBuffers);
+    releaseBufferEntries(cache.customIndexBuffers);
+    releaseBufferEntries(cache.customUniformBuffers);
+    for (const entry of cache.skinnedDraws) {
+      if (entry) for (const name of ["input", "output", "computeUniform", "renderUniform"]) {
+        entry[name]?.buffer.destroy();
+      }
+    }
+  }
+  const textures = gpu.textures;
+  if (textures != null && typeof textures.values === "function") {
+    for (const entry of textures.values()) {
+      const texture = entry == null ? null : entry.texture;
+      if (texture != null && typeof texture.destroy === "function") {
+        try { texture.destroy(); } catch (_) {}
+      }
+    }
+  }
+  if (textures != null && typeof textures.clear === "function") {
+    textures.clear();
+  }
+  if (gpu._defaultTexture != null && typeof gpu._defaultTexture.destroy === "function") {
+    try { gpu._defaultTexture.destroy(); } catch (_) {}
+  }
+  if (gpu.context != null && typeof gpu.context.unconfigure === "function") {
+    try { gpu.context.unconfigure(); } catch (_) {}
+  }
+  // Clean up custom resources
+  if (gpu._customPipelines != null) gpu._customPipelines.clear();
+  if (gpu._renderTargets != null) {
+    for (const entry of gpu._renderTargets.values()) {
+      entry.msaaTexture?.destroy();
+      if (entry.texture != null) try { entry.texture.destroy(); } catch (_) {}
+    }
+    gpu._renderTargets.clear();
+  }
+  if (gpu._depthTextures != null) {
+    for (const entry of gpu._depthTextures.values()) {
+      if (entry.texture != null) try { entry.texture.destroy(); } catch (_) {}
+    }
+    gpu._depthTextures.clear();
+  }
+  if (gpu._timestampQueryState != null) {
+    for (const slot of gpu._timestampQueryState.slots ?? []) {
+      if (slot.resolveBuffer != null) {
+        try { slot.resolveBuffer.destroy?.(); } catch (_) {}
+      }
+      if (slot.readBuffer != null) {
+        try { slot.readBuffer.destroy?.(); } catch (_) {}
+      }
+    }
+  }
+  gpu._pipeline = null;
+  gpu._pipelineHDR = null;
+    gpu._defaultPipelineVariants = new Map();
+  gpu._defaultPipelineDescription = null;
+  gpu._pipelineFormat = "";
+  gpu._configuredFormat = "";
+  gpu._uniformBGL = null;
+  gpu._texBGL = null;
+  gpu._defaultTexture = null;
+  gpu._defaultTexView = null;
+  gpu._defaultSampler = null;
+  gpu._linearSampler = null;
+  gpu._drawResourceCache = null;
+  gpu._skinnedComputePipeline = null;
+  gpu._geometrySnapshots = null;
+  gpu._geometryRegistry = null;
+  gpu._registeredGeometry = null;
+  gpu._commandPool = null;
+  gpu._instanceLayouts = null;
+  gpu._commandCursor = 0;
+  for (const entry of gpu._sharedGeometryBuffers?.resident ?? []) entry.buffer?.destroy();
+  gpu._sharedGeometryBuffers = null;
+  gpu._timestampQueryState = null;
+  gpu._timestampQueryStateInitialized = false;
+  gpu._lastTimestampFrameMs = 0;
+  gpu._lastTimestampRawDeltaNs = "0";
+  gpu._lastRenderAcquireCpuMs = 0;
+  gpu._lastRenderPassSetupCpuMs = 0;
+  gpu._lastRenderDrawEncodeCpuMs = 0;
+  gpu._lastRenderCleanupCpuMs = 0;
+  gpu._lastRenderUploadCpuMs = 0;
+  gpu._lastRenderBindGroupCpuMs = 0;
+  gpu._lastRenderPassEncodeCpuMs = 0;
+  gpu._lastRenderEncodeCpuMs = 0;
+  gpu._lastRenderSubmitCpuMs = 0;
+  gpu._lastRenderCpuMs = 0;
+  gpu._timestampFrameMsQueue = [];
+  gpu._gpuTimingMethod = "queue-completion";
+  gpu._pendingTexture = null;
+  gpu._currentDraw = null;
+  gpu.commands = [];
+  gpu.textures = new Map();
+}
+
+/** Upload native half-float RGBA texels without UNORM quantization or color conversion. */
+export function uploadTextureRGBA16F(gpu, imageId, width, height, pixels) {
+  if (!Number.isSafeInteger(imageId) || imageId <= 0) throw new RangeError("Invalid image id");
+  if (!Number.isSafeInteger(width) || !Number.isSafeInteger(height) || width <= 0 || height <= 0 ||
+      !(pixels instanceof Uint16Array) || pixels.length !== width * height * 4) {
+    throw new RangeError("RGBA16F requires width * height * 4 half-float words");
+  }
+  const device = gpu.device;
+  const texture = device.createTexture({size:{width,height},format:"rgba16float",
+    usage:GPUTextureUsage.TEXTURE_BINDING | GPUTextureUsage.COPY_DST});
+  device.queue.writeTexture({texture},pixels,{bytesPerRow:width * 8},{width,height});
+  if (gpu.textures == null) gpu.textures = new Map();
+  const previous = gpu.textures.get(imageId);
+  const revision = (previous?.revision ?? 0) + 1;
+  gpu.textures.set(imageId,{texture,view:texture.createView(),width,height,revision,
+    sampler:device.createSampler({magFilter:"linear",minFilter:"linear",addressModeU:"clamp-to-edge",addressModeV:"clamp-to-edge"})});
+  previous?.texture?.destroy();
+}
+
+/** Replace the options used by the next staged upload for this image.
+ * Native sRGB formats decode before filtering; alpha remains linear.
+ * An existing GPU texture is recreated on the next upload when these options change.
+ */
+export function setTextureOptions(gpu, imageId, options) {
+  if (!Number.isSafeInteger(imageId) || imageId <= 0) throw new RangeError("Invalid image id");
+  const allowed = {format: ["rgba8unorm", "rgba8unorm-srgb"], magFilter: ["nearest", "linear"], minFilter: ["nearest", "linear"], addressModeU: ["repeat", "mirror-repeat", "clamp-to-edge"], addressModeV: ["repeat", "mirror-repeat", "clamp-to-edge"]};
+  for (const [key, value] of Object.entries(options)) {
+    if (!allowed[key]?.includes(value)) throw new RangeError(`Unsupported texture option ${key}`);
+  }
+  (gpu._textureOptions ??= new Map()).set(imageId, {...options});
+}
+
+/** Finalize a pending texture upload from staged pixel data. */
+export function finalizeTextureUpload(gpu) {
+  if (gpu == null || gpu._pendingTexture == null || gpu.device == null) return;
+  const { imageId, width, height, pixels } = gpu._pendingTexture;
+  gpu._pendingTexture = null;
+  if (width <= 0 || height <= 0) return;
+  if (gpu.textures == null) gpu.textures = new Map();
+  const options = {format: "rgba8unorm", magFilter: "nearest", minFilter: "nearest", addressModeU: "clamp-to-edge", addressModeV: "clamp-to-edge", ...gpu._textureOptions?.get(imageId)};
+  const {format, ...samplerOptions} = options;
+  const optionsKey = JSON.stringify(options);
+  const existing = gpu.textures.get(imageId);
+  if (existing != null && (existing.width !== width || existing.height !== height || existing.optionsKey !== optionsKey)) {
+    if (existing.texture != null && typeof existing.texture.destroy === "function") {
+      existing.texture.destroy();
+    }
+    gpu.textures.delete(imageId);
+  }
+  let entry = gpu.textures.get(imageId);
+  if (entry == null) {
+    const nextRevision = existing != null && Number.isFinite(existing.revision)
+      ? ((existing.revision | 0) + 1)
+      : 1;
+    const texture = gpu.device.createTexture({
+      size: { width, height },
+      format,
+      usage: GPUTextureUsage.TEXTURE_BINDING | GPUTextureUsage.COPY_DST,
+    });
+    const view = texture.createView();
+    const sampler = gpu.device.createSampler(samplerOptions);
+    entry = { texture, view, sampler, width, height, revision: nextRevision, optionsKey, format };
+    gpu.textures.set(imageId, entry);
+  } else if (!Number.isFinite(entry.revision)) {
+    entry.revision = 1;
+  }
+  gpu.device.queue.writeTexture(
+    { texture: entry.texture },
+    pixels,
+    { bytesPerRow: width * 4 },
+    { width, height },
+  );
+}
+
+// --- Draw helpers ---
+
+function drawDefaultCommand(gpu, device, pass, cmd, drawIndex, cache, passFormat, breakdown = null) {
+  const ensureBufferEntry = (slots, slotIndex, minSize, usage) => {
+    const requiredSize = Math.max(16, Number(minSize) | 0);
+    let entry = slots[slotIndex];
+    const currentSize = entry == null ? 0 : (Number(entry.size ?? 0) | 0);
+    if (entry == null || currentSize < requiredSize) {
+      if (entry != null && entry.buffer != null && typeof entry.buffer.destroy === "function") {
+        try { entry.buffer.destroy(); } catch (_) {}
+      }
+      entry = {
+        size: requiredSize,
+        buffer: device.createBuffer({ size: requiredSize, usage }),
+      };
+      slots[slotIndex] = entry;
+    }
+    return entry;
+  };
+
+  if (cmd.vertexData == null || cmd.vertexData.length === 0) return;
+  if (cmd.indices == null || cmd.indices.length === 0) return;
+  const resourceCacheKey = getResourceCacheKey(cmd);
+  const vbEntry = ensureBufferEntry(
+    cache.vertexBuffers, drawIndex, cmd.vertexData.byteLength,
+    GPUBufferUsage.VERTEX | GPUBufferUsage.COPY_DST,
+  );
+  if (
+    (resourceCacheKey === 0 && cache.vertexDataRefs[drawIndex] !== cmd.vertexData) ||
+    cache.resourceCacheKeys[drawIndex] !== resourceCacheKey ||
+    cache.vertexDataSizes[drawIndex] !== cmd.vertexData.byteLength
+  ) {
+    measureDrawBreakdown(breakdown, "uploadCpuMs", () => {
+      device.queue.writeBuffer(vbEntry.buffer, 0, cmd.vertexData);
+    });
+    cache.vertexDataRefs[drawIndex] = cmd.vertexData;
+    cache.vertexDataSizes[drawIndex] = cmd.vertexData.byteLength;
+  }
+  const ibEntry = ensureBufferEntry(
+    cache.indexBuffers, drawIndex, cmd.indices.byteLength,
+    GPUBufferUsage.INDEX | GPUBufferUsage.COPY_DST,
+  );
+  if (
+    (resourceCacheKey === 0 && cache.indexDataRefs[drawIndex] !== cmd.indices) ||
+    cache.resourceCacheKeys[drawIndex] !== resourceCacheKey ||
+    cache.indexDataSizes[drawIndex] !== cmd.indices.byteLength
+  ) {
+    measureDrawBreakdown(breakdown, "uploadCpuMs", () => {
+      device.queue.writeBuffer(ibEntry.buffer, 0, cmd.indices);
+    });
+    cache.indexDataRefs[drawIndex] = cmd.indices;
+    cache.indexDataSizes[drawIndex] = cmd.indices.byteLength;
+  }
+  const ubEntry = ensureBufferEntry(
+    cache.uniformBuffers, drawIndex, 16,
+    GPUBufferUsage.UNIFORM | GPUBufferUsage.COPY_DST,
+  );
+  const uniformColorKey = `${cmd.uniformR},${cmd.uniformG},${cmd.uniformB},${cmd.uniformA}`;
+  if (
+    (resourceCacheKey === 0 && cache.uniformColorKeys[drawIndex] !== uniformColorKey) ||
+    cache.resourceCacheKeys[drawIndex] !== resourceCacheKey
+  ) {
+    measureDrawBreakdown(breakdown, "uploadCpuMs", () => {
+      device.queue.writeBuffer(ubEntry.buffer, 0, new Float32Array([
+        cmd.uniformR, cmd.uniformG, cmd.uniformB, cmd.uniformA,
+      ]));
+    });
+    cache.uniformColorKeys[drawIndex] = uniformColorKey;
+  }
+  cache.resourceCacheKeys[drawIndex] = resourceCacheKey;
+  let uniformBG = cache.uniformBindGroups[drawIndex];
+  if (uniformBG == null || cache.uniformBindBuffers[drawIndex] !== ubEntry.buffer) {
+    uniformBG = measureDrawBreakdown(breakdown, "bindGroupCpuMs", () => {
+      return device.createBindGroup({
+        layout: gpu._uniformBGL,
+        entries: [{ binding: 0, resource: { buffer: ubEntry.buffer } }],
+      });
+    });
+    cache.uniformBindGroups[drawIndex] = uniformBG;
+    cache.uniformBindBuffers[drawIndex] = ubEntry.buffer;
+  }
+  let texView = gpu._defaultTexView;
+  let texSampler = gpu._defaultSampler;
+  let resolvedImageId = 0;
+  let resolvedRevision = -1;
+  if (gpu.textures != null && cmd.srcImageId > 0) {
+    const texEntry = gpu.textures.get(cmd.srcImageId);
+    if (texEntry != null) {
+      texView = texEntry.view;
+      texSampler = texEntry.sampler;
+      resolvedImageId = cmd.srcImageId | 0;
+      resolvedRevision = Number.isFinite(texEntry.revision)
+        ? (texEntry.revision | 0)
+        : 0;
+    }
+  }
+  let texBG = cache.textureBindGroups[drawIndex];
+  if (
+    texBG == null ||
+    cache.textureBindImageIds[drawIndex] !== resolvedImageId ||
+    cache.textureBindRevisions[drawIndex] !== resolvedRevision
+  ) {
+    texBG = measureDrawBreakdown(breakdown, "bindGroupCpuMs", () => {
+      return device.createBindGroup({
+        layout: gpu._texBGL,
+        entries: [
+          { binding: 0, resource: texView },
+          { binding: 1, resource: texSampler },
+        ],
+      });
+    });
+    cache.textureBindGroups[drawIndex] = texBG;
+    cache.textureBindImageIds[drawIndex] = resolvedImageId;
+    cache.textureBindRevisions[drawIndex] = resolvedRevision;
+  }
+  let selectedPipeline = (passFormat != null && passFormat !== gpu._pipelineFormat && gpu._pipelineOffscreen != null)
+    ? gpu._pipelineOffscreen
+    : gpu._pipeline;
+  const samples = targetSampleCount(gpu, cmd.dstImageId);
+  if (samples > 1 || passFormat === "rgba16float") {
+    const key = `${passFormat}_${samples}`;
+    const variants = gpu._defaultPipelineVariants ??= new Map();
+    if (!variants.has(key)) {
+      const description = gpu._defaultPipelineDescription;
+      variants.set(key, device.createRenderPipeline({
+        ...description, multisample: {count: samples},
+        fragment: {...description.fragment, targets: [{...description.fragment.targets[0], format: passFormat}]},
+      }));
+    }
+    selectedPipeline = variants.get(key);
+  }
+  measureDrawBreakdown(breakdown, "passEncodeCpuMs", () => {
+    pass.setPipeline(selectedPipeline);
+    pass.setBindGroup(0, uniformBG);
+    pass.setBindGroup(1, texBG);
+    pass.setVertexBuffer(0, vbEntry.buffer);
+    pass.setIndexBuffer(ibEntry.buffer, "uint32");
+    drawIndexedRange(pass, cmd);
+  });
+}
+
+// Only the single-mesh layout opts in. Instanced layouts skin in the vertex
+// shader and use different palette offsets; they must never enter this pass.
+function prepareGpuSkinnedDraw(gpu, device, cmd, resources, drawIndex) {
+  const {vertexData, uniformDwords} = cmd;
+  if (typeof device.createComputePipeline !== "function" || !vertexData ||
+      !uniformDwords || uniformDwords.length < 1084 || !vertexData.length ||
+      vertexData.length % 16 !== 0) return null;
+  const floatCount = vertexData.length;
+  const queue = device.queue;
+  const cache = gpu._skinnedComputePipeline ??= {pipeline:null, bgl:null};
+  if (cache.pipeline == null || cache.bgl == null) {
+    const code = `
+const MAX_BONES: u32 = 64u;
+struct Uniforms {
+  mvp: mat4x4<f32>,
+  model: mat4x4<f32>,
+  normal_col0: vec4<f32>,
+  normal_col1: vec4<f32>,
+  normal_col2: vec4<f32>,
+  light_dir: vec4<f32>,
+  light_color: vec4<f32>,
+  ambient_color: vec4<f32>,
+  num_bones: vec4<f32>,
+  bone_matrices: array<mat4x4<f32>, 64>,
+};
+@group(0) @binding(0) var<storage, read> in_data: array<f32>;
+@group(0) @binding(1) var<storage, read_write> out_data: array<f32>;
+@group(0) @binding(2) var<uniform> uniforms: Uniforms;
+@compute @workgroup_size(64)
+fn cs_main(@builtin(global_invocation_id) gid : vec3<u32>) {
+  let idx = gid.x;
+  let elem_count = arrayLength(&in_data);
+  let vertex_count = elem_count / 16u;
+  if (idx >= vertex_count) { return; }
+  let base = idx * 16u;
+  let px = in_data[base + 0u];
+  let py = in_data[base + 1u];
+  let pz = in_data[base + 2u];
+  let nx = in_data[base + 3u];
+  let ny = in_data[base + 4u];
+  let nz = in_data[base + 5u];
+  let j0 = u32(in_data[base + 8u]);
+  let j1 = u32(in_data[base + 9u]);
+  let j2 = u32(in_data[base + 10u]);
+  let j3 = u32(in_data[base + 11u]);
+  let w0 = in_data[base + 12u];
+  let w1 = in_data[base + 13u];
+  let w2 = in_data[base + 14u];
+  let w3 = in_data[base + 15u];
+  var skin_mat = mat4x4<f32>();
+  if (w0 > 0.0) { skin_mat = skin_mat + w0 * uniforms.bone_matrices[j0]; }
+  if (w1 > 0.0) { skin_mat = skin_mat + w1 * uniforms.bone_matrices[j1]; }
+  if (w2 > 0.0) { skin_mat = skin_mat + w2 * uniforms.bone_matrices[j2]; }
+  if (w3 > 0.0) { skin_mat = skin_mat + w3 * uniforms.bone_matrices[j3]; }
+  let sp = skin_mat * vec4<f32>(px, py, pz, 1.0);
+  let sn = (skin_mat * vec4<f32>(nx, ny, nz, 0.0)).xyz;
+  let sn_len = max(length(sn), 1e-6);
+  let nn = sn / sn_len;
+  out_data[base + 0u] = sp.x;
+  out_data[base + 1u] = sp.y;
+  out_data[base + 2u] = sp.z;
+  out_data[base + 3u] = nn.x;
+  out_data[base + 4u] = nn.y;
+  out_data[base + 5u] = nn.z;
+  for (var i = 6u; i < 16u; i = i + 1u) {
+    out_data[base + i] = in_data[base + i];
+  }
+}`;
+    const module = device.createShaderModule({ code });
+    const pipeline = device.createComputePipeline({
+      layout: "auto",
+      compute: { module, entryPoint: "cs_main" },
+    });
+    cache.pipeline = pipeline;
+    cache.bgl = pipeline.getBindGroupLayout(0);
+  }
+
+  const slot = resources.skinnedDraws[drawIndex] ??= {};
+  const ensure = (name, size, usage) => {
+    let entry = slot[name];
+    if (!entry || entry.size < size) {
+      entry?.buffer.destroy();
+      entry = slot[name] = {size, buffer:device.createBuffer({size, usage})};
+      slot.bindGroup = null;
+      // Replaced buffers have no uploaded contents.
+      if (name === "input" || name === "output") slot.geometryRef = null;
+      else slot.uniformSnapshot = null;
+    }
+    return entry.buffer;
+  };
+  const bytes = vertexData.byteLength;
+  const inBuf = ensure("input", bytes, GPUBufferUsage.STORAGE | GPUBufferUsage.COPY_DST);
+  const outBuf = ensure("output", bytes, GPUBufferUsage.STORAGE | GPUBufferUsage.VERTEX);
+  const uniformBytes = Math.ceil(uniformDwords.byteLength / 16) * 16;
+  const ubCompute = ensure("computeUniform", uniformBytes, GPUBufferUsage.UNIFORM | GPUBufferUsage.COPY_DST);
+  const ubRender = ensure("renderUniform", uniformBytes, GPUBufferUsage.UNIFORM | GPUBufferUsage.COPY_DST);
+  const geometryChanged = slot.geometryRef !== vertexData ||
+    (!cmd.immutableGeometry && !equalDwords(slot.geometrySnapshot, vertexData));
+  const uniformsChanged = !equalDwords(slot.uniformSnapshot, uniformDwords);
+  let poseChanged = slot.uniformSnapshot == null;
+  if (!poseChanged && uniformsChanged) {
+    // Bone count/palette only: MVP, model and lighting don't affect local skinning.
+    for (let i = 56; i < uniformDwords.length; i++) {
+      if (slot.uniformSnapshot[i] !== uniformDwords[i]) { poseChanged = true; break; }
+    }
+  }
+  if (geometryChanged) {
+    queue.writeBuffer(inBuf, 0, vertexData);
+    slot.geometryRef = vertexData;
+    if (!cmd.immutableGeometry) {
+      if (slot.geometrySnapshot?.length !== floatCount) slot.geometrySnapshot = new Float32Array(floatCount);
+      slot.geometrySnapshot.set(vertexData);
+    }
+  }
+  if (uniformsChanged) {
+    if (slot.uniformSnapshot?.length !== uniformDwords.length) {
+      slot.uniformSnapshot = new Int32Array(uniformDwords.length);
+      slot.patched = new Int32Array(uniformDwords.length);
+    }
+    slot.uniformSnapshot.set(uniformDwords);
+    slot.patched.set(uniformDwords);
+    slot.patched[57] = 0x3f800000;
+    queue.writeBuffer(ubRender, 0, slot.patched);
+  }
+  if (poseChanged) queue.writeBuffer(ubCompute, 0, uniformDwords);
+  // Bind the used range so arrayLength remains correct when capacity is reused
+  // for a smaller mesh. Other slots never share mutable compute output.
+  if (!slot.bindGroup || slot.boundBytes !== bytes) {
+    slot.bindGroup = device.createBindGroup({
+      layout:cache.bgl,
+      entries:[
+        {binding:0, resource:{buffer:inBuf, size:bytes}},
+        {binding:1, resource:{buffer:outBuf, size:bytes}},
+        {binding:2, resource:{buffer:ubCompute}},
+      ],
+    });
+    slot.boundBytes = bytes;
+  }
+  if (geometryChanged || poseChanged) {
+    const encoder = device.createCommandEncoder();
+    const cpass = encoder.beginComputePass();
+    cpass.setPipeline(cache.pipeline);
+    cpass.setBindGroup(0, slot.bindGroup);
+    cpass.dispatchWorkgroups(Math.ceil(floatCount / (16 * 64)));
+    cpass.end();
+    queue.submit([encoder.finish()]);
+  }
+  return {vertexBuffer:outBuf, uniformBuffer:ubRender};
+}
+
+function drawCustomCommand(gpu, device, pass, cmd, format, drawIndex, cache, breakdown = null) {
+  const pipelineInfo = getOrCreateCustomPipeline(gpu, device, cmd, format);
+  const ensureBufferEntry = (slots, slotIndex, minSize, usage) => {
+    const requiredSize = Math.max(16, Number(minSize) | 0);
+    let entry = slots[slotIndex];
+    const currentSize = entry == null ? 0 : (Number(entry.size ?? 0) | 0);
+    if (entry == null || currentSize < requiredSize) {
+      if (entry != null && entry.buffer != null && typeof entry.buffer.destroy === "function") {
+        try { entry.buffer.destroy(); } catch (_) {}
+      }
+      entry = {
+        size: requiredSize,
+        buffer: device.createBuffer({ size: requiredSize, usage }),
+      };
+      slots[slotIndex] = entry;
+    }
+    return entry;
+  };
+
+  // Vertex buffer
+  if (cmd.vertexData == null || cmd.vertexData.length === 0) return;
+  if (cmd.indices == null || cmd.indices.length === 0) return;
+  const computed = measureDrawBreakdown(breakdown, "uploadCpuMs", () => {
+    return pipelineInfo.skinned && pipelineInfo.computeSkinning
+      ? prepareGpuSkinnedDraw(gpu, device, cmd, cache, drawIndex) : null;
+  });
+  const usingComputed = computed != null;
+  const resourceCacheKey = getResourceCacheKey(cmd);
+  const vb = usingComputed
+    ? computed.vertexBuffer
+    : cmd.sharedGeometry ? sharedGeometryBuffer(gpu, device, cmd.vertexData, "vertex") : (() => {
+      const entry = ensureBufferEntry(
+        cache.customVertexBuffers,
+        drawIndex,
+        cmd.vertexData.byteLength,
+        GPUBufferUsage.VERTEX | GPUBufferUsage.COPY_DST,
+      );
+      if (
+        (resourceCacheKey === 0 && cache.customVertexDataRefs[drawIndex] !== cmd.vertexData) ||
+        cache.customResourceCacheKeys[drawIndex] !== resourceCacheKey ||
+        cache.customVertexDataSizes[drawIndex] !== cmd.vertexData.byteLength
+      ) {
+        measureDrawBreakdown(breakdown, "uploadCpuMs", () => {
+          device.queue.writeBuffer(entry.buffer, 0, cmd.vertexData);
+        });
+        cache.customVertexDataRefs[drawIndex] = cmd.vertexData;
+        cache.customVertexDataSizes[drawIndex] = cmd.vertexData.byteLength;
+      }
+      return entry.buffer;
+    })();
+
+  // Index buffer
+  const ib = cmd.sharedGeometry ? sharedGeometryBuffer(gpu, device, cmd.indices, "index") : (() => {
+      const entry = ensureBufferEntry(
+        cache.customIndexBuffers,
+        drawIndex,
+        cmd.indices.byteLength,
+        GPUBufferUsage.INDEX | GPUBufferUsage.COPY_DST,
+      );
+      if (
+        (resourceCacheKey === 0 && cache.customIndexDataRefs[drawIndex] !== cmd.indices) ||
+        cache.customResourceCacheKeys[drawIndex] !== resourceCacheKey ||
+        cache.customIndexDataSizes[drawIndex] !== cmd.indices.byteLength
+      ) {
+        measureDrawBreakdown(breakdown, "uploadCpuMs", () => {
+          device.queue.writeBuffer(entry.buffer, 0, cmd.indices);
+        });
+        cache.customIndexDataRefs[drawIndex] = cmd.indices;
+        cache.customIndexDataSizes[drawIndex] = cmd.indices.byteLength;
+      }
+      return entry.buffer;
+    })();
+
+  // Uniform buffer (16-byte aligned or compute-prepared)
+  const ub = usingComputed
+    ? computed.uniformBuffer
+    : (() => {
+      const uniformBytes = cmd.uniformDwords != null ? cmd.uniformDwords.byteLength : 0;
+      const usedWords = cmd.uniformUsedDwords ?? (cmd.uniformDwords?.length ?? 0);
+      const alignedSize = Math.max(16, Math.ceil(uniformBytes / 16) * 16);
+      const entry = ensureBufferEntry(
+        cache.customUniformBuffers,
+        drawIndex,
+        alignedSize,
+        GPUBufferUsage.UNIFORM | GPUBufferUsage.COPY_DST,
+      );
+      if (
+        (resourceCacheKey === 0 && !equalDwords(cache.customUniformDataRefs[drawIndex], cmd.uniformDwords, usedWords)) ||
+        cache.customResourceCacheKeys[drawIndex] !== resourceCacheKey ||
+        cache.customUniformDataSizes[drawIndex] !== uniformBytes
+      ) {
+        if (cmd.uniformDwords != null && cmd.uniformDwords.length > 0) {
+          measureDrawBreakdown(breakdown, "uploadCpuMs", () => {
+            device.queue.writeBuffer(
+              entry.buffer,
+              0,
+              cmd.uniformDwords,
+              0,
+              usedWords,
+            );
+          });
+        }
+        let uploaded = cache.customUniformDataRefs[drawIndex];
+        if (uploaded?.length !== usedWords) uploaded = new Int32Array(usedWords);
+        for (let i = 0; i < usedWords; i++) uploaded[i] = cmd.uniformDwords[i];
+        cache.customUniformDataRefs[drawIndex] = uploaded;
+        cache.customUniformDataSizes[drawIndex] = uniformBytes;
+      }
+      cache.customResourceCacheKeys[drawIndex] = resourceCacheKey;
+      return entry.buffer;
+    })();
+
+  cache.customResourceCacheKeys[drawIndex] = resourceCacheKey;
+
+  // Compare the actual bound resources. A cache hit allocates no descriptors
+  // or texture-key strings; view/sampler replacement invalidates independently
+  // of a texture's bookkeeping revision (pixel updates need no rebind).
+  const texBindings = pipelineInfo.textureBindings;
+  const sampler = gpu._linearSampler || gpu._defaultSampler;
+  let resources = cache.customBindResources[drawIndex];
+  let dirty = cache.customBindGroups[drawIndex] == null ||
+    cache.customBindLayouts[drawIndex] !== pipelineInfo.bindGroupLayout ||
+    cache.customBindUniformBuffers[drawIndex] !== ub;
+  if (resources?.length !== texBindings.length) {
+    resources = new Array(texBindings.length);
+    dirty = true;
+  }
+  let srcIndex = 0, textureSampler = sampler;
+  for (let i = 0; i < texBindings.length; i++) {
+    const binding = texBindings[i];
+    let resource;
+    if (binding.type === "texture") {
+      const id = cmd.srcImageIds?.[srcIndex++] ?? 0;
+      const texture = id > 0 ? gpu.textures?.get(id) : null;
+      resource = texture?.view ?? gpu._defaultTexView;
+      textureSampler = texture?.sampler ?? sampler;
+    } else {
+      resource = textureSampler;
+    }
+    if (resources[i] !== resource) dirty = true;
+    resources[i] = resource;
+  }
+  let bindGroup = cache.customBindGroups[drawIndex];
+  if (dirty) {
+    const entries = [{binding:0, resource:{buffer:ub}}];
+    for (let i = 0; i < texBindings.length; i++) entries.push({binding:texBindings[i].binding, resource:resources[i]});
+    bindGroup = measureDrawBreakdown(breakdown, "bindGroupCpuMs", () => device.createBindGroup({
+      layout:pipelineInfo.bindGroupLayout, entries,
+    }));
+    cache.customBindGroups[drawIndex] = bindGroup;
+    cache.customBindLayouts[drawIndex] = pipelineInfo.bindGroupLayout;
+    cache.customBindUniformBuffers[drawIndex] = ub;
+    cache.customBindResources[drawIndex] = resources;
+  }
+
+  measureDrawBreakdown(breakdown, "passEncodeCpuMs", () => {
+    pass.setPipeline(pipelineInfo.pipeline);
+    pass.setBindGroup(0, bindGroup);
+    pass.setVertexBuffer(0, vb);
+    pass.setIndexBuffer(ib, "uint32");
+    drawIndexedRange(pass, cmd);
+  });
+
+}
+
+/**
+ * Render all queued draw commands using WebGPU.
+ * Supports multi-pass rendering with custom shaders and render targets.
+ * Returns true if rendering succeeded.
+ */
+export function renderGpu(gpu, device, context, clearColor, format) {
+  if (device == null || context == null) return false;
+  try {
+    const renderCpuStart = performanceNow();
+    sweepGeometryBuffers(gpu);
+    globalThis.__kaguraLastGpu = gpu;
+    if (globalThis.__kaguraDetailedCpuTimingEnabled === true) {
+      gpu._detailedTimingEnabled = true;
+    }
+    const safeFormat = typeof format === "string" && format.length > 0 ? format : "bgra8unorm";
+    if (!ensureGpuPipeline(gpu, device, safeFormat)) return false;
+    if (gpu._configuredFormat !== safeFormat) {
+      configureCanvasContext(context, device, safeFormat);
+      gpu._configuredFormat = safeFormat;
+    }
+    const [r, g, b, a] = clearColor;
+
+    const drawCommands = Array.isArray(gpu.commands) ? gpu.commands : [];
+    gpu._lastSubmittedDrawCount = drawCommands.length;
+    gpu._lastSubmittedInstanceCount = drawCommands.reduce((n, cmd) => n + getInstanceCount(cmd), 0);
+    if (drawCommands.length === 0) {
+      // Still need to clear the screen
+      const texture = context.getCurrentTexture();
+      const view = texture.createView();
+      const acquireEnd = performanceNow();
+      const encoder = device.createCommandEncoder();
+      const timestampSlot = reserveTimestampQuerySlot(gpu, device);
+      const pass = encoder.beginRenderPass({
+        colorAttachments: [{ view, clearValue: { r, g, b, a }, loadOp: "clear", storeOp: "store" }],
+        timestampWrites: buildPassTimestampWrites(timestampSlot, true, true),
+      });
+      const passSetupEnd = performanceNow();
+      pass.end();
+      resolveTimestampQuery(encoder, timestampSlot);
+      const readback = queueVrtFrameReadback(gpu, device, encoder, texture, safeFormat);
+      const drawEncodeEnd = performanceNow();
+      submitEncodedFrame(
+        gpu,
+        device,
+        encoder,
+        timestampSlot,
+        renderCpuStart,
+        {
+          acquireCpuMs: acquireEnd - renderCpuStart,
+          passSetupCpuMs: passSetupEnd - acquireEnd,
+          drawEncodeCpuMs: drawEncodeEnd - passSetupEnd,
+        },
+        null,
+        readback,
+      );
+      gpu.commands = [];
+      return true;
+    }
+
+    // Default draws can also target off-screen images before a final display pass.
+    const finalTarget = drawCommands[drawCommands.length - 1].dstImageId | 0;
+    let hasCustom = false;
+    for (let i = 0; i < drawCommands.length; i++) {
+      const target = drawCommands[i].dstImageId | 0;
+      if (drawCommands[i].isCustom || (target !== 0 && target !== finalTarget)) { hasCustom = true; break; }
+    }
+
+    if (!hasCustom) {
+      // Fast path: single-pass default rendering (original behavior)
+      const texture = context.getCurrentTexture();
+      const view = texture.createView();
+      if (gpu._drawResourceCache == null) {
+        gpu._drawResourceCache = createDrawResourceCache();
+      }
+      const cache = gpu._drawResourceCache;
+      const acquireEnd = performanceNow();
+      const encoder = device.createCommandEncoder();
+      const timestampSlot = reserveTimestampQuerySlot(gpu, device);
+      const drawBreakdown = createDrawEncodeBreakdown(gpu._detailedTimingEnabled === true);
+      const pass = encoder.beginRenderPass({
+        colorAttachments: [{ view, clearValue: { r, g, b, a }, loadOp: "clear", storeOp: "store" }],
+        timestampWrites: buildPassTimestampWrites(timestampSlot, true, true),
+      });
+      const passSetupEnd = performanceNow();
+      for (let drawIndex = 0; drawIndex < drawCommands.length; drawIndex += 1) {
+        drawDefaultCommand(
+          gpu,
+          device,
+          pass,
+          drawCommands[drawIndex],
+          drawIndex,
+          cache,
+          safeFormat,
+          drawBreakdown,
+        );
+      }
+      pass.end();
+      resolveTimestampQuery(encoder, timestampSlot);
+      const readback = queueVrtFrameReadback(gpu, device, encoder, texture, safeFormat);
+      const drawEncodeEnd = performanceNow();
+      recordRenderDrawBreakdownMetrics(
+        gpu,
+        drawBreakdown.uploadCpuMs,
+        drawBreakdown.bindGroupCpuMs,
+        drawBreakdown.passEncodeCpuMs,
+      );
+      submitEncodedFrame(
+        gpu,
+        device,
+        encoder,
+        timestampSlot,
+        renderCpuStart,
+        {
+          acquireCpuMs: acquireEnd - renderCpuStart,
+          passSetupCpuMs: passSetupEnd - acquireEnd,
+          drawEncodeCpuMs: drawEncodeEnd - passSetupEnd,
+        },
+        null,
+        readback,
+      );
+      gpu.commands = [];
+      return true;
+    }
+
+    // Multi-pass rendering path
+    gpu._pendingBufferCleanup = [];
+    if (gpu._drawResourceCache == null) {
+      gpu._drawResourceCache = createDrawResourceCache();
+    }
+    const cache = gpu._drawResourceCache;
+
+    const screenTexture = context.getCurrentTexture();
+    const screenView = screenTexture.createView();
+    const acquireEnd = performanceNow();
+
+    const encoder = device.createCommandEncoder();
+    const timestampSlot = reserveTimestampQuerySlot(gpu, device);
+    const drawBreakdown = createDrawEncodeBreakdown(gpu._detailedTimingEnabled === true);
+    const totalPassCount = countRenderPasses(drawCommands);
+    let currentPass = null;
+    let currentPassTarget = -999; // sentinel: no pass active
+    let currentPassHasDepth = false;
+    let currentPassIndex = -1;
+    const passStarted = {}; // track which targets have been cleared
+    const depthStarted = {}; // a color-only clear does not initialize depth
+    let defaultDrawIndex = 0;
+
+    // Detect screen target: last command's dst is the final output (screen)
+    const lastCmd = drawCommands[drawCommands.length - 1];
+    const screenTargetId = lastCmd.dstImageId | 0;
+    gpu._screenTargetId = screenTargetId;
+    const passSetupEnd = performanceNow();
+
+    for (let i = 0; i < drawCommands.length; i++) {
+      const cmd = drawCommands[i];
+      const targetId = cmd.dstImageId | 0;
+      const needsDepth = commandNeedsDepth(cmd);
+
+      if (targetId !== currentPassTarget || needsDepth !== currentPassHasDepth) {
+        // End current pass
+        if (currentPass != null) {
+          currentPass.end();
+        }
+
+        // Begin new pass
+        let targetView;
+        let resolveTarget;
+        let passFormat;
+        let depthAttachment = undefined;
+        let targetWidth, targetHeight;
+
+        // Detect screen target: id=0 or the configured screen target id
+        const isScreen = targetId === 0 || targetId === (gpu._screenTargetId | 0);
+        if (isScreen) {
+          // Screen target
+          targetView = screenView;
+          passFormat = safeFormat;
+          targetWidth = screenTexture.width;
+          targetHeight = screenTexture.height;
+        } else {
+          // Off-screen render target
+          const rtWidth = cmd.dstWidth || 1;
+          const rtHeight = cmd.dstHeight || 1;
+          const rt = ensureRenderTarget(gpu, device, targetId, rtWidth, rtHeight);
+          targetView = rt.msaaView ?? rt.view;
+          resolveTarget = rt.msaaView ? rt.view : undefined;
+          passFormat = rt.format;
+          targetWidth = rtWidth;
+          targetHeight = rtHeight;
+        }
+
+        // Check if this is a 3D pass needing depth
+        if (needsDepth) {
+          const depthTarget = isScreen ? "screen" : targetId;
+          const depth = ensureDepthTexture(gpu, device, depthTarget, targetWidth, targetHeight, targetSampleCount(gpu, targetId));
+          depthAttachment = {
+            view: depth.view,
+            depthClearValue: 1.0,
+            depthLoadOp: depthStarted[depthTarget] ? "load" : "clear",
+            depthStoreOp: "store",
+          };
+          depthStarted[depthTarget] = true;
+        }
+
+        const loadOp = passStarted[targetId] ? "load" : "clear";
+        const passDesc = {
+          colorAttachments: [{
+            view: targetView,
+            resolveTarget,
+            clearValue: { r, g, b, a },
+            loadOp,
+            storeOp: "store",
+          }],
+          timestampWrites: buildPassTimestampWrites(
+            timestampSlot,
+            currentPassIndex + 1 === 0,
+            currentPassIndex + 1 === totalPassCount - 1,
+          ),
+        };
+        if (depthAttachment != null) {
+          passDesc.depthStencilAttachment = depthAttachment;
+        }
+
+        currentPass = encoder.beginRenderPass(passDesc);
+        currentPassIndex += 1;
+        currentPassTarget = targetId;
+        currentPassHasDepth = needsDepth;
+        passStarted[targetId] = true;
+      }
+
+      const isScreenPass = targetId === 0 || targetId === (gpu._screenTargetId | 0);
+      const passFormat = isScreenPass ? safeFormat : renderTargetFormat(gpu, targetId);
+      if (cmd.isCustom) {
+        drawCustomCommand(
+          gpu,
+          device,
+          currentPass,
+          cmd,
+          passFormat,
+          i,
+          cache,
+          drawBreakdown,
+        );
+      } else {
+        drawDefaultCommand(
+          gpu,
+          device,
+          currentPass,
+          cmd,
+          defaultDrawIndex,
+          cache,
+          passFormat,
+          drawBreakdown,
+        );
+        defaultDrawIndex++;
+      }
+    }
+
+    // End final pass
+    if (currentPass != null) {
+      currentPass.end();
+    }
+
+    resolveTimestampQuery(encoder, timestampSlot);
+    const readback = queueVrtFrameReadback(gpu, device, encoder, screenTexture, safeFormat);
+    const drawEncodeEnd = performanceNow();
+    recordRenderDrawBreakdownMetrics(
+      gpu,
+      drawBreakdown.uploadCpuMs,
+      drawBreakdown.bindGroupCpuMs,
+      drawBreakdown.passEncodeCpuMs,
+    );
+    submitEncodedFrame(
+      gpu,
+      device,
+      encoder,
+      timestampSlot,
+      renderCpuStart,
+      {
+        acquireCpuMs: acquireEnd - renderCpuStart,
+        passSetupCpuMs: passSetupEnd - acquireEnd,
+        drawEncodeCpuMs: drawEncodeEnd - passSetupEnd,
+      },
+      gpu._pendingBufferCleanup,
+      readback,
+    );
+    gpu._pendingBufferCleanup = null;
+
+    gpu.commands = [];
+    return true;
+  } catch (e) {
+    console.error("kagura-gfx renderGpu error:", e);
+    return false;
+  }
+}
+
+/**
+ * Install GFX helpers on globalThis for use from MoonBit extern "js" inline code.
+ */
+export function installGfxHelpers() {
+  installFrameProfiler();
+  globalThis.__kaguraGfx = {
+    snapshotDrawGeometry,
+    registerGeometry,
+    unregisterGeometry,
+    registerStaticGeometry,
+    instanceUniformShader,
+    beginDrawFrame,
+    enqueueCustomDraw,
+    submitCustomDraw,
+    ensurePipeline: ensureGpuPipeline,
+    render: renderGpu,
+    release: releaseGpuResources,
+    finalizeTexture: finalizeTextureUpload,
+    configureDetailedCpuTiming: (enabled) => {
+      globalThis.__kaguraDetailedCpuTimingEnabled = enabled === true;
+      if (globalThis.__kaguraLastGpu != null) {
+        globalThis.__kaguraLastGpu._detailedTimingEnabled = enabled === true;
+      }
+    },
+    configureVrtReadback: (enabled) => {
+      globalThis.__kaguraVrtReadbackEnabled = enabled === true;
+    },
+    lastCompletedFrameMs: () => globalThis.__kaguraLastGpu?._lastCompletedFrameMs ?? 0.0,
+    consumeCompletedFrameMs: () => consumeCompletedFrameMs(globalThis.__kaguraLastGpu),
+    lastTimestampFrameMs: () => globalThis.__kaguraLastGpu?._lastTimestampFrameMs ?? 0.0,
+    lastTimestampRawDeltaNs: () => globalThis.__kaguraLastGpu?._lastTimestampRawDeltaNs ?? "0",
+    consumeTimestampFrameMs: () => consumeTimestampFrameMs(globalThis.__kaguraLastGpu),
+    consumeGpuFrameMs: () => consumeGpuFrameMs(globalThis.__kaguraLastGpu),
+    gpuTimingMethod: () => globalThis.__kaguraLastGpu?._gpuTimingMethod ?? "queue-completion",
+    lastRenderUploadCpuMs: () => globalThis.__kaguraLastGpu?._lastRenderUploadCpuMs ?? 0.0,
+    lastRenderBindGroupCpuMs: () => globalThis.__kaguraLastGpu?._lastRenderBindGroupCpuMs ?? 0.0,
+    lastRenderPassEncodeCpuMs: () => globalThis.__kaguraLastGpu?._lastRenderPassEncodeCpuMs ?? 0.0,
+    lastRenderAcquireCpuMs: () => globalThis.__kaguraLastGpu?._lastRenderAcquireCpuMs ?? 0.0,
+    lastRenderPassSetupCpuMs: () => globalThis.__kaguraLastGpu?._lastRenderPassSetupCpuMs ?? 0.0,
+    lastRenderDrawEncodeCpuMs: () => globalThis.__kaguraLastGpu?._lastRenderDrawEncodeCpuMs ?? 0.0,
+    lastRenderCleanupCpuMs: () => globalThis.__kaguraLastGpu?._lastRenderCleanupCpuMs ?? 0.0,
+    lastRenderEncodeCpuMs: () => globalThis.__kaguraLastGpu?._lastRenderEncodeCpuMs ?? 0.0,
+    lastRenderSubmitCpuMs: () => globalThis.__kaguraLastGpu?._lastRenderSubmitCpuMs ?? 0.0,
+    lastRenderCpuMs: () => globalThis.__kaguraLastGpu?._lastRenderCpuMs ?? 0.0,
+    lastReadbackSummary: () =>
+      globalThis.__kaguraLastGpu?._vrtLastReadback ??
+      globalThis.__kaguraVrtLastReadback ??
+      null,
+  };
+}

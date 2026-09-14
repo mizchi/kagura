@@ -1,0 +1,23 @@
+// Generated using `moon info`, DON'T EDIT IT
+package "mizchi/anim3d/playback"
+
+// Values
+
+// Errors
+
+// Types and methods
+pub(all) struct Timeline {
+  mut time : Double
+  mut playing : Bool
+  mut speed : Double
+  mut looping : Bool
+}
+pub fn Timeline::advance(Self, Double, Double, stop_at_end? : Bool, subtract_wrap? : Bool) -> Unit
+pub fn Timeline::new(playing? : Bool) -> Self
+pub fn Timeline::pause(Self) -> Unit
+pub fn Timeline::play(Self, Double, restart_at_end? : Bool) -> Unit
+pub fn Timeline::seek(Self, Double, Double) -> Unit
+
+// Type aliases
+
+// Traits

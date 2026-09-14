@@ -6,6 +6,8 @@ import {parseMoonPkgImports} from './moon-boundary-utils.mjs';
 // Check every workspace module, including independent modules nested in a layer.
 // The release policy alone cannot see dependencies on geom/anim3d/renderer2d/etc.
 const allowedLayers = {
+  benchmarks: ['core', 'engine', 'game', 'platform', 'platform_web', 'integration'],
+  experiments: ['core', 'engine', 'game', 'platform', 'platform_web', 'integration'],
   core: ['core'],
   engine: ['core', 'engine', 'platform'],
   game: ['core', 'engine', 'game', 'platform'],

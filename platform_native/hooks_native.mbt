@@ -786,6 +786,7 @@ pub fn render_frame_from_commands(
 
 ///|
 fn init {
+  @host_services.install()
   @engine.set_lifecycle_hooks({
     on_start: fn(_canvas, title) { install(title) },
     on_stop: fn() {

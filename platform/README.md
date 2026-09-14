@@ -1,5 +1,10 @@
 # mizchi/kagura_platform
 
+`services/` defines injectable clocks, file access and frame scheduling;
+`fetch/` defines byte loading and the cancellable `BytesFetcher` contract.
+They have no browser/OS FFI or graphics-device lifetime. Runtime integrations
+install implementations before constructing application state.
+
 各プラットフォーム実装が従う共通 contract。`platform/` 直下を独立した
 MoonBit module として配布します。OS・DOM・GPU API を直接呼びません。
 

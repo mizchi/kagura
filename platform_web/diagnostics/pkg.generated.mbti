@@ -1,0 +1,23 @@
+// Generated using `moon info`, DON'T EDIT IT
+package "mizchi/kagura_platform_web/diagnostics"
+
+import {
+  "mizchi/js/core",
+}
+
+// Values
+pub fn install_frame_profiler(@core.Any) -> @core.Any
+
+pub fn percentile(@core.Any, Double) -> Double
+
+pub fn read_frame_profile(@core.Any) -> @core.Any
+
+pub fn summarize_intervals(@core.Any) -> @core.Any
+
+// Errors
+
+// Types and methods
+
+// Type aliases
+
+// Traits

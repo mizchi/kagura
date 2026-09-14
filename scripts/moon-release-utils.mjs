@@ -21,7 +21,7 @@ export const DEFAULT_RELEASE_DEP_POLICY = Object.freeze({
   "mizchi/kagura_platform": ["mizchi/kagura_core"],
   "mizchi/kagura_ui": ["mizchi/kagura_core"],
   "mizchi/kagura_audio": [],
-  "mizchi/kagura_asset_loader": [],
+  "mizchi/kagura_asset_loader": ["mizchi/kagura_platform"],
   "mizchi/kagura_engine": ["mizchi/kagura_core", "mizchi/kagura_platform", "mizchi/kagura_audio", "mizchi/kagura_ui"],
   "mizchi/kagura_game": [
     "mizchi/kagura_core",
@@ -62,7 +62,7 @@ const ROOT_FACADE_EXCLUDES = [
   "core", "engine", "platform", "platform_web", "platform_native", "game", "editor", "assets", "examples", "e2e",
   "docs", "scripts", "deps", "fixtures", "test-results", "playwright-report", "output",
   "package.json", "pnpm-lock.yaml", "justfile", "playwright.config.ts",
-  "modules", "CLAUDE.md", "CONTRIBUTING.md", "CONTRIBUTING_ja.md", "TODO.md",
+  "modules", "benchmarks", "experiments", "CLAUDE.md", "CONTRIBUTING.md", "CONTRIBUTING_ja.md", "TODO.md",
 ];
 
 const PREBUILD_KEY = "--moonbit-unstable-prebuild";

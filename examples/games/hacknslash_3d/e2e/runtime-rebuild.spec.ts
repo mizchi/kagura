@@ -2,7 +2,7 @@ import {test,expect} from '@playwright/test';
 import {utimesSync} from 'node:fs';
 import {fileURLToPath} from 'node:url';
 
-for (const sourcePath of ['platform_web/web_core/ui_sync.mbt', 'game/inventory_web/inventory.mbt']) {
+for (const sourcePath of ['platform_web/ui_sync/ui_sync.mbt', 'game/inventory_web/inventory.mbt', 'game/inventory/item_grid.mbt', 'core/anim3d/playback/timeline.mbt']) {
 test(`${sourcePath} changes rebuild and reload the running game`,async({page})=>{
   const errors:string[]=[];page.on('pageerror',error=>errors.push(error.message));
   await page.goto('/?snapshot=playing&frames=0&seed=42&mute=1');

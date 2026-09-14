@@ -1,3 +1,7 @@
+> このディレクトリは配布用です。手書き JS は `platform_web/host`、MoonBit は各責務の package、
+> 型宣言は `platform_web/web_core/exports.d.ts` と `game/inventory_web/exports.d.ts` を編集し、
+> `just web-runtime-build` で同期してください。Node テストは `platform_web/host/*.test.mjs`。
+
 # Kagura の再利用コンポーネント
 
 ゲームが決めるイベント・デザインと、エンジンが提供する入力・再生・形状生成を分離しています。

@@ -2,8 +2,7 @@
 
 `platform_web` は ブラウザ向けランタイムを MoonBit で記述する module です。
 
-- root module: `../moon.mod`
-- js runtime module: `moon.mod`
+- module: `moon.mod`
 - package prefix: `mizchi/kagura_platform_web/*`
 
 ## Platform contract
@@ -16,26 +15,24 @@
 
 実ブラウザでは `platform_web/runtime_hooks` が DOM・描画・音声を結線し、
 この module の `install` に型付き hook を渡します。ルートの adapter は
-host に触れないため他ターゲットでも検証でき、`web_core` / `gfx_webgpu` の
+host に触れないため他ターゲットでも検証でき、ブラウザ専用パッケージ の
 実装は JS のみに限定します。`platform` から実装への逆依存、実装から
 engine / game への依存は `just check-release` の境界検査が拒否します。
 
 ## 配布されるランタイム
 
-`web_core/` が `assets/web/kagura-runtime.generated.js` の実装元です。
-MoonBit の JS backend、release、ESM の名前付き export で生成します。
-既存の `kagura-*.js` とゲーム／Studio の `.mjs` は、この生成物を import します。
+`web_core/exports.mbt` は安定した ESM の公開窓口です。実装は責務で分けます。
 
-| MoonBit 実装 | 責務 |
+| 配置 | 内容 |
 | --- | --- |
-| `controls.mbt` | スティックのデッドゾーン、入力所有権、コマンドキュー |
-| `gamepad.mbt` | HID 正規化、機器選択、ニュートラル待ち、押下エッジ、メニューリピート |
-| `ui_sync.mbt` | 差分適用、参照同一性による更新判定 |
-| `motion_player.mbt` | 再生・停止・シーク・コマ送り・ループ |
-| `frame_stats.mbt`, `frame_profile.mbt` | フレーム統計と取得時だけ作るプロファイル |
-| `shader_contract.mbt` | WGSL レイアウト解析、インスタンス化、描画ポリシー、配列比較 |
-| `geometry.mbt` | ジオメトリの世代管理、弱参照キャッシュ、変更時だけのコピー |
-| `interop.mbt` | JS 組み込みへの小さな FFI |
+| `input/` | コントロール状態・ゲームパッドの正規化 |
+| `render/` | WGSL と geometry のキャッシュ |
+| `diagnostics/` | 計測結果の取得・JS 形式への変換（統計計算は core） |
+| `playback/` | 型付き Timeline と JS アセットの接続 |
+| `ui_sync/` | UI 差分・依存値の変更判定 |
+| `interop/` | JS 組み込みへの小さな FFI |
+| `services/`, `fetch/` | 時計・フレームスケジューラ・通信のホスト実装 |
+| `host/` | WebGPU、音声、DOM、Worker 等の手書き JS と Node テスト |
 
 `mizchi/js/builtins` の Object、Math、RegExp、Map、WeakMap を使用します。
 依存バージョンは既存の `mizchi/js@0.12.2` を維持しています。
@@ -43,13 +40,13 @@ DOM、イベントの登録・解除、WebGPU のリソース確保・送信、W
 Node のビルド処理は JS のホスト層です。大きな JS 関数を `extern "js"` に
 埋め込んで移行扱いにせず、状態遷移・ループ・判定を MoonBit に書きます。
 
-`gfx_webgpu/` は以前の別実装で、今回の配信経路には使いません。
+旧 WebGPU 実装は `../experiments/webgpu/` へ隔離しました。現行の配信経路では使いません。
 機能が異なるため、配信中の WebGPU ホストをこれに切り替えないでください。
 
 ## JS ABI と所有権
 
 MoonBit の公開シグネチャは `web_core/pkg.generated.mbti`、JS の構造化された
-契約は `assets/web/kagura-runtime.generated.d.ts` にあります。後者は手書きの
+契約の原本は `web_core/exports.d.ts` にあります。配布時に `assets/web/kagura-runtime.generated.d.ts` へコピーします。これは手書きの
 型宣言で、実装ではありません。export の一致を Node テストで検証します。
 境界の `@core.Any` は JS のオブジェクトを JSON 化せず渡すために使用します。
 内部の入力・パッド・再生状態はそれぞれ独立した MoonBit struct が所有します。
@@ -88,3 +85,7 @@ Pages、Studio examples/model-viewer のビルドもコピー前に再生成し�
 `runtime_hooks/` は独立した `mizchi/web_runtime_hooks` module です。起動時の
 結線に engine を使いますが、親 adapter の配布には含めません。
 ゲーム固有の形状配置・装備比較は `game/inventory_web/` に分離し、別 ESM を生成します。
+
+生成ハッシュと Vite の監視は、ローカルの推移的な依存 package まで含みます。
+`core/anim3d/playback` や `game/inventory` の編集も再生成・再読込の対象です。
+`host/*.js` と各 ESM の `exports.d.ts` も同じビルドで配布先へ同期します。

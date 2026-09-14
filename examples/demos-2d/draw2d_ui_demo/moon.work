@@ -14,4 +14,5 @@ members = [
   "../../../engine/widget2d",
   "../../../platform_web/runtime_hooks",
   "../../../engine/ui",
+  "../../../platform_native",
 ]

@@ -2,6 +2,7 @@
 package "mizchi/kagura_engine/animation2d"
 
 import {
+  "mizchi/anim3d/playback",
   "mizchi/atlas",
   "mizchi/gfx",
 }
@@ -30,10 +31,7 @@ pub fn SpriteAnimationClip::uniform(String, Array[@atlas.AssetKey], Double) -> S
 
 pub struct SpriteAnimationPlayer {
   mut clip : SpriteAnimationClip
-  mut time : Double
-  mut playing : Bool
-  mut looping : Bool
-  mut speed : Double
+  timeline : @playback.Timeline
 }
 pub fn SpriteAnimationPlayer::current_frame_index(Self) -> Int
 pub fn SpriteAnimationPlayer::current_key(Self) -> @atlas.AssetKey

@@ -120,6 +120,7 @@ pub(all) struct DungeonData {
   mut start_y : Double
   height_map : Array[Double]
   mut terrain_surface : @terrain3d.HeightField?
+  mut landscape : Landscape?
 }
 
 ///|

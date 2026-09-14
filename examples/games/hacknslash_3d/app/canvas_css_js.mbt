@@ -45,7 +45,7 @@ extern "js" fn hunter_load_terrain_preferences() -> String =
 extern "js" fn hunter_initial_terrain() -> Array[Double] =
   #| () => {
   #|   const q=new URLSearchParams(globalThis.location?.search??'');
-  #|   const pattern=['flat','perlin','diamond','voronoi','hybrid'].indexOf(q.get('terrain'));
+  #|   const pattern=['flat','perlin','diamond','voronoi','hybrid','expedition'].indexOf(q.get('terrain'));
   #|   return pattern<0?[]:[pattern,Number(q.get('terrain_seed')??q.get('seed')??42),Number(q.get('relief')??4),Number(q.get('terrain_scale')??18),Number(q.get('roughness')??.5)];
   #| }
 

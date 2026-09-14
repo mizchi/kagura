@@ -212,7 +212,7 @@ fn remove_blocked_hunting_spawns(
 
 ///|
 // Map upgrades retain old actors and loot while relocating anything covered by a new wall.
-fn hunting_safe_position(
+pub fn hunting_safe_position(
   dungeon : DungeonData,
   x : Double,
   y : Double,

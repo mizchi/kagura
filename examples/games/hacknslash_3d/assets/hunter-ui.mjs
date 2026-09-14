@@ -351,12 +351,12 @@ function render(hud){
     const sites=$('minimap-sites'),signature=JSON.stringify(exploration.chests);
     if(sites.dataset.signature!==signature){
       sites.dataset.signature=signature;
-      sites.innerHTML=exploration.chests.map(c=>`<g transform="translate(${c.x} ${c.z})" opacity="${c.opened ? 0.35 : 1}"><title>${escape(c.name)}${c.opened?'（開封済み）':''}</title><path d="${c.kind==='camp'?'M-3 2 0-3 3 2Z':'M-2-2h4v4h-4Z'}" fill="#d9b76f" stroke="#252c24" stroke-width=".7"/></g>`).join('');
+      sites.innerHTML=exploration.chests.map(c=>`<g transform="translate(${c.x} ${c.z})" opacity="${c.opened&&hud.atlas?.generation<2 ? 0.35 : 1}"><title>${escape(c.name)}${c.opened?(hud.atlas?.generation>=2?'（帰還地点）':'（開封済み）'):''}</title><path d="${c.kind==='camp'?'M-3 2 0-3 3 2Z':'M-2-2h4v4h-4Z'}" fill="#d9b76f" stroke="#252c24" stroke-width=".7"/></g>`).join('');
     }
   }
   $('waypoint-prompt').hidden=canOpenChest||hud.arts?.targeting||!hud.atlas?.near_waypoint||hud.mode!=='playing'||hud.paused||hud.menu!=='none';
   setText('night-label',`エリア ${hud.floor} · EXPLORATION`);
-  setText('hunt-objective',`探索し、装備を集める · 敵 ${hud.remaining}`);
+  setText('hunt-objective',hud.atlas?.generation>=2?`帰還地点 ${exploration.chests.filter(c=>c.opened).length} / 4 · 宝箱を探す`:`探索し、装備を集める · 敵 ${hud.remaining}`);
   $('map-player').setAttribute('cx',hud.map_x);$('map-player').setAttribute('cy',hud.map_z);
   hud.skills.forEach((skill,i)=>{
     const b=root.querySelector(`[data-skill="${i}"]`),status=skillStatus(skill);

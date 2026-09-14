@@ -172,13 +172,7 @@ pub fn HeightField::statistics(self : HeightField) -> HeightFieldStats {
   }
   for z in 0..<self.cells_z {
     for x in 0..<self.cells_x {
-      let a = self.at(x, z)
-      let b = self.at(x, z + 1)
-      let c = self.at(x + 1, z + 1)
-      let d = self.at(x + 1, z)
-      max_slope = max_slope
-        .max(((c - b) * (c - b) + (b - a) * (b - a)).sqrt())
-        .max(((d - a) * (d - a) + (c - d) * (c - d)).sqrt())
+      max_slope = max_slope.max(self.cell_slope(x, z))
     }
   }
   { minimum, maximum, max_slope, triangles: self.cells_x * self.cells_z * 2, }

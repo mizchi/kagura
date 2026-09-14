@@ -1422,13 +1422,15 @@ extern "js" fn js_gfx_custom_draw_submit(
   blend_mode : Int,
   instance_count : Int,
   vertex_stride_hint : Int,
+  first_index : Int,
+  index_count : Int,
 ) -> Unit =
-  #| (shaderId, shaderSource, vertices, indices, uniforms, sources, dstId, dstW, dstH, blendMode, instanceCount, vertexStrideHint) => {
+  #| (shaderId, shaderSource, vertices, indices, uniforms, sources, dstId, dstW, dstH, blendMode, instanceCount, vertexStrideHint, firstIndex, indexCount) => {
   #|   const gpu = globalThis.__kaguraWebRuntime?.webgpu;
   #|   if (gpu == null) return;
   #|   const gfx = globalThis.__kaguraGfx;
   #|   if (gfx?.submitCustomDraw) {
-  #|     gfx.submitCustomDraw(gpu, shaderId, shaderSource, vertices, indices, uniforms, sources, dstId, dstW, dstH, blendMode, instanceCount, vertexStrideHint);
+  #|     gfx.submitCustomDraw(gpu, shaderId, shaderSource, vertices, indices, uniforms, sources, dstId, dstW, dstH, blendMode, instanceCount, vertexStrideHint, firstIndex, indexCount);
   #|     return;
   #|   }
   #|   const geometry = globalThis.__kaguraGfx?.snapshotDrawGeometry?.(gpu, vertices, indices)
@@ -1437,7 +1439,7 @@ extern "js" fn js_gfx_custom_draw_submit(
   #|     isCustom: true, shaderId, shaderSource, ...geometry,
   #|     uniformDwords: uniforms, srcImageIds: sources,
   #|     dstImageId: dstId, dstWidth: Math.max(1,dstW), dstHeight: Math.max(1,dstH),
-  #|     blendMode, instanceCount, vertexStrideHint,
+  #|     blendMode, instanceCount, vertexStrideHint, firstIndex, indexCount,
   #|   };
   #|   if (globalThis.__kaguraGfx?.enqueueCustomDraw) globalThis.__kaguraGfx.enqueueCustomDraw(gpu, command);
   #|   else (gpu.commands ??= []).push({...command, uniformDwords:new Int32Array(uniforms), srcImageIds:new Int32Array(sources)});
@@ -2716,6 +2718,8 @@ fn bridge_web_gfx_on_draw(
         @gfx.BlendMode::to_int(command.blend),
         command.instance_count,
         command.vertex_stride_hint,
+        command.index_offset,
+        command.estimated_total_index_count(),
       )
     } else {
       // Default 2D pipeline path (backward compatible)

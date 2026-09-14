@@ -118,6 +118,11 @@ struct GameState {
   // 3D-specific
   mut camera : @camera3d.OrbitCamera
   camera_settings : HunterCameraSettings
+  mut expedition_map : ExpeditionMapView?
+  mut scenery : SceneryCache?
+  scenery_shader : @gfx.ShaderHandle
+  sky_mesh : @mesh3d.Mesh3D
+  sky_shader : @gfx.ShaderHandle
   terrain_lab : TerrainLabState
   lighting : @light3d.LightingEnvironment
   shader3d : @gfx.ShaderHandle
@@ -192,6 +197,10 @@ struct GameState {
   mut pause_return_cursor : Int
   region_meshes : Array[RegionMeshCache?]
   mut region_mesh_stamp : Int
+  mut region_prepare_max_ms : Double
+  mut region_chunk_max_ms : Double
+  mut region_batch_max_ms : Double
+  initial_map_ms : Double
   mut region_chunks_built : Int
   mut inventory_notice : String
   mut paused : Bool

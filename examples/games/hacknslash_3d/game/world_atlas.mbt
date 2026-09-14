@@ -62,6 +62,7 @@ pub(all) struct RegionState {
 ///|
 pub(all) struct WorldAtlas {
   mut elevation : HuntingElevation?
+  generator_version : Int
   world_seed : Int
   mut current : Int
   mut last_waypoint : Int
@@ -73,9 +74,10 @@ pub(all) struct WorldAtlas {
 }
 
 ///|
-pub fn WorldAtlas::new(seed : Int) -> WorldAtlas {
+pub fn WorldAtlas::new(seed : Int, generator_version? : Int = 3) -> WorldAtlas {
   {
     elevation: None,
+    generator_version,
     world_seed: seed,
     current: 0,
     last_waypoint: 0,
@@ -118,7 +120,11 @@ pub fn world_waypoint_position(id : Int) -> (Double, Double) {
 }
 
 ///|
-pub fn generate_world_region(seed : Int, id : Int) -> DungeonData {
+pub fn generate_world_region(
+  seed : Int,
+  id : Int,
+  generator_version? : Int = 3,
+) -> DungeonData {
   let dungeon = generate_hunting_grounds(seed)
   let grid = dungeon.grid
   for (dx, dz) in [(-1, 0), (1, 0), (0, -1), (0, 1)] {
@@ -156,6 +162,11 @@ pub fn generate_world_region(seed : Int, id : Int) -> DungeonData {
     }
   }
   stamp_hunting_chests(grid)
+  if generator_version >= 3 {
+    shape_landscape_region(dungeon, seed, id)
+  } else if generator_version >= 2 {
+    shape_expedition_region(dungeon, seed, id)
+  }
   dungeon
 }
 
@@ -198,7 +209,11 @@ pub fn GameWorld::prepare_region(self : GameWorld, id : Int) -> Bool {
     return true
   }
   let seed = region_seed(atlas.world_seed, id)
-  let dungeon = generate_world_region(seed, id)
+  let dungeon = generate_world_region(
+    seed,
+    id,
+    generator_version=atlas.generator_version,
+  )
   apply_region_elevation(atlas, dungeon, id)
   let tier = world_regions[id].tier
   let enemies = spawn_enemies_for_floor_with_params(
@@ -331,7 +346,7 @@ pub fn GameWorld::request_waypoint(self : GameWorld, id : Int) -> Bool {
   if self.hunter_action_locked() ||
     self.mode != Playing ||
     self.ui_mode != Waypoints ||
-    !self.near_waypoint() ||
+    !self.near_expedition_anchor() ||
     id < 0 ||
     id >= world_regions.length() ||
     id == atlas.current ||

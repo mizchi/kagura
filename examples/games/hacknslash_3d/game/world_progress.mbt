@@ -27,6 +27,7 @@ struct RegionProgress {
 ///|
 struct WorldProgress {
   version : Int
+  generator_version : Int?
   seed : Int
   current : Int
   last_waypoint : Int?
@@ -70,7 +71,8 @@ pub fn GameWorld::serialize_world_progress(self : GameWorld) -> String {
     }
   }
   WorldProgress::{
-    version: 3,
+    version: 4,
+    generator_version: Some(atlas.generator_version),
     seed: atlas.world_seed,
     current: atlas.current,
     last_waypoint: Some(atlas.last_waypoint),
@@ -87,7 +89,7 @@ pub fn GameWorld::serialize_world_progress(self : GameWorld) -> String {
 fn parse_world_progress(source : String) -> WorldProgress? {
   try {
     let progress : WorldProgress = @json.from_json(@json.parse(source))
-    if (progress.version < 1 || progress.version > 3) ||
+    if (progress.version < 1 || progress.version > 4) ||
       progress.current < 0 ||
       progress.current >= 4 ||
       progress.unlocked.length() != 4 ||
@@ -96,6 +98,11 @@ fn parse_world_progress(source : String) -> WorldProgress? {
       progress.y < 0.0 ||
       progress.x >= map_cols.to_double() * tile_size ||
       progress.y >= map_rows.to_double() * tile_size {
+      return None
+    }
+    if (progress.version >= 4 && progress.generator_version is None) ||
+      progress.generator_version.or(1) < 1 ||
+      progress.generator_version.or(1) > 3 {
       return None
     }
     let ids : Array[Int] = []
@@ -147,10 +154,17 @@ pub fn GameWorld::restore_world_progress(
     return false
   }
   guard parse_world_progress(source) is Some(progress) else { return false }
-  let atlas = WorldAtlas::new(progress.seed)
+  let atlas = WorldAtlas::new(
+    progress.seed,
+    generator_version=progress.generator_version.or(1),
+  )
   for state in progress.regions {
     let seed = region_seed(progress.seed, state.id)
-    let dungeon = generate_world_region(seed, state.id)
+    let dungeon = generate_world_region(
+      seed,
+      state.id,
+      generator_version=atlas.generator_version,
+    )
     let enemies = state.enemies.map(saved => {
       let (x, y) = hunting_safe_position(dungeon, saved.x, saved.y, saved.size)
       let enemy = make_enemy(

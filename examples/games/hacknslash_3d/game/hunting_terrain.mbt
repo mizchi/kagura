@@ -10,6 +10,14 @@ fn apply_region_elevation(
   dungeon : DungeonData,
   id : Int,
 ) -> Unit {
+  if atlas.elevation is Some(_) && dungeon.landscape is Some(_) {
+    dungeon.grid = generate_world_region(
+        region_seed(atlas.world_seed, id),
+        id,
+        generator_version=2,
+      ).grid
+    dungeon.landscape = None
+  }
   dungeon.terrain_surface = match atlas.elevation {
     Some(elevation) if elevation.config.pattern != @terrain3d.Flat => {
       let region = world_regions[id]
@@ -22,6 +30,7 @@ fn apply_region_elevation(
         ),
       )
     }
+    None => dungeon.terrain_surface
     _ => None
   }
 }
@@ -42,7 +51,9 @@ pub fn GameWorld::set_hunting_terrain(
   if atlas.elevation is Some(elevation) && elevation.config == config {
     return false
   }
-  if config.pattern == @terrain3d.Flat && atlas.elevation is None {
+  if config.pattern == @terrain3d.Flat &&
+    atlas.elevation is None &&
+    self.dungeon.terrain_surface is None {
     return false
   }
   let surface = @terrain3d.generate_height_field(
@@ -55,7 +66,7 @@ pub fn GameWorld::set_hunting_terrain(
       let ox = region.x * (map_cols - 2)
       let oz = region.z * (map_rows - 2)
       let seed = region_seed(atlas.world_seed, region.id)
-      let dungeon = generate_world_region(seed, region.id)
+      let dungeon = generate_world_region(seed, region.id, generator_version=2)
       fn pad(x0 : Int, z0 : Int, x1 : Int, z1 : Int) -> Unit {
         for z in z0.max(0)..<=z1.min(map_rows) {
           for x in x0.max(0)..<=x1.min(map_cols) {
@@ -100,6 +111,34 @@ pub fn GameWorld::set_hunting_terrain(
   for region in atlas.regions {
     if region is Some(region) {
       apply_region_elevation(atlas, region.dungeon, region.id)
+    }
+  }
+  true
+}
+
+///|
+pub fn GameWorld::restore_expedition_terrain(self : GameWorld) -> Bool {
+  guard self.atlas is Some(atlas) else { return false }
+  if atlas.generator_version < 2 ||
+    self.authored_scene is Some(_) ||
+    atlas.elevation is None {
+    return false
+  }
+  atlas.elevation = None
+  fn restore(dungeon : DungeonData, seed : Int, id : Int) -> Unit {
+    let generated = generate_world_region(
+      seed,
+      id,
+      generator_version=atlas.generator_version,
+    )
+    dungeon.grid = generated.grid
+    dungeon.terrain_surface = generated.terrain_surface
+    dungeon.landscape = generated.landscape
+  }
+  restore(self.dungeon, self.seed, atlas.current)
+  for entry in atlas.regions {
+    if entry is Some(region) && region.id != atlas.current {
+      restore(region.dungeon, region.seed, region.id)
     }
   }
   true

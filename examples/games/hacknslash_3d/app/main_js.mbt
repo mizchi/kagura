@@ -280,6 +280,8 @@ fn apply_initial_mode_overrides(
         _ => @game.Opening
       },
     )
+  } else if snapshot_mode == "landscape" {
+    apply_landscape_preview(state, js_get_query_param("landmark"))
   } else if snapshot_mode == "terrain" {
     apply_hunting_terrain_preview(state)
   } else if snapshot_mode == "site" {
@@ -435,7 +437,9 @@ fn build_initial_state() -> GameState {
     state.rebuild_dungeon_rendering()
     js_install_scene_runtime(fn() { state.world.scene_snapshot_json() })
   }
+  let landscape_preview = get_snapshot_mode() == "landscape"
   if !state.motion_preview &&
+    !landscape_preview &&
     state.camera_settings.restore(hunter_load_camera_preferences()) {
     if state.camera_settings.mode == 1 {
       state.align_tps_camera()
@@ -444,8 +448,8 @@ fn build_initial_state() -> GameState {
   }
   let initial = hunter_initial_terrain()
   if initial.length() > 0 {
-    ignore(state.apply_terrain_lab(initial))
-  } else if !state.motion_preview {
+    ignore(state.apply_terrain_lab(initial, persist=false))
+  } else if !state.motion_preview && !landscape_preview {
     state.restore_terrain_lab(hunter_load_terrain_preferences())
   }
   state

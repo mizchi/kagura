@@ -46,6 +46,11 @@ hunter-e2e:
 hunter-cpu-profile *args:
     node scripts/hacknslash_3d_cpu_perf.mjs "$@"
 
+# Compare terrain, highlands, live boundary preloading, the horizon and caves.
+[positional-arguments]
+hunter-map-profile *args:
+    node scripts/hacknslash_3d_map_perf.mjs "$@"
+
 # Any Kagura game URL; no game-specific input or query parameters are assumed.
 [positional-arguments]
 profile-web *args:

@@ -75,6 +75,7 @@ pub fn generate_hunting_grounds(seed : Int) -> DungeonData {
     start_y: start.y.to_double() * tile_size + tile_size / 2.0,
     height_map: Array::make(map_cols * map_rows, 0.0),
     terrain_surface: None,
+    landscape: None,
   }
 }
 
@@ -120,7 +121,10 @@ fn append_hunting_approach_enemies(
 }
 
 ///|
-fn equip_hunter_skills(skills : SkillTree, archetype~ : CharacterArchetype) -> Unit {
+fn equip_hunter_skills(
+  skills : SkillTree,
+  archetype~ : CharacterArchetype,
+) -> Unit {
   let ids = [PowerStrike, Whirlwind, SplittingFireball, IceNova]
   match archetype {
     Mage => ids.push(ChainLightning)

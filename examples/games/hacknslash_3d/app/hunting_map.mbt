@@ -21,9 +21,11 @@ fn build_hunting_chunk(
   cz : Int,
   region? : Int = -1,
 ) -> DungeonChunk {
-  let props = @game.hunting_site_props(seed).filter(p => {
-    @game.hunting_prop_present(p, dungeon.grid)
-  })
+  let props = (if dungeon.landscape is Some(_) {
+    @game.landscape_props(seed)
+  } else {
+    @game.hunting_site_props(seed)
+  }).filter(p => @game.hunting_prop_present(p, dungeon.grid))
   let occupied : Map[Int, Bool] = Map([])
   for prop in props {
     for z in prop.z..<(prop.z + prop.depth) {
@@ -39,6 +41,7 @@ fn build_hunting_chunk(
   let w = dungeon.grid.width
   let h = dungeon.grid.height
   let palette = world_region_palette(region)
+  let landscape = dungeon.landscape
   let accum = Array::makei(hunting_palette.length(), fn(_) {
     @procedural3d.RigidGeometry::new()
   })
@@ -68,10 +71,24 @@ fn build_hunting_chunk(
           site_material = 14
         }
       }
-      let material = if site_material >= 0 {
+      let rocky = match dungeon.terrain_surface {
+        Some(field) => field.at(x, z) > 5.0 && field.cell_slope(x, z) > 0.3
+        None => false
+      }
+      let nature = landscape.map(l => l.kind(x, z)).or(@game.Land)
+      let material = if nature == @game.CaveFloor {
+        22
+      } else if landscape is Some(_) &&
+        (nature == @game.Sea || nature == @game.River) {
+        21
+      } else if nature == @game.Mountain {
+        6
+      } else if site_material >= 0 {
         14
       } else if tile == @terrain.Corridor {
         2
+      } else if rocky {
+        6
       } else if hash % 7 < 2 {
         1
       } else {
@@ -79,6 +96,13 @@ fn build_hunting_chunk(
       }
       // Surface triangles share their diagonal with HeightField.sample/raycast.
       fn ground_corner(gx : Int, gz : Int) -> @math3d.Vec3 {
+        if landscape is Some(land) {
+          return @math3d.Vec3::new(
+            gx.to_double(),
+            land.bed.at(gx, gz),
+            gz.to_double(),
+          )
+        }
         if dungeon.terrain_surface is Some(surface) {
           return @math3d.Vec3::new(
             gx.to_double(),
@@ -103,13 +127,47 @@ fn build_hunting_chunk(
         ground_corner(x + 1, z),
         0,
       )
+      if landscape is Some(land) {
+        if land.bed
+          .at(x, z)
+          .min(land.bed.at(x + 1, z))
+          .min(land.bed.at(x, z + 1))
+          .min(land.bed.at(x + 1, z + 1)) <
+          -1.35 {
+          accum[19].quad(
+            @math3d.Vec3::new(px, -1.35, pz),
+            @math3d.Vec3::new(px, -1.35, pz + 1.0),
+            @math3d.Vec3::new(px + 1.0, -1.35, pz + 1.0),
+            @math3d.Vec3::new(px + 1.0, -1.35, pz),
+            0,
+          )
+          if hash % 13 == 0 && land.bed.sample(px + 0.5, pz + 0.5) < -2.0 {
+            accum[20].quad(
+              @math3d.Vec3::new(px + 0.2, -1.345, pz + 0.3),
+              @math3d.Vec3::new(px + 0.24, -1.345, pz + 0.35),
+              @math3d.Vec3::new(px + 0.8, -1.345, pz + 0.6),
+              @math3d.Vec3::new(px + 0.76, -1.345, pz + 0.55),
+              0,
+            )
+          }
+        }
+        if nature != @game.Land {
+          continue
+        }
+        if x >= 14 && x <= 17 && z >= 54 && z <= 57 {
+          continue
+        }
+      }
       if site_material == 13 && hash % 8 != 0 {
+        let paving = accum[if hash % 3 == 0 { 6 } else { 13 }]
+        let start = paving.vertices.length()
         hunting_broken_paving(
           accum[if hash % 3 == 0 { 6 } else { 13 }],
           px,
           pz,
           hash,
         )
+        drape_hunting_vertices(paving, start, dungeon)
       } else if site_material == 13 && hash % 3 == 0 {
         hunting_surface_grass(accum[10], px + 0.5, pz + 0.5, hash, dungeon)
       }
@@ -167,6 +225,7 @@ fn build_hunting_chunk(
       } else if site_material < 0 && tile != @terrain.Corridor && hash % 4 == 0 {
         hunting_surface_grass(accum[10], px + 0.5, pz + 0.5, hash, dungeon)
       } else if tile == @terrain.Corridor && hash % 9 == 0 {
+        let start = accum[6].vertices.length()
         accum[6].loft(
           px + 0.5,
           pz + 0.5,
@@ -174,6 +233,7 @@ fn build_hunting_chunk(
           5,
           0,
         )
+        drape_hunting_vertices(accum[6], start, dungeon)
       }
     }
   }
@@ -202,6 +262,20 @@ fn build_hunting_chunk(
       )
     }
   }
+  if landscape is Some(land) {
+    for bridge in land.bridges {
+      if bridge.ax.to_int() / chunk_size == cx &&
+        bridge.az.to_int() / chunk_size == cz {
+        append_landscape_bridge(accum, dungeon, bridge)
+      }
+    }
+    if 61 / chunk_size == cx && 18 / chunk_size == cz {
+      append_landscape_cave(accum, dungeon, land.cave)
+    }
+    if 15 / chunk_size == cx && 55 / chunk_size == cz {
+      append_landscape_beacon(accum, dungeon)
+    }
+  }
   let groups : Array[DungeonMeshGroup] = []
   let all_v : Array[Double] = []
   let all_i : Array[Int] = []
@@ -210,7 +284,11 @@ fn build_hunting_chunk(
     groups.push({
       mesh,
       color: palette[i],
-      surface_kind: Floor,
+      surface_kind: if i == 23 {
+        Pillar
+      } else {
+        Floor
+      },
       dst_region: @gfx.new_dst_region(
         0,
         0,
@@ -233,6 +311,7 @@ fn build_hunting_chunk(
 ///|
 fn build_visible_hunting_mesh_cache(
   chunks : Array[DungeonChunk],
+  combined? : Bool = true,
 ) -> VisibleDungeonMeshCache {
   let palette = if chunks.is_empty() {
     hunting_palette
@@ -248,7 +327,9 @@ fn build_visible_hunting_mesh_cache(
       let mesh = chunk.groups[i].mesh
       merge_mesh_at(accum[i].vertices, accum[i].indices, mesh, 0.0, 0.0, 0.0)
     }
-    merge_mesh_at(all.vertices, all.indices, chunk.all_mesh, 0.0, 0.0, 0.0)
+    if combined {
+      merge_mesh_at(all.vertices, all.indices, chunk.all_mesh, 0.0, 0.0, 0.0)
+    }
   }
   let groups : Array[DungeonMeshGroup] = []
   for i in 0..<accum.length() {
@@ -258,7 +339,11 @@ fn build_visible_hunting_mesh_cache(
     groups.push({
       mesh: @mesh3d.Mesh3D::new(accum[i].vertices, accum[i].indices),
       color: palette[i],
-      surface_kind: Floor,
+      surface_kind: if i == 23 {
+        Pillar
+      } else {
+        Floor
+      },
       dst_region: @gfx.new_dst_region(
         0,
         0,
@@ -280,6 +365,9 @@ fn GameState::push_hunting_ground_commands(
   cmds : Array[@gfx.DrawTrianglesCommand],
 ) -> Unit {
   for group in groups {
+    if group.surface_kind == Pillar && self.cave_roof_hidden() {
+      continue
+    }
     cmds.push(
       @draw3d.new_lit_colored_mesh_draw_command(
         dst,

@@ -92,3 +92,20 @@ test "terrain pointer picking and contact effects agree with rendered surface" {
     (s.active_effects[0].placement.origin.y - position.y - 0.35).abs() < 0.00001,
   )
 }
+
+///|
+test "default expedition can compare flat terrain and restore its saved layout" {
+  let s = GameState::new_with_params(
+    seed=42,
+    @game.BalanceParams::default(),
+    hunting_grounds=true,
+  )
+  assert_eq(s.terrain_lab_view().pattern, 5)
+  let heights = s.world.dungeon.terrain_surface.unwrap().values.copy()
+  assert_true(s.apply_terrain_lab([0.0, 42.0, 4.0, 18.0, 0.5]))
+  assert_eq(s.terrain_lab_view().pattern, 0)
+  assert_true(s.world.dungeon.terrain_surface is None)
+  assert_true(s.apply_terrain_lab([5.0, 42.0, 4.0, 18.0, 0.5]))
+  assert_eq(s.terrain_lab_view().pattern, 5)
+  assert_eq(s.world.dungeon.terrain_surface.unwrap().values, heights)
+}

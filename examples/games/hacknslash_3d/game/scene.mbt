@@ -75,6 +75,7 @@ fn scene_dungeon(scene : AuthoredScene) -> DungeonData {
     start_y: scene.spawn[1] * tile_size,
     height_map: Array::make(map_cols * map_rows, 0.0),
     terrain_surface: None,
+    landscape: None,
   }
 }
 

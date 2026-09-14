@@ -319,6 +319,7 @@ pub fn GameWorld::apply_dungeon(
   }
   self.dungeon.grid = dungeon.grid
   self.dungeon.terrain_surface = dungeon.terrain_surface
+  self.dungeon.landscape = dungeon.landscape
   self.dungeon.rooms.clear()
   for room in dungeon.rooms {
     self.dungeon.rooms.push(room)

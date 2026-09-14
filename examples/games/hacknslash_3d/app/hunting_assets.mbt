@@ -60,6 +60,11 @@ let hunting_palette : Array[@math3d.Vec4] = [
   hex_to_vec4(0x978064), // tent flaps
   hex_to_vec4(0x272E2D), // iron bands
   hex_to_vec4(0x8A6744), // split timber
+  hex_to_vec4(0x235D68), // deep water
+  hex_to_vec4(0x74A8A4), // foam
+  hex_to_vec4(0x867B58), // exposed shore
+  hex_to_vec4(0x30373A), // cave interior
+  hex_to_vec4(0x58615C), // removable rock canopy
 ]
 
 ///|

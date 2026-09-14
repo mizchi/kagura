@@ -229,6 +229,7 @@ fn GameState::draw_playing(
   let rt = if gpu_capture { ctx.dst } else { self.pipeline.scene_target }
   let identity = @math3d.Mat4::identity()
   let visible_dungeon_cache = self.get_visible_dungeon_mesh_cache_for_player()
+  self.push_sky_commands(camera, rt, cmds)
   // === Pass 1-2: Dungeon shadow/depth + shaded geometry ===
   self.push_dungeon_chunk_commands(
     visible_dungeon_cache.groups,
@@ -263,6 +264,7 @@ fn GameState::draw_playing(
       self.world.dungeon.grid.height,
     )
   }
+  self.push_scenery_commands(view_projection, rt, cmds)
   self.push_neighbor_region_commands(view_projection, rt, cmds)
   self.push_world_waypoint(view_projection, rt, cmds)
   self.push_treasure_commands(view_projection, rt, cmds)

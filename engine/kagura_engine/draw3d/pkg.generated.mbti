@@ -50,6 +50,8 @@ pub fn new_skinned_lit_mesh_draw_command(@gfx.ImageHandle, @gfx.ShaderHandle, @g
 
 pub fn new_skinned_lit_mesh_draw_command_from_skin(@gfx.ImageHandle, @gfx.ShaderHandle, @gfx.DstRegion, Int, Int, Int, @gfx.BlendMode, @mesh3d.Mesh3D, @skeleton3d.SkinData, @math3d.Mat4, @math3d.Mat4, @light3d.LightingEnvironment, Array[@math3d.Mat4], Array[Int]) -> @gfx.DrawTrianglesCommand
 
+pub fn new_sky_draw_command(@gfx.ImageHandle, @gfx.ShaderHandle, @mesh3d.Mesh3D, @math3d.Mat4, @math3d.Vec3, SkySettings) -> @gfx.DrawTrianglesCommand
+
 pub fn particle_uniform_dwords(@math3d.Mat4) -> Array[Int]
 
 pub fn pbr_uniform_dwords(@math3d.Mat4, @math3d.Mat4, @light3d.LightingEnvironment, Double, Double, @math3d.Vec4, @math3d.Vec3, @math3d.Vec3, environment? : PbrEnvironment?, shadow? : PbrShadow?, viewport_height? : Double, receive_shadow? : Bool, storage? : Array[Int]?) -> Array[Int]
@@ -80,6 +82,8 @@ pub fn shader3d_pbr_wgsl(texture_srgb? : Bool, unlit? : Bool, environment? : Boo
 
 pub fn shader3d_present_wgsl() -> String
 
+pub fn shader3d_sky_wgsl() -> String
+
 pub fn shader3d_standard_unlit_wgsl(tonemapped? : Bool, fog? : Bool, srgb_texture? : Bool) -> String
 
 pub fn shader3d_standard_wgsl(linear_output? : Bool, srgb_texture? : Bool) -> String
@@ -91,6 +95,8 @@ pub fn skinned_instanced_max_instances() -> Int
 pub fn skinned_instanced_monochrome_lit_uniform_dwords(@math3d.Mat4, @light3d.LightingEnvironment, Array[@math3d.Mat4], Array[@math3d.Mat4], @math3d.Vec4) -> Array[Int]
 
 pub fn skinned_lit_uniform_dwords() -> Int
+
+pub fn sky_mesh() -> @mesh3d.Mesh3D
 
 // Errors
 
@@ -108,6 +114,17 @@ pub(all) struct PbrShadow {
   bias : Double
   texel_size : Double
 }
+
+pub(all) struct SkySettings {
+  horizon : @math3d.Vec3
+  zenith : @math3d.Vec3
+  ground : @math3d.Vec3
+  sun_direction : @math3d.Vec3
+  sun_color : @math3d.Vec3
+  cloud_color : @math3d.Vec3
+  cloud_cover : Double
+}
+pub fn SkySettings::default() -> Self
 
 // Type aliases
 

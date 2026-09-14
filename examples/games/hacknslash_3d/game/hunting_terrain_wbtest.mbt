@@ -1,6 +1,12 @@
 ///|
 test "terrain experiments keep roads, sites, collision and progress while lifting the woodland" {
   let w = GameWorld::new(seed=42, hunting_grounds=true)
+  ignore(
+    w.set_hunting_terrain({
+      ..@terrain3d.TerrainConfig::default(),
+      pattern: @terrain3d.Flat,
+    }),
+  )
   let before = Array::makei(map_cols * map_rows, i => {
     w.dungeon.grid.get(i % map_cols, i / map_cols)
   })
@@ -61,6 +67,6 @@ test "neighbor terrain shares exact boundary heights before and after regional t
     assert_eq(left.at(map_cols - 1, z), right.at(1, z))
     assert_eq(left.at(map_cols - 2, z), right.at(0, z))
   }
-  assert_true(w.enter_region(1, 50.0 * tile_size, 40.0 * tile_size))
+  assert_true(w.enter_region(1, 43.5 * tile_size, 62.5 * tile_size))
   assert_eq(w.dungeon.terrain_surface.unwrap().values, right.values)
 }

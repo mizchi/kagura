@@ -43,6 +43,7 @@ fn GameState::new_with_params(
   hunting_grounds? : Bool = false,
   species? : CharacterSpecies = Human,
 ) -> GameState {
+  let map_started = hunter_terrain_clock()
   let world = @game.GameWorld::new(
     seed~,
     params~,
@@ -71,7 +72,7 @@ fn GameState::new_with_params(
     @math.PI / 5.0,
     sw / sh,
     0.1,
-    100.0,
+    700.0,
   )
   let lighting = @light3d.LightingEnvironment::new(
     @light3d.DirectionalLight::new(
@@ -90,6 +91,8 @@ fn GameState::new_with_params(
   } else {
     build_dungeon_chunks(world.dungeon, meshes)
   }
+  let scenery = build_scenery_cache(world)
+  let initial_map_ms = (hunter_terrain_clock() - map_started).max(0.0)
   let dungeon_tinted_lighting_cache = build_dungeon_tinted_lighting_cache(
     lighting,
   )
@@ -111,6 +114,10 @@ fn GameState::new_with_params(
   character.equip_outfit(CharacterOutfit::from_equipment(world.equipment))
   {
     world,
+    scenery,
+    scenery_shader: @gfx.new_shader_handle(119, scenery_shader_wgsl()),
+    sky_mesh: @draw3d.sky_mesh(),
+    sky_shader: @gfx.new_shader_handle(120, @draw3d.shader3d_sky_wgsl()),
     aim: HunterAimState::new(),
     combat_feedback: CombatFeedbackState::new(),
     input: @inpututil.new_input_helper(),
@@ -118,7 +125,8 @@ fn GameState::new_with_params(
     profile: @engine.default_frame_profile(),
     camera,
     camera_settings: HunterCameraSettings::new(),
-    terrain_lab: TerrainLabState::new(),
+    terrain_lab: TerrainLabState::new(world.dungeon),
+    expedition_map: build_expedition_map(world),
     lighting,
     shader3d: @gfx.new_shader_handle(
       100,
@@ -229,6 +237,10 @@ fn GameState::new_with_params(
     region_meshes: [None, None, None, None],
     region_mesh_stamp: 0,
     region_chunks_built: 0,
+    region_prepare_max_ms: 0.0,
+    region_chunk_max_ms: 0.0,
+    region_batch_max_ms: 0.0,
+    initial_map_ms,
     inventory_notice: "",
     paused: false,
     active_save_slot: 0,
@@ -258,7 +270,12 @@ fn GameState::update(self : GameState, input : @core.InputSnapshot) -> Unit {
       self.world.select_cursor = selection
     } else {
       let count = match self.world.ui_mode {
-        Waypoints => @game.world_regions.length()
+        Waypoints =>
+          if self.expedition_map is Some(_) {
+            8
+          } else {
+            @game.world_regions.length()
+          }
         Inventory => self.world.inventory.capacity
         Skills => self.world.skills.nodes.length()
         LevelUp => self.world.level_progress.current_offers.length()
@@ -937,8 +954,12 @@ fn GameState::update_damage_popups(self : GameState) -> Unit {
 
 ///|
 fn GameState::rebuild_dungeon_rendering(self : GameState) -> Unit {
-  ignore(self.world.set_hunting_terrain(self.terrain_lab.config))
+  if self.terrain_lab.config.pattern != @terrain3d.Flat ||
+    self.world.atlas is Some({ elevation: Some(_), .. }) {
+    ignore(self.world.set_hunting_terrain(self.terrain_lab.config))
+  }
   self.refresh_terrain_stats()
+  self.expedition_map = build_expedition_map(self.world)
   self.combat_feedback.hitstop = 0
   self.combat_feedback.look_x = 0.0
   self.combat_feedback.look_y = 0.0
@@ -956,6 +977,13 @@ fn GameState::rebuild_dungeon_rendering(self : GameState) -> Unit {
     )
   } else {
     build_dungeon_chunks(self.world.dungeon, self.meshes)
+  }
+  if self.world.dungeon.landscape is None {
+    self.scenery = None
+  } else if self.scenery is None ||
+    self.scenery.unwrap().seed !=
+    self.world.atlas.map(a => a.world_seed).or(self.world.seed) {
+    self.scenery = build_scenery_cache(self.world)
   }
   self.dungeon_tinted_lighting_cache = build_dungeon_tinted_lighting_cache(
     self.lighting,

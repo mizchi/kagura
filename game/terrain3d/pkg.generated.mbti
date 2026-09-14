@@ -22,7 +22,9 @@ pub struct HeightField {
   values : Array[Double]
 }
 pub fn HeightField::at(Self, Int, Int) -> Double
+pub fn HeightField::cell_slope(Self, Int, Int) -> Double
 pub fn HeightField::crop(Self, Int, Int, Int, Int) -> Self
+pub fn HeightField::grade_routes(Self, Array[TerrainPad], Array[TerrainRoute], blend~ : Double) -> Unit
 pub fn HeightField::limit_slope(Self, Double) -> Unit
 pub fn HeightField::new(Int, Int, Array[Double]) -> Self
 pub fn HeightField::project_polygon(Self, Array[(Double, Double)], lift? : Double) -> @mesh3d.Mesh3D
@@ -48,6 +50,13 @@ pub(all) struct TerrainConfig {
 pub fn TerrainConfig::default() -> Self
 pub fn TerrainConfig::validated(Self) -> Self
 
+pub(all) struct TerrainPad {
+  x : Double
+  z : Double
+  height : Double
+  radius : Double
+} derive(ToJson)
+
 pub(all) enum TerrainPattern {
   Flat
   Perlin
@@ -55,6 +64,17 @@ pub(all) enum TerrainPattern {
   Voronoi
   Hybrid
 } derive(Eq, ToJson, @debug.Debug, @json.FromJson)
+
+pub(all) struct TerrainRoute {
+  ax : Double
+  az : Double
+  ah : Double
+  bx : Double
+  bz : Double
+  bh : Double
+  width : Double
+} derive(ToJson)
+pub fn TerrainRoute::projection(Self, Double, Double) -> (Double, Double)
 
 // Type aliases
 

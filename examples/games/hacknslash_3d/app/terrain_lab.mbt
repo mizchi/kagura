@@ -8,18 +8,20 @@ struct TerrainLabState {
 }
 
 ///|
-fn TerrainLabState::new() -> TerrainLabState {
+fn TerrainLabState::new(dungeon : @game.DungeonData) -> TerrainLabState {
   {
     editing: false,
     config: { ..@terrain3d.TerrainConfig::default(), pattern: @terrain3d.Flat, },
     revision: 0,
     generation_ms: 0.0,
-    stats: {
+    stats: dungeon.terrain_surface
+    .map(s => s.statistics())
+    .or({
       minimum: 0.0,
       maximum: 0.0,
       max_slope: 0.0,
       triangles: @game.map_cols * @game.map_rows * 2,
-    },
+    }),
   }
 }
 
@@ -38,19 +40,36 @@ fn terrain_pattern_index(pattern : @terrain3d.TerrainPattern) -> Int {
 fn GameState::apply_terrain_lab(
   self : GameState,
   command : Array[Double],
+  persist? : Bool = true,
 ) -> Bool {
   if command.length() != 5 ||
     command.any(v => v.is_nan() || v.abs() > 2147483646.0) {
     return false
   }
   let index = command[0].to_int()
-  if command[0] != index.to_double() || index < 0 || index > 4 {
+  if command[0] != index.to_double() || index < 0 || index > 5 {
     return false
   }
   if self.world.atlas is None || self.world.authored_scene is Some(_) {
     return false
   }
   let start = hunter_terrain_clock()
+  if index == 5 {
+    if !self.world.restore_expedition_terrain() {
+      return false
+    }
+    self.terrain_lab.config = {
+      ..self.terrain_lab.config,
+      pattern: @terrain3d.Flat,
+    }
+    self.rebuild_dungeon_rendering()
+    self.terrain_lab.revision += 1
+    self.terrain_lab.generation_ms = (hunter_terrain_clock() - start).max(0.0)
+    if persist {
+      hunter_save_terrain_preferences("")
+    }
+    return true
+  }
   let config : @terrain3d.TerrainConfig = {
     pattern: match index {
       1 => Perlin
@@ -74,7 +93,9 @@ fn GameState::apply_terrain_lab(
   self.refresh_terrain_stats()
   self.terrain_lab.revision += 1
   self.terrain_lab.generation_ms = (hunter_terrain_clock() - start).max(0.0)
-  hunter_save_terrain_preferences(config.to_json().stringify())
+  if persist {
+    hunter_save_terrain_preferences(config.to_json().stringify())
+  }
   true
 }
 
@@ -113,6 +134,7 @@ fn GameState::restore_terrain_lab(self : GameState, source : String) -> Unit {
 ///|
 struct TerrainLabView {
   editing : Bool
+  expedition_available : Bool
   enabled : Bool
   pattern : Int
   seed : Int
@@ -130,9 +152,23 @@ fn GameState::terrain_lab_view(self : GameState) -> TerrainLabView {
   let lab = self.terrain_lab
   {
     editing: lab.editing,
+    expedition_available: self.world.atlas is Some(a) &&
+    a.generator_version >= 2,
     enabled: self.world.atlas is Some(_) && self.world.authored_scene is None,
-    pattern: terrain_pattern_index(lab.config.pattern),
-    seed: lab.config.seed,
+    pattern: if self.world.atlas is Some(a) &&
+      a.generator_version >= 2 &&
+      a.elevation is None {
+      5
+    } else {
+      terrain_pattern_index(lab.config.pattern)
+    },
+    seed: if self.world.atlas is Some(a) &&
+      a.generator_version >= 2 &&
+      a.elevation is None {
+      self.world.seed
+    } else {
+      lab.config.seed
+    },
     amplitude: lab.config.amplitude,
     scale: lab.config.scale,
     roughness: lab.config.roughness,

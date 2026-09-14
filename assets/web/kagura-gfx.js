@@ -34,6 +34,17 @@ function isStride64(source) {
     /weights\s*:\s*vec4<f32>/.test(source);
 }
 
+function commandNeedsDepth(cmd) {
+  return cmd.isCustom && (cmd.vertexStrideHint > 0 ? cmd.vertexStrideHint >= 8 : is3DShader(cmd.shaderSource));
+}
+
+function drawIndexedRange(pass, cmd) {
+  const count = cmd.indexCount ?? cmd.indices.length;
+  const first = cmd.firstIndex ?? 0;
+  if (first === 0 && count === cmd.indices.length) pass.drawIndexed(count, getInstanceCount(cmd));
+  else pass.drawIndexed(count, getInstanceCount(cmd), first);
+}
+
 function is3DShader(source) {
   return isStride32(source) || isStride64(source);
 }
@@ -154,19 +165,20 @@ export function enqueueCustomDraw(gpu, source) {
   return queueCustomDraw(gpu, source.shaderId, source.shaderSource, source,
     source.uniformDwords, source.srcImageIds, source.dstImageId, source.dstWidth,
     source.dstHeight, source.blendMode, getInstanceCount(source), source.vertexStrideHint,
-    getResourceCacheKey(source));
+    getResourceCacheKey(source), source.firstIndex ?? 0, source.indexCount ?? source.indices.length);
 }
 
 /** Positional MoonBit JS bridge. Borrowed arrays are consumed synchronously;
  * no temporary descriptor or spread copy is created per source draw. */
 export function submitCustomDraw(gpu, shaderId, shaderSource, vertices, indices,
-  uniforms, sources, dstId, width, height, blendMode, instanceCount, stride) {
+  uniforms, sources, dstId, width, height, blendMode, instanceCount, stride, firstIndex = 0, indexCount = indices.length) {
   return queueCustomDraw(gpu, shaderId, shaderSource, snapshotDrawGeometry(gpu, vertices, indices),
-    uniforms, sources, dstId, Math.max(1, width), Math.max(1, height), blendMode, instanceCount, stride, 0);
+    uniforms, sources, dstId, Math.max(1, width), Math.max(1, height), blendMode, instanceCount, stride, 0, firstIndex, indexCount);
 }
 
 function queueCustomDraw(gpu, shaderId, shaderSource, geometry, uniformData, sourceIds,
-  dstImageId, dstWidth, dstHeight, blendMode, instanceCount, vertexStrideHint, resourceCacheKey) {
+  dstImageId, dstWidth, dstHeight, blendMode, instanceCount, vertexStrideHint, resourceCacheKey, firstIndex, indexCount) {
+  if (!Number.isInteger(firstIndex) || !Number.isInteger(indexCount) || firstIndex < 0 || indexCount < 0 || firstIndex + indexCount > geometry.indices.length) throw new RangeError("Invalid geometry index range");
   const words = instanceDwords(gpu, shaderSource);
   if (words && (uniformData.length !== words || instanceCount !== 1)) throw new RangeError("Instance uniform draw requires one complete uniform record");
   const commands = gpu.commands ??= [];
@@ -176,6 +188,7 @@ function queueCustomDraw(gpu, shaderId, shaderSource, geometry, uniformData, sou
       previous.vertexData === geometry.vertexData && previous.indices === geometry.indices &&
       previous.dstImageId === dstImageId && previous.dstWidth === dstWidth && previous.dstHeight === dstHeight &&
       previous.vertexStrideHint === vertexStrideHint && previous.instanceCount < 32 &&
+      previous.firstIndex === firstIndex && previous.indexCount === indexCount &&
       equalDwords(previous.srcImageIds, sourceIds)) {
     previous.uniformDwords.set(uniformData, previous.instanceCount * words);
     previous.instanceCount++;
@@ -198,6 +211,8 @@ function queueCustomDraw(gpu, shaderId, shaderSource, geometry, uniformData, sou
   command.shaderSource = shaderSource;
   command.vertexData = geometry.vertexData;
   command.indices = geometry.indices;
+  command.firstIndex = firstIndex;
+  command.indexCount = indexCount;
   command.dstImageId = dstImageId;
   command.dstWidth = dstWidth;
   command.dstHeight = dstHeight;
@@ -602,7 +617,7 @@ function countRenderPasses(drawCommands) {
   for (let i = 0; i < drawCommands.length; i += 1) {
     const cmd = drawCommands[i];
     const targetId = cmd.dstImageId | 0;
-    const needsDepth = cmd.isCustom && is3DShader(cmd.shaderSource);
+    const needsDepth = commandNeedsDepth(cmd);
     if (passCount === 0 || targetId !== lastTargetId || needsDepth !== lastNeedsDepth) {
       passCount += 1;
       lastTargetId = targetId;
@@ -1403,7 +1418,7 @@ function drawDefaultCommand(gpu, device, pass, cmd, drawIndex, cache, passFormat
     pass.setBindGroup(1, texBG);
     pass.setVertexBuffer(0, vbEntry.buffer);
     pass.setIndexBuffer(ibEntry.buffer, "uint32");
-    pass.drawIndexed(cmd.indices.length, getInstanceCount(cmd));
+    drawIndexedRange(pass, cmd);
   });
 }
 
@@ -1735,7 +1750,7 @@ function drawCustomCommand(gpu, device, pass, cmd, format, drawIndex, cache, bre
     pass.setBindGroup(0, bindGroup);
     pass.setVertexBuffer(0, vb);
     pass.setIndexBuffer(ib, "uint32");
-    pass.drawIndexed(cmd.indices.length, getInstanceCount(cmd));
+    drawIndexedRange(pass, cmd);
   });
 
   // Schedule buffer cleanup after GPU submission
@@ -1902,7 +1917,7 @@ export function renderGpu(gpu, device, context, clearColor, format) {
     for (let i = 0; i < drawCommands.length; i++) {
       const cmd = drawCommands[i];
       const targetId = cmd.dstImageId | 0;
-      const needsDepth = cmd.isCustom && is3DShader(cmd.shaderSource);
+      const needsDepth = commandNeedsDepth(cmd);
 
       if (targetId !== currentPassTarget || needsDepth !== currentPassHasDepth) {
         // End current pass

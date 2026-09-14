@@ -6,6 +6,8 @@ struct RegionMeshCache {
   seed : Int
   chunks : Array[DungeonChunk]
   total : Int
+  batches : Array[VisibleDungeonMeshCache]
+  mut visible_builds : Int
   mut last_used : Int
 }
 
@@ -89,6 +91,8 @@ fn GameState::update_region_streaming(self : GameState) -> Bool {
       seed: self.world.seed,
       chunks: self.dungeon_chunks,
       total,
+      batches: [],
+      visible_builds: 0,
       last_used: self.region_mesh_stamp,
     })
   }
@@ -102,8 +106,15 @@ fn GameState::update_region_streaming(self : GameState) -> Bool {
   let requests = self.world.preload_regions()
   // At most three area meshes (active + two neighbors). Eviction never discards simulation progress.
   for id in requests {
-    if !self.world.prepare_region(id) {
-      continue
+    if atlas.regions[id] is None {
+      let prepare_started = hunter_terrain_clock()
+      if !self.world.prepare_region(id) {
+        continue
+      }
+      self.region_prepare_max_ms = self.region_prepare_max_ms.max(
+        hunter_terrain_clock() - prepare_started,
+      )
+      break // Generation and the first mesh must not consume the same frame.
     }
     self.region_mesh_stamp += 1
     if self.region_meshes[id] is None {
@@ -133,17 +144,27 @@ fn GameState::update_region_streaming(self : GameState) -> Bool {
         seed: region.seed,
         chunks: [],
         total,
+        batches: [],
+        visible_builds: 0,
         last_used: self.region_mesh_stamp,
       })
     }
     let cache = self.region_meshes[id].unwrap()
     cache.last_used = self.region_mesh_stamp
     if cache.ready() {
+      let batch_started = hunter_terrain_clock()
+      if cache.prepare_next_batch() {
+        self.region_batch_max_ms = self.region_batch_max_ms.max(
+          hunter_terrain_clock() - batch_started,
+        )
+        break
+      }
       continue
     }
     let region = atlas.regions[id].unwrap()
     let columns = (@game.map_cols + chunk_size - 1) / chunk_size
     let next = cache.chunks.length()
+    let chunk_started = hunter_terrain_clock()
     cache.chunks.push(
       build_hunting_chunk(
         region.dungeon,
@@ -152,6 +173,9 @@ fn GameState::update_region_streaming(self : GameState) -> Bool {
         next / columns,
         region=id,
       ),
+    )
+    self.region_chunk_max_ms = self.region_chunk_max_ms.max(
+      hunter_terrain_clock() - chunk_started,
     )
     self.region_chunks_built += 1
     break // One chunk per simulation update. Repeated proximity never rebuilds completed work.
@@ -181,6 +205,7 @@ fn GameState::adopt_region_mesh(
   waypoint? : Bool = false,
 ) -> Unit {
   self.refresh_terrain_stats()
+  self.expedition_map = build_expedition_map(self.world)
   self.dungeon_chunks = self.region_meshes[id].unwrap().chunks
   self.invalidate_visible_chunk_cache()
   self.invalidate_minimap_cache()
@@ -245,6 +270,9 @@ fn GameState::push_neighbor_region_commands(
   let region = @game.world_regions[atlas.current]
   for entry in self.region_meshes {
     guard entry is Some(cache) else { continue }
+    if self.scenery is Some(_) && !cache.ready() {
+      continue
+    }
     let neighbor = @game.world_regions[cache.region]
     if (neighbor.x - region.x).abs() + (neighbor.z - region.z).abs() != 1 {
       continue
@@ -264,38 +292,120 @@ fn GameState::push_neighbor_region_commands(
     let model = @transform3d.Transform3D::from_position(
       @math3d.Vec3::new(ox, 0.0, oz),
     ).to_mat4()
-    for chunk in cache.chunks {
-      if (chunk.cx.to_double() * chunk_size.to_double() + 12.0 - px).abs() >
-        40.0 ||
-        (chunk.cz.to_double() * chunk_size.to_double() + 12.0 - pz).abs() > 40.0 {
-        continue
-      }
-      for group in chunk.groups {
-        if group.mesh.indices.is_empty() {
-          continue
+    for group in cache.visible_groups(px, pz) {
+      @web_hooks.register_static_geometry(
+        group.mesh.vertex_data,
+        group.mesh.indices,
+      )
+      cmds.push(
+        @draw3d.new_lit_colored_mesh_draw_command(
+          dst,
+          self.shader3d_colored,
+          group.dst_region,
+          0,
+          0,
+          0,
+          @gfx.BlendMode::from_int(0),
+          group.mesh,
+          model,
+          vp,
+          self.lighting,
+          group.color,
+          [],
+        ),
+      )
+    }
+  }
+}
+
+///|
+fn neighbor_chunk_visible(
+  chunk : DungeonChunk,
+  px : Double,
+  pz : Double,
+) -> Bool {
+  neighbor_detail_visible(chunk.cx, chunk.cz, px, pz)
+}
+
+///|
+fn neighbor_detail_visible(
+  cx : Int,
+  cz : Int,
+  px : Double,
+  pz : Double,
+) -> Bool {
+  // The very narrow last column uses its actual center, not an out-of-map one.
+  let x0 = cx.to_double() * chunk_size.to_double()
+  let z0 = cz.to_double() * chunk_size.to_double()
+  let x1 = (x0 + chunk_size.to_double()).min(@game.map_cols.to_double())
+  let z1 = (z0 + chunk_size.to_double()).min(@game.map_rows.to_double())
+  // Same region-level gate as submission, shared with the coarse LOD partition.
+  px >= -28.0 &&
+  px <= @game.map_cols.to_double() + 28.0 &&
+  pz >= -28.0 &&
+  pz <= @game.map_rows.to_double() + 28.0 &&
+  ((x0 + x1) * 0.5 - px).abs() <= 32.0 &&
+  ((z0 + z1) * 0.5 - pz).abs() <= 32.0
+}
+
+///|
+/// Build a vertical pair during preload, outside drawing. Each pair is small
+/// enough to budget independently; a camera change never allocates geometry.
+fn RegionMeshCache::prepare_next_batch(self : RegionMeshCache) -> Bool {
+  let columns = (@game.map_cols + chunk_size - 1) / chunk_size
+  let rows = (@game.map_rows + chunk_size - 1) / chunk_size
+  let total_batches = columns * ((rows + 1) / 2)
+  if !self.ready() || self.batches.length() >= total_batches {
+    return false
+  }
+  let index = self.batches.length()
+  let cx = index % columns
+  let cz = index / columns * 2
+  let chunks = self.chunks.filter(c => {
+    c.cx == cx && (c.cz == cz || c.cz == cz + 1)
+  })
+  self.batches.push(build_visible_hunting_mesh_cache(chunks, combined=false))
+  self.visible_builds += 1
+  true
+}
+
+///|
+/// Use a prepared pair only when both chunks are visible. Partially visible or
+/// unfinished pairs retain their original groups, so culling remains exact.
+fn RegionMeshCache::visible_groups(
+  self : RegionMeshCache,
+  px : Double,
+  pz : Double,
+) -> Array[DungeonMeshGroup] {
+  let columns = (@game.map_cols + chunk_size - 1) / chunk_size
+  let groups : Array[DungeonMeshGroup] = []
+  for chunk in self.chunks {
+    if !neighbor_chunk_visible(chunk, px, pz) {
+      continue
+    }
+    let pair = chunk.cz / 2 * columns + chunk.cx
+    let partner_index = (if chunk.cz % 2 == 0 {
+        chunk.cz + 1
+      } else {
+        chunk.cz - 1
+      }) *
+      columns +
+      chunk.cx
+    if pair < self.batches.length() &&
+      partner_index < self.chunks.length() &&
+      neighbor_chunk_visible(self.chunks[partner_index], px, pz) {
+      if chunk.cz % 2 == 0 {
+        for group in self.batches[pair].groups {
+          groups.push(group)
         }
-        @web_hooks.register_static_geometry(
-          group.mesh.vertex_data,
-          group.mesh.indices,
-        )
-        cmds.push(
-          @draw3d.new_lit_colored_mesh_draw_command(
-            dst,
-            self.shader3d_colored,
-            group.dst_region,
-            0,
-            0,
-            0,
-            @gfx.BlendMode::from_int(0),
-            group.mesh,
-            model,
-            vp,
-            self.lighting,
-            group.color,
-            [],
-          ),
-        )
+      }
+    } else {
+      for group in chunk.groups {
+        if !group.mesh.indices.is_empty() {
+          groups.push(group)
+        }
       }
     }
   }
+  groups
 }

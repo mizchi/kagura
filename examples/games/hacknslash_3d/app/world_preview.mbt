@@ -122,6 +122,11 @@ fn apply_hunting_site_preview(
     .with_target(
       @math3d.Vec3::new(
         site.x.to_double() + 0.5,
+        @game.get_tile_height(
+          state.world.dungeon,
+          (site.x.to_double() + 0.5) * tile_size,
+          (site.z.to_double() + 0.5) * tile_size,
+        ) +
         0.35,
         site.z.to_double() + 0.5,
       ),
@@ -136,10 +141,10 @@ fn apply_hunting_terrain_preview(state : GameState) -> Unit {
   state.world.auto_play = false
   state.world.enemies.clear()
   // Open woodland north of the road, away from the protected settlement pads.
-  state.world.player.x = 53.5 * tile_size
-  state.world.player.y = 16.5 * tile_size
-  for z in 15..<18 {
-    for x in 52..<55 {
+  state.world.player.x = 22.5 * tile_size
+  state.world.player.y = 15.5 * tile_size
+  for z in 14..<17 {
+    for x in 21..<24 {
       state.world.dungeon.grid.set(x, z, @terrain.Floor)
     }
   }
@@ -218,4 +223,48 @@ fn apply_player_summon_preview(state : GameState, peaceful : Bool) -> Unit {
     enemy.shoot_cooldown = 120
   }
   state.camera = state.camera.with_distance(11.0)
+}
+
+///|
+fn apply_landscape_preview(state : GameState, landmark : String) -> Unit {
+  state.world.mode = @game.Playing
+  state.world.auto_play = false
+  state.world.enemies.clear()
+  let (x, z, yaw, tilt, distance) = match landmark {
+    "cave" => (61.5, 26.5, 0.22, 0.68, 23.0)
+    "inside" => (61.5, 18.5, 0.22, 0.68, 20.0)
+    "coast" => (13.5, 49.5, 1.65, 0.2, 20.0)
+    "ridge" => (87.5, 40.5, 1.3, 0.18, 22.0)
+    _ => (26.5, 49.5, 0.20, 0.64, 25.0)
+  }
+  let (x, z) = @game.hunting_safe_position(
+    state.world.dungeon,
+    x * tile_size,
+    z * tile_size,
+    state.world.player.size,
+  )
+  state.world.player.x = x
+  state.world.player.y = z
+  state.camera_settings.quarter = {
+    ..state.camera_settings.quarter,
+    tilt: tilt * 180.0 / @math.PI,
+    distance,
+  }
+  state.camera = state.camera
+    .orbit(yaw - state.camera.yaw, tilt - state.camera.pitch)
+    .with_distance(distance)
+  if landmark == "coast" {
+    state.camera_settings.mode = 1
+    state.camera_settings.tps = {
+      ..hunter_camera_defaults(1),
+      tilt: 10.0,
+      height: 1.2,
+    }
+    state.world.player.facing_angle = @math.atan2(
+      -@math.cos(yaw),
+      -@math.sin(yaw),
+    )
+    state.apply_camera_tuning()
+  }
+  state.update_combat_camera()
 }

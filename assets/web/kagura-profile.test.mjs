@@ -41,3 +41,8 @@ test('GPU timestamps and queue completion retain their measurement method', () =
   assert.equal(profiler.snapshot().gpuTimingMethod, 'queue-completion');
   assert.equal(profiler.snapshot().gpuFrameMs, 2.5);
 });
+
+test('profiler counts submitted index ranges instead of entire shared buffers',()=>{
+  const p=installFrameProfiler({__kaguraWebRuntime:{webgpu:{commands:[{indices:new Uint32Array(1200),firstIndex:300,indexCount:6}]}}});
+  assert.equal(p.snapshot().indexCount,6);
+});

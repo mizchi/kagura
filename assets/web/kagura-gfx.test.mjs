@@ -819,3 +819,31 @@ test("instanced skeletons keep their own bone layout and skin only in the vertex
     assert.deepEqual(device.state.lastDrawIndexedArgs, [3,3]);
   }
 });
+
+test('explicit 3D stride controls pass depth even when WGSL positions have another name',()=>{
+  const device=createFakeDevice(),context=createFakeContext(),gpu=createGpu(context);
+  gpu.commands=[{...createInstancedCustomCommand(1),vertexStrideHint:8}];
+  renderGpu(gpu,device,context,[0,0,0,1],'bgra8unorm');
+  assert.ok(device.state.passes.at(-1).depthStencilAttachment);
+});
+
+test('static geometry index ranges select GPU draws without slicing or reuploading buffers',()=>{
+  const device=createFakeDevice(),context=createFakeContext(),gpu=createGpu(context);
+  const command={...createInstancedCustomCommand(1),indices:new Uint32Array([0,1,2,2,1,0]),firstIndex:3,indexCount:3,sharedGeometry:true};
+  gpu.commands=[command];renderGpu(gpu,device,context,[0,0,0,1],'bgra8unorm');
+  assert.deepEqual(device.state.lastDrawIndexedArgs,[3,1,3]);
+  device.state.writeBufferCount=0;
+  gpu.commands=[{...command,firstIndex:0}];renderGpu(gpu,device,context,[0,0,0,1],'bgra8unorm');
+  assert.deepEqual(device.state.lastDrawIndexedArgs,[3,1,0]);
+  assert.equal(device.state.writeBufferCount,0);
+});
+
+test('pooled bulk submissions preserve index ranges and reject out-of-buffer spans',async()=>{
+  const {submitCustomDraw,beginDrawFrame}=await import('./kagura-gfx.js');
+  const gpu={};const vertices=[0,0,0,0,0,0,0,0],indices=[0,0,0,0,0,0];
+  const submit=(offset,count)=>submitCustomDraw(gpu,9,'shader',vertices,indices,[0,0,0,0],[],1,320,240,0,1,8,offset,count);
+  beginDrawFrame(gpu);const a=submit(0,3),b=submit(3,3);
+  assert.equal(a.indices,b.indices);assert.deepEqual(gpu.commands.map(c=>[c.firstIndex,c.indexCount]),[[0,3],[3,3]]);
+  beginDrawFrame(gpu);const c=submit(0,6);assert.equal(a,c);assert.equal(c.indexCount,6);
+  assert.throws(()=>submit(4,3),RangeError);assert.throws(()=>submit(-1,3),RangeError);
+});

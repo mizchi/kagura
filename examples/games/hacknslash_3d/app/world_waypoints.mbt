@@ -14,6 +14,10 @@ struct HunterRegionView {
 
 ///|
 struct HunterAtlasView {
+  generation : Int
+  expedition : ExpeditionMapView?
+  anchors : Array[ExpeditionAnchorView]
+  at_region_waypoint : Bool
   current : Int
   name : String
   subtitle : String
@@ -24,6 +28,11 @@ struct HunterAtlasView {
   waypoint_z : Double
   global_x : Double
   global_z : Double
+  initial_map_ms : Double
+  prepare_max_ms : Double
+  chunk_max_ms : Double
+  batch_max_ms : Double
+  batches_built : Int
   chunks_built : Int
 } derive(ToJson)
 
@@ -36,18 +45,37 @@ fn GameState::hunter_atlas_view(self : GameState) -> HunterAtlasView? {
   let current = @game.world_regions[atlas.current]
   let (wx, wz) = @game.world_waypoint_position(atlas.current)
   Some({
+    generation: atlas.generator_version,
+    expedition: if self.world.ui_mode == @game.Waypoints {
+      self.expedition_map
+    } else {
+      None
+    },
+    anchors: if self.world.ui_mode == @game.Waypoints {
+      self.expedition_anchors()
+    } else {
+      []
+    },
+    at_region_waypoint: self.world.near_waypoint(),
     waypoint_x: wx / tile_size,
     waypoint_z: wz / tile_size,
     current: atlas.current,
     name: current.name,
     subtitle: current.subtitle,
-    near_waypoint: self.world.near_waypoint(),
+    near_waypoint: self.world.near_expedition_anchor(),
     travel_target: atlas.travel_target,
     global_x: self.world.player.x / tile_size +
     current.x.to_double() * (@game.map_cols - 2).to_double(),
     global_z: self.world.player.y / tile_size +
     current.z.to_double() * (@game.map_rows - 2).to_double(),
     chunks_built: self.region_chunks_built,
+    initial_map_ms: self.initial_map_ms,
+    prepare_max_ms: self.region_prepare_max_ms,
+    chunk_max_ms: self.region_chunk_max_ms,
+    batch_max_ms: self.region_batch_max_ms,
+    batches_built: self.region_meshes.fold(init=0, (n, entry) => {
+      n + entry.map(c => c.visible_builds).or(0)
+    }),
     regions: @game.world_regions.map(region => {
       let progress = match self.region_meshes[region.id] {
         Some(cache) => cache.chunks.length() * 100 / cache.total.max(1)
@@ -71,14 +99,28 @@ fn GameState::hunter_atlas_view(self : GameState) -> HunterAtlasView? {
 
 ///|
 fn GameState::update_waypoints_ui(self : GameState) -> Unit {
+  let count = if self.expedition_map is Some(_) { 8 } else { 4 }
   if is_up_just_pressed(self.input) {
-    self.world.ui_cursor = (self.world.ui_cursor + 3) % 4
+    self.world.ui_cursor = (self.world.ui_cursor + count - 1) % count
   }
   if is_down_just_pressed(self.input) {
-    self.world.ui_cursor = (self.world.ui_cursor + 1) % 4
+    self.world.ui_cursor = (self.world.ui_cursor + 1) % count
   }
   if @inpututil.is_key_just_pressed(self.input.key_state, 13) {
-    ignore(self.world.request_waypoint(self.world.ui_cursor))
+    let current = self.world.atlas.map(a => a.current).or(-1)
+    if self.world.ui_cursor >= 4 || self.world.ui_cursor == current {
+      if self.world.travel_to_expedition_site(
+          if self.world.ui_cursor >= 4 {
+            self.world.ui_cursor - 4
+          } else {
+            -1
+          },
+        ) {
+        self.finish_expedition_travel()
+      }
+    } else {
+      ignore(self.world.request_waypoint(self.world.ui_cursor))
+    }
   }
 }
 
@@ -107,7 +149,11 @@ fn GameState::render_waypoints_ui(
       cmds,
       35.0,
       y,
-      570.0,
+      if self.expedition_map is Some(_) {
+        280.0
+      } else {
+        570.0
+      },
       52.0,
       @hud.hex_color(if selected { 0x33483B } else { 0x192B25 }),
     )
@@ -121,9 +167,41 @@ fn GameState::render_waypoints_ui(
       0xD6CDB2,
     )
   }
+  if self.expedition_map is Some(_) {
+    for anchor in self.expedition_anchors() {
+      let y = 95.0 + anchor.id.to_double() * 64.0
+      ctx.draw_rect(
+        cmds,
+        330.0,
+        y,
+        280.0,
+        52.0,
+        @hud.hex_color(
+          if self.world.ui_cursor == anchor.id + 4 {
+            0x33483B
+          } else {
+            0x192B25
+          },
+        ),
+      )
+      ctx.draw_text(cmds, anchor.name, 12.0, 342.0, y + 8.0, 0xD6CDB2)
+      ctx.draw_text(
+        cmds,
+        if anchor.unlocked {
+          "RETURN POINT / ACTIVE"
+        } else {
+          "OPEN CACHE TO UNLOCK"
+        },
+        9.0,
+        342.0,
+        y + 29.0,
+        0xAFC1A8,
+      )
+    }
+  }
   ctx.draw_text(
     cmds,
-    if self.world.near_waypoint() {
+    if self.world.near_expedition_anchor() {
       "W/S: SELECT   ENTER: TRAVEL"
     } else {
       "APPROACH A WAYPOINT TO TRAVEL"
@@ -168,18 +246,55 @@ fn GameState::push_world_waypoint(
     return
   }
   let (x, y) = @game.world_waypoint_position(atlas.current)
+  self.push_return_anchor(
+    x,
+    y,
+    if atlas.unlocked[atlas.current] {
+      hex_to_vec4(0x80A660)
+    } else {
+      hex_to_vec4(0x738477)
+    },
+    vp,
+    dst,
+    cmds,
+  )
+  if atlas.generator_version >= 2 {
+    for chest in self.world.chests {
+      if chest.opened {
+        self.push_return_anchor(
+          chest.x,
+          chest.y + tile_size,
+          hex_to_vec4(0x86CBA9),
+          vp,
+          dst,
+          cmds,
+        )
+      }
+    }
+  }
+}
+
+///|
+fn GameState::push_return_anchor(
+  self : GameState,
+  x : Double,
+  y : Double,
+  color : @math3d.Vec4,
+  vp : @math3d.Mat4,
+  dst : @gfx.ImageHandle,
+  cmds : Array[@gfx.DrawTrianglesCommand],
+) -> Unit {
   if (x - self.world.player.x).abs() > tile_size * 28.0 ||
     (y - self.world.player.y).abs() > tile_size * 28.0 {
     return
   }
   let model = @transform3d.Transform3D::from_position(
-    @math3d.Vec3::new(x / tile_size, 0.0, y / tile_size),
+    @math3d.Vec3::new(
+      x / tile_size,
+      @game.get_tile_height(self.world.dungeon, x, y),
+      y / tile_size,
+    ),
   ).to_mat4()
-  let color = if atlas.unlocked[atlas.current] {
-    @math3d.Vec4::new(0.50, 0.65, 0.38, 1.0)
-  } else {
-    hex_to_vec4(0x738477)
-  }
   @web_hooks.register_static_geometry(
     world_waypoint_ring.vertex_data,
     world_waypoint_ring.indices,

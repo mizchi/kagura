@@ -91,6 +91,10 @@ pub fn GameWorld::open_nearby_chest(self : GameWorld) -> Bool {
   spawn_scatter_item(self, chest.x, chest.y + 10.0, Health, @math.PI / 2.0, 0.6)
   self.events.push(ChestOpened(chest.x, chest.y))
   self.push_item_log("宝箱を開けた", 0xE2BF75)
+  if self.atlas is Some(atlas) && atlas.generator_version >= 2 {
+    atlas.revision += 1
+    self.push_item_log("帰還地点を解放 · Gで地図を開く", 0xA4D9BC)
+  }
   true
 }
 

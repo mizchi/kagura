@@ -47,7 +47,9 @@ fn GameState::hunter_exploration_view(
       w.nearby_chest().map(c => c.id).or(-1)
     },
     site_name,
-    road_path: hunting_minimap_roads,
+    road_path: self.expedition_map
+    .map(m => m.road_path)
+    .or(hunting_minimap_roads),
     wolves,
     chests: w.chests.map(c => {
       id: c.id,

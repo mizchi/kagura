@@ -16,7 +16,7 @@ export function readFrameProfile(host = globalThis) {
   let indexCount = 0, instanceCount = 0, sharedGeometryDraws = 0;
   const commands = gpu.commands ?? [];
   for (const command of commands) {
-    indexCount += command.indices?.length ?? 0;
+    indexCount += command.indexCount ?? command.indices?.length ?? 0;
     instanceCount += Math.max(1, command.instanceCount ?? 1);
     if (command.sharedGeometry) sharedGeometryDraws++;
   }

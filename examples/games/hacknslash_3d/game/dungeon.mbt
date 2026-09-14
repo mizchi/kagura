@@ -437,6 +437,7 @@ pub fn generate_dungeon(
     start_y: center.y.to_double() * tile_size + tile_size / 2.0,
     height_map,
     terrain_surface: None,
+    landscape: None,
   }
 }
 

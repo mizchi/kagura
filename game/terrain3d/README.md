@@ -69,3 +69,17 @@ full 3D projectile physics require a different collision representation.
 These are independent 2D implementations based on algorithm descriptions, not
 copies of the reference source code. Run `moon -C game test terrain3d --target js`
 or the repository's `just game-components-test`.
+
+## Gameplay routes before noise detail
+
+`TerrainPad` describes a level combat/settlement anchor (`x`, `z`, `height`,
+`radius`). `TerrainRoute` describes a graded segment with endpoint heights and
+half-width. Compose several segments for switchbacks or loops, then call
+`field.grade_routes(pads, routes, blend=4.0)` to embed the network in a heightfield.
+Call `limit_slope` afterwards when the surrounding landscape must also remain
+walkable. Nearby low constraints may lower a high pad during that repair; inspect
+final sampled elevations, not just requested anchor heights.
+
+`cell_slope(x,z)` returns the maximum gradient of the two rendered triangles.
+The component owns neither mission progression nor enemy placement. ASHEN REALMS
+supplies those in its game module and validates routes after terrain repair.

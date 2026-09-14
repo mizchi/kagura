@@ -52,6 +52,7 @@ const loadSmokeResult = async (page: Page, path: string) => {
     return (window as { __wasmSmoke?: SmokeResult }).__wasmSmoke;
   });
   expect(result).toBeTruthy();
+  expect(result?.status, result?.output).toBe("ok");
   return result as SmokeResult;
 };
 

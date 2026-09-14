@@ -254,6 +254,7 @@ const run = async () => {
       },
     },
     kagura_web: {
+      now_ms: () => Date.now(),
       prepare_surface: (width, height) => {
         return toInt(ensureCanvas(Number(width), Number(height)));
       },

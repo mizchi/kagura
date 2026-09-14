@@ -162,7 +162,7 @@ test("two renders in one process do not share the bundle's module instance", asy
 
 test("source images the hooks mirrored out are counted and handed back", async () => {
   const bundle = writeFakeBundle(`
-    // What platform/web_runtime_hooks does while the game loads its atlas.
+    // What platform_web/runtime_hooks does while the game loads its atlas.
     globalThis.__kaguraSourceImages = [
       { image_id: 100, width: 1, height: 1, pixels: new Uint8Array([255, 0, 0, 255]) },
     ];

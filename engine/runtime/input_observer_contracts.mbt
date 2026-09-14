@@ -20,10 +20,10 @@ pub impl Show for InputEdgeSummary with fn output(self, logger) {
 
 ///|
 pub struct InputEdgeObserverState {
-  key_state : @inpututil.KeyInputState
-  mouse_state : @inpututil.MouseButtonInputState
-  touch_state : @inpututil.TouchInputState
-  gamepad_state : @inpututil.GamepadInputState
+  key_state : @inputstate.KeyInputState
+  mouse_state : @inputstate.MouseButtonInputState
+  touch_state : @inputstate.TouchInputState
+  gamepad_state : @inputstate.GamepadInputState
   mut history : Array[InputEdgeSummary]
   history_limit : Int
 }
@@ -62,10 +62,10 @@ pub fn new_input_edge_observer_state(
   history_limit : Int,
 ) -> InputEdgeObserverState {
   {
-    key_state: @inpututil.new_key_input_state(),
-    mouse_state: @inpututil.new_mouse_input_state(),
-    touch_state: @inpututil.new_touch_input_state(),
-    gamepad_state: @inpututil.new_gamepad_input_state(),
+    key_state: @inputstate.new_key_input_state(),
+    mouse_state: @inputstate.new_mouse_input_state(),
+    touch_state: @inputstate.new_touch_input_state(),
+    gamepad_state: @inputstate.new_gamepad_input_state(),
     history: [],
     history_limit: clamp_history_limit(history_limit),
   }
@@ -77,37 +77,37 @@ pub fn observe_input_edge(
   tick : Int,
   snapshot : @core.InputSnapshot,
 ) -> InputEdgeSummary {
-  @inpututil.update_key_input_state(state.key_state, snapshot)
-  @inpututil.update_mouse_input_state(state.mouse_state, snapshot)
-  @inpututil.update_touch_input_state(state.touch_state, snapshot)
-  @inpututil.update_gamepad_input_state(state.gamepad_state, snapshot)
+  @inputstate.update_key_input_state(state.key_state, snapshot)
+  @inputstate.update_mouse_input_state(state.mouse_state, snapshot)
+  @inputstate.update_touch_input_state(state.touch_state, snapshot)
+  @inputstate.update_gamepad_input_state(state.gamepad_state, snapshot)
 
-  let just_pressed_keys = @inpututil.append_just_pressed_keys(state.key_state, [])
-  let just_released_keys = @inpututil.append_just_released_keys(
+  let just_pressed_keys = @inputstate.append_just_pressed_keys(state.key_state, [])
+  let just_released_keys = @inputstate.append_just_released_keys(
     state.key_state,
     [],
   )
-  let just_pressed_mouse_buttons = @inpututil.append_just_pressed_mouse_buttons(
+  let just_pressed_mouse_buttons = @inputstate.append_just_pressed_mouse_buttons(
     state.mouse_state,
     [],
   )
-  let just_released_mouse_buttons = @inpututil.append_just_released_mouse_buttons(
+  let just_released_mouse_buttons = @inputstate.append_just_released_mouse_buttons(
     state.mouse_state,
     [],
   )
-  let just_pressed_touch_ids = @inpututil.append_just_pressed_touch_ids(
+  let just_pressed_touch_ids = @inputstate.append_just_pressed_touch_ids(
     state.touch_state,
     [],
   )
-  let just_released_touch_ids = @inpututil.append_just_released_touch_ids(
+  let just_released_touch_ids = @inputstate.append_just_released_touch_ids(
     state.touch_state,
     [],
   )
-  let just_connected_gamepad_ids = @inpututil.append_just_connected_gamepad_ids(
+  let just_connected_gamepad_ids = @inputstate.append_just_connected_gamepad_ids(
     state.gamepad_state,
     [],
   )
-  let just_disconnected_gamepad_ids = @inpututil.append_just_disconnected_gamepad_ids(
+  let just_disconnected_gamepad_ids = @inputstate.append_just_disconnected_gamepad_ids(
     state.gamepad_state,
     [],
   )
@@ -122,10 +122,10 @@ pub fn observe_input_edge(
     just_released_touch_count: just_released_touch_ids.length(),
     just_connected_gamepad_count: just_connected_gamepad_ids.length(),
     just_disconnected_gamepad_count: just_disconnected_gamepad_ids.length(),
-    just_pressed_gamepad_button_count: @inpututil.gamepad_just_pressed_button_count(
+    just_pressed_gamepad_button_count: @inputstate.gamepad_just_pressed_button_count(
       state.gamepad_state,
     ),
-    just_released_gamepad_button_count: @inpututil.gamepad_just_released_button_count(
+    just_released_gamepad_button_count: @inputstate.gamepad_just_released_button_count(
       state.gamepad_state,
     ),
   }

@@ -135,4 +135,3 @@ pub fn StateKind::not_equal(Self, Self) -> Bool
 // Type aliases
 
 // Traits
-

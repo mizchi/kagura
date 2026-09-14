@@ -11,7 +11,7 @@ test('storage pane connects to a real local Worker and R2, then saves and reload
     await page.getByLabel('Worker token', { exact: true }).fill('test-token');
     await page.getByRole('button', { name: 'Connect R2', exact: true }).click();
     await expect(page.getByLabel('Storage provider')).toHaveValue('r2-1');
-    await page.getByLabel('Resource key', { exact: true }).fill('game/scene.json');
+    await page.getByLabel('Resource key', { exact: true }).fill('engine/scene.json');
     await page.getByRole('button', { name: 'Save scene here', exact: true }).click();
     await expect(page.locator('.statusbar')).toContainText('Saved');
     await page.getByLabel('Name', { exact: true }).fill('Unsaved actor');

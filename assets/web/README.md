@@ -8,7 +8,7 @@
 | タッチ入力 | `kagura-controls.js` | ボタン配置、アクション名、シミュレーションへの変換 |
 | ゲームパッド入力 | `kagura-gamepad.js` | 標準配置のアクション割当、メニュー、入力デバイスの切替 |
 | 効果音管理 | `mizchi/kagura_audio.SoundBank[Key]` | キューの型、イベント対応、音源、音量 |
-| ローポリ形状 | `mizchi/kagura_engine/procedural3d` | 寸法、リング形状、ボーン番号、色、配置 |
+| ローポリ形状 | `mizchi/kagura_core/procedural3d` | 寸法、リング形状、ボーン番号、色、配置 |
 | 表示・撮影 | `kagura-presentation.js` | アスペクト比、表示モード、HUDを含むルート |
 | 音声出力 | `kagura-audio.js` | ミキサーから完成したPCMフレーム |
 | スキニング | `scene3d.SkinnedMeshAsset` | 不変の形状とスキン、ポーズの更新番号 |
@@ -130,7 +130,7 @@ ASHEN REALMSの音源設定は `app/audio_assets.mbt`、イベント対応は `a
 ## ローポリ形状
 
 ```moonbit
-// moon.pkg: "mizchi/kagura_engine/procedural3d"
+// moon.pkg: "mizchi/kagura_core/procedural3d"
 let shape = @procedural3d.RigidGeometry::new()
 shape.loft(0.0, 0.0, [(0.0, 0.4, 0.4), (1.0, 0.15, 0.15)], 6, 0)
 let mesh = shape.build_mesh()

@@ -21,11 +21,17 @@ pub fn parse_capture_config(String) -> CaptureConfig?
 // Errors
 
 // Types and methods
+pub(all) enum CaptureBackend {
+  Cpu
+  Gpu
+} derive(Eq, @debug.Debug)
+
 pub(all) struct CaptureConfig {
   screenshot_path : String
   context_path : String
   summary_path : String
   binarize : Bool
+  backend : CaptureBackend
 } derive(@debug.Debug)
 pub impl Show for CaptureConfig
 

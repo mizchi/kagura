@@ -28,18 +28,13 @@ STRIX / BASTIONの実モデルを、kaguraのPBR・影・音声基盤で動か�
 
 ```
 moon.work
-|-- mizchi/kagura             core/engine 契約を束ねる薄い public facade
-|-- mizchi/kagura_core        core 契約、数学、カメラ、メッシュ、入力 utilities
-|-- mizchi/kagura_platform    platform/ — 共通のウィンドウ・入力 contract
-|-- mizchi/kagura_platform_js platform_js/ — JS adapter とランタイム
-|-- mizchi/kagura_engine      描画・ランタイム基盤
-|   |-- gfx_wgpu_native/       native GPU backend
-|   |-- runtime/, asset/       runtime loop、asset、audio、text、UI
-|   `-- gltf/, renderer*/      glTF 変換と 2D/3D renderer facade
-|-- mizchi/kagura_physics     再利用可能な physics / collision / pathfinding
-`-- mizchi/kagura_game        ゲーム寄りの package 群
-    |-- scene/                 宣言的 2D Scene API
-    `-- ai/, ecs/, tilemap2d/  ゲームシステムと補助機能
+|-- core/                    純粋な計算: 幾何、物理、地形、入力状態
+|-- platform/                ウィンドウ・入力・surface の共通コントラクト
+|-- platform_web/            ブラウザ実装と runtime_hooks/
+|-- platform_native/         native 実装、gfx_wgpu_native/、capture/
+|-- engine/                  描画・アセット・実行基盤・表示ツリー・HUD
+|-- game/                    ルール・進行・ECS・インベントリ・操作割り当て
+`-- editor/                  オーサリングと検査ツール
 ```
 
 ### プラットフォーム対応

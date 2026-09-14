@@ -1,10 +1,11 @@
 import {
+  "mizchi/kagura_game/inpututil",
   "mizchi/kagura_game/ecs",
   "mizchi/geom/math3d",
   "mizchi/anim3d/transform3d",
-  "mizchi/kagura_game/scene",
+  "mizchi/kagura_engine/scene",
   "mizchi/kagura_core" @core,
-  "mizchi/kagura_core/inpututil",
+  "mizchi/kagura_core/inputstate",
   "mizchi/web_runtime_hooks" @web_hooks,
 }
 

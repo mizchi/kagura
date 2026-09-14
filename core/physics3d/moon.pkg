@@ -1,0 +1,8 @@
+import {
+  "mizchi/geom/math3d",
+  "mizchi/kagura_core/collision3d",
+  "moonbitlang/core/bench",
+  "moonbitlang/core/debug",
+}
+
+warnings = "-6-29-53-68"

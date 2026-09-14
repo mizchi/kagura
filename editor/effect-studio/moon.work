@@ -1,6 +1,6 @@
 members = [
   ".",
-  "../../engine/anim3d",
+  "../../core/anim3d",
   "../../engine/atlas",
   "../../engine/audio",
   "../../core/geom",
@@ -10,4 +10,5 @@ members = [
   "../../platform",
   "../../engine/renderer2d",
   "../../engine/text",
+  "../../engine/ui",
 ]

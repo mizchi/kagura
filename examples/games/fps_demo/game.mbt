@@ -283,7 +283,7 @@ fn GameState::update(self : GameState, input : @core.InputSnapshot) -> Unit {
   }
 
   // Gravity / Jump
-  if @inpututil.is_key_just_pressed(self.input.key_state, @inpututil.key_space) &&
+  if @inputstate.is_key_just_pressed(self.input.key_state, @inpututil.key_space) &&
     self.on_ground {
     self.velocity_y = jump_velocity
     self.on_ground = false
@@ -306,7 +306,7 @@ fn GameState::update(self : GameState, input : @core.InputSnapshot) -> Unit {
   )
 
   // Shoot (left click)
-  if @inpututil.is_mouse_button_just_pressed(self.input.mouse_state, 0) {
+  if @inputstate.is_mouse_button_just_pressed(self.input.mouse_state, 0) {
     let dir = self.camera.forward()
     self.bullets.push({
       position: self.camera.position,

@@ -157,14 +157,14 @@ fn GameState::update_ui(self : GameState) -> Unit {
 
 ///|
 fn is_up_just_pressed(input : @inpututil.InputHelper) -> Bool {
-  @inpututil.is_key_just_pressed(input.key_state, @inpututil.key_w) ||
-  @inpututil.is_key_just_pressed(input.key_state, @inpututil.key_up_web)
+  @inputstate.is_key_just_pressed(input.key_state, @inpututil.key_w) ||
+  @inputstate.is_key_just_pressed(input.key_state, @inpututil.key_up_web)
 }
 
 ///|
 fn is_down_just_pressed(input : @inpututil.InputHelper) -> Bool {
-  @inpututil.is_key_just_pressed(input.key_state, @inpututil.key_s) ||
-  @inpututil.is_key_just_pressed(input.key_state, @inpututil.key_down_web)
+  @inputstate.is_key_just_pressed(input.key_state, @inpututil.key_s) ||
+  @inputstate.is_key_just_pressed(input.key_state, @inpututil.key_down_web)
 }
 
 ///|
@@ -176,7 +176,7 @@ fn GameState::update_inventory_ui(self : GameState) -> Unit {
   if is_down_just_pressed(self.input) {
     self.world.ui_cursor = (self.world.ui_cursor + 1) % cap
   }
-  if @inpututil.is_key_just_pressed(self.input.key_state, key_e) {
+  if @inputstate.is_key_just_pressed(self.input.key_state, key_e) {
     match self.world.inventory.items[self.world.ui_cursor] {
       Some(item) => {
         if self.world.inventory.grid is Some(_) {
@@ -253,7 +253,7 @@ fn GameState::update_skills_ui(self : GameState) -> Unit {
     }
   }
   // Mouse click or Space/Enter: learn the selected skill
-  let try_learn = @inpututil.is_mouse_button_just_pressed(
+  let try_learn = @inputstate.is_mouse_button_just_pressed(
       self.input.mouse_state,
       0,
     ) ||
@@ -302,8 +302,8 @@ fn GameState::update_skills_ui(self : GameState) -> Unit {
       self.world.ui_cursor = best
     }
   }
-  if @inpututil.is_key_just_pressed(self.input.key_state, @inpututil.key_a) ||
-    @inpututil.is_key_just_pressed(
+  if @inputstate.is_key_just_pressed(self.input.key_state, @inpututil.key_a) ||
+    @inputstate.is_key_just_pressed(
       self.input.key_state,
       @inpututil.key_left_web,
     ) {
@@ -322,8 +322,8 @@ fn GameState::update_skills_ui(self : GameState) -> Unit {
       self.world.ui_cursor = best
     }
   }
-  if @inpututil.is_key_just_pressed(self.input.key_state, @inpututil.key_d) ||
-    @inpututil.is_key_just_pressed(
+  if @inputstate.is_key_just_pressed(self.input.key_state, @inpututil.key_d) ||
+    @inputstate.is_key_just_pressed(
       self.input.key_state,
       @inpututil.key_right_web,
     ) {
@@ -360,11 +360,11 @@ fn GameState::update_levelup_ui(self : GameState) -> Unit {
     self.world.ui_cursor = (self.world.ui_cursor + 1) % offer_count
   }
   let mut chosen_index = -1
-  if @inpututil.is_key_just_pressed(self.input.key_state, key_1) {
+  if @inputstate.is_key_just_pressed(self.input.key_state, key_1) {
     chosen_index = 0
-  } else if @inpututil.is_key_just_pressed(self.input.key_state, key_2) {
+  } else if @inputstate.is_key_just_pressed(self.input.key_state, key_2) {
     chosen_index = 1
-  } else if @inpututil.is_key_just_pressed(self.input.key_state, key_3) {
+  } else if @inputstate.is_key_just_pressed(self.input.key_state, key_3) {
     chosen_index = 2
   } else if @inpututil.is_confirm_just_pressed(self.input) {
     chosen_index = self.world.ui_cursor

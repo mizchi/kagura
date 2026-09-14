@@ -14,19 +14,19 @@ MoonBit module として配布します。OS・DOM・GPU API を直接呼びま�
 ## 依存方向
 
 ```text
-platform_js ──→ platform ──→ kagura_core / gfx
+platform_web ──→ platform ──→ kagura_core / gfx
                     ↑
                   engine
 ```
 
 実装は `platform_<target>/`、配布名は `mizchi/kagura_platform_<target>` とします。
-現在の JS 実装は `platform_js/`。contract は実装を import せず、実装同士も
+現在の JS 実装は `platform_web/`。contract は実装を import せず、実装同士も
 依存させません。新しい実装はこの contract と共有のライフサイクル検証に従います。
 型の変更は先に contract で定義し、実装で独自の入力・ウィンドウ型を増やしません。
 
-`platform/web_runtime_hooks/` とトップレベルの `platform_native/` は独立した既存 module です。
+`platform_web/runtime_hooks/` とトップレベルの `platform_native/` は独立した既存 module です。
 描画・音声・フォントと host を結線するため engine に依存する起動時の統合層で、
-この contract の配布内容には含めません。JS の platform hook は `platform_js` の
+この contract の配布内容には含めません。JS の platform hook は `platform_web` の
 公開 API を通し、native は `DesktopNativeHooks` に従って注入します。
 native の既存 import 名は `mizchi/native_runtime_hooks` です。
 

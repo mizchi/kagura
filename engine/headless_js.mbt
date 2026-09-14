@@ -94,7 +94,7 @@ extern "js" fn js_publish_headless_failure(reason : String) -> Unit =
 ///|
 /// The source images the runtime hooks mirrored out while the game was loading
 /// its assets. See `publish_source_image_for_headless` in
-/// `platform/web_runtime_hooks`: the pixels cross on a global because the
+/// `platform_web/runtime_hooks`: the pixels cross on a global because the
 /// dependency order forbids a direct call.
 extern "js" fn js_headless_texture_count() -> Int =
   #| () => (globalThis.__kaguraSourceImages?.length ?? 0)

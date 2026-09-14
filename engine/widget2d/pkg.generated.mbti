@@ -55,4 +55,3 @@ pub fn ScissorStack::push(Self, ScissorRect) -> Bool
 // Type aliases
 
 // Traits
-

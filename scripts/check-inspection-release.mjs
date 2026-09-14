@@ -12,8 +12,8 @@ const dir = resolve(root, 'examples/games/flappy_bird');
 const target = process.argv[2] ?? 'js';
 if (!['js', 'native'].includes(target)) throw Error('Expected js or native');
 for (const [module, file] of [
-  ['game', 'inspection/control_release_wbtest.mbt'],
-  ['game', 'scene/inspection_release_wbtest.mbt'],
+  ['engine', 'inspection/control_release_wbtest.mbt'],
+  ['engine', 'scene/inspection_release_wbtest.mbt'],
   ['engine', 'scene3d/inspection_release_wbtest.mbt'],
 ]) {
   const result = spawnSync('moon', ['test', file, '--target', target, '--release'], {

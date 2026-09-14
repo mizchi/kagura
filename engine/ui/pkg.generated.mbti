@@ -4,7 +4,7 @@ package "mizchi/kagura_ui"
 import {
   "mizchi/gfx",
   "mizchi/kagura_core",
-  "mizchi/kagura_core/inpututil",
+  "mizchi/kagura_core/inputstate",
   "moonbitlang/core/debug",
 }
 
@@ -23,7 +23,7 @@ pub fn hit_test_all(Array[LayoutResult], Double, Double) -> Array[UINodeId]
 
 pub fn point_in_rect(LayoutRect, Double, Double) -> Bool
 
-pub fn ui_events_from_input_edge(@inpututil.KeyInputState, @inpututil.MouseButtonInputState, Double, Double) -> Array[UIEvent]
+pub fn ui_events_from_input_edge(@inputstate.KeyInputState, @inputstate.MouseButtonInputState, Double, Double) -> Array[UIEvent]
 
 pub fn ui_snapshot_nodes_from_layouts(Array[LayoutResult]) -> Array[UISnapshotNode]
 

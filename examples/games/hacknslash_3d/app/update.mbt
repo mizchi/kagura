@@ -306,7 +306,7 @@ fn GameState::update(self : GameState, input : @core.InputSnapshot) -> Unit {
       input.gamepads,
     )
   }
-  let was_dragging = @inpututil.is_mouse_button_pressed(
+  let was_dragging = @inputstate.is_mouse_button_pressed(
     self.input.mouse_state,
     1,
   )
@@ -377,18 +377,18 @@ fn GameState::update(self : GameState, input : @core.InputSnapshot) -> Unit {
     )
   }
   // Profiler toggle (works in any mode)
-  if @inpututil.is_key_just_pressed(self.input.key_state, key_f3) {
+  if @inputstate.is_key_just_pressed(self.input.key_state, key_f3) {
     self.show_profiler = !self.show_profiler
   }
   // FXAA toggle for visual/perf comparison
-  if @inpututil.is_key_just_pressed(self.input.key_state, key_f4) {
+  if @inputstate.is_key_just_pressed(self.input.key_state, key_f4) {
     self.pipeline.set_fxaa_enabled(!self.pipeline.config.fxaa_enabled)
   }
   // Shadow toggle for visual/perf comparison
-  if @inpututil.is_key_just_pressed(self.input.key_state, key_f5) {
+  if @inputstate.is_key_just_pressed(self.input.key_state, key_f5) {
     self.shadows_enabled = !self.shadows_enabled
   }
-  if @inpututil.is_key_just_pressed(self.input.key_state, key_m) {
+  if @inputstate.is_key_just_pressed(self.input.key_state, key_m) {
     self.toggle_audio_muted()
   }
   match self.world.mode {
@@ -453,7 +453,7 @@ fn GameState::update_character_select(
     self.save_game()
   }
   // ESC to go back to title
-  if @inpututil.is_key_just_pressed(self.input.key_state, key_escape) {
+  if @inputstate.is_key_just_pressed(self.input.key_state, key_escape) {
     self.world.mode = @game.Title
     self.world.select_cursor = self.active_save_slot
     self.save_slots = read_save_slots()
@@ -475,23 +475,23 @@ fn GameState::update_playing(self : GameState) -> Unit {
   self.sync_character_equipment()
   // Auto-play toggle (F2)
   if !self.paused &&
-    @inpututil.is_key_just_pressed(self.input.key_state, key_f2) {
+    @inputstate.is_key_just_pressed(self.input.key_state, key_f2) {
     self.world.auto_play = !self.world.auto_play
   }
   if self.paused ||
     self.motion_preview ||
     self.world.ui_mode != @game.UIMode::None ||
-    @inpututil.is_key_just_pressed(self.input.key_state, key_i) ||
-    @inpututil.is_key_just_pressed(self.input.key_state, key_k) ||
-    @inpututil.is_key_just_pressed(self.input.key_state, 71) ||
-    @inpututil.is_key_just_pressed(self.input.key_state, key_f2) {
+    @inputstate.is_key_just_pressed(self.input.key_state, key_i) ||
+    @inputstate.is_key_just_pressed(self.input.key_state, key_k) ||
+    @inputstate.is_key_just_pressed(self.input.key_state, 71) ||
+    @inputstate.is_key_just_pressed(self.input.key_state, key_f2) {
     self.world.stop_whirlwind()
   }
   if self.world.ui_mode == @game.LevelUp {
     self.update_ui()
     return
   }
-  if @inpututil.is_key_just_pressed(self.input.key_state, 71) &&
+  if @inputstate.is_key_just_pressed(self.input.key_state, 71) &&
     self.world.atlas is Some(_) &&
     self.world.authored_scene is None &&
     !self.motion_preview {
@@ -505,7 +505,7 @@ fn GameState::update_playing(self : GameState) -> Unit {
     return
   }
   // UI toggle (works while paused)
-  if @inpututil.is_key_just_pressed(self.input.key_state, key_i) {
+  if @inputstate.is_key_just_pressed(self.input.key_state, key_i) {
     self.inventory_notice = ""
     self.world.ui_mode = if self.world.ui_mode == @game.Inventory {
       @game.UIMode::None
@@ -515,7 +515,7 @@ fn GameState::update_playing(self : GameState) -> Unit {
     self.world.ui_cursor = 0
     return
   }
-  if @inpututil.is_key_just_pressed(self.input.key_state, key_k) {
+  if @inputstate.is_key_just_pressed(self.input.key_state, key_k) {
     self.world.ui_mode = if self.world.ui_mode == @game.Skills {
       @game.UIMode::None
     } else {
@@ -533,13 +533,13 @@ fn GameState::update_playing(self : GameState) -> Unit {
   if self.paused || self.motion_preview {
     return
   }
-  if @inpututil.is_key_just_pressed(self.input.key_state, 66) {
+  if @inputstate.is_key_just_pressed(self.input.key_state, 66) {
     ignore(self.world.open_nearby_chest())
   }
   if self.combat_feedback.hitstop > 0 {
     // Dodge wins over hitstop; a quick press must never disappear into the freeze.
-    if @inpututil.is_key_just_pressed(self.input.key_state, 32) ||
-      @inpututil.is_key_just_pressed(self.input.key_state, key_shift) {
+    if @inputstate.is_key_just_pressed(self.input.key_state, 32) ||
+      @inputstate.is_key_just_pressed(self.input.key_state, key_shift) {
       self.combat_feedback.hitstop = 0
     } else {
       self.combat_feedback.hitstop -= 1
@@ -548,11 +548,11 @@ fn GameState::update_playing(self : GameState) -> Unit {
       return
     }
   }
-  if @inpututil.is_key_just_pressed(self.input.key_state, key_pickup_item) {
+  if @inputstate.is_key_just_pressed(self.input.key_state, key_pickup_item) {
     ignore(self.apply_loot_pickup(hunter_web_selection()))
   }
   // Physical X, or the same intent with a selected weapon from the mobile HUD.
-  if @inpututil.is_key_just_pressed(self.input.key_state, 88) {
+  if @inputstate.is_key_just_pressed(self.input.key_state, 88) {
     let selected = hunter_web_selection()
     let index = if selected >= 0 {
       selected
@@ -608,12 +608,12 @@ fn GameState::update_playing(self : GameState) -> Unit {
     let dy = -raw_dx * sin_yaw + raw_dy * cos_yaw
     let targeting = self.update_hunter_art_input(dx, dy)
     // Dash via shift
-    let shift_pressed = @inpututil.is_key_just_pressed(
+    let shift_pressed = @inputstate.is_key_just_pressed(
       self.input.key_state,
       key_shift,
     )
     let dodge_pressed = shift_pressed ||
-      @inpututil.is_key_just_pressed(self.input.key_state, 32)
+      @inputstate.is_key_just_pressed(self.input.key_state, 32)
     if dodge_pressed &&
       self.world.player.dash_cooldown_timer <= 0 &&
       (dx != 0.0 || dy != 0.0 || hunter_web_enabled()) {
@@ -631,7 +631,7 @@ fn GameState::update_playing(self : GameState) -> Unit {
       self.character.trigger_dodge()
       self.play_sound_cue(SfxDodge)
     }
-    if !targeting && @inpututil.is_key_just_pressed(self.input.key_state, 67) {
+    if !targeting && @inputstate.is_key_just_pressed(self.input.key_state, 67) {
       let angle = if self.pointer_aim_angle() is Some(angle) {
         angle
       } else if dx != 0.0 || dy != 0.0 {
@@ -644,26 +644,26 @@ fn GameState::update_playing(self : GameState) -> Unit {
       }
     }
     if !targeting && self.world.hunting_grounds {
-      if @inpututil.is_key_just_pressed(self.input.key_state, 48) {
+      if @inputstate.is_key_just_pressed(self.input.key_state, 48) {
         ignore(self.world.request_hunter_spell(@game.RaiseZombieArt))
       }
-      if @inpututil.is_key_pressed(self.input.key_state, 57) ||
+      if @inputstate.is_key_pressed(self.input.key_state, 57) ||
         hunter_web_skull_held() {
         ignore(self.world.request_hunter_spell(@game.FlamingSkullArt))
       }
     }
     // Skill activation: 1/2/3 keys
-    if @inpututil.is_key_just_pressed(self.input.key_state, key_1) {
+    if @inputstate.is_key_just_pressed(self.input.key_state, key_1) {
       @game.activate_skill(self.world, 0)
     }
-    if @inpututil.is_key_just_pressed(self.input.key_state, key_3) {
+    if @inputstate.is_key_just_pressed(self.input.key_state, key_3) {
       if self.world.hunting_grounds {
         ignore(self.world.request_hunter_spell(@game.FlameArt))
       } else {
         @game.activate_skill(self.world, 2)
       }
     }
-    if @inpututil.is_key_just_pressed(self.input.key_state, key_4) {
+    if @inputstate.is_key_just_pressed(self.input.key_state, key_4) {
       @game.activate_skill(
         self.world,
         if self.world.hunting_grounds {
@@ -673,14 +673,14 @@ fn GameState::update_playing(self : GameState) -> Unit {
         },
       )
     }
-    if @inpututil.is_key_just_pressed(self.input.key_state, key_5) {
+    if @inputstate.is_key_just_pressed(self.input.key_state, key_5) {
       if self.world.hunting_grounds {
         ignore(self.world.request_hunter_spell(@game.LightningArt))
       } else {
         @game.activate_skill(self.world, 4)
       }
     }
-    if @inpututil.is_key_just_pressed(self.input.key_state, key_6) {
+    if @inputstate.is_key_just_pressed(self.input.key_state, key_6) {
       @game.activate_skill(
         self.world,
         if self.world.hunting_grounds {
@@ -690,19 +690,19 @@ fn GameState::update_playing(self : GameState) -> Unit {
         },
       )
     }
-    if @inpututil.is_key_just_pressed(self.input.key_state, key_7) {
+    if @inputstate.is_key_just_pressed(self.input.key_state, key_7) {
       @game.activate_skill(self.world, 6)
     }
-    if @inpututil.is_key_just_pressed(self.input.key_state, key_8) {
+    if @inputstate.is_key_just_pressed(self.input.key_state, key_8) {
       @game.activate_skill(self.world, 7)
     }
     if !targeting &&
       (
         (
           !self.world.hunting_grounds &&
-          @inpututil.is_mouse_button_pressed(self.input.mouse_state, 0)
+          @inputstate.is_mouse_button_pressed(self.input.mouse_state, 0)
         ) ||
-        @inpututil.is_key_pressed(self.input.key_state, 74) ||
+        @inputstate.is_key_pressed(self.input.key_state, 74) ||
         hunter_web_attacking()
       ) {
       let angle = match self.pointer_aim_angle() {

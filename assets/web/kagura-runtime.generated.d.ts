@@ -47,23 +47,6 @@ export interface FrameProfile {
 export function readFrameProfile(host?:object):Readonly<FrameProfile>|null;
 export function installFrameProfiler(host?:object):Readonly<{version:1;snapshot():Readonly<FrameProfile>|null}>;
 
-export interface Footprint {
-  width:number; height:number; rotated:boolean; cells:readonly (readonly [number,number])[];
-}
-export interface InventoryItem extends Footprint {source:number;slot:number;x:number;y:number}
-export interface InventoryView {width:number;height:number;items:readonly InventoryItem[]}
-export function rotatedCells(item:Footprint,rotated?:boolean):[number,number][];
-export function dimensions(item:Footprint,rotated?:boolean):[number,number];
-export function previewPlacement(view:InventoryView,item:InventoryItem,x:number,y:number,rotated?:boolean):{
-  cells:[number,number][]; valid:boolean; swap:boolean;
-};
-export interface Rect {left:number;top:number;right:number;bottom:number}
-export function isInventoryGroundDrop(x:number,y:number,dialog:Rect|null,surface:Rect|null):boolean;
-export interface StatItem {slot:number;stats:readonly (readonly [string,number])[]}
-export function comparisonRows(view:{equipment:readonly {id:number;item?:{stats:StatItem['stats']}|null}[]},item:StatItem):{
-  label:string;value:number;before:number;delta:number;
-}[];
-
 /** Clips are validated by the asset loader: nonempty, positive duration and fps. */
 export interface MotionClip {id:string;duration:number;fps:number}
 export interface MotionSnapshot {clip:string;time:number;duration:number;fps:number;frame:number;playing:boolean;speed:number;loop:boolean}

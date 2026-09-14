@@ -1,7 +1,7 @@
 members = [
   ".",
   "./core/mesh3d",
-  "./engine/anim3d",
+  "./core/anim3d",
   "./core/geom",
   "./engine/text",
   "./engine/atlas",
@@ -13,11 +13,10 @@ members = [
   "./engine/audio",
   "./engine/asset_loader",
   "./engine",
-  "./engine/physics",
-  "./game/pathfind",
+  "./core/pathfind",
   "./game/machinations",
   "./game",
-  "./platform_js",
-  "./platform/web_runtime_hooks",
+  "./platform_web",
+  "./platform_web/runtime_hooks",
   "./platform_native",
 ]

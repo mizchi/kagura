@@ -1,4 +1,4 @@
-import {comparisonRows} from '#kagura-web/kagura-runtime.generated.js';
+import {comparisonRows} from '#kagura-web/kagura-inventory.generated.js';
 export {comparisonRows};
 const number=value=>Number(value.toFixed(1));
 export function comparisonMarkup(view,item,escape,{page=0,pageSize=Infinity}={}) {

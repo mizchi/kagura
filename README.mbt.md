@@ -17,18 +17,13 @@ A 2D-first (with future 3D) game engine for [MoonBit](https://www.moonbitlang.co
 
 ```
 moon.work
-|-- mizchi/kagura             Thin public facade over core/engine contracts
-|-- mizchi/kagura_core        Core contracts, math, camera, mesh, input utilities
-|-- mizchi/kagura_platform    platform/ — shared window/input contracts
-|-- mizchi/kagura_platform_js platform_js/ — JS adapter and runtime helpers
-|-- mizchi/kagura_engine      Rendering/runtime infrastructure
-|   |-- gfx_wgpu_native/       Native GPU backend
-|   |-- runtime/, asset/       Runtime loop, assets, audio, text, UI
-|   `-- gltf/, renderer*/      glTF loading and 2D/3D renderer facades
-|-- mizchi/kagura_physics     Reusable physics, collision, and pathfinding
-`-- mizchi/kagura_game        Gameplay-oriented packages
-    |-- scene/                 Declarative 2D Scene API
-    `-- ai/, ecs/, tilemap2d/  Game systems and helpers
+|-- core/                    Calculations: geometry, physics, terrain, input state
+|-- platform/                Shared window/input/surface contracts
+|-- platform_web/            Browser adapters and runtime_hooks/
+|-- platform_native/         Native hooks, gfx_wgpu_native/, capture/
+|-- engine/                  Rendering, assets, application/runtime, scene, HUD
+|-- game/                    Rules, progression, ECS, inventory, input bindings
+`-- editor/                  Authoring and inspection tools
 ```
 
 ### Platform Support

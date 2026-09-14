@@ -82,11 +82,11 @@ pub fn plan_frame(fixed : @core.StepResult, max_skip_frames : Int) -> FramePlan 
 }
 
 ///|
-pub fn[G : @core.Game, P : @platform.PlatformDriver, R : @gfx.GraphicsDriver] run_loop_with_hooks(
+pub fn[G : @application.Game, P : @platform.PlatformDriver, R : @gfx.GraphicsDriver] run_loop_with_hooks(
   game : G,
   platform : P,
   graphics : R,
-  run_options : @core.RunOptions,
+  run_options : @application.RunOptions,
   runtime_config : RuntimeConfig,
   runtime_hooks : RuntimeHooks,
 ) -> Unit raise {
@@ -136,8 +136,8 @@ pub fn[G : @core.Game, P : @platform.PlatformDriver, R : @gfx.GraphicsDriver] ru
       let input = platform.capture_input(update_tick)
       (runtime_hooks.on_input_captured)(update_tick, input)
       match game.update(input) {
-        Some(@core.EngineTermination::RegularTermination) => should_stop = true
-        Some(@core.EngineTermination::Fatal(_)) => should_stop = true
+        Some(@application.EngineTermination::RegularTermination) => should_stop = true
+        Some(@application.EngineTermination::Fatal(_)) => should_stop = true
         None => ()
       }
       let frame_budget = @core.new_frame_budget(
@@ -166,11 +166,11 @@ pub fn[G : @core.Game, P : @platform.PlatformDriver, R : @gfx.GraphicsDriver] ru
 }
 
 ///|
-pub fn[G : @core.Game, P : @platform.PlatformDriver, R : @gfx.GraphicsDriver] run_loop(
+pub fn[G : @application.Game, P : @platform.PlatformDriver, R : @gfx.GraphicsDriver] run_loop(
   game : G,
   platform : P,
   graphics : R,
-  run_options : @core.RunOptions,
+  run_options : @application.RunOptions,
   runtime_config : RuntimeConfig,
 ) -> Unit raise {
   run_loop_with_hooks(

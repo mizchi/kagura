@@ -4,7 +4,8 @@ package "mizchi/kagura_engine/runtime"
 import {
   "mizchi/gfx",
   "mizchi/kagura_core",
-  "mizchi/kagura_core/inpututil",
+  "mizchi/kagura_core/inputstate",
+  "mizchi/kagura_engine/application",
   "mizchi/kagura_platform",
   "moonbitlang/core/debug",
 }
@@ -36,9 +37,9 @@ pub fn plan_frame(@kagura_core.StepResult, Int) -> FramePlan
 
 pub fn reset_runtime_clock_provider() -> Unit
 
-pub fn[G : @kagura_core.Game, P : @kagura_platform.PlatformDriver, R : @gfx.GraphicsDriver] run_loop(G, P, R, @kagura_core.RunOptions, RuntimeConfig) -> Unit raise
+pub fn[G : @application.Game, P : @kagura_platform.PlatformDriver, R : @gfx.GraphicsDriver] run_loop(G, P, R, @application.RunOptions, RuntimeConfig) -> Unit raise
 
-pub fn[G : @kagura_core.Game, P : @kagura_platform.PlatformDriver, R : @gfx.GraphicsDriver] run_loop_with_hooks(G, P, R, @kagura_core.RunOptions, RuntimeConfig, RuntimeHooks) -> Unit raise
+pub fn[G : @application.Game, P : @kagura_platform.PlatformDriver, R : @gfx.GraphicsDriver] run_loop_with_hooks(G, P, R, @application.RunOptions, RuntimeConfig, RuntimeHooks) -> Unit raise
 
 pub fn set_runtime_clock_provider(() -> Double) -> Unit
 
@@ -55,10 +56,10 @@ pub fn FramePlan::to_string(Self) -> String
 pub impl Show for FramePlan
 
 pub struct InputEdgeObserverState {
-  key_state : @inpututil.KeyInputState
-  mouse_state : @inpututil.MouseButtonInputState
-  touch_state : @inpututil.TouchInputState
-  gamepad_state : @inpututil.GamepadInputState
+  key_state : @inputstate.KeyInputState
+  mouse_state : @inputstate.MouseButtonInputState
+  touch_state : @inputstate.TouchInputState
+  gamepad_state : @inputstate.GamepadInputState
   mut history : Array[InputEdgeSummary]
   history_limit : Int
 }

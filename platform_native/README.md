@@ -10,3 +10,7 @@ wgpu-native、音声、フォントの hook も起動時に結線します。
 ルートと各 example/editor の `moon.work` から参照します。この module の
 `moon.work` でも依存をローカル解決できます。native の prebuild は
 `../scripts/moon-prebuild-native-link-flags.cjs` を使用します。
+
+`gfx_wgpu_native/` は GPU・GLFW・音声 FFI と backend state を所有します。
+`capture/` は engine のキャプチャデータをファイルへ出力する native adapter です。
+両方ともこの module の prebuild を共有し、engine からは import しません。

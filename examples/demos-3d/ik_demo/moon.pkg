@@ -1,4 +1,5 @@
 import {
+  "mizchi/kagura_game/inpututil",
   "moonbitlang/core/math",
   "mizchi/anim3d/animation3d",
   "mizchi/geom/camera3d",
@@ -6,8 +7,8 @@ import {
   "mizchi/kagura_engine/draw3d",
   "mizchi/kagura_engine" @engine,
   "mizchi/gfx",
-  "mizchi/kagura_game/ik3d",
-  "mizchi/kagura_core/inpututil",
+  "mizchi/anim3d/ik3d",
+  "mizchi/kagura_core/inputstate",
   "mizchi/kagura_engine/light3d",
   "mizchi/geom/math3d",
   "mizchi/mesh3d",

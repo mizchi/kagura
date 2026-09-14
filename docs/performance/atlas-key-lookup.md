@@ -108,7 +108,7 @@ tileset と atlas で描けば 1 フレーム約 118,000 回の比較になる�
 
 **ところがこの経路には出荷している呼び出し元が無い。**
 `collect_chunk_tile_quads` と `append_atlas_tilemap_draw_commands` /
-`append_tile_indexed_*`（4 本）を grep すると、`game/tilemap2d/contracts_wbtest.mbt`
+`append_tile_indexed_*`（4 本）を grep すると、`engine/tilemap2d/contracts_wbtest.mbt`
 しか出てこない。example もゲームも通らない。
 
 atlas batch builder が呼ばれていなかったのと同じ形である。**索引の前に

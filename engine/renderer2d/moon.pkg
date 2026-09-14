@@ -5,7 +5,7 @@ import {
   "mizchi/gfx",
   "mizchi/kagura_core" @core,
   "mizchi/geom/vector",
-  "mizchi/kagura_core/inpututil",
+  "mizchi/kagura_core/inputstate",
   "mizchi/svg" @msvg,
   "moonbitlang/core/debug",
 }

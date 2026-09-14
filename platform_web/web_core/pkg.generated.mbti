@@ -1,0 +1,63 @@
+// Generated using `moon info`, DON'T EDIT IT
+package "mizchi/kagura_platform_web/web_core"
+
+import {
+  "mizchi/js/core",
+}
+
+// Values
+pub fn apply_object_patch(@core.Any, @core.Any) -> @core.Any
+
+pub fn command_needs_depth(@core.Any) -> Bool
+
+pub fn create_control_input(@core.Any) -> @core.Any
+
+pub fn create_dependency_gate() -> @core.Any
+
+pub fn create_gamepad_reader(@core.Any) -> @core.Any
+
+pub fn create_motion_player(@core.Any) -> @core.Any
+
+pub fn equal_dwords(@core.Any, @core.Any, @core.Any) -> Bool
+
+pub fn get_instance_count(@core.Any) -> Int
+
+pub fn get_resource_cache_key(@core.Any) -> Int
+
+pub fn install_frame_profiler(@core.Any) -> @core.Any
+
+pub fn instance_uniform_shader(String, @core.Any) -> String
+
+pub fn is_3d_shader(String) -> Bool
+
+pub fn is_stride32(String) -> Bool
+
+pub fn is_stride64(String) -> Bool
+
+pub fn normalize_gamepad(@core.Any) -> @core.Any
+
+pub fn parse_texture_bindings(String) -> @core.Any
+
+pub fn percentile(@core.Any, Double) -> Double
+
+pub fn read_frame_profile(@core.Any) -> @core.Any
+
+pub fn register_geometry(@core.Any, @core.Any, @core.Any, @core.Any, @core.Any) -> @core.Any
+
+pub fn register_static_geometry(@core.Any, @core.Any, @core.Any) -> @core.Any
+
+pub fn snapshot_draw_geometry(@core.Any, @core.Any, @core.Any) -> @core.Any
+
+pub fn stick_vector(@core.Any, @core.Any, @core.Any, @core.Any) -> @core.Any
+
+pub fn summarize_intervals(@core.Any) -> @core.Any
+
+pub fn unregister_geometry(@core.Any, @core.Any) -> Unit
+
+// Errors
+
+// Types and methods
+
+// Type aliases
+
+// Traits

@@ -1,7 +1,7 @@
 # 2D / 3D 物理エンジンのベンチマーク
 
 - Date: 2026-09-10
-- Scope: `engine/physics/physics2d`, `engine/physics/physics3d`, `scripts/bench-gate*.mjs`
+- Scope: `core/physics2d`, `core/physics3d`, `scripts/bench-gate*.mjs`
 - Goal: 「何を測っているか」が名前から判る physics bench にし、**測っている仕事が消えたことを検知できる**状態にする
 
 > **この doc の数字は最適化前の状態である。** この bench を使って 3D 側を最適化した結果と、
@@ -223,6 +223,6 @@ bench は**速くなり**、緑のまま何も測らなくなる。
 just bench                       # 全 bench
 just bench-gate                  # baseline と比較（両側）
 just bench-update                # 意図した変化のあとに貼り直す
-cd engine/physics && moon bench --target js -p mizchi/physics/physics2d
-cd engine/physics && moon test  --target js   # fixture correctness gate を含む
+cd core && moon bench --target js -p mizchi/kagura_core/physics2d
+cd core && moon test  --target js   # fixture correctness gate を含む
 ```

@@ -5,6 +5,7 @@ import {fileURLToPath} from 'node:url';
 
 export const WEB_RUNTIME_FILES = Object.freeze([
   'kagura-runtime.generated.js',
+  'kagura-inventory.generated.js',
   'kagura-init.js',
   'kagura-presentation.js',
   'kagura-audio.js',

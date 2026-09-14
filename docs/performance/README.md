@@ -19,11 +19,11 @@
 |---|---:|---|
 | `examples/games/hacknslash_3d/view3d_bench.mbt` | 36 | render pass / update phase の細かい分解計測 |
 | `game/ecs/ecs_bench.mbt` | 11 | ECS spawn / system / component access |
-| `engine/physics/src/physics3d/world_bench.mbt` | 8 | 物理ステップ (pairs / constraints / substeps / integration) |
+| `core/src/physics3d/world_bench.mbt` | 8 | 物理ステップ (pairs / constraints / substeps / integration) |
 | `engine/src/text/contracts_bench.mbt` | 4 | テキスト glyph build / 描画コマンド構築 |
 | `engine/src/sprite2d/contracts_bench.mbt` | 3 | 2D 描画コマンド構築 (particle dispatch) |
 | `examples/games/arena3d/game_bench.mbt` | 3 | arena3d の update / scene graph / renderer3d facade |
-| `game/sprite_packer/packer_bench.mbt` | 2 | スプライトパッキング |
+| `engine/sprite_packer/packer_bench.mbt` | 2 | スプライトパッキング |
 | `examples/games/{action_rpg,flappy_bird,survivor}/game_bench.mbt` | 2 each | ゲーム例の update / view |
 
 ## 計測コマンド
@@ -35,7 +35,7 @@ just bench target=native  # native target
 
 # 単一パッケージを実行
 moon -C examples/games/hacknslash_3d bench --target js
-moon -C engine/physics bench --target js
+moon bench core/physics2d core/physics3d --target js
 
 # 回帰検知 (baseline と比較)
 just bench-gate

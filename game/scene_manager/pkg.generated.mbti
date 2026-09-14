@@ -34,4 +34,3 @@ pub(open) trait Scene {
   fn update(Self, @kagura_core.InputSnapshot) -> Unit
   fn draw(Self, @kagura_engine.EngineContext) -> Array[@gfx.DrawTrianglesCommand]
 }
-

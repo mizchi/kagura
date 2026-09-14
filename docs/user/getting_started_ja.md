@@ -82,7 +82,7 @@ examples/<category>/my_game/      # category: games, demos-2d, demos-3d, smoke, 
     "mizchi/kagura_engine": { "path": "../../../engine" },
     "mizchi/kagura_game": { "path": "../../../game" },
     "mizchi/signals": "0.6.3",
-    "mizchi/web_runtime_hooks": { "path": "../../../platform/web_runtime_hooks" },
+    "mizchi/web_runtime_hooks": { "path": "../../../platform_web/runtime_hooks" },
     "mizchi/native_runtime_hooks": { "path": "../../../platform_native" }
   },
   "--moonbit-unstable-prebuild": "../../../scripts/moon-prebuild-native-link-flags.cjs"
@@ -94,9 +94,9 @@ examples/<category>/my_game/      # category: games, demos-2d, demos-3d, smoke, 
 ```
 import {
   "mizchi/signals" @signals,
-  "mizchi/kagura_game/scene" @scene,
+  "mizchi/kagura_engine/scene" @scene,
   "mizchi/kagura_core" @core,
-  "mizchi/kagura_core/inpututil" @inpututil,
+  "mizchi/kagura_core/inputstate" @inpututil,
   "mizchi/kagura_engine" @engine,
   "mizchi/kagura_engine/gfx" @gfx,
   "mizchi/web_runtime_hooks" @web_hooks,

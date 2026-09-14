@@ -20,6 +20,8 @@ pub fn default_headless_input() -> HeadlessInput
 
 pub fn headless_frame_png(HeadlessFrame) -> Bytes?
 
+pub fn is_native_gpu_capture() -> Bool
+
 pub fn parse_headless_keys(String) -> Array[Int]
 
 pub fn[T : @gfx.GraphicsDriver] render_commands(T, Array[@gfx.DrawTrianglesCommand], clear_color? : @gfx.Color, clear_enabled? : Bool) -> Unit raise
@@ -32,9 +34,13 @@ pub fn run(update~ : (@kagura_core.InputSnapshot) -> Unit, draw~ : (EngineContex
 
 pub fn[T : EngineGame] run_game(T, on_frame? : () -> Unit, after_render? : (Double, Double) -> Unit, audio_ctx? : @kagura_audio.MixerAudioContext, audio_frames_per_tick? : Int, width? : Int, height? : Int, title? : String, canvas? : String) -> Unit
 
+pub fn set_gpu_capture_for_test(Bool) -> Unit
+
 pub fn set_headless_texture_provider(() -> Array[HeadlessTexture]) -> Unit
 
 pub fn set_lifecycle_hooks(LifecycleHooks) -> Unit
+
+pub fn set_lifecycle_hooks_if_absent(LifecycleHooks) -> Unit
 
 // Errors
 pub suberror InitialStateError {

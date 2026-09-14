@@ -1,5 +1,7 @@
 # Implementation Outline (Ebiten-first)
 
+> AI runtime に関する記述は過去の計画。実利用のない共通 AI package は削除済み。
+
 実装時に迷わないための、Ebiten準拠の着手順アウトライン。
 
 ## Package Layout
@@ -18,7 +20,7 @@
   - `backend_contracts.mbt`: backend factory (`wgpu-native/webgpu/webgl/null`)
 - `engine/src/gfx_wgpu_native`
   - `backend.mbt`: `~/Downloads/wgpu` 由来の backend 実装
-- `platform_js/gfx_webgpu` / `src/gfx_webgl` (planned)
+- `platform_web/gfx_webgpu` / `src/gfx_webgl` (planned)
   - ブラウザ backend 実装
 - `engine/src/asset`
   - `contracts.mbt`: image/shader/material/atlas 管理契約

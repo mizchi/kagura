@@ -11,9 +11,8 @@ export const DEFAULT_RELEASE_MODULE_DIRS = Object.freeze([
   "engine/audio",
   "engine/asset_loader",
   "engine",
-  "engine/physics",
   "game",
-  "platform_js",
+  "platform_web",
 ]);
 
 export const DEFAULT_RELEASE_DEP_POLICY = Object.freeze({
@@ -23,17 +22,15 @@ export const DEFAULT_RELEASE_DEP_POLICY = Object.freeze({
   "mizchi/kagura_ui": ["mizchi/kagura_core"],
   "mizchi/kagura_audio": [],
   "mizchi/kagura_asset_loader": [],
-  "mizchi/kagura_engine": ["mizchi/kagura_core", "mizchi/kagura_platform", "mizchi/kagura_audio"],
-  "mizchi/physics": ["mizchi/kagura_core"],
+  "mizchi/kagura_engine": ["mizchi/kagura_core", "mizchi/kagura_platform", "mizchi/kagura_audio", "mizchi/kagura_ui"],
   "mizchi/kagura_game": [
     "mizchi/kagura_core",
     "mizchi/kagura_platform",
     "mizchi/kagura_engine",
     "mizchi/kagura_ui",
     "mizchi/kagura_audio",
-    "mizchi/physics",
   ],
-  "mizchi/kagura_platform_js": ["mizchi/kagura_platform", "mizchi/kagura_core"],
+  "mizchi/kagura_platform_web": ["mizchi/kagura_platform", "mizchi/kagura_core"],
 });
 
 const REQUIRED_MANIFEST_FIELDS = Object.freeze([
@@ -62,7 +59,7 @@ const ALWAYS_EXCLUDE_FROM_ROOT_SOURCE = Object.freeze([
 
 // Repository-root facade code is flat; the other layers and distributable assets are separate.
 const ROOT_FACADE_EXCLUDES = [
-  "core", "engine", "platform", "platform_js", "platform_native", "game", "editor", "assets", "examples", "e2e",
+  "core", "engine", "platform", "platform_web", "platform_native", "game", "editor", "assets", "examples", "e2e",
   "docs", "scripts", "deps", "fixtures", "test-results", "playwright-report", "output",
   "package.json", "pnpm-lock.yaml", "justfile", "playwright.config.ts",
   "modules", "CLAUDE.md", "CONTRIBUTING.md", "CONTRIBUTING_ja.md", "TODO.md",

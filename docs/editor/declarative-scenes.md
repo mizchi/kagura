@@ -4,7 +4,7 @@
 
 Kagura のゲームは、状態を更新するコードと、その状態からシーンを宣言する `view.mbt` を分けます。静的な親子関係は `children` の入れ子で表し、配列からの生成や条件分岐は `for_each` / `show` に現れます。ヒエラルキーをエディタ用 JSON に再定義しません。
 
-2D は既存の `mizchi/kagura_game/scene` を継続使用します。3D は既存の `mizchi/kagura_engine/scene3d` に宣言 API を追加しました。[luna-three](https://github.com/mizchi/three-mbt/tree/main/luna-three) の入れ子の要素・コンポーネント・兄弟内のキー・借用リソースという構成を参考にしています。描画先は Kagura のままで、three.js や React の実行環境を追加していません。
+2D は既存の `mizchi/kagura_engine/scene` を継続使用します。3D は既存の `mizchi/kagura_engine/scene3d` に宣言 API を追加しました。[luna-three](https://github.com/mizchi/three-mbt/tree/main/luna-three) の入れ子の要素・コンポーネント・兄弟内のキー・借用リソースという構成を参考にしています。描画先は Kagura のままで、three.js や React の実行環境を追加していません。
 
 ## 2D
 

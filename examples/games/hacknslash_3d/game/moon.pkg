@@ -1,11 +1,11 @@
 import {
-  "mizchi/kagura_game/terrain3d",
+  "mizchi/kagura_core/terrain3d",
   "moonbitlang/core/json",
   "moonbitlang/core/cmp",
   "mizchi/kagura_game/gameplay2d",
   "moonbitlang/core/math",
   "mizchi/pathfind",
-  "mizchi/physics/physics2d",
+  "mizchi/kagura_core/physics2d",
   "mizchi/kagura_game/progression",
   "mizchi/geom/vector",
   "mizchi/terrain/arena_chain",

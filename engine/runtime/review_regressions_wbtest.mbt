@@ -71,7 +71,7 @@ test "run_loop uses runtime clock deltas instead of a fixed frame step" {
     observed_ticks.val.push(tick)
   })
   set_runtime_clock_provider(make_runtime_test_clock([0.0, 0.0, 5.0, 25.0]))
-  let game = @core.new_noop_game(320, 240)
+  let game = @application.new_noop_game(320, 240)
   let platform = @platform.create_web_canvas_platform("#app")
   let surface = platform.current_surface()
   let graphics = @gfx.create_webgpu_graphics(
@@ -82,7 +82,7 @@ test "run_loop uses runtime clock deltas instead of a fixed frame step" {
     game,
     platform,
     graphics,
-    @core.default_run_options(),
+    @application.default_run_options(),
     { max_skip_frames: 5, enable_vsync: false, clear_screen_every_frame: true, },
     hooks,
   )
@@ -98,14 +98,14 @@ test "run_loop applies Game.layout logical size to graphics resize" {
   let resized_heights : Ref[Array[Int]] = Ref([])
   install_resizing_probe_web_hooks(resized_widths, resized_heights)
   set_runtime_clock_provider(make_runtime_test_clock([0.0, 0.0, 16.7]))
-  let game = @core.new_noop_game(160, 120)
+  let game = @application.new_noop_game(160, 120)
   let platform = @platform.create_web_canvas_platform("#app")
   let surface = platform.current_surface()
   let graphics = @gfx.create_webgpu_graphics(
     surface,
     @gfx.default_graphics_backend_options(),
   )
-  run_loop(game, platform, graphics, @core.default_run_options(), {
+  run_loop(game, platform, graphics, @application.default_run_options(), {
     max_skip_frames: 5,
     enable_vsync: false,
     clear_screen_every_frame: true,
@@ -132,8 +132,8 @@ test "run_loop honors RunOptions.screen_cleared_every_frame" {
     ),
   )
   set_runtime_clock_provider(make_runtime_test_clock([0.0, 0.0]))
-  let options = @core.new_run_options(screen_cleared_every_frame=false)
-  let game = @core.new_noop_game(320, 240)
+  let options = @application.new_run_options(screen_cleared_every_frame=false)
+  let game = @application.new_noop_game(320, 240)
   let platform = @platform.create_web_canvas_platform("#app")
   let surface = platform.current_surface()
   let graphics = @gfx.create_webgpu_graphics(
@@ -154,8 +154,8 @@ test "run_loop honors RunOptions.screen_cleared_every_frame" {
 test "run_loop passes init_unfocused through window options" {
   install_test_web_hooks(max_polls=1)
   set_runtime_clock_provider(make_runtime_test_clock([0.0, 0.0]))
-  let options = @core.new_run_options(init_unfocused=true)
-  let game = @core.new_noop_game(320, 240)
+  let options = @application.new_run_options(init_unfocused=true)
+  let game = @application.new_noop_game(320, 240)
   let platform = @platform.create_web_canvas_platform("#app")
   let surface = platform.current_surface()
   let graphics = @gfx.create_webgpu_graphics(

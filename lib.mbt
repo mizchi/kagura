@@ -15,10 +15,10 @@ pub type FixedStepState = @core.FixedStepState
 pub type StepResult = @core.StepResult
 
 ///|
-pub type RunOptions = @core.RunOptions
+pub type RunOptions = @application.RunOptions
 
 ///|
-pub type EngineTermination = @core.EngineTermination
+pub type EngineTermination = @application.EngineTermination
 
 ///|
 pub type WindowOptions = @platform.WindowOptions
@@ -45,7 +45,7 @@ pub fn initial_fixed_step_state() -> FixedStepState {
 }
 
 ///|
-pub fn[G : @core.Game, P : @platform.PlatformDriver, R : @gfx.GraphicsDriver] run_loop(
+pub fn[G : @application.Game, P : @platform.PlatformDriver, R : @gfx.GraphicsDriver] run_loop(
   game : G,
   platform : P,
   graphics : R,

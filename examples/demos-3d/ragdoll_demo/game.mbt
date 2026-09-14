@@ -382,11 +382,11 @@ fn DemoState::update(self : DemoState, snapshot : @core.InputSnapshot) -> Unit {
   self.mouse_phys_x = mx
   self.mouse_phys_y = my
   // Grab on press
-  if @inpututil.is_mouse_button_just_pressed(self.input.mouse_state, 0) {
+  if @inputstate.is_mouse_button_just_pressed(self.input.mouse_state, 0) {
     self.grabbed_id = find_closest_dynamic(self.world, mx, my)
   }
   // Release
-  if @inpututil.is_mouse_button_just_released(self.input.mouse_state, 0) {
+  if @inputstate.is_mouse_button_just_released(self.input.mouse_state, 0) {
     self.grabbed_id = -1
   }
   // Apply spring force while dragging

@@ -309,12 +309,12 @@ fn run_terminating_probe_with_webgpu(
   let hooks = new_runtime_hooks(fn(tick, _input) {
     observed_ticks.val.push(tick)
   })
-  let game = @core.new_noop_game(320, 240)
+  let game = @application.new_noop_game(320, 240)
   let platform = @platform.create_web_canvas_platform("#app")
   let surface = platform.current_surface()
   let gfx_options = @gfx.default_graphics_backend_options()
   let graphics = @gfx.create_webgpu_graphics(surface, gfx_options)
-  let options = @core.default_run_options()
+  let options = @application.default_run_options()
   let runtime_config = {
     max_skip_frames: 2,
     enable_vsync: false,
@@ -398,12 +398,12 @@ fn run_terminating_probe_with_native(
   let hooks = new_runtime_hooks(fn(tick, _input) {
     observed_ticks.val.push(tick)
   })
-  let game = @core.new_noop_game(320, 240)
+  let game = @application.new_noop_game(320, 240)
   let platform = @platform.create_desktop_glfw_platform()
   let surface = platform.current_surface()
   let gfx_options = @gfx.default_graphics_backend_options()
   let graphics = @gfx.create_wgpu_native_graphics(surface, gfx_options)
-  let options = @core.default_run_options()
+  let options = @application.default_run_options()
   let runtime_config = {
     max_skip_frames: 2,
     enable_vsync: false,
@@ -426,12 +426,12 @@ fn run_terminating_probe_with_native(
 ///|
 fn run_counting_game_with_webgpu() -> (Int, Int) raise {
   install_test_web_hooks()
-  let game = @core.new_noop_game(320, 240)
+  let game = @application.new_noop_game(320, 240)
   let platform = @platform.create_web_canvas_platform("#app")
   let surface = platform.current_surface()
   let gfx_options = @gfx.default_graphics_backend_options()
   let graphics = @gfx.create_webgpu_graphics(surface, gfx_options)
-  let options = @core.default_run_options()
+  let options = @application.default_run_options()
   let runtime_config = {
     max_skip_frames: 2,
     enable_vsync: false,
@@ -446,12 +446,12 @@ fn run_counting_game_with_webgpu() -> (Int, Int) raise {
 ///|
 fn run_counting_game_with_webgl() -> (Int, Int) raise {
   install_test_web_hooks()
-  let game = @core.new_noop_game(320, 240)
+  let game = @application.new_noop_game(320, 240)
   let platform = @platform.create_web_canvas_platform("#app")
   let surface = platform.current_surface()
   let gfx_options = @gfx.default_graphics_backend_options()
   let graphics = @gfx.create_webgl_graphics(surface, gfx_options)
-  let options = @core.default_run_options()
+  let options = @application.default_run_options()
   let runtime_config = {
     max_skip_frames: 2,
     enable_vsync: false,
@@ -466,12 +466,12 @@ fn run_counting_game_with_webgl() -> (Int, Int) raise {
 ///|
 fn run_counting_game_with_native() -> (Int, Int) raise {
   install_test_native_hooks()
-  let game = @core.new_noop_game(320, 240)
+  let game = @application.new_noop_game(320, 240)
   let platform = @platform.create_desktop_glfw_platform()
   let surface = platform.current_surface()
   let gfx_options = @gfx.default_graphics_backend_options()
   let graphics = @gfx.create_wgpu_native_graphics(surface, gfx_options)
-  let options = @core.default_run_options()
+  let options = @application.default_run_options()
   let runtime_config = {
     max_skip_frames: 2,
     enable_vsync: false,
@@ -490,12 +490,12 @@ fn run_observed_input_ticks_with_webgpu() -> Array[Int] raise {
   let hooks = new_runtime_hooks(fn(tick, _input) {
     observed_ticks.val.push(tick)
   })
-  let game = @core.new_noop_game(320, 240)
+  let game = @application.new_noop_game(320, 240)
   let platform = @platform.create_web_canvas_platform("#app")
   let surface = platform.current_surface()
   let gfx_options = @gfx.default_graphics_backend_options()
   let graphics = @gfx.create_webgpu_graphics(surface, gfx_options)
-  let options = @core.default_run_options()
+  let options = @application.default_run_options()
   let runtime_config = {
     max_skip_frames: 2,
     enable_vsync: false,
@@ -514,12 +514,12 @@ fn run_observed_input_ticks_with_native() -> Array[Int] raise {
   let hooks = new_runtime_hooks(fn(tick, _input) {
     observed_ticks.val.push(tick)
   })
-  let game = @core.new_noop_game(320, 240)
+  let game = @application.new_noop_game(320, 240)
   let platform = @platform.create_desktop_glfw_platform()
   let surface = platform.current_surface()
   let gfx_options = @gfx.default_graphics_backend_options()
   let graphics = @gfx.create_wgpu_native_graphics(surface, gfx_options)
-  let options = @core.default_run_options()
+  let options = @application.default_run_options()
   let runtime_config = {
     max_skip_frames: 2,
     enable_vsync: false,
@@ -584,12 +584,12 @@ fn run_resized_frame_sizes_with_webgpu() -> (Array[Int], Array[Int]) raise {
     ),
   )
 
-  let game = @core.new_noop_game(320, 240)
+  let game = @application.new_noop_game(320, 240)
   let platform = @platform.create_web_canvas_platform("#app")
   let surface = platform.current_surface()
   let gfx_options = @gfx.default_graphics_backend_options()
   let graphics = @gfx.create_webgpu_graphics(surface, gfx_options)
-  let options = @core.default_run_options()
+  let options = @application.default_run_options()
   let runtime_config = {
     max_skip_frames: 2,
     enable_vsync: false,
@@ -649,12 +649,12 @@ fn run_resized_frame_sizes_with_native() -> (Array[Int], Array[Int]) raise {
     ),
   )
 
-  let game = @core.new_noop_game(320, 240)
+  let game = @application.new_noop_game(320, 240)
   let platform = @platform.create_desktop_glfw_platform()
   let surface = platform.current_surface()
   let gfx_options = @gfx.default_graphics_backend_options()
   let graphics = @gfx.create_wgpu_native_graphics(surface, gfx_options)
-  let options = @core.default_run_options()
+  let options = @application.default_run_options()
   let runtime_config = {
     max_skip_frames: 2,
     enable_vsync: false,
@@ -678,12 +678,12 @@ test "plan_frame clamps updates by max_skip_frames" {
 ///|
 test "run_loop works with noop game + stub platform/gfx" {
   install_test_web_hooks()
-  let game = @core.new_noop_game(320, 240)
+  let game = @application.new_noop_game(320, 240)
   let platform = @platform.create_web_canvas_platform("#app")
   let surface = platform.current_surface()
   let gfx_options = @gfx.default_graphics_backend_options()
   let graphics = @gfx.create_webgpu_graphics(surface, gfx_options)
-  let options = @core.default_run_options()
+  let options = @application.default_run_options()
   let runtime_config = {
     max_skip_frames: 2,
     enable_vsync: false,
@@ -774,12 +774,12 @@ test "run_loop_with_hooks passes captured input snapshots to observer" {
       observed_first_keys.val.push(-1)
     }
   })
-  let game = @core.new_noop_game(320, 240)
+  let game = @application.new_noop_game(320, 240)
   let platform = @platform.create_web_canvas_platform("#app")
   let surface = platform.current_surface()
   let gfx_options = @gfx.default_graphics_backend_options()
   let graphics = @gfx.create_webgpu_graphics(surface, gfx_options)
-  let options = @core.default_run_options()
+  let options = @application.default_run_options()
   let runtime_config = {
     max_skip_frames: 2,
     enable_vsync: false,
@@ -881,12 +881,12 @@ test "new_input_edge_runtime_hooks wires observer to run_loop_with_hooks" {
   install_test_web_hooks_with_tick_input()
   let observer = new_input_edge_observer_state(4)
   let hooks = new_input_edge_runtime_hooks(observer)
-  let game = @core.new_noop_game(320, 240)
+  let game = @application.new_noop_game(320, 240)
   let platform = @platform.create_web_canvas_platform("#app")
   let surface = platform.current_surface()
   let gfx_options = @gfx.default_graphics_backend_options()
   let graphics = @gfx.create_webgpu_graphics(surface, gfx_options)
-  let options = @core.default_run_options()
+  let options = @application.default_run_options()
   let runtime_config = {
     max_skip_frames: 2,
     enable_vsync: false,

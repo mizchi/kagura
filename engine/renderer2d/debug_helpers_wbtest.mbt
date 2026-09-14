@@ -145,8 +145,8 @@ test "build_input_debug_overlay empty state" {
     [],
     [],
   )
-  let key_state = @inpututil.new_key_input_state()
-  let mouse_state = @inpututil.new_mouse_input_state()
+  let key_state = @inputstate.new_key_input_state()
+  let mouse_state = @inputstate.new_mouse_input_state()
   let cmds = build_input_debug_overlay(
     dst, shader, snapshot, key_state, mouse_state, 0,
   )
@@ -428,10 +428,10 @@ test "build_input_debug_overlay with pressed keys" {
     [],
     [],
   )
-  let key_state = @inpututil.new_key_input_state()
-  let mouse_state = @inpututil.new_mouse_input_state()
-  @inpututil.update_key_input_state(key_state, snap1)
-  @inpututil.update_mouse_input_state(mouse_state, snap1)
+  let key_state = @inputstate.new_key_input_state()
+  let mouse_state = @inputstate.new_mouse_input_state()
+  @inputstate.update_key_input_state(key_state, snap1)
+  @inputstate.update_mouse_input_state(mouse_state, snap1)
   let cmds = build_input_debug_overlay(
     dst, shader, snap1, key_state, mouse_state, 0,
   )

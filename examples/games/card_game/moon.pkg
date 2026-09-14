@@ -1,6 +1,6 @@
 import {
   "mizchi/card_game/lib",
-  "mizchi/kagura_game/scene",
+  "mizchi/kagura_engine/scene",
   "mizchi/web_runtime_hooks" @web_hooks,
 }
 

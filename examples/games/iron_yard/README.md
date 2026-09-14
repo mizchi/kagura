@@ -69,7 +69,7 @@ FPSはrAFの実測で、ディスプレイの更新レートで頭打ちにな�
 
 | 機能 | 接続先 |
 | --- | --- |
-| GPU描画・深度・テクスチャ・オフスクリーン | `mizchi/gfx`、`platform/web_runtime_hooks`、既存 `assets/web/kagura-gfx.js` |
+| GPU描画・深度・テクスチャ・オフスクリーン | `mizchi/gfx`、`platform_web/runtime_hooks`、既存 `assets/web/kagura-gfx.js` |
 | メッシュ・座標・カメラ | `mesh3d`、`geom/math3d`、`geom/camera3d` |
 | PBR・金属度・粗さ・発光 | `kagura_engine/draw3d/shaders/standard.wgsl` |
 | ボーン姿勢・クリップ補間 | `anim3d/animation3d`、`anim3d/transform3d` |

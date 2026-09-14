@@ -1,13 +1,16 @@
 import test from 'node:test';
 import assert from 'node:assert/strict';
 import * as runtime from './kagura-runtime.generated.js';
+import * as inventory from './kagura-inventory.generated.js';
 import {readFileSync} from 'node:fs';
 
-test('compiled ESM and its JS ABI declaration expose the same API',()=>{
-  const declarations=readFileSync(new URL('./kagura-runtime.generated.d.ts',import.meta.url),'utf8');
-  const names=[...declarations.matchAll(/^export function (\w+)\(/gm)].map(match=>match[1]).sort();
-  assert.deepEqual(Object.keys(runtime).sort(),names);
-});
+for (const [name, api] of [['runtime', runtime], ['inventory', inventory]]) {
+  test(`compiled ${name} ESM and its JS ABI declaration expose the same API`, () => {
+    const declarations = readFileSync(new URL(`./kagura-${name}.generated.d.ts`, import.meta.url), 'utf8');
+    const names = [...declarations.matchAll(/^export function (\w+)\(/gm)].map(match => match[1]).sort();
+    assert.deepEqual(Object.keys(api).sort(), names);
+  });
+}
 
 test('compiled input preserves JS payload identity and safe integer pointer IDs', () => {
   const input=runtime.createControlInput({capacity:1});

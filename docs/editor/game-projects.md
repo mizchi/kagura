@@ -134,7 +134,7 @@ Play はエディタで選択したシーンから開始し、全シーンのス
 
 2D examples 13 本は、3D の orbit / XYZ Inspector から独立した画面構成を使います。左に 2D Hierarchy、中央にスクリーン平面、右に X / Y / Width / Height / Color の Inspector を置きます。ドラッグ移動、右下ハンドルのリサイズ、ホイールズーム、中・右ドラッグのパン、Fit、100%、グリッドとスナップを提供します。ドラッグ中はローカルな仮表示だけを更新し、確定時に一回のトランザクションにします。Esc・pointercancel では取り消します。
 
-配置は `kagura.scene2d` リソース（kind 同名、version 1）に置きます。左上原点・ピクセル単位・Y 下向きで、3D nodes の座標や units を読み替えません。共通の軸平行矩形は `game/scene2d` の `Document` / `Element` に対応し、JS の検証・編集は `editor/studio/scene2d/model.mjs`、公開型は `public/scene2d.d.ts` です。オブジェクトの意味と変更可能なフィールドはゲーム所有の profile が定義します。
+配置は `kagura.scene2d` リソース（kind 同名、version 1）に置きます。左上原点・ピクセル単位・Y 下向きで、3D nodes の座標や units を読み替えません。共通の軸平行矩形は `engine/scene2d` の `Document` / `Element` に対応し、JS の検証・編集は `editor/studio/scene2d/model.mjs`、公開型は `public/scene2d.d.ts` です。オブジェクトの意味と変更可能なフィールドはゲーム所有の profile が定義します。
 
 Flappy Bird の初期配置 fixture は `scenes/training.mbt` が正本です。鳥の X / Y / 幅 / 高さ / 色、地面の Y / 高さ / 色を編集でき、地面の Y と高さは連動します。画面はゲーム固有の 320 × 240 px、鳥の大きさは最大 64 px、地面からはみ出す初期配置を拒否します。単体起動も同じ宣言を読み、Play では編集時点のコピーを渡します。ゲームは描画・衝突・リセット後の初期位置に配置とサイズを使います。パイプ生成や重力・ジャンプなどの振る舞いはゲームコードが所有します。
 
@@ -144,7 +144,7 @@ Flappy Bird の初期配置 fixture は `scenes/training.mbt` が正本です。
 
 ## シーン遷移は game/ が所有する
 
-- `game/scene2d`: ピクセル単位の 2D レイアウト契約。ゲーム固有の意味・制約はアダプターに置く。
+- `engine/scene2d`: ピクセル単位の 2D レイアウト契約。ゲーム固有の意味・制約はアダプターに置く。
 - `game/scene_document`: エディタとゲームが共有する型付きシーン宣言。
 - `game/scene_data`: 描画に依存しない Entity / Definition / Project、床の範囲・壁の衝突判定、検証済みのシーン集合。
 - `game/scene_flow`: 現在のシーン、遷移要求のチケット、確定・取り消し、地面上の Portal 判定。
@@ -176,4 +176,4 @@ just studio-scene-test
 
 ## Inspector の共通登録と配布ビルド
 
-[game/inspection](../../game/inspection/README.md) の getter/setter 宣言と Runtime 登録を使う。Flappy Bird は共通 API に移行済み。`build.editorMode` は Studio がコンパイルするモード（debug / release、既定 release）。Flappy Bird / Arena は debug を指定し、配布用は別途 `moon build --release` する。登録の debug 限定化と配布物の除去検査は同 README を参照。
+[engine/inspection](../../engine/inspection/README.md) の getter/setter 宣言と Runtime 登録を使う。Flappy Bird は共通 API に移行済み。`build.editorMode` は Studio がコンパイルするモード（debug / release、既定 release）。Flappy Bird / Arena は debug を指定し、配布用は別途 `moon build --release` する。登録の debug 限定化と配布物の除去検査は同 README を参照。

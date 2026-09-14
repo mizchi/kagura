@@ -1,7 +1,8 @@
 import {
+  "mizchi/kagura_engine/application",
   "mizchi/kagura_core" @core,
   "mizchi/gfx",
-  "mizchi/kagura_core/inpututil",
+  "mizchi/kagura_core/inputstate",
   "mizchi/kagura_platform" @platform,
   "moonbitlang/core/debug",
 }

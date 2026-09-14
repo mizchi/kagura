@@ -1,0 +1,15 @@
+import {
+  "mizchi/js/core",
+}
+
+supported_targets = "js"
+
+options(
+  link: { "js": { "format": "esm", "exports": [
+    "rotated_cells:rotatedCells",
+    "dimensions",
+    "preview_placement:previewPlacement",
+    "is_inventory_ground_drop:isInventoryGroundDrop",
+    "comparison_rows:comparisonRows",
+  ] } },
+)

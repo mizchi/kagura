@@ -1,0 +1,238 @@
+// Generated using `moon info`, DON'T EDIT IT
+package "mizchi/kagura_core/physics3d"
+
+import {
+  "mizchi/geom/math3d",
+  "mizchi/kagura_core/collision3d",
+  "moonbitlang/core/debug",
+}
+
+// Values
+pub fn ccd_sweep_body3d(Int, Array[RigidBody], VelocityState3D, Double) -> Double?
+
+pub fn generate_contact(RigidBody, RigidBody) -> Contact?
+
+pub fn precompute_ball_joint3d(BallJoint3D, Array[RigidBody], BodyIndex3D, Double) -> BallJointConstraint3D?
+
+pub fn precompute_distance_joint3d(DistanceJoint3D, Array[RigidBody], BodyIndex3D, Double) -> DistanceJointConstraint3D?
+
+pub fn resolve_contact(RigidBody, RigidBody, Contact) -> (RigidBody, RigidBody)
+
+pub fn resolve_velocity3d(RigidBody, RigidBody, Contact) -> (RigidBody, RigidBody)
+
+pub fn solve_ball_joint3d(Array[BallJointConstraint3D], Int, Array[RigidBody], VelocityState3D, Bool) -> Unit
+
+pub fn solve_distance_joint3d(Array[DistanceJointConstraint3D], Int, Array[RigidBody], DistanceJoint3D, VelocityState3D, Bool) -> Unit
+
+pub fn sweep_sphere_aabb(@math3d.Vec3, @math3d.Vec3, Double, @math3d.Vec3, @math3d.Vec3) -> Double?
+
+pub fn sweep_sphere_sphere(@math3d.Vec3, @math3d.Vec3, Double, @math3d.Vec3, @math3d.Vec3, Double) -> Double?
+
+// Errors
+
+// Types and methods
+pub(all) struct BallJoint3D {
+  body_a_id : Int
+  body_b_id : Int
+  local_anchor_a : @math3d.Vec3
+  local_anchor_b : @math3d.Vec3
+  hertz : Double
+  damping_ratio : Double
+}
+
+pub(all) struct BallJointConstraint3D {
+  idx_a : Int
+  idx_b : Int
+  r_a : @math3d.Vec3
+  r_b : @math3d.Vec3
+  effective_mass_x : Double
+  effective_mass_y : Double
+  effective_mass_z : Double
+  unbiased_effective_mass_x : Double
+  unbiased_effective_mass_y : Double
+  unbiased_effective_mass_z : Double
+  gamma : Double
+  bias_coefficient : Double
+  mut acc_impulse_x : Double
+  mut acc_impulse_y : Double
+  mut acc_impulse_z : Double
+}
+
+type BodyIndex3D
+pub fn BodyIndex3D::ensure(Self, Array[RigidBody]) -> Unit
+pub fn BodyIndex3D::find(Self, Int) -> Int
+pub fn BodyIndex3D::new() -> Self
+
+pub(all) enum BodyType {
+  Dynamic
+  Static
+  Kinematic
+} derive(@debug.Debug)
+pub fn BodyType::output(Self, &Logger) -> Unit
+pub fn BodyType::to_repr(Self) -> @debug.Repr
+pub fn BodyType::to_string(Self) -> String
+pub impl Show for BodyType
+
+pub(all) enum ColliderShape {
+  SphereShape(@math3d.Vec3, Double)
+  AABBShape(@math3d.Vec3, @math3d.Vec3)
+} derive(@debug.Debug)
+pub fn ColliderShape::output(Self, &Logger) -> Unit
+pub fn ColliderShape::to_repr(Self) -> @debug.Repr
+pub fn ColliderShape::to_string(Self) -> String
+pub impl Show for ColliderShape
+
+pub(all) struct Contact {
+  body_a_id : Int
+  body_b_id : Int
+  normal : @math3d.Vec3
+  penetration : Double
+  contact_point : @math3d.Vec3
+} derive(@debug.Debug)
+pub fn Contact::output(Self, &Logger) -> Unit
+pub fn Contact::to_repr(Self) -> @debug.Repr
+pub fn Contact::to_string(Self) -> String
+pub impl Show for Contact
+
+pub struct ContactCache3D {
+  mut count : Int
+  mut slots : FixedArray[Int]
+  mut slot_mask : Int
+  id_a : Array[Int]
+  id_b : Array[Int]
+  normal_x : Array[Double]
+  normal_y : Array[Double]
+  normal_z : Array[Double]
+  normal_impulse : Array[Double]
+  tangent_impulse : Array[Double]
+}
+pub fn ContactCache3D::clear(Self) -> Unit
+pub fn ContactCache3D::contains(Self, Int, Int) -> Bool
+pub fn ContactCache3D::find(Self, Int, Int) -> Int
+pub fn ContactCache3D::length(Self) -> Int
+pub fn ContactCache3D::new() -> Self
+pub fn ContactCache3D::store(Self, Int, Int, @math3d.Vec3, Double, Double) -> Unit
+
+pub(all) struct ContactConstraint3D {
+  idx_a : Int
+  idx_b : Int
+  contact : Contact
+  r_a : @math3d.Vec3
+  r_b : @math3d.Vec3
+  normal_mass : Double
+  unbiased_normal_mass : Double
+  tangent_mass : Double
+  tangent_dir : @math3d.Vec3
+  gamma : Double
+  bias_coefficient : Double
+  restitution_bias : Double
+  mut acc_jn : Double
+  mut acc_jt : Double
+}
+
+pub(all) struct DistanceJoint3D {
+  body_a_id : Int
+  body_b_id : Int
+  local_anchor_a : @math3d.Vec3
+  local_anchor_b : @math3d.Vec3
+  rest_length : Double
+  hertz : Double
+  damping_ratio : Double
+}
+
+pub(all) struct DistanceJointConstraint3D {
+  idx_a : Int
+  idx_b : Int
+  r_a : @math3d.Vec3
+  r_b : @math3d.Vec3
+  axis : @math3d.Vec3
+  effective_mass : Double
+  unbiased_effective_mass : Double
+  gamma : Double
+  bias_coefficient : Double
+  mut acc_impulse : Double
+}
+
+pub(all) struct PhysicsWorld {
+  bodies : Array[RigidBody]
+  gravity : @math3d.Vec3
+  broadphase : @collision3d.SpatialHashGrid
+  solver_config : SolverConfig3D
+  contact_cache : ContactCache3D
+  velocity_state : VelocityState3D
+  body_index : BodyIndex3D
+  joints_distance : Array[DistanceJoint3D]
+  joints_ball : Array[BallJoint3D]
+}
+pub fn PhysicsWorld::add_ball_joint(Self, BallJoint3D) -> Unit
+pub fn PhysicsWorld::add_body(Self, RigidBody) -> Unit
+pub fn PhysicsWorld::add_distance_joint(Self, DistanceJoint3D) -> Unit
+pub fn PhysicsWorld::apply_force(Self, Int, @math3d.Vec3) -> Unit
+pub fn PhysicsWorld::apply_impulse(Self, Int, @math3d.Vec3) -> Unit
+pub fn PhysicsWorld::body_count(Self) -> Int
+pub fn PhysicsWorld::get_body(Self, Int) -> RigidBody?
+pub fn PhysicsWorld::new(@math3d.Vec3, Double, solver_config? : SolverConfig3D) -> Self
+pub fn PhysicsWorld::step(Self, Double) -> Unit
+
+pub(all) struct RigidBody {
+  id : Int
+  body_type : BodyType
+  position : @math3d.Vec3
+  velocity : @math3d.Vec3
+  force : @math3d.Vec3
+  rotation : @math3d.Quaternion
+  angular_velocity : @math3d.Vec3
+  torque : @math3d.Vec3
+  mass : Double
+  inv_mass : Double
+  inv_inertia : Double
+  restitution : Double
+  friction : Double
+  collider : ColliderShape
+  linear_damping : Double
+  angular_damping : Double
+  is_sleeping : Bool
+  sleep_timer : Double
+  is_bullet : Bool
+} derive(@debug.Debug)
+pub fn RigidBody::apply_force(Self, @math3d.Vec3) -> Self
+pub fn RigidBody::apply_impulse(Self, @math3d.Vec3) -> Self
+pub fn RigidBody::is_dynamic(Self) -> Bool
+pub fn RigidBody::new_dynamic(Int, @math3d.Vec3, Double, ColliderShape) -> Self
+pub fn RigidBody::new_kinematic(Int, @math3d.Vec3, ColliderShape) -> Self
+pub fn RigidBody::new_static(Int, @math3d.Vec3, ColliderShape) -> Self
+pub fn RigidBody::output(Self, &Logger) -> Unit
+pub fn RigidBody::to_repr(Self) -> @debug.Repr
+pub fn RigidBody::to_string(Self) -> String
+pub fn RigidBody::with_bullet(Self) -> Self
+pub fn RigidBody::with_damping(Self, Double) -> Self
+pub fn RigidBody::with_friction(Self, Double) -> Self
+pub fn RigidBody::with_restitution(Self, Double) -> Self
+pub fn RigidBody::world_aabb(Self) -> @collision3d.AABB
+pub impl Show for RigidBody
+
+pub(all) struct SolverConfig3D {
+  substeps : Int
+  velocity_iterations : Int
+  contact_hertz : Double
+  contact_damping_ratio : Double
+  relax_iterations : Int
+}
+pub fn SolverConfig3D::default() -> Self
+
+pub struct VelocityState3D {
+  vx : Array[Double]
+  vy : Array[Double]
+  vz : Array[Double]
+  wx : Array[Double]
+  wy : Array[Double]
+  wz : Array[Double]
+  mut count : Int
+}
+pub fn VelocityState3D::load(Self, Array[RigidBody]) -> Unit
+pub fn VelocityState3D::new() -> Self
+pub fn VelocityState3D::store(Self, Array[RigidBody]) -> Unit
+
+// Type aliases
+
+// Traits

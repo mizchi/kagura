@@ -1,5 +1,8 @@
 # gfx 切り出し計画
 
+> 過去の抽出計画。現在 `gfx_wgpu_native` は `platform_native/gfx_wgpu_native` に配置し、
+> engine から backend 実装への依存は解消済み。現行構成は [module boundaries](module_boundaries.md) を参照。
+
 > **Status: superseded** — 本ドキュメントが計画していた `modules/gfx_core/` への分離は
 > 実施されなかった。実際には `gfx` は `mizchi/gfx` として独立の外部パッケージに切り出し済み
 > （このドキュメントとは別の経緯で、命名も `gfx_core` ではなく `gfx`）。また「`platform` は

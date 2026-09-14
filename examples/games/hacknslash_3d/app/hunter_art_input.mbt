@@ -67,13 +67,13 @@ fn GameState::update_hunter_art_input(
     !self.ground_targeting &&
     (
       hunter_web_whirling() ||
-      @inpututil.is_key_pressed(self.input.key_state, key_2)
+      @inputstate.is_key_pressed(self.input.key_state, key_2)
     ),
     pressed=hunter_web_whirlwind_pressed() ||
-      @inpututil.is_key_just_pressed(self.input.key_state, key_2),
+      @inputstate.is_key_just_pressed(self.input.key_state, key_2),
   )
   let held = hunter_web_guarding() ||
-    @inpututil.is_key_pressed(self.input.key_state, 70)
+    @inputstate.is_key_pressed(self.input.key_state, 70)
   let angle = if self.pointer_aim_angle() is Some(angle) {
     angle
   } else if dx * dx + dy * dy > 0.001 {
@@ -82,13 +82,13 @@ fn GameState::update_hunter_art_input(
     hunter_assisted_aim(w)
   }
   w.set_guard(held && !self.ground_targeting, angle)
-  if @inpututil.is_key_just_pressed(self.input.key_state, 86) &&
+  if @inputstate.is_key_just_pressed(self.input.key_state, 86) &&
     !self.ground_targeting {
     if w.request_dash_strike(angle) {
       self.play_sound_cue(SfxDodge)
     }
   }
-  if @inpututil.is_key_just_pressed(self.input.key_state, 84) {
+  if @inputstate.is_key_just_pressed(self.input.key_state, 84) {
     if self.ground_targeting {
       self.ground_targeting = false
       return true
@@ -146,8 +146,8 @@ fn GameState::update_hunter_art_input(
     }
   }
   if hunter_web_target_confirmed() ||
-    @inpututil.is_mouse_button_just_pressed(self.input.mouse_state, 0) ||
-    @inpututil.is_key_just_pressed(self.input.key_state, 13) {
+    @inputstate.is_mouse_button_just_pressed(self.input.mouse_state, 0) ||
+    @inputstate.is_key_just_pressed(self.input.key_state, 13) {
     if w.request_ground_strike(self.ground_target_x, self.ground_target_y) {
       self.ground_targeting = false
       self.play_sound_cue(SfxSpellHomingMissile)

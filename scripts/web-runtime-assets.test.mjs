@@ -5,12 +5,14 @@ import {tmpdir} from 'node:os';
 import {join} from 'node:path';
 import {WEB_RUNTIME_FILES, copyWebRuntimeAssets} from './web-runtime-assets.mjs';
 import {getDemoPage, renderDemoHtml} from './web-demo-pages.mjs';
-import {webRuntimeSourceHash} from './web-runtime-source.mjs';
+import {WEB_RUNTIME_BUILDS, webRuntimeSourceHash} from './web-runtime-source.mjs';
 
 test('checked-in runtime matches the MoonBit sources without requiring a compiler in Node-only jobs',()=>{
-  const source=readFileSync(new URL('../assets/web/kagura-runtime.generated.js',import.meta.url),'utf8');
-  assert.ok(source.startsWith('// Generated from platform_js/web_core/'));
-  assert.ok(source.includes(`// Source SHA-256: ${webRuntimeSourceHash()}\n`),'Run just web-runtime-build');
+  for (const build of WEB_RUNTIME_BUILDS) {
+    const source=readFileSync(new URL('../assets/web/'+build.output,import.meta.url),'utf8');
+    assert.ok(source.startsWith(`// Generated from ${build.moduleDir}/${build.package}/`));
+    assert.ok(source.includes(`// Source SHA-256: ${webRuntimeSourceHash(build)}\n`),'Run just web-runtime-build');
+  }
 });
 
 test('runtime distribution includes the transitive browser module dependencies', t => {

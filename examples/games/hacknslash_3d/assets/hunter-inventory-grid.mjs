@@ -1,2 +1,2 @@
 // Read-only layout policy compiled from MoonBit. Simulation commits all moves.
-export {rotatedCells,dimensions,previewPlacement,isInventoryGroundDrop} from '#kagura-web/kagura-runtime.generated.js';
+export {rotatedCells,dimensions,previewPlacement,isInventoryGroundDrop} from '#kagura-web/kagura-inventory.generated.js';

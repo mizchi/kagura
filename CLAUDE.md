@@ -5,7 +5,7 @@
 - `lib.mbt` / `moon.pkg` - ルート直下の公開ファサード（`mizchi/kagura`）
 - `assets/` - 共通ブラウザランタイム（`web/`）、共有フォント（`fonts/`）、外部ヘッダ（`vendor/`）、共有素材。旧 `lib/`、`vendor/`、`fixtures/fonts/` はここに統合
 - `<layer>/<name>/` - ライブラリ本体。各ディレクトリが独立した moon module で、
-  `moon.work` のメンバー。`core/`、`platform/`、`platform_js/`、`platform_native/`、`engine/`、`game/` 自体も module
+  `moon.work` のメンバー。`core/`、`platform/`、`platform_web/`、`platform_native/`、`engine/`、`game/` 自体も module
 - `examples/<category>/<name>/` - サンプルプロジェクト（各ディレクトリが独立した moon プロジェクト）
   - カテゴリ: `games`（遊べるサンプル）, `demos-2d` / `demos-3d`（単機能デモ）, `assets`（MoonBit を持たないエディタ素材プロジェクト）, `smoke`（CI の最小確認）, `experimental`
   - Studio の一覧と用途は `examples/catalog.json`、選び方と統合方針は `examples/README.md`
@@ -16,32 +16,39 @@
 
 | layer | 中身 | モジュール |
 |---|---|---|
-| `core/` | 外部依存ゼロ、または core 契約のみの基盤 | ルートが `mizchi/kagura_core`、`geom`, `mesh3d` は独立モジュール |
+| `core/` | ホスト・描画・ゲームルールから独立した計算とデータ | `mizchi/kagura_core`、独立 module は `geom`, `mesh3d`, `anim3d`（IK 含む）, `pathfind` |
 | `platform/` | 共通の platform contract と型付き hook 境界 | ルートが `mizchi/kagura_platform` |
-| `platform_js/` | contract に従う JS adapter と MoonBit JS ランタイム | `mizchi/kagura_platform_js` |
+| `platform_web/` | contract に従う JS adapter と MoonBit JS ランタイム | `mizchi/kagura_platform_web` |
 | `platform_native/` | native host の既存統合 module。platform contract に従って注入 | `mizchi/native_runtime_hooks` |
-| `engine/` | 描画・アセット・ランタイム基盤 | ルートが `mizchi/kagura_engine`、`renderer2d`, `text`, `widget2d`, `ui`, `atlas`, `asset_loader`, `audio`, `anim3d`, `physics` は独立モジュール |
-| `game/` | ゲーム側のロジック（描画基盤に依存してよい） | ルートが `mizchi/kagura_game`、`machinations`, `pathfind` は独立モジュール |
+| `engine/` | 描画・アセット・ランタイム基盤 | ルートが `mizchi/kagura_engine`、`renderer2d`, `text`, `widget2d`, `ui`, `atlas`, `asset_loader`, `audio` は独立モジュール |
+| `game/` | ゲーム側のロジック（描画基盤に依存してよい） | ルートが `mizchi/kagura_game`、`machinations` は独立モジュール |
 | `editor/` | オーサリング／確認用ツール | `studio`, `model-viewer`, `effect-studio`, `modeling3d` |
 
-`platform/web_runtime_hooks` / `platform_native` は描画・音声も結線する
+`platform_web/runtime_hooks` / `platform_native` は描画・音声も結線する
 既存の起動時統合 module。ほぼ全ての example と editor tool が import する。
 contract とは別の独立 module で、contract の配布に含めない。JS の platform hook は
-`platform_js.install(WebCanvasHooks)`、native は `DesktopNativeHooks` で注入する。
+`platform_web.install(WebCanvasHooks)`、native は `DesktopNativeHooks` で注入する。
 
 依存の向きは `core <- platform <- engine <- game` の一方通行。`editor/` はどれに依存しても
 よいが、**誰からも依存されない**（publish 対象外で、それぞれ自前の `moon.work` を持つ）。
-実際の許可リストは `scripts/moon-boundary-utils.mjs` の `DEFAULT_IMPORT_BOUNDARY_POLICY`
-にあり、`just check-release` が `moon.pkg` の import を突き合わせる。
+`just check-release` は `scripts/moon-layer-utils.mjs` で全 workspace member の層を検査し、
+`moon-boundary-utils.mjs` / `moon-release-utils.mjs` で公開 module の依存も検査する。
+core の host FFI、逆依存、入れ子の独立 module からの越境を禁止する。
+具体的な所属と import の移行表は `docs/architecture/module_boundaries.md`。
+物理は `core/{physics2d,physics3d,collision3d}` に統合。入力差分は `core/inputstate`、
+移動・決定の意味と InputHelper は `game/inpututil` が所有する。
+`core` は入力値・状態から計算し、GPU 資源を持たない。描画 callback は
+`engine/application`、表示ツリーと HUD は engine、戦闘・アイテム・進行は game。
 
 新規の実装は `platform_<target>/` / `mizchi/kagura_platform_<target>` とし、
 `platform` の `PlatformDriver`・型付き hook に従う。`platform` から実装への
-逆依存や、実装から engine / game への依存は禁止する。`platform_js` の入口は
+逆依存や、実装から engine / game への依存は禁止する。`platform_web` の入口は
 既存の shell を返し、ウィンドウ・入力の契約を複製しない。
 
 `platform_native/` は既存の統合 module をトップレベルへ移したもので、
 import 名は引き続き `mizchi/native_runtime_hooks`。`DesktopNativeHooks` に従い、
 描画・音声も結線する統合層として engine を参照する。
+`gfx_wgpu_native` と `capture` はこの module のサブパッケージであり、engine には置かない。
 
 ディレクトリ名は publish 名と一致しないことがある（`engine/ui` = `mizchi/kagura_ui`）。
 **正はいつも `moon.mod` の `name`** で、ディレクトリはただの置き場所。
@@ -98,12 +105,14 @@ parquet 側が x 0.4.50 に追従したら font の天井を外せる。上げ�
 ### Web ランタイムの実装言語
 
 ブラウザ固有 API の接続以外のコアロジックは、原則 MoonBit で書く。
-共通 JS 向け処理は `platform_js/web_core/` に追加し、
+ブラウザ向け基盤は `platform_web/web_core/` に追加し、
 `just web-runtime-build` で `assets/web/kagura-runtime.generated.js` を生成する。
+ゲームのインベントリ判定は `game/inventory_web/` に置き、同じタスクで
+`assets/web/kagura-inventory.generated.js` を生成する。
 入力・UI 同期・再生・geometry キャッシュの状態遷移を手書き JS に戻さない。
 `extern "js"` は組み込みやホスト API の小さな FFI に限り、アルゴリズムを埋め込まない。
 JS API を変更したら同名 `.d.ts` と境界テストを更新する。
-生成物も git に含める。詳細は `platform_js/README.md`。
+生成物も git に含める。詳細は `platform_web/README.md`。
 
 ```bash
 just check          # workspace + 全 example (js)
@@ -324,7 +333,7 @@ just bench-update   # 意図した変化のあとに貼り直す（既定で 3 �
 閾値が 3x なのは baseline が機械依存で、別の機械では無関係な bench が両方向に 2x 動くため。
 
 **速度ゲートだけでは足りないので、fixture が名前どおりの仕事を生んでいることを test で
-assert する。** `engine/physics/*/bench_fixtures_wbtest.mbt` が例:
+assert する。** `core/*/bench_fixtures_wbtest.mbt` が例:
 pair 数と constraint 数が body 数以上ある、size sweep で仕事が実際に増える、
 `scatter` は contact 0、寝ている fixture は本当に寝ている、reset が測定対象フレームを
 完全に復元する、solve を 2 周させても 2 周目が no-op になっていない。
@@ -364,7 +373,7 @@ whitebox bench については絶対値も倍率も引用してはいけない�
 判断しかけた配列の capacity 先取りも、ずれている側の bench だけが分離していた。
 `substeps` を振ったときの「順位付けには使えるが絶対値として引用してはいけない」と
 同じ制約が、bench の起動方法にも付いている。artifact は
-`moon bench -p mizchi/renderer2d` と `moon bench -p mizchi/kagura_game/scene` を
+`moon bench -p mizchi/renderer2d` と `moon bench -p mizchi/kagura_engine/scene` を
 並べれば再現する（`primitives/append_dot_text_scene_content_12` と
 `scene/append_dot_text_direct_12` が同じ呼び出しなのに 2.5x 離れ、`moon bench` では
 一致する）。

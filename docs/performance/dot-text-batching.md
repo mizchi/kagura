@@ -2,7 +2,7 @@
 
 - Date: 2026-09-11
 - Scope: `engine/renderer2d`、`engine`（headless の meta）、
-  `game/scene`（bench）、`assets/web`、`scripts/render-frame.mjs`
+  `engine/scene`（bench）、`assets/web`、`scripts/render-frame.mjs`
 - 出発点: [physics-followups.md](./physics-followups.md) の作業項目
   「4.2x 速い `new_atlas_quad_batch_draw_command` が誰からも呼ばれていない」。
   **その関数は配線しなかった** —— まとめて描くべき quad が atlas ではなく
@@ -131,7 +131,7 @@ bench 5 本は **0.95〜1.08x でずれない**。原因は切り分けていな
 同じ制約が、bench の起動方法にも付いている。
 
 この 2 本はそのまま残してある。1 コマンドで artifact を再現できるようにしておくため
-（`moon bench -p mizchi/renderer2d` と `moon bench -p mizchi/kagura_game/scene` で
+（`moon bench -p mizchi/renderer2d` と `moon bench -p mizchi/kagura_engine/scene` で
 2.5x 離れ、`moon bench` では一致する）。**ただし
 `primitives/append_dot_text_scene_content_12` は baseline での自分の幅が 3.12x** あり、
 gate は常に `NOISY` として扱う（落とさない）。`moon bench` は稀にこの 2 本で
@@ -183,7 +183,7 @@ label の値段は 3x5 ドットマトリクスそのものである。
   `scripts/render-frame.mjs` まで通した。`just render` が
   `N triangles in M command(s)` を出す
 - bench を 2 箇所に足した: `engine/renderer2d/primitives_bench.mbt`（primitive builder
-  4 本 + 床 + cross-module ペアの片方）、`game/scene/renderer_bench.mbt`
+  4 本 + 床 + cross-module ペアの片方）、`engine/scene/renderer_bench.mbt`
   （build / render を分けた 4 本 + 床）。**scene renderer には bench が 1 本も無かった**
 - wbtest を「1 ドット 1 command」から「1 ラン 1 command」に貼り替えた。点灯ドット数は
   `glyph_pattern` から数えるので glyph の絵を直しても落ちない

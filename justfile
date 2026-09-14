@@ -4,7 +4,7 @@ target := "js"
 
 default: check test
 
-# ESM distribution is generated solely from platform_js/web_core.
+# ESM distribution is generated solely from platform_web/web_core.
 web-runtime-build:
     node scripts/build-web-runtime.mjs
 
@@ -13,12 +13,12 @@ web-runtime-check:
     node scripts/build-web-runtime.mjs --check
 
 web-runtime-test: web-runtime-build
-    moon test platform_js/web_core --target js
+    moon test platform_web/web_core game/inventory_web --target js
     node --test assets/web/kagura-runtime.test.mjs assets/web/kagura-controls.test.mjs assets/web/kagura-gamepad.test.mjs assets/web/kagura-ui-sync.test.mjs assets/web/kagura-profile.test.mjs assets/web/kagura-gfx.test.mjs scripts/web-runtime-assets.test.mjs
 
 # Shared platform lifecycle, adapter conformance, and distribution boundaries.
 platform-test:
-    moon test platform platform_js --target {{target}}
+    moon test platform platform_web --target {{target}}
     node --test scripts/platform-layout.test.mjs scripts/moon-boundary-utils.test.mjs scripts/moon-release-utils.test.mjs
 
 # ASHEN REALMS: a low-poly action RPG with configurable builds.
@@ -43,13 +43,13 @@ hunter-motions-build:
 
 # Reusable game components can be verified without building a particular game.
 game-components-test: web-runtime-build
-    moon test platform_js/web_core --target js
+    moon test platform_web/web_core game/inventory_web --target js
     moon test -p mizchi/web_runtime_hooks --target js
     moon test -p mizchi/kagura_ui --target js
     moon -C core/geom test camera3d --target js
-    moon -C game test gameplay2d terrain3d landscape_bench --target js
+    moon test game/gameplay2d core/terrain3d engine/landscape_bench --target js
     moon -C engine/audio test . --target js
-    moon -C engine test procedural3d draw3d scene3d shadow3d render_pipeline3d --target js
+    moon test core/procedural3d engine/draw3d engine/scene3d engine/shadow3d engine/render_pipeline3d --target js
     node --test assets/web/kagura-ui-sync.test.mjs assets/web/kagura-runtime.test.mjs
     node --test scripts/bench-gate-utils.test.mjs scripts/bench-paired-utils.test.mjs
     node --test scripts/motion/generation/generation.test.ts scripts/motion/retarget.test.mjs
@@ -124,7 +124,7 @@ iron-yard-simd:
 # Price Wasm SIMD and relaxed SIMD against the scalar 3D contact solve.
 # Needs `wabt` from npm (not a repo dependency): npm install --no-save wabt
 physics-simd:
-    node engine/physics/experiments/simd/bench.mjs
+    node core/experiments/simd/bench.mjs
 
 # Profile running game URLs in an isolated native Chrome/Metal instance.
 # Example: just iron-yard-profile kagura=http://127.0.0.1:5192/ three=http://127.0.0.1:5194/game.html
@@ -134,7 +134,7 @@ iron-yard-profile *args:
 
 iron-yard-gfx-test:
     node --test assets/web/kagura-gfx.test.mjs
-    moon -C platform/web_runtime_hooks test --target js
+    moon -C platform_web/runtime_hooks test --target js
     moon -C engine test draw3d shadow3d postfx --target js
     moon -C engine/audio test . --target js
 
@@ -308,8 +308,8 @@ bench-paired *args:
 
 # Fast iteration only; final comparisons must use bench-paired's workspace regime.
 bench-landscape:
-    moon -C game test landscape_bench --target {{target}}
-    moon -C game bench landscape_bench --target {{target}}
+    moon -C engine test landscape_bench --target {{target}}
+    moon -C engine bench landscape_bench --target {{target}}
 
 bench-gate extra="":
     node scripts/bench-gate.mjs {{target}} {{extra}}
@@ -663,7 +663,7 @@ studio-scene-test:
     moon -C editor/studio build --target js --release
     moon -C game test scene_flow --target js
     moon -C game test scene_data --target js
-    moon -C game test scene2d --target js
+    moon -C engine test scene2d --target js
     moon -C examples/games/arena3d test . --target js
     moon -C examples/games/fps_demo test . --target js
     moon -C examples/games/flappy_bird test . --target js
@@ -677,7 +677,7 @@ studio-runtime-test:
 
 # Declarative views share hierarchy with the existing 2D/3D renderers.
 studio-declarative-test:
-    moon -C game test scene --target {{target}}
+    moon -C engine test scene --target {{target}}
     moon -C engine test scene3d --target {{target}}
     moon -C examples/games/flappy_bird test . --target {{target}}
     moon -C examples/games/arena3d test . --target {{target}}
@@ -685,8 +685,8 @@ studio-declarative-test:
 
 # Code declarations -> hierarchy subjects -> game-owned Inspector / AI edits.
 studio-inspection-test:
-    moon -C game test inspection --target {{target}}
-    moon -C game test scene --target {{target}}
+    moon -C engine test inspection --target {{target}}
+    moon -C engine test scene --target {{target}}
     moon -C engine test scene3d --target {{target}}
     moon -C examples/games/flappy_bird test . --target {{target}}
     node --test editor/studio/tests/inspection.test.mjs editor/studio/tests/scene-hierarchy.test.mjs editor/studio/tests/runtime-debug.test.mjs

@@ -47,6 +47,7 @@ fi
 MODULES=(
   core/mesh3d
   core/geom
+  core/anim3d
   core
   platform
   engine/ui
@@ -55,14 +56,12 @@ MODULES=(
   engine/atlas
   engine/asset_loader
   engine/renderer2d
-  engine/anim3d
   engine
   .
-  platform_js
-  engine/physics
+  platform_web
   game
   engine/widget2d
-  game/pathfind
+  core/pathfind
 )
 
 MODE="publish"

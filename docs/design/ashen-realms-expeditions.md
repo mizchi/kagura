@@ -37,7 +37,7 @@
 
 | 層 | 所有するもの |
 | --- | --- |
-| `game/terrain3d/graded_routes.mbt` | `TerrainPad`、`TerrainRoute`、道路の高さの補間、地面へのブレンド、三角形の勾配 |
+| `core/terrain3d/graded_routes.mbt` | `TerrainPad`、`TerrainRoute`、道路の高さの補間、地面へのブレンド、三角形の勾配 |
 | ゲームの `game/expedition.mbt` | シード付き探索グラフ、拠点の役割・標高、ノイズの適用、道路配置 |
 | `game/landscape.mbt` | ワールド座標の川・海・山、橋の契約、川床と歩行面、自然物の移動マスク、v3の探索グラフ |
 | `app/landscape_prefabs.mbt` | 木橋、岩窟、灯台の近景モデル |
@@ -85,7 +85,7 @@ kaguraのWebGPU共通処理も修正した。深度アタッチメントは明�
 
 ゲームの `game/woodland.mbt` は林の密度・歪み・間隔を設定する。
 座標ハッシュ、密度場のサンプリング、近隣候補の間引きはKagura共通の
-`mizchi/kagura_game/terrain3d` に置く。道路・広場は従来の整形段階で確保する。
+`mizchi/kagura_core/terrain3d` に置く。道路・広場は従来の整形段階で確保する。
 `app/woodland_scenery.mbt` が樹形、草の配置条件、尖頭アーチ・巡礼者像・倒壊柱のメッシュを持つ。
 草は材質別バッチに結合し、1チャンク80株・480三角形以下。遠距離ではフラグメントを破棄する。
 木を再配置した地図の読み込みでは、障害物と重なる敵・戦利品を安全な場所へ補正し、プレイヤーは灯火へ戻す。

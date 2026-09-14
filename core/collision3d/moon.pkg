@@ -1,0 +1,7 @@
+import {
+  "mizchi/geom/math3d",
+  "mizchi/mesh3d",
+  "moonbitlang/core/debug",
+}
+
+warnings = "-6-29-53-68"

@@ -48,7 +48,7 @@ fn GameState::confirm_save_deletion(self : GameState) -> Unit {
 ///|
 fn GameState::handle_save_delete_input(self : GameState) -> Bool {
   if self.pending_save_deletion is Some(_) {
-    if @inpututil.is_key_just_pressed(self.input.key_state, key_escape) {
+    if @inputstate.is_key_just_pressed(self.input.key_state, key_escape) {
       self.pending_save_deletion = None
       self.save_notice = ""
     } else if @inpututil.is_confirm_just_pressed(self.input) {
@@ -56,7 +56,7 @@ fn GameState::handle_save_delete_input(self : GameState) -> Bool {
     }
     return true
   }
-  if @inpututil.is_key_just_pressed(self.input.key_state, 46) {
+  if @inputstate.is_key_just_pressed(self.input.key_state, 46) {
     self.request_save_deletion(self.world.select_cursor)
     return true
   }

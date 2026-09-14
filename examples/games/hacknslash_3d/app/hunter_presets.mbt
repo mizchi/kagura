@@ -188,7 +188,7 @@ fn GameState::handle_hunter_preset_input(self : GameState) -> Bool {
     self.world.ui_mode != @game.UIMode::None ||
     self.camera_settings.editing ||
     self.terrain_lab.editing ||
-    !@inpututil.is_key_just_pressed(self.input.key_state, 76) {
+    !@inputstate.is_key_just_pressed(self.input.key_state, 76) {
     return false
   }
   let index = hunter_web_selection()
@@ -205,7 +205,7 @@ fn GameState::handle_hunter_preset_input(self : GameState) -> Bool {
 ///|
 fn GameState::handle_hunter_slot_input(self : GameState) -> Bool {
   for slot in 0..<4 {
-    if @inpututil.is_key_just_pressed(self.input.key_state, 200 + slot) {
+    if @inputstate.is_key_just_pressed(self.input.key_state, 200 + slot) {
       if self.world.assign_hunter_slot(slot, hunter_web_selection()) {
         self.save_game()
       }

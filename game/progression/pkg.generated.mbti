@@ -59,4 +59,3 @@ pub fn TierCurve::new(Double, Double) -> Self
 // Type aliases
 
 // Traits
-

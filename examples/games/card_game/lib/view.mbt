@@ -78,7 +78,7 @@ pub fn Game::update(self : Game, input : @core.InputSnapshot) -> Unit {
   @inpututil.update_input_helper(self.input, input)
   self.cursor_x = input.cursor_x
   self.cursor_y = input.cursor_y
-  let clicked = @inpututil.is_mouse_button_just_pressed(
+  let clicked = @inputstate.is_mouse_button_just_pressed(
     self.input.mouse_state,
     0,
   )
@@ -1183,7 +1183,7 @@ fn view_run_over(run : RunState) -> @scene.SceneNode {
 }
 
 ///|
-pub extend Game with @mizchi/kagura_game/scene.SceneGame::{
+pub extend Game with @mizchi/kagura_engine/scene.SceneGame::{
   update_game,
   view_game,
 }

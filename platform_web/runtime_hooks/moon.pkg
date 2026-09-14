@@ -1,0 +1,29 @@
+import {
+  "mizchi/kagura_platform_web" @platform_web,
+  "moonbitlang/core/encoding/utf8",
+  "mizchi/atlas",
+  "mizchi/kagura_audio" @audio,
+  "mizchi/kagura_core" @core,
+  "mizchi/kagura_engine" @engine,
+  "mizchi/gfx",
+  "mizchi/atlas",
+  "mizchi/renderer2d",
+  "mizchi/kagura_platform" @platform,
+  "mizchi/text",
+}
+
+warnings = "-1-29"
+
+supported_targets = "js+native+wasm+wasm-gc+llvm"
+
+options(
+  targets: {
+    "geometry_js.mbt": [ "js" ],
+    "geometry_other.mbt": [ "native", "wasm", "wasm-gc", "llvm" ],
+    "hooks_js.mbt": [ "js" ],
+    "hooks_llvm.mbt": [ "llvm" ],
+    "hooks_stub.mbt": [ "native" ],
+    "hooks_wasm.mbt": [ "wasm", "wasm-gc" ],
+    "hooks_wbtest.mbt": [ "js", "llvm" ],
+  },
+)

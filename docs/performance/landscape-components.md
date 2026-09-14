@@ -11,7 +11,7 @@
 既存bench-gateと同じworkspace rootの `moon bench --target js` を旧→新の順に3組実行。
 計測中に別のビルド・テスト・ブラウザプロファイルを走らせていない。
 以下は各runの平均値3個の中央値と最小〜最大。package-localの探索用測定は含まない。
-ベンチの処理量・計測範囲は [fixtureの説明](../../game/landscape_bench/README.md)、
+ベンチの処理量・計測範囲は [fixtureの説明](../../engine/landscape_bench/README.md)、
 全サンプルと環境は [JSON](landscape-components-bench.json) に保存した。
 
 ## 結果

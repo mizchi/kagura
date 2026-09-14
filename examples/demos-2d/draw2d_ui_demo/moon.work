@@ -1,7 +1,7 @@
 members = [
-  "../../../platform_js",
+  "../../../platform_web",
   ".",
-  "../../../engine/anim3d",
+  "../../../core/anim3d",
   "../../../engine/atlas",
   "../../../engine/audio",
   "../../../core/geom",
@@ -12,5 +12,6 @@ members = [
   "../../../engine/renderer2d",
   "../../../engine/text",
   "../../../engine/widget2d",
-  "../../../platform/web_runtime_hooks",
+  "../../../platform_web/runtime_hooks",
+  "../../../engine/ui",
 ]

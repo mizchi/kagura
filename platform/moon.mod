@@ -1,6 +1,6 @@
 name = "mizchi/kagura_platform"
 
-version = "0.1.0"
+version = "0.5.0"
 
 description = "Backend-agnostic windowing/platform contracts for Kagura (PlatformDriver trait, surface tokens, native/web hook injection points; extracted from kagura_engine)"
 
@@ -13,6 +13,6 @@ readme = "README.md"
 warnings = "-6-29-53-68"
 
 import {
-  "mizchi/kagura_core@0.2.0",
+  "mizchi/kagura_core@0.5.0",
   "mizchi/gfx@0.1.0",
 }

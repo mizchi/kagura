@@ -1,6 +1,6 @@
 name = "mizchi/atlas"
 
-version = "0.2.0"
+version = "0.5.0"
 
 description = "Asset management for MoonBit: image repositories, atlas allocation, source-image bindings, codec wrappers, and a fetcher abstraction (extracted from kagura)"
 
@@ -11,7 +11,7 @@ license = "Apache-2.0"
 warnings = "-6-29-53-68-deprecated"
 
 import {
-  "mizchi/kagura_platform@0.1.0",
+  "mizchi/kagura_platform@0.5.0",
   "mizchi/gfx@0.1.0",
   "mizchi/image@0.4.3",
 }

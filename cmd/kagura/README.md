@@ -5,10 +5,10 @@ MoonBit、Node.js 24+、pnpm を用意してください。ブラウザ版は We
 
 ## インストールとゲーム作成
 
-このリポジトリでインストールします。
+Mooncakes からインストールします。
 
 ```sh
-moon install ./cmd/kagura
+moon install mizchi/kagura_cli/kagura@0.5.0
 ```
 
 MoonBit の bin ディレクトリ（通常 `~/.moon/bin`）を PATH に追加すると、別の場所からも使えます。
@@ -24,8 +24,8 @@ kagura build                      # dist/ に静的サイトを出力
 空のディレクトリでは `kagura new --web` で現在地に作成できます。
 ファイルがあるディレクトリへの生成は拒否し、既存ファイルを上書きしません。
 
-生成するプロジェクトは **構成変更後の Kagura パッケージのリリースを前提**に、
-Mooncakes のバージョン指定で依存します。エンジンのソースやローカルパス依存を含めません。
+生成するプロジェクトは Mooncakes の Kagura パッケージにバージョン指定で依存します。
+エンジンのソースやローカルパス依存を含めません。
 対応する共通ブラウザランタイムは CLI に同梱し、生成先の `runtime/` に展開します。
 生成先の `new` / `dev` / `build` は、元のチェックアウトなしで動作します。
 
@@ -94,10 +94,17 @@ just cli-test        # 引数・雛形・パス解決・静的配布・エラー
 just cli-e2e         # Playwright: インストール、新規作成、dev、再読み込み、build、Studio
 ```
 
+開発版はチェックアウト内で `moon install ./cmd/kagura` によりインストールできます。
+公開後は、次のコマンドでレジストリの CLI と依存パッケージだけを使った動作を検証できます。
+
+```sh
+KAGURA_CLI_RELEASE_VERSION=0.5.0 pnpm exec playwright test --config cmd/kagura/playwright.config.mjs scaffold
+```
+
 生成物も git に含めるため、利用者の `moon install` に事前の生成コマンドは不要です。
 ホスト・テンプレート・ブラウザランタイムを変更したら `just cli-build` を実行してください。
 E2E ではリリース前の検証用に限り、生成先へ一時的な `moon.work` を追加してローカル module を参照します。
 この workspace は配布する雛形には含めません。
 
-`cmd/` は利用側レイヤで、ライブラリの release staging には含めません。
+`cmd/` は利用側レイヤで、CLI の独立した配布モジュールとして release staging に含めます。
 core / engine / game / platform から CLI へ依存させません。

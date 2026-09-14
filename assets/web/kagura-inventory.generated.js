@@ -1,5 +1,5 @@
 // Generated from game/inventory_web/*.mbt by just web-runtime-build. DO NOT EDIT.
-// Source SHA-256: 075250ce848f02b302f82e2ea15a22048efe4f6e7da8046a111e7b22410cc2bd
+// Source SHA-256: 3be170c42fb5bd51972bb6b8be869fe73292aaca453b5bdec29797237bd07003
 const _M0FPB12random__seed = () => {
   if (globalThis.crypto?.getRandomValues) {
     const array = new Uint32Array(1);

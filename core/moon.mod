@@ -1,6 +1,6 @@
 name = "mizchi/kagura_core"
 
-version = "0.2.0"
+version = "0.5.0"
 
 readme = "README.md"
 
@@ -14,9 +14,9 @@ warnings = "-6-29-53-68"
 
 import {
   "mizchi/terrain@0.1.1",
-  "mizchi/anim3d@0.2.0",
-  "mizchi/mesh3d@0.2.0",
-  "mizchi/geom@0.2.0",
+  "mizchi/anim3d@0.5.0",
+  "mizchi/mesh3d@0.5.0",
+  "mizchi/geom@0.5.0",
 }
 
 preferred_target = "js"

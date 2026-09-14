@@ -310,8 +310,13 @@ effect-studio-e2e:
 hacknslash3d-effects-e2e:
     pnpm exec playwright test e2e/hacknslash_3d_effects.spec.ts
 
-# Publish public library modules to mooncakes (excludes example games / tools).
-# `just publish-dry` to validate without uploading.
+# Update release versions and generated artifacts; --dry-run and --check are read-only.
+[positional-arguments]
+version new_version *args:
+    node scripts/bump-version.mjs "$@"
+
+# Publish public libraries, runtime adapters and CLI to mooncakes.
+# `just publish-status` validates packaging without uploading.
 publish:
     bash scripts/publish.sh
 

@@ -8,6 +8,7 @@ import {gunzipSync} from 'node:zlib';
 import {parseCli, scaffoldFiles} from '../cmd/kagura/cli.generated.js';
 import {createWebProject} from '../cmd/kagura/host.mjs';
 import {generatedSources, runtimeFiles} from '../cmd/kagura/generate.mjs';
+import {readModuleManifest} from './moon-mod-manifest.mjs';
 
 const root = resolve(import.meta.dirname, '..');
 const runtime = Object.fromEntries(readdirSync(join(root, 'assets/web')).filter(name => name.endsWith('.js'))
@@ -43,7 +44,7 @@ test('new --web writes a released-dependency project without a checkout referenc
   createWebProject(destination, JSON.parse(scaffoldFiles('my-game')), runtime);
   const manifest = readFileSync(join(destination, 'moon.mod'), 'utf8');
   assert.match(manifest, /username\/my_game/);
-  assert.match(manifest, /mizchi\/kagura_engine@0\.2\.0/);
+  assert.ok(manifest.includes(`mizchi/kagura_engine@${readModuleManifest(join(root, 'engine')).version}`));
   assert.equal(existsSync(join(destination, 'moon.work')), false);
   assert.ok(existsSync(join(destination, 'runtime/kagura-runtime.generated.js')));
   assert.match(readFileSync(join(destination, 'main.mbt'), 'utf8'), /@engine\.run/);

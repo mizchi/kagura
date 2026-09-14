@@ -17,12 +17,11 @@
 #
 # CHANGED means you edited the module but forgot to bump its version. We do not
 # auto-bump: publishing as-is would 409, and silently bumping would move a
-# version behind your back. Bump "version" in <module>/moon.mod.json yourself,
-# then re-run.
+# version behind your back. Run `just version X.Y.Z`, then re-run.
 #
-# Only the reusable library modules listed in MODULES below are released.
-# Example games (examples/**), authoring tools (editor/**), and runtime
-# integration modules are intentionally NOT published.
+# The shared release-modules.mjs catalog includes libraries, runtime adapters
+# and the CLI. Example games, authoring tools and development-only modules
+# are intentionally NOT published.
 #
 # Usage:
 #   scripts/publish.sh             # show status, then publish NEW modules
@@ -30,8 +29,7 @@
 #   scripts/publish.sh --dry-run   # alias for --status
 #   scripts/publish.sh --no-update # skip `moon update` (use the local index as-is)
 #
-# Publish order is topological — a module is published before anything that
-# imports it. Keep MODULES in sync with moon.work if the graph changes.
+# Publish order is computed from module dependencies (dependencies first).
 set -uo pipefail
 
 cd "$(dirname "$0")/.."
@@ -43,26 +41,12 @@ if command -v brew >/dev/null 2>&1; then
   export LIBRARY_PATH="$(brew --prefix)/lib:${LIBRARY_PATH:-}"
 fi
 
-# Topological order (deps first). Keep in sync with moon.work members.
-MODULES=(
-  core/mesh3d
-  core/geom
-  core/anim3d
-  core
-  platform
-  engine/ui
-  engine/audio
-  engine/text
-  engine/atlas
-  engine/asset_loader
-  engine/renderer2d
-  engine
-  .
-  platform_web
-  game
-  engine/widget2d
-  core/pathfind
-)
+# Share the version updater's publication catalog; support macOS Bash 3 too.
+MODULE_DIRS=$(node scripts/release-modules.mjs) || exit 1
+MODULES=()
+while IFS= read -r module_dir; do
+  MODULES+=("$module_dir")
+done <<< "$MODULE_DIRS"
 
 MODE="publish"
 NO_UPDATE=""
@@ -115,6 +99,14 @@ if [ -z "${NO_UPDATE}" ]; then
   echo
 fi
 
+# Package from outside the checkout: the repository .moonignore excludes whole
+# workspace layers, and packaging those directories directly can yield empty ZIPs.
+# Staging also brings each module's prebuild scripts inside its distribution.
+STAGING_ROOT=$(mktemp -d "${TMPDIR:-/tmp}/kagura-publish.XXXXXX") || exit 1
+trap 'rm -rf "$STAGING_ROOT"' EXIT
+node scripts/prepare-moon-release.mjs --out "$STAGING_ROOT" || exit 1
+moon -C "$STAGING_ROOT" check --deny-warn --target js || exit 1
+
 # --- classify every module by packaging it and diffing the checksum ----------
 names=()       # mizchi/foo
 vers=()        # 0.2.0
@@ -128,12 +120,30 @@ printf "%-26s %-9s %-9s %s\n" "------" "-------" "-----" "----"
 for m in "${MODULES[@]}"; do
   name=$(meta "$m" name)
   ver=$(meta "$m" version)
-  out=$( (cd "$m" && moon package) 2>&1 )
+  package_dir="$STAGING_ROOT/${name//\//__}"
+  out=$( (cd "$package_dir" && moon package) 2>&1 )
+  package_status=$?
   zip=$(printf '%s\n' "$out" | sed -n 's/^Package to //p' | tail -1)
-  if [ -z "$zip" ] || [ ! -f "$zip" ]; then
+  if [ "$package_status" -ne 0 ] || [ -z "$zip" ] || [ ! -f "$zip" ]; then
     printf "%-26s %-9s %-9s %s\n" "$name" "$ver" "ERROR" "moon package failed"
     printf '%s\n' "$out" | tail -4 | sed 's/^/    /'
     pkg_failed+=("${name}@${ver}")
+    continue
+  fi
+  # Never upload an empty archive or a package without its declared source.
+  if ! python3 - "$zip" "$name" "$ver" <<'PY'
+import json, sys, zipfile
+with zipfile.ZipFile(sys.argv[1]) as archive:
+    files = archive.namelist()
+    manifest = json.loads(archive.read('moon.mod.json'))
+    assert manifest['name'] == sys.argv[2] and manifest['version'] == sys.argv[3]
+    assert any(p == 'moon.pkg' or p.endswith('/moon.pkg') for p in files), 'missing packages'
+    assert any(p.endswith('.mbt') for p in files), 'missing MoonBit source'
+    prebuild = manifest.get('--moonbit-unstable-prebuild')
+    assert not prebuild or prebuild in files, 'missing prebuild script'
+PY
+  then
+    pkg_failed+=("${name}@${ver}: invalid archive")
     continue
   fi
   local_sha=$(shasum -a 256 "$zip" | cut -d' ' -f1)
@@ -148,7 +158,7 @@ for m in "${MODULES[@]}"; do
   fi
 
   printf "%-26s %-9s %-9s %s\n" "$name" "$ver" "$state" "$note"
-  names+=("$name"); vers+=("$ver"); states+=("$state"); dirs+=("$m")
+  names+=("$name"); vers+=("$ver"); states+=("$state"); dirs+=("$package_dir")
 done
 echo
 
@@ -173,6 +183,12 @@ if [ "$MODE" = "status" ]; then
 fi
 
 # --- publish NEW modules in topological order --------------------------------
+# A partial bump must be repaired before any upload, so consumers cannot resolve
+# a mixture of changed and previously published dependency versions.
+if [ "${#changed_report[@]}" -gt 0 ]; then
+  printf 'Version bump required: %s\n' "${changed_report[@]}"
+  exit 3
+fi
 published=()
 skipped=()
 failed=()
@@ -192,13 +208,10 @@ for i in "${!names[@]}"; do
   if [ "$status" -eq 0 ]; then
     published+=("${name}@${ver}")
     moon update >/dev/null 2>&1 || true
-  elif printf '%s\n' "$out" | grep -q "409 Conflict"; then
-    # Registry moved under us (someone else published this version); treat as skip.
-    echo "  -> 409 Conflict, already on registry; skipping"
-    skipped+=("${name}@${ver}")
   else
     echo "  -> FAILED"
     failed+=("${name}@${ver}")
+    break
   fi
   echo
 done

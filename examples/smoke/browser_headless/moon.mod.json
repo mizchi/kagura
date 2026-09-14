@@ -5,7 +5,8 @@
   "warn-list": "-6-29-53-68",
   "deps": {
     "mizchi/native_runtime_hooks": {
-      "path": "../../../platform_native"
+      "path": "../../../platform_native",
+      "version": "0.5.0"
     },
     "mizchi/crater-renderer": {
       "path": "../../../../crater/renderer"
@@ -24,14 +25,17 @@
     },
     "mizchi/v8": "0.2.0",
     "mizchi/kagura_engine": {
-      "path": "../../../engine"
+      "path": "../../../engine",
+      "version": "0.5.0"
     },
     "mizchi/gfx": "0.1.0",
     "mizchi/renderer2d": {
-      "path": "../../../engine/renderer2d"
+      "path": "../../../engine/renderer2d",
+      "version": "0.5.0"
     },
     "mizchi/widget2d": {
-      "path": "../../../engine/widget2d"
+      "path": "../../../engine/widget2d",
+      "version": "0.5.0"
     }
   },
   "--moonbit-unstable-prebuild": "scripts/prebuild.mjs"

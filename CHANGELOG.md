@@ -2,7 +2,29 @@
 
 All notable changes to this project will be documented in this file.
 
-## Unreleased
+## [0.5.0] - 2026-09-15
+
+### Release highlights
+
+- Align all 21 public libraries, runtime adapters and the installable CLI at
+  `0.5.0`, including their internal dependencies and Web scaffolding.
+- Add `moon install mizchi/kagura_cli/kagura@0.5.0`, `kagura new --web`,
+  `kagura dev`, `kagura build` and `kagura studio`.
+- Separate pure calculations (`core`), rendering (`engine`), gameplay (`game`)
+  and platform implementations. Browser runtime logic is generated from MoonBit.
+- Reuse HUD updates, skinning resources and static terrain batches to reduce
+  per-frame CPU work. Extend HacknSlash and its browser/playground integration.
+- Add `just version X.Y.Z` with preview and consistency checks. Publish from
+  isolated staging directories, verify archive contents and include native
+  prebuild support files in each package.
+
+### Migration
+
+This release changes public import paths. See
+[Module Boundaries](docs/architecture/module_boundaries.md) for the migration
+table. Physics now lives in `mizchi/kagura_core`; scene/rendering APIs move to
+`mizchi/kagura_engine`; browser support uses `mizchi/kagura_platform_web` and
+`mizchi/web_runtime_hooks`. Upgrade the Kagura modules together to `0.5.0`.
 
 ### Added
 

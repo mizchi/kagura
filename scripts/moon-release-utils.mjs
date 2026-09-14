@@ -3,35 +3,10 @@ import path from "node:path";
 import { fileURLToPath } from "node:url";
 import { manifestPathFor, readModuleManifest } from "./moon-mod-manifest.mjs";
 
-export const DEFAULT_RELEASE_MODULE_DIRS = Object.freeze([
-  ".",
-  "core",
-  "platform",
-  "engine/ui",
-  "engine/audio",
-  "engine/asset_loader",
-  "engine",
-  "game",
-  "platform_web",
-]);
+import {PUBLISH_MODULE_DIRS, RELEASE_DEP_POLICY} from './release-policy.mjs';
 
-export const DEFAULT_RELEASE_DEP_POLICY = Object.freeze({
-  "mizchi/kagura": ["mizchi/kagura_core", "mizchi/kagura_platform", "mizchi/kagura_engine"],
-  "mizchi/kagura_core": [],
-  "mizchi/kagura_platform": ["mizchi/kagura_core"],
-  "mizchi/kagura_ui": ["mizchi/kagura_core"],
-  "mizchi/kagura_audio": [],
-  "mizchi/kagura_asset_loader": ["mizchi/kagura_platform"],
-  "mizchi/kagura_engine": ["mizchi/kagura_core", "mizchi/kagura_platform", "mizchi/kagura_audio", "mizchi/kagura_ui"],
-  "mizchi/kagura_game": [
-    "mizchi/kagura_core",
-    "mizchi/kagura_platform",
-    "mizchi/kagura_engine",
-    "mizchi/kagura_ui",
-    "mizchi/kagura_audio",
-  ],
-  "mizchi/kagura_platform_web": ["mizchi/kagura_platform", "mizchi/kagura_core"],
-});
+export const DEFAULT_RELEASE_MODULE_DIRS = PUBLISH_MODULE_DIRS;
+export const DEFAULT_RELEASE_DEP_POLICY = RELEASE_DEP_POLICY;
 
 const REQUIRED_MANIFEST_FIELDS = Object.freeze([
   "name",
@@ -519,6 +494,8 @@ export function writePreparedManifests({
       prebuild: prepared.prebuild,
       stagedFiles,
     });
+    fs.writeFileSync(path.join(destDir, '.moonignore'),
+      '_build\nnode_modules\nrelease-module.json\n');
     summary.modules.push({
       name: mod.name,
       sourceDir: mod.dir,
@@ -527,6 +504,8 @@ export function writePreparedManifests({
       stagedFiles,
     });
   }
+  fs.writeFileSync(path.join(outDir, 'moon.work'),
+    `members = [\n${summary.modules.map(mod => `  ${JSON.stringify('./' + mod.outputDir)},`).join('\n')}\n]\n`);
   writeJson(path.join(outDir, "release-manifests.json"), summary);
   return { validation, outDir, summary, written: summary.modules };
 }

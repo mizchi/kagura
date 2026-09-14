@@ -21,7 +21,9 @@ test('moon-installed CLI creates, develops, reloads and builds a standalone Web 
     return result;
   };
   try {
-    run('moon', ['install', './cmd/kagura', '--bin', bin], root);
+    const releaseVersion = process.env.KAGURA_CLI_RELEASE_VERSION;
+    const installSource = releaseVersion ? `mizchi/kagura_cli/kagura@${releaseVersion}` : './cmd/kagura';
+    run('moon', ['install', installSource, '--bin', bin], root);
     expect(run(executable, ['--help'], temporary).stdout).toContain('kagura new');
     mkdirSync(project);
     run(executable, ['new', '--web'], project);
@@ -29,10 +31,12 @@ test('moon-installed CLI creates, develops, reloads and builds a standalone Web 
     expect(readFileSync(join(project, 'moon.mod'), 'utf8')).not.toContain(root);
     expect(spawnSync(executable, ['new', '--web'], {cwd: project, env}).status).not.toBe(0);
 
-    // Release-only dependencies are not published yet. Test against the current
-    // modules without putting this workspace or any path dependency in the template.
-    const members = readMoonWorkMembers(root).filter(dir => dir !== '.' && !/^(cmd|benchmarks|experiments)/.test(dir));
-    writeFileSync(join(project, 'moon.work'), 'members = ' + JSON.stringify(['.', ...members.map(dir => resolve(root, dir))], null, 2) + '\n');
+    if (!releaseVersion) {
+      // Development CI uses current sources. Release verification resolves only
+      // published dependencies, with no workspace or local path overrides.
+      const members = readMoonWorkMembers(root).filter(dir => dir !== '.' && !/^(cmd|benchmarks|experiments)/.test(dir));
+      writeFileSync(join(project, 'moon.work'), 'members = ' + JSON.stringify(['.', ...members.map(dir => resolve(root, dir))], null, 2) + '\n');
+    }
     run('pnpm', ['install'], project);
     run('moon', ['check', '--target', 'js', '--deny-warn'], project);
 

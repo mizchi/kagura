@@ -78,7 +78,7 @@ pub struct AssetStreamer {
 
 ///|
 pub fn AssetStreamer::new(
-  fetcher : &@atlas.BytesFetcher,
+  fetcher : &@fetch.BytesFetcher,
   config? : AssetStreamerConfig = AssetStreamerConfig::default(),
   on_evict? : (@atlas.AssetKey) -> Unit = fn(_) {  },
 ) -> AssetStreamer {

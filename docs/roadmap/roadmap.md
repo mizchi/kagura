@@ -1,12 +1,14 @@
 # TDD Roadmap
 
+> AI runtime に関する記述は過去の計画。実利用のない共通 AI package は削除済み。
+
 ## Current Progress
 
 - Milestone 0: `fixed_timestep` のテスト/実装を復活済み
 - Milestone 2: `examples/smoke/native_triangle --target native` の build/run を確認済み
 - Module Boundary: `asset/text/ui/ai` と `platform<->gfx` の契約 stub を追加済み
 - Runtime Smoke: `examples/smoke/runtime_smoke`(js) / `examples/smoke/runtime_smoke_native`(native) 実行確認済み
-- Hook Bridge: `platform/native_runtime_hooks` + `platform/web_runtime_hooks` で実行境界を共通化済み
+- Hook Bridge: `platform_native` + `platform_web/runtime_hooks` で実行境界を共通化済み
 - E2E Smoke: Playwright で `wasm` / `wasm-gc` の browser 実行確認を追加済み
 - Milestone 3 以降: 契約先行で着手待ち
 

@@ -203,8 +203,8 @@ pub fn build_input_debug_overlay(
   dst : @gfx.ImageHandle,
   shader : @gfx.ShaderHandle,
   snapshot : @core.InputSnapshot,
-  key_state : @inpututil.KeyInputState,
-  mouse_state : @inpututil.MouseButtonInputState,
+  key_state : @inputstate.KeyInputState,
+  mouse_state : @inputstate.MouseButtonInputState,
   pipeline_id : Int,
 ) -> Array[@gfx.DrawTrianglesCommand] {
   let commands : Array[@gfx.DrawTrianglesCommand] = []
@@ -240,10 +240,10 @@ pub fn build_input_debug_overlay(
     ),
   )
   // Pressed keys: small 8x8 squares in a row at top-left
-  let pressed_keys = @inpututil.append_pressed_keys(key_state, [])
+  let pressed_keys = @inputstate.append_pressed_keys(key_state, [])
   let key_color = color_from_hex_alpha(0xFFFF00, 0.7)
   let just_pressed_color = color_from_hex_alpha(0xFF0000, 0.9)
-  let just_pressed_keys = @inpututil.append_just_pressed_keys(key_state, [])
+  let just_pressed_keys = @inputstate.append_just_pressed_keys(key_state, [])
   for i, _key in pressed_keys {
     let kx = 4.0 + i.to_double() * 10.0
     let ky = 4.0
@@ -254,7 +254,7 @@ pub fn build_input_debug_overlay(
     )
   }
   // Mouse buttons: small 12x12 squares below keys
-  let pressed_btns = @inpututil.append_pressed_mouse_buttons(mouse_state, [])
+  let pressed_btns = @inputstate.append_pressed_mouse_buttons(mouse_state, [])
   let btn_color = color_from_hex_alpha(0x00AAFF, 0.8)
   for i, _btn in pressed_btns {
     let bx = 4.0 + i.to_double() * 14.0

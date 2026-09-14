@@ -56,7 +56,7 @@ fn equipment_glyph(slot : @game.EquipSlot) -> String {
 fn hunter_item_view(
   item : @game.ItemData,
   source : Int,
-  position : @gameplay2d.GridPlacement?,
+  position : @inventory.GridPlacement?,
 ) -> HunterItemView {
   let (width, height) = item.footprint().size()
   let glyph = match item.motion_weapon() {

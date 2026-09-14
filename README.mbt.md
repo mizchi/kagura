@@ -17,17 +17,13 @@ A 2D-first (with future 3D) game engine for [MoonBit](https://www.moonbitlang.co
 
 ```
 moon.work
-|-- mizchi/kagura             Thin public facade over core/engine contracts
-|-- mizchi/kagura_core        Core contracts, math, camera, mesh, input utilities
-|-- mizchi/kagura_engine      Rendering/runtime infrastructure
-|   |-- platform/, gfx/        Platform, graphics, native/web backends
-|   |-- runtime/, asset/       Runtime loop, assets, audio, text, UI
-|   `-- gltf/, renderer*/      glTF loading and 2D/3D renderer facades
-|-- mizchi/kagura_physics     Reusable physics, collision, and pathfinding
-|-- mizchi/kagura_game        Gameplay-oriented packages
-|   |-- scene/                 Declarative 2D Scene API
-|   `-- ai/, ecs/, tilemap2d/  Game systems and helpers
-`-- mizchi/kagura_js_runtime  JS-only WebGPU runtime helpers
+|-- core/                    Calculations: geometry, physics, terrain, input state
+|-- platform/                Shared window/input/surface contracts
+|-- platform_web/            Browser adapters and runtime_hooks/
+|-- platform_native/         Native hooks, gfx_wgpu_native/, capture/
+|-- engine/                  Rendering, assets, application/runtime, scene, HUD
+|-- game/                    Rules, progression, ECS, inventory, input bindings
+`-- editor/                  Authoring and inspection tools
 ```
 
 ### Platform Support
@@ -59,6 +55,35 @@ just dev flappy_bird
 ```
 
 Builds and serves at `http://localhost:8080`. Browser demos currently require WebGPU (Chrome 113+, Edge 113+).
+
+### Development CLI
+
+Install from this checkout, then scaffold a standalone Web game:
+
+```sh
+moon install ./cmd/kagura
+kagura new my-game --web
+cd my-game
+pnpm install
+kagura dev
+kagura build
+```
+
+`kagura new --web` uses the current empty directory. The template depends on the
+Kagura packages published after the directory refactor. It includes the browser
+runtime and Vite setup without local path dependencies.
+
+For examples and Studio in this checkout:
+
+```sh
+pnpm kagura dev hacknslash_3d --port 8080
+pnpm kagura build hacknslash_3d --out-dir output/game
+pnpm kagura studio
+```
+
+Run `just studio-install` once before launching Studio. `just kagura ...` also
+works; inside a game directory the project argument can be omitted. Builds are
+self-contained static sites. See [Kagura CLI](cmd/kagura/README.md) for options.
 
 ### Publish the playground
 

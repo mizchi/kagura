@@ -30,11 +30,11 @@ fn GameState::handle_pause_input(self : GameState) -> Bool {
   }
   if self.paused && self.world.ui_mode == @game.UIMode::None &&
     !self.camera_settings.editing && !self.terrain_lab.editing &&
-    @inpututil.is_key_just_pressed(self.input.key_state, 72) {
+    @inputstate.is_key_just_pressed(self.input.key_state, 72) {
     self.return_to_save_select()
     return true
   }
-  if @inpututil.is_key_just_pressed(self.input.key_state, 78) &&
+  if @inputstate.is_key_just_pressed(self.input.key_state, 78) &&
     self.world.atlas is Some(_) &&
     self.world.authored_scene is None {
     if !self.paused {
@@ -45,7 +45,7 @@ fn GameState::handle_pause_input(self : GameState) -> Bool {
     self.terrain_lab.editing = !self.terrain_lab.editing
     return true
   }
-  if @inpututil.is_key_just_pressed(self.input.key_state, 79) {
+  if @inputstate.is_key_just_pressed(self.input.key_state, 79) {
     if !self.paused {
       self.set_paused(true)
     }
@@ -54,12 +54,12 @@ fn GameState::handle_pause_input(self : GameState) -> Bool {
     self.camera_settings.editing = !self.camera_settings.editing
     return true
   }
-  let escape = @inpututil.is_key_just_pressed(self.input.key_state, key_escape)
+  let escape = @inputstate.is_key_just_pressed(self.input.key_state, key_escape)
   if escape && self.ground_targeting {
     self.ground_targeting = false
     return true
   }
-  let legacy = @inpututil.is_key_just_pressed(self.input.key_state, key_p)
+  let legacy = @inputstate.is_key_just_pressed(self.input.key_state, key_p)
   if escape && self.terrain_lab.editing {
     self.terrain_lab.editing = false
     return true
@@ -71,7 +71,7 @@ fn GameState::handle_pause_input(self : GameState) -> Bool {
   let confirm = self.paused &&
     self.world.ui_mode == @game.UIMode::None &&
     !hunter_web_enabled() &&
-    @inpututil.is_key_just_pressed(self.input.key_state, 13)
+    @inputstate.is_key_just_pressed(self.input.key_state, 13)
   if (escape || legacy) && self.world.atlas is Some(atlas) {
     atlas.travel_target = None
   }

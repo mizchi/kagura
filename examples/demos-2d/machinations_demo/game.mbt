@@ -132,7 +132,7 @@ fn DemoState::update(self : DemoState, input : @core.InputSnapshot) -> Unit {
     }
   }
   // Click an interactive node to fire it, then advance one step.
-  if @inpututil.is_mouse_button_just_pressed(self.input.mouse_state, 0) {
+  if @inputstate.is_mouse_button_just_pressed(self.input.mouse_state, 0) {
     for i in 0..<self.diagram.nodes.length() {
       let n = self.diagram.nodes[i]
       match n.activation {
@@ -148,22 +148,22 @@ fn DemoState::update(self : DemoState, input : @core.InputSnapshot) -> Unit {
       }
     }
   }
-  if @inpututil.is_key_just_pressed(ks, key_space) {
+  if @inputstate.is_key_just_pressed(ks, key_space) {
     self.playing = !self.playing
   }
-  if @inpututil.is_key_just_pressed(ks, key_right) {
+  if @inputstate.is_key_just_pressed(ks, key_right) {
     self.do_step()
   }
-  if @inpututil.is_key_just_pressed(ks, key_r) {
+  if @inputstate.is_key_just_pressed(ks, key_r) {
     self.reset()
   }
-  if @inpututil.is_key_just_pressed(ks, key_up) {
+  if @inputstate.is_key_just_pressed(ks, key_up) {
     self.frames_per_step = self.frames_per_step - 4
     if self.frames_per_step < 2 {
       self.frames_per_step = 2
     }
   }
-  if @inpututil.is_key_just_pressed(ks, key_down) {
+  if @inputstate.is_key_just_pressed(ks, key_down) {
     self.frames_per_step = self.frames_per_step + 4
     if self.frames_per_step > 120 {
       self.frames_per_step = 120

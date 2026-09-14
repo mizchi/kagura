@@ -1,0 +1,76 @@
+// Generated using `moon info`, DON'T EDIT IT
+package "mizchi/kagura_core/procedural3d"
+
+import {
+  "mizchi/anim3d/skeleton3d",
+  "mizchi/geom/math3d",
+  "mizchi/mesh3d",
+  "moonbitlang/core/ref",
+}
+
+// Values
+pub fn append_box_segment(Array[Double], Array[Int], Array[Int], Array[Double], @ref.Ref[Int], Double, Double, Double, Double, Double, Double, Int, Int) -> Unit
+
+pub fn build_biped_base(BipedProportions) -> BipedBase
+
+pub fn build_biped_skeleton(BipedProportions) -> @skeleton3d.Skeleton
+
+pub fn build_quadruped_skeleton(QuadrupedProportions) -> @skeleton3d.Skeleton
+
+pub fn default_biped_proportions() -> BipedProportions
+
+pub fn default_quadruped_proportions() -> QuadrupedProportions
+
+// Errors
+
+// Types and methods
+pub struct BipedBase {
+  skeleton : @skeleton3d.Skeleton
+  head : RigidGeometry
+  torso : RigidGeometry
+  arms : RigidGeometry
+  legs : RigidGeometry
+}
+
+pub(all) struct BipedProportions {
+  hip_height : Double
+  knee_height : Double
+  shoulder_height : Double
+  shoulder_width : Double
+  head_height : Double
+  head_width : Double
+  head_depth : Double
+  torso_width : Double
+  limb_radius : Double
+}
+
+pub(all) struct QuadrupedProportions {
+  shoulder_height : Double
+  hip_height : Double
+  half_width : Double
+  front_z : Double
+  rear_z : Double
+  head_height : Double
+  head_z : Double
+}
+
+pub struct RigidGeometry {
+  vertices : Array[Double]
+  indices : Array[Int]
+  joints : Array[Int]
+  weights : Array[Double]
+}
+pub fn RigidGeometry::append(Self, Self) -> Unit
+pub fn RigidGeometry::append_joint(Self, @mesh3d.Mesh3D, @skeleton3d.SkinData, Int, Int) -> Unit
+pub fn RigidGeometry::box(Self, Double, Double, Double, Double, Double, Double, Int) -> Unit
+pub fn RigidGeometry::build_mesh(Self) -> @mesh3d.Mesh3D
+pub fn RigidGeometry::build_skin(Self) -> @skeleton3d.SkinData
+pub fn RigidGeometry::loft(Self, Double, Double, Array[(Double, Double, Double)], Int, Int) -> Unit
+pub fn RigidGeometry::new() -> Self
+pub fn RigidGeometry::quad(Self, @math3d.Vec3, @math3d.Vec3, @math3d.Vec3, @math3d.Vec3, Int) -> Unit
+pub fn RigidGeometry::segment(Self, @math3d.Vec3, @math3d.Vec3, Double, Double, Int, Int) -> Unit
+pub fn RigidGeometry::triangle(Self, @math3d.Vec3, @math3d.Vec3, @math3d.Vec3, Int) -> Unit
+
+// Type aliases
+
+// Traits

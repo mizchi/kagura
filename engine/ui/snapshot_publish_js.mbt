@@ -23,3 +23,34 @@ extern "js" fn js_publish_ui_snapshot(json : String) -> Unit =
 pub fn publish_ui_snapshot(snapshot : UISnapshot) -> Unit {
   js_publish_ui_snapshot(snapshot.to_json())
 }
+
+///|
+extern "js" fn js_publish_ui_snapshot_lazy(build : () -> String) -> Unit =
+  #| build => {
+  #|   let state=globalThis.__kaguraLazyUISnapshot;
+  #|   if (!state) {
+  #|     state=globalThis.__kaguraLazyUISnapshot={build:null,value:undefined,dirty:false};
+  #|     Object.defineProperty(globalThis,'__kaguraUISnapshot',{
+  #|       configurable:true,
+  #|       get() {
+  #|         if (state.dirty) {
+  #|           const json=state.build();
+  #|           state.value={json,parsed:JSON.parse(json)};
+  #|           state.dirty=false;
+  #|         }
+  #|         return state.value;
+  #|       },
+  #|       set(value) { state.value=value; state.dirty=false; state.build=null; }
+  #|     });
+  #|   }
+  #|   state.build=build; state.dirty=true;
+  #| }
+
+///|
+/// Register the latest frame's snapshot builder. Introspection through the
+/// existing __kaguraUISnapshot envelope evaluates it once, on demand. A new
+/// publication invalidates the cached envelope. Ordinary rendering builds no
+/// snapshot; callers must keep captured state alive until the next publication.
+pub fn publish_ui_snapshot_lazy(build : () -> UISnapshot) -> Unit {
+  js_publish_ui_snapshot_lazy(fn() { build().to_json() })
+}

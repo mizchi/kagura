@@ -82,6 +82,7 @@ fn build_visible_dungeon_mesh_cache(
     groups.push({
       mesh: @mesh3d.Mesh3D::new(acc.vertices, acc.indices),
       color,
+      index_offset: 0,
       surface_kind,
       dst_region: @gfx.new_dst_region(
         0,
@@ -97,7 +98,8 @@ fn build_visible_dungeon_mesh_cache(
   push_group(door_acc, color_door, Door, groups)
   push_group(wall_acc, color_wall, Wall, groups)
   push_group(pillar_acc, color_pillar, Pillar, groups)
-  { groups, all_mesh: @mesh3d.Mesh3D::new(all_acc.vertices, all_acc.indices), }
+  let all_mesh = @mesh3d.Mesh3D::new(all_acc.vertices, all_acc.indices)
+  { groups, all_mesh, depth_meshes: [all_mesh], }
 }
 
 ///|
@@ -251,6 +253,7 @@ fn GameState::invalidate_visible_chunk_cache(self : GameState) -> Unit {
   self.visible_chunk_cache_player_tile_z = -1
   self.visible_dungeon_mesh_cache = {
     groups: [],
+    depth_meshes: [],
     all_mesh: @mesh3d.Mesh3D::new([], []),
   }
   self.visible_dungeon_mesh_cache_player_tile_x = -1
@@ -292,7 +295,7 @@ fn GameState::get_visible_dungeon_mesh_cache_for_player(
     self.visible_dungeon_mesh_cache_player_tile_z != player_tile_z {
     let visible_chunks = self.get_visible_chunks_for_player()
     self.visible_dungeon_mesh_cache = if outdoors {
-      build_visible_hunting_mesh_cache(visible_chunks)
+      self.select_visible_terrain(visible_chunks)
     } else {
       build_visible_dungeon_mesh_cache(visible_chunks)
     }

@@ -63,8 +63,8 @@ fn update(input : @core.InputSnapshot) {
 ### Game Loop
 
 - `@runtime.run_loop`: Execute the game loop
-- `@core.Game`: Contract for `layout` / `update` / `draw`
-- `@core.default_run_options`, `@runtime.default_runtime_config`
+- `@application.Game`: Contract for `layout` / `update` / `draw`
+- `@application.default_run_options`, `@runtime.default_runtime_config`
 
 ### Platform
 

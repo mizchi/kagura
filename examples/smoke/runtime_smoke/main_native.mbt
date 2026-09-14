@@ -14,7 +14,7 @@ fn[T : @gfx.GraphicsDriver] run_draw_payload_probe(graphics : T) -> Unit raise {
 
 ///|
 fn main {
-  let game = @core.new_noop_game(320, 240)
+  let game = @application.new_noop_game(320, 240)
   let platform = @platform.create_desktop_glfw_platform()
   let surface = platform.current_surface() catch {
     _ => @gfx.create_offscreen_surface_token(320, 240)
@@ -27,7 +27,7 @@ fn main {
     game,
     platform,
     graphics,
-    @core.default_run_options(),
+    @application.default_run_options(),
     @runtime.default_runtime_config(),
   ) catch {
     _ => ()

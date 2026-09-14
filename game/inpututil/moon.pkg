@@ -1,0 +1,4 @@
+import {
+  "mizchi/kagura_core" @core,
+  "mizchi/kagura_core/inputstate",
+}

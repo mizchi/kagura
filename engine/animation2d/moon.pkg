@@ -1,0 +1,6 @@
+import {
+  "mizchi/anim3d/playback",
+  "mizchi/atlas",
+  "mizchi/gfx",
+  "mizchi/kagura_engine/sprite2d",
+}

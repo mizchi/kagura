@@ -1,7 +1,7 @@
 # body id の解決を O(1) にした（と、自分で入れた regression を測って直した）
 
 - Date: 2026-09-11
-- Scope: `engine/physics/physics2d`, `engine/physics/physics3d`
+- Scope: `core/physics2d`, `core/physics3d`
 - 出発点: [ecs-write-path.md](./ecs-write-path.md) の作業項目 1。ECS 用に追加した
   bench が `PhysicsWorld::get_body` の O(n) 探索を掘り出した
 

@@ -4,6 +4,48 @@ target := "js"
 
 default: check test
 
+# MoonBit CLI policy, with a small Node process/filesystem host.
+[positional-arguments]
+[no-cd]
+kagura *args:
+    @node "{{justfile_directory()}}/cmd/kagura/main.mjs" "$@"
+
+cli-build:
+    node cmd/kagura/build.mjs
+
+cli-check:
+    moon check cmd/kagura --target js --deny-warn
+    moon check cmd/kagura --target native --deny-warn
+    node cmd/kagura/build.mjs --check
+
+cli-test: cli-build
+    moon test cmd/kagura --target js
+    node --test scripts/kagura-cli.test.mjs scripts/kagura-scaffold.test.mjs scripts/web-demo-package.test.mjs
+
+cli-install: cli-build
+    moon install ./cmd/kagura
+
+[positional-arguments]
+cli-e2e *args:
+    pnpm exec playwright test -c cmd/kagura/playwright.config.mjs "$@"
+
+# ESM distribution is generated solely from platform_web/web_core.
+web-runtime-build:
+    node scripts/build-web-runtime.mjs
+
+# Exact reproducibility with the current MoonBit toolchain.
+web-runtime-check:
+    node scripts/build-web-runtime.mjs --check
+
+web-runtime-test: web-runtime-build
+    moon test platform_web/input platform_web/render platform_web/playback platform_web/diagnostics platform_web/ui_sync platform_web/fetch game/inventory game/inventory_web core/anim3d/playback core/statistics --target js
+    node --test platform_web/host/kagura-runtime.test.mjs platform_web/host/kagura-controls.test.mjs platform_web/host/kagura-gamepad.test.mjs platform_web/host/kagura-ui-sync.test.mjs platform_web/host/kagura-profile.test.mjs platform_web/host/kagura-gfx.test.mjs scripts/web-runtime-assets.test.mjs
+
+# Shared platform lifecycle, adapter conformance, and distribution boundaries.
+platform-test:
+    moon test platform platform_web --target {{target}}
+    node --test scripts/platform-layout.test.mjs scripts/moon-boundary-utils.test.mjs scripts/moon-release-utils.test.mjs
+
 # ASHEN REALMS: a low-poly action RPG with configurable builds.
 hunter-dev:
     node scripts/dev-server.mjs hacknslash_3d
@@ -25,15 +67,18 @@ hunter-motions-build:
     node examples/games/hacknslash_3d/scripts/export-motion-assets.mjs
 
 # Reusable game components can be verified without building a particular game.
-game-components-test:
+game-components-test: web-runtime-build
+    moon test platform_web/input platform_web/render platform_web/playback platform_web/diagnostics platform_web/ui_sync platform_web/fetch game/inventory game/inventory_web core/anim3d/playback core/statistics --target js
     moon test -p mizchi/web_runtime_hooks --target js
+    moon test -p mizchi/kagura_ui --target js
     moon -C core/geom test camera3d --target js
-    moon -C game test gameplay2d terrain3d landscape_bench --target js
+    moon test game/gameplay2d core/terrain3d benchmarks/landscape --target js
     moon -C engine/audio test . --target js
-    moon -C engine/kagura_engine test procedural3d draw3d scene3d shadow3d render_pipeline3d --target js
+    moon test core/procedural3d engine/draw3d engine/scene3d engine/shadow3d engine/render_pipeline3d --target js
+    node --test platform_web/host/kagura-ui-sync.test.mjs platform_web/host/kagura-runtime.test.mjs
     node --test scripts/bench-gate-utils.test.mjs scripts/bench-paired-utils.test.mjs
     node --test scripts/motion/generation/generation.test.ts scripts/motion/retarget.test.mjs
-    node --test assets/web/kagura-controls.test.mjs assets/web/kagura-gamepad.test.mjs assets/web/kagura-audio.test.mjs assets/web/kagura-presentation.test.mjs assets/web/kagura-gfx.test.mjs assets/web/kagura-profile.test.mjs scripts/profile-web.test.mjs scripts/hacknslash_3d_gpu_perf_utils.test.mjs scripts/web-runtime-assets.test.mjs scripts/web-demo-pages.test.mjs
+    node --test platform_web/host/kagura-controls.test.mjs platform_web/host/kagura-gamepad.test.mjs platform_web/host/kagura-audio.test.mjs platform_web/host/kagura-presentation.test.mjs platform_web/host/kagura-gfx.test.mjs platform_web/host/kagura-profile.test.mjs scripts/profile-web.test.mjs scripts/hacknslash_3d_gpu_perf_utils.test.mjs scripts/web-runtime-assets.test.mjs scripts/web-demo-pages.test.mjs
 
 hunter-test: game-components-test
     moon -C examples/games/hacknslash_3d check --target js --deny-warn
@@ -71,13 +116,13 @@ iron-yard-dev:
     node examples/games/iron_yard/scripts/dev.mjs
 
 iron-yard-build:
-    node engine/kagura_engine/draw3d/scripts/embed-wgsl.mjs
+    node engine/draw3d/scripts/embed-wgsl.mjs
     node examples/games/iron_yard/scripts/convert-assets.mjs
     moon -C examples/games/iron_yard build --target js --release
     pnpm exec vite build --config examples/games/iron_yard/vite.config.mjs
 
 iron-yard-test:
-    node engine/kagura_engine/draw3d/scripts/embed-wgsl.mjs
+    node engine/draw3d/scripts/embed-wgsl.mjs
     moon -C examples/games/iron_yard check --target js --deny-warn
     moon -C examples/games/iron_yard test sim app --target js
     node examples/games/iron_yard/scripts/convert-assets.mjs
@@ -104,7 +149,7 @@ iron-yard-simd:
 # Price Wasm SIMD and relaxed SIMD against the scalar 3D contact solve.
 # Needs `wabt` from npm (not a repo dependency): npm install --no-save wabt
 physics-simd:
-    node engine/physics/experiments/simd/bench.mjs
+    node core/experiments/simd/bench.mjs
 
 # Profile running game URLs in an isolated native Chrome/Metal instance.
 # Example: just iron-yard-profile kagura=http://127.0.0.1:5192/ three=http://127.0.0.1:5194/game.html
@@ -113,9 +158,9 @@ iron-yard-profile *args:
     node examples/games/iron_yard/scripts/profile.mjs "$@"
 
 iron-yard-gfx-test:
-    node --test assets/web/kagura-gfx.test.mjs
-    moon -C platform/web_runtime_hooks test --target js
-    moon -C engine/kagura_engine test draw3d shadow3d postfx --target js
+    node --test platform_web/host/kagura-gfx.test.mjs
+    moon -C platform_web/runtime_hooks test --target js
+    moon -C engine test draw3d shadow3d postfx --target js
     moon -C engine/audio test . --target js
 
 # Luna-based integrated authoring workspace (independent MoonBit module).
@@ -226,8 +271,9 @@ test: test-workspace test-examples
 
 # The workspace itself plus the JS-side unit tests, without the example projects.
 test-workspace:
+    if [ "{{target}}" = "js" ]; then just web-runtime-build; fi
     if [ "{{target}}" = "native" ]; then CPATH="$(brew --prefix glfw)/include:${CPATH:-}" LIBRARY_PATH="$(brew --prefix)/lib:${LIBRARY_PATH:-}" moon test --target native || { echo "::error title=moon test failed::root moon test --target native"; exit 1; }; else moon test --target {{target}} || { echo "::error title=moon test failed::root moon test --target {{target}}"; exit 1; }; fi
-    if [ "{{target}}" = "js" ] && ls assets/web/*.test.mjs >/dev/null 2>&1; then node --test assets/web/*.test.mjs || { echo "::error title=node test failed::assets/web/*.test.mjs"; exit 1; }; fi
+    if [ "{{target}}" = "js" ] && ls platform_web/host/*.test.mjs >/dev/null 2>&1; then node --test platform_web/host/*.test.mjs || { echo "::error title=node test failed::platform_web/host/*.test.mjs"; exit 1; }; fi
 
 # Every example/editor-example project whose tests can link on {{target}}.
 #
@@ -287,8 +333,8 @@ bench-paired *args:
 
 # Fast iteration only; final comparisons must use bench-paired's workspace regime.
 bench-landscape:
-    moon -C game test landscape_bench --target {{target}}
-    moon -C game bench landscape_bench --target {{target}}
+    moon -C benchmarks test landscape --target {{target}}
+    moon -C benchmarks bench landscape --target {{target}}
 
 bench-gate extra="":
     node scripts/bench-gate.mjs {{target}} {{extra}}
@@ -579,10 +625,10 @@ bench-frame-clock extra="":
 # Build the wasm1 guest that links moonbitlang/async and run it both ways:
 # single-threaded under assets/web/kagura-wasm-host.js, and in a worker with a
 # main-thread frame clock via assets/web/kagura-wasm-driver.js. `just test` covers
-# this too, via `node --test assets/web/*.test.mjs`.
+# this too, via `node --test platform_web/host/*.test.mjs`.
 wasm-host-smoke:
     cd examples/smoke/wasm_async_smoke && moon build --target wasm
-    node --test assets/web/kagura-wasm-host.test.mjs assets/web/kagura-wasm-driver.test.mjs
+    node --test platform_web/host/kagura-wasm-host.test.mjs platform_web/host/kagura-wasm-driver.test.mjs
 
 # WASM game host tasks
 wasm-build-moonbit:
@@ -642,7 +688,7 @@ studio-scene-test:
     moon -C editor/studio build --target js --release
     moon -C game test scene_flow --target js
     moon -C game test scene_data --target js
-    moon -C game test scene2d --target js
+    moon -C engine test scene2d --target js
     moon -C examples/games/arena3d test . --target js
     moon -C examples/games/fps_demo test . --target js
     moon -C examples/games/flappy_bird test . --target js
@@ -656,17 +702,17 @@ studio-runtime-test:
 
 # Declarative views share hierarchy with the existing 2D/3D renderers.
 studio-declarative-test:
-    moon -C game test scene --target {{target}}
-    moon -C engine/kagura_engine test scene3d --target {{target}}
+    moon -C engine test scene --target {{target}}
+    moon -C engine test scene3d --target {{target}}
     moon -C examples/games/flappy_bird test . --target {{target}}
     moon -C examples/games/arena3d test . --target {{target}}
     node --test editor/studio/tests/scene-hierarchy.test.mjs editor/studio/tests/runtime-debug.test.mjs
 
 # Code declarations -> hierarchy subjects -> game-owned Inspector / AI edits.
 studio-inspection-test:
-    moon -C game test inspection --target {{target}}
-    moon -C game test scene --target {{target}}
-    moon -C engine/kagura_engine test scene3d --target {{target}}
+    moon -C engine test inspection --target {{target}}
+    moon -C engine test scene --target {{target}}
+    moon -C engine test scene3d --target {{target}}
     moon -C examples/games/flappy_bird test . --target {{target}}
     node --test editor/studio/tests/inspection.test.mjs editor/studio/tests/scene-hierarchy.test.mjs editor/studio/tests/runtime-debug.test.mjs
 

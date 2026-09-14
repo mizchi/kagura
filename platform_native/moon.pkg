@@ -1,0 +1,31 @@
+import {
+  "mizchi/native_runtime_hooks/services" @host_services,
+  "mizchi/atlas",
+  "mizchi/kagura_audio" @audio,
+  "mizchi/kagura_core" @core,
+  "mizchi/kagura_engine" @engine,
+  "mizchi/gfx",
+  "mizchi/native_runtime_hooks/gfx_wgpu_native" @wgpu_native,
+  "mizchi/atlas",
+  "mizchi/renderer2d",
+  "mizchi/kagura_platform" @platform,
+  "mizchi/text",
+}
+
+warnings = "-1-7-29"
+
+supported_targets = "native"
+
+options(
+  link: {
+    "native": {
+      "cc": "${build.KAGURA_NATIVE_CC}",
+      "cc-link-flags": "-L${build.KAGURA_NATIVE_WGPU_LIB_DIR} -lwgpu_native ${build.KAGURA_NATIVE_GLFW_LIBS} ${build.KAGURA_NATIVE_WGPU_RPATH} ${build.KAGURA_NATIVE_AUDIO_LIBS}",
+    },
+  },
+  targets: {
+    "hooks_native.mbt": [ "native" ],
+    "hooks_native_wbtest.mbt": [ "js" ],
+    "hooks_stub.mbt": [ "js", "wasm", "wasm-gc", "llvm" ],
+  },
+)

@@ -1,5 +1,7 @@
 _build
 _site
+/dist/
+/examples/**/dist/
 target
 .DS_Store
 .mooncakes

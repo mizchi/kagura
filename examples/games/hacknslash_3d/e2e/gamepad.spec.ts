@@ -218,8 +218,12 @@ test('inventory pad cursor carries, rotates, cancels, equips, unequips and disca
   for(let i=0;i<3;i++)await tap(page,14);
   for(let i=0;i<4;i++)await tap(page,12);
   await expect(page.locator('.inv-detail h3')).toHaveText(spearName);
+  const beforeDrop=(await inv()).items;
+  const dropped=beforeDrop.find(item=>item.name===spearName);
+  expect(dropped).toBeDefined();
   await tap(page,11);
-  await expect.poll(async()=>(await inv()).items.length).toBe(5);
+  await expect.poll(async()=>(await inv()).items.length).toBe(beforeDrop.length-1);
+  expect((await inv()).items.some(item=>item.source===dropped.source)).toBe(false);
   expect(await page.evaluate(()=>globalThis.__hacknslash3dRuntime.frame)).toBe(frame);
   await tap(page,1);
   await expect.poll(async()=>(await hud(page)).menu).toBe('none');

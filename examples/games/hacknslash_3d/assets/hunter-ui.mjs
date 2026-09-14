@@ -1,3 +1,4 @@
+import {applyObjectPatch,createDependencyGate} from '@kagura-web/kagura-ui-sync.js';
 import {createSummonStatus} from './hunter-summons.mjs';
 import {createLootLabels} from './hunter-loot.mjs';
 import {pressHunterSlot,bindHunterMouse,hunterDigitSlot,hunterHeldActionKey} from './hunter-hotbar.mjs';
@@ -226,6 +227,7 @@ document.addEventListener('visibilitychange',()=>{if(document.hidden){inventoryP
 let previousPanelState="";
 function panel(hud){
   const state=hud.mode!=='playing'?hud.mode:hud.terrain?.editing?'terrain':hud.camera?.editing?'camera':hud.menu!=='none'?hud.menu:hud.paused?'pause':'';
+  if(!state&&previousPanelState===''&&panelKey!=='')return;
   const signature=JSON.stringify([state,state==='terrain'?hud.terrain?.revision:null,hud.camera?.mode,hud.preset,hud.skills.map(s=>s.key),hud.paused,hud.muted,hud.skill_points,hud.cursor,hud.inventory,hud.equipment,hud.inventory_grid,state==='waypoints'?hud.atlas:null,hud.nodes,hud.offers,state==='title'?hud.save_slots:null,hud.save_notice,hud.save_delete_slot]);
   if(signature===panelKey){if(state==='camera')syncCameraPanel(hud.camera);return;}panelKey=signature;
   const el=$('hunter-panel');el.hidden=!state;
@@ -291,7 +293,9 @@ function renderDamage(combat){
     el.style.opacity=v.alpha;el.style.transform=`translate(-50%,-50%) scale(${v.scale})`;
   }
 }
+let renderedGamepadActive=null;
 function render(hud){
+  renderedGamepadActive=input.gamepadActive();
   renderDamage(hud.combat);
   current=hud;
   renderLoot(hud.loot??[]);
@@ -401,7 +405,19 @@ function render(hud){
   panel(hud);
   gamepadGuideView.render(hud,input.gamepadActive());
 }
-globalThis.__ashenUI=Object.freeze({version:1,render});
+const hudSections=createDependencyGate();
+function patch(delta){
+  const hud=applyObjectPatch(current,delta);
+  globalThis.__ashenHud=hud;
+  // Metadata used by diagnostics changes independently of visible HUD inputs.
+  const dependencies=Object.keys(hud).filter(key=>!['resting_enemies','waking_enemies'].includes(key)).map(key=>hud[key]);
+  if(hudSections([...dependencies,input.gamepadActive()]))render(hud);
+  else current=hud;
+}
+function refreshInput(){
+  if(current&&renderedGamepadActive!==input.gamepadActive())render(current);
+}
+globalThis.__ashenUI=Object.freeze({version:1,render,patch,refreshInput});
 
 // Keep keyboard navigation inside the stopped menu, including its submenus.
 $('hunter-panel').addEventListener('keydown',e=>{

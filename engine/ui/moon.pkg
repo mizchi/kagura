@@ -1,11 +1,14 @@
 import {
   "mizchi/kagura_core" @core,
   "mizchi/gfx",
-  "mizchi/kagura_core/inpututil",
+  "mizchi/kagura_core/inputstate",
   "moonbitlang/core/debug",
   "moonbitlang/core/json",
 }
 
 options(
-  targets: { "snapshot_publish_js.mbt": [ "js" ] },
+  targets: {
+    "snapshot_publish_js.mbt": [ "js" ],
+    "snapshot_lazy_js_wbtest.mbt": [ "js" ],
+  },
 )

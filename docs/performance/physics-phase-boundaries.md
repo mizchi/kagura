@@ -1,8 +1,8 @@
 # phase の境界に残っていたコスト
 
 - Date: 2026-09-11
-- Scope: `engine/physics/physics2d`, `engine/physics/physics3d`,
-  `engine/physics/collision3d`, `scripts/bench-gate*`
+- Scope: `core/physics2d`, `core/physics3d`,
+  `core/collision3d`, `scripts/bench-gate*`
 - 前提: [physics-benchmarks.md](./physics-benchmarks.md)（bench の設計）、
   [physics3d-optimization.md](./physics3d-optimization.md)（1 周目）、
   [physics-followups.md](./physics-followups.md)（2 周目）

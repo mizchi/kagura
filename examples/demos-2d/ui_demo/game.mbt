@@ -63,7 +63,7 @@ struct DemoState {
   height : Int
   focus_mgr : @ui.UIFocusManager
   input : @inpututil.InputHelper
-  gamepad_input : @inpututil.GamepadInputState
+  gamepad_input : @inputstate.GamepadInputState
   focus_ids : Array[@ui.UINodeId]
   node_roles : Map[Int, NodeRole]
   button_labels : Map[Int, Array[Int]]
@@ -239,7 +239,7 @@ fn DemoState::new(
     height,
     focus_mgr,
     input: @inpututil.new_input_helper(),
-    gamepad_input: @inpututil.new_gamepad_input_state(),
+    gamepad_input: @inputstate.new_gamepad_input_state(),
     focus_ids,
     node_roles,
     button_labels,
@@ -259,7 +259,7 @@ fn DemoState::new(
 fn DemoState::update(self : DemoState, input : @core.InputSnapshot) -> Unit {
   self.frame = self.frame + 1
   @inpututil.update_input_helper(self.input, input)
-  @inpututil.update_gamepad_input_state(self.gamepad_input, input)
+  @inputstate.update_gamepad_input_state(self.gamepad_input, input)
 
   // Cursor coords arrive in canvas CSS pixels; scale into logical layout space.
   let css_w = canvas_css_w()
@@ -279,7 +279,7 @@ fn DemoState::update(self : DemoState, input : @core.InputSnapshot) -> Unit {
   self.hovered_id = @ui.hit_test(self.layouts, cx, cy)
 
   // Mouse click -> focus (find deepest focusable node)
-  if @inpututil.is_mouse_button_just_pressed(self.input.mouse_state, 0) {
+  if @inputstate.is_mouse_button_just_pressed(self.input.mouse_state, 0) {
     let hit_ids = @ui.hit_test_all(self.layouts, cx, cy)
     let mut focused = false
     for hit_id in hit_ids {
@@ -298,18 +298,18 @@ fn DemoState::update(self : DemoState, input : @core.InputSnapshot) -> Unit {
       let _ = self.focus_mgr.blur()
     }
   }
-  self.mouse_down = @inpututil.is_mouse_button_pressed(
+  self.mouse_down = @inputstate.is_mouse_button_pressed(
     self.input.mouse_state,
     0,
   )
 
   // Tab / Shift-Tab for focus navigation
-  if @inpututil.is_key_just_pressed(self.input.key_state, key_tab) {
-    let shift_held = @inpututil.is_key_pressed(
+  if @inputstate.is_key_just_pressed(self.input.key_state, key_tab) {
+    let shift_held = @inputstate.is_key_pressed(
         self.input.key_state,
         key_shift_web,
       ) ||
-      @inpututil.is_key_pressed(self.input.key_state, key_shift_glfw)
+      @inputstate.is_key_pressed(self.input.key_state, key_shift_glfw)
     if shift_held {
       let _ = self.focus_mgr.focus_prev()
     } else {
@@ -318,9 +318,9 @@ fn DemoState::update(self : DemoState, input : @core.InputSnapshot) -> Unit {
   }
   // Standard gamepad D-pad: down moves forward, up moves backward.
   for pad in input.gamepads {
-    if @inpututil.is_gamepad_button_just_pressed(self.gamepad_input, pad.id, 13) {
+    if @inputstate.is_gamepad_button_just_pressed(self.gamepad_input, pad.id, 13) {
       let _ = self.focus_mgr.focus_next()
-    } else if @inpututil.is_gamepad_button_just_pressed(
+    } else if @inputstate.is_gamepad_button_just_pressed(
         self.gamepad_input,
         pad.id,
         12,

@@ -1,6 +1,7 @@
 import { renderHunterPage } from "../examples/games/hacknslash_3d/web/page.mjs";
 import { existsSync, readdirSync, statSync } from "node:fs";
 import { join } from "node:path";
+import {renderWebRuntimeImportMap} from './web-runtime-assets.mjs';
 
 const GITHUB_BLOB_ROOT = "https://github.com/mizchi/kagura/blob/main";
 const HIDDEN_PAGE_NAMES = new Set([
@@ -826,6 +827,7 @@ export function renderDemoHtml({
         </aside>
       </main>
     </div>
+    ${renderWebRuntimeImportMap(libPrefix)}
     ${scriptTag}
   </body>
 </html>

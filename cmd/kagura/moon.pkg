@@ -1,0 +1,30 @@
+import {
+  "moonbitlang/core/json",
+  "moonbitlang/core/debug",
+  "moonbitlang/core/env",
+  "moonbitlang/core/encoding/utf8",
+}
+
+warnings = "-29"
+
+pkgtype(kind: "executable")
+
+options(
+  link: {
+    "js": {
+      "format": "esm",
+      "exports": [
+        "parse_cli:parseCli",
+        "help_text:helpText",
+        "scaffold_files:scaffoldFiles",
+        "project_name:projectName",
+      ],
+    },
+  },
+  "native-stub": [ "launcher_native.c" ],
+  targets: {
+    "main_native.mbt": [ "native" ],
+    "embedded_host_native.mbt": [ "native" ],
+    "main_js.mbt": [ "js" ],
+  },
+)

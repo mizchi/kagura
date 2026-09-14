@@ -124,8 +124,8 @@ fn append_effect_particles(
     if burst.age > 0.0 {
       emitter.update_physics_only(burst.age)
     }
-    let (burst_vertex_data, burst_indices) = emitter.build_billboard_vertices(
-      cam_right, cam_up,
+    let (burst_vertex_data, burst_indices) = @particle3d.build_billboard_vertices(
+      emitter, cam_right, cam_up,
     )
     append_particle_geometry(
       vertex_data, indices, burst_vertex_data, burst_indices,

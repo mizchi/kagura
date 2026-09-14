@@ -1389,6 +1389,7 @@ canvas#app {
 @media (max-height:700px) {
   .panel-pause .panel-description { display:none; }
   .panel-pause .pause-hint { margin-top:8px; }
+  .panel-pause .preset-picker { padding:8px 12px; gap:4px 8px; font-size:12px; }
 }
 @media (max-height:500px) and (orientation:landscape) {
   .panel-pause { width:min(780px,100%); padding:16px; }

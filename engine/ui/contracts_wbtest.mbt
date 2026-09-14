@@ -440,8 +440,8 @@ test "UIFocusManager handle_pointer_down" {
 
 ///|
 test "ui_events_from_input_edge" {
-  let key_state = @inpututil.new_key_input_state()
-  let mouse_state = @inpututil.new_mouse_input_state()
+  let key_state = @inputstate.new_key_input_state()
+  let mouse_state = @inputstate.new_mouse_input_state()
   // Frame 1: press key 65 and mouse button 0
   let snap1 = @core.new_input_snapshot_full(
     100.0,
@@ -453,8 +453,8 @@ test "ui_events_from_input_edge" {
     [],
     [],
   )
-  @inpututil.update_key_input_state(key_state, snap1)
-  @inpututil.update_mouse_input_state(mouse_state, snap1)
+  @inputstate.update_key_input_state(key_state, snap1)
+  @inputstate.update_mouse_input_state(mouse_state, snap1)
   let events1 = ui_events_from_input_edge(key_state, mouse_state, 100.0, 200.0)
   // Should have KeyDown(65) + PointerDown
   let mut has_key_down = false
@@ -479,8 +479,8 @@ test "ui_events_from_input_edge" {
     [],
     [],
   )
-  @inpututil.update_key_input_state(key_state, snap2)
-  @inpututil.update_mouse_input_state(mouse_state, snap2)
+  @inputstate.update_key_input_state(key_state, snap2)
+  @inputstate.update_mouse_input_state(mouse_state, snap2)
   let events2 = ui_events_from_input_edge(key_state, mouse_state, 100.0, 200.0)
   let mut has_key_up = false
   let mut has_pointer_up = false
@@ -504,8 +504,8 @@ test "ui_events_from_input_edge" {
     [],
     [],
   )
-  @inpututil.update_key_input_state(key_state, snap3)
-  @inpututil.update_mouse_input_state(mouse_state, snap3)
+  @inputstate.update_key_input_state(key_state, snap3)
+  @inputstate.update_mouse_input_state(mouse_state, snap3)
   let events3 = ui_events_from_input_edge(key_state, mouse_state, 100.0, 200.0)
   assert_eq(events3.length(), 0)
 }

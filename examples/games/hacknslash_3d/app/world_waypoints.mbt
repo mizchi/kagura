@@ -106,7 +106,7 @@ fn GameState::update_waypoints_ui(self : GameState) -> Unit {
   if is_down_just_pressed(self.input) {
     self.world.ui_cursor = (self.world.ui_cursor + 1) % count
   }
-  if @inpututil.is_key_just_pressed(self.input.key_state, 13) {
+  if @inputstate.is_key_just_pressed(self.input.key_state, 13) {
     let current = self.world.atlas.map(a => a.current).or(-1)
     if self.world.ui_cursor >= 4 || self.world.ui_cursor == current {
       if self.world.travel_to_expedition_site(

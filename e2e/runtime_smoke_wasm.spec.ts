@@ -52,6 +52,7 @@ const loadSmokeResult = async (page: Page, path: string) => {
     return (window as { __wasmSmoke?: SmokeResult }).__wasmSmoke;
   });
   expect(result).toBeTruthy();
+  expect(result?.status, result?.output).toBe("ok");
   return result as SmokeResult;
 };
 
@@ -193,23 +194,15 @@ for (const target of TARGETS) {
   test(`${target.name} font smoke CJK`, async ({ page }) => {
     const result = await loadSmokeResult(page, target.normalPath);
     expect(result.status).toBe("ok");
-    const cjkMatch = result.output.match(
-      /font_smoke_cjk: ok load=(true|false)/,
-    );
-    expect(cjkMatch).not.toBeNull();
-    if (cjkMatch && cjkMatch[1] === "true") {
-      const hiraganaW = result.output.match(/font_smoke_cjk:.*hiragana_w=([0-9.]+)/);
-      const kanjiW = result.output.match(/font_smoke_cjk:.*kanji_w=([0-9.]+)/);
-      expect(hiraganaW).not.toBeNull();
-      expect(kanjiW).not.toBeNull();
-      if (hiraganaW && kanjiW) {
-        // CJK text should have positive width
-        expect(Number(hiraganaW[1])).toBeGreaterThan(0);
-        expect(Number(kanjiW[1])).toBeGreaterThan(0);
-        // 3 hiragana chars should be wider than 2 kanji chars
-        expect(Number(hiraganaW[1])).toBeGreaterThan(Number(kanjiW[1]));
-      }
-    }
+    expect(result.output).toContain("font_smoke_cjk: ok load=true");
+    const hiraganaW = result.output.match(/font_smoke_cjk:.*hiragana_w=([0-9.]+)/);
+    const kanjiW = result.output.match(/font_smoke_cjk:.*kanji_w=([0-9.]+)/);
+    expect(hiraganaW).not.toBeNull();
+    expect(kanjiW).not.toBeNull();
+    expect(Number(hiraganaW![1])).toBeGreaterThan(0);
+    expect(Number(kanjiW![1])).toBeGreaterThan(0);
+    // Three hiragana chars should be wider than two kanji chars.
+    expect(Number(hiraganaW![1])).toBeGreaterThan(Number(kanjiW![1]));
   });
 }
 

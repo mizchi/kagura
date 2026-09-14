@@ -328,7 +328,7 @@ pub fn ItemData::display_name(self : ItemData) -> String {
 pub(all) struct Inventory {
   items : Array[ItemData?]
   capacity : Int
-  mut grid : @gameplay2d.ItemGrid?
+  mut grid : @inventory.ItemGrid?
 }
 
 ///|

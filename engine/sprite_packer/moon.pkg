@@ -1,0 +1,8 @@
+import {
+  "mizchi/kagura_core/packing2d",
+  "moonbitlang/core/bench",
+  "mizchi/atlas",
+  "mizchi/kagura_engine/animation2d",
+  "mizchi/kagura_engine/tilemap2d",
+  "moonbitlang/core/debug",
+}

@@ -63,8 +63,8 @@ fn update(input : @core.InputSnapshot) {
 ### 実行ループ
 
 - `@runtime.run_loop`: ゲームループ実行
-- `@core.Game`: `layout` / `update` / `draw` の契約
-- `@core.default_run_options`, `@runtime.default_runtime_config`
+- `@application.Game`: `layout` / `update` / `draw` の契約
+- `@application.default_run_options`, `@runtime.default_runtime_config`
 
 ### プラットフォーム
 

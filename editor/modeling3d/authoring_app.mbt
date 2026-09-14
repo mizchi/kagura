@@ -240,14 +240,14 @@ fn history_line_text(entry : StampHistoryEntry) -> String {
 }
 
 ///|
-fn history_slot_just_pressed(key_state : @inpututil.KeyInputState) -> Int? {
-  if @inpututil.is_key_just_pressed(key_state, key_1) {
+fn history_slot_just_pressed(key_state : @inputstate.KeyInputState) -> Int? {
+  if @inputstate.is_key_just_pressed(key_state, key_1) {
     Some(0)
-  } else if @inpututil.is_key_just_pressed(key_state, key_2) {
+  } else if @inputstate.is_key_just_pressed(key_state, key_2) {
     Some(1)
-  } else if @inpututil.is_key_just_pressed(key_state, key_3) {
+  } else if @inputstate.is_key_just_pressed(key_state, key_3) {
     Some(2)
-  } else if @inpututil.is_key_just_pressed(key_state, key_4) {
+  } else if @inputstate.is_key_just_pressed(key_state, key_4) {
     Some(3)
   } else {
     None
@@ -651,30 +651,30 @@ pub fn run_authoring(
           break
         }
       }
-      if @inpututil.is_key_pressed(input.key_state, @inpututil.key_a) {
+      if @inputstate.is_key_pressed(input.key_state, @inpututil.key_a) {
         brush_mode = Add
       }
-      if @inpututil.is_key_pressed(input.key_state, @inpututil.key_s) {
+      if @inputstate.is_key_pressed(input.key_state, @inpututil.key_s) {
         brush_mode = Subtract
       }
-      if @inpututil.is_key_just_pressed(input.key_state, @inpututil.key_e) {
+      if @inputstate.is_key_just_pressed(input.key_state, @inpututil.key_e) {
         brush_radius = clamp_double(
           brush_radius + 0.03,
           min_brush_radius,
           max_brush_radius,
         )
       }
-      if @inpututil.is_key_just_pressed(input.key_state, @inpututil.key_d) {
+      if @inputstate.is_key_just_pressed(input.key_state, @inpututil.key_d) {
         brush_radius = clamp_double(
           brush_radius - 0.03,
           min_brush_radius,
           max_brush_radius,
         )
       }
-      if @inpututil.is_key_just_pressed(input.key_state, key_m) {
+      if @inputstate.is_key_just_pressed(input.key_state, key_m) {
         symmetry_x = !symmetry_x
       }
-      if @inpututil.is_key_just_pressed(input.key_state, @inpututil.key_o) {
+      if @inputstate.is_key_just_pressed(input.key_state, @inpututil.key_o) {
         doc = new_document()
         selection = default_selection(doc)
         hover_hit = None
@@ -692,7 +692,7 @@ pub fn run_authoring(
         js_clear_model_review_assets()
         sync_document(true)
       }
-      if @inpututil.is_key_just_pressed(input.key_state, key_g) {
+      if @inputstate.is_key_just_pressed(input.key_state, key_g) {
         let filename = document_export_filename(doc)
         let glb = document_glb_bytes(doc)
         js_download_model_glb(filename, glb)
@@ -700,31 +700,31 @@ pub fn run_authoring(
           "exported " + filename + " (" + glb.length().to_string() + " bytes)",
         )
       }
-      if @inpututil.is_key_just_pressed(input.key_state, key_i) {
+      if @inputstate.is_key_just_pressed(input.key_state, key_i) {
         js_pick_model_glb(handle_roundtrip_import)
       }
-      if @inpututil.is_key_just_pressed(input.key_state, key_k) {
+      if @inputstate.is_key_just_pressed(input.key_state, key_k) {
         match (pending_patch_filename, pending_patch_snippet) {
           (Some(patch_filename), Some(patch_text)) =>
             js_download_text_file(patch_filename, patch_text)
           _ => ()
         }
       }
-      if @inpututil.is_key_just_pressed(input.key_state, key_j) {
+      if @inputstate.is_key_just_pressed(input.key_state, key_j) {
         match (pending_review_bundle_filename, pending_review_bundle) {
           (Some(bundle_filename), Some(bundle_text)) =>
             js_download_text_file(bundle_filename, bundle_text)
           _ => ()
         }
       }
-      if @inpututil.is_key_just_pressed(input.key_state, key_l) {
+      if @inputstate.is_key_just_pressed(input.key_state, key_l) {
         match (pending_review_filename, pending_review_prompt) {
           (Some(review_filename), Some(review_text)) =>
             js_download_text_file(review_filename, review_text)
           _ => ()
         }
       }
-      if @inpututil.is_key_just_pressed(input.key_state, key_p) {
+      if @inputstate.is_key_just_pressed(input.key_state, key_p) {
         match (pending_roundtrip_import, pending_patch_plan) {
           (Some(imported), Some(plan)) => {
             doc = apply_roundtrip_auto_patch(doc, plan)
@@ -734,7 +734,7 @@ pub fn run_authoring(
           _ => ()
         }
       }
-      if @inpututil.is_key_just_pressed(input.key_state, key_u) {
+      if @inputstate.is_key_just_pressed(input.key_state, key_u) {
         match (pending_roundtrip_import, pending_patch_plan) {
           (Some(imported), Some(plan)) => {
             doc = apply_roundtrip_opt_in_patch(doc, imported, plan)
@@ -747,7 +747,7 @@ pub fn run_authoring(
       let history_slot = history_slot_just_pressed(input.key_state)
       match active_layer_index {
         Some(layer_index) =>
-          if @inpututil.is_key_just_pressed(input.key_state, key_z) {
+          if @inputstate.is_key_just_pressed(input.key_state, key_z) {
             doc = undo_last_sculpt_stamp(doc, layer_index)
             match doc.sculpt_layers.get(layer_index) {
               Some(layer) =>
@@ -810,12 +810,12 @@ pub fn run_authoring(
           })
         None => pick_selected_primitive_gizmo_handle(doc, selection, ray)
       }
-      if @inpututil.is_mouse_button_just_pressed(input.mouse_state, 0) {
-        let editing = @inpututil.is_key_pressed(
+      if @inputstate.is_mouse_button_just_pressed(input.mouse_state, 0) {
+        let editing = @inputstate.is_key_pressed(
             input.key_state,
             @inpututil.key_a,
           ) ||
-          @inpututil.is_key_pressed(input.key_state, @inpututil.key_s)
+          @inputstate.is_key_pressed(input.key_state, @inpututil.key_s)
         if editing {
           match hover_hit {
             Some(hit) =>
@@ -867,7 +867,7 @@ pub fn run_authoring(
           }
         }
       }
-      if !@inpututil.is_mouse_button_pressed(input.mouse_state, 0) {
+      if !@inputstate.is_mouse_button_pressed(input.mouse_state, 0) {
         match gizmo_drag {
           Some(_) => {
             gizmo_drag = None
@@ -886,8 +886,8 @@ pub fn run_authoring(
         None => ()
       }
 
-      let editing = @inpututil.is_key_pressed(input.key_state, @inpututil.key_a) ||
-        @inpututil.is_key_pressed(input.key_state, @inpututil.key_s)
+      let editing = @inputstate.is_key_pressed(input.key_state, @inpututil.key_a) ||
+        @inputstate.is_key_pressed(input.key_state, @inpututil.key_s)
       if lmb && !editing && !dragging_gizmo {
         camera = camera.orbit(dx * -0.005, dy * -0.005)
       }

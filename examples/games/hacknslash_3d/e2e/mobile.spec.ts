@@ -67,7 +67,8 @@ test('mobile title, class selection, skill guide and inventory work without a ke
   await page.getByRole('button',{name:'技と成長',exact:true}).tap();
   await expect(page.getByRole('heading',{name:'技と成長',exact:true})).toBeVisible();
   await expect(page.locator('.skill-guide article')).toHaveCount(4);
-  await expect(page.locator('.skill-guide')).toContainText('自分を中心に冷気');
+  await expect(page.locator('.skill-guide')).toContainText('ワールウィンド');
+  await expect(page.locator('.skill-guide')).toContainText('長押しで回転');
   await captureGameFrame(page,{path:testInfo.outputPath('ashwood-mobile-skills.png')});
   const session=await context.newCDPSession(page);
   await session.send('Input.dispatchTouchEvent',{type:'touchStart',touchPoints:[{x:185,y:665,id:4}]});

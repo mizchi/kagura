@@ -6,7 +6,7 @@ import {
   "mizchi/geom/math3d",
   "mizchi/mesh3d",
   "mizchi/kagura_engine/scene3d",
-  "mizchi/physics/collision3d",
+  "mizchi/kagura_core/collision3d",
   "mizchi/kagura_modeling3d" @modeling3d,
   "mizchi/kagura_modeling3d/native" @modeling3d_native,
 }

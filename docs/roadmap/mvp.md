@@ -1,5 +1,7 @@
 # MVP Progress (Ebiten 同等機能)
 
+> AI runtime に関する記述は過去の計画。実利用のない共通 AI package は削除済み。
+
 このドキュメントは、`TODO.md` から退避した完了済み項目の保管先。
 `TODO.md` は未完了タスクのみを保持する。
 

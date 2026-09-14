@@ -14,6 +14,9 @@ just studio-dev
 # http://127.0.0.1:5190
 ```
 
+統合 CLI からは `pnpm kagura studio`（または `just kagura studio`）で起動できます。
+`--port 5192` / `--host 127.0.0.1` で待受先を指定できます。
+
 `studio-dev` は MoonBit を初回ビルドし、変更監視と Vite を起動します。
 依存は独立した `moon.work` と固定バージョンで解決し、隣の luna.mbt / three-mbt のチェックアウトには依存しません。
 ブラウザ向け UI は `mizchi/luna@0.25.0`、シーン生成は `mizchi/three@0.1.3` を使います。
@@ -458,9 +461,9 @@ storage.register('r2', createWorkerStore({
   getToken: () => process.env.KAGURA_STORAGE_TOKEN,
 }));
 const documents = createDocumentStorage(editor, storage);
-await documents.load({ store: 'r2', key: 'game/scene.json' }, editor.snapshot().revision);
+await documents.load({ store: 'r2', key: 'engine/scene.json' }, editor.snapshot().revision);
 // 通常のeditor.dispatch(...)で編集
-await documents.save({ store: 'r2', key: 'game/scene.json' }, editor.snapshot().revision);
+await documents.save({ store: 'r2', key: 'engine/scene.json' }, editor.snapshot().revision);
 ```
 
 参考: [R2 Worker API](https://developers.cloudflare.com/r2/api/workers/workers-api-reference/)、[静的アセットのbinding](https://developers.cloudflare.com/workers/static-assets/binding/)、[File System API](https://developer.mozilla.org/en-US/docs/Web/API/File_System_API)、[IndexedDB](https://developer.mozilla.org/en-US/docs/Web/API/IndexedDB_API/Using_IndexedDB)（2026-09-10確認）。
@@ -495,7 +498,7 @@ Arena / FPS は `scenes/*.mbt` を既定のシーン定義として使います�
 
 2D examples は専用の平面ビューと Inspector を使います。Flappy Bird は **Examples → Flappy Bird** で鳥・地面を選択し、ドラッグまたは **X / Y / Width / Height / Color** で編集できます。右下ハンドルでサイズ変更、ホイールでズーム、中・右ドラッグでパン、**Fit / 100%** で表示を調整します。**Play** は配置・サイズをゲームの描画と衝突に反映し、**Stop** は編集中の状態へ戻ります。**Save** は `scenes/training.mbt` を保存またはダウンロードします。
 
-2D 配置は `kagura.scene2d` リソースと `game/scene2d` の型で共有します。WebMCP の `kagura.pane.studio.scene2d.scene_read` / `object_edit` も同じトランザクションを利用します。共通 UI は `scene2d/`、Flappy Bird 固有の制約は `examples/games/flappy_bird/editor/scene.mjs` です。他の 2D examples は起動設定とプレビューまで対応し、配置の編集にはゲーム側のアダプターを追加します。
+2D 配置は `kagura.scene2d` リソースと `engine/scene2d` の型で共有します。WebMCP の `kagura.pane.studio.scene2d.scene_read` / `object_edit` も同じトランザクションを利用します。共通 UI は `scene2d/`、Flappy Bird 固有の制約は `examples/games/flappy_bird/editor/scene.mjs` です。他の 2D examples は起動設定とプレビューまで対応し、配置の編集にはゲーム側のアダプターを追加します。
 
 Studio 対象の 27 コード examples は MoonBit の `src/` を置かず、ソースを直下、シーンを `scenes/`、編集拡張を `editor/` に配置します。ビルド入口は `.` が既定です。具体的な読込規約は [プロジェクト設計](../../docs/editor/game-projects.md#ファイル配置と読み込みの命名規約) を参照してください。
 

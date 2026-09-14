@@ -3,36 +3,64 @@
 ## プロジェクト構成
 
 - `lib.mbt` / `moon.pkg` - ルート直下の公開ファサード（`mizchi/kagura`）
-- `assets/` - 共通ブラウザランタイム（`web/`）、外部ヘッダ（`vendor/`）、共有素材。旧 `lib/` と `vendor/` はここに統合
+- `assets/` - 共通ブラウザランタイム（`web/`）、共有フォント（`fonts/`）、外部ヘッダ（`vendor/`）、共有素材。旧 `lib/`、`vendor/`、`fixtures/fonts/` はここに統合
 - `<layer>/<name>/` - ライブラリ本体。各ディレクトリが独立した moon module で、
-  `moon.work` のメンバー。layer は下表の 5 つ
+  `moon.work` のメンバー。`core/`、`platform/`、`platform_web/`、`platform_native/`、`engine/`、`game/` 自体も module
 - `examples/<category>/<name>/` - サンプルプロジェクト（各ディレクトリが独立した moon プロジェクト）
   - カテゴリ: `games`（遊べるサンプル）, `demos-2d` / `demos-3d`（単機能デモ）, `assets`（MoonBit を持たないエディタ素材プロジェクト）, `smoke`（CI の最小確認）, `experimental`
   - Studio の一覧と用途は `examples/catalog.json`、選び方と統合方針は `examples/README.md`
 - `scripts/` - ビルド・開発スクリプト
+- `cmd/moon.mod` / `cmd/kagura/` - 開発 CLI（`mizchi/kagura_cli/kagura`）。`moon install ./cmd/kagura` でインストール、`kagura new --web` で雛形を生成。引数・雛形契約は MoonBit、Node は I/O とプロセスのホスト。`just cli-build` で ESM と native 埋め込みソースを同期
 - `justfile` - タスクランナー
 
 ### レイヤ
 
 | layer | 中身 | モジュール |
 |---|---|---|
-| `core/` | 外部依存ゼロ、または core 契約のみの基盤 | `kagura_core`, `geom`, `mesh3d` |
-| `platform/` | ターゲット固有の host / 窓口層 | `kagura_platform`, `js_runtime`, `web_runtime_hooks`, `native_runtime_hooks` |
-| `engine/` | 描画・アセット・ランタイム基盤 | `kagura_engine`, `renderer2d`, `text`, `widget2d`, `ui`, `atlas`, `asset_loader`, `audio`, `anim3d`, `physics` |
-| `game/` | ゲーム側のロジック（描画基盤に依存してよい） | ルートが `mizchi/kagura_game`、`machinations`, `pathfind` は独立モジュール |
+| `core/` | ホスト・描画・ゲームルールから独立した計算とデータ | `mizchi/kagura_core`、独立 module は `geom`, `mesh3d`, `anim3d`（IK 含む）, `pathfind` |
+| `platform/` | 共通の platform contract と型付き hook 境界 | ルートが `mizchi/kagura_platform` |
+| `platform_web/` | contract に従う JS adapter と MoonBit JS ランタイム | `mizchi/kagura_platform_web` |
+| `platform_native/` | native host の既存統合 module。platform contract に従って注入 | `mizchi/native_runtime_hooks` |
+| `engine/` | 描画・アセット・ランタイム基盤 | ルートが `mizchi/kagura_engine`、`renderer2d`, `text`, `widget2d`, `ui`, `atlas`, `asset_loader`, `audio` は独立モジュール |
+| `game/` | ゲーム側のロジック（描画基盤に依存してよい） | ルートが `mizchi/kagura_game`、`machinations` は独立モジュール |
 | `editor/` | オーサリング／確認用ツール | `studio`, `model-viewer`, `effect-studio`, `modeling3d` |
 
-`web_runtime_hooks` / `native_runtime_hooks` は host hook の実装（`kagura_platform` の
-注入先）で、ほぼ全ての example と editor tool が import する。publish 対象ではないが
-ルート `moon.work` のメンバーなので `moon check` の対象に入る。
+`platform_web/runtime_hooks` / `platform_native` は描画・音声も結線する
+既存の起動時統合 module。ほぼ全ての example と editor tool が import する。
+contract とは別の独立 module で、contract の配布に含めない。JS の platform hook は
+`platform_web.install(WebCanvasHooks)`、native は `DesktopNativeHooks` で注入する。
 
 依存の向きは `core <- platform <- engine <- game` の一方通行。`editor/` はどれに依存しても
 よいが、**誰からも依存されない**（publish 対象外で、それぞれ自前の `moon.work` を持つ）。
-実際の許可リストは `scripts/moon-boundary-utils.mjs` の `DEFAULT_IMPORT_BOUNDARY_POLICY`
-にあり、`just check-release` が `moon.pkg` の import を突き合わせる。
+`just check-release` は `scripts/moon-layer-utils.mjs` で全 workspace member の層を検査し、
+`moon-boundary-utils.mjs` / `moon-release-utils.mjs` で公開 module の依存も検査する。
+core の host FFI、逆依存、入れ子の独立 module からの越境を禁止する。
+具体的な所属と import の移行表は `docs/architecture/module_boundaries.md`。
+物理は `core/{physics2d,physics3d,collision3d}` に統合。入力差分は `core/inputstate`、
+移動・決定の意味と InputHelper は `game/inpututil` が所有する。
+`core` は入力値・状態から計算し、GPU 資源を持たない。描画 callback は
+`engine/application`、表示ツリーと HUD は engine、戦闘・アイテム・進行は game。
+
+新規の実装は `platform_<target>/` / `mizchi/kagura_platform_<target>` とし、
+`platform` の `PlatformDriver`・型付き hook に従う。`platform` から実装への
+逆依存や、実装から engine / game への依存は禁止する。`platform_web` の入口は
+既存の shell を返し、ウィンドウ・入力の契約を複製しない。
+
+`platform_native/` は既存の統合 module をトップレベルへ移したもので、
+import 名は引き続き `mizchi/native_runtime_hooks`。`DesktopNativeHooks` に従い、
+描画・音声も結線する統合層として engine を参照する。
+`gfx_wgpu_native` と `capture` はこの module のサブパッケージであり、engine には置かない。
 
 ディレクトリ名は publish 名と一致しないことがある（`engine/ui` = `mizchi/kagura_ui`）。
 **正はいつも `moon.mod` の `name`** で、ディレクトリはただの置き場所。
+
+`core/` と `engine/` の配布には、配下の独立した `moon.mod` を持つ module を
+混ぜない。workspace 参照・import 境界・release staging は入れ子の module を
+区別する。`scripts/repository-layout.test.mjs` が配布内容の分離を検証する。
+配布内容の確認は `just release-stage` を使う。リポジトリ内で子 module に直接
+`moon package` すると、root facade 用 `.moonignore` の親ルールで空の ZIP に
+なることがある。子側で除外を打ち消すと root の配布に子 module が混入するため、
+検証済みの staging から配布物を作る。
 
 モジュールを移動したら、パスを持っている次の場所も一緒に直すこと。
 素朴な grep では 3 種類を取りこぼす: **深さが変わる相対パス**、**セグメント分割された
@@ -75,6 +103,18 @@ parquet 側が x 0.4.50 に追従したら font の天井を外せる。上げ�
 
 ## ビルド・テスト
 
+### Web ランタイムの実装言語
+
+ブラウザ固有 API の接続以外のコアロジックは、原則 MoonBit で書く。
+ブラウザ向け基盤は `platform_web/{input,render,diagnostics,playback,ui_sync}/` に追加し、公開窓口を `web_core/exports.mbt` に定義する。
+`just web-runtime-build` で `assets/web/kagura-runtime.generated.js` を生成する。
+ゲームのインベントリ判定は型付きの `game/inventory/`、JS 変換は `game/inventory_web/` に置き、同じタスクで
+`assets/web/kagura-inventory.generated.js` を生成する。
+入力・UI 同期・再生・geometry キャッシュの状態遷移を手書き JS に戻さない。
+`extern "js"` は組み込みやホスト API の小さな FFI に限り、アルゴリズムを埋め込まない。
+JS API を変更したら同名 `.d.ts` と境界テストを更新する。
+生成物も git に含める。詳細は `platform_web/README.md`。
+
 ```bash
 just check          # workspace + 全 example (js)
 just test           # workspace + 全 example (js)
@@ -86,7 +126,7 @@ just check-release  # リリース前チェック（ローカルパス依存の�
 
 ```bash
 just check-workspace          # moon check --deny-warn だけ
-just test-workspace           # root の moon test + assets/web/*.test.mjs だけ
+just test-workspace           # root の moon test + platform_web/host/*.test.mjs だけ
 just check-examples 2/4       # example の 2/4 shard だけ
 just test-examples 2/4        # 同上
 ```
@@ -161,7 +201,7 @@ just vlm-ui-daemon-start ui_demo
 
 `@engine.run` は canvas に触る前に `globalThis.__kaguraHeadless` を見る。あれば
 アニメーションループに入らず、example 自身の update を N tick 回して draw 1 回を
-**CPU ラスタライザ**（`engine/kagura_engine/raster`、`@gfx.GraphicsDriver` の実装）に
+**CPU ラスタライザ**（`engine/raster`、`@gfx.GraphicsDriver` の実装）に
 流し、PNG を `__kaguraHeadlessFrame` に置く。example 側の変更は要らない。
 
 - Linux の canvas screenshot が透明で Dawn readback も返らない問題を丸ごと迂回する
@@ -294,7 +334,7 @@ just bench-update   # 意図した変化のあとに貼り直す（既定で 3 �
 閾値が 3x なのは baseline が機械依存で、別の機械では無関係な bench が両方向に 2x 動くため。
 
 **速度ゲートだけでは足りないので、fixture が名前どおりの仕事を生んでいることを test で
-assert する。** `engine/physics/*/bench_fixtures_wbtest.mbt` が例:
+assert する。** `core/*/bench_fixtures_wbtest.mbt` が例:
 pair 数と constraint 数が body 数以上ある、size sweep で仕事が実際に増える、
 `scatter` は contact 0、寝ている fixture は本当に寝ている、reset が測定対象フレームを
 完全に復元する、solve を 2 周させても 2 周目が no-op になっていない。
@@ -334,7 +374,7 @@ whitebox bench については絶対値も倍率も引用してはいけない�
 判断しかけた配列の capacity 先取りも、ずれている側の bench だけが分離していた。
 `substeps` を振ったときの「順位付けには使えるが絶対値として引用してはいけない」と
 同じ制約が、bench の起動方法にも付いている。artifact は
-`moon bench -p mizchi/renderer2d` と `moon bench -p mizchi/kagura_game/scene` を
+`moon bench -p mizchi/renderer2d` と `moon bench -p mizchi/kagura_engine/scene` を
 並べれば再現する（`primitives/append_dot_text_scene_content_12` と
 `scene/append_dot_text_direct_12` が同じ呼び出しなのに 2.5x 離れ、`moon bench` では
 一致する）。
@@ -457,7 +497,7 @@ just wasm-host-smoke   # 単体ホストと worker + フレームクロックの
 | 単体ホスト（フレーム源なし） | 0 | 127 | 536ms |
 | worker + 8ms フレームクロック | 5 | 25 | 147ms |
 
-node の `worker_threads` 経路は `assets/web/kagura-wasm-driver.test.mjs` が、
+node の `worker_threads` 経路は `platform_web/host/kagura-wasm-driver.test.mjs` が、
 ブラウザ側の前提は `e2e/offscreen_worker.spec.ts` が固定している。
 
 ### ブラウザでの実測（Chromium, OffscreenCanvas）
@@ -566,3 +606,13 @@ FFI で `FixedArray` を渡す方法自体は動く（`#unsafe_skip_stub_check` 
 
 - `cc-link-flags` は依存パッケージから伝播しない。native ビルドする example では個別に `-lglfw` 等を指定する必要がある
 - `extern "C"` を含む `.mbt` ファイルは `moon.pkg` の `targets` で native のみに制限する（`supported-targets` だけでは不十分）
+
+## 計算・ホストの分離
+
+- `platform/services` は時計、ファイル I/O、フレーム予約の注入契約。`platform/fetch` はバイト取得の契約。
+- native の `platform_native/services` は GPU を必要とせず、起動 hook が早期に登録する。キャプチャ設定はウィンドウ初期化前に読まれる。
+- engine の runtime / capture / atlas はこの契約を使う。OS ファイル操作・時計・fetch を engine に戻さない。
+- 再生時間は `core/anim3d/playback`（独立 anim3d module の循環依存を避ける配置）、粒子の運動は `core/particle3d`、矩形配置は `core/packing2d`、統計は `core/statistics`。
+- 手書き Web ホストの原本は `platform_web/host`。`assets/web` を直接編集せず `just web-runtime-build` で同期する。型宣言の原本は各 ESM package の `exports.d.ts`。
+- `benchmarks` と `experiments` は非公開の利用側。ライブラリから依存しない。
+- `cmd/` も非公開の利用側。CLI は既存の dev/build/Studio 処理を呼び、引数の方針を手書き JS に複製しない。検証は `just cli-test` / `just cli-e2e`。

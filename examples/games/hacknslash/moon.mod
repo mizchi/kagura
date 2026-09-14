@@ -11,6 +11,5 @@ import {
   "mizchi/kagura_engine@0.2.0",
   "mizchi/kagura_core@0.2.0",
   "mizchi/geom@0.2.0",
-  "mizchi/physics@0.2.0",
   "mizchi/pathfind@0.2.0",
 }

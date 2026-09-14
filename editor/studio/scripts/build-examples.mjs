@@ -1,4 +1,6 @@
 import {copyWebRuntimeAssets} from '../../../scripts/web-runtime-assets.mjs';
+import {buildWebRuntime} from '../../../scripts/build-web-runtime.mjs';
+
 import { packagedPath } from '../examples/files.mjs';
 import { runtimeEntry, projectBuild } from '../projects/settings.mjs';
 import { validateProject } from '../projects/project.mjs';
@@ -7,6 +9,8 @@ import { cp, mkdir, rm, readFile, writeFile } from 'node:fs/promises';
 import { join, dirname } from 'node:path';
 import { catalog, catalogProjectDir } from '../../../scripts/example-catalog.mjs';
 import { resolveBuildArtifact } from '../../../scripts/moon-build-artifact-utils.mjs';
+
+buildWebRuntime();
 
 const studio = new URL('../', import.meta.url);
 const selected = process.argv.slice(2);

@@ -1,0 +1,25 @@
+// Generated using `moon info`, DON'T EDIT IT
+package "mizchi/kagura_game/inventory_web"
+
+import {
+  "mizchi/js/core",
+}
+
+// Values
+pub fn comparison_rows(@core.Any, @core.Any) -> @core.Any
+
+pub fn dimensions(@core.Any, @core.Any) -> @core.Any
+
+pub fn is_inventory_ground_drop(Double, Double, @core.Any, @core.Any) -> Bool
+
+pub fn preview_placement(@core.Any, @core.Any, Int, Int, @core.Any) -> @core.Any
+
+pub fn rotated_cells(@core.Any, @core.Any) -> @core.Any
+
+// Errors
+
+// Types and methods
+
+// Type aliases
+
+// Traits

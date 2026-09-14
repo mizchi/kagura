@@ -1,0 +1,24 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title>__PROJECT_NAME__</title>
+    <style>
+      * {box-sizing: border-box}
+      body {margin: 0; min-height: 100svh; display: grid; place-items: center; color: #dcebe9; background: #08111d; font: 16px system-ui}
+      main {width: min(100%, 960px); padding: 24px}
+      header {display: flex; align-items: baseline; justify-content: space-between; gap: 16px; flex-wrap: wrap}
+      h1 {font-size: 24px; letter-spacing: .04em}
+      p {color: #9aabb9}
+      canvas {display: block; width: 100%; aspect-ratio: 10 / 7; background: #101c2a; border: 1px solid #284154; border-radius: 12px}
+    </style>
+  </head>
+  <body>
+    <main>
+      <header><h1>__PROJECT_NAME__</h1><p>Move with WASD or the arrow keys</p></header>
+      <canvas id="app" width="800" height="560" aria-label="Game"></canvas>
+    </main>
+    <script type="module" src="./web.mjs"></script>
+  </body>
+</html>

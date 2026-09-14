@@ -61,9 +61,9 @@ ui_demo [default]: 640x480 after 3 tick(s), 980 triangles
 
 | 部品 | 役割 |
 |---|---|
-| `engine/kagura_engine/raster/` | `@gfx.GraphicsDriver` の CPU 実装。NDC 三角形・scissor・uniform 色・テクスチャ・blend equation |
-| `engine/kagura_engine/headless.mbt` | N tick 進めて 1 フレーム描く（全ターゲット） |
-| `engine/kagura_engine/headless_js.mbt` | `__kaguraHeadless` の読み取りと PNG の publish（js のみ） |
+| `engine/raster/` | `@gfx.GraphicsDriver` の CPU 実装。NDC 三角形・scissor・uniform 色・テクスチャ・blend equation |
+| `engine/headless.mbt` | N tick 進めて 1 フレーム描く（全ターゲット） |
+| `engine/headless_js.mbt` | `__kaguraHeadless` の読み取りと PNG の publish（js のみ） |
 | `assets/web/kagura-headless-frame.js` | Node 側ホスト。viewport スタブと module 再実行 |
 | `scripts/render-frame.mjs` | build → render → PNG / snapshot / elements を書く |
 
@@ -131,7 +131,7 @@ no-op のスタブを置く（`supported-targets` だけでは不十分）。
 ### native ターゲット
 
 native は browser global が無いので、フレーム PNG と context JSON をファイルに書く。
-この経路は `engine/kagura_engine/capture` にあり（以前は 3D authoring example に
+この経路は `engine/capture` にあり（以前は 3D authoring example に
 private だった）、web の canvas capture と Linux Dawn readback が両方使えない現状では
 **これが移植可能な唯一のキャプチャ経路**。
 

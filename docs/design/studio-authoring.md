@@ -75,7 +75,7 @@ SceneDocumentをkaguraの世界全体の永続仕様とはしない。実際の�
 UIとAIの混在編集、保存・復元、不正読込、対象切替、購読解除、GLBの編集座標、狭い画面、入力拒否からの復帰をブラウザ側で確認する。
 
 実行環境: Node 24.12.0 / MoonBit 0.1.20260824 / pnpm 10.33.0。
-ルートの既存 `moon test --target js` は `engine/physics/physics3d/world.mbt` などの `Array(capacity=...)` と現行コンパイラの不整合で失敗した。
+ルートの既存 `moon test --target js` は `core/physics3d/world.mbt` などの `Array(capacity=...)` と現行コンパイラの不整合で失敗した。
 本エディタは独立workspaceで検証する。既存エンジン全体が通ったという主張はしない。
 
 ## カスタムペーンとWebMCPの境界

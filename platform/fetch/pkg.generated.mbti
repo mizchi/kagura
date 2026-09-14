@@ -1,0 +1,42 @@
+// Generated using `moon info`, DON'T EDIT IT
+package "mizchi/kagura_platform/fetch"
+
+import {
+  "moonbitlang/core/debug",
+}
+
+// Values
+pub fn fetch_bytes(String, (Bytes?) -> Unit) -> Unit
+
+pub fn reset_bytes_loader() -> Unit
+
+pub fn set_bytes_loader((String, (Bytes?) -> Unit) -> Unit) -> Unit
+
+// Errors
+
+// Types and methods
+pub(all) struct FetchHandle {
+  id : Int
+} derive(@debug.Debug)
+pub fn FetchHandle::output(Self, &Logger) -> Unit
+pub fn FetchHandle::to_repr(Self) -> @debug.Repr
+pub fn FetchHandle::to_string(Self) -> String
+pub impl Show for FetchHandle
+
+pub(all) struct FetchProgress {
+  loaded : Int
+  total : Int
+} derive(@debug.Debug)
+pub fn FetchProgress::output(Self, &Logger) -> Unit
+pub fn FetchProgress::to_repr(Self) -> @debug.Repr
+pub fn FetchProgress::to_string(Self) -> String
+pub impl Show for FetchProgress
+
+// Type aliases
+
+// Traits
+pub(open) trait BytesFetcher {
+  fn fetch(Self, String, (FetchProgress) -> Unit, (Bytes?) -> Unit) -> FetchHandle
+  fn cancel(Self, FetchHandle) -> Unit
+  fn poll(Self) -> Unit
+}

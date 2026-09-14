@@ -2,6 +2,10 @@
   "name": "kagura-e2e",
   "private": true,
   "type": "module",
+  "bin": {
+    "kagura": "cmd/kagura/main.mjs"
+  },
+  "engines": { "node": ">=24" },
   "packageManager": "pnpm@10.33.0",
   "pnpm": {
     "onlyBuiltDependencies": [
@@ -9,6 +13,7 @@
     ]
   },
   "scripts": {
+    "kagura": "node cmd/kagura/main.mjs",
     "e2e": "playwright test",
     "e2e:smoke": "playwright test e2e/runtime_smoke_wasm.spec.ts e2e/runtime_smoke_native.spec.ts e2e/runtime_smoke_cross_backend.spec.ts",
     "e2e:install": "playwright install --with-deps chromium",
@@ -22,5 +27,8 @@
     "three": "0.185.1",
     "vite": "^8.2.2",
     "vite-plugin-moonbit": "^0.5.1"
+  },
+  "imports": {
+    "#kagura-web/*": "./assets/web/*"
   }
 }

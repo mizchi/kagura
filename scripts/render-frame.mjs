@@ -6,9 +6,9 @@
  *
  *   node scripts/render-frame.mjs ui_demo --frames 3
  *
- * The engine's headless path (`engine/kagura_engine/headless_js.mbt`) runs the
+ * The engine's headless path (`engine/headless_js.mbt`) runs the
  * example's own `update` / `draw` and rasterizes the resulting command stream on
- * the CPU (`engine/kagura_engine/raster`). What comes out is a PNG plus, for
+ * the CPU (`engine/raster`). What comes out is a PNG plus, for
  * examples that publish one, the UI snapshot that describes what is in it.
  *
  * This is the input side of the visual review loop: `scripts/vlm-ui-review.mjs`

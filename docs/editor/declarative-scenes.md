@@ -4,7 +4,7 @@
 
 Kagura のゲームは、状態を更新するコードと、その状態からシーンを宣言する `view.mbt` を分けます。静的な親子関係は `children` の入れ子で表し、配列からの生成や条件分岐は `for_each` / `show` に現れます。ヒエラルキーをエディタ用 JSON に再定義しません。
 
-2D は既存の `mizchi/kagura_game/scene` を継続使用します。3D は既存の `mizchi/kagura_engine/scene3d` に宣言 API を追加しました。[luna-three](https://github.com/mizchi/three-mbt/tree/main/luna-three) の入れ子の要素・コンポーネント・兄弟内のキー・借用リソースという構成を参考にしています。描画先は Kagura のままで、three.js や React の実行環境を追加していません。
+2D は既存の `mizchi/kagura_engine/scene` を継続使用します。3D は既存の `mizchi/kagura_engine/scene3d` に宣言 API を追加しました。[luna-three](https://github.com/mizchi/three-mbt/tree/main/luna-three) の入れ子の要素・コンポーネント・兄弟内のキー・借用リソースという構成を参考にしています。描画先は Kagura のままで、three.js や React の実行環境を追加していません。
 
 ## 2D
 
@@ -57,7 +57,7 @@ Kagura は既存の更新・描画ループに合わせ、view とそのコン�
 
 ## エディタと AI
 
-共通の検査契約は `core/kagura_core/hierarchy` の `Node`（`id / name / kind / generated / children`）です。描画時に解決したヒエラルキーをゲームが保持し、`kaguraSceneRuntime.hierarchy()` から公開します。ヒエラルキーを読むために view を再実行しません。
+共通の検査契約は `core/hierarchy` の `Node`（`id / name / kind / generated / children`）です。描画時に解決したヒエラルキーをゲームが保持し、`kaguraSceneRuntime.hierarchy()` から公開します。ヒエラルキーを読むために view を再実行しません。
 
 Studio は Play 中に **Scene hierarchy** を表示します。Flappy Bird / Arena 3D が対応済みです。約 250 ms ごとに読んで構造が変化した場合だけ DOM を更新します。停止中の状態変更も次の描画から反映されます。`kagura.runtime.hierarchy()` と WebMCP の `kagura.runtime_hierarchy` が同じ読み取り API です。
 

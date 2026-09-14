@@ -4,7 +4,7 @@ package "mizchi/kagura_ui"
 import {
   "mizchi/gfx",
   "mizchi/kagura_core",
-  "mizchi/kagura_core/inpututil",
+  "mizchi/kagura_core/inputstate",
   "moonbitlang/core/debug",
 }
 
@@ -13,17 +13,31 @@ pub fn default_layout_constraint(Double, Double) -> LayoutConstraint
 
 pub fn default_node_style() -> UINodeStyle
 
+pub fn default_ui_snapshot(screen_width~ : Double, screen_height~ : Double) -> UISnapshot
+
+pub fn default_ui_snapshot_node() -> UISnapshotNode
+
 pub fn hit_test(Array[LayoutResult], Double, Double) -> UINodeId?
 
 pub fn hit_test_all(Array[LayoutResult], Double, Double) -> Array[UINodeId]
 
 pub fn point_in_rect(LayoutRect, Double, Double) -> Bool
 
-pub fn ui_events_from_input_edge(@inpututil.KeyInputState, @inpututil.MouseButtonInputState, Double, Double) -> Array[UIEvent]
+pub fn ui_events_from_input_edge(@inputstate.KeyInputState, @inputstate.MouseButtonInputState, Double, Double) -> Array[UIEvent]
+
+pub fn ui_snapshot_nodes_from_layouts(Array[LayoutResult]) -> Array[UISnapshotNode]
 
 // Errors
 
 // Types and methods
+pub struct JsonObjectPublisher {
+  previous : Map[String, Json]
+  mut initialized : Bool
+}
+pub fn JsonObjectPublisher::encode(Self, Map[String, Json]) -> String?
+pub fn JsonObjectPublisher::new() -> Self
+pub fn JsonObjectPublisher::reset(Self) -> Unit
+
 pub struct LayoutConstraint {
   min_width : Double
   min_height : Double
@@ -188,6 +202,14 @@ pub fn UINodeStyle::to_repr(Self) -> @debug.Repr
 pub fn UINodeStyle::to_string(Self) -> String
 pub impl Show for UINodeStyle
 
+pub(all) struct UISafeArea {
+  top : Double
+  right : Double
+  bottom : Double
+  left : Double
+} derive(@debug.Debug)
+pub impl Show for UISafeArea
+
 pub(all) enum UISizing {
   Fixed(Double)
   Percent(Double)
@@ -197,6 +219,54 @@ pub fn UISizing::output(Self, &Logger) -> Unit
 pub fn UISizing::to_repr(Self) -> @debug.Repr
 pub fn UISizing::to_string(Self) -> String
 pub impl Show for UISizing
+
+pub(all) struct UISnapshot {
+  screen_width : Double
+  screen_height : Double
+  dpr : Double
+  safe_area : UISafeArea
+  frame : Int
+  state : String
+  nodes : Array[UISnapshotNode]
+  focus_order : Array[String]
+} derive(@debug.Debug)
+pub fn UISnapshot::to_json(Self) -> String
+pub impl Show for UISnapshot
+
+pub(all) struct UISnapshotNode {
+  path : String
+  id : String
+  role : String
+  classes : String
+  left : Double
+  top : Double
+  width : Double
+  height : Double
+  z : Int
+  visible : Bool
+  clip : UISnapshotRect?
+  text : String?
+  text_measured : UITextMetrics?
+  focusable : Bool
+  focus_index : Int
+  focused : Bool
+  hit : UISnapshotRect?
+} derive(@debug.Debug)
+pub impl Show for UISnapshotNode
+
+pub(all) struct UISnapshotRect {
+  left : Double
+  top : Double
+  width : Double
+  height : Double
+} derive(@debug.Debug)
+pub impl Show for UISnapshotRect
+
+pub(all) struct UITextMetrics {
+  width : Double
+  height : Double
+} derive(@debug.Debug)
+pub impl Show for UITextMetrics
 
 pub struct UITree {
   nodes : Map[Int, UINode]
@@ -221,4 +291,3 @@ pub trait UIInputAdapter {
 pub trait UIRenderAdapter {
   fn build_draw_commands(Self, @kagura_core.FrameBudget, Array[LayoutResult], @gfx.ImageHandle) -> Array[@gfx.DrawTrianglesCommand] raise
 }
-

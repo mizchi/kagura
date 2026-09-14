@@ -251,16 +251,6 @@ test "enemy patrol when player far" {
   assert_true(moved)
 }
 
-///|
-test "ai runtime state API" {
-  let state = ShowcaseState::new()
-  let _bb = state.ai_runtime.current_blackboard()
-  let total = state.ai_runtime.total_decisions()
-  assert_eq(total, 0)
-  let ticks = state.ai_runtime.total_ticks()
-  assert_eq(ticks, 0)
-}
-
 // ============================================================
 // Attack Tests
 // ============================================================

@@ -104,8 +104,6 @@ struct ShowcaseState {
   input : @inpututil.InputHelper
   mut score : Int
   mut attack_timer : Int
-  // AI (using AIRuntimeState public API)
-  ai_runtime : @ai.AIRuntimeState
   // Audio
   audio_ctx : @audio.SimpleAudioContext
   sfx_attack : @audio.PlayerId?
@@ -282,10 +280,6 @@ fn ShowcaseState::new() -> ShowcaseState {
   ]
   let focus_mgr = @ui.UIFocusManager::new()
   focus_mgr.set_focusable(menu_node_ids)
-  // AI (using AIRuntimeState public API)
-  let ai_runtime = @ai.AIRuntimeState::new()
-  ai_runtime.set_enabled(true)
-  ai_runtime.set_trace_enabled(true)
   // Camera
   let camera = @camera2d.Camera2D::new(screen_w, screen_h, world_w, world_h)
   // Player
@@ -359,7 +353,6 @@ fn ShowcaseState::new() -> ShowcaseState {
     input: @inpututil.new_input_helper(),
     score: 0,
     attack_timer: 0,
-    ai_runtime,
     audio_ctx,
     sfx_attack,
     sfx_pickup,
@@ -453,7 +446,7 @@ fn ShowcaseState::update_paused(self : ShowcaseState) -> Unit {
 ///|
 fn ShowcaseState::update_playing(self : ShowcaseState) -> Unit {
   // Check for pause (Escape key = 27)
-  if @inpututil.is_key_just_pressed(self.input.key_state, 27) {
+  if @inputstate.is_key_just_pressed(self.input.key_state, 27) {
     self.mode = mode_paused
     let _ = self.focus_mgr.focus(self.menu_node_ids[0])
     return
@@ -535,10 +528,6 @@ fn ShowcaseState::update_playing(self : ShowcaseState) -> Unit {
     }
   }
   // Enemy AI: direct chase/patrol logic
-  // (AIRuntimeState API is used for demonstration, but actual enemy movement
-  //  is done directly since external packages can't implement AI traits)
-  let _bb = self.ai_runtime.current_blackboard()
-  let _total = self.ai_runtime.total_decisions()
   for enemy in self.enemies {
     if enemy.alive {
       let cdx = self.player.x - enemy.x
@@ -829,10 +818,7 @@ fn ShowcaseState::view_playing(self : ShowcaseState) -> @scene.SceneNode {
         if !item.collected {
           let sx = item.x - view_left
           let sy = item.y - view_top
-          if sx >= -10.0 &&
-            sx <= sw + 10.0 &&
-            sy >= -10.0 &&
-            sy <= sh + 10.0 {
+          if sx >= -10.0 && sx <= sw + 10.0 && sy >= -10.0 && sy <= sh + 10.0 {
             let fill = if item.kind == 0 { 0x00FFFF } else { 0x00FF66 }
             nodes.push(
               @scene.rect(
@@ -856,10 +842,7 @@ fn ShowcaseState::view_playing(self : ShowcaseState) -> @scene.SceneNode {
         if enemy.alive {
           let sx = enemy.x - view_left
           let sy = enemy.y - view_top
-          if sx >= -20.0 &&
-            sx <= sw + 20.0 &&
-            sy >= -20.0 &&
-            sy <= sh + 20.0 {
+          if sx >= -20.0 && sx <= sw + 20.0 && sy >= -20.0 && sy <= sh + 20.0 {
             let fill = if enemy.damage_timer > 0 { 0xFFFFFF } else { 0xCC2222 }
             let ehs = enemy.size / 2.0
             // Enemy body
@@ -1013,12 +996,7 @@ fn ShowcaseState::view_playing(self : ShowcaseState) -> @scene.SceneNode {
       let sh = self.view_h
       @scene.fragment([
         @scene.rect(w=sw, h=sh, fill=0x000000, alpha=0.5),
-        @scene.label(
-          x=sw / 2.0,
-          y=sh / 2.0 - 20.0,
-          content="PAUSED",
-          scale=2.0,
-        ),
+        @scene.label(x=sw / 2.0, y=sh / 2.0 - 20.0, content="PAUSED", scale=2.0),
         @scene.for_each(fn() {
           let nodes : Array[@scene.SceneNode] = []
           let labels = ["RESUME", "RESET", "QUIT"]

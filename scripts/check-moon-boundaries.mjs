@@ -4,6 +4,7 @@ import {
   formatBoundaryReport,
   validateModuleImportBoundaries,
 } from "./moon-boundary-utils.mjs";
+import {validateWorkspaceLayers} from './moon-layer-utils.mjs';
 
 function parseArgs(argv) {
   return {
@@ -13,6 +14,7 @@ function parseArgs(argv) {
 
 const args = parseArgs(process.argv.slice(2));
 const result = validateModuleImportBoundaries();
+result.errors.push(...validateWorkspaceLayers().errors);
 
 if (args.json) {
   process.stdout.write(

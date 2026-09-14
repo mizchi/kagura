@@ -33,12 +33,12 @@ Host imports (kagura_host namespace):
 
 | Host API | Guest ABI 相当 |
 |----------|---------------|
-| `@core.Game.update(InputSnapshot)` | `kagura_guest_update(input_ptr, len)` |
-| `@core.Game.draw(FrameBudget)` | `kagura_guest_render()` |
+| `@application.Game.update(InputSnapshot)` | `kagura_guest_update(input_ptr, len)` |
+| `@application.Game.draw(FrameBudget)` | `kagura_guest_render()` |
 | `@gfx.DrawTrianglesCommand` | binary draw command (28B header + vertex/index data) |
 | `@core.InputSnapshot` | binary input layout (32B base + key/mouse arrays) |
 | `@asset.AssetKey` | UTF-8 string in shared memory |
-| `@core.RunOptions` | InitEnv (16 bytes) |
+| `@application.RunOptions` | InitEnv (16 bytes) |
 
 ## 方針
 

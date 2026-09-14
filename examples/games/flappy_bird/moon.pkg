@@ -1,16 +1,17 @@
 import {
-  "mizchi/kagura_game/inspection",
+  "mizchi/kagura_game/inpututil",
+  "mizchi/kagura_engine/inspection",
   "mizchi/kagura_core/hierarchy",
   "moonbitlang/core/json",
-  "mizchi/kagura_game/scene2d",
+  "mizchi/kagura_engine/scene2d",
   "mizchi/flappy_bird/scenes",
   "moonbitlang/core/bench",
   "mizchi/signals",
-  "mizchi/kagura_game/scene",
+  "mizchi/kagura_engine/scene",
   "mizchi/kagura_ui" @kagura_ui,
   "mizchi/kagura_engine" @engine,
   "mizchi/kagura_core" @core,
-  "mizchi/kagura_core/inpututil",
+  "mizchi/kagura_core/inputstate",
   "mizchi/web_runtime_hooks" @web_hooks,
 }
 

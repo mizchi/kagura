@@ -1,0 +1,5 @@
+import {
+  "mizchi/kagura_platform/fetch" @contract,
+}
+
+supported_targets = "native"

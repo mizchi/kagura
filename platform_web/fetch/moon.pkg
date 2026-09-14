@@ -1,0 +1,11 @@
+import {
+  "mizchi/kagura_platform/fetch" @contract,
+}
+
+options(
+  targets: {
+    "stream.mbt": [ "js" ],
+    "bytes_wbtest.mbt": [ "js" ],
+    "bytes.mbt": [ "js" ],
+  },
+)

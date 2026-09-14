@@ -1,7 +1,7 @@
 # atlas の asset key 探索は O(n) だが、出荷している経路では薄い（入れなかった）
 
 - Date: 2026-09-11
-- Scope: `engine/kagura_engine/sprite2d`（bench のみ）
+- Scope: `engine/sprite2d`（bench のみ）
 - 出発点: [physics-id-lookup.md](./physics-id-lookup.md) の作業項目 3
   「atlas 側にも同じ形の線形探索が残っている。そちらは fixture が 1 entry なので
   bench が効果を隠している —— **先に fixture を直してから**測る」
@@ -108,7 +108,7 @@ tileset と atlas で描けば 1 フレーム約 118,000 回の比較になる�
 
 **ところがこの経路には出荷している呼び出し元が無い。**
 `collect_chunk_tile_quads` と `append_atlas_tilemap_draw_commands` /
-`append_tile_indexed_*`（4 本）を grep すると、`game/tilemap2d/contracts_wbtest.mbt`
+`append_tile_indexed_*`（4 本）を grep すると、`engine/tilemap2d/contracts_wbtest.mbt`
 しか出てこない。example もゲームも通らない。
 
 atlas batch builder が呼ばれていなかったのと同じ形である。**索引の前に

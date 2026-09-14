@@ -1,104 +1,132 @@
 # Module Boundaries
 
-実装前に固定する境界面の整理。
+配置は実装言語ではなく責務で決める。純粋な計算、描画・実行基盤、ゲームの意味を分離する。
 
-> **Note (stale):** このドキュメントは実装前のプラン。以下は既に実態と乖離している:
-> `mizchi/kagura_physics` は実際には `mizchi/physics` として公開されている。
-> `gfx` は `engine/kagura_engine/gfx/` ではなく外部パッケージ `mizchi/gfx` として存在する。
-> `platform` と `ui` は `platform/kagura_platform/` (`mizchi/kagura_platform`) / `engine/ui/`
-> (`mizchi/kagura_ui`) として kagura_engine から抽出済み。`gfx_wgpu_native` は
-> 独立モジュールへの切り出しを試みたが、`--moonbit-unstable-prebuild` のビルド変数
-> (`${build.KAGURA_NATIVE_WGPU_INCLUDE}` 等) が独立 moon.work メンバーでは解決されない
-> moon 側の制約に当たり、`engine/kagura_engine/gfx_wgpu_native/` のサブパッケージに
-> 差し戻し済み。モジュールは `<layer>/<name>/` としてリポジトリ直下に並んでおり、
-> layer は `core` / `platform` / `engine` / `game` / `editor` の 5 つ（`modules/` という
-> 階層はもう無い）。現行のレイヤ表と依存の向きは CLAUDE.md の「レイヤ」を見ること。
-> 全体の書き直しはしていないので、他の記述も現状と異なる場合がある。
+| 層 | 所有するもの | 主な配置 |
+| --- | --- | --- |
+| `core` | 入力値と状態から結果を計算する処理。ホスト・GPU・ゲームルールに依存しない | `geom`, `mesh3d`, `physics2d`, `physics3d`, `collision3d`, `anim3d/ik3d`, `pathfind`, `terrain3d`, `procedural3d`, `hierarchy`, `inputstate` |
+| `engine` | 描画コマンド、表示ツリー、アセット、音声、アプリケーションの実行 | `draw3d`, `scene3d`, `scene`, `hud`, `tilemap2d`, `sprite_packer`, `inspection`, `application`, `runtime` |
+| `game` | プレイヤー・敵・アイテムなどの意味とルール、進行や遷移 | `gameplay2d`, `inventory`, `inpututil`, `ecs`, `progression`, `interactable2d`, `scene_flow`, `scene_manager`, `scene_data`, `scene_document`, `machinations`, `inventory_web` |
+| `platform` | ウィンドウ・入力・surface の共通コントラクトと型付き hook | `PlatformDriver`, `WebCanvasHooks`, `DesktopNativeHooks` |
+| `platform_web` | ブラウザ環境の実装と接続 | `input`, `render`, `diagnostics`, `playback`, `ui_sync`, `services`, `fetch`, `host`, `runtime_hooks` |
+| `platform_native` | ネイティブ環境の実装と接続 | `gfx_wgpu_native`, `capture`, root hooks |
+| `editor` | オーサリングと検証ツール | Studio、model-viewer、effect-studio、modeling3d |
 
-## Workspace Modules
+`core` の「純粋」は、すべて immutable にするという意味ではない。物理 world やキャッシュなど、
+呼び出し元が所有する状態の更新は許容する。時刻・乱数 seed・入力は外から渡し、ホスト FFI、
+GPU リソース、描画 callback を持たせない。頂点・index の配列や骨格行列の計算は `core`、
+その結果を GPU に送り描画する処理は `engine` / platform 実装が受け持つ。
 
-- `mizchi/kagura`: thin public facade。`lib.mbt` と `moon.pkg` を持ち、`mizchi/kagura_core` と `mizchi/kagura_engine` の契約を束ねる。
-- `mizchi/kagura_core`: core contracts / math / camera / mesh / input utilities。`core/kagura_core/*` を持つ。
-- `mizchi/kagura_engine`: rendering/runtime infrastructure。`engine/kagura_engine/*` を持ち、`mizchi/kagura_core` に依存する。
-- `mizchi/kagura_physics`: reusable physics / collision / pathfinding layer。`engine/physics/*` を持ち、`mizchi/kagura_core` に依存する。
-- `mizchi/kagura_game`: gameplay/simulation/application layer。`game/*` を持ち、`mizchi/kagura_core`、`mizchi/kagura_engine`、`mizchi/kagura_physics` に依存する。
-- `mizchi/kagura_js_runtime`: JS 専用 WebGPU runtime helper。`platform/js_runtime/*` を持つ。
+`core.InputSnapshot`、サイズ、固定 timestep は共通のデータ・計算コントラクト。
+`Game` / `FinalScreenDrawer` と `RunOptions` は描画・実行 callback を持つため
+`mizchi/kagura_engine/application` に配置する。ゲームルールを持たない実行契約なので、
+`game` への逆依存は作らない。
 
-`mizchi/kagura` は compatibility facade とし、gameplay 層を含めない。`mizchi/kagura_game` から root facade へ戻す依存も作らない。
+`game/ecs` は Health・Player/Enemy タグ・死亡処理を含むゲーム用 world。
+`engine/scene` は 2D の表示ツリーで、`engine/scene2d` は表示ドキュメント。
+`game/scene_flow` / `scene_manager` は遷移、`scene_data` / `scene_document` は
+プレイヤー・敵・障害物・ポータルに結びつく定義を所有する。
 
-## Release Units
+入力の押下差分・押下時間は `core/inputstate`。WASD の移動や決定キーの解釈と
+`InputHelper` は `game/inpututil` が所有する。UI と実行ループは core の入力状態だけを参照する。
 
-MoonBit registry へ出す単位は次の 5 つに固定する。
+## 依存方向
 
-- `mizchi/kagura`
-- `mizchi/kagura_core`
-- `mizchi/kagura_engine`
-- `mizchi/kagura_physics`
-- `mizchi/kagura_game`
-- `mizchi/kagura_js_runtime`
+```text
+core ← engine ← game
+  ↑       ↑
+platform contract
+  ↑       ↑
+platform implementations / startup integration
+```
 
-source manifest では `moon.work` 用の local `path` 依存を許可する。publish 用 staging は `just release-stage` で生成し、workspace 内の `path` 依存を対象 module の `version` 文字列へ変換する。release 前の検証は `just check-release` を通す。
+- `core` は別の core module と宣言済みの計算ライブラリだけを参照する。
+- `engine` は core / engine / platform contract を参照でき、game や platform 実装を参照しない。
+- `game` は core / engine / game / platform contract を参照できる。
+- `platform` は実装に依存しない。`platform_web` の基礎 adapter は core と contract のみに依存する。
+- `platform_web/runtime_hooks` と `platform_native` は起動時の統合 module。
+  engine・音声・描画の hook を結線するため engine を参照できるが、game には依存しない。
+- `editor` は利用側。ライブラリから editor への参照は禁止する。
 
-`just check-release` は `moon.pkg` の import も検査する。release module 間の許可方向は上の release units と次の dependency direction に従い、例えば `mizchi/kagura_core -> mizchi/kagura_engine`、`mizchi/kagura_engine -> mizchi/kagura_game`、`mizchi/kagura_game -> mizchi/kagura` は失敗する。
+`gfx_wgpu_native` とネイティブキャプチャは、既存の `mizchi/native_runtime_hooks`
+module 内に置く。共通 prebuild 変数を同じ module で解決できるため、独立 module 化時に
+問題になった変数のスコープを回避する。engine は backend 実装を import せず hook を使う。
 
-## Dependency Direction
+## モジュールと配布
 
-- `mizchi/kagura_core` <- `mizchi/kagura_engine`
-- `mizchi/kagura_core` <- `mizchi/kagura_physics`
-- `mizchi/kagura_core`, `mizchi/kagura_engine`, `mizchi/kagura_physics` <- `mizchi/kagura_game`
-- `mizchi/kagura_core`, `mizchi/kagura_engine` <- `mizchi/kagura`
-- `core` <- `platform`, `gfx`, `runtime`, `ui`
-- `platform` <- `gfx`（surface token のみ参照）
-- `gfx` <- `asset`, `text`, `ui`
-- `asset` <- `text`, `ui`
-- `draw2d` <- `renderer2d`（2D draw command builder の上に frame/queue API を置く）
-- `draw3d`, `scene3d`, `render_pipeline3d` <- `renderer3d`（3D scene/pipeline の facade）
-- 禁止:
-  - `core` -> `platform/gfx`
-  - `mizchi/kagura` -> `mizchi/kagura_game`
-  - `mizchi/kagura_game` -> `mizchi/kagura`
-  - `renderer2d` -> `mizchi/kagura_game/scene`（game scene 側から renderer2d を使う）
-  - `ai` -> `gfx`（描画依存を持たない）
-  - `ui` -> `platform`（入力は `core.InputSnapshot` 経由）
+ディレクトリと配布単位は別。正しい名前は各 `moon.mod` の `name`。
 
-## Boundary Matrix
+| 配置 | モジュール名 |
+| --- | --- |
+| `core` | `mizchi/kagura_core` |
+| `core/geom`, `core/mesh3d`, `core/anim3d`, `core/pathfind` | `mizchi/geom`, `mizchi/mesh3d`, `mizchi/anim3d`, `mizchi/pathfind` |
+| `engine` | `mizchi/kagura_engine` |
+| `engine/ui`, `engine/audio`, `engine/asset_loader` | `mizchi/kagura_ui`, `mizchi/kagura_audio`, `mizchi/kagura_asset_loader` |
+| `engine/renderer2d`, `text`, `atlas`, `widget2d` | 同名の `mizchi/*` module |
+| `game`, `game/machinations` | `mizchi/kagura_game`, `mizchi/machinations` |
+| `platform` | `mizchi/kagura_platform` |
+| `platform_web`, `platform_web/runtime_hooks` | `mizchi/kagura_platform_web`, `mizchi/web_runtime_hooks` |
+| `platform_native` | `mizchi/native_runtime_hooks` |
 
-| module | own state | input | output | contract file |
-|---|---|---|---|---|
-| `core` | tick/update 計画 | outside size, input snapshot | frame budget, termination | `core/kagura_core/contracts.mbt` |
-| `platform` | window/event buffer | window options | input snapshot, surface token | `engine/kagura_engine/platform/contracts.mbt`, `engine/kagura_engine/platform/surface_contracts.mbt` |
-| `gfx` | GPU resources, command queue | draw commands, shader source, surface token | present, image/shader handle | `engine/kagura_engine/gfx/contracts.mbt`, `engine/kagura_engine/gfx/shader_contracts.mbt`, `engine/kagura_engine/gfx/backend_contracts.mbt` |
-| `runtime` | loop state | core/platform/gfx contracts | frame execution | `engine/kagura_engine/runtime/contracts.mbt` |
-| `asset` | asset index, atlas allocation | image/shader specs | image/shader/material handle | `engine/kagura_engine/asset/contracts.mbt` |
-| `renderer2d` | frame draw context | atlas draw sources, 2D frame target | draw command queue | `engine/kagura_engine/renderer2d/renderer2d.mbt` |
-| `renderer3d` | frame draw context | `scene3d` graph/scene, optional postfx pipeline | scene + postfx draw command queue | `engine/kagura_engine/renderer3d/renderer3d.mbt` |
-| `text` | font cache, glyph cache | text runs | glyph quads, draw commands | `engine/kagura_engine/text/contracts.mbt` |
-| `ui` | ui tree, layout cache | input snapshot, frame budget | ui events, draw commands | `engine/kagura_engine/ui/contracts.mbt` |
-| `ai` | blackboard, scheduler state | sensor snapshot, frame budget | action intents | `game/ai/contracts.mbt` |
+入れ子の独立 module は親の配布物に含めない。`just release-stage` で配布内容を確認する。
+ブラウザ配信用には `just web-runtime-build` が二つの ESM を生成する。
 
-## Backend Implementations
+- `platform_web/web_core` → `assets/web/kagura-runtime.generated.js`
+- `game/inventory_web` → `assets/web/kagura-inventory.generated.js`
 
-| target | platform impl | gfx impl | key contract |
-|---|---|---|---|
-| desktop | `DesktopGlfwPlatform` | `WgpuNative` | `platform.SurfaceToken(kind=MetalLayer)` |
-| browser(webgpu) | `WebCanvasPlatform` | `WebGpu` | `platform.SurfaceToken(kind=WebGpuCanvasContext)` |
-| browser(webgl2) | `WebCanvasPlatform` | `WebGl2` | `platform.SurfaceToken(kind=WebGlCanvasContext)` |
-| tests/headless | offscreen surface | `Null` | `create_offscreen_surface_token` |
+両方に `.d.ts` の契約と生成元ハッシュを持ち、ゲーム・Studio・Pages の同じ配布 manifest で扱う。
 
-- 補足:
-  - `platform` / `gfx` は標準では stub hook を使う
-  - real native 初期化は `platform/native_runtime_hooks` から hook 注入して有効化する
-  - browser 側は `platform/web_runtime_hooks` から web hook 注入して有効化する
-  - `native_triangle` も `platform/native_runtime_hooks` の共通初期化 API を利用する
-  - `runtime_smoke(js)` は `platform/web_runtime_hooks` 経由で browser 導線を通す
+## 自動検証
 
-## AI Boundary
+`just check-release` で次を検証する。
 
-- sensing:
-  - `ai.SensorBridge` が world state を `SensorSnapshot` に射影
-- decision:
-  - `ai.AIPolicy` が `DecisionContext -> DecisionResult`
-- actuation:
-  - `ai.ActuatorBridge` が action intent を game world に適用
-- runtime integration:
-  - `runtime` が fixed tick ごとに `run_ai_tick` を呼ぶ
+- `moon-layer-utils.mjs`：全 workspace member の manifest と `moon.pkg` を検査。
+  入れ子の独立 module、外部 gfx への core 依存、core のホスト FFI も対象。
+- `moon-boundary-utils.mjs` / `moon-release-utils.mjs`：公開 module の import / version / staging 境界。
+- `repository-layout.test.mjs`：責務の所属、親の配布物への子 module 混入、各 workspace の依存参照漏れ。
+- `platform-layout.test.mjs`：共通 contract と実装の配布分離、native prebuild の参照。
+
+移動時は MoonBit import、module 依存、全 `moon.work`、justfile、配布・ビルドスクリプト、
+生成インターフェース、ドキュメントを同時に更新する。公開 import の移行一覧は以下。
+
+| 旧 import | 新 import |
+| --- | --- |
+| `mizchi/physics/{physics2d,physics3d,collision3d}` | `mizchi/kagura_core/` の同名 package |
+| `mizchi/kagura_core/inpututil` | 入力状態は `mizchi/kagura_core/inputstate`、ゲーム操作は `mizchi/kagura_game/inpututil` |
+| `mizchi/kagura_core.Game` / `RunOptions` 等 | `mizchi/kagura_engine/application` の同名契約 |
+| `mizchi/kagura_game/ik3d` | `mizchi/anim3d/ik3d` |
+| `mizchi/kagura_game/terrain3d` | `mizchi/kagura_core/terrain3d` |
+| `mizchi/kagura_engine/procedural3d` | `mizchi/kagura_core/procedural3d` |
+| `mizchi/kagura_game/{scene,scene2d,hud,tilemap2d,sprite_packer,inspection}` | `mizchi/kagura_engine/` の同名 package |
+| `mizchi/kagura_engine/gfx_wgpu_native` | `mizchi/native_runtime_hooks/gfx_wgpu_native` |
+| `mizchi/kagura_engine/capture/native` | `mizchi/native_runtime_hooks/capture` |
+| `mizchi/kagura_platform_js` | `mizchi/kagura_platform_web` |
+
+骨格・経路探索の独立 module 名は維持する。物理は `mizchi/kagura_core` に統合する。互換のため core から engine へ
+再 export するような逆依存は作らず、利用側の import を更新する。
+
+## パッケージ内部の責務分割
+
+| 型・処理 | 所有者 |
+| --- | --- |
+| 時計・ファイル I/O・フレーム予約の契約 | `platform/services` |
+| BytesFetcher / FetchProgress / FetchHandle | `platform/fetch`（旧 atlas） |
+| 実時計・ファイルアクセス | `platform_native/services`、`platform_web/services` |
+| ブラウザ通信・キャンセル | `platform_web/fetch` |
+| ロード待ち行列・画像デコード・アトラス | `engine/asset_loader`、`engine/atlas` |
+| GridFootprint / ItemGrid・配置プレビュー・比較 | `game/inventory`（旧 gameplay2d / inventory_web） |
+| JS オブジェクトとの変換 | `game/inventory_web` |
+| Timeline・再生時間の進行 | `core/anim3d/playback` |
+| 矩形パッキング・粒子の運動・統計 | `core/packing2d`、`core/particle3d`、`core/statistics` |
+| 粒子の描画・sprite と atlas の対応付け | `engine/particle3d`、`engine/sprite_packer`、`engine/animation2d` |
+
+再生時間は独立 anim3d module 内に置き、core root → anim3d の既存依存を逆転させない。
+`Timeline` の完了時停止と端点保持は用途別に選べる。2D の繰り返し減算による丸めも保持する。
+
+`engine.particle3d.build_billboard_vertices(emitter, ...)` は描画側の関数。
+以前の `emitter.build_billboard_vertices(...)` の利用側はこの関数へ移行する。
+`ParticleEmitter` の状態と更新メソッドは core の型を engine が再公開する。
+
+`assets/web` は配布先。手書き JS と Node テストは `platform_web/host`、型宣言の原本は
+各 ESM entry package の `exports.d.ts`。ビルドはローカルの推移的な依存を hash と監視に含む。
+`benchmarks/landscape` と `experiments/webgpu` は非公開の利用側であり、ライブラリから参照しない。

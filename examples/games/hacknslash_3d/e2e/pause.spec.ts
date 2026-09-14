@@ -16,10 +16,10 @@ test("Escape freezes combat, animation, camera and clocks, and pause submenus re
   const errors: string[] = [];
   page.on("pageerror", (e) => errors.push(e.message));
   await page.goto("/?snapshot=playing&frames=0&seed=42&mute=1");
-  await expect(
-    page.getByRole("button", { name: "突進", exact: true }),
-  ).toBeEnabled();
-  await page.getByRole("button", { name: "突進", exact: true }).click();
+  const dashStrike = page.locator("#dash-strike-button");
+  await expect(dashStrike).toHaveAccessibleName("突進斬り");
+  await expect(dashStrike).toBeEnabled();
+  await dashStrike.click();
   await expect
     .poll(() => page.evaluate(() => globalThis.__ashenHud.charging))
     .toBe(true);

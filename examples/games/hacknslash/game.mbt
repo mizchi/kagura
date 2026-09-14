@@ -375,7 +375,7 @@ fn GameState::update_playing(self : GameState) -> Unit {
   } else {
     // Normal movement
     // Initiate dash on Shift press
-    let shift_pressed = @inpututil.is_key_just_pressed(self.input.key_state, 16)
+    let shift_pressed = @inputstate.is_key_just_pressed(self.input.key_state, 16)
     if shift_pressed &&
       self.player.dash_cooldown_timer <= 0 &&
       (dx != 0.0 || dy != 0.0) {

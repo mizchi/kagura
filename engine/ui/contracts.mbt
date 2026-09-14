@@ -284,28 +284,28 @@ pub fn UIFocusManager::handle_pointer_down(
 /// Uses just-pressed/just-released from the edge detection to generate
 /// PointerDown/Up and KeyDown/Up events.
 pub fn ui_events_from_input_edge(
-  key_state : @inpututil.KeyInputState,
-  mouse_state : @inpututil.MouseButtonInputState,
+  key_state : @inputstate.KeyInputState,
+  mouse_state : @inputstate.MouseButtonInputState,
   cursor_x : Double,
   cursor_y : Double,
 ) -> Array[UIEvent] {
   let events : Array[UIEvent] = []
-  let just_pressed_keys = @inpututil.append_just_pressed_keys(key_state, [])
+  let just_pressed_keys = @inputstate.append_just_pressed_keys(key_state, [])
   for key in just_pressed_keys {
     events.push(UIEvent::KeyDown(key))
   }
-  let just_released_keys = @inpututil.append_just_released_keys(key_state, [])
+  let just_released_keys = @inputstate.append_just_released_keys(key_state, [])
   for key in just_released_keys {
     events.push(UIEvent::KeyUp(key))
   }
-  let just_pressed_buttons = @inpututil.append_just_pressed_mouse_buttons(
+  let just_pressed_buttons = @inputstate.append_just_pressed_mouse_buttons(
     mouse_state,
     [],
   )
   for _ in just_pressed_buttons {
     events.push(UIEvent::PointerDown(cursor_x, cursor_y))
   }
-  let just_released_buttons = @inpututil.append_just_released_mouse_buttons(
+  let just_released_buttons = @inputstate.append_just_released_mouse_buttons(
     mouse_state,
     [],
   )

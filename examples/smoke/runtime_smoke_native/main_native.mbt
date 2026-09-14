@@ -462,7 +462,7 @@ fn[T : @gfx.GraphicsDriver] verify_rect_fill_rendering(
 
 ///|
 fn run_runtime_contract_smoke() -> (Int, Int, Bool) raise {
-  let game = @core.new_noop_game(320, 240)
+  let game = @application.new_noop_game(320, 240)
   let platform = @platform.create_desktop_glfw_platform()
   let surface = platform.current_surface() catch {
     _ => @gfx.create_offscreen_surface_token(320, 240)
@@ -475,7 +475,7 @@ fn run_runtime_contract_smoke() -> (Int, Int, Bool) raise {
     game,
     platform,
     graphics,
-    @core.default_run_options(),
+    @application.default_run_options(),
     @runtime.default_runtime_config(),
   ) catch {
     _ => ()
@@ -521,7 +521,7 @@ fn verify_hook_font_load() -> Bool {
   }
   // CJK font verification (NotoSansJP-subset.otf)
   let cjk_renderer = @text.load_text_renderer(
-    "../../fixtures/fonts/NotoSansJP-subset.otf", 256, 952, 0,
+    "../../../assets/fonts/NotoSansJP-subset.otf", 256, 952, 0,
   )
   match cjk_renderer {
     None => {

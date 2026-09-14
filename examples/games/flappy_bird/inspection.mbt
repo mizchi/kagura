@@ -4,7 +4,7 @@
 /// Setters return detached candidate state; debug_replace validates and commits it.
 /// Studio permits edits only while paused with a current session/revision token.
 /// Changes affect runtime state, not scenes/training.mbt or the project file.
-/// See game/inspection/README.md for the host API and debug/release build contract.
+/// See engine/inspection/README.md for the host API and debug/release build contract.
 fn debug_inspector() -> @inspection.Inspector[DebugState] raise {
   @inspection.Inspector::new([
     @inspection.bind_subject("bird", name="Bird", fields=[

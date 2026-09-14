@@ -1,8 +1,12 @@
 import {copyWebRuntimeAssets} from '../../../scripts/web-runtime-assets.mjs';
+import {buildWebRuntime} from '../../../scripts/build-web-runtime.mjs';
+
 import { spawnSync } from 'node:child_process';
 import { cp, mkdir } from 'node:fs/promises';
 import { resolveBuildArtifact } from '../../../scripts/moon-build-artifact-utils.mjs';
 import { fileURLToPath } from 'node:url';
+buildWebRuntime();
+
 const moduleRoot = new URL('../../model-viewer/', import.meta.url);
 const result = spawnSync('moon', ['build', '.', '--target', 'js', '--release'], {
   cwd: moduleRoot,

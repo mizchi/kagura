@@ -4,8 +4,8 @@ package "mizchi/kagura_game/ecs"
 import {
   "mizchi/anim3d/animation3d",
   "mizchi/anim3d/transform3d",
+  "mizchi/kagura_core/physics3d",
   "mizchi/kagura_engine/scene3d",
-  "mizchi/physics/physics3d",
   "moonbitlang/core/debug",
 }
 
@@ -127,4 +127,3 @@ pub fn World::spawn_at(Self, @transform3d.Transform3D) -> EntityId
 // Type aliases
 
 // Traits
-

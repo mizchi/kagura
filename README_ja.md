@@ -28,17 +28,13 @@ STRIX / BASTIONの実モデルを、kaguraのPBR・影・音声基盤で動か�
 
 ```
 moon.work
-|-- mizchi/kagura             core/engine 契約を束ねる薄い public facade
-|-- mizchi/kagura_core        core 契約、数学、カメラ、メッシュ、入力 utilities
-|-- mizchi/kagura_engine      描画・ランタイム基盤
-|   |-- platform/, gfx/        platform/gfx/native/web backend
-|   |-- runtime/, asset/       runtime loop、asset、audio、text、UI
-|   `-- gltf/, renderer*/      glTF 変換と 2D/3D renderer facade
-|-- mizchi/kagura_physics     再利用可能な physics / collision / pathfinding
-|-- mizchi/kagura_game        ゲーム寄りの package 群
-|   |-- scene/                 宣言的 2D Scene API
-|   `-- ai/, ecs/, tilemap2d/  ゲームシステムと補助機能
-`-- mizchi/kagura_js_runtime  JS 専用 WebGPU runtime helper
+|-- core/                    純粋な計算: 幾何、物理、地形、入力状態
+|-- platform/                ウィンドウ・入力・surface の共通コントラクト
+|-- platform_web/            ブラウザ実装と runtime_hooks/
+|-- platform_native/         native 実装、gfx_wgpu_native/、capture/
+|-- engine/                  描画・アセット・実行基盤・表示ツリー・HUD
+|-- game/                    ルール・進行・ECS・インベントリ・操作割り当て
+`-- editor/                  オーサリングと検査ツール
 ```
 
 ### プラットフォーム対応
@@ -103,6 +99,35 @@ just dev flappy_bird
 ```
 
 ビルド → ローカルサーバー起動 → `http://localhost:8080` で開けます。ブラウザ版は現在 WebGPU 専用です。WebGPU 対応ブラウザ（Chrome 113+, Edge 113+）を使ってください。
+
+## 開発 CLI
+
+このチェックアウトから CLI をインストールして、Web ゲームを作成できます。
+
+```sh
+moon install ./cmd/kagura
+kagura new my-game --web
+cd my-game
+pnpm install
+kagura dev
+kagura build
+```
+
+`kagura new --web` は空の現在地に生成します。雛形は構成変更後の Kagura パッケージの
+リリースを前提とし、ローカルパス依存を使いません。共通ブラウザランタイムと Vite 設定を含みます。
+
+チェックアウト内のサンプルと Studio は次のように起動します。
+
+```sh
+pnpm kagura dev hacknslash_3d --port 8080
+pnpm kagura build hacknslash_3d --out-dir output/game
+just studio-install  # Studio の初回準備
+pnpm kagura studio
+```
+
+`just kagura ...` からも実行できます。ゲームのディレクトリ内ではプロジェクト名を省略できます。
+`build` は HTML・JS・素材を揃えた静的サイトを出力します。
+詳細は [Kagura CLI](cmd/kagura/README.md) を参照してください。
 
 ## Scene API で始める
 

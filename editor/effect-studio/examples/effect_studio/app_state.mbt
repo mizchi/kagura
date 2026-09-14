@@ -7,8 +7,8 @@ struct EffectStudioState {
   mut camera : @camera3d.OrbitCamera
   mut prev_cursor_x : Double
   mut prev_cursor_y : Double
-  key_state : @inpututil.KeyInputState
-  mouse_state : @inpututil.MouseButtonInputState
+  key_state : @inputstate.KeyInputState
+  mouse_state : @inputstate.MouseButtonInputState
   particle_shader : @gfx.ShaderHandle
   lit_colored_shader : @gfx.ShaderHandle
   lighting : @light3d.LightingEnvironment
@@ -36,8 +36,8 @@ fn EffectStudioState::new() -> EffectStudioState {
     ),
     prev_cursor_x: 0.0,
     prev_cursor_y: 0.0,
-    key_state: @inpututil.new_key_input_state(),
-    mouse_state: @inpututil.new_mouse_input_state(),
+    key_state: @inputstate.new_key_input_state(),
+    mouse_state: @inputstate.new_mouse_input_state(),
     particle_shader: @gfx.new_shader_handle(
       8702,
       @draw3d.shader3d_particle_wgsl(),
@@ -59,26 +59,26 @@ fn EffectStudioState::update(
 ) -> Unit {
   let dt = 1.0 / 60.0
   self.frame_count += 1
-  @inpututil.update_key_input_state(self.key_state, input)
-  @inpututil.update_mouse_input_state(self.mouse_state, input)
-  if @inpututil.is_key_just_pressed(self.key_state, key_space) {
+  @inputstate.update_key_input_state(self.key_state, input)
+  @inputstate.update_mouse_input_state(self.mouse_state, input)
+  if @inputstate.is_key_just_pressed(self.key_state, key_space) {
     self.playing = !self.playing
   }
-  if @inpututil.is_key_just_pressed(self.key_state, key_r) {
+  if @inputstate.is_key_just_pressed(self.key_state, key_r) {
     self.preview_time = 0.0
   }
-  let scrub_step = if @inpututil.is_key_pressed(self.key_state, key_shift) {
+  let scrub_step = if @inputstate.is_key_pressed(self.key_state, key_shift) {
     0.24
   } else {
     0.08
   }
-  if @inpututil.is_key_pressed(self.key_state, key_left) {
+  if @inputstate.is_key_pressed(self.key_state, key_left) {
     self.preview_time = if self.preview_time > scrub_step {
       self.preview_time - scrub_step
     } else {
       0.0
     }
-  } else if @inpututil.is_key_pressed(self.key_state, key_right) {
+  } else if @inputstate.is_key_pressed(self.key_state, key_right) {
     self.preview_time += scrub_step
   } else if self.playing {
     self.preview_time += dt
@@ -91,7 +91,7 @@ fn EffectStudioState::update(
   let dy = input.cursor_y - self.prev_cursor_y
   self.prev_cursor_x = input.cursor_x
   self.prev_cursor_y = input.cursor_y
-  if @inpututil.is_mouse_button_pressed(self.mouse_state, 0) {
+  if @inputstate.is_mouse_button_pressed(self.mouse_state, 0) {
     self.camera = self.camera.orbit(dx * -0.005, dy * -0.005)
   }
   if input.wheel_y != 0.0 {
@@ -141,12 +141,12 @@ fn EffectStudioState::review_prompt_filename(
 fn EffectStudioState::bundle_download_requested(
   self : EffectStudioState,
 ) -> Bool {
-  @inpututil.is_key_just_pressed(self.key_state, key_j)
+  @inputstate.is_key_just_pressed(self.key_state, key_j)
 }
 
 ///|
 fn EffectStudioState::review_download_requested(
   self : EffectStudioState,
 ) -> Bool {
-  @inpututil.is_key_just_pressed(self.key_state, key_l)
+  @inputstate.is_key_just_pressed(self.key_state, key_l)
 }

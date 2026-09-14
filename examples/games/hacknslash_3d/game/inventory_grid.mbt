@@ -50,9 +50,9 @@ pub fn ItemData::motion_weapon(self : ItemData) -> PlayerWeaponKind? {
 }
 
 ///|
-pub fn ItemData::footprint(self : ItemData) -> @gameplay2d.GridFootprint {
+pub fn ItemData::footprint(self : ItemData) -> @inventory.GridFootprint {
   if self.slot == Weapon && self.icon_id == 40 {
-    return @gameplay2d.GridFootprint::new([(0, 0), (1, 0), (0, 1), (0, 2)]).unwrap()
+    return @inventory.GridFootprint::new([(0, 0), (1, 0), (0, 1), (0, 2)]).unwrap()
   }
   let (width, height) = match self.slot {
     Weapon =>
@@ -68,13 +68,13 @@ pub fn ItemData::footprint(self : ItemData) -> @gameplay2d.GridFootprint {
     Gloves => (2, 1)
     Accessory | Amulet => (1, 1)
   }
-  @gameplay2d.GridFootprint::rectangle(width, height).unwrap()
+  @inventory.GridFootprint::rectangle(width, height).unwrap()
 }
 
 ///|
 pub fn Inventory::new_grid(width : Int, height : Int) -> Inventory {
   let inv = Inventory::new(width.max(0) * height.max(0))
-  inv.grid = Some(@gameplay2d.ItemGrid::new(width, height))
+  inv.grid = Some(@inventory.ItemGrid::new(width, height))
   inv
 }
 
@@ -112,7 +112,7 @@ fn Inventory::put_item(
   self : Inventory,
   index : Int,
   item : ItemData,
-  preferred : @gameplay2d.GridPlacement?,
+  preferred : @inventory.GridPlacement?,
 ) -> Bool {
   if index < 0 || index >= self.capacity || self.items[index] is Some(_) {
     return false

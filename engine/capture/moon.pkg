@@ -1,0 +1,11 @@
+import {
+  "mizchi/kagura_platform/services",
+  "mizchi/atlas",
+  "moonbitlang/core/encoding/utf8",
+}
+
+warnings = "-6-29-53-68"
+
+options(
+  targets: { "io_native.mbt": [ "native" ] },
+)

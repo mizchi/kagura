@@ -1,0 +1,77 @@
+// Generated using `moon info`, DON'T EDIT IT
+package "mizchi/kagura_game/inventory"
+
+// Values
+pub fn compare_stats(Array[(String, Double)], Array[(String, Double)]) -> Array[StatComparison]
+
+pub fn is_ground_drop(Double, Double, DropRect?, DropRect?) -> Bool
+
+pub fn preview_placement(Int, Int, Array[PreviewItem], PreviewItem, Int, Int, Bool) -> PlacementPreview
+
+// Errors
+
+// Types and methods
+pub(all) struct DropRect {
+  left : Double
+  top : Double
+  right : Double
+  bottom : Double
+}
+
+pub struct GridFootprint {
+  // private fields
+}
+pub fn GridFootprint::cells(Self, rotated? : Bool) -> Array[(Int, Int)]
+pub fn GridFootprint::new(Array[(Int, Int)]) -> Self?
+pub fn GridFootprint::rectangle(Int, Int) -> Self?
+pub fn GridFootprint::size(Self, rotated? : Bool) -> (Int, Int)
+
+pub(all) struct GridPlacement {
+  id : Int
+  footprint : GridFootprint
+  x : Int
+  y : Int
+  rotated : Bool
+}
+
+pub(all) struct ItemGrid {
+  width : Int
+  height : Int
+  // private fields
+}
+pub fn ItemGrid::clear(Self) -> Unit
+pub fn ItemGrid::clone(Self) -> Self
+pub fn ItemGrid::find_space(Self, GridFootprint, rotated? : Bool, ignore_id? : Int) -> (Int, Int)?
+pub fn ItemGrid::new(Int, Int) -> Self
+pub fn ItemGrid::occupied_by(Self, Int, Int, ignore_id? : Int) -> Int?
+pub fn ItemGrid::overlaps(Self, GridFootprint, Int, Int, rotated? : Bool, ignore_id? : Int) -> Array[Int]?
+pub fn ItemGrid::place(Self, Int, GridFootprint, Int, Int, rotated? : Bool) -> Bool
+pub fn ItemGrid::placement(Self, Int) -> GridPlacement?
+pub fn ItemGrid::remove(Self, Int) -> Unit
+pub fn ItemGrid::used_cells(Self) -> Int
+
+pub(all) struct PlacementPreview {
+  cells : Array[(Int, Int)]
+  valid : Bool
+  swap : Bool
+}
+
+pub(all) struct PreviewItem {
+  source : Int
+  slot : Int
+  footprint : GridFootprint
+  x : Int
+  y : Int
+  rotated : Bool
+}
+
+pub(all) struct StatComparison {
+  label : String
+  value : Double
+  before : Double
+  delta : Double
+}
+
+// Type aliases
+
+// Traits

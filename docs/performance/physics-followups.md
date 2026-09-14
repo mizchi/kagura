@@ -1,7 +1,7 @@
 # physics の follow-up を検証した記録
 
 - Date: 2026-09-10
-- Scope: `engine/physics/physics2d`, `engine/physics/physics3d`, `engine/physics/experiments/simd`
+- Scope: `core/physics2d`, `core/physics3d`, `core/experiments/simd`
 - 前提: [physics-benchmarks.md](./physics-benchmarks.md)（bench の設計）と
   [physics3d-optimization.md](./physics3d-optimization.md)（3D の 1 周目）
 - 対象: physics3d-optimization.md の末尾に残した作業項目 6 件と、relaxed SIMD
@@ -183,7 +183,7 @@ fixture 8 個 × 50 フレームの fingerprint（pair 数と cache 長も含む
 
 ## 7. relaxed SIMD は効かなかった
 
-`engine/physics/experiments/simd/` に leaf kernel を作って測った。詳細は
+`core/experiments/simd/` に leaf kernel を作って測った。詳細は
 そこの README。要点だけ:
 
 | constraints | JS | wasm scalar | wasm simd | wasm relaxed | simd/scalar | relaxed/simd |

@@ -1,0 +1,43 @@
+// Generated using `moon info`, DON'T EDIT IT
+package "mizchi/kagura_engine/particle3d"
+
+import {
+  "mizchi/geom/camera3d",
+  "mizchi/geom/math3d",
+  "mizchi/gfx",
+}
+
+// Values
+pub fn build_billboard_vertices(@mizchi/kagura_core/particle3d.ParticleEmitter, @math3d.Vec3, @math3d.Vec3) -> (Array[Double], Array[Int])
+
+pub fn default_emitter_config() -> @mizchi/kagura_core/particle3d.EmitterConfig
+
+// Errors
+
+// Types and methods
+pub(all) struct BurstEmitter {
+  emitter : @mizchi/kagura_core/particle3d.ParticleEmitter
+  mut spawned : Bool
+}
+
+pub(all) struct ParticleManager {
+  mut emitters : Array[BurstEmitter]
+  particle_shader : @gfx.ShaderHandle
+  mut vertex_scratch : Array[Double]
+  mut index_scratch : Array[Int]
+}
+pub fn ParticleManager::append_draw_commands(Self, Array[@gfx.DrawTrianglesCommand], @gfx.ImageHandle, @camera3d.Camera3D, Int, Int, Int) -> Unit
+pub fn ParticleManager::draw(Self, @gfx.ImageHandle, @camera3d.Camera3D, Int, Int, Int) -> Array[@gfx.DrawTrianglesCommand]
+pub fn ParticleManager::new(Int) -> Self
+pub fn ParticleManager::spawn(Self, @mizchi/kagura_core/particle3d.EmitterConfig) -> Unit
+pub fn ParticleManager::total_particle_count(Self) -> Int
+pub fn ParticleManager::update(Self, Double) -> Unit
+
+// Type aliases
+pub using @mizchi/kagura_core/particle3d {type EmitterConfig}
+
+pub using @mizchi/kagura_core/particle3d {type Particle}
+
+pub using @mizchi/kagura_core/particle3d {type ParticleEmitter}
+
+// Traits

@@ -254,6 +254,7 @@ const run = async () => {
       },
     },
     kagura_web: {
+      now_ms: () => Date.now(),
       prepare_surface: (width, height) => {
         return toInt(ensureCanvas(Number(width), Number(height)));
       },
@@ -551,7 +552,7 @@ const run = async () => {
   const fontEntries = [
     [".mooncakes/mizchi/font/fixtures/NotoSans-subset.otf", "/examples/smoke/runtime_smoke/.mooncakes/mizchi/font/fixtures/NotoSans-subset.otf"],
     [".mooncakes/mizchi/font/fixtures/NotoSansMono-Regular.ttf", "/examples/smoke/runtime_smoke/.mooncakes/mizchi/font/fixtures/NotoSansMono-Regular.ttf"],
-    ["fixtures/fonts/NotoSansJP-subset.otf", "/fixtures/fonts/NotoSansJP-subset.otf"],
+    ["../../../assets/fonts/NotoSansJP-subset.otf", "/assets/fonts/NotoSansJP-subset.otf"],
   ];
   for (const [fontKey, fontUrl] of fontEntries) {
     try {

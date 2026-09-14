@@ -1,6 +1,7 @@
 import { test, expect } from "@playwright/test";
 import { PNG } from "pngjs";
 import { fileURLToPath } from "node:url";
+import { readFileSync } from "node:fs";
 const file = fileURLToPath(
   new URL(
     "../../../examples/games/hacknslash_3d/motions/enemies.kgrmotion",
@@ -214,7 +215,7 @@ test("superseded loads and project switches cannot leave a stale motion renderer
   );
 });
 
-test("hunter resource previews the same five playable weapon sets", async ({
+test("hunter resource previews the playable weapon sets exported by the game", async ({
   page,
 }, info) => {
   const errors = [];
@@ -235,7 +236,11 @@ test("hunter resource previews the same five playable weapon sets", async ({
     "hunter",
   );
   const picker = page.getByLabel("Motion weapon", { exact: true });
-  await expect(picker.locator("option")).toHaveCount(5);
+  const hunterAsset=JSON.parse(readFileSync(new URL('../../../examples/games/hacknslash_3d/motions/hunter.kgrmotion',import.meta.url),'utf8'));
+  await expect(picker.locator("option")).toHaveCount(hunterAsset.weapons.length);
+  expect(await picker.locator('option').evaluateAll(options=>options.map(option=>option.value))).toEqual(hunterAsset.weapons.map(weapon=>weapon.id));
+  await picker.selectOption('shield_guard');
+  await expect(page.getByLabel('Motion clip',{exact:true})).toHaveValue('guard');
   for (const weapon of [
     "cleaver_flintlock",
     "spear",

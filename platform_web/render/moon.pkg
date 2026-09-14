@@ -1,0 +1,11 @@
+import {
+  "mizchi/js/core",
+  "mizchi/js/builtins/object",
+  "mizchi/js/builtins/math" @jsmath,
+  "mizchi/js/builtins/regexp",
+  "mizchi/js/builtins/weak",
+  "mizchi/js/builtins/collection",
+  "mizchi/kagura_platform_web/interop",
+}
+
+supported_targets = "js"

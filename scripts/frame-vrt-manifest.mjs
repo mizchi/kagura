@@ -2,7 +2,7 @@
  * What the browser-free visual regression gate renders and compares.
  *
  * Every entry here is rendered by the engine's headless path through the CPU
- * rasterizer (`engine/kagura_engine/raster`), so the frame is pure arithmetic:
+ * rasterizer (`engine/raster`), so the frame is pure arithmetic:
  * no GPU, no driver, no compositor, and therefore byte-identical run to run.
  * That is what makes a real gate possible where the Playwright VRT could only
  * ever run with `--update-snapshots`.

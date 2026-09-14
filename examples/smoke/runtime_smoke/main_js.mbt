@@ -342,7 +342,7 @@ fn main {
     None => println("font_smoke_full: ok load=false")
   }
   // CJK font smoke test (NotoSansJP-subset.otf)
-  let cjk_font_path = "../../fixtures/fonts/NotoSansJP-subset.otf"
+  let cjk_font_path = "../../../assets/fonts/NotoSansJP-subset.otf"
   let cjk_renderer = @text.load_text_renderer(cjk_font_path, 256, 952, 0)
   match cjk_renderer {
     Some(tr) => {

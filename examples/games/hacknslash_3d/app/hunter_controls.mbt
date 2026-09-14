@@ -153,7 +153,7 @@ fn GameState::update_camera_controls(
   scale_x : Double,
   scale_y : Double,
 ) -> Unit {
-  if @inpututil.is_key_just_pressed(self.input.key_state, 90) {
+  if @inputstate.is_key_just_pressed(self.input.key_state, 90) {
     ignore(
       self.apply_camera_command([
         0.0,
@@ -161,7 +161,7 @@ fn GameState::update_camera_controls(
       ]),
     )
   }
-  if @inpututil.is_key_just_pressed(self.input.key_state, 82) {
+  if @inputstate.is_key_just_pressed(self.input.key_state, 82) {
     ignore(self.apply_camera_command([6.0, 0.0]))
   }
   let previous_pitch = self.camera.pitch

@@ -35,7 +35,7 @@ fn GameState::update_aim_input(
   self.aim.native_cursor = Some(cursor)
   if input.touches.length() > 0 ||
     (
-      @inpututil.is_key_just_pressed(self.input.key_state, 74) &&
+      @inputstate.is_key_just_pressed(self.input.key_state, 74) &&
       !input.pressed_mouse_buttons.contains(0)
     ) {
     self.aim.pointer = None

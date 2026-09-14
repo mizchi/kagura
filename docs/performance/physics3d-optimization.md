@@ -1,7 +1,7 @@
 # 3D 物理エンジンの最適化
 
 - Date: 2026-09-10
-- Scope: `engine/physics/collision3d`, `engine/physics/physics3d`
+- Scope: `core/collision3d`, `core/physics3d`
 - 前提: [physics-benchmarks.md](./physics-benchmarks.md) の bench で計測している
 - 結果: **`step_pile_256` が 4.72 ms → 1.90 ms（2.48x）**。挙動は bit 一致
 
@@ -102,7 +102,7 @@ contact が 4 倍あって GC 閾値を越えるので、そこで差が出る�
 
 ## 実測
 
-`moon bench --target js -p mizchi/physics/physics3d`、同一マシンで main と branch を
+`moon bench --target js -p mizchi/kagura_core/physics3d`、同一マシンで main と branch を
 **交互に 3 回**回した中央値。ペア測定にしたのは、このコンテナの run 間分散が
 `phase_contact_constraints` で ±25% あり、単発では 1.2x 程度の差が読めないため。
 

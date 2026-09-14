@@ -4,7 +4,7 @@ package "mizchi/hacknslash_3d/game"
 import {
   "mizchi/kagura_game/gameplay2d",
   "mizchi/kagura_game/progression",
-  "mizchi/kagura_game/terrain3d",
+  "mizchi/kagura_core/terrain3d",
   "mizchi/terrain/types",
   "moonbitlang/core/debug",
   "moonbitlang/core/json",

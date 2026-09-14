@@ -1,5 +1,8 @@
 # AI Contract Draft
 
+> 過去の設計案。`game/ai` は実際の敵挙動から利用されていなかったため削除済み。
+> 以下は現行 API ではなく設計履歴。ゲームの追跡・巡回処理は各ゲームが所有する。
+
 `src/ai/contracts.mbt` の設計意図。
 
 ## Goals

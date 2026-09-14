@@ -83,7 +83,7 @@ jobs:
       - name: Test JS scripts
         run: node --test scripts/*.test.mjs
       - name: Test web libs
-        run: node --test assets/web/*.test.mjs
+        run: node --test platform_web/host/*.test.mjs
       - name: Release manifest check
         run: |
           node scripts/check-moon-release.mjs

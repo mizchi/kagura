@@ -6,7 +6,7 @@ import {
   "mizchi/geom/vector",
   "mizchi/gfx",
   "mizchi/kagura_core",
-  "mizchi/kagura_core/inpututil",
+  "mizchi/kagura_core/inputstate",
   "moonbitlang/core/debug",
 }
 
@@ -31,7 +31,7 @@ pub fn atlas_quad_indices() -> Array[Int]
 
 pub fn atlas_quad_vertex_data(@atlas.AtlasDrawSource, Double, Double, Double, Double) -> Array[Double]
 
-pub fn build_input_debug_overlay(@gfx.ImageHandle, @gfx.ShaderHandle, @kagura_core.InputSnapshot, @inpututil.KeyInputState, @inpututil.MouseButtonInputState, Int) -> Array[@gfx.DrawTrianglesCommand]
+pub fn build_input_debug_overlay(@gfx.ImageHandle, @gfx.ShaderHandle, @kagura_core.InputSnapshot, @inputstate.KeyInputState, @inputstate.MouseButtonInputState, Int) -> Array[@gfx.DrawTrianglesCommand]
 
 pub fn build_profiler_hud(Array[@gfx.DrawTrianglesCommand], @gfx.ImageHandle, @gfx.ShaderHandle, FrameProfile, Double, Double) -> Unit
 

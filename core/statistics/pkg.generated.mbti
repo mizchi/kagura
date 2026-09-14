@@ -1,0 +1,22 @@
+// Generated using `moon info`, DON'T EDIT IT
+package "mizchi/kagura_core/statistics"
+
+// Values
+pub fn percentile(Array[Double], Double) -> Double
+
+pub fn summarize_intervals(Array[Double]) -> IntervalSummary
+
+// Errors
+
+// Types and methods
+pub(all) struct IntervalSummary {
+  frames : Int
+  elapsed_ms : Double
+  fps : Double
+  p50_ms : Double
+  p95_ms : Double
+}
+
+// Type aliases
+
+// Traits

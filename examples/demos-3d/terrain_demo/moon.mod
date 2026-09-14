@@ -15,7 +15,6 @@ import {
   "mizchi/mesh3d@0.2.0",
   "mizchi/geom@0.2.0",
   "mizchi/anim3d@0.2.0",
-  "mizchi/physics@0.2.0",
   "mizchi/pathfind@0.2.0",
 }
 

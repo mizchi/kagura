@@ -1,0 +1,47 @@
+Landscape layout baseline — exploratory, package-local measurement
+Command: just bench-landscape (moon -C benchmarks bench landscape --target js)
+Module: mizchi/kagura_benchmarks; source refactor on d7276114 (uncommitted)
+Interpretation: new-layout reference only; not an A/B performance claim.
+No parallel agent builds/tests/browser profiling were run during measurement.
+Captured UTC: 2026-09-14T15:12:08.834545+00:00
+Host: macOS-26.6.2-arm64-arm-64bit
+CPU: Apple M5
+Node: v24.21.0
+Moon: moon 0.1.20260904 (94521db 2026-09-04)
+
+Feature flags enabled: rr_moon_mod,rr_moon_pkg
+
+moon -C benchmarks test landscape --target js
+Total tests: 2, passed: 2, failed: 0.
+moon -C benchmarks bench landscape --target js
+[mizchi/kagura_benchmarks] bench landscape/components_bench.mbt:2 ("phase camera sweep 64 clear rays") ok
+name                            time (mean ± σ)         range (min … max)
+landscape/phase_camera_clear_64    1.55 µs ±   3.28 ns     1.55 µs …   1.56 µs  in 10 ×  63982 runs
+[mizchi/kagura_benchmarks] bench landscape/components_bench.mbt:15 ("phase camera sweep 64 obstructed rays") ok
+name                              time (mean ± σ)         range (min … max)
+landscape/phase_camera_blocked_64  940.82 ns ±   1.27 ns   939.67 ns … 942.95 ns  in 10 × 100000 runs
+[mizchi/kagura_benchmarks] bench landscape/components_bench.mbt:28 ("build visibility uniform tails 128") ok
+name                                 time (mean ± σ)         range (min … max)
+landscape/build_visibility_tails_128    3.31 µs ±  61.13 ns     3.23 µs …   3.40 µs  in 10 ×  27389 runs
+[mizchi/kagura_benchmarks] bench landscape/components_bench.mbt:40 ("build lit scenery uniforms 128") ok
+name                                 time (mean ± σ)         range (min … max)
+landscape/build_scenery_uniforms_128   25.41 µs ± 375.47 ns    25.11 µs …  26.22 µs  in 10 ×   3891 runs
+[mizchi/kagura_benchmarks] bench landscape/components_bench.mbt:51 ("build skinned draws 64 actors 18 bones") ok
+name                             time (mean ± σ)         range (min … max)
+landscape/build_skinned_draws_64   73.08 µs ± 368.11 ns    72.71 µs …  73.79 µs  in 10 ×   1289 runs
+[mizchi/kagura_benchmarks] bench landscape/components_bench.mbt:85 ("build monochrome skinning uniforms 8 groups of 8 actors") ok
+name                               time (mean ± σ)         range (min … max)
+landscape/build_skinned_groups_8x8   14.64 µs ± 162.74 ns    14.51 µs …  14.98 µs  in 10 ×   7006 runs
+[mizchi/kagura_benchmarks] bench landscape/components_bench.mbt:107 ("build procedural pose bank 48 by 18 bones") ok
+name                            time (mean ± σ)         range (min … max)
+landscape/build_pose_bank_48x18  139.59 µs ±  10.35 µs   133.81 µs … 166.40 µs  in 10 ×    736 runs
+[mizchi/kagura_benchmarks] bench landscape/components_bench.mbt:115 ("phase cached pose lookup for 64 actors") ok
+name                            time (mean ± σ)         range (min … max)
+landscape/phase_cached_poses_64  299.56 ns ±  21.38 ns   285.65 ns … 340.02 ns  in 10 × 100000 runs
+[mizchi/kagura_benchmarks] bench landscape/components_bench.mbt:125 ("build scatter for a 100 by 80 region") ok
+name                           time (mean ± σ)         range (min … max)
+landscape/build_scatter_100x80  298.67 µs ±   7.47 µs   290.05 µs … 312.44 µs  in 10 ×    331 runs
+[mizchi/kagura_benchmarks] bench landscape/components_bench.mbt:132 ("build scatter for a 20 by 20 chunk") ok
+name                          time (mean ± σ)         range (min … max)
+landscape/build_scatter_20x20    9.37 µs ±  62.44 ns     9.27 µs …   9.45 µs  in 10 ×  10843 runs
+Total tests: 10, passed: 10, failed: 0.

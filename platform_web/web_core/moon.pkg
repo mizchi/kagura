@@ -1,0 +1,44 @@
+import {
+  "mizchi/js/core",
+  "mizchi/kagura_platform_web/input",
+  "mizchi/kagura_platform_web/render",
+  "mizchi/kagura_platform_web/diagnostics",
+  "mizchi/kagura_platform_web/playback",
+  "mizchi/kagura_platform_web/ui_sync",
+}
+
+supported_targets = "js"
+
+options(
+  link: {
+    "js": {
+      "format": "esm",
+      "exports": [
+        "stick_vector:stickVector",
+        "create_control_input:createControlInput",
+        "apply_object_patch:applyObjectPatch",
+        "create_dependency_gate:createDependencyGate",
+        "percentile",
+        "summarize_intervals:summarizeIntervals",
+        "normalize_gamepad:normalizeGamepad",
+        "create_gamepad_reader:createGamepadReader",
+        "create_motion_player:createMotionPlayer",
+        "read_frame_profile:readFrameProfile",
+        "install_frame_profiler:installFrameProfiler",
+        "is_stride32:isStride32",
+        "is_stride64:isStride64",
+        "is_3d_shader:is3DShader",
+        "command_needs_depth:commandNeedsDepth",
+        "parse_texture_bindings:parseTextureBindings",
+        "get_instance_count:getInstanceCount",
+        "get_resource_cache_key:getResourceCacheKey",
+        "equal_dwords:equalDwords",
+        "instance_uniform_shader:instanceUniformShader",
+        "register_geometry:registerGeometry",
+        "unregister_geometry:unregisterGeometry",
+        "register_static_geometry:registerStaticGeometry",
+        "snapshot_draw_geometry:snapshotDrawGeometry",
+      ],
+    },
+  },
+)

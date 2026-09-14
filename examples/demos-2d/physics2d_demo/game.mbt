@@ -183,7 +183,7 @@ fn DemoState::update(self : DemoState, snapshot : @core.InputSnapshot) -> Unit {
     snapshot.cursor_y
   }
   // Click to spawn
-  if @inpututil.is_mouse_button_just_pressed(self.input.mouse_state, 0) {
+  if @inputstate.is_mouse_button_just_pressed(self.input.mouse_state, 0) {
     let px = screen_to_physics_x(cx)
     let py = screen_to_physics_y(cy)
     let is_circle = self.next_id % 2 == 0

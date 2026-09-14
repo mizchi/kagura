@@ -323,6 +323,7 @@ fn build_hunting_chunk(
     groups.push({
       mesh,
       color: palette[i],
+      index_offset: 0,
       surface_kind: if i == 23 {
         Pillar
       } else {
@@ -378,6 +379,7 @@ fn build_visible_hunting_mesh_cache(
     groups.push({
       mesh: @mesh3d.Mesh3D::new(accum[i].vertices, accum[i].indices),
       color: palette[i],
+      index_offset: 0,
       surface_kind: if i == 23 {
         Pillar
       } else {
@@ -392,7 +394,8 @@ fn build_visible_hunting_mesh_cache(
       ),
     })
   }
-  { groups, all_mesh: @mesh3d.Mesh3D::new(all.vertices, all.indices), }
+  let all_mesh = @mesh3d.Mesh3D::new(all.vertices, all.indices)
+  { groups, all_mesh, depth_meshes: [all_mesh], }
 }
 
 ///|
@@ -414,6 +417,7 @@ fn GameState::push_hunting_ground_commands(
         group.mesh,
         @math3d.Mat4::identity(),
         vp,
+        offset=group.index_offset,
       ),
     )
   }

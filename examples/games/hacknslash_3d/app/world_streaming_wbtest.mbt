@@ -128,3 +128,83 @@ test "prepared neighbor batches retain visible geometry with bounded draws and n
   ignore(cache.visible_groups(70.0, 40.0))
   assert_eq(cache.visible_builds, 10)
 }
+
+///|
+test "active terrain selects stable mesh ranges with identical color and depth coverage" {
+  let state = GameState::new_with_params(
+    seed=42,
+    @game.BalanceParams::default(),
+    hunting_grounds=true,
+  )
+  state.world.mode = @game.Playing
+  ignore(state.update_region_streaming())
+  let cache = state.region_meshes[0].unwrap()
+  // Both partial preparation and the completed atlas must cover exactly the
+  // same source chunks. No merge is performed by visibility selection.
+  for prepared in cache.terrain_batches.length()..<=hunting_palette.length() {
+    for (x, z) in [(20, 20), (48, 40), (95, 70)] {
+      state.world.player.x = x.to_double() * tile_size
+      state.world.player.y = z.to_double() * tile_size
+      state.invalidate_visible_chunk_cache()
+      let visible = state.get_visible_dungeon_mesh_cache_for_player()
+      let chunks = state.get_visible_chunks_for_player()
+      let expected = chunks.fold(init=0, (n, c) => {
+        n + c.all_mesh.indices.length()
+      })
+      assert_true(expected > 0)
+      assert_eq(
+        visible.groups.fold(init=0, (n, g) => n + g.dst_region.index_count),
+        expected,
+      )
+      assert_eq(
+        visible.depth_meshes.fold(init=0, (n, m) => n + m.indices.length()),
+        expected,
+      )
+      assert_eq(visible.all_mesh.indices.length(), 0)
+      for group in visible.groups {
+        assert_true(
+          group.index_offset + group.dst_region.index_count <=
+          group.mesh.indices.length(),
+        )
+      }
+    }
+    assert_eq(cache.terrain_batches.length(), prepared)
+    if prepared < hunting_palette.length() {
+      assert_true(cache.prepare_next_terrain_batch())
+    }
+  }
+  assert_false(cache.prepare_next_terrain_batch())
+  // Rebuilding terrain with the same seed must also discard prepared geometry.
+  state.rebuild_dungeon_rendering()
+  assert_true(state.region_meshes[0] is None)
+}
+
+///|
+test "outdoor SSAO depth renders every selected chunk after static batching" {
+  let config = @render_pipeline3d.PostFXConfig::default()
+  let state = GameState::new_with_params(
+    seed=42,
+    @game.BalanceParams::default(),
+    hunting_grounds=true,
+    postfx_config={
+      ..config,
+      ssao_config: @render_pipeline3d.SSAOConfig::enabled_default(),
+    },
+  )
+  state.world.mode = @game.Playing
+  ignore(state.update_region_streaming())
+  let commands = state.draw_playing(test_engine_context())
+  let depth = commands.filter(c => {
+    c.dst.id == state.pipeline.camera_depth_target.id
+  })
+  let expected = state
+    .get_visible_chunks_for_player()
+    .fold(init=0, (n, c) => n + c.all_mesh.indices.length())
+  assert_true(expected > 0)
+  assert_eq(
+    depth.fold(init=0, (n, c) => {
+      n + @gfx.DrawTrianglesCommand::estimated_total_index_count(c)
+    }),
+    expected,
+  )
+}

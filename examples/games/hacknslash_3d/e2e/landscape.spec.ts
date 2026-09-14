@@ -109,3 +109,14 @@ test('sky has no depth clipping gaps at a fractional render scale',async({page},
   expect(gaps).toBe(0);
   expect(await page.evaluate(()=>globalThis.__landscapeGpuErrors)).toEqual([]);
 });
+
+test('shared terrain index ranges render with SSAO enabled',async({page})=>{
+  await page.goto('/?snapshot=camp&seed=42&mute=1&perf=1&ssao=1');
+  await expect.poll(()=>page.evaluate(()=>globalThis.__kaguraProfiler?.snapshot()?.frame??0)).toBeGreaterThan(70);
+  await page.keyboard.press('KeyP');
+  const ranges=await page.evaluate(()=>globalThis.__kaguraLastGpu.commands
+    .filter(c=>c.firstIndex>0).map(c=>({first:c.firstIndex,count:c.indexCount,total:c.indices.length})));
+  expect(ranges.length).toBeGreaterThan(0);
+  for(const r of ranges){expect(r.count).toBeGreaterThan(0);expect(r.first+r.count).toBeLessThanOrEqual(r.total);}
+  expect(await page.evaluate(()=>globalThis.__landscapeGpuErrors)).toEqual([]);
+});

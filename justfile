@@ -27,10 +27,12 @@ hunter-motions-build:
 # Reusable game components can be verified without building a particular game.
 game-components-test:
     moon test -p mizchi/web_runtime_hooks --target js
+    moon test -p mizchi/kagura_ui --target js
     moon -C core/geom test camera3d --target js
     moon -C game test gameplay2d terrain3d landscape_bench --target js
     moon -C engine/audio test . --target js
     moon -C engine/kagura_engine test procedural3d draw3d scene3d shadow3d render_pipeline3d --target js
+    node --test assets/web/kagura-ui-sync.test.mjs
     node --test scripts/bench-gate-utils.test.mjs scripts/bench-paired-utils.test.mjs
     node --test scripts/motion/generation/generation.test.ts scripts/motion/retarget.test.mjs
     node --test assets/web/kagura-controls.test.mjs assets/web/kagura-gamepad.test.mjs assets/web/kagura-audio.test.mjs assets/web/kagura-presentation.test.mjs assets/web/kagura-gfx.test.mjs assets/web/kagura-profile.test.mjs scripts/profile-web.test.mjs scripts/hacknslash_3d_gpu_perf_utils.test.mjs scripts/web-runtime-assets.test.mjs scripts/web-demo-pages.test.mjs

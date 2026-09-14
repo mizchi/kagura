@@ -168,6 +168,7 @@ fn build_single_chunk(
       groups.push({
         mesh: @mesh3d.Mesh3D::new(verts, indices),
         color,
+        index_offset: 0,
         surface_kind,
         dst_region: @gfx.new_dst_region(
           0,

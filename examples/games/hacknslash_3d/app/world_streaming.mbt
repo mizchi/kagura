@@ -7,6 +7,7 @@ struct RegionMeshCache {
   chunks : Array[DungeonChunk]
   total : Int
   batches : Array[VisibleDungeonMeshCache]
+  terrain_batches : Array[@scene3d.StaticMeshBatch]
   mut visible_builds : Int
   mut last_used : Int
 }
@@ -92,6 +93,7 @@ fn GameState::update_region_streaming(self : GameState) -> Bool {
       chunks: self.dungeon_chunks,
       total,
       batches: [],
+      terrain_batches: [],
       visible_builds: 0,
       last_used: self.region_mesh_stamp,
     })
@@ -105,6 +107,7 @@ fn GameState::update_region_streaming(self : GameState) -> Bool {
   }
   let requests = self.world.preload_regions()
   // At most three area meshes (active + two neighbors). Eviction never discards simulation progress.
+  let mut prepared_region_work = false
   for id in requests {
     if atlas.regions[id] is None {
       let prepare_started = hunter_terrain_clock()
@@ -114,6 +117,7 @@ fn GameState::update_region_streaming(self : GameState) -> Bool {
       self.region_prepare_max_ms = self.region_prepare_max_ms.max(
         hunter_terrain_clock() - prepare_started,
       )
+      prepared_region_work = true
       break // Generation and the first mesh must not consume the same frame.
     }
     self.region_mesh_stamp += 1
@@ -145,6 +149,7 @@ fn GameState::update_region_streaming(self : GameState) -> Bool {
         chunks: [],
         total,
         batches: [],
+        terrain_batches: [],
         visible_builds: 0,
         last_used: self.region_mesh_stamp,
       })
@@ -157,6 +162,7 @@ fn GameState::update_region_streaming(self : GameState) -> Bool {
         self.region_batch_max_ms = self.region_batch_max_ms.max(
           hunter_terrain_clock() - batch_started,
         )
+        prepared_region_work = true
         break
       }
       continue
@@ -178,7 +184,19 @@ fn GameState::update_region_streaming(self : GameState) -> Bool {
       hunter_terrain_clock() - chunk_started,
     )
     self.region_chunks_built += 1
+    prepared_region_work = true
     break // One chunk per simulation update. Repeated proximity never rebuilds completed work.
+  }
+  // One material per otherwise idle update; neighbor generation keeps priority.
+  // Visibility only selects index ranges and never combines geometry.
+  if !prepared_region_work {
+    let batch_started = hunter_terrain_clock()
+    if self.region_meshes[current].unwrap().prepare_next_terrain_batch() {
+      self.region_batch_max_ms = self.region_batch_max_ms.max(
+        hunter_terrain_clock() - batch_started,
+      )
+      self.visible_dungeon_mesh_cache_player_tile_x = -1
+    }
   }
   if atlas.travel_target is Some(id) {
     if self.world.ui_mode != @game.Waypoints {

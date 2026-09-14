@@ -38,11 +38,13 @@ struct DungeonMeshGroup {
   mesh : @mesh3d.Mesh3D
   color : @math3d.Vec4
   surface_kind : DungeonSurfaceKind
+  index_offset : Int
   dst_region : @gfx.DstRegion
 }
 
 ///|
 struct VisibleDungeonMeshCache {
+  depth_meshes : Array[@mesh3d.Mesh3D]
   groups : Array[DungeonMeshGroup]
   all_mesh : @mesh3d.Mesh3D
 }
@@ -104,6 +106,7 @@ struct DamagePopup {
 
 ///|
 struct GameState {
+  hud_publisher : @ui.JsonObjectPublisher
   mut world : @game.GameWorld
   mut active_save_slot : Int
   mut save_slots : Array[SaveSlotView]

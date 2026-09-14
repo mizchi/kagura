@@ -93,14 +93,28 @@ extern "js" fn hunter_web_selection() -> Int =
 ///|
 extern "js" fn hunter_publish_hud_json(value : String) -> Unit =
   #| value => {
-  #|   const hud=JSON.parse(value);
-  #|   globalThis.__ashenHud=hud;
-  #|   globalThis.__ashenUI?.render(hud);
+  #|   globalThis.__ashenUI?.patch(JSON.parse(value));
   #| }
 
 ///|
+extern "js" fn hunter_hud_ready() -> Bool =
+  #| () => typeof globalThis.__ashenUI?.patch === 'function'
+
+///|
+extern "js" fn hunter_refresh_hud_input() -> Unit =
+  #| () => globalThis.__ashenUI?.refreshInput()
+
+///|
 fn GameState::publish_hunter_hud(self : GameState) -> Unit {
-  hunter_publish_hud_json(self.hunter_hud_view().to_json().stringify())
+  if !hunter_hud_ready() {
+    return
+  }
+  if self.hunter_hud_view().to_json() is Object(fields) {
+    if self.hud_publisher.encode(fields) is Some(patch) {
+      hunter_publish_hud_json(patch)
+    }
+    hunter_refresh_hud_input()
+  }
 }
 
 ///|

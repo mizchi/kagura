@@ -717,6 +717,7 @@ function createDrawResourceCache() {
     customBindUniformBuffers: [],
     customBindResources: [],
     customResourceCacheKeys: [],
+    skinnedDraws: [],
   };
 }
 
@@ -876,7 +877,9 @@ function getOrCreateCustomPipeline(gpu, device, cmd, format) {
 
   const result = { pipeline, bindGroupLayout: bgl, stride32: is3D,
     textureBindings:parseTextureBindings(cmd.shaderSource),
-    skinned:isStride64(cmd.shaderSource) && /bone_matrices/.test(cmd.shaderSource) };
+    skinned:isStride64(cmd.shaderSource) && /bone_matrices/.test(cmd.shaderSource),
+    computeSkinning: /struct\s+Uniforms\s*\{\s*mvp\s*:\s*mat4x4<f32>\s*,\s*model\s*:\s*mat4x4<f32>/.test(cmd.shaderSource) &&
+      /uniforms\.num_bones\.y\s*>\s*0\.5/.test(cmd.shaderSource) };
   gpu._customPipelines.set(key, result);
   return result;
 }
@@ -1081,6 +1084,7 @@ export function ensureGpuPipeline(gpu, device, format) {
       addressModeV: "clamp-to-edge",
     });
     gpu._drawResourceCache = null;
+    gpu._skinnedComputePipeline = null;
     return true;
   } catch (_) {
     gpu._pipeline = null;
@@ -1092,6 +1096,7 @@ export function ensureGpuPipeline(gpu, device, format) {
     gpu._defaultSampler = null;
     gpu._linearSampler = null;
     gpu._drawResourceCache = null;
+    gpu._skinnedComputePipeline = null;
     return false;
   }
 }
@@ -1120,6 +1125,11 @@ export function releaseGpuResources(gpu) {
     releaseBufferEntries(cache.customVertexBuffers);
     releaseBufferEntries(cache.customIndexBuffers);
     releaseBufferEntries(cache.customUniformBuffers);
+    for (const entry of cache.skinnedDraws) {
+      if (entry) for (const name of ["input", "output", "computeUniform", "renderUniform"]) {
+        entry[name]?.buffer.destroy();
+      }
+    }
   }
   const textures = gpu.textures;
   if (textures != null && typeof textures.values === "function") {
@@ -1177,6 +1187,7 @@ export function releaseGpuResources(gpu) {
   gpu._defaultSampler = null;
   gpu._linearSampler = null;
   gpu._drawResourceCache = null;
+  gpu._skinnedComputePipeline = null;
   gpu._geometrySnapshots = null;
   gpu._geometryRegistry = null;
   gpu._registeredGeometry = null;
@@ -1422,40 +1433,16 @@ function drawDefaultCommand(gpu, device, pass, cmd, drawIndex, cache, passFormat
   });
 }
 
-function prepareGpuSkinnedDraw(device, shaderSource, vertexData, uniformDwords) {
-  if (
-    device == null ||
-    typeof device.createComputePipeline !== "function" ||
-    vertexData == null ||
-    uniformDwords == null
-  ) {
-    return null;
-  }
-  const isSkinned =
-    /position\s*:\s*vec3<f32>/.test(shaderSource) &&
-    /joints\s*:\s*vec4<f32>/.test(shaderSource) &&
-    /weights\s*:\s*vec4<f32>/.test(shaderSource) &&
-    /bone_matrices/.test(shaderSource);
-  // This compute pass understands only the single-mesh uniform layout and its
-  // explicit pre-skinned bypass. Instanced shaders start bones at dword 32,
-  // not 60, and skin in the vertex shader: feeding them through here reads the
-  // wrong matrices and skins twice, collapsing monsters into thin triangles.
-  const hasComputeLayout =
-    /struct\s+Uniforms\s*\{\s*mvp\s*:\s*mat4x4<f32>\s*,\s*model\s*:\s*mat4x4<f32>/.test(shaderSource) &&
-    /uniforms\.num_bones\.y\s*>\s*0\.5/.test(shaderSource);
-  if (!isSkinned || !hasComputeLayout) return null;
-  const floatCount = vertexData.length | 0;
-  if (floatCount <= 0 || (floatCount % 16) !== 0) return null;
-  if ((uniformDwords.length | 0) < 60) return null;
+// Only the single-mesh layout opts in. Instanced layouts skin in the vertex
+// shader and use different palette offsets; they must never enter this pass.
+function prepareGpuSkinnedDraw(gpu, device, cmd, resources, drawIndex) {
+  const {vertexData, uniformDwords} = cmd;
+  if (typeof device.createComputePipeline !== "function" || !vertexData ||
+      !uniformDwords || uniformDwords.length < 1084 || !vertexData.length ||
+      vertexData.length % 16 !== 0) return null;
+  const floatCount = vertexData.length;
   const queue = device.queue;
-  if (queue == null || typeof queue.writeBuffer !== "function") return null;
-
-  const cacheKey = "__kaguraSkinnedComputeCache";
-  let cache = globalThis[cacheKey];
-  if (cache == null || cache.device !== device) {
-    cache = { device, pipeline: null, bgl: null };
-    globalThis[cacheKey] = cache;
-  }
+  const cache = gpu._skinnedComputePipeline ??= {pipeline:null, bgl:null};
   if (cache.pipeline == null || cache.bgl == null) {
     const code = `
 const MAX_BONES: u32 = 64u;
@@ -1523,58 +1510,77 @@ fn cs_main(@builtin(global_invocation_id) gid : vec3<u32>) {
     cache.bgl = pipeline.getBindGroupLayout(0);
   }
 
-  const inBuf = device.createBuffer({
-    size: Math.max(16, vertexData.byteLength | 0),
-    usage: GPUBufferUsage.STORAGE | GPUBufferUsage.COPY_DST,
-  });
-  const outBuf = device.createBuffer({
-    size: Math.max(16, vertexData.byteLength | 0),
-    usage: GPUBufferUsage.STORAGE | GPUBufferUsage.VERTEX,
-  });
-  const uniformBytes = uniformDwords.byteLength | 0;
-  const alignedUniformBytes = Math.max(16, Math.ceil(uniformBytes / 16) * 16);
-  const ubCompute = device.createBuffer({
-    size: alignedUniformBytes,
-    usage: GPUBufferUsage.UNIFORM | GPUBufferUsage.COPY_DST,
-  });
-  const ubRender = device.createBuffer({
-    size: alignedUniformBytes,
-    usage: GPUBufferUsage.UNIFORM | GPUBufferUsage.COPY_DST,
-  });
-  queue.writeBuffer(inBuf, 0, vertexData);
-  queue.writeBuffer(
-    ubCompute,
-    0,
-    new Uint8Array(
-      uniformDwords.buffer,
-      uniformDwords.byteOffset,
-      uniformDwords.byteLength,
-    ),
-  );
-  const patched = new Uint32Array(uniformDwords.length | 0);
-  for (let i = 0; i < patched.length; i += 1) patched[i] = uniformDwords[i] >>> 0;
-  if (patched.length > 57) patched[57] = 0x3f800000;
-  queue.writeBuffer(ubRender, 0, new Uint8Array(patched.buffer));
-  const bindGroup = device.createBindGroup({
-    layout: cache.bgl,
-    entries: [
-      { binding: 0, resource: { buffer: inBuf } },
-      { binding: 1, resource: { buffer: outBuf } },
-      { binding: 2, resource: { buffer: ubCompute } },
-    ],
-  });
-  const encoder = device.createCommandEncoder();
-  const cpass = encoder.beginComputePass();
-  cpass.setPipeline(cache.pipeline);
-  cpass.setBindGroup(0, bindGroup);
-  cpass.dispatchWorkgroups(Math.ceil((floatCount / 16) / 64));
-  cpass.end();
-  queue.submit([encoder.finish()]);
-  return {
-    vertexBuffer: outBuf,
-    uniformBuffer: ubRender,
-    cleanupBuffers: [inBuf, ubCompute, outBuf, ubRender],
+  const slot = resources.skinnedDraws[drawIndex] ??= {};
+  const ensure = (name, size, usage) => {
+    let entry = slot[name];
+    if (!entry || entry.size < size) {
+      entry?.buffer.destroy();
+      entry = slot[name] = {size, buffer:device.createBuffer({size, usage})};
+      slot.bindGroup = null;
+      // Replaced buffers have no uploaded contents.
+      if (name === "input" || name === "output") slot.geometryRef = null;
+      else slot.uniformSnapshot = null;
+    }
+    return entry.buffer;
   };
+  const bytes = vertexData.byteLength;
+  const inBuf = ensure("input", bytes, GPUBufferUsage.STORAGE | GPUBufferUsage.COPY_DST);
+  const outBuf = ensure("output", bytes, GPUBufferUsage.STORAGE | GPUBufferUsage.VERTEX);
+  const uniformBytes = Math.ceil(uniformDwords.byteLength / 16) * 16;
+  const ubCompute = ensure("computeUniform", uniformBytes, GPUBufferUsage.UNIFORM | GPUBufferUsage.COPY_DST);
+  const ubRender = ensure("renderUniform", uniformBytes, GPUBufferUsage.UNIFORM | GPUBufferUsage.COPY_DST);
+  const geometryChanged = slot.geometryRef !== vertexData ||
+    (!cmd.immutableGeometry && !equalDwords(slot.geometrySnapshot, vertexData));
+  const uniformsChanged = !equalDwords(slot.uniformSnapshot, uniformDwords);
+  let poseChanged = slot.uniformSnapshot == null;
+  if (!poseChanged && uniformsChanged) {
+    // Bone count/palette only: MVP, model and lighting don't affect local skinning.
+    for (let i = 56; i < uniformDwords.length; i++) {
+      if (slot.uniformSnapshot[i] !== uniformDwords[i]) { poseChanged = true; break; }
+    }
+  }
+  if (geometryChanged) {
+    queue.writeBuffer(inBuf, 0, vertexData);
+    slot.geometryRef = vertexData;
+    if (!cmd.immutableGeometry) {
+      if (slot.geometrySnapshot?.length !== floatCount) slot.geometrySnapshot = new Float32Array(floatCount);
+      slot.geometrySnapshot.set(vertexData);
+    }
+  }
+  if (uniformsChanged) {
+    if (slot.uniformSnapshot?.length !== uniformDwords.length) {
+      slot.uniformSnapshot = new Int32Array(uniformDwords.length);
+      slot.patched = new Int32Array(uniformDwords.length);
+    }
+    slot.uniformSnapshot.set(uniformDwords);
+    slot.patched.set(uniformDwords);
+    slot.patched[57] = 0x3f800000;
+    queue.writeBuffer(ubRender, 0, slot.patched);
+  }
+  if (poseChanged) queue.writeBuffer(ubCompute, 0, uniformDwords);
+  // Bind the used range so arrayLength remains correct when capacity is reused
+  // for a smaller mesh. Other slots never share mutable compute output.
+  if (!slot.bindGroup || slot.boundBytes !== bytes) {
+    slot.bindGroup = device.createBindGroup({
+      layout:cache.bgl,
+      entries:[
+        {binding:0, resource:{buffer:inBuf, size:bytes}},
+        {binding:1, resource:{buffer:outBuf, size:bytes}},
+        {binding:2, resource:{buffer:ubCompute}},
+      ],
+    });
+    slot.boundBytes = bytes;
+  }
+  if (geometryChanged || poseChanged) {
+    const encoder = device.createCommandEncoder();
+    const cpass = encoder.beginComputePass();
+    cpass.setPipeline(cache.pipeline);
+    cpass.setBindGroup(0, slot.bindGroup);
+    cpass.dispatchWorkgroups(Math.ceil(floatCount / (16 * 64)));
+    cpass.end();
+    queue.submit([encoder.finish()]);
+  }
+  return {vertexBuffer:outBuf, uniformBuffer:ubRender};
 }
 
 function drawCustomCommand(gpu, device, pass, cmd, format, drawIndex, cache, breakdown = null) {
@@ -1600,12 +1606,8 @@ function drawCustomCommand(gpu, device, pass, cmd, format, drawIndex, cache, bre
   if (cmd.vertexData == null || cmd.vertexData.length === 0) return;
   if (cmd.indices == null || cmd.indices.length === 0) return;
   const computed = measureDrawBreakdown(breakdown, "uploadCpuMs", () => {
-    return pipelineInfo.skinned ? prepareGpuSkinnedDraw(
-      device,
-      cmd.shaderSource,
-      cmd.vertexData,
-      cmd.uniformDwords,
-    ) : null;
+    return pipelineInfo.skinned && pipelineInfo.computeSkinning
+      ? prepareGpuSkinnedDraw(gpu, device, cmd, cache, drawIndex) : null;
   });
   const usingComputed = computed != null;
   const resourceCacheKey = getResourceCacheKey(cmd);
@@ -1633,16 +1635,7 @@ function drawCustomCommand(gpu, device, pass, cmd, format, drawIndex, cache, bre
     })();
 
   // Index buffer
-  const ib = usingComputed
-    ? measureDrawBreakdown(breakdown, "uploadCpuMs", () => {
-      const created = device.createBuffer({
-        size: Math.max(16, cmd.indices.byteLength),
-        usage: GPUBufferUsage.INDEX | GPUBufferUsage.COPY_DST,
-      });
-      device.queue.writeBuffer(created, 0, cmd.indices);
-      return created;
-    })
-    : cmd.sharedGeometry ? sharedGeometryBuffer(gpu, device, cmd.indices, "index") : (() => {
+  const ib = cmd.sharedGeometry ? sharedGeometryBuffer(gpu, device, cmd.indices, "index") : (() => {
       const entry = ensureBufferEntry(
         cache.customIndexBuffers,
         drawIndex,
@@ -1702,13 +1695,15 @@ function drawCustomCommand(gpu, device, pass, cmd, format, drawIndex, cache, bre
       return entry.buffer;
     })();
 
+  cache.customResourceCacheKeys[drawIndex] = resourceCacheKey;
+
   // Compare the actual bound resources. A cache hit allocates no descriptors
   // or texture-key strings; view/sampler replacement invalidates independently
   // of a texture's bookkeeping revision (pixel updates need no rebind).
   const texBindings = pipelineInfo.textureBindings;
   const sampler = gpu._linearSampler || gpu._defaultSampler;
-  let resources = usingComputed ? null : cache.customBindResources[drawIndex];
-  let dirty = usingComputed || cache.customBindGroups[drawIndex] == null ||
+  let resources = cache.customBindResources[drawIndex];
+  let dirty = cache.customBindGroups[drawIndex] == null ||
     cache.customBindLayouts[drawIndex] !== pipelineInfo.bindGroupLayout ||
     cache.customBindUniformBuffers[drawIndex] !== ub;
   if (resources?.length !== texBindings.length) {
@@ -1737,12 +1732,10 @@ function drawCustomCommand(gpu, device, pass, cmd, format, drawIndex, cache, bre
     bindGroup = measureDrawBreakdown(breakdown, "bindGroupCpuMs", () => device.createBindGroup({
       layout:pipelineInfo.bindGroupLayout, entries,
     }));
-    if (!usingComputed) {
-      cache.customBindGroups[drawIndex] = bindGroup;
-      cache.customBindLayouts[drawIndex] = pipelineInfo.bindGroupLayout;
-      cache.customBindUniformBuffers[drawIndex] = ub;
-      cache.customBindResources[drawIndex] = resources;
-    }
+    cache.customBindGroups[drawIndex] = bindGroup;
+    cache.customBindLayouts[drawIndex] = pipelineInfo.bindGroupLayout;
+    cache.customBindUniformBuffers[drawIndex] = ub;
+    cache.customBindResources[drawIndex] = resources;
   }
 
   measureDrawBreakdown(breakdown, "passEncodeCpuMs", () => {
@@ -1753,11 +1746,6 @@ function drawCustomCommand(gpu, device, pass, cmd, format, drawIndex, cache, bre
     drawIndexedRange(pass, cmd);
   });
 
-  // Schedule buffer cleanup after GPU submission
-  if (gpu._pendingBufferCleanup == null) gpu._pendingBufferCleanup = [];
-  if (usingComputed) {
-    gpu._pendingBufferCleanup.push(...computed.cleanupBuffers, ib);
-  }
 }
 
 /**

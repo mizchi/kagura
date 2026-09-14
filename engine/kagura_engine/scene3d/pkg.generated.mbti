@@ -11,6 +11,7 @@ import {
   "mizchi/kagura_core/hierarchy",
   "mizchi/kagura_engine/light3d",
   "mizchi/mesh3d",
+  "moonbitlang/core/debug",
 }
 
 // Values
@@ -170,6 +171,18 @@ pub(all) struct SkinningState {
 }
 pub fn SkinningState::new(@skeleton3d.SkinData, Array[@math3d.Mat4]) -> Self
 pub fn SkinningState::new_with_packed(@skeleton3d.SkinData, Array[@math3d.Mat4], Array[Double]) -> Self
+
+pub struct StaticMeshBatch {
+  mesh : @mesh3d.Mesh3D
+  spans : Array[StaticMeshSpan]
+}
+pub fn StaticMeshBatch::new(Array[@mesh3d.Mesh3D]) -> Self?
+pub fn StaticMeshBatch::select(Self, (Int) -> Bool) -> Array[StaticMeshSpan]
+
+pub struct StaticMeshSpan {
+  first_index : Int
+  index_count : Int
+} derive(Eq, @debug.Debug)
 
 pub(all) enum View {
   Element(String, String, SceneNode, Array[View])

@@ -193,6 +193,7 @@ fn GameState::new_with_params(
     visible_chunk_cache_builds: 0,
     visible_dungeon_mesh_cache: {
       groups: [],
+      depth_meshes: [],
       all_mesh: @mesh3d.Mesh3D::new([], []),
     },
     visible_dungeon_mesh_cache_player_tile_x: -1,
@@ -244,6 +245,7 @@ fn GameState::new_with_params(
     inventory_notice: "",
     paused: false,
     active_save_slot: 0,
+    hud_publisher: @ui.JsonObjectPublisher::new(),
     save_slots: read_save_slots(),
     save_notice: "",
     pending_save_deletion: None,

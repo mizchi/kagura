@@ -847,3 +847,80 @@ test('pooled bulk submissions preserve index ranges and reject out-of-buffer spa
   beginDrawFrame(gpu);const c=submit(0,6);assert.equal(a,c);assert.equal(c.indexCount,6);
   assert.throws(()=>submit(4,3),RangeError);assert.throws(()=>submit(-1,3),RangeError);
 });
+
+function createComputeFixture() {
+  const device=createFakeDevice(),context=createFakeContext(),gpu=createGpu(context);
+  const counters={buffers:0,groups:0,dispatches:0,destroyed:0,writes:[]};
+  const allocate=device.createBuffer;
+  device.createBuffer=d=>{counters.buffers++;const buffer=allocate(d);buffer.destroy=()=>counters.destroyed++;return buffer;};
+  device.createBindGroup=()=>{counters.groups++;return {};};
+  device.createComputePipeline=()=>({getBindGroupLayout:()=>({})});
+  const encoder=device.createCommandEncoder;
+  device.createCommandEncoder=()=>({...encoder(),beginComputePass:()=>({setPipeline(){},setBindGroup(){},dispatchWorkgroups(){counters.dispatches++;},end(){}})});
+  device.queue.writeBuffer=(buffer,offset,data,...rest)=>{counters.writes.push({buffer,data:Array.from(new Uint8Array(data.buffer,data.byteOffset,data.byteLength))});};
+  const command={...createInstancedCustomCommand(1),vertexData:new Float32Array(3*16),uniformDwords:new Int32Array(1084),immutableGeometry:true,
+    shaderSource:`struct Uniforms {mvp: mat4x4<f32>, model: mat4x4<f32>, bone_matrices: array<mat4x4<f32>,64>,};
+      struct VertexInput {position: vec3<f32>, joints: vec4<f32>, weights: vec4<f32>,};
+      // uniforms.num_bones.y > 0.5
+    `};
+  command.vertexData[12]=1;
+  const draw=(commands=[command])=>{gpu.commands=commands;assert.equal(renderGpu(gpu,device,context,[0,0,0,1],'bgra8unorm'),true);};
+  return {gpu,device,context,counters,command,draw};
+}
+
+test('skinned draws reuse GPU buffers and bindings, upload only changes and keep cached poses',()=>{
+  const {gpu,counters,command,draw}=createComputeFixture();
+  draw();const first={...counters};counters.writes=[];
+  draw();
+  assert.equal(counters.buffers,first.buffers);
+  assert.equal(counters.groups,first.groups);
+  assert.equal(counters.dispatches,first.dispatches);
+  assert.equal(counters.writes.length,0);
+  command.uniformDwords[0]=7;draw();
+  assert.equal(counters.dispatches,first.dispatches,'camera/model changes do not reskin');
+  assert.equal(counters.writes.length,1,'only render uniforms change');
+  counters.writes=[];command.uniformDwords[60]=9;draw();
+  assert.equal(counters.dispatches,first.dispatches+1);
+  assert.equal(counters.writes.length,2,'bone update writes compute and render uniforms');
+  assert.equal(command.uniformDwords[57],0,'pre-skinned flag never mutates caller data');
+  assert.equal(counters.destroyed,0);
+  releaseGpuResources(gpu);
+  assert.equal(counters.destroyed,counters.buffers);
+});
+
+test('skinned draw slots remain independent and handle geometry replacement and growth',()=>{
+  const {gpu,counters,command,draw}=createComputeFixture();
+  const second={...command,uniformDwords:Int32Array.from(command.uniformDwords)};
+  second.uniformDwords[60]=17;
+  draw([command,second]);
+  const first={...counters};counters.writes=[];
+  draw([command,second]);assert.equal(counters.writes.length,0);
+  command.vertexData=new Float32Array(6*16);draw([command,second]);
+  assert.equal(counters.dispatches,first.dispatches+1);
+  assert.equal(counters.buffers,first.buffers+2,'only input/output capacity grows');
+  releaseGpuResources(gpu);
+  assert.equal(counters.destroyed,counters.buffers);
+});
+
+test('mutable skin vertices invalidate poses and smaller meshes reuse capacity with exact binding ranges',()=>{
+  const {gpu,device,counters,command,draw}=createComputeFixture();
+  command.immutableGeometry=false;
+  command.vertexData=new Float32Array(6*16);
+  const bindings=[];
+  const bind=device.createBindGroup;
+  device.createBindGroup=desc=>{bindings.push(desc);return bind(desc);};
+  draw();const first={...counters};counters.writes=[];
+  command.vertexData[0]=2;draw();
+  assert.equal(counters.dispatches,first.dispatches+1);
+  assert.equal(counters.writes.length,1);
+  command.vertexData=new Float32Array(3*16);draw();
+  assert.equal(counters.buffers,first.buffers);
+  const compute=bindings.filter(b=>b.entries[0]?.resource.size).at(-1);
+  assert.equal(compute.entries[0].resource.size,3*16*4);
+  assert.equal(compute.entries[1].resource.size,3*16*4);
+  releaseGpuResources(gpu);
+  draw();
+  assert.equal(counters.dispatches,first.dispatches+3,'resource release invalidates cached poses');
+  releaseGpuResources(gpu);
+  assert.equal(counters.destroyed,counters.buffers);
+});

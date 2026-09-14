@@ -8,6 +8,7 @@ export const WEB_RUNTIME_FILES = Object.freeze([
   'kagura-presentation.js',
   'kagura-audio.js',
   'kagura-controls.js',
+  'kagura-ui-sync.js',
   'kagura-gamepad.js',
   'kagura-gamepad-mappings.js',
   'kagura-gfx.js',

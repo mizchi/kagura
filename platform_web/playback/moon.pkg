@@ -5,4 +5,5 @@ import {
   "mizchi/kagura_platform_web/interop",
   "mizchi/anim3d/playback" @timeline,
 }
+
 supported_targets = "js"

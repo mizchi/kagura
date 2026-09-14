@@ -7,4 +7,5 @@ import {
   "mizchi/js/builtins/collection",
   "mizchi/kagura_platform_web/interop",
 }
+
 supported_targets = "js"

@@ -82,7 +82,10 @@ pub fn observe_input_edge(
   @inputstate.update_touch_input_state(state.touch_state, snapshot)
   @inputstate.update_gamepad_input_state(state.gamepad_state, snapshot)
 
-  let just_pressed_keys = @inputstate.append_just_pressed_keys(state.key_state, [])
+  let just_pressed_keys = @inputstate.append_just_pressed_keys(
+    state.key_state,
+    [],
+  )
   let just_released_keys = @inputstate.append_just_released_keys(
     state.key_state,
     [],

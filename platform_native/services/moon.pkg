@@ -3,4 +3,8 @@ import {
   "mizchi/kagura_platform/services" @host,
   "moonbitlang/core/encoding/utf8",
 }
-options("native-stub": ["files_native.c", "clock_native.c"], targets: {"clock.mbt": ["native"], "files.mbt": ["native"]})
+
+options(
+  "native-stub": [ "files_native.c", "clock_native.c" ],
+  targets: { "clock.mbt": [ "native" ], "files.mbt": [ "native" ] },
+)

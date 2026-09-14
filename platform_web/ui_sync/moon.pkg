@@ -3,4 +3,5 @@ import {
   "mizchi/js/builtins/object",
   "mizchi/kagura_platform_web/interop",
 }
+
 supported_targets = "js"

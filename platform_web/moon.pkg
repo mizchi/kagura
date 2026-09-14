@@ -8,4 +8,5 @@ import {
 } for "test"
 
 // The typed adapter facade is portable; web_core and gfx_webgpu are JS-only.
+
 supported_targets = "js+native+wasm+wasm-gc+llvm"

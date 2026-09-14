@@ -1,5 +1,5 @@
 // Generated from platform_web/web_core/*.mbt by just web-runtime-build. DO NOT EDIT.
-// Source SHA-256: d056ce1f9fdd3c7a099eb09bba6dfa50b06a669d722aa80feb4587c33d07728a
+// Source SHA-256: 2771a6fe5212ea079cdbd17f35d6bee6e9445489b2d369880350cbc933d72c28
 function _M0TPB13StringBuilder(param0) {
   this.val = param0;
 }

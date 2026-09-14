@@ -7,5 +7,8 @@ import {
 }
 
 options(
-  targets: { "snapshot_publish_js.mbt": [ "js" ], "snapshot_lazy_js_wbtest.mbt": [ "js" ] },
+  targets: {
+    "snapshot_publish_js.mbt": [ "js" ],
+    "snapshot_lazy_js_wbtest.mbt": [ "js" ],
+  },
 )

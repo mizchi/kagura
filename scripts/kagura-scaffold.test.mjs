@@ -4,13 +4,24 @@ import {mkdtempSync, readFileSync, writeFileSync, readdirSync, rmSync, existsSyn
 import {join, resolve} from 'node:path';
 import {tmpdir} from 'node:os';
 import {spawnSync} from 'node:child_process';
+import {gunzipSync} from 'node:zlib';
 import {parseCli, scaffoldFiles} from '../cmd/kagura/cli.generated.js';
 import {createWebProject} from '../cmd/kagura/host.mjs';
-import {generatedSources} from '../cmd/kagura/generate.mjs';
+import {generatedSources, runtimeFiles} from '../cmd/kagura/generate.mjs';
 
 const root = resolve(import.meta.dirname, '..');
 const runtime = Object.fromEntries(readdirSync(join(root, 'assets/web')).filter(name => name.endsWith('.js'))
   .map(name => [`runtime/${name}`, readFileSync(join(root, 'assets/web', name), 'utf8')]));
+
+test('embedded runtime uses a platform-neutral gzip header and preserves every file', () => {
+  const source = generatedSources()['embedded_host_native.mbt'];
+  const prefix = 'let runtime_payload : String = ';
+  const payload = JSON.parse(source.split('\n').find(line => line.startsWith(prefix)).slice(prefix.length));
+  const compressed = Buffer.from(payload, 'base64');
+  assert.equal(compressed[9], 255, 'gzip OS must not depend on the build platform');
+  assert.equal(compressed.readUInt32LE(4), 0, 'gzip timestamp must be deterministic');
+  assert.deepEqual(JSON.parse(gunzipSync(compressed)), runtimeFiles());
+});
 
 test('native installer embeds the current host, templates and browser distribution', () => {
   for (const [name, source] of Object.entries(generatedSources())) {

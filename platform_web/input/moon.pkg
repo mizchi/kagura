@@ -4,4 +4,5 @@ import {
   "mizchi/js/builtins/regexp",
   "mizchi/kagura_platform_web/interop",
 }
+
 supported_targets = "js"

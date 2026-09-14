@@ -5,4 +5,5 @@ import {
   "mizchi/kagura_platform_web/interop",
   "mizchi/kagura_core/statistics",
 }
+
 supported_targets = "js"

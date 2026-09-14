@@ -1,8 +1,9 @@
 import {
   "mizchi/kagura_platform/fetch" @fetch_contract,
-  "mizchi/kagura_platform_web/fetch" @web_fetch, "mizchi/kagura_platform/services" @host }
+  "mizchi/kagura_platform_web/fetch" @web_fetch,
+  "mizchi/kagura_platform/services" @host,
+}
 
-
-options(targets: {
-  "services_js.mbt": ["js"],
-})
+options(
+  targets: { "services_js.mbt": [ "js" ] },
+)

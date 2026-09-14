@@ -82,7 +82,11 @@ pub fn plan_frame(fixed : @core.StepResult, max_skip_frames : Int) -> FramePlan 
 }
 
 ///|
-pub fn[G : @application.Game, P : @platform.PlatformDriver, R : @gfx.GraphicsDriver] run_loop_with_hooks(
+pub fn[
+  G : @application.Game,
+  P : @platform.PlatformDriver,
+  R : @gfx.GraphicsDriver,
+] run_loop_with_hooks(
   game : G,
   platform : P,
   graphics : R,
@@ -136,7 +140,8 @@ pub fn[G : @application.Game, P : @platform.PlatformDriver, R : @gfx.GraphicsDri
       let input = platform.capture_input(update_tick)
       (runtime_hooks.on_input_captured)(update_tick, input)
       match game.update(input) {
-        Some(@application.EngineTermination::RegularTermination) => should_stop = true
+        Some(@application.EngineTermination::RegularTermination) =>
+          should_stop = true
         Some(@application.EngineTermination::Fatal(_)) => should_stop = true
         None => ()
       }
@@ -166,7 +171,11 @@ pub fn[G : @application.Game, P : @platform.PlatformDriver, R : @gfx.GraphicsDri
 }
 
 ///|
-pub fn[G : @application.Game, P : @platform.PlatformDriver, R : @gfx.GraphicsDriver] run_loop(
+pub fn[
+  G : @application.Game,
+  P : @platform.PlatformDriver,
+  R : @gfx.GraphicsDriver,
+] run_loop(
   game : G,
   platform : P,
   graphics : R,

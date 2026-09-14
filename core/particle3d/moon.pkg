@@ -1,1 +1,3 @@
-import { "mizchi/geom/math3d" }
+import {
+  "mizchi/geom/math3d",
+}

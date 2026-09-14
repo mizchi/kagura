@@ -7,23 +7,8 @@ import {
   loadReleaseModules,
 } from "./moon-release-utils.mjs";
 
-export const DEFAULT_IMPORT_BOUNDARY_POLICY = Object.freeze({
-  "mizchi/kagura": ["mizchi/kagura_core", "mizchi/kagura_platform", "mizchi/kagura_engine"],
-  "mizchi/kagura_core": [],
-  "mizchi/kagura_platform": ["mizchi/kagura_core"],
-  "mizchi/kagura_ui": ["mizchi/kagura_core"],
-  "mizchi/kagura_audio": [],
-  "mizchi/kagura_asset_loader": ["mizchi/kagura_platform"],
-  "mizchi/kagura_engine": ["mizchi/kagura_core", "mizchi/kagura_platform", "mizchi/kagura_audio", "mizchi/kagura_ui"],
-  "mizchi/kagura_game": [
-    "mizchi/kagura_core",
-    "mizchi/kagura_platform",
-    "mizchi/kagura_engine",
-    "mizchi/kagura_ui",
-    "mizchi/kagura_audio",
-  ],
-  "mizchi/kagura_platform_web": ["mizchi/kagura_platform", "mizchi/kagura_core"],
-});
+import {RELEASE_DEP_POLICY} from './release-policy.mjs';
+export const DEFAULT_IMPORT_BOUNDARY_POLICY = RELEASE_DEP_POLICY;
 
 function toPosix(value) {
   return value.replace(/\\/g, "/");

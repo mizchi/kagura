@@ -58,10 +58,10 @@ Builds and serves at `http://localhost:8080`. Browser demos currently require We
 
 ### Development CLI
 
-Install from this checkout, then scaffold a standalone Web game:
+Install the CLI from Mooncakes, then scaffold a standalone Web game:
 
 ```sh
-moon install ./cmd/kagura
+moon install mizchi/kagura_cli/kagura@0.5.0
 kagura new my-game --web
 cd my-game
 pnpm install
@@ -69,9 +69,10 @@ kagura dev
 kagura build
 ```
 
-`kagura new --web` uses the current empty directory. The template depends on the
-Kagura packages published after the directory refactor. It includes the browser
-runtime and Vite setup without local path dependencies.
+`kagura new --web` uses the current empty directory. The template includes the
+browser runtime and Vite setup and depends on the published Kagura packages,
+without local path dependencies. To install a development build from this
+checkout, use `moon install ./cmd/kagura`.
 
 For examples and Studio in this checkout:
 
@@ -158,6 +159,33 @@ just test target=native
 just check-release
 pnpm e2e:smoke
 ```
+
+## Updating release versions
+
+```bash
+just version 0.5.0 --dry-run  # Preview affected modules and manifests
+just version 0.5.0           # Update versions and regenerate Web runtime / CLI
+just version 0.5.0 --check   # Fail if any manifest version/reference differs
+just check-release
+just publish-status         # Inspect packaged modules without uploading
+```
+
+The publication catalog in `scripts/release-policy.mjs` is shared with
+`just publish`. It includes the reusable libraries, platform runtime hooks and
+CLI. The updater changes their versions and internal dependency references in
+source manifests, examples, editors and Web scaffolding, preserving external
+dependencies and consumer project versions. Both `moon.mod` and `moon.mod.json`
+are supported. Use a stable `X.Y.Z` version; downgrades are rejected.
+
+Version updates regenerate the browser distribution before embedding it in the
+CLI. If a build fails, fix the error and repeat the same command to finish
+regeneration. The updater does not commit, tag, push or publish. Review the diff
+and validation results before running `just publish`.
+
+Publication stages every module outside the checkout, checks the staged
+workspace and verifies each archive has its manifest, MoonBit sources and
+prebuild support. Modules are published in dependency order; an upload failure
+stops the release. `just publish-status` performs the same packaging checks.
 
 ## Dependencies
 

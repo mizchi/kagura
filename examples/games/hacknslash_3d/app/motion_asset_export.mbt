@@ -101,7 +101,7 @@ pub fn export_enemy_motion_asset() -> String {
     {
       "format": "kagura.motion",
       "version": 2,
-      "name": "ASHEN HUNT",
+      "name": "ASHEN REALMS",
       "skeleton": skeleton.to_json(),
       "models": characters.to_json(),
       "weapons": weapons.to_json(),

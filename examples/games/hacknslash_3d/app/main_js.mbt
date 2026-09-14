@@ -674,7 +674,7 @@ fn run_game_js(state : GameState, perf_capture_enabled : Bool) -> Unit {
     audio_ctx=state.audio_ctx,
     width=screen_w,
     height=screen_h,
-    title="Hack & Slash 3D",
+    title="ASHEN REALMS",
     canvas="#app",
   )
 }

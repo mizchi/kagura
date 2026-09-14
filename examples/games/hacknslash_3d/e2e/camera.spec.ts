@@ -94,7 +94,7 @@ test.describe('mobile camera',()=>{
     expect(settings.x).toBeGreaterThanOrEqual(0);
     expect(settings.x+settings.width).toBeLessThanOrEqual(390);
     await captureGameFrame(page,{path:info.outputPath('mobile-camera-settings.png')});
-    await panel.getByRole('button',{name:'狩りを再開する',exact:true}).tap();
+    await panel.getByRole('button',{name:'冒険を再開する',exact:true}).tap();
     await expect(panel).toHaveCount(0);
     const yaw=await page.evaluate(()=>globalThis.__ashenHunt.yaw);
     const session=await page.context().newCDPSession(page);

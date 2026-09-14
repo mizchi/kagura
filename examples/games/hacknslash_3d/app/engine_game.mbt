@@ -27,6 +27,6 @@ pub fn run_native_app() -> Unit {
     state,
     width=screen_w,
     height=screen_h,
-    title="Hack & Slash 3D",
+    title="ASHEN REALMS",
   )
 }

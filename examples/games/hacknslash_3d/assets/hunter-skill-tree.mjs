@@ -9,7 +9,7 @@ const branches = [
   {
     name: "生存・召喚",
     subtitle: "THE BLOOD",
-    description: "傷を越え、狩りを続ける。",
+    description: "体力と防御を伸ばし、戦闘を支える。",
   },
   { name: "呪術", subtitle: "THE ARCANE", description: "夜の力を、その手に。" },
 ];
@@ -18,7 +18,7 @@ const statusNames = {
   prerequisite: "前提スキルが必要",
   points: "SP不足",
   maxed: "習得完了",
-  class: "別の誓いが必要",
+  class: "別の初期ビルドが必要",
 };
 
 export function renderSkillTree(hud, { icon, escape }) {
@@ -39,7 +39,7 @@ export function renderSkillTree(hud, { icon, escape }) {
     .join("");
   const select = (node) => `data-key="0" data-selection="${node.index}"`;
   const required = selected.prereqs.map((id) => byId.get(id)).filter(Boolean);
-  return `<div class="tree-heading"><div><p class="eyebrow">THE HUNTER'S LEGACY</p><h2>技と成長</h2><p>狩りの記憶を、力に変える。</p></div><div class="tree-points" aria-label="使用可能なスキルポイント"><strong>${hud.skill_points}</strong><span>SP</span><small>レベルアップで +1</small></div></div>
+  return `<div class="tree-heading"><div><p class="eyebrow">SKILLS & BUILD</p><h2>技と成長</h2><p>獲得したSPで技を習得・強化し、戦い方を組み立てる。</p></div><div class="tree-points" aria-label="使用可能なスキルポイント"><strong>${hud.skill_points}</strong><span>SP</span><small>レベルアップで +1</small></div></div>
     <div class="tree-layout">
       <section class="tree-map" aria-label="スキルツリー">
         <div class="tree-branches" aria-label="スキルの系統">${branches.map((branch, i) => `<button ${select(nodes.find((node) => node.branch === i))} data-focus="branch-${i}" aria-pressed="${selected.branch === i}"><small>${branch.subtitle}</small><strong>${branch.name}</strong><span>${branch.description}</span></button>`).join("")}</div>

@@ -44,6 +44,7 @@ struct HunterExtraSkillView {
 
 ///|
 struct HunterHudView {
+  builds : Array[StartingBuildView]
   preset : Int
   preset_name : String
   presets : Array[String]
@@ -155,6 +156,11 @@ fn GameState::hunter_hud_view(self : GameState) -> HunterHudView {
   }
   {
     version: 1,
+    builds: if w.mode == @game.CharacterSelect {
+      self.starting_build_views()
+    } else {
+      []
+    },
     slot_options: if w.ui_mode == @game.Skills {
       @game.hunter_slot_actions.map(key => self.hunter_action_view(key))
     } else {

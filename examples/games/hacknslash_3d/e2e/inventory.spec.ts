@@ -88,7 +88,7 @@ test('L-shaped holes accept a different item and physical E equips the selected 
   await captureGameFrame(page,{path:info.outputPath('inventory-shaped-items.png')});
   await page.keyboard.press('KeyE');
   await expect.poll(async()=>(await inventory(page)).equipment[2].item?.glyph).toBe('ring');
-  expect((await inventory(page)).equipment[0].item).toBeUndefined();
+  expect((await inventory(page)).equipment[0].item.name).toBe('狩人の鉈');
 });
 
 test('older overflowing bags retain every item and can recover through equipment',async({page})=>{
@@ -128,19 +128,20 @@ test.describe('touch inventory',()=>{
     await expect.poll(async()=>(await inventory(page)).equipment[0].item?.glyph).toBe('spear');
     await page.getByRole('button',{name:'バッグへ外す',exact:true}).tap();
     await expect.poll(async()=>(await inventory(page)).equipment[0].item).toBeUndefined();
-    await page.locator('[data-inv-item="0"] [data-item-cell]').first().tap();
+    const source=(await inventory(page)).items.find(i=>i.glyph==='spear').source;
+    await page.locator(`[data-inv-item="${source}"] [data-item-cell]`).first().tap();
     await page.getByRole('button',{name:/↻ 回転/}).tap();
     await cell(page,3,5).tap();
-    await expect.poll(async()=>(await item(page,0)).rotated).toBe(true);
+    await expect.poll(async()=>(await item(page,source)).rotated).toBe(true);
     await page.locator('.inv-bag').scrollIntoViewIfNeeded();
-    const a=await center(page.locator('[data-inv-item="0"] [data-item-cell]').first());
+    const a=await center(page.locator(`[data-inv-item="${source}"] [data-item-cell]`).first());
     const b=await center(cell(page,3,4));
     const cdp=await context.newCDPSession(page);
     const touch=(type,x=a.x,y=a.y)=>cdp.send('Input.dispatchTouchEvent',{type,touchPoints:type==='touchEnd'||type==='touchCancel'?[]:[{x,y,id:1}]});
     await touch('touchStart');await touch('touchMove',b.x,b.y);await touch('touchCancel');
-    expect((await item(page,0)).y).toBe(5);
+    expect((await item(page,source)).y).toBe(5);
     await touch('touchStart');await touch('touchMove',b.x,b.y);await touch('touchEnd');
-    await expect.poll(async()=>(await item(page,0)).y).toBe(4);
+    await expect.poll(async()=>(await item(page,source)).y).toBe(4);
     for(const viewport of [{width:390,height:844},{width:844,height:390},{width:320,height:640}]){
       await page.setViewportSize(viewport);
       await page.locator('.inv-bag').scrollIntoViewIfNeeded();

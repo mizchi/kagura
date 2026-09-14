@@ -3,6 +3,7 @@ import {createLootLabels} from './hunter-loot.mjs';
 import {pressHunterSlot,bindHunterMouse,hunterDigitSlot,hunterHeldActionKey} from './hunter-hotbar.mjs';
 import {renderHunterSlotEditor} from './hunter-slot-editor.mjs';
 import {renderSaveSelect} from './hunter-save-select.mjs';
+import {renderStartingBuilds} from './starting-builds.mjs';
 import {createGamepadReader,navigateGamepadMenu} from '@kagura-web/kagura-gamepad.js';
 import {createHunterGamepad} from './hunter-gamepad.mjs';
 import {gamepadGuide,createGamepadGuide} from './hunter-gamepad-ui.mjs';
@@ -66,21 +67,21 @@ root.innerHTML=`
   <div id="ground-loot" aria-label="地面のアイテム"></div>
   <div id="damage-numbers" aria-hidden="true"></div>
   <div id="tps-crosshair" aria-hidden="true" hidden></div>
-  <section class="vitals" aria-label="狩人の状態">
-    <div class="hunter-seal" aria-hidden="true">${icon('blade')}</div>
-    <div class="vital-lines"><div class="vital-caption"><span>HUNTER <b id="hunter-level">01</b></span><span id="health-text">—</span></div>
+  <section class="vitals" aria-label="キャラクターの状態">
+    <div id="player-emblem" class="hunter-seal" aria-hidden="true">${icon('blade')}</div>
+    <div class="vital-lines"><div class="vital-caption"><span>Lv. <b id="hunter-level">01</b></span><span id="health-text">—</span></div>
     <div class="health-track" role="progressbar" aria-label="体力"><i id="health-fill"></i></div>
     <div class="xp-track" role="progressbar" aria-label="経験値"><i id="xp-fill"></i></div></div>
   </section>
   <aside id="summon-status" class="summon-status" aria-label="召喚した仲間" hidden></aside>
-  <section class="expedition" aria-label="狩場の目標"><p id="night-label">第一夜</p><h1 id="region-name">灰の森</h1><div><i></i><span id="hunt-objective">灯火をたどり、群れを狩る</span></div><small id="site-label" hidden></small></section>
+  <section class="expedition" aria-label="エリアの目標"><p id="night-label">エリア 1</p><h1 id="region-name">灰の森</h1><div><i></i><span id="hunt-objective">探索し、装備を集める</span></div><small id="site-label" hidden></small></section>
   <aside class="map-card" aria-label="灰の森の地図"><span id="minimap-region">ASHWOOD</span><svg viewBox="0 0 100 80" aria-hidden="true"><path class="map-outline" d="M2 2h96v76H2z"/><path class="map-road" d="M2 42Q18 62 35 40T67 33 98 44M43 36v30"/><path class="map-clearing" d="M14 43h12v12H14zM33 30h12v12H33zM53 23h14v14H53zM70 41h14v14H70zM37 56h12v12H37z"/><g class="map-lights"><circle cx="27" cy="46" r="2"/><circle cx="51" cy="28" r="2"/><circle cx="87" cy="48" r="2"/></g><g id="minimap-sites"/><g id="minimap-exits" stroke="#bdb589" fill="#bdb589" stroke-width="1"/><path id="minimap-waypoint" d="M0 -3 3 0 0 3 -3 0Z" fill="#e9d294" stroke="#284633" stroke-width=".6"/><circle id="map-player" r="2.2" cx="20" cy="49"/></svg><small id="minimap-subtitle">灯火の旧街道</small></aside>
   <div class="utility" aria-label="メニュー"><button data-key="73" aria-label="装備袋">${icon('bag')}<span>装備 <kbd>I</kbd></span></button><button data-key="75" aria-label="技と成長">${icon('book')}<span>技 <kbd>K</kbd><b id="tree-sp-badge" hidden></b></span></button><button data-key="71" aria-label="世界地図">${icon('waypoint')}<span>地図 <kbd>G</kbd></span></button><button data-key="79" aria-label="カメラ設定">${icon('eye')}<span>視点 <kbd>O</kbd></span></button><button data-key="27" aria-label="一時停止メニュー">${icon('pause')}<kbd>ESC</kbd></button></div>
-  <div class="journey-note"><span>ASHEN HUNT</span><p>鐘が消えるまで、夜は明けない。</p></div>
+  <div class="journey-note"><span>ASHEN REALMS</span><p>装備を集め、技を組み合わせ、未知の領域へ。</p></div>
   <div class="combat-controls">
     <div id="move-stick" role="group" aria-label="仮想移動スティック"><div class="stick-ring"><i class="stick-cross"></i><i id="stick-thumb"></i></div><span>移動</span></div>
     <div class="action-dock">
-      <div class="hunter-arts" aria-label="狩人の戦技">
+      <div class="hunter-arts" aria-label="戦闘スキル">
         <button id="guard-button" data-hold="guard" aria-label="盾ガード" title="Fを押して構える。正面120度の攻撃を軽減。構え始めは完全防御。"><span>${icon('shield')}</span><strong>盾ガード</strong><small id="guard-status">F / 長押し</small><i class="guard-reserve"><i id="guard-reserve-fill"></i></i></button>
         <button id="astral-button" data-key="84" aria-label="星落とし" title="Tで照準、地面をクリック／タップして指定。円の中に0.5秒後に落雷。"><span>${icon('lightning')}</span><strong>星落とし</strong><small id="astral-status">T / 位置指定</small></button>
         <button id="dash-strike-button" data-key="86" aria-label="突進斬り" title="Vで踏み込み、敵の手前で止まって斬る。壁で停止、回避で中断。"><span>${icon('blade')}</span><strong>突進斬り</strong><small id="dash-strike-status">V</small></button>
@@ -252,15 +253,15 @@ function panel(hud){
   const heading=(eyebrow,title)=>`<p class="eyebrow">${eyebrow}</p><h2>${title}</h2>`;
   let body='';
   if(state==='title')body=renderSaveSelect(hud,{escape});
-  if(state==='character_select')body=`${heading('CHOOSE YOUR OATH','狩人の誓い')}<p class="panel-description">セーブ ${hud.active_save_slot+1} · 4つの技を携え、灰の森へ踏み入る。</p><div class="oath-list">${['刃の狩人','術の狩人','呪弾の狩人','召喚の狩人'].map((n,i)=>`<button data-key="13" data-selection="${i}" class="${hud.cursor===i?'selected':''}">${icon(['blade','fire','frost','skull'][i])}<strong>${n}</strong><small>${['体力と近接攻撃に優れる','チェインライトニングと星落としで群れを制圧','弓と追尾の呪弾で遠距離から狙う','ゾンビを盾に、炎の頭蓋の群れを放つ'][i]}</small><span>→</span></button>`).join('')}</div><button class="save-back" data-key="27">← セーブデータ選択に戻る</button>`;
-  if(state==='gameover')body=`${heading('THE NIGHT REMAINS','灯は、まだ消えない。')}<p class="panel-description">装備と成長、探索の記録は残っています。<br>${escape(hud.respawn_region)}の灯火で、再び夜の向こうへ。</p><button class="begin-button" data-key="13">ウェイポイントから再開 →</button>`;
-  if(state==='pause')body=`<div class="pause-mark">${icon('pause')}</div>${heading('THE NIGHT CAN WAIT','一時停止')}<p class="panel-description">ここで、ひと息。<br>狩場の時間は止まっています。</p><div class="pause-actions"><button class="begin-button" data-key="27" data-autofocus>狩りを再開する <kbd>ESC</kbd></button><button data-key="73">${icon('bag')}<span>装備袋</span><kbd>I</kbd></button><button data-key="75">${icon('book')}<span>技と成長</span><kbd>K</kbd></button><button data-key="71">${icon('waypoint')}<span>世界地図</span><kbd>G</kbd></button><button data-key="79">${icon('eye')}<span>カメラ設定</span><kbd>O</kbd></button>${hud.terrain?.enabled?'<button data-key="78"><span>地形実験</span><kbd>N</kbd></button>':''}<label class="preset-picker">武器と技のプリセット<select id="hunter-preset" aria-label="武器と技のプリセット" data-focus="preset" ${hud.weapon_locked||hud.attack_remaining>0?'disabled':''}>${hud.presets.map((name,i)=>`<option value="${i}" ${hud.preset===i?'selected':''}>${escape(name)}</option>`).join('')}</select><small>未習得の技はスキルツリーで解放</small></label><button data-key="72"><span>セーブして選択画面へ</span><kbd>H</kbd></button><button data-key="77" aria-label="サウンド" aria-pressed="${!hud.muted}"><span>サウンド</span><strong>${hud.muted?'OFF':'ON'}</strong><kbd>M</kbd></button></div><p class="pause-hint">メニューを確認している間も一時停止します。</p><p class="save-notice" role="status">${escape(hud.save_notice)}</p>`;
+  if(state==='character_select')body=renderStartingBuilds(hud,{icon,escape});
+  if(state==='gameover')body=`${heading('RETURN TO WAYPOINT','戦闘不能')}<p class="panel-description">装備と成長、探索の記録は残っています。<br>${escape(hud.respawn_region)}のウェイポイントから再開できます。</p><button class="begin-button" data-key="13">ウェイポイントから再開 →</button>`;
+  if(state==='pause')body=`<div class="pause-mark">${icon('pause')}</div>${heading('PAUSED','一時停止')}<p class="panel-description">ゲームの進行を停止しています。装備やスキルを確認できます。</p><div class="pause-actions"><button class="begin-button" data-key="27" data-autofocus>冒険を再開する <kbd>ESC</kbd></button><button data-key="73">${icon('bag')}<span>装備袋</span><kbd>I</kbd></button><button data-key="75">${icon('book')}<span>技と成長</span><kbd>K</kbd></button><button data-key="71">${icon('waypoint')}<span>世界地図</span><kbd>G</kbd></button><button data-key="79">${icon('eye')}<span>カメラ設定</span><kbd>O</kbd></button>${hud.terrain?.enabled?'<button data-key="78"><span>地形実験</span><kbd>N</kbd></button>':''}<label class="preset-picker">武器と技のプリセット<select id="hunter-preset" aria-label="武器と技のプリセット" data-focus="preset" ${hud.weapon_locked||hud.attack_remaining>0?'disabled':''}>${hud.presets.map((name,i)=>`<option value="${i}" ${hud.preset===i?'selected':''}>${escape(name)}</option>`).join('')}</select><small>武器と4枠を切替。初期ビルド・装備品・成長は保持。未習得の技はツリーで解放</small></label><button data-key="72"><span>セーブして選択画面へ</span><kbd>H</kbd></button><button data-key="77" aria-label="サウンド" aria-pressed="${!hud.muted}"><span>サウンド</span><strong>${hud.muted?'OFF':'ON'}</strong><kbd>M</kbd></button></div><p class="pause-hint">メニューを確認している間も一時停止します。</p><p class="save-notice" role="status">${escape(hud.save_notice)}</p>`;
   if(state==='camera')body=renderCameraPanel(hud.camera);
   if(state==='terrain')body=renderTerrainPanel(hud.terrain);
   if(state==='inventory')body=`${close}${inventoryPanel.render(hud.inventory_grid)}`;
   if(state==='waypoints')body=`${close}${renderWorldMap(hud,{icon,escape})}`;
-  if(state==='skills')body=`${close}${renderHunterSlotEditor(hud,{escape})}${renderSkillTree(hud,{icon,escape})}<div class="tree-guide"><h3>狩場での操作</h3><div class="skill-guide">${hud.skills.map((s,i)=>`<article>${icon(s.glyph)}<div><strong><kbd>${i+1}</kbd> ${escape(s.name)}</strong><p>${escape(s.description)}</p></div></article>`).join('')}</div><p class="panel-description">左クリックでスロット1、右クリックでスロット2。長押しの技は離すと停止。<br>C / V · 突進斬り、F · 盾ガード、T · 星落とし。<br>Q / E または中ボタンドラッグでカメラ回転。</p></div>`;
-  if(state==='levelup')body=`${heading('BLOOD & EXPERIENCE','新たな力を選ぶ')}<p class="panel-description">ひとつ選ぶと狩りを再開します。</p><div class="oath-list">${hud.offers.map((name,i)=>`<button data-key="13" data-selection="${i}" class="${hud.cursor===i?'selected':''}">${icon('book')}<strong>${escape(name)}</strong><span>→</span></button>`).join('')}</div>`;
+  if(state==='skills')body=`${close}${renderHunterSlotEditor(hud,{escape})}${renderSkillTree(hud,{icon,escape})}<div class="tree-guide"><h3>戦闘中の操作</h3><div class="skill-guide">${hud.skills.map((s,i)=>`<article>${icon(s.glyph)}<div><strong><kbd>${i+1}</kbd> ${escape(s.name)}</strong><p>${escape(s.description)}</p></div></article>`).join('')}</div><p class="panel-description">左クリックでスロット1、右クリックでスロット2。長押しの技は離すと停止。<br>C / V · 突進斬り、F · 盾ガード、T · 星落とし。<br>Q / E または中ボタンドラッグでカメラ回転。</p></div>`;
+  if(state==='levelup')body=`${heading('LEVEL UP','新たな力を選ぶ')}<p class="panel-description">スキルをひとつ選ぶと冒険を再開します。</p><div class="oath-list">${hud.offers.map((name,i)=>`<button data-key="13" data-selection="${i}" class="${hud.cursor===i?'selected':''}">${icon('book')}<strong>${escape(name)}</strong><span>→</span></button>`).join('')}</div>`;
   el.innerHTML=`<div class="hunter-panel panel-${state}" role="dialog" aria-modal="true" aria-label="${state==='pause'?'一時停止メニュー':state==='camera'?'カメラ設定':state==='terrain'?'地形実験':state}">${body}</div>${state==='inventory'?'<div class="inv-drop-zone" aria-hidden="true">外側にドラッグして捨てる</div>':''}`;
   el.querySelector('.hunter-panel').scrollTop=scrollTop;
   syncCameraViewport(el,state==='camera'||state==='terrain');
@@ -313,6 +314,7 @@ function render(hud){
   setText('weapon-action',hud.weapon_action);
   if($('weapon-icon').dataset.weapon!==String(hud.weapon_index)){
     $('weapon-icon').innerHTML=icon(['blade','spear','fist','fire','bow'][hud.weapon_index]);
+    $('player-emblem').innerHTML=$('weapon-icon').innerHTML;
     $('weapon-icon').dataset.weapon=String(hud.weapon_index);
   }
   setText('hunter-level',String(hud.level).padStart(2,'0'));
@@ -353,8 +355,8 @@ function render(hud){
     }
   }
   $('waypoint-prompt').hidden=canOpenChest||hud.arts?.targeting||!hud.atlas?.near_waypoint||hud.mode!=='playing'||hud.paused||hud.menu!=='none';
-  setText('night-label',`第 ${hud.floor} 夜 · THE LONG NIGHT`);
-  setText('hunt-objective',`灯火をたどり、群れを狩る · 残り ${hud.remaining}`);
+  setText('night-label',`エリア ${hud.floor} · EXPLORATION`);
+  setText('hunt-objective',`探索し、装備を集める · 敵 ${hud.remaining}`);
   $('map-player').setAttribute('cx',hud.map_x);$('map-player').setAttribute('cy',hud.map_z);
   hud.skills.forEach((skill,i)=>{
     const b=root.querySelector(`[data-skill="${i}"]`),status=skillStatus(skill);

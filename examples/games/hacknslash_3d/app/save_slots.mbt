@@ -1,5 +1,5 @@
 ///|
-let save_slot_count : Int = 3
+let save_slot_count : Int = 6
 
 ///|
 struct SaveSlotView {
@@ -8,13 +8,18 @@ struct SaveSlotView {
   level : Int
   score : Int
   archetype : String
+  build_name : String
   region : String
 } derive(ToJson)
 
 ///|
 fn save_slot_key(slot : Int) -> String {
   // Keep the existing save in slot 1 without copying or deleting it.
-  if slot == 0 { "hacknslash3d_save" } else { "hacknslash3d_save_slot_" + (slot + 1).to_string() }
+  if slot == 0 {
+    "hacknslash3d_save"
+  } else {
+    "hacknslash3d_save_slot_" + (slot + 1).to_string()
+  }
 }
 
 ///|
@@ -36,7 +41,9 @@ fn save_region_name(parts : Array[String]) -> String {
           }
         }
       }
-    } catch { _ => () }
+    } catch {
+      _ => ()
+    }
   }
   "灰の森"
 }
@@ -49,10 +56,37 @@ fn read_save_slots() -> Array[SaveSlotView] {
     let ready = valid_save_data(data)
     {
       slot,
-      status: if data == "" { "empty" } else if ready { "ready" } else { "invalid" },
-      level: if ready && parts.length() > 8 { parse_int(parts[8]).max(1) } else { 1 },
-      score: if ready { parse_int(parts[1]) } else { 0 },
-      archetype: if parts.length() > 19 { parts[19] } else { "melee" },
+      status: if data == "" {
+        "empty"
+      } else if ready {
+        "ready"
+      } else {
+        "invalid"
+      },
+      level: if ready && parts.length() > 8 {
+        parse_int(parts[8]).max(1)
+      } else {
+        1
+      },
+      score: if ready {
+        parse_int(parts[1])
+      } else {
+        0
+      },
+      archetype: if parts.length() > 19 {
+        parts[19]
+      } else {
+        "melee"
+      },
+      build_name: @game.character_archetype_from_string(
+        if parts.length() > 19 {
+          parts[19]
+        } else {
+          "melee"
+        },
+      )
+      .or(@game.Melee)
+      .build_name(),
       region: save_region_name(parts),
     }
   })
@@ -60,8 +94,15 @@ fn read_save_slots() -> Array[SaveSlotView] {
 
 ///|
 fn GameState::persist_save(self : GameState) -> Bool {
-  let ok = js_storage_set(save_slot_key(self.active_save_slot), self.serialize_save())
-  self.save_notice = if ok { "" } else { "保存できませんでした。ブラウザーの保存領域を確認して、もう一度お試しください。" }
+  let ok = js_storage_set(
+    save_slot_key(self.active_save_slot),
+    self.serialize_save(),
+  )
+  self.save_notice = if ok {
+    ""
+  } else {
+    "保存できませんでした。ブラウザーの保存領域を確認して、もう一度お試しください。"
+  }
   ok
 }
 
@@ -93,7 +134,9 @@ fn GameState::clear_session_presentation(self : GameState) -> Unit {
 
 ///|
 fn GameState::select_save_slot(self : GameState, slot : Int) -> Bool {
-  if slot < 0 || slot >= save_slot_count { return false }
+  if slot < 0 || slot >= save_slot_count {
+    return false
+  }
   let data = js_storage_get(save_slot_key(slot))
   if data != "" && !valid_save_data(data) {
     self.save_notice = "このセーブデータは読み込めません。別の枠を選んでください。"
@@ -102,8 +145,10 @@ fn GameState::select_save_slot(self : GameState, slot : Int) -> Bool {
   self.clear_session_presentation()
   let previous = self.world
   self.world = @game.GameWorld::new(
-    seed=self.random_seed(), params=previous.params,
-    hunting_grounds=previous.hunting_grounds, build_policy=previous.build_policy,
+    seed=self.random_seed(),
+    params=previous.params,
+    hunting_grounds=previous.hunting_grounds,
+    build_policy=previous.build_policy,
   )
   self.world.manual_combat = true
   self.active_save_slot = slot
@@ -126,10 +171,14 @@ fn GameState::select_save_slot(self : GameState, slot : Int) -> Bool {
 
 ///|
 fn GameState::return_to_save_select(self : GameState) -> Unit {
-  if !self.persist_save() { return }
+  if !self.persist_save() {
+    return
+  }
   self.clear_session_presentation()
   self.world.cancel_hunter_action()
-  if self.world.atlas is Some(atlas) { atlas.travel_target = None }
+  if self.world.atlas is Some(atlas) {
+    atlas.travel_target = None
+  }
   self.world.ui_mode = @game.UIMode::None
   self.world.mode = @game.Title
   self.world.select_cursor = self.active_save_slot

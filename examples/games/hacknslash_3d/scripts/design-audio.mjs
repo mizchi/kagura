@@ -1,4 +1,4 @@
-// Original ASHEN HUNT effects: filtered air, material transients and resonant
+// Original ASHEN REALMS effects: filtered air, material transients and resonant
 // bodies. No recorded samples, oscillating UI beeps or runtime dependencies.
 import {mkdirSync, writeFileSync} from 'node:fs';
 import {spawnSync} from 'node:child_process';
@@ -177,11 +177,11 @@ function main(){
   const encoder=encoders.stdout.includes('libvorbis') ? ['-c:a','libvorbis'] : ['-c:a','vorbis','-strict','-2'];
   for(const sound of bank){
     const wav=encodeWav(sound),file=`${sound.id}.ogg`;
-    const result=spawnSync('ffmpeg',['-hide_banner','-loglevel','error','-y','-i','pipe:0',...encoder,'-q:a','5','-map_metadata','-1','-metadata',`title=ASHEN HUNT - ${sound.id}`,resolve(destination,file)],{input:wav});
+    const result=spawnSync('ffmpeg',['-hide_banner','-loglevel','error','-y','-i','pipe:0',...encoder,'-q:a','5','-map_metadata','-1','-metadata',`title=ASHEN REALMS - ${sound.id}`,resolve(destination,file)],{input:wav});
     if(result.status!==0)throw new Error(`ffmpeg: ${result.stderr?.toString() ?? result.error}`);
     manifest.push({id:sound.id,file,label:sound.label,description:sound.description,duration:sound.samples.length/2/RATE,sampleRate:RATE,channels:2,pcmSha256:createHash('sha256').update(wav).digest('hex')});
   }
-  writeFileSync(resolve(destination,'bank.json'),JSON.stringify({version:1,author:'ASHEN HUNT',source:'Original procedural sound design; no third-party samples.',sounds:manifest},null,2)+'\n');
+  writeFileSync(resolve(destination,'bank.json'),JSON.stringify({version:1,author:'ASHEN REALMS',source:'Original procedural sound design; no third-party samples.',sounds:manifest},null,2)+'\n');
   const pause=Math.round(RATE*.30)*2;
   const samples=new Float32Array(bank.reduce((n,s)=>n+s.samples.length+pause,0));
   let offset=0;

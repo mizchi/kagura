@@ -4,7 +4,7 @@ target := "js"
 
 default: check test
 
-# ASHEN HUNT: the two-head-tall hunter built on hacknslash_3d.
+# ASHEN REALMS: a low-poly action RPG with configurable builds.
 hunter-dev:
     node scripts/dev-server.mjs hacknslash_3d
 

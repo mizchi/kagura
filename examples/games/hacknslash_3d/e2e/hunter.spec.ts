@@ -50,7 +50,7 @@ test('hunter can run, attack, dodge, orbit, zoom and pause in the actual dungeon
   await page.waitForFunction(() => globalThis.__ashenHunt?.bones === 17);
   const canvas = page.locator('canvas');
   await expect(canvas).toBeVisible();
-  await expect(page).toHaveTitle(/ASHEN HUNT/);
+  await expect(page).toHaveTitle(/ASHEN REALMS/);
   const start = await snapshot(page);
   // Equipment now contributes material groups; the rendered model must be populated.
   expect(start.materials).toBeGreaterThan(0);

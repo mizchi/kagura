@@ -45,7 +45,7 @@ input.clear();   // メニュー遷移などで全入力を破棄
 キューが満杯なら `false` を返します。`snapshot()` のアクション配列はコピーです。
 
 DOMのスティックはキャンセル、ポインターキャプチャ喪失、blur、非表示で入力を解放します。
-外見や技の使用可否はゲーム側が描画します。ASHEN HUNTでは `hunter-input.mjs` が
+外見や技の使用可否はゲーム側が描画します。ASHEN REALMSでは `hunter-input.mjs` が
 `attack` とメニュー選択番号をMoonBit向けの既存インターフェースへ変換します。
 
 ## ゲームパッド入力
@@ -96,7 +96,7 @@ PS5の軸0・1は左スティック、2・5は右スティック、3・4はL2/R2
 [十字キーの軸表現](https://github.com/chromium/chromium/blob/main/device/gamepad/gamepad_standard_mappings.cc)。
 
 一時停止・照準・スキル割当・メニューを跨ぐ長押しの抑止はゲーム側の責務です。
-ASHEN HUNTの `hunter-gamepad.mjs` はパッド専用の入力所有者IDを使い、
+ASHEN REALMSの `hunter-gamepad.mjs` はパッド専用の入力所有者IDを使い、
 切断時もタッチやマウスの保持入力を消しません。
 
 仕様の参照先：
@@ -125,7 +125,7 @@ sounds.clear()
 （ミュート中は `Muted`）。停止中にミュート・置き換え・破棄した音は再開しません。
 音源の生成・ブラウザでのデコード・ゲームイベントとの対応は呼び出し側の責務です。
 
-ASHEN HUNTの音源設定は `app/audio_assets.mbt`、イベント対応は `app/audio_runtime.mbt` にあります。
+ASHEN REALMSの音源設定は `app/audio_assets.mbt`、イベント対応は `app/audio_runtime.mbt` にあります。
 
 ## ローポリ形状
 

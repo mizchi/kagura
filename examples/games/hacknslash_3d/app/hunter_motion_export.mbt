@@ -180,7 +180,7 @@ pub fn export_hunter_motion_asset() -> String {
     {
       "format": "kagura.motion",
       "version": 2,
-      "name": "ASHEN HUNT / Hunter",
+      "name": "ASHEN REALMS / Hunter",
       "skeleton": skeleton.to_json(),
       "models": models.to_json(),
       "weapons": weapons.to_json(),

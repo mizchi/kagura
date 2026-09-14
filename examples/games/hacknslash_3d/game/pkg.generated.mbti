@@ -311,7 +311,7 @@ pub let meteor_damage_mult : Int
 
 pub let meteor_radius : Double
 
-pub fn new_hunter_inventory() -> Inventory
+pub fn new_hunter_inventory(archetype? : CharacterArchetype) -> Inventory
 
 pub fn new_tag_bonuses_array() -> Array[TagBonus]
 
@@ -614,6 +614,9 @@ pub fn CharacterArchetype::base_dexterity(Self) -> Int
 pub fn CharacterArchetype::base_intelligence(Self) -> Int
 pub fn CharacterArchetype::base_strength(Self) -> Int
 pub fn CharacterArchetype::basic_attack_multiplier(Self) -> Double
+pub fn CharacterArchetype::build_description(Self) -> String
+pub fn CharacterArchetype::build_glyph(Self) -> String
+pub fn CharacterArchetype::build_name(Self) -> String
 pub fn CharacterArchetype::can_learn_skill(Self, SkillId) -> Bool
 pub fn CharacterArchetype::display_description(Self) -> String
 pub fn CharacterArchetype::display_name(Self) -> String
@@ -622,6 +625,7 @@ pub fn CharacterArchetype::offer_priority(Self, SkillId) -> Int
 pub fn CharacterArchetype::offer_priority_with_policy(Self, ArchetypeBuildPolicy, SkillId) -> Int
 pub fn CharacterArchetype::skill_damage_multiplier(Self, SkillId) -> Double
 pub fn CharacterArchetype::speed_modifier(Self) -> Double
+pub fn CharacterArchetype::starting_equipment(Self) -> Array[ItemData]
 pub fn CharacterArchetype::starting_skill_ids(Self) -> Array[SkillId]
 pub fn CharacterArchetype::to_string(Self) -> String
 
@@ -865,6 +869,14 @@ pub fn Equipment::total_str_bonus(Self) -> Int
 pub fn Equipment::total_str_scaling(Self) -> Double
 pub fn Equipment::unequip(Self, EquipSlot) -> ItemData?
 
+pub(all) enum EquipmentStyle {
+  WornGear
+  LeatherGear
+  PlateGear
+  OccultGear
+} derive(Eq, @debug.Debug)
+pub fn EquipmentStyle::index(Self) -> Int
+
 pub(all) struct FlamingSkull {
   mut x : Double
   mut y : Double
@@ -995,6 +1007,7 @@ pub fn GameWorld::auto_activate_skills(Self, Int) -> Unit
 pub fn GameWorld::auto_activate_spell_slots(Self, Int, Double) -> Unit
 pub fn GameWorld::auto_choose_levelup_offer(Self) -> Unit
 pub fn GameWorld::auto_equip_best(Self) -> Unit
+pub fn GameWorld::begin_starting_build(Self, CharacterArchetype) -> Unit
 pub fn GameWorld::boundary_destination(Self) -> (Int, Double, Double)?
 pub fn GameWorld::cancel_hunter_action(Self) -> Unit
 pub fn GameWorld::capture_region(Self) -> Unit
@@ -1199,6 +1212,7 @@ pub(all) struct ItemData {
 pub fn ItemData::archetype_fit_score(Self, CharacterArchetype) -> Double
 pub fn ItemData::build_policy_fit_score(Self, CharacterArchetype, ArchetypeBuildPolicy) -> Double
 pub fn ItemData::display_name(Self) -> String
+pub fn ItemData::equipment_style(Self) -> EquipmentStyle
 pub fn ItemData::footprint(Self) -> @gameplay2d.GridFootprint
 pub fn ItemData::motion_weapon(Self) -> PlayerWeaponKind?
 pub fn ItemData::total_atk(Self) -> Int

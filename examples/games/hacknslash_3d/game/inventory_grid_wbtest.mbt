@@ -98,6 +98,7 @@ test "all equipment slots contribute stats and imported overflow remains recover
 ///|
 test "bag swaps preserve identities, equipment swaps validate slots, and in-flight attacks reject changes" {
   let world = GameWorld::new(seed=42, hunting_grounds=true)
+  world.equipment.weapon = None
   world.mode = Playing
   world.ui_mode = Inventory
   world.inventory.clear()

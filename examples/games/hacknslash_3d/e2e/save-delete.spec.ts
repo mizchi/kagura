@@ -42,7 +42,7 @@ test('delete confirmation cancels by default, removes only its slot, and permits
   await page.reload();
   await expect(remove(page,0)).toHaveCount(0);
   await page.locator('[data-save-slot="0"]').click();
-  await page.getByRole('button',{name:/術の狩人/}).click();
+  await page.getByRole('button',{name:/魔法使い/}).click();
   await expect.poll(()=>page.evaluate(()=>globalThis.__ashenHud?.mode)).toBe('playing');
   expect((await storage(page))[keys[0]].split('|')[19]).toBe('mage');
   expect((await storage(page))[keys[1]]).toBe(before[keys[1]]);

@@ -88,7 +88,7 @@ export function activate(context) {
             },
       mount({ element, subscribe }) {
         const heading = document.createElement('h2');
-        heading.textContent = 'Hack & Slash 3D Scene';
+        heading.textContent = 'ASHEN REALMS Scene';
         const note = document.createElement('p');
         note.textContent =
           '床・壁・開始位置・敵をHierarchyで選び、InspectorでX/Z位置とサイズを編集します。1mが1タイルです。床をくり抜き、壁で通路を塞ぎます。高さ・色は編集用マーカーで、ゲームの見た目はKagura側が描画します。';

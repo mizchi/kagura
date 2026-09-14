@@ -74,11 +74,11 @@ fn CharacterOutfit::from_equipment(
       equipment
       .item_for_slot(slot)
       .map(item => {
-        match item.rarity {
-          @game.Common => Worn
-          @game.Uncommon => Leather
-          @game.Rare => Plate
-          @game.Epic => Occult
+        match item.equipment_style() {
+          @game.WornGear => Worn
+          @game.LeatherGear => Leather
+          @game.PlateGear => Plate
+          @game.OccultGear => Occult
         }
       })
     }),
@@ -189,13 +189,7 @@ fn equipment_appearance_key(equipment : @game.Equipment) -> Int {
   for slot in character_equipment_slots {
     let code = match equipment.item_for_slot(slot) {
       None => 0
-      Some(item) =>
-        match item.rarity {
-          @game.Common => 1
-          @game.Uncommon => 2
-          @game.Rare => 3
-          @game.Epic => 4
-        }
+      Some(item) => item.equipment_style().index() + 1
     }
     key = key * 5 + code
   }

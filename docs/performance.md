@@ -43,7 +43,7 @@ await profileWeb({
 });
 ```
 
-ASHEN HUNTの `just hunter-cpu-profile` はseed=42で画面を固定するアダプター。
+ASHEN REALMSの `just hunter-cpu-profile` はseed=42で画面を固定するアダプター。
 `--moving` は移動・アニメーション・地形の切り替えを含める。
 
 ## 共通フレーム情報
@@ -136,4 +136,4 @@ GPU側が重い場合はピクセル数、重なり、インスタンス数、�
 
 サンプル数を増やすと長い動作が滑らかになる一方、初期化コストと常駐行列が増える。
 有限のパレットはアセットと同じ寿命で共有し、全ポーズの空バッチを毎フレーム走査しない。
-ASHEN HUNTでの実装と検証は [HY Motionの取り込み](motion-pipeline.md) を参照。
+ASHEN REALMSでの実装と検証は [HY Motionの取り込み](motion-pipeline.md) を参照。

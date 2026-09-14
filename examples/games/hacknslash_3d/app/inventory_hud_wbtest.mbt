@@ -24,7 +24,8 @@ test "inventory view describes occupied cells, all body slots, and committed sta
     -1,
   )
   assert_false(state.apply_inventory_command([1, 3, 0, 0, 0]))
-  assert_eq(state.world.inventory.count(), 5)
+  // The initial weapon returns to the bag when the spear is equipped.
+  assert_eq(state.world.inventory.count(), 6)
   state.world.ui_mode = @game.UIMode::None
   assert_false(state.apply_inventory_command([-1, -1, 7, 0, 0]))
 }

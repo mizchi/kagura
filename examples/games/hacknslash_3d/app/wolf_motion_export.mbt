@@ -71,7 +71,7 @@ pub fn export_wolf_motion_asset() -> String {
     {
       "format": "kagura.motion",
       "version": 2,
-      "name": "ASHEN HUNT — 灰狼",
+      "name": "ASHEN REALMS — 灰狼",
       "skeleton": skeleton.to_json(),
       "models": models.to_json(),
       "clips": clips.to_json(),

@@ -13,9 +13,9 @@ test('startup selects independent save slots, keeps the legacy save and saves be
   const errors=[];page.on('pageerror',e=>errors.push(e.message));
   await page.goto('/?mute=1');
   await expect(page.getByRole('heading',{name:'セーブデータ選択',exact:true})).toBeVisible();
-  await expect(page.locator('[data-save-slot]')).toHaveCount(3);
+  await expect(page.locator('[data-save-slot]')).toHaveCount(6);
   await slot(page,0).click();
-  await page.getByRole('button',{name:/刃の狩人/}).click();
+  await page.getByRole('button',{name:/狩人/}).click();
   await expect.poll(async()=>(await hud(page))?.mode).toBe('playing');
   await expect.poll(async()=>Object.keys(await storage(page))).toEqual(['hacknslash3d_save']);
   await page.keyboard.press('KeyX');
@@ -23,7 +23,7 @@ test('startup selects independent save slots, keeps the legacy save and saves be
   await returnToSelect(page);
   const first=(await storage(page)).hacknslash3d_save;
   await expect(slot(page,0)).toContainText('Lv. 1');
-  await slot(page,1).click();await page.getByRole('button',{name:/術の狩人/}).click();
+  await slot(page,1).click();await page.getByRole('button',{name:/魔法使い/}).click();
   await expect.poll(async()=>(await hud(page)).mode).toBe('playing');
   expect((await hud(page)).active_save_slot).toBe(1);
   expect((await storage(page)).hacknslash3d_save).toBe(first);
@@ -34,9 +34,38 @@ test('startup selects independent save slots, keeps the legacy save and saves be
   await expect.poll(async()=>(await hud(page)).mode).toBe('playing');
   expect((await hud(page)).weapon_index).toBe(1);
   expect((await hud(page)).active_save_slot).toBe(0);
-  await returnToSelect(page);await slot(page,2).click();await page.keyboard.press('Escape');
+  await returnToSelect(page);await slot(page,2).click();
+  await expect(page.getByRole('heading',{name:'初期ビルドを選択',exact:true})).toBeVisible();
+  await page.keyboard.press('Escape');
   await expect(slot(page,2)).toContainText('新しく始める');
   expect((await storage(page)).hacknslash3d_save_slot_3).toBeUndefined();
+  for (const [index,build] of [[2,'ranger'],[3,'summoner'],[4,'melee'],[5,'mage']] as const) {
+    const before=await storage(page);
+    await slot(page,index).click();
+    await page.locator(`[data-build="${build}"]`).click();
+    await expect.poll(async()=>(await hud(page))?.mode).toBe('playing');
+    expect((await hud(page)).active_save_slot).toBe(index);
+    await returnToSelect(page);
+    const after=await storage(page);
+    for (const [key,data] of Object.entries(before)) expect(after[key]).toBe(data);
+    expect(after[`hacknslash3d_save_slot_${index+1}`]).toBeTruthy();
+  }
+  await page.reload();
+  const beforeLoad=await storage(page);
+  expect(Object.keys(beforeLoad)).toHaveLength(6);
+  await slot(page,5).click();
+  await expect.poll(async()=>(await hud(page))?.mode).toBe('playing');
+  expect((await hud(page)).active_save_slot).toBe(5);
+  expect((await hud(page)).preset_name).toBe('魔法使い');
+  await returnToSelect(page);
+  const beforeDelete=await storage(page);
+  await captureGameFrame(page,{path:info.outputPath('six-saves-desktop.png')});
+  await page.getByRole('button',{name:'セーブ 6 を削除',exact:true}).click();
+  await page.getByRole('button',{name:'削除する',exact:true}).click();
+  await expect(slot(page,5)).toContainText('新しく始める');
+  const {hacknslash3d_save_slot_6:deleted,...remaining}=beforeDelete;
+  expect(deleted).toBeTruthy();
+  expect(await storage(page)).toEqual(remaining);
   expect(errors).toEqual([]);
 });
 
@@ -67,7 +96,7 @@ test('death resumes at a waypoint and a reload after death preserves progression
 
 test('a failed write keeps the session paused and allows saving again',async({page})=>{
   await page.goto('/?mute=1');await slot(page,0).click();
-  await page.getByRole('button',{name:/刃の狩人/}).click();
+  await page.getByRole('button',{name:/狩人/}).click();
   await expect.poll(async()=>(await hud(page)).mode).toBe('playing');
   await page.keyboard.press('Escape');
   const before=await storage(page);
@@ -93,8 +122,8 @@ test('portrait saves remain usable and malformed slots are retained without bein
   for(const size of [{width:390,height:844},{width:320,height:640},{width:844,height:390}]){
     await page.setViewportSize(size);
     expect(await page.locator('.panel-title').evaluate(el=>el.scrollWidth<=el.clientWidth)).toBe(true);
-    await slot(page,2).scrollIntoViewIfNeeded();
-    const box=(await slot(page,2).boundingBox())!;
+    await slot(page,5).scrollIntoViewIfNeeded();
+    const box=(await slot(page,5).boundingBox())!;
     expect(box.x).toBeGreaterThanOrEqual(0);expect(box.x+box.width).toBeLessThanOrEqual(size.width);
     expect(box.y+box.height).toBeLessThanOrEqual(size.height);
     await captureGameFrame(page,{path:info.outputPath(`save-select-${size.width}.png`)});

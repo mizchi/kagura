@@ -17,10 +17,30 @@ pub(all) struct HunterPresetProfile {
 
 ///|
 pub let hunter_presets : Array[HunterPresetProfile] = [
-  { id: "blade", name: "近接", weapon: Cleaver, keys: [74, 50, 86, 70], },
-  { id: "storm", name: "魔法", weapon: Focus, keys: [53, 84, 51, 52], },
-  { id: "marksman", name: "遠距離", weapon: Bow, keys: [54, 84, 51, 52], },
-  { id: "summoner", name: "召喚", weapon: Focus, keys: [57, 48, 52, 86], },
+  {
+    id: "blade",
+    name: Melee.build_name(),
+    weapon: Cleaver,
+    keys: [74, 50, 86, 70],
+  },
+  {
+    id: "storm",
+    name: Mage.build_name(),
+    weapon: Focus,
+    keys: [53, 84, 51, 52],
+  },
+  {
+    id: "marksman",
+    name: Ranger.build_name(),
+    weapon: Bow,
+    keys: [74, 54, 86, 70],
+  },
+  {
+    id: "summoner",
+    name: CharacterArchetype::Summoner.build_name(),
+    weapon: Focus,
+    keys: [57, 48, 52, 86],
+  },
 ]
 
 ///|

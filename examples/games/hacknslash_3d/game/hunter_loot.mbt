@@ -9,14 +9,14 @@ pub fn hunter_equipment_item(
       Weapon => weapon.profile().name
       Armor =>
         match rarity {
-          Common => "夜狩りの外套"
+          Common => "旅装の外套"
           Uncommon => "街道の革鎧"
           Rare => "灰鉄の胸甲"
           Epic => "呪晶の祭服"
         }
       Helmet =>
         match rarity {
-          Common => "擦り切れた狩人帽"
+          Common => "旅装の帽子"
           Uncommon => "街道の革帽"
           Rare => "灰鉄の開面兜"
           Epic => "呪晶の尖り帽"
@@ -73,12 +73,24 @@ pub fn hunter_equipment_item(
 }
 
 ///|
-pub fn new_hunter_inventory() -> Inventory {
+pub fn new_hunter_inventory(
+  archetype? : CharacterArchetype = Melee,
+) -> Inventory {
   let inventory = Inventory::new_grid(8, 6)
   for
     item in [
-      hunter_equipment_item(Weapon, weapon=Spear),
-      hunter_equipment_item(Weapon),
+      hunter_equipment_item(
+        Weapon,
+        weapon=if archetype is Mage || archetype is Summoner {
+          Knuckles
+        } else {
+          Spear
+        },
+      ),
+      hunter_equipment_item(
+        Weapon,
+        weapon=default_hunter_preset(archetype).profile().weapon,
+      ),
       hunter_equipment_item(Armor, rarity=Uncommon),
       hunter_equipment_item(Helmet, rarity=Rare),
       hunter_equipment_item(Gloves, rarity=Uncommon),

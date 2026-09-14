@@ -428,7 +428,7 @@ fn GameState::update_character_select(
   }
   if @inpututil.is_confirm_just_pressed(self.input) {
     let chosen = archetypes[self.world.select_cursor]
-    self.world.apply_archetype(chosen)
+    self.world.begin_starting_build(chosen)
     self.world.mode = @game.Playing
     self.sync_character_equipment()
     self.save_game()

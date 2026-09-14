@@ -381,10 +381,10 @@ pub fn selectable_archetypes() -> Array[CharacterArchetype] {
 ///|
 pub fn CharacterArchetype::display_name(self : CharacterArchetype) -> String {
   match self {
-    Melee => "WARRIOR"
+    Melee => "HUNTER"
     Mage => "MAGE"
     Summoner => "SUMMONER"
-    Ranger => "RANGER"
+    Ranger => "ARCHER"
   }
 }
 

@@ -92,7 +92,9 @@ pub fn GameWorld::new(
   }
   let equipment = Equipment::new()
   if hunting_grounds {
-    equip_hunter_starting_clothes(equipment)
+    for item in archetype.starting_equipment() {
+      ignore(equipment.equip(item))
+    }
   }
   let skills = SkillTree::new_for_archetype(archetype)
   if hunting_grounds {
@@ -180,7 +182,7 @@ pub fn GameWorld::new(
     splitting_fireball_cooldown_timer: 0,
     ice_nova_cooldown_timer: 0,
     inventory: if hunting_grounds {
-      new_hunter_inventory()
+      new_hunter_inventory(archetype~)
     } else {
       Inventory::new(20)
     },

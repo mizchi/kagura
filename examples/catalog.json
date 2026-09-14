@@ -144,7 +144,7 @@
   },
   {
     "id": "hacknslash_3d",
-    "title": "Hack & Slash 3D",
+    "title": "ASHEN REALMS",
     "category": "games",
     "manifest": "hacknslash_3d.kgrprj",
     "controls": [
@@ -155,7 +155,7 @@
     "width": 640,
     "height": 480,
     "preview": "webgpu",
-    "purpose": "3D ダンジョン・装備・スキル・保存を組み合わせる統合例"
+    "purpose": "探索・装備収集・複数ビルドの育成を組み合わせる3Dハクスラ"
   },
   {
     "id": "ik_demo",

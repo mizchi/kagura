@@ -1,6 +1,6 @@
 # HY MotionをKaguraへ取り込む
 
-ASHEN HUNTの敵用に、falの `fal-ai/hunyuan-motion` で刺突・パンチ・魔法発射・弓射撃を各1本生成した。
+ASHEN REALMSの敵用に、falの `fal-ai/hunyuan-motion` で刺突・パンチ・魔法発射・弓射撃を各1本生成した。
 ゲームでは生成サービスへ接続せず、MoonBitに変換済みの回転クリップを再生する。
 Three.jsはFBXのオフライン取り込みだけに使う。
 

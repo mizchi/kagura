@@ -1,4 +1,4 @@
-// ASHEN HUNT supplies the reproducible scenario; Kagura owns the measurement.
+// ASHEN REALMS supplies the reproducible scenario; Kagura owns the measurement.
 import {parseArgs} from 'node:util';
 import {profileWeb} from './profile-web.mjs';
 

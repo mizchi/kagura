@@ -8,8 +8,8 @@ const waitReady=page=>expect.poll(async()=>(await hud(page))?.weapon_locked).toB
 test('new summoner oath exposes learned skills, slot assignments and a persistent preset',async({page},info)=>{
   await page.goto('/?mute=1');
   await page.locator('[data-save-slot="0"]').click();
-  await page.getByRole('button',{name:/召喚の狩人/}).click();
-  await expect.poll(async()=>(await hud(page))?.preset_name).toBe('召喚');
+  await page.getByRole('button',{name:/召喚師/}).click();
+  await expect.poll(async()=>(await hud(page))?.preset_name).toBe('召喚師');
   expect((await hud(page)).skills.map(s=>s.key)).toEqual([57,48,52,86]);
   await page.keyboard.press('KeyK');
   await expect(page.getByLabel('スキルスロット 1',{exact:true})).toHaveValue('57');

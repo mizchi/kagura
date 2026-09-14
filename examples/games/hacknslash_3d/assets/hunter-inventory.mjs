@@ -26,7 +26,7 @@ export function createInventoryPanel(panel,{input,icon,escape}) {
   }
   function detailMarkup() {
     const item=selectedItem();
-    if(!item)return `<div class="inv-detail-empty">${gearIcon('bag')}<h3>次の狩りに備える</h3><p>品を選ぶと性能を比較できます。<br>ドラッグ、または品と移動先を順にタップ。</p></div>`;
+    if(!item)return `<div class="inv-detail-empty">${gearIcon('bag')}<h3>装備を比較して、ビルドを強化</h3><p>品を選ぶと性能を比較できます。<br>ドラッグ、または品と移動先を順にタップ。</p></div>`;
     const [w,h]=dimensions(item,rotated);
     return `<div class="inv-detail-heading rarity-${item.rarity}">${glyph(item)}<div><small>${rarityNames[item.rarity]} · ${item.slot_name}${item.source<0?' · 装備中':''}</small><h3 title="${escape(item.name)}">${escape(item.name)}</h3><p>${w} × ${h} · ${item.cells.length}マス${item.cells.length<item.width*item.height?' · L字形':''}</p></div></div>${comparisonMarkup(view,item,escape,{page:detailPage,pageSize:4})}<div class="inv-detail-actions"><button data-inv-action="equip" data-focus="inv-equip">${item.source<0?'バッグへ外す':'装備する'}</button><button data-inv-action="rotate" data-focus="inv-rotate">↻ 回転 <kbd>R</kbd></button><button data-inv-action="drop" data-focus="inv-drop">地面に捨てる</button></div>`;
   }
@@ -55,7 +55,7 @@ export function createInventoryPanel(panel,{input,icon,escape}) {
   }
   function contentMarkup() {
     return `<div class="inv-layout">${equipmentMarkup()}${bagMarkup()}<aside class="inv-detail" aria-label="選択したアイテムの詳細">${detailMarkup()}</aside></div>
-    <footer class="inv-footer"><p class="inv-bag-help">ドラッグで移動・装備 <span>R 回転 · E 装備</span></p><p class="inv-pad-help"><strong class="inv-pad-state">× 持つ / □ 装備・外す</strong><span>十字 選択 · △ 回転 · L1/R1 切替 · 右スティック 比較 · R3 捨てる</span></p><p class="inv-notice" role="status">${escape(localNotice||view.notice||'装備袋を開いている間、狩場の時間は止まります。')}</p></footer>`;
+    <footer class="inv-footer"><p class="inv-bag-help">ドラッグで移動・装備 <span>R 回転 · E 装備</span></p><p class="inv-pad-help"><strong class="inv-pad-state">× 持つ / □ 装備・外す</strong><span>十字 選択 · △ 回転 · L1/R1 切替 · 右スティック 比較 · R3 捨てる</span></p><p class="inv-notice" role="status">${escape(localNotice||view.notice||'装備袋を開いている間、フィールドの時間は止まります。')}</p></footer>`;
   }
   function paint() {
     const content=panel.querySelector('[data-inventory-view]');

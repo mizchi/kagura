@@ -1,7 +1,7 @@
 import {test, expect} from '@playwright/test';
 import {captureGameFrame} from '../scripts/capture-web.mjs';
 
-test('published playground opens the full-screen hunter and plays the summoner build', async ({page}, info) => {
+test('published playground opens ASHEN REALMS and plays the summoner build', async ({page}, info) => {
   const errors: string[] = [];
   const failedAssets: string[] = [];
   page.on('pageerror', error => errors.push(error.message));
@@ -13,9 +13,10 @@ test('published playground opens the full-screen hunter and plays the summoner b
   const landing = await page.goto('./');
   expect(landing?.ok()).toBe(true);
   await page.locator('a[href="./hacknslash_3d/"]').click();
+  await expect(page).toHaveTitle(/ASHEN REALMS/);
   await page.locator('[data-save-slot="0"]').click();
-  await page.getByRole('button', {name: /召喚の狩人/}).click();
-  await expect.poll(() => page.evaluate(() => globalThis.__ashenHud?.preset_name)).toBe('召喚');
+  await page.getByRole('button', {name: /召喚師/}).click();
+  await expect.poll(() => page.evaluate(() => globalThis.__ashenHud?.preset_name)).toBe('召喚師');
   await page.keyboard.press('Escape');
   await expect.poll(() => page.evaluate(() => globalThis.__ashenHud?.paused)).toBe(true);
 

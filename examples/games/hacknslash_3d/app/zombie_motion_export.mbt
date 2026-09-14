@@ -74,7 +74,7 @@ pub fn export_zombie_motion_asset() -> String {
     {
       "format": "kagura.motion",
       "version": 2,
-      "name": "ASHEN HUNT — 屍人",
+      "name": "ASHEN REALMS — 屍人",
       "skeleton": skeleton.to_json(),
       "models": models.to_json(),
       "clips": clips.to_json(),

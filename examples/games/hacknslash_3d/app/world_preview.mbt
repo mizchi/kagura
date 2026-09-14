@@ -180,7 +180,7 @@ fn apply_zombie_combat_preview(state : GameState) -> Unit {
 fn apply_player_summon_preview(state : GameState, peaceful : Bool) -> Unit {
   apply_hunter_arts_preview(state)
   let w = state.world
-  w.apply_archetype(@game.CharacterArchetype::Summoner)
+  w.begin_starting_build(@game.CharacterArchetype::Summoner)
   state.sync_character_equipment()
   w.player.facing_angle = 0.0
   w.enemies = if peaceful {

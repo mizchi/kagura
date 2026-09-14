@@ -8,7 +8,7 @@ const scene='/?snapshot=site&site=ruins&peaceful=1&seed=42&mute=1';
 test('mouse buttons cast configured mage slots and confirmation never fires a basic attack',async({page})=>{
   const errors=[];page.on('pageerror',e=>errors.push(e.message));
   await page.goto('/?mute=1');await page.locator('[data-save-slot="0"]').click();
-  await page.getByRole('button',{name:/術の狩人/}).click();
+  await page.getByRole('button',{name:/魔法使い/}).click();
   await expect.poll(async()=>(await hud(page))?.mode).toBe('playing');
   await page.evaluate(()=>{
     let value=globalThis.__ashenHunt;globalThis.__basicFrames=0;

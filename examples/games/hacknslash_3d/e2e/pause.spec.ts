@@ -29,7 +29,7 @@ test("Escape freezes combat, animation, camera and clocks, and pause submenus re
     exact: true,
   });
   await expect(menu).toBeVisible();
-  const resume = menu.getByRole("button", { name: /狩りを再開する/ });
+  const resume = menu.getByRole("button", { name: /冒険を再開する/ });
   await expect(resume).toBeFocused();
   const before = await stoppedState(page);
   expect(before.hero.paused).toBe(true);
@@ -132,7 +132,7 @@ test.describe("touch pause menu", () => {
         path: info.outputPath(`pause-${viewport.width}.png`),
       });
     }
-    await menu.getByRole("button", { name: /狩りを再開する/ }).tap();
+    await menu.getByRole("button", { name: /冒険を再開する/ }).tap();
     await expect(menu).toHaveCount(0);
     await expect
       .poll(() => page.evaluate(() => globalThis.__hacknslash3dRuntime.frame))

@@ -67,10 +67,10 @@ const RAW_DEMO_PAGES = [
   },
   {
     name: "hacknslash_3d",
-    title: "ASHEN HUNT",
+    title: "ASHEN REALMS",
     group: "Games",
-    summary: "A low-poly action RPG with loot, connected hunting grounds and melee, magic or summoner builds.",
-    start: "Choose a save slot, then a hunter build. Summoners raise zombies and hold attack to summon flaming skulls.",
+    summary: "A low-poly action RPG with loot, connected regions and customizable hunter, mage, archer or summoner builds.",
+    start: "Choose a save slot and a starting build, then collect equipment and shape your skills.",
     controls: [
       "WASD / Arrow: move",
       "Left / right click: skill slots 1 / 2; 1–4: skills; Space / Shift: dodge",

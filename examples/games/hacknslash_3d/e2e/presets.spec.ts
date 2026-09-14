@@ -6,7 +6,7 @@ const primary=(page,index)=>page.locator(`[data-skill="${index}"]`);
 async function mage(page){
   await page.goto('/?mute=1');
   await page.locator('[data-save-slot="0"]').click();
-  await page.getByRole('button',{name:/術の狩人/}).click();
+  await page.getByRole('button',{name:/魔法使い/}).click();
   await expect.poll(async()=>(await hud(page))?.mode).toBe('playing');
 }
 

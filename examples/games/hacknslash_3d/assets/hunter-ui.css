@@ -715,6 +715,20 @@ canvas#app {
   gap:10px
 }
 
+.starting-builds { display:grid; grid-template-columns:repeat(2,minmax(0,1fr)); gap:12px; }
+.starting-build { display:flex; flex-direction:column; gap:10px; padding:16px; text-align:left; border:1px solid var(--line); background:#17231ac9; min-width:0; }
+.starting-build.selected,.starting-build:hover { background:#34402bd9; border-color:var(--gold); }
+.starting-build-heading { display:flex; align-items:center; gap:10px; color:var(--gold); }
+.starting-build-heading svg { width:24px; height:24px; }
+.starting-build-heading span { margin-left:auto; }
+.starting-build-description { font-size:12px; line-height:1.6; }
+.starting-build-gear,.starting-build-skills { display:block; color:#b8c3af; font-size:11px; line-height:1.6; }
+.starting-build b { display:block; color:var(--gold); font-size:10px; margin-bottom:3px; }
+@media(max-width:600px) {
+  .starting-builds { grid-template-columns:1fr; gap:8px; }
+  .starting-build { padding:12px; gap:7px; }
+}
+
 .oath-list button {
   padding:17px 15px;
   display:grid;

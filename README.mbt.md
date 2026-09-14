@@ -4,7 +4,7 @@ A 2D-first (with future 3D) game engine for [MoonBit](https://www.moonbitlang.co
 
 [日本語](README_ja.md)
 
-[Playground](https://mizchi.github.io/kagura/) · [Play ASHEN HUNT](https://mizchi.github.io/kagura/hacknslash_3d/) — a low-poly action RPG with melee, magic and summoner builds.
+[Playground](https://mizchi.github.io/kagura/) · [Play ASHEN REALMS](https://mizchi.github.io/kagura/hacknslash_3d/) — a low-poly action RPG with hunter, mage, archer and summoner builds.
 
 ## Features
 

@@ -431,7 +431,7 @@ fn GameState::render_title_cmds(
       let _ = tr
       ctx.draw_text_centered(
         cmds,
-        "ASHEN HUNT",
+        "ASHEN REALMS",
         48.0,
         sw / 2.0,
         sh / 2.0 - 60.0,
@@ -439,7 +439,7 @@ fn GameState::render_title_cmds(
       )
       ctx.draw_text_centered(
         cmds,
-        "THE LONG NIGHT",
+        "LOOT / BUILD / EXPLORE",
         32.0,
         sw / 2.0,
         sh / 2.0 - 10.0,
@@ -448,7 +448,7 @@ fn GameState::render_title_cmds(
       if self.world.frame_count / 30 % 2 == 0 {
         ctx.draw_text_centered(
           cmds,
-          "SPACE  /  BEGIN THE HUNT",
+          "SPACE  /  BEGIN ADVENTURE",
           24.0,
           sw / 2.0,
           sh / 2.0 + 40.0,
@@ -461,14 +461,14 @@ fn GameState::render_title_cmds(
         @scene.label(
           x=sw / 2.0,
           y=sh / 2.0 - 60.0,
-          content="ASHEN HUNT",
+          content="ASHEN REALMS",
           scale=3.0,
           color=0xCBB68B,
         ),
         @scene.label(
           x=sw / 2.0,
           y=sh / 2.0 - 10.0,
-          content="THE LONG NIGHT",
+          content="LOOT / BUILD / EXPLORE",
           scale=2.0,
           color=0x84999D,
         ),
@@ -476,7 +476,7 @@ fn GameState::render_title_cmds(
           @scene.label(
             x=sw / 2.0,
             y=sh / 2.0 + 40.0,
-            content="SPACE  /  BEGIN THE HUNT",
+            content="SPACE  /  BEGIN ADVENTURE",
             color=0xFFCC00,
             scale=1.5,
           )
@@ -514,7 +514,7 @@ fn GameState::render_character_select_cmds(
       let _ = tr
       ctx.draw_text_centered(
         cmds,
-        "SELECT CLASS",
+        "SELECT BUILD",
         36.0,
         sw / 2.0,
         title_y,
@@ -578,7 +578,7 @@ fn GameState::render_character_select_cmds(
         @scene.label(
           x=sw / 2.0,
           y=title_y,
-          content="SELECT CLASS",
+          content="SELECT BUILD",
           scale=2.5,
           color=0xFFCC00,
         ),
@@ -664,7 +664,7 @@ fn GameState::render_gameover_cmds(
       if self.world.frame_count / 30 % 2 == 0 {
         ctx.draw_text_centered(
           cmds,
-          "SPACE  /  BEGIN THE HUNT",
+          "SPACE  /  BEGIN ADVENTURE",
           24.0,
           sw / 2.0,
           sh / 2.0 + 80.0,
@@ -698,7 +698,7 @@ fn GameState::render_gameover_cmds(
           @scene.label(
             x=sw / 2.0,
             y=sh / 2.0 + 80.0,
-            content="SPACE  /  BEGIN THE HUNT",
+            content="SPACE  /  BEGIN ADVENTURE",
             color=0x888888,
             scale=1.5,
           )

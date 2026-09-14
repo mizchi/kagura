@@ -40,5 +40,5 @@ test('playground describes the current hunter with saved builds, summons and con
   assert.match(demo.controls.join('\n'),/Left \/ right click.*slots 1 \/ 2/i);
   const html=renderLandingHtml({demos:[demo]});
   assert.match(html,/href="\.\/hacknslash_3d\/"/);
-  assert.match(html,/ASHEN HUNT/);
+  assert.match(html,/ASHEN REALMS/);
 });

@@ -1,8 +1,8 @@
 ///|
 /// Micro-benchmarks for uniform-dword builders. These dominate
-/// CPU-side cost in 3D rendering because they call double_to_f32_bits
-/// (an IEEE 754 unpack via int64 ops) hundreds-to-thousands of times
-/// per draw call on the JS target.
+/// CPU-side cost in 3D rendering through matrix packing, f32 conversion
+/// and uniform-array allocation. The conversion uses hardware intrinsics;
+/// the older BigInt-based double_to_f32_bits path is no longer used here.
 
 ///|
 fn bench_mat4_translation(i : Int) -> @math3d.Mat4 {

@@ -388,7 +388,7 @@ fn scenery_shader_wgsl() -> String {
     #|struct Uniforms {
     #| mvp: mat4x4<f32>, model: mat4x4<f32>, normal0: vec4<f32>, normal1: vec4<f32>, normal2: vec4<f32>,
     #| light_dir: vec4<f32>, light_color: vec4<f32>, ambient_color: vec4<f32>, focus: vec4<f32>,
-    #| eye: vec4<f32>, obstruction_target: vec4<f32>,
+    #| occlusion: KaguraCameraOcclusion,
     #|};
     #|@group(0) @binding(0) var<uniform> u: Uniforms;
     #|struct In { @location(0) p: vec3<f32>, @location(1) n: vec3<f32>, @location(2) uv: vec2<f32> };
@@ -403,21 +403,13 @@ fn scenery_shader_wgsl() -> String {
     #|}
     #|@fragment fn fs_main(v: Out) -> @location(0) vec4<f32> {
     #| var opacity=1.0;
-    #| if v.kind==2u && u.eye.w>0.5 {
-    #|   let ray=u.obstruction_target.xyz-u.eye.xyz;
-    #|   let t=dot(v.world-u.eye.xyz,ray)/max(dot(ray,ray),0.001);
-    #|   if t>0.0 && t<0.97 {
-    #|     let radius=mix(1.25,u.obstruction_target.w,clamp(t,0.0,1.0));
-    #|     let d=length(v.world-(u.eye.xyz+ray*t));
-    #|     opacity=smoothstep(radius*0.55,radius,d);
-    #|   }
-    #| }
+    #| if v.kind==2u { opacity=kagura_camera_opacity(v.world,u.occlusion); }
     #| if v.kind==3u { opacity*=1.0-smoothstep(12.0,25.0,length(v.world.xz-u.focus.xz)); }
-    #| if opacity<0.999 && fract(52.9829189*fract(dot(floor(v.p.xy),vec2(0.06711056,0.00583715))))>opacity { discard; }
+    #| if !kagura_dither_visible(opacity,v.p.xy) { discard; }
     #| let light=u.ambient_color.xyz+u.light_color.xyz*max(dot(normalize(v.n),normalize(-u.light_dir.xyz)),0.0);
     #| let lit=v.color*light;
     #| let fog=smoothstep(45.0,230.0,length(v.world.xz-u.focus.xz));
     #| return vec4(mix(lit,vec3(0.392,0.498,0.537),fog),1.0);
     #|}
-  biome_shader_wgsl() + source
+  @draw3d.shader3d_visibility_wgsl() + biome_shader_wgsl() + source
 }

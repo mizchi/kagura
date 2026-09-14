@@ -57,7 +57,7 @@ fn build_hunting_chunk(
         ) {
         continue
       }
-      let hash = (@game.woodland_random(x, z, seed + 277) * 1000000.0).to_int()
+      let hash = (@terrain3d.coordinate_random(x, z, seed + 277) * 1000000.0).to_int()
       let tile = dungeon.grid.get(x, z)
       let px = x.to_double()
       let pz = z.to_double()
@@ -193,10 +193,10 @@ fn build_hunting_chunk(
         }
         let tree_x = px +
           0.5 +
-          (@game.woodland_random(x, z, seed + 13) - 0.5) * 0.12
+          (@terrain3d.coordinate_random(x, z, seed + 13) - 0.5) * 0.12
         let tree_z = pz +
           0.5 +
-          (@game.woodland_random(x, z, seed + 29) - 0.5) * 0.12
+          (@terrain3d.coordinate_random(x, z, seed + 29) - 0.5) * 0.12
         hunting_surface_shadow(
           accum[12],
           px + 0.64,
@@ -236,7 +236,7 @@ fn build_hunting_chunk(
         }
       } else if site_material < 0 &&
         woodland_grass_allowed(dungeon, x, z) &&
-        @game.woodland_random(x, z, seed + 71) <
+        @terrain3d.coordinate_random(x, z, seed + 71) <
         0.08 + @game.woodland_density(px, pz, seed + 41) * 0.40 {
         grass.push((x, z, hash))
       } else if tile == @terrain.Corridor && hash % 9 == 0 {

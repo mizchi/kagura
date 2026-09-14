@@ -88,6 +88,8 @@ pub fn shader3d_standard_unlit_wgsl(tonemapped? : Bool, fog? : Bool, srgb_textur
 
 pub fn shader3d_standard_wgsl(linear_output? : Bool, srgb_texture? : Bool) -> String
 
+pub fn shader3d_visibility_wgsl() -> String
+
 pub fn skinned_instanced_lit_uniform_dwords(@math3d.Mat4, @light3d.LightingEnvironment, Array[@math3d.Mat4], Array[@math3d.Mat4], Array[@math3d.Vec4]) -> Array[Int]
 
 pub fn skinned_instanced_max_instances() -> Int
@@ -101,6 +103,17 @@ pub fn sky_mesh() -> @mesh3d.Mesh3D
 // Errors
 
 // Types and methods
+pub(all) struct CameraOcclusion {
+  eye : @math3d.Vec3
+  target : @math3d.Vec3
+  enabled : Bool
+  eye_radius : Double
+  target_radius : Double
+  softness : Double
+  end_fraction : Double
+}
+pub fn CameraOcclusion::append_uniform_dwords(Self, Array[Int]) -> Unit
+
 pub(all) struct PbrEnvironment {
   ground : @math3d.Vec3
   intensity : Double

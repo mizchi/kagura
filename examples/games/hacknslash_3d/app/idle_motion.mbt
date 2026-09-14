@@ -105,22 +105,20 @@ fn wolf_camp_pose(index : Int) -> Array[@transform3d.Transform3D] {
 }
 
 ///|
-let biped_rest_palettes : Array[Array[@math3d.Mat4]] = Array::makei(48, i => {
-  shared_enemy_skeleton.compute_skinning_matrices(
-    shared_enemy_skeleton.compute_world_transforms(biped_rest_pose(i, false)),
-  )
-})
+let biped_rest_clip : @scene3d.BakedSkinningClip = @scene3d.BakedSkinningClip::from_pose_sampler(
+  shared_enemy_skeleton,
+  48,
+  i => biped_rest_pose(i, false),
+)
 
 ///|
-let zombie_rest_palettes : Array[Array[@math3d.Mat4]] = Array::makei(48, i => {
-  shared_enemy_skeleton.compute_skinning_matrices(
-    shared_enemy_skeleton.compute_world_transforms(biped_rest_pose(i, true)),
-  )
-})
+let zombie_rest_clip : @scene3d.BakedSkinningClip = @scene3d.BakedSkinningClip::from_pose_sampler(
+  shared_enemy_skeleton,
+  48,
+  i => biped_rest_pose(i, true),
+)
 
 ///|
-let wolf_camp_palettes : Array[Array[@math3d.Mat4]] = Array::makei(48, i => {
-  wolf_skeleton.compute_skinning_matrices(
-    wolf_skeleton.compute_world_transforms(wolf_camp_pose(i)),
-  )
-})
+let wolf_camp_clip : @scene3d.BakedSkinningClip = @scene3d.BakedSkinningClip::from_pose_sampler(
+  wolf_skeleton, 48, wolf_camp_pose,
+)

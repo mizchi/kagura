@@ -44,14 +44,14 @@ test "ground cover never occupies a road and stays within its per-chunk triangle
 test "seated bipeds and curled wolves keep their visible geometry above the floor" {
   let models = EnemyModels::new()
   for
-    (mesh, palettes) in [
-      (models.basic, biped_rest_palettes),
-      (wolf_mesh, wolf_camp_palettes),
-      (zombie_mesh, zombie_rest_palettes),
+    (mesh, clip) in [
+      (models.basic, biped_rest_clip),
+      (wolf_mesh, wolf_camp_clip),
+      (zombie_mesh, zombie_rest_clip),
     ] {
     let mut floor = 100.0
-    for phase, palette in palettes {
-      let posed = mesh.geometry.skinned_mesh(160 + phase, palette)
+    for phase in 0..<clip.frame_count {
+      let posed = mesh.geometry.skinned_mesh(160 + phase, clip.matrices(phase))
       for i in 0..<posed.vertex_count() {
         floor = floor.min(posed.vertex_data[i * 8 + 1])
       }

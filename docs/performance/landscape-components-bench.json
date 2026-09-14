@@ -1,0 +1,327 @@
+{
+  "command": [
+    "moon",
+    "bench",
+    "--target",
+    "js"
+  ],
+  "baseline": "Shared landscape refactor, before fixed-size skinning uniform allocation (same benchmark fixtures)",
+  "current": "Fixed-size draw3d skinning uniform allocation",
+  "runs": 3,
+  "prefix": "landscape/",
+  "platform": "darwin",
+  "arch": "arm64",
+  "cpu": "Apple M5",
+  "node": "v24.21.0",
+  "moon": "moon 0.1.20260904 (94521db 2026-09-04)\n\nFeature flags enabled: rr_moon_mod,rr_moon_pkg",
+  "comparison": [
+    {
+      "name": "landscape/build_pose_bank_48x18",
+      "before": {
+        "samplesUs": [
+          139.45,
+          134.51,
+          142.72
+        ],
+        "medianUs": 139.45,
+        "minUs": 134.51,
+        "maxUs": 142.72
+      },
+      "after": {
+        "samplesUs": [
+          134.06,
+          161.5,
+          136.21
+        ],
+        "medianUs": 136.21,
+        "minUs": 134.06,
+        "maxUs": 161.5
+      },
+      "ratio": 0.9767658659017571,
+      "separation": "overlap"
+    },
+    {
+      "name": "landscape/build_scatter_100x80",
+      "before": {
+        "samplesUs": [
+          291.06,
+          285.92,
+          313.04
+        ],
+        "medianUs": 291.06,
+        "minUs": 285.92,
+        "maxUs": 313.04
+      },
+      "after": {
+        "samplesUs": [
+          285.54,
+          357.74,
+          326.14
+        ],
+        "medianUs": 326.14,
+        "minUs": 285.54,
+        "maxUs": 357.74
+      },
+      "ratio": 1.1205249776678348,
+      "separation": "overlap"
+    },
+    {
+      "name": "landscape/build_scatter_20x20",
+      "before": {
+        "samplesUs": [
+          9.54,
+          9.61,
+          10.51
+        ],
+        "medianUs": 9.61,
+        "minUs": 9.54,
+        "maxUs": 10.51
+      },
+      "after": {
+        "samplesUs": [
+          9.77,
+          11.33,
+          10.38
+        ],
+        "medianUs": 10.38,
+        "minUs": 9.77,
+        "maxUs": 11.33
+      },
+      "ratio": 1.0801248699271593,
+      "separation": "overlap"
+    },
+    {
+      "name": "landscape/build_scenery_uniforms_128",
+      "before": {
+        "samplesUs": [
+          26.05,
+          26.92,
+          26.99
+        ],
+        "medianUs": 26.92,
+        "minUs": 26.05,
+        "maxUs": 26.99
+      },
+      "after": {
+        "samplesUs": [
+          25.75,
+          32.32,
+          25.7
+        ],
+        "medianUs": 25.75,
+        "minUs": 25.7,
+        "maxUs": 32.32
+      },
+      "ratio": 0.9565378900445765,
+      "separation": "overlap"
+    },
+    {
+      "name": "landscape/build_skinned_draws_64",
+      "before": {
+        "samplesUs": [
+          161.43,
+          170.7,
+          169.61
+        ],
+        "medianUs": 169.61,
+        "minUs": 161.43,
+        "maxUs": 170.7
+      },
+      "after": {
+        "samplesUs": [
+          73.41,
+          89.14,
+          73.27
+        ],
+        "medianUs": 73.41,
+        "minUs": 73.27,
+        "maxUs": 89.14
+      },
+      "ratio": 0.4328164612935558,
+      "separation": "faster"
+    },
+    {
+      "name": "landscape/build_skinned_groups_8x8",
+      "before": {
+        "samplesUs": [
+          43.74,
+          39.21,
+          40.24
+        ],
+        "medianUs": 40.24,
+        "minUs": 39.21,
+        "maxUs": 43.74
+      },
+      "after": {
+        "samplesUs": [
+          14.81,
+          17.75,
+          14.68
+        ],
+        "medianUs": 14.81,
+        "minUs": 14.68,
+        "maxUs": 17.75
+      },
+      "ratio": 0.3680417495029821,
+      "separation": "faster"
+    },
+    {
+      "name": "landscape/build_visibility_tails_128",
+      "before": {
+        "samplesUs": [
+          3.39,
+          3.27,
+          3.28
+        ],
+        "medianUs": 3.28,
+        "minUs": 3.27,
+        "maxUs": 3.39
+      },
+      "after": {
+        "samplesUs": [
+          3.31,
+          4.12,
+          3.43
+        ],
+        "medianUs": 3.43,
+        "minUs": 3.31,
+        "maxUs": 4.12
+      },
+      "ratio": 1.0457317073170733,
+      "separation": "overlap"
+    },
+    {
+      "name": "landscape/phase_cached_poses_64",
+      "before": {
+        "samplesUs": [
+          0.2913,
+          0.29416000000000003,
+          0.32031
+        ],
+        "medianUs": 0.29416000000000003,
+        "minUs": 0.2913,
+        "maxUs": 0.32031
+      },
+      "after": {
+        "samplesUs": [
+          0.2858,
+          0.3436,
+          0.30231
+        ],
+        "medianUs": 0.30231,
+        "minUs": 0.2858,
+        "maxUs": 0.3436
+      },
+      "ratio": 1.0277060103345117,
+      "separation": "overlap"
+    },
+    {
+      "name": "landscape/phase_camera_blocked_64",
+      "before": {
+        "samplesUs": [
+          1.05,
+          0.9438,
+          0.9406100000000001
+        ],
+        "medianUs": 0.9438,
+        "minUs": 0.9406100000000001,
+        "maxUs": 1.05
+      },
+      "after": {
+        "samplesUs": [
+          1.07,
+          1.07,
+          1.06
+        ],
+        "medianUs": 1.07,
+        "minUs": 1.06,
+        "maxUs": 1.07
+      },
+      "ratio": 1.1337147700784065,
+      "separation": "slower"
+    },
+    {
+      "name": "landscape/phase_camera_clear_64",
+      "before": {
+        "samplesUs": [
+          1.52,
+          1.55,
+          1.58
+        ],
+        "medianUs": 1.55,
+        "minUs": 1.52,
+        "maxUs": 1.58
+      },
+      "after": {
+        "samplesUs": [
+          1.57,
+          1.75,
+          1.51
+        ],
+        "medianUs": 1.57,
+        "minUs": 1.51,
+        "maxUs": 1.75
+      },
+      "ratio": 1.0129032258064516,
+      "separation": "overlap"
+    }
+  ],
+  "date": "2026-09-14",
+  "browserCamp": {
+    "scenario": "camp",
+    "browser": "Chrome 152 / Metal",
+    "samplesPerRun": 240,
+    "viewport": {
+      "width": 1280,
+      "height": 900
+    },
+    "pairs": {
+      "before": [
+        {
+          "cpuMsPerFrame": 3.7935125,
+          "gpuP95Ms": 3.01,
+          "drawCalls": 81,
+          "indexCount": 246432,
+          "errors": []
+        },
+        {
+          "cpuMsPerFrame": 3.9710083333333333,
+          "gpuP95Ms": 2.44,
+          "drawCalls": 81,
+          "indexCount": 246432,
+          "errors": []
+        },
+        {
+          "cpuMsPerFrame": 3.846979166666667,
+          "gpuP95Ms": 2.42,
+          "drawCalls": 81,
+          "indexCount": 246432,
+          "errors": []
+        }
+      ],
+      "after": [
+        {
+          "cpuMsPerFrame": 3.4315124999999997,
+          "gpuP95Ms": 3.06,
+          "drawCalls": 81,
+          "indexCount": 246432,
+          "errors": []
+        },
+        {
+          "cpuMsPerFrame": 3.2973041666666663,
+          "gpuP95Ms": 1.46,
+          "drawCalls": 81,
+          "indexCount": 246432,
+          "errors": []
+        },
+        {
+          "cpuMsPerFrame": 2.3322875,
+          "gpuP95Ms": 2.88,
+          "drawCalls": 81,
+          "indexCount": 246432,
+          "errors": []
+        }
+      ]
+    }
+  }
+}

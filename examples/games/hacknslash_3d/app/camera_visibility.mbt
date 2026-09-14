@@ -36,24 +36,20 @@ fn GameState::scenery_draw(
     self.scenery_focus(),
     [],
   )
-  let eye = self.camera.position()
   let p = self.world.player
-  for
-    v in [
-      eye.x,
-      eye.y,
-      eye.z,
-      if self.camera_settings.mode == 1 {
-        1.0
-      } else {
-        0.0
-      },
+  let mask : @draw3d.CameraOcclusion = {
+    eye: self.camera.position(),
+    target: @math3d.Vec3::new(
       p.x / tile_size,
       @game.get_tile_height(self.world.dungeon, p.x, p.y) + 0.75,
       p.y / tile_size,
-      0.85,
-    ] {
-    cmd.uniform_dwords.push(v.to_float().reinterpret_as_int())
+    ),
+    enabled: self.camera_settings.mode == 1,
+    eye_radius: 1.25,
+    target_radius: 0.85,
+    softness: 0.55,
+    end_fraction: 0.97,
   }
+  mask.append_uniform_dwords(cmd.uniform_dwords)
   cmd
 }

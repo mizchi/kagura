@@ -9,9 +9,13 @@ import {
 }
 
 // Values
+pub fn coordinate_random(Int, Int, Int) -> Double
+
 pub fn generate_height_field(Int, Int, TerrainConfig) -> HeightField
 
 pub fn grid_to_mesh3d(@types.Grid2D, tile_size? : Double, wall_height? : Double) -> @mesh3d.Mesh3D
+
+pub fn priority_scatter_cell(Int, Int, Int, probability~ : Double, radius? : Int) -> Bool
 
 // Errors
 
@@ -75,6 +79,16 @@ pub(all) struct TerrainRoute {
   width : Double
 } derive(ToJson)
 pub fn TerrainRoute::projection(Self, Double, Double) -> (Double, Double)
+
+pub(all) struct WarpedDensityField {
+  frequency_x : Double
+  frequency_z : Double
+  warp_x : Double
+  warp_z : Double
+  warp_frequency_x : Double
+  warp_frequency_z : Double
+}
+pub fn WarpedDensityField::sample(Self, Double, Double, phase? : Double) -> Double
 
 // Type aliases
 

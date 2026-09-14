@@ -25,6 +25,19 @@ pub fn mat4_to_uniform_dwords(m : @math3d.Mat4) -> Array[Int] {
 }
 
 ///|
+// Write into caller-owned, zero-initialized uniform storage. Keeping the final
+// size avoids repeated Array growth and explicit per-bone padding in hot paths.
+fn write_mat4_uniform_dwords(
+  dwords : Array[Int],
+  offset : Int,
+  matrix : @math3d.Mat4,
+) -> Unit {
+  for i in 0..<16 {
+    dwords[offset + i] = f32(matrix.elements[i])
+  }
+}
+
+///|
 /// Compute MVP matrix and encode as uniform dwords.
 pub fn mvp_uniform_dwords(
   model : @math3d.Mat4,
@@ -768,53 +781,38 @@ pub fn skinned_instanced_monochrome_lit_uniform_dwords(
   instance_matrices : Array[@math3d.Mat4],
   base_color : @math3d.Vec4,
 ) -> Array[Int] {
-  let dwords = mat4_to_uniform_dwords(view_projection)
+  // vp(16), light(12), bone count(4), palette(64x16), instance count(4),
+  // color(4), models(64x16). Unused entries and vec4 padding stay zero.
+  let palette_offset = 32
+  let count_offset = palette_offset + max_bones * 16
+  let models_offset = count_offset + 8
+  let dwords = Array::make(models_offset + max_skinned_instances * 16, 0)
+  write_mat4_uniform_dwords(dwords, 0, view_projection)
   let light_dw = @light3d.light_uniform_dwords(lighting)
-  for i in 0..<light_dw.length() {
-    dwords.push(light_dw[i])
+  for i in 0..<12 {
+    dwords[16 + i] = light_dw[i]
   }
-  let bone_count = if skinning_matrices.length() < max_bones {
-    skinning_matrices.length()
-  } else {
-    max_bones
-  }
-  dwords.push(f32(bone_count.to_double()))
-  dwords.push(f32(0.0))
-  dwords.push(f32(0.0))
-  dwords.push(f32(0.0))
+  let bone_count = skinning_matrices.length().min(max_bones)
+  dwords[28] = f32(bone_count.to_double())
   for i in 0..<bone_count {
-    for j in 0..<16 {
-      dwords.push(f32(skinning_matrices[i].elements[j]))
-    }
+    write_mat4_uniform_dwords(
+      dwords,
+      palette_offset + i * 16,
+      skinning_matrices[i],
+    )
   }
-  for _i in bone_count..<max_bones {
-    for _j in 0..<16 {
-      dwords.push(0)
-    }
-  }
-  let inst_count = if instance_matrices.length() < max_skinned_instances {
-    instance_matrices.length()
-  } else {
-    max_skinned_instances
-  }
-  dwords.push(f32(inst_count.to_double()))
-  dwords.push(f32(0.0))
-  dwords.push(f32(0.0))
-  dwords.push(f32(0.0))
-  dwords.push(f32(base_color.x))
-  dwords.push(f32(base_color.y))
-  dwords.push(f32(base_color.z))
-  dwords.push(f32(base_color.w))
+  let inst_count = instance_matrices.length().min(max_skinned_instances)
+  dwords[count_offset] = f32(inst_count.to_double())
+  dwords[count_offset + 4] = f32(base_color.x)
+  dwords[count_offset + 5] = f32(base_color.y)
+  dwords[count_offset + 6] = f32(base_color.z)
+  dwords[count_offset + 7] = f32(base_color.w)
   for i in 0..<inst_count {
-    let m = instance_matrices[i]
-    for j in 0..<16 {
-      dwords.push(f32(m.elements[j]))
-    }
-  }
-  for _i in inst_count..<max_skinned_instances {
-    for _j in 0..<16 {
-      dwords.push(0)
-    }
+    write_mat4_uniform_dwords(
+      dwords,
+      models_offset + i * 16,
+      instance_matrices[i],
+    )
   }
   dwords
 }
@@ -838,29 +836,17 @@ pub fn new_skinned_lit_mesh_draw_command(
   skinning_matrices : Array[@math3d.Mat4],
   src_image_ids : Array[Int],
 ) -> @gfx.DrawTrianglesCommand {
-  // Base lit uniforms (56 dwords)
-  let dwords = lit_uniform_dwords(model_matrix, view_projection, lighting)
-  // num_bones as vec4<f32> (4 dwords, padded)
-  dwords.push(f32(skinning_matrices.length().to_double()))
-  dwords.push(f32(0.0))
-  dwords.push(f32(0.0))
-  dwords.push(f32(0.0))
-  // Bone matrices (each 16 dwords, up to MAX_BONES)
-  let bone_count = if skinning_matrices.length() < max_bones {
-    skinning_matrices.length()
-  } else {
-    max_bones
-  }
+  let dwords = lit_uniform_dwords_with_light_dwords(
+    model_matrix,
+    view_projection,
+    @light3d.light_uniform_dwords(lighting),
+    dword_count=skinned_lit_uniform_dwords(),
+  )
+  // Preserve the existing count field; palette storage is capped at MAX_BONES.
+  dwords[56] = f32(skinning_matrices.length().to_double())
+  let bone_count = skinning_matrices.length().min(max_bones)
   for i in 0..<bone_count {
-    for j in 0..<16 {
-      dwords.push(f32(skinning_matrices[i].elements[j]))
-    }
-  }
-  // Pad remaining bones with zeros
-  for _i in bone_count..<max_bones {
-    for _j in 0..<16 {
-      dwords.push(0)
-    }
+    write_mat4_uniform_dwords(dwords, 60 + i * 16, skinning_matrices[i])
   }
   @gfx.new_draw_triangles_command(
     dst,

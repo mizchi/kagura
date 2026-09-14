@@ -7,6 +7,9 @@ import {
 }
 
 // Values
+pub fn release_camera_boom(Double, Double, release~ : Double) -> Double
+
+pub fn sweep_camera_boom(@math3d.Vec3, @math3d.Vec3, (@math3d.Vec3) -> Bool, step? : Double) -> Double
 
 // Errors
 

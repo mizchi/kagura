@@ -42,7 +42,12 @@ fn configure_enemy_camps(enemies : Array[Enemy], seed : Int) -> Unit {
     }
     enemy.camp = Some({
       pack_id: pack,
-      pose: if woodland_random(enemy.x.to_int(), enemy.y.to_int(), seed) > 0.45 {
+      pose: if @terrain3d.coordinate_random(
+          enemy.x.to_int(),
+          enemy.y.to_int(),
+          seed,
+        ) >
+        0.45 {
         Sitting
       } else {
         Standing
@@ -56,7 +61,7 @@ fn configure_enemy_camps(enemies : Array[Enemy], seed : Int) -> Unit {
     enemy.move_angle = if center_x != enemy.x || center_z != enemy.y {
       @math.atan2(center_z - enemy.y, center_x - enemy.x)
     } else {
-      woodland_random(pack, 17, seed) * @math.PI * 2.0
+      @terrain3d.coordinate_random(pack, 17, seed) * @math.PI * 2.0
     }
   }
 }

@@ -234,21 +234,16 @@ fn GameState::camera_clear_segment(
   start : @math3d.Vec3,
   end : @math3d.Vec3,
 ) -> Double {
-  let delta = end.sub(start)
-  let length = delta.length()
-  if length < 0.001 {
-    return 1.0
-  }
-  let steps = (length / 0.12).to_int() + 1
-  for i in 1..<=steps {
-    let t = i.to_double() / steps.to_double()
-    let point = start.add(delta.scale(t))
-    let floor = @game.get_tile_height(
-      self.world.dungeon,
-      point.x * tile_size,
-      point.z * tile_size,
-    )
-    let blocked = point.y < floor + 0.18 ||
+  @camera3d.sweep_camera_boom(
+    start,
+    end,
+    point => {
+      let floor = @game.get_tile_height(
+        self.world.dungeon,
+        point.x * tile_size,
+        point.z * tile_size,
+      )
+      point.y < floor + 0.18 ||
       (
         (!self.world.hunting_grounds || self.world.authored_scene is Some(_)) &&
         point.y < floor + 3.2 &&
@@ -259,11 +254,9 @@ fn GameState::camera_clear_segment(
           tile_size * 0.18,
         )
       )
-    if blocked {
-      return ((i - 1).to_double() / steps.to_double()).max(0.0)
-    }
-  }
-  1.0
+    },
+    step=0.12,
+  )
 }
 
 ///|
@@ -286,11 +279,11 @@ fn GameState::resolve_tps_camera(self : GameState, height : Double) -> Unit {
   )
   let available = (self.camera.distance * clear).max(0.15)
   // Retract immediately to avoid terrain, release gently once the slope clears.
-  let distance = if self.world.hunting_grounds && available > previous_distance {
-    previous_distance + (available - previous_distance) * 0.18
-  } else {
-    available
-  }
+  let distance = @camera3d.release_camera_boom(
+    previous_distance,
+    available,
+    release=if self.world.hunting_grounds { 0.18 } else { 1.0 },
+  )
   self.camera = self.camera.with_distance(distance)
 }
 

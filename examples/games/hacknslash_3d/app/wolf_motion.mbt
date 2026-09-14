@@ -191,7 +191,7 @@ fn wolf_pose_key(enemy : @game.Enemy, frame? : Int = 0) -> Int {
 ///|
 fn wolf_skinning_for_key(key : Int) -> Array[@math3d.Mat4] {
   if key < 0 {
-    return wolf_camp_palettes[-key - 1]
+    return wolf_camp_clip.matrices(-key - 1)
   }
   if key >= 3 * wolf_pose_stride {
     wolf_rest_skinning

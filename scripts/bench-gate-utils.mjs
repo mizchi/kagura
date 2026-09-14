@@ -252,3 +252,35 @@ function formatUs(value) {
   const rounded = Math.round(value * 100) / 100;
   return `${rounded}µs`;
 }
+
+// Compare alternating runs without hiding overlap behind a median ratio.
+// Every run must contain exactly the same workloads, including both trees.
+export function comparePairedRuns(beforeRuns, afterRuns) {
+  if (!beforeRuns.length || beforeRuns.length !== afterRuns.length) {
+    throw new Error('Expected the same nonzero number of before/after runs');
+  }
+  const names = beforeRuns[0].map((entry) => entry.name).sort();
+  if (!names.length) throw new Error('No benchmarks found');
+  const key = JSON.stringify(names);
+  for (const run of [...beforeRuns, ...afterRuns]) {
+    if (new Set(run.map((entry) => entry.name)).size !== run.length ||
+        JSON.stringify(run.map((entry) => entry.name).sort()) !== key) {
+      throw new Error('Benchmark workloads differ between runs');
+    }
+    if (run.some(({ meanUs }) => !Number.isFinite(meanUs) || meanUs <= 0)) {
+      throw new Error('Expected positive finite benchmark timings');
+    }
+  }
+  const summarize = (runs, name) => {
+    const samplesUs = runs.map((run) => run.find((entry) => entry.name === name).meanUs);
+    return { samplesUs, medianUs: median(samplesUs), minUs: Math.min(...samplesUs), maxUs: Math.max(...samplesUs) };
+  };
+  return names.map((name) => {
+    const before = summarize(beforeRuns, name);
+    const after = summarize(afterRuns, name);
+    return {
+      name, before, after, ratio: after.medianUs / before.medianUs,
+      separation: after.maxUs < before.minUs ? 'faster' : after.minUs > before.maxUs ? 'slower' : 'overlap',
+    };
+  });
+}

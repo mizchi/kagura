@@ -83,3 +83,38 @@ final sampled elevations, not just requested anchor heights.
 `cell_slope(x,z)` returns the maximum gradient of the two rendered triangles.
 The component owns neither mission progression nor enemy placement. ASHEN REALMS
 supplies those in its game module and validates routes after terrain repair.
+
+## Stateless scenery placement
+
+`coordinate_random(x, z, seed)` returns a roll in `[0, 1)` from global integer
+coordinates. It shares the terrain hash without consuming mutable random state.
+Existing height-field noise retains its original normalization, preserving saves.
+
+`WarpedDensityField` samples a continuous `0..1` density from two domain-warped
+waves. Set the X/Z frequencies (radians per world unit), warp amplitudes (world
+units), and warp frequencies; pass a phase to `sample` to distinguish layers.
+Zero warp amplitudes give an undeformed field. The caller defines seed-to-phase
+mapping and the density-to-placement threshold.
+
+```moonbit
+let density : @terrain3d.WarpedDensityField = {
+  frequency_x: 0.16, frequency_z: 0.19,
+  warp_x: 5.0, warp_z: 6.0,
+  warp_frequency_x: 0.11, warp_frequency_z: 0.13,
+}
+let probability = 0.025 + density.sample(x.to_double(), z.to_double(), phase=0.4) * 0.2
+let candidate = @terrain3d.priority_scatter_cell(x, z, seed, probability~, radius=1)
+```
+
+`priority_scatter_cell` keeps local priority minima with a square exclusion
+radius in cells. Equal priorities use a deterministic coordinate tie-break.
+Evaluate global coordinates even when generating separate chunks: neighboring
+priorities are computed directly, so neither generation order nor a populated
+neighbor cache affects placement. A radius of 1 leaves at least one free cell
+between accepted candidates. Query cost is at most `(2 * radius + 1)^2` hashes.
+The radius must be the same across the placement layer for this spacing guarantee.
+
+Apply road, water, slope, building and gameplay masks in the caller. All neighbor
+priorities participate even when masked, so the result is deliberately not a
+maximal packing. Species, mesh creation and per-chunk geometry budgets remain
+separate from candidate selection.

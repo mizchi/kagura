@@ -315,7 +315,7 @@ fn GameState::push_enemy_character_commands_with_view_projection(
   for key in self.enemy_models.active_attack_keys {
     let buckets = self.enemy_models.attack_buckets[key]
     let palette = if key < 0 {
-      biped_rest_palettes[-key - 1]
+      biped_rest_clip.matrices(-key - 1)
     } else {
       let clip = self.enemy_models.attack_clips[key / enemy_attack_pose_stride]
       clip.matrices(key % enemy_attack_pose_stride)

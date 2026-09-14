@@ -481,8 +481,6 @@ pub let whirlwind_recovery_frames : Int
 
 pub fn woodland_density(Double, Double, Int) -> Double
 
-pub fn woodland_random(Int, Int, Int) -> Double
-
 pub let world_h : Double
 
 pub let world_regions : Array[WorldRegion]

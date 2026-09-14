@@ -171,7 +171,7 @@ fn zombie_pose_key(enemy : @game.Enemy, frame? : Int = 0) -> Int {
 ///|
 fn zombie_skinning_for_key(key : Int) -> Array[@math3d.Mat4] {
   if key < 0 {
-    return zombie_rest_palettes[-key - 1]
+    return zombie_rest_clip.matrices(-key - 1)
   }
   zombie_baked_clips[key / zombie_pose_stride].matrices(
     key % zombie_pose_stride,

@@ -16,11 +16,30 @@ pub fn BakedSkinningClip::new(
   let count = frame_count.max(2)
   let player = @animation3d.AnimationPlayer::new(clip)
   player.set_looping(false)
-  let frames = Array::makei(count, index => {
+  BakedSkinningClip::from_pose_sampler(skeleton, count, index => {
     player.set_time(index.to_double() / (count - 1).to_double() * clip.duration)
     let poses = skeleton.bones.map(bone => bone.local_transform)
     @animation3d.apply_node_poses(poses, player.sample())
-    skeleton.compute_skinning_matrices(skeleton.compute_world_transforms(poses))
+    poses
+  })
+}
+
+///|
+/// Bake procedural local poses once, retaining the skeleton hierarchy and
+/// inverse bind matrices. The sampler is called exactly max(frame_count, 1)
+/// times, in index order, and must return one local transform per bone. It may
+/// reuse its scratch array: matrices are computed before the next invocation.
+/// Playback only selects cached matrices and never invokes the sampler again.
+pub fn BakedSkinningClip::from_pose_sampler(
+  skeleton : @skeleton3d.Skeleton,
+  frame_count : Int,
+  sample : (Int) -> Array[@transform3d.Transform3D],
+) -> BakedSkinningClip {
+  let count = frame_count.max(1)
+  let frames = Array::makei(count, index => {
+    skeleton.compute_skinning_matrices(
+      skeleton.compute_world_transforms(sample(index)),
+    )
   })
   { frame_count: count, frames, }
 }

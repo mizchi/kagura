@@ -1,0 +1,15 @@
+import {initWebGPU, setupGlobalState, showStartupError} from './runtime/kagura-init.js';
+import {installAudioHelpers} from './runtime/kagura-audio.js';
+import {installGfxHelpers} from './runtime/kagura-gfx.js';
+
+try {
+  const gpu = await initWebGPU('#app');
+  if (!gpu) throw new Error('WebGPU is required. Open this page in a browser with WebGPU enabled.');
+  setupGlobalState(gpu.canvas, gpu.device, gpu.format, gpu.context);
+  installAudioHelpers();
+  installGfxHelpers();
+  await import('mbt:username/__PROJECT_NAME__');
+} catch (error) {
+  showStartupError('#app', 'Unable to start the game', error.message);
+  throw error;
+}

@@ -1,0 +1,34 @@
+// Generated using `moon info`, DON'T EDIT IT
+package "mizchi/kagura_cli/kagura"
+
+import {
+  "moonbitlang/core/debug",
+}
+
+// Values
+pub fn help_text() -> String
+
+pub fn parse_args(Array[String]) -> Result[Command, String]
+
+pub fn parse_cli(Array[String]) -> String
+
+pub fn project_name(String, String) -> String
+
+pub fn project_slug(String) -> String
+
+pub fn scaffold_files(String) -> String
+
+// Errors
+
+// Types and methods
+pub enum Command {
+  Help(String?)
+  Dev(String?, Int?, String)
+  Build(String?, String?)
+  Studio(Int?, String)
+  NewWeb(String)
+} derive(Eq, @debug.Debug)
+
+// Type aliases
+
+// Traits

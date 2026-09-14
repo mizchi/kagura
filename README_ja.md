@@ -100,6 +100,35 @@ just dev flappy_bird
 
 ビルド → ローカルサーバー起動 → `http://localhost:8080` で開けます。ブラウザ版は現在 WebGPU 専用です。WebGPU 対応ブラウザ（Chrome 113+, Edge 113+）を使ってください。
 
+## 開発 CLI
+
+このチェックアウトから CLI をインストールして、Web ゲームを作成できます。
+
+```sh
+moon install ./cmd/kagura
+kagura new my-game --web
+cd my-game
+pnpm install
+kagura dev
+kagura build
+```
+
+`kagura new --web` は空の現在地に生成します。雛形は構成変更後の Kagura パッケージの
+リリースを前提とし、ローカルパス依存を使いません。共通ブラウザランタイムと Vite 設定を含みます。
+
+チェックアウト内のサンプルと Studio は次のように起動します。
+
+```sh
+pnpm kagura dev hacknslash_3d --port 8080
+pnpm kagura build hacknslash_3d --out-dir output/game
+just studio-install  # Studio の初回準備
+pnpm kagura studio
+```
+
+`just kagura ...` からも実行できます。ゲームのディレクトリ内ではプロジェクト名を省略できます。
+`build` は HTML・JS・素材を揃えた静的サイトを出力します。
+詳細は [Kagura CLI](cmd/kagura/README.md) を参照してください。
+
 ## Scene API で始める
 
 最小の宣言的ゲーム:

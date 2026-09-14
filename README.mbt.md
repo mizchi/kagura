@@ -56,6 +56,35 @@ just dev flappy_bird
 
 Builds and serves at `http://localhost:8080`. Browser demos currently require WebGPU (Chrome 113+, Edge 113+).
 
+### Development CLI
+
+Install from this checkout, then scaffold a standalone Web game:
+
+```sh
+moon install ./cmd/kagura
+kagura new my-game --web
+cd my-game
+pnpm install
+kagura dev
+kagura build
+```
+
+`kagura new --web` uses the current empty directory. The template depends on the
+Kagura packages published after the directory refactor. It includes the browser
+runtime and Vite setup without local path dependencies.
+
+For examples and Studio in this checkout:
+
+```sh
+pnpm kagura dev hacknslash_3d --port 8080
+pnpm kagura build hacknslash_3d --out-dir output/game
+pnpm kagura studio
+```
+
+Run `just studio-install` once before launching Studio. `just kagura ...` also
+works; inside a game directory the project argument can be omitted. Builds are
+self-contained static sites. See [Kagura CLI](cmd/kagura/README.md) for options.
+
 ### Publish the playground
 
 `just pages` builds release bundles and relative assets into `_site/`. Pushing

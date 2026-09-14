@@ -1,0 +1,25 @@
+# __PROJECT_NAME__
+
+A MoonBit game using Kagura's released Web runtime.
+
+Requires Node.js 24+, pnpm, MoonBit, and a WebGPU browser. The Mooncakes
+dependencies in `moon.mod` require the Kagura release containing the new layout.
+
+```sh
+pnpm install
+kagura dev                  # http://127.0.0.1:8080
+kagura build                # dist/
+```
+
+`pnpm dev`, `pnpm build`, and the provided `justfile` also work without the CLI.
+Move the green character with WASD or the arrow keys. Edit `main.mbt` to change
+the game; the dev server rebuilds and reloads it automatically.
+
+Publish the contents of `dist/` to a static HTTP host. Relative URLs support
+subdirectory deployments. No Kagura checkout or local path dependency is needed.
+
+`username/__PROJECT_NAME__` is the starter module name. When changing it, update
+both `moon.mod` and the `mbt:` import in `web.mjs`.
+
+The generated `runtime/` contains the matching browser host distribution
+(Apache-2.0), not the engine's MoonBit source. Keep it with this project.

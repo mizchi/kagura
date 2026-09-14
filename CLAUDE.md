@@ -10,6 +10,7 @@
   - カテゴリ: `games`（遊べるサンプル）, `demos-2d` / `demos-3d`（単機能デモ）, `assets`（MoonBit を持たないエディタ素材プロジェクト）, `smoke`（CI の最小確認）, `experimental`
   - Studio の一覧と用途は `examples/catalog.json`、選び方と統合方針は `examples/README.md`
 - `scripts/` - ビルド・開発スクリプト
+- `cmd/moon.mod` / `cmd/kagura/` - 開発 CLI（`mizchi/kagura_cli/kagura`）。`moon install ./cmd/kagura` でインストール、`kagura new --web` で雛形を生成。引数・雛形契約は MoonBit、Node は I/O とプロセスのホスト。`just cli-build` で ESM と native 埋め込みソースを同期
 - `justfile` - タスクランナー
 
 ### レイヤ
@@ -614,3 +615,4 @@ FFI で `FixedArray` を渡す方法自体は動く（`#unsafe_skip_stub_check` 
 - 再生時間は `core/anim3d/playback`（独立 anim3d module の循環依存を避ける配置）、粒子の運動は `core/particle3d`、矩形配置は `core/packing2d`、統計は `core/statistics`。
 - 手書き Web ホストの原本は `platform_web/host`。`assets/web` を直接編集せず `just web-runtime-build` で同期する。型宣言の原本は各 ESM package の `exports.d.ts`。
 - `benchmarks` と `experiments` は非公開の利用側。ライブラリから依存しない。
+- `cmd/` も非公開の利用側。CLI は既存の dev/build/Studio 処理を呼び、引数の方針を手書き JS に複製しない。検証は `just cli-test` / `just cli-e2e`。

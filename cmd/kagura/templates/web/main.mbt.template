@@ -1,0 +1,55 @@
+///|
+struct Player {
+  mut x : Double
+  mut y : Double
+}
+
+///|
+fn main {
+  @web_hooks.install("#app")
+  let player = Player::{ x: 400, y: 280 }
+  @engine.run(
+    update=fn(input : @core.InputSnapshot) {
+      // The web host translates KeyboardEvent.code, so layouts such as Dvorak work.
+      let keys = input.pressed_keys
+      let dx = (if keys.contains(68) || keys.contains(39) { 1.0 } else { 0.0 }) -
+        (if keys.contains(65) || keys.contains(37) { 1.0 } else { 0.0 })
+      let dy = (if keys.contains(83) || keys.contains(40) { 1.0 } else { 0.0 }) -
+        (if keys.contains(87) || keys.contains(38) { 1.0 } else { 0.0 })
+      let speed = if dx != 0 && dy != 0 { 2.12 } else { 3.0 }
+      player.x = (player.x + dx * speed).clamp(min=24, max=776)
+      player.y = (player.y + dy * speed).clamp(min=24, max=536)
+    },
+    draw=fn(ctx) {
+      let commands : Array[@gfx.DrawTrianglesCommand] = []
+      let frame = @renderer2d.RenderFrame2D::new(
+        dst=ctx.dst, shader=ctx.shader, screen_w=800, screen_h=560,
+      )
+      @renderer2d.append_rect_fill(commands, frame, @renderer2d.RectFill2D::new(
+        x=0, y=0, w=800, h=560, color=@renderer2d.color_from_hex(0x101C2A),
+      ))
+      for column in 0..<20 {
+        @renderer2d.append_rect_fill(commands, frame, @renderer2d.RectFill2D::new(
+          x=column.to_double() * 40, y=0, w=1, h=560,
+          color=@renderer2d.color_from_hex(0x203448),
+        ))
+      }
+      for row in 0..<14 {
+        @renderer2d.append_rect_fill(commands, frame, @renderer2d.RectFill2D::new(
+          x=0, y=row.to_double() * 40, w=800, h=1,
+          color=@renderer2d.color_from_hex(0x203448),
+        ))
+      }
+      @renderer2d.append_rect_fill(commands, frame, @renderer2d.RectFill2D::new(
+        x=player.x - 19, y=player.y - 14, w=38, h=38,
+        color=@renderer2d.color_from_hex(0x08111D),
+      ))
+      @renderer2d.append_rect_fill(commands, frame, @renderer2d.RectFill2D::new(
+        x=player.x - 16, y=player.y - 16, w=32, h=32,
+        color=@renderer2d.color_from_hex(0x64E4C0),
+      ))
+      commands
+    },
+    width=800, height=560, title="__PROJECT_NAME__", canvas="#app",
+  )
+}

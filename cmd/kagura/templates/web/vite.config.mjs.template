@@ -1,0 +1,48 @@
+import {defineConfig} from 'vite';
+import {moonbit} from 'vite-plugin-moonbit';
+import {execFile} from 'node:child_process';
+import {promisify} from 'node:util';
+
+const run = promisify(execFile);
+
+export default defineConfig(async ({command}) => {
+  const release = command === 'build';
+  let pending = Promise.resolve();
+  function buildMoon() {
+    // Serialize rebuilds. A change during compilation must not be lost.
+    pending = pending.catch(() => {}).then(async () => {
+      const {stdout, stderr} = await run('moon', ['build', '.', '--target', 'js', ...(release ? ['--release'] : [])], {
+        cwd: import.meta.dirname, maxBuffer: 16 * 1024 * 1024,
+      });
+      if (stdout) process.stdout.write(stdout);
+      if (stderr) process.stderr.write(stderr);
+    });
+    return pending;
+  }
+  await buildMoon();
+  return {
+    base: './',
+    plugins: [
+      moonbit({root: import.meta.dirname, target: 'js', mode: release ? 'release' : 'debug', watch: false}),
+      {
+        name: 'kagura-moonbit-reload',
+        async handleHotUpdate({file, server}) {
+          if (!/\.(mbt|mbti)$|\/moon\.(pkg|mod)(\.json)?$/.test(file.replaceAll('\\', '/'))) return;
+          try {
+            await buildMoon();
+          } catch (error) {
+            server.ws.send({type: 'error', err: {message: error.stderr || error.message, stack: ''}});
+            return [];
+          }
+          // The game owns a frame loop and GPU state. Restart after a successful
+          // compile, using process completion rather than Moon's terminal output.
+          server.moduleGraph.invalidateAll();
+          server.ws.send({type: 'full-reload', path: '*'});
+          return [];
+        },
+      },
+    ],
+    server: {strictPort: true},
+    build: {target: 'esnext'},
+  };
+});

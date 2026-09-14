@@ -4,6 +4,31 @@ target := "js"
 
 default: check test
 
+# MoonBit CLI policy, with a small Node process/filesystem host.
+[positional-arguments]
+[no-cd]
+kagura *args:
+    @node "{{justfile_directory()}}/cmd/kagura/main.mjs" "$@"
+
+cli-build:
+    node cmd/kagura/build.mjs
+
+cli-check:
+    moon check cmd/kagura --target js --deny-warn
+    moon check cmd/kagura --target native --deny-warn
+    node cmd/kagura/build.mjs --check
+
+cli-test: cli-build
+    moon test cmd/kagura --target js
+    node --test scripts/kagura-cli.test.mjs scripts/kagura-scaffold.test.mjs scripts/web-demo-package.test.mjs
+
+cli-install: cli-build
+    moon install ./cmd/kagura
+
+[positional-arguments]
+cli-e2e *args:
+    pnpm exec playwright test -c cmd/kagura/playwright.config.mjs "$@"
+
 # ESM distribution is generated solely from platform_web/web_core.
 web-runtime-build:
     node scripts/build-web-runtime.mjs

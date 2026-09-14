@@ -1,0 +1,19 @@
+default:
+    @just --list
+
+install:
+    pnpm install
+
+[positional-arguments]
+dev *args:
+    pnpm dev "$@"
+
+[positional-arguments]
+build *args:
+    pnpm build "$@"
+
+check:
+    moon check --target js --deny-warn
+
+test:
+    moon test --target js

@@ -14,6 +14,9 @@ just studio-dev
 # http://127.0.0.1:5190
 ```
 
+統合 CLI からは `pnpm kagura studio`（または `just kagura studio`）で起動できます。
+`--port 5192` / `--host 127.0.0.1` で待受先を指定できます。
+
 `studio-dev` は MoonBit を初回ビルドし、変更監視と Vite を起動します。
 依存は独立した `moon.work` と固定バージョンで解決し、隣の luna.mbt / three-mbt のチェックアウトには依存しません。
 ブラウザ向け UI は `mizchi/luna@0.25.0`、シーン生成は `mizchi/three@0.1.3` を使います。

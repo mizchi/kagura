@@ -1,0 +1,18 @@
+{
+  "name": "__PROJECT_NAME__",
+  "private": true,
+  "type": "module",
+  "packageManager": "pnpm@10.33.0",
+  "engines": {"node": ">=24"},
+  "scripts": {
+    "dev": "vite --host 127.0.0.1 --port 8080 --strictPort",
+    "build": "vite build",
+    "preview": "vite preview --host 127.0.0.1",
+    "check": "moon check --target js --deny-warn"
+  },
+  "devDependencies": {
+    "vite": "8.2.2",
+    "vite-plugin-moonbit": "0.5.1"
+  },
+  "pnpm": {"onlyBuiltDependencies": ["esbuild"]}
+}

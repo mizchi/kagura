@@ -282,6 +282,8 @@ fn apply_initial_mode_overrides(
     )
   } else if snapshot_mode == "landscape" {
     apply_landscape_preview(state, js_get_query_param("landmark"))
+  } else if snapshot_mode == "camp" {
+    apply_enemy_camp_preview(state)
   } else if snapshot_mode == "terrain" {
     apply_hunting_terrain_preview(state)
   } else if snapshot_mode == "site" {

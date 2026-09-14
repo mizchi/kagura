@@ -244,8 +244,14 @@ pub fn update_enemy_ai(
   zombies? : Array[SummonedZombie] = [],
 ) -> Unit {
   let chase_range_sq = params.chase_range * params.chase_range
+  update_enemy_camps(enemies, player, grid, zombies)
   for enemy in enemies {
     if !enemy.alive {
+      continue
+    }
+    if enemy.camp is Some(camp) && camp.awareness != Alert {
+      enemy.vx = 0.0
+      enemy.vy = 0.0
       continue
     }
     if enemy.stagger_frames > 0 {
@@ -329,6 +335,12 @@ pub fn update_enemy_ai(
     let same_room_visible = player_room >= 0 && enemy_room == player_room
     // Patrol if out of chase range (BEFORE behavior dispatch)
     if dist_sq > chase_range_sq {
+      if enemy.camp is Some(_) {
+        enemy.vx = 0.0
+        enemy.vy = 0.0
+        tick_enemy_pattern_cooldowns(enemy)
+        continue
+      }
       let angle = ((frame_count + enemy.x.to_int()) % 360).to_double() *
         @math.PI /
         180.0

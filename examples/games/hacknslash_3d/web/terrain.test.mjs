@@ -19,3 +19,11 @@ test('terrain comparison exposes all patterns and marks parameters not used by p
   assert.match(html,/data-terrain-field="4"[^>]*disabled/);
   assert.ok(html.includes('生成して比較'));
 });
+
+test('exploration terrain exposes plains relief independently of experimental noise',()=>{
+  const html=renderTerrainPanel({pattern:5,plains_relief:.35,seed:42,amplitude:4,scale:18,roughness:.5,generation_ms:0,stats:{minimum:-4,maximum:15,max_slope:1,triangles:16000}});
+  assert.match(html,/aria-label="平地の起伏"[^>]*value="35"/);
+  assert.doesNotMatch(html,/data-terrain-apply disabled/);
+  const input=createTerrainInput();input.generate([5,42,4,18,.5,.35]);
+  assert.deepEqual(input.consume(),[5,42,4,18,.5,.35]);
+});

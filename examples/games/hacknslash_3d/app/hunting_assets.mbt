@@ -15,7 +15,7 @@ struct HuntingAsset {
 
 ///|
 fn hunting_asset_variant(mesh : @mesh3d.Mesh3D, hash : Int) -> @mesh3d.Mesh3D {
-  let angle = (hash % 4).to_double() * @math.PI / 2.0
+  let angle = (hash % 997).to_double() * @math.PI * 2.0 / 997.0
   let c = @math.cos(angle)
   let s = @math.sin(angle)
   let height = 0.8 + (hash % 9).to_double() * 0.04
@@ -297,6 +297,9 @@ let hunting_assets : Array[HuntingAsset] = [
   make_hunting_deadwood(),
   make_hunting_boulder(),
   make_hunting_shrine(),
+  make_woodland_tree(0),
+  make_woodland_tree(1),
+  make_woodland_tree(2),
 ]
 
 ///|
@@ -306,7 +309,7 @@ fn hunting_grass(
   z : Double,
   seed : Int,
 ) -> Unit {
-  let h = 0.13 + (seed % 5).to_double() * 0.03
+  let h = 0.18 + (seed % 7).to_double() * 0.03
   for d in [-0.12, 0.0, 0.12] {
     g.triangle(
       @math3d.Vec3::new(x + d - 0.025, 0.005, z),

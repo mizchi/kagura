@@ -20,6 +20,7 @@ pub(all) struct Player {
 
 ///|
 pub(all) struct Enemy {
+  mut camp : EnemyCamp?
   mut x : Double
   mut y : Double
   mut vx : Double

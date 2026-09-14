@@ -1,6 +1,6 @@
 ///|
 test "woodland assets have bounded topology and grounded collision footprints" {
-  assert_eq(hunting_assets.length(), 4)
+  assert_eq(hunting_assets.length(), 7)
   for asset in hunting_assets {
     let mut triangles = 0
     let mut foot_vertices = 0

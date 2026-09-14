@@ -982,7 +982,9 @@ fn GameState::rebuild_dungeon_rendering(self : GameState) -> Unit {
     self.scenery = None
   } else if self.scenery is None ||
     self.scenery.unwrap().seed !=
-    self.world.atlas.map(a => a.world_seed).or(self.world.seed) {
+    self.world.atlas.map(a => a.world_seed).or(self.world.seed) ||
+    self.scenery.unwrap().plains_relief !=
+    self.world.atlas.map(a => a.plains_relief).or(1.0) {
     self.scenery = build_scenery_cache(self.world)
   }
   self.dungeon_tinted_lighting_cache = build_dungeon_tinted_lighting_cache(

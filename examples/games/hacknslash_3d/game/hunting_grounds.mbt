@@ -57,11 +57,7 @@ pub fn generate_hunting_grounds(seed : Int) -> DungeonData {
           clearing = true
         }
       }
-      // Sparse islands with a two-tile gap: no hidden maze or sealed pockets.
-      if !clearing &&
-        x % 3 == 0 &&
-        z % 3 == 0 &&
-        hunting_hash(x, z, seed) % 10 < 8 {
+      if !clearing && woodland_tree_cell(x, z, seed) {
         grid.set(x, z, @terrain.Wall)
       }
     }

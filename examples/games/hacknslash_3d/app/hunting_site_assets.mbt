@@ -231,13 +231,21 @@ let hunting_site_assets : Array[HuntingAsset] = [
   make_road_sign(),
   make_broken_cart(),
   make_camp_tent(canvas=16),
+  make_wayside_relic(0),
+  make_wayside_relic(1),
+  make_wayside_relic(2),
 ]
 
 ///|
 fn hunting_prop_asset(prop : @game.HuntingProp) -> HuntingAsset {
   hunting_site_assets[match prop.kind {
-    @game.RuinWall => prop.variant % 3
-    @game.RuinColumn => 3
+    @game.RuinWall =>
+      if prop.variant % 7 < 3 {
+        prop.variant % 3
+      } else {
+        [0, 1, 11, 13][prop.variant % 4]
+      }
+    @game.RuinColumn => [3, 12, 13][prop.variant % 3]
     @game.Tent => if prop.variant % 2 == 0 { 4 } else { 10 }
     @game.Palisade => 5
     @game.Campfire => 6

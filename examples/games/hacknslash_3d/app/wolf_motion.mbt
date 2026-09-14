@@ -167,7 +167,7 @@ fn build_wolf_clip(kind : Int) -> @animation3d.AnimationClip {
 let wolf_pose_stride : Int = 65
 
 ///|
-fn wolf_pose_key(enemy : @game.Enemy) -> Int {
+fn wolf_pose_key(enemy : @game.Enemy, frame? : Int = 0) -> Int {
   if enemy.attack_motion == @game.Bite {
     return 2 * wolf_pose_stride +
       wolf_baked_clips[2].frame_index(
@@ -176,6 +176,9 @@ fn wolf_pose_key(enemy : @game.Enemy) -> Int {
       )
   }
   if enemy.move_speed < 0.01 || enemy.stagger_frames > 0 {
+    if enemy.camp is Some(_) {
+      return enemy_rest_key(enemy, frame)
+    }
     return 3 * wolf_pose_stride
   }
   let running = enemy.move_speed > enemy.speed * 0.55
@@ -187,6 +190,9 @@ fn wolf_pose_key(enemy : @game.Enemy) -> Int {
 
 ///|
 fn wolf_skinning_for_key(key : Int) -> Array[@math3d.Mat4] {
+  if key < 0 {
+    return wolf_camp_palettes[-key - 1]
+  }
   if key >= 3 * wolf_pose_stride {
     wolf_rest_skinning
   } else {

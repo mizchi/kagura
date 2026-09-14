@@ -109,3 +109,38 @@ test "default expedition can compare flat terrain and restore its saved layout" 
   assert_eq(s.terrain_lab_view().pattern, 5)
   assert_eq(s.world.dungeon.terrain_surface.unwrap().values, heights)
 }
+
+///|
+test "plains controls rebuild near and far terrain and invalidate prepared neighbors" {
+  let s = GameState::new_with_params(
+    seed=42,
+    @game.BalanceParams::default(),
+    hunting_grounds=true,
+  )
+  s.world.mode = @game.Playing
+  s.update(@core.new_input_snapshot(0.0, 0.0, 0.0, 0.0, [78]))
+  let frame = s.world.frame_count
+  let camera = s.camera
+  let before = s.dungeon_chunks[0].groups[0].mesh.vertex_data.copy()
+  let distant = s.scenery.unwrap().regions[1].mesh.vertex_data.copy()
+  ignore(s.world.prepare_region(1))
+  s.world.chests[0].opened = true
+  assert_true(
+    s.apply_terrain_lab([5.0, 42.0, 4.0, 18.0, 0.5, 0.35], persist=false),
+  )
+  assert_eq(s.terrain_lab_view().plains_relief, 0.35)
+  assert_eq(s.terrain_lab_view().pattern, 5)
+  assert_eq(s.scenery.unwrap().plains_relief, 0.35)
+  assert_true(s.region_meshes.all(r => r is None))
+  assert_false(s.dungeon_chunks[0].groups[0].mesh.vertex_data == before)
+  assert_false(s.scenery.unwrap().regions[1].mesh.vertex_data == distant)
+  assert_true(s.world.chests[0].opened)
+  assert_eq(s.world.frame_count, frame)
+  assert_eq(s.camera.yaw, camera.yaw)
+  assert_eq(s.camera.pitch, camera.pitch)
+  assert_false(s.apply_terrain_lab([5.0, 42.0, 4.0, 18.0, 0.5, 1.1]))
+  let heights = s.world.dungeon.terrain_surface.unwrap().values.copy()
+  assert_true(s.apply_terrain_lab([1.0, 42.0, 4.0, 18.0, 0.5], persist=false))
+  assert_true(s.apply_terrain_lab([5.0, 42.0, 4.0, 18.0, 0.5], persist=false))
+  assert_eq(s.world.dungeon.terrain_surface.unwrap().values, heights)
+}

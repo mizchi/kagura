@@ -130,6 +130,7 @@ pub fn GameWorld::restore_expedition_terrain(self : GameWorld) -> Bool {
       seed,
       id,
       generator_version=atlas.generator_version,
+      plains_relief=atlas.plains_relief,
     )
     dungeon.grid = generated.grid
     dungeon.terrain_surface = generated.terrain_surface

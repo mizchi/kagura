@@ -44,6 +44,8 @@ struct HunterExtraSkillView {
 
 ///|
 struct HunterHudView {
+  resting_enemies : Int
+  waking_enemies : Int
   builds : Array[StartingBuildView]
   preset : Int
   preset_name : String
@@ -149,13 +151,24 @@ fn GameState::hunter_hud_view(self : GameState) -> HunterHudView {
     },
   )
   let mut remaining = 0
+  let mut resting_enemies = 0
+  let mut waking_enemies = 0
   for enemy in w.enemies {
     if enemy.alive {
       remaining += 1
+      if enemy.camp is Some(camp) {
+        match camp.awareness {
+          @game.Resting => resting_enemies += 1
+          @game.Waking(_) => waking_enemies += 1
+          @game.Alert => ()
+        }
+      }
     }
   }
   {
     version: 1,
+    resting_enemies,
+    waking_enemies,
     builds: if w.mode == @game.CharacterSelect {
       self.starting_build_views()
     } else {

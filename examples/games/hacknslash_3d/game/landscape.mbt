@@ -191,10 +191,14 @@ pub fn landscape_plan(seed : Int, region : Int) -> ExpeditionPlan {
 }
 
 ///|
-pub fn generate_landscape(seed : Int, region : Int) -> Landscape {
+pub fn generate_landscape(
+  seed : Int,
+  region : Int,
+  plains_relief? : Double = 1.0,
+) -> Landscape {
   let plan = landscape_plan(seed, region)
   let cave = landscape_cave()
-  let base = expedition_surface(seed, region)
+  let base = expedition_surface(seed, region, plains_relief~)
   base.grade_routes(plan.pads, plan.routes, blend=4.0)
   // A switchback meets both cave mouths, creating a traversable shortcut.
   let cave_exit : @terrain3d.TerrainRoute = {
@@ -305,8 +309,9 @@ fn shape_landscape_region(
   dungeon : DungeonData,
   seed : Int,
   region : Int,
+  plains_relief? : Double = 1.0,
 ) -> Unit {
-  let land = generate_landscape(seed, region)
+  let land = generate_landscape(seed, region, plains_relief~)
   let plan = landscape_plan(seed, region)
   let grid = dungeon.grid
   for z in 0..<map_rows {

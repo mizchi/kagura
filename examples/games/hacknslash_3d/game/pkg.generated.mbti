@@ -193,7 +193,7 @@ pub fn equipment_slots() -> Array[EquipSlot]
 
 pub fn expedition_plan(Int, Int) -> ExpeditionPlan
 
-pub fn expedition_surface(Int, Int) -> @terrain3d.HeightField
+pub fn expedition_surface(Int, Int, plains_relief? : Double) -> @terrain3d.HeightField
 
 pub let exploder_damage_mult : Int
 
@@ -225,9 +225,9 @@ pub fn generate_item_with_profile(Int, Int, AffixProfile) -> ItemData
 
 pub fn generate_item_with_profile_and_drop_config(Int, Int, AffixProfile, DropTableConfig, rarity? : ItemRarity) -> ItemData
 
-pub fn generate_landscape(Int, Int) -> Landscape
+pub fn generate_landscape(Int, Int, plains_relief? : Double) -> Landscape
 
-pub fn generate_world_region(Int, Int, generator_version? : Int) -> DungeonData
+pub fn generate_world_region(Int, Int, generator_version? : Int, plains_relief? : Double) -> DungeonData
 
 pub fn get_special_behaviors(EnemyKind) -> Array[(EnemyAIContext) -> Bool]
 
@@ -479,6 +479,10 @@ pub let whirlwind_cycle_frames : Int
 
 pub let whirlwind_recovery_frames : Int
 
+pub fn woodland_density(Double, Double, Int) -> Double
+
+pub fn woodland_random(Int, Int, Int) -> Double
+
 pub let world_h : Double
 
 pub let world_regions : Array[WorldRegion]
@@ -722,6 +726,7 @@ pub fn DungeonGeneratorKind::to_string(Self) -> String
 pub impl Show for DungeonGeneratorKind
 
 pub(all) struct Enemy {
+  mut camp : EnemyCamp?
   mut x : Double
   mut y : Double
   mut vx : Double
@@ -798,6 +803,18 @@ pub(all) enum EnemyAttackMotion {
 } derive(Eq, @debug.Debug)
 pub fn EnemyAttackMotion::melee_profile(Self) -> EnemyMeleeProfile?
 
+pub(all) enum EnemyAwareness {
+  Resting
+  Waking(Int)
+  Alert
+} derive(Eq, ToJson, @debug.Debug, @json.FromJson)
+
+pub(all) struct EnemyCamp {
+  pack_id : Int
+  pose : EnemyRestPose
+  mut awareness : EnemyAwareness
+} derive(ToJson, @json.FromJson)
+
 pub(all) enum EnemyKind {
   Zombie
   Wolf
@@ -830,6 +847,11 @@ pub(all) struct EnemyPounce {
   landing_x : Double
   landing_y : Double
 }
+
+pub(all) enum EnemyRestPose {
+  Standing
+  Sitting
+} derive(Eq, ToJson, @debug.Debug, @json.FromJson)
 
 pub(all) enum EnemySpecies {
   Zombie
@@ -1092,6 +1114,7 @@ pub fn GameWorld::scene_snapshot_json(Self) -> String
 pub fn GameWorld::serialize_world_progress(Self) -> String
 pub fn GameWorld::set_guard(Self, Bool, Double) -> Unit
 pub fn GameWorld::set_hunting_terrain(Self, @terrain3d.TerrainConfig) -> Bool
+pub fn GameWorld::set_plains_relief(Self, Double) -> Bool
 pub fn GameWorld::set_whirlwind(Self, Bool, pressed? : Bool) -> Unit
 pub fn GameWorld::skill_allowed(Self, SkillId) -> Bool
 pub fn GameWorld::stop_whirlwind(Self) -> Unit
@@ -1627,6 +1650,7 @@ pub(all) struct WhirlwindChannel {
 
 pub(all) struct WorldAtlas {
   mut elevation : HuntingElevation?
+  mut plains_relief : Double
   generator_version : Int
   world_seed : Int
   mut current : Int

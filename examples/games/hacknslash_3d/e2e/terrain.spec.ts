@@ -5,6 +5,38 @@ const scene='/?snapshot=terrain&terrain=perlin&seed=42&mute=1';
 const terrain=page=>page.evaluate(()=>globalThis.__ashenHud?.terrain);
 const frame=page=>page.evaluate(()=>globalThis.__hacknslash3dRuntime.frame);
 
+test('plains relief previews without advancing play and restores with character progress',async({page},info)=>{
+  const errors=[];page.on('pageerror',e=>errors.push(e.message));
+  await page.goto('/?snapshot=site&site=ruins&peaceful=1&seed=42&mute=1');
+  await expect.poll(async()=>(await terrain(page))?.pattern).toBe(5);
+  await page.keyboard.press('KeyB');
+  await expect.poll(()=>page.evaluate(()=>globalThis.__ashenHud.exploration.chests[0].opened)).toBe(true);
+  await page.keyboard.press('KeyN');
+  const panel=page.getByRole('dialog',{name:'地形実験',exact:true});
+  await expect(panel).toBeVisible();
+  const stopped=await frame(page);
+  const original=await page.evaluate(()=>globalThis.__ashenHunt);
+  const range=panel.getByRole('slider',{name:'平地の起伏',exact:true});
+  await expect(range).toHaveValue('100');
+  await range.evaluate(element=>{(element as HTMLInputElement).value='20';element.dispatchEvent(new Event('input',{bubbles:true}));});
+  expect((await terrain(page)).plains_relief).toBe(1);
+  await panel.getByRole('button',{name:'起伏を反映',exact:true}).click();
+  await expect.poll(async()=>(await terrain(page)).plains_relief).toBe(.2);
+  expect(await frame(page)).toBe(stopped);
+  const now=await page.evaluate(()=>globalThis.__ashenHunt);
+  expect(now.x).toBe(original.x);expect(now.y).toBe(original.y);expect(now.yaw).toBe(original.yaw);
+  await panel.getByRole('button',{name:'なだらか · 35%',exact:true}).click();
+  await expect.poll(async()=>(await terrain(page)).plains_relief).toBe(.35);
+  await expect(range).toHaveValue('35');
+  await captureGameFrame(page,{path:info.outputPath('plains-relief-panel.png')});
+  await page.goto('/?mute=1&seed=42');
+  await page.locator('[data-save-slot="0"]').click();
+  await expect.poll(async()=>(await terrain(page))?.plains_relief).toBe(.35);
+  expect((await terrain(page)).pattern).toBe(5);
+  expect(await page.evaluate(()=>globalThis.__ashenHud.exploration.chests[0].opened)).toBe(true);
+  expect(errors).toEqual([]);
+});
+
 test('terrain lab compares seeded algorithms without moving the world, and restores preferences',async({page},info)=>{
   const errors=[];page.on('pageerror',e=>errors.push(e.message));
   await page.goto(scene);

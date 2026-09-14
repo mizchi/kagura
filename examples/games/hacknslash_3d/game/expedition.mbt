@@ -120,8 +120,13 @@ pub fn expedition_plan(seed : Int, region : Int) -> ExpeditionPlan {
 }
 
 ///|
-pub fn expedition_surface(seed : Int, region : Int) -> @terrain3d.HeightField {
+pub fn expedition_surface(
+  seed : Int,
+  region : Int,
+  plains_relief? : Double = 1.0,
+) -> @terrain3d.HeightField {
   let plan = expedition_plan(seed, region)
+  let relief = plains_relief.clamp(min=0.0, max=1.0)
   let field = @terrain3d.generate_height_field(map_cols, map_rows, {
     pattern: [
       @terrain3d.Hybrid,
@@ -130,12 +135,30 @@ pub fn expedition_surface(seed : Int, region : Int) -> @terrain3d.HeightField {
       @terrain3d.DiamondSquare,
     ][region],
     seed,
-    amplitude: 7.0,
+    amplitude: 7.0 * relief,
     scale: 14.0,
     roughness: 0.55,
   })
-  for i in 0..<field.values.length() {
-    field.values[i] += 7.0
+  for z in 0..<=map_rows {
+    for x in 0..<=map_cols {
+      let mut baseline = 7.0
+      if relief < 1.0 {
+        // Broad, smooth elevations follow the mission sites. Reducing relief
+        // removes the noisy ridges around low roads, retaining uphill routes.
+        let mut heights = 0.0
+        let mut weights = 0.0
+        for pad in plan.pads {
+          let dx = x.to_double() - pad.x
+          let dz = z.to_double() - pad.z
+          let distance = dx * dx + dz * dz + 144.0
+          let weight = 1.0 / (distance * distance)
+          heights += pad.height * weight
+          weights += weight
+        }
+        baseline = 7.0 * relief + heights / weights * (1.0 - relief)
+      }
+      field.set(x, z, field.at(x, z) + baseline)
+    }
   }
   field.grade_routes(plan.pads, plan.routes, blend=4.0)
   // Exact common seam collar. No region needs to generate its neighbor first.
@@ -157,6 +180,7 @@ fn shape_expedition_region(
   dungeon : DungeonData,
   seed : Int,
   region : Int,
+  plains_relief? : Double = 1.0,
 ) -> Unit {
   let plan = expedition_plan(seed, region)
   let grid = dungeon.grid
@@ -181,5 +205,7 @@ fn shape_expedition_region(
     }
   }
   stamp_hunting_chests(grid)
-  dungeon.terrain_surface = Some(expedition_surface(seed, region))
+  dungeon.terrain_surface = Some(
+    expedition_surface(seed, region, plains_relief~),
+  )
 }

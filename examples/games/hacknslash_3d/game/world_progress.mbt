@@ -2,6 +2,7 @@
 
 ///|
 struct RegionEnemyProgress {
+  camp : EnemyCamp?
   kind : EnemyKind
   x : Double
   y : Double
@@ -28,6 +29,7 @@ struct RegionProgress {
 struct WorldProgress {
   version : Int
   generator_version : Int?
+  plains_relief : Double?
   seed : Int
   current : Int
   last_waypoint : Int?
@@ -56,6 +58,7 @@ pub fn GameWorld::serialize_world_progress(self : GameWorld) -> String {
           cleared: state.cleared,
           opened_chests: Some(state.chests.filter(c => c.opened).map(c => c.id)),
           enemies: state.enemies.map(enemy => {
+            camp: enemy.camp,
             kind: enemy.kind,
             x: enemy.x,
             y: enemy.y,
@@ -73,6 +76,7 @@ pub fn GameWorld::serialize_world_progress(self : GameWorld) -> String {
   WorldProgress::{
     version: 4,
     generator_version: Some(atlas.generator_version),
+    plains_relief: Some(atlas.plains_relief),
     seed: atlas.world_seed,
     current: atlas.current,
     last_waypoint: Some(atlas.last_waypoint),
@@ -105,6 +109,11 @@ fn parse_world_progress(source : String) -> WorldProgress? {
       progress.generator_version.or(1) > 3 {
       return None
     }
+    if progress.plains_relief is Some(relief) {
+      if relief.is_nan() || relief < 0.0 || relief > 1.0 {
+        return None
+      }
+    }
     let ids : Array[Int] = []
     if progress.last_waypoint is Some(id) {
       if id < 0 || id >= 4 || !progress.unlocked[id] {
@@ -112,6 +121,16 @@ fn parse_world_progress(source : String) -> WorldProgress? {
       }
     }
     for region in progress.regions {
+      for enemy in region.enemies {
+        if enemy.camp is Some(camp) {
+          if camp.pack_id < 0 || camp.pack_id > 8 {
+            return None
+          }
+          if camp.awareness is Waking(n) && (n < 1 || n > 36) {
+            return None
+          }
+        }
+      }
       if region.id < 0 ||
         region.id >= 4 ||
         ids.contains(region.id) ||
@@ -158,12 +177,14 @@ pub fn GameWorld::restore_world_progress(
     progress.seed,
     generator_version=progress.generator_version.or(1),
   )
+  atlas.plains_relief = progress.plains_relief.or(1.0)
   for state in progress.regions {
     let seed = region_seed(progress.seed, state.id)
     let dungeon = generate_world_region(
       seed,
       state.id,
       generator_version=atlas.generator_version,
+      plains_relief=atlas.plains_relief,
     )
     let enemies = state.enemies.map(saved => {
       let (x, y) = hunting_safe_position(dungeon, saved.x, saved.y, saved.size)
@@ -178,6 +199,7 @@ pub fn GameWorld::restore_world_progress(
       )
       enemy.hp = saved.hp.min(enemy.max_hp)
       enemy.alive = saved.alive && enemy.hp > 0
+      enemy.camp = saved.camp
       enemy
     })
     if progress.version < 3 {
@@ -207,6 +229,7 @@ pub fn GameWorld::restore_world_progress(
       }
     }
     let enemies = remove_blocked_hunting_spawns(enemies, dungeon)
+    configure_enemy_camps(enemies, seed)
     let chests = hunting_chests()
     for chest in chests {
       chest.opened = state.opened_chests.or([]).contains(chest.id)

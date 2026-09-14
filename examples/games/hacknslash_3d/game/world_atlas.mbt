@@ -62,6 +62,7 @@ pub(all) struct RegionState {
 ///|
 pub(all) struct WorldAtlas {
   mut elevation : HuntingElevation?
+  mut plains_relief : Double
   generator_version : Int
   world_seed : Int
   mut current : Int
@@ -77,6 +78,7 @@ pub(all) struct WorldAtlas {
 pub fn WorldAtlas::new(seed : Int, generator_version? : Int = 3) -> WorldAtlas {
   {
     elevation: None,
+    plains_relief: 1.0,
     generator_version,
     world_seed: seed,
     current: 0,
@@ -124,6 +126,7 @@ pub fn generate_world_region(
   seed : Int,
   id : Int,
   generator_version? : Int = 3,
+  plains_relief? : Double = 1.0,
 ) -> DungeonData {
   let dungeon = generate_hunting_grounds(seed)
   let grid = dungeon.grid
@@ -163,9 +166,9 @@ pub fn generate_world_region(
   }
   stamp_hunting_chests(grid)
   if generator_version >= 3 {
-    shape_landscape_region(dungeon, seed, id)
+    shape_landscape_region(dungeon, seed, id, plains_relief~)
   } else if generator_version >= 2 {
-    shape_expedition_region(dungeon, seed, id)
+    shape_expedition_region(dungeon, seed, id, plains_relief~)
   }
   dungeon
 }
@@ -213,6 +216,7 @@ pub fn GameWorld::prepare_region(self : GameWorld, id : Int) -> Bool {
     seed,
     id,
     generator_version=atlas.generator_version,
+    plains_relief=atlas.plains_relief,
   )
   apply_region_elevation(atlas, dungeon, id)
   let tier = world_regions[id].tier
@@ -225,6 +229,7 @@ pub fn GameWorld::prepare_region(self : GameWorld, id : Int) -> Bool {
   )
   append_hunting_approach_enemies(enemies, dungeon, self.params, tier)
   append_hunting_site_enemies(enemies, dungeon, self.params, tier)
+  configure_enemy_camps(enemies, seed)
   let (wx, wy) = world_waypoint_position(id)
   let enemies = enemies.filter(enemy => {
     let dx = enemy.x - wx

@@ -45,6 +45,7 @@ fn build_hunting_chunk(
   let accum = Array::makei(hunting_palette.length(), fn(_) {
     @procedural3d.RigidGeometry::new()
   })
+  let grass : Array[(Int, Int, Int)] = []
   for z in (cz * chunk_size)..<@cmp.minimum(h, (cz + 1) * chunk_size) {
     for x in (cx * chunk_size)..<@cmp.minimum(w, (cx + 1) * chunk_size) {
       if region >= 0 &&
@@ -56,7 +57,7 @@ fn build_hunting_chunk(
         ) {
         continue
       }
-      let hash = @game.hunting_hash(x, z, seed)
+      let hash = (@game.woodland_random(x, z, seed + 277) * 1000000.0).to_int()
       let tile = dungeon.grid.get(x, z)
       let px = x.to_double()
       let pz = z.to_double()
@@ -168,25 +169,34 @@ fn build_hunting_chunk(
           hash,
         )
         drape_hunting_vertices(paving, start, dungeon)
-      } else if site_material == 13 && hash % 3 == 0 {
-        hunting_surface_grass(accum[10], px + 0.5, pz + 0.5, hash, dungeon)
       }
       if occupied.contains(z * w + x) {
         continue
       }
       if tile == @terrain.Wall {
         let border = x < 2 || z < 2 || x >= w - 2 || z >= h - 2
+        let vegetation_region = if region >= 0 {
+          biome_species(
+            px + @game.world_regions[region].x.to_double() * 98.0,
+            pz + @game.world_regions[region].z.to_double() * 78.0,
+            hash / 31,
+          )
+        } else {
+          0
+        }
         let kind = if @game.hunting_landmark(x, z) {
           3
         } else if border {
           2
-        } else if region == 1 {
-          1 + hash % 2
-        } else if region == 3 && hash % 4 == 0 {
-          3
         } else {
-          hash % 3
+          woodland_asset_kind(vegetation_region, hash)
         }
+        let tree_x = px +
+          0.5 +
+          (@game.woodland_random(x, z, seed + 13) - 0.5) * 0.12
+        let tree_z = pz +
+          0.5 +
+          (@game.woodland_random(x, z, seed + 29) - 0.5) * 0.12
         hunting_surface_shadow(
           accum[12],
           px + 0.64,
@@ -204,6 +214,7 @@ fn build_hunting_chunk(
           dungeon,
         )
         for part in hunting_assets[kind].parts {
+          let start = accum[part.material].vertices.length()
           let mesh = if kind == 3 {
             part.mesh
           } else {
@@ -212,18 +223,22 @@ fn build_hunting_chunk(
           merge_mesh_at(
             accum[part.material].vertices,
             accum[part.material].indices,
-            hunting_grounded_asset(mesh, dungeon, px + 0.5, pz + 0.5),
-            px + 0.5,
+            hunting_grounded_asset(mesh, dungeon, tree_x, tree_z),
+            tree_x,
             @game.get_tile_height(
               dungeon,
-              (px + 0.5) * tile_size,
-              (pz + 0.5) * tile_size,
+              tree_x * tile_size,
+              tree_z * tile_size,
             ),
-            pz + 0.5,
+            tree_z,
           )
+          tag_scenery_geometry(accum[part.material], start, 2.0)
         }
-      } else if site_material < 0 && tile != @terrain.Corridor && hash % 4 == 0 {
-        hunting_surface_grass(accum[10], px + 0.5, pz + 0.5, hash, dungeon)
+      } else if site_material < 0 &&
+        woodland_grass_allowed(dungeon, x, z) &&
+        @game.woodland_random(x, z, seed + 71) <
+        0.08 + @game.woodland_density(px, pz, seed + 41) * 0.40 {
+        grass.push((x, z, hash))
       } else if tile == @terrain.Corridor && hash % 9 == 0 {
         let start = accum[6].vertices.length()
         accum[6].loft(
@@ -236,6 +251,18 @@ fn build_hunting_chunk(
         drape_hunting_vertices(accum[6], start, dungeon)
       }
     }
+  }
+  // Select by priority, not row order, so the budget does not create a straight edge.
+  grass.sort_by((a, b) => a.2.compare(b.2))
+  for i in 0..<grass.length().min(80) {
+    let (x, z, hash) = grass[i]
+    hunting_surface_grass(
+      accum[10],
+      x.to_double() + 0.2 + (hash % 61).to_double() / 100.0,
+      z.to_double() + 0.2 + (hash / 61 % 61).to_double() / 100.0,
+      hash,
+      dungeon,
+    )
   }
   for prop in props {
     if prop.x / chunk_size != cx || prop.z / chunk_size != cz {
@@ -252,6 +279,7 @@ fn build_hunting_chunk(
       dungeon,
     )
     for part in hunting_prop_asset(prop).parts {
+      let start = accum[part.material].vertices.length()
       merge_mesh_at(
         accum[part.material].vertices,
         accum[part.material].indices,
@@ -260,9 +288,11 @@ fn build_hunting_chunk(
         @game.get_tile_height(dungeon, px * tile_size, pz * tile_size),
         pz,
       )
+      tag_scenery_geometry(accum[part.material], start, 2.0)
     }
   }
   if landscape is Some(land) {
+    let starts = accum.map(g => g.vertices.length())
     for bridge in land.bridges {
       if bridge.ax.to_int() / chunk_size == cx &&
         bridge.az.to_int() / chunk_size == cz {
@@ -275,11 +305,20 @@ fn build_hunting_chunk(
     if 15 / chunk_size == cx && 55 / chunk_size == cz {
       append_landscape_beacon(accum, dungeon)
     }
+    for i in 0..<accum.length() {
+      tag_scenery_geometry(accum[i], starts[i], 2.0)
+    }
   }
   let groups : Array[DungeonMeshGroup] = []
   let all_v : Array[Double] = []
   let all_i : Array[Int] = []
   for i in 0..<accum.length() {
+    for vertex in 0..<(accum[i].vertices.length() / 8) {
+      accum[i].vertices[vertex * 8 + 6] = i.to_double()
+      accum[i].vertices[vertex * 8 + 7] = accum[i].vertices[vertex * 8 + 7].max(
+        1.0,
+      )
+    }
     let mesh = @mesh3d.Mesh3D::new(accum[i].vertices, accum[i].indices)
     groups.push({
       mesh,
@@ -369,20 +408,12 @@ fn GameState::push_hunting_ground_commands(
       continue
     }
     cmds.push(
-      @draw3d.new_lit_colored_mesh_draw_command(
+      self.scenery_draw(
         dst,
-        self.shader3d_colored,
         group.dst_region,
-        0,
-        0,
-        0,
-        @gfx.BlendMode::from_int(0),
         group.mesh,
         @math3d.Mat4::identity(),
         vp,
-        self.lighting,
-        group.color,
-        [],
       ),
     )
   }

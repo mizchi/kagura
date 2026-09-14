@@ -133,6 +133,7 @@ pub fn GameWorld::new(
   if hunting_grounds {
     append_hunting_approach_enemies(enemies, dungeon, params, 1)
     append_hunting_site_enemies(enemies, dungeon, params, 1)
+    configure_enemy_camps(enemies, seed)
   }
   let (discovered_rooms, discovered_rooms_version) = initial_discovered_rooms_for_dungeon(
     dungeon,
@@ -347,6 +348,7 @@ pub fn GameWorld::apply_dungeon(
     append_hunting_approach_enemies(self.enemies, dungeon, self.params, floor)
     append_hunting_site_enemies(self.enemies, dungeon, self.params, floor)
     self.enemies = remove_blocked_hunting_spawns(self.enemies, dungeon)
+    configure_enemy_camps(self.enemies, seed)
   }
   self.chests = if self.hunting_grounds && self.authored_scene is None {
     hunting_chests()

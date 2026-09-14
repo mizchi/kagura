@@ -48,6 +48,7 @@ fn hunting_surface_grass(
   let start = g.vertices.length()
   hunting_grass(g, x, z, hash)
   drape_hunting_vertices(g, start, dungeon)
+  tag_scenery_geometry(g, start, 3.0)
 }
 
 ///|

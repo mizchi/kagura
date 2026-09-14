@@ -1056,13 +1056,16 @@ test "rebuild_enemy_render_buckets clears stale enemy groups" {
   ]
 
   state.rebuild_enemy_render_buckets(vis_region)
-  assert_eq(state.enemy_render_buckets.basic_matrices.length(), 1)
-  assert_eq(state.enemy_render_buckets.basic_colors.length(), 1)
+  let key = enemy_rest_key(state.world.enemies[0], state.world.frame_count)
+  assert_eq(state.enemy_models.attack_buckets[key].basic_matrices.length(), 1)
+  assert_eq(state.enemy_models.attack_buckets[key].basic_colors.length(), 1)
 
   state.world.enemies = []
   state.rebuild_enemy_render_buckets(vis_region)
   assert_eq(state.enemy_render_buckets.basic_matrices.length(), 0)
   assert_eq(state.enemy_render_buckets.basic_colors.length(), 0)
+  assert_true(state.enemy_models.active_attack_keys.is_empty())
+  assert_true(state.enemy_models.attack_buckets[key].basic_matrices.is_empty())
 }
 
 ///|

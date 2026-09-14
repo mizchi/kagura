@@ -109,20 +109,31 @@ fn GameState::rebuild_enemy_render_buckets(
           @math.sin(enemy.move_angle)
         }
         let (poses, key) = if enemy.kind == @game.Zombie {
-          (self.enemy_models.zombie, zombie_pose_key(enemy))
+          (
+            self.enemy_models.zombie,
+            zombie_pose_key(enemy, frame=self.world.frame_count),
+          )
         } else {
-          (self.enemy_models.wolf, wolf_pose_key(enemy))
+          (
+            self.enemy_models.wolf,
+            wolf_pose_key(enemy, frame=self.world.frame_count),
+          )
         }
         poses.add(key, enemy_facing_model_matrix(ex, ey, ez, dx, dy), color)
         continue
       }
       let clip_index = enemy_attack_clip_index(enemy.attack_motion)
-      let buckets = if clip_index < 0 {
+      let resting = clip_index < 0 && enemy.move_speed < 0.01
+      let buckets = if clip_index < 0 && !resting {
         self.enemy_render_buckets
       } else {
-        let clip = self.enemy_models.attack_clips[clip_index]
-        let key = clip_index * enemy_attack_pose_stride +
+        let key = if resting {
+          enemy_rest_key(enemy, self.world.frame_count)
+        } else {
+          let clip = self.enemy_models.attack_clips[clip_index]
+          clip_index * enemy_attack_pose_stride +
           clip.frame_index(enemy.attack_phase())
+        }
         let result = match self.enemy_models.attack_buckets.get(key) {
           Some(existing) => existing
           None => {
@@ -303,10 +314,15 @@ fn GameState::push_enemy_character_commands_with_view_projection(
   )
   for key in self.enemy_models.active_attack_keys {
     let buckets = self.enemy_models.attack_buckets[key]
-    let clip = self.enemy_models.attack_clips[key / enemy_attack_pose_stride]
+    let palette = if key < 0 {
+      biped_rest_palettes[-key - 1]
+    } else {
+      let clip = self.enemy_models.attack_clips[key / enemy_attack_pose_stride]
+      clip.matrices(key % enemy_attack_pose_stride)
+    }
     self.push_enemy_render_bucket_groups_with_view_projection(
       buckets,
-      clip.matrices(key % enemy_attack_pose_stride),
+      palette,
       view_projection,
       dst,
       screen_w,

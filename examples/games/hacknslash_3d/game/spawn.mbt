@@ -11,6 +11,7 @@ pub fn make_enemy(
   room_index? : Int = -1,
 ) -> Enemy {
   {
+    camp: None,
     x: cx,
     y: cy,
     vx: 0.0,

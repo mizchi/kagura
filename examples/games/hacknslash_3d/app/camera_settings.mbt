@@ -127,6 +127,7 @@ fn HunterCameraSettings::restore(
 
 ///|
 struct HunterCameraView {
+  effective_distance : Double
   mode : Int
   editing : Bool
   tuning : HunterCameraTuning
@@ -136,6 +137,7 @@ struct HunterCameraView {
 ///|
 fn GameState::hunter_camera_view(self : GameState) -> HunterCameraView {
   {
+    effective_distance: self.camera.distance,
     mode: self.camera_settings.mode,
     editing: self.camera_settings.editing,
     tuning: self.camera_settings.active(),
@@ -248,6 +250,7 @@ fn GameState::camera_clear_segment(
     )
     let blocked = point.y < floor + 0.18 ||
       (
+        (!self.world.hunting_grounds || self.world.authored_scene is Some(_)) &&
         point.y < floor + 3.2 &&
         @game.check_wall_collision(
           self.world.dungeon.grid,
@@ -265,6 +268,7 @@ fn GameState::camera_clear_segment(
 
 ///|
 fn GameState::resolve_tps_camera(self : GameState, height : Double) -> Unit {
+  let previous_distance = self.camera.distance
   let anchor = @math3d.Vec3::new(
     self.world.player.x / tile_size,
     height + 1.0,
@@ -280,9 +284,14 @@ fn GameState::resolve_tps_camera(self : GameState, height : Double) -> Unit {
     self.camera.target,
     self.camera.position(),
   )
-  self.camera = self.camera.with_distance(
-    (self.camera.distance * clear).max(0.15),
-  )
+  let available = (self.camera.distance * clear).max(0.15)
+  // Retract immediately to avoid terrain, release gently once the slope clears.
+  let distance = if self.world.hunting_grounds && available > previous_distance {
+    previous_distance + (available - previous_distance) * 0.18
+  } else {
+    available
+  }
+  self.camera = self.camera.with_distance(distance)
 }
 
 ///|

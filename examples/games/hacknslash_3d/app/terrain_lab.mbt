@@ -42,7 +42,7 @@ fn GameState::apply_terrain_lab(
   command : Array[Double],
   persist? : Bool = true,
 ) -> Bool {
-  if command.length() != 5 ||
+  if (command.length() != 5 && command.length() != 6) ||
     command.any(v => v.is_nan() || v.abs() > 2147483646.0) {
     return false
   }
@@ -53,9 +53,17 @@ fn GameState::apply_terrain_lab(
   if self.world.atlas is None || self.world.authored_scene is Some(_) {
     return false
   }
+  if command.length() == 6 && (command[5] < 0.0 || command[5] > 1.0) {
+    return false
+  }
   let start = hunter_terrain_clock()
   if index == 5 {
-    if !self.world.restore_expedition_terrain() {
+    let changed = if command.length() == 6 {
+      self.world.set_plains_relief(command[5])
+    } else {
+      self.world.restore_expedition_terrain()
+    }
+    if !changed {
       return false
     }
     self.terrain_lab.config = {
@@ -63,6 +71,9 @@ fn GameState::apply_terrain_lab(
       pattern: @terrain3d.Flat,
     }
     self.rebuild_dungeon_rendering()
+    if persist {
+      self.save_game()
+    }
     self.terrain_lab.revision += 1
     self.terrain_lab.generation_ms = (hunter_terrain_clock() - start).max(0.0)
     if persist {
@@ -139,6 +150,7 @@ struct TerrainLabView {
   pattern : Int
   seed : Int
   amplitude : Double
+  plains_relief : Double
   scale : Double
   roughness : Double
   revision : Int
@@ -170,6 +182,7 @@ fn GameState::terrain_lab_view(self : GameState) -> TerrainLabView {
       lab.config.seed
     },
     amplitude: lab.config.amplitude,
+    plains_relief: self.world.atlas.map(a => a.plains_relief).or(1.0),
     scale: lab.config.scale,
     roughness: lab.config.roughness,
     revision: lab.revision,

@@ -9,6 +9,7 @@ struct SceneryRegion {
 ///|
 struct SceneryCache {
   seed : Int
+  plains_relief : Double
   regions : Array[SceneryRegion]
   backdrop : @mesh3d.Mesh3D
 }
@@ -20,10 +21,15 @@ fn scenery_color(
   g : @procedural3d.RigidGeometry,
   start : Int,
   hex : Int,
+  material? : Int = -1,
 ) -> Unit {
   for i in (start / 8)..<(g.vertices.length() / 8) {
-    g.vertices[i * 8 + 6] = hex.to_double()
-    g.vertices[i * 8 + 7] = 0.0
+    g.vertices[i * 8 + 6] = if material >= 0 {
+      material.to_double()
+    } else {
+      hex.to_double()
+    }
+    g.vertices[i * 8 + 7] = if material >= 0 { 1.0 } else { 0.0 }
   }
 }
 
@@ -99,6 +105,13 @@ fn build_scenery_region(land : @game.Landscape) -> SceneryRegion {
               0x867B58
             } else {
               grass
+            },
+            material=if center.y > 6.0 {
+              6
+            } else if center.y < 0.0 {
+              21
+            } else {
+              0
             },
           )
           if field
@@ -255,11 +268,17 @@ fn build_scenery_cache(world : @game.GameWorld) -> SceneryCache? {
       @game.generate_landscape(
         @game.region_seed(atlas.world_seed, region.id),
         region.id,
+        plains_relief=atlas.plains_relief,
       )
     }
     regions.push(build_scenery_region(land))
   }
-  Some({ seed: atlas.world_seed, regions, backdrop: build_scenery_backdrop(), })
+  Some({
+    seed: atlas.world_seed,
+    plains_relief: atlas.plains_relief,
+    regions,
+    backdrop: build_scenery_backdrop(),
+  })
 }
 
 ///|
@@ -325,20 +344,13 @@ fn GameState::push_scenery_commands(
     ).to_mat4()
     for (offset, count) in runs {
       cmds.push(
-        @draw3d.new_lit_colored_mesh_draw_command(
+        self.scenery_draw(
           dst,
-          self.scenery_shader,
           @gfx.new_dst_region(0, 0, screen_w, screen_h, count),
-          offset,
-          0,
-          0,
-          @gfx.BlendMode::from_int(0),
           mesh,
           model,
           vp,
-          self.lighting,
-          @math3d.Vec4::new(px, 0.0, pz, 1.0),
-          [],
+          offset~,
         ),
       )
     }
@@ -376,21 +388,36 @@ fn scenery_shader_wgsl() -> String {
     #|struct Uniforms {
     #| mvp: mat4x4<f32>, model: mat4x4<f32>, normal0: vec4<f32>, normal1: vec4<f32>, normal2: vec4<f32>,
     #| light_dir: vec4<f32>, light_color: vec4<f32>, ambient_color: vec4<f32>, focus: vec4<f32>,
+    #| eye: vec4<f32>, obstruction_target: vec4<f32>,
     #|};
     #|@group(0) @binding(0) var<uniform> u: Uniforms;
     #|struct In { @location(0) p: vec3<f32>, @location(1) n: vec3<f32>, @location(2) uv: vec2<f32> };
-    #|struct Out { @builtin(position) p: vec4<f32>, @location(0) n: vec3<f32>, @location(1) world: vec3<f32>, @location(2) color: vec3<f32> };
+    #|struct Out { @builtin(position) p: vec4<f32>, @location(0) n: vec3<f32>, @location(1) world: vec3<f32>, @location(2) color: vec3<f32>, @location(3) @interpolate(flat) kind: u32 };
     #|@vertex fn vs_main(v: In) -> Out {
     #| var o: Out;
+    #| o.kind=u32(v.uv.y);
     #| o.p=u.mvp*vec4(v.p,1.0); o.n=v.n; o.world=(u.model*vec4(v.p,1.0)).xyz;
     #| let c=u32(v.uv.x); o.color=vec3(f32((c>>16u)&255u),f32((c>>8u)&255u),f32(c&255u))/255.0;
+    #| if v.uv.y>0.5 { o.color=biome_color(u32(v.uv.x),o.world.xz+u.focus.yw); }
     #| return o;
     #|}
     #|@fragment fn fs_main(v: Out) -> @location(0) vec4<f32> {
+    #| var opacity=1.0;
+    #| if v.kind==2u && u.eye.w>0.5 {
+    #|   let ray=u.obstruction_target.xyz-u.eye.xyz;
+    #|   let t=dot(v.world-u.eye.xyz,ray)/max(dot(ray,ray),0.001);
+    #|   if t>0.0 && t<0.97 {
+    #|     let radius=mix(1.25,u.obstruction_target.w,clamp(t,0.0,1.0));
+    #|     let d=length(v.world-(u.eye.xyz+ray*t));
+    #|     opacity=smoothstep(radius*0.55,radius,d);
+    #|   }
+    #| }
+    #| if v.kind==3u { opacity*=1.0-smoothstep(12.0,25.0,length(v.world.xz-u.focus.xz)); }
+    #| if opacity<0.999 && fract(52.9829189*fract(dot(floor(v.p.xy),vec2(0.06711056,0.00583715))))>opacity { discard; }
     #| let light=u.ambient_color.xyz+u.light_color.xyz*max(dot(normalize(v.n),normalize(-u.light_dir.xyz)),0.0);
     #| let lit=v.color*light;
     #| let fog=smoothstep(45.0,230.0,length(v.world.xz-u.focus.xz));
     #| return vec4(mix(lit,vec3(0.392,0.498,0.537),fog),1.0);
     #|}
-  source
+  biome_shader_wgsl() + source
 }

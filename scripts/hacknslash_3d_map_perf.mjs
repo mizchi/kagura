@@ -26,6 +26,8 @@ try{
     ['streaming',{snapshot:'border',region:'0',terrain:'expedition'},true],
     ['panorama',{snapshot:'landscape',landmark:'coast',terrain:'expedition'},false],
     ['cave',{snapshot:'landscape',landmark:'inside',terrain:'expedition'},false],
+    ['occlusion',{snapshot:'landscape',landmark:'occlusion',terrain:'expedition'},false],
+    ['camp',{snapshot:'camp',terrain:'expedition'},false],
   ]){
     if(values.scenario&&values.scenario!==name)continue;
     const context=await browser.newContext({viewport:{width:1280,height:900}});
@@ -55,12 +57,13 @@ try{
     const measured=await measureWebPage(page,session,{samples:Number(values.samples),profileMs:1000});
     await page.keyboard.up('KeyD');await page.keyboard.up('KeyS');
     const state=await page.evaluate(()=>({terrain:globalThis.__ashenHud.terrain,atlas:globalThis.__ashenHud.atlas,
+      encounters:{resting:globalThis.__ashenHud.resting_enemies,waking:globalThis.__ashenHud.waking_enemies},
       preloadSamples:globalThis.__mapStreamFrames??[]}));
     const {profile,samples,...timing}=measured;
     const counters=Object.fromEntries(['drawCalls','indexCount','residentGeometryBuffers'].map(key=>[key,summarizeNumericSamples(samples.map(s=>s[key]))]));
     const result={name,url:url.toString(),...timing,counters,
       gpuTimingMethods:[...new Set(samples.map(s=>s.gpuTimingMethod))],
-      terrain:state.terrain,streaming:state.atlas,
+      terrain:state.terrain,streaming:state.atlas,encounters:state.encounters,
       preloadUpdateMs:state.preloadSamples.length?summarizeNumericSamples(state.preloadSamples.map(s=>s.updateMs)):null,errors};
     writeFileSync(resolve(directory,`${name}.samples.json`),JSON.stringify({samples,preloadSamples:state.preloadSamples}));
     writeFileSync(resolve(directory,`${name}.cpuprofile`),JSON.stringify(profile));

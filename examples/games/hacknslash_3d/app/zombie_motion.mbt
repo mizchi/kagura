@@ -149,7 +149,7 @@ fn build_zombie_clip(kind : Int) -> @animation3d.AnimationClip {
 }
 
 ///|
-fn zombie_pose_key(enemy : @game.Enemy) -> Int {
+fn zombie_pose_key(enemy : @game.Enemy, frame? : Int = 0) -> Int {
   if enemy.attack_motion == @game.Pounce {
     return 2 * zombie_pose_stride +
       zombie_baked_clips[2].frame_index(
@@ -158,6 +158,9 @@ fn zombie_pose_key(enemy : @game.Enemy) -> Int {
       )
   }
   if enemy.move_speed < 0.01 || enemy.stagger_frames > 0 {
+    if enemy.camp is Some(_) {
+      return enemy_rest_key(enemy, frame)
+    }
     return 0
   }
   let cycles = enemy.travel_distance / @game.zombie_stride_distance
@@ -167,6 +170,9 @@ fn zombie_pose_key(enemy : @game.Enemy) -> Int {
 
 ///|
 fn zombie_skinning_for_key(key : Int) -> Array[@math3d.Mat4] {
+  if key < 0 {
+    return zombie_rest_palettes[-key - 1]
+  }
   zombie_baked_clips[key / zombie_pose_stride].matrices(
     key % zombie_pose_stride,
   )

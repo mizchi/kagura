@@ -297,23 +297,7 @@ fn GameState::push_neighbor_region_commands(
         group.mesh.vertex_data,
         group.mesh.indices,
       )
-      cmds.push(
-        @draw3d.new_lit_colored_mesh_draw_command(
-          dst,
-          self.shader3d_colored,
-          group.dst_region,
-          0,
-          0,
-          0,
-          @gfx.BlendMode::from_int(0),
-          group.mesh,
-          model,
-          vp,
-          self.lighting,
-          group.color,
-          [],
-        ),
-      )
+      cmds.push(self.scenery_draw(dst, group.dst_region, group.mesh, model, vp))
     }
   }
 }

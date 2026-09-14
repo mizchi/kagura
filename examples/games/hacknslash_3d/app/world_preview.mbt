@@ -231,6 +231,8 @@ fn apply_landscape_preview(state : GameState, landmark : String) -> Unit {
   state.world.auto_play = false
   state.world.enemies.clear()
   let (x, z, yaw, tilt, distance) = match landmark {
+    "occlusion" => (35.5, 24.5, @math.PI, 0.18, 4.5)
+    "woodland" => (47.5, 65.5, 0.65, 0.60, 23.0)
     "cave" => (61.5, 26.5, 0.22, 0.68, 23.0)
     "inside" => (61.5, 18.5, 0.22, 0.68, 20.0)
     "coast" => (13.5, 49.5, 1.65, 0.2, 20.0)
@@ -253,12 +255,22 @@ fn apply_landscape_preview(state : GameState, landmark : String) -> Unit {
   state.camera = state.camera
     .orbit(yaw - state.camera.yaw, tilt - state.camera.pitch)
     .with_distance(distance)
-  if landmark == "coast" {
+  if landmark == "coast" || landmark == "occlusion" {
     state.camera_settings.mode = 1
     state.camera_settings.tps = {
       ..hunter_camera_defaults(1),
       tilt: 10.0,
       height: 1.2,
+      side: if landmark == "occlusion" {
+        0.0
+      } else {
+        0.55
+      },
+      forward: if landmark == "occlusion" {
+        0.0
+      } else {
+        0.65
+      },
     }
     state.world.player.facing_angle = @math.atan2(
       -@math.cos(yaw),
@@ -267,4 +279,29 @@ fn apply_landscape_preview(state : GameState, landmark : String) -> Unit {
     state.apply_camera_tuning()
   }
   state.update_combat_camera()
+}
+
+///|
+fn apply_enemy_camp_preview(state : GameState) -> Unit {
+  state.world.mode = @game.Playing
+  state.world.auto_play = false
+  state.world.enemies = state.world.enemies.filter(e => {
+    e.camp.map(c => c.pack_id == 1).or(false)
+  })
+  let (x, z) = @game.hunting_safe_position(
+    state.world.dungeon,
+    29.5 * tile_size,
+    43.5 * tile_size,
+    12.0,
+  )
+  state.world.player.x = x
+  state.world.player.y = z
+  state.camera_settings.quarter = {
+    ..state.camera_settings.quarter,
+    tilt: 55.0,
+    distance: 23.0,
+    forward: 3.0,
+  }
+  state.camera = state.camera.orbit(-state.camera.yaw, 0.0)
+  state.apply_camera_tuning()
 }

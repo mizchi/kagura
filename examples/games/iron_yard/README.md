@@ -88,7 +88,7 @@ BASTIONは168種類のメッシュを296箇所へ配置した階層を展開し�
 
 ## 色と照明の契約
 
-シェーダーの正本は `engine/kagura_engine/draw3d/shaders/*.wgsl`。`scripts/embed-wgsl.mjs` がMoonBitの文字列へ埋め込む。生成された `standard_sources.mbt` は直接編集しない。ゲームのbuild / test / devで再生成する。
+シェーダーの正本は `engine/draw3d/shaders/*.wgsl`。`scripts/embed-wgsl.mjs` がMoonBitの文字列へ埋め込む。生成された `standard_sources.mbt` は直接編集しない。ゲームのbuild / test / devで再生成する。
 
 - HEX色とPNGのRGBはsRGB。HEXはCPUで線形化し、モデル画像は `rgba8unorm-srgb` でGPUにアップロードして補間前に線形化する。glTFのbaseColorFactorはすでに線形なので再変換しない。アルファ値は線形のまま保持する。
 - `standard.wgsl` は元版のGGX、相関Smith可視性、多重散乱、DFG LUT、粗さの4乗による反射方向補正を使用する。半球光と環境反射の間接光を分け、材質・太陽・半球光の値も元Stageに合わせる。

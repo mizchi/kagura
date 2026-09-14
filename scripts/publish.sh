@@ -20,9 +20,9 @@
 # version behind your back. Bump "version" in <module>/moon.mod.json yourself,
 # then re-run.
 #
-# Only the reusable library modules (the root module + everything under
-# modules/, i.e. the moon.work members) are released. Example games
-# (examples/**) and authoring tools (tools/**) are intentionally NOT published.
+# Only the reusable library modules listed in MODULES below are released.
+# Example games (examples/**), authoring tools (editor/**), and runtime
+# integration modules are intentionally NOT published.
 #
 # Usage:
 #   scripts/publish.sh             # show status, then publish NEW modules
@@ -47,8 +47,8 @@ fi
 MODULES=(
   core/mesh3d
   core/geom
-  core/kagura_core
-  platform/kagura_platform
+  core
+  platform
   engine/ui
   engine/audio
   engine/text
@@ -56,9 +56,9 @@ MODULES=(
   engine/asset_loader
   engine/renderer2d
   engine/anim3d
-  engine/kagura_engine
+  engine
   .
-  platform/js_runtime
+  platform_js
   engine/physics
   game
   engine/widget2d

@@ -5,6 +5,13 @@ import {tmpdir} from 'node:os';
 import {join} from 'node:path';
 import {WEB_RUNTIME_FILES, copyWebRuntimeAssets} from './web-runtime-assets.mjs';
 import {getDemoPage, renderDemoHtml} from './web-demo-pages.mjs';
+import {webRuntimeSourceHash} from './web-runtime-source.mjs';
+
+test('checked-in runtime matches the MoonBit sources without requiring a compiler in Node-only jobs',()=>{
+  const source=readFileSync(new URL('../assets/web/kagura-runtime.generated.js',import.meta.url),'utf8');
+  assert.ok(source.startsWith('// Generated from platform_js/web_core/'));
+  assert.ok(source.includes(`// Source SHA-256: ${webRuntimeSourceHash()}\n`),'Run just web-runtime-build');
+});
 
 test('runtime distribution includes the transitive browser module dependencies', t => {
   const directory=mkdtempSync(join(tmpdir(),'kagura-runtime-'));
@@ -25,6 +32,7 @@ test('game import maps resolve reusable controls in dev, gallery and embedded de
     const match=html.match(/<script type="importmap">([^<]+)<\/script>/);
     assert.ok(match);
     assert.equal(JSON.parse(match[1]).imports['@kagura-web/'],libPrefix+'/');
+    assert.equal(JSON.parse(match[1]).imports['#kagura-web/'],libPrefix+'/');
     assert.ok(html.indexOf('type="importmap"')<html.indexOf('type="module"'));
   }
 });

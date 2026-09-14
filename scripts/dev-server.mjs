@@ -2,6 +2,7 @@ import { createServer } from "vite";
 import { resolve, join } from "node:path";
 import { existsSync, readFileSync } from "node:fs";
 import { moonbit } from "vite-plugin-moonbit";
+import { moonbitWebRuntimePlugin } from "./build-web-runtime.mjs";
 import { resolveBuildArtifact } from "./moon-build-artifact-utils.mjs";
 import { EXAMPLE_ROOT, findExampleDir, listExampleNames } from "./example-dirs.mjs";
 import {
@@ -37,7 +38,9 @@ const inlineLoader = renderLoaderModule({
   scriptPath: `./_build/js/debug/build/${name}.js`,
   libPrefix: "./assets/web",
 });
-const scriptTag = `<script type="module">\n${inlineLoader.replaceAll("</script>", "<\\/script>")}</script>`;
+// This custom HTML bypasses transformIndexHtml, so install Vite's reload client
+// explicitly. Both MoonBit build watchers publish full-reload over this channel.
+const scriptTag = `<script type="module" src="/@vite/client"></script>\n<script type="module">\n${inlineLoader.replaceAll("</script>", "<\\/script>")}</script>`;
 const indexHtml = renderDemoHtml({
   demo,
   homeHref: "https://github.com/mizchi/kagura",
@@ -51,6 +54,7 @@ const PORT = parseInt(process.env.PORT ?? "8080", 10);
 const server = await createServer({
   root: ROOT,
   plugins: [
+    moonbitWebRuntimePlugin(),
     moonbit({ root: exampleDir, target: "js", mode: "debug" }),
     {
       name: "kagura-dev-index",

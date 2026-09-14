@@ -1,4 +1,5 @@
 import {copyWebRuntimeAssets} from './web-runtime-assets.mjs';
+import {buildWebRuntime} from './build-web-runtime.mjs';
 import { emitExamplePage } from './web-demo-package.mjs';
 import { spawnSync } from "node:child_process";
 import {
@@ -25,6 +26,7 @@ const MODELING_EXAMPLES_ROOT = join(ROOT, "editor", "modeling3d", "examples");
 buildPages();
 
 function buildPages() {
+  buildWebRuntime();
   rmSync(SITE, { recursive: true, force: true });
   mkdirSync(join(SITE, "lib"), { recursive: true });
 

@@ -14,7 +14,7 @@ if (!['js', 'native'].includes(target)) throw Error('Expected js or native');
 for (const [module, file] of [
   ['game', 'inspection/control_release_wbtest.mbt'],
   ['game', 'scene/inspection_release_wbtest.mbt'],
-  ['engine/kagura_engine', 'scene3d/inspection_release_wbtest.mbt'],
+  ['engine', 'scene3d/inspection_release_wbtest.mbt'],
 ]) {
   const result = spawnSync('moon', ['test', file, '--target', target, '--release'], {
     cwd: resolve(root, module),

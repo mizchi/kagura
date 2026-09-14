@@ -1,7 +1,7 @@
 # atlas の asset key 探索は O(n) だが、出荷している経路では薄い（入れなかった）
 
 - Date: 2026-09-11
-- Scope: `engine/kagura_engine/sprite2d`（bench のみ）
+- Scope: `engine/sprite2d`（bench のみ）
 - 出発点: [physics-id-lookup.md](./physics-id-lookup.md) の作業項目 3
   「atlas 側にも同じ形の線形探索が残っている。そちらは fixture が 1 entry なので
   bench が効果を隠している —— **先に fixture を直してから**測る」

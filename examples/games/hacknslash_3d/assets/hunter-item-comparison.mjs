@@ -1,8 +1,5 @@
-export function comparisonRows(view,item) {
-  const equipped=view.equipment.find(slot=>slot.id===item.slot)?.item;
-  const previous=new Map(equipped?.stats??[]);
-  return item.stats.map(([label,value])=>({label,value,before:previous.get(label)??0,delta:value-(previous.get(label)??0)})).filter(row=>row.value||row.before);
-}
+import {comparisonRows} from '#kagura-web/kagura-runtime.generated.js';
+export {comparisonRows};
 const number=value=>Number(value.toFixed(1));
 export function comparisonMarkup(view,item,escape,{page=0,pageSize=Infinity}={}) {
   const equipped=view.equipment.find(slot=>slot.id===item.slot)?.item;

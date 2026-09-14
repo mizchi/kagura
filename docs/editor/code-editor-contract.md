@@ -86,7 +86,7 @@ interface RuntimeInspectorAdapter {
 }
 ```
 
-describe/reduce は `Inspector[State]` と `Runtime[State]` から共通実装が生成する。ゲーム側で同じ field ID の switch を再実装しない。公開型は `editor/studio/public/runtime.d.ts`。MoonBit の表示契約は `game/inspection`、描画側の参照は `core/kagura_core/hierarchy` に置く。engine / game は editor のコードへ依存しない。
+describe/reduce は `Inspector[State]` と `Runtime[State]` から共通実装が生成する。ゲーム側で同じ field ID の switch を再実装しない。公開型は `editor/studio/public/runtime.d.ts`。MoonBit の表示契約は `game/inspection`、描画側の参照は `core/hierarchy` に置く。engine / game は editor のコードへ依存しない。
 
 1. runtime session がゲーム状態のコピーと token を取得する。
 2. `describe(state)` がそのコピーだけから対象・フィールド・値を投影する。ライブ状態の再読込、view の再評価、GPU 資源の作成をしない。

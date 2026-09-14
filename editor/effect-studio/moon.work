@@ -4,10 +4,10 @@ members = [
   "../../engine/atlas",
   "../../engine/audio",
   "../../core/geom",
-  "../../core/kagura_core",
-  "../../engine/kagura_engine",
+  "../../core",
+  "../../engine",
   "../../core/mesh3d",
-  "../../platform/kagura_platform",
+  "../../platform",
   "../../engine/renderer2d",
   "../../engine/text",
 ]

@@ -121,7 +121,7 @@ TPSでは木・石・建物でカメラを急に縮めず、プレイヤーと�
 `motion=run`（30フレーム周期）、`motion=bite`（0〜64、命中34）も指定できる。
 Studio の **Project → motions/wolf.kgrmotion** では歩行・走行・噛み付きの再生、コマ送りが可能。
 `just hunter-motion-assets` でゲームと同じメッシュ・クリップから出力する。
-四足骨格は `engine/kagura_engine/procedural3d/quadruped.mbt` に共通化し、
+四足骨格は `engine/procedural3d/quadruped.mbt` に共通化し、
 ゲームの姿勢は事前計算して同じ姿勢の狼をGPUでまとめて描く。
 
 

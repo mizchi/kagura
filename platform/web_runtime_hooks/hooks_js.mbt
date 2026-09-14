@@ -3207,7 +3207,7 @@ pub fn install(canvas_selector : String) -> Unit {
   js_ensure_window_state(canvas_selector)
   js_set_should_close(false)
   let _ = js_set_vsync_enabled(true)
-  @platform.set_web_canvas_hooks(
+  @platform_js.install(
     @platform.new_web_canvas_hooks(
       bridge_web_try_initialize,
       bridge_web_poll,
@@ -3256,7 +3256,7 @@ pub fn uninstall() -> Unit {
   js_release_webgpu_resources()
   js_set_should_close(false)
   @gfx.reset_web_graphics_hooks()
-  @platform.reset_web_canvas_hooks()
+  @platform_js.uninstall()
   @text.reset_font_load_hooks()
   @audio.reset_audio_output_hooks()
 }

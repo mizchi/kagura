@@ -13,17 +13,23 @@ test('terrain uses retained GPU geometry and camera depth runs only for SSAO', a
       delete globalThis.__hacknslash3dProfile;
       const terrain = gpu.commands.filter(command =>
         command.isCustom && command.dstImageId === 300 && command.blendMode === 0 && command.vertexData.length > 16000);
+      const depth = gpu.commands.filter(command => command.dstImageId === 305);
       return {
         terrainCount: terrain.length,
         retained: terrain.every(command => command.sharedGeometry && command.immutableGeometry),
-        depthCount: gpu.commands.filter(command => command.dstImageId === 305).length,
+        depthCount: depth.length,
+        depthValid: depth.every(command => command.sharedGeometry && command.immutableGeometry &&
+          command.indexCount > 0 && command.firstIndex + command.indexCount <= command.indices.length),
         ssao,
         profile:globalThis.__kaguraProfiler.snapshot(),
       };
     });
     expect(state.terrainCount).toBeGreaterThan(0);
     expect(state.retained).toBe(true);
-    expect(state.depthCount).toBe(ssao ? 1 : 0);
+    // SSAO uses the visible chunk meshes directly, without recombining them.
+    if(ssao) expect(state.depthCount).toBeGreaterThan(0);
+    else expect(state.depthCount).toBe(0);
+    expect(state.depthValid).toBe(true);
     expect(state.ssao).toBe(ssao);
     expect(state.profile.version).toBe(1);
     expect(state.profile.frame).toBeGreaterThan(0);

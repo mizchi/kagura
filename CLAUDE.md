@@ -3,9 +3,9 @@
 ## プロジェクト構成
 
 - `lib.mbt` / `moon.pkg` - ルート直下の公開ファサード（`mizchi/kagura`）
-- `assets/` - 共通ブラウザランタイム（`web/`）、外部ヘッダ（`vendor/`）、共有素材。旧 `lib/` と `vendor/` はここに統合
+- `assets/` - 共通ブラウザランタイム（`web/`）、共有フォント（`fonts/`）、外部ヘッダ（`vendor/`）、共有素材。旧 `lib/`、`vendor/`、`fixtures/fonts/` はここに統合
 - `<layer>/<name>/` - ライブラリ本体。各ディレクトリが独立した moon module で、
-  `moon.work` のメンバー。layer は下表の 5 つ
+  `moon.work` のメンバー。`core/`、`platform/`、`platform_js/`、`platform_native/`、`engine/`、`game/` 自体も module
 - `examples/<category>/<name>/` - サンプルプロジェクト（各ディレクトリが独立した moon プロジェクト）
   - カテゴリ: `games`（遊べるサンプル）, `demos-2d` / `demos-3d`（単機能デモ）, `assets`（MoonBit を持たないエディタ素材プロジェクト）, `smoke`（CI の最小確認）, `experimental`
   - Studio の一覧と用途は `examples/catalog.json`、選び方と統合方針は `examples/README.md`
@@ -16,23 +16,43 @@
 
 | layer | 中身 | モジュール |
 |---|---|---|
-| `core/` | 外部依存ゼロ、または core 契約のみの基盤 | `kagura_core`, `geom`, `mesh3d` |
-| `platform/` | ターゲット固有の host / 窓口層 | `kagura_platform`, `js_runtime`, `web_runtime_hooks`, `native_runtime_hooks` |
-| `engine/` | 描画・アセット・ランタイム基盤 | `kagura_engine`, `renderer2d`, `text`, `widget2d`, `ui`, `atlas`, `asset_loader`, `audio`, `anim3d`, `physics` |
+| `core/` | 外部依存ゼロ、または core 契約のみの基盤 | ルートが `mizchi/kagura_core`、`geom`, `mesh3d` は独立モジュール |
+| `platform/` | 共通の platform contract と型付き hook 境界 | ルートが `mizchi/kagura_platform` |
+| `platform_js/` | contract に従う JS adapter と MoonBit JS ランタイム | `mizchi/kagura_platform_js` |
+| `platform_native/` | native host の既存統合 module。platform contract に従って注入 | `mizchi/native_runtime_hooks` |
+| `engine/` | 描画・アセット・ランタイム基盤 | ルートが `mizchi/kagura_engine`、`renderer2d`, `text`, `widget2d`, `ui`, `atlas`, `asset_loader`, `audio`, `anim3d`, `physics` は独立モジュール |
 | `game/` | ゲーム側のロジック（描画基盤に依存してよい） | ルートが `mizchi/kagura_game`、`machinations`, `pathfind` は独立モジュール |
 | `editor/` | オーサリング／確認用ツール | `studio`, `model-viewer`, `effect-studio`, `modeling3d` |
 
-`web_runtime_hooks` / `native_runtime_hooks` は host hook の実装（`kagura_platform` の
-注入先）で、ほぼ全ての example と editor tool が import する。publish 対象ではないが
-ルート `moon.work` のメンバーなので `moon check` の対象に入る。
+`platform/web_runtime_hooks` / `platform_native` は描画・音声も結線する
+既存の起動時統合 module。ほぼ全ての example と editor tool が import する。
+contract とは別の独立 module で、contract の配布に含めない。JS の platform hook は
+`platform_js.install(WebCanvasHooks)`、native は `DesktopNativeHooks` で注入する。
 
 依存の向きは `core <- platform <- engine <- game` の一方通行。`editor/` はどれに依存しても
 よいが、**誰からも依存されない**（publish 対象外で、それぞれ自前の `moon.work` を持つ）。
 実際の許可リストは `scripts/moon-boundary-utils.mjs` の `DEFAULT_IMPORT_BOUNDARY_POLICY`
 にあり、`just check-release` が `moon.pkg` の import を突き合わせる。
 
+新規の実装は `platform_<target>/` / `mizchi/kagura_platform_<target>` とし、
+`platform` の `PlatformDriver`・型付き hook に従う。`platform` から実装への
+逆依存や、実装から engine / game への依存は禁止する。`platform_js` の入口は
+既存の shell を返し、ウィンドウ・入力の契約を複製しない。
+
+`platform_native/` は既存の統合 module をトップレベルへ移したもので、
+import 名は引き続き `mizchi/native_runtime_hooks`。`DesktopNativeHooks` に従い、
+描画・音声も結線する統合層として engine を参照する。
+
 ディレクトリ名は publish 名と一致しないことがある（`engine/ui` = `mizchi/kagura_ui`）。
 **正はいつも `moon.mod` の `name`** で、ディレクトリはただの置き場所。
+
+`core/` と `engine/` の配布には、配下の独立した `moon.mod` を持つ module を
+混ぜない。workspace 参照・import 境界・release staging は入れ子の module を
+区別する。`scripts/repository-layout.test.mjs` が配布内容の分離を検証する。
+配布内容の確認は `just release-stage` を使う。リポジトリ内で子 module に直接
+`moon package` すると、root facade 用 `.moonignore` の親ルールで空の ZIP に
+なることがある。子側で除外を打ち消すと root の配布に子 module が混入するため、
+検証済みの staging から配布物を作る。
 
 モジュールを移動したら、パスを持っている次の場所も一緒に直すこと。
 素朴な grep では 3 種類を取りこぼす: **深さが変わる相対パス**、**セグメント分割された
@@ -74,6 +94,16 @@ parquet 側が x 0.4.50 に追従したら font の天井を外せる。上げ�
 `@x/fs` を使う経路がそもそもコンパイルされず素通りする。
 
 ## ビルド・テスト
+
+### Web ランタイムの実装言語
+
+ブラウザ固有 API の接続以外のコアロジックは、原則 MoonBit で書く。
+共通 JS 向け処理は `platform_js/web_core/` に追加し、
+`just web-runtime-build` で `assets/web/kagura-runtime.generated.js` を生成する。
+入力・UI 同期・再生・geometry キャッシュの状態遷移を手書き JS に戻さない。
+`extern "js"` は組み込みやホスト API の小さな FFI に限り、アルゴリズムを埋め込まない。
+JS API を変更したら同名 `.d.ts` と境界テストを更新する。
+生成物も git に含める。詳細は `platform_js/README.md`。
 
 ```bash
 just check          # workspace + 全 example (js)
@@ -161,7 +191,7 @@ just vlm-ui-daemon-start ui_demo
 
 `@engine.run` は canvas に触る前に `globalThis.__kaguraHeadless` を見る。あれば
 アニメーションループに入らず、example 自身の update を N tick 回して draw 1 回を
-**CPU ラスタライザ**（`engine/kagura_engine/raster`、`@gfx.GraphicsDriver` の実装）に
+**CPU ラスタライザ**（`engine/raster`、`@gfx.GraphicsDriver` の実装）に
 流し、PNG を `__kaguraHeadlessFrame` に置く。example 側の変更は要らない。
 
 - Linux の canvas screenshot が透明で Dawn readback も返らない問題を丸ごと迂回する

@@ -57,7 +57,7 @@ Kagura は既存の更新・描画ループに合わせ、view とそのコン�
 
 ## エディタと AI
 
-共通の検査契約は `core/kagura_core/hierarchy` の `Node`（`id / name / kind / generated / children`）です。描画時に解決したヒエラルキーをゲームが保持し、`kaguraSceneRuntime.hierarchy()` から公開します。ヒエラルキーを読むために view を再実行しません。
+共通の検査契約は `core/hierarchy` の `Node`（`id / name / kind / generated / children`）です。描画時に解決したヒエラルキーをゲームが保持し、`kaguraSceneRuntime.hierarchy()` から公開します。ヒエラルキーを読むために view を再実行しません。
 
 Studio は Play 中に **Scene hierarchy** を表示します。Flappy Bird / Arena 3D が対応済みです。約 250 ms ごとに読んで構造が変化した場合だけ DOM を更新します。停止中の状態変更も次の描画から反映されます。`kagura.runtime.hierarchy()` と WebMCP の `kagura.runtime_hierarchy` が同じ読み取り API です。
 

@@ -225,7 +225,7 @@ pub impl Show for WindowOptions
 // Type aliases
 
 // Traits
-pub trait PlatformDriver {
+pub(open) trait PlatformDriver {
   fn initialize(Self, WindowOptions) -> Unit raise
   fn poll_events(Self) -> Unit
   fn should_close(Self) -> Bool

@@ -1,10 +1,10 @@
 // Headless frame capture for kagura examples: render a real frame under plain
 // `node`, with no browser, no GPU and no Playwright.
 //
-// The engine side lives in `engine/kagura_engine/headless_js.mbt`. When
+// The engine side lives in `engine/headless_js.mbt`. When
 // `globalThis.__kaguraHeadless` is set, `@engine.run` skips the canvas and the
 // animation loop, drives `update` for N ticks, and rasterizes one `draw` on the
-// CPU (`engine/kagura_engine/raster`). The PNG comes back on
+// CPU (`engine/raster`). The PNG comes back on
 // `globalThis.__kaguraHeadlessFrame`.
 //
 // What this module adds is the host half: a viewport stub standing in for the

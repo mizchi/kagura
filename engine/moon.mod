@@ -30,5 +30,5 @@ import {
 preferred_target = "js"
 
 options(
-  "--moonbit-unstable-prebuild": "../../scripts/moon-prebuild-native-link-flags.cjs",
+  "--moonbit-unstable-prebuild": "../scripts/moon-prebuild-native-link-flags.cjs",
 )

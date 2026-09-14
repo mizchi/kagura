@@ -4,12 +4,12 @@
 
 > **Note (stale):** このドキュメントは実装前のプラン。以下は既に実態と乖離している:
 > `mizchi/kagura_physics` は実際には `mizchi/physics` として公開されている。
-> `gfx` は `engine/kagura_engine/gfx/` ではなく外部パッケージ `mizchi/gfx` として存在する。
-> `platform` と `ui` は `platform/kagura_platform/` (`mizchi/kagura_platform`) / `engine/ui/`
+> `gfx` は `engine/gfx/` ではなく外部パッケージ `mizchi/gfx` として存在する。
+> `platform` と `ui` は `platform/` (`mizchi/kagura_platform`) / `engine/ui/`
 > (`mizchi/kagura_ui`) として kagura_engine から抽出済み。`gfx_wgpu_native` は
 > 独立モジュールへの切り出しを試みたが、`--moonbit-unstable-prebuild` のビルド変数
 > (`${build.KAGURA_NATIVE_WGPU_INCLUDE}` 等) が独立 moon.work メンバーでは解決されない
-> moon 側の制約に当たり、`engine/kagura_engine/gfx_wgpu_native/` のサブパッケージに
+> moon 側の制約に当たり、`engine/gfx_wgpu_native/` のサブパッケージに
 > 差し戻し済み。モジュールは `<layer>/<name>/` としてリポジトリ直下に並んでおり、
 > layer は `core` / `platform` / `engine` / `game` / `editor` の 5 つ（`modules/` という
 > 階層はもう無い）。現行のレイヤ表と依存の向きは CLAUDE.md の「レイヤ」を見ること。
@@ -18,11 +18,14 @@
 ## Workspace Modules
 
 - `mizchi/kagura`: thin public facade。`lib.mbt` と `moon.pkg` を持ち、`mizchi/kagura_core` と `mizchi/kagura_engine` の契約を束ねる。
-- `mizchi/kagura_core`: core contracts / math / camera / mesh / input utilities。`core/kagura_core/*` を持つ。
-- `mizchi/kagura_engine`: rendering/runtime infrastructure。`engine/kagura_engine/*` を持ち、`mizchi/kagura_core` に依存する。
+- `mizchi/kagura_core`: core contracts / math / camera / mesh / input utilities。`core/*` を持つ。
+- `mizchi/kagura_engine`: rendering/runtime infrastructure。`engine/*` を持ち、`mizchi/kagura_core` に依存する。
 - `mizchi/kagura_physics`: reusable physics / collision / pathfinding layer。`engine/physics/*` を持ち、`mizchi/kagura_core` に依存する。
 - `mizchi/kagura_game`: gameplay/simulation/application layer。`game/*` を持ち、`mizchi/kagura_core`、`mizchi/kagura_engine`、`mizchi/kagura_physics` に依存する。
-- `mizchi/kagura_js_runtime`: JS 専用 WebGPU runtime helper。`platform/js_runtime/*` を持つ。
+- `mizchi/kagura_platform`: 共通 platform contract。`platform/*` を持つ。
+- `mizchi/kagura_platform_js`: contract に従う JS adapter とランタイム。`platform_js/*` を持つ。
+
+現行の platform の配置・契約・統合層の区別は [platform/README.md](../../platform/README.md) を参照。
 
 `mizchi/kagura` は compatibility facade とし、gameplay 層を含めない。`mizchi/kagura_game` から root facade へ戻す依存も作らない。
 
@@ -35,7 +38,7 @@ MoonBit registry へ出す単位は次の 5 つに固定する。
 - `mizchi/kagura_engine`
 - `mizchi/kagura_physics`
 - `mizchi/kagura_game`
-- `mizchi/kagura_js_runtime`
+- `mizchi/kagura_platform_js`
 
 source manifest では `moon.work` 用の local `path` 依存を許可する。publish 用 staging は `just release-stage` で生成し、workspace 内の `path` 依存を対象 module の `version` 文字列へ変換する。release 前の検証は `just check-release` を通す。
 
@@ -47,6 +50,7 @@ source manifest では `moon.work` 用の local `path` 依存を許可する。p
 - `mizchi/kagura_core` <- `mizchi/kagura_physics`
 - `mizchi/kagura_core`, `mizchi/kagura_engine`, `mizchi/kagura_physics` <- `mizchi/kagura_game`
 - `mizchi/kagura_core`, `mizchi/kagura_engine` <- `mizchi/kagura`
+- `mizchi/kagura_platform` <- `mizchi/kagura_platform_js`（逆依存は禁止）
 - `core` <- `platform`, `gfx`, `runtime`, `ui`
 - `platform` <- `gfx`（surface token のみ参照）
 - `gfx` <- `asset`, `text`, `ui`
@@ -65,15 +69,15 @@ source manifest では `moon.work` 用の local `path` 依存を許可する。p
 
 | module | own state | input | output | contract file |
 |---|---|---|---|---|
-| `core` | tick/update 計画 | outside size, input snapshot | frame budget, termination | `core/kagura_core/contracts.mbt` |
-| `platform` | window/event buffer | window options | input snapshot, surface token | `engine/kagura_engine/platform/contracts.mbt`, `engine/kagura_engine/platform/surface_contracts.mbt` |
-| `gfx` | GPU resources, command queue | draw commands, shader source, surface token | present, image/shader handle | `engine/kagura_engine/gfx/contracts.mbt`, `engine/kagura_engine/gfx/shader_contracts.mbt`, `engine/kagura_engine/gfx/backend_contracts.mbt` |
-| `runtime` | loop state | core/platform/gfx contracts | frame execution | `engine/kagura_engine/runtime/contracts.mbt` |
-| `asset` | asset index, atlas allocation | image/shader specs | image/shader/material handle | `engine/kagura_engine/asset/contracts.mbt` |
-| `renderer2d` | frame draw context | atlas draw sources, 2D frame target | draw command queue | `engine/kagura_engine/renderer2d/renderer2d.mbt` |
-| `renderer3d` | frame draw context | `scene3d` graph/scene, optional postfx pipeline | scene + postfx draw command queue | `engine/kagura_engine/renderer3d/renderer3d.mbt` |
-| `text` | font cache, glyph cache | text runs | glyph quads, draw commands | `engine/kagura_engine/text/contracts.mbt` |
-| `ui` | ui tree, layout cache | input snapshot, frame budget | ui events, draw commands | `engine/kagura_engine/ui/contracts.mbt` |
+| `core` | tick/update 計画 | outside size, input snapshot | frame budget, termination | `core/contracts.mbt` |
+| `platform` | window/event buffer | window options | input snapshot, surface token | `platform/contracts.mbt`, `platform/surface_contracts.mbt` |
+| `gfx` | GPU resources, command queue | draw commands, shader source, surface token | present, image/shader handle | `engine/gfx/contracts.mbt`, `engine/gfx/shader_contracts.mbt`, `engine/gfx/backend_contracts.mbt` |
+| `runtime` | loop state | core/platform/gfx contracts | frame execution | `engine/runtime/contracts.mbt` |
+| `asset` | asset index, atlas allocation | image/shader specs | image/shader/material handle | `engine/asset/contracts.mbt` |
+| `renderer2d` | frame draw context | atlas draw sources, 2D frame target | draw command queue | `engine/renderer2d/renderer2d.mbt` |
+| `renderer3d` | frame draw context | `scene3d` graph/scene, optional postfx pipeline | scene + postfx draw command queue | `engine/renderer3d/renderer3d.mbt` |
+| `text` | font cache, glyph cache | text runs | glyph quads, draw commands | `engine/text/contracts.mbt` |
+| `ui` | ui tree, layout cache | input snapshot, frame budget | ui events, draw commands | `engine/ui/contracts.mbt` |
 | `ai` | blackboard, scheduler state | sensor snapshot, frame budget | action intents | `game/ai/contracts.mbt` |
 
 ## Backend Implementations
@@ -87,9 +91,9 @@ source manifest では `moon.work` 用の local `path` 依存を許可する。p
 
 - 補足:
   - `platform` / `gfx` は標準では stub hook を使う
-  - real native 初期化は `platform/native_runtime_hooks` から hook 注入して有効化する
+  - real native 初期化は `platform_native` から hook 注入して有効化する
   - browser 側は `platform/web_runtime_hooks` から web hook 注入して有効化する
-  - `native_triangle` も `platform/native_runtime_hooks` の共通初期化 API を利用する
+  - `native_triangle` も `platform_native` の共通初期化 API を利用する
   - `runtime_smoke(js)` は `platform/web_runtime_hooks` 経由で browser 導線を通す
 
 ## AI Boundary

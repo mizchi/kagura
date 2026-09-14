@@ -521,7 +521,7 @@ fn verify_hook_font_load() -> Bool {
   }
   // CJK font verification (NotoSansJP-subset.otf)
   let cjk_renderer = @text.load_text_renderer(
-    "../../fixtures/fonts/NotoSansJP-subset.otf", 256, 952, 0,
+    "../../../assets/fonts/NotoSansJP-subset.otf", 256, 952, 0,
   )
   match cjk_renderer {
     None => {

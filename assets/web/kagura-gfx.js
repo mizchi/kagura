@@ -1,3 +1,7 @@
+import {registerGeometry,unregisterGeometry,registerStaticGeometry,snapshotDrawGeometry} from './kagura-runtime.generated.js';
+export {registerGeometry,unregisterGeometry,registerStaticGeometry,snapshotDrawGeometry};
+import {isStride32,isStride64,is3DShader,commandNeedsDepth,parseTextureBindings,getInstanceCount,getResourceCacheKey,equalDwords,instanceUniformShader} from './kagura-runtime.generated.js';
+export {instanceUniformShader};
 // Shared GFX/WebGPU backend for kagura — used by both JS-target (via globalThis.__kaguraGfx)
 // and WASM-target (via ES module import)
 import {installFrameProfiler} from './kagura-profile.js';
@@ -22,126 +26,11 @@ struct VertexOutput {
   return tex_color * uniforms.color;
 }`;
 
-// --- Shader source parsing helpers ---
-
-function isStride32(source) {
-  return /position\s*:\s*vec3<f32>/.test(source);
-}
-
-function isStride64(source) {
-  return isStride32(source) &&
-    /joints\s*:\s*vec4<f32>/.test(source) &&
-    /weights\s*:\s*vec4<f32>/.test(source);
-}
-
-function commandNeedsDepth(cmd) {
-  return cmd.isCustom && (cmd.vertexStrideHint > 0 ? cmd.vertexStrideHint >= 8 : is3DShader(cmd.shaderSource));
-}
-
 function drawIndexedRange(pass, cmd) {
   const count = cmd.indexCount ?? cmd.indices.length;
   const first = cmd.firstIndex ?? 0;
   if (first === 0 && count === cmd.indices.length) pass.drawIndexed(count, getInstanceCount(cmd));
   else pass.drawIndexed(count, getInstanceCount(cmd), first);
-}
-
-function is3DShader(source) {
-  return isStride32(source) || isStride64(source);
-}
-
-function parseTextureBindings(source) {
-  const results = [];
-  const re = /@binding\((\d+)\)\s+var\s+\w+\s*:\s*(texture_2d<f32>|texture_2d|sampler)/g;
-  let m;
-  while ((m = re.exec(source)) !== null) {
-    const binding = parseInt(m[1], 10);
-    const raw = m[2];
-    const type = raw.startsWith("texture") ? "texture" : "sampler";
-    results.push({ binding, type });
-  }
-  results.sort((a, b) => a.binding - b.binding);
-  return results;
-}
-
-function getInstanceCount(cmd) {
-  const raw = cmd == null ? null : (cmd.instanceCount ?? cmd.instance_count);
-  if (!Number.isFinite(raw)) return 1;
-  return Math.max(1, raw | 0);
-}
-
-function getResourceCacheKey(cmd) {
-  const raw = cmd == null ? null : (cmd.resourceCacheKey ?? cmd.resource_cache_key);
-  if (!Number.isFinite(raw)) return 0;
-  return raw | 0;
-}
-
-/** Explicit immutable geometry generations. Re-registering the same generation
- * is O(1); edits become visible only after advancing revision. Queued snapshots
- * remain valid. IDs are scoped to a GPU runtime and released with that runtime.
- */
-export function registerGeometry(gpu, id, revision, vertices, indices) {
-  if ((typeof id !== "string" && typeof id !== "symbol" && !Number.isSafeInteger(id)) ||
-      !Number.isSafeInteger(revision) || revision < 0) throw new TypeError("Invalid geometry identity/revision");
-  const registry = gpu._geometryRegistry ??= new Map();
-  const pairs = gpu._registeredGeometry ??= new WeakMap();
-  const old = registry.get(id);
-  if (old && revision < old.revision) throw new RangeError("Stale geometry revision");
-  if (old && revision === old.revision) {
-    if (old.vertices !== vertices || old.sourceIndices !== indices) throw new Error("Advance revision when replacing geometry");
-    return old.snapshot;
-  }
-  let byIndex = pairs.get(vertices);
-  const owner = byIndex?.get(indices);
-  if (owner && owner.id !== id) throw new Error("Geometry arrays already registered with another ID");
-  if (old) pairs.get(old.vertices)?.delete(old.sourceIndices);
-  if (!byIndex) pairs.set(vertices, byIndex = new WeakMap());
-  const snapshot = {vertexData:new Float32Array(vertices), indices:new Uint32Array(indices), immutableGeometry:true, sharedGeometry:true};
-  const entry = {id, revision, vertices, sourceIndices:indices, snapshot};
-  registry.set(id, entry);
-  byIndex.set(indices, entry);
-  return snapshot;
-}
-
-export function unregisterGeometry(gpu, id) {
-  const entry = gpu._geometryRegistry?.get(id);
-  if (!entry) return;
-  gpu._registeredGeometry.get(entry.vertices)?.delete(entry.sourceIndices);
-  gpu._geometryRegistry.delete(id);
-}
-
-/** Convenience registration for meshes whose source arrays never change. */
-export function registerStaticGeometry(gpu, vertices, indices) {
-  const pairs = gpu._registeredGeometry ??= new WeakMap();
-  let byIndex = pairs.get(vertices);
-  const registered = byIndex?.get(indices);
-  if (registered) return registered.snapshot;
-  if (!byIndex) pairs.set(vertices, byIndex = new WeakMap());
-  const snapshot = {vertexData:new Float32Array(vertices), indices:new Uint32Array(indices), immutableGeometry:true, sharedGeometry:true};
-  // Implicit registrations have no external ID to unregister. Weak ownership
-  // lets replaced terrain chunks/models go away with their source arrays.
-  byIndex.set(indices, {id:Symbol("static geometry"), snapshot});
-  return snapshot;
-}
-
-/** Opt-in adapter for the Standard/depth WGSL entry-point contract. Uniforms
- * must be 16-byte aligned and <=128 dwords. No regrouping/reordering is done.
- * The flat instance ID selects the same record in vertex and fragment helpers.
- */
-export function instanceUniformShader(source, dwords) {
-  if (!Number.isInteger(dwords) || dwords < 4 || dwords > 128 || dwords % 4) throw new RangeError("Invalid instance uniform layout");
-  const replacements = [
-    ["@group(0) @binding(0) var<uniform> uniforms: Uniforms;",
-      "struct InstanceUniforms { values: array<Uniforms, 32>, };\n@group(0) @binding(0) var<uniform> instance_uniforms: InstanceUniforms;\nvar<private> uniforms: Uniforms;"],
-    ["struct VertexOutput {", "struct VertexOutput {\n  @location(7) @interpolate(flat) instance_id: u32,"],
-    ["@vertex fn vs_main(input: VertexInput) -> VertexOutput {", "@vertex fn vs_main(input: VertexInput, @builtin(instance_index) instance_id: u32) -> VertexOutput {\n  uniforms = instance_uniforms.values[instance_id];"],
-    ["var out: VertexOutput;", "var out: VertexOutput;\n  out.instance_id = instance_id;"],
-    ["@fragment fn fs_main(in: VertexOutput) -> @location(0) vec4<f32> {", "@fragment fn fs_main(in: VertexOutput) -> @location(0) vec4<f32> {\n  uniforms = instance_uniforms.values[in.instance_id];"],
-  ];
-  for (const [from, to] of replacements) {
-    if (!source.includes(from)) throw new Error("Unsupported instance shader entry-point contract: " + from);
-    source = source.replace(from, to);
-  }
-  return `// kagura-instance-dwords: ${dwords}\n` + source;
 }
 
 function instanceDwords(gpu, source) {
@@ -257,56 +146,6 @@ function sweepGeometryBuffers(gpu) {
   }
   // Bound retained command storage after a temporary peak in scene complexity.
   if (gpu._commandPool) gpu._commandPool.length = gpu._commandCursor ?? 0;
-}
-
-/** Snapshot mutable MoonBit JS arrays in bulk. Weak keys do not retain discarded
- * meshes. Compare values before reusing a snapshot: callers may mutate a mesh
- * between two submissions, and earlier queued draws must keep their contents.
- */
-export function snapshotDrawGeometry(gpu, vertices, indices) {
-  const registered = gpu._registeredGeometry?.get(vertices)?.get(indices);
-  if (registered) return registered.snapshot;
-  const cache = gpu._geometrySnapshots ??= {vertices:new WeakMap(), indices:new WeakMap()};
-  return {
-    vertexData:snapshotVertices(cache.vertices, vertices),
-    indices:snapshotIndices(cache.indices, indices),
-    immutableGeometry:true,
-  };
-}
-
-// Keep the two hot loops monomorphic: a generic converter callback per element
-// dominated the second CPU profile even after uploads had been eliminated.
-function snapshotVertices(cache, source) {
-  const previous = cache.get(source);
-  if (previous?.length === source.length) {
-    let i = 0;
-    for (; i < source.length; i++) {
-      if (!Object.is(previous[i], Math.fround(source[i]))) break;
-    }
-    if (i === source.length) return previous;
-  }
-  const packed = new Float32Array(source);
-  cache.set(source, packed);
-  return packed;
-}
-
-function snapshotIndices(cache, source) {
-  const previous = cache.get(source);
-  if (previous?.length === source.length) {
-    let i = 0;
-    for (; i < source.length; i++) if (previous[i] !== (source[i] >>> 0)) break;
-    if (i === source.length) return previous;
-  }
-  const packed = new Uint32Array(source);
-  cache.set(source, packed);
-  return packed;
-}
-
-function equalDwords(a, b, count = b?.length) {
-  if (a === b) return true;
-  if (a == null || b == null || a.length !== count || b.length < count) return false;
-  for (let i=0; i<count; i++) if (a[i] !== b[i]) return false;
-  return true;
 }
 
 function performanceNow() {
@@ -1900,7 +1739,6 @@ export function renderGpu(gpu, device, context, clearColor, format) {
     const screenTargetId = lastCmd.dstImageId | 0;
     gpu._screenTargetId = screenTargetId;
     const passSetupEnd = performanceNow();
-
 
     for (let i = 0; i < drawCommands.length; i++) {
       const cmd = drawCommands[i];

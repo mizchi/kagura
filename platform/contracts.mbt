@@ -140,7 +140,7 @@ pub fn new_window_options(
 }
 
 ///|
-pub trait PlatformDriver {
+pub(open) trait PlatformDriver {
   /// Ebiten ref: UserInterface.init / Run
   fn initialize(Self, options : WindowOptions) -> Unit raise
 

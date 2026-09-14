@@ -4,6 +4,7 @@ import {join} from 'node:path';
 import {fileURLToPath} from 'node:url';
 
 export const WEB_RUNTIME_FILES = Object.freeze([
+  'kagura-runtime.generated.js',
   'kagura-init.js',
   'kagura-presentation.js',
   'kagura-audio.js',
@@ -26,7 +27,8 @@ export function copyWebRuntimeAssets(destination) {
 
 /** Declare before game modules; the prefix is relative to the emitted HTML. */
 export function renderWebRuntimeImportMap(libPrefix) {
-  const imports = {'@kagura-web/': libPrefix.replace(/\/$/, '') + '/'};
+  const prefix = libPrefix.replace(/\/$/, '') + '/';
+  const imports = {'@kagura-web/': prefix, '#kagura-web/': prefix};
   const json = JSON.stringify({imports}).replaceAll('<', '\\u003c');
   return `<script type="importmap">${json}</script>`;
 }

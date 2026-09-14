@@ -8,14 +8,14 @@
 #include <stdint.h>
 
 // WebGPU と GLFW ヘッダー
-#if __has_include("../../../../deps/wgpu-native/include/webgpu/webgpu.h")
-#include "../../../../deps/wgpu-native/include/webgpu/webgpu.h"
-#elif __has_include("../../../../deps/wgpu-macos/include/webgpu/webgpu.h")
-#include "../../../../deps/wgpu-macos/include/webgpu/webgpu.h"
-#elif __has_include("../../../deps/wgpu-native/include/webgpu/webgpu.h")
+#if __has_include("../../../deps/wgpu-native/include/webgpu/webgpu.h")
 #include "../../../deps/wgpu-native/include/webgpu/webgpu.h"
 #elif __has_include("../../../deps/wgpu-macos/include/webgpu/webgpu.h")
 #include "../../../deps/wgpu-macos/include/webgpu/webgpu.h"
+#elif __has_include("../../deps/wgpu-native/include/webgpu/webgpu.h")
+#include "../../deps/wgpu-native/include/webgpu/webgpu.h"
+#elif __has_include("../../deps/wgpu-macos/include/webgpu/webgpu.h")
+#include "../../deps/wgpu-macos/include/webgpu/webgpu.h"
 #elif __has_include(<webgpu/webgpu.h>)
 #include <webgpu/webgpu.h>
 #else
@@ -23,14 +23,14 @@
 #endif
 
 // wgpu-native extension header (provides wgpuDevicePoll etc.)
-#if __has_include("../../../../deps/wgpu-native/include/webgpu/wgpu.h")
-#include "../../../../deps/wgpu-native/include/webgpu/wgpu.h"
-#elif __has_include("../../../../deps/wgpu-macos/include/webgpu/wgpu.h")
-#include "../../../../deps/wgpu-macos/include/webgpu/wgpu.h"
-#elif __has_include("../../../deps/wgpu-native/include/webgpu/wgpu.h")
+#if __has_include("../../../deps/wgpu-native/include/webgpu/wgpu.h")
 #include "../../../deps/wgpu-native/include/webgpu/wgpu.h"
 #elif __has_include("../../../deps/wgpu-macos/include/webgpu/wgpu.h")
 #include "../../../deps/wgpu-macos/include/webgpu/wgpu.h"
+#elif __has_include("../../deps/wgpu-native/include/webgpu/wgpu.h")
+#include "../../deps/wgpu-native/include/webgpu/wgpu.h"
+#elif __has_include("../../deps/wgpu-macos/include/webgpu/wgpu.h")
+#include "../../deps/wgpu-macos/include/webgpu/wgpu.h"
 #elif __has_include(<webgpu/wgpu.h>)
 #include <webgpu/wgpu.h>
 #endif
@@ -44,12 +44,12 @@
   #define GLFW_EXPOSE_NATIVE_X11
 #endif
 
-#if __has_include("../../../../assets/vendor/glfw/include/GLFW/glfw3.h")
-#include "../../../../assets/vendor/glfw/include/GLFW/glfw3.h"
-#include "../../../../assets/vendor/glfw/include/GLFW/glfw3native.h"
-#elif __has_include("../../../assets/vendor/glfw/include/GLFW/glfw3.h")
+#if __has_include("../../../assets/vendor/glfw/include/GLFW/glfw3.h")
 #include "../../../assets/vendor/glfw/include/GLFW/glfw3.h"
 #include "../../../assets/vendor/glfw/include/GLFW/glfw3native.h"
+#elif __has_include("../../assets/vendor/glfw/include/GLFW/glfw3.h")
+#include "../../assets/vendor/glfw/include/GLFW/glfw3.h"
+#include "../../assets/vendor/glfw/include/GLFW/glfw3native.h"
 #elif __has_include("/opt/homebrew/include/GLFW/glfw3.h")
 #include "/opt/homebrew/include/GLFW/glfw3.h"
 #include "/opt/homebrew/include/GLFW/glfw3native.h"
@@ -3569,10 +3569,10 @@ void moonbit_font_file_release(void) {
 #define MA_NO_NODE_GRAPH
 #define MA_NO_ENGINE
 #define MINIAUDIO_IMPLEMENTATION
-#if __has_include("../../../../deps/miniaudio/miniaudio.h")
-#include "../../../../deps/miniaudio/miniaudio.h"
-#elif __has_include("../../../deps/miniaudio/miniaudio.h")
+#if __has_include("../../../deps/miniaudio/miniaudio.h")
 #include "../../../deps/miniaudio/miniaudio.h"
+#elif __has_include("../../deps/miniaudio/miniaudio.h")
+#include "../../deps/miniaudio/miniaudio.h"
 #elif __has_include(<miniaudio.h>)
 #include <miniaudio.h>
 #else

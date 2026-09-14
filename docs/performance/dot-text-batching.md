@@ -1,7 +1,7 @@
 # dot text が 1 ドット 1 draw command だった
 
 - Date: 2026-09-11
-- Scope: `engine/renderer2d`、`engine/kagura_engine`（headless の meta）、
+- Scope: `engine/renderer2d`、`engine`（headless の meta）、
   `game/scene`（bench）、`assets/web`、`scripts/render-frame.mjs`
 - 出発点: [physics-followups.md](./physics-followups.md) の作業項目
   「4.2x 速い `new_atlas_quad_batch_draw_command` が誰からも呼ばれていない」。

@@ -1,0 +1,21 @@
+// Generated using `moon info`, DON'T EDIT IT
+package "mizchi/kagura_platform_js"
+
+import {
+  "mizchi/kagura_platform",
+}
+
+// Values
+pub fn create_platform(String) -> @kagura_platform.WebCanvasPlatform
+
+pub fn install(@kagura_platform.WebCanvasHooks) -> Unit
+
+pub fn uninstall() -> Unit
+
+// Errors
+
+// Types and methods
+
+// Type aliases
+
+// Traits

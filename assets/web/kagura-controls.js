@@ -12,60 +12,8 @@
  * @property {() => void} clear
  */
 
-/** Radial dead zone with proportional speed and a circular limit. */
-export function stickVector(dx, dy, radius, {deadZone = .14} = {}) {
-  if (![dx, dy, radius, deadZone].every(Number.isFinite) || radius <= 0 || deadZone < 0 || deadZone >= 1) {
-    throw new RangeError('Stick coordinates must be finite, radius positive, and deadZone in [0, 1)');
-  }
-  const length = Math.hypot(dx, dy);
-  if (length === 0 || length < radius * deadZone) return {x: 0, y: 0};
-  const magnitude = Math.min(1, (length / radius - deadZone) / (1 - deadZone));
-  return {x: dx / length * magnitude, y: dy / length * magnitude};
-}
-
-/** Input intents only; game simulation owns all movement, cooldowns and effects.
- * @param {{capacity?: number}} options
- * @returns {ControlInput}
- */
-export function createControlInput({capacity = 8} = {}) {
-  if (!Number.isSafeInteger(capacity) || capacity < 1) throw new RangeError('Command capacity must be positive');
-  const held = new Map();
-  const commands = [];
-  let owner = null;
-  let x = 0, y = 0;
-  let releasePending = false;
-  return {
-    version: 1,
-    move(id, dx, dy) {
-      if (owner !== null && owner !== id) return false;
-      owner = id; x = dx; y = dy;
-      return true;
-    },
-    hold(id, action) { held.set(id, action); },
-    release(id) {
-      held.delete(id);
-      if (owner === id) { owner = null; x = 0; y = 0; }
-    },
-    tap(key, payload = null) {
-      if (!Number.isSafeInteger(key) || key <= 0) throw new RangeError('Command key must be a positive integer');
-      if (commands.length >= capacity) return false;
-      commands.push({key, payload});
-      return true;
-    },
-    consumeCommand() {
-      // Two short taps must reach edge-triggered simulation as separate presses.
-      if (releasePending) { releasePending = false; return null; }
-      const command = commands.shift() ?? null;
-      releasePending = command !== null;
-      return command;
-    },
-    snapshot() { return {x, y, actions: [...new Set(held.values())]}; },
-    clear() {
-      held.clear(); commands.length = 0; owner = null;
-      x = 0; y = 0; releasePending = false;
-    },
-  };
-}
+import {stickVector, createControlInput} from './kagura-runtime.generated.js';
+export {stickVector, createControlInput};
 
 /**
  * Bind one virtual stick, with pointer capture and explicit lifecycle cleanup.

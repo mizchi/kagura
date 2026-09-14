@@ -78,12 +78,12 @@ examples/<category>/my_game/      # category: games, demos-2d, demos-3d, smoke, 
   "name": "mizchi/my_game",
   "version": "0.1.0",
   "deps": {
-    "mizchi/kagura_core": { "path": "../../../core/kagura_core" },
-    "mizchi/kagura_engine": { "path": "../../../engine/kagura_engine" },
+    "mizchi/kagura_core": { "path": "../../../core" },
+    "mizchi/kagura_engine": { "path": "../../../engine" },
     "mizchi/kagura_game": { "path": "../../../game" },
     "mizchi/signals": "0.6.3",
     "mizchi/web_runtime_hooks": { "path": "../../../platform/web_runtime_hooks" },
-    "mizchi/native_runtime_hooks": { "path": "../../../platform/native_runtime_hooks" }
+    "mizchi/native_runtime_hooks": { "path": "../../../platform_native" }
   },
   "--moonbit-unstable-prebuild": "../../../scripts/moon-prebuild-native-link-flags.cjs"
 }

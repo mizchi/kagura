@@ -1,5 +1,5 @@
 // Generated using `moon info`, DON'T EDIT IT
-package "mizchi/kagura_js_runtime/gfx_webgpu"
+package "mizchi/kagura_platform_js/gfx_webgpu"
 
 import {
   "mizchi/js/core",
@@ -135,4 +135,3 @@ pub(all) struct TextureEntry {
 // Type aliases
 
 // Traits
-

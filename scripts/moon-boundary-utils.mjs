@@ -24,7 +24,7 @@ export const DEFAULT_IMPORT_BOUNDARY_POLICY = Object.freeze({
     "mizchi/kagura_audio",
     "mizchi/physics",
   ],
-  "mizchi/kagura_js_runtime": [],
+  "mizchi/kagura_platform_js": ["mizchi/kagura_platform", "mizchi/kagura_core"],
 });
 
 function toPosix(value) {

@@ -1,4 +1,5 @@
 import {
+  "mizchi/kagura_platform_js" @platform_js,
   "moonbitlang/core/encoding/utf8",
   "mizchi/atlas",
   "mizchi/kagura_audio" @audio,

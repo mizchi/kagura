@@ -113,8 +113,12 @@ kagura dev
 kagura build
 ```
 
-`kagura new --web` は空の現在地に生成します。雛形は構成変更後の Kagura パッケージの
-リリースを前提とし、ローカルパス依存を使いません。共通ブラウザランタイムと Vite 設定を含みます。
+`kagura new --web` は空の現在地に生成します。雛形は公開済みの Kagura パッケージを使い、
+ローカルパス依存を使いません。共通ブラウザランタイムと Vite 設定を含みます。
+
+CLI はルートの `mizchi/kagura` モジュールとバージョンを共有します。次回リリースから
+`moon install mizchi/kagura/cmd/kagura` でインストールできます。
+公開済みの 0.5.0 は引き続き `mizchi/kagura_cli/kagura@0.5.0` です。
 
 チェックアウト内のサンプルと Studio は次のように起動します。
 
@@ -128,6 +132,10 @@ pnpm kagura studio
 `just kagura ...` からも実行できます。ゲームのディレクトリ内ではプロジェクト名を省略できます。
 `build` は HTML・JS・素材を揃えた静的サイトを出力します。
 詳細は [Kagura CLI](cmd/kagura/README.md) を参照してください。
+
+`kagura capture [url] --output game.png` でプレイ画面の PNG、
+`kagura profile [url] --out-dir output/profile` でフレーム統計と CPU プロファイルを保存できます。
+外部プロジェクトでも使えます。実行するプロジェクトに `@playwright/test` をインストールしてください。
 
 ## Scene API で始める
 

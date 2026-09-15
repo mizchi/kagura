@@ -1,0 +1,13 @@
+import {
+  "moonbitlang/core/json",
+  "mizchi/kagura_core/statistics",
+}
+
+options(
+  link: {
+    "js": {
+      "format": "esm",
+      "exports": [ "analyze_performance:analyzePerformance" ],
+    },
+  },
+)

@@ -1,17 +1,21 @@
 # Kagura CLI
 
-Kagura のゲーム作成・開発・静的配布ビルド・Studio 起動をまとめる CLI です。
+Kagura のゲーム作成・開発・静的配布ビルド・Studio 起動・画面キャプチャ・負荷計測をまとめる CLI です。
 MoonBit、Node.js 24+、pnpm を用意してください。ブラウザ版は WebGPU を使用します。
 
 ## インストールとゲーム作成
 
-Mooncakes からインストールします。
+このチェックアウトからインストールします。
 
 ```sh
-moon install mizchi/kagura_cli/kagura@0.5.0
+moon install ./cmd/kagura
 ```
 
 MoonBit の bin ディレクトリ（通常 `~/.moon/bin`）を PATH に追加すると、別の場所からも使えます。
+
+CLI はルートの `mizchi/kagura` モジュールに含まれます。次回リリースからは
+`moon install mizchi/kagura/cmd/kagura` でインストールできます。
+公開済みの 0.5.0 は `moon install mizchi/kagura_cli/kagura@0.5.0` を使ってください。
 
 ```sh
 kagura new my-game --web
@@ -39,6 +43,8 @@ WASD / 矢印キーで四角を動かす小さなゲームを起点に開発で�
 | `kagura dev [project]` | MoonBit の変更監視とブラウザの再読み込み。既定ポート 8080 |
 | `kagura build [project]` | JS release と静的サイトを `<project>/dist/` に出力 |
 | `kagura studio` | チェックアウトの Studio を起動。既定ポート 5190 |
+| `kagura capture [url]` | HUD を含むプレイ画面だけを PNG に保存 |
+| `kagura profile [url]` | CPU/GPU の指標と Chrome CPU プロファイルを保存 |
 
 `dev` / `build` は省略時に現在地から親のプロジェクトを探します。
 `dev` / `studio` は `--port` と `--host` に対応します。ポートの優先順位は
@@ -71,18 +77,54 @@ kagura studio
 サンプル用ビルドは HTML・JS・素材・共通ランタイムを揃えて出力し、前回の出力を成功後に置き換えます。
 無関係なファイルがある出力先は拒否します。
 
+## 画面キャプチャと負荷計測
+
+起動済みの Kagura ゲーム URL を指定します。別リポジトリで作成したゲームや公開サイトにも使えます。
+実行するプロジェクトに Playwright をインストールしてください。Kagura のチェックアウトは不要です。
+
+```sh
+pnpm add -D @playwright/test
+pnpm exec playwright install chromium
+kagura capture http://localhost:8080/ --output output/game.png --width 390 --height 844
+kagura profile http://localhost:8080/ --out-dir output/profile --samples 240 --profile-ms 4000
+```
+
+macOS はインストール済みの Google Chrome と Metal を使用し、その他では Chromium と SwiftShader を使用します。
+`KAGURA_PLAYWRIGHT_CHROMIUM_PATH` で実行ファイル、`KAGURA_PLAYWRIGHT_CHROMIUM_ARGS` で追加引数を指定できます。
+Playwright はこの 2 コマンドでのみ読み込み、`new` / `dev` / `build` / ヘルプでは不要です。
+
+両コマンドは `--url` でも URL を受け取り、省略時は `http://localhost:8080/` を使います。
+ブラウザの表示領域を指定する `--width` / `--height`、`--headed`、待機時間を指定する `--timeout`（既定 30000 ms）に対応します。
+キャプチャは Kagura の presentation contract が示す描画済みの領域だけを取得し、
+未起動や無関係なページではエラーになります。既定の出力先は `output/game.png`、表示領域は 1600×900 です。
+PNG の大きさはその中の実際のゲーム領域に従い、ページの余白は含みません。
+
+計測は既定 1280×900、`--samples` は 1〜3600、`--profile-ms` は 1〜60000 ms です。
+`--warmup-ms`（既定 1000、0〜60000 ms）で描画開始後の待機を調整できます。
+フレーム計測後に CPU サンプリングを開始し、その負荷がフレーム計測へ混入するのを避けます。
+
+- `summary.json`：CPU 時間/フレーム、各指標の分位点と外れ値を除いた平均、時間のかかる関数、ページエラー
+- `samples.json`：フレームごとの元データ。取得できない GPU 指標などは欠損のまま扱う
+- `profile.cpuprofile`：Chrome DevTools で読み込める CPU プロファイル
+
+計測の既定出力先は `output/cpu/<timestamp>/` です。ページエラーがあればレポート保存後に失敗を返します。
+`just capture-web` / `just profile-web` と旧 `scripts/{capture-web,profile-web}.mjs` は同じ実装へ委譲します。
+
 終了コードは成功 `0`、引数エラー `2`、起動失敗 `1`。子プロセスの失敗コードを引き継ぎます。
 
 ## 実装と検証
 
-`cmd/moon.mod` は CLI 用の `mizchi/kagura_cli` module、`cmd/kagura` は実行パッケージです。
-公開ライブラリの `mizchi/kagura` と衝突せず、実行ファイル名を `kagura` に保ちます。
+`cmd/kagura` はルートの `mizchi/kagura` module に属する実行パッケージです。
+独立した `cmd/moon.mod` は持たず、ルートの manifest とリリースバージョンを共有します。
+パッケージ名は `mizchi/kagura/cmd/kagura`、実行ファイル名は `kagura` です。
 
-- `arguments.mbt` / `scaffold.mbt`: 型付きコマンド、引数検証、雛形の展開、JSON 境界
+- `arguments.mbt` / `browser_arguments.mbt` / `scaffold.mbt`: 型付きコマンド、引数検証、雛形の展開、JSON 境界
+- `../diagnostics/*.mbt`: フレーム統計、CDP 指標・トレース・CPU プロファイルの集計。JS backend で配布コードを生成
+- `browser.mjs` / `performance.mjs`: Playwright の接続とファイル出力、MoonBit 集計への JSON 境界
 - `templates/web/`: リリースパッケージを使う Web 雛形。`.template` を外して生成
 - `main_native.mbt` / `launcher_native.c`: `moon install` 用エントリと Node 起動の小さな FFI
 - `main.mjs` / `host.mjs` / `process.mjs`: Node のファイル・環境・プロセス操作
-- `generate.mjs`: 雛形・共通ホスト・ブラウザランタイムを native 用 MoonBit ソースに埋め込み
+- `generate.mjs`: esbuild でホストと生成済みの集計コードを束ね、雛形・ランタイムとともに native 用 MoonBit ソースに圧縮して埋め込み
 - `cli.generated.js` / `cli.generated.d.ts`: MoonBit JS backend の生成物と JSON 境界の型宣言
 - `scripts/{dev-server,build-game,web-project,web-demo-package}.mjs`: 既存ツールと共有するホスト処理
 
@@ -94,11 +136,11 @@ just cli-test        # 引数・雛形・パス解決・静的配布・エラー
 just cli-e2e         # Playwright: インストール、新規作成、dev、再読み込み、build、Studio
 ```
 
-開発版はチェックアウト内で `moon install ./cmd/kagura` によりインストールできます。
-公開後は、次のコマンドでレジストリの CLI と依存パッケージだけを使った動作を検証できます。
+次回公開後は、そのバージョンを `KAGURA_CLI_RELEASE_VERSION` に設定すると、
+レジストリの CLI と依存パッケージだけを使った動作を検証できます。
 
 ```sh
-KAGURA_CLI_RELEASE_VERSION=0.5.0 pnpm exec playwright test --config cmd/kagura/playwright.config.mjs scaffold
+pnpm exec playwright test --config cmd/kagura/playwright.config.mjs scaffold
 ```
 
 生成物も git に含めるため、利用者の `moon install` に事前の生成コマンドは不要です。
@@ -106,5 +148,5 @@ KAGURA_CLI_RELEASE_VERSION=0.5.0 pnpm exec playwright test --config cmd/kagura/p
 E2E ではリリース前の検証用に限り、生成先へ一時的な `moon.work` を追加してローカル module を参照します。
 この workspace は配布する雛形には含めません。
 
-`cmd/` は利用側レイヤで、CLI の独立した配布モジュールとして release staging に含めます。
+`cmd/` は利用側のパッケージ群で、ルート module の release staging に含めます。
 core / engine / game / platform から CLI へ依存させません。

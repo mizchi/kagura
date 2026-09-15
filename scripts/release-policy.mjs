@@ -5,7 +5,7 @@ export const PUBLISH_MODULE_DIRS = Object.freeze([
   'platform', 'engine/ui', 'engine/audio', 'engine/text', 'engine/atlas',
   'engine/asset_loader', 'engine/renderer2d', 'engine', 'engine/widget2d',
   '.', 'platform_web', 'platform_native', 'platform_web/runtime_hooks',
-  'game/machinations', 'game', 'cmd',
+  'game/machinations', 'game',
 ]);
 
 
@@ -34,5 +34,4 @@ export const RELEASE_DEP_POLICY = Object.freeze({
   'mizchi/machinations': [],
   'mizchi/kagura_game': ['mizchi/kagura_core', 'mizchi/kagura_platform', 'mizchi/kagura_engine',
     'mizchi/kagura_ui', 'mizchi/kagura_audio', 'mizchi/geom', 'mizchi/anim3d'],
-  'mizchi/kagura_cli': [],
 });

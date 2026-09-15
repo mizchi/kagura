@@ -5,7 +5,9 @@
   "bin": {
     "kagura": "cmd/kagura/main.mjs"
   },
-  "engines": { "node": ">=24" },
+  "engines": {
+    "node": ">=24"
+  },
   "packageManager": "pnpm@10.33.0",
   "pnpm": {
     "onlyBuiltDependencies": [
@@ -22,6 +24,7 @@
   "devDependencies": {
     "@mizchi/vlmkit": "^0.11.1",
     "@playwright/test": "^1.63.0",
+    "esbuild": "^0.28.2",
     "pixelmatch": "^7.2.0",
     "pngjs": "^7.0.0",
     "three": "0.185.1",

@@ -98,8 +98,9 @@ test('publication catalog covers the distributable workspace and orders dependen
   assert.deepEqual([...PUBLISH_MODULE_DIRS].sort(), readMoonWorkMembers(repoRoot).filter(dir => !privateDirs.includes(dir)).sort());
   const modules = publishModules();
   const order = new Map(modules.map((mod, i) => [mod.name, i]));
-  for (const name of ['mizchi/kagura_cli', 'mizchi/web_runtime_hooks', 'mizchi/native_runtime_hooks', 'mizchi/machinations'])
+  for (const name of ['mizchi/kagura', 'mizchi/web_runtime_hooks', 'mizchi/native_runtime_hooks', 'mizchi/machinations'])
     assert.ok(order.has(name), name);
+  assert.ok(!order.has('mizchi/kagura_cli'));
   for (const mod of modules)
     for (const dep of Object.keys(mod.manifest.deps ?? {}))
       if (order.has(dep)) assert.ok(order.get(dep) < order.get(mod.name), `${dep} must precede ${mod.name}`);
@@ -118,7 +119,7 @@ test('CLI dry-run is read-only, check reports drift, and invalid flags fail', ()
   const before = readFileSync(resolve(import.meta.dirname, '../moon.mod'), 'utf8');
   const preview = run(version, '--dry-run');
   assert.equal(preview.status, 0, preview.stderr);
-  assert.match(preview.stdout, /mizchi\/kagura_cli/);
+  assert.match(preview.stdout, /mizchi\/kagura:/);
   assert.match(preview.stdout, /templates\/web\/moon.mod.template/);
   assert.equal(run(version, '--check').status, 1);
   assert.equal(run(version, '--unknown').status, 1);

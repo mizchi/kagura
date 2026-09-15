@@ -3,6 +3,7 @@ import {constants as fsConstants, copyFileSync, existsSync, mkdirSync, mkdtempSy
 import {basename, dirname, isAbsolute, join, resolve} from 'node:path';
 import {pathToFileURL} from 'node:url';
 import {runProcess} from './process.mjs';
+import {captureWeb, profileWeb} from './browser.mjs';
 
 export function createWebProject(destination, files, runtime) {
   const output = resolve(destination);
@@ -78,6 +79,12 @@ export async function executeRequest(request, {files = {}, runtime = {}, checkou
   if (request.command === 'new') {
     const output = createWebProject(request.directory, files, runtime);
     console.log(`Created ${output}\n\nNext: cd ${JSON.stringify(output)}\n      pnpm install\n      kagura dev`);
+    return 0;
+  }
+  if (request.command === 'capture' || request.command === 'profile') {
+    const options = {...request};
+    if (request.command === 'capture') await captureWeb(options);
+    else await profileWeb({...options, outDir: request.output ?? undefined});
     return 0;
   }
   const isServer = request.command === 'dev' || request.command === 'studio';

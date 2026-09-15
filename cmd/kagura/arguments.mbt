@@ -7,11 +7,18 @@ pub enum Command {
   Build(String?, String?)
   Studio(Int?, String)
   NewWeb(String)
+  Capture(BrowserOptions)
+  Profile(BrowserOptions)
 } derive(Eq, Debug)
 
 ///|
 fn known_command(name : String) -> Bool {
-  name == "dev" || name == "build" || name == "studio" || name == "new"
+  name == "dev" ||
+  name == "build" ||
+  name == "studio" ||
+  name == "new" ||
+  name == "capture" ||
+  name == "profile"
 }
 
 ///|
@@ -48,6 +55,9 @@ pub fn parse_args(args : Array[String]) -> Result[Command, String] {
   let command = args[0]
   if !known_command(command) {
     return Err("Unknown command: \{command}")
+  }
+  if command == "capture" || command == "profile" {
+    return parse_browser_args(args)
   }
   let mut project : String? = None
   let mut port : Int? = None
@@ -178,6 +188,8 @@ pub fn parse_cli(args : Array[String]) -> String {
       }
     Ok(NewWeb(directory)) =>
       { "ok": true, "command": "new", "directory": directory.to_json() }
+    Ok(Capture(options)) => browser_request("capture", options)
+    Ok(Profile(options)) => browser_request("profile", options)
   }
   reply.stringify()
 }
@@ -192,15 +204,22 @@ pub fn help_text() -> String {
     #|  kagura dev [project] [--port 8080] [--host 127.0.0.1]
     #|  kagura build [project] [--out-dir directory]
     #|  kagura studio [--port 5190] [--host 127.0.0.1]
-    #|  kagura help [new|dev|build|studio]
+    #|  kagura capture [url] [--output game.png] [--width 1600] [--height 900] [--headed]
+    #|  kagura profile [url] [--out-dir directory] [--samples 240] [--profile-ms 4000]
+    #|  kagura help [new|dev|build|studio|capture|profile]
     #|
     #|project: example name or MoonBit project directory; defaults to the current project.
     #|new --web: generate a Web game in an empty directory (default: current directory).
-    #|           Then: pnpm install, kagura dev. Mooncakes dependencies require the new Kagura release.
+    #|           Then: pnpm install, kagura dev.
     #|dev: watch MoonBit sources and serve the game with browser reload.
     #|build: compile a JS release and package a static website in <project>/dist.
     #|       --out-dir is relative to the calling directory.
     #|studio: launch the checkout's editor. Install once: just studio-install.
+    #|capture: save only the rendered game surface, including its HUD. Default output: output/game.png.
+    #|profile: save summary.json, samples.json and profile.cpuprofile; frame timings precede CPU sampling.
+    #|         --width/--height default to 1280/900; --warmup-ms defaults to 1000 (0 allowed).
+    #|Browser tools accept --url (default http://localhost:8080/), --timeout 30000 and --headed.
+    #|Install browser tools in the calling project: pnpm add -D @playwright/test; pnpm exec playwright install chromium.
     #|PORT supplies the server port when --port is omitted. Ctrl+C stops the server and watchers.
     #|
     #|From this checkout: pnpm kagura dev hacknslash_3d, or just kagura studio.

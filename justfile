@@ -14,13 +14,13 @@ cli-build:
     node cmd/kagura/build.mjs
 
 cli-check:
-    moon check cmd/kagura --target js --deny-warn
-    moon check cmd/kagura --target native --deny-warn
+    moon check cmd/kagura cmd/diagnostics --target js --deny-warn
+    moon check cmd/kagura cmd/diagnostics --target native --deny-warn
     node cmd/kagura/build.mjs --check
 
 cli-test: cli-build
-    moon test cmd/kagura --target js
-    node --test scripts/kagura-cli.test.mjs scripts/kagura-scaffold.test.mjs scripts/web-demo-package.test.mjs
+    moon test cmd/kagura cmd/diagnostics --target js
+    node --test scripts/kagura-cli.test.mjs scripts/kagura-scaffold.test.mjs scripts/kagura-diagnostics.test.mjs scripts/profile-web.test.mjs scripts/web-demo-package.test.mjs
 
 cli-install: cli-build
     moon install ./cmd/kagura
@@ -101,12 +101,12 @@ hunter-map-profile *args:
 # Any Kagura game URL; no game-specific input or query parameters are assumed.
 [positional-arguments]
 profile-web *args:
-    node scripts/profile-web.mjs "$@"
+    node cmd/kagura/main.mjs profile "$@"
 
 # Engine-owned browser capture: only the game surface, without page chrome.
 [positional-arguments]
 capture-web *args:
-    node scripts/capture-web.mjs "$@"
+    node cmd/kagura/main.mjs capture "$@"
 
 hunter-capture:
     node scripts/capture-web.mjs --url 'http://localhost:8080/?snapshot=playing&frames=0&mute=1' --output output/ashen-hunt.png

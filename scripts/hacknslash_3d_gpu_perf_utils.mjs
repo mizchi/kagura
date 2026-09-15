@@ -92,6 +92,7 @@ export function buildScenarioUrl(baseUrl, scenarioName, snapshotFrames = 60) {
 export function summarizeProfilerSamples(name, samples, options = {}) {
   const browserMetrics = options.browserMetrics ?? null;
   const traceSummary = options.traceSummary ?? null;
+  const gpuTimings = samples.map((sample) => sample.gpuFrameMs).filter(Number.isFinite);
   const last = samples.at(-1) ?? {
     worldFrame: 0,
     fxaaEnabled: false,
@@ -161,9 +162,7 @@ export function summarizeProfilerSamples(name, samples, options = {}) {
           (sample.frameTimeMs ?? 0) - (sample.updateMs ?? 0) - (sample.drawMs ?? 0),
         )),
     ),
-    gpuFrameMs: summarizeNumericSamples(
-      samples.map((sample) => sample.gpuFrameMs),
-    ),
+    gpuFrameMs: gpuTimings.length ? summarizeNumericSamples(gpuTimings) : null,
     drawCalls: summarizeNumericSamples(
       samples.map((sample) => sample.drawCalls),
     ),

@@ -27,6 +27,11 @@ test('every published module stages independently with metadata, source and loca
     }
   }
   for (const file of ['mizchi__kagura_engine/run_js.mbt', 'mizchi__native_runtime_hooks/gfx_wgpu_native/wgpu_native_stub.c',
-    'mizchi__web_runtime_hooks/hooks_js.mbt', 'mizchi__kagura_cli/kagura/launcher_native.c'])
+    'mizchi__web_runtime_hooks/hooks_js.mbt', 'mizchi__kagura/cmd/kagura/moon.pkg',
+    'mizchi__kagura/cmd/kagura/main_native.mbt', 'mizchi__kagura/cmd/kagura/embedded_host_native.mbt',
+    'mizchi__kagura/cmd/kagura/launcher_native.c', 'mizchi__kagura/cmd/kagura/browser.mjs',
+    'mizchi__kagura/cmd/diagnostics/moon.pkg', 'mizchi__kagura/cmd/diagnostics/performance.generated.js'])
     assert.ok(existsSync(join(outDir, file)), file);
+  assert.ok(!staged.summary.modules.some(mod => mod.name === 'mizchi/kagura_cli'));
+  assert.equal(existsSync(join(outDir, 'mizchi__kagura/cmd/moon.mod')), false);
 });

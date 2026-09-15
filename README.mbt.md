@@ -58,10 +58,10 @@ Builds and serves at `http://localhost:8080`. Browser demos currently require We
 
 ### Development CLI
 
-Install the CLI from Mooncakes, then scaffold a standalone Web game:
+Install the CLI from this checkout, then scaffold a standalone Web game:
 
 ```sh
-moon install mizchi/kagura_cli/kagura@0.5.0
+moon install ./cmd/kagura
 kagura new my-game --web
 cd my-game
 pnpm install
@@ -71,8 +71,11 @@ kagura build
 
 `kagura new --web` uses the current empty directory. The template includes the
 browser runtime and Vite setup and depends on the published Kagura packages,
-without local path dependencies. To install a development build from this
-checkout, use `moon install ./cmd/kagura`.
+without local path dependencies.
+
+The CLI shares the root `mizchi/kagura` module and release version. Starting with
+the next release, install it with `moon install mizchi/kagura/cmd/kagura`.
+The published 0.5.0 CLI is still `mizchi/kagura_cli/kagura@0.5.0`.
 
 For examples and Studio in this checkout:
 
@@ -85,6 +88,11 @@ pnpm kagura studio
 Run `just studio-install` once before launching Studio. `just kagura ...` also
 works; inside a game directory the project argument can be omitted. Builds are
 self-contained static sites. See [Kagura CLI](cmd/kagura/README.md) for options.
+
+`kagura capture [url] --output game.png` captures the game surface, and
+`kagura profile [url] --out-dir output/profile` writes frame statistics and a
+Chrome CPU profile. Both work with external Kagura projects; install
+`@playwright/test` in the calling project. See [browser tool setup](cmd/kagura/README.md#画面キャプチャと負荷計測).
 
 ### Publish the playground
 

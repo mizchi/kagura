@@ -10,7 +10,8 @@
   - カテゴリ: `games`（遊べるサンプル）, `demos-2d` / `demos-3d`（単機能デモ）, `assets`（MoonBit を持たないエディタ素材プロジェクト）, `smoke`（CI の最小確認）, `experimental`
   - Studio の一覧と用途は `examples/catalog.json`、選び方と統合方針は `examples/README.md`
 - `scripts/` - ビルド・開発スクリプト
-- `cmd/moon.mod` / `cmd/kagura/` - 開発 CLI（`mizchi/kagura_cli/kagura`）。`moon install ./cmd/kagura` でインストール、`kagura new --web` で雛形を生成。引数・雛形契約は MoonBit、Node は I/O とプロセスのホスト。`just cli-build` で ESM と native 埋め込みソースを同期
+- `cmd/kagura/` - ルート module 内の開発 CLI（`mizchi/kagura/cmd/kagura`）。`moon install ./cmd/kagura` でインストール、`kagura new --web` で雛形を生成。引数・雛形契約は MoonBit、Node は I/O とプロセスのホスト。`just cli-build` で ESM と native 埋め込みソースを同期
+- `cmd/diagnostics/` - フレーム統計と Chrome 計測データの純粋な集計。`kagura capture` / `kagura profile` の Playwright 接続は `cmd/kagura/browser.mjs`。旧 scripts の入口も同じ実装へ委譲し、集計を JS に複製しない
 - `justfile` - タスクランナー
 
 ### レイヤ

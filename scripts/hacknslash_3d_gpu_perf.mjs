@@ -306,7 +306,7 @@ async function main() {
       }
     }
     const warnings = [];
-    if (scenarioSummaries.every((summary) => summary.gpuFrameMs.max === 0)) {
+    if (scenarioSummaries.every((summary) => (summary.gpuFrameMs?.max ?? 0) === 0)) {
       warnings.push(
         "GPU completion timing stayed at 0ms in every scenario. This usually means WebGPU timestamping is unavailable in this browser session. Retry with --headed and optionally --channel chrome on a local GPU-enabled machine.",
       );

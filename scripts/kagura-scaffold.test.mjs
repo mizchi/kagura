@@ -14,10 +14,14 @@ const root = resolve(import.meta.dirname, '..');
 const runtime = Object.fromEntries(readdirSync(join(root, 'assets/web')).filter(name => name.endsWith('.js'))
   .map(name => [`runtime/${name}`, readFileSync(join(root, 'assets/web', name), 'utf8')]));
 
+function embeddedString(source, name) {
+  const value = source.split(`let ${name} : String =`)[1].split('\n\n///|')[0];
+  return [...value.matchAll(/"(?:\\.|[^"\\])*"/g)].map(match => JSON.parse(match[0])).join('');
+}
+
 test('embedded runtime uses a platform-neutral gzip header and preserves every file', () => {
   const source = generatedSources()['embedded_host_native.mbt'];
-  const prefix = 'let runtime_payload : String = ';
-  const payload = JSON.parse(source.split('\n').find(line => line.startsWith(prefix)).slice(prefix.length));
+  const payload = embeddedString(source, 'runtime_payload');
   const compressed = Buffer.from(payload, 'base64');
   assert.equal(compressed[9], 255, 'gzip OS must not depend on the build platform');
   assert.equal(compressed.readUInt32LE(4), 0, 'gzip timestamp must be deterministic');
@@ -28,8 +32,9 @@ test('native installer embeds the current host, templates and browser distributi
   for (const [name, source] of Object.entries(generatedSources())) {
     assert.equal(readFileSync(join(root, 'cmd/kagura', name), 'utf8'), source, name);
     if (name === 'embedded_host_native.mbt') {
-      const prefix = 'let node_host : String = ';
-      const script = JSON.parse(source.split('\n').find(line => line.startsWith(prefix)).slice(prefix.length));
+      assert.ok(source.split('\n').every(line => line.length < 8192), 'MoonBit source lines remain bounded');
+      const script = embeddedString(source, 'node_host');
+      assert.ok(Buffer.byteLength(script) < 128 * 1024, 'native host fits a Linux exec argument');
       const checked = spawnSync(process.execPath, ['--input-type=module', '--check'], {input: script, encoding: 'utf8'});
       assert.equal(checked.status, 0, checked.stderr);
     }

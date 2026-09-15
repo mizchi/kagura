@@ -32,12 +32,12 @@ const ALWAYS_EXCLUDE_FROM_ROOT_SOURCE = Object.freeze([
   "target",
 ]);
 
-// Repository-root facade code is flat; the other layers and distributable assets are separate.
+// The root module ships its facade and cmd/; other layers and assets are separate.
 const ROOT_FACADE_EXCLUDES = [
   "core", "engine", "platform", "platform_web", "platform_native", "game", "editor", "assets", "examples", "e2e",
   "docs", "scripts", "deps", "fixtures", "test-results", "playwright-report", "output",
   "package.json", "pnpm-lock.yaml", "justfile", "playwright.config.ts",
-  "modules", "benchmarks", "experiments", "cmd", "CLAUDE.md", "CONTRIBUTING.md", "CONTRIBUTING_ja.md", "TODO.md",
+  "modules", "benchmarks", "experiments", "CLAUDE.md", "CONTRIBUTING.md", "CONTRIBUTING_ja.md", "TODO.md",
 ];
 
 const PREBUILD_KEY = "--moonbit-unstable-prebuild";

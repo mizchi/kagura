@@ -25,7 +25,7 @@ playwright-report
 __pycache__/
 *.pyc
 
-# Not part of the published library
+# Not part of the published module
 examples
 e2e
 docs
@@ -42,7 +42,7 @@ package.json
 pnpm-lock.yaml
 playwright.config.ts
 
-# The root facade is flat; workspace code and shared runtime assets ship separately.
+# The root module includes cmd/; workspace libraries and runtime assets ship separately.
 core
 platform
 platform_web
@@ -56,4 +56,3 @@ modules
 
 benchmarks
 experiments
-cmd

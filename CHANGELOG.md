@@ -2,6 +2,23 @@
 
 All notable changes to this project will be documented in this file.
 
+## [Unreleased]
+
+### Added
+
+- Add `kagura capture` and `kagura profile` for any running Kagura game URL,
+  including external projects. Resolve optional Playwright from the caller.
+- Move frame statistics and Chrome performance analysis into MoonBit under
+  `cmd/diagnostics`. Keep the previous scripts and `just` tasks as compatibility
+  entry points; bundle the tools in the installable CLI.
+
+### Changed
+
+- Integrate the CLI into the root `mizchi/kagura` module as `cmd/kagura`, sharing
+  its manifest and release version. The next release installs with
+  `moon install mizchi/kagura/cmd/kagura`; the existing 0.5.0 CLI remains available
+  as `mizchi/kagura_cli/kagura@0.5.0`.
+
 ## [0.5.0] - 2026-09-15
 
 ### Release highlights

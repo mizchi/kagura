@@ -1,5 +1,4 @@
 members = [
-  "./cmd",
   "./benchmarks",
   "./experiments",
   ".",

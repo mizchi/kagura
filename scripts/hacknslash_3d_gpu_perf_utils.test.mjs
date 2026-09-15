@@ -186,6 +186,15 @@ test("summarizeProfilerSamples computes numeric rollups and final flags", () => 
   assert.equal(summary.browserMetrics.taskDurationMs, 16);
 });
 
+test("summarizeProfilerSamples excludes unavailable GPU timings", () => {
+  const sample = {fps:60, frameTimeMs:16, updateMs:2, drawMs:3, drawCalls:10, vertexCount:100};
+  const summary = summarizeProfilerSamples('default', [
+    {...sample, gpuFrameMs:null}, {...sample, gpuFrameMs:4}, sample,
+  ]);
+  assert.equal(summary.gpuFrameMs.mean, 4);
+  assert.equal(summarizeProfilerSamples('default', [sample]).gpuFrameMs, null);
+});
+
 test("summarizeNumericSamples handles browser pacing baseline samples", () => {
   const summary = summarizeNumericSamples([16.7, 33.4, 50.1]);
   assert.equal(summary.mean, 33.4);

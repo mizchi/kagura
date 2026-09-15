@@ -1,5 +1,5 @@
 // Generated using `moon info`, DON'T EDIT IT
-package "mizchi/kagura_cli/kagura"
+package "mizchi/kagura/cmd/kagura"
 
 import {
   "moonbitlang/core/debug",
@@ -21,12 +21,26 @@ pub fn scaffold_files(String) -> String
 // Errors
 
 // Types and methods
+pub(all) struct BrowserOptions {
+  url : String
+  output : String?
+  width : Int
+  height : Int
+  headed : Bool
+  timeout : Int
+  samples : Int
+  profile_ms : Int
+  warmup_ms : Int
+} derive(Eq, @debug.Debug)
+
 pub enum Command {
   Help(String?)
   Dev(String?, Int?, String)
   Build(String?, String?)
   Studio(Int?, String)
   NewWeb(String)
+  Capture(BrowserOptions)
+  Profile(BrowserOptions)
 } derive(Eq, @debug.Debug)
 
 // Type aliases

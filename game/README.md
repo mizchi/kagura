@@ -25,3 +25,7 @@ Both the simulation and `inventory_web/` use these contracts. `inventory_web/` o
 `inpututil/` maps physical input states to game movement/confirmation commands.
 Key, mouse, touch and gamepad edge detection is provided by `core/inputstate`.
 The unused common AI prototype has been removed; games own their enemy behavior.
+
+`projectile3d/` provides renderer-independent telegraphed beam paths. Simulation,
+rendering and HUD sample the same immutable timing/trajectory contract; games own
+damage, hit history and encounter progression. See [projectile3d](projectile3d/README.md).

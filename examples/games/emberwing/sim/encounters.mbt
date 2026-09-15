@@ -128,15 +128,17 @@ fn queue_beam(
   if g.beams.length() >= 9 {
     return
   }
-  g.beams.push({
-    origin,
-    aim,
-    direction: aim.sub(origin).normalize(),
-    warning,
-    radius: 0.55,
-    age: 0,
-    hit: false,
-  })
+  if @projectile3d.BeamPath::new(
+      origin,
+      aim,
+      delay=warning,
+      speed=220,
+      length=22,
+      range=200,
+    )
+    is Some(path) {
+    g.beams.push({ path, radius: 0.55, age: 0, hit: false, })
+  }
 }
 
 ///|
@@ -217,8 +219,7 @@ fn update_hazards(g : Game, dt : Double) -> Unit {
   for rock in g.rocks {
     rock.age += dt
     let next = rock.position.add(rock.velocity.scale(dt))
-    if segment_distance(g.player, rock.position, next) <
-      rock.radius + player_radius() {
+    if swept_hit(g.player, rock.position, next, rock.radius + player_radius()) {
       hurt(g, amount=2)
       rock.age = 99
     }
@@ -227,28 +228,23 @@ fn update_hazards(g : Game, dt : Double) -> Unit {
   for beam in g.beams {
     let previous = beam.age
     beam.age += dt
-    if previous < beam.warning && beam.age >= beam.warning {
+    if beam.path.just_fired(previous, beam.age) {
       g.beam_event += 1
     }
-    if beam.age >= beam.warning && !beam.hit {
-      // A 220 m/s beam crosses several collision radii in one simulation tick.
-      // Test its swept head and luminous tail, never just its final position.
-      let start = beam.origin.add(
-        beam.direction.scale(
-          clamp((previous - beam.warning) * 220 - 22, 0, 200),
-        ),
-      )
-      let end = beam.origin.add(
-        beam.direction.scale(clamp((beam.age - beam.warning) * 220, 0, 200)),
-      )
-      if segment_distance(g.player, start, end) < beam.radius + player_radius() {
+    if !beam.hit && beam.path.swept_segment(previous, beam.age) is Some(sweep) {
+      if swept_hit(
+          g.player,
+          sweep.start,
+          sweep.end,
+          beam.radius + player_radius(),
+        ) {
         hurt(g, amount=2)
         beam.hit = true
       }
     }
   }
   g.rocks.retain(r => r.age < 6 && r.position.z < 22)
-  g.beams.retain(b => b.age < b.warning + 0.8)
+  g.beams.retain(b => b.age < b.path.delay + 0.8)
 }
 
 ///|

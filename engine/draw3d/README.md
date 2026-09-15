@@ -3,6 +3,32 @@
 3Dメッシュ、照明、PBR、スキニングの描画コマンドを構築する。
 公開APIは `pkg.generated.mbti` を参照。
 
+## 共通メッシュのインスタンス描画
+
+`InstancedMeshBatch` は同じメッシュの行列・色を集め、instanced-lit シェーダーの
+上限である256件ごとに描画コマンドへ分割する。0件ならコマンドを作らない。
+標準シェーダーと同じ uniform 配置のカスタムシェーダーでも利用できる。
+
+```moonbit
+let batch = @draw3d.InstancedMeshBatch::new(mesh)
+batch.push(model_matrix, color=tint)
+// 単位メッシュの Z=-1 と Z=+1 を指定した2点へ合わせる。
+ignore(batch.push_segment(start, end, radius, color=tint))
+batch.append_draw_commands(dst, shader, width, height, vp, lighting, commands)
+let triangles = batch.triangle_count()
+batch.clear() // 次のフレームでも使える。提出済み uniform は変化しない。
+```
+
+`push_segment` は長さ0.001未満／半径0以下をスキップする。配色、描画順、カリング、
+静的GPUキャッシュの登録は呼び出し側が決める。三角形の実体は元のメッシュと共有する。
+バッチを構築してからコマンドへ変換するまで、渡した行列を書き換えないこと。
+
+`instance_batch_wbtest.mbt` は0／1／255／256／257／513件の全uniform、分割順、
+バッチ再利用、線分の向きを検査する。`just draw3d-batch-bench` は600体分の
+旧ゲーム内ループと共通バッチを同一条件で比較する。GPU描画時間は含まない。
+ローカルの MoonBit JS backend では、600体を3コマンドへ変換する平均時間が
+旧処理102.14µs（標準偏差2.39µs）、共通バッチ101.79µs（3.05µs）で、差はばらつきの範囲内だった。
+
 ## テクスチャを使わない空
 
 `sky_mesh()` と `shader3d_sky_wgsl()` は、内向きの立方体で全天を覆う。

@@ -32,6 +32,14 @@
 - `assets/host.mjs`: DOM、入力、HUD、Web Audio のブラウザアダプター。戦闘判定は持たない。
 - `emberwing.kgrprj`: Studio の Examples → EMBERWING → Play で起動するプロジェクト。
 
+共通部品はゲーム外に置く。
+
+- [`core/geom/math3d`](../../../core/geom/math3d/README.md): 線分との距離の二乗。弾・岩・ビームの移動範囲で衝突を判定する。
+- [`game/projectile3d`](../../../game/projectile3d/README.md): 予告付きビームの固定された狙いと時間・軌道。戦闘判定、描画、HUD で同じ path を使う。
+- [`engine/draw3d`](../../../engine/draw3d/README.md): メッシュのインスタンス収集・256件単位の分割・線分方向への配置。ゲームの `Batch` はパレット色の変換だけを付ける。
+
+ウェーブ、敵AI、体力とダメージ、命中済みフラグ、丼への変化、入力の割り当てはこのゲームが所有する。
+
 kawaiko の原型は [`editor/studio/modeling/core/kawaiko.mbt`](../../../editor/studio/modeling/core/kawaiko.mbt) で、[chibivue-land/art の kawaiko](https://github.com/chibivue-land/art/blob/main/kawaiko.png) を参考にしたモデルを再利用している。
 モデルを変更したら、ルートで `just emberwing-model` を実行してゲームのメッシュを再生成する。生成物はチェックインし、通常のゲームビルドにエディタのビルドを要求しない。
 
@@ -58,3 +66,9 @@ node editor/studio/scripts/build-examples.mjs emberwing
 ローカル Chrome 152 / Metal、1440×900 @1x、最終ウェーブから 14.09 秒の実入力による戦闘計測では、最大 72 体・敵弾 295 発・岩 3 個、最大 16 draw call / 330,934 三角形。フレーム間隔の中央値は 16.7 ms、p95 は 17.4 ms。描画コマンド作成と GPU 送信の CPU 時間 p95 は 1.5 ms。敵が通過した後のフレームも含み、GPU 単体の実行時間ではなく、この端末での測定値。
 
 `EMBERWING_URL='http://localhost:5194/?encounter=swarm' EMBERWING_BENCH_SECONDS=14 EMBERWING_GPU=metal just emberwing-bench` で再計測できる。スクリプトはマウス照準・発射とキーによる回避を行い、実測時間・終了状態・各オブジェクト数を出力する。ボスの計測には `?encounter=boss` を使う。
+
+共通化時にも同じ Chrome / Metal・1440×900・最終ウェーブ14秒で比較した。
+前後とも最大72体・敵弾295発・16 draw call・330,934三角形。
+フレーム間隔 p50 / p95 は変更前16.7 / 17.5ms、変更後16.6 / 17.6ms。
+描画コマンド構築と送信の CPU p95 は2.4ms → 2.7msで、操作進行の異なる各1回の実測。
+同一データのコマンド構築は `just draw3d-batch-bench` で比較でき、両方とも約102µsだった。

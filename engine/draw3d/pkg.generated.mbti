@@ -114,6 +114,17 @@ pub(all) struct CameraOcclusion {
 }
 pub fn CameraOcclusion::append_uniform_dwords(Self, Array[Int]) -> Unit
 
+pub struct InstancedMeshBatch {
+  // private fields
+}
+pub fn InstancedMeshBatch::append_draw_commands(Self, @gfx.ImageHandle, @gfx.ShaderHandle, Int, Int, @math3d.Mat4, @light3d.LightingEnvironment, Array[@gfx.DrawTrianglesCommand], blend? : @gfx.BlendMode) -> Unit
+pub fn InstancedMeshBatch::clear(Self) -> Unit
+pub fn InstancedMeshBatch::length(Self) -> Int
+pub fn InstancedMeshBatch::new(@mesh3d.Mesh3D) -> Self
+pub fn InstancedMeshBatch::push(Self, @math3d.Mat4, color? : @math3d.Vec4) -> Unit
+pub fn InstancedMeshBatch::push_segment(Self, @math3d.Vec3, @math3d.Vec3, Double, color? : @math3d.Vec4) -> Bool
+pub fn InstancedMeshBatch::triangle_count(Self) -> Int
+
 pub(all) struct PbrEnvironment {
   ground : @math3d.Vec3
   intensity : Double

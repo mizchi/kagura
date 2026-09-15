@@ -256,14 +256,14 @@ fn hud(a : App, vp : @math3d.Mat4) -> String {
     }
   }
   for beam in g.beams {
-    if beam.age < beam.warning + 0.35 {
+    if beam.age < beam.path.delay + 0.35 {
       danger(
         "beam",
-        beam.aim,
-        beam.origin,
+        beam.path.aim,
+        beam.path.origin,
         beam.radius + @sim.player_radius(),
-        beam.warning - beam.age,
-        @sim.clamp(beam.age / beam.warning, 0, 1),
+        beam.path.delay - beam.age,
+        beam.path.charge_progress(beam.age),
       )
     }
   }

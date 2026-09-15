@@ -1,4 +1,5 @@
 import {
+  "moonbitlang/core/math",
   "moonbitlang/core/bench",
   "mizchi/geom/math3d",
   "mizchi/gfx",

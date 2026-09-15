@@ -37,7 +37,7 @@ test "a charged boss beam commits to its aim and has a safe warning window" {
     step(g, idle_input(), 0.05)
   }
   assert_eq(g.hp, 6)
-  assert_true(g.beams[0].age < g.beams[0].warning)
+  assert_true(g.beams[0].age < g.beams[0].path.delay)
   for _i = 0; _i < 6; _i = _i + 1 {
     step(g, idle_input(), 0.05)
   }
@@ -138,9 +138,9 @@ test "enraged boss commits three beams with a vertical escape route in portrait"
   step(g, input, 1.0 / 60)
   assert_eq(g.beams.length(), 3)
   assert_eq(g.shots.length(), 14)
-  let aim = g.beams[0].aim
-  assert_true(g.beams[1].aim.x < aim.x)
-  assert_true(g.beams[2].aim.x > aim.x)
+  let aim = g.beams[0].path.aim
+  assert_true(g.beams[1].path.aim.x < aim.x)
+  assert_true(g.beams[2].path.aim.x > aim.x)
   for _i = 0; _i < 32; _i = _i + 1 {
     step(g, { ..input, move_y: 1, }, 0.05)
   }

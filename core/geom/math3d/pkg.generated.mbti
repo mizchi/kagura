@@ -60,6 +60,14 @@ pub fn Quaternion::to_repr(Self) -> @debug.Repr
 pub fn Quaternion::to_string(Self) -> String
 pub impl Show for Quaternion
 
+pub(all) struct Segment3 {
+  start : Vec3
+  end : Vec3
+}
+pub fn Segment3::closest_point(Self, Vec3) -> Vec3
+pub fn Segment3::distance_squared(Self, Vec3) -> Double
+pub fn Segment3::new(Vec3, Vec3) -> Self
+
 pub struct Vec3 {
   x : Double
   y : Double

@@ -1,13 +1,11 @@
 ///|
 priv struct Batch {
-  mesh : @mesh3d.Mesh3D
-  matrices : Array[@math3d.Mat4]
-  colors : Array[@math3d.Vec4]
+  instances : @draw3d.InstancedMeshBatch
 }
 
 ///|
 fn batch(mesh : @mesh3d.Mesh3D) -> Batch {
-  { mesh, matrices: [], colors: [], }
+  { instances: @draw3d.InstancedMeshBatch::new(mesh), }
 }
 
 ///|
@@ -16,8 +14,7 @@ fn Batch::push(
   matrix : @math3d.Mat4,
   hex? : Int = 0xffffff,
 ) -> Unit {
-  self.matrices.push(matrix)
-  self.colors.push(color(hex))
+  self.instances.push(matrix, color=color(hex))
 }
 
 ///|
@@ -241,15 +238,18 @@ fn draw(
     }
   }
   for beam in g.beams {
-    if beam.age < beam.warning {
-      let charge = beam.age / beam.warning
+    if beam.age < beam.path.delay {
+      let charge = beam.path.charge_progress(beam.age)
       for i = 0; i < 20; i = i + 1 {
-        let start = beam.origin.lerp(beam.aim, i.to_double() / 20)
-        let end = beam.origin.lerp(beam.aim, (i.to_double() + 0.48) / 20)
+        let start = beam.path.origin.lerp(beam.path.aim, i.to_double() / 20)
+        let end = beam.path.origin.lerp(
+          beam.path.aim,
+          (i.to_double() + 0.48) / 20,
+        )
         fire.segment(start, end, 0.035 + charge * 0.035, 0xdf69bd)
       }
       fire.put(
-        beam.origin,
+        beam.path.origin,
         @sim.vec(
           0.25 + charge * 0.65,
           0.25 + charge * 0.65,
@@ -257,16 +257,9 @@ fn draw(
         ),
         hex=0xffa7eb,
       )
-    } else {
-      let distance = (beam.age - beam.warning) * 220
-      let start = beam.origin.add(
-        beam.direction.scale(@sim.clamp(distance - 22, 0, 200)),
-      )
-      let end = beam.origin.add(
-        beam.direction.scale(@sim.clamp(distance, 0, 200)),
-      )
-      fire.segment(start, end, beam.radius, 0xe669ec)
-      fire.segment(start, end, beam.radius * 0.4, 0xfff4ff)
+    } else if beam.path.segment_at(beam.age) is Some(segment) {
+      fire.segment(segment.start, segment.end, beam.radius, 0xe669ec)
+      fire.segment(segment.start, segment.end, beam.radius * 0.4, 0xfff4ff)
     }
   }
   if g.breathing {
@@ -332,32 +325,16 @@ fn draw(
       wing[1],
       fire,
     ] {
-    // Uniform-array instancing: at most 256 instances per GPU draw.
-    for start = 0; start < b.matrices.length(); start = start + 256 {
-      let count = @sim.clamp((b.matrices.length() - start).to_double(), 0, 256).to_int()
-      let matrices = Array::makei(count, i => b.matrices[start + i])
-      let colors = Array::makei(count, i => b.colors[start + i])
-      commands.push(
-        @draw3d.new_instanced_lit_mesh_draw_command(
-          ctx.dst,
-          a.shader,
-          @gfx.new_dst_region(
-            0,
-            0,
-            ctx.screen_w,
-            ctx.screen_h,
-            b.mesh.indices.length(),
-          ),
-          @gfx.BlendMode::from_int(0),
-          b.mesh,
-          vp,
-          a.lighting,
-          matrices,
-          colors,
-        ),
-      )
-      a.triangles += b.mesh.indices.length() / 3 * count
-    }
+    b.instances.append_draw_commands(
+      ctx.dst,
+      a.shader,
+      ctx.screen_w,
+      ctx.screen_h,
+      vp,
+      a.lighting,
+      commands,
+    )
+    a.triangles += b.instances.triangle_count()
   }
   a.draws = commands.length()
   publish(hud(a, vp))
@@ -372,22 +349,5 @@ fn Batch::segment(
   radius : Double,
   hex : Int,
 ) -> Unit {
-  let delta = end.sub(start)
-  let length = delta.length()
-  if length < 0.001 {
-    return
-  }
-  let middle = start.lerp(end, 0.5)
-  let yaw = @math.atan2(delta.x, delta.z)
-  let pitch = -@math.atan2(
-    delta.y,
-    (delta.x * delta.x + delta.z * delta.z).sqrt(),
-  )
-  self.push(
-    @math3d.Mat4::translation(middle.x, middle.y, middle.z)
-    .multiply(@math3d.Mat4::rotation_y(yaw))
-    .multiply(@math3d.Mat4::rotation_x(pitch))
-    .multiply(@math3d.Mat4::scaling(radius, radius, length * 0.5)),
-    hex~,
-  )
+  ignore(self.instances.push_segment(start, end, radius, color=color(hex)))
 }

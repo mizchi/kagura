@@ -2,4 +2,5 @@ import {
   "moonbitlang/core/math",
   "mizchi/geom/math3d",
   "mizchi/geom/camera3d",
+  "mizchi/kagura_game/projectile3d",
 }

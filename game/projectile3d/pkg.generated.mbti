@@ -1,0 +1,30 @@
+// Generated using `moon info`, DON'T EDIT IT
+package "mizchi/kagura_game/projectile3d"
+
+import {
+  "mizchi/geom/math3d",
+}
+
+// Values
+
+// Errors
+
+// Types and methods
+pub struct BeamPath {
+  origin : @math3d.Vec3
+  aim : @math3d.Vec3
+  direction : @math3d.Vec3
+  delay : Double
+  speed : Double
+  length : Double
+  range : Double
+}
+pub fn BeamPath::charge_progress(Self, Double) -> Double
+pub fn BeamPath::just_fired(Self, Double, Double) -> Bool
+pub fn BeamPath::new(@math3d.Vec3, @math3d.Vec3, delay~ : Double, speed~ : Double, length~ : Double, range~ : Double) -> Self?
+pub fn BeamPath::segment_at(Self, Double) -> @math3d.Segment3?
+pub fn BeamPath::swept_segment(Self, Double, Double) -> @math3d.Segment3?
+
+// Type aliases
+
+// Traits

@@ -87,18 +87,13 @@ fn fire_volley(g : Game) -> Unit {
 }
 
 ///|
-fn segment_distance(
+fn swept_hit(
   p : @math3d.Vec3,
   a : @math3d.Vec3,
   b : @math3d.Vec3,
-) -> Double {
-  let d = b.sub(a)
-  let t = clamp(
-    p.sub(a).dot(d) / clamp(d.length_squared(), 0.0001, 100000),
-    0,
-    1,
-  )
-  p.distance(a.add(d.scale(t)))
+  radius : Double,
+) -> Bool {
+  @math3d.Segment3::new(a, b).distance_squared(p) < radius * radius
 }
 
 ///|
@@ -238,7 +233,7 @@ pub fn step(g : Game, input : Input, delta : Double) -> Unit {
     let end = start.add(g.aim.sub(start).normalize().scale(56))
     for enemy in g.enemies {
       if enemy.hp > 0 &&
-        segment_distance(enemy_center(enemy), start, end) < enemy_radius(enemy) {
+        swept_hit(enemy_center(enemy), start, end, enemy_radius(enemy)) {
         damage(g, enemy, 0.38)
       }
     }
@@ -270,16 +265,28 @@ pub fn step(g : Game, input : Input, delta : Double) -> Unit {
     }
     match target {
       Some(enemy) =>
-        if segment_distance(destination, ball.position, next) <
-          (if enemy.boss { 2.0 } else { 1.4 }) {
+        if swept_hit(
+            destination,
+            ball.position,
+            next,
+            if enemy.boss {
+              2.0
+            } else {
+              1.4
+            },
+          ) {
           damage(g, enemy, 2)
           ball.age = 99
         }
       None =>
         for enemy in g.enemies {
           if enemy.hp > 0 &&
-            segment_distance(enemy_center(enemy), ball.position, next) <
-            enemy_radius(enemy) {
+            swept_hit(
+              enemy_center(enemy),
+              ball.position,
+              next,
+              enemy_radius(enemy),
+            ) {
             damage(g, enemy, 2)
             ball.age = 99
             break
@@ -296,7 +303,7 @@ pub fn step(g : Game, input : Input, delta : Double) -> Unit {
   for shot in g.shots {
     shot.age += dt
     let next = shot.position.add(shot.velocity.scale(dt))
-    if segment_distance(g.player, shot.position, next) < 0.26 + player_radius() {
+    if swept_hit(g.player, shot.position, next, 0.26 + player_radius()) {
       hurt(g)
       shot.age = 99
     }

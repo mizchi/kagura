@@ -60,6 +60,10 @@ emberwing-e2e:
 emberwing-bench:
     node examples/games/emberwing/scripts/benchmark.mjs
 
+# CPU comparison of the former game loop and reusable 256-instance batches.
+draw3d-batch-bench:
+    moon -C engine bench draw3d/instance_batch_bench.mbt --target js
+
 emberwing-model:
     moon -C editor/studio build modeling/bridge --target js --release
     node examples/games/emberwing/scripts/export-kawaiko.mjs

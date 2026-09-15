@@ -89,10 +89,7 @@ pub(all) struct Rock {
 
 ///|
 pub(all) struct Beam {
-  origin : @math3d.Vec3
-  direction : @math3d.Vec3
-  aim : @math3d.Vec3
-  warning : Double
+  path : @projectile3d.BeamPath
   radius : Double
   mut age : Double
   mut hit : Bool

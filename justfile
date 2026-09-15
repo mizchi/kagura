@@ -182,6 +182,17 @@ studio-check:
     cd editor/studio && moon check --target js --deny-warn
     cd editor/studio && moon test --target js
 
+# Mesh authoring: MoonBit transactions, geometry export and Blender-style input.
+studio-modeling-test:
+    moon -C editor/studio build modeling/bridge --target js --release
+    moon -C editor/studio test modeling/core --target js
+    moon -C editor/studio test modeling/core --target native
+    cd editor/studio && node --test tests/modeling.test.mjs tests/modeling-startup.test.mjs
+
+studio-modeling-e2e:
+    moon -C editor/studio build --target js --release
+    cd editor/studio && pnpm exec playwright test e2e/modeling.spec.mjs
+
 studio-plugin-test:
     cd editor/studio && moon build --target js --release
     cd editor/studio && node scripts/build-plugins.mjs

@@ -3,6 +3,7 @@ import {buildWebRuntime} from './build-web-runtime.mjs';
 import { emitExamplePage } from './web-demo-package.mjs';
 import { spawnSync } from "node:child_process";
 import {
+  cpSync,
   existsSync,
   mkdirSync,
   readdirSync,
@@ -37,8 +38,20 @@ function buildPages() {
     emitExamplePage({ demo, exampleDir: resolveExampleDir(demo.name), site: SITE, cacheBust: CACHE_BUST });
   }
 
+  buildStudio();
+
   writeFileSync(join(SITE, "index.html"), renderLandingHtml({ demos: DEMO_PAGES }));
   console.log(`Done! Site built at ${SITE}`);
+}
+
+function buildStudio() {
+  console.log("Building Studio ...");
+  const studio = join(ROOT, "editor", "studio");
+  const result = spawnSync("pnpm", ["build"], { cwd: studio, stdio: "inherit" });
+  if (result.status !== 0) {
+    throw new Error(`Studio build failed: ${result.error?.message ?? result.status ?? result.signal}`);
+  }
+  cpSync(join(studio, "dist"), join(SITE, "studio"), { recursive: true });
 }
 
 function buildExample(name) {

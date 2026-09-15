@@ -1,4 +1,6 @@
 import { installMotionAssets } from '../motions/pane.mjs';
+import { installModeling } from '../modeling/pane.mjs';
+import { readModelingStartup } from '../modeling/startup.mjs';
 import { installModelAssets } from '../assets/pane.mjs';
 import { installSceneHierarchy } from './scene-hierarchy.mjs';
 import { installRuntimeInspector } from './runtime-inspector.mjs';
@@ -25,8 +27,11 @@ import './style.css';
 import './layout.css';
 
 const LAYOUT = 'kagura.studio.layout.v1';
+let modelingStartup = null, modelingStartupError;
+try { modelingStartup = readModelingStartup(location.href); }
+catch (error) { modelingStartupError = error.message; }
 const api = createAPI(app);
-let viewport, workspaceLayout, gameEditor, modelAssets, motionAssets;
+let viewport, workspaceLayout, gameEditor, modelAssets, motionAssets, modeling;
 const storage = createBrowserStorage(api);
 try { const restored = await storage.restore(); if (restored) app.set_status(restored); }
 catch (error) { app.set_status('Error · Saved scene could not be restored: ' + error.message); }
@@ -112,6 +117,8 @@ const inspectorParts = installInspectorParts(gameEditor, workspace);
 const sceneHierarchy = installSceneHierarchy(gameEditor, app.set_status, runtimeInspector.selectSubject, api, workspace);
 modelAssets = installModelAssets({ host: gameEditor, panes, viewport, setStatus: app.set_status });
 motionAssets = installMotionAssets({ host: gameEditor, panes, viewport, workspace, setStatus: app.set_status });
+modeling = installModeling({ host: gameEditor, panes, viewport, workspace, setStatus: app.set_status,
+  restoreDraft: modelingStartup?.model == null });
 const projectUI = installProjectUI({ host: gameEditor, panes, assets: modelAssets, motions: motionAssets, setStatus: app.set_status });
 function graph() {
   const debugging = gameEditor.transport().debugging;
@@ -131,6 +138,7 @@ function graph() {
 }
 globalThis.kagura = Object.freeze({
   ...globalThis.kagura,
+  modeling: Object.freeze(Object.fromEntries(['open', 'close', 'active', 'snapshot', 'request', 'save', 'exportJSON', 'exportGLB', 'stats'].map(method => [method, (...args) => modeling[method](...args)]))),
   projects: { current: gameEditor.project },
   graph,
   selectScene: (id) => gameEditor.selectScene(id),
@@ -153,4 +161,7 @@ const keyboard = event => {
   if (event.key.toLowerCase() === 'f') { if (gameEditor?.active()) gameEditor.frame(); else viewport?.frame(api.snapshot().selection); }
 };
 document.addEventListener('keydown', keyboard);
-if (import.meta.hot) import.meta.hot.dispose(() => { projectTransport.dispose(); runtimeInspector.dispose(); inspectorParts.dispose(); sceneHierarchy.dispose(); projectUI.dispose(); modelAssets.dispose(); motionAssets.dispose(); gameEditor.dispose(); webmcp.dispose(); panes.dispose(); workspace.dispose(); storage.dispose().catch(console.error); viewport?.dispose(); workspaceLayout?.dispose(); document.removeEventListener('keydown', keyboard); });
+// Apply the entry route after all panes, project hooks and public APIs exist.
+if (modelingStartup) modeling.open();
+if (modelingStartupError) app.set_status('Error · ' + modelingStartupError);
+if (import.meta.hot) import.meta.hot.dispose(() => { projectTransport.dispose(); runtimeInspector.dispose(); inspectorParts.dispose(); sceneHierarchy.dispose(); projectUI.dispose(); modeling.dispose(); modelAssets.dispose(); motionAssets.dispose(); gameEditor.dispose(); webmcp.dispose(); panes.dispose(); workspace.dispose(); storage.dispose().catch(console.error); viewport?.dispose(); workspaceLayout?.dispose(); document.removeEventListener('keydown', keyboard); });

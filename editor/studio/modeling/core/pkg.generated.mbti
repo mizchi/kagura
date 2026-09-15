@@ -1,0 +1,59 @@
+// Generated using `moon info`, DON'T EDIT IT
+package "mizchi/kagura_studio/modeling/core"
+
+import {
+  "moonbitlang/core/debug",
+  "moonbitlang/core/json",
+}
+
+// Values
+pub fn decode_document(Json) -> ModelDocument raise
+
+pub fn kawaiiko_document() -> ModelDocument
+
+pub fn validate_document(ModelDocument) -> Unit raise ModelError
+
+// Errors
+pub(all) suberror ModelError {
+  Invalid(String)
+} derive(@debug.Debug)
+
+// Types and methods
+pub(all) struct MeshNode {
+  id : String
+  name : String
+  color : Int
+  position : Array[Double]
+  vertices : Array[Array[Double]]
+  faces : Array[Array[Int]]
+} derive(Eq, ToJson, @debug.Debug, @json.FromJson)
+
+type Modal
+
+pub(all) struct ModelDocument {
+  version : Int
+  format : String
+  name : String
+  source : String
+  nodes : Array[MeshNode]
+} derive(Eq, ToJson, @debug.Debug, @json.FromJson)
+
+pub struct ModelEditor {
+  mut document : ModelDocument
+  mut revision : Int
+  mut selected : String
+  mut mode : String
+  mut indices : Array[Int]
+  mut face : Int
+  mut modal : Modal?
+  past : Array[ModelDocument]
+  future : Array[ModelDocument]
+  mut serial : Int
+}
+pub fn ModelEditor::new() -> Self
+pub fn ModelEditor::request(Self, String) -> String
+pub fn ModelEditor::snapshot(Self) -> Json
+
+// Type aliases
+
+// Traits

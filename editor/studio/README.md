@@ -32,6 +32,11 @@ just studio-ci                     # 上記のまとめ
 
 ## 操作
 
+**Modeling** ボタンからローポリのメッシュ編集を開けます。kawaiiko のモデルを初期データとして、
+Blender 風の G/R/S・軸制限・数値入力、頂点・面編集、押し出し、JSON 保存と GLB 書出に対応します。
+操作と実装は [Mesh Modeling](modeling/README.md) を参照してください。
+`?mode=modeling&model=kawaiiko` を URL に付けると、保存済みモデルに左右されず初期モデルの編集画面を直接開けます。
+
 - Resourcesでbox / sphere / cylinder / groupを追加し、Hierarchyまたは3D上で選択。
 - Inspectorで名前、親ID、位置、XYZ Euler回転、スケール、色を編集。親変更はローカル座標を維持します。
 - 削除は子孫も含みます。演出対象が削除された場合は対象を空にし、Undoで両方復元します。

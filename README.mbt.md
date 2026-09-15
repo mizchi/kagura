@@ -96,13 +96,17 @@ Chrome CPU profile. Both work with external Kagura projects; install
 
 ### Publish the playground
 
-`just pages` builds release bundles and relative assets into `_site/`. Pushing
+Run `just studio-install` once to install the Studio build dependencies.
+`just pages` builds release bundles, Studio, and relative assets into `_site/`. Pushing
 `main` publishes them to GitHub Pages through `.github/workflows/deploy.yml`.
 The repository's Pages source must be **GitHub Actions**.
 
 After deployment, `just pages-test https://mizchi.github.io/kagura/` checks the
-public gallery, save selection and summoner gameplay with Playwright. It also
+public gallery, Studio modeling, save selection and summoner gameplay with Playwright. It also
 accepts a locally served `_site/` URL, including a project subdirectory.
+
+[Open kawaiiko in Studio](https://mizchi.github.io/kagura/studio/?mode=modeling&model=kawaiiko)
+initializes the modeling workspace directly from a shareable URL.
 
 ### Native
 

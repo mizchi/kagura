@@ -22,9 +22,15 @@ jobs:
     runs-on: macos-latest
     steps:
       - uses: actions/checkout@v4
+      - uses: pnpm/action-setup@v4
       - uses: actions/setup-node@v4
         with:
           node-version: 24
+          cache: pnpm
+          cache-dependency-path: |
+            pnpm-lock.yaml
+            editor/studio/pnpm-lock.yaml
+      - uses: taiki-e/install-action@just
       - name: Checkout terrain path dependency
         run: git clone --depth=1 https://github.com/mizchi/terrain.git ../terrain
       - name: Install MoonBit CLI
@@ -32,6 +38,8 @@ jobs:
           curl -fsSL https://cli.moonbitlang.com/install/unix.sh | bash
           echo "$HOME/.moon/bin" >> "$GITHUB_PATH"
       - run: moon update
+      - name: Install Studio build dependencies
+        run: just studio-install
       - run: node --test scripts/web-demo-package.test.mjs scripts/web-demo-pages.test.mjs scripts/moon-build-artifact-utils.test.mjs
       - run: bash scripts/build-pages.sh
       - uses: actions/configure-pages@v5

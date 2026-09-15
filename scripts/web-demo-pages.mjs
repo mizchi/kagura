@@ -1012,6 +1012,21 @@ ${cards}
         </p>
       </section>
 
+      <section class="group">
+        <div class="group-head"><h2>Studio</h2></div>
+        <div class="grid">
+          <article class="card">
+            <a href="./studio/"><h3>Kagura Studio</h3></a>
+            <p class="muted">Edit scenes, preview motions, and create 3D models in the browser.</p>
+          </article>
+          <article class="card">
+            <a href="./studio/?mode=modeling&amp;model=kawaiiko"><h3>Model kawaiiko</h3></a>
+            <p class="muted">Open the editable kawaiiko model with Blender-style modeling controls.</p>
+            <p class="muted"><strong>Controls:</strong> G / R / S: transform · Tab: edit mesh · Middle mouse: orbit</p>
+          </article>
+        </div>
+      </section>
+
 ${sections}
     </div>
   </body>

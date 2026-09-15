@@ -22,6 +22,12 @@ test("landing page exposes additional public demos", () => {
   assert.match(html, /WebGPU only/i);
 });
 
+test("landing page links to Studio and the shareable kawaiiko preset under its hosting path", () => {
+  const html = renderLandingHtml({ demos: DEMO_PAGES });
+  assert.match(html, /href="\.\/studio\/"/);
+  assert.match(html, /href="\.\/studio\/\?mode=modeling&amp;model=kawaiiko"/);
+});
+
 test("demo page includes responsive layout and control guidance", () => {
   const html = renderDemoHtml({
     demo: getDemoPage("particle_demo"),

@@ -1,0 +1,223 @@
+///|
+/// An original low-poly interpretation of chibivue-land/art's kawaiko reference.
+pub fn kawaiiko_document() -> ModelDocument {
+  let nodes = [
+    ellipsoid("body", "羽毛 / Body", 0xDEDCC9, [0, 1.04, -0.13], [
+      0.69, 0.75, 1.00,
+    ]),
+    ellipsoid(
+      "head",
+      "緑の頭 / Head",
+      0x75A18B,
+      [0, 2.38, 0.52],
+      [0.66, 0.68, 0.65],
+      segments=20,
+      rings=12,
+    ),
+    ellipsoid("neck", "首 / Neck", 0xB98D68, [0, 1.69, 0.43], [
+      0.39, 0.58, 0.43,
+    ]),
+    ellipsoid("breast", "胸 / Breast", 0xBD926F, [0, 1.02, 0.60], [
+      0.51, 0.60, 0.33,
+    ]),
+    ellipsoid(
+      "beak",
+      "くちばし / Beak",
+      0xE4B34D,
+      [0, 2.22, 1.11],
+      [0.48, 0.16, 0.49],
+      segments=16,
+      rings=8,
+    ),
+    ellipsoid(
+      "beak.lower",
+      "くちばし下 / Lower bill",
+      0xB98132,
+      [0, 2.13, 1.08],
+      [0.43, 0.067, 0.44],
+      rings=6,
+    ),
+    ellipsoid(
+      "wing.left",
+      "左の翼 / Left wing",
+      0xEFEDDB,
+      [-0.59, 1.17, -0.15],
+      [0.20, 0.40, 0.73],
+    ),
+    ellipsoid(
+      "wing.right",
+      "右の翼 / Right wing",
+      0xEFEDDB,
+      [0.59, 1.17, -0.15],
+      [0.20, 0.40, 0.73],
+    ),
+    ellipsoid(
+      "wing.tip.left",
+      "左の羽先",
+      0xAD805C,
+      [-0.57, 0.96, -0.51],
+      [0.19, 0.13, 0.47],
+      rings=6,
+    ),
+    ellipsoid(
+      "wing.tip.right",
+      "右の羽先",
+      0xAD805C,
+      [0.57, 0.96, -0.51],
+      [0.19, 0.13, 0.47],
+      rings=6,
+    ),
+    ellipsoid(
+      "tail",
+      "尾羽 / Tail",
+      0x719885,
+      [0, 1.14, -1.02],
+      [0.42, 0.26, 0.43],
+      rings=6,
+    ),
+    ellipsoid(
+      "eye.left",
+      "左目 / Left eye",
+      0x192824,
+      [-0.475, 2.47, 0.973],
+      [0.077, 0.102, 0.053],
+      segments=12,
+      rings=8,
+    ),
+    ellipsoid(
+      "eye.right",
+      "右目 / Right eye",
+      0x192824,
+      [0.475, 2.47, 0.973],
+      [0.077, 0.102, 0.053],
+      segments=12,
+      rings=8,
+    ),
+    ellipsoid(
+      "eye.glint.left",
+      "左目ハイライト",
+      0xFFFAE7,
+      [-0.487, 2.51, 1.014],
+      [0.022, 0.026, 0.013],
+      segments=8,
+      rings=6,
+    ),
+    ellipsoid(
+      "eye.glint.right",
+      "右目ハイライト",
+      0xFFFAE7,
+      [0.461, 2.51, 1.014],
+      [0.022, 0.026, 0.013],
+      segments=8,
+      rings=6,
+    ),
+    ellipsoid(
+      "nostril.left",
+      "左の鼻孔",
+      0x765728,
+      [-0.21, 2.343, 1.22],
+      [0.034, 0.019, 0.042],
+      segments=8,
+      rings=6,
+    ),
+    ellipsoid(
+      "nostril.right",
+      "右の鼻孔",
+      0x765728,
+      [0.21, 2.343, 1.22],
+      [0.034, 0.019, 0.042],
+      segments=8,
+      rings=6,
+    ),
+    prism(
+      "backpack",
+      "V 字のバッグ / V pack",
+      0x408562,
+      [0, 2.05, -0.50],
+      [
+        [0, -0.67],
+        [0.73, 0.65],
+        [0.35, 0.65],
+        [0, 0.01],
+        [-0.35, 0.65],
+        [-0.73, 0.65],
+      ],
+      0.24,
+    ),
+    prism(
+      "backpack.inner",
+      "V 字の内側",
+      0x253E35,
+      [0, 2.16, -0.645],
+      [
+        [0, -0.40],
+        [0.53, 0.54],
+        [0.28, 0.54],
+        [0, 0.03],
+        [-0.28, 0.54],
+        [-0.53, 0.54],
+      ],
+      0.018,
+    ),
+    ellipsoid(
+      "strap.left",
+      "バッグの左肩紐",
+      0x41694F,
+      [-0.36, 1.83, -0.05],
+      [0.075, 0.38, 0.33],
+      segments=10,
+      rings=8,
+    ),
+    ellipsoid(
+      "strap.right",
+      "バッグの右肩紐",
+      0x41694F,
+      [0.36, 1.83, -0.05],
+      [0.075, 0.38, 0.33],
+      segments=10,
+      rings=8,
+    ),
+  ]
+  for sign in [-1.0, 1.0] {
+    let side = if sign < 0 { "left" } else { "right" }
+    nodes.push(
+      ellipsoid(
+        "leg." + side,
+        "脚 / " + side,
+        0xC39039,
+        [sign * 0.37, 0.30, 0],
+        [0.082, 0.27, 0.08],
+        segments=10,
+        rings=6,
+      ),
+    )
+    let foot = prism(
+      "foot." + side,
+      "水かき / " + side,
+      0xDBA846,
+      [sign * 0.38, 0.105, 0.18],
+      [
+        [-0.11, -0.21],
+        [0.11, -0.21],
+        [0.26, 0.28],
+        [0.08, 0.23],
+        [0, 0.35],
+        [-0.10, 0.23],
+        [-0.26, 0.28],
+      ],
+      0.105,
+    )
+    // Lay the foot outline flat on the ground; +local Y becomes +world Z.
+    nodes.push({
+      ..foot,
+      vertices: foot.vertices.map(v => [v[0], -v[2], v[1]]),
+    })
+  }
+  {
+    version: 1,
+    format: "kagura.mesh",
+    name: "kawaiiko",
+    source: "https://github.com/chibivue-land/art/blob/main/kawaiko.png",
+    nodes,
+  }
+}

@@ -14,6 +14,16 @@ const HIDDEN_PAGE_NAMES = new Set([
 
 const RAW_DEMO_PAGES = [
   {
+    name: "emberwing",
+    title: "EMBERWING",
+    group: "Games",
+    summary: "A dragon rail shooter over sunken islands. Turn incoming kawaiiko flocks into steaming duck soba.",
+    start: "Click Fly to begin a 96-second flight.",
+    controls: ["Mouse: aim / fly", "Hold left: multi-lock; release: homing fireballs", "Hold right: flame breath", "WASD / arrows: dodge; Esc: pause"],
+    tags: ["3D", "Rail shooter", "Instancing"],
+    sourcePath: "examples/games/emberwing/main.mbt",
+  },
+  {
     name: "flappy_bird",
     title: "Flappy Bird",
     group: "Games",

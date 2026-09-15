@@ -1,6 +1,6 @@
 # Examples の選び方と配置
 
-Studio の一覧は [catalog.json](catalog.json) に集約する。現在は 27 個のコード examples と 1 個の素材プロジェクト。各 example は目的を持ち、似た画面でも検証する API が異なる場合は、その違いを一覧に示す。
+Studio の一覧は [catalog.json](catalog.json) に集約する。現在は 28 個のコード examples と 1 個の素材プロジェクト。各 example は目的を持ち、似た画面でも検証する API が異なる場合は、その違いを一覧に示す。
 
 | 配置 | 役割 | 実行方法 |
 |---|---|---|
@@ -47,6 +47,7 @@ MoonBit は `moon.mod` と同じ階層をソースルートにし、`src/` を�
 | [Draw2d Ui Demo](demos-2d/draw2d_ui_demo/draw2d_ui_demo.kgrprj) | 低水準の矩形・枠線・scissor 描画を確認する |
 | [Ecs Demo](demos-2d/ecs_demo/ecs_demo.kgrprj) | ECS のエンティティ・コンポーネント・システムを確認する |
 | [Fetch Image](demos-2d/fetch_image/fetch_image.kgrprj) | 画像リソースの非同期読込と GPU アップロードを確認する |
+| [EMBERWING](games/emberwing/emberwing.kgrprj) | ドラゴンの多重ロック・火線・編隊戦闘を扱う空中シューティング |
 | [Flappy Bird](games/flappy_bird/flappy_bird.kgrprj) | 最小の 2D ゲームと宣言的シーン・ライブ状態編集の基準例 |
 | [FPS Demo](games/fps_demo/fps_demo.kgrprj) | 一人称カメラ・照準・射撃・ジャンプの例 |
 | [Hack & Slash](games/hacknslash/hacknslash.kgrprj) | ダンジョン生成・手動攻撃・階層進行の 2D アクション例 |

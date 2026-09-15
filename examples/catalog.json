@@ -396,5 +396,21 @@
     "height": 480,
     "preview": "webgpu",
     "purpose": "UI ツリー・レイアウト・フォーカス・ヒット判定を確認する"
+  },
+  {
+    "id": "emberwing",
+    "title": "EMBERWING",
+    "category": "games",
+    "manifest": "emberwing.kgrprj",
+    "controls": [
+      "Mouse: aim / fly",
+      "Hold left: multi-lock; release: homing fireballs",
+      "Hold right: flame breath",
+      "WASD / arrows: dodge; Esc: pause"
+    ],
+    "width": 1280,
+    "height": 720,
+    "preview": "webgpu",
+    "purpose": "ドラゴンの多重ロック・追尾火球・火線と kawaiiko 編隊戦闘"
   }
 ]

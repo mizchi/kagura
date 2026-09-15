@@ -1,0 +1,112 @@
+// Generated using `moon info`, DON'T EDIT IT
+package "mizchi/emberwing/sim"
+
+import {
+  "mizchi/geom/camera3d",
+  "mizchi/geom/math3d",
+}
+
+// Values
+pub fn camera(Double) -> @camera3d.Camera3D
+
+pub fn clamp(Double, Double, Double) -> Double
+
+pub fn command(Game, String) -> Unit
+
+pub fn idle_input() -> Input
+
+pub fn mouth(Game) -> @math3d.Vec3
+
+pub fn new_game(Int) -> Game
+
+pub fn project(@math3d.Mat4, @math3d.Vec3) -> @math3d.Vec3
+
+pub fn spawn_enemy(Game, @math3d.Vec3, Int, elite? : Bool) -> Unit
+
+pub fn step(Game, Input, Double) -> Unit
+
+pub fn vec(Double, Double, Double) -> @math3d.Vec3
+
+// Errors
+
+// Types and methods
+pub(all) struct Bowl {
+  id : Int
+  points : Int
+  mut position : @math3d.Vec3
+  mut age : Double
+  mut velocity_y : Double
+  phase : Double
+}
+
+pub(all) struct Enemy {
+  id : Int
+  mut position : @math3d.Vec3
+  origin : @math3d.Vec3
+  phase : Double
+  mut hp : Double
+  mut flash : Double
+  mut shot_clock : Double
+  elite : Bool
+}
+
+pub(all) struct Fireball {
+  target : Int
+  mut position : @math3d.Vec3
+  mut velocity : @math3d.Vec3
+  mut age : Double
+  trail : Array[@math3d.Vec3]
+}
+
+pub(all) struct Game {
+  seed : Int
+  mut mode : String
+  mut time : Double
+  mut wave : Int
+  mut next_wave : Double
+  mut serial : Int
+  mut hp : Int
+  mut score : Int
+  mut kills : Int
+  mut best_chain : Int
+  mut hit_timer : Double
+  mut heat : Double
+  mut overheated : Bool
+  mut breathing : Bool
+  mut was_locking : Bool
+  mut lock_clock : Double
+  mut fire_clock : Double
+  mut player : @math3d.Vec3
+  mut aim : @math3d.Vec3
+  mut aim_x : Double
+  mut aim_y : Double
+  mut aspect : Double
+  mut volley_event : Int
+  mut hit_event : Int
+  mut lock_event : Int
+  enemies : Array[Enemy]
+  locks : Array[Int]
+  balls : Array[Fireball]
+  shots : Array[Shot]
+  bowls : Array[Bowl]
+}
+
+pub(all) struct Input {
+  aim_x : Double
+  aim_y : Double
+  move_x : Double
+  move_y : Double
+  aspect : Double
+  locking : Bool
+  flame : Bool
+}
+
+pub(all) struct Shot {
+  mut position : @math3d.Vec3
+  velocity : @math3d.Vec3
+  mut age : Double
+}
+
+// Type aliases
+
+// Traits

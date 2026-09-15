@@ -1,0 +1,39 @@
+{
+  "format": "kagura.project",
+  "version": 1,
+  "name": "EMBERWING",
+  "editor": {
+    "id": "kagura.example",
+    "apiVersion": 1
+  },
+  "scene": "scenes/flight.json",
+  "resources": {
+    "host": "assets/host.mjs"
+  },
+  "id": "mizchi.kagura.examples.emberwing",
+  "game": "emberwing",
+  "save": {
+    "namespace": "mizchi.kagura.examples.emberwing",
+    "version": 1
+  },
+  "runtime": {
+    "kind": "script",
+    "apiVersion": 1,
+    "targets": [
+      "js"
+    ],
+    "entry": "editor/dist/runtime.js"
+  },
+  "build": {
+    "package": ".",
+    "artifact": "emberwing.js"
+  },
+  "display": {
+    "width": 1280,
+    "height": 720
+  },
+  "sceneSchema": {
+    "id": "kagura.example",
+    "version": 1
+  }
+}

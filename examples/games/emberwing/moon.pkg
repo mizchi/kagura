@@ -1,0 +1,14 @@
+import {
+  "moonbitlang/core/math",
+  "moonbitlang/core/json",
+  "mizchi/emberwing/sim",
+  "mizchi/kagura_engine" @engine,
+  "mizchi/kagura_engine/draw3d",
+  "mizchi/kagura_engine/light3d",
+  "mizchi/geom/math3d",
+  "mizchi/mesh3d",
+  "mizchi/gfx",
+  "mizchi/web_runtime_hooks" @hooks,
+}
+supported_targets = "js"
+pkgtype(kind: "executable")

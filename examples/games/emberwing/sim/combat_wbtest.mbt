@@ -20,7 +20,7 @@ test "multi lock is unique, capped, and only release fires the volley" {
 }
 
 ///|
-test "homing hits moving targets and a defeated kawaiiko becomes falling kamonanban" {
+test "homing hits moving targets and a defeated kawaiko becomes falling kamonanban" {
   let g = new_game(1)
   command(g, "start")
   g.enemies.clear()

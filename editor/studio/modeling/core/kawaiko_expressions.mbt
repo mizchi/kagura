@@ -1,6 +1,6 @@
 ///|
 /// Keep the eyebrow ribbon on the forehead instead of floating outside its silhouette.
-fn kawaiiko_project_brow(n : MeshNode) -> MeshNode {
+fn kawaiko_project_brow(n : MeshNode) -> MeshNode {
   let vertices = Array::makei(n.vertices.length(), fn(i) {
     let v = n.vertices[i]
     let x = (v[0] + n.position[0]) / 0.66
@@ -16,7 +16,7 @@ fn kawaiiko_project_brow(n : MeshNode) -> MeshNode {
 
 ///|
 /// Only this authoring recipe knows the sample's part names. Runtime morphs do not.
-fn kawaiiko_pose(neutral : ModelDocument, expression : String) -> ModelDocument {
+fn kawaiko_pose(neutral : ModelDocument, expression : String) -> ModelDocument {
   let nodes = neutral.nodes.map(fn(base) {
     let sign = if base.id.has_suffix("left") { -1.0 } else { 1.0 }
     let mut n = base
@@ -89,7 +89,7 @@ fn kawaiiko_pose(neutral : ModelDocument, expression : String) -> ModelDocument 
     n = transform_mesh(n, [], "rotate", rotate, true)
     n = transform_mesh(n, [], "move", translation, true)
     if n.id.has_prefix("brow.") {
-      kawaiiko_project_brow(n)
+      kawaiko_project_brow(n)
     } else {
       n
     }
@@ -98,7 +98,7 @@ fn kawaiiko_pose(neutral : ModelDocument, expression : String) -> ModelDocument 
 }
 
 ///|
-fn kawaiiko_expressions(neutral : ModelDocument) -> Array[ModelExpression] {
+fn kawaiko_expressions(neutral : ModelDocument) -> Array[ModelExpression] {
   let presets = [
     ("happy", "喜び / Happy"),
     ("angry", "怒り / Angry"),
@@ -109,6 +109,6 @@ fn kawaiiko_expressions(neutral : ModelDocument) -> Array[ModelExpression] {
   presets.map(fn(pair) {
     let (id, name) = pair
     // Built-in poses preserve topology; validation failures are programming errors.
-    try! capture_expression(neutral, kawaiiko_pose(neutral, id), id, name)
+    try! capture_expression(neutral, kawaiko_pose(neutral, id), id, name)
   })
 }

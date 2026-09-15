@@ -13,18 +13,18 @@ export function install({ input, command }) {
       <div class="score"><small>ごちそう SCORE</small><strong id="score">000000</strong><span id="dishes">0 杯</span></div>
       <div class="route"><small>01 / THE SUNKEN ARCHIPELAGO</small><div><i id="progress"></i></div><span id="time">84s → BOSS</span></div>
     </div>
-    <section id="boss-status" hidden><div><span>大群主 KAWAIIKO</span><small id="boss-phase">PHASE 01</small></div><div class="boss-track"><i id="boss-health"></i></div><p>6か所をロック / ビームの予告線から離れろ</p></section>
+    <section id="boss-status" hidden><div><span>大群主 KAWAIKO</span><small id="boss-phase">PHASE 01</small></div><div class="boss-track"><i id="boss-health"></i></div><p>6か所をロック / ビームの予告線から離れろ</p></section>
     <div id="announcement" aria-live="polite"></div>
     <section id="menu"><div class="eyebrow">KAGURA FLIGHT ARCADE · 01</div><h1>EMBER<br><em>WING</em></h1>
-      <p class="tagline">空の群れを、召し上がれ。</p><p class="description">翼を広げ、海上遺跡の向こうへ。<br>増え続ける群れ、弾幕、飛来する岩。<br>巨大 kawaiiko を倒して、空を切り開け。</p>
+      <p class="tagline">空の群れを、召し上がれ。</p><p class="description">翼を広げ、海上遺跡の向こうへ。<br>増え続ける群れ、弾幕、飛来する岩。<br>巨大 kawaiko を倒して、空を切り開け。</p>
       <div class="instructions"><div><b>L</b><span>長押しでマルチロック<br><strong>離して、追尾火球</strong></span></div><div><b>R</b><span>狙いを定めて長押し<br><strong>火線を吐く</strong></span></div></div>
-      <button class="primary" id="start">飛び立つ <span>↗</span></button><button class="practice" id="practice">巨大 kawaiiko 戦を練習 →</button><small class="hint">マウスで照準・移動 / WASD・矢印で回避 / ESC で一時停止</small>
+      <button class="primary" id="start">飛び立つ <span>↗</span></button><button class="practice" id="practice">巨大 kawaiko 戦を練習 →</button><small class="hint">マウスで照準・移動 / WASD・矢印で回避 / ESC で一時停止</small>
     </section>
     <section id="dialog" hidden><small id="dialog-label">FLIGHT PAUSED</small><h2 id="dialog-title">ひと休み。</h2><p id="result"></p><button class="primary" id="continue">飛行を続ける ↗</button><button class="secondary" id="return">タイトルへ</button></section>
     <footer id="weapons"><div class="weapon lock"><b>L</b><div><small>HOMING FIREBALL</small><strong id="locks">MULTI LOCK <em>00 / 12</em></strong><span>長押しで捕捉 → 離して一斉射撃</span></div><div id="lock-pips"></div></div>
       <div class="weapon breath"><b>R</b><div><small>DRAGON BREATH</small><strong id="flame-label">火線 <em>READY</em></strong><span>長押しで照射 / 熱が冷めるまで休息</span><div class="heat"><i id="heat"></i></div></div></div></footer>
     <div id="touch"><button id="touch-lock">ロック<br>離して発射</button><button id="touch-fire">火線</button></div>
-    <div id="credit">KAGURA ENGINE <span>◆</span> KAWAIIKO / CHIBIVUE</div>`;
+    <div id="credit">KAGURA ENGINE <span>◆</span> KAWAIKO / CHIBIVUE</div>`;
   const style = document.createElement("style");
   style.textContent = `
     *{box-sizing:border-box}html,body{width:100%;height:100%;margin:0;overflow:hidden;background:#345e67;color:#fff4da;font-family:Inter,"Helvetica Neue","Noto Sans JP",sans-serif}

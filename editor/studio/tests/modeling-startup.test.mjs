@@ -5,9 +5,9 @@ import { readModelingStartup } from "../modeling/startup.mjs";
 test("modeling links select a built-in preset independently of hosting path", () => {
   assert.deepEqual(
     readModelingStartup(
-      "https://example.com/kagura/studio/?mode=modeling&model=kawaiiko",
+      "https://example.com/kagura/studio/?mode=modeling&model=kawaiko",
     ),
-    { model: "kawaiiko" },
+    { model: "kawaiko" },
   );
   assert.deepEqual(
     readModelingStartup("http://localhost:5190/?mode=modeling"),
@@ -15,7 +15,7 @@ test("modeling links select a built-in preset independently of hosting path", ()
   );
   assert.equal(readModelingStartup("http://localhost:5190/"), null);
   assert.equal(
-    readModelingStartup("http://localhost:5190/?model=kawaiiko"),
+    readModelingStartup("http://localhost:5190/?model=kawaiko"),
     null,
   );
   assert.throws(
@@ -30,8 +30,19 @@ test("modeling links select a built-in preset independently of hosting path", ()
   assert.throws(
     () =>
       readModelingStartup(
-        "http://localhost:5190/?mode=modeling&model=kawaiiko&model=unknown",
+        "http://localhost:5190/?mode=modeling&model=kawaiko&model=unknown",
       ),
+    /Duplicate/,
+  );
+});
+
+test("previously shared kawaiiko links resolve to the canonical kawaiko preset", () => {
+  assert.deepEqual(
+    readModelingStartup("https://example.com/kagura/studio/?mode=modeling&model=kawaiiko"),
+    { model: "kawaiko" },
+  );
+  assert.throws(
+    () => readModelingStartup("https://example.com/?mode=modeling&model=kawaiko&model=kawaiiko"),
     /Duplicate/,
   );
 });

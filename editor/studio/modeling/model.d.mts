@@ -10,7 +10,7 @@ export function createModelEditor(document?: ModelDocumentInput): {
   snapshot(): ModelSnapshot;
   subscribe(listener: (snapshot: ModelSnapshot) => void): () => void;
 };
-export function kawaiikoDocument(): ModelDocument;
+export function kawaikoDocument(): ModelDocument;
 /** Pure evaluation from neutral. Weights must be known expression IDs in [0, 1]. */
 export function evaluateModel(
   document: ModelDocumentInput,

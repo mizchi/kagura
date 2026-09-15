@@ -1,7 +1,7 @@
 import {test, expect} from '@playwright/test';
 import {captureGameFrame} from '../scripts/capture-web.mjs';
 
-test('published Studio opens and edits the shared kawaiiko model', async ({page}, info) => {
+test('published Studio opens and edits the shared kawaiko model', async ({page}, info) => {
   const errors: string[] = [];
   const failedAssets: string[] = [];
   page.on('pageerror', error => errors.push(error.message));
@@ -11,7 +11,7 @@ test('published Studio opens and edits the shared kawaiiko model', async ({page}
     }
   });
   await page.goto('./');
-  await page.locator('a[href="./studio/?mode=modeling&model=kawaiiko"]').click();
+  await page.locator('a[href="./studio/?mode=modeling&model=kawaiko"]').click();
   const viewport = page.getByLabel('Modeling viewport', {exact: true});
   await expect(viewport).toBeVisible();
   await expect.poll(() => page.evaluate(() => globalThis.kagura.modeling.stats().triangles)).toBeGreaterThan(0);
@@ -24,7 +24,7 @@ test('published Studio opens and edits the shared kawaiiko model', async ({page}
   await page.reload();
   await expect(viewport).toBeVisible();
   expect(await page.evaluate(() => globalThis.kagura.modeling.snapshot().document)).toEqual(initial.document);
-  await page.screenshot({path: info.outputPath('published-kawaiiko.png')});
+  await page.screenshot({path: info.outputPath('published-kawaiko.png')});
   expect(failedAssets).toEqual([]);
   expect(errors).toEqual([]);
 });

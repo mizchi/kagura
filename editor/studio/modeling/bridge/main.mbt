@@ -14,8 +14,8 @@ pub fn request(editor : @model.ModelEditor, source : String) -> String {
 }
 
 ///|
-pub fn kawaiiko() -> String {
-  ToJson::to_json(@model.kawaiiko_document()).stringify()
+pub fn kawaiko() -> String {
+  ToJson::to_json(@model.kawaiko_document()).stringify()
 }
 
 ///|

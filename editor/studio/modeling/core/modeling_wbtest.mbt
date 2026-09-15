@@ -1,7 +1,8 @@
 ///|
-test "kawaiiko is a validated editable mesh document" {
-  let doc = kawaiiko_document()
+test "kawaiko is a validated editable mesh document" {
+  let doc = kawaiko_document()
   validate_document(doc)
+  assert_eq(doc.name, "kawaiko")
   assert_true(doc.nodes.length() >= 15)
   assert_true(doc.nodes.any(n => n.id == "beak"))
   assert_true(doc.nodes.any(n => n.id == "backpack"))
@@ -11,7 +12,7 @@ test "kawaiiko is a validated editable mesh document" {
 
 ///|
 test "facial blends are deterministic, neutral-relative and leave the base intact" {
-  let doc = kawaiiko_document()
+  let doc = kawaiko_document()
   let original = ToJson::to_json(doc).stringify()
   assert_true(doc.nodes.any(n => n.id == "brow.left"))
   assert_true(doc.nodes.any(n => n.id == "brow.right"))

@@ -1,4 +1,4 @@
-import { createModelEditor, kawaiikoDocument } from "./model.mjs";
+import { createModelEditor, kawaikoDocument } from "./model.mjs";
 import { createExpressionPanel } from "./expressions-pane.mjs";
 import { createModelViewport } from "./viewer.mjs";
 import { exportModelGLB } from "./geometry.mjs";
@@ -133,7 +133,7 @@ export function installModeling({
       const caption = element("div", "modeling-caption");
       caption.append(
         element("small", "", "MESH WORKSPACE"),
-        element("strong", "", "kawaiiko"),
+        element("strong", "", "kawaiko"),
         element("span", "", "chibivue-land / character study"),
       );
       const mode = document.createElement("select");
@@ -330,8 +330,8 @@ export function installModeling({
       });
       tools.append(
         file,
-        button("kawaiiko を読み直す", "Reset kawaiiko model", () =>
-          send({ op: "replace", document: kawaiikoDocument() }),
+        button("kawaiko を読み直す", "Reset kawaiko model", () =>
+          send({ op: "replace", document: kawaikoDocument() }),
         ),
         element(
           "p",

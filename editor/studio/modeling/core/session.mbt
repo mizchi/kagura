@@ -26,7 +26,7 @@ pub struct ModelEditor {
 ///|
 pub fn ModelEditor::new() -> ModelEditor {
   {
-    document: kawaiiko_document(),
+    document: kawaiko_document(),
     revision: 0,
     selected: "head",
     mode: "object",

@@ -8,7 +8,7 @@ supported_targets = "js"
 options(
   link: {
     "js": {
-      "exports": [ "create", "snapshot", "request", "kawaiiko", "evaluate" ],
+      "exports": [ "create", "snapshot", "request", "kawaiko", "evaluate" ],
       "format": "esm",
     },
   },

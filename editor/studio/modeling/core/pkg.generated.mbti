@@ -13,7 +13,7 @@ pub fn decode_document(Json) -> ModelDocument raise
 
 pub fn evaluate_expressions(ModelDocument, Map[String, Double]) -> ModelDocument raise ModelError
 
-pub fn kawaiiko_document() -> ModelDocument
+pub fn kawaiko_document() -> ModelDocument
 
 pub fn validate_document(ModelDocument) -> Unit raise ModelError
 

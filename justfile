@@ -46,7 +46,7 @@ platform-test:
     moon test platform platform_web --target {{target}}
     node --test scripts/platform-layout.test.mjs scripts/moon-boundary-utils.test.mjs scripts/moon-release-utils.test.mjs
 
-# EMBERWING: dragon rail shooter with instanced kawaiiko flocks.
+# EMBERWING: dragon rail shooter with instanced kawaiko flocks.
 emberwing-dev:
     node cmd/kagura/main.mjs dev emberwing --port 5194
 
@@ -62,7 +62,7 @@ emberwing-bench:
 
 emberwing-model:
     moon -C editor/studio build modeling/bridge --target js --release
-    node examples/games/emberwing/scripts/export-kawaiiko.mjs
+    node examples/games/emberwing/scripts/export-kawaiko.mjs
 
 # ASHEN REALMS: a low-poly action RPG with configurable builds.
 hunter-dev:

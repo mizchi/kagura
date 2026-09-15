@@ -2,7 +2,7 @@ import test from "node:test";
 import assert from "node:assert/strict";
 import {
   createModelEditor,
-  kawaiikoDocument,
+  kawaikoDocument,
   evaluateModel,
 } from "../modeling/model.mjs";
 import { modelObject, disposeObject } from "../modeling/geometry.mjs";
@@ -34,8 +34,8 @@ const move = (editor, value) => {
   editor.request({ op: "confirm" });
 };
 
-test("kawaiiko has visible eyebrow meshes and neutral-relative facial presets", () => {
-  const doc = kawaiikoDocument();
+test("kawaiko has visible eyebrow meshes and neutral-relative facial presets", () => {
+  const doc = kawaikoDocument();
   for (const side of ["left", "right"]) {
     const brow = doc.nodes.find((n) => n.id === `brow.${side}`);
     const eye = doc.nodes.find((n) => n.id === `eye.${side}`);

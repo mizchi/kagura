@@ -72,7 +72,7 @@ fn main {
     sky,
     dragon: dragon_body(),
     wings: [dragon_wing(-1), dragon_wing(1)],
-    duck: kawaiiko_meshes(),
+    duck: kawaiko_meshes(),
     bowl: bowl_mesh(),
     island: island_mesh(),
     glow: palette_mesh(@mesh3d.Mesh3D::sphere(1, 6, 4), 0xffffff, glow=1),

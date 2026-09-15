@@ -10,7 +10,7 @@ pub fn create() -> @core.ModelEditor
 
 pub fn evaluate(String, String) -> String
 
-pub fn kawaiiko() -> String
+pub fn kawaiko() -> String
 
 pub fn request(@core.ModelEditor, String) -> String
 

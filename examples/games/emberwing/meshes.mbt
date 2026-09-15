@@ -328,9 +328,9 @@ fn palette_mesh(
 }
 
 ///|
-fn kawaiiko_meshes() -> Array[@mesh3d.Mesh3D] {
+fn kawaiko_meshes() -> Array[@mesh3d.Mesh3D] {
   let parts : Array[Array[Double]] = @json.from_json(
-    @json.parse(kawaiiko_source),
+    @json.parse(kawaiko_source),
   ) catch {
     _ => panic()
   }

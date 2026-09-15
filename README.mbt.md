@@ -105,7 +105,7 @@ After deployment, `just pages-test https://mizchi.github.io/kagura/` checks the
 public gallery, Studio modeling, save selection and summoner gameplay with Playwright. It also
 accepts a locally served `_site/` URL, including a project subdirectory.
 
-[Open kawaiiko in Studio](https://mizchi.github.io/kagura/studio/?mode=modeling&model=kawaiiko)
+[Open kawaiko in Studio](https://mizchi.github.io/kagura/studio/?mode=modeling&model=kawaiko)
 initializes the modeling workspace directly from a shareable URL.
 
 ### Native

@@ -24,12 +24,13 @@ test("shared preset URLs override saved drafts without overwriting them or addin
     await kagura.modeling.save();
     return kagura.modeling.snapshot().document;
   });
-  const shared = "/?mode=modeling&model=kawaiiko";
+  const shared = "/?mode=modeling&model=kawaiko";
   await page.goto(shared);
   await expect(
     page.getByLabel("Modeling viewport", { exact: true }),
   ).toBeVisible();
   expect((await state(page)).document).toEqual(initial);
+  expect((await state(page)).document.name).toBe("kawaiko");
   expect((await state(page)).canUndo).toBe(false);
   expect((await state(page)).revision).toBe(0);
   await page
@@ -40,6 +41,11 @@ test("shared preset URLs override saved drafts without overwriting them or addin
     page.getByLabel("Modeling viewport", { exact: true }),
   ).toBeVisible();
   expect((await state(page)).document).toEqual(initial);
+  // Previously published share links still open the canonical preset, not the draft.
+  await page.goto("/?mode=modeling&model=kawaiiko");
+  await expect(page.getByLabel("Modeling viewport", { exact: true })).toBeVisible();
+  expect((await state(page)).document).toEqual(initial);
+  expect((await state(page)).canUndo).toBe(false);
   await page.goto("/?mode=modeling");
   await expect(
     page.getByLabel("Modeling viewport", { exact: true }),
@@ -221,7 +227,7 @@ test("facial presets blend without editing neutral and can be sculpted, saved an
 }) => {
   const errors = [];
   page.on("pageerror", (e) => errors.push(e.message));
-  await page.goto("/?mode=modeling&model=kawaiiko");
+  await page.goto("/?mode=modeling&model=kawaiko");
   await expect(
     page.getByLabel("Modeling viewport", { exact: true }),
   ).toBeVisible();
@@ -238,7 +244,7 @@ test("facial presets blend without editing neutral and can be sculpted, saved an
   const blink = page.getByLabel("Expression weight blink", { exact: true });
   await blink.fill("0.5");
   expect((await state(page)).weights).toEqual({ angry: 1, blink: 0.5 });
-  await page.screenshot({ path: test.info().outputPath("kawaiiko-angry.png") });
+  await page.screenshot({ path: test.info().outputPath("kawaiko-angry.png") });
   await page
     .getByRole("button", { name: "Neutral expression", exact: true })
     .click();
@@ -292,11 +298,11 @@ test("facial presets blend without editing neutral and can be sculpted, saved an
   await page
     .getByRole("button", { name: "Preview expression happy", exact: true })
     .click();
-  await page.screenshot({ path: test.info().outputPath("kawaiiko-happy.png") });
+  await page.screenshot({ path: test.info().outputPath("kawaiko-happy.png") });
   expect(errors).toEqual([]);
 });
 
-test("kawaiiko renders within a bounded viewport and reopening releases GPU objects", async ({
+test("kawaiko renders within a bounded viewport and reopening releases GPU objects", async ({
   page,
 }) => {
   const errors = [];
@@ -306,7 +312,7 @@ test("kawaiiko renders within a bounded viewport and reopening releases GPU obje
     .getByRole("button", { name: "Select model body", exact: true })
     .click();
   await page.screenshot({
-    path: test.info().outputPath("kawaiiko-studio.png"),
+    path: test.info().outputPath("kawaiko-studio.png"),
   });
   const initial = await page.evaluate(() => kagura.modeling.stats());
   expect(initial.triangles).toBeLessThan(10000);

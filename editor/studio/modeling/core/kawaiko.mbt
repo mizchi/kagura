@@ -1,6 +1,6 @@
 ///|
 /// An original low-poly interpretation of chibivue-land/art's kawaiko reference.
-pub fn kawaiiko_document() -> ModelDocument {
+pub fn kawaiko_document() -> ModelDocument {
   let nodes = [
     ellipsoid("body", "羽毛 / Body", 0xDEDCC9, [0, 1.04, -0.13], [
       0.69, 0.75, 1.00,
@@ -204,7 +204,7 @@ pub fn kawaiiko_document() -> ModelDocument {
       ],
       0.045,
     )
-    nodes.push(kawaiiko_project_brow(brow))
+    nodes.push(kawaiko_project_brow(brow))
     nodes.push(
       ellipsoid(
         "leg." + side,
@@ -241,10 +241,10 @@ pub fn kawaiiko_document() -> ModelDocument {
   let neutral : ModelDocument = {
     version: 1,
     format: "kagura.mesh",
-    name: "kawaiiko",
+    name: "kawaiko",
     source: "https://github.com/chibivue-land/art/blob/main/kawaiko.png",
     nodes,
     expressions: [],
   }
-  { ..neutral, expressions: kawaiiko_expressions(neutral), }
+  { ..neutral, expressions: kawaiko_expressions(neutral), }
 }

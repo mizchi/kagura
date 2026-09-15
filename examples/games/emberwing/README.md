@@ -1,6 +1,6 @@
 # EMBERWING — 空の厨房
 
-ドラゴンで海上遺跡を飛ぶレールシューティング。9 波の kawaiiko 編隊、弾幕、飛来する岩をくぐり抜け、巨大 kawaiiko を倒す。撃ち落とした敵は、湯気の出る鴨南蛮に変わって落下する。
+ドラゴンで海上遺跡を飛ぶレールシューティング。9 波の kawaiko 編隊、弾幕、飛来する岩をくぐり抜け、巨大 kawaiko を倒す。撃ち落とした敵は、湯気の出る鴨南蛮に変わって落下する。
 
 リポジトリのルートから `just emberwing-dev` を実行し、<http://localhost:5194/> を開く。
 `pnpm kagura dev emberwing --port 5194` でも起動できる。
@@ -19,20 +19,20 @@
 
 ウェーブの敵数は 24 → 30 → 36 → 42 → 48 → 54 → 60 → 66 → 72 体。後半ほど狙い弾と扇状弾幕が増え、弾速も上がる。12 秒以降は岩が飛来する。岩の予想到達位置と残り時間を表示するため、円から離れて回避する。
 
-84 秒で巨大 kawaiiko が出現し、倒すまで戦闘が続く。6 か所をロックでき、1.2 秒の予告後に高速ビームを発射する。体力が半分になると予告が 0.95 秒に短縮され、横に並ぶ 3 本のビームと密な円形弾幕を放つ。ビームの狙いは予告時に固定されるため、上下への移動で避けられる。通常敵は 100 点、大きい敵は 400 点、ボスは 10,000 点。ボス撃破時は残った攻撃が消え、大盛りの鴨南蛮を落としてクリアする。
+84 秒で巨大 kawaiko が出現し、倒すまで戦闘が続く。6 か所をロックでき、1.2 秒の予告後に高速ビームを発射する。体力が半分になると予告が 0.95 秒に短縮され、横に並ぶ 3 本のビームと密な円形弾幕を放つ。ビームの狙いは予告時に固定されるため、上下への移動で避けられる。通常敵は 100 点、大きい敵は 400 点、ボスは 10,000 点。ボス撃破時は残った攻撃が消え、大盛りの鴨南蛮を落としてクリアする。
 
-タイトル画面の「巨大 kawaiiko 戦を練習」からボスだけに挑戦できる。`http://localhost:5194/?encounter=boss` はボス、`?encounter=swarm` は最終ウェーブから開始する練習用リンク。いずれも開始ボタンを押してから動く。
+タイトル画面の「巨大 kawaiko 戦を練習」からボスだけに挑戦できる。`http://localhost:5194/?encounter=boss` はボス、`?encounter=swarm` は最終ウェーブから開始する練習用リンク。いずれも開始ボタンを押してから動く。
 
 ## 構成
 
 - `sim/`: 描画やブラウザに依存しない MoonBit の戦闘・編隊生成・カメラ・進行。固定 60 Hz。
 - `main.mbt`, `render.mbt`, `shader.mbt`: Kagura の WebGPU 描画、パレット付きメッシュのインスタンシング、HUD 用スナップショット。
 - `meshes.mbt`: ドラゴン、羽、鴨南蛮、海上遺跡のローポリモデル。
-- `kawaiiko_generated.mbt`: Studio のモデルから焼き出した胴体・左右の羽。実行時に Studio や Three.js を必要としない。
+- `kawaiko_generated.mbt`: Studio のモデルから焼き出した胴体・左右の羽。実行時に Studio や Three.js を必要としない。
 - `assets/host.mjs`: DOM、入力、HUD、Web Audio のブラウザアダプター。戦闘判定は持たない。
 - `emberwing.kgrprj`: Studio の Examples → EMBERWING → Play で起動するプロジェクト。
 
-kawaiiko の原型は [`editor/studio/modeling/core/kawaiiko.mbt`](../../../editor/studio/modeling/core/kawaiiko.mbt) で、[chibivue-land/art の kawaiko](https://github.com/chibivue-land/art/blob/main/kawaiko.png) を参考にしたモデルを再利用している。
+kawaiko の原型は [`editor/studio/modeling/core/kawaiko.mbt`](../../../editor/studio/modeling/core/kawaiko.mbt) で、[chibivue-land/art の kawaiko](https://github.com/chibivue-land/art/blob/main/kawaiko.png) を参考にしたモデルを再利用している。
 モデルを変更したら、ルートで `just emberwing-model` を実行してゲームのメッシュを再生成する。生成物はチェックインし、通常のゲームビルドにエディタのビルドを要求しない。
 
 ## 検証と配布

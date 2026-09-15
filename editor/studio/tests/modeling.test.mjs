@@ -1,6 +1,6 @@
 import test from "node:test";
 import assert from "node:assert/strict";
-import { createModelEditor, kawaiikoDocument } from "../modeling/model.mjs";
+import { createModelEditor, kawaikoDocument } from "../modeling/model.mjs";
 import {
   meshGeometry,
   modelObject,
@@ -55,7 +55,7 @@ test("vertex edits affect only the selected vertices; mirrored meshes keep outwa
 });
 
 test("concave V pack triangulates without filling its notch and maps triangles to editable polygons", () => {
-  const node = kawaiikoDocument().nodes.find((n) => n.id === "backpack");
+  const node = kawaikoDocument().nodes.find((n) => n.id === "backpack");
   const geometry = meshGeometry(node);
   try {
     const positions = geometry.getAttribute("position"),
@@ -88,7 +88,7 @@ test("concave V pack triangulates without filling its notch and maps triangles t
 });
 
 test("exported mesh has flat normals at every triangle and no viewer helpers", () => {
-  const document = kawaiikoDocument();
+  const document = kawaikoDocument();
   const root = modelObject(document);
   try {
     assert.equal(root.children.length, document.nodes.length);

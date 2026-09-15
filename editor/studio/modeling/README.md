@@ -3,25 +3,26 @@
 Studio の **Modeling** ボタンで開く、ローポリモデルの編集環境。
 [chibivue-land/art の kawaiko](https://github.com/chibivue-land/art/blob/main/kawaiko.png) を参考に、
 緑の頭・眉・黄色いくちばし・羽毛・水かき・V 字のバッグを 28 個の独立したメッシュとして制作しています。
-原画は編集画面から参照し、モデルは MoonBit の [kawaiiko.mbt](core/kawaiiko.mbt) が正本です。
+原画は編集画面から参照し、モデルは MoonBit の [kawaiko.mbt](core/kawaiko.mbt) が正本です。
 
 ```sh
 just studio-dev
 # http://127.0.0.1:5190/ → Modeling
 ```
 
-初期画面を共有する場合は `?mode=modeling&model=kawaiiko` を付けます。
+初期画面を共有する場合は `?mode=modeling&model=kawaiko` を付けます。
 
-公開版: [kawaiiko を開く](https://mizchi.github.io/kagura/studio/?mode=modeling&model=kawaiiko)
+公開版: [kawaiko を開く](https://mizchi.github.io/kagura/studio/?mode=modeling&model=kawaiko)
 
 ```text
-http://127.0.0.1:5190/?mode=modeling&model=kawaiiko
+http://127.0.0.1:5190/?mode=modeling&model=kawaiko
 ```
 
-ページの起動時に Modeling を開き、保存済みデータよりも kawaiiko の初期モデルを優先します。
+ページの起動時に Modeling を開き、保存済みデータよりも kawaiko の初期モデルを優先します。
 URL は初期モデルへのリンクで、編集中の形状は含みません。既存の下書きは明示的に Save するまで変更しません。
 `?mode=modeling` だけなら保存済みの下書きを復元し、パラメーターなしなら通常の Studio を開きます。
-公開先でも、Studio の URL に同じクエリーを付けられます。現在の組込みモデル名は `kawaiiko` です。
+公開先でも、Studio の URL に同じクエリーを付けられます。現在の組込みモデル名は `kawaiko` です。
+旧綴りの `model=kawaiiko` も互換用の別名として受け付け、同じ `kawaiko` モデルを開きます。
 
 既存ゲームのシーン・保存先・Undo 履歴から独立しています。モデリングを閉じると元のペーンを復元します。
 プロジェクトやシーンの切替、Play 開始時にも閉じ、編集中のモデルはメモリ内に保持します。
@@ -92,7 +93,7 @@ const posed = evaluateModel(document, { happy: 0.7, blink: 0.4 });
 
 元メッシュとの対応が壊れないよう、表情編集中の追加・削除・押し出し、表情が参照する部品の削除・押し出しは拒否します。
 通常の頂点移動は可能です。差分は最大 32 個・合計 200,000 頂点オフセットまでで、未知の部品や不正な頂点番号はインポート時に検出します。
-旧 `.kgrmodel` は表情なしとして読み込めます。新しい kawaiiko の眉とプリセットは **kawaiiko を読み直す** または共有 URL で開けます。
+旧 `.kgrmodel` は表情なしとして読み込めます。新しい kawaiko の眉とプリセットは **kawaiko を読み直す** または共有 URL で開けます。
 
 JSON は編集用の全差分を保持し、GLB は通常の顔を基準に名前付きモーフを出力します。
 部品の移動も頂点の差分に含めるため、ゲームや他のツールではモーフの強さで眉や口を動かせます。
@@ -101,12 +102,12 @@ JSON は編集用の全差分を保持し、GLB は通常の顔を基準に名�
 
 - `core/document.mbt`: メッシュ型とバージョン、入力検証。200 オブジェクト / 50,000 頂点まで。
 - `core/geometry.mbt`: 楕円体・角柱・ボックスの生成。
-- `core/kawaiiko.mbt`: 原画を参考にしたサンプルモデル。
+- `core/kawaiko.mbt`: 原画を参考にしたサンプルモデル。
 - `core/edit.mbt`: 頂点変形とポリゴン押し出し。元データを変更しません。
 - `core/session.mbt`: 選択・編集中の変形・確定と取消・最大 40 回の Undo。
 - `core/expressions.mbt`: 汎用の差分型、検証、キャプチャ、加算ブレンド。
 - `core/expression_session.mbt`: 表情プレビューと編集トランザクション。
-- `core/kawaiiko_expressions.mbt`: kawaiiko 固有の表情制作と眉の曲面への投影。
+- `core/kawaiko_expressions.mbt`: kawaiko 固有の表情制作と眉の曲面への投影。
 - `expressions-pane.mjs`: 表情一覧・強さ・差分作成の UI。
 - `bridge/`: MoonBit JS backend の JSON API。`model.mjs` から DOM なしで利用可能。
 - `geometry.mjs` / `viewer.mjs`: Three.js への変換、ピック、カメラ、GPU リソース解放。

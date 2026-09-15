@@ -17,7 +17,7 @@ const RAW_DEMO_PAGES = [
     name: "emberwing",
     title: "EMBERWING",
     group: "Games",
-    summary: "Dodge bullet barrages and flying rocks, then defeat a giant beam-firing kawaiiko. Cook the incoming flocks into duck soba.",
+    summary: "Dodge bullet barrages and flying rocks, then defeat a giant beam-firing kawaiko. Cook the incoming flocks into duck soba.",
     start: "Click Fly for nine escalating waves and a giant boss, or practice the boss from the title screen.",
     controls: ["Mouse: aim / fly", "Hold left: multi-lock; release: homing fireballs", "Hold right: flame breath", "WASD / arrows: dodge; Esc: pause"],
     tags: ["3D", "Rail shooter", "Instancing"],
@@ -1030,8 +1030,8 @@ ${cards}
             <p class="muted">Edit scenes, preview motions, and create 3D models in the browser.</p>
           </article>
           <article class="card">
-            <a href="./studio/?mode=modeling&amp;model=kawaiiko"><h3>Model kawaiiko</h3></a>
-            <p class="muted">Open the editable kawaiiko model with Blender-style modeling controls.</p>
+            <a href="./studio/?mode=modeling&amp;model=kawaiko"><h3>Model kawaiko</h3></a>
+            <p class="muted">Open the editable kawaiko model with Blender-style modeling controls.</p>
             <p class="muted"><strong>Controls:</strong> G / R / S: transform · Tab: edit mesh · Middle mouse: orbit</p>
           </article>
         </div>
